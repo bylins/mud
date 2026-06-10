@@ -13,6 +13,7 @@
 ************************************************************************ */
 
 #include "magic.h"
+#include "gameplay/mechanics/mount.h"
 #include "gameplay/mechanics/resist.h"
 #include "magic_internal.h"
 #include "spell_trace.h"
@@ -2360,7 +2361,7 @@ void ReactToCast(CharData *victim, CharData *caster, ESpell spell_id) {
 		AFF_FLAGGED(victim, EAffect::kBlind) ||
 		AFF_FLAGGED(victim, EAffect::kStopFight) ||
 		AFF_FLAGGED(victim, EAffect::kMagicStopFight) || AFF_FLAGGED(victim, EAffect::kHold)
-		|| IS_HORSE(victim))
+		|| mount::IsHorse(victim))
 		return;
 
 	if (caster->IsNpc() && caster->get_rnum() == GetMobRnum(kDgCasterProxy))
@@ -2707,7 +2708,7 @@ static std::vector<CharData *> BuildCastRoster(CharData *caster, CharData *victi
 	if (scope == ECastTargets::kFoes) {
 		target_resolver::FoesRosterType roster{caster, victim,
 											   [](CharData *, CharData *target) {
-												   return !IS_HORSE(target);
+												   return !mount::IsHorse(target);
 											   }};
 		for (auto *target : roster) {
 			out.push_back(target);
@@ -2827,7 +2828,7 @@ static std::vector<CharData *> ResolveActionTargets(CastContext &ctx,
 			return {};
 		case talents_actions::EActionTarget::kTarRandomFoe: {
 			target_resolver::FoesRosterType roster{caster, nullptr,
-					[](CharData *, CharData *t) { return !IS_HORSE(t); }};
+					[](CharData *, CharData *t) { return !mount::IsHorse(t); }};
 			CharData *one = roster.getRandomItem();
 			return one ? std::vector<CharData *>{one} : std::vector<CharData *>{};
 		}

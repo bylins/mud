@@ -39,6 +39,12 @@ bool IsOnHorse(const CharData *ch) {
 	return AFF_FLAGGED(ch, EAffect::kHorse) && HasHorse(ch, true);
 }
 
+bool IsHorse(const CharData *ch) {
+	return ch->IsNpc() && ch->has_master() && AFF_FLAGGED(ch, EAffect::kHorse);
+}
+
+bool IsHorse(const std::shared_ptr<CharData> &ch) { return IsHorse(ch.get()); }
+
 }  // namespace mount
 
 void make_horse(CharData *horse, CharData *ch) {
@@ -78,7 +84,7 @@ void do_horseon(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar(CommonMsg(ECommonMsg::kNoPerson) + "\r\n", ch);
 	else if (horse->in_room != ch->in_room)
 		SendMsgToChar("Ваш скакун далеко от вас.\r\n", ch);
-	else if (!IS_HORSE(horse))
+	else if (!mount::IsHorse(horse))
 		SendMsgToChar("Это не скакун.\r\n", ch);
 	else if (horse->get_master() != ch)
 		SendMsgToChar("Это не ваш скакун.\r\n", ch);
@@ -146,7 +152,7 @@ void do_horseget(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar(CommonMsg(ECommonMsg::kNoPerson) + "\r\n", ch);
 	else if (horse->in_room != ch->in_room)
 		SendMsgToChar("Ваш скакун далеко от вас.\r\n", ch);
-	else if (!IS_HORSE(horse))
+	else if (!mount::IsHorse(horse))
 		SendMsgToChar("Это не скакун.\r\n", ch);
 	else if (horse->get_master() != ch)
 		SendMsgToChar("Это не ваш скакун.\r\n", ch);
@@ -183,7 +189,7 @@ void do_horseput(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar(CommonMsg(ECommonMsg::kNoPerson) + "\r\n", ch);
 	else if (horse->in_room != ch->in_room)
 		SendMsgToChar("Ваш скакун далеко от вас.\r\n", ch);
-	else if (!IS_HORSE(horse))
+	else if (!mount::IsHorse(horse))
 		SendMsgToChar("Это не скакун.\r\n", ch);
 	else if (horse->get_master() != ch)
 		SendMsgToChar("Это не ваш скакун.\r\n", ch);
@@ -235,7 +241,7 @@ void do_horsetake(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	} else if (horse->GetPosition() < EPosition::kStand) {
 		act("$N не сможет стать вашим скакуном.", false, ch, 0, horse, kToChar);
 		return;
-	} else if (IS_HORSE(horse)) {
+	} else if (mount::IsHorse(horse)) {
 		if (!ch->IsImmortal()) {
 			SendMsgToChar("Это не ваш скакун.\r\n", ch);
 			return;

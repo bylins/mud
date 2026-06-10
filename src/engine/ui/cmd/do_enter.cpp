@@ -118,7 +118,7 @@ void DoEnter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				act("$n появил$u из пентаграммы.", true, ch, nullptr, nullptr, kToRoom);
 				// ищем ангела и лошадь
 				for (auto *k : ch->followers) {
-					if (IS_HORSE(k) &&
+					if (mount::IsHorse(k) &&
 						!k->GetEnemy() &&
 						!AFF_FLAGGED(k, EAffect::kHold) &&
 						k->in_room == from_room && AWAKE(k)) {

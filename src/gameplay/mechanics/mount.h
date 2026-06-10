@@ -1,6 +1,8 @@
 #ifndef BYLINS_MOUNT_H
 #define BYLINS_MOUNT_H
 
+#include <memory>
+
 class CharData;
 
 // issue.mount-mechanics: the mounting/horse mechanic. Per-character horse helpers (moved off
@@ -17,6 +19,10 @@ namespace mount {
 
 // Is ch currently mounted (carries kHorse and the horse is in the room)?
 [[nodiscard]] bool IsOnHorse(const CharData *ch);
+
+// Is ch itself a mount (a charmed NPC follower carrying kHorse)? shared_ptr overload for convenience.
+[[nodiscard]] bool IsHorse(const CharData *ch);
+[[nodiscard]] bool IsHorse(const std::shared_ptr<CharData> &ch);
 
 }  // namespace mount
 

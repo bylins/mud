@@ -975,8 +975,6 @@ inline bool CAN_SEE(const CharData::shared_ptr &sub, const CharData::shared_ptr 
 
 bool MAY_SEE(const CharData *ch, const CharData *sub, const CharData *obj);
 
-bool IS_HORSE(const CharData *ch);
-inline bool IS_HORSE(const CharData::shared_ptr &ch) { return IS_HORSE(ch.get()); }
 bool IS_MORTIFIER(const CharData *ch);
 
 bool MAY_ATTACK(const CharData *sub);

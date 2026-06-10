@@ -816,12 +816,6 @@ bool MAY_SEE(const CharData *ch, const CharData *sub, const CharData *obj) {
 			|| AFF_FLAGGED(sub, EAffect::kDetectInvisible));
 }
 
-bool IS_HORSE(const CharData *ch) {
-	return ch->IsNpc()
-		&& ch->has_master()
-		&& AFF_FLAGGED(ch, EAffect::kHorse);
-}
-
 bool IS_MORTIFIER(const CharData *ch) {
 	return ch->IsNpc()
 		&& ch->has_master()
@@ -830,7 +824,7 @@ bool IS_MORTIFIER(const CharData *ch) {
 
 bool MAY_ATTACK(const CharData *sub) {
 	return (!AFF_FLAGGED((sub), EAffect::kCharmed)
-		&& !IS_HORSE((sub))
+		&& !mount::IsHorse((sub))
 		&& !AFF_FLAGGED((sub), EAffect::kStopFight)
 		&& !AFF_FLAGGED((sub), EAffect::kMagicStopFight)
 		&& !AFF_FLAGGED((sub), EAffect::kHold)
@@ -861,7 +855,7 @@ bool OK_GAIN_EXP(const CharData *ch, const CharData *victim) {
 		&& (!victim->IsNpc()
 			|| !ch->IsNpc()
 			|| AFF_FLAGGED(ch, EAffect::kCharmed))
-		&& !IS_HORSE(victim)
+		&& !mount::IsHorse(victim)
 		&& !ROOM_FLAGGED(ch->in_room, ERoomFlag::kDominationArena);
 }
 
@@ -1726,7 +1720,7 @@ void CharData::add_follower(CharData *ch) {
 	}
 	add_follower_silently(ch);
 
-	if (!IS_HORSE(ch)) {
+	if (!mount::IsHorse(ch)) {
 		act("Вы начали следовать за $N4.", false, ch, 0, this, kToChar);
 		act("$n начал$g следовать за вами.", true, ch, 0, this, kToVict);
 		act("$n начал$g следовать за $N4.", true, ch, 0, this, kToNotVict | kToArenaListen);
@@ -2063,7 +2057,7 @@ void CharData::send_to_TC(bool to_impl, bool to_tester, bool to_coder, const cha
 }
 
 bool CharData::have_mind() const {
-	if (!AFF_FLAGGED(this, EAffect::kCharmed) && !IS_HORSE(this))
+	if (!AFF_FLAGGED(this, EAffect::kCharmed) && !mount::IsHorse(this))
 		return true;
 	return false;
 }
@@ -2083,7 +2077,7 @@ bool CharData::DropFromHorse() {
 	CharData *plr;
 
 	// вызвали для лошади
-	if (IS_HORSE(this) && mount::IsOnHorse(this->get_master())) {
+	if (mount::IsHorse(this) && mount::IsOnHorse(this->get_master())) {
 		plr = this->get_master();
 		act("$N сбросил$G вас со своей спины.", false, plr, 0, this, kToChar);
 	} else	if (mount::IsOnHorse(this)) {// вызвали для седока

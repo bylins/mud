@@ -82,7 +82,7 @@ void go_chopoff(CharData *ch, CharData *vict) {
 			act("$n покатил$u по земле, пытаясь избежать атак $N1.", true, ch, nullptr, vict, kToNotVict | kToArenaListen);
 		}
 	} else {
-		if (IS_HORSE(vict) && mount::IsOnHorse(vict->get_master())) {
+		if (mount::IsHorse(vict) && mount::IsOnHorse(vict->get_master())) {
 			CharData *tch = vict->get_master();
 			act("$n ловко подсек$q $N3, заставив $S споткнуться.", true, ch, nullptr, vict, kToNotVict | kToArenaListen);
 			SendMsgToChar(ch, "%sВы провели подсечку, заставив %s споткнуться.%s\r\n",

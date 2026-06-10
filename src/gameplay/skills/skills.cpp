@@ -1987,7 +1987,7 @@ void TrainSkill(CharData *ch, const ESkill skill, bool success, CharData *vict) 
 					&& !vict->IsFlagged(EMobFlag::kProtect)
 					&& !vict->IsFlagged(EMobFlag::kNoSkillTrain)
 					&& !AFF_FLAGGED(vict, EAffect::kCharmed)
-					&& !IS_HORSE(vict)))) {
+					&& !mount::IsHorse(vict)))) {
 			ImproveSkill(ch, skill, success, vict);
 		}
 	} else if (!IS_CHARMICE(ch)) {

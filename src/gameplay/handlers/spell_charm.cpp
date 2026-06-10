@@ -4,6 +4,7 @@
 */
 
 #include "gameplay/handlers/spell_handlers.h"
+#include "gameplay/mechanics/mount.h"
 #include "gameplay/mechanics/minions.h"
 #include "engine/entities/char_data.h"
 #include "engine/core/comm.h"
@@ -62,7 +63,7 @@ EStageResult SpellCharm(CastContext &ctx) {
 		|| victim->IsFlagged(EMobFlag::kAgressiveSummer)
 		|| victim->IsFlagged(EMobFlag::kAgressiveAutumn))
 		SendCharmMsg(ESpellMsg::kSummonFail);
-	else if (IS_HORSE(victim))
+	else if (mount::IsHorse(victim))
 		SendCharmMsg(ESpellMsg::kSummonWarhorse);
 	else if (victim->GetEnemy() || victim->GetPosition() < EPosition::kRest)
 		act(MUD::SpellMessages().GetMessage(ESpell::kCharm, ESpellMsg::kCustomMsgThree).c_str(),

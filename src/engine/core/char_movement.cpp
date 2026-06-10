@@ -151,18 +151,18 @@ bool IsCorrectDirection(CharData *ch, int dir, bool check_specials, bool show_ms
 			return false;
 
 		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room(), ERoomFlag::kNoEntryMob) &&
-			!IS_HORSE(ch) &&
+			!mount::IsHorse(ch) &&
 			!AFF_FLAGGED(ch, EAffect::kCharmed) && !(ch->IsFlagged(EMobFlag::kTutelar) || ch->IsFlagged(EMobFlag::kMentalShadow))
 			&& !ch->IsFlagged(EMobFlag::kIgnoresNoMob))
 			return false;
 
-		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room(), ERoomFlag::kDeathTrap) && !IS_HORSE(ch))
+		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room(), ERoomFlag::kDeathTrap) && !mount::IsHorse(ch))
 			return false;
 
 		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room(), ERoomFlag::kGodsRoom))
 			return false;
 
-		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room(), ERoomFlag::kNohorse) && IS_HORSE(ch))
+		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room(), ERoomFlag::kNohorse) && mount::IsHorse(ch))
 			return false;
 	} else {
 		//Вход в замок
@@ -422,7 +422,7 @@ bool PerformSimpleMove(CharData *ch, int dir, int following, CharData *leader, E
 	go_to = world[was_in]->dir_option[dir]->to_room();
 	use_horse = mount::IsOnHorse(ch) && mount::HasHorse(ch, false)
 		&& (mount::GetHorse(ch)->in_room == was_in || mount::GetHorse(ch)->in_room == go_to);
-	is_horse = IS_HORSE(ch)
+	is_horse = mount::IsHorse(ch)
 		&& ch->has_master()
 		&& !AFF_FLAGGED(ch->get_master(), EAffect::kInvisible)
 		&& (ch->get_master()->in_room == was_in
@@ -726,7 +726,7 @@ bool PerformMove(CharData *ch, int dir, int need_specials_check, int checkmob, C
 					&& (k->IsNpc()
 						|| (!k->IsFlagged(EPlrFlag::kMailing)
 							&& !k->IsFlagged(EPlrFlag::kWriting)))
-					&& (!IS_HORSE(k)
+					&& (!mount::IsHorse(k)
 						|| !AFF_FLAGGED(k, EAffect::kTethered))) {
 					if (k->GetPosition() < EPosition::kStand) {
 						if (k->IsNpc()

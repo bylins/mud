@@ -1,4 +1,5 @@
 #include "do_hire.h"
+#include "gameplay/mechanics/mount.h"
 
 #include "do_follow.h"
 #include "engine/core/handler.h"
@@ -169,7 +170,7 @@ void DoFindhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		act("$N под чьим-то контролем.", false, ch, 0, helpee, kToChar);
 	else if (AFF_FLAGGED(helpee, EAffect::kDeafness))
 		act("$N не слышит вас.", false, ch, 0, helpee, kToChar);
-	else if (IS_HORSE(helpee))
+	else if (mount::IsHorse(helpee))
 		SendMsgToChar("Это боевой скакун, а не хухры-мухры.\r\n", ch);
 	else if (helpee->GetEnemy() || helpee->GetPosition() < EPosition::kRest)
 		act("$M сейчас, похоже, не до вас.", false, ch, 0, helpee, kToChar);

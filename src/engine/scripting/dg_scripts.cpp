@@ -53,7 +53,7 @@ extern std::list<combat_list_element> combat_list;
 
 constexpr long long kPulsesPerMudHour = kSecsPerMudHour*kPassesPerSec;
 
-inline bool IS_CHARMED(CharData* ch) {return (IS_HORSE(ch) || AFF_FLAGGED(ch, EAffect::kCharmed));}
+inline bool IS_CHARMED(CharData* ch) {return (mount::IsHorse(ch) || AFF_FLAGGED(ch, EAffect::kCharmed));}
 
 // Вывод сообщений о неверных управляющих конструкциях DGScript
 #define DG_CODE_ANALYZE
@@ -2884,7 +2884,7 @@ void find_replacement(void *go,
 				snprintf(str, str_size, "%c%ld", uid_type, (mount::GetHorse(mob))->get_uid());
 			}
 		} else if (!str_cmp(field, "riddenby")) {
-			if (IS_HORSE(mob) && mount::IsOnHorse(mob->get_master())
+			if (mount::IsHorse(mob) && mount::IsOnHorse(mob->get_master())
 				&& ((mount::GetHorse(mob->get_master()))->get_uid() == mob->get_uid())) {
 				snprintf(str, str_size, "%c%ld", UID_CHAR, (mob->get_master())->get_uid());
 			}

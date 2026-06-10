@@ -33,7 +33,7 @@ bool group::same_group(CharData *ch, CharData *tch) {
 	if (ch->IsNpc()
 		&& ch->has_master()
 		&& !ch->get_master()->IsNpc()
-		&& (IS_HORSE(ch)
+		&& (mount::IsHorse(ch)
 			|| AFF_FLAGGED(ch, EAffect::kCharmed)
 			|| ch->IsFlagged(EMobFlag::kTutelar)
 			|| ch->IsFlagged(EMobFlag::kMentalShadow))) {
@@ -43,7 +43,7 @@ bool group::same_group(CharData *ch, CharData *tch) {
 	if (tch->IsNpc()
 		&& tch->has_master()
 		&& !tch->get_master()->IsNpc()
-		&& (IS_HORSE(tch)
+		&& (mount::IsHorse(tch)
 			|| AFF_FLAGGED(tch, EAffect::kCharmed)
 			|| tch->IsFlagged(EMobFlag::kTutelar)
 			|| tch->IsFlagged(EMobFlag::kMentalShadow))) {
@@ -90,7 +90,7 @@ int group::perform_group(CharData *ch, CharData *vict) {
 		|| AFF_FLAGGED(vict, EAffect::kCharmed)
 		|| vict->IsFlagged(EMobFlag::kTutelar)
 		|| vict->IsFlagged(EMobFlag::kMentalShadow)
-		|| IS_HORSE(vict)
+		|| mount::IsHorse(vict)
 		|| IsAffectedBySpell(ch, ESpell::kFrenzy)
 		|| IsAffectedBySpell(vict, ESpell::kFrenzy)) {
 		return (false);
@@ -502,7 +502,7 @@ void group::GoGroup(CharData *ch, char *argument) {
 	} else {
 		if (!AFF_FLAGGED(vict, EAffect::kGroup)) {
 			if (AFF_FLAGGED(vict, EAffect::kCharmed) || vict->IsFlagged(EMobFlag::kTutelar)
-				|| vict->IsFlagged(EMobFlag::kMentalShadow) || IS_HORSE(vict)) {
+				|| vict->IsFlagged(EMobFlag::kMentalShadow) || mount::IsHorse(vict)) {
 				SendMsgToChar("Только равноправные персонажи могут быть включены в группу.\r\n", ch);
 				SendMsgToChar("Только равноправные персонажи могут быть включены в группу.\r\n", vict);
 			};
@@ -549,7 +549,7 @@ void group::GoUngroup(CharData *ch, char *argument) {
 		tch = f;
 		if (isname(argument, tch->GetCharAliases())
 			&& !AFF_FLAGGED(tch, EAffect::kCharmed)
-			&& !IS_HORSE(tch)) {
+			&& !mount::IsHorse(tch)) {
 			//AFF_FLAGS(tch).unset(EAffectFlag::AFF_GROUP);
 			tch->removeGroupFlags();
 			act("$N более не член вашей группы.", false, ch, nullptr, tch, kToChar);

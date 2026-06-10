@@ -4,6 +4,7 @@
 */
 
 #include "gameplay/mechanics/summon.h"
+#include "gameplay/mechanics/mount.h"
 #include "gameplay/ai/spec_procs.h"
 #include "engine/entities/char_data.h"
 #include "engine/core/comm.h"
@@ -80,7 +81,7 @@ bool IsSummonTargetProtected(CharData *ch, CharData *mob, ESpell spell_id) {
 	if (mob->IsFlagged(EMobFlag::kMounting)) {
 		mob->UnsetFlag(EMobFlag::kMounting);
 	}
-	if (IS_HORSE(mob)) {
+	if (mount::IsHorse(mob)) {
 		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kSummonWarhorse) + "\r\n", ch);
 		ExtractCharFromWorld(mob, false);
 		return true;

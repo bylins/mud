@@ -974,7 +974,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 		  continue;
 	  }
 
-	  if (IS_HORSE(ch)) {
+	  if (mount::IsHorse(ch)) {
 		  if (ch->GetPosition() < EPosition::kFight) {
 			  ch->SetPosition(EPosition::kStand);
 		  }
@@ -1143,7 +1143,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 			  for (auto first : room->people) {
 				  if (first->IsNpc()
 					  && !AFF_FLAGGED(first, EAffect::kCharmed)
-					  && !IS_HORSE(first)
+					  && !mount::IsHorse(first)
 					  && CAN_SEE(ch, first)
 					  && first->GetEnemy()
 					  && SAME_ALIGN(ch, first)) {

@@ -648,7 +648,7 @@ void look_at_char(CharData *i, CharData *ch) {
 		}
 	}
 
-	if (IS_HORSE(i)
+	if (mount::IsHorse(i)
 		&& i->get_master() == ch) {
 		strcpy(buf, "\r\nЭто ваш скакун. Он ");
 		if (GET_HORSESTATE(i) <= 0)
@@ -1728,7 +1728,7 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 			"стоят здесь. "
 		};
 
-	if (IS_HORSE(i) && mount::IsOnHorse(i->get_master())) {
+	if (mount::IsHorse(i) && mount::IsOnHorse(i->get_master())) {
 		if (ch == i->get_master()) {
 			if (!IS_POLY(i)) {
 				act("$N несет вас на своей спине.", false, ch, nullptr, i, kToChar);
@@ -1796,7 +1796,7 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 		&& i->GetPosition() == GET_DEFAULT_POS(i)
 		&& ch->in_room == i->in_room
 		&& !AFF_FLAGGED(i, EAffect::kCharmed)
-		&& !IS_HORSE(i)) {
+		&& !mount::IsHorse(i)) {
 		*buf = '\0';
 		if (ch->IsFlagged(EPrf::kRoomFlags) || InTestZone(ch)) {
 			sprintf(buf, "[%5d] ", GET_MOB_VNUM(i));
@@ -1876,7 +1876,7 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 				sprintf(buf + strlen(buf), "%s здесь верхом на %s. ",
 						msg, PERS(horse, ch, 5));
 			}
-		} else if (IS_HORSE(i) && AFF_FLAGGED(i, EAffect::kTethered))
+		} else if (mount::IsHorse(i) && AFF_FLAGGED(i, EAffect::kTethered))
 			sprintf(buf + strlen(buf), "привязан%s здесь. ", GET_CH_SUF_6(i));
 		else if ((sector = real_sector(i->in_room)) == ESector::kOnlyFlying)
 			strcat(buf, IS_POLY(i) ? "летают здесь. " : "летает здесь. ");

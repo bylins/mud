@@ -122,7 +122,7 @@ void update_pos(CharData *victim) {
 	// поплохело седоку или лошади - сбрасываем седока
 	if (mount::IsOnHorse(victim) && victim->GetPosition() < EPosition::kFight)
 		victim->DropFromHorse();
-	if (IS_HORSE(victim) && victim->GetPosition() < EPosition::kFight && mount::IsOnHorse(victim->get_master()))
+	if (mount::IsHorse(victim) && victim->GetPosition() < EPosition::kFight && mount::IsOnHorse(victim->get_master()))
 		victim->DropFromHorse();
 }
 
@@ -2156,7 +2156,7 @@ int check_agro_follower(CharData *ch, CharData *victim) {
 		&& (AFF_FLAGGED(ch, EAffect::kCharmed)
 			|| ch->IsFlagged(EMobFlag::kTutelar)
 			|| ch->IsFlagged(EMobFlag::kMentalShadow)
-			|| IS_HORSE(ch))) {
+			|| mount::IsHorse(ch))) {
 		ch = ch->get_master();
 	}
 
@@ -2165,7 +2165,7 @@ int check_agro_follower(CharData *ch, CharData *victim) {
 		&& (AFF_FLAGGED(victim, EAffect::kCharmed)
 			|| victim->IsFlagged(EMobFlag::kTutelar)
 			|| victim->IsFlagged(EMobFlag::kMentalShadow)
-			|| IS_HORSE(victim))) {
+			|| mount::IsHorse(victim))) {
 		victim = victim->get_master();
 	}
 
@@ -2176,7 +2176,7 @@ int check_agro_follower(CharData *ch, CharData *victim) {
 		if (cleader->IsNpc()
 			&& !AFF_FLAGGED(cleader, EAffect::kCharmed)
 			&& !(cleader->IsFlagged(EMobFlag::kTutelar) || cleader->IsFlagged(EMobFlag::kMentalShadow))
-			&& !IS_HORSE(cleader)) {
+			&& !mount::IsHorse(cleader)) {
 			break;
 		}
 		cleader = cleader->get_master();
@@ -2186,7 +2186,7 @@ int check_agro_follower(CharData *ch, CharData *victim) {
 		if (vleader->IsNpc()
 			&& !AFF_FLAGGED(vleader, EAffect::kCharmed)
 			&& !(vleader->IsFlagged(EMobFlag::kTutelar) || vleader->IsFlagged(EMobFlag::kMentalShadow))
-			&& !IS_HORSE(vleader)) {
+			&& !mount::IsHorse(vleader)) {
 			break;
 		}
 		vleader = vleader->get_master();

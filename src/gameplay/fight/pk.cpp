@@ -12,6 +12,7 @@
 ************************************************************************ */
 
 #include "pk.h"
+#include "gameplay/mechanics/mount.h"
 
 #include "utils/buffered_file_writer.h"
 
@@ -136,7 +137,7 @@ void pk_translate_pair(CharData **pkiller, CharData **pvictim) {
 		if (pvictim[0]->IsNpc()
 			&& pvictim[0]->has_master()
 			&& (AFF_FLAGGED(pvictim[0], EAffect::kCharmed)
-				|| IS_HORSE(pvictim[0]))) {
+				|| mount::IsHorse(pvictim[0]))) {
 			if (pvictim[0]->in_room == pvictim[0]->get_master()->in_room) {
 				if (HERE(pvictim[0]->get_master()))
 					pvictim[0] = pvictim[0]->get_master();
@@ -1173,7 +1174,7 @@ void UpdatePkLogs(CharData *ch, CharData *victim) {
 		&& !ROOM_FLAGGED(victim->in_room, ERoomFlag::kArena)) {
 		mudlog(buf2, BRF, kLvlImplementator, SYSLOG, false);
 		if (ch->IsNpc()
-			&& (AFF_FLAGGED(ch, EAffect::kCharmed) || IS_HORSE(ch))
+			&& (AFF_FLAGGED(ch, EAffect::kCharmed) || mount::IsHorse(ch))
 			&& ch->has_master()
 			&& !ch->get_master()->IsNpc()) {
 			sprintf(buf2, "%s is following %s.", GET_NAME(ch), GET_PAD(ch->get_master(), 2));

@@ -1593,7 +1593,7 @@ void point_update() {
 			// Restore mobs
 			if (i->IsNpc() && !i->GetEnemy())    // Restore horse
 			{
-				if (IS_HORSE(i)) {
+				if (mount::IsHorse(i)) {
 					int mana = 0;
 					switch (real_sector(i->in_room)) {
 						case ESector::kOnlyFlying:
