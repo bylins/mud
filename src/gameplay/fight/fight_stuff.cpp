@@ -1084,4 +1084,17 @@ void change_fighting(CharData *ch, int need_stop) {
 //	log("change_fighting stop %f", time.delta().count());
 }
 
+bool MAY_ATTACK(const CharData *sub) {
+	return (!AFF_FLAGGED((sub), EAffect::kCharmed)
+		&& !mount::IsHorse((sub))
+		&& !AFF_FLAGGED((sub), EAffect::kStopFight)
+		&& !AFF_FLAGGED((sub), EAffect::kMagicStopFight)
+		&& !AFF_FLAGGED((sub), EAffect::kHold)
+		&& !AFF_FLAGGED((sub), EAffect::kSleep)
+		&& !(sub)->IsFlagged(EMobFlag::kNoFight)
+		&& sub->get_wait() <= 0
+		&& !sub->GetEnemy()
+		&& sub->GetPosition() >= EPosition::kRest);
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

@@ -12,6 +12,12 @@
 #include "engine/db/global_objects.h"
 #include "gameplay/mechanics/sight.h"
 
+// issue.chardata-cleaning: was the global CLEAR_MIND (only used here).
+static bool ClearMind(const CharData *ch) {
+	return !ch->battle_affects.get(kEafOverwhelm) && !ch->battle_affects.get(kEafHammer);
+}
+
+
 // ************************* CHOPOFF PROCEDURES
 void go_chopoff(CharData *ch, CharData *vict) {
 	if (IsUnableToAct(ch)) {
@@ -111,7 +117,7 @@ void go_chopoff(CharData *ch, CharData *vict) {
 	Appear(ch);
 	if (!success) {
 		SetWait(ch, prob, false);
-		if (vict->IsNpc() && CAN_SEE(vict, ch) && vict->have_mind() && CLEAR_MIND(vict) && !vict->GetEnemy()) {
+		if (vict->IsNpc() && CAN_SEE(vict, ch) && vict->have_mind() && ClearMind(vict) && !vict->GetEnemy()) {
 			hit(vict, ch, ESkill::kUndefined, AFF_FLAGGED(vict, EAffect::kStopRight) ? fight::kOffHand : fight::kMainHand);
 		}
 	} else {

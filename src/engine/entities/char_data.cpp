@@ -781,26 +781,9 @@ ObjData *CharData::GetCastObj() const {
 }
 
 // \todo Да-да, функциями типа "кто кого видит" - самое мместо в модуле персонажа. Вычистить это все отсюда.
-bool MAY_ATTACK(const CharData *sub) {
-	return (!AFF_FLAGGED((sub), EAffect::kCharmed)
-		&& !mount::IsHorse((sub))
-		&& !AFF_FLAGGED((sub), EAffect::kStopFight)
-		&& !AFF_FLAGGED((sub), EAffect::kMagicStopFight)
-		&& !AFF_FLAGGED((sub), EAffect::kHold)
-		&& !AFF_FLAGGED((sub), EAffect::kSleep)
-		&& !(sub)->IsFlagged(EMobFlag::kNoFight)
-		&& sub->get_wait() <= 0
-		&& !sub->GetEnemy()
-		&& sub->GetPosition() >= EPosition::kRest);
-}
-
 bool AWAKE(const CharData *ch) {
 	return ch->GetPosition() > EPosition::kSleep
 		&& !AFF_FLAGGED(ch, EAffect::kSleep);
-}
-
-bool CLEAR_MIND(const CharData *ch) {
-	return (!ch->battle_affects.get(kEafOverwhelm) && !ch->battle_affects.get(kEafHammer));
 }
 
 //Вы уверены,что функцияам расчете опыта самое место в классе персонажа?

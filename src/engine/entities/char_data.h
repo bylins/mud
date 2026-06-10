@@ -950,14 +950,10 @@ inline bool SELF(const CharData *sub, const CharData::shared_ptr &obj) { return 
 
 
 
-bool MAY_ATTACK(const CharData *sub);
-inline bool MAY_ATTACK(const CharData::shared_ptr &sub) { return MAY_ATTACK(sub.get()); }
 
 bool AWAKE(const CharData *ch);
 inline bool AWAKE(const CharData::shared_ptr &ch) { return AWAKE(ch.get()); }
 
-bool CLEAR_MIND(const CharData *ch);
-inline bool CLEAR_MIND(const CharData::shared_ptr &ch) { return CLEAR_MIND(ch.get()); }
 
 inline bool CAN_START_MTRIG(const CharData *ch) {
 	return !AFF_FLAGGED(ch, EAffect::kCharmed);

@@ -49,6 +49,7 @@
 #include <fmt/format.h>
 #include "engine/observability/metrics.h"
 #include "gameplay/mechanics/sight.h"
+#include "gameplay/fight/fight_stuff.h"
 
 // Structures
 std::list<combat_list_element> combat_list;
