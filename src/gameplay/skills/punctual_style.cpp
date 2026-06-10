@@ -7,6 +7,7 @@
 */
 
 #include "punctual_style.h"
+#include "gameplay/mechanics/mount.h"
 #include "gameplay/mechanics/resist.h"
 
 #include "engine/entities/obj_data.h"
@@ -59,7 +60,7 @@ void PerformPunctualHit(CharData *ch, CharData *victim, HitData &hit_data) {
 					if (victim->GetPosition() > EPosition::kSit) {
 						victim->SetPosition(EPosition::kSit);
 					}
-					victim->DropFromHorse();
+					mount::DropFromHorse(victim);
 					SetBattleLag(victim, 2);
 					to_char = "повалило $N3 на землю";
 					to_vict = "повредило вам колено, повалив на землю";
@@ -68,7 +69,7 @@ void PerformPunctualHit(CharData *ch, CharData *victim, HitData &hit_data) {
 					if (victim->GetPosition() > EPosition::kSit) {
 						victim->SetPosition(EPosition::kSit);
 					}
-					victim->DropFromHorse();
+					mount::DropFromHorse(victim);
 					SetBattleLag(victim, 2);
 					to_char = "повалило $N3 на землю";
 					to_vict = "повредило вам колено, повалив на землю";
@@ -241,7 +242,7 @@ void PerformPunctualHit(CharData *ch, CharData *victim, HitData &hit_data) {
 					SetBattleLag(victim, number(2, 5));
 					if (victim->GetPosition() > EPosition::kSit)
 						victim->SetPosition(EPosition::kSit);
-					victim->DropFromHorse();
+					mount::DropFromHorse(victim);
 					to_char = "повредило $N2 грудь, свалив $S с ног";
 					to_vict = "повредило вам грудь, свалив вас с ног";
 					break;

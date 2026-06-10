@@ -3,6 +3,7 @@
 //
 
 #include "throwout.h"
+#include "gameplay/mechanics/mount.h"
 #include "skill_messages.h"
 #include "engine/db/global_objects.h"
 
@@ -113,7 +114,7 @@ void GoThrowout(CharData *ch, CharData *vict) {
 	        act("$N сгреб$Q $n3 в охапку и вышвырнул$G $s прочь!",
 	            false, vict, nullptr, ch, kToNotVict | kToArenaListen);
 	    		if (vict->GetPosition() > EPosition::kSit) {
-	    			vict->DropFromHorse();
+	    			mount::DropFromHorse(vict);
 	    			vict->SetPosition(EPosition::kSit);
 	    			SetWait(vict, 2, false);
 	    			SetSkillCooldown(ch, ESkill::kGlobalCooldown, 1);

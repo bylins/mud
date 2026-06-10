@@ -1,6 +1,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include <random>
+#include "gameplay/mechanics/mount.h"
 
 #include "gameplay/affects/affect_data.h"
 #include "gameplay/magic/magic.h"
@@ -331,7 +332,7 @@ void arena_kill(CharData *ch, CharData *killer) {
 	}
 	change_fighting(ch, true);
 	ch->set_hit(1);
-	ch->DropFromHorse();
+	mount::DropFromHorse(ch);
 	ch->SetPosition(EPosition::kSit);
 	int to_room = GetRoomRnum(GET_LOADROOM(ch));
 	// тут придется ручками тащить чара за ворота, если ему в замке не рады

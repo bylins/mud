@@ -1,4 +1,5 @@
 #include "mighthit.h"
+#include "gameplay/mechanics/mount.h"
 #include "skill_messages.h"
 
 #include "gameplay/fight/pk.h"
@@ -218,7 +219,7 @@ void ProcessMighthitBash(CharData *ch, CharData *victim) {
 
 	if (victim->GetPosition() > EPosition::kSit) {
 		victim->SetPosition(EPosition::kSit);
-		victim->DropFromHorse();
+		mount::DropFromHorse(victim);
 		SendMsgToChar(victim, "&R&qБогатырский удар %s сбил вас с ног.&Q&n\r\n", PERS(ch, victim, 1));
 	}
 }

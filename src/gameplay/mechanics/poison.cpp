@@ -240,7 +240,7 @@ namespace {
 										  GET_PAD(mount::GetHorse(vict), 5));
 							act("$n0 зашатал$u и не смог$q усидеть на $N5.",
 								true, vict, nullptr, mount::GetHorse(vict), kToNotVict);
-							vict->DropFromHorse();
+							mount::DropFromHorse(vict);
 						} else {
 							SendMsgToChar(ch, "%sОт действия вашего яда у %s подкосились ноги!%s\r\n",
 										  kColorGrn, PERS(vict, ch, 1), kColorNrm);
@@ -248,7 +248,7 @@ namespace {
 							act("$N0 зашатал$U и не смог$Q устоять на ногах.",
 								true, ch, nullptr, vict, kToNotVict);
 							vict->SetPosition(EPosition::kSit);
-							vict->DropFromHorse();
+							mount::DropFromHorse(vict);
 							SetBattleLag(vict, 3);
 						}
 						break;

@@ -24,6 +24,10 @@ namespace mount {
 [[nodiscard]] bool IsHorse(const CharData *ch);
 [[nodiscard]] bool IsHorse(const std::shared_ptr<CharData> &ch);
 
+// Throw the rider off (call on rider or horse): unhorses the rider, lags & seats them. Returns
+// false if ch is neither a rider nor a mount.
+bool DropFromHorse(CharData *ch);
+
 }  // namespace mount
 
 void make_horse(CharData *horse, CharData *ch);

@@ -1,4 +1,5 @@
 #include "overhelm.h"
+#include "gameplay/mechanics/mount.h"
 #include "skill_messages.h"
 
 #include "gameplay/fight/pk.h"
@@ -186,7 +187,7 @@ int CalcOverhelmDmg(CharData *ch, CharData *victim, int dmg) {
 		SetBattleLag(victim, 3);
 		if (victim->GetPosition() > EPosition::kSit && !victim->IsFlagged(EMobFlag::kNoBash)) {
 			victim->SetPosition(EPosition::kSit);
-			victim->DropFromHorse();
+			mount::DropFromHorse(victim);
 			sprintf(buf, "&R&qОглушающий удар %s сбил вас с ног.&Q&n\r\n", PERS(ch, victim, 1));
 			SendMsgToChar(buf, victim);
 		} else {

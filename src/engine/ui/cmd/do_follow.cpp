@@ -34,7 +34,7 @@ bool stop_follower(CharData *ch, int mode) {
 
 	//log("[Stop ch] Stop horse");
 	if (mount::GetHorse(ch->get_master()) == ch && mount::IsOnHorse(ch->get_master())) {
-		ch->DropFromHorse();
+		mount::DropFromHorse(ch);
 	} else {
 		act("$n прекратил$g следовать за вами.", true, ch, 0, ch->get_master(), kToVict);
 	}
@@ -120,7 +120,7 @@ bool stop_follower(CharData *ch, int mode) {
 void die_follower(CharData *ch) {
 	if (ch->has_master()) {
 		if (mount::GetHorse(ch->get_master()) == ch && mount::IsOnHorse(ch->get_master())) {
-			ch->DropFromHorse();
+			mount::DropFromHorse(ch);
 		} else {
 			act("$n прекратил$g следовать за вами.", true, ch, 0, ch->get_master(), kToVict);
 		}

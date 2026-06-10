@@ -92,7 +92,7 @@ void go_chopoff(CharData *ch, CharData *vict) {
 			if (percent < prob) {
 				SendMsgToChar(tch, "Вы смогли удержаться на спине своего скакуна.\r\n");
 			} else {
-				vict->DropFromHorse();
+				mount::DropFromHorse(vict);
 				SetWait(vict, 1, false); //лошади тоже немнога лагу
 			}
 		} else {
@@ -103,7 +103,7 @@ void go_chopoff(CharData *ch, CharData *vict) {
 			SetWait(vict, 3, false);
 			if (ch->isInSameRoom(vict)) {
 				vict->SetPosition(EPosition::kSit);
-				vict->DropFromHorse();
+				mount::DropFromHorse(vict);
 			}
 		}
 		prob = 1;

@@ -45,6 +45,28 @@ bool IsHorse(const CharData *ch) {
 
 bool IsHorse(const std::shared_ptr<CharData> &ch) { return IsHorse(ch.get()); }
 
+bool DropFromHorse(CharData *ch) {
+	CharData *plr;
+	// вызвали для лошади
+	if (IsHorse(ch) && IsOnHorse(ch->get_master())) {
+		plr = ch->get_master();
+		act("$N сбросил$G вас со своей спины.", false, plr, 0, ch, kToChar);
+	} else if (IsOnHorse(ch)) {  // вызвали для седока
+		plr = ch;
+		act("Вы упали с $N1.", false, plr, 0, GetHorse(ch), kToChar);
+	} else {  // не лошадь и не всадник
+		return false;
+	}
+	sprintf(buf, "%s свалил%s со своего скакуна.", GET_PAD(plr, 0), GET_CH_SUF_2(plr));
+	act(buf, false, plr, 0, 0, kToRoom | kToArenaListen);
+	AFF_FLAGS(plr).unset(EAffect::kHorse);
+	SetBattleLag(plr, 3);
+	if (plr->GetPosition() > EPosition::kSit) {
+		plr->SetPosition(EPosition::kSit);
+	}
+	return true;
+}
+
 }  // namespace mount
 
 void make_horse(CharData *horse, CharData *ch) {

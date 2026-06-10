@@ -2073,27 +2073,6 @@ bool CharData::IsHorsePrevents() {
 
 #include "utils/backtrace.h"
 
-bool CharData::DropFromHorse() {
-	CharData *plr;
-
-	// вызвали для лошади
-	if (mount::IsHorse(this) && mount::IsOnHorse(this->get_master())) {
-		plr = this->get_master();
-		act("$N сбросил$G вас со своей спины.", false, plr, 0, this, kToChar);
-	} else	if (mount::IsOnHorse(this)) {// вызвали для седока
-		plr = this;
-		act("Вы упали с $N1.", false, plr, 0, mount::GetHorse(this), kToChar);
-	} else //не лошадь и не всадник
-		return false;
-	sprintf(buf, "%s свалил%s со своего скакуна.", GET_PAD(plr, 0), GET_CH_SUF_2(plr));
-	act(buf, false, plr, 0, 0, kToRoom | kToArenaListen);
-	AFF_FLAGS(plr).unset(EAffect::kHorse);
-	SetBattleLag(plr, 3);
-	if (plr->GetPosition() > EPosition::kSit) {
-		plr->SetPosition(EPosition::kSit);
-	}
-	return true;
-}
 
 void CharData::dismount() {
 	if (!mount::IsOnHorse(this) || mount::GetHorse(this) == nullptr)

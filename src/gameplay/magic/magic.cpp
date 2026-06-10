@@ -251,7 +251,7 @@ static void ForceReposition(CharData *victim, ESpell spell_id, EPosition pos, bo
 		change_fighting(victim, force_stopfight);
 	}
 	if (reposition) {
-		victim->DropFromHorse();
+		mount::DropFromHorse(victim);
 		if (pos < victim->GetPosition()) {
 			act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kKnockdownToRoom).c_str(),
 				false, victim, nullptr, nullptr, kToRoom | kToArenaListen);

@@ -251,7 +251,7 @@ void go_bash(CharData *ch, CharData *vict) {
 		if (!vict->IsImpl()) {
 			if (vict->GetPosition() > EPosition::kSit) {
 				vict->SetPosition(EPosition::kSit);
-				vict->DropFromHorse();
+				mount::DropFromHorse(vict);
 			}
 			SetWait(vict, 3, true);
 		}

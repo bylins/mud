@@ -150,7 +150,7 @@ void go_strangle(CharData *ch, CharData *vict) {
 					false, vict, nullptr, ch, kToVict);
 				act("Рванув на себя, $N стащил$G $n3 на землю.",
 					false, vict, nullptr, ch, kToNotVict | kToArenaListen);
-				vict->DropFromHorse();
+				mount::DropFromHorse(vict);
 			}
 		}
 		SetSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 2);

@@ -117,7 +117,7 @@ void go_kick(CharData *ch, CharData *vict) {
 							SetBattleLag(vict, number(2, 5));
 							if (vict->GetPosition() > EPosition::kSit) {
 								vict->SetPosition(EPosition::kSit);
-								vict->DropFromHorse();
+								mount::DropFromHorse(vict);
 							}
 							to_char = "Ваш мощный пинок выбил пару зубов $N2, усадив $S на землю!";
 							to_vict = "Мощный удар ноги $n1 попал точно в голову, свалив вас с ног.";
@@ -157,7 +157,7 @@ void go_kick(CharData *ch, CharData *vict) {
 			if (!vict->IsFlagged(EMobFlag::kNoBash)) {
 				if (vict->GetPosition() > EPosition::kSit) {
 					vict->SetPosition(EPosition::kSit);
-					vict->DropFromHorse();
+					mount::DropFromHorse(vict);
 					SetBattleLag(vict, 2);
 					to_char = "$N упал$A на землю!";
 					to_vict = "Мощный удар $n1 свалил вас с ног.";
