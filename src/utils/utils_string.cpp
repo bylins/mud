@@ -1045,7 +1045,7 @@ void kill_ems(std::string &str) {
 	str.erase(std::remove(str.begin(), str.end(), '\r'), str.end());
 }
 
-std::string utils::OutWordsList(const std::list<std::string> &words, size_t max_length) {
+std::string utils::OutWordsList(const std::vector<std::string> &words, size_t max_length) {
 	std::string result;
 	size_t line_length = 0;
 	bool first = true;
@@ -1064,12 +1064,11 @@ std::string utils::OutWordsList(const std::list<std::string> &words, size_t max_
 		line_length += word.size();
 		first = false;
 	}
-
 	return result;
 }
 
 std::string utils::OutWordsList(const std::string &words_str, size_t max_length) {
-	std::list<std::string> words;
+	std::vector<std::string> words;
 	std::istringstream stream(words_str);
 	std::string word;
 	while (stream >> word) {
