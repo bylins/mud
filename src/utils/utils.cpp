@@ -353,39 +353,39 @@ std::string FormatTimeToStr(long in_timer, bool flag) {
 	int one = 0, two = 0;
 
 	if (timer < 60)
-		out << timer << " " << GetDeclensionInNumber(in_timer, flag ? EWhat::kMinU : EWhat::kMinA);
+		out << timer << " " << grammar::GetDeclensionInNumber(in_timer, flag ? grammar::EWhat::kMinU : grammar::EWhat::kMinA);
 	else if (timer < 1440) {
 		snprintf(buffer, sizeof(buffer), "%.1f", timer / 60);
 		sscanf(buffer, "%d.%d", &one, &two);
 		out << one;
 		if (two)
-			out << "." << two << " " << GetDeclensionInNumber(two, EWhat::kHour);
+			out << "." << two << " " << grammar::GetDeclensionInNumber(two, grammar::EWhat::kHour);
 		else
-			out << " " << GetDeclensionInNumber(one, EWhat::kHour);
+			out << " " << grammar::GetDeclensionInNumber(one, grammar::EWhat::kHour);
 	} else if (timer < 10080) {
 		snprintf(buffer, sizeof(buffer), "%.1f", timer / 1440);
 		sscanf(buffer, "%d.%d", &one, &two);
 		out << one;
 		if (two)
-			out << "." << two << " " << GetDeclensionInNumber(two, EWhat::kDay);
+			out << "." << two << " " << grammar::GetDeclensionInNumber(two, grammar::EWhat::kDay);
 		else
-			out << " " << GetDeclensionInNumber(one, EWhat::kDay);
+			out << " " << grammar::GetDeclensionInNumber(one, grammar::EWhat::kDay);
 	} else if (timer < 44640) {
 		snprintf(buffer, sizeof(buffer), "%.1f", timer / 10080);
 		sscanf(buffer, "%d.%d", &one, &two);
 		out << one;
 		if (two)
-			out << "." << two << " " << GetDeclensionInNumber(two, EWhat::kWeek);
+			out << "." << two << " " << grammar::GetDeclensionInNumber(two, grammar::EWhat::kWeek);
 		else
-			out << " " << GetDeclensionInNumber(one, flag ? EWhat::kWeekU : EWhat::kWeek);
+			out << " " << grammar::GetDeclensionInNumber(one, flag ? grammar::EWhat::kWeekU : grammar::EWhat::kWeek);
 	} else {
 		snprintf(buffer, sizeof(buffer), "%.1f", timer / 44640);
 		sscanf(buffer, "%d.%d", &one, &two);
 		out << one;
 		if (two)
-			out << "." << two << " " << GetDeclensionInNumber(two, EWhat::kMonth);
+			out << "." << two << " " << grammar::GetDeclensionInNumber(two, grammar::EWhat::kMonth);
 		else
-			out << " " << GetDeclensionInNumber(one, EWhat::kMonth);
+			out << " " << grammar::GetDeclensionInNumber(one, grammar::EWhat::kMonth);
 	}
 	return out.str();
 }

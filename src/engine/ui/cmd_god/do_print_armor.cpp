@@ -312,7 +312,7 @@ void DoPrintArmor(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			<< std::setw(2) << it->first << " | "
 			<< std::setw(7) << obj->get_vnum() << " | "
 			<< std::setw(14) << material_name[obj->get_material()] << " | "
-			<< obj->get_PName(ECase::kNom) << "\r\n";
+			<< obj->get_PName(grammar::ECase::kNom) << "\r\n";
 
 		for (int i = 0; i < kMaxObjAffect; i++) {
 			auto drndice = obj->get_affected(i).location;

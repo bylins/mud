@@ -616,10 +616,10 @@ void ObjectFile::parse_object(const int nr) {
 	tobj->set_short_description(utils::colorLOW(fread_string()));
 
 	snprintf(buf, sizeof(buf), "%s", tobj->get_short_description().c_str());
-	tobj->set_PName(ECase::kNom, utils::colorLOW(buf)); //именительный падеж равен короткому описанию
+	tobj->set_PName(grammar::ECase::kNom, utils::colorLOW(buf)); //именительный падеж равен короткому описанию
 
-	for (j = ECase::kGen; j <= ECase::kLastCase; j++) {
-		tobj->set_PName(static_cast<ECase>(j), utils::colorLOW(fread_string()));
+	for (j = grammar::ECase::kGen; j <= grammar::ECase::kLastCase; j++) {
+		tobj->set_PName(static_cast<grammar::ECase>(j), utils::colorLOW(fread_string()));
 	}
 
 	tobj->set_description(utils::colorCAP(fread_string()));
@@ -989,8 +989,8 @@ void MobileFile::parse_mobile(const int nr) {
 	mob_proto[i].set_npc_name(fread_string());
 
 	// real name
-	mob_proto[i].player_data.PNames[ECase::kNom] = mob_proto[i].get_npc_name();
-	for (j = ECase::kGen; j <= ECase::kLastCase; j++) {
+	mob_proto[i].player_data.PNames[grammar::ECase::kNom] = mob_proto[i].get_npc_name();
+	for (j = grammar::ECase::kGen; j <= grammar::ECase::kLastCase; j++) {
 		mob_proto[i].player_data.PNames[j] = fread_string();
 	}
 	mob_proto[i].player_data.long_descr = utils::colorCAP(fread_string());

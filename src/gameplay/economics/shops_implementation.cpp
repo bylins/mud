@@ -171,7 +171,7 @@ void GoodsStorage::clear() {
 	m_objects_by_uid.clear();
 }
 
-const std::string &ItemNode::get_item_name(int keeper_vnum, ECase name_case /*= ECase::kNom*/) const {
+const std::string &ItemNode::get_item_name(int keeper_vnum, grammar::ECase name_case /*= ECase::kNom*/) const {
 	const auto desc_i = m_descs.find(keeper_vnum);
 	if (desc_i != m_descs.end()) {
 		return desc_i->second.PNames[name_case];
@@ -197,12 +197,12 @@ void ItemNode::replace_descs(ObjData *obj, const int vnum) const {
 	obj->set_description(desc.description);
 	obj->set_aliases(desc.name);
 	obj->set_short_description(desc.short_description.c_str());
-	obj->set_PName(ECase::kNom, desc.PNames[ECase::kNom].c_str());
-	obj->set_PName(ECase::kGen, desc.PNames[ECase::kGen].c_str());
-	obj->set_PName(ECase::kDat, desc.PNames[ECase::kDat].c_str());
-	obj->set_PName(ECase::kAcc, desc.PNames[ECase::kAcc].c_str());
-	obj->set_PName(ECase::kIns, desc.PNames[ECase::kIns].c_str());
-	obj->set_PName(ECase::kPre, desc.PNames[ECase::kPre].c_str());
+	obj->set_PName(grammar::ECase::kNom, desc.PNames[grammar::ECase::kNom].c_str());
+	obj->set_PName(grammar::ECase::kGen, desc.PNames[grammar::ECase::kGen].c_str());
+	obj->set_PName(grammar::ECase::kDat, desc.PNames[grammar::ECase::kDat].c_str());
+	obj->set_PName(grammar::ECase::kAcc, desc.PNames[grammar::ECase::kAcc].c_str());
+	obj->set_PName(grammar::ECase::kIns, desc.PNames[grammar::ECase::kIns].c_str());
+	obj->set_PName(grammar::ECase::kPre, desc.PNames[grammar::ECase::kPre].c_str());
 	obj->set_sex(desc.sex);
 
 	if (!desc.trigs.empty()) {
@@ -343,7 +343,7 @@ void shop_node::process_buy(CharData *ch, CharData *keeper, char *argument) {
 	if ((ch->GetCarryingQuantity() + 1 > CAN_CARRY_N(ch))
 		|| ((ch->GetCarryingWeight() + proto->get_weight()) > CAN_CARRY_W(ch))) {
 		const auto &name = obj_from_proto
-						   ? item->get_item_name(GET_MOB_VNUM(keeper), ECase::kAcc).c_str()
+						   ? item->get_item_name(GET_MOB_VNUM(keeper), grammar::ECase::kAcc).c_str()
 						   : tmp_obj->get_short_description().c_str();
 		SendMsgToChar(fmt::format(fmt::runtime(ShopMsg(ESM::kHandsFull1)),
 				fmt::arg("name", GET_NAME(ch))) + "\r\n", ch);
@@ -393,7 +393,7 @@ void shop_node::process_buy(CharData *ch, CharData *keeper, char *argument) {
 				GloryConst::add_total_spent(price);
 				GloryConst::remove_glory(ch->get_uid(), price);
 				GloryConst::transfer_log("%s bought %s for %ld const glory",
-										 GET_NAME(ch), proto->get_PName(ECase::kNom).c_str(), price);
+										 GET_NAME(ch), proto->get_PName(grammar::ECase::kNom).c_str(), price);
 			} else if (currency == "лед") {
 				// книги за лед, как и за славу, не фейлим
 				if (EObjType::kBook == obj->get_type()) {
@@ -448,15 +448,15 @@ void shop_node::process_buy(CharData *ch, CharData *keeper, char *argument) {
 
 		tell_to_char(keeper, ch, reply.c_str());
 	}
-	auto suffix = GetDeclensionInNumber(total_money, EWhat::kMoneyU);
+	auto suffix = grammar::GetDeclensionInNumber(total_money, grammar::EWhat::kMoneyU);
 	if (currency == "лед")
-		suffix = GetDeclensionInNumber(total_money, EWhat::kIceU);
+		suffix = grammar::GetDeclensionInNumber(total_money, grammar::EWhat::kIceU);
 	if (currency == "слава")
-		suffix = GetDeclensionInNumber(total_money, EWhat::kGloryU);
+		suffix = grammar::GetDeclensionInNumber(total_money, grammar::EWhat::kGloryU);
 	if (currency == "гривны")
-		suffix = GetDeclensionInNumber(total_money, EWhat::kTorcU);
+		suffix = grammar::GetDeclensionInNumber(total_money, grammar::EWhat::kTorcU);
 	if (currency == "ногаты")
-		suffix = GetDeclensionInNumber(total_money, EWhat::kNogataU);
+		suffix = grammar::GetDeclensionInNumber(total_money, grammar::EWhat::kNogataU);
 
 	tell_to_char(keeper, ch, fmt::format(fmt::runtime(ShopMsg(ESM::kPrice)),
 			fmt::arg("amount", total_money), fmt::arg("currency", suffix)).c_str());
@@ -475,7 +475,7 @@ void shop_node::process_buy(CharData *ch, CharData *keeper, char *argument) {
 			mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 		}
 		SendMsgToChar(fmt::format(fmt::runtime(ShopMsg(IS_MALE(ch) ? ESM::kHappyOwnerMale : ESM::kHappyOwnerFemale)),
-				fmt::arg("item", obj->item_count_message(bought, ECase::kGen))) + "\r\n", ch);
+				fmt::arg("item", obj->item_count_message(bought, grammar::ECase::kGen))) + "\r\n", ch);
 	}
 }
 
@@ -794,10 +794,10 @@ void shop_node::process_ident(CharData *ch, CharData *keeper, char *argument, co
 		} else {
 			tell_to_char(keeper, ch, fmt::format(fmt::runtime(ShopMsg(ESM::kIdentCost)),
 					fmt::arg("amount", IDENTIFY_COST),
-					fmt::arg("currency", GetDeclensionInNumber(IDENTIFY_COST, EWhat::kMoneyU))).c_str());
+					fmt::arg("currency", grammar::GetDeclensionInNumber(IDENTIFY_COST, grammar::EWhat::kMoneyU))).c_str());
 
 			SendMsgToChar(fmt::format(fmt::runtime(ShopMsg(ESM::kIdentResult)),
-					fmt::arg("item", ident_obj->get_PName(ECase::kNom))) + "\r\n", ch);
+					fmt::arg("item", ident_obj->get_PName(grammar::ECase::kNom))) + "\r\n", ch);
 			MortShowObjValues(ident_obj, ch, 200);
 			ch->remove_gold(IDENTIFY_COST);
 		}
@@ -1017,8 +1017,8 @@ void shop_node::do_shop_cmd(CharData *ch, CharData *keeper, ObjData *obj, std::s
 			return;
 		} else {
 			tell_to_char(keeper, ch, fmt::format(fmt::runtime(ShopMsg(ESM::kValueOffer)),
-					fmt::arg("item", obj->get_PName(ECase::kAcc)), fmt::arg("amount", buy_price),
-					fmt::arg("currency", GetDeclensionInNumber(buy_price, EWhat::kMoneyU))).c_str());
+					fmt::arg("item", obj->get_PName(grammar::ECase::kAcc)), fmt::arg("amount", buy_price),
+					fmt::arg("currency", grammar::GetDeclensionInNumber(buy_price, grammar::EWhat::kMoneyU))).c_str());
 		}
 	}
 
@@ -1039,8 +1039,8 @@ void shop_node::do_shop_cmd(CharData *ch, CharData *keeper, ObjData *obj, std::s
 		} else {
 			RemoveObjFromChar(obj);
 			tell_to_char(keeper, ch, fmt::format(fmt::runtime(ShopMsg(ESM::kSellPaid)),
-					fmt::arg("item", obj->get_PName(ECase::kAcc)), fmt::arg("amount", buy_price),
-					fmt::arg("currency", GetDeclensionInNumber(buy_price, EWhat::kMoneyU))).c_str());
+					fmt::arg("item", obj->get_PName(grammar::ECase::kAcc)), fmt::arg("amount", buy_price),
+					fmt::arg("currency", grammar::GetDeclensionInNumber(buy_price, grammar::EWhat::kMoneyU))).c_str());
 			ch->add_gold(buy_price);
 			put_item_to_shop(obj);
 			obj->set_where_obj(EWhereObj::kSeller);
@@ -1054,7 +1054,7 @@ void shop_node::do_shop_cmd(CharData *ch, CharData *keeper, ObjData *obj, std::s
 
 		if (repair <= 0) {
 			tell_to_char(keeper, ch, fmt::format(fmt::runtime(ShopMsg(ESM::kNoRepairNeeded)),
-					fmt::arg("item", obj->get_PName(ECase::kAcc))).c_str());
+					fmt::arg("item", obj->get_PName(grammar::ECase::kAcc))).c_str());
 			return;
 		}
 
@@ -1091,12 +1091,12 @@ void shop_node::do_shop_cmd(CharData *ch, CharData *keeper, ObjData *obj, std::s
 			|| obj->has_flag(EObjFlag::kNosell)
 			|| obj->has_flag(EObjFlag::kNodrop)) {
 			tell_to_char(keeper, ch, fmt::format(fmt::runtime(ShopMsg(ESM::kWontRepair)),
-					fmt::arg("item", obj->get_PName(ECase::kAcc))).c_str());
+					fmt::arg("item", obj->get_PName(grammar::ECase::kAcc))).c_str());
 			return;
 		}
 		std::string tell = fmt::format(fmt::runtime(ShopMsg(ESM::kRepairCost)),
-				fmt::arg("item", obj->get_PName(ECase::kGen)), fmt::arg("amount", repair_price),
-				fmt::arg("currency", GetDeclensionInNumber(repair_price, EWhat::kMoneyU)));
+				fmt::arg("item", obj->get_PName(grammar::ECase::kGen)), fmt::arg("amount", repair_price),
+				fmt::arg("currency", grammar::GetDeclensionInNumber(repair_price, grammar::EWhat::kMoneyU)));
 		tell_to_char(keeper, ch, tell.c_str());
 
 		if (!ch->IsGod() && repair_price > ch->get_gold()) {

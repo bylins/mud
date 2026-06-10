@@ -658,12 +658,12 @@ void group::do_split(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, 
 
 	one_argument(argument, buf);
 
-	EWhat what_currency;
+	grammar::EWhat what_currency;
 
 	switch (currency) {
-		case currency::ICE : what_currency = EWhat::kIceU;
+		case currency::ICE : what_currency = grammar::EWhat::kIceU;
 			break;
-		default : what_currency = EWhat::kMoneyU;
+		default : what_currency = grammar::EWhat::kMoneyU;
 			break;
 	}
 
@@ -712,7 +712,7 @@ void group::do_split(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, 
 		}
 
 		sprintf(buf, "%s разделил%s %d %s; вам досталось %d.\r\n",
-				GET_NAME(ch), grammar::SexEnding((ch)->get_sex(), 1), amount, GetDeclensionInNumber(amount, what_currency), share);
+				GET_NAME(ch), grammar::SexEnding((ch)->get_sex(), 1), amount, grammar::GetDeclensionInNumber(amount, what_currency), share);
 		if (AFF_FLAGGED(k, EAffect::kGroup) && k->in_room == ch->in_room && !k->IsNpc() && k != ch) {
 			SendMsgToChar(buf, k);
 			switch (currency) {
@@ -741,11 +741,11 @@ void group::do_split(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, 
 			}
 		}
 		sprintf(buf, "Вы разделили %d %s на %d  -  по %d каждому.\r\n",
-				amount, GetDeclensionInNumber(amount, what_currency), num, share);
+				amount, grammar::GetDeclensionInNumber(amount, what_currency), num, share);
 		if (rest) {
 			sprintf(buf + strlen(buf),
 					"Как истинный еврей вы оставили %d %s (которые не смогли разделить нацело) себе.\r\n",
-					rest, GetDeclensionInNumber(rest, what_currency));
+					rest, grammar::GetDeclensionInNumber(rest, what_currency));
 		}
 
 		SendMsgToChar(buf, ch);

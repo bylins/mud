@@ -143,7 +143,7 @@ int horse_keeper(CharData *ch, void *me, int /*cmd*/, char *argument) {
 			}
 			act(fmt::format(fmt::runtime(specials::HorseMsg(specials::EHorseMsg::kForSale)),
 					fmt::arg("amount", kHorseCost),
-					fmt::arg("currency", GetDeclensionInNumber(kHorseCost, EWhat::kMoneyA))),
+					fmt::arg("currency", grammar::GetDeclensionInNumber(kHorseCost, grammar::EWhat::kMoneyA))),
 				false, ch, nullptr, victim, kToChar);
 			return (true);
 		return (1);
@@ -290,7 +290,7 @@ int npc_scavenge(CharData *ch) {
 					PlaceObjToInventory(best_obj, ch);
 				}
 			} else {
-				sprintf(buf, "$n достал$g $o3 из %s.", cont->get_PName(ECase::kGen).c_str());
+				sprintf(buf, "$n достал$g $o3 из %s.", cont->get_PName(grammar::ECase::kGen).c_str());
 				act(buf, false, ch, best_obj, 0, kToRoom);
 				if (best_obj->get_type() == EObjType::kMoney) {
 					ch->add_gold(GET_OBJ_VAL(best_obj, 0));
@@ -324,7 +324,7 @@ int npc_loot(CharData *ch) {
 						|| system_obj::is_purse(loot_obj))
 						&& CAN_GET_OBJ(ch, loot_obj)
 						&& !item_nouse(loot_obj)) {
-						sprintf(buf, "$n вытащил$g $o3 из %s.", obj->get_PName(ECase::kGen).c_str());
+						sprintf(buf, "$n вытащил$g $o3 из %s.", obj->get_PName(grammar::ECase::kGen).c_str());
 						act(buf, false, ch, loot_obj, 0, kToRoom);
 						if (loot_obj->get_type() == EObjType::kMoney) {
 							ch->add_gold(GET_OBJ_VAL(loot_obj, 0));
@@ -351,7 +351,7 @@ int npc_loot(CharData *ch) {
 						for (cobj = loot_obj->get_contains(); cobj; cobj = cnext_obj) {
 							cnext_obj = cobj->get_next_content();
 							if (CAN_GET_OBJ(ch, cobj) && !item_nouse(cobj)) {
-								sprintf(buf, "$n вытащил$g $o3 из %s.", obj->get_PName(ECase::kGen).c_str());
+								sprintf(buf, "$n вытащил$g $o3 из %s.", obj->get_PName(grammar::ECase::kGen).c_str());
 								act(buf, false, ch, cobj, 0, kToRoom);
 								if (cobj->get_type() == EObjType::kMoney) {
 									ch->add_gold(GET_OBJ_VAL(cobj, 0));
@@ -397,7 +397,7 @@ int npc_loot(CharData *ch) {
 						for (cobj = loot_obj->get_contains(); cobj; cobj = cnext_obj) {
 							cnext_obj = cobj->get_next_content();
 							if (CAN_GET_OBJ(ch, cobj) && !item_nouse(cobj)) {
-								sprintf(buf, "$n вытащил$g $o3 из %s.", obj->get_PName(ECase::kGen).c_str());
+								sprintf(buf, "$n вытащил$g $o3 из %s.", obj->get_PName(grammar::ECase::kGen).c_str());
 								act(buf, false, ch, cobj, 0, kToRoom);
 								if (cobj->get_type() == EObjType::kMoney) {
 									ch->add_gold(GET_OBJ_VAL(cobj, 0));
@@ -1383,7 +1383,7 @@ int BankBalance(CharData *ch, void * /*me*/, char * /*argument*/) {
 	if (ch->get_bank() > 0) {
 		SendMsgToChar(fmt::format(fmt::runtime(specials::BankMsg(specials::EBankMsg::kBalance)),
 				fmt::arg("amount", ch->get_bank()),
-				fmt::arg("currency", GetDeclensionInNumber(ch->get_bank(), EWhat::kMoneyA))) + "\r\n", ch);
+				fmt::arg("currency", grammar::GetDeclensionInNumber(ch->get_bank(), grammar::EWhat::kMoneyA))) + "\r\n", ch);
 	} else {
 		SendMsgToChar(specials::BankMsg(specials::EBankMsg::kNoMoney) + "\r\n", ch);
 	}
@@ -1404,7 +1404,7 @@ int BankDeposit(CharData *ch, void * /*me*/, char *argument) {
 	ch->add_bank(amount, false);
 	SendMsgToChar(fmt::format(fmt::runtime(specials::BankMsg(specials::EBankMsg::kDeposited)),
 			fmt::arg("amount", amount),
-			fmt::arg("currency", GetDeclensionInNumber(amount, EWhat::kMoneyU))) + "\r\n", ch);
+			fmt::arg("currency", grammar::GetDeclensionInNumber(amount, grammar::EWhat::kMoneyU))) + "\r\n", ch);
 	act(specials::BankMsg(specials::EBankMsg::kFinancialOp), true, ch, nullptr, nullptr, kToRoom);
 	return (1);
 }
@@ -1423,7 +1423,7 @@ int BankWithdraw(CharData *ch, void * /*me*/, char *argument) {
 	ch->remove_bank(amount, false);
 	SendMsgToChar(fmt::format(fmt::runtime(specials::BankMsg(specials::EBankMsg::kWithdrawn)),
 			fmt::arg("amount", amount),
-			fmt::arg("currency", GetDeclensionInNumber(amount, EWhat::kMoneyU))) + "\r\n", ch);
+			fmt::arg("currency", grammar::GetDeclensionInNumber(amount, grammar::EWhat::kMoneyU))) + "\r\n", ch);
 	act(specials::BankMsg(specials::EBankMsg::kFinancialOp), true, ch, nullptr, nullptr, kToRoom);
 	return (1);
 }

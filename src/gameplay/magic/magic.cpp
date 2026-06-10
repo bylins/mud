@@ -1112,17 +1112,17 @@ static void RenameAsUndead(CharData *ch, CharData *mob) {
 	mob->set_npc_name(buf2);
 	mob->player_data.long_descr = "";
 	sprintf(buf2, "умертвие %s", GET_PAD(mob, 1));
-	mob->player_data.PNames[ECase::kNom] = std::string(buf2);
+	mob->player_data.PNames[grammar::ECase::kNom] = std::string(buf2);
 	sprintf(buf2, "умертвию %s", GET_PAD(mob, 1));
-	mob->player_data.PNames[ECase::kDat] = std::string(buf2);
+	mob->player_data.PNames[grammar::ECase::kDat] = std::string(buf2);
 	sprintf(buf2, "умертвие %s", GET_PAD(mob, 1));
-	mob->player_data.PNames[ECase::kAcc] = std::string(buf2);
+	mob->player_data.PNames[grammar::ECase::kAcc] = std::string(buf2);
 	sprintf(buf2, "умертвием %s", GET_PAD(mob, 1));
-	mob->player_data.PNames[ECase::kIns] = std::string(buf2);
+	mob->player_data.PNames[grammar::ECase::kIns] = std::string(buf2);
 	sprintf(buf2, "умертвии %s", GET_PAD(mob, 1));
-	mob->player_data.PNames[ECase::kPre] = std::string(buf2);
+	mob->player_data.PNames[grammar::ECase::kPre] = std::string(buf2);
 	sprintf(buf2, "умертвия %s", GET_PAD(mob, 1));
-	mob->player_data.PNames[ECase::kGen] = std::string(buf2);
+	mob->player_data.PNames[grammar::ECase::kGen] = std::string(buf2);
 	mob->set_sex(EGender::kNeutral);
 	mob->SetFlag(EMobFlag::kResurrected);
 	mob->SetFlag(EMobFlag::kUndead);	// issue.npc-races: resurrected => undead

@@ -143,19 +143,19 @@ class CharClassInfo : public info_container::BaseItem<ECharClass> {
 	/* Имена */
 	std::unique_ptr<grammar::ItemName> names;
 	std::string abbr;
-	[[nodiscard]] const std::string &GetName(ECase name_case = ECase::kNom) const;
-	[[nodiscard]] const std::string &GetPluralName(ECase name_case = ECase::kNom) const;
+	[[nodiscard]] const std::string &GetName(grammar::ECase name_case = grammar::ECase::kNom) const;
+	[[nodiscard]] const std::string &GetPluralName(grammar::ECase name_case = grammar::ECase::kNom) const;
 	[[nodiscard]] const std::string &GetAbbr() const;
 
 	/**
 	 *  Строка в C-стиле. По возможности используйте std::string.
 	 */
-	[[nodiscard]] const char *GetCName(ECase name_case = ECase::kNom) const;
+	[[nodiscard]] const char *GetCName(grammar::ECase name_case = grammar::ECase::kNom) const;
 
 	/**
 	 *  Строка в C-стиле. По возможности используйте std::string.
 	 */
-	[[nodiscard]] const char *GetPluralCName(ECase name_case = ECase::kNom) const;
+	[[nodiscard]] const char *GetPluralCName(grammar::ECase name_case = grammar::ECase::kNom) const;
 
 	/* Всякого рода таланты класса - скиллы, спеллы и проч. */
 	Skills skills;

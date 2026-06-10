@@ -30,12 +30,12 @@ json SerializeMob(const CharData& mob, int vnum)
 	// Names (all 6 Russian cases + aliases)
 	json names;
 	names["aliases"] = Koi8rToUtf8(mob.get_npc_name());
-	names["nominative"] = Koi8rToUtf8(mob.player_data.PNames[ECase::kNom]);
-	names["genitive"] = Koi8rToUtf8(mob.player_data.PNames[ECase::kGen]);
-	names["dative"] = Koi8rToUtf8(mob.player_data.PNames[ECase::kDat]);
-	names["accusative"] = Koi8rToUtf8(mob.player_data.PNames[ECase::kAcc]);
-	names["instrumental"] = Koi8rToUtf8(mob.player_data.PNames[ECase::kIns]);
-	names["prepositional"] = Koi8rToUtf8(mob.player_data.PNames[ECase::kPre]);
+	names["nominative"] = Koi8rToUtf8(mob.player_data.PNames[grammar::ECase::kNom]);
+	names["genitive"] = Koi8rToUtf8(mob.player_data.PNames[grammar::ECase::kGen]);
+	names["dative"] = Koi8rToUtf8(mob.player_data.PNames[grammar::ECase::kDat]);
+	names["accusative"] = Koi8rToUtf8(mob.player_data.PNames[grammar::ECase::kAcc]);
+	names["instrumental"] = Koi8rToUtf8(mob.player_data.PNames[grammar::ECase::kIns]);
+	names["prepositional"] = Koi8rToUtf8(mob.player_data.PNames[grammar::ECase::kPre]);
 	mob_obj["names"] = names;
 
 	// Descriptions
@@ -227,18 +227,18 @@ json SerializeObject(const CObjectPrototype& obj, int vnum)
 
 	// Names (7 case forms)
 	json names;
-	for (int c = ECase::kFirstCase; c <= ECase::kLastCase; ++c)
+	for (int c = grammar::ECase::kFirstCase; c <= grammar::ECase::kLastCase; ++c)
 	{
-		ECase ecase = static_cast<ECase>(c);
+		grammar::ECase ecase = static_cast<grammar::ECase>(c);
 		std::string case_name;
 		switch (ecase)
 		{
-			case ECase::kNom: case_name = "nominative"; break;
-			case ECase::kGen: case_name = "genitive"; break;
-			case ECase::kDat: case_name = "dative"; break;
-			case ECase::kAcc: case_name = "accusative"; break;
-			case ECase::kIns: case_name = "instrumental"; break;
-			case ECase::kPre: case_name = "prepositional"; break;
+			case grammar::ECase::kNom: case_name = "nominative"; break;
+			case grammar::ECase::kGen: case_name = "genitive"; break;
+			case grammar::ECase::kDat: case_name = "dative"; break;
+			case grammar::ECase::kAcc: case_name = "accusative"; break;
+			case grammar::ECase::kIns: case_name = "instrumental"; break;
+			case grammar::ECase::kPre: case_name = "prepositional"; break;
 			default: continue;
 		}
 		names[case_name] = Koi8rToUtf8(obj.get_PName(ecase));

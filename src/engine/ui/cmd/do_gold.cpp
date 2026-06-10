@@ -16,7 +16,7 @@ void do_gold(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	else if (ch->get_gold() == 1)
 		SendMsgToChar("У вас есть всего лишь одна куна.\r\n", ch);
 	else {
-		sprintf(buf, "У Вас есть %ld %s.\r\n", ch->get_gold(), GetDeclensionInNumber(ch->get_gold(), EWhat::kMoneyA));
+		sprintf(buf, "У Вас есть %ld %s.\r\n", ch->get_gold(), grammar::GetDeclensionInNumber(ch->get_gold(), grammar::EWhat::kMoneyA));
 		SendMsgToChar(buf, ch);
 	}
 }

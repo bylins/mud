@@ -420,13 +420,13 @@ void mredit_disp_ingr_menu(DescriptorData *d) {
 	trec = OLC_MREC(d);
 	auto tobj = GetObjectPrototype(trec->obj_proto);
 	if (trec->obj_proto && tobj) {
-		objname = tobj->get_PName(ECase::kNom);
+		objname = tobj->get_PName(grammar::ECase::kNom);
 	} else {
 		objname = "Нет";
 	}
 	tobj = GetObjectPrototype(trec->parts[index].proto);
 	if (trec->parts[index].proto && tobj) {
-		ingrname = tobj->get_PName(ECase::kNom);
+		ingrname = tobj->get_PName(grammar::ECase::kNom);
 	} else {
 		ingrname = "Нет";
 	}
@@ -458,7 +458,7 @@ void mredit_disp_menu(DescriptorData *d) {
 	trec = OLC_MREC(d);
 	auto tobj = GetObjectPrototype(trec->obj_proto);
 	if (trec->obj_proto && tobj) {
-		objname = tobj->get_PName(ECase::kNom);
+		objname = tobj->get_PName(grammar::ECase::kNom);
 	} else {
 		objname = "Нет";
 	}
@@ -488,7 +488,7 @@ void mredit_disp_menu(DescriptorData *d) {
 	for (int i = 0; i < MAX_PARTS; i++) {
 		tobj = GetObjectPrototype(trec->parts[i].proto);
 		if (trec->parts[i].proto && tobj) {
-			objname = tobj->get_PName(ECase::kNom);
+			objname = tobj->get_PName(grammar::ECase::kNom);
 		} else {
 			objname = "Нет";
 		}
@@ -523,7 +523,7 @@ void do_list_make(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 		trec = make_recepts[i];
 		auto obj = GetObjectPrototype(trec->obj_proto);
 		if (obj) {
-			obj_name = utils::RemoveColors(obj->get_PName(ECase::kNom).substr(0, 39));
+			obj_name = utils::RemoveColors(obj->get_PName(grammar::ECase::kNom).substr(0, 39));
 		}
 		while (make_skills[j].num != ESkill::kUndefined) {
 			if (make_skills[j].num == trec->skill) {
@@ -539,7 +539,7 @@ void do_list_make(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 			if (trec->parts[j].proto != 0) {
 				obj = GetObjectPrototype(trec->parts[j].proto);
 				if (obj) {
-					obj_name = utils::RemoveColors(obj->get_PName(ECase::kNom).substr(0, 34));
+					obj_name = utils::RemoveColors(obj->get_PName(grammar::ECase::kNom).substr(0, 34));
 				} else {
 					obj_name = "Нет";
 				}
@@ -615,7 +615,7 @@ void do_make_item(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			auto tobj = GetObjectPrototype(canlist[i]->obj_proto);
 			if (!tobj)
 				return;
-			sprintf(tmpbuf, "%zd) %s\r\n", i + 1, tobj->get_PName(ECase::kNom).c_str());
+			sprintf(tmpbuf, "%zd) %s\r\n", i + 1, tobj->get_PName(grammar::ECase::kNom).c_str());
 			tmpstr += string(tmpbuf);
 		};
 		SendMsgToChar(tmpstr.c_str(), ch);
@@ -1479,21 +1479,21 @@ void MakeRecept::make_object(CharData *ch, ObjData *obj, ObjData *ingrs[MAX_PART
 	int i, j;
 	//ставим именительные именительные падежи в алиасы
 	sprintf(buf, "%s %s %s %s",
-			obj->get_PName(ECase::kNom).c_str(),
-			ingrs[0]->get_PName(ECase::kGen).c_str(),
-			ingrs[1]->get_PName(ECase::kIns).c_str(),
-			ingrs[2]->get_PName(ECase::kIns).c_str());
+			obj->get_PName(grammar::ECase::kNom).c_str(),
+			ingrs[0]->get_PName(grammar::ECase::kGen).c_str(),
+			ingrs[1]->get_PName(grammar::ECase::kIns).c_str(),
+			ingrs[2]->get_PName(grammar::ECase::kIns).c_str());
 	obj->set_aliases(buf);
-	for (i = ECase::kFirstCase; i <= ECase::kLastCase; i++) // ставим падежи в имя с учетов ингров
+	for (i = grammar::ECase::kFirstCase; i <= grammar::ECase::kLastCase; i++) // ставим падежи в имя с учетов ингров
 	{
-		auto name_case = static_cast<ECase>(i);
+		auto name_case = static_cast<grammar::ECase>(i);
 		sprintf(buf, "%s", obj->get_PName(name_case).c_str());
 		strcat(buf, " из ");
-		strcat(buf, ingrs[0]->get_PName(ECase::kGen).c_str());
+		strcat(buf, ingrs[0]->get_PName(grammar::ECase::kGen).c_str());
 		strcat(buf, " с ");
-		strcat(buf, ingrs[1]->get_PName(ECase::kIns).c_str());
+		strcat(buf, ingrs[1]->get_PName(grammar::ECase::kIns).c_str());
 		strcat(buf, " и ");
-		strcat(buf, ingrs[2]->get_PName(ECase::kIns).c_str());
+		strcat(buf, ingrs[2]->get_PName(grammar::ECase::kIns).c_str());
 		obj->set_PName(name_case, buf);
 		if (i == 0) // именительный падеж
 		{
@@ -1573,7 +1573,7 @@ void MakeRecept::make_object(CharData *ch, ObjData *obj, ObjData *ingrs[MAX_PART
 static std::string craft_recipe_name(int recipe_id) {
 	const auto proto = GetObjectPrototype(recipe_id);
 	if (proto) {
-		return proto->get_PName(ECase::kNom); // KOI8-R; auto-converted by OtelMetrics
+		return proto->get_PName(grammar::ECase::kNom); // KOI8-R; auto-converted by OtelMetrics
 	}
 	return std::to_string(recipe_id);
 }
@@ -1633,14 +1633,14 @@ int MakeRecept::make(CharData *ch) {
 		ingrs[i] = get_obj_in_list_ingr(parts[i].proto, ch->carrying);
 		ingr_lev = get_ingr_lev(ingrs[i]);
 		if (!ch->IsImpl() && (ingr_lev > (GetRealLevel(ch) + 2 * GetRealRemort(ch)))) {
-			tmpstr = "Вы побоялись испортить " + ingrs[i]->get_PName(ECase::kAcc)
-				+ "\r\n и прекратили работу над " + tobj->get_PName(ECase::kIns) + ".\r\n";
+			tmpstr = "Вы побоялись испортить " + ingrs[i]->get_PName(grammar::ECase::kAcc)
+				+ "\r\n и прекратили работу над " + tobj->get_PName(grammar::ECase::kIns) + ".\r\n";
 			SendMsgToChar(tmpstr.c_str(), ch);
 			return (false);
 		};
 		ingr_pow = get_ingr_pow(ingrs[i]);
 		if (ingr_pow < parts[i].min_power) {
-			tmpstr = "$o не подходит для изготовления " + tobj->get_PName(ECase::kGen) + ".";
+			tmpstr = "$o не подходит для изготовления " + tobj->get_PName(grammar::ECase::kGen) + ".";
 			act(tmpstr.c_str(), false, ch, ingrs[i], 0, kToChar);
 			return (false);
 		}
@@ -1779,7 +1779,7 @@ int MakeRecept::make(CharData *ch) {
 		}
 		// Шанс испортить не ингредиент всетаки есть.
 		if ((number(0, 30) < (5 + ingr_lev - GetRealLevel(ch) - 2 * GetRealRemort(ch))) && !ch->IsImpl()) {
-			tmpstr = "Вы испортили " + ingrs[i]->get_PName(ECase::kAcc) + ".\r\n";
+			tmpstr = "Вы испортили " + ingrs[i]->get_PName(grammar::ECase::kAcc) + ".\r\n";
 			SendMsgToChar(tmpstr.c_str(), ch);
 			//extract_obj(ingrs[i]); //заменим на обнуление веса
 			//чтобы не крешило дальше в обработке фейла (Купала)
@@ -1795,7 +1795,7 @@ int MakeRecept::make(CharData *ch) {
 	if (ch->get_move() < craft_move) {
 		ch->set_move(0);
 		// Вам не хватило сил доделать.
-		tmpstr = "Вам не хватило сил доделать " + tobj->get_PName(ECase::kAcc) + ".\r\n";
+		tmpstr = "Вам не хватило сил доделать " + tobj->get_PName(grammar::ECase::kAcc) + ".\r\n";
 		SendMsgToChar(tmpstr.c_str(), ch);
 		make_fail = true;
 	} else {
@@ -1812,7 +1812,7 @@ int MakeRecept::make(CharData *ch) {
 			{
 				IS_CARRYING_W(ch) -= ingrs[0]->get_weight();
 				ingrs[0]->set_weight(0);  // шкуру дикеим полностью
-				tmpstr = "Вы раскроили полностью " + ingrs[0]->get_PName(ECase::kAcc) + ".\r\n";
+				tmpstr = "Вы раскроили полностью " + ingrs[0]->get_PName(grammar::ECase::kAcc) + ".\r\n";
 				SendMsgToChar(tmpstr.c_str(), ch);
 				continue;
 			}
@@ -1841,7 +1841,7 @@ int MakeRecept::make(CharData *ch) {
 				//Сперва проверяем сколько нам нужно. Если вес ингра больше, чем требуется, то вычитаем вес и останавливаем итерацию.
 				if (ingrs[i]->get_weight() > state) {
 					ingrs[i]->sub_weight(state);
-					SendMsgToChar(ch, "Вы использовали %s.\r\n", ingrs[i]->get_PName(ECase::kAcc).c_str());
+					SendMsgToChar(ch, "Вы использовали %s.\r\n", ingrs[i]->get_PName(grammar::ECase::kAcc).c_str());
 					IS_CARRYING_W(ch) -= state;
 					break;
 				}
@@ -1849,7 +1849,7 @@ int MakeRecept::make(CharData *ch) {
 				else if (ingrs[i]->get_weight() == state) {
 					IS_CARRYING_W(ch) -= ingrs[i]->get_weight();
 					ingrs[i]->set_weight(0);
-					SendMsgToChar(ch, "Вы полностью использовали %s.\r\n", ingrs[i]->get_PName(ECase::kAcc).c_str());
+					SendMsgToChar(ch, "Вы полностью использовали %s.\r\n", ingrs[i]->get_PName(grammar::ECase::kAcc).c_str());
 					//extract_obj(ingrs[i]);
 					break;
 				}
@@ -1858,8 +1858,8 @@ int MakeRecept::make(CharData *ch) {
 					state = state - ingrs[i]->get_weight();
 					SendMsgToChar(ch,
 								  "Вы полностью использовали %s и начали искать следующий ингредиент.\r\n",
-								  ingrs[i]->get_PName(ECase::kAcc).c_str());
-					std::string tmpname = std::string(ingrs[i]->get_PName(ECase::kGen).c_str());
+								  ingrs[i]->get_PName(grammar::ECase::kAcc).c_str());
+					std::string tmpname = std::string(ingrs[i]->get_PName(grammar::ECase::kGen).c_str());
 					IS_CARRYING_W(ch) -= ingrs[i]->get_weight();
 					ingrs[i]->set_weight(0);
 					ExtractObjFromWorld(ingrs[i]);
@@ -2309,20 +2309,20 @@ char *format_act(const char *orig, CharData *ch, ObjData *obj, const void *vict_
 
 				case 'o':
 					if (*(orig + 1) < '0' || *(orig + 1) > '5') {
-						CHECK_NULL(obj, obj->get_PName(ECase::kNom).c_str());
+						CHECK_NULL(obj, obj->get_PName(grammar::ECase::kNom).c_str());
 					} else {
 						padis = *(++orig) - '0';
-						CHECK_NULL(obj, obj->get_PName(padis > ECase::kLastCase ?
-						ECase::kFirstCase : static_cast<ECase>(padis)).c_str());
+						CHECK_NULL(obj, obj->get_PName(padis > grammar::ECase::kLastCase ?
+						grammar::ECase::kFirstCase : static_cast<grammar::ECase>(padis)).c_str());
 					}
 					break;
 				case 'O':
 					if (*(orig + 1) < '0' || *(orig + 1) > '5') {
-						CHECK_NULL(vict_obj, ((const ObjData *) vict_obj)->get_PName(ECase::kNom).c_str());
+						CHECK_NULL(vict_obj, ((const ObjData *) vict_obj)->get_PName(grammar::ECase::kNom).c_str());
 					} else {
 						padis = *(++orig) - '0';
-						CHECK_NULL(vict_obj, ((const ObjData *) vict_obj)->get_PName(padis > ECase::kLastCase ?
-						ECase::kFirstCase : static_cast<ECase>(padis)).c_str());
+						CHECK_NULL(vict_obj, ((const ObjData *) vict_obj)->get_PName(padis > grammar::ECase::kLastCase ?
+						grammar::ECase::kFirstCase : static_cast<grammar::ECase>(padis)).c_str());
 					}
 					//dg_victim = (CharacterData *) vict_obj;
 					break;

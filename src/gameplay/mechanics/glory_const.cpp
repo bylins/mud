@@ -185,7 +185,7 @@ void add_glory(long uid, int amount) {
 	if (d) {
 		SendMsgToChar(d->character.get(), "%sВы заслужили %d %s постоянной славы!%s\r\n",
 					  kColorGrn,
-					  amount, GetDeclensionInNumber(amount, EWhat::kPoint),
+					  amount, grammar::GetDeclensionInNumber(amount, grammar::EWhat::kPoint),
 					  kColorNrm);
 	}
 	save();

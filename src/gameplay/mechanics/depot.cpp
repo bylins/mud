@@ -799,7 +799,7 @@ void print_obj(std::stringstream &i_out, std::stringstream &s_out,
 		out << " [" << count << "]";
 	}
 	out << " [" << get_object_low_rent(obj) << " "
-		<< GetDeclensionInNumber(get_object_low_rent(obj), EWhat::kMoneyA) << "]\r\n";
+		<< grammar::GetDeclensionInNumber(get_object_low_rent(obj), grammar::EWhat::kMoneyA) << "]\r\n";
 }
 
 // * Расчет кол-ва слотов под шмотки в персональном хранилище с учетом профы чара.
@@ -857,10 +857,10 @@ std::string print_obj_list(CharData *ch, ObjListType &cont) {
 	std::stringstream head;
 	head << kColorWht
 		 << "Ваше персональное хранилище. Рента в день: "
-		 << rent_per_day << " " << GetDeclensionInNumber(rent_per_day, EWhat::kMoneyA);
+		 << rent_per_day << " " << grammar::GetDeclensionInNumber(rent_per_day, grammar::EWhat::kMoneyA);
 	if (rent_per_day) {
 		head << ", денег хватит на " << expired
-			 << " " << GetDeclensionInNumber(expired, EWhat::kDay);
+			 << " " << grammar::GetDeclensionInNumber(expired, grammar::EWhat::kDay);
 	}
 	head << ".\r\n"
 		 << "Заполненность отделения для вещей: "
@@ -943,7 +943,7 @@ void put_gold_chest(CharData *ch, const ObjData::shared_ptr &obj) {
 	ch->add_bank(gold);
 	RemoveObjFromChar(obj.get());
 	ExtractObjFromWorld(obj.get());
-	SendMsgToChar(ch, "Вы вложили %ld %s.\r\n", gold, GetDeclensionInNumber(gold, EWhat::kMoneyU));
+	SendMsgToChar(ch, "Вы вложили %ld %s.\r\n", gold, grammar::GetDeclensionInNumber(gold, grammar::EWhat::kMoneyU));
 }
 
 /**
@@ -955,14 +955,14 @@ bool can_put_chest(CharData *ch, ObjData *obj) {
 	if (obj->is_unrentable()
 		|| obj->has_flag(EObjFlag::kDecay)
 		|| NamedStuff::check_named(ch, obj, 0)) {
-		SendMsgToChar(ch, "Неведомая сила помешала положить %s в хранилище.\r\n", obj->get_PName(ECase::kAcc).c_str());
+		SendMsgToChar(ch, "Неведомая сила помешала положить %s в хранилище.\r\n", obj->get_PName(grammar::ECase::kAcc).c_str());
 		return 0;
 	} else if (obj->get_type() == EObjType::kContainer
 		&& obj->get_contains()) {
-		SendMsgToChar(ch, "В %s что-то лежит.\r\n", obj->get_PName(ECase::kPre).c_str());
+		SendMsgToChar(ch, "В %s что-то лежит.\r\n", obj->get_PName(grammar::ECase::kPre).c_str());
 		return 0;
 	} else if (SetSystem::is_norent_set(ch, obj)) {
-		snprintf(buf, kMaxStringLength, "%s - требуется две и более вещи из набора.\r\n", obj->get_PName(ECase::kNom).c_str());
+		snprintf(buf, kMaxStringLength, "%s - требуется две и более вещи из набора.\r\n", obj->get_PName(grammar::ECase::kNom).c_str());
 		SendMsgToChar(utils::CAP(buf), ch);
 		return 0;
 	}
@@ -1295,7 +1295,7 @@ void enter_char(CharData *ch) {
 		if (it->second.money_spend > 0) {
 			SendMsgToChar(ch, "%sХранилище: за время вашего отсутствия удержано %ld %s.%s\r\n\r\n",
 						  kColorWht, it->second.money_spend,
-						  GetDeclensionInNumber(it->second.money_spend, EWhat::kMoneyA), kColorNrm);
+						  grammar::GetDeclensionInNumber(it->second.money_spend, grammar::EWhat::kMoneyA), kColorNrm);
 
 			long rest = ch->remove_both_gold(it->second.money_spend);
 			if (rest > 0) {
@@ -1523,7 +1523,7 @@ int report_unrentables(CharData *ch, CharData *recep) {
 			if (SetSystem::is_norent_set(ch, obj_it->get())) {
 				snprintf(buf, kMaxStringLength,
 						 "$n сказал$g вам : \"Я не приму на постой %s - требуется две и более вещи из набора.\"",
-						 OBJN(obj_it->get(), ch, ECase::kAcc));
+						 OBJN(obj_it->get(), ch, grammar::ECase::kAcc));
 				act(buf, false, recep, 0, ch, kToVict);
 				return 1;
 			}

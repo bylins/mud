@@ -450,7 +450,7 @@ void PlaceObjToInventory(ObjData *object, CharData *ch) {
 				{
 					sprintf(buf,
 							"Copy detected and prepared to extract! Object %s (UID=%ld, VNUM=%d), holder %s. In world %d.",
-							object->get_PName(ECase::kNom).c_str(),
+							object->get_PName(grammar::ECase::kNom).c_str(),
 							object->get_unique_id(),
 							GET_OBJ_VNUM(object),
 							GET_NAME(ch),
@@ -465,7 +465,7 @@ void PlaceObjToInventory(ObjData *object, CharData *ch) {
 				InitUid(object);
 				log("%s obj_to_char %s #%d|%ld",
 					GET_NAME(ch),
-					object->get_PName(ECase::kNom).c_str(),
+					object->get_PName(grammar::ECase::kNom).c_str(),
 					GET_OBJ_VNUM(object),
 					object->get_unique_id());
 			}
@@ -787,7 +787,7 @@ void EquipObj(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip_f
 	//	return;
 	//}
 	if (obj->get_in_room() != kNowhere) {
-		log("SYSERR: EQUIP: %s - Obj is in_room when equip.", OBJN(obj, ch, ECase::kNom));
+		log("SYSERR: EQUIP: %s - Obj is in_room when equip.", OBJN(obj, ch, grammar::ECase::kNom));
 		return;
 	}
 
@@ -826,9 +826,9 @@ void EquipObj(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip_f
 		if ((obj->get_auto_mort_req() >= 0) && (obj->get_auto_mort_req() > GetRealRemort(master))
 			&& !master->IsImmortal()) {
 			SendMsgToChar(master, "Для использования %s требуется %d %s.\r\n",
-						  obj->get_PName(ECase::kGen).c_str(),
+						  obj->get_PName(grammar::ECase::kGen).c_str(),
 						  obj->get_auto_mort_req(),
-						  GetDeclensionInNumber(obj->get_auto_mort_req(), EWhat::kRemort));
+						  grammar::GetDeclensionInNumber(obj->get_auto_mort_req(), grammar::EWhat::kRemort));
 			act("$n попытал$u использовать $o3, но у н$s ничего не получилось.", false, ch, obj, nullptr, kToRoom);
 			if (!obj->get_carried_by()) {
 				PlaceObjToInventory(obj, ch);
@@ -837,7 +837,7 @@ void EquipObj(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip_f
 		} else if ((obj->get_auto_mort_req() < -1) && (abs(obj->get_auto_mort_req()) < GetRealRemort(master))
 			&& !master->IsImmortal()) {
 			SendMsgToChar(master, "Максимально количество перевоплощений для использования %s равно %d.\r\n",
-						  obj->get_PName(ECase::kGen).c_str(),
+						  obj->get_PName(grammar::ECase::kGen).c_str(),
 						  abs(obj->get_auto_mort_req()));
 			act("$n попытал$u использовать $o3, но у н$s ничего не получилось.",
 				false, ch, obj, nullptr, kToRoom);
@@ -1271,7 +1271,7 @@ bool PlaceObjToRoom(ObjData *object, RoomRnum room) {
 				|| object->has_flag(EObjFlag::kAppearsNight))) {
 			debug::backtrace(runtime_config.logs(SYSLOG).handle());
 			sprintf(buf, "Попытка поместить объект в виртуальную комнату: objvnum %d, objname %s, roomvnum %d, создан coredump", 
-					object->get_vnum(), object->get_PName(ECase::kNom).c_str(), world[room]->vnum);
+					object->get_vnum(), object->get_PName(grammar::ECase::kNom).c_str(), world[room]->vnum);
 			mudlog(buf, CMP, kLvlGod, SYSLOG, true);
 		}
 	}
@@ -1311,7 +1311,7 @@ bool CheckObjDecay(ObjData *object,  bool need_extract) {
 	}
 	if (room < 0 || room > top_of_world) {
 		log("SYSERR: CheckObjDecay: object '%s' vnum %d has invalid room %d",
-			object->get_PName(ECase::kNom).c_str(), GET_OBJ_VNUM(object), room);
+			object->get_PName(grammar::ECase::kNom).c_str(), GET_OBJ_VNUM(object), room);
 		return false;
 	}
 	sect = real_sector(room);
@@ -1325,7 +1325,7 @@ bool CheckObjDecay(ObjData *object,  bool need_extract) {
 		act("$o0 медленно утонул$G.",
 			false, world[room]->first_character(), object, nullptr, kToChar);
 		if (need_extract) {
-			log("[Obj decay] for: %s vnum == %d", object->get_PName(ECase::kNom).c_str(), GET_OBJ_VNUM(object));
+			log("[Obj decay] for: %s vnum == %d", object->get_PName(grammar::ECase::kNom).c_str(), GET_OBJ_VNUM(object));
 			ExtractObjFromWorld(object);
 		}
 		return true;
@@ -1338,7 +1338,7 @@ bool CheckObjDecay(ObjData *object,  bool need_extract) {
 		act("$o0 упал$G вниз.",
 			false, world[room]->first_character(), object, nullptr, kToChar);
 		if (need_extract) {
-			log("[Obj decay] for: %s vnum == %d", object->get_PName(ECase::kNom).c_str(), GET_OBJ_VNUM(object));
+			log("[Obj decay] for: %s vnum == %d", object->get_PName(grammar::ECase::kNom).c_str(), GET_OBJ_VNUM(object));
 			ExtractObjFromWorld(object);
 		}
 		return true;
@@ -1350,7 +1350,7 @@ bool CheckObjDecay(ObjData *object,  bool need_extract) {
 		act("$o0 рассыпал$U в мелкую пыль, которую развеял ветер.", false,
 			world[room]->first_character(), object, nullptr, kToChar);
 		if (need_extract) {
-			log("[Obj decay] for: %s vnum == %d", object->get_PName(ECase::kNom).c_str(), GET_OBJ_VNUM(object));
+			log("[Obj decay] for: %s vnum == %d", object->get_PName(grammar::ECase::kNom).c_str(), GET_OBJ_VNUM(object));
 			ExtractObjFromWorld(object);
 		}
 		return true;
@@ -1359,7 +1359,7 @@ bool CheckObjDecay(ObjData *object,  bool need_extract) {
 		act("$o0 исчез$Q в яркой вспышке.", false,
 			world[room]->first_character(), object, nullptr, kToChar);
 		if (need_extract) {
-			log("[Obj decay] extract in DT #%d for: %s vnum == %d", world[object->get_in_room()]->vnum, object->get_PName(ECase::kNom).c_str(), GET_OBJ_VNUM(object));
+			log("[Obj decay] extract in DT #%d for: %s vnum == %d", world[object->get_in_room()]->vnum, object->get_PName(grammar::ECase::kNom).c_str(), GET_OBJ_VNUM(object));
 			ExtractObjFromWorld(object);
 		}
 		return true;
@@ -1470,7 +1470,7 @@ void ExtractObjFromWorld(ObjData *obj, bool showlog) {
 	int roomload = get_room_where_obj(obj, false);
 	utils::CExecutionTimer timer;
 
-	strcpy(name, obj->get_PName(ECase::kNom).c_str());
+	strcpy(name, obj->get_PName(grammar::ECase::kNom).c_str());
 //	if (showlog);
 	{
 		log("[Extract obj] Start for: %s vnum == %d room = %d timer == %d",
@@ -2263,7 +2263,7 @@ void can_carry_obj(CharData *ch, ObjData *obj) {
 		CheckObjDecay(obj);
 	} else {
 		if (obj->get_weight() + ch->GetCarryingWeight() > CAN_CARRY_W(ch)) {
-			sprintf(buf, "Вам слишком тяжело нести еще и %s.", obj->get_PName(ECase::kAcc).c_str());
+			sprintf(buf, "Вам слишком тяжело нести еще и %s.", obj->get_PName(grammar::ECase::kAcc).c_str());
 			SendMsgToChar(buf, ch);
 			PlaceObjToRoom(obj, ch->in_room);
 			// obj_decay(obj);

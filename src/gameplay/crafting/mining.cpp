@@ -116,9 +116,9 @@ void dig_obj(CharData *ch, ObjData *obj) {
 
 	if (GetObjMIW(obj->get_rnum()) >= obj_proto.actual_count(obj->get_rnum())
 		|| GetObjMIW(obj->get_rnum()) == ObjData::UNLIMITED_GLOBAL_MAXIMUM) {
-		sprintf(textbuf, "Вы нашли %s!\r\n", obj->get_PName(ECase::kAcc).c_str());
+		sprintf(textbuf, "Вы нашли %s!\r\n", obj->get_PName(grammar::ECase::kAcc).c_str());
 		SendMsgToChar(textbuf, ch);
-		sprintf(textbuf, "$n выкопал$g %s!\r\n", obj->get_PName(ECase::kAcc).c_str());
+		sprintf(textbuf, "$n выкопал$g %s!\r\n", obj->get_PName(grammar::ECase::kAcc).c_str());
 		act(textbuf, false, ch, nullptr, nullptr, kToRoom);
 		if (ch->GetCarryingQuantity() >= CAN_CARRY_N(ch)) {
 			SendMsgToChar("Вы не смогли унести столько предметов.\r\n", ch);
@@ -204,9 +204,9 @@ void do_dig(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		if (mob) {
 			if (GetRealLevel(mob) <= GetRealLevel(ch)) {
 				mob->SetFlag(EMobFlag::kAgressive);
-				sprintf(textbuf, "Вы выкопали %s!\r\n", mob->player_data.PNames[ECase::kAcc].c_str());
+				sprintf(textbuf, "Вы выкопали %s!\r\n", mob->player_data.PNames[grammar::ECase::kAcc].c_str());
 				SendMsgToChar(textbuf, ch);
-				sprintf(textbuf, "$n выкопал$g %s!\r\n", mob->player_data.PNames[ECase::kAcc].c_str());
+				sprintf(textbuf, "$n выкопал$g %s!\r\n", mob->player_data.PNames[grammar::ECase::kAcc].c_str());
 				act(textbuf, false, ch, nullptr, nullptr, kToRoom);
 				PlaceCharToRoom(mob, ch->in_room);
 				return;

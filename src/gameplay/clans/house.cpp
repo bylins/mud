@@ -1024,10 +1024,10 @@ void Clan::HouseInfo(CharData *ch) {
 		   << " Это очень круто :), но ничего вам не дает.\r\n"
 		   << "Ваша дружина имеет " << this->get_rep() << " очков репутации.\r\n"
 		   << "В хранилище замка может храниться до " << this->ChestMaxObjects()
-		   << " " << GetDeclensionInNumber(this->ChestMaxObjects(), EWhat::kObjU)
+		   << " " << grammar::GetDeclensionInNumber(this->ChestMaxObjects(), grammar::EWhat::kObjU)
 		   << " с общим весом не более чем " << this->ChestMaxWeight() << "\r\n"
 		   << "В хранилище ингредиентов может храниться до " << this->ingr_chest_max_objects()
-		   << " " << GetDeclensionInNumber(this->ingr_chest_max_objects(), EWhat::kObjU)
+		   << " " << grammar::GetDeclensionInNumber(this->ingr_chest_max_objects(), grammar::EWhat::kObjU)
 		   << ".\r\n";
 
 	// инфа о банке и хранилище
@@ -1037,25 +1037,25 @@ void Clan::HouseInfo(CharData *ch) {
 	int total_tax = cost + ingr_cost + options_tax;
 
 	buffer << "В хранилище вашей дружины " << this->chest_objcount << " "
-		   << GetDeclensionInNumber(this->chest_objcount, EWhat::kObject)
+		   << grammar::GetDeclensionInNumber(this->chest_objcount, grammar::EWhat::kObject)
 		   << " общим весом в " << this->chest_weight
-		   << " (" << cost << " " << GetDeclensionInNumber(cost, EWhat::kMoneyA) << " в день).\r\n"
+		   << " (" << cost << " " << grammar::GetDeclensionInNumber(cost, grammar::EWhat::kMoneyA) << " в день).\r\n"
 		   << "В хранилище ингредиентов " << ingr_chest_objcount_ << " "
-		   << GetDeclensionInNumber(ingr_chest_objcount_, EWhat::kObject)
-		   << " (" << ingr_cost << " " << GetDeclensionInNumber(ingr_cost, EWhat::kMoneyA) << " в день).\r\n\r\n"
+		   << grammar::GetDeclensionInNumber(ingr_chest_objcount_, grammar::EWhat::kObject)
+		   << " (" << ingr_cost << " " << grammar::GetDeclensionInNumber(ingr_cost, grammar::EWhat::kMoneyA) << " в день).\r\n\r\n"
 		   << "Состояние казны: " << this->bank << " "
-		   << GetDeclensionInNumber(this->bank, EWhat::kMoneyA) << ".\r\n"
+		   << grammar::GetDeclensionInNumber(this->bank, grammar::EWhat::kMoneyA) << ".\r\n"
 		   << "Расходы на инфраструктуру замка: " << options_tax << " "
-		   << GetDeclensionInNumber(options_tax, EWhat::kMoneyA)
+		   << grammar::GetDeclensionInNumber(options_tax, grammar::EWhat::kMoneyA)
 		   << " в день, Общие расходы: " << total_tax << " "
-		   << GetDeclensionInNumber(total_tax, EWhat::kMoneyA) << " в день.\r\n";
+		   << grammar::GetDeclensionInNumber(total_tax, grammar::EWhat::kMoneyA) << " в день.\r\n";
 
 	if (total_tax <= 0) {
 		buffer << "Ваших денег хватит на нереальное количество дней.\r\n";
 	} else {
 		buffer << "Ваших денег хватит примерно на "
 			   << bank / total_tax << " "
-			   << GetDeclensionInNumber(bank / total_tax, EWhat::kDay) << ".\r\n";
+			   << grammar::GetDeclensionInNumber(bank / total_tax, grammar::EWhat::kDay) << ".\r\n";
 	}
 	buffer << "Налог для ратников дружины: " << get_gold_tax_pct() << "%\r\n";
 
@@ -2236,7 +2236,7 @@ bool Clan::PutChest(CharData *ch, ObjData *obj, ObjData *chest) {
 			ExtractObjFromWorld(obj);
 			ch->add_gold(gold);
 			SendMsgToChar(ch, "Вам это не положено! Вы вновь обрели %ld %s.\r\n",
-						  gold, GetDeclensionInNumber(gold, EWhat::kMoneyU));
+						  gold, grammar::GetDeclensionInNumber(gold, grammar::EWhat::kMoneyU));
 			return true;
 		}
 		// здесь и далее: в случае переполнения  - кладем сколько можем, остальное возвращаем чару
@@ -2251,14 +2251,14 @@ bool Clan::PutChest(CharData *ch, ObjData *obj, ObjData *chest) {
 			SendMsgToChar(ch,
 						  "Вам удалось вложить в казну дружины только %ld %s.\r\n",
 						  over,
-						  GetDeclensionInNumber(over, EWhat::kMoneyU));
+						  grammar::GetDeclensionInNumber(over, grammar::EWhat::kMoneyU));
 			return true;
 		}
 		CLAN(ch)->bank += gold;
 		CLAN(ch)->m_members.add_money(ch->get_uid(), gold);
 		RemoveObjFromChar(obj);
 		ExtractObjFromWorld(obj);
-		SendMsgToChar(ch, "Вы вложили в казну дружины %ld %s.\r\n", gold, GetDeclensionInNumber(gold, EWhat::kMoneyU));
+		SendMsgToChar(ch, "Вы вложили в казну дружины %ld %s.\r\n", gold, grammar::GetDeclensionInNumber(gold, grammar::EWhat::kMoneyU));
 
 	} else if (obj->has_flag(EObjFlag::kNodrop)
 		|| obj->is_unrentable()
@@ -2269,7 +2269,7 @@ bool Clan::PutChest(CharData *ch, ObjData *obj, ObjData *chest) {
 		&& obj->get_contains()) {
 		act("В $o5 что-то лежит.", false, ch, obj, nullptr, kToChar);
 	} else if (SetSystem::is_norent_set(ch, obj, true) && obj->has_flag(EObjFlag::kNotOneInClanChest)) {
-		snprintf(buf, kMaxStringLength, "%s - требуется две и более вещи из набора.\r\n", obj->get_PName(ECase::kNom).c_str());
+		snprintf(buf, kMaxStringLength, "%s - требуется две и более вещи из набора.\r\n", obj->get_PName(grammar::ECase::kNom).c_str());
 		SendMsgToChar(utils::CAP(buf), ch);
 		return false;
 	} else {
@@ -2289,7 +2289,7 @@ bool Clan::PutChest(CharData *ch, ObjData *obj, ObjData *chest) {
 		ObjSaveSync::add(ch->get_uid(), CLAN(ch)->GetRent(), ObjSaveSync::CLAN_SAVE);
 
 		CLAN(ch)->chest_log.add(fmt::format("{} сдал{} {}{}\r\n",
-											ch->get_name(), grammar::SexEnding((ch)->get_sex(), 1), obj->get_PName(ECase::kAcc),
+											ch->get_name(), grammar::SexEnding((ch)->get_sex(), 1), obj->get_PName(grammar::ECase::kAcc),
 											clan_get_custom_label(obj, CLAN(ch))));
 
 		// канал хранилища
@@ -2301,7 +2301,7 @@ bool Clan::PutChest(CharData *ch, ObjData *obj, ObjData *chest) {
 				&& CLAN(d->character) == CLAN(ch)
 				&& d->character->IsFlagged(EPrf::kTakeMode)) {
 				SendMsgToChar(d->character.get(), "[Хранилище]: %s'%s сдал%s %s%s.'%s\r\n",
-							  kColorBoldRed, GET_NAME(ch), grammar::SexEnding((ch)->get_sex(), 1), obj->get_PName(ECase::kAcc).c_str(),
+							  kColorBoldRed, GET_NAME(ch), grammar::SexEnding((ch)->get_sex(), 1), obj->get_PName(grammar::ECase::kAcc).c_str(),
 							  clan_get_custom_label(obj, CLAN(ch)).c_str(), kColorNrm);
 			}
 		}
@@ -2333,7 +2333,7 @@ bool Clan::TakeChest(CharData *ch, ObjData *obj, ObjData *chest) {
 
 	if (obj->get_carried_by() == ch) {
 		std::string log_text = fmt::format("{} забрал{} {}{}\r\n",
-										   GET_NAME(ch), grammar::SexEnding((ch)->get_sex(), 1), obj->get_PName(ECase::kAcc),
+										   GET_NAME(ch), grammar::SexEnding((ch)->get_sex(), 1), obj->get_PName(grammar::ECase::kAcc),
 										   clan_get_custom_label(obj, CLAN(ch)));
 		CLAN(ch)->chest_log.add(log_text);
 
@@ -2347,7 +2347,7 @@ bool Clan::TakeChest(CharData *ch, ObjData *obj, ObjData *chest) {
 				&& d->character->IsFlagged(EPrf::kTakeMode)) {
 				SendMsgToChar(d->character.get(), "[Хранилище]: %s'%s забрал%s %s%s.'%s\r\n",
 							  kColorBoldRed, GET_NAME(ch), grammar::SexEnding((ch)->get_sex(), 1),
-							  obj->get_PName(ECase::kAcc).c_str(),
+							  obj->get_PName(grammar::ECase::kAcc).c_str(),
 							  clan_get_custom_label(obj, CLAN(d->character)).c_str(),
 							  kColorNrm);
 			}
@@ -2586,7 +2586,7 @@ bool Clan::BankManage(CharData *ch, char *arg) {
 	if (CompareParam(buffer2, "баланс") || CompareParam(buffer2, "balance")) {
 		SendMsgToChar(fmt::format(fmt::runtime(specials::BankMsg(specials::EBankMsg::kClanBalance)),
 				fmt::arg("amount", CLAN(ch)->bank),
-				fmt::arg("currency", GetDeclensionInNumber(CLAN(ch)->bank, EWhat::kMoneyA))) + "\r\n", ch);
+				fmt::arg("currency", grammar::GetDeclensionInNumber(CLAN(ch)->bank, grammar::EWhat::kMoneyA))) + "\r\n", ch);
 		return true;
 
 	} else if (CompareParam(buffer2, "вложить") || CompareParam(buffer2, "deposit")) {
@@ -2614,24 +2614,24 @@ bool Clan::BankManage(CharData *ch, char *arg) {
 			ch->remove_gold(over);
 			SendMsgToChar(fmt::format(fmt::runtime(specials::BankMsg(specials::EBankMsg::kClanDepositPartial)),
 				fmt::arg("amount", over),
-				fmt::arg("currency", GetDeclensionInNumber(over, EWhat::kMoneyU))) + "\r\n", ch);
+				fmt::arg("currency", grammar::GetDeclensionInNumber(over, grammar::EWhat::kMoneyU))) + "\r\n", ch);
 			act(specials::BankMsg(specials::EBankMsg::kFinancialOp), true, ch, nullptr, nullptr, kToRoom);
 			std::string log_text = fmt::format("{} вложил%s в казну {} {}\r\n",
 											   GET_NAME(ch), grammar::SexEnding((ch)->get_sex(), 1), over,
-											   GetDeclensionInNumber(over, EWhat::kMoneyU));
+											   grammar::GetDeclensionInNumber(over, grammar::EWhat::kMoneyU));
 			CLAN(ch)->chest_log.add(log_text);
 			return true;
 		}
 		ch->remove_gold(gold);
 		CLAN(ch)->bank += gold;
 		CLAN(ch)->m_members.add_money(ch->get_uid(), gold);
-		SendMsgToChar(fmt::format(fmt::runtime(specials::BankMsg(specials::EBankMsg::kDeposited)), fmt::arg("amount", gold), fmt::arg("currency", GetDeclensionInNumber(gold, EWhat::kMoneyU))) + "\r\n", ch);
+		SendMsgToChar(fmt::format(fmt::runtime(specials::BankMsg(specials::EBankMsg::kDeposited)), fmt::arg("amount", gold), fmt::arg("currency", grammar::GetDeclensionInNumber(gold, grammar::EWhat::kMoneyU))) + "\r\n", ch);
 		act(specials::BankMsg(specials::EBankMsg::kFinancialOp), true, ch, 0, nullptr, kToRoom);
 		std::string log_text = fmt::format("{} вложил%s в казну {} {}\r\n",
 										   GET_NAME(ch),
 										   grammar::SexEnding((ch)->get_sex(), 1),
 										   gold,
-										   GetDeclensionInNumber(gold, EWhat::kMoneyU));
+										   grammar::GetDeclensionInNumber(gold, grammar::EWhat::kMoneyU));
 		CLAN(ch)->chest_log.add(log_text);
 		return true;
 	} else if (CompareParam(buffer2, "получить") || CompareParam(buffer2, "withdraw")) {
@@ -2659,22 +2659,22 @@ bool Clan::BankManage(CharData *ch, char *arg) {
 			CLAN(ch)->m_members.sub_money(ch->get_uid(), over);
 			SendMsgToChar(fmt::format(fmt::runtime(specials::BankMsg(specials::EBankMsg::kClanWithdrawPartial)),
 				fmt::arg("amount", over),
-				fmt::arg("currency", GetDeclensionInNumber(over, EWhat::kMoneyU))) + "\r\n", ch);
+				fmt::arg("currency", grammar::GetDeclensionInNumber(over, grammar::EWhat::kMoneyU))) + "\r\n", ch);
 			act(specials::BankMsg(specials::EBankMsg::kFinancialOp), true, ch, 0, nullptr, kToRoom);
 			std::string log_text = fmt::format("{} получил%s из казны {} {}\r\n",
 											   GET_NAME(ch), grammar::SexEnding((ch)->get_sex(), 1), over,
-											   GetDeclensionInNumber(over, EWhat::kMoneyU));
+											   grammar::GetDeclensionInNumber(over, grammar::EWhat::kMoneyU));
 			CLAN(ch)->chest_log.add(log_text);
 			return true;
 		}
 		CLAN(ch)->bank -= gold;
 		CLAN(ch)->m_members.sub_money(ch->get_uid(), gold);
 		ch->add_gold(gold);
-		SendMsgToChar(fmt::format(fmt::runtime(specials::BankMsg(specials::EBankMsg::kWithdrawn)), fmt::arg("amount", gold), fmt::arg("currency", GetDeclensionInNumber(gold, EWhat::kMoneyU))) + "\r\n", ch);
+		SendMsgToChar(fmt::format(fmt::runtime(specials::BankMsg(specials::EBankMsg::kWithdrawn)), fmt::arg("amount", gold), fmt::arg("currency", grammar::GetDeclensionInNumber(gold, grammar::EWhat::kMoneyU))) + "\r\n", ch);
 		act(specials::BankMsg(specials::EBankMsg::kFinancialOp), true, ch, nullptr, nullptr, kToRoom);
 		std::string log_text = fmt::format("{} получил%s из казны {} {}\r\n",
 										   GET_NAME(ch), grammar::SexEnding((ch)->get_sex(), 1),
-										   gold, GetDeclensionInNumber(gold, EWhat::kMoneyU));
+										   gold, grammar::GetDeclensionInNumber(gold, grammar::EWhat::kMoneyU));
 		CLAN(ch)->chest_log.add(log_text);
 		return true;
 	} else
@@ -3792,7 +3792,7 @@ bool Clan::ChestShow(ObjData *obj, CharData *ch) {
 					  "Всего вещей: %d, Рента в день: %d %s\r\n\r\n",
 					  CLAN(ch)->chest_objcount,
 					  cost,
-					  GetDeclensionInNumber(cost, EWhat::kMoneyA));
+					  grammar::GetDeclensionInNumber(cost, grammar::EWhat::kMoneyA));
 		list_obj_to_char(obj->get_contains(), ch, 1, 3);
 	} else {
 		SendMsgToChar("Не на что тут глазеть, пусто, вот те крест.\r\n",
@@ -4264,14 +4264,14 @@ bool Clan::put_ingr_chest(CharData *ch, ObjData *obj, ObjData *chest) {
 	if (obj->get_type() != EObjType::kMagicComponent
 		&& obj->get_type() != EObjType::kCraftMaterial) {
 		SendMsgToChar(ch, "%s - Хранилище ингредиентов не предназначено для предметов данного типа.\r\n",
-					  obj->get_PName(ECase::kNom).c_str());
+					  obj->get_PName(grammar::ECase::kNom).c_str());
 
 		if (obj->get_type() == EObjType::kMoney) {
 			int howmany = GET_OBJ_VAL(obj, 0);
 			RemoveObjFromChar(obj);
 			ExtractObjFromWorld(obj);
 			ch->add_gold(howmany);
-			SendMsgToChar(ch, "Вы вновь обрели %d %s.\r\n", howmany, GetDeclensionInNumber(howmany, EWhat::kMoneyU));
+			SendMsgToChar(ch, "Вы вновь обрели %d %s.\r\n", howmany, grammar::GetDeclensionInNumber(howmany, grammar::EWhat::kMoneyU));
 		}
 	} else if (obj->has_flag(EObjFlag::kNodrop)
 		|| obj->has_flag(EObjFlag::kZonedecay)
@@ -4329,7 +4329,7 @@ bool ClanSystem::show_ingr_chest(ObjData *obj, CharData *ch) {
 		int cost = CLAN(ch)->ingr_chest_tax();
 		SendMsgToChar(ch, "Всего вещей: %d/%d, Рента в день: %d %s\r\n\r\n",
 					  CLAN(ch)->get_ingr_chest_objcount(), CLAN(ch)->ingr_chest_max_objects(),
-					  cost, GetDeclensionInNumber(cost, EWhat::kMoneyA));
+					  cost, grammar::GetDeclensionInNumber(cost, grammar::EWhat::kMoneyA));
 		list_obj_to_char(obj->get_contains(), ch, 1, 4);
 	} else {
 		SendMsgToChar("Не на что тут глазеть, пусто, вот те крест.\r\n", ch);
@@ -4536,15 +4536,15 @@ long do_gold_tax(CharData *ch, long gold) {
 			|| tax % 10 == 0) {
 			SendMsgToChar(ch,
 						  "%ld %s было немедленно отправлено в казну вашей дружины.\r\n",
-						  tax, GetDeclensionInNumber(tax, EWhat::kMoneyA));
+						  tax, grammar::GetDeclensionInNumber(tax, grammar::EWhat::kMoneyA));
 		} else if (tax % 10 == 1) {
 			SendMsgToChar(ch,
 						  "%ld %s была немедленно отправлена в казну вашей дружины.\r\n",
-						  tax, GetDeclensionInNumber(tax, EWhat::kMoneyA));
+						  tax, grammar::GetDeclensionInNumber(tax, grammar::EWhat::kMoneyA));
 		} else {
 			SendMsgToChar(ch,
 						  "%ld %s были немедленно отправлены в казну вашей дружины.\r\n",
-						  tax, GetDeclensionInNumber(tax, EWhat::kMoneyA));
+						  tax, grammar::GetDeclensionInNumber(tax, grammar::EWhat::kMoneyA));
 		}
 		// 1 куну за транзакцию, если сумма налога позволяет
 		const long real_tax = tax > 1 ? tax - 1 : tax;
@@ -5411,7 +5411,7 @@ void DoStoreHouse(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 								  "%sЗа информацию о предмете с вашего банковского счета сняли %d %s%s\r\n",
 								  kColorBoldGrn,
 								  kChestIdentPay,
-								  GetDeclensionInNumber(kChestIdentPay, EWhat::kMoneyU),
+								  grammar::GetDeclensionInNumber(kChestIdentPay, grammar::EWhat::kMoneyU),
 								  kColorNrm);
 					return;
 				}
@@ -5487,8 +5487,8 @@ void do_clanstuff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		obj->set_aliases(buf);
 		obj->set_short_description(it->PNames[0] + " " + title);
 
-		for (int i = ECase::kFirstCase; i <= ECase::kLastCase; i++) {
-			obj->set_PName(static_cast<ECase>(i), it->PNames[i] + " " + title);
+		for (int i = grammar::ECase::kFirstCase; i <= grammar::ECase::kLastCase; i++) {
+			obj->set_PName(static_cast<grammar::ECase>(i), it->PNames[i] + " " + title);
 		}
 
 		obj->set_description(it->desc);
@@ -5519,15 +5519,15 @@ void do_clanstuff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		PlaceObjToInventory(obj.get(), ch);
 		cnt++;
 
-		sprintf(buf, "$n взял$g %s из сундука", obj->get_PName(ECase::kNom).c_str());
-		sprintf(buf2, "Вы взяли %s из сундука", obj->get_PName(ECase::kNom).c_str());
+		sprintf(buf, "$n взял$g %s из сундука", obj->get_PName(grammar::ECase::kNom).c_str());
+		sprintf(buf2, "Вы взяли %s из сундука", obj->get_PName(grammar::ECase::kNom).c_str());
 		act(buf, false, ch, 0, 0, kToRoom);
 		act(buf2, false, ch, 0, 0, kToChar);
 	}
 
 	if (cnt) {
 		sprintf(buf2, "\r\nЭкипировка обошлась вам в %d %s.", gold_total,
-				GetDeclensionInNumber(gold_total, EWhat::kMoneyU));
+				grammar::GetDeclensionInNumber(gold_total, grammar::EWhat::kMoneyU));
 		act("\r\n$n закрыл$g крышку сундука", false, ch, 0, 0, kToRoom);
 		act(buf2, false, ch, 0, 0, kToChar);
 	} else {

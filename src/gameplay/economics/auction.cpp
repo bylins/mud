@@ -82,14 +82,14 @@ void showlots(CharData *ch) {
 		}
 		if (GET_LOT(i)->prefect && GET_LOT(i)->prefect != ch) {
 			sprintf(tmpbuf, "Аукцион : лот %2d - %s%s%s (частный заказ).\r\n",
-					i, kColorBoldYel, obj->get_PName(ECase::kNom).c_str(), kColorNrm);
+					i, kColorBoldYel, obj->get_PName(grammar::ECase::kNom).c_str(), kColorNrm);
 			SendMsgToChar(tmpbuf, ch);
 			continue;
 		}
 
 		sprintf(tmpbuf, "Аукцион : лот %2d - %s%s%s - ставка %d %s, попытка %d, владелец %s.\r\n",
-				i, kColorBoldYel, obj->get_PName(ECase::kNom).c_str(), kColorNrm,
-				GET_LOT(i)->cost, GetDeclensionInNumber(GET_LOT(i)->cost, EWhat::kMoneyA),
+				i, kColorBoldYel, obj->get_PName(grammar::ECase::kNom).c_str(), kColorNrm,
+				GET_LOT(i)->cost, grammar::GetDeclensionInNumber(GET_LOT(i)->cost, grammar::EWhat::kMoneyA),
 				GET_LOT(i)->tact < 0 ? 1 : GET_LOT(i)->tact + 1, GET_NAME(sch));
 
 		if (GET_LOT(i)->prefect && GET_LOT(i)->prefect_unique == ch->get_uid()) {
@@ -157,7 +157,7 @@ bool auction_drive(CharData *ch, char *argument) {
 				return false;
 			}
 			if (obj->get_contains()) {
-				sprintf(tmpbuf, "Опустошите %s перед продажей.\r\n", obj->get_PName(ECase::kAcc).c_str());
+				sprintf(tmpbuf, "Опустошите %s перед продажей.\r\n", obj->get_PName(grammar::ECase::kAcc).c_str());
 				SendMsgToChar(tmpbuf, ch);
 				return false;
 			}
@@ -200,15 +200,15 @@ bool auction_drive(CharData *ch, char *argument) {
 
 			if (tch) {
 				sprintf(tmpbuf, "Вы выставили на аукцион $O3 за %d %s (для %s)",
-						value, GetDeclensionInNumber(value, EWhat::kMoneyU), GET_PAD(tch, 1));
+						value, grammar::GetDeclensionInNumber(value, grammar::EWhat::kMoneyU), GET_PAD(tch, 1));
 			} else {
 				sprintf(tmpbuf, "Вы выставили на аукцион $O3 за %d %s", value,
-						GetDeclensionInNumber(value, EWhat::kMoneyU));
+						grammar::GetDeclensionInNumber(value, grammar::EWhat::kMoneyU));
 			}
 			act(tmpbuf, false, ch, 0, obj, kToChar);
 			sprintf(tmpbuf,
 					"Аукцион : новый лот %d - %s - начальная ставка %d %s. \r\n",
-					lot, obj->get_PName(ECase::kNom).c_str(), value, GetDeclensionInNumber(value, EWhat::kMoneyA));
+					lot, obj->get_PName(grammar::ECase::kNom).c_str(), value, grammar::GetDeclensionInNumber(value, grammar::EWhat::kMoneyA));
 			message_auction(tmpbuf, nullptr);
 			SetWait(ch, 1, false);
 			return true;
@@ -228,7 +228,7 @@ bool auction_drive(CharData *ch, char *argument) {
 			}
 			act("Вы сняли $O3 с аукциона.\r\n", false, ch, 0, GET_LOT(lot)->item, kToChar);
 			sprintf(tmpbuf, "Аукцион : лот %d(%s) снят%s с аукциона владельцем.\r\n", lot,
-					GET_LOT(lot)->item->get_PName(ECase::kNom).c_str(), grammar::ObjSexEnding((GET_LOT(lot)->item)->get_sex(), 6));
+					GET_LOT(lot)->item->get_PName(grammar::ECase::kNom).c_str(), grammar::ObjSexEnding((GET_LOT(lot)->item)->get_sex(), 6));
 			clear_auction(lot);
 			message_auction(tmpbuf, nullptr);
 			SetWait(ch, 1, false);
@@ -260,7 +260,7 @@ bool auction_drive(CharData *ch, char *argument) {
 			if (GET_LOT(lot)->item->get_carried_by() != GET_LOT(lot)->seller) {
 				SendMsgToChar("Вещь утеряна владельцем.\r\n", ch);
 				sprintf(tmpbuf, "Аукцион : лот %d (%s) снят, ввиду смены владельца.", lot,
-						GET_LOT(lot)->item->get_PName(ECase::kNom).c_str());
+						GET_LOT(lot)->item->get_PName(grammar::ECase::kNom).c_str());
 				clear_auction(lot);
 				message_auction(tmpbuf, nullptr);
 				return true;
@@ -282,18 +282,18 @@ bool auction_drive(CharData *ch, char *argument) {
 			GET_LOT(lot)->buyer = ch;
 			GET_LOT(lot)->buyer_unique = ch->get_uid();
 			sprintf(tmpbuf, "Хорошо, вы согласны заплатить %d %s за %s (лот %d).\r\n",
-					value, GetDeclensionInNumber(value, EWhat::kMoneyU), GET_LOT(lot)->item->get_PName(ECase::kAcc).c_str(), lot);
+					value, grammar::GetDeclensionInNumber(value, grammar::EWhat::kMoneyU), GET_LOT(lot)->item->get_PName(grammar::ECase::kAcc).c_str(), lot);
 			SendMsgToChar(tmpbuf, ch);
 			sprintf(tmpbuf,
 					"Принята ставка %s на лот %d(%s) %d %s.\r\n",
 					GET_PAD(ch, 1),
 					lot,
-					GET_LOT(lot)->item->get_PName(ECase::kNom).c_str(),
+					GET_LOT(lot)->item->get_PName(grammar::ECase::kNom).c_str(),
 					value,
-					GetDeclensionInNumber(value, EWhat::kMoneyA));
+					grammar::GetDeclensionInNumber(value, grammar::EWhat::kMoneyA));
 			SendMsgToChar(tmpbuf, GET_LOT(lot)->seller);
 			sprintf(tmpbuf, "Аукцион : лот %d(%s) - новая ставка %d %s.", lot,
-					GET_LOT(lot)->item->get_PName(ECase::kNom).c_str(), value, GetDeclensionInNumber(value, EWhat::kMoneyA));
+					GET_LOT(lot)->item->get_PName(grammar::ECase::kNom).c_str(), value, grammar::GetDeclensionInNumber(value, grammar::EWhat::kMoneyA));
 			message_auction(tmpbuf, nullptr);
 			SetWait(ch, 1, false);
 			return true;
@@ -321,8 +321,8 @@ bool auction_drive(CharData *ch, char *argument) {
 			GET_LOT(lot)->prefect_unique = GET_LOT(lot)->buyer_unique;
 			if (GET_LOT(lot)->tact < kMaxAuctionTactBuy) {
 				sprintf(whom, "Аукцион : лот %d(%s) продан с аукциона за %d %s.",
-						lot, GET_LOT(lot)->item->get_PName(ECase::kNom).c_str(), GET_LOT(lot)->cost,
-						GetDeclensionInNumber(GET_LOT(lot)->cost, EWhat::kMoneyU));
+						lot, GET_LOT(lot)->item->get_PName(grammar::ECase::kNom).c_str(), GET_LOT(lot)->cost,
+						grammar::GetDeclensionInNumber(GET_LOT(lot)->cost, grammar::EWhat::kMoneyU));
 				GET_LOT(lot)->tact = kMaxAuctionTactBuy;
 			} else
 				*whom = '\0';
@@ -465,7 +465,7 @@ bool auction_drive(CharData *ch, char *argument) {
 						  "\r\n%sЗа информацию о предмете с вашего счета сняли %d %s%s\r\n",
 						  kColorBoldGrn,
 						  AUCTION_IDENT_PAY,
-						  GetDeclensionInNumber(AUCTION_IDENT_PAY, EWhat::kMoneyU),
+						  grammar::GetDeclensionInNumber(AUCTION_IDENT_PAY, grammar::EWhat::kMoneyU),
 						  kColorNrm);
 
 			return true;
@@ -513,20 +513,20 @@ int check_sell(int lot) {
 		return (false);
 
 	if (obj->get_carried_by() != ch) {
-		sprintf(tmpbuf, "Аукцион : лот %d(%s) снят, ввиду смены владельца", lot, obj->get_PName(ECase::kNom).c_str());
+		sprintf(tmpbuf, "Аукцион : лот %d(%s) снят, ввиду смены владельца", lot, obj->get_PName(grammar::ECase::kNom).c_str());
 		message_auction(tmpbuf, nullptr);
 		clear_auction(lot);
 		return (false);
 	}
 
 	if (obj->get_contains()) {
-		sprintf(tmpbuf, "Опустошите %s перед продажей.\r\n", obj->get_PName(ECase::kAcc).c_str());
+		sprintf(tmpbuf, "Опустошите %s перед продажей.\r\n", obj->get_PName(grammar::ECase::kAcc).c_str());
 		SendMsgToChar(tmpbuf, ch);
 		if (GET_LOT(lot)->tact >= kMaxAuctionTact) {
 			sprintf(tmpbuf,
 					"Аукцион : лот %d(%s) снят с аукциона распорядителем торгов.",
 					lot,
-					obj->get_PName(ECase::kNom).c_str());
+					obj->get_PName(grammar::ECase::kNom).c_str());
 			message_auction(tmpbuf, nullptr);
 			clear_auction(lot);
 			return (false);
@@ -534,11 +534,11 @@ int check_sell(int lot) {
 	}
 
 	if (tch->get_total_gold() < GET_LOT(lot)->cost) {
-		sprintf(tmpbuf, "У вас не хватает денег на покупку %s.\r\n", obj->get_PName(ECase::kGen).c_str());
+		sprintf(tmpbuf, "У вас не хватает денег на покупку %s.\r\n", obj->get_PName(grammar::ECase::kGen).c_str());
 		SendMsgToChar(tmpbuf, tch);
-		sprintf(tmpbuf, "У покупателя %s не хватает денег.\r\n", obj->get_PName(ECase::kGen).c_str());
+		sprintf(tmpbuf, "У покупателя %s не хватает денег.\r\n", obj->get_PName(grammar::ECase::kGen).c_str());
 		SendMsgToChar(tmpbuf, ch);
-		sprintf(tmpbuf, "Аукцион : лот %d(%s) снят с аукциона распорядителем торгов.", lot, obj->get_PName(ECase::kNom).c_str());
+		sprintf(tmpbuf, "Аукцион : лот %d(%s) снят с аукциона распорядителем торгов.", lot, obj->get_PName(grammar::ECase::kNom).c_str());
 		message_auction(tmpbuf, nullptr);
 		clear_auction(lot);
 		return (false);
@@ -580,11 +580,11 @@ void trans_auction(int lot) {
 	// Оба чара в мирке
 	// Оба чара без БД
 	if (NORENTABLE(ch)) {
-		tmpstr = "Завершите боевые действия для передачи " + obj->get_PName(ECase::kGen) + " $N2.\r\n";
+		tmpstr = "Завершите боевые действия для передачи " + obj->get_PName(grammar::ECase::kGen) + " $N2.\r\n";
 
 		act(tmpstr.c_str(), false, ch, 0, tch, kToChar | kToSleep);
 
-		tmpstr = "$n2 необходимо завершить боевые действия для передачи " + obj->get_PName(ECase::kGen) + " вам.\r\n";
+		tmpstr = "$n2 необходимо завершить боевые действия для передачи " + obj->get_PName(grammar::ECase::kGen) + " вам.\r\n";
 
 		act(tmpstr.c_str(), false, ch, 0, tch, kToVict | kToSleep);
 		return;
@@ -607,11 +607,11 @@ void trans_auction(int lot) {
 
 	if (!is_post(ch->in_room)) {
 		// Проверка на то что продавец на ренте.
-		tmpstr = "Вам необходимо прибыть к ближайшей яме для передачи " + obj->get_PName(ECase::kGen) + " $N2.\r\n";
+		tmpstr = "Вам необходимо прибыть к ближайшей яме для передачи " + obj->get_PName(grammar::ECase::kGen) + " $N2.\r\n";
 
 		act(tmpstr.c_str(), false, ch, 0, tch, kToChar | kToSleep);
 
-		tmpstr = "$N2 необходимо прибыть к ближайшей яме для передачи " + obj->get_PName(ECase::kGen) + " вам.\r\n";
+		tmpstr = "$N2 необходимо прибыть к ближайшей яме для передачи " + obj->get_PName(grammar::ECase::kGen) + " вам.\r\n";
 
 		act(tmpstr.c_str(), false, tch, 0, ch, kToChar | kToSleep);
 		return;
@@ -627,9 +627,9 @@ void trans_auction(int lot) {
 	}
 
 	if (obj->get_contains()) {
-		sprintf(tmpbuff, "Продажа %s не возможна.\r\n", obj->get_PName(ECase::kAcc).c_str());
+		sprintf(tmpbuff, "Продажа %s не возможна.\r\n", obj->get_PName(grammar::ECase::kAcc).c_str());
 		SendMsgToChar(tmpbuff, ch);
-		sprintf(tmpbuff, "Транспортировка %s в данный момент не возможна.\r\n", obj->get_PName(ECase::kGen).c_str());
+		sprintf(tmpbuff, "Транспортировка %s в данный момент не возможна.\r\n", obj->get_PName(grammar::ECase::kGen).c_str());
 		SendMsgToChar(tmpbuff, tch);
 		return;
 	}
@@ -648,19 +648,19 @@ void trans_auction(int lot) {
 	act("Иван-Царевич дал вам кучку кун.", false, ch, 0, ch, kToChar);
 	act("Иван-Царевич дал гору кун $n2", false, ch, 0, ch, kToRoom);
 
-	tmpstr = "Вы отдали " + obj->get_PName(ECase::kAcc) + " Ивану-Царевичу.";
+	tmpstr = "Вы отдали " + obj->get_PName(grammar::ECase::kAcc) + " Ивану-Царевичу.";
 	act(tmpstr.c_str(), false, ch, 0, ch, kToChar);
 
-	tmpstr = "$n отдал$g " + obj->get_PName(ECase::kAcc) + " Ивану-Царевичу.";
+	tmpstr = "$n отдал$g " + obj->get_PName(grammar::ECase::kAcc) + " Ивану-Царевичу.";
 	act(tmpstr.c_str(), false, ch, 0, ch, kToRoom);
 
 	act("Вы дали кучку кун Ивану-Царевичу.", false, tch, 0, tch, kToChar);
 	act("$n дал$g гору кун Ивану-Царевичу.", false, tch, 0, tch, kToRoom);
 
-	tmpstr = "Иван-Царевич отдал " + obj->get_PName(ECase::kAcc) + " вам.";
+	tmpstr = "Иван-Царевич отдал " + obj->get_PName(grammar::ECase::kAcc) + " вам.";
 	act(tmpstr.c_str(), false, tch, 0, tch, kToChar);
 
-	tmpstr = "Иван-Царевич отдал " + obj->get_PName(ECase::kAcc) + " $n2.";
+	tmpstr = "Иван-Царевич отдал " + obj->get_PName(grammar::ECase::kAcc) + " $n2.";
 	act(tmpstr.c_str(), false, tch, 0, tch, kToRoom);
 
 	tmpstr = "Иван-Царевич исчез в клубах пыли. На его суме вы заметили надпись:\r\n";
@@ -674,9 +674,9 @@ void trans_auction(int lot) {
 
 	// Фонить закончили осуществляем обмен.
 
-	tmpstr = "Вы продали " + obj->get_PName(ECase::kAcc) + " с аукциона.\r\n";
+	tmpstr = "Вы продали " + obj->get_PName(grammar::ECase::kAcc) + " с аукциона.\r\n";
 	SendMsgToChar(tmpstr.c_str(), ch);
-	tmpstr = "Вы купили " + obj->get_PName(ECase::kAcc) + " на аукционе.\r\n";
+	tmpstr = "Вы купили " + obj->get_PName(grammar::ECase::kAcc) + " на аукционе.\r\n";
 	SendMsgToChar(tmpstr.c_str(), tch);
 
 	RemoveObjFromChar(obj);
@@ -747,18 +747,18 @@ void sell_auction(int lot) {
 			sprintf(tmpbuff,
 					"Аукцион : лот %d(%s) снят с аукциона распорядителем торгов.",
 					lot,
-					obj->get_PName(ECase::kNom).c_str());
+					obj->get_PName(grammar::ECase::kNom).c_str());
 
 			message_auction(tmpbuff, nullptr);
 			clear_auction(lot);
 			return;
 		}
 		tmpstr = "Вам необходимо прибыть в комнату аукциона к $n2 для получения " +
-			obj->get_PName(ECase::kGen) + "\r\nили воспользоваться услугами ямщика.";
+			obj->get_PName(grammar::ECase::kGen) + "\r\nили воспользоваться услугами ямщика.";
 
 		act(tmpstr.c_str(), false, ch, 0, tch, kToVict | kToSleep);
 
-		tmpstr = "Вам необходимо прибыть в комнату аукциона к $N2 для получения денег за " + obj->get_PName(ECase::kAcc) + ".";
+		tmpstr = "Вам необходимо прибыть в комнату аукциона к $N2 для получения денег за " + obj->get_PName(grammar::ECase::kAcc) + ".";
 
 		act(tmpstr.c_str(), false, ch, 0, tch, kToChar | kToSleep);
 		GET_LOT(lot)->tact = std::max(GET_LOT(lot)->tact, kMaxAuctionTactBuy);
@@ -766,15 +766,15 @@ void sell_auction(int lot) {
 	}
 
 	if (obj->get_contains()) {
-		sprintf(tmpbuff, "Продажа %s не возможна.\r\n", obj->get_PName(ECase::kAcc).c_str());
+		sprintf(tmpbuff, "Продажа %s не возможна.\r\n", obj->get_PName(grammar::ECase::kAcc).c_str());
 		SendMsgToChar(tmpbuff, ch);
 		return;
 	}
 
-	tmpstr = "Вы продали " + obj->get_PName(ECase::kAcc) + " с аукциона.\r\n";
+	tmpstr = "Вы продали " + obj->get_PName(grammar::ECase::kAcc) + " с аукциона.\r\n";
 	SendMsgToChar(tmpstr.c_str(), ch);
 
-	tmpstr = "Вы купили " + obj->get_PName(ECase::kAcc) + " на аукционе.\r\n";
+	tmpstr = "Вы купили " + obj->get_PName(grammar::ECase::kAcc) + " на аукционе.\r\n";
 	SendMsgToChar(tmpstr.c_str(), tch);
 
 	RemoveObjFromChar(obj);
@@ -800,7 +800,7 @@ void check_auction(CharData *ch, ObjData *obj) {
 				|| GET_LOT(i)->buyer == ch || GET_LOT(i)->buyer_unique == ch->get_uid()
 				|| GET_LOT(i)->prefect == ch || GET_LOT(i)->prefect_unique == ch->get_uid()) {
 				sprintf(tmpbuf, "Аукцион : лот %d(%s) снят с аукциона распорядителем.",
-						i, GET_LOT(i)->item->get_PName(ECase::kNom).c_str());
+						i, GET_LOT(i)->item->get_PName(grammar::ECase::kNom).c_str());
 				message_auction(tmpbuf, ch);
 				clear_auction(i);
 			}
@@ -811,7 +811,7 @@ void check_auction(CharData *ch, ObjData *obj) {
 				continue;
 			if (GET_LOT(i)->item == obj || GET_LOT(i)->item_id == obj->get_id()) {
 				sprintf(tmpbuf, "Аукцион : лот %d(%s) снят с аукциона распорядителем.",
-						i, GET_LOT(i)->item->get_PName(ECase::kNom).c_str());
+						i, GET_LOT(i)->item->get_PName(grammar::ECase::kNom).c_str());
 				message_auction(tmpbuf, obj->get_carried_by());
 				clear_auction(i);
 			}
@@ -826,7 +826,7 @@ void check_auction(CharData *ch, ObjData *obj) {
 				|| (GET_LOT(i)->buyer
 					&& (GET_LOT(i)->buyer->get_total_gold() < GET_LOT(i)->cost))) {
 				sprintf(tmpbuf, "Аукцион : лот %d(%s) снят с аукциона распорядителем.",
-						i, GET_LOT(i)->item->get_PName(ECase::kNom).c_str());
+						i, GET_LOT(i)->item->get_PName(grammar::ECase::kNom).c_str());
 				message_auction(tmpbuf, nullptr);
 				clear_auction(i);
 			}
@@ -845,22 +845,22 @@ void tact_auction(void) {
 			continue;
 		if (++GET_LOT(i)->tact < kMaxAuctionTactBuy) {
 			sprintf(tmpbuf, "Аукцион : лот %d(%s), %d %s, %s", i,
-					GET_LOT(i)->item->get_PName(ECase::kNom).c_str(), GET_LOT(i)->cost,
-					GetDeclensionInNumber(GET_LOT(i)->cost, EWhat::kMoneyA), tact_message[GET_LOT(i)->tact]);
+					GET_LOT(i)->item->get_PName(grammar::ECase::kNom).c_str(), GET_LOT(i)->cost,
+					grammar::GetDeclensionInNumber(GET_LOT(i)->cost, grammar::EWhat::kMoneyA), tact_message[GET_LOT(i)->tact]);
 			message_auction(tmpbuf, nullptr);
 			continue;
 		} else if (GET_LOT(i)->tact < kMaxAuctionTact) {
 			if (!GET_LOT(i)->buyer) {
 				sprintf(tmpbuf, "Аукцион : лот %d(%s) снят распорядителем ввиду отсутствия спроса.",
-						i, GET_LOT(i)->item->get_PName(ECase::kNom).c_str());
+						i, GET_LOT(i)->item->get_PName(grammar::ECase::kNom).c_str());
 				message_auction(tmpbuf, nullptr);
 				clear_auction(i);
 				continue;
 			}
 			if (!GET_LOT(i)->prefect) {
 				sprintf(tmpbuf, "Аукцион : лот %d(%s), %d %s - ПРОДАНО.",
-						i, GET_LOT(i)->item->get_PName(ECase::kNom).c_str(), GET_LOT(i)->cost,
-						GetDeclensionInNumber(GET_LOT(i)->cost, EWhat::kMoneyA));
+						i, GET_LOT(i)->item->get_PName(grammar::ECase::kNom).c_str(), GET_LOT(i)->cost,
+						grammar::GetDeclensionInNumber(GET_LOT(i)->cost, grammar::EWhat::kMoneyA));
 				message_auction(tmpbuf, nullptr);
 				GET_LOT(i)->prefect = GET_LOT(i)->buyer;
 				GET_LOT(i)->prefect_unique = GET_LOT(i)->buyer_unique;

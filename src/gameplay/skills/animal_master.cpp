@@ -143,17 +143,17 @@ void ApplyAnimalMaster(CharData *ch, CharData *victim, Affect<EApply> &af,
 	sprintf(descr, "%s %s", state[gender][adj - 1][0], GET_PAD(victim, 0));
 	victim->set_npc_name(descr);
 	sprintf(descr, "%s %s", state[gender][adj - 1][0], GET_PAD(victim, 0));
-	victim->player_data.PNames[ECase::kNom] = std::string(descr);
+	victim->player_data.PNames[grammar::ECase::kNom] = std::string(descr);
 	sprintf(descr, "%s %s", state[gender][adj - 1][1], GET_PAD(victim, 1));
-	victim->player_data.PNames[ECase::kGen] = std::string(descr);
+	victim->player_data.PNames[grammar::ECase::kGen] = std::string(descr);
 	sprintf(descr, "%s %s", state[gender][adj - 1][2], GET_PAD(victim, 2));
-	victim->player_data.PNames[ECase::kDat] = std::string(descr);
+	victim->player_data.PNames[grammar::ECase::kDat] = std::string(descr);
 	sprintf(descr, "%s %s", state[gender][adj - 1][3], GET_PAD(victim, 3));
-	victim->player_data.PNames[ECase::kAcc] = std::string(descr);
+	victim->player_data.PNames[grammar::ECase::kAcc] = std::string(descr);
 	sprintf(descr, "%s %s", state[gender][adj - 1][4], GET_PAD(victim, 4));
-	victim->player_data.PNames[ECase::kIns] = std::string(descr);
+	victim->player_data.PNames[grammar::ECase::kIns] = std::string(descr);
 	sprintf(descr, "%s %s", state[gender][adj - 1][5], GET_PAD(victim, 5));
-	victim->player_data.PNames[ECase::kPre] = std::string(descr);
+	victim->player_data.PNames[grammar::ECase::kPre] = std::string(descr);
 	victim->set_max_hit(victim->get_max_hit() + floorf( GetRealLevel(ch)*15 + r_cha*4 + perc*2));
 	victim->set_hit(victim->get_max_hit());
 	// статы

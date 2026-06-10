@@ -38,27 +38,27 @@ void ParseMobUpdate(CharData* mob, const nlohmann::json& data)
 		}
 		if (HasString(names, "nominative"))
 		{
-			mob->player_data.PNames[ECase::kNom] = Utf8ToKoi8r(names["nominative"].get<std::string>());
+			mob->player_data.PNames[grammar::ECase::kNom] = Utf8ToKoi8r(names["nominative"].get<std::string>());
 		}
 		if (HasString(names, "genitive"))
 		{
-			mob->player_data.PNames[ECase::kGen] = Utf8ToKoi8r(names["genitive"].get<std::string>());
+			mob->player_data.PNames[grammar::ECase::kGen] = Utf8ToKoi8r(names["genitive"].get<std::string>());
 		}
 		if (HasString(names, "dative"))
 		{
-			mob->player_data.PNames[ECase::kDat] = Utf8ToKoi8r(names["dative"].get<std::string>());
+			mob->player_data.PNames[grammar::ECase::kDat] = Utf8ToKoi8r(names["dative"].get<std::string>());
 		}
 		if (HasString(names, "accusative"))
 		{
-			mob->player_data.PNames[ECase::kAcc] = Utf8ToKoi8r(names["accusative"].get<std::string>());
+			mob->player_data.PNames[grammar::ECase::kAcc] = Utf8ToKoi8r(names["accusative"].get<std::string>());
 		}
 		if (HasString(names, "instrumental"))
 		{
-			mob->player_data.PNames[ECase::kIns] = Utf8ToKoi8r(names["instrumental"].get<std::string>());
+			mob->player_data.PNames[grammar::ECase::kIns] = Utf8ToKoi8r(names["instrumental"].get<std::string>());
 		}
 		if (HasString(names, "prepositional"))
 		{
-			mob->player_data.PNames[ECase::kPre] = Utf8ToKoi8r(names["prepositional"].get<std::string>());
+			mob->player_data.PNames[grammar::ECase::kPre] = Utf8ToKoi8r(names["prepositional"].get<std::string>());
 		}
 	}
 
@@ -433,27 +433,27 @@ void ParseObjectUpdate(CObjectPrototype* obj, const nlohmann::json& data)
 	{
 		if (names_data.contains("nominative"))
 		{
-			obj->set_PName(ECase::kNom, Utf8ToKoi8r(names_data["nominative"].get<std::string>()));
+			obj->set_PName(grammar::ECase::kNom, Utf8ToKoi8r(names_data["nominative"].get<std::string>()));
 		}
 		if (names_data.contains("genitive"))
 		{
-			obj->set_PName(ECase::kGen, Utf8ToKoi8r(names_data["genitive"].get<std::string>()));
+			obj->set_PName(grammar::ECase::kGen, Utf8ToKoi8r(names_data["genitive"].get<std::string>()));
 		}
 		if (names_data.contains("dative"))
 		{
-			obj->set_PName(ECase::kDat, Utf8ToKoi8r(names_data["dative"].get<std::string>()));
+			obj->set_PName(grammar::ECase::kDat, Utf8ToKoi8r(names_data["dative"].get<std::string>()));
 		}
 		if (names_data.contains("accusative"))
 		{
-			obj->set_PName(ECase::kAcc, Utf8ToKoi8r(names_data["accusative"].get<std::string>()));
+			obj->set_PName(grammar::ECase::kAcc, Utf8ToKoi8r(names_data["accusative"].get<std::string>()));
 		}
 		if (names_data.contains("instrumental"))
 		{
-			obj->set_PName(ECase::kIns, Utf8ToKoi8r(names_data["instrumental"].get<std::string>()));
+			obj->set_PName(grammar::ECase::kIns, Utf8ToKoi8r(names_data["instrumental"].get<std::string>()));
 		}
 		if (names_data.contains("prepositional"))
 		{
-			obj->set_PName(ECase::kPre, Utf8ToKoi8r(names_data["prepositional"].get<std::string>()));
+			obj->set_PName(grammar::ECase::kPre, Utf8ToKoi8r(names_data["prepositional"].get<std::string>()));
 		}
 	}
 

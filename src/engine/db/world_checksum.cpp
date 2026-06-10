@@ -511,9 +511,9 @@ std::string SerializeObject(const CObjectPrototype::shared_ptr &obj)
 	oss << obj->get_short_description() << "|";
 	oss << obj->get_description() << "|";
 	oss << obj->get_aliases() << "|";
-	for (int i = 0; i <= ECase::kLastCase; ++i)
+	for (int i = 0; i <= grammar::ECase::kLastCase; ++i)
 	{
-		oss << obj->get_PName(static_cast<ECase>(i)) << ",";
+		oss << obj->get_PName(static_cast<grammar::ECase>(i)) << ",";
 	}
 	oss << "|";
 

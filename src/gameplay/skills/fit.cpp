@@ -69,7 +69,7 @@ void DoFit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 				&& obj->get_material() != EObjMaterial::kHardWood
 				&& obj->get_material() != EObjMaterial::kGlass) {
 				sprintf(buf, "К сожалению %s сделан%s из неподходящего материала.\r\n",
-						obj->get_PName(ECase::kNom).c_str(), grammar::ObjSexEnding((obj)->get_sex(), 6));
+						obj->get_PName(grammar::ECase::kNom).c_str(), grammar::ObjSexEnding((obj)->get_sex(), 6));
 				SendMsgToChar(buf, ch);
 				return;
 			}
@@ -80,7 +80,7 @@ void DoFit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 				&& obj->get_material() != EObjMaterial::kSkin
 				&& obj->get_material() != EObjMaterial::kOrganic) {
 				sprintf(buf, "К сожалению %s сделан%s из неподходящего материала.\r\n",
-						obj->get_PName(ECase::kNom).c_str(), grammar::ObjSexEnding((obj)->get_sex(), 6));
+						obj->get_PName(grammar::ECase::kNom).c_str(), grammar::ObjSexEnding((obj)->get_sex(), 6));
 				SendMsgToChar(buf, ch);
 				return;
 			}
@@ -93,7 +93,7 @@ void DoFit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	sprintf(buf, "Вы долго пыхтели и сопели, переделывая работу по десять раз.\r\n");
 	sprintf(buf + strlen(buf), "Вы извели кучу времени и 10000 кун золотом.\r\n");
 	sprintf(buf + strlen(buf), "В конце-концов подогнали %s точно по мерке %s.\r\n",
-			obj->get_PName(ECase::kAcc).c_str(), GET_PAD(vict, 1));
+			obj->get_PName(grammar::ECase::kAcc).c_str(), GET_PAD(vict, 1));
 
 	SendMsgToChar(buf, ch);
 }

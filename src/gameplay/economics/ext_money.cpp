@@ -54,7 +54,7 @@ std::string name_currency_plural(const std::string& name) {
 struct type_node {
 	type_node() : MORT_REQ(99), MORT_REQ_ADD_PER_MORT(99), MORT_NUM(99),
 				  DROP_LVL(99), DROP_AMOUNT(0), DROP_AMOUNT_ADD_PER_LVL(0), MINIMUM_DAYS(99),
-				  DESC_MESSAGE_NUM(EWhat::kDay), DESC_MESSAGE_U_NUM(EWhat::kDay) {};
+				  DESC_MESSAGE_NUM(grammar::EWhat::kDay), DESC_MESSAGE_U_NUM(grammar::EWhat::kDay) {};
 	// сколько гривен требуется на соответствующее право морта
 	int MORT_REQ;
 	// сколько добавлять к требованиям за каждый морт сверху
@@ -73,8 +73,8 @@ struct type_node {
 	// дропнется не более 10 золотых гривен или их эквивалента
 	int MINIMUM_DAYS;
 	// для сообщений через desc_count
-	EWhat DESC_MESSAGE_NUM;
-	EWhat DESC_MESSAGE_U_NUM;
+	grammar::EWhat DESC_MESSAGE_NUM;
+	grammar::EWhat DESC_MESSAGE_U_NUM;
 };
 
 // список типов гривен со всеми их параметрами
@@ -341,9 +341,9 @@ std::string create_message(int gold, int silver, int bronze) {
 
 	if (gold > 0) {
 		out << kColorBoldYel << gold << " "
-			<< GetDeclensionInNumber(gold, type_list[kTorcGold].DESC_MESSAGE_U_NUM);
+			<< grammar::GetDeclensionInNumber(gold, type_list[kTorcGold].DESC_MESSAGE_U_NUM);
 		if (silver <= 0 && bronze <= 0) {
-			out << " " << GetDeclensionInNumber(gold, EWhat::kTorcU);
+			out << " " << grammar::GetDeclensionInNumber(gold, grammar::EWhat::kTorcU);
 		}
 		out << kColorNrm;
 		++cnt;
@@ -352,28 +352,28 @@ std::string create_message(int gold, int silver, int bronze) {
 		if (cnt > 0) {
 			if (bronze > 0) {
 				out << ", " << kColorWht << silver << " "
-					<< GetDeclensionInNumber(silver, type_list[kTorcSilver].DESC_MESSAGE_U_NUM)
+					<< grammar::GetDeclensionInNumber(silver, type_list[kTorcSilver].DESC_MESSAGE_U_NUM)
 					<< kColorNrm << " и ";
 			} else {
 				out << " и " << kColorWht << silver << " "
-					<< GetDeclensionInNumber(silver, type_list[kTorcSilver].DESC_MESSAGE_U_NUM)
-					<< " " << GetDeclensionInNumber(silver, EWhat::kTorcU)
+					<< grammar::GetDeclensionInNumber(silver, type_list[kTorcSilver].DESC_MESSAGE_U_NUM)
+					<< " " << grammar::GetDeclensionInNumber(silver, grammar::EWhat::kTorcU)
 					<< kColorNrm;
 			}
 		} else {
 			out << kColorWht << silver << " "
-				<< GetDeclensionInNumber(silver, type_list[kTorcSilver].DESC_MESSAGE_U_NUM);
+				<< grammar::GetDeclensionInNumber(silver, type_list[kTorcSilver].DESC_MESSAGE_U_NUM);
 			if (bronze > 0) {
 				out << kColorNrm << " и ";
 			} else {
-				out << " " << GetDeclensionInNumber(silver, EWhat::kTorcU) << kColorNrm;
+				out << " " << grammar::GetDeclensionInNumber(silver, grammar::EWhat::kTorcU) << kColorNrm;
 			}
 		}
 	}
 	if (bronze > 0) {
 		out << kColorYel << bronze << " "
-			<< GetDeclensionInNumber(bronze, type_list[kTorcBronze].DESC_MESSAGE_U_NUM)
-			<< " " << GetDeclensionInNumber(bronze, EWhat::kTorcU)
+			<< grammar::GetDeclensionInNumber(bronze, type_list[kTorcBronze].DESC_MESSAGE_U_NUM)
+			<< " " << grammar::GetDeclensionInNumber(bronze, grammar::EWhat::kTorcU)
 			<< kColorNrm;
 	}
 
@@ -656,12 +656,12 @@ void init() {
 	type_list[kTorcBronze].MINIMUM_DAYS = parse::ReadChildValueAsInt(main_node, "BRONZE_MINIMUM_DAYS");
 
 	// не из конфига, но инится заодно со всеми
-	type_list[kTorcGold].DESC_MESSAGE_NUM = EWhat::kGoldTorc;
-	type_list[kTorcSilver].DESC_MESSAGE_NUM = EWhat::kSilverTorc;
-	type_list[kTorcBronze].DESC_MESSAGE_NUM = EWhat::kBronzeTorc;
-	type_list[kTorcGold].DESC_MESSAGE_U_NUM = EWhat::kGoldTorcU;
-	type_list[kTorcSilver].DESC_MESSAGE_U_NUM = EWhat::kSilverTorcU;
-	type_list[kTorcBronze].DESC_MESSAGE_U_NUM = EWhat::kBronzeTorcU;
+	type_list[kTorcGold].DESC_MESSAGE_NUM = grammar::EWhat::kGoldTorc;
+	type_list[kTorcSilver].DESC_MESSAGE_NUM = grammar::EWhat::kSilverTorc;
+	type_list[kTorcBronze].DESC_MESSAGE_NUM = grammar::EWhat::kBronzeTorc;
+	type_list[kTorcGold].DESC_MESSAGE_U_NUM = grammar::EWhat::kGoldTorcU;
+	type_list[kTorcSilver].DESC_MESSAGE_U_NUM = grammar::EWhat::kSilverTorcU;
+	type_list[kTorcBronze].DESC_MESSAGE_U_NUM = grammar::EWhat::kBronzeTorcU;
 }
 
 // проверка, мешает ли что-то чару уйти в реморт

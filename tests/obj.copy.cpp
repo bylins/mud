@@ -51,10 +51,10 @@ auto create_prototype()
 
 	result->set_action_description(ACTION_DESCRIPTION);
 
-	for (auto i = to_underlying(ECase::kFirstCase); i <= to_underlying(ECase::kLastCase); ++i)
+	for (auto i = to_underlying(grammar::ECase::kFirstCase); i <= to_underlying(grammar::ECase::kLastCase); ++i)
 	{
 		const std::string case_name = CASE_PREFIX + std::to_string(i);
-		result->set_PName(static_cast<ECase>(i), case_name);
+		result->set_PName(static_cast<grammar::ECase>(i), case_name);
 	}
 
 	result->set_proto_script(TRIGGERS_LIST);
@@ -113,9 +113,9 @@ TEST(Object_Copy, Assignment_Operator)
 	//ASSERT_NE(object->get_ilevel(), prototype->get_ilevel());
 	ASSERT_NE(object->get_rnum(), prototype->get_rnum());
 
-	for (auto i = to_underlying(ECase::kFirstCase); i <= to_underlying(ECase::kLastCase); ++i)
+	for (auto i = to_underlying(grammar::ECase::kFirstCase); i <= to_underlying(grammar::ECase::kLastCase); ++i)
 	{
-		ASSERT_NE(object->get_PName(static_cast<ECase>(i)), prototype->get_PName(static_cast<ECase>(i)));
+		ASSERT_NE(object->get_PName(static_cast<grammar::ECase>(i)), prototype->get_PName(static_cast<grammar::ECase>(i)));
 	}
 
 	//for (auto i = 0u; i < CObjectPrototype::VALS_COUNT; ++i)
@@ -160,9 +160,9 @@ TEST(Object_Copy, Assignment_Operator)
 	//EXPECT_EQ(object->get_ilevel(), prototype->get_ilevel());
 	EXPECT_EQ(object->get_rnum(), prototype->get_rnum());
 
-	for (auto i = to_underlying(ECase::kFirstCase); i <= to_underlying(ECase::kLastCase); ++i)
+	for (auto i = to_underlying(grammar::ECase::kFirstCase); i <= to_underlying(grammar::ECase::kLastCase); ++i)
 	{
-		EXPECT_EQ(object->get_PName(static_cast<ECase>(i)), prototype->get_PName(static_cast<ECase>(i)));
+		EXPECT_EQ(object->get_PName(static_cast<grammar::ECase>(i)), prototype->get_PName(static_cast<grammar::ECase>(i)));
 	}
 
 	//for (auto i = 0u; i < CObjectPrototype::VALS_COUNT; ++i)

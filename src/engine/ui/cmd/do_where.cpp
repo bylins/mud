@@ -271,7 +271,7 @@ static std::vector<std::string> ResolveObjLocationLines(const ObjData *obj, Char
 		}
 		if (cur->get_in_obj() && !Clan::is_clan_chest(cur->get_in_obj())) {// || Clan::is_ingr_chest(cur->get_in_obj())) сделать отдельный поиск
 			lines.push_back(fmt::format("лежит в [{}] {}, который находится",
-					GET_OBJ_VNUM(cur->get_in_obj()), cur->get_in_obj()->get_PName(ECase::kPre)));
+					GET_OBJ_VNUM(cur->get_in_obj()), cur->get_in_obj()->get_PName(grammar::ECase::kPre)));
 			cur = cur->get_in_obj();
 			continue;
 		}
@@ -326,7 +326,7 @@ void FindErrorCountObj(CharData *ch) {
 		}
 		if (sum != (size_t)obj_proto.total_online(orn)) {
 			SendMsgToChar(ch, "Найден предмет с ошибкой в реальном количестве %s #%d sum = %zu \r\n",
-						  (*it)->get_PName(ECase::kNom).c_str(), (*it)->get_vnum(), sum);
+						  (*it)->get_PName(grammar::ECase::kNom).c_str(), (*it)->get_vnum(), sum);
 			for (auto object : objs) {
 				PrintObjectLocation(num++, object, ch);
 			}

@@ -55,7 +55,7 @@ void get_check_money(CharData *ch, ObjData *obj, ObjData *cont) {
 	}
 
 	if (curr_type == currency::ICE) {
-		sprintf(buf, "Это составило %d %s.\r\n", value, GetDeclensionInNumber(value, EWhat::kIceU));
+		sprintf(buf, "Это составило %d %s.\r\n", value, grammar::GetDeclensionInNumber(value, grammar::EWhat::kIceU));
 		SendMsgToChar(buf, ch);
 		ch->add_ice_currency(value);
 		//Делить лед ВСЕГДА!
@@ -74,7 +74,7 @@ void get_check_money(CharData *ch, ObjData *obj, ObjData *cont) {
 		return;
 	}
 */
-	sprintf(buf, "Это составило %d %s.\r\n", value, GetDeclensionInNumber(value, EWhat::kMoneyU));
+	sprintf(buf, "Это составило %d %s.\r\n", value, grammar::GetDeclensionInNumber(value, grammar::EWhat::kMoneyU));
 	SendMsgToChar(buf, ch);
 	if (InTestZone(ch)) {
 		ExtractObjFromWorld(obj);
@@ -91,7 +91,7 @@ void get_check_money(CharData *ch, ObjData *obj, ObjData *cont) {
 				ch->get_name().c_str(),
 				GET_ROOM_VNUM(ch->in_room),
 				value,
-				GetDeclensionInNumber(value, EWhat::kMoneyU));
+				grammar::GetDeclensionInNumber(value, grammar::EWhat::kMoneyU));
 		mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
 		char local_buf[256];
 		sprintf(local_buf, "%d", value);
@@ -101,14 +101,14 @@ void get_check_money(CharData *ch, ObjData *obj, ObjData *cont) {
 		// налогом не облагается, т.к. уже все уплочено
 		// на данном этапе cont уже не содержит владельца
 		sprintf(buf, "%s взял деньги из кошелька: %d  %s.", ch->get_name().c_str(), value,
-				GetDeclensionInNumber(value, EWhat::kMoneyU));
+				grammar::GetDeclensionInNumber(value, grammar::EWhat::kMoneyU));
 		mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
 		ch->add_gold(value);
 	} else if ((cont && IS_MOB_CORPSE(cont)) || GET_OBJ_VNUM(obj) != -1) {
 		// лут из трупа моба или из предметов-денег с внумом
 		// (предметы-награды в зонах) - снимаем клан-налог
 		sprintf(buf, "%s заработал %d  %s.", ch->get_name().c_str(), value,
-				GetDeclensionInNumber(value, EWhat::kMoneyU));
+				grammar::GetDeclensionInNumber(value, grammar::EWhat::kMoneyU));
 		mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
 		ch->add_gold(value, true, true);
 	} else {
@@ -117,7 +117,7 @@ void get_check_money(CharData *ch, ObjData *obj, ObjData *cont) {
 				ch->get_name().c_str(),
 				GET_ROOM_VNUM(ch->in_room),
 				value,
-				GetDeclensionInNumber(value, EWhat::kMoneyU));
+				grammar::GetDeclensionInNumber(value, grammar::EWhat::kMoneyU));
 		mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
 		ch->add_gold(value);
 	}

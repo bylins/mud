@@ -643,7 +643,7 @@ void look_at_char(CharData *i, CharData *ch) {
 					sprintf(buf,
 							IS_POLY(i) ? "$n будут слушаться вас еще %d %s." : "$n будет слушаться вас еще %d %s.",
 							aff->duration/2,
-							GetDeclensionInNumber(aff->duration/2, EWhat::kHour));
+							grammar::GetDeclensionInNumber(aff->duration/2, grammar::EWhat::kHour));
 					act(buf, false, i, nullptr, ch, kToVict);
 					break;
 				}
@@ -1175,7 +1175,7 @@ void look_in_obj(CharData *ch, char *arg) {
 					SendMsgToChar(buf, ch);
 				}
 			} else {
-				SendMsgToChar(OBJN(obj, ch, ECase::kNom), ch);
+				SendMsgToChar(OBJN(obj, ch, grammar::ECase::kNom), ch);
 				switch (bits) {
 					case EFind::kObjInventory: SendMsgToChar("(в руках)\r\n", ch);
 						break;
@@ -1268,7 +1268,7 @@ const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_s
 					sprintf(buf2, " (погас%s)", grammar::ObjSexEnding((object)->get_sex(), 4));
 				else
 					sprintf(buf2, " (%d %s)",
-							GET_OBJ_VAL(object, 2), GetDeclensionInNumber(GET_OBJ_VAL(object, 2), EWhat::kHour));
+							GET_OBJ_VAL(object, 2), grammar::GetDeclensionInNumber(GET_OBJ_VAL(object, 2), grammar::EWhat::kHour));
 			} else {
 				if (object->timed_spell().IsSpellPoisoned() != ESpell::kUndefined) {
 					sprintf(buf2, " %s*%s%s", kColorGrn,
@@ -1298,7 +1298,7 @@ const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_s
 				strcat(buf2, " (что-то накарябано)");
 			}
 		} else if (mode >= 2 && how <= 1) {
-			std::string obj_name = OBJN(object, ch, ECase::kNom);
+			std::string obj_name = OBJN(object, ch, grammar::ECase::kNom);
 			obj_name[0] = UPPER(obj_name[0]);
 			if (object->get_type() == EObjType::kLightSource) {
 				if (GET_OBJ_VAL(object, 2) == -1) {
@@ -1307,7 +1307,7 @@ const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_s
 					sprintf(buf2, "\r\n%s погас%s.", obj_name.c_str(), grammar::ObjSexEnding((object)->get_sex(), 4));
 				} else {
 					sprintf(buf2, "\r\n%s будет светить %d %s.", obj_name.c_str(), GET_OBJ_VAL(object, 2),
-							GetDeclensionInNumber(GET_OBJ_VAL(object, 2), EWhat::kHour));
+							grammar::GetDeclensionInNumber(GET_OBJ_VAL(object, 2), grammar::EWhat::kHour));
 				}
 			} else if (object->get_current_durability() < object->get_maximum_durability()) {
 				sprintf(buf2, "\r\n%s %s.", obj_name.c_str(), diag_obj_to_char(object, 2));
@@ -1351,13 +1351,13 @@ const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_s
 		if (show_state == 3) {
 			sprintf(buf + strlen(buf), " [%d %s]\r\n",
 					object->get_rent_on() * kClanStorehouseCoeff / 100,
-					GetDeclensionInNumber(object->get_rent_on() * kClanStorehouseCoeff / 100, EWhat::kMoneyA));
+					grammar::GetDeclensionInNumber(object->get_rent_on() * kClanStorehouseCoeff / 100, grammar::EWhat::kMoneyA));
 			return buf;
 		}
 			// ингры
 		else if (show_state == 4) {
 			sprintf(buf + strlen(buf), " [%d %s]\r\n", object->get_rent_off(),
-					GetDeclensionInNumber(object->get_rent_off(), EWhat::kMoneyA));
+					grammar::GetDeclensionInNumber(object->get_rent_off(), grammar::EWhat::kMoneyA));
 			return buf;
 		}
 	}
@@ -1388,7 +1388,7 @@ void print_zone_info(CharData *ch) {
 	if (zone->group > 1) {
 		delim = put_delim(out, delim);
 		out << "групповая на " << zone->group
-			<< " " << GetDeclensionInNumber(zone->group, EWhat::kPeople);
+			<< " " << grammar::GetDeclensionInNumber(zone->group, grammar::EWhat::kPeople);
 	}
 	if (delim) {
 		out << ")";
@@ -2019,28 +2019,28 @@ char *diag_weapon_to_char(const CObjectPrototype *obj, int show_wear) {
 				sprintf(out_str + strlen(out_str),
 						"Можно использовать как щит (требуется %d %s).\r\n",
 						need_str,
-						GetDeclensionInNumber(need_str, EWhat::kStr));
+						grammar::GetDeclensionInNumber(need_str, grammar::EWhat::kStr));
 			}
 			if (CAN_WEAR(obj, EWearFlag::kWield)) {
 				need_str = std::max(0, calc_str_req(obj->get_weight(), STR_WIELD_W));
 				sprintf(out_str + strlen(out_str),
 						"Можно взять в правую руку (требуется %d %s).\r\n",
 						need_str,
-						GetDeclensionInNumber(need_str, EWhat::kStr));
+						grammar::GetDeclensionInNumber(need_str, grammar::EWhat::kStr));
 			}
 			if (CAN_WEAR(obj, EWearFlag::kHold)) {
 				need_str = std::max(0, calc_str_req(obj->get_weight(), STR_HOLD_W));
 				sprintf(out_str + strlen(out_str),
 						"Можно взять в левую руку (требуется %d %s).\r\n",
 						need_str,
-						GetDeclensionInNumber(need_str, EWhat::kStr));
+						grammar::GetDeclensionInNumber(need_str, grammar::EWhat::kStr));
 			}
 			if (CAN_WEAR(obj, EWearFlag::kBoth)) {
 				need_str = std::max(0, calc_str_req(obj->get_weight(), STR_BOTH_W));
 				sprintf(out_str + strlen(out_str),
 						"Можно взять в обе руки (требуется %d %s).\r\n",
 						need_str,
-						GetDeclensionInNumber(need_str, EWhat::kStr));
+						grammar::GetDeclensionInNumber(need_str, grammar::EWhat::kStr));
 			}
 		} else {
 			if (CAN_WEAR(obj, EWearFlag::kShield)) {
@@ -2090,7 +2090,7 @@ char *diag_uses_to_char(ObjData *obj, CharData *ch) {
 		int i = -1;
 		if ((i = GetObjRnum(GET_OBJ_VAL(obj, 1))) >= 0) {
 			sprintf(out_str, "Прототип: %s%s%s.\r\n",
-					kColorBoldCyn, obj_proto[i]->get_PName(ECase::kNom).c_str(), kColorNrm);
+					kColorBoldCyn, obj_proto[i]->get_PName(grammar::ECase::kNom).c_str(), kColorNrm);
 		}
 		sprintf(out_str + strlen(out_str), "Осталось применений: %s%d&n.\r\n",
 				GET_OBJ_VAL(obj, 2) > 100 ? "&G" : "&R", GET_OBJ_VAL(obj, 2));

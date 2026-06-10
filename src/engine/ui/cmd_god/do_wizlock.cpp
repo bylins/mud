@@ -36,7 +36,7 @@ void DoWizlock(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			break;
 		default:
 			sprintf(buf, "Только игроки %d %s и выше могут %s войти в игру.\r\n",
-					circle_restrict, GetDeclensionInNumber(circle_restrict, EWhat::kLvl), when);
+					circle_restrict, grammar::GetDeclensionInNumber(circle_restrict, grammar::EWhat::kLvl), when);
 			break;
 	}
 	SendMsgToChar(buf, ch);

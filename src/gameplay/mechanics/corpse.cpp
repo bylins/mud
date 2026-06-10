@@ -365,19 +365,19 @@ void make_arena_corpse(CharData *ch, CharData *killer) {
 	corpse->set_short_description(buf2);
 
 	sprintf(buf2, "останки %s", GET_PAD(ch, 1));
-	corpse->set_PName(ECase::kNom, buf2);
+	corpse->set_PName(grammar::ECase::kNom, buf2);
 	corpse->set_aliases(buf2);
 
 	sprintf(buf2, "останков %s", GET_PAD(ch, 1));
-	corpse->set_PName(ECase::kGen, buf2);
+	corpse->set_PName(grammar::ECase::kGen, buf2);
 	sprintf(buf2, "останкам %s", GET_PAD(ch, 1));
-	corpse->set_PName(ECase::kDat, buf2);
+	corpse->set_PName(grammar::ECase::kDat, buf2);
 	sprintf(buf2, "останки %s", GET_PAD(ch, 1));
-	corpse->set_PName(ECase::kAcc, buf2);
+	corpse->set_PName(grammar::ECase::kAcc, buf2);
 	sprintf(buf2, "останками %s", GET_PAD(ch, 1));
-	corpse->set_PName(ECase::kIns, buf2);
+	corpse->set_PName(grammar::ECase::kIns, buf2);
 	sprintf(buf2, "останках %s", GET_PAD(ch, 1));
-	corpse->set_PName(ECase::kPre, buf2);
+	corpse->set_PName(grammar::ECase::kPre, buf2);
 
 	corpse->set_type(EObjType::kContainer);
 	corpse->set_wear_flag(EWearFlag::kTake);
@@ -394,7 +394,7 @@ void make_arena_corpse(CharData *ch, CharData *killer) {
 		corpse->set_timer(0);
 	}
 	ExtraDescription::shared_ptr exdesc(new ExtraDescription());
-	exdesc->keyword = str_dup(corpse->get_PName(ECase::kNom).c_str());    // косметика
+	exdesc->keyword = str_dup(corpse->get_PName(grammar::ECase::kNom).c_str());    // косметика
 	if (killer) {
 		sprintf(buf, "Убит%s на арене %s.\r\n", grammar::SexEnding((ch)->get_sex(), 6), GET_PAD(killer, 4));
 	} else {
@@ -421,17 +421,17 @@ ObjData *make_corpse(CharData *ch, CharData *killer) {
 	sprintf(buf2, "труп %s", GET_PAD(ch, 1));
 	corpse->set_short_description(buf2);
 	sprintf(buf2, "труп %s", GET_PAD(ch, 1));
-	corpse->set_PName(ECase::kNom, buf2);
+	corpse->set_PName(grammar::ECase::kNom, buf2);
 	sprintf(buf2, "трупа %s", GET_PAD(ch, 1));
-	corpse->set_PName(ECase::kGen, buf2);
+	corpse->set_PName(grammar::ECase::kGen, buf2);
 	sprintf(buf2, "трупу %s", GET_PAD(ch, 1));
-	corpse->set_PName(ECase::kDat, buf2);
+	corpse->set_PName(grammar::ECase::kDat, buf2);
 	sprintf(buf2, "труп %s", GET_PAD(ch, 1));
-	corpse->set_PName(ECase::kAcc, buf2);
+	corpse->set_PName(grammar::ECase::kAcc, buf2);
 	sprintf(buf2, "трупом %s", GET_PAD(ch, 1));
-	corpse->set_PName(ECase::kIns, buf2);
+	corpse->set_PName(grammar::ECase::kIns, buf2);
 	sprintf(buf2, "трупе %s", GET_PAD(ch, 1));
-	corpse->set_PName(ECase::kPre, buf2);
+	corpse->set_PName(grammar::ECase::kPre, buf2);
 
 	corpse->set_type(EObjType::kContainer);
 	corpse->set_wear_flag(EWearFlag::kTake);

@@ -85,18 +85,18 @@ class CurrencyInfo : public info_container::BaseItem<int> {
 
 	[[nodiscard]] EGender GetGender() const { return gender_; };
 	[[nodiscard]] const std::string &GetNameWithAmount(long amount) const;
-	[[nodiscard]] const std::string &GetName(ECase name_case = ECase::kNom) const;
-	[[nodiscard]] const std::string &GetPluralName(ECase name_case = ECase::kNom) const;
-	[[nodiscard]] const char *GetCName(ECase name_case) const;
-	[[nodiscard]] const char *GetPluralCName(ECase name_case) const;
+	[[nodiscard]] const std::string &GetName(grammar::ECase name_case = grammar::ECase::kNom) const;
+	[[nodiscard]] const std::string &GetPluralName(grammar::ECase name_case = grammar::ECase::kNom) const;
+	[[nodiscard]] const char *GetCName(grammar::ECase name_case) const;
+	[[nodiscard]] const char *GetPluralCName(grammar::ECase name_case) const;
 	/**
 	 * Генерация названия объекта, содержащего заданное количество валюты.
 	 * @param amount - количество валюты.
 	 * @param gram_case - в каком падеже нужно название.
 	 * @return - строка-описание объекта.
 	 */
-	[[nodiscard]] std::string GetObjName(long amount, ECase gram_case) const;
-	[[nodiscard]] const char *GetObjCName(long amount, ECase gram_case) const;
+	[[nodiscard]] std::string GetObjName(long amount, grammar::ECase gram_case) const;
+	[[nodiscard]] const char *GetObjCName(long amount, grammar::ECase gram_case) const;
 
 	void Print(CharData */*ch*/, std::ostringstream &buffer) const;
 };

@@ -319,7 +319,7 @@ int ConvertDrinkconSkillField(CObjectPrototype *obj, bool proto) {
 	if (obj->get_spec_param() > 0
 		&& (obj->get_type() == EObjType::kLiquidContainer
 			|| obj->get_type() == EObjType::kFountain)) {
-		log("obj_skill: %d - %s (%d)", obj->get_spec_param(), obj->get_PName(ECase::kNom).c_str(), GET_OBJ_VNUM(obj));
+		log("obj_skill: %d - %s (%d)", obj->get_spec_param(), obj->get_PName(grammar::ECase::kNom).c_str(), GET_OBJ_VNUM(obj));
 		// если емскости уже просетили какие-то заклы, то зелье
 		// из обж-скилл их не перекрывает, а просто удаляется
 		if (obj->GetPotionValueKey(ObjVal::EValueKey::POTION_PROTO_VNUM) < 0) {
@@ -2549,7 +2549,7 @@ void ZoneReset::ResetZoneEssential() {
 
 						if (!obj->has_flag(EObjFlag::kNodecay)) {
 							sprintf(buf, "&YВНИМАНИЕ&G На землю загружен объект без флага NODECAY : %s (VNUM=%d)",
-									obj->get_PName(ECase::kNom).c_str(), obj->get_vnum());
+									obj->get_PName(grammar::ECase::kNom).c_str(), obj->get_vnum());
 							mudlog(buf, BRF, kLvlBuilder, ERRLOG, true);
 						}
 					}

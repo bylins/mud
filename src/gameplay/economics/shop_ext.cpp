@@ -97,17 +97,17 @@ void load_item_desc() {
 			child = item.child("short_description");
 			desc_node.short_description = child.child_value();
 			child = item.child("PNames0");
-			desc_node.PNames[ECase::kNom] = child.child_value();
+			desc_node.PNames[grammar::ECase::kNom] = child.child_value();
 			child = item.child("PNames1");
-			desc_node.PNames[ECase::kGen] = child.child_value();
+			desc_node.PNames[grammar::ECase::kGen] = child.child_value();
 			child = item.child("PNames2");
-			desc_node.PNames[ECase::kDat] = child.child_value();
+			desc_node.PNames[grammar::ECase::kDat] = child.child_value();
 			child = item.child("PNames3");
-			desc_node.PNames[ECase::kAcc] = child.child_value();
+			desc_node.PNames[grammar::ECase::kAcc] = child.child_value();
 			child = item.child("PNames4");
-			desc_node.PNames[ECase::kIns] = child.child_value();
+			desc_node.PNames[grammar::ECase::kIns] = child.child_value();
 			child = item.child("PNames5");
-			desc_node.PNames[ECase::kPre] = child.child_value();
+			desc_node.PNames[grammar::ECase::kPre] = child.child_value();
 			child = item.child("sex");
 			desc_node.sex = static_cast<EGender>(atoi(child.child_value()));
 
@@ -533,14 +533,14 @@ void DoStoreShop(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					continue;
 				}
 				const auto obj = shop->GetObjFromShop(item_list.node(i)->uid());
-				if (isname(stufina, obj->get_PName(ECase::kNom))) {
+				if (isname(stufina, obj->get_PName(grammar::ECase::kNom))) {
 					SendMsgToChar(ch, "Характеристики предмета: %s\r\n", stufina);
 					MortShowObjValues(obj, ch, 200);
 					ch->remove_bank(kChestIdentPay);
 					SendMsgToChar(ch,
 								  "&GЗа информацию о предмете с вашего банковского счета сняли %d %s&n\r\n",
 								  kChestIdentPay,
-								  GetDeclensionInNumber(kChestIdentPay, EWhat::kMoneyU));
+								  grammar::GetDeclensionInNumber(kChestIdentPay, grammar::EWhat::kMoneyU));
 					return;
 				}
 			}

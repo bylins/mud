@@ -144,7 +144,7 @@ EStageResult SpellLocateObject(CastContext &ctx) {
 				sprintf(buf, "%s наход%sся в %s.\r\n",
 						i->get_short_description().c_str(),
 						grammar::ObjPluralVerbEnding((i)->get_sex()),
-						i->get_in_obj()->get_PName(ECase::kPre).c_str());
+						i->get_in_obj()->get_PName(grammar::ECase::kPre).c_str());
 			}
 		} else if (i->get_worn_by()) {
 			const auto worn_by = i->get_worn_by();
@@ -162,7 +162,7 @@ EStageResult SpellLocateObject(CastContext &ctx) {
 			SendMsgToChar(locate_msg.c_str(), ch);
 			return true;
 		} else {
-			sprintf(buf, "Местоположение %s неопределимо.\r\n", OBJN(i.get(), ch, ECase::kGen));
+			sprintf(buf, "Местоположение %s неопределимо.\r\n", OBJN(i.get(), ch, grammar::ECase::kGen));
 		}
 		SendMsgToChar(buf, ch);
 		return true;

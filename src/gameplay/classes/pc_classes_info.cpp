@@ -229,11 +229,11 @@ void CharClassInfo::PrintHeader(std::ostringstream &buffer) const {
 		   << " Mode: " << kColorGrn << NAME_BY_ITEM<EItemMode>(GetMode()) << kColorNrm << "\r\n"
 		   << " Abbr: " << kColorGrn << GetAbbr() << kColorNrm << "\r\n"
 		   << " Name: " << kColorGrn << GetName()
-		   << "/" << names->GetSingular(ECase::kGen)
-		   << "/" << names->GetSingular(ECase::kDat)
-		   << "/" << names->GetSingular(ECase::kAcc)
-		   << "/" << names->GetSingular(ECase::kIns)
-		   << "/" << names->GetSingular(ECase::kPre) << kColorNrm << "\r\n";
+		   << "/" << names->GetSingular(grammar::ECase::kGen)
+		   << "/" << names->GetSingular(grammar::ECase::kDat)
+		   << "/" << names->GetSingular(grammar::ECase::kAcc)
+		   << "/" << names->GetSingular(grammar::ECase::kIns)
+		   << "/" << names->GetSingular(grammar::ECase::kPre) << kColorNrm << "\r\n";
 }
 
 void CharClassInfo::Print(CharData *ch, std::ostringstream &buffer) const {
@@ -249,19 +249,19 @@ const std::string &CharClassInfo::GetAbbr() const {
 	return abbr;
 };
 
-const std::string &CharClassInfo::GetName(ECase name_case) const {
+const std::string &CharClassInfo::GetName(grammar::ECase name_case) const {
 	return names->GetSingular(name_case);
 }
 
-const std::string &CharClassInfo::GetPluralName(ECase name_case) const {
+const std::string &CharClassInfo::GetPluralName(grammar::ECase name_case) const {
 	return names->GetPlural(name_case);
 }
 
-const char *CharClassInfo::GetCName(ECase name_case) const {
+const char *CharClassInfo::GetCName(grammar::ECase name_case) const {
 	return names->GetSingular(name_case).c_str();
 }
 
-const char *CharClassInfo::GetPluralCName(ECase name_case) const {
+const char *CharClassInfo::GetPluralCName(grammar::ECase name_case) const {
 	return names->GetPlural(name_case).c_str();
 }
 

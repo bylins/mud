@@ -308,7 +308,7 @@ void add_glory(long uid, int amount) {
 	DescriptorData *d = DescriptorByUid(uid);
 	if (d)
 		SendMsgToChar(d->character.get(), "Вы заслужили %d %s славы.\r\n",
-					  amount, GetDeclensionInNumber(amount, EWhat::kPoint));
+					  amount, grammar::GetDeclensionInNumber(amount, grammar::EWhat::kPoint));
 }
 
 /**
@@ -709,7 +709,7 @@ void spend_glory_menu(CharData *ch) {
 
 	int diff = ch->desc->glory->olc_node->spend_glory - ch->desc->glory->olc_add_spend_glory;
 	if (diff > 0) {
-		out << "  Вы должны распределить вложенные ранее " << diff << " " << GetDeclensionInNumber(diff, EWhat::kPoint) << "\r\n";
+		out << "  Вы должны распределить вложенные ранее " << diff << " " << grammar::GetDeclensionInNumber(diff, grammar::EWhat::kPoint) << "\r\n";
 	} else if (ch->desc->glory->olc_add_spend_glory > ch->desc->glory->olc_node->spend_glory
 		|| ch->desc->glory->olc_str != ch->GetInbornStr()
 		|| ch->desc->glory->olc_dex != ch->GetInbornDex()
@@ -952,7 +952,7 @@ bool remove_stats(CharData *ch, CharData *god, int amount) {
 				  "С %s снято %d %s вложенной ранее славы.\r\n",
 				  GET_PAD(ch, 1),
 				  removed,
-				  GetDeclensionInNumber(removed, EWhat::kPoint));
+				  grammar::GetDeclensionInNumber(removed, grammar::EWhat::kPoint));
 	// надо пересчитать хп на случай снятия с тела
 	check_max_hp(ch);
 	save_glory();

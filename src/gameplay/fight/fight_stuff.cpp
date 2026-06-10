@@ -266,7 +266,7 @@ void die(CharData *ch, CharData *killer) {
 					/ (3 + std::min(3, GetRealRemort(ch) / 5));
 			EndowExpToChar(ch, -dec_exp);
 			dec_exp = char_exp - ch->get_exp();
-			sprintf(buf, "Вы потеряли %ld %s опыта.\r\n", dec_exp, GetDeclensionInNumber(dec_exp, EWhat::kPoint));
+			sprintf(buf, "Вы потеряли %ld %s опыта.\r\n", dec_exp, grammar::GetDeclensionInNumber(dec_exp, grammar::EWhat::kPoint));
 			SendMsgToChar(buf, ch);
 		}
 
@@ -766,7 +766,7 @@ void perform_group_gain(CharData *ch, CharData *victim, int members, int koef) {
 		}
 
 		exp = std::min(static_cast<long long>(max_exp_gain_pc(ch)), exp);
-		SendMsgToChar(ch, "Ваш опыт повысился на %lld %s.\r\n", exp, GetDeclensionInNumber(exp, EWhat::kPoint));
+		SendMsgToChar(ch, "Ваш опыт повысился на %lld %s.\r\n", exp, grammar::GetDeclensionInNumber(exp, grammar::EWhat::kPoint));
 	} else if (exp == 1) {
 		SendMsgToChar("Ваш опыт повысился всего лишь на маленькую единичку.\r\n", ch);
 	}

@@ -2301,7 +2301,7 @@ void find_replacement(void *go,
 			if (*subfield) {
 				if (strlen(subfield) > MAX_MOB_NAME)
 					subfield[MAX_MOB_NAME - 1] = '\0';
-				mob->player_data.PNames[ECase::kNom] = subfield;
+				mob->player_data.PNames[grammar::ECase::kNom] = subfield;
 			}
 			else
 				snprintf(str, str_size, "%s", GET_PAD(mob, 0));
@@ -2310,7 +2310,7 @@ void find_replacement(void *go,
 			if (*subfield) {
 				if (strlen(subfield) > MAX_MOB_NAME)
 					subfield[MAX_MOB_NAME - 1] = '\0';
-				mob->player_data.PNames[ECase::kGen] = subfield;
+				mob->player_data.PNames[grammar::ECase::kGen] = subfield;
 			}
 			else
 				snprintf(str, str_size, "%s", GET_PAD(mob, 1));
@@ -2319,7 +2319,7 @@ void find_replacement(void *go,
 			if (*subfield) {
 				if (strlen(subfield) > MAX_MOB_NAME)
 					subfield[MAX_MOB_NAME - 1] = '\0';
-				mob->player_data.PNames[ECase::kDat] = subfield;
+				mob->player_data.PNames[grammar::ECase::kDat] = subfield;
 			}
 			else
 				snprintf(str, str_size, "%s", GET_PAD(mob, 2));
@@ -2328,7 +2328,7 @@ void find_replacement(void *go,
 			if (*subfield) {
 				if (strlen(subfield) > MAX_MOB_NAME)
 					subfield[MAX_MOB_NAME - 1] = '\0';
-				mob->player_data.PNames[ECase::kAcc] = subfield;
+				mob->player_data.PNames[grammar::ECase::kAcc] = subfield;
 			}
 			else
 				snprintf(str, str_size, "%s", GET_PAD(mob, 3));
@@ -2337,7 +2337,7 @@ void find_replacement(void *go,
 			if (*subfield) {
 				if (strlen(subfield) > MAX_MOB_NAME)
 					subfield[MAX_MOB_NAME - 1] = '\0';
-				mob->player_data.PNames[ECase::kIns] = subfield;
+				mob->player_data.PNames[grammar::ECase::kIns] = subfield;
 			}
 			else
 				snprintf(str, str_size, "%s", GET_PAD(mob, 4));
@@ -2346,7 +2346,7 @@ void find_replacement(void *go,
 			if (*subfield) {
 				if (strlen(subfield) > MAX_MOB_NAME)
 					subfield[MAX_MOB_NAME - 1] = '\0';
-				mob->player_data.PNames[ECase::kPre] = subfield;
+				mob->player_data.PNames[grammar::ECase::kPre] = subfield;
 			}
 			else
 				snprintf(str, str_size, "%s", GET_PAD(mob, 5));
@@ -2541,7 +2541,7 @@ void find_replacement(void *go,
 						GET_PAD(mob, 0),
 						GET_ROOM_VNUM(mob->in_room),
 						value,
-						GetDeclensionInNumber(value, EWhat::kTorcU),
+						grammar::GetDeclensionInNumber(value, grammar::EWhat::kTorcU),
 						GET_TRIG_NAME(trig),
 						GET_TRIG_VNUM(trig));
 				mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
@@ -2588,12 +2588,12 @@ void find_replacement(void *go,
 								}
 							}
 							snprintf(buf, sizeof(buf), "Вы разделили %d %s на %d  -  по %d каждому.\r\n",
-									val, GetDeclensionInNumber(val, EWhat::kNogataU), num, share);
+									val, grammar::GetDeclensionInNumber(val, grammar::EWhat::kNogataU), num, share);
 							SendMsgToChar(buf, mob);
 							if (rest > 0) {
 								SendMsgToChar(mob, "Как истинный еврей вы оставили %d %s (которые не смогли разделить нацело) себе.\r\n",
 											  rest,
-											  GetDeclensionInNumber(rest, EWhat::kNogataU));
+											  grammar::GetDeclensionInNumber(rest, grammar::EWhat::kNogataU));
 							}
 							mob->add_nogata(share+rest);
 						}
@@ -2617,7 +2617,7 @@ void find_replacement(void *go,
 						GET_PAD(mob, 0),
 						GET_ROOM_VNUM(mob->in_room),
 						value,
-						GetDeclensionInNumber(value, EWhat::kMoneyU),
+						grammar::GetDeclensionInNumber(value, grammar::EWhat::kMoneyU),
 						GET_TRIG_NAME(trig),
 						GET_TRIG_VNUM(trig));
 				mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
@@ -3303,38 +3303,38 @@ void find_replacement(void *go,
 				}
 			}
 		} else if (!str_cmp(field, "iname")) {
-			if (!obj->get_PName(ECase::kNom).empty()) {
-				snprintf(str, str_size, "%s", obj->get_PName(ECase::kNom).c_str());
+			if (!obj->get_PName(grammar::ECase::kNom).empty()) {
+				snprintf(str, str_size, "%s", obj->get_PName(grammar::ECase::kNom).c_str());
 			} else {
 				snprintf(str, str_size, "%s", obj->get_aliases().c_str());
 			}
 		} else if (!str_cmp(field, "rname")) {
-			if (!obj->get_PName(ECase::kGen).empty()) {
-				snprintf(str, str_size, "%s", obj->get_PName(ECase::kGen).c_str());
+			if (!obj->get_PName(grammar::ECase::kGen).empty()) {
+				snprintf(str, str_size, "%s", obj->get_PName(grammar::ECase::kGen).c_str());
 			} else {
 				snprintf(str, str_size, "%s", obj->get_aliases().c_str());
 			}
 		} else if (!str_cmp(field, "dname")) {
-			if (!obj->get_PName(ECase::kDat).empty()) {
-				snprintf(str, str_size, "%s", obj->get_PName(ECase::kDat).c_str());
+			if (!obj->get_PName(grammar::ECase::kDat).empty()) {
+				snprintf(str, str_size, "%s", obj->get_PName(grammar::ECase::kDat).c_str());
 			} else {
 				snprintf(str, str_size, "%s", obj->get_aliases().c_str());
 			}
 		} else if (!str_cmp(field, "vname")) {
-			if (!obj->get_PName(ECase::kAcc).empty()) {
-				snprintf(str, str_size, "%s", obj->get_PName(ECase::kAcc).c_str());
+			if (!obj->get_PName(grammar::ECase::kAcc).empty()) {
+				snprintf(str, str_size, "%s", obj->get_PName(grammar::ECase::kAcc).c_str());
 			} else {
 				snprintf(str, str_size, "%s", obj->get_aliases().c_str());
 			}
 		} else if (!str_cmp(field, "tname")) {
-			if (!obj->get_PName(ECase::kIns).empty()) {
-				snprintf(str, str_size, "%s", obj->get_PName(ECase::kIns).c_str());
+			if (!obj->get_PName(grammar::ECase::kIns).empty()) {
+				snprintf(str, str_size, "%s", obj->get_PName(grammar::ECase::kIns).c_str());
 			} else {
 				snprintf(str, str_size, "%s", obj->get_aliases().c_str());
 			}
 		} else if (!str_cmp(field, "pname")) {
-			if (!obj->get_PName(ECase::kPre).empty()) {
-				snprintf(str, str_size, "%s", obj->get_PName(ECase::kPre).c_str());
+			if (!obj->get_PName(grammar::ECase::kPre).empty()) {
+				snprintf(str, str_size, "%s", obj->get_PName(grammar::ECase::kPre).c_str());
 			} else {
 				snprintf(str, str_size, "%s", obj->get_aliases().c_str());
 			}

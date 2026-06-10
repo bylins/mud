@@ -45,16 +45,16 @@ void PerformDropGold(CharData *ch, int amount) {
 		// Если этот моб трупа не оставит, то не выводить сообщение иначе ужасно коряво смотрится в бою и в тригах
 		if (!ch->IsNpc() || !ch->IsFlagged(EMobFlag::kCorpse)) {
 			SendMsgToChar(ch, "Вы бросили %d %s на землю.\r\n",
-						  amount, GetDeclensionInNumber(amount, EWhat::kMoneyU));
+						  amount, grammar::GetDeclensionInNumber(amount, grammar::EWhat::kMoneyU));
 			sprintf(buf,
 					"<%s> {%d} выбросил %d %s на землю.",
 					ch->get_name().c_str(),
 					GET_ROOM_VNUM(ch->in_room),
 					amount,
-					GetDeclensionInNumber(amount, EWhat::kMoneyU));
+					grammar::GetDeclensionInNumber(amount, grammar::EWhat::kMoneyU));
 			mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
 			sprintf(buf, "$n бросил$g %s на землю.",
-					MUD::Currency(currencies::kKunaVnum).GetObjCName(amount, ECase::kAcc));
+					MUD::Currency(currencies::kKunaVnum).GetObjCName(amount, grammar::ECase::kAcc));
 			act(buf, true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 		}
 		PlaceObjToRoom(obj.get(), ch->in_room);

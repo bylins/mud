@@ -1277,7 +1277,7 @@ void exchange_point_update() {
 		next_exch_item = exch_item->next;
 
 		if (GET_EXCHANGE_ITEM(exch_item)->get_timer() == 0) {
-			std::string cap = GET_EXCHANGE_ITEM(exch_item)->get_PName(ECase::kNom);
+			std::string cap = GET_EXCHANGE_ITEM(exch_item)->get_PName(grammar::ECase::kNom);
 			cap[0] = UPPER(cap[0]);
 			sprintf(buf, "Exchange: - %s рассыпал%s от длительного использования.\r\n",
 					cap.c_str(), grammar::ObjSexEnding((GET_EXCHANGE_ITEM(exch_item))->get_sex(), 2));
@@ -1348,7 +1348,7 @@ void charmee_obj_decay_tell(CharData *charmee, ObjData *obj, ECharmeeObjPos obj_
 		sprintf(local_buf1, "прямо на вас");
 	} else if (obj_pos == ECharmeeObjPos::kContainer && obj->get_in_obj()) {
 		snprintf(local_buf1, 128, "в %s%s",
-				 obj->get_in_obj()->get_PName(ECase::kPre).c_str(),
+				 obj->get_in_obj()->get_PName(grammar::ECase::kPre).c_str(),
 				 char_get_custom_label(obj->get_in_obj(), charmee->get_master()).c_str());
 	} else {
 		sprintf(local_buf1, "непонятно где"); // для дебага -- сюда выполнение доходить не должно
@@ -1360,7 +1360,7 @@ void charmee_obj_decay_tell(CharData *charmee, ObjData *obj, ECharmeeObjPos obj_
 	   то в игре будет выглядеть неестественно.
 	   короче, рефакторинг приветствуется, если кто-нибудь придумает лучше.
 	*/
-	std::string cap = obj->get_PName(ECase::kNom);
+	std::string cap = obj->get_PName(grammar::ECase::kNom);
 	cap[0] = UPPER(cap[0]);
 	snprintf(local_buf, kMaxStringLength, "%s сказал%s вам : '%s%s рассыпал%s %s...'",
 			 GET_NAME(charmee),
@@ -1405,7 +1405,7 @@ void obj_point_update() {
 						PlaceObjToRoom(jj, j->get_in_room());
 					} else {
 						log("SYSERR: extract %s from %s to kNothing !!!",
-							jj->get_PName(ECase::kNom).c_str(), j->get_PName(ECase::kNom).c_str());
+							jj->get_PName(grammar::ECase::kNom).c_str(), j->get_PName(grammar::ECase::kNom).c_str());
 						// core_dump();
 						ExtractObjFromWorld(jj);
 					}
@@ -1446,8 +1446,8 @@ void obj_point_update() {
 					PlaceObjToRoom(jj, j->get_in_room());
 				} else {
 					log("SYSERR: extract %s from %s to kNothing !!!",
-						jj->get_PName(ECase::kNom).c_str(),
-						j->get_PName(ECase::kNom).c_str());
+						jj->get_PName(grammar::ECase::kNom).c_str(),
+						j->get_PName(grammar::ECase::kNom).c_str());
 					// core_dump();
 					ExtractObjFromWorld(jj);
 				}
@@ -1510,7 +1510,7 @@ void obj_point_update() {
 							char buf[kMaxStringLength];
 							snprintf(buf, kMaxStringLength, "$o%s рассыпал$U в %s%s...",
 									 char_get_custom_label(j, cont_owner).c_str(),
-									 j->get_in_obj()->get_PName(ECase::kPre).c_str(),
+									 j->get_in_obj()->get_PName(grammar::ECase::kPre).c_str(),
 									 char_get_custom_label(j->get_in_obj(), cont_owner).c_str());
 							act(buf, false, cont_owner, j, nullptr, kToChar);
 					}
@@ -1693,7 +1693,7 @@ void ExtractRepopDecayObject(ObjData *obj) {
 			}
 
 		if (owner) {
-			const auto msg = fmt::format("$o рассыпал$U в {}...", obj->get_in_obj()->get_PName(ECase::kPre));
+			const auto msg = fmt::format("$o рассыпал$U в {}...", obj->get_in_obj()->get_PName(grammar::ECase::kPre));
 			act(msg, false, owner, obj, nullptr, kToChar);
 		}
 	}

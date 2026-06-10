@@ -142,7 +142,7 @@ void TopPlayer::PrintPlayersChart(CharData *ch) {
 		table
 			<< it.second.begin()->name_
 			<< it.second.begin()->remort_
-			<< GetDeclensionInNumber(it.second.begin()->remort_, EWhat::kRemort)
+			<< grammar::GetDeclensionInNumber(it.second.begin()->remort_, grammar::EWhat::kRemort)
 			<< MUD::Class(it.first).GetName() << table_wrapper::kEndRow;
 	}
 	table_wrapper::DecorateNoBorderTable(ch, table);
@@ -168,7 +168,7 @@ void TopPlayer::PrintClassChart(CharData *ch, ECharClass id) {
 		table << it.number_
 			<< it.name_
 			<< it.remort_
-			<< GetDeclensionInNumber(it.remort_, EWhat::kRemort) << table_wrapper::kEndRow;
+			<< grammar::GetDeclensionInNumber(it.remort_, grammar::EWhat::kRemort) << table_wrapper::kEndRow;
 		if (table.row_count() >= kPlayerChartSize) {
 			break;
 		}
@@ -195,7 +195,7 @@ void TopPlayer::PrintClassChart(CharData *ch, ECharClass id) {
 	}
 	table_wrapper::Table table3;
 	for (auto &it : upper) {
-		table3 << it.number_ << it.name_ << it.remort_ << GetDeclensionInNumber(it.remort_, EWhat::kRemort) << table_wrapper::kEndRow;
+		table3 << it.number_ << it.name_ << it.remort_ << grammar::GetDeclensionInNumber(it.remort_, grammar::EWhat::kRemort) << table_wrapper::kEndRow;
 	}
 	table_wrapper::DecorateNoBorderTable(ch, table3);
 	table_wrapper::PrintTableToStream(out, table3);
@@ -205,7 +205,7 @@ void TopPlayer::PrintClassChart(CharData *ch, ECharClass id) {
 	for (const auto &it: TopPlayer::chart_[id]) {
 		if (deep == 0) {
 			if (it.unique_ == ch->get_uid()) {
-				out << "\r\n" << " Ваш текущий рейтинг: " << it.number_ << " - " << it.remort_ << " " << GetDeclensionInNumber(it.remort_, EWhat::kRemort) << "\r\n";
+				out << "\r\n" << " Ваш текущий рейтинг: " << it.number_ << " - " << it.remort_ << " " << grammar::GetDeclensionInNumber(it.remort_, grammar::EWhat::kRemort) << "\r\n";
 				out  << "\r\n После вас:\r\n";
 				deep = 1;
 				continue;
@@ -213,7 +213,7 @@ void TopPlayer::PrintClassChart(CharData *ch, ECharClass id) {
 		} else {
 			if (deep++ == 4)
 				break;
-			table4 << it.number_ << it.name_ << it.remort_ << GetDeclensionInNumber(it.remort_, EWhat::kRemort) << table_wrapper::kEndRow;
+			table4 << it.number_ << it.name_ << it.remort_ << grammar::GetDeclensionInNumber(it.remort_, grammar::EWhat::kRemort) << table_wrapper::kEndRow;
 		}
 	}
 	table_wrapper::DecorateNoBorderTable(ch, table4);
@@ -230,7 +230,7 @@ void TopPlayer::PrintClassChart(CharData *ch, ECharClass id) {
 		for (auto &it : upper) {
 			table2 << it.name_
 				<< it.remort_
-				<< GetDeclensionInNumber(it.remort_, EWhat::kRemort) << table_wrapper::kEndRow;
+				<< grammar::GetDeclensionInNumber(it.remort_, grammar::EWhat::kRemort) << table_wrapper::kEndRow;
 		}
 		table_wrapper::DecorateNoBorderTable(ch, table2);
 		table_wrapper::PrintTableToStream(out, table2);

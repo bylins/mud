@@ -241,12 +241,12 @@ void CreateBlankObjsDungeon() {
 			obj->set_aliases("новый предмет");
 			obj->set_description("что-то новое лежит здесь");
 			obj->set_short_description("новый предмет");
-			obj->set_PName(ECase::kNom, "это что");
-			obj->set_PName(ECase::kGen, "нету чего");
-			obj->set_PName(ECase::kDat, "привязать к чему");
-			obj->set_PName(ECase::kAcc, "взять что");
-			obj->set_PName(ECase::kIns, "вооружиться чем");
-			obj->set_PName(ECase::kPre, "говорить о чем");
+			obj->set_PName(grammar::ECase::kNom, "это что");
+			obj->set_PName(grammar::ECase::kGen, "нету чего");
+			obj->set_PName(grammar::ECase::kDat, "привязать к чему");
+			obj->set_PName(grammar::ECase::kAcc, "взять что");
+			obj->set_PName(grammar::ECase::kIns, "вооружиться чем");
+			obj->set_PName(grammar::ECase::kPre, "говорить о чем");
 			obj->set_wear_flags(to_underlying(EWearFlag::kTake));
 			obj_proto.add(obj, obj_vnum);
 		}
@@ -275,7 +275,7 @@ void CreateBlankMobsDungeon() {
 			new_proto[rnum].set_npc_name("пустой моб");
 			new_proto[rnum].SetCharAliases("моб");
 			new_proto[rnum].SetNpcAttribute(true);
-			new_proto[rnum].player_data.PNames[ECase::kNom] = "пустой моб";
+			new_proto[rnum].player_data.PNames[grammar::ECase::kNom] = "пустой моб";
 			new_index[rnum].total_online = 0;
 			new_index[rnum].stored = 0;
 			new_index[rnum].func = nullptr;
@@ -960,12 +960,12 @@ void ObjDataFree(ZoneRnum zrn) {
 			obj->set_aliases("новый предмет");
 			obj->set_description("что-то новое лежит здесь");
 			obj->set_short_description("новый предмет");
-			obj->set_PName(ECase::kNom, "это что");
-			obj->set_PName(ECase::kGen, "нету чего");
-			obj->set_PName(ECase::kDat, "привязать к чему");
-			obj->set_PName(ECase::kAcc, "взять что");
-			obj->set_PName(ECase::kIns, "вооружиться чем");
-			obj->set_PName(ECase::kPre, "говорить о чем");
+			obj->set_PName(grammar::ECase::kNom, "это что");
+			obj->set_PName(grammar::ECase::kGen, "нету чего");
+			obj->set_PName(grammar::ECase::kDat, "привязать к чему");
+			obj->set_PName(grammar::ECase::kAcc, "взять что");
+			obj->set_PName(grammar::ECase::kIns, "вооружиться чем");
+			obj->set_PName(grammar::ECase::kPre, "говорить о чем");
 			obj->set_wear_flags(to_underlying(EWearFlag::kTake));
 			obj->set_parent_rnum(-1);
 			obj->clear_proto_script();

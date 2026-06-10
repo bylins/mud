@@ -2605,10 +2605,10 @@ void nanny(DescriptorData *d, char *argument) {
 
 						CreateChar(d);
 						d->character->SetCharAliases(utils::CAP(tmp_name));
-						d->character->player_data.PNames[ECase::kNom] = std::string(utils::CAP(tmp_name));
+						d->character->player_data.PNames[grammar::ECase::kNom] = std::string(utils::CAP(tmp_name));
 						d->character->set_pfilepos(player_i);
 						sprintf(buffer, "Вы действительно выбрали имя %s [ Y(Д) / N(Н) ]? ", tmp_name);
-						log("New player %s ip %s", d->character->player_data.PNames[ECase::kNom].c_str(), d->host);
+						log("New player %s ip %s", d->character->player_data.PNames[grammar::ECase::kNom].c_str(), d->host);
 						iosystem::write_to_output(buffer, d);
 						d->state = EConState::kNameConfirm;
 					} else    // undo it just in case they are set
@@ -2651,10 +2651,10 @@ void nanny(DescriptorData *d, char *argument) {
 					}
 
 					d->character->SetCharAliases(utils::CAP(tmp_name));
-					d->character->player_data.PNames[ECase::kNom] = std::string(utils::CAP(tmp_name));
+					d->character->player_data.PNames[grammar::ECase::kNom] = std::string(utils::CAP(tmp_name));
 					iosystem::write_to_output(name_rules, d);
 					sprintf(buffer, "Вы действительно выбрали имя  %s [ Y(Д) / N(Н) ]? ", tmp_name);
-					log("New player %s ip %s", d->character->player_data.PNames[ECase::kNom].c_str(), d->host);
+					log("New player %s ip %s", d->character->player_data.PNames[grammar::ECase::kNom].c_str(), d->host);
 					iosystem::write_to_output(buffer, d);
 					d->state = EConState::kNameConfirm;
 				}
@@ -2756,7 +2756,7 @@ void nanny(DescriptorData *d, char *argument) {
 			}
 
 			d->character->SetCharAliases(utils::CAP(tmp_name));
-			d->character->player_data.PNames[ECase::kNom] = std::string(utils::CAP(tmp_name));
+			d->character->player_data.PNames[grammar::ECase::kNom] = std::string(utils::CAP(tmp_name));
 			if (is_player_deleted) {
 				d->character->set_pfilepos(player_i);
 			}
@@ -3340,7 +3340,7 @@ void nanny(DescriptorData *d, char *argument) {
 				&& !strn_cmp(tmp_name,
 							 GET_PC_NAME(d->character),
 							 std::min<size_t>(kMinNameLength, strlen(GET_PC_NAME(d->character)) - 1))) {
-				d->character->player_data.PNames[ECase::kGen] = std::string(utils::CAP(tmp_name));
+				d->character->player_data.PNames[grammar::ECase::kGen] = std::string(utils::CAP(tmp_name));
 				GetCase(GET_PC_NAME(d->character), d->character->get_sex(), 2, tmp_name);
 				sprintf(buffer, "Имя в дательном падеже (отправить КОМУ?) [%s]: ", tmp_name);
 				iosystem::write_to_output(buffer, d);
@@ -3365,7 +3365,7 @@ void nanny(DescriptorData *d, char *argument) {
 				&& !strn_cmp(tmp_name,
 							 GET_PC_NAME(d->character),
 							 std::min<size_t>(kMinNameLength, strlen(GET_PC_NAME(d->character)) - 1))) {
-				d->character->player_data.PNames[ECase::kDat] = std::string(utils::CAP(tmp_name));
+				d->character->player_data.PNames[grammar::ECase::kDat] = std::string(utils::CAP(tmp_name));
 				GetCase(GET_PC_NAME(d->character), d->character->get_sex(), 3, tmp_name);
 				sprintf(buffer, "Имя в винительном падеже (ударить КОГО?) [%s]: ", tmp_name);
 				iosystem::write_to_output(buffer, d);
@@ -3390,7 +3390,7 @@ void nanny(DescriptorData *d, char *argument) {
 				&& !strn_cmp(tmp_name,
 							 GET_PC_NAME(d->character),
 							 std::min<size_t>(kMinNameLength, strlen(GET_PC_NAME(d->character)) - 1))) {
-				d->character->player_data.PNames[ECase::kAcc] = std::string(utils::CAP(tmp_name));
+				d->character->player_data.PNames[grammar::ECase::kAcc] = std::string(utils::CAP(tmp_name));
 				GetCase(GET_PC_NAME(d->character), d->character->get_sex(), 4, tmp_name);
 				sprintf(buffer, "Имя в творительном падеже (сражаться с КЕМ?) [%s]: ", tmp_name);
 				iosystem::write_to_output(buffer, d);
@@ -3412,7 +3412,7 @@ void nanny(DescriptorData *d, char *argument) {
 						  GET_PC_NAME(d->character),
 						  std::min<size_t>(kMinNameLength, strlen(GET_PC_NAME(d->character)) - 1))
 				) {
-				d->character->player_data.PNames[ECase::kIns] = std::string(utils::CAP(tmp_name));
+				d->character->player_data.PNames[grammar::ECase::kIns] = std::string(utils::CAP(tmp_name));
 				GetCase(GET_PC_NAME(d->character), d->character->get_sex(), 5, tmp_name);
 				sprintf(buffer, "Имя в предложном падеже (говорить о КОМ?) [%s]: ", tmp_name);
 				iosystem::write_to_output(buffer, d);
@@ -3434,7 +3434,7 @@ void nanny(DescriptorData *d, char *argument) {
 						  GET_PC_NAME(d->character),
 						  std::min<size_t>(kMinNameLength, strlen(GET_PC_NAME(d->character)) - 1))
 				) {
-				d->character->player_data.PNames[ECase::kPre] = std::string(utils::CAP(tmp_name));
+				d->character->player_data.PNames[grammar::ECase::kPre] = std::string(utils::CAP(tmp_name));
 				sprintf(buffer,
 						"Введите пароль для %s (не вводите пароли типа '123' или 'qwe', иначе ваших персонажев могут украсть) : ",
 						GET_PAD(d->character, 1));

@@ -1217,9 +1217,9 @@ int shutting_down(void) {
 			sprintf(buf, "ОСТАНОВКА через ");
 		}
 		if (wait < 60)
-			sprintf(buf + strlen(buf), "%d %s.\r\n", wait, GetDeclensionInNumber(wait, EWhat::kSec));
+			sprintf(buf + strlen(buf), "%d %s.\r\n", wait, grammar::GetDeclensionInNumber(wait, grammar::EWhat::kSec));
 		else
-			sprintf(buf + strlen(buf), "%d %s.\r\n", wait / 60, GetDeclensionInNumber(wait / 60, EWhat::kMinU));
+			sprintf(buf + strlen(buf), "%d %s.\r\n", wait / 60, grammar::GetDeclensionInNumber(wait / 60, grammar::EWhat::kMinU));
 		SendMsgToAll(buf);
 		lastmessage = time(nullptr);
 		// на десятой секунде засейвим нужное нам в сислог
@@ -2488,14 +2488,14 @@ void perform_act(const char *orig,
 
 				case 'o':
 					if (*(orig + 1) < '0' || *(orig + 1) > '5') {
-						snprintf(nbuf, sizeof(nbuf), "&q%s&Q", CHK_NULL(obj, arena::VisibleObjName(obj, to, ECase::kNom, arena)));
+						snprintf(nbuf, sizeof(nbuf), "&q%s&Q", CHK_NULL(obj, arena::VisibleObjName(obj, to, grammar::ECase::kNom, arena)));
 						i = nbuf;
 					} else {
 						padis = *(++orig) - '0';
 						snprintf(nbuf,
 								 sizeof(nbuf),
 								 "&q%s&Q",
-								 CHK_NULL(obj, arena::VisibleObjName(obj, to, padis > ECase::kLastCase ? ECase::kNom : static_cast<ECase>(padis), arena)));
+								 CHK_NULL(obj, arena::VisibleObjName(obj, to, padis > grammar::ECase::kLastCase ? grammar::ECase::kNom : static_cast<grammar::ECase>(padis), arena)));
 						i = nbuf;
 					}
 					break;
@@ -2504,14 +2504,14 @@ void perform_act(const char *orig,
 						snprintf(nbuf,
 								 sizeof(nbuf),
 								 "&q%s&Q",
-								 CHK_NULL(vict_obj, arena::VisibleObjName((const ObjData *) vict_obj, to, ECase::kNom, arena)));
+								 CHK_NULL(vict_obj, arena::VisibleObjName((const ObjData *) vict_obj, to, grammar::ECase::kNom, arena)));
 						i = nbuf;
 					} else {
 						padis = *(++orig) - '0';
 						snprintf(nbuf, sizeof(nbuf), "&q%s&Q", CHK_NULL(vict_obj,
 																		arena::VisibleObjName((const ObjData *) vict_obj,
 																			  to,
-																			  padis > ECase::kLastCase ? ECase::kNom : static_cast<ECase>(padis),
+																			  padis > grammar::ECase::kLastCase ? grammar::ECase::kNom : static_cast<grammar::ECase>(padis),
 																			  arena)));
 						i = nbuf;
 					}

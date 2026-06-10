@@ -180,28 +180,28 @@ void do_dg_cast(void *go, Trigger *trig, int type, std::string cmd) {
 		// take select pieces from char_to_room();
 		dummy_mob = true;
 		if (type == OBJ_TRIGGER) {
-			sprintf(buf, "дух %s", ((ObjData *) go)->get_PName(ECase::kGen).c_str());
+			sprintf(buf, "дух %s", ((ObjData *) go)->get_PName(grammar::ECase::kGen).c_str());
 			caster->set_npc_name(buf);
-			sprintf(buf, "дух %s", ((ObjData *) go)->get_PName(ECase::kGen).c_str());
-			caster->player_data.PNames[ECase::kNom] = std::string(buf);
-			sprintf(buf, "духа %s", ((ObjData *) go)->get_PName(ECase::kGen).c_str());
-			caster->player_data.PNames[ECase::kGen] = std::string(buf);
-			sprintf(buf, "духу %s", ((ObjData *) go)->get_PName(ECase::kGen).c_str());
-			caster->player_data.PNames[ECase::kDat] = std::string(buf);
-			sprintf(buf, "духа %s", ((ObjData *) go)->get_PName(ECase::kGen).c_str());
-			caster->player_data.PNames[ECase::kAcc] = std::string(buf);
-			sprintf(buf, "духом %s", ((ObjData *) go)->get_PName(ECase::kGen).c_str());
-			caster->player_data.PNames[ECase::kIns] = std::string(buf);
-			sprintf(buf, "духе %s", ((ObjData *) go)->get_PName(ECase::kGen).c_str());
-			caster->player_data.PNames[ECase::kPre] = std::string(buf);
+			sprintf(buf, "дух %s", ((ObjData *) go)->get_PName(grammar::ECase::kGen).c_str());
+			caster->player_data.PNames[grammar::ECase::kNom] = std::string(buf);
+			sprintf(buf, "духа %s", ((ObjData *) go)->get_PName(grammar::ECase::kGen).c_str());
+			caster->player_data.PNames[grammar::ECase::kGen] = std::string(buf);
+			sprintf(buf, "духу %s", ((ObjData *) go)->get_PName(grammar::ECase::kGen).c_str());
+			caster->player_data.PNames[grammar::ECase::kDat] = std::string(buf);
+			sprintf(buf, "духа %s", ((ObjData *) go)->get_PName(grammar::ECase::kGen).c_str());
+			caster->player_data.PNames[grammar::ECase::kAcc] = std::string(buf);
+			sprintf(buf, "духом %s", ((ObjData *) go)->get_PName(grammar::ECase::kGen).c_str());
+			caster->player_data.PNames[grammar::ECase::kIns] = std::string(buf);
+			sprintf(buf, "духе %s", ((ObjData *) go)->get_PName(grammar::ECase::kGen).c_str());
+			caster->player_data.PNames[grammar::ECase::kPre] = std::string(buf);
 		} else if (type == WLD_TRIGGER) {
 			caster->set_npc_name("Боги");
-			caster->player_data.PNames[ECase::kNom] = "Боги";
-			caster->player_data.PNames[ECase::kGen] = "Богов";
-			caster->player_data.PNames[ECase::kDat] = "Богам";
-			caster->player_data.PNames[ECase::kAcc] = "Богов";
-			caster->player_data.PNames[ECase::kIns] = "Богами";
-			caster->player_data.PNames[ECase::kPre] = "Богах";
+			caster->player_data.PNames[grammar::ECase::kNom] = "Боги";
+			caster->player_data.PNames[grammar::ECase::kGen] = "Богов";
+			caster->player_data.PNames[grammar::ECase::kDat] = "Богам";
+			caster->player_data.PNames[grammar::ECase::kAcc] = "Богов";
+			caster->player_data.PNames[grammar::ECase::kIns] = "Богами";
+			caster->player_data.PNames[grammar::ECase::kPre] = "Богах";
 		}
 		caster_room->people.push_front(caster);
 		caster->in_room = GetRoomRnum(caster_room->vnum);

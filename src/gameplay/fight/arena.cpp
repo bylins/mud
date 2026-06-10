@@ -20,10 +20,10 @@ const char *VisibleName(const CharData *ch, const CharData *viewer, int pad, boo
 
 const char *VisibleObjShort(const ObjData *obj, const CharData *viewer, bool arena) {
 	return (arena || CanSeeObj(viewer, obj)) ? obj->get_short_description().c_str()
-											  : grammar::SomethingInCase(ECase::kNom);
+											  : grammar::SomethingInCase(grammar::ECase::kNom);
 }
 
-const char *VisibleObjName(const ObjData *obj, const CharData *viewer, ECase pad, bool arena) {
+const char *VisibleObjName(const ObjData *obj, const CharData *viewer, grammar::ECase pad, bool arena) {
 	if (arena || CanSeeObj(viewer, obj)) {
 		return !obj->get_PName(pad).empty() ? obj->get_PName(pad).c_str()
 											: obj->get_short_description().c_str();

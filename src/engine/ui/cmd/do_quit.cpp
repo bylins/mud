@@ -69,10 +69,10 @@ void do_quit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			SendMsgToChar(ch,
 						  "За вещи в хранилище придется заплатить %ld %s в день.\r\n",
 						  depot_cost,
-						  GetDeclensionInNumber(depot_cost, EWhat::kMoneyU));
+						  grammar::GetDeclensionInNumber(depot_cost, grammar::EWhat::kMoneyU));
 			long deadline = ((ch->get_gold() + ch->get_bank()) / depot_cost);
 			SendMsgToChar(ch, "Твоих денег хватит на %ld %s.\r\n", deadline,
-						  GetDeclensionInNumber(deadline, EWhat::kDay));
+						  grammar::GetDeclensionInNumber(deadline, grammar::EWhat::kDay));
 		}
 		Depot::exit_char(ch);
 		Clan::clan_invoice(ch, false);

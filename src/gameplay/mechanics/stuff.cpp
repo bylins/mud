@@ -232,12 +232,12 @@ void generate_book_upgrd(ObjData *obj) {
 	obj->set_short_description("книга секретов умения: " + book_name);
 	obj->set_description("Книга секретов умения: " + book_name + " лежит здесь.");
 
-	obj->set_PName(ECase::kNom, "книга секретов умения: " + book_name);
-	obj->set_PName(ECase::kGen, "книги секретов умения: " + book_name);
-	obj->set_PName(ECase::kDat, "книге секретов умения: " + book_name);
-	obj->set_PName(ECase::kAcc, "книгу секретов умения: " + book_name);
-	obj->set_PName(ECase::kIns, "книгой секретов умения: " + book_name);
-	obj->set_PName(ECase::kPre, "книге секретов умения: " + book_name);
+	obj->set_PName(grammar::ECase::kNom, "книга секретов умения: " + book_name);
+	obj->set_PName(grammar::ECase::kGen, "книги секретов умения: " + book_name);
+	obj->set_PName(grammar::ECase::kDat, "книге секретов умения: " + book_name);
+	obj->set_PName(grammar::ECase::kAcc, "книгу секретов умения: " + book_name);
+	obj->set_PName(grammar::ECase::kIns, "книгой секретов умения: " + book_name);
+	obj->set_PName(grammar::ECase::kPre, "книге секретов умения: " + book_name);
 }
 
 void generate_warrior_enchant(ObjData *obj) {
@@ -415,12 +415,12 @@ void create_charmice_stuff(CharData *ch, const ESkill skill_id, int diff) {
 	obj->set_short_description(descr);
 	obj->set_description("Острые когти лежат здесь.");
 	obj->set_ex_description(descr.c_str(), "Острые когти лежат здесь.");
-	obj->set_PName(ECase::kNom, "острые когти");
-	obj->set_PName(ECase::kGen, "острых когтей");
-	obj->set_PName(ECase::kDat, "острым когтям");
-	obj->set_PName(ECase::kAcc, "острые когти");
-	obj->set_PName(ECase::kIns, "острыми когтями");
-	obj->set_PName(ECase::kPre, "острых когтях");
+	obj->set_PName(grammar::ECase::kNom, "острые когти");
+	obj->set_PName(grammar::ECase::kGen, "острых когтей");
+	obj->set_PName(grammar::ECase::kDat, "острым когтям");
+	obj->set_PName(grammar::ECase::kAcc, "острые когти");
+	obj->set_PName(grammar::ECase::kIns, "острыми когтями");
+	obj->set_PName(grammar::ECase::kPre, "острых когтях");
 	obj->set_sex(EGender::kPoly);
 //	obj->set_type(EObjType::kWeapon);
 	// среднее оружки
@@ -524,12 +524,12 @@ void create_charmice_stuff(CharData *ch, const ESkill skill_id, int diff) {
 		obj->set_ex_description(descr.c_str(), "Роговые пластины лежат здесь.");
 		obj->set_aliases("роговые пластины");
 		obj->set_short_description("роговые пластины");
-		obj->set_PName(ECase::kNom, "роговые пластины");
-		obj->set_PName(ECase::kGen, "роговых пластин");
-		obj->set_PName(ECase::kDat, "роговым пластинам");
-		obj->set_PName(ECase::kAcc, "роговые пластины");
-		obj->set_PName(ECase::kIns, "роговыми пластинами");
-		obj->set_PName(ECase::kPre, "роговых пластинах");
+		obj->set_PName(grammar::ECase::kNom, "роговые пластины");
+		obj->set_PName(grammar::ECase::kGen, "роговых пластин");
+		obj->set_PName(grammar::ECase::kDat, "роговым пластинам");
+		obj->set_PName(grammar::ECase::kAcc, "роговые пластины");
+		obj->set_PName(grammar::ECase::kIns, "роговыми пластинами");
+		obj->set_PName(grammar::ECase::kPre, "роговых пластинах");
 		obj->set_val(1, floorf(diff/13.0));
 		obj->set_val(2, floorf(diff/8.0));
 		obj->set_affected(0, EApply::kSavingStability, -floorf(diff/3.0));
@@ -546,12 +546,12 @@ void create_charmice_stuff(CharData *ch, const ESkill skill_id, int diff) {
 			obj->set_ex_description(descr.c_str(), "Оторванная лапа зверя лежит здесь.");
 			obj->set_aliases("огромные лапы");
 			obj->set_short_description("огромные лапы");
-			obj->set_PName(ECase::kNom, "огромные лапы");
-			obj->set_PName(ECase::kGen, "огромных лап");
-			obj->set_PName(ECase::kDat, "огромным лапам");
-			obj->set_PName(ECase::kAcc, "огромные лапы");
-			obj->set_PName(ECase::kIns, "огромными лапами");
-			obj->set_PName(ECase::kPre, "огромных лапах");
+			obj->set_PName(grammar::ECase::kNom, "огромные лапы");
+			obj->set_PName(grammar::ECase::kGen, "огромных лап");
+			obj->set_PName(grammar::ECase::kDat, "огромным лапам");
+			obj->set_PName(grammar::ECase::kAcc, "огромные лапы");
+			obj->set_PName(grammar::ECase::kIns, "огромными лапами");
+			obj->set_PName(grammar::ECase::kPre, "огромных лапах");
 			position = 8; // слот ступни
 			break;
 		}
@@ -561,12 +561,12 @@ void create_charmice_stuff(CharData *ch, const ESkill skill_id, int diff) {
 		obj->set_ex_description(descr.c_str(), "Прочная шкура лежит здесь.");
 		obj->set_aliases("прочная шкура");
 		obj->set_short_description("прочная шкура");
-		obj->set_PName(ECase::kNom, "прочная шкура");
-		obj->set_PName(ECase::kGen, "прочной шкурой");
-		obj->set_PName(ECase::kDat, "прочной шкуре");
-		obj->set_PName(ECase::kAcc, "прочную шкуру");
-		obj->set_PName(ECase::kIns, "прочной шкурой");
-		obj->set_PName(ECase::kPre, "прочной шкуре");
+		obj->set_PName(grammar::ECase::kNom, "прочная шкура");
+		obj->set_PName(grammar::ECase::kGen, "прочной шкурой");
+		obj->set_PName(grammar::ECase::kDat, "прочной шкуре");
+		obj->set_PName(grammar::ECase::kAcc, "прочную шкуру");
+		obj->set_PName(grammar::ECase::kIns, "прочной шкурой");
+		obj->set_PName(grammar::ECase::kPre, "прочной шкуре");
 		obj->set_val(1, floorf(diff/11.0));
 		obj->set_val(2, floorf(diff/7.0));
 		obj->set_affected(0, EApply::kSavingStability, -floorf(diff*0.7));

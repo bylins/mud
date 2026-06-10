@@ -224,7 +224,7 @@ void postmaster_send_mail(CharData *ch, CharData *mailman, int/* cmd*/, char *ar
 	if (ch->get_gold() < cost) {
 		act(fmt::format(fmt::runtime(specials::MailMsg(specials::EMailMsg::kCantAffordCost)),
 				fmt::arg("amount", STAMP_PRICE),
-				fmt::arg("currency", GetDeclensionInNumber(STAMP_PRICE, EWhat::kMoneyU))),
+				fmt::arg("currency", grammar::GetDeclensionInNumber(STAMP_PRICE, grammar::EWhat::kMoneyU))),
 			false, mailman, 0, ch, kToVict);
 		act(specials::MailMsg(specials::EMailMsg::kCantAffordNoMoney), false, mailman, 0, ch, kToVict);
 		return;
@@ -236,7 +236,7 @@ void postmaster_send_mail(CharData *ch, CharData *mailman, int/* cmd*/, char *ar
 	} else {
 		act(fmt::format(fmt::runtime(specials::MailMsg(specials::EMailMsg::kPostageCharged)),
 				fmt::arg("amount", STAMP_PRICE),
-				fmt::arg("currency", GetDeclensionInNumber(STAMP_PRICE, EWhat::kMoneyA))),
+				fmt::arg("currency", grammar::GetDeclensionInNumber(STAMP_PRICE, grammar::EWhat::kMoneyA))),
 			false, mailman, 0, ch, kToVict);
 	}
 	act(specials::MailMsg(specials::EMailMsg::kCanWrite), false, mailman, 0, ch, kToVict);
@@ -519,12 +519,12 @@ void receive(CharData *ch, CharData *mailman) {
 		obj->set_aliases("mail paper letter письмо почта бумага");
 		obj->set_short_description("письмо");
 		obj->set_description("Кто-то забыл здесь свое письмо.");
-		obj->set_PName(ECase::kNom, "письмо");
-		obj->set_PName(ECase::kGen, "письма");
-		obj->set_PName(ECase::kDat, "письма");
-		obj->set_PName(ECase::kAcc, "письмо");
-		obj->set_PName(ECase::kIns, "письмом");
-		obj->set_PName(ECase::kPre, "письме");
+		obj->set_PName(grammar::ECase::kNom, "письмо");
+		obj->set_PName(grammar::ECase::kGen, "письма");
+		obj->set_PName(grammar::ECase::kDat, "письма");
+		obj->set_PName(grammar::ECase::kAcc, "письмо");
+		obj->set_PName(grammar::ECase::kIns, "письмом");
+		obj->set_PName(grammar::ECase::kPre, "письме");
 		obj->set_sex(EGender::kNeutral);
 		obj->set_type(EObjType::kNote);
 		obj->set_wear_flags(to_underlying(EWearFlag::kTake) | to_underlying(EWearFlag::kHold));

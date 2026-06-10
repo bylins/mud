@@ -170,12 +170,12 @@ void CopyMobilePrototypeForMedit(CharData *dst, CharData *src, bool partial_copy
 		dst->set_npc_name(tmp.get_npc_name());
 		dst->player_data.long_descr = tmp.player_data.long_descr;
 		dst->player_data.description = tmp.player_data.description;
-		dst->player_data.PNames[ECase::kNom] = tmp.player_data.PNames[ECase::kNom];
-		dst->player_data.PNames[ECase::kGen] = tmp.player_data.PNames[ECase::kGen];
-		dst->player_data.PNames[ECase::kDat] = tmp.player_data.PNames[ECase::kDat];
-		dst->player_data.PNames[ECase::kAcc] = tmp.player_data.PNames[ECase::kAcc];
-		dst->player_data.PNames[ECase::kIns] = tmp.player_data.PNames[ECase::kIns];
-		dst->player_data.PNames[ECase::kPre] = tmp.player_data.PNames[ECase::kPre];
+		dst->player_data.PNames[grammar::ECase::kNom] = tmp.player_data.PNames[grammar::ECase::kNom];
+		dst->player_data.PNames[grammar::ECase::kGen] = tmp.player_data.PNames[grammar::ECase::kGen];
+		dst->player_data.PNames[grammar::ECase::kDat] = tmp.player_data.PNames[grammar::ECase::kDat];
+		dst->player_data.PNames[grammar::ECase::kAcc] = tmp.player_data.PNames[grammar::ECase::kAcc];
+		dst->player_data.PNames[grammar::ECase::kIns] = tmp.player_data.PNames[grammar::ECase::kIns];
+		dst->player_data.PNames[grammar::ECase::kPre] = tmp.player_data.PNames[grammar::ECase::kPre];
 		if (tmp.mob_specials.dest_count > 0) { // ели был маршрут оставим
 			dst->mob_specials.dest_count = tmp.mob_specials.dest_count;
 			for (auto plane = 0; plane < tmp.mob_specials.dest_count; plane++) {
@@ -263,12 +263,12 @@ void medit_setup(DescriptorData *d, int real_num)
 		mob->player_data.long_descr = "Неоконченный моб стоит тут.\r\n";
 		mob->player_data.description = "Выглядит достаточно незавершенно.\r\n";
 
-		mob->player_data.PNames[ECase::kNom] = "неоконченный моб";
-		mob->player_data.PNames[ECase::kGen] = "неоконченного моба";
-		mob->player_data.PNames[ECase::kDat] = "неоконченному мобу";
-		mob->player_data.PNames[ECase::kAcc] = "неоконченного моба";
-		mob->player_data.PNames[ECase::kIns] = "неоконченным мобом";
-		mob->player_data.PNames[ECase::kPre] = "неоконченном мобе";
+		mob->player_data.PNames[grammar::ECase::kNom] = "неоконченный моб";
+		mob->player_data.PNames[grammar::ECase::kGen] = "неоконченного моба";
+		mob->player_data.PNames[grammar::ECase::kDat] = "неоконченному мобу";
+		mob->player_data.PNames[grammar::ECase::kAcc] = "неоконченного моба";
+		mob->player_data.PNames[grammar::ECase::kIns] = "неоконченным мобом";
+		mob->player_data.PNames[grammar::ECase::kPre] = "неоконченном мобе";
 		mob->mob_specials.Questor = nullptr;
 		mob->summon_helpers.clear();
 #if defined(OASIS_MPROG)
@@ -370,7 +370,7 @@ void medit_save_internally(DescriptorData *d) {
 				// Возможна небольшая утечка памяти, но иначе очень большая запара
 				GET_LDESC(live_mob) = GET_LDESC(mob_proto + rmob_num);
 				GET_DDESC(live_mob) = GET_DDESC(mob_proto + rmob_num);
-				for (j = ECase::kFirstCase; j <= ECase::kLastCase; j++) {
+				for (j = grammar::ECase::kFirstCase; j <= grammar::ECase::kLastCase; j++) {
 					live_mob->player_data.PNames[j] = mob_proto[rmob_num].player_data.PNames[j];
 				}
 				live_mob->summon_helpers.clear();
@@ -562,12 +562,12 @@ void medit_save_to_disk(ZoneRnum zone_num) {
 		strip_string(buf2);
 		fprintf(mob_file, "%s~\n" "%s~\n" "%s~\n" "%s~\n" "%s~\n" "%s~\n" "%s~\n" "%s~\n" "%s~\n",
 				(GET_ALIAS(mob) && *GET_ALIAS(mob)) ? GET_ALIAS(mob) : "неопределен",
-				not_empty(mob->player_data.PNames[ECase::kNom], "кто"),
-				not_empty(mob->player_data.PNames[ECase::kGen], "кого"),
-				not_empty(mob->player_data.PNames[ECase::kDat], "кому"),
-				not_empty(mob->player_data.PNames[ECase::kAcc], "кого"),
-				not_empty(mob->player_data.PNames[ECase::kIns], "кем"),
-				not_empty(mob->player_data.PNames[ECase::kPre], "о ком"), buf1, buf2);
+				not_empty(mob->player_data.PNames[grammar::ECase::kNom], "кто"),
+				not_empty(mob->player_data.PNames[grammar::ECase::kGen], "кого"),
+				not_empty(mob->player_data.PNames[grammar::ECase::kDat], "кому"),
+				not_empty(mob->player_data.PNames[grammar::ECase::kAcc], "кого"),
+				not_empty(mob->player_data.PNames[grammar::ECase::kIns], "кем"),
+				not_empty(mob->player_data.PNames[grammar::ECase::kPre], "о ком"), buf1, buf2);
 		if (mob->mob_specials.Questor)
 			snprintf(buf1, sizeof(buf1), "%s", mob->mob_specials.Questor);
 		else
@@ -1222,7 +1222,7 @@ void disp_dl_list(DescriptorData *d) {
 			auto tobj = GetObjectPrototype(p->obj_vnum);
 			const char *objname = nullptr;
 			if (p->obj_vnum && tobj) {
-				objname = tobj->get_PName(ECase::kNom).c_str();
+				objname = tobj->get_PName(grammar::ECase::kNom).c_str();
 			} else {
 				objname = "Нет";
 			}
@@ -1772,23 +1772,23 @@ void medit_parse(DescriptorData *d, char *arg) {
 		case MEDIT_ALIAS: OLC_MOB(d)->SetCharAliases((arg && *arg) ? arg : "неопределен");
 			break;
 
-		case MEDIT_PAD0: OLC_MOB(d)->player_data.PNames[ECase::kNom] = std::string((arg && *arg) ? arg : "кто-то");
+		case MEDIT_PAD0: OLC_MOB(d)->player_data.PNames[grammar::ECase::kNom] = std::string((arg && *arg) ? arg : "кто-то");
 			OLC_MOB(d)->set_npc_name((arg && *arg) ? arg : "кто-то");
 			break;
 
-		case MEDIT_PAD1: OLC_MOB(d)->player_data.PNames[ECase::kGen] = std::string((arg && *arg) ? arg : "кого-то");
+		case MEDIT_PAD1: OLC_MOB(d)->player_data.PNames[grammar::ECase::kGen] = std::string((arg && *arg) ? arg : "кого-то");
 			break;
 
-		case MEDIT_PAD2: OLC_MOB(d)->player_data.PNames[ECase::kDat] = std::string((arg && *arg) ? arg : "кому-то");
+		case MEDIT_PAD2: OLC_MOB(d)->player_data.PNames[grammar::ECase::kDat] = std::string((arg && *arg) ? arg : "кому-то");
 			break;
 
-		case MEDIT_PAD3: OLC_MOB(d)->player_data.PNames[ECase::kAcc] = std::string((arg && *arg) ? arg : "кого-то");
+		case MEDIT_PAD3: OLC_MOB(d)->player_data.PNames[grammar::ECase::kAcc] = std::string((arg && *arg) ? arg : "кого-то");
 			break;
 
-		case MEDIT_PAD4: OLC_MOB(d)->player_data.PNames[ECase::kIns] = std::string((arg && *arg) ? arg : "кем-то");
+		case MEDIT_PAD4: OLC_MOB(d)->player_data.PNames[grammar::ECase::kIns] = std::string((arg && *arg) ? arg : "кем-то");
 			break;
 
-		case MEDIT_PAD5: OLC_MOB(d)->player_data.PNames[ECase::kPre] = std::string((arg && *arg) ? arg : "о ком-то");
+		case MEDIT_PAD5: OLC_MOB(d)->player_data.PNames[grammar::ECase::kPre] = std::string((arg && *arg) ? arg : "о ком-то");
 			break;
 			//-------------------------------------------------------------------
 		case MEDIT_L_DESC:

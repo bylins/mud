@@ -314,7 +314,7 @@ void HitData::Init(CharData *ch, CharData *victim) {
 		SkillRollResult result = MakeSkillTest(ch, weap_skill, victim);
 		weap_skill_is = result.SkillRate;
 		if (result.CritLuck) {
-			SendMsgToChar(ch, "Вы удачно поразили %s в уязвимое место.\r\n", victim->player_data.PNames[ECase::kAcc].c_str());
+			SendMsgToChar(ch, "Вы удачно поразили %s в уязвимое место.\r\n", victim->player_data.PNames[grammar::ECase::kAcc].c_str());
 			act("$n поразил$g вас в уязвимое место.", true, ch, nullptr, victim, kToVict);
 			act("$n поразил$g $N3 в уязвимое место.", true, ch, nullptr, victim, kToNotVict);
 			SetFlag(fight::kCritLuck);
@@ -751,7 +751,7 @@ int HitData::CalcDmg(CharData *ch, bool need_dice) {
 		AddWeaponDmg(ch, need_dice);
 		if (ch->IsFlagged(EPrf::kExecutor))
 			SendMsgToChar(ch, "&YДамага +кубики оружия дамага == %d вооружен %s vnum %d&n\r\n", dam,
-						  wielded->get_PName(ECase::kGen).c_str(), GET_OBJ_VNUM(wielded));
+						  wielded->get_PName(grammar::ECase::kGen).c_str(), GET_OBJ_VNUM(wielded));
 		if (GET_EQ(ch, EEquipPos::kBoths) && weap_skill != ESkill::kBows) { //двуруч множим на 2
 			dam *= 2;
 		if (ch->IsFlagged(EPrf::kExecutor))

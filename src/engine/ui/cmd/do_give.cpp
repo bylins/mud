@@ -106,10 +106,10 @@ void perform_give_gold(CharData *ch, CharData *vict, int amount) {
 		return;
 	}
 	SendMsgToChar(CommonMsg(ECommonMsg::kOk) + "\r\n", ch);
-	sprintf(buf, "$n дал$g вам %d %s.", amount, GetDeclensionInNumber(amount, EWhat::kMoneyU));
+	sprintf(buf, "$n дал$g вам %d %s.", amount, grammar::GetDeclensionInNumber(amount, grammar::EWhat::kMoneyU));
 	act(buf, false, ch, nullptr, vict, kToVict);
 	sprintf(buf, "$n дал$g %s $N2.",
-			MUD::Currency(currencies::kKunaVnum).GetObjCName(amount, ECase::kAcc));
+			MUD::Currency(currencies::kKunaVnum).GetObjCName(amount, grammar::ECase::kAcc));
 	act(buf, true, ch, nullptr, vict, kToNotVict | kToArenaListen);
 	if (!(ch->IsNpc() || vict->IsNpc())) {
 		sprintf(buf,
@@ -148,12 +148,12 @@ void perform_give_nogat(CharData *ch, CharData *vict, int amount) {
 		return;
 	}
 	SendMsgToChar(CommonMsg(ECommonMsg::kOk) + "\r\n", ch);
-	sprintf(buf, "$n дал$g вам %d %s.", amount, GetDeclensionInNumber(amount, EWhat::kNogataU));
+	sprintf(buf, "$n дал$g вам %d %s.", amount, grammar::GetDeclensionInNumber(amount, grammar::EWhat::kNogataU));
 	act(buf, false, ch, nullptr, vict, kToVict);
 	if (amount > 4)
-		sprintf(buf, "$n дал$g много %s $N2.", GetDeclensionInNumber(amount, EWhat::kNogataU));
+		sprintf(buf, "$n дал$g много %s $N2.", grammar::GetDeclensionInNumber(amount, grammar::EWhat::kNogataU));
 	else
-		sprintf(buf, "$n дал$g %s $N2.", GetDeclensionInNumber(amount, EWhat::kNogataU));
+		sprintf(buf, "$n дал$g %s $N2.", grammar::GetDeclensionInNumber(amount, grammar::EWhat::kNogataU));
 	act(buf, true, ch, nullptr, vict, kToNotVict | kToArenaListen);
 	if (ch->IsNpc() || !ch->IsImpl()) {
 		ch->sub_nogata(amount);

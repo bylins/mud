@@ -105,24 +105,24 @@ EStageResult SummonTutelar(CastContext &ctx) {
 	if (IS_FEMALE(ch)) {
 		mob->set_sex(EGender::kMale);
 		mob->SetCharAliases("Небесный защитник");
-		mob->player_data.PNames[ECase::kNom] = "Небесный защитник";
-		mob->player_data.PNames[ECase::kGen] = "Небесного защитника";
-		mob->player_data.PNames[ECase::kDat] = "Небесному защитнику";
-		mob->player_data.PNames[ECase::kAcc] = "Небесного защитника";
-		mob->player_data.PNames[ECase::kIns] = "Небесным защитником";
-		mob->player_data.PNames[ECase::kPre] = "Небесном защитнике";
+		mob->player_data.PNames[grammar::ECase::kNom] = "Небесный защитник";
+		mob->player_data.PNames[grammar::ECase::kGen] = "Небесного защитника";
+		mob->player_data.PNames[grammar::ECase::kDat] = "Небесному защитнику";
+		mob->player_data.PNames[grammar::ECase::kAcc] = "Небесного защитника";
+		mob->player_data.PNames[grammar::ECase::kIns] = "Небесным защитником";
+		mob->player_data.PNames[grammar::ECase::kPre] = "Небесном защитнике";
 		mob->set_npc_name("Небесный защитник");
 		mob->player_data.long_descr = str_dup("Небесный защитник летает тут.\r\n");
 		mob->player_data.description = str_dup("Сияющая призрачная фигура о двух крылах.\r\n");
 	} else {
 		mob->set_sex(EGender::kFemale);
 		mob->SetCharAliases("Небесная защитница");
-		mob->player_data.PNames[ECase::kNom] = "Небесная защитница";
-		mob->player_data.PNames[ECase::kGen] = "Небесной защитницы";
-		mob->player_data.PNames[ECase::kDat] = "Небесной защитнице";
-		mob->player_data.PNames[ECase::kAcc] = "Небесную защитницу";
-		mob->player_data.PNames[ECase::kIns] = "Небесной защитницей";
-		mob->player_data.PNames[ECase::kPre] = "Небесной защитнице";
+		mob->player_data.PNames[grammar::ECase::kNom] = "Небесная защитница";
+		mob->player_data.PNames[grammar::ECase::kGen] = "Небесной защитницы";
+		mob->player_data.PNames[grammar::ECase::kDat] = "Небесной защитнице";
+		mob->player_data.PNames[grammar::ECase::kAcc] = "Небесную защитницу";
+		mob->player_data.PNames[grammar::ECase::kIns] = "Небесной защитницей";
+		mob->player_data.PNames[grammar::ECase::kPre] = "Небесной защитнице";
 		mob->set_npc_name("Небесная защитница");
 		mob->player_data.long_descr = str_dup("Небесная защитница летает тут.\r\n");
 		mob->player_data.description = str_dup("Сияющая призрачная фигура о двух крылах.\r\n");

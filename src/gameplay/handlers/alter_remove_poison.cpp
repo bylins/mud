@@ -19,7 +19,7 @@ EStageResult AlterRemovePoison(CastContext &ctx) {
 	ObjData *obj = ctx.ovict;
 	if (obj->get_rnum() < 0) {
 		char message[100];
-		sprintf(message, "неизвестный прототип объекта : %s (VNUM=%d)", obj->get_PName(ECase::kNom).c_str(), obj->get_vnum());
+		sprintf(message, "неизвестный прототип объекта : %s (VNUM=%d)", obj->get_PName(grammar::ECase::kNom).c_str(), obj->get_vnum());
 		mudlog(message, BRF, kLvlBuilder, SYSLOG, 1);
 		return AlterMsg(ctx, ESpellMsg::kRemovePoisonUnknown);
 	}

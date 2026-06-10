@@ -14,7 +14,15 @@
 #include <string>
 #include <string>
 
-// \TODO Перенести список падажей в неймспейс grammar
+
+namespace parser_wrapper {
+// forward declaration
+class DataNode;
+}
+
+namespace grammar {
+
+// Grammatical cases (падежи). issue.chardata-cleaning: moved into namespace grammar.
 enum ECase {
   kNom = 0,
   kGen,
@@ -25,13 +33,6 @@ enum ECase {
   kFirstCase = kNom,
   kLastCase = kPre,
 };
-
-namespace parser_wrapper {
-// forward declaration
-class DataNode;
-}
-
-namespace grammar {
 
 //! A class for describing individual object, containing declension for singular and plural cases.
 class ItemName {

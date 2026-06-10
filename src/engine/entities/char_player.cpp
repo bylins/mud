@@ -217,7 +217,7 @@ void Player::sub_nogata(int value) {
 void Player::add_nogata(int value) {
 	this->nogata += value;
 	SendMsgToChar(this, "Вы получили %ld %s.\r\n", static_cast<long>(value),
-				  GetDeclensionInNumber(value, EWhat::kNogataU));
+				  grammar::GetDeclensionInNumber(value, grammar::EWhat::kNogataU));
 
 }
 
@@ -233,10 +233,10 @@ void Player::add_hryvn(int value) {
 	if ((this->get_hryvn() + value) > cap_hryvn) {
 		value = cap_hryvn - this->get_hryvn();
 		SendMsgToChar(this, "Вы получили только %ld %s, так как в вашу копилку больше не лезет...\r\n",
-					  static_cast<long>(value), GetDeclensionInNumber(value, EWhat::kTorcU));
+					  static_cast<long>(value), grammar::GetDeclensionInNumber(value, grammar::EWhat::kTorcU));
 	} else if (value > 0) {
 		SendMsgToChar(this, "Вы получили %ld %s.\r\n",
-					  static_cast<long>(value), GetDeclensionInNumber(value, EWhat::kTorcU));
+					  static_cast<long>(value), grammar::GetDeclensionInNumber(value, grammar::EWhat::kTorcU));
 	} else if (value == 0) {
 		return;
 	}
@@ -1587,17 +1587,17 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 				break;
 			case 'N':
 				if (!strcmp(tag, "NmI "))
-					this->player_data.PNames[ECase::kNom] = std::string(line);
+					this->player_data.PNames[grammar::ECase::kNom] = std::string(line);
 				else if (!strcmp(tag, "NmR "))
-					this->player_data.PNames[ECase::kGen] = std::string(line);
+					this->player_data.PNames[grammar::ECase::kGen] = std::string(line);
 				else if (!strcmp(tag, "NmD "))
-					this->player_data.PNames[ECase::kDat] = std::string(line);
+					this->player_data.PNames[grammar::ECase::kDat] = std::string(line);
 				else if (!strcmp(tag, "NmV "))
-					this->player_data.PNames[ECase::kAcc] = std::string(line);
+					this->player_data.PNames[grammar::ECase::kAcc] = std::string(line);
 				else if (!strcmp(tag, "NmT "))
-					this->player_data.PNames[ECase::kIns] = std::string(line);
+					this->player_data.PNames[grammar::ECase::kIns] = std::string(line);
 				else if (!strcmp(tag, "NmP "))
-					this->player_data.PNames[ECase::kPre] = std::string(line);
+					this->player_data.PNames[grammar::ECase::kPre] = std::string(line);
 				else if (!strcmp(tag, "NamD"))
 					punishments::Get(this, punishments::EType::kName).duration = lnum;
 				else if (!strcmp(tag, "NamG"))

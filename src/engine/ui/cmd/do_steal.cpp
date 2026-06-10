@@ -172,7 +172,7 @@ void go_steal(CharData *ch, CharData *vict, char *obj_name) {
 				if (gold > 0) {
 					if (gold > 1) {
 						sprintf(buf, "УР-Р-Р-А! Вы таки сперли %d %s.\r\n",
-								gold, GetDeclensionInNumber(gold, EWhat::kMoneyU));
+								gold, grammar::GetDeclensionInNumber(gold, grammar::EWhat::kMoneyU));
 						SendMsgToChar(buf, ch);
 					} else {
 						SendMsgToChar("УРА-А-А ! Вы сперли :) 1 (одну) куну :(.\r\n", ch);

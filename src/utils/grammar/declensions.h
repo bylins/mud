@@ -12,6 +12,8 @@
 // What kind of thing a count is being agreed with (selects the noun + its three
 // count-forms). Kept at global scope for now, like the sibling ECase; namespacing
 // the grammar tokens is a separate follow-up.
+namespace grammar {
+
 enum class EWhat : int  {
 	kDay,
 	kHour,
@@ -57,6 +59,8 @@ enum class EWhat : int  {
 // Return the correctly-declined noun for `amount` of `of_what`
 // (e.g. 1 -> "я┬я┌я┐п╨п╟", 2 -> "я┬я┌я┐п╨п╦", 5 -> "я┬я┌я┐п╨").
 const char *GetDeclensionInNumber(long amount, EWhat of_what);
+
+}  // namespace grammar
 
 #endif //BYLINS_SRC_UTILS_GRAMMAR_DECLENSIONS_H_
 

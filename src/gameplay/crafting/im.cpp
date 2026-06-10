@@ -305,8 +305,8 @@ int im_assign_power(ObjData *obj)
 
 	// Замена описаний
 	// Падежи, описание, alias
-	for (j = ECase::kFirstCase; j <= ECase::kLastCase; ++j) {
-		auto name_case = static_cast<ECase>(j);
+	for (j = grammar::ECase::kFirstCase; j <= grammar::ECase::kLastCase; ++j) {
+		auto name_case = static_cast<grammar::ECase>(j);
 		const char *ptr = obj_proto[obj->get_rnum()]->get_PName(name_case).c_str();
 		obj->set_PName(name_case, replace_alias(ptr, sample, rnum, def_alias[j]));
 	}
@@ -1224,7 +1224,7 @@ ObjData **im_obtain_ingredients(CharData *ch, char *argument, int *count) {
 			break;
 		}
 		if (im_type_rnum(GET_OBJ_VAL(o, IM_TYPE_SLOT)) < 0) {
-			sprintf(buf, "Магическая сила %s утеряна, похоже, безвозвратно.\r\n", o->get_PName(ECase::kGen).c_str());
+			sprintf(buf, "Магическая сила %s утеряна, похоже, безвозвратно.\r\n", o->get_PName(grammar::ECase::kGen).c_str());
 			break;
 		}
 		for (i = 0; i < n; ++i) {
@@ -1354,7 +1354,7 @@ void do_cook(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		// минимальное качество ингров для варки рецепта (REQ рецепта/2)
 		int min_osk = osk / 2;
 		if (itype < min_osk) {
-			SendMsgToChar(ch, "Качество %s ниже минимально допустимого.\r\n", objs[i]->get_PName(ECase::kGen).c_str());
+			SendMsgToChar(ch, "Качество %s ниже минимально допустимого.\r\n", objs[i]->get_PName(grammar::ECase::kGen).c_str());
 			sprintf(name, "Качество ингров ниже допустимого: itype=%d, min_osk=%d", itype, min_osk);
 			imlog(NRM, name);
 			free(objs);

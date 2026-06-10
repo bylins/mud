@@ -510,7 +510,7 @@ bool ParseFilter::init_affect(char *str, size_t str_len) {
 bool ParseFilter::check_name(const CObjectPrototype *obj, CharData *ch) const {
 	bool result = false;
 	char name_obj[kMaxStringLength];
-	strcpy(name_obj, obj->get_PName(ECase::kNom).c_str());
+	strcpy(name_obj, obj->get_PName(grammar::ECase::kNom).c_str());
 	utils::RemoveColors(name_obj);
 	if (name.empty()
 		|| isname(name, name_obj)) {

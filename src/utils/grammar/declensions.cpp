@@ -11,6 +11,8 @@
 #include <string>
 #include <unordered_map>
 
+namespace grammar {
+
 using SomePads = std::array<std::string, 3>;
 using SomePadsMap = std::unordered_map<EWhat, SomePads>;
 
@@ -71,5 +73,7 @@ const char *GetDeclensionInNumber(long amount, EWhat of_what) {
 		return things_cases.at(of_what)[2].c_str();
 	}
 }
+
+}  // namespace grammar
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

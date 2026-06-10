@@ -152,17 +152,17 @@ bool can_send(CharData *ch, CharData *mailman, ObjData *obj, long vict_uid) {
 		|| obj->has_flag(EObjFlag::kDecay)
 		|| obj->get_owner()) {
 		snprintf(buf, kMaxStringLength, "$n сказал$g вам : '%s - мы не отправляем такие вещи!'\r\n",
-				 obj->get_PName(ECase::kNom).c_str());
+				 obj->get_PName(grammar::ECase::kNom).c_str());
 		act(buf, false, mailman, 0, ch, kToVict);
 		return 0;
 	} else if (obj->get_type() == EObjType::kContainer
 		&& obj->get_contains()) {
-		snprintf(buf, kMaxStringLength, "$n сказал$g вам : 'В %s что-то лежит.'\r\n", obj->get_PName(ECase::kPre).c_str());
+		snprintf(buf, kMaxStringLength, "$n сказал$g вам : 'В %s что-то лежит.'\r\n", obj->get_PName(grammar::ECase::kPre).c_str());
 		act(buf, false, mailman, 0, ch, kToVict);
 		return 0;
 	} else if (SetSystem::is_big_set(obj)) {
 		snprintf(buf, kMaxStringLength, "$n сказал$g вам : '%s является частью большого набора предметов.'\r\n",
-				 obj->get_PName(ECase::kNom).c_str());
+				 obj->get_PName(grammar::ECase::kNom).c_str());
 		act(buf, false, mailman, 0, ch, kToVict);
 		return 0;
 	}
@@ -235,7 +235,7 @@ void send_object(CharData *ch, CharData *mailman, long vict_uid, ObjData *obj) {
 	}
 	if (SetSystem::is_norent_set(ch, obj)
 		&& SetSystem::is_norent_set(GET_OBJ_VNUM(obj), get_objs(ch->get_uid()))) {
-		snprintf(buf, kMaxStringLength, "%s - требуется две и более вещи из набора.\r\n", obj->get_PName(ECase::kNom).c_str());
+		snprintf(buf, kMaxStringLength, "%s - требуется две и более вещи из набора.\r\n", obj->get_PName(grammar::ECase::kNom).c_str());
 		SendMsgToChar(utils::CAP(buf), ch);
 		return;
 	}
@@ -244,7 +244,7 @@ void send_object(CharData *ch, CharData *mailman, long vict_uid, ObjData *obj) {
 	if (send_buffer.empty())
 		send_buffer += "Адресат: " + name + ", отправлено:\r\n";
 
-	snprintf(buf, sizeof(buf), "%s%s%s\r\n", kColorWht, obj->get_PName(ECase::kNom).c_str(), kColorNrm);
+	snprintf(buf, sizeof(buf), "%s%s%s\r\n", kColorWht, obj->get_PName(grammar::ECase::kNom).c_str(), kColorNrm);
 	send_buffer += buf;
 	obj = dungeons::SwapOriginalObject(obj);
 	const auto object_ptr = world_objects.get_by_raw_ptr(obj);
@@ -345,8 +345,8 @@ void send(CharData *ch, CharData *mailman, long vict_uid, char *arg) {
 
 	if (!send_buffer.empty()) {
 		snprintf(buf, sizeof(buf), "с вас удержано %d %s и еще %d %s зарезервировано на 3 дня хранения.\r\n",
-				 send_cost_buffer, GetDeclensionInNumber(send_cost_buffer, EWhat::kMoneyA),
-				 send_reserved_buffer, GetDeclensionInNumber(send_reserved_buffer, EWhat::kMoneyA));
+				 send_cost_buffer, grammar::GetDeclensionInNumber(send_cost_buffer, grammar::EWhat::kMoneyA),
+				 send_reserved_buffer, grammar::GetDeclensionInNumber(send_reserved_buffer, grammar::EWhat::kMoneyA));
 		send_buffer += buf;
 		SendMsgToChar(send_buffer.c_str(), ch);
 
@@ -371,11 +371,11 @@ void print_sending_stuff(CharData *ch) {
 
 			int money = 0;
 			for (std::list<Node>::const_iterator it3 = it2->second.begin(); it3 != it2->second.end(); ++it3) {
-				out << it3->obj_->get_PName(ECase::kNom) << "\r\n";
+				out << it3->obj_->get_PName(grammar::ECase::kNom) << "\r\n";
 				money += it3->money_;
 			}
 			out << kColorNrm
-				<< money << " " << GetDeclensionInNumber(money, EWhat::kMoneyA) << " зарезервировано на 3 дня хранения.\r\n";
+				<< money << " " << grammar::GetDeclensionInNumber(money, grammar::EWhat::kMoneyA) << " зарезервировано на 3 дня хранения.\r\n";
 		}
 	}
 	if (print)
@@ -425,7 +425,7 @@ void return_money(std::string const &name, int money, bool add) {
 		if (add) {
 			vict->add_bank(money);
 			SendMsgToChar(vict, "%sВы получили %d %s банковским переводом от почтовой службы%s.\r\n",
-						  kColorWht, money, GetDeclensionInNumber(money, EWhat::kMoneyU), kColorNrm);
+						  kColorWht, money, grammar::GetDeclensionInNumber(money, grammar::EWhat::kMoneyU), kColorNrm);
 		}
 	} else {
 		vict = new Player; // TODO: переделать на стек
@@ -468,12 +468,12 @@ ObjData *create_parcel() {
 	obj->set_aliases("посылка бандероль пакет ящик parcel box case chest");
 	obj->set_short_description("посылка");
 	obj->set_description("Кто-то забыл здесь свою посылку.");
-	obj->set_PName(ECase::kNom, "посылка");
-	obj->set_PName(ECase::kGen, "посылки");
-	obj->set_PName(ECase::kDat, "посылке");
-	obj->set_PName(ECase::kAcc, "посылку");
-	obj->set_PName(ECase::kIns, "посылкой");
-	obj->set_PName(ECase::kPre, "посылке");
+	obj->set_PName(grammar::ECase::kNom, "посылка");
+	obj->set_PName(grammar::ECase::kGen, "посылки");
+	obj->set_PName(grammar::ECase::kDat, "посылке");
+	obj->set_PName(grammar::ECase::kAcc, "посылку");
+	obj->set_PName(grammar::ECase::kIns, "посылкой");
+	obj->set_PName(grammar::ECase::kPre, "посылке");
 	obj->set_sex(EGender::kFemale);
 	obj->set_type(EObjType::kContainer);
 	obj->set_wear_flags(to_underlying(EWearFlag::kTake));

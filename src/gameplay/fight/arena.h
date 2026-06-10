@@ -24,7 +24,7 @@ const char *VisibleName(const CharData *ch, const CharData *viewer, int pad, boo
 // Object-name mirror of VisibleName (was the AOBJS/AOBJN macros). On the arena the real name is
 // always shown; otherwise visibility falls back via sight::CanSeeObj to grammar's "что-то".
 const char *VisibleObjShort(const ObjData *obj, const CharData *viewer, bool arena);
-const char *VisibleObjName(const ObjData *obj, const CharData *viewer, ECase pad, bool arena);
+const char *VisibleObjName(const ObjData *obj, const CharData *viewer, grammar::ECase pad, bool arena);
 
 }  // namespace arena
 

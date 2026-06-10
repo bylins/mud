@@ -72,20 +72,20 @@ void PrepareSpellRemoving(ObjData *obj, ESpell spell_id, bool send_message) {
 			case ESpell::kBelenaPoison:
 			case ESpell::kDaturaPoison:
 				SendMsgToChar(ch, "С %s испарились последние капельки яда.\r\n",
-							  obj->get_PName(ECase::kGen).c_str());
+							  obj->get_PName(grammar::ECase::kGen).c_str());
 				break;
 
 			case ESpell::kFly:
 				SendMsgToChar(ch, "Ваш%s %s перестал%s парить в воздухе.\r\n",
 							  grammar::ObjVisSexEnding(CanSeeObj((ch), (obj)), (obj)->get_sex(), 7),
-							  obj->get_PName(ECase::kNom).c_str(),
+							  obj->get_PName(grammar::ECase::kNom).c_str(),
 							  grammar::ObjVisSexEnding(CanSeeObj((ch), (obj)), (obj)->get_sex(), 1));
 				break;
 
 			case ESpell::kLight:
 				SendMsgToChar(ch, "Ваш%s %s перестал%s светиться.\r\n",
 							  grammar::ObjVisSexEnding(CanSeeObj((ch), (obj)), (obj)->get_sex(), 7),
-							  obj->get_PName(ECase::kNom).c_str(),
+							  obj->get_PName(grammar::ECase::kNom).c_str(),
 							  grammar::ObjVisSexEnding(CanSeeObj((ch), (obj)), (obj)->get_sex(), 1));
 				break;
 			default: break;
@@ -107,7 +107,7 @@ std::string print_spell_str(ESpell spell_id, int timer) {
 		case ESpell::kBelenaPoison:
 		case ESpell::kDaturaPoison:
 			out << kColorGrn << "Отравлено " << GetPoisonName(spell_id) << " еще " << timer << " "
-				<< GetDeclensionInNumber(timer, EWhat::kMinU) << ".\r\n" << kColorNrm;
+				<< grammar::GetDeclensionInNumber(timer, grammar::EWhat::kMinU) << ".\r\n" << kColorNrm;
 			break;
 
 		default:

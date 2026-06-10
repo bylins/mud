@@ -191,7 +191,7 @@ void DoFindhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (!*arg || times == 0) {
 			const auto cost = CalcHirePrice(ch, helpee);
 			sprintf(buf, "$n сказал$g вам : \"Один час моих услуг стоит %ld %s\".\r\n",
-					cost, GetDeclensionInNumber(cost, EWhat::kMoneyU));
+					cost, grammar::GetDeclensionInNumber(cost, grammar::EWhat::kMoneyU));
 			act(buf, false, helpee, 0, ch, kToVict | kToNotDeaf);
 			return;
 		}
@@ -214,7 +214,7 @@ void DoFindhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			sprintf(buf,
 					"$n сказал$g вам : \" Мои услуги за %d %s стоят %ld %s - это тебе не по карману.\"",
 					times,
-					GetDeclensionInNumber(times, EWhat::kHour), cost, GetDeclensionInNumber(cost, EWhat::kMoneyU));
+					grammar::GetDeclensionInNumber(times, grammar::EWhat::kHour), cost, grammar::GetDeclensionInNumber(cost, grammar::EWhat::kMoneyU));
 			act(buf, false, helpee, 0, ch, kToVict | kToNotDeaf);
 			return;
 		}
@@ -247,7 +247,7 @@ void DoFindhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 						ch->add_gold(oldcost);
 					}
 					SendMsgToChar(ch, "Вам вернули нерастраченный задаток в %ld %s.\r\n",
-								  oldcost, GetDeclensionInNumber(cost, EWhat::kMoneyA));
+								  oldcost, grammar::GetDeclensionInNumber(cost, grammar::EWhat::kMoneyA));
 				}
 				af.duration = CalcDuration(helpee, helpee, ESkill::kUndefined, times * kTimeKoeff, 0, 0, 0);
 			}
@@ -352,7 +352,7 @@ void DoFreehelpee(CharData *ch, char * /* argument*/, int/* cmd*/, int/* subcmd*
 					} else {
 						ch->add_gold(cost);
 					}
-					SendMsgToChar(ch, "Вам вернули нерастраченный задаток в %ld %s.\r\n", cost, GetDeclensionInNumber(cost, EWhat::kMoneyA));
+					SendMsgToChar(ch, "Вам вернули нерастраченный задаток в %ld %s.\r\n", cost, grammar::GetDeclensionInNumber(cost, grammar::EWhat::kMoneyA));
 				}
 				break;
 			}

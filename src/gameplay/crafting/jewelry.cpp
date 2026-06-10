@@ -105,7 +105,7 @@ void do_insertgem(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	}
 
 	if (!is_dig_stone(gemobj)) {
-		sprintf(buf, "Вы не умеете вплавлять %s.\r\n", gemobj->get_PName(ECase::kAcc).c_str());
+		sprintf(buf, "Вы не умеете вплавлять %s.\r\n", gemobj->get_PName(grammar::ECase::kAcc).c_str());
 		SendMsgToChar(buf, ch);
 		return;
 	}
@@ -123,7 +123,7 @@ void do_insertgem(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	}
 	if (itemobj->get_material() == EObjMaterial::kMaterialUndefined || (itemobj->get_material() > EObjMaterial::kPreciousMetel)) {
 		if (!(itemobj->get_material() == EObjMaterial::kBone || itemobj->get_material() == EObjMaterial::kStone)) {
-			sprintf(buf, "%s состоит из неподходящего материала.\r\n", itemobj->get_PName(ECase::kNom).c_str());
+			sprintf(buf, "%s состоит из неподходящего материала.\r\n", itemobj->get_PName(grammar::ECase::kNom).c_str());
 			SendMsgToChar(buf, ch);
 			return;
 		}
@@ -161,17 +161,17 @@ void do_insertgem(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		if (percent > prob / insgem_vars.prob_divide) {
 			sprintf(buf, "Вы неудачно попытались вплавить %s в %s, испортив камень...\r\n",
 					gemobj->get_short_description().c_str(),
-					itemobj->get_PName(ECase::kAcc).c_str());
+					itemobj->get_PName(grammar::ECase::kAcc).c_str());
 			SendMsgToChar(buf, ch);
 			sprintf(buf, "$n испортил$g %s, вплавляя его в %s!\r\n",
-					gemobj->get_PName(ECase::kAcc).c_str(),
-					itemobj->get_PName(ECase::kAcc).c_str());
+					gemobj->get_PName(grammar::ECase::kAcc).c_str(),
+					itemobj->get_PName(grammar::ECase::kAcc).c_str());
 			act(buf, false, ch, nullptr, nullptr, kToRoom);
 			ExtractObjFromWorld(gemobj);
 			if (number(1, 100) <= insgem_vars.dikey_percent) {
 				sprintf(buf, "...и испортив хорошую вещь!\r\n");
 				SendMsgToChar(buf, ch);
-				sprintf(buf, "$n испортил$g %s!\r\n", itemobj->get_PName(ECase::kAcc).c_str());
+				sprintf(buf, "$n испортил$g %s!\r\n", itemobj->get_PName(grammar::ECase::kAcc).c_str());
 				act(buf, false, ch, nullptr, nullptr, kToRoom);
 				ExtractObjFromWorld(itemobj);
 			}
@@ -202,20 +202,20 @@ void do_insertgem(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		if (number(1, ch->GetSkill(ESkill::kJewelry)) > (ch->GetSkill(ESkill::kJewelry) - 50)) {
 			sprintf(buf, "Вы неудачно попытались вплавить %s в %s, испортив камень...\r\n",
 					gemobj->get_short_description().c_str(),
-					itemobj->get_PName(ECase::kAcc).c_str());
+					itemobj->get_PName(grammar::ECase::kAcc).c_str());
 			SendMsgToChar(buf, ch);
 			sprintf(buf, "$n испортил$g %s, вплавляя его в %s!\r\n",
-					gemobj->get_PName(ECase::kAcc).c_str(),
-					itemobj->get_PName(ECase::kAcc).c_str());
+					gemobj->get_PName(grammar::ECase::kAcc).c_str(),
+					itemobj->get_PName(grammar::ECase::kAcc).c_str());
 			act(buf, false, ch, nullptr, nullptr, kToRoom);
 			ExtractObjFromWorld(gemobj);
 			return;
 		}
 	}
 
-	sprintf(buf, "Вы вплавили %s в %s!\r\n", gemobj->get_PName(ECase::kAcc).c_str(), itemobj->get_PName(ECase::kAcc).c_str());
+	sprintf(buf, "Вы вплавили %s в %s!\r\n", gemobj->get_PName(grammar::ECase::kAcc).c_str(), itemobj->get_PName(grammar::ECase::kAcc).c_str());
 	SendMsgToChar(buf, ch);
-	sprintf(buf, "$n вплавил$g %s в %s.\r\n", gemobj->get_PName(ECase::kAcc).c_str(), itemobj->get_PName(ECase::kAcc).c_str());
+	sprintf(buf, "$n вплавил$g %s в %s.\r\n", gemobj->get_PName(grammar::ECase::kAcc).c_str(), itemobj->get_PName(grammar::ECase::kAcc).c_str());
 	act(buf, false, ch, nullptr, nullptr, kToRoom);
 
 	if (itemobj->get_owner() == ch->get_uid()) {

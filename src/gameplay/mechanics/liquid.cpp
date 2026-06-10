@@ -249,7 +249,7 @@ ECastResult cast_potion_spell(CharData *ch, ObjData *obj, int num) {
 int TryCastSpellsFromLiquid(CharData *ch, ObjData *jar) {
 	if (is_potion(jar) && jar->GetPotionValueKey(ObjVal::EValueKey::POTION_PROTO_VNUM) >= 0) {
 		act("$n выпил$g зелья из $o1.", true, ch, jar, 0, kToRoom);
-		SendMsgToChar(ch, "Вы выпили зелья из %s.\r\n", OBJN(jar, ch, ECase::kGen));
+		SendMsgToChar(ch, "Вы выпили зелья из %s.\r\n", OBJN(jar, ch, grammar::ECase::kGen));
 
 		//не очень понятно, но так было
 		for (int i = 1; i <= 3; ++i)
@@ -471,8 +471,8 @@ void name_from_drinkcon(ObjData *obj) {
 	sprintf(new_name, "%s", tmp.c_str());
 	obj->set_short_description(new_name);
 
-	for (int c = ECase::kFirstCase; c <= ECase::kLastCase; c++) {
-		auto name_case = static_cast<ECase>(c);
+	for (int c = grammar::ECase::kFirstCase; c <= grammar::ECase::kLastCase; c++) {
+		auto name_case = static_cast<grammar::ECase>(c);
 		pos = find_liquid_name(obj->get_PName(name_case).c_str());
 		if (pos == std::string::npos) return;
 		tmp = obj->get_PName(name_case).substr(0, pos - 3);
@@ -495,8 +495,8 @@ void name_to_drinkcon(ObjData *obj, int type) {
 	snprintf(new_name, kMaxInputLength, "%s с %s", obj->get_short_description().c_str(), potion_name);
 	obj->set_short_description(new_name);
 
-	for (c = ECase::kFirstCase; c <= ECase::kLastCase; c++) {
-		auto name_case = static_cast<ECase>(c);
+	for (c = grammar::ECase::kFirstCase; c <= grammar::ECase::kLastCase; c++) {
+		auto name_case = static_cast<grammar::ECase>(c);
 		snprintf(new_name, kMaxInputLength, "%s с %s", obj->get_PName(name_case).c_str(), potion_name);
 		obj->set_PName(name_case, new_name);
 	}
@@ -551,7 +551,7 @@ void identify(CharData *ch, const ObjData *obj) {
 
 	snprintf(buf_, sizeof(buf_), "Может вместить зелья: %s%d %s%s\r\n",
 			 kColorCyn,
-			 volume, GetDeclensionInNumber(volume, EWhat::kGulp),
+			 volume, grammar::GetDeclensionInNumber(volume, grammar::EWhat::kGulp),
 			 kColorNrm);
 	out += buf_;
 
@@ -562,13 +562,13 @@ void identify(CharData *ch, const ObjData *obj) {
 			if (ch->IsImmortal()) {
 				snprintf(buf_, sizeof(buf_), "Содержит %d %s %s (VNUM: %d).\r\n",
 						 amount,
-						 GetDeclensionInNumber(amount, EWhat::kGulp),
+						 grammar::GetDeclensionInNumber(amount, grammar::EWhat::kGulp),
 						 drinks[GET_OBJ_VAL(obj, 2)],
 						 obj->GetPotionValueKey(ObjVal::EValueKey::POTION_PROTO_VNUM));
 			} else {
 				snprintf(buf_, sizeof(buf_), "Содержит %d %s %s.\r\n",
 						 amount,
-						 GetDeclensionInNumber(amount, EWhat::kGulp),
+						 grammar::GetDeclensionInNumber(amount, grammar::EWhat::kGulp),
 						 drinks[GET_OBJ_VAL(obj, 2)]);
 			}
 			out += buf_;

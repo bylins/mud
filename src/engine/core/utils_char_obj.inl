@@ -35,7 +35,7 @@ inline bool INVIS_OK_OBJ(const CharData *sub, const ObjData *obj) {
 		|| AFF_FLAGGED(sub, EAffect::kDetectInvisible);
 }
 
-inline const char *OBJN(const ObjData *obj, const CharData *vict, const ECase name_case) {
+inline const char *OBJN(const ObjData *obj, const CharData *vict, const grammar::ECase name_case) {
 	return CanSeeObj(vict, obj)
 		   ? (!obj->get_PName(name_case).empty()
 			  ? obj->get_PName(name_case).c_str()

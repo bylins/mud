@@ -259,7 +259,7 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 	int i, j, c, value = 0, return_code = 1, ptnum, times = 0;
 //	bool on = false;
 //	bool off = false;
-	char npad[ECase::kLastCase + 1][256];
+	char npad[grammar::ECase::kLastCase + 1][256];
 	char *reason;
 	RoomRnum rnum;
 	RoomVnum rvnum;
@@ -613,14 +613,14 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 
 			if (*npad[0] == '*')    // Only change pads
 			{
-				for (i = ECase::kGen; i <= ECase::kLastCase; i++)
+				for (i = grammar::ECase::kGen; i <= grammar::ECase::kLastCase; i++)
 					if (!_parse_name(npad[i], npad[i])) {
 						vict->player_data.PNames[i] = std::string(npad[i]);
 					}
 				sprintf(buf, "Произведена замена падежей.\r\n");
 				SendMsgToChar(buf, ch);
 			} else {
-				for (i = ECase::kFirstCase; i <= ECase::kLastCase; i++) {
+				for (i = grammar::ECase::kFirstCase; i <= grammar::ECase::kLastCase; i++) {
 					if (strlen(npad[i]) < kMinNameLength || strlen(npad[i]) > kMaxNameLength) {
 						sprintf(buf, "Падеж номер %d некорректен.\r\n", ++i);
 						SendMsgToChar(buf, ch);
@@ -654,7 +654,7 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 					TopPlayer::Remove(vict);
 				}
 
-				for (i = ECase::kFirstCase; i <= ECase::kLastCase; i++) {
+				for (i = grammar::ECase::kFirstCase; i <= grammar::ECase::kLastCase; i++) {
 					if (!_parse_name(npad[i], npad[i])) {
 						vict->player_data.PNames[i] = std::string(npad[i]);
 					}

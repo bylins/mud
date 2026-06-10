@@ -171,7 +171,7 @@ std::string GetObjNameComment(int obj_vnum)
 	{
 		return "";
 	}
-	return StripMudColorCodes(obj->get_PName(ECase::kNom));
+	return StripMudColorCodes(obj->get_PName(grammar::ECase::kNom));
 }
 
 // ============================================================================
@@ -1438,12 +1438,12 @@ CharData YamlWorldDataSource::ParseMobFile(const std::string &file_path)
 	{
 		mob.SetCharAliases(GetText(names, "aliases"));
 		mob.set_npc_name(GetText(names, "nominative"));
-		mob.player_data.PNames[ECase::kNom] = GetText(names, "nominative");
-		mob.player_data.PNames[ECase::kGen] = GetText(names, "genitive");
-		mob.player_data.PNames[ECase::kDat] = GetText(names, "dative");
-		mob.player_data.PNames[ECase::kAcc] = GetText(names, "accusative");
-		mob.player_data.PNames[ECase::kIns] = GetText(names, "instrumental");
-		mob.player_data.PNames[ECase::kPre] = GetText(names, "prepositional");
+		mob.player_data.PNames[grammar::ECase::kNom] = GetText(names, "nominative");
+		mob.player_data.PNames[grammar::ECase::kGen] = GetText(names, "genitive");
+		mob.player_data.PNames[grammar::ECase::kDat] = GetText(names, "dative");
+		mob.player_data.PNames[grammar::ECase::kAcc] = GetText(names, "accusative");
+		mob.player_data.PNames[grammar::ECase::kIns] = GetText(names, "instrumental");
+		mob.player_data.PNames[grammar::ECase::kPre] = GetText(names, "prepositional");
 	}
 
 	// Descriptions
@@ -1948,12 +1948,12 @@ CObjectPrototype* YamlWorldDataSource::ParseObjectFile(const std::string &file_p
 			{
 				obj_ptr->set_aliases(GetText(names, "aliases"));
 				obj_ptr->set_short_description(utils::colorLOW(GetText(names, "nominative")));
-				obj_ptr->set_PName(ECase::kNom, utils::colorLOW(GetText(names, "nominative")));
-				obj_ptr->set_PName(ECase::kGen, utils::colorLOW(GetText(names, "genitive")));
-				obj_ptr->set_PName(ECase::kDat, utils::colorLOW(GetText(names, "dative")));
-				obj_ptr->set_PName(ECase::kAcc, utils::colorLOW(GetText(names, "accusative")));
-				obj_ptr->set_PName(ECase::kIns, utils::colorLOW(GetText(names, "instrumental")));
-				obj_ptr->set_PName(ECase::kPre, utils::colorLOW(GetText(names, "prepositional")));
+				obj_ptr->set_PName(grammar::ECase::kNom, utils::colorLOW(GetText(names, "nominative")));
+				obj_ptr->set_PName(grammar::ECase::kGen, utils::colorLOW(GetText(names, "genitive")));
+				obj_ptr->set_PName(grammar::ECase::kDat, utils::colorLOW(GetText(names, "dative")));
+				obj_ptr->set_PName(grammar::ECase::kAcc, utils::colorLOW(GetText(names, "accusative")));
+				obj_ptr->set_PName(grammar::ECase::kIns, utils::colorLOW(GetText(names, "instrumental")));
+				obj_ptr->set_PName(grammar::ECase::kPre, utils::colorLOW(GetText(names, "prepositional")));
 			}
 
 			obj_ptr->set_description(utils::colorCAP(GetText(root, "short_desc")));
@@ -3456,17 +3456,17 @@ void YamlWorldDataSource::SaveMobs(int zone_rnum, int specific_vnum)
 			yaml.Value(aliases);
 		}
 		yaml.Key("nominative");
-		yaml.Value(mob.player_data.PNames[ECase::kNom]);
+		yaml.Value(mob.player_data.PNames[grammar::ECase::kNom]);
 		yaml.Key("genitive");
-		yaml.Value(mob.player_data.PNames[ECase::kGen]);
+		yaml.Value(mob.player_data.PNames[grammar::ECase::kGen]);
 		yaml.Key("dative");
-		yaml.Value(mob.player_data.PNames[ECase::kDat]);
+		yaml.Value(mob.player_data.PNames[grammar::ECase::kDat]);
 		yaml.Key("accusative");
-		yaml.Value(mob.player_data.PNames[ECase::kAcc]);
+		yaml.Value(mob.player_data.PNames[grammar::ECase::kAcc]);
 		yaml.Key("instrumental");
-		yaml.Value(mob.player_data.PNames[ECase::kIns]);
+		yaml.Value(mob.player_data.PNames[grammar::ECase::kIns]);
 		yaml.Key("prepositional");
-		yaml.Value(mob.player_data.PNames[ECase::kPre]);
+		yaml.Value(mob.player_data.PNames[grammar::ECase::kPre]);
 
 		yaml.DecreaseIndent();
 
@@ -4045,22 +4045,22 @@ void YamlWorldDataSource::SaveObjects(int zone_rnum, int specific_vnum)
 		yaml.Value(obj->get_aliases());
 
 		yaml.Key("nominative");
-		yaml.Value(obj->get_PName(ECase::kNom));
+		yaml.Value(obj->get_PName(grammar::ECase::kNom));
 
 		yaml.Key("genitive");
-		yaml.Value(obj->get_PName(ECase::kGen));
+		yaml.Value(obj->get_PName(grammar::ECase::kGen));
 
 		yaml.Key("dative");
-		yaml.Value(obj->get_PName(ECase::kDat));
+		yaml.Value(obj->get_PName(grammar::ECase::kDat));
 
 		yaml.Key("accusative");
-		yaml.Value(obj->get_PName(ECase::kAcc));
+		yaml.Value(obj->get_PName(grammar::ECase::kAcc));
 
 		yaml.Key("instrumental");
-		yaml.Value(obj->get_PName(ECase::kIns));
+		yaml.Value(obj->get_PName(grammar::ECase::kIns));
 
 		yaml.Key("prepositional");
-		yaml.Value(obj->get_PName(ECase::kPre));
+		yaml.Value(obj->get_PName(grammar::ECase::kPre));
 
 		yaml.DecreaseIndent();
 

@@ -1035,7 +1035,7 @@ void mob_casting(CharData *ch) {
 				const auto spell_id = static_cast<ESpell>(GET_OBJ_VAL(item, 3));
 				if (spell_id < ESpell::kFirst || spell_id > ESpell::kLast) {
 					log("SYSERR: Неверно указано значение спела в стафе vnum: %d %s, позиция: 3, значение: %d ",
-						GET_OBJ_VNUM(item), item->get_PName(ECase::kNom).c_str(), GET_OBJ_VAL(item, 3));
+						GET_OBJ_VNUM(item), item->get_PName(grammar::ECase::kNom).c_str(), GET_OBJ_VAL(item, 3));
 					break;
 				}
 
@@ -1049,7 +1049,7 @@ void mob_casting(CharData *ch) {
 					const auto spell_id = static_cast<ESpell>(GET_OBJ_VAL(item, i));
 					if (spell_id < ESpell::kFirst || spell_id > ESpell::kLast) {
 						log("SYSERR: Неверно указано значение спела в напитке vnum %d %s, позиция: %d, значение: %d ",
-							GET_OBJ_VNUM(item), item->get_PName(ECase::kNom).c_str(), i, GET_OBJ_VAL(item, i));
+							GET_OBJ_VNUM(item), item->get_PName(grammar::ECase::kNom).c_str(), i, GET_OBJ_VAL(item, i));
 						continue;
 					}
 					if (MUD::Spell(spell_id).IsFlagged(kNpcAffectNpc | kNpcUnaffectNpc | kNpcUnaffectNpcCaster)) {
@@ -1063,7 +1063,7 @@ void mob_casting(CharData *ch) {
 					const auto spell_id = static_cast<ESpell>(GET_OBJ_VAL(item, i));
 					if (spell_id < ESpell::kFirst || spell_id > ESpell::kLast) {
 						log("SYSERR: Не верно указано значение спела в свитке %d %s, позиция: %d, значение: %d ",
-							GET_OBJ_VNUM(item), item->get_PName(ECase::kNom).c_str(), i, GET_OBJ_VAL(item, i));
+							GET_OBJ_VNUM(item), item->get_PName(grammar::ECase::kNom).c_str(), i, GET_OBJ_VAL(item, i));
 						continue;
 					}
 

@@ -30,7 +30,7 @@ bool Shutdown::parse_arguments() {
 
 void Shutdown::reboot() const {
 	const auto timeout = std::max(30, m_timeout);
-	sprintf(buf, "[ПЕРЕЗАГРУЗКА через %d %s]\r\n", timeout, GetDeclensionInNumber(timeout, EWhat::kSec));
+	sprintf(buf, "[ПЕРЕЗАГРУЗКА через %d %s]\r\n", timeout, grammar::GetDeclensionInNumber(timeout, grammar::EWhat::kSec));
 	SendMsgToAll(buf);
 	log("(GC) Reboot by %s.", GET_NAME(m_character));
 	imm_log("Reboot by %s.", GET_NAME(m_character));
@@ -40,7 +40,7 @@ void Shutdown::reboot() const {
 
 void Shutdown::die() const {
 	const auto timeout = std::max(30, m_timeout);
-	sprintf(buf, "[ОСТАНОВКА через %d %s]\r\n", timeout, GetDeclensionInNumber(timeout, EWhat::kSec));
+	sprintf(buf, "[ОСТАНОВКА через %d %s]\r\n", timeout, grammar::GetDeclensionInNumber(timeout, grammar::EWhat::kSec));
 	SendMsgToAll(buf);
 	log("(GC) Shutdown die by %s.", GET_NAME(m_character));
 	imm_log("Shutdown die by %s.", GET_NAME(m_character));
@@ -50,7 +50,7 @@ void Shutdown::die() const {
 
 void Shutdown::pause() const {
 	const auto timeout = std::max(30, m_timeout);
-	sprintf(buf, "[ОСТАНОВКА через %d %s]\r\n", timeout, GetDeclensionInNumber(timeout, EWhat::kSec));
+	sprintf(buf, "[ОСТАНОВКА через %d %s]\r\n", timeout, grammar::GetDeclensionInNumber(timeout, grammar::EWhat::kSec));
 	SendMsgToAll(buf);
 	log("(GC) Shutdown pause by %s.", GET_NAME(m_character));
 	imm_log("Shutdown pause by %s.", GET_NAME(m_character));

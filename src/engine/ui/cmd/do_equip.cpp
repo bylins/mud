@@ -521,7 +521,7 @@ void message_str_need(CharData *ch, ObjData *obj, int type) {
 			return;
 	}
 	SendMsgToChar(ch, "Для этого требуется %d %s.\r\n",
-				  need_str, GetDeclensionInNumber(need_str, EWhat::kStr));
+				  need_str, grammar::GetDeclensionInNumber(need_str, grammar::EWhat::kStr));
 }
 
 bool CanBeTakenInBothHands(CharData *ch, ObjData *obj) {

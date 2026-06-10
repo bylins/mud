@@ -36,7 +36,7 @@ void do_weather(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 				(weather_info.change >=
 					0 ? "Атмосферное давление повышается." : "Атмосферное давление понижается."));
 		sprintf(buf + strlen(buf), "На дворе %d %s.\r\n",
-				weather_info.temperature, GetDeclensionInNumber(weather_info.temperature, EWhat::kDegree));
+				weather_info.temperature, grammar::GetDeclensionInNumber(weather_info.temperature, grammar::EWhat::kDegree));
 
 		if (IS_SET(weather_info.weather_type, kWeatherBigwind))
 			strcat(buf, "Сильный ветер.\r\n");

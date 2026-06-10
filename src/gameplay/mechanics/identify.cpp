@@ -35,15 +35,15 @@ static void ShowWeapon(CharData *ch, ObjData *obj) {
 	if (obj->get_type() == EObjType::kWeapon) {
 		*buf = '\0';
 		if (CAN_WEAR(obj, EWearFlag::kWield)) {
-			sprintf(buf, "Можно взять %s в правую руку.\r\n", OBJN(obj, ch, ECase::kAcc));
+			sprintf(buf, "Можно взять %s в правую руку.\r\n", OBJN(obj, ch, grammar::ECase::kAcc));
 		}
 
 		if (CAN_WEAR(obj, EWearFlag::kHold)) {
-			sprintf(buf + strlen(buf), "Можно взять %s в левую руку.\r\n", OBJN(obj, ch, ECase::kAcc));
+			sprintf(buf + strlen(buf), "Можно взять %s в левую руку.\r\n", OBJN(obj, ch, grammar::ECase::kAcc));
 		}
 
 		if (CAN_WEAR(obj, EWearFlag::kBoth)) {
-			sprintf(buf + strlen(buf), "Можно взять %s в обе руки.\r\n", OBJN(obj, ch, ECase::kAcc));
+			sprintf(buf + strlen(buf), "Можно взять %s в обе руки.\r\n", OBJN(obj, ch, grammar::ECase::kAcc));
 		}
 
 		if (*buf) {
@@ -226,7 +226,7 @@ switch (obj->get_type()) {
 
 		if ((i = GetObjRnum(GET_OBJ_VAL(obj, 1))) >= 0) {
 			sprintf(buf, "прототип %s%s%s.\r\n",
-					kColorBoldCyn, obj_proto[i]->get_PName(ECase::kNom).c_str(), kColorNrm);
+					kColorBoldCyn, obj_proto[i]->get_PName(grammar::ECase::kNom).c_str(), kColorNrm);
 			SendMsgToChar(buf, ch);
 		}
 		break;

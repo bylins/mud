@@ -56,7 +56,7 @@ void do_affects(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			? sprintf(buf2,
 					  "(%d %s)",
 					  (mod + 1) / kSecsPerMudHour + 1,
-					  GetDeclensionInNumber((mod + 1) / kSecsPerMudHour + 1, EWhat::kHour))
+					  grammar::GetDeclensionInNumber((mod + 1) / kSecsPerMudHour + 1, grammar::EWhat::kHour))
 			: sprintf(buf2, "(менее часа)");
 			snprintf(buf, kMaxStringLength, "%s%s%-21s %-12s%s ",
 					 *sp_name == '!' ? "Состояние  : " : "Заклинание : ",
@@ -114,7 +114,7 @@ void do_affects(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				? sprintf(buf2,
 						  "(%d %s)",
 						  (mod + 1) / kSecsPerMudHour + 1,
-						  GetDeclensionInNumber((mod + 1) / kSecsPerMudHour + 1, EWhat::kHour))
+						  grammar::GetDeclensionInNumber((mod + 1) / kSecsPerMudHour + 1, grammar::EWhat::kHour))
 				: sprintf(buf2, "(менее часа)");
 				snprintf(buf,
 						 kMaxStringLength,

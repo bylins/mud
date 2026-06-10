@@ -87,7 +87,7 @@ void doBring(CharData *ch, CharData *boss, unsigned int pos, char *bank) {
 		if ((!isname(bank, "банк bank") && cost > ch->get_gold()) ||
 			(isname(bank, "банк bank") && cost > ch->get_bank())) {
 			tell_to_char(boss, ch, fmt::format(fmt::runtime(specials::MercMsg(specials::EMercMsg::kTooExpensive)),
-					fmt::arg("amount", cost), fmt::arg("currency", GetDeclensionInNumber(cost, EWhat::kMoneyU))).c_str());
+					fmt::arg("amount", cost), fmt::arg("currency", grammar::GetDeclensionInNumber(cost, grammar::EWhat::kMoneyU))).c_str());
 			return;
 		}
 

@@ -364,7 +364,7 @@ bool GuildInfo::ProcessPayment(CharData *trainer, CharData *ch, const TalentPtr 
 
 	auto price = talent->CalcPrice(ch);
 	if (price > 0) {
-		auto description = MUD::Currency(talent->GetCurrencyId()).GetObjName(price, ECase::kAcc);
+		auto description = MUD::Currency(talent->GetCurrencyId()).GetObjName(price, grammar::ECase::kAcc);
 		act(fmt::format(fmt::runtime(GetMsg(EMsg::kYouGiveMoney)), fmt::arg("money", description)),
 			false, ch, nullptr, trainer, kToChar);
 		act(fmt::format(fmt::runtime(GetMsg(EMsg::kSomeoneGivesMoney)), fmt::arg("money", description)),

@@ -1667,12 +1667,12 @@ void CharData::restore_npc() {
 	GET_MR(this) = GET_MR(proto);
 	GET_PR(this) = GET_PR(proto);
 	// ресторим имена
-	this->player_data.PNames[ECase::kNom] = proto->player_data.PNames[ECase::kNom];
-	this->player_data.PNames[ECase::kGen] = proto->player_data.PNames[ECase::kGen];
-	this->player_data.PNames[ECase::kDat] = proto->player_data.PNames[ECase::kDat];
-	this->player_data.PNames[ECase::kAcc] = proto->player_data.PNames[ECase::kAcc];
-	this->player_data.PNames[ECase::kIns] = proto->player_data.PNames[ECase::kIns];
-	this->player_data.PNames[ECase::kPre] = proto->player_data.PNames[ECase::kPre];
+	this->player_data.PNames[grammar::ECase::kNom] = proto->player_data.PNames[grammar::ECase::kNom];
+	this->player_data.PNames[grammar::ECase::kGen] = proto->player_data.PNames[grammar::ECase::kGen];
+	this->player_data.PNames[grammar::ECase::kDat] = proto->player_data.PNames[grammar::ECase::kDat];
+	this->player_data.PNames[grammar::ECase::kAcc] = proto->player_data.PNames[grammar::ECase::kAcc];
+	this->player_data.PNames[grammar::ECase::kIns] = proto->player_data.PNames[grammar::ECase::kIns];
+	this->player_data.PNames[grammar::ECase::kPre] = proto->player_data.PNames[grammar::ECase::kPre];
 	this->SetCharAliases(GET_PC_NAME(proto));
 	this->set_npc_name(GET_NAME(proto));
     // кубики // екстра атаки
