@@ -1,6 +1,5 @@
 #include "helpers.h"
 #include "utils/utils_encoding.h"
-#include "utils/utils.h"
 
 namespace observability {
 

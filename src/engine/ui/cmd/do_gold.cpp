@@ -8,7 +8,6 @@
 
 #include "engine/entities/char_data.h"
 #include "utils/grammar/declensions.h"
-#include "utils/utils.h"
 
 void do_gold(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	if (ch->get_gold() == 0)

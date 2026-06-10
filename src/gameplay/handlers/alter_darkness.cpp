@@ -4,7 +4,6 @@
 */
 
 #include "gameplay/handlers/spell_handlers.h"
-#include "engine/entities/char_data.h"
 #include "engine/entities/obj_data.h"
 #include "engine/core/comm.h"
 #include "engine/db/global_objects.h"

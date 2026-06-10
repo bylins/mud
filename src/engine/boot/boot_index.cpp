@@ -1,7 +1,6 @@
 #include "boot_index.h"
 
 #include "utils/logger.h"
-#include "utils/utils.h"
 #include "gameplay/communication/social.h"
 
 class IndexFileImplementation : public IndexFile {
