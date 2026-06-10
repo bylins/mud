@@ -2487,14 +2487,14 @@ void perform_act(const char *orig,
 
 				case 'o':
 					if (*(orig + 1) < '0' || *(orig + 1) > '5') {
-						snprintf(nbuf, sizeof(nbuf), "&q%s&Q", CHK_NULL(obj, AOBJN(obj, to, ECase::kNom, arena)));
+						snprintf(nbuf, sizeof(nbuf), "&q%s&Q", CHK_NULL(obj, arena::VisibleObjName(obj, to, ECase::kNom, arena)));
 						i = nbuf;
 					} else {
 						padis = *(++orig) - '0';
 						snprintf(nbuf,
 								 sizeof(nbuf),
 								 "&q%s&Q",
-								 CHK_NULL(obj, AOBJN(obj, to, padis > ECase::kLastCase ? ECase::kNom : static_cast<ECase>(padis), arena)));
+								 CHK_NULL(obj, arena::VisibleObjName(obj, to, padis > ECase::kLastCase ? ECase::kNom : static_cast<ECase>(padis), arena)));
 						i = nbuf;
 					}
 					break;
@@ -2503,12 +2503,12 @@ void perform_act(const char *orig,
 						snprintf(nbuf,
 								 sizeof(nbuf),
 								 "&q%s&Q",
-								 CHK_NULL(vict_obj, AOBJN((const ObjData *) vict_obj, to, ECase::kNom, arena)));
+								 CHK_NULL(vict_obj, arena::VisibleObjName((const ObjData *) vict_obj, to, ECase::kNom, arena)));
 						i = nbuf;
 					} else {
 						padis = *(++orig) - '0';
 						snprintf(nbuf, sizeof(nbuf), "&q%s&Q", CHK_NULL(vict_obj,
-																		AOBJN((const ObjData *) vict_obj,
+																		arena::VisibleObjName((const ObjData *) vict_obj,
 																			  to,
 																			  padis > ECase::kLastCase ? ECase::kNom : static_cast<ECase>(padis),
 																			  arena)));
@@ -2517,9 +2517,9 @@ void perform_act(const char *orig,
 					dg_victim = (CharData *) vict_obj;
 					break;
 
-				case 'p': CHECK_NULL(obj, AOBJS(obj, to, arena));
+				case 'p': CHECK_NULL(obj, arena::VisibleObjShort(obj, to, arena));
 					break;
-				case 'P': CHECK_NULL(vict_obj, AOBJS((const ObjData *) vict_obj, to, arena));
+				case 'P': CHECK_NULL(vict_obj, arena::VisibleObjShort((const ObjData *) vict_obj, to, arena));
 					dg_victim = (CharData *) vict_obj;
 					break;
 

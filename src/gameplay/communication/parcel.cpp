@@ -329,7 +329,7 @@ void send(CharData *ch, CharData *mailman, long vict_uid, char *arg) {
 				bool has_items = false;
 				for (obj = ch->carrying; obj; obj = next_obj) {
 					next_obj = obj->get_next_content();
-					if (CAN_SEE_OBJ(ch, obj)
+					if (CanSeeObj(ch, obj)
 						&& ((dotmode == kFindAll
 							|| isname(tmp_arg, obj->get_aliases())))) {
 						send_object(ch, mailman, vict_uid, obj);

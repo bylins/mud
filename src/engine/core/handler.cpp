@@ -1831,7 +1831,7 @@ ObjData *get_obj_in_list_vis(CharData *ch, const char *name, const ObjData::obj_
 		}
 		if (isname(tmp, i->get_aliases())
 			|| CHECK_CUSTOM_LABEL(tmp, i, ch)) {
-			if (CAN_SEE_OBJ(ch, i)) {
+			if (CanSeeObj(ch, i)) {
 				// sprintf(buf,"Show obj %d %s %x ", number, i->name, i);
 				// SendMsgToChar(buf,ch);
 				if (!locate_item) {
@@ -1865,7 +1865,7 @@ ObjData *get_obj_vis_and_dec_num(CharData *ch,
 								 std::unordered_set<unsigned int> &id_obj_set,
 								 int &number) {
 	for (auto item = list; item != nullptr; item = item->get_next_content()) {
-		if (CAN_SEE_OBJ(ch, item)) {
+		if (CanSeeObj(ch, item)) {
 			if (isname(name, item->get_aliases())
 				|| CHECK_CUSTOM_LABEL(name, item, ch)) {
 				if (--number == 0) {
@@ -1886,7 +1886,7 @@ ObjData *get_obj_vis_and_dec_num(CharData *ch,
 								 std::unordered_set<unsigned int> &id_obj_set,
 								 int &number) {
 	for (auto item : list) {
-		if (CAN_SEE_OBJ(ch, item)) {
+		if (CanSeeObj(ch, item)) {
 			if (isname(name, item->get_aliases())
 				|| CHECK_CUSTOM_LABEL(name, item, ch)) {
 				if (--number == 0) {
@@ -1907,7 +1907,7 @@ ObjData *get_obj_vis_and_dec_num(CharData *ch,
 								 int &number) {
 	for (auto i = 0; i < EEquipPos::kNumEquipPos; ++i) {
 		auto item = equip[i];
-		if (item && CAN_SEE_OBJ(ch, item)) {
+		if (item && CanSeeObj(ch, item)) {
 			if (isname(name, item->get_aliases())
 				|| CHECK_CUSTOM_LABEL(name, item, ch)) {
 				if (--number == 0) {
@@ -1946,7 +1946,7 @@ ObjData *get_obj_vis_for_locate(CharData *ch, const char *name) {
 
 	// ok.. no luck yet. scan the entire obj list   //
 	const WorldObjects::predicate_f locate_predicate = [&](const ObjData::shared_ptr &i) -> bool {
-		const auto result = CAN_SEE_OBJ(ch, i.get())
+		const auto result = CanSeeObj(ch, i.get())
 			&& (isname(tmp, i->get_aliases())
 				|| CHECK_CUSTOM_LABEL(tmp, i.get(), ch))
 			&& try_locate_obj(ch, i.get());
@@ -2037,7 +2037,7 @@ ObjData *get_object_in_equip_vis(CharData *ch, const char *arg, ObjData *equipme
 
 	for ((*j) = 0, l = 0; (*j) < EEquipPos::kNumEquipPos; (*j)++) {
 		if (equipment[(*j)]) {
-			if (CAN_SEE_OBJ(ch, equipment[(*j)])) {
+			if (CanSeeObj(ch, equipment[(*j)])) {
 				if (isname(tmp, equipment[(*j)]->get_aliases())
 					|| CHECK_CUSTOM_LABEL(tmp, equipment[(*j)], ch)) {
 					if (++l == number) {
@@ -2117,7 +2117,7 @@ int generic_find(char *arg, Bitvector bitvector, CharData *ch, CharData **tar_ch
 				|| CHECK_CUSTOM_LABEL(tmp, i, ch)
 				|| (IS_SET(bitvector, EFind::kObjExtraDesc)
 					&& find_exdesc(tmp, i->get_ex_description()))) {
-				if (CAN_SEE_OBJ(ch, i)) {
+				if (CanSeeObj(ch, i)) {
 					if (++j == number) {
 						*tar_obj = i;
 						return (EFind::kObjInventory);
@@ -2133,7 +2133,7 @@ int generic_find(char *arg, Bitvector bitvector, CharData *ch, CharData **tar_ch
 				|| CHECK_CUSTOM_LABEL(tmp, i, ch)
 				|| (IS_SET(bitvector, EFind::kObjExtraDesc)
 					&& find_exdesc(tmp, i->get_ex_description()))) {
-				if (CAN_SEE_OBJ(ch, i)) {
+				if (CanSeeObj(ch, i)) {
 					if (++j == number) {
 						*tar_obj = i;
 						return (EFind::kObjRoom);
@@ -2144,7 +2144,7 @@ int generic_find(char *arg, Bitvector bitvector, CharData *ch, CharData **tar_ch
 	}
 	if (IS_SET(bitvector, EFind::kObjEquip)) {
 		for (l = 0; l < EEquipPos::kNumEquipPos; l++) {
-			if (GET_EQ(ch, l) && CAN_SEE_OBJ(ch, GET_EQ(ch, l))) {
+			if (GET_EQ(ch, l) && CanSeeObj(ch, GET_EQ(ch, l))) {
 				if (isname(tmp, GET_EQ(ch, l)->get_aliases())
 					|| CHECK_CUSTOM_LABEL(tmp, GET_EQ(ch, l), ch)
 					|| (IS_SET(bitvector, EFind::kObjExtraDesc)

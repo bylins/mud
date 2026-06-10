@@ -320,7 +320,7 @@ void draw_objs(const CharData *ch, int room_rnum, int next_y, int next_x) {
 				&& !ch->map_check_option(MAP_MODE_OTHER_OBJECTS)) {
 				continue;
 			}
-			if (CAN_SEE_OBJ(ch, obj)) {
+			if (CanSeeObj(ch, obj)) {
 				++cnt;
 			}
 		}

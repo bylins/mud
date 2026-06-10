@@ -307,7 +307,7 @@ void ConsiderObjOne(ObjData *cand, const Query &q,
 					 std::vector<ObjData *> &out, CharData *searcher) {
 	if (ord.done) return;
 	if (!cand) return;
-	if (q.visible_only && searcher && !CAN_SEE_OBJ(searcher, cand)) return;
+	if (q.visible_only && searcher && !CanSeeObj(searcher, cand)) return;
 	if (name_filter && !MatchesName(cand, *name_filter)) return;
 	if (q.obj_predicate && !q.obj_predicate(cand)) return;
 	if (q.single) {
@@ -595,7 +595,7 @@ ObjPredicate MakeObjVnumFilter(ObjVnum vnum) {
 
 ObjPredicate MakeObjVisibleFilter(CharData *viewer) {
 	return [viewer](ObjData *cand) {
-		return viewer && cand && CAN_SEE_OBJ(viewer, cand);
+		return viewer && cand && CanSeeObj(viewer, cand);
 	};
 }
 

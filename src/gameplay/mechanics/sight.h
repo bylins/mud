@@ -16,6 +16,7 @@ const int EXIT_SHOW_WALL = (1 << 0);
 const int EXIT_SHOW_LOOKING = (1 << 1);
 
 class CharData;
+class ObjData;
 void look_at_room(CharData *ch, int ignore_brief, bool msdp_mode = true);
 void skip_hide_on_look(CharData *ch);
 void list_char_to_char(const RoomData::people_t &list, CharData *ch);
@@ -57,6 +58,11 @@ inline bool CanSeeIgnoringLight(const std::shared_ptr<CharData> &sub, const std:
 // grammatical case `pad`: the real declined name if the viewer can see them, else the indefinite
 // "кто-то" fallback. (Replaces the PERS macro that lived in utils.h.)
 const char *PersonName(const CharData *ch, const CharData *viewer, int pad);
+
+// issue.utils-cleaning: object visibility predicates, mirroring CanSee/MortCanSee (moved here
+// from engine/core/utils_char_obj.inl for cohesion -- all "who/what can see what" in one place).
+bool MortCanSeeObj(const CharData *sub, const ObjData *obj);
+bool CanSeeObj(const CharData *sub, const ObjData *obj);
 
 #endif //BYLINS_SRC_GAME_MECHANICS_SIGHT_H_
 

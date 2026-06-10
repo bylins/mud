@@ -59,6 +59,11 @@ class ItemName {
 // utils.h; sight's PersonName returns this when a viewer cannot see a character.
 const char *SomebodyInCase(int pad);
 
+// The indefinite pronoun "что-то" ("something", neuter) declined by case index
+// (pad: 0=nom .. 5=pre). issue.utils-cleaning: the GET_PAD_OBJ fallback name, moved out of
+// utils.h; the arena/sight object-name helpers use it when a viewer cannot see an object.
+const char *SomethingInCase(int pad);
+
 }
 
 #endif //BYLINS_SRC_ENGINE_GRAMMAR_CASES_H_

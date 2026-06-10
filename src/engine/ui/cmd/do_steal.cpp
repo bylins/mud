@@ -65,7 +65,7 @@ void go_steal(CharData *ch, CharData *vict, char *obj_name) {
 			for (eq_pos = 0; eq_pos < EEquipPos::kNumEquipPos; eq_pos++) {
 				if (GET_EQ(vict, eq_pos)
 					&& (isname(obj_name, GET_EQ(vict, eq_pos)->get_aliases()))
-					&& CAN_SEE_OBJ(ch, GET_EQ(vict, eq_pos))) {
+					&& CanSeeObj(ch, GET_EQ(vict, eq_pos))) {
 					obj = GET_EQ(vict, eq_pos);
 					break;
 				}

@@ -71,7 +71,7 @@ void do_remove(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			found = 0;
 			for (i = 0; i < EEquipPos::kNumEquipPos; i++) {
 				if (GET_EQ(ch, i)
-					&& CAN_SEE_OBJ(ch, GET_EQ(ch, i))
+					&& CanSeeObj(ch, GET_EQ(ch, i))
 					&& (isname(arg, GET_EQ(ch, i)->get_aliases())
 						|| CHECK_CUSTOM_LABEL(arg, GET_EQ(ch, i), ch))) {
 					RemoveEquipment(ch, i, true);

@@ -1180,7 +1180,7 @@ void do_stat_room(CharData *ch, const int rnum = 0) {
 		found = 0;
 		for (auto it = rm->contents.begin(); it != rm->contents.end(); ++it) {
 			auto j = *it;
-			if (!CAN_SEE_OBJ(ch, j))
+			if (!CanSeeObj(ch, j))
 				continue;
 			sline += fmt::sprintf("%s %s", found++ ? "," : "", j->get_short_description().c_str());
 			if (sline.size() >= 62) {

@@ -228,7 +228,7 @@ void do_put(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				for (auto obj = ch->carrying; obj; obj = next_obj) {
 					next_obj = obj->get_next_content();
 					if (obj != cont
-						&& CAN_SEE_OBJ(ch, obj)
+						&& CanSeeObj(ch, obj)
 						&& (obj_dotmode == kFindAll
 							|| isname(theobj, obj->get_aliases())
 							|| CHECK_CUSTOM_LABEL(theobj, obj, ch))) {

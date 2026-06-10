@@ -315,7 +315,7 @@ int npc_loot(CharData *ch) {
 	npc_dropunuse(ch);
 	if (!world[ch->in_room]->contents.empty() && number(0, GetRealInt(ch)) > 10) {
 		for (auto obj : world[ch->in_room]->contents) {
-			if (CAN_SEE_OBJ(ch, obj) && IS_CORPSE(obj)) {
+			if (CanSeeObj(ch, obj) && IS_CORPSE(obj)) {
 				// Сначала лутим то, что не в контейнерах
 				for (loot_obj = obj->get_contains(); loot_obj; loot_obj = next_loot) {
 					next_loot = loot_obj->get_next_content();
@@ -854,7 +854,7 @@ int do_npc_steal(CharData *ch, CharData *victim) {
 		if (ch->GetCarryingQuantity() < CAN_CARRY_N(ch) && CalcCurrentSkill(ch, ESkill::kSteal, victim)
 			>= number(1, 100) - (AWAKE(victim) ? 100 : 0)) {
 			for (obj = victim->carrying; obj; obj = obj->get_next_content())
-				if (CAN_SEE_OBJ(ch, obj) && ch->GetCarryingWeight() + obj->get_weight()
+				if (CanSeeObj(ch, obj) && ch->GetCarryingWeight() + obj->get_weight()
 					<= CAN_CARRY_W(ch) && (!best || obj->get_cost() > best->get_cost()))
 					best = obj;
 			if (best) {

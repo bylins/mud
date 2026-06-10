@@ -668,14 +668,14 @@ void look_at_char(CharData *i, CharData *ch) {
 
 	found = false;
 	for (j = 0; !found && j < EEquipPos::kNumEquipPos; j++) {
-		if (GET_EQ(i, j) && CAN_SEE_OBJ(ch, GET_EQ(i, j)))
+		if (GET_EQ(i, j) && CanSeeObj(ch, GET_EQ(i, j)))
 			found = true;
 	}
 	if (found) {
 		SendMsgToChar("\r\n", ch);
 		act("$n одет$a :", false, i, nullptr, ch, kToVict);
 		for (j = 0; j < EEquipPos::kNumEquipPos; j++) {
-			if (GET_EQ(i, j) && CAN_SEE_OBJ(ch, GET_EQ(i, j))) {
+			if (GET_EQ(i, j) && CanSeeObj(ch, GET_EQ(i, j))) {
 				SendMsgToChar(where[j], ch);
 				if (i->has_master()
 					&& i->IsNpc()) {
@@ -691,7 +691,7 @@ void look_at_char(CharData *i, CharData *ch) {
 		found = false;
 		act("\r\nВы попытались заглянуть в $s ношу:", false, i, nullptr, ch, kToVict);
 		for (tmp_obj = i->carrying; tmp_obj; tmp_obj = tmp_obj->get_next_content()) {
-			if (CAN_SEE_OBJ(ch, tmp_obj) && (number(0, 30) < GetRealLevel(ch))) {
+			if (CanSeeObj(ch, tmp_obj) && (number(0, 30) < GetRealLevel(ch))) {
 				if (!push) {
 					push = tmp_obj;
 					push_count = 1;
@@ -926,7 +926,7 @@ void list_obj_to_char(ObjData *list, CharData *ch, int mode, int show) {
 	}
 
 	for (i = list; i; i = i->get_next_content()) {
-		if (CAN_SEE_OBJ(ch, i)) {
+		if (CanSeeObj(ch, i)) {
 			if (!push) {
 				push = i;
 				push_count = 1;
@@ -980,7 +980,7 @@ void list_obj_to_char(const ObjData::obj_list_t &list, CharData *ch, int mode, i
 	}
 
 	for (auto i : list) {
-		if (CAN_SEE_OBJ(ch, i)) {
+		if (CanSeeObj(ch, i)) {
 			if (!push) {
 				push = i;
 				push_count = 1;
@@ -2215,6 +2215,27 @@ bool CanSeeIgnoringLight(const CharData *sub, const CharData *obj) {
 
 const char *PersonName(const CharData *ch, const CharData *viewer, int pad) {
 	return CanSee(viewer, ch) ? GET_PAD(ch, pad) : grammar::SomebodyInCase(pad);
+}
+
+bool MortCanSeeObj(const CharData *sub, const ObjData *obj) {
+	return INVIS_OK_OBJ(sub, obj)
+		&& !AFF_FLAGGED(sub, EAffect::kBlind)
+		&& (!is_dark(obj->get_in_room())
+			|| obj->has_flag(EObjFlag::kGlow)
+			|| (IS_CORPSE(obj)
+				&& AFF_FLAGGED(sub, EAffect::kInfravision))
+			|| CanUseFeat(sub, EFeat::kDarkReading));
+}
+
+bool CanSeeObj(const CharData *sub, const ObjData *obj) {
+	return (obj->get_worn_by() == sub
+		|| obj->get_carried_by() == sub
+		|| (obj->get_in_obj()
+			&& (obj->get_in_obj()->get_worn_by() == sub
+				|| obj->get_in_obj()->get_carried_by() == sub))
+		|| MortCanSeeObj(sub, obj)
+		|| (!sub->IsNpc()
+			&& (sub)->IsFlagged(EPrf::kHolylight)));
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

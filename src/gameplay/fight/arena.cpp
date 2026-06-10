@@ -7,6 +7,8 @@
 #include "arena.h"
 
 #include "engine/entities/char_data.h"
+#include "engine/entities/obj_data.h"
+#include "utils/grammar/cases.h"
 #include "gameplay/mechanics/sight.h"
 #include "utils/utils.h"
 
@@ -14,6 +16,19 @@ namespace arena {
 
 const char *VisibleName(const CharData *ch, const CharData *viewer, int pad, bool arena) {
 	return arena ? GET_PAD(ch, pad) : PersonName(ch, viewer, pad);
+}
+
+const char *VisibleObjShort(const ObjData *obj, const CharData *viewer, bool arena) {
+	return (arena || CanSeeObj(viewer, obj)) ? obj->get_short_description().c_str()
+											  : grammar::SomethingInCase(ECase::kNom);
+}
+
+const char *VisibleObjName(const ObjData *obj, const CharData *viewer, ECase pad, bool arena) {
+	if (arena || CanSeeObj(viewer, obj)) {
+		return !obj->get_PName(pad).empty() ? obj->get_PName(pad).c_str()
+											: obj->get_short_description().c_str();
+	}
+	return grammar::SomethingInCase(pad);
 }
 
 }  // namespace arena

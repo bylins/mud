@@ -33,7 +33,7 @@ void do_mark(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				return;
 			}
 			for (cont = ch->carrying; cont; cont = cont->get_next_content()) {
-				if (CAN_SEE_OBJ(ch, cont)
+				if (CanSeeObj(ch, cont)
 					&& (cont_dotmode == kFindAll
 						|| isname(arg1, cont->get_aliases()))) {
 					cont->set_owner(atoi(arg2));
@@ -42,7 +42,7 @@ void do_mark(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				}
 			}
 			for (auto cont : world[ch->in_room]->contents) {
-				if (CAN_SEE_OBJ(ch, cont)
+				if (CanSeeObj(ch, cont)
 					&& (cont_dotmode == kFindAll
 						|| isname(arg2, cont->get_aliases()))) {
 					cont->set_owner(atoi(arg2));

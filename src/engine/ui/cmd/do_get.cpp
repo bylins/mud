@@ -195,7 +195,7 @@ void get_from_container(CharData *ch, ObjData *cont, char *local_arg, int mode, 
 		}
 		for (obj = cont->get_contains(); obj; obj = next_obj) {
 			next_obj = obj->get_next_content();
-			if (CAN_SEE_OBJ(ch, obj)
+			if (CanSeeObj(ch, obj)
 				&& (obj_dotmode == kFindAll
 					|| isname(local_arg, obj->get_aliases())
 					|| CHECK_CUSTOM_LABEL(local_arg, obj, ch))) {
@@ -278,7 +278,7 @@ void get_from_room(CharData *ch, char *local_arg, int howmany) {
 		}
 		for (auto it = world[ch->in_room]->contents.begin(); it != world[ch->in_room]->contents.end(); ) {
 			auto obj = *it; ++it;
-			if (CAN_SEE_OBJ(ch, obj)
+			if (CanSeeObj(ch, obj)
 				&& (dotmode == kFindAll
 					|| isname(local_arg, obj->get_aliases())
 					|| CHECK_CUSTOM_LABEL(local_arg, obj, ch))) {
@@ -361,7 +361,7 @@ void do_get(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				return;
 			}
 			for (cont = ch->carrying; cont && IS_SET(where_bits, EFind::kObjInventory); cont = cont->get_next_content()) {
-				if (CAN_SEE_OBJ(ch, cont)
+				if (CanSeeObj(ch, cont)
 					&& (cont_dotmode == kFindAll
 						|| isname(thecont, cont->get_aliases())
 						|| CHECK_CUSTOM_LABEL(thecont, cont, ch))) {
@@ -375,7 +375,7 @@ void do_get(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				}
 			}
 			if (IS_SET(where_bits, EFind::kObjRoom)) for (auto cont : world[ch->in_room]->contents) {
-				if (CAN_SEE_OBJ(ch, cont)
+				if (CanSeeObj(ch, cont)
 					&& (cont_dotmode == kFindAll
 						|| isname(thecont, cont->get_aliases())
 						|| CHECK_CUSTOM_LABEL(thecont, cont, ch))) {

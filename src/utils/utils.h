@@ -38,6 +38,8 @@ class CharData;    // forward declaration to avoid inclusion of char.hpp and any
 // issue.chardata-cleaning: CanSee lives in gameplay/mechanics/sight.h now; forward-declared here
 // so the ubiquitous GET_CH_VIS_SUF_* vis macros below resolve without pulling the heavy sight.h.
 bool CanSee(const CharData *sub, const CharData *obj);
+class ObjData;
+bool CanSeeObj(const CharData *sub, const ObjData *obj);
 struct DescriptorData;
 
 // external declarations and prototypes *********************************
@@ -586,35 +588,35 @@ const int kNameLevel = 5;
                           IS_OBJ_MALE(obj) ? "ой"  :\
                           IS_OBJ_FEMALE(obj) ? "ая" : "ие")
 
-#define GET_OBJ_VIS_SUF_1(obj, ch) (!CAN_SEE_OBJ(ch,obj) ? "о" :\
+#define GET_OBJ_VIS_SUF_1(obj, ch) (!CanSeeObj(ch,obj) ? "о" :\
                             IS_OBJ_NOSEXY(obj) ? "о" :\
                             IS_OBJ_MALE(obj) ? ""  :\
                             IS_OBJ_FEMALE(obj) ? "а" : "и")
-#define GET_OBJ_VIS_SUF_2(obj, ch) (!CAN_SEE_OBJ(ch,obj) ? "ось" :\
+#define GET_OBJ_VIS_SUF_2(obj, ch) (!CanSeeObj(ch,obj) ? "ось" :\
                             IS_OBJ_NOSEXY(obj) ? "ось" :\
                             IS_OBJ_MALE(obj) ? "ся"  :\
                             IS_OBJ_FEMALE(obj) ? "ась" : "ись")
-#define GET_OBJ_VIS_SUF_3(obj, ch) (!CAN_SEE_OBJ(ch,obj) ? "ый" :\
+#define GET_OBJ_VIS_SUF_3(obj, ch) (!CanSeeObj(ch,obj) ? "ый" :\
                             IS_OBJ_NOSEXY(obj) ? "ое" :\
                             IS_OBJ_MALE(obj) ? "ый"  :\
                             IS_OBJ_FEMALE(obj) ? "ая" : "ые")
-#define GET_OBJ_VIS_SUF_4(obj, ch) (!CAN_SEE_OBJ(ch,obj) ? "ло" :\
+#define GET_OBJ_VIS_SUF_4(obj, ch) (!CanSeeObj(ch,obj) ? "ло" :\
                             IS_OBJ_NOSEXY(obj) ? "ло" :\
                             IS_OBJ_MALE(obj) ? ""  :\
                             IS_OBJ_FEMALE(obj) ? "ла" : "ли")
-#define GET_OBJ_VIS_SUF_5(obj, ch) (!CAN_SEE_OBJ(ch,obj) ? "ло" :\
+#define GET_OBJ_VIS_SUF_5(obj, ch) (!CanSeeObj(ch,obj) ? "ло" :\
                             IS_OBJ_NOSEXY(obj) ? "ло" :\
                             IS_OBJ_MALE(obj) ? ""  :\
                             IS_OBJ_FEMALE(obj) ? "ла" : "ли")
-#define GET_OBJ_VIS_SUF_6(obj, ch) (!CAN_SEE_OBJ(ch,obj) ? "о" :\
+#define GET_OBJ_VIS_SUF_6(obj, ch) (!CanSeeObj(ch,obj) ? "о" :\
                             IS_OBJ_NOSEXY(obj) ? "о" :\
                             IS_OBJ_MALE(obj) ? ""  :\
                             IS_OBJ_FEMALE(obj) ? "а" : "ы")
-#define GET_OBJ_VIS_SUF_7(obj, ch) (!CAN_SEE_OBJ(ch,obj) ? "е" :\
+#define GET_OBJ_VIS_SUF_7(obj, ch) (!CanSeeObj(ch,obj) ? "е" :\
                             IS_OBJ_NOSEXY(obj) ? "е" :\
                             IS_OBJ_MALE(obj) ? ""  :\
                             IS_OBJ_FEMALE(obj) ? "а" : "и")
-#define GET_OBJ_VIS_SUF_8(obj, ch) (!CAN_SEE_OBJ(ch,obj) ? "ой" :\
+#define GET_OBJ_VIS_SUF_8(obj, ch) (!CanSeeObj(ch,obj) ? "ой" :\
                           IS_OBJ_NOSEXY(obj) ? "ое" :\
                           IS_OBJ_MALE(obj) ? "ой"  :\
                           IS_OBJ_FEMALE(obj) ? "ая" : "ие")
@@ -636,7 +638,7 @@ const int kNameLevel = 5;
 #define GET_OBJ_EXSUF_1(obj) (IS_OBJ_NOSEXY(obj) ? "им" :\
                             IS_OBJ_MALE(obj) ? "им"  :\
                             IS_OBJ_FEMALE(obj) ? "ей" : "ими")
-#define GET_OBJ_VIS_EXSUF_1(obj, ch) (!CAN_SEE_OBJ(ch,obj) ? "им" :\
+#define GET_OBJ_VIS_EXSUF_1(obj, ch) (!CanSeeObj(ch,obj) ? "им" :\
                             IS_OBJ_NOSEXY(obj) ? "им" :\
                             IS_OBJ_MALE(obj) ? "им"  :\
                             IS_OBJ_FEMALE(obj) ? "ей" : "ими")
@@ -668,20 +670,8 @@ const int kNameLevel = 5;
 // issue.utils-cleaning: PERS -> sight::PersonName, APERS -> arena::VisibleName
 // (gameplay/fight/arena.h), GET_PAD_PERS -> grammar::SomebodyInCase. GET_PAD stays here.
 
-//для арены
-#define AOBJS(obj, vict, arena) ((arena) || CAN_SEE_OBJ((vict), (obj)) ? \
-                      (obj)->get_short_description().c_str() : "что-то")
-
-#define GET_PAD_OBJ(pad)  ((pad) == 5 ? "чем-то" :\
-                           (pad) == 4 ? "чем-то" :\
-                           (pad) == 3 ? "что-то" :\
-                           (pad) == 2 ? "чему-то" :\
-                           (pad) == 1 ? "чего-то" : "что-то")
-
-//для арены
-#define AOBJN(obj, vict, pad, arena) ((arena) || CAN_SEE_OBJ((vict), (obj)) ? \
-                           (!(obj)->get_PName(pad).empty()) ? (obj)->get_PName(pad).c_str() : (obj)->get_short_description().c_str() \
-                           : GET_PAD_OBJ(pad))
+// issue.utils-cleaning: AOBJS/AOBJN -> arena::VisibleObjShort/VisibleObjName (gameplay/fight/arena.h),
+// GET_PAD_OBJ -> grammar::SomethingInCase. (Object suffix macros below stay, for the grammar pass.)
 
 #define EXITDATA(room, door) (((room) >= 0 && (room) <= top_of_world) ? \
                              world[(room)]->dir_option[(door)] : nullptr)

@@ -112,7 +112,7 @@ class FriendsRosterType : public TargetsRosterType {
 //     one match (when `single = true`) ends the search; otherwise all scopes
 //     are visited and the union returned.
 //   * `visible_only = true` gates char results through CanSee and obj results
-//     through CAN_SEE_OBJ. Set to false for scripted lookups that need to
+//     through CanSeeObj. Set to false for scripted lookups that need to
 //     locate hidden / wizinvis entities (the legacy SearchObjByRnum-style
 //     paths).
 //   * `name` is an optional substring (passed through isname semantics) --
@@ -246,7 +246,7 @@ CharPredicate MakeMobFlagFilter(EMobFlag flag);      // NPC carrying flag
 // Vnum lookups. Mobs are matched by their proto vnum; objs by their proto vnum.
 CharPredicate MakeMobVnumFilter(MobVnum vnum);
 ObjPredicate  MakeObjVnumFilter(ObjVnum vnum);
-ObjPredicate  MakeObjVisibleFilter(CharData *viewer); // CAN_SEE_OBJ-gated
+ObjPredicate  MakeObjVisibleFilter(CharData *viewer); // CanSeeObj-gated
 
 
 // Pick a random room in the same zone as `zone_room` that a teleport/recall may land in (skips

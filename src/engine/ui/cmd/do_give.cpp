@@ -223,7 +223,7 @@ void do_give(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					next_obj = obj->get_next_content();
 					if (obj->get_extracted_list())
 						continue;
-					if (CAN_SEE_OBJ(ch, obj)
+					if (CanSeeObj(ch, obj)
 						&& (dotmode == kFindAll
 							|| isname(arg, obj->get_aliases())
 							|| CHECK_CUSTOM_LABEL(arg, obj, ch))) {
