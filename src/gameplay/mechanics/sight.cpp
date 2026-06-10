@@ -2214,7 +2214,7 @@ bool ImmCanSee(const CharData *sub, const CharData *obj, bool consider_light) {
 }
 
 bool CanSee(const CharData *sub, const CharData *obj) {
-	return SELF(sub, obj)
+	return sub == obj
 		|| ((GetRealLevel(sub) >= (obj->IsNpc() ? 0 : GET_INVIS_LEV(obj)))
 			&& ImmCanSee(sub, obj));
 }
@@ -2222,7 +2222,7 @@ bool CanSee(const CharData *sub, const CharData *obj) {
 // issue.utils-cleaning: the "see without light" variant -- folds the old CAN_SEE_CHAR macro
 // (same as CanSee but skips the room-darkness check via consider_light=false).
 bool CanSeeIgnoringLight(const CharData *sub, const CharData *obj) {
-	return SELF(sub, obj)
+	return sub == obj
 		|| ((GetRealLevel(sub) >= (obj->IsNpc() ? 0 : GET_INVIS_LEV(obj)))
 			&& ImmCanSee(sub, obj, false));
 }

@@ -80,7 +80,7 @@ int CalcMoveCost(CharData *ch, int dir) {
 		ch_toroom = GetMountainsPathsSect(ch_toroom);
 	}
 
-	int need_movement = (IS_FLY(ch) || mount::IsOnHorse(ch)) ? 1 :
+	int need_movement = (AFF_FLAGGED(ch, EAffect::kFly) || mount::IsOnHorse(ch)) ? 1 :
 						(movement_loss[ch_inroom] + movement_loss[ch_toroom]) / 2;
 
 	if (ch->IsImmortal())

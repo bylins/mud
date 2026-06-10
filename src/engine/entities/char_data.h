@@ -914,19 +914,10 @@ inline bool AFF_FLAGGED(const CharData::shared_ptr &ch, const EAffect flag) {
 }
 
 
-inline bool IS_FLY(const CharData *ch) {
-	return AFF_FLAGGED(ch, EAffect::kFly);
-}
-
 // issue.utils-cleaning: InvisOk -> sight::InvisOk (gameplay/mechanics/sight.h).
 
 
-inline bool SELF(const CharData *sub, const CharData *obj) { return sub == obj; }
-inline bool SELF(const CharData *sub, const CharData::shared_ptr &obj) { return sub == obj.get(); }
-
 /// Can subject see character "obj"?
-
-
 
 
 bool AWAKE(const CharData *ch);
