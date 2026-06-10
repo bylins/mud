@@ -37,6 +37,7 @@ enum class ESpecial {
 	kShop, kGuild, kBoard, kDump,
 };
 void RegisterMob(int vnum, ESpecial s);
+void UnregisterMob(int vnum, ESpecial s);  // remove ONE special (vs RegisterMob(kNone) = erase all)
 void RegisterObj(int vnum, ESpecial s);
 void RegisterRoom(int vnum, ESpecial s);
 [[nodiscard]] const std::set<ESpecial> &MobSpecials(int vnum);  // a mob may have several specials

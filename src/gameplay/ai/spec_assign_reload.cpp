@@ -11,19 +11,16 @@
 
 using special_f = int(CharData *, void *, int, char *);
 
-int puff(CharData *ch, void *me, int cmd, char *argument);
-
 namespace {
 
-bool IsManagedMobSpecial(const special_f *func) {
-	return func == puff
-		|| func == postmaster
-		|| func == bank
-		|| func == horse_keeper
-		|| func == exchange
-		|| func == Noob::outfit
-		|| func == mercenary;
-}
+// The cfg/specials.xml + AssignMobiles-driven mob specials. Dropped before the reassign below so
+// that entries removed from cfg actually disappear; kShop (shop config) and kGuild (guilds) are
+// managed elsewhere and left intact. (Mobs are data-driven now -- no func pointer to inspect.)
+const specials::ESpecial kReloadableMobSpecials[] = {
+	specials::ESpecial::kRent, specials::ESpecial::kMail, specials::ESpecial::kBank,
+	specials::ESpecial::kHorse, specials::ESpecial::kExchange, specials::ESpecial::kTorc,
+	specials::ESpecial::kMercenary, specials::ESpecial::kOutfit, specials::ESpecial::kPuff,
+};
 
 bool IsManagedObjectSpecial(const special_f *func) {
 	return func == Boards::Static::Special;
@@ -35,9 +32,8 @@ bool IsManagedRoomSpecial(const special_f * /*func*/) {
 
 void ClearManagedSpecProcs() {
 	for (MobRnum i = 0; i <= top_of_mobt; ++i) {
-		if (IsManagedMobSpecial(mob_index[i].func)) {
-			mob_index[i].func = nullptr;
-			specials::RegisterMob(mob_index[i].vnum, specials::ESpecial::kNone);
+		for (const auto sp : kReloadableMobSpecials) {
+			specials::UnregisterMob(mob_index[i].vnum, sp);
 		}
 	}
 

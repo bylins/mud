@@ -3,6 +3,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "depot.h"
+#include "gameplay/ai/spec_procs.h"
 #include "utils/grammar/gender.h"
 #include "utils/grammar/declensions.h"
 
@@ -466,7 +467,7 @@ void load_chests() {
 		const auto rnum = ch->get_rnum();
 		if (rnum > 0
 			&& rnum <= top_of_mobt
-			&& mob_index[rnum].func == bank) {
+			&& specials::IsBankkeeper(ch.get())) {
 			const auto pers_chest = world_objects.create_from_prototype_by_rnum(system_obj::PERS_CHEST_RNUM);
 			if (!pers_chest) {
 				return;

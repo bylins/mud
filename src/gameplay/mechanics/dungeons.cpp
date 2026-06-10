@@ -553,7 +553,7 @@ void MobDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 		mob_index[mrn_to] = mob_index[i];
 		mob_index[mrn_to].zone = zrn_to;
 		mob_index[mrn_to].vnum = zone_table[zrn_to].vnum * 100 + mob_index[i].vnum % 100;
-		if (mob_index[i].func == shop_ext) {
+		if (specials::IsMobSpecial(mob_index[i].vnum, specials::ESpecial::kShop)) {
 			AddDungeonShopSeller(i, mrn_to);
 		}
 		for (auto &it : mob_proto[mrn_to].dl_list) {
@@ -921,7 +921,7 @@ void MobDataFree(ZoneRnum zrn) {
 	ZoneVnum zvn = zone_table[zrn].vnum;
 
 	for (MobRnum mrn = 0; mrn <= 99; mrn++) {
-		if (mob_index[mrn_start + mrn].func == shop_ext) {
+		if (specials::IsMobSpecial(mob_index[mrn_start + mrn].vnum, specials::ESpecial::kShop)) {
 			RemoveShopSeller(mrn_start + mrn);
 		}
 		mob_proto[mrn_start + mrn].proto_script->clear();
@@ -1034,7 +1034,7 @@ void RemoveShopSeller(MobRnum mrn) {
 		auto it = std::find(shop->mob_vnums().begin(), shop->mob_vnums().end(), mvn);
 		if (it != std::end(shop->mob_vnums())) {
 			shop->remove_mob_vnum(it);
-			mob_index[mrn].func = nullptr;
+			specials::UnregisterMob(mob_index[mrn].vnum, specials::ESpecial::kShop);
 		}
 	}
 }

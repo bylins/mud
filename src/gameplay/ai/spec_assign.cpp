@@ -58,6 +58,15 @@ ESpecial Lookup(const std::unordered_map<int, ESpecial> &m, int vnum) {
 }
 } // namespace
 void RegisterMob(int vnum, ESpecial s) { if (s == ESpecial::kNone) g_mob_specials.erase(vnum); else g_mob_specials[vnum].insert(s); }
+void UnregisterMob(int vnum, ESpecial s) {
+	const auto it = g_mob_specials.find(vnum);
+	if (it != g_mob_specials.end()) {
+		it->second.erase(s);
+		if (it->second.empty()) {
+			g_mob_specials.erase(it);
+		}
+	}
+}
 void RegisterObj(int vnum, ESpecial s) { if (s == ESpecial::kNone) g_obj_specials.erase(vnum); else g_obj_specials[vnum] = s; }
 void RegisterRoom(int vnum, ESpecial s) { if (s == ESpecial::kNone) g_room_specials.erase(vnum); else g_room_specials[vnum] = s; }
 const std::set<ESpecial> &MobSpecials(int vnum) {
