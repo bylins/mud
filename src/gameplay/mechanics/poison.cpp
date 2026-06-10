@@ -86,8 +86,7 @@ namespace {
 				}
 			}
 			if (was_poisoned) {
-				vict->poisoner = ch->get_uid();
-				return true;
+				return true;   // автор отравления уже записан в caster_id наложенных аффектов
 			}
 
 		} else if (spell_id == ESpell::kScopolaPoison) {
@@ -348,9 +347,9 @@ void PerformToxicate(CharData *ch, CharData *vict, int modifier) {
 	af[3].battleflag = kAfSameTime;
 
 	for (auto & i : af) {
+		i.caster_id = ch->get_uid();   // автор отравления -- хранится в аффекте (для засчёта убийства)
 		ImposeAffect(vict, i, false, false, false, false);
 	}
-	vict->poisoner = ch->get_uid();
 
 	snprintf(buf, sizeof(buf), "%sВы отравили $N3.%s", kColorBoldGrn, kColorCyn);
 	act(buf, false, ch, nullptr, vict, kToChar);
@@ -474,6 +473,7 @@ int ProcessPoisonDmg(CharData *ch, const Affect<EApply>::shared_ptr &af) {
 		//poison_dmg = interpolate(poison_dmg, 2); // И как оно должно работать чото нифига не понял, понял только что оно не работает
 		Damage dmg(SpellDmg(ESpell::kPoison), poison_dmg, fight::kPoisonDmg);
 		dmg.flags.set(fight::kNoFleeDmg);
+		dmg.author_uid = af->caster_id;   // отравитель (для засчёта убийства), 0 если автора нет
 		result = dmg.Process(ch, ch);
 	} else if (af->location == EApply::kAconitumPoison) {
 		int aconitum_dmg = af->modifier / 4;
@@ -481,6 +481,7 @@ int ProcessPoisonDmg(CharData *ch, const Affect<EApply>::shared_ptr &af) {
 		Damage dmg(SpellDmg(ESpell::kPoison), aconitum_dmg, fight::kPoisonDmg);
 		dmg.flags.set(fight::kNoFleeDmg);
 		dmg.flags.set(fight::kIgnoreBlink);
+		dmg.author_uid = af->caster_id;
 		result = dmg.Process(ch, ch);
 	}
 	return result;
@@ -505,7 +506,7 @@ void TryDrinkPoison(CharData *ch, ObjData *jar, int amount) {
 		af.affect_type = EAffect::kPoisoned;
 		af.battleflag = kAfSameTime;
 		ImposeAffect(ch, af, false, false, false, false);
-		ch->poisoner = 0;
+		// самоотравление (выпил яд): автора нет -- caster_id аффектов остаётся 0
 	}
 }
 

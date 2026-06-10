@@ -285,11 +285,15 @@ void Damage::ProcessDeath(CharData *ch, CharData *victim) const {
 
 	if (victim->IsNpc() || victim->desc) {
 		if (victim == ch && victim->in_room != kNowhere) {
-			if (spell_id == ESpell::kPoison) {
-				for (const auto poisoner : world[victim->in_room]->people) {
-					if (poisoner != victim
-						&& poisoner->get_uid() == victim->poisoner) {
-						killer = poisoner;
+			// Урон сам себе (тик повреждающего аффекта и т.п.): убийство засчитывается "автору"
+			// урона (author_uid -- обычно caster_id аффекта), если он рядом. Нет автора (0) или
+			// автор сам victim -- не засчитывается. Любой будущий повреждающий аффект просто
+			// выставляет author_uid, отдельная ветка тут не нужна.
+			if (author_uid != 0 && author_uid != victim->get_uid()) {
+				for (const auto author : world[victim->in_room]->people) {
+					if (author != victim && author->get_uid() == author_uid) {
+						killer = author;
+						break;
 					}
 				}
 			} else if (damage_source == fight::EDamageSource::kSuffering) {

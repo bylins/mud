@@ -916,10 +916,8 @@ static void EmitImpositionEffects(CharData *ch, CharData *victim, ESpell spell_i
 			}
 		}
 	}
-	// вот некрасиво же тут это делать...
-	if (spell_id == ESpell::kPoison) {
-		victim->poisoner = ch->get_uid();
-	}
+	// (issue.chardata-poisoner: автор отравления теперь хранится в caster_id самого аффекта,
+	// который выставляется выше при наложении, отдельная запись в CharData больше не нужна.)
 	// Affect imposition messages: looked up by the cast spell and emitted sheaf-directly, so a
 	// spell with no such message shows nothing.
 	const auto &imposed = MUD::SpellMessages()[spell_id];

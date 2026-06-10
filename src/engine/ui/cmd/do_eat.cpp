@@ -211,7 +211,7 @@ void do_eat(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		af.affect_type = EAffect::kPoisoned;
 		af.battleflag = kAfSameTime;
 		ImposeAffect(ch, af, false, false, false, false);
-		ch->poisoner = 0;
+		// отравленная еда -- сам виноват: у аффекта нет автора (caster_id остаётся 0)
 	}
 	if (subcmd == kScmdEat
 		|| (subcmd == kScmdTaste

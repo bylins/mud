@@ -194,7 +194,6 @@ void CharData::reset() {
 	}
 	set_touching(nullptr);
 	battle_affects = clear_flags;
-	poisoner = 0;
 	SetEnemy(nullptr);
 	char_specials.position = EPosition::kStand;
 	mob_specials.default_pos = EPosition::kStand;
@@ -349,7 +348,6 @@ void CharData::zero_init() {
 	initiative = 0;
 	battle_counter = 0;
 	round_counter = 0;
-	poisoner = 0;
 	agrobd = false;
 	extra_attack_ = {};
 	cast_attack_ = {};
