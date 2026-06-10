@@ -562,8 +562,14 @@ void SetScreen(CharData *ch, char *argument, int flag) {
 	else if (flag == 1 && (size < 10 || size > 100))
 		SendMsgToChar("Высота экрана должна быть в пределах 10 - 100 строк.\r\n", ch);
 	else if (!flag) {
-		(ch)->player_specials->saved.stringLength = size;
-		SendMsgToChar("Ладушки.\r\n", ch);
+		std::string out(size + size/100 + 2, '.');
+
+		ch->player_specials->saved.stringLength = size;
+		SendMsgToChar("Выводим тестовую строку:\r\n", ch);
+		for (auto i = 5; i <= size; i +=5) {
+			out.replace(i - 1, i / 100 + 2, std::to_string(i));
+		}
+		SendMsgToChar(ch, "%s\r\n", out.c_str());
 		ch->save_char();
 	} else if (flag == 1) {
 		(ch)->player_specials->saved.stringWidth = size;
