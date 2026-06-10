@@ -857,7 +857,6 @@ class CharData : public ProtectedCharData {
 	void set_master(CharData::ptr_t master);
 	bool has_master() const { return nullptr != m_master; }
 	bool makes_loop(CharData::ptr_t master) const;
-	// MOUNTS
 	bool IsLeader();
 };
 
