@@ -3,6 +3,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "engine/core/handler.h"
+#include "utils/grammar/gender.h"
 #include "gameplay/mechanics/minions.h"
 #include "administration/privilege.h"
 #include "char_player.h"
@@ -725,7 +726,7 @@ void CharData::remove_protecting() {
 			protecting_->who_protecting.erase(it);
 			SendMsgToChar(this, "Вы перестали прикрывать %s.\r\n", 
 				GET_PAD(protecting_, 3));
-			SendMsgToChar(get_protecting(), "%s перестал%s прикрывать вас.\r\n", GET_NAME(this), GET_CH_SUF_1(this));
+			SendMsgToChar(get_protecting(), "%s перестал%s прикрывать вас.\r\n", GET_NAME(this), grammar::SexEnding((this)->get_sex(), 1));
 		}
 	}
 	protecting_ = nullptr;

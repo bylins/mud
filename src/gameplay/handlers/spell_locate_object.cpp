@@ -4,6 +4,7 @@
 */
 
 #include "gameplay/handlers/spell_handlers.h"
+#include "utils/grammar/gender.h"
 #include "gameplay/mechanics/sight.h"
 #include "gameplay/fight/pk.h"
 #include "engine/entities/char_data.h"
@@ -104,7 +105,7 @@ EStageResult SpellLocateObject(CastContext &ctx) {
 			const auto same_zone = world[ch->in_room]->zone_rn == world[carried_by->in_room]->zone_rn;
 			if (!carried_by->IsNpc() || same_zone || bloody_corpse) {
 				sprintf(buf, "%s наход%sся у %s в инвентаре.\r\n", i->get_short_description().c_str(),
-						GET_OBJ_POLY_1(ch, i), PersonName(carried_by, ch, 1));
+						grammar::ObjPluralVerbEnding((i)->get_sex()), PersonName(carried_by, ch, 1));
 			} else {
 				return false;
 			}
@@ -113,7 +114,7 @@ EStageResult SpellLocateObject(CastContext &ctx) {
 			const auto same_zone = world[ch->in_room]->zone_rn == world[room]->zone_rn;
 			if (same_zone) {
 				sprintf(buf, "%s наход%sся в комнате '%s'\r\n",
-						i->get_short_description().c_str(), GET_OBJ_POLY_1(ch, i), world[room]->name);
+						i->get_short_description().c_str(), grammar::ObjPluralVerbEnding((i)->get_sex()), world[room]->name);
 			} else {
 				return false;
 			}
@@ -142,7 +143,7 @@ EStageResult SpellLocateObject(CastContext &ctx) {
 				}
 				sprintf(buf, "%s наход%sся в %s.\r\n",
 						i->get_short_description().c_str(),
-						GET_OBJ_POLY_1(ch, i),
+						grammar::ObjPluralVerbEnding((i)->get_sex()),
 						i->get_in_obj()->get_PName(ECase::kPre).c_str());
 			}
 		} else if (i->get_worn_by()) {
@@ -150,7 +151,7 @@ EStageResult SpellLocateObject(CastContext &ctx) {
 			const auto same_zone = world[ch->in_room]->zone_rn == world[worn_by->in_room]->zone_rn;
 			if (!worn_by->IsNpc() || same_zone || bloody_corpse) {
 				sprintf(buf, "%s надет%s на %s.\r\n", i->get_short_description().c_str(),
-						GET_OBJ_SUF_6(i), PersonName(worn_by, ch, 3));
+						grammar::ObjSexEnding((i)->get_sex(), 6), PersonName(worn_by, ch, 3));
 			} else {
 				return false;
 			}

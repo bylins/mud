@@ -5,6 +5,7 @@
 ******************************************************************************/
 
 #include "house.h"
+#include "utils/grammar/gender.h"
 #include "utils/grammar/declensions.h"
 #include "gameplay/mechanics/minions.h"
 #include "gameplay/ai/special_messages.h"
@@ -2287,7 +2288,7 @@ bool Clan::PutChest(CharData *ch, ObjData *obj, ObjData *chest) {
 		ObjSaveSync::add(ch->get_uid(), CLAN(ch)->GetRent(), ObjSaveSync::CLAN_SAVE);
 
 		CLAN(ch)->chest_log.add(fmt::format("{} сдал{} {}{}\r\n",
-											ch->get_name(), GET_CH_SUF_1(ch), obj->get_PName(ECase::kAcc),
+											ch->get_name(), grammar::SexEnding((ch)->get_sex(), 1), obj->get_PName(ECase::kAcc),
 											clan_get_custom_label(obj, CLAN(ch))));
 
 		// канал хранилища
@@ -2299,7 +2300,7 @@ bool Clan::PutChest(CharData *ch, ObjData *obj, ObjData *chest) {
 				&& CLAN(d->character) == CLAN(ch)
 				&& d->character->IsFlagged(EPrf::kTakeMode)) {
 				SendMsgToChar(d->character.get(), "[Хранилище]: %s'%s сдал%s %s%s.'%s\r\n",
-							  kColorBoldRed, GET_NAME(ch), GET_CH_SUF_1(ch), obj->get_PName(ECase::kAcc).c_str(),
+							  kColorBoldRed, GET_NAME(ch), grammar::SexEnding((ch)->get_sex(), 1), obj->get_PName(ECase::kAcc).c_str(),
 							  clan_get_custom_label(obj, CLAN(ch)).c_str(), kColorNrm);
 			}
 		}
@@ -2331,7 +2332,7 @@ bool Clan::TakeChest(CharData *ch, ObjData *obj, ObjData *chest) {
 
 	if (obj->get_carried_by() == ch) {
 		std::string log_text = fmt::format("{} забрал{} {}{}\r\n",
-										   GET_NAME(ch), GET_CH_SUF_1(ch), obj->get_PName(ECase::kAcc),
+										   GET_NAME(ch), grammar::SexEnding((ch)->get_sex(), 1), obj->get_PName(ECase::kAcc),
 										   clan_get_custom_label(obj, CLAN(ch)));
 		CLAN(ch)->chest_log.add(log_text);
 
@@ -2344,7 +2345,7 @@ bool Clan::TakeChest(CharData *ch, ObjData *obj, ObjData *chest) {
 				&& CLAN(d->character) == CLAN(ch)
 				&& d->character->IsFlagged(EPrf::kTakeMode)) {
 				SendMsgToChar(d->character.get(), "[Хранилище]: %s'%s забрал%s %s%s.'%s\r\n",
-							  kColorBoldRed, GET_NAME(ch), GET_CH_SUF_1(ch),
+							  kColorBoldRed, GET_NAME(ch), grammar::SexEnding((ch)->get_sex(), 1),
 							  obj->get_PName(ECase::kAcc).c_str(),
 							  clan_get_custom_label(obj, CLAN(d->character)).c_str(),
 							  kColorNrm);
@@ -2615,7 +2616,7 @@ bool Clan::BankManage(CharData *ch, char *arg) {
 				fmt::arg("currency", GetDeclensionInNumber(over, EWhat::kMoneyU))) + "\r\n", ch);
 			act(specials::BankMsg(specials::EBankMsg::kFinancialOp), true, ch, nullptr, nullptr, kToRoom);
 			std::string log_text = fmt::format("{} вложил%s в казну {} {}\r\n",
-											   GET_NAME(ch), GET_CH_SUF_1(ch), over,
+											   GET_NAME(ch), grammar::SexEnding((ch)->get_sex(), 1), over,
 											   GetDeclensionInNumber(over, EWhat::kMoneyU));
 			CLAN(ch)->chest_log.add(log_text);
 			return true;
@@ -2627,7 +2628,7 @@ bool Clan::BankManage(CharData *ch, char *arg) {
 		act(specials::BankMsg(specials::EBankMsg::kFinancialOp), true, ch, 0, nullptr, kToRoom);
 		std::string log_text = fmt::format("{} вложил%s в казну {} {}\r\n",
 										   GET_NAME(ch),
-										   GET_CH_SUF_1(ch),
+										   grammar::SexEnding((ch)->get_sex(), 1),
 										   gold,
 										   GetDeclensionInNumber(gold, EWhat::kMoneyU));
 		CLAN(ch)->chest_log.add(log_text);
@@ -2660,7 +2661,7 @@ bool Clan::BankManage(CharData *ch, char *arg) {
 				fmt::arg("currency", GetDeclensionInNumber(over, EWhat::kMoneyU))) + "\r\n", ch);
 			act(specials::BankMsg(specials::EBankMsg::kFinancialOp), true, ch, 0, nullptr, kToRoom);
 			std::string log_text = fmt::format("{} получил%s из казны {} {}\r\n",
-											   GET_NAME(ch), GET_CH_SUF_1(ch), over,
+											   GET_NAME(ch), grammar::SexEnding((ch)->get_sex(), 1), over,
 											   GetDeclensionInNumber(over, EWhat::kMoneyU));
 			CLAN(ch)->chest_log.add(log_text);
 			return true;
@@ -2671,7 +2672,7 @@ bool Clan::BankManage(CharData *ch, char *arg) {
 		SendMsgToChar(fmt::format(fmt::runtime(specials::BankMsg(specials::EBankMsg::kWithdrawn)), fmt::arg("amount", gold), fmt::arg("currency", GetDeclensionInNumber(gold, EWhat::kMoneyU))) + "\r\n", ch);
 		act(specials::BankMsg(specials::EBankMsg::kFinancialOp), true, ch, nullptr, nullptr, kToRoom);
 		std::string log_text = fmt::format("{} получил%s из казны {} {}\r\n",
-										   GET_NAME(ch), GET_CH_SUF_1(ch),
+										   GET_NAME(ch), grammar::SexEnding((ch)->get_sex(), 1),
 										   gold, GetDeclensionInNumber(gold, EWhat::kMoneyU));
 		CLAN(ch)->chest_log.add(log_text);
 		return true;
@@ -3378,7 +3379,7 @@ void Clan::ClanAddMember(CharData *ch, int rank, std::string invite_name) {
 						  "%s%s приписан%s к вашей дружине, статус - '%s'.%s\r\n",
 						  kColorWht,
 						  GET_NAME(ch),
-						  GET_CH_SUF_6(ch),
+						  grammar::SexEnding((ch)->get_sex(), 6),
 						  (this->ranks[rank]).c_str(),
 						  kColorNrm);
 		}
@@ -4008,11 +4009,11 @@ void Clan::clan_invoice(CharData *ch, bool enter) {
 			if (enter) {
 				SendMsgToChar(d->character.get(), "%sДружинни%s %s вош%s в мир.%s\r\n",
 							  kColorBoldBlk, IS_MALE(ch) ? "к" : "ца", GET_NAME(ch),
-							  GET_CH_SUF_5(ch), kColorNrm);
+							  grammar::SexEnding((ch)->get_sex(), 5), kColorNrm);
 			} else {
 				SendMsgToChar(d->character.get(), "%sДружинни%s %s покинул%s мир.%s\r\n",
 							  kColorBoldBlk, IS_MALE(ch) ? "к" : "ца", GET_NAME(ch),
-							  GET_CH_SUF_1(ch), kColorNrm);
+							  grammar::SexEnding((ch)->get_sex(), 1), kColorNrm);
 			}
 		}
 	}
@@ -4027,7 +4028,7 @@ std::string Clan::print_imm_where_obj(const ObjData *obj) {
 				for (ObjData *chest_content = chest->get_contains(); chest_content; chest_content = chest_content->get_next_content()) {
 					if (obj->get_id() == chest_content->get_id()) {
 						str = fmt::format("наход{}ся в хранилище дружины '{}'.\r\n",
-								  GET_OBJ_POLY_1(ch, (chest_content)),
+								  grammar::ObjPluralVerbEnding(((chest_content))->get_sex()),
 								  ptr_clan->GetAbbrev());
 						return str;
 					}
@@ -4059,7 +4060,7 @@ int Clan::print_spell_locate_object(CharData *ch, int count, std::string name) {
 
 					sprintf(buf, "%s наход%sся в хранилище дружины '%s'.",
 							temp->get_short_description().c_str(),
-							GET_OBJ_POLY_1(ch, temp),
+							grammar::ObjPluralVerbEnding((temp)->get_sex()),
 							(*clan)->GetAbbrev());
 //					CAP(buf);
 					if (ch->IsGrGod()) {

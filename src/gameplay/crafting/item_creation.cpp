@@ -7,6 +7,7 @@
 *  $Revision$                                                     *
 ************************************************************************ */
 #include "item_creation.h"
+#include "utils/grammar/gender.h"
 
 #include "engine/db/obj_prototypes.h"
 #include "engine/core/handler.h"
@@ -2280,30 +2281,30 @@ char *format_act(const char *orig, CharData *ch, ObjData *obj, const void *vict_
 					//dg_victim = (CharacterData *) vict_obj;
 					break;
 
-				case 'm': i = HMHR(ch);
+				case 'm': i = grammar::DativePronoun((ch)->get_sex());
 					break;
 				case 'M':
 					if (vict_obj)
-						i = HMHR((const CharData *) vict_obj);
-					else CHECK_NULL(obj, OMHR(obj));
+						i = grammar::DativePronoun(((const CharData *) vict_obj)->get_sex());
+					else CHECK_NULL(obj, grammar::DativePronoun((obj)->get_sex()));
 					//dg_victim = (CharacterData *) vict_obj;
 					break;
 
-				case 's': i = HSHR(ch);
+				case 's': i = grammar::PossessivePronoun((ch)->get_sex());
 					break;
 				case 'S':
 					if (vict_obj)
-						i = HSHR((const CharData *) vict_obj);
-					else CHECK_NULL(obj, OSHR(obj));
+						i = grammar::PossessivePronoun(((const CharData *) vict_obj)->get_sex());
+					else CHECK_NULL(obj, grammar::PossessivePronoun((obj)->get_sex()));
 					//dg_victim = (CharacterData *) vict_obj;
 					break;
 
-				case 'e': i = HSSH(ch);
+				case 'e': i = grammar::PersonalPronoun((ch)->get_sex());
 					break;
 				case 'E':
 					if (vict_obj)
-						i = HSSH((const CharData *) vict_obj);
-					else CHECK_NULL(obj, OSSH(obj));
+						i = grammar::PersonalPronoun(((const CharData *) vict_obj)->get_sex());
+					else CHECK_NULL(obj, grammar::PersonalPronoun((obj)->get_sex()));
 					break;
 
 				case 'o':
@@ -2338,68 +2339,68 @@ char *format_act(const char *orig, CharData *ch, ObjData *obj, const void *vict_
 				case '$': i = "$";
 					break;
 
-				case 'a': i = GET_CH_SUF_6(ch);
+				case 'a': i = grammar::SexEnding((ch)->get_sex(), 6);
 					break;
 				case 'A':
 					if (vict_obj)
-						i = GET_CH_SUF_6((const CharData *) vict_obj);
-					else CHECK_NULL(obj, GET_OBJ_SUF_6(obj));
+						i = grammar::SexEnding(((const CharData *) vict_obj)->get_sex(), 6);
+					else CHECK_NULL(obj, grammar::ObjSexEnding((obj)->get_sex(), 6));
 					//dg_victim = (CharacterData *) vict_obj;
 					break;
 
-				case 'g': i = GET_CH_SUF_1(ch);
+				case 'g': i = grammar::SexEnding((ch)->get_sex(), 1);
 					break;
 				case 'G':
 					if (vict_obj)
-						i = GET_CH_SUF_1((const CharData *) vict_obj);
-					else CHECK_NULL(obj, GET_OBJ_SUF_1(obj));
+						i = grammar::SexEnding(((const CharData *) vict_obj)->get_sex(), 1);
+					else CHECK_NULL(obj, grammar::ObjSexEnding((obj)->get_sex(), 1));
 					//dg_victim = (CharacterData *) vict_obj;
 					break;
 
-				case 'y': i = GET_CH_SUF_5(ch);
+				case 'y': i = grammar::SexEnding((ch)->get_sex(), 5);
 					break;
 				case 'Y':
 					if (vict_obj)
-						i = GET_CH_SUF_5((const CharData *) vict_obj);
-					else CHECK_NULL(obj, GET_OBJ_SUF_5(obj));
+						i = grammar::SexEnding(((const CharData *) vict_obj)->get_sex(), 5);
+					else CHECK_NULL(obj, grammar::ObjSexEnding((obj)->get_sex(), 5));
 					//dg_victim = (CharacterData *) vict_obj;
 					break;
 
-				case 'u': i = GET_CH_SUF_2(ch);
+				case 'u': i = grammar::SexEnding((ch)->get_sex(), 2);
 					break;
 				case 'U':
 					if (vict_obj)
-						i = GET_CH_SUF_2((const CharData *) vict_obj);
-					else CHECK_NULL(obj, GET_OBJ_SUF_2(obj));
+						i = grammar::SexEnding(((const CharData *) vict_obj)->get_sex(), 2);
+					else CHECK_NULL(obj, grammar::ObjSexEnding((obj)->get_sex(), 2));
 					//dg_victim = (CharacterData *) vict_obj;
 					break;
 
-				case 'w': i = GET_CH_SUF_3(ch);
+				case 'w': i = grammar::SexEnding((ch)->get_sex(), 3);
 					break;
 				case 'W':
 					if (vict_obj)
-						i = GET_CH_SUF_3((const CharData *) vict_obj);
-					else CHECK_NULL(obj, GET_OBJ_SUF_3(obj));
+						i = grammar::SexEnding(((const CharData *) vict_obj)->get_sex(), 3);
+					else CHECK_NULL(obj, grammar::ObjSexEnding((obj)->get_sex(), 3));
 					//dg_victim = (CharacterData *) vict_obj;
 					break;
 
-				case 'q': i = GET_CH_SUF_4(ch);
+				case 'q': i = grammar::SexEnding((ch)->get_sex(), 4);
 					break;
 				case 'Q':
 					if (vict_obj)
-						i = GET_CH_SUF_4((const CharData *) vict_obj);
-					else CHECK_NULL(obj, GET_OBJ_SUF_4(obj));
+						i = grammar::SexEnding(((const CharData *) vict_obj)->get_sex(), 4);
+					else CHECK_NULL(obj, grammar::ObjSexEnding((obj)->get_sex(), 4));
 					//dg_victim = (CharacterData *) vict_obj;
 					break;
 				case 'z':
 					if (obj)
-						i = OYOU(obj);
-					else CHECK_NULL(obj, OYOU(obj));
+						i = grammar::PossessiveYourObj((obj)->get_sex());
+					else CHECK_NULL(obj, grammar::PossessiveYourObj((obj)->get_sex()));
 					break;
 				case 'Z':
 					if (vict_obj)
-						i = HYOU((const CharData *) vict_obj);
-					else CHECK_NULL(vict_obj, HYOU((const CharData *) vict_obj));
+						i = grammar::PossessiveYour(((const CharData *) vict_obj)->get_sex());
+					else CHECK_NULL(vict_obj, grammar::PossessiveYour(((const CharData *) vict_obj)->get_sex()));
 					break;
 				default: log("SYSERR: Illegal $-code to act(): %c", *orig);
 					log("SYSERR: %s", orig);

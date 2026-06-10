@@ -4,6 +4,7 @@
 */
 
 #include "gameplay/mechanics/magic_item.h"
+#include "utils/grammar/gender.h"
 #include "gameplay/magic/spells.h"
 #include "gameplay/magic/magic.h"
 #include "gameplay/magic/magic_internal.h"
@@ -425,7 +426,7 @@ int CheckRecipeItems(CharData *ch, ESpell spell_id, ESpellType spell_type, int e
 			} else if (spell_type == ESpellType::kRunes) {
 				sprintf(buf + strlen(buf),
 						"котор%s вспыхнул%s ярким светом.%s",
-						num > 1 ? "ые" : GET_OBJ_SUF_3(objo), num > 1 ? "и" : GET_OBJ_SUF_1(objo),
+						num > 1 ? "ые" : grammar::ObjSexEnding((objo)->get_sex(), 3), num > 1 ? "и" : grammar::ObjSexEnding((objo)->get_sex(), 1),
 						ch->IsFlagged(EPrf::kCompact) ? "" : "\r\n");
 				act(buf, false, ch, nullptr, nullptr, kToChar);
 				act("$n сложил$g руны, которые вспыхнули ярким пламенем.",

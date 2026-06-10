@@ -7,6 +7,7 @@
 */
 
 #include "engine/entities/char_data.h"
+#include "utils/grammar/gender.h"
 #include "gameplay/communication/remember.h"
 #include "gameplay/core/constants.h"
 #include "gameplay/communication/talk.h"
@@ -51,7 +52,7 @@ void do_gsay(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				sprintf(buf1,
 						"%s сообщил%s группе : '%s'\r\n",
 						tell_can_see(ch, k) ? ch->get_name().c_str() : "Кто-то",
-						GET_CH_VIS_SUF_1(ch, k),
+						grammar::VisSexEnding(CanSee((k), (ch)), (ch)->get_sex(), 1),
 						argument);
 				k->remember_add(buf1, Remember::ALL);
 				k->remember_add(buf1, Remember::GROUP);
@@ -67,7 +68,7 @@ void do_gsay(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					sprintf(buf1,
 							"%s сообщил%s группе : '%s'\r\n",
 							tell_can_see(ch, f) ? ch->get_name().c_str() : "Кто-то",
-							GET_CH_VIS_SUF_1(ch, f),
+							grammar::VisSexEnding(CanSee((f), (ch)), (ch)->get_sex(), 1),
 							argument);
 					f->remember_add(buf1, Remember::ALL);
 					f->remember_add(buf1, Remember::GROUP);

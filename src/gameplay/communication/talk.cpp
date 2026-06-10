@@ -7,6 +7,7 @@
 */
 
 #include "engine/entities/char_data.h"
+#include "utils/grammar/gender.h"
 #include "engine/ui/color.h"
 #include "remember.h"
 #include "gameplay/mechanics/sight.h"
@@ -22,7 +23,7 @@ void tell_to_char(CharData *keeper, CharData *ch, const char *argument) {
 		return;
 	}
 	snprintf(local_buf, kMaxInputLength,
-			 "%s сказал%s вам : '%s'", GET_NAME(keeper), GET_CH_SUF_1(keeper), argument);
+			 "%s сказал%s вам : '%s'", GET_NAME(keeper), grammar::SexEnding((keeper)->get_sex(), 1), argument);
 	SendMsgToChar(ch, "%s%s%s\r\n",
 				  kColorBoldCyn, utils::CAP(local_buf), kColorNrm);
 }
@@ -86,7 +87,7 @@ void perform_tell(CharData *ch, CharData *vict, char *arg) {
 
 	// TODO: если в act() останется показ иммов, то это и эхо ниже переделать на act()
 	if (tell_can_see(ch, vict)) {
-		snprintf(buf, kMaxStringLength, "%s сказал%s вам : '%s'", GET_NAME(ch), GET_CH_SUF_1(ch), arg);
+		snprintf(buf, kMaxStringLength, "%s сказал%s вам : '%s'", GET_NAME(ch), grammar::SexEnding((ch)->get_sex(), 1), arg);
 	} else {
 		snprintf(buf, kMaxStringLength, "Кто-то сказал вам : '%s'", arg);
 	}

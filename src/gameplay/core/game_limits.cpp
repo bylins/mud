@@ -13,6 +13,7 @@
 ************************************************************************ */
 
 #include "gameplay/core/game_limits.h"
+#include "utils/grammar/gender.h"
 #include "gameplay/mechanics/minions.h"
 #include "gameplay/mechanics/mount.h"
 
@@ -1278,7 +1279,7 @@ void exchange_point_update() {
 			std::string cap = GET_EXCHANGE_ITEM(exch_item)->get_PName(ECase::kNom);
 			cap[0] = UPPER(cap[0]);
 			sprintf(buf, "Exchange: - %s рассыпал%s от длительного использования.\r\n",
-					cap.c_str(), GET_OBJ_SUF_2(GET_EXCHANGE_ITEM(exch_item)));
+					cap.c_str(), grammar::ObjSexEnding((GET_EXCHANGE_ITEM(exch_item))->get_sex(), 2));
 			log("%s", buf);
 			extract_exchange_item(exch_item);
 		}
@@ -1308,7 +1309,7 @@ void clan_chest_invoice(ObjData *j) {
 						  kColorBoldRed,
 						  j->get_short_description().c_str(),
 						  clan_get_custom_label(j, CLAN(d->character)).c_str(),
-						  GET_OBJ_SUF_2(j),
+						  grammar::ObjSexEnding((j)->get_sex(), 2),
 						  kColorNrm);
 		}
 	}
@@ -1318,7 +1319,7 @@ void clan_chest_invoice(ObjData *j) {
 			std::string log_text = fmt::format("{}{} рассыпал{} в прах\r\n",
 												  j->get_short_description(),
 												  clan_get_custom_label(j, i),
-												  GET_OBJ_SUF_2(j));
+												  grammar::ObjSexEnding((j)->get_sex(), 2));
 			i->chest_log.add(log_text);
 			return;
 		}
@@ -1362,10 +1363,10 @@ void charmee_obj_decay_tell(CharData *charmee, ObjData *obj, ECharmeeObjPos obj_
 	cap[0] = UPPER(cap[0]);
 	snprintf(local_buf, kMaxStringLength, "%s сказал%s вам : '%s%s рассыпал%s %s...'",
 			 GET_NAME(charmee),
-			 GET_CH_SUF_1(charmee),
+			 grammar::SexEnding((charmee)->get_sex(), 1),
 			 cap.c_str(),
 			 char_get_custom_label(obj, charmee->get_master()).c_str(),
-			 GET_OBJ_SUF_2(obj),
+			 grammar::ObjSexEnding((obj)->get_sex(), 2),
 			 local_buf1);
 	SendMsgToChar(charmee->get_master(),
 				  "%s%s%s\r\n",

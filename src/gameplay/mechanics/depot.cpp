@@ -3,6 +3,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "depot.h"
+#include "utils/grammar/gender.h"
 #include "utils/grammar/declensions.h"
 
 #include "engine/db/world_characters.h"
@@ -235,7 +236,7 @@ std::string generate_purged_text(long uid, int obj_vnum, unsigned int obj_uid) {
 			std::ostringstream text;
 			text << "[Персональное хранилище]: " << kColorBoldRed << "'"
 				 << obj->get_short_description() << char_get_custom_label(obj.get(), ch)
-				 << " рассыпал" << GET_OBJ_SUF_2(obj.get())
+				 << " рассыпал" << grammar::ObjSexEnding((obj.get())->get_sex(), 2)
 				 << " в прах'" << kColorNrm << "\r\n";
 			ExtractObjFromWorld(obj.get());
 			return text.str();
@@ -627,7 +628,7 @@ void CharNode::update_online_item() {
 					SendMsgToChar(ch, "[Персональное хранилище]: %s'%s%s рассыпал%s в прах'%s\r\n",
 								  kColorBoldRed, (*obj_it)->get_short_description().c_str(),
 								  char_get_custom_label(obj_it->get(), ch).c_str(),
-								  GET_OBJ_SUF_2((*obj_it)), kColorNrm);
+								  grammar::ObjSexEnding(((*obj_it))->get_sex(), 2), kColorNrm);
 				} else {
 					add_purged_message(ch->get_uid(), GET_OBJ_VNUM(obj_it->get()), (*obj_it)->get_unique_id());
 				}
@@ -1421,7 +1422,7 @@ std::string PrintSpellLocateObject(CharData *ch, ObjData *obj) {
 				}
 			}
 			if (obj->get_id() == obj_it->get_id()) {
-				return fmt::format("{} наход{}ся у кого-то в персональном хранилище.\r\n", obj_it->get_short_description().c_str(), GET_OBJ_POLY_1(ch, obj_it));
+				return fmt::format("{} наход{}ся у кого-то в персональном хранилище.\r\n", obj_it->get_short_description().c_str(), grammar::ObjPluralVerbEnding((obj_it)->get_sex()));
 			}
 		}
 	}
@@ -1435,7 +1436,7 @@ std::string print_imm_where_obj(const ObjData *obj) {
 			 ++obj_it) {
 			if (obj->get_id() ==  (*obj_it)->get_id()) {
 				str = fmt::format("наход{}ся в персональном хранилище ({}).\r\n",
-						GET_OBJ_POLY_1(ch, (*obj_it)),
+						grammar::ObjPluralVerbEnding(((*obj_it))->get_sex()),
 						it->second.name.c_str());
 				return str;
 			}

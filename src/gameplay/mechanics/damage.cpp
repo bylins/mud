@@ -7,6 +7,7 @@
 */
 
 #include "damage.h"
+#include "utils/grammar/gender.h"
 #include "gameplay/mechanics/minions.h"
 #include "gameplay/mechanics/mount.h"
 #include "gameplay/mechanics/resist.h"
@@ -838,7 +839,7 @@ void TryRemoveExtrahits(CharData *ch, CharData *victim) {
 	{
 		victim->set_hit(victim->get_real_max_hit());
 		SendMsgToChar(victim, "%s'Будь%s тощ%s аки прежде' - мелькнула чужая мысль в вашей голове.%s\r\n",
-					  kColorWht, GET_CH_POLY_1(victim), GET_CH_EXSUF_1(victim), kColorNrm);
+					  kColorWht, grammar::PluralVerbEnding(IS_POLY(victim)), grammar::InstrEnding((victim)->get_sex()), kColorNrm);
 		act("Вы прервали золотистую нить, питающую $N3 жизнью.", false, ch, nullptr, victim, kToChar);
 		act("$n прервал$g золотистую нить, питающую $N3 жизнью.", false, ch, nullptr, victim, kToNotVict | kToArenaListen);
 	}

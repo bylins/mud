@@ -7,6 +7,7 @@
 */
 
 #include "punctual_style.h"
+#include "utils/grammar/gender.h"
 #include "gameplay/mechanics/mount.h"
 #include "gameplay/mechanics/resist.h"
 
@@ -609,34 +610,34 @@ void PerformPunctualHit(CharData *ch, CharData *victim, HitData &hit_data) {
 		obj = UnequipChar(victim, unequip_pos, CharEquipFlags());
 		switch (unequip_pos) {
 			case 6:        //WEAR_HEAD
-				sprintf(buf, "%s слетел%s с вашей головы.", obj->get_PName(ECase::kNom).c_str(), GET_OBJ_SUF_1(obj));
+				sprintf(buf, "%s слетел%s с вашей головы.", obj->get_PName(ECase::kNom).c_str(), grammar::ObjSexEnding((obj)->get_sex(), 1));
 				act(buf, false, ch, nullptr, victim, kToVict);
-				sprintf(buf, "%s слетел%s с головы $N1.", obj->get_PName(ECase::kNom).c_str(), GET_OBJ_SUF_1(obj));
+				sprintf(buf, "%s слетел%s с головы $N1.", obj->get_PName(ECase::kNom).c_str(), grammar::ObjSexEnding((obj)->get_sex(), 1));
 				act(buf, false, ch, nullptr, victim, kToChar);
 				act(buf, true, ch, nullptr, victim, kToNotVict | kToArenaListen);
 				break;
 
 			case 11:    //WEAR_SHIELD
-				sprintf(buf, "%s слетел%s с вашей руки.", obj->get_PName(ECase::kNom).c_str(), GET_OBJ_SUF_1(obj));
+				sprintf(buf, "%s слетел%s с вашей руки.", obj->get_PName(ECase::kNom).c_str(), grammar::ObjSexEnding((obj)->get_sex(), 1));
 				act(buf, false, ch, nullptr, victim, kToVict);
-				sprintf(buf, "%s слетел%s с руки $N1.", obj->get_PName(ECase::kNom).c_str(), GET_OBJ_SUF_1(obj));
+				sprintf(buf, "%s слетел%s с руки $N1.", obj->get_PName(ECase::kNom).c_str(), grammar::ObjSexEnding((obj)->get_sex(), 1));
 				act(buf, false, ch, nullptr, victim, kToChar);
 				act(buf, true, ch, nullptr, victim, kToNotVict | kToArenaListen);
 				break;
 
 			case 16:    //WEAR_WIELD
 			case 17:    //WEAR_HOLD
-				sprintf(buf, "%s выпал%s из вашей руки.", obj->get_PName(ECase::kNom).c_str(), GET_OBJ_SUF_1(obj));
+				sprintf(buf, "%s выпал%s из вашей руки.", obj->get_PName(ECase::kNom).c_str(), grammar::ObjSexEnding((obj)->get_sex(), 1));
 				act(buf, false, ch, nullptr, victim, kToVict);
-				sprintf(buf, "%s выпал%s из руки $N1.", obj->get_PName(ECase::kNom).c_str(), GET_OBJ_SUF_1(obj));
+				sprintf(buf, "%s выпал%s из руки $N1.", obj->get_PName(ECase::kNom).c_str(), grammar::ObjSexEnding((obj)->get_sex(), 1));
 				act(buf, false, ch, nullptr, victim, kToChar);
 				act(buf, true, ch, nullptr, victim, kToNotVict | kToArenaListen);
 				break;
 
 			case 18:    //WEAR_BOTHS
-				sprintf(buf, "%s выпал%s из ваших рук.", obj->get_PName(ECase::kNom).c_str(), GET_OBJ_SUF_1(obj));
+				sprintf(buf, "%s выпал%s из ваших рук.", obj->get_PName(ECase::kNom).c_str(), grammar::ObjSexEnding((obj)->get_sex(), 1));
 				act(buf, false, ch, nullptr, victim, kToVict);
-				sprintf(buf, "%s выпал%s из рук $N1.", obj->get_PName(ECase::kNom).c_str(), GET_OBJ_SUF_1(obj));
+				sprintf(buf, "%s выпал%s из рук $N1.", obj->get_PName(ECase::kNom).c_str(), grammar::ObjSexEnding((obj)->get_sex(), 1));
 				act(buf, false, ch, nullptr, victim, kToChar);
 				act(buf, true, ch, nullptr, victim, kToNotVict | kToArenaListen);
 				break;

@@ -3,6 +3,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "spells.h"
+#include "utils/grammar/gender.h"
 #include "utils/grammar/declensions.h"
 
 #include "engine/entities/obj_data.h"
@@ -76,16 +77,16 @@ void PrepareSpellRemoving(ObjData *obj, ESpell spell_id, bool send_message) {
 
 			case ESpell::kFly:
 				SendMsgToChar(ch, "Ваш%s %s перестал%s парить в воздухе.\r\n",
-							  GET_OBJ_VIS_SUF_7(obj, ch),
+							  grammar::ObjVisSexEnding(CanSeeObj((ch), (obj)), (obj)->get_sex(), 7),
 							  obj->get_PName(ECase::kNom).c_str(),
-							  GET_OBJ_VIS_SUF_1(obj, ch));
+							  grammar::ObjVisSexEnding(CanSeeObj((ch), (obj)), (obj)->get_sex(), 1));
 				break;
 
 			case ESpell::kLight:
 				SendMsgToChar(ch, "Ваш%s %s перестал%s светиться.\r\n",
-							  GET_OBJ_VIS_SUF_7(obj, ch),
+							  grammar::ObjVisSexEnding(CanSeeObj((ch), (obj)), (obj)->get_sex(), 7),
 							  obj->get_PName(ECase::kNom).c_str(),
-							  GET_OBJ_VIS_SUF_1(obj, ch));
+							  grammar::ObjVisSexEnding(CanSeeObj((ch), (obj)), (obj)->get_sex(), 1));
 				break;
 			default: break;
 		}

@@ -6,6 +6,7 @@
 */
 
 #include "sight.h"
+#include "utils/grammar/gender.h"
 #include "utils/grammar/cases.h"
 #include "utils/grammar/declensions.h"
 #include "gameplay/mechanics/mount.h"
@@ -1158,7 +1159,7 @@ void look_in_obj(CharData *ch, char *arg) {
 			if (IS_SET(GET_OBJ_VAL((obj), 1), (EContainerFlag::kShutted))) {
 				act("Закрыт$A.", false, ch, obj, nullptr, kToChar);
 				const int skill_pick = ch->GetSkill(ESkill::kPickLock);
-				int count = sprintf(buf, "Заперт%s.", GET_OBJ_SUF_6(obj));
+				int count = sprintf(buf, "Заперт%s.", grammar::ObjSexEnding((obj)->get_sex(), 6));
 				if (IS_SET(GET_OBJ_VAL((obj), 1), (EContainerFlag::kLockedUp)) && skill_pick) {
 					if (IS_SET(GET_OBJ_VAL((obj), 1), (EContainerFlag::kUncrackable)))
 						count += sprintf(buf + count,
@@ -1194,7 +1195,7 @@ void look_in_obj(CharData *ch, char *arg) {
 						   выраженные числами от 0 до 5. (причем 5 будет лишь при полностью полном контейнере)
 						*/
 						amt = std::clamp((obj->get_weight() * 100) / (GET_OBJ_VAL(obj, 0) * 20), 0, 5);
-						sprintf(buf, "Заполнен%s содержимым %s:\r\n", GET_OBJ_SUF_6(obj), fullness[amt]);
+						sprintf(buf, "Заполнен%s содержимым %s:\r\n", grammar::ObjSexEnding((obj)->get_sex(), 6), fullness[amt]);
 						SendMsgToChar(buf, ch);
 					}
 					list_obj_to_char(obj->get_contains(), ch, 1, bits != EFind::kObjRoom);
@@ -1264,7 +1265,7 @@ const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_s
 				if (GET_OBJ_VAL(object, 2) == -1)
 					strcpy(buf2, " (вечный свет)");
 				else if (GET_OBJ_VAL(object, 2) == 0)
-					sprintf(buf2, " (погас%s)", GET_OBJ_SUF_4(object));
+					sprintf(buf2, " (погас%s)", grammar::ObjSexEnding((object)->get_sex(), 4));
 				else
 					sprintf(buf2, " (%d %s)",
 							GET_OBJ_VAL(object, 2), GetDeclensionInNumber(GET_OBJ_VAL(object, 2), EWhat::kHour));
@@ -1290,7 +1291,7 @@ const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_s
 					strcat(buf2, " (есть содержимое)");
 				} else {
 					if (GET_OBJ_VAL(object, 3) < 1) // есть ключ для открытия, пустоту не показываем2
-						sprintf(buf2 + strlen(buf2), " (пуст%s)", GET_OBJ_SUF_6(object));
+						sprintf(buf2 + strlen(buf2), " (пуст%s)", grammar::ObjSexEnding((object)->get_sex(), 6));
 				}
 			}
 			if ((object->get_type() == EObjType::kNote) && !object->get_action_description().empty()) {
@@ -1303,7 +1304,7 @@ const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_s
 				if (GET_OBJ_VAL(object, 2) == -1) {
 					sprintf(buf2, "\r\n%s дает вечный свет.", obj_name.c_str());
 				} else if (GET_OBJ_VAL(object, 2) == 0) {
-					sprintf(buf2, "\r\n%s погас%s.", obj_name.c_str(), GET_OBJ_SUF_4(object));
+					sprintf(buf2, "\r\n%s погас%s.", obj_name.c_str(), grammar::ObjSexEnding((object)->get_sex(), 4));
 				} else {
 					sprintf(buf2, "\r\n%s будет светить %d %s.", obj_name.c_str(), GET_OBJ_VAL(object, 2),
 							GetDeclensionInNumber(GET_OBJ_VAL(object, 2), EWhat::kHour));
@@ -1319,7 +1320,7 @@ const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_s
 	}
 	if (mode != 3 && how <= 1) {
 		if (object->has_flag(EObjFlag::kInvisible)) {
-			sprintf(buf2, " (невидим%s)", GET_OBJ_SUF_6(object));
+			sprintf(buf2, " (невидим%s)", grammar::ObjSexEnding((object)->get_sex(), 6));
 			strcat(buf, buf2);
 		}
 		if (object->has_flag(EObjFlag::kBless)
@@ -1330,7 +1331,7 @@ const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_s
 			strcat(buf, " ..желтая аура!");
 		if (object->has_flag(EObjFlag::kPoisoned)
 			&& AFF_FLAGGED(ch, EAffect::kDetectPoison)) {
-			sprintf(buf2, "..отравлен%s!", GET_OBJ_SUF_6(object));
+			sprintf(buf2, "..отравлен%s!", grammar::ObjSexEnding((object)->get_sex(), 6));
 			strcat(buf, buf2);
 		}
 		if (object->has_flag(EObjFlag::kGlow))
@@ -1340,7 +1341,7 @@ const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_s
 		if (object->has_flag(EObjFlag::kFire))
 			strcat(buf, " ..горит!");
 		if (object->has_flag(EObjFlag::kBloody)) {
-			sprintf(buf2, " %s..покрыт%s кровью!%s", kColorBoldRed, GET_OBJ_SUF_6(object), kColorNrm);
+			sprintf(buf2, " %s..покрыт%s кровью!%s", kColorBoldRed, grammar::ObjSexEnding((object)->get_sex(), 6), kColorNrm);
 			strcat(buf, buf2);
 		}
 	}
@@ -1485,22 +1486,22 @@ void diag_char_to_char(CharData *i, CharData *ch) {
 	utils::CAP(buf);
 
 	if (percent >= 100) {
-		sprintf(buf2, " невредим%s", GET_CH_SUF_6(i));
+		sprintf(buf2, " невредим%s", grammar::SexEnding((i)->get_sex(), 6));
 		strcat(buf, buf2);
 	} else if (percent >= 90) {
-		sprintf(buf2, " слегка поцарапан%s", GET_CH_SUF_6(i));
+		sprintf(buf2, " слегка поцарапан%s", grammar::SexEnding((i)->get_sex(), 6));
 		strcat(buf, buf2);
 	} else if (percent >= 75) {
-		sprintf(buf2, " легко ранен%s", GET_CH_SUF_6(i));
+		sprintf(buf2, " легко ранен%s", grammar::SexEnding((i)->get_sex(), 6));
 		strcat(buf, buf2);
 	} else if (percent >= 50) {
-		sprintf(buf2, " ранен%s", GET_CH_SUF_6(i));
+		sprintf(buf2, " ранен%s", grammar::SexEnding((i)->get_sex(), 6));
 		strcat(buf, buf2);
 	} else if (percent >= 30) {
-		sprintf(buf2, " тяжело ранен%s", GET_CH_SUF_6(i));
+		sprintf(buf2, " тяжело ранен%s", grammar::SexEnding((i)->get_sex(), 6));
 		strcat(buf, buf2);
 	} else if (percent >= 15) {
-		sprintf(buf2, " смертельно ранен%s", GET_CH_SUF_6(i));
+		sprintf(buf2, " смертельно ранен%s", grammar::SexEnding((i)->get_sex(), 6));
 		strcat(buf, buf2);
 	} else if (percent >= 0)
 		strcat(buf, " в ужасном состоянии");
@@ -1537,7 +1538,7 @@ void diag_char_to_char(CharData *i, CharData *ch) {
 
 	if (AFF_FLAGGED(ch, EAffect::kDetectPoison))
 		if (AFF_FLAGGED(i, EAffect::kPoisoned)) {
-			sprintf(buf2, " (отравлен%s)", GET_CH_SUF_6(i));
+			sprintf(buf2, " (отравлен%s)", grammar::SexEnding((i)->get_sex(), 6));
 			strcat(buf, buf2);
 		}
 
@@ -1827,11 +1828,11 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 			}
 		}
 		if (AFF_FLAGGED(i, EAffect::kInvisible))
-			sprintf(buf + strlen(buf), "(невидим%s) ", GET_CH_SUF_6(i));
+			sprintf(buf + strlen(buf), "(невидим%s) ", grammar::SexEnding((i)->get_sex(), 6));
 		if (AFF_FLAGGED(i, EAffect::kHide))
-			sprintf(buf + strlen(buf), "(спрятал%s) ", GET_CH_SUF_2(i));
+			sprintf(buf + strlen(buf), "(спрятал%s) ", grammar::SexEnding((i)->get_sex(), 2));
 		if (AFF_FLAGGED(i, EAffect::kDisguise))
-			sprintf(buf + strlen(buf), "(замаскировал%s) ", GET_CH_SUF_2(i));
+			sprintf(buf + strlen(buf), "(замаскировал%s) ", grammar::SexEnding((i)->get_sex(), 2));
 		if (AFF_FLAGGED(i, EAffect::kFly))
 			strcat(buf, IS_POLY(i) ? "(летят) " : "(летит) ");
 		if (AFF_FLAGGED(i, EAffect::kHorse))
@@ -1859,13 +1860,13 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 
 	snprintf(buf, kMaxStringLength, "%s%s", AFF_FLAGGED(i, EAffect::kCharmed) ? "*" : "", buf1);
 	if (AFF_FLAGGED(i, EAffect::kInvisible))
-		sprintf(buf + strlen(buf), "(невидим%s) ", GET_CH_SUF_6(i));
+		sprintf(buf + strlen(buf), "(невидим%s) ", grammar::SexEnding((i)->get_sex(), 6));
 	if (AFF_FLAGGED(i, EAffect::kHide))
-		sprintf(buf + strlen(buf), "(спрятал%s) ", GET_CH_SUF_2(i));
+		sprintf(buf + strlen(buf), "(спрятал%s) ", grammar::SexEnding((i)->get_sex(), 2));
 	if (AFF_FLAGGED(i, EAffect::kDisguise))
-		sprintf(buf + strlen(buf), "(замаскировал%s) ", GET_CH_SUF_2(i));
+		sprintf(buf + strlen(buf), "(замаскировал%s) ", grammar::SexEnding((i)->get_sex(), 2));
 	if (!i->IsNpc() && !i->desc)
-		sprintf(buf + strlen(buf), "(потерял%s связь) ", GET_CH_SUF_1(i));
+		sprintf(buf + strlen(buf), "(потерял%s связь) ", grammar::SexEnding((i)->get_sex(), 1));
 	if (!i->IsNpc() && i->IsFlagged(EPlrFlag::kWriting))
 		strcat(buf, "(пишет) ");
 
@@ -1879,7 +1880,7 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 						msg, PersonName(horse, ch, 5));
 			}
 		} else if (mount::IsHorse(i) && AFF_FLAGGED(i, EAffect::kTethered))
-			sprintf(buf + strlen(buf), "привязан%s здесь. ", GET_CH_SUF_6(i));
+			sprintf(buf + strlen(buf), "привязан%s здесь. ", grammar::SexEnding((i)->get_sex(), 6));
 		else if ((sector = real_sector(i->in_room)) == ESector::kOnlyFlying)
 			strcat(buf, IS_POLY(i) ? "летают здесь. " : "летает здесь. ");
 		else if (sector == ESector::kUnderwater)
@@ -1952,7 +1953,7 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 			|| IsAffectedBySpell(i, ESpell::kAconitumPoison)
 			|| IsAffectedBySpell(i, ESpell::kScopolaPoison)
 			|| IsAffectedBySpell(i, ESpell::kBelenaPoison))
-			sprintf(buf + strlen(buf), "(отравлен%s) ", GET_CH_SUF_6(i));
+			sprintf(buf + strlen(buf), "(отравлен%s) ", grammar::SexEnding((i)->get_sex(), 6));
 
 	std::string line = buf;
 	AppendCompactShieldSuffix(line, ch, i);

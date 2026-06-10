@@ -7,6 +7,7 @@
 */
 
 #include "do_gen_comm.h"
+#include "utils/grammar/gender.h"
 #include "gameplay/mechanics/sight.h"
 
 #include "engine/entities/char_data.h"
@@ -275,7 +276,7 @@ std::string format_gossip(CharData *ch, CharData *vict, int cmd, const char *arg
 					   (cmd == kScmdGossip ? kColorYel : kColorBoldYel),
 					   format_gossip_name(ch, vict).c_str(),
 					   (cmd == kScmdGossip ? "заметил" : "заорал"),
-					   GET_CH_VIS_SUF_1(ch, vict),
+					   grammar::VisSexEnding(CanSee((vict), (ch)), (ch)->get_sex(), 1),
 					   argument,
 					   kColorNrm);
 }

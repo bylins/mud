@@ -1,6 +1,7 @@
 // обслуживание функций езды на всяческих жовтоне
 //
 #include "mount.h"
+#include "utils/grammar/gender.h"
 #include "gameplay/mechanics/follow.h"
 #include "gameplay/mechanics/mount.h"
 
@@ -63,7 +64,7 @@ bool DropFromHorse(CharData *ch) {
 	} else {  // не лошадь и не всадник
 		return false;
 	}
-	sprintf(buf, "%s свалил%s со своего скакуна.", GET_PAD(plr, 0), GET_CH_SUF_2(plr));
+	sprintf(buf, "%s свалил%s со своего скакуна.", GET_PAD(plr, 0), grammar::SexEnding((plr)->get_sex(), 2));
 	act(buf, false, plr, 0, 0, kToRoom | kToArenaListen);
 	AFF_FLAGS(plr).unset(EAffect::kHorse);
 	SetBattleLag(plr, 3);

@@ -7,6 +7,7 @@
 */
 
 #include "gameplay/skills/skills.h"
+#include "utils/grammar/gender.h"
 #include "utils/utils.h"
 #include "gameplay/mechanics/minions.h"
 #include "engine/db/db.h"
@@ -44,9 +45,9 @@ void CheckTutelarSelfSacrfice(CharData *ch, CharData *victim) {
 					log("angel_sacrifice: Nmae (ch): %s, Name(charmice): %s, name(victim): %s", GET_NAME(ch), GET_NAME(keeper), GET_NAME(victim));
 
 					SendMsgToChar(victim, "%s пожертвовал%s своей жизнью, вытаскивая вас с того света!\r\n",
-								  GET_PAD(keeper, 0), GET_CH_SUF_1(keeper));
+								  GET_PAD(keeper, 0), grammar::SexEnding((keeper)->get_sex(), 1));
 					snprintf(buf, kMaxStringLength, "%s пожертвовал%s своей жизнью, вытаскивая %s с того света!",
-							 GET_PAD(keeper, 0), GET_CH_SUF_1(keeper), GET_PAD(victim, 3));
+							 GET_PAD(keeper, 0), grammar::SexEnding((keeper)->get_sex(), 1), GET_PAD(victim, 3));
 					act(buf, false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
 
 					ExtractCharFromWorld(keeper, 0);

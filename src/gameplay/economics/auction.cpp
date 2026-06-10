@@ -9,6 +9,7 @@
 ************************************************************************ */
 
 #include "auction.h"
+#include "utils/grammar/gender.h"
 #include "utils/grammar/declensions.h"
 #include "gameplay/mechanics/identify.h"
 
@@ -227,7 +228,7 @@ bool auction_drive(CharData *ch, char *argument) {
 			}
 			act("Вы сняли $O3 с аукциона.\r\n", false, ch, 0, GET_LOT(lot)->item, kToChar);
 			sprintf(tmpbuf, "Аукцион : лот %d(%s) снят%s с аукциона владельцем.\r\n", lot,
-					GET_LOT(lot)->item->get_PName(ECase::kNom).c_str(), GET_OBJ_SUF_6(GET_LOT(lot)->item));
+					GET_LOT(lot)->item->get_PName(ECase::kNom).c_str(), grammar::ObjSexEnding((GET_LOT(lot)->item)->get_sex(), 6));
 			clear_auction(lot);
 			message_auction(tmpbuf, nullptr);
 			SetWait(ch, 1, false);

@@ -1,4 +1,5 @@
 #include "fit.h"
+#include "utils/grammar/gender.h"
 
 #include "engine/entities/char_data.h"
 #include "engine/core/handler.h"
@@ -68,7 +69,7 @@ void DoFit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 				&& obj->get_material() != EObjMaterial::kHardWood
 				&& obj->get_material() != EObjMaterial::kGlass) {
 				sprintf(buf, "К сожалению %s сделан%s из неподходящего материала.\r\n",
-						obj->get_PName(ECase::kNom).c_str(), GET_OBJ_SUF_6(obj));
+						obj->get_PName(ECase::kNom).c_str(), grammar::ObjSexEnding((obj)->get_sex(), 6));
 				SendMsgToChar(buf, ch);
 				return;
 			}
@@ -79,7 +80,7 @@ void DoFit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 				&& obj->get_material() != EObjMaterial::kSkin
 				&& obj->get_material() != EObjMaterial::kOrganic) {
 				sprintf(buf, "К сожалению %s сделан%s из неподходящего материала.\r\n",
-						obj->get_PName(ECase::kNom).c_str(), GET_OBJ_SUF_6(obj));
+						obj->get_PName(ECase::kNom).c_str(), grammar::ObjSexEnding((obj)->get_sex(), 6));
 				SendMsgToChar(buf, ch);
 				return;
 			}

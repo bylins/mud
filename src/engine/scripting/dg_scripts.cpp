@@ -9,6 +9,7 @@
 **************************************************************************/
 
 #include "dg_scripts.h"
+#include "utils/grammar/gender.h"
 #include "utils/grammar/declensions.h"
 #include "gameplay/mechanics/minions.h"
 #include "gameplay/mechanics/follow.h"
@@ -2264,7 +2265,7 @@ void find_replacement(void *go,
 				if (!mob->IsNpc())
 					snprintf(str, str_size, "%ld", mob->get_uid());
 			} else if (!str_cmp(field, "u")) {
-				snprintf(str, str_size, "%s", GET_CH_SUF_2(mob));
+				snprintf(str, str_size, "%s", grammar::SexEnding((mob)->get_sex(), 2));
 			} else if (!str_cmp(field, "UPiname")) {
 				std::string tmpname = GET_PAD(mob, 0);
 				snprintf(str, str_size, "%s", utils::colorCAP(tmpname).c_str());
@@ -2707,27 +2708,27 @@ void find_replacement(void *go,
 			else
 				snprintf(str, str_size, "0");
 		} else if (!str_cmp(field, "m"))
-			snprintf(str, str_size, "%s", HMHR(mob));
+			snprintf(str, str_size, "%s", grammar::DativePronoun((mob)->get_sex()));
 		else if (!str_cmp(field, "s"))
-			snprintf(str, str_size, "%s", HSHR(mob));
+			snprintf(str, str_size, "%s", grammar::PossessivePronoun((mob)->get_sex()));
 		else if (!str_cmp(field, "e"))
-			snprintf(str, str_size, "%s", HSSH(mob));
+			snprintf(str, str_size, "%s", grammar::PersonalPronoun((mob)->get_sex()));
 		else if (!str_cmp(field, "g"))
-			snprintf(str, str_size, "%s", GET_CH_SUF_1(mob));
+			snprintf(str, str_size, "%s", grammar::SexEnding((mob)->get_sex(), 1));
 		else if (!str_cmp(field, "w"))
-			snprintf(str, str_size, "%s", GET_CH_SUF_3(mob));
+			snprintf(str, str_size, "%s", grammar::SexEnding((mob)->get_sex(), 3));
 		else if (!str_cmp(field, "q"))
-			snprintf(str, str_size, "%s", GET_CH_SUF_4(mob));
+			snprintf(str, str_size, "%s", grammar::SexEnding((mob)->get_sex(), 4));
 		else if (!str_cmp(field, "y"))
-			snprintf(str, str_size, "%s", GET_CH_SUF_5(mob));
+			snprintf(str, str_size, "%s", grammar::SexEnding((mob)->get_sex(), 5));
 		else if (!str_cmp(field, "a"))
-			snprintf(str, str_size, "%s", GET_CH_SUF_6(mob));
+			snprintf(str, str_size, "%s", grammar::SexEnding((mob)->get_sex(), 6));
 		else if (!str_cmp(field, "r"))
-			snprintf(str, str_size, "%s", GET_CH_SUF_7(mob));
+			snprintf(str, str_size, "%s", grammar::SexEnding((mob)->get_sex(), 7));
 		else if (!str_cmp(field, "x"))
-			snprintf(str, str_size, "%s", GET_CH_SUF_8(mob));
+			snprintf(str, str_size, "%s", grammar::SexEnding((mob)->get_sex(), 8));
 		else if (!str_cmp(field, "h"))                                   // issue.mag-points
-			snprintf(str, str_size, "%s", GET_CH_EXSUF_1(mob));
+			snprintf(str, str_size, "%s", grammar::InstrEnding((mob)->get_sex()));
 		else if (!str_cmp(field, "weight"))
 			snprintf(str, str_size, "%d", GET_WEIGHT(mob));
 		else if (!str_cmp(field, "CarryWeight"))
@@ -3581,19 +3582,19 @@ void find_replacement(void *go,
 				*str = '\0';
 			}
 		} else if (!str_cmp(field, "g"))
-			snprintf(str, str_size, "%s", GET_OBJ_SUF_1(obj));
+			snprintf(str, str_size, "%s", grammar::ObjSexEnding((obj)->get_sex(), 1));
 		else if (!str_cmp(field, "q"))
-			snprintf(str, str_size, "%s", GET_OBJ_SUF_4(obj));
+			snprintf(str, str_size, "%s", grammar::ObjSexEnding((obj)->get_sex(), 4));
 		else if (!str_cmp(field, "u"))
-			snprintf(str, str_size, "%s", GET_OBJ_SUF_2(obj));
+			snprintf(str, str_size, "%s", grammar::ObjSexEnding((obj)->get_sex(), 2));
 		else if (!str_cmp(field, "w"))
-			snprintf(str, str_size, "%s", GET_OBJ_SUF_3(obj));
+			snprintf(str, str_size, "%s", grammar::ObjSexEnding((obj)->get_sex(), 3));
 		else if (!str_cmp(field, "y"))
-			snprintf(str, str_size, "%s", GET_OBJ_SUF_5(obj));
+			snprintf(str, str_size, "%s", grammar::ObjSexEnding((obj)->get_sex(), 5));
 		else if (!str_cmp(field, "a"))
-			snprintf(str, str_size, "%s", GET_OBJ_SUF_6(obj));
+			snprintf(str, str_size, "%s", grammar::ObjSexEnding((obj)->get_sex(), 6));
 		else if (!str_cmp(field, "h"))                                   // issue.mag-points
-			snprintf(str, str_size, "%s", GET_OBJ_EXSUF_1(obj));
+			snprintf(str, str_size, "%s", grammar::InstrEnding((obj)->get_sex()));
 		else if (!str_cmp(field, "sex"))
 			snprintf(str, str_size, "%d", (int) GET_OBJ_SEX(obj));
 		else if (!str_cmp(field, "room")) {

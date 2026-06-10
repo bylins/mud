@@ -3,6 +3,7 @@
 //
 
 #include "engine/ui/cmd/do_who.h"
+#include "utils/grammar/gender.h"
 #include "gameplay/mechanics/sight.h"
 
 #include "engine/entities/char_data.h"
@@ -191,7 +192,7 @@ void DoWho(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			if (GET_INVIS_LEV(tch))
 				sprintf(buf + strlen(buf), " (i%d)", GET_INVIS_LEV(tch));
 			else if (AFF_FLAGGED(tch, EAffect::kInvisible))
-				sprintf(buf + strlen(buf), " (невидим%s)", GET_CH_SUF_6(tch));
+				sprintf(buf + strlen(buf), " (невидим%s)", grammar::SexEnding((tch)->get_sex(), 6));
 			if (AFF_FLAGGED(tch, EAffect::kHide))
 				strcat(buf, " (прячется)");
 			if (AFF_FLAGGED(tch, EAffect::kDisguise))
@@ -203,13 +204,13 @@ void DoWho(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				strcat(buf, " (пишет)");
 
 			if (tch->IsFlagged(EPrf::kNoHoller))
-				sprintf(buf + strlen(buf), " (глух%s)", GET_CH_SUF_1(tch));
+				sprintf(buf + strlen(buf), " (глух%s)", grammar::SexEnding((tch)->get_sex(), 1));
 			if (tch->IsFlagged(EPrf::kNoTell))
-				sprintf(buf + strlen(buf), " (занят%s)", GET_CH_SUF_6(tch));
+				sprintf(buf + strlen(buf), " (занят%s)", grammar::SexEnding((tch)->get_sex(), 6));
 			if (tch->IsFlagged(EPlrFlag::kMuted))
 				sprintf(buf + strlen(buf), " (молчит)");
 			if (tch->IsFlagged(EPlrFlag::kDumbed))
-				sprintf(buf + strlen(buf), " (нем%s)", GET_CH_SUF_6(tch));
+				sprintf(buf + strlen(buf), " (нем%s)", grammar::SexEnding((tch)->get_sex(), 6));
 			if (tch->IsFlagged(EPlrFlag::kKiller) == EPlrFlag::kKiller)
 				sprintf(buf + strlen(buf), "&R (ДУШЕГУБ)&n");
 			if ((ch->IsImmortal() || GET_GOD_FLAG(ch, EGf::kDemigod)) && !(tch)->player_specials->saved.NameGod

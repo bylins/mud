@@ -501,164 +501,28 @@ const int kNameLevel = 5;
                               (GET_ALIGNMENT(ch)-GET_ALIGNMENT(vict))<=ALIGN_DELTA:\
                               (GET_ALIGNMENT(vict)-GET_ALIGNMENT(ch))<=ALIGN_DELTA\
                              )
-#define GET_CH_SUF_1(ch) (IS_NOSEXY(ch) ? "о" :\
-                          IS_MALE(ch) ? ""  :\
-                          IS_FEMALE(ch) ? "а" : "и")
-#define GET_CH_SUF_2(ch) (IS_NOSEXY(ch) ? "ось" :\
-                          IS_MALE(ch) ? "ся"  :\
-                          IS_FEMALE(ch) ? "ась" : "ись")
-#define GET_CH_SUF_3(ch) (IS_NOSEXY(ch) ? "ое" :\
-                          IS_MALE(ch) ? "ый"  :\
-                          IS_FEMALE(ch) ? "ая" : "ые")
-#define GET_CH_SUF_4(ch) (IS_NOSEXY(ch) ? "ло" :\
-                          IS_MALE(ch) ? ""  :\
-                          IS_FEMALE(ch) ? "ла" : "ли")
-#define GET_CH_SUF_5(ch) (IS_NOSEXY(ch) ? "ло" :\
-                          IS_MALE(ch) ? "ел"  :\
-                          IS_FEMALE(ch) ? "ла" : "ли")
-#define GET_CH_SUF_6(ch) (IS_NOSEXY(ch) ? "о" :\
-                          IS_MALE(ch) ? ""  :\
-                          IS_FEMALE(ch) ? "а" : "ы")
-#define GET_CH_SUF_7(ch) (IS_NOSEXY(ch) ? "ым" :\
-                          IS_MALE(ch) ? "ым"  :\
-                          IS_FEMALE(ch) ? "ой" : "ыми")
-#define GET_CH_SUF_8(ch) (IS_NOSEXY(ch) ? "ое" :\
-                          IS_MALE(ch) ? "ой"  :\
-                          IS_FEMALE(ch) ? "ая" : "ие")
 
-#define GET_CH_VIS_SUF_1(ch, och) (!CanSee(och,ch) ? "" :\
-                          IS_NOSEXY(ch) ? "о" :\
-                          IS_MALE(ch) ? ""  :\
-                          IS_FEMALE(ch) ? "а" : "и")
-#define GET_CH_VIS_SUF_2(ch, och) (!CanSee(och,ch) ? "ся" :\
-                          IS_NOSEXY(ch) ? "ось" :\
-                          IS_MALE(ch) ? "ся"  :\
-                          IS_FEMALE(ch) ? "ась" : "ись")
-#define GET_CH_VIS_SUF_3(ch, och) (!CanSee(och,ch) ? "ый" :\
-                          IS_NOSEXY(ch) ? "ое" :\
-                          IS_MALE(ch) ? "ый"  :\
-                          IS_FEMALE(ch) ? "ая" : "ые")
-#define GET_CH_VIS_SUF_4(ch, och) (!CanSee(och,ch) ? "" :\
-                          IS_NOSEXY(ch) ? "ло" :\
-                          IS_MALE(ch) ? ""  :\
-                          IS_FEMALE(ch) ? "ла" : "ли")
-#define GET_CH_VIS_SUF_5(ch, och) (!CanSee(och,ch) ? "ел" :\
-                          IS_NOSEXY(ch) ? "ло" :\
-                          IS_MALE(ch) ? "ел"  :\
-                          IS_FEMALE(ch) ? "ла" : "ли")
-#define GET_CH_VIS_SUF_6(ch, och) (!CanSee(och,ch) ? "" :\
-                          IS_NOSEXY(ch) ? "о" :\
-                          IS_MALE(ch) ? ""  :\
-                          IS_FEMALE(ch) ? "а" : "ы")
-#define GET_CH_VIS_SUF_7(ch, och) (!CanSee(och,ch) ? "ым" :\
-                          IS_NOSEXY(ch) ? "ым" :\
-                          IS_MALE(ch) ? "ой"  :\
-                          IS_FEMALE(ch) ? "ым" : "ыми")
-#define GET_CH_VIS_SUF_8(ch, och) (!CanSee(och,ch) ? "ой" :\
-                          IS_NOSEXY(ch) ? "ое" :\
-                          IS_MALE(ch) ? "ой"  :\
-                          IS_FEMALE(ch) ? "ая" : "ие")
 
 #define GET_OBJ_SEX(obj) ((obj)->get_sex())
 #define IS_OBJ_NOSEXY(obj)    (GET_OBJ_SEX(obj) == EGender::kNeutral)
 #define IS_OBJ_MALE(obj)   (GET_OBJ_SEX(obj) == EGender::kMale)
 #define IS_OBJ_FEMALE(obj)    (GET_OBJ_SEX(obj) == EGender::kFemale)
-#define GET_OBJ_SUF_1(obj) (IS_OBJ_NOSEXY(obj) ? "о" :\
-                            IS_OBJ_MALE(obj) ? ""  :\
-                            IS_OBJ_FEMALE(obj) ? "а" : "и")
-#define GET_OBJ_SUF_2(obj) (IS_OBJ_NOSEXY(obj) ? "ось" :\
-                            IS_OBJ_MALE(obj) ? "ся"  :\
-                            IS_OBJ_FEMALE(obj) ? "ась" : "ись")
-#define GET_OBJ_SUF_3(obj) (IS_OBJ_NOSEXY(obj) ? "ое" :\
-                            IS_OBJ_MALE(obj) ? "ый"  :\
-                            IS_OBJ_FEMALE(obj) ? "ая" : "ые")
-#define GET_OBJ_SUF_4(obj) (IS_OBJ_NOSEXY(obj) ? "ло" :\
-                            IS_OBJ_MALE(obj) ? ""  :\
-                            IS_OBJ_FEMALE(obj) ? "ла" : "ли")
-#define GET_OBJ_SUF_5(obj) (IS_OBJ_NOSEXY(obj) ? "ло" :\
-                            IS_OBJ_MALE(obj) ? ""  :\
-                            IS_OBJ_FEMALE(obj) ? "ла" : "ли")
-#define GET_OBJ_SUF_6(obj) (IS_OBJ_NOSEXY(obj) ? "о" :\
-                            IS_OBJ_MALE(obj) ? ""  :\
-                            IS_OBJ_FEMALE(obj) ? "а" : "ы")
-#define GET_OBJ_SUF_7(obj) (IS_OBJ_NOSEXY(obj) ? "е" :\
-                            IS_OBJ_MALE(obj) ? ""  :\
-                            IS_OBJ_FEMALE(obj) ? "а" : "и")
-#define GET_OBJ_SUF_8(ch) (IS_OBJ_NOSEXY(obj) ? "ое" :\
-                          IS_OBJ_MALE(obj) ? "ой"  :\
-                          IS_OBJ_FEMALE(obj) ? "ая" : "ие")
 
-#define GET_OBJ_VIS_SUF_1(obj, ch) (!CanSeeObj(ch,obj) ? "о" :\
-                            IS_OBJ_NOSEXY(obj) ? "о" :\
-                            IS_OBJ_MALE(obj) ? ""  :\
-                            IS_OBJ_FEMALE(obj) ? "а" : "и")
-#define GET_OBJ_VIS_SUF_2(obj, ch) (!CanSeeObj(ch,obj) ? "ось" :\
-                            IS_OBJ_NOSEXY(obj) ? "ось" :\
-                            IS_OBJ_MALE(obj) ? "ся"  :\
-                            IS_OBJ_FEMALE(obj) ? "ась" : "ись")
-#define GET_OBJ_VIS_SUF_3(obj, ch) (!CanSeeObj(ch,obj) ? "ый" :\
-                            IS_OBJ_NOSEXY(obj) ? "ое" :\
-                            IS_OBJ_MALE(obj) ? "ый"  :\
-                            IS_OBJ_FEMALE(obj) ? "ая" : "ые")
-#define GET_OBJ_VIS_SUF_4(obj, ch) (!CanSeeObj(ch,obj) ? "ло" :\
-                            IS_OBJ_NOSEXY(obj) ? "ло" :\
-                            IS_OBJ_MALE(obj) ? ""  :\
-                            IS_OBJ_FEMALE(obj) ? "ла" : "ли")
-#define GET_OBJ_VIS_SUF_5(obj, ch) (!CanSeeObj(ch,obj) ? "ло" :\
-                            IS_OBJ_NOSEXY(obj) ? "ло" :\
-                            IS_OBJ_MALE(obj) ? ""  :\
-                            IS_OBJ_FEMALE(obj) ? "ла" : "ли")
-#define GET_OBJ_VIS_SUF_6(obj, ch) (!CanSeeObj(ch,obj) ? "о" :\
-                            IS_OBJ_NOSEXY(obj) ? "о" :\
-                            IS_OBJ_MALE(obj) ? ""  :\
-                            IS_OBJ_FEMALE(obj) ? "а" : "ы")
-#define GET_OBJ_VIS_SUF_7(obj, ch) (!CanSeeObj(ch,obj) ? "е" :\
-                            IS_OBJ_NOSEXY(obj) ? "е" :\
-                            IS_OBJ_MALE(obj) ? ""  :\
-                            IS_OBJ_FEMALE(obj) ? "а" : "и")
-#define GET_OBJ_VIS_SUF_8(obj, ch) (!CanSeeObj(ch,obj) ? "ой" :\
-                          IS_OBJ_NOSEXY(obj) ? "ое" :\
-                          IS_OBJ_MALE(obj) ? "ой"  :\
-                          IS_OBJ_FEMALE(obj) ? "ая" : "ие")
 
 // Soft-stem instrumental: посвежевш(им/им/ей/ими). Wired to act()'s $h / $H
 // codes (issue.mag-points). Used by the cast-message {intensity} substitution
 // for past participles -- "Вы почувствовали себя посвежевш$h."
-#define GET_CH_EXSUF_1(ch) (IS_NOSEXY(ch) ? "им" :\
-                            IS_MALE(ch) ? "им"  :\
-                            IS_FEMALE(ch) ? "ей" : "ими")
 // Vis variant: fallback "им" matches the masculine form when the observer
 // can't see the actor (consistent with the other GET_CH_VIS_SUF_* fallbacks).
-#define GET_CH_VIS_EXSUF_1(ch, och) (!CanSee(och,ch) ? "им" :\
-                            IS_NOSEXY(ch) ? "им" :\
-                            IS_MALE(ch) ? "им"  :\
-                            IS_FEMALE(ch) ? "ей" : "ими")
 // OBJ counterpart for $H when an object is the actor (rare, but symmetric
 // with every other GET_OBJ_SUF_*).
-#define GET_OBJ_EXSUF_1(obj) (IS_OBJ_NOSEXY(obj) ? "им" :\
-                            IS_OBJ_MALE(obj) ? "им"  :\
-                            IS_OBJ_FEMALE(obj) ? "ей" : "ими")
-#define GET_OBJ_VIS_EXSUF_1(obj, ch) (!CanSeeObj(ch,obj) ? "им" :\
-                            IS_OBJ_NOSEXY(obj) ? "им" :\
-                            IS_OBJ_MALE(obj) ? "им"  :\
-                            IS_OBJ_FEMALE(obj) ? "ей" : "ими")
-#define GET_CH_POLY_1(ch) (IS_POLY(ch) ? "те" : "")
 
-#define GET_OBJ_POLY_1(ch, obj) ((GET_OBJ_SEX(obj) == EGender::kPoly) ? "ят" : "ит")
 
 #define PUNCTUAL_WAIT_STATE(ch, cycle) do { (ch)->punctual_wait = (cycle); } while(0)
 
 // compound utilities and other macros *********************************
 
-#define HSHR(ch) (EGender::kNeutral != ((ch)->get_sex()) ? (IS_MALE(ch) ? "его": (IS_FEMALE(ch) ? "ее" : "их")) :"его")
-#define HSSH(ch) (EGender::kNeutral != ((ch)->get_sex()) ? (IS_MALE(ch) ? "он": (IS_FEMALE(ch) ? "она" : "они")) :"оно")
-#define HMHR(ch) (EGender::kNeutral != ((ch)->get_sex()) ? (IS_MALE(ch) ? "ему": (IS_FEMALE(ch) ? "ей" : "им")) :"ему")
-#define HYOU(ch) (EGender::kNeutral != ((ch)->get_sex()) ? (IS_MALE(ch) ? "ваш": (IS_FEMALE(ch) ? "ваша" : (IS_NOSEXY(ch) ? "ваше": "ваши"))) :"ваш")
 
-#define OSHR(ch) (EGender::kNeutral != GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch) == EGender::kMale ? "его": (GET_OBJ_SEX(ch) == EGender::kFemale ? "ее" : "их")) :"его")
-#define OSSH(ch) (EGender::kNeutral != GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch) == EGender::kMale ? "он": (GET_OBJ_SEX(ch) == EGender::kFemale ? "она" : "они")) :"оно")
-#define OMHR(ch) (EGender::kNeutral != GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch) == EGender::kMale ? "ему": (GET_OBJ_SEX(ch) == EGender::kFemale ? "ей" : "им")) :"ему")
-#define OYOU(ch) (EGender::kNeutral != GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch) == EGender::kMale ? "ваш": (GET_OBJ_SEX(ch) == EGender::kFemale ? "ваша" : "ваши")) :"ваше")
 
 #define HERE(ch)  (((ch)->IsNpc() || (ch)->desc || NORENTABLE(ch)))
 

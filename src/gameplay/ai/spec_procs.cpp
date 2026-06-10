@@ -13,6 +13,7 @@
 ************************************************************************ */
 
 #include "gameplay/ai/spec_procs.h"
+#include "utils/grammar/gender.h"
 #include "utils/grammar/declensions.h"
 #include "gameplay/mechanics/follow.h"
 #include "gameplay/ai/special_messages.h"
@@ -78,10 +79,10 @@ int HorseBuy(CharData *ch, void *me, char * /*rest*/) {
 		PlaceCharToRoom(horse, ch->in_room);
 		mount::MakeHorse(horse, ch);
 		act(fmt::format(fmt::runtime(specials::HorseMsg(specials::EHorseMsg::kBuyGiveChar)),
-				fmt::arg("horse", GET_PAD(horse, 3)), fmt::arg("pronoun", HSHR(horse))),
+				fmt::arg("horse", GET_PAD(horse, 3)), fmt::arg("pronoun", grammar::PossessivePronoun((horse)->get_sex()))),
 			false, ch, 0, victim, kToChar);
 		act(fmt::format(fmt::runtime(specials::HorseMsg(specials::EHorseMsg::kBuyGiveRoom)),
-				fmt::arg("horse", GET_PAD(horse, 3)), fmt::arg("pronoun", HSHR(horse))),
+				fmt::arg("horse", GET_PAD(horse, 3)), fmt::arg("pronoun", grammar::PossessivePronoun((horse)->get_sex()))),
 			false, ch, 0, victim, kToRoom);
 		ch->remove_gold(kHorseCost);
 		ch->SetFlag(EPlrFlag::kCrashSave);
@@ -111,10 +112,10 @@ int HorseSell(CharData *ch, void *me, char * /*rest*/) {
 		}
 
 		act(fmt::format(fmt::runtime(specials::HorseMsg(specials::EHorseMsg::kSellTaken)),
-				fmt::arg("horse", GET_PAD(horse, 3)), fmt::arg("pronoun", HSHR(horse))),
+				fmt::arg("horse", GET_PAD(horse, 3)), fmt::arg("pronoun", grammar::PossessivePronoun((horse)->get_sex()))),
 			false, ch, 0, victim, kToChar);
 		act(fmt::format(fmt::runtime(specials::HorseMsg(specials::EHorseMsg::kSellTaken)),
-				fmt::arg("horse", GET_PAD(horse, 3)), fmt::arg("pronoun", HSHR(horse))),
+				fmt::arg("horse", GET_PAD(horse, 3)), fmt::arg("pronoun", grammar::PossessivePronoun((horse)->get_sex()))),
 			false, ch, 0, victim, kToRoom);
 		ExtractCharFromWorld(horse, false);
 		ch->add_gold((kHorseCost >> 1));

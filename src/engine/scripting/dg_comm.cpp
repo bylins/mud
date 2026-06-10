@@ -9,6 +9,7 @@
 **************************************************************************/
 
 #include "engine/entities/obj_data.h"
+#include "utils/grammar/gender.h"
 #include "dg_scripts.h"
 #include "engine/core/handler.h"
 #include "engine/core/target_resolver.h"
@@ -73,7 +74,7 @@ void sub_write_to_char(CharData *ch, char *tokens[], void *otokens[], char type[
 				else if (otokens[i] == ch)
 					strcat(sb, "ваш");
 				else
-					strcat(sb, HSHR((CharData *) otokens[i]));
+					strcat(sb, grammar::PossessivePronoun(((CharData *) otokens[i])->get_sex()));
 				break;
 
 			case '}':
@@ -82,7 +83,7 @@ void sub_write_to_char(CharData *ch, char *tokens[], void *otokens[], char type[
 				else if (otokens[i] == ch)
 					strcat(sb, "Вы");
 				else
-					strcat(sb, HSSH((CharData *) otokens[i]));
+					strcat(sb, grammar::PersonalPronoun(((CharData *) otokens[i])->get_sex()));
 				break;
 
 			case '*':
@@ -91,7 +92,7 @@ void sub_write_to_char(CharData *ch, char *tokens[], void *otokens[], char type[
 				else if (otokens[i] == ch)
 					strcat(sb, "вам");
 				else
-					strcat(sb, HMHR((CharData *) otokens[i]));
+					strcat(sb, grammar::DativePronoun(((CharData *) otokens[i])->get_sex()));
 				break;
 
 			case '`':

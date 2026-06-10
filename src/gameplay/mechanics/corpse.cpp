@@ -2,6 +2,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "corpse.h"
+#include "utils/grammar/gender.h"
 #include "gameplay/mechanics/minions.h"
 
 #include "engine/db/world_objects.h"
@@ -395,9 +396,9 @@ void make_arena_corpse(CharData *ch, CharData *killer) {
 	ExtraDescription::shared_ptr exdesc(new ExtraDescription());
 	exdesc->keyword = str_dup(corpse->get_PName(ECase::kNom).c_str());    // косметика
 	if (killer) {
-		sprintf(buf, "Убит%s на арене %s.\r\n", GET_CH_SUF_6(ch), GET_PAD(killer, 4));
+		sprintf(buf, "Убит%s на арене %s.\r\n", grammar::SexEnding((ch)->get_sex(), 6), GET_PAD(killer, 4));
 	} else {
-		sprintf(buf, "Умер%s на арене.\r\n", GET_CH_SUF_4(ch));
+		sprintf(buf, "Умер%s на арене.\r\n", grammar::SexEnding((ch)->get_sex(), 4));
 	}
 	exdesc->description = str_dup(buf);    // косметика
 	exdesc->next = corpse->get_ex_description();

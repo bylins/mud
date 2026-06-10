@@ -10,6 +10,7 @@
 // * AutoEQ by Burkhard Knopf <burkhard.knopf@informatik.tu-clausthal.de>
 
 #include "obj_save.h"
+#include "utils/grammar/gender.h"
 #include "utils/grammar/declensions.h"
 #include "gameplay/mechanics/minions.h"
 #include "gameplay/ai/special_messages.h"
@@ -1548,7 +1549,7 @@ int Crash_load(CharData *ch) {
 					 kColorWht,
 					 cap.c_str(),
 					 char_get_custom_label(obj.get(), ch).c_str(),
-					 GET_OBJ_SUF_2(obj));
+					 grammar::ObjSexEnding((obj)->get_sex(), 2));
 			SendMsgToChar(buf, ch);
 			ExtractObjFromWorld(obj.get());
 
@@ -1557,13 +1558,13 @@ int Crash_load(CharData *ch) {
 
 		//очищаем ZoneDecay объедки
 		if (obj->has_flag(EObjFlag::kZonedecay)) {
-			sprintf(buf, "%s рассыпал%s в прах.\r\n", cap.c_str(), GET_OBJ_SUF_2(obj));
+			sprintf(buf, "%s рассыпал%s в прах.\r\n", cap.c_str(), grammar::ObjSexEnding((obj)->get_sex(), 2));
 			SendMsgToChar(buf, ch);
 			ExtractObjFromWorld(obj.get());
 			continue;
 		}
 		if (obj->has_flag(EObjFlag::kRepopDecay)) {
-			sprintf(buf, "%s рассыпал%s в прах.\r\n", cap.c_str(), GET_OBJ_SUF_2(obj));
+			sprintf(buf, "%s рассыпал%s в прах.\r\n", cap.c_str(), grammar::ObjSexEnding((obj)->get_sex(), 2));
 			SendMsgToChar(buf, ch);
 			ExtractObjFromWorld(obj.get());
 			continue;
@@ -1574,7 +1575,7 @@ int Crash_load(CharData *ch) {
 			|| invalid_unique(ch, obj.get())
 			|| NamedStuff::check_named(ch, obj.get(), 0)) {
 			sprintf(buf, "%s рассыпал%s, как запрещенн%s для вас.\r\n",
-					cap.c_str(), GET_OBJ_SUF_2(obj), GET_OBJ_SUF_3(obj));
+					cap.c_str(), grammar::ObjSexEnding((obj)->get_sex(), 2), grammar::ObjSexEnding((obj)->get_sex(), 3));
 			SendMsgToChar(buf, ch);
 			ExtractObjFromWorld(obj.get());
 			continue;
@@ -2320,7 +2321,7 @@ int gen_receptionist(CharData *ch, CharData *recep, ERentAction action, int mode
 	save_room = ch->in_room;
 
 	if (!AWAKE(recep)) {
-		snprintf(buf, kMaxStringLength, "%s", (fmt::format(fmt::runtime(specials::RentMsg(specials::ERentMsg::kRecepAsleep)), fmt::arg("recep", HSSH(recep))) + "\r\n").c_str());
+		snprintf(buf, kMaxStringLength, "%s", (fmt::format(fmt::runtime(specials::RentMsg(specials::ERentMsg::kRecepAsleep)), fmt::arg("recep", grammar::PersonalPronoun((recep)->get_sex()))) + "\r\n").c_str());
 		SendMsgToChar(buf, ch);
 		return (true);
 	}

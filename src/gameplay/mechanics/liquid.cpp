@@ -8,6 +8,7 @@
 ************************************************************************ */
 
 #include "liquid.h"
+#include "utils/grammar/gender.h"
 #include "utils/grammar/declensions.h"
 
 #include "engine/entities/obj_data.h"
@@ -578,7 +579,7 @@ void identify(CharData *ch, const ObjData *obj) {
 			out += print_spells(obj);
 		} else {
 			snprintf(buf_, sizeof(buf_), "Заполнен%s %s на %d%%\r\n",
-					 GET_OBJ_SUF_6(obj),
+					 grammar::ObjSexEnding((obj)->get_sex(), 6),
 					 drinknames[GET_OBJ_VAL(obj, 2)],
 					 amount * 100 / (volume ? volume : 1));
 			out += buf_;
@@ -604,7 +605,7 @@ char *daig_filling_drink(const ObjData *obj, const CharData *ch) {
 	}
 	else {
 		if (GET_OBJ_VAL(obj, 0) <= 0 || GET_OBJ_VAL(obj, 1) > GET_OBJ_VAL(obj, 0)) {
-			sprintf(buf1, "Заполнен%s вакуумом?!", GET_OBJ_SUF_6(obj));    // BUG
+			sprintf(buf1, "Заполнен%s вакуумом?!", grammar::ObjSexEnding((obj)->get_sex(), 6));    // BUG
 			return buf1;
 		}
 		else {
@@ -612,7 +613,7 @@ char *daig_filling_drink(const ObjData *obj, const CharData *ch) {
 			int amt = (GET_OBJ_VAL(obj, 1) * 5) / GET_OBJ_VAL(obj, 0);
 			sprinttype(GET_OBJ_VAL(obj, 2), color_liquid, tmp);
 			snprintf(buf1, kMaxStringLength,
-					 "Наполнен%s %s%s%s жидкостью", GET_OBJ_SUF_6(obj), fullness[amt], tmp, msg);
+					 "Наполнен%s %s%s%s жидкостью", grammar::ObjSexEnding((obj)->get_sex(), 6), fullness[amt], tmp, msg);
 			return buf1;
 		}
 	}

@@ -3,6 +3,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "poison.h"
+#include "utils/grammar/gender.h"
 #include "gameplay/mechanics/sight.h"
 #include "gameplay/mechanics/mount.h"
 
@@ -272,7 +273,7 @@ namespace {
 					}
 
 					SendMsgToChar(ch, "%sОт действия вашего яда %s побледнел%s!%s\r\n",
-								  kColorGrn, PersonName(vict, ch, 0), GET_CH_VIS_SUF_1(vict, ch), kColorNrm);
+								  kColorGrn, PersonName(vict, ch, 0), grammar::VisSexEnding(CanSee((ch), (vict)), (vict)->get_sex(), 1), kColorNrm);
 					SendMsgToChar(vict, "Вы почувствовали слабость во всем теле!\r\n");
 					act("$N0 побледнел$G на ваших глазах.", true, ch, nullptr, vict, kToNotVict);
 					break;
@@ -290,7 +291,7 @@ namespace {
 					af.battleflag = kAfSameTime;
 					ImposeAffect(vict, af, false, false, false, false);
 					SendMsgToChar(ch, "%sОт действия вашего яда %s стал%s заметно медленнее двигаться!%s\r\n",
-								  kColorGrn, PersonName(vict, ch, 0), GET_CH_VIS_SUF_1(vict, ch), kColorNrm);
+								  kColorGrn, PersonName(vict, ch, 0), grammar::VisSexEnding(CanSee((ch), (vict)), (vict)->get_sex(), 1), kColorNrm);
 					SendMsgToChar(vict, "Вы стали заметно медленнее двигаться!\r\n");
 					act("$N0 стал$G заметно медленнее двигаться!",
 						true, ch, nullptr, vict, kToNotVict);
@@ -388,7 +389,7 @@ void PerformPoisonedWeapom(CharData *ch, CharData *vict, ESpell spell_id) {
 				strcpy(buf1, PersonName(vict, ch, 0));
 				utils::CAP(buf1);
 				SendMsgToChar(ch, "%s скрючил%s от нестерпимой боли.\r\n",
-							  buf1, GET_CH_VIS_SUF_2(vict, ch));
+							  buf1, grammar::VisSexEnding(CanSee((ch), (vict)), (vict)->get_sex(), 2));
 				vict->battle_affects.set(kEafFirstPoison);
 			} else if (spell_id == ESpell::kBelenaPoison) {
 				strcpy(buf1, PersonName(vict, ch, 3));
@@ -405,7 +406,7 @@ void PerformPoisonedWeapom(CharData *ch, CharData *vict, ESpell spell_id) {
 			}
 			SendMsgToChar(vict, "%s%s отравил%s вас.%s\r\n",
 						  kColorBoldRed, PersonName(ch, vict, 0),
-						  GET_CH_VIS_SUF_1(ch, vict), kColorNrm);
+						  grammar::VisSexEnding(CanSee((vict), (ch)), (ch)->get_sex(), 1), kColorNrm);
 			ProcessCritWeaponPoison(ch, vict, spell_id);
 		}
 	}

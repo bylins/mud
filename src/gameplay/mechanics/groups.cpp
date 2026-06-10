@@ -7,6 +7,7 @@
 */
 
 #include "gameplay/mechanics/groups.h"
+#include "utils/grammar/gender.h"
 #include "utils/grammar/declensions.h"
 #include "gameplay/mechanics/minions.h"
 #include "gameplay/mechanics/follow.h"
@@ -576,7 +577,7 @@ void do_report(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 		if (IS_MANA_CASTER(ch)) {
 			sprintf(buf, "%s доложил%s : %d(%d)H, %d(%d)V, %d(%d)M\r\n",
-					GET_NAME(ch), GET_CH_SUF_1(ch),
+					GET_NAME(ch), grammar::SexEnding((ch)->get_sex(), 1),
 					ch->get_hit(), ch->get_real_max_hit(),
 					ch->get_move(), ch->get_real_max_move(),
 					ch->mem_queue.stored, mana[MIN(50, GetRealWis(ch))]);
@@ -590,13 +591,13 @@ void do_report(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				}
 			}
 			sprintf(buf, "%s доложил%s : %d(%d)H, %d(%d)V, %dL\r\n",
-					GET_NAME(ch), GET_CH_SUF_1(ch),
+					GET_NAME(ch), grammar::SexEnding((ch)->get_sex(), 1),
 					ch->get_hit(), ch->get_real_max_hit(),
 					ch->get_move(), ch->get_real_max_move(),
 					loyalty);
 		} else {
 			sprintf(buf, "%s доложил%s : %d(%d)H, %d(%d)V\r\n",
-					GET_NAME(ch), GET_CH_SUF_1(ch),
+					GET_NAME(ch), grammar::SexEnding((ch)->get_sex(), 1),
 					ch->get_hit(), ch->get_real_max_hit(),
 					ch->get_move(), ch->get_real_max_move());
 		}
@@ -623,7 +624,7 @@ void do_report(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				if (IsCharmice(f)) {
 					std::string str;
 
-					SendMsgToChar(ch, "%s доложил%s свои умения:", utils::CAP(f->get_name()).c_str(), GET_CH_SUF_1(f));
+					SendMsgToChar(ch, "%s доложил%s свои умения:", utils::CAP(f->get_name()).c_str(), grammar::SexEnding((f)->get_sex(), 1));
 					for (const auto &skill : MUD::Skills()) {
 						if (skill.IsValid() && f->GetSkill(skill.GetId())) {
 							str += fmt::format(" {},", skill.GetName());
@@ -711,7 +712,7 @@ void group::do_split(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, 
 		}
 
 		sprintf(buf, "%s разделил%s %d %s; вам досталось %d.\r\n",
-				GET_NAME(ch), GET_CH_SUF_1(ch), amount, GetDeclensionInNumber(amount, what_currency), share);
+				GET_NAME(ch), grammar::SexEnding((ch)->get_sex(), 1), amount, GetDeclensionInNumber(amount, what_currency), share);
 		if (AFF_FLAGGED(k, EAffect::kGroup) && k->in_room == ch->in_room && !k->IsNpc() && k != ch) {
 			SendMsgToChar(buf, k);
 			switch (currency) {

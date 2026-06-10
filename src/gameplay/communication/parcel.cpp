@@ -3,6 +3,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "parcel.h"
+#include "utils/grammar/gender.h"
 #include "utils/grammar/declensions.h"
 
 #include "engine/db/world_objects.h"
@@ -395,7 +396,7 @@ std::string PrintSpellLocateObject(CharData *ch, ObjData *obj) {
 					continue;
 				}
 				if (obj->get_id() == o.obj_->get_id()) {
-					return fmt::format("{} наход{}ся у почтового голубя в инвентаре.\r\n", o.obj_->get_short_description().c_str(), GET_OBJ_POLY_1(ch, o.obj_));
+					return fmt::format("{} наход{}ся у почтового голубя в инвентаре.\r\n", o.obj_->get_short_description().c_str(), grammar::ObjPluralVerbEnding((o.obj_)->get_sex()));
 				}
 			}
 		}
@@ -566,7 +567,7 @@ void return_parcel() {
 void extract_parcel(int sender_uid, int target_uid, const std::list<Node>::iterator &it) {
 	snprintf(buf, kMaxStringLength, "С прискорбием сообщаем вам: %s рассыпал%s в прах.\r\n",
 			 it->obj_->get_short_description().c_str(),
-			 GET_OBJ_SUF_2(it->obj_));
+			 grammar::ObjSexEnding((it->obj_)->get_sex(), 2));
 
 	char *tmp = str_dup(buf);
 	// -1 в качестве ид отправителя при получении подставит в имя почтовую службу
@@ -824,7 +825,7 @@ bool print_imm_where_obj(CharData *ch, const ObjData *arg, int num) {
 								  num++,
 								  GET_OBJ_VNUM(it3->obj_.get()),
 								  it3->obj_->get_short_description().c_str(),
-								  GET_OBJ_POLY_1(ch, it3->obj_),
+								  grammar::ObjPluralVerbEnding((it3->obj_)->get_sex()),
 								  sender.c_str(),
 								  target.c_str());
 				}
@@ -847,7 +848,7 @@ std::string FindParcelObj(const ObjData *obj) {
 					target[0] = UPPER(target[0]);
 					sender[0] = UPPER(sender[0]);
 					str = fmt::format("наход{}ся на почте (отправитель: {}, получатель: {}).\r\n",
-							GET_OBJ_POLY_1(ch, it3->obj_),
+							grammar::ObjPluralVerbEnding((it3->obj_)->get_sex()),
 							sender.c_str(),
 							target.c_str());
 					return str;
