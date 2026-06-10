@@ -12,6 +12,7 @@
 #include "engine/ui/cmd/do_flee.h"
 #include "engine/db/world_characters.h"
 #include "fight.h"
+#include "fight_stuff.h"
 #include "fight_penalties.h"
 #include "fight_hit.h"
 #include "engine/core/handler.h"
@@ -1034,4 +1035,52 @@ void do_show_mobmax(CharData *ch, char *, int, int) {
 	SendMsgToChar(ch, "&BВ стадии тестирования!!!&n\n");
 	player->show_mobmax();
 }
+
+void change_fighting(CharData *ch, int need_stop) {
+//	utils::CExecutionTimer time;
+//	log("change_fighting start %f vnum %d", time.delta().count(), GET_MOB_VNUM(ch));
+	//Loop for all entities is necessary for unprotecting
+//	for (const auto &k : character_list) {
+	for (const auto &k : world[ch->in_room]->people) {
+
+		if (k->get_protecting() == ch) {
+			k->remove_protecting();
+		}
+//		log("change_fighting protecting %f", time.delta().count());
+		if (k->get_touching() == ch) {
+			k->set_touching(0);
+		}
+//		log("change_fighting touching %f", time.delta().count());
+		if (k->GetExtraVictim() == ch) {
+			k->SetExtraAttack(kExtraAttackUnused, 0);
+		}
+
+		if (k->GetCastChar() == ch) {
+			k->SetCast(ESpell::kUndefined, ESpell::kUndefined, 0, 0, 0);
+		}
+//		log("change_fighting set cast %f", time.delta().count());
+
+		if (k->GetEnemy() == ch && k->in_room != kNowhere) {
+//			log("change_fighting Change victim %f", time.delta().count());
+			bool found = false;
+			for (const auto j : world[ch->in_room]->people) {
+				if (j->GetEnemy() == k) {
+					act("Вы переключили внимание на $N3.", false, k, 0, j, kToChar);
+					act("$n переключил$u на вас!", false, k, 0, j, kToVict);
+					k->SetEnemy(j);
+					found = true;
+//					log("change_fighting Change victim %f", time.delta().count());
+					break;
+				}
+			}
+
+			if (!found && need_stop) {
+//				log("change_fighting stop fighting %f", time.delta().count());
+				stop_fighting(k, false);
+			}
+		}
+	}
+//	log("change_fighting stop %f", time.delta().count());
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

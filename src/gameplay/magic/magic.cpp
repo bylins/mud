@@ -13,6 +13,7 @@
 ************************************************************************ */
 
 #include "magic.h"
+#include "gameplay/fight/fight_stuff.h"
 #include "gameplay/mechanics/mount.h"
 #include "gameplay/mechanics/resist.h"
 #include "magic_internal.h"

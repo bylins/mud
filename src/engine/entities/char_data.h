@@ -1031,7 +1031,6 @@ inline void SetSave(CharData *ch, ESaving save, int mod) {
 	ch->add_abils.apply_saving_throw[to_underlying(save)] = mod;
 }
 
-void change_fighting(CharData *ch, int need_stop);
 
 /*
  *  Это все, разумеется, безобразно. Уровни-реморты должны возвращаться какие есть, а всякие таблицы принимать любой
