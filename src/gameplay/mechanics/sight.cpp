@@ -2174,4 +2174,32 @@ void Appear(CharData *ch) {
 	}
 }
 
+bool MORT_CAN_SEE(const CharData *sub, const CharData *obj) {
+	return HERE(obj)
+		&& INVIS_OK(sub, obj)
+		&& (!is_dark((obj)->in_room)
+			|| AFF_FLAGGED((sub), EAffect::kInfravision));
+}
+
+bool MAY_SEE(const CharData *ch, const CharData *sub, const CharData *obj) {
+	return !(GET_INVIS_LEV(ch) > 30)
+		&& !AFF_FLAGGED(sub, EAffect::kBlind)
+		&& (!is_dark(sub->in_room)
+			|| AFF_FLAGGED(sub, EAffect::kInfravision))
+		&& (!AFF_FLAGGED(obj, EAffect::kInvisible)
+			|| AFF_FLAGGED(sub, EAffect::kDetectInvisible));
+}
+
+bool IMM_CAN_SEE(const CharData *sub, const CharData *obj) {
+	return MORT_CAN_SEE(sub, obj)
+		|| (!sub->IsNpc()
+			&& sub->IsFlagged(EPrf::kHolylight));
+}
+
+bool CAN_SEE(const CharData *sub, const CharData *obj) {
+	return SELF(sub, obj)
+		|| ((GetRealLevel(sub) >= (obj->IsNpc() ? 0 : GET_INVIS_LEV(obj)))
+			&& IMM_CAN_SEE(sub, obj));
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

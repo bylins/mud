@@ -781,22 +781,6 @@ ObjData *CharData::GetCastObj() const {
 }
 
 // \todo Да-да, функциями типа "кто кого видит" - самое мместо в модуле персонажа. Вычистить это все отсюда.
-bool MORT_CAN_SEE(const CharData *sub, const CharData *obj) {
-	return HERE(obj)
-		&& INVIS_OK(sub, obj)
-		&& (!is_dark((obj)->in_room)
-			|| AFF_FLAGGED((sub), EAffect::kInfravision));
-}
-
-bool MAY_SEE(const CharData *ch, const CharData *sub, const CharData *obj) {
-	return !(GET_INVIS_LEV(ch) > 30)
-		&& !AFF_FLAGGED(sub, EAffect::kBlind)
-		&& (!is_dark(sub->in_room)
-			|| AFF_FLAGGED(sub, EAffect::kInfravision))
-		&& (!AFF_FLAGGED(obj, EAffect::kInvisible)
-			|| AFF_FLAGGED(sub, EAffect::kDetectInvisible));
-}
-
 bool MAY_ATTACK(const CharData *sub) {
 	return (!AFF_FLAGGED((sub), EAffect::kCharmed)
 		&& !mount::IsHorse((sub))
@@ -848,18 +832,6 @@ bool IS_NOSEXY(const CharData *ch) {
 
 bool IS_POLY(const CharData *ch) {
 	return ch->get_sex() == EGender::kPoly;
-}
-
-bool IMM_CAN_SEE(const CharData *sub, const CharData *obj) {
-	return MORT_CAN_SEE(sub, obj)
-		|| (!sub->IsNpc()
-			&& sub->IsFlagged(EPrf::kHolylight));
-}
-
-bool CAN_SEE(const CharData *sub, const CharData *obj) {
-	return SELF(sub, obj)
-		|| ((GetRealLevel(sub) >= (obj->IsNpc() ? 0 : GET_INVIS_LEV(obj)))
-			&& IMM_CAN_SEE(sub, obj));
 }
 
 // * Внутри цикла чар нигде не пуржится и сам список соответственно не меняется.

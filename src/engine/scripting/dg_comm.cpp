@@ -13,6 +13,7 @@
 #include "engine/core/handler.h"
 #include "engine/core/target_resolver.h"
 #include "engine/core/utils_char_obj.inl"
+#include "gameplay/mechanics/sight.h"
 
 extern DescriptorData *descriptor_list;
 // same as any_one_arg except that it stops at punctuation 

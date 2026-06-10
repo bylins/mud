@@ -36,6 +36,7 @@
 #include "engine/ui/cmd/do_equip.h"
 #include "gameplay/mechanics/illumination.h"
 #include "gameplay/mechanics/doors.h"
+#include "gameplay/mechanics/sight.h"
 
 extern CharData *get_player_of_name(const char *name);
 

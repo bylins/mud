@@ -5,6 +5,7 @@
 #include "engine/core/target_resolver.h"
 #include "pk.h"
 #include "fight.h"
+#include "gameplay/mechanics/sight.h"
 
 // \TODO Надо разобраться, как сделать ассист в файте, не подключая туда этот файл, а assist перенести в команды
 

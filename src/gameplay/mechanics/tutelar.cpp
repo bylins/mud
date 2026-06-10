@@ -16,6 +16,7 @@
 #include "gameplay/fight/common.h"
 #include "gameplay/skills/resque.h"
 #include "gameplay/magic/magic.h"  // CastContext / EStageResult (issue.summons-fix)
+#include "gameplay/mechanics/sight.h"
 
 void CheckTutelarSelfSacrfice(CharData *ch, CharData *victim) {
 	// если виктим в группе с кем-то с ангелом - вместо смерти виктима умирает ангел

@@ -20,6 +20,7 @@
 #include "engine/olc/olc.h"
 #include "engine/db/global_objects.h"
 #include "utils/backtrace.h"
+#include "gameplay/mechanics/sight.h"
 
 extern const char *dirs[];
 

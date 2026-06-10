@@ -602,6 +602,7 @@ void gettimeofday(struct timeval *t, void *dummy)
 #endif                // CIRCLE_WINDOWS || CIRCLE_MACINTOSH
 
 #include <iostream>
+#include "gameplay/mechanics/sight.h"
 
 int main_function(int argc, char **argv) {
 #ifdef TEST_BUILD

@@ -11,6 +11,7 @@
 /*#include "utils/utils_string.h"
 #include "utils/table_wrapper.h"
 #include "utils/utils.h"*/
+#include "gameplay/mechanics/sight.h"
 
 #define USERS_FORMAT \
 "Формат: users [-l minlevel[-maxlevel]] [-n name] [-h host] [-c classlist] [-o] [-p]\r\n"

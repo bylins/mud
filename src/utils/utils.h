@@ -35,6 +35,9 @@
 
 struct RoomData;    // forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
 class CharData;    // forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
+// issue.chardata-cleaning: CAN_SEE lives in gameplay/mechanics/sight.h now; forward-declared here
+// so the ubiquitous PERS/APERS/vis macros below resolve without pulling the heavy sight.h.
+bool CAN_SEE(const CharData *sub, const CharData *obj);
 struct DescriptorData;
 
 // external declarations and prototypes *********************************

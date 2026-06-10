@@ -8,6 +8,7 @@
 
 #include "engine/entities/char_data.h"
 #include "engine/core/comm.h"
+#include "gameplay/mechanics/sight.h"
 
 void DoDropConnect(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	DescriptorData *d;

@@ -24,6 +24,7 @@
 #include <cmath>
 
 #include <fmt/format.h>
+#include "gameplay/mechanics/sight.h"
 
 const int kZeroRemortSkillCap = 80;
 const int kSkillCapBonusPerRemort = 5;;

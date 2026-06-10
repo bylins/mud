@@ -26,6 +26,7 @@
 #include <fmt/format.h>
 
 #include <ranges>
+#include "gameplay/mechanics/sight.h"
 
 bool group::same_group(CharData *ch, CharData *tch) {
 	if (!ch || !tch)

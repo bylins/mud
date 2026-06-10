@@ -21,6 +21,7 @@
 #include "utils/utils.h"
 
 #include <cctype>
+#include "gameplay/mechanics/sight.h"
 
 /*
 	2. Добавить возможность сформировать список группы без учета комнаты.

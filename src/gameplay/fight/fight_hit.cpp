@@ -37,6 +37,7 @@
 #include <chrono>
 #include "gameplay/mechanics/armor.h"
 #include "gameplay/skills/addshot.h"
+#include "gameplay/mechanics/sight.h"
 
 /**
 * Расчет множителя дамаги пушки с концентрацией силы.

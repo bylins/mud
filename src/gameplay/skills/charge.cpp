@@ -17,6 +17,7 @@
 #include "gameplay/fight/common.h"
 #include "gameplay/ai/mobact.h"
 #include "gameplay/mechanics/damage.h"
+#include "gameplay/mechanics/sight.h"
 
 void DoCharge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int direction;

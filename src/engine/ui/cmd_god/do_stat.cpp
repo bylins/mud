@@ -37,6 +37,7 @@
 
 #include <fmt/format.h>
 #include <fmt/printf.h>
+#include "gameplay/mechanics/sight.h"
 
 extern char *diag_weapon_to_char(const CObjectPrototype *obj, int show_wear);
 

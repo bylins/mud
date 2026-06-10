@@ -942,22 +942,12 @@ inline bool INVIS_OK(const CharData *sub, const CharData *obj) {
 
 inline bool INVIS_OK(const CharData *sub, const CharData::shared_ptr &obj) { return INVIS_OK(sub, obj.get()); }
 
-bool MORT_CAN_SEE(const CharData *sub, const CharData *obj);
-bool IMM_CAN_SEE(const CharData *sub, const CharData *obj);
 
 inline bool SELF(const CharData *sub, const CharData *obj) { return sub == obj; }
 inline bool SELF(const CharData *sub, const CharData::shared_ptr &obj) { return sub == obj.get(); }
 
 /// Can subject see character "obj"?
-bool CAN_SEE(const CharData *sub, const CharData *obj);
-inline bool CAN_SEE(const CharData *sub, const CharData::shared_ptr &obj) { return CAN_SEE(sub, obj.get()); }
-inline bool CAN_SEE(const CharData::shared_ptr &sub, const CharData *obj) { return CAN_SEE(sub.get(), obj); }
-inline bool CAN_SEE(const CharData::shared_ptr &sub, const CharData::shared_ptr &obj) {
-	return CAN_SEE(sub.get(),
-				   obj.get());
-}
 
-bool MAY_SEE(const CharData *ch, const CharData *sub, const CharData *obj);
 
 
 bool MAY_ATTACK(const CharData *sub);

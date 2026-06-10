@@ -33,6 +33,7 @@
 #include "engine/db/player_index.h"
 
 #include <fmt/format.h>
+#include "gameplay/mechanics/sight.h"
 
 extern void print_rune_stats(CharData *ch);
 void do_shops_list(CharData *ch);

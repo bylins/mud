@@ -19,6 +19,7 @@
 #include "engine/core/utils_char_obj.inl"
 #include "engine/core/target_resolver.h"
 #include "gameplay/ai/spec_procs.h"
+#include "gameplay/mechanics/sight.h"
 
 void go_steal(CharData *ch, CharData *vict, char *obj_name) {
 	int percent, gold, eq_pos, ohoh = 0, success = 0, prob;

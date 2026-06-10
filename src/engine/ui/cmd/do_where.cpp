@@ -20,6 +20,7 @@
 #include <algorithm>
 #include <string>
 #include <vector>
+#include "gameplay/mechanics/sight.h"
 
 void PerformImmortWhere(CharData *ch, char *arg);
 void PerformMortalWhere(CharData *ch, char *arg);

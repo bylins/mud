@@ -15,6 +15,7 @@
 #include "gameplay/fight/fight_constants.h"
 #include "gameplay/mechanics/weather.h"
 #include "gameplay/mechanics/hide.h"
+#include "gameplay/mechanics/sight.h"
 
 namespace mob_ai {
 

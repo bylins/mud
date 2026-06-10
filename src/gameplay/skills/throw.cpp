@@ -11,6 +11,7 @@
 #include "protect.h"
 #include "gameplay/fight/common.h"
 #include "gameplay/mechanics/damage.h"
+#include "gameplay/mechanics/sight.h"
 
 // ************* THROW PROCEDURES
 

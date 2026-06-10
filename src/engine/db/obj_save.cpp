@@ -51,6 +51,7 @@ extern RoomRnum r_helled_start_room;
 extern RoomRnum r_named_start_room;
 #include "gameplay/ai/subcmd_resolver.h"
 #include "gameplay/ai/spec_procs.h"
+#include "gameplay/mechanics/sight.h"
 extern RoomRnum r_unreg_start_room;
 
 #define RENTCODE(number) (player_table[(number)].timer->rent.rentcode)

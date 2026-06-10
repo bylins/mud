@@ -8,6 +8,7 @@
 
 #include "engine/entities/char_data.h"
 #include "awake.h"
+#include "gameplay/mechanics/sight.h"
 
 void MakeVisible(CharData *ch, EAffect affect);
 

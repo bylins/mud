@@ -16,6 +16,7 @@
 #include "engine/ui/cmd/do_follow.h"
 #include "gameplay/mechanics/stuff.h"
 #include "gameplay/mechanics/dungeons.h"
+#include "gameplay/mechanics/sight.h"
 
 namespace handlers {
 

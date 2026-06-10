@@ -49,6 +49,7 @@
 #include "gameplay/mechanics/weather.h"
 #include "utils/utils_time.h"
 #include "gameplay/mechanics/minions.h"
+#include "gameplay/mechanics/sight.h"
 
 extern int interpolate(int min_value, int pulse);
 

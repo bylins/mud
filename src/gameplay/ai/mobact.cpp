@@ -52,6 +52,7 @@
 #include "gameplay/classes/pc_classes.h"
 #include "gameplay/mechanics/illumination.h"
 #include "gameplay/mechanics/hide.h"
+#include "gameplay/mechanics/sight.h"
 
 // external structs
 extern int no_specials;

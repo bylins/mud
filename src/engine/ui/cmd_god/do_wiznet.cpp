@@ -10,6 +10,7 @@
 #include "engine/network/descriptor_data.h"
 #include "engine/ui/color.h"
 #include "gameplay/communication/remember.h"
+#include "gameplay/mechanics/sight.h"
 
 void do_wiznet(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	DescriptorData *d;
