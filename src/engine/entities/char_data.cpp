@@ -7,6 +7,7 @@
 #include "char_player.h"
 #include "gameplay/mechanics/player_races.h"
 #include "gameplay/mechanics/mount.h"   // issue.mount-mechanics: mount::GetHorse etc.
+#include "gameplay/mechanics/follow.h"
 #include "utils/cache.h"
 #include "gameplay/fight/fight.h"
 #include "gameplay/clans/house.h"
@@ -783,21 +784,6 @@ bool IS_CHARMICE(const CharData *ch) {
 	return ch->IsNpc()
 		&& (AFF_FLAGGED(ch, EAffect::kHelper)
 			|| AFF_FLAGGED(ch, EAffect::kCharmed));
-}
-
-bool CharData::IsLeader() {
-	if (this->IsNpc()) {
-		return false;
-	}
-	if (this->get_master() != this) {
-		return false;
-	}
-	for (auto *f : this->followers) {
-		if (!f->IsNpc()) {
-			return true;
-		}
-	}
-	return false;
 }
 
 bool MORT_CAN_SEE(const CharData *sub, const CharData *obj) {
@@ -1660,26 +1646,6 @@ void CharData::removeGroupFlags() {
 	this->UnsetFlag(EPrf::kSkirmisher);
 }
 
-void CharData::add_follower(CharData *ch) {
-
-	if (ch->IsNpc() && ch->IsFlagged(EMobFlag::kNoGroup))
-		return;
-	if (this->in_room != ch->in_room) {
-		log(fmt::format("попытка загрупить игроков в разных комнатах, лидер {} #{} фолловер {} #{}",
-				this->get_name(), GET_MOB_VNUM(this), ch->get_name(), GET_MOB_VNUM(ch)));
-		mudlog(fmt::format("попытка загрупить игроков в разных комнатах, лидер {} #{} фолловер {} #{}",
-				this->get_name(), GET_MOB_VNUM(this), ch->get_name(), GET_MOB_VNUM(ch)));
-		return;
-	}
-	add_follower_silently(ch);
-
-	if (!mount::IsHorse(ch)) {
-		act("Вы начали следовать за $N4.", false, ch, 0, this, kToChar);
-		act("$n начал$g следовать за вами.", true, ch, 0, this, kToVict);
-		act("$n начал$g следовать за $N4.", true, ch, 0, this, kToNotVict | kToArenaListen);
-	}
-}
-
 
 bool CharData::low_charm() const {
 	for (const auto &aff : affected) {
@@ -1693,22 +1659,6 @@ bool CharData::low_charm() const {
 
 void CharData::cleanup_script() {
 	script->cleanup();
-}
-
-void CharData::add_follower_silently(CharData *ch) {
-	if (ch->has_master()) {
-		log("SYSERR: add_follower_implementation(%s->%s) when master existing(%s)...",
-			GET_NAME(ch), get_name().c_str(), GET_NAME(ch->get_master()));
-		return;
-	}
-
-	if (ch == this) {
-		return;
-	}
-
-	ch->set_master(this);
-
-	followers.push_front(ch);
 }
 
 const CharData::role_t &CharData::get_role_bits() const {
@@ -1878,53 +1828,9 @@ void CharData::restore_npc() {
 	this->caster_level = proto->caster_level;
 }
 
-void CharData::report_loop_error(const CharData::ptr_t master) const {
-	std::stringstream ss;
-	ss << "Обнаружена ошибка логики: попытка сделать цикл в цепочке последователей.\nТекущая цепочка лидеров: ";
-	master->print_leaders_chain(ss);
-	ss << "\nПопытка сделать персонажа [" << master->get_name() << "] лидером персонажа [" << get_name() << "]";
-	mudlog(ss.str().c_str(), DEF, -1, ERRLOG, true);
-
-	std::stringstream additional_info;
-	additional_info << "Потенциальный лидер: name=[" << master->get_name() << "]"
-					<< "; адрес структуры: " << master << "; текущий лидер: ";
-	if (master->has_master()) {
-		additional_info << "name=[" << master->get_master()->get_name() << "]"
-						<< "; адрес структуры: " << master->get_master() << "";
-	} else {
-		additional_info << "<отсутствует>";
-	}
-	additional_info << "\nПоследователь: name=[" << get_name() << "]"
-					<< "; адрес структуры: " << this << "; текущий лидер: ";
-	if (has_master()) {
-		additional_info << "name=[" << get_master()->get_name() << "]"
-						<< "; адрес структуры: " << get_master() << "";
-	} else {
-		additional_info << "<отсутствует>";
-	}
-	mudlog(additional_info.str().c_str(), DEF, -1, ERRLOG, true);
-
-	ss << "\nТекущий стек будет распечатан в SYSLOG.";
-	debug::backtrace(runtime_config.logs(SYSLOG).handle());
-	mudlog(ss.str().c_str(), LGH, kLvlImmortal, SYSLOG, false);
-}
-
-void CharData::print_leaders_chain(std::ostream &ss) const {
-	if (!has_master()) {
-		ss << "<пуста>";
-		return;
-	}
-
-	bool first = true;
-	for (auto master = get_master(); master; master = master->get_master()) {
-		ss << (first ? "" : " -> ") << "[" << master->get_name() << "]";
-		first = false;
-	}
-}
-
 void CharData::set_master(CharData::ptr_t master) {
-	if (makes_loop(master)) {
-		report_loop_error(master);
+	if (follow::MakesLoop(this, master)) {
+		follow::ReportLoopError(this, master);
 		return;
 	}
 	m_master = master;
@@ -1941,17 +1847,6 @@ void CharData::set_wait(const unsigned _) {
 		chardata_wait_list.insert(this);
 		m_wait = _;
 	}
-}
-
-bool CharData::makes_loop(CharData::ptr_t master) const {
-	while (master) {
-		if (master == this) {
-			return true;
-		}
-		master = master->get_master();
-	}
-
-	return false;
 }
 
 // инкремент и проверка таймера на рестор босса,

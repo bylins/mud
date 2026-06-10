@@ -1,4 +1,5 @@
 #include "character_builder.h"
+#include "gameplay/mechanics/follow.h"
 
 #include "utils/utils.h"
 #include "engine/entities/char_data.h"
@@ -246,7 +247,7 @@ void CharacterBuilder::make_group(CharacterBuilder& character_builder)
 
 	auto character = character_builder.get();
 
-	m_result->add_follower_silently(character.get());
+	follow::AddFollowerSilently(m_result.get(), character.get());
 
 	group::perform_group(m_result.get(), m_result.get());
 	group::perform_group(m_result.get(), character.get());

@@ -12,6 +12,7 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 #include "mobact.h"
+#include "gameplay/mechanics/follow.h"
 #include "gameplay/mechanics/mount.h"
 #include "gameplay/ai/spec_procs.h"
 #include "utils/utils_time.h"
@@ -664,7 +665,7 @@ CharData *find_best_mob_victim(CharData *ch, int extmode) {
 		all_targets.push_back(target);
 	}
 	for (auto& target : all_targets) {
-		if (target.ch->IsLeader()) {
+		if (follow::IsLeader(target.ch)) {
 			target.weight = target.weight * 3 / 2;
 		}
 	}

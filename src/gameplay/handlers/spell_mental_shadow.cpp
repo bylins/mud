@@ -4,6 +4,7 @@
 */
 
 #include "gameplay/handlers/spell_handlers.h"
+#include "gameplay/mechanics/follow.h"
 #include "engine/entities/char_data.h"
 #include "engine/core/comm.h"
 #include "engine/db/global_objects.h"
@@ -92,7 +93,7 @@ EStageResult SpellMentalShadow(CastContext &ctx) {
 	mob->SetFlag(EMobFlag::kMentalShadow);
 	mob->SetFlag(EMobFlag::kSummoned);	// true conjuration (banishable)
 	PlaceCharToRoom(mob, ch->in_room);
-	ch->add_follower(mob);
+	follow::AddFollower(ch, mob);
 	mob->set_protecting(ch);
 	
 	// kMentalShadow overrides kSummonToRoom (whose kDefault sheaf carries 9

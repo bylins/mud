@@ -9,6 +9,7 @@
 **************************************************************************/
 
 #include "dg_scripts.h"
+#include "gameplay/mechanics/follow.h"
 #include "gameplay/mechanics/mount.h"
 #include "engine/db/global_objects.h"
 #include "engine/db/obj_prototypes.h"
@@ -3152,7 +3153,7 @@ void find_replacement(void *go,
 						for (auto *f : mob->followers) {
 							f->removeGroupFlags();
 						}
-						new_leader->add_follower(mob);
+						follow::AddFollower(new_leader, mob);
 						// возвращаем UID нового лидера (если следование удалось установить)
 						if (mob->get_master() == new_leader) {
 							snprintf(str, str_size, "%c%ld", uid_type, new_leader->get_uid());

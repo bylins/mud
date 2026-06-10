@@ -1,6 +1,7 @@
 // обслуживание функций езды на всяческих жовтоне
 //
 #include "mount.h"
+#include "gameplay/mechanics/follow.h"
 #include "gameplay/mechanics/mount.h"
 
 #include "engine/entities/char_data.h"
@@ -170,7 +171,7 @@ void RestoreHorseState(CharData *horse) {
 
 void mount::MakeHorse(CharData *horse, CharData *ch) {
 	AFF_FLAGS(horse).set(EAffect::kHorse);
-	ch->add_follower(horse);
+	follow::AddFollower(ch, horse);
 	horse->UnsetFlag(EMobFlag::kWimpy);
 	horse->UnsetFlag(EMobFlag::kSentinel);
 	horse->UnsetFlag(EMobFlag::kHelper);

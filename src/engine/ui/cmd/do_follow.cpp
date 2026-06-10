@@ -1,5 +1,6 @@
 #include "do_follow.h"
 #include "gameplay/mechanics/mount.h"
+#include "gameplay/mechanics/follow.h"
 
 #include "gameplay/fight/fight.h"
 #include "engine/core/handler.h"
@@ -214,7 +215,7 @@ void do_follow(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				f->removeGroupFlags();
 			}
 
-			leader->add_follower(ch);
+			follow::AddFollower(leader, ch);
 		}
 	}
 }

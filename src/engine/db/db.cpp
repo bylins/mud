@@ -1,4 +1,5 @@
 #include <filesystem>
+#include "gameplay/mechanics/follow.h"
 #include "gameplay/mechanics/portal.h"
 
 #include "third_party_libs/pugixml/pugixml.h"
@@ -2477,7 +2478,7 @@ void ZoneReset::ResetZoneEssential() {
 								if (ch->IsNpc()
 									&& ch->get_rnum() == reset_cmd.arg3
 									&& leader != ch
-									&& !ch->makes_loop(leader)) {
+									&& !follow::MakesLoop(ch, leader)) {
 									if (IS_CHARMICE(ch)) {
 										continue;
 									}
@@ -2486,7 +2487,7 @@ void ZoneReset::ResetZoneEssential() {
 									}
 									if (ch->purged() || ch->in_room == kNowhere)
 										continue;
-									leader->add_follower(ch);
+									follow::AddFollower(leader, ch);
 									curr_state = 1;
 								}
 							}

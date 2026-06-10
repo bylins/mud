@@ -4,6 +4,7 @@
 */
 
 #include "gameplay/handlers/spell_handlers.h"
+#include "gameplay/mechanics/follow.h"
 #include "gameplay/mechanics/mount.h"
 #include "gameplay/mechanics/minions.h"
 #include "engine/entities/char_data.h"
@@ -149,7 +150,7 @@ EStageResult SpellCharm(CastContext &ctx) {
 		af.type = ESpell::kCharm;
 		af.affect_type = EAffect::kCharmed;
 		affect_to_char(victim, af);
-		ch->add_follower(victim);
+		follow::AddFollower(ch, victim);
 	}
 	// тут обрабатываем, если виктим маг-зверь => передаем в фунцию создание маг шмоток (цель, базовый скил, процент владения)
 	if (victim->IsFlagged(EMobFlag::kCompanion)) {

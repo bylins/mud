@@ -586,6 +586,7 @@ main_sources = files(
   'src/gameplay/skills/warcry.cpp',
   'src/gameplay/skills/identify.cpp',
   'src/gameplay/skills/relocate.cpp',
+  'src/gameplay/mechanics/follow.cpp',
   'src/gameplay/mechanics/mount.cpp',
   'src/gameplay/fight/assist.cpp',
   'src/engine/ui/cmd/do_kill.cpp',

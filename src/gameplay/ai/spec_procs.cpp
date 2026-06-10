@@ -13,6 +13,7 @@
 ************************************************************************ */
 
 #include "gameplay/ai/spec_procs.h"
+#include "gameplay/mechanics/follow.h"
 #include "gameplay/ai/special_messages.h"
 
 #include <fmt/format.h>
@@ -965,10 +966,10 @@ void npc_group(CharData *ch) {
 		}
 
 		if (!vict->has_master()) {
-			leader->add_follower(vict);
+			follow::AddFollower(leader, vict);
 		} else if (vict->get_master() != leader) {
 			stop_follower(vict, kSfEmpty);
-			leader->add_follower(vict);
+			follow::AddFollower(leader, vict);
 		}
 		AFF_FLAGS(vict).set(EAffect::kGroup);
 	}
@@ -1350,7 +1351,7 @@ int pet_shops(CharData *ch, void * /*me*/, int cmd, char *argument) {
 			pet->player_data.description = str_dup(buf);
 		}
 		PlaceCharToRoom(pet, ch->in_room);
-		ch->add_follower(pet);
+		follow::AddFollower(ch, pet);
 		load_mtrigger(pet);
 
 		// Be certain that pets can't get/carry/use/wield/wear items

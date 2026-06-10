@@ -7,6 +7,7 @@
 */
 
 #include "gameplay/mechanics/groups.h"
+#include "gameplay/mechanics/follow.h"
 #include "gameplay/mechanics/mount.h"
 
 #include "engine/entities/char_data.h"
@@ -156,7 +157,7 @@ void change_leader(CharData *ch, CharData *vict) {
 
 	if (!temp_list.empty()) {
 		for (auto & it : std::ranges::reverse_view(temp_list)) {
-			leader->add_follower_silently(it);
+			follow::AddFollowerSilently(leader, it);
 		}
 	}
 
@@ -165,7 +166,7 @@ void change_leader(CharData *ch, CharData *vict) {
 		// флаг группы надо снять, иначе при регрупе не будет писаться о старом лидере
 		//AFF_FLAGS(ch).unset(EAffectFlag::AFF_GROUP);
 		ch->removeGroupFlags();
-		leader->add_follower_silently(ch);
+		follow::AddFollowerSilently(leader, ch);
 	}
 
 	if (leader->followers.empty()) {

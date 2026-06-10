@@ -605,12 +605,6 @@ class CharData : public ProtectedCharData {
 	void msdp_report(const std::string &name);
 
 	void removeGroupFlags();
-	void add_follower(CharData *ch);
-	/** Do NOT call this before having checked if a circle of followers
-	* will arise. CH will follow leader
-	* \param silent - для смены лидера группы без лишнего спама (по дефолту 0)
-	*/
-	void add_follower_silently(CharData *ch);
 	const followers_list_t &get_followers_list() const { return followers; }
 	const player_special_data::ignores_t &get_ignores() const;
 	void add_ignore(const ignore_data::shared_ptr& ignore);
@@ -736,8 +730,6 @@ class CharData : public ProtectedCharData {
 	RoomRnum in_room;    // Location (real room number)
 
  private:
-	void report_loop_error(CharData::ptr_t master) const;
-	void print_leaders_chain(std::ostream &ss) const;
 
 	unsigned m_wait;            // wait for how many loops
 	CharData *m_master;        // Who is char following?
@@ -856,8 +848,6 @@ class CharData : public ProtectedCharData {
 	CharData::ptr_t get_master() const { return m_master; }
 	void set_master(CharData::ptr_t master);
 	bool has_master() const { return nullptr != m_master; }
-	bool makes_loop(CharData::ptr_t master) const;
-	bool IsLeader();
 };
 
 // ERemovableSpell / GetRemovableSpellId moved to gameplay/magic/magic.h (issue.affect-dispell-flags).

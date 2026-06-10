@@ -1,4 +1,5 @@
 #include "do_hire.h"
+#include "gameplay/mechanics/follow.h"
 #include "gameplay/mechanics/mount.h"
 
 #include "do_follow.h"
@@ -227,7 +228,7 @@ void DoFindhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 		Affect<EApply> af;
 		if (!(hired && hired == helpee)) {
-			ch->add_follower(helpee);
+			follow::AddFollower(ch, helpee);
 			af.duration = CalcDuration(helpee, helpee, ESkill::kUndefined, times * kTimeKoeff, 0, 0, 0);
 		} else {
 			auto aff = hired->affected.begin();

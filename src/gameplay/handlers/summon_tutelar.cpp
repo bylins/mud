@@ -4,6 +4,7 @@
 */
 
 #include "gameplay/handlers/spell_handlers.h"
+#include "gameplay/mechanics/follow.h"
 #include "gameplay/skills/skills.h"
 #include "utils/utils.h"
 #include "gameplay/mechanics/minions.h"
@@ -195,7 +196,7 @@ EStageResult SummonTutelar(CastContext &ctx) {
 		act("Небесный защитник появился в яркой вспышке света!",
 			true, mob, nullptr, nullptr, kToRoom | kToArenaListen);
 	}
-	ch->add_follower(mob);
+	follow::AddFollower(ch, mob);
 	return EStageResult::kSuccess;
 }
 

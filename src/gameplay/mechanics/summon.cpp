@@ -4,6 +4,7 @@
 */
 
 #include "gameplay/mechanics/summon.h"
+#include "gameplay/mechanics/follow.h"
 #include "gameplay/mechanics/mount.h"
 #include "gameplay/ai/spec_procs.h"
 #include "engine/entities/char_data.h"
@@ -57,7 +58,7 @@ int FinalizeSummonedMob(CharData *ch, CharData *mob, ESpell spell_id, bool keepe
 	act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kSummonToRoom).c_str(),
 		false, ch, nullptr, mob, kToRoom | kToArenaListen);
 	PlaceCharToRoom(mob, ch->in_room);
-	ch->add_follower(mob);
+	follow::AddFollower(ch, mob);
 	return duration;
 }
 

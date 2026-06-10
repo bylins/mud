@@ -13,6 +13,7 @@
 //#include "handler.h"
 
 #include "engine/scripting/dg_scripts.h"
+#include "gameplay/mechanics/follow.h"
 #include "gameplay/fight/fight_stuff.h"
 #include "gameplay/economics/auction.h"
 #include "utils/backtrace.h"
@@ -1626,7 +1627,7 @@ void change_npc_leader(CharData *ch) {
 		if (!leader) {
 			leader = i;
 		} else {
-			leader->add_follower_silently(i);
+			follow::AddFollowerSilently(leader, i);
 		}
 	}
 }
