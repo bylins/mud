@@ -1,4 +1,5 @@
 #include <filesystem>
+#include "utils/utils_encoding.h"
 #include "gameplay/mechanics/minions.h"
 #include "gameplay/mechanics/follow.h"
 #include "gameplay/mechanics/portal.h"
@@ -3214,7 +3215,7 @@ int get_filename(const char *orig_name, char *filename, int mode) {
 		if (*ptr == 'Ё' || *ptr == 'ё')
 			*ptr = '9';
 		else
-			*ptr = LOWER(AtoL(*ptr));
+			*ptr = LOWER(codepages::AtoL(*ptr));
 	}
 
 	switch (LOWER(*name)) {

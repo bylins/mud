@@ -1,4 +1,5 @@
 #include "engine/db/global_objects.h"
+#include "utils/utils_encoding.h"
 #include "engine/ui/color.h"
 #include "backtrace.h"
 
@@ -36,7 +37,7 @@ void pers_log(CharData *ch, const char *format, ...) {
 		char filename[128], name[64], *ptr;
 		strcpy(name, GET_NAME(ch));
 		for (ptr = name; *ptr; ptr++) {
-			*ptr = LOWER(AtoL(*ptr));
+			*ptr = LOWER(codepages::AtoL(*ptr));
 		}
 		sprintf(filename, "%s/perslog/%s.log", runtime_config.log_dir().c_str(), name);
 		ch->desc->pers_log = fopen(filename, "a");

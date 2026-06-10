@@ -90,12 +90,6 @@ inline const char *not_empty(const std::string &s, const char *subst) {
 }
 
 //extern struct Weather weather_info;
-extern char AltToKoi[];
-extern char KoiToAlt[];
-extern char WinToKoi[];
-extern char KoiToWin[];
-extern char KoiToWin2[];
-extern char AltToLat[];
 
 // public functions in utils.cpp
 char *rustime(const struct tm *timeptr);
@@ -110,11 +104,6 @@ void sprinttype(int type, const char *names[], char *result);
 int get_line(FILE *fl, char *buf);
 int replace_str(const utils::AbstractStringWriter::shared_ptr &writer, const char *pattern, const char *replacement, int rep_all, int max_size);
 void format_text(const utils::AbstractStringWriter::shared_ptr &writer, int mode, DescriptorData *d, size_t maxlen);
-void koi_to_alt(char *str, int len);
-std::string koi_to_alt(const std::string &input);
-void koi_to_win(char *str, int len);
-void koi_to_utf8(char *str_i, char *str_o);
-void utf8_to_koi(char *str_i, char *str_o);
 // \todo Заменить на фунции из STD
 int round_up(float fl);
 bool is_head(std::string name);
@@ -144,12 +133,6 @@ constexpr int kMinTitleLev = 25;
 int MAX(int a, int b);
 int MIN(int a, int b);
 
-inline char KtoW(char c) { return (ubyte)(c) < 128 ? c : KoiToWin[(ubyte)(c) - 128]; }
-inline char KtoW2(char c) { return (ubyte)(c) < 128 ? c : KoiToWin2[(ubyte)(c) - 128]; }
-inline char KtoA(char c) { return (ubyte)(c) < 128 ? c : KoiToAlt[(ubyte)(c) - 128]; }
-inline char WtoK(char c) { return (ubyte)(c) < 128 ? c : WinToKoi[(ubyte)(c) - 128]; }
-inline char AtoK(char c) { return (ubyte)(c) < 128 ? c : AltToKoi[(ubyte)(c) - 128]; }
-inline char AtoL(char c) { return (ubyte)(c) < 128 ? c : AltToLat[(ubyte)(c) - 128]; }
 
 // various constants ****************************************************
 // get_filename() //

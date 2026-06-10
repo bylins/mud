@@ -7,6 +7,7 @@
 */
 
 #include "engine/core/iosystem.h"
+#include "utils/utils_encoding.h"
 #include "utils/grammar/gender.h"
 #include "gameplay/mechanics/sight.h"
 
@@ -405,15 +406,15 @@ int process_input(DescriptorData *t) {
 					case 0:
 					case kCodePageUTF8: *(write_point++) = *ptr;
 						break;
-					case kCodePageAlt: *(write_point++) = AtoK(*ptr);
+					case kCodePageAlt: *(write_point++) = codepages::AtoK(*ptr);
 						break;
 					case kCodePageWin:
 					case kCodePageWinz:
-					case kCodePageWinzZ: *(write_point++) = WtoK(*ptr);
+					case kCodePageWinzZ: *(write_point++) = codepages::WtoK(*ptr);
 						if (*ptr == (char) 255 && *(ptr + 1) == (char) 255 && ptr + 1 < nl_pos)
 							ptr++;
 						break;
-					case kCodePageWinzOld: *(write_point++) = WtoK(*ptr);
+					case kCodePageWinzOld: *(write_point++) = codepages::WtoK(*ptr);
 						break;
 				}
 				space_left--;
@@ -443,7 +444,7 @@ int process_input(DescriptorData *t) {
 			for (i = 0; i < kMaxSockBuf * 2 * 3; i++) {
 				utf8_tmp[i] = 0;
 			}
-			utf8_to_koi(tmp, utf8_tmp);
+			codepages::utf8_to_koi(tmp, utf8_tmp);
 			len_o = strlen(utf8_tmp);
 			strncpy(tmp, utf8_tmp, kMaxInputLength - 1);
 			space_left = space_left + len_i - len_o;

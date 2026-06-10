@@ -1,4 +1,5 @@
 #include "helpers.h"
+#include "utils/utils_encoding.h"
 #include "utils/utils.h"
 
 namespace observability {
@@ -38,7 +39,7 @@ std::string koi8r_to_utf8(const std::string& input) {
 	}
 	// Each KOI8-R byte expands to at most 3 UTF-8 bytes, plus null terminator
 	std::string output(input.size() * 3 + 1, '\0');
-	koi_to_utf8(const_cast<char*>(input.c_str()), &output[0]);
+	codepages::koi_to_utf8(const_cast<char*>(input.c_str()), &output[0]);
 	output.resize(strlen(output.c_str()));
 	return output;
 }

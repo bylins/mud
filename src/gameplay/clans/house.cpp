@@ -5,6 +5,7 @@
 ******************************************************************************/
 
 #include "house.h"
+#include "utils/utils_encoding.h"
 #include "utils/grammar/gender.h"
 #include "utils/grammar/declensions.h"
 #include "gameplay/mechanics/minions.h"
@@ -2367,7 +2368,7 @@ void Clan::save_chest() {
 
 	std::string buffer = this->abbrev;
 	for (unsigned i = 0; i != buffer.length(); ++i)
-		buffer[i] = LOWER(AtoL(buffer[i]));
+		buffer[i] = LOWER(codepages::AtoL(buffer[i]));
 	std::string filename = LIB_HOUSE + buffer + "/" + buffer + ".obj";
 	for (auto chest : world[GetRoomRnum(this->chest_room)]->contents) {
 		if (Clan::is_clan_chest(chest)) {
@@ -2428,7 +2429,7 @@ void Clan::ChestLoad() {
 	for (ClanListType::const_iterator clan = Clan::ClanList.begin(); clan != Clan::ClanList.end(); ++clan) {
 		buffer = (*clan)->abbrev;
 		for (unsigned i = 0; i != buffer.length(); ++i) {
-			buffer[i] = LOWER(AtoL(buffer[i]));
+			buffer[i] = LOWER(codepages::AtoL(buffer[i]));
 		}
 		std::string filename = LIB_HOUSE + buffer + "/" + buffer + ".obj";
 
@@ -2531,7 +2532,7 @@ void Clan::ChestUpdate() {
 void Clan::write_mod(const std::string &arg) {
 	std::string abbrev = this->get_abbrev();
 	for (unsigned i = 0; i != abbrev.length(); ++i) {
-		abbrev[i] = LOWER(AtoL(abbrev[i]));
+		abbrev[i] = LOWER(codepages::AtoL(abbrev[i]));
 	}
 	std::string filename = LIB_HOUSE + abbrev + "/" + abbrev + ".mod";
 
@@ -4160,7 +4161,7 @@ std::string Clan::get_remember(unsigned int num, int flag) const {
 std::string Clan::get_file_abbrev() const {
 	std::string text = this->get_abbrev();
 	for (unsigned i = 0; i != text.length(); ++i) {
-		text[i] = LOWER(AtoL(text[i]));
+		text[i] = LOWER(codepages::AtoL(text[i]));
 	}
 	return text;
 }

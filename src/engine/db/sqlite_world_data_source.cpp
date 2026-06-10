@@ -4,6 +4,7 @@
 #ifdef HAVE_SQLITE
 
 #include "sqlite_world_data_source.h"
+#include "utils/utils_encoding.h"
 #include "db.h"
 #include "obj_prototypes.h"
 #include "utils/logger.h"
@@ -633,7 +634,7 @@ std::string SqliteWorldDataSource::GetText(sqlite3_stmt *stmt, int col)
 	static char buffer[65536];
 	char *input = const_cast<char*>(text);
 	char *output = buffer;
-	utf8_to_koi(input, output);
+	codepages::utf8_to_koi(input, output);
 	return buffer;
 }
 

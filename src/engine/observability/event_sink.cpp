@@ -1,4 +1,5 @@
 #include "event_sink.h"
+#include "utils/utils_encoding.h"
 
 #include "utils/utils.h"
 
@@ -53,9 +54,9 @@ void FlushAllSinks() {
 
 std::string EngineStringToUtf8(const std::string& koi8r) {
 	std::array<char, 4096> buf{};
-	std::string mut = koi8r;  // koi_to_utf8 takes char*, not const
+	std::string mut = koi8r;  // codepages::koi_to_utf8 takes char*, not const
 	mut.push_back('\0');
-	koi_to_utf8(mut.data(), buf.data());
+	codepages::koi_to_utf8(mut.data(), buf.data());
 	return std::string(buf.data());
 }
 

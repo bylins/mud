@@ -4,6 +4,7 @@
 #ifdef HAVE_YAML
 
 #include "yaml_world_data_source.h"
+#include "utils/utils_encoding.h"
 #include "dictionary_loader.h"
 #include "db.h"
 #include "obj_prototypes.h"
@@ -385,7 +386,7 @@ std::string YamlWorldDataSource::ConvertToKoi8r(const std::string &utf8_str) con
 	static char buffer[65536];
 	char *input = const_cast<char*>(utf8_str.c_str());
 	char *output = buffer;
-	utf8_to_koi(input, output);
+	codepages::utf8_to_koi(input, output);
 	return buffer;
 }
 
@@ -2366,7 +2367,7 @@ std::string YamlWorldDataSource::ConvertToUtf8(const std::string &koi8r_str) con
 	static char buffer[65536];
 	char *input = const_cast<char*>(koi8r_str.c_str());
 	char *output = buffer;
-	koi_to_utf8(input, output);
+	codepages::koi_to_utf8(input, output);
 	return buffer;
 }
 

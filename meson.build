@@ -547,6 +547,7 @@ main_sources = files(
   'src/gameplay/mechanics/title.cpp',
   'src/gameplay/statistics/top.cpp',
   'src/utils/utils.cpp',
+  'src/utils/utils_encoding.cpp',
   'src/gameplay/mechanics/weather.cpp',
   'src/engine/olc/zedit.cpp',
   'src/utils/utils_string.cpp',

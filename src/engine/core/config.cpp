@@ -15,6 +15,7 @@
 #define __CONFIG_C__
 
 #include "config.h"
+#include "utils/utils_encoding.h"
 #include "common_messages.h"
 #include "engine/structs/msg_container.h"
 #include "engine/structs/info_container.h"   // kUndefinedVnum
@@ -406,9 +407,9 @@ void RuntimeConfiguration::setup_converters() {
 		// set up converter
 		const auto &encoding = log_stderr();
 		if ("cp1251" == encoding) {
-			m_syslog_converter = &koi_to_win;
+			m_syslog_converter = &codepages::koi_to_win;
 		} else if ("alt" == encoding) {
-			m_syslog_converter = static_cast<void (*)(char *, int)>(koi_to_alt);
+			m_syslog_converter = static_cast<void (*)(char *, int)>(codepages::koi_to_alt);
 		}
 	}
 }

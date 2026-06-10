@@ -14,6 +14,7 @@
 #define INTERPRETER_CPP_
 
 #include "interpreter.h"
+#include "utils/utils_encoding.h"
 #include "interpreter_utils.h"
 
 #include "engine/core/char_movement.h"
@@ -3740,7 +3741,7 @@ std::string GetNameByUnique(long unique, bool god) {
 // замена в name русских символов на англ в нижнем регистре (для файлов)
 void CreateFileName(std::string &name) {
 	for (unsigned i = 0; i != name.length(); ++i)
-		name[i] = LOWER(AtoL(name[i]));
+		name[i] = LOWER(codepages::AtoL(name[i]));
 }
 
 // вывод экспы аля диабла
