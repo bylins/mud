@@ -4,6 +4,7 @@
 */
 
 #include "gameplay/handlers/spell_handlers.h"
+#include "gameplay/mechanics/mount.h"
 #include "engine/core/target_resolver.h"
 #include "engine/entities/char_data.h"
 #include "engine/core/comm.h"
@@ -37,7 +38,7 @@ EStageResult SpellTeleport(CastContext &ctx) {
 		false, ch, nullptr, nullptr, kToRoom);
 	RemoveCharFromRoom(ch);
 	PlaceCharToRoom(ch, fnd_room);
-	ch->dismount();
+	mount::Dismount(ch);
 	act(MUD::SpellMessages().GetMessage(ESpell::kTeleport, ESpellMsg::kCastAppearToRoom).c_str(),
 		false, ch, nullptr, nullptr, kToRoom);
 	look_at_room(ch, 0);

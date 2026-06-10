@@ -168,7 +168,7 @@ bool stone_rebirth(CharData *ch, CharData *killer) {
 					SendMsgToChar("Божественная сила спасла вашу жизнь!\r\n", ch);
 					RemoveCharFromRoom(ch);
 					PlaceCharToRoom(ch, rnum_start);
-					ch->dismount();
+					mount::Dismount(ch);
 					ch->set_hit(1);
 					update_pos(ch);
 					while (!ch->affected.empty()) {
@@ -215,7 +215,7 @@ bool check_tester_death(CharData *ch, CharData *killer) {
 	SendMsgToChar("Божественная сила спасла вашу жизнь.!\r\n", ch);
 	RemoveCharFromRoom(ch);
 	PlaceCharToRoom(ch, rent_room);
-	ch->dismount();
+	mount::Dismount(ch);
 	ch->set_hit(1);
 	update_pos(ch);
 	act("$n медленно появил$u откуда-то.", false, ch, nullptr, nullptr, kToRoom);

@@ -10,6 +10,7 @@ str.cpp - PyUnicode_FromString на PyUnicode_DecodeLocale, PyUnicode_FromString
 Т.е. делаем все так же, как и здесь http://habrahabr.ru/post/161931/
 */
 #include "scripting.h"
+#include "gameplay/mechanics/mount.h"
 
 #include "engine/db/world_characters.h"
 #include "engine/db/obj_prototypes.h"
@@ -550,7 +551,7 @@ class CharacterWrapper : public Wrapper<CharacterData> {
 		Ensurer ch(*this);
 		char_from_room(ch);
 		char_to_room(ch, in_room);
-		ch->dismount();
+		mount::Dismount(ch);
 	}
 
 	bool is_affected_by_spell(int spell_num) const {
@@ -1191,7 +1192,7 @@ void char_to_room_wrap(CharacterWrapper &c, int vnum) {
 	}
 	char_from_room(ch);
 	char_to_room(ch, location);
-	ch->dismount();
+	mount::Dismount(ch);
 	look_at_room(ch, 0);
 
 }

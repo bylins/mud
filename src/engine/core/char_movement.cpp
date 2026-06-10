@@ -224,7 +224,7 @@ bool IsCorrectDirection(CharData *ch, int dir, bool check_specials, bool show_ms
 			if (show_msg) {
 				act("$Z $N отказывается туда идти, и вам пришлось соскочить.",
 					false, ch, nullptr, mount::GetHorse(ch), kToChar);
-				ch->dismount();
+				mount::Dismount(ch);
 			}
 		}
 		//проверка на ванрум: скидываем игрока с коня, если там незанято

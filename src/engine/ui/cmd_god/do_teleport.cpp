@@ -7,6 +7,7 @@
 */
 
 #include "engine/entities/char_data.h"
+#include "gameplay/mechanics/mount.h"
 #include "engine/core/handler.h"
 #include "engine/core/target_resolver.h"
 #include "gameplay/mechanics/sight.h"
@@ -32,7 +33,7 @@ void DoTeleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		act("$n растворил$u в клубах дыма.", false, victim, nullptr, nullptr, kToRoom);
 		RemoveCharFromRoom(victim);
 		PlaceCharToRoom(victim, target);
-		victim->dismount();
+		mount::Dismount(victim);
 		act("$n появил$u, окутанн$w розовым туманом.", false, victim, nullptr, nullptr, kToRoom);
 		act("$n переместил$g вас!", false, ch, nullptr, (char *) victim, kToVict);
 		look_at_room(victim, 0);

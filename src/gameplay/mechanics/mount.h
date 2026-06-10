@@ -28,6 +28,9 @@ namespace mount {
 // false if ch is neither a rider nor a mount.
 bool DropFromHorse(CharData *ch);
 
+// Voluntarily get off the horse (clears kHorse, emits the messages). No-op if not mounted.
+void Dismount(CharData *ch);
+
 }  // namespace mount
 
 void make_horse(CharData *horse, CharData *ch);

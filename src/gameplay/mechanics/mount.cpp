@@ -67,6 +67,17 @@ bool DropFromHorse(CharData *ch) {
 	return true;
 }
 
+void Dismount(CharData *ch) {
+	if (!IsOnHorse(ch) || GetHorse(ch) == nullptr) {
+		return;
+	}
+	if (!ch->IsNpc() && HasHorse(ch, true)) {
+		AFF_FLAGS(ch).unset(EAffect::kHorse);
+	}
+	act("Вы слезли со спины $N1.", false, ch, 0, GetHorse(ch), kToChar);
+	act("$n соскочил$g с $N1.", false, ch, 0, GetHorse(ch), kToRoom | kToArenaListen);
+}
+
 }  // namespace mount
 
 void make_horse(CharData *horse, CharData *ch) {
@@ -144,7 +155,7 @@ void do_horseoff(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/)
 		SendMsgToChar("Вы ведь и так не на лошади.\r\n", ch);
 		return;
 	}
-	ch->dismount();
+	mount::Dismount(ch);
 
 }
 

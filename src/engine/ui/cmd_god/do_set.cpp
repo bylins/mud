@@ -3,6 +3,7 @@
 //
 
 #include "administration/karma.h"
+#include "gameplay/mechanics/mount.h"
 #include "administration/names.h"
 #include "administration/privilege.h"
 #include "administration/punishments.h"
@@ -448,7 +449,7 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 				RemoveCharFromRoom(vict);
 			}
 			PlaceCharToRoom(vict, rnum);
-			vict->dismount();
+			mount::Dismount(vict);
 			break;
 		case 28: on_off_mode ? vict->SetFlag(EPrf::kRoomFlags) : vict->UnsetFlag(EPrf::kRoomFlags);
 			break;

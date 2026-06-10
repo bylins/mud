@@ -4,6 +4,7 @@
 */
 
 #include "gameplay/handlers/spell_handlers.h"
+#include "gameplay/mechanics/mount.h"
 #include "gameplay/mechanics/minions.h"
 #include "engine/entities/char_data.h"
 #include "engine/core/comm.h"
@@ -178,7 +179,7 @@ EStageResult SpellSummon(CastContext &ctx) {
 		true, victim, nullptr, nullptr, kToRoom | kToArenaListen);
 	act(MUD::SpellMessages().GetMessage(ESpell::kSummon, ESpellMsg::kCustomMsgTwo).c_str(),
 		false, ch, nullptr, victim, kToVict);
-	victim->dismount();
+	mount::Dismount(victim);
 	look_at_room(victim, 0);
 	SummonFollowingCharmices(ch, victim, vic_room, ch_room);
 	greet_mtrigger(victim, -1);

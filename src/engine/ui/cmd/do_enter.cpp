@@ -63,7 +63,7 @@ void DoEnter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				if (ROOM_FLAGGED(door, ERoomFlag::kNohorse) && mount::IsOnHorse(ch)) {
 					act("$Z $N отказывается туда идти, и вам пришлось соскочить.",
 						false, ch, nullptr, mount::GetHorse(ch), kToChar);
-					ch->dismount();
+					mount::Dismount(ch);
 				}
 				//проверка на ванрум и лошадь
 				if (ROOM_FLAGGED(door, ERoomFlag::kTunnel) &&
@@ -74,7 +74,7 @@ void DoEnter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					} else {
 						act("$Z $N заупрямил$U, и вам пришлось соскочить.",
 							false, ch, nullptr, mount::GetHorse(ch), kToChar);
-						ch->dismount();
+						mount::Dismount(ch);
 					}
 				}
 				// Обработка флагов NOTELEPORTIN и NOTELEPORTOUT здесь же. PK-пента

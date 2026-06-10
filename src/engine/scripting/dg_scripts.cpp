@@ -3024,7 +3024,7 @@ void find_replacement(void *go,
 					auto pos = std::clamp(static_cast<EPosition>(atoi(subfield)), EPosition::kPerish, --EPosition::kLast);
 					if (!mob->IsImmortal()) {
 						if (mount::IsOnHorse(mob)) {
-							mob->dismount();
+							mount::Dismount(mob);
 						}
 						mob->SetPosition(pos);
 					}

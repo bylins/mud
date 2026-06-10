@@ -7,6 +7,7 @@
 */
 
 #include "engine/entities/char_data.h"
+#include "gameplay/mechanics/mount.h"
 #include "engine/core/handler.h"
 #include "gameplay/mechanics/sight.h"
 
@@ -24,7 +25,7 @@ void DoGoto(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	act(buf, true, ch, nullptr, nullptr, kToRoom);
 	RemoveCharFromRoom(ch);
 	PlaceCharToRoom(ch, location);
-	ch->dismount();
+	mount::Dismount(ch);
 
 	if (POOFIN(ch))
 		sprintf(buf, "$n %s", POOFIN(ch));

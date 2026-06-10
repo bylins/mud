@@ -4,6 +4,7 @@
 */
 
 #include "gameplay/handlers/spell_handlers.h"
+#include "gameplay/mechanics/mount.h"
 #include "engine/entities/char_data.h"
 #include "engine/core/comm.h"
 #include "engine/db/global_objects.h"
@@ -67,7 +68,7 @@ EStageResult SpellRelocate(CastContext &ctx) {
 			ESpell::kRelocate, ESpellMsg::kCustomMsgOne) + "\r\n", ch);
 	RemoveCharFromRoom(ch);
 	PlaceCharToRoom(ch, fnd_room);
-	ch->dismount();
+	mount::Dismount(ch);
 	look_at_room(ch, 0);
 	act(MUD::SpellMessages().GetMessage(ESpell::kRelocate, ESpellMsg::kCastAppearToRoom).c_str(),
 		true, ch, nullptr, nullptr, kToRoom);

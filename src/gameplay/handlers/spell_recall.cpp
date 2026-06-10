@@ -4,6 +4,7 @@
 */
 
 #include "gameplay/handlers/spell_handlers.h"
+#include "gameplay/mechanics/mount.h"
 #include "engine/core/target_resolver.h"
 #include "engine/entities/char_data.h"
 #include "engine/core/comm.h"
@@ -82,7 +83,7 @@ EStageResult SpellRecall(CastContext &ctx) {
 		true, victim, nullptr, nullptr, kToRoom | kToArenaListen);
 	RemoveCharFromRoom(victim);
 	PlaceCharToRoom(victim, fnd_room);
-	victim->dismount();
+	mount::Dismount(victim);
 	act(MUD::SpellMessages().GetMessage(ESpell::kWorldOfRecall, ESpellMsg::kCastAppearToRoom).c_str(),
 		true, victim, nullptr, nullptr, kToRoom);
 	look_at_room(victim, 0);

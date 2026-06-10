@@ -1,4 +1,5 @@
 #include "relocate.h"
+#include "gameplay/mechanics/mount.h"
 
 #include "engine/entities/char_data.h"
 #include "gameplay/clans/house.h"
@@ -103,7 +104,7 @@ void do_relocate(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	SendMsgToChar("Лазурные сполохи пронеслись перед вашими глазами.\r\n", ch);
 	RemoveCharFromRoom(ch);
 	PlaceCharToRoom(ch, fnd_room);
-	ch->dismount();
+	mount::Dismount(ch);
 	act("$n медленно появил$u откуда-то.", true, ch, nullptr, nullptr, kToRoom);
 	if (!(victim->IsFlagged(EPrf::KSummonable) || group::same_group(ch, victim) || ch->IsImmortal()
 		|| ROOM_FLAGGED(fnd_room, ERoomFlag::kArena))) {

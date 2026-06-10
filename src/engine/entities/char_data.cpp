@@ -2074,15 +2074,6 @@ bool CharData::IsHorsePrevents() {
 #include "utils/backtrace.h"
 
 
-void CharData::dismount() {
-	if (!mount::IsOnHorse(this) || mount::GetHorse(this) == nullptr)
-		return;
-	if (!this->IsNpc() && mount::HasHorse(this, true)) {
-		AFF_FLAGS(this).unset(EAffect::kHorse);
-	}
-	act("Вы слезли со спины $N1.", false, this, 0, mount::GetHorse(this), kToChar);
-	act("$n соскочил$g с $N1.", false, this, 0, mount::GetHorse(this), kToRoom | kToArenaListen);
-}
 
 obj_sets::activ_sum &CharData::obj_bonus() {
 	return obj_bonus_;
