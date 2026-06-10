@@ -660,16 +660,8 @@ const int kNameLevel = 5;
 
 #define HERE(ch)  (((ch)->IsNpc() || (ch)->desc || NORENTABLE(ch)))
 
-// Can subject see character "obj" without light
-#define MORT_CAN_SEE_CHAR(sub, obj) (HERE(obj) && INVIS_OK(sub,obj))
-
-#define IMM_CAN_SEE_CHAR(sub, obj) \
-        (MORT_CAN_SEE_CHAR(sub, obj) || (!(sub)->IsNpc() && (sub)->IsFlagged(EPrf::kHolylight)))
-
-#define CAN_SEE_CHAR(sub, obj) (SELF(sub, obj) || \
-        ((GetRealLevel(sub) >= ((obj)->IsNpc() ? 0 : GET_INVIS_LEV(obj))) && \
-         IMM_CAN_SEE_CHAR(sub, obj)))
-// End of CanSee
+// issue.utils-cleaning: the MORT/IMM/CAN_SEE_CHAR "see without light" macros moved to
+// gameplay/mechanics/sight.h as CanSeeIgnoringLight (folded into the CanSee predicate ladder).
 
 #define GET_PAD_PERS(pad) ((pad) == 5 ? "ком-то" :\
                            (pad) == 4 ? "кем-то" :\

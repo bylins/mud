@@ -741,7 +741,7 @@ void do_forgive(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *found = nullptr;
 	for (const auto &tch : character_list) {
 		if (tch->IsNpc()
-			|| !CAN_SEE_CHAR(ch, tch)
+			|| !CanSeeIgnoringLight(ch, tch)
 			|| !isname(GET_NAME(tch), arg)) {
 			continue;
 		}

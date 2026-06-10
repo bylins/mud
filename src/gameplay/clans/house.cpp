@@ -4868,7 +4868,7 @@ void DoClanList(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (d->character
 			&& d->character->in_room != kNowhere
 			&& CLAN(d->character)
-			&& CAN_SEE_CHAR(ch, d->character)
+			&& CanSeeIgnoringLight(ch, d->character)
 			&& !d->character->IsImmortal()
 			&& !d->character->IsFlagged(EPrf::kCoderinfo)
 			&& (all || CLAN(d->character) == *clan)) {

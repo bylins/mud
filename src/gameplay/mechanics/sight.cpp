@@ -2175,10 +2175,11 @@ void Appear(CharData *ch) {
 	}
 }
 
-bool MortCanSee(const CharData *sub, const CharData *obj) {
+bool MortCanSee(const CharData *sub, const CharData *obj, bool consider_light) {
 	return HERE(obj)
 		&& INVIS_OK(sub, obj)
-		&& (!is_dark((obj)->in_room)
+		&& (!consider_light
+			|| !is_dark((obj)->in_room)
 			|| AFF_FLAGGED((sub), EAffect::kInfravision));
 }
 
@@ -2191,8 +2192,8 @@ bool MaySee(const CharData *ch, const CharData *sub, const CharData *obj) {
 			|| AFF_FLAGGED(sub, EAffect::kDetectInvisible));
 }
 
-bool ImmCanSee(const CharData *sub, const CharData *obj) {
-	return MortCanSee(sub, obj)
+bool ImmCanSee(const CharData *sub, const CharData *obj, bool consider_light) {
+	return MortCanSee(sub, obj, consider_light)
 		|| (!sub->IsNpc()
 			&& sub->IsFlagged(EPrf::kHolylight));
 }
@@ -2201,6 +2202,14 @@ bool CanSee(const CharData *sub, const CharData *obj) {
 	return SELF(sub, obj)
 		|| ((GetRealLevel(sub) >= (obj->IsNpc() ? 0 : GET_INVIS_LEV(obj)))
 			&& ImmCanSee(sub, obj));
+}
+
+// issue.utils-cleaning: the "see without light" variant -- folds the old CAN_SEE_CHAR macro
+// (same as CanSee but skips the room-darkness check via consider_light=false).
+bool CanSeeIgnoringLight(const CharData *sub, const CharData *obj) {
+	return SELF(sub, obj)
+		|| ((GetRealLevel(sub) >= (obj->IsNpc() ? 0 : GET_INVIS_LEV(obj)))
+			&& ImmCanSee(sub, obj, false));
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

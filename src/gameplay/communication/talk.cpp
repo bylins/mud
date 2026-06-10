@@ -28,7 +28,7 @@ void tell_to_char(CharData *keeper, CharData *ch, const char *argument) {
 }
 
 bool tell_can_see(CharData *ch, CharData *vict) {
-	if (CAN_SEE_CHAR(vict, ch) || ch->IsImmortal() || GET_INVIS_LEV(ch)) {
+	if (CanSeeIgnoringLight(vict, ch) || ch->IsImmortal() || GET_INVIS_LEV(ch)) {
 		return true;
 	} else {
 		return false;

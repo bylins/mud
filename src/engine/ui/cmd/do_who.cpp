@@ -3,6 +3,7 @@
 //
 
 #include "engine/ui/cmd/do_who.h"
+#include "gameplay/mechanics/sight.h"
 
 #include "engine/entities/char_data.h"
 #include "engine/db/global_objects.h"
@@ -134,7 +135,7 @@ void DoWho(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			continue;
 		}
 
-		if (!CAN_SEE_CHAR(ch, tch) || GetRealLevel(tch) < low || GetRealLevel(tch) > high) {
+		if (!CanSeeIgnoringLight(ch, tch) || GetRealLevel(tch) < low || GetRealLevel(tch) > high) {
 			continue;
 		}
 		if (localwho && world[ch->in_room]->zone_rn != world[tch->in_room]->zone_rn) {

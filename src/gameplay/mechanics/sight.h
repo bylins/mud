@@ -35,14 +35,22 @@ void Appear(CharData *ch);
 
 
 // issue.chardata-cleaning: "who can see whom" predicates (moved off CharData).
-bool MortCanSee(const CharData *sub, const CharData *obj);
+// issue.utils-cleaning: consider_light=false skips the room-darkness check; CanSeeIgnoringLight
+// folds the old MORT_CAN_SEE_CHAR/IMM_CAN_SEE_CHAR/CAN_SEE_CHAR "see without light" macros.
+bool MortCanSee(const CharData *sub, const CharData *obj, bool consider_light = true);
 bool MaySee(const CharData *ch, const CharData *sub, const CharData *obj);
-bool ImmCanSee(const CharData *sub, const CharData *obj);
+bool ImmCanSee(const CharData *sub, const CharData *obj, bool consider_light = true);
 bool CanSee(const CharData *sub, const CharData *obj);
+bool CanSeeIgnoringLight(const CharData *sub, const CharData *obj);
 inline bool CanSee(const CharData *sub, const std::shared_ptr<CharData> &obj) { return CanSee(sub, obj.get()); }
 inline bool CanSee(const std::shared_ptr<CharData> &sub, const CharData *obj) { return CanSee(sub.get(), obj); }
 inline bool CanSee(const std::shared_ptr<CharData> &sub, const std::shared_ptr<CharData> &obj) {
 	return CanSee(sub.get(), obj.get());
+}
+inline bool CanSeeIgnoringLight(const CharData *sub, const std::shared_ptr<CharData> &obj) { return CanSeeIgnoringLight(sub, obj.get()); }
+inline bool CanSeeIgnoringLight(const std::shared_ptr<CharData> &sub, const CharData *obj) { return CanSeeIgnoringLight(sub.get(), obj); }
+inline bool CanSeeIgnoringLight(const std::shared_ptr<CharData> &sub, const std::shared_ptr<CharData> &obj) {
+	return CanSeeIgnoringLight(sub.get(), obj.get());
 }
 
 #endif //BYLINS_SRC_GAME_MECHANICS_SIGHT_H_
