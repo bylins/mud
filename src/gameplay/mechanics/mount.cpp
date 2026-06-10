@@ -11,6 +11,8 @@
 #include "gameplay/skills/skills.h"
 #include "gameplay/mechanics/saving.h"
 
+#include <algorithm>
+
 namespace mount {
 
 CharData *GetHorse(CharData *ch) {
@@ -122,6 +124,46 @@ int SavingModifier(const CharData *ch, ESaving saving) {
 		case ESaving::kStability: return -20 - ch->GetSkill(ESkill::kRiding) / 25;
 		default: return 0;
 	}
+}
+
+void RestoreHorseState(CharData *horse) {
+	int mana = 0;
+	switch (real_sector(horse->in_room)) {
+		case ESector::kOnlyFlying:
+		case ESector::kUnderwater:
+		case ESector::kSecret:
+		case ESector::kWaterSwim:
+		case ESector::kWaterNoswim:
+		case ESector::kThickIce:
+		case ESector::kNormalIce: [[fallthrough]];
+		case ESector::kThinIce: mana = 0;
+			break;
+		case ESector::kCity: mana = 20;
+			break;
+		case ESector::kField: [[fallthrough]];
+		case ESector::kFieldRain: mana = 100;
+			break;
+		case ESector::kFieldSnow: mana = 40;
+			break;
+		case ESector::kForest:
+		case ESector::kForestRain: mana = 80;
+			break;
+		case ESector::kForestSnow: mana = 30;
+			break;
+		case ESector::kHills: [[fallthrough]];
+		case ESector::kHillsRain: mana = 70;
+			break;
+		case ESector::kHillsSnow: [[fallthrough]];
+		case ESector::kMountain: mana = 25;
+			break;
+		case ESector::kMountainSnow: mana = 10;
+			break;
+		default: mana = 10;
+	}
+	if (IsOnHorse(horse->get_master())) {
+		mana /= 2;
+	}
+	GET_HORSESTATE(horse) = std::min(800, GET_HORSESTATE(horse) + mana);
 }
 
 }  // namespace mount

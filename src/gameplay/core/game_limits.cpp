@@ -1594,43 +1594,7 @@ void point_update() {
 			if (i->IsNpc() && !i->GetEnemy())    // Restore horse
 			{
 				if (mount::IsHorse(i)) {
-					int mana = 0;
-					switch (real_sector(i->in_room)) {
-						case ESector::kOnlyFlying:
-						case ESector::kUnderwater:
-						case ESector::kSecret:
-						case ESector::kWaterSwim:
-						case ESector::kWaterNoswim:
-						case ESector::kThickIce:
-						case ESector::kNormalIce: [[fallthrough]];
-						case ESector::kThinIce: mana = 0;
-							break;
-						case ESector::kCity: mana = 20;
-							break;
-						case ESector::kField: [[fallthrough]];
-						case ESector::kFieldRain: mana = 100;
-							break;
-						case ESector::kFieldSnow: mana = 40;
-							break;
-						case ESector::kForest:
-						case ESector::kForestRain: mana = 80;
-							break;
-						case ESector::kForestSnow: mana = 30;
-							break;
-						case ESector::kHills: [[fallthrough]];
-						case ESector::kHillsRain: mana = 70;
-							break;
-						case ESector::kHillsSnow: [[fallthrough]];
-						case ESector::kMountain: mana = 25;
-							break;
-						case ESector::kMountainSnow: mana = 10;
-							break;
-						default: mana = 10;
-					}
-					if (mount::IsOnHorse(i->get_master())) {
-						mana /= 2;
-					}
-					GET_HORSESTATE(i) = std::min(800, GET_HORSESTATE(i) + mana);
+					mount::RestoreHorseState(i);
 				}
 				// Forget PC's
 				for (mem = MEMORY(i), pmem = nullptr; mem; mem = nmem) {

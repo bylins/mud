@@ -51,6 +51,10 @@ void ApplyRiderDamageMult(CharData *ch, int &dam);
 // (better). 0 when afoot or for other saves.
 [[nodiscard]] int SavingModifier(const CharData *ch, ESaving saving);
 
+// Per-tick horse stamina (GET_HORSESTATE) regen for the mount `horse`, by its room's sector;
+// halved while it is being ridden. Capped at 800.
+void RestoreHorseState(CharData *horse);
+
 }  // namespace mount
 
 void do_horseon(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
