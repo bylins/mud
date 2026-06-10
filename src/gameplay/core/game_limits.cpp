@@ -1163,11 +1163,12 @@ void room_point_update() {
 			}
 			world[count]->fires -= std::min(mana, int(world[count]->fires));
 			if (world[count]->fires <= 0) {
-				act("Костер затух.",
-					false, world[count]->first_character(), nullptr, nullptr, kToRoom);
-				act("Костер затух.",
-					false, world[count]->first_character(), nullptr, nullptr, kToChar);
-
+				if (world[count]->first_character()) {   // #3427: не спамить act() в пустую комнату
+					act("Костер затух.",
+						false, world[count]->first_character(), nullptr, nullptr, kToRoom);
+					act("Костер затух.",
+						false, world[count]->first_character(), nullptr, nullptr, kToChar);
+				}
 				world[count]->fires = 0;
 			}
 		}
@@ -1186,7 +1187,8 @@ void room_point_update() {
 */
 		if (world[count]->holes) {
 			world[count]->holes--;
-			if (!world[count]->holes || round_up(world[count]->holes) == world[count]->holes) {
+			if ((!world[count]->holes || round_up(world[count]->holes) == world[count]->holes)
+				&& world[count]->first_character()) {   // #3427: не спамить act() в пустую комнату
 				act("Ямку присыпало землей...",
 					false, world[count]->first_character(), nullptr, nullptr, kToRoom);
 				act("Ямку присыпало землей...",
