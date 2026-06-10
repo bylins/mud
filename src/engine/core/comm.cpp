@@ -28,6 +28,7 @@
  */
 
 #include "engine/core/sysdep_net.h"
+#include "gameplay/fight/arena.h"
 #include "utils/grammar/declensions.h"
 #include "gameplay/mechanics/magic_item.h"
 
@@ -2424,7 +2425,7 @@ void perform_act(const char *orig,
 						snprintf(nbuf,
 								 sizeof(nbuf),
 								 "&q%s&Q",
-								 (!ch->IsNpc() && (ch->IsImmortal() || GET_INVIS_LEV(ch))) ? GET_NAME(ch) : APERS(ch,
+								 (!ch->IsNpc() && (ch->IsImmortal() || GET_INVIS_LEV(ch))) ? GET_NAME(ch) : arena::VisibleName(ch,
 																												to,
 																												0,
 																												arena));
@@ -2435,7 +2436,7 @@ void perform_act(const char *orig,
 								 sizeof(nbuf),
 								 "&q%s&Q",
 								 (!ch->IsNpc() && (ch->IsImmortal() || GET_INVIS_LEV(ch))) ? GET_PAD(ch, padis)
-																						  : APERS(ch, to, padis, arena));
+																						  : arena::VisibleName(ch, to, padis, arena));
 						i = nbuf;
 					}
 					break;
@@ -2444,14 +2445,14 @@ void perform_act(const char *orig,
 						snprintf(nbuf,
 								 sizeof(nbuf),
 								 "&q%s&Q",
-								 CHK_NULL(vict_obj, APERS((const CharData *) vict_obj, to, 0, arena)));
+								 CHK_NULL(vict_obj, arena::VisibleName((const CharData *) vict_obj, to, 0, arena)));
 						i = nbuf;
 					} else {
 						padis = *(++orig) - '0';
 						snprintf(nbuf,
 								 sizeof(nbuf),
 								 "&q%s&Q",
-								 CHK_NULL(vict_obj, APERS((const CharData *) vict_obj, to, padis, arena)));
+								 CHK_NULL(vict_obj, arena::VisibleName((const CharData *) vict_obj, to, padis, arena)));
 						i = nbuf;
 					}
 					dg_victim = (CharData *) vict_obj;

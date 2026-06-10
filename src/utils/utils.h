@@ -36,7 +36,7 @@
 struct RoomData;    // forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
 class CharData;    // forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
 // issue.chardata-cleaning: CanSee lives in gameplay/mechanics/sight.h now; forward-declared here
-// so the ubiquitous PERS/APERS/vis macros below resolve without pulling the heavy sight.h.
+// so the ubiquitous GET_CH_VIS_SUF_* vis macros below resolve without pulling the heavy sight.h.
 bool CanSee(const CharData *sub, const CharData *obj);
 struct DescriptorData;
 
@@ -665,10 +665,8 @@ const int kNameLevel = 5;
 
 
 //для арены
-// issue.utils-cleaning: GET_PAD_PERS fallback moved to grammar::SomebodyInCase; PERS became
-// sight::PersonName. APERS (arena reveals the real name) delegates to it; only comm.cpp uses it,
-// and that TU includes sight.h. (APERS itself is slated to move to the arena code in step 4.)
-#define APERS(ch, vict, pad, arena) ((arena) ? GET_PAD(ch, pad) : PersonName(ch, vict, pad))
+// issue.utils-cleaning: PERS -> sight::PersonName, APERS -> arena::VisibleName
+// (gameplay/fight/arena.h), GET_PAD_PERS -> grammar::SomebodyInCase. GET_PAD stays here.
 
 //для арены
 #define AOBJS(obj, vict, arena) ((arena) || CAN_SEE_OBJ((vict), (obj)) ? \
