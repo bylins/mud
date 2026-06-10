@@ -1623,7 +1623,7 @@ void change_npc_leader(CharData *ch) {
 
 	CharData *leader = nullptr;
 	for (auto i : tmp_list) {
-		if (follow::StopFollower(i, kSfSilence)) {
+		if (follow::StopFollower(i, follow::kSfSilence)) {
 			continue;
 		}
 		if (!leader) {

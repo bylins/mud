@@ -148,7 +148,7 @@ void AppendCompactShieldSuffix(std::string &text, const CharData *viewer, const 
 void look_at_room(CharData *ch, int ignore_brief, bool msdp_mode) {
 	if (!ch->desc)
 		return;
-	if (is_dark(ch->in_room) && !CAN_SEE_IN_DARK(ch) && !CanUseFeat(ch, EFeat::kDarkReading)) {
+	if (is_dark(ch->in_room) && !CanSeeInDark(ch) && !CanUseFeat(ch, EFeat::kDarkReading)) {
 		SendMsgToChar("Слишком темно...\r\n", ch);
 		show_glow_objs(ch);
 		return;
@@ -1025,7 +1025,7 @@ void list_char_to_char(const RoomData::people_t &list, CharData *ch) {
 				ListOneChar(i, ch, ESkill::kAny);
 			} else if (is_dark(i->in_room)
 				&& i->in_room == ch->in_room
-				&& !CAN_SEE_IN_DARK(ch)
+				&& !CanSeeInDark(ch)
 				&& AFF_FLAGGED(i, EAffect::kInfravision)) {
 				SendMsgToChar("Пара светящихся глаз смотрит на вас.\r\n", ch);
 			}
@@ -1078,7 +1078,7 @@ void look_in_direction(CharData *ch, int dir, int info_is) {
 					percent = number(1, MUD::Skill(ESkill::kLooking).difficulty);
 					probe = CalcCurrentSkill(ch, ESkill::kLooking, tch);
 					TrainSkill(ch, ESkill::kLooking, probe >= percent, tch);
-					if (HERE(tch) && INVIS_OK(ch, tch) && probe >= percent
+					if (HERE(tch) && InvisOk(ch, tch) && probe >= percent
 						&& (percent < 100 || ch->IsImmortal())) {
 						// Если моб не вещь и смотрящий не им
 						if (GET_RACE(tch) != ENpcRace::kConstruct || ch->IsImmortal()) {
@@ -1744,7 +1744,7 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 	}
 
 	if (mode == ESkill::kLooking) {
-		if (HERE(i) && INVIS_OK(ch, i) && GetRealLevel(ch) >= (i->IsNpc() ? 0 : GET_INVIS_LEV(i))) {
+		if (HERE(i) && InvisOk(ch, i) && GetRealLevel(ch) >= (i->IsNpc() ? 0 : GET_INVIS_LEV(i))) {
 			if (GET_RACE(i) == ENpcRace::kConstruct && ch->IsImmortal()) {
 				sprintf(buf, "Вы разглядели %s.(предмет)\r\n", GET_PAD(i, 3));
 			} else {
@@ -2177,9 +2177,22 @@ void Appear(CharData *ch) {
 	}
 }
 
+bool CanSeeInDark(const CharData *ch) {
+	return AFF_FLAGGED(ch, EAffect::kInfravision) || (!ch->IsNpc() && ch->IsFlagged(EPrf::kHolylight));
+}
+
+bool InvisOk(const CharData *sub, const CharData *obj) {
+	return !AFF_FLAGGED(sub, EAffect::kBlind)
+		&& ((!AFF_FLAGGED(obj, EAffect::kInvisible)
+			|| AFF_FLAGGED(sub, EAffect::kDetectInvisible))
+			&& ((!AFF_FLAGGED(obj, EAffect::kHide)
+				&& !AFF_FLAGGED(obj, EAffect::kDisguise))
+				|| AFF_FLAGGED(sub, EAffect::kDetectLife)));
+}
+
 bool MortCanSee(const CharData *sub, const CharData *obj, bool consider_light) {
 	return HERE(obj)
-		&& INVIS_OK(sub, obj)
+		&& InvisOk(sub, obj)
 		&& (!consider_light
 			|| !is_dark((obj)->in_room)
 			|| AFF_FLAGGED((sub), EAffect::kInfravision));

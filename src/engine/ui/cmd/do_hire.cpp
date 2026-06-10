@@ -220,7 +220,7 @@ void DoFindhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 
 		if (helpee->has_master() && helpee->get_master() != ch) {
-			if (follow::StopFollower(helpee, kSfMasterdie)) {
+			if (follow::StopFollower(helpee, follow::kSfMasterdie)) {
 				return;
 			}
 		}
@@ -361,7 +361,7 @@ void DoFreehelpee(CharData *ch, char * /* argument*/, int/* cmd*/, int/* subcmd*
 
 	act("Вы рассчитали $N3.", false, ch, 0, hired, kToChar);
 	RemoveAffectFromCharAndRecalculate(hired, ESpell::kCharm);
-	follow::StopFollower(hired, kSfCharmlost);
+	follow::StopFollower(hired, follow::kSfCharmlost);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

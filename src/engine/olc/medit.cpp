@@ -577,7 +577,7 @@ void medit_save_to_disk(ZoneRnum zone_num) {
 		mob->PrintFlagsToAscii(buf2, sizeof(buf2));
 		AFF_FLAGS(mob).tascii(FlagData::kPlanesNumber, buf2, sizeof(buf2));
 		fprintf(mob_file, "%s%d E\n" "%d %d %d %dd%d+%d %dd%d+%d\n" "%dd%d+%ld %ld\n" "%d %d %d\n",
-				buf2, GET_ALIGNMENT(mob),
+				buf2, GetAlignment(mob),
 				GetRealLevel(mob), 20 - GET_HR(mob), GET_AC(mob) / 10, mob->mem_queue.total,
 				mob->mem_queue.stored, mob->get_hit(), GET_NDD(mob), GET_SDD(mob), GET_DR(mob), GET_GOLD_NoDs(mob),
 				GET_GOLD_SiDs(mob), mob->get_gold(), mob->get_exp(), static_cast<int>(mob->GetPosition()),
@@ -1092,7 +1092,7 @@ void medit_disp_menu(DescriptorData *d) {
 			grn, GET_LDESC(mob).c_str(),
 			grn, GET_DDESC(mob).c_str(),
 			grn, nrm, cyn, mob->GetLevel(), nrm,
-			grn, nrm, cyn, GET_ALIGNMENT(mob), nrm,
+			grn, nrm, cyn, GetAlignment(mob), nrm,
 			grn, nrm, cyn, GET_HR(mob), nrm,
 			grn, nrm, cyn, GET_DR(mob), nrm,
 			grn, nrm, cyn, GET_NDD(mob), nrm,
@@ -2028,7 +2028,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 		case MEDIT_LEVEL: OLC_MOB(d)->set_level(atoi(arg));
 			break;
 
-		case MEDIT_ALIGNMENT: GET_ALIGNMENT(OLC_MOB(d)) = std::max(-1000, std::min(1000, atoi(arg)));
+		case MEDIT_ALIGNMENT: SetAlignment(OLC_MOB(d), std::max(-1000, std::min(1000, atoi(arg))));
 			break;
 
 		case MEDIT_DESTINATION: number = atoi(arg);

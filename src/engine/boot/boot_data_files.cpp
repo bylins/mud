@@ -1012,7 +1012,7 @@ void MobileFile::parse_mobile(const int nr) {
 	mob_proto[i].SetFlagsFromString(f1);
 	mob_proto[i].SetNpcAttribute(true); 
 	AFF_FLAGS(&mob_proto[i]).from_string(f2);
-	GET_ALIGNMENT(mob_proto + i) = t[2];
+	SetAlignment(mob_proto + i, t[2]);
 	switch (UPPER(letter)) {
 		case 'S':        // Simple monsters
 			parse_simple_mob(i, nr);

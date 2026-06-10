@@ -391,7 +391,7 @@ CharData *find_best_stupidmob_victim(CharData *ch, int extmode) {
 			&& vict->GetEnemy() != ch
 			&& vict->GetEnemy()->IsNpc()
 			&& !AFF_FLAGGED(vict->GetEnemy(), EAffect::kCharmed)
-			&& SAME_ALIGN(ch, vict->GetEnemy())) {
+			&& SameAlign(ch, vict->GetEnemy())) {
 			kill_this = true;
 		} else {
 			// ... but no aggressive for this char
@@ -750,7 +750,7 @@ int perform_best_horde_attack(CharData *ch, int extmode) {
 		if (!vict->IsNpc() || !MaySee(ch, ch, vict) || vict->IsFlagged(EMobFlag::kProtect) || vict->IsFlagged(EMobFlag::kNoFight)) {
 			continue;
 		}
-		if (!SAME_ALIGN(ch, vict)) {
+		if (!SameAlign(ch, vict)) {
 			if (ch->GetPosition() < EPosition::kFight && ch->GetPosition() > EPosition::kSleep) {
 				act("$n вскочил$g.", false, ch, nullptr, nullptr, kToRoom);
 				ch->SetPosition(EPosition::kStand);
@@ -1150,7 +1150,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 					  && !mount::IsHorse(first)
 					  && CanSee(ch, first)
 					  && first->GetEnemy()
-					  && SAME_ALIGN(ch, first)) {
+					  && SameAlign(ch.get(), first)) {
 					  found = true;
 					  break;
 				  }

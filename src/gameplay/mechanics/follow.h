@@ -11,6 +11,14 @@ class CharData;
 // (engine/ui/cmd/do_follow.cpp) drives these.
 namespace follow {
 
+// Bit flags for StopFollower's `mode` argument (issue.utils-cleaning: moved out of utils.h).
+enum EStopFollow {
+	kSfEmpty = 1 << 0,
+	kSfMasterdie = 1 << 2,
+	kSfCharmlost = 1 << 3,
+	kSfSilence = 1 << 4,
+};
+
 // Would making `master` the leader of `ch` create a cycle in the follower chain?
 [[nodiscard]] bool MakesLoop(CharData *ch, CharData *master);
 

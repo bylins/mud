@@ -508,7 +508,7 @@ void Player::save_char() {
 	saved.printf("Wate: %d\n", GET_WEIGHT(this));
 	saved.printf("Size: %d\n", GET_SIZE(this));
 	// структуры
-	saved.printf("Alin: %d\n", GET_ALIGNMENT(this));
+	saved.printf("Alin: %d\n", GetAlignment(this));
 	*buf = '\0';
 	AFF_FLAGS(this).tascii(FlagData::kPlanesNumber, buf, sizeof(buf));
 	saved.printf("Aff : %s\n", buf);
@@ -1151,7 +1151,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 	MemQ_init(this);
 
 	GET_AC(this) = 10;
-	GET_ALIGNMENT(this) = 0;
+	SetAlignment(this, 0);
 	GET_BAD_PWS(this) = 0;
 	this->player_data.time.birth = time(0);
 	GET_KIN(this) = 0;
@@ -1305,7 +1305,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 					std::reverse(affected.begin(), affected.end());
 					/* do not load affects */
 				} else if (!strcmp(tag, "Alin")) {
-					GET_ALIGNMENT(this) = num;
+					SetAlignment(this, num);
 				}
 				break;
 

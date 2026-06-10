@@ -24,7 +24,7 @@ void do_follow(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			if (!ch->has_master()) {
 				SendMsgToChar("Но вы ведь ни за кем не следуете...\r\n", ch);
 			} else {
-				follow::StopFollower(ch, kSfEmpty);
+				follow::StopFollower(ch, follow::kSfEmpty);
 			}
 			return;
 		}
@@ -53,7 +53,7 @@ void do_follow(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				SendMsgToChar("Вы уже следуете за собой.\r\n", ch);
 				return;
 			}
-			follow::StopFollower(ch, kSfEmpty);
+			follow::StopFollower(ch, follow::kSfEmpty);
 		} else {
 			if (follow::CircleFollow(ch, leader)) {
 				SendMsgToChar("Так у вас целый хоровод получится.\r\n", ch);
@@ -61,7 +61,7 @@ void do_follow(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 
 			if (ch->has_master()) {
-				follow::StopFollower(ch, kSfEmpty);
+				follow::StopFollower(ch, follow::kSfEmpty);
 			}
 			//AFF_FLAGS(ch).unset(EAffectFlag::AFF_GROUP);
 			ch->removeGroupFlags();

@@ -2507,11 +2507,11 @@ void find_replacement(void *go,
 		} else if (!str_cmp(field, "align")) {
 			if (*subfield) {
 				if (*subfield == '-')
-					GET_ALIGNMENT(mob) -= std::max(1, atoi(subfield + 1));
+					SetAlignment(mob, GetAlignment(mob) - std::max(1, atoi(subfield + 1)));
 				else if (*subfield == '+')
-					GET_ALIGNMENT(mob) += std::max(1, atoi(subfield + 1));
+					SetAlignment(mob, GetAlignment(mob) + std::max(1, atoi(subfield + 1)));
 			} else
-				snprintf(str, str_size, "%d", GET_ALIGNMENT(mob));
+				snprintf(str, str_size, "%d", GetAlignment(mob));
 		} else if (!str_cmp(field, "religion")) {
 			if (*subfield && ((atoi(subfield) == kReligionPoly) || (atoi(subfield) == kReligionMono)))
 				GET_RELIGION(mob) = atoi(subfield);
@@ -3151,7 +3151,7 @@ void find_replacement(void *go,
 					CharData *new_leader = get_char(subfield);
 					if (new_leader && new_leader != mob && !follow::CircleFollow(mob, new_leader)) {
 						if (mob->has_master()) {
-							follow::StopFollower(mob, kSfEmpty);
+							follow::StopFollower(mob, follow::kSfEmpty);
 						}
 						mob->removeGroupFlags();
 						for (auto *f : mob->followers) {

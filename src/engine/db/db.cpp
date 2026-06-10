@@ -2484,7 +2484,7 @@ void ZoneReset::ResetZoneEssential() {
 										continue;
 									}
 									if (ch->has_master()) {
-										follow::StopFollower(ch, kSfEmpty);
+										follow::StopFollower(ch, follow::kSfEmpty);
 									}
 									if (ch->purged() || ch->in_room == kNowhere)
 										continue;

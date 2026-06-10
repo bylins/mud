@@ -57,6 +57,11 @@ CharData *ReadMobile(MobVnum nr, int type);
 void SaveGlobalUID();
 void FlushPlayerIndex();
 bool IsZoneEmpty(ZoneRnum zone_nr, bool debug = false);
+// issue.utils-cleaning: player/depot file kinds (was loose const ints in utils.h).
+enum EPlayerFile {
+	kAliasFile = 1, kScriptVarsFile, kPlayersFile, kTextCrashFile,
+	kTimeCrashFile, kPersDepotFile, kShareDepotFile, kPurgeDepotFile,
+};
 int get_filename(const char *orig_name, char *filename, int mode);
 CharData *find_char(long n);
 CharData *find_pc(long n);

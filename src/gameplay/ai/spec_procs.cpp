@@ -942,14 +942,14 @@ void npc_group(CharData *ch) {
 
 	if (members <= 1) {
 		if (ch->has_master()) {
-			follow::StopFollower(ch, kSfEmpty);
+			follow::StopFollower(ch, follow::kSfEmpty);
 		}
 
 		return;
 	}
 
 	if (leader->has_master()) {
-		follow::StopFollower(leader, kSfEmpty);
+		follow::StopFollower(leader, follow::kSfEmpty);
 	}
 
 	// Assign leader
@@ -971,7 +971,7 @@ void npc_group(CharData *ch) {
 		if (!vict->has_master()) {
 			follow::AddFollower(leader, vict);
 		} else if (vict->get_master() != leader) {
-			follow::StopFollower(vict, kSfEmpty);
+			follow::StopFollower(vict, follow::kSfEmpty);
 			follow::AddFollower(leader, vict);
 		}
 		AFF_FLAGS(vict).set(EAffect::kGroup);
@@ -1285,15 +1285,15 @@ int cityguard(CharData *ch, void * /*me*/, int cmd, char * /*argument*/) {
 
 	for (const auto tch : world[ch->in_room]->people) {
 		if (CanSee(ch, tch) && tch->GetEnemy()) {
-			if ((GET_ALIGNMENT(tch) < max_evil) && (tch->IsNpc() || tch->GetEnemy()->IsNpc())) {
-				max_evil = GET_ALIGNMENT(tch);
+			if ((GetAlignment(tch) < max_evil) && (tch->IsNpc() || tch->GetEnemy()->IsNpc())) {
+				max_evil = GetAlignment(tch);
 				evil = tch;
 			}
 		}
 	}
 
 	if (evil
-		&& (GET_ALIGNMENT(evil->GetEnemy()) >= 0)) {
+		&& (GetAlignment(evil->GetEnemy()) >= 0)) {
 		act("$n screams 'PROTECT THE INNOCENT!  BANZAI!  CHARGE!  ARARARAGGGHH!'", false, ch, 0, 0, kToRoom);
 		hit(ch, evil, ESkill::kUndefined, fight::kMainHand);
 

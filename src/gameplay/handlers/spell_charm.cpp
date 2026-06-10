@@ -82,7 +82,7 @@ EStageResult SpellCharm(CastContext &ctx) {
 
 		// Левая проверка
 		if (victim->has_master()) {
-			if (follow::StopFollower(victim, kSfMasterdie)) {
+			if (follow::StopFollower(victim, follow::kSfMasterdie)) {
 				return EStageResult::kSuccess;
 			}
 		}

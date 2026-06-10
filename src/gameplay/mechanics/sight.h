@@ -38,6 +38,10 @@ void Appear(CharData *ch);
 // issue.chardata-cleaning: "who can see whom" predicates (moved off CharData).
 // issue.utils-cleaning: consider_light=false skips the room-darkness check; CanSeeIgnoringLight
 // folds the old MORT_CAN_SEE_CHAR/IMM_CAN_SEE_CHAR/CAN_SEE_CHAR "see without light" macros.
+// issue.utils-cleaning: moved here from utils.h / char_data.h (both are vision predicates).
+bool CanSeeInDark(const CharData *ch);   // infravision or holylight
+bool InvisOk(const CharData *sub, const CharData *obj);  // invis/hide/disguise don't block sub seeing obj
+inline bool InvisOk(const CharData *sub, const std::shared_ptr<CharData> &obj) { return InvisOk(sub, obj.get()); }
 bool MortCanSee(const CharData *sub, const CharData *obj, bool consider_light = true);
 bool MaySee(const CharData *ch, const CharData *sub, const CharData *obj);
 bool ImmCanSee(const CharData *sub, const CharData *obj, bool consider_light = true);

@@ -408,6 +408,7 @@ main_sources = files(
   'src/engine/core/external_trigger.cpp',
   'src/gameplay/abilities/feats.cpp',
   'src/gameplay/fight/arena.cpp',
+  'src/gameplay/mechanics/alignment.cpp',
   'src/gameplay/fight/fight.cpp',
   'src/gameplay/fight/fight_messages.cpp',
   'src/gameplay/fight/fight_hit.cpp',

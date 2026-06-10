@@ -1,4 +1,5 @@
 #include "msdp_reporters.h"
+#include "gameplay/mechanics/sight.h"
 #include "gameplay/mechanics/mount.h"
 
 #include "engine/entities/char_data.h"
@@ -102,7 +103,7 @@ bool RoomReporter::blockReport() const {
 	bool nomapper = true;
 	const auto blind = (descriptor()->character->IsFlagged(EPrf::kBlindMode)) //В режиме слепого игрока карта недоступна
 		|| (AFF_FLAGGED((descriptor()->character), EAffect::kBlind));  //Слепому карта не поможет!
-	const auto cannot_see_in_dark = (is_dark(descriptor()->character->in_room) && !CAN_SEE_IN_DARK(descriptor()->character));
+	const auto cannot_see_in_dark = (is_dark(descriptor()->character->in_room) && !CanSeeInDark(descriptor()->character.get()));
 	if (descriptor()->character->in_room != kNowhere)
 		nomapper = ROOM_FLAGGED(descriptor()->character->in_room, ERoomFlag::kMoMapper);
 	const auto scriptwriter = descriptor()->character->IsFlagged(EPlrFlag::kScriptWriter); // скриптеру не шлем

@@ -1336,7 +1336,7 @@ void SqliteWorldDataSource::LoadMobs()
 		mob.player_data.description = GetText(stmt, 9);
 
 		// Base parameters
-		GET_ALIGNMENT(&mob) = sqlite3_column_int(stmt, 10);
+		SetAlignment(&mob, sqlite3_column_int(stmt, 10));
 
 		// Stats
 		mob.set_level(sqlite3_column_int(stmt, 12));
@@ -2875,7 +2875,7 @@ void SqliteWorldDataSource::SaveMobRecord(int mob_vnum, CharData &mob)
 	sqlite3_bind_text(stmt, col++, mob.player_data.description.c_str(), -1, SQLITE_TRANSIENT);
 	
 	// Base parameters
-	sqlite3_bind_int(stmt, col++, GET_ALIGNMENT(&mob));
+	sqlite3_bind_int(stmt, col++, GetAlignment(&mob));
 	
 	// Mob type (E or S)
 	std::string mob_type = (mob.get_str() > 0) ? "E" : "S";

@@ -22,7 +22,7 @@ void DoLook(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		SendMsgToChar("Виделся часто сон беспокойный...\r\n", ch);
 	} else if (AFF_FLAGGED(ch, EAffect::kBlind)) {
 		SendMsgToChar("Вы ослеплены!\r\n", ch);
-	} else if (is_dark(ch->in_room) && !CAN_SEE_IN_DARK(ch)) {
+	} else if (is_dark(ch->in_room) && !CanSeeInDark(ch)) {
 		if (GetRealLevel(ch) > 30) {
 			sprintf(buf,
 					"%sКомната=%s%d %sСвет=%s%d %sОсвещ=%s%d %sКостер=%s%d %sЛед=%s%d "

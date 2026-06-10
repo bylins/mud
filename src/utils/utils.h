@@ -149,10 +149,7 @@ constexpr int kMinTitleLev = 25;
 #undef MIN
 #endif
 
-constexpr int kSfEmpty = 1 << 0;
-constexpr int kSfMasterdie = 1 << 2;
-constexpr int kSfCharmlost = 1 << 3;
-constexpr int kSfSilence = 1 << 4;
+// issue.utils-cleaning: kSf* follow-stop flags moved to follow::EStopFollow (gameplay/mechanics/follow.h).
 
 int MAX(int a, int b);
 int MIN(int a, int b);
@@ -166,14 +163,7 @@ inline char AtoL(char c) { return (ubyte)(c) < 128 ? c : AltToLat[(ubyte)(c) - 1
 
 // various constants ****************************************************
 // get_filename() //
-const int kAliasFile = 1;
-const int kScriptVarsFile = 2;
-const int kPlayersFile = 3;
-const int kTextCrashFile = 4;
-const int kTimeCrashFile = 5;
-const int kPersDepotFile = 6;
-const int kShareDepotFile = 7;
-const int kPurgeDepotFile = 8;
+// issue.utils-cleaning: player-file ids moved to EPlayerFile (engine/db/db.h).
 
 // breadth-first searching //
 const int kBfsError = -1;
@@ -403,10 +393,8 @@ inline T VPOSI(const T val, const T min, const T max) {
 #define GET_NDD(ch) ((ch)->mob_specials.damnodice)
 #define GET_SDD(ch) ((ch)->mob_specials.damsizedice)
 
-const int kAligEvilLess = -300;
-const int kAligGoodMore = 300;
-
-#define GET_ALIGNMENT(ch)     ((ch)->char_specials.saved.alignment)
+// issue.utils-cleaning: alignment (kAlig*/GetAlignment/ALIGN_DELTA/SameAlign) moved to
+// the alignment mechanic (gameplay/mechanics/alignment.h): GetAlignment/SetAlignment/SameAlign.
 
 const int kNameLevel = 5;
 #define NAME_FINE(ch)          ((ch)->player_specials->saved.NameGod>1000)
@@ -489,16 +477,8 @@ const int kNameLevel = 5;
 #define GET_HORSESTATE(ch)  ((ch)->mob_specials.HorseState)
 #define GET_LASTROOM(ch)    ((ch)->mob_specials.LastRoom)
 
-#define CAN_SEE_IN_DARK(ch) \
-   (AFF_FLAGGED(ch, EAffect::kInfravision) || (!(ch)->IsNpc() && (ch)->IsFlagged(EPrf::kHolylight)))
+// issue.utils-cleaning: CanSeeInDark -> sight::CanSeeInDark (gameplay/mechanics/sight.h).
 
-// IS_GOOD / IS_EVIL replaced by IsGood/IsEvil/IsNeutral inline functions in char_data.h
-// (issue.cast-dmg-migration: macros -> Google-style inline functions, plus the new IsNeutral).
-#define ALIGN_DELTA  10
-#define SAME_ALIGN(ch, vict)  (GET_ALIGNMENT(ch)>GET_ALIGNMENT(vict)?\
-                              (GET_ALIGNMENT(ch)-GET_ALIGNMENT(vict))<=ALIGN_DELTA:\
-                              (GET_ALIGNMENT(vict)-GET_ALIGNMENT(ch))<=ALIGN_DELTA\
-                             )
 
 
 #define GET_OBJ_SEX(obj) ((obj)->get_sex())

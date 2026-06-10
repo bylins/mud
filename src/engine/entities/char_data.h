@@ -5,6 +5,7 @@
 #define CHAR_HPP_INCLUDED
 
 #include "player_i.h"
+#include "gameplay/mechanics/alignment.h"
 #include "administration/punishments.h"
 #include "gameplay/mechanics/obj_sets.h"
 #include "gameplay/mechanics/dead_load.h"
@@ -880,15 +881,8 @@ inline void SET_INVIS_LEV(const CharData *ch, const int level) {
 }
 inline void SET_INVIS_LEV(const CharData::shared_ptr &ch, const int level) { SET_INVIS_LEV(ch.get(), level); }
 
-// Alignment predicates (issue.cast-dmg-migration). Replace the IS_GOOD / IS_EVIL macros that used
-// to live in utils.h; IsNeutral covers the third band (between -300 and +300, exclusive). Named
-// per Google C++ style. Thresholds come from kAligGoodMore / kAligEvilLess in utils.h.
-inline bool IsGood(const CharData *ch) { return ch->char_specials.saved.alignment >= kAligGoodMore; }
-inline bool IsGood(const CharData::shared_ptr &ch) { return IsGood(ch.get()); }
-inline bool IsEvil(const CharData *ch) { return ch->char_specials.saved.alignment <= kAligEvilLess; }
-inline bool IsEvil(const CharData::shared_ptr &ch) { return IsEvil(ch.get()); }
-inline bool IsNeutral(const CharData *ch) { return !IsGood(ch) && !IsEvil(ch); }
-inline bool IsNeutral(const CharData::shared_ptr &ch) { return IsNeutral(ch.get()); }
+// issue.utils-cleaning: IsGood/IsEvil/IsNeutral moved to gameplay/mechanics/alignment.h
+// (re-exported via the #include above so existing callers are unaffected).
 
 inline void SetWaitState(CharData *ch, const unsigned cycle) {
 	if (ch->get_wait() < cycle) {
@@ -931,16 +925,7 @@ inline bool IS_FLY(const CharData *ch) {
 	return AFF_FLAGGED(ch, EAffect::kFly);
 }
 
-inline bool INVIS_OK(const CharData *sub, const CharData *obj) {
-	return !AFF_FLAGGED(sub, EAffect::kBlind)
-		&& ((!AFF_FLAGGED(obj, EAffect::kInvisible)
-			|| AFF_FLAGGED(sub, EAffect::kDetectInvisible))
-			&& ((!AFF_FLAGGED(obj, EAffect::kHide)
-				&& !AFF_FLAGGED(obj, EAffect::kDisguise))
-				|| AFF_FLAGGED(sub, EAffect::kDetectLife)));
-}
-
-inline bool INVIS_OK(const CharData *sub, const CharData::shared_ptr &obj) { return INVIS_OK(sub, obj.get()); }
+// issue.utils-cleaning: InvisOk -> sight::InvisOk (gameplay/mechanics/sight.h).
 
 
 inline bool SELF(const CharData *sub, const CharData *obj) { return sub == obj; }

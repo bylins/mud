@@ -1,6 +1,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include <random>
+#include "gameplay/mechanics/alignment.h"
 #include "utils/grammar/declensions.h"
 #include "gameplay/mechanics/minions.h"
 #include "gameplay/mechanics/mount.h"
@@ -373,7 +374,7 @@ void auto_loot(CharData *ch, CharData *killer, ObjData *corpse, int local_gold) 
 	char obj[256];
 
 	if (is_dark(killer->in_room)
-		&& !(CAN_SEE_IN_DARK(killer) || CanUseFeat(killer, EFeat::kDarkReading))
+		&& !(CanSeeInDark(killer) || CanUseFeat(killer, EFeat::kDarkReading))
 		&& !(killer->IsNpc()
 			&& AFF_FLAGGED(killer, EAffect::kCharmed)
 			&& killer->has_master()
@@ -676,13 +677,6 @@ long long get_extend_exp(long long exp, CharData *ch, CharData *victim) {
 }
 
 // When ch kills victim
-void change_alignment(CharData *ch, CharData *victim) {
-	/*
-	 * new alignment change algorithm: if you kill a monster with alignment A,
-	 * you move 1/16th of the way to having alignment -A.  Simple and fast.
-	 */
-	GET_ALIGNMENT(ch) += (-GET_ALIGNMENT(victim) - GET_ALIGNMENT(ch)) / 16;
-}
 
 /*++
    Функция начисления опыта
@@ -778,7 +772,7 @@ void perform_group_gain(CharData *ch, CharData *victim, int members, int koef) {
 	}
 	if (!InTestZone(ch)) {
 		EndowExpToChar(ch, exp);
-		change_alignment(ch, victim);
+		ChangeAlignment(ch, victim);
 		if (!(victim)->Temporary.get(EXTRA_GRP_KILL_COUNT)
 				&& !ch->IsNpc()
 				&& !ch->IsImmortal()

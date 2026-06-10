@@ -13,7 +13,7 @@
 
 void DoZone(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	if (ch->desc
-		&& !(is_dark(ch->in_room) && !CAN_SEE_IN_DARK(ch) && !CanUseFeat(ch, EFeat::kDarkReading))
+		&& !(is_dark(ch->in_room) && !CanSeeInDark(ch) && !CanUseFeat(ch, EFeat::kDarkReading))
 		&& !AFF_FLAGGED(ch, EAffect::kBlind)) {
 		MapSystem::print_map(ch);
 	}

@@ -590,7 +590,7 @@ void mobile_affect_update() {
 			}
 			if (was_charmed) {
 				utils::CExecutionTimer stop_follower_timer;
-				follow::StopFollower(ch, kSfCharmlost);
+				follow::StopFollower(ch, follow::kSfCharmlost);
 				profile.sections[static_cast<std::size_t>(Section::kStopFollower)] += stop_follower_timer.delta().count();
 				++profile.counters[static_cast<std::size_t>(Counter::kCharmStops)];
 			}

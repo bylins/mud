@@ -259,7 +259,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 
 	snprintf(buf, sizeof(buf), ", Уровень: [%s%2d%s], Опыт: [%s%10ld%s]%s, Наклонности: [%4d]\r\n",
 			kColorYel, GetRealLevel(k), kColorNrm, kColorYel,
-			k->get_exp(), kColorNrm, tmp_buf, GET_ALIGNMENT(k));
+			k->get_exp(), kColorNrm, tmp_buf, GetAlignment(k));
 
 	SendMsgToChar(buf, ch);
 
