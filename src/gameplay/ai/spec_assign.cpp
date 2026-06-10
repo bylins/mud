@@ -78,11 +78,17 @@ bool SharesMobSpecial(int v1, int v2) {
 }
 } // namespace specials
 
-bool IsRentkeeper(const CharData *ch) {
-	return ch->IsNpc() && specials::IsMobSpecial(GET_MOB_VNUM(ch), specials::ESpecial::kRent);
-}
+namespace specials {
 
-namespace specials {} // namespace specials
+// issue.utils-cleaning: "is this mob a <service>-keeper?" -- registry-backed. The func-pointer
+// dispatch these used to read (mob_index[].func == shop_ext/postmaster/bank) is gone: mob specials
+// are data-driven (cfg/specials.xml -> do_specproc), so mob_index[].func is always null for mobs.
+bool IsShopkeeper(const CharData *ch) { return ch->IsNpc() && IsMobSpecial(GET_MOB_VNUM(ch), ESpecial::kShop); }
+bool IsPostkeeper(const CharData *ch) { return ch->IsNpc() && IsMobSpecial(GET_MOB_VNUM(ch), ESpecial::kMail); }
+bool IsBankkeeper(const CharData *ch) { return ch->IsNpc() && IsMobSpecial(GET_MOB_VNUM(ch), ESpecial::kBank); }
+bool IsRentkeeper(const CharData *ch) { return ch->IsNpc() && IsMobSpecial(GET_MOB_VNUM(ch), ESpecial::kRent); }
+
+}  // namespace specials
 
 // Map a spec-proc function to its ESpecial, so ASSIGN* keeps the registry in sync with func.
 // Only object/board specials are still assigned via a func pointer (ASSIGNOBJ); every mob spec is

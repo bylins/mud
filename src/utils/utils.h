@@ -188,11 +188,9 @@ constexpr int kSecsPerRealDay = 24*kSecsPerRealHour;
 // IS_IMMORTAL/IS_GOD/IS_GRGOD/IS_IMPL заменены на методы CharData:
 // ch->IsImmortal(), ch->IsGod(), ch->IsGrGod(), ch->IsImpl()
 
-#define IS_SHOPKEEPER(ch) ((ch)->IsNpc() && mob_index[(ch)->get_rnum()].func == shop_ext)
-bool IsRentkeeper(const CharData *ch);  // defined in spec_assign.cpp; rentkeeper = registry kRent
-#define IS_RENTKEEPER(ch) IsRentkeeper(&*(ch))
-#define IS_POSTKEEPER(ch) ((ch)->IsNpc() && mob_index[(ch)->get_rnum()].func == postmaster)
-#define IS_BANKKEEPER(ch) ((ch)->IsNpc() && mob_index[(ch)->get_rnum()].func == bank)
+// issue.utils-cleaning: IS_SHOPKEEPER/IS_POSTKEEPER/IS_BANKKEEPER/IS_RENTKEEPER ->
+// specials::IsShopkeeper/IsPostkeeper/IsBankkeeper/IsRentkeeper (gameplay/ai/spec_procs.h).
+// (The old macros read mob_index[].func, which is no longer set for mobs -- they were dead.)
 
 // string utils *********************************************************
 

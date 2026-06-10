@@ -489,7 +489,7 @@ void town_shop_keepers() {
 	std::set<int> zone_list;
 
 	for (const auto &ch : character_list) {
-		if (IS_RENTKEEPER(ch)
+		if (specials::IsRentkeeper(ch.get())
 			&& ch->in_room > 0
 			&& !Clan::GetClanByRoom(ch->in_room)
 			&& !ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena)

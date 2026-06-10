@@ -558,11 +558,11 @@ void SetZonesTownFlags() {
 		bool rent_flag = false, bank_flag = false, post_flag = false;
 		for (int k = rnum_start; k <= rnum_end; ++k) {
 			for (const auto ch : world[k]->people) {
-				if (IS_RENTKEEPER(ch)) {
+				if (specials::IsRentkeeper(ch)) {
 					rent_flag = true;
-				} else if (IS_BANKKEEPER(ch)) {
+				} else if (specials::IsBankkeeper(ch)) {
 					bank_flag = true;
-				} else if (IS_POSTKEEPER(ch)) {
+				} else if (specials::IsPostkeeper(ch)) {
 					post_flag = true;
 				}
 			}

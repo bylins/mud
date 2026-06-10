@@ -397,11 +397,11 @@ void init_mob_name_list() {
 		}
 
 		for (const auto ch : i->people) {
-			if (IS_RENTKEEPER(ch)) {
+			if (specials::IsRentkeeper(ch)) {
 				rent = true;
-			} else if (IS_POSTKEEPER(ch)) {
+			} else if (specials::IsPostkeeper(ch)) {
 				mail = true;
-			} else if (IS_BANKKEEPER(ch)) {
+			} else if (specials::IsBankkeeper(ch)) {
 				banker = true;
 			}
 		}

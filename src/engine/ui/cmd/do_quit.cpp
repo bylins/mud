@@ -52,7 +52,7 @@ void do_quit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		if (ch->in_room != r_helled_start_room && ch->in_room != r_named_start_room
 			&& ch->in_room != r_unreg_start_room) {
 			for (const auto vict : world[ch->in_room]->people) {
-				if (IS_RENTKEEPER(vict)) {
+				if (specials::IsRentkeeper(vict)) {
 					GET_LOADROOM(ch) = GET_ROOM_VNUM(ch->in_room);
 					break;
 				}

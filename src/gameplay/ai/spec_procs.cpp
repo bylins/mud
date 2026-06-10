@@ -218,7 +218,7 @@ int npc_scavenge(CharData *ch) {
 		return (false);
 	}
 
-	if (IS_SHOPKEEPER(ch)) {
+	if (specials::IsShopkeeper(ch)) {
 		return (false);
 	}
 
@@ -311,7 +311,7 @@ int npc_loot(CharData *ch) {
 
 	if (!ch->IsFlagged(EMobFlag::kLooter))
 		return (false);
-	if (IS_SHOPKEEPER(ch))
+	if (specials::IsShopkeeper(ch))
 		return (false);
 	npc_dropunuse(ch);
 	if (!world[ch->in_room]->contents.empty() && number(0, GetRealInt(ch)) > 10) {
@@ -542,7 +542,7 @@ void npc_wield(CharData *ch) {
 		return;
 	}
 
-	if (GetRealInt(ch) < 10 || IS_SHOPKEEPER(ch))
+	if (GetRealInt(ch) < 10 || specials::IsShopkeeper(ch))
 		return;
 
 	if (GET_EQ(ch, EEquipPos::kHold)
@@ -638,7 +638,7 @@ void npc_armor(CharData *ch) {
 	if (!NPC_FLAGGED(ch, ENpcFlag::kArmoring))
 		return;
 
-	if (GetRealInt(ch) < 10 || IS_SHOPKEEPER(ch))
+	if (GetRealInt(ch) < 10 || specials::IsShopkeeper(ch))
 		return;
 
 	for (obj = ch->carrying; obj; obj = next) {
@@ -737,7 +737,7 @@ void npc_armor(CharData *ch) {
 void npc_light(CharData *ch) {
 	ObjData *obj, *next;
 
-	if (GetRealInt(ch) < 10 || IS_SHOPKEEPER(ch))
+	if (GetRealInt(ch) < 10 || specials::IsShopkeeper(ch))
 		return;
 
 	if (AFF_FLAGGED(ch, EAffect::kInfravision))
@@ -773,7 +773,7 @@ int npc_battle_scavenge(CharData *ch) {
 	if (!ch->IsFlagged(EMobFlag::kScavenger))
 		return (false);
 
-	if (IS_SHOPKEEPER(ch))
+	if (specials::IsShopkeeper(ch))
 		return (false);
 
 	if (!world[ch->in_room]->contents.empty() && number(0, GetRealInt(ch)) > 10)
@@ -832,7 +832,7 @@ int do_npc_steal(CharData *ch, CharData *victim) {
 	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kPeaceful))
 		return (false);
 
-	if (victim->IsNpc() || IS_SHOPKEEPER(ch) || victim->GetEnemy())
+	if (victim->IsNpc() || specials::IsShopkeeper(ch) || victim->GetEnemy())
 		return (false);
 
 	if (GetRealLevel(victim) >= kLvlImmortal)
@@ -872,7 +872,7 @@ int npc_steal(CharData *ch) {
 	if (!NPC_FLAGGED(ch, ENpcFlag::kStealing))
 		return (false);
 
-	if (ch->GetPosition() != EPosition::kStand || IS_SHOPKEEPER(ch) || ch->GetEnemy())
+	if (ch->GetPosition() != EPosition::kStand || specials::IsShopkeeper(ch) || ch->GetEnemy())
 		return (false);
 
 	for (const auto cons : world[ch->in_room]->people) {
@@ -1535,7 +1535,7 @@ int bank(CharData *ch, void *me, int /*cmd*/, char *argument) {
 
 bool is_post(RoomRnum room) {
 	for (const auto ch : world[room]->people) {
-		if (ch->IsNpc() && IS_POSTKEEPER(ch)) {
+		if (ch->IsNpc() && specials::IsPostkeeper(ch)) {
 			return true;
 		}
 	}
@@ -1551,7 +1551,7 @@ bool is_rent(RoomRnum room) {
 	}
 	// комната без рентера в ней
 	for (const auto ch : world[room]->people) {
-		if (ch->IsNpc() && IS_RENTKEEPER(ch)) {
+		if (ch->IsNpc() && specials::IsRentkeeper(ch)) {
 			return true;
 		}
 	}
