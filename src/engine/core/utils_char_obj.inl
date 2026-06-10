@@ -2,6 +2,7 @@
 #define CHAR_OBJ_UTILS_HPP_
 
 #include "handler.h"
+#include "gameplay/mechanics/minions.h"
 #include "engine/structs/structs.h"
 #include "engine/entities/char_data.h"
 #include "engine/entities/obj_data.h"

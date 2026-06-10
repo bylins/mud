@@ -3,6 +3,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "deathtrap.h"
+#include "gameplay/mechanics/minions.h"
 
 #include "gameplay/core/constants.h"
 #include "engine/entities/entities_constants.h"

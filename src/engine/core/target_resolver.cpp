@@ -3,6 +3,7 @@
 */
 
 #include "target_resolver.h"
+#include "gameplay/mechanics/minions.h"
 
 #include "engine/core/handler.h"
 #include "engine/core/utils_char_obj.inl"

@@ -3,6 +3,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "dps.h"
+#include "gameplay/mechanics/minions.h"
 
 #include "engine/ui/color.h"
 #include "engine/entities/char_data.h"

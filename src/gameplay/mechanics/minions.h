@@ -10,6 +10,7 @@
 #define BYLINS_SRC_GAMEPLAY_MECHANICS_MINIONS_H_
 
 #include "gameplay/magic/spells_constants.h"
+#include <memory>
 
 class CharData;
 float get_effective_cha(CharData *ch);
@@ -21,6 +22,12 @@ float CalcDamagePerRound(CharData *victim);
 int GetReformedCharmiceHp(CharData *ch, CharData *victim, ESpell spell_id);
 // Can `ch` take on `victim` as another charmed follower for `spell_id`? (was mechanics/charm.)
 int CheckCharmices(CharData *ch, CharData *victim, ESpell spell_id);
+
+
+// issue.chardata-cleaning: minion-identity predicates (moved off CharData).
+bool IS_CHARMICE(const CharData *ch);                                       // charmed/helper NPC minion
+inline bool IS_CHARMICE(const std::shared_ptr<CharData> &ch) { return IS_CHARMICE(ch.get()); }
+bool IS_MORTIFIER(const CharData *ch);                                      // raised-corpse minion
 
 #endif //BYLINS_SRC_GAMEPLAY_MECHANICS_MINIONS_H_
 

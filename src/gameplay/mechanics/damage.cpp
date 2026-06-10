@@ -7,6 +7,7 @@
 */
 
 #include "damage.h"
+#include "gameplay/mechanics/minions.h"
 #include "gameplay/mechanics/mount.h"
 #include "gameplay/mechanics/resist.h"
 

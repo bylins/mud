@@ -1,4 +1,5 @@
 #include "turnundead.h"
+#include "gameplay/mechanics/minions.h"
 #include "skill_messages.h"
 #include "engine/db/global_objects.h"
 

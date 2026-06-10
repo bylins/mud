@@ -1,4 +1,5 @@
 #include "firstaid.h"
+#include "gameplay/mechanics/minions.h"
 
 #include "engine/entities/char_data.h"
 #include "gameplay/magic/magic.h"

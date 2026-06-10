@@ -15,6 +15,7 @@
 #define UTILS_H_
 
 #include <string>
+#include "gameplay/mechanics/minions.h"
 #include <list>
 #include <new>
 #include <utility>

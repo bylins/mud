@@ -3,6 +3,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "named_stuff.h"
+#include "gameplay/mechanics/minions.h"
 
 #include "engine/db/world_objects.h"
 #include "engine/db/obj_prototypes.h"

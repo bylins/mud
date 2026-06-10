@@ -1,6 +1,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include <random>
+#include "gameplay/mechanics/minions.h"
 #include "gameplay/mechanics/mount.h"
 
 #include "gameplay/affects/affect_data.h"

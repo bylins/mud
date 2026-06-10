@@ -1,4 +1,5 @@
 #include "backstab.h"
+#include "gameplay/mechanics/minions.h"
 #include "gameplay/mechanics/mount.h"
 
 #include "skill_messages.h"

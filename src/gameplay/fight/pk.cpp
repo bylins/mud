@@ -12,6 +12,7 @@
 ************************************************************************ */
 
 #include "pk.h"
+#include "gameplay/mechanics/minions.h"
 #include "gameplay/mechanics/mount.h"
 
 #include "utils/buffered_file_writer.h"

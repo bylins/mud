@@ -3,6 +3,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "engine/core/handler.h"
+#include "gameplay/mechanics/minions.h"
 #include "administration/privilege.h"
 #include "char_player.h"
 #include "gameplay/mechanics/player_races.h"
@@ -780,12 +781,6 @@ ObjData *CharData::GetCastObj() const {
 }
 
 // \todo Да-да, функциями типа "кто кого видит" - самое мместо в модуле персонажа. Вычистить это все отсюда.
-bool IS_CHARMICE(const CharData *ch) {
-	return ch->IsNpc()
-		&& (AFF_FLAGGED(ch, EAffect::kHelper)
-			|| AFF_FLAGGED(ch, EAffect::kCharmed));
-}
-
 bool MORT_CAN_SEE(const CharData *sub, const CharData *obj) {
 	return HERE(obj)
 		&& INVIS_OK(sub, obj)
@@ -800,12 +795,6 @@ bool MAY_SEE(const CharData *ch, const CharData *sub, const CharData *obj) {
 			|| AFF_FLAGGED(sub, EAffect::kInfravision))
 		&& (!AFF_FLAGGED(obj, EAffect::kInvisible)
 			|| AFF_FLAGGED(sub, EAffect::kDetectInvisible));
-}
-
-bool IS_MORTIFIER(const CharData *ch) {
-	return ch->IsNpc()
-		&& ch->has_master()
-		&& ch->IsFlagged(EMobFlag::kCorpse);
 }
 
 bool MAY_ATTACK(const CharData *sub) {

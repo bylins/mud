@@ -2,6 +2,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "engine/db/obj_prototypes.h"
+#include "gameplay/mechanics/minions.h"
 #include "obj_sets_stuff.h"
 #include "third_party_libs/pugixml/pugixml.h"
 #include "engine/ui/color.h"

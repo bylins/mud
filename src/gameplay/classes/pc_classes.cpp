@@ -19,6 +19,7 @@
  * the appropriate new special cases for your new class.
  */
 #include "pc_classes.h"
+#include "gameplay/mechanics/minions.h"
 
 #include "gameplay/magic/magic_utils.h"
 #include "engine/core/handler.h"

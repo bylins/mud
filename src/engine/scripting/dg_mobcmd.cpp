@@ -24,6 +24,7 @@
  ***************************************************************************/
 
 #include "engine/entities/char_data.h"
+#include "gameplay/mechanics/minions.h"
 #include "gameplay/mechanics/follow.h"
 #include "gameplay/mechanics/mount.h"
 #include "engine/ui/cmd/do_follow.h"

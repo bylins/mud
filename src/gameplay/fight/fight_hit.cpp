@@ -1,4 +1,5 @@
 #include "fight_hit.h"
+#include "gameplay/mechanics/minions.h"
 #include "gameplay/mechanics/mount.h"
 #include "gameplay/mechanics/resist.h"
 

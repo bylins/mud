@@ -7,6 +7,7 @@
 */
 
 #include "addshot.h"
+#include "gameplay/mechanics/minions.h"
 
 #include "utils/utils.h"
 #include "utils/random.h"

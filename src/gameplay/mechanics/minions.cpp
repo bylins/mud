@@ -232,4 +232,16 @@ int CheckCharmices(CharData *ch, CharData *victim, ESpell spell_id) {
 	return (true);
 }
 
+bool IS_CHARMICE(const CharData *ch) {
+	return ch->IsNpc()
+		&& (AFF_FLAGGED(ch, EAffect::kHelper)
+			|| AFF_FLAGGED(ch, EAffect::kCharmed));
+}
+
+bool IS_MORTIFIER(const CharData *ch) {
+	return ch->IsNpc()
+		&& ch->has_master()
+		&& ch->IsFlagged(EMobFlag::kCorpse);
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

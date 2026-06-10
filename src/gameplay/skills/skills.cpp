@@ -8,6 +8,7 @@
 ************************************************************************ */
 
 #include "engine/db/obj_prototypes.h"
+#include "gameplay/mechanics/minions.h"
 #include "gameplay/mechanics/mount.h"
 #include "engine/db/global_objects.h"
 #include "engine/core/handler.h"

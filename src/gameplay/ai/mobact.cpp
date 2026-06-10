@@ -12,6 +12,7 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 #include "mobact.h"
+#include "gameplay/mechanics/minions.h"
 #include "gameplay/mechanics/follow.h"
 #include "gameplay/mechanics/mount.h"
 #include "gameplay/ai/spec_procs.h"

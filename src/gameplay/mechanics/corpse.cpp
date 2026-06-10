@@ -2,6 +2,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "corpse.h"
+#include "gameplay/mechanics/minions.h"
 
 #include "engine/db/world_objects.h"
 #include "engine/db/obj_prototypes.h"

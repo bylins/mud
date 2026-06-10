@@ -6,6 +6,7 @@
 */
 
 #include "engine/entities/char_data.h"
+#include "gameplay/mechanics/minions.h"
 #include "gameplay/mechanics/mount.h"
 #include "engine/core/char_movement.h"
 #include "engine/ui/color.h"

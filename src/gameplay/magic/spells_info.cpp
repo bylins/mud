@@ -1,6 +1,7 @@
 //#include "spells_info.h"
 
 #include "engine/ui/color.h"
+#include "gameplay/mechanics/minions.h"
 #include "utils/utils_string.h"   // str_cmp
 //#include "spells.h"
 #include "engine/db/global_objects.h"

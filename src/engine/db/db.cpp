@@ -1,4 +1,5 @@
 #include <filesystem>
+#include "gameplay/mechanics/minions.h"
 #include "gameplay/mechanics/follow.h"
 #include "gameplay/mechanics/portal.h"
 

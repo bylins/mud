@@ -12,6 +12,7 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 #include "char_movement.h"
+#include "gameplay/mechanics/minions.h"
 #include "gameplay/mechanics/mount.h"
 
 #include "gameplay/mechanics/deathtrap.h"

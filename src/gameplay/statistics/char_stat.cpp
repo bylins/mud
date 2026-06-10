@@ -7,6 +7,7 @@
 */
 
 #include "gameplay/statistics/char_stat.h"
+#include "gameplay/mechanics/minions.h"
 #include "gameplay/mechanics/mount.h"
 
 #include "engine/entities/char_data.h"

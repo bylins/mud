@@ -6,6 +6,7 @@
  **/
 
 #include "gameplay/classes/mob_classes_info.h"
+#include "gameplay/mechanics/minions.h"
 #include "engine/entities/char_data.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/magic/magic.h"

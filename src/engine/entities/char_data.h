@@ -926,8 +926,6 @@ inline bool AFF_FLAGGED(const CharData::shared_ptr &ch, const EAffect flag) {
 //		|| ch->isAffected(flag); //обойдемся без морфа
 }
 
-bool IS_CHARMICE(const CharData *ch);
-inline bool IS_CHARMICE(const CharData::shared_ptr &ch) { return IS_CHARMICE(ch.get()); }
 
 inline bool IS_FLY(const CharData *ch) {
 	return AFF_FLAGGED(ch, EAffect::kFly);
@@ -961,7 +959,6 @@ inline bool CAN_SEE(const CharData::shared_ptr &sub, const CharData::shared_ptr 
 
 bool MAY_SEE(const CharData *ch, const CharData *sub, const CharData *obj);
 
-bool IS_MORTIFIER(const CharData *ch);
 
 bool MAY_ATTACK(const CharData *sub);
 inline bool MAY_ATTACK(const CharData::shared_ptr &sub) { return MAY_ATTACK(sub.get()); }

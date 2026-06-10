@@ -7,6 +7,7 @@
 // replaced by ENpcRace::kAnimal in the caller.
 
 #include "animal_master.h"
+#include "gameplay/mechanics/minions.h"
 
 #include "engine/entities/char_data.h"
 #include "engine/entities/entities_constants.h"

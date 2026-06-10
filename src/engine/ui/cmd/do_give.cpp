@@ -1,4 +1,5 @@
 #include "engine/entities/char_data.h"
+#include "gameplay/mechanics/minions.h"
 #include "engine/db/world_objects.h"
 #include "gameplay/economics/currencies.h"
 #include "gameplay/fight/pk.h"

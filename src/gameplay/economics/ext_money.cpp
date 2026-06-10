@@ -3,6 +3,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "ext_money.h"
+#include "gameplay/mechanics/minions.h"
 #include "gameplay/ai/special_messages.h"
 
 #include "engine/entities/char_data.h"

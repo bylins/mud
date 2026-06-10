@@ -13,6 +13,7 @@
 ************************************************************************ */
 
 #include "fight.h"
+#include "gameplay/mechanics/minions.h"
 #include "gameplay/mechanics/follow.h"
 #include "gameplay/mechanics/mount.h"
 #include "gameplay/skills/bash.h"

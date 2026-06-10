@@ -7,6 +7,7 @@
 */
 
 #include "engine/entities/char_data.h"
+#include "gameplay/mechanics/minions.h"
 #include "gameplay/skills/skills.h"
 #include "utils/utils.h"
 
