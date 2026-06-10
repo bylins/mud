@@ -8,6 +8,7 @@
 #define BYLINS_SRC_AFFECTS_AFFECT_CONTANTS_H_
 
 #include "gameplay/magic/spells_constants.h"
+#include "gameplay/mechanics/condition.h"
 
 // Константа, определяющая скорость таймера аффектов
 const int kSecsPerPlayerAffect = 2;

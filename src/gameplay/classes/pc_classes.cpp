@@ -19,6 +19,7 @@
  * the appropriate new special cases for your new class.
  */
 #include "pc_classes.h"
+#include "gameplay/mechanics/condition.h"
 #include "gameplay/mechanics/minions.h"
 
 #include "gameplay/magic/magic_utils.h"
@@ -1045,9 +1046,9 @@ void DoPcInit(CharData *ch, bool is_newbie) {
 	ch->set_hit(ch->get_real_max_hit());
 	ch->set_move(ch->get_real_max_move());
 
-	GET_COND(ch, THIRST) = 0;
-	GET_COND(ch, FULL) = 0;
-	GET_COND(ch, DRUNK) = 0;
+	GET_COND(ch, condition::kThirst) = 0;
+	GET_COND(ch, condition::kFull) = 0;
+	GET_COND(ch, condition::kDrunk) = 0;
 	// проставим кличи
 	init_warcry(ch);
 	if (siteok_everyone) {

@@ -409,6 +409,7 @@ main_sources = files(
   'src/gameplay/abilities/feats.cpp',
   'src/gameplay/fight/arena.cpp',
   'src/gameplay/mechanics/alignment.cpp',
+  'src/gameplay/mechanics/condition.cpp',
   'src/gameplay/fight/fight.cpp',
   'src/gameplay/fight/fight_messages.cpp',
   'src/gameplay/fight/fight_hit.cpp',

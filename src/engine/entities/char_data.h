@@ -9,6 +9,7 @@
 #include "administration/punishments.h"
 #include "gameplay/fight/pk.h"
 #include "gameplay/magic/magic_temp_spells.h"
+#include "gameplay/mechanics/condition.h"
 #include "gameplay/mechanics/obj_sets.h"
 #include "gameplay/mechanics/dead_load.h"
 #include "engine/db/db.h"
@@ -32,9 +33,7 @@
 #include <map>
 
 // pernalty types
-enum { P_DAMROLL, P_HITROLL, P_CAST, P_MEM_GAIN, P_MOVE_GAIN, P_HIT_GAIN, P_AC };
 
-enum { DRUNK, FULL, THIRST };
 
 // These data contain information about a players time data
 struct time_data {
@@ -524,7 +523,6 @@ class CharData : public ProtectedCharData {
 	/**
 	 * Возвращает коэффициент штрафа за состояние
 	**/
-	float get_cond_penalty(int type) const;
 	std::string GetTitle() const;
 	std::string get_pretitle() const;
 	std::string get_race_name() const;

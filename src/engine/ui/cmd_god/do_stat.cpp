@@ -1,4 +1,5 @@
 #include "do_stat.h"
+#include "gameplay/mechanics/condition.h"
 #include "gameplay/mechanics/magic_item.h"
 #include "gameplay/fight/fight_messages.h"
 
@@ -557,7 +558,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 
 	if (!k->IsNpc()) {
 		snprintf(buf, sizeof(buf), "Голод: %d, Жажда: %d, Опьянение: %d\r\n",
-				GET_COND(k, FULL), GET_COND(k, THIRST), GET_COND(k, DRUNK));
+				GET_COND(k, condition::kFull), GET_COND(k, condition::kThirst), GET_COND(k, condition::kDrunk));
 		SendMsgToChar(buf, ch);
 	}
 

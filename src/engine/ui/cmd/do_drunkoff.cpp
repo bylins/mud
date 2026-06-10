@@ -33,7 +33,7 @@ void do_drunkoff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (!AFF_FLAGGED(ch, EAffect::kAbstinent) && GET_COND(ch, DRUNK) < kDrunked) {
+	if (!AFF_FLAGGED(ch, EAffect::kAbstinent) && GET_COND(ch, condition::kDrunk) < kDrunked) {
 		SendMsgToChar("Не стоит делать этого на трезвую голову.\r\n", ch);
 		return;
 	}
@@ -157,7 +157,7 @@ void do_drunkoff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		for (prob = 0; prob < 3; prob++) {
 			ImposeAffect(ch, af[prob], true, false, true, false);
 		}
-		gain_condition(ch, DRUNK, amount);
+		gain_condition(ch, condition::kDrunk, amount);
 	} else {
 		sprintf(buf, "Вы отхлебнули %s из $o1 и почувствовали приятную легкость во всем теле...",
 				drinks[GET_OBJ_VAL(obj, 2)]);

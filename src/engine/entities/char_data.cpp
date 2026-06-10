@@ -3,6 +3,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "engine/core/handler.h"
+#include "gameplay/mechanics/condition.h"
 #include "utils/grammar/gender.h"
 #include "gameplay/mechanics/minions.h"
 #include "administration/privilege.h"
@@ -119,67 +120,7 @@ bool CharData::in_used_zone() const {
 
 //вычисление штрафов за голод и жажду
 //P_DAMROLL, P_HITROLL, P_CAST, P_MEM_GAIN, P_MOVE_GAIN, P_HIT_GAIN
-float CharData::get_cond_penalty(int type) const {
-	if (this->IsNpc()) return 1;
-	if (!(GET_COND_M(this, FULL) || GET_COND_M(this, THIRST))) return 1;
 
-	auto penalty{0.0};
-	if (GET_COND_M(this, FULL)) {
-		int tmp = GET_COND_K(this, FULL); // 0 - 1
-		switch (type) {
-			case P_DAMROLL://-50%
-				penalty += tmp / 2;
-				break;
-			case P_HITROLL://-25%
-				penalty += tmp / 4;
-				break;
-			case P_CAST://-25%
-				penalty += tmp / 4;
-				break;
-			case P_MEM_GAIN://-25%
-				penalty += tmp / 4;
-				break;
-			case P_MOVE_GAIN://-50%
-				penalty += tmp / 2;
-				break;
-			case P_HIT_GAIN://-50%
-				penalty += tmp / 2;
-				break;
-			case P_AC://-50%
-				penalty += tmp / 2;
-				break;
-			default: break;
-		}
-	}
-
-	if (GET_COND_M(this, THIRST)) {
-		int tmp = GET_COND_K(this, THIRST); // 0 - 1
-		switch (type) {
-			case P_DAMROLL://-25%
-				penalty += tmp / 4;
-				break;
-			case P_HITROLL://-50%
-				penalty += tmp / 2;
-				break;
-			case P_CAST://-50%
-				penalty += tmp / 2;
-				break;
-			case P_MEM_GAIN://-50%
-				penalty += tmp / 2;
-				break;
-			case P_MOVE_GAIN://-25%
-				penalty += tmp / 4;
-				break;
-			case P_AC://-25%
-				penalty += tmp / 4;
-				break;
-			default: break;
-		}
-	}
-	penalty = 100.0 - std::clamp(penalty, 0.0, 100.0);
-	penalty /= 100.0;
-	return penalty;
-}
 
 void CharData::reset() {
 	int i;
@@ -250,7 +191,7 @@ CharData::char_affects_list_t::iterator CharData::AffectRemove(const char_affect
 	const auto af = *affect_i;
 	if (af->type == ESpell::kAbstinent) {
 		if (player_specials) {
-			GET_DRUNK_STATE(this) = GET_COND(this, DRUNK) = std::min(GET_COND(this, DRUNK), kDrunked - 1);
+			GET_DRUNK_STATE(this) = GET_COND(this, condition::kDrunk) = std::min(GET_COND(this, condition::kDrunk), kDrunked - 1);
 		} else {
 			log("SYSERR: player_specials is not set.");
 		}
@@ -1858,7 +1799,6 @@ bool CharData::have_mind() const {
 // персонаж на лошади?
 
 #include "utils/backtrace.h"
-
 
 
 obj_sets::activ_sum &CharData::obj_bonus() {

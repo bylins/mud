@@ -13,6 +13,7 @@
 ************************************************************************ */
 
 #include "gameplay/core/game_limits.h"
+#include "gameplay/mechanics/condition.h"
 #include "utils/grammar/gender.h"
 #include "gameplay/mechanics/minions.h"
 #include "gameplay/mechanics/mount.h"
@@ -244,7 +245,7 @@ int CalcManaGain(const CharData *ch) {
 		percent /= 4;
 	}
 	if (!ch->IsNpc()) {
-		percent *= ch->get_cond_penalty(P_MEM_GAIN);
+		percent *= condition::GetCondPenalty(ch, condition::kMemGain);
 	}
 	percent = std::clamp(percent, 0, 1000);
 	gain = gain * percent / 100;
@@ -306,7 +307,7 @@ int hit_gain(CharData *ch) {
 		percent /= 4;
 
 	if (!ch->IsNpc())
-		percent *= ch->get_cond_penalty(P_HIT_GAIN);
+		percent *= condition::GetCondPenalty(ch, condition::kHitGain);
 	percent = std::max(0, std::min(250, percent));
 	gain = gain * percent / 100;
 	if (!ch->IsNpc()) {
@@ -364,7 +365,7 @@ int move_gain(CharData *ch) {
 		percent /= 4;
 
 	if (!ch->IsNpc())
-		percent *= ch->get_cond_penalty(P_HIT_GAIN);
+		percent *= condition::GetCondPenalty(ch, condition::kHitGain);
 	percent = std::max(0, std::min(250, percent));
 	gain = gain * percent / 100;
 	return (gain);
@@ -977,7 +978,7 @@ void gain_condition(CharData *ch, unsigned condition, int value) {
 		return;
 	}
 
-	if (ch->IsGod() && condition != DRUNK) {
+	if (ch->IsGod() && condition != condition::kDrunk) {
 		GET_COND(ch, condition) = -1;
 		return;
 	}
@@ -987,14 +988,14 @@ void gain_condition(CharData *ch, unsigned condition, int value) {
 
 	// обработка после увеличения
 	switch (condition) {
-		case DRUNK: GET_COND(ch, condition) = std::min(kMortallyDrunked + 1, GET_COND(ch, condition));
+		case condition::kDrunk: GET_COND(ch, condition) = std::min(kMortallyDrunked + 1, GET_COND(ch, condition));
 			break;
 
 		default: GET_COND(ch, condition) = std::min(kMaxCondition, GET_COND(ch, condition));
 			break;
 	}
 
-	if (cond_state >= kDrunked && GET_COND(ch, DRUNK) < kDrunked) {
+	if (cond_state >= kDrunked && GET_COND(ch, condition::kDrunk) < kDrunked) {
 		GET_DRUNK_STATE(ch) = 0;
 	}
 
@@ -1003,8 +1004,8 @@ void gain_condition(CharData *ch, unsigned condition, int value) {
 
 	int cond_value = GET_COND(ch, condition);
 	switch (condition) {
-		case FULL:
-			if (!GET_COND_M(ch, condition)) {
+		case condition::kFull:
+			if (!condition::GetCondAboveNorm(ch, condition)) {
 				return;
 			}
 
@@ -1018,8 +1019,8 @@ void gain_condition(CharData *ch, unsigned condition, int value) {
 			}
 			return;
 
-		case THIRST:
-			if (!GET_COND_M(ch, condition)) {
+		case condition::kThirst:
+			if (!condition::GetCondAboveNorm(ch, condition)) {
 				return;
 			}
 
@@ -1033,9 +1034,9 @@ void gain_condition(CharData *ch, unsigned condition, int value) {
 			}
 			return;
 
-		case DRUNK:
+		case condition::kDrunk:
 			//Если чара прекратило штормить, шлем сообщение
-			if (cond_state >= kMortallyDrunked && GET_COND(ch, DRUNK) < kMortallyDrunked) {
+			if (cond_state >= kMortallyDrunked && GET_COND(ch, condition::kDrunk) < kMortallyDrunked) {
 				SendMsgToChar("Наконец-то вы протрезвели.\r\n", ch);
 			}
 			return;
@@ -1562,20 +1563,20 @@ void point_update() {
 		++profiled_chars;
 		prof.restart();
 		if (!i->IsNpc()) {
-			gain_condition(i, DRUNK, -1);
+			gain_condition(i, condition::kDrunk, -1);
 			if (average_day_temp() < -20) {
-				gain_condition(i, FULL, +2);
+				gain_condition(i, condition::kFull, +2);
 			} else if (average_day_temp() < -5) {
-				gain_condition(i, FULL, number(+2, +1));
+				gain_condition(i, condition::kFull, number(+2, +1));
 			} else {
-				gain_condition(i, FULL, +1);
+				gain_condition(i, condition::kFull, +1);
 			}
 			if (average_day_temp() > 25) {
-				gain_condition(i, THIRST, +2);
+				gain_condition(i, condition::kThirst, +2);
 			} else if (average_day_temp() > 20) {
-				gain_condition(i, THIRST, number(+2, +1));
+				gain_condition(i, condition::kThirst, number(+2, +1));
 			} else {
-				gain_condition(i, THIRST, +1);
+				gain_condition(i, condition::kThirst, +1);
 			}
 			UpdateCharObjects(i);
 		}

@@ -149,7 +149,7 @@ void PrintScoreList(CharData *ch) {
 	SendMsgToChar(ch, "Попадание: %d, повреждение: %d, запоминание: %d, успех колдовства: %d, удача: %d, инициатива: %d.\r\n",
 				  CalcHitroll(ch),
 				  max_dam,
-				  int(GET_MANAREG(ch) * ch->get_cond_penalty(P_CAST)),
+				  int(GET_MANAREG(ch) * condition::GetCondPenalty(ch, condition::kCast)),
 				  CalcAntiSavings(ch),
 				  ch->calc_morale(),
 				  calc_initiative(ch, false));
@@ -181,7 +181,7 @@ void PrintScoreList(CharData *ch) {
 				  move_gain(ch));
 	int ac = CalcBaseAc(ch) / 10;
 	if (ac < 5) {
-		const int mod = (1 - ch->get_cond_penalty(P_AC)) * 40;
+		const int mod = (1 - condition::GetCondPenalty(ch, condition::kAc)) * 40;
 		ac = ac + mod > 5 ? 5 : ac + mod;
 	}
 	SendMsgToChar(ch, "Броня: %d, защита: %d, поглощение %d.\r\n",
@@ -202,7 +202,7 @@ void PrintScoreList(CharData *ch) {
 		SendMsgToChar(ch, "Вы можете быть призваны.\r\n");
 	else
 		SendMsgToChar(ch, "Вы защищены от призыва.\r\n");
-	SendMsgToChar(ch, "Голоден: %s, жажда: %s.\r\n", (GET_COND(ch, FULL) > kNormCondition)? "да" : "нет", GET_COND_M(ch, THIRST)? "да" : "нет");
+	SendMsgToChar(ch, "Голоден: %s, жажда: %s.\r\n", (GET_COND(ch, condition::kFull) > kNormCondition)? "да" : "нет", condition::GetCondAboveNorm(ch, condition::kThirst)? "да" : "нет");
 	//Напоминаем о метке, если она есть.
 	RoomData *label_room = room_spells::FindAffectedRoomByCasterID(ch->get_uid(), ESpell::kRuneLabel);
 	if (label_room) {
@@ -509,9 +509,9 @@ int PrintBaseInfoToTable(CharData *ch, table_wrapper::Table &table, std::size_t 
 	table[++row][col] = std::string("Кун: ") + PrintNumberByDigits(ch->get_gold());
 	table[++row][col] = std::string("На счету: ") + PrintNumberByDigits(ch->get_bank());
 	table[++row][col] = GetShortPositionStr(ch);
-	table[++row][col] = std::string("Голоден: ") + (GET_COND(ch, FULL) > kNormCondition ? "Угу :(" : "Нет");
-	table[++row][col] = std::string("Жажда: ") + (GET_COND_M(ch, THIRST) ? "Наливай!" : "Нет");
-	if (GET_COND(ch, DRUNK) >= kDrunked) {
+	table[++row][col] = std::string("Голоден: ") + (GET_COND(ch, condition::kFull) > kNormCondition ? "Угу :(" : "Нет");
+	table[++row][col] = std::string("Жажда: ") + (condition::GetCondAboveNorm(ch, condition::kThirst) ? "Наливай!" : "Нет");
+	if (GET_COND(ch, condition::kDrunk) >= kDrunked) {
 		table[++row][col] = (IsAffectedBySpell(ch, ESpell::kAbstinent) ? "Похмелье." : "Вы пьяны.");
 	}
 	if (PlayerSystem::weight_dex_penalty(ch)) {
@@ -569,7 +569,7 @@ int PrintSecondaryStatsToTable(CharData *ch, table_wrapper::Table &table, std::s
 	table[row][col] = "Попадание";		table[row][col + 1] = std::to_string(CalcHitroll(ch));
 	table[++row][col] = "Повреждение";	table[row][col + 1] = std::to_string(max_dam);
 	table[++row][col] = "Колдовство";	table[row][col + 1] = std::to_string(CalcAntiSavings(ch));
-	table[++row][col] = "Запоминание";	table[row][col + 1] = std::to_string(std::lround(GET_MANAREG(ch)*ch->get_cond_penalty(P_CAST)));
+	table[++row][col] = "Запоминание";	table[row][col + 1] = std::to_string(std::lround(GET_MANAREG(ch)*condition::GetCondPenalty(ch, condition::kCast)));
 	table[++row][col] = "Удача";		table[row][col + 1] = std::to_string(ch->calc_morale());
 	table[++row][col] = "Сила заклинаний %";	table[row][col + 1] = std::to_string(ch->add_abils.percent_spellpower_add);
 	table[++row][col] = "Физ. урон %";	table[row][col + 1] = std::to_string(ch->add_abils.percent_physdam_add);
@@ -594,7 +594,7 @@ int PrintProtectiveStatsToTable(CharData *ch, table_wrapper::Table &table, std::
 	std::size_t row{0};
 	int ac = CalcBaseAc(ch) / 10;
 	if (ac < 5) {
-		const int mod = (1 - ch->get_cond_penalty(P_AC)) * 40;
+		const int mod = (1 - condition::GetCondPenalty(ch, condition::kAc)) * 40;
 		ac = ac + mod > 5 ? 5 : ac + mod;
 	}
 
@@ -757,7 +757,7 @@ void PrintScoreBase(CharData *ch) {
 		int ac = CalcBaseAc(ch) / 10;
 
 		if (ac < 5) {
-			const int mod = (1 - ch->get_cond_penalty(P_AC)) * 40;
+			const int mod = (1 - condition::GetCondPenalty(ch, condition::kAc)) * 40;
 			ac = ac + mod > 5 ? 5 : ac + mod;
 		}
 
@@ -828,7 +828,7 @@ void PrintScoreBase(CharData *ch) {
 		SendMsgToChar(ch, "%s", GetPositionStr(ch));
 
 	snprintf(buf, sizeof(buf), "%s", kColorBoldGrn);
-	const auto value_drunked = GET_COND(ch, DRUNK);
+	const auto value_drunked = GET_COND(ch, condition::kDrunk);
 	if (value_drunked >= kDrunked) {
 		if (IsAffectedBySpell(ch, ESpell::kAbstinent))
 			strncat(buf, "Привет с большого бодуна!\r\n", sizeof(buf) - strlen(buf) - 1);
@@ -844,9 +844,9 @@ void PrintScoreBase(CharData *ch) {
 		}
 
 	}
-	if (GET_COND_M(ch, FULL))
+	if (condition::GetCondAboveNorm(ch, condition::kFull))
 		strncat(buf, "Вы голодны.\r\n", sizeof(buf) - strlen(buf) - 1);
-	if (GET_COND_M(ch, THIRST))
+	if (condition::GetCondAboveNorm(ch, condition::kThirst))
 		strncat(buf, "Вас мучает жажда.\r\n", sizeof(buf) - strlen(buf) - 1);
 	/*
 	   strcat(buf, KICYN);
@@ -1055,7 +1055,7 @@ int CalcHitroll(CharData *ch) {
 		hr += 4;
 	}
 	hr -= (mount::IsOnHorse(ch) ? (10 - ch->GetSkill(ESkill::kRiding) / 20) : 0);
-	hr *= ch->get_cond_penalty(P_HITROLL);
+	hr *= condition::GetCondPenalty(ch, condition::kHitroll);
 	return hr;
 }
 

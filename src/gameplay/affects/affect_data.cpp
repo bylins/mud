@@ -1,4 +1,5 @@
 #include "affect_data.h"
+#include "gameplay/mechanics/condition.h"
 #include "gameplay/mechanics/follow.h"
 #include "gameplay/mechanics/mount.h"
 #include "engine/observability/event_sink.h"
@@ -1195,7 +1196,7 @@ void reset_affects(CharData *ch) {
 			++af;
 		}
 	}
-	GET_COND(ch, DRUNK) = 0; // Чтобы не шатало без аффекта "под мухой"
+	GET_COND(ch, condition::kDrunk) = 0; // Чтобы не шатало без аффекта "под мухой"
 	affect_total(ch);
 }
 
@@ -1214,7 +1215,7 @@ void reset_affects_no_recalc(CharData *ch) {
 			++af;
 		}
 	}
-	GET_COND(ch, DRUNK) = 0;
+	GET_COND(ch, condition::kDrunk) = 0;
 }
 bool IsAffectedBySpell(CharData *ch, ESpell type) {
 	if (type == ESpell::kPowerHold) {

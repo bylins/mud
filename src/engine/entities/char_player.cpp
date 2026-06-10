@@ -3,6 +3,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "char_player.h"
+#include "gameplay/mechanics/condition.h"
 #include "utils/grammar/declensions.h"
 
 #include <sys/stat.h>
@@ -653,11 +654,11 @@ void Player::save_char() {
 		saved.printf("St%02d: %i\n", i, this->get_start_stat(i));
 
 	if (GetRealLevel(this) < kLvlImmortal)
-		saved.printf("Hung: %d\n", GET_COND(this, FULL));
+		saved.printf("Hung: %d\n", GET_COND(this, condition::kFull));
 	if (GetRealLevel(this) < kLvlImmortal)
-		saved.printf("Thir: %d\n", GET_COND(this, THIRST));
+		saved.printf("Thir: %d\n", GET_COND(this, condition::kThirst));
 	if (GetRealLevel(this) < kLvlImmortal)
-		saved.printf("Drnk: %d\n", GET_COND(this, DRUNK));
+		saved.printf("Drnk: %d\n", GET_COND(this, condition::kDrunk));
 
 	saved.printf("Reli: %d %s\n", GET_RELIGION(this), religion_name[GET_RELIGION(this)][(int) this->get_sex()]);
 	saved.printf(
@@ -1163,7 +1164,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 	this->set_wis(10);
 	this->set_cha(10);
 
-	GET_COND(this, DRUNK) = 0;
+	GET_COND(this, condition::kDrunk) = 0;
 	GET_DRUNK_STATE(this) = 0;
 
 // Punish Init
@@ -1214,7 +1215,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 	this->set_max_hit(21);
 	GET_HEIGHT(this) = 50;
 	GET_HR(this) = 0;
-	GET_COND(this, FULL) = 0;
+	GET_COND(this, condition::kFull) = 0;
 	SET_INVIS_LEV(this, 0);
 	this->player_data.time.logon = time(0);
 	this->set_move(44);
@@ -1231,7 +1232,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 	GET_RELIGION(this) = 1;
 	GET_RACE(this) = 1;
 	this->set_sex(EGender::kNeutral);
-	GET_COND(this, THIRST) = kNormCondition;
+	GET_COND(this, condition::kThirst) = kNormCondition;
 	GET_WEIGHT(this) = 50;
 	GET_WIMP_LEV(this) = 0;
 	this->player_specials->saved.pref.from_string("");    // suspicious line: we should clear flags.. Loading from "" does not clear flags.
@@ -1399,7 +1400,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 				} else if (!strcmp(tag, "Dex "))
 					this->set_dex(num);
 				else if (!strcmp(tag, "Drnk"))
-					GET_COND(this, DRUNK) = num;
+					GET_COND(this, condition::kDrunk) = num;
 				else if (!strcmp(tag, "DrSt"))
 					GET_DRUNK_STATE(this) = num;
 				else if (!strcmp(tag, "Drol"))
@@ -1495,7 +1496,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 				else if (!strcmp(tag, "Hrol"))
 					GET_HR(this) = num;
 				else if (!strcmp(tag, "Hung"))
-					GET_COND(this, FULL) = num;
+					GET_COND(this, condition::kFull) = num;
 				else if (!strcmp(tag, "Hry ")) {
 					if (num > cap_hryvn)
 						num = cap_hryvn;
@@ -1852,7 +1853,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 
 			case 'T':
 				if (!strcmp(tag, "Thir"))
-					GET_COND(this, THIRST) = num;
+					GET_COND(this, condition::kThirst) = num;
 				else if (!strcmp(tag, "Titl"))
 					this->SetTitleStr(line);
 				else if (!strcmp(tag, "TrcG"))
@@ -1910,9 +1911,9 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 	// initialization for imms
 	if (GetRealLevel(this) >= kLvlImmortal) {
 		SetGodSkills(this);
-		GET_COND(this, FULL) = -1;
-		GET_COND(this, THIRST) = -1;
-		GET_COND(this, DRUNK) = -1;
+		GET_COND(this, condition::kFull) = -1;
+		GET_COND(this, condition::kThirst) = -1;
+		GET_COND(this, condition::kDrunk) = -1;
 		GET_LOADROOM(this) = kNowhere;
 	}
 

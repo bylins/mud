@@ -8,6 +8,7 @@
 #define BYLINS_SRC_GAME_MAGIC_SPELLS_CONSTANTS_H_
 
 #include "engine/structs/structs.h"
+#include "gameplay/mechanics/condition.h"
 #include "engine/structs/meta_enum.h"
 
 #include <optional>

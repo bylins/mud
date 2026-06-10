@@ -97,7 +97,7 @@ int CalcTotalAc(CharData *victim, int base_ac) {
 	base_ac /= 10;
 	//считаем штраф за голод
 	if (!victim->IsNpc() && base_ac < 5) { //для голодных
-		int p_ac = static_cast<int>((1 - victim->get_cond_penalty(P_AC)) * 40);
+		int p_ac = static_cast<int>((1 - condition::GetCondPenalty(victim, condition::kAc)) * 40);
 		if (p_ac) {
 			if (base_ac + p_ac > 5) {
 				base_ac = 5;

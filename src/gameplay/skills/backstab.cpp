@@ -1,4 +1,5 @@
 #include "backstab.h"
+#include "gameplay/mechanics/condition.h"
 #include "gameplay/mechanics/minions.h"
 #include "gameplay/mechanics/mount.h"
 
@@ -193,7 +194,7 @@ bool ProcessBackstab(CharData *ch, CharData *victim, HitData &hit_data) {
 		&& CanUseFeat(ch, EFeat::kShadowStrike)
 		&& !ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena)
 		&& !(AFF_FLAGGED(victim, EAffect::kGodsShield) && !(victim->IsFlagged(EMobFlag::kProtect)))
-		&& (number(1, 100) <= 6 * ch->get_cond_penalty(P_HITROLL))
+		&& (number(1, 100) <= 6 * condition::GetCondPenalty(ch, condition::kHitroll))
 		&& !victim->get_role(static_cast<unsigned>(EMobClass::kBoss))) {
 		victim->set_hit(1);
 		hit_data.dam = victim->get_hit() + fight::kLethalDmg;
@@ -204,7 +205,7 @@ bool ProcessBackstab(CharData *ch, CharData *victim, HitData &hit_data) {
 	}
 
 	if (!ch->IsNpc()
-		&& (number(1, 100) < CalcCritBackstabPercent(ch) * ch->get_cond_penalty(P_HITROLL))
+		&& (number(1, 100) < CalcCritBackstabPercent(ch) * condition::GetCondPenalty(ch, condition::kHitroll))
 		&& (!CalcGeneralSaving(ch, victim, ESaving::kCritical, CalculateSkillRate(ch, ESkill::kBackstab, victim)))) {
 		hit_data.dam = static_cast<int>(hit_data.dam * CalcCritBackstabMultiplier(ch, victim));
 		if ((hit_data.dam > 0)

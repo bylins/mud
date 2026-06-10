@@ -2270,7 +2270,7 @@ void init_char(CharData *ch, PlayerIndexElement &element) {
 	ch->real_abils.size = 50;
 
 	for (i = 0; i < 3; i++) {
-		GET_COND(ch, i) = (GetRealLevel(ch) == kLvlImplementator ? -1 : i == DRUNK ? 0 : 24);
+		GET_COND(ch, i) = (GetRealLevel(ch) == kLvlImplementator ? -1 : i == condition::kDrunk ? 0 : 24);
 	}
 	ch->player_specials->saved.LastIP[0] = 0;
 	//	GET_LOADROOM(ch) = start_room;

@@ -12,6 +12,7 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 #include "char_movement.h"
+#include "gameplay/mechanics/condition.h"
 #include "gameplay/mechanics/minions.h"
 #include "gameplay/mechanics/mount.h"
 
@@ -306,7 +307,7 @@ void PerformDunkSong(CharData *ch) {
 											   " - разухабисто протянул$g $n.",
 	};
 	// орем песни
-	if (!ch->GetEnemy() && number(10, 24) < GET_COND(ch, DRUNK)) {
+	if (!ch->GetEnemy() && number(10, 24) < GET_COND(ch, condition::kDrunk)) {
 		sprintf(buf, "%s", drunk_songs[number(0, kMaxDrunkSong - 1)]);
 		SendMsgToChar(buf, ch);
 		SendMsgToChar("\r\n", ch);
@@ -344,8 +345,8 @@ EDirection SelectRndDirection(CharData *ch, int fail_chance) {
 
 int SelectDrunkDirection(CharData *ch, int direction) {
 	auto drunk_dir{direction};
-	if (!ch->IsNpc() && GET_COND(ch, DRUNK) >= kMortallyDrunked &&
-		!mount::IsOnHorse(ch) && GET_COND(ch, DRUNK) >= number(kDrunked, 50)) {
+	if (!ch->IsNpc() && GET_COND(ch, condition::kDrunk) >= kMortallyDrunked &&
+		!mount::IsOnHorse(ch) && GET_COND(ch, condition::kDrunk) >= number(kDrunked, 50)) {
 		drunk_dir = SelectRndDirection(ch, 60);
 	}
 

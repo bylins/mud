@@ -1,4 +1,5 @@
 #include "fight_hit.h"
+#include "gameplay/mechanics/condition.h"
 #include "gameplay/mechanics/minions.h"
 #include "gameplay/mechanics/mount.h"
 #include "gameplay/mechanics/resist.h"
@@ -445,7 +446,7 @@ void HitData::CalcBaseHitroll(CharData *ch) {
 	}
 
 	//Вычисляем штраф за голод
-	float p_hitroll = ch->get_cond_penalty(P_HITROLL);
+	float p_hitroll = condition::GetCondPenalty(ch, condition::kHitroll);
 
 	calc_thaco -= static_cast<int>(GET_REAL_HR(ch) * p_hitroll);
 	calc_thaco -= static_cast<int>(str_bonus(GetRealStr(ch), STR_TO_HIT) * p_hitroll);
@@ -475,7 +476,7 @@ void HitData::CalcBaseHitroll(CharData *ch) {
  */
 void HitData::CalcCircumstantialHitroll(CharData *ch, CharData *victim) {
 	//считаем штраф за голод
-	float p_hitroll = ch->get_cond_penalty(P_HITROLL);
+	float p_hitroll = condition::GetCondPenalty(ch, condition::kHitroll);
 	// штраф в размере 1 хитролла за каждые
 	// недокачанные 10% скилла "удар левой рукой"
 
@@ -551,7 +552,7 @@ void HitData::CalcCircumstantialHitroll(CharData *ch, CharData *victim) {
 // * Версия calc_rand_hr для показа по 'счет', без рандомов и статов жертвы.
 void HitData::CalcStaticHitroll(CharData *ch) {
 	//считаем штраф за голод
-	float p_hitroll = ch->get_cond_penalty(P_HITROLL);
+	float p_hitroll = condition::GetCondPenalty(ch, condition::kHitroll);
 	// штраф в размере 1 хитролла за каждые
 	// недокачанные 10% скилла "удар левой рукой"
 	if (weapon == fight::AttackType::kOffHand
@@ -815,7 +816,7 @@ int HitData::CalcDmg(CharData *ch, bool need_dice) {
 			SendMsgToChar(ch, "&YДамага c + процентами дамаги== %d, добавили = %d процентов &n\r\n", dam, tmp);
 	}
 	//режем дамаг от голода
-	dam *= ch->get_cond_penalty(P_DAMROLL);
+	dam *= condition::GetCondPenalty(ch, condition::kDamroll);
 	if (ch->IsFlagged(EPrf::kExecutor))
 		SendMsgToChar(ch, "&YДамага с бонусами итого == %d&n\r\n", dam);
 	return dam;

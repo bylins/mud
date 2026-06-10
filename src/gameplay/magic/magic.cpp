@@ -13,6 +13,7 @@
 ************************************************************************ */
 
 #include "magic.h"
+#include "gameplay/mechanics/condition.h"
 #include "gameplay/fight/fight_stuff.h"
 #include "gameplay/mechanics/mount.h"
 #include "gameplay/mechanics/resist.h"
@@ -100,7 +101,7 @@ int CalcAntiSavings(CharData *ch) {
 		modi = ch->add_abils.cast_success;
 	modi += bonus_antisaving[GetRealWis(ch) - 1];
 	if (!ch->IsNpc()) {
-		modi *= ch->get_cond_penalty(P_CAST);
+		modi *= condition::GetCondPenalty(ch, condition::kCast);
 	}
 //  log("[EXT_APPLY] Name==%s modi==%d",GET_NAME(ch), modi);
 	return modi;
@@ -197,7 +198,7 @@ double CalcMagicElementCoeff(CharData *victim, ESpell spell_id) {
 int CalcBaseDmg(CharData *ch, ESpell spell_id) {
 	auto base_dmg = MUD::Spell(spell_id).GetPotencyRoll().RollSkillDices();
 	if (!ch->IsNpc()) {
-		base_dmg *= ch->get_cond_penalty(P_DAMROLL);
+		base_dmg *= condition::GetCondPenalty(ch, condition::kDamroll);
 	}
 	return base_dmg;
 }
@@ -1464,7 +1465,7 @@ int ComputePointsPercent(points_intensity::ECategory cat, int amount, CharData *
 		}
 		case ECategory::kThirst:
 		case ECategory::kFull: {
-			const unsigned cond_idx = (cat == ECategory::kThirst) ? THIRST : FULL;
+			const unsigned cond_idx = (cat == ECategory::kThirst) ? condition::kThirst : condition::kFull;
 			if (amount >= 0) {
 				// Improve: fraction of current discomfort relieved.
 				const int current = GET_COND(victim, cond_idx);
@@ -1642,10 +1643,10 @@ EStageResult CastToPoints(CastContext &ctx) {
 			case points_intensity::ECategory::kThirst:
 				// XML positive = relieve thirst -> negate for gain_condition
 				// (engine field is inverted; gain_condition clamps to [0, kMaxCondition]).
-				gain_condition(victim, THIRST, -amt);
+				gain_condition(victim, condition::kThirst, -amt);
 				break;
 			case points_intensity::ECategory::kFull:
-				gain_condition(victim, FULL, -amt);
+				gain_condition(victim, condition::kFull, -amt);
 				break;
 			default:
 				break;

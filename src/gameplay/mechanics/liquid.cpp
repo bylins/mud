@@ -21,10 +21,6 @@
 
 #include <cmath>
 
-const int kDrunked = 10;
-const int kMortallyDrunked = 18;
-const int kMaxCondition = 48;
-const int kNormCondition = 22;
 
 const char *drinks[] = {"воды",
 						"пива",

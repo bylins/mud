@@ -51,7 +51,7 @@ EStageResult SpellCreateWater(CastContext &ctx) {
 		}
 	}
 	if (victim && !victim->IsNpc() && !victim->IsImmortal()) {
-		GET_COND(victim, THIRST) = 0;
+		GET_COND(victim, condition::kThirst) = 0;
 		// kCreateWater overrides kThirstToVict with "Вы полностью утолили жажду."
 		// (literal text, no {intensity} expansion -- the manual path bypasses
 		// CastToPoints' intensity machinery).

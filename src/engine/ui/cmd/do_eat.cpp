@@ -149,7 +149,7 @@ void do_eat(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			return;
 		}
 	}
-	if (GET_COND(ch, FULL) == 0
+	if (GET_COND(ch, condition::kFull) == 0
 		&& food->get_type() != EObjType::kNote)    // Stomach full
 	{
 		SendMsgToChar("Вы слишком сыты для этого!\r\n", ch);
@@ -170,9 +170,9 @@ void do_eat(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			  ? GET_OBJ_VAL(food, 0)
 			  : 1);
 
-	gain_condition(ch, FULL, -2 * amount);
+	gain_condition(ch, condition::kFull, -2 * amount);
 
-	if (GET_COND(ch, FULL) == 0) {
+	if (GET_COND(ch, condition::kFull) == 0) {
 		SendMsgToChar("Вы наелись.\r\n", ch);
 	}
 
