@@ -9,7 +9,16 @@
 #ifndef BYLINS_SRC_UTILS_GRAMMAR_GENDER_H_
 #define BYLINS_SRC_UTILS_GRAMMAR_GENDER_H_
 
-#include "engine/entities/entities_constants.h"  // EGender
+// Grammatical gender of a character or object. Lives here (the grammar module) because gender is
+// a language concept the rest of the engine reads from -- entities_constants.h re-exports it by
+// including this header. Underlying type `char` matches the engine's `byte` alias (byte = char).
+enum class EGender : char {
+	kNeutral = 0,
+	kMale = 1,
+	kFemale = 2,
+	kPoly = 3,
+	kLast
+};
 
 namespace grammar {
 

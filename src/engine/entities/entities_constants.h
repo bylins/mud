@@ -17,13 +17,9 @@
  * ========================================================================================
  */
 
-enum class EGender : byte {
-	kNeutral = 0,
-	kMale = 1,
-	kFemale = 2,
-	kPoly = 3,
-	kLast
-};
+// issue.utils-cleaning: EGender moved to the grammar module (gender is a language concept);
+// re-exported here so existing users keep getting it via entities_constants.h.
+#include "utils/grammar/gender.h"
 
 template<>
 EGender ITEM_BY_NAME<EGender>(const std::string &name);

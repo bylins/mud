@@ -25,9 +25,9 @@ const char *kChSuf[8][4] = {
 	{"ое", "ой", "ая", "ие"}
 };
 
-// NOTE (issue.utils-cleaning): preserved verbatim from the old macros. Plain variant 7 is
-// [n,m,f,p]={"ym","ym","oj","ymi"} but the visible table has male/female swapped
-// ({"ym","oj","ym","ymi"}) -- a likely latent bug in the originals, left as-is; flag for review.
+// issue.utils-cleaning: variant 7 is the instrumental adjective ending (m "ym", f "oj", n "ym",
+// pl "ymi"). The old GET_CH_VIS_SUF_7 macro had male/female swapped vs GET_CH_SUF_7 -- a latent
+// bug; corrected here so the visible table matches the plain one (grammatically correct).
 const char *kChVisFallback[8] = {"", "ся", "ый", "", "ел", "", "ым", "ой"};
 const char *kChVisSuf[8][4] = {
 	{"о", "", "а", "и"},
@@ -36,7 +36,7 @@ const char *kChVisSuf[8][4] = {
 	{"ло", "", "ла", "ли"},
 	{"ло", "ел", "ла", "ли"},
 	{"о", "", "а", "ы"},
-	{"ым", "ой", "ым", "ыми"},
+	{"ым", "ым", "ой", "ыми"},
 	{"ое", "ой", "ая", "ие"}
 };
 
