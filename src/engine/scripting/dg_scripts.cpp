@@ -2884,7 +2884,7 @@ void find_replacement(void *go,
 				snprintf(str, str_size, "%c%ld", uid_type, (mount::GetHorse(mob))->get_uid());
 			}
 		} else if (!str_cmp(field, "riddenby")) {
-			if (IS_HORSE(mob) && mob->get_master()->IsOnHorse()
+			if (IS_HORSE(mob) && mount::IsOnHorse(mob->get_master())
 				&& ((mount::GetHorse(mob->get_master()))->get_uid() == mob->get_uid())) {
 				snprintf(str, str_size, "%c%ld", UID_CHAR, (mob->get_master())->get_uid());
 			}
@@ -3023,7 +3023,7 @@ void find_replacement(void *go,
 				} else {
 					auto pos = std::clamp(static_cast<EPosition>(atoi(subfield)), EPosition::kPerish, --EPosition::kLast);
 					if (!mob->IsImmortal()) {
-						if (mob->IsOnHorse()) {
+						if (mount::IsOnHorse(mob)) {
 							mob->dismount();
 						}
 						mob->SetPosition(pos);

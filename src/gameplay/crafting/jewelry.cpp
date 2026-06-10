@@ -5,6 +5,7 @@
 */
 
 #include "jewelry.h"
+#include "gameplay/mechanics/mount.h"
 
 #include "engine/boot/boot_constants.h"
 #include "engine/entities/char_data.h"
@@ -85,7 +86,7 @@ void do_insertgem(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		return;
 	}
 
-	if (!ch->IsImmortal() && ch->IsOnHorse()) {
+	if (!ch->IsImmortal() && mount::IsOnHorse(ch)) {
 		SendMsgToChar("Верхом это сделать затруднительно.\r\n", ch);
 		return;
 	}

@@ -1,4 +1,5 @@
 #include "gameplay/fight/pk.h"
+#include "gameplay/mechanics/mount.h"
 #include "skill_messages.h"
 #include "gameplay/fight/common.h"
 #include "gameplay/fight/fight.h"
@@ -24,7 +25,7 @@ void DoDazzle(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kDazzle, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	}
-	if (ch->IsOnHorse()) {
+	if (mount::IsOnHorse(ch)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kDazzle, ESkillMsg::kCantWhileMounted) + "\r\n", ch);
 		return;
 	}

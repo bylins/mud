@@ -490,9 +490,9 @@ int Damage::Process(CharData *ch, CharData *victim) {
 		}
 
 		// лошадь сбрасывает седока при уроне
-		if (ch->IsOnHorse() && mount::GetHorse(ch) == victim) {
+		if (mount::IsOnHorse(ch) && mount::GetHorse(ch) == victim) {
 			victim->DropFromHorse();
-		} else if (victim->IsOnHorse() && mount::GetHorse(victim) == ch) {
+		} else if (mount::IsOnHorse(victim) && mount::GetHorse(victim) == ch) {
 			ch->DropFromHorse();
 		}
 	}

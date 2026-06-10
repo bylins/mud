@@ -44,7 +44,7 @@ void DoEnter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				SendMsgToChar("Вы не видите здесь пентаграмму.\r\n", ch);
 			} else {
 				from_room = ch->in_room;
-				if (ch->IsOnHorse() && AFF_FLAGGED(mount::GetHorse(ch), EAffect::kHold)) {
+				if (mount::IsOnHorse(ch) && AFF_FLAGGED(mount::GetHorse(ch), EAffect::kHold)) {
 					act("$Z $N не в состоянии нести вас на себе.\r\n",
 						false, ch, nullptr, mount::GetHorse(ch), kToChar);
 					return;
@@ -60,14 +60,14 @@ void DoEnter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					return;
 				}
 				//проверка на флаг нельзя_верхом
-				if (ROOM_FLAGGED(door, ERoomFlag::kNohorse) && ch->IsOnHorse()) {
+				if (ROOM_FLAGGED(door, ERoomFlag::kNohorse) && mount::IsOnHorse(ch)) {
 					act("$Z $N отказывается туда идти, и вам пришлось соскочить.",
 						false, ch, nullptr, mount::GetHorse(ch), kToChar);
 					ch->dismount();
 				}
 				//проверка на ванрум и лошадь
 				if (ROOM_FLAGGED(door, ERoomFlag::kTunnel) &&
-					(num_pc_in_room(world[door]) > 0 || ch->IsOnHorse())) {
+					(num_pc_in_room(world[door]) > 0 || mount::IsOnHorse(ch))) {
 					if (num_pc_in_room(world[door]) > 0) {
 						SendMsgToChar("Слишком мало места.\r\n", ch);
 						return;

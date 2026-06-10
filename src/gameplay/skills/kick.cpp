@@ -1,4 +1,5 @@
 #include "kick.h"
+#include "gameplay/mechanics/mount.h"
 
 #include "skill_messages.h"
 #include "engine/db/global_objects.h"
@@ -38,7 +39,7 @@ void go_kick(CharData *ch, CharData *vict) {
 		if (GET_GOD_FLAG(vict, EGf::kGodscurse) || AFF_FLAGGED(vict, EAffect::kHold)) {
 			prob = percent;
 		}
-		if (GET_GOD_FLAG(ch, EGf::kGodscurse) || (!ch->IsOnHorse() && vict->IsOnHorse())) {
+		if (GET_GOD_FLAG(ch, EGf::kGodscurse) || (!mount::IsOnHorse(ch) && mount::IsOnHorse(vict))) {
 			prob = 0;
 		}
 		if (IsAffectedBySpell(ch, ESpell::kWeb)) {
@@ -64,7 +65,7 @@ void go_kick(CharData *ch, CharData *vict) {
 	int weight_modi = 5 * (20 + (GET_EQ(ch, EEquipPos::kFeet) ? GET_EQ(ch, EEquipPos::kFeet)->get_weight() : 0));
 	dam = dam * weight_modi / 100;
 	dam = number(dam * 2  /5, dam);
-		if (ch->IsOnHorse() && (ch->GetSkill(ESkill::kRiding) >= 150) && (ch->GetSkill(ESkill::kKick) >= 150)) {
+		if (mount::IsOnHorse(ch) && (ch->GetSkill(ESkill::kRiding) >= 150) && (ch->GetSkill(ESkill::kKick) >= 150)) {
 			Affect<EApply> af;
 			af.location = EApply::kNone;
 			af.type = ESpell::kBattle;
@@ -149,9 +150,9 @@ void go_kick(CharData *ch, CharData *vict) {
 		}
 
 		if (vict->battle_affects.get(kEafAwake)) {
-			dam >>= (2 - (ch->IsOnHorse() ? 1 : 0));
+			dam >>= (2 - (mount::IsOnHorse(ch) ? 1 : 0));
 		}
-		if (result.CritLuck && !ch->IsOnHorse()) {
+		if (result.CritLuck && !mount::IsOnHorse(ch)) {
 			dam *= 2;
 			if (!vict->IsFlagged(EMobFlag::kNoBash)) {
 				if (vict->GetPosition() > EPosition::kSit) {

@@ -1,4 +1,5 @@
 #include "throw.h"
+#include "gameplay/mechanics/mount.h"
 #include "skill_messages.h"
 #include "engine/db/global_objects.h"
 
@@ -38,7 +39,7 @@ void PerformShadowThrowSideAbilities(abilities_roll::TechniqueRoll &technique) {
 				"Копье $N1 попало вам в колено. Вы рухнули наземь! Кажется, ваши приключения сейчас закончатся...";
 			to_room = "Копье $N1 сбило $n3 наземь!";
 			DoSideAction = ([](abilities_roll::TechniqueRoll &technique) {
-				if (technique.GetRival()->IsOnHorse()) { //если на лошади - падение с лагом 3
+				if (mount::IsOnHorse(technique.GetRival())) { //если на лошади - падение с лагом 3
 					technique.GetRival()->DropFromHorse();
 				} else { // иначе просто садится на попу с лагом 2
 					auto pos = std::min(technique.GetRival()->GetPosition(), EPosition::kSit);

@@ -35,6 +35,10 @@ bool HasHorse(const CharData *ch, bool same_room) {
 	return false;
 }
 
+bool IsOnHorse(const CharData *ch) {
+	return AFF_FLAGGED(ch, EAffect::kHorse) && HasHorse(ch, true);
+}
+
 }  // namespace mount
 
 void make_horse(CharData *horse, CharData *ch) {
@@ -59,7 +63,7 @@ void do_horseon(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (ch->IsOnHorse()) {
+	if (mount::IsOnHorse(ch)) {
 		SendMsgToChar("Не пытайтесь усидеть на двух стульях.\r\n", ch);
 		return;
 	}
@@ -108,7 +112,7 @@ void do_horseoff(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if (!ch->IsOnHorse()) {
+	if (!mount::IsOnHorse(ch)) {
 		SendMsgToChar("Вы ведь и так не на лошади.\r\n", ch);
 		return;
 	}
@@ -127,7 +131,7 @@ void do_horseget(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (ch->IsOnHorse()) {
+	if (mount::IsOnHorse(ch)) {
 		SendMsgToChar("Вы уже сидите на скакуне.\r\n", ch);
 		return;
 	}
@@ -165,7 +169,7 @@ void do_horseput(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (ch->IsOnHorse()) {
+	if (mount::IsOnHorse(ch)) {
 		SendMsgToChar("Вам стоит слезть со скакуна.\r\n", ch);
 		return;
 	}
@@ -275,7 +279,7 @@ void do_givehorse(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		act("У $N1 уже есть скакун.\r\n", false, ch, 0, victim, kToChar);
 		return;
 	}
-	if (ch->IsOnHorse()) {
+	if (mount::IsOnHorse(ch)) {
 		SendMsgToChar("Вам стоит слезть со скакуна.\r\n", ch);
 		return;
 	}
@@ -306,7 +310,7 @@ void do_stophorse(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 		SendMsgToChar("Ваш скакун далеко от вас.\r\n", ch);
 		return;
 	}
-	if (ch->IsOnHorse()) {
+	if (mount::IsOnHorse(ch)) {
 		SendMsgToChar("Вам стоит слезть со скакуна.\r\n", ch);
 		return;
 	}

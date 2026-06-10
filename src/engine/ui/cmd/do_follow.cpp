@@ -33,7 +33,7 @@ bool stop_follower(CharData *ch, int mode) {
 	}
 
 	//log("[Stop ch] Stop horse");
-	if (mount::GetHorse(ch->get_master()) == ch && ch->get_master()->IsOnHorse()) {
+	if (mount::GetHorse(ch->get_master()) == ch && mount::IsOnHorse(ch->get_master())) {
 		ch->DropFromHorse();
 	} else {
 		act("$n прекратил$g следовать за вами.", true, ch, 0, ch->get_master(), kToVict);
@@ -119,7 +119,7 @@ bool stop_follower(CharData *ch, int mode) {
 // Detaches ch from its master (if any) and dismisses all of ch's followers.
 void die_follower(CharData *ch) {
 	if (ch->has_master()) {
-		if (mount::GetHorse(ch->get_master()) == ch && ch->get_master()->IsOnHorse()) {
+		if (mount::GetHorse(ch->get_master()) == ch && mount::IsOnHorse(ch->get_master())) {
 			ch->DropFromHorse();
 		} else {
 			act("$n прекратил$g следовать за вами.", true, ch, 0, ch->get_master(), kToVict);
@@ -133,7 +133,7 @@ void die_follower(CharData *ch) {
 		ch->removeGroupFlags();
 	}
 
-	if (ch->IsOnHorse()) {
+	if (mount::IsOnHorse(ch)) {
 		AFF_FLAGS(ch).unset(EAffect::kHorse);
 	}
 

@@ -7,6 +7,7 @@
 */
 
 #include "gameplay/mechanics/groups.h"
+#include "gameplay/mechanics/mount.h"
 
 #include "engine/entities/char_data.h"
 #include "engine/core/handler.h"
@@ -223,7 +224,7 @@ void group::print_one_line(CharData *ch, CharData *k, int leader, int header) {
 		  || (GET_EQ(k, EEquipPos::kLight)
 			  && GET_OBJ_VAL(GET_EQ(k, EEquipPos::kLight), 2))) ? "&YС" : " ";
 	  affects += AFF_FLAGGED(k, EAffect::kFly) ? "&BЛ" : " ";
-	  affects += k->IsOnHorse() ? "&YВ" : " ";
+	  affects += mount::IsOnHorse(k) ? "&YВ" : " ";
 
 	  return affects;
 	};
@@ -314,7 +315,7 @@ void group::print_one_line(CharData *ch, CharData *k, int leader, int header) {
 
 		buffer << fmt::format(" {:^5} &n|", leader ? "Лидер" : "");
 		buffer << fmt::format(" {:^5} &n|", k->IsFlagged(EPrf::kSkirmisher) ? " &gДа  " : "Нет");
-		buffer << fmt::format(" {:<10}\r\n", k->GetEnemy()  ? "Сражается" : k->IsOnHorse() ? "Верхом" : position_types[(int) k->GetPosition()]);
+		buffer << fmt::format(" {:<10}\r\n", k->GetEnemy()  ? "Сражается" : mount::IsOnHorse(k) ? "Верхом" : position_types[(int) k->GetPosition()]);
 
 		SendMsgToChar(buffer.str().c_str(), ch);
 	}

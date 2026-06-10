@@ -5,6 +5,7 @@
 */
 
 #include "mining.h"
+#include "gameplay/mechanics/mount.h"
 
 #include "engine/entities/char_data.h"
 #include "engine/core/handler.h"
@@ -154,7 +155,7 @@ void do_dig(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (!ch->IsImmortal() && ch->IsOnHorse()) {
+	if (!ch->IsImmortal() && mount::IsOnHorse(ch)) {
 		SendMsgToChar("Верхом это сделать затруднительно.\r\n", ch);
 		return;
 	}

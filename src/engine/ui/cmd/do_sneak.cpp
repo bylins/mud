@@ -17,7 +17,7 @@ void do_sneak(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Но вы не знаете как.\r\n", ch);
 		return;
 	}
-	if (ch->IsOnHorse()) {
+	if (mount::IsOnHorse(ch)) {
 		act("Вам стоит подумать о мягкой обуви для $N1", false, ch, nullptr, mount::GetHorse(ch), kToChar);
 		return;
 	}

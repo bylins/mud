@@ -1,4 +1,5 @@
 #include "backstab.h"
+#include "gameplay/mechanics/mount.h"
 
 #include "skill_messages.h"
 #include "gameplay/fight/pk.h"
@@ -50,7 +51,7 @@ void do_backstab(CharData *ch, CharData *vict) {
 		return;
 	};
 
-	if (ch->IsOnHorse()) {
+	if (mount::IsOnHorse(ch)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kBackstab, ESkillMsg::kCantWhileMounted) + "\r\n", ch);
 		return;
 	}

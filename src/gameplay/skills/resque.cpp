@@ -1,4 +1,5 @@
 #include "resque.h"
+#include "gameplay/mechanics/mount.h"
 #include "skill_messages.h"
 
 #include "gameplay/fight/common.h"
@@ -27,7 +28,7 @@ void go_rescue(CharData *ch, CharData *vict, CharData *tmp_ch) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kRescue, ESkillMsg::kCantFightNow) + "\r\n", ch);
 		return;
 	}
-	if (ch->IsOnHorse()) {
+	if (mount::IsOnHorse(ch)) {
 		SendMsgToChar(ch, "Ну раскорячили вы ноги по сторонам, но спасти %s как?\r\n", GET_PAD(vict, 1));
 		return;
 	}

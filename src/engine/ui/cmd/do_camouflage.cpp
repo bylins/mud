@@ -7,6 +7,7 @@
 */
 
 #include "engine/entities/char_data.h"
+#include "gameplay/mechanics/mount.h"
 #include "engine/core/handler.h"
 #include "gameplay/skills/skills.h"
 #include "engine/db/global_objects.h"
@@ -20,7 +21,7 @@ void do_camouflage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*
 		return;
 	}
 
-	if (ch->IsOnHorse()) {
+	if (mount::IsOnHorse(ch)) {
 		SendMsgToChar("Вы замаскировались под статую Юрия Долгорукого.\r\n", ch);
 		return;
 	}

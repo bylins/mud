@@ -16,7 +16,7 @@ void do_stand(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		ch->SetPosition(EPosition::kSleep);
 	}
 
-	if (ch->IsOnHorse()) {
+	if (mount::IsOnHorse(ch)) {
 		act("Прежде всего, вам стоит слезть с $N1.", false, ch, nullptr, mount::GetHorse(ch), kToChar);
 		return;
 	}

@@ -36,7 +36,7 @@ void GoFlee(CharData *ch) {
 		SetBattleLag(ch, 1);
 	}
 
-	if (ch->IsOnHorse() && (mount::GetHorse(ch)->GetPosition() < EPosition::kFight ||
+	if (mount::IsOnHorse(ch) && (mount::GetHorse(ch)->GetPosition() < EPosition::kFight ||
 		AFF_FLAGGED(mount::GetHorse(ch), EAffect::kHold))) {
 		SendMsgToChar("Ваш скакун не в состоянии вынести вас из боя!\r\n", ch);
 		return;
@@ -49,7 +49,7 @@ void GoFlee(CharData *ch) {
 
 		act("$n запаниковал$g и попытал$u сбежать!", true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 		if (PerformSimpleMove(ch, direction, true, nullptr, EMoveType::kFlee)) {
-			if (ch->IsOnHorse()) {
+			if (mount::IsOnHorse(ch)) {
 				act("Верн$W $N вынес$Q вас из боя.", false, ch, nullptr, mount::GetHorse(ch), kToChar);
 			} else {
 				SendMsgToChar("Вы быстро убежали с поля битвы.\r\n", ch);

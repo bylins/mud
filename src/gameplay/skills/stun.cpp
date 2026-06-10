@@ -1,4 +1,5 @@
 #include "stun.h"
+#include "gameplay/mechanics/mount.h"
 #include "skill_messages.h"
 
 #include "gameplay/fight/pk.h"
@@ -17,7 +18,7 @@ void do_stun(CharData *ch, char *argument, int, int) {
 		return;
 	};
 
-	if (!ch->IsOnHorse()) {
+	if (!mount::IsOnHorse(ch)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kStun, ESkillMsg::kMustBeMounted) + "\r\n", ch);
 		return;
 	}

@@ -10,7 +10,7 @@
 #include "gameplay/mechanics/mount.h"
 
 void do_rest(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	if (ch->IsOnHorse()) {
+	if (mount::IsOnHorse(ch)) {
 		act("Прежде всего, вам стоит слезть с $N1.", false, ch, nullptr, mount::GetHorse(ch), kToChar);
 		return;
 	}

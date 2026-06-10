@@ -7,6 +7,7 @@
 */
 
 #include "engine/entities/char_data.h"
+#include "gameplay/mechanics/mount.h"
 #include "engine/entities/obj_data.h"
 #include "engine/core/handler.h"
 #include "gameplay/skills/skills.h"
@@ -205,7 +206,7 @@ void do_steal(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Но вы не знаете как.\r\n", ch);
 		return;
 	}
-	if (!ch->IsImmortal() && ch->IsOnHorse()) {
+	if (!ch->IsImmortal() && mount::IsOnHorse(ch)) {
 		SendMsgToChar("Верхом это сделать затруднительно.\r\n", ch);
 		return;
 	}

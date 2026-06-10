@@ -1,4 +1,5 @@
 #include "msdp_reporters.h"
+#include "gameplay/mechanics/mount.h"
 
 #include "engine/entities/char_data.h"
 #include "gameplay/magic/magic.h"
@@ -225,7 +226,7 @@ void GroupReporter::append_char(const std::shared_ptr<ArrayValue> &group,
 		affects += "Л";
 	}
 
-	if (!character->IsNpc() && character->IsOnHorse()) {
+	if (!character->IsNpc() && mount::IsOnHorse(character)) {
 		affects += "В";
 	}
 

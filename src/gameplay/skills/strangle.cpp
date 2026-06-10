@@ -1,6 +1,7 @@
 //Modified by Svetodar 14.09.2023
 
 #include "strangle.h"
+#include "gameplay/mechanics/mount.h"
 #include "skill_messages.h"
 #include "engine/db/global_objects.h"
 #include "chopoff.h"
@@ -142,7 +143,7 @@ void go_strangle(CharData *ch, CharData *vict) {
 		dmg.Process(ch, vict);
 		if (vict->GetPosition() > EPosition::kDead) {
 			SetWait(vict, 2, true);
-			if (vict->IsOnHorse()) {
+			if (mount::IsOnHorse(vict)) {
 				act("Рванув на себя, $N стащил$G Вас на землю.",
 					false, vict, nullptr, ch, kToChar);
 				act("Рванув на себя, Вы стащили $n3 на землю.",

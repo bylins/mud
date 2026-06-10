@@ -10,7 +10,7 @@ void DoLightwalk(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if (ch->IsOnHorse()) {
+	if (mount::IsOnHorse(ch)) {
 		act("Позаботьтесь сперва о мягких тапочках для $N3...", false, ch, nullptr, mount::GetHorse(ch), kToChar);
 		return;
 	}

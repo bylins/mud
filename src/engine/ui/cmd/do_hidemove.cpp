@@ -28,7 +28,7 @@ void DoHidemove(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Неизвестное направление.\r\n", ch);
 		return;
 	}
-	if (ch->IsOnHorse()) {
+	if (mount::IsOnHorse(ch)) {
 		act("Вам мешает $N.", false, ch, nullptr, mount::GetHorse(ch), kToChar);
 		return;
 	}

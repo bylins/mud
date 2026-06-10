@@ -1,4 +1,5 @@
 #include "affect_data.h"
+#include "gameplay/mechanics/mount.h"
 #include "engine/observability/event_sink.h"
 #include "gameplay/affects/mobile_affect_update_profiler.h"
 #include "gameplay/affects/player_affect_update_profiler.h"
@@ -788,7 +789,7 @@ void affect_total(CharData *ch) {
 				ch->set_hit_add(ch->get_hit_add() - (i - 1));
 			}
 		}
-		if (!ch->IsImmortal() && ch->IsOnHorse()) {
+		if (!ch->IsImmortal() && mount::IsOnHorse(ch)) {
 			AFF_FLAGS(ch).unset(EAffect::kHide);
 			AFF_FLAGS(ch).unset(EAffect::kSneak);
 			AFF_FLAGS(ch).unset(EAffect::kDisguise);

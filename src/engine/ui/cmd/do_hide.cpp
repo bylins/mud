@@ -20,7 +20,7 @@ void do_hide(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (ch->IsOnHorse()) {
+	if (mount::IsOnHorse(ch)) {
 		act("А куда вы хотите спрятать $N3?", false, ch, nullptr, mount::GetHorse(ch), kToChar);
 		return;
 	}

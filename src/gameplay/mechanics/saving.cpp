@@ -5,6 +5,7 @@
 */
 
 #include "gameplay/mechanics/saving.h"
+#include "gameplay/mechanics/mount.h"
 
 #include "engine/entities/char_data.h"
 #include "gameplay/abilities/feats.h"               // CanUseFeat
@@ -111,12 +112,12 @@ int GetBasicSave(CharData *ch, ESaving saving, bool log) {
 	switch (saving) {
 		case ESaving::kReflex:
 			save -= bonus_saving[GetRealDex(ch) - 1];
-			if (ch->IsOnHorse())
+			if (mount::IsOnHorse(ch))
 				save += 20;
 			break;
 		case ESaving::kStability:
 			save -= bonus_saving[GetRealCon(ch) - 1];
-			if (ch->IsOnHorse()) {
+			if (mount::IsOnHorse(ch)) {
 				save -= 20;
 				save -= ch->GetSkill(ESkill::kRiding) / 25;
 			}

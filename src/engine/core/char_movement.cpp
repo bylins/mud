@@ -79,7 +79,7 @@ int CalcMoveCost(CharData *ch, int dir) {
 		ch_toroom = GetMountainsPathsSect(ch_toroom);
 	}
 
-	int need_movement = (IS_FLY(ch) || ch->IsOnHorse()) ? 1 :
+	int need_movement = (IS_FLY(ch) || mount::IsOnHorse(ch)) ? 1 :
 						(movement_loss[ch_inroom] + movement_loss[ch_toroom]) / 2;
 
 	if (ch->IsImmortal())
@@ -189,7 +189,7 @@ bool IsCorrectDirection(CharData *ch, int dir, bool check_specials, bool show_ms
 			return false;
 		}
 
-		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room(), ERoomFlag::kDeathTrap) && ch->IsOnHorse()) {
+		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room(), ERoomFlag::kDeathTrap) && mount::IsOnHorse(ch)) {
 			if (show_msg) {
 				SendMsgToChar("Ваш скакун артачится и боится идти туда.\r\n", ch);
 			}
@@ -220,7 +220,7 @@ bool IsCorrectDirection(CharData *ch, int dir, bool check_specials, bool show_ms
 		}
 
 		//чтобы конь не лез в комнату с флагом !лошадь
-		if (ch->IsOnHorse() && !IsCorrectDirection(mount::GetHorse(ch), dir, check_specials, false)) {
+		if (mount::IsOnHorse(ch) && !IsCorrectDirection(mount::GetHorse(ch), dir, check_specials, false)) {
 			if (show_msg) {
 				act("$Z $N отказывается туда идти, и вам пришлось соскочить.",
 					false, ch, nullptr, mount::GetHorse(ch), kToChar);
@@ -235,14 +235,14 @@ bool IsCorrectDirection(CharData *ch, int dir, bool check_specials, bool show_ms
 			return (false);
 		}
 
-		if (ch->IsOnHorse() && GET_HORSESTATE(mount::GetHorse(ch)) <= 0) {
+		if (mount::IsOnHorse(ch) && GET_HORSESTATE(mount::GetHorse(ch)) <= 0) {
 			if (show_msg)
 				act("$Z $N загнан$G настолько, что не может нести вас на себе.",
 					false, ch, nullptr, mount::GetHorse(ch), kToChar);
 			return false;
 		}
 
-		if (ch->IsOnHorse()
+		if (mount::IsOnHorse(ch)
 			&& (AFF_FLAGGED(mount::GetHorse(ch), EAffect::kHold)
 				|| AFF_FLAGGED(mount::GetHorse(ch), EAffect::kSleep))) {
 			if (show_msg)
@@ -250,7 +250,7 @@ bool IsCorrectDirection(CharData *ch, int dir, bool check_specials, bool show_ms
 			return false;
 		}
 
-		if (ch->IsOnHorse()
+		if (mount::IsOnHorse(ch)
 			&& (ROOM_FLAGGED(EXIT(ch, dir)->to_room(), ERoomFlag::kTunnel)
 				|| ROOM_FLAGGED(EXIT(ch, dir)->to_room(), ERoomFlag::kNohorse))) {
 			if (show_msg)
@@ -344,7 +344,7 @@ EDirection SelectRndDirection(CharData *ch, int fail_chance) {
 int SelectDrunkDirection(CharData *ch, int direction) {
 	auto drunk_dir{direction};
 	if (!ch->IsNpc() && GET_COND(ch, DRUNK) >= kMortallyDrunked &&
-		!ch->IsOnHorse() && GET_COND(ch, DRUNK) >= number(kDrunked, 50)) {
+		!mount::IsOnHorse(ch) && GET_COND(ch, DRUNK) >= number(kDrunked, 50)) {
 		drunk_dir = SelectRndDirection(ch, 60);
 	}
 
@@ -420,7 +420,7 @@ bool PerformSimpleMove(CharData *ch, int dir, int following, CharData *leader, E
 		return false;
 	was_in = ch->in_room;
 	go_to = world[was_in]->dir_option[dir]->to_room();
-	use_horse = ch->IsOnHorse() && mount::HasHorse(ch, false)
+	use_horse = mount::IsOnHorse(ch) && mount::HasHorse(ch, false)
 		&& (mount::GetHorse(ch)->in_room == was_in || mount::GetHorse(ch)->in_room == go_to);
 	is_horse = IS_HORSE(ch)
 		&& ch->has_master()
@@ -472,7 +472,7 @@ bool PerformSimpleMove(CharData *ch, int dir, int following, CharData *leader, E
 		act("Кто-то тихо удалился отсюда.", true, ch, nullptr, nullptr, kToRoomSensors);
 	}
 
-	if (ch->IsOnHorse())
+	if (mount::IsOnHorse(ch))
 		horse = mount::GetHorse(ch);
 
 	// Если сбежали, и по противнику никто не бьет, то убираем с него аттаку
@@ -600,7 +600,7 @@ bool PerformSimpleMove(CharData *ch, int dir, int following, CharData *leader, E
 
 		if (track) {
 			SET_BIT(track->time_income[Reverse[dir]], 1);
-			if (IsAffectedBySpell(ch, ESpell::kLightWalk) && !ch->IsOnHorse())
+			if (IsAffectedBySpell(ch, ESpell::kLightWalk) && !mount::IsOnHorse(ch))
 				if (AFF_FLAGGED(ch, EAffect::kLightWalk))
 					track->time_income[Reverse[dir]] <<= number(15, 30);
 			REMOVE_BIT(track->track_info, TRACK_HIDE);
@@ -622,7 +622,7 @@ bool PerformSimpleMove(CharData *ch, int dir, int following, CharData *leader, E
 		}
 		if (track) {
 			SET_BIT(track->time_outgone[dir], 1);
-			if (IsAffectedBySpell(ch, ESpell::kLightWalk) && !ch->IsOnHorse())
+			if (IsAffectedBySpell(ch, ESpell::kLightWalk) && !mount::IsOnHorse(ch))
 				if (AFF_FLAGGED(ch, EAffect::kLightWalk))
 					track->time_outgone[dir] <<= number(15, 30);
 			REMOVE_BIT(track->track_info, TRACK_HIDE);

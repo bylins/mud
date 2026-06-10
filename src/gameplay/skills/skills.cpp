@@ -8,6 +8,7 @@
 ************************************************************************ */
 
 #include "engine/db/obj_prototypes.h"
+#include "gameplay/mechanics/mount.h"
 #include "engine/db/global_objects.h"
 #include "engine/core/handler.h"
 #include "engine/ui/color.h"
@@ -614,10 +615,10 @@ int GetRealSave(CharData *ch, const ESkill skill_id) {
 
 	switch (MUD::Skill(skill_id).save_type) {
 		case ESaving::kStability:
-			rate -= dex_bonus(GetRealCon(ch) + (ch->IsOnHorse() ? 20 : 0));
+			rate -= dex_bonus(GetRealCon(ch) + (mount::IsOnHorse(ch) ? 20 : 0));
 			break;
 		case ESaving::kReflex:
-			rate -= dex_bonus(GetRealDex(ch) + (ch->IsOnHorse() ? -20 : 0));
+			rate -= dex_bonus(GetRealDex(ch) + (mount::IsOnHorse(ch) ? -20 : 0));
 			break;
 		case ESaving::kCritical:
 			rate -= dex_bonus(GetRealCon(ch));
@@ -918,7 +919,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 		}
 
 		case ESkill::kKick: {
-			if (!ch->IsOnHorse() && vict->IsOnHorse()) {
+			if (!mount::IsOnHorse(ch) && mount::IsOnHorse(vict)) {
 				base_percent = 0;
 			} else {
 				parameter_bonus += GetRealStr(ch);

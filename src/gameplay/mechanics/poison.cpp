@@ -233,7 +233,7 @@ namespace {
 				case 1:
 					// аналог баша с лагом
 					if (vict->GetPosition() >= EPosition::kFight) {
-						if (vict->IsOnHorse()) {
+						if (mount::IsOnHorse(vict)) {
 							SendMsgToChar(ch, "%sОт действия вашего яда у %s закружилась голова!%s\r\n",
 										  kColorGrn, PERS(vict, ch, 1), kColorNrm);
 							SendMsgToChar(vict, "Вы почувствовали сильное головокружение и не смогли усидеть на %s!\r\n",

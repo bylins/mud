@@ -12,6 +12,7 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 #include "mobact.h"
+#include "gameplay/mechanics/mount.h"
 #include "gameplay/ai/spec_procs.h"
 #include "utils/utils_time.h"
 
@@ -1013,7 +1014,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 		  && ch->get_hit() < ch->get_real_max_hit() 
 		  && !ch->IsFlagged(EMobFlag::kTutelar)
 		  && !ch->IsFlagged(EMobFlag::kMentalShadow)
-		  && !ch->IsOnHorse()
+		  && !mount::IsOnHorse(ch.get())
 		  && ch->GetPosition() > EPosition::kRest) {
 		  act("$n присел$g отдохнуть.", false, ch.get(), nullptr, nullptr, kToRoom);
 		  ch->SetPosition(EPosition::kRest);

@@ -1,4 +1,5 @@
 #include "fight_hit.h"
+#include "gameplay/mechanics/mount.h"
 #include "gameplay/mechanics/resist.h"
 
 #include "engine/observability/event_sink.h"
@@ -496,7 +497,7 @@ void HitData::CalcCircumstantialHitroll(CharData *ch, CharData *victim) {
 	}
 
 	// Horse modifier for attacker
-	if (!ch->IsNpc() && skill_num != ESkill::kThrow && skill_num != ESkill::kBackstab && ch->IsOnHorse()) {
+	if (!ch->IsNpc() && skill_num != ESkill::kThrow && skill_num != ESkill::kBackstab && mount::IsOnHorse(ch)) {
 		TrainSkill(ch, ESkill::kRiding, true, victim);
 		calc_thaco += 10 - ch->GetSkill(ESkill::kRiding) / 20;
 	}
@@ -567,7 +568,7 @@ void HitData::CalcStaticHitroll(CharData *ch) {
 	}
 
 	// Horse modifier for attacker
-	if (!ch->IsNpc() && skill_num != ESkill::kThrow && skill_num != ESkill::kBackstab && ch->IsOnHorse()) {
+	if (!ch->IsNpc() && skill_num != ESkill::kThrow && skill_num != ESkill::kBackstab && mount::IsOnHorse(ch)) {
 		int prob = ch->GetSkill(ESkill::kRiding);
 		int range = MUD::Skill(ESkill::kRiding).difficulty / 2;
 
@@ -733,7 +734,7 @@ int HitData::CalcDmg(CharData *ch, bool need_dice) {
 		}
 	}
 /*	// Horse modifier for attacker
-	if (!ch->IsNpc() && skill_num != ESkill::kThrow && skill_num != ESkill::kBackstab && ch->IsOnHorse()) {
+	if (!ch->IsNpc() && skill_num != ESkill::kThrow && skill_num != ESkill::kBackstab && mount::IsOnHorse(ch)) {
 		int prob = ch->get_skill(ESkill::kRiding);
 		dam += ((prob + 19) / 10);
 		SendMsgToChar(ch, "&YДамага с учетом лошади == %d&n\r\n", dam);
@@ -813,7 +814,7 @@ int HitData::CalcDmg(CharData *ch, bool need_dice) {
 		dam += RollDices(ch->mob_specials.damnodice, ch->mob_specials.damsizedice);
 	}
 
-	if (ch->GetSkill(ESkill::kRiding) > 100 && ch->IsOnHorse()) {
+	if (ch->GetSkill(ESkill::kRiding) > 100 && mount::IsOnHorse(ch)) {
 		dam *= 1.0 + (ch->GetSkill(ESkill::kRiding) - 100) / 500.0;
 		if (ch->IsFlagged(EPrf::kExecutor))
 			SendMsgToChar(ch, "&YДамага с учетом лошади (при скилле 200 +20 процентов)== %d&n\r\n", dam);

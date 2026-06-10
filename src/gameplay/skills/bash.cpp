@@ -1,4 +1,5 @@
 #include "bash.h"
+#include "gameplay/mechanics/mount.h"
 
 #include "skill_messages.h"
 #include "gameplay/fight/pk.h"
@@ -49,7 +50,7 @@ void do_bash(CharData *ch, CharData *vict) {
 		return;
 	}
 
-	if (ch->IsOnHorse()) {
+	if (mount::IsOnHorse(ch)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kBash, ESkillMsg::kCantWhileMounted) + "\r\n", ch);
 		return;
 	}

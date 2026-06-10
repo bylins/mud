@@ -193,7 +193,7 @@ void PrintScoreList(CharData *ch) {
 				  ch->get_hryvn(),
 				  ch->get_exp(),
 				  ch->IsImmortal() ? 1 : GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1) - ch->get_exp());
-	if (!ch->IsOnHorse())
+	if (!mount::IsOnHorse(ch))
 		SendMsgToChar(ch, "Ваша позиция: %s", GetPositionStr(ch));
 	else
 		SendMsgToChar(ch, "Ваша позиция: Вы верхом на %s.\r\n", GET_PAD(mount::GetHorse(ch), 5));
@@ -253,7 +253,7 @@ const std::string &InfoStrPrefix(CharData *ch) {
 
 void PrintHorseInfo(CharData *ch, std::ostringstream &out) {
 	if (mount::HasHorse(ch, false)) {
-		if (ch->IsOnHorse()) {
+		if (mount::IsOnHorse(ch)) {
 			out << InfoStrPrefix(ch) << "Вы верхом на " << GET_PAD(mount::GetHorse(ch), 5) << "." << "\r\n";
 		} else {
 			out << InfoStrPrefix(ch) << "У вас есть " << mount::GetHorse(ch)->get_name() << "." << "\r\n";
@@ -823,7 +823,7 @@ void PrintScoreBase(CharData *ch) {
 			playing_time.hours, GetDeclensionInNumber(playing_time.hours, EWhat::kHour));
 	SendMsgToChar(buf, ch);
 
-	if (!ch->IsOnHorse())
+	if (!mount::IsOnHorse(ch))
 		SendMsgToChar(ch, "%s", GetPositionStr(ch));
 
 	snprintf(buf, sizeof(buf), "%s", kColorBoldGrn);
@@ -858,7 +858,7 @@ void PrintScoreBase(CharData *ch) {
 
 	if (mount::HasHorse(ch, false)) {
 		size_t buf_len = strlen(buf);
-		if (ch->IsOnHorse())
+		if (mount::IsOnHorse(ch))
 			snprintf(buf + buf_len, sizeof(buf) - buf_len, "Вы верхом на %s.\r\n", GET_PAD(mount::GetHorse(ch), 5));
 		else
 			snprintf(buf + buf_len, sizeof(buf) - buf_len, "У вас есть %s.\r\n", GET_NAME(mount::GetHorse(ch)));
@@ -1053,7 +1053,7 @@ int CalcHitroll(CharData *ch) {
 	if (ch->IsFlagged(EPrf::kPerformGreatAimingAttack)) {
 		hr += 4;
 	}
-	hr -= (ch->IsOnHorse() ? (10 - ch->GetSkill(ESkill::kRiding) / 20) : 0);
+	hr -= (mount::IsOnHorse(ch) ? (10 - ch->GetSkill(ESkill::kRiding) / 20) : 0);
 	hr *= ch->get_cond_penalty(P_HITROLL);
 	return hr;
 }
@@ -1090,7 +1090,7 @@ const char *GetPositionStr(CharData *ch) {
 }
 
 const char *GetShortPositionStr(CharData *ch) {
-	if (!ch->IsOnHorse()) {
+	if (!mount::IsOnHorse(ch)) {
 		switch (ch->GetPosition()) {
 			case EPosition::kDead: return "Вы МЕРТВЫ!";
 			case EPosition::kPerish: return "Вы умираете!";

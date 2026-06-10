@@ -15,6 +15,9 @@ namespace mount {
 // Does ch own a horse? With same_room, only counts a horse in ch's room.
 [[nodiscard]] bool HasHorse(const CharData *ch, bool same_room);
 
+// Is ch currently mounted (carries kHorse and the horse is in the room)?
+[[nodiscard]] bool IsOnHorse(const CharData *ch);
+
 }  // namespace mount
 
 void make_horse(CharData *horse, CharData *ch);

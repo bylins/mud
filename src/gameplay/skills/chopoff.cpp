@@ -1,4 +1,5 @@
 #include "chopoff.h"
+#include "gameplay/mechanics/mount.h"
 
 #include "skill_messages.h"
 
@@ -51,7 +52,7 @@ void go_chopoff(CharData *ch, CharData *vict) {
 
 	if (GET_GOD_FLAG(ch, EGf::kGodscurse) ||
 		GET_GOD_FLAG(vict, EGf::kGodsLike) ||
-		vict->IsOnHorse() || vict->GetPosition() < EPosition::kFight || vict->IsFlagged(EMobFlag::kNoUndercut) || vict->IsImmortal())
+		mount::IsOnHorse(vict) || vict->GetPosition() < EPosition::kFight || vict->IsFlagged(EMobFlag::kNoUndercut) || vict->IsImmortal())
 		prob = 0;
 
 	bool success = percent <= prob;
@@ -81,7 +82,7 @@ void go_chopoff(CharData *ch, CharData *vict) {
 			act("$n покатил$u по земле, пытаясь избежать атак $N1.", true, ch, nullptr, vict, kToNotVict | kToArenaListen);
 		}
 	} else {
-		if (IS_HORSE(vict) && vict->get_master()->IsOnHorse()) {
+		if (IS_HORSE(vict) && mount::IsOnHorse(vict->get_master())) {
 			CharData *tch = vict->get_master();
 			act("$n ловко подсек$q $N3, заставив $S споткнуться.", true, ch, nullptr, vict, kToNotVict | kToArenaListen);
 			SendMsgToChar(ch, "%sВы провели подсечку, заставив %s споткнуться.%s\r\n",
@@ -150,7 +151,7 @@ void do_chopoff(CharData *ch, CharData *vict) {
 		return;
 	};
 
-	if (ch->IsOnHorse()) {
+	if (mount::IsOnHorse(ch)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kChopoff, ESkillMsg::kCantWhileMounted) + "\r\n", ch);
 		return;
 	}

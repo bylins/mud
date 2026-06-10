@@ -1505,7 +1505,7 @@ void diag_char_to_char(CharData *i, CharData *ch) {
 	else
 		strcat(buf, " умирает");
 
-	if (!i->IsOnHorse())
+	if (!mount::IsOnHorse(i))
 		switch (i->GetPosition()) {
 			case EPosition::kPerish: strcat(buf, ".");
 				break;
@@ -1728,7 +1728,7 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 			"стоят здесь. "
 		};
 
-	if (IS_HORSE(i) && i->get_master()->IsOnHorse()) {
+	if (IS_HORSE(i) && mount::IsOnHorse(i->get_master())) {
 		if (ch == i->get_master()) {
 			if (!IS_POLY(i)) {
 				act("$N несет вас на своей спине.", false, ch, nullptr, i, kToChar);
@@ -1868,7 +1868,7 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 		strcat(buf, "(пишет) ");
 
 	if (i->GetPosition() != EPosition::kFight) {
-		if (i->IsOnHorse()) {
+		if (mount::IsOnHorse(i)) {
 			CharData *horse = mount::GetHorse(i);
 			if (horse) {
 				const char *msg =
@@ -1900,14 +1900,14 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 				strcat(buf, "ВАМИ");
 			else
 				strcat(buf, GET_PAD(i->GetEnemy(), 4));
-			if (i->IsOnHorse())
+			if (mount::IsOnHorse(i))
 				sprintf(buf + strlen(buf), ", сидя верхом на %s! ", PERS(mount::GetHorse(i), ch, 5));
 			else
 				strcat(buf, "! ");
 		} else        // NIL fighting pointer
 		{
 			strcat(buf, IS_POLY(i) ? "колотят по воздуху" : "колотит по воздуху");
-			if (i->IsOnHorse())
+			if (mount::IsOnHorse(i))
 				sprintf(buf + strlen(buf), ", сидя верхом на %s. ", PERS(mount::GetHorse(i), ch, 5));
 			else
 				strcat(buf, ". ");

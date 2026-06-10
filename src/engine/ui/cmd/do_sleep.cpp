@@ -13,7 +13,7 @@ void do_sleep(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Не время вам спать, родина в опасности!\r\n", ch);
 		return;
 	}
-	if (ch->IsOnHorse()) {
+	if (mount::IsOnHorse(ch)) {
 		act("Прежде всего, вам стоит слезть с $N1.", false, ch, nullptr, mount::GetHorse(ch), kToChar);
 		return;
 	}

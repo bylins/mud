@@ -3,6 +3,7 @@
 //
 
 #include "charge.h"
+#include "gameplay/mechanics/mount.h"
 
 #include "skill_messages.h"
 #include "engine/db/global_objects.h"
@@ -28,7 +29,7 @@ void DoCharge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kCharge, ESkillMsg::kCantFightNow) + "\r\n", ch);
 		return;
 	}
-	if (ch->IsOnHorse()) {
+	if (mount::IsOnHorse(ch)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kCharge, ESkillMsg::kCantWhileMounted) + "\r\n", ch);
 		return;
 	}

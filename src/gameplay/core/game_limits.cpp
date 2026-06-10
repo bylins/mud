@@ -13,6 +13,7 @@
 ************************************************************************ */
 
 #include "gameplay/core/game_limits.h"
+#include "gameplay/mechanics/mount.h"
 
 #include "engine/core/handler.h"
 #include "engine/ui/color.h"
@@ -1626,7 +1627,7 @@ void point_update() {
 							break;
 						default: mana = 10;
 					}
-					if (i->get_master()->IsOnHorse()) {
+					if (mount::IsOnHorse(i->get_master())) {
 						mana /= 2;
 					}
 					GET_HORSESTATE(i) = std::min(800, GET_HORSESTATE(i) + mana);

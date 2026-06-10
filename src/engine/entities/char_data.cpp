@@ -2069,12 +2069,8 @@ bool CharData::have_mind() const {
 }
 
 // персонаж на лошади?
-bool CharData::IsOnHorse() const {
-	return AFF_FLAGGED(this, EAffect::kHorse) && mount::HasHorse(this, true);
-}
-
 bool CharData::IsHorsePrevents() {
-	if (this->IsOnHorse()) {
+	if (mount::IsOnHorse(this)) {
 		act("Вам мешает $N.", false, this, 0, mount::GetHorse(this), kToChar);
 		return true;
 	}
@@ -2087,10 +2083,10 @@ bool CharData::DropFromHorse() {
 	CharData *plr;
 
 	// вызвали для лошади
-	if (IS_HORSE(this) && this->get_master()->IsOnHorse()) {
+	if (IS_HORSE(this) && mount::IsOnHorse(this->get_master())) {
 		plr = this->get_master();
 		act("$N сбросил$G вас со своей спины.", false, plr, 0, this, kToChar);
-	} else	if (this->IsOnHorse()) {// вызвали для седока
+	} else	if (mount::IsOnHorse(this)) {// вызвали для седока
 		plr = this;
 		act("Вы упали с $N1.", false, plr, 0, mount::GetHorse(this), kToChar);
 	} else //не лошадь и не всадник
@@ -2106,7 +2102,7 @@ bool CharData::DropFromHorse() {
 }
 
 void CharData::dismount() {
-	if (!this->IsOnHorse() || mount::GetHorse(this) == nullptr)
+	if (!mount::IsOnHorse(this) || mount::GetHorse(this) == nullptr)
 		return;
 	if (!this->IsNpc() && mount::HasHorse(this, true)) {
 		AFF_FLAGS(this).unset(EAffect::kHorse);

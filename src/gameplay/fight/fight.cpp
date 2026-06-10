@@ -120,9 +120,9 @@ void update_pos(CharData *victim) {
 		victim->SetPosition(EPosition::kStun);
 
 	// поплохело седоку или лошади - сбрасываем седока
-	if (victim->IsOnHorse() && victim->GetPosition() < EPosition::kFight)
+	if (mount::IsOnHorse(victim) && victim->GetPosition() < EPosition::kFight)
 		victim->DropFromHorse();
-	if (IS_HORSE(victim) && victim->GetPosition() < EPosition::kFight && victim->get_master()->IsOnHorse())
+	if (IS_HORSE(victim) && victim->GetPosition() < EPosition::kFight && mount::IsOnHorse(victim->get_master()))
 		victim->DropFromHorse();
 }
 
@@ -1620,7 +1620,7 @@ void using_mob_skills(CharData *ch) {
 				&& (CAN_SEE(ch, damager)
 					|| ch->GetEnemy() == damager)) {
 				if (sk_num == ESkill::kBash) {
-					if (damager->IsOnHorse()) {
+					if (mount::IsOnHorse(damager)) {
 						// Карачун. Правка бага. Лошадь не должна башить себя, если дерется с наездником.
 						if (mount::GetHorse(damager) == ch) {
 							ch->DropFromHorse();
@@ -1638,7 +1638,7 @@ void using_mob_skills(CharData *ch) {
 						go_bash(ch, damager);
 					}
 				} else if (sk_num == ESkill::kChopoff) {
-					if (damager->IsOnHorse()) {
+					if (mount::IsOnHorse(damager)) {
 						sk_use = 0;
 						if (!mount::GetHorse(damager)->IsFlagged(EMobFlag::kNoFight)) {
 							go_chopoff(ch, mount::GetHorse(damager));
@@ -1661,7 +1661,7 @@ void using_mob_skills(CharData *ch) {
 		}
 
 		////////////////////////////////////////////////////////////////////////
-		if (sk_num == ESkill::kKick && !ch->GetEnemy()->IsOnHorse()) {
+		if (sk_num == ESkill::kKick && !mount::IsOnHorse(ch->GetEnemy())) {
 			sk_use = 0;
 			go_kick(ch, ch->GetEnemy());
 		}

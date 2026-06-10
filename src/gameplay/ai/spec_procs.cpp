@@ -92,7 +92,7 @@ int HorseSell(CharData *ch, void *me, char * /*rest*/) {
 			act(specials::HorseMsg(specials::EHorseMsg::kSellNoHorse), false, ch, 0, victim, kToChar);
 			return (true);
 		}
-		if (ch->IsOnHorse()) {
+		if (mount::IsOnHorse(ch)) {
 			act(specials::HorseMsg(specials::EHorseMsg::kSellOnHorse), false, ch, 0, victim, kToChar);
 			return (true);
 		}
