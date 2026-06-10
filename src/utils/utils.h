@@ -35,11 +35,7 @@
 
 struct RoomData;    // forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
 class CharData;    // forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
-// issue.chardata-cleaning: CanSee lives in gameplay/mechanics/sight.h now; forward-declared here
-// so the ubiquitous GET_CH_VIS_SUF_* vis macros below resolve without pulling the heavy sight.h.
-bool CanSee(const CharData *sub, const CharData *obj);
 class ObjData;
-bool CanSeeObj(const CharData *sub, const ObjData *obj);
 struct DescriptorData;
 
 // external declarations and prototypes *********************************
@@ -85,7 +81,6 @@ struct DescriptorData;
 //	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false
 //};
 
-
 inline const char *not_empty(const std::string &s) {
 	return s.empty() ? "undefined" : s.c_str();
 }
@@ -106,7 +101,6 @@ extern char AltToLat[];
 char *rustime(const struct tm *timeptr);
 char *str_dup(const char *source);
 char *str_add(char *dst, const char *src);
-// str_cmp, strn_cmp moved to utils_string.h
 int touch(const char *path);
 // \todo убрать и оставить только в random.h
 int number(int from, int to);
@@ -123,8 +117,6 @@ void koi_to_utf8(char *str_i, char *str_o);
 void utf8_to_koi(char *str_i, char *str_o);
 // \todo Заменить на фунции из STD
 int round_up(float fl);
-// IsValidEmail, skip_dots, str_str, kill_ems, cut_one_word moved to utils_string.h
-// strl_cpy moved to utils_string.h
 bool is_head(std::string name);
 
 template<typename T> inline std::string to_string(const T &t) {
@@ -149,8 +141,6 @@ constexpr int kMinTitleLev = 25;
 #undef MIN
 #endif
 
-// issue.utils-cleaning: kSf* follow-stop flags moved to follow::EStopFollow (gameplay/mechanics/follow.h).
-
 int MAX(int a, int b);
 int MIN(int a, int b);
 
@@ -163,7 +153,6 @@ inline char AtoL(char c) { return (ubyte)(c) < 128 ? c : AltToLat[(ubyte)(c) - 1
 
 // various constants ****************************************************
 // get_filename() //
-// issue.utils-cleaning: player-file ids moved to EPlayerFile (engine/db/db.h).
 
 // breadth-first searching //
 const int kBfsError = -1;
@@ -174,13 +163,6 @@ const int kBfsNoPath = -3;
 const int kSecsPerRealMin = 60;
 constexpr int kSecsPerRealHour = 60*kSecsPerRealMin;
 constexpr int kSecsPerRealDay = 24*kSecsPerRealHour;
-
-// IS_IMMORTAL/IS_GOD/IS_GRGOD/IS_IMPL заменены на методы CharData:
-// ch->IsImmortal(), ch->IsGod(), ch->IsGrGod(), ch->IsImpl()
-
-// issue.utils-cleaning: IS_SHOPKEEPER/IS_POSTKEEPER/IS_BANKKEEPER/IS_RENTKEEPER ->
-// specials::IsShopkeeper/IsPostkeeper/IsBankkeeper/IsRentkeeper (gameplay/ai/spec_procs.h).
-// (The old macros read mob_index[].func, which is no longer set for mobs -- they were dead.)
 
 // string utils *********************************************************
 
@@ -316,7 +298,6 @@ inline void TOGGLE_BIT(T &var, const Bitvector bit) {
 	var = var ^ (bit & 0x3FFFFFFF);
 }
 
-
 #define NPC_FLAGGED(ch, flag)   ((ch)->mob_specials.npc_flags.get(flag))
 #define ROOM_FLAGGED(loc, flag) (world[(loc)]->get_flag(flag))
 #define EXIT_FLAGGED(exit, flag)     (IS_SET((exit)->exit_info, (flag)))
@@ -392,9 +373,6 @@ inline T VPOSI(const T val, const T min, const T max) {
 // Получение кубиков урона - работает только для мобов!
 #define GET_NDD(ch) ((ch)->mob_specials.damnodice)
 #define GET_SDD(ch) ((ch)->mob_specials.damsizedice)
-
-// issue.utils-cleaning: alignment (kAlig*/GetAlignment/ALIGN_DELTA/SameAlign) moved to
-// the alignment mechanic (gameplay/mechanics/alignment.h): GetAlignment/SetAlignment/SameAlign.
 
 const int kNameLevel = 5;
 #define NAME_FINE(ch)          ((ch)->player_specials->saved.NameGod>1000)
@@ -477,43 +455,13 @@ const int kNameLevel = 5;
 #define GET_HORSESTATE(ch)  ((ch)->mob_specials.HorseState)
 #define GET_LASTROOM(ch)    ((ch)->mob_specials.LastRoom)
 
-// issue.utils-cleaning: CanSeeInDark -> sight::CanSeeInDark (gameplay/mechanics/sight.h).
-
-
-
 #define GET_OBJ_SEX(obj) ((obj)->get_sex())
-#define IS_OBJ_NOSEXY(obj)    (GET_OBJ_SEX(obj) == EGender::kNeutral)
-#define IS_OBJ_MALE(obj)   (GET_OBJ_SEX(obj) == EGender::kMale)
-#define IS_OBJ_FEMALE(obj)    (GET_OBJ_SEX(obj) == EGender::kFemale)
-
-
-// Soft-stem instrumental: посвежевш(им/им/ей/ими). Wired to act()'s $h / $H
-// codes (issue.mag-points). Used by the cast-message {intensity} substitution
-// for past participles -- "Вы почувствовали себя посвежевш$h."
-// Vis variant: fallback "им" matches the masculine form when the observer
-// can't see the actor (consistent with the other GET_CH_VIS_SUF_* fallbacks).
-// OBJ counterpart for $H when an object is the actor (rare, but symmetric
-// with every other GET_OBJ_SUF_*).
-
 
 #define PUNCTUAL_WAIT_STATE(ch, cycle) do { (ch)->punctual_wait = (cycle); } while(0)
 
 // compound utilities and other macros *********************************
 
-
-
 #define HERE(ch)  (((ch)->IsNpc() || (ch)->desc || NORENTABLE(ch)))
-
-// issue.utils-cleaning: the MORT/IMM/CAN_SEE_CHAR "see without light" macros moved to
-// gameplay/mechanics/sight.h as CanSeeIgnoringLight (folded into the CanSee predicate ladder).
-
-
-//для арены
-// issue.utils-cleaning: PERS -> sight::PersonName, APERS -> arena::VisibleName
-// (gameplay/fight/arena.h), GET_PAD_PERS -> grammar::SomebodyInCase. GET_PAD stays here.
-
-// issue.utils-cleaning: AOBJS/AOBJN -> arena::VisibleObjShort/VisibleObjName (gameplay/fight/arena.h),
-// GET_PAD_OBJ -> grammar::SomethingInCase. (Object suffix macros below stay, for the grammar pass.)
 
 #define EXITDATA(room, door) (((room) >= 0 && (room) <= top_of_world) ? \
                              world[(room)]->dir_option[(door)] : nullptr)
@@ -553,7 +501,6 @@ const int kNameLevel = 5;
                        (IS_MAGUS(ch) && ROOM_FLAGGED((ch)->in_room, ERoomFlag::kForMaguses)))
 
 #define OUTSIDE(ch) (!ROOM_FLAGGED((ch)->in_room, ERoomFlag::kIndoors))
-
 
 std::string FormatTimeToStr(long in_timer, bool flag = false);
 
@@ -709,9 +656,6 @@ void skip_spaces(T string) {
 	for (; **string && a_isspace(**string); (*string)++);
 }
 
-
-// thousands_sep moved to utils_string.h
-
 #define IS_CORPSE(obj)     ((obj)->get_type() == EObjType::kContainer && \
                GET_OBJ_VAL((obj), 3) == ObjData::CORPSE_INDICATOR)
 #define IS_MOB_CORPSE(obj) (IS_CORPSE(obj) &&  GET_OBJ_VAL((obj), 2) != -1)
@@ -794,9 +738,7 @@ inline void graceful_exit(int retcode) {
 	_exit(retcode);
 }
 
-// isname, one_word, ReadEndString moved to utils_string.h
 // замена символа (в данном случае конца строки) на свою строку, для остального функций хватает
-// StringReplace, format_news_message moved to utils_string.h
 
 template<typename T>
 class JoinRange {
@@ -906,9 +848,6 @@ reversion_wrapper<T> reverse (T&& iterable) { return { iterable }; }
  *  @param num  - обрабатываемоле число.
  *  @param separator - разделитель разрядов.
  */
-// PrintNumberByDigits moved to utils_string.h
-
-// PruneCrlf moved to utils_string.h
 
 bool sprintbitwd(Bitvector bitvector, const char *names[], char *result, size_t result_size, const char *div, int print_flag = 0);
 
