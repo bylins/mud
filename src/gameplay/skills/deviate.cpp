@@ -7,6 +7,7 @@
 */
 
 #include "deviate.h"
+#include "gameplay/mechanics/mount.h"
 #include "skill_messages.h"
 
 #include "engine/entities/char_data.h"
@@ -30,7 +31,7 @@ void DoDeviate(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (ch->IsHorsePrevents()) {
+	if (mount::IsBlockedByHorse(ch)) {
 		return;
 	}
 
@@ -46,7 +47,7 @@ void GoDeviate(CharData *ch) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kDodge, ESkillMsg::kCantFightNow) + "\r\n", ch);
 		return;
 	}
-	if (ch->IsHorsePrevents()) {
+	if (mount::IsBlockedByHorse(ch)) {
 		return;
 	};
 	ch->battle_affects.set(kEafDodge);

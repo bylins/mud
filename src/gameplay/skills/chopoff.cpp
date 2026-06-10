@@ -24,7 +24,7 @@ void go_chopoff(CharData *ch, CharData *vict) {
 		return;
 	}
 
-	if (ch->IsHorsePrevents())
+	if (mount::IsBlockedByHorse(ch))
 		return;
 
 	if ((vict->GetPosition() < EPosition::kFight)) {

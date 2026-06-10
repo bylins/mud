@@ -99,7 +99,7 @@ void go_bash(CharData *ch, CharData *vict) {
 		SendMsgToChar("Вы не можете применять этот прием в таком состоянии!\r\n", ch);
 		return;
 	}
-	if (ch->IsHorsePrevents()) {
+	if (mount::IsBlockedByHorse(ch)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kBash, ESkillMsg::kCantWhileMounted) + "\r\n", ch);
 		return;
 	}

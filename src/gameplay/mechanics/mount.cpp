@@ -78,6 +78,14 @@ void Dismount(CharData *ch) {
 	act("$n соскочил$g с $N1.", false, ch, 0, GetHorse(ch), kToRoom | kToArenaListen);
 }
 
+bool IsBlockedByHorse(CharData *ch) {
+	if (IsOnHorse(ch)) {
+		act("Вам мешает $N.", false, ch, 0, GetHorse(ch), kToChar);
+		return true;
+	}
+	return false;
+}
+
 }  // namespace mount
 
 void make_horse(CharData *horse, CharData *ch) {

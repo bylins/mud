@@ -93,7 +93,7 @@ void do_backstab(CharData *ch, CharData *vict) {
 // Проверка на стаб в бою происходит до вызова этой функции
 void GoBackstab(CharData *ch, CharData *vict) {
 
-	if (ch->IsHorsePrevents())
+	if (mount::IsBlockedByHorse(ch))
 		return;
 //	if (vict->purged()) {
 //		return;

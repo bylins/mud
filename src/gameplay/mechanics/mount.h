@@ -31,6 +31,9 @@ bool DropFromHorse(CharData *ch);
 // Voluntarily get off the horse (clears kHorse, emits the messages). No-op if not mounted.
 void Dismount(CharData *ch);
 
+// True if ch is mounted and the horse is in the way of the attempted action (also tells ch so).
+bool IsBlockedByHorse(CharData *ch);
+
 }  // namespace mount
 
 void make_horse(CharData *horse, CharData *ch);

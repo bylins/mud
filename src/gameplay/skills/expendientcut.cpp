@@ -1,4 +1,5 @@
 #include "expendientcut.h"
+#include "gameplay/mechanics/mount.h"
 #include "skill_messages.h"
 #include "engine/db/global_objects.h"
 
@@ -136,7 +137,7 @@ void DoExpedientCut(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kCutting, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
-	if (ch->IsHorsePrevents()) {
+	if (mount::IsBlockedByHorse(ch)) {
 		return;
 	}
 	if (ch->GetPosition() < EPosition::kFight) {

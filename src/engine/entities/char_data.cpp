@@ -2063,13 +2063,6 @@ bool CharData::have_mind() const {
 }
 
 // персонаж на лошади?
-bool CharData::IsHorsePrevents() {
-	if (mount::IsOnHorse(this)) {
-		act("Вам мешает $N.", false, this, 0, mount::GetHorse(this), kToChar);
-		return true;
-	}
-	return false;
-}
 
 #include "utils/backtrace.h"
 
