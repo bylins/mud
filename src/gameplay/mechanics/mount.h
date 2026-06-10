@@ -34,9 +34,10 @@ void Dismount(CharData *ch);
 // True if ch is mounted and the horse is in the way of the attempted action (also tells ch so).
 bool IsBlockedByHorse(CharData *ch);
 
-}  // namespace mount
+// Turn the NPC `horse` into ch's mount (sets kHorse, makes it ch's follower, clears stray flags).
+void MakeHorse(CharData *horse, CharData *ch);
 
-void make_horse(CharData *horse, CharData *ch);
+}  // namespace mount
 
 void do_horseon(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
 void do_horseoff(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/);

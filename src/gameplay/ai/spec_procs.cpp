@@ -73,7 +73,7 @@ int HorseBuy(CharData *ch, void *me, char * /*rest*/) {
 		// make_horse видит лошадь в kNowhere и логирует "попытка
 		// загрупить игроков в разных комнатах" (#3207).
 		PlaceCharToRoom(horse, ch->in_room);
-		make_horse(horse, ch);
+		mount::MakeHorse(horse, ch);
 		act(fmt::format(fmt::runtime(specials::HorseMsg(specials::EHorseMsg::kBuyGiveChar)),
 				fmt::arg("horse", GET_PAD(horse, 3)), fmt::arg("pronoun", HSHR(horse))),
 			false, ch, 0, victim, kToChar);

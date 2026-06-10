@@ -88,7 +88,7 @@ bool IsBlockedByHorse(CharData *ch) {
 
 }  // namespace mount
 
-void make_horse(CharData *horse, CharData *ch) {
+void mount::MakeHorse(CharData *horse, CharData *ch) {
 	AFF_FLAGS(horse).set(EAffect::kHorse);
 	ch->add_follower(horse);
 	horse->UnsetFlag(EMobFlag::kWimpy);
@@ -292,7 +292,7 @@ void do_horsetake(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	act("Вы оседлали $N3.", false, ch, 0, horse, kToChar);
 	act("$n оседлал$g $N3.", false, ch, 0, horse, kToRoom | kToArenaListen);
-	make_horse(horse, ch);
+	mount::MakeHorse(horse, ch);
 }
 
 void do_givehorse(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
@@ -340,7 +340,7 @@ void do_givehorse(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	act("Вы передали своего скакуна $N2.", false, ch, 0, victim, kToChar);
 	act("$n передал$g вам своего скакуна.", false, ch, 0, victim, kToVict);
 	act("$n передал$g своего скакуна $N2.", true, ch, 0, victim, kToNotVict | kToArenaListen);
-	make_horse(horse, victim);
+	mount::MakeHorse(horse, victim);
 }
 
 void do_stophorse(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
