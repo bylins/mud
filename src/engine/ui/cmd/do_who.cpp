@@ -151,7 +151,7 @@ void DoWho(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (showname && !(!(tch)->player_specials->saved.NameGod && GetRealLevel(tch) <= kNameLevel)) {
 			continue;
 		}
-		if (tch->IsFlagged(EPlrFlag::kNameDenied) && NAME_DURATION(tch)
+		if (tch->IsFlagged(EPlrFlag::kNameDenied) && punishments::Get(tch, punishments::EType::kName).duration
 			&& !ch->IsImmortal() && !ch->IsFlagged(EPrf::kCoderinfo)
 			&& ch != tch.get()) {
 			continue;

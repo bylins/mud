@@ -450,20 +450,20 @@ void CharData::purge() {
 		// порталы
 		ClearRunestones(this);
 // Cleanup punish reasons
-		if (MUTE_REASON(this))
-			free(MUTE_REASON(this));
-		if (DUMB_REASON(this))
-			free(DUMB_REASON(this));
-		if (HELL_REASON(this))
-			free(HELL_REASON(this));
-		if (FREEZE_REASON(this))
-			free(FREEZE_REASON(this));
-		if (NAME_REASON(this))
-			free(NAME_REASON(this));
-		if (GCURSE_REASON(this))
-			free(GCURSE_REASON(this));
-		if (UNREG_REASON(this))
-			free(UNREG_REASON(this));
+		if (punishments::Get(this, punishments::EType::kMute).reason)
+			free(punishments::Get(this, punishments::EType::kMute).reason);
+		if (punishments::Get(this, punishments::EType::kDumb).reason)
+			free(punishments::Get(this, punishments::EType::kDumb).reason);
+		if (punishments::Get(this, punishments::EType::kHell).reason)
+			free(punishments::Get(this, punishments::EType::kHell).reason);
+		if (punishments::Get(this, punishments::EType::kFreeze).reason)
+			free(punishments::Get(this, punishments::EType::kFreeze).reason);
+		if (punishments::Get(this, punishments::EType::kName).reason)
+			free(punishments::Get(this, punishments::EType::kName).reason);
+		if (punishments::Get(this, punishments::EType::kGcurse).reason)
+			free(punishments::Get(this, punishments::EType::kGcurse).reason);
+		if (punishments::Get(this, punishments::EType::kUnreg).reason)
+			free(punishments::Get(this, punishments::EType::kUnreg).reason);
 // End reasons cleanup
 
 		if (KARMA(this))

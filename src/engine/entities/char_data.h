@@ -263,14 +263,7 @@ struct player_special_data {
 
   	network::LogonRecords logons;
 
-// Punishments structs
-  	punishments::Punish pmute;
-  	punishments::Punish pdumb;
-  	punishments::Punish phell;
-  	punishments::Punish pname;
-  	punishments::Punish pfreeze;
-  	punishments::Punish pgcurse;
-  	punishments::Punish punreg;
+	punishments::CharPunishments punishments;  // mute/dumb/hell/name/freeze/gcurse/unreg
 
 	char *clanStatus; // строка для отображения приписки по кто
 	// TODO: однозначно переписать

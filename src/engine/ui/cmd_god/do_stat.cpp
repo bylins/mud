@@ -173,50 +173,50 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 		if (k->player_specials->saved.telegram_id != 0)
 			SendMsgToChar(ch, "Подключен Телеграм, chat_id: %lu\r\n", k->player_specials->saved.telegram_id);
 
-		if (k->IsFlagged(EPlrFlag::kFrozen) && FREEZE_DURATION(k)) {
+		if (k->IsFlagged(EPlrFlag::kFrozen) && punishments::Get(k, punishments::EType::kFreeze).duration) {
 			snprintf(buf, sizeof(buf), "Заморожен : %ld час [%s].\r\n",
-					static_cast<long>((FREEZE_DURATION(k) - time(nullptr)) / 3600),
-					FREEZE_REASON(k) ? FREEZE_REASON(k) : "-");
+					static_cast<long>((punishments::Get(k, punishments::EType::kFreeze).duration - time(nullptr)) / 3600),
+					punishments::Get(k, punishments::EType::kFreeze).reason ? punishments::Get(k, punishments::EType::kFreeze).reason : "-");
 			SendMsgToChar(buf, ch);
 		}
-		if (k->IsFlagged(EPlrFlag::kHelled) && HELL_DURATION(k)) {
+		if (k->IsFlagged(EPlrFlag::kHelled) && punishments::Get(k, punishments::EType::kHell).duration) {
 			snprintf(buf, sizeof(buf), "Находится в темнице : %ld час [%s].\r\n",
-					static_cast<long>((HELL_DURATION(k) - time(nullptr)) / 3600),
-					HELL_REASON(k) ? HELL_REASON(k) : "-");
+					static_cast<long>((punishments::Get(k, punishments::EType::kHell).duration - time(nullptr)) / 3600),
+					punishments::Get(k, punishments::EType::kHell).reason ? punishments::Get(k, punishments::EType::kHell).reason : "-");
 			SendMsgToChar(buf, ch);
 		}
-		if (k->IsFlagged(EPlrFlag::kNameDenied) && NAME_DURATION(k)) {
+		if (k->IsFlagged(EPlrFlag::kNameDenied) && punishments::Get(k, punishments::EType::kName).duration) {
 			snprintf(buf, sizeof(buf), "Находится в комнате имени : %ld час.\r\n",
-					static_cast<long>((NAME_DURATION(k) - time(nullptr)) / 3600));
+					static_cast<long>((punishments::Get(k, punishments::EType::kName).duration - time(nullptr)) / 3600));
 			SendMsgToChar(buf, ch);
 		}
-		if (k->IsFlagged(EPlrFlag::kMuted) && MUTE_DURATION(k)) {
+		if (k->IsFlagged(EPlrFlag::kMuted) && punishments::Get(k, punishments::EType::kMute).duration) {
 			snprintf(buf, sizeof(buf), "Будет молчать : %ld час [%s].\r\n",
-					static_cast<long>((MUTE_DURATION(k) - time(nullptr)) / 3600),
-					MUTE_REASON(k) ? MUTE_REASON(k) : "-");
+					static_cast<long>((punishments::Get(k, punishments::EType::kMute).duration - time(nullptr)) / 3600),
+					punishments::Get(k, punishments::EType::kMute).reason ? punishments::Get(k, punishments::EType::kMute).reason : "-");
 			SendMsgToChar(buf, ch);
 		}
-		if (k->IsFlagged(EPlrFlag::kDumbed) && DUMB_DURATION(k)) {
+		if (k->IsFlagged(EPlrFlag::kDumbed) && punishments::Get(k, punishments::EType::kDumb).duration) {
 			snprintf(buf, sizeof(buf), "Будет нем : %ld мин [%s].\r\n",
-					static_cast<long>((DUMB_DURATION(k) - time(nullptr)) / 60),
-					DUMB_REASON(k) ? DUMB_REASON(k) : "-");
+					static_cast<long>((punishments::Get(k, punishments::EType::kDumb).duration - time(nullptr)) / 60),
+					punishments::Get(k, punishments::EType::kDumb).reason ? punishments::Get(k, punishments::EType::kDumb).reason : "-");
 			SendMsgToChar(buf, ch);
 		}
-		if (!k->IsFlagged(EPlrFlag::kRegistred) && UNREG_DURATION(k)) {
+		if (!k->IsFlagged(EPlrFlag::kRegistred) && punishments::Get(k, punishments::EType::kUnreg).duration) {
 			snprintf(buf, sizeof(buf), "Не будет зарегистрирован : %ld час [%s].\r\n",
-					static_cast<long>((UNREG_DURATION(k) - time(nullptr)) / 3600),
-					UNREG_REASON(k) ? UNREG_REASON(k) : "-");
+					static_cast<long>((punishments::Get(k, punishments::EType::kUnreg).duration - time(nullptr)) / 3600),
+					punishments::Get(k, punishments::EType::kUnreg).reason ? punishments::Get(k, punishments::EType::kUnreg).reason : "-");
 			SendMsgToChar(buf, ch);
 		}
 
-		if (GET_GOD_FLAG(k, EGf::kGodsLike) && GCURSE_DURATION(k)) {
+		if (GET_GOD_FLAG(k, EGf::kGodsLike) && punishments::Get(k, punishments::EType::kGcurse).duration) {
 			snprintf(buf, sizeof(buf), "Под защитой Богов : %ld час.\r\n",
-					static_cast<long>((GCURSE_DURATION(k) - time(nullptr)) / 3600));
+					static_cast<long>((punishments::Get(k, punishments::EType::kGcurse).duration - time(nullptr)) / 3600));
 			SendMsgToChar(buf, ch);
 		}
-		if (GET_GOD_FLAG(k, EGf::kGodscurse) && GCURSE_DURATION(k)) {
+		if (GET_GOD_FLAG(k, EGf::kGodscurse) && punishments::Get(k, punishments::EType::kGcurse).duration) {
 			snprintf(buf, sizeof(buf), "Проклят Богами : %ld час.\r\n",
-					static_cast<long>((GCURSE_DURATION(k) - time(nullptr)) / 3600));
+					static_cast<long>((punishments::Get(k, punishments::EType::kGcurse).duration - time(nullptr)) / 3600));
 			SendMsgToChar(buf, ch);
 		}
 	}

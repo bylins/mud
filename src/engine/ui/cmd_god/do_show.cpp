@@ -754,34 +754,34 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					continue;
 				buf[0] = 0;
 				if (d->character->IsFlagged(EPlrFlag::kFrozen)
-					&& FREEZE_DURATION(d->character))
+					&& punishments::Get(d->character, punishments::EType::kFreeze).duration)
 					sprintf(buf + strlen(buf), "Заморожен : %ld час [%s].\r\n",
-							static_cast<long>((FREEZE_DURATION(d->character) - time(nullptr)) / 3600),
-							FREEZE_REASON(d->character) ? FREEZE_REASON(d->character) : "-");
+							static_cast<long>((punishments::Get(d->character, punishments::EType::kFreeze).duration - time(nullptr)) / 3600),
+							punishments::Get(d->character, punishments::EType::kFreeze).reason ? punishments::Get(d->character, punishments::EType::kFreeze).reason : "-");
 
 				if (d->character->IsFlagged(EPlrFlag::kMuted)
-					&& MUTE_DURATION(d->character))
+					&& punishments::Get(d->character, punishments::EType::kMute).duration)
 					sprintf(buf + strlen(buf), "Будет молчать : %ld час [%s].\r\n",
-							static_cast<long>((MUTE_DURATION(d->character) - time(nullptr)) / 3600),
-							MUTE_REASON(d->character) ? MUTE_REASON(d->character) : "-");
+							static_cast<long>((punishments::Get(d->character, punishments::EType::kMute).duration - time(nullptr)) / 3600),
+							punishments::Get(d->character, punishments::EType::kMute).reason ? punishments::Get(d->character, punishments::EType::kMute).reason : "-");
 
 				if (d->character->IsFlagged(EPlrFlag::kDumbed)
-					&& DUMB_DURATION(d->character))
+					&& punishments::Get(d->character, punishments::EType::kDumb).duration)
 					sprintf(buf + strlen(buf), "Будет нем : %ld час [%s].\r\n",
-							static_cast<long>((DUMB_DURATION(d->character) - time(nullptr)) / 3600),
-							DUMB_REASON(d->character) ? DUMB_REASON(d->character) : "-");
+							static_cast<long>((punishments::Get(d->character, punishments::EType::kDumb).duration - time(nullptr)) / 3600),
+							punishments::Get(d->character, punishments::EType::kDumb).reason ? punishments::Get(d->character, punishments::EType::kDumb).reason : "-");
 
 				if (d->character->IsFlagged(EPlrFlag::kHelled)
-					&& HELL_DURATION(d->character))
+					&& punishments::Get(d->character, punishments::EType::kHell).duration)
 					sprintf(buf + strlen(buf), "Будет в аду : %ld час [%s].\r\n",
-							static_cast<long>((HELL_DURATION(d->character) - time(nullptr)) / 3600),
-							HELL_REASON(d->character) ? HELL_REASON(d->character) : "-");
+							static_cast<long>((punishments::Get(d->character, punishments::EType::kHell).duration - time(nullptr)) / 3600),
+							punishments::Get(d->character, punishments::EType::kHell).reason ? punishments::Get(d->character, punishments::EType::kHell).reason : "-");
 
 				if (!d->character->IsFlagged(EPlrFlag::kRegistred)
-					&& UNREG_DURATION(d->character)) {
+					&& punishments::Get(d->character, punishments::EType::kUnreg).duration) {
 					sprintf(buf + strlen(buf), "Не сможет заходить с одного IP : %ld час [%s].\r\n",
-							static_cast<long>((UNREG_DURATION(d->character) - time(nullptr)) / 3600),
-							UNREG_REASON(d->character) ? UNREG_REASON(d->character) : "-");
+							static_cast<long>((punishments::Get(d->character, punishments::EType::kUnreg).duration - time(nullptr)) / 3600),
+							punishments::Get(d->character, punishments::EType::kUnreg).reason ? punishments::Get(d->character, punishments::EType::kUnreg).reason : "-");
 				}
 
 				if (buf[0]) {

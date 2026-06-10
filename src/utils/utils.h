@@ -395,37 +395,6 @@ const int kNameLevel = 5;
 #define GET_LOGS(ch)        ((ch)->player_specials->logs)
 
 // Punishments structs
-#define MUTE_REASON(ch)        ((ch)->player_specials->pmute.reason)
-#define DUMB_REASON(ch)        ((ch)->player_specials->pdumb.reason)
-#define HELL_REASON(ch)        ((ch)->player_specials->phell.reason)
-#define FREEZE_REASON(ch)    ((ch)->player_specials->pfreeze.reason)
-#define GCURSE_REASON(ch)    ((ch)->player_specials->pgcurse.reason)
-#define NAME_REASON(ch)        ((ch)->player_specials->pname.reason)
-#define UNREG_REASON(ch)    ((ch)->player_specials->punreg.reason)
-
-#define GET_MUTE_LEV(ch)    ((ch)->player_specials->pmute.level)
-#define GET_DUMB_LEV(ch)    ((ch)->player_specials->pdumb.level)
-#define GET_HELL_LEV(ch)    ((ch)->player_specials->phell.level)
-#define GET_FREEZE_LEV(ch)    ((ch)->player_specials->pfreeze.level)
-#define GET_GCURSE_LEV(ch)    ((ch)->player_specials->pgcurse.level)
-#define GET_NAME_LEV(ch)    ((ch)->player_specials->pname.level)
-#define GET_UNREG_LEV(ch)    ((ch)->player_specials->punreg.level)
-
-#define MUTE_GODID(ch)        ((ch)->player_specials->pmute.godid)
-#define DUMB_GODID(ch)        ((ch)->player_specials->pdumb.godid)
-#define HELL_GODID(ch)        ((ch)->player_specials->phell.godid)
-#define FREEZE_GODID(ch)    ((ch)->player_specials->pfreeze.godid)
-#define GCURSE_GODID(ch)    ((ch)->player_specials->pgcurse.godid)
-#define NAME_GODID(ch)        ((ch)->player_specials->pname.godid)
-#define UNREG_GODID(ch)        ((ch)->player_specials->punreg.godid)
-
-#define GCURSE_DURATION(ch)    ((ch)->player_specials->pgcurse.duration)
-#define MUTE_DURATION(ch)    ((ch)->player_specials->pmute.duration)
-#define DUMB_DURATION(ch)    ((ch)->player_specials->pdumb.duration)
-#define FREEZE_DURATION(ch)    ((ch)->player_specials->pfreeze.duration)
-#define HELL_DURATION(ch)    ((ch)->player_specials->phell.duration)
-#define NAME_DURATION(ch)    ((ch)->player_specials->pname.duration)
-#define UNREG_DURATION(ch)    ((ch)->player_specials->punreg.duration)
 
 #define KARMA(ch)            ((ch)->player_specials->Karma)
 #define LOGON_LIST(ch)        ((ch)->player_specials->logons)

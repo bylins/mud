@@ -1245,7 +1245,7 @@ void command_interpreter(CharData *ch, char *argument) {
 		}
 	}
 	if (!is_head(ch->get_name())
-		&& ((!ch->IsNpc() && (GET_FREEZE_LEV(ch) > GetRealLevel(ch))
+		&& ((!ch->IsNpc() && (punishments::Get(ch, punishments::EType::kFreeze).level > GetRealLevel(ch))
 			&& (ch->IsFlagged(EPlrFlag::kFrozen)))
 			|| AFF_FLAGGED(ch, EAffect::kHold)
 			|| AFF_FLAGGED(ch, EAffect::kStopFight)

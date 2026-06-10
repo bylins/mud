@@ -116,7 +116,7 @@ int pk_calc_spamm(CharData *ch) {
 void pk_check_spamm(CharData *ch) {
 	if (pk_calc_spamm(ch) > MAX_PKILL_FOR_PERIOD) {
 		SET_BIT(ch->player_specials->saved.GodsLike, EGf::kGodscurse);
-		GCURSE_DURATION(ch) = time(0) + TIME_GODS_CURSE * 60 * 60;
+		punishments::Get(ch, punishments::EType::kGcurse).duration = time(0) + TIME_GODS_CURSE * 60 * 60;
 		act("Боги прокляли тот день, когда ты появился на свет!", false, ch, 0, 0, kToChar);
 	}
 	if (pk_player_count(ch) >= KillerPK) {

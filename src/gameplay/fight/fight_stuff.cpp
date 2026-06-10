@@ -345,7 +345,7 @@ void arena_kill(CharData *ch, CharData *killer) {
 	}
 	if (to_room == kNowhere) {
 		ch->SetFlag(EPlrFlag::kHelled);
-		HELL_DURATION(ch) = time(nullptr) + 6;
+		punishments::Get(ch, punishments::EType::kHell).duration = time(nullptr) + 6;
 		to_room = r_helled_start_room;
 	}
 	for (auto *f : ch->followers) {

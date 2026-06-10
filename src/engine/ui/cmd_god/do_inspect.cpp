@@ -124,19 +124,19 @@ void ExtractedCharacterInfo::ExtractClanAbbrev(const CharData::shared_ptr &playe
 
 void ExtractedCharacterInfo::ExtractPunishmenstsInfo(const CharData::shared_ptr &player_ptr) {
 	if (player_ptr->IsFlagged(EPlrFlag::kFrozen)) {
-		ExtractPunishmentInfo("FROZEN", player_ptr->player_specials->pfreeze);
+		ExtractPunishmentInfo("FROZEN", punishments::Get(player_ptr, punishments::EType::kFreeze));
 	}
 	if (player_ptr->IsFlagged(EPlrFlag::kMuted)) {
-		ExtractPunishmentInfo("MUTED", player_ptr->player_specials->pmute);
+		ExtractPunishmentInfo("MUTED", punishments::Get(player_ptr, punishments::EType::kMute));
 	}
 	if (player_ptr->IsFlagged(EPlrFlag::kDumbed)) {
-		ExtractPunishmentInfo("DUMBED", player_ptr->player_specials->pdumb);
+		ExtractPunishmentInfo("DUMBED", punishments::Get(player_ptr, punishments::EType::kDumb));
 	}
 	if (player_ptr->IsFlagged(EPlrFlag::kHelled)) {
-		ExtractPunishmentInfo("HELLED", player_ptr->player_specials->phell);
+		ExtractPunishmentInfo("HELLED", punishments::Get(player_ptr, punishments::EType::kHell));
 	}
 	if (!player_ptr->IsFlagged(EPlrFlag::kRegistred)) {
-		ExtractPunishmentInfo("UNREGISTERED", player_ptr->player_specials->punreg);
+		ExtractPunishmentInfo("UNREGISTERED", punishments::Get(player_ptr, punishments::EType::kUnreg));
 	}
 }
 

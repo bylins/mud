@@ -571,9 +571,9 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 			if (on_off_mode) {
 				SET_BIT(vict->player_specials->saved.GodsLike, EGf::kGodsLike);
 				if (sscanf(val_arg, "%s %d", npad[0], &i) != 0)
-					GCURSE_DURATION(vict) = (i > 0) ? time(nullptr) + i * 60 * 60 : MAX_TIME;
+					punishments::Get(vict, punishments::EType::kGcurse).duration = (i > 0) ? time(nullptr) + i * 60 * 60 : MAX_TIME;
 				else
-					GCURSE_DURATION(vict) = 0;
+					punishments::Get(vict, punishments::EType::kGcurse).duration = 0;
 				sprintf(buf, "%s установил GUDSLIKE персонажу %s.", GET_NAME(ch), GET_NAME(vict));
 				mudlog(buf, BRF, kLvlImplementator, SYSLOG, 0);
 
@@ -585,9 +585,9 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 			if (on_off_mode) {
 				SET_BIT(vict->player_specials->saved.GodsLike, EGf::kGodscurse);
 				if (sscanf(val_arg, "%s %d", npad[0], &i) != 0) {
-					GCURSE_DURATION(vict) = (i > 0) ? time(nullptr) + i * 60 * 60 : MAX_TIME;
+					punishments::Get(vict, punishments::EType::kGcurse).duration = (i > 0) ? time(nullptr) + i * 60 * 60 : MAX_TIME;
 				} else {
-					GCURSE_DURATION(vict) = 0;
+					punishments::Get(vict, punishments::EType::kGcurse).duration = 0;
 				}
 			} else {
 				REMOVE_BIT(vict->player_specials->saved.GodsLike, EGf::kGodscurse);

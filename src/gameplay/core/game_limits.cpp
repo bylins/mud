@@ -401,14 +401,14 @@ int interpolate(int min_value, int pulse) {
 void beat_punish(const CharData::shared_ptr &i) {
 	int restore;
 	// Проверяем на выпуск чара из кутузки
-	if (i->IsFlagged(EPlrFlag::kHelled) && HELL_DURATION(i) && HELL_DURATION(i) <= time(nullptr)) {
+	if (i->IsFlagged(EPlrFlag::kHelled) && punishments::Get(i, punishments::EType::kHell).duration && punishments::Get(i, punishments::EType::kHell).duration <= time(nullptr)) {
 		i->UnsetFlag(EPlrFlag::kHelled);
-		if (HELL_REASON(i))
-			free(HELL_REASON(i));
-		HELL_REASON(i) = nullptr;
-		GET_HELL_LEV(i) = 0;
-		HELL_GODID(i) = 0;
-		HELL_DURATION(i) = 0;
+		if (punishments::Get(i, punishments::EType::kHell).reason)
+			free(punishments::Get(i, punishments::EType::kHell).reason);
+		punishments::Get(i, punishments::EType::kHell).reason = nullptr;
+		punishments::Get(i, punishments::EType::kHell).level = 0;
+		punishments::Get(i, punishments::EType::kHell).godid = 0;
+		punishments::Get(i, punishments::EType::kHell).duration = 0;
 		SendMsgToChar("Вас выпустили из темницы.\r\n", i.get());
 		if ((restore = GET_LOADROOM(i)) == kNowhere)
 			restore = calc_loadroom(i.get());
@@ -427,16 +427,16 @@ void beat_punish(const CharData::shared_ptr &i) {
 	}
 
 	if (i->IsFlagged(EPlrFlag::kNameDenied)
-		&& NAME_DURATION(i)
-		&& NAME_DURATION(i) <= time(nullptr)) {
+		&& punishments::Get(i, punishments::EType::kName).duration
+		&& punishments::Get(i, punishments::EType::kName).duration <= time(nullptr)) {
 		i->UnsetFlag(EPlrFlag::kNameDenied);
-		if (NAME_REASON(i)) {
-			free(NAME_REASON(i));
+		if (punishments::Get(i, punishments::EType::kName).reason) {
+			free(punishments::Get(i, punishments::EType::kName).reason);
 		}
-		NAME_REASON(i) = nullptr;
-		GET_NAME_LEV(i) = 0;
-		NAME_GODID(i) = 0;
-		NAME_DURATION(i) = 0;
+		punishments::Get(i, punishments::EType::kName).reason = nullptr;
+		punishments::Get(i, punishments::EType::kName).level = 0;
+		punishments::Get(i, punishments::EType::kName).godid = 0;
+		punishments::Get(i, punishments::EType::kName).duration = 0;
 		SendMsgToChar("Вас выпустили из КОМНАТЫ ИМЕНИ.\r\n", i.get());
 
 		if ((restore = GET_LOADROOM(i)) == kNowhere) {
@@ -461,41 +461,41 @@ void beat_punish(const CharData::shared_ptr &i) {
 	}
 
 	if (i->IsFlagged(EPlrFlag::kMuted)
-		&& MUTE_DURATION(i) != 0
-		&& MUTE_DURATION(i) <= time(nullptr)) {
+		&& punishments::Get(i, punishments::EType::kMute).duration != 0
+		&& punishments::Get(i, punishments::EType::kMute).duration <= time(nullptr)) {
 		i->UnsetFlag(EPlrFlag::kMuted);
-		if (MUTE_REASON(i))
-			free(MUTE_REASON(i));
-		MUTE_REASON(i) = nullptr;
-		GET_MUTE_LEV(i) = 0;
-		MUTE_GODID(i) = 0;
-		MUTE_DURATION(i) = 0;
+		if (punishments::Get(i, punishments::EType::kMute).reason)
+			free(punishments::Get(i, punishments::EType::kMute).reason);
+		punishments::Get(i, punishments::EType::kMute).reason = nullptr;
+		punishments::Get(i, punishments::EType::kMute).level = 0;
+		punishments::Get(i, punishments::EType::kMute).godid = 0;
+		punishments::Get(i, punishments::EType::kMute).duration = 0;
 		SendMsgToChar("Вы можете орать.\r\n", i.get());
 	}
 
 	if (i->IsFlagged(EPlrFlag::kDumbed)
-		&& DUMB_DURATION(i) != 0
-		&& DUMB_DURATION(i) <= time(nullptr)) {
+		&& punishments::Get(i, punishments::EType::kDumb).duration != 0
+		&& punishments::Get(i, punishments::EType::kDumb).duration <= time(nullptr)) {
 		i->UnsetFlag(EPlrFlag::kDumbed);
-		if (DUMB_REASON(i))
-			free(DUMB_REASON(i));
-		DUMB_REASON(i) = nullptr;
-		GET_DUMB_LEV(i) = 0;
-		DUMB_GODID(i) = 0;
-		DUMB_DURATION(i) = 0;
+		if (punishments::Get(i, punishments::EType::kDumb).reason)
+			free(punishments::Get(i, punishments::EType::kDumb).reason);
+		punishments::Get(i, punishments::EType::kDumb).reason = nullptr;
+		punishments::Get(i, punishments::EType::kDumb).level = 0;
+		punishments::Get(i, punishments::EType::kDumb).godid = 0;
+		punishments::Get(i, punishments::EType::kDumb).duration = 0;
 		SendMsgToChar("Вы можете говорить.\r\n", i.get());
 	}
 
 	if (!i->IsFlagged(EPlrFlag::kRegistred)
-		&& UNREG_DURATION(i) != 0
-		&& UNREG_DURATION(i) <= time(nullptr)) {
+		&& punishments::Get(i, punishments::EType::kUnreg).duration != 0
+		&& punishments::Get(i, punishments::EType::kUnreg).duration <= time(nullptr)) {
 		i->UnsetFlag(EPlrFlag::kRegistred);
-		if (UNREG_REASON(i))
-			free(UNREG_REASON(i));
-		UNREG_REASON(i) = nullptr;
-		GET_UNREG_LEV(i) = 0;
-		UNREG_GODID(i) = 0;
-		UNREG_DURATION(i) = 0;
+		if (punishments::Get(i, punishments::EType::kUnreg).reason)
+			free(punishments::Get(i, punishments::EType::kUnreg).reason);
+		punishments::Get(i, punishments::EType::kUnreg).reason = nullptr;
+		punishments::Get(i, punishments::EType::kUnreg).level = 0;
+		punishments::Get(i, punishments::EType::kUnreg).godid = 0;
+		punishments::Get(i, punishments::EType::kUnreg).duration = 0;
 		SendMsgToChar("Ваша регистрация восстановлена.\r\n", i.get());
 
 		if (i->in_room == r_unreg_start_room) {
@@ -524,30 +524,30 @@ void beat_punish(const CharData::shared_ptr &i) {
 	}
 
 	if (GET_GOD_FLAG(i, EGf::kGodsLike)
-		&& GCURSE_DURATION(i) != 0
-		&& GCURSE_DURATION(i) <= time(nullptr)) {
+		&& punishments::Get(i, punishments::EType::kGcurse).duration != 0
+		&& punishments::Get(i, punishments::EType::kGcurse).duration <= time(nullptr)) {
 		REMOVE_BIT(i->player_specials->saved.GodsLike, EGf::kGodsLike);
 		SendMsgToChar("Вы более не под защитой Богов.\r\n", i.get());
 	}
 
 	if (GET_GOD_FLAG(i, EGf::kGodscurse)
-		&& GCURSE_DURATION(i) != 0
-		&& GCURSE_DURATION(i) <= time(nullptr)) {
+		&& punishments::Get(i, punishments::EType::kGcurse).duration != 0
+		&& punishments::Get(i, punishments::EType::kGcurse).duration <= time(nullptr)) {
 		REMOVE_BIT(i->player_specials->saved.GodsLike, EGf::kGodscurse);
 		SendMsgToChar("Боги более не в обиде на вас.\r\n", i.get());
 	}
 
 	if (i->IsFlagged(EPlrFlag::kFrozen)
-		&& FREEZE_DURATION(i) != 0
-		&& FREEZE_DURATION(i) <= time(nullptr)) {
+		&& punishments::Get(i, punishments::EType::kFreeze).duration != 0
+		&& punishments::Get(i, punishments::EType::kFreeze).duration <= time(nullptr)) {
 		i->UnsetFlag(EPlrFlag::kFrozen);
-		if (FREEZE_REASON(i)) {
-			free(FREEZE_REASON(i));
+		if (punishments::Get(i, punishments::EType::kFreeze).reason) {
+			free(punishments::Get(i, punishments::EType::kFreeze).reason);
 		}
-		FREEZE_REASON(i) = nullptr;
-		GET_FREEZE_LEV(i) = 0;
-		FREEZE_GODID(i) = 0;
-		FREEZE_DURATION(i) = 0;
+		punishments::Get(i, punishments::EType::kFreeze).reason = nullptr;
+		punishments::Get(i, punishments::EType::kFreeze).level = 0;
+		punishments::Get(i, punishments::EType::kFreeze).godid = 0;
+		punishments::Get(i, punishments::EType::kFreeze).duration = 0;
 		SendMsgToChar("Вы оттаяли.\r\n", i.get());
 		Glory::remove_freeze(i->get_uid());
 		if ((restore = GET_LOADROOM(i)) == kNowhere) {

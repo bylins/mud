@@ -440,25 +440,25 @@ void PrintPunishmentsInfo(CharData *ch, std::ostringstream &out) {
 
 	ScorePunishmentInfo punish_info{ch};
 
-	punish_info.SetFInfo(EPlrFlag::kHelled, &ch->player_specials->phell);
+	punish_info.SetFInfo(EPlrFlag::kHelled, &punishments::Get(ch, punishments::EType::kHell));
 	if (IsPunished(punish_info)) {
 		punish_info.msg = "Вам предстоит провести в темнице еще ";
 		PrintSinglePunishmentInfo(punish_info, out);
 	}
 
-	punish_info.SetFInfo(EPlrFlag::kFrozen, &ch->player_specials->pfreeze);
+	punish_info.SetFInfo(EPlrFlag::kFrozen, &punishments::Get(ch, punishments::EType::kFreeze));
 	if (IsPunished(punish_info)) {
 		punish_info.msg = "Вы будете заморожены еще ";
 		PrintSinglePunishmentInfo(punish_info, out);
 	}
 
-	punish_info.SetFInfo(EPlrFlag::kMuted, &ch->player_specials->pmute);
+	punish_info.SetFInfo(EPlrFlag::kMuted, &punishments::Get(ch, punishments::EType::kMute));
 	if (IsPunished(punish_info)) {
 		punish_info.msg = "Вы не сможете кричать еще ";
 		PrintSinglePunishmentInfo(punish_info, out);
 	}
 
-	punish_info.SetFInfo(EPlrFlag::kDumbed, &ch->player_specials->pdumb);
+	punish_info.SetFInfo(EPlrFlag::kDumbed, &punishments::Get(ch, punishments::EType::kDumb));
 	if (IsPunished(punish_info)) {
 		punish_info.msg = "Вы будете молчать еще ";
 		PrintSinglePunishmentInfo(punish_info, out);
@@ -469,8 +469,8 @@ void PrintPunishmentsInfo(CharData *ch, std::ostringstream &out) {
  	* наказаний, а отдельными флагами. По-хорошему, надо их привести к общему знаменателю (тем более, что счесть
  	* избранность богами наказанием - в некотором смысле символично).
  	*/
-	if (GET_GOD_FLAG(ch, EGf::kGodscurse) && GCURSE_DURATION(ch)) {
-		punish_info.punish = &ch->player_specials->pgcurse;
+	if (GET_GOD_FLAG(ch, EGf::kGodscurse) && punishments::Get(ch, punishments::EType::kGcurse).duration) {
+		punish_info.punish = &punishments::Get(ch, punishments::EType::kGcurse);
 		punish_info.msg = "Вы прокляты Богами на ";
 		PrintSinglePunishmentInfo(punish_info, out);
 	}
@@ -480,8 +480,8 @@ void PrintPunishmentsInfo(CharData *ch, std::ostringstream &out) {
 	 * персонаж НЕ наказан. Было бы разумнее ставить новым персонажам по умолчанию флаг unreg и снимать его при
 	 * регистрации, но увы.
 	 */
-	if (!ch->IsFlagged(EPlrFlag::kRegistred) && UNREG_DURATION(ch) != 0 && UNREG_DURATION(ch) > time(nullptr)) {
-		punish_info.punish = &ch->player_specials->punreg;
+	if (!ch->IsFlagged(EPlrFlag::kRegistred) && punishments::Get(ch, punishments::EType::kUnreg).duration != 0 && punishments::Get(ch, punishments::EType::kUnreg).duration > time(nullptr)) {
+		punish_info.punish = &punishments::Get(ch, punishments::EType::kUnreg);
 		punish_info.msg = "Вы не сможете входить с одного IP еще ";
 		PrintSinglePunishmentInfo(punish_info, out);
 	}
@@ -895,53 +895,53 @@ void PrintScoreBase(CharData *ch) {
 		SendMsgToChar(buf, ch);
 	}
 
-	if (ch->IsFlagged(EPlrFlag::kHelled) && HELL_DURATION(ch) && HELL_DURATION(ch) > time(nullptr)) {
-		const int hrs = (HELL_DURATION(ch) - time(nullptr)) / 3600;
-		const int mins = ((HELL_DURATION(ch) - time(nullptr)) % 3600 + 59) / 60;
+	if (ch->IsFlagged(EPlrFlag::kHelled) && punishments::Get(ch, punishments::EType::kHell).duration && punishments::Get(ch, punishments::EType::kHell).duration > time(nullptr)) {
+		const int hrs = (punishments::Get(ch, punishments::EType::kHell).duration - time(nullptr)) / 3600;
+		const int mins = ((punishments::Get(ch, punishments::EType::kHell).duration - time(nullptr)) % 3600 + 59) / 60;
 		snprintf(buf, sizeof(buf),
 				"Вам предстоит провести в темнице еще %d %s %d %s [%s].\r\n",
 				hrs, GetDeclensionInNumber(hrs, EWhat::kHour), mins, GetDeclensionInNumber(mins,
 																						   EWhat::kMinU),
-				HELL_REASON(ch) ? HELL_REASON(ch) : "-");
+				punishments::Get(ch, punishments::EType::kHell).reason ? punishments::Get(ch, punishments::EType::kHell).reason : "-");
 		SendMsgToChar(buf, ch);
 	}
-	if (ch->IsFlagged(EPlrFlag::kMuted) && MUTE_DURATION(ch) != 0 && MUTE_DURATION(ch) > time(nullptr)) {
-		const int hrs = (MUTE_DURATION(ch) - time(nullptr)) / 3600;
-		const int mins = ((MUTE_DURATION(ch) - time(nullptr)) % 3600 + 59) / 60;
+	if (ch->IsFlagged(EPlrFlag::kMuted) && punishments::Get(ch, punishments::EType::kMute).duration != 0 && punishments::Get(ch, punishments::EType::kMute).duration > time(nullptr)) {
+		const int hrs = (punishments::Get(ch, punishments::EType::kMute).duration - time(nullptr)) / 3600;
+		const int mins = ((punishments::Get(ch, punishments::EType::kMute).duration - time(nullptr)) % 3600 + 59) / 60;
 		snprintf(buf, sizeof(buf), "Вы не сможете кричать еще %d %s %d %s [%s].\r\n",
 				hrs, GetDeclensionInNumber(hrs, EWhat::kHour),
-				mins, GetDeclensionInNumber(mins, EWhat::kMinU), MUTE_REASON(ch) ? MUTE_REASON(ch) : "-");
+				mins, GetDeclensionInNumber(mins, EWhat::kMinU), punishments::Get(ch, punishments::EType::kMute).reason ? punishments::Get(ch, punishments::EType::kMute).reason : "-");
 		SendMsgToChar(buf, ch);
 	}
-	if (ch->IsFlagged(EPlrFlag::kDumbed) && DUMB_DURATION(ch) != 0 && DUMB_DURATION(ch) > time(nullptr)) {
-		const int hrs = (DUMB_DURATION(ch) - time(nullptr)) / 3600;
-		const int mins = ((DUMB_DURATION(ch) - time(nullptr)) % 3600 + 59) / 60;
+	if (ch->IsFlagged(EPlrFlag::kDumbed) && punishments::Get(ch, punishments::EType::kDumb).duration != 0 && punishments::Get(ch, punishments::EType::kDumb).duration > time(nullptr)) {
+		const int hrs = (punishments::Get(ch, punishments::EType::kDumb).duration - time(nullptr)) / 3600;
+		const int mins = ((punishments::Get(ch, punishments::EType::kDumb).duration - time(nullptr)) % 3600 + 59) / 60;
 		snprintf(buf, sizeof(buf), "Вы будете молчать еще %d %s %d %s [%s].\r\n",
 				hrs, GetDeclensionInNumber(hrs, EWhat::kHour),
-				mins, GetDeclensionInNumber(mins, EWhat::kMinU), DUMB_REASON(ch) ? DUMB_REASON(ch) : "-");
+				mins, GetDeclensionInNumber(mins, EWhat::kMinU), punishments::Get(ch, punishments::EType::kDumb).reason ? punishments::Get(ch, punishments::EType::kDumb).reason : "-");
 		SendMsgToChar(buf, ch);
 	}
-	if (ch->IsFlagged(EPlrFlag::kFrozen) && FREEZE_DURATION(ch) != 0 && FREEZE_DURATION(ch) > time(nullptr)) {
-		const int hrs = (FREEZE_DURATION(ch) - time(nullptr)) / 3600;
-		const int mins = ((FREEZE_DURATION(ch) - time(nullptr)) % 3600 + 59) / 60;
+	if (ch->IsFlagged(EPlrFlag::kFrozen) && punishments::Get(ch, punishments::EType::kFreeze).duration != 0 && punishments::Get(ch, punishments::EType::kFreeze).duration > time(nullptr)) {
+		const int hrs = (punishments::Get(ch, punishments::EType::kFreeze).duration - time(nullptr)) / 3600;
+		const int mins = ((punishments::Get(ch, punishments::EType::kFreeze).duration - time(nullptr)) % 3600 + 59) / 60;
 		snprintf(buf, sizeof(buf), "Вы будете заморожены еще %d %s %d %s [%s].\r\n",
 				hrs, GetDeclensionInNumber(hrs, EWhat::kHour),
-				mins, GetDeclensionInNumber(mins, EWhat::kMinU), FREEZE_REASON(ch) ? FREEZE_REASON(ch) : "-");
+				mins, GetDeclensionInNumber(mins, EWhat::kMinU), punishments::Get(ch, punishments::EType::kFreeze).reason ? punishments::Get(ch, punishments::EType::kFreeze).reason : "-");
 		SendMsgToChar(buf, ch);
 	}
 
-	if (!ch->IsFlagged(EPlrFlag::kRegistred) && UNREG_DURATION(ch) != 0 && UNREG_DURATION(ch) > time(nullptr)) {
-		const int hrs = (UNREG_DURATION(ch) - time(nullptr)) / 3600;
-		const int mins = ((UNREG_DURATION(ch) - time(nullptr)) % 3600 + 59) / 60;
+	if (!ch->IsFlagged(EPlrFlag::kRegistred) && punishments::Get(ch, punishments::EType::kUnreg).duration != 0 && punishments::Get(ch, punishments::EType::kUnreg).duration > time(nullptr)) {
+		const int hrs = (punishments::Get(ch, punishments::EType::kUnreg).duration - time(nullptr)) / 3600;
+		const int mins = ((punishments::Get(ch, punishments::EType::kUnreg).duration - time(nullptr)) % 3600 + 59) / 60;
 		snprintf(buf, sizeof(buf), "Вы не сможете заходить с одного IP еще %d %s %d %s [%s].\r\n",
 				hrs, GetDeclensionInNumber(hrs, EWhat::kHour),
-				mins, GetDeclensionInNumber(mins, EWhat::kMinU), UNREG_REASON(ch) ? UNREG_REASON(ch) : "-");
+				mins, GetDeclensionInNumber(mins, EWhat::kMinU), punishments::Get(ch, punishments::EType::kUnreg).reason ? punishments::Get(ch, punishments::EType::kUnreg).reason : "-");
 		SendMsgToChar(buf, ch);
 	}
 
-	if (GET_GOD_FLAG(ch, EGf::kGodscurse) && GCURSE_DURATION(ch)) {
-		const int hrs = (GCURSE_DURATION(ch) - time(nullptr)) / 3600;
-		const int mins = ((GCURSE_DURATION(ch) - time(nullptr)) % 3600 + 59) / 60;
+	if (GET_GOD_FLAG(ch, EGf::kGodscurse) && punishments::Get(ch, punishments::EType::kGcurse).duration) {
+		const int hrs = (punishments::Get(ch, punishments::EType::kGcurse).duration - time(nullptr)) / 3600;
+		const int mins = ((punishments::Get(ch, punishments::EType::kGcurse).duration - time(nullptr)) % 3600 + 59) / 60;
 		snprintf(buf, sizeof(buf), "Вы прокляты Богами на %d %s %d %s.\r\n",
 				hrs, GetDeclensionInNumber(hrs, EWhat::kHour), mins, GetDeclensionInNumber(mins, EWhat::kMinU));
 		SendMsgToChar(buf, ch);

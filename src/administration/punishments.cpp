@@ -20,6 +20,9 @@
 
 namespace punishments {
 
+Punish &Get(CharData *ch, EType type) { return ch->player_specials->punishments[type]; }
+const Punish &Get(const CharData *ch, EType type) { return ch->player_specials->punishments[type]; }
+
 bool IsVictimIncorrect(CharData *ch, CharData *vict);
 bool IsPunishmentIncorrect(CharData *ch, Punish *pundata, const char *reason);
 void SendPunishmentActMessages(CharData *ch, CharData *vict);
@@ -30,7 +33,7 @@ RoomRnum GetStartRoomRnum(CharData *vict);
 inline bool IsPunishCannotBeApplied(CharData *ch, CharData *vict, Punish *pundata, const char *reason);
 
 bool SetMute(CharData *ch, CharData *vict, char *reason, long times) {
-	auto pundata = &(vict)->player_specials->pmute;
+	auto pundata = &Get(vict, EType::kMute);
 	if (IsPunishCannotBeApplied(ch, vict, pundata, reason)) {
 		return false;
 	}
@@ -65,7 +68,7 @@ bool SetMute(CharData *ch, CharData *vict, char *reason, long times) {
 }
 
 bool SetDumb(CharData *ch, CharData *vict, char *reason, long times) {
-	auto pundata = &(vict)->player_specials->pdumb;
+	auto pundata = &Get(vict, EType::kDumb);
 	if (IsPunishCannotBeApplied(ch, vict, pundata, reason)) {
 		return false;
 	}
@@ -100,7 +103,7 @@ bool SetDumb(CharData *ch, CharData *vict, char *reason, long times) {
 }
 
 bool SetHell(CharData *ch, CharData *vict, char *reason, long times) {
-	auto pundata = &(vict)->player_specials->phell;
+	auto pundata = &Get(vict, EType::kHell);
 	if (IsPunishCannotBeApplied(ch, vict, pundata, reason)) {
 		return false;
 	}
@@ -146,7 +149,7 @@ bool SetHell(CharData *ch, CharData *vict, char *reason, long times) {
 }
 
 bool SetFreeze(CharData *ch, CharData *vict, char *reason, long times) {
-	auto pundata = &(vict)->player_specials->pfreeze;
+	auto pundata = &Get(vict, EType::kFreeze);
 	if (IsPunishCannotBeApplied(ch, vict, pundata, reason)) {
 		return false;
 	}
@@ -198,7 +201,7 @@ bool SetFreeze(CharData *ch, CharData *vict, char *reason, long times) {
 }
 
 bool SetNameRoom(CharData *ch, CharData *vict, char *reason, long times) {
-	auto pundata = &(vict)->player_specials->pname;
+	auto pundata = &Get(vict, EType::kName);
 	if (IsPunishCannotBeApplied(ch, vict, pundata, reason)) {
 		return false;
 	}
@@ -244,7 +247,7 @@ bool SetNameRoom(CharData *ch, CharData *vict, char *reason, long times) {
 }
 
 bool SetRegister(CharData *ch, CharData *vict, char *reason) {
-	auto pundata = &(vict)->player_specials->phell;
+	auto pundata = &Get(vict, EType::kHell);
 	if (IsPunishCannotBeApplied(ch, vict, pundata, reason)) {
 		return false;
 	}
@@ -270,7 +273,7 @@ bool SetRegister(CharData *ch, CharData *vict, char *reason) {
 }
 
 bool SetUnregister(CharData *ch, CharData *vict, char *reason, long times) {
-	auto pundata = &(vict)->player_specials->punreg;
+	auto pundata = &Get(vict, EType::kUnreg);
 	if (IsPunishCannotBeApplied(ch, vict, pundata, reason)) {
 		return false;
 	}
