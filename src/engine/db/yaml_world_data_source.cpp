@@ -1455,7 +1455,7 @@ CharData YamlWorldDataSource::ParseMobFile(const std::string &file_path)
 	}
 
 	// Base parameters
-	SetAlignment(&mob, GetInt(root, "alignment", 0));
+	alignment::SetAlignment(&mob, GetInt(root, "alignment", 0));
 
 	// Stats
 	YAML::Node stats = root["stats"];
@@ -3485,7 +3485,7 @@ void YamlWorldDataSource::SaveMobs(int zone_rnum, int specific_vnum)
 
 		// Alignment
 		yaml.Key("alignment");
-		yaml.Value(GetAlignment(&mob));
+		yaml.Value(alignment::GetAlignment(&mob));
 
 		// Stats
 		yaml.Key("stats");

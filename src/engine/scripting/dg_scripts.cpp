@@ -2507,11 +2507,11 @@ void find_replacement(void *go,
 		} else if (!str_cmp(field, "align")) {
 			if (*subfield) {
 				if (*subfield == '-')
-					SetAlignment(mob, GetAlignment(mob) - std::max(1, atoi(subfield + 1)));
+					alignment::SetAlignment(mob, alignment::GetAlignment(mob) - std::max(1, atoi(subfield + 1)));
 				else if (*subfield == '+')
-					SetAlignment(mob, GetAlignment(mob) + std::max(1, atoi(subfield + 1)));
+					alignment::SetAlignment(mob, alignment::GetAlignment(mob) + std::max(1, atoi(subfield + 1)));
 			} else
-				snprintf(str, str_size, "%d", GetAlignment(mob));
+				snprintf(str, str_size, "%d", alignment::GetAlignment(mob));
 		} else if (!str_cmp(field, "religion")) {
 			if (*subfield && ((atoi(subfield) == kReligionPoly) || (atoi(subfield) == kReligionMono)))
 				GET_RELIGION(mob) = atoi(subfield);

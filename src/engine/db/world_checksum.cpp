@@ -307,7 +307,7 @@ std::string SerializeMob(int vnum, const CharData &mob)
 	// Basic numeric block fields parsed by parse_simple_mob() that were
 	// previously absent -- their loss in the yaml/sqlite pipeline would slip
 	// past the round-trip test before this PR.
-	oss << GetAlignment(&mob) << "|";
+	oss << alignment::GetAlignment(&mob) << "|";
 	oss << mob.real_abils.hitroll << "|";
 	oss << static_cast<int>(mob.real_abils.armor) << "|";
 	oss << mob.real_abils.damroll << "|";

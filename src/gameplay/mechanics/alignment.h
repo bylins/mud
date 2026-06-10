@@ -13,6 +13,8 @@
 
 class CharData;
 
+namespace alignment {
+
 constexpr int kAligEvilLess = -300;  // alignment <= this is Evil
 constexpr int kAligGoodMore = 300;   // alignment >= this is Good
 constexpr int kAlignDelta = 10;      // SameAlign tolerance (was ALIGN_DELTA)
@@ -32,6 +34,8 @@ void SetAlignment(CharData *ch, int value);          // was GetAlignment (write)
 
 // Shift ch's alignment 1/16 of the way toward -victim's, as a kill reward (was change_alignment).
 void ChangeAlignment(CharData *ch, CharData *victim);
+
+}  // namespace alignment
 
 #endif  // BYLINS_SRC_GAMEPLAY_MECHANICS_ALIGNMENT_H_
 

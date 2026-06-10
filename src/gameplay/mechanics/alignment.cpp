@@ -8,6 +8,8 @@
 
 #include "engine/entities/char_data.h"
 
+namespace alignment {
+
 int GetAlignment(const CharData *ch) { return ch->char_specials.saved.alignment; }
 void SetAlignment(CharData *ch, int value) { ch->char_specials.saved.alignment = value; }
 
@@ -26,5 +28,7 @@ void ChangeAlignment(CharData *ch, CharData *victim) {
 	// you move 1/16th of the way to having alignment -A. Simple and fast.
 	SetAlignment(ch, GetAlignment(ch) + (-GetAlignment(victim) - GetAlignment(ch)) / 16);
 }
+
+}  // namespace alignment
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

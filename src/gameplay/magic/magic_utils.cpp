@@ -689,7 +689,7 @@ ECastResult CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troo
 	}
 
 	if (tch && ch) {
-		if (tch->IsNpc() && ch->IsNpc() && !SameAlign(ch, tch) && !MUD::Spell(spell_id).IsViolent()) {
+		if (tch->IsNpc() && ch->IsNpc() && !alignment::SameAlign(ch, tch) && !MUD::Spell(spell_id).IsViolent()) {
 			return ECastResult::kNotCast;
 		}
 	}

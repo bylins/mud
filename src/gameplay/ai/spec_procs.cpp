@@ -1163,9 +1163,9 @@ int magic_user(CharData *ch, void * /*me*/, int cmd, char * /*argument*/) {
 	}
 
 	if ((GetRealLevel(ch) > 12) && (number(0, 12) == 0)) {
-		if (IsEvil(ch)) {
+		if (alignment::IsEvil(ch)) {
 			CastSpell(ch, target, nullptr, nullptr, ESpell::kEnergyDrain, ESpell::kEnergyDrain);
-		} else if (IsGood(ch)) {
+		} else if (alignment::IsGood(ch)) {
 			CastSpell(ch, target, nullptr, nullptr, ESpell::kDispelEvil, ESpell::kDispelEvil);
 		}
 	}
@@ -1285,15 +1285,15 @@ int cityguard(CharData *ch, void * /*me*/, int cmd, char * /*argument*/) {
 
 	for (const auto tch : world[ch->in_room]->people) {
 		if (CanSee(ch, tch) && tch->GetEnemy()) {
-			if ((GetAlignment(tch) < max_evil) && (tch->IsNpc() || tch->GetEnemy()->IsNpc())) {
-				max_evil = GetAlignment(tch);
+			if ((alignment::GetAlignment(tch) < max_evil) && (tch->IsNpc() || tch->GetEnemy()->IsNpc())) {
+				max_evil = alignment::GetAlignment(tch);
 				evil = tch;
 			}
 		}
 	}
 
 	if (evil
-		&& (GetAlignment(evil->GetEnemy()) >= 0)) {
+		&& (alignment::GetAlignment(evil->GetEnemy()) >= 0)) {
 		act("$n screams 'PROTECT THE INNOCENT!  BANZAI!  CHARGE!  ARARARAGGGHH!'", false, ch, 0, 0, kToRoom);
 		hit(ch, evil, ESkill::kUndefined, fight::kMainHand);
 

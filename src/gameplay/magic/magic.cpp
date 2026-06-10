@@ -2403,13 +2403,13 @@ static bool TargetIsBlocked(CharData *victim, const talents_actions::FlagConditi
 	}
 	// align: blocks the cast when the target carries the matching
 	// alignment (IsGood / IsEvil / IsNeutral). kAny means no alignment block.
-	if (cond.align == EAlign::kGood && IsGood(victim)) {
+	if (cond.align == EAlign::kGood && alignment::IsGood(victim)) {
 		return true;
 	}
-	if (cond.align == EAlign::kEvil && IsEvil(victim)) {
+	if (cond.align == EAlign::kEvil && alignment::IsEvil(victim)) {
 		return true;
 	}
-	if (cond.align == EAlign::kNeutral && IsNeutral(victim)) {
+	if (cond.align == EAlign::kNeutral && alignment::IsNeutral(victim)) {
 		return true;
 	}
 	return false;
@@ -2430,13 +2430,13 @@ static bool TargetMeetsRequired(CharData *victim, const talents_actions::FlagCon
 	}
 	// align: require the target to carry the matching alignment
 	// (IsGood / IsEvil / IsNeutral). kAny means no alignment requirement.
-	if (cond.align == EAlign::kGood && !IsGood(victim)) {
+	if (cond.align == EAlign::kGood && !alignment::IsGood(victim)) {
 		return false;
 	}
-	if (cond.align == EAlign::kEvil && !IsEvil(victim)) {
+	if (cond.align == EAlign::kEvil && !alignment::IsEvil(victim)) {
 		return false;
 	}
-	if (cond.align == EAlign::kNeutral && !IsNeutral(victim)) {
+	if (cond.align == EAlign::kNeutral && !alignment::IsNeutral(victim)) {
 		return false;
 	}
 	return true;
@@ -2456,9 +2456,9 @@ static bool VictimMatchesReflection(CharData *victim, const talents_actions::Ref
 	for (const auto aff : refl.affect_flags) {
 		if (AFF_FLAGGED(victim, aff)) return true;
 	}
-	if (refl.align == EAlign::kGood && IsGood(victim)) return true;
-	if (refl.align == EAlign::kEvil && IsEvil(victim)) return true;
-	if (refl.align == EAlign::kNeutral && IsNeutral(victim)) return true;
+	if (refl.align == EAlign::kGood && alignment::IsGood(victim)) return true;
+	if (refl.align == EAlign::kEvil && alignment::IsEvil(victim)) return true;
+	if (refl.align == EAlign::kNeutral && alignment::IsNeutral(victim)) return true;
 	return false;
 }
 

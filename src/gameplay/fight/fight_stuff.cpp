@@ -772,7 +772,7 @@ void perform_group_gain(CharData *ch, CharData *victim, int members, int koef) {
 	}
 	if (!InTestZone(ch)) {
 		EndowExpToChar(ch, exp);
-		ChangeAlignment(ch, victim);
+		alignment::ChangeAlignment(ch, victim);
 		if (!(victim)->Temporary.get(EXTRA_GRP_KILL_COUNT)
 				&& !ch->IsNpc()
 				&& !ch->IsImmortal()
