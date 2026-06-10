@@ -145,7 +145,7 @@ void change_leader(CharData *ch, CharData *vict) {
 			continue;
 		} else {
 			CharData *temp_vict = l;
-			if (temp_vict->has_master() && stop_follower(temp_vict, kSfSilence)) {
+			if (temp_vict->has_master() && follow::StopFollower(temp_vict, kSfSilence)) {
 				continue;
 			}
 
@@ -536,7 +536,7 @@ void group::GoUngroup(CharData *ch, char *argument) {
 				if (!AFF_FLAGGED(f, EAffect::kCharmed)
 					&& !(f->IsNpc()
 						&& AFF_FLAGGED(f, EAffect::kHorse))) {
-					stop_follower(f, kSfEmpty);
+					follow::StopFollower(f, kSfEmpty);
 				}
 			}
 		}
@@ -556,7 +556,7 @@ void group::GoUngroup(CharData *ch, char *argument) {
 			act("$N более не член вашей группы.", false, ch, nullptr, tch, kToChar);
 			act("Вы исключены из группы $n1!", false, ch, nullptr, tch, kToVict);
 			act("$N был$G изгнан$A из группы $n1!", false, ch, nullptr, tch, kToNotVict | kToArenaListen);
-			stop_follower(tch, kSfEmpty);
+			follow::StopFollower(tch, kSfEmpty);
 			return;
 		}
 	}

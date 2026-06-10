@@ -10,153 +10,8 @@
 
 void PerformDropGold(CharData *ch, int amount);
 
-// Called when stop following persons, or stopping charm //
-// This will NOT do if a character quits/dies!!          //
-// При возврате 1 использовать ch нельзя, т.к. прошли через extract_char
-// TODO: по всем вызовам не проходил, может еще где-то коряво вызывается, кроме передачи скакунов -- Krodo
-// при персонаже на входе - пуржить не должно полюбому, если начнет, как минимум в change_leader будут глюки
-bool stop_follower(CharData *ch, int mode) {
-	int i;
 
-	//log("[Stop ch] Start function(%s->%s)",ch ? GET_NAME(ch) : "none",
-	//      ch->master ? GET_NAME(ch->master) : "none");
 
-	if (!ch->has_master()) {
-//		debug::backtrace(runtime_config.logs(ERRLOG).handle());
-		log("SYSERR: stop_follower(%s) without master", GET_NAME(ch));
-		return (false);
-	}
-
-	// для смены лидера без лишнего спама
-	if (!IS_SET(mode, kSfSilence)) {
-		act("Вы прекратили следовать за $N4.", false, ch, 0, ch->get_master(), kToChar);
-		act("$n прекратил$g следовать за $N4.", true, ch, 0, ch->get_master(), kToNotVict | kToArenaListen);
-	}
-
-	//log("[Stop ch] Stop horse");
-	if (mount::GetHorse(ch->get_master()) == ch && mount::IsOnHorse(ch->get_master())) {
-		mount::DropFromHorse(ch);
-	} else {
-		act("$n прекратил$g следовать за вами.", true, ch, 0, ch->get_master(), kToVict);
-	}
-
-	//log("[Stop ch] Remove from followers list");
-	if (ch->get_master()->followers.empty()) {
-		log("[Stop ch] SYSERR: Followers absent for %s (master %s).", GET_NAME(ch), GET_NAME(ch->get_master()));
-	} else {
-		ch->get_master()->followers.remove(ch);
-		if (ch->get_master()->followers.empty()
-			&& !ch->get_master()->has_master()) {
-			//AFF_FLAGS(ch->get_master()).unset(EAffectFlag::AFF_GROUP);
-			ch->get_master()->removeGroupFlags();
-		}
-	}
-
-	ch->set_master(nullptr);
-	//AFF_FLAGS(ch).unset(EAffectFlag::AFF_GROUP);
-	ch->removeGroupFlags();
-
-	if (AFF_FLAGGED(ch, EAffect::kCharmed)
-		|| AFF_FLAGGED(ch, EAffect::kHelper)
-		|| IS_SET(mode, kSfCharmlost)) {
-		if (IsAffectedBySpell(ch, ESpell::kCharm)) {
-			RemoveAffectFromChar(ch, ESpell::kCharm);
-		}
-		ch->extract_timer = 5;
-		AFF_FLAGS(ch).unset(EAffect::kCharmed);
-
-		if (ch->GetEnemy()) {
-			stop_fighting(ch, true);
-		}
-
-		if (ch->IsNpc()) {
-			if (ch->IsFlagged(EMobFlag::kCorpse)) {
-				act("Налетевший ветер развеял $n3, не оставив и следа.", true, ch, 0, 0, kToRoom | kToArenaListen);
-				GET_LASTROOM(ch) = ch->in_room;
-				PerformDropGold(ch, ch->get_gold());
-				ch->set_gold(0);
-					ExtractCharFromWorld(ch, false);
-				return (true);
-			} else if (AFF_FLAGGED(ch, EAffect::kHelper)) {
-				AFF_FLAGS(ch).unset(EAffect::kHelper);
-			}
-		}
-	}
-	if (ch->IsNpc() && ch->IsFlagged(EMobFlag::kCompanion)) {
-		act("Магия подпитывающая $n3 развеялась, и $n0 вернул$u в норму.", true, ch, 0, 0, kToRoom | kToArenaListen);
-		ch->restore_npc();
-			// сначало бросаем лишнее
-				while (ch->carrying) {
-						ObjData *obj = ch->carrying;
-					RemoveObjFromChar(obj);
-					PlaceObjToRoom(obj, ch->in_room);
-					}
-			
-			for (int i = 0; i < EEquipPos::kNumEquipPos; i++) { // убираем что одето
-				if (GET_EQ(ch, i)) {
-					if (!remove_otrigger(GET_EQ(ch, i), ch)) {
-						continue;
-					}
-					PlaceObjToInventory(UnequipChar(ch, i, CharEquipFlag::show_msg), ch);
-					//extract_obj(tmp);
-					while (ch->carrying) {
-						ObjData *obj = ch->carrying;
-						ExtractObjFromWorld(obj);
-					}
-				}
-			}
-		
-	}
-	
-	 
-	if (ch->IsNpc() && (i = ch->get_rnum()) >= 0) {
-		ch->CopyFlagsFrom(mob_proto + i);
-	}
-
-	return (false);
-}
-
-// Called when a character that follows/is followed dies.
-// Detaches ch from its master (if any) and dismisses all of ch's followers.
-void die_follower(CharData *ch) {
-	if (ch->has_master()) {
-		if (mount::GetHorse(ch->get_master()) == ch && mount::IsOnHorse(ch->get_master())) {
-			mount::DropFromHorse(ch);
-		} else {
-			act("$n прекратил$g следовать за вами.", true, ch, 0, ch->get_master(), kToVict);
-		}
-
-		ch->get_master()->followers.remove(ch);
-		if (ch->get_master()->followers.empty() && !ch->get_master()->has_master()) {
-			ch->get_master()->removeGroupFlags();
-		}
-		ch->set_master(nullptr);
-		ch->removeGroupFlags();
-	}
-
-	if (mount::IsOnHorse(ch)) {
-		AFF_FLAGS(ch).unset(EAffect::kHorse);
-	}
-
-	while (!ch->followers.empty()) {
-		stop_follower(ch->followers.front(), kSfMasterdie);
-	}
-}
-
-// Check if making CH follow VICTIM will create an illegal //
-// Follow "Loop/circle"                                    //
-bool circle_follow(CharData *ch, CharData *victim) {
-	for (auto k = victim; k; k = k->get_master()) {
-		if (k->get_master() == k) {
-			k->set_master(nullptr);
-			return false;
-		}
-		if (k == ch) {
-			return true;
-		}
-	}
-	return false;
-}
 
 void do_follow(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *leader;
@@ -169,7 +24,7 @@ void do_follow(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			if (!ch->has_master()) {
 				SendMsgToChar("Но вы ведь ни за кем не следуете...\r\n", ch);
 			} else {
-				stop_follower(ch, kSfEmpty);
+				follow::StopFollower(ch, kSfEmpty);
 			}
 			return;
 		}
@@ -198,15 +53,15 @@ void do_follow(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				SendMsgToChar("Вы уже следуете за собой.\r\n", ch);
 				return;
 			}
-			stop_follower(ch, kSfEmpty);
+			follow::StopFollower(ch, kSfEmpty);
 		} else {
-			if (circle_follow(ch, leader)) {
+			if (follow::CircleFollow(ch, leader)) {
 				SendMsgToChar("Так у вас целый хоровод получится.\r\n", ch);
 				return;
 			}
 
 			if (ch->has_master()) {
-				stop_follower(ch, kSfEmpty);
+				follow::StopFollower(ch, kSfEmpty);
 			}
 			//AFF_FLAGS(ch).unset(EAffectFlag::AFF_GROUP);
 			ch->removeGroupFlags();

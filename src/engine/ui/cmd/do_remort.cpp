@@ -3,6 +3,7 @@
 //
 
 #include "administration/karma.h"
+#include "gameplay/mechanics/follow.h"
 #include "do_follow.h"
 #include "engine/entities/char_data.h"
 #include "gameplay/mechanics/birthplaces.h"
@@ -84,7 +85,7 @@ void DoRemort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	if (ch->GetEnemy()) {
 		stop_fighting(ch, true);
 	}
-	die_follower(ch);
+	follow::DieFollower(ch);
 	ch->affected.clear();
 // Снимаем весь стафф
 	for (i = 0; i < EEquipPos::kNumEquipPos; i++) {

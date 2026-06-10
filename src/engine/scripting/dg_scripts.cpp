@@ -3145,9 +3145,9 @@ void find_replacement(void *go,
 					// %actor.leader(UID)% -- установить следование за указанным
 					// персонажем (по UID или имени), как делает команда follow (#3398).
 					CharData *new_leader = get_char(subfield);
-					if (new_leader && new_leader != mob && !circle_follow(mob, new_leader)) {
+					if (new_leader && new_leader != mob && !follow::CircleFollow(mob, new_leader)) {
 						if (mob->has_master()) {
-							stop_follower(mob, kSfEmpty);
+							follow::StopFollower(mob, kSfEmpty);
 						}
 						mob->removeGroupFlags();
 						for (auto *f : mob->followers) {

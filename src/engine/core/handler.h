@@ -148,7 +148,6 @@ int Crash_load(CharData *ch);
 void Crash_crashsave(CharData *ch);
 void Crash_idlesave(CharData *ch);
 
-bool stop_follower(CharData *ch, int mode);
 
 
 int get_object_low_rent(ObjData *obj);

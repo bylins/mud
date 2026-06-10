@@ -7,6 +7,7 @@
 */
 
 #include "engine/ui/cmd/do_follow.h"
+#include "gameplay/mechanics/follow.h"
 #include "gameplay/mechanics/portal.h"
 #include "engine/scripting/dg_db_scripts.h"
 #include "dungeons.h"
@@ -841,7 +842,7 @@ void ClearRoom(RoomData *room) {
 			if (vict->IsNpc()) {
 				if (!vict->followers.empty()
 					|| vict->has_master()) {
-					die_follower(vict);
+					follow::DieFollower(vict);
 				}
 				if (!vict->purged()) {
 					ExtractCharFromWorld(vict, false);

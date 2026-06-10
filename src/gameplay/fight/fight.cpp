@@ -13,6 +13,7 @@
 ************************************************************************ */
 
 #include "fight.h"
+#include "gameplay/mechanics/follow.h"
 #include "gameplay/mechanics/mount.h"
 #include "gameplay/skills/bash.h"
 #include "gameplay/skills/kick.h"
@@ -2235,12 +2236,12 @@ int check_agro_follower(CharData *ch, CharData *victim) {
 	}
 	if (!AFF_FLAGGED(ch, EAffect::kGroup)
 		|| cleader == victim) {
-		stop_follower(ch, kSfEmpty);
+		follow::StopFollower(ch, kSfEmpty);
 		return_value |= 1;
 	}
 	if (!AFF_FLAGGED(victim, EAffect::kGroup)
 		|| vleader == ch) {
-		stop_follower(victim, kSfEmpty);
+		follow::StopFollower(victim, kSfEmpty);
 		return_value |= 2;
 	}
 	return return_value;

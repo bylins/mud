@@ -29,7 +29,7 @@ EStageResult SummonTutelar(CastContext &ctx) {
 	auto followers_copy = ch->followers;
 	for (auto *k : followers_copy) {
 		if (k->IsFlagged(EMobFlag::kTutelar)) {
-			stop_follower(k, kSfCharmlost);
+			follow::StopFollower(k, kSfCharmlost);
 		}
 	}
 

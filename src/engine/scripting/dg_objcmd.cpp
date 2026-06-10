@@ -10,6 +10,7 @@
 **************************************************************************/
 
 #include "engine/entities/char_data.h"
+#include "gameplay/mechanics/follow.h"
 #include "gameplay/mechanics/mount.h"
 #include "engine/ui/cmd/do_follow.h"
 #include "gameplay/fight/fight.h"
@@ -371,7 +372,7 @@ void do_opurge(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Trigge
 
 	if (!ch->followers.empty()
 		|| ch->has_master()) {
-		die_follower(ch);
+		follow::DieFollower(ch);
 	}
 	character_list.AddToExtractedList(ch);
 }

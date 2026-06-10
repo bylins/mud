@@ -1621,7 +1621,7 @@ void change_npc_leader(CharData *ch) {
 
 	CharData *leader = nullptr;
 	for (auto i : tmp_list) {
-		if (stop_follower(i, kSfSilence)) {
+		if (follow::StopFollower(i, kSfSilence)) {
 			continue;
 		}
 		if (!leader) {
@@ -1732,7 +1732,7 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 
 //	log("[Extract char] Die followers");
 	if (!ch->followers.empty() || ch->has_master()) {
-		die_follower(ch);
+		follow::DieFollower(ch);
 	}
 //	log("[Extract char] Stop all fight for opponee");
 	change_fighting(ch, true);

@@ -369,7 +369,7 @@ void do_horsetake(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			return;
 		}
 	}
-	if (stop_follower(horse, kSfEmpty))
+	if (follow::StopFollower(horse, kSfEmpty))
 		return;
 	act("Вы оседлали $N3.", false, ch, 0, horse, kToChar);
 	act("$n оседлал$g $N3.", false, ch, 0, horse, kToRoom | kToArenaListen);
@@ -416,7 +416,7 @@ void do_givehorse(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 	// Долбанные умертвия при передаче рассыпаются и весело роняют мад на проходе по последователям чара -- Krodo
-	if (stop_follower(horse, kSfEmpty))
+	if (follow::StopFollower(horse, kSfEmpty))
 		return;
 	act("Вы передали своего скакуна $N2.", false, ch, 0, victim, kToChar);
 	act("$n передал$g вам своего скакуна.", false, ch, 0, victim, kToVict);
@@ -446,7 +446,7 @@ void do_stophorse(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 		SendMsgToChar("Вам стоит прежде отвязать своего скакуна.\r\n", ch);
 		return;
 	}
-	if (stop_follower(horse, kSfEmpty))
+	if (follow::StopFollower(horse, kSfEmpty))
 		return;
 	act("Вы отпустили $N3.", false, ch, 0, horse, kToChar);
 	act("$n отпустил$g $N3.", false, ch, 0, horse, kToRoom | kToArenaListen);

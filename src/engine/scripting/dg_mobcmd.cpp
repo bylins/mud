@@ -24,6 +24,7 @@
  ***************************************************************************/
 
 #include "engine/entities/char_data.h"
+#include "gameplay/mechanics/follow.h"
 #include "gameplay/mechanics/mount.h"
 #include "engine/ui/cmd/do_follow.h"
 #include "gameplay/fight/fight.h"
@@ -424,7 +425,7 @@ void do_mpurge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigge
 
 	if (!victim->followers.empty()
 		|| victim->has_master()) {
-		die_follower(victim);
+		follow::DieFollower(victim);
 	}
 	if(ch == victim) {
 		trig->halt();

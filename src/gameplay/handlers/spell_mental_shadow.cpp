@@ -29,7 +29,7 @@ EStageResult SpellMentalShadow(CastContext &ctx) {
 	auto followers_copy = ch->followers;
 	for (auto *k : followers_copy) {
 		if (k->IsFlagged(EMobFlag::kMentalShadow)) {
-			stop_follower(k, false);
+			follow::StopFollower(k, false);
 		}
 	}
 	auto eff_int = get_effective_int(ch);

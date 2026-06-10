@@ -175,7 +175,7 @@ void DoFindhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Это боевой скакун, а не хухры-мухры.\r\n", ch);
 	else if (helpee->GetEnemy() || helpee->GetPosition() < EPosition::kRest)
 		act("$M сейчас, похоже, не до вас.", false, ch, 0, helpee, kToChar);
-	else if (circle_follow(helpee, ch))
+	else if (follow::CircleFollow(helpee, ch))
 		SendMsgToChar("Следование по кругу запрещено.\r\n", ch);
 	else if (GetRealRemort(ch) < GetRealRemort(helpee))
 		act("$N сказал вам: \"Ты слишком слаб, чтобы нанять меня\".", false, ch, 0, helpee, kToChar);
@@ -219,7 +219,7 @@ void DoFindhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 
 		if (helpee->has_master() && helpee->get_master() != ch) {
-			if (stop_follower(helpee, kSfMasterdie)) {
+			if (follow::StopFollower(helpee, kSfMasterdie)) {
 				return;
 			}
 		}
@@ -360,7 +360,7 @@ void DoFreehelpee(CharData *ch, char * /* argument*/, int/* cmd*/, int/* subcmd*
 
 	act("Вы рассчитали $N3.", false, ch, 0, hired, kToChar);
 	RemoveAffectFromCharAndRecalculate(hired, ESpell::kCharm);
-	stop_follower(hired, kSfCharmlost);
+	follow::StopFollower(hired, kSfCharmlost);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

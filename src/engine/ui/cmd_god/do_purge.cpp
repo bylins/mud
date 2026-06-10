@@ -7,6 +7,7 @@
 */
 
 #include "engine/entities/char_data.h"
+#include "gameplay/mechanics/follow.h"
 #include "engine/core/handler.h"
 #include "engine/core/target_resolver.h"
 #include "engine/ui/cmd/do_follow.h"
@@ -57,7 +58,7 @@ void DoPurge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			if (vict->IsNpc()) {
 				if (!vict->followers.empty()
 					|| vict->has_master()) {
-					die_follower(vict);
+					follow::DieFollower(vict);
 				}
 				if (!vict->purged()) {
 					ExtractCharFromWorld(vict, false);

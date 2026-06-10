@@ -29,6 +29,14 @@ void AddFollower(CharData *leader, CharData *ch);
 // Low-level: attach ch to leader's follower list without checks/messages.
 void AddFollowerSilently(CharData *leader, CharData *ch);
 
+
+// Stop ch following its leader (mode = bitset of kSf* flags). Returns true if ch was extracted.
+bool StopFollower(CharData *ch, int mode);
+// A following/followed char died: detach from master and dismiss all followers.
+void DieFollower(CharData *ch);
+// Would making ch follow victim form an illegal follow loop?
+[[nodiscard]] bool CircleFollow(CharData *ch, CharData *victim);
+
 }  // namespace follow
 
 #endif  // BYLINS_SRC_GAMEPLAY_MECHANICS_FOLLOW_H_

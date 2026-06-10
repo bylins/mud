@@ -939,14 +939,14 @@ void npc_group(CharData *ch) {
 
 	if (members <= 1) {
 		if (ch->has_master()) {
-			stop_follower(ch, kSfEmpty);
+			follow::StopFollower(ch, kSfEmpty);
 		}
 
 		return;
 	}
 
 	if (leader->has_master()) {
-		stop_follower(leader, kSfEmpty);
+		follow::StopFollower(leader, kSfEmpty);
 	}
 
 	// Assign leader
@@ -968,7 +968,7 @@ void npc_group(CharData *ch) {
 		if (!vict->has_master()) {
 			follow::AddFollower(leader, vict);
 		} else if (vict->get_master() != leader) {
-			stop_follower(vict, kSfEmpty);
+			follow::StopFollower(vict, kSfEmpty);
 			follow::AddFollower(leader, vict);
 		}
 		AFF_FLAGS(vict).set(EAffect::kGroup);

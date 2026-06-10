@@ -1,4 +1,5 @@
 #include "affect_data.h"
+#include "gameplay/mechanics/follow.h"
 #include "gameplay/mechanics/mount.h"
 #include "engine/observability/event_sink.h"
 #include "gameplay/affects/mobile_affect_update_profiler.h"
@@ -589,7 +590,7 @@ void mobile_affect_update() {
 			}
 			if (was_charmed) {
 				utils::CExecutionTimer stop_follower_timer;
-				stop_follower(ch, kSfCharmlost);
+				follow::StopFollower(ch, kSfCharmlost);
 				profile.sections[static_cast<std::size_t>(Section::kStopFollower)] += stop_follower_timer.delta().count();
 				++profile.counters[static_cast<std::size_t>(Counter::kCharmStops)];
 			}

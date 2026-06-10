@@ -69,7 +69,7 @@ EStageResult SpellCharm(CastContext &ctx) {
 	else if (victim->GetEnemy() || victim->GetPosition() < EPosition::kRest)
 		act(MUD::SpellMessages().GetMessage(ESpell::kCharm, ESpellMsg::kCustomMsgThree).c_str(),
 			false, ch, nullptr, victim, kToChar);
-	else if (circle_follow(victim, ch))
+	else if (follow::CircleFollow(victim, ch))
 		SendCharmMsg(ESpellMsg::kCustomMsgFour);
 	else if (!ch->IsImmortal()
 		&& CalcGeneralSaving(ch, victim, ESaving::kWill, (GetRealCha(ch) - 10) * 4 + GetRealRemort(ch) * 3)) //предлагаю завязать на каст
@@ -81,7 +81,7 @@ EStageResult SpellCharm(CastContext &ctx) {
 
 		// Левая проверка
 		if (victim->has_master()) {
-			if (stop_follower(victim, kSfMasterdie)) {
+			if (follow::StopFollower(victim, kSfMasterdie)) {
 				return EStageResult::kSuccess;
 			}
 		}
