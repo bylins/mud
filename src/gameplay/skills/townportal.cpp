@@ -28,7 +28,7 @@ void DoTownportal(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	if (!argument || !*argument) {
-		ch->PageRunestonesToChar();
+		PageRunestonesToChar(ch);
 		return;
 	}
 
@@ -48,16 +48,16 @@ void DoRunestone(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	two_arguments(argument, arg, arg2);
 	if (!str_cmp(arg, "забыть")) {
 		auto &stone = MUD::Runestones().FindRunestone(arg2);
-		ch->RemoveRunestone(stone);
+		RemoveRunestone(ch, stone);
 		return;
 	}
 
-	ch->PageRunestonesToChar();
+	PageRunestonesToChar(ch);
 }
 
 void GoTownportal(CharData *ch, char *argument) {
 	auto &stone = MUD::Runestones().FindRunestone(argument);
-	if (stone.IsAllowed() && ch->IsRunestoneKnown(stone)) {
+	if (stone.IsAllowed() && IsRunestoneKnown(ch, stone)) {
 		TryOpenTownportal(ch, stone);
 	} else {
 		TryOpenLabelPortal(ch, argument);

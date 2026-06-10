@@ -778,12 +778,8 @@ class CharData : public ProtectedCharData {
 	struct mob_special_data mob_specials;        // NPC specials
 
 	player_special_data::shared_ptr player_specials;    // PC specials
-  	void ClearRunestones() { player_specials->runestones.Clear(); };
-  	void AddRunestone(const Runestone &stone) { player_specials->runestones.AddRunestone(this, stone); };
-  	void RemoveRunestone(const Runestone &stone) { player_specials->runestones.RemoveRunestone(this, stone); };
-  	void DeleteIrrelevantRunestones() { player_specials->runestones.DeleteIrrelevant(this); };
-	void PageRunestonesToChar() { player_specials->runestones.PageToChar(this); };
-  	bool IsRunestoneKnown(const Runestone &stone) { return player_specials->runestones.Contains(stone); };
+	// issue.runestones-utils: the per-character runestone helpers moved to free functions in
+	// gameplay/mechanics/rune_stones.h (ClearRunestones/AddRunestone/... taking a CharData*).
   	void ClearStatistics() { player_specials->saved.personal_statistics_.Clear(); };
   	void ClearThisRemortStatistics() { player_specials->saved.personal_statistics_.ClearThisRemort(); };
   	void IncreaseStatistic(CharStat::ECategory category, ullong increment);

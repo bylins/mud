@@ -444,7 +444,7 @@ void CharData::purge() {
 			GET_RSKILL(this) = r;
 		}
 		// порталы
-		this->ClearRunestones();
+		ClearRunestones(this);
 // Cleanup punish reasons
 		if (MUTE_REASON(this))
 			free(MUTE_REASON(this));

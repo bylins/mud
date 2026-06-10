@@ -1970,7 +1970,7 @@ void do_entergame(DescriptorData *d) {
 	d->character->remove_affect(EAffect::kGroup);
 	d->character->remove_affect(EAffect::kHorse);
 
-	d->character->DeleteIrrelevantRunestones();
+	DeleteIrrelevantRunestones(d->character.get());
 
 	// with the copyover patch, this next line goes in enter_player_game()
 	chardata_by_uid[d->character->get_uid()] = d->character.get();

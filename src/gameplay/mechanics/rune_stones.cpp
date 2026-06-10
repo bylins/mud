@@ -251,11 +251,11 @@ bool RunestoneRoster::ViewRunestone(CharData *ch) {
 		// the first).
 		SendMsgToChar(fmt::format(fmt::runtime(RuneStoneMsg(ERuneStoneMsg::kLackSkillNormal)),
 				fmt::arg("skill_name", MUD::Skills()[stone.GetSkill()].GetName())) + "\r\n", ch);
-	} else if (ch->IsRunestoneKnown(stone)) {
+	} else if (IsRunestoneKnown(ch, stone)) {
 		SendMsgToChar(fmt::format(fmt::runtime(RuneStoneMsg(ERuneStoneMsg::kInspectNormal)),
 				fmt::arg("name", stone.GetName())) + "\r\n", ch);
 	} else {
-		ch->AddRunestone(stone);
+		AddRunestone(ch, stone);
 	}
 	return true;
 }
@@ -585,6 +585,21 @@ std::size_t CharacterRunestoneRoster::CalcLimit(CharData *ch) {
 	auto low_skill = std::min(skill, abilities::kNoviceSkillThreshold);
 	auto hi_skill = std::max(0, skill - abilities::kNoviceSkillThreshold);
 	return (1 + low_skill/9 + hi_skill/5);
+}
+
+// ---- Per-character runestone helpers (moved off CharData; forward to its roster) -------------------
+
+void ClearRunestones(CharData *ch) { ch->player_specials->runestones.Clear(); }
+void AddRunestone(CharData *ch, const Runestone &stone) {
+	ch->player_specials->runestones.AddRunestone(ch, stone);
+}
+void RemoveRunestone(CharData *ch, const Runestone &stone) {
+	ch->player_specials->runestones.RemoveRunestone(ch, stone);
+}
+void DeleteIrrelevantRunestones(CharData *ch) { ch->player_specials->runestones.DeleteIrrelevant(ch); }
+void PageRunestonesToChar(CharData *ch) { ch->player_specials->runestones.PageToChar(ch); }
+bool IsRunestoneKnown(CharData *ch, const Runestone &stone) {
+	return ch->player_specials->runestones.Contains(stone);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

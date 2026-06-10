@@ -126,6 +126,16 @@ class RunestoneRoster : private std::vector<Runestone> {
    bool IsOverfilled(CharData *ch);
 };
 
+// Per-character runestone operations. Thin forwarders to ch's CharacterRunestoneRoster (in
+// player_specials); they live here -- not as CharData methods -- so the runestone mechanic stays
+// self-contained and CharData isn't bloated with mechanic-specific helpers.
+void ClearRunestones(CharData *ch);
+void AddRunestone(CharData *ch, const Runestone &stone);
+void RemoveRunestone(CharData *ch, const Runestone &stone);
+void DeleteIrrelevantRunestones(CharData *ch);
+void PageRunestonesToChar(CharData *ch);
+[[nodiscard]] bool IsRunestoneKnown(CharData *ch, const Runestone &stone);
+
 template<>
 const std::string &NAME_BY_ITEM<ERuneStoneMsg>(ERuneStoneMsg item);
 template<>

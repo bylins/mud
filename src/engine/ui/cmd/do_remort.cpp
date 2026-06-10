@@ -136,7 +136,7 @@ void DoRemort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	ch->UnsetFlag(EPrf::kDoubleThrow);
 	ch->UnsetFlag(EPrf::kTripleThrow);
 	ch->UnsetFlag(EPrf::kShadowThrow);
-	ch->DeleteIrrelevantRunestones();
+	DeleteIrrelevantRunestones(ch);
 	if (ch->get_protecting()) {
 		ch->remove_protecting();
 	}
