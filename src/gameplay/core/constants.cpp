@@ -243,8 +243,8 @@ const char *player_bits[] =
 		"<null>",
 		"<null>",
 		"<null>",
-		"*", // reserved for MOB_DELETE
-		"*", // reserved for MOB_FREE
+		"**", // reserved for MOB_DELETE
+		"**", // reserved for MOB_FREE
 		"\n",
 		"\n",
 		"\n",
