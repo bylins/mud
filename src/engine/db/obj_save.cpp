@@ -2325,7 +2325,7 @@ int gen_receptionist(CharData *ch, CharData *recep, ERentAction action, int mode
 		SendMsgToChar(buf, ch);
 		return (true);
 	}
-	if (!CanSee(recep, ch)) {
+	if (!sight::CanSee(recep, ch)) {
 		act(specials::RentMsg(specials::ERentMsg::kCantSee), false, recep, 0, 0, kToRoom);
 		return (true);
 	}

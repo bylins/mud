@@ -2536,94 +2536,94 @@ void perform_act(const char *orig,
 				case '$': i = "$";
 					break;
 
-				case 'a': i = ch->IsImmortal() || (arena) ? grammar::SexEnding((ch)->get_sex(), 6) : grammar::VisSexEnding(CanSee((to), (ch)), (ch)->get_sex(), 6);
+				case 'a': i = ch->IsImmortal() || (arena) ? grammar::SexEnding((ch)->get_sex(), 6) : grammar::VisSexEnding(sight::CanSee((to), (ch)), (ch)->get_sex(), 6);
 					break;
 				case 'A':
 					if (vict_obj)
 						i = arena ? grammar::SexEnding(((const CharData *) vict_obj)->get_sex(), 6)
-								  : grammar::VisSexEnding(CanSee((to), ((const CharData *) vict_obj)), ((const CharData *) vict_obj)->get_sex(), 6);
-					else CHECK_NULL(obj, arena ? grammar::ObjSexEnding((obj)->get_sex(), 6) : grammar::ObjVisSexEnding(CanSeeObj((to), (obj)), (obj)->get_sex(), 6));
+								  : grammar::VisSexEnding(sight::CanSee((to), ((const CharData *) vict_obj)), ((const CharData *) vict_obj)->get_sex(), 6);
+					else CHECK_NULL(obj, arena ? grammar::ObjSexEnding((obj)->get_sex(), 6) : grammar::ObjVisSexEnding(sight::CanSeeObj((to), (obj)), (obj)->get_sex(), 6));
 					dg_victim = (CharData *) vict_obj;
 					break;
 
-				case 'g': i = ch->IsImmortal() || (arena) ? grammar::SexEnding((ch)->get_sex(), 1) : grammar::VisSexEnding(CanSee((to), (ch)), (ch)->get_sex(), 1);
+				case 'g': i = ch->IsImmortal() || (arena) ? grammar::SexEnding((ch)->get_sex(), 1) : grammar::VisSexEnding(sight::CanSee((to), (ch)), (ch)->get_sex(), 1);
 					break;
 				case 'G':
 					if (vict_obj)
 						i = arena ? grammar::SexEnding(((const CharData *) vict_obj)->get_sex(), 1)
-								  : grammar::VisSexEnding(CanSee((to), ((const CharData *) vict_obj)), ((const CharData *) vict_obj)->get_sex(), 1);
-					else CHECK_NULL(obj, arena ? grammar::ObjSexEnding((obj)->get_sex(), 1) : grammar::ObjVisSexEnding(CanSeeObj((to), (obj)), (obj)->get_sex(), 1));
+								  : grammar::VisSexEnding(sight::CanSee((to), ((const CharData *) vict_obj)), ((const CharData *) vict_obj)->get_sex(), 1);
+					else CHECK_NULL(obj, arena ? grammar::ObjSexEnding((obj)->get_sex(), 1) : grammar::ObjVisSexEnding(sight::CanSeeObj((to), (obj)), (obj)->get_sex(), 1));
 					dg_victim = (CharData *) vict_obj;
 					break;
 
-				case 'y': i = ch->IsImmortal() || (arena) ? grammar::SexEnding((ch)->get_sex(), 5) : grammar::VisSexEnding(CanSee((to), (ch)), (ch)->get_sex(), 5);
+				case 'y': i = ch->IsImmortal() || (arena) ? grammar::SexEnding((ch)->get_sex(), 5) : grammar::VisSexEnding(sight::CanSee((to), (ch)), (ch)->get_sex(), 5);
 					break;
 				case 'Y':
 					if (vict_obj)
 						i = arena ? grammar::SexEnding(((const CharData *) vict_obj)->get_sex(), 5)
-								  : grammar::VisSexEnding(CanSee((to), ((const CharData *) vict_obj)), ((const CharData *) vict_obj)->get_sex(), 5);
-					else CHECK_NULL(obj, arena ? grammar::ObjSexEnding((obj)->get_sex(), 5) : grammar::ObjVisSexEnding(CanSeeObj((to), (obj)), (obj)->get_sex(), 5));
+								  : grammar::VisSexEnding(sight::CanSee((to), ((const CharData *) vict_obj)), ((const CharData *) vict_obj)->get_sex(), 5);
+					else CHECK_NULL(obj, arena ? grammar::ObjSexEnding((obj)->get_sex(), 5) : grammar::ObjVisSexEnding(sight::CanSeeObj((to), (obj)), (obj)->get_sex(), 5));
 					dg_victim = (CharData *) vict_obj;
 					break;
 
-				case 'u': i = ch->IsImmortal() || (arena) ? grammar::SexEnding((ch)->get_sex(), 2) : grammar::VisSexEnding(CanSee((to), (ch)), (ch)->get_sex(), 2);
+				case 'u': i = ch->IsImmortal() || (arena) ? grammar::SexEnding((ch)->get_sex(), 2) : grammar::VisSexEnding(sight::CanSee((to), (ch)), (ch)->get_sex(), 2);
 					break;
 				case 'U':
 					if (vict_obj)
 						i = arena ? grammar::SexEnding(((const CharData *) vict_obj)->get_sex(), 2)
-								  : grammar::VisSexEnding(CanSee((to), ((const CharData *) vict_obj)), ((const CharData *) vict_obj)->get_sex(), 2);
-					else CHECK_NULL(obj, arena ? grammar::ObjSexEnding((obj)->get_sex(), 2) : grammar::ObjVisSexEnding(CanSeeObj((to), (obj)), (obj)->get_sex(), 2));
+								  : grammar::VisSexEnding(sight::CanSee((to), ((const CharData *) vict_obj)), ((const CharData *) vict_obj)->get_sex(), 2);
+					else CHECK_NULL(obj, arena ? grammar::ObjSexEnding((obj)->get_sex(), 2) : grammar::ObjVisSexEnding(sight::CanSeeObj((to), (obj)), (obj)->get_sex(), 2));
 					dg_victim = (CharData *) vict_obj;
 					break;
 
-				case 'w': i = ch->IsImmortal() || (arena) ? grammar::SexEnding((ch)->get_sex(), 3) : grammar::VisSexEnding(CanSee((to), (ch)), (ch)->get_sex(), 3);
+				case 'w': i = ch->IsImmortal() || (arena) ? grammar::SexEnding((ch)->get_sex(), 3) : grammar::VisSexEnding(sight::CanSee((to), (ch)), (ch)->get_sex(), 3);
 					break;
 				case 'W':
 					if (vict_obj)
 						i = arena ? grammar::SexEnding(((const CharData *) vict_obj)->get_sex(), 3)
-								  : grammar::VisSexEnding(CanSee((to), ((const CharData *) vict_obj)), ((const CharData *) vict_obj)->get_sex(), 3);
-					else CHECK_NULL(obj, arena ? grammar::ObjSexEnding((obj)->get_sex(), 3) : grammar::ObjVisSexEnding(CanSeeObj((to), (obj)), (obj)->get_sex(), 3));
+								  : grammar::VisSexEnding(sight::CanSee((to), ((const CharData *) vict_obj)), ((const CharData *) vict_obj)->get_sex(), 3);
+					else CHECK_NULL(obj, arena ? grammar::ObjSexEnding((obj)->get_sex(), 3) : grammar::ObjVisSexEnding(sight::CanSeeObj((to), (obj)), (obj)->get_sex(), 3));
 					dg_victim = (CharData *) vict_obj;
 					break;
 
-				case 'q': i = ch->IsImmortal() || (arena) ? grammar::SexEnding((ch)->get_sex(), 4) : grammar::VisSexEnding(CanSee((to), (ch)), (ch)->get_sex(), 4);
+				case 'q': i = ch->IsImmortal() || (arena) ? grammar::SexEnding((ch)->get_sex(), 4) : grammar::VisSexEnding(sight::CanSee((to), (ch)), (ch)->get_sex(), 4);
 					break;
 				case 'Q':
 					if (vict_obj)
 						i = arena ? grammar::SexEnding(((const CharData *) vict_obj)->get_sex(), 4)
-								  : grammar::VisSexEnding(CanSee((to), ((const CharData *) vict_obj)), ((const CharData *) vict_obj)->get_sex(), 4);
-					else CHECK_NULL(obj, arena ? grammar::ObjSexEnding((obj)->get_sex(), 4) : grammar::ObjVisSexEnding(CanSeeObj((to), (obj)), (obj)->get_sex(), 4));
+								  : grammar::VisSexEnding(sight::CanSee((to), ((const CharData *) vict_obj)), ((const CharData *) vict_obj)->get_sex(), 4);
+					else CHECK_NULL(obj, arena ? grammar::ObjSexEnding((obj)->get_sex(), 4) : grammar::ObjVisSexEnding(sight::CanSeeObj((to), (obj)), (obj)->get_sex(), 4));
 					dg_victim = (CharData *) vict_obj;
 					break;
 //суффикс глуп(ым,ой,ыми)
-				case 'r': i = ch->IsImmortal() || (arena) ? grammar::SexEnding((ch)->get_sex(), 7) : grammar::VisSexEnding(CanSee((to), (ch)), (ch)->get_sex(), 7);
+				case 'r': i = ch->IsImmortal() || (arena) ? grammar::SexEnding((ch)->get_sex(), 7) : grammar::VisSexEnding(sight::CanSee((to), (ch)), (ch)->get_sex(), 7);
 					break;
 				case 'R':
 					if (vict_obj)
 						i = arena ? grammar::SexEnding(((const CharData *) vict_obj)->get_sex(), 7)
-								  : grammar::VisSexEnding(CanSee((to), ((const CharData *) vict_obj)), ((const CharData *) vict_obj)->get_sex(), 7);
-					else CHECK_NULL(obj, arena ? grammar::ObjSexEnding((obj)->get_sex(), 7) : grammar::ObjVisSexEnding(CanSeeObj((to), (obj)), (obj)->get_sex(), 7));
+								  : grammar::VisSexEnding(sight::CanSee((to), ((const CharData *) vict_obj)), ((const CharData *) vict_obj)->get_sex(), 7);
+					else CHECK_NULL(obj, arena ? grammar::ObjSexEnding((obj)->get_sex(), 7) : grammar::ObjVisSexEnding(sight::CanSeeObj((to), (obj)), (obj)->get_sex(), 7));
 					dg_victim = (CharData *) vict_obj;
 					break;
 //суффикс как(ое,ой,ая,ие)
-				case 'x': i = ch->IsImmortal() || (arena) ? grammar::SexEnding((ch)->get_sex(), 8) : grammar::VisSexEnding(CanSee((to), (ch)), (ch)->get_sex(), 8);
+				case 'x': i = ch->IsImmortal() || (arena) ? grammar::SexEnding((ch)->get_sex(), 8) : grammar::VisSexEnding(sight::CanSee((to), (ch)), (ch)->get_sex(), 8);
 					break;
 				case 'X':
 					if (vict_obj)
 						i = arena ? grammar::SexEnding(((const CharData *) vict_obj)->get_sex(), 8)
-								  : grammar::VisSexEnding(CanSee((to), ((const CharData *) vict_obj)), ((const CharData *) vict_obj)->get_sex(), 8);
-					else CHECK_NULL(obj, arena ? grammar::ObjSexEnding((obj)->get_sex(), 8) : grammar::ObjVisSexEnding(CanSeeObj((to), (obj)), (obj)->get_sex(), 8));
+								  : grammar::VisSexEnding(sight::CanSee((to), ((const CharData *) vict_obj)), ((const CharData *) vict_obj)->get_sex(), 8);
+					else CHECK_NULL(obj, arena ? grammar::ObjSexEnding((obj)->get_sex(), 8) : grammar::ObjVisSexEnding(sight::CanSeeObj((to), (obj)), (obj)->get_sex(), 8));
 					dg_victim = (CharData *) vict_obj;
 					break;
 //суффикс посвежевш(им,ей,ими) -- мягкая основа, творительный падеж
 //(issue.mag-points; см. GET_CH_EXSUF_1 в utils.h).
-				case 'h': i = ch->IsImmortal() || (arena) ? grammar::InstrEnding((ch)->get_sex()) : grammar::VisInstrEnding(CanSee((to), (ch)), (ch)->get_sex());
+				case 'h': i = ch->IsImmortal() || (arena) ? grammar::InstrEnding((ch)->get_sex()) : grammar::VisInstrEnding(sight::CanSee((to), (ch)), (ch)->get_sex());
 					break;
 				case 'H':
 					if (vict_obj)
 						i = arena ? grammar::InstrEnding(((const CharData *) vict_obj)->get_sex())
-								  : grammar::VisInstrEnding(CanSee((to), ((const CharData *) vict_obj)), ((const CharData *) vict_obj)->get_sex());
-					else CHECK_NULL(obj, arena ? grammar::InstrEnding((obj)->get_sex()) : grammar::VisInstrEnding(CanSeeObj((to), (obj)), (obj)->get_sex()));
+								  : grammar::VisInstrEnding(sight::CanSee((to), ((const CharData *) vict_obj)), ((const CharData *) vict_obj)->get_sex());
+					else CHECK_NULL(obj, arena ? grammar::InstrEnding((obj)->get_sex()) : grammar::VisInstrEnding(sight::CanSeeObj((to), (obj)), (obj)->get_sex()));
 					dg_victim = (CharData *) vict_obj;
 					break;
 //склонение местоимения Ваш(е,а,и)
@@ -2796,7 +2796,7 @@ void act(const char *str,
 			if (!SENDOK(to) || (to == ch)) {
 				continue;
 			}
-			if (hide_invisible && ch && !CanSee(to, ch))
+			if (hide_invisible && ch && !sight::CanSee(to, ch))
 				continue;
 			if ((type != kToRoom && type != kToRoomSensors) && to == vict_obj)
 				continue;

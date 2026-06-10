@@ -237,7 +237,7 @@ namespace {
 					if (vict->GetPosition() >= EPosition::kFight) {
 						if (mount::IsOnHorse(vict)) {
 							SendMsgToChar(ch, "%sОт действия вашего яда у %s закружилась голова!%s\r\n",
-										  kColorGrn, PersonName(vict, ch, 1), kColorNrm);
+										  kColorGrn, sight::PersonName(vict, ch, 1), kColorNrm);
 							SendMsgToChar(vict, "Вы почувствовали сильное головокружение и не смогли усидеть на %s!\r\n",
 										  GET_PAD(mount::GetHorse(vict), 5));
 							act("$n0 зашатал$u и не смог$q усидеть на $N5.",
@@ -245,7 +245,7 @@ namespace {
 							mount::DropFromHorse(vict);
 						} else {
 							SendMsgToChar(ch, "%sОт действия вашего яда у %s подкосились ноги!%s\r\n",
-										  kColorGrn, PersonName(vict, ch, 1), kColorNrm);
+										  kColorGrn, sight::PersonName(vict, ch, 1), kColorNrm);
 							SendMsgToChar(vict, "Вы почувствовали сильное головокружение и не смогли устоять на ногах!\r\n");
 							act("$N0 зашатал$U и не смог$Q устоять на ногах.",
 								true, ch, nullptr, vict, kToNotVict);
@@ -273,7 +273,7 @@ namespace {
 					}
 
 					SendMsgToChar(ch, "%sОт действия вашего яда %s побледнел%s!%s\r\n",
-								  kColorGrn, PersonName(vict, ch, 0), grammar::VisSexEnding(CanSee((ch), (vict)), (vict)->get_sex(), 1), kColorNrm);
+								  kColorGrn, sight::PersonName(vict, ch, 0), grammar::VisSexEnding(sight::CanSee((ch), (vict)), (vict)->get_sex(), 1), kColorNrm);
 					SendMsgToChar(vict, "Вы почувствовали слабость во всем теле!\r\n");
 					act("$N0 побледнел$G на ваших глазах.", true, ch, nullptr, vict, kToNotVict);
 					break;
@@ -291,7 +291,7 @@ namespace {
 					af.battleflag = kAfSameTime;
 					ImposeAffect(vict, af, false, false, false, false);
 					SendMsgToChar(ch, "%sОт действия вашего яда %s стал%s заметно медленнее двигаться!%s\r\n",
-								  kColorGrn, PersonName(vict, ch, 0), grammar::VisSexEnding(CanSee((ch), (vict)), (vict)->get_sex(), 1), kColorNrm);
+								  kColorGrn, sight::PersonName(vict, ch, 0), grammar::VisSexEnding(sight::CanSee((ch), (vict)), (vict)->get_sex(), 1), kColorNrm);
 					SendMsgToChar(vict, "Вы стали заметно медленнее двигаться!\r\n");
 					act("$N0 стал$G заметно медленнее двигаться!",
 						true, ch, nullptr, vict, kToNotVict);
@@ -384,29 +384,29 @@ void PerformPoisonedWeapom(CharData *ch, CharData *vict, ESpell spell_id) {
 		if (PoisonVictWithWeapon(ch, vict, spell_id)) {
 			if (spell_id == ESpell::kAconitumPoison) {
 				SendMsgToChar(ch, "Кровоточащие язвы покрыли тело %s.\r\n",
-							  PersonName(vict, ch, 1));
+							  sight::PersonName(vict, ch, 1));
 			} else if (spell_id == ESpell::kScopolaPoison) {
-				strcpy(buf1, PersonName(vict, ch, 0));
+				strcpy(buf1, sight::PersonName(vict, ch, 0));
 				utils::CAP(buf1);
 				SendMsgToChar(ch, "%s скрючил%s от нестерпимой боли.\r\n",
-							  buf1, grammar::VisSexEnding(CanSee((ch), (vict)), (vict)->get_sex(), 2));
+							  buf1, grammar::VisSexEnding(sight::CanSee((ch), (vict)), (vict)->get_sex(), 2));
 				vict->battle_affects.set(kEafFirstPoison);
 			} else if (spell_id == ESpell::kBelenaPoison) {
-				strcpy(buf1, PersonName(vict, ch, 3));
+				strcpy(buf1, sight::PersonName(vict, ch, 3));
 				utils::CAP(buf1);
 				SendMsgToChar(ch, "%s перестали слушаться руки.\r\n", buf1);
 				vict->battle_affects.set(kEafFirstPoison);
 			} else if (spell_id == ESpell::kDaturaPoison) {
-				strcpy(buf1, PersonName(vict, ch, 2));
+				strcpy(buf1, sight::PersonName(vict, ch, 2));
 				utils::CAP(buf1);
 				SendMsgToChar(ch, "%s стало труднее плести заклинания.\r\n", buf1);
 				vict->battle_affects.set(kEafFirstPoison);
 			} else {
-				SendMsgToChar(ch, "Вы отравили %s.\r\n", PersonName(ch, vict, 3));
+				SendMsgToChar(ch, "Вы отравили %s.\r\n", sight::PersonName(ch, vict, 3));
 			}
 			SendMsgToChar(vict, "%s%s отравил%s вас.%s\r\n",
-						  kColorBoldRed, PersonName(ch, vict, 0),
-						  grammar::VisSexEnding(CanSee((vict), (ch)), (ch)->get_sex(), 1), kColorNrm);
+						  kColorBoldRed, sight::PersonName(ch, vict, 0),
+						  grammar::VisSexEnding(sight::CanSee((vict), (ch)), (ch)->get_sex(), 1), kColorNrm);
 			ProcessCritWeaponPoison(ch, vict, spell_id);
 		}
 	}

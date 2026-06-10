@@ -285,7 +285,7 @@ int npc_track(CharData *ch) {
 
 	for (auto *d = descriptor_list; d; d = d->next) {
 		const auto vict = d->character.get();
-		if (vict && d->state == EConState::kPlaying && CanSee(ch, vict) && vict->in_room != kNowhere) {
+		if (vict && d->state == EConState::kPlaying && sight::CanSee(ch, vict) && vict->in_room != kNowhere) {
 			for (auto names = MEMORY(ch); names; names = names->next) {
 				if (vict->get_uid() == names->id
 					&& (!ch->IsFlagged(EMobFlag::kStayZone)
@@ -368,7 +368,7 @@ CharData *find_best_stupidmob_victim(CharData *ch, int extmode) {
 		if ((vict->IsNpc() && !IS_SET(extmode, CHECK_OPPONENT) && !IsCharmice(vict))
 			|| (IsCharmice(vict) && !vict->GetEnemy()) // чармиса агрим только если он уже с кем-то сражается
 			|| vict->IsFlagged(EPrf::kNohassle)
-			|| !MaySee(ch, ch, vict)
+			|| !sight::MaySee(ch, ch, vict)
 			|| (IS_SET(extmode, CHECK_OPPONENT) && ch != vict->GetEnemy())
 			|| (!may_kill_here(ch, vict, NoArgument) && !IS_SET(extmode, GUARD_ATTACK)))//старжники агрят в мирках
 		{
@@ -424,7 +424,7 @@ CharData *find_best_stupidmob_victim(CharData *ch, int extmode) {
 				AFF_FLAGS(vict).unset(EAffect::kDisguise);
 			}
 		}
-		if (!CanSee(ch, vict)) {
+		if (!sight::CanSee(ch, vict)) {
 			continue;
 		}
 		// Mobile aggresive
@@ -523,7 +523,7 @@ bool filter_victim (CharData *ch, CharData *vict, int extmode) {
 		|| (IsCharmice(vict) && !vict->GetEnemy()
 			&& find_master_charmice(vict)) // чармиса агрим только если нет хозяина в руме.
 		|| vict->IsFlagged(EPrf::kNohassle)
-		|| !MaySee(ch, ch, vict) // если не видим цель,
+		|| !sight::MaySee(ch, ch, vict) // если не видим цель,
 		|| (IS_SET(extmode, CHECK_OPPONENT) && ch != vict->GetEnemy())
 		|| (!may_kill_here(ch, vict, NoArgument) && !IS_SET(extmode, GUARD_ATTACK)))//старжники агрят в мирках
 	{
@@ -573,7 +573,7 @@ bool filter_victim (CharData *ch, CharData *vict, int extmode) {
 			AFF_FLAGS(vict).unset(EAffect::kDisguise);
 		}
 	}
-	if (!CanSee(ch, vict)) {
+	if (!sight::CanSee(ch, vict)) {
 		return false;
 	}
 	if (!kill_this && extra_aggr) {
@@ -747,7 +747,7 @@ int perform_best_horde_attack(CharData *ch, int extmode) {
 	}
 
 	for (const auto vict : world[ch->in_room]->people) {
-		if (!vict->IsNpc() || !MaySee(ch, ch, vict) || vict->IsFlagged(EMobFlag::kProtect) || vict->IsFlagged(EMobFlag::kNoFight)) {
+		if (!vict->IsNpc() || !sight::MaySee(ch, ch, vict) || vict->IsFlagged(EMobFlag::kProtect) || vict->IsFlagged(EMobFlag::kNoFight)) {
 			continue;
 		}
 		if (!alignment::SameAlign(ch, vict)) {
@@ -1007,7 +1007,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 		  }
 
 		  if (!vict->IsNpc()
-			  && CanSee(ch, vict)) {
+			  && sight::CanSee(ch, vict)) {
 			  max = true;
 		  }
 	  }
@@ -1148,7 +1148,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 				  if (first->IsNpc()
 					  && !AFF_FLAGGED(first, EAffect::kCharmed)
 					  && !mount::IsHorse(first)
-					  && CanSee(ch, first)
+					  && sight::CanSee(ch, first)
 					  && first->GetEnemy()
 					  && alignment::SameAlign(ch.get(), first)) {
 					  found = true;
@@ -1219,7 +1219,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 			  || GET_SPELL_MEM(ch, ESpell::kRelocate) > 0); names = names->next) {
 			  for (const auto &vict : character_list) {
 				  if (names->id == vict->get_uid()
-					  && CanSee(ch, vict) && !vict->IsFlagged(EPrf::kNohassle)) {
+					  && sight::CanSee(ch, vict) && !vict->IsFlagged(EPrf::kNohassle)) {
 					  if (GET_SPELL_MEM(ch, ESpell::kSummon) > 0) {
 						  CastSpell(ch.get(), vict.get(), nullptr, nullptr, ESpell::kSummon, ESpell::kSummon);
 						  break;

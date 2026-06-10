@@ -416,7 +416,7 @@ void do_oteleport(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 			RemoveCharFromRoom(ch);
 			PlaceCharToRoom(ch, target);
 			if (!ch->IsNpc()) {
-				look_at_room(ch, true);
+				sight::look_at_room(ch, true);
 				lastchar = ch;
 			}
 		}
@@ -457,7 +457,7 @@ void do_oteleport(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 			if (!onhorse)
 				mount::Dismount(ch);
 			if (!ch->IsNpc()) {
-				look_at_room(ch, true);
+				sight::look_at_room(ch, true);
 				lastchar = ch;
 			}
 		}
@@ -497,7 +497,7 @@ void do_oteleport(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 		PlaceCharToRoom(ch, target);
 		if (!onhorse)
 			mount::Dismount(ch);
-		look_at_room(ch, true);
+		sight::look_at_room(ch, true);
 		greet_mtrigger(ch, -1);
 		greet_otrigger(ch, -1);
 	}

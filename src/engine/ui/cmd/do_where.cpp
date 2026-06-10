@@ -48,7 +48,7 @@ void PerformImmortWhere(CharData *ch, char *arg) {
 		for (d = descriptor_list; d; d = d->next) {
 			if (d->state == EConState::kPlaying) {
 				const auto i = d->get_character();
-				if (i && CanSee(ch, i) && (i->in_room != kNowhere)) {
+				if (i && sight::CanSee(ch, i) && (i->in_room != kNowhere)) {
 					if (d->original) {
 						ss << fmt::format("{:<20} - [{:>7}] {} (in {})\r\n",
 										  GET_NAME(i),
@@ -136,7 +136,7 @@ void PerformMortalWhere(CharData *ch, char *arg) {
 			}
 
 			if (i->in_room == kNowhere
-				|| !CanSee(ch, i)) {
+				|| !sight::CanSee(ch, i)) {
 				continue;
 			}
 
@@ -155,7 +155,7 @@ void PerformMortalWhere(CharData *ch, char *arg) {
 				continue;
 			}
 
-			if (!CanSee(ch, i)
+			if (!sight::CanSee(ch, i)
 				|| world[i->in_room]->zone_rn != world[ch->in_room]->zone_rn) {
 				continue;
 			}
@@ -259,13 +259,13 @@ static std::vector<std::string> ResolveObjLocationLines(const ObjData *obj, Char
 		}
 		if (cur->get_carried_by()) {
 			lines.push_back(fmt::format("затарено {} [{}] в комнате [{}]",
-					PersonName(cur->get_carried_by(), ch, 4), GET_MOB_VNUM(cur->get_carried_by()),
+					sight::PersonName(cur->get_carried_by(), ch, 4), GET_MOB_VNUM(cur->get_carried_by()),
 					world[cur->get_carried_by()->in_room]->vnum));
 			return lines;
 		}
 		if (cur->get_worn_by()) {
 			lines.push_back(fmt::format("надет на {} [{}] в комнате [{}]",
-					PersonName(cur->get_worn_by(), ch, 3), GET_MOB_VNUM(cur->get_worn_by()),
+					sight::PersonName(cur->get_worn_by(), ch, 3), GET_MOB_VNUM(cur->get_worn_by()),
 					world[cur->get_worn_by()->in_room]->vnum));
 			return lines;
 		}

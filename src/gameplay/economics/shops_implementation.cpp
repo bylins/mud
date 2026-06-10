@@ -1,4 +1,5 @@
 #include "shops_implementation.h"
+#include "gameplay/mechanics/sight.h"
 #include "utils/grammar/declensions.h"
 #include "gameplay/mechanics/identify.h"
 
@@ -25,15 +26,12 @@
 #include <fmt/format.h>
 #include <sstream>
 
-extern char *diag_weapon_to_char(const CObjectPrototype *obj,
-								 int show_wear);    // implemented in the act.informative.cpp
-extern char *diag_timer_to_char(const ObjData *obj);    // implemented in the act.informative.cpp
 extern int invalid_anti_class(CharData *ch, const ObjData *obj);    // implemented in class.cpp
 extern int invalid_unique(CharData *ch, const ObjData *obj);    // implemented in class.cpp
 extern int invalid_no_class(CharData *ch, const ObjData *obj);    // implemented in class.cpp
 extern int invalid_anti_class_proto(CharData *ch, const CObjectPrototype *obj);    // implemented in class.cpp
 extern int invalid_no_class_proto(CharData *ch, const CObjectPrototype *obj);    // implemented in class.cpp
-char *find_exdesc(const char *word, const ExtraDescription::shared_ptr &list); // implemented in act.informative.cpp
+char *sight::find_exdesc(const char *word, const ExtraDescription::shared_ptr &list); // implemented in act.informative.cpp
 namespace ShopExt {
 const int IDENTIFY_COST = 110;
 
@@ -757,8 +755,8 @@ void shop_node::process_ident(CharData *ch, CharData *keeper, char *argument, co
 		tell << fmt::format(fmt::runtime(ShopMsg(ESM::kInspectIntro)),
 				fmt::arg("item", ident_obj->get_short_description()),
 				fmt::arg("type", item_types[ident_obj->get_type()])) << "\r\n";
-		tell << diag_weapon_to_char(ident_obj, true);
-		tell << diag_timer_to_char(ident_obj);
+		tell << sight::diag_weapon_to_char(ident_obj, true);
+		tell << sight::diag_timer_to_char(ident_obj);
 
 		if (CanUseFeat(ch, EFeat::kSkilledTrader)) {
 			char mat[kMaxInputLength];
@@ -771,7 +769,7 @@ void shop_node::process_ident(CharData *ch, CharData *keeper, char *argument, co
 		// если есть расширенное описание - показываем отдельно
 		// т.к. в магазине можно обратиться к объекту по номеру -> неизвестно под каким именени обратились к объекту
 		// поэтому пытаемся найти расширенное описание по алиасам
-		const char *desc = find_exdesc(ident_obj->get_aliases().c_str(), ident_obj->get_ex_description());
+		const char *desc = sight::find_exdesc(ident_obj->get_aliases().c_str(), ident_obj->get_ex_description());
 		if (desc && strlen(desc)) {
 			tell.str(std::string());
 			tell << fmt::format(fmt::runtime(ShopMsg(ESM::kInspectExdesc)),

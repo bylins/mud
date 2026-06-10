@@ -180,7 +180,7 @@ bool stone_rebirth(CharData *ch, CharData *killer) {
 					}
 					affect_total(ch);
 					ch->SetPosition(EPosition::kStand);
-					look_at_room(ch, 0);
+					sight::look_at_room(ch, 0);
 					greet_mtrigger(ch, -1);
 					greet_otrigger(ch, -1);
 					act("$n медленно появил$u откуда-то.", false, ch, nullptr, nullptr, kToRoom);
@@ -228,7 +228,7 @@ bool check_tester_death(CharData *ch, CharData *killer) {
 	}
 	affect_total(ch);
 	ch->SetPosition(EPosition::kStand);
-	look_at_room(ch, 0);
+	sight::look_at_room(ch, 0);
 	greet_mtrigger(ch, -1);
 	greet_otrigger(ch, -1);
 	return true;
@@ -365,7 +365,7 @@ void arena_kill(CharData *ch, CharData *killer) {
 	affect_total(ch);
 	RemoveCharFromRoom(ch);
 	PlaceCharToRoom(ch, to_room);
-	look_at_room(ch, to_room);
+	sight::look_at_room(ch, to_room);
 	act("$n со стонами упал$g с небес...", false, ch, nullptr, nullptr, kToRoom);
 	enter_wtrigger(world[ch->in_room], ch, -1);
 }
@@ -374,7 +374,7 @@ void auto_loot(CharData *ch, CharData *killer, ObjData *corpse, int local_gold) 
 	char obj[256];
 
 	if (is_dark(killer->in_room)
-		&& !(CanSeeInDark(killer) || CanUseFeat(killer, EFeat::kDarkReading))
+		&& !(sight::CanSeeInDark(killer) || CanUseFeat(killer, EFeat::kDarkReading))
 		&& !(killer->IsNpc()
 			&& AFF_FLAGGED(killer, EAffect::kCharmed)
 			&& killer->has_master()

@@ -123,7 +123,7 @@ void do_relocate(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SetBattleLag(ch, 1);
 	}
 	ImposeTimedFeat(ch, &timed);
-	look_at_room(ch, 0);
+	sight::look_at_room(ch, 0);
 	CheckAutoNosummon(victim);
 	greet_mtrigger(ch, -1);
 	greet_otrigger(ch, -1);

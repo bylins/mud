@@ -103,7 +103,7 @@ bool RoomReporter::blockReport() const {
 	bool nomapper = true;
 	const auto blind = (descriptor()->character->IsFlagged(EPrf::kBlindMode)) //В режиме слепого игрока карта недоступна
 		|| (AFF_FLAGGED((descriptor()->character), EAffect::kBlind));  //Слепому карта не поможет!
-	const auto cannot_see_in_dark = (is_dark(descriptor()->character->in_room) && !CanSeeInDark(descriptor()->character.get()));
+	const auto cannot_see_in_dark = (is_dark(descriptor()->character->in_room) && !sight::CanSeeInDark(descriptor()->character.get()));
 	if (descriptor()->character->in_room != kNowhere)
 		nomapper = ROOM_FLAGGED(descriptor()->character->in_room, ERoomFlag::kMoMapper);
 	const auto scriptwriter = descriptor()->character->IsFlagged(EPlrFlag::kScriptWriter); // скриптеру не шлем

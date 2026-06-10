@@ -505,9 +505,9 @@ void HitData::CalcCircumstantialHitroll(CharData *ch, CharData *victim) {
 	}
 
 	// not can see (blind, dark, etc)
-	if (!CanSee(ch, victim))
+	if (!sight::CanSee(ch, victim))
 		calc_thaco += (CanUseFeat(ch, EFeat::kBlindFight) ? 2 : ch->IsNpc() ? 6 : 10);
-	if (!CanSee(victim, ch))
+	if (!sight::CanSee(victim, ch))
 		calc_thaco -= (CanUseFeat(victim, EFeat::kBlindFight) ? 2 : 8);
 
 	// "Dirty" methods for battle
@@ -908,7 +908,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 		return;
 	}
 	// Stand awarness mobs
-	if (CanSee(victim, ch)
+	if (sight::CanSee(victim, ch)
 		&& !victim->GetEnemy()
 		&& ((victim->IsNpc() && (victim->get_hit() < victim->get_max_hit()
 			|| victim->IsFlagged(EMobFlag::kAware)))

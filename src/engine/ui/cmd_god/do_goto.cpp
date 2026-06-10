@@ -32,7 +32,7 @@ void DoGoto(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	else
 		strcpy(buf, "$n возник$q посреди комнаты.");
 	act(buf, true, ch, nullptr, nullptr, kToRoom);
-	look_at_room(ch, 0);
+	sight::look_at_room(ch, 0);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

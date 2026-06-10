@@ -3,6 +3,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "parcel.h"
+#include "gameplay/mechanics/sight.h"
 #include "utils/grammar/gender.h"
 #include "utils/grammar/declensions.h"
 
@@ -330,7 +331,7 @@ void send(CharData *ch, CharData *mailman, long vict_uid, char *arg) {
 				bool has_items = false;
 				for (obj = ch->carrying; obj; obj = next_obj) {
 					next_obj = obj->get_next_content();
-					if (CanSeeObj(ch, obj)
+					if (sight::CanSeeObj(ch, obj)
 						&& ((dotmode == kFindAll
 							|| isname(tmp_arg, obj->get_aliases())))) {
 						send_object(ch, mailman, vict_uid, obj);

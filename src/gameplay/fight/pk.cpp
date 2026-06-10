@@ -376,7 +376,7 @@ bool pk_agro_action(CharData *agressor, CharData *victim) {
 		}
 		SendMsgToChar("Защитная магия взяла вас за шиворот и выкинула вон из замка!\r\n", agressor);
 		PlaceCharToRoom(agressor, GetRoomRnum(CLAN(agressor)->out_rent));
-		look_at_room(agressor, GetRoomRnum(CLAN(agressor)->out_rent));
+		sight::look_at_room(agressor, GetRoomRnum(CLAN(agressor)->out_rent));
 		act("$n свалил$u с небес, выкрикивая какие-то ругательства!", true, agressor, 0, 0, kToRoom);
 		SetWait(agressor, 1, true);
 		return false;
@@ -741,7 +741,7 @@ void do_forgive(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *found = nullptr;
 	for (const auto &tch : character_list) {
 		if (tch->IsNpc()
-			|| !CanSeeIgnoringLight(ch, tch)
+			|| !sight::CanSeeIgnoringLight(ch, tch)
 			|| !isname(GET_NAME(tch), arg)) {
 			continue;
 		}

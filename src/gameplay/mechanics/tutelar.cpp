@@ -64,7 +64,7 @@ void TryToRescueWithTutelar(CharData *ch) {
 			&& k->IsFlagged(EMobFlag::kTutelar)
 			&& !k->GetEnemy()
 			&& k->in_room == ch->in_room
-			&& CanSee(k, ch)
+			&& sight::CanSee(k, ch)
 			&& AWAKE(k)
 			&& !IsUnableToAct(k)
 			&& k->get_wait() <= 0

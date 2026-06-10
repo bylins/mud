@@ -854,7 +854,7 @@ void ClearRoom(RoomData *room) {
 					to_room = GetRoomRnum(calc_loadroom(vict));
 				}
 				PlaceCharToRoom(vict, to_room);
-				look_at_room(vict, to_room);
+				sight::look_at_room(vict, to_room);
 			}
 		}
 		people_copy = room->people;

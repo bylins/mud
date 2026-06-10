@@ -86,7 +86,7 @@ EStageResult SpellRecall(CastContext &ctx) {
 	mount::Dismount(victim);
 	act(MUD::SpellMessages().GetMessage(ESpell::kWorldOfRecall, ESpellMsg::kCastAppearToRoom).c_str(),
 		true, victim, nullptr, nullptr, kToRoom);
-	look_at_room(victim, 0);
+	sight::look_at_room(victim, 0);
 	greet_mtrigger(victim, -1);
 	greet_otrigger(victim, -1);
 	return EStageResult::kSuccess;

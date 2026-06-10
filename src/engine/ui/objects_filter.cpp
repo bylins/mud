@@ -6,6 +6,7 @@
 */
 
 #include "objects_filter.h"
+#include "gameplay/mechanics/sight.h"
 
 #include "gameplay/economics/exchange.h"
 #include "gameplay/clans/house.h"
@@ -18,7 +19,7 @@
 #include <set>
 
 extern ESkill FixNameAndFindSkillId(char *name);
-extern const char *print_obj_state(int tm_pct);
+extern const char *sight::print_obj_state(int tm_pct);
 
 namespace {
 
@@ -950,7 +951,7 @@ std::string ParseFilter::print() const {
 	}
 	if (state >= 0) {
 		buffer += "С";
-		buffer += print_obj_state(state);
+		buffer += sight::print_obj_state(state);
 		buffer += ", ";
 	}
 	if (wear != EWearFlag::kUndefined) {

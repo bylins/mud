@@ -2050,7 +2050,7 @@ void do_entergame(DescriptorData *d) {
 	act("$n вступил$g в игру.", true, d->character.get(), nullptr, nullptr, kToRoom);
 	affect_total(d->character.get());
 	CheckLight(d->character.get(), kLightNo, kLightNo, kLightNo, kLightNo, 0);
-	look_at_room(d->character.get(), false);
+	sight::look_at_room(d->character.get(), false);
 
 	if (new_char) {
 		SendMsgToChar("\r\nВоспользуйтесь командой НОВИЧОК для получения вводной информации игроку.\r\n",

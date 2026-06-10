@@ -36,7 +36,7 @@ void DoTeleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		mount::Dismount(victim);
 		act("$n появил$u, окутанн$w розовым туманом.", false, victim, nullptr, nullptr, kToRoom);
 		act("$n переместил$g вас!", false, ch, nullptr, (char *) victim, kToVict);
-		look_at_room(victim, 0);
+		sight::look_at_room(victim, 0);
 	}
 }
 

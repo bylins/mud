@@ -7,6 +7,7 @@
 */
 
 #include "engine/ui/cmd/do_equip.h"
+#include "gameplay/mechanics/sight.h"
 #include "utils/grammar/declensions.h"
 
 #include "engine/entities/char_data.h"
@@ -319,7 +320,7 @@ void do_wear(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		for (obj = ch->carrying; obj && !AFF_FLAGGED(ch, EAffect::kHold) &&
 			ch->GetPosition() > EPosition::kSleep; obj = next_obj) {
 			next_obj = obj->get_next_content();
-			if (CanSeeObj(ch, obj)
+			if (sight::CanSeeObj(ch, obj)
 				&& (equip_pos = find_eq_pos(ch, obj, nullptr)) >= 0) {
 				items_worn++;
 				perform_wear(ch, obj, equip_pos, true);

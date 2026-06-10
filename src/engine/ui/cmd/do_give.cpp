@@ -1,4 +1,5 @@
 #include "engine/entities/char_data.h"
+#include "gameplay/mechanics/sight.h"
 #include "utils/grammar/declensions.h"
 #include "gameplay/mechanics/minions.h"
 #include "engine/db/world_objects.h"
@@ -223,7 +224,7 @@ void do_give(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					next_obj = obj->get_next_content();
 					if (obj->get_extracted_list())
 						continue;
-					if (CanSeeObj(ch, obj)
+					if (sight::CanSeeObj(ch, obj)
 						&& (dotmode == kFindAll
 							|| isname(arg, obj->get_aliases())
 							|| CHECK_CUSTOM_LABEL(arg, obj, ch))) {

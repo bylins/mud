@@ -40,7 +40,6 @@
 #include <fmt/printf.h>
 #include "gameplay/mechanics/sight.h"
 
-extern char *diag_weapon_to_char(const CObjectPrototype *obj, int show_wear);
 
 std::string print_special(CharData *mob) {
 	// issue.specials: identity via the registry; a mob may carry several specials (comma-joined).
@@ -728,7 +727,7 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 	{
 		SendMsgToChar(ch, ", &Gпадежи отличны от прототипа&n");
 	}
-	SendMsgToChar(ch, "\r\n%s", diag_weapon_to_char(j, 2));
+	SendMsgToChar(ch, "\r\n%s", sight::diag_weapon_to_char(j, 2));
 	snprintf(buf, sizeof(buf), "L-Des: %s\r\n%s",
 			!j->get_description().empty() ? j->get_description().c_str() : "Нет",
 			kColorNrm);
@@ -1158,7 +1157,7 @@ void do_stat_room(CharData *ch, const int rnum = 0) {
 		for (auto k_i = rm->people.begin(); k_i != rm->people.end(); ++k_i) {
 			const auto k = *k_i;
 			++counter;
-			if (!CanSee(ch, k)) {
+			if (!sight::CanSee(ch, k)) {
 				continue;
 			}
 			sline += fmt::sprintf("%s %s(%s)", found++ ? "," : "", GET_NAME(k),
@@ -1181,7 +1180,7 @@ void do_stat_room(CharData *ch, const int rnum = 0) {
 		found = 0;
 		for (auto it = rm->contents.begin(); it != rm->contents.end(); ++it) {
 			auto j = *it;
-			if (!CanSeeObj(ch, j))
+			if (!sight::CanSeeObj(ch, j))
 				continue;
 			sline += fmt::sprintf("%s %s", found++ ? "," : "", j->get_short_description().c_str());
 			if (sline.size() >= 62) {

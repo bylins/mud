@@ -9,6 +9,7 @@
 ************************************************************************ */
 
 #include "exchange.h"
+#include "gameplay/mechanics/sight.h"
 #include "utils/grammar/gender.h"
 #include "utils/grammar/declensions.h"
 #include "gameplay/ai/spec_procs.h"
@@ -58,9 +59,6 @@ extern int invalid_anti_class(CharData *ch, const ObjData *obj);
 extern int invalid_unique(CharData *ch, const ObjData *obj);
 extern int invalid_no_class(CharData *ch, const ObjData *obj);
 extern int invalid_align(CharData *ch, const ObjData *obj);
-extern char *diag_weapon_to_char(const CObjectPrototype *obj, int show_wear);
-extern const char *diag_obj_timer(const ObjData *obj);
-extern char *diag_timer_to_char(const ObjData *obj);
 extern void SetWait(CharData *ch, int waittime, int victim_in_room);
 extern bool is_dig_stone(ObjData *obj);
 
@@ -81,7 +79,7 @@ void message_exchange(char *message, CharData *ch, ExchangeItem *j);
 void show_lots(const char *filter, short int show_type, const CharData *ch);
 int parse_exch_filter(ParseFilter &filter, char *buf, bool parse_affects);
 void clear_exchange_lot(ExchangeItem *lot);
-extern void obj_info(CharData *ch, ObjData *obj, char buf[kMaxStringLength]);
+extern void sight::obj_info(CharData *ch, ObjData *obj, char buf[kMaxStringLength]);
 
 void do_exchange(CharData *ch, char *argument, int cmd, int subcmd);
 
@@ -450,11 +448,11 @@ int exchange_information(CharData *ch, char *arg) {
 	if (*buf2) {
 		out += fmt::sprintf("%s\n", buf2);
 	}
-	out += fmt::sprintf("%s%s\r\n", diag_weapon_to_char(GET_EXCHANGE_ITEM(item), true), diag_timer_to_char(GET_EXCHANGE_ITEM(item)));
+	out += fmt::sprintf("%s%s\r\n", sight::diag_weapon_to_char(GET_EXCHANGE_ITEM(item), true), sight::diag_timer_to_char(GET_EXCHANGE_ITEM(item)));
 	{
 		char obj_buf[kMaxStringLength];
 		snprintf(obj_buf, sizeof(obj_buf), "%s", out.c_str());
-		obj_info(ch, GET_EXCHANGE_ITEM(item), obj_buf);
+		sight::obj_info(ch, GET_EXCHANGE_ITEM(item), obj_buf);
 		out = obj_buf;
 	}
 	out += "\n";
@@ -1175,14 +1173,14 @@ void show_lots(const char *filter, short int show_type, const CharData *ch) {
 					"(%5d) %s %9d  %-s %s", GET_EXCHANGE_ITEM(j)->get_vnum(),
 					colored_name(item.c_str(), 63, true),
 					GET_EXCHANGE_ITEM_COST(j),
-					diag_obj_timer(GET_EXCHANGE_ITEM(j)),
+					sight::diag_obj_timer(GET_EXCHANGE_ITEM(j)),
 					tmstr);
 		} else {
 			snprintf(tmpbuf, sizeof(tmpbuf),
 					"%s %9d  %-s\r\n",
 					colored_name(item.c_str(), 63, true),
 					GET_EXCHANGE_ITEM_COST(j),
-					diag_obj_timer(GET_EXCHANGE_ITEM(j)));
+					sight::diag_obj_timer(GET_EXCHANGE_ITEM(j)));
 			}
 		// Такое вот кино, на выделения для каждой строчки тут уходило до 0.6 секунды при выводе всего базара. стринги рулят -- Krodo
 		if (params.check(j)) {

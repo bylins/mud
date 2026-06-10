@@ -316,7 +316,7 @@ int npc_loot(CharData *ch) {
 	npc_dropunuse(ch);
 	if (!world[ch->in_room]->contents.empty() && number(0, GetRealInt(ch)) > 10) {
 		for (auto obj : world[ch->in_room]->contents) {
-			if (CanSeeObj(ch, obj) && IS_CORPSE(obj)) {
+			if (sight::CanSeeObj(ch, obj) && IS_CORPSE(obj)) {
 				// Сначала лутим то, что не в контейнерах
 				for (loot_obj = obj->get_contains(); loot_obj; loot_obj = next_loot) {
 					next_loot = loot_obj->get_next_content();
@@ -838,7 +838,7 @@ int do_npc_steal(CharData *ch, CharData *victim) {
 	if (GetRealLevel(victim) >= kLvlImmortal)
 		return (false);
 
-	if (!CanSee(ch, victim))
+	if (!sight::CanSee(ch, victim))
 		return (false);
 
 	if (AWAKE(victim) && (number(0, std::max(0, GetRealLevel(ch) - int_app[GetRealInt(victim)].observation)) == 0)) {
@@ -855,7 +855,7 @@ int do_npc_steal(CharData *ch, CharData *victim) {
 		if (ch->GetCarryingQuantity() < CAN_CARRY_N(ch) && CalcCurrentSkill(ch, ESkill::kSteal, victim)
 			>= number(1, 100) - (AWAKE(victim) ? 100 : 0)) {
 			for (obj = victim->carrying; obj; obj = obj->get_next_content())
-				if (CanSeeObj(ch, obj) && ch->GetCarryingWeight() + obj->get_weight()
+				if (sight::CanSeeObj(ch, obj) && ch->GetCarryingWeight() + obj->get_weight()
 					<= CAN_CARRY_W(ch) && (!best || obj->get_cost() > best->get_cost()))
 					best = obj;
 			if (best) {
@@ -1266,7 +1266,7 @@ int cityguard(CharData *ch, void * /*me*/, int cmd, char * /*argument*/) {
 	evil = 0;
 
 	for (const auto tch : world[ch->in_room]->people) {
-		if (!tch->IsNpc() && CanSee(ch, tch) && tch->IsFlagged(EPlrFlag::kKiller)) {
+		if (!tch->IsNpc() && sight::CanSee(ch, tch) && tch->IsFlagged(EPlrFlag::kKiller)) {
 			act("$n screams 'HEY!!!  You're one of those PLAYER KILLERS!!!!!!'", false, ch, 0, 0, kToRoom);
 			hit(ch, tch, ESkill::kUndefined, fight::kMainHand);
 
@@ -1275,7 +1275,7 @@ int cityguard(CharData *ch, void * /*me*/, int cmd, char * /*argument*/) {
 	}
 
 	for (const auto tch : world[ch->in_room]->people) {
-		if (!tch->IsNpc() && CanSee(ch, tch) && tch->IsFlagged(EPlrFlag::kBurglar)) {
+		if (!tch->IsNpc() && sight::CanSee(ch, tch) && tch->IsFlagged(EPlrFlag::kBurglar)) {
 			act("$n screams 'HEY!!!  You're one of those PLAYER THIEVES!!!!!!'", false, ch, 0, 0, kToRoom);
 			hit(ch, tch, ESkill::kUndefined, fight::kMainHand);
 
@@ -1284,7 +1284,7 @@ int cityguard(CharData *ch, void * /*me*/, int cmd, char * /*argument*/) {
 	}
 
 	for (const auto tch : world[ch->in_room]->people) {
-		if (CanSee(ch, tch) && tch->GetEnemy()) {
+		if (sight::CanSee(ch, tch) && tch->GetEnemy()) {
 			if ((alignment::GetAlignment(tch) < max_evil) && (tch->IsNpc() || tch->GetEnemy()->IsNpc())) {
 				max_evil = alignment::GetAlignment(tch);
 				evil = tch;

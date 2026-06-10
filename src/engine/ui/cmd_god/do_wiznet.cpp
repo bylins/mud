@@ -57,7 +57,7 @@ void do_wiznet(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			for (d = descriptor_list; d; d = d->next) {
 				if (d->state == EConState::kPlaying &&
 					(d->character->IsImmortal() || GET_GOD_FLAG(d->character, EGf::kDemigod)) &&
-					!d->character->IsFlagged(EPrf::kNoWiz) && (CanSee(ch, d->character) || ch->IsImpl())) {
+					!d->character->IsFlagged(EPrf::kNoWiz) && (sight::CanSee(ch, d->character) || ch->IsImpl())) {
 					if (!bookmark1) {
 						strcpy(buf1,
 							   "Боги/привилегированные которые смогут (наверное) вас услышать:\r\n");
@@ -75,7 +75,7 @@ void do_wiznet(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			for (d = descriptor_list; d; d = d->next) {
 				if (d->state == EConState::kPlaying &&
 					(d->character->IsImmortal() || GET_GOD_FLAG(d->character, EGf::kDemigod)) &&
-					d->character->IsFlagged(EPrf::kNoWiz) && CanSee(ch, d->character)) {
+					d->character->IsFlagged(EPrf::kNoWiz) && sight::CanSee(ch, d->character)) {
 					if (!bookmark2) {
 						if (!bookmark1)
 							strcpy(buf1,

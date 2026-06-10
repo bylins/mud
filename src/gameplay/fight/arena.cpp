@@ -15,16 +15,16 @@
 namespace arena {
 
 const char *VisibleName(const CharData *ch, const CharData *viewer, int pad, bool arena) {
-	return arena ? GET_PAD(ch, pad) : PersonName(ch, viewer, pad);
+	return arena ? GET_PAD(ch, pad) : sight::PersonName(ch, viewer, pad);
 }
 
 const char *VisibleObjShort(const ObjData *obj, const CharData *viewer, bool arena) {
-	return (arena || CanSeeObj(viewer, obj)) ? obj->get_short_description().c_str()
+	return (arena || sight::CanSeeObj(viewer, obj)) ? obj->get_short_description().c_str()
 											  : grammar::SomethingInCase(grammar::ECase::kNom);
 }
 
 const char *VisibleObjName(const ObjData *obj, const CharData *viewer, grammar::ECase pad, bool arena) {
-	if (arena || CanSeeObj(viewer, obj)) {
+	if (arena || sight::CanSeeObj(viewer, obj)) {
 		return !obj->get_PName(pad).empty() ? obj->get_PName(pad).c_str()
 											: obj->get_short_description().c_str();
 	}

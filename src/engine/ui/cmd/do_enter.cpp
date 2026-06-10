@@ -155,7 +155,7 @@ void DoEnter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					}
 				}
 				if (ch->desc != nullptr)
-					look_at_room(ch, 0);
+					sight::look_at_room(ch, 0);
 			}
 		} else {    // an argument was supplied, search for door keyword
 			for (door = 0; door < EDirection::kMaxDirNum; door++) {

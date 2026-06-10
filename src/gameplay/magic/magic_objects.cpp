@@ -3,6 +3,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "spells.h"
+#include "gameplay/mechanics/sight.h"
 #include "utils/grammar/gender.h"
 #include "utils/grammar/declensions.h"
 
@@ -77,16 +78,16 @@ void PrepareSpellRemoving(ObjData *obj, ESpell spell_id, bool send_message) {
 
 			case ESpell::kFly:
 				SendMsgToChar(ch, "Ваш%s %s перестал%s парить в воздухе.\r\n",
-							  grammar::ObjVisSexEnding(CanSeeObj((ch), (obj)), (obj)->get_sex(), 7),
+							  grammar::ObjVisSexEnding(sight::CanSeeObj((ch), (obj)), (obj)->get_sex(), 7),
 							  obj->get_PName(grammar::ECase::kNom).c_str(),
-							  grammar::ObjVisSexEnding(CanSeeObj((ch), (obj)), (obj)->get_sex(), 1));
+							  grammar::ObjVisSexEnding(sight::CanSeeObj((ch), (obj)), (obj)->get_sex(), 1));
 				break;
 
 			case ESpell::kLight:
 				SendMsgToChar(ch, "Ваш%s %s перестал%s светиться.\r\n",
-							  grammar::ObjVisSexEnding(CanSeeObj((ch), (obj)), (obj)->get_sex(), 7),
+							  grammar::ObjVisSexEnding(sight::CanSeeObj((ch), (obj)), (obj)->get_sex(), 7),
 							  obj->get_PName(grammar::ECase::kNom).c_str(),
-							  grammar::ObjVisSexEnding(CanSeeObj((ch), (obj)), (obj)->get_sex(), 1));
+							  grammar::ObjVisSexEnding(sight::CanSeeObj((ch), (obj)), (obj)->get_sex(), 1));
 				break;
 			default: break;
 		}

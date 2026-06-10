@@ -12,11 +12,14 @@
 
 #include <memory>
 
-const int EXIT_SHOW_WALL = (1 << 0);
-const int EXIT_SHOW_LOOKING = (1 << 1);
-
 class CharData;
 class ObjData;
+class CObjectPrototype;
+
+namespace sight {
+
+const int EXIT_SHOW_WALL = (1 << 0);
+const int EXIT_SHOW_LOOKING = (1 << 1);
 void look_at_room(CharData *ch, int ignore_brief, bool msdp_mode = true);
 void skip_hide_on_look(CharData *ch);
 void list_char_to_char(const RoomData::people_t &list, CharData *ch);
@@ -67,6 +70,13 @@ const char *PersonName(const CharData *ch, const CharData *viewer, int pad);
 // from engine/core/utils_char_obj.inl for cohesion -- all "who/what can see what" in one place).
 bool MortCanSeeObj(const CharData *sub, const ObjData *obj);
 bool CanSeeObj(const CharData *sub, const ObjData *obj);
+
+// issue.chardata-cleaning: object-description helpers (were ad-hoc extern-declared in economics/etc.)
+char *diag_weapon_to_char(const CObjectPrototype *obj, int show_wear);
+char *diag_timer_to_char(const ObjData *obj);
+const char *diag_obj_timer(const ObjData *obj);
+
+}  // namespace sight
 
 #endif //BYLINS_SRC_GAME_MECHANICS_SIGHT_H_
 

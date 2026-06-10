@@ -226,7 +226,7 @@ void CollectChars(CharData *searcher, const Query &q,
 	auto consider = [&](CharData *cand) {
 		if (ord.done) return;
 		if (!cand || cand->purged()) return;
-		if (q.visible_only && !CanSee(searcher, cand)) return;
+		if (q.visible_only && !sight::CanSee(searcher, cand)) return;
 		if (name_filter && !MatchesName(cand, *name_filter)) return;
 		if (q.char_predicate && !q.char_predicate(cand)) return;
 		// Ordinal: skip the first ord.target-1 matches when `single` is set;
@@ -307,7 +307,7 @@ void ConsiderObjOne(ObjData *cand, const Query &q,
 					 std::vector<ObjData *> &out, CharData *searcher) {
 	if (ord.done) return;
 	if (!cand) return;
-	if (q.visible_only && searcher && !CanSeeObj(searcher, cand)) return;
+	if (q.visible_only && searcher && !sight::CanSeeObj(searcher, cand)) return;
 	if (name_filter && !MatchesName(cand, *name_filter)) return;
 	if (q.obj_predicate && !q.obj_predicate(cand)) return;
 	if (q.single) {
@@ -567,7 +567,7 @@ CharPredicate MakeSameRoomFilter(CharData *root) {
 
 CharPredicate MakeVisibleFilter(CharData *viewer) {
 	return [viewer](CharData *cand) {
-		return viewer && cand && CanSee(viewer, cand);
+		return viewer && cand && sight::CanSee(viewer, cand);
 	};
 }
 
@@ -595,7 +595,7 @@ ObjPredicate MakeObjVnumFilter(ObjVnum vnum) {
 
 ObjPredicate MakeObjVisibleFilter(CharData *viewer) {
 	return [viewer](ObjData *cand) {
-		return viewer && cand && CanSeeObj(viewer, cand);
+		return viewer && cand && sight::CanSeeObj(viewer, cand);
 	};
 }
 

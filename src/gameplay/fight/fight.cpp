@@ -446,7 +446,7 @@ CharData *find_friend_cure(CharData *caster, ESpell spell_id) {
 		if (get_hp_perc(caster) < AFF_USED) {
 			return caster;
 		} else if (caster->has_master()
-			&& CanSee(caster, caster->get_master())
+			&& sight::CanSee(caster, caster->get_master())
 			&& caster->get_master()->in_room == caster->in_room
 			&& caster->get_master()->GetEnemy()
 			&& get_hp_perc(caster->get_master()) < AFF_USED) {
@@ -461,7 +461,7 @@ CharData *find_friend_cure(CharData *caster, ESpell spell_id) {
 			|| ((vict->IsFlagged(EMobFlag::kTutelar) || vict->IsFlagged(EMobFlag::kMentalShadow) || vict->IsFlagged(EMobFlag::kCompanion)) // ()
 				&& vict->has_master()
 				&& !vict->get_master()->IsNpc())
-			|| !CanSee(caster, vict)) {
+			|| !sight::CanSee(caster, vict)) {
 			continue;
 		}
 
@@ -512,7 +512,7 @@ CharData *find_friend(CharData *caster, ESpell spell_id) {
 			|| IsAffectedBySpell(caster, spellreal)) {
 			return caster;
 		} else if (caster->has_master()
-			&& CanSee(caster, caster->get_master())
+			&& sight::CanSee(caster, caster->get_master())
 			&& caster->get_master()->in_room == caster->in_room
 			&& (caster->get_master()->has_any_affect(AFF_USED)
 				|| IsAffectedBySpell(caster->get_master(), spellreal))) {
@@ -530,7 +530,7 @@ CharData *find_friend(CharData *caster, ESpell spell_id) {
 				vict->IsFlagged(EMobFlag::kCompanion)) // ()
 					&& vict->get_master()
 					&& !vict->get_master()->IsNpc())
-				|| !CanSee(caster, vict)) {
+				|| !sight::CanSee(caster, vict)) {
 				continue;
 			}
 
@@ -590,7 +590,7 @@ CharData *find_caster(CharData *caster, ESpell spell_id) {
 			|| IsAffectedBySpell(caster, spellreal)) {
 			return caster;
 		} else if (caster->has_master()
-			&& CanSee(caster, caster->get_master())
+			&& sight::CanSee(caster, caster->get_master())
 			&& caster->get_master()->in_room == caster->in_room
 			&& (caster->get_master()->has_any_affect(AFF_USED)
 				|| IsAffectedBySpell(caster->get_master(), spellreal))) {
@@ -606,7 +606,7 @@ CharData *find_caster(CharData *caster, ESpell spell_id) {
 				|| AFF_FLAGGED(vict, EAffect::kCharmed)
 				|| ((vict->IsFlagged(EMobFlag::kTutelar) || vict->IsFlagged(EMobFlag::kMentalShadow) || vict->IsFlagged(EMobFlag::kCompanion)) // ()
 					&& (vict->get_master() && !vict->get_master()->IsNpc()))
-				|| !CanSee(caster, vict)) {
+				|| !sight::CanSee(caster, vict)) {
 				continue;
 			}
 
@@ -677,7 +677,7 @@ CharData *find_affectee(CharData *caster, ESpell spell_id) {
 		if (!IsAffectedBySpell(caster, spellreal)) {
 			return caster;
 		} else if (caster->has_master()
-			&& CanSee(caster, caster->get_master())
+			&& sight::CanSee(caster, caster->get_master())
 			&& caster->get_master()->in_room == caster->in_room
 			&& caster->get_master()->GetEnemy() && !IsAffectedBySpell(caster->get_master(), spellreal)) {
 			return caster->get_master();
@@ -693,7 +693,7 @@ CharData *find_affectee(CharData *caster, ESpell spell_id) {
 				|| ((vict->IsFlagged(EMobFlag::kTutelar) || vict->IsFlagged(EMobFlag::kMentalShadow) || vict->IsFlagged(EMobFlag::kCompanion)) // ()
 					&& vict->has_master()
 					&& !vict->get_master()->IsNpc())
-				|| !CanSee(caster, vict)) {
+				|| !sight::CanSee(caster, vict)) {
 				continue;
 			}
 
@@ -744,7 +744,7 @@ CharData *find_opp_affectee(CharData *caster, ESpell spell_id) {
 					|| AFF_FLAGGED(vict, EAffect::kCharmed))
 					&& vict->has_master()
 					&& !vict->get_master()->IsNpc()))
-				|| !CanSee(caster, vict)) {
+				|| !sight::CanSee(caster, vict)) {
 				continue;
 			}
 
@@ -786,7 +786,7 @@ CharData *find_opp_caster(CharData *caster) {
 			&& (GetRealInt(caster) < number(15, 25)
 				|| !in_same_battle(caster, vict, true)))
 			|| AFF_FLAGGED(vict, EAffect::kHold) || AFF_FLAGGED(vict, EAffect::kSilence)
-			|| (!CanSee(caster, vict) && caster->GetEnemy() != vict))
+			|| (!sight::CanSee(caster, vict) && caster->GetEnemy() != vict))
 			continue;
 		if (vict_val < GET_MAXCASTER(vict)) {
 			victim = vict;
@@ -808,7 +808,7 @@ CharData *find_damagee(CharData *caster) {
 					|| AFF_FLAGGED(vict, EAffect::kCharmed))
 					&& vict->has_master()
 					&& !vict->get_master()->IsNpc()))
-				|| !CanSee(caster, vict)) {
+				|| !sight::CanSee(caster, vict)) {
 				continue;
 			}
 
@@ -864,11 +864,11 @@ CharData *find_target(CharData *ch) {
 			|| (IsCharmice(vict) && !vict->GetEnemy()
 				&& mob_ai::find_master_charmice(vict)) // чармиса агрим только если нет хозяина в руме.
 			|| vict->IsFlagged(EPrf::kNohassle)
-			|| !MaySee(ch, ch, vict)) {
+			|| !sight::MaySee(ch, ch, vict)) {
 			continue;
 		}
 
-		if (!CanSee(ch, vict)) {
+		if (!sight::CanSee(ch, vict)) {
 			continue;
 		}
 
@@ -957,7 +957,7 @@ CharData *find_minhp(CharData *caster) {
 					|| AFF_FLAGGED(vict, EAffect::kCharmed))
 					&& vict->has_master()
 					&& !vict->get_master()->IsNpc()))
-				|| !CanSee(caster, vict)) {
+				|| !sight::CanSee(caster, vict)) {
 				continue;
 			}
 
@@ -1529,7 +1529,7 @@ void using_mob_skills(CharData *ch) {
 						&& !(attacker->IsFlagged(EMobFlag::kTutelar)
 							&& attacker->has_master()
 							&& !attacker->get_master()->IsNpc()))
-					|| !CanSee(ch, vict) // не видно, кого нужно спасать
+					|| !sight::CanSee(ch, vict) // не видно, кого нужно спасать
 					|| ch == vict) // себя спасать не нужно
 				{
 					continue;
@@ -1594,7 +1594,7 @@ void using_mob_skills(CharData *ch) {
 			}
 
 			if (caster
-				&& (CanSee(ch, caster) || ch->GetEnemy() == caster)
+				&& (sight::CanSee(ch, caster) || ch->GetEnemy() == caster)
 				&& caster->caster_level > POOR_CASTER
 				&& (sk_num == ESkill::kBash || sk_num == ESkill::kChopoff)) {
 				if (sk_num == ESkill::kBash) {
@@ -1621,7 +1621,7 @@ void using_mob_skills(CharData *ch) {
 
 			if (sk_use
 				&& damager
-				&& (CanSee(ch, damager)
+				&& (sight::CanSee(ch, damager)
 					|| ch->GetEnemy() == damager)) {
 				if (sk_num == ESkill::kBash) {
 					if (mount::IsOnHorse(damager)) {
@@ -1797,7 +1797,7 @@ void process_npc_attack(CharData *ch) {
 				&& ch->get_wait() <= 0
 				&& ch->GetPosition() >= EPosition::kFight) {
 		// сначала мытаемся спасти
-		if (CanSee(ch, ch->get_master()) && AFF_FLAGGED(ch, EAffect::kHelper)) {
+		if (sight::CanSee(ch, ch->get_master()) && AFF_FLAGGED(ch, EAffect::kHelper)) {
 			for (const auto vict : world[ch->in_room]->people) {
 				if (vict->GetEnemy() == ch->get_master()
 					&& vict != ch && vict != ch->get_master()) {

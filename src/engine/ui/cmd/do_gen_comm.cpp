@@ -276,7 +276,7 @@ std::string format_gossip(CharData *ch, CharData *vict, int cmd, const char *arg
 					   (cmd == kScmdGossip ? kColorYel : kColorBoldYel),
 					   format_gossip_name(ch, vict).c_str(),
 					   (cmd == kScmdGossip ? "заметил" : "заорал"),
-					   grammar::VisSexEnding(CanSee((vict), (ch)), (ch)->get_sex(), 1),
+					   grammar::VisSexEnding(sight::CanSee((vict), (ch)), (ch)->get_sex(), 1),
 					   argument,
 					   kColorNrm);
 }
@@ -290,7 +290,7 @@ std::string format_gossip_name(CharData *ch, CharData *vict) {
 		log("SYSERROR: мы не должны были сюда попасть, func: %s", __func__);
 		return "";
 	}
-	std::string name = ch->IsImmortal() ? GET_NAME(ch) : PersonName(ch, vict, 0);
+	std::string name = ch->IsImmortal() ? GET_NAME(ch) : sight::PersonName(ch, vict, 0);
 	name[0] = UPPER(name[0]);
 	return name;
 }

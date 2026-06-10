@@ -32,7 +32,7 @@ void DoExits(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 						GET_ROOM_VNUM(EXIT(ch, door)->to_room()), world[EXIT(ch, door)->to_room()]->name);
 			else {
 				sprintf(buf2, "%-6s - ", dirs_rus[door]);
-				if (is_dark(EXIT(ch, door)->to_room()) && !CanSeeInDark(ch))
+				if (is_dark(EXIT(ch, door)->to_room()) && !sight::CanSeeInDark(ch))
 					strcat(buf2, "слишком темно\r\n");
 				else {
 					const RoomRnum rnum_exit_room = EXIT(ch, door)->to_room();
@@ -71,7 +71,7 @@ void do_blind_exits(CharData *ch) {
 						GET_ROOM_VNUM(EXIT(ch, door)->to_room()), world[EXIT(ch, door)->to_room()]->name);
 			else {
 				sprintf(buf2, "&W%s - ", dirs_rus[door]);
-				if (is_dark(EXIT(ch, door)->to_room()) && !CanSeeInDark(ch))
+				if (is_dark(EXIT(ch, door)->to_room()) && !sight::CanSeeInDark(ch))
 					strcat(buf2, "слишком темно");
 				else {
 					const RoomRnum rnum_exit_room = EXIT(ch, door)->to_room();

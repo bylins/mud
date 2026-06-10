@@ -105,7 +105,7 @@ EStageResult SpellLocateObject(CastContext &ctx) {
 			const auto same_zone = world[ch->in_room]->zone_rn == world[carried_by->in_room]->zone_rn;
 			if (!carried_by->IsNpc() || same_zone || bloody_corpse) {
 				sprintf(buf, "%s наход%sся у %s в инвентаре.\r\n", i->get_short_description().c_str(),
-						grammar::ObjPluralVerbEnding((i)->get_sex()), PersonName(carried_by, ch, 1));
+						grammar::ObjPluralVerbEnding((i)->get_sex()), sight::PersonName(carried_by, ch, 1));
 			} else {
 				return false;
 			}
@@ -151,7 +151,7 @@ EStageResult SpellLocateObject(CastContext &ctx) {
 			const auto same_zone = world[ch->in_room]->zone_rn == world[worn_by->in_room]->zone_rn;
 			if (!worn_by->IsNpc() || same_zone || bloody_corpse) {
 				sprintf(buf, "%s надет%s на %s.\r\n", i->get_short_description().c_str(),
-						grammar::ObjSexEnding((i)->get_sex(), 6), PersonName(worn_by, ch, 3));
+						grammar::ObjSexEnding((i)->get_sex(), 6), sight::PersonName(worn_by, ch, 3));
 			} else {
 				return false;
 			}

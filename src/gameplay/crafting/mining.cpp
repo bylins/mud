@@ -166,7 +166,7 @@ void do_dig(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (is_dark(ch->in_room) && !CanSeeInDark(ch) && !ch->IsImmortal()) {
+	if (is_dark(ch->in_room) && !sight::CanSeeInDark(ch) && !ch->IsImmortal()) {
 		SendMsgToChar("Куда копать? Чего копать? Ничего не видно...\r\n", ch);
 		return;
 	}

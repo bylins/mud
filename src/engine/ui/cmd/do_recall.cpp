@@ -47,7 +47,7 @@ void do_recall(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 			act("$n поднял$a глаза к небу и внезапно исчез$q!", true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 			RemoveCharFromRoom(ch);
 			PlaceCharToRoom(ch, rent_room);
-			look_at_room(ch, 0);
+			sight::look_at_room(ch, 0);
 			act("$n внезапно появил$u в центре комнаты!", true, ch, nullptr, nullptr, kToRoom);
 		} else {
 			SendMsgToChar("Но тут и так достаточно мирно...\r\n", ch);

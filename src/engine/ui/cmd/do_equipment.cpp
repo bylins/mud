@@ -17,9 +17,9 @@ void DoEquipment(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	SendMsgToChar("На вас надето:\r\n", ch);
 	for (i = 0; i < EEquipPos::kNumEquipPos; i++) {
 		if (GET_EQ(ch, i)) {
-			if (CanSeeObj(ch, GET_EQ(ch, i))) {
+			if (sight::CanSeeObj(ch, GET_EQ(ch, i))) {
 				SendMsgToChar(where[i], ch);
-				show_obj_to_char(GET_EQ(ch, i), ch, 1, true, 1);
+				sight::show_obj_to_char(GET_EQ(ch, i), ch, 1, true, 1);
 				found = true;
 			} else {
 				SendMsgToChar(where[i], ch);

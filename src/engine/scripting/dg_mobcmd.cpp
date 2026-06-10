@@ -539,7 +539,7 @@ void do_mteleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 			RemoveCharFromRoom(vict);
 			PlaceCharToRoom(vict, target);
 			if (!vict->IsNpc()) {
-				look_at_room(vict, true);
+				sight::look_at_room(vict, true);
 				lastchar = vict;
 			}
 		}
@@ -576,7 +576,7 @@ void do_mteleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 			if (!onhorse)
 				mount::Dismount(vict);
 			if (!vict->IsNpc()) {
-				look_at_room(vict, true);
+				sight::look_at_room(vict, true);
 				lastchar = vict;
 			}
 		}
@@ -629,7 +629,7 @@ void do_mteleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 		PlaceCharToRoom(vict, target);
 		if (!onhorse)
 			mount::Dismount(vict);
-		look_at_room(vict, true);
+		sight::look_at_room(vict, true);
 		greet_mtrigger(vict, -1);
 		greet_otrigger(vict, -1);
 	}

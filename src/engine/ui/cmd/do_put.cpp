@@ -1,4 +1,5 @@
 #include "gameplay/mechanics/depot.h"
+#include "gameplay/mechanics/sight.h"
 #include "engine/entities/char_data.h"
 #include "engine/db/world_objects.h"
 #include "gameplay/economics/currencies.h"
@@ -228,7 +229,7 @@ void do_put(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				for (auto obj = ch->carrying; obj; obj = next_obj) {
 					next_obj = obj->get_next_content();
 					if (obj != cont
-						&& CanSeeObj(ch, obj)
+						&& sight::CanSeeObj(ch, obj)
 						&& (obj_dotmode == kFindAll
 							|| isname(theobj, obj->get_aliases())
 							|| CHECK_CUSTOM_LABEL(theobj, obj, ch))) {

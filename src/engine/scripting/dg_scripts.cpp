@@ -2736,7 +2736,7 @@ void find_replacement(void *go,
 		else if (!str_cmp(field, "cancarryweight"))
 			snprintf(str, str_size, "%d", CAN_CARRY_W(mob));
 		else if (!str_cmp(field, "CanBeSeen")) {
-			if ((type == MOB_TRIGGER) && !CanSee(((CharData *) go), mob)) {
+			if ((type == MOB_TRIGGER) && !sight::CanSee(((CharData *) go), mob)) {
 				snprintf(str, str_size, "0");
 			} else {
 				snprintf(str, str_size, "1");

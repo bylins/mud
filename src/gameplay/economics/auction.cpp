@@ -9,6 +9,7 @@
 ************************************************************************ */
 
 #include "auction.h"
+#include "gameplay/mechanics/sight.h"
 #include "utils/grammar/gender.h"
 #include "utils/grammar/declensions.h"
 #include "gameplay/mechanics/identify.h"
@@ -34,10 +35,8 @@ extern int invalid_anti_class(CharData *ch, const ObjData *obj);
 extern int invalid_unique(CharData *ch, const ObjData *obj);
 extern int invalid_no_class(CharData *ch, const ObjData *obj);
 extern bool HaveIncompatibleAlign(CharData *ch, ObjData *obj);
-extern char *diag_weapon_to_char(const CObjectPrototype *obj, int show_wear);
-extern char *diag_timer_to_char(const ObjData *obj);
 extern void SetWait(CharData *ch, int waittime, int victim_in_room);
-extern void obj_info(CharData *ch, ObjData *obj, char buf[kMaxStringLength]);
+extern void sight::obj_info(CharData *ch, ObjData *obj, char buf[kMaxStringLength]);
 
 AuctionItem auction_lots[kMaxAuctionLot] = {{-1, nullptr, -1, nullptr, -1, nullptr, -1, nullptr, 0, 0},
 											{-1, nullptr, -1, nullptr, -1, nullptr, -1, nullptr, 0, 0},
@@ -402,10 +401,10 @@ bool auction_drive(CharData *ch, char *argument) {
 				strcat(buf, buf2);
 				strcat(buf, "\n");
 			};
-			strcat(buf, diag_weapon_to_char(obj, true));
-			strcat(buf, diag_timer_to_char(obj));
+			strcat(buf, sight::diag_weapon_to_char(obj, true));
+			strcat(buf, sight::diag_timer_to_char(obj));
 			strcat(buf, "\r\n");
-			obj_info(ch, obj, buf);
+			sight::obj_info(ch, obj, buf);
 			strcat(buf, "\n");
 			if (invalid_anti_class(ch, obj) || invalid_unique(ch, obj) || NamedStuff::check_named(ch, obj, 0)) {
 				sprintf(buf2, "Эта вещь вам недоступна!");

@@ -10,6 +10,7 @@ str.cpp - PyUnicode_FromString на PyUnicode_DecodeLocale, PyUnicode_FromString
 Т.е. делаем все так же, как и здесь http://habrahabr.ru/post/161931/
 */
 #include "scripting.h"
+#include "gameplay/mechanics/sight.h"
 #include "gameplay/mechanics/mount.h"
 
 #include "engine/db/world_characters.h"
@@ -1193,7 +1194,7 @@ void char_to_room_wrap(CharacterWrapper &c, int vnum) {
 	char_from_room(ch);
 	char_to_room(ch, location);
 	mount::Dismount(ch);
-	look_at_room(ch, 0);
+	sight::look_at_room(ch, 0);
 
 }
 

@@ -41,7 +41,7 @@ EStageResult SpellTeleport(CastContext &ctx) {
 	mount::Dismount(ch);
 	act(MUD::SpellMessages().GetMessage(ESpell::kTeleport, ESpellMsg::kCastAppearToRoom).c_str(),
 		false, ch, nullptr, nullptr, kToRoom);
-	look_at_room(ch, 0);
+	sight::look_at_room(ch, 0);
 	greet_mtrigger(ch, -1);
 	greet_otrigger(ch, -1);
 	return EStageResult::kSuccess;

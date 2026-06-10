@@ -28,7 +28,7 @@ void do_summon(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	act("$n исчез$q в голубом пламени.", true, horse, nullptr, nullptr, kToRoom);
 	RemoveCharFromRoom(horse);
 	PlaceCharToRoom(horse, ch->in_room);
-	look_at_room(horse, 0);
+	sight::look_at_room(horse, 0);
 	act("$n появил$u из голубого пламени!", true, horse, nullptr, nullptr, kToRoom);
 }
 

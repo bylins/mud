@@ -87,7 +87,7 @@ EStageResult SpellCharm(CastContext &ctx) {
 			}
 		}
 
-		if (CanSee(victim, ch)) {
+		if (sight::CanSee(victim, ch)) {
 			mob_ai::mobRemember(victim, ch);
 		}
 

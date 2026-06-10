@@ -69,7 +69,7 @@ EStageResult SpellRelocate(CastContext &ctx) {
 	RemoveCharFromRoom(ch);
 	PlaceCharToRoom(ch, fnd_room);
 	mount::Dismount(ch);
-	look_at_room(ch, 0);
+	sight::look_at_room(ch, 0);
 	act(MUD::SpellMessages().GetMessage(ESpell::kRelocate, ESpellMsg::kCastAppearToRoom).c_str(),
 		true, ch, nullptr, nullptr, kToRoom);
 	SetBattleLag(ch, 2);

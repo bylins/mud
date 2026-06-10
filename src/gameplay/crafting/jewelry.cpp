@@ -82,7 +82,7 @@ void do_insertgem(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		return;
 	}
 
-	if (is_dark(ch->in_room) && !CanSeeInDark(ch) && !ch->IsImmortal()) {
+	if (is_dark(ch->in_room) && !sight::CanSeeInDark(ch) && !ch->IsImmortal()) {
 		SendMsgToChar("Да тут темно хоть глаза выколи...\r\n", ch);
 		return;
 	}

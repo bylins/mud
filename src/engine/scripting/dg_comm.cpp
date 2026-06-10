@@ -55,7 +55,7 @@ void sub_write_to_char(CharData *ch, char *tokens[], void *otokens[], char type[
 				else if ((CharData *) otokens[i] == ch)
 					strcat(sb, "Вы");
 				else
-					strcat(sb, PersonName((CharData *) otokens[i], ch, 0));
+					strcat(sb, sight::PersonName((CharData *) otokens[i], ch, 0));
 				break;
 
 			case '@':
@@ -64,12 +64,12 @@ void sub_write_to_char(CharData *ch, char *tokens[], void *otokens[], char type[
 				else if ((CharData *) otokens[i] == ch)
 					strcat(sb, "ваш");
 				else {
-					strcat(sb, PersonName((CharData *) otokens[i], ch, 1));
+					strcat(sb, sight::PersonName((CharData *) otokens[i], ch, 1));
 				}
 				break;
 
 			case '^':
-				if (!otokens[i] || !CanSee(ch, (CharData *) otokens[i]))
+				if (!otokens[i] || !sight::CanSee(ch, (CharData *) otokens[i]))
 					strcat(sb, "чей-то");
 				else if (otokens[i] == ch)
 					strcat(sb, "ваш");
@@ -78,7 +78,7 @@ void sub_write_to_char(CharData *ch, char *tokens[], void *otokens[], char type[
 				break;
 
 			case '}':
-				if (!otokens[i] || !CanSee(ch, (CharData *) otokens[i]))
+				if (!otokens[i] || !sight::CanSee(ch, (CharData *) otokens[i]))
 					strcat(sb, "Он");
 				else if (otokens[i] == ch)
 					strcat(sb, "Вы");
@@ -87,7 +87,7 @@ void sub_write_to_char(CharData *ch, char *tokens[], void *otokens[], char type[
 				break;
 
 			case '*':
-				if (!otokens[i] || !CanSee(ch, (CharData *) otokens[i]))
+				if (!otokens[i] || !sight::CanSee(ch, (CharData *) otokens[i]))
 					strcat(sb, "ему");
 				else if (otokens[i] == ch)
 					strcat(sb, "вам");

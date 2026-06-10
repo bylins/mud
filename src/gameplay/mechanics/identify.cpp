@@ -28,7 +28,6 @@
 #include <cmath>
 
 // Defined in sight.cpp / spells.cpp (no header); forward-declared as the trading code does.
-extern char *diag_weapon_to_char(const CObjectPrototype *obj, int show_wear);
 int CalcBaseAc(CharData *ch);
 
 static void ShowWeapon(CharData *ch, ObjData *obj) {
@@ -299,7 +298,7 @@ void MortShowObjValues(const ObjData *obj, CharData *ch, int fullness) {
 	strcat(buf, "\r\n");
 	SendMsgToChar(buf, ch);
 
-	strcpy(buf, diag_weapon_to_char(obj, 2));
+	strcpy(buf, sight::diag_weapon_to_char(obj, 2));
 	if (*buf)
 		SendMsgToChar(buf, ch);
 

@@ -22,7 +22,7 @@ void DoLook(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		SendMsgToChar("Виделся часто сон беспокойный...\r\n", ch);
 	} else if (AFF_FLAGGED(ch, EAffect::kBlind)) {
 		SendMsgToChar("Вы ослеплены!\r\n", ch);
-	} else if (is_dark(ch->in_room) && !CanSeeInDark(ch)) {
+	} else if (is_dark(ch->in_room) && !sight::CanSeeInDark(ch)) {
 		if (GetRealLevel(ch) > 30) {
 			sprintf(buf,
 					"%sКомната=%s%d %sСвет=%s%d %sОсвещ=%s%d %sКостер=%s%d %sЛед=%s%d "
@@ -38,21 +38,21 @@ void DoLook(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 					kColorYel, kColorBoldYel, weather_info.moon_day, kColorNrm);
 			SendMsgToChar(buf, ch);
 		}
-		skip_hide_on_look(ch);
+		sight::skip_hide_on_look(ch);
 
 		SendMsgToChar("Слишком темно...\r\n", ch);
-		list_char_to_char(world[ch->in_room]->people, ch);    // glowing red eyes
-		show_glow_objs(ch);
+		sight::list_char_to_char(world[ch->in_room]->people, ch);    // glowing red eyes
+		sight::show_glow_objs(ch);
 	} else {
 		half_chop(argument, arg, arg2);
 
-		skip_hide_on_look(ch);
+		sight::skip_hide_on_look(ch);
 
 		if (subcmd == kScmdRead) {
 			if (!*arg)
 				SendMsgToChar("Что вы хотите прочитать?\r\n", ch);
 			else
-				look_at_target(ch, arg, subcmd);
+				sight::look_at_target(ch, arg, subcmd);
 			return;
 		}
 		if (!*arg)    // "look" alone, without an argument at all
@@ -60,17 +60,17 @@ void DoLook(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			if (ch->desc) {
 				ch->desc->msdp_report("ROOM");
 			}
-			look_at_room(ch, 1);
+			sight::look_at_room(ch, 1);
 		} else if (utils::IsAbbr(arg, "in") || utils::IsAbbr(arg, "внутрь"))
-			look_in_obj(ch, arg2);
+			sight::look_in_obj(ch, arg2);
 			// did the char type 'look <direction>?'
 		else if (((look_type = search_block(arg, dirs, false)) >= 0) ||
 			((look_type = search_block(arg, dirs_rus, false)) >= 0))
-			look_in_direction(ch, look_type, EXIT_SHOW_WALL);
+			sight::look_in_direction(ch, look_type, sight::EXIT_SHOW_WALL);
 		else if (utils::IsAbbr(arg, "at") || utils::IsAbbr(arg, "на"))
-			look_at_target(ch, arg2, subcmd);
+			sight::look_at_target(ch, arg2, subcmd);
 		else
-			look_at_target(ch, argument, subcmd);
+			sight::look_at_target(ch, argument, subcmd);
 	}
 }
 

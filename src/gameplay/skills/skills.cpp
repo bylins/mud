@@ -780,21 +780,21 @@ int CalculateVictimRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 			break;
 
 		case ESkill::kPry: {
-			if (CanSee(vict, ch) && AWAKE(vict)) {
+			if (sight::CanSee(vict, ch) && AWAKE(vict)) {
 				rate -= int_app[GetRealInt(ch)].observation;
 			}
 			break;
 		}
 
 		case ESkill::kStrangle: {
-			if (CanSee(ch, vict) && (vict->IsFlagged(EPrf::kAwake))) {
+			if (sight::CanSee(ch, vict) && (vict->IsFlagged(EPrf::kAwake))) {
 				rate -= CalculateSkillAwakeModifier(ch, vict);
 			}
 			break;
 		}
 
 		case ESkill::kDazzle: {
-			if (CanSee(ch, vict) && (vict->IsFlagged(EPrf::kAwake))) {
+			if (sight::CanSee(ch, vict) && (vict->IsFlagged(EPrf::kAwake))) {
 				rate -= CalculateSkillAwakeModifier(ch, vict);
 			}
 			break;
@@ -860,7 +860,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 				bonus += -50;
 			}
 			if (vict) {
-				if (!CanSee(vict, ch)) {
+				if (!sight::CanSee(vict, ch)) {
 					bonus += 25;
 				}
 				if (vict->GetPosition() < EPosition::kFight) {
@@ -952,7 +952,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 				bonus += 20;
 			}
 			if (vict) {
-				if (!CanSee(vict, ch))
+				if (!sight::CanSee(vict, ch))
 					bonus += 25;
 			}
 			break;
@@ -965,7 +965,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 			if (is_dark(ch->in_room))
 				bonus += 20;
 			if (vict) {
-				if (!CanSee(vict, ch))
+				if (!sight::CanSee(vict, ch))
 					bonus += 25;
 				if (AWAKE(vict)) {
 					if (AFF_FLAGGED(vict, EAffect::kAwarness))
@@ -1096,7 +1096,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 				bonus -= 10;
 			}
 			if (vict) {
-				if (!CanSee(vict, ch))
+				if (!sight::CanSee(vict, ch))
 					bonus += 10;
 				if (vict->GetPosition() < EPosition::kSit)
 					bonus -= 50;
@@ -1156,7 +1156,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 		case ESkill::kPry: {
 			parameter_bonus = cha_app[GetRealCha(ch)].illusive;
 			if (vict) {
-				if (!CanSee(vict, ch)) {
+				if (!sight::CanSee(vict, ch)) {
 					bonus += 50;
 				}
 			}
@@ -1186,7 +1186,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 			if (AFF_FLAGGED(vict, EAffect::kHold)) {
 				bonus += 30;
 			} else {
-				if (!CanSee(ch, vict))
+				if (!sight::CanSee(ch, vict))
 					bonus += 20;
 			}
 			break;
@@ -1376,7 +1376,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict, bool /
 			}
 
 			if (vict) {
-				if (!CanSee(vict, ch)) {
+				if (!sight::CanSee(vict, ch)) {
 					bonus += 25;
 				}
 
@@ -1480,7 +1480,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict, bool /
 			if (vict) {
 				if (GetRealLevel(vict) > 35)
 					bonus -= 50;
-				if (!CanSee(vict, ch))
+				if (!sight::CanSee(vict, ch))
 					bonus += 25;
 				if (AWAKE(vict)) {
 					victim_modi -= int_app[GetRealInt(vict)].observation;
@@ -1499,7 +1499,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict, bool /
 
 			if (vict) {
 				victim_sav = CalcSaving(ch, vict, ESaving::kReflex, 0);
-				if (!CanSee(vict, ch))
+				if (!sight::CanSee(vict, ch))
 					bonus += 25;
 				if (AWAKE(vict)) {
 					victim_modi -= int_app[GetRealInt(vict)].observation;
@@ -1680,7 +1680,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict, bool /
 			if (IsEquipInMetall(ch))
 				bonus -= 10;
 			if (vict) {
-				if (!CanSee(vict, ch))
+				if (!sight::CanSee(vict, ch))
 					bonus += 10;
 				if (vict->GetPosition() < EPosition::kSit)
 					bonus -= 50;
@@ -1767,7 +1767,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict, bool /
 		case ESkill::kPry: {
 			bonus = cha_app[GetRealCha(ch)].illusive;
 			if (vict) {
-				if (!CanSee(vict, ch))
+				if (!sight::CanSee(vict, ch))
 					bonus += 50;
 				else if (AWAKE(vict))
 					victim_modi -= int_app[GetRealInt(ch)].observation;
@@ -1799,7 +1799,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict, bool /
 			if (AFF_FLAGGED(vict, EAffect::kHold)) {
 				bonus += (base_percent + bonus) / 2;
 			} else {
-				if (!CanSee(ch, vict))
+				if (!sight::CanSee(ch, vict))
 					bonus += (base_percent + bonus) / 5;
 				if (vict->IsFlagged(EPrf::kAwake))
 					victim_modi -= CalculateSkillAwakeModifier(ch, vict);

@@ -180,7 +180,7 @@ EStageResult SpellSummon(CastContext &ctx) {
 	act(MUD::SpellMessages().GetMessage(ESpell::kSummon, ESpellMsg::kCustomMsgTwo).c_str(),
 		false, ch, nullptr, victim, kToVict);
 	mount::Dismount(victim);
-	look_at_room(victim, 0);
+	sight::look_at_room(victim, 0);
 	SummonFollowingCharmices(ch, victim, vic_room, ch_room);
 	greet_mtrigger(victim, -1);
 	greet_otrigger(victim, -1);

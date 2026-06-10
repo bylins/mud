@@ -217,20 +217,20 @@ void Damage::SendCritHitMsg(CharData *ch, CharData *victim) {
 	// так что добавил отдельные сообщения для ледяного щита (Купала)
 	if (!flags[fight::kVictimIceShield]) {
 		sprintf(buf, "&G&qВаше меткое попадание тяжело ранило %s.&Q&n\r\n",
-				PersonName(victim, ch, 3));
+				sight::PersonName(victim, ch, 3));
 	} else {
 		sprintf(buf, "&B&qВаше меткое попадание утонуло в ледяной пелене щита %s.&Q&n\r\n",
-				PersonName(victim, ch, 1));
+				sight::PersonName(victim, ch, 1));
 	}
 
 	SendMsgToChar(buf, ch);
 
 	if (!flags[fight::kVictimIceShield]) {
 		sprintf(buf, "&r&qМеткое попадание %s тяжело ранило вас.&Q&n\r\n",
-				PersonName(ch, victim, 1));
+				sight::PersonName(ch, victim, 1));
 	} else {
 		sprintf(buf, "&r&qМеткое попадание %s утонуло в ледяной пелене вашего щита.&Q&n\r\n",
-				PersonName(ch, victim, 1));
+				sight::PersonName(ch, victim, 1));
 	}
 
 	SendMsgToChar(buf, victim);
@@ -498,8 +498,8 @@ int Damage::Process(CharData *ch, CharData *victim) {
 			mount::DropFromHorse(ch);
 		}
 	}
-	Appear(ch);
-	Appear(victim);
+	sight::Appear(ch);
+	sight::Appear(victim);
 
 	if (dam < 0 || ch->in_room == kNowhere || victim->in_room == kNowhere || ch->in_room != victim->in_room) {
 		return 0;

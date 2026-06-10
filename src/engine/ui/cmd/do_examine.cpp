@@ -39,9 +39,9 @@ void do_examine(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	else if (isname(where, "экипировка equipment"))
 		where_bits = EFind::kObjEquip;
 
-	skip_hide_on_look(ch);
+	sight::skip_hide_on_look(ch);
 
-	if (look_at_target(ch, argument, subcmd))
+	if (sight::look_at_target(ch, argument, subcmd))
 		return;
 
 	if (isname(arg, "пентаграмма") && IS_SET(where_bits, EFind::kObjRoom)) {
@@ -56,7 +56,7 @@ void do_examine(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		if (tmp_object->get_type() == EObjType::kLiquidContainer
 			|| tmp_object->get_type() == EObjType::kFountain
 			|| tmp_object->get_type() == EObjType::kContainer) {
-			look_in_obj(ch, argument);
+			sight::look_in_obj(ch, argument);
 		}
 	}
 }

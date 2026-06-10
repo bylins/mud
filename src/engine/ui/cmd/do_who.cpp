@@ -136,7 +136,7 @@ void DoWho(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			continue;
 		}
 
-		if (!CanSeeIgnoringLight(ch, tch) || GetRealLevel(tch) < low || GetRealLevel(tch) > high) {
+		if (!sight::CanSeeIgnoringLight(ch, tch) || GetRealLevel(tch) < low || GetRealLevel(tch) > high) {
 			continue;
 		}
 		if (localwho && world[ch->in_room]->zone_rn != world[tch->in_room]->zone_rn) {

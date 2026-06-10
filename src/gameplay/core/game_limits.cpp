@@ -422,7 +422,7 @@ void beat_punish(const CharData::shared_ptr &i) {
 		}
 		char_from_room(i);
 		char_to_room(i, restore);
-		look_at_room(i.get(), restore);
+		sight::look_at_room(i.get(), restore);
 		act("Насвистывая \"От звонка до звонка...\", $n появил$u в центре комнаты.",
 			false, i.get(), nullptr, nullptr, kToRoom);
 	}
@@ -456,7 +456,7 @@ void beat_punish(const CharData::shared_ptr &i) {
 
 		char_from_room(i);
 		char_to_room(i, restore);
-		look_at_room(i.get(), restore);
+		sight::look_at_room(i.get(), restore);
 		act("С ревом \"Имья, сестра, имья...\", $n появил$u в центре комнаты.",
 			false, i.get(), nullptr, nullptr, kToRoom);
 	}
@@ -516,7 +516,7 @@ void beat_punish(const CharData::shared_ptr &i) {
 
 			char_from_room(i);
 			char_to_room(i, restore);
-			look_at_room(i.get(), restore);
+			sight::look_at_room(i.get(), restore);
 
 			act("$n появил$u в центре комнаты, с гордостью показывая всем штампик регистрации!",
 				false, i.get(), nullptr, nullptr, kToRoom);
@@ -563,7 +563,7 @@ void beat_punish(const CharData::shared_ptr &i) {
 		}
 		char_from_room(i);
 		char_to_room(i, restore);
-		look_at_room(i.get(), restore);
+		sight::look_at_room(i.get(), restore);
 		act("Насвистывая \"От звонка до звонка...\", $n появил$u в центре комнаты.",
 			false, i.get(), nullptr, nullptr, kToRoom);
 	}
@@ -586,7 +586,7 @@ void beat_punish(const CharData::shared_ptr &i) {
 
 				char_from_room(i);
 				char_to_room(i, r_helled_start_room);
-				look_at_room(i.get(), r_helled_start_room);
+				sight::look_at_room(i.get(), r_helled_start_room);
 
 				i->set_was_in_room(kNowhere);
 			}
@@ -601,7 +601,7 @@ void beat_punish(const CharData::shared_ptr &i) {
 					false, i.get(), nullptr, nullptr, kToRoom);
 				char_from_room(i);
 				char_to_room(i, r_named_start_room);
-				look_at_room(i.get(), r_named_start_room);
+				sight::look_at_room(i.get(), r_named_start_room);
 
 				i->set_was_in_room(kNowhere);
 			};
@@ -619,7 +619,7 @@ void beat_punish(const CharData::shared_ptr &i) {
 
 				char_from_room(i);
 				char_to_room(i, r_unreg_start_room);
-				look_at_room(i.get(), r_unreg_start_room);
+				sight::look_at_room(i.get(), r_unreg_start_room);
 
 				i->set_was_in_room(kNowhere);
 			};
@@ -639,7 +639,7 @@ void beat_punish(const CharData::shared_ptr &i) {
 
 			char_from_room(i);
 			char_to_room(i, restore);
-			look_at_room(i.get(), restore);
+			sight::look_at_room(i.get(), restore);
 
 			i->set_was_in_room(kNowhere);
 		}

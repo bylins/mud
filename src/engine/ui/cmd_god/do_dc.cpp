@@ -30,7 +30,7 @@ void DoDropConnect(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		int victim_level = d->character->IsFlagged(EPrf::kCoderinfo) ? kLvlImplementator : GetRealLevel(d->character);
 		int god_level = ch->IsFlagged(EPrf::kCoderinfo) ? kLvlImplementator : GetRealLevel(ch);
 		if (victim_level >= god_level) {
-			if (!CanSee(ch, d->character))
+			if (!sight::CanSee(ch, d->character))
 				SendMsgToChar("Нет такого соединения.\r\n", ch);
 			else
 				SendMsgToChar("Да уж.. Это не есть праффильная идея...\r\n", ch);

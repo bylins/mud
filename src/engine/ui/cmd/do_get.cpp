@@ -1,4 +1,5 @@
 #include "gameplay/mechanics/depot.h"
+#include "gameplay/mechanics/sight.h"
 #include "utils/grammar/declensions.h"
 #include "engine/entities/char_data.h"
 #include "gameplay/fight/pk.h"
@@ -12,7 +13,7 @@
 #include <fmt/format.h>
 
 extern bool CanTakeObj(CharData *ch, ObjData *obj);
-extern char *find_exdesc(const char *word, const ExtraDescription::shared_ptr &list);
+extern char *sight::find_exdesc(const char *word, const ExtraDescription::shared_ptr &list);
 
 /// считаем сколько у ch в группе еще игроков (не мобов)
 int other_pc_in_group(CharData *ch) {
@@ -195,7 +196,7 @@ void get_from_container(CharData *ch, ObjData *cont, char *local_arg, int mode, 
 		}
 		for (obj = cont->get_contains(); obj; obj = next_obj) {
 			next_obj = obj->get_next_content();
-			if (CanSeeObj(ch, obj)
+			if (sight::CanSeeObj(ch, obj)
 				&& (obj_dotmode == kFindAll
 					|| isname(local_arg, obj->get_aliases())
 					|| CHECK_CUSTOM_LABEL(local_arg, obj, ch))) {
@@ -252,7 +253,7 @@ void get_from_room(CharData *ch, char *local_arg, int howmany) {
 	bool found = false;
 
 	// Are they trying to take something in a room extra description?
-	if (find_exdesc(local_arg, world[ch->in_room]->ex_description) != nullptr) {
+	if (sight::find_exdesc(local_arg, world[ch->in_room]->ex_description) != nullptr) {
 		SendMsgToChar("Вы не можете это взять.\r\n", ch);
 		return;
 	}
@@ -278,7 +279,7 @@ void get_from_room(CharData *ch, char *local_arg, int howmany) {
 		}
 		for (auto it = world[ch->in_room]->contents.begin(); it != world[ch->in_room]->contents.end(); ) {
 			auto obj = *it; ++it;
-			if (CanSeeObj(ch, obj)
+			if (sight::CanSeeObj(ch, obj)
 				&& (dotmode == kFindAll
 					|| isname(local_arg, obj->get_aliases())
 					|| CHECK_CUSTOM_LABEL(local_arg, obj, ch))) {
@@ -361,7 +362,7 @@ void do_get(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				return;
 			}
 			for (cont = ch->carrying; cont && IS_SET(where_bits, EFind::kObjInventory); cont = cont->get_next_content()) {
-				if (CanSeeObj(ch, cont)
+				if (sight::CanSeeObj(ch, cont)
 					&& (cont_dotmode == kFindAll
 						|| isname(thecont, cont->get_aliases())
 						|| CHECK_CUSTOM_LABEL(thecont, cont, ch))) {
@@ -375,7 +376,7 @@ void do_get(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				}
 			}
 			if (IS_SET(where_bits, EFind::kObjRoom)) for (auto cont : world[ch->in_room]->contents) {
-				if (CanSeeObj(ch, cont)
+				if (sight::CanSeeObj(ch, cont)
 					&& (cont_dotmode == kFindAll
 						|| isname(thecont, cont->get_aliases())
 						|| CHECK_CUSTOM_LABEL(thecont, cont, ch))) {

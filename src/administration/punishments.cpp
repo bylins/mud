@@ -132,7 +132,7 @@ bool SetHell(CharData *ch, CharData *vict, char *reason, long times) {
 			act("$n водворен$a в темницу!", false, vict, nullptr, nullptr, kToRoom);
 			RemoveCharFromRoom(vict);
 			PlaceCharToRoom(vict, r_helled_start_room);
-			look_at_room(vict, r_helled_start_room);
+			sight::look_at_room(vict, r_helled_start_room);
 		};
 		vict->set_was_in_room(kNowhere);
 		sprintf(buf, "%s moved TO hell by %s(%ldh).", GET_NAME(vict), GET_NAME(ch), times);
@@ -192,7 +192,7 @@ bool SetFreeze(CharData *ch, CharData *vict, char *reason, long times) {
 			act("$n водворен$a в темницу!", false, vict, nullptr, nullptr, kToRoom);
 			RemoveCharFromRoom(vict);
 			PlaceCharToRoom(vict, r_helled_start_room);
-			look_at_room(vict, r_helled_start_room);
+			sight::look_at_room(vict, r_helled_start_room);
 		};
 		SetPunisherParamsToPundata(ch, pundata, reason);
 	}
@@ -230,7 +230,7 @@ bool SetNameRoom(CharData *ch, CharData *vict, char *reason, long times) {
 			act("$n водворен$a в комнату имени!", false, vict, nullptr, nullptr, kToRoom);
 			RemoveCharFromRoom(vict);
 			PlaceCharToRoom(vict, r_named_start_room);
-			look_at_room(vict, r_named_start_room);
+			sight::look_at_room(vict, r_named_start_room);
 		};
 		vict->set_was_in_room(kNowhere);
 		sprintf(buf, "%s removed to nameroom by %s(%ldh).", GET_NAME(vict), GET_NAME(ch), times);
@@ -303,7 +303,7 @@ bool SetUnregister(CharData *ch, CharData *vict, char *reason, long times) {
 					false, vict, nullptr, nullptr, kToRoom);
 				RemoveCharFromRoom(vict);
 				PlaceCharToRoom(vict, r_unreg_start_room);
-				look_at_room(vict, r_unreg_start_room);
+				sight::look_at_room(vict, r_unreg_start_room);
 			}
 		}
 		vict->set_was_in_room(kNowhere);
@@ -377,7 +377,7 @@ void MoveToStartRoom(CharData *vict) {
 	RemoveCharFromRoom(vict);
 	RoomRnum room_rnum = GetStartRoomRnum(vict);
 	PlaceCharToRoom(vict, room_rnum);
-	look_at_room(vict, room_rnum);
+	sight::look_at_room(vict, room_rnum);
 }
 
 RoomRnum GetStartRoomRnum(CharData *vict) {

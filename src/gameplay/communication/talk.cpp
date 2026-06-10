@@ -29,7 +29,7 @@ void tell_to_char(CharData *keeper, CharData *ch, const char *argument) {
 }
 
 bool tell_can_see(CharData *ch, CharData *vict) {
-	if (CanSeeIgnoringLight(vict, ch) || ch->IsImmortal() || GET_INVIS_LEV(ch)) {
+	if (sight::CanSeeIgnoringLight(vict, ch) || ch->IsImmortal() || GET_INVIS_LEV(ch)) {
 		return true;
 	} else {
 		return false;
@@ -78,7 +78,7 @@ int is_tell_ok(CharData *ch, CharData *vict) {
 
 void perform_tell(CharData *ch, CharData *vict, char *arg) {
 	if (vict->IsFlagged(EPrf::kNoInvistell)
-		&& !CanSee(vict, ch)
+		&& !sight::CanSee(vict, ch)
 		&& GetRealLevel(ch) < kLvlImmortal
 		&& !ch->IsFlagged(EPrf::kCoderinfo)) {
 		act("$N не любит разговаривать с теми, кого не видит.", false, ch, nullptr, vict, kToChar | kToSleep);

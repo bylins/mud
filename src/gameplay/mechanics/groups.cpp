@@ -474,7 +474,7 @@ void group::GoGroup(CharData *ch, char *argument) {
 			&& AFF_FLAGGED(vict, EAffect::kCharmed)
 			&& vict->has_master()
 			&& !vict->get_master()->IsNpc()) {
-			if (CanSee(ch, vict->get_master())) {
+			if (sight::CanSee(ch, vict->get_master())) {
 				vict = vict->get_master();
 			} else {
 				vict = nullptr;

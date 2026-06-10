@@ -62,11 +62,11 @@
 using namespace ClanSystem;
 
 extern int mortal_start_room;
-extern void list_obj_to_char(ObjData *list, CharData *ch, int mode, int show);
+extern void sight::list_obj_to_char(ObjData *list, CharData *ch, int mode, int show);
 extern int AllocateBufferForFile(const char *name, char **destination_buf);
 // TODO: думать надо с этим, или глобально следить за спамом, или игноров напихать на все случаи жизни, или так и оставить
 extern void SetWait(CharData *ch, int waittime, int victim_in_room);
-extern const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_state, int how);
+extern const char *sight::show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_state, int how);
 extern bool char_to_pk_clan(CharData *ch);
 
 void fix_ingr_chest_rnum(const int room_rnum)//Нужно чтоб позиция короба не съехала
@@ -1150,7 +1150,7 @@ void Clan::HouseAdd(CharData *ch, std::string &buffer) {
 	}
 
 	DescriptorData *d = DescriptorByUid(unique);
-	if (!d || !CanSee(ch, d->character)) {
+	if (!d || !sight::CanSee(ch, d->character)) {
 		SendMsgToChar("Этого персонажа нет в игре!\r\n", ch);
 		return;
 	}
@@ -1254,7 +1254,7 @@ void Clan::remove_member(const ClanMembersList::key_type &key, char *reason) {
 			act("$n был$g выдворен$a за пределы замка!", true, k->character.get(), nullptr, nullptr, kToRoom);
 			SendMsgToChar("Вы были выдворены за пределы замка!\r\n", k->character.get());
 			PlaceCharToRoom(k->character.get(), GetRoomRnum(clan->out_rent));
-			look_at_room(k->character.get(), GetRoomRnum(clan->out_rent));
+			sight::look_at_room(k->character.get(), GetRoomRnum(clan->out_rent));
 			act("$n свалил$u с небес, выкрикивая какие-то ругательства!",
 				true,
 				k->character.get(),
@@ -3406,7 +3406,7 @@ void Clan::HouseOwner(CharData *ch, std::string &buffer) {
 		SendMsgToChar("Неизвестный персонаж.\r\n", ch);
 	else if (unique == ch->get_uid())
 		SendMsgToChar("Сменить себя на самого себя? Вы бредите.\r\n", ch);
-	else if (!d || !CanSee(ch, d->character))
+	else if (!d || !sight::CanSee(ch, d->character))
 		SendMsgToChar("Этого персонажа нет в игре!\r\n", ch);
 	else if (CLAN(d->character) && CLAN(ch) != CLAN(d->character))
 		SendMsgToChar("Вы не можете передать свои права члену другой дружины.\r\n", ch);
@@ -3793,7 +3793,7 @@ bool Clan::ChestShow(ObjData *obj, CharData *ch) {
 					  CLAN(ch)->chest_objcount,
 					  cost,
 					  grammar::GetDeclensionInNumber(cost, grammar::EWhat::kMoneyA));
-		list_obj_to_char(obj->get_contains(), ch, 1, 3);
+		sight::list_obj_to_char(obj->get_contains(), ch, 1, 3);
 	} else {
 		SendMsgToChar("Не на что тут глазеть, пусто, вот те крест.\r\n",
 					  ch); // засланым казачкам показываем хер, а не хранилище
@@ -4330,7 +4330,7 @@ bool ClanSystem::show_ingr_chest(ObjData *obj, CharData *ch) {
 		SendMsgToChar(ch, "Всего вещей: %d/%d, Рента в день: %d %s\r\n\r\n",
 					  CLAN(ch)->get_ingr_chest_objcount(), CLAN(ch)->ingr_chest_max_objects(),
 					  cost, grammar::GetDeclensionInNumber(cost, grammar::EWhat::kMoneyA));
-		list_obj_to_char(obj->get_contains(), ch, 1, 4);
+		sight::list_obj_to_char(obj->get_contains(), ch, 1, 4);
 	} else {
 		SendMsgToChar("Не на что тут глазеть, пусто, вот те крест.\r\n", ch);
 	}
@@ -4674,7 +4674,7 @@ void ClanSystem::check_player_in_house() {
 				act("$n был$g выдворен$a за пределы замка!", true, d->character.get(), 0, 0, kToRoom);
 				SendMsgToChar("Вы были выдворены за пределы замка!\r\n", d->character.get());
 				char_to_room(d->character, GetRoomRnum(clan->GetOutRent()));
-				look_at_room(d->character.get(), GetRoomRnum(clan->GetOutRent()));
+				sight::look_at_room(d->character.get(), GetRoomRnum(clan->GetOutRent()));
 				act("$n свалил$u с небес, выкрикивая какие-то ругательства!", true, d->character.get(), 0, 0, kToRoom);
 			}
 		}
@@ -4870,7 +4870,7 @@ void DoClanList(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (d->character
 			&& d->character->in_room != kNowhere
 			&& CLAN(d->character)
-			&& CanSeeIgnoringLight(ch, d->character)
+			&& sight::CanSeeIgnoringLight(ch, d->character)
 			&& !d->character->IsImmortal()
 			&& !d->character->IsFlagged(EPrf::kCoderinfo)
 			&& (all || CLAN(d->character) == *clan)) {
@@ -5435,7 +5435,7 @@ void DoStoreHouse(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (Clan::is_clan_chest(chest)) {
 			for (ObjData *obj = chest->get_contains(); obj; obj = obj->get_next_content()) {
 				if (filter.check(obj, ch)) {
-					out += show_obj_to_char(obj, ch, 1, 3, 1);
+					out += sight::show_obj_to_char(obj, ch, 1, 3, 1);
 				}
 			}
 			break;

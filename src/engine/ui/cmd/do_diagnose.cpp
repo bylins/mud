@@ -21,10 +21,10 @@ void do_diagnose(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (!vict)
 			SendMsgToChar(CommonMsg(ECommonMsg::kNoPerson) + "\r\n", ch);
 		else
-			diag_char_to_char(vict, ch);
+			sight::diag_char_to_char(vict, ch);
 	} else {
 		if (ch->GetEnemy())
-			diag_char_to_char(ch->GetEnemy(), ch);
+			sight::diag_char_to_char(ch->GetEnemy(), ch);
 		else
 			SendMsgToChar("На кого вы хотите взглянуть?\r\n", ch);
 	}

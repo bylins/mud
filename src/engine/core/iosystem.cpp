@@ -1249,7 +1249,7 @@ char *show_state(CharData *ch, CharData *victim) {
 	const int ch_hp = posi_value(victim->get_hit(), victim->get_real_max_hit()) + 1;
 	sprintf(buf, "%s&q[%s:%s%s]%s&Q ",
 			GetWarmValueColor(victim->get_hit(), victim->get_real_max_hit()),
-			PersonName(victim, ch, 0), WORD_STATE[ch_hp], grammar::SexEnding((victim)->get_sex(), 6), kColorNrm);
+			sight::PersonName(victim, ch, 0), WORD_STATE[ch_hp], grammar::SexEnding((victim)->get_sex(), 6), kColorNrm);
 	return buf;
 }
 

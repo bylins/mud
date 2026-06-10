@@ -175,7 +175,7 @@ void DoRemort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	}
 	RemoveCharFromRoom(ch);
 	PlaceCharToRoom(ch, load_room);
-	look_at_room(ch, 0);
+	sight::look_at_room(ch, 0);
 	ch->SetFlag(EPlrFlag::kNoDelete);
 	room_spells::RemoveSingleAffectFromWorld(ch, ESpell::kRuneLabel);
 

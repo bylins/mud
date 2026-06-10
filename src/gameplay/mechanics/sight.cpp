@@ -36,6 +36,8 @@
 #include "gameplay/mechanics/illumination.h"
 #include "gameplay/mechanics/awake.h"
 
+namespace sight {
+
 #define TAG_NIGHT       "<night>"
 #define TAG_DAY         "<day>"
 #define TAG_WINTERNIGHT "<winternight>"
@@ -2251,5 +2253,7 @@ bool CanSeeObj(const CharData *sub, const ObjData *obj) {
 		|| (!sub->IsNpc()
 			&& (sub)->IsFlagged(EPrf::kHolylight)));
 }
+
+}  // namespace sight
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

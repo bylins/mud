@@ -114,10 +114,10 @@ void go_chopoff(CharData *ch, CharData *vict) {
 		}
 		prob = 1;
 	}
-	Appear(ch);
+	sight::Appear(ch);
 	if (!success) {
 		SetWait(ch, prob, false);
-		if (vict->IsNpc() && CanSee(vict, ch) && vict->have_mind() && ClearMind(vict) && !vict->GetEnemy()) {
+		if (vict->IsNpc() && sight::CanSee(vict, ch) && vict->have_mind() && ClearMind(vict) && !vict->GetEnemy()) {
 			hit(vict, ch, ESkill::kUndefined, AFF_FLAGGED(vict, EAffect::kStopRight) ? fight::kOffHand : fight::kMainHand);
 		}
 	} else {

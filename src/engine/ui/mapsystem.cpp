@@ -280,7 +280,7 @@ void draw_mobs(const CharData *ch, int room_rnum, int next_y, int next_x) {
 				continue;
 			}
 			if (HERE(tch)
-				&& (CanSee(ch, tch)
+				&& (sight::CanSee(ch, tch)
 					|| awaking(tch, kAwHide | kAwInvis | kAwCamouflage))) {
 				++cnt;
 			}
@@ -320,7 +320,7 @@ void draw_objs(const CharData *ch, int room_rnum, int next_y, int next_x) {
 				&& !ch->map_check_option(MAP_MODE_OTHER_OBJECTS)) {
 				continue;
 			}
-			if (CanSeeObj(ch, obj)) {
+			if (sight::CanSeeObj(ch, obj)) {
 				++cnt;
 			}
 		}
@@ -1046,7 +1046,7 @@ void do_map(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	} else if (AFF_FLAGGED(ch, EAffect::kBlind)) {
 		SendMsgToChar("Слепому карта не поможет!\r\n", ch);
 		return;
-	} else if (is_dark(ch->in_room) && !CanSeeInDark(ch) && !CanUseFeat(ch, EFeat::kDarkReading)) {
+	} else if (is_dark(ch->in_room) && !sight::CanSeeInDark(ch) && !CanUseFeat(ch, EFeat::kDarkReading)) {
 		SendMsgToChar("Идем на ощупь и на запах!\r\n", ch);
 		return;
 	}

@@ -122,7 +122,7 @@ void hear_in_direction(CharData *ch, int dir, int info_is) {
 
 		SendMsgToChar(kColorNrm, ch);
 	} else {
-		if (info_is & EXIT_SHOW_WALL) {
+		if (info_is & sight::EXIT_SHOW_WALL) {
 			SendMsgToChar("И что вы там хотите услышать?\r\n", ch);
 		}
 	}

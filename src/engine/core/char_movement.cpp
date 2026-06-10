@@ -272,7 +272,7 @@ bool IsCorrectDirection(CharData *ch, int dir, bool check_specials, bool show_ms
 			if (NPC_FLAGGED(tch, 1 << dir)
 				&& AWAKE(tch)
 				&& tch->GetPosition() > EPosition::kSleep
-				&& CanSee(tch, ch)
+				&& sight::CanSee(tch, ch)
 				&& !AFF_FLAGGED(tch, EAffect::kCharmed)
 				&& !AFF_FLAGGED(tch, EAffect::kHold)) {
 				if (show_msg) {
@@ -558,7 +558,7 @@ bool PerformSimpleMove(CharData *ch, int dir, int following, CharData *leader, E
 	}
 
 	if (ch->desc != nullptr)
-		look_at_room(ch, 0, move_type != EMoveType::kFlee);
+		sight::look_at_room(ch, 0, move_type != EMoveType::kFlee);
 
 	if (!ch->IsNpc())
 		room_spells::ProcessRoomAffectsOnEntry(ch, ch->in_room);
@@ -652,7 +652,7 @@ bool PerformSimpleMove(CharData *ch, int dir, int following, CharData *leader, E
 				continue;
 			}
 
-			if (!CanSee(vict, ch)
+			if (!sight::CanSee(vict, ch)
 				|| AFF_FLAGGED(ch, EAffect::kSneak)
 				|| AFF_FLAGGED(ch, EAffect::kDisguise)
 				|| vict->GetEnemy()

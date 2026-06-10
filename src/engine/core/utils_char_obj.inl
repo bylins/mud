@@ -36,7 +36,7 @@ inline bool INVIS_OK_OBJ(const CharData *sub, const ObjData *obj) {
 }
 
 inline const char *OBJN(const ObjData *obj, const CharData *vict, const grammar::ECase name_case) {
-	return CanSeeObj(vict, obj)
+	return sight::CanSeeObj(vict, obj)
 		   ? (!obj->get_PName(name_case).empty()
 			  ? obj->get_PName(name_case).c_str()
 			  : obj->get_short_description().c_str())
@@ -44,13 +44,13 @@ inline const char *OBJN(const ObjData *obj, const CharData *vict, const grammar:
 }
 
 inline const char *OBJS(const ObjData *obj, const CharData *vict) {
-	return CanSeeObj(vict, obj) ? obj->get_short_description().c_str() : "что-то";
+	return sight::CanSeeObj(vict, obj) ? obj->get_short_description().c_str() : "что-то";
 }
 
 inline bool CAN_GET_OBJ(const CharData *ch, const ObjData *obj) {
 	return (CAN_WEAR(obj, EWearFlag::kTake)
 		&& CAN_CARRY_OBJ(ch, obj)
-		&& CanSeeObj(ch, obj))
+		&& sight::CanSeeObj(ch, obj))
 		&& !(ch->IsNpc()
 			&& obj->has_flag(EObjFlag::kBloody));
 }
