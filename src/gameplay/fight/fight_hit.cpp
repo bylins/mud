@@ -498,8 +498,7 @@ void HitData::CalcCircumstantialHitroll(CharData *ch, CharData *victim) {
 
 	// Horse modifier for attacker
 	if (!ch->IsNpc() && skill_num != ESkill::kThrow && skill_num != ESkill::kBackstab && mount::IsOnHorse(ch)) {
-		TrainSkill(ch, ESkill::kRiding, true, victim);
-		calc_thaco += 10 - ch->GetSkill(ESkill::kRiding) / 20;
+		mount::ApplyRiderToHit(ch, victim, calc_thaco);
 	}
 
 	// not can see (blind, dark, etc)
@@ -569,15 +568,7 @@ void HitData::CalcStaticHitroll(CharData *ch) {
 
 	// Horse modifier for attacker
 	if (!ch->IsNpc() && skill_num != ESkill::kThrow && skill_num != ESkill::kBackstab && mount::IsOnHorse(ch)) {
-		int prob = ch->GetSkill(ESkill::kRiding);
-		int range = MUD::Skill(ESkill::kRiding).difficulty / 2;
-
-		dam += ((prob + 19) / 10);
-
-		if (range > prob)
-			calc_thaco += ((range - prob) + 19 / 20);
-		else
-			calc_thaco -= ((prob - range) + 19 / 20);
+		mount::ApplyRiderHitAndDamage(ch, dam, calc_thaco);
 	}
 
 	// скилл владения пушкой или голыми руками
@@ -733,13 +724,6 @@ int HitData::CalcDmg(CharData *ch, bool need_dice) {
 			SendMsgToChar(ch, "&YДамага с бухлом == %d&n\r\n", dam);
 		}
 	}
-/*	// Horse modifier for attacker
-	if (!ch->IsNpc() && skill_num != ESkill::kThrow && skill_num != ESkill::kBackstab && mount::IsOnHorse(ch)) {
-		int prob = ch->get_skill(ESkill::kRiding);
-		dam += ((prob + 19) / 10);
-		SendMsgToChar(ch, "&YДамага с учетом лошади == %d&n\r\n", dam);
-	}
-*/
 	// обработка по факту попадания
 	if (skill_num < ESkill::kFirst) {
 		dam += GetAutoattackDamroll(ch, ch->GetSkill(weap_skill));
@@ -814,11 +798,7 @@ int HitData::CalcDmg(CharData *ch, bool need_dice) {
 		dam += RollDices(ch->mob_specials.damnodice, ch->mob_specials.damsizedice);
 	}
 
-	if (ch->GetSkill(ESkill::kRiding) > 100 && mount::IsOnHorse(ch)) {
-		dam *= 1.0 + (ch->GetSkill(ESkill::kRiding) - 100) / 500.0;
-		if (ch->IsFlagged(EPrf::kExecutor))
-			SendMsgToChar(ch, "&YДамага с учетом лошади (при скилле 200 +20 процентов)== %d&n\r\n", dam);
-	}
+	mount::ApplyRiderDamageMult(ch, dam);
 
 	if (ch->add_abils.percent_physdam_add > 0) {
 		int tmp;

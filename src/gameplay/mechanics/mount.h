@@ -37,6 +37,15 @@ bool IsBlockedByHorse(CharData *ch);
 // Turn the NPC `horse` into ch's mount (sets kHorse, makes it ch's follower, clears stray flags).
 void MakeHorse(CharData *horse, CharData *ch);
 
+// --- "What being mounted does" in combat (Riding-skill based). The fight_hit callers keep the
+//     melee guard (non-NPC, not throw/backstab) and call these to apply the mount deltas. ---
+// To-hit penalty for a mounted attacker (also trains Riding).
+void ApplyRiderToHit(CharData *ch, CharData *victim, int &calc_thaco);
+// Mounted attacker's damage bonus + to-hit adjustment vs the Riding difficulty.
+void ApplyRiderHitAndDamage(CharData *ch, int &dam, int &calc_thaco);
+// High-Riding (>100) mounted damage multiplier. Self-guarded (no-op if afoot or Riding<=100).
+void ApplyRiderDamageMult(CharData *ch, int &dam);
+
 }  // namespace mount
 
 void do_horseon(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
