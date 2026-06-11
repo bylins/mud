@@ -25,7 +25,29 @@ namespace currency {
 enum { GOLD, GLORY, TORC, ICE = 6, NOGATA };
 }
 
+class CharData;
+
 namespace currencies {
+
+// issue.currency-storage: unified read/write API over a character's currency container.
+// `id` is a currency text_id; vnum overloads resolve via the registry. Bank routing to the
+// account container is added later (account-shared currencies).
+enum class EPurse { kHand, kBank };
+
+std::string TextIdByVnum(int vnum);
+
+[[nodiscard]] long GetAmount(const CharData &ch, const std::string &id, EPurse purse);
+[[nodiscard]] long GetTotal(const CharData &ch, const std::string &id);
+void SetAmount(CharData &ch, const std::string &id, EPurse purse, long amount);
+long AddAmount(CharData &ch, const std::string &id, EPurse purse, long amount);     // returns amount added
+long RemoveAmount(CharData &ch, const std::string &id, EPurse purse, long amount);  // returns shortfall not removed
+
+[[nodiscard]] long GetAmount(const CharData &ch, int vnum, EPurse purse);
+[[nodiscard]] long GetTotal(const CharData &ch, int vnum);
+void SetAmount(CharData &ch, int vnum, EPurse purse, long amount);
+long AddAmount(CharData &ch, int vnum, EPurse purse, long amount);
+long RemoveAmount(CharData &ch, int vnum, EPurse purse, long amount);
+
 
 /**
  *  Данные валюты слишком глубоко "прошиты" в коде и являются базовыми.
