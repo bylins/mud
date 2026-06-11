@@ -13,6 +13,9 @@
 #include "engine/structs/info_container.h"
 #include "utils/grammar/cases.h"
 
+#include <map>
+#include <string>
+
 // Старый неймспейс со старыми идами валют
 // Его необходимо удалить после доделывания системы валют
 namespace currency {
@@ -37,12 +40,42 @@ class CurrenciesLoader : virtual public cfg_manager::ICfgLoader {
 	void Reload(parser_wrapper::DataNode data) final;
 };
 
+// issue.currencies: size-tier keys for a money object's name (GetObjName), from a
+// "tiny handful" (kTinyAmountDesc) up to a "huge mountain" (kImmenseAmountDesc). The
+// default tier templates live in currency_msg.xml; a currency may override any tier.
+enum class EObjNameDesc {
+	kTinyAmountDesc,
+	kVerySmallAmountDesc,
+	kSmallAmountDesc,
+	kModestAmountDesc,
+	kBelowAverageAmountDesc,
+	kAverageAmountDesc,
+	kAboveAverageAmountDesc,
+	kBigAmountDesc,
+	kLargeAmountDesc,
+	kVeryLargeAmountDesc,
+	kHugeAmountDesc,
+	kEnormousAmountDesc,
+	kGiganticAmountDesc,
+	kColossalAmountDesc,
+	kImmenseAmountDesc
+};
+
+// A GetObjName size-phrase template (placeholders: {adjective_ending}, {noun_ending},
+// {noun_ending_hard}, {currency_name}) and the smallest amount it applies from.
+struct ObjNamePattern {
+	long from{0};
+	std::string tpl;
+};
+using ObjNameMap = std::map<EObjNameDesc, ObjNamePattern>;
+
 // issue.thing-names: a currency's display name -- the search string + gendered cased declensions --
 // loaded from cfg/messages/ru/currency_msg.xml (before currencies.xml), keyed by currency text_id.
 struct CurrencyName {
 	EGender gender{EGender::kFemale};
 	std::string search{"!undefined!"};
 	grammar::ItemName cases;
+	ObjNameMap obj_names;  // per-currency GetObjName tier overrides
 };
 
 class CurrencyNamesLoader : virtual public cfg_manager::ICfgLoader {
@@ -60,6 +93,7 @@ class CurrencyInfo : public info_container::BaseItem<int> {
 	EGender gender_{EGender::kFemale};
 	std::string name_{"!undefined!"};
 	std::unique_ptr<grammar::ItemName> names_;
+	ObjNameMap obj_names_;  // per-currency GetObjName tier overrides
 
 	bool account_shared_{false};
 	bool locked_{true};

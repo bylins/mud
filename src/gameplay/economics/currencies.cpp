@@ -10,8 +10,6 @@
 #include "utils/grammar/declensions.h"
 
 #include <unordered_map>
-#include <vector>
-#include <algorithm>
 
 #include "engine/ui/color.h"
 #include "engine/db/global_objects.h"
@@ -33,13 +31,55 @@ void CurrenciesLoader::Reload(DataNode data) {
 // issue.thing-names: currency display names, keyed by text_id, loaded from currency_msg.xml.
 static std::unordered_map<std::string, CurrencyName> g_currency_names;
 
-// issue.currencies: a GetObjName size-phrase template ("малюсенькая горстка ...") and the
-// smallest amount it applies from. Shared default set for now (per-currency overrides later).
-struct ObjNamePattern {
-	long from{0};
-	std::string tpl;
+// issue.currencies: default GetObjName size-tier templates; a currency's own rows merge on top.
+static ObjNameMap g_default_obj_names;
+
+static const std::unordered_map<std::string, EObjNameDesc> kObjNameDescByName = {
+	{"kTinyAmountDesc", EObjNameDesc::kTinyAmountDesc},
+	{"kVerySmallAmountDesc", EObjNameDesc::kVerySmallAmountDesc},
+	{"kSmallAmountDesc", EObjNameDesc::kSmallAmountDesc},
+	{"kModestAmountDesc", EObjNameDesc::kModestAmountDesc},
+	{"kBelowAverageAmountDesc", EObjNameDesc::kBelowAverageAmountDesc},
+	{"kAverageAmountDesc", EObjNameDesc::kAverageAmountDesc},
+	{"kAboveAverageAmountDesc", EObjNameDesc::kAboveAverageAmountDesc},
+	{"kBigAmountDesc", EObjNameDesc::kBigAmountDesc},
+	{"kLargeAmountDesc", EObjNameDesc::kLargeAmountDesc},
+	{"kVeryLargeAmountDesc", EObjNameDesc::kVeryLargeAmountDesc},
+	{"kHugeAmountDesc", EObjNameDesc::kHugeAmountDesc},
+	{"kEnormousAmountDesc", EObjNameDesc::kEnormousAmountDesc},
+	{"kGiganticAmountDesc", EObjNameDesc::kGiganticAmountDesc},
+	{"kColossalAmountDesc", EObjNameDesc::kColossalAmountDesc},
+	{"kImmenseAmountDesc", EObjNameDesc::kImmenseAmountDesc}
 };
-static std::vector<ObjNamePattern> g_default_obj_names;  // sorted by `from`, descending
+
+// Read a node's <obj_names><obj_name id= from= val=/> rows into `out`, keyed by tier.
+static void ParseObjNames(DataNode node, ObjNameMap &out) {
+	out.clear();
+	for (auto &group : node.Children("obj_names")) {
+		for (auto &row : group.Children("obj_name")) {
+			const char *id = row.GetValue("id");
+			if (!id || !*id) {
+				continue;
+			}
+			const auto kit = kObjNameDescByName.find(id);
+			if (kit == kObjNameDescByName.end()) {
+				err_log("currency obj_name: unknown tier id '%s'.", id);
+				continue;
+			}
+			ObjNamePattern pattern;
+			try {
+				pattern.from = parse::ReadAsInt(row.GetValue("from"));
+			} catch (...) {
+				pattern.from = 0;
+			}
+			const char *val = row.GetValue("val");
+			pattern.tpl = (val && *val) ? val : "";
+			if (!pattern.tpl.empty()) {
+				out[kit->second] = std::move(pattern);
+			}
+		}
+	}
+}
 
 static void LoadCurrencyNames(DataNode data) {
 	g_currency_names.clear();
@@ -60,27 +100,11 @@ static void LoadCurrencyNames(DataNode data) {
 			}
 			sheaf.GoToParent();
 		}
+		ParseObjNames(sheaf, cn.obj_names);
 		g_currency_names[id] = std::move(cn);
 	}
 
-	g_default_obj_names.clear();
-	for (auto &group : data.Children("obj_names")) {
-		for (auto &node : group.Children("obj_name")) {
-			ObjNamePattern pattern;
-			try {
-				pattern.from = parse::ReadAsInt(node.GetValue("from"));
-			} catch (...) {
-				pattern.from = 0;
-			}
-			const char *val = node.GetValue("val");
-			pattern.tpl = (val && *val) ? val : "";
-			if (!pattern.tpl.empty()) {
-				g_default_obj_names.push_back(std::move(pattern));
-			}
-		}
-	}
-	std::sort(g_default_obj_names.begin(), g_default_obj_names.end(),
-			  [](const ObjNamePattern &a, const ObjNamePattern &b) { return a.from > b.from; });
+	ParseObjNames(data, g_default_obj_names);
 }
 
 void CurrencyNamesLoader::Load(DataNode data) { LoadCurrencyNames(data); }
@@ -112,10 +136,12 @@ ItemPtr CurrencyInfoBuilder::ParseCurrency(DataNode node) {
 	std::string name{"undefined"};
 	EGender gender{EGender::kFemale};
 	auto names = std::make_unique<grammar::ItemName>();
+	ObjNameMap obj_names;
 	if (const auto *cn = FindCurrencyName(text_id)) {
 		name = cn->search;
 		gender = cn->gender;
 		names = std::make_unique<grammar::ItemName>(cn->cases);
+		obj_names = cn->obj_names;
 	} else {
 		err_log("currency '%s' has no name in currency_msg.xml.", text_id.c_str());
 	}
@@ -123,6 +149,7 @@ ItemPtr CurrencyInfoBuilder::ParseCurrency(DataNode node) {
 	auto currency_info = std::make_shared<CurrencyInfo>(vnum, text_id, name, mode);
 	currency_info->gender_ = gender;
 	currency_info->names_ = std::move(names);
+	currency_info->obj_names_ = std::move(obj_names);
 
 	if (node.GoToChild("flags")) {
 		try {
@@ -208,25 +235,29 @@ std::string CurrencyInfo::GetObjName(long amount, grammar::ECase gram_case) cons
 		out << "од" << grammar::OneNumeralEnding(GetGender(), gram_case) << " " << GetName(gram_case);
 		return out.str();
 	}
-	// issue.currencies: amount >= 2 -- pick the data-driven obj-name template whose `from`
-	// threshold fits (currency_msg.xml), then fill the per-case placeholders.
-	const std::string *tpl = nullptr;
-	for (const auto &pattern : g_default_obj_names) {  // sorted by `from`, descending
-		if (amount >= pattern.from) {
-			tpl = &pattern.tpl;
-			break;
+	// issue.currencies: amount >= 2 -- merge this currency's tier overrides onto the default
+	// tiers, then pick the tier with the largest `from` <= amount and fill the placeholders.
+	ObjNameMap tiers = g_default_obj_names;
+	for (const auto &[key, pattern] : obj_names_) {
+		tiers[key] = pattern;
+	}
+	const ObjNamePattern *chosen = nullptr;
+	for (const auto &[key, pattern] : tiers) {
+		if (amount >= pattern.from && (!chosen || pattern.from > chosen->from)) {
+			chosen = &pattern;
 		}
 	}
-	if (!tpl) {
+	if (!chosen) {
 		return GetPluralName(grammar::ECase::kGen);
 	}
-	std::string result = *tpl;
+	std::string result = chosen->tpl;
 	const auto fill = [&result](const char *placeholder, const std::string &value) {
 		for (std::size_t pos; (pos = result.find(placeholder)) != std::string::npos; ) {
 			result.replace(pos, std::char_traits<char>::length(placeholder), value);
 		}
 	};
 	fill("{adjective_ending}", grammar::CountedFormEnding(gram_case, 0));
+	fill("{noun_ending_hard}", grammar::CountedFormEnding(gram_case, 2));
 	fill("{noun_ending}", grammar::CountedFormEnding(gram_case, 1));
 	fill("{currency_name}", GetPluralName(grammar::ECase::kGen));
 	return result;

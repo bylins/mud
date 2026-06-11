@@ -186,6 +186,21 @@
 		</name>
 	</msg_sheaf>
 	<obj_names>
-		<obj_name from="2" val="малюсеньк{adjective_ending} горстк{noun_ending} {currency_name}"/>
+		<!-- default size tiers for money objects (GetObjName); a currency may override any id -->
+		<obj_name id="kTinyAmountDesc" from="2" val="малюсеньк{adjective_ending} горстк{noun_ending} {currency_name}"/>
+		<obj_name id="kVerySmallAmountDesc" from="21" val="маленьк{adjective_ending} горстк{noun_ending} {currency_name}"/>
+		<obj_name id="kSmallAmountDesc" from="51" val="небольш{adjective_ending} горстк{noun_ending} {currency_name}"/>
+		<obj_name id="kModestAmountDesc" from="151" val="маленьк{adjective_ending} кучк{noun_ending} {currency_name}"/>
+		<obj_name id="kBelowAverageAmountDesc" from="301" val="небольш{adjective_ending} кучк{noun_ending} {currency_name}"/>
+		<obj_name id="kAverageAmountDesc" from="1001" val="кучк{noun_ending} {currency_name}"/>
+		<obj_name id="kAboveAverageAmountDesc" from="5001" val="больш{adjective_ending} кучк{noun_ending} {currency_name}"/>
+		<obj_name id="kBigAmountDesc" from="20001" val="небольш{adjective_ending} горк{noun_ending} {currency_name}"/>
+		<obj_name id="kLargeAmountDesc" from="50001" val="горк{noun_ending} {currency_name}"/>
+		<obj_name id="kVeryLargeAmountDesc" from="75001" val="больш{adjective_ending} горк{noun_ending} {currency_name}"/>
+		<obj_name id="kHugeAmountDesc" from="100001" val="груд{noun_ending_hard} {currency_name}"/>
+		<obj_name id="kEnormousAmountDesc" from="150001" val="больш{adjective_ending} груд{noun_ending_hard} {currency_name}"/>
+		<obj_name id="kGiganticAmountDesc" from="250001" val="гор{noun_ending} {currency_name}"/>
+		<obj_name id="kColossalAmountDesc" from="500001" val="больш{adjective_ending} гор{noun_ending_hard} {currency_name}"/>
+		<obj_name id="kImmenseAmountDesc" from="1000001" val="огромн{adjective_ending} гор{noun_ending_hard} {currency_name}"/>
 	</obj_names>
 </msg_container>
