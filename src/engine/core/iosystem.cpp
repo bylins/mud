@@ -1166,7 +1166,8 @@ std::string MakePrompt(DescriptorData *d) {
 			for (auto timed : ch->timed_skill) {
 				int display_time = (timed.second - time(0) - 1) / 60 + 1;
 
-				if (display_time > 0 && timed.first != ESkill::kWarcry && timed.first != ESkill::kTurnUndead) {
+				if (display_time > 0 && timed.first != ESkill::kWarcry && timed.first != ESkill::kTurnUndead
+					&& timed.first != ESkill::kReligion) {
 					fmt::format_to(std::back_inserter(out), "{}:{} ",
 							  MUD::Skill(timed.first).GetAbbr(), +display_time);
 				}
