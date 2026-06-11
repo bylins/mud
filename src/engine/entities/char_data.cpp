@@ -18,6 +18,7 @@
 #include "engine/db/global_objects.h"
 #include "char_data.h"
 #include "gameplay/statistics/money_drop.h"
+#include "gameplay/economics/currencies.h"
 #include "gameplay/affects/affect_data.h"
 #include "gameplay/mechanics/illumination.h"
 #include "engine/ui/alias.h"
@@ -1060,22 +1061,17 @@ void CharData::set_ruble(int ruble) {
 }
 
 long CharData::get_gold() const {
-	return currency_storage().GetHand(currencies::kKunaId);
+	return currencies::GetAmount(*this, currencies::kKunaId);
 }
 
 long CharData::get_bank() const {
-	return currency_storage().GetBank(currencies::kKunaId);
+	return currencies::GetAmount(*this, currencies::kKunaId, currencies::EPurse::kBank);
 }
 
 long CharData::get_total_gold() const {
-	return get_gold() + get_bank();
+	return currencies::GetTotal(*this, currencies::kKunaId);
 }
 
-/**
- * Добавление денег на руках, плюсуются только положительные числа.
- * \param need_log здесь и далее - логировать или нет изменения счета (=true)
- * \param clan_tax - проверять и снимать клан-налог или нет (=false)
- */
 void CharData::add_gold(long num, bool need_log, bool clan_tax) {
 	if (num < 0) {
 		log("SYSERROR: num=%ld (%s:%d %s)", num, __FILE__, __LINE__, __func__);
@@ -1084,116 +1080,41 @@ void CharData::add_gold(long num, bool need_log, bool clan_tax) {
 	if (clan_tax) {
 		num -= ClanSystem::do_gold_tax(this, num);
 	}
-	set_gold(get_gold() + num, need_log);
+	currencies::AddAmount(*this, currencies::kKunaId, num, currencies::EPurse::kHand, false, need_log);
 }
 
-// * см. add_gold()
 void CharData::add_bank(long num, bool need_log) {
 	if (num < 0) {
 		log("SYSERROR: num=%ld (%s:%d %s)", num, __FILE__, __LINE__, __func__);
 		return;
 	}
-	set_bank(get_bank() + num, need_log);
+	currencies::AddAmount(*this, currencies::kKunaId, num, currencies::EPurse::kBank, false, need_log);
 }
 
-/**
- * Сет денег на руках, отрицательные числа просто обнуляют счет с
- * логированием бывшей суммы.
- */
 void CharData::set_gold(long num, bool need_log) {
-	if (get_gold() == num) {
-		// чтобы с логированием не заморачиваться
-		return;
-	}
-	num = std::clamp(num, 0L, kMaxMoneyKept);
-
-	if (need_log && !this->IsNpc()) {
-		long change = num - get_gold();
-		if (change > 0) {
-			log("Gold: %s add %ld", get_name().c_str(), change);
-		} else {
-			log("Gold: %s remove %ld", get_name().c_str(), -change);
-		}
-		if (this->in_room > 0) {
-			MoneyDropStat::add(zone_table[world[this->in_room]->zone_rn].vnum, change);
-		}
-	}
-
-	currency_storage().SetHand(currencies::kKunaId, num);
-	msdp_report(msdp::constants::GOLD);
+	currencies::SetAmount(*this, currencies::kKunaId, num, currencies::EPurse::kHand, need_log);
 }
 
-// * см. set_gold()
 void CharData::set_bank(long num, bool need_log) {
-	if (get_bank() == num) {
-		// чтобы с логированием не заморачиваться
-		return;
-	}
-	num = std::clamp(num, 0L, kMaxMoneyKept);
-
-	if (need_log && !this->IsNpc()) {
-		long change = num - get_bank();
-		if (change > 0) {
-			log("Gold: %s add %ld", get_name().c_str(), change);
-		} else {
-			log("Gold: %s remove %ld", get_name().c_str(), -change);
-		}
-	}
-
-	currency_storage().SetBank(currencies::kKunaId, num);
-	msdp_report(msdp::constants::GOLD);
+	currencies::SetAmount(*this, currencies::kKunaId, num, currencies::EPurse::kBank, need_log);
 }
 
-/**
- * Снятие находящихся на руках денег.
- * \param num - положительное число
- * \return - кол-во кун, которое не удалось снять с рук (нехватило денег)
- */
 long CharData::remove_gold(long num, bool need_log) {
 	if (num < 0) {
 		log("SYSERROR: num=%ld (%s:%d %s)", num, __FILE__, __LINE__, __func__);
 		return num;
 	}
-	if (num == 0) {
-		return num;
-	}
-
-	long rest = 0;
-	if (get_gold() >= num) {
-		set_gold(get_gold() - num, need_log);
-	} else {
-		rest = num - get_gold();
-		set_gold(0, need_log);
-	}
-
-	return rest;
+	return currencies::RemoveAmount(*this, currencies::kKunaId, num, currencies::EPurse::kHand, need_log);
 }
 
-// * см. remove_gold()
 long CharData::remove_bank(long num, bool need_log) {
 	if (num < 0) {
 		log("SYSERROR: num=%ld (%s:%d %s)", num, __FILE__, __LINE__, __func__);
 		return num;
 	}
-	if (num == 0) {
-		return num;
-	}
-
-	long rest = 0;
-	if (get_bank() >= num) {
-		set_bank(get_bank() - num, need_log);
-	} else {
-		rest = num - get_bank();
-		set_bank(0, need_log);
-	}
-
-	return rest;
+	return currencies::RemoveAmount(*this, currencies::kKunaId, num, currencies::EPurse::kBank, need_log);
 }
 
-/**
- * Попытка снятия денег с банка и, в случае остатка, с рук.
- * \return - кол-во кун, которое не удалось снять (нехватило денег в банке и на руках)
- */
 long CharData::remove_both_gold(long num, bool need_log) {
 	long rest = remove_bank(num, need_log);
 	return remove_gold(rest, need_log);
