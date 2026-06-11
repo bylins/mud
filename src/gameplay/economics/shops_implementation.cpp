@@ -75,7 +75,7 @@ bool check_money(CharData *ch, long price, const std::string &currency) {
 		return currencies::GetAmount(*ch, currencies::kMagicIceId) >= price;
 	}
 	if (currency == "гривны") {
-		return ch->get_hryvn() >= price;
+		return currencies::GetAmount(*ch, currencies::kCopperGrivnaId) >= price;
 	}
 	if (currency == "ногаты") {
 		return currencies::GetAmount(*ch, currencies::kNogataId) >= price;
@@ -422,7 +422,7 @@ void shop_node::process_buy(CharData *ch, CharData *keeper, char *argument) {
 				if (EObjType::kBook == obj->get_type()) {
 					obj->set_extra_flag(EObjFlag::kNofail);
 				}
-				ch->sub_hryvn(price);
+				currencies::RemoveAmount(*ch, currencies::kCopperGrivnaId, price);
 				ch->spent_hryvn_sub(price);
 				if (ch->get_spent_hryvn() > 1000) {
 					SendMsgToChar(ShopMsg(ESM::kHryvnReset) + "\r\n", ch);

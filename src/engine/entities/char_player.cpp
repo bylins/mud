@@ -182,45 +182,6 @@ void Player::set_last_tell(const char *text) {
 }
 
 
-int Player::get_hryvn() {
-	return currency_storage().GetHand(currencies::kCopperGrivnaId);
-}
-
-short cap_hryvn = 1500;
-
-void Player::set_hryvn(int value) {
-	if (value > cap_hryvn)
-		value = cap_hryvn;
-	currency_storage().SetHand(currencies::kCopperGrivnaId, value);
-}
-
-void Player::sub_hryvn(int value) {
-	currency_storage().SetHand(currencies::kCopperGrivnaId, get_hryvn() - value);
-}
-
-
-void Player::add_hryvn(int value) {
-	if (remort::GetRealRemort(this) < 6) {
-		SendMsgToChar(this, "Глянув на непонятный слиток, Вы решили выкинуть его...\r\n");
-		return;
-	} 
-	if (zone_table[world[this->in_room]->zone_rn].under_construction) {
-		SendMsgToChar(this, "Зона тестовая, вашу гривну отобрали боги.\r\n");
-		return;
-	}
-	if ((this->get_hryvn() + value) > cap_hryvn) {
-		value = cap_hryvn - this->get_hryvn();
-		SendMsgToChar(this, "Вы получили только %ld %s, так как в вашу копилку больше не лезет...\r\n",
-					  static_cast<long>(value), MUD::Currency(currencies::kCopperGrivnaVnum).GetNameWithAmount(value, grammar::ECase::kAcc).c_str());
-	} else if (value > 0) {
-		SendMsgToChar(this, "Вы получили %ld %s.\r\n",
-					  static_cast<long>(value), MUD::Currency(currencies::kCopperGrivnaVnum).GetNameWithAmount(value, grammar::ECase::kAcc).c_str());
-	} else if (value == 0) {
-		return;
-	}
-	log("Персонаж %s получил %d [гривны].", GET_NAME(this), value);
-	currency_storage().SetHand(currencies::kCopperGrivnaId, get_hryvn() + value);
-}
 
 void Player::complete_quest(const int id) {
 	this->account->complete_quest(id);
@@ -244,7 +205,16 @@ void Player::dquest(const int id) {
 		&& zone_lvl <= (GetRealLevel(this) + remort::GetRealRemort(this) / 5)) {
 		value /= 2;
 	}
-	this->add_hryvn(value);
+	if (remort::GetRealRemort(this) < 6) {
+		SendMsgToChar(this, "Глянув на непонятный слиток, Вы решили выкинуть его...\r\n");
+	} else if (zone_table[world[this->in_room]->zone_rn].under_construction) {
+		SendMsgToChar(this, "Зона тестовая, вашу гривну отобрали боги.\r\n");
+	} else {
+		const long added = currencies::AddAmount(*this, currencies::kCopperGrivnaId, value, currencies::EPurse::kHand, true);
+		if (added > 0) {
+			log("Персонаж %s получил %ld [гривны].", GET_NAME(this), added);
+		}
+	}
 	this->account->complete_quest(id);
 }
 
@@ -611,7 +581,7 @@ void Player::save_char() {
 	saved.printf("Hrol: %d\n", GET_HR(this));
 	saved.printf("Drol: %d\n", GET_DR(this));
 	saved.printf("Ac  : %d\n", GET_AC(this));
-	saved.printf("Hry : %d\n", this->get_hryvn());
+	saved.printf("Hry : %d\n", currencies::GetAmount(*this, currencies::kCopperGrivnaId));
 	saved.printf("Tglo: %ld\n", static_cast<long int>(this->getGloryRespecTime()));
 	saved.printf("Hit : %d/%d\n", this->get_hit(), this->get_max_hit());
 	saved.printf("Mana: %d/%d\n", this->mem_queue.stored, (this)->mem_queue.total);
@@ -1486,9 +1456,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 				else if (!strcmp(tag, "Hung"))
 					GET_COND(this, condition::kFull) = num;
 				else if (!strcmp(tag, "Hry ")) {
-					if (num > cap_hryvn)
-						num = cap_hryvn;
-					this->set_hryvn(num);
+					currencies::SetAmount(*this, currencies::kCopperGrivnaId, num);
 				} else if (!strcmp(tag, "Host"))
 					strcpy(this->player_specials->saved.LastIP, line);
 				break;
