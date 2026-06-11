@@ -3,6 +3,7 @@
 //
 
 #include "administration/karma.h"
+#include "gameplay/economics/currencies.h"
 #include "gameplay/mechanics/mount.h"
 #include "administration/names.h"
 #include "administration/privilege.h"
@@ -930,7 +931,7 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 				SendMsgToChar("Ошибка, указано неверное число или персонаж.\r\n", ch);
 			break;
 		}
-		case 67: vict->set_nogata(value);
+		case 67: currencies::SetAmount(*vict, currencies::kNogataId, value);
 			break;
 		case 68: {
 			auto tmpval = (EPosition) value;

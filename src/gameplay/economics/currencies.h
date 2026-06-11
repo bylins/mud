@@ -39,13 +39,13 @@ std::string TextIdByVnum(int vnum);
 [[nodiscard]] long GetAmount(const CharData &ch, const std::string &id, EPurse purse = EPurse::kHand);
 [[nodiscard]] long GetTotal(const CharData &ch, const std::string &id);
 void SetAmount(CharData &ch, const std::string &id, long amount, EPurse purse = EPurse::kHand);
-long AddAmount(CharData &ch, const std::string &id, long amount, EPurse purse = EPurse::kHand);     // amount added
+long AddAmount(CharData &ch, const std::string &id, long amount, EPurse purse = EPurse::kHand, bool notify = false);  // amount added
 long RemoveAmount(CharData &ch, const std::string &id, long amount, EPurse purse = EPurse::kHand);  // shortfall
 
 [[nodiscard]] long GetAmount(const CharData &ch, int vnum, EPurse purse = EPurse::kHand);
 [[nodiscard]] long GetTotal(const CharData &ch, int vnum);
 void SetAmount(CharData &ch, int vnum, long amount, EPurse purse = EPurse::kHand);
-long AddAmount(CharData &ch, int vnum, long amount, EPurse purse = EPurse::kHand);
+long AddAmount(CharData &ch, int vnum, long amount, EPurse purse = EPurse::kHand, bool notify = false);
 long RemoveAmount(CharData &ch, int vnum, long amount, EPurse purse = EPurse::kHand);
 
 
@@ -130,6 +130,7 @@ class CurrencyInfo : public info_container::BaseItem<int> {
 	int transfer_tax_{5};
 	int drop_on_death_{100};
 	int max_clan_tax_{25};
+	long max_amount_{1000000000L};  // = kMaxMoneyKept
 
  public:
 	CurrencyInfo() = default;
@@ -146,6 +147,7 @@ class CurrencyInfo : public info_container::BaseItem<int> {
 	[[nodiscard]] bool IsTransferableToOther() const { return transferable_to_other_; };
 
 	[[nodiscard]] EGender GetGender() const { return gender_; };
+	[[nodiscard]] long GetMaxAmount() const { return max_amount_; };
 	[[nodiscard]] const std::string &GetNameWithAmount(long amount, grammar::ECase one_case = grammar::ECase::kNom) const;
 	[[nodiscard]] const std::string &GetName(grammar::ECase name_case = grammar::ECase::kNom) const;
 	[[nodiscard]] const std::string &GetPluralName(grammar::ECase name_case = grammar::ECase::kNom) const;

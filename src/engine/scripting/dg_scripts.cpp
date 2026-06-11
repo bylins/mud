@@ -2607,17 +2607,17 @@ void find_replacement(void *go,
 				snprintf(str, str_size, "%d", mob->get_hryvn());
 		} else if (!str_cmp(field, "point_nogata")) {
 				if (*subfield) {
-					mob->set_nogata(std::max(long(0), gm_char_field(mob, field, subfield, mob->get_nogata())));
+					currencies::SetAmount(*mob, currencies::kNogataId, std::max(long(0), gm_char_field(mob, field, subfield, currencies::GetAmount(*mob, currencies::kNogataId))));
 				}
 				else
-					snprintf(str, str_size, "%d", mob->get_nogata());
+					snprintf(str, str_size, "%d", currencies::GetAmount(*mob, currencies::kNogataId));
 		} else if (!str_cmp(field, "nogata")) {
 			if (*subfield) {
 				int val = 0, num;
 				CharData *k;
 				if (*subfield == '-') {
 					val = atoi(subfield + 1);
-					mob->set_nogata(std::max(0, mob->get_nogata() - val));
+					currencies::SetAmount(*mob, currencies::kNogataId, std::max(0L, currencies::GetAmount(*mob, currencies::kNogataId) - val));
 				}
 				else if (*subfield == '+') {
 					val = atoi(subfield + 1);
@@ -2638,11 +2638,11 @@ void find_replacement(void *go,
 							int share = val / num;
 							int rest = val % num;
 							if (AFF_FLAGGED(k, EAffect::kGroup) && k->in_room == mob->in_room && !k->IsNpc() && k != mob)
-								k->add_nogata(share);
+								currencies::AddAmount(*k, currencies::kNogataId, share, currencies::EPurse::kHand, true);
 							for (auto *f : k->followers) {
 								if (AFF_FLAGGED(f, EAffect::kGroup)
 										&& !f->IsNpc() && f->in_room == mob->in_room && f != mob) {
-									f->add_nogata(share);
+									currencies::AddAmount(*f, currencies::kNogataId, share, currencies::EPurse::kHand, true);
 								}
 							}
 							snprintf(buf, sizeof(buf), "Вы разделили %d %s на %d  -  по %d каждому.\r\n",
@@ -2653,16 +2653,16 @@ void find_replacement(void *go,
 											  rest,
 											  MUD::Currency(currencies::kNogataVnum).GetNameWithAmount(rest, grammar::ECase::kAcc).c_str());
 							}
-							mob->add_nogata(share+rest);
+							currencies::AddAmount(*mob, currencies::kNogataId, share+rest, currencies::EPurse::kHand, true);
 						}
 					 	else {
-							mob->add_nogata(val);
+							currencies::AddAmount(*mob, currencies::kNogataId, val, currencies::EPurse::kHand, true);
 						}
 					}
 				}
 			}
 			else {
-				snprintf(str, str_size, "%d", mob->get_nogata());
+				snprintf(str, str_size, "%d", currencies::GetAmount(*mob, currencies::kNogataId));
 			}
 		} else if (!str_cmp(field, "gold")) {
 			if (*subfield) {

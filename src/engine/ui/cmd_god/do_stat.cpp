@@ -1,4 +1,5 @@
 #include "do_stat.h"
+#include "gameplay/economics/currencies.h"
 #include "gameplay/mechanics/condition.h"
 #include "gameplay/mechanics/magic_item.h"
 #include "gameplay/fight/fight_messages.h"
@@ -284,7 +285,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 		{
 			std::string sline = fmt::sprintf("Рента: [%d], Денег: [%9ld], В банке: [%9ld] (Всего: %ld), Гривны: %d, Ногат: %d",
 					GET_LOADROOM(k), k->get_gold(), k->get_bank(), k->get_total_gold(),
-					k->get_hryvn(), k->get_nogata());
+					k->get_hryvn(), currencies::GetAmount(*k, currencies::kNogataId));
 			if (GetRealLevel(ch) >= kLvlImmortal) {
 				sline += fmt::sprintf(", %sOLC[%d]%s", kColorGrn, GET_OLC_ZONE(k), kColorNrm);
 			}

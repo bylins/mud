@@ -79,7 +79,7 @@ bool check_money(CharData *ch, long price, const std::string &currency) {
 		return ch->get_hryvn() >= price;
 	}
 	if (currency == "ногаты") {
-		return ch->get_nogata() >= price;
+		return currencies::GetAmount(*ch, currencies::kNogataId) >= price;
 	}
 
 	return false;
@@ -418,7 +418,7 @@ void shop_node::process_buy(CharData *ch, CharData *keeper, char *argument) {
 				if (EObjType::kBook == obj->get_type()) {
 					obj->set_extra_flag(EObjFlag::kNofail);
 				}
-				ch->sub_nogata(price);
+				currencies::RemoveAmount(*ch, currencies::kNogataId, price);
 			} else if (currency == "гривны") {
 				if (EObjType::kBook == obj->get_type()) {
 					obj->set_extra_flag(EObjFlag::kNofail);

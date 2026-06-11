@@ -199,24 +199,6 @@ void Player::sub_hryvn(int value) {
 	currency_storage().SetHand(currencies::kCopperGrivnaId, get_hryvn() - value);
 }
 
-int Player::get_nogata() {
-	return currency_storage().GetHand(currencies::kNogataId);
-}
-
-void Player::set_nogata(int value) {
-	currency_storage().SetHand(currencies::kNogataId, value);
-}
-
-void Player::sub_nogata(int value) {
-	currency_storage().SetHand(currencies::kNogataId, get_nogata() - value);
-}
-
-void Player::add_nogata(int value) {
-	currency_storage().SetHand(currencies::kNogataId, get_nogata() + value);
-	SendMsgToChar(this, "Вы получили %ld %s.\r\n", static_cast<long>(value),
-				  MUD::Currency(currencies::kNogataVnum).GetNameWithAmount(value, grammar::ECase::kAcc).c_str());
-
-}
 
 void Player::add_hryvn(int value) {
 	if (remort::GetRealRemort(this) < 6) {

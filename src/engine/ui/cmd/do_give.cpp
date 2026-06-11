@@ -140,7 +140,7 @@ void perform_give_nogat(CharData *ch, CharData *vict, int amount) {
 		SendMsgToChar("Ха-ха-ха (3 раза)...\r\n", ch);
 		return;
 	}
-	if (ch->get_nogata() < amount && (ch->IsNpc() || !privilege::IsImpl(ch))) {
+	if (currencies::GetAmount(*ch, currencies::kNogataId) < amount && (ch->IsNpc() || !privilege::IsImpl(ch))) {
 		SendMsgToChar("И откуда ты их взять собирался?\r\n", ch);
 		return;
 	}
@@ -158,9 +158,9 @@ void perform_give_nogat(CharData *ch, CharData *vict, int amount) {
 		sprintf(buf, "$n дал$g %s $N2.", MUD::Currency(currencies::kNogataVnum).GetNameWithAmount(amount, grammar::ECase::kAcc).c_str());
 	act(buf, true, ch, nullptr, vict, kToNotVict | kToArenaListen);
 	if (ch->IsNpc() || !privilege::IsImpl(ch)) {
-		ch->sub_nogata(amount);
+		currencies::RemoveAmount(*ch, currencies::kNogataId, amount);
 	}
-	vict->add_nogata(amount);
+	currencies::AddAmount(*vict, currencies::kNogataId, amount, currencies::EPurse::kHand, true);
 }
 
 void do_give(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {

@@ -37,6 +37,7 @@ flags - флаги
     </currency>
     <currency text_id="kCopperGrivna" vnum="2" mode="kEnabled">
         <permits give="0" obj="0" bank="0" transfer="0" transfer_other="0" transfer_tax="5" drop="100" clan_tax="25"/>
+        <limits max="1500"/>
         <flags account_shared="N"  locked="N"/>
     </currency>
     <currency text_id="kBronzeGrivna" vnum="3" mode="kEnabled">
