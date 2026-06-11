@@ -10,7 +10,8 @@
 #include "engine/entities/char_data.h"
 #include "gameplay/mechanics/glory.h"
 #include "gameplay/mechanics/glory_const.h"
-#include "ext_money.h"
+#include "currencies.h"
+#include "engine/db/global_objects.h"
 #include "engine/db/world_objects.h"
 #include "engine/core/handler.h"
 #include "engine/ui/modify.h"
@@ -81,6 +82,19 @@ bool check_money(CharData *ch, long price, const std::string &currency) {
 	}
 
 	return false;
+}
+
+// TEMPORARY (issue.remort): the new currency system (currencies.h) is keyed by a
+// numeric currency vnum, but shops still identify the currency by its Russian
+// name string. Until shops are migrated onto the currency system, map that
+// legacy name -> currency vnum here and read the display name from
+// MUD::Currencies(). Replaces the retired ExtMoney::name_currency_plural().
+int currency_vnum_by_name(const std::string &name) {
+	if (name == "слава") return ::currency::GLORY;
+	if (name == "лед") return ::currency::ICE;
+	if (name == "гривны") return ::currency::TORC;
+	if (name == "ногаты") return ::currency::NOGATA;
+	return ::currency::GOLD; // "куны" and fallback
 }
 
 void GoodsStorage::ObjectUIDChangeObserver::notify(ObjData &object, const int old_uid) {
@@ -333,7 +347,7 @@ void shop_node::process_buy(CharData *ch, CharData *keeper, char *argument) {
 	const long price = item->get_price();
 	if (!check_money(ch, price, currency)) {
 		tell_to_char(keeper, ch, fmt::format(fmt::runtime(ShopMsg(ESM::kCantAfford)),
-				fmt::arg("currency", ExtMoney::name_currency_plural(currency))).c_str());
+				fmt::arg("currency", MUD::Currencies()[currency_vnum_by_name(currency)].GetPluralName(grammar::ECase::kGen))).c_str());
 		KeeperNoMoneyReaction(keeper, ch);
 		return;
 	}

@@ -259,7 +259,6 @@
 #include "gameplay/mechanics/birthplaces.h"
 #include "engine/db/help.h"
 #include "mapsystem.h"
-#include "gameplay/economics/ext_money.h"
 #include "gameplay/mechanics/noob.h"
 #include "gameplay/core/reset_stats.h"
 #include "gameplay/mechanics/obj_sets.h"
@@ -2478,9 +2477,6 @@ void nanny(DescriptorData *d, char *argument) {
 			break;
 
 		case EConState::kMapMenu: d->map_options->parse_menu(d->character.get(), argument);
-			break;
-
-		case EConState::kTorcExch: ExtMoney::torc_exch_parse(d->character.get(), argument);
 			break;
 
 		case EConState::kSedit: {

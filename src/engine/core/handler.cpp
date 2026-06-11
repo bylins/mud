@@ -25,7 +25,6 @@
 #include "engine/entities/char_player.h"
 #include "engine/db/world_characters.h"
 #include "gameplay/economics/exchange.h"
-#include "gameplay/economics/ext_money.h"
 #include "gameplay/fight/fight.h"
 #include "gameplay/clans/house.h"
 #include "gameplay/magic/magic.h"
@@ -1709,11 +1708,6 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 	if (ch->in_room != kNowhere) {
 		DropEquipment(ch, zone_reset);
 		DropInventory(ch, zone_reset);
-	}
-
-	if (ch->IsNpc()) {
-		// дроп гривен до изменений последователей за мобом
-		ExtMoney::drop_torc(ch);
 	}
 
 	if (!ch->IsNpc()
