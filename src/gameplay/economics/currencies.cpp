@@ -10,6 +10,8 @@
 #include "utils/grammar/declensions.h"
 
 #include <unordered_map>
+#include <vector>
+#include <algorithm>
 
 #include "engine/ui/color.h"
 #include "engine/db/global_objects.h"
@@ -30,6 +32,14 @@ void CurrenciesLoader::Reload(DataNode data) {
 
 // issue.thing-names: currency display names, keyed by text_id, loaded from currency_msg.xml.
 static std::unordered_map<std::string, CurrencyName> g_currency_names;
+
+// issue.currencies: a GetObjName size-phrase template ("малюсенькая горстка ...") and the
+// smallest amount it applies from. Shared default set for now (per-currency overrides later).
+struct ObjNamePattern {
+	long from{0};
+	std::string tpl;
+};
+static std::vector<ObjNamePattern> g_default_obj_names;  // sorted by `from`, descending
 
 static void LoadCurrencyNames(DataNode data) {
 	g_currency_names.clear();
@@ -52,6 +62,25 @@ static void LoadCurrencyNames(DataNode data) {
 		}
 		g_currency_names[id] = std::move(cn);
 	}
+
+	g_default_obj_names.clear();
+	for (auto &group : data.Children("obj_names")) {
+		for (auto &node : group.Children("obj_name")) {
+			ObjNamePattern pattern;
+			try {
+				pattern.from = parse::ReadAsInt(node.GetValue("from"));
+			} catch (...) {
+				pattern.from = 0;
+			}
+			const char *val = node.GetValue("val");
+			pattern.tpl = (val && *val) ? val : "";
+			if (!pattern.tpl.empty()) {
+				g_default_obj_names.push_back(std::move(pattern));
+			}
+		}
+	}
+	std::sort(g_default_obj_names.begin(), g_default_obj_names.end(),
+			  [](const ObjNamePattern &a, const ObjNamePattern &b) { return a.from > b.from; });
 }
 
 void CurrencyNamesLoader::Load(DataNode data) { LoadCurrencyNames(data); }
@@ -174,54 +203,33 @@ std::string CurrencyInfo::GetObjName(long amount, grammar::ECase gram_case) cons
 		log("SYSERR: Try to create negative or 0 money (%ld).", amount);
 		return {};
 	}
-
-	std::ostringstream out;
 	if (amount == 1) {
+		std::ostringstream out;
 		out << "од" << grammar::OneNumeralEnding(GetGender(), gram_case) << " " << GetName(gram_case);
-	} else if (amount <= 20) {
-		out << "малюсеньк" << grammar::CountedFormEnding(gram_case, 0) << " горстк" << grammar::CountedFormEnding(gram_case, 1)
-			<< " " << GetPluralName(grammar::ECase::kGen);
-	} else if (amount <= 50) {
-		out << "маленьк" << grammar::CountedFormEnding(gram_case, 0) << " горстк" << grammar::CountedFormEnding(gram_case, 1)
-			<< " " << GetPluralName(grammar::ECase::kGen);
-	} else if (amount <= 150) {
-		out << "небольш" << grammar::CountedFormEnding(gram_case, 0) << " горстк" << grammar::CountedFormEnding(gram_case, 1)
-			<< " " << GetPluralName(grammar::ECase::kGen);
-	} else if (amount <= 300) {
-		out << "маленьк" << grammar::CountedFormEnding(gram_case, 0) << " кучк" << grammar::CountedFormEnding(gram_case, 1)
-			<< " " << GetPluralName(grammar::ECase::kGen);
-	} else if (amount <= 1000) {
-		out << "небольш" << grammar::CountedFormEnding(gram_case, 0) << " кучк" << grammar::CountedFormEnding(gram_case, 1)
-			<< " " << GetPluralName(grammar::ECase::kGen);
-	} else if (amount <= 5000) {
-		out << "кучк" << grammar::CountedFormEnding(gram_case, 1) << " " << GetPluralName(grammar::ECase::kGen);
-	} else if (amount <= 20000) {
-		out << "больш" << grammar::CountedFormEnding(gram_case, 0) << " кучк" << grammar::CountedFormEnding(gram_case, 1)
-			<< " " << GetPluralName(grammar::ECase::kGen);
-	} else if (amount <= 50000) {
-		out << "небольш" << grammar::CountedFormEnding(gram_case, 0) << " горк" << grammar::CountedFormEnding(gram_case, 1)
-			<< " " << GetPluralName(grammar::ECase::kGen);
-	} else if (amount <= 75000) {
-		out << "горк" << grammar::CountedFormEnding(gram_case, 1) << " " << GetPluralName(grammar::ECase::kGen);
-	} else if (amount <= 100000) {
-		out << "больш" << grammar::CountedFormEnding(gram_case, 0) << " горк" << grammar::CountedFormEnding(gram_case, 1)
-			<< " " << GetPluralName(grammar::ECase::kGen);
-	} else if (amount <= 150000) {
-		out << "груд" << grammar::CountedFormEnding(gram_case, 2) << " " << GetPluralCName(grammar::ECase::kGen);
-	} else if (amount <= 250000) {
-		out << "больш" << grammar::CountedFormEnding(gram_case, 0) << " груд" << grammar::CountedFormEnding(gram_case, 2)
-			<< " " << GetPluralName(grammar::ECase::kGen);
-	} else if (amount <= 500000) {
-		out << "гор" << grammar::CountedFormEnding(gram_case, 1) << " " << GetPluralName(grammar::ECase::kGen);
-	} else if (amount <= 1000000) {
-		out << "больш" << grammar::CountedFormEnding(gram_case, 0) << " гор" << grammar::CountedFormEnding(gram_case, 2)
-			<< " " << GetPluralName(grammar::ECase::kGen);
-	} else  {
-		out << "огромн" << grammar::CountedFormEnding(gram_case, 0) << " гор" << grammar::CountedFormEnding(gram_case, 2)
-			<< " " << GetPluralName(grammar::ECase::kGen);
+		return out.str();
 	}
-
-	return out.str();
+	// issue.currencies: amount >= 2 -- pick the data-driven obj-name template whose `from`
+	// threshold fits (currency_msg.xml), then fill the per-case placeholders.
+	const std::string *tpl = nullptr;
+	for (const auto &pattern : g_default_obj_names) {  // sorted by `from`, descending
+		if (amount >= pattern.from) {
+			tpl = &pattern.tpl;
+			break;
+		}
+	}
+	if (!tpl) {
+		return GetPluralName(grammar::ECase::kGen);
+	}
+	std::string result = *tpl;
+	const auto fill = [&result](const char *placeholder, const std::string &value) {
+		for (std::size_t pos; (pos = result.find(placeholder)) != std::string::npos; ) {
+			result.replace(pos, std::char_traits<char>::length(placeholder), value);
+		}
+	};
+	fill("{adjective_ending}", grammar::CountedFormEnding(gram_case, 0));
+	fill("{noun_ending}", grammar::CountedFormEnding(gram_case, 1));
+	fill("{currency_name}", GetPluralName(grammar::ECase::kGen));
+	return result;
 }
 const char *CurrencyInfo::GetObjCName(long amount, grammar::ECase gram_case) const {
 	static char buf[128];
