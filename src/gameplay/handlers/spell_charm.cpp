@@ -73,7 +73,7 @@ EStageResult SpellCharm(CastContext &ctx) {
 	else if (follow::CircleFollow(victim, ch))
 		SendCharmMsg(ESpellMsg::kCustomMsgFour);
 	else if (!ch->IsImmortal()
-		&& CalcGeneralSaving(ch, victim, ESaving::kWill, (GetRealCha(ch) - 10) * 4 + GetRealRemort(ch) * 3)) //предлагаю завязать на каст
+		&& CalcGeneralSaving(ch, victim, ESaving::kWill, (GetRealCha(ch) - 10) * 4 + remort::GetRealRemort(ch) * 3)) //предлагаю завязать на каст
 		SendCharmMsg(ESpellMsg::kSummonFail);
 	else {
 		if (!CheckCharmices(ch, victim, ESpell::kCharm)) {
@@ -97,7 +97,7 @@ EStageResult SpellCharm(CastContext &ctx) {
 		if (GetRealInt(victim) > GetRealInt(ch)) {
 			af.duration = CalcDuration(victim, victim, ESkill::kUndefined, GetRealCha(ch), 0, 0, 0);
 		} else {
-			af.duration = CalcDuration(victim, victim, ESkill::kUndefined, GetRealCha(ch) + number(1, 10) + GetRealRemort(ch) * 2, 0, 0, 0);
+			af.duration = CalcDuration(victim, victim, ESkill::kUndefined, GetRealCha(ch) + number(1, 10) + remort::GetRealRemort(ch) * 2, 0, 0, 0);
 		}
 		af.modifier = 0;
 		af.location = EApply::kNone;

@@ -24,7 +24,7 @@
 #include "third_party_libs/pugixml/pugixml.h"
 
 #include "gameplay/mechanics/birthplaces.h"
-#include "gameplay/mechanics/remort.h"
+#include "gameplay/core/remort.h"
 #include "gameplay/communication/boards/boards_changelog_loaders.h"
 #include "gameplay/communication/boards/boards_constants.h"
 #include "engine/entities/char_data.h"
@@ -117,10 +117,10 @@ int free_rent = YES;
 
 // receptionist's surcharge on top of item costs
 int min_rent_cost(CharData *ch) {
-	if ((GetRealLevel(ch) < 15) && (GetRealRemort(ch) == 0))
+	if ((GetRealLevel(ch) < 15) && (remort::GetRealRemort(ch) == 0))
 		return (0);
 	else
-		return ((GetRealLevel(ch) + 30 * GetRealRemort(ch)) * 2);
+		return ((GetRealLevel(ch) + 30 * remort::GetRealRemort(ch)) * 2);
 }
 
 // Lifetime of crashfiles, forced-rent and idlesave files in days
@@ -297,7 +297,7 @@ int max_exp_gain_pc(CharData *ch) {
 	int result = 1;
 	if (!ch->IsNpc()) {
 		int max_per_lev = GetExpUntilNextLvl(ch, ch->GetLevel() + 1) - GetExpUntilNextLvl(ch, ch->GetLevel() + 0); //тут берем левел без плюсов от стафа
-		result = max_per_lev / (10 + GetRealRemort(ch));
+		result = max_per_lev / (10 + remort::GetRealRemort(ch));
 	}
 	return result;
 }

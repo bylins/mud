@@ -23,7 +23,7 @@
 #include "gameplay/mechanics/minions.h"
 #include "utils/logger.h"
 #include "gameplay/abilities/feats.h"
-#include "gameplay/mechanics/remort.h"
+#include "gameplay/core/remort.h"
 
 #include <map>
 #include <sstream>
@@ -248,7 +248,7 @@ static bool mag_item_ok(CharData *ch, ObjData *obj, int spelltype) {
 			num += 64;
 		if (IS_SET(GET_OBJ_VAL(obj, 0), kMiLag128S))
 			num += 128;
-		if (GET_OBJ_VAL(obj, 3) + num - 5 * GetRealRemort(ch) >= time(nullptr))
+		if (GET_OBJ_VAL(obj, 3) + num - 5 * remort::GetRealRemort(ch) >= time(nullptr))
 			return false;
 	}
 
@@ -266,7 +266,7 @@ static bool mag_item_ok(CharData *ch, ObjData *obj, int spelltype) {
 			num += 16;
 		if (IS_SET(GET_OBJ_VAL(obj, 0), kMiLevel32))
 			num += 32;
-		if (GetRealLevel(ch) + GetRealRemort(ch) < num)
+		if (GetRealLevel(ch) + remort::GetRealRemort(ch) < num)
 			return false;
 	}
 
@@ -493,7 +493,7 @@ int MagusCastRequiredLevel(const CharData *ch, ESpell spell_id) {
 	if (required_level >= kLvlGod)
 		return required_level;
 	if (CanUseFeat(ch, EFeat::kSecretRunes)) {
-		required_level -= GetRealRemort(ch)/ MUD::Class(ch->GetClass()).GetSpellLvlDecrement();
+		required_level -= remort::GetRealRemort(ch)/ MUD::Class(ch->GetClass()).GetSpellLvlDecrement();
 	}
 	return std::max(1, required_level);
 }

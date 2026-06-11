@@ -2,7 +2,7 @@
 // Created by Sventovit on 11.06.2026.
 //
 
-#include "gameplay/mechanics/remort.h"
+#include "gameplay/core/remort.h"
 
 #include "administration/karma.h"
 #include "engine/entities/char_data.h"
@@ -199,8 +199,6 @@ void ProcessRemort(CharData *ch, char *argument, int subcmd) {
 	affect_total(ch);
 }
 
-} // namespace remort
-
 int GetRealRemort(const CharData *ch) {
 	return std::clamp(ch->get_remort() + ch->get_remort_add(), 0, kMaxRemort);
 }
@@ -208,5 +206,7 @@ int GetRealRemort(const CharData *ch) {
 int GetRealRemort(const std::shared_ptr<CharData> &ch) {
 	return GetRealRemort(ch.get());
 }
+
+} // namespace remort
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

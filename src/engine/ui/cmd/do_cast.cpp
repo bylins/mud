@@ -9,7 +9,7 @@
 #include "gameplay/magic/spells_info.h"
 #include "engine/ui/color.h"
 #include "engine/db/global_objects.h"
-#include "gameplay/mechanics/remort.h"
+#include "gameplay/core/remort.h"
 
 auto FindSubstituteSpellId(CharData *ch, ESpell spell_id) {
 	static const std::set<ESpell> healing_spells{
@@ -96,7 +96,7 @@ void DoCast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	}
 	if (const auto spell = MUD::Class(ch->GetClass()).spells[spell_id];
 		(!IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kTemp | ESpellType::kKnow) ||
-		GetRealRemort(ch) < spell.GetMinRemort()) &&
+		remort::GetRealRemort(ch) < spell.GetMinRemort()) &&
 		(GetRealLevel(ch) < kLvlGreatGod) && !ch->IsNpc()) {
 		if (GetRealLevel(ch) < CalcMinSpellLvl(ch, spell_id)
 			|| classes::CalcCircleSlotsAmount(ch, spell.GetCircle()) <= 0) {

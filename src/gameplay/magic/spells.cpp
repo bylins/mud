@@ -21,7 +21,7 @@
 #include "gameplay/mechanics/stable_objs.h"
 #include "gameplay/mechanics/weather.h"
 #include "gameplay/fight/fight.h"
-#include "gameplay/mechanics/remort.h"
+#include "gameplay/core/remort.h"
 
 int what_sky = kSkyCloudless;
 
@@ -29,14 +29,14 @@ int what_sky = kSkyCloudless;
 //req_lvl - требуемый уровень из книги
 int CalcMinSpellLvl(const CharData *ch, ESpell spell_id, int req_lvl) {
 	int min_lvl = std::max(req_lvl, MUD::Class(ch->GetClass()).spells[spell_id].GetMinLevel())
-		- (std::max(0, GetRealRemort(ch)/ MUD::Class(ch->GetClass()).GetSpellLvlDecrement()));
+		- (std::max(0, remort::GetRealRemort(ch)/ MUD::Class(ch->GetClass()).GetSpellLvlDecrement()));
 
 	return std::max(1, min_lvl);
 }
 
 int CalcMinSpellLvl(const CharData *ch, ESpell spell_id) {
 	auto min_lvl = MUD::Class(ch->GetClass()).spells[spell_id].GetMinLevel()
-		- GetRealRemort(ch)/ MUD::Class(ch->GetClass()).GetSpellLvlDecrement();
+		- remort::GetRealRemort(ch)/ MUD::Class(ch->GetClass()).GetSpellLvlDecrement();
 
 	return std::max(1, min_lvl);
 }
@@ -46,7 +46,7 @@ int CalcMinRuneSpellLvl(const CharData *ch, ESpell spell_id) {
 	// Read from the new rune_spells registry.
 	const auto &runes = MUD::RuneSpells();
 	if (auto it = runes.find(spell_id); it != runes.end()) {
-		min_lvl = it->second.min_caster_level - GetRealRemort(ch) / MUD::Class(ch->GetClass()).GetSpellLvlDecrement();
+		min_lvl = it->second.min_caster_level - remort::GetRealRemort(ch) / MUD::Class(ch->GetClass()).GetSpellLvlDecrement();
 	} else {
 		return 999;
 	}
@@ -56,7 +56,7 @@ int CalcMinRuneSpellLvl(const CharData *ch, ESpell spell_id) {
 bool CanGetSpell(const CharData *ch, ESpell spell_id, int req_lvl) {
 	if (MUD::Class(ch->GetClass()).spells.IsUnavailable(spell_id) ||
 		CalcMinSpellLvl(ch, spell_id, req_lvl) > GetRealLevel(ch) ||
-		MUD::Class(ch->GetClass()).spells[spell_id].GetMinRemort() > GetRealRemort(ch)) {
+		MUD::Class(ch->GetClass()).spells[spell_id].GetMinRemort() > remort::GetRealRemort(ch)) {
 		return false;
 	}
 
@@ -70,7 +70,7 @@ bool CanGetSpell(CharData *ch, ESpell spell_id) {
 	}
 
 	if (CalcMinSpellLvl(ch, spell_id) > GetRealLevel(ch) ||
-		MUD::Class(ch->GetClass()).spells[spell_id].GetMinRemort() > GetRealRemort(ch)) {
+		MUD::Class(ch->GetClass()).spells[spell_id].GetMinRemort() > remort::GetRealRemort(ch)) {
 		return false;
 	}
 

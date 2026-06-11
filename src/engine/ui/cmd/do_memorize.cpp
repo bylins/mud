@@ -9,7 +9,7 @@
 #include "gameplay/magic/magic_utils.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/core/game_limits.h"
-#include "gameplay/mechanics/remort.h"
+#include "gameplay/core/remort.h"
 
 #include <fmt/format.h>
 
@@ -50,7 +50,7 @@ void do_memorize(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 	const auto spell = MUD::Class(ch->GetClass()).spells[spell_id];
 	if (GetRealLevel(ch) < CalcMinSpellLvl(ch, spell_id)
-		|| GetRealRemort(ch) < spell.GetMinRemort()
+		|| remort::GetRealRemort(ch) < spell.GetMinRemort()
 		|| CalcCircleSlotsAmount(ch, spell.GetCircle()) <= 0) {
 		SendMsgToChar("Рано еще вам бросаться такими словами!\r\n", ch);
 		return;

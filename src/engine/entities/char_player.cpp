@@ -30,7 +30,7 @@
 #include "engine/ui/cmd/do_who.h"
 #include "engine/ui/mapsystem.h"
 #include "engine/db/player_index.h"
-#include "gameplay/mechanics/remort.h"
+#include "gameplay/core/remort.h"
 
 #ifdef _WIN32
 #else
@@ -223,7 +223,7 @@ void Player::add_nogata(int value) {
 }
 
 void Player::add_hryvn(int value) {
-	if (GetRealRemort(this) < 6) {
+	if (remort::GetRealRemort(this) < 6) {
 		SendMsgToChar(this, "Глянув на непонятный слиток, Вы решили выкинуть его...\r\n");
 		return;
 	} 
@@ -264,7 +264,7 @@ void Player::dquest(const int id) {
 	const int zone_lvl = zone_table[world[this->in_room]->zone_rn].mob_level;
 	value = this->account->zero_hryvn(this, value);
 	if (zone_lvl < 25
-		&& zone_lvl <= (GetRealLevel(this) + GetRealRemort(this) / 5)) {
+		&& zone_lvl <= (GetRealLevel(this) + remort::GetRealRemort(this) / 5)) {
 		value /= 2;
 	}
 	this->add_hryvn(value);
@@ -944,7 +944,7 @@ void Player::save_char() {
 	if (i >= 0) {
 		player_table[i].last_logon = this->get_last_logon();
 		player_table[i].level = GetRealLevel(this);
-		player_table[i].remorts = GetRealRemort(this);
+		player_table[i].remorts = remort::GetRealRemort(this);
 		player_table[i].mail = GET_EMAIL(this);
 		player_table[i].set_uid(this->get_uid());
 		player_table[i].plr_class = GetClass();
@@ -1932,7 +1932,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 			if (spell.GetCircle() == kMaxMemoryCircle) {
 				REMOVE_BIT(GET_SPELL_TYPE(this, spell.GetId()), ESpellType::kKnow | ESpellType::kTemp);
 			}
-			if (GetRealRemort(this) < spell.GetMinRemort()) {
+			if (remort::GetRealRemort(this) < spell.GetMinRemort()) {
 				GET_SPELL_MEM(this, spell_id) = 0;
 			}
 		}

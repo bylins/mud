@@ -15,7 +15,7 @@
 #include "gameplay/magic/magic_utils.h"
 #include "gameplay/magic/spells_info.h"
 #include "engine/db/global_objects.h"
-#include "gameplay/mechanics/remort.h"
+#include "gameplay/core/remort.h"
 
 const double kManaCostModifier = 0.5;
 
@@ -156,7 +156,7 @@ int CalcSpellManacost(CharData *ch, ESpell spell_id) {
 	} else {
 		if (!IS_MANA_CASTER(ch)
 					&& GetRealLevel(ch) >= CalcMinSpellLvl(ch, spell_id)
-					&& GetRealRemort(ch) >= MUD::Class(ch->GetClass()).spells[spell_id].GetMinRemort()) {
+					&& remort::GetRealRemort(ch) >= MUD::Class(ch->GetClass()).spells[spell_id].GetMinRemort()) {
 			result = std::max(MUD::Spell(spell_id).GetMaxMana() 
 					- (MUD::Spell(spell_id).GetManaChange() * (GetRealLevel(ch) - CalcMinSpellLvl(ch, spell_id))),
 				MUD::Spell(spell_id).GetMinMana());
@@ -293,7 +293,7 @@ int *MemQ_slots(CharData *ch) {
 		}
 		sloti = MUD::Class(ch->GetClass()).spells[spell_id].GetCircle() - 1;
 		if (CalcMinSpellLvl(ch, spell_id) > GetRealLevel(ch) ||
-			MUD::Class(ch->GetClass()).spells[spell_id].GetMinRemort() > GetRealRemort(ch)) {
+			MUD::Class(ch->GetClass()).spells[spell_id].GetMinRemort() > remort::GetRealRemort(ch)) {
 			GET_SPELL_MEM(ch, spell_id) = 0;
 			continue;
 		}
@@ -310,7 +310,7 @@ int *MemQ_slots(CharData *ch) {
 		if (sloti >= 0 && sloti <= 10) {
 			--slots[sloti];
 			if (slots[sloti] >= 0 && CalcMinSpellLvl(ch, q[0]->spell_id) <= GetRealLevel(ch) &&
-				MUD::Class(ch->GetClass()).spells[q[0]->spell_id].GetMinRemort() <= GetRealRemort(ch)) {
+				MUD::Class(ch->GetClass()).spells[q[0]->spell_id].GetMinRemort() <= remort::GetRealRemort(ch)) {
 				q = &(q[0]->next);
 			} else {
 				if (q == &ch->mem_queue.queue)

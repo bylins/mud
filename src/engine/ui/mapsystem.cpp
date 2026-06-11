@@ -19,7 +19,7 @@
 #include "gameplay/mechanics/awake.h"
 #include "gameplay/mechanics/boat.h"
 #include "gameplay/mechanics/sight.h"
-#include "gameplay/mechanics/remort.h"
+#include "gameplay/core/remort.h"
 
 namespace Noob {
 int outfit(CharData *ch, void *me, int cmd, char *argument);
@@ -479,7 +479,7 @@ void draw_map_bfs(CharData *ch) {
 				}
 				const RoomData *next_room = world[room->dir_option[i]->to_room()];
 				if (next_room->get_flag(ERoomFlag::kDeathTrap)
-					&& (GetRealRemort(ch) <= 5 || view_dt || ch->IsImmortal())) {
+					&& (remort::GetRealRemort(ch) <= 5 || view_dt || ch->IsImmortal())) {
 					check_position_and_put_on_screen(next_y, next_x, SCREEN_DEATH_TRAP, cur_depth, i);
 				}
 				if (IsCharNeedBoatThere(ch, next_room->sector_type)) {

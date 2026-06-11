@@ -5,7 +5,7 @@
 #include "gameplay/magic/spells_info.h"
 #include "gameplay/magic/magic_utils.h"
 #include "engine/db/global_objects.h"
-#include "gameplay/mechanics/remort.h"
+#include "gameplay/core/remort.h"
 
 // Вложить закл в клона
 void DoSpellCapable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
@@ -58,7 +58,7 @@ void DoSpellCapable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	const auto spell = MUD::Class(ch->GetClass()).spells[spell_id];
 	if ((!IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kTemp | ESpellType::kKnow) ||
-		GetRealRemort(ch) < spell.GetMinRemort()) &&
+		remort::GetRealRemort(ch) < spell.GetMinRemort()) &&
 		(GetRealLevel(ch) < kLvlGreatGod) && (!ch->IsNpc())) {
 		if (GetRealLevel(ch) < CalcMinSpellLvl(ch, spell_id) ||
 			CalcCircleSlotsAmount(ch, spell.GetCircle()) <= 0) {
@@ -139,12 +139,12 @@ void DoSpellCapable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 	ImposeTimedFeat(ch, &timed);
 
-	GET_CAST_SUCCESS(follower) = GetRealRemort(ch) * 4;
+	GET_CAST_SUCCESS(follower) = remort::GetRealRemort(ch) * 4;
 	Affect<EApply> af;
 	af.type = ESpell::kCapable;
 	af.duration = 48;
-	if (GetRealRemort(ch) > 0) {
-		af.modifier = GetRealRemort(ch) * 4;//вешаецо аффект который дает +морт*4 касту
+	if (remort::GetRealRemort(ch) > 0) {
+		af.modifier = remort::GetRealRemort(ch) * 4;//вешаецо аффект который дает +морт*4 касту
 		af.location = EApply::kCastSuccess;
 	} else {
 		af.modifier = 0;

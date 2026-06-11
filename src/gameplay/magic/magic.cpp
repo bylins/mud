@@ -51,7 +51,7 @@
 #include "utils/utils_time.h"
 #include "gameplay/mechanics/minions.h"
 #include "gameplay/mechanics/sight.h"
-#include "gameplay/mechanics/remort.h"
+#include "gameplay/core/remort.h"
 
 extern int interpolate(int min_value, int pulse);
 
@@ -371,7 +371,7 @@ bool TryReflectBySonicBarrier(CharData *ch, CharData *victim, ESpell spell_id) {
 	if (!MUD::Spell(spell_id).IsFlagged(kMagWarcry)) return false;
 	if (!MUD::Spell(spell_id).IsViolentAgainst(ch, victim)) return false;
 	if (!victim->IsGod()) return false;
-	if (!ch->IsNpc() && GetRealLevel(victim) <= (GetRealLevel(ch) + GetRealRemort(ch) / 2)) return false;
+	if (!ch->IsNpc() && GetRealLevel(victim) <= (GetRealLevel(ch) + remort::GetRealRemort(ch) / 2)) return false;
 	act("Звуковой барьер $N1 отразил ваш крик!", false, ch, nullptr, victim, kToChar);
 	act("Звуковой барьер $N1 отразил крик $n1!", false, ch, nullptr, victim, kToNotVict);
 	act("Ваш звуковой барьер отразил крик $n1!", false, ch, nullptr, victim, kToVict);
@@ -1082,7 +1082,7 @@ static MobVnum PickNecroMobForCorpse(CharData *ch, int corpse_mob_level) {
 		mob_num = (number(1, 100) > 50) ? kMobNecrobreather : kMobNecrodamager;
 	}
 	// kMobNecrocaster disabled, cant cast
-	const int cap = GetRealLevel(ch) + GetRealRemort(ch) + 4;
+	const int cap = GetRealLevel(ch) + remort::GetRealRemort(ch) + 4;
 	if (cap < 15 && mob_num > kMobZombie) {
 		mob_num = kMobZombie;
 	} else if (cap < 25 && mob_num > kMobBonedog) {
@@ -1146,7 +1146,7 @@ static void RenameAsUndead(CharData *ch, CharData *mob) {
 // charm-points budget (or hits the 255 cap, which means damsize is too small for this caster).
 static void BoostNecroDamage(CharData *ch, CharData *mob, ESpell spell_id) {
 	// add 10% mob health by remort
-	mob->set_max_hit(mob->get_max_hit() * (1.0 + GetRealRemort(ch) / 10.0));
+	mob->set_max_hit(mob->get_max_hit() * (1.0 + remort::GetRealRemort(ch) / 10.0));
 	mob->set_hit(mob->get_max_hit());
 	int player_charms_value = CalcCharmPoint(ch, spell_id);
 	int mob_cahrms_value = GetReformedCharmiceHp(ch, mob, spell_id);
@@ -1199,7 +1199,7 @@ static void EnhanceAnimateDead(CharData *ch, CharData *mob, MobVnum mob_num,
 	if (eff_wis >= 75) {
 		Affect<EApply> af;
 		af.type = ESpell::kUndefined;
-		af.duration = charm_duration * (1 + GetRealRemort(ch));
+		af.duration = charm_duration * (1 + remort::GetRealRemort(ch));
 		af.modifier = 0;
 		af.location = EApply::kNone;
 		af.affect_type = EAffect::kIceShield;
@@ -1353,14 +1353,14 @@ static EStageResult CorpseSummon(CastContext &ctx, bool resurrection) {
 		}
 		CharData *tmp_mob = mob_proto + GetMobRnum(mob_num);
 		pfail = 10 + tmp_mob->get_con() * 2
-			- number(1, GetRealLevel(ch)) - GET_CAST_SUCCESS(ch) - GetRealRemort(ch) * 5;
+			- number(1, GetRealLevel(ch)) - GET_CAST_SUCCESS(ch) - remort::GetRealRemort(ch) * 5;
 	} else {
 		if (mob_num <= 0) {
 			mob_num = kMobSkeleton;
 		} else {
 			CharData *tmp_mob = mob_proto + GetMobRnum(mob_num);
 			pfail = 10 + tmp_mob->get_con() * 2
-				- number(1, GetRealLevel(ch)) - GET_CAST_SUCCESS(ch) - GetRealRemort(ch) * 5;
+				- number(1, GetRealLevel(ch)) - GET_CAST_SUCCESS(ch) - remort::GetRealRemort(ch) * 5;
 			mob_num = PickNecroMobForCorpse(ch, GetRealLevel(tmp_mob));
 		}
 	}

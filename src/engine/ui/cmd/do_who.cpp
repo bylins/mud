@@ -12,7 +12,7 @@
 #include "engine/ui/modify.h"
 #include "gameplay/classes/pc_classes.h"
 #include "engine/db/player_index.h"
-#include "gameplay/mechanics/remort.h"
+#include "gameplay/core/remort.h"
 
 namespace {
 
@@ -179,7 +179,7 @@ void DoWho(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				sprintf(buf, "%s[%2d %2d %s(%5d)] %s%s%s%s",
 						tch->IsImmortal() ? kColorWht : "",
 						GetRealLevel(tch),
-						GetRealRemort(tch),
+						remort::GetRealRemort(tch),
 						MUD::Class(tch->GetClass()).GetAbbr().c_str(),
 						tch->get_pfilepos(),
 						GetPkNameColor(tch),

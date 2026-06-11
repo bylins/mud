@@ -38,7 +38,7 @@
 #include "gameplay/mechanics/illumination.h"
 #include "utils/utils_time.h"
 #include "gameplay/skills/leadership.h"
-#include "gameplay/mechanics/remort.h"
+#include "gameplay/core/remort.h"
 
 // extern
 void PerformDropGold(CharData *ch, int amount);
@@ -260,11 +260,11 @@ void die(CharData *ch, CharData *killer) {
 		{
 			if (!NORENTABLE(ch))
 				dec_exp =
-					(GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1) - GetExpUntilNextLvl(ch, GetRealLevel(ch))) / (3 + std::min(3, GetRealRemort(ch) / 5))
+					(GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1) - GetExpUntilNextLvl(ch, GetRealLevel(ch))) / (3 + std::min(3, remort::GetRealRemort(ch) / 5))
 						/ ch->death_player_count();
 			else
 				dec_exp = (GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1) - GetExpUntilNextLvl(ch, GetRealLevel(ch)))
-					/ (3 + std::min(3, GetRealRemort(ch) / 5));
+					/ (3 + std::min(3, remort::GetRealRemort(ch) / 5));
 			EndowExpToChar(ch, -dec_exp);
 			dec_exp = char_exp - ch->get_exp();
 			sprintf(buf, "Вы потеряли %ld %s опыта.\r\n", dec_exp, grammar::GetDeclensionInNumber(dec_exp, grammar::EWhat::kPoint));
@@ -510,7 +510,7 @@ void real_kill(CharData *ch, CharData *killer) {
 #endif
 	}
 /*	до будущих времен
-	if (!ch->IsNpc() && GetRealRemort(ch) > 7 && (GetRealLevel(ch) == 29 || GetRealLevel(ch) == 30))
+	if (!ch->IsNpc() && remort::GetRealRemort(ch) > 7 && (GetRealLevel(ch) == 29 || GetRealLevel(ch) == 30))
 	{
 		// лоадим свиток с экспой
 		const auto rnum = GetObjRnum(100);
@@ -585,7 +585,7 @@ void raw_kill(CharData *ch, CharData *killer) {
 	if (ch->IsNpc() && killer) {
 		if (CanUseFeat(killer, EFeat::kSoulsCollector)) {
 			if (GetRealLevel(ch) >= GetRealLevel(killer)) {
-				if (killer->get_souls() < (GetRealRemort(killer) + 1)) {
+				if (killer->get_souls() < (remort::GetRealRemort(killer) + 1)) {
 					act("&GВы забрали душу $N1 себе!&n", false, killer, nullptr, ch, kToChar);
 					act("$n забрал душу $N1 себе!", false, killer, nullptr, ch, kToNotVict | kToArenaListen);
 					killer->inc_souls();
@@ -611,7 +611,7 @@ void raw_kill(CharData *ch, CharData *killer) {
 }
 
 int get_remort_mobmax(CharData *ch) {
-	int remort = GetRealRemort(ch);
+	int remort = remort::GetRealRemort(ch);
 	if (remort >= 18)
 		return 15;
 	if (remort >= 14)
@@ -673,7 +673,7 @@ long long get_extend_exp(long long exp, CharData *ch, CharData *victim) {
 	exp = exp * std::max(15, koef) / 100;
 
 	// делим на реморты
-	exp /= std::max(1.0, 0.5 * (GetRealRemort(ch) - kMaxExpCoefficientsUsed));
+	exp /= std::max(1.0, 0.5 * (remort::GetRealRemort(ch) - kMaxExpCoefficientsUsed));
 	return (exp);
 }
 

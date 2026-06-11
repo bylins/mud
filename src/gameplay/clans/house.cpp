@@ -58,7 +58,7 @@
 #include "utils/utils_time.h"
 #include "gameplay/mechanics/dungeons.h"
 #include "engine/ui/cmd/do_who.h"
-#include "gameplay/mechanics/remort.h"
+#include "gameplay/core/remort.h"
 
 using namespace ClanSystem;
 
@@ -3661,7 +3661,7 @@ void Clan::HouseStat(CharData *ch, std::string &buffer) {
 				it.second->level = GetRealLevel(d->character);
 				it.second->class_abbr = MUD::Class(d->character->GetClass()).GetAbbr();
 				it.second->remort = GET_GOD_FLAG(d->character, EGf::kRemort) ? true : false;
-				it.second->remorts_amount = GetRealRemort(d->character);
+				it.second->remorts_amount = remort::GetRealRemort(d->character);
 			}
 		} else if (name) {
 			if (!CompareParam(buffer2, it.second->name)) {

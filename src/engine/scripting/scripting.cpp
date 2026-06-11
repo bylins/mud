@@ -31,7 +31,7 @@ str.cpp - PyUnicode_FromString на PyUnicode_DecodeLocale, PyUnicode_FromString
 #include "engine/ui/modify.h"
 #include "gameplay/magic/spells_info.h"
 #include "engine/db/global_objects.h"
-#include "gameplay/mechanics/remort.h"
+#include "gameplay/core/remort.h"
 
 // Required because pyconfig.h defines ssize_t by himself
 #if defined(ssize_t)
@@ -486,7 +486,7 @@ class CharacterWrapper : public Wrapper<CharacterData> {
 
 	short get_remort() const {
 		Ensurer ch(*this);
-		return GetRealRemort(ch);
+		return remort::GetRealRemort(ch);
 	}
 
 	int get_skill(int skill_num) const {

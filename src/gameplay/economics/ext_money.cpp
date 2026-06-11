@@ -11,7 +11,7 @@
 #include "engine/ui/color.h"
 #include "third_party_libs/pugixml/pugixml.h"
 #include "engine/entities/zone.h"
-#include "gameplay/mechanics/remort.h"
+#include "gameplay/core/remort.h"
 
 #include <fmt/format.h>
 
@@ -457,9 +457,9 @@ int calc_drop_torc(int zone_lvl, int members) {
 // если imm_stat == true, то вместо звездочек конкретные цифры тек/макс
 std::string draw_daily_limit(CharData *ch, bool imm_stat) {
 	const int today_torc = ch->get_today_torc();
-	const int torc_req_daily = calc_torc_daily(GetRealRemort(ch));
+	const int torc_req_daily = calc_torc_daily(remort::GetRealRemort(ch));
 
-	TorcReq torc_req(GetRealRemort(ch));
+	TorcReq torc_req(remort::GetRealRemort(ch));
 	if (torc_req.type >= kTotalTypes) {
 		torc_req.type = kTorcBronze;
 	}
@@ -485,11 +485,11 @@ std::string draw_daily_limit(CharData *ch, bool imm_stat) {
 // проверка дропа гривен на суточный замакс
 int check_daily_limit(CharData *ch, int drop) {
 	const int today_torc = ch->get_today_torc();
-	const int torc_req_daily = calc_torc_daily(GetRealRemort(ch));
+	const int torc_req_daily = calc_torc_daily(remort::GetRealRemort(ch));
 
 	// из calc_torc_daily в любом случае взялось какое-то число бронзы
 	// даже если чар не имеет мортов для требования гривен
-	TorcReq torc_req(GetRealRemort(ch));
+	TorcReq torc_req(remort::GetRealRemort(ch));
 	if (torc_req.type >= kTotalTypes) {
 		torc_req.type = kTorcBronze;
 	}
@@ -730,7 +730,7 @@ int calc_torc_daily(int rmrt) {
 
 // проверка, требуется ли от чара жертвовать для реморта
 bool need_torc(CharData *ch) {
-	TorcReq torc_req(GetRealRemort(ch));
+	TorcReq torc_req(remort::GetRealRemort(ch));
 
 	if (torc_req.type < kTotalTypes && torc_req.amount > 0) {
 		return true;

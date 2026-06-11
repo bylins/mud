@@ -11,7 +11,7 @@
 #include "gameplay/communication/spam.h"
 #include "engine/ui/color.h"
 #include "gameplay/communication/remember.h"
-#include "gameplay/mechanics/remort.h"
+#include "gameplay/core/remort.h"
 
 void do_offtop(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->IsNpc() || GetRealLevel(ch) >= kLvlImmortal || ch->IsFlagged(EPrf::kStopOfftop)) {
@@ -28,7 +28,7 @@ void do_offtop(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar(CommonMsg(ECommonMsg::kSoundproof) + "\r\n", ch);
 		return;
 	}
-	if (GetRealLevel(ch) < offtop_system::kMinOfftopLvl && !GetRealRemort(ch)) {
+	if (GetRealLevel(ch) < offtop_system::kMinOfftopLvl && !remort::GetRealRemort(ch)) {
 		SendMsgToChar(ch, "Вам стоит достичь хотя бы %d уровня, чтобы вы могли оффтопить.\r\n",
 					  offtop_system::kMinOfftopLvl);
 		return;

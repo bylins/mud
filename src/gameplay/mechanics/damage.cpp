@@ -21,7 +21,7 @@
 #include "gameplay/clans/house_exp.h"
 #include "gameplay/statistics/dps.h"
 #include "engine/observability/event_sink.h"
-#include "gameplay/mechanics/remort.h"
+#include "gameplay/core/remort.h"
 #include "engine/ui/color.h"
 #include "gameplay/core/game_limits.h"
 #include "engine/core/utils_char_obj.inl"
@@ -181,7 +181,7 @@ bool Damage::CalcDmgAbsorption(CharData *ch, CharData *victim) {
 		&& dam > 0
 		&& GET_ABSORBE(victim) > 0) {
 		// шансы поглощения: непробиваемый в осторожке 15%, остальные 10%
-		int chance = 10 + GetRealRemort(victim) / 3;
+		int chance = 10 + remort::GetRealRemort(victim) / 3;
 		if (CanUseFeat(victim, EFeat::kImpregnable)
 			&& victim->IsFlagged(EPrf::kAwake)) {
 			chance += 5;
@@ -245,7 +245,7 @@ void Damage::ProcessBlink(CharData *ch, CharData *victim) {
 	if (dmg_type == fight::kMagicDmg) {
 		if (AFF_FLAGGED(victim, EAffect::kCloudly) || victim->add_abils.percent_spell_blink_mag > 0) {
 			if (victim->IsNpc()) {
-				blink = GetRealLevel(victim) + GetRealRemort(victim);
+				blink = GetRealLevel(victim) + remort::GetRealRemort(victim);
 			} else if(victim->add_abils.percent_spell_blink_mag > 0) {
 				blink = victim->add_abils.percent_spell_blink_mag;
 			} else {
@@ -255,7 +255,7 @@ void Damage::ProcessBlink(CharData *ch, CharData *victim) {
 	} else if(dmg_type == fight::kPhysDmg) {
 		if (AFF_FLAGGED(victim, EAffect::kBlink) || victim->add_abils.percent_spell_blink_phys > 0) {
 			if (victim->IsNpc()) {
-				blink = GetRealLevel(victim) + GetRealRemort(victim);
+				blink = GetRealLevel(victim) + remort::GetRealRemort(victim);
 			} else if (victim->add_abils.percent_spell_blink_phys > 0) {
 				blink = victim->add_abils.percent_spell_blink_phys;
 			} else {

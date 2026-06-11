@@ -8,7 +8,7 @@
 #include "engine/entities/char_data.h"
 #include "engine/core/handler.h"
 #include "engine/core/target_resolver.h"
-#include "gameplay/mechanics/remort.h"
+#include "gameplay/core/remort.h"
 
 void DoConsider(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *victim;
@@ -30,7 +30,7 @@ void DoConsider(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Оценивайте игроков сами - тут я не советчик.\r\n", ch);
 		return;
 	}
-	diff = (GetRealLevel(victim) - GetRealLevel(ch) - GetRealRemort(ch));
+	diff = (GetRealLevel(victim) - GetRealLevel(ch) - remort::GetRealRemort(ch));
 
 	if (diff <= -10)
 		SendMsgToChar("Ути-пути, моя рыбонька.\r\n", ch);

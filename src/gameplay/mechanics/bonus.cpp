@@ -7,7 +7,7 @@
 #include "engine/ui/modify.h"
 #include "engine/entities/char_player.h"
 #include "engine/db/global_objects.h"
-#include "gameplay/mechanics/remort.h"
+#include "gameplay/core/remort.h"
 
 namespace Bonus {
 const size_t MAXIMUM_BONUS_RECORDS = 10;
@@ -42,7 +42,7 @@ bool can_get_bonus_exp(CharData *ch) {
 	}
 
 	const short MAX_REMORT_FOR_BONUS = 50;
-	return GetRealRemort(ch) <= MAX_REMORT_FOR_BONUS;
+	return remort::GetRealRemort(ch) <= MAX_REMORT_FOR_BONUS;
 }
 
 void setup_bonus(const int duration, const int multilpier, EBonusType type) {

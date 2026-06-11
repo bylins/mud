@@ -23,7 +23,7 @@
 #include "gameplay/affects/affect_data.h"
 #include "gameplay/mechanics/illumination.h"
 #include "engine/ui/alias.h"
-#include "gameplay/mechanics/remort.h"
+#include "gameplay/core/remort.h"
 
 #include <fmt/format.h>
 #include <random>
@@ -353,7 +353,7 @@ void CharData::purge() {
 		id = GetPlayerTablePosByName(GET_NAME(this));
 		if (id >= 0) {
 			player_table[id].level = GetRealLevel(this);
-			player_table[id].remorts = GetRealRemort(this);
+			player_table[id].remorts = remort::GetRealRemort(this);
 			player_table[id].activity = number(0, kObjectSaveActivity - 1);
 		}
 	}

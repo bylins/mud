@@ -8,7 +8,7 @@
 #include "engine/ui/modify.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/mechanics/weather.h"
-#include "gameplay/mechanics/remort.h"
+#include "gameplay/core/remort.h"
 #include "gameplay/mechanics/sight.h"
 
 #define USERS_FORMAT \
@@ -209,7 +209,7 @@ void do_users(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					sprintf(classname,
 							"[%2d %2d %s]",
 							GetRealLevel(d->original),
-							GetRealRemort(d->original),
+							remort::GetRealRemort(d->original),
 							MUD::Class(d->original->GetClass()).GetAbbr().c_str());
 				} else {
 					sprintf(classname,
@@ -221,7 +221,7 @@ void do_users(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				sprintf(classname,
 						"[%2d %2d %s]",
 						GetRealLevel(d->character),
-						GetRealRemort(d->character),
+						remort::GetRealRemort(d->character),
 						MUD::Class(d->character->GetClass()).GetAbbr().c_str());
 			} else {
 				sprintf(classname,

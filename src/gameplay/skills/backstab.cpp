@@ -13,7 +13,7 @@
 #include "gameplay/magic/magic_utils.h"
 #include "gameplay/magic/magic.h"
 #include "gameplay/mechanics/damage.h"
-#include "gameplay/mechanics/remort.h"
+#include "gameplay/core/remort.h"
 
 int GetBackstabMultiplier(int level);
 int CalcCritBackstabPercent(CharData *ch);
@@ -219,7 +219,7 @@ bool ProcessBackstab(CharData *ch, CharData *victim, HitData &hit_data) {
 	hit_data.dam = ApplyResist(victim, EResist::kVitality, hit_data.dam);
 	// режем стаб
 	if (CanUseFeat(ch, EFeat::kShadowStrike) && !ch->IsNpc()) {
-		hit_data.dam = std::min(8000 + GetRealRemort(ch) * 20 * GetRealLevel(ch), hit_data.dam);
+		hit_data.dam = std::min(8000 + remort::GetRealRemort(ch) * 20 * GetRealLevel(ch), hit_data.dam);
 	}
 
 	ch->send_to_TC(false, true, false, "&CДамага стаба равна = %d&n\r\n", hit_data.dam);

@@ -16,7 +16,7 @@
 #include "engine/ui/color.h"
 #include "gameplay/economics/auction.h"
 #include "gameplay/communication/remember.h"
-#include "gameplay/mechanics/remort.h"
+#include "gameplay/core/remort.h"
 
 struct communication_type {
   const char *muted_msg;
@@ -118,7 +118,7 @@ void do_gen_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		return;
 	}
 
-	if (GetRealLevel(ch) < com_msgs[subcmd].min_lev && !GetRealRemort(ch)) {
+	if (GetRealLevel(ch) < com_msgs[subcmd].min_lev && !remort::GetRealRemort(ch)) {
 		sprintf(buf1,
 				"Вам стоит достичь хотя бы %d уровня, чтобы вы могли %s.\r\n",
 				com_msgs[subcmd].min_lev, com_msgs[subcmd].action);

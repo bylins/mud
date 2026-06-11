@@ -9,7 +9,7 @@
 #include "engine/core/target_resolver.h"
 #include "administration/privilege.h"
 #include "engine/ui/color.h"
-#include "gameplay/mechanics/remort.h"
+#include "gameplay/core/remort.h"
 
 extern void SendMsgToGods(char *text, bool demigod);
 
@@ -205,7 +205,7 @@ void TitleSystem::do_title(CharData *ch, char *argument, int/* cmd*/, int/* subc
 bool TitleSystem::check_title(const std::string &text, CharData *ch) {
 	if (!check_alphabet(text, ch, " ,.-?Ёё")) return false;
 
-	if (GetRealLevel(ch) < 25 && !GetRealRemort(ch) && !ch->IsGod() && !privilege::CheckFlag(ch, privilege::kTitle)) {
+	if (GetRealLevel(ch) < 25 && !remort::GetRealRemort(ch) && !ch->IsGod() && !privilege::CheckFlag(ch, privilege::kTitle)) {
 		SendMsgToChar(ch, "Для права на титул вы должны достигнуть 25го уровня или иметь перевоплощения.\r\n");
 		return false;
 	}
@@ -226,7 +226,7 @@ bool TitleSystem::check_pre_title(const std::string& text, CharData *ch) {
 	if (ch->IsGod() || privilege::CheckFlag(ch, privilege::kTitle)) 
 		return true;
 
-	if (!GetRealRemort(ch)) {
+	if (!remort::GetRealRemort(ch)) {
 		SendMsgToChar(ch, "Вы должны иметь по крайней мере одно перевоплощение для предтитула.\r\n");
 		return false;
 	}
@@ -242,7 +242,7 @@ bool TitleSystem::check_pre_title(const std::string& text, CharData *ch) {
 		SendMsgToChar(ch, "Слишком много слов в предтитуле.\r\n");
 		return false;
 	}
-	if (word > GetRealRemort(ch)) {
+	if (word > remort::GetRealRemort(ch)) {
 		SendMsgToChar(ch, "У вас недостаточно перевоплощений для стольких слов в предтитуле.\r\n");
 		return false;
 	}

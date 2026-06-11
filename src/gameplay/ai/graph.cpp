@@ -16,7 +16,7 @@
 #include "engine/core/target_resolver.h"
 #include "utils/random.h"
 #include "engine/db/global_objects.h"
-#include "gameplay/mechanics/remort.h"
+#include "gameplay/core/remort.h"
 
 // Externals
 void do_say(CharData *ch, char *argument, int cmd, int subcmd);
@@ -171,7 +171,7 @@ int go_sense(CharData *ch, CharData *victim) {
 	int percent, dir, skill = CalcCurrentSkill(ch, ESkill::kSense, victim);
 
 	skill = skill
-		- MAX(1, (GetRealRemort(victim) - GetRealRemort(ch)) * 5); // разница в ремортах *5 вычитается из текущего умения
+		- MAX(1, (remort::GetRealRemort(victim) - remort::GetRealRemort(ch)) * 5); // разница в ремортах *5 вычитается из текущего умения
 	skill = skill - MAX(1, (GetRealLevel(victim) - GetRealLevel(ch)) * 5);
 	skill = MAX(0, skill);
 	percent = number(0, MUD::Skill(ESkill::kSense).difficulty);
@@ -183,7 +183,7 @@ int go_sense(CharData *ch, CharData *victim) {
 		return dir;
 	}
 	ch->send_to_TC(false, true, false,
-				   "НЮХ: skill == %d percent ==%d реморт цели %d\r\n", skill, percent, GetRealRemort(victim));
+				   "НЮХ: skill == %d percent ==%d реморт цели %d\r\n", skill, percent, remort::GetRealRemort(victim));
 	return find_first_step(ch->in_room, victim->in_room, ch);
 }
 

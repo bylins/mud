@@ -14,7 +14,7 @@
 #include "engine/core/utils_char_obj.inl"
 #include "gameplay/core/game_limits.h"
 #include "gameplay/mechanics/poison.h"
-#include "gameplay/mechanics/remort.h"
+#include "gameplay/core/remort.h"
 
 ObjData *GetDrinkingJar(CharData *ch, char *jar_name);
 int CanDrink(CharData *ch, ObjData *jar);
@@ -277,7 +277,7 @@ void TryDrinkAlcohol(CharData *ch, ObjData *jar, int amount) {
 			// **** Increase DR ***** //
 			af.type = ESpell::kDrunked;
 			af.duration = CalcDuration(ch, ch, ESkill::kUndefined, duration, 0, 0, 0);
-			af.modifier = GetRealLevel(ch) / 5 + GetRealRemort(ch) / 5;
+			af.modifier = GetRealLevel(ch) / 5 + remort::GetRealRemort(ch) / 5;
 			af.location = EApply::kPhysicDamagePercent;
 			af.affect_type = EAffect::kDrunked;
 			af.battleflag = 0;

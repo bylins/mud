@@ -46,7 +46,7 @@
 #include "engine/structs/structs.h"
 #include "engine/core/sysdep.h"
 #include "gameplay/mechanics/stable_objs.h"
-#include "gameplay/mechanics/remort.h"
+#include "gameplay/core/remort.h"
 
 #include <stdexcept>
 #include <sstream>
@@ -121,7 +121,7 @@ int exchange(CharData *ch, void * /*me*/, int cmd, char *argument) {
 					return 1;
 				}
 		*/
-		if (GetRealLevel(ch) < EXCHANGE_MIN_CHAR_LEV && !GetRealRemort(ch)) {
+		if (GetRealLevel(ch) < EXCHANGE_MIN_CHAR_LEV && !remort::GetRealRemort(ch)) {
 			snprintf(buf1, kMaxInputLength, "%s", (fmt::format(fmt::runtime(specials::ExchMsg(specials::EExchMsg::kLevelTooLow)), fmt::arg("level", EXCHANGE_MIN_CHAR_LEV)) + "\r\n").c_str());
 			SendMsgToChar(buf1, ch);
 			return 1;
@@ -248,7 +248,7 @@ int exchange_exhibit(CharData *ch, char *arg) {
 		return false;
 	}
 	for (j = exchange_item_list, counter = 0, counter_ming = 0;
-		 j && (counter + (counter_ming / 20) <= EXCHANGE_MAX_EXHIBIT_PER_CHAR + (GetRealRemort(ch) * 2));
+		 j && (counter + (counter_ming / 20) <= EXCHANGE_MAX_EXHIBIT_PER_CHAR + (remort::GetRealRemort(ch) * 2));
 		 j = next_thing) {
 		next_thing = j->next;
 		if (GET_EXCHANGE_ITEM_SELLERID(j) == ch->get_uid()) {
@@ -261,7 +261,7 @@ int exchange_exhibit(CharData *ch, char *arg) {
 		}
 	}
 
-	if (counter + (counter_ming / 20) >= EXCHANGE_MAX_EXHIBIT_PER_CHAR + (GetRealRemort(ch) * 2)) {
+	if (counter + (counter_ming / 20) >= EXCHANGE_MAX_EXHIBIT_PER_CHAR + (remort::GetRealRemort(ch) * 2)) {
 		SendMsgToChar(specials::ExchMsg(specials::EExchMsg::kMaxItems) + "\r\n", ch);
 		return false;
 	}

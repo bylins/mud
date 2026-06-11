@@ -14,7 +14,7 @@
 #include "engine/entities/zone.h"
 #include "engine/core/utils_char_obj.inl"
 #include "gameplay/ai/special_messages.h"
-#include "gameplay/mechanics/remort.h"
+#include "gameplay/core/remort.h"
 
 #include <fmt/format.h>
 
@@ -37,7 +37,7 @@ void set_last_read(CharData *ch, BoardTypes type, time_t date) {
 }
 
 bool lvl_no_write(CharData *ch) {
-	if (GetRealLevel(ch) < MIN_WRITE_LEVEL && GetRealRemort(ch) <= 0) {
+	if (GetRealLevel(ch) < MIN_WRITE_LEVEL && remort::GetRealRemort(ch) <= 0) {
 		return true;
 	}
 	return false;

@@ -31,7 +31,7 @@
 #include "gameplay/classes/pc_classes.h"
 #include "gameplay/statistics/zone_exp.h"
 #include "engine/db/player_index.h"
-#include "gameplay/mechanics/remort.h"
+#include "gameplay/core/remort.h"
 
 #include <fmt/format.h>
 #include "gameplay/mechanics/sight.h"
@@ -599,8 +599,8 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				*buf1 = UPPER(*buf1);
 				snprintf(buf + strlen(buf), kMaxStringLength, "Имя одобрено богом %s\r\n", buf1);
 			}
-			if (GetRealRemort(vict) < 4)
-				sprintf(rem, "Перевоплощений: %d\r\n", GetRealRemort(vict));
+			if (remort::GetRealRemort(vict) < 4)
+				sprintf(rem, "Перевоплощений: %d\r\n", remort::GetRealRemort(vict));
 			else
 				sprintf(rem, "Перевоплощений: 3+\r\n");
 			sprintf(buf + strlen(buf), "%s", rem);

@@ -35,7 +35,7 @@
 #include "gameplay/communication/parcel.h"
 #include "gameplay/mechanics/armor.h"
 #include "engine/db/player_index.h"
-#include "gameplay/mechanics/remort.h"
+#include "gameplay/core/remort.h"
 
 #include <fmt/format.h>
 #include <fmt/printf.h>
@@ -590,7 +590,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 	std::vector<std::string> out_str = utils::Split(smallBuf, ',');
 	sprintf(buf, "Аффекты: %s%s%s\r\n", kColorYel, utils::OutWordsList(out_str, ch->player_specials->saved.stringLength - 10).c_str(), kColorNrm);
 	SendMsgToChar(buf, ch);
-	snprintf(buf, sizeof(buf), "&GПеревоплощений: %d\r\n&n", GetRealRemort(k));
+	snprintf(buf, sizeof(buf), "&GПеревоплощений: %d\r\n&n", remort::GetRealRemort(k));
 	SendMsgToChar(buf, ch);
 	// Routine to show what spells a char is affected by
 	if (!k->affected.empty()) {

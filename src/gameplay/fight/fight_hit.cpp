@@ -18,7 +18,7 @@
 #include "gameplay/ai/mob_memory.h"
 #include "gameplay/classes/pc_classes.h"
 #include "gameplay/mechanics/groups.h"
-#include "gameplay/mechanics/remort.h"
+#include "gameplay/core/remort.h"
 #include "gameplay/core/base_stats.h"
 #include "gameplay/affects/affect_data.h"
 #include "utils/utils_time.h"
@@ -58,7 +58,7 @@ int CalcStrCondensationDamage(CharData *ch, ObjData * /*wielded*/, int damage) {
 	}
 	double str_mod = (GetRealStr(ch) - 25.0) * 0.4;
 	double lvl_mod = GetRealLevel(ch) * 0.2;
-	double rmt_mod = std::min(5, GetRealRemort(ch)) / 5.0;
+	double rmt_mod = std::min(5, remort::GetRealRemort(ch)) / 5.0;
 	double res_mod = 1.0 + (str_mod + lvl_mod) / 10.0 * rmt_mod;
 
 	return static_cast<int>(damage * res_mod);
@@ -76,7 +76,7 @@ int CalcNoparryhitDmg(CharData *ch, ObjData *wielded) {
 	double level_mod = static_cast<double>(GetRealLevel(ch)) / 30.0;
 	double skill_mod = static_cast<double>(ch->GetSkill(ESkill::kNoParryHit)) / 5.0;
 
-	return static_cast<int>((skill_mod + GetRealRemort(ch) * 3.0) * weap_mod * level_mod);
+	return static_cast<int>((skill_mod + remort::GetRealRemort(ch) * 3.0) * weap_mod * level_mod);
 }
 
 // бонусы/штрафы классам за юзание определенных видов оружия (редкостный бред)
@@ -629,9 +629,9 @@ void HitData::AddBareHandsDmg(CharData *ch, bool need_dice) {
 
 	if (AFF_FLAGGED(ch, EAffect::kStoneHands)) {
 		if (GetFlags()[fight::kCritLuck]) {
-			dam += 8 + GetRealRemort(ch) / 2;
+			dam += 8 + remort::GetRealRemort(ch) / 2;
 		} else {
-			dam += need_dice ? RollDices(2, 4) + GetRealRemort(ch) / 2  : 5 + GetRealRemort(ch) / 2;
+			dam += need_dice ? RollDices(2, 4) + remort::GetRealRemort(ch) / 2  : 5 + remort::GetRealRemort(ch) / 2;
 		}
 		if (CanUseFeat(ch, EFeat::kBully)) {
 			dam += GetRealLevel(ch) / 5;
@@ -683,7 +683,7 @@ void HitData::CalcCritHitChance(CharData *ch) {
 			calc_critic += static_cast<int>(ch->GetSkill(ESkill::kPunctual) / 2);
 			calc_critic += static_cast<int>(ch->GetSkill(ESkill::kNoParryHit) / 3);
 		}
-		calc_critic += GetRealLevel(ch) + GetRealRemort(ch);
+		calc_critic += GetRealLevel(ch) + remort::GetRealRemort(ch);
 	}
 	if (number(0, 2000) < calc_critic) {
 		SetFlag(fight::kCritHit);
@@ -793,7 +793,7 @@ int HitData::CalcDmg(CharData *ch, bool need_dice) {
 	if (IsAffectedBySpell(ch, ESpell::kBerserk)) {
 		if (AFF_FLAGGED(ch, EAffect::kBerserk)) {
 			dam = (dam*std::max(150, 150 + GetRealLevel(ch) +
-				RollDices(0, GetRealRemort(ch)) * 2)) / 100;
+				RollDices(0, remort::GetRealRemort(ch)) * 2)) / 100;
 			if (ch->IsFlagged(EPrf::kExecutor))
 				SendMsgToChar(ch, "&YДамага с учетом берсерка== %d&n\r\n", dam);
 		}
@@ -990,8 +990,8 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 		hit_params.dam = std::max(1, number(min_rnd, max_rnd));
 	}
 	if (hit_params.skill_num  == ESkill::kUndefined && !hit_params.GetFlags()[fight::kCritLuck]) { //автоатака
-		const int victim_lvl_miss = GetRealLevel(victim) + GetRealRemort(victim);
-		const int ch_lvl_miss = GetRealLevel(ch) + GetRealRemort(ch);
+		const int victim_lvl_miss = GetRealLevel(victim) + remort::GetRealRemort(victim);
+		const int ch_lvl_miss = GetRealLevel(ch) + remort::GetRealRemort(ch);
 
 		// собсно выяснение попали или нет
 		if (victim_lvl_miss - ch_lvl_miss <= 5 || (!ch->IsNpc() && !victim->IsNpc())) {
@@ -1135,7 +1135,7 @@ int CalcPcDamrollBonus(CharData *ch) {
 		{0, 0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 6, 6, 6, 6, 6, 7, 7, 7, 7, 7, 7, 8, 8, 8, 8, 8};
 	int bonus = 0;
 	if (IS_VIGILANT(ch) || IS_GUARD(ch) || IS_RANGER(ch)) {
-		bonus = kRemortDamrollBonus[std::min(kMaxRemortForDamrollBonus, GetRealRemort(ch))];
+		bonus = kRemortDamrollBonus[std::min(kMaxRemortForDamrollBonus, remort::GetRealRemort(ch))];
 	}
 	// И с чего бы такое счастье именно обладателям луков и допа?
 	// Кстати, к ремортам оно каким боком?

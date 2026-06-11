@@ -48,7 +48,7 @@
 #include "gameplay/mechanics/damage.h"
 #include "gameplay/mechanics/bonus.h"
 #include "gameplay/ai/mobact.h"
-#include "gameplay/mechanics/remort.h"
+#include "gameplay/core/remort.h"
 
 #include <fmt/format.h>
 
@@ -857,7 +857,7 @@ void EndowExpToChar(CharData *ch, int gain) {
 		gain = std::min(max_exp_gain_pc(ch), gain);    // put a cap on the max gain per kill
 		ch->set_exp(ch->get_exp() + gain);
 		if (ch->get_exp() >= GetExpUntilNextLvl(ch, kLvlImmortal)) {
-			if (!GET_GOD_FLAG(ch, EGf::kRemort) && GetRealRemort(ch) < kMaxRemort) {
+			if (!GET_GOD_FLAG(ch, EGf::kRemort) && remort::GetRealRemort(ch) < kMaxRemort) {
 				if (Remort::can_remort_now(ch)) {
 					SendMsgToChar(ch, "%sПоздравляем, вы получили право на перевоплощение!%s\r\n",
 								  kColorBoldGrn, kColorNrm);
@@ -1735,7 +1735,7 @@ void gain_battle_exp(CharData *ch, CharData *victim, int dam) {
 	// получение игроками экспы
 	if (!ch->IsNpc() && OK_GAIN_EXP(ch, victim)) {
 		int max_exp = std::min(max_exp_gain_pc(ch), (GetRealLevel(victim) * victim->get_max_hit() + 4) /
-			(5 * std::max(1, GetRealRemort(ch) - kMaxExpCoefficientsUsed - 1)));
+			(5 * std::max(1, remort::GetRealRemort(ch) - kMaxExpCoefficientsUsed - 1)));
 		double coeff = std::min(dam, victim->get_hit()) / static_cast<double>(victim->get_max_hit());
 		int battle_exp = std::max(1, static_cast<int>(max_exp * coeff));
 		if (Bonus::is_bonus_active(Bonus::EBonusType::BONUS_WEAPON_EXP) && Bonus::can_get_bonus_exp(ch)) {
@@ -1751,7 +1751,7 @@ void gain_battle_exp(CharData *ch, CharData *victim, int dam) {
 		// проверяем что есть мастер и он может получать экспу с данной цели
 		if (master && OK_GAIN_EXP(master, victim)) {
 			int max_exp = std::min(max_exp_gain_pc(master), (GetRealLevel(victim) * victim->get_max_hit() + 4) /
-				(5 * std::max(1, GetRealRemort(master) - kMaxExpCoefficientsUsed - 1)));
+				(5 * std::max(1, remort::GetRealRemort(master) - kMaxExpCoefficientsUsed - 1)));
 
 			double coeff = std::min(dam, victim->get_hit()) / static_cast<double>(victim->get_max_hit());
 			int battle_exp = std::max(1, static_cast<int>(max_exp * coeff));

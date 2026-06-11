@@ -36,7 +36,7 @@
 #include "gameplay/mechanics/dungeons.h"
 #include "gameplay/mechanics/cities.h"
 #include "gameplay/mechanics/player_races.h"
-#include "gameplay/mechanics/remort.h"
+#include "gameplay/core/remort.h"
 #include "gameplay/magic/magic_rooms.h"
 #include "gameplay/mechanics/weather.h"
 #include "gameplay/core/base_stats.h"
@@ -821,7 +821,7 @@ void EquipObj(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip_f
 
 	if (!ch->IsNpc() || IsCharmice(ch)) {
 		CharData *master = IsCharmice(ch) && ch->has_master() ? ch->get_master() : ch;
-		if ((obj->get_auto_mort_req() >= 0) && (obj->get_auto_mort_req() > GetRealRemort(master))
+		if ((obj->get_auto_mort_req() >= 0) && (obj->get_auto_mort_req() > remort::GetRealRemort(master))
 			&& !master->IsImmortal()) {
 			SendMsgToChar(master, "Для использования %s требуется %d %s.\r\n",
 						  obj->get_PName(grammar::ECase::kGen).c_str(),
@@ -832,7 +832,7 @@ void EquipObj(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip_f
 				PlaceObjToInventory(obj, ch);
 			}
 			return;
-		} else if ((obj->get_auto_mort_req() < -1) && (abs(obj->get_auto_mort_req()) < GetRealRemort(master))
+		} else if ((obj->get_auto_mort_req() < -1) && (abs(obj->get_auto_mort_req()) < remort::GetRealRemort(master))
 			&& !master->IsImmortal()) {
 			SendMsgToChar(master, "Максимально количество перевоплощений для использования %s равно %d.\r\n",
 						  obj->get_PName(grammar::ECase::kGen).c_str(),

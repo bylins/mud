@@ -25,7 +25,7 @@
 #include "utils/backtrace.h"
 
 #include <chrono>
-#include "gameplay/mechanics/remort.h"
+#include "gameplay/core/remort.h"
 
 std::unordered_set<CharData *> affected_mobs;
 
@@ -148,10 +148,10 @@ int apply_armour(CharData *ch, int eq_pos) {
 // Была ошибка, у нубов реген хитов был всегда 50, хотя с 26 по 30, должен быть 60.
 // Теперь аффект регенерация новичка держится 3 реморта, с каждыи ремортом все слабее и слабее
 void apply_natural_affects(CharData *ch) {
-	if (GetRealRemort(ch) <= 3 && !ch->IsImmortal()) {
-		affect_modify(ch, EApply::kHpRegen, 60 - (GetRealRemort(ch) * 10), EAffect::kNoobRegen, true);
+	if (remort::GetRealRemort(ch) <= 3 && !ch->IsImmortal()) {
+		affect_modify(ch, EApply::kHpRegen, 60 - (remort::GetRealRemort(ch) * 10), EAffect::kNoobRegen, true);
 		affect_modify(ch, EApply::kMoveRegen, 100, EAffect::kNoobRegen, true);
-		affect_modify(ch, EApply::kManaRegen, 100 - (GetRealRemort(ch) * 20), EAffect::kNoobRegen, true);
+		affect_modify(ch, EApply::kManaRegen, 100 - (remort::GetRealRemort(ch) * 20), EAffect::kNoobRegen, true);
 	}
 }
 
@@ -870,9 +870,9 @@ void affect_total(CharData *ch) {
 	}
 
 	// бонусы от морта
-	if (GetRealRemort(ch) >= 20) {
-		ch->add_abils.mresist += GetRealRemort(ch) - 19;
-		ch->add_abils.presist += GetRealRemort(ch) - 19;
+	if (remort::GetRealRemort(ch) >= 20) {
+		ch->add_abils.mresist += remort::GetRealRemort(ch) - 19;
+		ch->add_abils.presist += remort::GetRealRemort(ch) - 19;
 	}
 
 	//капы

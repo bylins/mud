@@ -13,7 +13,7 @@
 #include "gameplay/mechanics/groups.h"
 #include "administration/privilege.h"
 #include "gameplay/magic/spells.h"
-#include "gameplay/mechanics/remort.h"
+#include "gameplay/core/remort.h"
 
 namespace handlers {
 
@@ -30,7 +30,7 @@ EStageResult SpellPortal(CastContext &ctx) {
 	}
 	// пентить чаров <=10 уровня, нельзя так-же нельзя пентать иммов
 	if (!ch->IsGod()) {
-		if ((!victim->IsNpc() && GetRealLevel(victim) <= 10 && GetRealRemort(ch) < 9) || victim->IsImmortal()
+		if ((!victim->IsNpc() && GetRealLevel(victim) <= 10 && remort::GetRealRemort(ch) < 9) || victim->IsImmortal()
 			|| AFF_FLAGGED(victim, EAffect::kNoTeleport)) {
 			SendMsgToChar(MUD::SpellMessages().GetMessage(ESpell::kPortal, ESpellMsg::kSummonFail) + "\r\n", ch);
 			return EStageResult::kSuccess;

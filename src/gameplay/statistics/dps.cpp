@@ -439,7 +439,7 @@ void UpdateDpsStatistics(CharData *ch, int real_dam, int over_dam) {
 /*		log("DmetrLog. Name(player): %s, class: %d, remort:%d, level:%d, dmg: %d, over_dmg:%d",
 			GET_NAME(ch),
 			to_underlying(ch->GetClass()),
-			GetRealRemort(ch),
+			remort::GetRealRemort(ch),
 			GetRealLevel(ch),
 			real_dam,
 			over_dam);
@@ -454,7 +454,7 @@ void UpdateDpsStatistics(CharData *ch, int real_dam, int over_dam) {
 /*		if (!ch->get_master()->IsNpc()) {
 			log("DmetrLog. Name(charmice): %s, name(master): %s, class: %d, remort: %d, level: %d, dmg: %d, over_dmg:%d",
 				ch->get_name().c_str(), ch->get_master()->get_name().c_str(), to_underlying(ch->get_master()->GetClass()),
-				GetRealRemort(ch->get_master()), GetRealLevel(ch->get_master()), real_dam, over_dam);
+				remort::GetRealRemort(ch->get_master()), GetRealLevel(ch->get_master()), real_dam, over_dam);
 		}
 */
 		if (AFF_FLAGGED(ch->get_master(), EAffect::kGroup)) {

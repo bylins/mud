@@ -19,7 +19,7 @@
 #include "gameplay/core/base_stats.h"
 #include "gameplay/core/constants.h"
 #include "engine/observability/metrics.h"
-#include "gameplay/mechanics/remort.h"
+#include "gameplay/core/remort.h"
 
 #include <cmath>
 
@@ -1236,7 +1236,7 @@ int MakeRecept::can_make(CharData *ch) {
 		int ingr_lev = get_ingr_lev(ingrobj);
 		// Если чар ниже уровня ингридиента то он не может делать рецепты с его
 		// участием.
-		if (!ch->IsImpl() && (ingr_lev > (GetRealLevel(ch) + 2 * GetRealRemort(ch)))) {
+		if (!ch->IsImpl() && (ingr_lev > (GetRealLevel(ch) + 2 * remort::GetRealRemort(ch)))) {
 			SendMsgToChar("Вы слишком малого уровня и вам что-то не подходит для шитья.\r\n", ch);
 			return (false);
 		}
@@ -1633,7 +1633,7 @@ int MakeRecept::make(CharData *ch) {
 			break;
 		ingrs[i] = get_obj_in_list_ingr(parts[i].proto, ch->carrying);
 		ingr_lev = get_ingr_lev(ingrs[i]);
-		if (!ch->IsImpl() && (ingr_lev > (GetRealLevel(ch) + 2 * GetRealRemort(ch)))) {
+		if (!ch->IsImpl() && (ingr_lev > (GetRealLevel(ch) + 2 * remort::GetRealRemort(ch)))) {
 			tmpstr = "Вы побоялись испортить " + ingrs[i]->get_PName(grammar::ECase::kAcc)
 				+ "\r\n и прекратили работу над " + tobj->get_PName(grammar::ECase::kIns) + ".\r\n";
 			SendMsgToChar(tmpstr.c_str(), ch);
@@ -1779,7 +1779,7 @@ int MakeRecept::make(CharData *ch) {
 			created_lev += ingr_lev;
 		}
 		// Шанс испортить не ингредиент всетаки есть.
-		if ((number(0, 30) < (5 + ingr_lev - GetRealLevel(ch) - 2 * GetRealRemort(ch))) && !ch->IsImpl()) {
+		if ((number(0, 30) < (5 + ingr_lev - GetRealLevel(ch) - 2 * remort::GetRealRemort(ch))) && !ch->IsImpl()) {
 			tmpstr = "Вы испортили " + ingrs[i]->get_PName(grammar::ECase::kAcc) + ".\r\n";
 			SendMsgToChar(tmpstr.c_str(), ch);
 			//extract_obj(ingrs[i]); //заменим на обнуление веса

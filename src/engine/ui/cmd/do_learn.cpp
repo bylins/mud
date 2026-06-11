@@ -5,7 +5,7 @@
 #include "gameplay/classes/pc_classes.h"
 #include "gameplay/magic/spells_info.h"
 #include "engine/db/global_objects.h"
-#include "gameplay/mechanics/remort.h"
+#include "gameplay/core/remort.h"
 
 namespace do_learn {
 
@@ -154,7 +154,7 @@ void LearnReceiptBook(CharData *ch, ObjData *obj) {
 		throw AlreadyKnown(receipt_name);
 	}
 	if (MAX(GET_OBJ_VAL(obj, 2), imrecipes[receipt_id].level) <= GetRealLevel(ch) &&
-		imrecipes[receipt_id].remort <= GetRealRemort(ch)) {
+		imrecipes[receipt_id].remort <= remort::GetRealRemort(ch)) {
 		if (imrecipes[receipt_id].level == -1 || imrecipes[receipt_id].remort == -1) {
 			SendMsgToChar("Некорректная запись рецепта для вашего класса - сообщите Богам.\r\n", ch);
 			throw LowRemortOrLvl();

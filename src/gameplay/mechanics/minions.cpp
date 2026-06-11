@@ -15,7 +15,7 @@
 #include "engine/ui/cmd/do_hire.h"
 #include "utils/logger.h"
 #include "gameplay/core/base_stats.h"
-#include "gameplay/mechanics/remort.h"
+#include "gameplay/core/remort.h"
 
 float get_effective_cha(CharData *ch) {
 	int key_value, key_value_add;
@@ -109,7 +109,7 @@ int CalcCharmPoint(CharData *ch, ESpell spell_id) {
 	} else {
 		r_hp = (1 - eff_cha + (int) eff_cha) * cha_app[(int) eff_cha].charms;
 	}
-	float remort_coeff = 1.0 + (((float) GetRealRemort(ch) - 9.0) * 1.2) / 100.0;
+	float remort_coeff = 1.0 + (((float) remort::GetRealRemort(ch) - 9.0) * 1.2) / 100.0;
 	if (remort_coeff > 1.0f) {
 		r_hp *= remort_coeff;
 	}

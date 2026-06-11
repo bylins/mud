@@ -10,7 +10,7 @@
 #include "engine/db/global_objects.h"
 #include "engine/ui/table_wrapper.h"
 #include "utils/utils_time.h"
-#include "gameplay/mechanics/remort.h"
+#include "gameplay/core/remort.h"
 
 
 PlayerChart TopPlayer::chart_(kNumPlayerClasses);
@@ -45,8 +45,8 @@ void TopPlayer::Refresh(CharData *short_ch, bool reboot) {
 	std::list<TopPlayer>::iterator it_exp;
 	for (it_exp = TopPlayer::chart_[short_ch->GetClass()].begin();
 		 it_exp != TopPlayer::chart_[short_ch->GetClass()].end(); ++it_exp) {
-		if (it_exp->remort_ < GetRealRemort(short_ch)
-			|| (it_exp->remort_ == GetRealRemort(short_ch) && it_exp->exp_ < short_ch->get_exp())) {
+		if (it_exp->remort_ < remort::GetRealRemort(short_ch)
+			|| (it_exp->remort_ == remort::GetRealRemort(short_ch) && it_exp->exp_ < short_ch->get_exp())) {
 			break;
 		}
 	}
@@ -54,7 +54,7 @@ void TopPlayer::Refresh(CharData *short_ch, bool reboot) {
 	if (short_ch->get_name().empty()) {
 		return; // у нас все может быть
 	}
-	TopPlayer temp_player(short_ch->get_uid(), GET_NAME(short_ch), short_ch->get_exp(), GetRealRemort(short_ch), 0);
+	TopPlayer temp_player(short_ch->get_uid(), GET_NAME(short_ch), short_ch->get_exp(), remort::GetRealRemort(short_ch), 0);
 
 	if (it_exp != TopPlayer::chart_[short_ch->GetClass()].end()) {
 		TopPlayer::chart_[short_ch->GetClass()].insert(it_exp, temp_player);
@@ -95,7 +95,7 @@ void TopPlayer::RefreshAll() {
 			|| ch->IsImmortal()) {
 			continue;
 		}
-		online[ch->get_uid()] = {ch->get_exp(), GetRealRemort(ch)};
+		online[ch->get_uid()] = {ch->get_exp(), remort::GetRealRemort(ch)};
 	}
 
 	// Early exit: пустой snapshot значит обновлять нечего, нет смысла

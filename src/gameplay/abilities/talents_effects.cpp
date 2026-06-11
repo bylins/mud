@@ -2,7 +2,7 @@
 
 #include "engine/entities/char_data.h"
 #include "engine/db/global_objects.h"
-#include "gameplay/mechanics/remort.h"
+#include "gameplay/core/remort.h"
 
 namespace talents_effects {
 
@@ -224,9 +224,9 @@ void Applies::Impose(CharData *ch) const {
 	for (const auto &apply: applies_) {
 		auto mod = static_cast<int>(apply.mod);
 		if (IsNegativeApply(apply.location))
-			mod -= apply.lvl_bonus * GetRealLevel(ch) + apply.remort_bonus * GetRealRemort(ch);
+			mod -= apply.lvl_bonus * GetRealLevel(ch) + apply.remort_bonus * remort::GetRealRemort(ch);
 		else
-			mod += apply.lvl_bonus * GetRealLevel(ch) + apply.remort_bonus * GetRealRemort(ch);
+			mod += apply.lvl_bonus * GetRealLevel(ch) + apply.remort_bonus * remort::GetRealRemort(ch);
 		if (apply.cap) {
 			if (apply.cap > 0) {
 				mod = std::min(mod, apply.cap);

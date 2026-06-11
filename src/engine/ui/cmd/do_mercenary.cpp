@@ -8,7 +8,7 @@
 #include "gameplay/communication/talk.h"
 #include "gameplay/ai/spec_procs.h"
 #include "gameplay/ai/special_messages.h"
-#include "gameplay/mechanics/remort.h"
+#include "gameplay/core/remort.h"
 
 #include <fmt/format.h>
 
@@ -60,7 +60,7 @@ void doList(CharData *ch, CharData *boss, bool isFavList) {
 	page_string(ch->desc, out.str());
 	SendMsgToChar(ch, "------------------------------------------------------------\r\n");
 	tell_to_char(boss, ch, fmt::format(fmt::runtime(specials::MercMsg(specials::EMercMsg::kListTotal)),
-			fmt::arg("amount", 1000 * (GetRealRemort(ch) + 1))).c_str());
+			fmt::arg("amount", 1000 * (remort::GetRealRemort(ch) + 1))).c_str());
 	snprintf(buf, kMaxInputLength, "ухмы %s", GET_NAME(ch));
 	do_social(boss, buf);
 };
@@ -73,7 +73,7 @@ void doBring(CharData *ch, CharData *boss, unsigned int pos, char *bank) {
 	CharData *mob;
 	std::map<int, MERCDATA> *m;
 	m = ch->getMercList();
-	const int cost = MERC::BASE_COST * (GetRealRemort(ch) + 1);
+	const int cost = MERC::BASE_COST * (remort::GetRealRemort(ch) + 1);
 	MobRnum rnum;
 	//std::map<int, MERCDATA>::iterator
 	auto it = m->begin();

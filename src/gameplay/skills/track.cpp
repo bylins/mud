@@ -9,7 +9,7 @@
 #include "engine/core/handler.h"
 #include "engine/core/target_resolver.h"
 #include "engine/db/global_objects.h"
-#include "gameplay/mechanics/remort.h"
+#include "gameplay/core/remort.h"
 
 const char *track_when[] = {"совсем свежие",
 							"свежие",
@@ -59,7 +59,7 @@ int go_track(CharData *ch, CharData *victim, const ESkill skill_no) {
 	//current_skillpercent = GET_SKILL(ch, ESkill::kSense);
 	if ((!victim->IsNpc()) && (!ch->IsGod()) && (!ch->IsNpc())) //Если цель чар и ищет не бог
 	{
-		percent = MIN(99, number(0, GetRealRemort(victim)) + percent);
+		percent = MIN(99, number(0, remort::GetRealRemort(victim)) + percent);
 	}
 	if (percent > CalcCurrentSkill(ch, skill_no, victim)) {
 		int tries = 10;

@@ -285,7 +285,7 @@
 #include "gameplay/classes/recalc_mob_params_by_vnum.h"
 #include "alias.h"
 #include "engine/db/player_index.h"
-#include "gameplay/mechanics/remort.h"
+#include "gameplay/core/remort.h"
 
 #include <ctime>
 
@@ -3151,7 +3151,7 @@ void nanny(DescriptorData *d, char *argument) {
 			switch (*argument) {
 				case '0': iosystem::write_to_output("\r\nДо встречи на земле Киевской.\r\n", d);
 
-					if (GetRealRemort(d->character) == 0
+					if (remort::GetRealRemort(d->character) == 0
 						&& GetRealLevel(d->character) <= 25
 						&& !d->character->IsFlagged(EPlrFlag::kNoDelete)) {
 						int timeout = -1;
@@ -3229,7 +3229,7 @@ void nanny(DescriptorData *d, char *argument) {
 						break;
 					}
 
-					if (GetRealRemort(d->character) > 5) {
+					if (remort::GetRealRemort(d->character) > 5) {
 						iosystem::write_to_output("\r\nНельзя удалить себя достигнув шестого перевоплощения.\r\n", d);
 						iosystem::write_to_output(MENU, d);
 						break;

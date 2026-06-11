@@ -11,7 +11,7 @@
 #include "gameplay/mechanics/groups.h"
 #include "gameplay/magic/magic_utils.h"          // IsRoomBlocked (issue.no-teleport-out)
 #include "engine/db/global_objects.h"            // MUD::Spell
-#include "gameplay/mechanics/remort.h"
+#include "gameplay/core/remort.h"
 
 extern void CheckAutoNosummon(CharData *ch);
 
@@ -112,7 +112,7 @@ void do_relocate(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar(ch, "%sВаш поступок был расценен как потенциально агрессивный.%s\r\n",
 					  kColorBoldRed, kColorBoldBlk);
 		pkPortal(ch);
-		timed.time = 18 - MIN(GetRealRemort(ch), 15);
+		timed.time = 18 - MIN(remort::GetRealRemort(ch), 15);
 		SetBattleLag(ch, 3);
 		Affect<EApply> af;
 		af.duration = CalcDuration(ch, ch, ESkill::kUndefined, 3, 0, 0, 0);

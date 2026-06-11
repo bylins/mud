@@ -49,7 +49,7 @@
 #include "engine/observability/metrics.h"
 #include "utils/tracing/trace_manager.h"
 #include "gameplay/mechanics/sight.h"
-#include "gameplay/mechanics/remort.h"
+#include "gameplay/core/remort.h"
 
 extern int max_exp_gain_pc(CharData *ch);
 extern long GetExpUntilNextLvl(CharData *ch, int level);
@@ -2385,7 +2385,7 @@ void find_replacement(void *go,
 		else if (!str_cmp(field, "level"))
 			snprintf(str, str_size, "%d", GetRealLevel(mob));
 		else if (!str_cmp(field, "remort")) {
-			snprintf(str, str_size, "%d", GetRealRemort(mob));
+			snprintf(str, str_size, "%d", remort::GetRealRemort(mob));
 		} else if (!str_cmp(field, "hitp")) {
 			if (*subfield)
 				mob->set_hit((int) std::max(long(1), gm_char_field(mob, field, subfield, (long) mob->get_hit())));

@@ -21,7 +21,7 @@
 #include "stable_objs.h"
 #include "weather.h"
 #include "gameplay/mechanics/dungeons.h"
-#include "gameplay/mechanics/remort.h"
+#include "gameplay/core/remort.h"
 
 #include <fmt/format.h>
 
@@ -33,7 +33,7 @@ extern void olc_update_object(int robj_num, ObjData *obj, ObjData *olc_proto);
 namespace Depot {
 
 // максимальное кол-во шмоток в персональном хранилище (волхвам * 2)
-inline unsigned int MAX_PERS_SLOTS(CharData *ch) {return GetRealLevel(ch) + GetRealRemort(ch) * 3;};
+inline unsigned int MAX_PERS_SLOTS(CharData *ch) {return GetRealLevel(ch) + remort::GetRealRemort(ch) * 3;};
 //const unsigned int MAX_PERS_INGR_SLOTS = 50;
 
 // * Для оффлайнового списка шмоток в хранилище.

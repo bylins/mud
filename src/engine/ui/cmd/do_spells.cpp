@@ -8,7 +8,7 @@
 #include "gameplay/magic/spells_info.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/mechanics/weather.h"
-#include "gameplay/mechanics/remort.h"
+#include "gameplay/core/remort.h"
 
 #include <cmath>
 
@@ -69,12 +69,12 @@ void DisplaySpells(CharData *ch, CharData *vict, bool all) {
 				continue;
 		}
 		if ((CalcMinSpellLvl(ch, spell_id) > GetRealLevel(ch) ||
-			class_spell.GetMinRemort() > GetRealRemort(ch) ||
+			class_spell.GetMinRemort() > remort::GetRealRemort(ch) ||
 			CalcCircleSlotsAmount(ch, class_spell.GetCircle()) <= 0) &&
 			all && !GET_SPELL_TYPE(ch, spell_id)) {
 			continue;
 		}
-		if (class_spell.GetMinRemort() > GetRealRemort(ch)) {
+		if (class_spell.GetMinRemort() > remort::GetRealRemort(ch)) {
 			slot_num = kMaxMemoryCircle - 1;
 		} else {
 			slot_num = class_spell.GetCircle() - 1;

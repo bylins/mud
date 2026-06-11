@@ -21,7 +21,7 @@
 #include "gameplay/fight/fight.h"
 #include "gameplay/mechanics/dungeons.h"
 #include "engine/entities/obj_data.h"
-#include "gameplay/mechanics/remort.h"
+#include "gameplay/core/remort.h"
 
 #include <cmath>
 
@@ -499,7 +499,7 @@ void MortShowCharValues(CharData *victim, CharData *ch, int fullness) {
 	val2 = victim->get_real_max_hit();
 	sprintf(buf, "Уровень : %d, может выдержать повреждений : %d(%d), ", val0, val1, val2);
 	SendMsgToChar(buf, ch);
-	SendMsgToChar(ch, "Перевоплощений : %d\r\n", GetRealRemort(victim));
+	SendMsgToChar(ch, "Перевоплощений : %d\r\n", remort::GetRealRemort(victim));
 	val0 = MIN(GET_AR(victim), 100);
 	val1 = MIN(GET_MR(victim), 100);
 	val2 = MIN(GET_PR(victim), 100);

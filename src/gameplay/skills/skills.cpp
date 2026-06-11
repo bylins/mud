@@ -20,7 +20,7 @@
 #include "gameplay/core/base_stats.h"
 #include "gameplay/mechanics/weather.h"
 #include "gameplay/mechanics/illumination.h"
-#include "gameplay/mechanics/remort.h"
+#include "gameplay/core/remort.h"
 
 #include <cmath>
 
@@ -1973,7 +1973,7 @@ void ImproveSkill(CharData *ch, const ESkill skill, int success, CharData *victi
 		SendMsgToChar(buf, ch);
 		ch->set_skill(skill, (trained_skill + number(1, 2)));
 		if (!ch->IsImmortal()) {
-			ch->set_skill(skill, (std::min(kZeroRemortSkillCap + GetRealRemort(ch) * 5, ch->GetSkillBonus(skill))));
+			ch->set_skill(skill, (std::min(kZeroRemortSkillCap + remort::GetRealRemort(ch) * 5, ch->GetSkillBonus(skill))));
 		}
 		if (victim && victim->IsNpc()) {
 			victim->SetFlag(EMobFlag::kNoSkillTrain);
@@ -2022,7 +2022,7 @@ int CalculateSkillAwakeModifier(CharData *killer, CharData *victim) {
 //req_lvl - требуемый уровень из книги
 int GetSkillMinLevel(CharData *ch, ESkill skill, int req_lvl) {
 	int min_lvl = std::max(req_lvl, MUD::Class(ch->GetClass()).skills[skill].GetMinLevel())
-		- std::max(0, GetRealRemort(ch) / MUD::Class(ch->GetClass()).GetSkillLvlDecrement());
+		- std::max(0, remort::GetRealRemort(ch) / MUD::Class(ch->GetClass()).GetSkillLvlDecrement());
 	return std::max(1, min_lvl);
 };
 
@@ -2032,12 +2032,12 @@ int GetSkillMinLevel(CharData *ch, ESkill skill, int req_lvl) {
  */
 int GetSkillMinLevel(CharData *ch, ESkill skill) {
 	int min_lvl = MUD::Class(ch->GetClass()).skills[skill].GetMinLevel() -
-		std::max(0, GetRealRemort(ch)/ MUD::Class(ch->GetClass()).GetSkillLvlDecrement());
+		std::max(0, remort::GetRealRemort(ch)/ MUD::Class(ch->GetClass()).GetSkillLvlDecrement());
 	return std::max(1, min_lvl);
 };
 
 bool CanGetSkill(CharData *ch, ESkill skill, int req_lvl) {
-	if (GetRealRemort(ch) < MUD::Class(ch->GetClass()).skills[skill].GetMinRemort() ||
+	if (remort::GetRealRemort(ch) < MUD::Class(ch->GetClass()).skills[skill].GetMinRemort() ||
 		MUD::Class(ch->GetClass()).skills[skill].IsUnavailable()) {
 		return false;
 	}
@@ -2052,7 +2052,7 @@ bool CanGetSkill(CharData *ch, ESkill skill) {
 		return false;
 	}
 
-	if (GetRealRemort(ch) < MUD::Class(ch->GetClass()).skills[skill].GetMinRemort()) {
+	if (remort::GetRealRemort(ch) < MUD::Class(ch->GetClass()).skills[skill].GetMinRemort()) {
 		return false;
 	}
 
@@ -2064,12 +2064,12 @@ bool CanGetSkill(CharData *ch, ESkill skill) {
 }
 
 int CalcSkillRemortCap(const CharData *ch) {
-	return kZeroRemortSkillCap + GetRealRemort(ch) * kSkillCapBonusPerRemort;
+	return kZeroRemortSkillCap + remort::GetRealRemort(ch) * kSkillCapBonusPerRemort;
 }
 
 int CalcSkillWisdomCap(const CharData *ch) {
 	// считаем требования по мудре для капа по скиллов по морту на текущий морт
-	int requirement = 10 + (GetRealRemort(ch) / 10 * 9);
+	int requirement = 10 + (remort::GetRealRemort(ch) / 10 * 9);
 	// на 10 морте требуется 19 мудры, на 20- 28, на 30- 37 И так далее, на 100 морте 100
 	// кап равномерно увеличивается с каждым левелом
 	float cap = CalcSkillRemortCap(ch) * GetRealLevel(ch) / 30;

@@ -26,7 +26,7 @@
 #include "engine/entities/zone.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/core/base_stats.h"
-#include "gameplay/mechanics/remort.h"
+#include "gameplay/core/remort.h"
 
 #define        VAR_CHAR    '@'
 #define imlog(lvl, str)    mudlog(str, lvl, kLvlBuilder, IMLOG, true)
@@ -1014,13 +1014,13 @@ void list_recipes(CharData *ch, bool all_recipes) {
 			if (!ch->IsFlagged(EPrf::kBlindMode)) {
 				sprintf(buf, "     %s%-30s%s %2d (%2d)%s\r\n",
 						(imrecipes[sortpos].level<0 || imrecipes[sortpos].level>GetRealLevel(ch) ||
-							imrecipes[sortpos].remort<0 || imrecipes[sortpos].remort>GetRealRemort(ch)) ?
+							imrecipes[sortpos].remort<0 || imrecipes[sortpos].remort>remort::GetRealRemort(ch)) ?
 						kColorRed : rs ? kColorGrn : kColorNrm, imrecipes[sortpos].name, kColorCyn,
 						imrecipes[sortpos].level, imrecipes[sortpos].remort, kColorNrm);
 			} else {
 				sprintf(buf, " %s %-30s %2d (%2d)\r\n",
 						(imrecipes[sortpos].level < 0 || imrecipes[sortpos].level > GetRealLevel(ch) ||
-							imrecipes[sortpos].remort < 0 || imrecipes[sortpos].remort > GetRealRemort(ch)) ?
+							imrecipes[sortpos].remort < 0 || imrecipes[sortpos].remort > remort::GetRealRemort(ch)) ?
 						"[Н]" : rs ? "[И]" : "[Д]", imrecipes[sortpos].name,
 						imrecipes[sortpos].level, imrecipes[sortpos].remort);
 			}
@@ -1195,7 +1195,7 @@ void im_improve_recipe(CharData *ch, im_rskill *rs, int success) {
 			SendMsgToChar(buf, ch);
 			rs->perc += number(1, 2);
 			if (!ch->IsImmortal())
-				rs->perc = MIN(kZeroRemortSkillCap + GetRealRemort(ch) * 5, rs->perc);
+				rs->perc = MIN(kZeroRemortSkillCap + remort::GetRealRemort(ch) * 5, rs->perc);
 		}
 	}
 }
