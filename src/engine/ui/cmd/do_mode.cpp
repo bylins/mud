@@ -567,7 +567,8 @@ void SetScreen(CharData *ch, char *argument, int flag) {
 		ch->player_specials->saved.stringLength = size;
 		SendMsgToChar("Выводим тестовую строку:\r\n", ch);
 		for (auto i = 5; i <= size; i +=5) {
-			out.replace(i - 1, i / 100 + 2, std::to_string(i));
+			const auto num = std::to_string(i);
+			out.replace(i - 1, num.length(), num);   // длина строки не меняется -- позиции не уползают
 		}
 		SendMsgToChar(ch, "%s\r\n", out.c_str());
 		ch->save_char();
