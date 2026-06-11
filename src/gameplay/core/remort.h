@@ -18,6 +18,8 @@ void ProcessRemort(CharData *ch, char *argument, int subcmd);
 int GetRealRemort(const CharData *ch);
 int GetRealRemort(const std::shared_ptr<CharData> &ch);
 
+void SetSkillAfterRemort(CharData *ch);
+
 } // namespace remort
 
 #endif //MUD_SRC_GAMEPLAY_CORE_REMORT_H_

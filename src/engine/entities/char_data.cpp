@@ -537,16 +537,6 @@ void CharData::set_skill(const ESkill skill_id, int percent) {
 	}
 }
 
-void CharData::SetSkillAfterRemort() {
-	for (auto & it : skills) {
-		int maxSkillLevel = CalcSkillHardCap(this, it.first);
-
-		if (GetSkillBonus(it.first) > maxSkillLevel) {
-			set_skill(it.first, maxSkillLevel);
-		};
-	}
-}
-
 void CharData::clear_skills() {
 	skills.clear();
 }

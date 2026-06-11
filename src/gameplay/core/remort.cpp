@@ -14,6 +14,7 @@
 #include "engine/db/global_objects.h"
 #include "gameplay/mechanics/sight.h"
 #include "gameplay/classes/pc_classes.h"
+#include "gameplay/skills/skills.h"
 //#include "gameplay/economics/ext_money.h"
 
 #include <fmt/format.h>
@@ -104,7 +105,7 @@ void ProcessRemort(CharData *ch, char *argument, int subcmd) {
 			GET_SPELL_MEM(ch, spell_id) = 0;
 		}
 	} else {
-		ch->SetSkillAfterRemort();
+		SetSkillAfterRemort(ch);
 		for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
 			if (IS_MANA_CASTER(ch)) {
 				GET_SPELL_TYPE(ch, spell_id) = ESpellType::kRunes;
@@ -195,6 +196,15 @@ int GetRealRemort(const CharData *ch) {
 
 int GetRealRemort(const std::shared_ptr<CharData> &ch) {
 	return GetRealRemort(ch.get());
+}
+
+void SetSkillAfterRemort(CharData *ch) {
+	for (const auto &it : ch->GetCharSkills()) {
+		const int max_skill_level = CalcSkillHardCap(ch, it.first);
+		if (ch->GetSkillBonus(it.first) > max_skill_level) {
+			ch->set_skill(it.first, max_skill_level);
+		}
+	}
 }
 
 } // namespace remort
