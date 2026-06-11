@@ -8,7 +8,6 @@
 #include "gameplay/clans/house.h"
 #include "engine/db/db.h"
 #include "engine/db/global_objects.h"
-#include "gameplay/economics/ext_money.h"
 #include "gameplay/economics/shop_ext.h"
 #include "gameplay/mechanics/noob.h"
 #include "gameplay/mechanics/sets_drop.h"
@@ -94,7 +93,6 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		offtop_system::Init();
 		celebrates::Load();
 		HelpSystem::reload_all();
-		Remort::init();
 		Noob::init();
 		stats_reset::init();
 		Bonus::bonus_log_load();
@@ -225,8 +223,6 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		} else {
 			SetsDrop::reload();
 		}
-	} else if (!str_cmp(arg, "remort")) {
-		Remort::init();
 	} else if (!str_cmp(arg, "noobhelp")) {
 		Noob::init();
 	} else if (!str_cmp(arg, "resetstats")) {

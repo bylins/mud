@@ -37,13 +37,6 @@ void ProcessRemort(CharData *ch, char *argument, int subcmd) {
 		SendMsgToChar("ЧАВО???\r\n", ch);
 		return;
 	}
-/*	if (Remort::need_torc(ch) && !ch->IsFlagged(EPrf::kCanRemort)) {
-		SendMsgToChar(ch,
-					  "Вы должны подтвердить свои заслуги, пожертвовав Богам достаточное количество гривен.\r\n"
-					  "%s\r\n", Remort::WHERE_TO_REMORT_STR.c_str());
-		return;
-	}
-*/
 	if (ch->get_remort() >= kMaxRemort) {
 		SendMsgToChar("Достигнуто максимальное количество перевоплощений.\r\n", ch);
 		return;

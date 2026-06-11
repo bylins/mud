@@ -29,7 +29,6 @@
 #include "gameplay/mechanics/glory.h"
 #include "engine/entities/char_player.h"
 #include "gameplay/fight/fight.h"
-#include "gameplay/economics/ext_money.h"
 #include "gameplay/statistics/mob_stat.h"
 #include "gameplay/mechanics/liquid.h"
 #include "engine/observability/helpers.h"
@@ -858,12 +857,8 @@ void EndowExpToChar(CharData *ch, int gain) {
 		ch->set_exp(ch->get_exp() + gain);
 		if (ch->get_exp() >= GetExpUntilNextLvl(ch, kLvlImmortal)) {
 			if (!GET_GOD_FLAG(ch, EGf::kRemort) && remort::GetRealRemort(ch) < kMaxRemort) {
-				if (Remort::can_remort_now(ch)) {
 					SendMsgToChar(ch, "%sПоздравляем, вы получили право на перевоплощение!%s\r\n",
 								  kColorBoldGrn, kColorNrm);
-				} else {
-					SendMsgToChar(ch, "&GПоздравляем, вы набрали максимальное количество опыта!\r\n&n");
-				}
 				SET_BIT(ch->player_specials->saved.GodsLike, EGf::kRemort);
 			}
 		}
@@ -905,10 +900,8 @@ void EndowExpToChar(CharData *ch, int gain) {
 		&& GET_GOD_FLAG(ch, EGf::kRemort)
 		&& gain
 		&& (GetRealLevel(ch) < kLvlImmortal)) {
-		if (Remort::can_remort_now(ch)) {
 			SendMsgToChar(ch, "%sВы потеряли право на перевоплощение!%s\r\n",
 						  kColorBoldRed, kColorNrm);
-		}
 		REMOVE_BIT(ch->player_specials->saved.GodsLike, EGf::kRemort);
 	}
 

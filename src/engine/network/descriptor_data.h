@@ -8,7 +8,6 @@
 #define BYLINS_SRC_STRUCTS_DESCRIPTOR_DATA_H_
 
 #include "gameplay/communication/boards/boards_types.h"
-#include "gameplay/economics/ext_money.h"
 #include "engine/structs/structs.h"
 #include "engine/core/sysdep.h"
 #include "engine/core/iosystem.h"
@@ -89,7 +88,6 @@ enum class EConState : uint8_t {
   kResetKin = 49,        // выбор расы после смены/удаления оной (или иного испоганивания значения)
   kResetRace = 50,        // выбор РОДА посла смены/сброса оного
   kConsole = 51,            // Интерактивная скриптовая консоль
-  kTorcExch = 52,        // обмен гривен
   kMenuStats = 53,        // оплата сброса стартовых статов из главного меню
   kSedit = 54,            // sedit - редактирование сетов
   kResetReligion = 55,    // сброс религии из меню сброса статов
@@ -175,7 +173,6 @@ struct DescriptorData {
 	ObjVnum old_vnum;                    // старый внум именной шмотки
 	std::shared_ptr<MapSystem::Options> map_options; // редактирование опций режима карты
 	bool snoop_with_map; // показывать снуперу карту цели с опциями самого снупера
-	std::array<int, ExtMoney::kTotalTypes> ext_money{}; // обмен доп.денег
 	std::shared_ptr<obj_sets_olc::sedit> sedit; // редактирование сетов
 	bool mxp{}; // Для MXP
 

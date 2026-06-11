@@ -17,6 +17,7 @@
 #include "gameplay/mechanics/stuff.h"
 #include "gameplay/mechanics/dungeons.h"
 #include "gameplay/mechanics/sight.h"
+#include "gameplay/core/remort.h"
 
 namespace handlers {
 

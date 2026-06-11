@@ -371,7 +371,6 @@ static int DispatchSpecial(specials::ESpecial s, CharData *ch, void *me, int cmd
 		case specials::ESpecial::kMail: return postmaster(ch, me, cmd, arg);
 		case specials::ESpecial::kGuild: return guilds::GuildInfo::DoGuildLearn(ch, me, cmd, arg);
 		case specials::ESpecial::kRent: return RentReceptionist(ch, me, cmd, arg);
-		case specials::ESpecial::kTorc: return TorcExchange(ch, me, cmd, arg);
 		case specials::ESpecial::kMercenary: return mercenary(ch, me, cmd, arg);
 		default: return 0;
 	}

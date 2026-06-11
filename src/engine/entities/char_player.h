@@ -23,7 +23,6 @@
 #include "gameplay/core/reset_stats.h"
 #include "gameplay/communication/boards/boards_types.h"
 #include "engine/ui/cmd/do_mercenary.h"
-#include "gameplay/economics/ext_money.h"
 
 // кол-во сохраняемых стартовых статов в файле
 const int START_STATS_TOTAL = 6;

@@ -2055,7 +2055,6 @@ void close_socket(DescriptorData * d, int direct)
 			|| d->state == EConState::kGloryConst
 			|| d->state == EConState::kNamedStuff
 			|| d->state == EConState::kMapMenu
-			|| d->state == EConState::kTorcExch
 			|| d->state == EConState::kSedit || d->state == EConState::kConsole) {
 			d->state = EConState::kPlaying;
 		}

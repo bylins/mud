@@ -26,7 +26,6 @@
 #include "gameplay/mechanics/noob.h"
 #include "administration/privilege.h"
 #include "gameplay/mechanics/stable_objs.h"
-#include "gameplay/economics/ext_money.h"
 #include "administration/proxy.h"
 #include "gameplay/ai/spec_procs.h"
 #include "gameplay/mechanics/weather.h"

@@ -404,7 +404,6 @@ main_sources = files(
   'src/gameplay/statistics/dps.cpp',
   'src/engine/entities/entities_constants.cpp',
   'src/gameplay/economics/exchange.cpp',
-  'src/gameplay/economics/ext_money.cpp',
   'src/engine/core/external_trigger.cpp',
   'src/gameplay/abilities/feats.cpp',
   'src/gameplay/fight/arena.cpp',

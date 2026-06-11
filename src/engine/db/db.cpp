@@ -24,7 +24,6 @@
 #include "gameplay/mechanics/city_guards.h"
 #include "description.h"
 #include "gameplay/mechanics/depot.h"
-#include "gameplay/economics/ext_money.h"
 #include "gameplay/mechanics/bonus.h"
 #include "utils/file_crc.h"
 #include "global_objects.h"
@@ -1025,10 +1024,6 @@ void BootMudDataBase() {
 	mob_stat::Load();
 	log("Init SetsDrop lists.");
 	SetsDrop::init();
-
-	boot_profiler.next_step("Loading remorts");
-	log("Load remort.xml");
-	Remort::init();
 
 	boot_profiler.next_step("Loading noob_help.xml");
 	log("Load noob_help.xml");

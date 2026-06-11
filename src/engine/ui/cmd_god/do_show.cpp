@@ -13,7 +13,6 @@
 #include "gameplay/mechanics/depot.h"
 #include "engine/scripting/dg_event.h"
 #include "gameplay/economics/shop_ext.h"
-#include "gameplay/economics/ext_money.h"
 #include "gameplay/magic/magic_utils.h"
 #include "gameplay/mechanics/dungeons.h"
 #include "gameplay/mechanics/glory.h"
@@ -894,9 +893,6 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			} else {
 				print_mob_bosses(ch, false);
 			}
-			break;
-		case 25: // remort
-			Remort::show_config(ch);
 			break;
 		case 26: { //Apply
 			if (!*value) {

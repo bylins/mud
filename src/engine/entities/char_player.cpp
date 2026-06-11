@@ -20,7 +20,6 @@
 #include "engine/db/global_objects.h"
 #include "gameplay/affects/affect_handler.h"
 #include "gameplay/mechanics/player_races.h"
-#include "gameplay/economics/ext_money.h"
 #include "gameplay/magic/magic_temp_spells.h"
 #include "administration/accounts.h"
 #include "gameplay/mechanics/liquid.h"

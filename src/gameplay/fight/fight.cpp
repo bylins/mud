@@ -2299,10 +2299,6 @@ int set_hit(CharData *ch, CharData *victim) {
 		victim->desc->map_options.reset();
 		victim->desc->state = EConState::kPlaying;
 		message = true;
-	} else if (victim->desc && (victim->desc->state == EConState::kTorcExch)) {
-		// или меняет гривны (чистить особо и нечего)
-		victim->desc->state = EConState::kPlaying;
-		message = true;
 	}
 
 	if (message) {
