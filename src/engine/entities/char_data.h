@@ -18,6 +18,7 @@
 #include "gameplay/communication/ignores.h"
 #include "gameplay/crafting/im.h"
 #include "gameplay/skills/skills.h"
+#include "gameplay/economics/currency_storage.h"
 #include "gameplay/mechanics/rune_stones.h"   // issue.runestones: was townportal.h (runestone classes moved)
 #include "utils/utils.h"
 #include "engine/core/conf.h"
@@ -462,6 +463,10 @@ class CharData : public ProtectedCharData {
 	long remove_gold(long num, bool log = true);
 	long remove_bank(long num, bool log = true);
 	long remove_both_gold(long num, bool log = true);
+
+	// issue.currency-storage: the per-owner currency container (single mutation chokepoint).
+	currencies::CurrencyStorage &currency_storage() { return currency_storage_; }
+	[[nodiscard]] const currencies::CurrencyStorage &currency_storage() const { return currency_storage_; }
 	////////////////////////////////////////////////////////////////////////////
 
 	int calc_morale() const;
@@ -655,9 +660,8 @@ class CharData : public ProtectedCharData {
 	// последний вызов базара
 	time_t last_exchange_;
 	// деньги на руках
-	long gold_;
+	currencies::CurrencyStorage currency_storage_;
 	// деньги в банке
-	long bank_gold_;
 	// рубли
 	long ruble;
 	// родная сила

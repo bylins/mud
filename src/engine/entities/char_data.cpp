@@ -264,8 +264,6 @@ void CharData::zero_init() {
 	remorts_ = 0;
 	remorts_add_ = 0;
 	last_logon_ = 0;
-	gold_ = 0;
-	bank_gold_ = 0;
 	ruble = 0;
 	str_ = 0;
 	str_add_ = 0;
@@ -1062,11 +1060,11 @@ void CharData::set_ruble(int ruble) {
 }
 
 long CharData::get_gold() const {
-	return gold_;
+	return currency_storage().GetHand(currencies::kKunaId);
 }
 
 long CharData::get_bank() const {
-	return bank_gold_;
+	return currency_storage().GetBank(currencies::kKunaId);
 }
 
 long CharData::get_total_gold() const {
@@ -1121,7 +1119,7 @@ void CharData::set_gold(long num, bool need_log) {
 		}
 	}
 
-	gold_ = num;
+	currency_storage().SetHand(currencies::kKunaId, num);
 	msdp_report(msdp::constants::GOLD);
 }
 
@@ -1142,7 +1140,7 @@ void CharData::set_bank(long num, bool need_log) {
 		}
 	}
 
-	bank_gold_ = num;
+	currency_storage().SetBank(currencies::kKunaId, num);
 	msdp_report(msdp::constants::GOLD);
 }
 
