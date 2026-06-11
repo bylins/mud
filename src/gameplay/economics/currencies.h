@@ -16,7 +16,10 @@
 // Старый неймспейс со старыми идами валют
 // Его необходимо удалить после доделывания системы валют
 namespace currency {
-enum { GOLD, GLORY, TORC, ICE, NOGATA };
+// Legacy currency vnums (this enum is being retired in the currency rework).
+// vnums 2..5 are the copper/bronze/silver/gold grivna denominations (data-only,
+// no enum members); kMagicIce/kNogata moved to 6/7.
+enum { GOLD, GLORY, TORC, ICE = 6, NOGATA };
 }
 
 namespace currencies {

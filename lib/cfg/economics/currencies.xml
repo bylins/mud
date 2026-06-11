@@ -35,25 +35,32 @@ flags - флаги
         <permits give="0" obj="0" bank="0" transfer="0" transfer_other="0" transfer_tax="5" drop="100" clan_tax="25"/>
         <flags account_shared="Y"  locked="Y"/>
     </currency>
-    <currency text_id="kGrivna" vnum="2" mode="kEnabled">
+    <currency text_id="kCopperGrivna" vnum="2" mode="kEnabled">
         <permits give="0" obj="0" bank="0" transfer="0" transfer_other="0" transfer_tax="5" drop="100" clan_tax="25"/>
         <flags account_shared="N"  locked="N"/>
     </currency>
-    <currency text_id="kMagicIce" vnum="3" mode="kEnabled">
+    <currency text_id="kBronzeGrivna" vnum="3" mode="kEnabled">
         <permits give="0" obj="0" bank="0" transfer="0" transfer_other="0" transfer_tax="5" drop="100" clan_tax="25"/>
         <flags account_shared="N"  locked="N"/>
     </currency>
-    <currency text_id="kNogata" vnum="4" mode="kEnabled">
+    <currency text_id="kSilverGrivna" vnum="4" mode="kEnabled">
         <permits give="0" obj="0" bank="0" transfer="0" transfer_other="0" transfer_tax="5" drop="100" clan_tax="25"/>
         <flags account_shared="N"  locked="N"/>
     </currency>
-    <!--
-    <currency text_id="kZlatnik" name="златник" vnum="5" account_shared="N" locked="0" mode="kEnabled">
-        <name>
-            <singular nom="златник" gen="златника" dat="златнику" acc="златник" ins="златником" pre="златнике"/>
-            <plural nom="златники" gen="златников" dat="златникам" acc="златники" ins="златниками" pre="златниках"/>
-        </name>
+    <currency text_id="kGoldGrivna" vnum="5" mode="kEnabled">
         <permits give="0" obj="0" bank="0" transfer="0" transfer_other="0" transfer_tax="5" drop="100" clan_tax="25"/>
+        <flags account_shared="N"  locked="N"/>
     </currency>
-    -->
+    <currency text_id="kMagicIce" vnum="6" mode="kEnabled">
+        <permits give="0" obj="0" bank="0" transfer="0" transfer_other="0" transfer_tax="5" drop="100" clan_tax="25"/>
+        <flags account_shared="N"  locked="N"/>
+    </currency>
+    <currency text_id="kNogata" vnum="7" mode="kEnabled">
+        <permits give="0" obj="0" bank="0" transfer="0" transfer_other="0" transfer_tax="5" drop="100" clan_tax="25"/>
+        <flags account_shared="N"  locked="N"/>
+    </currency>
+    <currency text_id="kZlatnik" vnum="8" mode="kEnabled">
+        <permits give="0" obj="0" bank="0" transfer="0" transfer_other="0" transfer_tax="5" drop="100" clan_tax="25"/>
+        <flags account_shared="N"  locked="N"/>
+    </currency>
 </currencies>
