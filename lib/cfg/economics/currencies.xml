@@ -29,7 +29,7 @@ flags - флаги
 <currencies>
     <currency text_id="kKuna" vnum="0" mode="kEnabled">
         <permits give="1" obj="1" bank="1" transfer="1" transfer_other="1" transfer_tax="5" drop="100" clan_tax="25"/>
-        <flags account_shared="N"  locked="Y"/>
+        <flags account_shared="N"  locked="Y" logged="Y" msdp="Y" money_stat="Y"/>
     </currency>
     <currency text_id="kGlory" vnum="1" mode="kEnabled">
         <permits give="0" obj="0" bank="0" transfer="0" transfer_other="0" transfer_tax="5" drop="100" clan_tax="25"/>
