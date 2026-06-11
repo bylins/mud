@@ -195,7 +195,7 @@ void PrintScoreList(CharData *ch) {
 	SendMsgToChar(ch, "Вы имеете кун: на руках: %ld, на счету %ld. Гривны: %d, опыт: %ld, ДСУ: %ld.\r\n",
 				  ch->get_gold(),
 				  ch->get_bank(),
-				  ch->get_hryvn(),
+				  currencies::GetAmount(*ch, currencies::kCopperGrivnaId),
 				  ch->get_exp(),
 				  privilege::IsImmortal(ch) ? 1 : GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1) - ch->get_exp());
 	if (!mount::IsOnHorse(ch))
@@ -788,8 +788,8 @@ void PrintScoreBase(CharData *ch) {
 			"У вас на руках %ld %s и %d %s",
 			ch->get_gold(),
 			grammar::GetDeclensionInNumber(ch->get_gold(), grammar::EWhat::kMoneyA),
-			ch->get_hryvn(),
-			MUD::Currency(currencies::kCopperGrivnaVnum).GetNameWithAmount(ch->get_hryvn()).c_str());
+			currencies::GetAmount(*ch, currencies::kCopperGrivnaId),
+			MUD::Currency(currencies::kCopperGrivnaVnum).GetNameWithAmount(currencies::GetAmount(*ch, currencies::kCopperGrivnaId)).c_str());
 	if (ch->get_bank() > 0)
 		sprintf(buf + strlen(buf), " (и еще %ld %s припрятано в лежне).\r\n",
 				ch->get_bank(), grammar::GetDeclensionInNumber(ch->get_bank(), grammar::EWhat::kMoneyA));

@@ -141,10 +141,6 @@ class Player : public CharData {
 	/*void touch_stigma(char *arg);
 	void add_stigma(int wear, int id_stigma);
 	int get_stigma(int wear);*/
-	int get_hryvn();
-	void set_hryvn(int value);
-	void sub_hryvn(int value);
-	void add_hryvn(int value);
 	void dquest(int id) override;
 	void complete_quest(int id);
 

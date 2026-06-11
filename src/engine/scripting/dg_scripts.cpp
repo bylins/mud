@@ -2591,10 +2591,10 @@ void find_replacement(void *go,
 			}
 		} else if (!str_cmp(field, "hryvn")) {
 			if (*subfield) {
-				const long before = mob->get_hryvn();
+				const long before = currencies::GetAmount(*mob, currencies::kCopperGrivnaId);
 				int value;
-				mob->set_hryvn(std::max(long(0), gm_char_field(mob, field, subfield, mob->get_hryvn())));
-				value = mob->get_hryvn() - before;
+				currencies::SetAmount(*mob, currencies::kCopperGrivnaId, std::max(long(0), gm_char_field(mob, field, subfield, currencies::GetAmount(*mob, currencies::kCopperGrivnaId))));
+				value = currencies::GetAmount(*mob, currencies::kCopperGrivnaId) - before;
 				snprintf(buf, sizeof(buf), "<%s> {%d} получил триггером %d %s. [Trigger: %s, Vnum: %d]",
 						GET_PAD(mob, 0),
 						GET_ROOM_VNUM(mob->in_room),
@@ -2604,7 +2604,7 @@ void find_replacement(void *go,
 						GET_TRIG_VNUM(trig));
 				mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
 			} else
-				snprintf(str, str_size, "%d", mob->get_hryvn());
+				snprintf(str, str_size, "%d", currencies::GetAmount(*mob, currencies::kCopperGrivnaId));
 		} else if (!str_cmp(field, "point_nogata")) {
 				if (*subfield) {
 					currencies::SetAmount(*mob, currencies::kNogataId, std::max(long(0), gm_char_field(mob, field, subfield, currencies::GetAmount(*mob, currencies::kNogataId))));

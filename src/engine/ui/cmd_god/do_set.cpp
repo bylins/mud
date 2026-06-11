@@ -889,7 +889,7 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 			break;
 		case 61: on_off_mode ? vict->SetFlag(EPlrFlag::kAutobot) : vict->UnsetFlag(EPlrFlag::kAutobot);
 			break;
-		case 62: vict->set_hryvn(value);
+		case 62: currencies::SetAmount(*vict, currencies::kCopperGrivnaId, value);
 			break;
 		case 63: // флаг скриптера
 			sprintf(buf, "%s", GET_NAME(ch));
