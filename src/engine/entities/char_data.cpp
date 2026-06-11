@@ -2,7 +2,6 @@
 // Copyright (c) 2008 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include "engine/core/handler.h"
 #include "gameplay/mechanics/condition.h"
 #include "utils/grammar/gender.h"
 #include "gameplay/mechanics/minions.h"
@@ -17,7 +16,6 @@
 #include "engine/network/msdp/msdp_constants.h"
 #include "utils/backtrace.h"
 #include "engine/db/global_objects.h"
-#include "gameplay/mechanics/liquid.h"
 #include "char_data.h"
 #include "gameplay/statistics/money_drop.h"
 #include "gameplay/affects/affect_data.h"

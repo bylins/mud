@@ -15,7 +15,6 @@
 #include "gameplay/mechanics/sight.h"
 #include "gameplay/classes/pc_classes.h"
 #include "gameplay/skills/skills.h"
-//#include "gameplay/economics/ext_money.h"
 
 #include <fmt/format.h>
 
