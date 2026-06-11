@@ -18,6 +18,10 @@
 #include "engine/ui/color.h"
 #include "engine/db/global_objects.h"
 #include "engine/core/comm.h"
+#include "engine/db/db.h"
+#include "engine/entities/zone.h"
+#include "gameplay/statistics/money_drop.h"
+#include "engine/network/msdp/msdp_constants.h"
 //#include "utils/parse.h"
 
 namespace currencies {
@@ -160,6 +164,9 @@ ItemPtr CurrencyInfoBuilder::ParseCurrency(DataNode node) {
 		try {
 			currency_info->locked_ = parse::ReadAsBool(node.GetValue("locked"));
 			currency_info->account_shared_ = parse::ReadAsBool(node.GetValue("account_shared"));
+			if (const char *v = node.GetValue("logged"); v && *v) currency_info->logged_ = parse::ReadAsBool(v);
+			if (const char *v = node.GetValue("msdp"); v && *v) currency_info->reports_msdp_ = parse::ReadAsBool(v);
+			if (const char *v = node.GetValue("money_stat"); v && *v) currency_info->money_stat_ = parse::ReadAsBool(v);
 		} catch (std::runtime_error &e) {
 			err_log("incorrect flags (%s) in currency '%s'.", e.what(), currency_info->name_.c_str());
 		}
@@ -299,19 +306,36 @@ long GetTotal(const CharData &ch, const std::string &id) {
 	return cs.GetHand(id) + cs.GetBank(id);
 }
 
-void SetAmount(CharData &ch, const std::string &id, long amount, EPurse purse) {
-	amount = std::clamp(amount, 0L, MUD::Currencies().FindAvailableItem(id).GetMaxAmount());
+void SetAmount(CharData &ch, const std::string &id, long amount, EPurse purse, bool with_log) {
+	const auto &info = MUD::Currencies().FindAvailableItem(id);
+	const long before = GetAmount(ch, id, purse);
+	amount = std::clamp(amount, 0L, info.GetMaxAmount());
+	if (amount == before) {
+		return;
+	}
 	auto &cs = ch.currency_storage();
 	if (purse == EPurse::kHand) {
 		cs.SetHand(id, amount);
 	} else {
 		cs.SetBank(id, amount);
 	}
+	const long change = amount - before;
+	if (with_log && !ch.IsNpc()) {
+		if (info.IsLogged()) {
+			log("Gold: %s %s %ld", ch.get_name().c_str(), change > 0 ? "add" : "remove", change > 0 ? change : -change);
+		}
+		if (info.TracksMoneyDrop() && purse == EPurse::kHand && ch.in_room > 0) {
+			MoneyDropStat::add(zone_table[world[ch.in_room]->zone_rn].vnum, change);
+		}
+	}
+	if (info.ReportsMsdp()) {
+		ch.msdp_report(msdp::constants::GOLD);
+	}
 }
 
-long AddAmount(CharData &ch, const std::string &id, long amount, EPurse purse, bool notify) {
+long AddAmount(CharData &ch, const std::string &id, long amount, EPurse purse, bool notify, bool with_log) {
 	const long before = GetAmount(ch, id, purse);
-	SetAmount(ch, id, before + amount, purse);
+	SetAmount(ch, id, before + amount, purse, with_log);
 	const long added = GetAmount(ch, id, purse) - before;
 	if (notify && added > 0 && ch.desc) {
 		const auto &info = MUD::Currencies().FindAvailableItem(id);
@@ -326,21 +350,21 @@ long AddAmount(CharData &ch, const std::string &id, long amount, EPurse purse, b
 	return added;
 }
 
-long RemoveAmount(CharData &ch, const std::string &id, long amount, EPurse purse) {
+long RemoveAmount(CharData &ch, const std::string &id, long amount, EPurse purse, bool with_log) {
 	const long have = GetAmount(ch, id, purse);
 	if (have >= amount) {
-		SetAmount(ch, id, have - amount, purse);
+		SetAmount(ch, id, have - amount, purse, with_log);
 		return 0;
 	}
-	SetAmount(ch, id, 0, purse);
+	SetAmount(ch, id, 0, purse, with_log);
 	return amount - have;
 }
 
 long GetAmount(const CharData &ch, int vnum, EPurse purse) { return GetAmount(ch, TextIdByVnum(vnum), purse); }
 long GetTotal(const CharData &ch, int vnum) { return GetTotal(ch, TextIdByVnum(vnum)); }
-void SetAmount(CharData &ch, int vnum, long amount, EPurse purse) { SetAmount(ch, TextIdByVnum(vnum), amount, purse); }
-long AddAmount(CharData &ch, int vnum, long amount, EPurse purse, bool notify) { return AddAmount(ch, TextIdByVnum(vnum), amount, purse, notify); }
-long RemoveAmount(CharData &ch, int vnum, long amount, EPurse purse) { return RemoveAmount(ch, TextIdByVnum(vnum), amount, purse); }
+void SetAmount(CharData &ch, int vnum, long amount, EPurse purse, bool with_log) { SetAmount(ch, TextIdByVnum(vnum), amount, purse, with_log); }
+long AddAmount(CharData &ch, int vnum, long amount, EPurse purse, bool notify, bool with_log) { return AddAmount(ch, TextIdByVnum(vnum), amount, purse, notify, with_log); }
+long RemoveAmount(CharData &ch, int vnum, long amount, EPurse purse, bool with_log) { return RemoveAmount(ch, TextIdByVnum(vnum), amount, purse, with_log); }
 
 } // namespace currencies
 
