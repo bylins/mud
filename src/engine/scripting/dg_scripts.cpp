@@ -3336,12 +3336,25 @@ void find_replacement(void *go,
 		} else if (!str_cmp(field, "type")) {
 			snprintf(str, str_size, "%d", (int) obj->get_type());
 		} else if (!str_cmp(field, "CanBeSeen")) {
+			// В отличие от CAN_SEE_OBJ, не считаем предмет автоматически видимым
+			// только потому, что персонаж его держит/носит: иначе слепой всегда
+			// "видит" предмет в инвентаре. Проверяем слепоту/невидимость/темноту
+			// напрямую (как MORT_CAN_SEE_OBJ). Освещение берём по комнате
+			// смотрящего: предмет, который он может видеть, либо у него в руках,
+			// либо в его же комнате. Если смотрящий в kNowhere - он вне игрового
+			// мира и видеть не может.
 			CharData *viewer = *subfield ? get_char(subfield) : nullptr;
-			if (viewer && !CAN_SEE_OBJ(viewer, obj)) {
-				snprintf(str, str_size, "0");
-			} else {
-				snprintf(str, str_size, "1");
+			bool seen = true;
+			if (viewer && !(!viewer->IsNpc() && viewer->IsFlagged(EPrf::kHolylight))) {
+				seen = viewer->in_room != kNowhere
+					&& INVIS_OK_OBJ(viewer, obj)
+					&& !AFF_FLAGGED(viewer, EAffect::kBlind)
+					&& (!is_dark(viewer->in_room)
+						|| obj->has_flag(EObjFlag::kGlow)
+						|| CAN_SEE_IN_DARK(viewer)
+						|| CanUseFeat(viewer, EFeat::kDarkReading));
 			}
+			snprintf(str, str_size, seen ? "1" : "0");
 		} else if (!str_cmp(field, "timer")) {
 			snprintf(str, str_size, "%d", obj->get_timer());
 		} else if (!str_cmp(field, "objmax")) {
