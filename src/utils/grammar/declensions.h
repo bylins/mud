@@ -9,6 +9,9 @@
 #ifndef BYLINS_SRC_UTILS_GRAMMAR_DECLENSIONS_H_
 #define BYLINS_SRC_UTILS_GRAMMAR_DECLENSIONS_H_
 
+#include "cases.h"
+#include "gender.h"
+
 // What kind of thing a count is being agreed with (selects the noun + its three
 // count-forms). Kept at global scope for now, like the sibling ECase; namespacing
 // the grammar tokens is a separate follow-up.
@@ -53,6 +56,15 @@ enum class EWhat : int  {
 // Return the correctly-declined noun for `amount` of `of_what`
 // (e.g. 1 -> "я┬я┌я┐п╨п╟", 2 -> "я┬я┌я┐п╨п╦", 5 -> "я┬я┌я┐п╨").
 const char *GetDeclensionInNumber(long amount, EWhat of_what);
+
+// issue.currencies: endings for a counted "<size-adjective> <pile-noun>" phrase
+// (e.g. the "...ая горстк-а" in "малюсенькая горстка"), indexed by grammatical case.
+//   slot 0 = feminine adjective ending, slot 1 = velar-stem feminine noun ending,
+//   slot 2 = hard-stem feminine noun ending.
+const char *CountedFormEnding(ECase gram_case, int slot);
+
+// issue.currencies: ending of the numeral "один" (after the "од" stem), by gender and case.
+const char *OneNumeralEnding(EGender gender, ECase gram_case);
 
 }  // namespace grammar
 

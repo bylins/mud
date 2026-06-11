@@ -68,6 +68,47 @@ const char *GetDeclensionInNumber(long amount, EWhat of_what) {
 	}
 }
 
+const char *CountedFormEnding(ECase gram_case, int slot) {
+	static const char *kEndings[6][3] = {
+		{"ая", "а", "а"},
+		{"ой", "и", "ы"},
+		{"ой", "е", "е"},
+		{"ую", "у", "у"},
+		{"ой", "ой", "ой"},
+		{"ой", "е", "е"}
+	};
+	const int c = static_cast<int>(gram_case);
+	if (c < 0 || c > 5 || slot < 0 || slot > 2) {
+		return "";
+	}
+	return kEndings[c][slot];
+}
+
+const char *OneNumeralEnding(EGender gender, ECase gram_case) {
+	using Cases = std::unordered_map<ECase, std::string>;
+	using ByGender = std::unordered_map<EGender, Cases>;
+	static const ByGender kOne {
+		{EGender::kMale, {
+			{ECase::kNom, "ин"}, {ECase::kGen, "ного"}, {ECase::kDat, "ному"},
+			{ECase::kAcc, "нин"}, {ECase::kIns, "ним"}, {ECase::kPre, "ном"}}},
+		{EGender::kFemale, {
+			{ECase::kNom, "на"}, {ECase::kGen, "ной"}, {ECase::kDat, "ной"},
+			{ECase::kAcc, "ну"}, {ECase::kIns, "ной"}, {ECase::kPre, "ной"}}},
+		{EGender::kNeutral, {
+			{ECase::kNom, "но"}, {ECase::kGen, "ного"}, {ECase::kDat, "ному"},
+			{ECase::kAcc, "но"}, {ECase::kIns, "ним"}, {ECase::kPre, "ном"}}},
+		{EGender::kPoly, {
+			{ECase::kNom, "ни"}, {ECase::kGen, "них"}, {ECase::kDat, "ним"},
+			{ECase::kAcc, "ни"}, {ECase::kIns, "ними"}, {ECase::kPre, "них"}}}
+	};
+	const auto g = kOne.find(gender);
+	if (g == kOne.end()) {
+		return "";
+	}
+	const auto it = g->second.find(gram_case);
+	return it == g->second.end() ? "" : it->second.c_str();
+}
+
 }  // namespace grammar
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
