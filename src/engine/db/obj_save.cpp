@@ -2478,12 +2478,12 @@ void Crash_frac_save_all(int frac_part) {
 
 			utils::CExecutionTimer timer;
 			Crash_crashsave(d->character.get());
-			if (timer.delta().count() > 0.1)
+			if (timer.delta().count() > 0.002)
 				log("Crash_frac_save_all: Crash_crashsave, timer %f, save player: %s", timer.delta().count(), d->character->get_name().c_str());
 
 			utils::CExecutionTimer timer1;
 			d->character->save_char();
-			if (timer1.delta().count() > 0.1)
+			if (timer1.delta().count() > 0.002)
 				log("Crash_frac_save_all: save_char, timer %f, save player: %s", timer1.delta().count(), d->character->get_name().c_str());
 			d->character->UnsetFlag(EPlrFlag::kCrashSave);
 			saved_count++;
