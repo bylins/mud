@@ -971,15 +971,15 @@ void PrintScoreBase(CharData *ch) {
 			}
 		}
 	}
-	if (ch->get_ice_currency() > 0) {
-		if (ch->get_ice_currency() == 1) {
+	if (currencies::GetAmount(*ch, currencies::kMagicIceId) > 0) {
+		if (currencies::GetAmount(*ch, currencies::kMagicIceId) == 1) {
 			snprintf(buf, sizeof(buf), "У вас в наличии есть одна жалкая искристая снежинка.\r\n");
 			SendMsgToChar(buf, ch);
-		} else if (ch->get_ice_currency() < 5) {
-			snprintf(buf, sizeof(buf), "У вас в наличии есть жалкие %d искристые снежинки.\r\n", ch->get_ice_currency());
+		} else if (currencies::GetAmount(*ch, currencies::kMagicIceId) < 5) {
+			snprintf(buf, sizeof(buf), "У вас в наличии есть жалкие %d искристые снежинки.\r\n", currencies::GetAmount(*ch, currencies::kMagicIceId));
 			SendMsgToChar(buf, ch);
 		} else {
-			snprintf(buf, sizeof(buf), "У вас в наличии есть %d искристых снежинок.\r\n", ch->get_ice_currency());
+			snprintf(buf, sizeof(buf), "У вас в наличии есть %d искристых снежинок.\r\n", currencies::GetAmount(*ch, currencies::kMagicIceId));
 			SendMsgToChar(buf, ch);
 		}
 	}
