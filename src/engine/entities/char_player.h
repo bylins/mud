@@ -209,7 +209,6 @@ class Player : public CharData {
 	// временнЫе отметки о прочитанных сообщениях на досках
 	std::array<time_t, Boards::TYPES_NUM> board_date_;
 	// лед (доп. валюта)
-	int ice_currency;
 	// список зон, где чар умер и в каком количестве
 	std::map<int, int> count_death_zone;
 	// время, когда были выполнены все дейлики
@@ -223,9 +222,7 @@ class Player : public CharData {
 	// режим !бот
 	bool setmode_dontbot;
 	// гривны
-	int hryvn;
 	// ногаты
-	int nogata;
 	// id задания и сколько раз было выполненно задание
 	std::map<int, int> daily_quest;
 	// сколько гривен было потрачено в магазине

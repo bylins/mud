@@ -64,9 +64,6 @@ Player::Player() :
 	from_room_(0),
 	answer_id_(kNobody),
 	motion_(true),
-	ice_currency(0),
-	hryvn(0),
-	nogata(0),
 	spent_hryvn(0) {
 	for (int i = 0; i < START_STATS_TOTAL; ++i) {
 		start_stats_.at(i) = 0;
@@ -186,7 +183,7 @@ void Player::set_last_tell(const char *text) {
 
 
 int Player::get_hryvn() {
-	return this->hryvn;
+	return currency_storage().GetHand(currencies::kCopperGrivnaId);
 }
 
 short cap_hryvn = 1500;
@@ -194,27 +191,27 @@ short cap_hryvn = 1500;
 void Player::set_hryvn(int value) {
 	if (value > cap_hryvn)
 		value = cap_hryvn;
-	this->hryvn = value;
+	currency_storage().SetHand(currencies::kCopperGrivnaId, value);
 }
 
 void Player::sub_hryvn(int value) {
-	this->hryvn -= value;
+	currency_storage().SetHand(currencies::kCopperGrivnaId, get_hryvn() - value);
 }
 
 int Player::get_nogata() {
-	return this->nogata;
+	return currency_storage().GetHand(currencies::kNogataId);
 }
 
 void Player::set_nogata(int value) {
-	this->nogata = value;
+	currency_storage().SetHand(currencies::kNogataId, value);
 }
 
 void Player::sub_nogata(int value) {
-	this->nogata -= value;
+	currency_storage().SetHand(currencies::kNogataId, get_nogata() - value);
 }
 
 void Player::add_nogata(int value) {
-	this->nogata += value;
+	currency_storage().SetHand(currencies::kNogataId, get_nogata() + value);
 	SendMsgToChar(this, "Вы получили %ld %s.\r\n", static_cast<long>(value),
 				  MUD::Currency(currencies::kNogataVnum).GetNameWithAmount(value, grammar::ECase::kAcc).c_str());
 
@@ -240,7 +237,7 @@ void Player::add_hryvn(int value) {
 		return;
 	}
 	log("Персонаж %s получил %d [гривны].", GET_NAME(this), value);
-	this->hryvn += value;
+	currency_storage().SetHand(currencies::kCopperGrivnaId, get_hryvn() + value);
 }
 
 void Player::complete_quest(const int id) {
@@ -2029,19 +2026,19 @@ int Player::get_reset_stats_cnt(stats_reset::Type type) const {
 }
 
 int Player::get_ice_currency() {
-	return this->ice_currency;
+	return currency_storage().GetHand(currencies::kMagicIceId);
 }
 
 void Player::set_ice_currency(int value) {
-	this->ice_currency = value;
+	currency_storage().SetHand(currencies::kMagicIceId, value);
 }
 
 void Player::add_ice_currency(int value) {
-	this->ice_currency += value;
+	currency_storage().SetHand(currencies::kMagicIceId, get_ice_currency() + value);
 }
 
 void Player::sub_ice_currency(int value) {
-	this->ice_currency = MAX(0, ice_currency - value);
+	currency_storage().SetHand(currencies::kMagicIceId, MAX(0, get_ice_currency() - value));
 }
 
 bool Player::is_arena_player() {
