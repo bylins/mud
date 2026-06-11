@@ -3,6 +3,8 @@
 // Part of Bylins http://www.mud.ru
 
 #include "char_player.h"
+#include "gameplay/economics/currencies.h"
+#include "engine/db/global_objects.h"
 #include "gameplay/mechanics/condition.h"
 #include "utils/grammar/declensions.h"
 
@@ -214,7 +216,7 @@ void Player::sub_nogata(int value) {
 void Player::add_nogata(int value) {
 	this->nogata += value;
 	SendMsgToChar(this, "Вы получили %ld %s.\r\n", static_cast<long>(value),
-				  grammar::GetDeclensionInNumber(value, grammar::EWhat::kNogataU));
+				  MUD::Currency(currencies::kNogataVnum).GetNameWithAmount(value, grammar::ECase::kAcc).c_str());
 
 }
 
@@ -230,10 +232,10 @@ void Player::add_hryvn(int value) {
 	if ((this->get_hryvn() + value) > cap_hryvn) {
 		value = cap_hryvn - this->get_hryvn();
 		SendMsgToChar(this, "Вы получили только %ld %s, так как в вашу копилку больше не лезет...\r\n",
-					  static_cast<long>(value), grammar::GetDeclensionInNumber(value, grammar::EWhat::kTorcU));
+					  static_cast<long>(value), MUD::Currency(currencies::kCopperGrivnaVnum).GetNameWithAmount(value, grammar::ECase::kAcc).c_str());
 	} else if (value > 0) {
 		SendMsgToChar(this, "Вы получили %ld %s.\r\n",
-					  static_cast<long>(value), grammar::GetDeclensionInNumber(value, grammar::EWhat::kTorcU));
+					  static_cast<long>(value), MUD::Currency(currencies::kCopperGrivnaVnum).GetNameWithAmount(value, grammar::ECase::kAcc).c_str());
 	} else if (value == 0) {
 		return;
 	}

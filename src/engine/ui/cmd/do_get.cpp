@@ -7,6 +7,7 @@
 #include "gameplay/clans/house.h"
 #include "engine/core/utils_char_obj.inl"
 #include "gameplay/economics/currencies.h"
+#include "engine/db/global_objects.h"
 #include "gameplay/mechanics/groups.h"
 #include "engine/db/world_objects.h"
 
@@ -56,7 +57,7 @@ void get_check_money(CharData *ch, ObjData *obj, ObjData *cont) {
 	}
 
 	if (curr_type == currency::ICE) {
-		sprintf(buf, "Это составило %d %s.\r\n", value, grammar::GetDeclensionInNumber(value, grammar::EWhat::kIceU));
+		sprintf(buf, "Это составило %d %s.\r\n", value, MUD::Currency(currencies::kSnowflakeVnum).GetNameWithAmount(value, grammar::ECase::kAcc).c_str());
 		SendMsgToChar(buf, ch);
 		ch->add_ice_currency(value);
 		//Делить лед ВСЕГДА!

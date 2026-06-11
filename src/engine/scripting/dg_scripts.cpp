@@ -9,6 +9,8 @@
 **************************************************************************/
 
 #include "dg_scripts.h"
+#include "gameplay/economics/currencies.h"
+#include "engine/db/global_objects.h"
 #include "utils/grammar/gender.h"
 #include "utils/grammar/declensions.h"
 #include "gameplay/mechanics/minions.h"
@@ -2541,7 +2543,7 @@ void find_replacement(void *go,
 						GET_PAD(mob, 0),
 						GET_ROOM_VNUM(mob->in_room),
 						value,
-						grammar::GetDeclensionInNumber(value, grammar::EWhat::kTorcU),
+						MUD::Currency(currencies::kCopperGrivnaVnum).GetNameWithAmount(value, grammar::ECase::kAcc).c_str(),
 						GET_TRIG_NAME(trig),
 						GET_TRIG_VNUM(trig));
 				mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
@@ -2588,12 +2590,12 @@ void find_replacement(void *go,
 								}
 							}
 							snprintf(buf, sizeof(buf), "Вы разделили %d %s на %d  -  по %d каждому.\r\n",
-									val, grammar::GetDeclensionInNumber(val, grammar::EWhat::kNogataU), num, share);
+									val, MUD::Currency(currencies::kNogataVnum).GetNameWithAmount(val, grammar::ECase::kAcc).c_str(), num, share);
 							SendMsgToChar(buf, mob);
 							if (rest > 0) {
 								SendMsgToChar(mob, "Как истинный еврей вы оставили %d %s (которые не смогли разделить нацело) себе.\r\n",
 											  rest,
-											  grammar::GetDeclensionInNumber(rest, grammar::EWhat::kNogataU));
+											  MUD::Currency(currencies::kNogataVnum).GetNameWithAmount(rest, grammar::ECase::kAcc).c_str());
 							}
 							mob->add_nogata(share+rest);
 						}
