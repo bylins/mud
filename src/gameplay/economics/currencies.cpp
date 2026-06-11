@@ -17,6 +17,7 @@
 
 #include "engine/ui/color.h"
 #include "engine/db/global_objects.h"
+#include "engine/core/comm.h"
 //#include "utils/parse.h"
 
 namespace currencies {
@@ -182,6 +183,15 @@ ItemPtr CurrencyInfoBuilder::ParseCurrency(DataNode node) {
 		node.GoToParent();
 	}
 
+	if (node.GoToChild("limits")) {
+		try {
+			currency_info->max_amount_ = std::clamp(static_cast<long>(parse::ReadAsInt(node.GetValue("max"))), 0L, kMaxMoneyKept);
+		} catch (std::runtime_error &e) {
+			err_log("incorrect limits (%s) in currency '%s'.", e.what(), currency_info->name_.c_str());
+		}
+		node.GoToParent();
+	}
+
 	return currency_info;
 }
 
@@ -290,7 +300,7 @@ long GetTotal(const CharData &ch, const std::string &id) {
 }
 
 void SetAmount(CharData &ch, const std::string &id, long amount, EPurse purse) {
-	amount = std::clamp(amount, 0L, kMaxMoneyKept);
+	amount = std::clamp(amount, 0L, MUD::Currencies().FindAvailableItem(id).GetMaxAmount());
 	auto &cs = ch.currency_storage();
 	if (purse == EPurse::kHand) {
 		cs.SetHand(id, amount);
@@ -299,10 +309,21 @@ void SetAmount(CharData &ch, const std::string &id, long amount, EPurse purse) {
 	}
 }
 
-long AddAmount(CharData &ch, const std::string &id, long amount, EPurse purse) {
+long AddAmount(CharData &ch, const std::string &id, long amount, EPurse purse, bool notify) {
 	const long before = GetAmount(ch, id, purse);
 	SetAmount(ch, id, before + amount, purse);
-	return GetAmount(ch, id, purse) - before;
+	const long added = GetAmount(ch, id, purse) - before;
+	if (notify && added > 0 && ch.desc) {
+		const auto &info = MUD::Currencies().FindAvailableItem(id);
+		if (added < amount) {
+			SendMsgToChar(&ch, "Вы получили только %ld %s, больше не помещается.\r\n",
+				added, info.GetNameWithAmount(added, grammar::ECase::kAcc).c_str());
+		} else {
+			SendMsgToChar(&ch, "Вы получили %ld %s.\r\n",
+				added, info.GetNameWithAmount(added, grammar::ECase::kAcc).c_str());
+		}
+	}
+	return added;
 }
 
 long RemoveAmount(CharData &ch, const std::string &id, long amount, EPurse purse) {
@@ -318,7 +339,7 @@ long RemoveAmount(CharData &ch, const std::string &id, long amount, EPurse purse
 long GetAmount(const CharData &ch, int vnum, EPurse purse) { return GetAmount(ch, TextIdByVnum(vnum), purse); }
 long GetTotal(const CharData &ch, int vnum) { return GetTotal(ch, TextIdByVnum(vnum)); }
 void SetAmount(CharData &ch, int vnum, long amount, EPurse purse) { SetAmount(ch, TextIdByVnum(vnum), amount, purse); }
-long AddAmount(CharData &ch, int vnum, long amount, EPurse purse) { return AddAmount(ch, TextIdByVnum(vnum), amount, purse); }
+long AddAmount(CharData &ch, int vnum, long amount, EPurse purse, bool notify) { return AddAmount(ch, TextIdByVnum(vnum), amount, purse, notify); }
 long RemoveAmount(CharData &ch, int vnum, long amount, EPurse purse) { return RemoveAmount(ch, TextIdByVnum(vnum), amount, purse); }
 
 } // namespace currencies

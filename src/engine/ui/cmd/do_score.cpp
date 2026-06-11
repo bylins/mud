@@ -982,9 +982,9 @@ void PrintScoreBase(CharData *ch) {
 			SendMsgToChar(buf, ch);
 		}
 	}
-	if (ch->get_nogata() > 0 && ROOM_FLAGGED(ch->in_room, ERoomFlag::kDominationArena)) {
-		int value = ch->get_nogata();
-		if (ch->get_nogata() == 1) {
+	if (currencies::GetAmount(*ch, currencies::kNogataId) > 0 && ROOM_FLAGGED(ch->in_room, ERoomFlag::kDominationArena)) {
+		int value = currencies::GetAmount(*ch, currencies::kNogataId);
+		if (currencies::GetAmount(*ch, currencies::kNogataId) == 1) {
 			snprintf(buf, sizeof(buf), "У вас в наличии есть одна жалкая ногата.\r\n");
 		}
 		else {

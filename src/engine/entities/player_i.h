@@ -119,10 +119,6 @@ class PlayerI {
 	virtual void set_hryvn(int /* value */) {};
 	virtual void sub_hryvn(int /* value */) {};
 	virtual void add_hryvn(int /* value */) {};
-	virtual int get_nogata() { return 0; }
-	virtual void set_nogata(int /* value */) {};
-	virtual void sub_nogata(int /* value */) {};
-	virtual void add_nogata(int /* value */) {};
 
 	virtual void dquest(int /*id */) {};
 	virtual void complete_quest(int /*id */) {};

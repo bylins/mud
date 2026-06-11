@@ -147,10 +147,6 @@ class Player : public CharData {
 	void add_hryvn(int value);
 	void dquest(int id) override;
 	void complete_quest(int id);
-	int get_nogata();
-	void set_nogata(int value);
-	void sub_nogata(int value);
-	void add_nogata(int value);
 
 	std::shared_ptr<Account> get_account();
 	// добавить/обновить чармиса в историю игрока

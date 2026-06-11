@@ -481,14 +481,12 @@ std::string GuildInfo::IGuildTalent::GetPriceCurrencyStr(long price) const {
 	}
 }
 
-bool HasEnoughCurrency(CharData *ch, Vnum currency_id, long amount);
-void WithdrawCurrency(CharData *ch, Vnum currency_id, long amount);
 
 bool GuildInfo::IGuildTalent::TakePayment(CharData *ch) const {
 	auto price = CalcPrice(ch);
 
-	if (HasEnoughCurrency(ch, currency_vnum_, price)) {
-		WithdrawCurrency(ch, currency_vnum_, price);
+	if (currencies::GetAmount(*ch, currency_vnum_) >= price) {
+		currencies::RemoveAmount(*ch, currency_vnum_, price);
 		return true;
 	}
 
@@ -613,60 +611,6 @@ std::string GuildInfo::GuildFeat::GetAnnotation(CharData * /*ch*/) const {
 /*
  *  Костыльные функции для проверки/снятия валют, поскольку системы валют пока нет.
  */
-
-bool HasEnoughCurrency(CharData *ch, Vnum currency_id, long amount) {
-	switch (currency_id) {
-		case 0: { // куны
-			return ch->get_gold() >= amount;
-		}
-		case 1: { // слава
-			const auto total_glory = GloryConst::get_glory(ch->get_uid());
-			return total_glory >= amount;
-		}
-		case 2: { // гривны
-			return ch->get_hryvn() >= amount;
-		}
-		case 3: { // лед
-			return currencies::GetAmount(*ch, currencies::kMagicIceId) >= amount;
-		}
-		case 4: { // ногаты
-			return ch->get_nogata() >= amount;
-		}
-		default:
-			return false;
-	}
-}
-
-void WithdrawCurrency(CharData *ch, Vnum currency_id, long amount) {
-	amount = std::max(0L, amount);
-	switch (currency_id) {
-		case 0: { // куны
-			ch->remove_gold(amount);
-			break;
-		}
-		case 1: { // слава
-			GloryConst::add_total_spent(amount);
-			GloryConst::remove_glory(ch->get_uid(), amount);
-			GloryConst::transfer_log("%s spent %ld const glory in a guild.", GET_NAME(ch), amount);
-			break;
-		}
-		case 2: { // гривны
-			ch->sub_hryvn(amount);
-			ch->spent_hryvn_sub(amount);
-			break;
-		}
-		case 3: { // лед
-			currencies::RemoveAmount(*ch, currencies::kMagicIceId, amount);
-			break;
-		}
-		case 4: { // ногаты
-			ch->sub_nogata(amount);
-			break;
-		}
-		default:
-			return;
-	}
-}
 
 }
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
