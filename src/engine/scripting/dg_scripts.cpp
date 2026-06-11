@@ -3335,6 +3335,13 @@ void find_replacement(void *go,
 			snprintf(str, str_size, "%d", GET_OBJ_VNUM(obj));
 		} else if (!str_cmp(field, "type")) {
 			snprintf(str, str_size, "%d", (int) obj->get_type());
+		} else if (!str_cmp(field, "CanBeSeen")) {
+			CharData *viewer = *subfield ? get_char(subfield) : nullptr;
+			if (viewer && !CAN_SEE_OBJ(viewer, obj)) {
+				snprintf(str, str_size, "0");
+			} else {
+				snprintf(str, str_size, "1");
+			}
 		} else if (!str_cmp(field, "timer")) {
 			snprintf(str, str_size, "%d", obj->get_timer());
 		} else if (!str_cmp(field, "objmax")) {
