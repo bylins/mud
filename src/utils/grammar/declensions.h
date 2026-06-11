@@ -42,15 +42,9 @@ enum class EWhat : int  {
 	kWeek,
 	kMonth,
 	kWeekU,
-	kGlory,
-	kGloryU,
 	kPeople,
 	kStr,
 	kGulp,
-	kTorc,
-	kTorcU,
-	kIceU,
-	kNogataU
 };
 
 // Return the correctly-declined noun for `amount` of `of_what`

@@ -33,6 +33,9 @@ namespace currencies {
  */
 const int kKunaVnum = 0;
 const int GloryVnum = 1;
+const int kCopperGrivnaVnum = 2;
+const int kNogataVnum = 7;
+const int kSnowflakeVnum = 9;
 
 class CurrenciesLoader : virtual public cfg_manager::ICfgLoader {
  public:
@@ -121,7 +124,7 @@ class CurrencyInfo : public info_container::BaseItem<int> {
 	[[nodiscard]] bool IsTransferableToOther() const { return transferable_to_other_; };
 
 	[[nodiscard]] EGender GetGender() const { return gender_; };
-	[[nodiscard]] const std::string &GetNameWithAmount(long amount) const;
+	[[nodiscard]] const std::string &GetNameWithAmount(long amount, grammar::ECase one_case = grammar::ECase::kNom) const;
 	[[nodiscard]] const std::string &GetName(grammar::ECase name_case = grammar::ECase::kNom) const;
 	[[nodiscard]] const std::string &GetPluralName(grammar::ECase name_case = grammar::ECase::kNom) const;
 	[[nodiscard]] const char *GetCName(grammar::ECase name_case) const;

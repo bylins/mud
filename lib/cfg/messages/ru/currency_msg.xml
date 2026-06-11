@@ -185,6 +185,26 @@
 			</plural>
 		</name>
 	</msg_sheaf>
+	<msg_sheaf id="kSnowflake">
+		<name gender="kFemale" search="снежинка">
+			<singular>
+				<case id="kNom" val="искристая снежинка"/>
+				<case id="kGen" val="искристой снежинки"/>
+				<case id="kDat" val="искристой снежинке"/>
+				<case id="kAcc" val="искристую снежинку"/>
+				<case id="kIns" val="искристой снежинкой"/>
+				<case id="kPre" val="искристой снежинке"/>
+			</singular>
+			<plural>
+				<case id="kNom" val="искристые снежинки"/>
+				<case id="kGen" val="искристых снежинок"/>
+				<case id="kDat" val="искристым снежинкам"/>
+				<case id="kAcc" val="искристые снежинки"/>
+				<case id="kIns" val="искристыми снежинками"/>
+				<case id="kPre" val="искристых снежинках"/>
+			</plural>
+		</name>
+	</msg_sheaf>
 	<obj_names>
 		<!-- default size tiers for money objects (GetObjName); a currency may override any id -->
 		<obj_name id="kTinyAmountDesc" from="2" val="малюсеньк{adjective_ending} горстк{noun_ending} {currency_name}"/>

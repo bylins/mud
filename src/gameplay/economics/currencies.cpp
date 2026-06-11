@@ -214,15 +214,18 @@ const char *CurrencyInfo::GetPluralCName(grammar::ECase name_case) const {
 	return names_->GetPlural(name_case).c_str();
 }
 
-const std::string &CurrencyInfo::GetNameWithAmount(long amount) const {
-	auto remainder = amount % 20;
-	if ((remainder >= 5 && remainder <= 19) || remainder == 0) {
+const std::string &CurrencyInfo::GetNameWithAmount(long amount, grammar::ECase one_case) const {
+	// Correct Russian numeral agreement: 11-14 / 5-0 -> genitive plural; ends in 1 -> singular
+	// (in `one_case`, nominative by default, accusative for "you received 1 ..." contexts);
+	// ends in 2-4 -> 'few' form.
+	const long n = amount < 0 ? -amount : amount;
+	if ((n % 100 >= 11 && n % 100 <= 14) || n % 10 >= 5 || n % 10 == 0) {
 		return GetPluralName(grammar::ECase::kGen);
-	} else if (remainder >= 2 && remainder <= 4) {
-		return GetPluralName(grammar::ECase::kAcc);
-	} else {
-		return GetName();
 	}
+	if (n % 10 == 1) {
+		return GetName(one_case);
+	}
+	return GetPluralName(grammar::ECase::kAcc);
 }
 
 std::string CurrencyInfo::GetObjName(long amount, grammar::ECase gram_case) const {

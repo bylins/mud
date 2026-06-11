@@ -463,13 +463,13 @@ void shop_node::process_buy(CharData *ch, CharData *keeper, char *argument) {
 	}
 	auto suffix = grammar::GetDeclensionInNumber(total_money, grammar::EWhat::kMoneyU);
 	if (currency == "лед")
-		suffix = grammar::GetDeclensionInNumber(total_money, grammar::EWhat::kIceU);
+		suffix = MUD::Currency(currencies::kSnowflakeVnum).GetNameWithAmount(total_money, grammar::ECase::kAcc).c_str();
 	if (currency == "слава")
-		suffix = grammar::GetDeclensionInNumber(total_money, grammar::EWhat::kGloryU);
+		suffix = MUD::Currency(currencies::GloryVnum).GetNameWithAmount(total_money, grammar::ECase::kAcc).c_str();
 	if (currency == "гривны")
-		suffix = grammar::GetDeclensionInNumber(total_money, grammar::EWhat::kTorcU);
+		suffix = MUD::Currency(currencies::kCopperGrivnaVnum).GetNameWithAmount(total_money, grammar::ECase::kAcc).c_str();
 	if (currency == "ногаты")
-		suffix = grammar::GetDeclensionInNumber(total_money, grammar::EWhat::kNogataU);
+		suffix = MUD::Currency(currencies::kNogataVnum).GetNameWithAmount(total_money, grammar::ECase::kAcc).c_str();
 
 	tell_to_char(keeper, ch, fmt::format(fmt::runtime(ShopMsg(ESM::kPrice)),
 			fmt::arg("amount", total_money), fmt::arg("currency", suffix)).c_str());

@@ -8,6 +8,8 @@
 
 #include "engine/ui/color.h"
 #include "administration/privilege.h"
+#include "gameplay/economics/currencies.h"
+#include "engine/db/global_objects.h"
 #include "utils/grammar/declensions.h"
 #include "gameplay/mechanics/mount.h"
 #include "gameplay/communication/mail.h"
@@ -787,7 +789,7 @@ void PrintScoreBase(CharData *ch) {
 			ch->get_gold(),
 			grammar::GetDeclensionInNumber(ch->get_gold(), grammar::EWhat::kMoneyA),
 			ch->get_hryvn(),
-			grammar::GetDeclensionInNumber(ch->get_hryvn(), grammar::EWhat::kTorc));
+			MUD::Currency(currencies::kCopperGrivnaVnum).GetNameWithAmount(ch->get_hryvn()).c_str());
 	if (ch->get_bank() > 0)
 		sprintf(buf + strlen(buf), " (и еще %ld %s припрятано в лежне).\r\n",
 				ch->get_bank(), grammar::GetDeclensionInNumber(ch->get_bank(), grammar::EWhat::kMoneyA));
@@ -987,7 +989,7 @@ void PrintScoreBase(CharData *ch) {
 			snprintf(buf, sizeof(buf), "У вас в наличии есть одна жалкая ногата.\r\n");
 		}
 		else {
-			snprintf(buf, sizeof(buf), "У вас в наличии есть %d %s.\r\n", value, grammar::GetDeclensionInNumber(value, grammar::EWhat::kNogataU));
+			snprintf(buf, sizeof(buf), "У вас в наличии есть %d %s.\r\n", value, MUD::Currency(currencies::kNogataVnum).GetNameWithAmount(value, grammar::ECase::kAcc).c_str());
 		}
 		SendMsgToChar(buf, ch);
 	}

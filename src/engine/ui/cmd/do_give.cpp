@@ -150,12 +150,12 @@ void perform_give_nogat(CharData *ch, CharData *vict, int amount) {
 		return;
 	}
 	SendMsgToChar(CommonMsg(ECommonMsg::kOk) + "\r\n", ch);
-	sprintf(buf, "$n дал$g вам %d %s.", amount, grammar::GetDeclensionInNumber(amount, grammar::EWhat::kNogataU));
+	sprintf(buf, "$n дал$g вам %d %s.", amount, MUD::Currency(currencies::kNogataVnum).GetNameWithAmount(amount, grammar::ECase::kAcc).c_str());
 	act(buf, false, ch, nullptr, vict, kToVict);
 	if (amount > 4)
-		sprintf(buf, "$n дал$g много %s $N2.", grammar::GetDeclensionInNumber(amount, grammar::EWhat::kNogataU));
+		sprintf(buf, "$n дал$g много %s $N2.", MUD::Currency(currencies::kNogataVnum).GetNameWithAmount(amount, grammar::ECase::kAcc).c_str());
 	else
-		sprintf(buf, "$n дал$g %s $N2.", grammar::GetDeclensionInNumber(amount, grammar::EWhat::kNogataU));
+		sprintf(buf, "$n дал$g %s $N2.", MUD::Currency(currencies::kNogataVnum).GetNameWithAmount(amount, grammar::ECase::kAcc).c_str());
 	act(buf, true, ch, nullptr, vict, kToNotVict | kToArenaListen);
 	if (ch->IsNpc() || !privilege::IsImpl(ch)) {
 		ch->sub_nogata(amount);
