@@ -7,6 +7,7 @@
 #include "engine/ui/color.h"
 #include "gameplay/magic/magic_utils.h"
 #include "engine/db/global_objects.h"
+#include "gameplay/mechanics/remort.h"
 
 /* Служебные функции */
 bool CheckVacantFeatSlot(CharData *ch, EFeat feat);

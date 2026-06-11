@@ -482,6 +482,7 @@ main_sources = files(
   'src/gameplay/handlers/spell_holystrike.cpp',
   'src/gameplay/handlers/spell_vampirism.cpp',
   'src/gameplay/handlers/spell_mental_shadow.cpp',
+  'src/gameplay/mechanics/remort.cpp',
   'src/gameplay/mechanics/summon.cpp',
   'src/gameplay/mechanics/portal.cpp',
   'src/gameplay/mechanics/identify.cpp',

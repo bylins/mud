@@ -8,6 +8,7 @@
 #include "gameplay/communication/talk.h"
 #include "gameplay/ai/spec_procs.h"
 #include "gameplay/ai/special_messages.h"
+#include "gameplay/mechanics/remort.h"
 
 #include <fmt/format.h>
 
@@ -162,7 +163,7 @@ unsigned int getPos(char *arg, CharData *ch, CharData *boss) {
 
 }
 
-int mercenary(CharData *ch, void * /*me*/, int cmd, char *argument) {
+int mercenary(CharData *ch, void * /*me*/, int /*cmd*/, char *argument) {
 	if (!ch || !ch->desc || ch->IsNpc())
 		return 0;
 

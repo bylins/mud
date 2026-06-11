@@ -35,6 +35,7 @@
 #include "gameplay/communication/parcel.h"
 #include "gameplay/mechanics/armor.h"
 #include "engine/db/player_index.h"
+#include "gameplay/mechanics/remort.h"
 
 #include <fmt/format.h>
 #include <fmt/printf.h>

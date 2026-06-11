@@ -19,6 +19,7 @@
 #include "gameplay/core/base_stats.h"
 #include "gameplay/core/constants.h"
 #include "engine/observability/metrics.h"
+#include "gameplay/mechanics/remort.h"
 
 #include <cmath>
 

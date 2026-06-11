@@ -23,6 +23,7 @@
 #include "engine/ui/color.h"
 #include "engine/ui/modify.h"
 #include "engine/db/player_index.h"
+#include "gameplay/mechanics/remort.h"
 
 #include <third_party_libs/pugixml/pugixml.h>
 

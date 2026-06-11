@@ -7,6 +7,7 @@
 #include "gameplay/fight/fight_hit.h"
 #include "engine/core/handler.h"
 #include "engine/db/global_objects.h"
+#include "gameplay/mechanics/remort.h"
 
 void do_stun(CharData *ch, char *argument, int, int) {
 	if (ch->GetSkill(ESkill::kStun) < 1) {

@@ -18,7 +18,6 @@
 #include "engine/db/obj_prototypes.h"
 #include "engine/db/utils_find_obj_id_by_vnum.h"
 #include "engine/core/handler.h"
-#include "engine/ui/cmd/do_follow.h"  // circle_follow для char.leader(UID) (#3398)
 #include "dg_event.h"
 #include "engine/ui/color.h"
 #include "gameplay/clans/house.h"
@@ -50,6 +49,7 @@
 #include "engine/observability/metrics.h"
 #include "utils/tracing/trace_manager.h"
 #include "gameplay/mechanics/sight.h"
+#include "gameplay/mechanics/remort.h"
 
 extern int max_exp_gain_pc(CharData *ch);
 extern long GetExpUntilNextLvl(CharData *ch, int level);

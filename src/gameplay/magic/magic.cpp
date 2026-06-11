@@ -51,6 +51,7 @@
 #include "utils/utils_time.h"
 #include "gameplay/mechanics/minions.h"
 #include "gameplay/mechanics/sight.h"
+#include "gameplay/mechanics/remort.h"
 
 extern int interpolate(int min_value, int pulse);
 

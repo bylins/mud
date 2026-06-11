@@ -9,6 +9,7 @@
 #include "engine/entities/char_data.h"
 #include "gameplay/clans/house.h"
 #include "engine/db/player_index.h"
+#include "gameplay/mechanics/remort.h"
 
 void DoWhoAmI(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	sprintf(buf, "Персонаж : %s\r\n", GET_NAME(ch));

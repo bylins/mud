@@ -958,17 +958,13 @@ inline void SetSave(CharData *ch, ESaving save, int mod) {
 	ch->add_abils.apply_saving_throw[to_underlying(save)] = mod;
 }
 
-
 /*
  *  Это все, разумеется, безобразно. Уровни-реморты должны возвращаться какие есть, а всякие таблицы принимать любой
  *  уровень и возвращать вращумтельное значение. Но имеем, что имеем, потому пока так.
  */
 int GetRealLevel(const CharData *ch);
 int GetRealLevel(const std::shared_ptr<CharData> &ch);
-int GetRealRemort(const CharData *ch);
-int GetRealRemort(const std::shared_ptr<CharData> &ch);
 
 #endif // CHAR_HPP_INCLUDED
-
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

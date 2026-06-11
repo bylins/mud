@@ -24,6 +24,7 @@
 #include "third_party_libs/pugixml/pugixml.h"
 
 #include "gameplay/mechanics/birthplaces.h"
+#include "gameplay/mechanics/remort.h"
 #include "gameplay/communication/boards/boards_changelog_loaders.h"
 #include "gameplay/communication/boards/boards_constants.h"
 #include "engine/entities/char_data.h"

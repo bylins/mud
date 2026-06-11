@@ -18,6 +18,7 @@
 #include "gameplay/ai/mob_memory.h"
 #include "gameplay/classes/pc_classes.h"
 #include "gameplay/mechanics/groups.h"
+#include "gameplay/mechanics/remort.h"
 #include "gameplay/core/base_stats.h"
 #include "gameplay/affects/affect_data.h"
 #include "utils/utils_time.h"

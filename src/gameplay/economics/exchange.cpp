@@ -46,6 +46,7 @@
 #include "engine/structs/structs.h"
 #include "engine/core/sysdep.h"
 #include "gameplay/mechanics/stable_objs.h"
+#include "gameplay/mechanics/remort.h"
 
 #include <stdexcept>
 #include <sstream>

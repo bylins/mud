@@ -9,6 +9,7 @@
 #include "gameplay/magic/magic_utils.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/core/game_limits.h"
+#include "gameplay/mechanics/remort.h"
 
 #include <fmt/format.h>
 

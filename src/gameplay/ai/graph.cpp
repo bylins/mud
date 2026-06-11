@@ -16,6 +16,7 @@
 #include "engine/core/target_resolver.h"
 #include "utils/random.h"
 #include "engine/db/global_objects.h"
+#include "gameplay/mechanics/remort.h"
 
 // Externals
 void do_say(CharData *ch, char *argument, int cmd, int subcmd);

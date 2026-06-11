@@ -11,6 +11,7 @@
 #include "gameplay/mechanics/groups.h"
 #include "gameplay/magic/magic_utils.h"          // IsRoomBlocked (issue.no-teleport-out)
 #include "engine/db/global_objects.h"            // MUD::Spell
+#include "gameplay/mechanics/remort.h"
 
 extern void CheckAutoNosummon(CharData *ch);
 

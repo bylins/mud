@@ -15,6 +15,7 @@
 #include "engine/ui/cmd/do_hire.h"
 #include "utils/logger.h"
 #include "gameplay/core/base_stats.h"
+#include "gameplay/mechanics/remort.h"
 
 float get_effective_cha(CharData *ch) {
 	int key_value, key_value_add;

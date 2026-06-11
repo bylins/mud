@@ -285,6 +285,7 @@
 #include "gameplay/classes/recalc_mob_params_by_vnum.h"
 #include "alias.h"
 #include "engine/db/player_index.h"
+#include "gameplay/mechanics/remort.h"
 
 #include <ctime>
 

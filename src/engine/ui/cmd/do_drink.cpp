@@ -14,6 +14,7 @@
 #include "engine/core/utils_char_obj.inl"
 #include "gameplay/core/game_limits.h"
 #include "gameplay/mechanics/poison.h"
+#include "gameplay/mechanics/remort.h"
 
 ObjData *GetDrinkingJar(CharData *ch, char *jar_name);
 int CanDrink(CharData *ch, ObjData *jar);

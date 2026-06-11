@@ -420,10 +420,6 @@ void sanity_check() {
 	}
 }
 
-/*short GetRealRemort(const std::shared_ptr<CharData> &ch) {
-	return GetRealRemort(ch.get());
-}*/
-
 // isname, one_word moved to utils_string.cpp
 
 const char a_ucc_table[256] = {

@@ -19,6 +19,7 @@
 #include "gameplay/mechanics/awake.h"
 #include "gameplay/mechanics/boat.h"
 #include "gameplay/mechanics/sight.h"
+#include "gameplay/mechanics/remort.h"
 
 namespace Noob {
 int outfit(CharData *ch, void *me, int cmd, char *argument);

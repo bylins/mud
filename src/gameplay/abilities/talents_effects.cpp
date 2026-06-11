@@ -1,8 +1,8 @@
 #include "talents_effects.h"
 
-//#include "engine/ui/color.h"
 #include "engine/entities/char_data.h"
 #include "engine/db/global_objects.h"
+#include "gameplay/mechanics/remort.h"
 
 namespace talents_effects {
 

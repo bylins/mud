@@ -12,6 +12,7 @@
 #include "engine/ui/modify.h"
 #include "gameplay/classes/pc_classes.h"
 #include "engine/db/player_index.h"
+#include "gameplay/mechanics/remort.h"
 
 namespace {
 

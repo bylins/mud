@@ -25,6 +25,7 @@
 #include "utils/backtrace.h"
 
 #include <chrono>
+#include "gameplay/mechanics/remort.h"
 
 std::unordered_set<CharData *> affected_mobs;
 

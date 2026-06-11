@@ -22,7 +22,9 @@
 #include "gameplay/mechanics/sight.h"
 #include "gameplay/mechanics/minions.h"
 #include "utils/logger.h"
-#include "gameplay/abilities/feats.h"   // CanUseFeat
+#include "gameplay/abilities/feats.h"
+#include "gameplay/mechanics/remort.h"
+
 #include <map>
 #include <sstream>
 #include <cmath>

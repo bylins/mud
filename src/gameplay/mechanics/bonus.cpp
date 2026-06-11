@@ -7,6 +7,7 @@
 #include "engine/ui/modify.h"
 #include "engine/entities/char_player.h"
 #include "engine/db/global_objects.h"
+#include "gameplay/mechanics/remort.h"
 
 namespace Bonus {
 const size_t MAXIMUM_BONUS_RECORDS = 10;

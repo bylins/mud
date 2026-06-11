@@ -9,6 +9,7 @@
 #include "engine/core/target_resolver.h"
 #include "administration/privilege.h"
 #include "engine/ui/color.h"
+#include "gameplay/mechanics/remort.h"
 
 extern void SendMsgToGods(char *text, bool demigod);
 

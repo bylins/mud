@@ -1,6 +1,7 @@
 #include "fight_penalties.h"
 
 #include "engine/entities/char_data.h"
+#include "gameplay/mechanics/remort.h"
 
 int GroupPenaltyCalculator::get() const {
 	const bool leader_is_npc = m_leader->IsNpc();

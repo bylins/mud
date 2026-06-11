@@ -8,9 +8,7 @@
 #include "engine/ui/modify.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/mechanics/weather.h"
-/*#include "utils/utils_string.h"
-#include "utils/table_wrapper.h"
-#include "utils/utils.h"*/
+#include "gameplay/mechanics/remort.h"
 #include "gameplay/mechanics/sight.h"
 
 #define USERS_FORMAT \

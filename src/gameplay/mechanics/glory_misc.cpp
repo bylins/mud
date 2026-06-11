@@ -11,6 +11,7 @@
 #include "engine/entities/char_player.h"
 #include "engine/ui/modify.h"
 #include "engine/db/global_objects.h"
+#include "gameplay/mechanics/remort.h"
 
 namespace GloryMisc {
 

@@ -10,6 +10,7 @@
 #include "engine/core/handler.h"
 #include "gameplay/communication/talk.h"
 #include "gameplay/ai/spec_procs.h"
+#include "gameplay/mechanics/remort.h"
 
 int find_eq_pos(CharData *ch, ObjData *obj, char *local_arg);
 

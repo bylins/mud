@@ -11,6 +11,7 @@
 #include "engine/ui/color.h"
 #include "third_party_libs/pugixml/pugixml.h"
 #include "engine/entities/zone.h"
+#include "gameplay/mechanics/remort.h"
 
 #include <fmt/format.h>
 

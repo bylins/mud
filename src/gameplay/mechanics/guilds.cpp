@@ -159,7 +159,7 @@ const std::string &GuildInfo::GetMsg(EMsg msg_id) {
 	return MUD::GuildMessages().GetMessage(info_container::kUndefinedVnum, msg_id);
 }
 
-int GuildInfo::DoGuildLearn(CharData *ch, void *me, int cmd, char *argument) {
+int GuildInfo::DoGuildLearn(CharData *ch, void *me, int /*cmd*/, char *argument) {
 	if (ch->IsNpc()) {
 		return 0;
 	}

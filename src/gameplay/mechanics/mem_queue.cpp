@@ -15,6 +15,7 @@
 #include "gameplay/magic/magic_utils.h"
 #include "gameplay/magic/spells_info.h"
 #include "engine/db/global_objects.h"
+#include "gameplay/mechanics/remort.h"
 
 const double kManaCostModifier = 0.5;
 

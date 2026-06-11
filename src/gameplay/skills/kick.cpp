@@ -10,6 +10,7 @@
 #include "protect.h"
 #include "gameplay/core/base_stats.h"
 #include "gameplay/mechanics/damage.h"
+#include "gameplay/mechanics/remort.h"
 
 // ******************  KICK PROCEDURES
 void go_kick(CharData *ch, CharData *vict) {

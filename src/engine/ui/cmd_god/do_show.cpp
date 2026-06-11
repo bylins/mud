@@ -31,6 +31,7 @@
 #include "gameplay/classes/pc_classes.h"
 #include "gameplay/statistics/zone_exp.h"
 #include "engine/db/player_index.h"
+#include "gameplay/mechanics/remort.h"
 
 #include <fmt/format.h>
 #include "gameplay/mechanics/sight.h"

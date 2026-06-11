@@ -14,6 +14,7 @@
 #include "engine/entities/zone.h"
 #include "engine/core/utils_char_obj.inl"
 #include "gameplay/ai/special_messages.h"
+#include "gameplay/mechanics/remort.h"
 
 #include <fmt/format.h>
 

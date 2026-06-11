@@ -10,6 +10,7 @@
 #include "engine/db/global_objects.h"
 #include "engine/ui/table_wrapper.h"
 #include "utils/utils_time.h"
+#include "gameplay/mechanics/remort.h"
 
 
 PlayerChart TopPlayer::chart_(kNumPlayerClasses);

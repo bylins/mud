@@ -16,6 +16,7 @@
 #include "engine/ui/color.h"
 #include "gameplay/economics/auction.h"
 #include "gameplay/communication/remember.h"
+#include "gameplay/mechanics/remort.h"
 
 struct communication_type {
   const char *muted_msg;

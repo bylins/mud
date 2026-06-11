@@ -9,6 +9,7 @@
 #include "engine/core/handler.h"
 #include "engine/core/target_resolver.h"
 #include "engine/db/global_objects.h"
+#include "gameplay/mechanics/remort.h"
 
 const char *track_when[] = {"совсем свежие",
 							"свежие",

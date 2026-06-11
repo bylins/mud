@@ -6,6 +6,7 @@
 #include "engine/ui/color.h"
 #include "engine/ui/modify.h"
 #include "gameplay/classes/pc_classes.h"
+#include "gameplay/mechanics/remort.h"
 
 void do_levels(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	int i;

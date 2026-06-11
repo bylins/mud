@@ -26,6 +26,7 @@
 #include "engine/entities/zone.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/core/base_stats.h"
+#include "gameplay/mechanics/remort.h"
 
 #define        VAR_CHAR    '@'
 #define imlog(lvl, str)    mudlog(str, lvl, kLvlBuilder, IMLOG, true)

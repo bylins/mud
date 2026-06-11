@@ -4,16 +4,13 @@
 */
 
 #include "gameplay/mechanics/identify.h"
+
 #include "gameplay/mechanics/magic_item.h"
 #include "gameplay/magic/spells.h"
-#include "gameplay/magic/magic.h"
-#include "gameplay/magic/magic_internal.h"
 #include "engine/db/global_objects.h"
-#include "engine/core/handler.h"
 #include "gameplay/clans/house.h"
 #include "gameplay/mechanics/liquid.h"
 #include "engine/db/obj_prototypes.h"
-#include "administration/privilege.h"
 #include "engine/ui/color.h"
 #include "engine/ui/cmd_god/do_stat.h"
 #include "gameplay/mechanics/stuff.h"
@@ -23,13 +20,15 @@
 #include "gameplay/mechanics/weather.h"
 #include "gameplay/fight/fight.h"
 #include "gameplay/mechanics/dungeons.h"
-#include "gameplay/mechanics/minions.h"
-#include "engine/entities/obj_data.h"   // CObjectPrototype
+#include "engine/entities/obj_data.h"
+#include "gameplay/mechanics/remort.h"
+
 #include <cmath>
 
 // Defined in sight.cpp / spells.cpp (no header); forward-declared as the trading code does.
 int CalcBaseAc(CharData *ch);
 
+/* It's not used yet, so I commented it out.
 static void ShowWeapon(CharData *ch, ObjData *obj) {
 	if (obj->get_type() == EObjType::kWeapon) {
 		*buf = '\0';
@@ -50,7 +49,7 @@ static void ShowWeapon(CharData *ch, ObjData *obj) {
 		}
 	}
 }
-
+*/
 static void PrintBookUpgradeSkill(CharData *ch, const ObjData *obj) {
 	const auto skill_id = static_cast<ESkill>(GET_OBJ_VAL(obj, 1));
 	if (MUD::Skills().IsInvalid(skill_id)) {

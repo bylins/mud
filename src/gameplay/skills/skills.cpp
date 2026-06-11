@@ -20,6 +20,7 @@
 #include "gameplay/core/base_stats.h"
 #include "gameplay/mechanics/weather.h"
 #include "gameplay/mechanics/illumination.h"
+#include "gameplay/mechanics/remort.h"
 
 #include <cmath>
 

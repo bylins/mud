@@ -38,6 +38,7 @@
 #include "gameplay/mechanics/illumination.h"
 #include "utils/utils_time.h"
 #include "gameplay/skills/leadership.h"
+#include "gameplay/mechanics/remort.h"
 
 // extern
 void PerformDropGold(CharData *ch, int amount);

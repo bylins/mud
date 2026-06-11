@@ -4,6 +4,7 @@
 #include "engine/db/global_objects.h"
 #include "engine/core/utils_char_obj.inl"
 #include "gameplay/mechanics/stable_objs.h"
+#include "gameplay/mechanics/remort.h"
 
 void DoSharpening(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	ObjData *obj;

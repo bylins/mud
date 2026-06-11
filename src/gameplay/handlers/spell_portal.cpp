@@ -13,6 +13,7 @@
 #include "gameplay/mechanics/groups.h"
 #include "administration/privilege.h"
 #include "gameplay/magic/spells.h"
+#include "gameplay/mechanics/remort.h"
 
 namespace handlers {
 

@@ -8,6 +8,7 @@
 #include "engine/entities/char_data.h"
 #include "engine/core/handler.h"
 #include "engine/core/target_resolver.h"
+#include "gameplay/mechanics/remort.h"
 
 void DoConsider(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *victim;

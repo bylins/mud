@@ -21,6 +21,7 @@
 #include "stable_objs.h"
 #include "weather.h"
 #include "gameplay/mechanics/dungeons.h"
+#include "gameplay/mechanics/remort.h"
 
 #include <fmt/format.h>
 

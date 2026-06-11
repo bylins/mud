@@ -26,6 +26,7 @@
 #include "gameplay/core/game_limits.h"
 #include "gameplay/core/base_stats.h"
 #include "gameplay/mechanics/groups.h"
+#include "gameplay/mechanics/remort.h"
 
 #include <cmath>
 #include <fmt/format.h>

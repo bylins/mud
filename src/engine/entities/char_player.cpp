@@ -30,6 +30,7 @@
 #include "engine/ui/cmd/do_who.h"
 #include "engine/ui/mapsystem.h"
 #include "engine/db/player_index.h"
+#include "gameplay/mechanics/remort.h"
 
 #ifdef _WIN32
 #else

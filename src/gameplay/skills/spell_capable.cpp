@@ -5,6 +5,7 @@
 #include "gameplay/magic/spells_info.h"
 #include "gameplay/magic/magic_utils.h"
 #include "engine/db/global_objects.h"
+#include "gameplay/mechanics/remort.h"
 
 // Вложить закл в клона
 void DoSpellCapable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {

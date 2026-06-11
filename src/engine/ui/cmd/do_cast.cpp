@@ -9,6 +9,7 @@
 #include "gameplay/magic/spells_info.h"
 #include "engine/ui/color.h"
 #include "engine/db/global_objects.h"
+#include "gameplay/mechanics/remort.h"
 
 auto FindSubstituteSpellId(CharData *ch, ESpell spell_id) {
 	static const std::set<ESpell> healing_spells{

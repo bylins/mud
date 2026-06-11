@@ -48,6 +48,7 @@
 #include "gameplay/mechanics/damage.h"
 #include "gameplay/mechanics/bonus.h"
 #include "gameplay/ai/mobact.h"
+#include "gameplay/mechanics/remort.h"
 
 #include <fmt/format.h>
 

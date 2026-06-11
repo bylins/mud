@@ -21,6 +21,7 @@
 #include "gameplay/mechanics/stable_objs.h"
 #include "gameplay/mechanics/weather.h"
 #include "gameplay/fight/fight.h"
+#include "gameplay/mechanics/remort.h"
 
 int what_sky = kSkyCloudless;
 

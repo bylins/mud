@@ -23,6 +23,7 @@
 #include "gameplay/affects/affect_data.h"
 #include "gameplay/mechanics/illumination.h"
 #include "engine/ui/alias.h"
+#include "gameplay/mechanics/remort.h"
 
 #include <fmt/format.h>
 #include <random>
@@ -1911,14 +1912,6 @@ int GetRealLevel(const CharData *ch) {
 
 int GetRealLevel(const std::shared_ptr<CharData> &ch) {
 	return GetRealLevel(ch.get());
-}
-
-int GetRealRemort(const CharData *ch) {
-	return std::clamp(ch->get_remort() + ch->get_remort_add(), 0, kMaxRemort);
-}
-
-int GetRealRemort(const std::shared_ptr<CharData> &ch) {
-	return GetRealRemort(ch.get());
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

@@ -11,6 +11,7 @@
 #include "engine/ui/color.h"
 #include "gameplay/statistics/mob_stat.h"
 #include "engine/ui/cmd_god/do_date.h"
+#include "gameplay/mechanics/remort.h"
 
 #include <map>
 

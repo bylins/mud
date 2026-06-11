@@ -11,9 +11,6 @@
 #include "gameplay/mechanics/minions.h"
 #include "gameplay/mechanics/mount.h"
 #include "gameplay/mechanics/resist.h"
-
-#include <fmt/format.h>
-
 #include "gameplay/mechanics/bonus.h"
 #include "engine/entities/char_data.h"
 #include "utils/utils_time.h"
@@ -24,8 +21,7 @@
 #include "gameplay/clans/house_exp.h"
 #include "gameplay/statistics/dps.h"
 #include "engine/observability/event_sink.h"
-
-#include <chrono>
+#include "gameplay/mechanics/remort.h"
 #include "engine/ui/color.h"
 #include "gameplay/core/game_limits.h"
 #include "engine/core/utils_char_obj.inl"
@@ -37,6 +33,9 @@
 #include "gameplay/mechanics/sight.h"
 #include "utils/backtrace.h"
 
+#include <chrono>
+
+#include <fmt/format.h>
 
 void TryRemoveExtrahits(CharData *ch, CharData *victim);
 
