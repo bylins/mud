@@ -3369,7 +3369,7 @@ void find_replacement(void *go,
 					&& !AFF_FLAGGED(viewer, EAffect::kBlind)
 					&& (!is_dark(viewer->in_room)
 						|| obj->has_flag(EObjFlag::kGlow)
-						|| CAN_SEE_IN_DARK(viewer)
+						|| sight::CanSeeInDark(viewer)
 						|| CanUseFeat(viewer, EFeat::kDarkReading));
 			}
 			snprintf(str, str_size, seen ? "1" : "0");
