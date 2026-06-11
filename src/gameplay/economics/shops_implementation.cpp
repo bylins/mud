@@ -72,7 +72,7 @@ bool check_money(CharData *ch, long price, const std::string &currency) {
 	}
 
 	if (currency == "лед") {
-		return ch->get_ice_currency() >= price;
+		return currencies::GetAmount(*ch, currencies::kMagicIceId) >= price;
 	}
 	if (currency == "гривны") {
 		return ch->get_hryvn() >= price;
@@ -411,7 +411,7 @@ void shop_node::process_buy(CharData *ch, CharData *keeper, char *argument) {
 				if (EObjType::kBook == obj->get_type()) {
 					obj->set_extra_flag(EObjFlag::kNofail);
 				}
-				ch->sub_ice_currency(price);
+				currencies::RemoveAmount(*ch, currencies::kMagicIceId, price);
 			} else if (currency == "ногаты") {
 				// книги за лед, как и за славу, не фейлим
 				if (EObjType::kBook == obj->get_type()) {

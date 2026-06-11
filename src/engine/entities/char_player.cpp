@@ -636,7 +636,7 @@ void Player::save_char() {
 	saved.printf("Move: %d/%d\n", this->get_move(), this->get_max_move());
 	saved.printf("Gold: %ld\n", get_gold());
 	saved.printf("Bank: %ld\n", get_bank());
-	saved.printf("ICur: %d\n", get_ice_currency());
+	saved.printf("ICur: %d\n", currencies::GetAmount(*this, currencies::kMagicIceId));
 	saved.printf("Ruble: %ld\n", get_ruble());
 	saved.printf("Wimp: %d\n", GET_WIMP_LEV(this));
 	saved.printf("Frez: %d\n", punishments::Get(this, punishments::EType::kFreeze).level);
@@ -1520,7 +1520,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 					IgnoresLoader ignores_loader(this);
 					ignores_loader.load_from_string(line);
 				} else if (!strcmp(tag, "ICur")) {
-					this->set_ice_currency(num);
+					currencies::SetAmount(*this, currencies::kMagicIceId, num);
 //				this->set_ice_currency(0); // чистка льда
 				}
 				break;
@@ -2025,21 +2025,6 @@ int Player::get_reset_stats_cnt(stats_reset::Type type) const {
 	return reset_stats_cnt_.at(type);
 }
 
-int Player::get_ice_currency() {
-	return currency_storage().GetHand(currencies::kMagicIceId);
-}
-
-void Player::set_ice_currency(int value) {
-	currency_storage().SetHand(currencies::kMagicIceId, value);
-}
-
-void Player::add_ice_currency(int value) {
-	currency_storage().SetHand(currencies::kMagicIceId, get_ice_currency() + value);
-}
-
-void Player::sub_ice_currency(int value) {
-	currency_storage().SetHand(currencies::kMagicIceId, MAX(0, get_ice_currency() - value));
-}
 
 bool Player::is_arena_player() {
 	return this->arena_player;

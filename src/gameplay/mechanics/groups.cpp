@@ -705,7 +705,7 @@ void group::do_split(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, 
 		//MONEY_HACK
 
 		switch (currency) {
-			case currency::ICE : ch->sub_ice_currency(share * (num - 1));
+			case currency::ICE : currencies::RemoveAmount(*ch, currencies::kMagicIceId, share * (num - 1));
 				break;
 			case currency::GOLD : ch->remove_gold(share * (num - 1));
 				break;
@@ -717,7 +717,7 @@ void group::do_split(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, 
 			SendMsgToChar(buf, k);
 			switch (currency) {
 				case currency::ICE : {
-					k->add_ice_currency(share);
+					currencies::AddAmount(*k, currencies::kMagicIceId, share);
 					break;
 				}
 				case currency::GOLD : {
@@ -733,7 +733,7 @@ void group::do_split(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, 
 				&& f != ch) {
 				SendMsgToChar(buf, f);
 				switch (currency) {
-					case currency::ICE : f->add_ice_currency(share);
+					case currency::ICE : currencies::AddAmount(*f, currencies::kMagicIceId, share);
 						break;
 					case currency::GOLD : f->add_gold(share, true, true);
 						break;

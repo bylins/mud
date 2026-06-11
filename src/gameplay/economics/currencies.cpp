@@ -289,7 +289,7 @@ long GetTotal(const CharData &ch, const std::string &id) {
 	return cs.GetHand(id) + cs.GetBank(id);
 }
 
-void SetAmount(CharData &ch, const std::string &id, EPurse purse, long amount) {
+void SetAmount(CharData &ch, const std::string &id, long amount, EPurse purse) {
 	amount = std::clamp(amount, 0L, kMaxMoneyKept);
 	auto &cs = ch.currency_storage();
 	if (purse == EPurse::kHand) {
@@ -299,27 +299,27 @@ void SetAmount(CharData &ch, const std::string &id, EPurse purse, long amount) {
 	}
 }
 
-long AddAmount(CharData &ch, const std::string &id, EPurse purse, long amount) {
+long AddAmount(CharData &ch, const std::string &id, long amount, EPurse purse) {
 	const long before = GetAmount(ch, id, purse);
-	SetAmount(ch, id, purse, before + amount);
+	SetAmount(ch, id, before + amount, purse);
 	return GetAmount(ch, id, purse) - before;
 }
 
-long RemoveAmount(CharData &ch, const std::string &id, EPurse purse, long amount) {
+long RemoveAmount(CharData &ch, const std::string &id, long amount, EPurse purse) {
 	const long have = GetAmount(ch, id, purse);
 	if (have >= amount) {
-		SetAmount(ch, id, purse, have - amount);
+		SetAmount(ch, id, have - amount, purse);
 		return 0;
 	}
-	SetAmount(ch, id, purse, 0);
+	SetAmount(ch, id, 0, purse);
 	return amount - have;
 }
 
 long GetAmount(const CharData &ch, int vnum, EPurse purse) { return GetAmount(ch, TextIdByVnum(vnum), purse); }
 long GetTotal(const CharData &ch, int vnum) { return GetTotal(ch, TextIdByVnum(vnum)); }
-void SetAmount(CharData &ch, int vnum, EPurse purse, long amount) { SetAmount(ch, TextIdByVnum(vnum), purse, amount); }
-long AddAmount(CharData &ch, int vnum, EPurse purse, long amount) { return AddAmount(ch, TextIdByVnum(vnum), purse, amount); }
-long RemoveAmount(CharData &ch, int vnum, EPurse purse, long amount) { return RemoveAmount(ch, TextIdByVnum(vnum), purse, amount); }
+void SetAmount(CharData &ch, int vnum, long amount, EPurse purse) { SetAmount(ch, TextIdByVnum(vnum), amount, purse); }
+long AddAmount(CharData &ch, int vnum, long amount, EPurse purse) { return AddAmount(ch, TextIdByVnum(vnum), amount, purse); }
+long RemoveAmount(CharData &ch, int vnum, long amount, EPurse purse) { return RemoveAmount(ch, TextIdByVnum(vnum), amount, purse); }
 
 } // namespace currencies
 

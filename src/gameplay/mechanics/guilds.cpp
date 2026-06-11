@@ -627,7 +627,7 @@ bool HasEnoughCurrency(CharData *ch, Vnum currency_id, long amount) {
 			return ch->get_hryvn() >= amount;
 		}
 		case 3: { // лед
-			return ch->get_ice_currency() >= amount;
+			return currencies::GetAmount(*ch, currencies::kMagicIceId) >= amount;
 		}
 		case 4: { // ногаты
 			return ch->get_nogata() >= amount;
@@ -656,7 +656,7 @@ void WithdrawCurrency(CharData *ch, Vnum currency_id, long amount) {
 			break;
 		}
 		case 3: { // лед
-			ch->sub_ice_currency(amount);
+			currencies::RemoveAmount(*ch, currencies::kMagicIceId, amount);
 			break;
 		}
 		case 4: { // ногаты

@@ -36,17 +36,17 @@ enum class EPurse { kHand, kBank };
 
 std::string TextIdByVnum(int vnum);
 
-[[nodiscard]] long GetAmount(const CharData &ch, const std::string &id, EPurse purse);
+[[nodiscard]] long GetAmount(const CharData &ch, const std::string &id, EPurse purse = EPurse::kHand);
 [[nodiscard]] long GetTotal(const CharData &ch, const std::string &id);
-void SetAmount(CharData &ch, const std::string &id, EPurse purse, long amount);
-long AddAmount(CharData &ch, const std::string &id, EPurse purse, long amount);     // returns amount added
-long RemoveAmount(CharData &ch, const std::string &id, EPurse purse, long amount);  // returns shortfall not removed
+void SetAmount(CharData &ch, const std::string &id, long amount, EPurse purse = EPurse::kHand);
+long AddAmount(CharData &ch, const std::string &id, long amount, EPurse purse = EPurse::kHand);     // amount added
+long RemoveAmount(CharData &ch, const std::string &id, long amount, EPurse purse = EPurse::kHand);  // shortfall
 
-[[nodiscard]] long GetAmount(const CharData &ch, int vnum, EPurse purse);
+[[nodiscard]] long GetAmount(const CharData &ch, int vnum, EPurse purse = EPurse::kHand);
 [[nodiscard]] long GetTotal(const CharData &ch, int vnum);
-void SetAmount(CharData &ch, int vnum, EPurse purse, long amount);
-long AddAmount(CharData &ch, int vnum, EPurse purse, long amount);
-long RemoveAmount(CharData &ch, int vnum, EPurse purse, long amount);
+void SetAmount(CharData &ch, int vnum, long amount, EPurse purse = EPurse::kHand);
+long AddAmount(CharData &ch, int vnum, long amount, EPurse purse = EPurse::kHand);
+long RemoveAmount(CharData &ch, int vnum, long amount, EPurse purse = EPurse::kHand);
 
 
 /**

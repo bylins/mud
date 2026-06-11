@@ -59,7 +59,7 @@ void get_check_money(CharData *ch, ObjData *obj, ObjData *cont) {
 	if (curr_type == currency::ICE) {
 		sprintf(buf, "Это составило %d %s.\r\n", value, MUD::Currency(currencies::kSnowflakeVnum).GetNameWithAmount(value, grammar::ECase::kAcc).c_str());
 		SendMsgToChar(buf, ch);
-		ch->add_ice_currency(value);
+		currencies::AddAmount(*ch, currencies::kMagicIceId, value);
 		//Делить лед ВСЕГДА!
 		if (AFF_FLAGGED(ch, EAffect::kGroup) && other_pc_in_group(ch) > 0) {
 			char local_buf[256];

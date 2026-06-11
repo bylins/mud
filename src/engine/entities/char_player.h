@@ -120,10 +120,6 @@ class Player : public CharData {
 	time_t get_board_date(Boards::BoardTypes type) const;
 	void set_board_date(Boards::BoardTypes type, time_t date);
 
-	int get_ice_currency();
-	void set_ice_currency(int value);
-	void add_ice_currency(int value);
-	void sub_ice_currency(int value);
 
 	int death_player_count();
 

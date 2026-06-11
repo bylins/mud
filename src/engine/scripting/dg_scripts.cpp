@@ -5759,7 +5759,7 @@ void do_dg_add_ice_currency(void * /*go*/, Script * /*sc*/, Trigger *trig, int/*
 		trig_log(trig, buf2);
 		return;
 	}
-	ch->add_ice_currency(value);
+	currencies::AddAmount(*ch, currencies::kMagicIceId, value);
 }
 
 int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
