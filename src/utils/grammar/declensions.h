@@ -45,13 +45,7 @@ enum class EWhat : int  {
 	kStr,
 	kGulp,
 	kTorc,
-	kGoldTorc,
-	kSilverTorc,
-	kBronzeTorc,
 	kTorcU,
-	kGoldTorcU,
-	kSilverTorcU,
-	kBronzeTorcU,
 	kIceU,
 	kNogataU
 };
