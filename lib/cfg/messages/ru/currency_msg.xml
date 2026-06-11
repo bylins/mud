@@ -185,4 +185,7 @@
 			</plural>
 		</name>
 	</msg_sheaf>
+	<obj_names>
+		<obj_name from="2" val="малюсеньк{adjective_ending} горстк{noun_ending} {currency_name}"/>
+	</obj_names>
 </msg_container>
