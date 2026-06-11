@@ -185,9 +185,6 @@ void ProcessRemort(CharData *ch, char *argument, int subcmd) {
 
 	// сброс всего, связанного с гривнами (замакс сохраняем)
 	ch->UnsetFlag(EPrf::kCanRemort);
-	ch->set_ext_money(ExtMoney::kTorcGold, 0);
-	ch->set_ext_money(ExtMoney::kTorcSilver, 0);
-	ch->set_ext_money(ExtMoney::kTorcBronze, 0);
 
 	snprintf(buf, sizeof(buf),
 			 "remort from %d to %d", ch->get_remort() - 1, ch->get_remort());

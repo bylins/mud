@@ -868,10 +868,6 @@ void Player::save_char() {
 	this->mobmax_save(saved);
 	save_pkills(this, saved);
 	saved.printf("Map : %s\n", map_options_.bit_list_.to_string().c_str());
-	saved.printf("TrcG: %d\n", ext_money_[ExtMoney::kTorcGold]);
-	saved.printf("TrcS: %d\n", ext_money_[ExtMoney::kTorcSilver]);
-	saved.printf("TrcB: %d\n", ext_money_[ExtMoney::kTorcBronze]);
-	saved.printf("TrcL: %d %d\n", today_torc_.first, today_torc_.second);
 
 	if (get_reset_stats_cnt(stats_reset::Type::MAIN_STATS) > 0) {
 		saved.printf("CntS: %d\n", get_reset_stats_cnt(stats_reset::Type::MAIN_STATS));
@@ -1857,17 +1853,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 					GET_COND(this, condition::kThirst) = num;
 				else if (!strcmp(tag, "Titl"))
 					this->SetTitleStr(line);
-				else if (!strcmp(tag, "TrcG"))
-					set_ext_money(ExtMoney::kTorcGold, num, false);
-				else if (!strcmp(tag, "TrcS"))
-					set_ext_money(ExtMoney::kTorcSilver, num, false);
-				else if (!strcmp(tag, "TrcB"))
-					set_ext_money(ExtMoney::kTorcBronze, num, false);
-				else if (!strcmp(tag, "TrcL")) {
-					sscanf(line, "%d %d", &num, &num2);
-					today_torc_.first = num;
-					today_torc_.second = num2;
-				} else if (!strcmp(tag, "Tglo")) {
+				else if (!strcmp(tag, "Tglo")) {
 					this->setGloryRespecTime(static_cast<time_t>(num));
 				} else if (!strcmp(tag, "Tlgr")) {
 					if (llnum <= 10000000000000ULL) {

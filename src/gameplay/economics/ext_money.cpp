@@ -242,14 +242,14 @@ bool check_equal_exch(CharData *ch) {
 	int before = 0, after = 0;
 	for (unsigned i = 0; i < kTotalTypes; ++i) {
 		if (i == kTorcBronze) {
-			before += ch->get_ext_money(i);
+			// before += ch->get_ext_money(i);
 			after += ch->desc->ext_money[i];
 		}
 		if (i == kTorcSilver) {
-			before += ch->get_ext_money(i) * TORC_EXCH_RATE;
+			// before += ch->get_ext_money(i) * TORC_EXCH_RATE;
 			after += ch->desc->ext_money[i] * TORC_EXCH_RATE;
 		} else if (i == kTorcGold) {
-			before += ch->get_ext_money(i) * TORC_EXCH_RATE * TORC_EXCH_RATE;
+			// before += ch->get_ext_money(i) * TORC_EXCH_RATE * TORC_EXCH_RATE;
 			after += ch->desc->ext_money[i] * TORC_EXCH_RATE * TORC_EXCH_RATE;
 		}
 	}
@@ -322,7 +322,7 @@ void torc_exch_parse(CharData *ch, const char *arg) {
 			SendMsgToChar(specials::TorcMsg(specials::ETorcMsg::kTechError) + "\r\n", ch);
 		} else {
 			for (unsigned i = 0; i < kTotalTypes; ++i) {
-				ch->set_ext_money(i, ch->desc->ext_money[i]);
+				// ch->set_ext_money(i, ch->desc->ext_money[i]);
 			}
 			ch->desc->state = EConState::kPlaying;
 			SendMsgToChar(specials::TorcMsg(specials::ETorcMsg::kConfirmed) + "\r\n", ch);
@@ -456,7 +456,7 @@ int calc_drop_torc(int zone_lvl, int members) {
 // по дефолту отрисовка * за каждую 1/5 от суточного лимита гривен
 // если imm_stat == true, то вместо звездочек конкретные цифры тек/макс
 std::string draw_daily_limit(CharData *ch, bool imm_stat) {
-	const int today_torc = ch->get_today_torc();
+	const int today_torc = 0; // ch->get_today_torc();
 	const int torc_req_daily = calc_torc_daily(remort::GetRealRemort(ch));
 
 	TorcReq torc_req(remort::GetRealRemort(ch));
@@ -484,7 +484,7 @@ std::string draw_daily_limit(CharData *ch, bool imm_stat) {
 
 // проверка дропа гривен на суточный замакс
 int check_daily_limit(CharData *ch, int drop) {
-	const int today_torc = ch->get_today_torc();
+	const int today_torc = 0; // ch->get_today_torc();
 	const int torc_req_daily = calc_torc_daily(remort::GetRealRemort(ch));
 
 	// из calc_torc_daily в любом случае взялось какое-то число бронзы
@@ -498,14 +498,14 @@ int check_daily_limit(CharData *ch, int drop) {
 	if (today_torc + drop > daily_torc_limit) {
 		int add = daily_torc_limit - today_torc;
 		if (add > 0) {
-			ch->add_today_torc(add);
+			// ch->add_today_torc(add);
 			return add;
 		} else {
 			return 0;
 		}
 	}
 
-	ch->add_today_torc(drop);
+	// ch->add_today_torc(drop);
 	return drop;
 }
 
@@ -521,14 +521,14 @@ void gain_torc(CharData *ch, int drop) {
 	if (bronze >= TORC_EXCH_RATE * TORC_EXCH_RATE) {
 		gold += bronze / (TORC_EXCH_RATE * TORC_EXCH_RATE);
 		bronze -= gold * TORC_EXCH_RATE * TORC_EXCH_RATE;
-		ch->set_ext_money(kTorcGold, gold + ch->get_ext_money(kTorcGold));
+		// ch->set_ext_money(kTorcGold, gold + ch->get_ext_money(kTorcGold));
 	}
 	if (bronze >= TORC_EXCH_RATE) {
 		silver += bronze / TORC_EXCH_RATE;
 		bronze -= silver * TORC_EXCH_RATE;
-		ch->set_ext_money(kTorcSilver, silver + ch->get_ext_money(kTorcSilver));
+		// ch->set_ext_money(kTorcSilver, silver + ch->get_ext_money(kTorcSilver));
 	}
-	ch->set_ext_money(kTorcBronze, bronze + ch->get_ext_money(kTorcBronze));
+	// ch->set_ext_money(kTorcBronze, bronze + ch->get_ext_money(kTorcBronze));
 
 	std::string out = create_message(gold, silver, bronze);
 	SendMsgToChar(ch, "В награду за свершенный подвиг вы получили от Богов %s.\r\n", out.c_str());
@@ -594,9 +594,9 @@ void drop_torc(CharData *mob) {
 }
 
 void player_drop_log(CharData *ch, unsigned type, int diff) {
-	int total_bronze = ch->get_ext_money(kTorcBronze);
-	total_bronze += ch->get_ext_money(kTorcSilver) * TORC_EXCH_RATE;
-	total_bronze += ch->get_ext_money(kTorcGold) * TORC_EXCH_RATE * TORC_EXCH_RATE;
+	int total_bronze = 0; // ch->get_ext_money(kTorcBronze);
+	// total_bronze += ch->get_ext_money(kTorcSilver) * TORC_EXCH_RATE;
+	// total_bronze += ch->get_ext_money(kTorcGold) * TORC_EXCH_RATE * TORC_EXCH_RATE;
 
 	log("ExtMoney: %s%s%d%s, sum=%d",
 		ch->get_name().c_str(),
@@ -756,7 +756,7 @@ int TorcExchange(CharData *ch, void * /*me*/, int /*cmd*/, char * /*argument*/) 
 	}
 	ch->desc->state = EConState::kTorcExch;
 	for (unsigned i = 0; i < kTotalTypes; ++i) {
-		ch->desc->ext_money[i] = ch->get_ext_money(i);
+		ch->desc->ext_money[i] = 0; // ch->get_ext_money(i);
 	}
 	torc_exch_menu(ch);
 	return 1;

@@ -282,13 +282,9 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 				t1, t2, k->player_data.time.played / 3600, ((k->player_data.time.played % 3600) / 60), CalcCharAge(k)->year);
 		SendMsgToChar(buf, ch);
 
-		k->add_today_torc(0);
 		{
-			std::string sline = fmt::sprintf("Рента: [%d], Денег: [%9ld], В банке: [%9ld] (Всего: %ld), Гривны: %d/%d/%d %d, Ногат: %d",
+			std::string sline = fmt::sprintf("Рента: [%d], Денег: [%9ld], В банке: [%9ld] (Всего: %ld), Гривны: %d, Ногат: %d",
 					GET_LOADROOM(k), k->get_gold(), k->get_bank(), k->get_total_gold(),
-					k->get_ext_money(ExtMoney::kTorcGold),
-					k->get_ext_money(ExtMoney::kTorcSilver),
-					k->get_ext_money(ExtMoney::kTorcBronze),
 					k->get_hryvn(), k->get_nogata());
 			if (GetRealLevel(ch) >= kLvlImmortal) {
 				sline += fmt::sprintf(", %sOLC[%d]%s", kColorGrn, GET_OLC_ZONE(k), kColorNrm);

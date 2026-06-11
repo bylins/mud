@@ -109,12 +109,6 @@ class PlayerI {
 	virtual void map_text_olc(const char * /*arg*/) {};
 	virtual const MapSystem::Options *get_map_options() const { return &empty_map_options; };
 
-	virtual int get_ext_money(unsigned/* type*/) const { return 0; };
-	virtual void set_ext_money(unsigned/* type*/, int/* num*/, bool/* write_log*/ = true) {};
-
-	virtual int get_today_torc() { return 0; };
-	virtual void add_today_torc(int/* num*/) {};
-
 	virtual int get_reset_stats_cnt(stats_reset::Type/* type*/) const { return 0; };
 	virtual void inc_reset_stats_cnt(stats_reset::Type/* type*/) {};
 
