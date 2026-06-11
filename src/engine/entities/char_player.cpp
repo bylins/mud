@@ -78,10 +78,6 @@ Player::Player() :
 	// на деле инит ровно тоже самое, может на перспективу это все было
 	//set_morph(NormalMorph::GetNormalMorph(this));
 
-	for (unsigned i = 0; i < ext_money_.size(); ++i) {
-		ext_money_[i] = 0;
-	}
-
 	for (unsigned i = 0; i < reset_stats_cnt_.size(); ++i) {
 		reset_stats_cnt_.at(i) = 0;
 	}
@@ -2010,46 +2006,6 @@ void Player::map_print_to_snooper(CharData *imm) {
 	// подменяем флаги карты на снуперские перед распечаткой ему карты
 	MapSystem::print_map(this, imm);
 	map_options_ = tmp;
-}
-
-int Player::get_ext_money(unsigned type) const {
-	if (type < ext_money_.size()) {
-		return ext_money_[type];
-	}
-	return 0;
-}
-
-void Player::set_ext_money(unsigned type, int num, bool write_log) {
-	if (num < 0 || num > kMaxMoneyKept) {
-		return;
-	}
-	if (type < ext_money_.size()) {
-		const int diff = num - ext_money_[type];
-		ext_money_[type] = num;
-		if (diff != 0 && write_log) {
-			ExtMoney::player_drop_log(this, type, diff);
-		}
-	}
-}
-
-int Player::get_today_torc() {
-	uint8_t day = get_day_today();
-	if (today_torc_.first != day) {
-		today_torc_.first = day;
-		today_torc_.second = 0;
-	}
-
-	return today_torc_.second;
-}
-
-void Player::add_today_torc(int num) {
-	uint8_t day = get_day_today();
-	if (today_torc_.first == day) {
-		today_torc_.second += num;
-	} else {
-		today_torc_.first = day;
-		today_torc_.second = num;
-	}
 }
 
 int Player::get_reset_stats_cnt(stats_reset::Type type) const {
