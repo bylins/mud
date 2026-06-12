@@ -178,13 +178,13 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 		if (k->IsFlagged(EPlrFlag::kFrozen) && punishments::Get(k, punishments::EType::kFreeze).duration) {
 			snprintf(buf, sizeof(buf), "Заморожен : %ld час [%s].\r\n",
 					static_cast<long>((punishments::Get(k, punishments::EType::kFreeze).duration - time(nullptr)) / 3600),
-					punishments::Get(k, punishments::EType::kFreeze).reason ? punishments::Get(k, punishments::EType::kFreeze).reason : "-");
+					punishments::Get(k, punishments::EType::kFreeze).reason.empty() ? "-" : punishments::Get(k, punishments::EType::kFreeze).reason.c_str());
 			SendMsgToChar(buf, ch);
 		}
 		if (k->IsFlagged(EPlrFlag::kHelled) && punishments::Get(k, punishments::EType::kHell).duration) {
 			snprintf(buf, sizeof(buf), "Находится в темнице : %ld час [%s].\r\n",
 					static_cast<long>((punishments::Get(k, punishments::EType::kHell).duration - time(nullptr)) / 3600),
-					punishments::Get(k, punishments::EType::kHell).reason ? punishments::Get(k, punishments::EType::kHell).reason : "-");
+					punishments::Get(k, punishments::EType::kHell).reason.empty() ? "-" : punishments::Get(k, punishments::EType::kHell).reason.c_str());
 			SendMsgToChar(buf, ch);
 		}
 		if (k->IsFlagged(EPlrFlag::kNameDenied) && punishments::Get(k, punishments::EType::kName).duration) {
@@ -195,19 +195,19 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 		if (k->IsFlagged(EPlrFlag::kMuted) && punishments::Get(k, punishments::EType::kMute).duration) {
 			snprintf(buf, sizeof(buf), "Будет молчать : %ld час [%s].\r\n",
 					static_cast<long>((punishments::Get(k, punishments::EType::kMute).duration - time(nullptr)) / 3600),
-					punishments::Get(k, punishments::EType::kMute).reason ? punishments::Get(k, punishments::EType::kMute).reason : "-");
+					punishments::Get(k, punishments::EType::kMute).reason.empty() ? "-" : punishments::Get(k, punishments::EType::kMute).reason.c_str());
 			SendMsgToChar(buf, ch);
 		}
 		if (k->IsFlagged(EPlrFlag::kDumbed) && punishments::Get(k, punishments::EType::kDumb).duration) {
 			snprintf(buf, sizeof(buf), "Будет нем : %ld мин [%s].\r\n",
 					static_cast<long>((punishments::Get(k, punishments::EType::kDumb).duration - time(nullptr)) / 60),
-					punishments::Get(k, punishments::EType::kDumb).reason ? punishments::Get(k, punishments::EType::kDumb).reason : "-");
+					punishments::Get(k, punishments::EType::kDumb).reason.empty() ? "-" : punishments::Get(k, punishments::EType::kDumb).reason.c_str());
 			SendMsgToChar(buf, ch);
 		}
 		if (!k->IsFlagged(EPlrFlag::kRegistred) && punishments::Get(k, punishments::EType::kUnreg).duration) {
 			snprintf(buf, sizeof(buf), "Не будет зарегистрирован : %ld час [%s].\r\n",
 					static_cast<long>((punishments::Get(k, punishments::EType::kUnreg).duration - time(nullptr)) / 3600),
-					punishments::Get(k, punishments::EType::kUnreg).reason ? punishments::Get(k, punishments::EType::kUnreg).reason : "-");
+					punishments::Get(k, punishments::EType::kUnreg).reason.empty() ? "-" : punishments::Get(k, punishments::EType::kUnreg).reason.c_str());
 			SendMsgToChar(buf, ch);
 		}
 

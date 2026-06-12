@@ -359,22 +359,6 @@ void CharData::purge() {
 		}
 		// порталы
 		ClearRunestones(this);
-// Cleanup punish reasons
-		if (punishments::Get(this, punishments::EType::kMute).reason)
-			free(punishments::Get(this, punishments::EType::kMute).reason);
-		if (punishments::Get(this, punishments::EType::kDumb).reason)
-			free(punishments::Get(this, punishments::EType::kDumb).reason);
-		if (punishments::Get(this, punishments::EType::kHell).reason)
-			free(punishments::Get(this, punishments::EType::kHell).reason);
-		if (punishments::Get(this, punishments::EType::kFreeze).reason)
-			free(punishments::Get(this, punishments::EType::kFreeze).reason);
-		if (punishments::Get(this, punishments::EType::kName).reason)
-			free(punishments::Get(this, punishments::EType::kName).reason);
-		if (punishments::Get(this, punishments::EType::kGcurse).reason)
-			free(punishments::Get(this, punishments::EType::kGcurse).reason);
-		if (punishments::Get(this, punishments::EType::kUnreg).reason)
-			free(punishments::Get(this, punishments::EType::kUnreg).reason);
-// End reasons cleanup
 
 		if (KARMA(this))
 			free(KARMA(this));
