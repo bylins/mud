@@ -21,9 +21,6 @@ namespace currencies {
 inline const std::string kGold = "kKuna";
 inline const std::string kGlory = "kGlory";
 inline const std::string kCopperGrivnaId = "kCopperGrivna";
-inline const std::string kNogataId = "kNogata";
-inline const std::string kMagicIceId = "kMagicIce";
-inline const std::string kSnowflakeId = "kSnowflake";
 
 // The amount of one currency the owner holds: in hand and in the bank/casket.
 struct OwnerCurrencyInfo {
