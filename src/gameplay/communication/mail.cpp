@@ -224,7 +224,7 @@ void postmaster_send_mail(CharData *ch, CharData *mailman, int/* cmd*/, char *ar
 		return;
 	}
 
-	if (currencies::GetAmount(*ch, currencies::kGold) < cost) {
+	if (currencies::GetHand(*ch, currencies::kGold) < cost) {
 		act(fmt::format(fmt::runtime(specials::MailMsg(specials::EMailMsg::kCantAffordCost)),
 				fmt::arg("amount", STAMP_PRICE),
 				fmt::arg("currency", grammar::GetDeclensionInNumber(STAMP_PRICE, grammar::EWhat::kMoneyU))),
@@ -243,7 +243,7 @@ void postmaster_send_mail(CharData *ch, CharData *mailman, int/* cmd*/, char *ar
 			false, mailman, 0, ch, kToVict);
 	}
 	act(specials::MailMsg(specials::EMailMsg::kCanWrite), false, mailman, 0, ch, kToVict);
-	currencies::RemoveAmount(*ch, currencies::kGold, cost);
+	currencies::RemoveHand(*ch, currencies::kGold, cost);
 	ch->SetFlag(EPlrFlag::kMailing);    // string_write() sets writing.
 
 	// Start writing!

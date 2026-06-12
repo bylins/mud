@@ -49,7 +49,7 @@ static void ApplyCloneCosmetics(CharData *ch, CharData *mob) {
 	mob->set_hit(ch->get_max_hit());
 	mob->mob_specials.damnodice = 0;
 	mob->mob_specials.damsizedice = 0;
-	currencies::SetAmount(*mob, currencies::kGold, 0);
+	currencies::SetHand(*mob, currencies::kGold, 0);
 	GET_GOLD_NoDs(mob) = 0;
 	GET_GOLD_SiDs(mob) = 0;
 	mob->set_exp(0);

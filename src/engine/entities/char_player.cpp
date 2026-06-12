@@ -1140,8 +1140,8 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 
 	GET_DR(this) = 0;
 
-	currencies::SetAmount(*this, currencies::kGold, 0, currencies::EPurse::kHand, false);
-	currencies::SetAmount(*this, currencies::kGold, 0, currencies::EPurse::kBank, false);
+	currencies::SetHand(*this, currencies::kGold, 0, false);
+	currencies::SetBank(*this, currencies::kGold, 0, false);
 	this->player_specials->saved.GodsLike = 0;
 	this->set_hit(21);
 	this->set_max_hit(21);

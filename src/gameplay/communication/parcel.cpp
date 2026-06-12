@@ -424,7 +424,7 @@ void return_money(std::string const &name, int money, bool add) {
 	CharData *vict = 0;
 	if ((vict = get_player_of_name(name.c_str()))) {
 		if (add) {
-			currencies::AddAmount(*vict, currencies::kGold, money, currencies::EPurse::kBank);
+			currencies::AddBank(*vict, currencies::kGold, money);
 			SendMsgToChar(vict, "%sВы получили %d %s банковским переводом от почтовой службы%s.\r\n",
 						  kColorWht, money, grammar::GetDeclensionInNumber(money, grammar::EWhat::kMoneyU), kColorNrm);
 		}
@@ -434,7 +434,7 @@ void return_money(std::string const &name, int money, bool add) {
 			delete vict;
 			return;
 		}
-		currencies::AddAmount(*vict, currencies::kGold, money, currencies::EPurse::kBank);
+		currencies::AddBank(*vict, currencies::kGold, money);
 		vict->save_char();
 		delete vict;
 	}

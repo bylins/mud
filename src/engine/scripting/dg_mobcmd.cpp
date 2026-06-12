@@ -763,9 +763,9 @@ void do_mgold(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger
 
 	int num = atoi(amount);
 	if (num >= 0) {
-		currencies::AddAmount(*victim, currencies::kGold, num);
+		currencies::AddHand(*victim, currencies::kGold, num);
 	} else {
-		num = currencies::RemoveAmount(*victim, currencies::kGold, num);
+		num = currencies::RemoveHand(*victim, currencies::kGold, num);
 		if (num > 0) {
 			mob_log(ch, trig, "mgold subtracting more gold than character has");
 		}
@@ -874,7 +874,7 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 			ch->set_max_hit(m->get_max_hit());
 			ch->set_exp(m->get_exp());
 		}
-		currencies::SetAmount(*ch, currencies::kGold, currencies::GetAmount(*m, currencies::kGold));
+		currencies::SetHand(*ch, currencies::kGold, currencies::GetHand(*m, currencies::kGold));
 		ch->SetPosition(m->GetPosition());
 		IS_CARRYING_W(ch) = IS_CARRYING_W(m);
 		IS_CARRYING_N(ch) = IS_CARRYING_N(m);

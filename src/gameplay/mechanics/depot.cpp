@@ -852,7 +852,7 @@ std::string print_obj_list(CharData *ch, ObjListType &cont) {
 		print_obj(i_out, s_out, prev_obj_it->get(), count, ch);
 	}
 
-	const long money = currencies::GetAmount(*ch, currencies::kGold) + currencies::GetAmount(*ch, currencies::kGold, currencies::EPurse::kBank);
+	const long money = currencies::GetHand(*ch, currencies::kGold) + currencies::GetBank(*ch, currencies::kGold);
 	const long expired = rent_per_day ? (money / rent_per_day) : 0;
 
 	std::stringstream head;
@@ -941,7 +941,7 @@ void put_gold_chest(CharData *ch, const ObjData::shared_ptr &obj) {
 		return;
 	}
 	long gold = GET_OBJ_VAL(obj, 0);
-	currencies::AddAmount(*ch, currencies::kGold, gold, currencies::EPurse::kBank);
+	currencies::AddBank(*ch, currencies::kGold, gold);
 	RemoveObjFromChar(obj.get());
 	ExtractObjFromWorld(obj.get());
 	SendMsgToChar(ch, "Вы вложили %ld %s.\r\n", gold, grammar::GetDeclensionInNumber(gold, grammar::EWhat::kMoneyU));
@@ -1029,7 +1029,7 @@ bool put_depot(CharData *ch, ObjData::shared_ptr &obj) {
 		return 0;
 	}
 
-	if (!currencies::GetAmount(*ch, currencies::kGold, currencies::EPurse::kBank) && !currencies::GetAmount(*ch, currencies::kGold)) {
+	if (!currencies::GetBank(*ch, currencies::kGold) && !currencies::GetHand(*ch, currencies::kGold)) {
 		SendMsgToChar(ch, "У вас ведь совсем нет денег, чем вы собираетесь расплачиваться за хранение вещей?\r\n");
 		return 0;
 	}
@@ -1362,7 +1362,7 @@ void exit_char(CharData *ch) {
 
 		it->second.online_to_offline(it->second.pers_online);
 		it->second.ch = 0;
-		it->second.money = currencies::GetAmount(*ch, currencies::kGold, currencies::EPurse::kBank) + currencies::GetAmount(*ch, currencies::kGold);
+		it->second.money = currencies::GetBank(*ch, currencies::kGold) + currencies::GetHand(*ch, currencies::kGold);
 		it->second.money_spend = 0;
 	}
 }

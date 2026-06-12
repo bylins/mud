@@ -273,7 +273,7 @@ bool auction_drive(CharData *ch, char *argument) {
 				SendMsgToChar("Повышайте ставку не ниже 5% текущей.\r\n", ch);
 				return false;
 			}
-			if (value > currencies::GetAmount(*ch, currencies::kGold) + currencies::GetAmount(*ch, currencies::kGold, currencies::EPurse::kBank)) {
+			if (value > currencies::GetHand(*ch, currencies::kGold) + currencies::GetBank(*ch, currencies::kGold)) {
 				SendMsgToChar("У вас нет такой суммы.\r\n", ch);
 				return false;
 			}
@@ -682,7 +682,7 @@ void trans_auction(int lot) {
 	RemoveObjFromChar(obj);
 	PlaceObjToInventory(obj, tch);
 
-	currencies::AddAmount(*ch, currencies::kGold, GET_LOT(lot)->cost, currencies::EPurse::kBank);
+	currencies::AddBank(*ch, currencies::kGold, GET_LOT(lot)->cost);
 	currencies::RemoveTotal(*tch, currencies::kGold, GET_LOT(lot)->cost + (GET_LOT(lot)->cost / 10));
 
 	clear_auction(lot);
@@ -780,7 +780,7 @@ void sell_auction(int lot) {
 	RemoveObjFromChar(obj);
 	PlaceObjToInventory(obj, tch);
 
-	currencies::AddAmount(*ch, currencies::kGold, GET_LOT(lot)->cost, currencies::EPurse::kBank);
+	currencies::AddBank(*ch, currencies::kGold, GET_LOT(lot)->cost);
 	currencies::RemoveTotal(*tch, currencies::kGold, GET_LOT(lot)->cost);
 
 

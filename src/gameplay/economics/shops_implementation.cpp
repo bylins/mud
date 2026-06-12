@@ -743,7 +743,7 @@ void shop_node::process_ident(CharData *ch, CharData *keeper, char *argument, co
 	}
 
 	if (cmd == "Характеристики") {
-		if (currencies::GetAmount(*ch, currencies::kGold) < IDENTIFY_COST) {
+		if (currencies::GetHand(*ch, currencies::kGold) < IDENTIFY_COST) {
 			tell_to_char(keeper, ch, ShopMsg(ESM::kNoMoney).c_str());
 			KeeperNoMoneyReaction(keeper, ch);
 		} else {
@@ -754,7 +754,7 @@ void shop_node::process_ident(CharData *ch, CharData *keeper, char *argument, co
 			SendMsgToChar(fmt::format(fmt::runtime(ShopMsg(ESM::kIdentResult)),
 					fmt::arg("item", ident_obj->get_PName(grammar::ECase::kNom))) + "\r\n", ch);
 			MortShowObjValues(ident_obj, ch, 200);
-			currencies::RemoveAmount(*ch, currencies::kGold, IDENTIFY_COST);
+			currencies::RemoveHand(*ch, currencies::kGold, IDENTIFY_COST);
 		}
 	}
 
@@ -996,7 +996,7 @@ void shop_node::do_shop_cmd(CharData *ch, CharData *keeper, ObjData *obj, std::s
 			tell_to_char(keeper, ch, fmt::format(fmt::runtime(ShopMsg(ESM::kSellPaid)),
 					fmt::arg("item", obj->get_PName(grammar::ECase::kAcc)), fmt::arg("amount", buy_price),
 					fmt::arg("currency", grammar::GetDeclensionInNumber(buy_price, grammar::EWhat::kMoneyU))).c_str());
-			currencies::AddAmount(*ch, currencies::kGold, buy_price);
+			currencies::AddHand(*ch, currencies::kGold, buy_price);
 			put_item_to_shop(obj);
 			obj->set_where_obj(EWhereObj::kSeller);
 		}
@@ -1054,13 +1054,13 @@ void shop_node::do_shop_cmd(CharData *ch, CharData *keeper, ObjData *obj, std::s
 				fmt::arg("currency", grammar::GetDeclensionInNumber(repair_price, grammar::EWhat::kMoneyU)));
 		tell_to_char(keeper, ch, tell.c_str());
 
-		if (!ch->IsGod() && repair_price > currencies::GetAmount(*ch, currencies::kGold)) {
+		if (!ch->IsGod() && repair_price > currencies::GetHand(*ch, currencies::kGold)) {
 			act(ShopMsg(ESM::kCantAffordRepair).c_str(), false, ch, 0, 0, kToChar);
 			return;
 		}
 
 		if (!ch->IsGod()) {
-			currencies::RemoveAmount(*ch, currencies::kGold, repair_price);
+			currencies::RemoveHand(*ch, currencies::kGold, repair_price);
 		}
 
 		act(ShopMsg(ESM::kRepaired).c_str(), false, keeper, obj, 0, kToRoom);
