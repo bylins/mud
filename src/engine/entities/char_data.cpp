@@ -1194,19 +1194,19 @@ void CharData::restore_npc() {
 	this->set_move(proto->get_real_max_move());
 	update_pos(this);
 	// ресторим хиты / дамы / ас / армор
-	GET_WEIGHT(this) = GET_WEIGHT(proto);
-	GET_HEIGHT(this) = GET_HEIGHT(proto);
-	GET_SIZE(this) = GET_SIZE(proto);
-	GET_HR(this) = GET_HR(proto);
-	GET_AC(this) = GET_AC(proto);
-	GET_DR(this) = GET_DR(proto);
-	GET_ARMOUR(this) = GET_ARMOUR(proto);
-	GET_INITIATIVE(this) = GET_INITIATIVE(proto);
-	GET_MORALE(this) = GET_MORALE(proto);
+	this->set_weight(proto->get_weight());
+	this->set_height(proto->get_height());
+	this->real_abils.size = proto->real_abils.size;
+	this->real_abils.hitroll = proto->real_abils.hitroll;
+	this->real_abils.armor = proto->real_abils.armor;
+	this->real_abils.damroll = proto->real_abils.damroll;
+	this->add_abils.armour = proto->add_abils.armour;
+	this->add_abils.initiative_add = proto->add_abils.initiative_add;
+	this->add_abils.morale = proto->add_abils.morale;
 	// ресторим резисты ФР/МР/АР
-	GET_AR(this) = GET_AR(proto);
-	GET_MR(this) = GET_MR(proto);
-	GET_PR(this) = GET_PR(proto);
+	this->add_abils.aresist = proto->add_abils.aresist;
+	this->add_abils.mresist = proto->add_abils.mresist;
+	this->add_abils.presist = proto->add_abils.presist;
 	// ресторим имена
 	this->player_data.PNames[grammar::ECase::kNom] = proto->player_data.PNames[grammar::ECase::kNom];
 	this->player_data.PNames[grammar::ECase::kGen] = proto->player_data.PNames[grammar::ECase::kGen];
@@ -1214,8 +1214,8 @@ void CharData::restore_npc() {
 	this->player_data.PNames[grammar::ECase::kAcc] = proto->player_data.PNames[grammar::ECase::kAcc];
 	this->player_data.PNames[grammar::ECase::kIns] = proto->player_data.PNames[grammar::ECase::kIns];
 	this->player_data.PNames[grammar::ECase::kPre] = proto->player_data.PNames[grammar::ECase::kPre];
-	this->SetCharAliases(GET_PC_NAME(proto));
-	this->set_npc_name(GET_NAME(proto));
+	this->SetCharAliases(proto->GetCharAliases());
+	this->set_npc_name(proto->get_name());
     // кубики // екстра атаки
 	this->mob_specials.damnodice = proto->mob_specials.damnodice;
 	this->mob_specials.damsizedice = proto->mob_specials.damsizedice;
