@@ -152,9 +152,15 @@ static void ParseObjNames(DataNode node, ObjNameMap &out) {
 
 static void LoadCurrencyNames(DataNode data) {
 	g_currency_names.clear();
+	g_default_obj_names.clear();
 	for (auto &sheaf : data.Children("msg_sheaf")) {
 		const char *id = sheaf.GetValue("id");
 		if (!id || !*id) {
+			continue;
+		}
+		// The shared "kDefault" sheaf carries the fallback size-tier templates for every currency.
+		if (std::string(id) == "kDefault") {
+			ParseObjNames(sheaf, g_default_obj_names);
 			continue;
 		}
 		CurrencyName cn;
@@ -172,8 +178,6 @@ static void LoadCurrencyNames(DataNode data) {
 		ParseObjNames(sheaf, cn.obj_names);
 		g_currency_names[id] = std::move(cn);
 	}
-
-	ParseObjNames(data, g_default_obj_names);
 }
 
 void CurrencyNamesLoader::Load(DataNode data) { LoadCurrencyNames(data); }
