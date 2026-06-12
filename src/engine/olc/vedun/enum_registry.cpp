@@ -145,6 +145,9 @@ void RegisterEditorEnums() {
 	// is validated against real currencies -- catches typos like a stale "kGrivna".
 	{
 		std::vector<std::string> currency_ids;
+		// kUndefined = "inherit": a guild talent price set to it falls back to the guild-wide currency
+		// (and a guild with no currency of its own falls back to gold).
+		currency_ids.emplace_back("kUndefined");
 		for (const auto &cur : MUD::Currencies()) {
 			if (cur.GetId() >= 0) {
 				currency_ids.push_back(cur.GetTextId());
