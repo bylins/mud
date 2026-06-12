@@ -14,7 +14,6 @@
 
 #include <unordered_map>
 #include <algorithm>
-#include <sstream>
 
 #include "engine/ui/color.h"
 #include "engine/db/global_objects.h"
@@ -527,16 +526,10 @@ const CurrencyInfo *FindBySearch(const std::string &word) {
 			continue;
 		}
 		const CurrencyName *cn = FindCurrencyName(cur.GetTextId());
-		if (!cn) {
-			continue;
-		}
-		// `search` is a space-separated keyword list (e.g. "серебряная гривна"); match the typed
-		// word against any single keyword so a multi-word currency is reachable by one token.
-		std::istringstream keywords(cn->search);
-		for (std::string keyword; keywords >> keyword; ) {
-			if (utils::IsAbbr(word, keyword)) {
-				return &cur;
-			}
+		// Same matcher as spells/skills (FixDot + ordered abbreviation of each word), so "сереб.грив"
+		// matches "серебряная гривна" and a single "лед" matches "волшебный лед".
+		if (cn && utils::IsEquivalent(word, cn->search)) {
+			return &cur;
 		}
 	}
 	return nullptr;

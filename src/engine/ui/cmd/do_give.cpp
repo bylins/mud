@@ -106,7 +106,8 @@ void perform_give_gold(CharData *ch, CharData *vict, int amount) {
 			false, ch, nullptr, nullptr, kToChar);
 		return;
 	}
-	SendMsgToChar(CommonMsg(ECommonMsg::kOk) + "\r\n", ch);
+	sprintf(buf, "Вы дали %d %s $N2.", amount, MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(amount, grammar::ECase::kNom).c_str());
+	act(buf, false, ch, nullptr, vict, kToChar);
 	sprintf(buf, "$n дал$g вам %d %s.", amount, MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(amount, grammar::ECase::kNom).c_str());
 	act(buf, false, ch, nullptr, vict, kToVict);
 	sprintf(buf, "$n дал$g %s $N2.",
@@ -148,7 +149,8 @@ void perform_give_currency(CharData *ch, CharData *vict, const currencies::Curre
 			false, ch, nullptr, nullptr, kToChar);
 		return;
 	}
-	SendMsgToChar(CommonMsg(ECommonMsg::kOk) + "\r\n", ch);
+	sprintf(buf, "Вы дали %d %s $N2.", amount, cur.GetNameWithAmount(amount, grammar::ECase::kAcc).c_str());
+	act(buf, false, ch, nullptr, vict, kToChar);
 	sprintf(buf, "$n дал$g вам %d %s.", amount, cur.GetNameWithAmount(amount, grammar::ECase::kAcc).c_str());
 	act(buf, false, ch, nullptr, vict, kToVict);
 	sprintf(buf, "$n дал$g %d %s $N2.", amount, cur.GetNameWithAmount(amount, grammar::ECase::kAcc).c_str());
