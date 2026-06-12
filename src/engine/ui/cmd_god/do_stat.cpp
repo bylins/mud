@@ -1,4 +1,5 @@
 #include "do_stat.h"
+#include "gameplay/core/experience.h"
 #include "gameplay/economics/currencies.h"
 #include "gameplay/mechanics/condition.h"
 #include "gameplay/mechanics/magic_item.h"
@@ -252,9 +253,9 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 	}
 
 	char tmp_buf[256];
-	if (k->get_zone_group() > 1) {
+	if (experience::GetZoneGroup(k) > 1) {
 		snprintf(tmp_buf, sizeof(tmp_buf), " : групповой %ldx%d",
-				 k->get_exp() / k->get_zone_group(), k->get_zone_group());
+				 k->get_exp() / experience::GetZoneGroup(k), experience::GetZoneGroup(k));
 	} else {
 		tmp_buf[0] = '\0';
 	}

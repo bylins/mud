@@ -504,20 +504,6 @@ bool AWAKE(const CharData *ch) {
 }
 
 //Вы уверены,что функцияам расчете опыта самое место в классе персонажа?
-bool OK_GAIN_EXP(const CharData *ch, const CharData *victim) {
-	return !NAME_BAD(ch)
-		&& (NAME_FINE(ch)
-			|| !(GetRealLevel(ch) == kNameLevel))
-		&& !ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena)
-		&& victim->IsNpc()
-		&& (victim->get_exp() > 0)
-		&& (!victim->IsNpc()
-			|| !ch->IsNpc()
-			|| AFF_FLAGGED(ch, EAffect::kCharmed))
-		&& !mount::IsHorse(victim)
-		&& !ROOM_FLAGGED(ch->in_room, ERoomFlag::kDominationArena);
-}
-
 bool IS_MALE(const CharData *ch) {
 	return ch->get_sex() == EGender::kMale;
 }
@@ -1035,18 +1021,6 @@ void CharData::clear_add_apply_affects() {
 	skills_add_.clear();
 }
 ///////////////////////////////////////////////////////////////////////////////
-int CharData::get_zone_group() const {
-	const auto rnum = get_rnum();
-	if (this->IsNpc()
-		&& rnum >= 0
-		&& mob_index[rnum].zone >= 0) {
-		const auto zone = GetZoneRnum(GET_MOB_VNUM(this) / 100);
-		return std::max(1, zone_table[zone].group);
-	}
-
-	return 1;
-}
-
 // обрезает строку и выдергивает из нее предтитул
 std::string CharData::GetTitle() const {
 	std::string tmp = this->player_data.title;

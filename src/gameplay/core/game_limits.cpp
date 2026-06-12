@@ -13,6 +13,7 @@
 ************************************************************************ */
 
 #include "gameplay/core/game_limits.h"
+#include "gameplay/core/experience.h"
 #include "administration/privilege.h"
 #include "gameplay/mechanics/condition.h"
 #include "utils/grammar/gender.h"
@@ -1751,7 +1752,7 @@ void gain_battle_exp(CharData *ch, CharData *victim, int dam) {
 		return;
 	}
 	// получение игроками экспы
-	if (!ch->IsNpc() && OK_GAIN_EXP(ch, victim)) {
+	if (!ch->IsNpc() && experience::OkGainExp(ch, victim)) {
 		int max_exp = std::min(max_exp_gain_pc(ch), (GetRealLevel(victim) * victim->get_max_hit() + 4) /
 			(5 * std::max(1, remort::GetRealRemort(ch) - kMaxExpCoefficientsUsed - 1)));
 		double coeff = std::min(dam, victim->get_hit()) / static_cast<double>(victim->get_max_hit());
@@ -1767,7 +1768,7 @@ void gain_battle_exp(CharData *ch, CharData *victim, int dam) {
 	if (ch->IsNpc() && AFF_FLAGGED(ch, EAffect::kCharmed)) {
 		CharData *master = ch->get_master();
 		// проверяем что есть мастер и он может получать экспу с данной цели
-		if (master && OK_GAIN_EXP(master, victim)) {
+		if (master && experience::OkGainExp(master, victim)) {
 			int max_exp = std::min(max_exp_gain_pc(master), (GetRealLevel(victim) * victim->get_max_hit() + 4) /
 				(5 * std::max(1, remort::GetRealRemort(master) - kMaxExpCoefficientsUsed - 1)));
 
