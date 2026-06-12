@@ -5,6 +5,7 @@
 #include "char_player.h"
 #include "administration/privilege.h"
 #include "gameplay/economics/currencies.h"
+#include "gameplay/quests/daily_quest.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/mechanics/condition.h"
 #include "utils/grammar/declensions.h"
@@ -189,35 +190,7 @@ void Player::complete_quest(const int id) {
 }
 
 void Player::dquest(const int id) {
-	const auto quest = MUD::daily_quests().find(id);
-
-	if (quest == MUD::daily_quests().end()) {
-		log("Quest Id: %d - не найден", id);
-		return;
-	}
-	if (!this->account->quest_is_available(id)) {
-		SendMsgToChar(this, "Сегодня вы уже получали гривны за выполнение этого задания.\r\n");
-		return;
-	}
-	int value = quest->second.reward + number(1, 3);
-	const int zone_lvl = zone_table[world[this->in_room]->zone_rn].mob_level;
-	value = this->account->zero_hryvn(this, value);
-	if (zone_lvl < 25
-		&& zone_lvl <= (GetRealLevel(this) + remort::GetRealRemort(this) / 5)) {
-		value /= 2;
-	}
-	if (remort::GetRealRemort(this) < 6) {
-		SendMsgToChar(this, "Глянув на непонятный слиток, Вы решили выкинуть его...\r\n");
-	} else if (zone_table[world[this->in_room]->zone_rn].under_construction) {
-		SendMsgToChar(this, "Зона тестовая, вашу гривну отобрали боги.\r\n");
-	} else {
-		const auto *dq_cur = currencies::FindDailyQuestCurrency();
-		const long added = dq_cur ? currencies::AddHand(*this, dq_cur->GetTextId(), value, true) : 0;
-		if (added > 0) {
-			log("Персонаж %s получил %ld единиц награды дневного задания.", GET_NAME(this), added);
-		}
-	}
-	this->account->complete_quest(id);
+	DailyQuest::DoQuest(this, id);
 }
 
 void Player::mark_city(const size_t index) {

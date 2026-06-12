@@ -5,6 +5,11 @@
 #include "engine/entities/char_data.h"
 #include "engine/entities/char_player.h"
 #include "engine/db/global_objects.h"
+#include "administration/accounts.h"
+#include "engine/entities/zone.h"
+#include "gameplay/core/remort.h"
+#include "gameplay/economics/currencies.h"
+#include "engine/core/comm.h"
 
 namespace DailyQuest {
 
@@ -136,6 +141,53 @@ void LoadFromFile(CharData *ch)
 	}
 }
 
+
+void DoQuest(CharData *ch, int id) {
+	const auto quest = MUD::daily_quests().find(id);
+	if (quest == MUD::daily_quests().end()) {
+		log("Quest Id: %d - не найден", id);
+		return;
+	}
+	const auto account = ch->get_account();
+	if (!account) {
+		return;
+	}
+	if (!account->quest_is_available(id)) {
+		SendMsgToChar(ch, "Сегодня вы уже получали гривны за выполнение этого задания.\r\n");
+		return;
+	}
+	int value = quest->second.reward + number(1, 3);
+	const int zone_lvl = zone_table[world[ch->in_room]->zone_rn].mob_level;
+	value = account->zero_hryvn(ch, value);
+	if (zone_lvl < 25 && zone_lvl <= (GetRealLevel(ch) + remort::GetRealRemort(ch) / 5)) {
+		value /= 2;
+	}
+	if (remort::GetRealRemort(ch) < 6) {
+		SendMsgToChar(ch, "Глянув на непонятный слиток, Вы решили выкинуть его...\r\n");
+	} else if (zone_table[world[ch->in_room]->zone_rn].under_construction) {
+		SendMsgToChar(ch, "Зона тестовая, вашу гривну отобрали боги.\r\n");
+	} else {
+		// валюта дейлика жёстко задана до переписывания системы квестов
+		const long added = currencies::AddHand(*ch, currencies::kCopperGrivnaId, value, true);
+		if (added > 0) {
+			log("Персонаж %s получил %ld единиц награды дневного задания.", GET_NAME(ch), added);
+		}
+	}
+	account->complete_quest(id);
+}
+
+bool OnCurrencySpent(CharData *ch, const std::string &currency, long amount) {
+	// трата валюты дейлика (kCopperGrivna) учитывается; превышение порога сбрасывает дейлики
+	if (currency != currencies::kCopperGrivnaId) {
+		return false;
+	}
+	ch->spent_hryvn_sub(static_cast<int>(amount));
+	if (ch->get_spent_hryvn() > 1000) {
+		ch->reset_daily_quest();
+		return true;
+	}
+	return false;
+}
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

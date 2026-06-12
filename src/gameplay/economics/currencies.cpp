@@ -170,7 +170,6 @@ ItemPtr CurrencyInfoBuilder::ParseCurrency(DataNode node) {
 			if (const char *v = node.GetValue("msdp"); v && *v) currency_info->reports_msdp_ = parse::ReadAsBool(v);
 			if (const char *v = node.GetValue("money_stat"); v && *v) currency_info->money_stat_ = parse::ReadAsBool(v);
 			if (const char *v = node.GetValue("force_split"); v && *v) currency_info->force_split_ = parse::ReadAsBool(v);
-			if (const char *v = node.GetValue("daily_quest"); v && *v) currency_info->daily_quest_ = parse::ReadAsBool(v);
 			if (const char *v = node.GetValue("arena_only"); v && *v) currency_info->arena_only_ = parse::ReadAsBool(v);
 		} catch (std::runtime_error &e) {
 			err_log("incorrect flags (%s) in currency '%s'.", e.what(), currency_info->name_.c_str());
@@ -431,15 +430,6 @@ const CurrencyInfo *FindBySearch(const std::string &word) {
 		}
 		const CurrencyName *cn = FindCurrencyName(cur.GetTextId());
 		if (cn && utils::IsAbbr(word, cn->search)) {
-			return &cur;
-		}
-	}
-	return nullptr;
-}
-
-const CurrencyInfo *FindDailyQuestCurrency() {
-	for (const auto &cur : MUD::Currencies()) {
-		if (cur.GetId() >= 0 && cur.IsDailyQuest()) {
 			return &cur;
 		}
 	}
