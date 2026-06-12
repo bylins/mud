@@ -31,7 +31,7 @@ void GoOverhelm(CharData *ch, CharData *victim) {
 		ch->battle_affects.set(kEafOverwhelm);
 		hit(ch, victim, ESkill::kOverwhelm, fight::kMainHand);
 		//set_wait(ch, 2, true);
-		if (ch->getSkillCooldown(ESkill::kOverwhelm) > 0) {
+		if (ch->Skills().GetCooldown(ESkill::kOverwhelm) > 0) {
 			SetSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 1);
 		}
 	} else {
@@ -72,7 +72,7 @@ void DoOverhelm(CharData *ch, CharData *victim) {
 		return;
 	}
 
-	if (ch->HasCooldown(ESkill::kOverwhelm)) {
+	if (ch->Skills().HasActiveCooldown(ESkill::kOverwhelm)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kOverwhelm, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	};

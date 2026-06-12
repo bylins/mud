@@ -1105,9 +1105,9 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 	} */
 	if (made_dam == -1) {
 		if (type == ESkill::kOverwhelm) {
-			ch->setSkillCooldown(ESkill::kOverwhelm, 0u);
+			ch->Skills().SetCooldown(ESkill::kOverwhelm, 0u);
 		} else if (type == ESkill::kHammer) {
-			ch->setSkillCooldown(ESkill::kHammer, 0u);
+			ch->Skills().SetCooldown(ESkill::kHammer, 0u);
 		}
 	}
 

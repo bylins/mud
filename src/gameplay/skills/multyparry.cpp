@@ -34,7 +34,7 @@ void do_multyparry(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kMultiparry, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
-	if (ch->HasCooldown(ESkill::kMultiparry)) {
+	if (ch->Skills().HasActiveCooldown(ESkill::kMultiparry)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kMultiparry, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	};

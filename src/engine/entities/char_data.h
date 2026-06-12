@@ -273,14 +273,7 @@ enum {
 	ATTACKER_ROUNDS
 };
 
-struct CharacterSkillDataType {
-	int skillLevel;
-	unsigned cooldown;
-
-	void decreaseCooldown(unsigned value);
-};
-
-using CharSkillsType = std::map<ESkill, CharacterSkillDataType>;
+#include "gameplay/skills/character_skills.h"
 
 class ProtectedCharData;    // to break up cyclic dependencies
 
@@ -341,7 +334,9 @@ class CharData : public ProtectedCharData {
 	int GetSkill(ESkill skill_id) const;
 	int GetSkillWithoutEquip(ESkill skill_id) const;
 	int get_skills_count() const;
-	const CharSkillsType &GetCharSkills() const { return skills; }
+	const CharacterSkills::Map &GetCharSkills() const { return skills_.data(); }
+	CharacterSkills &Skills() { return skills_; }
+	const CharacterSkills &Skills() const { return skills_; }
 	int GetEquippedSkill(ESkill skill_id) const;
 	int get_skill_bonus() const;
 	void set_skill_bonus(int);
@@ -551,14 +546,6 @@ class CharData : public ProtectedCharData {
 	void set_wait(const unsigned _);
 	void wait_dec() { m_wait -= 0 < m_wait ? 1 : 0; }
 	void zero_wait() { m_wait = 0; }
-	void setSkillCooldown(ESkill skillID, unsigned cooldown);
-	void decreaseSkillsCooldowns(unsigned value);
-	bool haveSkillCooldown(ESkill skillID);
-	bool HasCooldown(ESkill skillID);
-	bool HaveDecreaseCooldowns();
-	int getSkillCooldownInPulses(ESkill skillID);
-	void ZeroCooldowns();
-	unsigned getSkillCooldown(ESkill skillID);
 
 	void reset() override;
 
@@ -609,7 +596,7 @@ class CharData : public ProtectedCharData {
 
 	void purge();
 
-	CharSkillsType skills;    // список изученных скиллов
+	CharacterSkills skills_;    // learned skills (level + cooldown)
 	////////////////////////////////////////////////////////////////////////////
 	CharData *protecting_{nullptr}; // цель для 'прикрыть'
 	CharData *touching_;   // цель для 'перехватить'

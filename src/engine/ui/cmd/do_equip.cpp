@@ -239,7 +239,7 @@ void perform_wear(CharData *ch, ObjData *obj, int equip_pos, bool skip_total = f
 		SendMsgToChar("Вы не можете использовать более одной такой вещи.\r\n", ch);
 		return;
 	}
-	if (ch->HasCooldown(ESkill::kGlobalCooldown)) {
+	if (ch->Skills().HasActiveCooldown(ESkill::kGlobalCooldown)) {
 		if (ch->GetEnemy() && (equip_pos == EEquipPos::kShield || obj->get_type() == EObjType::kWeapon)) {
 			SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
 			return;

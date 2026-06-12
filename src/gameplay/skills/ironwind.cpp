@@ -45,8 +45,8 @@ void go_iron_wind(CharData *ch, CharData *victim) {
 		ch->battle_affects.set(kEafIronWind);
 		hit(ch, victim, ESkill::kUndefined, fight::kMainHand);
 		SetWait(ch, 2, true);
-		//ch->setSkillCooldown(ESkill::kGlobalCooldown, 2);
-		//ch->setSkillCooldown(ESkill::kIronwind, 2);
+		//ch->Skills().SetCooldown(ESkill::kGlobalCooldown, 2);
+		//ch->Skills().SetCooldown(ESkill::kIronwind, 2);
 	} else {
 		ch->SetFlag(EPrf::kIronWind);
 		ch->battle_affects.set(kEafIronWind);
@@ -58,7 +58,7 @@ void do_iron_wind(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kIronwind, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	};
-	if (ch->HasCooldown(ESkill::kIronwind)) {
+	if (ch->Skills().HasActiveCooldown(ESkill::kIronwind)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kIronwind, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	};

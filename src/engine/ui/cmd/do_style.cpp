@@ -19,7 +19,7 @@ const char *cstyles[] = {"normal",
 };
 
 void DoStyle(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (ch->HasCooldown(ESkill::kGlobalCooldown)) {
+	if (ch->Skills().HasActiveCooldown(ESkill::kGlobalCooldown)) {
 		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
 		return;
 	};
@@ -72,5 +72,5 @@ void DoStyle(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			break;
 	}
 
-	ch->setSkillCooldown(ESkill::kGlobalCooldown, 2);
+	ch->Skills().SetCooldown(ESkill::kGlobalCooldown, 2);
 }

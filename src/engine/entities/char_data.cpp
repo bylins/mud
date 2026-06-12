@@ -92,7 +92,7 @@ CharData::CharData() :
 	script(new Script()) {
 	this->zero_init();
 	caching::character_cache.Add(this);
-	skills[ESkill::kGlobalCooldown].skillLevel = 0; //добавим позицию в map
+	skills_.SetOwner(this);
 }
 
 CharData::~CharData() {
@@ -462,10 +462,7 @@ int CharData::GetEquippedSkill(const ESkill skill_id) const {
  */
 int CharData::GetTrainedSkill(const ESkill skill_num) const {
 	if (privilege::CheckSkills(this)) {
-		auto it = skills.find(skill_num);
-		if (it != skills.end()) {
-			return std::clamp(it->second.skillLevel, 0, MUD::Skill(skill_num).cap);
-		}
+		return std::clamp(skills_.GetLevel(skill_num), 0, MUD::Skill(skill_num).cap);
 	}
 	return 0;
 }
@@ -477,100 +474,17 @@ void CharData::set_skill(const ESkill skill_id, int percent) {
 		//log("SYSERROR: некорректный номер скилла %d в set_skill.", to_underlying(skill_id));
 		return;
 	}
-	auto it = skills.find(skill_id);
-	if (it != skills.end()) {
-		if (percent) {
-			it->second.skillLevel = percent;
-		} else {
-			skills.erase(it);
-		}
-	} else if (percent) {
-		skills[skill_id].skillLevel = percent;
-	}
+	skills_.SetLevel(skill_id, percent);
 }
 
 void CharData::clear_skills() {
-	skills.clear();
+	skills_.Clear();
 }
 
 int CharData::get_skills_count() const {
-	return static_cast<int>(skills.size());
+	return skills_.Count();
 }
 
-void CharacterSkillDataType::decreaseCooldown(unsigned value) {
-	if (cooldown > value) {
-		cooldown -= value;
-	} else {
-		cooldown = 0u;
-	};
-};
-
-void CharData::setSkillCooldown(ESkill skillID, unsigned cooldown) {
-	auto skillData = skills.find(skillID);
-	if (skillData != skills.end()) {
-		skillData->second.cooldown = cooldown;
-		chardata_cooldown_list.insert(this);
-	}
-};
-
-unsigned CharData::getSkillCooldown(ESkill skillID) {
-	auto skillData = skills.find(skillID);
-	if (skillData != skills.end()) {
-		return skillData->second.cooldown;
-	}
-	return 0;
-};
-
-int CharData::getSkillCooldownInPulses(ESkill skillID) {
-	//return static_cast<int>(std::ceil(skillData->second.cooldown/(0.0 + kBattleRound)));
-	return static_cast<int>(std::ceil(getSkillCooldown(skillID) / (0.0 + kBattleRound)));
-};
-
-/* Понадобится - тогда и раскомментим...
-void CharacterData::decreaseSkillCooldown(ESkill skillID, unsigned value) {
-	auto skillData = skills.find(skillID);
-	if (skillData != skills.end()) {
-		skillData->second.decreaseCooldown(value);
-	}
-};
-*/
-void CharData::decreaseSkillsCooldowns(unsigned value) {
-	for (auto &skillData : skills) {
-		skillData.second.decreaseCooldown(value);
-	}
-};
-
-bool CharData::HaveDecreaseCooldowns() {
-	bool has_cooldown = false;
-	for (auto &skillData : skills) {
-		skillData.second.decreaseCooldown(1);
-		if (skillData.second.cooldown > 0) {
-			has_cooldown = true;
-		}
-	}
-	return has_cooldown;
-}
-
-void CharData::ZeroCooldowns() {
-	for (auto &skillData : skills) {
-		skillData.second.cooldown = 0u;
-	}
-}
-
-bool CharData::haveSkillCooldown(ESkill skillID) {
-	auto skillData = skills.find(skillID);
-	if (skillData != skills.end()) {
-		return (skillData->second.cooldown > 0);
-	}
-	return false;
-};
-
-bool CharData::HasCooldown(ESkill skillID) {
-	if (skills[ESkill::kGlobalCooldown].cooldown > 0) {
-		return true;
-	}
-	return haveSkillCooldown(skillID);
-};
 
 int CharData::get_obj_slot(int slot_num) {
 	if (slot_num >= 0 && slot_num < MAX_ADD_SLOTS) {

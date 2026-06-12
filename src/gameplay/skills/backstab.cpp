@@ -48,7 +48,7 @@ void do_backstab(CharData *ch, CharData *vict) {
 		return;
 	}
 
-	if (ch->HasCooldown(ESkill::kBackstab)) {
+	if (ch->Skills().HasActiveCooldown(ESkill::kBackstab)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kBackstab, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	};

@@ -23,7 +23,7 @@ void do_frenzy(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kFrenzy, ESkillMsg::kPeacefulRoom) + "\r\n", ch);
 		return;
 	}
-	if (ch->HasCooldown(ESkill::kFrenzy) && !ch->IsImmortal()) {
+	if (ch->Skills().HasActiveCooldown(ESkill::kFrenzy) && !ch->IsImmortal()) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kFrenzy, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	}

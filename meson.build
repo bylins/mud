@@ -531,6 +531,7 @@ main_sources = files(
   'src/gameplay/economics/shop_ext.cpp',
   'src/administration/shutdown_parameters.cpp',
   'src/gameplay/skills/skills.cpp',
+  'src/gameplay/skills/character_skills.cpp',
   'src/gameplay/skills/skills_info.cpp',
   'src/gameplay/skills/skill_messages.cpp',
   'src/gameplay/abilities/feat_messages.cpp',

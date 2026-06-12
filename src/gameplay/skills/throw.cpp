@@ -225,7 +225,7 @@ void DoThrow(CharData *ch, CharData *victim) {
 		return;
 	}
 
-	if (ch->HasCooldown(ESkill::kThrow)) {
+	if (ch->Skills().HasActiveCooldown(ESkill::kThrow)) {
 		SendMsgToChar("Так и рука отвалится, нужно передохнуть.\r\n", ch);
 		return;
 	};

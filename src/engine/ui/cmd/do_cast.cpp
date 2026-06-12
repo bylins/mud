@@ -47,7 +47,7 @@ void DoCast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	// The kSilence gate moved below FixNameAndFindSpellId so that we can
 	// consult the resolved spell's verbal component (issue.spellcomponents):
 	// non-verbal spells are castable under kSilence, verbal ones still fizzle.
-	if (ch->HasCooldown(ESkill::kGlobalCooldown)) {
+	if (ch->Skills().HasActiveCooldown(ESkill::kGlobalCooldown)) {
 		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
 		return;
 	}

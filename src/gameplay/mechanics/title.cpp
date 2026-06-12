@@ -10,6 +10,7 @@
 #include "administration/privilege.h"
 #include "engine/ui/color.h"
 #include "gameplay/core/remort.h"
+#include "gameplay/economics/currencies.h"
 
 extern void SendMsgToGods(char *text, bool demigod);
 

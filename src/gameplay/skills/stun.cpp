@@ -14,7 +14,7 @@ void do_stun(CharData *ch, char *argument, int, int) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kStun, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
-	if (ch->HasCooldown(ESkill::kStun)) {
+	if (ch->Skills().HasActiveCooldown(ESkill::kStun)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kStun, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	};
@@ -93,7 +93,7 @@ void go_stun(CharData *ch, CharData *vict) {
 		}
 		vict->SetPosition(EPosition::kIncap);
 		SetWaitState(vict, (2 + remort::GetRealRemort(ch) / 5) * kBattleRound * ch->GetSkill(ESkill::kStun) / MUD::Skill(ESkill::kStun).cap);
-		ch->setSkillCooldown(ESkill::kStun, 3 * kBattleRound);
+		ch->Skills().SetCooldown(ESkill::kStun, 3 * kBattleRound);
 		hit(ch, vict, ESkill::kUndefined, AFF_FLAGGED(vict, EAffect::kStopRight) ? fight::kOffHand : fight::kMainHand);
 	}
 }

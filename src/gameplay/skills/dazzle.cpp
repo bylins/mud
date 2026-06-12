@@ -21,7 +21,7 @@ void DoDazzle(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kDazzle, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
-	if (!ch->IsImmortal() && ch->HasCooldown(ESkill::kDazzle)) {
+	if (!ch->IsImmortal() && ch->Skills().HasActiveCooldown(ESkill::kDazzle)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kDazzle, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	}

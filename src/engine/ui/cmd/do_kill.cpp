@@ -48,7 +48,7 @@ void DoHit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		stop_fighting(ch, 2);
 		SetFighting(ch, vict);
 		SetWait(ch, 2, true);
-		//ch->setSkillCooldown(kGlobalCooldown, 2);
+		//ch->Skills().SetCooldown(kGlobalCooldown, 2);
 		return;
 	}
 	if ((ch->GetPosition() == EPosition::kStand) && (vict != ch->GetEnemy())) {

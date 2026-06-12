@@ -1356,7 +1356,7 @@ void using_charmice_skills(CharData *ch) {
 	CharData *master = (ch->get_master() && !ch->get_master()->IsNpc()) ? ch->get_master() : nullptr;
 	
 	if (charmice_wielded_for_stupor && ch->GetSkill(ESkill::kOverwhelm) > 0) { // оглушить
-		const bool skill_ready = ch->getSkillCooldown(ESkill::kGlobalCooldown) <= 0 && ch->getSkillCooldown(ESkill::kOverwhelm) <= 0;
+		const bool skill_ready = ch->Skills().GetCooldown(ESkill::kGlobalCooldown) <= 0 && ch->Skills().GetCooldown(ESkill::kOverwhelm) <= 0;
 		if (master) {
 			std::stringstream msg;
 			msg << ch->get_name() << " использует оглушение: " << ((do_skill_without_command && skill_ready) ? "ДА" : "НЕТ") << "\r\n";
@@ -1368,7 +1368,7 @@ void using_charmice_skills(CharData *ch) {
 			ch->battle_affects.set(kEafOverwhelm);
 		}
 	} else if (charmice_not_wielded && ch->GetSkill(ESkill::kHammer) > 0) { // молот
-		const bool skill_ready = ch->getSkillCooldown(ESkill::kGlobalCooldown) <= 0 && ch->getSkillCooldown(ESkill::kHammer) <= 0;
+		const bool skill_ready = ch->Skills().GetCooldown(ESkill::kGlobalCooldown) <= 0 && ch->Skills().GetCooldown(ESkill::kHammer) <= 0;
 		if (master) {
 			std::stringstream msg;
 			msg << ch->get_name() << " использует богатырский молот: " << ((do_skill_without_command && skill_ready) ? "ДА" : "НЕТ") << "\r\n";
@@ -1380,7 +1380,7 @@ void using_charmice_skills(CharData *ch) {
 			ch->battle_affects.set(kEafHammer);
 		}
 	} else if(charmice_wielded_for_throw && (ch->GetSkill(ESkill::kThrow) > ch->GetSkill(ESkill::kOverwhelm))) { // метнуть ()
-			const bool skill_ready = ch->getSkillCooldown(ESkill::kGlobalCooldown) <= 0 && ch->getSkillCooldown(ESkill::kThrow) <= 0;
+			const bool skill_ready = ch->Skills().GetCooldown(ESkill::kGlobalCooldown) <= 0 && ch->Skills().GetCooldown(ESkill::kThrow) <= 0;
 		if (master) {
 			std::stringstream msg;
 			msg << ch->get_name() << " использует метнуть : " << ((do_skill_without_command && skill_ready) ? "ДА" : "НЕТ") << "\r\n";
@@ -1393,7 +1393,7 @@ void using_charmice_skills(CharData *ch) {
 		}
 	} else if (!charmice_wielded_for_throw && (ch->get_extra_attack_mode() != kExtraAttackThrow)
 			&& !(ch->battle_affects.get(kEafOverwhelm) || ch->battle_affects.get(kEafHammer)) && ch->GetSkill(ESkill::kChopoff) > 0) { // подножка ()
-		const bool skill_ready = ch->getSkillCooldown(ESkill::kGlobalCooldown) <= 0 && ch->getSkillCooldown(ESkill::kChopoff) <= 0;
+		const bool skill_ready = ch->Skills().GetCooldown(ESkill::kGlobalCooldown) <= 0 && ch->Skills().GetCooldown(ESkill::kChopoff) <= 0;
 		if (master) {
 			std::stringstream msg;
 			msg << ch->get_name() << " использует подножку : " << ((do_skill_without_command && skill_ready) ? "ДА" : "НЕТ") << "\r\n";
@@ -1407,7 +1407,7 @@ void using_charmice_skills(CharData *ch) {
 		} 
 	}   else if (((ch->get_extra_attack_mode() != kExtraAttackThrow) || (ch->get_extra_attack_mode() != kExtraAttackChopoff))
 			&& !(ch->battle_affects.get(kEafOverwhelm) || ch->battle_affects.get(kEafHammer)) && ch->GetSkill(ESkill::kIronwind) > 0) {  // вихрь ()
-		const bool skill_ready = ch->getSkillCooldown(ESkill::kGlobalCooldown) <= 0 && ch->getSkillCooldown(ESkill::kIronwind) <= 0;
+		const bool skill_ready = ch->Skills().GetCooldown(ESkill::kGlobalCooldown) <= 0 && ch->Skills().GetCooldown(ESkill::kIronwind) <= 0;
 		if (master) {
 			std::stringstream msg;
 			msg << ch->get_name() << " использует ВИХРЬ : " << ((do_skill_without_command && skill_ready) ? "ДА" : "НЕТ") << "\r\n";
@@ -1455,7 +1455,7 @@ void using_mob_skills(CharData *ch) {
 		if (ch->GetSkill(sk_num) <= 0) {
 			sk_num = ESkill::kUndefined;
 		}
-		if (ch->HasCooldown(sk_num)) {
+		if (ch->Skills().HasActiveCooldown(sk_num)) {
 			continue;
 		}
 		////////////////////////////////////////////////////////////////////////
@@ -2315,7 +2315,7 @@ int set_hit(CharData *ch, CharData *victim) {
 						 AFF_FLAGGED(ch, EAffect::kStopRight) ? fight::kOffHand : fight::kMainHand);
 	}
 	SetWait(ch, 1, true);
-	//ch->setSkillCooldown(kGlobalCooldown, 2);
+	//ch->Skills().SetCooldown(kGlobalCooldown, 2);
 	return (true);
 };
 
