@@ -13,6 +13,7 @@
 ************************************************************************ */
 
 #include "magic.h"
+#include "administration/privilege.h"
 #include "gameplay/mechanics/condition.h"
 #include "gameplay/fight/fight_stuff.h"
 #include "gameplay/mechanics/mount.h"
@@ -93,7 +94,7 @@ int bonus_antisaving[] ={
 
 int CalcAntiSavings(CharData *ch) {
 	int modi = 0;
-	if (ch->IsImmortal())
+	if (privilege::IsImmortal(ch))
 		modi = 1000;
 	else if (GET_GOD_FLAG(ch, EGf::kGodsLike))
 		modi = 250;
@@ -242,7 +243,7 @@ static int CalcExtraHits(CharData *ch, ESpell spell_id, ESkill skill_id,
 // -- only the force_stopfight branch runs (in the engine, the "fighting" state is itself part
 // of the position system, so stopping a fight is a position change in that sense).
 static void ForceReposition(CharData *victim, ESpell spell_id, EPosition pos, bool force_stopfight = false) {
-	if (victim->IsImmortal()) {
+	if (privilege::IsImmortal(victim)) {
 		return;
 	}
 	const bool reposition = (pos != EPosition::kUndefined);
@@ -357,7 +358,7 @@ bool TryReflectByMagicGlass(CharData *ch, CharData *victim, ESpell spell_id) {
 	if (ch == victim) return false;
 	if (MUD::Spell(spell_id).IsFlagged(kMagWarcry)) return false;
 	if (!MUD::Spell(spell_id).IsViolentAgainst(ch, victim)) return false;
-	if (ch->IsGod()) return false;
+	if (privilege::IsGod(ch)) return false;
 	if (ch->in_room != victim->in_room) return false;
 	if (!AFF_FLAGGED(victim, EAffect::kMagicGlass)) return false;
 	if (number(1, 100) >= (GetRealLevel(victim) / 3)) return false;
@@ -371,7 +372,7 @@ bool TryReflectBySonicBarrier(CharData *ch, CharData *victim, ESpell spell_id) {
 	if (ch == victim) return false;
 	if (!MUD::Spell(spell_id).IsFlagged(kMagWarcry)) return false;
 	if (!MUD::Spell(spell_id).IsViolentAgainst(ch, victim)) return false;
-	if (!victim->IsGod()) return false;
+	if (!privilege::IsGod(victim)) return false;
 	if (!ch->IsNpc() && GetRealLevel(victim) <= (GetRealLevel(ch) + remort::GetRealRemort(ch) / 2)) return false;
 	act("Звуковой барьер $N1 отразил ваш крик!", false, ch, nullptr, victim, kToChar);
 	act("Звуковой барьер $N1 отразил крик $n1!", false, ch, nullptr, victim, kToNotVict);
@@ -1047,11 +1048,11 @@ EStageResult CastAffect(CastContext &ctx) {
 
 
 	// A violent spell can never touch an immortal target: there is nothing to build or
-	// roll, so stop here. This subsumes the per-case victim->IsImmortal() guards.
+	// roll, so stop here. This subsumes the per-case privilege::IsImmortal(victim) guards.
 	// An A spell resolves against the immortal: a mortal casting
 	// kDispellMagic on an immortal outsider is aggressive -> blocked; on a grouped
 	// immortal -> non-violent path, no block here.
-	if (victim->IsImmortal() && MUD::Spell(spell_id).IsViolentAgainst(ch, victim)) {
+	if (privilege::IsImmortal(victim) && MUD::Spell(spell_id).IsViolentAgainst(ch, victim)) {
 		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 		spell_trace::Line(ch, victim, "&CAffect %s on %s blocked: target is immortal.&n\r\n",
 			MUD::Spell(spell_id).GetCName(), GET_NAME(victim));
@@ -1344,7 +1345,7 @@ EStageResult CastSummonAction(CastContext &ctx) {
 	int pfail = s.base_fail - static_cast<int>(ctx.CompetenceBase() * s.competence_weight);
 	if (pfail < s.min_fail) { pfail = s.min_fail; }
 	if (pfail > 100) { pfail = 100; }
-	if (!ch->IsImmortal() && number(0, 101) < pfail) {
+	if (!privilege::IsImmortal(ch) && number(0, 101) < pfail) {
 		const bool fail_sticks = !CanUseFeat(ch, EFeat::kFavorOfDarkness) || number(0, 3) == 0;
 		if (fail_sticks) {
 			SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kSummonFail) + "\r\n", ch);
@@ -1422,7 +1423,7 @@ static EStageResult CorpseSummon(CastContext &ctx, bool resurrection) {
 			mob_num = PickNecroMobForCorpse(ch, GetRealLevel(tmp_mob));
 		}
 	}
-	if (!ch->IsImmortal() && number(0, 101) < pfail) {
+	if (!privilege::IsImmortal(ch) && number(0, 101) < pfail) {
 		const bool fail_sticks = !CanUseFeat(ch, EFeat::kFavorOfDarkness) || number(0, 3) == 0;
 		if (fail_sticks) {
 			SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kSummonFail) + "\r\n", ch);
@@ -2724,7 +2725,7 @@ ECastResult CastOnTarget(CastContext &ctx, bool is_entry) {
 			// can't penetrate a debuff's saving throw, and damage now scales with (low) skill.
 			// Kept for quick reactivation if some unforeseen case needs it:
 			//     || (((GetRealLevel(cvict) / 2) > (GetRealLevel(caster) + (GetRealRemort(caster) / 2))) && !caster->IsNpc())
-			if (cvict->IsGod() /* level-diff condition disabled, see above */) {
+			if (privilege::IsGod(cvict) /* level-diff condition disabled, see above */) {
 				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", caster);
 				return ECastResult::kNotCast;
 			}

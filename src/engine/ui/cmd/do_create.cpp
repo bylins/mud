@@ -1,4 +1,5 @@
 #include "do_create.h"
+#include "administration/privilege.h"
 #include "gameplay/mechanics/magic_item.h"
 
 #include <string>
@@ -78,7 +79,7 @@ void do_create(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		return;
 	}
 	// Caster is don't know this recipe
-	if (!IS_SET(GET_SPELL_TYPE(ch, spell_id), itemnum) && !ch->IsImmortal()) {
+	if (!IS_SET(GET_SPELL_TYPE(ch, spell_id), itemnum) && !privilege::IsImmortal(ch)) {
 		SendMsgToChar("Было бы неплохо прежде всего выучить этот состав.\r\n", ch);
 		return;
 	}

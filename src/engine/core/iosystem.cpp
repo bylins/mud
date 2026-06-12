@@ -7,6 +7,7 @@
 */
 
 #include "engine/core/iosystem.h"
+#include "administration/privilege.h"
 #include "utils/utils_encoding.h"
 #include "utils/grammar/gender.h"
 #include "gameplay/mechanics/sight.h"
@@ -1125,7 +1126,7 @@ std::string MakePrompt(DescriptorData *d) {
 		}
 
 		if (ch->IsFlagged(EPrf::kDispExp)) {
-			if (ch->IsImmortal()) {
+			if (privilege::IsImmortal(ch.get())) {
 				fmt::format_to(std::back_inserter(out), "??? ");
 			} else {
 				fmt::format_to(std::back_inserter(out), "{}o ",

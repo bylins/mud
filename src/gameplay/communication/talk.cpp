@@ -7,6 +7,7 @@
 */
 
 #include "engine/entities/char_data.h"
+#include "administration/privilege.h"
 #include "utils/grammar/gender.h"
 #include "engine/ui/color.h"
 #include "remember.h"
@@ -30,7 +31,7 @@ void tell_to_char(CharData *keeper, CharData *ch, const char *argument) {
 }
 
 bool tell_can_see(CharData *ch, CharData *vict) {
-	if (sight::CanSeeIgnoringLight(vict, ch) || ch->IsImmortal() || GET_INVIS_LEV(ch)) {
+	if (sight::CanSeeIgnoringLight(vict, ch) || privilege::IsImmortal(ch) || GET_INVIS_LEV(ch)) {
 		return true;
 	} else {
 		return false;
@@ -53,7 +54,7 @@ int is_tell_ok(CharData *ch, CharData *vict) {
 		return (false);
 	}
 
-	if (ch->IsGod() || ch->IsFlagged(EPrf::kCoderinfo))
+	if (privilege::IsGod(ch) || ch->IsFlagged(EPrf::kCoderinfo))
 		return (true);
 
 	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kSoundproof))

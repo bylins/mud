@@ -4,6 +4,7 @@
 */
 
 #include "gameplay/handlers/spell_handlers.h"
+#include "administration/privilege.h"
 #include "gameplay/mechanics/mount.h"
 #include "engine/core/target_resolver.h"
 #include "engine/entities/char_data.h"
@@ -29,7 +30,7 @@ EStageResult SpellRecall(CastContext &ctx) {
 
 	// kNoTeleportOut moved to <blocking><room_flags> in spells.xml; CallMagic
 	// fizzles before this function runs.
-	if (!ch->IsGod() && AFF_FLAGGED(victim, EAffect::kNoTeleport)) {
+	if (!privilege::IsGod(ch) && AFF_FLAGGED(victim, EAffect::kNoTeleport)) {
 		SendMsgToChar(MUD::SpellMessages().GetMessage(ESpell::kWorldOfRecall, ESpellMsg::kSummonFail) + "\r\n", ch);
 		return EStageResult::kSuccess;
 	}
@@ -47,7 +48,7 @@ EStageResult SpellRecall(CastContext &ctx) {
 			return EStageResult::kSuccess;
 		}
 
-		if ((ch->IsNpc() && CalcGeneralSaving(ch, victim, ESaving::kWill, GetRealInt(ch))) || victim->IsGod()) {
+		if ((ch->IsNpc() && CalcGeneralSaving(ch, victim, ESaving::kWill, GetRealInt(ch))) || privilege::IsGod(victim)) {
 			return EStageResult::kSuccess;
 		}
 	}

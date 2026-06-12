@@ -2,6 +2,7 @@
 
 #include <random>
 #include "gameplay/mechanics/alignment.h"
+#include "administration/privilege.h"
 #include "utils/grammar/declensions.h"
 #include "gameplay/mechanics/minions.h"
 #include "gameplay/mechanics/mount.h"
@@ -252,7 +253,7 @@ void die(CharData *ch, CharData *killer) {
 		|| !ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena)
 		|| NORENTABLE(ch)) {
 		if (!(ch->IsNpc()
-			|| ch->IsImmortal()
+			|| privilege::IsImmortal(ch)
 			|| GET_GOD_FLAG(ch, EGf::kGodsLike)
 			|| (killer && killer->IsFlagged(EPrf::kExecutor))))//если убил не палач
 		{
@@ -770,7 +771,7 @@ void perform_group_gain(CharData *ch, CharData *victim, int members, int koef) {
 		alignment::ChangeAlignment(ch, victim);
 		if (!(victim)->Temporary.get(EXTRA_GRP_KILL_COUNT)
 				&& !ch->IsNpc()
-				&& !ch->IsImmortal()
+				&& !privilege::IsImmortal(ch)
 				&& victim->IsNpc()
 				&& !IsCharmice(victim)
 				&& !ROOM_FLAGGED(victim->in_room, ERoomFlag::kArena)) {

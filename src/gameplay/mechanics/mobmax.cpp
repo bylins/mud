@@ -3,6 +3,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "mobmax.h"
+#include "administration/privilege.h"
 
 #include "utils/buffered_file_writer.h"
 #include "dungeons.h"
@@ -116,7 +117,7 @@ void MobMax::add(CharData *ch, int vnum, int count, int level) {
 		MobVnum  mvn = vnum % 100;
 		vnum = zone_table[GetZoneRnum(zvn)].copy_from_zone * 100 + mvn;
 	}
-	if (ch->IsNpc() || ch->IsImmortal() || vnum < 0 || count < 1 || level < 0 || level > kMaxMobLevel) return;
+	if (ch->IsNpc() || privilege::IsImmortal(ch) || vnum < 0 || count < 1 || level < 0 || level > kMaxMobLevel) return;
 
 	auto it = std::find_if(mobmax_.begin(), mobmax_.end(), [&](const mobmax_data &data) {
 		return data.vnum == vnum;
@@ -133,7 +134,7 @@ void MobMax::add(CharData *ch, int vnum, int count, int level) {
 
 // * Версия add без лишних расчетов для инита во время загрузки персонажа.
 void MobMax::load(CharData *ch, int vnum, int count, int level) {
-	if (ch->IsNpc() || ch->IsImmortal() || vnum < 0 || count < 1 || level < 0 || level > kMaxMobLevel) {
+	if (ch->IsNpc() || privilege::IsImmortal(ch) || vnum < 0 || count < 1 || level < 0 || level > kMaxMobLevel) {
 		return;
 	}
 	mobmax_data tmp_data(vnum, count, level);

@@ -7,9 +7,10 @@
 */
 
 #include "engine/entities/char_data.h"
+#include "administration/privilege.h"
 
 void do_antigods(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	if (ch->IsImmortal()) {
+	if (privilege::IsImmortal(ch)) {
 		SendMsgToChar("Оно вам надо?\r\n", ch);
 		return;
 	}

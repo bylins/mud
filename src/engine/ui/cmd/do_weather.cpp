@@ -7,6 +7,7 @@
 */
 
 #include "engine/entities/char_data.h"
+#include "administration/privilege.h"
 #include "utils/grammar/declensions.h"
 #include "gameplay/mechanics/weather.h"
 
@@ -65,7 +66,7 @@ void do_weather(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 	} else {
 		SendMsgToChar("Вы ничего не можете сказать о погоде сегодня.\r\n", ch);
 	}
-	if (ch->IsGod()) {
+	if (privilege::IsGod(ch)) {
 		sprintf(buf, "День: %d Месяц: %s Час: %d Такт = %d\r\n"
 					 "Температура =%-5d, за день = %-8d, за неделю = %-8d\r\n"
 					 "Давление    =%-5d, за день = %-8d, за неделю = %-8d\r\n"

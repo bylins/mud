@@ -1,4 +1,5 @@
 #include "common.h"
+#include "administration/privilege.h"
 
 #include "gameplay/skills/parry.h"
 #include "engine/core/handler.h"
@@ -34,7 +35,7 @@ int IsHaveNoExtraAttack(CharData *ch) {
 }
 
 void SetWait(CharData *ch, int waittime, int wait_if_fight) {
-	if (!ch->IsImmortal() && (!wait_if_fight || (ch->GetEnemy() && ch->isInSameRoom(ch->GetEnemy())))) {
+	if (!privilege::IsImmortal(ch) && (!wait_if_fight || (ch->GetEnemy() && ch->isInSameRoom(ch->GetEnemy())))) {
 		SetBattleLag(ch, waittime);
 	}
 }

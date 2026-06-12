@@ -13,6 +13,7 @@
 ************************************************************************ */
 
 #include "gameplay/core/game_limits.h"
+#include "administration/privilege.h"
 #include "gameplay/mechanics/condition.h"
 #include "utils/grammar/gender.h"
 #include "gameplay/mechanics/minions.h"
@@ -623,7 +624,7 @@ void beat_punish(const CharData::shared_ptr &i) {
 
 				i->set_was_in_room(kNowhere);
 			};
-		} else if (restore == r_unreg_start_room && check_dupes_host(i->desc, true) && !i->IsImmortal()) {
+		} else if (restore == r_unreg_start_room && check_dupes_host(i->desc, true) && !privilege::IsImmortal(i.get())) {
 			SendMsgToChar("Неведомая вытолкнула вас из комнаты для незарегистрированных игроков.\r\n", i.get());
 			act("$n появил$u в центре комнаты, правда без штампика регистрации...\r\n",
 				false, i.get(), nullptr, nullptr, kToRoom);
@@ -972,7 +973,7 @@ void gain_condition(CharData *ch, unsigned condition, int value) {
 		return;
 	}
 
-	if (ch->IsGod() && condition != condition::kDrunk) {
+	if (privilege::IsGod(ch) && condition != condition::kDrunk) {
 		GET_COND(ch, condition) = -1;
 		return;
 	}
@@ -1044,7 +1045,7 @@ void underwater_check() {
 	for (d = descriptor_list; d; d = d->next) {
 		if (d->character
 			&& SECT(d->character->in_room) == ESector::kUnderwater
-			&& !d->character->IsGod()
+			&& !privilege::IsGod(d->character.get())
 			&& !AFF_FLAGGED(d->character, EAffect::kWaterBreath)) {
 			sprintf(buf, "Player %s died under water (room %d)",
 					GET_NAME(d->character), GET_ROOM_VNUM(d->character->in_room));

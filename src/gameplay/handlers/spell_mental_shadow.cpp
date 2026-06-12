@@ -4,6 +4,7 @@
 */
 
 #include "gameplay/handlers/spell_handlers.h"
+#include "administration/privilege.h"
 #include "gameplay/mechanics/follow.h"
 #include "engine/entities/char_data.h"
 #include "engine/core/comm.h"
@@ -37,7 +38,7 @@ EStageResult SpellMentalShadow(CastContext &ctx) {
 	int hp_per_int = 15;
 	float base_ac = 100;
 	float additional_ac = -1.5;
-	if (eff_int < 26 && !ch->IsImmortal()) {
+	if (eff_int < 26 && !privilege::IsImmortal(ch)) {
 		// low-Int rejection on kMentalShadow's sheaf as kCustomMsgOne.
 		SendMsgToChar(MUD::SpellMessages().GetMessage(
 				ESpell::kMentalShadow, ESpellMsg::kCustomMsgOne) + "\r\n", ch);

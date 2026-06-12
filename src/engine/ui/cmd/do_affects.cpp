@@ -3,6 +3,7 @@
 //
 
 #include "engine/entities/char_data.h"
+#include "administration/privilege.h"
 #include "utils/grammar/declensions.h"
 #include "engine/ui/color.h"
 #include "engine/db/global_objects.h"
@@ -62,7 +63,7 @@ void do_affects(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					 *sp_name == '!' ? "Состояние  : " : "Заклинание : ",
 					 kColorBoldCyn, sp_name, buf2, kColorNrm);
 			*buf2 = '\0';
-			if (!ch->IsImmortal()) {
+			if (!privilege::IsImmortal(ch)) {
 				auto next_affect_i = affect_i;
 				++next_affect_i;
 				if (next_affect_i != ch->affected.end()) {
@@ -96,7 +97,7 @@ void do_affects(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			// recorded on the affect at impose time; drives the dispel comparison in
 			// CastUnaffects::DispelSucceeds. 0 means "not recorded" (charms, name-tied
 			// affects, etc.).
-			if (ch->IsImmortal() || ch->IsFlagged(EPrf::kTester)) {
+			if (privilege::IsImmortal(ch) || ch->IsFlagged(EPrf::kTester)) {
 				snprintf(buf + strlen(buf), sizeof(buf) - strlen(buf), " [p: %.1f]", aff->potency);
 			}
 			SendMsgToChar(strcat(buf, "\r\n"), ch);

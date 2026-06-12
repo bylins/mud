@@ -3,6 +3,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "engine/ui/mapsystem.h"
+#include "administration/privilege.h"
 #include <queue>
 #include <unordered_set>
 #include <fmt/format.h>
@@ -221,7 +222,7 @@ const char *signs[] =
 
 
 inline bool GodBigMode(CharData *ch) { 
-	return ch->map_check_option(MAP_MODE_GOD_BIG) && ch->IsImmortal();
+	return ch->map_check_option(MAP_MODE_GOD_BIG) && privilege::IsImmortal(ch);
 }
 // отрисовка символа на поле по координатам
 // при обходе в ширину первый записанный символ - самый близкий к игроку
@@ -266,7 +267,7 @@ void check_position_and_put_on_screen(int next_y, int next_x, int sign_num, int 
 }
 
 void draw_mobs(const CharData *ch, int room_rnum, int next_y, int next_x) {
-	if (is_dark(room_rnum) && !ch->IsImmortal()) {
+	if (is_dark(room_rnum) && !privilege::IsImmortal(ch)) {
 		put_on_screen(next_y, next_x - 1, SCREEN_MOB_UNDEF, 1);
 	} else {
 		int cnt = 0;
@@ -296,7 +297,7 @@ void draw_mobs(const CharData *ch, int room_rnum, int next_y, int next_x) {
 }
 
 void draw_objs(const CharData *ch, int room_rnum, int next_y, int next_x) {
-	if (is_dark(room_rnum) && !ch->IsImmortal()) {
+	if (is_dark(room_rnum) && !privilege::IsImmortal(ch)) {
 		put_on_screen(next_y, next_x + 1, SCREEN_OBJ_UNDEF, 1);
 	} else {
 		int cnt = 0;
@@ -466,7 +467,7 @@ void draw_map_bfs(CharData *ch) {
 
 			if (room->dir_option[i]
 				&& room->dir_option[i]->to_room() != kNowhere
-				&& (!EXIT_FLAGGED(room->dir_option[i], EExitFlag::kHidden) || ch->IsImmortal())) {
+				&& (!EXIT_FLAGGED(room->dir_option[i], EExitFlag::kHidden) || privilege::IsImmortal(ch))) {
 				if (EXIT_FLAGGED(room->dir_option[i], EExitFlag::kClosed)) {
 					put_on_screen(cur_y, cur_x, cur_sign + 1, cur_depth);
 				} else if (EXIT_FLAGGED(room->dir_option[i], EExitFlag::kHidden)) {
@@ -474,12 +475,12 @@ void draw_map_bfs(CharData *ch) {
 				} else {
 					put_on_screen(cur_y, cur_x, cur_sign, cur_depth);
 				}
-				if (EXIT_FLAGGED(room->dir_option[i], EExitFlag::kClosed) && !ch->IsImmortal()) {
+				if (EXIT_FLAGGED(room->dir_option[i], EExitFlag::kClosed) && !privilege::IsImmortal(ch)) {
 					continue;
 				}
 				const RoomData *next_room = world[room->dir_option[i]->to_room()];
 				if (next_room->get_flag(ERoomFlag::kDeathTrap)
-					&& (remort::GetRealRemort(ch) <= 5 || view_dt || ch->IsImmortal())) {
+					&& (remort::GetRealRemort(ch) <= 5 || view_dt || privilege::IsImmortal(ch))) {
 					check_position_and_put_on_screen(next_y, next_x, SCREEN_DEATH_TRAP, cur_depth, i);
 				}
 				if (IsCharNeedBoatThere(ch, next_room->sector_type)) {
@@ -510,7 +511,7 @@ void draw_map_bfs(CharData *ch) {
 					draw_spec_mobs(ch, room->dir_option[i]->to_room(), next_y, next_x, cur_depth);
 				}
 				if ((GodBigMode(ch) || cur_depth == 1)
-					&& (!EXIT_FLAGGED(room->dir_option[i], EExitFlag::kClosed) || ch->IsImmortal())
+					&& (!EXIT_FLAGGED(room->dir_option[i], EExitFlag::kClosed) || privilege::IsImmortal(ch))
 					&& (ch->map_check_option(MAP_MODE_MOBS) || ch->map_check_option(MAP_MODE_PLAYERS))) {
 					if (cur_sign == SCREEN_UP_OPEN) {
 						draw_mobs(ch, room->dir_option[i]->to_room(), next_y - 1, next_x + 3);
@@ -521,7 +522,7 @@ void draw_map_bfs(CharData *ch) {
 					}
 				}
 				if ((GodBigMode(ch) || cur_depth == 1)
-					&& (!EXIT_FLAGGED(room->dir_option[i], EExitFlag::kClosed) || ch->IsImmortal())
+					&& (!EXIT_FLAGGED(room->dir_option[i], EExitFlag::kClosed) || privilege::IsImmortal(ch))
 					&& (ch->map_check_option(MAP_MODE_MOBS_CORPSES)
 						|| ch->map_check_option(MAP_MODE_PLAYER_CORPSES)
 						|| ch->map_check_option(MAP_MODE_INGREDIENTS)
@@ -536,7 +537,7 @@ void draw_map_bfs(CharData *ch) {
 				}
 				if (i != EDirection::kUp && i != EDirection::kDown
 					&& cur_depth < MAX_DEPTH_ROOMS
-					&& (!EXIT_FLAGGED(room->dir_option[i], EExitFlag::kClosed) || ch->IsImmortal())
+					&& (!EXIT_FLAGGED(room->dir_option[i], EExitFlag::kClosed) || privilege::IsImmortal(ch))
 					&& next_room->zone_rn == world[ch->in_room]->zone_rn
 					&& mode_allow(ch, cur_depth)
 					&& visited.find(next_room->vnum) == visited.end()) {
@@ -552,7 +553,7 @@ void draw_map_bfs(CharData *ch) {
 
 // imm по дефолту = 0, если нет, то распечатанная карта засылается ему
 void print_map(CharData *ch, CharData *imm) {
-	if (!ch->IsImpl() && ROOM_FLAGGED(ch->in_room, ERoomFlag::kMoMapper))
+	if (!privilege::IsImpl(ch) && ROOM_FLAGGED(ch->in_room, ERoomFlag::kMoMapper))
 		return;
 	MAX_LINES = MAX_LINES_STANDART;
 	MAX_LENGTH = MAX_LENGTH_STANDART;
@@ -657,7 +658,7 @@ void print_map(CharData *ch, CharData *imm) {
 	unsigned left_margin = 0;
 	unsigned right_margin = MAX_LENGTH - 1;
 
-	if (ch->map_check_option(MAP_MODE_GOD_BIG) && ch->IsImmortal()) {
+	if (ch->map_check_option(MAP_MODE_GOD_BIG) && privilege::IsImmortal(ch)) {
 		left_margin =  MAX_LENGTH;
 		right_margin = 0;
 		for (int i = start_line; i < end_line; ++i) {
@@ -828,7 +829,7 @@ void Options::olc_menu(CharData *ch) {
 				out << "\r\n";
 				break;
 			case MAP_MODE_GOD_BIG:
-				if (ch->IsImmortal()) {
+				if (privilege::IsImmortal(ch)) {
 					++cnt;
 					out << kColorGrn << cnt << kColorNrm
 						<< ") " << (bit_list_[MAP_MODE_GOD_BIG] ? "[x]" : "[ ]")
@@ -865,7 +866,7 @@ void Options::parse_menu(CharData *ch, const char *arg) {
 	int cnt = 0;
 	int mapped = -1;
 	for (int i = 0; i < TOTAL_MAP_OPTIONS; ++i) {
-		if (i == MAP_MODE_GOD_BIG && !ch->IsImmortal()) {
+		if (i == MAP_MODE_GOD_BIG && !privilege::IsImmortal(ch)) {
 			continue;
 		}
 		++cnt;
@@ -884,7 +885,7 @@ void Options::parse_menu(CharData *ch, const char *arg) {
 		bit_list_.reset(MAP_MODE_1_DEPTH);
 		bit_list_.reset(MAP_MODE_2_DEPTH);
 		bit_list_.reset(MAP_MODE_DEPTH_FIXED);
-		if (!ch->IsImmortal()) {
+		if (!privilege::IsImmortal(ch)) {
 			bit_list_.reset(MAP_MODE_GOD_BIG);
 		}
 		olc_menu(ch);
@@ -979,7 +980,7 @@ bool parse_text_olc(CharData *ch, const std::string &str, std::bitset<TOTAL_MAP_
 			bits[MAP_MODE_MOBS_CURR_ROOM] = flag;
 		} else if (isname(*k, "предметы в комнате")) {
 			bits[MAP_MODE_OBJS_CURR_ROOM] = flag;
-		} else if (isname(*k, "карта богов") && ch->IsImmortal()) {
+		} else if (isname(*k, "карта богов") && privilege::IsImmortal(ch)) {
 			bits[MAP_MODE_GOD_BIG] = flag;
 		} else {
 			error = true;
@@ -1027,7 +1028,7 @@ void Options::text_olc(CharData *ch, const char *arg) {
 		bit_list_ = tmp_bits;
 		print_map(ch);
 		bit_list_ = saved_ch_bits;
-	} else if (isname(first_arg, "богов") && ch->IsImmortal()) {
+	} else if (isname(first_arg, "богов") && privilege::IsImmortal(ch)) {
 		bit_list_[MAP_MODE_GOD_BIG].flip();
 		SendMsgToChar(ch, "Карта богов: %s\r\n", bit_list_[MAP_MODE_GOD_BIG] ? "включена" : "выключена");
 	} else {

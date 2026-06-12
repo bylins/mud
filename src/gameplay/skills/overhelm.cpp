@@ -1,4 +1,5 @@
 #include "overhelm.h"
+#include "administration/privilege.h"
 #include "gameplay/mechanics/sight.h"
 #include "gameplay/mechanics/mount.h"
 #include "skill_messages.h"
@@ -98,7 +99,7 @@ void PerformOverhelm(CharData *ch, CharData *victim, HitData &hit_data) {
 	ch->battle_affects.unset(kEafOverwhelm);
 	hit_data.SetFlag(fight::kIgnoreBlink);
 	const int minimum_weapon_weigth = 19;
-	if (ch->IsImmortal()) {
+	if (privilege::IsImmortal(ch)) {
 		hit_data.dam = CalcOverhelmDmg(ch, victim, hit_data.dam);
 	} else if (ch->IsNpc()) {
 		const bool wielded_with_bow = hit_data.wielded &&
@@ -145,7 +146,7 @@ int CalcOverhelmDmg(CharData *ch, CharData *victim, int dmg) {
 		prob = std::max(prob, percent * 150 / 100 + 1);
 	}
 
-	if (victim->IsImmortal()) {
+	if (privilege::IsImmortal(victim)) {
 		prob = 0;
 	}
 

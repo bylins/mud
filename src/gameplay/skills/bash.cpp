@@ -1,4 +1,5 @@
 #include "bash.h"
+#include "administration/privilege.h"
 #include "gameplay/mechanics/mount.h"
 
 #include "skill_messages.h"
@@ -60,7 +61,7 @@ void do_bash(CharData *ch, CharData *vict) {
 		return;
 	}
 
-	if (ch->IsImpl() || !ch->GetEnemy()) {
+	if (privilege::IsImpl(ch) || !ch->GetEnemy()) {
 		go_bash(ch, vict);
 	} else if (IsHaveNoExtraAttack(ch)) {
 		if (!ch->IsNpc())
@@ -89,7 +90,7 @@ void go_bash(CharData *ch, CharData *vict) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kBash, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	}
-	if (!(ch->IsNpc() || GET_EQ(ch, kShield) || ch->IsImmortal() || AFF_FLAGGED(vict, EAffect::kHold)
+	if (!(ch->IsNpc() || GET_EQ(ch, kShield) || privilege::IsImmortal(ch) || AFF_FLAGGED(vict, EAffect::kHold)
 		|| GET_GOD_FLAG(vict, EGf::kGodscurse))) {
 		SendMsgToChar("Вы не можете сделать этого без щита.\r\n", ch);
       SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kBash, ESkillMsg::kWrongWeapon) + "\r\n", ch);
@@ -211,7 +212,7 @@ void go_bash(CharData *ch, CharData *vict) {
 			&& !AFF_FLAGGED(vict, EAffect::kStopLeft)
 			&& vict->get_wait() <= 0
 			&& AFF_FLAGGED(vict, EAffect::kHold) == 0) {
-			if (!(GET_EQ(vict, kShield) || vict->IsNpc() || vict->IsImmortal() || GET_GOD_FLAG(vict, EGf::kGodsLike)))
+			if (!(GET_EQ(vict, kShield) || vict->IsNpc() || privilege::IsImmortal(vict) || GET_GOD_FLAG(vict, EGf::kGodsLike)))
 				SendMsgToChar("У вас нечем отразить атаку противника.\r\n", vict);
 			else {
 				int range, prob2;
@@ -248,7 +249,7 @@ void go_bash(CharData *ch, CharData *vict) {
 		dmg.flags.set(fight::kIgnoreBlink);
 		damage = dmg.Process(ch, vict);
 		// Сам баш:
-		if (!vict->IsImpl()) {
+		if (!privilege::IsImpl(vict)) {
 			if (vict->GetPosition() > EPosition::kSit) {
 				vict->SetPosition(EPosition::kSit);
 				mount::DropFromHorse(vict);

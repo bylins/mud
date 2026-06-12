@@ -7,6 +7,7 @@
 */
 
 #include "engine/entities/char_data.h"
+#include "administration/privilege.h"
 #include "engine/ui/cmd/do_recall.h"
 #include "engine/db/world_characters.h"
 #include "gameplay/clans/house.h"
@@ -29,12 +30,12 @@ void DoSwitch(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			SendMsgToChar("Вы и так им являетесь.\r\n", ch);
 		} else if (visible_character->desc) {
 			SendMsgToChar("Это тело уже под контролем.\r\n", ch);
-		} else if (!ch->IsImpl() && !visible_character->IsNpc()) {
+		} else if (!privilege::IsImpl(ch) && !visible_character->IsNpc()) {
 			SendMsgToChar("Вы не столь могущественны, чтобы контроолировать тело игрока.\r\n", ch);
 		} else if (GetRealLevel(ch) < kLvlGreatGod
 			&& ROOM_FLAGGED(visible_character->in_room, ERoomFlag::kGodsRoom)) {
 			SendMsgToChar("Вы не можете находиться в той комнате.\r\n", ch);
-		} else if (!ch->IsGrGod()
+		} else if (!privilege::IsGrGod(ch)
 			&& !Clan::MayEnter(ch, visible_character->in_room, kHousePortal)) {
 			SendMsgToChar("Вы не сможете проникнуть на частную территорию.\r\n", ch);
 		} else {

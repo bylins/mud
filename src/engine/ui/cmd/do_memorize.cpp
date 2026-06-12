@@ -1,4 +1,5 @@
 #include "do_memorize.h"
+#include "administration/privilege.h"
 
 #include <string>
 
@@ -22,7 +23,7 @@ void do_memorize(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		show_wizdom(ch, 0x07);
 		return;
 	}
-	if (ch->IsImmortal()) {
+	if (privilege::IsImmortal(ch)) {
 		SendMsgToChar("Господи, хоть ты не подкалывай!\r\n", ch);
 		return;
 	}
@@ -78,7 +79,7 @@ void show_wizdom(CharData *ch, int bitset) {
 				continue;
 			}
 			count = GET_SPELL_MEM(ch, spell_id);
-			if (ch->IsImmortal())
+			if (privilege::IsImmortal(ch))
 				count = 10;
 			if (!count)
 				continue;

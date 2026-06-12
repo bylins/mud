@@ -3,6 +3,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "glory_misc.h"
+#include "administration/privilege.h"
 #include "glory.h"
 #include "glory_const.h"
 #include "gameplay/core/genchar.h"
@@ -207,7 +208,7 @@ int bad_real_stats(CharData *ch, int check) {
 */
 bool check_stats(CharData *ch) {
 	// иммов травмировать не стоит
-	if (ch->IsImmortal()) {
+	if (privilege::IsImmortal(ch)) {
 		return 1;
 	}
 

@@ -10,6 +10,7 @@ str.cpp - PyUnicode_FromString на PyUnicode_DecodeLocale, PyUnicode_FromString
 Т.е. делаем все так же, как и здесь http://habrahabr.ru/post/161931/
 */
 #include "scripting.h"
+#include "administration/privilege.h"
 #include "gameplay/mechanics/sight.h"
 #include "gameplay/mechanics/mount.h"
 
@@ -187,12 +188,12 @@ class CharacterWrapper : public Wrapper<CharacterData> {
 
 	bool is_immortal() {
 		Ensurer ch(*this);
-		return ch->IsImmortal();
+		return privilege::IsImmortal(ch);
 	}
 
 	bool is_impl() {
 		Ensurer ch(*this);
-		return ch->IsImpl();
+		return privilege::IsImpl(ch);
 	}
 
 	bool is_NPC() {

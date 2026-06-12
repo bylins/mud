@@ -1,4 +1,5 @@
 #include "do_eat.h"
+#include "administration/privilege.h"
 
 #include "engine/entities/char_data.h"
 #include "engine/core/handler.h"
@@ -138,7 +139,7 @@ void do_eat(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		return;
 	}
 
-	if (!ch->IsGod()) {
+	if (!privilege::IsGod(ch)) {
 		if (food->get_type() == EObjType::kMagicComponent) //Сообщение на случай попытки проглотить ингры
 		{
 			SendMsgToChar("Не можешь приготовить - покупай готовое!\r\n", ch);
@@ -191,7 +192,7 @@ void do_eat(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 	}
 
-	if ((GET_OBJ_VAL(food, 3) == 1) && !ch->IsImmortal())    // The shit was poisoned !
+	if ((GET_OBJ_VAL(food, 3) == 1) && !privilege::IsImmortal(ch))    // The shit was poisoned !
 	{
 		SendMsgToChar("Однако, какой странный вкус!\r\n", ch);
 		act("$n закашлял$u и начал$g отплевываться.",

@@ -4,6 +4,7 @@
 */
 
 #include "gameplay/handlers/spell_handlers.h"
+#include "administration/privilege.h"
 #include "engine/entities/char_data.h"
 #include "engine/core/comm.h"
 #include "engine/db/global_objects.h"
@@ -50,7 +51,7 @@ EStageResult SpellCreateWater(CastContext &ctx) {
 			}
 		}
 	}
-	if (victim && !victim->IsNpc() && !victim->IsImmortal()) {
+	if (victim && !victim->IsNpc() && !privilege::IsImmortal(victim)) {
 		GET_COND(victim, condition::kThirst) = 0;
 		// kCreateWater overrides kThirstToVict with "Вы полностью утолили жажду."
 		// (literal text, no {intensity} expansion -- the manual path bypasses

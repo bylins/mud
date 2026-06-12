@@ -10,6 +10,7 @@
 // * AutoEQ by Burkhard Knopf <burkhard.knopf@informatik.tu-clausthal.de>
 
 #include "obj_save.h"
+#include "administration/privilege.h"
 #include "utils/grammar/gender.h"
 #include "utils/grammar/declensions.h"
 #include "gameplay/mechanics/minions.h"
@@ -1381,7 +1382,7 @@ int Crash_load(CharData *ch) {
 	cost = MAX(0, cost);
 	// added by WorM (Видолюб) 2010.06.04 сумма потраченная на найм(возвращается при креше)
 	if (RENTCODE(index) == RENT_CRASH) {
-		if (!ch->IsImmortal() && CanUseFeat(ch, EFeat::kEmployer) && ch->player_specials->saved.HiredCost != 0) {
+		if (!privilege::IsImmortal(ch) && CanUseFeat(ch, EFeat::kEmployer) && ch->player_specials->saved.HiredCost != 0) {
 			if (ch->player_specials->saved.HiredCost < 0)
 				ch->add_bank(abs(ch->player_specials->saved.HiredCost), false);
 			else

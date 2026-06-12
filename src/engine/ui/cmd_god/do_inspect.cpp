@@ -1,4 +1,5 @@
 #include "do_inspect.h"
+#include "administration/privilege.h"
 
 #include <memory>
 #include <iostream>
@@ -491,7 +492,7 @@ class InspectRequestAll : public InspectRequest {
 
 InspectRequestAll::InspectRequestAll(const CharData *author, const std::vector<std::string> &args)
 	: InspectRequest(author, args) {
-	if (!author->IsGrGod()) {
+	if (!privilege::IsGrGod(author)) {
 		SendMsgToChar("Вы не столь божественны, как вам кажется.\r\n", author);
 		status_ = kFinished;
 		return;

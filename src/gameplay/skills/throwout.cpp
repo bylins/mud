@@ -3,6 +3,7 @@
 //
 
 #include "throwout.h"
+#include "administration/privilege.h"
 #include "gameplay/mechanics/mount.h"
 #include "skill_messages.h"
 #include "engine/db/global_objects.h"
@@ -30,7 +31,7 @@ void DoThrowout(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kThrowout, ESkillMsg::kNoTarget) + "\r\n", ch);
 		return;
 	}
-	if (!IsAffectedBySpell(ch, ESpell::kFrenzy) && !ch->IsImmortal()) {
+	if (!IsAffectedBySpell(ch, ESpell::kFrenzy) && !privilege::IsImmortal(ch)) {
 		SendMsgToChar("Не получается! Вы ещё не достаточно разъярились!\r\n", ch);
 		return;
 	}
@@ -48,7 +49,7 @@ void DoThrowout(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			false, ch, nullptr,vict, kToChar);
 		return;
 	}
-	if (!ch->IsImmortal() && ch->HasCooldown(ESkill::kThrowout)) {
+	if (!privilege::IsImmortal(ch) && ch->HasCooldown(ESkill::kThrowout)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kThrowout, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	}
@@ -81,7 +82,7 @@ void ProcessThrowoutFail(CharData *ch, CharData *vict) {
 void GoThrowout(CharData *ch, CharData *vict) {
 //Если у моба 30 или выше уровня больше 75% хп - вышвырнуть нельзя.
 	int vict_hp_limit = 0.75 * vict->get_real_max_hit();
-	if (!ch->IsImmortal() && GetRealLevel(vict) >= 30 && (vict->get_hit() > vict_hp_limit)) {
+	if (!privilege::IsImmortal(ch) && GetRealLevel(vict) >= 30 && (vict->get_hit() > vict_hp_limit)) {
 		act("Вы не можете вышвырнуть $N3 - $E ещё слишком цел$G и бодр$G!",
 			false, ch, nullptr,vict, kToChar);
 		return;
@@ -121,7 +122,7 @@ void GoThrowout(CharData *ch, CharData *vict) {
 	    		}
 	    	stop_fighting(vict, true);
 			PerformSimpleMove(vict, direction, false, nullptr, EMoveType::kThrowOut);
-	    	if (!ch->IsImmortal()) {
+	    	if (!privilege::IsImmortal(ch)) {
 	    		SetSkillCooldown(ch, ESkill::kThrowout, cooldown_if_success);
 	    	}
 	    } else if (!IsCorrectDirection(vict, direction, false, false)) {

@@ -8,6 +8,7 @@
 ************************************************************************ */
 
 #include "engine/db/obj_prototypes.h"
+#include "administration/privilege.h"
 #include "gameplay/mechanics/minions.h"
 #include "gameplay/mechanics/mount.h"
 #include "engine/db/global_objects.h"
@@ -1969,7 +1970,7 @@ void ImproveSkill(CharData *ch, const ESkill skill, int success, CharData *victi
 		}
 		SendMsgToChar(buf, ch);
 		ch->set_skill(skill, (trained_skill + number(1, 2)));
-		if (!ch->IsImmortal()) {
+		if (!privilege::IsImmortal(ch)) {
 			ch->set_skill(skill, (std::min(kZeroRemortSkillCap + remort::GetRealRemort(ch) * 5, ch->GetSkillBonus(skill))));
 		}
 		if (victim && victim->IsNpc()) {

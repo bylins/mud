@@ -3,6 +3,7 @@
 //
 
 #include "gameplay/core/remort.h"
+#include "administration/privilege.h"
 
 #include "administration/karma.h"
 #include "engine/entities/char_data.h"
@@ -29,7 +30,7 @@ void ProcessRemort(CharData *ch, char *argument, int subcmd) {
 	int i;
 	const char *remort_msg2 = "$n вспыхнул$g ослепительным пламенем и пропал$g!\r\n";
 
-	if (ch->IsNpc() || ch->IsImmortal()) {
+	if (ch->IsNpc() || privilege::IsImmortal(ch)) {
 		SendMsgToChar("Вам это, похоже, совсем ни к чему.\r\n", ch);
 		return;
 	}

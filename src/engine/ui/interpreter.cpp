@@ -1204,7 +1204,7 @@ void command_interpreter(CharData *ch, char *argument) {
 		&& !AFF_FLAGGED(ch, EAffect::kHold)
 		&& !AFF_FLAGGED(ch, EAffect::kStopFight)
 		&& !AFF_FLAGGED(ch, EAffect::kMagicStopFight)
-		&& !(ch->IsGod() && !strcmp(arg, "invis")))  // let immortals switch to wizinvis to avoid broken command triggers
+		&& !(privilege::IsGod(ch) && !strcmp(arg, "invis")))  // let immortals switch to wizinvis to avoid broken command triggers
 	{
 		int cont;    // continue the command checks
 		cont = command_wtrigger(ch, arg, line);
@@ -1661,7 +1661,7 @@ int pre_help(CharData *ch, char *argument) {
 //   4. Нет proxy записи - проверяем регистрацию персонажа/email
 //   5. Не зарегистрирован - в комнату незарегов
 int check_dupes_host(DescriptorData *d, bool autocheck) {
-	if (!d->character || d->character->IsImmortal() || d->character->desc->original) {
+	if (!d->character || privilege::IsImmortal(d->character.get()) || d->character->desc->original) {
 		return 1;
 	}
 
@@ -1704,7 +1704,7 @@ int check_dupes_host(DescriptorData *d, bool autocheck) {
 	}
 
 	for (auto *i = descriptor_list; i; i = i->next) {
-		if (i != d && i->ip == d->ip && i->character && !i->character->IsImmortal()
+		if (i != d && i->ip == d->ip && i->character && !privilege::IsImmortal(i->character.get())
 			&& (i->state == EConState::kPlaying || i->state == EConState::kMenu)) {
 			SendMsgToChar(d->character.get(),
 						  "&RВы вошли с игроком %s с одного IP(%s)!\r\n"
@@ -1725,7 +1725,7 @@ int check_dupes_host(DescriptorData *d, bool autocheck) {
 
 int check_dupes_email(DescriptorData *d) {
 	if (!d->character
-		|| d->character->IsImmortal()) {
+		|| privilege::IsImmortal(d->character.get())) {
 		return (1);
 	}
 
@@ -1735,7 +1735,7 @@ int check_dupes_email(DescriptorData *d) {
 			continue;
 		}
 
-		if (!ch->IsImmortal()
+		if (!privilege::IsImmortal(ch.get())
 			&& (!str_cmp(GET_EMAIL(ch), GET_EMAIL(d->character)))) {
 			sprintf(buf, "Персонаж с таким email уже находится в игре, вы не можете войти одновременно с ним!");
 			SendMsgToChar(buf, d->character.get());
@@ -1949,7 +1949,7 @@ void do_entergame(DescriptorData *d) {
 	// Check & remove/add natural, race & unavailable features
 	UnsetInaccessibleFeats(d->character.get());
 	SetInbornAndRaceFeats(d->character.get());
-	if (!d->character->IsImmortal()) {
+	if (!privilege::IsImmortal(d->character.get())) {
 		for (const auto &skill : MUD::Skills()) {
 			if (MUD::Class((d->character)->GetClass()).skills[skill.GetId()].IsInvalid()) {
 				d->character->set_skill(skill.GetId(), 0);
@@ -2571,7 +2571,7 @@ void nanny(DescriptorData *d, char *argument) {
 					} else if (!IsNameOffline(tmp_name)) {
 						player_i = LoadPlayerCharacter(tmp_name, d->character.get(), ELoadCharFlags::kFindId);
 						d->character->set_pfilepos(player_i);
-						if (d->character->IsImmortal() || d->character->IsFlagged(EPrf::kCoderinfo)) {
+						if (privilege::IsImmortal(d->character.get()) || d->character->IsFlagged(EPrf::kCoderinfo)) {
 							iosystem::write_to_output("Игрок с подобным именем является БЕССМЕРТНЫМ в игре.\r\n", d);
 						} else {
 							iosystem::write_to_output("Игрок с подобным именем находится в игре.\r\n", d);
@@ -2610,7 +2610,7 @@ void nanny(DescriptorData *d, char *argument) {
 						d->state = EConState::kNameConfirm;
 					} else    // undo it just in case they are set
 					{
-						if (d->character->IsImmortal() || d->character->IsFlagged(EPrf::kCoderinfo)) {
+						if (privilege::IsImmortal(d->character.get()) || d->character->IsFlagged(EPrf::kCoderinfo)) {
 							iosystem::write_to_output("Игрок с подобным именем является БЕССМЕРТНЫМ в игре.\r\n", d);
 							iosystem::write_to_output("Во избежание недоразумений введите пару ИМЯ ПАРОЛЬ.\r\n", d);
 							iosystem::write_to_output("Имя и пароль через пробел : ", d);
@@ -3212,7 +3212,7 @@ void nanny(DescriptorData *d, char *argument) {
 					break;
 
 				case '5':
-					if (d->character->IsImmortal()) {
+					if (privilege::IsImmortal(d->character.get())) {
 						iosystem::write_to_output("\r\nБоги бессмертны (с) Стрибог, просите чтоб пофризили :)))\r\n", d);
 						iosystem::write_to_output(MENU, d);
 						break;
@@ -3237,7 +3237,7 @@ void nanny(DescriptorData *d, char *argument) {
 					break;
 
 				case '6':
-					if (d->character->IsImmortal()) {
+					if (privilege::IsImmortal(d->character.get())) {
 						iosystem::write_to_output("\r\nВам это ни к чему...\r\n", d);
 						iosystem::write_to_output(MENU, d);
 						d->state = EConState::kMenu;

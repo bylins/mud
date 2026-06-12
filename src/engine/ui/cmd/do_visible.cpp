@@ -7,12 +7,13 @@
 */
 
 #include "engine/ui/cmd/do_visible.h"
+#include "administration/privilege.h"
 
 #include "engine/entities/char_data.h"
 #include "gameplay/mechanics/sight.h"
 
 void do_visible(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	if (ch->IsImmortal()) {
+	if (privilege::IsImmortal(ch)) {
 		perform_immort_vis(ch);
 		return;
 	}

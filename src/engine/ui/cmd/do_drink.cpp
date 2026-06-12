@@ -7,6 +7,7 @@
 */
 
 #include "do_drink.h"
+#include "administration/privilege.h"
 
 #include "engine/entities/obj_data.h"
 #include "engine/entities/char_data.h"
@@ -219,7 +220,7 @@ int IsAbleToDrink(CharData *ch, ObjData *jar, int amount) {
 		}
 	}
 
-	if (amount <= 0 && !ch->IsGod()) {
+	if (amount <= 0 && !privilege::IsGod(ch)) {
 		SendMsgToChar("В вас больше не лезет.\r\n", ch);
 		return 0;
 	}

@@ -4,6 +4,7 @@
 */
 
 #include "gameplay/mechanics/summon.h"
+#include "administration/privilege.h"
 #include "gameplay/mechanics/follow.h"
 #include "gameplay/mechanics/mount.h"
 #include "gameplay/ai/spec_procs.h"
@@ -64,18 +65,18 @@ int FinalizeSummonedMob(CharData *ch, CharData *mob, ESpell spell_id, bool keepe
 }
 
 bool IsSummonTargetProtected(CharData *ch, CharData *mob, ESpell spell_id) {
-	if (!ch->IsImmortal() && (AFF_FLAGGED(mob, EAffect::kSanctuary) || mob->IsFlagged(EMobFlag::kProtect))) {
+	if (!privilege::IsImmortal(ch) && (AFF_FLAGGED(mob, EAffect::kSanctuary) || mob->IsFlagged(EMobFlag::kProtect))) {
 		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kResurrectConsecrated) + "\r\n", ch);
 		ExtractCharFromWorld(mob, false);
 		return true;
 	}
-	if (!ch->IsImmortal()
+	if (!privilege::IsImmortal(ch)
 		&& (specials::IsMobSpecial(GET_MOB_VNUM(mob)) || mob->IsFlagged(EMobFlag::kNoResurrection) || mob->IsFlagged(EMobFlag::kAreaAttack))) {
 		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kResurrectNoPower) + "\r\n", ch);
 		ExtractCharFromWorld(mob, false);
 		return true;
 	}
-	if (!ch->IsImmortal() && AFF_FLAGGED(mob, EAffect::kGodsShield)) {
+	if (!privilege::IsImmortal(ch) && AFF_FLAGGED(mob, EAffect::kGodsShield)) {
 		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kResurrectProtected) + "\r\n", ch);
 		ExtractCharFromWorld(mob, false);
 		return true;

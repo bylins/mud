@@ -1,4 +1,5 @@
 #include "chopoff.h"
+#include "administration/privilege.h"
 #include "gameplay/mechanics/mount.h"
 
 #include "skill_messages.h"
@@ -58,7 +59,7 @@ void go_chopoff(CharData *ch, CharData *vict) {
 
 	if (GET_GOD_FLAG(ch, EGf::kGodscurse) ||
 		GET_GOD_FLAG(vict, EGf::kGodsLike) ||
-		mount::IsOnHorse(vict) || vict->GetPosition() < EPosition::kFight || vict->IsFlagged(EMobFlag::kNoUndercut) || vict->IsImmortal())
+		mount::IsOnHorse(vict) || vict->GetPosition() < EPosition::kFight || vict->IsFlagged(EMobFlag::kNoUndercut) || privilege::IsImmortal(vict))
 		prob = 0;
 
 	bool success = percent <= prob;
@@ -167,7 +168,7 @@ void do_chopoff(CharData *ch, CharData *vict) {
 		return;
 	}
 
-	if (ch->IsImpl() || !ch->GetEnemy())
+	if (privilege::IsImpl(ch) || !ch->GetEnemy())
 		go_chopoff(ch, vict);
 	else if (IsHaveNoExtraAttack(ch)) {
 		if (!ch->IsNpc())

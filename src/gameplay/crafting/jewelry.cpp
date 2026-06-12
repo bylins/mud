@@ -5,6 +5,7 @@
 */
 
 #include "jewelry.h"
+#include "administration/privilege.h"
 #include "gameplay/mechanics/sight.h"
 #include "gameplay/mechanics/mount.h"
 
@@ -70,7 +71,7 @@ void do_insertgem(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		return;
 	}
 
-	if (!ch->IsImmortal()) {
+	if (!privilege::IsImmortal(ch)) {
 		if (!ROOM_FLAGGED(ch->in_room, ERoomFlag::kForge)) {
 			SendMsgToChar("Вам нужно попасть в кузницу для этого.\r\n", ch);
 			return;
@@ -82,12 +83,12 @@ void do_insertgem(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		return;
 	}
 
-	if (is_dark(ch->in_room) && !sight::CanSeeInDark(ch) && !ch->IsImmortal()) {
+	if (is_dark(ch->in_room) && !sight::CanSeeInDark(ch) && !privilege::IsImmortal(ch)) {
 		SendMsgToChar("Да тут темно хоть глаза выколи...\r\n", ch);
 		return;
 	}
 
-	if (!ch->IsImmortal() && mount::IsOnHorse(ch)) {
+	if (!privilege::IsImmortal(ch) && mount::IsOnHorse(ch)) {
 		SendMsgToChar("Верхом это сделать затруднительно.\r\n", ch);
 		return;
 	}

@@ -4,6 +4,7 @@
 */
 
 #include "gameplay/handlers/spell_handlers.h"
+#include "administration/privilege.h"
 #include "gameplay/mechanics/follow.h"
 #include "gameplay/mechanics/mount.h"
 #include "gameplay/mechanics/minions.h"
@@ -45,12 +46,12 @@ EStageResult SpellCharm(CastContext &ctx) {
 		SendCharmMsg(ESpellMsg::kCustomMsgTwo);
 		if (!pk_agro_action(ch, victim))
 			return EStageResult::kSuccess;
-	} else if (!ch->IsImmortal()
+	} else if (!privilege::IsImmortal(ch)
 		&& (AFF_FLAGGED(victim, EAffect::kSanctuary) || victim->IsFlagged(EMobFlag::kProtect)))
 		SendCharmMsg(ESpellMsg::kResurrectConsecrated);
-	else if (!ch->IsImmortal() && (AFF_FLAGGED(victim, EAffect::kGodsShield) || victim->IsFlagged(EMobFlag::kProtect)))
+	else if (!privilege::IsImmortal(ch) && (AFF_FLAGGED(victim, EAffect::kGodsShield) || victim->IsFlagged(EMobFlag::kProtect)))
 		SendCharmMsg(ESpellMsg::kResurrectProtected);
-	else if (!ch->IsImmortal() && victim->IsFlagged(EMobFlag::kNoCharm))
+	else if (!privilege::IsImmortal(ch) && victim->IsFlagged(EMobFlag::kNoCharm))
 		SendCharmMsg(ESpellMsg::kResurrectNoPower);
 	else if (AFF_FLAGGED(ch, EAffect::kCharmed))
 		SendCharmMsg(ESpellMsg::kSummonCharmed);
@@ -73,7 +74,7 @@ EStageResult SpellCharm(CastContext &ctx) {
 			false, ch, nullptr, victim, kToChar);
 	else if (follow::CircleFollow(victim, ch))
 		SendCharmMsg(ESpellMsg::kCustomMsgFour);
-	else if (!ch->IsImmortal()
+	else if (!privilege::IsImmortal(ch)
 		&& CalcGeneralSaving(ch, victim, ESaving::kWill, (GetRealCha(ch) - 10) * 4 + remort::GetRealRemort(ch) * 3)) //предлагаю завязать на каст
 		SendCharmMsg(ESpellMsg::kSummonFail);
 	else {

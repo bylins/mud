@@ -7,6 +7,7 @@
 */
 
 #include "engine/entities/char_data.h"
+#include "administration/privilege.h"
 #include "engine/entities/char_player.h"
 #include "engine/db/global_objects.h"
 
@@ -23,7 +24,7 @@ void DoPageLastLogins(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		SendMsgToChar("Нет такого игрока.\r\n", ch);
 		return;
 	}
-	if (GetRealLevel(chdata) > GetRealLevel(ch) && !ch->IsImpl() && !ch->IsFlagged(EPrf::kCoderinfo)) {
+	if (GetRealLevel(chdata) > GetRealLevel(ch) && !privilege::IsImpl(ch) && !ch->IsFlagged(EPrf::kCoderinfo)) {
 		SendMsgToChar("Вы не столь уж и божественны для этого.\r\n", ch);
 	} else {
 		time_t tmp_time = chdata->get_last_logon();

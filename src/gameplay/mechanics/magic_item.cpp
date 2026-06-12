@@ -4,6 +4,7 @@
 */
 
 #include "gameplay/mechanics/magic_item.h"
+#include "administration/privilege.h"
 #include "utils/grammar/gender.h"
 #include "gameplay/magic/spells.h"
 #include "gameplay/magic/magic.h"
@@ -453,7 +454,7 @@ int CheckRecipeItems(CharData *ch, ESpell spell_id, ESpellType spell_type, int e
 }
 
 void print_rune_stats(CharData *ch) {
-	if (!ch->IsGrGod()) {
+	if (!privilege::IsGrGod(ch)) {
 		SendMsgToChar(ch, "Только для иммов 33+.\r\n");
 		return;
 	}

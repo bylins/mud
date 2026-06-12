@@ -3,6 +3,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "depot.h"
+#include "administration/privilege.h"
 #include "gameplay/ai/spec_procs.h"
 #include "utils/grammar/gender.h"
 #include "utils/grammar/declensions.h"
@@ -908,7 +909,7 @@ void show_depot(CharData *ch) {
 	if (ch->IsNpc()) return;
 
 #ifndef TEST_BUILD
-	if (ch->IsImmortal() && !ch->IsImpl()) {
+	if (privilege::IsImmortal(ch) && !privilege::IsImpl(ch)) {
 		SendMsgToChar("И без хранилища обойдешься...\r\n", ch);
 		return;
 	}
@@ -986,7 +987,7 @@ bool put_depot(CharData *ch, ObjData::shared_ptr &obj) {
 	if (ch->IsNpc()) return 0;
 
 #ifndef TEST_BUILD
-	if (ch->IsImmortal() && !ch->IsImpl()) {
+	if (privilege::IsImmortal(ch) && !privilege::IsImpl(ch)) {
 		SendMsgToChar("И без хранилища обойдешься...\r\n", ch);
 		return 0;
 	}
@@ -1054,7 +1055,7 @@ void take_depot(CharData *vict, char *arg, int howmany) {
 	if (vict->IsNpc()) return;
 
 #ifndef TEST_BUILD
-	if (vict->IsImmortal() && !vict->IsImpl()) {
+	if (privilege::IsImmortal(vict) && !privilege::IsImpl(vict)) {
 		SendMsgToChar("И без хранилища обойдешься...\r\n", vict);
 		return;
 	}
@@ -1414,12 +1415,12 @@ void reload_char(long uid, CharData *ch) {
 std::string PrintSpellLocateObject(CharData *ch, ObjData *obj) {
 	for (auto it : depot_list) {
 		for (auto obj_it : it.second.pers_online) {
-			if (!ch->IsGod()) {
+			if (!privilege::IsGod(ch)) {
 				if (number(1, 100) > (40 + std::max((GetRealInt(ch) - 25) * 2, 0))) {
 					continue;
 				}
 				if (obj_it->has_flag(EObjFlag::kNolocate)
-					&& !ch->IsGod()) {
+					&& !privilege::IsGod(ch)) {
 					continue;
 				}
 			}

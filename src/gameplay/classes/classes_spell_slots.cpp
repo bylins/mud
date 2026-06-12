@@ -4,6 +4,7 @@
 */
 
 #include "classes_spell_slots.h"
+#include "administration/privilege.h"
 
 #include "engine/db/global_objects.h"
 
@@ -1167,7 +1168,7 @@ int CalcCircleSlotsAmount(CharData *ch, int circle) {
 		return -1;
 	}
 
-	if (ch->IsImmortal()) {
+	if (privilege::IsImmortal(ch)) {
 		return SPELL_SLOTS_FOR_IMMORTAL;
 	}
 

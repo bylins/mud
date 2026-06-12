@@ -7,6 +7,7 @@
  */
 
 #include "engine/ui/color.h"
+#include "administration/privilege.h"
 #include "utils/grammar/declensions.h"
 #include "gameplay/mechanics/mount.h"
 #include "gameplay/communication/mail.h"
@@ -194,7 +195,7 @@ void PrintScoreList(CharData *ch) {
 				  ch->get_bank(),
 				  ch->get_hryvn(),
 				  ch->get_exp(),
-				  ch->IsImmortal() ? 1 : GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1) - ch->get_exp());
+				  privilege::IsImmortal(ch) ? 1 : GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1) - ch->get_exp());
 	if (!mount::IsOnHorse(ch))
 		SendMsgToChar(ch, "Ваша позиция: %s", GetPositionStr(ch));
 	else
@@ -747,7 +748,7 @@ void PrintScoreBase(CharData *ch) {
 			GET_SIZE(ch), GET_REAL_SIZE(ch),
 			GET_HEIGHT(ch), GET_REAL_HEIGHT(ch), GET_WEIGHT(ch), GET_REAL_WEIGHT(ch), kColorNrm);
 
-	if (ch->IsImmortal()) {
+	if (privilege::IsImmortal(ch)) {
 		sprintf(buf + strlen(buf),
 				"%sВаши боевые качества :\r\n"
 				"  AC   : %4d(%4d)"

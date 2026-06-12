@@ -3,6 +3,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "deathtrap.h"
+#include "administration/privilege.h"
 #include "gameplay/mechanics/minions.h"
 
 #include "gameplay/core/constants.h"
@@ -101,9 +102,9 @@ void deathtrap::log_death_trap(CharData *ch) {
 // * Попадание в обычное дт.
 int deathtrap::check_death_trap(CharData *ch) {
 	if (ch->in_room != kNowhere && !ch->IsFlagged(EPrf::kCoderinfo)) {
-		if ((ROOM_FLAGGED(ch->in_room, ERoomFlag::kDeathTrap) && !ch->IsImmortal())
+		if ((ROOM_FLAGGED(ch->in_room, ERoomFlag::kDeathTrap) && !privilege::IsImmortal(ch))
 			|| (real_sector(ch->in_room) == ESector::kOnlyFlying && !ch->IsNpc() &&
-			!ch->IsGod() && !AFF_FLAGGED(ch, EAffect::kFly))
+			!privilege::IsGod(ch) && !AFF_FLAGGED(ch, EAffect::kFly))
 			|| IsCharCanDrownThere(ch, ch->in_room)) {
 			ObjData *corpse;
 			deathtrap::log_death_trap(ch);
@@ -155,7 +156,7 @@ bool deathtrap::IsSlowDeathtrap(int rnum) {
 /// иначе - чара в tunnel_damage() не дамагнет
 int calc_tunnel_dmg(CharData *ch, int room_rnum) {
 	if (!ch->IsNpc()
-		&& !ch->IsImmortal()
+		&& !privilege::IsImmortal(ch)
 		&& NORENTABLE(ch)
 		&& ROOM_FLAGGED(room_rnum, ERoomFlag::kTunnel)) {
 		return std::max(20, ch->get_real_max_hit() >> 3);

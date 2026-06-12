@@ -7,6 +7,7 @@
 */
 
 #include "engine/entities/char_data.h"
+#include "administration/privilege.h"
 #include "engine/network/descriptor_data.h"
 #include "engine/ui/color.h"
 
@@ -14,7 +15,7 @@ void do_mobshout(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	DescriptorData *i;
 
 	// to keep pets, etc from being ordered to shout
-	if (!(ch->IsNpc() || ch->IsImmortal()))
+	if (!(ch->IsNpc() || privilege::IsImmortal(ch)))
 		return;
 	if (AFF_FLAGGED(ch, EAffect::kCharmed))
 		return;

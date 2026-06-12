@@ -6,6 +6,7 @@
 */
 
 #include "weather.h"
+#include "administration/privilege.h"
 
 #include "gameplay/magic/spells.h"
 #include "engine/core/handler.h"
@@ -53,7 +54,7 @@ void gods_day_now(CharData *ch) {
 	std::string poly_name = celebrates::GetNamePoly(celebrates::GetMudDay());
 	std::string real_name = celebrates::GetNameReal(celebrates::GetRealDay());
 
-	if (ch->IsImmortal()) {
+	if (privilege::IsImmortal(ch)) {
 		sprintf(poly, "Язычники : %s Нет праздника. %s\r\n", kColorWht, kColorNrm);
 		sprintf(mono, "Христиане: %s Нет праздника. %s\r\n", kColorWht, kColorNrm);
 		sprintf(real, "В реальном мире: %s Нет праздника. %s\r\n", kColorWht, kColorNrm);
@@ -846,7 +847,7 @@ int CalcDaySpellMod(CharData *ch, ESpell /* spell_id */, int type, int value) {
 			break;
 		case GAPPLY_SPELL_EFFECT: break;
 	}
-	if (ch->IsImmortal() || GET_GOD_FLAG(ch, EGf::kGodsLike))
+	if (privilege::IsImmortal(ch) || GET_GOD_FLAG(ch, EGf::kGodsLike))
 		modi = MAX(modi, value);
 	return (modi);
 }
@@ -1027,7 +1028,7 @@ int weather_skill_modifier(CharData *ch, ESkill skillnum, int type, int value) {
 			}
 			break;
 	}
-	if (ch->IsImmortal())
+	if (privilege::IsImmortal(ch))
 		modi = MAX(modi, value);
 	return (modi);
 }

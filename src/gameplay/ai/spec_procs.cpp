@@ -13,6 +13,7 @@
 ************************************************************************ */
 
 #include "gameplay/ai/spec_procs.h"
+#include "administration/privilege.h"
 #include "utils/grammar/gender.h"
 #include "utils/grammar/declensions.h"
 #include "gameplay/mechanics/follow.h"
@@ -877,7 +878,7 @@ int npc_steal(CharData *ch) {
 
 	for (const auto cons : world[ch->in_room]->people) {
 		if (!cons->IsNpc()
-			&& !cons->IsImmortal()
+			&& !privilege::IsImmortal(cons)
 			&& (number(0, GetRealInt(ch)) > 10)) {
 			return (do_npc_steal(ch, cons));
 		}
@@ -1434,7 +1435,7 @@ int BankTransfer(CharData *ch, void * /*me*/, char *argument) {
 	CharData *vict;
 	argument = one_argument(argument, arg);
 	amount = atoi(argument);
-	if (ch->IsGod() && !ch->IsImpl()) {
+	if (privilege::IsGod(ch) && !privilege::IsImpl(ch)) {
 		SendMsgToChar(specials::BankMsg(specials::EBankMsg::kImmCant) + "\r\n", ch);
 		return (1);
 

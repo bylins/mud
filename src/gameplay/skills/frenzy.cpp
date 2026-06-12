@@ -3,6 +3,7 @@
 //
 
 #include "engine/entities/char_data.h"
+#include "administration/privilege.h"
 #include "skill_messages.h"
 #include "engine/entities/obj_data.h"
 #include "engine/core/handler.h"
@@ -15,14 +16,14 @@ void do_frenzy(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 	if (ch->GetPosition() != EPosition::kFight
-		&& !ch->IsImmortal()
+		&& !privilege::IsImmortal(ch)
 		&& (!IsAffectedBySpell(ch, ESpell::kCourage)
 			|| !IsAffectedBySpell(ch, ESpell::kFrenzy)
 			|| !IsAffectedBySpell(ch, ESpell::kBerserk))) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kFrenzy, ESkillMsg::kPeacefulRoom) + "\r\n", ch);
 		return;
 	}
-	if (ch->HasCooldown(ESkill::kFrenzy) && !ch->IsImmortal()) {
+	if (ch->HasCooldown(ESkill::kFrenzy) && !privilege::IsImmortal(ch)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kFrenzy, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	}
@@ -92,7 +93,7 @@ void do_frenzy(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 			SendMsgToChar("&RВы жаждете крови своих соперников!&n\r\n", ch);
 		}
 	}
-	if (!ch->IsImmortal()) {
+	if (!privilege::IsImmortal(ch)) {
 		constexpr int cooldown = 7;
 		SetSkillCooldown(ch, ESkill::kFrenzy, cooldown);
 		SetSkillCooldown(ch, ESkill::kGlobalCooldown, 1);

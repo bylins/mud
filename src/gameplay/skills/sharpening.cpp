@@ -1,4 +1,5 @@
 #include "engine/entities/char_data.h"
+#include "administration/privilege.h"
 #include "skill_messages.h"
 #include "engine/db/obj_prototypes.h"
 #include "engine/db/global_objects.h"
@@ -112,7 +113,7 @@ void DoSharpening(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	//С мортами все меньший уровень требуется для макс. заточки
 	max_mod = std::clamp((GetRealLevel(ch) + 5 + remort::GetRealRemort(ch)/4)/6, 1, 5);
 	oldstate = stable_objs::IsTimerUnlimited(obj); // запомним какая шмотка была до заточки
-	if (ch->IsImmortal()) {
+	if (privilege::IsImmortal(ch)) {
 		add_dr = add_hr = 10;
 	} else {
 		add_dr = add_hr = (max_mod <= min_mod) ? min_mod : number(min_mod, max_mod);

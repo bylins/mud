@@ -1,4 +1,5 @@
 #include "relocate.h"
+#include "administration/privilege.h"
 #include "gameplay/mechanics/mount.h"
 
 #include "engine/entities/char_data.h"
@@ -25,7 +26,7 @@ void do_relocate(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (IsTimedByFeat(ch, EFeat::kRelocate)
 #ifdef TEST_BUILD
-		&& !ch->IsImmortal()
+		&& !privilege::IsImmortal(ch)
 #endif
 		) {
 		SendMsgToChar("Невозможно использовать это так часто.\r\n", ch);
@@ -60,13 +61,13 @@ void do_relocate(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	// truth: edit spells.xml to retune both the cast and this feat). issue.no-teleport-out
 	// dropped the inline ROOM_FLAGGED(kNoTeleportOut) check; the same XML config now also
 	// extends kNoMagic blocking to the feat (previously code didn't gate on kNoMagic).
-	if (!ch->IsGod()
+	if (!privilege::IsGod(ch)
 		&& IsRoomBlocked(world[ch->in_room],
 						 MUD::Spell(ESpell::kRelocate).actions.GetBlocking())) {
 		SendMsgToChar("Попытка перемещения не удалась.\r\n", ch);
 		return;
 	}
-	if (!ch->IsGod() && AFF_FLAGGED(ch, EAffect::kNoTeleport)) {
+	if (!privilege::IsGod(ch) && AFF_FLAGGED(ch, EAffect::kNoTeleport)) {
 		SendMsgToChar("Попытка перемещения не удалась.\r\n", ch);
 		return;
 	}
@@ -83,18 +84,18 @@ void do_relocate(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	else
 		fnd_room = to_room;
 
-	if (fnd_room != to_room && !ch->IsGod()) {
+	if (fnd_room != to_room && !privilege::IsGod(ch)) {
 		SendMsgToChar("Попытка перемещения не удалась.\r\n", ch);
 		return;
 	}
 
-	if (!ch->IsGod() &&
+	if (!privilege::IsGod(ch) &&
 		(SECT(fnd_room) == ESector::kSecret ||
 			ROOM_FLAGGED(fnd_room, ERoomFlag::kDeathTrap) ||
 			ROOM_FLAGGED(fnd_room, ERoomFlag::kSlowDeathTrap) ||
 			ROOM_FLAGGED(fnd_room, ERoomFlag::kTunnel) ||
 			ROOM_FLAGGED(fnd_room, ERoomFlag::kNoRelocateIn) ||
-			ROOM_FLAGGED(fnd_room, ERoomFlag::kIceTrap) || (ROOM_FLAGGED(fnd_room, ERoomFlag::kGodsRoom) && !ch->IsImmortal()))) {
+			ROOM_FLAGGED(fnd_room, ERoomFlag::kIceTrap) || (ROOM_FLAGGED(fnd_room, ERoomFlag::kGodsRoom) && !privilege::IsImmortal(ch)))) {
 		SendMsgToChar("Попытка перемещения не удалась.\r\n", ch);
 		return;
 	}
@@ -107,7 +108,7 @@ void do_relocate(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	PlaceCharToRoom(ch, fnd_room);
 	mount::Dismount(ch);
 	act("$n медленно появил$u откуда-то.", true, ch, nullptr, nullptr, kToRoom);
-	if (!(victim->IsFlagged(EPrf::KSummonable) || group::same_group(ch, victim) || ch->IsImmortal()
+	if (!(victim->IsFlagged(EPrf::KSummonable) || group::same_group(ch, victim) || privilege::IsImmortal(ch)
 		|| ROOM_FLAGGED(fnd_room, ERoomFlag::kArena))) {
 		SendMsgToChar(ch, "%sВаш поступок был расценен как потенциально агрессивный.%s\r\n",
 					  kColorBoldRed, kColorBoldBlk);
