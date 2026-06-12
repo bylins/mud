@@ -22,6 +22,7 @@
 #include "engine/entities/zone.h"
 #include "gameplay/statistics/money_drop.h"
 #include "engine/network/msdp/msdp_constants.h"
+#include "gameplay/mechanics/glory_const.h"
 //#include "utils/parse.h"
 
 namespace currencies {
@@ -297,16 +298,38 @@ std::string TextIdByVnum(int vnum) {
 }
 
 long GetAmount(const CharData &ch, const std::string &id, EPurse purse) {
+	// P4: const glory is not stored in the container; it delegates to the GloryConst store.
+	if (id == kGloryId) {
+		return GloryConst::get_glory(ch.get_uid());
+	}
 	const auto &cs = ch.currency_storage();
 	return purse == EPurse::kHand ? cs.GetHand(id) : cs.GetBank(id);
 }
 
 long GetTotal(const CharData &ch, const std::string &id) {
+	if (id == kGloryId) {
+		return GloryConst::get_glory(ch.get_uid());
+	}
 	const auto &cs = ch.currency_storage();
 	return cs.GetHand(id) + cs.GetBank(id);
 }
 
-void SetAmount(CharData &ch, const std::string &id, long amount, EPurse purse, bool with_log) {
+void SetAmount(CharData &ch, const std::string &id, long amount, EPurse purse, bool with_log, bool immortal) {
+	if (id == kGloryId) {
+		// Const glory lives in the GloryConst store; raising it is an immortal-only operation.
+		amount = std::max(0L, amount);
+		const long current = GloryConst::get_glory(ch.get_uid());
+		if (amount > current) {
+			if (!immortal) {
+				log("SYSERR: refused to grant glory to %s via the currency API without immortal rights", ch.get_name().c_str());
+				return;
+			}
+			GloryConst::add_glory(ch.get_uid(), amount - current);
+		} else if (amount < current) {
+			GloryConst::remove_glory(ch.get_uid(), current - amount);
+		}
+		return;
+	}
 	const auto &info = MUD::Currencies().FindAvailableItem(id);
 	const long before = GetAmount(ch, id, purse);
 	amount = std::clamp(amount, 0L, info.GetMaxAmount());
@@ -333,10 +356,10 @@ void SetAmount(CharData &ch, const std::string &id, long amount, EPurse purse, b
 	}
 }
 
-long AddAmount(CharData &ch, const std::string &id, long amount, EPurse purse, bool notify, bool with_log) {
+long AddAmount(CharData &ch, const std::string &id, long amount, EPurse purse, bool notify, bool with_log, bool immortal) {
 	amount = std::max(0L, amount);
 	const long before = GetAmount(ch, id, purse);
-	SetAmount(ch, id, before + amount, purse, with_log);
+	SetAmount(ch, id, before + amount, purse, with_log, immortal);
 	const long added = GetAmount(ch, id, purse) - before;
 	if (notify && added > 0 && ch.desc) {
 		const auto &info = MUD::Currencies().FindAvailableItem(id);
@@ -369,8 +392,8 @@ long RemoveTotal(CharData &ch, const std::string &id, long amount, bool with_log
 
 long GetAmount(const CharData &ch, int vnum, EPurse purse) { return GetAmount(ch, TextIdByVnum(vnum), purse); }
 long GetTotal(const CharData &ch, int vnum) { return GetTotal(ch, TextIdByVnum(vnum)); }
-void SetAmount(CharData &ch, int vnum, long amount, EPurse purse, bool with_log) { SetAmount(ch, TextIdByVnum(vnum), amount, purse, with_log); }
-long AddAmount(CharData &ch, int vnum, long amount, EPurse purse, bool notify, bool with_log) { return AddAmount(ch, TextIdByVnum(vnum), amount, purse, notify, with_log); }
+void SetAmount(CharData &ch, int vnum, long amount, EPurse purse, bool with_log, bool immortal) { SetAmount(ch, TextIdByVnum(vnum), amount, purse, with_log, immortal); }
+long AddAmount(CharData &ch, int vnum, long amount, EPurse purse, bool notify, bool with_log, bool immortal) { return AddAmount(ch, TextIdByVnum(vnum), amount, purse, notify, with_log, immortal); }
 long RemoveAmount(CharData &ch, int vnum, long amount, EPurse purse, bool with_log) { return RemoveAmount(ch, TextIdByVnum(vnum), amount, purse, with_log); }
 long RemoveTotal(CharData &ch, int vnum, long amount, bool with_log) { return RemoveTotal(ch, TextIdByVnum(vnum), amount, with_log); }
 

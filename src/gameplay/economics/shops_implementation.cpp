@@ -11,6 +11,7 @@
 #include "engine/entities/char_data.h"
 #include "gameplay/mechanics/glory.h"
 #include "gameplay/mechanics/glory_const.h"
+#include "gameplay/economics/currencies.h"
 #include "currencies.h"
 #include "engine/db/global_objects.h"
 #include "engine/db/world_objects.h"
@@ -64,7 +65,7 @@ int spent_today = 0;
 
 bool check_money(CharData *ch, long price, const std::string &currency) {
 	if (currency == "слава") {
-		const auto total_glory = GloryConst::get_glory(ch->get_uid());
+		const auto total_glory = currencies::GetAmount(*ch, currencies::kGloryId);
 		return total_glory >= price;
 	}
 
@@ -404,7 +405,7 @@ void shop_node::process_buy(CharData *ch, CharData *keeper, char *argument) {
 				}
 				// снятие и логирование славы
 				GloryConst::add_total_spent(price);
-				GloryConst::remove_glory(ch->get_uid(), price);
+				currencies::RemoveAmount(*ch, currencies::kGloryId, price);
 				GloryConst::transfer_log("%s bought %s for %ld const glory",
 										 GET_NAME(ch), proto->get_PName(grammar::ECase::kNom).c_str(), price);
 			} else if (currency == "лед") {

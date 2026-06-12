@@ -286,7 +286,7 @@ void PrintRuneLabelInfo(CharData *ch, std::ostringstream &out) {
 }
 
 void PrintGloryInfo(CharData *ch, std::ostringstream &out) {
-	auto glory = GloryConst::get_glory(ch->get_uid());
+	auto glory = currencies::GetAmount(*ch, currencies::kGloryId);
 	if (glory > 0) {
 		out << InfoStrPrefix(ch) << "Вы заслужили "
 			<< glory << " " << grammar::GetDeclensionInNumber(glory, grammar::EWhat::kPoint) << " постоянной славы." << "\r\n";
@@ -816,7 +816,7 @@ void PrintScoreBase(CharData *ch) {
 	if (glory) {
 	//	sprintf(buf + strlen(buf), "Вы заслужили %d %s славы.\r\n", glory, GetDeclensionInNumber(glory, EWhat::kPoint));
 	}
-	glory = GloryConst::get_glory(ch->get_uid());
+	glory = currencies::GetAmount(*ch, currencies::kGloryId);
 	if (glory) {
 		sprintf(buf + strlen(buf), "Вы заслужили %d %s постоянной славы.\r\n",
 				glory, grammar::GetDeclensionInNumber(glory, grammar::EWhat::kPoint));

@@ -33,7 +33,7 @@ flags - флаги
     </currency>
     <currency text_id="kGlory" vnum="1" mode="kEnabled">
         <permits give="0" obj="0" bank="0" transfer="0" transfer_other="0" transfer_tax="5" drop="100" clan_tax="25"/>
-        <flags account_shared="Y"  locked="Y"/>
+        <flags account_shared="N"  locked="Y"/>
     </currency>
     <currency text_id="kCopperGrivna" vnum="2" mode="kEnabled">
         <permits give="0" obj="0" bank="0" transfer="0" transfer_other="0" transfer_tax="5" drop="100" clan_tax="25"/>
