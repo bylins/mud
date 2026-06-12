@@ -60,7 +60,6 @@ const int kRecallSpellsInterval = 28;
 extern int idle_rent_time;
 extern int idle_max_level;
 extern int idle_void;
-void decrease_level(CharData *ch);
 int max_exp_gain_pc(CharData *ch);
 int max_exp_loss_pc(CharData *ch);
 int average_day_temp();
@@ -859,7 +858,7 @@ void EndowExpToChar(CharData *ch, int gain) {
 			num_levels++;
 			sprintf(local_buf, "%sВы достигли следующего уровня!%s\r\n", kColorWht, kColorNrm);
 			SendMsgToChar(local_buf, ch);
-			advance_level(ch);
+			experience::advance_level(ch);
 			is_altered = true;
 		}
 
@@ -879,7 +878,7 @@ void EndowExpToChar(CharData *ch, int gain) {
 					"%sВы потеряли уровень. Вам должно быть стыдно!%s\r\n",
 					kColorBoldRed, kColorNrm);
 			SendMsgToChar(local_buf, ch);
-			decrease_level(ch);
+			experience::decrease_level(ch);
 			is_altered = true;
 		}
 		if (is_altered) {
@@ -920,7 +919,7 @@ void gain_exp_regardless(CharData *ch, int gain) {
 						kColorWht, kColorNrm);
 				SendMsgToChar(buf, ch);
 
-				advance_level(ch);
+				experience::advance_level(ch);
 				is_altered = true;
 			}
 
@@ -943,7 +942,7 @@ void gain_exp_regardless(CharData *ch, int gain) {
 						"%sВы потеряли уровень!%s\r\n",
 						kColorBoldRed, kColorNrm);
 				SendMsgToChar(buf, ch);
-				decrease_level(ch);
+				experience::decrease_level(ch);
 				is_altered = true;
 			}
 			if (is_altered) {

@@ -8,8 +8,8 @@
 
 class CObjectPrototype;
 
-void advance_level(CharData *ch);
 int invalid_no_class(CharData *ch, const ObjData *obj);
+void check_max_hp(CharData *ch);
 int invalid_anti_class_proto(CharData *ch, const CObjectPrototype *obj);
 int invalid_no_class_proto(CharData *ch, const CObjectPrototype *obj);
 int GetExtraDamroll(ECharClass class_id, int level);

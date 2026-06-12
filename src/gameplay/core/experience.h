@@ -26,6 +26,13 @@ long GetExpUntilNextLvl(CharData *ch, int level);
 // Number of changing remort exp coefficients (the rest are unchanged).
 const int kMaxExpCoefficientsUsed = 15;
 
+
+// Apply a gained/lost character level (stats, feats, move, save) -- and the one-shot
+// unlock notices fired when crossing certain levels (levelup_events).
+void levelup_events(CharData *ch);
+void advance_level(CharData *ch);
+void decrease_level(CharData *ch);
+
 }  // namespace experience
 
 #endif  // BYLINS_SRC_GAMEPLAY_CORE_EXPERIENCE_H_
