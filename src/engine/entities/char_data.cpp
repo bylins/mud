@@ -212,9 +212,9 @@ void CharData::zero_init() {
 	set_sex(EGender::kMale);
 	is_npc_ = false;
 	set_race(0);
-	protecting_ = nullptr;
-	touching_ = nullptr;
-	enemy_ = nullptr;
+	fight_targets_.protecting = nullptr;
+	fight_targets_.intercepting = nullptr;
+	fight_targets_.enemy = nullptr;
 	purged_ = false;
 	// на плеер-таблицу
 	chclass_ = ECharClass::kUndefined;
@@ -418,46 +418,46 @@ void CharData::add_obj_slot(int slot_num, int count) {
 }
 
 void CharData::set_touching(CharData *vict) {
-	touching_ = vict;
+	fight_targets_.intercepting = vict;
 }
 
 CharData *CharData::get_touching() const {
-	return touching_;
+	return fight_targets_.intercepting;
 }
 
 void CharData::set_protecting(CharData *vict) {
-	if (protecting_) {
+	if (fight_targets_.protecting) {
 		remove_protecting();
 	}
-	protecting_ = vict;
+	fight_targets_.protecting = vict;
 	vict->who_protecting.push_back(this);
 }
 
 void CharData::remove_protecting() {
 
-	if (protecting_) {
+	if (fight_targets_.protecting) {
 		auto predicate = [this](auto p) { return (this  ==  p); };
-		auto it = std::find_if(protecting_->who_protecting.begin(), protecting_->who_protecting.end(), predicate);
-		if (it != protecting_->who_protecting.end()) {
-			protecting_->who_protecting.erase(it);
+		auto it = std::find_if(fight_targets_.protecting->who_protecting.begin(), fight_targets_.protecting->who_protecting.end(), predicate);
+		if (it != fight_targets_.protecting->who_protecting.end()) {
+			fight_targets_.protecting->who_protecting.erase(it);
 			SendMsgToChar(this, "Вы перестали прикрывать %s.\r\n", 
-				GET_PAD(protecting_, 3));
+				GET_PAD(fight_targets_.protecting, 3));
 			SendMsgToChar(get_protecting(), "%s перестал%s прикрывать вас.\r\n", GET_NAME(this), grammar::SexEnding((this)->get_sex(), 1));
 		}
 	}
-	protecting_ = nullptr;
+	fight_targets_.protecting = nullptr;
 }
 
 CharData *CharData::get_protecting() const {
-	return protecting_;
+	return fight_targets_.protecting;
 }
 
 void CharData::SetEnemy(CharData *enemy) {
-	enemy_ = enemy;
+	fight_targets_.enemy = enemy;
 }
 
 CharData *CharData::GetEnemy() const {
-	return enemy_;
+	return fight_targets_.enemy;
 }
 
 void CharData::SetExtraAttack(EExtraAttack Attack, CharData *vict) {
