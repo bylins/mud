@@ -310,6 +310,16 @@ class ProtectedCharData : public PlayerI {
 };
 
 // * Общий класс для игроков/мобов.
+class CharData;   // for FightTargets below
+
+// CharData's combat-relationship targets, grouped: each must be cleared when its target is
+// extracted. Reached through get/set_protecting, get/set_touching and Get/SetEnemy.
+struct FightTargets {
+	CharData *enemy{nullptr};         // current fight target
+	CharData *protecting{nullptr};    // target of 'прикрыть' (cover)
+	CharData *intercepting{nullptr};  // target of 'перехватить' (intercept)
+};
+
 class CharData : public ProtectedCharData {
 // новое
  public:
@@ -596,9 +606,7 @@ class CharData : public ProtectedCharData {
 
 	CharacterSkills skills_;    // learned skills (level + cooldown)
 	////////////////////////////////////////////////////////////////////////////
-	CharData *protecting_{nullptr}; // цель для 'прикрыть'
-	CharData *touching_;   // цель для 'перехватить'
-	CharData *enemy_;
+	FightTargets fight_targets_;   // enemy / cover / intercept targets (cleared on target extraction)
 
 	struct extra_attack_type extra_attack_; // атаки типа баша, пинка и т.п.
 	struct CastAttack cast_attack_;   // каст заклинания
