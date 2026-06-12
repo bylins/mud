@@ -33,9 +33,20 @@ namespace {
 
 // * На перспективу - втыкать во все методы character.
 void check_purged(const CharData *ch, const char *fnc) {
+	// Не спамим SYSLOG на каждое использование "очищенного" (purged) чара:
+	// при шторме use-after-purge (моб умер посреди боевого раунда, а боевой
+	// код продолжил дёргать его статы) набегали десятки одинаковых строк +
+	// дорогих backtrace и вешали пульс на 100+ мс. Единичный случай пропускаем,
+	// а после 3 срабатываний подряд один раз оповещаем богов через mudlog и
+	// снимаем один backtrace.
+	static int in_a_row = 0;
 	if (ch->purged()) {
-		log("SYSERR: Using purged character (%s).", fnc);
-		debug::backtrace(runtime_config.logs(SYSLOG).handle());
+		if (++in_a_row == 3) {
+			mudlog(fmt::format("SYSERR: Using purged character ({}).", fnc), BRF, kLvlGod, SYSLOG, true);
+			debug::backtrace(runtime_config.logs(SYSLOG).handle());
+		}
+	} else {
+		in_a_row = 0;
 	}
 }
 
