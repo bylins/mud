@@ -260,19 +260,6 @@ struct player_special_data {
 	static player_special_data::shared_ptr s_for_mobiles;
 };
 
-struct attacker_node {
-	attacker_node() : damage(0), rounds(0) {};
-	// влитый дамаг
-	int damage;
-	// кол-во раундов в бою
-	int rounds;
-};
-
-enum {
-	ATTACKER_DAMAGE,
-	ATTACKER_ROUNDS
-};
-
 #include "gameplay/skills/character_skills.h"
 
 class ProtectedCharData;    // to break up cyclic dependencies
@@ -535,9 +522,7 @@ class CharData : public ProtectedCharData {
 	void set_role(unsigned num, bool flag);
 	const CharData::role_t &get_role_bits() const;
 
-	void add_attacker(CharData *ch, unsigned type, int num);
-	int get_attacker(CharData *ch, unsigned type) const;
-	std::pair<int /* uid */, int /* rounds */> get_max_damager_in_room() const;
+	void mark_attacked(CharData *attacker);
 
 	void inc_restore_timer(int num);
 	obj_sets::activ_sum &obj_bonus();
@@ -663,8 +648,8 @@ class CharData : public ProtectedCharData {
 	int cha_add_;
 	// аналог класса у моба
 	role_t role_;
-	// для боссов: список атакующих (и им сочувствующих), uid->attacker
-	std::unordered_map<int, attacker_node> attackers_;
+	// для боссов: атаковал ли босса игрок (взводит таймер рефреша после боя)
+	bool was_attacked_{false};
 	// для боссов: таймер (в секундах), включающийся по окончанию боя
 	// через который происходит сброс списка атакующих и рефреш моба
 	int restore_timer_;

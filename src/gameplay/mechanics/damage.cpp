@@ -731,7 +731,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 	DpsSystem::UpdateDpsStatistics(ch, real_dam, over_dam);
 	// запись дамага в список атакеров
 	if (victim->IsNpc()) {
-		victim->add_attacker(ch, ATTACKER_DAMAGE, real_dam);
+		victim->mark_attacked(ch);
 	}
 	// попытка спасти жертву через ангела
 	CheckTutelarSelfSacrfice(ch, victim);

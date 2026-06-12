@@ -240,7 +240,7 @@ void CharData::zero_init() {
 	skill_bonus_ = 0;
 	type_charmice_ = 0;
 	role_.reset();
-	attackers_.clear();
+	was_attacked_ = false;
 	restore_timer_ = 0;
 	// char_data
 	set_rnum(kNobody);
@@ -1178,84 +1178,18 @@ const CharData::role_t &CharData::get_role_bits() const {
 	return role_;
 }
 
-// добавляет указанного ch чара в список атакующих босса с параметром type
-// или обновляет его данные в этом списке
-void CharData::add_attacker(CharData *ch, unsigned type, int num) {
-	if (!this->IsNpc() || ch->IsNpc() || !get_role(static_cast<unsigned>(EMobClass::kBoss))) {
+// отмечает, что босса атаковал игрок: взводит флаг пост-боевого таймера рефреша
+void CharData::mark_attacked(CharData *attacker) {
+	if (!this->IsNpc() || attacker->IsNpc() || !get_role(static_cast<unsigned>(EMobClass::kBoss))) {
 		return;
 	}
-
-	int uid = ch->get_uid();
-	if (IsCharmice(ch) && ch->has_master()) {
-		uid = ch->get_master()->get_uid();
-	}
-
-	auto i = attackers_.find(uid);
-	if (i != attackers_.end()) {
-		switch (type) {
-			case ATTACKER_DAMAGE: i->second.damage += num;
-				break;
-			case ATTACKER_ROUNDS: i->second.rounds += num;
-				break;
-		}
-	} else {
-		attacker_node tmp_node;
-		switch (type) {
-			case ATTACKER_DAMAGE: tmp_node.damage = num;
-				break;
-			case ATTACKER_ROUNDS: tmp_node.rounds = num;
-				break;
-		}
-		attackers_.insert(std::make_pair(uid, tmp_node));
-	}
-}
-
-// возвращает количественный параметр по флагу type указанного ch чара
-// из списка атакующих данного босса
-int CharData::get_attacker(CharData *ch, unsigned type) const {
-	if (!this->IsNpc() || ch->IsNpc() || !get_role(static_cast<unsigned>(EMobClass::kBoss))) {
-		return -1;
-	}
-	auto i = attackers_.find(ch->get_uid());
-	if (i != attackers_.end()) {
-		switch (type) {
-			case ATTACKER_DAMAGE: return i->second.damage;
-			case ATTACKER_ROUNDS: return i->second.rounds;
-		}
-	}
-	return 0;
-}
-
-// поиск в списке атакующих нанесшего максимальный урон, который при этом
-// находится в данный момент в этой же комнате с боссом и онлайн
-std::pair<int /* uid */, int /* rounds */> CharData::get_max_damager_in_room() const {
-	std::pair<int, int> damager(-1, 0);
-
-	if (!this->IsNpc() || !get_role(static_cast<unsigned>(EMobClass::kBoss))) {
-		return damager;
-	}
-
-	int max_dmg = 0;
-	for (const auto i : world[this->in_room]->people) {
-		if (!i->IsNpc() && i->desc) {
-			auto it = attackers_.find(i->get_uid());
-			if (it != attackers_.end()) {
-				if (it->second.damage > max_dmg) {
-					max_dmg = it->second.damage;
-					damager.first = it->first;
-					damager.second = it->second.rounds;
-				}
-			}
-		}
-	}
-
-	return damager;
+	was_attacked_ = true;
 }
 
 // обновление босса вне боя по прошествии MOB_RESTORE_TIMER секунд
 void CharData::restore_mob() {
 	restore_timer_ = 0;
-	attackers_.clear();
+	was_attacked_ = false;
 
 	this->set_hit(this->get_real_max_hit());
 	this->set_move(this->get_real_max_move());
@@ -1270,7 +1204,7 @@ void CharData::restore_mob() {
 void CharData::restore_npc() {
 	if(!this->IsNpc()) return;
 	
-	attackers_.clear();
+	was_attacked_ = false;
 	auto proto = (&mob_proto[this->get_rnum()]);
 	// ресторим хпшки / мувы
 		
@@ -1366,7 +1300,7 @@ void CharData::set_wait(const unsigned _) {
 // который находится вне боя и до этого был кем-то бит
 // (т.к. имеет не нулевой список атакеров)
 void CharData::inc_restore_timer(int num) {
-		if (get_role(static_cast<unsigned>(EMobClass::kBoss)) && !attackers_.empty() && !GetEnemy()) {
+		if (get_role(static_cast<unsigned>(EMobClass::kBoss)) && was_attacked_ && !GetEnemy()) {
 		restore_timer_ += num;
 		if (restore_timer_ > num) {
 			restore_mob();
