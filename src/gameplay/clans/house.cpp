@@ -5,6 +5,7 @@
 ******************************************************************************/
 
 #include "house.h"
+#include "gameplay/economics/currencies.h"
 #include "utils/utils_encoding.h"
 #include "utils/grammar/gender.h"
 #include "utils/grammar/declensions.h"
@@ -506,7 +507,7 @@ void Clan::ClanLoadSingle(const std::string &index) {
 					tempClan->owner.c_str(), __FILE__, __LINE__);
 				return;
 			}
-			victim->add_bank(tempClan->bank);
+			currencies::AddAmount(*victim, currencies::kKunaId, tempClan->bank, currencies::EPurse::kBank);
 			victim->save_char();
 		}
 		Boards::Static::clan_delete_message(tempClan->abbrev, tempClan->rent / 100);
@@ -2235,7 +2236,7 @@ bool Clan::PutChest(CharData *ch, ObjData *obj, ObjData *chest) {
 		if (privilege::IsImmortal(ch)) {
 			RemoveObjFromChar(obj);
 			ExtractObjFromWorld(obj);
-			ch->add_gold(gold);
+			currencies::AddAmount(*ch, currencies::kKunaId, gold);
 			SendMsgToChar(ch, "Вам это не положено! Вы вновь обрели %ld %s.\r\n",
 						  gold, grammar::GetDeclensionInNumber(gold, grammar::EWhat::kMoneyU));
 			return true;
@@ -2246,7 +2247,7 @@ bool Clan::PutChest(CharData *ch, ObjData *obj, ObjData *chest) {
 			CLAN(ch)->bank += over;
 			CLAN(ch)->m_members.add_money(ch->get_uid(), over);
 			gold -= over;
-			ch->add_gold(gold);
+			currencies::AddAmount(*ch, currencies::kKunaId, gold);
 			RemoveObjFromChar(obj);
 			ExtractObjFromWorld(obj);
 			SendMsgToChar(ch,
@@ -2599,7 +2600,7 @@ bool Clan::BankManage(CharData *ch, char *arg) {
 				SendMsgToChar(specials::BankMsg(specials::EBankMsg::kDepositHowMuch) + "\r\n", ch);
 				return true;
 			}
-			if (ch->get_gold() < gold) {
+			if (currencies::GetAmount(*ch, currencies::kKunaId) < gold) {
 				SendMsgToChar(specials::BankMsg(specials::EBankMsg::kCantAfford) + "\r\n", ch);
 				return true;
 			}
@@ -2612,7 +2613,7 @@ bool Clan::BankManage(CharData *ch, char *arg) {
 			long over = std::numeric_limits<long int>::max() - CLAN(ch)->bank;
 			CLAN(ch)->bank += over;
 			CLAN(ch)->m_members.add_money(ch->get_uid(), over);
-			ch->remove_gold(over);
+			currencies::RemoveAmount(*ch, currencies::kKunaId, over);
 			SendMsgToChar(fmt::format(fmt::runtime(specials::BankMsg(specials::EBankMsg::kClanDepositPartial)),
 				fmt::arg("amount", over),
 				fmt::arg("currency", grammar::GetDeclensionInNumber(over, grammar::EWhat::kMoneyU))) + "\r\n", ch);
@@ -2623,7 +2624,7 @@ bool Clan::BankManage(CharData *ch, char *arg) {
 			CLAN(ch)->chest_log.add(log_text);
 			return true;
 		}
-		ch->remove_gold(gold);
+		currencies::RemoveAmount(*ch, currencies::kKunaId, gold);
 		CLAN(ch)->bank += gold;
 		CLAN(ch)->m_members.add_money(ch->get_uid(), gold);
 		SendMsgToChar(fmt::format(fmt::runtime(specials::BankMsg(specials::EBankMsg::kDeposited)), fmt::arg("amount", gold), fmt::arg("currency", grammar::GetDeclensionInNumber(gold, grammar::EWhat::kMoneyU))) + "\r\n", ch);
@@ -2653,9 +2654,9 @@ bool Clan::BankManage(CharData *ch, char *arg) {
 		}
 
 		// на случай переполнения персонажа
-		if ((ch->get_gold() + gold) < 0) {
+		if ((currencies::GetAmount(*ch, currencies::kKunaId) + gold) < 0) {
 			long over = std::numeric_limits<long>::max() - CLAN(ch)->bank;
-			ch->add_gold(over);
+			currencies::AddAmount(*ch, currencies::kKunaId, over);
 			CLAN(ch)->bank -= over;
 			CLAN(ch)->m_members.sub_money(ch->get_uid(), over);
 			SendMsgToChar(fmt::format(fmt::runtime(specials::BankMsg(specials::EBankMsg::kClanWithdrawPartial)),
@@ -2670,7 +2671,7 @@ bool Clan::BankManage(CharData *ch, char *arg) {
 		}
 		CLAN(ch)->bank -= gold;
 		CLAN(ch)->m_members.sub_money(ch->get_uid(), gold);
-		ch->add_gold(gold);
+		currencies::AddAmount(*ch, currencies::kKunaId, gold);
 		SendMsgToChar(fmt::format(fmt::runtime(specials::BankMsg(specials::EBankMsg::kWithdrawn)), fmt::arg("amount", gold), fmt::arg("currency", grammar::GetDeclensionInNumber(gold, grammar::EWhat::kMoneyU))) + "\r\n", ch);
 		act(specials::BankMsg(specials::EBankMsg::kFinancialOp), true, ch, nullptr, nullptr, kToRoom);
 		std::string log_text = fmt::format("{} получил%s из казны {} {}\r\n",
@@ -4271,7 +4272,7 @@ bool Clan::put_ingr_chest(CharData *ch, ObjData *obj, ObjData *chest) {
 			int howmany = GET_OBJ_VAL(obj, 0);
 			RemoveObjFromChar(obj);
 			ExtractObjFromWorld(obj);
-			ch->add_gold(howmany);
+			currencies::AddAmount(*ch, currencies::kKunaId, howmany);
 			SendMsgToChar(ch, "Вы вновь обрели %d %s.\r\n", howmany, grammar::GetDeclensionInNumber(howmany, grammar::EWhat::kMoneyU));
 		}
 	} else if (obj->has_flag(EObjFlag::kNodrop)
@@ -5396,7 +5397,7 @@ void DoStoreHouse(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 	}
 	if (utils::IsAbbr(arg, "характеристики") || utils::IsAbbr(arg, "identify") || utils::IsAbbr(arg, "опознать")) {
-		if ((ch->get_bank() < kChestIdentPay) && (GetRealLevel(ch) < kLvlImplementator)) {
+		if ((currencies::GetAmount(*ch, currencies::kKunaId, currencies::EPurse::kBank) < kChestIdentPay) && (GetRealLevel(ch) < kLvlImplementator)) {
 			SendMsgToChar("У вас недостаточно денег в банке для такого исследования.\r\n", ch);
 			return;
 		}
@@ -5407,7 +5408,7 @@ void DoStoreHouse(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				if (tmp_obj) {
 					SendMsgToChar(ch, "Характеристики предмета: %s\r\n", stufina);
 					MortShowObjValues(tmp_obj, ch, 200);
-					ch->remove_bank(kChestIdentPay);
+					currencies::RemoveAmount(*ch, currencies::kKunaId, kChestIdentPay, currencies::EPurse::kBank);
 					SendMsgToChar(ch,
 								  "%sЗа информацию о предмете с вашего банковского счета сняли %d %s%s\r\n",
 								  kColorBoldGrn,
@@ -5509,8 +5510,8 @@ void do_clanstuff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 		int gold = obj->get_cost();
 
-		if (ch->get_gold() >= gold) {
-			ch->remove_gold(gold);
+		if (currencies::GetAmount(*ch, currencies::kKunaId) >= gold) {
+			currencies::RemoveAmount(*ch, currencies::kKunaId, gold);
 			gold_total += gold;
 		} else {
 			SendMsgToChar(ch, "Кончились денюжки!\r\n");

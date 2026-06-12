@@ -38,7 +38,7 @@ void split_or_clan_tax(CharData *ch, long amount) {
 		group::do_split(ch, buf_, 0, 0);
 	} else {
 		long tax = ClanSystem::do_gold_tax(ch, amount);
-		ch->remove_gold(tax);
+		currencies::RemoveAmount(*ch, currencies::kKunaId, tax);
 	}
 }
 
@@ -87,7 +87,7 @@ void get_check_money(CharData *ch, ObjData *obj, ObjData *cont) {
 		ch->IsFlagged(EPrf::kAutosplit) && (!cont || !system_obj::is_purse(cont))) {
 		// добавляем бабло, пишем в лог, клан-налог снимаем
 		// только по факту деления на группу в do_split()
-		ch->add_gold(value);
+		currencies::AddAmount(*ch, currencies::kKunaId, value);
 		sprintf(buf,
 				"<%s> {%d} заработал %d %s в группе.",
 				ch->get_name().c_str(),
@@ -105,14 +105,14 @@ void get_check_money(CharData *ch, ObjData *obj, ObjData *cont) {
 		sprintf(buf, "%s взял деньги из кошелька: %d  %s.", ch->get_name().c_str(), value,
 				grammar::GetDeclensionInNumber(value, grammar::EWhat::kMoneyU));
 		mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
-		ch->add_gold(value);
+		currencies::AddAmount(*ch, currencies::kKunaId, value);
 	} else if ((cont && IS_MOB_CORPSE(cont)) || GET_OBJ_VNUM(obj) != -1) {
 		// лут из трупа моба или из предметов-денег с внумом
 		// (предметы-награды в зонах) - снимаем клан-налог
 		sprintf(buf, "%s заработал %d  %s.", ch->get_name().c_str(), value,
 				grammar::GetDeclensionInNumber(value, grammar::EWhat::kMoneyU));
 		mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
-		ch->add_gold(value, true, true);
+		currencies::AddAmount(*ch, currencies::kKunaId, value - ClanSystem::do_gold_tax(ch, value), currencies::EPurse::kHand, false, true);
 	} else {
 		sprintf(buf,
 				"<%s> {%d} как-то получил %d  %s.",
@@ -121,7 +121,7 @@ void get_check_money(CharData *ch, ObjData *obj, ObjData *cont) {
 				value,
 				grammar::GetDeclensionInNumber(value, grammar::EWhat::kMoneyU));
 		mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
-		ch->add_gold(value);
+		currencies::AddAmount(*ch, currencies::kKunaId, value);
 	}
 	RemoveObjFromChar(obj);
 	ExtractObjFromWorld(obj);

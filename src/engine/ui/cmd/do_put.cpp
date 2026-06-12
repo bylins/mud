@@ -155,7 +155,7 @@ void do_put(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			SendMsgToChar("Следует указать чиста конкретную сумму.\r\n", ch);
 			return;
 		}
-		if (ch->get_gold() < howmany) {
+		if (currencies::GetAmount(*ch, currencies::kKunaId) < howmany) {
 			SendMsgToChar("Нет у вас такой суммы.\r\n", ch);
 			return;
 		}
@@ -198,13 +198,13 @@ void do_put(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					}
 
 					PlaceObjToInventory(obj.get(), ch);
-					ch->remove_gold(howmany);
+					currencies::RemoveAmount(*ch, currencies::kKunaId, howmany);
 
 					// если положить не удалось - возвращаем все взад
 					if (perform_put(ch, obj, cont)) {
 						RemoveObjFromChar(obj.get());
 						ExtractObjFromWorld(obj.get());
-						ch->add_gold(howmany);
+						currencies::AddAmount(*ch, currencies::kKunaId, howmany);
 						return;
 					}
 				} else {

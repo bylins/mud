@@ -227,8 +227,8 @@ bool StopFollower(CharData *ch, int mode) {
 			if (ch->IsFlagged(EMobFlag::kCorpse)) {
 				act("Налетевший ветер развеял $n3, не оставив и следа.", true, ch, 0, 0, kToRoom | kToArenaListen);
 				GET_LASTROOM(ch) = ch->in_room;
-				PerformDropGold(ch, ch->get_gold());
-				ch->set_gold(0);
+				PerformDropGold(ch, currencies::GetAmount(*ch, currencies::kKunaId));
+				currencies::SetAmount(*ch, currencies::kKunaId, 0);
 					ExtractCharFromWorld(ch, false);
 				return (true);
 			} else if (AFF_FLAGGED(ch, EAffect::kHelper)) {

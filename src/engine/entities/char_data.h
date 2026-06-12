@@ -450,20 +450,6 @@ class CharData : public ProtectedCharData {
 	void set_movereg(int);
 
 	////////////////////////////////////////////////////////////////////////////
-	long get_gold() const;
-	long get_bank() const;
-	long get_total_gold() const;
-
-	void add_gold(long gold, bool log = true, bool clan_tax = false);
-	void add_bank(long gold, bool log = true);
-
-	void set_gold(long num, bool log = true);
-	void set_bank(long num, bool log = true);
-
-	long remove_gold(long num, bool log = true);
-	long remove_bank(long num, bool log = true);
-	long remove_both_gold(long num, bool log = true);
-
 	// issue.currency-storage: the per-owner currency container (single mutation chokepoint).
 	currencies::CurrencyStorage &currency_storage() { return currency_storage_; }
 	[[nodiscard]] const currencies::CurrencyStorage &currency_storage() const { return currency_storage_; }

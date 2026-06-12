@@ -2,6 +2,7 @@
 #include "administration/privilege.h"
 
 #include "engine/core/handler.h"
+#include "gameplay/economics/currencies.h"
 #include "utils/grammar/declensions.h"
 #include "engine/entities/char_player.h"
 #include "engine/ui/modify.h"
@@ -86,8 +87,8 @@ void doBring(CharData *ch, CharData *boss, unsigned int pos, char *bank) {
 			return;
 		}
 
-		if ((!isname(bank, "банк bank") && cost > ch->get_gold()) ||
-			(isname(bank, "банк bank") && cost > ch->get_bank())) {
+		if ((!isname(bank, "банк bank") && cost > currencies::GetAmount(*ch, currencies::kKunaId)) ||
+			(isname(bank, "банк bank") && cost > currencies::GetAmount(*ch, currencies::kKunaId, currencies::EPurse::kBank))) {
 			tell_to_char(boss, ch, fmt::format(fmt::runtime(specials::MercMsg(specials::EMercMsg::kTooExpensive)),
 					fmt::arg("amount", cost), fmt::arg("currency", grammar::GetDeclensionInNumber(cost, grammar::EWhat::kMoneyU))).c_str());
 			return;
@@ -111,9 +112,9 @@ void doBring(CharData *ch, CharData *boss, unsigned int pos, char *bank) {
 		}
 		if (!privilege::IsImmortal(ch)) {
 			if (isname(bank, "банк bank"))
-				ch->remove_bank(cost);
+				currencies::RemoveAmount(*ch, currencies::kKunaId, cost, currencies::EPurse::kBank);
 			else
-				ch->remove_gold(cost);
+				currencies::RemoveAmount(*ch, currencies::kKunaId, cost);
 		}
 		if (NPC_FLAGGED(mob, ENpcFlag::kNoMercList)) {
 			if (mob->get_sex() == EGender::kMale)

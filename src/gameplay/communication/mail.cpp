@@ -10,6 +10,7 @@
 
 #include "mail.h"
 #include "administration/privilege.h"
+#include "gameplay/economics/currencies.h"
 #include "utils/grammar/declensions.h"
 #include "gameplay/ai/special_messages.h"
 
@@ -224,7 +225,7 @@ void postmaster_send_mail(CharData *ch, CharData *mailman, int/* cmd*/, char *ar
 		return;
 	}
 
-	if (ch->get_gold() < cost) {
+	if (currencies::GetAmount(*ch, currencies::kKunaId) < cost) {
 		act(fmt::format(fmt::runtime(specials::MailMsg(specials::EMailMsg::kCantAffordCost)),
 				fmt::arg("amount", STAMP_PRICE),
 				fmt::arg("currency", grammar::GetDeclensionInNumber(STAMP_PRICE, grammar::EWhat::kMoneyU))),
@@ -243,7 +244,7 @@ void postmaster_send_mail(CharData *ch, CharData *mailman, int/* cmd*/, char *ar
 			false, mailman, 0, ch, kToVict);
 	}
 	act(specials::MailMsg(specials::EMailMsg::kCanWrite), false, mailman, 0, ch, kToVict);
-	ch->remove_gold(cost);
+	currencies::RemoveAmount(*ch, currencies::kKunaId, cost);
 	ch->SetFlag(EPlrFlag::kMailing);    // string_write() sets writing.
 
 	// Start writing!

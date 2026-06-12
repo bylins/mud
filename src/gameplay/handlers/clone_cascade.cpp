@@ -4,6 +4,7 @@
 */
 
 #include "gameplay/handlers/spell_handlers.h"
+#include "gameplay/economics/currencies.h"
 #include "engine/entities/char_data.h"
 #include "engine/core/handler.h"
 #include "engine/db/db.h"
@@ -48,7 +49,7 @@ static void ApplyCloneCosmetics(CharData *ch, CharData *mob) {
 	mob->set_hit(ch->get_max_hit());
 	mob->mob_specials.damnodice = 0;
 	mob->mob_specials.damsizedice = 0;
-	mob->set_gold(0);
+	currencies::SetAmount(*mob, currencies::kKunaId, 0);
 	GET_GOLD_NoDs(mob) = 0;
 	GET_GOLD_SiDs(mob) = 0;
 	mob->set_exp(0);

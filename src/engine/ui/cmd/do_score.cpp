@@ -193,8 +193,8 @@ void PrintScoreList(CharData *ch) {
 				  ac,
 				  GET_ABSORBE(ch));
 	SendMsgToChar(ch, "Вы имеете кун: на руках: %ld, на счету %ld. Гривны: %d, опыт: %ld, ДСУ: %ld.\r\n",
-				  ch->get_gold(),
-				  ch->get_bank(),
+				  currencies::GetAmount(*ch, currencies::kKunaId),
+				  currencies::GetAmount(*ch, currencies::kKunaId, currencies::EPurse::kBank),
 				  currencies::GetAmount(*ch, currencies::kCopperGrivnaId),
 				  ch->get_exp(),
 				  privilege::IsImmortal(ch) ? 1 : GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1) - ch->get_exp());
@@ -510,8 +510,8 @@ int PrintBaseInfoToTable(CharData *ch, table_wrapper::Table &table, std::size_t 
 		table[++row][col] = std::string("ДСУ: ") + PrintNumberByDigits(
 			GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1) - ch->get_exp());
 	}
-	table[++row][col] = std::string("Кун: ") + PrintNumberByDigits(ch->get_gold());
-	table[++row][col] = std::string("На счету: ") + PrintNumberByDigits(ch->get_bank());
+	table[++row][col] = std::string("Кун: ") + PrintNumberByDigits(currencies::GetAmount(*ch, currencies::kKunaId));
+	table[++row][col] = std::string("На счету: ") + PrintNumberByDigits(currencies::GetAmount(*ch, currencies::kKunaId, currencies::EPurse::kBank));
 	table[++row][col] = GetShortPositionStr(ch);
 	table[++row][col] = std::string("Голоден: ") + (GET_COND(ch, condition::kFull) > kNormCondition ? "Угу :(" : "Нет");
 	table[++row][col] = std::string("Жажда: ") + (condition::GetCondAboveNorm(ch, condition::kThirst) ? "Наливай!" : "Нет");
@@ -786,13 +786,13 @@ void PrintScoreBase(CharData *ch) {
 
 	sprintf(buf + strlen(buf),
 			"У вас на руках %ld %s и %d %s",
-			ch->get_gold(),
-			grammar::GetDeclensionInNumber(ch->get_gold(), grammar::EWhat::kMoneyA),
+			currencies::GetAmount(*ch, currencies::kKunaId),
+			grammar::GetDeclensionInNumber(currencies::GetAmount(*ch, currencies::kKunaId), grammar::EWhat::kMoneyA),
 			currencies::GetAmount(*ch, currencies::kCopperGrivnaId),
 			MUD::Currency(currencies::kCopperGrivnaVnum).GetNameWithAmount(currencies::GetAmount(*ch, currencies::kCopperGrivnaId)).c_str());
-	if (ch->get_bank() > 0)
+	if (currencies::GetAmount(*ch, currencies::kKunaId, currencies::EPurse::kBank) > 0)
 		sprintf(buf + strlen(buf), " (и еще %ld %s припрятано в лежне).\r\n",
-				ch->get_bank(), grammar::GetDeclensionInNumber(ch->get_bank(), grammar::EWhat::kMoneyA));
+				currencies::GetAmount(*ch, currencies::kKunaId, currencies::EPurse::kBank), grammar::GetDeclensionInNumber(currencies::GetAmount(*ch, currencies::kKunaId, currencies::EPurse::kBank), grammar::EWhat::kMoneyA));
 	else
 		strncat(buf, ".\r\n", sizeof(buf) - strlen(buf) - 1);
 

@@ -10,6 +10,7 @@
 
 #include "auction.h"
 #include "administration/privilege.h"
+#include "gameplay/economics/currencies.h"
 #include "gameplay/mechanics/sight.h"
 #include "utils/grammar/gender.h"
 #include "utils/grammar/declensions.h"
@@ -273,7 +274,7 @@ bool auction_drive(CharData *ch, char *argument) {
 				SendMsgToChar("Повышайте ставку не ниже 5% текущей.\r\n", ch);
 				return false;
 			}
-			if (value > ch->get_gold() + ch->get_bank()) {
+			if (value > currencies::GetAmount(*ch, currencies::kKunaId) + currencies::GetAmount(*ch, currencies::kKunaId, currencies::EPurse::kBank)) {
 				SendMsgToChar("У вас нет такой суммы.\r\n", ch);
 				return false;
 			}
@@ -455,12 +456,12 @@ bool auction_drive(CharData *ch, char *argument) {
 				SendMsgToChar("Господи, а ведь смертные за это деньги платят.\r\n", ch);
 				return false;
 			}
-			if ((ch->get_total_gold() < AUCTION_IDENT_PAY) && (GetRealLevel(ch) < kLvlImplementator)) {
+			if ((currencies::GetTotal(*ch, currencies::kKunaId) < AUCTION_IDENT_PAY) && (GetRealLevel(ch) < kLvlImplementator)) {
 				SendMsgToChar("У вас не хватит на это денег!\r\n", ch);
 				return false;
 			}
 			MortShowObjValues(iobj, ch, 200);    //200 - весь текст
-			ch->remove_both_gold(AUCTION_IDENT_PAY);
+			currencies::RemoveTotal(*ch, currencies::kKunaId, AUCTION_IDENT_PAY);
 			SendMsgToChar(ch,
 						  "\r\n%sЗа информацию о предмете с вашего счета сняли %d %s%s\r\n",
 						  kColorBoldGrn,
@@ -533,7 +534,7 @@ int check_sell(int lot) {
 		}
 	}
 
-	if (tch->get_total_gold() < GET_LOT(lot)->cost) {
+	if (currencies::GetTotal(*tch, currencies::kKunaId) < GET_LOT(lot)->cost) {
 		sprintf(tmpbuf, "У вас не хватает денег на покупку %s.\r\n", obj->get_PName(grammar::ECase::kGen).c_str());
 		SendMsgToChar(tmpbuf, tch);
 		sprintf(tmpbuf, "У покупателя %s не хватает денег.\r\n", obj->get_PName(grammar::ECase::kGen).c_str());
@@ -566,7 +567,7 @@ void trans_auction(int lot) {
 		return;
 	}
 	// У покупателя есть 10% суммы на счету.
-	if (tch->get_total_gold() < (GET_LOT(lot)->cost + GET_LOT(lot)->cost / 10)) {
+	if (currencies::GetTotal(*tch, currencies::kKunaId) < (GET_LOT(lot)->cost + GET_LOT(lot)->cost / 10)) {
 		SendMsgToChar("У вас не хватает денег на передачу предмета.", tch);
 		return;
 	}
@@ -682,8 +683,8 @@ void trans_auction(int lot) {
 	RemoveObjFromChar(obj);
 	PlaceObjToInventory(obj, tch);
 
-	ch->add_bank(GET_LOT(lot)->cost);
-	tch->remove_both_gold(GET_LOT(lot)->cost + (GET_LOT(lot)->cost / 10));
+	currencies::AddAmount(*ch, currencies::kKunaId, GET_LOT(lot)->cost, currencies::EPurse::kBank);
+	currencies::RemoveTotal(*tch, currencies::kKunaId, GET_LOT(lot)->cost + (GET_LOT(lot)->cost / 10));
 
 	clear_auction(lot);
 	return;
@@ -780,8 +781,8 @@ void sell_auction(int lot) {
 	RemoveObjFromChar(obj);
 	PlaceObjToInventory(obj, tch);
 
-	ch->add_bank(GET_LOT(lot)->cost);
-	tch->remove_both_gold(GET_LOT(lot)->cost);
+	currencies::AddAmount(*ch, currencies::kKunaId, GET_LOT(lot)->cost, currencies::EPurse::kBank);
+	currencies::RemoveTotal(*tch, currencies::kKunaId, GET_LOT(lot)->cost);
 
 
 	metrics.send();
@@ -824,7 +825,7 @@ void check_auction(CharData *ch, ObjData *obj) {
 			}
 			if (GET_LOT(i)->item->get_carried_by() != GET_LOT(i)->seller
 				|| (GET_LOT(i)->buyer
-					&& (GET_LOT(i)->buyer->get_total_gold() < GET_LOT(i)->cost))) {
+					&& (currencies::GetTotal(*GET_LOT(i)->buyer, currencies::kKunaId) < GET_LOT(i)->cost))) {
 				sprintf(tmpbuf, "Аукцион : лот %d(%s) снят с аукциона распорядителем.",
 						i, GET_LOT(i)->item->get_PName(grammar::ECase::kNom).c_str());
 				message_auction(tmpbuf, nullptr);

@@ -164,11 +164,11 @@ void TitleSystem::do_title(CharData *ch, char *argument, int/* cmd*/, int/* subc
 	} else if (CompareParam(buffer2, "согласен")) {
 		auto it = temp_title_list.find(GET_NAME(ch));
 		if (it != temp_title_list.end()) {
-			if (ch->get_bank() < SET_TITLE_COST) {
+			if (currencies::GetAmount(*ch, currencies::kKunaId, currencies::EPurse::kBank) < SET_TITLE_COST) {
 				SendMsgToChar("На вашем счету не хватает денег для оплаты этой услуги.\r\n", ch);
 				return;
 			}
-			ch->remove_bank(SET_TITLE_COST);
+			currencies::RemoveAmount(*ch, currencies::kKunaId, SET_TITLE_COST, currencies::EPurse::kBank);
 			title_list[it->first] = it->second;
 			temp_title_list.erase(it);
 			SendMsgToChar("Ваша заявка отправлена Богам и будет рассмотрена в ближайшее время.\r\n", ch);
@@ -179,7 +179,7 @@ void TitleSystem::do_title(CharData *ch, char *argument, int/* cmd*/, int/* subc
 		auto it = title_list.find(GET_NAME(ch));
 		if (it != title_list.end()) {
 			title_list.erase(it);
-			ch->add_bank(SET_TITLE_COST);
+			currencies::AddAmount(*ch, currencies::kKunaId, SET_TITLE_COST, currencies::EPurse::kBank);
 			SendMsgToChar("Ваша заявка на титул отменена.\r\n", ch);
 		} else
 			SendMsgToChar("В данный момент вам нечего отменять.\r\n", ch);
