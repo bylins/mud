@@ -477,12 +477,12 @@ ObjData *make_corpse(CharData *ch, CharData *killer) {
 
 	// transfer gold
 	// following 'if' clause added to fix gold duplication loophole
-	if (currencies::GetAmount(*ch, currencies::kKunaId) > 0) {
+	if (currencies::GetAmount(*ch, currencies::kGold) > 0) {
 		if (ch->IsNpc()) {
-			const auto money = CreateCurrencyObj(currencies::GetAmount(*ch, currencies::kKunaId));
+			const auto money = CreateCurrencyObj(currencies::GetAmount(*ch, currencies::kGold));
 			PlaceObjIntoObj(money.get(), corpse.get());
 		} else {
-			const int amount = currencies::GetAmount(*ch, currencies::kKunaId);
+			const int amount = currencies::GetAmount(*ch, currencies::kGold);
 			const auto money = CreateCurrencyObj(amount);
 			ObjData *purse = nullptr;
 			if (amount >= 100) {
@@ -497,7 +497,7 @@ ObjData *make_corpse(CharData *ch, CharData *killer) {
 				PlaceObjIntoObj(money.get(), corpse.get());
 			}
 		}
-		currencies::SetAmount(*ch, currencies::kKunaId, 0);
+		currencies::SetAmount(*ch, currencies::kGold, 0);
 	}
 
 	ch->carrying = nullptr;

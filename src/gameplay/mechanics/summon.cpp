@@ -34,7 +34,7 @@ int FinalizeSummonedMob(CharData *ch, CharData *mob, ESpell spell_id, bool keepe
 	mob->set_exp(0);
 	IS_CARRYING_W(mob) = 0;
 	IS_CARRYING_N(mob) = 0;
-	currencies::SetAmount(*mob, currencies::kKunaId, 0);
+	currencies::SetAmount(*mob, currencies::kGold, 0);
 	GET_GOLD_NoDs(mob) = 0;
 	GET_GOLD_SiDs(mob) = 0;
 	const auto days_from_full_moon =

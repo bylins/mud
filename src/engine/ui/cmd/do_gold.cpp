@@ -11,12 +11,12 @@
 #include "utils/grammar/declensions.h"
 
 void do_gold(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	if (currencies::GetAmount(*ch, currencies::kKunaId) == 0)
+	if (currencies::GetAmount(*ch, currencies::kGold) == 0)
 		SendMsgToChar("Вы разорены!\r\n", ch);
-	else if (currencies::GetAmount(*ch, currencies::kKunaId) == 1)
+	else if (currencies::GetAmount(*ch, currencies::kGold) == 1)
 		SendMsgToChar("У вас есть всего лишь одна куна.\r\n", ch);
 	else {
-		sprintf(buf, "У Вас есть %ld %s.\r\n", currencies::GetAmount(*ch, currencies::kKunaId), grammar::GetDeclensionInNumber(currencies::GetAmount(*ch, currencies::kKunaId), grammar::EWhat::kMoneyA));
+		sprintf(buf, "У Вас есть %ld %s.\r\n", currencies::GetAmount(*ch, currencies::kGold), grammar::GetDeclensionInNumber(currencies::GetAmount(*ch, currencies::kGold), grammar::EWhat::kMoneyA));
 		SendMsgToChar(buf, ch);
 	}
 }

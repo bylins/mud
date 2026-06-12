@@ -112,7 +112,7 @@ long CalcHirePrice(CharData *ch, CharData *victim) {
 	hirePoints = hirePoints * 5 * GetRealLevel(ch);
 
 	int min_price = MAX((m_dr / 300 * GetRealLevel(victim)), (GetRealLevel(victim) * 5));
-	min_price = MAX(min_price, currencies::GetAmount(mob_proto[victim->get_rnum()], currencies::kKunaId));
+	min_price = MAX(min_price, currencies::GetAmount(mob_proto[victim->get_rnum()], currencies::kGold));
 	long finalPrice = MAX(min_price, (int) ceil(price - hirePoints));
 
 	ch->send_to_TC(true, true, true,
@@ -210,8 +210,8 @@ void DoFindhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		auto hire_price = CalcHirePrice(ch, helpee);
 		long cost = times * hire_price;
 
-		if ((!isname(isbank, "банк bank") && cost > currencies::GetAmount(*ch, currencies::kKunaId)) ||
-			(isname(isbank, "банк bank") && cost > currencies::GetAmount(*ch, currencies::kKunaId, currencies::EPurse::kBank))) {
+		if ((!isname(isbank, "банк bank") && cost > currencies::GetAmount(*ch, currencies::kGold)) ||
+			(isname(isbank, "банк bank") && cost > currencies::GetAmount(*ch, currencies::kGold, currencies::EPurse::kBank))) {
 			sprintf(buf,
 					"$n сказал$g вам : \" Мои услуги за %d %s стоят %ld %s - это тебе не по карману.\"",
 					times,
@@ -243,9 +243,9 @@ void DoFindhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				long oldcost = MAX(0, (int) (((*aff)->duration - 1) / 2) * (int) abs(hired->mob_specials.hire_price));
 				if (oldcost > 0) {
 					if (hired->mob_specials.hire_price < 0) {
-						currencies::AddAmount(*ch, currencies::kKunaId, oldcost, currencies::EPurse::kBank);
+						currencies::AddAmount(*ch, currencies::kGold, oldcost, currencies::EPurse::kBank);
 					} else {
-						currencies::AddAmount(*ch, currencies::kKunaId, oldcost);
+						currencies::AddAmount(*ch, currencies::kGold, oldcost);
 					}
 					SendMsgToChar(ch, "Вам вернули нерастраченный задаток в %ld %s.\r\n",
 								  oldcost, grammar::GetDeclensionInNumber(cost, grammar::EWhat::kMoneyA));
@@ -256,10 +256,10 @@ void DoFindhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		RemoveAffectFromChar(helpee, ESpell::kCharm);
 		if (!ch->IsImmortal()) {
 			if (isname(isbank, "банк bank")) {
-				currencies::RemoveAmount(*ch, currencies::kKunaId, cost, currencies::EPurse::kBank);
+				currencies::RemoveAmount(*ch, currencies::kGold, cost, currencies::EPurse::kBank);
 				helpee->mob_specials.hire_price = -hire_price;
 			} else {
-				currencies::RemoveAmount(*ch, currencies::kKunaId, cost);
+				currencies::RemoveAmount(*ch, currencies::kGold, cost);
 				helpee->mob_specials.hire_price = hire_price;
 			}
 		}
@@ -349,9 +349,9 @@ void DoFreehelpee(CharData *ch, char * /* argument*/, int/* cmd*/, int/* subcmd*
 				long cost = MAX(0, (int) ((aff->duration - 1) / 2) * (int) abs(hired->mob_specials.hire_price));
 				if (cost > 0) {
 					if (hired->mob_specials.hire_price < 0) {
-						currencies::AddAmount(*ch, currencies::kKunaId, cost, currencies::EPurse::kBank);
+						currencies::AddAmount(*ch, currencies::kGold, cost, currencies::EPurse::kBank);
 					} else {
-						currencies::AddAmount(*ch, currencies::kKunaId, cost);
+						currencies::AddAmount(*ch, currencies::kGold, cost);
 					}
 					SendMsgToChar(ch, "Вам вернули нерастраченный задаток в %ld %s.\r\n", cost, grammar::GetDeclensionInNumber(cost, grammar::EWhat::kMoneyA));
 				}

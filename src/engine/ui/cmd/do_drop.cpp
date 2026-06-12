@@ -12,7 +12,7 @@ extern ObjData::shared_ptr CreateCurrencyObj(long quantity);
 void PerformDropGold(CharData *ch, int amount) {
 	if (amount <= 0) {
 		SendMsgToChar("Да, похоже вы слишком переиграли сегодня.\r\n", ch);
-	} else if (currencies::GetAmount(*ch, currencies::kKunaId) < amount) {
+	} else if (currencies::GetAmount(*ch, currencies::kGold) < amount) {
 		SendMsgToChar("У вас нет такой суммы!\r\n", ch);
 	} else {
 		SetBattleLag(ch, 1);    // to prevent coin-bombing
@@ -54,12 +54,12 @@ void PerformDropGold(CharData *ch, int amount) {
 					grammar::GetDeclensionInNumber(amount, grammar::EWhat::kMoneyU));
 			mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
 			sprintf(buf, "$n бросил$g %s на землю.",
-					MUD::Currency(currencies::kKunaVnum).GetObjCName(amount, grammar::ECase::kAcc));
+					MUD::Currency(currencies::kGoldVnum).GetObjCName(amount, grammar::ECase::kAcc));
 			act(buf, true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 		}
 		PlaceObjToRoom(obj.get(), ch->in_room);
 
-		currencies::RemoveAmount(*ch, currencies::kKunaId, amount);
+		currencies::RemoveAmount(*ch, currencies::kGold, amount);
 	}
 }
 

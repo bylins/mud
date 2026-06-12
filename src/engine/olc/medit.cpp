@@ -580,7 +580,7 @@ void medit_save_to_disk(ZoneRnum zone_num) {
 				buf2, alignment::GetAlignment(mob),
 				GetRealLevel(mob), 20 - GET_HR(mob), GET_AC(mob) / 10, mob->mem_queue.total,
 				mob->mem_queue.stored, mob->get_hit(), GET_NDD(mob), GET_SDD(mob), GET_DR(mob), GET_GOLD_NoDs(mob),
-				GET_GOLD_SiDs(mob), currencies::GetAmount(*mob, currencies::kKunaId), mob->get_exp(), static_cast<int>(mob->GetPosition()),
+				GET_GOLD_SiDs(mob), currencies::GetAmount(*mob, currencies::kGold), mob->get_exp(), static_cast<int>(mob->GetPosition()),
 				static_cast<int>(GET_DEFAULT_POS(mob)), static_cast<int>(mob->get_sex()));
 		// * Deal with Extra stats in case they are there.
 		sum = 0;
@@ -1102,7 +1102,7 @@ void medit_disp_menu(DescriptorData *d) {
 			grn, nrm, cyn, mob->get_hit(), nrm,
 			grn, nrm, cyn, GET_AC(mob), nrm,
 			grn, nrm, cyn, mob->get_exp(), nrm,
-			grn, nrm, cyn, currencies::GetAmount(*mob, currencies::kKunaId), nrm,
+			grn, nrm, cyn, currencies::GetAmount(*mob, currencies::kGold), nrm,
 			grn, nrm, cyn, GET_GOLD_NoDs(mob), nrm, grn, nrm, cyn, GET_GOLD_SiDs(mob), nrm);
 	SendMsgToChar(buf, d->character.get());
 
@@ -2004,7 +2004,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 		case MEDIT_EXP: OLC_MOB(d)->set_exp(atoi(arg));
 			break;
 
-		case MEDIT_GOLD: currencies::SetAmount(*OLC_MOB(d), currencies::kKunaId, atoi(arg));
+		case MEDIT_GOLD: currencies::SetAmount(*OLC_MOB(d), currencies::kGold, atoi(arg));
 			break;
 
 		case MEDIT_GOLD_DICE: GET_GOLD_NoDs(OLC_MOB(d)) = std::max(0, atoi(arg));

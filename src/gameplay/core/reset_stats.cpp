@@ -144,7 +144,7 @@ void process(DescriptorData *d, Type type) {
 	const auto &ch = d->character;
 	const int price = calc_price(ch.get(), type);
 
-	if (currencies::GetTotal(*ch, currencies::kKunaId) < price) {
+	if (currencies::GetTotal(*ch, currencies::kGold) < price) {
 	iosystem::write_to_output("\r\nУ вас нет такой суммы!\r\n", d);
 	iosystem::write_to_output(MENU, d);
 		d->state = EConState::kMenu;
@@ -168,7 +168,7 @@ void process(DescriptorData *d, Type type) {
 					 reset_prices.at(type).log_text.c_str(), price);
 			AddKarma(ch.get(), buf_, "auto");
 
-			currencies::RemoveTotal(*ch, currencies::kKunaId, price);
+			currencies::RemoveTotal(*ch, currencies::kGold, price);
 			ch->save_char();
 
 			snprintf(buf_, sizeof(buf_), "%s changed %s, price=%d",

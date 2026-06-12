@@ -1847,7 +1847,7 @@ CharData *ReadMobile(MobVnum nr, int type) {                // and MobRnum
 		GET_ACTIVITY(mob) = number(0, mob->mob_specials.speed);
 	mob->extract_timer = 0;
 	mob->points.move = mob->points.max_move;
-	currencies::AddAmount(*mob, currencies::kKunaId, RollDices(GET_GOLD_NoDs(mob), GET_GOLD_SiDs(mob)));
+	currencies::AddAmount(*mob, currencies::kGold, RollDices(GET_GOLD_NoDs(mob), GET_GOLD_SiDs(mob)));
 
 	mob->player_data.time.birth = time(nullptr);
 	mob->player_data.time.played = 0;

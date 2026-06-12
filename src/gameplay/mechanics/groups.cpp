@@ -663,7 +663,7 @@ void group::do_split(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, 
 	switch (currency) {
 		case currency::ICE : currency_vnum = currencies::kSnowflakeVnum;
 			break;
-		default : currency_vnum = currencies::kKunaVnum;
+		default : currency_vnum = currencies::kGoldVnum;
 			break;
 	}
 
@@ -674,7 +674,7 @@ void group::do_split(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, 
 			return;
 		}
 
-		if (amount > currencies::GetAmount(*ch, currencies::kKunaId) && currency == currency::GOLD) {
+		if (amount > currencies::GetAmount(*ch, currencies::kGold) && currency == currency::GOLD) {
 			SendMsgToChar("И где бы взять вам столько денег?.\r\n", ch);
 			return;
 		}
@@ -707,7 +707,7 @@ void group::do_split(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, 
 		switch (currency) {
 			case currency::ICE : currencies::RemoveAmount(*ch, currencies::kMagicIceId, share * (num - 1));
 				break;
-			case currency::GOLD : currencies::RemoveAmount(*ch, currencies::kKunaId, share * (num - 1));
+			case currency::GOLD : currencies::RemoveAmount(*ch, currencies::kGold, share * (num - 1));
 				break;
 		}
 
@@ -721,7 +721,7 @@ void group::do_split(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, 
 					break;
 				}
 				case currency::GOLD : {
-					currencies::AddAmount(*k, currencies::kKunaId, share - ClanSystem::do_gold_tax(k, share), currencies::EPurse::kHand, false, true);
+					currencies::AddAmount(*k, currencies::kGold, share - ClanSystem::do_gold_tax(k, share), currencies::EPurse::kHand, false, true);
 					break;
 				}
 			}
@@ -735,7 +735,7 @@ void group::do_split(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, 
 				switch (currency) {
 					case currency::ICE : currencies::AddAmount(*f, currencies::kMagicIceId, share);
 						break;
-					case currency::GOLD : currencies::AddAmount(*f, currencies::kKunaId, share - ClanSystem::do_gold_tax(f, share), currencies::EPurse::kHand, false, true);
+					case currency::GOLD : currencies::AddAmount(*f, currencies::kGold, share - ClanSystem::do_gold_tax(f, share), currencies::EPurse::kHand, false, true);
 						break;
 				}
 			}
@@ -752,7 +752,7 @@ void group::do_split(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, 
 		// клан-налог лутера с той части, которая пошла каждому в группе
 		if (currency == currency::GOLD) {
 			const long clan_tax = ClanSystem::do_gold_tax(ch, share);
-			currencies::RemoveAmount(*ch, currencies::kKunaId, clan_tax);
+			currencies::RemoveAmount(*ch, currencies::kGold, clan_tax);
 		}
 	} else {
 		SendMsgToChar("Сколько и чего вы хотите разделить?\r\n", ch);

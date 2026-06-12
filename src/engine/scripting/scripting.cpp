@@ -252,22 +252,22 @@ class CharacterWrapper : public Wrapper<CharacterData> {
 
 	long get_gold() const {
 		Ensurer ch(*this);
-		return currencies::GetAmount(*ch, currencies::kKunaId);
+		return currencies::GetAmount(*ch, currencies::kGold);
 	}
 
 	void set_gold(const long v) {
 		Ensurer ch(*this);
-		currencies::SetAmount(*ch, currencies::kKunaId, v);
+		currencies::SetAmount(*ch, currencies::kGold, v);
 	}
 
 	long get_bank() const {
 		Ensurer ch(*this);
-		return currencies::GetAmount(*ch, currencies::kKunaId, currencies::EPurse::kBank);
+		return currencies::GetAmount(*ch, currencies::kGold, currencies::EPurse::kBank);
 	}
 
 	void set_bank(const long v) {
 		Ensurer ch(*this);
-		currencies::SetAmount(*ch, currencies::kKunaId, v, currencies::EPurse::kBank);
+		currencies::SetAmount(*ch, currencies::kGold, v, currencies::EPurse::kBank);
 	}
 
 	int get_str() const {
@@ -451,32 +451,32 @@ class CharacterWrapper : public Wrapper<CharacterData> {
 
 	void remove_gold(const long num, const bool log = true) {
 		Ensurer ch(*this);
-		currencies::RemoveAmount(*ch, currencies::kKunaId, num, currencies::EPurse::kHand, log);
+		currencies::RemoveAmount(*ch, currencies::kGold, num, currencies::EPurse::kHand, log);
 	}
 
 	void remove_bank(const long num, const bool log = true) {
 		Ensurer ch(*this);
-		currencies::RemoveAmount(*ch, currencies::kKunaId, num, currencies::EPurse::kBank, log);
+		currencies::RemoveAmount(*ch, currencies::kGold, num, currencies::EPurse::kBank, log);
 	}
 
 	void remove_both_gold(const long num, const bool log = true) {
 		Ensurer ch(*this);
-		currencies::RemoveTotal(*ch, currencies::kKunaId, num);
+		currencies::RemoveTotal(*ch, currencies::kGold, num);
 	}
 
 	void add_gold(const long num, const bool log = true) {
 		Ensurer ch(*this);
-		currencies::AddAmount(*ch, currencies::kKunaId, num, currencies::EPurse::kHand, false, log);
+		currencies::AddAmount(*ch, currencies::kGold, num, currencies::EPurse::kHand, false, log);
 	}
 
 	void add_bank(const long num, const bool log = true) {
 		Ensurer ch(*this);
-		currencies::AddAmount(*ch, currencies::kKunaId, num, currencies::EPurse::kBank, false, log);
+		currencies::AddAmount(*ch, currencies::kGold, num, currencies::EPurse::kBank, false, log);
 	}
 
 	long get_total_gold() const {
 		Ensurer ch(*this);
-		return currencies::GetTotal(*ch, currencies::kKunaId);
+		return currencies::GetTotal(*ch, currencies::kGold);
 	}
 
 	int get_uid() const {

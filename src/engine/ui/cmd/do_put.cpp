@@ -155,7 +155,7 @@ void do_put(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			SendMsgToChar("Следует указать чиста конкретную сумму.\r\n", ch);
 			return;
 		}
-		if (currencies::GetAmount(*ch, currencies::kKunaId) < howmany) {
+		if (currencies::GetAmount(*ch, currencies::kGold) < howmany) {
 			SendMsgToChar("Нет у вас такой суммы.\r\n", ch);
 			return;
 		}
@@ -198,13 +198,13 @@ void do_put(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					}
 
 					PlaceObjToInventory(obj.get(), ch);
-					currencies::RemoveAmount(*ch, currencies::kKunaId, howmany);
+					currencies::RemoveAmount(*ch, currencies::kGold, howmany);
 
 					// если положить не удалось - возвращаем все взад
 					if (perform_put(ch, obj, cont)) {
 						RemoveObjFromChar(obj.get());
 						ExtractObjFromWorld(obj.get());
-						currencies::AddAmount(*ch, currencies::kKunaId, howmany);
+						currencies::AddAmount(*ch, currencies::kGold, howmany);
 						return;
 					}
 				} else {
@@ -266,7 +266,7 @@ ObjData::shared_ptr CreateCurrencyObj(long quantity) {
 
 	if (quantity == 1) {
 		sprintf(buf, "coin gold кун деньги денег монет %s",
-				MUD::Currency(currencies::kKunaVnum).GetObjCName(quantity, grammar::ECase::kNom));
+				MUD::Currency(currencies::kGoldVnum).GetObjCName(quantity, grammar::ECase::kNom));
 		obj->set_aliases(buf);
 		obj->set_short_description("куна");
 		obj->set_description("Одна куна лежит здесь.");
@@ -275,20 +275,20 @@ ObjData::shared_ptr CreateCurrencyObj(long quantity) {
 		for (int i = grammar::ECase::kFirstCase; i <= grammar::ECase::kLastCase; i++) {
 			auto name_case = static_cast<grammar::ECase>(i);
 			obj->set_PName(name_case,
-						   MUD::Currency(currencies::kKunaVnum).GetObjCName(quantity, name_case));
+						   MUD::Currency(currencies::kGoldVnum).GetObjCName(quantity, name_case));
 		}
 	} else {
 		sprintf(buf, "coins gold кун денег %s",
-				MUD::Currency(currencies::kKunaVnum).GetObjCName(quantity, grammar::ECase::kNom));
+				MUD::Currency(currencies::kGoldVnum).GetObjCName(quantity, grammar::ECase::kNom));
 		obj->set_aliases(buf);
-		obj->set_short_description(MUD::Currency(currencies::kKunaVnum).GetObjCName(quantity, grammar::ECase::kNom));
+		obj->set_short_description(MUD::Currency(currencies::kGoldVnum).GetObjCName(quantity, grammar::ECase::kNom));
 		for (int i = grammar::ECase::kFirstCase; i <= grammar::ECase::kLastCase; i++) {
 			auto name_case = static_cast<grammar::ECase>(i);
-			obj->set_PName(name_case, MUD::Currency(currencies::kKunaVnum).GetObjCName(quantity, name_case));
+			obj->set_PName(name_case, MUD::Currency(currencies::kGoldVnum).GetObjCName(quantity, name_case));
 		}
 
 		sprintf(buf, "Здесь лежит %s.",
-				MUD::Currency(currencies::kKunaVnum).GetObjCName(quantity, grammar::ECase::kNom));
+				MUD::Currency(currencies::kGoldVnum).GetObjCName(quantity, grammar::ECase::kNom));
 		obj->set_description(utils::CAP(buf));
 
 		new_descr->keyword = str_dup("coins gold кун денег");

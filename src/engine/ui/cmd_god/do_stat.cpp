@@ -284,7 +284,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 
 		{
 			std::string sline = fmt::sprintf("Рента: [%d], Денег: [%9ld], В банке: [%9ld] (Всего: %ld), Гривны: %d, Ногат: %d",
-					GET_LOADROOM(k), currencies::GetAmount(*k, currencies::kKunaId), currencies::GetAmount(*k, currencies::kKunaId, currencies::EPurse::kBank), currencies::GetTotal(*k, currencies::kKunaId),
+					GET_LOADROOM(k), currencies::GetAmount(*k, currencies::kGold), currencies::GetAmount(*k, currencies::kGold, currencies::EPurse::kBank), currencies::GetTotal(*k, currencies::kGold),
 					currencies::GetAmount(*k, currencies::kCopperGrivnaId), currencies::GetAmount(*k, currencies::kNogataId));
 			if (GetRealLevel(ch) >= kLvlImmortal) {
 				sline += fmt::sprintf(", %sOLC[%d]%s", kColorGrn, GET_OLC_ZONE(k), kColorNrm);
@@ -328,7 +328,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 	snprintf(buf, sizeof(buf),
 			"Glory: [%d], ConstGlory: [%d], AC: [%d/%d(%d)], Броня: [%d], Попадания: [%2d/%2d/%d], Повреждения: [%2d/%2d/%d]\r\n",
 			Glory::get_glory(k->get_uid()),
-			currencies::GetAmount(*k, currencies::kGloryId),
+			currencies::GetAmount(*k, currencies::kGlory),
 			GET_AC(k),
 			GetRealAc(k),
 			CalcBaseAc(k),

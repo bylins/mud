@@ -302,7 +302,7 @@ std::string TextIdByVnum(int vnum) {
 
 long GetAmount(const CharData &ch, const std::string &id, EPurse purse) {
 	// P4: const glory is not stored in the container; it delegates to the GloryConst store.
-	if (id == kGloryId) {
+	if (id == kGlory) {
 		return GloryConst::get_glory(ch.get_uid());
 	}
 	const auto &cs = ch.currency_storage();
@@ -310,7 +310,7 @@ long GetAmount(const CharData &ch, const std::string &id, EPurse purse) {
 }
 
 long GetTotal(const CharData &ch, const std::string &id) {
-	if (id == kGloryId) {
+	if (id == kGlory) {
 		return GloryConst::get_glory(ch.get_uid());
 	}
 	const auto &cs = ch.currency_storage();
@@ -318,7 +318,7 @@ long GetTotal(const CharData &ch, const std::string &id) {
 }
 
 void SetAmount(CharData &ch, const std::string &id, long amount, EPurse purse, bool with_log, bool immortal) {
-	if (id == kGloryId) {
+	if (id == kGlory) {
 		// Const glory lives in the GloryConst store; raising it is an immortal-only operation.
 		amount = std::max(0L, amount);
 		const long current = GloryConst::get_glory(ch.get_uid());

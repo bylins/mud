@@ -160,7 +160,7 @@ EStageResult SummonTutelar(CastContext &ctx) {
 
 	mob->set_max_hit(floorf(base_hp + additional_hp_for_charisma * eff_cha));
 	mob->set_hit(mob->get_max_hit());
-	currencies::SetAmount(*mob, currencies::kKunaId, 0);
+	currencies::SetAmount(*mob, currencies::kGold, 0);
 	GET_GOLD_NoDs(mob) = 0;
 	GET_GOLD_SiDs(mob) = 0;
 
