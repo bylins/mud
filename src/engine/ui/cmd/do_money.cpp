@@ -1,15 +1,17 @@
 /**
 \file do_money.cpp - a part of the Bylins engine.
 \authors Created by Claude.
-\brief The "money"/"деньги" command: lists every currency the character holds,
-       iterating the unified currency container. Base currencies (gold, glory)
-       are shown by "score"; this command shows the full list.
+\brief The "money"/"деньги" command: lists every currency the character holds
+       as a table (currency / on-hand / in-bank), iterating the unified currency
+       container. Base currencies (gold, glory) are also shown by "score"; this
+       command shows the full list.
 */
 
 #include "engine/entities/char_data.h"
 #include "gameplay/economics/currencies.h"
 #include "engine/db/global_objects.h"
-#include "utils/grammar/declensions.h"
+#include "engine/ui/table_wrapper.h"
+#include "utils/utils_string.h"
 
 #include <sstream>
 
@@ -17,7 +19,10 @@ void do_money(CharData *ch, char * /*argument*/, int /*cmd*/, int /*subcmd*/) {
 	const bool in_arena = ch->in_room != kNowhere
 		&& ROOM_FLAGGED(ch->in_room, ERoomFlag::kDominationArena);
 
-	std::ostringstream out;
+	table_wrapper::Table table;
+	table << table_wrapper::kHeader << "Валюта" << "На руках" << "В лежне" << table_wrapper::kEndRow;
+
+	std::size_t rows = 0;
 	for (const auto &[id, amounts] : ch->currency_storage().data()) {
 		if (amounts.hand <= 0 && amounts.bank <= 0) {
 			continue;
@@ -26,20 +31,20 @@ void do_money(CharData *ch, char * /*argument*/, int /*cmd*/, int /*subcmd*/) {
 		if (info.GetId() < 0 || (info.IsArenaOnly() && !in_arena)) {
 			continue;
 		}
-		if (amounts.hand > 0) {
-			out << amounts.hand << " " << info.GetNameWithAmount(amounts.hand, grammar::ECase::kNom) << " на руках.\r\n";
-		}
-		if (amounts.bank > 0) {
-			out << amounts.bank << " " << info.GetNameWithAmount(amounts.bank, grammar::ECase::kNom) << " в лежне.\r\n";
-		}
+		table << utils::CAP(info.GetPluralName(grammar::ECase::kNom)) << amounts.hand << amounts.bank
+			  << table_wrapper::kEndRow;
+		++rows;
 	}
 
-	const std::string result = out.str();
-	if (result.empty()) {
+	if (rows == 0) {
 		SendMsgToChar("У вас нет ни гроша.\r\n", ch);
-	} else {
-		SendMsgToChar(result, ch);
+		return;
 	}
+
+	std::ostringstream out;
+	table_wrapper::DecorateNoBorderTable(ch, table);
+	table_wrapper::PrintTableToStream(out, table);
+	SendMsgToChar(out.str(), ch);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
