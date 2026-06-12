@@ -435,8 +435,8 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 					  kColorNrm);
 		SendMsgToChar(ch, "&GУмения:&c");
 		for (const auto &skill : MUD::Skills()) {
-			if (skill.IsValid() && skills::GetSkill(k, skill.GetId())) {
-				SendMsgToChar(ch, " %s:[%d]", skill.GetName(), skills::GetSkill(k, skill.GetId()));
+			if (skill.IsValid() && GetSkill(k, skill.GetId())) {
+				SendMsgToChar(ch, " %s:[%d]", skill.GetName(), GetSkill(k, skill.GetId()));
 			}
 		}
 		SendMsgToChar(ch, "\r\n");

@@ -202,7 +202,7 @@ int IsAbleToDrink(CharData *ch, ObjData *jar, int amount) {
 
 	if (drink_aff[GET_OBJ_VAL(jar, 2)][condition::kDrunk] > 0) {
 		if (AFF_FLAGGED(ch, EAffect::kAbstinent)) {
-			if (skills::GetSkill(ch, ESkill::kHangovering) > 0) {//если опохмел есть
+			if (GetSkill(ch, ESkill::kHangovering) > 0) {//если опохмел есть
 				SendMsgToChar(
 					"Вас передернуло от одной мысли о выпивке.\r\nПохоже, вам стоит опохмелиться.\r\n",
 					ch);

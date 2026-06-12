@@ -94,7 +94,7 @@ void LearnSkillBook(CharData *ch, ObjData *obj) {
 	}
 
 	auto skill_name = MUD::Skill(skill_id).GetName();
-	if (skills::GetSkill(ch, skill_id)) {
+	if (GetSkill(ch, skill_id)) {
 		throw AlreadyKnown(skill_name);
 	}
 	if (!CanGetSkill(ch, skill_id, GET_OBJ_VAL(obj, 2))) {
@@ -104,7 +104,7 @@ void LearnSkillBook(CharData *ch, ObjData *obj) {
 		throw LearningFail();
 	}
 
-	skills::SetSkill(ch, skill_id, 5);
+	SetSkill(ch, skill_id, 5);
 	SendSuccessLearningMessage(ch, obj, skill_name);
 }
 
@@ -117,8 +117,8 @@ void LearnSkillUpgradeBook(CharData *ch, ObjData *obj) {
 
 	const auto book_skill_cap = GET_OBJ_VAL(obj, 3);
 	auto skill_name = MUD::Skill(skill_id).GetName();
-	if ((book_skill_cap > 0 && skills::GetSkillBonus(ch, skill_id) >= book_skill_cap) ||
-		(book_skill_cap <= 0 && skills::GetSkillBonus(ch, skill_id) >= CalcSkillRemortCap(ch))) {
+	if ((book_skill_cap > 0 && GetSkillBonus(ch, skill_id) >= book_skill_cap) ||
+		(book_skill_cap <= 0 && GetSkillBonus(ch, skill_id) >= CalcSkillRemortCap(ch))) {
 		throw AlreadyKnown(skill_name);
 	}
 	if (!CanGetSkill(ch, skill_id, GET_OBJ_VAL(obj, 2))) {
@@ -129,11 +129,11 @@ void LearnSkillUpgradeBook(CharData *ch, ObjData *obj) {
 	}
 
 	SendSuccessLearningMessage(ch, obj, skill_name);
-	const auto left_skill_level = skills::GetSkillBonus(ch, skill_id) + GET_OBJ_VAL(obj, 2);
+	const auto left_skill_level = GetSkillBonus(ch, skill_id) + GET_OBJ_VAL(obj, 2);
 	if (book_skill_cap > 0) {
-		skills::SetSkill(ch, skill_id, std::min(left_skill_level, GET_OBJ_VAL(obj, 3)));
+		SetSkill(ch, skill_id, std::min(left_skill_level, GET_OBJ_VAL(obj, 3)));
 	} else {
-		skills::SetSkill(ch, skill_id, std::min(left_skill_level, CalcSkillRemortCap(ch)));
+		SetSkill(ch, skill_id, std::min(left_skill_level, CalcSkillRemortCap(ch)));
 	}
 }
 

@@ -1175,12 +1175,12 @@ std::string MakePrompt(DescriptorData *d) {
 							  MUD::Skill(timed.first).GetAbbr(), +display_time);
 				}
 			}
-			if (skills::GetSkill(ch.get(), ESkill::kWarcry)) {
+			if (GetSkill(ch.get(), ESkill::kWarcry)) {
 				int wc_count = (kHoursPerDay - IsTimedBySkill(ch.get(), ESkill::kWarcry)) / kHoursPerWarcry;
 				fmt::format_to(std::back_inserter(out), "{}:{} ",
 						  MUD::Skill(ESkill::kWarcry).GetAbbr(), wc_count);
 			}
-			if (skills::GetSkill(ch.get(), ESkill::kTurnUndead)) {
+			if (GetSkill(ch.get(), ESkill::kTurnUndead)) {
 				auto bonus =
 					std::max(1, kHoursPerTurnUndead + (CanUseFeat(ch.get(), EFeat::kExorcist) ? -2 : 0));
 				fmt::format_to(std::back_inserter(out), "{}:{} ",

@@ -34,9 +34,9 @@ void go_chopoff(CharData *ch, CharData *vict) {
 		return;
 
 	if ((vict->GetPosition() < EPosition::kFight)) {
-		if (number(1, 100) < skills::GetSkill(ch, ESkill::kChopoff)) {
+		if (number(1, 100) < GetSkill(ch, ESkill::kChopoff)) {
 			SendMsgToChar("Вы приготовились провести подсечку, но вовремя остановились.\r\n", ch);
-			ch->Skills().SetCooldown(ESkill::kChopoff, kBattleRound / 6);
+			ch->setSkillCooldown(ESkill::kChopoff, kBattleRound / 6);
 			return;
 		}
 	}
@@ -94,7 +94,7 @@ void go_chopoff(CharData *ch, CharData *vict) {
 			SendMsgToChar(ch, "%sВы провели подсечку, заставив %s споткнуться.%s\r\n",
 						  kColorBoldBlu, GET_PAD(vict, 3), kColorNrm);
 			percent = number(1, MUD::Skill(ESkill::kRiding).difficulty);
-			prob = skills::GetSkill(tch, ESkill::kRiding);
+			prob = GetSkill(tch, ESkill::kRiding);
 			if (percent < prob) {
 				SendMsgToChar(tch, "Вы смогли удержаться на спине своего скакуна.\r\n");
 			} else {
@@ -127,7 +127,7 @@ void go_chopoff(CharData *ch, CharData *vict) {
 }
 
 void do_chopoff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (skills::GetSkill(ch, ESkill::kChopoff) < 1) {
+	if (GetSkill(ch, ESkill::kChopoff) < 1) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kChopoff, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
@@ -147,7 +147,7 @@ void do_chopoff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 void do_chopoff(CharData *ch, CharData *vict) {
-	if (skills::GetSkill(ch, ESkill::kChopoff) < 1) {
+	if (GetSkill(ch, ESkill::kChopoff) < 1) {
 		log("ERROR: вызов подножки для персонажа %s (%d) без проверки умения", ch->get_name().c_str(), GET_MOB_VNUM(ch));
 		return;
 	}

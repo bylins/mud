@@ -46,7 +46,7 @@ void go_rescue(CharData *ch, CharData *vict, CharData *tmp_ch) {
 	SendSkillBalanceMsg(ch, MUD::Skill(ESkill::kRescue).name, percent, prob, success);
 	if (!success) {
 		act("Вы безуспешно пытались спасти $N3.", false, ch, 0, vict, kToChar);
-		ch->Skills().SetCooldown(ESkill::kGlobalCooldown, kBattleRound);
+		ch->setSkillCooldown(ESkill::kGlobalCooldown, kBattleRound);
 		return;
 	}
 
@@ -75,7 +75,7 @@ void go_rescue(CharData *ch, CharData *vict, CharData *tmp_ch) {
 }
 
 void do_rescue(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (!skills::GetSkill(ch, ESkill::kRescue)) {
+	if (!GetSkill(ch, ESkill::kRescue)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kRescue, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}

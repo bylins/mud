@@ -47,7 +47,7 @@ void GoOverhelm(CharData *ch, CharData *victim) {
 }
 
 void DoOverhelm(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (skills::GetSkill(ch, ESkill::kOverwhelm) < 1) {
+	if (GetSkill(ch, ESkill::kOverwhelm) < 1) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kOverwhelm, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
@@ -67,7 +67,7 @@ void DoOverhelm(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 void DoOverhelm(CharData *ch, CharData *victim) {
-	if (skills::GetSkill(ch, ESkill::kOverwhelm) < 1) {
+	if (GetSkill(ch, ESkill::kOverwhelm) < 1) {
 		log("ERROR: вызов глуша для персонажа %s (%d) без проверки умения", ch->get_name().c_str(), GET_MOB_VNUM(ch));
 		return;
 	}
@@ -158,7 +158,7 @@ int CalcOverhelmDmg(CharData *ch, CharData *victim, int dmg) {
 		sprintf(buf, "&g&qВаша мощная атака оглушила %s.&Q&n\r\n", sight::PersonName(victim, ch, 3));
 		SendMsgToChar(buf, ch);
 		lag = 2;
-		int k = skills::GetSkill(ch, ESkill::kOverwhelm) / 30;
+		int k = GetSkill(ch, ESkill::kOverwhelm) / 30;
 		if (!victim->IsNpc()) {
 			k = std::min(2, k);
 		}
@@ -180,7 +180,7 @@ int CalcOverhelmDmg(CharData *ch, CharData *victim, int dmg) {
 			act("$n своим оглушающим ударом сбил$a $N3 с ног.", true, ch, nullptr, victim, kToNotVict | kToArenaListen);
 		}
 		lag = 2;
-		int k = skills::GetSkill(ch, ESkill::kOverwhelm) / 20;
+		int k = GetSkill(ch, ESkill::kOverwhelm) / 20;
 		if (!victim->IsNpc()) {
 			k = std::min(4, k);
 		}

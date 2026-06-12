@@ -85,7 +85,7 @@ EStageResult SpellMentalShadow(CastContext &ctx) {
 		affect_to_char(mob, af);
 		mob->mob_specials.have_spell = true;
 	}
-	if (skills::GetSkill(mob, ESkill::kAwake)) {
+	if (GetSkill(mob, ESkill::kAwake)) {
 		mob->SetFlag(EPrf::kAwake);
 	}
 	mob->set_level(GetRealLevel(ch));

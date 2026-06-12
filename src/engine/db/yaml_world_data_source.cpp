@@ -2177,7 +2177,7 @@ CObjectPrototype* YamlWorldDataSource::ParseObjectFile(const std::string &file_p
 				{
 					int skill_id = GetInt(skill_node, "skill_id", 0);
 					int value = GetInt(skill_node, "value", 0);
-					skills::SetSkill(obj_ptr, static_cast<ESkill>(skill_id), value);
+					SetSkill(obj_ptr, static_cast<ESkill>(skill_id), value);
 				}
 			}
 

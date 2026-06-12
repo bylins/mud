@@ -11,7 +11,7 @@
 #include "gameplay/fight/common.h"
 
 void do_frenzy(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	if (!skills::GetSkill(ch, ESkill::kFrenzy)) {
+	if (!GetSkill(ch, ESkill::kFrenzy)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kFrenzy, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
@@ -37,8 +37,8 @@ void do_frenzy(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	const int duration = CalcDuration(ch, ch, ESkill::kUndefined, 23, 0, 0, 0);;
-	const int hp_regen = skills::GetSkill(ch, ESkill::kFrenzy) / 12.5;
-	const int dmg_multiplier = skills::GetSkill(ch, ESkill::kFrenzy) / 12.5;
+	const int hp_regen = GetSkill(ch, ESkill::kFrenzy) / 12.5;
+	const int dmg_multiplier = GetSkill(ch, ESkill::kFrenzy) / 12.5;
 
 	Affect<EApply> af[2];
 	af[0].type = ESpell::kFrenzy;

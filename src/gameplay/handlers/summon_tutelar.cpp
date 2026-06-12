@@ -167,9 +167,9 @@ EStageResult SummonTutelar(CastContext &ctx) {
 	mob->SetPosition(EPosition::kStand);
 	GET_DEFAULT_POS(mob) = EPosition::kStand;
 
-	skills::SetSkill(mob, ESkill::kRescue, floorf(base_rescue + additional_rescue_for_charisma * eff_cha));
-	skills::SetSkill(mob, ESkill::kAwake, floorf(base_awake + additional_awake_for_charisma * eff_cha));
-	skills::SetSkill(mob, ESkill::kMultiparry, floorf(base_multiparry + additional_multiparry_for_charisma * eff_cha));
+	SetSkill(mob, ESkill::kRescue, floorf(base_rescue + additional_rescue_for_charisma * eff_cha));
+	SetSkill(mob, ESkill::kAwake, floorf(base_awake + additional_awake_for_charisma * eff_cha));
+	SetSkill(mob, ESkill::kMultiparry, floorf(base_multiparry + additional_multiparry_for_charisma * eff_cha));
 
 	int base_spell = 2 + count_shields;
 
@@ -178,7 +178,7 @@ EStageResult SummonTutelar(CastContext &ctx) {
 	SET_SPELL_MEM(mob, ESpell::kRemovePoison, base_spell);
 	SET_SPELL_MEM(mob, ESpell::kHeal, floorf(base_heal + additional_heal_for_charisma * eff_cha));
 	mob->mob_specials.have_spell = true;
-	if (skills::GetSkill(mob, ESkill::kAwake)) {
+	if (GetSkill(mob, ESkill::kAwake)) {
 		mob->SetFlag(EPrf::kAwake);
 	}
 	GET_LIKES(mob) = 100;

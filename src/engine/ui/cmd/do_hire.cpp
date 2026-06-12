@@ -297,7 +297,7 @@ void DoFindhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			helpee->UnsetFlag(EMobFlag::kSpec);
 			helpee->UnsetFlag(EPrf::kPunctual);
 			helpee->SetFlag(EMobFlag::kNoSkillTrain);
-			skills::SetSkill(helpee, ESkill::kPunctual, 0);
+			SetSkill(helpee, ESkill::kPunctual, 0);
 			if (!NPC_FLAGGED(helpee, ENpcFlag::kNoMercList)) {
 				MobVnum mvn = GET_MOB_VNUM(helpee);
 

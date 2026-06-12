@@ -10,7 +10,7 @@
 #include "gameplay/core/remort.h"
 
 void do_stun(CharData *ch, char *argument, int, int) {
-	if (skills::GetSkill(ch, ESkill::kStun) < 1) {
+	if (GetSkill(ch, ESkill::kStun) < 1) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kStun, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
@@ -23,7 +23,7 @@ void do_stun(CharData *ch, char *argument, int, int) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kStun, ESkillMsg::kMustBeMounted) + "\r\n", ch);
 		return;
 	}
-	if ((skills::GetSkill(ch, ESkill::kRiding) < 151) && (!ch->IsNpc())) {
+	if ((GetSkill(ch, ESkill::kRiding) < 151) && (!ch->IsNpc())) {
 		SendMsgToChar("Вы слишком неуверенно управляете лошадью, чтоб на ней пытаться ошеломить противника.\r\n", ch);
 		return;
 	}
@@ -58,7 +58,7 @@ void go_stun(CharData *ch, CharData *vict) {
 	TimedSkill timed;
 
 	timed.skill = ESkill::kStun;
-	timed.time = std::clamp(7 - (skills::GetSkill(ch, ESkill::kStun) - (MUD::Skill(ESkill::kStun).cap / 4 * 3)) / 10, 2, 7);
+	timed.time = std::clamp(7 - (GetSkill(ch, ESkill::kStun) - (MUD::Skill(ESkill::kStun).cap / 4 * 3)) / 10, 2, 7);
 	ImposeTimedSkill(ch, &timed);
 
 	int percent = number(1, MUD::Skill(ESkill::kStun).difficulty);
@@ -92,8 +92,8 @@ void go_stun(CharData *ch, CharData *vict) {
 				nullptr, vict, kToNotVict | kToArenaListen);
 		}
 		vict->SetPosition(EPosition::kIncap);
-		SetWaitState(vict, (2 + remort::GetRealRemort(ch) / 5) * kBattleRound * skills::GetSkill(ch, ESkill::kStun) / MUD::Skill(ESkill::kStun).cap);
-		ch->Skills().SetCooldown(ESkill::kStun, 3 * kBattleRound);
+		SetWaitState(vict, (2 + remort::GetRealRemort(ch) / 5) * kBattleRound * GetSkill(ch, ESkill::kStun) / MUD::Skill(ESkill::kStun).cap);
+		ch->setSkillCooldown(ESkill::kStun, 3 * kBattleRound);
 		hit(ch, vict, ESkill::kUndefined, AFF_FLAGGED(vict, EAffect::kStopRight) ? fight::kOffHand : fight::kMainHand);
 	}
 }

@@ -133,7 +133,7 @@ float CalcDamagePerRound(CharData *victim) {
 		+ victim->mob_specials.damnodice * (victim->mob_specials.damsizedice + 1) / 2.0
 		+ (AFF_FLAGGED(victim, EAffect::kCloudOfArrows) ? 14 : 0);
 	int num_attacks = 1 + victim->mob_specials.extra_attack
-		+ (skills::GetSkill(victim, ESkill::kAddshot) ? 2 : 0);
+		+ (GetSkill(victim, ESkill::kAddshot) ? 2 : 0);
 
 	float dam_per_round = dam_per_attack * num_attacks;
 

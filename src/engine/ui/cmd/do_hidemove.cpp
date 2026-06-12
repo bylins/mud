@@ -12,7 +12,7 @@
 #include "engine/db/global_objects.h"
 
 void DoHidemove(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (!skills::GetSkill(ch, ESkill::kSneak)) {
+	if (!GetSkill(ch, ESkill::kSneak)) {
 		SendMsgToChar("Вы не умеете этого.\r\n", ch);
 		return;
 	}

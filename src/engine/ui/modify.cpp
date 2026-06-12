@@ -1082,7 +1082,7 @@ void do_skillset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 		GET_SPELL_TYPE(vict, spell_id) = value;
 	} else if (ESkill::kUndefined != skill_id && skill_id <= ESkill::kLast) {
-		skills::SetSkill(vict, skill_id, value);
+		SetSkill(vict, skill_id, value);
 	}
 	sprintf(buf2, "Вы изменили для %s '%s' на %d.\r\n", GET_PAD(vict, 1),
 			spell_id > ESpell::kUndefined ? MUD::Spell(spell_id).GetCName() : MUD::Skill(skill_id).GetName(), value);

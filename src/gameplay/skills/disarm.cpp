@@ -15,7 +15,7 @@
 
 // ************* DISARM PROCEDURES
 void do_disarm(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (ch->IsNpc() || !skills::GetSkill(ch, ESkill::kDisarm)) {
+	if (ch->IsNpc() || !GetSkill(ch, ESkill::kDisarm)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kDisarm, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
@@ -35,7 +35,7 @@ void do_disarm(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 void do_disarm(CharData *ch, CharData *vict) {
-	if (ch->IsNpc() || !skills::GetSkill(ch, ESkill::kDisarm)) {
+	if (ch->IsNpc() || !GetSkill(ch, ESkill::kDisarm)) {
 		log("ERROR: вызов дизарма для персонажа %s (%d) без проверки умения", ch->get_name().c_str(), GET_MOB_VNUM(ch));
 		return;
 	}
@@ -92,7 +92,7 @@ void go_injure(CharData *ch, CharData *vict) {
 	bool injure_success = result.success;
 
 	if (injure_success) {
-		int injure_duration = std::min((2 + skills::GetSkill(ch, ESkill::kDisarm) / 20), 10);
+		int injure_duration = std::min((2 + GetSkill(ch, ESkill::kDisarm) / 20), 10);
 
 		if (!vict->IsNpc()) {
 			injure_duration *= 30;
@@ -103,7 +103,7 @@ void go_injure(CharData *ch, CharData *vict) {
 		Affect<EApply> af;
 		af.type = ESpell::kLowerEffectiveness;
 		af.duration = injure_duration;
-		af.modifier = -(10 + std::min((skills::GetSkill(ch, ESkill::kDisarm) / 10), 20));
+		af.modifier = -(10 + std::min((GetSkill(ch, ESkill::kDisarm) / 10), 20));
 		af.location = EApply::kPhysicDamagePercent;
 		af.battleflag = kAfBattledec;
 		af.affect_type = EAffect::kInjured;
@@ -116,7 +116,7 @@ void go_injure(CharData *ch, CharData *vict) {
 		act("$N ранил$G $n3. Кажется $n0 уже передумал$g драться...",
 			false, vict, nullptr, ch, kToNotVict | kToArenaListen);
 
-		int dam = number(ceil(skills::GetSkill(ch, ESkill::kDisarm) / 1.25), ceil(skills::GetSkill(ch, ESkill::kDisarm) * 1.25))
+		int dam = number(ceil(GetSkill(ch, ESkill::kDisarm) / 1.25), ceil(GetSkill(ch, ESkill::kDisarm) * 1.25))
 			* GetRealLevel(ch) / 30;
 		Damage dmg(SkillDmg(ESkill::kDisarm), dam, fight::kPhysDmg, nullptr);
 		dmg.flags.set(fight::kIgnoreBlink);

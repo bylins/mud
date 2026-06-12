@@ -184,22 +184,22 @@ void equip_start_outfit(CharData *ch, ObjData *obj) {
 			EquipObj(ch, obj, where, CharEquipFlags());
 			// богатырям в перчатках сетим кулачный бой вместо пушек
 			if (where == EEquipPos::kHands && ch->GetClass() == ECharClass::kWarrior) {
-				skills::SetSkill(ch, ESkill::kPunch, 10);
+				SetSkill(ch, ESkill::kPunch, 10);
 			}
 		}
 	} else if (obj->get_type() == EObjType::kWeapon) {
 		if (CAN_WEAR(obj, EWearFlag::kWield)
 			&& !GET_EQ(ch, EEquipPos::kWield)) {
 			EquipObj(ch, obj, EEquipPos::kWield, CharEquipFlags());
-			skills::SetSkill(ch, static_cast<ESkill>(obj->get_spec_param()), 10);
+			SetSkill(ch, static_cast<ESkill>(obj->get_spec_param()), 10);
 		} else if (CAN_WEAR(obj, EWearFlag::kBoth)
 			&& !GET_EQ(ch, EEquipPos::kBoths)) {
 			EquipObj(ch, obj, EEquipPos::kBoths, CharEquipFlags());
-			skills::SetSkill(ch, static_cast<ESkill>(obj->get_spec_param()), 10);
+			SetSkill(ch, static_cast<ESkill>(obj->get_spec_param()), 10);
 		} else if (CAN_WEAR(obj, EWearFlag::kHold)
 			&& !GET_EQ(ch, EEquipPos::kHold)) {
 			EquipObj(ch, obj, EEquipPos::kHold, CharEquipFlags());
-			skills::SetSkill(ch, static_cast<ESkill>(obj->get_spec_param()), 10);
+			SetSkill(ch, static_cast<ESkill>(obj->get_spec_param()), 10);
 		}
 	}
 }

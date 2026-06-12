@@ -22,7 +22,7 @@ Runestone GetLabelPortal(CharData *ch);
 // "врата": with no argument lists the stones you can open a gate to (your memorised stones);
 // with a codeword it opens the gate. Runestone management (список/забыть) lives in DoRunestone.
 void DoTownportal(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (ch->IsNpc() || !skills::GetSkill(ch, ESkill::kTownportal)) {
+	if (ch->IsNpc() || !GetSkill(ch, ESkill::kTownportal)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kTownportal, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
@@ -39,7 +39,7 @@ void DoTownportal(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 // "камень"/"stone": runestone management. Bare or "список" -> the memorised-stones list;
 // "забыть <слово>" -> forget a stone.
 void DoRunestone(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (ch->IsNpc() || !skills::GetSkill(ch, ESkill::kTownportal)) {
+	if (ch->IsNpc() || !GetSkill(ch, ESkill::kTownportal)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kTownportal, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
@@ -136,7 +136,7 @@ void SetSkillTownportalTimer(CharData *ch) {
 		TimedSkill timed;
 		timed.skill = ESkill::kTownportal;
 		// timed.time - это unsigned char, поэтому при уходе в минус будет вынос на 255 и ниже
-		int modif = skills::GetSkill(ch, ESkill::kTownportal) / 7 + number(1, 5);
+		int modif = GetSkill(ch, ESkill::kTownportal) / 7 + number(1, 5);
 		timed.time = MAX(1, 25 - modif);
 		ImposeTimedSkill(ch, &timed);
 //	}
