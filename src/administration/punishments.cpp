@@ -360,17 +360,14 @@ void SetPunisherParamsToPundata(CharData *ch, Punish *pundata, const char *reaso
 	pundata->level = ch->IsFlagged(EPrf::kCoderinfo) ? kLvlImplementator : GetRealLevel(ch);
 	pundata->godid = ch->get_uid();
 	sprintf(buf, "%s : %s", ch->get_name().c_str(), reason);
-	pundata->reason = str_dup(buf);
+	pundata->reason = buf;
 }
 
 void ClearPundata(Punish *pundata) {
 	pundata->duration = 0;
 	pundata->level = 0;
 	pundata->godid = 0;
-	if (pundata->reason) {
-		free(pundata->reason);
-	}
-	pundata->reason = nullptr;
+	pundata->reason.clear();
 }
 
 void MoveToStartRoom(CharData *vict) {
