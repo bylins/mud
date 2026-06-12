@@ -19,6 +19,7 @@
  * the appropriate new special cases for your new class.
  */
 #include "pc_classes.h"
+#include "gameplay/core/experience.h"
 #include "administration/privilege.h"
 #include "gameplay/core/remort.h"
 #include "gameplay/mechanics/condition.h"
@@ -1039,7 +1040,7 @@ void DoPcInit(CharData *ch, bool is_newbie) {
 		default: break;
 	}
 
-	advance_level(ch);
+	experience::advance_level(ch);
 	sprintf(buf, "%s advanced to level %d", GET_NAME(ch), GetRealLevel(ch));
 	mudlog(buf, BRF, kLvlImplementator, SYSLOG, true);
 
@@ -1063,103 +1064,6 @@ void check_max_hp(CharData *ch) {
 }
 
 // * Обработка событий при левел-апе.
-void levelup_events(CharData *ch) {
-	if (offtop_system::kMinOfftopLvl == GetRealLevel(ch)
-		&& !ch->get_disposable_flag(DIS_OFFTOP_MESSAGE)) {
-		ch->SetFlag(EPrf::kOfftopMode);
-		ch->set_disposable_flag(DIS_OFFTOP_MESSAGE);
-		SendMsgToChar(ch,
-					  "%sТеперь вы можете пользоваться каналом оффтоп ('справка оффтоп').%s\r\n",
-					  kColorBoldGrn, kColorNrm);
-	}
-	if (EXCHANGE_MIN_CHAR_LEV == GetRealLevel(ch)
-		&& !ch->get_disposable_flag(DIS_EXCHANGE_MESSAGE)) {
-		// по умолчанию базар у всех включен, поэтому не спамим даже однократно
-		if (remort::GetRealRemort(ch) <= 0) {
-			SendMsgToChar(ch,
-						  "%sТеперь вы можете покупать и продавать вещи на базаре ('справка базар!').%s\r\n",
-						  kColorBoldGrn, kColorNrm);
-		}
-		ch->set_disposable_flag(DIS_EXCHANGE_MESSAGE);
-	}
-}
-
-void advance_level(CharData *ch) {
-	int add_move = 0, i;
-
-	switch (ch->GetClass()) {
-		case ECharClass::kConjurer:
-		case ECharClass::kWizard:
-		case ECharClass::kCharmer:
-		case ECharClass::kNecromancer:
-		case ECharClass::kSorcerer: [[fallthrough]];
-		case ECharClass::kMagus: add_move = 2;
-			break;
-
-		case ECharClass::kThief:
-		case ECharClass::kAssasine:
-		case ECharClass::kMerchant:
-		case ECharClass::kWarrior:
-		case ECharClass::kGuard:
-		case ECharClass::kRanger:
-		case ECharClass::kPaladine: [[fallthrough]];
-		case ECharClass::kVigilant: add_move = number(ch->GetInbornDex()/6 + 1, ch->GetInbornDex()/5 + 1);
-			break;
-		default: break;
-	}
-
-	check_max_hp(ch);
-	ch->set_max_move(ch->get_max_move() + std::max(1, add_move));
-
-	SetInbornAndRaceFeats(ch);
-
-	if (privilege::IsImmortal(ch)) {
-		for (i = 0; i < 3; i++) {
-			GET_COND(ch, i) = (char) -1;
-		}
-		ch->SetFlag(EPrf::kHolylight);
-	}
-
-	TopPlayer::Refresh(ch);
-	levelup_events(ch);
-	ch->save_char();
-}
-
-void decrease_level(CharData *ch) {
-	int add_move = 0;
-
-	switch (ch->GetClass()) {
-		case ECharClass::kConjurer:
-		case ECharClass::kWizard:
-		case ECharClass::kCharmer:
-		case ECharClass::kNecromancer:
-		case ECharClass::kSorcerer: [[fallthrough]];
-		case ECharClass::kMagus: add_move = 2;
-			break;
-
-		case ECharClass::kThief:
-		case ECharClass::kAssasine:
-		case ECharClass::kMerchant:
-		case ECharClass::kWarrior:
-		case ECharClass::kGuard:
-		case ECharClass::kPaladine:
-		case ECharClass::kRanger: [[fallthrough]];
-		case ECharClass::kVigilant: add_move = ch->GetInbornDex() / 5 + 1;
-			break;
-		default: break;
-	}
-
-	check_max_hp(ch);
-	ch->set_max_move(ch->get_max_move() - std::clamp(add_move, 1, ch->get_max_move()));
-
-	GET_WIMP_LEV(ch) = std::clamp(GET_WIMP_LEV(ch), 0, ch->get_real_max_hit()/2);
-	if (!privilege::IsImmortal(ch)) {
-		ch->UnsetFlag(EPrf::kHolylight);
-	}
-
-	TopPlayer::Refresh(ch);
-	ch->save_char();
-}
 
 /*
  * invalid_class is used by handler.cpp to determine if a piece of equipment is
