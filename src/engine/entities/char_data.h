@@ -586,7 +586,6 @@ class CharData : public ProtectedCharData {
 	bool IsNpc() const { return is_npc_; }
 	void SetNpcAttribute(bool _) { is_npc_ = _; }
 	bool IsPlayer() const { return !IsNpc(); }
-	bool have_mind() const;
 	bool HasWeapon();
 
  private:
