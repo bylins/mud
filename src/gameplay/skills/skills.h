@@ -196,14 +196,12 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict);
 int CalcNoviceSkillBonus(CharData *ch, ESkill skill_id, unsigned skill_divisor);
 // issue.chardata-cleaning: the skill-value accessors moved off CharData. They read the trained
 // level (CharacterSkills) plus equipment/talent/arena bonuses.
-namespace skills {
 [[nodiscard]] int GetSkillBonus(const CharData *ch, ESkill skill_id);
 [[nodiscard]] int GetSkill(const CharData *ch, ESkill skill_id);
 [[nodiscard]] int GetSkillWithoutEquip(const CharData *ch, ESkill skill_id);
 [[nodiscard]] int GetEquippedSkill(const CharData *ch, ESkill skill_id);
 [[nodiscard]] int GetTrainedSkill(const CharData *ch, ESkill skill_id);
 void SetSkill(CharData *ch, ESkill skill_id, int percent);
-}  // namespace skills
 
 #endif // SKILLS_H_
 
