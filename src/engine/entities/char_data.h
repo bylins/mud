@@ -329,15 +329,11 @@ class CharData : public ProtectedCharData {
 	void UnsetFeat(EFeat feat_id) { real_abils.Feats.reset(to_underlying(feat_id)); affect_total(this); };
 	bool HaveFeat(EFeat feat_id) const { return real_abils.Feats.test(to_underlying(feat_id)); };
 
-	void set_skill(ESkill skill_id, int percent);
 	void clear_skills();
-	int GetSkill(ESkill skill_id) const;
-	int GetSkillWithoutEquip(ESkill skill_id) const;
 	int get_skills_count() const;
 	const CharacterSkills::Map &GetCharSkills() const { return skills_.data(); }
 	CharacterSkills &Skills() { return skills_; }
 	const CharacterSkills &Skills() const { return skills_; }
-	int GetEquippedSkill(ESkill skill_id) const;
 	int get_skill_bonus() const;
 	void set_skill_bonus(int);
 	int GetAddSkill(ESkill skill_id) const;
@@ -514,8 +510,6 @@ class CharData : public ProtectedCharData {
 	std::string GetTitleAndName();
 	std::string GetNameWithTitleOrRace();
 	std::string race_or_title();
-	int GetSkillBonus(const ESkill skill_id) const;
-	int GetTrainedSkill(ESkill skill_num) const;
 	bool isAffected(EAffect flag) const;
 
 	void set_who_mana(unsigned int);
@@ -534,6 +528,7 @@ class CharData : public ProtectedCharData {
 
 	void inc_restore_timer(int num);
 	obj_sets::activ_sum &obj_bonus();
+	[[nodiscard]] const obj_sets::activ_sum &obj_bonus() const { return obj_bonus_; }
 
 
 	void set_souls(int souls);

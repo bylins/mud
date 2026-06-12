@@ -40,7 +40,7 @@ void DisplaySkills(CharData *ch, CharData *vict, const char *filter/* = nullptr*
 	std::list<std::string> skills_names;
 
 	for (const auto &skill : MUD::Skills()) {
-		if (ch->GetSkill(skill.GetId())) {
+		if (skills::GetSkill(ch, skill.GetId())) {
 			if (skill.IsInvalid()) {
 				continue;
 			}
@@ -78,9 +78,9 @@ void DisplaySkills(CharData *ch, CharData *vict, const char *filter/* = nullptr*
 
 			sprintf(buf + strlen(buf), "%-23s %s (%d)%s \r\n",
 					skill.GetName(),
-					how_good(ch->GetSkill(skill_id), CalcSkillHardCap(ch, skill_id)),
-					ch->GetTrainedSkill(skill_id) == 0 ? ch->GetEquippedSkill(skill_id) : 
-					std::min(CalcSkillMinCap(ch, skill_id) + ch->GetEquippedSkill(skill_id), MUD::Skill(skill_id).cap),
+					how_good(skills::GetSkill(ch, skill_id), CalcSkillHardCap(ch, skill_id)),
+					skills::GetTrainedSkill(ch, skill_id) == 0 ? skills::GetEquippedSkill(ch, skill_id) : 
+					std::min(CalcSkillMinCap(ch, skill_id) + skills::GetEquippedSkill(ch, skill_id), MUD::Skill(skill_id).cap),
 					kColorNrm);
 			skills_names.emplace_back(buf);
 			i++;

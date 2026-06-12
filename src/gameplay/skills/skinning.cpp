@@ -180,7 +180,7 @@ bool skill_to_skin(CharData *mob, CharData *ch) {
 				return true;
 			break;
 		case 1:
-			if (ch->GetSkill(ESkill::kSkinning) >= 40) {
+			if (skills::GetSkill(ch, ESkill::kSkinning) >= 40) {
 				num = 20 * animals_levels[1] / 701;
 				if (number(1, 100) <= num)
 					return true;
@@ -192,7 +192,7 @@ bool skill_to_skin(CharData *mob, CharData *ch) {
 
 			break;
 		case 2:
-			if (ch->GetSkill(ESkill::kSkinning) >= 80) {
+			if (skills::GetSkill(ch, ESkill::kSkinning) >= 80) {
 				num = 10 * animals_levels[2] / 594;
 				if (number(1, 100) <= num)
 					return true;
@@ -204,7 +204,7 @@ bool skill_to_skin(CharData *mob, CharData *ch) {
 			break;
 
 		case 3:
-			if (ch->GetSkill(ESkill::kSkinning) >= 120) {
+			if (skills::GetSkill(ch, ESkill::kSkinning) >= 120) {
 				num = 8 * animals_levels[3] / 209;
 				if (number(1, 100) <= num)
 					return true;
@@ -216,7 +216,7 @@ bool skill_to_skin(CharData *mob, CharData *ch) {
 			break;
 
 		case 4:
-			if (ch->GetSkill(ESkill::kSkinning) >= 160) {
+			if (skills::GetSkill(ch, ESkill::kSkinning) >= 160) {
 				num = 25 * animals_levels[4] / 20;
 				if (number(1, 100) <= num)
 					return true;
@@ -300,7 +300,7 @@ ObjData *create_skin(CharData *mob, CharData *ch) {
 }
 
 void DoSkinning(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (!ch->GetSkill(ESkill::kSkinning)) {
+	if (!skills::GetSkill(ch, ESkill::kSkinning)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kSkinning, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
@@ -346,7 +346,7 @@ void DoSkinning(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	TrainSkill(ch, ESkill::kSkinning, percent <= prob, mob);
 
 	ObjData::shared_ptr tobj;
-	if (ch->GetSkill(ESkill::kSkinning) > 150 && number(1, 200) == 1) // артефакт
+	if (skills::GetSkill(ch, ESkill::kSkinning) > 150 && number(1, 200) == 1) // артефакт
 	{
 		tobj = world_objects.create_from_prototype_by_vnum(meat_mapping.get_artefact_key());
 	} else {
@@ -375,7 +375,7 @@ void DoSkinning(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 		}
 
-		entrails.push_back(try_make_ingr(mob, 1000 - ch->GetSkill(ESkill::kSkinning) * 2));  // ингры со всех
+		entrails.push_back(try_make_ingr(mob, 1000 - skills::GetSkill(ch, ESkill::kSkinning) * 2));  // ингры со всех
 
 		for (const auto &it : entrails) {
 			if (it) {

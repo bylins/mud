@@ -20,7 +20,7 @@ void GoParry(CharData *ch) {
 }
 
 void DoParry(CharData *ch, char */* argument*/, int /* cmd*/, int/* subcmd*/) {
-	if (ch->IsNpc() || !ch->GetSkill(ESkill::kParry)) {
+	if (ch->IsNpc() || !skills::GetSkill(ch, ESkill::kParry)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kParry, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}

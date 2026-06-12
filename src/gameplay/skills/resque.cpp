@@ -75,7 +75,7 @@ void go_rescue(CharData *ch, CharData *vict, CharData *tmp_ch) {
 }
 
 void do_rescue(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (!ch->GetSkill(ESkill::kRescue)) {
+	if (!skills::GetSkill(ch, ESkill::kRescue)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kRescue, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}

@@ -243,11 +243,11 @@ void SetFighting(CharData *ch, CharData *vict) {
 			SetBattleLag(ch, (tmp.quot + 1));
 		}
 	}
-	if (!ch->IsNpc() && (!ch->GetSkill(ESkill::kAwake))) {
+	if (!ch->IsNpc() && (!skills::GetSkill(ch, ESkill::kAwake))) {
 		ch->UnsetFlag(EPrf::kAwake);
 	}
 
-	if (!ch->IsNpc() && (!ch->GetSkill(ESkill::kPunctual))) {
+	if (!ch->IsNpc() && (!skills::GetSkill(ch, ESkill::kPunctual))) {
 		ch->UnsetFlag(EPrf::kPunctual);
 	}
 
@@ -260,7 +260,7 @@ void SetFighting(CharData *ch, CharData *vict) {
 			ch->battle_affects.set(kEafAwake);
 	}
 
-	if (CanUseFeat(ch, EFeat::kDefender) && ch->GetSkill(ESkill::kShieldBlock)) {
+	if (CanUseFeat(ch, EFeat::kDefender) && skills::GetSkill(ch, ESkill::kShieldBlock)) {
 		ch->battle_affects.set(kEafAutoblock);
 	}
 
@@ -1263,37 +1263,37 @@ void set_mob_skills_flags(CharData *ch) {
 	bool sk_use = false;
 	// 1) parry
 	int do_this = number(0, 100);
-	if (do_this <= GET_LIKES(ch) && ch->GetSkill(ESkill::kParry)) {
+	if (do_this <= GET_LIKES(ch) && skills::GetSkill(ch, ESkill::kParry)) {
 		ch->battle_affects.set(kEafParry);
 		sk_use = true;
 	}
 	// 2) blocking
 	do_this = number(0, 100);
-	if (!sk_use && do_this <= GET_LIKES(ch) && ch->GetSkill(ESkill::kShieldBlock)) {
+	if (!sk_use && do_this <= GET_LIKES(ch) && skills::GetSkill(ch, ESkill::kShieldBlock)) {
 		ch->battle_affects.set(kEafBlock);
 		sk_use = true;
 	}
 	// 3) multyparry
 	do_this = number(0, 100);
-	if (!sk_use && do_this <= GET_LIKES(ch) && ch->GetSkill(ESkill::kMultiparry)) {
+	if (!sk_use && do_this <= GET_LIKES(ch) && skills::GetSkill(ch, ESkill::kMultiparry)) {
 		ch->battle_affects.set(kEafMultyparry);
 		sk_use = true;
 	}
 	// 4) deviate
 	do_this = number(0, 100);
-	if (!sk_use && do_this <= GET_LIKES(ch) && ch->GetSkill(ESkill::kDodge)) {
+	if (!sk_use && do_this <= GET_LIKES(ch) && skills::GetSkill(ch, ESkill::kDodge)) {
 		ch->battle_affects.set(kEafDodge);
 		sk_use = true;
 	}
 	// 5) styles
 	do_this = number(0, 100);
-	if (do_this <= GET_LIKES(ch) && ch->GetSkill(ESkill::kAwake) > number(1, 101)) {
+	if (do_this <= GET_LIKES(ch) && skills::GetSkill(ch, ESkill::kAwake) > number(1, 101)) {
 		ch->battle_affects.set(kEafAwake);
 	} else {
 		ch->battle_affects.unset(kEafAwake);
 	}
 	do_this = number(0, 100);
-	if (do_this <= GET_LIKES(ch) && ch->GetSkill(ESkill::kPunctual) > number(1, 101)) {
+	if (do_this <= GET_LIKES(ch) && skills::GetSkill(ch, ESkill::kPunctual) > number(1, 101)) {
 		ch->battle_affects.set(kEafPunctual);
 	} else {
 		ch->battle_affects.unset(kEafPunctual);
@@ -1355,7 +1355,7 @@ void using_charmice_skills(CharData *ch) {
 	const bool do_skill_without_command = GET_LIKES(ch) >= do_this;
 	CharData *master = (ch->get_master() && !ch->get_master()->IsNpc()) ? ch->get_master() : nullptr;
 	
-	if (charmice_wielded_for_stupor && ch->GetSkill(ESkill::kOverwhelm) > 0) { // оглушить
+	if (charmice_wielded_for_stupor && skills::GetSkill(ch, ESkill::kOverwhelm) > 0) { // оглушить
 		const bool skill_ready = ch->Skills().GetCooldown(ESkill::kGlobalCooldown) <= 0 && ch->Skills().GetCooldown(ESkill::kOverwhelm) <= 0;
 		if (master) {
 			std::stringstream msg;
@@ -1367,7 +1367,7 @@ void using_charmice_skills(CharData *ch) {
 		if (do_skill_without_command && skill_ready) {
 			ch->battle_affects.set(kEafOverwhelm);
 		}
-	} else if (charmice_not_wielded && ch->GetSkill(ESkill::kHammer) > 0) { // молот
+	} else if (charmice_not_wielded && skills::GetSkill(ch, ESkill::kHammer) > 0) { // молот
 		const bool skill_ready = ch->Skills().GetCooldown(ESkill::kGlobalCooldown) <= 0 && ch->Skills().GetCooldown(ESkill::kHammer) <= 0;
 		if (master) {
 			std::stringstream msg;
@@ -1379,7 +1379,7 @@ void using_charmice_skills(CharData *ch) {
 		if (do_skill_without_command && skill_ready) {
 			ch->battle_affects.set(kEafHammer);
 		}
-	} else if(charmice_wielded_for_throw && (ch->GetSkill(ESkill::kThrow) > ch->GetSkill(ESkill::kOverwhelm))) { // метнуть ()
+	} else if(charmice_wielded_for_throw && (skills::GetSkill(ch, ESkill::kThrow) > skills::GetSkill(ch, ESkill::kOverwhelm))) { // метнуть ()
 			const bool skill_ready = ch->Skills().GetCooldown(ESkill::kGlobalCooldown) <= 0 && ch->Skills().GetCooldown(ESkill::kThrow) <= 0;
 		if (master) {
 			std::stringstream msg;
@@ -1392,7 +1392,7 @@ void using_charmice_skills(CharData *ch) {
 			ch->SetExtraAttack(kExtraAttackThrow, ch->GetEnemy());
 		}
 	} else if (!charmice_wielded_for_throw && (ch->get_extra_attack_mode() != kExtraAttackThrow)
-			&& !(ch->battle_affects.get(kEafOverwhelm) || ch->battle_affects.get(kEafHammer)) && ch->GetSkill(ESkill::kChopoff) > 0) { // подножка ()
+			&& !(ch->battle_affects.get(kEafOverwhelm) || ch->battle_affects.get(kEafHammer)) && skills::GetSkill(ch, ESkill::kChopoff) > 0) { // подножка ()
 		const bool skill_ready = ch->Skills().GetCooldown(ESkill::kGlobalCooldown) <= 0 && ch->Skills().GetCooldown(ESkill::kChopoff) <= 0;
 		if (master) {
 			std::stringstream msg;
@@ -1406,7 +1406,7 @@ void using_charmice_skills(CharData *ch) {
 			ch->SetExtraAttack(kExtraAttackChopoff, ch->GetEnemy());
 		} 
 	}   else if (((ch->get_extra_attack_mode() != kExtraAttackThrow) || (ch->get_extra_attack_mode() != kExtraAttackChopoff))
-			&& !(ch->battle_affects.get(kEafOverwhelm) || ch->battle_affects.get(kEafHammer)) && ch->GetSkill(ESkill::kIronwind) > 0) {  // вихрь ()
+			&& !(ch->battle_affects.get(kEafOverwhelm) || ch->battle_affects.get(kEafHammer)) && skills::GetSkill(ch, ESkill::kIronwind) > 0) {  // вихрь ()
 		const bool skill_ready = ch->Skills().GetCooldown(ESkill::kGlobalCooldown) <= 0 && ch->Skills().GetCooldown(ESkill::kIronwind) <= 0;
 		if (master) {
 			std::stringstream msg;
@@ -1452,7 +1452,7 @@ void using_mob_skills(CharData *ch) {
 		} else if (do_this <= 100) {
 			sk_num = ESkill::kOverwhelm;
 		}
-		if (ch->GetSkill(sk_num) <= 0) {
+		if (skills::GetSkill(ch, sk_num) <= 0) {
 			sk_num = ESkill::kUndefined;
 		}
 		if (ch->Skills().HasActiveCooldown(sk_num)) {
@@ -1801,9 +1801,9 @@ void process_npc_attack(CharData *ch) {
 			for (const auto vict : world[ch->in_room]->people) {
 				if (vict->GetEnemy() == ch->get_master()
 					&& vict != ch && vict != ch->get_master()) {
-					if (ch->GetSkill(ESkill::kRescue)) {
+					if (skills::GetSkill(ch, ESkill::kRescue)) {
 						go_rescue(ch, ch->get_master(), vict);
-					} else if (ch->GetSkill(ESkill::kProtect)) {
+					} else if (skills::GetSkill(ch, ESkill::kProtect)) {
 						go_protect(ch, ch->get_master());
 					}
 					break;
@@ -1927,7 +1927,7 @@ void process_player_attack(CharData *ch, int min_init) {
 			&& CanUseFeat(ch, EFeat::kTwohandsFocus)
 			&& CanUseFeat(ch, EFeat::kSlashMaster)
 			&& (static_cast<ESkill>(GET_EQ(ch, EEquipPos::kBoths)->get_spec_param()) == ESkill::kTwohands)) {
-			if (ch->GetSkill(ESkill::kTwohands) > (number(1, 500)))
+			if (skills::GetSkill(ch, ESkill::kTwohands) > (number(1, 500)))
 				hit(ch, ch->GetEnemy(), ESkill::kUndefined, fight::AttackType::kMainHand);
 		}
 		ch->battle_affects.unset(kEafFirst);
@@ -1944,7 +1944,7 @@ void process_player_attack(CharData *ch, int min_init) {
 		&& !AFF_FLAGGED(ch, EAffect::kStopLeft)
 		&& (ch->IsImmortal()
 			|| GET_GOD_FLAG(ch, EGf::kGodsLike)
-			|| ch->GetSkill(ESkill::kSideAttack) > number(1, 101))) {
+			|| skills::GetSkill(ch, ESkill::kSideAttack) > number(1, 101))) {
 		if (ch->IsImmortal()
 			|| GET_GOD_FLAG(ch, EGf::kGodsLike)
 			|| !ch->battle_affects.get(kEafUsedleft)) {
@@ -1956,7 +1956,7 @@ void process_player_attack(CharData *ch, int min_init) {
 	else if (!IS_SET(trigger_code, kNoLeftHandAttack) && !GET_EQ(ch, EEquipPos::kHold)
 		&& !GET_EQ(ch, EEquipPos::kLight) && !GET_EQ(ch, EEquipPos::kShield) && !GET_EQ(ch, EEquipPos::kBoths)
 		&& !AFF_FLAGGED(ch, EAffect::kStopLeft) && ch->battle_affects.get(kEafSecond)
-		&& ch->GetSkill(ESkill::kLeftHit)) {
+		&& skills::GetSkill(ch, ESkill::kLeftHit)) {
 		if (ch->IsImmortal() || !ch->battle_affects.get(kEafUsedleft)) {
 			ProcessExtrahits(ch, ch->GetEnemy(), ESkill::kUndefined, fight::AttackType::kOffHand);
 		}

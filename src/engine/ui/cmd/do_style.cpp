@@ -40,7 +40,7 @@ void DoStyle(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 	tp >>= 1;
-	if ((tp == 1 && !ch->GetSkill(ESkill::kPunctual)) || (tp == 2 && !ch->GetSkill(ESkill::kAwake))) {
+	if ((tp == 1 && !skills::GetSkill(ch, ESkill::kPunctual)) || (tp == 2 && !skills::GetSkill(ch, ESkill::kAwake))) {
 		SendMsgToChar("Вам неизвестен такой стиль боя.\r\n", ch);
 		return;
 	}

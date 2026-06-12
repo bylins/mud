@@ -13,7 +13,7 @@
 void do_sneak(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	int prob, percent;
 
-	if (ch->IsNpc() || !ch->GetSkill(ESkill::kSneak)) {
+	if (ch->IsNpc() || !skills::GetSkill(ch, ESkill::kSneak)) {
 		SendMsgToChar("Но вы не знаете как.\r\n", ch);
 		return;
 	}

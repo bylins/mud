@@ -77,11 +77,11 @@ EFeat ConvertFeat(abilities::EAbility new_enum) {
 bool CanUseAbilitySkill(CharData *ch, abilities::EAbility new_enum) {
 	switch (new_enum) {
 		case abilities::EAbility::kTurnUndead:
-			if (ch->GetSkill(ESkill::kTurnUndead))
+			if (skills::GetSkill(ch, ESkill::kTurnUndead))
 				return  true;
 			break;
 		case abilities::EAbility::kThrowWeapon:
-			if (ch->GetSkill(ESkill::kThrow))
+			if (skills::GetSkill(ch, ESkill::kThrow))
 				return  true;
 			break;
 		default:
@@ -244,7 +244,7 @@ bool TechniqueRoll::IsSuitableItem(const TechniqueItem &item) {
 //	TODO: Привести подсчет дамага к одному знаменателю с несколькими возможными точками входа.
 int AbilityRoll::CalcBaseDamage() {
 	int base_parameter = MUD::Ability(ability_).GetBaseParameter(actor_);
-	int dice_num = actor_->GetSkill(base_skill_) / abilities::kDmgDicepoolSkillDivider;
+	int dice_num = skills::GetSkill(actor_, base_skill_) / abilities::kDmgDicepoolSkillDivider;
 	dice_num = std::min(dice_num, base_parameter);
 	return RollDices(std::max(1, dice_num), abilities::kDmgDiceSize);
 };

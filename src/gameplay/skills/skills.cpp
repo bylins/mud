@@ -12,6 +12,7 @@
 #include "gameplay/mechanics/mount.h"
 #include "engine/db/global_objects.h"
 #include "engine/core/handler.h"
+#include "administration/privilege.h"
 #include "engine/ui/color.h"
 #include "utils/random.h"
 #include "gameplay/magic/magic.h"
@@ -23,6 +24,7 @@
 #include "gameplay/core/remort.h"
 
 #include <cmath>
+#include <algorithm>
 
 #include <fmt/format.h>
 #include "gameplay/mechanics/sight.h"
@@ -824,7 +826,7 @@ int CalculateVictimRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 // потому что по-хорошему половина этих параметров должна находиться в описании соответствующей абилки
 // которого не имеется и которое сейчас вводить не время.
 int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
-	int base_percent = ch->GetSkill(skill_id);
+	int base_percent = skills::GetSkill(ch, skill_id);
 	int parameter_bonus = 0; // бонус от ключевого параметра
 	int bonus = 0; // бонус от дополнительных параметров.
 	int size = 0; // бонусы/штрафы размера (не спрашивайте...)
@@ -837,7 +839,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 	if (!ch->IsNpc() && !ch->affected.empty()) {
 		for (const auto &aff: ch->affected) {
 			if (aff->location == EApply::kPlague) {
-				base_percent -= number(ch->GetSkill(skill_id) * 0.4, ch->GetSkill(skill_id) * 0.05);
+				base_percent -= number(skills::GetSkill(ch, skill_id) * 0.4, skills::GetSkill(ch, skill_id) * 0.05);
 			}
 		}
 	}
@@ -1008,7 +1010,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 		case ESkill::kParry: {
 			parameter_bonus += dex_bonus(GetRealDex(ch));
 			if (ch->battle_affects.get(kEafAwake)) {
-				bonus += ch->GetSkill(ESkill::kAwake);
+				bonus += skills::GetSkill(ch, ESkill::kAwake);
 			}
 			if (GET_EQ(ch, EEquipPos::kHold)
 				&& GET_EQ(ch, EEquipPos::kHold)->get_type() == EObjType::kWeapon) {
@@ -1346,7 +1348,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict, bool /
 		return 0;
 	}
 
-	int base_percent = ch->GetSkill(skill_id);
+	int base_percent = skills::GetSkill(ch, skill_id);
 	int total_percent{0};
 	int victim_sav{0};			// савис жертвы,
 	int victim_modi{0};			// другие модификаторы, влияющие на прохождение
@@ -1360,7 +1362,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict, bool /
 	if (!ch->IsNpc() && !ch->affected.empty()) {
 		for (const auto &aff: ch->affected) {
 			if (aff->location == EApply::kPlague) {
-				base_percent -= number(ch->GetSkill(skill_id) * 0.4, ch->GetSkill(skill_id) * 0.05);
+				base_percent -= number(skills::GetSkill(ch, skill_id) * 0.4, skills::GetSkill(ch, skill_id) * 0.05);
 			}
 		}
 	}
@@ -1546,7 +1548,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict, bool /
 			victim_sav = dex_bonus(GetRealDex(vict));
 			bonus = dex_bonus(GetRealDex(ch));
 			if (ch->battle_affects.get(kEafAwake)) {
-				bonus += ch->GetSkill(ESkill::kAwake);
+				bonus += skills::GetSkill(ch, ESkill::kAwake);
 			}
 
 			if (GET_EQ(ch, EEquipPos::kHold)
@@ -1908,13 +1910,13 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict, bool /
 void RemoveAllSkills(CharData *ch) {
 	for (auto i = ESkill::kFirst; i <= ESkill::kLast; ++i) {
 		if (MUD::Skills().IsValid(i)) {
-			ch->set_skill(i, 0);
+			skills::SetSkill(ch, i, 0);
 		}
 	}
 }
 
 void ImproveSkill(CharData *ch, const ESkill skill, int success, CharData *victim) {
-	const int trained_skill = ch->GetTrainedSkill(skill);
+	const int trained_skill = skills::GetTrainedSkill(ch, skill);
 
 	if (trained_skill <= 0 || trained_skill >= CalcSkillMinCap(ch, skill)) {
 		return;
@@ -1945,7 +1947,7 @@ void ImproveSkill(CharData *ch, const ESkill skill, int success, CharData *victi
 	}
 
 	// Если чар нуб, то до 50% скиллы качаются гораздо быстрее
-	int INT_PLAYER = (ch->GetTrainedSkill(skill) < 51
+	int INT_PLAYER = (skills::GetTrainedSkill(ch, skill) < 51
 		&& (AFF_FLAGGED(ch, EAffect::kNoobRegen))) ? 50 : GetRealInt(ch);
 
 	long div = int_app[INT_PLAYER].improve;
@@ -1971,9 +1973,9 @@ void ImproveSkill(CharData *ch, const ESkill skill, int success, CharData *victi
 					kColorBoldCyn, MUD::Skill(skill).GetName(), kColorNrm);
 		}
 		SendMsgToChar(buf, ch);
-		ch->set_skill(skill, (trained_skill + number(1, 2)));
+		skills::SetSkill(ch, skill, (trained_skill + number(1, 2)));
 		if (!ch->IsImmortal()) {
-			ch->set_skill(skill, (std::min(kZeroRemortSkillCap + remort::GetRealRemort(ch) * 5, ch->GetSkillBonus(skill))));
+			skills::SetSkill(ch, skill, (std::min(kZeroRemortSkillCap + remort::GetRealRemort(ch) * 5, skills::GetSkillBonus(ch, skill))));
 		}
 		if (victim && victim->IsNpc()) {
 			victim->SetFlag(EMobFlag::kNoSkillTrain);
@@ -1984,7 +1986,7 @@ void ImproveSkill(CharData *ch, const ESkill skill, int success, CharData *victi
 void TrainSkill(CharData *ch, const ESkill skill, bool success, CharData *vict) {
 	if (!ch->IsNpc()) {
 		if (skill != ESkill::kSideAttack
-			&& ch->GetSkillBonus(skill) > 0
+			&& skills::GetSkillBonus(ch, skill) > 0
 			&& (!vict
 				|| (vict->IsNpc()
 					&& !vict->IsFlagged(EMobFlag::kProtect)
@@ -1994,10 +1996,10 @@ void TrainSkill(CharData *ch, const ESkill skill, bool success, CharData *vict) 
 			ImproveSkill(ch, skill, success, vict);
 		}
 	} else if (!IsCharmice(ch)) {
-		if (ch->GetSkill(skill) > 0
+		if (skills::GetSkill(ch, skill) > 0
 			&& GetRealInt(ch) <= number(0, 1000 - 20 * GetRealWis(ch))
-			&& ch->GetSkill(skill) < MUD::Skill(skill).difficulty) {
-			ch->set_skill(skill, ch->GetSkillBonus(skill) + 1);
+			&& skills::GetSkill(ch, skill) < MUD::Skill(skill).difficulty) {
+			skills::SetSkill(ch, skill, skills::GetSkillBonus(ch, skill) + 1);
 		}
 	}
 }
@@ -2011,9 +2013,9 @@ int CalculateSkillAwakeModifier(CharData *killer, CharData *victim) {
 	if (!killer || !victim) {
 		log("SYSERROR: zero character in CalculateSkillAwakeModifier.");
 	} else if (killer->IsNpc() || victim->IsNpc()) {
-		result = victim->GetSkill(ESkill::kAwake);
+		result = skills::GetSkill(victim, ESkill::kAwake);
 	} else {
-		result = victim->GetSkill(ESkill::kAwake) / 2;
+		result = skills::GetSkill(victim, ESkill::kAwake) / 2;
 	}
 	return result;
 }
@@ -2097,7 +2099,7 @@ int CalcNoviceSkillBonus(CharData *ch, ESkill skill_id, unsigned skill_divisor) 
 	if (skill_divisor <= 0) {
 		return 0;
 	}
-	auto low_skill = std::min(ch->GetSkill(skill_id), abilities::kNoviceSkillThreshold);
+	auto low_skill = std::min(skills::GetSkill(ch, skill_id), abilities::kNoviceSkillThreshold);
 	return low_skill/skill_divisor;
 }
 
@@ -2110,5 +2112,79 @@ std::ostream& operator<<(std::ostream & os, ESkill &s){
 	os << to_underlying(s) << " (" << NAME_BY_ITEM<ESkill>(s) << ")";
 	return os;
 };
+
+namespace skills {
+
+int GetSkillBonus(const CharData *ch, ESkill skill_id) {
+	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kDominationArena)) {
+		if (MUD::Class(ch->GetClass()).skills[skill_id].IsAvailable()) {
+			return 100;
+		}
+	}
+	if (privilege::CheckSkills(ch)) {
+		return std::clamp(GetTrainedSkill(ch, skill_id), 0, MUD::Skill(skill_id).cap);
+	}
+	return 0;
+}
+
+// Skill with all bonuses/penalties (equipment, talents, poison).
+int GetSkill(const CharData *ch, ESkill skill_id) {
+	int skill = GetSkillBonus(ch, skill_id);
+	if (skill > 0) {
+		skill += ch->GetAddSkill(skill_id) + GetEquippedSkill(ch, skill_id);
+	}
+	if (AFF_FLAGGED(ch, EAffect::kSkillReduce)) {
+		skill -= skill * GET_SKILL_REDUCE(ch) / 100;
+	}
+	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kDominationArena)) {
+		return std::clamp(skill, 0, CalcSkillRemortCap(ch));
+	}
+	return skill;
+}
+
+// Skill with talents but without equipment.
+int GetSkillWithoutEquip(const CharData *ch, ESkill skill_id) {
+	auto skill = GetTrainedSkill(ch, skill_id);
+	if (skill) {
+		skill += ch->GetAddSkill(skill_id);
+	}
+	return skill;
+}
+
+// Equipment bonus to a skill, counted only if the character already knows it.
+int GetEquippedSkill(const CharData *ch, ESkill skill_id) {
+	int skill = 0;
+	bool is_native = ch->IsNpc() || MUD::Class(ch->GetClass()).skills[skill_id].IsValid();
+	for (const auto item : ch->equipment) {
+		if (item && is_native) {
+			skill += item->get_skill(skill_id);
+		}
+	}
+	if (is_native) {
+		skill += ch->obj_bonus().get_skill(skill_id);
+	}
+	if (GetSkillBonus(ch, skill_id) > 0) {
+		skill += ch->get_skill_bonus();
+	}
+	return skill;
+}
+
+// Trained level without any bonuses.
+int GetTrainedSkill(const CharData *ch, ESkill skill_num) {
+	if (privilege::CheckSkills(ch)) {
+		return std::clamp(ch->Skills().GetLevel(skill_num), 0, MUD::Skill(skill_num).cap);
+	}
+	return 0;
+}
+
+// A zero skill is not stored; zeroing an existing one removes the record.
+void SetSkill(CharData *ch, ESkill skill_id, int percent) {
+	if (MUD::Skills().IsInvalid(skill_id)) {
+		return;
+	}
+	ch->Skills().SetLevel(skill_id, percent);
+}
+
+}  // namespace skills
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

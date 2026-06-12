@@ -311,41 +311,41 @@ void trg_featturn(CharData *ch, EFeat feat_id, int featdiff, int vnum) {
 }
 
 void trg_skillturn(CharData *ch, const ESkill skill_id, int skilldiff, int vnum) {
-	if (ch->GetSkillBonus(skill_id)) {
+	if (skills::GetSkillBonus(ch, skill_id)) {
 		if (skilldiff) {
 			return;
 		}
-		ch->set_skill(skill_id, 0);
+		skills::SetSkill(ch, skill_id, 0);
 		SendMsgToChar(ch, "Вас лишили умения '%s'.\r\n", MUD::Skill(skill_id).GetName());
 		log("Remove %s from %s (trigskillturn)", MUD::Skill(skill_id).GetName(), GET_NAME(ch));
 	} else if (skilldiff && MUD::Class(ch->GetClass()).skills[skill_id].IsAvailable()) {
-		ch->set_skill(skill_id, 5);
+		skills::SetSkill(ch, skill_id, 5);
 		SendMsgToChar(ch, "Вы изучили умение '%s'.\r\n", MUD::Skill(skill_id).GetName());
 		log("Add %s to %s (trigskillturn) trigvnum %d", MUD::Skill(skill_id).GetName(), GET_NAME(ch), vnum);
 	}
 }
 
 void AddSkill(CharData *ch, const ESkill skillnum, int skilldiff, int vnum) {
-	int skill = ch->GetSkillBonus(skillnum);
+	int skill = skills::GetSkillBonus(ch, skillnum);
 
-	ch->set_skill(skillnum, std::clamp(skill + skilldiff, 1, MUD::Skill(skillnum).cap));
+	skills::SetSkill(ch, skillnum, std::clamp(skill + skilldiff, 1, MUD::Skill(skillnum).cap));
 	log("Add skill %s for char %s, skilldif %d, room %d, trigger %d, line %d", 
 			MUD::Skill(skillnum).GetName(), GET_NAME(ch), skilldiff, GET_ROOM_VNUM(ch->in_room), vnum, last_trig_line_num);
-	if (skill > ch->GetSkillBonus(skillnum)) {
+	if (skill > skills::GetSkillBonus(ch, skillnum)) {
 		SendMsgToChar(ch, "Ваше умение '%s' понизилось.\r\n", MUD::Skill(skillnum).GetName());
 		log("Decrease %s to %s from %d to %d (diff %d)(trigskilladd) trigvnum %d",
 			MUD::Skill(skillnum).GetName(), GET_NAME(ch), skill,
-			ch->GetSkillBonus(skillnum), skilldiff, vnum);
-	} else if (skill < ch->GetSkillBonus(skillnum)) {
+			skills::GetSkillBonus(ch, skillnum), skilldiff, vnum);
+	} else if (skill < skills::GetSkillBonus(ch, skillnum)) {
 		SendMsgToChar(ch, "Вы повысили свое умение '%s'.\r\n", MUD::Skill(skillnum).GetName());
 		log("Raise %s to %s from %d to %d (diff %d)(trigskilladd) trigvnum %d",
 			MUD::Skill(skillnum).GetName(), GET_NAME(ch), skill,
-			ch->GetSkillBonus(skillnum), skilldiff, vnum);
+			skills::GetSkillBonus(ch, skillnum), skilldiff, vnum);
 	} else {
 		SendMsgToChar(ch, "Ваше умение '%s' не изменилось.\r\n", MUD::Skill(skillnum).GetName());
 		log("Unchanged %s to %s from %d to %d (diff %d)(trigskilladd) trigvnum %d",
 			MUD::Skill(skillnum).GetName(), GET_NAME(ch), skill,
-			ch->GetSkillBonus(skillnum), skilldiff, vnum);
+			skills::GetSkillBonus(ch, skillnum), skilldiff, vnum);
 	}
 }
 
@@ -437,18 +437,18 @@ void trg_spellitem(CharData *ch, ESpell spell_id, int spelldiff, ESpellType spel
 		SET_BIT(GET_SPELL_TYPE(ch, spell_id), spell_type);
 		switch (spell_type) {
 			case ESpellType::kScrollCast:
-				if (!ch->GetSkill(ESkill::kCreateScroll))
-					ch->set_skill(ESkill::kCreateScroll, 5);
+				if (!skills::GetSkill(ch, ESkill::kCreateScroll))
+					skills::SetSkill(ch, ESkill::kCreateScroll, 5);
 				strcpy(type, "создания свитка");
 				break;
 			case ESpellType::kPotionCast:
-				if (!ch->GetSkill(ESkill::kCreatePotion))
-					ch->set_skill(ESkill::kCreatePotion, 5);
+				if (!skills::GetSkill(ch, ESkill::kCreatePotion))
+					skills::SetSkill(ch, ESkill::kCreatePotion, 5);
 				strcpy(type, "приготовления напитка");
 				break;
 			case ESpellType::kWandCast:
-				if (!ch->GetSkill(ESkill::kCreateWand))
-					ch->set_skill(ESkill::kCreateWand, 5);
+				if (!skills::GetSkill(ch, ESkill::kCreateWand))
+					skills::SetSkill(ch, ESkill::kCreateWand, 5);
 				strcpy(type, "изготовления посоха");
 				break;
 			case ESpellType::kItemCast: strcpy(type, "предметной магии");

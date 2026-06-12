@@ -178,7 +178,7 @@ int attack_best(CharData *ch, CharData *victim, bool do_mode) {
 
 	if (victim) {
 		// issue.npc-races: strangle needs a victim that breathes (race <respiration/>) and isn't undead.
-		if (ch->GetSkill(ESkill::kStrangle) && !IsTimedBySkill(ch, ESkill::kStrangle)
+		if (skills::GetSkill(ch, ESkill::kStrangle) && !IsTimedBySkill(ch, ESkill::kStrangle)
 				&& CanBreathe(victim) && !victim->IsFlagged(EMobFlag::kUndead)) {
 			if (do_mode)
 				do_strangle(ch, victim);
@@ -186,8 +186,8 @@ int attack_best(CharData *ch, CharData *victim, bool do_mode) {
 				go_strangle(ch, victim);
 			return (true);
 		}
-		if ((ch->GetSkill(ESkill::kBackstab) && (!victim->GetEnemy() || CanUseFeat(ch, EFeat::kThieveStrike)) && !IsCharmice(ch))
-				|| (IsCharmice(ch) && GET_EQ(ch, EEquipPos::kWield) && ch->GetSkill(ESkill::kBackstab)
+		if ((skills::GetSkill(ch, ESkill::kBackstab) && (!victim->GetEnemy() || CanUseFeat(ch, EFeat::kThieveStrike)) && !IsCharmice(ch))
+				|| (IsCharmice(ch) && GET_EQ(ch, EEquipPos::kWield) && skills::GetSkill(ch, ESkill::kBackstab)
 						&& (!victim->GetEnemy() || CanUseFeat(ch, EFeat::kThieveStrike)))) {
 
 			if (do_mode)
@@ -196,38 +196,38 @@ int attack_best(CharData *ch, CharData *victim, bool do_mode) {
 				GoBackstab(ch, victim);
 			return (true);
 		}
-		if ((ch->GetSkill(ESkill::kHammer) && !IsCharmice(ch))
+		if ((skills::GetSkill(ch, ESkill::kHammer) && !IsCharmice(ch))
 			|| (IsCharmice(ch)
 				&& !(GET_EQ(ch, EEquipPos::kWield) || GET_EQ(ch, EEquipPos::kBoths) || GET_EQ(ch, EEquipPos::kHold))
-				&& ch->GetSkill(ESkill::kHammer))) {
+				&& skills::GetSkill(ch, ESkill::kHammer))) {
 			if (do_mode)
 				DoMighthit(ch, victim);
 			else
 				GoMighthit(ch, victim);
 			return (true);
 		}
-		if (ch->GetSkill(ESkill::kOverwhelm)) {
+		if (skills::GetSkill(ch, ESkill::kOverwhelm)) {
 			if (do_mode)
 				DoOverhelm(ch, victim);
 			else
 				GoOverhelm(ch, victim);
 			return (true);
 		}
-		if (ch->GetSkill(ESkill::kBash)) {
+		if (skills::GetSkill(ch, ESkill::kBash)) {
 			if (do_mode) {
 				do_bash(ch, victim);
 			} else
 				go_bash(ch, victim);
 			return (true);
 		}
-		if (ch->GetSkill(ESkill::kKick)) {
+		if (skills::GetSkill(ch, ESkill::kKick)) {
 			if (do_mode)
 				do_kick(ch, victim);
 			else
 				go_kick(ch, victim);
 			return (true);
 		}
-		if (ch->GetSkill(ESkill::kThrow)
+		if (skills::GetSkill(ch, ESkill::kThrow)
 			&& wielded
 			&& wielded->get_type() == EObjType::kWeapon
 			&& wielded->has_flag(EObjFlag::kThrowing)) {
@@ -236,13 +236,13 @@ int attack_best(CharData *ch, CharData *victim, bool do_mode) {
 			else
 				GoThrow(ch, victim);
 		}
-		if (ch->GetSkill(ESkill::kDisarm)) {
+		if (skills::GetSkill(ch, ESkill::kDisarm)) {
 			if (do_mode)
 				do_disarm(ch, victim);
 			else
 				go_disarm(ch, victim);
 		}
-		if (ch->GetSkill(ESkill::kChopoff)) {
+		if (skills::GetSkill(ch, ESkill::kChopoff)) {
 			if (do_mode)
 				do_chopoff(ch, victim);
 			else
@@ -783,9 +783,9 @@ int perform_mob_switch(CharData *ch) {
 	SetFighting(ch, best);
 	SetWait(ch, 2, false);
 
-	if (ch->GetSkill(ESkill::kHammer) && IsArmedWithMighthitWeapon(ch)) {
+	if (skills::GetSkill(ch, ESkill::kHammer) && IsArmedWithMighthitWeapon(ch)) {
 		ch->battle_affects.set(kEafHammer);
-	} else if (ch->GetSkill(ESkill::kOverwhelm)) {
+	} else if (skills::GetSkill(ch, ESkill::kOverwhelm)) {
 		ch->battle_affects.set(ESkill::kOverwhelm);
 	}
 
@@ -1173,7 +1173,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 		  door = npc_walk(ch.get());
 	  }
 
-	  if (MEMORY(ch) && door == kBfsError && ch->GetPosition() > EPosition::kFight && ch->GetSkill(ESkill::kTrack)) {
+	  if (MEMORY(ch) && door == kBfsError && ch->GetPosition() > EPosition::kFight && skills::GetSkill(ch.get(), ESkill::kTrack)) {
 		  door = npc_track(ch.get());
 	  }
 

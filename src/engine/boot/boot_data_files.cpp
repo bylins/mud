@@ -1394,7 +1394,7 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 			return;
 		}
 		t[1] = std::clamp(t[1], 0, MUD::Skill(skill_id).cap);
-		(mob_proto + i)->set_skill(skill_id, t[1]);
+		skills::SetSkill(mob_proto + i, skill_id, t[1]);
 	}
 
 	CASE("Spell") {

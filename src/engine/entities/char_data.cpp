@@ -390,93 +390,6 @@ void CharData::purge() {
 	followers.clear();
 }
 
-int CharData::GetSkillBonus(const ESkill skill_id) const {
-	if (ROOM_FLAGGED(this->in_room, ERoomFlag::kDominationArena)) {
-		if (MUD::Class(chclass_).skills[skill_id].IsAvailable()) {
-			return 100;
-		}
-	}
-	if (privilege::CheckSkills(this)) {
-		return std::clamp(GetTrainedSkill(skill_id), 0, MUD::Skill(skill_id).cap);
-	}
-	return 0;
-
-}
-/*
- * Умение с учетом всех бонусов и штрафов (экипировка, таланты, яд).
- */
-int CharData::GetSkill(const ESkill skill_id) const {
-	int skill = GetSkillBonus(skill_id);
-
-	if (skill > 0) {
-		skill += GetAddSkill(skill_id) + GetEquippedSkill(skill_id);
-	}
-
-	if (AFF_FLAGGED(this, EAffect::kSkillReduce)) {
-		skill -= skill * GET_SKILL_REDUCE(this) / 100;
-	}
-
-	if (ROOM_FLAGGED(this->in_room, ERoomFlag::kDominationArena)) {
-		return std::clamp(skill, 0, CalcSkillRemortCap(this));
-	} else {
-		return skill;
-	}
-}
-
-/*
- * Умение с учетом талантов, но без экипировки.
- */
-int CharData::GetSkillWithoutEquip(const ESkill skill_id) const {
-	auto skill = GetTrainedSkill(skill_id);
-	if (skill) {
-		skill += GetAddSkill(skill_id);
-	}
-	return skill;
-}
-
-/*
- * Бонусы умения от экипировки. Учитываются, только
- * если у персонажа уже изучено данное умение.
- */
-int CharData::GetEquippedSkill(const ESkill skill_id) const {
-	int skill = 0;
-
-	bool is_native = this->IsNpc() || MUD::Class(chclass_).skills[skill_id].IsValid();
-	for (const auto item : equipment) {
-		if (item && is_native) {
-				skill += item->get_skill(skill_id);
-		}
-	}
-	if (is_native) {
-		skill += obj_bonus_.get_skill(skill_id);
-	}
-	if (GetSkillBonus(skill_id) > 0) {
-		skill += get_skill_bonus();
-	}
-	
-	return skill;
-}
-
-/*
- * Уровень умения без учета каких-либо бонусов.
- */
-int CharData::GetTrainedSkill(const ESkill skill_num) const {
-	if (privilege::CheckSkills(this)) {
-		return std::clamp(skills_.GetLevel(skill_num), 0, MUD::Skill(skill_num).cap);
-	}
-	return 0;
-}
-
-// * Нулевой скилл мы не сетим, а при обнулении уже имеющегося удалем эту запись.
-void CharData::set_skill(const ESkill skill_id, int percent) {
-	if (MUD::Skills().IsInvalid(skill_id)) {
-		// Только лишний спам в логе.
-		//log("SYSERROR: некорректный номер скилла %d в set_skill.", to_underlying(skill_id));
-		return;
-	}
-	skills_.SetLevel(skill_id, percent);
-}
-
 void CharData::clear_skills() {
 	skills_.Clear();
 }
@@ -1411,7 +1324,7 @@ void CharData::restore_npc() {
 
 	for (const auto &skill : MUD::Skills()) {
 		if (skill.IsValid()) {
-			this->set_skill(skill.GetId(), proto->GetSkill(skill.GetId()));
+			skills::SetSkill(this, skill.GetId(), skills::GetSkill(proto, skill.GetId()));
 		}
 	}
 

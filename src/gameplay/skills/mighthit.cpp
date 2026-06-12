@@ -52,7 +52,7 @@ void GoMighthit(CharData *ch, CharData *victim) {
 }
 
 void DoMighthit(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (ch->GetSkill(ESkill::kHammer) < 1) {
+	if (skills::GetSkill(ch, ESkill::kHammer) < 1) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kHammer, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
@@ -72,7 +72,7 @@ void DoMighthit(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 void DoMighthit(CharData *ch, CharData *victim) {
-	if (ch->GetSkill(ESkill::kHammer) < 1) {
+	if (skills::GetSkill(ch, ESkill::kHammer) < 1) {
 		log("ERROR: вызов молота для персонажа %s (%d) без проверки умения", ch->get_name().c_str(), GET_MOB_VNUM(ch));
 		return;
 	}

@@ -22,7 +22,7 @@
 void DoCharge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int direction;
 
-	if (!ch->GetSkill(ESkill::kCharge)) {
+	if (!skills::GetSkill(ch, ESkill::kCharge)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kCharge, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
@@ -70,7 +70,7 @@ void GoCharge(CharData *ch, int direction) {
 	if (ch->IsFlagged(EPrf::kAwake)) {
 		is_awake = true;
 	}
-	auto skill_charge = ch->GetSkill(ESkill::kCharge);
+	auto skill_charge = skills::GetSkill(ch, ESkill::kCharge);
 	int dam = (number(ceil(skill_charge * 3 / 1.25), ceil(skill_charge * 3 * 1.25)) * GetRealLevel(ch)) / 30;
 
 	if (is_awake) {
@@ -79,7 +79,7 @@ void GoCharge(CharData *ch, int direction) {
 
 	int victims_amount = 2;
 	if (is_awake) {
-		victims_amount = 2 + ch->GetSkill(ESkill::kCharge) / 40;
+		victims_amount = 2 + skills::GetSkill(ch, ESkill::kCharge) / 40;
 	}
 
 	Affect<EApply> af;
@@ -131,7 +131,7 @@ void GoCharge(CharData *ch, int direction) {
 					dmg.dam = 0;
 					dmg.Process(target, ch);
 				} else {
-					if (ch->GetSkill(ESkill::kShieldBash) && ch->GetSkill(ESkill::kBash) && (GET_EQ(ch, kShield)) && !is_awake) {
+					if (skills::GetSkill(ch, ESkill::kShieldBash) && skills::GetSkill(ch, ESkill::kBash) && (GET_EQ(ch, kShield)) && !is_awake) {
 						go_bash(ch,target);
 					} else {
 						act("Хорошенько разогнавшись Вы прописали $N2 роскошного тумака!",

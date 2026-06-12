@@ -54,7 +54,7 @@ void go_iron_wind(CharData *ch, CharData *victim) {
 }
 
 void do_iron_wind(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (ch->IsNpc() || !ch->GetSkill(ESkill::kIronwind)) {
+	if (ch->IsNpc() || !skills::GetSkill(ch, ESkill::kIronwind)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kIronwind, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	};
@@ -66,7 +66,7 @@ void do_iron_wind(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Невозможно! Вы слишком заняты боем!\r\n", ch);
 		return;
 	};
-	int moves = ch->get_max_move() / (2 + std::max(15, ch->GetSkill(ESkill::kIronwind)) / 15);
+	int moves = ch->get_max_move() / (2 + std::max(15, skills::GetSkill(ch, ESkill::kIronwind)) / 15);
 	if (ch->get_max_move() < moves * 2) {
 		SendMsgToChar("Вы слишком устали...\r\n", ch);
 		return;
@@ -102,7 +102,7 @@ void ProcessIronWindHits(CharData *ch, fight::AttackType weapon) {
 	вторая дополнительная атака левей начинает наноситься с 170%+ скилла, но не более чем с 30% вероятности
 	*/
 	if (ch->IsFlagged(EPrf::kIronWind)) {
-		percent = ch->GetSkill(ESkill::kIronwind);
+		percent = skills::GetSkill(ch, ESkill::kIronwind);
 		moves = ch->get_max_move() / (6 + std::max(10, percent) / 10);
 		prob = ch->battle_affects.get(kEafIronWind);
 		if (prob && !check_moves(ch, moves)) {

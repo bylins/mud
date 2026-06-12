@@ -19,7 +19,7 @@ void GoIntercept(CharData *ch, CharData *vict);
 void PerformIntercept(CharData *ch, CharData *vict, HitData &hit_data);
 
 void DoIntercept(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (ch->IsNpc() || !ch->GetSkill(ESkill::kIntercept)) {
+	if (ch->IsNpc() || !skills::GetSkill(ch, ESkill::kIntercept)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kIntercept, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}

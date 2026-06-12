@@ -174,7 +174,7 @@ int CalcSpellManacost(CharData *ch, ESpell spell_id) {
 		}
 	}
 	if (result > 0)
-		return result * koef_skill_magic(ch->GetSkill(MUD::Spell(spell_id).GetSuccessRoll().GetBaseSkill())) / 100;
+		return result * koef_skill_magic(skills::GetSkill(ch, MUD::Spell(spell_id).GetSuccessRoll().GetBaseSkill())) / 100;
 		// при скилле 200 + 25%, чем меньше тем лучше
 	else
 		return 99999;
