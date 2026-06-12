@@ -4,6 +4,7 @@
 
 #include "engine/entities/char_data.h"
 #include "administration/privilege.h"
+#include "gameplay/affects/affect_handler.h"
 #include "skill_messages.h"
 #include "engine/entities/obj_data.h"
 #include "engine/core/handler.h"
@@ -71,7 +72,7 @@ void do_frenzy(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 				can_be_angrier = true;
 			}
 			a.duration = duration;
-			it = ch->AffectRemove(it);
+			it = RemoveAffect(ch, it);
 			affect_to_char(ch, a);
 			// continue не обязателен: it уже установлен на следующий
 		} else {

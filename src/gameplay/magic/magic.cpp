@@ -14,6 +14,7 @@
 
 #include "magic.h"
 #include "administration/privilege.h"
+#include "gameplay/affects/affect_handler.h"
 #include "gameplay/mechanics/condition.h"
 #include "gameplay/fight/fight_stuff.h"
 #include "gameplay/mechanics/mount.h"
@@ -822,7 +823,7 @@ static void ApplyTalentAffect(CharData *victim, Affect<EApply> &af, Bitvector fl
 					af.modifier = existing->modifier;
 				}
 			}
-			victim->AffectRemove(it);
+			RemoveAffect(victim, it);
 			break;
 		}
 	}
