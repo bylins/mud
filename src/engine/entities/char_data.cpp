@@ -265,7 +265,6 @@ void CharData::zero_init() {
 	remorts_ = 0;
 	remorts_add_ = 0;
 	last_logon_ = 0;
-	ruble = 0;
 	str_ = 0;
 	str_add_ = 0;
 	dex_ = 0;
@@ -1050,14 +1049,6 @@ int CharData::get_movereg() const {
 
 void CharData::set_movereg(const int v) {
 	add_abils.movereg = v;
-}
-
-long CharData::get_ruble() {
-	return ruble;
-}
-
-void CharData::set_ruble(int ruble) {
-	this->ruble = ruble;
 }
 
 // * Удача (мораль) для расчетов в скилах и вывода чару по счет все.

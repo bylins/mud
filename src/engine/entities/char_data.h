@@ -540,8 +540,6 @@ class CharData : public ProtectedCharData {
 	void inc_restore_timer(int num);
 	obj_sets::activ_sum &obj_bonus();
 
-	void set_ruble(int ruble);
-	long get_ruble();
 
 	void set_souls(int souls);
 	void inc_souls();
@@ -653,7 +651,6 @@ class CharData : public ProtectedCharData {
 	currencies::CurrencyStorage currency_storage_;
 	// деньги в банке
 	// рубли
-	long ruble;
 	// родная сила
 	int str_;
 	// плюсы на силу
