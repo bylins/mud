@@ -746,7 +746,6 @@ class CharData : public ProtectedCharData {
 	Script::shared_ptr script;    // script info for the object
 
 	//отладочные сообщения имморталу/тестеру/кодеру
-	void send_to_TC(bool to_impl, bool to_tester, bool to_coder, const char *msg, ...);
 
 	// очередь изучаемых заклинаний
 	SpellMemQueue mem_queue;

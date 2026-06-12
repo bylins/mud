@@ -2,6 +2,7 @@
 
 #include <random>
 #include "administration/privilege.h"
+#include "utils/logger.h"
 #include "gameplay/core/experience.h"
 #include "engine/entities/char_data.h"
 #include "gameplay/affects/affect_handler.h"
@@ -659,7 +660,7 @@ long long get_extend_exp(long long exp, CharData *ch, CharData *victim) {
 		vnum = zone_table[GetZoneRnum(zvn)].copy_from_zone * 100 + mvn;
 	}
 
-	ch->send_to_TC(false, true, false,
+	SendToTC(ch, false, true, false,
 				   "&RУ моба еще %d убийств без замакса, экспа %d, убито %d&n\r\n",
 				   victim->mob_specials.MaxFactor,
 				   exp,

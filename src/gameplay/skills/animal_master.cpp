@@ -7,6 +7,7 @@
 // replaced by ENpcRace::kAnimal in the caller.
 
 #include "animal_master.h"
+#include "utils/logger.h"
 #include "gameplay/mechanics/minions.h"
 
 #include "engine/entities/char_data.h"
@@ -52,12 +53,12 @@ void ApplyAnimalMaster(CharData *ch, CharData *victim, Affect<EApply> &af,
 	// создаем переменные модификаторов
 	int r_cha = GetRealCha(ch);
 	int perc = GetSkill(ch, MUD::Spell(ESpell::kCharm).GetSuccessRoll().GetBaseSkill());
-	ch->send_to_TC(false, true, false, "Значение хари:  %d.\r\n", r_cha);
-	ch->send_to_TC(false, true, false, "Значение скила магии: %d.\r\n", perc);
+	SendToTC(ch, false, true, false, "Значение хари:  %d.\r\n", r_cha);
+	SendToTC(ch, false, true, false, "Значение скила магии: %d.\r\n", perc);
 	
 	// вычисляем % владения умений у victim
 	k_skills = floorf(0.8*r_cha + 0.5*perc);
-	ch->send_to_TC(false, true, false, "Владение скилом: %d.\r\n", k_skills);
+	SendToTC(ch, false, true, false, "Владение скилом: %d.\r\n", k_skills);
 	// === Формируем новые статы ===
 	// the mag-zver is identified by its non-zero type_charmice (set above);
 	// the kCompanion ally flag is set by the charm spell itself, not here.

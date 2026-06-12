@@ -1,4 +1,5 @@
 #include "backstab.h"
+#include "utils/logger.h"
 #include "administration/privilege.h"
 #include "gameplay/mechanics/condition.h"
 #include "gameplay/mechanics/minions.h"
@@ -223,8 +224,8 @@ bool ProcessBackstab(CharData *ch, CharData *victim, HitData &hit_data) {
 		hit_data.dam = std::min(8000 + remort::GetRealRemort(ch) * 20 * GetRealLevel(ch), hit_data.dam);
 	}
 
-	ch->send_to_TC(false, true, false, "&CДамага стаба равна = %d&n\r\n", hit_data.dam);
-	victim->send_to_TC(false, true, false, "&RДамага стаба  равна = %d&n\r\n", hit_data.dam);
+	SendToTC(ch, false, true, false, "&CДамага стаба равна = %d&n\r\n", hit_data.dam);
+	SendToTC(victim, false, true, false, "&RДамага стаба  равна = %d&n\r\n", hit_data.dam);
 	hit_data.ProcessExtradamage(ch, victim);
 	return true;
 }
