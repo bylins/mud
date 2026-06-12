@@ -2533,80 +2533,25 @@ void find_replacement(void *go,
 				mob->affected.clear();
 				affect_total(mob);
 			}
-		} else if (!str_cmp(field, "hryvn")) {
-			if (*subfield) {
-				const long before = currencies::GetAmount(*mob, currencies::kCopperGrivnaId);
-				int value;
-				currencies::SetAmount(*mob, currencies::kCopperGrivnaId, std::max(long(0), gm_char_field(mob, field, subfield, currencies::GetAmount(*mob, currencies::kCopperGrivnaId))));
-				value = currencies::GetAmount(*mob, currencies::kCopperGrivnaId) - before;
-				snprintf(buf, sizeof(buf), "<%s> {%d} получил триггером %d %s. [Trigger: %s, Vnum: %d]",
-						GET_PAD(mob, 0),
-						GET_ROOM_VNUM(mob->in_room),
-						value,
-						MUD::Currency(currencies::kCopperGrivnaVnum).GetNameWithAmount(value, grammar::ECase::kAcc).c_str(),
-						GET_TRIG_NAME(trig),
-						GET_TRIG_VNUM(trig));
-				mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
-			} else
-				snprintf(str, str_size, "%d", currencies::GetAmount(*mob, currencies::kCopperGrivnaId));
-		} else if (!str_cmp(field, "point_nogata")) {
-				if (*subfield) {
-					currencies::SetAmount(*mob, currencies::kNogataId, std::max(long(0), gm_char_field(mob, field, subfield, currencies::GetAmount(*mob, currencies::kNogataId))));
-				}
-				else
-					snprintf(str, str_size, "%d", currencies::GetAmount(*mob, currencies::kNogataId));
-		} else if (!str_cmp(field, "nogata")) {
-			if (*subfield) {
-				int val = 0, num;
-				CharData *k;
-				if (*subfield == '-') {
-					val = atoi(subfield + 1);
-					currencies::SetAmount(*mob, currencies::kNogataId, std::max(0L, currencies::GetAmount(*mob, currencies::kNogataId) - val));
-				}
-				else if (*subfield == '+') {
-					val = atoi(subfield + 1);
-					if (val > 1) {
-						k = mob->has_master() ? mob->get_master() : mob;
-						if (AFF_FLAGGED(k, EAffect::kGroup) && (k->in_room == mob->in_room)) {
-							num = 1;
-						} else {
-							num = 0;
-						}
-						for (auto *f : k->followers) {
-							if (AFF_FLAGGED(f, EAffect::kGroup)
-									&& !f->IsNpc() && f->in_room == mob->in_room) {
-								num++;
-							}
-						}
-						if (num > 1) {
-							int share = val / num;
-							int rest = val % num;
-							if (AFF_FLAGGED(k, EAffect::kGroup) && k->in_room == mob->in_room && !k->IsNpc() && k != mob)
-								currencies::AddAmount(*k, currencies::kNogataId, share, currencies::EPurse::kHand, true);
-							for (auto *f : k->followers) {
-								if (AFF_FLAGGED(f, EAffect::kGroup)
-										&& !f->IsNpc() && f->in_room == mob->in_room && f != mob) {
-									currencies::AddAmount(*f, currencies::kNogataId, share, currencies::EPurse::kHand, true);
-								}
-							}
-							snprintf(buf, sizeof(buf), "Вы разделили %d %s на %d  -  по %d каждому.\r\n",
-									val, MUD::Currency(currencies::kNogataVnum).GetNameWithAmount(val, grammar::ECase::kAcc).c_str(), num, share);
-							SendMsgToChar(buf, mob);
-							if (rest > 0) {
-								SendMsgToChar(mob, "Как истинный еврей вы оставили %d %s (которые не смогли разделить нацело) себе.\r\n",
-											  rest,
-											  MUD::Currency(currencies::kNogataVnum).GetNameWithAmount(rest, grammar::ECase::kAcc).c_str());
-							}
-							currencies::AddAmount(*mob, currencies::kNogataId, share+rest, currencies::EPurse::kHand, true);
-						}
-					 	else {
-							currencies::AddAmount(*mob, currencies::kNogataId, val, currencies::EPurse::kHand, true);
-						}
+		} else if (!str_cmp(field, "Currency")) {
+			// %actor.Currency(<text_id>)% - кол-во любой валюты на руках (валюта задаётся id-аргументом).
+			const auto &money_cur = MUD::Currencies().FindAvailableItem(subfield);
+			snprintf(str, str_size, "%ld", money_cur.GetId() >= 0 ? currencies::GetHand(*mob, money_cur.GetTextId()) : 0L);
+		} else if (!str_cmp(field, "AddCurrency")) {
+			// %actor.AddCurrency(<text_id>, <amount>)% - начислить (минус снимает). Слава и immortal-валюты не начисляются (страж откажет).
+			auto args = utils::Split(subfield, ',');
+			if (args.size() >= 2) {
+				utils::TrimLeft(args[0]);
+				utils::TrimRight(args[0]);
+				const auto &money_cur = MUD::Currencies().FindAvailableItem(args[0]);
+				if (money_cur.GetId() >= 0) {
+					const long amount = atol(args[1].c_str());
+					if (amount >= 0) {
+						currencies::AddHand(*mob, money_cur.GetTextId(), amount);
+					} else {
+						currencies::RemoveHand(*mob, money_cur.GetTextId(), -amount);
 					}
 				}
-			}
-			else {
-				snprintf(str, str_size, "%d", currencies::GetAmount(*mob, currencies::kNogataId));
 			}
 		} else if (!str_cmp(field, "gold")) {
 			if (*subfield) {
@@ -5735,31 +5680,34 @@ int script_driver(void *go, Trigger *trig, int type, int mode) {
 	return return_code;
 }
 
-void do_dg_add_ice_currency(void * /*go*/, Script * /*sc*/, Trigger *trig, int/* script_type*/, char *cmd) {
+void do_dg_add_currency(void * /*go*/, Script * /*sc*/, Trigger *trig, int/* script_type*/, char *cmd) {
 	CharData *ch = nullptr;
-	int value;
 	char junk[kMaxInputLength];
-	char charname[kMaxInputLength], value_c[kMaxInputLength];
+	char charname[kMaxInputLength], cur_id[kMaxInputLength], value_c[kMaxInputLength];
 
 	half_chop(cmd, junk, cmd);
 	half_chop(cmd, charname, cmd);
+	half_chop(cmd, cur_id, cmd);
 	half_chop(cmd, value_c, cmd);
 
-	if (!*charname || !*value_c) {
-		snprintf(buf2, sizeof(buf2), "dg_addicecurrency usage: <target> <value>");
+	if (!*charname || !*cur_id || !*value_c) {
+		snprintf(buf2, sizeof(buf2), "dg_addcurrency usage: <target> <currency_id> <value>");
 		trig_log(trig, buf2);
 		return;
 	}
-
-	value = atoi(value_c);
-	// locate the target
+	const auto &cur = MUD::Currencies().FindAvailableItem(cur_id);
+	if (cur.GetId() < 0) {
+		snprintf(buf2, sizeof(buf2), "dg_addcurrency: unknown currency '%s'!", cur_id);
+		trig_log(trig, buf2);
+		return;
+	}
 	ch = get_char(charname);
 	if (!ch) {
-		snprintf(buf2, sizeof(buf2), "dg_addicecurrency: cannot locate target!");
+		snprintf(buf2, sizeof(buf2), "dg_addcurrency: cannot locate target!");
 		trig_log(trig, buf2);
 		return;
 	}
-	currencies::AddAmount(*ch, currencies::kMagicIceId, value);
+	currencies::AddHand(*ch, cur.GetTextId(), atoi(value_c));
 }
 
 int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
@@ -5980,8 +5928,8 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 				do_dg_affect(go, sc, trig, type, cmd);
 			} else if (!strncmp(cmd, "global ", 7)) {
 				process_global(sc, trig, cmd, trig->context);
-			} else if (!strncmp(cmd, "addicecurrency ", 15)) {
-				do_dg_add_ice_currency(go, sc, trig, type, cmd);
+			} else if (!strncmp(cmd, "addcurrency ", 12)) {
+				do_dg_add_currency(go, sc, trig, type, cmd);
 			} else if (!strncmp(cmd, "bonus ", 6)) {
 				Bonus::dg_do_bonus(cmd + 6);
 			} else if (!strncmp(cmd, "worldecho ", 10)) {
