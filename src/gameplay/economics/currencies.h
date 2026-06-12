@@ -198,6 +198,9 @@ class CurrencyInfo : public info_container::BaseItem<int> {
 	void Print(CharData */*ch*/, std::ostringstream &buffer) const;
 };
 
+// Resolve a player-typed word to a currency by abbrev-matching its search name (nullptr if none).
+const CurrencyInfo *FindBySearch(const std::string &word);
+
 class CurrencyInfoBuilder : public info_container::IItemBuilder<CurrencyInfo> {
  public:
 	ItemPtr Build(parser_wrapper::DataNode &node) final;
