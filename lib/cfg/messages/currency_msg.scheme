@@ -7,12 +7,11 @@
 <scheme>
 	<tag name="msg_container" desc="Currency display names, keyed by currency text_id">
 		<child tag="msg_sheaf" multiple="Y"/>
-		<child tag="obj_names"/>
 	</tag>
 	<tag name="msg_sheaf" desc="Names for one currency (id = its text_id)">
 		<attr name="id" type="string" readonly="Y" desc="Currency text_id (matches currencies.xml)"/>
 		<child tag="name"/>
-		<child tag="obj_name" multiple="Y"/>
+		<child tag="obj_names"/>
 	</tag>
 	<tag name="name" desc="Display name + declensions">
 		<attr name="gender" type="enum" enum="EGender" desc="kMale / kFemale / kNeutral / kPoly"/>
@@ -30,7 +29,7 @@
 		<attr name="id" type="enum" enum="ECase" desc="kNom/kGen/kDat/kAcc/kIns/kPre"/>
 		<attr name="val" type="string" desc="The declined form"/>
 	</tag>
-	<tag name="obj_names" desc="Money-object size-tier templates (defaults; a currency may override)">
+	<tag name="obj_names" desc="Money-object size-tier templates (defaults in the kDefault sheaf; a currency may override)">
 		<child tag="obj_name" multiple="Y"/>
 	</tag>
 	<tag name="obj_name" desc="One size tier">
