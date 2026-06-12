@@ -238,7 +238,7 @@ void load(bool reload) {
 				snprintf(buf, kMaxStringLength,
 						 "...bad shop attributes (mob_vnum=%d shop id=%s)", mob_vnum, shop_id.c_str());
 				mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
-				return;
+				continue;
 			}
 
 			if (!templateId.empty()) {
@@ -246,22 +246,6 @@ void load(bool reload) {
 			}
 
 			tmp_shop->add_mob_vnum(mob_vnum);
-			// проверяем и сетим мобу спешиал
-			// даже если дальше магаз не залоадится - моб будет выдавать ошибку на магазинные спешиалы
-			auto mob_rnum = GetMobRnum(mob_vnum);
-			if (mob_rnum >= 0) {
-				if (mob_index[mob_rnum].func
-					&& mob_index[mob_rnum].func != shop_ext) {
-					snprintf(buf, kMaxStringLength,
-							 "...shopkeeper already with special (mob_vnum=%d)", mob_vnum);
-					mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
-				} else {
-					specials::RegisterMob(mob_vnum, specials::ESpecial::kShop);
-				}
-			} else {
-				snprintf(buf, kMaxStringLength, "...incorrect mob_vnum=%d", mob_vnum);
-				mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
-			}
 		}
 
 		// и список его продукции
@@ -273,7 +257,7 @@ void load(bool reload) {
 				snprintf(buf, kMaxStringLength,
 						 "...bad shop attributes (item_vnum=%d, price=%d)", item_vnum, price);
 				mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
-				return;
+				continue;
 			}
 
 			// проверяем шмотку
@@ -281,7 +265,7 @@ void load(bool reload) {
 			if (item_rnum < 0) {
 				snprintf(buf, kMaxStringLength, "...incorrect item_vnum=%d", item_vnum);
 				mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
-				return;
+				continue;
 			}
 
 			// иним ее в магазе
@@ -305,7 +289,7 @@ void load(bool reload) {
 									 (int) (*it)->item_list[i].item_vnum,
 									 (*it)->_id.c_str());
 							mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
-							return;
+							continue;
 						}
 						// иним ее в магазе
 						const auto item_vnum = (*it)->item_list[i].item_vnum;
@@ -332,7 +316,7 @@ void load(bool reload) {
 		if (tmp_shop->empty()) {
 			snprintf(buf, kMaxStringLength, "...item list empty (shop_id=%s)", shop_id.c_str());
 			mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
-			return;
+			continue;
 		}
 
 		const auto &items = tmp_shop->items_list();
@@ -349,6 +333,23 @@ void load(bool reload) {
 					}
 				}
 			}
+		}
+
+		// Assign the shop special only to keepers of a shop that actually loaded, so a shop skipped for
+		// missing items never leaves a keeper answering shop commands with an error.
+		for (const auto &mob_vnum : tmp_shop->mob_vnums()) {
+			const auto keeper_rnum = GetMobRnum(mob_vnum);
+			if (keeper_rnum < 0) {
+				snprintf(buf, kMaxStringLength, "...incorrect mob_vnum=%d", mob_vnum);
+				mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
+				continue;
+			}
+			if (mob_index[keeper_rnum].func && mob_index[keeper_rnum].func != shop_ext) {
+				snprintf(buf, kMaxStringLength, "...shopkeeper already with special (mob_vnum=%d)", mob_vnum);
+				mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
+				continue;
+			}
+			specials::RegisterMob(mob_vnum, specials::ESpecial::kShop);
 		}
 
 		shop_list.push_back(tmp_shop);
