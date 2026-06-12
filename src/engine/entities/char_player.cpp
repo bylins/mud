@@ -581,14 +581,16 @@ void Player::save_char() {
 	saved.printf("Hrol: %d\n", GET_HR(this));
 	saved.printf("Drol: %d\n", GET_DR(this));
 	saved.printf("Ac  : %d\n", GET_AC(this));
-	saved.printf("Hry : %d\n", currencies::GetAmount(*this, currencies::kCopperGrivnaId));
 	saved.printf("Tglo: %ld\n", static_cast<long int>(this->getGloryRespecTime()));
 	saved.printf("Hit : %d/%d\n", this->get_hit(), this->get_max_hit());
 	saved.printf("Mana: %d/%d\n", this->mem_queue.stored, (this)->mem_queue.total);
 	saved.printf("Move: %d/%d\n", this->get_move(), this->get_max_move());
-	saved.printf("Gold: %ld\n", currencies::GetAmount(*this, currencies::kGold));
-	saved.printf("Bank: %ld\n", currencies::GetAmount(*this, currencies::kGold, currencies::EPurse::kBank));
-	saved.printf("ICur: %d\n", currencies::GetAmount(*this, currencies::kMagicIceId));
+	// All character currencies live in the unified container; persist each generically by text_id.
+	for (const auto &[cur_id, cur_amounts] : this->currency_storage().data()) {
+		if (cur_amounts.hand != 0 || cur_amounts.bank != 0) {
+			saved.printf("Curr: %s %ld %ld\n", cur_id.c_str(), cur_amounts.hand, cur_amounts.bank);
+		}
+	}
 	saved.printf("Ruble: %ld\n", get_ruble());
 	saved.printf("Wimp: %d\n", GET_WIMP_LEV(this));
 	saved.printf("Frez: %d\n", punishments::Get(this, punishments::EType::kFreeze).level);
@@ -1271,8 +1273,6 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 			case 'B':
 				if (!strcmp(tag, "Badp")) {
 					GET_BAD_PWS(this) = num;
-				} else if (!strcmp(tag, "Bank")) {
-					currencies::SetAmount(*this, currencies::kGold, lnum, currencies::EPurse::kBank, false);
 				} else if (!strcmp(tag, "Br01"))
 					set_board_date(Boards::GENERAL_BOARD, llnum);
 				else if (!strcmp(tag, "Br02"))
@@ -1311,7 +1311,14 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 				break;
 
 			case 'C':
-				if (!strcmp(tag, "Cha "))
+				if (!strcmp(tag, "Curr")) {
+					char cur_id[128] = {0};
+					long cur_hand = 0, cur_bank = 0;
+					if (sscanf(line, "%127s %ld %ld", cur_id, &cur_hand, &cur_bank) >= 1) {
+						currencies::SetHand(*this, cur_id, cur_hand, false);
+						currencies::SetBank(*this, cur_id, cur_bank, false);
+					}
+				} else if (!strcmp(tag, "Cha "))
 					this->set_cha(num);
 				else if (!strcmp(tag, "Chrm")) {
 					log("Load_char: Charmees loading");
@@ -1429,9 +1436,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 				break;
 
 			case 'G':
-				if (!strcmp(tag, "Gold")) {
-					currencies::SetAmount(*this, currencies::kGold, lnum, currencies::EPurse::kHand, false);
-				} else if (!strcmp(tag, "GodD"))
+				if (!strcmp(tag, "GodD"))
 					punishments::Get(this, punishments::EType::kGcurse).duration = lnum;
 				else if (!strcmp(tag, "GdFl"))
 					this->player_specials->saved.GodsLike = lnum;
@@ -1455,9 +1460,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 					GET_HR(this) = num;
 				else if (!strcmp(tag, "Hung"))
 					GET_COND(this, condition::kFull) = num;
-				else if (!strcmp(tag, "Hry ")) {
-					currencies::SetAmount(*this, currencies::kCopperGrivnaId, num);
-				} else if (!strcmp(tag, "Host"))
+				else if (!strcmp(tag, "Host"))
 					strcpy(this->player_specials->saved.LastIP, line);
 				break;
 
@@ -1469,9 +1472,6 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 				} else if (!strcmp(tag, "Ignr")) {
 					IgnoresLoader ignores_loader(this);
 					ignores_loader.load_from_string(line);
-				} else if (!strcmp(tag, "ICur")) {
-					currencies::SetAmount(*this, currencies::kMagicIceId, num);
-//				this->set_ice_currency(0); // чистка льда
 				}
 				break;
 
