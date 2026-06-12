@@ -2,6 +2,7 @@
 
 #include <random>
 #include "administration/privilege.h"
+#include "gameplay/core/experience.h"
 #include "engine/entities/char_data.h"
 #include "gameplay/affects/affect_handler.h"
 #include "gameplay/mechanics/alignment.h"
@@ -692,8 +693,8 @@ void perform_group_gain(CharData *ch, CharData *victim, int members, int koef) {
 
 
 // Странно, но для NPC эта функция тоже должна работать
-//  if (ch->IsNpc() || !OK_GAIN_EXP(ch,victim))
-	if (!OK_GAIN_EXP(ch, victim)) {
+//  if (ch->IsNpc() || !experience::OkGainExp(ch,victim))
+	if (!experience::OkGainExp(ch, victim)) {
 		SendMsgToChar("Ваше деяние никто не оценил.\r\n", ch);
 		return;
 	}
@@ -702,9 +703,9 @@ void perform_group_gain(CharData *ch, CharData *victim, int members, int koef) {
 	long long exp = victim->get_exp() / std::max(members, 1);
 	int long_live_exp_bounus_miltiplier = 1;
 
-	if (victim->get_zone_group() > 1 && members < victim->get_zone_group()) {
+	if (experience::GetZoneGroup(victim) > 1 && members < experience::GetZoneGroup(victim)) {
 		// в случае груп-зоны своего рода планка на мин кол-во человек в группе
-		exp = victim->get_exp() / victim->get_zone_group();
+		exp = victim->get_exp() / experience::GetZoneGroup(victim);
 	}
 	// 2. Учитывается коэффициент (лидерство, разность уровней)
 	//    На мой взгляд его правильней использовать тут а не в конце процедуры,
@@ -881,7 +882,7 @@ void group_gain(CharData *killer, CharData *victim) {
 			if (partner_count == 1) {
 				// и если кожф. больше или равен 100
 				if (koef >= 100) {
-					if (leader->get_zone_group() < 2) {
+					if (experience::GetZoneGroup(leader) < 2) {
 						koef += 100;
 					}
 				}

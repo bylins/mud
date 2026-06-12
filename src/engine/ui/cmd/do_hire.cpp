@@ -1,4 +1,5 @@
 #include "do_hire.h"
+#include "gameplay/core/remort.h"
 #include "administration/privilege.h"
 #include "gameplay/economics/currencies.h"
 #include "utils/grammar/declensions.h"

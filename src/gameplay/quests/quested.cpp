@@ -3,6 +3,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "quested.h"
+#include "administration/privilege.h"
 
 #include "utils/buffered_file_writer.h"
 

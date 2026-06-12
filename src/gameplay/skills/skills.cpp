@@ -8,6 +8,7 @@
 ************************************************************************ */
 
 #include "engine/db/obj_prototypes.h"
+#include "gameplay/core/experience.h"
 #include "gameplay/mechanics/minions.h"
 #include "gameplay/mechanics/mount.h"
 #include "engine/db/global_objects.h"
@@ -1933,7 +1934,7 @@ void ImproveSkill(CharData *ch, const ESkill skill, int success, CharData *victi
 	if (victim &&
 		(victim->IsFlagged(EMobFlag::kNoSkillTrain)
 			|| victim->IsFlagged(EMobFlag::kMounting)
-			|| !OK_GAIN_EXP(ch, victim)
+			|| !experience::OkGainExp(ch, victim)
 			|| (victim->get_master() && !victim->get_master()->IsNpc()))) {
 		return;
 	}

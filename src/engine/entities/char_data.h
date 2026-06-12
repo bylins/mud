@@ -494,7 +494,6 @@ class CharData : public ProtectedCharData {
 	 * \return поле group из зон файла данного моба
 	 * <= 1 - обычная зона (соло), >= 2 - групповая зона на указанное кол-во человек
 	 */
-	int get_zone_group() const;
 
 	/**
 	** Returns true if character is mob and located in used zone.
@@ -866,7 +865,6 @@ inline bool CAN_START_MTRIG(const CharData *ch) {
 	return !AFF_FLAGGED(ch, EAffect::kCharmed);
 }
 
-bool OK_GAIN_EXP(const CharData *ch, const CharData *victim);
 
 bool IS_MALE(const CharData *ch);
 inline bool IS_MALE(const CharData::shared_ptr &ch) { return IS_MALE(ch.get()); }
