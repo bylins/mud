@@ -843,15 +843,15 @@ void EndowExpToChar(CharData *ch, int gain) {
 	if (gain > 0 && GetRealLevel(ch) < kLvlImmortal) {
 		gain = std::min(max_exp_gain_pc(ch), gain);    // put a cap on the max gain per kill
 		ch->set_exp(ch->get_exp() + gain);
-		if (ch->get_exp() >= GetExpUntilNextLvl(ch, kLvlImmortal)) {
+		if (ch->get_exp() >= experience::GetExpUntilNextLvl(ch, kLvlImmortal)) {
 			if (!GET_GOD_FLAG(ch, EGf::kRemort) && remort::GetRealRemort(ch) < kMaxRemort) {
 					SendMsgToChar(ch, "%sПоздравляем, вы получили право на перевоплощение!%s\r\n",
 								  kColorBoldGrn, kColorNrm);
 				SET_BIT(ch->player_specials->saved.GodsLike, EGf::kRemort);
 			}
 		}
-		ch->set_exp(std::min(ch->get_exp(), GetExpUntilNextLvl(ch, kLvlImmortal) - 1));
-		while (GetRealLevel(ch) < kLvlImmortal && ch->get_exp() >= GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1)) {
+		ch->set_exp(std::min(ch->get_exp(), experience::GetExpUntilNextLvl(ch, kLvlImmortal) - 1));
+		while (GetRealLevel(ch) < kLvlImmortal && ch->get_exp() >= experience::GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1)) {
 			ch->set_level(ch->GetLevel() + 1);
 			num_levels++;
 			sprintf(local_buf, "%sВы достигли следующего уровня!%s\r\n", kColorWht, kColorNrm);
@@ -868,7 +868,7 @@ void EndowExpToChar(CharData *ch, int gain) {
 	} else if (gain < 0 && GetRealLevel(ch) < kLvlImmortal) {
 		gain = std::max(-max_exp_loss_pc(ch), gain);    // Cap max exp lost per death
 		ch->set_exp(ch->get_exp() + gain);
-		while (GetRealLevel(ch) > 1 && ch->get_exp() < GetExpUntilNextLvl(ch, GetRealLevel(ch))) {
+		while (GetRealLevel(ch) > 1 && ch->get_exp() < experience::GetExpUntilNextLvl(ch, GetRealLevel(ch))) {
 			ch->set_level(ch->GetLevel() - 1);
 			num_levels++;
 			sprintf(local_buf,
@@ -884,7 +884,7 @@ void EndowExpToChar(CharData *ch, int gain) {
 			mudlog(local_buf, BRF, kLvlImplementator, SYSLOG, true);
 		}
 	}
-	if ((ch->get_exp() < GetExpUntilNextLvl(ch, kLvlImmortal) - 1)
+	if ((ch->get_exp() < experience::GetExpUntilNextLvl(ch, kLvlImmortal) - 1)
 		&& GET_GOD_FLAG(ch, EGf::kRemort)
 		&& gain
 		&& (GetRealLevel(ch) < kLvlImmortal)) {
@@ -906,7 +906,7 @@ void gain_exp_regardless(CharData *ch, int gain) {
 	ch->set_exp(ch->get_exp() + gain);
 	if (!ch->IsNpc()) {
 		if (gain > 0) {
-			while (GetRealLevel(ch) < kLvlImplementator && ch->get_exp() >= GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1)) {
+			while (GetRealLevel(ch) < kLvlImplementator && ch->get_exp() >= experience::GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1)) {
 				ch->set_level(ch->GetLevel() + 1);
 				num_levels++;
 				sprintf(buf, "%sВы достигли следующего уровня!%s\r\n",
@@ -928,7 +928,7 @@ void gain_exp_regardless(CharData *ch, int gain) {
 			//			ch->get_exp() += gain;
 			//			if (ch->get_exp() < 0)
 			//				ch->get_exp() = 0;
-			while (GetRealLevel(ch) > 1 && ch->get_exp() < GetExpUntilNextLvl(ch, GetRealLevel(ch))) {
+			while (GetRealLevel(ch) > 1 && ch->get_exp() < experience::GetExpUntilNextLvl(ch, GetRealLevel(ch))) {
 				ch->set_level(ch->GetLevel() - 1);
 				num_levels++;
 				sprintf(buf,
@@ -1746,7 +1746,7 @@ void gain_battle_exp(CharData *ch, CharData *victim, int dam) {
 	// получение игроками экспы
 	if (!ch->IsNpc() && experience::OkGainExp(ch, victim)) {
 		int max_exp = std::min(max_exp_gain_pc(ch), (GetRealLevel(victim) * victim->get_max_hit() + 4) /
-			(5 * std::max(1, remort::GetRealRemort(ch) - kMaxExpCoefficientsUsed - 1)));
+			(5 * std::max(1, remort::GetRealRemort(ch) - experience::kMaxExpCoefficientsUsed - 1)));
 		double coeff = std::min(dam, victim->get_hit()) / static_cast<double>(victim->get_max_hit());
 		int battle_exp = std::max(1, static_cast<int>(max_exp * coeff));
 		if (Bonus::is_bonus_active(Bonus::EBonusType::BONUS_WEAPON_EXP) && Bonus::can_get_bonus_exp(ch)) {
@@ -1762,7 +1762,7 @@ void gain_battle_exp(CharData *ch, CharData *victim, int dam) {
 		// проверяем что есть мастер и он может получать экспу с данной цели
 		if (master && experience::OkGainExp(master, victim)) {
 			int max_exp = std::min(max_exp_gain_pc(master), (GetRealLevel(victim) * victim->get_max_hit() + 4) /
-				(5 * std::max(1, remort::GetRealRemort(master) - kMaxExpCoefficientsUsed - 1)));
+				(5 * std::max(1, remort::GetRealRemort(master) - experience::kMaxExpCoefficientsUsed - 1)));
 
 			double coeff = std::min(dam, victim->get_hit()) / static_cast<double>(victim->get_max_hit());
 			int battle_exp = std::max(1, static_cast<int>(max_exp * coeff));

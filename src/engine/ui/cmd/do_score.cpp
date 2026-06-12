@@ -7,6 +7,7 @@
  */
 
 #include "engine/ui/color.h"
+#include "gameplay/core/experience.h"
 #include "gameplay/mechanics/condition.h"
 #include "administration/privilege.h"
 #include "gameplay/economics/currencies.h"
@@ -199,7 +200,7 @@ void PrintScoreList(CharData *ch) {
 				  currencies::GetBank(*ch, currencies::kGold),
 				  MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(currencies::GetBank(*ch, currencies::kGold)).c_str(),
 				  ch->get_exp(),
-				  privilege::IsImmortal(ch) ? 1 : GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1) - ch->get_exp());
+				  privilege::IsImmortal(ch) ? 1 : experience::GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1) - ch->get_exp());
 	if (!mount::IsOnHorse(ch))
 		SendMsgToChar(ch, "Ваша позиция: %s", GetPositionStr(ch));
 	else
@@ -510,7 +511,7 @@ int PrintBaseInfoToTable(CharData *ch, table_wrapper::Table &table, std::size_t 
 	if (ch->GetLevel() < kLvlImmortal) {
 		table[++row][col] = std::string("Опыт: ") + PrintNumberByDigits(ch->get_exp());
 		table[++row][col] = std::string("ДСУ: ") + PrintNumberByDigits(
-			GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1) - ch->get_exp());
+			experience::GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1) - ch->get_exp());
 	}
 	table[++row][col] = MUD::Currency(currencies::kGoldVnum).GetPluralName(grammar::ECase::kGen) + ": " + PrintNumberByDigits(currencies::GetHand(*ch, currencies::kGold));
 	table[++row][col] = std::string("На счету: ") + PrintNumberByDigits(currencies::GetBank(*ch, currencies::kGold));
@@ -781,8 +782,8 @@ void PrintScoreBase(CharData *ch) {
 		}
 		sprintf(buf + strlen(buf),
 				"Вам осталось набрать %ld %s до следующего уровня.\r\n",
-				GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1) - ch->get_exp(),
-				grammar::GetDeclensionInNumber(GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1) - ch->get_exp(), grammar::EWhat::kPoint));
+				experience::GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1) - ch->get_exp(),
+				grammar::GetDeclensionInNumber(experience::GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1) - ch->get_exp(), grammar::EWhat::kPoint));
 	} else
 		sprintf(buf + strlen(buf), "\r\n");
 

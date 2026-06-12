@@ -19,6 +19,13 @@ int GetZoneGroup(const CharData *ch);
 // Whether killing `victim` may grant `ch` experience (name ok, not on arena, real mob, ...).
 bool OkGainExp(const CharData *ch, const CharData *victim);
 
+
+// Experience needed to reach `level` (per-class/level table, scaled by remort count).
+long GetExpUntilNextLvl(CharData *ch, int level);
+
+// Number of changing remort exp coefficients (the rest are unchanged).
+const int kMaxExpCoefficientsUsed = 15;
+
 }  // namespace experience
 
 #endif  // BYLINS_SRC_GAMEPLAY_CORE_EXPERIENCE_H_

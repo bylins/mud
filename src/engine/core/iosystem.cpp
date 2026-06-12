@@ -7,6 +7,7 @@
 */
 
 #include "engine/core/iosystem.h"
+#include "gameplay/core/experience.h"
 #include "administration/privilege.h"
 #include "utils/utils_encoding.h"
 #include "utils/grammar/gender.h"
@@ -1130,7 +1131,7 @@ std::string MakePrompt(DescriptorData *d) {
 				fmt::format_to(std::back_inserter(out), "??? ");
 			} else {
 				fmt::format_to(std::back_inserter(out), "{}o ",
-						  GetExpUntilNextLvl(ch.get(), GetRealLevel(ch) + 1) - ch->get_exp());
+						  experience::GetExpUntilNextLvl(ch.get(), GetRealLevel(ch) + 1) - ch->get_exp());
 			}
 		}
 

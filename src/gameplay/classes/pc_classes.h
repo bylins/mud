@@ -13,7 +13,6 @@ int invalid_no_class(CharData *ch, const ObjData *obj);
 int invalid_anti_class_proto(CharData *ch, const CObjectPrototype *obj);
 int invalid_no_class_proto(CharData *ch, const CObjectPrototype *obj);
 int GetExtraDamroll(ECharClass class_id, int level);
-long GetExpUntilNextLvl(CharData *ch, int level);
 int GetExtraAc0(ECharClass class_id, int level);
 ECharClass FindAvailableCharClassId(const std::string &class_name);
 

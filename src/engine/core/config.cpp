@@ -15,6 +15,7 @@
 #define __CONFIG_C__
 
 #include "config.h"
+#include "gameplay/core/experience.h"
 #include "administration/privilege.h"
 #include "utils/utils_encoding.h"
 #include "common_messages.h"
@@ -64,7 +65,6 @@ using ETelemetryLogMode = RuntimeConfiguration::ETelemetryLogMode;
  * efficency of doing it the other way.
  *
  */
-long GetExpUntilNextLvl(CharData *ch, int level);
 
 // GAME PLAY OPTIONS
 
@@ -297,14 +297,14 @@ const char *START_MESSG =
 int max_exp_gain_pc(CharData *ch) {
 	int result = 1;
 	if (!ch->IsNpc()) {
-		int max_per_lev = GetExpUntilNextLvl(ch, ch->GetLevel() + 1) - GetExpUntilNextLvl(ch, ch->GetLevel() + 0); //тут берем левел без плюсов от стафа
+		int max_per_lev = experience::GetExpUntilNextLvl(ch, ch->GetLevel() + 1) - experience::GetExpUntilNextLvl(ch, ch->GetLevel() + 0); //тут берем левел без плюсов от стафа
 		result = max_per_lev / (10 + remort::GetRealRemort(ch));
 	}
 	return result;
 }
 
 int max_exp_loss_pc(CharData *ch) {
-	return (ch->IsNpc() ? 1 : (GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1) - GetExpUntilNextLvl(ch, GetRealLevel(ch) + 0)) / 3);
+	return (ch->IsNpc() ? 1 : (experience::GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1) - experience::GetExpUntilNextLvl(ch, GetRealLevel(ch) + 0)) / 3);
 }
 
 int calc_loadroom(const CharData *ch, int bplace_mode /*= BIRTH_PLACE_UNDEFINED*/) {

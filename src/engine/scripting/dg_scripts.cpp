@@ -9,6 +9,7 @@
 **************************************************************************/
 
 #include "dg_scripts.h"
+#include "gameplay/core/experience.h"
 #include "gameplay/mechanics/groups.h"
 #include "gameplay/economics/currencies.h"
 #include "engine/db/global_objects.h"
@@ -55,7 +56,6 @@
 #include "gameplay/core/remort.h"
 
 extern int max_exp_gain_pc(CharData *ch);
-extern long GetExpUntilNextLvl(CharData *ch, int level);
 extern int CalcSaving(CharData *killer, CharData *victim, ESaving saving, bool need_log);
 extern std::list<combat_list_element> combat_list;
 
@@ -2646,7 +2646,7 @@ void find_replacement(void *go,
 		} else if (!str_cmp(field, "MaxGainExp")) {
 			snprintf(str, str_size, "%ld", (long) max_exp_gain_pc(mob));
 		} else if (!str_cmp(field, "TnlExp")) {
-			snprintf(str, str_size, "%ld", GetExpUntilNextLvl(mob, mob->GetLevel() + 1) - mob->get_exp());
+			snprintf(str, str_size, "%ld", experience::GetExpUntilNextLvl(mob, mob->GetLevel() + 1) - mob->get_exp());
 		} else if (!str_cmp(field, "sex")) {
 			snprintf(str, str_size, "%d", (int) mob->get_sex());
 		} else if (!str_cmp(field, "clan")) {

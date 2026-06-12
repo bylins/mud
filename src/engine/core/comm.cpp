@@ -562,7 +562,6 @@ void medit_save_to_disk(int zone_num);
 void zedit_save_to_disk(int zone_num);
 void Crash_ldsave(CharData *ch);
 void Crash_save_all_rent();
-long GetExpUntilNextLvl(CharData *ch, int level);
 unsigned long TxtToIp(const char *text);
 
 #ifdef __CXREF__
