@@ -20,6 +20,7 @@
  */
 #include "pc_classes.h"
 #include "administration/privilege.h"
+#include "gameplay/core/remort.h"
 #include "gameplay/mechanics/condition.h"
 #include "gameplay/mechanics/minions.h"
 

@@ -1,4 +1,5 @@
 #include "engine/ui/color.h"
+#include "gameplay/core/remort.h"
 #include "engine/core/handler.h"
 #include "gameplay/mechanics/player_races.h"
 #include "engine/db/global_objects.h"
