@@ -64,39 +64,7 @@ static void KeeperNoMoneyReaction(CharData *keeper, CharData *ch) {
 int spent_today = 0;
 
 bool check_money(CharData *ch, long price, const std::string &currency) {
-	if (currency == "слава") {
-		const auto total_glory = currencies::GetAmount(*ch, currencies::kGlory);
-		return total_glory >= price;
-	}
-
-	if (currency == "куны") {
-		return currencies::GetAmount(*ch, currencies::kGold) >= price;
-	}
-
-	if (currency == "лед") {
-		return currencies::GetAmount(*ch, currencies::kMagicIceId) >= price;
-	}
-	if (currency == "гривны") {
-		return currencies::GetAmount(*ch, currencies::kCopperGrivnaId) >= price;
-	}
-	if (currency == "ногаты") {
-		return currencies::GetAmount(*ch, currencies::kNogataId) >= price;
-	}
-
-	return false;
-}
-
-// TEMPORARY (issue.remort): the new currency system (currencies.h) is keyed by a
-// numeric currency vnum, but shops still identify the currency by its Russian
-// name string. Until shops are migrated onto the currency system, map that
-// legacy name -> currency vnum here and read the display name from
-// MUD::Currencies(). Replaces the retired ExtMoney::name_currency_plural().
-int currency_vnum_by_name(const std::string &name) {
-	if (name == "слава") return ::currency::GLORY;
-	if (name == "лед") return ::currency::ICE;
-	if (name == "гривны") return ::currency::TORC;
-	if (name == "ногаты") return ::currency::NOGATA;
-	return ::currency::GOLD; // "куны" and fallback
+	return currencies::GetHand(*ch, currency) >= price;
 }
 
 void GoodsStorage::ObjectUIDChangeObserver::notify(ObjData &object, const int old_uid) {
@@ -349,7 +317,7 @@ void shop_node::process_buy(CharData *ch, CharData *keeper, char *argument) {
 	const long price = item->get_price();
 	if (!check_money(ch, price, currency)) {
 		tell_to_char(keeper, ch, fmt::format(fmt::runtime(ShopMsg(ESM::kCantAfford)),
-				fmt::arg("currency", MUD::Currencies()[currency_vnum_by_name(currency)].GetPluralName(grammar::ECase::kGen))).c_str());
+				fmt::arg("currency", MUD::Currencies().FindAvailableItem(currency).GetPluralName(grammar::ECase::kGen))).c_str());
 		KeeperNoMoneyReaction(keeper, ch);
 		return;
 	}
@@ -398,41 +366,26 @@ void shop_node::process_buy(CharData *ch, CharData *keeper, char *argument) {
 			}
 			PlaceObjToInventory(obj, ch);
 			obj->set_where_obj(EWhereObj::kCharInventory);
-			if (currency == "слава") {
-				// книги за славу не фейлим
-				if (EObjType::kBook == obj->get_type()) {
-					obj->set_extra_flag(EObjFlag::kNofail);
-				}
-				// снятие и логирование славы
+			// книги, купленные не за основную валюту (золото), не ломаются
+			if (currency != currencies::kGold && EObjType::kBook == obj->get_type()) {
+				obj->set_extra_flag(EObjFlag::kNofail);
+			}
+			currencies::RemoveHand(*ch, currency, price);
+			if (currency == currencies::kGlory) {
+				// учёт постоянной славы во внешнем хранилище GloryConst
 				GloryConst::add_total_spent(price);
-				currencies::RemoveAmount(*ch, currencies::kGlory, price);
 				GloryConst::transfer_log("%s bought %s for %ld const glory",
 										 GET_NAME(ch), proto->get_PName(grammar::ECase::kNom).c_str(), price);
-			} else if (currency == "лед") {
-				// книги за лед, как и за славу, не фейлим
-				if (EObjType::kBook == obj->get_type()) {
-					obj->set_extra_flag(EObjFlag::kNofail);
-				}
-				currencies::RemoveAmount(*ch, currencies::kMagicIceId, price);
-			} else if (currency == "ногаты") {
-				// книги за лед, как и за славу, не фейлим
-				if (EObjType::kBook == obj->get_type()) {
-					obj->set_extra_flag(EObjFlag::kNofail);
-				}
-				currencies::RemoveAmount(*ch, currencies::kNogataId, price);
-			} else if (currency == "гривны") {
-				if (EObjType::kBook == obj->get_type()) {
-					obj->set_extra_flag(EObjFlag::kNofail);
-				}
-				currencies::RemoveAmount(*ch, currencies::kCopperGrivnaId, price);
+			} else if (currency == currencies::kGold) {
+				spent_today += price;
+			}
+			// валюта дневного задания: трата сбрасывает дневное задание
+			if (MUD::Currencies().FindAvailableItem(currency).IsDailyQuest()) {
 				ch->spent_hryvn_sub(price);
 				if (ch->get_spent_hryvn() > 1000) {
 					SendMsgToChar(ShopMsg(ESM::kHryvnReset) + "\r\n", ch);
 					ch->reset_daily_quest();
 				}
-			} else {
-				currencies::RemoveAmount(*ch, currencies::kGold, price);
-				spent_today += price;
 			}
 			++bought;
 
@@ -462,15 +415,7 @@ void shop_node::process_buy(CharData *ch, CharData *keeper, char *argument) {
 
 		tell_to_char(keeper, ch, reply.c_str());
 	}
-	auto suffix = grammar::GetDeclensionInNumber(total_money, grammar::EWhat::kMoneyU);
-	if (currency == "лед")
-		suffix = MUD::Currency(currencies::kSnowflakeVnum).GetNameWithAmount(total_money, grammar::ECase::kAcc).c_str();
-	if (currency == "слава")
-		suffix = MUD::Currency(currencies::kGloryVnum).GetNameWithAmount(total_money, grammar::ECase::kAcc).c_str();
-	if (currency == "гривны")
-		suffix = MUD::Currency(currencies::kCopperGrivnaVnum).GetNameWithAmount(total_money, grammar::ECase::kAcc).c_str();
-	if (currency == "ногаты")
-		suffix = MUD::Currency(currencies::kNogataVnum).GetNameWithAmount(total_money, grammar::ECase::kAcc).c_str();
+	const std::string suffix = MUD::Currencies().FindAvailableItem(currency).GetNameWithAmount(total_money, grammar::ECase::kAcc);
 
 	tell_to_char(keeper, ch, fmt::format(fmt::runtime(ShopMsg(ESM::kPrice)),
 			fmt::arg("amount", total_money), fmt::arg("currency", suffix)).c_str());

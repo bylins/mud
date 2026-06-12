@@ -436,6 +436,15 @@ const CurrencyInfo *FindBySearch(const std::string &word) {
 	}
 	return nullptr;
 }
+
+const CurrencyInfo *FindDailyQuestCurrency() {
+	for (const auto &cur : MUD::Currencies()) {
+		if (cur.GetId() >= 0 && cur.IsDailyQuest()) {
+			return &cur;
+		}
+	}
+	return nullptr;
+}
 } // namespace currencies
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

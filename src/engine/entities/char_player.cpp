@@ -211,9 +211,10 @@ void Player::dquest(const int id) {
 	} else if (zone_table[world[this->in_room]->zone_rn].under_construction) {
 		SendMsgToChar(this, "Зона тестовая, вашу гривну отобрали боги.\r\n");
 	} else {
-		const long added = currencies::AddAmount(*this, currencies::kCopperGrivnaId, value, currencies::EPurse::kHand, true);
+		const auto *dq_cur = currencies::FindDailyQuestCurrency();
+		const long added = dq_cur ? currencies::AddHand(*this, dq_cur->GetTextId(), value, true) : 0;
 		if (added > 0) {
-			log("Персонаж %s получил %ld [гривны].", GET_NAME(this), added);
+			log("Персонаж %s получил %ld единиц награды дневного задания.", GET_NAME(this), added);
 		}
 	}
 	this->account->complete_quest(id);
