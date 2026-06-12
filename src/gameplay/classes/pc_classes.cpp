@@ -19,6 +19,7 @@
  * the appropriate new special cases for your new class.
  */
 #include "pc_classes.h"
+#include "gameplay/core/remort.h"
 #include "gameplay/mechanics/condition.h"
 #include "gameplay/mechanics/minions.h"
 
