@@ -10,6 +10,7 @@
 
 #include "exchange.h"
 #include "administration/privilege.h"
+#include "engine/db/global_objects.h"
 #include "gameplay/economics/currencies.h"
 #include "gameplay/mechanics/sight.h"
 #include "utils/grammar/gender.h"
@@ -288,9 +289,9 @@ int exchange_exhibit(CharData *ch, char *arg) {
 	GET_EXCHANGE_ITEM(item) = obj;
 	RemoveObjFromChar(obj);
 
-	snprintf(tmpbuf, kMaxInputLength, "%s", fmt::format(fmt::runtime(specials::ExchMsg(specials::EExchMsg::kExhibited)), fmt::arg("lot", GET_EXCHANGE_ITEM_LOT(item)), fmt::arg("amount", item_cost), fmt::arg("currency", grammar::GetDeclensionInNumber(item_cost, grammar::EWhat::kMoneyU))).c_str());
+	snprintf(tmpbuf, kMaxInputLength, "%s", fmt::format(fmt::runtime(specials::ExchMsg(specials::EExchMsg::kExhibited)), fmt::arg("lot", GET_EXCHANGE_ITEM_LOT(item)), fmt::arg("amount", item_cost), fmt::arg("currency", MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(item_cost, grammar::ECase::kNom).c_str())).c_str());
 	act(tmpbuf, false, ch, 0, obj, kToChar);
-	snprintf(tmpbuf, kMaxInputLength, "%s", (fmt::format(fmt::runtime(specials::ExchMsg(specials::EExchMsg::kBcastNew)), fmt::arg("lot", GET_EXCHANGE_ITEM_LOT(item)), fmt::arg("item", obj->get_PName(grammar::ECase::kNom)), fmt::arg("amount", item_cost), fmt::arg("currency", grammar::GetDeclensionInNumber(item_cost, grammar::EWhat::kMoneyA))) + "\r\n").c_str());
+	snprintf(tmpbuf, kMaxInputLength, "%s", (fmt::format(fmt::runtime(specials::ExchMsg(specials::EExchMsg::kBcastNew)), fmt::arg("lot", GET_EXCHANGE_ITEM_LOT(item)), fmt::arg("item", obj->get_PName(grammar::ECase::kNom)), fmt::arg("amount", item_cost), fmt::arg("currency", MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(item_cost, grammar::ECase::kNom).c_str())) + "\r\n").c_str());
 	message_exchange(tmpbuf, ch, item);
 
 	currencies::RemoveTotal(*ch, currencies::kGold, tax);
@@ -353,9 +354,9 @@ int exchange_change_cost(CharData *ch, char *arg) {
 		currencies::RemoveTotal(*ch, currencies::kGold, static_cast<long>(pay * EXCHANGE_EXHIBIT_PAY_COEFF));
 	}
 
-	snprintf(tmpbuf, kMaxInputLength, "%s", (fmt::format(fmt::runtime(specials::ExchMsg(specials::EExchMsg::kCostSet)), fmt::arg("amount", newcost), fmt::arg("currency", grammar::GetDeclensionInNumber(newcost, grammar::EWhat::kMoneyU)), fmt::arg("item", GET_EXCHANGE_ITEM(item)->get_PName(grammar::ECase::kAcc)), fmt::arg("lot", GET_EXCHANGE_ITEM_LOT(item))) + "\r\n").c_str());
+	snprintf(tmpbuf, kMaxInputLength, "%s", (fmt::format(fmt::runtime(specials::ExchMsg(specials::EExchMsg::kCostSet)), fmt::arg("amount", newcost), fmt::arg("currency", MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(newcost, grammar::ECase::kNom).c_str()), fmt::arg("item", GET_EXCHANGE_ITEM(item)->get_PName(grammar::ECase::kAcc)), fmt::arg("lot", GET_EXCHANGE_ITEM_LOT(item))) + "\r\n").c_str());
 	SendMsgToChar(tmpbuf, ch);
-	snprintf(tmpbuf, kMaxInputLength, "%s", (fmt::format(fmt::runtime(specials::ExchMsg(specials::EExchMsg::kBcastNewCost)), fmt::arg("lot", GET_EXCHANGE_ITEM_LOT(item)), fmt::arg("item", GET_EXCHANGE_ITEM(item)->get_PName(grammar::ECase::kNom)), fmt::arg("amount", newcost), fmt::arg("currency", grammar::GetDeclensionInNumber(newcost, grammar::EWhat::kMoneyA))) + "\r\n").c_str());
+	snprintf(tmpbuf, kMaxInputLength, "%s", (fmt::format(fmt::runtime(specials::ExchMsg(specials::EExchMsg::kBcastNewCost)), fmt::arg("lot", GET_EXCHANGE_ITEM_LOT(item)), fmt::arg("item", GET_EXCHANGE_ITEM(item)->get_PName(grammar::ECase::kNom)), fmt::arg("amount", newcost), fmt::arg("currency", MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(newcost, grammar::ECase::kNom).c_str())) + "\r\n").c_str());
 	message_exchange(tmpbuf, ch, item);
 	SetWait(ch, 2, false);
 
@@ -508,7 +509,7 @@ int exchange_identify(CharData *ch, char *arg) {
 	}
 	MortShowObjValues(GET_EXCHANGE_ITEM(item), ch, 200);    //400 - полное опознание
 	currencies::RemoveTotal(*ch, currencies::kGold, EXCHANGE_IDENT_PAY);
-	SendMsgToChar("\r\n" + fmt::format(fmt::runtime(specials::ExchMsg(specials::EExchMsg::kIdentCharged)), fmt::arg("color", kColorBoldGrn), fmt::arg("amount", EXCHANGE_IDENT_PAY), fmt::arg("currency", grammar::GetDeclensionInNumber(EXCHANGE_IDENT_PAY, grammar::EWhat::kMoneyU)), fmt::arg("nocolor", kColorNrm)) + "\r\n", ch);
+	SendMsgToChar("\r\n" + fmt::format(fmt::runtime(specials::ExchMsg(specials::EExchMsg::kIdentCharged)), fmt::arg("color", kColorBoldGrn), fmt::arg("amount", EXCHANGE_IDENT_PAY), fmt::arg("currency", MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(EXCHANGE_IDENT_PAY, grammar::ECase::kNom).c_str()), fmt::arg("nocolor", kColorNrm)) + "\r\n", ch);
 
 	return true;
 }
@@ -571,7 +572,7 @@ int exchange_purchase(CharData *ch, char *arg) {
 			currencies::RemoveTotal(*ch, currencies::kGold, GET_EXCHANGE_ITEM_COST(item));
 
 			act(specials::ExchMsg(specials::EExchMsg::kBought), false, ch, 0, GET_EXCHANGE_ITEM(item), kToChar);
-			snprintf(tmpbuf, kMaxInputLength, "%s", (fmt::format(fmt::runtime(specials::ExchMsg(specials::EExchMsg::kBcastSold)), fmt::arg("lot", lot), fmt::arg("item", GET_EXCHANGE_ITEM(item)->get_PName(grammar::ECase::kNom)), fmt::arg("suf", grammar::ObjSexEnding((GET_EXCHANGE_ITEM(item))->get_sex(), 6)), fmt::arg("amount", GET_EXCHANGE_ITEM_COST(item)), fmt::arg("currency", grammar::GetDeclensionInNumber(GET_EXCHANGE_ITEM_COST(item), grammar::EWhat::kMoneyU))) + "\r\n").c_str());
+			snprintf(tmpbuf, kMaxInputLength, "%s", (fmt::format(fmt::runtime(specials::ExchMsg(specials::EExchMsg::kBcastSold)), fmt::arg("lot", lot), fmt::arg("item", GET_EXCHANGE_ITEM(item)->get_PName(grammar::ECase::kNom)), fmt::arg("suf", grammar::ObjSexEnding((GET_EXCHANGE_ITEM(item))->get_sex(), 6)), fmt::arg("amount", GET_EXCHANGE_ITEM_COST(item)), fmt::arg("currency", MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(GET_EXCHANGE_ITEM_COST(item), grammar::ECase::kNom).c_str())) + "\r\n").c_str());
 
 			message_exchange(tmpbuf, ch, item);
 			if (stable_objs::IsTimerUnlimited(GET_EXCHANGE_ITEM(item))) // если нерушима фрешим таймер из прототипа
@@ -591,14 +592,14 @@ int exchange_purchase(CharData *ch, char *arg) {
 		currencies::RemoveTotal(*ch, currencies::kGold, GET_EXCHANGE_ITEM_COST(item));
 
 		if ((seller)->player_specials->saved.ntfyExchangePrice && GET_EXCHANGE_ITEM_COST(item) >= (seller)->player_specials->saved.ntfyExchangePrice) {
-			snprintf(tmpbuf, kMaxInputLength, "%s", (fmt::format(fmt::runtime(specials::ExchMsg(specials::EExchMsg::kSellerSold)), fmt::arg("lot", lot), fmt::arg("item", GET_EXCHANGE_ITEM(item)->get_PName(grammar::ECase::kNom)), fmt::arg("suf", grammar::ObjSexEnding((GET_EXCHANGE_ITEM(item))->get_sex(), 6)), fmt::arg("amount", GET_EXCHANGE_ITEM_COST(item)), fmt::arg("currency", grammar::GetDeclensionInNumber(GET_EXCHANGE_ITEM_COST(item), grammar::EWhat::kMoneyA))) + "\r\n").c_str());
+			snprintf(tmpbuf, kMaxInputLength, "%s", (fmt::format(fmt::runtime(specials::ExchMsg(specials::EExchMsg::kSellerSold)), fmt::arg("lot", lot), fmt::arg("item", GET_EXCHANGE_ITEM(item)->get_PName(grammar::ECase::kNom)), fmt::arg("suf", grammar::ObjSexEnding((GET_EXCHANGE_ITEM(item))->get_sex(), 6)), fmt::arg("amount", GET_EXCHANGE_ITEM_COST(item)), fmt::arg("currency", MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(GET_EXCHANGE_ITEM_COST(item), grammar::ECase::kNom).c_str())) + "\r\n").c_str());
 			mail::add_by_id(GET_EXCHANGE_ITEM_SELLERID(item), -1, tmpbuf);
 		}
 
 		seller->save_char();
 
 		act(specials::ExchMsg(specials::EExchMsg::kBought), false, ch, 0, GET_EXCHANGE_ITEM(item), kToChar);
-		snprintf(tmpbuf, kMaxInputLength, "%s", (fmt::format(fmt::runtime(specials::ExchMsg(specials::EExchMsg::kBcastSold)), fmt::arg("lot", lot), fmt::arg("item", GET_EXCHANGE_ITEM(item)->get_PName(grammar::ECase::kNom)), fmt::arg("suf", grammar::ObjSexEnding((GET_EXCHANGE_ITEM(item))->get_sex(), 6)), fmt::arg("amount", GET_EXCHANGE_ITEM_COST(item)), fmt::arg("currency", grammar::GetDeclensionInNumber(GET_EXCHANGE_ITEM_COST(item), grammar::EWhat::kMoneyU))) + "\r\n").c_str());
+		snprintf(tmpbuf, kMaxInputLength, "%s", (fmt::format(fmt::runtime(specials::ExchMsg(specials::EExchMsg::kBcastSold)), fmt::arg("lot", lot), fmt::arg("item", GET_EXCHANGE_ITEM(item)->get_PName(grammar::ECase::kNom)), fmt::arg("suf", grammar::ObjSexEnding((GET_EXCHANGE_ITEM(item))->get_sex(), 6)), fmt::arg("amount", GET_EXCHANGE_ITEM_COST(item)), fmt::arg("currency", MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(GET_EXCHANGE_ITEM_COST(item), grammar::ECase::kNom).c_str())) + "\r\n").c_str());
 		message_exchange(tmpbuf, ch, item);
 		if (stable_objs::IsTimerUnlimited(GET_EXCHANGE_ITEM(item))) // если нерушима фрешим таймер из прототипа
 			GET_EXCHANGE_ITEM(item)->set_timer(obj_proto.at(GET_EXCHANGE_ITEM(item)->get_rnum())->get_timer());
@@ -616,9 +617,9 @@ int exchange_purchase(CharData *ch, char *arg) {
 		currencies::RemoveTotal(*ch, currencies::kGold, GET_EXCHANGE_ITEM_COST(item));
 
 		act(specials::ExchMsg(specials::EExchMsg::kBought), false, ch, 0, GET_EXCHANGE_ITEM(item), kToChar);
-		snprintf(tmpbuf, kMaxInputLength, "%s", (fmt::format(fmt::runtime(specials::ExchMsg(specials::EExchMsg::kBcastSold)), fmt::arg("lot", lot), fmt::arg("item", GET_EXCHANGE_ITEM(item)->get_PName(grammar::ECase::kNom)), fmt::arg("suf", grammar::ObjSexEnding((GET_EXCHANGE_ITEM(item))->get_sex(), 6)), fmt::arg("amount", GET_EXCHANGE_ITEM_COST(item)), fmt::arg("currency", grammar::GetDeclensionInNumber(GET_EXCHANGE_ITEM_COST(item), grammar::EWhat::kMoneyU))) + "\r\n").c_str());
+		snprintf(tmpbuf, kMaxInputLength, "%s", (fmt::format(fmt::runtime(specials::ExchMsg(specials::EExchMsg::kBcastSold)), fmt::arg("lot", lot), fmt::arg("item", GET_EXCHANGE_ITEM(item)->get_PName(grammar::ECase::kNom)), fmt::arg("suf", grammar::ObjSexEnding((GET_EXCHANGE_ITEM(item))->get_sex(), 6)), fmt::arg("amount", GET_EXCHANGE_ITEM_COST(item)), fmt::arg("currency", MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(GET_EXCHANGE_ITEM_COST(item), grammar::ECase::kNom).c_str())) + "\r\n").c_str());
 		message_exchange(tmpbuf, seller, item);
-		snprintf(tmpbuf, kMaxInputLength, "%s", (fmt::format(fmt::runtime(specials::ExchMsg(specials::EExchMsg::kSellerSold)), fmt::arg("lot", lot), fmt::arg("item", GET_EXCHANGE_ITEM(item)->get_PName(grammar::ECase::kNom)), fmt::arg("suf", grammar::ObjSexEnding((GET_EXCHANGE_ITEM(item))->get_sex(), 6)), fmt::arg("amount", GET_EXCHANGE_ITEM_COST(item)), fmt::arg("currency", grammar::GetDeclensionInNumber(GET_EXCHANGE_ITEM_COST(item), grammar::EWhat::kMoneyA))) + "\r\n").c_str());
+		snprintf(tmpbuf, kMaxInputLength, "%s", (fmt::format(fmt::runtime(specials::ExchMsg(specials::EExchMsg::kSellerSold)), fmt::arg("lot", lot), fmt::arg("item", GET_EXCHANGE_ITEM(item)->get_PName(grammar::ECase::kNom)), fmt::arg("suf", grammar::ObjSexEnding((GET_EXCHANGE_ITEM(item))->get_sex(), 6)), fmt::arg("amount", GET_EXCHANGE_ITEM_COST(item)), fmt::arg("currency", MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(GET_EXCHANGE_ITEM_COST(item), grammar::ECase::kNom).c_str())) + "\r\n").c_str());
 		act(tmpbuf, false, seller, 0, nullptr, kToChar);
 
 		PlaceObjToInventory(GET_EXCHANGE_ITEM(item), ch);

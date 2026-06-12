@@ -108,7 +108,7 @@ void perform_give_gold(CharData *ch, CharData *vict, int amount) {
 		return;
 	}
 	SendMsgToChar(CommonMsg(ECommonMsg::kOk) + "\r\n", ch);
-	sprintf(buf, "$n дал$g вам %d %s.", amount, grammar::GetDeclensionInNumber(amount, grammar::EWhat::kMoneyU));
+	sprintf(buf, "$n дал$g вам %d %s.", amount, MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(amount, grammar::ECase::kNom).c_str());
 	act(buf, false, ch, nullptr, vict, kToVict);
 	sprintf(buf, "$n дал$g %s $N2.",
 			MUD::Currency(currencies::kGoldVnum).GetObjCName(amount, grammar::ECase::kAcc));
@@ -150,9 +150,9 @@ void perform_give_currency(CharData *ch, CharData *vict, const currencies::Curre
 		return;
 	}
 	SendMsgToChar(CommonMsg(ECommonMsg::kOk) + "\r\n", ch);
-	sprintf(buf, "$n дал$g вам %s.", cur.GetNameWithAmount(amount, grammar::ECase::kAcc).c_str());
+	sprintf(buf, "$n дал$g вам %d %s.", amount, cur.GetNameWithAmount(amount, grammar::ECase::kAcc).c_str());
 	act(buf, false, ch, nullptr, vict, kToVict);
-	sprintf(buf, "$n дал$g %s $N2.", cur.GetNameWithAmount(amount, grammar::ECase::kAcc).c_str());
+	sprintf(buf, "$n дал$g %d %s $N2.", amount, cur.GetNameWithAmount(amount, grammar::ECase::kAcc).c_str());
 	act(buf, true, ch, nullptr, vict, kToNotVict | kToArenaListen);
 	if (ch->IsNpc() || !privilege::IsImpl(ch)) {
 		currencies::RemoveHand(*ch, cur.GetTextId(), amount);

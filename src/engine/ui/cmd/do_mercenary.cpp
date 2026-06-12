@@ -2,6 +2,7 @@
 #include "administration/privilege.h"
 
 #include "engine/core/handler.h"
+#include "engine/db/global_objects.h"
 #include "gameplay/economics/currencies.h"
 #include "utils/grammar/declensions.h"
 #include "engine/entities/char_player.h"
@@ -90,7 +91,7 @@ void doBring(CharData *ch, CharData *boss, unsigned int pos, char *bank) {
 		if ((!isname(bank, "банк bank") && cost > currencies::GetHand(*ch, currencies::kGold)) ||
 			(isname(bank, "банк bank") && cost > currencies::GetBank(*ch, currencies::kGold))) {
 			tell_to_char(boss, ch, fmt::format(fmt::runtime(specials::MercMsg(specials::EMercMsg::kTooExpensive)),
-					fmt::arg("amount", cost), fmt::arg("currency", grammar::GetDeclensionInNumber(cost, grammar::EWhat::kMoneyU))).c_str());
+					fmt::arg("amount", cost), fmt::arg("currency", MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(cost, grammar::ECase::kNom).c_str())).c_str());
 			return;
 		}
 

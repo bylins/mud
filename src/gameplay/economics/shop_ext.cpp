@@ -3,6 +3,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "shop_ext.h"
+#include "gameplay/economics/currencies.h"
 #include "utils/grammar/declensions.h"
 #include "gameplay/ai/subcmd_resolver.h"
 #include "gameplay/ai/special_messages.h"
@@ -540,7 +541,7 @@ void DoStoreShop(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					SendMsgToChar(ch,
 								  "&GЗа информацию о предмете с вашего банковского счета сняли %d %s&n\r\n",
 								  kChestIdentPay,
-								  grammar::GetDeclensionInNumber(kChestIdentPay, grammar::EWhat::kMoneyU));
+								  MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(kChestIdentPay, grammar::ECase::kNom).c_str());
 					return;
 				}
 			}

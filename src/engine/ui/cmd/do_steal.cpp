@@ -8,6 +8,7 @@
 
 #include "engine/entities/char_data.h"
 #include "administration/privilege.h"
+#include "gameplay/economics/currencies.h"
 #include "utils/grammar/declensions.h"
 #include "gameplay/mechanics/mount.h"
 #include "engine/entities/obj_data.h"
@@ -173,7 +174,7 @@ void go_steal(CharData *ch, CharData *vict, char *obj_name) {
 				if (gold > 0) {
 					if (gold > 1) {
 						sprintf(buf, "УР-Р-Р-А! Вы таки сперли %d %s.\r\n",
-								gold, grammar::GetDeclensionInNumber(gold, grammar::EWhat::kMoneyU));
+								gold, MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(gold, grammar::ECase::kNom).c_str());
 						SendMsgToChar(buf, ch);
 					} else {
 						SendMsgToChar("УРА-А-А ! Вы сперли :) 1 (одну) куну :(.\r\n", ch);

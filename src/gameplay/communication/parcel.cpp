@@ -4,6 +4,7 @@
 
 #include "parcel.h"
 #include "administration/privilege.h"
+#include "gameplay/economics/currencies.h"
 #include "gameplay/mechanics/sight.h"
 #include "utils/grammar/gender.h"
 #include "utils/grammar/declensions.h"
@@ -347,8 +348,8 @@ void send(CharData *ch, CharData *mailman, long vict_uid, char *arg) {
 
 	if (!send_buffer.empty()) {
 		snprintf(buf, sizeof(buf), "с вас удержано %d %s и еще %d %s зарезервировано на 3 дня хранения.\r\n",
-				 send_cost_buffer, grammar::GetDeclensionInNumber(send_cost_buffer, grammar::EWhat::kMoneyA),
-				 send_reserved_buffer, grammar::GetDeclensionInNumber(send_reserved_buffer, grammar::EWhat::kMoneyA));
+				 send_cost_buffer, MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(send_cost_buffer, grammar::ECase::kNom).c_str(),
+				 send_reserved_buffer, MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(send_reserved_buffer, grammar::ECase::kNom).c_str());
 		send_buffer += buf;
 		SendMsgToChar(send_buffer.c_str(), ch);
 
@@ -377,7 +378,7 @@ void print_sending_stuff(CharData *ch) {
 				money += it3->money_;
 			}
 			out << kColorNrm
-				<< money << " " << grammar::GetDeclensionInNumber(money, grammar::EWhat::kMoneyA) << " зарезервировано на 3 дня хранения.\r\n";
+				<< money << " " << MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(money, grammar::ECase::kNom).c_str() << " зарезервировано на 3 дня хранения.\r\n";
 		}
 	}
 	if (print)
@@ -427,7 +428,7 @@ void return_money(std::string const &name, int money, bool add) {
 		if (add) {
 			currencies::AddBank(*vict, currencies::kGold, money);
 			SendMsgToChar(vict, "%sВы получили %d %s банковским переводом от почтовой службы%s.\r\n",
-						  kColorWht, money, grammar::GetDeclensionInNumber(money, grammar::EWhat::kMoneyU), kColorNrm);
+						  kColorWht, money, MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(money, grammar::ECase::kNom).c_str(), kColorNrm);
 		}
 	} else {
 		vict = new Player; // TODO: переделать на стек

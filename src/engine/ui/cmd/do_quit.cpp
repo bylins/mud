@@ -7,6 +7,7 @@
 */
 
 #include "engine/ui/cmd/do_quit.h"
+#include "engine/db/global_objects.h"
 #include "gameplay/economics/currencies.h"
 #include "utils/grammar/declensions.h"
 
@@ -70,7 +71,7 @@ void do_quit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			SendMsgToChar(ch,
 						  "За вещи в хранилище придется заплатить %ld %s в день.\r\n",
 						  depot_cost,
-						  grammar::GetDeclensionInNumber(depot_cost, grammar::EWhat::kMoneyU));
+						  MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(depot_cost, grammar::ECase::kNom).c_str());
 			long deadline = ((currencies::GetHand(*ch, currencies::kGold) + currencies::GetBank(*ch, currencies::kGold)) / depot_cost);
 			SendMsgToChar(ch, "Твоих денег хватит на %ld %s.\r\n", deadline,
 						  grammar::GetDeclensionInNumber(deadline, grammar::EWhat::kDay));

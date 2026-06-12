@@ -192,8 +192,10 @@ void PrintScoreList(CharData *ch) {
 				  GET_ARMOUR(ch),
 				  ac,
 				  GET_ABSORBE(ch));
-	SendMsgToChar(ch, "Вы имеете на руках: %s, на счету %s, опыт: %ld, ДСУ: %ld.\r\n",
+	SendMsgToChar(ch, "Вы имеете на руках: %ld %s, на счету %ld %s, опыт: %ld, ДСУ: %ld.\r\n",
+				  currencies::GetHand(*ch, currencies::kGold),
 				  MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(currencies::GetHand(*ch, currencies::kGold)).c_str(),
+				  currencies::GetBank(*ch, currencies::kGold),
 				  MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(currencies::GetBank(*ch, currencies::kGold)).c_str(),
 				  ch->get_exp(),
 				  privilege::IsImmortal(ch) ? 1 : GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1) - ch->get_exp());
@@ -288,7 +290,7 @@ void PrintGloryInfo(CharData *ch, std::ostringstream &out) {
 	auto glory = currencies::GetHand(*ch, currencies::kGlory);
 	if (glory > 0) {
 		out << InfoStrPrefix(ch) << "Вы заслужили "
-			<< MUD::Currency(currencies::kGloryVnum).GetNameWithAmount(glory, grammar::ECase::kGen) << "." << "\r\n";
+			<< glory << " " << MUD::Currency(currencies::kGloryVnum).GetNameWithAmount(glory, grammar::ECase::kGen) << "." << "\r\n";
 	}
 }
 
@@ -784,10 +786,12 @@ void PrintScoreBase(CharData *ch) {
 		sprintf(buf + strlen(buf), "\r\n");
 
 	sprintf(buf + strlen(buf),
-			"У вас на руках %s",
+			"У вас на руках %ld %s",
+			currencies::GetHand(*ch, currencies::kGold),
 			MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(currencies::GetHand(*ch, currencies::kGold)).c_str());
 	if (currencies::GetBank(*ch, currencies::kGold) > 0)
-		sprintf(buf + strlen(buf), " (и еще %s припрятано в лежне).\r\n",
+		sprintf(buf + strlen(buf), " (и еще %ld %s припрятано в лежне).\r\n",
+				currencies::GetBank(*ch, currencies::kGold),
 				MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(currencies::GetBank(*ch, currencies::kGold)).c_str());
 	else
 		strncat(buf, ".\r\n", sizeof(buf) - strlen(buf) - 1);
@@ -810,8 +814,8 @@ void PrintScoreBase(CharData *ch) {
 
 	int glory = currencies::GetHand(*ch, currencies::kGlory);
 	if (glory) {
-		sprintf(buf + strlen(buf), "Вы заслужили %s.\r\n",
-				MUD::Currency(currencies::kGloryVnum).GetNameWithAmount(glory, grammar::ECase::kGen).c_str());
+		sprintf(buf + strlen(buf), "Вы заслужили %d %s.\r\n",
+				glory, MUD::Currency(currencies::kGloryVnum).GetNameWithAmount(glory, grammar::ECase::kGen).c_str());
 	}
 
 	TimeInfoData playing_time = *CalcRealTimePassed((time(nullptr) - ch->player_data.time.logon) + ch->player_data.time.played, 0);

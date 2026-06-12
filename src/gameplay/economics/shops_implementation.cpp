@@ -750,7 +750,7 @@ void shop_node::process_ident(CharData *ch, CharData *keeper, char *argument, co
 		} else {
 			tell_to_char(keeper, ch, fmt::format(fmt::runtime(ShopMsg(ESM::kIdentCost)),
 					fmt::arg("amount", IDENTIFY_COST),
-					fmt::arg("currency", grammar::GetDeclensionInNumber(IDENTIFY_COST, grammar::EWhat::kMoneyU))).c_str());
+					fmt::arg("currency", MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(IDENTIFY_COST, grammar::ECase::kNom).c_str())).c_str());
 
 			SendMsgToChar(fmt::format(fmt::runtime(ShopMsg(ESM::kIdentResult)),
 					fmt::arg("item", ident_obj->get_PName(grammar::ECase::kNom))) + "\r\n", ch);
@@ -974,7 +974,7 @@ void shop_node::do_shop_cmd(CharData *ch, CharData *keeper, ObjData *obj, std::s
 		} else {
 			tell_to_char(keeper, ch, fmt::format(fmt::runtime(ShopMsg(ESM::kValueOffer)),
 					fmt::arg("item", obj->get_PName(grammar::ECase::kAcc)), fmt::arg("amount", buy_price),
-					fmt::arg("currency", grammar::GetDeclensionInNumber(buy_price, grammar::EWhat::kMoneyU))).c_str());
+					fmt::arg("currency", MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(buy_price, grammar::ECase::kNom).c_str())).c_str());
 		}
 	}
 
@@ -996,7 +996,7 @@ void shop_node::do_shop_cmd(CharData *ch, CharData *keeper, ObjData *obj, std::s
 			RemoveObjFromChar(obj);
 			tell_to_char(keeper, ch, fmt::format(fmt::runtime(ShopMsg(ESM::kSellPaid)),
 					fmt::arg("item", obj->get_PName(grammar::ECase::kAcc)), fmt::arg("amount", buy_price),
-					fmt::arg("currency", grammar::GetDeclensionInNumber(buy_price, grammar::EWhat::kMoneyU))).c_str());
+					fmt::arg("currency", MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(buy_price, grammar::ECase::kNom).c_str())).c_str());
 			currencies::AddHand(*ch, currencies::kGold, buy_price);
 			put_item_to_shop(obj);
 			obj->set_where_obj(EWhereObj::kSeller);
@@ -1052,7 +1052,7 @@ void shop_node::do_shop_cmd(CharData *ch, CharData *keeper, ObjData *obj, std::s
 		}
 		std::string tell = fmt::format(fmt::runtime(ShopMsg(ESM::kRepairCost)),
 				fmt::arg("item", obj->get_PName(grammar::ECase::kGen)), fmt::arg("amount", repair_price),
-				fmt::arg("currency", grammar::GetDeclensionInNumber(repair_price, grammar::EWhat::kMoneyU)));
+				fmt::arg("currency", MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(repair_price, grammar::ECase::kNom).c_str()));
 		tell_to_char(keeper, ch, tell.c_str());
 
 		if (!privilege::IsGod(ch) && repair_price > currencies::GetHand(*ch, currencies::kGold)) {

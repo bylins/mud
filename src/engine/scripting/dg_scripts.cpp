@@ -2620,7 +2620,7 @@ void find_replacement(void *go,
 						GET_PAD(mob, 0),
 						GET_ROOM_VNUM(mob->in_room),
 						value,
-						grammar::GetDeclensionInNumber(value, grammar::EWhat::kMoneyU),
+						MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(value, grammar::ECase::kNom).c_str(),
 						GET_TRIG_NAME(trig),
 						GET_TRIG_VNUM(trig));
 				mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
