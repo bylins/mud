@@ -8,15 +8,16 @@
 
 #include "engine/entities/char_data.h"
 #include "gameplay/economics/currencies.h"
+#include "engine/db/global_objects.h"
 #include "utils/grammar/declensions.h"
 
 void do_gold(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	if (currencies::GetAmount(*ch, currencies::kGold) == 0)
+	const long amount = currencies::GetHand(*ch, currencies::kGold);
+	if (amount == 0) {
 		SendMsgToChar("Вы разорены!\r\n", ch);
-	else if (currencies::GetAmount(*ch, currencies::kGold) == 1)
-		SendMsgToChar("У вас есть всего лишь одна куна.\r\n", ch);
-	else {
-		sprintf(buf, "У Вас есть %ld %s.\r\n", currencies::GetAmount(*ch, currencies::kGold), grammar::GetDeclensionInNumber(currencies::GetAmount(*ch, currencies::kGold), grammar::EWhat::kMoneyA));
+	} else {
+		sprintf(buf, "У Вас есть %s.\r\n",
+			MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(amount, grammar::ECase::kNom).c_str());
 		SendMsgToChar(buf, ch);
 	}
 }

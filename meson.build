@@ -761,6 +761,7 @@ main_sources = files(
   'src/engine/ui/cmd/do_who_am_i.cpp',
   'src/engine/ui/cmd/do_generic_page.cpp',
   'src/engine/ui/cmd/do_gold.cpp',
+  'src/engine/ui/cmd/do_money.cpp',
   'src/engine/ui/cmd/do_check_invoice.cpp',
   'src/gameplay/communication/check_invoice.cpp',
   'src/engine/ui/cmd/do_quest.cpp',
