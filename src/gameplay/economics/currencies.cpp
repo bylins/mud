@@ -39,6 +39,63 @@ void CurrenciesLoader::Reload(DataNode data) {
 	MUD::Currencies().Reload(data.Children());
 }
 
+std::string CurrenciesLoader::EditableWhat() const {
+	return "currency";
+}
+
+std::vector<cfg_manager::EditableElement> CurrenciesLoader::ListElements() const {
+	std::vector<cfg_manager::EditableElement> out;
+	for (const auto &cur : MUD::Currencies()) {
+		if (cur.GetId() < 0 || cur.IsLocked()) {  // hide the kUndefined sentinel and locked (kuna/glory) currencies
+			continue;
+		}
+		out.push_back({std::to_string(cur.GetId()), cur.GetTextId() + " " + cur.GetName()});
+	}
+	return out;
+}
+
+cfg_manager::ValidationResult CurrenciesLoader::Validate(parser_wrapper::DataNode &doc) const {
+	if (MUD::Currencies().Validate(doc.Children())) {
+		return {true, ""};
+	}
+	return {false, "Currency data failed to parse (see syslog for the offending currency)."};
+}
+
+parser_wrapper::DataNode CurrenciesLoader::FindElementNode(parser_wrapper::DataNode root, const std::string &id) const {
+	// A <currency> is keyed by its integer vnum (it carries no `id` attribute).
+	for (auto &child : root.Children()) {
+		if (std::string(child.GetName()) == "currency" && id == child.GetValue("vnum")) {
+			return child;
+		}
+	}
+	return parser_wrapper::DataNode{};
+}
+
+std::string CurrenciesLoader::CanonicalElementId(const std::string &id) const {
+	if (id.empty()) {
+		return "";
+	}
+	for (const char c : id) {
+		if (c < '0' || c > '9') {
+			return "";
+		}
+	}
+	// Locked currencies (kuna vnum 0, glory vnum 1) are not editable/creatable.
+	const auto &existing = MUD::Currency(atoi(id.c_str()));
+	if (existing.GetId() >= 0 && existing.IsLocked()) {
+		return "";
+	}
+	return id;
+}
+
+parser_wrapper::DataNode CurrenciesLoader::CreateElementNode(parser_wrapper::DataNode root, const std::string &id) const {
+	auto node = root.AddChild("currency");
+	node.SetValue("vnum", id);
+	node.SetValue("text_id", "kUndefined");
+	node.SetValue("mode", "kEnabled");
+	return node;
+}
+
 // issue.thing-names: currency display names, keyed by text_id, loaded from currency_msg.xml.
 static std::unordered_map<std::string, CurrencyName> g_currency_names;
 

@@ -10,6 +10,7 @@
 
 #include "engine/boot/cfg_manager.h"
 #include "engine/entities/entities_constants.h"
+#include <vector>
 #include "engine/structs/info_container.h"
 #include "utils/grammar/cases.h"
 
@@ -60,10 +61,16 @@ long RemoveBank(CharData &ch, int vnum, long amount, bool with_log = true);
 const int kGoldVnum = 0;
 const int kGloryVnum = 1;
 
-class CurrenciesLoader : virtual public cfg_manager::ICfgLoader {
+class CurrenciesLoader : virtual public cfg_manager::IEditableCfgLoader {
  public:
 	void Load(parser_wrapper::DataNode data) final;
 	void Reload(parser_wrapper::DataNode data) final;
+	[[nodiscard]] std::string EditableWhat() const final;
+	[[nodiscard]] std::vector<cfg_manager::EditableElement> ListElements() const final;
+	[[nodiscard]] cfg_manager::ValidationResult Validate(parser_wrapper::DataNode &doc) const final;
+	[[nodiscard]] parser_wrapper::DataNode FindElementNode(parser_wrapper::DataNode root, const std::string &id) const final;
+	[[nodiscard]] std::string CanonicalElementId(const std::string &id) const final;
+	[[nodiscard]] parser_wrapper::DataNode CreateElementNode(parser_wrapper::DataNode root, const std::string &id) const final;
 };
 
 // issue.currencies: size-tier keys for a money object's name (GetObjName), from a
