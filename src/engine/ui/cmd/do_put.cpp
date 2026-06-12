@@ -254,6 +254,57 @@ void do_put(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
+// issue.currency-storage: build a money object for an arbitrary currency (val[1] = its vnum, so
+// do_get credits the right currency on pickup). All names/gender come from the registry -- no
+// per-currency literals. The gold-only CreateCurrencyObj(quantity) below is kept for its callers.
+ObjData::shared_ptr CreateCurrencyObj(long quantity, int currency_vnum) {
+	if (quantity <= 0) {
+		log("SYSERR: Try to create negative or 0 money. (%ld)", quantity);
+		return (nullptr);
+	}
+	const auto &cur = MUD::Currency(currency_vnum);
+	auto obj = world_objects.create_blank();
+	ExtraDescription::shared_ptr new_descr(new ExtraDescription());
+
+	// Generic money keywords + every declension (singular & plural) so any typed form picks it up.
+	std::string aliases = "coins coin money монеты монет деньги денег";
+	for (int i = grammar::ECase::kFirstCase; i <= grammar::ECase::kLastCase; ++i) {
+		const auto name_case = static_cast<grammar::ECase>(i);
+		aliases += " " + cur.GetName(name_case) + " " + cur.GetPluralName(name_case);
+	}
+	obj->set_aliases(aliases);
+
+	obj->set_short_description(cur.GetObjCName(quantity, grammar::ECase::kNom));
+	for (int i = grammar::ECase::kFirstCase; i <= grammar::ECase::kLastCase; ++i) {
+		const auto name_case = static_cast<grammar::ECase>(i);
+		obj->set_PName(name_case, cur.GetObjCName(quantity, name_case));
+	}
+
+	char descr_buf[256];
+	snprintf(descr_buf, sizeof(descr_buf), "Здесь лежит %s.", cur.GetObjCName(quantity, grammar::ECase::kNom));
+	obj->set_description(utils::CAP(descr_buf));
+
+	new_descr->keyword = str_dup(aliases.c_str());
+	new_descr->description = str_dup(cur.GetObjCName(quantity, grammar::ECase::kNom));
+	new_descr->next = nullptr;
+	obj->set_ex_description(new_descr);
+
+	obj->set_type(EObjType::kMoney);
+	obj->set_wear_flags(to_underlying(EWearFlag::kTake));
+	obj->set_sex(cur.GetGender());
+	obj->set_val(0, quantity);
+	obj->set_val(1, currency_vnum);
+	obj->set_cost(quantity);
+	obj->set_maximum_durability(ObjData::DEFAULT_MAXIMUM_DURABILITY);
+	obj->set_current_durability(ObjData::DEFAULT_CURRENT_DURABILITY);
+	obj->set_timer(24 * 60 * 7);
+	obj->set_weight(1);
+	obj->set_extra_flag(EObjFlag::kNodonate);
+	obj->set_extra_flag(EObjFlag::kNosell);
+	obj->unset_extraflag(EObjFlag::kNorent);
+	return obj;
+}
+
 ObjData::shared_ptr CreateCurrencyObj(long quantity) {
 	char buf[200];
 
