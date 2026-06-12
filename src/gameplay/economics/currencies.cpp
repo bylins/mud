@@ -14,6 +14,7 @@
 
 #include <unordered_map>
 #include <algorithm>
+#include <cctype>
 
 #include "engine/ui/color.h"
 #include "engine/db/global_objects.h"
@@ -533,6 +534,26 @@ const CurrencyInfo *FindBySearch(const std::string &word) {
 		}
 	}
 	return nullptr;
+}
+
+const CurrencyInfo &FindByTextIdNoCase(const std::string &text_id) {
+	// Fast path: exact match. DG scripts lowercase the whole command line, so a camelCase text_id
+	// like "kSilverGrivna" arrives as "ksilvergrivna" -- fall back to a case-insensitive scan.
+	const auto &exact = MUD::Currencies().FindAvailableItem(text_id);
+	if (exact.GetId() >= 0) {
+		return exact;
+	}
+	auto lower = [](std::string v) {
+		std::transform(v.begin(), v.end(), v.begin(), [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+		return v;
+	};
+	const std::string needle = lower(text_id);
+	for (const auto &cur : MUD::Currencies()) {
+		if (cur.GetId() >= 0 && lower(cur.GetTextId()) == needle) {
+			return cur;
+		}
+	}
+	return exact;  // the kUndefined sentinel
 }
 } // namespace currencies
 

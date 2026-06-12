@@ -2591,7 +2591,12 @@ void find_replacement(void *go,
 			}
 		} else if (!str_cmp(field, "Currency")) {
 			// %actor.Currency(<text_id>)% - кол-во любой валюты на руках (валюта задаётся id-аргументом).
-			const auto &money_cur = MUD::Currencies().FindAvailableItem(subfield);
+			const auto &money_cur = currencies::FindByTextIdNoCase(subfield);
+			if (money_cur.GetId() < 0) {
+				char errbuf[kMaxInputLength];
+				snprintf(errbuf, sizeof(errbuf), "actor.Currency: unknown currency '%s'!", subfield);
+				trig_log(trig, errbuf);
+			}
 			snprintf(str, str_size, "%ld", money_cur.GetId() >= 0 ? currencies::GetHand(*mob, money_cur.GetTextId()) : 0L);
 		} else if (!str_cmp(field, "AddCurrency")) {
 			// %actor.AddCurrency(<text_id>, <amount>)% - начислить (минус снимает). Слава и immortal-валюты не начисляются (страж откажет).
@@ -2599,7 +2604,7 @@ void find_replacement(void *go,
 			if (args.size() >= 2) {
 				utils::TrimLeft(args[0]);
 				utils::TrimRight(args[0]);
-				const auto &money_cur = MUD::Currencies().FindAvailableItem(args[0]);
+				const auto &money_cur = currencies::FindByTextIdNoCase(args[0]);
 				if (money_cur.GetId() >= 0) {
 					const long amount = atol(args[1].c_str());
 					if (amount >= 0) {
@@ -2607,7 +2612,13 @@ void find_replacement(void *go,
 					} else {
 						currencies::RemoveHand(*mob, money_cur.GetTextId(), -amount);
 					}
+				} else {
+					char errbuf[kMaxInputLength];
+					snprintf(errbuf, sizeof(errbuf), "actor.AddCurrency: unknown currency '%s'!", args[0].c_str());
+					trig_log(trig, errbuf);
 				}
+			} else {
+				trig_log(trig, "actor.AddCurrency: usage is %actor.AddCurrency(<currency_id>, <amount>)%");
 			}
 		} else if (!str_cmp(field, "gold")) {
 			if (*subfield) {
@@ -5751,7 +5762,7 @@ void do_dg_add_currency(void * /*go*/, Script * /*sc*/, Trigger *trig, int/* scr
 		trig_log(trig, buf2);
 		return;
 	}
-	const auto &cur = MUD::Currencies().FindAvailableItem(cur_id);
+	const auto &cur = currencies::FindByTextIdNoCase(cur_id);
 	if (cur.GetId() < 0) {
 		snprintf(buf2, sizeof(buf2), "dg_addcurrency: unknown currency '%s'!", cur_id);
 		trig_log(trig, buf2);
