@@ -124,6 +124,11 @@ void Account::save_to_file() {
 		}
 		out << "Pwd: " << this->hash_password << "\n";
 		out << "ll: " << this->last_login << "\n";
+		for (const auto &[id, amounts] : this->account_currencies_.data()) {
+			if (amounts.hand != 0 || amounts.bank != 0) {
+				out << "Cur: " << id << " " << amounts.hand << " " << amounts.bank << "\n";
+			}
+		}
 	}
 	out.close();
 }
@@ -142,6 +147,10 @@ void Account::read_from_file() {
 				tmp_quest.count = atoi(tmp[2].c_str());
 				tmp_quest.time = atoi(tmp[3].c_str());
 				this->dquests.push_back(tmp_quest);
+			}
+			if (line.starts_with("Cur: ") && tmp.size() >= 4) {
+				this->account_currencies_.SetHand(tmp[1], atol(tmp[2].c_str()));
+				this->account_currencies_.SetBank(tmp[1], atol(tmp[3].c_str()));
 			}
 /*			if (line.starts_with("hl: ")) {
 				utils::Split(tmp, line);

@@ -25,6 +25,8 @@
 #include "gameplay/statistics/money_drop.h"
 #include "engine/network/msdp/msdp_constants.h"
 #include "gameplay/mechanics/glory_const.h"
+#include "administration/accounts.h"
+#include "utils/utils.h"            // GET_EMAIL
 //#include "utils/parse.h"
 
 namespace currencies {
@@ -414,12 +416,28 @@ std::string TextIdByVnum(int vnum) {
 	return MUD::Currency(vnum).GetTextId();
 }
 
+// issue.currency-storage: an account_shared currency held by a player lives on the shared Account
+// container, so every character on the account sees one balance (mirrors how kGlory delegates to
+// GloryConst). Returns nullptr for per-character currencies, NPCs, or when the account is not loaded
+// -- in those cases the character's own container is used.
+static std::shared_ptr<Account> AccountFor(const CharData &ch, const CurrencyInfo &info) {
+	if (!info.IsAccountShared() || ch.IsNpc()) {
+		return nullptr;
+	}
+	const char *email = GET_EMAIL(&ch);
+	if (!email || !*email) {
+		return nullptr;
+	}
+	return Account::get_account(email);
+}
+
 long GetAmount(const CharData &ch, const std::string &id, EPurse purse = EPurse::kHand) {
 	// P4: const glory is not stored in the container; it delegates to the GloryConst store.
 	if (id == kGlory) {
 		return GloryConst::get_glory(ch.get_uid());
 	}
-	const auto &cs = ch.currency_storage();
+	const auto account = AccountFor(ch, MUD::Currencies().FindAvailableItem(id));
+	const auto &cs = account ? account->currency_storage() : ch.currency_storage();
 	return purse == EPurse::kHand ? cs.GetHand(id) : cs.GetBank(id);
 }
 
@@ -427,7 +445,8 @@ long GetTotal(const CharData &ch, const std::string &id) {
 	if (id == kGlory) {
 		return GloryConst::get_glory(ch.get_uid());
 	}
-	const auto &cs = ch.currency_storage();
+	const auto account = AccountFor(ch, MUD::Currencies().FindAvailableItem(id));
+	const auto &cs = account ? account->currency_storage() : ch.currency_storage();
 	return cs.GetHand(id) + cs.GetBank(id);
 }
 
@@ -453,11 +472,15 @@ void SetAmount(CharData &ch, const std::string &id, long amount, EPurse purse = 
 	if (amount == before) {
 		return;
 	}
-	auto &cs = ch.currency_storage();
+	const auto account = AccountFor(ch, info);
+	auto &cs = account ? account->currency_storage() : ch.currency_storage();
 	if (purse == EPurse::kHand) {
 		cs.SetHand(id, amount);
 	} else {
 		cs.SetBank(id, amount);
+	}
+	if (account) {
+		account->save_to_file();   // persist the shared balance immediately
 	}
 	const long change = amount - before;
 	if (with_log && !ch.IsNpc()) {
@@ -566,6 +589,28 @@ const CurrencyInfo &FindByTextIdNoCase(const std::string &text_id) {
 		}
 	}
 	return exact;  // the kUndefined sentinel
+}
+
+std::map<std::string, OwnerCurrencyInfo> HeldByChar(const CharData &ch) {
+	std::map<std::string, OwnerCurrencyInfo> out;
+	for (const auto &[id, amt] : ch.currency_storage().data()) {
+		if (amt.hand != 0 || amt.bank != 0) {
+			out[id] = amt;
+		}
+	}
+	if (!ch.IsNpc()) {
+		const char *email = GET_EMAIL(&ch);
+		if (email && *email) {
+			if (auto acc = Account::get_account(email)) {
+				for (const auto &[id, amt] : acc->currency_storage().data()) {
+					if ((amt.hand != 0 || amt.bank != 0) && MUD::Currencies().FindAvailableItem(id).IsAccountShared()) {
+						out[id] = amt;  // account balance is authoritative for account_shared currencies
+					}
+				}
+			}
+		}
+	}
+	return out;
 }
 } // namespace currencies
 

@@ -1405,7 +1405,7 @@ bool ParseBankArg(CharData *ch, char *argument, specials::EBankMsg how_much, int
 
 int BankBalance(CharData *ch, void * /*me*/, char * /*argument*/) {
 	bool any = false;
-	for (const auto &[id, amounts] : ch->currency_storage().data()) {
+	for (const auto &[id, amounts] : currencies::HeldByChar(*ch)) {
 		if (amounts.bank <= 0) {
 			continue;
 		}
