@@ -375,7 +375,7 @@ void player_affect_update() {
 		}
 		if (set_abstinent) {
 			utils::CExecutionTimer abstinent_timer;
-			i->set_abstinent();
+			condition::SetAbstinent(i.get());
 			profile.sections[static_cast<std::size_t>(Section::kSetAbstinent)] += abstinent_timer.delta().count();
 			++profile.counters[static_cast<std::size_t>(Counter::kAbstinentPlayers)];
 		}
