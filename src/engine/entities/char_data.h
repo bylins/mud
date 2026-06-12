@@ -562,7 +562,6 @@ class CharData : public ProtectedCharData {
 
 	void reset() override;
 
-	void set_abstinent();
 	char_affects_list_t::iterator AffectRemove(const char_affects_list_t::iterator &affect_i);
 	bool has_any_affect(const affects_list_t &affects);
 	size_t remove_random_affects(size_t count);

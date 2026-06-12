@@ -169,31 +169,6 @@ void CharData::reset() {
 	PlayerI::reset();
 }
 
-void CharData::set_abstinent() {
-	int duration = CalcDuration(this, this, ESkill::kHangovering, 2, 10, 2, 5);
-
-	if (CanUseFeat(this, EFeat::kDrunkard)) {
-		duration /= 2;
-	}
-
-	Affect<EApply> af;
-	af.type = ESpell::kAbstinent;
-	af.affect_type = EAffect::kAbstinent;
-	af.duration = duration;
-
-	af.location = EApply::kAc;
-	af.modifier = 20;
-	ImposeAffect(this, af, false, false, false, false);
-
-	af.location = EApply::kHitroll;
-	af.modifier = -2;
-	ImposeAffect(this, af, false, false, false, false);
-
-	af.location = EApply::kDamroll;
-	af.modifier = -2;
-	ImposeAffect(this, af, false, false, false, false);
-}
-
 CharData::char_affects_list_t::iterator CharData::AffectRemove(const char_affects_list_t::iterator &affect_i) {
 	if (affected.empty()) {
 		log("SYSERR: affect_remove(%s) when no affects...", GET_NAME(this));
