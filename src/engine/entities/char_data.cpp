@@ -427,15 +427,11 @@ void CharData::set_protecting(CharData *vict) {
 }
 
 void CharData::remove_protecting() {
-
 	if (fight_targets_.protecting) {
 		auto predicate = [this](auto p) { return (this  ==  p); };
 		auto it = std::find_if(fight_targets_.protecting->who_protecting.begin(), fight_targets_.protecting->who_protecting.end(), predicate);
 		if (it != fight_targets_.protecting->who_protecting.end()) {
 			fight_targets_.protecting->who_protecting.erase(it);
-			SendMsgToChar(this, "Вы перестали прикрывать %s.\r\n", 
-				GET_PAD(fight_targets_.protecting, 3));
-			SendMsgToChar(get_protecting(), "%s перестал%s прикрывать вас.\r\n", GET_NAME(this), grammar::SexEnding((this)->get_sex(), 1));
 		}
 	}
 	fight_targets_.protecting = nullptr;
