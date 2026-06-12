@@ -14,8 +14,12 @@
 		<attr name="text_id" type="string" desc="Optional text id for cross-references from other files"/>
 		<attr name="name" type="string" desc="Display name"/>
 		<attr name="mode" type="enum" enum="EItemMode" desc="kEnabled / kDisabled / ..."/>
+		<child tag="currency"/>
 		<child tag="trainers"/>
 		<child tag="talents"/>
+	</tag>
+	<tag name="currency" desc="Guild-wide default training currency (talents inherit it)">
+		<attr name="val" type="enum" enum="ECurrencyId" desc="Default currency text_id, e.g. kKuna"/>
 	</tag>
 	<tag name="trainers" desc="Trainer mob vnums (pipe-separated)">
 		<attr name="vnums" type="intlist" min="0" desc="Mob vnums, pipe-separated, e.g. 4008|5008"/>

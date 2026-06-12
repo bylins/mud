@@ -122,6 +122,14 @@ ItemPtr GuildInfoBuilder::ParseGuild(DataNode node) {
 
 	auto guild_info = std::make_shared<GuildInfo>(vnum, text_id, name, mode);
 
+	if (node.GoToChild("currency")) {
+		try {
+			guild_info->default_currency_vnum_ = MUD::Currencies().FindAvailableItem(parse::ReadAsStr(node.GetValue("val"))).GetId();
+		} catch (std::exception &e) {
+			err_log("guild currency error (%s) in guild '%s'.", e.what(), guild_info->GetName().c_str());
+		}
+		node.GoToParent();
+	}
 	if (node.GoToChild("trainers")) {
 		try {
 			parse::ReadAsIntSet(guild_info->trainers_, node.GetValue("vnums"));
@@ -150,6 +158,9 @@ void GuildInfoBuilder::ParseTalents(ItemPtr &info, DataNode &node) {
 		} catch (std::exception &e) {
 			err_log("talent format error (%s) in guild '%s'.", e.what(), info->GetName().c_str());
 		}
+	}
+	for (auto &talent : info->learning_talents_) {
+		talent->ApplyDefaultCurrency(info->default_currency_vnum_);
 	}
 }
 
