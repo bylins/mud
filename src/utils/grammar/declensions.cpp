@@ -24,8 +24,6 @@ const char *GetDeclensionInNumber(long amount, EWhat of_what) {
 		{EWhat::kPoint, {"очков", "очко", "очка"}},
 		{EWhat::kMinA, {"минут", "минута", "минуты"}},
 		{EWhat::kMinU, {"минут", "минуту", "минуты"}},
-		{EWhat::kMoneyA, {"кун", "куна", "куны"}},
-		{EWhat::kMoneyU, {"кун", "куну", "куны"}},
 		{EWhat::kThingA, {"штук", "штука", "штуки"}},
 		{EWhat::kThingU, {"штук", "штуку", "штуки"}},
 		{EWhat::kLvl, {"уровней", "уровень", "уровня"}},

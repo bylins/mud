@@ -6,6 +6,7 @@
 */
 
 #include "sight.h"
+#include "gameplay/economics/currencies.h"
 #include "utils/grammar/gender.h"
 #include "utils/grammar/cases.h"
 #include "utils/grammar/declensions.h"
@@ -1353,13 +1354,13 @@ const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_s
 		if (show_state == 3) {
 			sprintf(buf + strlen(buf), " [%d %s]\r\n",
 					object->get_rent_on() * kClanStorehouseCoeff / 100,
-					grammar::GetDeclensionInNumber(object->get_rent_on() * kClanStorehouseCoeff / 100, grammar::EWhat::kMoneyA));
+					MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(object->get_rent_on() * kClanStorehouseCoeff / 100, grammar::ECase::kNom).c_str());
 			return buf;
 		}
 			// ингры
 		else if (show_state == 4) {
 			sprintf(buf + strlen(buf), " [%d %s]\r\n", object->get_rent_off(),
-					grammar::GetDeclensionInNumber(object->get_rent_off(), grammar::EWhat::kMoneyA));
+					MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(object->get_rent_off(), grammar::ECase::kNom).c_str());
 			return buf;
 		}
 	}

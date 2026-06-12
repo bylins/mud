@@ -16,7 +16,7 @@ void do_gold(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	if (amount == 0) {
 		SendMsgToChar("Вы разорены!\r\n", ch);
 	} else {
-		sprintf(buf, "У Вас есть %s.\r\n",
+		sprintf(buf, "У Вас есть %ld %s.\r\n", amount,
 			MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(amount, grammar::ECase::kNom).c_str());
 		SendMsgToChar(buf, ch);
 	}

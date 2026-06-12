@@ -24,8 +24,6 @@ enum class EWhat : int  {
 	kPoint,
 	kMinA,
 	kMinU,
-	kMoneyA,
-	kMoneyU,
 	kThingA,
 	kThingU,
 	kLvl,

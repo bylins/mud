@@ -13,6 +13,7 @@
 ************************************************************************ */
 
 #include "gameplay/ai/spec_procs.h"
+#include "gameplay/economics/currencies.h"
 #include "utils/grammar/gender.h"
 #include "utils/grammar/declensions.h"
 #include "gameplay/mechanics/follow.h"
@@ -143,7 +144,7 @@ int horse_keeper(CharData *ch, void *me, int /*cmd*/, char *argument) {
 			}
 			act(fmt::format(fmt::runtime(specials::HorseMsg(specials::EHorseMsg::kForSale)),
 					fmt::arg("amount", kHorseCost),
-					fmt::arg("currency", grammar::GetDeclensionInNumber(kHorseCost, grammar::EWhat::kMoneyA))),
+					fmt::arg("currency", MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(kHorseCost, grammar::ECase::kNom).c_str())),
 				false, ch, nullptr, victim, kToChar);
 			return (true);
 		return (1);
@@ -1383,7 +1384,7 @@ int BankBalance(CharData *ch, void * /*me*/, char * /*argument*/) {
 	if (currencies::GetBank(*ch, currencies::kGold) > 0) {
 		SendMsgToChar(fmt::format(fmt::runtime(specials::BankMsg(specials::EBankMsg::kBalance)),
 				fmt::arg("amount", currencies::GetBank(*ch, currencies::kGold)),
-				fmt::arg("currency", grammar::GetDeclensionInNumber(currencies::GetBank(*ch, currencies::kGold), grammar::EWhat::kMoneyA))) + "\r\n", ch);
+				fmt::arg("currency", MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(currencies::GetBank(*ch, currencies::kGold), grammar::ECase::kNom).c_str())) + "\r\n", ch);
 	} else {
 		SendMsgToChar(specials::BankMsg(specials::EBankMsg::kNoMoney) + "\r\n", ch);
 	}
@@ -1404,7 +1405,7 @@ int BankDeposit(CharData *ch, void * /*me*/, char *argument) {
 	currencies::AddBank(*ch, currencies::kGold, amount, false, false);
 	SendMsgToChar(fmt::format(fmt::runtime(specials::BankMsg(specials::EBankMsg::kDeposited)),
 			fmt::arg("amount", amount),
-			fmt::arg("currency", grammar::GetDeclensionInNumber(amount, grammar::EWhat::kMoneyU))) + "\r\n", ch);
+			fmt::arg("currency", MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(amount, grammar::ECase::kNom).c_str())) + "\r\n", ch);
 	act(specials::BankMsg(specials::EBankMsg::kFinancialOp), true, ch, nullptr, nullptr, kToRoom);
 	return (1);
 }
@@ -1423,7 +1424,7 @@ int BankWithdraw(CharData *ch, void * /*me*/, char *argument) {
 	currencies::RemoveBank(*ch, currencies::kGold, amount, false);
 	SendMsgToChar(fmt::format(fmt::runtime(specials::BankMsg(specials::EBankMsg::kWithdrawn)),
 			fmt::arg("amount", amount),
-			fmt::arg("currency", grammar::GetDeclensionInNumber(amount, grammar::EWhat::kMoneyU))) + "\r\n", ch);
+			fmt::arg("currency", MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(amount, grammar::ECase::kNom).c_str())) + "\r\n", ch);
 	act(specials::BankMsg(specials::EBankMsg::kFinancialOp), true, ch, nullptr, nullptr, kToRoom);
 	return (1);
 }

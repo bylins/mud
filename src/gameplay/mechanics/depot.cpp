@@ -3,6 +3,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "depot.h"
+#include "gameplay/economics/currencies.h"
 #include "gameplay/ai/spec_procs.h"
 #include "utils/grammar/gender.h"
 #include "utils/grammar/declensions.h"
@@ -800,7 +801,7 @@ void print_obj(std::stringstream &i_out, std::stringstream &s_out,
 		out << " [" << count << "]";
 	}
 	out << " [" << get_object_low_rent(obj) << " "
-		<< grammar::GetDeclensionInNumber(get_object_low_rent(obj), grammar::EWhat::kMoneyA) << "]\r\n";
+		<< MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(get_object_low_rent(obj), grammar::ECase::kNom).c_str() << "]\r\n";
 }
 
 // * Расчет кол-ва слотов под шмотки в персональном хранилище с учетом профы чара.
@@ -858,7 +859,7 @@ std::string print_obj_list(CharData *ch, ObjListType &cont) {
 	std::stringstream head;
 	head << kColorWht
 		 << "Ваше персональное хранилище. Рента в день: "
-		 << rent_per_day << " " << grammar::GetDeclensionInNumber(rent_per_day, grammar::EWhat::kMoneyA);
+		 << rent_per_day << " " << MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(rent_per_day, grammar::ECase::kNom).c_str();
 	if (rent_per_day) {
 		head << ", денег хватит на " << expired
 			 << " " << grammar::GetDeclensionInNumber(expired, grammar::EWhat::kDay);
@@ -944,7 +945,7 @@ void put_gold_chest(CharData *ch, const ObjData::shared_ptr &obj) {
 	currencies::AddBank(*ch, currencies::kGold, gold);
 	RemoveObjFromChar(obj.get());
 	ExtractObjFromWorld(obj.get());
-	SendMsgToChar(ch, "Вы вложили %ld %s.\r\n", gold, grammar::GetDeclensionInNumber(gold, grammar::EWhat::kMoneyU));
+	SendMsgToChar(ch, "Вы вложили %ld %s.\r\n", gold, MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(gold, grammar::ECase::kNom).c_str());
 }
 
 /**
@@ -1296,7 +1297,7 @@ void enter_char(CharData *ch) {
 		if (it->second.money_spend > 0) {
 			SendMsgToChar(ch, "%sХранилище: за время вашего отсутствия удержано %ld %s.%s\r\n\r\n",
 						  kColorWht, it->second.money_spend,
-						  grammar::GetDeclensionInNumber(it->second.money_spend, grammar::EWhat::kMoneyA), kColorNrm);
+						  MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(it->second.money_spend, grammar::ECase::kNom).c_str(), kColorNrm);
 
 			long rest = currencies::RemoveTotal(*ch, currencies::kGold, it->second.money_spend);
 			if (rest > 0) {

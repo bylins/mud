@@ -27,10 +27,10 @@ void do_money(CharData *ch, char * /*argument*/, int /*cmd*/, int /*subcmd*/) {
 			continue;
 		}
 		if (amounts.hand > 0) {
-			out << info.GetNameWithAmount(amounts.hand, grammar::ECase::kNom) << " на руках.\r\n";
+			out << amounts.hand << " " << info.GetNameWithAmount(amounts.hand, grammar::ECase::kNom) << " на руках.\r\n";
 		}
 		if (amounts.bank > 0) {
-			out << info.GetNameWithAmount(amounts.bank, grammar::ECase::kNom) << " в лежне.\r\n";
+			out << amounts.bank << " " << info.GetNameWithAmount(amounts.bank, grammar::ECase::kNom) << " в лежне.\r\n";
 		}
 	}
 

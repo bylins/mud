@@ -2,6 +2,8 @@
 // Part of Bylins http://www.mud.ru
 
 #include "administration/karma.h"
+#include "engine/db/global_objects.h"
+#include "gameplay/economics/currencies.h"
 #include "utils/grammar/declensions.h"
 #include "genchar.h"
 #include "engine/ui/color.h"
@@ -130,10 +132,10 @@ void print_menu(DescriptorData *d) {
 		"5) отменить и вернуться в главное меню\r\n"
 		"\r\nВаш выбор:",
 		kColorBoldGrn, kColorNrm,
-		stats_price, grammar::GetDeclensionInNumber(stats_price, grammar::EWhat::kMoneyA),
-		race_price, grammar::GetDeclensionInNumber(race_price, grammar::EWhat::kMoneyA),
-		feats_price, grammar::GetDeclensionInNumber(feats_price, grammar::EWhat::kMoneyA),
-		religion_price, grammar::GetDeclensionInNumber(religion_price, grammar::EWhat::kMoneyA));
+		stats_price, MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(stats_price, grammar::ECase::kNom).c_str(),
+		race_price, MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(race_price, grammar::ECase::kNom).c_str(),
+		feats_price, MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(feats_price, grammar::ECase::kNom).c_str(),
+		religion_price, MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(religion_price, grammar::ECase::kNom).c_str());
 iosystem::write_to_output(str.c_str(), d);
 }
 

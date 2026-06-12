@@ -9,6 +9,7 @@
 ************************************************************************ */
 
 #include "mail.h"
+#include "engine/db/global_objects.h"
 #include "gameplay/economics/currencies.h"
 #include "utils/grammar/declensions.h"
 #include "gameplay/ai/special_messages.h"
@@ -227,7 +228,7 @@ void postmaster_send_mail(CharData *ch, CharData *mailman, int/* cmd*/, char *ar
 	if (currencies::GetHand(*ch, currencies::kGold) < cost) {
 		act(fmt::format(fmt::runtime(specials::MailMsg(specials::EMailMsg::kCantAffordCost)),
 				fmt::arg("amount", STAMP_PRICE),
-				fmt::arg("currency", grammar::GetDeclensionInNumber(STAMP_PRICE, grammar::EWhat::kMoneyU))),
+				fmt::arg("currency", MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(STAMP_PRICE, grammar::ECase::kNom).c_str())),
 			false, mailman, 0, ch, kToVict);
 		act(specials::MailMsg(specials::EMailMsg::kCantAffordNoMoney), false, mailman, 0, ch, kToVict);
 		return;
@@ -239,7 +240,7 @@ void postmaster_send_mail(CharData *ch, CharData *mailman, int/* cmd*/, char *ar
 	} else {
 		act(fmt::format(fmt::runtime(specials::MailMsg(specials::EMailMsg::kPostageCharged)),
 				fmt::arg("amount", STAMP_PRICE),
-				fmt::arg("currency", grammar::GetDeclensionInNumber(STAMP_PRICE, grammar::EWhat::kMoneyA))),
+				fmt::arg("currency", MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(STAMP_PRICE, grammar::ECase::kNom).c_str())),
 			false, mailman, 0, ch, kToVict);
 	}
 	act(specials::MailMsg(specials::EMailMsg::kCanWrite), false, mailman, 0, ch, kToVict);
