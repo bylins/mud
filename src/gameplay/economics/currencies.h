@@ -15,6 +15,7 @@
 #include "utils/grammar/cases.h"
 
 #include <map>
+#include "gameplay/economics/currency_storage.h"
 #include <string>
 
 
@@ -194,6 +195,9 @@ class CurrencyInfo : public info_container::BaseItem<int> {
 // Resolve a player-typed word to a currency by abbrev-matching its search name (nullptr if none).
 const CurrencyInfo *FindBySearch(const std::string &word);
 [[nodiscard]] const CurrencyInfo &FindByTextIdNoCase(const std::string &text_id);  // case-insensitive (DG passes lowercase)
+// Every currency the character effectively holds (per-character container merged with the shared
+// account container for account_shared currencies); non-zero entries only. For display commands.
+[[nodiscard]] std::map<std::string, OwnerCurrencyInfo> HeldByChar(const CharData &ch);
 
 class CurrencyInfoBuilder : public info_container::IItemBuilder<CurrencyInfo> {
  public:

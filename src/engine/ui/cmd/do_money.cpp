@@ -23,7 +23,7 @@ void do_money(CharData *ch, char * /*argument*/, int /*cmd*/, int /*subcmd*/) {
 	table << table_wrapper::kHeader << "Валюта" << "На руках" << "В лежне" << table_wrapper::kEndRow;
 
 	std::size_t rows = 0;
-	for (const auto &[id, amounts] : ch->currency_storage().data()) {
+	for (const auto &[id, amounts] : currencies::HeldByChar(*ch)) {
 		if (amounts.hand <= 0 && amounts.bank <= 0) {
 			continue;
 		}
