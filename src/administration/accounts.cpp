@@ -110,22 +110,38 @@ void Account::list_players(DescriptorData *d) {
 }
 
 void Account::save_to_file() {
-	std::ofstream out;
-	out.open(LIB_ACCOUNTS + this->email);
-	if (out.is_open()) {
-		for (const auto &x : this->dquests) {
-			out << "DaiQ: " << x.id << " " << x.count << " " << x.time << "\n";
-		}
-		for (const auto &x : this->history_logins) {
-			out << "hl: " << x.first << " " << x.second.count << " " << x.second.last_login << "\n";
-		}
-		for (const auto &x : this->players_list) {
-			out << "p: " << x << "\n";
-		}
-		out << "Pwd: " << this->hash_password << "\n";
-		out << "ll: " << this->last_login << "\n";
+	// save_to_file зовётся на каждый save_char, а данные аккаунта почти не
+	// меняются и стабильны между реальными изменениями (нет постоянно
+	// растущих полей). Поэтому собираем содержимое в буфер, и если оно не
+	// изменилось с прошлой записи -- файл не трогаем. Так убираем лишнюю
+	// (и подверженную дисковым столлам) запись из горячего пути сейва (#3440).
+	// Формат вывода байт-в-байт прежний (те же операции <<).
+	std::ostringstream oss;
+	for (const auto &x : this->dquests) {
+		oss << "DaiQ: " << x.id << " " << x.count << " " << x.time << "\n";
 	}
-	out.close();
+	for (const auto &x : this->history_logins) {
+		oss << "hl: " << x.first << " " << x.second.count << " " << x.second.last_login << "\n";
+	}
+	for (const auto &x : this->players_list) {
+		oss << "p: " << x << "\n";
+	}
+	oss << "Pwd: " << this->hash_password << "\n";
+	oss << "ll: " << this->last_login << "\n";
+	const std::string content = oss.str();
+
+	const std::size_t h = std::hash<std::string>{}(content);
+	if (m_saved_hash_valid && h == m_saved_hash) {
+		return;  // аккаунт не менялся -- запись не нужна
+	}
+
+	std::ofstream out(LIB_ACCOUNTS + this->email);
+	if (out.is_open()) {
+		out << content;
+		out.close();
+		m_saved_hash = h;
+		m_saved_hash_valid = true;
+	}
 }
 
 void Account::read_from_file() {

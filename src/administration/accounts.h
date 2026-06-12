@@ -43,6 +43,10 @@ class Account {
 	time_t last_login;
 	// История логинов, ключ - айпи, в структуре количество раз, с которых был произведен заход с данного айпи-адреса + дата, когда последний раз выходили с данного айпишника
 	std::unordered_map<std::string, login_index> history_logins;
+	// Хеш последнего записанного содержимого: save_to_file пропускает запись,
+	// если аккаунт не менялся (он зовётся на каждый save_char, #3440).
+	std::size_t m_saved_hash = 0;
+	bool m_saved_hash_valid = false;
 
  public:
 	void purge_erased();
