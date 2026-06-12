@@ -10,6 +10,7 @@
 // * AutoEQ by Burkhard Knopf <burkhard.knopf@informatik.tu-clausthal.de>
 
 #include "obj_save.h"
+#include "gameplay/economics/currencies.h"
 #include "utils/grammar/gender.h"
 #include "utils/grammar/declensions.h"
 #include "gameplay/mechanics/minions.h"
@@ -1383,9 +1384,9 @@ int Crash_load(CharData *ch) {
 	if (RENTCODE(index) == RENT_CRASH) {
 		if (!ch->IsImmortal() && CanUseFeat(ch, EFeat::kEmployer) && ch->player_specials->saved.HiredCost != 0) {
 			if (ch->player_specials->saved.HiredCost < 0)
-				ch->add_bank(abs(ch->player_specials->saved.HiredCost), false);
+				currencies::AddAmount(*ch, currencies::kKunaId, abs(ch->player_specials->saved.HiredCost), currencies::EPurse::kBank, false, false);
 			else
-				ch->add_gold(ch->player_specials->saved.HiredCost, false);
+				currencies::AddAmount(*ch, currencies::kKunaId, ch->player_specials->saved.HiredCost, currencies::EPurse::kHand, false, false);
 		}
 		ch->player_specials->saved.HiredCost = 0;
 	}
@@ -1397,7 +1398,7 @@ int Crash_load(CharData *ch) {
 		SendMsgToChar(buf, ch);
 		sprintf(buf, "%s entering game, free crashrent.", GET_NAME(ch));
 		mudlog(buf, NRM, MAX(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
-	} else if (cost > ch->get_gold() + ch->get_bank()) {
+	} else if (cost > currencies::GetAmount(*ch, currencies::kKunaId) + currencies::GetAmount(*ch, currencies::kKunaId, currencies::EPurse::kBank)) {
 		sprintf(buf, "%sВы находились на постое %1.2f дней.\n\r"
 					 "%s"
 					 "Вам предъявили счет на %d %s за постой (%d %s в день).\r\n"
@@ -1410,13 +1411,13 @@ int Crash_load(CharData *ch) {
 								  : "", cost, grammar::GetDeclensionInNumber(cost, grammar::EWhat::kMoneyU),
 				SAVEINFO(index)->rent.net_cost_per_diem,
 				grammar::GetDeclensionInNumber(SAVEINFO(index)->rent.net_cost_per_diem,
-									  grammar::EWhat::kMoneyA), ch->get_gold() + ch->get_bank(),
-				grammar::GetDeclensionInNumber(ch->get_gold() + ch->get_bank(), grammar::EWhat::kMoneyA), kColorNrm);
+									  grammar::EWhat::kMoneyA), currencies::GetAmount(*ch, currencies::kKunaId) + currencies::GetAmount(*ch, currencies::kKunaId, currencies::EPurse::kBank),
+				grammar::GetDeclensionInNumber(currencies::GetAmount(*ch, currencies::kKunaId) + currencies::GetAmount(*ch, currencies::kKunaId, currencies::EPurse::kBank), grammar::EWhat::kMoneyA), kColorNrm);
 		SendMsgToChar(buf, ch);
 		sprintf(buf, "%s: rented equipment lost (no $).", GET_NAME(ch));
 		mudlog(buf, LGH, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
-		ch->set_bank(0);
-		ch->set_gold(0);
+		currencies::SetAmount(*ch, currencies::kKunaId, 0, currencies::EPurse::kBank);
+		currencies::SetAmount(*ch, currencies::kKunaId, 0);
 		ClearCrashSavedObjects(index);
 		return (2);
 	} else {
@@ -1434,7 +1435,7 @@ int Crash_load(CharData *ch) {
 					grammar::GetDeclensionInNumber(SAVEINFO(index)->rent.net_cost_per_diem, grammar::EWhat::kMoneyA), kColorNrm);
 			SendMsgToChar(buf, ch);
 		}
-		ch->remove_both_gold(cost);
+		currencies::RemoveTotal(*ch, currencies::kKunaId, cost);
 	}
 
 	//Чтение описаний объектов в буфер
@@ -1912,7 +1913,7 @@ int save_char_objects(CharData *ch, int savetype, int rentcost) {
 	//CRYO-rent надо дорабатывать либо выкидывать нафиг
 	if (savetype == RENT_CRYO) {
 		rent.net_cost_per_diem = 0;
-		ch->remove_gold(cost);
+		currencies::RemoveAmount(*ch, currencies::kKunaId, cost);
 	}
 
 	if (savetype == RENT_RENTED) {
@@ -1924,8 +1925,8 @@ int save_char_objects(CharData *ch, int savetype, int rentcost) {
 	rent.rentcode = savetype;
 	rent.time = time(0);
 	rent.n_items = num;
-	rent.gold = ch->get_gold();
-	rent.account = ch->get_bank();
+	rent.gold = currencies::GetAmount(*ch, currencies::kKunaId);
+	rent.account = currencies::GetAmount(*ch, currencies::kKunaId, currencies::EPurse::kBank);
 
 	Crash_create_timer(iplayer, num);
 	SAVEINFO(iplayer)->rent = rent;
@@ -2085,7 +2086,7 @@ void Crash_rent_deadline(CharData *ch, CharData *recep, long cost) {
 	}
 
 	SendMsgToChar(fmt::format(fmt::runtime(specials::RentMsg(specials::ERentMsg::kRentCost)), fmt::arg("amount", cost), fmt::arg("currency", grammar::GetDeclensionInNumber(cost, grammar::EWhat::kMoneyU))) + "\r\n", ch);
-	rent_deadline = ((ch->get_gold() + ch->get_bank()) / cost);
+	rent_deadline = ((currencies::GetAmount(*ch, currencies::kKunaId) + currencies::GetAmount(*ch, currencies::kKunaId, currencies::EPurse::kBank)) / cost);
 	SendMsgToChar(fmt::format(fmt::runtime(specials::RentMsg(specials::ERentMsg::kMoneyLasts)), fmt::arg("amount", rent_deadline), fmt::arg("day", grammar::GetDeclensionInNumber(rent_deadline, grammar::EWhat::kDay))) + "\r\n", ch);
 }
 
@@ -2301,7 +2302,7 @@ int Crash_offer_rent(CharData *ch, CharData *receptionist, int rentshow, int fac
 		snprintf(buf, kMaxExtendLength, "%s", fmt::format(fmt::runtime(specials::RentMsg(specials::ERentMsg::kTotalCost)), fmt::arg("amount", *totalcost), fmt::arg("currency", grammar::GetDeclensionInNumber(*totalcost, grammar::EWhat::kMoneyU)), fmt::arg("perday", (factor == RENT_FACTOR ? "в день " : ""))).c_str());
 		act(buf, false, receptionist, 0, ch, kToVict);
 
-		if (MAX(0, *totalcost / divide) > ch->get_gold() + ch->get_bank()) {
+		if (MAX(0, *totalcost / divide) > currencies::GetAmount(*ch, currencies::kKunaId) + currencies::GetAmount(*ch, currencies::kKunaId, currencies::EPurse::kBank)) {
 			act(specials::RentMsg(specials::ERentMsg::kNoMoneyEver), false, receptionist, 0, ch, kToVict);
 			return (false);
 		}
@@ -2364,7 +2365,7 @@ int gen_receptionist(CharData *ch, CharData *recep, ERentAction action, int mode
 				snprintf(buf, kMaxStringLength, "%s", fmt::format(fmt::runtime(specials::RentMsg(specials::ERentMsg::kDailyCostCryo)), fmt::arg("amount", cost), fmt::arg("currency", grammar::GetDeclensionInNumber(cost, grammar::EWhat::kMoneyU))).c_str());
 			act(buf, false, recep, 0, ch, kToVict);
 
-			if (cost > ch->get_gold() + ch->get_bank()) {
+			if (cost > currencies::GetAmount(*ch, currencies::kKunaId) + currencies::GetAmount(*ch, currencies::kKunaId, currencies::EPurse::kBank)) {
 				act(specials::RentMsg(specials::ERentMsg::kCantAfford), false, recep, 0, ch, kToVict);
 				return (true);
 			}
@@ -2378,7 +2379,7 @@ int gen_receptionist(CharData *ch, CharData *recep, ERentAction action, int mode
 			act(specials::RentMsg(specials::ERentMsg::kLockedAway), false, recep, 0, ch, kToVict);
 			Crash_rentsave(ch, cost);
 			sprintf(buf, "%s has rented (%d/day, %ld tot.)",
-					GET_NAME(ch), cost, ch->get_gold() + ch->get_bank());
+					GET_NAME(ch), cost, currencies::GetAmount(*ch, currencies::kKunaId) + currencies::GetAmount(*ch, currencies::kKunaId, currencies::EPurse::kBank));
 		} else    // cryo
 		{
 			act(specials::RentMsg(specials::ERentMsg::kLockedAway) + "\r\n" + specials::RentMsg(specials::ERentMsg::kCryoGhost) + "\r\n" + specials::RentMsg(specials::ERentMsg::kCryoLostTouch), false, recep, 0, ch, kToVict);

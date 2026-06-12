@@ -1778,9 +1778,9 @@ void do_entergame(DescriptorData *d) {
 
 	if (GetRealLevel(d->character) > kLvlImmortal
 		&& GetRealLevel(d->character) < kLvlBuilder
-		&& (d->character->get_gold() > 0 || d->character->get_bank() > 0)) {
-		d->character->set_gold(0);
-		d->character->set_bank(0);
+		&& (currencies::GetAmount(*d->character, currencies::kKunaId) > 0 || currencies::GetAmount(*d->character, currencies::kKunaId, currencies::EPurse::kBank) > 0)) {
+		currencies::SetAmount(*d->character, currencies::kKunaId, 0);
+		currencies::SetAmount(*d->character, currencies::kKunaId, 0, currencies::EPurse::kBank);
 	}
 
 	if (GetRealLevel(d->character) >= kLvlImmortal && GetRealLevel(d->character) < kLvlImplementator) {

@@ -332,8 +332,8 @@ void arena_kill(CharData *ch, CharData *killer) {
 	make_arena_corpse(ch, killer);
 	//Если убил палач то все деньги перекачивают к нему
 	if (killer && killer->IsFlagged(EPrf::kExecutor)) {
-		killer->set_gold(ch->get_gold() + killer->get_gold());
-		ch->set_gold(0);
+		currencies::SetAmount(*killer, currencies::kKunaId, currencies::GetAmount(*ch, currencies::kKunaId) + currencies::GetAmount(*killer, currencies::kKunaId));
+		currencies::SetAmount(*ch, currencies::kKunaId, 0);
 	}
 	ChangeFighting(ch, true);
 	ch->set_hit(1);
@@ -475,7 +475,7 @@ bool change_rep(CharData *ch, CharData *killer) {
 }
 
 void real_kill(CharData *ch, CharData *killer) {
-	const long local_gold = ch->get_gold();
+	const long local_gold = currencies::GetAmount(*ch, currencies::kKunaId);
 	ObjData *corpse = make_corpse(ch, killer);
 
 	bloody::handle_corpse(corpse, ch, killer);
@@ -502,7 +502,7 @@ void real_kill(CharData *ch, CharData *killer) {
 		}
 		if (ch->IsFlagged(EMobFlag::kCorpse)) {
 			PerformDropGold(ch, local_gold);
-			ch->set_gold(0);
+			currencies::SetAmount(*ch, currencies::kKunaId, 0);
 		}
 		dead_load::LoadObjFromDeadLoad(corpse, ch, nullptr, dead_load::kOrdinary);
 #if defined WITH_SCRIPTING

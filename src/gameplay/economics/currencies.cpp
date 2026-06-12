@@ -334,6 +334,7 @@ void SetAmount(CharData &ch, const std::string &id, long amount, EPurse purse, b
 }
 
 long AddAmount(CharData &ch, const std::string &id, long amount, EPurse purse, bool notify, bool with_log) {
+	amount = std::max(0L, amount);
 	const long before = GetAmount(ch, id, purse);
 	SetAmount(ch, id, before + amount, purse, with_log);
 	const long added = GetAmount(ch, id, purse) - before;
@@ -351,6 +352,7 @@ long AddAmount(CharData &ch, const std::string &id, long amount, EPurse purse, b
 }
 
 long RemoveAmount(CharData &ch, const std::string &id, long amount, EPurse purse, bool with_log) {
+	amount = std::max(0L, amount);
 	const long have = GetAmount(ch, id, purse);
 	if (have >= amount) {
 		SetAmount(ch, id, have - amount, purse, with_log);
@@ -360,11 +362,17 @@ long RemoveAmount(CharData &ch, const std::string &id, long amount, EPurse purse
 	return amount - have;
 }
 
+long RemoveTotal(CharData &ch, const std::string &id, long amount, bool with_log) {
+	const long rest = RemoveAmount(ch, id, amount, EPurse::kBank, with_log);
+	return RemoveAmount(ch, id, rest, EPurse::kHand, with_log);
+}
+
 long GetAmount(const CharData &ch, int vnum, EPurse purse) { return GetAmount(ch, TextIdByVnum(vnum), purse); }
 long GetTotal(const CharData &ch, int vnum) { return GetTotal(ch, TextIdByVnum(vnum)); }
 void SetAmount(CharData &ch, int vnum, long amount, EPurse purse, bool with_log) { SetAmount(ch, TextIdByVnum(vnum), amount, purse, with_log); }
 long AddAmount(CharData &ch, int vnum, long amount, EPurse purse, bool notify, bool with_log) { return AddAmount(ch, TextIdByVnum(vnum), amount, purse, notify, with_log); }
 long RemoveAmount(CharData &ch, int vnum, long amount, EPurse purse, bool with_log) { return RemoveAmount(ch, TextIdByVnum(vnum), amount, purse, with_log); }
+long RemoveTotal(CharData &ch, int vnum, long amount, bool with_log) { return RemoveTotal(ch, TextIdByVnum(vnum), amount, with_log); }
 
 } // namespace currencies
 

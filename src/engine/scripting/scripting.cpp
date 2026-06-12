@@ -252,22 +252,22 @@ class CharacterWrapper : public Wrapper<CharacterData> {
 
 	long get_gold() const {
 		Ensurer ch(*this);
-		return ch->get_gold();
+		return currencies::GetAmount(*ch, currencies::kKunaId);
 	}
 
 	void set_gold(const long v) {
 		Ensurer ch(*this);
-		ch->set_gold(v);
+		currencies::SetAmount(*ch, currencies::kKunaId, v);
 	}
 
 	long get_bank() const {
 		Ensurer ch(*this);
-		return ch->get_bank();
+		return currencies::GetAmount(*ch, currencies::kKunaId, currencies::EPurse::kBank);
 	}
 
 	void set_bank(const long v) {
 		Ensurer ch(*this);
-		ch->set_bank(v);
+		currencies::SetAmount(*ch, currencies::kKunaId, v, currencies::EPurse::kBank);
 	}
 
 	int get_str() const {
@@ -451,32 +451,32 @@ class CharacterWrapper : public Wrapper<CharacterData> {
 
 	void remove_gold(const long num, const bool log = true) {
 		Ensurer ch(*this);
-		ch->remove_gold(num, log);
+		currencies::RemoveAmount(*ch, currencies::kKunaId, num, currencies::EPurse::kHand, log);
 	}
 
 	void remove_bank(const long num, const bool log = true) {
 		Ensurer ch(*this);
-		ch->remove_bank(num, log);
+		currencies::RemoveAmount(*ch, currencies::kKunaId, num, currencies::EPurse::kBank, log);
 	}
 
 	void remove_both_gold(const long num, const bool log = true) {
 		Ensurer ch(*this);
-		ch->remove_both_gold(num, log);
+		currencies::RemoveTotal(*ch, currencies::kKunaId, num);
 	}
 
 	void add_gold(const long num, const bool log = true) {
 		Ensurer ch(*this);
-		ch->add_gold(num, log);
+		currencies::AddAmount(*ch, currencies::kKunaId, num, currencies::EPurse::kHand, false, log);
 	}
 
 	void add_bank(const long num, const bool log = true) {
 		Ensurer ch(*this);
-		ch->add_bank(num, log);
+		currencies::AddAmount(*ch, currencies::kKunaId, num, currencies::EPurse::kBank, false, log);
 	}
 
 	long get_total_gold() const {
 		Ensurer ch(*this);
-		return ch->get_total_gold();
+		return currencies::GetTotal(*ch, currencies::kKunaId);
 	}
 
 	int get_uid() const {

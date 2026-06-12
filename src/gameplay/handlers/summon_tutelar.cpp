@@ -4,6 +4,7 @@
 */
 
 #include "gameplay/handlers/spell_handlers.h"
+#include "gameplay/economics/currencies.h"
 #include "gameplay/mechanics/follow.h"
 #include "gameplay/skills/skills.h"
 #include "utils/utils.h"
@@ -159,7 +160,7 @@ EStageResult SummonTutelar(CastContext &ctx) {
 
 	mob->set_max_hit(floorf(base_hp + additional_hp_for_charisma * eff_cha));
 	mob->set_hit(mob->get_max_hit());
-	mob->set_gold(0);
+	currencies::SetAmount(*mob, currencies::kKunaId, 0);
 	GET_GOLD_NoDs(mob) = 0;
 	GET_GOLD_SiDs(mob) = 0;
 

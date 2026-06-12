@@ -284,7 +284,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 
 		{
 			std::string sline = fmt::sprintf("Рента: [%d], Денег: [%9ld], В банке: [%9ld] (Всего: %ld), Гривны: %d, Ногат: %d",
-					GET_LOADROOM(k), k->get_gold(), k->get_bank(), k->get_total_gold(),
+					GET_LOADROOM(k), currencies::GetAmount(*k, currencies::kKunaId), currencies::GetAmount(*k, currencies::kKunaId, currencies::EPurse::kBank), currencies::GetTotal(*k, currencies::kKunaId),
 					currencies::GetAmount(*k, currencies::kCopperGrivnaId), currencies::GetAmount(*k, currencies::kNogataId));
 			if (GetRealLevel(ch) >= kLvlImmortal) {
 				sline += fmt::sprintf(", %sOLC[%d]%s", kColorGrn, GET_OLC_ZONE(k), kColorNrm);

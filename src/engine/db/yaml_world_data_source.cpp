@@ -1496,7 +1496,7 @@ CharData YamlWorldDataSource::ParseMobFile(const std::string &file_path)
 	{
 		mob.mob_specials.GoldNoDs = GetInt(gold, "dice_count", 0);
 		mob.mob_specials.GoldSiDs = GetInt(gold, "dice_size", 0);
-		mob.set_gold(GetInt(gold, "bonus", 0));
+		currencies::SetAmount(mob, currencies::kKunaId, GetInt(gold, "bonus", 0));
 	}
 
 	// Experience
@@ -3549,7 +3549,7 @@ void YamlWorldDataSource::SaveMobs(int zone_rnum, int specific_vnum)
 		yaml.Value(static_cast<int>(mob.mob_specials.GoldSiDs));  // byte -> int
 
 		yaml.Key("bonus");
-		yaml.Value(mob.get_gold());
+		yaml.Value(currencies::GetAmount(*mob, currencies::kKunaId));
 
 		yaml.DecreaseIndent();
 

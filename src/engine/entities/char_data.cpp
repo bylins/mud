@@ -1060,66 +1060,6 @@ void CharData::set_ruble(int ruble) {
 	this->ruble = ruble;
 }
 
-long CharData::get_gold() const {
-	return currencies::GetAmount(*this, currencies::kKunaId);
-}
-
-long CharData::get_bank() const {
-	return currencies::GetAmount(*this, currencies::kKunaId, currencies::EPurse::kBank);
-}
-
-long CharData::get_total_gold() const {
-	return currencies::GetTotal(*this, currencies::kKunaId);
-}
-
-void CharData::add_gold(long num, bool need_log, bool clan_tax) {
-	if (num < 0) {
-		log("SYSERROR: num=%ld (%s:%d %s)", num, __FILE__, __LINE__, __func__);
-		return;
-	}
-	if (clan_tax) {
-		num -= ClanSystem::do_gold_tax(this, num);
-	}
-	currencies::AddAmount(*this, currencies::kKunaId, num, currencies::EPurse::kHand, false, need_log);
-}
-
-void CharData::add_bank(long num, bool need_log) {
-	if (num < 0) {
-		log("SYSERROR: num=%ld (%s:%d %s)", num, __FILE__, __LINE__, __func__);
-		return;
-	}
-	currencies::AddAmount(*this, currencies::kKunaId, num, currencies::EPurse::kBank, false, need_log);
-}
-
-void CharData::set_gold(long num, bool need_log) {
-	currencies::SetAmount(*this, currencies::kKunaId, num, currencies::EPurse::kHand, need_log);
-}
-
-void CharData::set_bank(long num, bool need_log) {
-	currencies::SetAmount(*this, currencies::kKunaId, num, currencies::EPurse::kBank, need_log);
-}
-
-long CharData::remove_gold(long num, bool need_log) {
-	if (num < 0) {
-		log("SYSERROR: num=%ld (%s:%d %s)", num, __FILE__, __LINE__, __func__);
-		return num;
-	}
-	return currencies::RemoveAmount(*this, currencies::kKunaId, num, currencies::EPurse::kHand, need_log);
-}
-
-long CharData::remove_bank(long num, bool need_log) {
-	if (num < 0) {
-		log("SYSERROR: num=%ld (%s:%d %s)", num, __FILE__, __LINE__, __func__);
-		return num;
-	}
-	return currencies::RemoveAmount(*this, currencies::kKunaId, num, currencies::EPurse::kBank, need_log);
-}
-
-long CharData::remove_both_gold(long num, bool need_log) {
-	long rest = remove_bank(num, need_log);
-	return remove_gold(rest, need_log);
-}
-
 // * Удача (мораль) для расчетов в скилах и вывода чару по счет все.
 int CharData::calc_morale() const {
 	return GetRealCha(this) / 2 + GET_MORALE(this);
