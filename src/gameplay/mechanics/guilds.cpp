@@ -159,8 +159,13 @@ void GuildInfoBuilder::ParseTalents(ItemPtr &info, DataNode &node) {
 			err_log("talent format error (%s) in guild '%s'.", e.what(), info->GetName().c_str());
 		}
 	}
+	// Talents without their own currency inherit the guild-wide default; if the guild sets none either,
+	// fall back to gold so the price still renders (legacy behaviour).
+	const Vnum guild_currency = info->default_currency_vnum_ != info_container::kUndefinedVnum
+		? info->default_currency_vnum_
+		: currencies::kGoldVnum;
 	for (auto &talent : info->learning_talents_) {
-		talent->ApplyDefaultCurrency(info->default_currency_vnum_);
+		talent->ApplyDefaultCurrency(guild_currency);
 	}
 }
 
@@ -469,8 +474,16 @@ GuildInfo::IGuildTalent::IGuildTalent(ETalent talent_type, DataNode &node) {
 
 	if (node.GoToChild("price")) {
 		try {
-			auto currency_text_id = parse::ReadAsStr(node.GetValue("currency"));
-			currency_vnum_ = MUD::Currencies().FindAvailableItem(currency_text_id).GetId();
+			// An absent (or kUndefined/invalid) currency leaves currency_vnum_ at kUndefinedVnum so the
+			// talent inherits the guild-wide default (applied by ApplyDefaultCurrency); only an explicit,
+			// valid currency overrides it.
+			const char *currency_text_id = parse::ReadAsStr(node.GetValue("currency"));
+			if (currency_text_id != nullptr && *currency_text_id != '\0') {
+				const auto id = MUD::Currencies().FindAvailableItem(currency_text_id).GetId();
+				if (id >= 0) {
+					currency_vnum_ = id;
+				}
+			}
 			start_price_ = parse::ReadAsInt(node.GetValue("start"));
 			remort_percemt_ = parse::ReadAsInt(node.GetValue("remort_percent"));
 		} catch (std::exception &e) {
