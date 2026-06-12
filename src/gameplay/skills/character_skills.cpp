@@ -6,7 +6,6 @@
 #include "character_skills.h"
 
 #include "engine/structs/structs.h"   // kBattleRound
-#include "engine/db/db.h"             // chardata_cooldown_list
 
 #include <cmath>
 
@@ -38,12 +37,13 @@ void CharacterSkills::Clear() {
 	data_[ESkill::kGlobalCooldown];   // keep the always-present global-cooldown slot
 }
 
-void CharacterSkills::SetCooldown(ESkill skill, unsigned cooldown) {
+bool CharacterSkills::SetCooldown(ESkill skill, unsigned cooldown) {
 	const auto it = data_.find(skill);
-	if (it != data_.end()) {
-		it->second.cooldown = cooldown;
-		chardata_cooldown_list.insert(owner_);
+	if (it == data_.end()) {
+		return false;
 	}
+	it->second.cooldown = cooldown;
+	return true;
 }
 
 unsigned CharacterSkills::GetCooldown(ESkill skill) const {

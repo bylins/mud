@@ -363,9 +363,9 @@ void PrintRentableInfo(CharData *ch, std::ostringstream &out) {
 // \todo Сделать авторазмещение в комнате-кузнице горна и убрать эту функцию.
 void PrinForgeInfo(CharData *ch, std::ostringstream &out) {
 	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kForge)
-		&& (skills::GetSkill(ch, ESkill::kJewelry)
-		|| skills::GetSkill(ch, ESkill::kRepair)
-		|| skills::GetSkill(ch, ESkill::kReforging))) {
+		&& (GetSkill(ch, ESkill::kJewelry)
+		|| GetSkill(ch, ESkill::kRepair)
+		|| GetSkill(ch, ESkill::kReforging))) {
 		out << InfoStrPrefix(ch) << kColorBoldYel << "Это место отлично подходит для занятий кузнечным делом."
 			<< kColorNrm << "\r\n";
 	}
@@ -877,7 +877,7 @@ void PrintScoreBase(CharData *ch) {
 	}
 
 	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kForge)
-		&& (skills::GetSkill(ch, ESkill::kJewelry) || skills::GetSkill(ch, ESkill::kRepair) || skills::GetSkill(ch, ESkill::kReforging))) {
+		&& (GetSkill(ch, ESkill::kJewelry) || GetSkill(ch, ESkill::kRepair) || GetSkill(ch, ESkill::kReforging))) {
 		snprintf(buf, sizeof(buf),
 				"%sЭто место отлично подходит для занятий кузнечным делом.%s\r\n",
 				kColorBoldGrn,
@@ -977,7 +977,7 @@ int CalcHitroll(CharData *ch) {
 	if (weapon) {
 		if (weapon->get_type() == EObjType::kWeapon) {
 			skill = static_cast<ESkill>(weapon->get_spec_param());
-			if (skills::GetSkill(ch, skill) == 0) {
+			if (GetSkill(ch, skill) == 0) {
 				hr -= (50 - std::min(50, GetRealInt(ch))) / 3;
 			} else {
 				GetClassWeaponMod(ch->GetClass(), skill, &max_dam, &hr);
@@ -988,7 +988,7 @@ int CalcHitroll(CharData *ch) {
 		if (weapon) {
 			if (weapon->get_type() == EObjType::kWeapon) {
 				skill = static_cast<ESkill>(weapon->get_spec_param());
-				if (skills::GetSkill(ch, skill) == 0) {
+				if (GetSkill(ch, skill) == 0) {
 					hr -= (50 - std::min(50, GetRealInt(ch))) / 3;
 				} else {
 					GetClassWeaponMod(ch->GetClass(), skill, &max_dam, &hr);
@@ -999,7 +999,7 @@ int CalcHitroll(CharData *ch) {
 		if (weapon) {
 			if (weapon->get_type() == EObjType::kWeapon) {
 				skill = static_cast<ESkill>(weapon->get_spec_param());
-				if (skills::GetSkill(ch, skill) == 0) {
+				if (GetSkill(ch, skill) == 0) {
 					hr -= (50 - std::min(50, GetRealInt(ch))) / 3;
 				} else {
 					GetClassWeaponMod(ch->GetClass(), skill, &max_dam, &hr);
@@ -1032,7 +1032,7 @@ int CalcHitroll(CharData *ch) {
 	if (ch->IsFlagged(EPrf::kPerformGreatAimingAttack)) {
 		hr += 4;
 	}
-	hr -= (mount::IsOnHorse(ch) ? (10 - skills::GetSkill(ch, ESkill::kRiding) / 20) : 0);
+	hr -= (mount::IsOnHorse(ch) ? (10 - GetSkill(ch, ESkill::kRiding) / 20) : 0);
 	hr *= condition::GetCondPenalty(ch, condition::kHitroll);
 	return hr;
 }

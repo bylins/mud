@@ -82,7 +82,7 @@ void do_track(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char name[kMaxInputLength];
 
 	// The character must have the track skill.
-	if (ch->IsNpc() || !skills::GetSkill(ch, ESkill::kTrack)) {
+	if (ch->IsNpc() || !GetSkill(ch, ESkill::kTrack)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kHideTrack, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
@@ -201,7 +201,7 @@ void do_hidetrack(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 	struct TrackData *track[EDirection::kMaxDirNum + 1], *temp;
 	int percent, prob, i, croom, found = false, dir, rdir;
 
-	if (ch->IsNpc() || !skills::GetSkill(ch, ESkill::kHideTrack)) {
+	if (ch->IsNpc() || !GetSkill(ch, ESkill::kHideTrack)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kHideTrack, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}

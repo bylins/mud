@@ -11,7 +11,7 @@ void DoSharpening(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	ObjData *obj;
 	int weight, add_hr, add_dr, prob, percent, min_mod, max_mod, i;
 	bool oldstate;
-	if (!skills::GetSkill(ch, ESkill::kSharpening)) {
+	if (!GetSkill(ch, ESkill::kSharpening)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kSharpening, ESkillMsg::kDontKnowSkill), ch);
 		return;
 	}
@@ -109,7 +109,7 @@ void DoSharpening(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 	//При 200% заточки шмотка будет точиться на 4-5 хитролов и 4-5 дамролов
-	min_mod = skills::GetSkillBonus(ch, ESkill::kSharpening) / 50;
+	min_mod = GetSkillBonus(ch, ESkill::kSharpening) / 50;
 	//С мортами все меньший уровень требуется для макс. заточки
 	max_mod = std::clamp((GetRealLevel(ch) + 5 + remort::GetRealRemort(ch)/4)/6, 1, 5);
 	oldstate = stable_objs::IsTimerUnlimited(obj); // запомним какая шмотка была до заточки

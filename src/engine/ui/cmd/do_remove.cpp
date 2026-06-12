@@ -24,7 +24,7 @@ void RemoveEquipment(CharData *ch, int pos, bool skip_total) {
 				return;
 			}
 			if (ch->GetEnemy() && (obj->get_type() == EObjType::kWeapon || pos == EEquipPos::kShield)) {
-				ch->Skills().SetCooldown(ESkill::kGlobalCooldown, 2);
+				ch->setSkillCooldown(ESkill::kGlobalCooldown, 2);
 			}
 			act("Вы прекратили использовать $o3.", false, ch, obj, nullptr, kToChar);
 			act("$n прекратил$g использовать $o3.",

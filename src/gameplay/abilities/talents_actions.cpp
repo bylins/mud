@@ -155,14 +155,14 @@ int Roll::RollSkillDices() const {
 }
 
 double Roll::CalcSkillCoeff(const CharData *const ch) const {
-	auto skill = skills::GetSkill(ch, base_skill_);
+	auto skill = GetSkill(ch, base_skill_);
 	auto low_skill = std::min(skill, abilities::kNoviceSkillThreshold);
 	auto hi_skill = std::max(0, skill - abilities::kNoviceSkillThreshold);
 	return (low_skill * low_skill_bonus_ + hi_skill * hi_skill_bonus_) / 100.0;
 }
 
 double Roll::CalcLowSkillCoeff(const CharData *const ch) const {
-	auto low_skill = std::min(skills::GetSkill(ch, base_skill_), abilities::kNoviceSkillThreshold);
+	auto low_skill = std::min(GetSkill(ch, base_skill_), abilities::kNoviceSkillThreshold);
 	return low_skill * low_skill_bonus_;
 }
 

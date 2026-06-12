@@ -34,7 +34,7 @@ static const char *EnchantWeapon(CharData *ch, ObjData *obj, ESpell spell_id) {
 			|| GetObjByVnumInContent(GlobalDrop::MAGIC2_ENCHANT_VNUM, reagobj)
 			|| GetObjByVnumInContent(GlobalDrop::MAGIC3_ENCHANT_VNUM, reagobj))) {
 		// у нас имеется доп символ для зачарования
-		obj->set_enchant(skills::GetSkill(ch, ESkill::kLightMagic), reagobj);
+		obj->set_enchant(GetSkill(ch, ESkill::kLightMagic), reagobj);
 		// kEnchantWeapon's magical-symbol consumption now flows through the
 		// data-driven <components><material> path, so nothing more is needed
 		// here other than the enchant being recorded above.
@@ -46,7 +46,7 @@ static const char *EnchantWeapon(CharData *ch, ObjData *obj, ESpell spell_id) {
 		// where the held slot was empty.
 		ProcessMatComponents(ch, ch, spell_id);
 	} else {
-		obj->set_enchant(skills::GetSkill(ch, ESkill::kLightMagic));
+		obj->set_enchant(GetSkill(ch, ESkill::kLightMagic));
 	}
 	if (GET_RELIGION(ch) == kReligionMono) {
 		return MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kEnchantMono).c_str();

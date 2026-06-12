@@ -15,8 +15,6 @@
 
 #include <map>
 
-class CharData;
-
 // One learned skill: its trained percentage and its current cooldown.
 struct CharacterSkillData {
 	int skill_level{0};
@@ -32,8 +30,6 @@ class CharacterSkills {
 
 	CharacterSkills() { data_[ESkill::kGlobalCooldown]; }   // the global-cooldown slot is always present
 
-	void SetOwner(CharData *owner) { owner_ = owner; }
-
 	// --- trained level ---
 	[[nodiscard]] int GetLevel(ESkill skill) const;
 	void SetLevel(ESkill skill, int percent);   // sets the level, or erases the record when percent == 0
@@ -43,7 +39,7 @@ class CharacterSkills {
 	[[nodiscard]] Map &data() { return data_; }
 
 	// --- cooldowns ---
-	void SetCooldown(ESkill skill, unsigned cooldown);
+	bool SetCooldown(ESkill skill, unsigned cooldown);   // returns true if the skill exists (cooldown applied)
 	[[nodiscard]] unsigned GetCooldown(ESkill skill) const;
 	[[nodiscard]] int GetCooldownInPulses(ESkill skill) const;
 	void DecreaseCooldowns(unsigned value);
@@ -54,7 +50,6 @@ class CharacterSkills {
 
  private:
 	Map data_;
-	CharData *owner_{nullptr};
 };
 
 #endif  // BYLINS_SRC_GAMEPLAY_SKILLS_CHARACTER_SKILLS_H_

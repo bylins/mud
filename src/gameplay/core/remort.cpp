@@ -201,8 +201,8 @@ int GetRealRemort(const std::shared_ptr<CharData> &ch) {
 void SetSkillAfterRemort(CharData *ch) {
 	for (const auto &it : ch->GetCharSkills()) {
 		const int max_skill_level = CalcSkillHardCap(ch, it.first);
-		if (skills::GetSkillBonus(ch, it.first) > max_skill_level) {
-			skills::SetSkill(ch, it.first, max_skill_level);
+		if (GetSkillBonus(ch, it.first) > max_skill_level) {
+			SetSkill(ch, it.first, max_skill_level);
 		}
 	}
 }

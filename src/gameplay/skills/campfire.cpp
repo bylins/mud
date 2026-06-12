@@ -6,7 +6,7 @@
 
 void DoCampfire(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	int percent, prob;
-	if (!skills::GetSkill(ch, ESkill::kCampfire)) {
+	if (!GetSkill(ch, ESkill::kCampfire)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kCampfire, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}

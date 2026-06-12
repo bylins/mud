@@ -492,12 +492,12 @@ class CharacterWrapper : public Wrapper<CharacterData> {
 
 	int get_skill(int skill_num) const {
 		Ensurer ch(*this);
-		return skills::GetSkill(ch, static_cast<ESkill>(skill_num));
+		return GetSkill(ch, static_cast<ESkill>(skill_num));
 	}
 
 	void set_skill(int skill_num, int percent) {
 		Ensurer ch(*this);
-		skills::SetSkill(ch, static_cast<ESkill>(skill_num), percent);
+		SetSkill(ch, static_cast<ESkill>(skill_num), percent);
 	}
 
 	void clear_skills() {
@@ -940,7 +940,7 @@ class ObjWrapper : private std::shared_ptr<ObjectData>, public Wrapper<ObjectDat
 
 	void set_skill(const int v) {
 		Ensurer obj(*this);
-		skills::SetSkill(obj, v);
+		SetSkill(obj, v);
 	}
 	int get_max() const {
 		Ensurer obj(*this);

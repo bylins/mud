@@ -31,7 +31,7 @@ void do_protect(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (ch->IsNpc() || !skills::GetSkill(ch, ESkill::kProtect)) {
+	if (ch->IsNpc() || !GetSkill(ch, ESkill::kProtect)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kProtect, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}

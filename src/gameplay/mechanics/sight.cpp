@@ -422,7 +422,7 @@ bool look_at_target(CharData *ch, char *arg, int subcmd) {
 			return false;
 		look_at_char(found_char, ch);
 		if (ch != found_char) {
-			if (subcmd == kScmdLookHide && skills::GetSkill(ch, ESkill::kPry) > 0) {
+			if (subcmd == kScmdLookHide && GetSkill(ch, ESkill::kPry) > 0) {
 				fnum = number(1, MUD::Skill(ESkill::kPry).difficulty);
 				found = CalcCurrentSkill(ch, ESkill::kPry, found_char);
 				TrainSkill(ch, ESkill::kPry, found < fnum, found_char);
@@ -692,7 +692,7 @@ void look_at_char(CharData *i, CharData *ch) {
 		}
 	}
 
-	if (ch != i && (skills::GetSkill(ch, ESkill::kPry) || privilege::IsImmortal(ch))) {
+	if (ch != i && (GetSkill(ch, ESkill::kPry) || privilege::IsImmortal(ch))) {
 		found = false;
 		act("\r\nВы попытались заглянуть в $s ношу:", false, i, nullptr, ch, kToVict);
 		for (tmp_obj = i->carrying; tmp_obj; tmp_obj = tmp_obj->get_next_content()) {
@@ -1056,7 +1056,7 @@ void look_in_direction(CharData *ch, int dir, int info_is) {
 				count += sprintf(buf + count, " закрыто (вероятно дверь).\r\n");
 			}
 
-			const int skill_pick = skills::GetSkill(ch, ESkill::kPickLock);
+			const int skill_pick = GetSkill(ch, ESkill::kPickLock);
 			if (EXIT_FLAGGED(rdata, EExitFlag::kLocked) && skill_pick) {
 				if (EXIT_FLAGGED(rdata, EExitFlag::kPickroof)) {
 					count += sprintf(buf + count - 2,
@@ -1165,7 +1165,7 @@ void look_in_obj(CharData *ch, char *arg) {
 		if (obj->get_type() == EObjType::kContainer) {
 			if (IS_SET(GET_OBJ_VAL((obj), 1), (EContainerFlag::kShutted))) {
 				act("Закрыт$A.", false, ch, obj, nullptr, kToChar);
-				const int skill_pick = skills::GetSkill(ch, ESkill::kPickLock);
+				const int skill_pick = GetSkill(ch, ESkill::kPickLock);
 				int count = sprintf(buf, "Заперт%s.", grammar::ObjSexEnding((obj)->get_sex(), 6));
 				if (IS_SET(GET_OBJ_VAL((obj), 1), (EContainerFlag::kLockedUp)) && skill_pick) {
 					if (IS_SET(GET_OBJ_VAL((obj), 1), (EContainerFlag::kUncrackable)))
@@ -1218,7 +1218,7 @@ void look_in_obj(CharData *ch, char *arg) {
 
 void skip_hide_on_look(CharData *ch) {
 	if (AFF_FLAGGED(ch, EAffect::kHide) &&
-		((!skills::GetSkill(ch, ESkill::kPry) ||
+		((!GetSkill(ch, ESkill::kPry) ||
 			((number(1, 100) -
 				CalcCurrentSkill(ch, ESkill::kPry, nullptr) - 2 * (ch->get_wis() - 9)) > 0)))) {
 		RemoveAffectFromChar(ch, ESpell::kHide);
@@ -1558,7 +1558,7 @@ void diag_char_to_char(CharData *i, CharData *ch) {
 //buf это буфер в который дописывать инфу, в нем уже может быть что-то иначе надо перед вызовом присвоить *buf='\0'
 void obj_info(CharData *ch, ObjData *obj, char buf[kMaxStringLength]) {
 	int j;
-	if (CanUseFeat(ch, EFeat::kSkilledTrader) || ch->IsFlagged(EPrf::kHolylight) || skills::GetSkill(ch, ESkill::kJewelry)) {
+	if (CanUseFeat(ch, EFeat::kSkilledTrader) || ch->IsFlagged(EPrf::kHolylight) || GetSkill(ch, ESkill::kJewelry)) {
 		sprintf(buf + strlen(buf), "Материал : %s", kColorCyn);
 		sprinttype(obj->get_material(), material_name, buf + strlen(buf));
 		sprintf(buf + strlen(buf), "\r\n%s", kColorNrm);

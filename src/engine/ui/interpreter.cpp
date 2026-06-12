@@ -1088,7 +1088,7 @@ void check_hiding_cmd(CharData *ch, int percent) {
 		if (percent == -2) {
 			if (AFF_FLAGGED(ch, EAffect::kSneak)) {
 				remove_hide = number(1, MUD::Skill(ESkill::kSneak).difficulty) >
-					skills::GetSkill(ch, ESkill::kHide);
+					GetSkill(ch, ESkill::kHide);
 			} else {
 				percent = 500;
 			}
@@ -1096,7 +1096,7 @@ void check_hiding_cmd(CharData *ch, int percent) {
 		if (percent == -1) {
 			remove_hide = true;
 		} else if (percent > 0) {
-			remove_hide = number(1, percent) > skills::GetSkill(ch, ESkill::kHide);
+			remove_hide = number(1, percent) > GetSkill(ch, ESkill::kHide);
 		}
 		if (remove_hide) {
 			RemoveAffectFromChar(ch, ESpell::kHide);
@@ -1905,12 +1905,12 @@ void do_entergame(DescriptorData *d) {
 	}
 
 	if (d->character->IsFlagged(EPrf::kPunctual)
-		&& !skills::GetSkill(d->character.get(), ESkill::kPunctual)) {
+		&& !GetSkill(d->character.get(), ESkill::kPunctual)) {
 		d->character->UnsetFlag(EPrf::kPunctual);
 	}
 
 	if (d->character->IsFlagged(EPrf::kAwake)
-		&& !skills::GetSkill(d->character.get(), ESkill::kAwake)) {
+		&& !GetSkill(d->character.get(), ESkill::kAwake)) {
 		d->character->UnsetFlag(EPrf::kAwake);
 	}
 
@@ -1955,7 +1955,7 @@ void do_entergame(DescriptorData *d) {
 	if (!privilege::IsImmortal(d->character.get())) {
 		for (const auto &skill : MUD::Skills()) {
 			if (MUD::Class((d->character)->GetClass()).skills[skill.GetId()].IsInvalid()) {
-				skills::SetSkill(d->character.get(), skill.GetId(), 0);
+				SetSkill(d->character.get(), skill.GetId(), 0);
 			}
 		}
 

@@ -475,7 +475,7 @@ void Player::save_char() {
 		int skill_val;
 		for (const auto &skill : MUD::Skills()) {
 			if (skill.IsAvailable()) {
-				skill_val = skills::GetTrainedSkill(this, skill.GetId());
+				skill_val = GetTrainedSkill(this, skill.GetId());
 				if (skill_val) {
 					saved.printf("%d %d %s\n", to_underlying(skill.GetId()), skill_val, skill.GetName());
 				}
@@ -1712,7 +1712,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 						if (num != 0) {
 							auto skill_id = static_cast<ESkill>(num);
 							if (MUD::Class(this->GetClass()).skills[skill_id].IsAvailable()) {
-								skills::SetSkill(this, skill_id, num2);
+								SetSkill(this, skill_id, num2);
 							}
 						}
 					} while (num != 0);

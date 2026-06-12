@@ -988,7 +988,7 @@ void DoPcInit(CharData *ch, bool is_newbie) {
 	ch->set_exp(1);
 	ch->set_max_hit(10);
 	if (is_newbie || (remort::GetRealRemort(ch) >= 9 && remort::GetRealRemort(ch) % 3 == 0)) {
-		skills::SetSkill(ch, ESkill::kHangovering, 10);
+		SetSkill(ch, ESkill::kHangovering, 10);
 	}
 
 	if (is_newbie && IS_MANA_CASTER(ch)) {
@@ -1019,24 +1019,24 @@ void DoPcInit(CharData *ch, bool is_newbie) {
 		case ECharClass::kWizard:
 		case ECharClass::kCharmer:
 		case ECharClass::kNecromancer:
-		case ECharClass::kMagus: skills::SetSkill(ch, ESkill::kSideAttack, 10);
+		case ECharClass::kMagus: SetSkill(ch, ESkill::kSideAttack, 10);
 			break;
-		case ECharClass::kSorcerer: skills::SetSkill(ch, ESkill::kSideAttack, 50);
+		case ECharClass::kSorcerer: SetSkill(ch, ESkill::kSideAttack, 50);
 			break;
 		case ECharClass::kThief:
-		case ECharClass::kAssasine: skills::SetSkill(ch, ESkill::kSideAttack, 75);
+		case ECharClass::kAssasine: SetSkill(ch, ESkill::kSideAttack, 75);
 			break;
-		case ECharClass::kMerchant: skills::SetSkill(ch, ESkill::kSideAttack, 85);
+		case ECharClass::kMerchant: SetSkill(ch, ESkill::kSideAttack, 85);
 			break;
 		case ECharClass::kGuard:
 		case ECharClass::kPaladine:
 		case ECharClass::kWarrior:
 		case ECharClass::kRanger:
-			if (skills::GetSkill(ch, ESkill::kRiding) == 0)
-				skills::SetSkill(ch, ESkill::kRiding, 10);
-			skills::SetSkill(ch, ESkill::kSideAttack, 95);
+			if (GetSkill(ch, ESkill::kRiding) == 0)
+				SetSkill(ch, ESkill::kRiding, 10);
+			SetSkill(ch, ESkill::kSideAttack, 95);
 			break;
-		case ECharClass::kVigilant: skills::SetSkill(ch, ESkill::kSideAttack, 95);
+		case ECharClass::kVigilant: SetSkill(ch, ESkill::kSideAttack, 95);
 			break;
 		default: break;
 	}

@@ -92,7 +92,6 @@ CharData::CharData() :
 	script(new Script()) {
 	this->zero_init();
 	caching::character_cache.Add(this);
-	skills_.SetOwner(this);
 }
 
 CharData::~CharData() {
@@ -388,6 +387,12 @@ void CharData::purge() {
 	short_descr_.clear();
 
 	followers.clear();
+}
+
+void CharData::setSkillCooldown(ESkill skill_id, unsigned cooldown) {
+	if (skills_.SetCooldown(skill_id, cooldown)) {
+		chardata_cooldown_list.insert(this);
+	}
 }
 
 void CharData::clear_skills() {
@@ -1324,7 +1329,7 @@ void CharData::restore_npc() {
 
 	for (const auto &skill : MUD::Skills()) {
 		if (skill.IsValid()) {
-			skills::SetSkill(this, skill.GetId(), skills::GetSkill(proto, skill.GetId()));
+			SetSkill(this, skill.GetId(), GetSkill(proto, skill.GetId()));
 		}
 	}
 

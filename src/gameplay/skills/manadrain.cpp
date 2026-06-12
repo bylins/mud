@@ -18,7 +18,7 @@ void do_manadrain(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	one_argument(argument, arg);
 
-	if (ch->IsNpc() || !skills::GetSkill(ch, ESkill::kJinx)) {
+	if (ch->IsNpc() || !GetSkill(ch, ESkill::kJinx)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kJinx, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
@@ -60,7 +60,7 @@ void do_manadrain(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	skill = skills::GetSkill(ch, ESkill::kJinx);
+	skill = GetSkill(ch, ESkill::kJinx);
 
 	percent = number(1, MUD::Skill(ESkill::kJinx).difficulty);
 	prob = std::max(20, 90 - 5 * std::max(0, GetRealLevel(vict) - GetRealLevel(ch) - std::max(0, (skill - 80) / 6)));
@@ -86,7 +86,7 @@ void do_manadrain(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (CritLuckTest(ch, vict) || !success)
 			timed.time = 1;
 		else
-			timed.time = 6 - std::min(4, (skills::GetSkill(ch, ESkill::kJinx) + 30) / 50);
+			timed.time = 6 - std::min(4, (GetSkill(ch, ESkill::kJinx) + 30) / 50);
 		ImposeTimedSkill(ch, &timed);
 	}
 }

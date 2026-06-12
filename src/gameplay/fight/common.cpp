@@ -42,7 +42,7 @@ void SetWait(CharData *ch, int waittime, int wait_if_fight) {
 
 void SetSkillCooldown(CharData *ch, ESkill skill, int pulses) {
 	if (ch->Skills().GetCooldownInPulses(skill) < pulses) {
-		ch->Skills().SetCooldown(skill, pulses * kBattleRound + 1);
+		ch->setSkillCooldown(skill, pulses * kBattleRound + 1);
 	}
 }
 

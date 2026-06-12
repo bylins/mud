@@ -334,6 +334,9 @@ class CharData : public ProtectedCharData {
 	const CharacterSkills::Map &GetCharSkills() const { return skills_.data(); }
 	CharacterSkills &Skills() { return skills_; }
 	const CharacterSkills &Skills() const { return skills_; }
+	// Sets a skill's cooldown and registers the char in the global cooldown list (the one cooldown
+	// op that is a char-level concern, hence here and not on CharacterSkills).
+	void setSkillCooldown(ESkill skill_id, unsigned cooldown);
 	int get_skill_bonus() const;
 	void set_skill_bonus(int);
 	int GetAddSkill(ESkill skill_id) const;

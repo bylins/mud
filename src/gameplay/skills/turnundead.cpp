@@ -18,7 +18,7 @@
 
 void do_turn_undead(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 
-	if (!skills::GetSkill(ch, ESkill::kTurnUndead)) {
+	if (!GetSkill(ch, ESkill::kTurnUndead)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kTurnUndead, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
@@ -27,7 +27,7 @@ void do_turn_undead(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd
 		return;
 	};
 
-	int skill = skills::GetSkill(ch, ESkill::kTurnUndead);
+	int skill = GetSkill(ch, ESkill::kTurnUndead);
 	TimedSkill timed;
 	timed.skill = ESkill::kTurnUndead;
 	if (CanUseFeat(ch, EFeat::kExorcist)) {

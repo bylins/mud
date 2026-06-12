@@ -192,7 +192,7 @@ void do_sense(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int dir;
 
 	// The character must have the track skill.
-	if (ch->IsNpc() || !skills::GetSkill(ch, ESkill::kSense)) {
+	if (ch->IsNpc() || !GetSkill(ch, ESkill::kSense)) {
 		SendMsgToChar("Но вы не знаете как.\r\n", ch);
 		return;
 	}
