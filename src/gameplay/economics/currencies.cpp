@@ -178,6 +178,46 @@ static void LoadCurrencyNames(DataNode data) {
 void CurrencyNamesLoader::Load(DataNode data) { LoadCurrencyNames(data); }
 void CurrencyNamesLoader::Reload(DataNode data) { LoadCurrencyNames(data); }
 
+std::string CurrencyNamesLoader::EditableWhat() const {
+	return "currency_name";
+}
+
+std::vector<cfg_manager::EditableElement> CurrencyNamesLoader::ListElements() const {
+	std::vector<cfg_manager::EditableElement> out;
+	for (const auto &[id, cn] : g_currency_names) {
+		out.push_back({id, id + " (" + cn.search + ")"});
+	}
+	return out;
+}
+
+cfg_manager::ValidationResult CurrencyNamesLoader::Validate(parser_wrapper::DataNode & /*doc*/) const {
+	return {true, ""};  // names are free-form text; a malformed reload is reported in syslog
+}
+
+parser_wrapper::DataNode CurrencyNamesLoader::FindElementNode(parser_wrapper::DataNode root, const std::string &id) const {
+	for (auto &child : root.Children()) {
+		if (std::string(child.GetName()) == "msg_sheaf" && id == child.GetValue("id")) {
+			return child;
+		}
+	}
+	return parser_wrapper::DataNode{};
+}
+
+std::string CurrencyNamesLoader::CanonicalElementId(const std::string &id) const {
+	return id.empty() ? "" : id;  // any currency text_id is a valid names key (create allowed)
+}
+
+parser_wrapper::DataNode CurrencyNamesLoader::CreateElementNode(parser_wrapper::DataNode root, const std::string &id) const {
+	auto sheaf = root.AddChild("msg_sheaf");
+	sheaf.SetValue("id", id);
+	auto name = sheaf.AddChild("name");
+	name.SetValue("gender", "kFemale");
+	name.SetValue("search", id);
+	name.AddChild("singular");
+	name.AddChild("plural");
+	return sheaf;
+}
+
 const CurrencyName *FindCurrencyName(const std::string &text_id) {
 	const auto it = g_currency_names.find(text_id);
 	return it == g_currency_names.end() ? nullptr : &it->second;

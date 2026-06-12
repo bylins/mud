@@ -111,10 +111,16 @@ struct CurrencyName {
 	ObjNameMap obj_names;  // per-currency GetObjName tier overrides
 };
 
-class CurrencyNamesLoader : virtual public cfg_manager::ICfgLoader {
+class CurrencyNamesLoader : virtual public cfg_manager::IEditableCfgLoader {
  public:
 	void Load(parser_wrapper::DataNode data) final;
 	void Reload(parser_wrapper::DataNode data) final;
+	[[nodiscard]] std::string EditableWhat() const final;
+	[[nodiscard]] std::vector<cfg_manager::EditableElement> ListElements() const final;
+	[[nodiscard]] cfg_manager::ValidationResult Validate(parser_wrapper::DataNode &doc) const final;
+	[[nodiscard]] parser_wrapper::DataNode FindElementNode(parser_wrapper::DataNode root, const std::string &id) const final;
+	[[nodiscard]] std::string CanonicalElementId(const std::string &id) const final;
+	[[nodiscard]] parser_wrapper::DataNode CreateElementNode(parser_wrapper::DataNode root, const std::string &id) const final;
 };
 
 // The loaded name for a currency text_id, or nullptr if none.
