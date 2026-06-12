@@ -168,6 +168,9 @@ ItemPtr CurrencyInfoBuilder::ParseCurrency(DataNode node) {
 			if (const char *v = node.GetValue("logged"); v && *v) currency_info->logged_ = parse::ReadAsBool(v);
 			if (const char *v = node.GetValue("msdp"); v && *v) currency_info->reports_msdp_ = parse::ReadAsBool(v);
 			if (const char *v = node.GetValue("money_stat"); v && *v) currency_info->money_stat_ = parse::ReadAsBool(v);
+			if (const char *v = node.GetValue("force_split"); v && *v) currency_info->force_split_ = parse::ReadAsBool(v);
+			if (const char *v = node.GetValue("daily_quest"); v && *v) currency_info->daily_quest_ = parse::ReadAsBool(v);
+			if (const char *v = node.GetValue("arena_only"); v && *v) currency_info->arena_only_ = parse::ReadAsBool(v);
 		} catch (std::runtime_error &e) {
 			err_log("incorrect flags (%s) in currency '%s'.", e.what(), currency_info->name_.c_str());
 		}
@@ -396,6 +399,25 @@ void SetAmount(CharData &ch, int vnum, long amount, EPurse purse, bool with_log,
 long AddAmount(CharData &ch, int vnum, long amount, EPurse purse, bool notify, bool with_log, bool immortal) { return AddAmount(ch, TextIdByVnum(vnum), amount, purse, notify, with_log, immortal); }
 long RemoveAmount(CharData &ch, int vnum, long amount, EPurse purse, bool with_log) { return RemoveAmount(ch, TextIdByVnum(vnum), amount, purse, with_log); }
 long RemoveTotal(CharData &ch, int vnum, long amount, bool with_log) { return RemoveTotal(ch, TextIdByVnum(vnum), amount, with_log); }
+
+// ---- Separate hand/bank public API (EPurse stays an internal detail) ----
+long GetHand(const CharData &ch, const std::string &id) { return GetAmount(ch, id, EPurse::kHand); }
+long GetBank(const CharData &ch, const std::string &id) { return GetAmount(ch, id, EPurse::kBank); }
+void SetHand(CharData &ch, const std::string &id, long amount, bool with_log, bool immortal) { SetAmount(ch, id, amount, EPurse::kHand, with_log, immortal); }
+void SetBank(CharData &ch, const std::string &id, long amount, bool with_log, bool immortal) { SetAmount(ch, id, amount, EPurse::kBank, with_log, immortal); }
+long AddHand(CharData &ch, const std::string &id, long amount, bool notify, bool with_log, bool immortal) { return AddAmount(ch, id, amount, EPurse::kHand, notify, with_log, immortal); }
+long AddBank(CharData &ch, const std::string &id, long amount, bool notify, bool with_log, bool immortal) { return AddAmount(ch, id, amount, EPurse::kBank, notify, with_log, immortal); }
+long RemoveHand(CharData &ch, const std::string &id, long amount, bool with_log) { return RemoveAmount(ch, id, amount, EPurse::kHand, with_log); }
+long RemoveBank(CharData &ch, const std::string &id, long amount, bool with_log) { return RemoveAmount(ch, id, amount, EPurse::kBank, with_log); }
+
+long GetHand(const CharData &ch, int vnum) { return GetHand(ch, TextIdByVnum(vnum)); }
+long GetBank(const CharData &ch, int vnum) { return GetBank(ch, TextIdByVnum(vnum)); }
+void SetHand(CharData &ch, int vnum, long amount, bool with_log, bool immortal) { SetHand(ch, TextIdByVnum(vnum), amount, with_log, immortal); }
+void SetBank(CharData &ch, int vnum, long amount, bool with_log, bool immortal) { SetBank(ch, TextIdByVnum(vnum), amount, with_log, immortal); }
+long AddHand(CharData &ch, int vnum, long amount, bool notify, bool with_log, bool immortal) { return AddHand(ch, TextIdByVnum(vnum), amount, notify, with_log, immortal); }
+long AddBank(CharData &ch, int vnum, long amount, bool notify, bool with_log, bool immortal) { return AddBank(ch, TextIdByVnum(vnum), amount, notify, with_log, immortal); }
+long RemoveHand(CharData &ch, int vnum, long amount, bool with_log) { return RemoveHand(ch, TextIdByVnum(vnum), amount, with_log); }
+long RemoveBank(CharData &ch, int vnum, long amount, bool with_log) { return RemoveBank(ch, TextIdByVnum(vnum), amount, with_log); }
 
 } // namespace currencies
 
