@@ -7,6 +7,7 @@
 */
 
 #include "engine/entities/char_data.h"
+#include "administration/privilege.h"
 #include "gameplay/communication/offtop.h"
 #include "gameplay/communication/spam.h"
 #include "engine/ui/color.h"

@@ -1,4 +1,5 @@
 #include "top.h"
+#include "administration/privilege.h"
 #include "utils/grammar/declensions.h"
 
 #include "gameplay/classes/pc_classes.h"

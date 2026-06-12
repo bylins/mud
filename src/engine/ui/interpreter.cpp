@@ -14,6 +14,7 @@
 #define INTERPRETER_CPP_
 
 #include "interpreter.h"
+#include "gameplay/mechanics/condition.h"
 #include "utils/utils_encoding.h"
 #include "interpreter_utils.h"
 

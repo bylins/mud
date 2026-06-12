@@ -3,6 +3,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "char_player.h"
+#include "administration/privilege.h"
 #include "gameplay/economics/currencies.h"
 #include "gameplay/quests/daily_quest.h"
 #include "engine/db/global_objects.h"

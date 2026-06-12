@@ -7,6 +7,7 @@
  */
 
 #include "engine/ui/color.h"
+#include "gameplay/mechanics/condition.h"
 #include "administration/privilege.h"
 #include "gameplay/economics/currencies.h"
 #include "engine/db/global_objects.h"

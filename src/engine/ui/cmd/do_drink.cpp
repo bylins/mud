@@ -7,6 +7,7 @@
 */
 
 #include "do_drink.h"
+#include "gameplay/mechanics/condition.h"
 #include "administration/privilege.h"
 
 #include "engine/entities/obj_data.h"
