@@ -1417,11 +1417,6 @@ void CharData::send_to_TC(bool to_impl, bool to_tester, bool to_coder, const cha
 	SendMsgToChar(tmpbuf, IsCharmice(this) ? this->get_master() : this);
 }
 
-bool CharData::have_mind() const {
-	if (!AFF_FLAGGED(this, EAffect::kCharmed) && !mount::IsHorse(this))
-		return true;
-	return false;
-}
 
 // персонаж на лошади?
 
