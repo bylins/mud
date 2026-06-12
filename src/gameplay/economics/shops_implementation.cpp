@@ -11,6 +11,7 @@
 #include "gameplay/mechanics/glory.h"
 #include "gameplay/mechanics/glory_const.h"
 #include "gameplay/economics/currencies.h"
+#include "gameplay/quests/daily_quest.h"
 #include "currencies.h"
 #include "engine/db/global_objects.h"
 #include "engine/db/world_objects.h"
@@ -378,13 +379,9 @@ void shop_node::process_buy(CharData *ch, CharData *keeper, char *argument) {
 			} else if (currency == currencies::kGold) {
 				spent_today += price;
 			}
-			// валюта дневного задания: трата сбрасывает дневное задание
-			if (MUD::Currencies().FindAvailableItem(currency).IsDailyQuest()) {
-				ch->spent_hryvn_sub(price);
-				if (ch->get_spent_hryvn() > 1000) {
-					SendMsgToChar(ShopMsg(ESM::kHryvnReset) + "\r\n", ch);
-					ch->reset_daily_quest();
-				}
+			// трата валюты может затронуть систему дейликов
+			if (DailyQuest::OnCurrencySpent(ch, currency, price)) {
+				SendMsgToChar(ShopMsg(ESM::kHryvnReset) + "\r\n", ch);
 			}
 			++bought;
 
