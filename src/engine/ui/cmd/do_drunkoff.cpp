@@ -7,6 +7,7 @@
 */
 
 #include "engine/entities/obj_data.h"
+#include "gameplay/mechanics/condition.h"
 #include "engine/entities/char_data.h"
 #include "engine/core/handler.h"
 #include "gameplay/mechanics/liquid.h"
