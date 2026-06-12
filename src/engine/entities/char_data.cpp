@@ -8,7 +8,7 @@
 #include "administration/privilege.h"
 #include "char_player.h"
 #include "gameplay/mechanics/player_races.h"
-#include "gameplay/mechanics/mount.h"   // issue.mount-mechanics: mount::GetHorse etc.
+#include "gameplay/mechanics/mount.h"
 #include "gameplay/mechanics/follow.h"
 #include "utils/cache.h"
 #include "gameplay/fight/fight.h"
@@ -53,7 +53,6 @@ void check_purged(const CharData *ch, const char *fnc) {
 }
 
 } // namespace
-
 
 ProtectedCharData::ProtectedCharData() : m_rnum(kNobody) {
 }
@@ -132,7 +131,6 @@ bool CharData::in_used_zone() const {
 //вычисление штрафов за голод и жажду
 //P_DAMROLL, P_HITROLL, P_CAST, P_MEM_GAIN, P_MOVE_GAIN, P_HIT_GAIN
 
-
 void CharData::reset() {
 	int i;
 
@@ -168,7 +166,6 @@ void CharData::reset() {
 
 	PlayerI::reset();
 }
-
 
 bool CharData::has_any_affect(const affects_list_t &affects) {
 	for (const auto &affect : affects) {
@@ -310,9 +307,6 @@ void CharData::zero_init() {
 void CharData::purge() {
 	caching::character_cache.Remove(this);
 
-//	if (!get_name().empty()) {
-//		log("[FREE CHAR] (%s)", GET_NAME(this));
-//	}
 	int i, id = -1;
 	struct alias_data *a;
 
@@ -402,7 +396,6 @@ void CharData::clear_skills() {
 int CharData::get_skills_count() const {
 	return skills_.Count();
 }
-
 
 int CharData::get_obj_slot(int slot_num) {
 	if (slot_num >= 0 && slot_num < MAX_ADD_SLOTS) {
@@ -812,9 +805,7 @@ void CharData::set_movereg(const int v) {
 // * Удача (мораль) для расчетов в скилах и вывода чару по счет все.
 int CharData::calc_morale() const {
 	return GetRealCha(this) / 2 + GET_MORALE(this);
-//	return cha_app[GetRealCha(this)].morale + GET_MORALE(this);
 }
-///////////////////////////////////////////////////////////////////////////////
 int CharData::get_str() const {
 	check_purged(this, "get_str");
 	return GetInbornStr();
@@ -839,7 +830,6 @@ int CharData::get_str_add() const {
 void CharData::set_str_add(int param) {
 	str_add_ = param;
 }
-///////////////////////////////////////////////////////////////////////////////
 int CharData::get_dex() const {
 	check_purged(this, "get_dex");
 	return GetInbornDex();
@@ -864,7 +854,6 @@ int CharData::get_dex_add() const {
 void CharData::set_dex_add(int param) {
 	dex_add_ = param;
 }
-///////////////////////////////////////////////////////////////////////////////
 int CharData::get_con() const {
 	check_purged(this, "get_con");
 	return GetInbornCon();
@@ -888,7 +877,6 @@ int CharData::get_con_add() const {
 void CharData::set_con_add(int param) {
 	con_add_ = param;
 }
-//////////////////////////////////////
 
 int CharData::get_int() const {
 	check_purged(this, "get_int");
@@ -914,7 +902,6 @@ int CharData::get_int_add() const {
 void CharData::set_int_add(int param) {
 	int_add_ = param;
 }
-////////////////////////////////////////
 int CharData::get_wis() const {
 	check_purged(this, "get_wis");
 	return GetInbornWis();
@@ -955,7 +942,6 @@ int CharData::get_wis_add() const {
 void CharData::set_wis_add(int param) {
 	wis_add_ = param;
 }
-///////////////////////////////////////////////////////////////////////////////
 int CharData::get_cha() const {
 	check_purged(this, "get_cha");
 	return GetInbornCha();
@@ -997,9 +983,6 @@ void CharData::SetAddSkill(ESkill skill_id, int value) {
 	skills_add_[skill_id] += value;
 }
 
-
-///////////////////////////////////////////////////////////////////////////////
-
 void CharData::clear_add_apply_affects() {
 	// Clear all affect, because recalc one
 	add_abils = {};
@@ -1015,7 +998,6 @@ void CharData::clear_add_apply_affects() {
 	set_skill_bonus(0);
 	skills_add_.clear();
 }
-///////////////////////////////////////////////////////////////////////////////
 // обрезает строку и выдергивает из нее предтитул
 std::string CharData::GetTitle() const {
 	std::string tmp = this->player_data.title;
@@ -1189,9 +1171,6 @@ void CharData::restore_npc() {
 	this->mob_specials.damnodice = proto->mob_specials.damnodice;
 	this->mob_specials.damsizedice = proto->mob_specials.damsizedice;
 	this->mob_specials.extra_attack = proto->mob_specials.extra_attack;
-	// this->mob_specials.damnodice = 1;
-	// this->mob_specials.damsizedice = 1;
-	// this->mob_specials.ExtraAttack = 0;
 	//флаги
 	this->char_specials.saved.act = proto->char_specials.saved.act;
 	this->set_touching(nullptr);
@@ -1249,22 +1228,13 @@ void CharData::set_wait(const unsigned _) {
 // который находится вне боя и до этого был кем-то бит
 // (т.к. имеет не нулевой список атакеров)
 void CharData::inc_restore_timer(int num) {
-		if (get_role(static_cast<unsigned>(EMobClass::kBoss)) && was_attacked_ && !GetEnemy()) {
+	if (get_role(static_cast<unsigned>(EMobClass::kBoss)) && was_attacked_ && !GetEnemy()) {
 		restore_timer_ += num;
 		if (restore_timer_ > num) {
 			restore_mob();
 		}
 	}
 }
-
-//метод передачи отладочного сообщения:
-//имморталу, тестеру или кодеру
-//остальные параметры - функция printf
-
-// персонаж на лошади?
-
-#include "utils/backtrace.h"
-
 
 obj_sets::activ_sum &CharData::obj_bonus() {
 	return obj_bonus_;
