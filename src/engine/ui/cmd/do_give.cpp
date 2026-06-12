@@ -190,8 +190,12 @@ void do_give(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		} else if (!(vict = give_find_vict(ch, argument))) {
 			return;
 		} else if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying))) {
-			snprintf(buf, kMaxInputLength, "У вас нет '%s'.\r\n", arg);
-			SendMsgToChar(buf, ch);
+			if (const auto *cur = currencies::FindBySearch(arg); cur && !cur->IsGiveable()) {
+				SendMsgToChar("Эту валюту нельзя передать другому.\r\n", ch);
+			} else {
+				snprintf(buf, kMaxInputLength, "У вас нет '%s'.\r\n", arg);
+				SendMsgToChar(buf, ch);
+			}
 		} else {
 			while (obj && amount--) {
 				next_obj = get_obj_in_list_vis(ch, arg, obj->get_next_content());
