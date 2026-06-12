@@ -238,7 +238,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 		snprintf(smallBuf, sizeof(smallBuf), "%s", MUD::Class(k->GetClass()).GetCName());
 		snprintf(buf, sizeof(buf), "Племя: %s, Род: %s, Профессия: %s",
 				PlayerRace::GetKinNameByNum(GET_KIN(k), k->get_sex()).c_str(),
-				k->get_race_name().c_str(),
+				PlayerRace::GetRaceNameByNum(GET_KIN(k), GET_RACE(k), k->get_sex()).c_str(),
 				smallBuf);
 		SendMsgToChar(buf, ch);
 	} else {

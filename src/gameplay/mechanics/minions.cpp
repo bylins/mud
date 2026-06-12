@@ -245,4 +245,14 @@ bool IsMortifier(const CharData *ch) {
 		&& ch->IsFlagged(EMobFlag::kCorpse);
 }
 
+// issue.chardata-cleaning: was CharData::low_charm -- a kCharm affect about to wear off.
+bool IsCharmExpiring(const CharData *ch) {
+	for (const auto &aff : ch->affected) {
+		if (aff->type == ESpell::kCharm && aff->duration <= 1) {
+			return true;
+		}
+	}
+	return false;
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

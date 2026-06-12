@@ -10,6 +10,7 @@
 // * AutoEQ by Burkhard Knopf <burkhard.knopf@informatik.tu-clausthal.de>
 
 #include "obj_save.h"
+#include "gameplay/mechanics/groups.h"
 #include "administration/privilege.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/economics/currencies.h"
@@ -2510,7 +2511,7 @@ void Crash_save_all_rent(void) {
 			log("Saving char: %s", GET_NAME(ch));
 			ch->UnsetFlag(EPlrFlag::kCrashSave);
 			//AFF_FLAGS(ch.get()).unset(EAffectFlag::AFF_GROUP);
-			(ch.get())->removeGroupFlags();
+			group::RemoveGroupFlags(ch.get());
 			AFF_FLAGS(ch.get()).unset(EAffect::kHorse);
 			ExtractCharFromWorld(ch.get(), false);
 		}

@@ -169,7 +169,7 @@ void change_leader(CharData *ch, CharData *vict) {
 	if (vict) {
 		// флаг группы надо снять, иначе при регрупе не будет писаться о старом лидере
 		//AFF_FLAGS(ch).unset(EAffectFlag::AFF_GROUP);
-		ch->removeGroupFlags();
+		group::RemoveGroupFlags(ch);
 		follow::AddFollowerSilently(leader, ch);
 	}
 
@@ -287,7 +287,7 @@ void group::print_one_line(CharData *ch, CharData *k, int leader, int header) {
 
 		// АФФЕКТЫ
 		buffer << fmt::format(" {:<5}", generate_affects_string(k));
-		buffer << fmt::format("{:<1} &n|", k->low_charm() ? "&nТ" : " ");
+		buffer << fmt::format("{:<1} &n|", IsCharmExpiring(k) ? "&nТ" : " ");
 
 		// ДЕБАФЫ
 		buffer << fmt::format(" {:<7} &n|", generate_debuf_string(k));
@@ -522,7 +522,7 @@ void group::GoGroup(CharData *ch, char *argument) {
 			act("Вы исключены из группы $n1!", false, ch, nullptr, vict, kToVict);
 			act("$N был$G исключен$A из группы $n1!", false, ch, nullptr, vict, kToNotVict | kToArenaListen);
 			//AFF_FLAGS(vict).unset(EAffectFlag::AFF_GROUP);
-			vict->removeGroupFlags();
+			group::RemoveGroupFlags(vict);
 		}
 	}
 }
@@ -535,7 +535,7 @@ void group::GoUngroup(CharData *ch, char *argument) {
 		for (auto *f : copy) {
 			if (AFF_FLAGGED(f, EAffect::kGroup)) {
 				//AFF_FLAGS(f->ch).unset(EAffectFlag::AFF_GROUP);
-				f->removeGroupFlags();
+				group::RemoveGroupFlags(f);
 				SendMsgToChar(buf2, f);
 				if (!AFF_FLAGGED(f, EAffect::kCharmed)
 					&& !(f->IsNpc()
@@ -545,7 +545,7 @@ void group::GoUngroup(CharData *ch, char *argument) {
 			}
 		}
 		AFF_FLAGS(ch).unset(EAffect::kGroup);
-		ch->removeGroupFlags();
+		group::RemoveGroupFlags(ch);
 		SendMsgToChar("Вы распустили группу.\r\n", ch);
 		return;
 	}
@@ -556,7 +556,7 @@ void group::GoUngroup(CharData *ch, char *argument) {
 			&& !AFF_FLAGGED(tch, EAffect::kCharmed)
 			&& !mount::IsHorse(tch)) {
 			//AFF_FLAGS(tch).unset(EAffectFlag::AFF_GROUP);
-			tch->removeGroupFlags();
+			group::RemoveGroupFlags(tch);
 			act("$N более не член вашей группы.", false, ch, nullptr, tch, kToChar);
 			act("Вы исключены из группы $n1!", false, ch, nullptr, tch, kToVict);
 			act("$N был$G изгнан$A из группы $n1!", false, ch, nullptr, tch, kToNotVict | kToArenaListen);
@@ -731,6 +731,12 @@ void group::do_split(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, 
 		SendMsgToChar("Сколько и чего вы хотите разделить?\r\n", ch);
 		return;
 	}
+}
+
+// issue.chardata-cleaning: was CharData::removeGroupFlags.
+void group::RemoveGroupFlags(CharData *ch) {
+	AFF_FLAGS(ch).unset(EAffect::kGroup);
+	ch->UnsetFlag(EPrf::kSkirmisher);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

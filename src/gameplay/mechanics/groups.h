@@ -14,6 +14,7 @@ namespace group {
 bool same_group(CharData *ch, CharData *tch);
 int perform_group(CharData *ch, CharData *vict);
 int max_group_size(CharData *ch);
+void RemoveGroupFlags(CharData *ch);
 void GoGroup(CharData *ch, char *argument);
 void GoUngroup(CharData *ch, char *argument);
 void print_list_group(CharData *ch);

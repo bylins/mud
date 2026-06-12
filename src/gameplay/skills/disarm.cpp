@@ -1,4 +1,5 @@
 #include "disarm.h"
+#include "gameplay/fight/fight_stuff.h"
 #include "administration/privilege.h"
 
 #include "skill_messages.h"
@@ -55,10 +56,10 @@ void do_disarm(CharData *ch, CharData *vict) {
 //	}
 
 	if (CanUseFeat(ch, EFeat::kInjure)) {
-		if (IsAffectedBySpellWithCasterId(ch, vict, ESpell::kNoInjure) && (!vict->HasWeapon())) {
+		if (IsAffectedBySpellWithCasterId(ch, vict, ESpell::kNoInjure) && (!HasWeapon(vict))) {
 			act("Не получится - $N уже понял$G, что от Вас можно ожидать всякого!",
 				false, ch, nullptr, vict, kToChar);
-		} else if (IsAffectedBySpellWithCasterId(ch, vict, ESpell::kNoInjure) && (vict->HasWeapon())) {
+		} else if (IsAffectedBySpellWithCasterId(ch, vict, ESpell::kNoInjure) && (HasWeapon(vict))) {
 			if (privilege::IsImpl(ch) || !ch->GetEnemy()) {
 				go_disarm(ch, vict);
 			} else if (IsHaveNoExtraAttack(ch)) {
@@ -74,7 +75,7 @@ void do_disarm(CharData *ch, CharData *vict) {
 			}
 		}
 	} else {
-		if (!vict->HasWeapon()) {
+		if (!HasWeapon(vict)) {
 			SendMsgToChar("Вы не сможете обезоружить безоружного!\r\n", ch);
 			return;
 		} else {
@@ -148,7 +149,7 @@ void go_injure(CharData *ch, CharData *vict) {
 		af2.caster_id = ch->get_uid();
 		affect_to_char(vict, af2);
 
-		if (!vict->HasWeapon()) {
+		if (!HasWeapon(vict)) {
 			TrainSkill(ch, ESkill::kDisarm, injure_success, vict);
 			SetSkillCooldown(ch, ESkill::kDisarm, 1);
 			return;
@@ -168,7 +169,7 @@ void go_disarm(CharData *ch, CharData *vict) {
 		return;
 	}
 
-	if (!vict->HasWeapon()) {
+	if (!HasWeapon(vict)) {
 		SendMsgToChar("Вы не можете обезоружить безоружного.\r\n", ch);
 		return;
 	}
