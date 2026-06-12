@@ -1,4 +1,5 @@
 #include "fight_hit.h"
+#include "utils/logger.h"
 #include "administration/privilege.h"
 #include "gameplay/mechanics/condition.h"
 #include "gameplay/mechanics/minions.h"
@@ -1060,8 +1061,8 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 			|| result.CritLuck)) {
 			hit_params.SetFlag(fight::kCritHit);
 			hit_params.dam_critic = CalcPunctualCritDmg(ch, victim, hit_params.wielded);
-			ch->send_to_TC(false, true, false, "&CДамага точки равна = %d&n\r\n", hit_params.dam_critic);
-			victim->send_to_TC(false, true, false, "&CДамага точки равна = %d&n\r\n", hit_params.dam_critic);
+			SendToTC(ch, false, true, false, "&CДамага точки равна = %d&n\r\n", hit_params.dam_critic);
+			SendToTC(victim, false, true, false, "&CДамага точки равна = %d&n\r\n", hit_params.dam_critic);
 			if (!privilege::IsImmortal(ch)) {
 				PUNCTUAL_WAIT_STATE(ch, 2 * kBattleRound);
 			}
@@ -1089,8 +1090,8 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 	}
 
 	// итоговый дамаг
-	ch->send_to_TC(false, true, true, "&CНанёс: Регуляр дамаг = %d&n\r\n", hit_params.dam);
-	victim->send_to_TC(false, true, true, "&CПолучил: Регуляр дамаг = %d&n\r\n", hit_params.dam);
+	SendToTC(ch, false, true, true, "&CНанёс: Регуляр дамаг = %d&n\r\n", hit_params.dam);
+	SendToTC(victim, false, true, true, "&CПолучил: Регуляр дамаг = %d&n\r\n", hit_params.dam);
 	int made_dam = hit_params.ProcessExtradamage(ch, victim);
 
 	//Обнуление лага, когда виктим убит с применением

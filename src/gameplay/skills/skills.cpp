@@ -8,6 +8,7 @@
 ************************************************************************ */
 
 #include "engine/db/obj_prototypes.h"
+#include "utils/logger.h"
 #include "gameplay/core/experience.h"
 #include "gameplay/mechanics/minions.h"
 #include "gameplay/mechanics/mount.h"
@@ -1312,7 +1313,7 @@ void SendSkillRollMsg(CharData *ch, CharData *victim, ESkill skill_id,
 		   << " SavType:" << saving_name.at(MUD::Skill(skill_id).save_type)
 		   << " Saving:" << save
 		<< kColorNrm << "\r\n";
-	ch->send_to_TC(false, true, true, buffer.str().c_str());
+	SendToTC(ch, false, true, true, buffer.str().c_str());
 	if (GET_GOD_FLAG(ch, EGf::kSkillTester) && skill_id != ESkill::kUndefined) {
 		buffer.str("");
 		buffer << "SKILLTEST:;" << GET_NAME(ch)
@@ -1340,7 +1341,7 @@ void SendSkillBalanceMsg(CharData *ch, const std::string &skill_name, int percen
 		   << " Prob: " << prob
 		   << " Success: " << (success ? "yes" : "no")
 		   << kColorNrm << "\r\n";
-	ch->send_to_TC(false, true, true, buffer.str().c_str());
+	SendToTC(ch, false, true, true, buffer.str().c_str());
 }
 
 int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict, bool /* need_log */) {
@@ -1883,7 +1884,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict, bool /
 			total_percent,
 			LuckTempStr.c_str());
 	}
-	ch->send_to_TC(false, true, true,
+	SendToTC(ch, false, true, true,
 			"&CTarget: %s, skill: %s, base_percent: %d, bonus: %d, victim_save: %d, victim_modi: %d, total_percent: %d, удача: %s&n\r\n",
 			vict ? GET_NAME(vict) : "NULL",
 				   MUD::Skill(skill_id).GetName(),
@@ -1894,7 +1895,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict, bool /
 			total_percent,
 			LuckTempStr.c_str());
 	if (vict && !vict->IsNpc()) {
-			vict->send_to_TC(false, true, true,
+			SendToTC(vict, false, true, true,
 					"&CKiller: %s, skill: %s, base_percent: %d, bonus: %d, victim_save: %d, victim_modi: %d, total_percent: %d, удача: %s&n\r\n",
 					ch ? GET_NAME(ch) : "NULL",
 						   MUD::Skill(skill_id).GetName(),
@@ -1963,7 +1964,7 @@ void ImproveSkill(CharData *ch, const ESkill skill, int success, CharData *victi
 	prob -= 5 * wis_bonus(GetRealWis(ch), WIS_MAX_SKILLS);
 	prob += number(1, trained_skill * 5);
 	int skill_is = number(1, std::max(1, prob));
-	ch->send_to_TC(true, true, true,"ImprooveSkill: prob=%d, div=%d, skill_is=%d, success=%d", prob, div, skill_is, success);
+	SendToTC(ch, true, true, true,"ImprooveSkill: prob=%d, div=%d, skill_is=%d, success=%d", prob, div, skill_is, success);
 	if ((victim && skill_is <= GetRealInt(ch) * GetRealLevel(victim) / GetRealLevel(ch))
 		|| (!victim && skill_is <= GetRealInt(ch))) {
 		if (success) {

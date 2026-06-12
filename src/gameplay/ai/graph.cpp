@@ -13,6 +13,7 @@
 ************************************************************************ */
 
 #include "engine/core/handler.h"
+#include "utils/logger.h"
 #include "engine/core/target_resolver.h"
 #include "utils/random.h"
 #include "engine/db/global_objects.h"
@@ -182,7 +183,7 @@ int go_sense(CharData *ch, CharData *victim) {
 		} while (!CAN_GO(ch, dir) && --tries);
 		return dir;
 	}
-	ch->send_to_TC(false, true, false,
+	SendToTC(ch, false, true, false,
 				   "НЮХ: skill == %d percent ==%d реморт цели %d\r\n", skill, percent, remort::GetRealRemort(victim));
 	return find_first_step(ch->in_room, victim->in_room, ch);
 }

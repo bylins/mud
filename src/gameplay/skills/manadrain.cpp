@@ -1,4 +1,5 @@
 #include "manadrain.h"
+#include "utils/logger.h"
 #include "administration/privilege.h"
 #include "skill_messages.h"
 
@@ -67,7 +68,7 @@ void do_manadrain(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	auto tmp1 = std::max(0, (skill - 80) / 6);
 	auto tmp2 = 5 * std::max(0, GetRealLevel(vict) - GetRealLevel(ch) - std::max(0, (skill - 80) / 6));
 
-	ch->send_to_TC(true, true, true, "&gСГЛАЗ: percent %d prob %d skillbonus %d difflevel %d&n\r\n", percent, prob, tmp1, tmp2);
+	SendToTC(ch, true, true, true, "&gСГЛАЗ: percent %d prob %d skillbonus %d difflevel %d&n\r\n", percent, prob, tmp1, tmp2);
 	TrainSkill(ch, ESkill::kJinx, percent > prob, vict);
 	Damage manadrainDamage(SkillDmg(ESkill::kJinx), fight::kZeroDmg, fight::kMagicDmg, nullptr);
 	manadrainDamage.element = EElement::kDark;

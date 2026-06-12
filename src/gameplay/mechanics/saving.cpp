@@ -5,6 +5,7 @@
 */
 
 #include "gameplay/mechanics/saving.h"
+#include "utils/logger.h"
 #include "gameplay/mechanics/mount.h"
 
 #include "engine/entities/char_data.h"
@@ -128,7 +129,7 @@ int GetBasicSave(CharData *ch, ESaving saving, bool log) {
 	save += mount::SavingModifier(ch, saving);
 //	ss << " с учетом статов: " << save << "\r\n";
 	if (log) {
-//		ch->send_to_TC(false, true, true, "%s", ss.str().c_str());
+//		SendToTC(ch, false, true, true, "%s", ss.str().c_str());
 //		mudlog(ss.str(), CMP, kLvlImmortal, SYSLOG, true);
 	}
 	return save;
