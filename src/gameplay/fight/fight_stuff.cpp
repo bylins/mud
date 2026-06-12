@@ -948,7 +948,7 @@ void char_dam_message(int dam, CharData *ch, CharData *victim, bool noflee) {
 		return;
 	switch (victim->GetPosition()) {
 		case EPosition::kPerish:
-			if (IS_POLY(victim))
+			if (IsPoly(victim))
 				act("$n смертельно ранены и умрут, если им не помогут.",
 					true, victim, nullptr, nullptr, kToRoom | kToArenaListen);
 			else
@@ -957,7 +957,7 @@ void char_dam_message(int dam, CharData *ch, CharData *victim, bool noflee) {
 			SendMsgToChar("Вы смертельно ранены и умрете, если вам не помогут.\r\n", victim);
 			break;
 		case EPosition::kIncap:
-			if (IS_POLY(victim))
+			if (IsPoly(victim))
 				act("$n без сознания и медленно умирают. Помогите же им.",
 					true, victim, nullptr, nullptr, kToRoom | kToArenaListen);
 			else
@@ -966,7 +966,7 @@ void char_dam_message(int dam, CharData *ch, CharData *victim, bool noflee) {
 			SendMsgToChar("Вы без сознания и медленно умираете, брошенные без помощи.\r\n", victim);
 			break;
 		case EPosition::kStun:
-			if (IS_POLY(victim))
+			if (IsPoly(victim))
 				act("$n без сознания, но возможно они еще повоюют (попозже :).",
 					true, victim, nullptr, nullptr, kToRoom | kToArenaListen);
 			else
@@ -979,7 +979,7 @@ void char_dam_message(int dam, CharData *ch, CharData *victim, bool noflee) {
 				act("$n вспыхнул$g и рассыпал$u в прах.", false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
 				SendMsgToChar("Похоже вас убили и даже тела не оставили!\r\n", victim);
 			} else {
-				if (IS_POLY(victim))
+				if (IsPoly(victim))
 					act("$n мертвы, их души медленно подымаются в небеса.",
 						false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
 				else

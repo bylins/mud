@@ -103,7 +103,7 @@ EStageResult SummonTutelar(CastContext &ctx) {
 		affect_to_char(mob, af);
 	}
 
-	if (IS_FEMALE(ch)) {
+	if (IsFemale(ch)) {
 		mob->set_sex(EGender::kMale);
 		mob->SetCharAliases("Небесный защитник");
 		mob->player_data.PNames[grammar::ECase::kNom] = "Небесный защитник";
@@ -191,7 +191,7 @@ EStageResult SummonTutelar(CastContext &ctx) {
 	mob->SetFlag(EMobFlag::kLightingBreath);
 	mob->set_level(GetRealLevel(ch));
 	PlaceCharToRoom(mob, ch->in_room);
-	if (IS_FEMALE(mob)) {
+	if (IsFemale(mob)) {
 		act("Небесная защитница появилась в яркой вспышке света!",
 			true, mob, nullptr, nullptr, kToRoom | kToArenaListen);
 	} else {

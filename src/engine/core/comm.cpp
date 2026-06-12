@@ -2850,7 +2850,7 @@ void act(const char *str,
 				continue;
 			if (type == kToRoomSensors && to->IsFlagged(EPrf::kHolylight)) {
 				std::string buffer = str;
-				if (!IS_MALE(ch)) {
+				if (!IsMale(ch)) {
 					utils::ReplaceFirst(buffer, "ся", grammar::SexEnding((ch)->get_sex(), 2));
 				}
 				utils::ReplaceFirst(buffer, "Кто-то", ch->get_name());
