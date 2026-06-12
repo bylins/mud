@@ -10,6 +10,7 @@
 **************************************************************************/
 
 #include "engine/entities/char_data.h"
+#include "gameplay/core/experience.h"
 #include "administration/privilege.h"
 #include "gameplay/mechanics/minions.h"
 #include "gameplay/mechanics/follow.h"
@@ -434,7 +435,7 @@ void do_wexp(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Trigge
 	}
 
 	if ((ch = get_char_by_room(room, name))) {
-		EndowExpToChar(ch, atoi(amount));
+		experience::EndowExpToChar(ch, atoi(amount));
 		sprintf(buf, "wexp: victim (%s) получил опыт %d", GET_NAME(ch), atoi(amount));
 		wld_log(room, trig, buf);
 	} else {

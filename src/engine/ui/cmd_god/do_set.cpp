@@ -364,7 +364,7 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 		case 14: {
 			auto new_value = static_cast<long>(value);
 			new_value = std::clamp(new_value, 0L, experience::GetExpUntilNextLvl(vict, kLvlImmortal) - 1) - vict->get_exp();
-			gain_exp_regardless(vict, new_value);
+			experience::gain_exp_regardless(vict, new_value);
 			break;
 		}
 		case 15: vict->real_abils.hitroll = std::clamp(value, -20, 20);

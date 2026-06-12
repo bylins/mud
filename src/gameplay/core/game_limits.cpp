@@ -804,156 +804,6 @@ void beat_points_update(int pulse) {
 	metrics.send();
 }
 
-void update_clan_exp(CharData *ch, int gain) {
-	if (CLAN(ch) && gain != 0) {
-		// экспа для уровня клана (+ только на праве, - любой, но /5)
-		if (gain < 0 || GET_GOD_FLAG(ch, EGf::kRemort)) {
-			int tmp = gain > 0 ? gain : gain / 5;
-			CLAN(ch)->SetClanExp(ch, tmp);
-		}
-		// экспа для топа кланов за месяц (учитываются все + и -)
-		CLAN(ch)->last_exp.add_temp(gain);
-		// экспа для топа кланов за все время (учитываются все + и -)
-		CLAN(ch)->AddTopExp(ch, gain);
-		// экспа для авто-очистки кланов (учитываются только +)
-		if (gain > 0) {
-			CLAN(ch)->exp_history.add_exp(gain);
-		}
-	}
-}
-
-void EndowExpToChar(CharData *ch, int gain) {
-	int is_altered = false;
-	int num_levels = 0;
-	char local_buf[128];
-
-	if (ch->IsNpc()) {
-		ch->set_exp(ch->get_exp() + gain);
-		return;
-	} else {
-		ch->dps_add_exp(gain);
-		ZoneExpStat::add(GetZoneVnumByCharPlace(ch), gain);
-	}
-
-	if (!ch->IsNpc() && ((GetRealLevel(ch) < 1 || GetRealLevel(ch) >= kLvlImmortal))) {
-		return;
-	}
-
-	if (gain > 0 && GetRealLevel(ch) < kLvlImmortal) {
-		gain = std::min(max_exp_gain_pc(ch), gain);    // put a cap on the max gain per kill
-		ch->set_exp(ch->get_exp() + gain);
-		if (ch->get_exp() >= experience::GetExpUntilNextLvl(ch, kLvlImmortal)) {
-			if (!GET_GOD_FLAG(ch, EGf::kRemort) && remort::GetRealRemort(ch) < kMaxRemort) {
-					SendMsgToChar(ch, "%sПоздравляем, вы получили право на перевоплощение!%s\r\n",
-								  kColorBoldGrn, kColorNrm);
-				SET_BIT(ch->player_specials->saved.GodsLike, EGf::kRemort);
-			}
-		}
-		ch->set_exp(std::min(ch->get_exp(), experience::GetExpUntilNextLvl(ch, kLvlImmortal) - 1));
-		// defense-in-depth: also bound on GetLevel() (the value actually mutated) so the loop
-		// terminates even if GetRealLevel() ever diverges from GetLevel() (issue.advance-crash-bug).
-		while (GetRealLevel(ch) < kLvlImmortal && ch->GetLevel() < kLvlImmortal
-			   && ch->get_exp() >= experience::GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1)) {
-			ch->set_level(ch->GetLevel() + 1);
-			num_levels++;
-			sprintf(local_buf, "%sВы достигли следующего уровня!%s\r\n", kColorWht, kColorNrm);
-			SendMsgToChar(local_buf, ch);
-			experience::advance_level(ch);
-			is_altered = true;
-		}
-
-		if (is_altered) {
-			sprintf(local_buf, "%s advanced %d level%s to level %d.",
-					GET_NAME(ch), num_levels, num_levels == 1 ? "" : "s", GetRealLevel(ch));
-			mudlog(local_buf, BRF, kLvlImplementator, SYSLOG, true);
-		}
-	} else if (gain < 0 && GetRealLevel(ch) < kLvlImmortal) {
-		gain = std::max(-max_exp_loss_pc(ch), gain);    // Cap max exp lost per death
-		ch->set_exp(ch->get_exp() + gain);
-		while (GetRealLevel(ch) > 1 && ch->GetLevel() > 1
-			   && ch->get_exp() < experience::GetExpUntilNextLvl(ch, GetRealLevel(ch))) {
-			ch->set_level(ch->GetLevel() - 1);
-			num_levels++;
-			sprintf(local_buf,
-					"%sВы потеряли уровень. Вам должно быть стыдно!%s\r\n",
-					kColorBoldRed, kColorNrm);
-			SendMsgToChar(local_buf, ch);
-			experience::decrease_level(ch);
-			is_altered = true;
-		}
-		if (is_altered) {
-			sprintf(local_buf, "%s decreases %d level%s to level %d.",
-					GET_NAME(ch), num_levels, num_levels == 1 ? "" : "s", GetRealLevel(ch));
-			mudlog(local_buf, BRF, kLvlImplementator, SYSLOG, true);
-		}
-	}
-	if ((ch->get_exp() < experience::GetExpUntilNextLvl(ch, kLvlImmortal) - 1)
-		&& GET_GOD_FLAG(ch, EGf::kRemort)
-		&& gain
-		&& (GetRealLevel(ch) < kLvlImmortal)) {
-			SendMsgToChar(ch, "%sВы потеряли право на перевоплощение!%s\r\n",
-						  kColorBoldRed, kColorNrm);
-		REMOVE_BIT(ch->player_specials->saved.GodsLike, EGf::kRemort);
-	}
-
-	char_stat::AddClassExp(ch->GetClass(), gain);
-	update_clan_exp(ch, gain);
-}
-
-// юзается исключительно в act.wizards.cpp в имм командах "advance" и "set exp".
-// \todo Сделать файл с механикой опыта и все по опыту собрать туда. Вероятно, в core.
-void gain_exp_regardless(CharData *ch, int gain) {
-	int is_altered = false;
-	int num_levels = 0;
-
-	ch->set_exp(ch->get_exp() + gain);
-	if (!ch->IsNpc()) {
-		if (gain > 0) {
-			// defense-in-depth: also bound on GetLevel() (the value actually mutated) so the loop
-			// terminates even if GetRealLevel() ever diverges from GetLevel() (issue.advance-crash-bug).
-			while (GetRealLevel(ch) < kLvlImplementator && ch->GetLevel() < kLvlImplementator
-				   && ch->get_exp() >= experience::GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1)) {
-				ch->set_level(ch->GetLevel() + 1);
-				num_levels++;
-				sprintf(buf, "%sВы достигли следующего уровня!%s\r\n",
-						kColorWht, kColorNrm);
-				SendMsgToChar(buf, ch);
-
-				experience::advance_level(ch);
-				is_altered = true;
-			}
-
-			if (is_altered) {
-				sprintf(buf, "%s advanced %d level%s to level %d.",
-						GET_NAME(ch), num_levels, num_levels == 1 ? "" : "s", GetRealLevel(ch));
-				mudlog(buf, BRF, kLvlImplementator, SYSLOG, true);
-			}
-		} else if (gain < 0) {
-			// Pereplut: глупый участок кода.
-			//			gain = std::max(-max_exp_loss_pc(ch), gain);	// Cap max exp lost per death
-			//			ch->get_exp() += gain;
-			//			if (ch->get_exp() < 0)
-			//				ch->get_exp() = 0;
-			while (GetRealLevel(ch) > 1 && ch->GetLevel() > 1
-				   && ch->get_exp() < experience::GetExpUntilNextLvl(ch, GetRealLevel(ch))) {
-				ch->set_level(ch->GetLevel() - 1);
-				num_levels++;
-				sprintf(buf,
-						"%sВы потеряли уровень!%s\r\n",
-						kColorBoldRed, kColorNrm);
-				SendMsgToChar(buf, ch);
-				experience::decrease_level(ch);
-				is_altered = true;
-			}
-			if (is_altered) {
-				sprintf(buf, "%s decreases %d level%s to level %d.",
-						GET_NAME(ch), num_levels, num_levels == 1 ? "" : "s", GetRealLevel(ch));
-				mudlog(buf, BRF, kLvlImplementator, SYSLOG, true);
-			}
-		}
-
-	}
-}
 
 void gain_condition(CharData *ch, unsigned condition, int value) {
 	int cond_state = GET_COND(ch, condition);
@@ -1759,7 +1609,7 @@ void gain_battle_exp(CharData *ch, CharData *victim, int dam) {
 		if (Bonus::is_bonus_active(Bonus::EBonusType::BONUS_WEAPON_EXP) && Bonus::can_get_bonus_exp(ch)) {
 			battle_exp *= Bonus::get_mult_bonus();
 		}
-		EndowExpToChar(ch, battle_exp);
+		experience::EndowExpToChar(ch, battle_exp);
 		ch->dps_add_exp(battle_exp, true);
 	}
 
@@ -1776,7 +1626,7 @@ void gain_battle_exp(CharData *ch, CharData *victim, int dam) {
 			if (Bonus::is_bonus_active(Bonus::EBonusType::BONUS_WEAPON_EXP) && Bonus::can_get_bonus_exp(master)) {
 				battle_exp *= Bonus::get_mult_bonus();
 			}
-			EndowExpToChar(master, battle_exp);
+			experience::EndowExpToChar(master, battle_exp);
 			master->dps_add_exp(battle_exp, true);
 		}
 	}

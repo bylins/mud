@@ -24,6 +24,7 @@
  ***************************************************************************/
 
 #include "engine/entities/char_data.h"
+#include "gameplay/core/experience.h"
 #include "administration/privilege.h"
 #include "gameplay/mechanics/minions.h"
 #include "gameplay/mechanics/follow.h"
@@ -730,7 +731,7 @@ void do_mexp(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger 
 	}
 	sprintf(buf, "mexp: victim (%s) получил опыт %d", name, atoi(amount));
 	mob_log(ch, trig, buf);
-	EndowExpToChar(victim, atoi(amount));
+	experience::EndowExpToChar(victim, atoi(amount));
 }
 
 // increases the target's gold

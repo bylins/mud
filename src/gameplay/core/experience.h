@@ -33,6 +33,13 @@ void levelup_events(CharData *ch);
 void advance_level(CharData *ch);
 void decrease_level(CharData *ch);
 
+
+// Grant (or remove) experience to a character, applying level changes, caps, clan exp
+// and the remort-eligibility flag. gain_exp_regardless skips the per-kill caps (god cmds).
+void EndowExpToChar(CharData *ch, int gain);
+void gain_exp_regardless(CharData *ch, int gain);
+void update_clan_exp(CharData *ch, int gain);
+
 }  // namespace experience
 
 #endif  // BYLINS_SRC_GAMEPLAY_CORE_EXPERIENCE_H_

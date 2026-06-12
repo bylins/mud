@@ -1,4 +1,5 @@
 #include "do_flee.h"
+#include "gameplay/core/experience.h"
 #include "administration/privilege.h"
 #include "gameplay/mechanics/mount.h"
 
@@ -12,7 +13,7 @@ void ReduceExpAfterFlee(CharData *ch, CharData *victim, RoomRnum room) {
 	}
 
 	const auto loss = std::max(1, victim->get_real_max_hit() - victim->get_hit()) * GetRealLevel(victim);
-	EndowExpToChar(ch, -loss);
+	experience::EndowExpToChar(ch, -loss);
 }
 
 // ********************* FLEE PROCEDURE
