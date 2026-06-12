@@ -1,7 +1,7 @@
 /**
 \file do_money.h - a part of the Bylins engine.
 \authors Created by Claude.
-\brief The "money"/"п╢п╣п╫я▄пЁп╦" command: lists every currency the character holds.
+\brief The "money"/"деньги" command: lists every currency the character holds.
 */
 
 #ifndef BYLINS_SRC_ENGINE_UI_CMD_DO_MONEY_H_
