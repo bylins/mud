@@ -528,7 +528,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 		snprintf(buf, sizeof(buf), "PRF: %s%s%s\r\n", kColorGrn, utils::OutWordsList(out_str, ch->player_specials->saved.stringLength - 10).c_str(), kColorNrm);
 		SendMsgToChar(buf, ch);
 
-		if (ch->IsImpl()) {
+		if (privilege::IsImpl(ch)) {
 			sprintbitwd(k->player_specials->saved.GodsLike, godslike_bits, smallBuf, sizeof(smallBuf), ", ");
 			if (!*smallBuf) {  // sprintbitwd no longer substitutes the "nothing" word; do_stat is an
 				strcpy(smallBuf, "nothing");  // immortal-only command, so a plain English literal is fine
@@ -677,7 +677,7 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 	ObjVnum rnum, vnum;
 	ObjData *j2;
 	long int li;
-	bool is_grgod = (ch->IsGrGod() || ch->IsFlagged(EPrf::kCoderinfo)) ? true : false;
+	bool is_grgod = (privilege::IsGrGod(ch) || ch->IsFlagged(EPrf::kCoderinfo)) ? true : false;
 
 	vnum = GET_OBJ_VNUM(j);
 	rnum = j->get_rnum();
@@ -1253,7 +1253,7 @@ void do_stat(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 		SendMsgToChar("Состояние КОГО или ЧЕГО?\r\n", ch);
 		return;
 	}
-	if (*buf1 && ch->IsImmortal()) {
+	if (*buf1 && privilege::IsImmortal(ch)) {
 		if (utils::IsAbbr(buf1, "room") && level >= kLvlBuilder) {
 			int vnum, rnum = kNowhere;
 			if (*buf2 && (vnum = atoi(buf2))) {
@@ -1357,7 +1357,7 @@ void do_stat(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 			return;
 		}
 	}
-	if (ch->IsImmortal()) {
+	if (privilege::IsImmortal(ch)) {
 		if ((object = get_object_in_equip_vis(ch, buf1, ch->equipment, &tmp)) != nullptr) {
 			do_stat_object(ch, object);
 			return;

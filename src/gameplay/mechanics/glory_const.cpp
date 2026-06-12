@@ -4,6 +4,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "glory_const.h"
+#include "administration/privilege.h"
 #include "utils/grammar/declensions.h"
 
 #include <list>
@@ -587,7 +588,7 @@ const char *GLORY_CONST_FORMAT =
 
 void do_spend_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	GloryListType::iterator it = glory_list.find(ch->get_uid());
-	if (glory_list.end() == it || ch->IsImmortal()) {
+	if (glory_list.end() == it || privilege::IsImmortal(ch)) {
 		SendMsgToChar("Вам это не нужно...\r\n", ch);
 		return;
 	}
@@ -1100,7 +1101,7 @@ void PrintGloryChart(CharData *ch) {
 	std::stringstream hide;
 
 	bool print_hide = false;
-	if (ch->IsImmortal()) {
+	if (privilege::IsImmortal(ch)) {
 		print_hide = true;
 		hide << "\r\nПерсонажи, исключенные из списка: ";
 	}

@@ -6,6 +6,7 @@
 */
 
 #include "sight.h"
+#include "administration/privilege.h"
 #include "gameplay/economics/currencies.h"
 #include "utils/grammar/gender.h"
 #include "utils/grammar/cases.h"
@@ -425,9 +426,9 @@ bool look_at_target(CharData *ch, char *arg, int subcmd) {
 				fnum = number(1, MUD::Skill(ESkill::kPry).difficulty);
 				found = CalcCurrentSkill(ch, ESkill::kPry, found_char);
 				TrainSkill(ch, ESkill::kPry, found < fnum, found_char);
-				if (!ch->IsImmortal())
+				if (!privilege::IsImmortal(ch))
 					SetBattleLag(ch, 1);
-				if (found >= fnum && (fnum < 100 || ch->IsImmortal()) && !found_char->IsImmortal())
+				if (found >= fnum && (fnum < 100 || privilege::IsImmortal(ch)) && !privilege::IsImmortal(found_char))
 					return false;
 			}
 			if (CanSee(found_char, ch))
@@ -691,7 +692,7 @@ void look_at_char(CharData *i, CharData *ch) {
 		}
 	}
 
-	if (ch != i && (GetSkill(ch, ESkill::kPry) || ch->IsImmortal())) {
+	if (ch != i && (GetSkill(ch, ESkill::kPry) || privilege::IsImmortal(ch))) {
 		found = false;
 		act("\r\nВы попытались заглянуть в $s ношу:", false, i, nullptr, ch, kToVict);
 		for (tmp_obj = i->carrying; tmp_obj; tmp_obj = tmp_obj->get_next_content()) {
@@ -773,10 +774,10 @@ void show_room_affects(CharData *ch) {
 	std::ostringstream buffer;
 
 	const bool has_detect_magic =
-			AFF_FLAGGED(ch, EAffect::kDetectMagic) || ch->IsImmortal();
+			AFF_FLAGGED(ch, EAffect::kDetectMagic) || privilege::IsImmortal(ch);
 	const auto viewer_uid = ch->get_uid();
 	const bool is_immortal_or_tester =
-			ch->IsImmortal() || ch->IsFlagged(EPrf::kTester);
+			privilege::IsImmortal(ch) || ch->IsFlagged(EPrf::kTester);
 
 	for (const auto &af : world[ch->in_room]->affected) {
 		// One-way portal: side flagged kNoPortalExit shows nothing (mirrors
@@ -1082,9 +1083,9 @@ void look_in_direction(CharData *ch, int dir, int info_is) {
 					probe = CalcCurrentSkill(ch, ESkill::kLooking, tch);
 					TrainSkill(ch, ESkill::kLooking, probe >= percent, tch);
 					if (HERE(tch) && InvisOk(ch, tch) && probe >= percent
-						&& (percent < 100 || ch->IsImmortal())) {
+						&& (percent < 100 || privilege::IsImmortal(ch))) {
 						// Если моб не вещь и смотрящий не им
-						if (GET_RACE(tch) != ENpcRace::kConstruct || ch->IsImmortal()) {
+						if (GET_RACE(tch) != ENpcRace::kConstruct || privilege::IsImmortal(ch)) {
 							ListOneChar(tch, ch, ESkill::kLooking);
 							count++;
 						}
@@ -1748,7 +1749,7 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 
 	if (mode == ESkill::kLooking) {
 		if (HERE(i) && InvisOk(ch, i) && GetRealLevel(ch) >= (i->IsNpc() ? 0 : GET_INVIS_LEV(i))) {
-			if (GET_RACE(i) == ENpcRace::kConstruct && ch->IsImmortal()) {
+			if (GET_RACE(i) == ENpcRace::kConstruct && privilege::IsImmortal(ch)) {
 				sprintf(buf, "Вы разглядели %s.(предмет)\r\n", GET_PAD(i, 3));
 			} else {
 				sprintf(buf, "Вы разглядели %s.\r\n", GET_PAD(i, 3));

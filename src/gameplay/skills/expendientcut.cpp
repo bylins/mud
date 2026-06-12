@@ -1,4 +1,5 @@
 #include "expendientcut.h"
+#include "administration/privilege.h"
 #include "gameplay/mechanics/mount.h"
 #include "skill_messages.h"
 #include "engine/db/global_objects.h"
@@ -133,7 +134,7 @@ void SetExtraAttackCut(CharData *ch, CharData *victim) {
 }
 
 void DoExpedientCut(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
-	if (ch->IsNpc() || (!CanUseFeat(ch, EFeat::kCutting) && !ch->IsImpl())) {
+	if (ch->IsNpc() || (!CanUseFeat(ch, EFeat::kCutting) && !privilege::IsImpl(ch))) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kCutting, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}

@@ -187,12 +187,12 @@ class CharacterWrapper : public Wrapper<CharacterData> {
 
 	bool is_immortal() {
 		Ensurer ch(*this);
-		return ch->IsImmortal();
+		return privilege::IsImmortal(ch);
 	}
 
 	bool is_impl() {
 		Ensurer ch(*this);
-		return ch->IsImpl();
+		return privilege::IsImpl(ch);
 	}
 
 	bool is_NPC() {

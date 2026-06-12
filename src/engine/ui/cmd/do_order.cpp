@@ -1,4 +1,5 @@
 #include "do_order.h"
+#include "administration/privilege.h"
 
 #include "engine/core/handler.h"
 #include "engine/core/target_resolver.h"
@@ -30,7 +31,7 @@ void do_order(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	else if (ch == vict && !utils::IsAbbr(name, "все") && !utils::IsAbbr(name, "всем"))
 		SendMsgToChar("Вы начали слышать императивные голоса - срочно к психиатру!\r\n", ch);
 	else {
-		if (vict && !vict->IsNpc() && !ch->IsGod()) {
+		if (vict && !vict->IsNpc() && !privilege::IsGod(ch)) {
 			SendMsgToChar(ch, "Игрокам приказывать могут только Боги!\r\n");
 			return;
 		}

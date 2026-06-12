@@ -8,6 +8,7 @@
 ************************************************************************ */
 
 #include "liquid.h"
+#include "administration/privilege.h"
 #include "utils/grammar/gender.h"
 #include "utils/grammar/declensions.h"
 
@@ -559,7 +560,7 @@ void identify(CharData *ch, const ObjData *obj) {
 	if (amount > 0) {
 		// есть какие-то заклы
 		if (obj->GetPotionValueKey(ObjVal::EValueKey::POTION_PROTO_VNUM) >= 0) {
-			if (ch->IsImmortal()) {
+			if (privilege::IsImmortal(ch)) {
 				snprintf(buf_, sizeof(buf_), "Содержит %d %s %s (VNUM: %d).\r\n",
 						 amount,
 						 grammar::GetDeclensionInNumber(amount, grammar::EWhat::kGulp),

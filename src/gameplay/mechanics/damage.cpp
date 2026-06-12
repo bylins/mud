@@ -7,6 +7,7 @@
 */
 
 #include "damage.h"
+#include "administration/privilege.h"
 #include "utils/grammar/gender.h"
 #include "gameplay/mechanics/minions.h"
 #include "gameplay/mechanics/mount.h"
@@ -348,7 +349,7 @@ void Damage::ProcessDeath(CharData *ch, CharData *victim) const {
 
 		for (const auto &ch_vict : world[ch->in_room]->people) {
 			//Мобы все кто присутствовал при смерти игрока забывают
-			if (ch_vict->IsImmortal())
+			if (privilege::IsImmortal(ch_vict))
 				continue;
 			if (!HERE(ch_vict))
 				continue;
@@ -461,9 +462,9 @@ int Damage::Process(CharData *ch, CharData *victim) {
 		return 0;
 	}
 	if (dam > 0) {
-		if (victim->IsGod()) {
+		if (privilege::IsGod(victim)) {
 			dam = 0;
-		} else if (victim->IsImmortal() || GET_GOD_FLAG(victim, EGf::kGodsLike)) {
+		} else if (privilege::IsImmortal(victim) || GET_GOD_FLAG(victim, EGf::kGodsLike)) {
 			dam /= 4;
 		} else if (GET_GOD_FLAG(victim, EGf::kGodscurse)) {
 			dam *= 2;
@@ -585,7 +586,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 						   "&CУчет поглощения урона: %d начислено, %d применено.&n\r\n", dam, ResultDam);
 		dam = ResultDam;
 	}
-	if (!ch->IsImmortal() && AFF_FLAGGED(victim, EAffect::kGodsShield)) {
+	if (!privilege::IsImmortal(ch) && AFF_FLAGGED(victim, EAffect::kGodsShield)) {
 		if (skill_id == ESkill::kBash) {
 			SendSkillMessages(dam, ch, victim, skill_id);
 		}

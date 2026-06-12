@@ -7,6 +7,7 @@
 */
 
 #include "engine/entities/char_data.h"
+#include "administration/privilege.h"
 #include "engine/db/obj_prototypes.h"
 #include "engine/db/global_objects.h"
 #include "engine/ui/color.h"
@@ -24,7 +25,7 @@ struct FilterType {
 };
 
 void DoPrintArmor(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (ch->IsNpc() || (!ch->IsGrGod() && !ch->IsFlagged(EPrf::kCoderinfo))) {
+	if (ch->IsNpc() || (!privilege::IsGrGod(ch) && !ch->IsFlagged(EPrf::kCoderinfo))) {
 		SendMsgToChar("Чаво?\r\n", ch);
 		return;
 	}

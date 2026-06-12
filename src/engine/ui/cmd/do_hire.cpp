@@ -1,4 +1,5 @@
 #include "do_hire.h"
+#include "administration/privilege.h"
 #include "gameplay/economics/currencies.h"
 #include "utils/grammar/declensions.h"
 #include "gameplay/mechanics/follow.h"
@@ -123,7 +124,7 @@ long CalcHirePrice(CharData *ch, CharData *victim) {
 
 void DoFindhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->IsNpc()
-		|| (!ch->IsImmortal() && !CanUseFeat(ch, EFeat::kEmployer))) {
+		|| (!privilege::IsImmortal(ch) && !CanUseFeat(ch, EFeat::kEmployer))) {
 		SendMsgToChar("Вам недоступно это!\r\n", ch);
 		return;
 	}
@@ -254,7 +255,7 @@ void DoFindhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 		}
 		RemoveAffectFromChar(helpee, ESpell::kCharm);
-		if (!ch->IsImmortal()) {
+		if (!privilege::IsImmortal(ch)) {
 			if (isname(isbank, "банк bank")) {
 				currencies::RemoveBank(*ch, currencies::kGold, cost);
 				helpee->mob_specials.hire_price = -hire_price;
@@ -314,7 +315,7 @@ void DoFindhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 void DoFreehelpee(CharData *ch, char * /* argument*/, int/* cmd*/, int/* subcmd*/) {
 	if (ch->IsNpc()
-		|| (!ch->IsImmortal() && !CanUseFeat(ch, EFeat::kEmployer))) {
+		|| (!privilege::IsImmortal(ch) && !CanUseFeat(ch, EFeat::kEmployer))) {
 		SendMsgToChar("Вам недоступно это!\r\n", ch);
 		return;
 	}
@@ -343,7 +344,7 @@ void DoFreehelpee(CharData *ch, char * /* argument*/, int/* cmd*/, int/* subcmd*
 		return;
 	}
 
-	if (!ch->IsImmortal()) {
+	if (!privilege::IsImmortal(ch)) {
 		for (const auto &aff : hired->affected) {
 			if (aff->type == ESpell::kCharm) {
 				long cost = MAX(0, (int) ((aff->duration - 1) / 2) * (int) abs(hired->mob_specials.hire_price));

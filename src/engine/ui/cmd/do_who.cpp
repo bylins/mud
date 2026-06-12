@@ -3,6 +3,7 @@
 //
 
 #include "engine/ui/cmd/do_who.h"
+#include "administration/privilege.h"
 #include "utils/grammar/gender.h"
 #include "gameplay/mechanics/sight.h"
 
@@ -46,7 +47,7 @@ void DoWho(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			high = kLvlImplementator;
 			strcpy(buf, buf1);
 		} else if (a_isdigit(*arg)) {
-			if (ch->IsGod() || ch->IsFlagged(EPrf::kCoderinfo))
+			if (privilege::IsGod(ch) || ch->IsFlagged(EPrf::kCoderinfo))
 				sscanf(arg, "%d-%d", &low, &high);
 			strcpy(buf, buf1);
 		} else if (*arg == '-') {
@@ -54,33 +55,33 @@ void DoWho(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			switch (mode) {
 				case 'b':
 				case 'и':
-					if (ch->IsImmortal() || GET_GOD_FLAG(ch, EGf::kDemigod) || ch->IsFlagged(EPrf::kCoderinfo))
+					if (privilege::IsImmortal(ch) || GET_GOD_FLAG(ch, EGf::kDemigod) || ch->IsFlagged(EPrf::kCoderinfo))
 						showname = true;
 					strcpy(buf, buf1);
 					break;
 				case 'z':
-					if (ch->IsGod() || ch->IsFlagged(EPrf::kCoderinfo))
+					if (privilege::IsGod(ch) || ch->IsFlagged(EPrf::kCoderinfo))
 						localwho = true;
 					strcpy(buf, buf1);
 					break;
 				case 's':
-					if (ch->IsImmortal() || ch->IsFlagged(EPrf::kCoderinfo))
+					if (privilege::IsImmortal(ch) || ch->IsFlagged(EPrf::kCoderinfo))
 						short_list = true;
 					strcpy(buf, buf1);
 					break;
 				case 'l': half_chop(buf1, arg, buf);
-					if (ch->IsGod() || ch->IsFlagged(EPrf::kCoderinfo))
+					if (privilege::IsGod(ch) || ch->IsFlagged(EPrf::kCoderinfo))
 						sscanf(arg, "%d-%d", &low, &high);
 					break;
 				case 'n': half_chop(buf1, name_search, buf);
 					break;
 				case 'r':
-					if (ch->IsGod() || ch->IsFlagged(EPrf::kCoderinfo))
+					if (privilege::IsGod(ch) || ch->IsFlagged(EPrf::kCoderinfo))
 						who_room = true;
 					strcpy(buf, buf1);
 					break;
 				case 'c': half_chop(buf1, arg, buf);
-					if (ch->IsGod() || ch->IsFlagged(EPrf::kCoderinfo)) {
+					if (privilege::IsGod(ch) || ch->IsFlagged(EPrf::kCoderinfo)) {
 /*						const size_t len = strlen(arg);
 						for (size_t i = 0; i < len; i++) {
 							showclass |= FindCharClassMask(arg[i]);
@@ -91,7 +92,7 @@ void DoWho(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				case 'h':
 				case '?':
 				default:
-					if (ch->IsImmortal() || ch->IsFlagged(EPrf::kCoderinfo))
+					if (privilege::IsImmortal(ch) || ch->IsFlagged(EPrf::kCoderinfo))
 						SendMsgToChar(IMM_WHO_FORMAT, ch);
 					else
 						SendMsgToChar(MORT_WHO_FORMAT, ch);
@@ -153,7 +154,7 @@ void DoWho(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			continue;
 		}
 		if (tch->IsFlagged(EPlrFlag::kNameDenied) && punishments::Get(tch, punishments::EType::kName).duration
-			&& !ch->IsImmortal() && !ch->IsFlagged(EPrf::kCoderinfo)
+			&& !privilege::IsImmortal(ch) && !ch->IsFlagged(EPrf::kCoderinfo)
 			&& ch != tch.get()) {
 			continue;
 		}
@@ -163,31 +164,31 @@ void DoWho(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (short_list) {
 			char tmp[kMaxInputLength];
 			snprintf(tmp, sizeof(tmp), "%s%s%s", GetPkNameColor(tch), GET_NAME(tch), kColorNrm);
-			if (ch->IsImpl() || ch->IsFlagged(EPrf::kCoderinfo)) {
+			if (privilege::IsImpl(ch) || ch->IsFlagged(EPrf::kCoderinfo)) {
 				sprintf(buf, "%s[%2d %s] %-30s%s",
-						tch->IsGod() ? kColorWht : "",
+						privilege::IsGod(tch.get()) ? kColorWht : "",
 						GetRealLevel(tch), MUD::Class(tch->GetClass()).GetCName(),
-						tmp, tch->IsGod() ? kColorNrm : "");
+						tmp, privilege::IsGod(tch.get()) ? kColorNrm : "");
 			} else {
 				sprintf(buf, "%s%-30s%s",
-						tch->IsImmortal() ? kColorWht : "",
-						tmp, tch->IsImmortal() ? kColorNrm : "");
+						privilege::IsImmortal(tch.get()) ? kColorWht : "",
+						tmp, privilege::IsImmortal(tch.get()) ? kColorNrm : "");
 			}
 		} else {
-			if (ch->IsImpl()
+			if (privilege::IsImpl(ch)
 				|| ch->IsFlagged(EPrf::kCoderinfo)) {
 				sprintf(buf, "%s[%2d %2d %s(%5d)] %s%s%s%s",
-						tch->IsImmortal() ? kColorWht : "",
+						privilege::IsImmortal(tch.get()) ? kColorWht : "",
 						GetRealLevel(tch),
 						remort::GetRealRemort(tch),
 						MUD::Class(tch->GetClass()).GetAbbr().c_str(),
 						tch->get_pfilepos(),
 						GetPkNameColor(tch),
-						tch->IsImmortal() ? kColorWht : "", tch->race_or_title().c_str(), kColorNrm);
+						privilege::IsImmortal(tch.get()) ? kColorWht : "", tch->race_or_title().c_str(), kColorNrm);
 			} else {
 				sprintf(buf, "%s %s%s%s",
 						GetPkNameColor(tch),
-						tch->IsImmortal() ? kColorWht : "", tch->race_or_title().c_str(), kColorNrm);
+						privilege::IsImmortal(tch.get()) ? kColorWht : "", tch->race_or_title().c_str(), kColorNrm);
 			}
 
 			if (GET_INVIS_LEV(tch))
@@ -214,7 +215,7 @@ void DoWho(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				sprintf(buf + strlen(buf), " (нем%s)", grammar::SexEnding((tch)->get_sex(), 6));
 			if (tch->IsFlagged(EPlrFlag::kKiller) == EPlrFlag::kKiller)
 				sprintf(buf + strlen(buf), "&R (ДУШЕГУБ)&n");
-			if ((ch->IsImmortal() || GET_GOD_FLAG(ch, EGf::kDemigod)) && !(tch)->player_specials->saved.NameGod
+			if ((privilege::IsImmortal(ch) || GET_GOD_FLAG(ch, EGf::kDemigod)) && !(tch)->player_specials->saved.NameGod
 				&& GetRealLevel(tch) <= kNameLevel) {
 				sprintf(buf + strlen(buf), " &W!НЕ ОДОБРЕНО!&n");
 				if (showname) {
@@ -228,27 +229,27 @@ void DoWho(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 			if ((GetRealLevel(ch) == kLvlImplementator) && (NORENTABLE(tch)))
 				sprintf(buf + strlen(buf), " &R(В КРОВИ)&n");
-			else if ((ch->IsImmortal() || ch->IsFlagged(EPrf::kCoderinfo)) && NAME_BAD(tch)) {
+			else if ((privilege::IsImmortal(ch) || ch->IsFlagged(EPrf::kCoderinfo)) && NAME_BAD(tch)) {
 				sprintf(buf + strlen(buf), " &Wзапрет %s!&n", GetNameById((tch)->player_specials->saved.NameIDGod).c_str());
 			}
-			if (ch->IsGod() && (GET_GOD_FLAG(tch, EGf::kAllowTesterMode)))
+			if (privilege::IsGod(ch) && (GET_GOD_FLAG(tch, EGf::kAllowTesterMode)))
 				sprintf(buf + strlen(buf), " &G(ТЕСТЕР!)&n");
-			if (ch->IsGod() && (GET_GOD_FLAG(tch, EGf::kSkillTester)))
+			if (privilege::IsGod(ch) && (GET_GOD_FLAG(tch, EGf::kSkillTester)))
 				sprintf(buf + strlen(buf), " &G(СКИЛЛТЕСТЕР!)&n");
-			if (ch->IsGod() && (tch->IsFlagged(EPlrFlag::kAutobot)))
+			if (privilege::IsGod(ch) && (tch->IsFlagged(EPlrFlag::kAutobot)))
 				sprintf(buf + strlen(buf), " &G(БОТ!)&n");
-			if (tch->IsImmortal())
+			if (privilege::IsImmortal(tch.get()))
 				strcat(buf, kColorNrm);
 		}        // endif shortlist
 
-		if (tch->IsImmortal()) {
+		if (privilege::IsImmortal(tch.get())) {
 			imms_num++;
 			imms += buf;
 			if (!short_list || !(imms_num % 4)) {
 				imms += "\r\n";
 			}
 		} else if (GET_GOD_FLAG(tch, EGf::kDemigod)
-			&& (ch->IsImmortal() || ch->IsFlagged(EPrf::kCoderinfo) || GET_GOD_FLAG(tch, EGf::kDemigod))) {
+			&& (privilege::IsImmortal(ch) || ch->IsFlagged(EPrf::kCoderinfo) || GET_GOD_FLAG(tch, EGf::kDemigod))) {
 			demigods_num++;
 			demigods += buf;
 			if (!short_list || !(demigods_num % 4)) {
@@ -312,7 +313,7 @@ void DoWho(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 // константы пока определены через #define в interpreter.h
 // возвращает истину, если спамконтроль сработал и игроку придется подождать
 bool PerformWhoSpamcontrol(CharData *ch, unsigned short int mode) {
-	if (ch->IsImmortal()) {
+	if (privilege::IsImmortal(ch)) {
 		return false;
 	}
 

@@ -1,4 +1,5 @@
 #include "firstaid.h"
+#include "administration/privilege.h"
 #include "gameplay/mechanics/minions.h"
 
 #include "engine/entities/char_data.h"
@@ -156,7 +157,7 @@ Affect<EApply>::shared_ptr PickCureTarget(CharData *vict, ESpell desired) {
 void ApplyFirstAidCooldown(CharData *ch) {
 	struct TimedSkill timed;
 	timed.skill = ESkill::kFirstAid;
-	int time = ch->IsImmortal() ? 1 : IS_PALADINE(ch) ? 4 : IS_SORCERER(ch) ? 2 : 6;
+	int time = privilege::IsImmortal(ch) ? 1 : IS_PALADINE(ch) ? 4 : IS_SORCERER(ch) ? 2 : 6;
 	if (CanUseFeat(ch, EFeat::kPhysicians)) {
 		time /= 2;
 	}
@@ -171,7 +172,7 @@ void DoFirstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kFirstAid, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
-	if (!ch->IsGod() && IsTimedBySkill(ch, ESkill::kFirstAid)) {
+	if (!privilege::IsGod(ch) && IsTimedBySkill(ch, ESkill::kFirstAid)) {
 		SendMsgToChar("Так много лечить нельзя - больных не останется.\r\n", ch);
 		return;
 	}
@@ -206,7 +207,7 @@ void DoFirstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	// --- HP heal phase (preserved from the legacy implementation) ---
 	int percent_hp = number(1, MUD::Skills()[ESkill::kFirstAid].difficulty);
 	int prob_hp = CalcCurrentSkill(ch, ESkill::kFirstAid, vict);
-	if (ch->IsImmortal() || GET_GOD_FLAG(ch, EGf::kGodsLike) || GET_GOD_FLAG(vict, EGf::kGodsLike)) {
+	if (privilege::IsImmortal(ch) || GET_GOD_FLAG(ch, EGf::kGodsLike) || GET_GOD_FLAG(vict, EGf::kGodsLike)) {
 		percent_hp = 0;
 	}
 	if (GET_GOD_FLAG(ch, EGf::kGodscurse) || GET_GOD_FLAG(vict, EGf::kGodscurse)) {
@@ -234,7 +235,7 @@ void DoFirstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		const float aff_potency = target_aff->potency;
 		const bool luck = (number(1, 100) <= 5);
 		const bool ok = luck || potency > aff_potency;
-		if (ch->IsImmortal() || ch->IsFlagged(EPrf::kTester)) {
+		if (privilege::IsImmortal(ch) || ch->IsFlagged(EPrf::kTester)) {
 			char dbuf[256];
 			snprintf(dbuf, sizeof(dbuf),
 					 "First Aid: %.1f%s vs %s [p: %.1f]. %s.\r\n",
@@ -311,7 +312,7 @@ void DoFirstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kFirstAid, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
-	if (!ch->IsGod() && IsTimedBySkill(ch, ESkill::kFirstAid)) {
+	if (!privilege::IsGod(ch) && IsTimedBySkill(ch, ESkill::kFirstAid)) {
 		SendMsgToChar("Так много лечить нельзя - больных не останется.\r\n", ch);
 		return;
 	}
@@ -339,7 +340,7 @@ void DoFirstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 	int percent = number(1, MUD::Skills()[ESkill::kFirstAid].difficulty);
 	int prob = CalcCurrentSkill(ch, ESkill::kFirstAid, vict);
-	if (ch->IsImmortal() || GET_GOD_FLAG(ch, EGf::kGodsLike) || GET_GOD_FLAG(vict, EGf::kGodsLike)) {
+	if (privilege::IsImmortal(ch) || GET_GOD_FLAG(ch, EGf::kGodsLike) || GET_GOD_FLAG(vict, EGf::kGodsLike)) {
 		percent = 0;
 	}
 	if (GET_GOD_FLAG(ch, EGf::kGodscurse) || GET_GOD_FLAG(vict, EGf::kGodscurse)) {
@@ -376,7 +377,7 @@ void DoFirstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		act("У вас не хватило умения вылечить $N3.", false, ch, nullptr, vict, kToChar);
 	} else {
 		timed.skill = ESkill::kFirstAid;
-		int time = ch->IsImmortal() ? 1 : IS_PALADINE(ch) ? 4 : IS_SORCERER(ch) ? 2 : 6;
+		int time = privilege::IsImmortal(ch) ? 1 : IS_PALADINE(ch) ? 4 : IS_SORCERER(ch) ? 2 : 6;
 		if (CanUseFeat(ch, EFeat::kPhysicians))
 			time /=2;
 		timed.time = time;

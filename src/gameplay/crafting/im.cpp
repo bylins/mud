@@ -11,6 +11,7 @@
 // Реализация ингредиентной магии
 
 #include "im.h"
+#include "administration/privilege.h"
 
 #include <string>
 
@@ -1194,7 +1195,7 @@ void im_improve_recipe(CharData *ch, im_rskill *rs, int success) {
 						kColorBoldCyn, imrecipes[rs->rid].name, kColorNrm);
 			SendMsgToChar(buf, ch);
 			rs->perc += number(1, 2);
-			if (!ch->IsImmortal())
+			if (!privilege::IsImmortal(ch))
 				rs->perc = MIN(kZeroRemortSkillCap + remort::GetRealRemort(ch) * 5, rs->perc);
 		}
 	}

@@ -1,4 +1,5 @@
 #include "disarm.h"
+#include "administration/privilege.h"
 
 #include "skill_messages.h"
 #include "engine/db/global_objects.h"
@@ -58,14 +59,14 @@ void do_disarm(CharData *ch, CharData *vict) {
 			act("Не получится - $N уже понял$G, что от Вас можно ожидать всякого!",
 				false, ch, nullptr, vict, kToChar);
 		} else if (IsAffectedBySpellWithCasterId(ch, vict, ESpell::kNoInjure) && (vict->HasWeapon())) {
-			if (ch->IsImpl() || !ch->GetEnemy()) {
+			if (privilege::IsImpl(ch) || !ch->GetEnemy()) {
 				go_disarm(ch, vict);
 			} else if (IsHaveNoExtraAttack(ch)) {
 				act("Хорошо. Вы попытаетесь разоружить $N3.", false, ch, nullptr, vict, kToChar);
 				ch->SetExtraAttack(kExtraAttackDisarm, vict);
 			}
 		} else {
-			if (ch->IsImpl() || !ch->GetEnemy()) {
+			if (privilege::IsImpl(ch) || !ch->GetEnemy()) {
 				go_injure(ch, vict);
 			} else if (IsHaveNoExtraAttack(ch)) {
 				act("Хорошо. Вы попытаетесь ранить $N3.", false, ch, nullptr, vict, kToChar);
@@ -77,7 +78,7 @@ void do_disarm(CharData *ch, CharData *vict) {
 			SendMsgToChar("Вы не сможете обезоружить безоружного!\r\n", ch);
 			return;
 		} else {
-			if (ch->IsImpl() || !ch->GetEnemy()) {
+			if (privilege::IsImpl(ch) || !ch->GetEnemy()) {
 				go_disarm(ch, vict);
 			} else if (IsHaveNoExtraAttack(ch)) {
 				act("Хорошо. Вы попытаетесь разоружить $N3.", false, ch, nullptr, vict, kToChar);
@@ -187,9 +188,9 @@ void go_disarm(CharData *ch, CharData *vict) {
 	bool success = result.success;
 	int lag;
 
-	if (ch->IsImmortal() || GET_GOD_FLAG(vict, EGf::kGodscurse) || GET_GOD_FLAG(ch, EGf::kGodsLike))
+	if (privilege::IsImmortal(ch) || GET_GOD_FLAG(vict, EGf::kGodscurse) || GET_GOD_FLAG(ch, EGf::kGodsLike))
 		success = true;
-	if (vict->IsImmortal() || GET_GOD_FLAG(ch, EGf::kGodscurse) || GET_GOD_FLAG(vict, EGf::kGodsLike)
+	if (privilege::IsImmortal(vict) || GET_GOD_FLAG(ch, EGf::kGodscurse) || GET_GOD_FLAG(vict, EGf::kGodsLike)
 		|| CanUseFeat(vict, EFeat::kStrongClutch))
 		success = false;
 

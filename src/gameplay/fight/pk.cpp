@@ -12,6 +12,7 @@
 ************************************************************************ */
 
 #include "pk.h"
+#include "administration/privilege.h"
 #include "gameplay/mechanics/minions.h"
 #include "gameplay/mechanics/mount.h"
 
@@ -156,7 +157,7 @@ void pk_translate_pair(CharData **pkiller, CharData **pvictim) {
 void pk_update_clanflag(CharData *agressor, CharData *victim) {
 	const long uid = victim->get_uid();
 
-	if (victim->IsGod() && agressor->pk_map.count(uid) == 0) {
+	if (privilege::IsGod(victim) && agressor->pk_map.count(uid) == 0) {
 		agressor->save_char();
 		agressor->agrobd = true;
 		return;
@@ -165,7 +166,7 @@ void pk_update_clanflag(CharData *agressor, CharData *victim) {
 	auto &pk = agressor->pk_map[uid];
 	pk.unique = uid;
 
-	if (victim->desc && (!victim->IsGod())) {
+	if (victim->desc && (!privilege::IsGod(victim))) {
 		if (pk.clan_exp > time(nullptr)) {
 			act("Вы продлили право клановой мести $N2!", false, victim, 0, agressor, kToChar);
 			act("$N продлил$G право еще раз отомстить вам!", false, agressor, 0, victim, kToChar);
@@ -227,7 +228,7 @@ void pk_increment_kill(CharData *agressor, CharData *victim, int rent, bool flag
 		pk_update_clanflag(agressor, victim);
 	} else {
 		const long uid = victim->get_uid();
-		if (!victim->IsGod() || agressor->pk_map.count(uid) > 0) {
+		if (!privilege::IsGod(victim) || agressor->pk_map.count(uid) > 0) {
 			auto &pk = agressor->pk_map[uid];
 			pk.unique = uid;
 			if (victim->desc) {
@@ -335,7 +336,7 @@ void pk_increment_gkill(CharData *agressor, CharData *victim) {
 
 	CharData *leader;
 	bool has_clanmember = false;
-	if (!victim->IsGod()) {
+	if (!privilege::IsGod(victim)) {
 		has_clanmember = has_clan_members_in_group(victim);
 	}
 
@@ -400,7 +401,7 @@ bool pk_agro_action(CharData *agressor, CharData *victim) {
 			break;
 
 		case PK_ACTION_KILL:
-			if (agressor->IsGod() || victim->IsGod()) {
+			if (privilege::IsGod(agressor) || privilege::IsGod(victim)) {
 				break;
 			}
 			pk_increment_gkill(agressor, victim);
@@ -440,9 +441,9 @@ int pk_action_type_summon(CharData *agressor, CharData *victim) {
 			// действия клан-флага
 			pk.clan_exp > time(nullptr))
 			return PK_ACTION_REVENGE;    // месть по клан-флагу
-		if (pk.kill_num && !(CLAN(agressor) && CLAN(victim)) && !agressor->IsGod())
+		if (pk.kill_num && !(CLAN(agressor) && CLAN(victim)) && !privilege::IsGod(agressor))
 			return PK_ACTION_REVENGE;    // обычная месть
-		if (pk.thief_exp > time(nullptr) && (!agressor->IsGod()))
+		if (pk.thief_exp > time(nullptr) && (!privilege::IsGod(agressor)))
 			return PK_ACTION_REVENGE;    // месть вору
 	}
 
@@ -464,7 +465,7 @@ void pk_thiefs_action(CharData *thief, CharData *victim) {
 		case PK_ACTION_KILL: {
 			// продлить/установить флаг воровства
 			const long uid = victim->get_uid();
-			if (thief->pk_map.count(uid) > 0 || victim->IsGod() || thief->IsGod()) {
+			if (thief->pk_map.count(uid) > 0 || privilege::IsGod(victim) || privilege::IsGod(thief)) {
 				break;
 			}
 			auto &pk = thief->pk_map[uid];
@@ -869,7 +870,7 @@ int may_kill_here(CharData *ch, CharData *victim, char *argument) {
 		if (ch->IsNpc() && ch->get_rnum() == GetMobRnum(kDgCasterProxy))
 			return true;
 		// богам, мстящим и продолжающим агро-бд можно
-		if (ch->IsGod() || pk_action_type(ch, victim) & (PK_ACTION_REVENGE | PK_ACTION_FIGHT))
+		if (privilege::IsGod(ch) || pk_action_type(ch, victim) & (PK_ACTION_REVENGE | PK_ACTION_FIGHT))
 			return true;
 		SendMsgToChar("Здесь слишком мирно, чтобы начинать драку...\r\n", ch);
 		return false;
@@ -1044,7 +1045,7 @@ void bloody::remove_obj(const ObjData *obj) {
 bool bloody::handle_transfer(CharData *ch, CharData *victim, ObjData *obj, ObjData *container) {
 	CharData *initial_ch = ch;
 	CharData *initial_victim = victim;
-	if (!obj || (ch && ch->IsGod())) return true;
+	if (!obj || (ch && privilege::IsGod(ch))) return true;
 	pk_translate_pair(&ch, &victim);
 	bool result = false;
 	BloodyInfoMap::iterator it = bloody_map.find(obj);
@@ -1061,7 +1062,7 @@ bool bloody::handle_transfer(CharData *ch, CharData *victim, ObjData *obj, ObjDa
 				|| player_table[GetPtableByUnique(it->second.owner_unique)].mail == GET_EMAIL(victim))) {
 			remove_obj(obj); //снимаем флаг
 			result = true;
-		} else if (!ch && victim && (!victim->IsGod())) //лут не владельцем
+		} else if (!ch && victim && (!privilege::IsGod(victim))) //лут не владельцем
 		{
 			if (initial_victim->IsNpc()) //чармисам брать нельзя
 			{
@@ -1106,7 +1107,7 @@ void bloody::handle_corpse(ObjData *corpse, CharData *ch, CharData *killer) {
 		&& !killer->IsNpc()
 		&& !ch->IsFlagged(EPlrFlag::kKiller)
 		&& !AGRO(ch)
-		&& !killer->IsGod()) {
+		&& !privilege::IsGod(killer)) {
 		//Проверим, может у killer есть месть на ch
 		auto it = ch->pk_map.find(killer->get_uid());
 		bool has_revenge = it != ch->pk_map.end()

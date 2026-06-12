@@ -7,6 +7,7 @@
 */
 
 #include "engine/entities/char_data.h"
+#include "administration/privilege.h"
 #include "gameplay/mechanics/weather.h"
 
 void do_time(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
@@ -68,17 +69,17 @@ void do_time(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 
 	day = time_info.day + 1;    // day in [1..30]
 	*buf = '\0';
-	if (GET_RELIGION(ch) == kReligionPoly || ch->IsImmortal()) {
+	if (GET_RELIGION(ch) == kReligionPoly || privilege::IsImmortal(ch)) {
 		days_go = time_info.month * kDaysPerMonth + time_info.day;
 		month = days_go / 40;
 		days_go = (days_go % 40) + 1;
 		sprintf(buf + strlen(buf), "%s, %dй День, Год %d%s",
-				month_name_poly[month], days_go, time_info.year, ch->IsImmortal() ? ".\r\n" : "");
+				month_name_poly[month], days_go, time_info.year, privilege::IsImmortal(ch) ? ".\r\n" : "");
 	}
-	if (GET_RELIGION(ch) == kReligionMono || ch->IsImmortal())
+	if (GET_RELIGION(ch) == kReligionMono || privilege::IsImmortal(ch))
 		sprintf(buf + strlen(buf), "%s, %dй День, Год %d",
 				month_name[static_cast<int>(time_info.month)], day, time_info.year);
-	if (ch->IsImmortal())
+	if (privilege::IsImmortal(ch))
 		sprintf(buf + strlen(buf),
 				"\r\n%d.%d.%d, дней с начала года: %d",
 				day,

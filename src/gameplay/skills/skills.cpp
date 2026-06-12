@@ -1974,7 +1974,7 @@ void ImproveSkill(CharData *ch, const ESkill skill, int success, CharData *victi
 		}
 		SendMsgToChar(buf, ch);
 		SetSkill(ch, skill, (trained_skill + number(1, 2)));
-		if (!ch->IsImmortal()) {
+		if (!privilege::IsImmortal(ch)) {
 			SetSkill(ch, skill, (std::min(kZeroRemortSkillCap + remort::GetRealRemort(ch) * 5, GetSkillBonus(ch, skill))));
 		}
 		if (victim && victim->IsNpc()) {

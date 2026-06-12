@@ -13,6 +13,7 @@
 ************************************************************************ */
 
 #include "magic_utils.h"
+#include "administration/privilege.h"
 
 #include "gameplay/mechanics/groups.h"
 #include "engine/db/global_objects.h"
@@ -271,7 +272,7 @@ abilities::EAbility FixNameAndFindAbilityId(const std::string &name) {
 }
 
 bool MayCastInForbiddenRoom(CharData *caster) {
-	if (caster->IsGrGod()) {
+	if (privilege::IsGrGod(caster)) {
 		return true;
 	}
 	if (caster->IsNpc() &&
@@ -323,7 +324,7 @@ int ComputeApplyModifier(const talents_actions::TalentAffect::Apply &apply, doub
 bool MayCastHere(CharData *caster, CharData *victim, ESpell spell_id) {
 	int ignore;
 
-	if (caster->IsGrGod() || !ROOM_FLAGGED(caster->in_room, ERoomFlag::kPeaceful)) {
+	if (privilege::IsGrGod(caster) || !ROOM_FLAGGED(caster->in_room, ERoomFlag::kPeaceful)) {
 		return true;
 	}
 
@@ -353,7 +354,7 @@ bool MayCastHere(CharData *caster, CharData *victim, ESpell spell_id) {
 					!MUD::Spell(spell_id).IsFlagged(kMagAreas);
 
 	for (const auto ch_vict : world[caster->in_room]->people) {
-		if (ch_vict->IsImmortal())
+		if (privilege::IsImmortal(ch_vict))
 			continue;
 		if (!HERE(ch_vict))
 			continue;
@@ -736,7 +737,7 @@ ECastResult CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troo
 		return ECastResult::kNotCast;
 	}
 
-	if (tch != ch && !ch->IsImmortal() && MUD::Spell(spell_id).AllowTarget(kTarSelfOnly)) {
+	if (tch != ch && !privilege::IsImmortal(ch) && MUD::Spell(spell_id).AllowTarget(kTarSelfOnly)) {
 		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCantCastSelfOnly) + "\r\n", ch);
 		return ECastResult::kNotCast;
 	}
@@ -800,7 +801,7 @@ ECastResult CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troo
 		GET_SPELL_MEM(ch, spell_subst) = 0;
 	}
 
-	if (!ch->IsNpc() && !ch->IsImmortal() && ch->IsFlagged(EPrf::kAutomem)) {
+	if (!ch->IsNpc() && !privilege::IsImmortal(ch) && ch->IsFlagged(EPrf::kAutomem)) {
 		MemQ_remember(ch, spell_subst);
 	}
 
@@ -814,7 +815,7 @@ ECastResult CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troo
 }
 
 int CalcCastSuccess(CharData *ch, CharData *victim, ESaving saving, ESpell spell_id) {
-	if (ch->IsImmortal() || GET_GOD_FLAG(ch, EGf::kGodsLike)) {
+	if (privilege::IsImmortal(ch) || GET_GOD_FLAG(ch, EGf::kGodsLike)) {
 		return true;
 	}
 

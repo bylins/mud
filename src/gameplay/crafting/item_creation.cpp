@@ -7,6 +7,7 @@
 *  $Revision$                                                     *
 ************************************************************************ */
 #include "item_creation.h"
+#include "administration/privilege.h"
 #include "utils/grammar/gender.h"
 
 #include "engine/db/obj_prototypes.h"
@@ -931,7 +932,7 @@ void do_transform_weapon(CharData *ch, char *argument, int/* cmd*/, int subcmd) 
 				act("$o сделан$G из неподходящего материала.", false, ch, obj, 0, kToChar);
 				return;
 			}
-			if (!ch->IsImmortal()) {
+			if (!privilege::IsImmortal(ch)) {
 				if (!ROOM_FLAGGED(ch->in_room, ERoomFlag::kForge)) {
 					SendMsgToChar("Вам нужно попасть в кузницу для этого.\r\n", ch);
 					return;
@@ -1236,7 +1237,7 @@ int MakeRecept::can_make(CharData *ch) {
 		int ingr_lev = get_ingr_lev(ingrobj);
 		// Если чар ниже уровня ингридиента то он не может делать рецепты с его
 		// участием.
-		if (!ch->IsImpl() && (ingr_lev > (GetRealLevel(ch) + 2 * remort::GetRealRemort(ch)))) {
+		if (!privilege::IsImpl(ch) && (ingr_lev > (GetRealLevel(ch) + 2 * remort::GetRealRemort(ch)))) {
 			SendMsgToChar("Вы слишком малого уровня и вам что-то не подходит для шитья.\r\n", ch);
 			return (false);
 		}
@@ -1620,7 +1621,7 @@ int MakeRecept::make(CharData *ch) {
 		return 0;
 	}
 	// Проверяем возможность создания предмета
-	if (!ch->IsImmortal() && (skill == ESkill::kMakeStaff)) {
+	if (!privilege::IsImmortal(ch) && (skill == ESkill::kMakeStaff)) {
 		const ObjData obj(*tobj);
 		act("Вы не готовы к тому чтобы сделать $o3.", false, ch, &obj, 0, kToChar);
 		return (false);
@@ -1633,7 +1634,7 @@ int MakeRecept::make(CharData *ch) {
 			break;
 		ingrs[i] = get_obj_in_list_ingr(parts[i].proto, ch->carrying);
 		ingr_lev = get_ingr_lev(ingrs[i]);
-		if (!ch->IsImpl() && (ingr_lev > (GetRealLevel(ch) + 2 * remort::GetRealRemort(ch)))) {
+		if (!privilege::IsImpl(ch) && (ingr_lev > (GetRealLevel(ch) + 2 * remort::GetRealRemort(ch)))) {
 			tmpstr = "Вы побоялись испортить " + ingrs[i]->get_PName(grammar::ECase::kAcc)
 				+ "\r\n и прекратили работу над " + tobj->get_PName(grammar::ECase::kIns) + ".\r\n";
 			SendMsgToChar(tmpstr.c_str(), ch);
@@ -1653,7 +1654,7 @@ int MakeRecept::make(CharData *ch) {
 		case ESkill::kMakeWeapon:
 		case ESkill::kMakeArmor:
 			// Проверяем есть ли тут наковальня или комната кузня.
-			if ((!ROOM_FLAGGED(ch->in_room, ERoomFlag::kForge)) && (!ch->IsImmortal())) {
+			if ((!ROOM_FLAGGED(ch->in_room, ERoomFlag::kForge)) && (!privilege::IsImmortal(ch))) {
 				SendMsgToChar("Вам нужно попасть в кузницу для этого.\r\n", ch);
 				return (false);
 			}
@@ -1779,7 +1780,7 @@ int MakeRecept::make(CharData *ch) {
 			created_lev += ingr_lev;
 		}
 		// Шанс испортить не ингредиент всетаки есть.
-		if ((number(0, 30) < (5 + ingr_lev - GetRealLevel(ch) - 2 * remort::GetRealRemort(ch))) && !ch->IsImpl()) {
+		if ((number(0, 30) < (5 + ingr_lev - GetRealLevel(ch) - 2 * remort::GetRealRemort(ch))) && !privilege::IsImpl(ch)) {
 			tmpstr = "Вы испортили " + ingrs[i]->get_PName(grammar::ECase::kAcc) + ".\r\n";
 			SendMsgToChar(tmpstr.c_str(), ch);
 			//extract_obj(ingrs[i]); //заменим на обнуление веса
@@ -1800,7 +1801,7 @@ int MakeRecept::make(CharData *ch) {
 		SendMsgToChar(tmpstr.c_str(), ch);
 		make_fail = true;
 	} else {
-		if (!ch->IsImpl()) {
+		if (!privilege::IsImpl(ch)) {
 			ch->set_move(ch->get_move() - craft_move);
 		}
 	}

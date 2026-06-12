@@ -6,6 +6,7 @@
 */
 
 #include "mem_queue.h"
+#include "administration/privilege.h"
 #include "gameplay/mechanics/magic_item.h"
 
 #include "engine/ui/color.h"
@@ -134,7 +135,7 @@ float druid_manacost_modifier[] {
 int CalcSpellManacost(CharData *ch, ESpell spell_id) {
 	int result = 0;
 
-	if (ch->IsImmortal()) {
+	if (privilege::IsImmortal(ch)) {
 		return 1;
 	}
 	if (IS_MANA_CASTER(ch) && GetRealLevel(ch) >= MagusCastRequiredLevel(ch, spell_id)) {

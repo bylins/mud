@@ -24,6 +24,13 @@ bool CheckFlag(const CharData *ch, int flag);
 bool IsSpellPermit(const CharData *ch, ESpell spell_id);
 bool CheckSkills(const CharData *ch);
 
+// Level-based privilege predicates (moved off CharData). TODO: drive these from privilege.lst
+// membership rather than character level.
+[[nodiscard]] bool IsImmortal(const CharData *ch);
+[[nodiscard]] bool IsGod(const CharData *ch);
+[[nodiscard]] bool IsGrGod(const CharData *ch);
+[[nodiscard]] bool IsImpl(const CharData *ch);
+
 extern const int kBoards;
 extern const int kUseSkills;
 extern const int kArenaMaster;

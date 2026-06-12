@@ -3,6 +3,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "parcel.h"
+#include "administration/privilege.h"
 #include "gameplay/economics/currencies.h"
 #include "gameplay/mechanics/sight.h"
 #include "utils/grammar/gender.h"
@@ -389,12 +390,12 @@ std::string PrintSpellLocateObject(CharData *ch, ObjData *obj) {
 	for (auto i : parcel_list) {
 		for (auto k : i.second) {
 			for (auto o : k.second) {
-				if (!ch->IsGod()) {
+				if (!privilege::IsGod(ch)) {
 					if (number(1, 100) > (40 + std::max((GetRealInt(ch) - 25) * 2, 0))) {
 						continue;
 					}
 				}
-				if (o.obj_->has_flag(EObjFlag::kNolocate) && !ch->IsGod()) {
+				if (o.obj_->has_flag(EObjFlag::kNolocate) && !privilege::IsGod(ch)) {
 					continue;
 				}
 				if (obj->get_id() == o.obj_->get_id()) {

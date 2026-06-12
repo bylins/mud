@@ -3,6 +3,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "poison.h"
+#include "administration/privilege.h"
 #include "gameplay/affects/affect_handler.h"
 #include "utils/grammar/gender.h"
 #include "gameplay/mechanics/sight.h"
@@ -492,7 +493,7 @@ int ProcessPoisonDmg(CharData *ch, const Affect<EApply>::shared_ptr &af) {
 }
 
 void TryDrinkPoison(CharData *ch, ObjData *jar, int amount) {
-	if ((GET_OBJ_VAL(jar, 3) == 1) && !ch->IsGod()) {
+	if ((GET_OBJ_VAL(jar, 3) == 1) && !privilege::IsGod(ch)) {
 		SendMsgToChar("Что-то вкус какой-то странный!\r\n", ch);
 		act("$n поперхнул$u и закашлял$g.", true, ch, 0, 0, kToRoom);
 		Affect<EApply> af;

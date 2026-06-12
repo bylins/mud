@@ -11,6 +11,7 @@
 */
 
 //#include "handler.h"
+#include "administration/privilege.h"
 
 #include "engine/scripting/dg_scripts.h"
 #include "gameplay/mechanics/sight.h"
@@ -242,7 +243,7 @@ void PlaceCharToRoom(CharData *ch, RoomRnum room) {
 	if (!ch->IsNpc() 
 			&& NORENTABLE(ch) 
 			&& ROOM_FLAGGED(room, ERoomFlag::kArena) 
-			&& !ch->IsImmortal()) {
+			&& !privilege::IsImmortal(ch)) {
 		SendMsgToChar("Вы не можете попасть на арену в состоянии боевых действий!\r\n", ch);
 		room = ch->get_from_room();
 	}
@@ -515,7 +516,7 @@ void RemoveObjFromChar(ObjData *object) {
 }
 
 bool HaveIncompatibleAlign(CharData *ch, ObjData *obj) {
-	if (ch->IsNpc() || ch->IsImmortal()) {
+	if (ch->IsNpc() || privilege::IsImmortal(ch)) {
 		return false;
 	}
 	if (obj->has_anti_flag(EAntiFlag::kMono) && GET_RELIGION(ch) == kReligionMono) {
@@ -821,7 +822,7 @@ void EquipObj(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip_f
 	if (!ch->IsNpc() || IsCharmice(ch)) {
 		CharData *master = IsCharmice(ch) && ch->has_master() ? ch->get_master() : ch;
 		if ((obj->get_auto_mort_req() >= 0) && (obj->get_auto_mort_req() > remort::GetRealRemort(master))
-			&& !master->IsImmortal()) {
+			&& !privilege::IsImmortal(master)) {
 			SendMsgToChar(master, "Для использования %s требуется %d %s.\r\n",
 						  obj->get_PName(grammar::ECase::kGen).c_str(),
 						  obj->get_auto_mort_req(),
@@ -832,7 +833,7 @@ void EquipObj(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip_f
 			}
 			return;
 		} else if ((obj->get_auto_mort_req() < -1) && (abs(obj->get_auto_mort_req()) < remort::GetRealRemort(master))
-			&& !master->IsImmortal()) {
+			&& !privilege::IsImmortal(master)) {
 			SendMsgToChar(master, "Максимально количество перевоплощений для использования %s равно %d.\r\n",
 						  obj->get_PName(grammar::ECase::kGen).c_str(),
 						  abs(obj->get_auto_mort_req()));
@@ -1947,7 +1948,7 @@ ObjData *get_obj_vis_for_locate(CharData *ch, const char *name) {
 }
 
 bool try_locate_obj(CharData *ch, ObjData *i) {
-	if (IS_CORPSE(i) || ch->IsGod()) //имм может локейтить и можно локейтить трупы
+	if (IS_CORPSE(i) || privilege::IsGod(ch)) //имм может локейтить и можно локейтить трупы
 	{
 		return true;
 	} else if (i->has_flag(EObjFlag::kNolocate)) //если флаг !локейт и ее нет в комнате/инвентаре - пропустим ее
@@ -2199,7 +2200,7 @@ RoomRnum FindRoomRnum(CharData *ch, char *rawroomstr, int trig) {
 	}
 
 	// a location has been found -- if you're < GRGOD, check restrictions.
-	if (!ch->IsGrGod() && !ch->IsFlagged(EPrf::kCoderinfo)) {
+	if (!privilege::IsGrGod(ch) && !ch->IsFlagged(EPrf::kCoderinfo)) {
 		if (ROOM_FLAGGED(location, ERoomFlag::kGodsRoom) && GetRealLevel(ch) < kLvlGreatGod) {
 			SendMsgToChar("Вы не столь божественны, чтобы получить доступ в эту комнату!\r\n", ch);
 			return (kNowhere);
@@ -2221,7 +2222,7 @@ int IsEquipInMetall(CharData *ch) {
 
 	if (ch->IsNpc() && !AFF_FLAGGED(ch, EAffect::kCharmed))
 		return (false);
-	if (ch->IsGod())
+	if (privilege::IsGod(ch))
 		return (false);
 
 	for (i = 0; i < EEquipPos::kNumEquipPos; i++) {
@@ -2275,7 +2276,7 @@ int num_pc_in_room(RoomData *room) {
 }
 
 int check_moves(CharData *ch, int how_moves) {
-	if (ch->IsImmortal() || ch->IsNpc())
+	if (privilege::IsImmortal(ch) || ch->IsNpc())
 		return (true);
 	if (ch->get_move() < how_moves) {
 		SendMsgToChar("Вы слишком устали.\r\n", ch);

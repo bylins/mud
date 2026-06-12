@@ -10,6 +10,7 @@
 **************************************************************************/
 
 #include "engine/entities/char_data.h"
+#include "administration/privilege.h"
 #include "gameplay/mechanics/minions.h"
 #include "gameplay/mechanics/follow.h"
 #include "gameplay/mechanics/mount.h"
@@ -553,7 +554,7 @@ void do_wdamage(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 			return;
 		}
 
-		if (ch->IsImmortal() && dam > 0) {
+		if (privilege::IsImmortal(ch) && dam > 0) {
 			SendMsgToChar("Будучи бессмертным, вы избежали повреждения...\r\n", ch);
 			return;
 		}

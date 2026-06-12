@@ -7,6 +7,7 @@
 */
 
 #include "engine/entities/char_data.h"
+#include "administration/privilege.h"
 #include "engine/network/descriptor_data.h"
 #include "engine/core/handler.h"
 #include "engine/core/target_resolver.h"
@@ -21,7 +22,7 @@ void do_force(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (!*arg || !*to_force) {
 		SendMsgToChar("Кого и что вы хотите принудить сделать?\r\n", ch);
-	} else if (!ch->IsGrGod() || (str_cmp("all", arg) && str_cmp("room", arg) && str_cmp("все", arg)
+	} else if (!privilege::IsGrGod(ch) || (str_cmp("all", arg) && str_cmp("room", arg) && str_cmp("все", arg)
 		&& str_cmp("здесь", arg))) {
 		CharData *vict = nullptr;
 		vict = target_resolver::FindCharInWorld(ch, arg);

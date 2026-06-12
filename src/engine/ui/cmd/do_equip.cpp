@@ -7,6 +7,7 @@
 */
 
 #include "engine/ui/cmd/do_equip.h"
+#include "administration/privilege.h"
 #include "gameplay/mechanics/sight.h"
 #include "utils/grammar/declensions.h"
 
@@ -269,7 +270,7 @@ void perform_wear(CharData *ch, ObjData *obj, int equip_pos, bool skip_total = f
 		return;
 	}
 	// нельзя надеть щит, если недостаточно силы
-	if (!ch->IsImmortal() && (equip_pos == EEquipPos::kShield) && !CanBeWearedAsShield(ch, obj)) {
+	if (!privilege::IsImmortal(ch) && (equip_pos == EEquipPos::kShield) && !CanBeWearedAsShield(ch, obj)) {
 	}
 
 	if ((equip_pos == EEquipPos::kFingerR) || (equip_pos == EEquipPos::kNeck) || (equip_pos == EEquipPos::kWristR))
@@ -399,7 +400,7 @@ void do_wield(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			if (!str_cmp(arg, "обе")
 				&& CAN_WEAR(obj, EWearFlag::kBoth)) {
 				// иногда бывает надо
-				if (!ch->IsImmortal() && !CanBeTakenInBothHands(ch, obj)) {
+				if (!privilege::IsImmortal(ch) && !CanBeTakenInBothHands(ch, obj)) {
 					act("Вам слишком тяжело держать $o3 двумя руками.",
 						false, ch, obj, nullptr, kToChar);
 					message_str_need(ch, obj, STR_BOTH_W);
@@ -415,7 +416,7 @@ void do_wield(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				wear = EEquipPos::kBoths;
 			}
 
-			if (wear == EEquipPos::kWield && !ch->IsImmortal() && !CanBeTakenInMajorHand(ch, obj)) {
+			if (wear == EEquipPos::kWield && !privilege::IsImmortal(ch) && !CanBeTakenInMajorHand(ch, obj)) {
 				act("Вам слишком тяжело держать $o3 в правой руке.",
 					false, ch, obj, nullptr, kToChar);
 				message_str_need(ch, obj, STR_WIELD_W);
@@ -427,7 +428,7 @@ void do_wield(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				}
 			}
 
-			if (wear == EEquipPos::kBoths && !ch->IsImmortal() && !CanBeTakenInBothHands(ch, obj)) {
+			if (wear == EEquipPos::kBoths && !privilege::IsImmortal(ch) && !CanBeTakenInBothHands(ch, obj)) {
 				act("Вам слишком тяжело держать $o3 двумя руками.",
 					false, ch, obj, nullptr, kToChar);
 				message_str_need(ch, obj, STR_BOTH_W);
@@ -478,7 +479,7 @@ void do_grab(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				SendMsgToChar("Ожившие трупы не могут вооружаться.\r\n", ch);
 				return;
 			}
-			if (!ch->IsImmortal()
+			if (!privilege::IsImmortal(ch)
 				&& !CanBeTakenInMinorHand(ch, obj)) {
 				act("Вам слишком тяжело держать $o3 в левой руке.",
 					false, ch, obj, nullptr, kToChar);

@@ -4,6 +4,7 @@
 */
 
 #include "gameplay/handlers/spell_handlers.h"
+#include "administration/privilege.h"
 #include "utils/grammar/gender.h"
 #include "gameplay/mechanics/sight.h"
 #include "gameplay/fight/pk.h"
@@ -37,7 +38,7 @@ EStageResult SpellLocateObject(CastContext &ctx) {
 	bool bloody_corpse = false;
 	strcpy(name, cast_argument);
 
-	int tmp_lvl = (ch->IsGod()) ? 300 : level;
+	int tmp_lvl = (privilege::IsGod(ch)) ? 300 : level;
 	int count = tmp_lvl;
 	const auto result = world_objects.find_if_and_dec_number([ch, name, &bloody_corpse](const ObjData::shared_ptr &i) {
 		const auto obj_ptr = world_objects.get_by_raw_ptr(i.get());
@@ -49,7 +50,7 @@ EStageResult SpellLocateObject(CastContext &ctx) {
 		}
 
 		bloody_corpse = false;
-		if (!ch->IsGod()) {
+		if (!privilege::IsGod(ch)) {
 			if (number(1, 100) > (40 + std::max((GetRealInt(ch) - 25) * 2, 0))) {
 				return false;
 			}
@@ -90,7 +91,7 @@ EStageResult SpellLocateObject(CastContext &ctx) {
 				return false;
 			}
 
-			if (SECT(carried_by->in_room) == ESector::kSecret || carried_by->IsImmortal()) {
+			if (SECT(carried_by->in_room) == ESector::kSecret || privilege::IsImmortal(carried_by)) {
 				return false;
 			}
 		}
@@ -122,7 +123,7 @@ EStageResult SpellLocateObject(CastContext &ctx) {
 			if (Clan::is_clan_chest(i->get_in_obj())) {
 				return false; // шоб не забивало локейт на мобах/плеерах - по кланам проходим ниже отдельно
 			} else {
-				if (!ch->IsGod()) {
+				if (!privilege::IsGod(ch)) {
 					if (i->get_in_obj()->get_carried_by()) {
 						if (i->get_in_obj()->get_carried_by()->IsNpc() && i->has_flag(EObjFlag::kNolocate)) {
 							return false;

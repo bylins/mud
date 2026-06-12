@@ -1,4 +1,5 @@
 #include "gameplay/mechanics/dead_load.h"
+#include "administration/privilege.h"
 #include "skill_messages.h"
 #include "engine/entities/char_data.h"
 #include "engine/db/global_objects.h"
@@ -330,7 +331,7 @@ void DoSkinning(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	const auto mob = (mob_proto + GetMobRnum(mobn));
 
 	// issue.npc-races: only corpses of races with the <skinnable/> trait can be skinned.
-	if (!ch->IsImmortal() && !MUD::MobRaces()[GET_RACE(mob)].IsSkinnable()) {
+	if (!privilege::IsImmortal(ch) && !MUD::MobRaces()[GET_RACE(mob)].IsSkinnable()) {
 		SendMsgToChar("Этот труп невозможно освежевать.\r\n", ch);
 		return;
 	}
@@ -370,7 +371,7 @@ void DoSkinning(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 		if (GET_RACE(mob) == ENpcRace::kAnimal) // шкуры только с животных
 		{
-			if (ch->IsImmortal() || skill_to_skin(mob, ch)) {
+			if (privilege::IsImmortal(ch) || skill_to_skin(mob, ch)) {
 				entrails.push_back(create_skin(mob, ch));
 			}
 		}

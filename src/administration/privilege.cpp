@@ -315,7 +315,7 @@ bool HasPrivilege(CharData *ch, const std::string &cmd_name, int cmd_number, int
 		return false;
 	}
 #ifdef TEST_BUILD
-	if (ch->IsImmortal())
+	if (privilege::IsImmortal(ch))
 		return true;
 #endif
 	const auto it = god_list.find(ch->get_uid());
@@ -357,7 +357,7 @@ bool CheckFlag(const CharData *ch, int flag) {
 	if (it != god_list.end() && CompareParam(it->second.name, GET_NAME(ch), true))
 		if (it->second.flags[flag])
 			result = true;
-	if (flag == kUseSkills && (ch->IsImpl()))
+	if (flag == kUseSkills && (privilege::IsImpl(ch)))
 		result = true;
 	return result;
 }
@@ -368,7 +368,7 @@ bool CheckFlag(const CharData *ch, int flag) {
 * У морталов и 34х проверка не производится.
 */
 bool IsSpellPermit(const CharData *ch, ESpell spell_id) {
-	if (!ch->IsImmortal() || ch->IsImpl() || CheckFlag(ch, kUseSkills)) {
+	if (!privilege::IsImmortal(ch) || privilege::IsImpl(ch) || CheckFlag(ch, kUseSkills)) {
 		return true;
 	}
 	if (spell_id == ESpell::kPortal || spell_id == ESpell::kSummon || spell_id == ESpell::kWorldOfRecall) {
@@ -385,11 +385,16 @@ bool IsSpellPermit(const CharData *ch, ESpell spell_id) {
 * \return 0 - не может использовать скиллы, 1 - может
 */
 bool CheckSkills(const CharData *ch) {
-	if ((GetRealLevel(ch) > kLvlGod) || !ch->IsImmortal() || CheckFlag(ch, kUseSkills))
-//	if (!ch->IsImmortal() || ch->IsImpl() || check_flag(ch, USE_SKILLS))
+	if ((GetRealLevel(ch) > kLvlGod) || !privilege::IsImmortal(ch) || CheckFlag(ch, kUseSkills))
+//	if (!privilege::IsImmortal(ch) || privilege::IsImpl(ch) || check_flag(ch, USE_SKILLS))
 		return true;
 	return false;
 }
+
+bool IsImmortal(const CharData *ch) { return !ch->IsNpc() && ch->GetLevel() >= kLvlImmortal; }
+bool IsGod(const CharData *ch) { return !ch->IsNpc() && ch->GetLevel() >= kLvlGod; }
+bool IsGrGod(const CharData *ch) { return !ch->IsNpc() && ch->GetLevel() >= kLvlGreatGod; }
+bool IsImpl(const CharData *ch) { return !ch->IsNpc() && ch->GetLevel() >= kLvlImplementator; }
 
 } // namespace Privilege
 

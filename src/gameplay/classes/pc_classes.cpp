@@ -1113,7 +1113,7 @@ void advance_level(CharData *ch) {
 
 	SetInbornAndRaceFeats(ch);
 
-	if (ch->IsImmortal()) {
+	if (privilege::IsImmortal(ch)) {
 		for (i = 0; i < 3; i++) {
 			GET_COND(ch, i) = (char) -1;
 		}
@@ -1153,7 +1153,7 @@ void decrease_level(CharData *ch) {
 	ch->set_max_move(ch->get_max_move() - std::clamp(add_move, 1, ch->get_max_move()));
 
 	GET_WIMP_LEV(ch) = std::clamp(GET_WIMP_LEV(ch), 0, ch->get_real_max_hit()/2);
-	if (!ch->IsImmortal()) {
+	if (!privilege::IsImmortal(ch)) {
 		ch->UnsetFlag(EPrf::kHolylight);
 	}
 
@@ -1179,7 +1179,7 @@ int invalid_unique(CharData *ch, const ObjData *obj) {
 		|| !obj
 		|| (ch->IsNpc()
 			&& !AFF_FLAGGED(ch, EAffect::kCharmed))
-		|| ch->IsImmortal()
+		|| privilege::IsImmortal(ch)
 		|| obj->get_owner() == 0
 		|| obj->get_owner() == ch->get_uid()) {
 		return (false);
@@ -1199,7 +1199,7 @@ int invalid_anti_class(CharData *ch, const ObjData *obj) {
 		&& AFF_FLAGGED(ch, EAffect::kCharmed)) {
 		return (true);
 	}
-	if ((ch->IsNpc() || ch->IsImmortal()) && !IsCharmice(ch)) {
+	if ((ch->IsNpc() || privilege::IsImmortal(ch)) && !IsCharmice(ch)) {
 		return (false);
 	}
 	if ((obj->has_anti_flag(EAntiFlag::kNoPkClan) && char_to_pk_clan(ch))) {
@@ -1242,7 +1242,7 @@ int invalid_no_class(CharData *ch, const ObjData *obj) {
 
 	if (!IsCharmice(ch)
 		&& (ch->IsNpc()
-			|| ch->IsImmortal())) {
+			|| privilege::IsImmortal(ch))) {
 		return false;
 	}
 
@@ -1281,7 +1281,7 @@ int invalid_anti_class_proto(CharData *ch, const CObjectPrototype *obj) {
 		&& AFF_FLAGGED(ch, EAffect::kCharmed)) {
 		return (true);
 	}
-	if ((ch->IsNpc() || ch->IsImmortal()) && !IsCharmice(ch)) {
+	if ((ch->IsNpc() || privilege::IsImmortal(ch)) && !IsCharmice(ch)) {
 		return (false);
 	}
 	if ((obj->has_anti_flag(EAntiFlag::kNoPkClan) && char_to_pk_clan(ch))) {
@@ -1322,7 +1322,7 @@ int invalid_no_class_proto(CharData *ch, const CObjectPrototype *obj) {
 	}
 	if (!IsCharmice(ch)
 		&& (ch->IsNpc()
-			|| ch->IsImmortal())) {
+			|| privilege::IsImmortal(ch))) {
 		return false;
 	}
 	if ((obj->has_no_flag(ENoFlag::kMono) && GET_RELIGION(ch) == kReligionMono)

@@ -7,6 +7,7 @@
 */
 
 #include "administration/punishments.h"
+#include "administration/privilege.h"
 
 #include "administration/karma.h"
 #include "administration/proxy.h"
@@ -329,7 +330,7 @@ bool IsVictimIncorrect(CharData *ch, CharData *vict) {
 		SendMsgToChar("Это слишком жестоко...\r\n", ch);
 		return true;
 	}
-	if ((GetRealLevel(vict) >= kLvlImmortal && !ch->IsImpl()) || vict->IsImpl()) {
+	if ((GetRealLevel(vict) >= kLvlImmortal && !privilege::IsImpl(ch)) || privilege::IsImpl(vict)) {
 		SendMsgToChar("Кем вы себя возомнили?\r\n", ch);
 		return true;
 	}

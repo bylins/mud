@@ -9,6 +9,7 @@
 ************************************************************************ */
 
 #include "exchange.h"
+#include "administration/privilege.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/economics/currencies.h"
 #include "gameplay/mechanics/sight.h"
@@ -1103,7 +1104,7 @@ void show_lots(const char *filter, short int show_type, const CharData *ch) {
 
 	std::string buffer;
 	SendMsgToChar(fmt::format(fmt::runtime(specials::ExchMsg(specials::EExchMsg::kFilterYours)), fmt::arg("filter", params.print())) + "\r\n", ch);
-	if (ch->IsGod()) {
+	if (privilege::IsGod(ch)) {
 		buffer =
 			"vnum    Лот      Предмет                                                     Цена  Состояние\r\n"
 			"--------------------------------------------------------------------------------------------\r\n";
@@ -1171,7 +1172,7 @@ void show_lots(const char *filter, short int show_type, const CharData *ch) {
 		}
 		char *tmstr;
 		tmstr = (char *) asctime(localtime(&(j->time)));
-		if (ch->IsGod()) {//asctime добавляет перевод строки лишний
+		if (privilege::IsGod(ch)) {//asctime добавляет перевод строки лишний
 			snprintf(tmpbuf, sizeof(tmpbuf),
 					"(%5d) %s %9d  %-s %s", GET_EXCHANGE_ITEM(j)->get_vnum(),
 					colored_name(item.c_str(), 63, true),
@@ -1220,7 +1221,7 @@ void do_exchange(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 	} else if ((utils::IsAbbr(arg1, "выставить") || utils::IsAbbr(arg1, "exhibit")
 		|| utils::IsAbbr(arg1, "цена") || utils::IsAbbr(arg1, "cost")
 		|| utils::IsAbbr(arg1, "снять") || utils::IsAbbr(arg1, "withdraw")
-		|| utils::IsAbbr(arg1, "купить") || utils::IsAbbr(arg1, "purchase")) && !ch->IsImpl()
+		|| utils::IsAbbr(arg1, "купить") || utils::IsAbbr(arg1, "purchase")) && !privilege::IsImpl(ch)
 		&& !specials::IsMobSpecialInRoom(ch->in_room, specials::ESpecial::kExchange)) {
 		SendMsgToChar(specials::ExchMsg(specials::EExchMsg::kNeedTrader) + "\r\n", ch);
 	} else

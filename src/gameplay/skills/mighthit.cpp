@@ -1,4 +1,5 @@
 #include "mighthit.h"
+#include "administration/privilege.h"
 #include "gameplay/mechanics/sight.h"
 #include "gameplay/mechanics/mount.h"
 #include "skill_messages.h"
@@ -92,7 +93,7 @@ void DoMighthit(CharData *ch, CharData *victim) {
 			SendMsgToChar("Невозможно. Вы сосредоточены на захвате противника.\r\n", ch);
 		return;
 	}
-	if (!ch->IsNpc() && !ch->IsImmortal()
+	if (!ch->IsNpc() && !privilege::IsImmortal(ch)
 		&& (GET_EQ(ch, EEquipPos::kBoths)
 			|| GET_EQ(ch, EEquipPos::kWield)
 			|| GET_EQ(ch, EEquipPos::kHold)
@@ -128,7 +129,7 @@ void PerformMighthit(CharData *ch, CharData *victim, HitData &hit_data) {
 		percent = number(1, 25);
 	}
 
-	if (victim->IsImmortal()) {
+	if (privilege::IsImmortal(victim)) {
 		prob = 0;
 	}
 

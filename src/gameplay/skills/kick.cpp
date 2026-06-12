@@ -1,4 +1,5 @@
 #include "kick.h"
+#include "administration/privilege.h"
 #include "gameplay/mechanics/mount.h"
 
 #include "skill_messages.h"
@@ -221,7 +222,7 @@ void do_kick(CharData *ch, CharData *vict) {
 		return;
 	}
 
-	if (ch->IsImpl() || !ch->GetEnemy()) {
+	if (privilege::IsImpl(ch) || !ch->GetEnemy()) {
 		go_kick(ch, vict);
 	} else if (IsHaveNoExtraAttack(ch)) {
 		act("Хорошо. Вы попытаетесь пнуть $N3.", false, ch, nullptr, vict, kToChar);

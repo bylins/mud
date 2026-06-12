@@ -1,4 +1,5 @@
 #include "engine/entities/char_data.h"
+#include "administration/privilege.h"
 #include "gameplay/mechanics/sight.h"
 #include "utils/grammar/declensions.h"
 #include "gameplay/mechanics/minions.h"
@@ -16,7 +17,7 @@ extern void split_or_clan_tax(CharData *ch, long amount);
 void perform_give(CharData *ch, CharData *vict, ObjData *obj) {
 	if (!bloody::handle_transfer(ch, vict, obj))
 		return;
-	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoItem) && !ch->IsGod()) {
+	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoItem) && !privilege::IsGod(ch)) {
 		act("Неведомая сила помешала вам сделать это!",
 			false, ch, nullptr, nullptr, kToChar);
 		return;
@@ -97,11 +98,11 @@ void perform_give_gold(CharData *ch, CharData *vict, int amount) {
 		SendMsgToChar("Ха-ха-ха (3 раза)...\r\n", ch);
 		return;
 	}
-	if (currencies::GetHand(*ch, currencies::kGold) < amount && (ch->IsNpc() || !ch->IsImpl())) {
+	if (currencies::GetHand(*ch, currencies::kGold) < amount && (ch->IsNpc() || !privilege::IsImpl(ch))) {
 		SendMsgToChar("И откуда вы их взять собираетесь?\r\n", ch);
 		return;
 	}
-	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoItem) && !ch->IsGod()) {
+	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoItem) && !privilege::IsGod(ch)) {
 		act("Неведомая сила помешала вам сделать это!",
 			false, ch, nullptr, nullptr, kToChar);
 		return;
@@ -122,7 +123,7 @@ void perform_give_gold(CharData *ch, CharData *vict, int amount) {
 				GET_PAD(vict, 4));
 		mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
 	}
-	if (ch->IsNpc() || !ch->IsImpl()) {
+	if (ch->IsNpc() || !privilege::IsImpl(ch)) {
 		currencies::RemoveHand(*ch, currencies::kGold, amount);
 	}
 	// если денег дает моб - снимаем клан-налог
@@ -140,11 +141,11 @@ void perform_give_currency(CharData *ch, CharData *vict, const currencies::Curre
 		SendMsgToChar("Ха-ха-ха (3 раза)...\r\n", ch);
 		return;
 	}
-	if (currencies::GetHand(*ch, cur.GetTextId()) < amount && (ch->IsNpc() || !ch->IsImpl())) {
+	if (currencies::GetHand(*ch, cur.GetTextId()) < amount && (ch->IsNpc() || !privilege::IsImpl(ch))) {
 		SendMsgToChar("И откуда ты их взять собирался?\r\n", ch);
 		return;
 	}
-	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoItem) && !ch->IsGod()) {
+	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoItem) && !privilege::IsGod(ch)) {
 		act("Неведомая сила помешала вам сделать это!",
 			false, ch, nullptr, nullptr, kToChar);
 		return;
@@ -155,7 +156,7 @@ void perform_give_currency(CharData *ch, CharData *vict, const currencies::Curre
 	act(buf, false, ch, nullptr, vict, kToVict);
 	sprintf(buf, "$n дал$g %d %s $N2.", amount, cur.GetNameWithAmount(amount, grammar::ECase::kAcc).c_str());
 	act(buf, true, ch, nullptr, vict, kToNotVict | kToArenaListen);
-	if (ch->IsNpc() || !ch->IsImpl()) {
+	if (ch->IsNpc() || !privilege::IsImpl(ch)) {
 		currencies::RemoveHand(*ch, cur.GetTextId(), amount);
 	}
 	currencies::AddHand(*vict, cur.GetTextId(), amount, true);

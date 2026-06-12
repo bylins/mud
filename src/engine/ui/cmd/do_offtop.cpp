@@ -62,7 +62,7 @@ void do_offtop(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if  (i->state == EConState::kPlaying
 			&& i->character
 // оффтоп видят все, временно
-//			&& (GetRealLevel(i->character) < kLvlImmortal || i->character->IsImpl())
+//			&& (GetRealLevel(i->character) < kLvlImmortal || privilege::IsImpl(i->character.get()))
 			&& i->character->IsFlagged(EPrf::kOfftopMode)
 			&& !i->character->IsFlagged(EPrf::kStopOfftop)
 			&& !ignores(i->character.get(), ch, EIgnore::kOfftop)) {

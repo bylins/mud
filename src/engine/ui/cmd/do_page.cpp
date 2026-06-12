@@ -7,6 +7,7 @@
 */
 
 #include "engine/entities/char_data.h"
+#include "administration/privilege.h"
 #include "engine/network/descriptor_data.h"
 #include "engine/core/handler.h"
 #include "engine/core/target_resolver.h"
@@ -26,7 +27,7 @@ void do_page(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		buffer << "\007\007*$n*" << buf2;
 //		sprintf(buf, "\007\007*$n* %s", buf2);
 		if (!str_cmp(arg, "all") || !str_cmp(arg, "все")) {
-			if (ch->IsGrGod()) {
+			if (privilege::IsGrGod(ch)) {
 				for (d = descriptor_list; d; d = d->next) {
 					if (d->state == EConState::kPlaying && d->character) {
 						act(buf, false, ch, nullptr, d->character.get(), kToVict);

@@ -3,6 +3,7 @@
 */
 
 #include "target_resolver.h"
+#include "administration/privilege.h"
 #include "gameplay/mechanics/minions.h"
 
 #include "engine/core/handler.h"
@@ -64,7 +65,7 @@ const FilterType isCorrectVictim = [](CharData *actor, CharData *target) {
 	if (isNotCorrectTarget(actor, target)) {
 		return false;
 	};
-	if (group::same_group(actor, target) || target->IsImmortal()) {
+	if (group::same_group(actor, target) || privilege::IsImmortal(target)) {
 		return false;
 	};
 	if (!may_kill_here(actor, target, NoArgument)) {
@@ -621,7 +622,7 @@ RoomRnum GetRandomTeleportTargetInZone(CharData *ch, RoomRnum zone_room) {
 			&& !ROOM_FLAGGED(fnd_room, ERoomFlag::kNoTeleportIn)
 			&& !ROOM_FLAGGED(fnd_room, ERoomFlag::kSlowDeathTrap)
 			&& !ROOM_FLAGGED(fnd_room, ERoomFlag::kIceTrap)
-			&& (!ROOM_FLAGGED(fnd_room, ERoomFlag::kGodsRoom) || ch->IsImmortal())
+			&& (!ROOM_FLAGGED(fnd_room, ERoomFlag::kGodsRoom) || privilege::IsImmortal(ch))
 			&& Clan::MayEnter(ch, fnd_room, kHousePortal)) {
 			break;
 		}

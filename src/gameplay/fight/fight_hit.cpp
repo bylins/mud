@@ -1,4 +1,5 @@
 #include "fight_hit.h"
+#include "administration/privilege.h"
 #include "gameplay/mechanics/condition.h"
 #include "gameplay/mechanics/minions.h"
 #include "gameplay/mechanics/mount.h"
@@ -930,7 +931,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 			if (ch->IsFlagged(EMobFlag::kAreaAttack)) {
 				const auto people = world[ch->in_room]->people;    // copy: list may change inside the loop
 				for (const auto &tch : people) {
-					if (tch->IsImmortal() || ch->in_room == kNowhere || tch->in_room == kNowhere)
+					if (privilege::IsImmortal(tch) || ch->in_room == kNowhere || tch->in_room == kNowhere)
 						continue;
 					if (tch != ch && !group::same_group(ch, tch)) {
 						DealBreathDamage(ch, tch, breath);
@@ -1052,7 +1053,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 		SkillRollResult result = MakeSkillTest(ch, ESkill::kPunctual, victim);
 		bool success = result.success;
 		TrainSkill(ch, ESkill::kPunctual, success, victim);
-		if (!ch->IsImmortal()) {
+		if (!privilege::IsImmortal(ch)) {
 			PUNCTUAL_WAIT_STATE(ch, 1 * kBattleRound);
 		}
 		if (success && (hit_params.calc_thaco - hit_params.diceroll < hit_params.victim_ac - 5
@@ -1061,7 +1062,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 			hit_params.dam_critic = CalcPunctualCritDmg(ch, victim, hit_params.wielded);
 			ch->send_to_TC(false, true, false, "&CДамага точки равна = %d&n\r\n", hit_params.dam_critic);
 			victim->send_to_TC(false, true, false, "&CДамага точки равна = %d&n\r\n", hit_params.dam_critic);
-			if (!ch->IsImmortal()) {
+			if (!privilege::IsImmortal(ch)) {
 				PUNCTUAL_WAIT_STATE(ch, 2 * kBattleRound);
 			}
 			paladine_inspiration = true;

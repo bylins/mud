@@ -1,4 +1,5 @@
 #include "throw.h"
+#include "administration/privilege.h"
 #include "gameplay/mechanics/mount.h"
 #include "skill_messages.h"
 #include "engine/db/global_objects.h"
@@ -235,7 +236,7 @@ void DoThrow(CharData *ch, CharData *victim) {
 		return;
 	}
 
-	if (ch->IsImpl() || !ch->GetEnemy()) {
+	if (privilege::IsImpl(ch) || !ch->GetEnemy()) {
 		GoThrow(ch, victim);
 	} else {
 		if (IsHaveNoExtraAttack(ch)) {

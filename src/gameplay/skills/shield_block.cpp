@@ -1,4 +1,5 @@
 #include "shield_block.h"
+#include "administration/privilege.h"
 #include "skill_messages.h"
 
 #include "gameplay/fight/pk.h"
@@ -32,7 +33,7 @@ void do_block(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	};
 	if (!(ch->IsNpc()
 		|| GET_EQ(ch, kShield)
-		|| ch->IsImmortal()
+		|| privilege::IsImmortal(ch)
 		|| GET_GOD_FLAG(ch, EGf::kGodsLike))) {
 		SendMsgToChar("Вы не можете сделать это без щита.\r\n", ch);
 		return;
@@ -48,7 +49,7 @@ void ProcessShieldBlock(CharData *ch, CharData *victim, HitData &hit_data) {
 	if (!CanPerformShieldBlock(victim, hit_data)) {
 		return;
 	}
-	if (!(GET_EQ(victim, EEquipPos::kShield) || victim->IsNpc() || victim->IsImmortal())) {
+	if (!(GET_EQ(victim, EEquipPos::kShield) || victim->IsNpc() || privilege::IsImmortal(victim))) {
 		SendMsgToChar("У вас нечем отразить атаку противника.\r\n", victim);
 	} else {
 		int range = number(1, MUD::Skill(ESkill::kShieldBlock).difficulty);

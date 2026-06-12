@@ -4,6 +4,7 @@
 */
 
 #include "gameplay/handlers/spell_handlers.h"
+#include "administration/privilege.h"
 #include "gameplay/mechanics/mount.h"
 #include "engine/entities/char_data.h"
 #include "engine/core/comm.h"
@@ -25,7 +26,7 @@ EStageResult SpellRelocate(CastContext &ctx) {
 
 	// kNoTeleportOut moved to <blocking><room_flags> in spells.xml; CallMagic
 	// fizzles before this function runs.
-	if (!ch->IsGod() && AFF_FLAGGED(ch, EAffect::kNoTeleport)) {
+	if (!privilege::IsGod(ch) && AFF_FLAGGED(ch, EAffect::kNoTeleport)) {
 		SendMsgToChar(MUD::SpellMessages().GetMessage(ESpell::kRelocate, ESpellMsg::kSummonFail) + "\r\n", ch);
 		return EStageResult::kSuccess;
 	}
@@ -43,18 +44,18 @@ EStageResult SpellRelocate(CastContext &ctx) {
 		fnd_room = to_room;
 	}
 
-	if (fnd_room != to_room && !ch->IsGod()) {
+	if (fnd_room != to_room && !privilege::IsGod(ch)) {
 		SendMsgToChar(MUD::SpellMessages().GetMessage(ESpell::kRelocate, ESpellMsg::kSummonFail) + "\r\n", ch);
 		return EStageResult::kSuccess;
 	}
 
-	if (!ch->IsGod() &&
+	if (!privilege::IsGod(ch) &&
 		(SECT(fnd_room) == ESector::kSecret ||
 			ROOM_FLAGGED(fnd_room, ERoomFlag::kDeathTrap) ||
 			ROOM_FLAGGED(fnd_room, ERoomFlag::kSlowDeathTrap) ||
 			ROOM_FLAGGED(fnd_room, ERoomFlag::kTunnel) ||
 			ROOM_FLAGGED(fnd_room, ERoomFlag::kNoRelocateIn) ||
-			ROOM_FLAGGED(fnd_room, ERoomFlag::kIceTrap) || (ROOM_FLAGGED(fnd_room, ERoomFlag::kGodsRoom) && !ch->IsImmortal()))) {
+			ROOM_FLAGGED(fnd_room, ERoomFlag::kIceTrap) || (ROOM_FLAGGED(fnd_room, ERoomFlag::kGodsRoom) && !privilege::IsImmortal(ch)))) {
 		SendMsgToChar(MUD::SpellMessages().GetMessage(ESpell::kRelocate, ESpellMsg::kSummonFail) + "\r\n", ch);
 		return EStageResult::kSuccess;
 	}

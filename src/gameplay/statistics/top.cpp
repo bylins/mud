@@ -35,7 +35,7 @@ void TopPlayer::Refresh(CharData *short_ch, bool reboot) {
 	if (short_ch->IsNpc()
 		|| short_ch->IsFlagged(EPlrFlag::kFrozen)
 		|| short_ch->IsFlagged(EPlrFlag::kDeleted)
-		|| short_ch->IsImmortal()) {
+		|| privilege::IsImmortal(short_ch)) {
 		return;
 	}
 	if (!reboot) {
@@ -92,7 +92,7 @@ void TopPlayer::RefreshAll() {
 		if (ch->IsNpc()
 			|| ch->IsFlagged(EPlrFlag::kFrozen)
 			|| ch->IsFlagged(EPlrFlag::kDeleted)
-			|| ch->IsImmortal()) {
+			|| privilege::IsImmortal(ch)) {
 			continue;
 		}
 		online[ch->get_uid()] = {ch->get_exp(), remort::GetRealRemort(ch)};

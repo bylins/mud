@@ -7,6 +7,7 @@
 */
 
 #include "gameplay/communication/check_invoice.h"
+#include "administration/privilege.h"
 
 #include "engine/entities/char_data.h"
 #include "gameplay/clans/house.h"
@@ -25,7 +26,7 @@ bool login_change_invoice(CharData *ch) {
 
 	hasMessages |= Boards::Static::LoginInfo(ch);
 
-	if (ch->IsImmortal())
+	if (privilege::IsImmortal(ch))
 		hasMessages |= single_god_invoice(ch);
 
 	if (mail::has_mail(ch->get_uid())) {
@@ -56,7 +57,7 @@ bool single_god_invoice(CharData *ch) {
 void god_work_invoice() {
 	for (DescriptorData *d = descriptor_list; d; d = d->next) {
 		if (d->character && d->state == EConState::kPlaying) {
-			if (d->character->IsImmortal()
+			if (privilege::IsImmortal(d->character.get())
 				|| GET_GOD_FLAG(d->character, EGf::kDemigod)) {
 				single_god_invoice(d->character.get());
 			}

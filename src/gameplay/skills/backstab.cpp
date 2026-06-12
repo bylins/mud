@@ -1,4 +1,5 @@
 #include "backstab.h"
+#include "administration/privilege.h"
 #include "gameplay/mechanics/condition.h"
 #include "gameplay/mechanics/minions.h"
 #include "gameplay/mechanics/mount.h"
@@ -106,7 +107,7 @@ void GoBackstab(CharData *ch, CharData *vict) {
 	if (!pk_agro_action(ch, vict))
 		return;
 
-	if ((vict->IsFlagged(EMobFlag::kAware) && AWAKE(vict)) && !ch->IsGod()) {
+	if ((vict->IsFlagged(EMobFlag::kAware) && AWAKE(vict)) && !privilege::IsGod(ch)) {
 		act("Вы заметили, что $N попытал$u вас заколоть!", false, vict, nullptr, ch, kToChar);
 		act("$n заметил$g вашу попытку заколоть $s!", false, vict, nullptr, ch, kToVict);
 		act("$n заметил$g попытку $N1 заколоть $s!", false, vict, nullptr, ch, kToNotVict | kToArenaListen);

@@ -1,4 +1,5 @@
 #include "magic_rooms.h"
+#include "administration/privilege.h"
 #include "gameplay/handlers/spell_handlers.h"
 
 #include "spells_info.h"
@@ -657,7 +658,7 @@ void RemoveSingleAffectFromWorld(CharData *ch, ESpell spell_id) {
 }
 
 void ProcessRoomAffectsOnEntry(CharData *ch, RoomRnum room) {
-	if (ch->IsImmortal()) {
+	if (privilege::IsImmortal(ch)) {
 		return;
 	}
 

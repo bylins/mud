@@ -1,4 +1,5 @@
 #include "do_flee.h"
+#include "administration/privilege.h"
 #include "gameplay/mechanics/mount.h"
 
 #include "engine/core/char_movement.h"
@@ -32,7 +33,7 @@ void GoFlee(CharData *ch) {
 		return;
 	}
 
-	if (!ch->IsImmortal()) {
+	if (!privilege::IsImmortal(ch)) {
 		SetBattleLag(ch, 1);
 	}
 
@@ -99,7 +100,7 @@ void GoDirectFlee(CharData *ch, int direction) {
 				ReduceExpAfterFlee(ch, was_fighting, was_in);
 			}
 
-			if (!ch->IsImmortal()) {
+			if (!privilege::IsImmortal(ch)) {
 				SetBattleLag(ch, 1);
 			}
 			return;

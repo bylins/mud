@@ -9,6 +9,7 @@
 ************************************************************************ */
 
 #include "mail.h"
+#include "administration/privilege.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/economics/currencies.h"
 #include "utils/grammar/declensions.h"
@@ -184,7 +185,7 @@ void postmaster_send_mail(CharData *ch, CharData *mailman, int/* cmd*/, char *ar
 	int cost;
 	char buf[256];
 
-	ch->IsImmortal() || ch->IsFlagged(EPrf::kCoderinfo) ? cost = 0 : cost = STAMP_PRICE;
+	privilege::IsImmortal(ch) || ch->IsFlagged(EPrf::kCoderinfo) ? cost = 0 : cost = STAMP_PRICE;
 
 	if (GetRealLevel(ch) < MIN_MAIL_LEVEL) {
 		act(fmt::format(fmt::runtime(specials::MailMsg(specials::EMailMsg::kLevelTooLow)), fmt::arg("level", MIN_MAIL_LEVEL)),

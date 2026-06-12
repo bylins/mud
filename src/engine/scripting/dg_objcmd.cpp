@@ -10,6 +10,7 @@
 **************************************************************************/
 
 #include "engine/entities/char_data.h"
+#include "administration/privilege.h"
 #include "gameplay/mechanics/minions.h"
 #include "gameplay/mechanics/follow.h"
 #include "gameplay/mechanics/mount.h"
@@ -594,7 +595,7 @@ void do_odamage(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Trigg
 		return;
 	}
 
-	if (ch->IsImmortal()) {
+	if (privilege::IsImmortal(ch)) {
 		SendMsgToChar("Being the cool immortal you are, you sidestep a trap, obviously placed to kill you.", ch);
 		return;
 	}

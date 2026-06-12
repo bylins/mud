@@ -1,4 +1,5 @@
 #include "affect_data.h"
+#include "administration/privilege.h"
 #include "gameplay/affects/affect_handler.h"
 #include "gameplay/mechanics/condition.h"
 #include "gameplay/mechanics/follow.h"
@@ -149,7 +150,7 @@ int apply_armour(CharData *ch, int eq_pos) {
 // Была ошибка, у нубов реген хитов был всегда 50, хотя с 26 по 30, должен быть 60.
 // Теперь аффект регенерация новичка держится 3 реморта, с каждыи ремортом все слабее и слабее
 void apply_natural_affects(CharData *ch) {
-	if (remort::GetRealRemort(ch) <= 3 && !ch->IsImmortal()) {
+	if (remort::GetRealRemort(ch) <= 3 && !privilege::IsImmortal(ch)) {
 		affect_modify(ch, EApply::kHpRegen, 60 - (remort::GetRealRemort(ch) * 10), EAffect::kNoobRegen, true);
 		affect_modify(ch, EApply::kMoveRegen, 100, EAffect::kNoobRegen, true);
 		affect_modify(ch, EApply::kManaRegen, 100 - (remort::GetRealRemort(ch) * 20), EAffect::kNoobRegen, true);
@@ -793,7 +794,7 @@ void affect_total(CharData *ch) {
 				ch->set_hit_add(ch->get_hit_add() - (i - 1));
 			}
 		}
-		if (!ch->IsImmortal() && mount::IsOnHorse(ch)) {
+		if (!privilege::IsImmortal(ch) && mount::IsOnHorse(ch)) {
 			AFF_FLAGS(ch).unset(EAffect::kHide);
 			AFF_FLAGS(ch).unset(EAffect::kSneak);
 			AFF_FLAGS(ch).unset(EAffect::kDisguise);
@@ -802,7 +803,7 @@ void affect_total(CharData *ch) {
 	}
 
 	// correctize all weapon
-	if (!ch->IsImmortal()) {
+	if (!privilege::IsImmortal(ch)) {
 		if ((obj = GET_EQ(ch, EEquipPos::kBoths)) && !CanBeTakenInBothHands(ch, obj)) {
 			if (!ch->IsNpc()) {
 				act("Вам слишком тяжело держать $o3 в обоих руках!", false, ch, obj, nullptr, kToChar);

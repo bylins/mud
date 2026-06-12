@@ -4,6 +4,7 @@
 */
 
 #include "gameplay/handlers/spell_handlers.h"
+#include "administration/privilege.h"
 #include "gameplay/mechanics/mount.h"
 #include "gameplay/mechanics/minions.h"
 #include "engine/entities/char_data.h"
@@ -69,7 +70,7 @@ EStageResult SpellSummon(CastContext &ctx) {
 		return EStageResult::kSuccess;
 	}
 
-	if (victim->IsImmortal()) {
+	if (privilege::IsImmortal(victim)) {
 		if (ch->IsNpc() || (!ch->IsNpc() && GetRealLevel(ch) < GetRealLevel(victim))) {
 			ch->send_to_TC(true, true, true, "Неположено сие деяние!\r\n");
 			SendMsgToChar(MUD::SpellMessages().GetMessage(ESpell::kSummon, ESpellMsg::kSummonFail) + "\r\n", ch);
@@ -85,7 +86,7 @@ EStageResult SpellSummon(CastContext &ctx) {
 		}
 	}
 
-	if (!ch->IsImmortal()) {
+	if (!privilege::IsImmortal(ch)) {
 		if (!ch->IsNpc() || IsCharmice(ch)) {
 			if (AFF_FLAGGED(ch, EAffect::kGodsShield)) {
 				ch->send_to_TC(true, true, true, "Чармис под зб\r\n");

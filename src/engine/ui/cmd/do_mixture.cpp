@@ -15,7 +15,7 @@
 void do_mixture(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	if (ch->IsNpc())
 		return;
-	if (ch->IsImmortal() && !privilege::CheckFlag(ch, privilege::kUseSkills)) {
+	if (privilege::IsImmortal(ch) && !privilege::CheckFlag(ch, privilege::kUseSkills)) {
 		SendMsgToChar("Не положено...\r\n", ch);
 		return;
 	}
@@ -66,7 +66,7 @@ void do_mixture(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	if (((!IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kItemCast)
 		&& subcmd == SCMD_ITEMS)
 		|| (!IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kRunes)
-			&& subcmd == SCMD_RUNES)) && !ch->IsGod()) {
+			&& subcmd == SCMD_RUNES)) && !privilege::IsGod(ch)) {
 			if (subcmd == SCMD_RUNES)
 				SendMsgToChar("Что-то пошло не так...\r\n", ch);
 			else if (subcmd == SCMD_ITEMS)
@@ -103,7 +103,7 @@ void do_mixture(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		return;
 	}
 
-	if (tch != ch && !ch->IsImmortal() && MUD::Spell(spell_id).AllowTarget(kTarSelfOnly)) {
+	if (tch != ch && !privilege::IsImmortal(ch) && MUD::Spell(spell_id).AllowTarget(kTarSelfOnly)) {
 		SendMsgToChar("Вы можете колдовать это только на себя!\r\n", ch);
 		return;
 	}
@@ -132,7 +132,7 @@ void do_mixture(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			}
 		} else {
 			if (CallMagic(ch, tch, tobj, world[ch->in_room], spell_id, GetRealLevel(ch)) != ECastResult::kTargetDied) {
-				if (!(ch->IsImmortal() || ch->get_wait() > 0 ))
+				if (!(privilege::IsImmortal(ch) || ch->get_wait() > 0 ))
 					SetBattleLag(ch, 1);
 			}
 		}

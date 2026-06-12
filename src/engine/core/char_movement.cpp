@@ -12,6 +12,7 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 #include "char_movement.h"
+#include "administration/privilege.h"
 #include "gameplay/mechanics/condition.h"
 #include "gameplay/mechanics/minions.h"
 #include "gameplay/mechanics/mount.h"
@@ -84,7 +85,7 @@ int CalcMoveCost(CharData *ch, int dir) {
 	int need_movement = (AFF_FLAGGED(ch, EAffect::kFly) || mount::IsOnHorse(ch)) ? 1 :
 						(movement_loss[ch_inroom] + movement_loss[ch_toroom]) / 2;
 
-	if (ch->IsImmortal())
+	if (privilege::IsImmortal(ch))
 		need_movement = 0;
 	else if (IsAffectedBySpell(ch, ESpell::kCamouflage))
 		need_movement += kCamouflageMoves;
@@ -183,7 +184,7 @@ bool IsCorrectDirection(CharData *ch, int dir, bool check_specials, bool show_ms
 			return false;
 		}
 		if (real_sector(EXIT(ch, dir)->to_room()) == ESector::kOnlyFlying
-			&& !ch->IsGod()
+			&& !privilege::IsGod(ch)
 			&& !AFF_FLAGGED(ch, EAffect::kFly)) {
 			if (show_msg) {
 				SendMsgToChar("Туда можно только влететь.\r\n", ch);
@@ -260,7 +261,7 @@ bool IsCorrectDirection(CharData *ch, int dir, bool check_specials, bool show_ms
 			return false;
 		}
 
-		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room(), ERoomFlag::kGodsRoom) && !ch->IsGrGod()) {
+		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room(), ERoomFlag::kGodsRoom) && !privilege::IsGrGod(ch)) {
 			if (show_msg)
 				SendMsgToChar("Вы не столь Божественны, как вам кажется!\r\n", ch);
 			return false;
@@ -278,7 +279,7 @@ bool IsCorrectDirection(CharData *ch, int dir, bool check_specials, bool show_ms
 				if (show_msg) {
 					act("$N преградил$G вам путь.", false, ch, nullptr, tch, kToChar);
 				}
-				if (ch->IsGrGod() || InTestZone(ch)) {
+				if (privilege::IsGrGod(ch) || InTestZone(ch)) {
 					act("Но уважительно пропустил$G дальше.", false, ch, nullptr, tch, kToChar);
 					return true;
 				}
@@ -383,7 +384,7 @@ bool PerformSimpleMove(CharData *ch, int dir, int following, CharData *leader, E
 	}
 
 	// Now we know we're allowed to go into the room.
-	if (!ch->IsImmortal() && !ch->IsNpc())
+	if (!privilege::IsImmortal(ch) && !ch->IsNpc())
 		ch->set_move(ch->get_move() - CalcMoveCost(ch, dir));
 
 	i = MUD::Skill(ESkill::kSneak).difficulty;
@@ -764,7 +765,7 @@ void FleeToRoom(CharData *ch, RoomRnum room) {
 		room = ch->get_from_room();
 	}
 
-	if (!ch->IsNpc() && NORENTABLE(ch) && ROOM_FLAGGED(room, ERoomFlag::kArena) && !ch->IsImmortal()) {
+	if (!ch->IsNpc() && NORENTABLE(ch) && ROOM_FLAGGED(room, ERoomFlag::kArena) && !privilege::IsImmortal(ch)) {
 		SendMsgToChar("Вы не можете попасть на арену в состоянии боевых действий!\r\n", ch);
 		room = ch->get_from_room();
 	}

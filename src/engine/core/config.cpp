@@ -15,6 +15,7 @@
 #define __CONFIG_C__
 
 #include "config.h"
+#include "administration/privilege.h"
 #include "utils/utils_encoding.h"
 #include "common_messages.h"
 #include "engine/structs/msg_container.h"
@@ -307,7 +308,7 @@ int max_exp_loss_pc(CharData *ch) {
 }
 
 int calc_loadroom(const CharData *ch, int bplace_mode /*= BIRTH_PLACE_UNDEFINED*/) {
-	if (ch->IsImmortal()) {
+	if (privilege::IsImmortal(ch)) {
 		return (immort_start_room);
 	} else if (ch->IsFlagged(EPlrFlag::kFrozen)) {
 		return (frozen_start_room);

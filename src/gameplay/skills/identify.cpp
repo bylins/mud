@@ -1,4 +1,5 @@
 #include "identify.h"
+#include "administration/privilege.h"
 #include "skill_messages.h"
 
 #include "engine/entities/char_data.h"
@@ -44,7 +45,7 @@ void do_identify(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Похоже, здесь этого нет.\r\n", ch);
 		return;
 	}
-	if (!ch->IsImmortal()) {
+	if (!privilege::IsImmortal(ch)) {
 		timed.skill = ESkill::kIdentify;
 		auto time = 12;
 		time = std::max(1, time);

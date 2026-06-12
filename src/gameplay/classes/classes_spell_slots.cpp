@@ -1167,7 +1167,7 @@ int CalcCircleSlotsAmount(CharData *ch, int circle) {
 		return -1;
 	}
 
-	if (ch->IsImmortal()) {
+	if (privilege::IsImmortal(ch)) {
 		return SPELL_SLOTS_FOR_IMMORTAL;
 	}
 

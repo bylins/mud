@@ -29,8 +29,8 @@ EStageResult SpellPortal(CastContext &ctx) {
 		return EStageResult::kSuccess;
 	}
 	// пентить чаров <=10 уровня, нельзя так-же нельзя пентать иммов
-	if (!ch->IsGod()) {
-		if ((!victim->IsNpc() && GetRealLevel(victim) <= 10 && remort::GetRealRemort(ch) < 9) || victim->IsImmortal()
+	if (!privilege::IsGod(ch)) {
+		if ((!victim->IsNpc() && GetRealLevel(victim) <= 10 && remort::GetRealRemort(ch) < 9) || privilege::IsImmortal(victim)
 			|| AFF_FLAGGED(victim, EAffect::kNoTeleport)) {
 			SendMsgToChar(MUD::SpellMessages().GetMessage(ESpell::kPortal, ESpellMsg::kSummonFail) + "\r\n", ch);
 			return EStageResult::kSuccess;
@@ -46,7 +46,7 @@ EStageResult SpellPortal(CastContext &ctx) {
 		return EStageResult::kSuccess;
 	}
 
-	if (!ch->IsGod() && (SECT(fnd_room) == ESector::kSecret || ROOM_FLAGGED(fnd_room, ERoomFlag::kDeathTrap) ||
+	if (!privilege::IsGod(ch) && (SECT(fnd_room) == ESector::kSecret || ROOM_FLAGGED(fnd_room, ERoomFlag::kDeathTrap) ||
 			ROOM_FLAGGED(fnd_room, ERoomFlag::kSlowDeathTrap) || ROOM_FLAGGED(fnd_room, ERoomFlag::kIceTrap) ||
 			ROOM_FLAGGED(fnd_room, ERoomFlag::kTunnel) || ROOM_FLAGGED(fnd_room, ERoomFlag::kGodsRoom))) {
 		SendMsgToChar(MUD::SpellMessages().GetMessage(ESpell::kPortal, ESpellMsg::kSummonFail) + "\r\n", ch);
@@ -61,7 +61,7 @@ EStageResult SpellPortal(CastContext &ctx) {
 	bool pkPortal = pk_action_type_summon(ch, victim) == PK_ACTION_REVENGE ||
 		pk_action_type_summon(ch, victim) == PK_ACTION_FIGHT;
 
-	if (ch->IsImmortal() || GET_GOD_FLAG(victim, EGf::kGodscurse)
+	if (privilege::IsImmortal(ch) || GET_GOD_FLAG(victim, EGf::kGodscurse)
 		// раньше было <= PK_ACTION_REVENGE, что вызывало абьюз при пенте на чара на арене,
 		// или пенте кидаемой с арены т.к. в данном случае использовалось PK_ACTION_NO которое меньше PK_ACTION_REVENGE
 		|| pkPortal || ((!victim->IsNpc() || IsCharmice(ch)) && victim->IsFlagged(EPrf::KSummonable))

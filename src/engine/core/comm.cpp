@@ -28,6 +28,7 @@
  */
 
 #include "engine/core/sysdep_net.h"
+#include "administration/privilege.h"
 #include "utils/grammar/gender.h"
 #include "gameplay/fight/arena.h"
 #include "utils/grammar/declensions.h"
@@ -1348,10 +1349,10 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 		if (d->character) {
 			d->character->punctual_wait -=
 				(d->character->punctual_wait > 0 ? 1 : 0);
-			if (d->character->IsImmortal()) {
+			if (privilege::IsImmortal(d->character.get())) {
 				d->character->zero_wait();
 			}
-			if (d->character->IsImmortal()
+			if (privilege::IsImmortal(d->character.get())
 				|| d->character->punctual_wait < 0) {
 				d->character->punctual_wait = 0;
 			}
@@ -1363,7 +1364,7 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 		if (!get_from_q(&d->input, comm, &aliased)) {
 			if (d->state != EConState::kPlaying &&
 				d->state != EConState::kDisconnect &&
-				time(nullptr) - d->input_time > 300 && d->character && !d->character->IsGod())
+				time(nullptr) - d->input_time > 300 && d->character && !privilege::IsGod(d->character.get()))
 #ifdef HAS_EPOLL
 				close_socket(d, true, epoll, events, n);
 #else
@@ -2370,7 +2371,7 @@ void SendMsgToGods(const char *msg) {
 	}
 
 	for (i = descriptor_list; i; i = i->next) {
-		if  (i->state != EConState::kPlaying || i->character == nullptr || !i->character->IsGod()) {
+		if  (i->state != EConState::kPlaying || i->character == nullptr || !privilege::IsGod(i->character.get())) {
 			continue;
 		}
 		iosystem::write_to_output(msg, i);
@@ -2425,7 +2426,7 @@ void perform_act(const char *orig,
 						snprintf(nbuf,
 								 sizeof(nbuf),
 								 "&q%s&Q",
-								 (!ch->IsNpc() && (ch->IsImmortal() || GET_INVIS_LEV(ch))) ? GET_NAME(ch) : arena::VisibleName(ch,
+								 (!ch->IsNpc() && (privilege::IsImmortal(ch) || GET_INVIS_LEV(ch))) ? GET_NAME(ch) : arena::VisibleName(ch,
 																												to,
 																												0,
 																												arena));
@@ -2435,7 +2436,7 @@ void perform_act(const char *orig,
 						snprintf(nbuf,
 								 sizeof(nbuf),
 								 "&q%s&Q",
-								 (!ch->IsNpc() && (ch->IsImmortal() || GET_INVIS_LEV(ch))) ? GET_PAD(ch, padis)
+								 (!ch->IsNpc() && (privilege::IsImmortal(ch) || GET_INVIS_LEV(ch))) ? GET_PAD(ch, padis)
 																						  : arena::VisibleName(ch, to, padis, arena));
 						i = nbuf;
 					}
@@ -2535,7 +2536,7 @@ void perform_act(const char *orig,
 				case '$': i = "$";
 					break;
 
-				case 'a': i = ch->IsImmortal() || (arena) ? grammar::SexEnding((ch)->get_sex(), 6) : grammar::VisSexEnding(sight::CanSee((to), (ch)), (ch)->get_sex(), 6);
+				case 'a': i = privilege::IsImmortal(ch) || (arena) ? grammar::SexEnding((ch)->get_sex(), 6) : grammar::VisSexEnding(sight::CanSee((to), (ch)), (ch)->get_sex(), 6);
 					break;
 				case 'A':
 					if (vict_obj)
@@ -2545,7 +2546,7 @@ void perform_act(const char *orig,
 					dg_victim = (CharData *) vict_obj;
 					break;
 
-				case 'g': i = ch->IsImmortal() || (arena) ? grammar::SexEnding((ch)->get_sex(), 1) : grammar::VisSexEnding(sight::CanSee((to), (ch)), (ch)->get_sex(), 1);
+				case 'g': i = privilege::IsImmortal(ch) || (arena) ? grammar::SexEnding((ch)->get_sex(), 1) : grammar::VisSexEnding(sight::CanSee((to), (ch)), (ch)->get_sex(), 1);
 					break;
 				case 'G':
 					if (vict_obj)
@@ -2555,7 +2556,7 @@ void perform_act(const char *orig,
 					dg_victim = (CharData *) vict_obj;
 					break;
 
-				case 'y': i = ch->IsImmortal() || (arena) ? grammar::SexEnding((ch)->get_sex(), 5) : grammar::VisSexEnding(sight::CanSee((to), (ch)), (ch)->get_sex(), 5);
+				case 'y': i = privilege::IsImmortal(ch) || (arena) ? grammar::SexEnding((ch)->get_sex(), 5) : grammar::VisSexEnding(sight::CanSee((to), (ch)), (ch)->get_sex(), 5);
 					break;
 				case 'Y':
 					if (vict_obj)
@@ -2565,7 +2566,7 @@ void perform_act(const char *orig,
 					dg_victim = (CharData *) vict_obj;
 					break;
 
-				case 'u': i = ch->IsImmortal() || (arena) ? grammar::SexEnding((ch)->get_sex(), 2) : grammar::VisSexEnding(sight::CanSee((to), (ch)), (ch)->get_sex(), 2);
+				case 'u': i = privilege::IsImmortal(ch) || (arena) ? grammar::SexEnding((ch)->get_sex(), 2) : grammar::VisSexEnding(sight::CanSee((to), (ch)), (ch)->get_sex(), 2);
 					break;
 				case 'U':
 					if (vict_obj)
@@ -2575,7 +2576,7 @@ void perform_act(const char *orig,
 					dg_victim = (CharData *) vict_obj;
 					break;
 
-				case 'w': i = ch->IsImmortal() || (arena) ? grammar::SexEnding((ch)->get_sex(), 3) : grammar::VisSexEnding(sight::CanSee((to), (ch)), (ch)->get_sex(), 3);
+				case 'w': i = privilege::IsImmortal(ch) || (arena) ? grammar::SexEnding((ch)->get_sex(), 3) : grammar::VisSexEnding(sight::CanSee((to), (ch)), (ch)->get_sex(), 3);
 					break;
 				case 'W':
 					if (vict_obj)
@@ -2585,7 +2586,7 @@ void perform_act(const char *orig,
 					dg_victim = (CharData *) vict_obj;
 					break;
 
-				case 'q': i = ch->IsImmortal() || (arena) ? grammar::SexEnding((ch)->get_sex(), 4) : grammar::VisSexEnding(sight::CanSee((to), (ch)), (ch)->get_sex(), 4);
+				case 'q': i = privilege::IsImmortal(ch) || (arena) ? grammar::SexEnding((ch)->get_sex(), 4) : grammar::VisSexEnding(sight::CanSee((to), (ch)), (ch)->get_sex(), 4);
 					break;
 				case 'Q':
 					if (vict_obj)
@@ -2595,7 +2596,7 @@ void perform_act(const char *orig,
 					dg_victim = (CharData *) vict_obj;
 					break;
 //суффикс глуп(ым,ой,ыми)
-				case 'r': i = ch->IsImmortal() || (arena) ? grammar::SexEnding((ch)->get_sex(), 7) : grammar::VisSexEnding(sight::CanSee((to), (ch)), (ch)->get_sex(), 7);
+				case 'r': i = privilege::IsImmortal(ch) || (arena) ? grammar::SexEnding((ch)->get_sex(), 7) : grammar::VisSexEnding(sight::CanSee((to), (ch)), (ch)->get_sex(), 7);
 					break;
 				case 'R':
 					if (vict_obj)
@@ -2605,7 +2606,7 @@ void perform_act(const char *orig,
 					dg_victim = (CharData *) vict_obj;
 					break;
 //суффикс как(ое,ой,ая,ие)
-				case 'x': i = ch->IsImmortal() || (arena) ? grammar::SexEnding((ch)->get_sex(), 8) : grammar::VisSexEnding(sight::CanSee((to), (ch)), (ch)->get_sex(), 8);
+				case 'x': i = privilege::IsImmortal(ch) || (arena) ? grammar::SexEnding((ch)->get_sex(), 8) : grammar::VisSexEnding(sight::CanSee((to), (ch)), (ch)->get_sex(), 8);
 					break;
 				case 'X':
 					if (vict_obj)
@@ -2616,7 +2617,7 @@ void perform_act(const char *orig,
 					break;
 //суффикс посвежевш(им,ей,ими) -- мягкая основа, творительный падеж
 //(issue.mag-points; см. GET_CH_EXSUF_1 в utils.h).
-				case 'h': i = ch->IsImmortal() || (arena) ? grammar::InstrEnding((ch)->get_sex()) : grammar::VisInstrEnding(sight::CanSee((to), (ch)), (ch)->get_sex());
+				case 'h': i = privilege::IsImmortal(ch) || (arena) ? grammar::InstrEnding((ch)->get_sex()) : grammar::VisInstrEnding(sight::CanSee((to), (ch)), (ch)->get_sex());
 					break;
 				case 'H':
 					if (vict_obj)
@@ -2823,7 +2824,7 @@ void act(const char *str,
 		}
 	}
 	//Реализация флага слышно арену
-	if ((to_arena) && (ch) && !ch->IsImmortal() && (ch->in_room != kNowhere) && ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena)
+	if ((to_arena) && (ch) && !privilege::IsImmortal(ch) && (ch->in_room != kNowhere) && ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena)
 		&& ROOM_FLAGGED(ch->in_room, ERoomFlag::kArenaSend) && !ROOM_FLAGGED(ch->in_room, ERoomFlag::kTribune)) {
 		arena_room_rnum = ch->in_room;
 		// находим первую клетку в зоне

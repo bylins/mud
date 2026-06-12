@@ -1,4 +1,5 @@
 //#include "engine/ui/cmd/mercenary.h"
+#include "administration/privilege.h"
 
 #include "engine/core/handler.h"
 #include "engine/db/global_objects.h"
@@ -35,11 +36,11 @@ void doList(CharData *ch, CharData *boss, bool isFavList) {
 			tell_to_char(boss, ch, specials::MercMsg(specials::EMercMsg::kEmptyEmployer).c_str());
 		else if (IS_SPELL_SET(ch, ESpell::kCharm, ESpellType::kKnow))
 			tell_to_char(boss, ch, specials::MercMsg(specials::EMercMsg::kEmptyCharmer).c_str());
-		else if (ch->IsImmortal())
+		else if (privilege::IsImmortal(ch))
 			tell_to_char(boss, ch, specials::MercMsg(specials::EMercMsg::kEmptyImmortal).c_str());
 		return;
 	}
-	if (ch->IsImmortal()) {
+	if (privilege::IsImmortal(ch)) {
 		tell_to_char(boss, ch, specials::MercMsg(isFavList ? specials::EMercMsg::kListImmortalShort : specials::EMercMsg::kListImmortalFull).c_str());
 	} else if (CanUseFeat(ch, EFeat::kEmployer)) {
 		tell_to_char(boss, ch, specials::MercMsg(isFavList ? specials::EMercMsg::kListEmployerShort : specials::EMercMsg::kListEmployerFull).c_str());
@@ -110,7 +111,7 @@ void doBring(CharData *ch, CharData *boss, unsigned int pos, char *bank) {
 			act(fmt::format(fmt::runtime(specials::MercMsg(specials::EMercMsg::kSummonBack)),
 					fmt::arg("boss", boss->get_npc_name())), true, mob, nullptr, ch, kToRoom);
 		}
-		if (!ch->IsImmortal()) {
+		if (!privilege::IsImmortal(ch)) {
 			if (isname(bank, "банк bank"))
 				currencies::RemoveBank(*ch, currencies::kGold, cost);
 			else
@@ -172,7 +173,7 @@ int mercenary(CharData *ch, void * /*me*/, int /*cmd*/, char *argument) {
 	CharData *boss = MERC::findMercboss(ch->in_room);
 	if (!boss) return 0;
 
-	if (!ch->IsImmortal() && !CanUseFeat(ch, EFeat::kEmployer) && ch->GetClass() != ECharClass::kCharmer) {
+	if (!privilege::IsImmortal(ch) && !CanUseFeat(ch, EFeat::kEmployer) && ch->GetClass() != ECharClass::kCharmer) {
 		tell_to_char(boss, ch, specials::MercMsg(specials::EMercMsg::kNoAccess).c_str());
 		return 0;
 	}

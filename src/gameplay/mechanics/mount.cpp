@@ -1,6 +1,7 @@
 // обслуживание функций езды на всяческих жовтоне
 //
 #include "mount.h"
+#include "administration/privilege.h"
 #include "utils/grammar/gender.h"
 #include "gameplay/mechanics/follow.h"
 #include "gameplay/mechanics/mount.h"
@@ -349,7 +350,7 @@ void do_horsetake(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 		// Исправил ошибку не дававшую воровать коняжек. -- Четырь (13.10.10)
-	else if (!ch->IsGod()
+	else if (!privilege::IsGod(ch)
 		&& !horse->IsFlagged(EMobFlag::kMounting)
 		&& !(horse->has_master()
 			&& AFF_FLAGGED(horse, EAffect::kHorse))) {
@@ -365,7 +366,7 @@ void do_horsetake(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		act("$N не сможет стать вашим скакуном.", false, ch, 0, horse, kToChar);
 		return;
 	} else if (mount::IsHorse(horse)) {
-		if (!ch->IsImmortal()) {
+		if (!privilege::IsImmortal(ch)) {
 			SendMsgToChar("Это не ваш скакун.\r\n", ch);
 			return;
 		}

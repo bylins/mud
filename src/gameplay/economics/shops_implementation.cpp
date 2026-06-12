@@ -1,4 +1,5 @@
 #include "shops_implementation.h"
+#include "administration/privilege.h"
 #include "gameplay/mechanics/sight.h"
 #include "utils/grammar/declensions.h"
 #include "gameplay/mechanics/identify.h"
@@ -1058,12 +1059,12 @@ void shop_node::do_shop_cmd(CharData *ch, CharData *keeper, ObjData *obj, std::s
 				fmt::arg("currency", MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(repair_price, grammar::ECase::kNom).c_str()));
 		tell_to_char(keeper, ch, tell.c_str());
 
-		if (!ch->IsGod() && repair_price > currencies::GetHand(*ch, currencies::kGold)) {
+		if (!privilege::IsGod(ch) && repair_price > currencies::GetHand(*ch, currencies::kGold)) {
 			act(ShopMsg(ESM::kCantAffordRepair).c_str(), false, ch, 0, 0, kToChar);
 			return;
 		}
 
-		if (!ch->IsGod()) {
+		if (!privilege::IsGod(ch)) {
 			currencies::RemoveHand(*ch, currencies::kGold, repair_price);
 		}
 

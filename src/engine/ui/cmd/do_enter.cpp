@@ -6,6 +6,7 @@
 */
 
 #include "engine/entities/char_data.h"
+#include "administration/privilege.h"
 #include "gameplay/mechanics/minions.h"
 #include "gameplay/mechanics/mount.h"
 #include "engine/core/char_movement.h"
@@ -81,7 +82,7 @@ void DoEnter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				// Обработка флагов NOTELEPORTIN и NOTELEPORTOUT здесь же. PK-пента
 				// в комнате-приёмнике теперь хранится на самом аффекте (pk_unique),
 				// а не на флаге комнаты (issue.affect-flags).
-				if (!ch->IsImmortal()
+				if (!privilege::IsImmortal(ch)
 					&& ((!ch->IsNpc() && !Clan::MayEnter(ch, door, kHousePortal))
 						|| (ROOM_FLAGGED(from_room, ERoomFlag::kNoTeleportOut) || ROOM_FLAGGED(door, ERoomFlag::kNoTeleportIn))
 						|| AFF_FLAGGED(ch, EAffect::kNoTeleport)
@@ -105,7 +106,7 @@ void DoEnter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				// Чужая PK-пента в from_room => агрессивный поступок (issue.affect-flags:
 				// поле pkPenterUnique уехало на аффект; helper отдаёт чужой pk_unique,
 				// исключая ch's собственный, чтобы вход в свою же пенту не штрафовался).
-				if (!ch->IsImmortal()
+				if (!privilege::IsImmortal(ch)
 					&& room_spells::FindRoomPkPortalUid(world[from_room], ch->get_uid()) != 0) {
 					SendMsgToChar(ch, "%sВаш поступок был расценен как потенциально агрессивный.%s\r\n",
 								  kColorBoldRed, kColorBoldBlk);

@@ -24,6 +24,7 @@
  ***************************************************************************/
 
 #include "engine/entities/char_data.h"
+#include "administration/privilege.h"
 #include "gameplay/mechanics/minions.h"
 #include "gameplay/mechanics/follow.h"
 #include "gameplay/mechanics/mount.h"
@@ -1383,7 +1384,7 @@ void do_mdamage(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigg
 			return;
 		}
 
-		if (victim->IsImmortal() && dam > 0) {
+		if (privilege::IsImmortal(victim) && dam > 0) {
 			SendMsgToChar("Будучи очень крутым, вы сделали шаг в сторону и не получили повреждений...\r\n", victim);
 			return;
 		}

@@ -3,6 +3,7 @@
 //
 
 #include "engine/entities/char_data.h"
+#include "administration/privilege.h"
 #include "engine/db/world_objects.h"
 #include "gameplay/economics/exchange.h"
 #include "engine/db/global_objects.h"
@@ -33,7 +34,7 @@ static bool CollectWhereObjects(CharData *ch, char *arg, int &num, std::vector<w
 void DoWhere(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	one_argument(argument, arg);
 
-	if (ch->IsGrGod() || ch->IsFlagged(EPrf::kCoderinfo))
+	if (privilege::IsGrGod(ch) || ch->IsFlagged(EPrf::kCoderinfo))
 		PerformImmortWhere(ch, arg);
 	else
 		PerformMortalWhere(ch, arg);

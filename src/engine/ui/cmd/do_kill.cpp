@@ -1,4 +1,5 @@
 #include "do_kill.h"
+#include "administration/privilege.h"
 
 #include "gameplay/fight/fight.h"
 #include "gameplay/fight/pk.h"
@@ -59,7 +60,7 @@ void DoHit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 }
 
 void DoKill(CharData *ch, char *argument, int cmd, int subcmd) {
-	if (!ch->IsGrGod()) {
+	if (!privilege::IsGrGod(ch)) {
 		DoHit(ch, argument, cmd, subcmd);
 		return;
 	};
@@ -72,7 +73,7 @@ void DoKill(CharData *ch, char *argument, int cmd, int subcmd) {
 		SendMsgToChar("Вы мазохист... :(\r\n", ch);
 		return;
 	};
-	if (vict->IsImpl() || vict->IsFlagged(EPrf::kCoderinfo)) {
+	if (privilege::IsImpl(vict) || vict->IsFlagged(EPrf::kCoderinfo)) {
 		SendMsgToChar("А если он вас чайником долбанет? Думай, Господи, думай!\r\n", ch);
 	} else {
 		act("Вы обратили $N3 в прах! Взглядом! Одним!", false, ch, 0, vict, kToChar);

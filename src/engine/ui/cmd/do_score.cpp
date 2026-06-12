@@ -7,6 +7,7 @@
  */
 
 #include "engine/ui/color.h"
+#include "administration/privilege.h"
 #include "gameplay/economics/currencies.h"
 #include "engine/db/global_objects.h"
 #include "utils/grammar/declensions.h"
@@ -197,7 +198,7 @@ void PrintScoreList(CharData *ch) {
 				  currencies::GetBank(*ch, currencies::kGold),
 				  MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(currencies::GetBank(*ch, currencies::kGold)).c_str(),
 				  ch->get_exp(),
-				  ch->IsImmortal() ? 1 : GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1) - ch->get_exp());
+				  privilege::IsImmortal(ch) ? 1 : GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1) - ch->get_exp());
 	if (!mount::IsOnHorse(ch))
 		SendMsgToChar(ch, "Ваша позиция: %s", GetPositionStr(ch));
 	else
@@ -750,7 +751,7 @@ void PrintScoreBase(CharData *ch) {
 			GET_SIZE(ch), GET_REAL_SIZE(ch),
 			GET_HEIGHT(ch), GET_REAL_HEIGHT(ch), GET_WEIGHT(ch), GET_REAL_WEIGHT(ch), kColorNrm);
 
-	if (ch->IsImmortal()) {
+	if (privilege::IsImmortal(ch)) {
 		sprintf(buf + strlen(buf),
 				"%sВаши боевые качества :\r\n"
 				"  AC   : %4d(%4d)"

@@ -6,6 +6,7 @@
 */
 
 #include "engine/entities/char_data.h"
+#include "administration/privilege.h"
 #include "gameplay/mechanics/sight.h"
 #include "engine/core/handler.h"
 
@@ -26,7 +27,7 @@ void DoPeer(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 			SendMsgToChar("Вы напрягли зрение и начали присматриваться по сторонам.\r\n", ch);
 			for (i = 0; i < EDirection::kMaxDirNum; i++)
 				sight::look_in_direction(ch, i, sight::EXIT_SHOW_LOOKING);
-			if (!(ch->IsImmortal() || GET_GOD_FLAG(ch, EGf::kGodsLike)))
+			if (!(privilege::IsImmortal(ch) || GET_GOD_FLAG(ch, EGf::kGodsLike)))
 				SetBattleLag(ch, 1);
 		}
 	} else
