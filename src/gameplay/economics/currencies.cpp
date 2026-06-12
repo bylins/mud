@@ -296,11 +296,14 @@ const char *CurrencyInfo::GetObjCName(long amount, grammar::ECase gram_case) con
 	return buf;
 }
 
+// EPurse is an internal hand/bank selector; the public API is GetHand/GetBank/etc.
+enum class EPurse { kHand, kBank };
+
 std::string TextIdByVnum(int vnum) {
 	return MUD::Currency(vnum).GetTextId();
 }
 
-long GetAmount(const CharData &ch, const std::string &id, EPurse purse) {
+long GetAmount(const CharData &ch, const std::string &id, EPurse purse = EPurse::kHand) {
 	// P4: const glory is not stored in the container; it delegates to the GloryConst store.
 	if (id == kGlory) {
 		return GloryConst::get_glory(ch.get_uid());
@@ -317,7 +320,7 @@ long GetTotal(const CharData &ch, const std::string &id) {
 	return cs.GetHand(id) + cs.GetBank(id);
 }
 
-void SetAmount(CharData &ch, const std::string &id, long amount, EPurse purse, bool with_log, bool immortal) {
+void SetAmount(CharData &ch, const std::string &id, long amount, EPurse purse = EPurse::kHand, bool with_log = true, bool immortal = false) {
 	if (id == kGlory) {
 		// Const glory lives in the GloryConst store; raising it is an immortal-only operation.
 		amount = std::max(0L, amount);
@@ -359,7 +362,7 @@ void SetAmount(CharData &ch, const std::string &id, long amount, EPurse purse, b
 	}
 }
 
-long AddAmount(CharData &ch, const std::string &id, long amount, EPurse purse, bool notify, bool with_log, bool immortal) {
+long AddAmount(CharData &ch, const std::string &id, long amount, EPurse purse = EPurse::kHand, bool notify = false, bool with_log = true, bool immortal = false) {
 	amount = std::max(0L, amount);
 	const long before = GetAmount(ch, id, purse);
 	SetAmount(ch, id, before + amount, purse, with_log, immortal);
@@ -377,7 +380,7 @@ long AddAmount(CharData &ch, const std::string &id, long amount, EPurse purse, b
 	return added;
 }
 
-long RemoveAmount(CharData &ch, const std::string &id, long amount, EPurse purse, bool with_log) {
+long RemoveAmount(CharData &ch, const std::string &id, long amount, EPurse purse = EPurse::kHand, bool with_log = true) {
 	amount = std::max(0L, amount);
 	const long have = GetAmount(ch, id, purse);
 	if (have >= amount) {
@@ -393,11 +396,7 @@ long RemoveTotal(CharData &ch, const std::string &id, long amount, bool with_log
 	return RemoveAmount(ch, id, rest, EPurse::kHand, with_log);
 }
 
-long GetAmount(const CharData &ch, int vnum, EPurse purse) { return GetAmount(ch, TextIdByVnum(vnum), purse); }
 long GetTotal(const CharData &ch, int vnum) { return GetTotal(ch, TextIdByVnum(vnum)); }
-void SetAmount(CharData &ch, int vnum, long amount, EPurse purse, bool with_log, bool immortal) { SetAmount(ch, TextIdByVnum(vnum), amount, purse, with_log, immortal); }
-long AddAmount(CharData &ch, int vnum, long amount, EPurse purse, bool notify, bool with_log, bool immortal) { return AddAmount(ch, TextIdByVnum(vnum), amount, purse, notify, with_log, immortal); }
-long RemoveAmount(CharData &ch, int vnum, long amount, EPurse purse, bool with_log) { return RemoveAmount(ch, TextIdByVnum(vnum), amount, purse, with_log); }
 long RemoveTotal(CharData &ch, int vnum, long amount, bool with_log) { return RemoveTotal(ch, TextIdByVnum(vnum), amount, with_log); }
 
 // ---- Separate hand/bank public API (EPurse stays an internal detail) ----

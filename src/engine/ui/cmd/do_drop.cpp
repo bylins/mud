@@ -12,7 +12,7 @@ extern ObjData::shared_ptr CreateCurrencyObj(long quantity);
 void PerformDropGold(CharData *ch, int amount) {
 	if (amount <= 0) {
 		SendMsgToChar("Да, похоже вы слишком переиграли сегодня.\r\n", ch);
-	} else if (currencies::GetAmount(*ch, currencies::kGold) < amount) {
+	} else if (currencies::GetHand(*ch, currencies::kGold) < amount) {
 		SendMsgToChar("У вас нет такой суммы!\r\n", ch);
 	} else {
 		SetBattleLag(ch, 1);    // to prevent coin-bombing
@@ -59,7 +59,7 @@ void PerformDropGold(CharData *ch, int amount) {
 		}
 		PlaceObjToRoom(obj.get(), ch->in_room);
 
-		currencies::RemoveAmount(*ch, currencies::kGold, amount);
+		currencies::RemoveHand(*ch, currencies::kGold, amount);
 	}
 }
 

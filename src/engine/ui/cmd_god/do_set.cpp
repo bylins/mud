@@ -356,9 +356,9 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 		case 11: vict->real_abils.armor = std::clamp(value, -100, 100);
 			affect_total(vict);
 			break;
-		case 12: currencies::SetAmount(*vict, currencies::kGold, value);
+		case 12: currencies::SetHand(*vict, currencies::kGold, value);
 			break;
-		case 13: currencies::SetAmount(*vict, currencies::kGold, value, currencies::EPurse::kBank);
+		case 13: currencies::SetBank(*vict, currencies::kGold, value);
 			break;
 		case 14: {
 			auto new_value = static_cast<long>(value);

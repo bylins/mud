@@ -1196,7 +1196,7 @@ std::string MakePrompt(DescriptorData *d) {
 			}
 
 			if (ch->IsFlagged(EPrf::kDispMoney)) {
-				fmt::format_to(std::back_inserter(out), "{}G ", currencies::GetAmount(*ch, currencies::kGold));
+				fmt::format_to(std::back_inserter(out), "{}G ", currencies::GetHand(*ch, currencies::kGold));
 			}
 
 			if (ch->IsFlagged(EPrf::kDispExits)) {

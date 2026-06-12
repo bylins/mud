@@ -86,7 +86,7 @@ void do_pray(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			return;
 		}
 	} else if (subcmd == SCMD_PRAY) {
-		if (currencies::GetAmount(*ch, currencies::kGold) < 10) {
+		if (currencies::GetHand(*ch, currencies::kGold) < 10) {
 			SendMsgToChar("У вас не хватит денег на свечку.\r\n", ch);
 			return;
 		}
@@ -121,7 +121,7 @@ void do_pray(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		act(buf, false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 		sprintf(buf, "Вы затеплили свечку и вознесли молитву %s.", pray_whom[metter]);
 		act(buf, false, ch, nullptr, nullptr, kToChar);
-		currencies::RemoveAmount(*ch, currencies::kGold, 10);
+		currencies::RemoveHand(*ch, currencies::kGold, 10);
 	} else if (subcmd == SCMD_DONATE && obj) {
 		sprintf(buf, "$n принес$q $o3 в жертву %s.", pray_whom[metter]);
 		act(buf, false, ch, obj, nullptr, kToRoom | kToArenaListen);

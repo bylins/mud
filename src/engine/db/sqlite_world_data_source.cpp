@@ -1359,7 +1359,7 @@ void SqliteWorldDataSource::LoadMobs()
 		// Gold dice
 		mob.mob_specials.GoldNoDs = sqlite3_column_int(stmt, 21);
 		mob.mob_specials.GoldSiDs = sqlite3_column_int(stmt, 22);
-		currencies::SetAmount(mob, currencies::kGold, sqlite3_column_int(stmt, 23));
+		currencies::SetHand(mob, currencies::kGold, sqlite3_column_int(stmt, 23));
 
 		// Experience
 		mob.set_exp(sqlite3_column_int(stmt, 24));
@@ -2900,7 +2900,7 @@ void SqliteWorldDataSource::SaveMobRecord(int mob_vnum, CharData &mob)
 	// Gold dice
 	sqlite3_bind_int(stmt, col++, mob.mob_specials.GoldNoDs);
 	sqlite3_bind_int(stmt, col++, mob.mob_specials.GoldSiDs);
-	sqlite3_bind_int(stmt, col++, currencies::GetAmount(*mob, currencies::kGold));
+	sqlite3_bind_int(stmt, col++, currencies::GetHand(*mob, currencies::kGold));
 	
 	// Experience
 	sqlite3_bind_int(stmt, col++, mob.get_exp());

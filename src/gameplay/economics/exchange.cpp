@@ -587,7 +587,7 @@ int exchange_purchase(CharData *ch, char *arg) {
 			return true;
 		}
 
-		currencies::AddAmount(*seller, currencies::kGold, GET_EXCHANGE_ITEM_COST(item), currencies::EPurse::kBank, false, true);
+		currencies::AddBank(*seller, currencies::kGold, GET_EXCHANGE_ITEM_COST(item), false, true);
 		currencies::RemoveTotal(*ch, currencies::kGold, GET_EXCHANGE_ITEM_COST(item));
 
 		if ((seller)->player_specials->saved.ntfyExchangePrice && GET_EXCHANGE_ITEM_COST(item) >= (seller)->player_specials->saved.ntfyExchangePrice) {
@@ -612,7 +612,7 @@ int exchange_purchase(CharData *ch, char *arg) {
 
 		return true;
 	} else {
-		currencies::AddAmount(*seller, currencies::kGold, GET_EXCHANGE_ITEM_COST(item), currencies::EPurse::kBank, false, true);
+		currencies::AddBank(*seller, currencies::kGold, GET_EXCHANGE_ITEM_COST(item), false, true);
 		currencies::RemoveTotal(*ch, currencies::kGold, GET_EXCHANGE_ITEM_COST(item));
 
 		act(specials::ExchMsg(specials::EExchMsg::kBought), false, ch, 0, GET_EXCHANGE_ITEM(item), kToChar);

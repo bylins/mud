@@ -2325,7 +2325,7 @@ void signal_setup(void) {
 void send_stat_char(const CharData *ch) {
 	char fline[256];
 	sprintf(fline, "%d[%d]HP %d[%d]Mv %ldG %dL ",
-			ch->get_hit(), ch->get_real_max_hit(), ch->get_move(), ch->get_real_max_move(), currencies::GetAmount(*ch, currencies::kGold), GetRealLevel(ch));
+			ch->get_hit(), ch->get_real_max_hit(), ch->get_move(), ch->get_real_max_move(), currencies::GetHand(*ch, currencies::kGold), GetRealLevel(ch));
 	iosystem::write_to_output(fline, ch->desc);
 }
 

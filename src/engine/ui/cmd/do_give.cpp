@@ -98,7 +98,7 @@ void perform_give_gold(CharData *ch, CharData *vict, int amount) {
 		SendMsgToChar("Ха-ха-ха (3 раза)...\r\n", ch);
 		return;
 	}
-	if (currencies::GetAmount(*ch, currencies::kGold) < amount && (ch->IsNpc() || !privilege::IsImpl(ch))) {
+	if (currencies::GetHand(*ch, currencies::kGold) < amount && (ch->IsNpc() || !privilege::IsImpl(ch))) {
 		SendMsgToChar("И откуда вы их взять собираетесь?\r\n", ch);
 		return;
 	}
@@ -123,14 +123,14 @@ void perform_give_gold(CharData *ch, CharData *vict, int amount) {
 		mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
 	}
 	if (ch->IsNpc() || !privilege::IsImpl(ch)) {
-		currencies::RemoveAmount(*ch, currencies::kGold, amount);
+		currencies::RemoveHand(*ch, currencies::kGold, amount);
 	}
 	// если денег дает моб - снимаем клан-налог
 	if (ch->IsNpc() && !IsCharmice(ch)) {
-		currencies::AddAmount(*vict, currencies::kGold, amount);
+		currencies::AddHand(*vict, currencies::kGold, amount);
 		split_or_clan_tax(vict, amount);
 	} else {
-		currencies::AddAmount(*vict, currencies::kGold, amount);
+		currencies::AddHand(*vict, currencies::kGold, amount);
 	}
 	bribe_mtrigger(vict, ch, amount);
 }

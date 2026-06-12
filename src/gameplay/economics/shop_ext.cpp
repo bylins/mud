@@ -521,7 +521,7 @@ void DoStoreShop(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char *stufina = one_argument(argument, arg);
 
 	if (utils::IsAbbr(arg, "характеристики") || utils::IsAbbr(arg, "identify") || utils::IsAbbr(arg, "опознать")) {
-		if ((currencies::GetAmount(*ch, currencies::kGold, currencies::EPurse::kBank) < kChestIdentPay) && (GetRealLevel(ch) < kLvlImplementator)) {
+		if ((currencies::GetBank(*ch, currencies::kGold) < kChestIdentPay) && (GetRealLevel(ch) < kLvlImplementator)) {
 			SendMsgToChar("У вас недостаточно денег в банке для такого исследования.\r\n", ch);
 			return;
 		}
@@ -536,7 +536,7 @@ void DoStoreShop(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				if (isname(stufina, obj->get_PName(grammar::ECase::kNom))) {
 					SendMsgToChar(ch, "Характеристики предмета: %s\r\n", stufina);
 					MortShowObjValues(obj, ch, 200);
-					currencies::RemoveAmount(*ch, currencies::kGold, kChestIdentPay, currencies::EPurse::kBank);
+					currencies::RemoveBank(*ch, currencies::kGold, kChestIdentPay);
 					SendMsgToChar(ch,
 								  "&GЗа информацию о предмете с вашего банковского счета сняли %d %s&n\r\n",
 								  kChestIdentPay,

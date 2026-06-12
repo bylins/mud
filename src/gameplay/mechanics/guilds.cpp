@@ -485,8 +485,8 @@ std::string GuildInfo::IGuildTalent::GetPriceCurrencyStr(long price) const {
 bool GuildInfo::IGuildTalent::TakePayment(CharData *ch) const {
 	auto price = CalcPrice(ch);
 
-	if (currencies::GetAmount(*ch, currency_vnum_) >= price) {
-		currencies::RemoveAmount(*ch, currency_vnum_, price);
+	if (currencies::GetHand(*ch, currency_vnum_) >= price) {
+		currencies::RemoveHand(*ch, currency_vnum_, price);
 		return true;
 	}
 
