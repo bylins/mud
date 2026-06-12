@@ -6,6 +6,7 @@
 */
 
 #include "sight.h"
+#include "gameplay/mechanics/minions.h"
 #include "administration/privilege.h"
 #include "gameplay/economics/currencies.h"
 #include "utils/grammar/gender.h"
@@ -639,7 +640,7 @@ void look_at_char(CharData *i, CharData *ch) {
 
 	if (AFF_FLAGGED(i, EAffect::kCharmed)
 		&& i->get_master() == ch) {
-		if (i->low_charm()) {
+		if (IsCharmExpiring(i)) {
 			act("$n скоро перестанет следовать за вами.", false, i, nullptr, ch, kToVict);
 		} else {
 			for (const auto &aff : i->affected) {

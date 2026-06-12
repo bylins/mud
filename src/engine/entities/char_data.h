@@ -506,7 +506,6 @@ class CharData : public ProtectedCharData {
 	**/
 	std::string GetTitle() const;
 	std::string get_pretitle() const;
-	std::string get_race_name() const;
 	std::string GetTitleAndName();
 	std::string GetNameWithTitleOrRace();
 	std::string race_or_title();
@@ -549,7 +548,6 @@ class CharData : public ProtectedCharData {
 	void set_role(const role_t &new_role) { role_ = new_role; }
 	void msdp_report(const std::string &name);
 
-	void removeGroupFlags();
 	const followers_list_t &get_followers_list() const { return followers; }
 	const player_special_data::ignores_t &get_ignores() const;
 	void add_ignore(const ignore_data::shared_ptr& ignore);
@@ -559,7 +557,6 @@ class CharData : public ProtectedCharData {
 	void set_affect(T affect) { char_specials.saved.affected_by.set(affect); }
 	template<typename T>
 	void remove_affect(T affect) { char_specials.saved.affected_by.unset(affect); }
-	bool low_charm() const;
 
 	void set_purged(const bool _ = true) {
 		purged_ = _;
@@ -571,7 +568,6 @@ class CharData : public ProtectedCharData {
 	bool IsNpc() const { return is_npc_; }
 	void SetNpcAttribute(bool _) { is_npc_ = _; }
 	bool IsPlayer() const { return !IsNpc(); }
-	bool HasWeapon();
 
  private:
 	const auto &get_player_specials() const { return player_specials; }

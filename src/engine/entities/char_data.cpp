@@ -1073,10 +1073,6 @@ std::string CharData::get_pretitle() const {
 		   : tmp.substr(pos + 1, tmp.length() - (pos + 1));
 }
 
-std::string CharData::get_race_name() const {
-	return PlayerRace::GetRaceNameByNum(GET_KIN(this), GET_RACE(this), this->get_sex());
-}
-
 std::string CharData::GetTitleAndNameWithoutClan() const {
 	std::string result = get_name();
 
@@ -1113,7 +1109,7 @@ std::string CharData::GetTitleAndName() {
 std::string CharData::GetNameWithTitleOrRace() {
 	std::string title = GetTitleAndNameWithoutClan();
 	if (title == get_name()) {
-		return fmt::format("{} {}", get_race_name(), title);
+		return fmt::format("{} {}", PlayerRace::GetRaceNameByNum(GET_KIN(this), GET_RACE(this), this->get_sex()), title);
 	}
 
 	return title;
@@ -1152,22 +1148,6 @@ void CharData::msdp_report(const std::string &name) {
 	if (nullptr != desc) {
 		desc->msdp_report(name);
 	}
-}
-
-void CharData::removeGroupFlags() {
-	AFF_FLAGS(this).unset(EAffect::kGroup);
-	this->UnsetFlag(EPrf::kSkirmisher);
-}
-
-
-bool CharData::low_charm() const {
-	for (const auto &aff : affected) {
-		if (aff->type == ESpell::kCharm
-			&& aff->duration <= 1) {
-			return true;
-		}
-	}
-	return false;
 }
 
 void CharData::cleanup_script() {
@@ -1359,18 +1339,6 @@ void CharData::send_to_TC(bool to_impl, bool to_tester, bool to_coder, const cha
 
 obj_sets::activ_sum &CharData::obj_bonus() {
 	return obj_bonus_;
-}
-
-bool CharData::HasWeapon() {
-	if ((GET_EQ(this, EEquipPos::kWield)
-	  && GET_EQ(this, EEquipPos::kWield)->get_type() != EObjType::kLightSource)
-	  || (GET_EQ(this, EEquipPos::kHold)
-	  && GET_EQ(this, EEquipPos::kHold)->get_type() != EObjType::kLightSource)
-	  || (GET_EQ(this, EEquipPos::kBoths)
-	  && GET_EQ(this, EEquipPos::kBoths)->get_type() != EObjType::kLightSource)) {
-		return true;
-	}
-	return false;
 }
 
 player_special_data::player_special_data() :

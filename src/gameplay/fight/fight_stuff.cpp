@@ -1,6 +1,8 @@
 // Part of Bylins http://www.mud.ru
 
 #include <random>
+#include "administration/privilege.h"
+#include "engine/entities/char_data.h"
 #include "gameplay/affects/affect_handler.h"
 #include "gameplay/mechanics/alignment.h"
 #include "administration/privilege.h"
@@ -1088,6 +1090,19 @@ bool MayAttack(const CharData *sub) {
 		&& sub->get_wait() <= 0
 		&& !sub->GetEnemy()
 		&& sub->GetPosition() >= EPosition::kRest);
+}
+
+// issue.chardata-cleaning: was CharData::HasWeapon.
+bool HasWeapon(const CharData *ch) {
+	if ((GET_EQ(ch, EEquipPos::kWield)
+	  && GET_EQ(ch, EEquipPos::kWield)->get_type() != EObjType::kLightSource)
+	  || (GET_EQ(ch, EEquipPos::kHold)
+	  && GET_EQ(ch, EEquipPos::kHold)->get_type() != EObjType::kLightSource)
+	  || (GET_EQ(ch, EEquipPos::kBoths)
+	  && GET_EQ(ch, EEquipPos::kBoths)->get_type() != EObjType::kLightSource)) {
+		return true;
+	}
+	return false;
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
