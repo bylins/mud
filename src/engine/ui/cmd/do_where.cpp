@@ -24,7 +24,7 @@ void PerformImmortWhere(CharData *ch, char *arg);
 void PerformMortalWhere(CharData *ch, char *arg);
 bool PrintObjectLocation(int num, const ObjData *obj, CharData *ch);
 
-static std::string ResolveSpecialLocation(const ObjData *obj, CharData *ch);
+static std::string ResolveSpecialLocation(const ObjData *obj);
 static std::vector<std::string> ResolveObjLocationLines(const ObjData *obj, CharData *ch);
 static bool CollectWhereObjects(CharData *ch, char *arg, int &num, std::vector<where_format::WhereRow> &rows);
 
@@ -214,7 +214,7 @@ std::string where_format::FormatWhere(const std::vector<WhereRow> &rows) {
 
 // Спец-локации предмета (базар / магазин / клан / депот / почта / иначе).
 // Возвращает одну строку без хвостового перевода строки.
-static std::string ResolveSpecialLocation(const ObjData *obj, CharData *ch) {
+static std::string ResolveSpecialLocation(const ObjData *obj) {
 	for (ExchangeItem *j = exchange_item_list; j; j = j->next) {
 		if (GET_EXCHANGE_ITEM(j)->get_unique_id() == obj->get_unique_id()) {
 			return fmt::format("продается на базаре, лот #{}", GET_EXCHANGE_ITEM_LOT(j));
@@ -274,7 +274,7 @@ static std::vector<std::string> ResolveObjLocationLines(const ObjData *obj, Char
 			cur = cur->get_in_obj();
 			continue;
 		}
-		lines.push_back(ResolveSpecialLocation(cur, ch));
+		lines.push_back(ResolveSpecialLocation(cur));
 		return lines;
 	}
 }
