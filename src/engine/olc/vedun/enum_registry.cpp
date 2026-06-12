@@ -152,6 +152,8 @@ void RegisterEditorEnums() {
 		}
 		registry.RegisterNames("ECurrencyId", currency_ids);
 	}
+	registry.RegisterNames("EGender", {"kNeutral", "kMale", "kFemale", "kPoly"});
+	registry.RegisterNames("ECase", {"kNom", "kGen", "kDat", "kAcc", "kIns", "kPre"});
 }
 
 } // namespace vedun
