@@ -74,8 +74,8 @@ long RemoveBank(CharData &ch, int vnum, long amount, bool with_log = true);
  *  Данные валюты слишком глубоко "прошиты" в коде и являются базовыми.
  *  Поэтому, хотя они описаны в конфиге валют, их внумы доподнительно прописаны в коде.
  */
-const int kKunaVnum = 0;
-const int GloryVnum = 1;
+const int kGoldVnum = 0;
+const int kGloryVnum = 1;
 const int kCopperGrivnaVnum = 2;
 const int kNogataVnum = 7;
 const int kSnowflakeVnum = 9;

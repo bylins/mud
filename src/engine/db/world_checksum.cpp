@@ -314,7 +314,7 @@ std::string SerializeMob(int vnum, const CharData &mob)
 	oss << mob.real_abils.damroll << "|";
 	oss << static_cast<int>(mob.real_abils.size) << "|";
 	oss << mob.mem_queue.total << "," << mob.mem_queue.stored << "|";
-	oss << currencies::GetAmount(mob, currencies::kKunaId) << "|";
+	oss << currencies::GetAmount(mob, currencies::kGold) << "|";
 	oss << GET_GOLD_NoDs(&mob) << "," << GET_GOLD_SiDs(&mob) << "|";
 	oss << mob.get_exp() << "|";
 	oss << static_cast<int>(mob.GetPosition()) << "|";

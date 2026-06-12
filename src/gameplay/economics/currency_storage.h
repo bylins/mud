@@ -18,8 +18,8 @@
 namespace currencies {
 
 // Canonical text_id keys for the built-in currencies.
-inline const std::string kKunaId = "kKuna";
-inline const std::string kGloryId = "kGlory";
+inline const std::string kGold = "kKuna";
+inline const std::string kGlory = "kGlory";
 inline const std::string kCopperGrivnaId = "kCopperGrivna";
 inline const std::string kNogataId = "kNogata";
 inline const std::string kMagicIceId = "kMagicIce";

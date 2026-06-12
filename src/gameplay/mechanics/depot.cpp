@@ -356,7 +356,7 @@ void remove_char_entry(long uid, CharNode &node) {
 		Player *victim = &t_victim;
 		if (LoadPlayerCharacter(node.name.c_str(), victim, ELoadCharFlags::kFindId) > -1 && victim->get_uid() == uid) {
 			int total_pay = node.money_spend + static_cast<int>(node.buffer_cost);
-			currencies::RemoveTotal(*victim, currencies::kKunaId, total_pay);
+			currencies::RemoveTotal(*victim, currencies::kGold, total_pay);
 			victim->save_char();
 		}
 	}
@@ -518,7 +518,7 @@ void save_timedata() {
 		out << "<Node>\n" << it->first << " ";
 		// чар онлайн - пишем бабло с его счета, иначе берем из оффлайновых полей инфу
 		if (it->second.ch)
-			out << currencies::GetTotal(*it->second.ch, currencies::kKunaId) << " 0 ";
+			out << currencies::GetTotal(*it->second.ch, currencies::kGold) << " 0 ";
 		else
 			out << it->second.money << " " << it->second.money_spend << " ";
 		out << it->second.buffer_cost << "\n";
@@ -853,7 +853,7 @@ std::string print_obj_list(CharData *ch, ObjListType &cont) {
 		print_obj(i_out, s_out, prev_obj_it->get(), count, ch);
 	}
 
-	const long money = currencies::GetAmount(*ch, currencies::kKunaId) + currencies::GetAmount(*ch, currencies::kKunaId, currencies::EPurse::kBank);
+	const long money = currencies::GetAmount(*ch, currencies::kGold) + currencies::GetAmount(*ch, currencies::kGold, currencies::EPurse::kBank);
 	const long expired = rent_per_day ? (money / rent_per_day) : 0;
 
 	std::stringstream head;
@@ -942,7 +942,7 @@ void put_gold_chest(CharData *ch, const ObjData::shared_ptr &obj) {
 		return;
 	}
 	long gold = GET_OBJ_VAL(obj, 0);
-	currencies::AddAmount(*ch, currencies::kKunaId, gold, currencies::EPurse::kBank);
+	currencies::AddAmount(*ch, currencies::kGold, gold, currencies::EPurse::kBank);
 	RemoveObjFromChar(obj.get());
 	ExtractObjFromWorld(obj.get());
 	SendMsgToChar(ch, "Вы вложили %ld %s.\r\n", gold, grammar::GetDeclensionInNumber(gold, grammar::EWhat::kMoneyU));
@@ -1030,7 +1030,7 @@ bool put_depot(CharData *ch, ObjData::shared_ptr &obj) {
 		return 0;
 	}
 
-	if (!currencies::GetAmount(*ch, currencies::kKunaId, currencies::EPurse::kBank) && !currencies::GetAmount(*ch, currencies::kKunaId)) {
+	if (!currencies::GetAmount(*ch, currencies::kGold, currencies::EPurse::kBank) && !currencies::GetAmount(*ch, currencies::kGold)) {
 		SendMsgToChar(ch, "У вас ведь совсем нет денег, чем вы собираетесь расплачиваться за хранение вещей?\r\n");
 		return 0;
 	}
@@ -1299,7 +1299,7 @@ void enter_char(CharData *ch) {
 						  kColorWht, it->second.money_spend,
 						  grammar::GetDeclensionInNumber(it->second.money_spend, grammar::EWhat::kMoneyA), kColorNrm);
 
-			long rest = currencies::RemoveTotal(*ch, currencies::kKunaId, it->second.money_spend);
+			long rest = currencies::RemoveTotal(*ch, currencies::kGold, it->second.money_spend);
 			if (rest > 0) {
 				// есть вариант, что денег не хватит, потому что помимо хранилищ еще капает за
 				// одежду и инвентарь, а учитывать еще и их при расчетах уже как-то мутно
@@ -1363,7 +1363,7 @@ void exit_char(CharData *ch) {
 
 		it->second.online_to_offline(it->second.pers_online);
 		it->second.ch = 0;
-		it->second.money = currencies::GetAmount(*ch, currencies::kKunaId, currencies::EPurse::kBank) + currencies::GetAmount(*ch, currencies::kKunaId);
+		it->second.money = currencies::GetAmount(*ch, currencies::kGold, currencies::EPurse::kBank) + currencies::GetAmount(*ch, currencies::kGold);
 		it->second.money_spend = 0;
 	}
 }

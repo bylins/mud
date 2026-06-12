@@ -2666,10 +2666,10 @@ void find_replacement(void *go,
 			}
 		} else if (!str_cmp(field, "gold")) {
 			if (*subfield) {
-				const long before = currencies::GetAmount(*mob, currencies::kKunaId);
+				const long before = currencies::GetAmount(*mob, currencies::kGold);
 				int value;
-				currencies::SetAmount(*mob, currencies::kKunaId, std::max(long(0), gm_char_field(mob, field, subfield, currencies::GetAmount(*mob, currencies::kKunaId))));
-				value = currencies::GetAmount(*mob, currencies::kKunaId) - before;
+				currencies::SetAmount(*mob, currencies::kGold, std::max(long(0), gm_char_field(mob, field, subfield, currencies::GetAmount(*mob, currencies::kGold))));
+				value = currencies::GetAmount(*mob, currencies::kGold) - before;
 				snprintf(buf, sizeof(buf),
 						"<%s> {%d} получил триггером %d %s. [Trigger: %s, Vnum: %d]",
 						GET_PAD(mob, 0),
@@ -2680,28 +2680,28 @@ void find_replacement(void *go,
 						GET_TRIG_VNUM(trig));
 				mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
 				// клан-налог
-				const long diff = currencies::GetAmount(*mob, currencies::kKunaId) - before;
+				const long diff = currencies::GetAmount(*mob, currencies::kGold) - before;
 				split_or_clan_tax(mob, diff);
 				// стата для show money
 				if (!mob->IsNpc() && mob->in_room > 0) {
 					MoneyDropStat::add(zone_table[world[mob->in_room]->zone_rn].vnum, diff);
 				}
 			} else {
-				snprintf(str, str_size, "%ld", currencies::GetAmount(*mob, currencies::kKunaId));
+				snprintf(str, str_size, "%ld", currencies::GetAmount(*mob, currencies::kGold));
 			}
 		} else if (!str_cmp(field, "bank")) {
 			if (*subfield) {
-				const long before = currencies::GetAmount(*mob, currencies::kKunaId, currencies::EPurse::kBank);
-				currencies::SetAmount(*mob, currencies::kKunaId, std::max(long(0), gm_char_field(mob, field, subfield, currencies::GetAmount(*mob, currencies::kKunaId, currencies::EPurse::kBank))), currencies::EPurse::kBank);
+				const long before = currencies::GetAmount(*mob, currencies::kGold, currencies::EPurse::kBank);
+				currencies::SetAmount(*mob, currencies::kGold, std::max(long(0), gm_char_field(mob, field, subfield, currencies::GetAmount(*mob, currencies::kGold, currencies::EPurse::kBank))), currencies::EPurse::kBank);
 				// клан-налог
-				const long diff = currencies::GetAmount(*mob, currencies::kKunaId, currencies::EPurse::kBank) - before;
+				const long diff = currencies::GetAmount(*mob, currencies::kGold, currencies::EPurse::kBank) - before;
 				split_or_clan_tax(mob, diff);
 				// стата для show money
 				if (!mob->IsNpc() && mob->in_room > 0) {
 					MoneyDropStat::add(zone_table[world[mob->in_room]->zone_rn].vnum, diff);
 				} 
 			} else
-				snprintf(str, str_size, "%ld", currencies::GetAmount(*mob, currencies::kKunaId, currencies::EPurse::kBank));
+				snprintf(str, str_size, "%ld", currencies::GetAmount(*mob, currencies::kGold, currencies::EPurse::kBank));
 		} else if (!str_cmp(field, "exp") || !str_cmp(field, "questbodrich")) {
 			if (!str_cmp(field, "questbodrich")) {
 				if (*subfield) {

@@ -220,7 +220,7 @@ void send_object(CharData *ch, CharData *mailman, long vict_uid, ObjData *obj) {
 	const int reserved_cost = get_object_low_rent(obj) * RESERVED_COST_COEFF;
 	const int total_cost = reserved_cost + SEND_COST;
 
-	if (currencies::GetTotal(*ch, currencies::kKunaId) < total_cost) {
+	if (currencies::GetTotal(*ch, currencies::kGold) < total_cost) {
 		act("$n сказал$g вам : 'Да у тебя ведь нет столько денег!'", false, mailman, 0, ch, kToVict);
 		return;
 	}
@@ -256,7 +256,7 @@ void send_object(CharData *ch, CharData *mailman, long vict_uid, ObjData *obj) {
 	send_reserved_buffer += reserved_cost;
 	send_cost_buffer += SEND_COST;
 
-	currencies::RemoveTotal(*ch, currencies::kKunaId, total_cost);
+	currencies::RemoveTotal(*ch, currencies::kGold, total_cost);
 	RemoveObjFromChar(obj);
 	ObjSaveSync::add(ch->get_uid(), ch->get_uid(), ObjSaveSync::PARCEL_SAVE);
 
@@ -425,7 +425,7 @@ void return_money(std::string const &name, int money, bool add) {
 	CharData *vict = 0;
 	if ((vict = get_player_of_name(name.c_str()))) {
 		if (add) {
-			currencies::AddAmount(*vict, currencies::kKunaId, money, currencies::EPurse::kBank);
+			currencies::AddAmount(*vict, currencies::kGold, money, currencies::EPurse::kBank);
 			SendMsgToChar(vict, "%sВы получили %d %s банковским переводом от почтовой службы%s.\r\n",
 						  kColorWht, money, grammar::GetDeclensionInNumber(money, grammar::EWhat::kMoneyU), kColorNrm);
 		}
@@ -435,7 +435,7 @@ void return_money(std::string const &name, int money, bool add) {
 			delete vict;
 			return;
 		}
-		currencies::AddAmount(*vict, currencies::kKunaId, money, currencies::EPurse::kBank);
+		currencies::AddAmount(*vict, currencies::kGold, money, currencies::EPurse::kBank);
 		vict->save_char();
 		delete vict;
 	}

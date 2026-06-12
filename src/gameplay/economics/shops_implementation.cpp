@@ -65,12 +65,12 @@ int spent_today = 0;
 
 bool check_money(CharData *ch, long price, const std::string &currency) {
 	if (currency == "слава") {
-		const auto total_glory = currencies::GetAmount(*ch, currencies::kGloryId);
+		const auto total_glory = currencies::GetAmount(*ch, currencies::kGlory);
 		return total_glory >= price;
 	}
 
 	if (currency == "куны") {
-		return currencies::GetAmount(*ch, currencies::kKunaId) >= price;
+		return currencies::GetAmount(*ch, currencies::kGold) >= price;
 	}
 
 	if (currency == "лед") {
@@ -405,7 +405,7 @@ void shop_node::process_buy(CharData *ch, CharData *keeper, char *argument) {
 				}
 				// снятие и логирование славы
 				GloryConst::add_total_spent(price);
-				currencies::RemoveAmount(*ch, currencies::kGloryId, price);
+				currencies::RemoveAmount(*ch, currencies::kGlory, price);
 				GloryConst::transfer_log("%s bought %s for %ld const glory",
 										 GET_NAME(ch), proto->get_PName(grammar::ECase::kNom).c_str(), price);
 			} else if (currency == "лед") {
@@ -431,7 +431,7 @@ void shop_node::process_buy(CharData *ch, CharData *keeper, char *argument) {
 					ch->reset_daily_quest();
 				}
 			} else {
-				currencies::RemoveAmount(*ch, currencies::kKunaId, price);
+				currencies::RemoveAmount(*ch, currencies::kGold, price);
 				spent_today += price;
 			}
 			++bought;
@@ -466,7 +466,7 @@ void shop_node::process_buy(CharData *ch, CharData *keeper, char *argument) {
 	if (currency == "лед")
 		suffix = MUD::Currency(currencies::kSnowflakeVnum).GetNameWithAmount(total_money, grammar::ECase::kAcc).c_str();
 	if (currency == "слава")
-		suffix = MUD::Currency(currencies::GloryVnum).GetNameWithAmount(total_money, grammar::ECase::kAcc).c_str();
+		suffix = MUD::Currency(currencies::kGloryVnum).GetNameWithAmount(total_money, grammar::ECase::kAcc).c_str();
 	if (currency == "гривны")
 		suffix = MUD::Currency(currencies::kCopperGrivnaVnum).GetNameWithAmount(total_money, grammar::ECase::kAcc).c_str();
 	if (currency == "ногаты")
@@ -802,7 +802,7 @@ void shop_node::process_ident(CharData *ch, CharData *keeper, char *argument, co
 	}
 
 	if (cmd == "Характеристики") {
-		if (currencies::GetAmount(*ch, currencies::kKunaId) < IDENTIFY_COST) {
+		if (currencies::GetAmount(*ch, currencies::kGold) < IDENTIFY_COST) {
 			tell_to_char(keeper, ch, ShopMsg(ESM::kNoMoney).c_str());
 			KeeperNoMoneyReaction(keeper, ch);
 		} else {
@@ -813,7 +813,7 @@ void shop_node::process_ident(CharData *ch, CharData *keeper, char *argument, co
 			SendMsgToChar(fmt::format(fmt::runtime(ShopMsg(ESM::kIdentResult)),
 					fmt::arg("item", ident_obj->get_PName(grammar::ECase::kNom))) + "\r\n", ch);
 			MortShowObjValues(ident_obj, ch, 200);
-			currencies::RemoveAmount(*ch, currencies::kKunaId, IDENTIFY_COST);
+			currencies::RemoveAmount(*ch, currencies::kGold, IDENTIFY_COST);
 		}
 	}
 
@@ -1055,7 +1055,7 @@ void shop_node::do_shop_cmd(CharData *ch, CharData *keeper, ObjData *obj, std::s
 			tell_to_char(keeper, ch, fmt::format(fmt::runtime(ShopMsg(ESM::kSellPaid)),
 					fmt::arg("item", obj->get_PName(grammar::ECase::kAcc)), fmt::arg("amount", buy_price),
 					fmt::arg("currency", grammar::GetDeclensionInNumber(buy_price, grammar::EWhat::kMoneyU))).c_str());
-			currencies::AddAmount(*ch, currencies::kKunaId, buy_price);
+			currencies::AddAmount(*ch, currencies::kGold, buy_price);
 			put_item_to_shop(obj);
 			obj->set_where_obj(EWhereObj::kSeller);
 		}
@@ -1113,13 +1113,13 @@ void shop_node::do_shop_cmd(CharData *ch, CharData *keeper, ObjData *obj, std::s
 				fmt::arg("currency", grammar::GetDeclensionInNumber(repair_price, grammar::EWhat::kMoneyU)));
 		tell_to_char(keeper, ch, tell.c_str());
 
-		if (!privilege::IsGod(ch) && repair_price > currencies::GetAmount(*ch, currencies::kKunaId)) {
+		if (!privilege::IsGod(ch) && repair_price > currencies::GetAmount(*ch, currencies::kGold)) {
 			act(ShopMsg(ESM::kCantAffordRepair).c_str(), false, ch, 0, 0, kToChar);
 			return;
 		}
 
 		if (!privilege::IsGod(ch)) {
-			currencies::RemoveAmount(*ch, currencies::kKunaId, repair_price);
+			currencies::RemoveAmount(*ch, currencies::kGold, repair_price);
 		}
 
 		act(ShopMsg(ESM::kRepaired).c_str(), false, keeper, obj, 0, kToRoom);

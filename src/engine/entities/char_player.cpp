@@ -587,8 +587,8 @@ void Player::save_char() {
 	saved.printf("Hit : %d/%d\n", this->get_hit(), this->get_max_hit());
 	saved.printf("Mana: %d/%d\n", this->mem_queue.stored, (this)->mem_queue.total);
 	saved.printf("Move: %d/%d\n", this->get_move(), this->get_max_move());
-	saved.printf("Gold: %ld\n", currencies::GetAmount(*this, currencies::kKunaId));
-	saved.printf("Bank: %ld\n", currencies::GetAmount(*this, currencies::kKunaId, currencies::EPurse::kBank));
+	saved.printf("Gold: %ld\n", currencies::GetAmount(*this, currencies::kGold));
+	saved.printf("Bank: %ld\n", currencies::GetAmount(*this, currencies::kGold, currencies::EPurse::kBank));
 	saved.printf("ICur: %d\n", currencies::GetAmount(*this, currencies::kMagicIceId));
 	saved.printf("Ruble: %ld\n", get_ruble());
 	saved.printf("Wimp: %d\n", GET_WIMP_LEV(this));
@@ -1166,8 +1166,8 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 
 	GET_DR(this) = 0;
 
-	currencies::SetAmount(*this, currencies::kKunaId, 0, currencies::EPurse::kHand, false);
-	currencies::SetAmount(*this, currencies::kKunaId, 0, currencies::EPurse::kBank, false);
+	currencies::SetAmount(*this, currencies::kGold, 0, currencies::EPurse::kHand, false);
+	currencies::SetAmount(*this, currencies::kGold, 0, currencies::EPurse::kBank, false);
 	set_ruble(0);
 	this->player_specials->saved.GodsLike = 0;
 	this->set_hit(21);
@@ -1273,7 +1273,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 				if (!strcmp(tag, "Badp")) {
 					GET_BAD_PWS(this) = num;
 				} else if (!strcmp(tag, "Bank")) {
-					currencies::SetAmount(*this, currencies::kKunaId, lnum, currencies::EPurse::kBank, false);
+					currencies::SetAmount(*this, currencies::kGold, lnum, currencies::EPurse::kBank, false);
 				} else if (!strcmp(tag, "Br01"))
 					set_board_date(Boards::GENERAL_BOARD, llnum);
 				else if (!strcmp(tag, "Br02"))
@@ -1431,7 +1431,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 
 			case 'G':
 				if (!strcmp(tag, "Gold")) {
-					currencies::SetAmount(*this, currencies::kKunaId, lnum, currencies::EPurse::kHand, false);
+					currencies::SetAmount(*this, currencies::kGold, lnum, currencies::EPurse::kHand, false);
 				} else if (!strcmp(tag, "GodD"))
 					punishments::Get(this, punishments::EType::kGcurse).duration = lnum;
 				else if (!strcmp(tag, "GdFl"))

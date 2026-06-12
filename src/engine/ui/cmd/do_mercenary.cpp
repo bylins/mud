@@ -87,8 +87,8 @@ void doBring(CharData *ch, CharData *boss, unsigned int pos, char *bank) {
 			return;
 		}
 
-		if ((!isname(bank, "банк bank") && cost > currencies::GetAmount(*ch, currencies::kKunaId)) ||
-			(isname(bank, "банк bank") && cost > currencies::GetAmount(*ch, currencies::kKunaId, currencies::EPurse::kBank))) {
+		if ((!isname(bank, "банк bank") && cost > currencies::GetAmount(*ch, currencies::kGold)) ||
+			(isname(bank, "банк bank") && cost > currencies::GetAmount(*ch, currencies::kGold, currencies::EPurse::kBank))) {
 			tell_to_char(boss, ch, fmt::format(fmt::runtime(specials::MercMsg(specials::EMercMsg::kTooExpensive)),
 					fmt::arg("amount", cost), fmt::arg("currency", grammar::GetDeclensionInNumber(cost, grammar::EWhat::kMoneyU))).c_str());
 			return;
@@ -112,9 +112,9 @@ void doBring(CharData *ch, CharData *boss, unsigned int pos, char *bank) {
 		}
 		if (!privilege::IsImmortal(ch)) {
 			if (isname(bank, "банк bank"))
-				currencies::RemoveAmount(*ch, currencies::kKunaId, cost, currencies::EPurse::kBank);
+				currencies::RemoveAmount(*ch, currencies::kGold, cost, currencies::EPurse::kBank);
 			else
-				currencies::RemoveAmount(*ch, currencies::kKunaId, cost);
+				currencies::RemoveAmount(*ch, currencies::kGold, cost);
 		}
 		if (NPC_FLAGGED(mob, ENpcFlag::kNoMercList)) {
 			if (mob->get_sex() == EGender::kMale)

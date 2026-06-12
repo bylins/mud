@@ -192,7 +192,7 @@ void do_dig(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		act("$n выкопал$g клад!", false, ch, nullptr, nullptr, kToRoom);
 		sprintf(textbuf, "Вы насчитали %i монет.\r\n", gold);
 		SendMsgToChar(textbuf, ch);
-		currencies::AddAmount(*ch, currencies::kKunaId, gold);
+		currencies::AddAmount(*ch, currencies::kGold, gold);
 		sprintf(buf, "<%s> {%d} нарыл %d кун.", ch->get_name().c_str(), GET_ROOM_VNUM(ch->in_room), gold);
 		mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
 		split_or_clan_tax(ch, gold);
