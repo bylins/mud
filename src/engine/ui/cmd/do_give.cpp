@@ -135,12 +135,12 @@ void perform_give_gold(CharData *ch, CharData *vict, int amount) {
 	bribe_mtrigger(vict, ch, amount);
 }
 
-void perform_give_nogat(CharData *ch, CharData *vict, int amount) {
+void perform_give_currency(CharData *ch, CharData *vict, const currencies::CurrencyInfo &cur, int amount) {
 	if (amount <= 0) {
 		SendMsgToChar("Ха-ха-ха (3 раза)...\r\n", ch);
 		return;
 	}
-	if (currencies::GetAmount(*ch, currencies::kNogataId) < amount && (ch->IsNpc() || !privilege::IsImpl(ch))) {
+	if (currencies::GetHand(*ch, cur.GetTextId()) < amount && (ch->IsNpc() || !privilege::IsImpl(ch))) {
 		SendMsgToChar("И откуда ты их взять собирался?\r\n", ch);
 		return;
 	}
@@ -150,17 +150,14 @@ void perform_give_nogat(CharData *ch, CharData *vict, int amount) {
 		return;
 	}
 	SendMsgToChar(CommonMsg(ECommonMsg::kOk) + "\r\n", ch);
-	sprintf(buf, "$n дал$g вам %d %s.", amount, MUD::Currency(currencies::kNogataVnum).GetNameWithAmount(amount, grammar::ECase::kAcc).c_str());
+	sprintf(buf, "$n дал$g вам %s.", cur.GetNameWithAmount(amount, grammar::ECase::kAcc).c_str());
 	act(buf, false, ch, nullptr, vict, kToVict);
-	if (amount > 4)
-		sprintf(buf, "$n дал$g много %s $N2.", MUD::Currency(currencies::kNogataVnum).GetNameWithAmount(amount, grammar::ECase::kAcc).c_str());
-	else
-		sprintf(buf, "$n дал$g %s $N2.", MUD::Currency(currencies::kNogataVnum).GetNameWithAmount(amount, grammar::ECase::kAcc).c_str());
+	sprintf(buf, "$n дал$g %s $N2.", cur.GetNameWithAmount(amount, grammar::ECase::kAcc).c_str());
 	act(buf, true, ch, nullptr, vict, kToNotVict | kToArenaListen);
 	if (ch->IsNpc() || !privilege::IsImpl(ch)) {
-		currencies::RemoveAmount(*ch, currencies::kNogataId, amount);
+		currencies::RemoveHand(*ch, cur.GetTextId(), amount);
 	}
-	currencies::AddAmount(*vict, currencies::kNogataId, amount, currencies::EPurse::kHand, true);
+	currencies::AddHand(*vict, cur.GetTextId(), amount, true);
 }
 
 void do_give(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
@@ -180,10 +177,10 @@ void do_give(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				perform_give_gold(ch, vict, amount);
 			return;
 		}
-		if (!strn_cmp("nogat", arg, 5) || !strn_cmp("ногат", arg, 5)) {
+		if (const auto *cur = currencies::FindBySearch(arg); cur && cur->IsGiveable()) {
 			one_argument(argument, arg);
 			if ((vict = give_find_vict(ch, arg)) != nullptr)
-				perform_give_nogat(ch, vict, amount);
+				perform_give_currency(ch, vict, *cur, amount);
 			return;
 		}
 		if (!*arg) {

@@ -57,7 +57,7 @@ flags - флаги
         <flags account_shared="N"  locked="N"/>
     </currency>
     <currency text_id="kNogata" vnum="7" mode="kEnabled">
-        <permits give="0" obj="0" bank="0" transfer="0" transfer_other="0" transfer_tax="5" drop="100" clan_tax="25"/>
+        <permits give="1" obj="0" bank="0" transfer="0" transfer_other="0" transfer_tax="5" drop="100" clan_tax="25"/>
         <flags account_shared="N"  locked="N"/>
     </currency>
     <currency text_id="kZlatnik" vnum="8" mode="kEnabled">

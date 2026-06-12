@@ -18,6 +18,7 @@
 #include "engine/ui/color.h"
 #include "engine/db/global_objects.h"
 #include "engine/core/comm.h"
+#include "utils/utils_string.h"
 #include "engine/db/db.h"
 #include "engine/entities/zone.h"
 #include "gameplay/statistics/money_drop.h"
@@ -419,6 +420,22 @@ long AddBank(CharData &ch, int vnum, long amount, bool notify, bool with_log, bo
 long RemoveHand(CharData &ch, int vnum, long amount, bool with_log) { return RemoveHand(ch, TextIdByVnum(vnum), amount, with_log); }
 long RemoveBank(CharData &ch, int vnum, long amount, bool with_log) { return RemoveBank(ch, TextIdByVnum(vnum), amount, with_log); }
 
+
+const CurrencyInfo *FindBySearch(const std::string &word) {
+	if (word.empty()) {
+		return nullptr;
+	}
+	for (const auto &cur : MUD::Currencies()) {
+		if (cur.GetId() < 0) {
+			continue;
+		}
+		const CurrencyName *cn = FindCurrencyName(cur.GetTextId());
+		if (cn && utils::IsAbbr(word, cn->search)) {
+			return &cur;
+		}
+	}
+	return nullptr;
+}
 } // namespace currencies
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
