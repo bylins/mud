@@ -18,6 +18,12 @@ static bool ClearMind(const CharData *ch) {
 	return !ch->battle_affects.get(kEafOverwhelm) && !ch->battle_affects.get(kEafHammer);
 }
 
+// issue.chardata-cleaning: was CharData::have_mind (only used here): an autonomous NPC,
+// not a charmed pet or a ridden horse, retaliates against a missed chopoff.
+static bool IsAutonomous(const CharData *ch) {
+	return !AFF_FLAGGED(ch, EAffect::kCharmed) && !mount::IsHorse(ch);
+}
+
 
 // ************************* CHOPOFF PROCEDURES
 void go_chopoff(CharData *ch, CharData *vict) {
@@ -118,7 +124,7 @@ void go_chopoff(CharData *ch, CharData *vict) {
 	sight::Appear(ch);
 	if (!success) {
 		SetWait(ch, prob, false);
-		if (vict->IsNpc() && sight::CanSee(vict, ch) && (!AFF_FLAGGED(vict, EAffect::kCharmed) && !mount::IsHorse(vict)) && ClearMind(vict) && !vict->GetEnemy()) {
+		if (vict->IsNpc() && sight::CanSee(vict, ch) && IsAutonomous(vict) && ClearMind(vict) && !vict->GetEnemy()) {
 			hit(vict, ch, ESkill::kUndefined, AFF_FLAGGED(vict, EAffect::kStopRight) ? fight::kOffHand : fight::kMainHand);
 		}
 	} else {
