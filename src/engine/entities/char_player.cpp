@@ -593,7 +593,6 @@ void Player::save_char() {
 			saved.printf("Curr: %s %ld %ld\n", cur_id.c_str(), cur_amounts.hand, cur_amounts.bank);
 		}
 	}
-	saved.printf("Ruble: %ld\n", get_ruble());
 	saved.printf("Wimp: %d\n", GET_WIMP_LEV(this));
 	saved.printf("Frez: %d\n", punishments::Get(this, punishments::EType::kFreeze).level);
 	saved.printf("Invs: %d\n", GET_INVIS_LEV(this));
@@ -1171,7 +1170,6 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 
 	currencies::SetAmount(*this, currencies::kGold, 0, currencies::EPurse::kHand, false);
 	currencies::SetAmount(*this, currencies::kGold, 0, currencies::EPurse::kBank, false);
-	set_ruble(0);
 	this->player_specials->saved.GodsLike = 0;
 	this->set_hit(21);
 	this->set_max_hit(21);
@@ -1685,8 +1683,6 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 					IncreaseStatistic(CharStat::MobRip, num);
 				else if (!strcmp(tag, "Rimt"))
 					IncreaseStatistic(CharStat::MobRemortRip, num);
-				else if (!strcmp(tag, "Ruble"))
-					this->set_ruble(num);
 				else if (!strcmp(tag, "Ripp"))
 					IncreaseStatistic(CharStat::PkRip, num);
 				else if (!strcmp(tag, "Ript"))
