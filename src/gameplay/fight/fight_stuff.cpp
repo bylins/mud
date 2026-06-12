@@ -1,6 +1,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include <random>
+#include "gameplay/affects/affect_handler.h"
 #include "gameplay/mechanics/alignment.h"
 #include "utils/grammar/declensions.h"
 #include "gameplay/mechanics/minions.h"
@@ -177,7 +178,7 @@ bool stone_rebirth(CharData *ch, CharData *killer) {
 					ch->set_hit(1);
 					update_pos(ch);
 					while (!ch->affected.empty()) {
-						ch->AffectRemove(ch->affected.begin());
+						RemoveAffect(ch, ch->affected.begin());
 					}
 					affect_total(ch);
 					ch->SetPosition(EPosition::kStand);
@@ -225,7 +226,7 @@ bool check_tester_death(CharData *ch, CharData *killer) {
 	update_pos(ch);
 	act("$n медленно появил$u откуда-то.", false, ch, nullptr, nullptr, kToRoom);
 	while (!ch->affected.empty()) {
-		ch->AffectRemove(ch->affected.begin());
+		RemoveAffect(ch, ch->affected.begin());
 	}
 	affect_total(ch);
 	ch->SetPosition(EPosition::kStand);

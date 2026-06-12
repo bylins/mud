@@ -20,6 +20,7 @@
 #include "gameplay/statistics/money_drop.h"
 #include "gameplay/economics/currencies.h"
 #include "gameplay/affects/affect_data.h"
+#include "gameplay/affects/affect_handler.h"
 #include "gameplay/mechanics/illumination.h"
 #include "engine/ui/alias.h"
 #include "gameplay/core/remort.h"
@@ -169,21 +170,6 @@ void CharData::reset() {
 	PlayerI::reset();
 }
 
-CharData::char_affects_list_t::iterator CharData::AffectRemove(const char_affects_list_t::iterator &affect_i) {
-	if (affected.empty()) {
-		log("SYSERR: affect_remove(%s) when no affects...", GET_NAME(this));
-		return affected.end();
-	}
-	const auto af = *affect_i;
-	if (af->type == ESpell::kAbstinent) {
-		if (player_specials) {
-			GET_DRUNK_STATE(this) = GET_COND(this, condition::kDrunk) = std::min(GET_COND(this, condition::kDrunk), kDrunked - 1);
-		} else {
-			log("SYSERR: player_specials is not set.");
-		}
-	}
-	return affected.erase(affect_i);
-}
 
 bool CharData::has_any_affect(const affects_list_t &affects) {
 	for (const auto &affect : affects) {
@@ -212,7 +198,7 @@ size_t CharData::remove_random_affects(const size_t count) {
 		std::shuffle(removable_affects.begin(), removable_affects.end(), std::mt19937(std::random_device()()));
 		for (auto counter = 0u; counter < to_remove; ++counter) {
 			const auto affect_i = removable_affects[counter];
-			AffectRemove(affect_i);    //count тут не сработает, удаляются все аффекты а не первый
+			RemoveAffect(this, affect_i);    //count тут не сработает, удаляются все аффекты а не первый
 		}
 		affect_total(this);
 	}

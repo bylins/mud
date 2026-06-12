@@ -3,6 +3,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "poison.h"
+#include "gameplay/affects/affect_handler.h"
 #include "utils/grammar/gender.h"
 #include "gameplay/mechanics/sight.h"
 #include "gameplay/mechanics/mount.h"
@@ -45,7 +46,7 @@ namespace {
 				if (!vict->IsNpc()) {
 					affect->duration *= 30;
 				}
-				vict->AffectRemove(affect_i);
+				RemoveAffect(vict, affect_i);
 				affect_to_char(vict, *affect);
 				is_poisoned_by_me = true;
 				break;
