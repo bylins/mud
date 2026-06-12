@@ -503,20 +503,15 @@ bool AWAKE(const CharData *ch) {
 		&& !AFF_FLAGGED(ch, EAffect::kSleep);
 }
 
-//Вы уверены,что функцияам расчете опыта самое место в классе персонажа?
-bool IS_MALE(const CharData *ch) {
+bool IsMale(const CharData *ch) {
 	return ch->get_sex() == EGender::kMale;
 }
 
-bool IS_FEMALE(const CharData *ch) {
+bool IsFemale(const CharData *ch) {
 	return ch->get_sex() == EGender::kFemale;
 }
 
-bool IS_NOSEXY(const CharData *ch) {
-	return ch->get_sex() == EGender::kNeutral;
-}
-
-bool IS_POLY(const CharData *ch) {
+bool IsPoly(const CharData *ch) {
 	return ch->get_sex() == EGender::kPoly;
 }
 

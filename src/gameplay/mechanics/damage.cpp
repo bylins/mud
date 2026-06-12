@@ -840,7 +840,7 @@ void TryRemoveExtrahits(CharData *ch, CharData *victim) {
 	{
 		victim->set_hit(victim->get_real_max_hit());
 		SendMsgToChar(victim, "%s'Будь%s тощ%s аки прежде' - мелькнула чужая мысль в вашей голове.%s\r\n",
-					  kColorWht, grammar::PluralVerbEnding(IS_POLY(victim)), grammar::InstrEnding((victim)->get_sex()), kColorNrm);
+					  kColorWht, grammar::PluralVerbEnding(IsPoly(victim)), grammar::InstrEnding((victim)->get_sex()), kColorNrm);
 		act("Вы прервали золотистую нить, питающую $N3 жизнью.", false, ch, nullptr, victim, kToChar);
 		act("$n прервал$g золотистую нить, питающую $N3 жизнью.", false, ch, nullptr, victim, kToNotVict | kToArenaListen);
 	}

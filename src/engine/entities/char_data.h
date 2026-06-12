@@ -862,13 +862,11 @@ inline bool AWAKE(const CharData::shared_ptr &ch) { return AWAKE(ch.get()); }
 
 
 
-bool IS_MALE(const CharData *ch);
-inline bool IS_MALE(const CharData::shared_ptr &ch) { return IS_MALE(ch.get()); }
-bool IS_FEMALE(const CharData *ch);
-inline bool IS_FEMALE(const CharData::shared_ptr &ch) { return IS_FEMALE(ch.get()); }
-bool IS_NOSEXY(const CharData *ch);
-inline bool IS_NOSEXY(const CharData::shared_ptr &ch) { return IS_NOSEXY(ch.get()); }
-bool IS_POLY(const CharData *ch);
+bool IsMale(const CharData *ch);
+inline bool IsMale(const CharData::shared_ptr &ch) { return IsMale(ch.get()); }
+bool IsFemale(const CharData *ch);
+inline bool IsFemale(const CharData::shared_ptr &ch) { return IsFemale(ch.get()); }
+bool IsPoly(const CharData *ch);
 
 int GetRealBaseStat(const CharData *ch, EBaseStat stat_id);
 
