@@ -38,15 +38,15 @@ std::string TextIdByVnum(int vnum);
 
 [[nodiscard]] long GetAmount(const CharData &ch, const std::string &id, EPurse purse = EPurse::kHand);
 [[nodiscard]] long GetTotal(const CharData &ch, const std::string &id);
-void SetAmount(CharData &ch, const std::string &id, long amount, EPurse purse = EPurse::kHand, bool with_log = true);
-long AddAmount(CharData &ch, const std::string &id, long amount, EPurse purse = EPurse::kHand, bool notify = false, bool with_log = true);  // amount added
+void SetAmount(CharData &ch, const std::string &id, long amount, EPurse purse = EPurse::kHand, bool with_log = true, bool immortal = false);
+long AddAmount(CharData &ch, const std::string &id, long amount, EPurse purse = EPurse::kHand, bool notify = false, bool with_log = true, bool immortal = false);  // amount added
 long RemoveAmount(CharData &ch, const std::string &id, long amount, EPurse purse = EPurse::kHand, bool with_log = true);  // shortfall
 long RemoveTotal(CharData &ch, const std::string &id, long amount, bool with_log = true);  // bank then hand
 
 [[nodiscard]] long GetAmount(const CharData &ch, int vnum, EPurse purse = EPurse::kHand);
 [[nodiscard]] long GetTotal(const CharData &ch, int vnum);
-void SetAmount(CharData &ch, int vnum, long amount, EPurse purse = EPurse::kHand, bool with_log = true);
-long AddAmount(CharData &ch, int vnum, long amount, EPurse purse = EPurse::kHand, bool notify = false, bool with_log = true);
+void SetAmount(CharData &ch, int vnum, long amount, EPurse purse = EPurse::kHand, bool with_log = true, bool immortal = false);
+long AddAmount(CharData &ch, int vnum, long amount, EPurse purse = EPurse::kHand, bool notify = false, bool with_log = true, bool immortal = false);
 long RemoveAmount(CharData &ch, int vnum, long amount, EPurse purse = EPurse::kHand, bool with_log = true);
 long RemoveTotal(CharData &ch, int vnum, long amount, bool with_log = true);
 

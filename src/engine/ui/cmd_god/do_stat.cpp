@@ -328,7 +328,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 	snprintf(buf, sizeof(buf),
 			"Glory: [%d], ConstGlory: [%d], AC: [%d/%d(%d)], Броня: [%d], Попадания: [%2d/%2d/%d], Повреждения: [%2d/%2d/%d]\r\n",
 			Glory::get_glory(k->get_uid()),
-			GloryConst::get_glory(k->get_uid()),
+			currencies::GetAmount(*k, currencies::kGloryId),
 			GET_AC(k),
 			GetRealAc(k),
 			CalcBaseAc(k),
