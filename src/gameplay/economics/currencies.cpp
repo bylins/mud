@@ -189,6 +189,10 @@ std::string CurrencyNamesLoader::EditableWhat() const {
 
 std::vector<cfg_manager::EditableElement> CurrencyNamesLoader::ListElements() const {
 	std::vector<cfg_manager::EditableElement> out;
+	// The shared kDefault sheaf (money-object size-tier templates) is editable as well.
+	if (!g_default_obj_names.empty()) {
+		out.push_back({"kDefault", "kDefault (шаблоны размеров денежных куч)"});
+	}
 	for (const auto &[id, cn] : g_currency_names) {
 		out.push_back({id, id + " (" + cn.search + ")"});
 	}
@@ -215,6 +219,10 @@ std::string CurrencyNamesLoader::CanonicalElementId(const std::string &id) const
 parser_wrapper::DataNode CurrencyNamesLoader::CreateElementNode(parser_wrapper::DataNode root, const std::string &id) const {
 	auto sheaf = root.AddChild("msg_sheaf");
 	sheaf.SetValue("id", id);
+	if (id == "kDefault") {
+		sheaf.AddChild("obj_names");  // shared size-tier templates -- no <name>
+		return sheaf;
+	}
 	auto name = sheaf.AddChild("name");
 	name.SetValue("gender", "kFemale");
 	name.SetValue("search", id);
