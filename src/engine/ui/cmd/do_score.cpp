@@ -192,10 +192,9 @@ void PrintScoreList(CharData *ch) {
 				  GET_ARMOUR(ch),
 				  ac,
 				  GET_ABSORBE(ch));
-	SendMsgToChar(ch, "Вы имеете кун: на руках: %ld, на счету %ld. Гривны: %d, опыт: %ld, ДСУ: %ld.\r\n",
-				  currencies::GetAmount(*ch, currencies::kGold),
-				  currencies::GetAmount(*ch, currencies::kGold, currencies::EPurse::kBank),
-				  currencies::GetAmount(*ch, currencies::kCopperGrivnaId),
+	SendMsgToChar(ch, "Вы имеете на руках: %s, на счету %s, опыт: %ld, ДСУ: %ld.\r\n",
+				  MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(currencies::GetHand(*ch, currencies::kGold)).c_str(),
+				  MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(currencies::GetBank(*ch, currencies::kGold)).c_str(),
 				  ch->get_exp(),
 				  privilege::IsImmortal(ch) ? 1 : GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1) - ch->get_exp());
 	if (!mount::IsOnHorse(ch))
@@ -286,10 +285,10 @@ void PrintRuneLabelInfo(CharData *ch, std::ostringstream &out) {
 }
 
 void PrintGloryInfo(CharData *ch, std::ostringstream &out) {
-	auto glory = currencies::GetAmount(*ch, currencies::kGlory);
+	auto glory = currencies::GetHand(*ch, currencies::kGlory);
 	if (glory > 0) {
 		out << InfoStrPrefix(ch) << "Вы заслужили "
-			<< glory << " " << grammar::GetDeclensionInNumber(glory, grammar::EWhat::kPoint) << " постоянной славы." << "\r\n";
+			<< MUD::Currency(currencies::kGloryVnum).GetNameWithAmount(glory, grammar::ECase::kGen) << "." << "\r\n";
 	}
 }
 
@@ -510,8 +509,8 @@ int PrintBaseInfoToTable(CharData *ch, table_wrapper::Table &table, std::size_t 
 		table[++row][col] = std::string("ДСУ: ") + PrintNumberByDigits(
 			GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1) - ch->get_exp());
 	}
-	table[++row][col] = std::string("Кун: ") + PrintNumberByDigits(currencies::GetAmount(*ch, currencies::kGold));
-	table[++row][col] = std::string("На счету: ") + PrintNumberByDigits(currencies::GetAmount(*ch, currencies::kGold, currencies::EPurse::kBank));
+	table[++row][col] = MUD::Currency(currencies::kGoldVnum).GetPluralName(grammar::ECase::kGen) + ": " + PrintNumberByDigits(currencies::GetHand(*ch, currencies::kGold));
+	table[++row][col] = std::string("На счету: ") + PrintNumberByDigits(currencies::GetBank(*ch, currencies::kGold));
 	table[++row][col] = GetShortPositionStr(ch);
 	table[++row][col] = std::string("Голоден: ") + (GET_COND(ch, condition::kFull) > kNormCondition ? "Угу :(" : "Нет");
 	table[++row][col] = std::string("Жажда: ") + (condition::GetCondAboveNorm(ch, condition::kThirst) ? "Наливай!" : "Нет");
@@ -785,14 +784,11 @@ void PrintScoreBase(CharData *ch) {
 		sprintf(buf + strlen(buf), "\r\n");
 
 	sprintf(buf + strlen(buf),
-			"У вас на руках %ld %s и %d %s",
-			currencies::GetAmount(*ch, currencies::kGold),
-			grammar::GetDeclensionInNumber(currencies::GetAmount(*ch, currencies::kGold), grammar::EWhat::kMoneyA),
-			currencies::GetAmount(*ch, currencies::kCopperGrivnaId),
-			MUD::Currency(currencies::kCopperGrivnaVnum).GetNameWithAmount(currencies::GetAmount(*ch, currencies::kCopperGrivnaId)).c_str());
-	if (currencies::GetAmount(*ch, currencies::kGold, currencies::EPurse::kBank) > 0)
-		sprintf(buf + strlen(buf), " (и еще %ld %s припрятано в лежне).\r\n",
-				currencies::GetAmount(*ch, currencies::kGold, currencies::EPurse::kBank), grammar::GetDeclensionInNumber(currencies::GetAmount(*ch, currencies::kGold, currencies::EPurse::kBank), grammar::EWhat::kMoneyA));
+			"У вас на руках %s",
+			MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(currencies::GetHand(*ch, currencies::kGold)).c_str());
+	if (currencies::GetBank(*ch, currencies::kGold) > 0)
+		sprintf(buf + strlen(buf), " (и еще %s припрятано в лежне).\r\n",
+				MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(currencies::GetBank(*ch, currencies::kGold)).c_str());
 	else
 		strncat(buf, ".\r\n", sizeof(buf) - strlen(buf) - 1);
 
@@ -812,14 +808,10 @@ void PrintScoreBase(CharData *ch) {
 				std::string(label_room->name).c_str());
 	}
 
-	int glory = Glory::get_glory(ch->get_uid());
+	int glory = currencies::GetHand(*ch, currencies::kGlory);
 	if (glory) {
-	//	sprintf(buf + strlen(buf), "Вы заслужили %d %s славы.\r\n", glory, GetDeclensionInNumber(glory, EWhat::kPoint));
-	}
-	glory = currencies::GetAmount(*ch, currencies::kGlory);
-	if (glory) {
-		sprintf(buf + strlen(buf), "Вы заслужили %d %s постоянной славы.\r\n",
-				glory, grammar::GetDeclensionInNumber(glory, grammar::EWhat::kPoint));
+		sprintf(buf + strlen(buf), "Вы заслужили %s.\r\n",
+				MUD::Currency(currencies::kGloryVnum).GetNameWithAmount(glory, grammar::ECase::kGen).c_str());
 	}
 
 	TimeInfoData playing_time = *CalcRealTimePassed((time(nullptr) - ch->player_data.time.logon) + ch->player_data.time.played, 0);
@@ -970,28 +962,6 @@ void PrintScoreBase(CharData *ch) {
 				SendMsgToChar(buf, ch);
 			}
 		}
-	}
-	if (currencies::GetAmount(*ch, currencies::kMagicIceId) > 0) {
-		if (currencies::GetAmount(*ch, currencies::kMagicIceId) == 1) {
-			snprintf(buf, sizeof(buf), "У вас в наличии есть одна жалкая искристая снежинка.\r\n");
-			SendMsgToChar(buf, ch);
-		} else if (currencies::GetAmount(*ch, currencies::kMagicIceId) < 5) {
-			snprintf(buf, sizeof(buf), "У вас в наличии есть жалкие %d искристые снежинки.\r\n", currencies::GetAmount(*ch, currencies::kMagicIceId));
-			SendMsgToChar(buf, ch);
-		} else {
-			snprintf(buf, sizeof(buf), "У вас в наличии есть %d искристых снежинок.\r\n", currencies::GetAmount(*ch, currencies::kMagicIceId));
-			SendMsgToChar(buf, ch);
-		}
-	}
-	if (currencies::GetAmount(*ch, currencies::kNogataId) > 0 && ROOM_FLAGGED(ch->in_room, ERoomFlag::kDominationArena)) {
-		int value = currencies::GetAmount(*ch, currencies::kNogataId);
-		if (currencies::GetAmount(*ch, currencies::kNogataId) == 1) {
-			snprintf(buf, sizeof(buf), "У вас в наличии есть одна жалкая ногата.\r\n");
-		}
-		else {
-			snprintf(buf, sizeof(buf), "У вас в наличии есть %d %s.\r\n", value, MUD::Currency(currencies::kNogataVnum).GetNameWithAmount(value, grammar::ECase::kAcc).c_str());
-		}
-		SendMsgToChar(buf, ch);
 	}
 }
 
