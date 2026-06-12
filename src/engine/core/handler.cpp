@@ -1468,8 +1468,7 @@ void ExtractObjFromWorld(ObjData *obj, bool showlog) {
 	utils::CExecutionTimer timer;
 
 	strcpy(name, obj->get_PName(grammar::ECase::kNom).c_str());
-//	if (showlog);
-	{
+	if (showlog) {
 		log("[Extract obj] Start for: %s vnum == %d room = %d timer == %d",
 				name, GET_OBJ_VNUM(obj), roomload, obj->get_timer());
 	}
@@ -1530,8 +1529,7 @@ void ExtractObjFromWorld(ObjData *obj, bool showlog) {
 	check_exchange(obj);
 	obj->get_script()->set_purged();
 	world_objects.remove(obj);
-//	if (showlog);
-	{
+	if (showlog) {
 		log("[Extract obj] Stop, delta %f", timer.delta().count());
 	}
 }

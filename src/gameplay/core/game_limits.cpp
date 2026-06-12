@@ -1065,9 +1065,14 @@ void check_idling(CharData *ch) {
 			ch->set_motion(false);
 
 			if (ch->get_was_in_room() == kNowhere && ch->in_room != kNowhere) {
+				// Профилировка пути ухода в пустоту (#3440): логируем разбивку,
+				// т.к. он редкий, а в обычном профайлере point_update всё в idle.
+				utils::CExecutionTimer tmr;
+				double d_save = 0.0, d_crash = 0.0, d_move = 0.0, d_aff = 0.0;
 				if (ch->desc) {
 					ch->save_char();
 				}
+				d_save = tmr.delta().count();
 				ch->set_was_in_room(ch->in_room);
 				if (ch->GetEnemy()) {
 					stop_fighting(ch->GetEnemy(), false);
@@ -1076,18 +1081,43 @@ void check_idling(CharData *ch) {
 				act("$n растворил$u в пустоте.", true, ch, nullptr, nullptr, kToRoom);
 				SendMsgToChar("Вы пропали в пустоте этого мира.\r\n", ch);
 
+				tmr.restart();
 				Crash_crashsave(ch);
+				d_crash = tmr.delta().count();
+				tmr.restart();
 				RemoveCharFromRoom(ch);
 				PlaceCharToRoom(ch, kStrangeRoom);
+				d_move = tmr.delta().count();
+				tmr.restart();
 				room_spells::RemoveSingleAffectFromWorld(ch, ESpell::kRuneLabel);
+				d_aff = tmr.delta().count();
+				log("idle-void %s: save_char=%.4f crashsave=%.4f move=%.4f rune_aff=%.4f",
+					GET_NAME(ch), d_save, d_crash, d_move, d_aff);
 			} else if (ch->char_specials.timer > idle_rent_time) {
+				// Профилировка пути форс-ренты (#3440): см. комментарий выше.
+				utils::CExecutionTimer tmr;
+				double d_remove = 0.0, d_place = 0.0, d_charmice = 0.0,
+					   d_save = 0.0, d_depot = 0.0, d_clan = 0.0;
 				if (ch->in_room != kNowhere)
 					RemoveCharFromRoom(ch);
+				d_remove = tmr.delta().count();
+				tmr.restart();
 				PlaceCharToRoom(ch, kStrangeRoom);
+				d_place = tmr.delta().count();
+				tmr.restart();
 				CollectCharmiceBoxesForIdleExtract(ch);
+				d_charmice = tmr.delta().count();
+				tmr.restart();
 				Crash_idlesave(ch);
+				d_save = tmr.delta().count();
+				tmr.restart();
 				Depot::exit_char(ch);
+				d_depot = tmr.delta().count();
+				tmr.restart();
 				Clan::clan_invoice(ch, false);
+				d_clan = tmr.delta().count();
+				log("idle-rent %s: remove=%.4f place=%.4f charmice=%.4f save=%.4f depot=%.4f clan=%.4f",
+					GET_NAME(ch), d_remove, d_place, d_charmice, d_save, d_depot, d_clan);
 				sprintf(buf, "%s force-rented and extracted (idle).", GET_NAME(ch));
 				mudlog(buf, NRM, kLvlGod, SYSLOG, true);
 				character_list.AddToExtractedList(ch);

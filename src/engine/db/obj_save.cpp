@@ -1855,6 +1855,10 @@ int save_char_objects(CharData *ch, int savetype, int rentcost) {
 		return false;
 	}
 
+	// Таймер всей функции -- чтобы поймать спайки ниже порога total_io (#3440):
+	// если время не в трёх замеренных фазах, оно всплывёт в "other".
+	utils::CExecutionTimer fn_timer;
+
 	// удаление !рент предметов
 	if (savetype != RENT_CRASH) {
 		Crash_extract_norent_eq(ch);
@@ -2022,9 +2026,13 @@ int save_char_objects(CharData *ch, int savetype, int rentcost) {
 	// Дисковый write почти не зависит от числа предметов и обычно доминирует,
 	// поэтому "меньше предметов, но дольше" -- это про занятость диска, не про items.
 	const double total_io_sec = serialize_sec + obj_io_sec + timer_io_sec;
-	if (total_io_sec > 0.04) {
-		log("save_char_objects: %s items=%d serialize=%.4f write=%.4f crc=%.4f time_io=%.4f total=%.4f",
-			GET_NAME(ch), num, serialize_sec, write_sec, crc_sec, timer_io_sec, total_io_sec);
+	const double fn_sec = fn_timer.delta().count();
+	// "other" -- время вне трёх замеренных фаз (calcitems, расчёт ренты,
+	// экстракты, Crash_create_timer и пр.). Если спайк тут -- видно сразу.
+	const double other_sec = fn_sec - total_io_sec;
+	if (fn_sec > 0.02) {
+		log("save_char_objects: %s items=%d serialize=%.4f write=%.4f crc=%.4f time_io=%.4f other=%.4f total=%.4f",
+			GET_NAME(ch), num, serialize_sec, write_sec, crc_sec, timer_io_sec, other_sec, fn_sec);
 	}
 
 	if (savetype == RENT_CRASH) {

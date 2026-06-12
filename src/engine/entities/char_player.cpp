@@ -9,6 +9,7 @@
 #include <sys/stat.h>
 
 #include "utils/file_crc.h"
+#include "utils/utils_time.h"
 #include "utils/buffered_file_writer.h"
 #include "utils/backtrace.h"
 
@@ -416,6 +417,11 @@ void Player::save_char() {
 
 	if (this->IsNpc() || this->get_pfilepos() < 0)
 		return;
+
+	// Профилировка save_char (#3440): общий таймер функции + фазы.
+	utils::CExecutionTimer fn_timer;
+	double d_account = 0.0, d_vars = 0.0, d_write = 0.0;
+
 	if (this->account == nullptr) {
 		this->account = Account::get_account(GET_EMAIL(this));
 		if (this->account == nullptr) {
@@ -424,9 +430,9 @@ void Player::save_char() {
 			this->account = temp_account;
 		}
 	}
-	this->account->save_to_file();
+	{ utils::CExecutionTimer t; this->account->save_to_file(); d_account = t.delta().count(); }
 	log("Save char %s", GET_NAME(this));
-	save_char_vars(this);
+	{ utils::CExecutionTimer t; save_char_vars(this); d_vars = t.delta().count(); }
 
 	// Запись чара в новом формате
 	get_filename(GET_NAME(this), filename, kPlayersFile);
@@ -898,6 +904,7 @@ void Player::save_char() {
 	// буфера на всех платформах) и из него же считаем CRC -- без перечитывания
 	// только что записанного файла.
 	const std::string &pfile = saved.str();
+	utils::CExecutionTimer wt;
 	FILE *pf = fopen(filename, "wb");
 	if (!pf) {
 		perror("Unable open charfile");
@@ -912,6 +919,7 @@ void Player::save_char() {
 		mudlog(ss.str(), BRF, kLvlGod, SYSLOG, true);
 	}
 #endif
+	d_write = wt.delta().count();
 	FileCRC::update_from_content(this->get_uid(), FileCRC::kPlayer, pfile.data(), pfile.size());
 
 	// восстанавливаем аффекты
@@ -940,6 +948,13 @@ void Player::save_char() {
 		player_table[i].set_uid(this->get_uid());
 		player_table[i].plr_class = GetClass();
 		//end by WorM
+	}
+
+	const double fn_sec = fn_timer.delta().count();
+	const double other_sec = fn_sec - d_account - d_vars - d_write;
+	if (fn_sec > 0.02) {
+		log("save_char prof: %s account=%.4f vars=%.4f write=%.4f other=%.4f total=%.4f",
+			GET_NAME(this), d_account, d_vars, d_write, other_sec, fn_sec);
 	}
 }
 

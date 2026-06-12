@@ -2736,7 +2736,14 @@ void find_replacement(void *go,
 		else if (!str_cmp(field, "cancarryweight"))
 			snprintf(str, str_size, "%d", CAN_CARRY_W(mob));
 		else if (!str_cmp(field, "CanBeSeen")) {
-			if ((type == MOB_TRIGGER) && !sight::CanSee(((CharData *) go), mob)) {
+			// С аргументом %char.canbeseen(<смотрящий>)% - видит ли указанный
+			// персонаж этого (sight::CanSee учитывает слепоту/невидимость/темноту).
+			// Без аргумента сохраняем прежнее поведение: в MOB_TRIGGER проверяем
+			// видимость мобом-хозяином триггера, иначе считаем видимым.
+			CharData *viewer = *subfield ? get_char(subfield) : nullptr;
+			if (viewer) {
+				snprintf(str, str_size, sight::CanSee(viewer, mob) ? "1" : "0");
+			} else if ((type == MOB_TRIGGER) && !sight::CanSee(((CharData *) go), mob)) {
 				snprintf(str, str_size, "0");
 			} else {
 				snprintf(str, str_size, "1");
