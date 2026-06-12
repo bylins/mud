@@ -435,7 +435,7 @@ void shop_node::process_buy(CharData *ch, CharData *keeper, char *argument) {
 }
 
 void shop_node::print_shop_list(CharData *ch, const std::string &arg, int keeper_vnum) const {
-	SendMsgToChar(fmt::format(fmt::runtime(ShopMsg(ESM::kListHeader)), fmt::arg("currency", currency)) + "\r\n"
+	SendMsgToChar(fmt::format(fmt::runtime(ShopMsg(ESM::kListHeader)), fmt::arg("currency", MUD::Currencies().FindAvailableItem(currency).GetPluralName(grammar::ECase::kNom))) + "\r\n"
 				  "---------------------------------------------------------------------------\r\n", ch);
 	int num = 1;
 	std::stringstream out;
@@ -501,7 +501,7 @@ void shop_node::filter_shop_list(CharData *ch, char *argument, int keeper_vnum) 
 
 	SendMsgToChar(fmt::format(fmt::runtime(ShopMsg(ESM::kFilterSelection)),
 			fmt::arg("filter", filter.print())) + "\r\n", ch);
-	SendMsgToChar(fmt::format(fmt::runtime(ShopMsg(ESM::kFilterHeader)), fmt::arg("currency", currency)) + "\r\n"
+	SendMsgToChar(fmt::format(fmt::runtime(ShopMsg(ESM::kFilterHeader)), fmt::arg("currency", MUD::Currencies().FindAvailableItem(currency).GetPluralName(grammar::ECase::kNom))) + "\r\n"
 				  "---------------------------------------------------------------------------\r\n", ch);
 	std::stringstream out;
 
