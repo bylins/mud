@@ -860,9 +860,6 @@ bool AWAKE(const CharData *ch);
 inline bool AWAKE(const CharData::shared_ptr &ch) { return AWAKE(ch.get()); }
 
 
-inline bool CAN_START_MTRIG(const CharData *ch) {
-	return !AFF_FLAGGED(ch, EAffect::kCharmed);
-}
 
 
 bool IS_MALE(const CharData *ch);
