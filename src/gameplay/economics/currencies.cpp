@@ -171,6 +171,7 @@ ItemPtr CurrencyInfoBuilder::ParseCurrency(DataNode node) {
 			if (const char *v = node.GetValue("money_stat"); v && *v) currency_info->money_stat_ = parse::ReadAsBool(v);
 			if (const char *v = node.GetValue("force_split"); v && *v) currency_info->force_split_ = parse::ReadAsBool(v);
 			if (const char *v = node.GetValue("arena_only"); v && *v) currency_info->arena_only_ = parse::ReadAsBool(v);
+			if (const char *v = node.GetValue("merchant_payout"); v && *v) currency_info->merchant_payout_ = parse::ReadAsBool(v);
 		} catch (std::runtime_error &e) {
 			err_log("incorrect flags (%s) in currency '%s'.", e.what(), currency_info->name_.c_str());
 		}

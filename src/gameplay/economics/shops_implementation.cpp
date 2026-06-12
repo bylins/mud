@@ -942,6 +942,10 @@ void shop_node::do_shop_cmd(CharData *ch, CharData *keeper, ObjData *obj, std::s
 	}
 
 	long buy_price = obj->get_cost();
+	// валюта выплаты при скупке: валюта магазина, если её разрешено выдавать; иначе золото
+	const std::string &payout_currency =
+		(currency == currencies::kGlory || !MUD::Currencies().FindAvailableItem(currency).MerchantPayout())
+		? currencies::kGold : currency;
 	long buy_price_old = get_sell_price(obj);
 
 	int repair = obj->get_maximum_durability() - obj->get_current_durability();
@@ -974,7 +978,7 @@ void shop_node::do_shop_cmd(CharData *ch, CharData *keeper, ObjData *obj, std::s
 		} else {
 			tell_to_char(keeper, ch, fmt::format(fmt::runtime(ShopMsg(ESM::kValueOffer)),
 					fmt::arg("item", obj->get_PName(grammar::ECase::kAcc)), fmt::arg("amount", buy_price),
-					fmt::arg("currency", MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(buy_price, grammar::ECase::kNom).c_str())).c_str());
+					fmt::arg("currency", MUD::Currencies().FindAvailableItem(payout_currency).GetNameWithAmount(buy_price, grammar::ECase::kNom).c_str())).c_str());
 		}
 	}
 
@@ -996,8 +1000,8 @@ void shop_node::do_shop_cmd(CharData *ch, CharData *keeper, ObjData *obj, std::s
 			RemoveObjFromChar(obj);
 			tell_to_char(keeper, ch, fmt::format(fmt::runtime(ShopMsg(ESM::kSellPaid)),
 					fmt::arg("item", obj->get_PName(grammar::ECase::kAcc)), fmt::arg("amount", buy_price),
-					fmt::arg("currency", MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(buy_price, grammar::ECase::kNom).c_str())).c_str());
-			currencies::AddHand(*ch, currencies::kGold, buy_price);
+					fmt::arg("currency", MUD::Currencies().FindAvailableItem(payout_currency).GetNameWithAmount(buy_price, grammar::ECase::kNom).c_str())).c_str());
+			currencies::AddHand(*ch, payout_currency, buy_price);
 			put_item_to_shop(obj);
 			obj->set_where_obj(EWhereObj::kSeller);
 		}
