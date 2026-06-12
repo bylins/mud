@@ -43,6 +43,7 @@ enum class EBankMsg {
 	kNoMoney,            // "У вас нет денег."
 	kDepositHowMuch,     // "Сколько вы хотите вложить?"
 	kCantAfford,         // "О такой сумме вы можете только мечтать!"
+	kCantBank,           // "Эту валюту нельзя хранить в банке."
 	kDeposited,          // "Вы вложили {amount} {currency}."
 	kWithdrawHowMuch,    // "Уточните количество денег, которые вы хотите получить?"
 	kNeverHadThatMuch,   // "Да вы отродясь столько денег не видели!"

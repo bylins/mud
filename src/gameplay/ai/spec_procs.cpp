@@ -1380,51 +1380,82 @@ namespace {
 // words to these handlers and auto-generates the "чего изволите" tooltip from the same list.
 enum class EBankCmd { kBalance, kDeposit, kWithdraw, kTransfer, kTreasury };
 
+// Parse "<amount> [<currency>]" for deposit/withdraw. An omitted currency means gold; a named one
+// must resolve and permit banking (IsStorable). Returns false (after messaging) on a bad value.
+bool ParseBankArg(CharData *ch, char *argument, specials::EBankMsg how_much, int &amount, int &currency) {
+	char amount_arg[kMaxInputLength], curr_arg[kMaxInputLength];
+	argument = one_argument(argument, amount_arg);
+	one_argument(argument, curr_arg);
+	amount = atoi(amount_arg);
+	if (amount <= 0) {
+		SendMsgToChar(specials::BankMsg(how_much) + "\r\n", ch);
+		return false;
+	}
+	currency = currencies::kGoldVnum;
+	if (*curr_arg) {
+		const auto *cur = currencies::FindBySearch(curr_arg);
+		if (!cur || !cur->IsStorable()) {
+			SendMsgToChar(specials::BankMsg(specials::EBankMsg::kCantBank) + "\r\n", ch);
+			return false;
+		}
+		currency = cur->GetId();
+	}
+	return true;
+}
+
 int BankBalance(CharData *ch, void * /*me*/, char * /*argument*/) {
-	if (currencies::GetBank(*ch, currencies::kGold) > 0) {
+	bool any = false;
+	for (const auto &[id, amounts] : ch->currency_storage().data()) {
+		if (amounts.bank <= 0) {
+			continue;
+		}
+		const auto &info = MUD::Currencies().FindAvailableItem(id);
+		if (info.GetId() < 0) {
+			continue;
+		}
 		SendMsgToChar(fmt::format(fmt::runtime(specials::BankMsg(specials::EBankMsg::kBalance)),
-				fmt::arg("amount", currencies::GetBank(*ch, currencies::kGold)),
-				fmt::arg("currency", MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(currencies::GetBank(*ch, currencies::kGold), grammar::ECase::kNom).c_str())) + "\r\n", ch);
-	} else {
+				fmt::arg("amount", amounts.bank),
+				fmt::arg("currency", info.GetNameWithAmount(amounts.bank, grammar::ECase::kNom).c_str())) + "\r\n", ch);
+		any = true;
+	}
+	if (!any) {
 		SendMsgToChar(specials::BankMsg(specials::EBankMsg::kNoMoney) + "\r\n", ch);
 	}
 	return (1);
 }
 
 int BankDeposit(CharData *ch, void * /*me*/, char *argument) {
-	int amount;
-	if ((amount = atoi(argument)) <= 0) {
-		SendMsgToChar(specials::BankMsg(specials::EBankMsg::kDepositHowMuch) + "\r\n", ch);
+	int amount, currency;
+	if (!ParseBankArg(ch, argument, specials::EBankMsg::kDepositHowMuch, amount, currency)) {
 		return (1);
 	}
-	if (currencies::GetHand(*ch, currencies::kGold) < amount) {
+	if (currencies::GetHand(*ch, currency) < amount) {
 		SendMsgToChar(specials::BankMsg(specials::EBankMsg::kCantAfford) + "\r\n", ch);
 		return (1);
 	}
-	currencies::RemoveHand(*ch, currencies::kGold, amount, false);
-	currencies::AddBank(*ch, currencies::kGold, amount, false, false);
+	currencies::RemoveHand(*ch, currency, amount, false);
+	currencies::AddBank(*ch, currency, amount, false, false);
 	SendMsgToChar(fmt::format(fmt::runtime(specials::BankMsg(specials::EBankMsg::kDeposited)),
 			fmt::arg("amount", amount),
-			fmt::arg("currency", MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(amount, grammar::ECase::kNom).c_str())) + "\r\n", ch);
+			fmt::arg("currency", MUD::Currency(currency).GetNameWithAmount(amount, grammar::ECase::kNom).c_str())) + "\r\n", ch);
 	act(specials::BankMsg(specials::EBankMsg::kFinancialOp), true, ch, nullptr, nullptr, kToRoom);
 	return (1);
 }
 
 int BankWithdraw(CharData *ch, void * /*me*/, char *argument) {
-	int amount;
-	if ((amount = atoi(argument)) <= 0) {
-		SendMsgToChar(specials::BankMsg(specials::EBankMsg::kWithdrawHowMuch) + "\r\n", ch);
+	int amount, currency;
+	if (!ParseBankArg(ch, argument, specials::EBankMsg::kWithdrawHowMuch, amount, currency)) {
 		return (1);
 	}
-	if (currencies::GetBank(*ch, currencies::kGold) < amount) {
+	if (currencies::GetBank(*ch, currency) < amount) {
 		SendMsgToChar(specials::BankMsg(specials::EBankMsg::kNeverHadThatMuch) + "\r\n", ch);
 		return (1);
 	}
-	currencies::AddHand(*ch, currencies::kGold, amount, false, false);
-	currencies::RemoveBank(*ch, currencies::kGold, amount, false);
+	currencies::AddHand(*ch, currency, amount, false, false);
+	currencies::RemoveBank(*ch, currency, amount, false);
 	SendMsgToChar(fmt::format(fmt::runtime(specials::BankMsg(specials::EBankMsg::kWithdrawn)),
 			fmt::arg("amount", amount),
-			fmt::arg("currency", MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(amount, grammar::ECase::kNom).c_str())) + "\r\n", ch);
+			fmt::arg("currency", MUD::Currency(currency).GetNameWithAmount(amount, grammar::ECase::kNom).c_str())) + "\r\n", ch);
 	act(specials::BankMsg(specials::EBankMsg::kFinancialOp), true, ch, nullptr, nullptr, kToRoom);
 	return (1);
 }
