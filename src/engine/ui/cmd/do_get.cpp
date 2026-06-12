@@ -56,12 +56,13 @@ void get_check_money(CharData *ch, ObjData *obj, ObjData *cont) {
 		return;
 	}
 
-	if (curr_type == currency::ICE) {
-		sprintf(buf, "Это составило %d %s.\r\n", value, MUD::Currency(currencies::kSnowflakeVnum).GetNameWithAmount(value, grammar::ECase::kAcc).c_str());
+	const auto &money_cur = MUD::Currency(curr_type);
+	if (money_cur.GetId() >= 0 && money_cur.GetTextId() != currencies::kGold) {
+		// Не-золотая валюта (напр. событийная): зачисляем; force_split - делим всегда.
+		sprintf(buf, "Это составило %s.\r\n", money_cur.GetNameWithAmount(value, grammar::ECase::kAcc).c_str());
 		SendMsgToChar(buf, ch);
-		currencies::AddAmount(*ch, currencies::kMagicIceId, value);
-		//Делить лед ВСЕГДА!
-		if (AFF_FLAGGED(ch, EAffect::kGroup) && other_pc_in_group(ch) > 0) {
+		currencies::AddHand(*ch, curr_type, value);
+		if (money_cur.ForceSplit() && AFF_FLAGGED(ch, EAffect::kGroup) && other_pc_in_group(ch) > 0) {
 			char local_buf[256];
 			sprintf(local_buf, "%d", value);
 			group::do_split(ch, local_buf, 0, 0, curr_type);
@@ -76,7 +77,7 @@ void get_check_money(CharData *ch, ObjData *obj, ObjData *cont) {
 		return;
 	}
 */
-	sprintf(buf, "Это составило %d %s.\r\n", value, grammar::GetDeclensionInNumber(value, grammar::EWhat::kMoneyU));
+	sprintf(buf, "Это составило %s.\r\n", MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(value, grammar::ECase::kAcc).c_str());
 	SendMsgToChar(buf, ch);
 	if (InTestZone(ch)) {
 		ExtractObjFromWorld(obj);
