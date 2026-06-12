@@ -41,7 +41,7 @@ void do_disarm(CharData *ch, CharData *vict) {
 		return;
 	}
 	
-	if (ch->HasCooldown(ESkill::kDisarm)) {
+	if (ch->Skills().HasActiveCooldown(ESkill::kDisarm)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kDisarm, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	};

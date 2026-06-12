@@ -20,7 +20,7 @@ void DoThrowout(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kThrowout, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
-	if (ch->HasCooldown(ESkill::kThrowout)) {
+	if (ch->Skills().HasActiveCooldown(ESkill::kThrowout)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kThrowout, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	}
@@ -49,7 +49,7 @@ void DoThrowout(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			false, ch, nullptr,vict, kToChar);
 		return;
 	}
-	if (!privilege::IsImmortal(ch) && ch->HasCooldown(ESkill::kThrowout)) {
+	if (!privilege::IsImmortal(ch) && ch->Skills().HasActiveCooldown(ESkill::kThrowout)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kThrowout, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	}

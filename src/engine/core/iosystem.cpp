@@ -1154,11 +1154,11 @@ std::string MakePrompt(DescriptorData *d) {
 		if (ch->IsFlagged(EPrf::kDispCooldowns)) {
 			fmt::format_to(std::back_inserter(out), "{}:{} ",
 					  MUD::Skill(ESkill::kGlobalCooldown).GetAbbr(),
-					  ch->getSkillCooldownInPulses(ESkill::kGlobalCooldown));
+					  ch->Skills().GetCooldownInPulses(ESkill::kGlobalCooldown));
 
 			for (const auto &skill : MUD::Skills()) {
 				if (skill.IsAvailable()) {
-					int cooldown = ch->getSkillCooldownInPulses(skill.GetId());
+					int cooldown = ch->Skills().GetCooldownInPulses(skill.GetId());
 					if (cooldown > 0) {
 						fmt::format_to(std::back_inserter(out), "{}:{} ", skill.GetAbbr(), cooldown);
 					}

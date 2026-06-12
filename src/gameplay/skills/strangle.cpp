@@ -42,7 +42,7 @@ void do_strangle(CharData *ch, CharData *vict) {
 		return;
 	}
 
-	if (ch->HasCooldown(ESkill::kGlobalCooldown)) {
+	if (ch->Skills().HasActiveCooldown(ESkill::kGlobalCooldown)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kStrangle, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	}

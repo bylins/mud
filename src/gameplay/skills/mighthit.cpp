@@ -31,7 +31,7 @@ void GoMighthit(CharData *ch, CharData *victim) {
 	if (!ch->GetEnemy()) {
 		ch->battle_affects.set(kEafHammer);
 		hit(ch, victim, ESkill::kHammer, fight::kMainHand);
-		if (ch->getSkillCooldown(ESkill::kHammer) > 0) {
+		if (ch->Skills().GetCooldown(ESkill::kHammer) > 0) {
 			SetSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 1);
 		}
 		//set_wait(ch, 2, true);
@@ -78,7 +78,7 @@ void DoMighthit(CharData *ch, CharData *victim) {
 		return;
 	}
 
-	if (ch->HasCooldown(ESkill::kHammer)) {
+	if (ch->Skills().HasActiveCooldown(ESkill::kHammer)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kHammer, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	};

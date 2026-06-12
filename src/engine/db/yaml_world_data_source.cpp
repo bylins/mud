@@ -3664,9 +3664,9 @@ void YamlWorldDataSource::SaveMobs(int zone_rnum, int specific_vnum)
 		std::vector<std::pair<int, int>> mob_skills;
 		for (const auto &kv : mob.GetCharSkills())
 		{
-			if (kv.second.skillLevel > 0)
+			if (kv.second.skill_level > 0)
 			{
-				mob_skills.emplace_back(static_cast<int>(kv.first), kv.second.skillLevel);
+				mob_skills.emplace_back(static_cast<int>(kv.first), kv.second.skill_level);
 			}
 		}
 		std::sort(mob_skills.begin(), mob_skills.end());

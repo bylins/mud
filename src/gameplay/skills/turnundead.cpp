@@ -22,7 +22,7 @@ void do_turn_undead(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kTurnUndead, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
-	if (ch->HasCooldown(ESkill::kTurnUndead)) {
+	if (ch->Skills().HasActiveCooldown(ESkill::kTurnUndead)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kTurnUndead, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	};

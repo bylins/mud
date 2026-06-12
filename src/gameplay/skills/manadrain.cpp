@@ -23,7 +23,7 @@ void do_manadrain(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (IsTimedBySkill(ch, ESkill::kJinx) || ch->HasCooldown(ESkill::kJinx)) {
+	if (IsTimedBySkill(ch, ESkill::kJinx) || ch->Skills().HasActiveCooldown(ESkill::kJinx)) {
 		SendMsgToChar("Так часто не получится.\r\n", ch);
 		return;
 	}

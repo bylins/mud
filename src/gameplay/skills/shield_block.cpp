@@ -23,7 +23,7 @@ void do_block(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kShieldBlock, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
-	if (ch->HasCooldown(ESkill::kShieldBlock)) {
+	if (ch->Skills().HasActiveCooldown(ESkill::kShieldBlock)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kShieldBlock, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	};

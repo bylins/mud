@@ -3276,7 +3276,7 @@ void CharTimerUpdate() {
 	std::list<CharData *> cooldown_list;
 
 	for (auto it : chardata_cooldown_list) {
-		if (!it->HaveDecreaseCooldowns()) {
+		if (!it->Skills().DecreaseCooldownsAndCheck()) {
 			cooldown_list.push_back(it);
 		}
 	}

@@ -41,12 +41,12 @@ void do_bash(CharData *ch, CharData *vict) {
 		return;
 	}
 
-	if (ch->HasCooldown(ESkill::kBash)) {
+	if (ch->Skills().HasActiveCooldown(ESkill::kBash)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kBash, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	}
 
-	if (ch->HasCooldown(ESkill::kGlobalCooldown)) {
+	if (ch->Skills().HasActiveCooldown(ESkill::kGlobalCooldown)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kBash, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	}
@@ -81,12 +81,12 @@ void go_bash(CharData *ch, CharData *vict) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kBash, ESkillMsg::kCantFightNow) + "\r\n", ch);
 		return;
 	}
-	if (ch->HasCooldown(ESkill::kBash)) {
+	if (ch->Skills().HasActiveCooldown(ESkill::kBash)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kBash, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	}
 
-	if (ch->HasCooldown(ESkill::kGlobalCooldown)) {
+	if (ch->Skills().HasActiveCooldown(ESkill::kGlobalCooldown)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kBash, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	}

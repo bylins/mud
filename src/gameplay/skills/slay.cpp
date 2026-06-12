@@ -114,7 +114,7 @@ void do_slay(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Это не так просто! Сначала попробуйте обескуражить противника!\r\n", ch);
 		return;
 	}
-	if (ch->HasCooldown(ESkill::kSlay)) {
+	if (ch->Skills().HasActiveCooldown(ESkill::kSlay)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kSlay, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	}

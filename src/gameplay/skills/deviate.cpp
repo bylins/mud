@@ -21,7 +21,7 @@ void DoDeviate(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kDodge, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
-	if (ch->HasCooldown(ESkill::kDodge)) {
+	if (ch->Skills().HasActiveCooldown(ESkill::kDodge)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kDodge, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	};

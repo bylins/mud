@@ -37,7 +37,7 @@ void go_chopoff(CharData *ch, CharData *vict) {
 	if ((vict->GetPosition() < EPosition::kFight)) {
 		if (number(1, 100) < ch->GetSkill(ESkill::kChopoff)) {
 			SendMsgToChar("Вы приготовились провести подсечку, но вовремя остановились.\r\n", ch);
-			ch->setSkillCooldown(ESkill::kChopoff, kBattleRound / 6);
+			ch->Skills().SetCooldown(ESkill::kChopoff, kBattleRound / 6);
 			return;
 		}
 	}
@@ -153,7 +153,7 @@ void do_chopoff(CharData *ch, CharData *vict) {
 		return;
 	}
 
-	if (ch->HasCooldown(ESkill::kChopoff)) {
+	if (ch->Skills().HasActiveCooldown(ESkill::kChopoff)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kChopoff, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	};

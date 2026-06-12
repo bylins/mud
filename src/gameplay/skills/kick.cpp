@@ -21,7 +21,7 @@ void go_kick(CharData *ch, CharData *vict) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kKick, ESkillMsg::kCantFightNow) + "\r\n", ch);
 		return;
 	}
-	if (ch->HasCooldown(ESkill::kKick)) {
+	if (ch->Skills().HasActiveCooldown(ESkill::kKick)) {
 		SendMsgToChar("Вы уже все ноги себе отбили, отдохните слегка.\r\n", ch);
 		return;
 	};
@@ -212,7 +212,7 @@ void do_kick(CharData *ch, CharData *vict) {
 		return;
 	}
 
-	if (ch->HasCooldown(ESkill::kKick)) {
+	if (ch->Skills().HasActiveCooldown(ESkill::kKick)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kKick, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	};

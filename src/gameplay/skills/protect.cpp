@@ -35,7 +35,7 @@ void do_protect(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kProtect, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
-	if (ch->HasCooldown(ESkill::kProtect)) {
+	if (ch->Skills().HasActiveCooldown(ESkill::kProtect)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kProtect, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	};
@@ -131,7 +131,7 @@ CharData *TryToFindProtector(CharData *victim, CharData *ch) {
 			percent = number(1, MUD::Skill(ESkill::kProtect).difficulty);
 			prob = CalcCurrentSkill(vict, ESkill::kProtect, victim);
 			prob = prob * 8 / 10;
-			if (vict->HasCooldown(ESkill::kProtect)) {
+			if (vict->Skills().HasActiveCooldown(ESkill::kProtect)) {
 				prob /= 2;
 			};
 			if (GET_GOD_FLAG(vict, EGf::kGodscurse)) {

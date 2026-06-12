@@ -25,7 +25,7 @@ void DoParry(CharData *ch, char */* argument*/, int /* cmd*/, int/* subcmd*/) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kParry, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
-	if (ch->HasCooldown(ESkill::kParry)) {
+	if (ch->Skills().HasActiveCooldown(ESkill::kParry)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kParry, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	};

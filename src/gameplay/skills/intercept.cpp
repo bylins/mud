@@ -24,7 +24,7 @@ void DoIntercept(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kIntercept, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
-	if (ch->HasCooldown(ESkill::kIntercept)) {
+	if (ch->Skills().HasActiveCooldown(ESkill::kIntercept)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kIntercept, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	};

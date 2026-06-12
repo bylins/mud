@@ -359,7 +359,7 @@ std::string SerializeMob(int vnum, const CharData &mob)
 		std::vector<std::pair<int, int>> sk;
 		for (const auto &kv : mob.GetCharSkills())
 		{
-			sk.emplace_back(static_cast<int>(kv.first), kv.second.skillLevel);
+			sk.emplace_back(static_cast<int>(kv.first), kv.second.skill_level);
 		}
 		std::sort(sk.begin(), sk.end());
 		for (const auto &kv : sk)
