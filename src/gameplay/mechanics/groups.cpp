@@ -649,7 +649,7 @@ void group::do_split(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) 
 	do_split(ch, argument, 0, 0, 0);
 }
 
-void group::do_split(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, int currency) {
+void group::do_split(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, int currency_vnum) {
 	int amount, num, share, rest;
 	CharData *k;
 
@@ -658,14 +658,6 @@ void group::do_split(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, 
 
 	one_argument(argument, buf);
 
-	int currency_vnum;
-
-	switch (currency) {
-		case currency::ICE : currency_vnum = currencies::kSnowflakeVnum;
-			break;
-		default : currency_vnum = currencies::kGoldVnum;
-			break;
-	}
 
 	if (is_number(buf)) {
 		amount = atoi(buf);
@@ -674,7 +666,7 @@ void group::do_split(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, 
 			return;
 		}
 
-		if (amount > currencies::GetAmount(*ch, currencies::kGold) && currency == currency::GOLD) {
+		if (amount > currencies::GetHand(*ch, currency_vnum)) {
 			SendMsgToChar("И где бы взять вам столько денег?.\r\n", ch);
 			return;
 		}
@@ -704,27 +696,13 @@ void group::do_split(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, 
 		}
 		//MONEY_HACK
 
-		switch (currency) {
-			case currency::ICE : currencies::RemoveAmount(*ch, currencies::kMagicIceId, share * (num - 1));
-				break;
-			case currency::GOLD : currencies::RemoveAmount(*ch, currencies::kGold, share * (num - 1));
-				break;
-		}
+		currencies::RemoveHand(*ch, currency_vnum, share * (num - 1));
 
 		sprintf(buf, "%s разделил%s %d %s; вам досталось %d.\r\n",
 				GET_NAME(ch), grammar::SexEnding((ch)->get_sex(), 1), amount, MUD::Currency(currency_vnum).GetNameWithAmount(amount, grammar::ECase::kAcc).c_str(), share);
 		if (AFF_FLAGGED(k, EAffect::kGroup) && k->in_room == ch->in_room && !k->IsNpc() && k != ch) {
 			SendMsgToChar(buf, k);
-			switch (currency) {
-				case currency::ICE : {
-					currencies::AddAmount(*k, currencies::kMagicIceId, share);
-					break;
-				}
-				case currency::GOLD : {
-					currencies::AddAmount(*k, currencies::kGold, share - ClanSystem::do_gold_tax(k, share), currencies::EPurse::kHand, false, true);
-					break;
-				}
-			}
+			currencies::AddHand(*k, currency_vnum, share - (currency_vnum == currencies::kGoldVnum ? ClanSystem::do_gold_tax(k, share) : 0), false, true);
 		}
 		for (auto *f : k->followers) {
 			if (AFF_FLAGGED(f, EAffect::kGroup)
@@ -732,12 +710,7 @@ void group::do_split(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, 
 				&& f->in_room == ch->in_room
 				&& f != ch) {
 				SendMsgToChar(buf, f);
-				switch (currency) {
-					case currency::ICE : currencies::AddAmount(*f, currencies::kMagicIceId, share);
-						break;
-					case currency::GOLD : currencies::AddAmount(*f, currencies::kGold, share - ClanSystem::do_gold_tax(f, share), currencies::EPurse::kHand, false, true);
-						break;
-				}
+				currencies::AddHand(*f, currency_vnum, share - (currency_vnum == currencies::kGoldVnum ? ClanSystem::do_gold_tax(f, share) : 0), false, true);
 			}
 		}
 		sprintf(buf, "Вы разделили %d %s на %d  -  по %d каждому.\r\n",
@@ -750,9 +723,9 @@ void group::do_split(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, 
 
 		SendMsgToChar(buf, ch);
 		// клан-налог лутера с той части, которая пошла каждому в группе
-		if (currency == currency::GOLD) {
+		if (currency_vnum == currencies::kGoldVnum) {
 			const long clan_tax = ClanSystem::do_gold_tax(ch, share);
-			currencies::RemoveAmount(*ch, currencies::kGold, clan_tax);
+			currencies::RemoveHand(*ch, currencies::kGold, clan_tax);
 		}
 	} else {
 		SendMsgToChar("Сколько и чего вы хотите разделить?\r\n", ch);
