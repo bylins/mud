@@ -137,6 +137,7 @@ class CurrencyInfo : public info_container::BaseItem<int> {
 	bool money_stat_{false};   // feed MoneyDropStat (zone money flow)
 	bool force_split_{false};  // group split: always divide among members (event currencies)
 	bool arena_only_{false};   // only relevant in arena context
+	bool merchant_payout_{true};  // a shop may pay this currency when buying goods (else it pays gold)
 
  public:
 	CurrencyInfo() = default;
@@ -159,6 +160,7 @@ class CurrencyInfo : public info_container::BaseItem<int> {
 	[[nodiscard]] bool TracksMoneyDrop() const { return money_stat_; };
 	[[nodiscard]] bool ForceSplit() const { return force_split_; };
 	[[nodiscard]] bool IsArenaOnly() const { return arena_only_; };
+	[[nodiscard]] bool MerchantPayout() const { return merchant_payout_; };
 	[[nodiscard]] const std::string &GetNameWithAmount(long amount, grammar::ECase one_case = grammar::ECase::kNom) const;
 	[[nodiscard]] const std::string &GetName(grammar::ECase name_case = grammar::ECase::kNom) const;
 	[[nodiscard]] const std::string &GetPluralName(grammar::ECase name_case = grammar::ECase::kNom) const;
