@@ -14,6 +14,7 @@
 
 #include <unordered_map>
 #include <algorithm>
+#include <sstream>
 
 #include "engine/ui/color.h"
 #include "engine/db/global_objects.h"
@@ -179,7 +180,7 @@ void CurrencyNamesLoader::Load(DataNode data) { LoadCurrencyNames(data); }
 void CurrencyNamesLoader::Reload(DataNode data) { LoadCurrencyNames(data); }
 
 std::string CurrencyNamesLoader::EditableWhat() const {
-	return "currency_name";
+	return "currencyname";
 }
 
 std::vector<cfg_manager::EditableElement> CurrencyNamesLoader::ListElements() const {
@@ -526,8 +527,16 @@ const CurrencyInfo *FindBySearch(const std::string &word) {
 			continue;
 		}
 		const CurrencyName *cn = FindCurrencyName(cur.GetTextId());
-		if (cn && utils::IsAbbr(word, cn->search)) {
-			return &cur;
+		if (!cn) {
+			continue;
+		}
+		// `search` is a space-separated keyword list (e.g. "серебряная гривна"); match the typed
+		// word against any single keyword so a multi-word currency is reachable by one token.
+		std::istringstream keywords(cn->search);
+		for (std::string keyword; keywords >> keyword; ) {
+			if (utils::IsAbbr(word, keyword)) {
+				return &cur;
+			}
 		}
 	}
 	return nullptr;
