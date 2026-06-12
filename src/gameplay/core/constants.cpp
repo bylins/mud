@@ -23,25 +23,6 @@ const ObjVnum kCreateLight = 126;
 const int kHorseCost = 100;
 
 //Experience multiplication coefficients
-double exp_coefficients[] =
-	{
-		1.0,            //0 remorts
-		1.0 / 0.9,        //1 remort
-		1.0 / 0.8,        //2 remorts
-		1.0 / 0.7,        //3 remorts
-		1.0 / 0.6,        //4 remorts
-		1.0 / 0.5,        //5 remorts
-		1.0 / 0.4,        //6 remorts
-		1.0 / 0.3,        //7 remorts
-		1.0 / 0.2,        //8 remorts
-		1.0 / 0.1,        //9 remorts
-		1.0 / 0.09,        //10 remorts
-		1.0 / 0.08,        //11 remorts
-		1.0 / 0.07,        //12 remorts
-		1.0 / 0.06,        //13 remorts
-		1.0 / 0.05,        //14 remorts
-		1.0 / 0.05        //15 remorts
-	};
 
 
 // strings corresponding to ordinals/bitvectors in structs.h **********

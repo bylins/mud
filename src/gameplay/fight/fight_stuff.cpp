@@ -265,10 +265,10 @@ void die(CharData *ch, CharData *killer) {
 		{
 			if (!NORENTABLE(ch))
 				dec_exp =
-					(GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1) - GetExpUntilNextLvl(ch, GetRealLevel(ch))) / (3 + std::min(3, remort::GetRealRemort(ch) / 5))
+					(experience::GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1) - experience::GetExpUntilNextLvl(ch, GetRealLevel(ch))) / (3 + std::min(3, remort::GetRealRemort(ch) / 5))
 						/ ch->death_player_count();
 			else
-				dec_exp = (GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1) - GetExpUntilNextLvl(ch, GetRealLevel(ch)))
+				dec_exp = (experience::GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1) - experience::GetExpUntilNextLvl(ch, GetRealLevel(ch)))
 					/ (3 + std::min(3, remort::GetRealRemort(ch) / 5));
 			EndowExpToChar(ch, -dec_exp);
 			dec_exp = char_exp - ch->get_exp();
@@ -674,7 +674,7 @@ long long get_extend_exp(long long exp, CharData *ch, CharData *victim) {
 	exp = exp * std::max(15, koef) / 100;
 
 	// делим на реморты
-	exp /= std::max(1.0, 0.5 * (remort::GetRealRemort(ch) - kMaxExpCoefficientsUsed));
+	exp /= std::max(1.0, 0.5 * (remort::GetRealRemort(ch) - experience::kMaxExpCoefficientsUsed));
 	return (exp);
 }
 

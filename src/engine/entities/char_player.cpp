@@ -3,6 +3,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "char_player.h"
+#include "gameplay/core/experience.h"
 #include "administration/privilege.h"
 #include "gameplay/economics/currencies.h"
 #include "gameplay/quests/daily_quest.h"
@@ -44,7 +45,6 @@
 #endif
 
 
-long GetExpUntilNextLvl(CharData *ch, int level);
 
 namespace {
 
@@ -1031,8 +1031,8 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 	// если с загруженными выше полями что-то хочется делать после лоада - делайте это здесь
 
 	//Indexing experience - if his exp is lover than required for his level - set it to required
-	if (this->get_exp() < GetExpUntilNextLvl(this, GetRealLevel(this))) {
-		set_exp(GetExpUntilNextLvl(this, GetRealLevel(this)));
+	if (this->get_exp() < experience::GetExpUntilNextLvl(this, GetRealLevel(this))) {
+		set_exp(experience::GetExpUntilNextLvl(this, GetRealLevel(this)));
 	}
 	this->account = Account::get_account(GET_EMAIL(this));
 	if (this->account == nullptr) {
