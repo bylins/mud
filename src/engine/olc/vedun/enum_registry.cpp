@@ -14,6 +14,9 @@
 #include "gameplay/ai/special_messages.h"          // specials::ESpecialMsg/EBankMsg + NAMES_OF
 #include "gameplay/communication/social.h"        // ESocialMsg + NAMES_OF
 #include "gameplay/fight/fight_messages.h"     // EFightMsg/EDamageSource + NAMES_OF
+#include "gameplay/classes/classes_constants.h"   // ECharClass + NAME_BY_ITEM
+#include "gameplay/economics/currencies.h"         // currency text_ids -> ECurrencyId
+#include "engine/db/global_objects.h"              // MUD::Currencies()
 #include "gameplay/mechanics/rune_stones.h"      // ERuneStoneMsg + NAMES_OF
 #include "engine/entities/entities_constants.h" // EPosition + NAMES_OF
 #include "engine/structs/info_container.h"      // EItemMode + NAMES_OF
@@ -129,6 +132,26 @@ void RegisterEditorEnums() {
 	registry.Register<specials::EBoardMsg>("EBoardMsg");
 	registry.Register<ECommonMsg>("ECommonMsg");
 	registry.Register<ERuneStoneMsg>("ERuneStoneMsg");
+	// Player classes (no NAMES_OF map): build the name list 0..kLast so guild <class val=...>
+	// flagsets validate against real classes.
+	{
+		std::vector<std::string> class_names;
+		for (int c = 0; c <= to_underlying(ECharClass::kLast); ++c) {
+			class_names.push_back(NAME_BY_ITEM<ECharClass>(static_cast<ECharClass>(c)));
+		}
+		registry.RegisterNames("ECharClass", class_names);
+	}
+	// Registered currency text_ids (dynamic), so any "currency=" reference (e.g. guild prices)
+	// is validated against real currencies -- catches typos like a stale "kGrivna".
+	{
+		std::vector<std::string> currency_ids;
+		for (const auto &cur : MUD::Currencies()) {
+			if (cur.GetId() >= 0) {
+				currency_ids.push_back(cur.GetTextId());
+			}
+		}
+		registry.RegisterNames("ECurrencyId", currency_ids);
+	}
 }
 
 } // namespace vedun

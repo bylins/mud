@@ -27,7 +27,7 @@
 		<attr name="clan_tax" type="int" min="0" max="100" desc="Max clan tax, percent"/>
 	</tag>
 	<tag name="limits" desc="Numeric limits">
-		<attr name="max" type="int" min="0" desc="Maximum amount a character may hold"/>
+		<attr name="max" type="int" min="0" max="2000000000" desc="Maximum amount a character may hold"/>
 	</tag>
 	<tag name="flags" desc="Currency behaviour flags (Y/N)">
 		<attr name="account_shared" type="bool" desc="Bank shared across the whole account"/>
