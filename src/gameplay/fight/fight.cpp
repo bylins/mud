@@ -1676,7 +1676,7 @@ void using_mob_skills(CharData *ch) {
 void add_attackers_round(CharData *ch) {
 	for (const auto i : world[ch->in_room]->people) {
 		if (!i->IsNpc() && i->desc) {
-			ch->add_attacker(i, ATTACKER_ROUNDS, 1);
+			ch->mark_attacked(i);
 		}
 	}
 }
