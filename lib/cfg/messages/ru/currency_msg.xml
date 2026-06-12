@@ -46,7 +46,7 @@
 		</name>
 	</msg_sheaf>
 	<msg_sheaf id="kCopperGrivna">
-		<name gender="kFemale" search="медная">
+		<name gender="kFemale" search="медная гривна">
 			<singular>
 				<case id="kNom" val="медная гривна"/>
 				<case id="kGen" val="медной гривны"/>
@@ -66,7 +66,7 @@
 		</name>
 	</msg_sheaf>
 	<msg_sheaf id="kBronzeGrivna">
-		<name gender="kFemale" search="бронзовая">
+		<name gender="kFemale" search="бронзовая гривна">
 			<singular>
 				<case id="kNom" val="бронзовая гривна"/>
 				<case id="kGen" val="бронзовой гривны"/>
@@ -86,7 +86,7 @@
 		</name>
 	</msg_sheaf>
 	<msg_sheaf id="kSilverGrivna">
-		<name gender="kFemale" search="серебряная">
+		<name gender="kFemale" search="серебряная гривна">
 			<singular>
 				<case id="kNom" val="серебряная гривна"/>
 				<case id="kGen" val="серебряной гривны"/>
@@ -106,7 +106,7 @@
 		</name>
 	</msg_sheaf>
 	<msg_sheaf id="kGoldGrivna">
-		<name gender="kFemale" search="золотая">
+		<name gender="kFemale" search="золотая гривна">
 			<singular>
 				<case id="kNom" val="золотая гривна"/>
 				<case id="kGen" val="золотой гривны"/>
