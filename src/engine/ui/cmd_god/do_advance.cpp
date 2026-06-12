@@ -71,7 +71,7 @@ void DoAdvance(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		imm_log("%s has advanced %s to level %d (from %d)", GET_NAME(ch), GET_NAME(victim), newlevel, oldlevel);
 	}
 
-	gain_exp_regardless(victim, experience::GetExpUntilNextLvl(victim, newlevel)
+	experience::gain_exp_regardless(victim, experience::GetExpUntilNextLvl(victim, newlevel)
 		- victim->get_exp());
 	victim->save_char();
 }

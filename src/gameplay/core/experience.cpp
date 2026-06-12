@@ -4,6 +4,9 @@
 */
 
 #include "gameplay/core/experience.h"
+#include "gameplay/statistics/char_stat.h"
+#include "gameplay/statistics/zone_exp.h"
+#include "gameplay/clans/house.h"
 #include "engine/ui/color.h"
 #include "gameplay/economics/exchange.h"
 #include "gameplay/communication/offtop.h"
@@ -20,6 +23,10 @@
 #include "engine/structs/structs.h"
 
 #include <algorithm>
+
+// Per-kill exp caps (defined in engine/core/config.cpp).
+int max_exp_gain_pc(CharData *ch);
+int max_exp_loss_pc(CharData *ch);
 
 namespace experience {
 
@@ -404,6 +411,146 @@ void decrease_level(CharData *ch) {
 
 	TopPlayer::Refresh(ch);
 	ch->save_char();
+}
+void update_clan_exp(CharData *ch, int gain) {
+	if (CLAN(ch) && gain != 0) {
+		// экспа для уровня клана (+ только на праве, - любой, но /5)
+		if (gain < 0 || GET_GOD_FLAG(ch, EGf::kRemort)) {
+			int tmp = gain > 0 ? gain : gain / 5;
+			CLAN(ch)->SetClanExp(ch, tmp);
+		}
+		// экспа для топа кланов за месяц (учитываются все + и -)
+		CLAN(ch)->last_exp.add_temp(gain);
+		// экспа для топа кланов за все время (учитываются все + и -)
+		CLAN(ch)->AddTopExp(ch, gain);
+		// экспа для авто-очистки кланов (учитываются только +)
+		if (gain > 0) {
+			CLAN(ch)->exp_history.add_exp(gain);
+		}
+	}
+}
+
+void EndowExpToChar(CharData *ch, int gain) {
+	int is_altered = false;
+	int num_levels = 0;
+	char local_buf[128];
+
+	if (ch->IsNpc()) {
+		ch->set_exp(ch->get_exp() + gain);
+		return;
+	} else {
+		ch->dps_add_exp(gain);
+		ZoneExpStat::add(GetZoneVnumByCharPlace(ch), gain);
+	}
+
+	if (!ch->IsNpc() && ((GetRealLevel(ch) < 1 || GetRealLevel(ch) >= kLvlImmortal))) {
+		return;
+	}
+
+	if (gain > 0 && GetRealLevel(ch) < kLvlImmortal) {
+		gain = std::min(max_exp_gain_pc(ch), gain);    // put a cap on the max gain per kill
+		ch->set_exp(ch->get_exp() + gain);
+		if (ch->get_exp() >= experience::GetExpUntilNextLvl(ch, kLvlImmortal)) {
+			if (!GET_GOD_FLAG(ch, EGf::kRemort) && remort::GetRealRemort(ch) < kMaxRemort) {
+					SendMsgToChar(ch, "%sПоздравляем, вы получили право на перевоплощение!%s\r\n",
+								  kColorBoldGrn, kColorNrm);
+				SET_BIT(ch->player_specials->saved.GodsLike, EGf::kRemort);
+			}
+		}
+		ch->set_exp(std::min(ch->get_exp(), experience::GetExpUntilNextLvl(ch, kLvlImmortal) - 1));
+		while (GetRealLevel(ch) < kLvlImmortal && ch->get_exp() >= experience::GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1)) {
+			ch->set_level(ch->GetLevel() + 1);
+			num_levels++;
+			sprintf(local_buf, "%sВы достигли следующего уровня!%s\r\n", kColorWht, kColorNrm);
+			SendMsgToChar(local_buf, ch);
+			experience::advance_level(ch);
+			is_altered = true;
+		}
+
+		if (is_altered) {
+			sprintf(local_buf, "%s advanced %d level%s to level %d.",
+					GET_NAME(ch), num_levels, num_levels == 1 ? "" : "s", GetRealLevel(ch));
+			mudlog(local_buf, BRF, kLvlImplementator, SYSLOG, true);
+		}
+	} else if (gain < 0 && GetRealLevel(ch) < kLvlImmortal) {
+		gain = std::max(-max_exp_loss_pc(ch), gain);    // Cap max exp lost per death
+		ch->set_exp(ch->get_exp() + gain);
+		while (GetRealLevel(ch) > 1 && ch->get_exp() < experience::GetExpUntilNextLvl(ch, GetRealLevel(ch))) {
+			ch->set_level(ch->GetLevel() - 1);
+			num_levels++;
+			sprintf(local_buf,
+					"%sВы потеряли уровень. Вам должно быть стыдно!%s\r\n",
+					kColorBoldRed, kColorNrm);
+			SendMsgToChar(local_buf, ch);
+			experience::decrease_level(ch);
+			is_altered = true;
+		}
+		if (is_altered) {
+			sprintf(local_buf, "%s decreases %d level%s to level %d.",
+					GET_NAME(ch), num_levels, num_levels == 1 ? "" : "s", GetRealLevel(ch));
+			mudlog(local_buf, BRF, kLvlImplementator, SYSLOG, true);
+		}
+	}
+	if ((ch->get_exp() < experience::GetExpUntilNextLvl(ch, kLvlImmortal) - 1)
+		&& GET_GOD_FLAG(ch, EGf::kRemort)
+		&& gain
+		&& (GetRealLevel(ch) < kLvlImmortal)) {
+			SendMsgToChar(ch, "%sВы потеряли право на перевоплощение!%s\r\n",
+						  kColorBoldRed, kColorNrm);
+		REMOVE_BIT(ch->player_specials->saved.GodsLike, EGf::kRemort);
+	}
+
+	char_stat::AddClassExp(ch->GetClass(), gain);
+	update_clan_exp(ch, gain);
+}
+
+void gain_exp_regardless(CharData *ch, int gain) {
+	int is_altered = false;
+	int num_levels = 0;
+
+	ch->set_exp(ch->get_exp() + gain);
+	if (!ch->IsNpc()) {
+		if (gain > 0) {
+			while (GetRealLevel(ch) < kLvlImplementator && ch->get_exp() >= experience::GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1)) {
+				ch->set_level(ch->GetLevel() + 1);
+				num_levels++;
+				sprintf(buf, "%sВы достигли следующего уровня!%s\r\n",
+						kColorWht, kColorNrm);
+				SendMsgToChar(buf, ch);
+
+				experience::advance_level(ch);
+				is_altered = true;
+			}
+
+			if (is_altered) {
+				sprintf(buf, "%s advanced %d level%s to level %d.",
+						GET_NAME(ch), num_levels, num_levels == 1 ? "" : "s", GetRealLevel(ch));
+				mudlog(buf, BRF, kLvlImplementator, SYSLOG, true);
+			}
+		} else if (gain < 0) {
+			// Pereplut: глупый участок кода.
+			//			gain = std::max(-max_exp_loss_pc(ch), gain);	// Cap max exp lost per death
+			//			ch->get_exp() += gain;
+			//			if (ch->get_exp() < 0)
+			//				ch->get_exp() = 0;
+			while (GetRealLevel(ch) > 1 && ch->get_exp() < experience::GetExpUntilNextLvl(ch, GetRealLevel(ch))) {
+				ch->set_level(ch->GetLevel() - 1);
+				num_levels++;
+				sprintf(buf,
+						"%sВы потеряли уровень!%s\r\n",
+						kColorBoldRed, kColorNrm);
+				SendMsgToChar(buf, ch);
+				experience::decrease_level(ch);
+				is_altered = true;
+			}
+			if (is_altered) {
+				sprintf(buf, "%s decreases %d level%s to level %d.",
+						GET_NAME(ch), num_levels, num_levels == 1 ? "" : "s", GetRealLevel(ch));
+				mudlog(buf, BRF, kLvlImplementator, SYSLOG, true);
+			}
+		}
+
+	}
 }
 }  // namespace experience
 

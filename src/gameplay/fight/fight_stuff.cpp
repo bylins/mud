@@ -270,7 +270,7 @@ void die(CharData *ch, CharData *killer) {
 			else
 				dec_exp = (experience::GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1) - experience::GetExpUntilNextLvl(ch, GetRealLevel(ch)))
 					/ (3 + std::min(3, remort::GetRealRemort(ch) / 5));
-			EndowExpToChar(ch, -dec_exp);
+			experience::EndowExpToChar(ch, -dec_exp);
 			dec_exp = char_exp - ch->get_exp();
 			sprintf(buf, "Вы потеряли %ld %s опыта.\r\n", dec_exp, grammar::GetDeclensionInNumber(dec_exp, grammar::EWhat::kPoint));
 			SendMsgToChar(buf, ch);
@@ -777,7 +777,7 @@ void perform_group_gain(CharData *ch, CharData *victim, int members, int koef) {
 		SendMsgToChar("Ваш опыт повысился всего лишь на маленькую единичку.\r\n", ch);
 	}
 	if (!InTestZone(ch)) {
-		EndowExpToChar(ch, exp);
+		experience::EndowExpToChar(ch, exp);
 		alignment::ChangeAlignment(ch, victim);
 		if (!(victim)->Temporary.get(EXTRA_GRP_KILL_COUNT)
 				&& !ch->IsNpc()

@@ -10,6 +10,7 @@
 **************************************************************************/
 
 #include "engine/entities/char_data.h"
+#include "gameplay/core/experience.h"
 #include "administration/privilege.h"
 #include "gameplay/mechanics/minions.h"
 #include "gameplay/mechanics/follow.h"
@@ -274,7 +275,7 @@ void do_oexp(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Trigger 
 	}
 
 	if ((ch = get_char_by_obj(obj, name))) {
-		EndowExpToChar(ch, atoi(amount));
+		experience::EndowExpToChar(ch, atoi(amount));
 		sprintf(buf, "oexp: victim (%s) получил опыт %d", GET_NAME(ch), atoi(amount));
 		obj_log(obj, trig, buf);
 	} else {

@@ -2617,7 +2617,7 @@ void find_replacement(void *go,
 			} else {
 				if (*subfield) {
 					if (*subfield == '-') {
-						EndowExpToChar(mob, -std::max(1, atoi(subfield + 1)));
+						experience::EndowExpToChar(mob, -std::max(1, atoi(subfield + 1)));
 						snprintf(buf, sizeof(buf),
 								"SCRIPT_LOG (exp) у %s уменьшен опыт на %d в триггере %d",
 								GET_NAME(mob),
@@ -2625,7 +2625,7 @@ void find_replacement(void *go,
 								GET_TRIG_VNUM(trig));
 						mudlog(buf, BRF, kLvlGreatGod, ERRLOG, 1);
 					} else if (*subfield == '+') {
-						EndowExpToChar(mob, +std::max(1, atoi(subfield + 1)));
+						experience::EndowExpToChar(mob, +std::max(1, atoi(subfield + 1)));
 						snprintf(buf, sizeof(buf),
 								"SCRIPT_LOG (exp) у %s увеличен опыт на %d в триггере %d",
 								GET_NAME(mob),
