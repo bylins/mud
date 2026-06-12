@@ -31,7 +31,7 @@ void go_multyparry(CharData *ch) {
 }
 
 void do_multyparry(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	if (ch->IsNpc() || !ch->GetSkill(ESkill::kMultiparry)) {
+	if (ch->IsNpc() || !skills::GetSkill(ch, ESkill::kMultiparry)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kMultiparry, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}

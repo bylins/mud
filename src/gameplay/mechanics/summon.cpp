@@ -53,7 +53,7 @@ int FinalizeSummonedMob(CharData *ch, CharData *mob, ESpell spell_id, bool keepe
 	if (keeper) {
 		af.affect_type = EAffect::kHelper;
 		affect_to_char(mob, af);
-		mob->set_skill(ESkill::kRescue, 100);
+		skills::SetSkill(mob, ESkill::kRescue, 100);
 	}
 	mob->SetFlag(EMobFlag::kCorpse);
 	mob->SetFlag(EMobFlag::kCompanion);	// any NPC ally

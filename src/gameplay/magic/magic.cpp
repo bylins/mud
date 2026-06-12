@@ -113,7 +113,7 @@ int CalcAntiSavings(CharData *ch) {
 
 int CalcClassAntiSavingsMod(CharData *ch, ESpell spell_id) {
 	auto mod = MUD::Class(ch->GetClass()).spells[spell_id].GetCastMod();
-	auto skill = ch->GetSkill(MUD::Spell(spell_id).GetSuccessRoll().GetBaseSkill());
+	auto skill = skills::GetSkill(ch, MUD::Spell(spell_id).GetSuccessRoll().GetBaseSkill());
 	return static_cast<int>(mod*skill);
 }
 
@@ -389,10 +389,10 @@ bool TryBlockByMagicalShield(CharData *ch, CharData *victim, ESpell spell_id) {
 	if (MUD::Spell(spell_id).IsFlagged(kMagWarcry)) return false;
 	if (MUD::Spell(spell_id).IsFlagged(kMagMasses)) return false;
 	if (MUD::Spell(spell_id).IsFlagged(kMagAreas)) return false;
-	if (victim->GetSkill(ESkill::kShieldBlock) <= 100) return false;
+	if (skills::GetSkill(victim, ESkill::kShieldBlock) <= 100) return false;
 	if (!GET_EQ(victim, EEquipPos::kShield)) return false;
 	if (!CanUseFeat(victim, EFeat::kMagicalShield)) return false;
-	const int chance = victim->GetSkill(ESkill::kShieldBlock) / 20
+	const int chance = skills::GetSkill(victim, ESkill::kShieldBlock) / 20
 		+ GET_EQ(victim, EEquipPos::kShield)->get_weight() / 2;
 	if (number(1, 100) >= chance) return false;
 	act("Ваши чары повисли на щите $N1, и затем развеялись.", false, ch, nullptr, victim, kToChar);
@@ -1242,10 +1242,10 @@ static void EnhanceAnimateDead(CharData *ch, CharData *mob, MobVnum mob_num,
 	// summons are fresh necro mobs: undead, but not "resurrected".
 	mob->SetFlag(EMobFlag::kUndead);
 	if (mob_num == kMobSkeleton && CanUseFeat(ch, EFeat::kLoyalAssist)) {
-		mob->set_skill(ESkill::kRescue, 100);
+		skills::SetSkill(mob, ESkill::kRescue, 100);
 	}
 	if (mob_num == kMobBonespirit && CanUseFeat(ch, EFeat::kHauntingSpirit)) {
-		mob->set_skill(ESkill::kRescue, 120);
+		skills::SetSkill(mob, ESkill::kRescue, 120);
 	}
 
 	// даем всем поднятым, ну наверное не будет чернок 75+ мудры вызывать зомби в щите.
@@ -2863,7 +2863,7 @@ static ECastResult RunActionOverTargets(CastContext &ctx, const std::vector<Char
 	// everyone in the roster; else the historical count, capped at the roster size.
 	const int n = (area == nullptr || area->max_targets <= 0)
 			? static_cast<int>(targets.size())
-			: std::min(area->CalcTargetsQuantity(caster->GetSkill(MUD::Spell(spell_id).GetSuccessRoll().GetBaseSkill()),
+			: std::min(area->CalcTargetsQuantity(skills::GetSkill(caster, MUD::Spell(spell_id).GetSuccessRoll().GetBaseSkill()),
 													  ctx.potency().stat_coeff),
 					   static_cast<int>(targets.size()));
 	const double decay_eff = (area == nullptr) ? 0.0

@@ -7,7 +7,7 @@
 #include "engine/core/utils_char_obj.inl"
 
 void DoPoisoning(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (!ch->GetSkill(ESkill::kPoisoning)) {
+	if (!skills::GetSkill(ch, ESkill::kPoisoning)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kPoisoning, ESkillMsg::kDontKnowSkill), ch);
 		return;
 	}

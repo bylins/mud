@@ -15,7 +15,7 @@
 void do_hide(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	int prob, percent;
 
-	if (ch->IsNpc() || !ch->GetSkill(ESkill::kHide)) {
+	if (ch->IsNpc() || !skills::GetSkill(ch, ESkill::kHide)) {
 		SendMsgToChar("Но вы не знаете как.\r\n", ch);
 		return;
 	}

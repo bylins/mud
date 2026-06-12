@@ -57,7 +57,7 @@ void PerformPunctualHit(CharData *ch, CharData *victim, HitData &hit_data) {
 					return;
 				case 4:    // Hit genus, victim bashed, speed/2
 					victim->battle_affects.set(kEafSlow);
-					hit_data.dam *= std::min((ch->GetSkill(ESkill::kPunctual) / 10), 20);
+					hit_data.dam *= std::min((skills::GetSkill(ch, ESkill::kPunctual) / 10), 20);
 					if (victim->GetPosition() > EPosition::kSit) {
 						victim->SetPosition(EPosition::kSit);
 					}
@@ -76,7 +76,7 @@ void PerformPunctualHit(CharData *ch, CharData *victim, HitData &hit_data) {
 					to_vict = "повредило вам колено, повалив на землю";
 					break;
 		case 6:    // foot damaged, speed/2
-					hit_data.dam *= std::min((ch->GetSkill(ESkill::kPunctual) / 9), 23);
+					hit_data.dam *= std::min((skills::GetSkill(ch, ESkill::kPunctual) / 9), 23);
 					to_char = "замедлило движения $N1";
 					to_vict = "сломало вам лодыжку";
 					victim->battle_affects.set(kEafSlow);
@@ -86,7 +86,7 @@ void PerformPunctualHit(CharData *ch, CharData *victim, HitData &hit_data) {
 					if (GET_EQ(victim, EEquipPos::kLegs))
 						DamageEquipment(victim, EEquipPos::kLegs, 100, 100);
 					else {
-						hit_data.dam *= std::min((ch->GetSkill(ESkill::kPunctual)) / 8, 25);
+						hit_data.dam *= std::min((skills::GetSkill(ch, ESkill::kPunctual)) / 8, 25);
 						to_char = "замедлило движения $N1";
 						to_vict = "сломало вам ногу";
 						af[0].type = ESpell::kBattle;
@@ -95,7 +95,7 @@ void PerformPunctualHit(CharData *ch, CharData *victim, HitData &hit_data) {
 					}
 					break;
 				case 8:    // femor damaged, no speed
-					hit_data.dam *= std::min((ch->GetSkill(ESkill::kPunctual)) / 7, 29);
+					hit_data.dam *= std::min((skills::GetSkill(ch, ESkill::kPunctual)) / 7, 29);
 					to_char = "сильно замедлило движения $N1";
 					to_vict = "сломало вам бедро";
 					af[0].type = ESpell::kBattle;
@@ -104,7 +104,7 @@ void PerformPunctualHit(CharData *ch, CharData *victim, HitData &hit_data) {
 					victim->battle_affects.set(kEafSlow);
 					break;
 				case 10:    // genus damaged, no speed, -2HR
-					hit_data.dam *= std::min((ch->GetSkill(ESkill::kPunctual)) / 7, 29);
+					hit_data.dam *= std::min((skills::GetSkill(ch, ESkill::kPunctual)) / 7, 29);
 					to_char = "сильно замедлило движения $N1";
 					to_vict = "раздробило вам колено";
 					af[0].type = ESpell::kBattle;
@@ -114,7 +114,7 @@ void PerformPunctualHit(CharData *ch, CharData *victim, HitData &hit_data) {
 					victim->battle_affects.set(kEafSlow);
 					break;
 				case 11:    // femor damaged, no speed, no attack
-					hit_data.dam *= std::min((ch->GetSkill(ESkill::kPunctual)) / 7, 29);
+					hit_data.dam *= std::min((skills::GetSkill(ch, ESkill::kPunctual)) / 7, 29);
 					to_char = "вывело $N3 из строя";
 					to_vict = "раздробило вам бедро";
 					af[0].type = ESpell::kBattle;
@@ -128,9 +128,9 @@ void PerformPunctualHit(CharData *ch, CharData *victim, HitData &hit_data) {
 					break;
 				default:    // femor damaged, no speed, no attack
 					if (hit_data.dam_critic > 12)
-						hit_data.dam *= std::min(ch->GetSkill(ESkill::kPunctual) / 5, 40);
+						hit_data.dam *= std::min(skills::GetSkill(ch, ESkill::kPunctual) / 5, 40);
 					else
-						hit_data.dam *= std::min(ch->GetSkill(ESkill::kPunctual) / 5, 40);
+						hit_data.dam *= std::min(skills::GetSkill(ch, ESkill::kPunctual) / 5, 40);
 					to_char = "вывело $N3 из строя";
 					to_vict = "изуродовало вам ногу";
 					af[0].type = ESpell::kBattle;
@@ -158,7 +158,7 @@ void PerformPunctualHit(CharData *ch, CharData *victim, HitData &hit_data) {
 					break;
 
 		case 5:    // abdomin damaged, waits 1, speed/2
-					hit_data.dam *= std::min(ch->GetSkill(ESkill::kPunctual) / 8, 25);
+					hit_data.dam *= std::min(skills::GetSkill(ch, ESkill::kPunctual) / 8, 25);
 					SetBattleLag(victim, 2);
 					to_char = "ранило $N3 в живот";
 					to_vict = "ранило вас в живот";
@@ -169,13 +169,13 @@ void PerformPunctualHit(CharData *ch, CharData *victim, HitData &hit_data) {
 					if (GET_EQ(victim, EEquipPos::kWaist))
 						DamageEquipment(victim, EEquipPos::kWaist, 100, 100);
 					else
-						hit_data.dam *= std::min((ch->GetSkill(ESkill::kPunctual)) / 7, 29);
+						hit_data.dam *= std::min((skills::GetSkill(ch, ESkill::kPunctual)) / 7, 29);
 					to_char = "повредило $N2 живот";
 					to_vict = "повредило вам живот";
 					break;
 				case 7:
 				case 8:    // abdomin damage, speed/2, HR-2
-					hit_data.dam *= std::min(ch->GetSkill(ESkill::kPunctual) / 5, 40);
+					hit_data.dam *= std::min(skills::GetSkill(ch, ESkill::kPunctual) / 5, 40);
 					to_char = "ранило $N3 в живот";
 					to_vict = "ранило вас в живот";
 					af[0].type = ESpell::kBattle;
@@ -185,7 +185,7 @@ void PerformPunctualHit(CharData *ch, CharData *victim, HitData &hit_data) {
 					victim->battle_affects.set(kEafSlow);
 					break;
 				case 9:    // armor damaged, abdomin damaged, speed/2, HR-2
-					hit_data.dam *= std::min(ch->GetSkill(ESkill::kPunctual) / 5, 40);
+					hit_data.dam *= std::min(skills::GetSkill(ch, ESkill::kPunctual) / 5, 40);
 					DamageEquipment(victim, EEquipPos::kBody, 100, 100);
 					to_char = "ранило $N3 в живот";
 					to_vict = "ранило вас в живот";
@@ -197,7 +197,7 @@ void PerformPunctualHit(CharData *ch, CharData *victim, HitData &hit_data) {
 					victim->battle_affects.set(kEafSlow);
 					break;
 				case 10:    // abdomin damaged, no speed, no attack
-					hit_data.dam *= std::min(ch->GetSkill(ESkill::kPunctual) / 4, 67);
+					hit_data.dam *= std::min(skills::GetSkill(ch, ESkill::kPunctual) / 4, 67);
 					to_char = "повредило $N2 живот";
 					to_vict = "повредило вам живот";
 					af[0].type = ESpell::kBattle;
@@ -210,7 +210,7 @@ void PerformPunctualHit(CharData *ch, CharData *victim, HitData &hit_data) {
 					victim->battle_affects.set(kEafSlow);
 					break;
 				case 11:    // abdomin damaged, no speed, no attack
-					hit_data.dam *= std::min(ch->GetSkill(ESkill::kPunctual) / 3, 67);
+					hit_data.dam *= std::min(skills::GetSkill(ch, ESkill::kPunctual) / 3, 67);
 					to_char = "разорвало $N2 живот";
 					to_vict = "разорвало вам живот";
 					af[0].type = ESpell::kBattle;
@@ -223,7 +223,7 @@ void PerformPunctualHit(CharData *ch, CharData *victim, HitData &hit_data) {
 					victim->battle_affects.set(kEafSlow);
 					break;
 				default:    // abdomin damaged, hits = 0
-					hit_data.dam *= std::min(ch->GetSkill(ESkill::kPunctual) / 2, 100);
+					hit_data.dam *= std::min(skills::GetSkill(ch, ESkill::kPunctual) / 2, 100);
 					to_char = "размозжило $N2 живот";
 					to_vict = "размозжило вам живот";
 					ImposeHaemorrhage(victim, 60);
@@ -248,7 +248,7 @@ void PerformPunctualHit(CharData *ch, CharData *victim, HitData &hit_data) {
 					to_vict = "повредило вам грудь, свалив вас с ног";
 					break;
 				case 5:    // chest damaged, waits 1, speed/2
-					hit_data.dam *= std::min(ch->GetSkill(ESkill::kPunctual) / 5, 40);
+					hit_data.dam *= std::min(skills::GetSkill(ch, ESkill::kPunctual) / 5, 40);
 					SetBattleLag(victim, 2);
 					to_char = "повредило $N2 туловище";
 					to_vict = "повредило вам туловище";
@@ -258,7 +258,7 @@ void PerformPunctualHit(CharData *ch, CharData *victim, HitData &hit_data) {
 					break;
 				case 6:    // shield damaged, chest damaged, speed/2
 					DamageEquipment(victim, EEquipPos::kShield, 100, 100);
-					hit_data.dam *= std::min(ch->GetSkill(ESkill::kPunctual) / 5, 40);
+					hit_data.dam *= std::min(skills::GetSkill(ch, ESkill::kPunctual) / 5, 40);
 					to_char = "повредило $N2 туловище";
 					to_vict = "повредило вам туловище";
 					af[0].type = ESpell::kBattle;
@@ -267,7 +267,7 @@ void PerformPunctualHit(CharData *ch, CharData *victim, HitData &hit_data) {
 					break;
 				case 7:    // srmor damaged, chest damaged, speed/2, HR-2
 					DamageEquipment(victim, EEquipPos::kBody, 100, 100);
-					hit_data.dam *= std::min(ch->GetSkill(ESkill::kPunctual) / 5, 40);
+					hit_data.dam *= std::min(skills::GetSkill(ch, ESkill::kPunctual) / 5, 40);
 					to_char = "повредило $N2 туловище";
 					to_vict = "повредило вам туловище";
 					af[0].type = ESpell::kBattle;
@@ -277,7 +277,7 @@ void PerformPunctualHit(CharData *ch, CharData *victim, HitData &hit_data) {
 					victim->battle_affects.set(kEafSlow);
 					break;
 				case 8:    // chest damaged, no speed, no attack
-					hit_data.dam *= std::min(ch->GetSkill(ESkill::kPunctual) / 5, 40);
+					hit_data.dam *= std::min(skills::GetSkill(ch, ESkill::kPunctual) / 5, 40);
 					to_char = "вывело $N3 из строя";
 					to_vict = "повредило вам туловище";
 					af[0].type = ESpell::kBattle;
@@ -290,7 +290,7 @@ void PerformPunctualHit(CharData *ch, CharData *victim, HitData &hit_data) {
 					victim->battle_affects.set(kEafSlow);
 					break;
 				case 9:    // chest damaged, speed/2, HR-2
-					hit_data.dam *= std::min(ch->GetSkill(ESkill::kPunctual) / 4, 67);
+					hit_data.dam *= std::min(skills::GetSkill(ch, ESkill::kPunctual) / 4, 67);
 					to_char = "заставило $N3 ослабить натиск";
 					to_vict = "сломало вам ребра";
 					af[0].type = ESpell::kBattle;
@@ -302,7 +302,7 @@ void PerformPunctualHit(CharData *ch, CharData *victim, HitData &hit_data) {
 					victim->battle_affects.set(kEafSlow);
 					break;
 				case 10:    // chest damaged, no speed, no attack
-					hit_data.dam *= std::min(ch->GetSkill(ESkill::kPunctual) / 4, 67);
+					hit_data.dam *= std::min(skills::GetSkill(ch, ESkill::kPunctual) / 4, 67);
 					to_char = "вывело $N3 из строя";
 					to_vict = "сломало вам ребра";
 					af[0].type = ESpell::kBattle;
@@ -319,7 +319,7 @@ void PerformPunctualHit(CharData *ch, CharData *victim, HitData &hit_data) {
 					af[0].affect_type = EAffect::kStopFight;
 					af[0].duration = CalcDuration(victim, victim, ESkill::kUndefined, 8, 0, 0, 0);
 					af[0].battleflag = kAfBattledec | kAfPulsedec;
-					hit_data.dam *= std::min(ch->GetSkill(ESkill::kPunctual) / 2, 100);
+					hit_data.dam *= std::min(skills::GetSkill(ch, ESkill::kPunctual) / 2, 100);
 					ImposeHaemorrhage(victim, 50);
 					to_char = "вывело $N3 из строя";
 					to_vict = "разорвало вам грудь";
@@ -329,7 +329,7 @@ void PerformPunctualHit(CharData *ch, CharData *victim, HitData &hit_data) {
 					af[0].affect_type = EAffect::kStopFight;
 					af[0].duration = CalcDuration(victim, victim, ESkill::kUndefined, 8, 0, 0, 0);
 					af[0].battleflag = kAfBattledec | kAfPulsedec;
-					hit_data.dam *= std::min(ch->GetSkill(ESkill::kPunctual) / 2, 100);
+					hit_data.dam *= std::min(skills::GetSkill(ch, ESkill::kPunctual) / 2, 100);
 					ImposeHaemorrhage(victim, 60);
 					to_char = "вывело $N3 из строя";
 					to_vict = "размозжило вам грудь";
@@ -382,14 +382,14 @@ void PerformPunctualHit(CharData *ch, CharData *victim, HitData &hit_data) {
 					else
 						DamageEquipment(victim, EEquipPos::kHands, 100, 100);
 					if (!GET_EQ(victim, EEquipPos::kArms) && !GET_EQ(victim, EEquipPos::kHands))
-						hit_data.dam *= std::min((ch->GetSkill(ESkill::kPunctual)) / 7, 29);
+						hit_data.dam *= std::min((skills::GetSkill(ch, ESkill::kPunctual)) / 7, 29);
 					to_char = "ослабило атаку $N1";
 					to_vict = "повредило вам руку";
 					break;
 				case 8:    // shield damaged, hands damaged, waits 1
 					DamageEquipment(victim, EEquipPos::kShield, 100, 100);
 					SetBattleLag(victim, 2);
-					hit_data.dam *= std::min((ch->GetSkill(ESkill::kPunctual)) / 7, 29);
+					hit_data.dam *= std::min((skills::GetSkill(ch, ESkill::kPunctual)) / 7, 29);
 					to_char = "придержало $N3";
 					to_vict = "повредило вам руку";
 					break;
@@ -401,7 +401,7 @@ void PerformPunctualHit(CharData *ch, CharData *victim, HitData &hit_data) {
 						unequip_pos = EEquipPos::kWield;
 					else if (GET_EQ(victim, EEquipPos::kHold))
 						unequip_pos = EEquipPos::kHold;
-					hit_data.dam *= std::min(ch->GetSkill(ESkill::kPunctual) / 5, 40);
+					hit_data.dam *= std::min(skills::GetSkill(ch, ESkill::kPunctual) / 5, 40);
 					to_char = "придержало $N3";
 					to_vict = "повредило вам руку";
 					break;
@@ -457,7 +457,7 @@ void PerformPunctualHit(CharData *ch, CharData *victim, HitData &hit_data) {
 					af[1].affect_type = EAffect::kNoFlee;
 					ImposeHaemorrhage(victim, 30);
 					if (hit_data.dam_critic >= 13)
-						hit_data.dam *= std::min(ch->GetSkill(ESkill::kPunctual) / 5, 40);
+						hit_data.dam *= std::min(skills::GetSkill(ch, ESkill::kPunctual) / 5, 40);
 					victim->battle_affects.set(kEafSlow);
 					break;
 			}
@@ -484,7 +484,7 @@ void PerformPunctualHit(CharData *ch, CharData *victim, HitData &hit_data) {
 						af[0].location = EApply::kHitroll;
 						af[0].modifier = -2;
 					}
-					hit_data.dam *= std::min(ch->GetSkill(ESkill::kPunctual) / 4, 67);
+					hit_data.dam *= std::min(skills::GetSkill(ch, ESkill::kPunctual) / 4, 67);
 					to_char = "повредило $N2 голову";
 					to_vict = "повредило вам голову";
 					break;
@@ -492,7 +492,7 @@ void PerformPunctualHit(CharData *ch, CharData *victim, HitData &hit_data) {
 					af[0].type = ESpell::kBattle;
 					af[0].location = EApply::kHitroll;
 					af[0].modifier = -2;
-					hit_data.dam *= std::min(ch->GetSkill(ESkill::kPunctual) / 4, 67);
+					hit_data.dam *= std::min(skills::GetSkill(ch, ESkill::kPunctual) / 4, 67);
 					to_char = "повредило $N2 голову";
 					to_vict = "повредило вам голову";
 					break;
@@ -510,7 +510,7 @@ void PerformPunctualHit(CharData *ch, CharData *victim, HitData &hit_data) {
 					SetBattleLag(victim, 4);
 					DamageEquipment(victim, EEquipPos::kHead, 100, 100);
 					//dam = GET_HIT(victim);
-					hit_data.dam *= std::min(ch->GetSkill(ESkill::kPunctual) / 2, 100);
+					hit_data.dam *= std::min(skills::GetSkill(ch, ESkill::kPunctual) / 2, 100);
 					to_char = "отбило у $N1 сознание";
 					to_vict = "отбило у вас сознание";
 					ImposeHaemorrhage(victim, 20);
@@ -521,12 +521,12 @@ void PerformPunctualHit(CharData *ch, CharData *victim, HitData &hit_data) {
 					af[0].duration = CalcDuration(victim, victim, ESkill::kUndefined, 8, 0, 0, 0);
 					af[0].battleflag = kAfBattledec | kAfPulsedec;
 					ImposeHaemorrhage(victim, 30);
-					hit_data.dam *= std::min(ch->GetSkill(ESkill::kPunctual) / 3, 67);
+					hit_data.dam *= std::min(skills::GetSkill(ch, ESkill::kPunctual) / 3, 67);
 					to_char = "повергло $N3 в оцепенение";
 					to_vict = "повергло вас в оцепенение";
 					break;
 				case 10:    // head damaged, -1 INT/WIS/CHA
-					hit_data.dam *= std::min(ch->GetSkill(ESkill::kPunctual) / 2, 100);
+					hit_data.dam *= std::min(skills::GetSkill(ch, ESkill::kPunctual) / 2, 100);
 					af[0].type = ESpell::kBattle;
 					af[0].location = EApply::kInt;
 					af[0].modifier = -1;
@@ -551,7 +551,7 @@ void PerformPunctualHit(CharData *ch, CharData *victim, HitData &hit_data) {
 					to_vict = "сорвало у вас крышу";
 					break;
 				case 11:    // hits 0, WIS/2, INT/2, CHA/2
-					hit_data.dam *= std::min(ch->GetSkill(ESkill::kPunctual) / 2, 100);
+					hit_data.dam *= std::min(skills::GetSkill(ch, ESkill::kPunctual) / 2, 100);
 					af[0].type = ESpell::kBattle;
 					af[0].location = EApply::kInt;
 					af[0].modifier = -victim->get_int() / 2;
@@ -587,7 +587,7 @@ void PerformPunctualHit(CharData *ch, CharData *victim, HitData &hit_data) {
 					af[2].modifier = -victim->get_cha() / 2;
 					af[2].duration = CalcDuration(victim, victim, ESkill::kUndefined, number(1, 6) * 24, 0, 0, 0);
 					af[2].battleflag = kAfDeadkeep;
-					hit_data.dam *= std::min(ch->GetSkill(ESkill::kPunctual) / 2, 100);
+					hit_data.dam *= std::min(skills::GetSkill(ch, ESkill::kPunctual) / 2, 100);
 					to_char = "размозжило $N2 голову";
 					to_vict = "размозжило вам голову";
 					ImposeHaemorrhage(victim, 90);
@@ -710,7 +710,7 @@ int CalcPunctualCritDmg(CharData *ch, CharData * /*victim*/, ObjData *wielded) {
 	else
 		dam_critic = RollDices(4, 5);
 
-	const int skill = 1 + ch->GetSkill(ESkill::kPunctual) / 6;
+	const int skill = 1 + skills::GetSkill(ch, ESkill::kPunctual) / 6;
 	dam_critic = std::min(number(4, skill), dam_critic);
 
 	return dam_critic;

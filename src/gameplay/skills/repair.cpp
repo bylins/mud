@@ -4,7 +4,7 @@
 #include "engine/core/handler.h"
 
 void DoRepair(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (!ch->GetSkill(ESkill::kRepair)) {
+	if (!skills::GetSkill(ch, ESkill::kRepair)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kRepair, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
@@ -46,7 +46,7 @@ void DoRepair(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	TrainSkill(ch, ESkill::kRepair, prob <= percent, nullptr);
 	if (prob > percent) {
 		if (!percent) {
-			percent = ch->GetSkill(ESkill::kRepair) / 10;
+			percent = skills::GetSkill(ch, ESkill::kRepair) / 10;
 		}
 		obj->set_current_durability(std::max(0, obj->get_current_durability() * percent / prob));
 		if (obj->get_current_durability()) {
@@ -71,7 +71,7 @@ void DoRepair(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	} else {
 		TimedSkill timed;
 		timed.skill = ESkill::kRepair;
-		auto modif = ch->GetSkill(ESkill::kRepair) / 7 + number(1, 5);
+		auto modif = skills::GetSkill(ch, ESkill::kRepair) / 7 + number(1, 5);
 		timed.time = std::max(1, 25 - modif);
 		ImposeTimedSkill(ch, &timed);
 		obj->set_current_durability(std::min(obj->get_maximum_durability(), obj->get_current_durability() * percent / prob + 1));

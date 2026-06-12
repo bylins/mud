@@ -66,7 +66,7 @@ namespace {
 			// урон 5 + левел/2, от 5 до 20 за стак
 			Affect<EApply> af[3];
 			af[0].location = EApply::kAconitumPoison;
-			af[0].modifier = ch->GetSkill(ESkill::kPoisoning);
+			af[0].modifier = skills::GetSkill(ch, ESkill::kPoisoning);
 			af[0].affect_type = EAffect::kNoBattleSwitch;
 
 			af[1].location = EApply::kPhysicResist;
@@ -109,9 +109,9 @@ namespace {
 			int affect_modifier = 10;
 
 			if (vict->IsNpc()) {
-				affect_modifier += std::min((ch->GetSkill(ESkill::kPoisoning) * 0.1), 40.0);
+				affect_modifier += std::min((skills::GetSkill(ch, ESkill::kPoisoning) * 0.1), 40.0);
 			} else {
-				affect_modifier += std::min((ch->GetSkill(ESkill::kPoisoning) * 0.05), 10.0);
+				affect_modifier += std::min((skills::GetSkill(ch, ESkill::kPoisoning) * 0.05), 10.0);
 			}
 
 			bool was_poisoned = true;
@@ -146,7 +146,7 @@ namespace {
 			af[2].affect_type = EAffect::kNoBattleSwitch;
 
 			// скилл * 0.05 + 5 на чаров и + 10 на мобов. 5.5-15% и 10.5-20% (10-200 скила)
-			int percent = (std::min(ch->GetSkill(ESkill::kPoisoning), 200) * 5 / 100) + (vict->IsNpc() ? 10 : 5);
+			int percent = (std::min(skills::GetSkill(ch, ESkill::kPoisoning), 200) * 5 / 100) + (vict->IsNpc() ? 10 : 5);
 			// -скиллы
 			af[0].location = EApply::kBelenaPoison;
 			af[0].modifier = std::max(percent, 10);
@@ -193,7 +193,7 @@ namespace {
 			af[2].affect_type = EAffect::kNoBattleSwitch;
 
 			// скилл * 0.05 + 5 на чаров и + 10 на мобов. 5.5-15% и 10.5-20% (10-200 скила)
-			int percent = (std::min(ch->GetSkill(ESkill::kPoisoning), 200) * 5 / 100) + (vict->IsNpc() ? 10 : 5);
+			int percent = (std::min(skills::GetSkill(ch, ESkill::kPoisoning), 200) * 5 / 100) + (vict->IsNpc() ? 10 : 5);
 			// -скиллы
 			af[0].location = EApply::kDaturaPoison;
 			af[0].modifier = std::max(percent, 10);;
@@ -367,7 +367,7 @@ void ProcessPoisonedWeapom(CharData *ch, CharData *victim, HitData &hit_data) {
 		&& hit_data.dam
 		&& hit_data.wielded
 		&& hit_data.wielded->has_timed_spell()
-		&& ch->GetSkill(ESkill::kPoisoning)) {
+		&& skills::GetSkill(ch, ESkill::kPoisoning)) {
 		PerformPoisonedWeapom(ch, victim, hit_data.wielded->timed_spell().IsSpellPoisoned());
 	}
 }

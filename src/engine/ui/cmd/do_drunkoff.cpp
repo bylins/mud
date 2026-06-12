@@ -141,7 +141,7 @@ void do_drunkoff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		af[2].location = EApply::kAc;
 		af[2].affect_type = EAffect::kAbstinent;
 		af[2].battleflag = 0;
-		switch (number(0, ch->GetSkill(ESkill::kHangovering) / 20)) {
+		switch (number(0, skills::GetSkill(ch, ESkill::kHangovering) / 20)) {
 			case 0:
 			case 1: af[0].modifier = -2;
 				break;

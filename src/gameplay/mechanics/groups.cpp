@@ -126,7 +126,7 @@ void change_leader(CharData *ch, CharData *vict) {
 				continue;
 			if (!leader)
 				leader = l;
-			else if (l->GetSkill(ESkill::kLeadership) > leader->GetSkill(ESkill::kLeadership))
+			else if (skills::GetSkill(l, ESkill::kLeadership) > skills::GetSkill(leader, ESkill::kLeadership))
 				leader = l;
 		}
 	}
@@ -616,7 +616,7 @@ void do_report(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 					SendMsgToChar(ch, "%s доложил%s свои умения:", utils::CAP(f->get_name()).c_str(), grammar::SexEnding((f)->get_sex(), 1));
 					for (const auto &skill : MUD::Skills()) {
-						if (skill.IsValid() && f->GetSkill(skill.GetId())) {
+						if (skill.IsValid() && skills::GetSkill(f, skill.GetId())) {
 							str += fmt::format(" {},", skill.GetName());
 						}
 					}

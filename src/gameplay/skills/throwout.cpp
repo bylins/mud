@@ -16,7 +16,7 @@
 #include "gameplay/fight/fight_hit.h"
 
 void DoThrowout(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (ch->GetSkill(ESkill::kThrowout) < 1) {
+	if (skills::GetSkill(ch, ESkill::kThrowout) < 1) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kThrowout, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
@@ -105,7 +105,7 @@ void GoThrowout(CharData *ch, CharData *vict) {
 				return;
 			}
 		}
-		int cooldown_if_success = std::max(10, 20 - (ch->GetSkill(ESkill::kThrowout) / 25));
+		int cooldown_if_success = std::max(10, 20 - (skills::GetSkill(ch, ESkill::kThrowout) / 25));
 		EDirection direction = SelectRndDirection(vict, 0);
 	    if (IsCorrectDirection(vict, direction, false, false)) {
     		act("&YВы сгребли $N3 в охапку и вышвырнули отсюда прочь!&Y&n",

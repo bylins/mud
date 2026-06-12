@@ -22,7 +22,7 @@ double CalcCritBackstabMultiplier(CharData *ch, CharData *victim);
 
 // делегат обработки команды заколоть
 void DoBackstab(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (ch->GetSkill(ESkill::kBackstab) < 1) {
+	if (skills::GetSkill(ch, ESkill::kBackstab) < 1) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kBackstab, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
@@ -44,7 +44,7 @@ void DoBackstab(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 void do_backstab(CharData *ch, CharData *vict) {
-	if (ch->GetSkill(ESkill::kBackstab) < 1) {
+	if (skills::GetSkill(ch, ESkill::kBackstab) < 1) {
 		log("ERROR: вызов стаба для персонажа %s (%d) без проверки умения", ch->get_name().c_str(), GET_MOB_VNUM(ch));
 		return;
 	}
@@ -180,7 +180,7 @@ bool ProcessBackstab(CharData *ch, CharData *victim, HitData &hit_data) {
 	}
 	if (CanUseFeat(ch, EFeat::kShadowStrike)) {
 		hit_data.dam *=
-			GetBackstabMultiplier(GetRealLevel(ch)) * (1.0 + ch->GetSkill(ESkill::kNoParryHit) / 200.0);
+			GetBackstabMultiplier(GetRealLevel(ch)) * (1.0 + skills::GetSkill(ch, ESkill::kNoParryHit) / 200.0);
 	} else if (CanUseFeat(ch, EFeat::kThieveStrike)) {
 		if (victim->GetEnemy()) {
 			hit_data.dam *= GetBackstabMultiplier(GetRealLevel(ch));
@@ -261,7 +261,7 @@ int CalcCritBackstabPercent(CharData *ch) {
 	double percent = std::min(number(0, luck), 500) * 0.01;
 
 	if (CanUseFeat(ch, EFeat::kThieveStrike)) {
-		percent += ((GetRealDex(ch) - 20) / (GetRealDex(ch) * 0.05)) + (ch->GetSkill(ESkill::kBackstab) * 0.066);
+		percent += ((GetRealDex(ch) - 20) / (GetRealDex(ch) * 0.05)) + (skills::GetSkill(ch, ESkill::kBackstab) * 0.066);
 	} else {
 		percent += (GetRealDex(ch) - 20) / (GetRealDex(ch) * 0.033);
 	}
@@ -276,18 +276,18 @@ double CalcCritBackstabMultiplier(CharData *ch, CharData *victim) {
 	double bs_coeff = 1.0;
 	if (victim->IsNpc()) {
 		if (CanUseFeat(ch, EFeat::kThieveStrike)) {
-			bs_coeff *= ch->GetSkill(ESkill::kBackstab) * 0.066;
+			bs_coeff *= skills::GetSkill(ch, ESkill::kBackstab) * 0.066;
 		} else {
-			bs_coeff *= ch->GetSkill(ESkill::kBackstab) * 0.04;
+			bs_coeff *= skills::GetSkill(ch, ESkill::kBackstab) * 0.04;
 		}
-		if (CanUseFeat(ch, EFeat::kShadowStrike) && (ch->GetSkill(ESkill::kNoParryHit))) {
-			bs_coeff *= (1 + (ch->GetSkill(ESkill::kNoParryHit) * 0.0025));
+		if (CanUseFeat(ch, EFeat::kShadowStrike) && (skills::GetSkill(ch, ESkill::kNoParryHit))) {
+			bs_coeff *= (1 + (skills::GetSkill(ch, ESkill::kNoParryHit) * 0.0025));
 		}
 	} else if (CanUseFeat(ch, EFeat::kThieveStrike)) {
 		if (victim->GetEnemy()) {
-			bs_coeff *= (1.0 + (ch->GetSkill(ESkill::kBackstab) * 0.00225));
+			bs_coeff *= (1.0 + (skills::GetSkill(ch, ESkill::kBackstab) * 0.00225));
 		} else {
-			bs_coeff *= (1.0 + (ch->GetSkill(ESkill::kBackstab) * 0.00350));
+			bs_coeff *= (1.0 + (skills::GetSkill(ch, ESkill::kBackstab) * 0.00350));
 		}
 	}
 

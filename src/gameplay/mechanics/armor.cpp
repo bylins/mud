@@ -34,7 +34,7 @@ int CalcBaseAc(CharData *ch) {
 	}
 
 	if (ch->IsFlagged(EPrf::kIronWind)) {
-		armorclass += ch->GetSkill(ESkill::kIronwind) / 2;
+		armorclass += skills::GetSkill(ch, ESkill::kIronwind) / 2;
 	}
 
 	armorclass += (size_app[GET_POS_SIZE(ch)].ac * 10);

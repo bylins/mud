@@ -2942,7 +2942,7 @@ int CountMobsInRoom(int m_num, int r_num) {
 void SetGodSkills(CharData *ch) {
 	for (auto i = ESkill::kFirst; i <= ESkill::kLast; ++i) {
 		if (MUD::Skills().IsValid(i)) {
-			ch->set_skill(i, 200);
+			skills::SetSkill(ch, i, 200);
 		}
 	}
 }

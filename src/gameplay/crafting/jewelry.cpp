@@ -66,7 +66,7 @@ void do_insertgem(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 
 	argument = two_arguments(argument, arg1, arg2);
 
-	if (ch->IsNpc() || !ch->GetSkill(ESkill::kJewelry)) {
+	if (ch->IsNpc() || !skills::GetSkill(ch, ESkill::kJewelry)) {
 		SendMsgToChar("Но вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -137,7 +137,7 @@ void do_insertgem(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	}
 
 	percent = number(1, MUD::Skill(ESkill::kJewelry).difficulty);
-	prob = ch->GetSkill(ESkill::kJewelry);
+	prob = skills::GetSkill(ch, ESkill::kJewelry);
 
 	SetBattleLag(ch, 1);
 
@@ -179,13 +179,13 @@ void do_insertgem(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 			return;
 		}
 	} else {
-		if (ch->GetSkill(ESkill::kJewelry) < 80) {
+		if (skills::GetSkill(ch, ESkill::kJewelry) < 80) {
 			sprintf(buf, "Вы должны достигнуть мастерства в умении ювелир, чтобы вплавлять желаемые аффекты!\r\n");
 			SendMsgToChar(buf, ch);
 			return;
 
 		}
-		if (itemobj->get_owner() != ch->get_uid() && (ch->GetSkill(ESkill::kJewelry) < 130)) {
+		if (itemobj->get_owner() != ch->get_uid() && (skills::GetSkill(ch, ESkill::kJewelry) < 130)) {
 			sprintf(buf, "Вы недостаточно искусны и можете вплавлять желаемые аффекты только в перековку!\r\n");
 			SendMsgToChar(buf, ch);
 			return;
@@ -200,7 +200,7 @@ void do_insertgem(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		ImproveSkill(ch, ESkill::kJewelry, 0, nullptr);
 
 		//успех или фэйл? при 80% скила успех 30% при 100% скила 50% при 200% скила успех 75%
-		if (number(1, ch->GetSkill(ESkill::kJewelry)) > (ch->GetSkill(ESkill::kJewelry) - 50)) {
+		if (number(1, skills::GetSkill(ch, ESkill::kJewelry)) > (skills::GetSkill(ch, ESkill::kJewelry) - 50)) {
 			sprintf(buf, "Вы неудачно попытались вплавить %s в %s, испортив камень...\r\n",
 					gemobj->get_short_description().c_str(),
 					itemobj->get_PName(grammar::ECase::kAcc).c_str());

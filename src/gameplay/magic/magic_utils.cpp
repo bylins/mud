@@ -883,7 +883,7 @@ int CalcCastSuccess(CharData *ch, CharData *victim, ESaving saving, ESpell spell
 
 	const ESkill skill_number = MUD::Spell(spell_id).GetSuccessRoll().GetBaseSkill();
 	if (skill_number != ESkill::kUndefined) {
-		prob += ch->GetSkill(skill_number) / 20;
+		prob += skills::GetSkill(ch, skill_number) / 20;
 	}
 
 	return (prob > number(0, 100));

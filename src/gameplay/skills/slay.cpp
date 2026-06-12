@@ -58,9 +58,9 @@ void go_slay(CharData *ch, CharData *vict) {
 		lag = 2;
 
 	} else {
-		dam = (number(ceil((((GetRealStr(ch) + weapon_dmg) / 1.2) * (ch->GetSkill(ESkill::kSlay) / 6)
+		dam = (number(ceil((((GetRealStr(ch) + weapon_dmg) / 1.2) * (skills::GetSkill(ch, ESkill::kSlay) / 6)
 						  + ((GetRealDamroll(ch)) * 2)) / 1.25),
-					  ceil((((GetRealStr(ch) + weapon_dmg) / 1.2) * (ch->GetSkill(ESkill::kSlay) / 6)
+					  ceil((((GetRealStr(ch) + weapon_dmg) / 1.2) * (skills::GetSkill(ch, ESkill::kSlay) / 6)
 						  + ((GetRealDamroll(ch)) * 2)) * 1.25)) *
 			GetRealLevel(ch)) / 30;
 
@@ -90,7 +90,7 @@ void go_slay(CharData *ch, CharData *vict) {
 void do_slay(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *vict = FindVictim(ch, argument);
 
-	if (!ch->GetSkill(ESkill::kSlay)) {
+	if (!skills::GetSkill(ch, ESkill::kSlay)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kSlay, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
