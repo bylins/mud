@@ -17,6 +17,7 @@
 
 #include "engine/entities/char_data.h"
 #include "engine/db/db.h"
+#include "engine/entities/zone.h"
 #include "engine/core/handler.h"
 #include "gameplay/mechanics/mount.h"
 #include "gameplay/core/remort.h"
