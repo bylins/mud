@@ -16,14 +16,6 @@
 #include <map>
 #include <string>
 
-// Старый неймспейс со старыми идами валют
-// Его необходимо удалить после доделывания системы валют
-namespace currency {
-// Legacy currency vnums (this enum is being retired in the currency rework).
-// vnums 2..5 are the copper/bronze/silver/gold grivna denominations (data-only,
-// no enum members); kMagicIce/kNogata moved to 6/7.
-enum { GOLD, GLORY, TORC, ICE = 6, NOGATA };
-}
 
 class CharData;
 
@@ -76,9 +68,6 @@ long RemoveBank(CharData &ch, int vnum, long amount, bool with_log = true);
  */
 const int kGoldVnum = 0;
 const int kGloryVnum = 1;
-const int kCopperGrivnaVnum = 2;
-const int kNogataVnum = 7;
-const int kSnowflakeVnum = 9;
 
 class CurrenciesLoader : virtual public cfg_manager::ICfgLoader {
  public:

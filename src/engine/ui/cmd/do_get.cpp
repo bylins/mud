@@ -71,12 +71,6 @@ void get_check_money(CharData *ch, ObjData *obj, ObjData *cont) {
 		return;
 	}
 
-// Все что неизвестно - куны (для совместимости)
-/*	if (curr_type != currency::GOLD) {
-		//Вот тут неопознанная валюта
-		return;
-	}
-*/
 	sprintf(buf, "Это составило %s.\r\n", MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(value, grammar::ECase::kAcc).c_str());
 	SendMsgToChar(buf, ch);
 	if (InTestZone(ch)) {

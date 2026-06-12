@@ -997,10 +997,7 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 
 		case EObjType::kMoney:
 			snprintf(buf, sizeof(buf), "Сумма: %d\r\nВалюта: %s", GET_OBJ_VAL(j, 0),
-					GET_OBJ_VAL(j, 1) == currency::GOLD ? "куны" :
-					GET_OBJ_VAL(j, 1) == currency::ICE ? "искристые снежинки" :
-					"что-то другое"
-			);
+					MUD::Currency(GET_OBJ_VAL(j, 1)).GetCName(grammar::ECase::kNom));
 			break;
 
 		case EObjType::kMagicIngredient:sprintbit(j->get_spec_param(), ingradient_bits, smallBuf, sizeof(smallBuf));
