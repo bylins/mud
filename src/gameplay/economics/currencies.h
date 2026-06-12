@@ -50,6 +50,25 @@ long AddAmount(CharData &ch, int vnum, long amount, EPurse purse = EPurse::kHand
 long RemoveAmount(CharData &ch, int vnum, long amount, EPurse purse = EPurse::kHand, bool with_log = true);
 long RemoveTotal(CharData &ch, int vnum, long amount, bool with_log = true);
 
+// Separate hand/bank accessors - the readable public surface (only two purses exist).
+[[nodiscard]] long GetHand(const CharData &ch, const std::string &id);
+[[nodiscard]] long GetBank(const CharData &ch, const std::string &id);
+void SetHand(CharData &ch, const std::string &id, long amount, bool with_log = true, bool immortal = false);
+void SetBank(CharData &ch, const std::string &id, long amount, bool with_log = true, bool immortal = false);
+long AddHand(CharData &ch, const std::string &id, long amount, bool notify = false, bool with_log = true, bool immortal = false);
+long AddBank(CharData &ch, const std::string &id, long amount, bool notify = false, bool with_log = true, bool immortal = false);
+long RemoveHand(CharData &ch, const std::string &id, long amount, bool with_log = true);
+long RemoveBank(CharData &ch, const std::string &id, long amount, bool with_log = true);
+
+[[nodiscard]] long GetHand(const CharData &ch, int vnum);
+[[nodiscard]] long GetBank(const CharData &ch, int vnum);
+void SetHand(CharData &ch, int vnum, long amount, bool with_log = true, bool immortal = false);
+void SetBank(CharData &ch, int vnum, long amount, bool with_log = true, bool immortal = false);
+long AddHand(CharData &ch, int vnum, long amount, bool notify = false, bool with_log = true, bool immortal = false);
+long AddBank(CharData &ch, int vnum, long amount, bool notify = false, bool with_log = true, bool immortal = false);
+long RemoveHand(CharData &ch, int vnum, long amount, bool with_log = true);
+long RemoveBank(CharData &ch, int vnum, long amount, bool with_log = true);
+
 
 /**
  *  Данные валюты слишком глубоко "прошиты" в коде и являются базовыми.
@@ -136,6 +155,9 @@ class CurrencyInfo : public info_container::BaseItem<int> {
 	bool logged_{false};       // audit-log changes
 	bool reports_msdp_{false}; // push to the client via MSDP (the GOLD field)
 	bool money_stat_{false};   // feed MoneyDropStat (zone money flow)
+	bool force_split_{false};  // group split: always divide among members (event currencies)
+	bool daily_quest_{false};  // spending it counts toward the daily quest
+	bool arena_only_{false};   // only relevant in arena context
 
  public:
 	CurrencyInfo() = default;
@@ -156,6 +178,9 @@ class CurrencyInfo : public info_container::BaseItem<int> {
 	[[nodiscard]] bool IsLogged() const { return logged_; };
 	[[nodiscard]] bool ReportsMsdp() const { return reports_msdp_; };
 	[[nodiscard]] bool TracksMoneyDrop() const { return money_stat_; };
+	[[nodiscard]] bool ForceSplit() const { return force_split_; };
+	[[nodiscard]] bool IsDailyQuest() const { return daily_quest_; };
+	[[nodiscard]] bool IsArenaOnly() const { return arena_only_; };
 	[[nodiscard]] const std::string &GetNameWithAmount(long amount, grammar::ECase one_case = grammar::ECase::kNom) const;
 	[[nodiscard]] const std::string &GetName(grammar::ECase name_case = grammar::ECase::kNom) const;
 	[[nodiscard]] const std::string &GetPluralName(grammar::ECase name_case = grammar::ECase::kNom) const;
