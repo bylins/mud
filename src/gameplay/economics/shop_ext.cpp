@@ -31,6 +31,20 @@ std::map<std::string/*id шаблона*/, ObjDescType> item_descriptions;
 
 namespace {
 ItemSetListType g_item_sets;   // catalog from cfg/economics/shop_item_sets.xml
+
+// A valid shop / item-set id: CamelCase -- starts with a letter, letters and digits only.
+bool IsValidShopId(const std::string &id) {
+	auto is_alpha = [](char c) { return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z'); };
+	if (id.empty() || !is_alpha(id[0])) {
+		return false;
+	}
+	for (const char c : id) {
+		if (!is_alpha(c) && !(c >= '0' && c <= '9')) {
+			return false;
+		}
+	}
+	return true;
+}
 }
 
 const ItemSetListType &item_sets() {
@@ -102,7 +116,7 @@ cfg_manager::ValidationResult ShopItemSetsLoader::Validate(parser_wrapper::DataN
 }
 
 std::string ShopItemSetsLoader::CanonicalElementId(const std::string &id) const {
-	return id.empty() ? "" : id;   // any non-empty id is a valid (creatable) item-set key
+	return IsValidShopId(id) ? id : "";   // CamelCase: letters/digits, starts with a letter
 }
 
 parser_wrapper::DataNode ShopItemSetsLoader::CreateElementNode(parser_wrapper::DataNode root, const std::string &id) const {
@@ -371,7 +385,7 @@ cfg_manager::ValidationResult ShopsLoader::Validate(parser_wrapper::DataNode &do
 }
 
 std::string ShopsLoader::CanonicalElementId(const std::string &id) const {
-	return id.empty() ? "" : id;   // any non-empty id is a valid (creatable) shop key
+	return IsValidShopId(id) ? id : "";   // CamelCase: letters/digits, starts with a letter
 }
 
 parser_wrapper::DataNode ShopsLoader::CreateElementNode(parser_wrapper::DataNode root, const std::string &id) const {

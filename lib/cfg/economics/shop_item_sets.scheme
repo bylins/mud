@@ -8,7 +8,7 @@
 		<child tag="shop_item_set" multiple="Y"/>
 	</tag>
 	<tag name="shop_item_set" desc="One item set, referenced by shops via id">
-		<attr name="id" type="string" readonly="Y" desc="Unique id shops use to reference this set"/>
+		<attr name="id" type="string" readonly="Y" desc="Unique id (CamelCase: starts with a letter, letters/digits only)"/>
 		<attr name="comment" type="string" desc="Free-text note for the game designer"/>
 		<child tag="item" multiple="Y"/>
 	</tag>

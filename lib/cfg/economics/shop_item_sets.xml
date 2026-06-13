@@ -9,167 +9,165 @@
       <item>  - vnum (object vnum, must exist) + price (0 = use the prototype cost).
 -->
 <shop_item_sets>
-	<shop_item_set id="BASE_POTIONS" comment="">
-	            <item vnum="140" price="0" />
-	            <item vnum="141" price="0" />
-	            <item vnum="142" price="0" />
-	
-	            <item vnum="144" price="0" />
-	            <item vnum="145" price="0" />
-	            <item vnum="147" price="0" />
-		</shop_item_set>
-	<shop_item_set id="BASE_POTION_BOTTLES" comment="">
-	            <item vnum="153" price="0" />
-	
-	            <item vnum="151" price="0" />
-	            <item vnum="154" price="0" />
-	            </shop_item_set>
-	<shop_item_set id="BASE_SPELLINGRS" comment="">
-			</shop_item_set>
-	<shop_item_set id="BASE_SCROLLS" comment="">
-	            </shop_item_set>
-	<shop_item_set id="BASE_RUNES" comment="">
-	            <item vnum="222" price="0" />
-	            <item vnum="223" price="0" />
-	            <item vnum="224" price="0" />
-	            <item vnum="225" price="0" />
-		</shop_item_set>
-	<shop_item_set id="BASE_POISONS" comment="">
-	            </shop_item_set>
-	<shop_item_set id="STANDART_FOOD_-_BREAD" comment="">
-		    <item vnum="2001" price="0" />
-		    <item vnum="2002" price="0" />
-		    <item vnum="2003" price="0" />
-		    <item vnum="2004" price="0" />
-		    <item vnum="2005" price="0" />
-		</shop_item_set>
-	<shop_item_set id="STANDART_FOOD_-_BERRIES" comment="">
-		    <item vnum="2040" price="0" />
-		    <item vnum="2041" price="0" />
-		    <item vnum="2042" price="0" />
-		    <item vnum="2043" price="0" />
-		    <item vnum="2044" price="0" />
-		    <item vnum="2045" price="0" />
-		    <item vnum="2046" price="0" />
-		    <item vnum="2047" price="0" />
-		    <item vnum="2048" price="0" />
-		</shop_item_set>
-	<shop_item_set id="STANDART_FOOD_-_VEGETABLES" comment="">
-		    <item vnum="2049" price="0" />
-		    <item vnum="2050" price="0" />
-		    <item vnum="2051" price="0" />
-		</shop_item_set>
-	<shop_item_set id="STANDART_FOOD_-_MUSHROOMS" comment="">
-		    <item vnum="2055" price="0" />
-		    <item vnum="2056" price="0" />
-		    <item vnum="2057" price="0" />
-		</shop_item_set>
-	<shop_item_set id="STANDART_FOOD_-_FISH" comment="">
-		    <item vnum="2036" price="0" />
-		    <item vnum="2037" price="0" />
-		    <item vnum="2038" price="0" />
-		    <item vnum="2039" price="0" />
-		</shop_item_set>
-	<shop_item_set id="STANDART_FOOD_-_CHEAP_MEALS" comment="">
-		    <item vnum="2058" price="0" />
-		    <item vnum="2059" price="0" />
-		    <item vnum="2060" price="0" />
-		    <item vnum="2061" price="0" />
-		</shop_item_set>
-	<shop_item_set id="STANDART_FOOD_-_CEREALS" comment="">
-		    <item vnum="2062" price="0" />
-		    <item vnum="2063" price="0" />
-		    <item vnum="2064" price="0" />
-		    <item vnum="2065" price="0" />
-		</shop_item_set>
-	<shop_item_set id="STANDART_FOOD_-_BEVERAGES" comment="">
-		    <item vnum="2083" price="0" />
-		    <item vnum="2085" price="0" />
-		    <item vnum="2086" price="0" />
-		    <item vnum="2088" price="0" />
-		</shop_item_set>
-	<shop_item_set id="STANDART_FOOD_-_SPIRITS" comment="">
-		    <item vnum="2094" price="0" />
-		    <item vnum="2090" price="0" />
-		    <item vnum="2091" price="0" />
-		    <item vnum="2092" price="0" />
-		    <item vnum="2093" price="0" />
-		</shop_item_set>
-	<shop_item_set id="STANDART_FOOD_-_SNACKS" comment="">
-		    <item vnum="2001" price="0" />
-		    <item vnum="2034" price="0" />
-		    <item vnum="2036" price="0" />
-		    <item vnum="2038" price="0" />
-		    <item vnum="2055" price="0" />
-		</shop_item_set>
-	<shop_item_set id="STANDART_FOOD_-_ALCOHOLIC_BEVERAGES" comment="">
-		    <item vnum="2084" price="0" />
-		    <item vnum="2087" price="0" />
-		    <item vnum="2089" price="0" />
-		</shop_item_set>
-	<shop_item_set id="STANDART_CLOTHING_LOW_LEVEL" comment="">
-		    <item vnum="2108" price="0" />
-		    <item vnum="2109" price="0" />
-		    <item vnum="2110" price="0" />
-		    <item vnum="2111" price="0" />
-		    <item vnum="2112" price="0" />
-		    <item vnum="2113" price="0" />
-		    <item vnum="2114" price="0" />
-		    <item vnum="2115" price="0" />
-		    </shop_item_set>
-	<shop_item_set id="STANDART_LEATHER_LOW_LEVEL" comment="">
-		    <item vnum="2100" price="0" />
-		    <item vnum="2101" price="0" />
-		    <item vnum="2102" price="0" />
-		    <item vnum="2103" price="0" />
-		    <item vnum="2104" price="0" />
-		    <item vnum="2105" price="0" />
-		    <item vnum="2106" price="0" />
-		    <item vnum="2107" price="0" />
-		    <item vnum="2181" price="0" />
-	    </shop_item_set>
-	<shop_item_set id="STANDART_ITEMS_LOW_LEVEL" comment="">
-		    <item vnum="2182" price="0" />
-		    <item vnum="2183" price="0" />
-		    <item vnum="2186" price="0" />
-		    <item vnum="2189" price="0" />
-		    <item vnum="2193" price="0" />
-		    <item vnum="2194" price="0" />
-		    <item vnum="2195" price="0" />
-	    </shop_item_set>
-	<shop_item_set id="STANDART_WEAPON_LOW_LEVEL" comment="">
-		    <item vnum="2200" price="0" />
-		    <item vnum="2201" price="0" />
-		    <item vnum="2202" price="0" />
-		    <item vnum="2203" price="0" />
-		    <item vnum="2204" price="0" />
-		    <item vnum="2205" price="0" />
-		    <item vnum="2206" price="0" />
-		    <item vnum="2207" price="0" />
-		    <item vnum="2208" price="0" />
-		    <item vnum="2209" price="0" />
-		    <item vnum="2210" price="0" />
-		    <item vnum="2211" price="0" />
-		    <item vnum="2212" price="0" />
-		    <item vnum="2213" price="0" />
-		    <item vnum="2214" price="0" />
-		    <item vnum="2215" price="0" />
-		    <item vnum="2216" price="0" />
-		    <item vnum="2217" price="0" />
-	    </shop_item_set>
-	<shop_item_set id="STANDART_ARMOR_LOW_LEVEL" comment="">
-		    <item vnum="2116" price="0" />
-		    <item vnum="2117" price="0" />
-		    <item vnum="2118" price="0" />
-		    <item vnum="2119" price="0" />
-		    <item vnum="2120" price="0" />
-		    <item vnum="2121" price="0" />
-		    <item vnum="2122" price="0" />
-		    <item vnum="2123" price="0" />
-	    </shop_item_set>
-	<shop_item_set id="BASE_BLACKSMITHING_TOOLS" comment="">
-		    <item vnum="311" price="0" />
-		    </shop_item_set>
-	<shop_item_set id="BASE_MINING_TOOLS" comment="">
-		    </shop_item_set>
+	<shop_item_set id="BasePotions" comment="">
+		<item vnum="140" price="0"/>
+		<item vnum="141" price="0"/>
+		<item vnum="142" price="0"/>
+		<item vnum="144" price="0"/>
+		<item vnum="145" price="0"/>
+		<item vnum="147" price="0"/>
+	</shop_item_set>
+	<shop_item_set id="BasePotionBottles" comment="">
+		<item vnum="153" price="0"/>
+		<item vnum="151" price="0"/>
+		<item vnum="154" price="0"/>
+	</shop_item_set>
+	<shop_item_set id="BaseSpellingrs" comment="">
+	</shop_item_set>
+	<shop_item_set id="BaseScrolls" comment="">
+	</shop_item_set>
+	<shop_item_set id="BaseRunes" comment="">
+		<item vnum="222" price="0"/>
+		<item vnum="223" price="0"/>
+		<item vnum="224" price="0"/>
+		<item vnum="225" price="0"/>
+	</shop_item_set>
+	<shop_item_set id="BasePoisons" comment="">
+	</shop_item_set>
+	<shop_item_set id="StandartFoodBread" comment="">
+		<item vnum="2001" price="0"/>
+		<item vnum="2002" price="0"/>
+		<item vnum="2003" price="0"/>
+		<item vnum="2004" price="0"/>
+		<item vnum="2005" price="0"/>
+	</shop_item_set>
+	<shop_item_set id="StandartFoodBerries" comment="">
+		<item vnum="2040" price="0"/>
+		<item vnum="2041" price="0"/>
+		<item vnum="2042" price="0"/>
+		<item vnum="2043" price="0"/>
+		<item vnum="2044" price="0"/>
+		<item vnum="2045" price="0"/>
+		<item vnum="2046" price="0"/>
+		<item vnum="2047" price="0"/>
+		<item vnum="2048" price="0"/>
+	</shop_item_set>
+	<shop_item_set id="StandartFoodVegetables" comment="">
+		<item vnum="2049" price="0"/>
+		<item vnum="2050" price="0"/>
+		<item vnum="2051" price="0"/>
+	</shop_item_set>
+	<shop_item_set id="StandartFoodMushrooms" comment="">
+		<item vnum="2055" price="0"/>
+		<item vnum="2056" price="0"/>
+		<item vnum="2057" price="0"/>
+	</shop_item_set>
+	<shop_item_set id="StandartFoodFish" comment="">
+		<item vnum="2036" price="0"/>
+		<item vnum="2037" price="0"/>
+		<item vnum="2038" price="0"/>
+		<item vnum="2039" price="0"/>
+	</shop_item_set>
+	<shop_item_set id="StandartFoodCheapMeals" comment="">
+		<item vnum="2058" price="0"/>
+		<item vnum="2059" price="0"/>
+		<item vnum="2060" price="0"/>
+		<item vnum="2061" price="0"/>
+	</shop_item_set>
+	<shop_item_set id="StandartFoodCereals" comment="">
+		<item vnum="2062" price="0"/>
+		<item vnum="2063" price="0"/>
+		<item vnum="2064" price="0"/>
+		<item vnum="2065" price="0"/>
+	</shop_item_set>
+	<shop_item_set id="StandartFoodBeverages" comment="">
+		<item vnum="2083" price="0"/>
+		<item vnum="2085" price="0"/>
+		<item vnum="2086" price="0"/>
+		<item vnum="2088" price="0"/>
+	</shop_item_set>
+	<shop_item_set id="StandartFoodSpirits" comment="">
+		<item vnum="2094" price="0"/>
+		<item vnum="2090" price="0"/>
+		<item vnum="2091" price="0"/>
+		<item vnum="2092" price="0"/>
+		<item vnum="2093" price="0"/>
+	</shop_item_set>
+	<shop_item_set id="StandartFoodSnacks" comment="">
+		<item vnum="2001" price="0"/>
+		<item vnum="2034" price="0"/>
+		<item vnum="2036" price="0"/>
+		<item vnum="2038" price="0"/>
+		<item vnum="2055" price="0"/>
+	</shop_item_set>
+	<shop_item_set id="StandartFoodAlcoholicBeverages" comment="">
+		<item vnum="2084" price="0"/>
+		<item vnum="2087" price="0"/>
+		<item vnum="2089" price="0"/>
+	</shop_item_set>
+	<shop_item_set id="StandartClothingLowLevel" comment="">
+		<item vnum="2108" price="0"/>
+		<item vnum="2109" price="0"/>
+		<item vnum="2110" price="0"/>
+		<item vnum="2111" price="0"/>
+		<item vnum="2112" price="0"/>
+		<item vnum="2113" price="0"/>
+		<item vnum="2114" price="0"/>
+		<item vnum="2115" price="0"/>
+	</shop_item_set>
+	<shop_item_set id="StandartLeatherLowLevel" comment="">
+		<item vnum="2100" price="0"/>
+		<item vnum="2101" price="0"/>
+		<item vnum="2102" price="0"/>
+		<item vnum="2103" price="0"/>
+		<item vnum="2104" price="0"/>
+		<item vnum="2105" price="0"/>
+		<item vnum="2106" price="0"/>
+		<item vnum="2107" price="0"/>
+		<item vnum="2181" price="0"/>
+	</shop_item_set>
+	<shop_item_set id="StandartItemsLowLevel" comment="">
+		<item vnum="2182" price="0"/>
+		<item vnum="2183" price="0"/>
+		<item vnum="2186" price="0"/>
+		<item vnum="2189" price="0"/>
+		<item vnum="2193" price="0"/>
+		<item vnum="2194" price="0"/>
+		<item vnum="2195" price="0"/>
+	</shop_item_set>
+	<shop_item_set id="StandartWeaponLowLevel" comment="">
+		<item vnum="2200" price="0"/>
+		<item vnum="2201" price="0"/>
+		<item vnum="2202" price="0"/>
+		<item vnum="2203" price="0"/>
+		<item vnum="2204" price="0"/>
+		<item vnum="2205" price="0"/>
+		<item vnum="2206" price="0"/>
+		<item vnum="2207" price="0"/>
+		<item vnum="2208" price="0"/>
+		<item vnum="2209" price="0"/>
+		<item vnum="2210" price="0"/>
+		<item vnum="2211" price="0"/>
+		<item vnum="2212" price="0"/>
+		<item vnum="2213" price="0"/>
+		<item vnum="2214" price="0"/>
+		<item vnum="2215" price="0"/>
+		<item vnum="2216" price="0"/>
+		<item vnum="2217" price="0"/>
+	</shop_item_set>
+	<shop_item_set id="StandartArmorLowLevel" comment="">
+		<item vnum="2116" price="0"/>
+		<item vnum="2117" price="0"/>
+		<item vnum="2118" price="0"/>
+		<item vnum="2119" price="0"/>
+		<item vnum="2120" price="0"/>
+		<item vnum="2121" price="0"/>
+		<item vnum="2122" price="0"/>
+		<item vnum="2123" price="0"/>
+	</shop_item_set>
+	<shop_item_set id="BaseBlacksmithingTools" comment="">
+		<item vnum="311" price="0"/>
+	</shop_item_set>
+	<shop_item_set id="BaseMiningTools" comment="">
+	</shop_item_set>
 </shop_item_sets>

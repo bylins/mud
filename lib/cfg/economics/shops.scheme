@@ -8,7 +8,7 @@
 		<child tag="shop" multiple="Y"/>
 	</tag>
 	<tag name="shop" desc="One shop, keyed by id; served by its keeper mobs">
-		<attr name="id" type="string" readonly="Y" desc="Unique shop id"/>
+		<attr name="id" type="string" readonly="Y" desc="Unique shop id (CamelCase: starts with a letter, letters/digits only)"/>
 		<attr name="currency" type="string" desc="Currency text id (e.g. kKuna)"/>
 		<attr name="profit" type="int" min="0" desc="Markup, percent"/>
 		<attr name="waste_time_min" type="int" min="0" desc="Restock interval, minutes (default 180)"/>
