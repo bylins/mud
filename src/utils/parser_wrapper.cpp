@@ -77,7 +77,24 @@ bool DataNode::SetValue(const std::string &key, const std::string &value) {
 }
 
 bool DataNode::Save(const std::filesystem::path &file) const {
-	return impl_->xml_doc->save_file(file.string().c_str());
+	// pugixml's default parser does not retain the <?xml ...?> declaration, so a plain
+	// re-save (e.g. a Vedun edit) would re-emit a bare <?xml version="1.0"?> and drop
+	// encoding="koi8-r" -- the project convention for every cfg file. Restore it here so
+	// editing a cfg file through Vedun no longer silently strips the encoding declaration.
+	auto &doc = *impl_->xml_doc;
+	pugi::xml_node decl = doc.first_child();
+	if (decl.type() != pugi::node_declaration) {
+		decl = doc.prepend_child(pugi::node_declaration);
+	}
+	if (!decl.attribute("version")) {
+		decl.append_attribute("version");
+	}
+	decl.attribute("version").set_value("1.0");
+	if (!decl.attribute("encoding")) {
+		decl.append_attribute("encoding");
+	}
+	decl.attribute("encoding").set_value("koi8-r");
+	return doc.save_file(file.string().c_str());
 }
 
 std::string DataNode::ToXmlString() const {
