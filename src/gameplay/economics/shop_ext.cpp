@@ -3,6 +3,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "shop_ext.h"
+#include "engine/olc/vedun/enum_registry.h"   // vedun::RegisterEditorEnums (refresh ShopItemSetId)
 #include <cstdlib>
 #include "gameplay/economics/currencies.h"
 #include "utils/grammar/declensions.h"
@@ -75,6 +76,7 @@ void ShopItemSetsLoader::Load(parser_wrapper::DataNode data) {
 
 void ShopItemSetsLoader::Reload(parser_wrapper::DataNode data) {
 	Load(data);
+	vedun::RegisterEditorEnums();   // refresh ShopItemSetId so new/removed sets show in the editor
 	load(true);   // rebuild shops so catalog edits take effect immediately
 }
 
