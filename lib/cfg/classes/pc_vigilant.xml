@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="koi8-r"?>
 <class id="kVigilant">
+    <experience_table id="kWarriorTable"/>
     <stats>
         <base_stats>
             <stat id="kStr"	gen_min="20"	gen_max="25"	auto="25"	cap="90" />

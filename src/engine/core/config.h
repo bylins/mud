@@ -273,6 +273,7 @@ enum class ECommonMsg {
 	kOk,           // was OK
 	kNoPerson,     // was NOPERSON
 	kNothing,      // was nothing_string (inline fragment; no newline)
+	kBrokenScales, // exp table missing/broken; experience cannot be granted
 };
 
 [[nodiscard]] const std::string &CommonMsg(ECommonMsg id);

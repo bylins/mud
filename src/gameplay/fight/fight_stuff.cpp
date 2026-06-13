@@ -672,7 +672,7 @@ long long get_extend_exp(long long exp, CharData *ch, CharData *victim) {
 	exp = exp * std::max(15, koef) / 100;
 
 	// делим на реморты
-	exp /= std::max(1.0, 0.5 * (remort::GetRealRemort(ch) - experience::kMaxExpCoefficientsUsed));
+	exp /= std::max(1.0, 0.5 * (remort::GetRealRemort(ch) - (experience::RemortCoefficientCount() - 1)));
 	return (exp);
 }
 

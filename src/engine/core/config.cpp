@@ -975,6 +975,7 @@ const std::map<ECommonMsg, std::string> kCommonMsgNames{
 		{ECommonMsg::kOk, "kOk"},
 		{ECommonMsg::kNoPerson, "kNoPerson"},
 		{ECommonMsg::kNothing, "kNothing"},
+		{ECommonMsg::kBrokenScales, "kBrokenScales"},
 	};
 
 msg_container::MsgContainer<int, ECommonMsg> &CommonMsgContainer() {

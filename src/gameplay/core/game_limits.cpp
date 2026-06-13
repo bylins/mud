@@ -1601,7 +1601,7 @@ void gain_battle_exp(CharData *ch, CharData *victim, int dam) {
 	// получение игроками экспы
 	if (!ch->IsNpc() && experience::OkGainExp(ch, victim)) {
 		int max_exp = std::min(experience::max_exp_gain_pc(ch), (GetRealLevel(victim) * victim->get_max_hit() + 4) /
-			(5 * std::max(1, remort::GetRealRemort(ch) - experience::kMaxExpCoefficientsUsed - 1)));
+			(5 * std::max(1, remort::GetRealRemort(ch) - (experience::RemortCoefficientCount() - 1) - 1)));
 		double coeff = std::min(dam, victim->get_hit()) / static_cast<double>(victim->get_max_hit());
 		int battle_exp = std::max(1, static_cast<int>(max_exp * coeff));
 		if (Bonus::is_bonus_active(Bonus::EBonusType::BONUS_WEAPON_EXP) && Bonus::can_get_bonus_exp(ch)) {
@@ -1617,7 +1617,7 @@ void gain_battle_exp(CharData *ch, CharData *victim, int dam) {
 		// проверяем что есть мастер и он может получать экспу с данной цели
 		if (master && experience::OkGainExp(master, victim)) {
 			int max_exp = std::min(experience::max_exp_gain_pc(master), (GetRealLevel(victim) * victim->get_max_hit() + 4) /
-				(5 * std::max(1, remort::GetRealRemort(master) - experience::kMaxExpCoefficientsUsed - 1)));
+				(5 * std::max(1, remort::GetRealRemort(master) - (experience::RemortCoefficientCount() - 1) - 1)));
 
 			double coeff = std::min(dam, victim->get_hit()) / static_cast<double>(victim->get_max_hit());
 			int battle_exp = std::max(1, static_cast<int>(max_exp * coeff));

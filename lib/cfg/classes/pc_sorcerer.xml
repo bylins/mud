@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="koi8-r"?>
 <class id="kSorcerer">
+    <experience_table id="kSorcererTable"/>
     <stats>
         <base_stats>
             <stat id="kStr"	gen_min="11"	gen_max="14"	auto="11"	cap="50"/>

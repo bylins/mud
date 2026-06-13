@@ -12,5 +12,6 @@
 		<message type="kOk" val="Ладушки."/>
 		<message type="kNoPerson" val="Нет такого создания в этом мире."/>
 		<message type="kNothing" val="ничего"/>
+		<message type="kBrokenScales" val="Весы богов сломаны и ваши заслуги не могут быть оценены."/>
 	</msg_sheaf>
 </msg_container>
