@@ -81,7 +81,7 @@ void ShopItemSetsLoader::Reload(parser_wrapper::DataNode data) {
 }
 
 std::string ShopItemSetsLoader::EditableWhat() const {
-	return "shop_item_set";
+	return "shopitemset";   // no underscores -- matches currencyname/shopmsg/mobrace convention
 }
 
 std::vector<cfg_manager::EditableElement> ShopItemSetsLoader::ListElements() const {
