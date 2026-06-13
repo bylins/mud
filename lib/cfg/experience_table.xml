@@ -1,6 +1,25 @@
 <?xml version="1.0" encoding="koi8-r"?>
-<!-- issue.experience-table: exp tables extracted from GetExpUntilNextLvl + exp_coefficients. -->
-<!-- exp is the BASE value; runtime multiplies it by the remort coefficient (numerator/denominator). -->
+<!--
+    issue.experience-table: character experience tables, extracted from the old
+    GetExpUntilNextLvl() switch + exp_coefficients[]. Loaded once at boot (load-only:
+    NOT hot-reloadable, restart to apply changes).
+
+    Authoring rules / restrictions:
+      * <remort_coefficients>: one <coefficient> per remort. The multiplier is
+        numerator / denominator. denominator MUST be > 0 -- a zero or negative value
+        rejects the WHOLE table (no one gains exp) and logs an error. Keep denominators
+        from getting too small: the multiplier scales exp, and a tiny denominator can
+        push exp past the 32-bit range. A character with more remorts than listed here
+        is clamped to the last coefficient, so list as many remorts as you support.
+      * <level_exp_tables>/<level_table id=...>: "exp" is the BASE value; at runtime it
+        is multiplied by the remort coefficient (result truncated to int, exactly as the
+        old code did). Provide levels 0..31; level 31 is the immortal/overflow tier (it
+        was the switch "default:"). Values should be non-decreasing as level rises.
+      * Each table "id" must match an <experience_table id="..."/> in a class file
+        (cfg/classes/pc_*.xml). A class whose table id is missing/empty -- or the whole
+        file being missing/empty -- means characters of that class cannot gain exp:
+        they get a "scales are broken" message and an error is logged.
+-->
 <experience_table>
 	<remort_coefficients>
 		<coefficient remort="0" numerator="1.0" denominator="1"/>

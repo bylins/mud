@@ -38,6 +38,7 @@ void decrease_level(CharData *ch);
 // and the remort-eligibility flag. gain_exp_regardless skips the per-kill caps (god cmds).
 void EndowExpToChar(CharData *ch, int gain);
 void gain_exp_regardless(CharData *ch, int gain);
+void gain_battle_exp(CharData *ch, CharData *victim, int dam);   // battle exp from damage dealt
 void update_clan_exp(CharData *ch, int gain);
 
 // Per-kill exp caps: most a player may gain/lose in one kill/death.

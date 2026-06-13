@@ -7,6 +7,7 @@
 */
 
 #include "damage.h"
+#include "gameplay/core/experience.h"
 #include "utils/logger.h"
 #include "administration/privilege.h"
 #include "utils/grammar/gender.h"
@@ -663,7 +664,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 		}
 	}
 	if (!InTestZone(ch)) {
-		gain_battle_exp(ch, victim, dam);
+		experience::gain_battle_exp(ch, victim, dam);
 	}
 
 	// real_dam так же идет в обратку от огн.щита
