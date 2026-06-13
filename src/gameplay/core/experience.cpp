@@ -5,6 +5,7 @@
 
 #include "gameplay/core/experience.h"
 #include "gameplay/statistics/char_stat.h"
+#include "gameplay/statistics/mob_stat.h"
 #include "gameplay/statistics/zone_exp.h"
 #include "gameplay/clans/house.h"
 #include "engine/ui/color.h"
@@ -16,6 +17,7 @@
 #include "administration/privilege.h"
 
 #include "engine/entities/char_data.h"
+#include "engine/entities/char_player.h"
 #include "engine/db/db.h"
 #include "engine/entities/zone.h"
 #include "engine/core/handler.h"
