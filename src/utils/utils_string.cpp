@@ -1045,19 +1045,28 @@ void kill_ems(std::string &str) {
 	str.erase(std::remove(str.begin(), str.end(), '\r'), str.end());
 }
 
-std::string utils::OutWordsList(const std::vector<std::string> &words, size_t max_length) {
+std::string utils::OutWordsList(const std::vector<std::string> &words, size_t max_length,
+		const std::string &separator) {
 	std::string result;
 	size_t line_length = 0;
 	bool first = true;
+	// separator -- это и есть то, что стоит между словами на одной строке
+	// (", " для списка, " " для обычного переноса по словам). На переносе
+	// строки хвостовые пробелы у разделителя срезаем, чтобы не оставлять их
+	// перед \r\n (для "," получаем ",\r\n", для " " -- просто "\r\n").
+	std::string eol_separator = separator;
+	while (!eol_separator.empty() && eol_separator.back() == ' ') {
+		eol_separator.pop_back();
+	}
 
 	for (const auto &word : words) {
 		if (!first) {
-			if (line_length + 2 + word.size() > max_length) {
-				result += ",\r\n";
+			if (line_length + separator.size() + word.size() > max_length) {
+				result += eol_separator + "\r\n";
 				line_length = 0;
 			} else {
-				result += ", ";
-				line_length += 2;
+				result += separator;
+				line_length += separator.size();
 			}
 		}
 		result += word;
@@ -1067,14 +1076,15 @@ std::string utils::OutWordsList(const std::vector<std::string> &words, size_t ma
 	return result;
 }
 
-std::string utils::OutWordsList(const std::string &words_str, size_t max_length) {
+std::string utils::OutWordsList(const std::string &words_str, size_t max_length,
+		const std::string &separator) {
 	std::vector<std::string> words;
 	std::istringstream stream(words_str);
 	std::string word;
 	while (stream >> word) {
 		words.push_back(word);
 	}
-	return OutWordsList(words, max_length);
+	return OutWordsList(words, max_length, separator);
 }
 
 namespace utils {
