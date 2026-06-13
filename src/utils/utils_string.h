@@ -305,6 +305,11 @@ std::string OutWordsList(const std::vector<std::string> &words, size_t max_lengt
 // то же, но на вход строка со словами через пробелы
 std::string OutWordsList(const std::string &words_str, size_t max_length,
 		const std::string &separator = ", ");
+// переносит многострочный текст по словам на ширину max_length, сохраняя
+// авторские переносы строк и пустые строки (абзацы): каждая исходная строка
+// переносится независимо через OutWordsList(line, max_length, " ").
+// max_length == 0 -- перенос не выполняется (текст возвращается как есть с \r\n)
+std::string WrapText(const std::string &text, size_t max_length);
 
 /// Вернуть строку пола персонажа по числовому значению (to_underlying(ch->get_sex())).
 std::string sprintGender(int gender_value);
