@@ -42,9 +42,7 @@
 void TryRemoveExtrahits(CharData *ch, CharData *victim);
 
 // Estern - нужно разобраться, почему функции работы с опытом распиханы по всем углам
-int max_exp_gain_pc(CharData *ch);
-//int max_exp_loss_pc(CharData *ch);
-
+//
 bool Damage::CalcMagisShieldsDmgAbsoption(CharData *ch, CharData *victim) {
 	if (dam <= 0) {
 		return false;
