@@ -4,7 +4,6 @@
 */
 
 #include "gameplay/core/experience.h"
-#include "gameplay/statistics/char_stat.h"
 #include "gameplay/statistics/mob_stat.h"
 #include "gameplay/statistics/zone_exp.h"
 #include "gameplay/clans/house.h"
@@ -20,16 +19,11 @@
 #include "engine/entities/char_player.h"
 #include "engine/db/db.h"
 #include "engine/entities/zone.h"
-#include "engine/core/handler.h"
 #include "gameplay/mechanics/mount.h"
 #include "gameplay/core/remort.h"
 #include "engine/structs/structs.h"
 
 #include <algorithm>
-
-// Per-kill exp caps (defined in engine/core/config.cpp).
-int max_exp_gain_pc(CharData *ch);
-int max_exp_loss_pc(CharData *ch);
 
 namespace experience {
 
@@ -562,6 +556,19 @@ void gain_exp_regardless(CharData *ch, int gain) {
 		}
 
 	}
+}
+// Per-kill exp caps: most a player may gain/lose in one kill/death.
+int max_exp_gain_pc(CharData *ch) {
+	int result = 1;
+	if (!ch->IsNpc()) {
+		int max_per_lev = GetExpUntilNextLvl(ch, ch->GetLevel() + 1) - GetExpUntilNextLvl(ch, ch->GetLevel() + 0); //уровень без плюсов от стафа
+		result = max_per_lev / (10 + remort::GetRealRemort(ch));
+	}
+	return result;
+}
+
+int max_exp_loss_pc(CharData *ch) {
+	return (ch->IsNpc() ? 1 : (GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1) - GetExpUntilNextLvl(ch, GetRealLevel(ch) + 0)) / 3);
 }
 }  // namespace experience
 

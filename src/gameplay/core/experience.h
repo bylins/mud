@@ -40,6 +40,10 @@ void EndowExpToChar(CharData *ch, int gain);
 void gain_exp_regardless(CharData *ch, int gain);
 void update_clan_exp(CharData *ch, int gain);
 
+// Per-kill exp caps: most a player may gain/lose in one kill/death.
+int max_exp_gain_pc(CharData *ch);
+int max_exp_loss_pc(CharData *ch);
+
 }  // namespace experience
 
 #endif  // BYLINS_SRC_GAMEPLAY_CORE_EXPERIENCE_H_

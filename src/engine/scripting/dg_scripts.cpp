@@ -55,7 +55,6 @@
 #include "gameplay/mechanics/sight.h"
 #include "gameplay/core/remort.h"
 
-extern int max_exp_gain_pc(CharData *ch);
 extern int CalcSaving(CharData *killer, CharData *victim, ESaving saving, bool need_log);
 extern std::list<combat_list_element> combat_list;
 
@@ -2700,7 +2699,7 @@ void find_replacement(void *go,
 					snprintf(str, str_size, "%ld", mob->get_exp());
 			}
 		} else if (!str_cmp(field, "MaxGainExp")) {
-			snprintf(str, str_size, "%ld", (long) max_exp_gain_pc(mob));
+			snprintf(str, str_size, "%ld", (long) experience::max_exp_gain_pc(mob));
 		} else if (!str_cmp(field, "TnlExp")) {
 			snprintf(str, str_size, "%ld", experience::GetExpUntilNextLvl(mob, mob->GetLevel() + 1) - mob->get_exp());
 		} else if (!str_cmp(field, "sex")) {

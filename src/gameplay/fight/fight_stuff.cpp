@@ -49,8 +49,6 @@
 
 // extern
 void PerformDropGold(CharData *ch, int amount);
-int max_exp_gain_pc(CharData *ch);
-int max_exp_loss_pc(CharData *ch);
 void get_from_container(CharData *ch, ObjData *cont, char *local_arg, int mode, int amount, bool autoloot);
 void SetWait(CharData *ch, int waittime, int victim_in_room);
 
@@ -716,7 +714,7 @@ void perform_group_gain(CharData *ch, CharData *victim, int members, int koef) {
 		exp = std::min(static_cast<long long>(max_exp_gain_npc), exp);
 		exp += std::max(static_cast<long long>(0), (exp * std::min(0, (GetRealLevel(victim) - GetRealLevel(ch)))) / 8);
 	} else
-		exp = std::min(static_cast<long long>(max_exp_gain_pc(ch)), get_extend_exp(exp, ch, victim) * long_live_exp_bounus_miltiplier);
+		exp = std::min(static_cast<long long>(experience::max_exp_gain_pc(ch)), get_extend_exp(exp, ch, victim) * long_live_exp_bounus_miltiplier);
 	// 4. Последняя проверка
 	exp = std::max(static_cast<long long>(1), exp);
 	if (exp > 1) {
@@ -767,7 +765,7 @@ void perform_group_gain(CharData *ch, CharData *victim, int members, int koef) {
 			}
 		}
 
-		exp = std::min(static_cast<long long>(max_exp_gain_pc(ch)), exp);
+		exp = std::min(static_cast<long long>(experience::max_exp_gain_pc(ch)), exp);
 		SendMsgToChar(ch, "Ваш опыт повысился на %lld %s.\r\n", exp, grammar::GetDeclensionInNumber(exp, grammar::EWhat::kPoint));
 	} else if (exp == 1) {
 		SendMsgToChar("Ваш опыт повысился всего лишь на маленькую единичку.\r\n", ch);

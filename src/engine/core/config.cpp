@@ -15,7 +15,6 @@
 #define __CONFIG_C__
 
 #include "config.h"
-#include "gameplay/core/experience.h"
 #include "administration/privilege.h"
 #include "utils/utils_encoding.h"
 #include "common_messages.h"
@@ -294,18 +293,6 @@ const char *START_MESSG =
 	" Твоя задача непроста, но надеемся, что ты сумеешь достойно решить ее.\r\n"
 	" В добрый час, путник, и да будет скатертью тебе дорога...\r\n" "\r\n";
 
-int max_exp_gain_pc(CharData *ch) {
-	int result = 1;
-	if (!ch->IsNpc()) {
-		int max_per_lev = experience::GetExpUntilNextLvl(ch, ch->GetLevel() + 1) - experience::GetExpUntilNextLvl(ch, ch->GetLevel() + 0); //тут берем левел без плюсов от стафа
-		result = max_per_lev / (10 + remort::GetRealRemort(ch));
-	}
-	return result;
-}
-
-int max_exp_loss_pc(CharData *ch) {
-	return (ch->IsNpc() ? 1 : (experience::GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1) - experience::GetExpUntilNextLvl(ch, GetRealLevel(ch) + 0)) / 3);
-}
 
 int calc_loadroom(const CharData *ch, int bplace_mode /*= BIRTH_PLACE_UNDEFINED*/) {
 	if (privilege::IsImmortal(ch)) {
