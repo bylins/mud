@@ -1,0 +1,31 @@
+<!--
+  Vedun editor scheme for cfg/economics/shops.xml (issue.shops-ext). A shop is keyed by id and
+  served by its keeper mobs; its stock is individual <item>s plus <item_set> references into
+  shop_item_sets.xml. Optional sidecar; undeclared nodes degrade to plain strings.
+-->
+<scheme>
+	<tag name="shop_list" desc="Shop definitions">
+		<child tag="shop" multiple="Y"/>
+	</tag>
+	<tag name="shop" desc="One shop, keyed by id; served by its keeper mobs">
+		<attr name="id" type="string" readonly="Y" desc="Unique shop id"/>
+		<attr name="currency" type="string" desc="Currency text id (e.g. kKuna)"/>
+		<attr name="profit" type="int" min="0" desc="Markup, percent"/>
+		<attr name="waste_time_min" type="int" min="0" desc="Restock interval, minutes (default 180)"/>
+		<attr name="can_buy" type="bool" desc="Whether the shop buys items from players"/>
+		<child tag="mob" multiple="Y"/>
+		<child tag="item" multiple="Y"/>
+		<child tag="item_set" multiple="Y"/>
+	</tag>
+	<tag name="mob" desc="A keeper mob serving this shop">
+		<attr name="mob_vnum" type="int" min="0" desc="Keeper mob vnum"/>
+		<attr name="template" type="string" desc="Optional item-description template id"/>
+	</tag>
+	<tag name="item" desc="An individually-listed item">
+		<attr name="vnum" type="int" min="0" desc="Object vnum"/>
+		<attr name="price" type="int" min="0" desc="Price; 0 = prototype cost"/>
+	</tag>
+	<tag name="item_set" desc="Reference to a shop_item_set by id">
+		<attr name="id" type="string" desc="Item-set id (see shop_item_sets.xml)"/>
+	</tag>
+</scheme>

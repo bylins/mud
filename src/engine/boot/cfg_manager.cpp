@@ -50,6 +50,8 @@ CfgManager::CfgManager() {
 											  std::make_unique<currencies::CurrencyNamesLoader>(currencies::CurrencyNamesLoader())));
 	loaders_.emplace("shop_item_sets", LoaderInfo("cfg/economics/shop_item_sets.xml",
 		std::make_unique<ShopExt::ShopItemSetsLoader>()));
+	loaders_.emplace("shops", LoaderInfo("cfg/economics/shops.xml",
+		std::make_unique<ShopExt::ShopsLoader>()));
 	loaders_.emplace("currencies", LoaderInfo("cfg/economics/currencies.xml",
 											  std::make_unique<currencies::CurrenciesLoader>(currencies::CurrenciesLoader())));
 	loaders_.emplace("class_messages", LoaderInfo("cfg/messages/ru/class_msg.xml",
