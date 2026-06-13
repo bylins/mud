@@ -45,6 +45,16 @@ class ShopItemSetsLoader : virtual public cfg_manager::IEditableCfgLoader {
 	[[nodiscard]] cfg_manager::ValidationResult Validate(parser_wrapper::DataNode &doc) const final;
 };
 
+// Loads/edits cfg/economics/shops.xml (the shop list). Vedun-editable ("vedun shop").
+class ShopsLoader : virtual public cfg_manager::IEditableCfgLoader {
+ public:
+	void Load(parser_wrapper::DataNode data) final;
+	void Reload(parser_wrapper::DataNode data) final;
+	[[nodiscard]] std::string EditableWhat() const final;
+	[[nodiscard]] std::vector<cfg_manager::EditableElement> ListElements() const final;
+	[[nodiscard]] cfg_manager::ValidationResult Validate(parser_wrapper::DataNode &doc) const final;
+};
+
 void do_shops_list(CharData *ch);
 void DoStoreShop(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
 void load(bool reload);
