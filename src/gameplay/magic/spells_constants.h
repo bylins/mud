@@ -366,6 +366,10 @@ enum EMagic : Bitvector {
 	kNpcUnaffectNpc = 1 << 21,
 	kNpcUnaffectNpcCaster = 1 << 22,
 	kNpcDummy = 1 << 23,
+	// issue.mob-ai-improve: dispel an enemy PLAYER's buffs (offensive unaffect). The NPC
+	// block (bits 16-23) is full, so this reuses free bit 13 (ex-kMagCharRelocate) and is
+	// folded into NPC_CALCULATE below so mob_casting still treats it as an AI-castable spell.
+	kNpcUnaffectPc = 1 << 13,
 	kMagRoom = 1 << 24,
 	kMagCasterInroom = 1 << 25, // Аффект от этого спелла действует пока кастер в комнате //
 	kMagCasterInworld = 1 << 26, // висит пока кастер в мире //
@@ -440,9 +444,10 @@ enum EExtraAttackFlag : Bitvector {
 	kEafInvisible = 1 << 22,	// одет автоинвиз
 };
 
-// Spell-flag mask: the 8 "NPC casting calculation" bits (issue.spellhandlers: was the
-// `#define NPC_CALCULATE 0xff << 16` magic number).
-constexpr Bitvector NPC_CALCULATE = 0xff << 16;
+// Spell-flag mask: the "NPC casting calculation" bits -- the contiguous NPC block (16-23)
+// plus the out-of-band kNpcUnaffectPc at bit 13 (issue.mob-ai-improve; the 16-23 block was
+// full). Was `0xff << 16`.
+constexpr Bitvector NPC_CALCULATE = (0xff << 16) | (1 << 13);
 
 #endif //BYLINS_SRC_GAME_MAGIC_SPELLS_CONSTANTS_H_
 

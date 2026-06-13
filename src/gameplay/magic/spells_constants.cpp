@@ -462,6 +462,7 @@ void init_EMagic_ITEM_NAMES() {
 	EMagic_name_by_value[EMagic::kNpcUnaffectNpc] = "kNpcUnaffectNpc";
 	EMagic_name_by_value[EMagic::kNpcUnaffectNpcCaster] = "kNpcUnaffectNpcCaster";
 	EMagic_name_by_value[EMagic::kNpcDummy] = "kNpcDummy";
+	EMagic_name_by_value[EMagic::kNpcUnaffectPc] = "kNpcUnaffectPc";
 	EMagic_name_by_value[EMagic::kMagRoom] = "kMagRoom";
 	EMagic_name_by_value[EMagic::kMagCasterInroom] = "kMagCasterInroom";
 	EMagic_name_by_value[EMagic::kMagCasterInworld] = "kMagCasterInworld";

@@ -3541,10 +3541,10 @@
 		<misc pos="kFight" violent="A" danger="0" />
 		<mana max="85" min="70" change="1" />
 		<targets val="kTarCharRoom|kTarFightSelf" />
-		<flags val="kMagUnaffects" />
+		<flags val="kMagUnaffects|kNpcUnaffectPc" />
 		<potency_roll>
 			<dices ndice="5" sdice="9" adice="12" />
-			<base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25" />
+			<base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="8" />
 			<base_stat id="kWis" threshold="22" weight="0.5" />
 		</potency_roll>
 		<success_roll>
@@ -3553,7 +3553,7 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<unaffect affect_flags="kAfDispellable" potency_weight="0.5">
+				<unaffect affect_flags="kAfDispellable" potency_weight="1.0">
 					<remove any_of="*" />
 				</unaffect>
 			</action>

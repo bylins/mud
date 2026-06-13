@@ -4,6 +4,7 @@
 #include "engine/core/handler.h"  // EFind
 #include "engine/entities/char_data.h"
 #include "gameplay/magic/spells_constants.h"
+#include "gameplay/skills/skills.h"  // NAME_BY_ITEM<ESkill>
 #include "fmt/format.h"
 #include "utils/random.h"
 
@@ -131,11 +132,22 @@ void ParseRemovalAttr(const char *value, std::vector<ESpell> &out_list, bool &ou
 
 void Roll::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 	buffer << " Potency roll: " << "\r\n"
-		   << kColorGrn << "  " << dice_num_
-		   << "d" << dice_size_
-		   << "+" << dice_add_ << kColorNrm
-		   << " Low skill bonus: " << kColorGrn << low_skill_bonus_ << kColorNrm
-		   << " Hi skill bonus: " << kColorGrn << hi_skill_bonus_ << kColorNrm << "\r\n";
+		   << kColorGrn << "  " << dice_num_ << "d" << dice_size_ << "+" << dice_add_ << kColorNrm
+		   << " Skill: " << kColorGrn << NAME_BY_ITEM<ESkill>(base_skill_) << kColorNrm
+		   << " (low " << low_skill_bonus_ << " / hi " << hi_skill_bonus_ << ")"
+		   << " Stat: " << kColorGrn << NAME_BY_ITEM<EBaseStat>(base_stat_) << kColorNrm
+		   << " (>" << base_stat_threshold_ << " x" << base_stat_weight_ << ")\r\n";
+}
+
+void SuccessRoll::Print(CharData */*ch*/, std::ostringstream &buffer) const {
+	buffer << " Success roll: " << "\r\n"
+		   << kColorGrn << "  Skill: " << NAME_BY_ITEM<ESkill>(base_skill_) << kColorNrm
+		   << " (low " << low_skill_bonus_ << " / hi " << hi_skill_bonus_ << ")"
+		   << " Stat: " << kColorGrn << NAME_BY_ITEM<EBaseStat>(base_stat_) << kColorNrm
+		   << " (>" << base_stat_threshold_ << " x" << base_stat_weight_ << ")"
+		   << " bonus[roll " << bonus_roll_ << " pvp " << bonus_pvp_ << " pve " << bonus_pve_
+		   << " evp " << bonus_evp_ << " eve " << bonus_eve_ << "]"
+		   << " crit[" << critsuccess_ << "/" << critfail_ << "]\r\n";
 }
 
 int Roll::RollSkillDices() const {

@@ -33,6 +33,7 @@
 #include "utils/random.h"
 #include "engine/entities/char_player.h"
 #include "gameplay/magic/magic.h"
+#include "gameplay/magic/magic_rooms.h"  // ClassifyRoomAffectAccess
 #include "engine/olc/olc.h"
 #include "engine/network/msdp/msdp_constants.h"
 #include "gameplay/magic/magic_items.h"
@@ -771,6 +772,74 @@ CharData *find_opp_affectee(CharData *caster, ESpell spell_id) {
 	return victim;
 }
 
+// issue.mob-ai-improve part 2: does the mob's room carry a FOREIGN (non-ally-authored)
+// dispellable ward -- a player's seal/storm/trap -- worth clearing? Reuses the room
+// author/ally classifier: a ward the mob (or its ally) placed is not "hostile".
+bool HasHostileRoomWard(CharData *ch) {
+	if (ch->in_room == kNowhere) {
+		return false;
+	}
+	for (const auto &aff : world[ch->in_room]->affected) {
+		if (aff && IS_SET(aff->battleflag, kAfDispellable)
+			&& !room_spells::ClassifyRoomAffectAccess(ch, aff->caster_id).free) {
+			return true;
+		}
+	}
+	return false;
+}
+
+// issue.mob-ai-improve: does `vict` carry a dispellable BUFF -- a kAfDispellable affect that
+// is NOT a debuff? Debuff affects were imposed violently; stripping them would help the
+// target, so an offensive dispel ignores them.
+bool HasDispellableBuff(const CharData *vict) {
+	for (const auto &aff : vict->affected) {
+		if (aff && !aff->debuff && IS_SET(aff->battleflag, kAfDispellable)) {
+			return true;
+		}
+	}
+	return false;
+}
+
+// issue.mob-ai-improve: pick a room opponent carrying a dispellable buff, for an offensive
+// dispel (dispel magic). Mirrors find_opp_affectee's opponent-eligibility guards but selects
+// on "has a buff to strip" instead of "not yet affected by this spell".
+CharData *find_opp_dispellable(CharData *caster) {
+	CharData *victim = nullptr;
+	int vict_val = 0;
+
+	if (GetRealInt(caster) > number(10, 20)) {
+		for (const auto vict : world[caster->in_room]->people) {
+			if ((vict->IsNpc()
+				&& !((vict->IsFlagged(EMobFlag::kTutelar) || vict->IsFlagged(EMobFlag::kMentalShadow) || vict->IsFlagged(EMobFlag::kCompanion)
+					|| AFF_FLAGGED(vict, EAffect::kCharmed))
+					&& vict->has_master()
+					&& !vict->get_master()->IsNpc()))
+				|| !sight::CanSee(caster, vict)) {
+				continue;
+			}
+			if ((!vict->GetEnemy()
+				&& (GetRealInt(caster) < number(20, 27)
+					|| !in_same_battle(caster, vict, true)))
+				|| AFF_FLAGGED(vict, EAffect::kHold)
+				|| !HasDispellableBuff(vict)) {
+				continue;
+			}
+			if (!victim || vict_val < GET_MAXDAMAGE(vict)) {
+				victim = vict;
+				vict_val = GET_MAXDAMAGE(vict);
+			}
+		}
+	}
+
+	if (!victim
+		&& caster->GetEnemy()
+		&& HasDispellableBuff(caster->GetEnemy())) {
+		victim = caster->GetEnemy();
+	}
+
+	return victim;
+}
+
 CharData *find_opp_caster(CharData *caster) {
 	CharData *victim = nullptr;
 	int vict_val = 0;
@@ -1092,6 +1161,19 @@ void mob_casting(CharData *ch) {
 		}
 	}
 	// Ищем рандомную заклинашку и цель для нее
+	// issue.mob-ai-improve part 2: a mob that knows dispel magic and is caught inside a hostile
+	// dispellable room ward (e.g. a player's seal that blocks its reinforcements) tries to clear
+	// it. Cast with no char target -> CallMagic routes it to the room dispel (author/ally +
+	// strength contest). Coin-flip per round so a mob that can't break a strong ward still fights.
+	if (!victim
+		&& !AFF_FLAGGED(ch, EAffect::kCharmed)
+		&& GET_SPELL_MEM(ch, ESpell::kDispellMagic) > 0
+		&& GetRealInt(ch) > number(10, 20)
+		&& number(0, 1)
+		&& HasHostileRoomWard(ch)) {
+		CastSpell(ch, nullptr, 0, nullptr, ESpell::kDispellMagic, ESpell::kDispellMagic);
+		return;
+	}
 	for (int i = 0; !victim && spells && i < GetRealInt(ch) / 5; i++) {
 		if (spell_id_2 == ESpell::kUndefined) {
 			spell_id_2 = battle_spells[(sp_num = number(0, spells - 1))];
@@ -1109,6 +1191,10 @@ void mob_casting(CharData *ch) {
 			} else if (MUD::Spell(spell_id_2).IsFlagged(kNpcAffectPc)) {
 				if (!AFF_FLAGGED(ch, EAffect::kCharmed))
 					victim = find_opp_affectee(ch, spell_id_2);
+			} else if (MUD::Spell(spell_id_2).IsFlagged(kNpcUnaffectPc)) {
+				// issue.mob-ai-improve: offensive dispel -- strip an enemy player's buffs.
+				if (!AFF_FLAGGED(ch, EAffect::kCharmed))
+					victim = find_opp_dispellable(ch);
 			} else if (MUD::Spell(spell_id_2).IsFlagged(kNpcAffectNpc)) {
 				victim = find_affectee(ch, spell_id_2);
 			} else if (MUD::Spell(spell_id_2).IsFlagged(kNpcUnaffectNpcCaster)) {

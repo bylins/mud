@@ -604,6 +604,9 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 				sprintbit(to_underlying(aff->affect_type), affected_bits, buf2, sizeof(buf2));
 				sline += buf2;
 			}
+			if (aff->potency != 0.0f) {
+				sline += fmt::sprintf(" [p: %.1f %s]", aff->potency, aff->debuff ? "debuff" : "buff");
+			}
 			sline += "\r\n";
 			SendMsgToChar(sline, ch);
 		}

@@ -174,6 +174,8 @@ class SuccessRoll {
 	[[nodiscard]] int GetEveBonus() const { return bonus_eve_; }
 	[[nodiscard]] int GetCritsuccessThreshold() const { return critsuccess_; }
 	[[nodiscard]] int GetCritfailThreshold() const { return critfail_; }
+
+	void Print(CharData *ch, std::ostringstream &buffer) const;
 };
 
 // Material component specification (issue.spellcomponents): one entry in a spell's

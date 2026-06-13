@@ -309,6 +309,7 @@ void SpellInfo::Print(CharData *ch, std::ostringstream &buffer) const {
 		   << " Targets: " << kColorGrn << parse::BitvectorToString<ETarget>(targets_) << kColorNrm << "\r\n\r\n";
 
 	potency_roll_.Print(ch, buffer);
+	success_roll_.Print(ch, buffer);
 	if (!caster_conditions_.empty()) {
 		buffer << " CasterConditions:\r\n";
 	}
