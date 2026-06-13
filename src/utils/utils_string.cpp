@@ -1087,6 +1087,27 @@ std::string utils::OutWordsList(const std::string &words_str, size_t max_length,
 	return OutWordsList(words, max_length, separator);
 }
 
+std::string utils::WrapText(const std::string &text, size_t max_length) {
+	std::string result;
+	std::istringstream stream(text);
+	std::string line;
+	bool first = true;
+	// разбиваем по '\n', каждую строку переносим отдельно -- авторские
+	// переносы и пустые строки (абзацы) сохраняются
+	while (std::getline(stream, line)) {
+		if (!line.empty() && line.back() == '\r') {  // срезаем хвостовой '\r' от \r\n
+			line.pop_back();
+		}
+		if (!first) {
+			result += "\r\n";
+		}
+		first = false;
+		// max_length == 0 -- без переноса; иначе пустая строка вернётся пустой
+		result += (max_length == 0) ? line : OutWordsList(line, max_length, " ");
+	}
+	return result;
+}
+
 namespace utils {
 std::string sprintGender(int gender_value) {
 	int nr = 0;

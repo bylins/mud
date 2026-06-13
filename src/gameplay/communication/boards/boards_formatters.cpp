@@ -1,4 +1,5 @@
 #include "boards_formatters.h"
+#include "utils/utils_string.h"
 
 #include "engine/entities/char_data.h"
 #include "engine/ui/color.h"
@@ -195,15 +196,17 @@ Boards::Board::Formatter::shared_ptr FormattersBuilder::create(const BoardTypes 
 	}
 }
 
-void special_message_format(std::ostringstream &out, const Message::shared_ptr message) {
+void special_message_format(std::ostringstream &out, const Message::shared_ptr message, size_t max_length) {
 	char timeBuf[17];
 	strftime(timeBuf, sizeof(timeBuf), "%H:%M %d-%m-%Y", localtime(&message->date));
 
+	// тело сообщения переносим по словам на ширину экрана читателя, сохраняя
+	// абзацы (max_length == 0 -- без переноса, прежнее поведение)
 	out << "[" << message->num + 1 << "] "
 		<< timeBuf << " "
 		<< "(" << message->author << ") :: "
 		<< message->subject << "\r\n\r\n"
-		<< message->text << "\r\n";
+		<< utils::WrapText(message->text, max_length) << "\r\n";
 }
 }
 
