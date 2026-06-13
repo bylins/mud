@@ -39,6 +39,10 @@ void decrease_level(CharData *ch);
 void EndowExpToChar(CharData *ch, int gain);
 void gain_exp_regardless(CharData *ch, int gain);
 void gain_battle_exp(CharData *ch, CharData *victim, int dam);   // battle exp from damage dealt
+
+// Kill -> experience distribution to a group (issue.fight-stuff, moved from fight_stuff.cpp).
+void group_gain(CharData *killer, CharData *victim);
+void perform_group_gain(CharData *ch, CharData *victim, int members, int koef);
 void update_clan_exp(CharData *ch, int gain);
 
 // Per-kill exp caps: most a player may gain/lose in one kill/death.
