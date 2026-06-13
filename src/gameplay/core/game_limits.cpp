@@ -1566,13 +1566,17 @@ void point_update() {
 	double t_cond = 0.0, t_hp = 0.0, t_mob = 0.0, t_move = 0.0, t_pos = 0.0, t_idle = 0.0;
 	std::size_t scanned = 0, profiled_chars = 0;
 
-	for (auto &ch : character_list) {
-		const auto i = ch.get();
-		++scanned;
+	// #3414: вместо скана всего character_list -- только активные мобы (их
+	// помечает mobile_activity) и все игроки в игре. Снимок, чтобы отложенные
+	// extract не ломали обход set'ов между итерациями.
+	const auto to_update = character_list.active_and_players();
+	character_list.clear_active();
 
-		if (i->purged() || (i->IsNpc() && !i->in_used_zone())) {
+	for (auto *i : to_update) {
+		++scanned;
+		if (i->purged()) {
 			continue;
-	  	}
+		}
 
 		if (i->IsNpc()) {
 			i->inc_restore_timer(kSecsPerMudHour);

@@ -931,6 +931,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 		  continue;
 	  }
 	  ++processed_mobs;
+	  character_list.mark_active(ch.get());    // #3414: запомнить активного моба для point_update
 
 	  // Examine call for special procedure
 	  if (ch->IsFlagged(EMobFlag::kSpec) && !no_specials) {
