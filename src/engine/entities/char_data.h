@@ -14,6 +14,8 @@
 #include "engine/db/db.h"
 #include "entities_constants.h"
 #include "room_data.h"
+#include "obj_data.h"
+#include "engine/scripting/dg_scripts.h"
 #include "gameplay/communication/ignores.h"
 #include "gameplay/crafting/im.h"
 #include "gameplay/skills/skills.h"
