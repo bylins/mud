@@ -242,7 +242,10 @@ void DoBoard(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		}
 		std::ostringstream out;
 		const auto messages_index = num - 1;
-		special_message_format(out, board.get_message(messages_index));
+		// ширина экрана читателя для переноса тела сообщения (0 -- лимит не задан)
+		const size_t width = (!ch->IsNpc() && ch->player_specials->saved.stringLength > 0)
+				? ch->player_specials->saved.stringLength : 0;
+		special_message_format(out, board.get_message(messages_index), width);
 		page_string(ch->desc, out.str());
 		set_last_read(ch, board.get_type(), board.messages[messages_index]->date);
 	} else if (CompareParam(buffer, "писать")

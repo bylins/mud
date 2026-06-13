@@ -14,6 +14,7 @@
 
 #include <fmt/format.h>
 #include "gameplay/ai/subcmd_resolver.h"
+#include "utils/utils_string.h"
 
 #include "engine/db/world_objects.h"
 #include "engine/core/handler.h"
@@ -551,6 +552,11 @@ void receive(CharData *ch, CharData *mailman) {
 
 		std::string text = coder::base64_decode(i->second.text);
 		utils::Trim(text);
+		// переносим тело письма по словам на ширину экрана получателя, сохраняя
+		// абзацы (stringLength == 0 -- лимит не задан, не переносим)
+		if (!ch->IsNpc() && ch->player_specials->saved.stringLength > 0) {
+			text = utils::WrapText(text, ch->player_specials->saved.stringLength);
+		}
 		obj->set_action_description(buf_ + text + "\r\n\r\n");
 		PlaceObjToInventory(obj.get(), ch);
 		act(specials::MailMsg(specials::EMailMsg::kLetterGiven), false, mailman, 0, ch, kToVict);

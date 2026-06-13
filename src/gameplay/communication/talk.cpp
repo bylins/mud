@@ -11,6 +11,7 @@
 #include "engine/ui/color.h"
 #include "remember.h"
 #include "gameplay/mechanics/sight.h"
+#include "utils/utils_string.h"
 
 void do_echo(CharData *ch, char *argument, int cmd, int subcmd);
 
@@ -91,7 +92,13 @@ void perform_tell(CharData *ch, CharData *vict, char *arg) {
 	} else {
 		snprintf(buf, kMaxStringLength, "Кто-то сказал вам : '%s'", arg);
 	}
-	snprintf(buf1, kMaxStringLength, "%s%s%s\r\n", kColorBoldCyn, utils::CAP(buf), kColorNrm);
+	// перенос длинного телла по словам на ширину экрана получателя
+	// (stringLength == 0 -- лимит не задан, не переносим; NPC -- player_specials нет)
+	std::string tell_line = utils::CAP(buf);
+	if (!vict->IsNpc() && vict->player_specials->saved.stringLength > 0) {
+		tell_line = utils::OutWordsList(tell_line, vict->player_specials->saved.stringLength, " ");
+	}
+	snprintf(buf1, kMaxStringLength, "%s%s%s\r\n", kColorBoldCyn, tell_line.c_str(), kColorNrm);
 	SendMsgToChar(buf1, vict);
 	if (!vict->IsNpc()) {
 		vict->remember_add(buf1, Remember::ALL);

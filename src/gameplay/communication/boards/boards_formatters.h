@@ -9,7 +9,8 @@ class CharData;    // to avoid inclusion of "char.hpp"
 
 namespace Boards {
 void special_message_format(std::ostringstream &out,
-							const Message::shared_ptr message);    // TODO: Get rid of this special case.
+							const Message::shared_ptr message,
+							size_t max_length = 0);    // TODO: Get rid of this special case.
 
 class FormattersBuilder {
  public:
