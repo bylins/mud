@@ -101,6 +101,17 @@ cfg_manager::ValidationResult ShopItemSetsLoader::Validate(parser_wrapper::DataN
 	return {true, ""};
 }
 
+std::string ShopItemSetsLoader::CanonicalElementId(const std::string &id) const {
+	return id.empty() ? "" : id;   // any non-empty id is a valid (creatable) item-set key
+}
+
+parser_wrapper::DataNode ShopItemSetsLoader::CreateElementNode(parser_wrapper::DataNode root, const std::string &id) const {
+	auto node = root.AddChild("shop_item_set");
+	node.SetValue("id", id);
+	node.SetValue("comment", "");
+	return node;   // items are added afterwards in the editor
+}
+
 ShopListType &shop_list = GlobalObjects::Shops();
 
 void log_shop_load() {
@@ -357,6 +368,20 @@ cfg_manager::ValidationResult ShopsLoader::Validate(parser_wrapper::DataNode &do
 		}
 	}
 	return {true, ""};
+}
+
+std::string ShopsLoader::CanonicalElementId(const std::string &id) const {
+	return id.empty() ? "" : id;   // any non-empty id is a valid (creatable) shop key
+}
+
+parser_wrapper::DataNode ShopsLoader::CreateElementNode(parser_wrapper::DataNode root, const std::string &id) const {
+	auto node = root.AddChild("shop");
+	node.SetValue("id", id);
+	node.SetValue("currency", "kKuna");
+	node.SetValue("profit", "0");
+	node.SetValue("waste_time_min", "180");
+	node.SetValue("can_buy", "false");
+	return node;   // keeper mobs and stock are added afterwards in the editor
 }
 
 // Thin entry points: route through cfg_manager so boot, `reload shop` and the item-set
