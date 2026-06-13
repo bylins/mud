@@ -181,6 +181,24 @@ bool MatchesName(ObjData *cand, const std::string &name) {
 	return isname(name.c_str(), cand->get_aliases().c_str());
 }
 
+// Self-reference aliases. Legacy get_char_room_vis resolved these to the
+// searcher up front, so every name-based char lookup (look/examine/diagnose/
+// ... via ResolveChar) could target self. Bytes are KOI8-R ("я"/"меня"/"себя").
+bool IsSelfAlias(const std::optional<std::string> &name) {
+	if (!name) return false;
+	const std::string &n = *name;
+	return n == "self" || n == "me" || n == "я" || n == "меня" || n == "себя";
+}
+
+// Self resolves only for lookups that include the searcher's vicinity
+// (room/self scope) -- get_char_vis always checked the room (and self) first.
+bool ScopeAllowsSelf(const std::vector<Scope> &scopes) {
+	for (const Scope s : scopes) {
+		if (s == Scope::kRoom || s == Scope::kSelf) return true;
+	}
+	return false;
+}
+
 // Parse the legacy "N.name" ordinal prefix. "2.fido" -> {ordinal=2, raw="fido"};
 // "fido" -> {1, "fido"}; "0.fido" -> {0, "fido"} (legacy "no match" sentinel);
 // non-numeric prefix -> {1, "input as-is"}.
@@ -400,6 +418,9 @@ std::pair<std::optional<std::string>, int> NameAndOrdinal(const Query &q) {
 }  // namespace
 
 CharData *ResolveChar(CharData *searcher, const Query &q) {
+	if (searcher && !q.char_predicate && ScopeAllowsSelf(q.scopes) && IsSelfAlias(q.name)) {
+		return searcher;
+	}
 	std::vector<CharData *> matches;
 	Query qs = q;
 	qs.single = true;
@@ -430,6 +451,9 @@ RoomData *ResolveRoom(CharData *searcher, const Query &q) {
 }
 
 std::vector<CharData *> ResolveChars(CharData *searcher, const Query &q) {
+	if (searcher && !q.char_predicate && ScopeAllowsSelf(q.scopes) && IsSelfAlias(q.name)) {
+		return {searcher};
+	}
 	std::vector<CharData *> matches;
 	Query qm = q;
 	qm.single = false;
