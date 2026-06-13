@@ -26,6 +26,6 @@
 		<attr name="price" type="int" min="0" desc="Price; 0 = prototype cost"/>
 	</tag>
 	<tag name="item_set" desc="Reference to a shop_item_set by id">
-		<attr name="id" type="string" desc="Item-set id (see shop_item_sets.xml)"/>
+		<attr name="id" type="enum" enum="ShopItemSetId" desc="Item-set id (a registered set in shop_item_sets.xml)"/>
 	</tag>
 </scheme>
