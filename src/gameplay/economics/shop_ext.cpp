@@ -35,12 +35,11 @@ ItemSetListType g_item_sets;   // catalog from cfg/economics/shop_item_sets.xml
 
 // A valid shop / item-set id: CamelCase -- starts with a letter, letters and digits only.
 bool IsValidShopId(const std::string &id) {
-	auto is_alpha = [](char c) { return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z'); };
-	if (id.empty() || !is_alpha(id[0])) {
+	if (id.empty() || !a_isalpha(id[0])) {
 		return false;
 	}
 	for (const char c : id) {
-		if (!is_alpha(c) && !(c >= '0' && c <= '9')) {
+		if (!a_isalnum(c)) {
 			return false;
 		}
 	}
