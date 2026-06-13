@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="koi8-r"?>
 <class id="kPaladine">
+    <experience_table id="kWarriorTable"/>
     <stats>
         <base_stats>
             <stat id="kStr"	gen_min="19"	gen_max="22"	auto="22"	cap="90"/>

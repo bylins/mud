@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<!-- issue.experience-table: exp tables extracted from GetExpUntilNextLvl + exp_coefficients. -->
+<!-- exp is the BASE value; runtime multiplies it by the remort coefficient (numerator/denominator). -->
+<experience_table>
+	<remort_coefficients>
+		<coefficient remort="0" numerator="1.0" denominator="1"/>
+		<coefficient remort="1" numerator="1.0" denominator="0.9"/>
+		<coefficient remort="2" numerator="1.0" denominator="0.8"/>
+		<coefficient remort="3" numerator="1.0" denominator="0.7"/>
+		<coefficient remort="4" numerator="1.0" denominator="0.6"/>
+		<coefficient remort="5" numerator="1.0" denominator="0.5"/>
+		<coefficient remort="6" numerator="1.0" denominator="0.4"/>
+		<coefficient remort="7" numerator="1.0" denominator="0.3"/>
+		<coefficient remort="8" numerator="1.0" denominator="0.2"/>
+		<coefficient remort="9" numerator="1.0" denominator="0.1"/>
+		<coefficient remort="10" numerator="1.0" denominator="0.09"/>
+		<coefficient remort="11" numerator="1.0" denominator="0.08"/>
+		<coefficient remort="12" numerator="1.0" denominator="0.07"/>
+		<coefficient remort="13" numerator="1.0" denominator="0.06"/>
+		<coefficient remort="14" numerator="1.0" denominator="0.05"/>
+		<coefficient remort="15" numerator="1.0" denominator="0.05"/>
+	</remort_coefficients>
+	<level_exp_tables>
+		<level_table id="kMageTable">
+			<level_exp level="0" exp="0"/>
+			<level_exp level="1" exp="1"/>
+			<level_exp level="2" exp="2500"/>
+			<level_exp level="3" exp="5000"/>
+			<level_exp level="4" exp="9000"/>
+			<level_exp level="5" exp="17000"/>
+			<level_exp level="6" exp="27000"/>
+			<level_exp level="7" exp="47000"/>
+			<level_exp level="8" exp="77000"/>
+			<level_exp level="9" exp="127000"/>
+			<level_exp level="10" exp="197000"/>
+			<level_exp level="11" exp="297000"/>
+			<level_exp level="12" exp="427000"/>
+			<level_exp level="13" exp="587000"/>
+			<level_exp level="14" exp="817000"/>
+			<level_exp level="15" exp="1107000"/>
+			<level_exp level="16" exp="1447000"/>
+			<level_exp level="17" exp="1847000"/>
+			<level_exp level="18" exp="2310000"/>
+			<level_exp level="19" exp="2830000"/>
+			<level_exp level="20" exp="3580000"/>
+			<level_exp level="21" exp="4580000"/>
+			<level_exp level="22" exp="5830000"/>
+			<level_exp level="23" exp="7330000"/>
+			<level_exp level="24" exp="9080000"/>
+			<level_exp level="25" exp="11080000"/>
+			<level_exp level="26" exp="15000000"/>
+			<level_exp level="27" exp="22000000"/>
+			<level_exp level="28" exp="33000000"/>
+			<level_exp level="29" exp="47000000"/>
+			<level_exp level="30" exp="64000000"/>
+			<level_exp level="31" exp="94000000"/>
+		</level_table>
+		<level_table id="kSorcererTable">
+			<level_exp level="0" exp="0"/>
+			<level_exp level="1" exp="1"/>
+			<level_exp level="2" exp="2500"/>
+			<level_exp level="3" exp="5000"/>
+			<level_exp level="4" exp="9000"/>
+			<level_exp level="5" exp="17000"/>
+			<level_exp level="6" exp="27000"/>
+			<level_exp level="7" exp="47000"/>
+			<level_exp level="8" exp="77000"/>
+			<level_exp level="9" exp="127000"/>
+			<level_exp level="10" exp="197000"/>
+			<level_exp level="11" exp="297000"/>
+			<level_exp level="12" exp="427000"/>
+			<level_exp level="13" exp="587000"/>
+			<level_exp level="14" exp="817000"/>
+			<level_exp level="15" exp="1107000"/>
+			<level_exp level="16" exp="1447000"/>
+			<level_exp level="17" exp="1847000"/>
+			<level_exp level="18" exp="2310000"/>
+			<level_exp level="19" exp="2830000"/>
+			<level_exp level="20" exp="3580000"/>
+			<level_exp level="21" exp="4580000"/>
+			<level_exp level="22" exp="5830000"/>
+			<level_exp level="23" exp="7330000"/>
+			<level_exp level="24" exp="9080000"/>
+			<level_exp level="25" exp="11080000"/>
+			<level_exp level="26" exp="15000000"/>
+			<level_exp level="27" exp="22000000"/>
+			<level_exp level="28" exp="33000000"/>
+			<level_exp level="29" exp="47000000"/>
+			<level_exp level="30" exp="64000000"/>
+			<level_exp level="31" exp="87000000"/>
+		</level_table>
+		<level_table id="kThiefTable">
+			<level_exp level="0" exp="0"/>
+			<level_exp level="1" exp="1"/>
+			<level_exp level="2" exp="1000"/>
+			<level_exp level="3" exp="2000"/>
+			<level_exp level="4" exp="4000"/>
+			<level_exp level="5" exp="8000"/>
+			<level_exp level="6" exp="15000"/>
+			<level_exp level="7" exp="28000"/>
+			<level_exp level="8" exp="52000"/>
+			<level_exp level="9" exp="85000"/>
+			<level_exp level="10" exp="131000"/>
+			<level_exp level="11" exp="192000"/>
+			<level_exp level="12" exp="271000"/>
+			<level_exp level="13" exp="372000"/>
+			<level_exp level="14" exp="512000"/>
+			<level_exp level="15" exp="672000"/>
+			<level_exp level="16" exp="854000"/>
+			<level_exp level="17" exp="1047000"/>
+			<level_exp level="18" exp="1274000"/>
+			<level_exp level="19" exp="1534000"/>
+			<level_exp level="20" exp="1860000"/>
+			<level_exp level="21" exp="2520000"/>
+			<level_exp level="22" exp="3380000"/>
+			<level_exp level="23" exp="4374000"/>
+			<level_exp level="24" exp="5500000"/>
+			<level_exp level="25" exp="6827000"/>
+			<level_exp level="26" exp="8667000"/>
+			<level_exp level="27" exp="13334000"/>
+			<level_exp level="28" exp="20000000"/>
+			<level_exp level="29" exp="28667000"/>
+			<level_exp level="30" exp="40000000"/>
+			<level_exp level="31" exp="53000000"/>
+		</level_table>
+		<level_table id="kAssasineTable">
+			<level_exp level="0" exp="0"/>
+			<level_exp level="1" exp="1"/>
+			<level_exp level="2" exp="1500"/>
+			<level_exp level="3" exp="3000"/>
+			<level_exp level="4" exp="6000"/>
+			<level_exp level="5" exp="12000"/>
+			<level_exp level="6" exp="22000"/>
+			<level_exp level="7" exp="42000"/>
+			<level_exp level="8" exp="77000"/>
+			<level_exp level="9" exp="127000"/>
+			<level_exp level="10" exp="197000"/>
+			<level_exp level="11" exp="287000"/>
+			<level_exp level="12" exp="407000"/>
+			<level_exp level="13" exp="557000"/>
+			<level_exp level="14" exp="767000"/>
+			<level_exp level="15" exp="1007000"/>
+			<level_exp level="16" exp="1280000"/>
+			<level_exp level="17" exp="1570000"/>
+			<level_exp level="18" exp="1910000"/>
+			<level_exp level="19" exp="2300000"/>
+			<level_exp level="20" exp="2790000"/>
+			<level_exp level="21" exp="3780000"/>
+			<level_exp level="22" exp="5070000"/>
+			<level_exp level="23" exp="6560000"/>
+			<level_exp level="24" exp="8250000"/>
+			<level_exp level="25" exp="10240000"/>
+			<level_exp level="26" exp="13000000"/>
+			<level_exp level="27" exp="20000000"/>
+			<level_exp level="28" exp="30000000"/>
+			<level_exp level="29" exp="43000000"/>
+			<level_exp level="30" exp="59000000"/>
+			<level_exp level="31" exp="79000000"/>
+		</level_table>
+		<level_table id="kWarriorTable">
+			<level_exp level="0" exp="0"/>
+			<level_exp level="1" exp="1"/>
+			<level_exp level="2" exp="2000"/>
+			<level_exp level="3" exp="4000"/>
+			<level_exp level="4" exp="8000"/>
+			<level_exp level="5" exp="14000"/>
+			<level_exp level="6" exp="24000"/>
+			<level_exp level="7" exp="39000"/>
+			<level_exp level="8" exp="69000"/>
+			<level_exp level="9" exp="119000"/>
+			<level_exp level="10" exp="189000"/>
+			<level_exp level="11" exp="289000"/>
+			<level_exp level="12" exp="419000"/>
+			<level_exp level="13" exp="579000"/>
+			<level_exp level="14" exp="800000"/>
+			<level_exp level="15" exp="1070000"/>
+			<level_exp level="16" exp="1340000"/>
+			<level_exp level="17" exp="1660000"/>
+			<level_exp level="18" exp="2030000"/>
+			<level_exp level="19" exp="2450000"/>
+			<level_exp level="20" exp="2950000"/>
+			<level_exp level="21" exp="3950000"/>
+			<level_exp level="22" exp="5250000"/>
+			<level_exp level="23" exp="6750000"/>
+			<level_exp level="24" exp="8450000"/>
+			<level_exp level="25" exp="10350000"/>
+			<level_exp level="26" exp="14000000"/>
+			<level_exp level="27" exp="21000000"/>
+			<level_exp level="28" exp="31000000"/>
+			<level_exp level="29" exp="44000000"/>
+			<level_exp level="30" exp="64000000"/>
+			<level_exp level="31" exp="79000000"/>
+		</level_table>
+	</level_exp_tables>
+</experience_table>

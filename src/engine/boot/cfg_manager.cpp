@@ -14,6 +14,7 @@
 //#include  "feats.h"
 #include "gameplay/abilities/abilities_info.h"
 #include "gameplay/classes/pc_classes_info.h"
+#include "gameplay/core/experience.h"
 #include "gameplay/classes/mob_classes_info.h"
 #include "gameplay/magic/spells_info.h"
 #include "gameplay/economics/currencies.h"
@@ -52,6 +53,8 @@ CfgManager::CfgManager() {
 										  std::make_unique<classes::ClassNamesLoader>(classes::ClassNamesLoader())));
 	loaders_.emplace("classes", LoaderInfo("cfg/classes/pc_classes.xml",
 										   std::make_unique<classes::ClassesLoader>(classes::ClassesLoader())));
+	loaders_.emplace("experience_table", LoaderInfo("cfg/experience_table.xml",
+		std::make_unique<experience::ExperienceTableLoader>()));
 	loaders_.emplace("skills", LoaderInfo("cfg/skills.xml",
 										  std::make_unique<SkillsLoader>(SkillsLoader())));
 	loaders_.emplace("skill_messages", LoaderInfo("cfg/messages/ru/skill_msg.xml",
