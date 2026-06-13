@@ -16,6 +16,7 @@
 #include "gameplay/fight/fight_messages.h"     // EFightMsg/EDamageSource + NAMES_OF
 #include "gameplay/classes/classes_constants.h"   // ECharClass + NAME_BY_ITEM
 #include "gameplay/economics/currencies.h"         // currency text_ids -> ECurrencyId
+#include "gameplay/economics/shop_ext.h"            // shop item-set ids -> ShopItemSetId
 #include "engine/db/global_objects.h"              // MUD::Currencies()
 #include "gameplay/mechanics/rune_stones.h"      // ERuneStoneMsg + NAMES_OF
 #include "engine/entities/entities_constants.h" // EPosition + NAMES_OF
@@ -154,6 +155,15 @@ void RegisterEditorEnums() {
 			}
 		}
 		registry.RegisterNames("ECurrencyId", currency_ids);
+	}
+	// Registered shop item-set ids (dynamic): a shop's <item_set id=> is validated against --
+	// and offered from -- the real catalog (cfg/economics/shop_item_sets.xml).
+	{
+		std::vector<std::string> item_set_ids;
+		for (const auto &set : ShopExt::item_sets()) {
+			item_set_ids.push_back(set->_id);
+		}
+		registry.RegisterNames("ShopItemSetId", item_set_ids);
 	}
 	registry.RegisterNames("EGender", {"kNeutral", "kMale", "kFemale", "kPoly"});
 	registry.RegisterNames("ECase", {"kNom", "kGen", "kDat", "kAcc", "kIns", "kPre"});
