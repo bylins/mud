@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<shop_list>
+	<shop currency="kKuna" id="MAGIC_SHOP" profit="30" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="4026" />
+		<item_set id="BASE_POTIONS"/>
+		<item_set id="BASE_POTION_BOTTLES"/> 
+		<item_set id="BASE_SPELLINGRS"/>
+		<item_set id="BASE_SCROLLS"/>
+		<item_set id="BASE_RUNES"/>
+		<item_set id="BASE_POISONS"/>
+	    </shop>
+	<shop currency="kKuna" id="FOOD_SHOP_2" profit="20" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="4009" />
+		<item_set id="STANDART_FOOD_-_BREAD"/>
+		<item_set id="STANDART_FOOD_-_BERRIES"/>
+		<item_set id="STANDART_FOOD_-_VEGETABLES"/>
+		<item_set id="STANDART_FOOD_-_MUSHROOMS"/>
+		<item_set id="STANDART_FOOD_-_FISH"/>
+		<item_set id="STANDART_FOOD_-_CHEAP_MEALS"/>
+		<item_set id="STANDART_FOOD_-_CEREALS"/>
+		<item_set id="STANDART_FOOD_-_BEVERAGES"/>
+		<item_set id="STANDART_FOOD_-_SPIRITS"/>
+	    </shop>
+	<shop currency="kKuna" id="FOOD_SHOP_3" profit="30" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="4024" />
+		<item_set id="STANDART_FOOD_-_SNACKS"/>
+		<item_set id="STANDART_FOOD_-_ALCOHOLIC_BEVERAGES"/>
+		<item_set id="STANDART_FOOD_-_SPIRITS"/>
+	    </shop>
+	<shop currency="kKuna" id="CLOTHING_SHOP_LOW_LEVEL" profit="20" waste_time_min="0">
+		<mob mob_vnum="4055" />
+		<mob mob_vnum="4025" />
+		<item_set id="STANDART_CLOTHING_LOW_LEVEL"/>
+		<item_set id="STANDART_LEATHER_LOW_LEVEL"/>
+		<item_set id="STANDART_ITEMS_LOW_LEVEL"/>
+	    </shop>
+	<shop currency="kKuna" id="ARMOR_AND_WEAPON_SHOP_LOW_LEVEL" profit="20" waste_time_min="0">
+		<mob mob_vnum="4003" />
+		<item_set id="STANDART_WEAPON_LOW_LEVEL"/>
+		<item_set id="STANDART_ARMOR_LOW_LEVEL"/>
+		<item_set id="BASE_BLACKSMITHING_TOOLS"/>
+		<item_set id="BASE_MINING_TOOLS"/>
+	    </shop>
+</shop_list>
