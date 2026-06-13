@@ -229,9 +229,9 @@ int CalcRollBonusOfGroupFormation(CharData *ch, CharData * /* enemy */) {
 	int skirmishers = roster.count([](CharData *ch) { return ch->IsFlagged(EPrf::kSkirmisher); });
 	int uncoveredSquadMembers = roster.amount() - skirmishers;
 	if (AFF_FLAGGED(ch, EAffect::kBlind)) {
-		return (skirmishers * 2 - uncoveredSquadMembers) * abilities::kCircumstanceFactor - 40;
+		return (skirmishers * 5 - uncoveredSquadMembers) * abilities::kCircumstanceFactor - 40;
 	};
-	return (skirmishers * 2 - uncoveredSquadMembers) * abilities::kCircumstanceFactor;
+	return (skirmishers * 5 - uncoveredSquadMembers) * abilities::kCircumstanceFactor;
 };
 
 void AbilityInfo::Print(CharData * /*ch*/, std::ostringstream &buffer) const {
