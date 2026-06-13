@@ -815,25 +815,28 @@ void show_room_affects(CharData *ch) {
 			if (!m.empty()) text = &m;
 		}
 		if (text) {
-			buffer << *text << "\r\n";
-			// Star-rating banner, detect-magic / immortal only.
+			// Star-rating marker (seal strength) on the SAME line as the affect text,
+			// detect-magic / immortal only (issue.dispellbug).
+			const char *stars = nullptr;
 			if (has_detect_magic
 					&& MUD::Spell(af->type).actions.Contains(talents_actions::EAction::kAffect)) {
 				const auto &applies = MUD::Spell(af->type).actions.GetAffect().GetApplies();
 				if (!applies.empty() && applies[0].cap > 0) {
 					const int pct = (af->modifier * 100) / applies[0].cap;
-					const char *stars =
+					stars =
 							pct > 99 ? "*****"
 							: pct > 80 ? "****"
 							: pct > 60 ? "***"
 							: pct > 40 ? "**"
 							: pct > 20 ? "*"
 							: nullptr;
-					if (stars) {
-						buffer << "[" << stars << "]\r\n";
-					}
 				}
 			}
+			buffer << *text;
+			if (stars) {
+				buffer << " [" << stars << "]";
+			}
+			buffer << "\r\n";
 			// kPortalTimer debug suffix: timer (room-tick pulses) + destination vnum.
 			// Replaces the immortals-only "(время: %d, куда: %d)" suffix that used to
 			// be inlined into the main description in look_at_room.

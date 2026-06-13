@@ -524,6 +524,19 @@ ECastResult CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomDat
 		return room_spells::CallMagicToRoom(caster, rvict, room_ctx);
 	}
 
+	// issue.dispellbug: dispel magic cast with no character/object target dispels the
+	// caster's current room (room wards like kForbidden) via CastUnaffects' room branch
+	// (author/ally + strength contest). Bypasses CallMagicToRoom so the ward itself
+	// cannot block its own removal.
+	if (spell_id == ESpell::kDispellMagic && !cvict && !ovict) {
+		profiler.next_step("room-dispel");
+		CastContext room_ctx = ctx;
+		room_ctx.cvict = nullptr;
+		room_ctx.rvict = world[caster->in_room];
+		return (CastUnaffects(room_ctx) == EStageResult::kBreak)
+				? ECastResult::kNotCast : ECastResult::kSuccess;
+	}
+
 	profiler.next_step("single");
 	return CastSpell(ctx, ECastTargets::kSingle);
 }
@@ -661,6 +674,15 @@ int FindCastTarget(ESpell spell_id, const char *t, CharData *ch, CharData **tch,
 				*tch = ch->GetEnemy();
 				return true;
 			}
+		// issue.dispellbug: dispel magic (kDispellMagic) with no character target (out
+		// of combat) dispels the caster's current room (room wards) instead of defaulting
+		// to self. tch stays null -> CallMagic routes to the room-dispel path. In combat
+		// the kTarFightSelf branch above already targets self (cleanse convenience).
+		if (spell_id == ESpell::kDispellMagic) {
+			*tch = nullptr;
+			*troom = world[ch->in_room];
+			return true;
+		}
 		if (MUD::Spell(spell_id).AllowTarget(kTarCharRoom) && !MUD::Spell(spell_id).IsViolent()) {
 			*tch = ch;
 			return true;

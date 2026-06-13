@@ -2105,6 +2105,10 @@
 		<message type="kAffImposedToRoom" val="$n запечатал$g магией все входы." />
 		<!-- Room-affect aura (issue.sight-fmt). Pure-magical: visible only with detect-magic. -->
 		<message type="kRoomAffectInvisible" val="&amp;c... магическая печать закрывает все входы ...&amp;n" />
+		<!-- Dispel narration (issue.dispellbug): room-appropriate, shown when the seal is
+		     dispelled. Sheaf-direct so it never falls back to the char-body kDefault. -->
+		<message type="kAffDispelledToChar" val="Вы развеяли магию, запечатывающую входы." />
+		<message type="kAffDispelledToRoom" val="$n развеял$g магию, запечатывающую входы." />
 	</msg_sheaf>
 	<msg_sheaf id="kRemoveSilence">
 		<name val="снять молчание" />

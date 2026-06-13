@@ -13,6 +13,8 @@
 #include "gameplay/mechanics/weather.h"
 #include "gameplay/mechanics/groups.h"
 #include "engine/db/player_index.h"
+#include "engine/db/db.h"           // chardata_by_uid
+#include "gameplay/fight/pk.h"          // pk_agro_action
 
 // Структуры и функции для работы с заклинаниями, обкастовывающими комнаты
 
@@ -378,6 +380,25 @@ void UpdateRoomsAffects() {
 // Reads ctx.action_or_default(): action[0] for the legacy CallMagicToRoom entry, or the cursor
 // action when driven from the per-action loop -- so a kTarRoomThis action can scale the room
 // affect off a prior action's result via ctx.CompetenceBase(). kSuccess on impose, kNotCast on no-effect.
+// issue.dispellbug: classify an actor against an existing room affect (author/ally
+// => free action; otherwise a strength contest, with PK liability for a player vs a
+// live author). Author lookup via chardata_by_uid: presence + in-world => alive author.
+RoomAffectActor ClassifyRoomAffectAccess(CharData *ch, long caster_id) {
+	CharData *author = nullptr;
+	const auto it = chardata_by_uid.find(caster_id);
+	if (it != chardata_by_uid.end() && it->second
+			&& !it->second->purged() && it->second->in_room != kNowhere) {
+		author = it->second;
+	}
+	if (ch->get_uid() == caster_id) {
+		return {true, author};
+	}
+	if (author && group::same_group(ch, author)) {
+		return {true, author};
+	}
+	return {false, author};
+}
+
 ECastResult CastRoomAffect(CastContext &ctx) {
 	CharData *const ch = ctx.caster();
 	RoomData *const room = ctx.rvict;
@@ -446,6 +467,7 @@ ECastResult CastRoomAffect(CastContext &ctx) {
 	// affect's first slot carries kAfUpdateDuration. kAfUnique drops any
 	// prior copy from this caster.
 	bool success = true;
+	bool handled_update = false;   // existing room affect updated in place -> skip impose loop
 	if (MUD::Spell(spell_id).IsFlagged(kMagNeedControl)) {
 		auto found_spell = RemoveControlledRoomAffect(ch);
 		if (found_spell != ESpell::kUndefined) {
@@ -458,10 +480,48 @@ ECastResult CastRoomAffect(CastContext &ctx) {
 		}
 	} else {
 		auto RoomAffect_i = FindAffect(room, spell_id);
-		const auto RoomAffect = RoomAffect_i != room->affected.end() ? *RoomAffect_i : nullptr;
-		const bool refresh_allowed = IS_SET(af[0].battleflag, kAfUpdateDuration);
-		if (RoomAffect && RoomAffect->caster_id == ch->get_uid() && !refresh_allowed) {
-			success = false;
+		if (RoomAffect_i != room->affected.end() && !IS_SET(af[0].battleflag, kAfUnique)) {
+			// issue.dispellbug: re-cast over an existing (non per-caster-unique) room affect.
+			// Per-field gating: kAfUpdateDuration -> duration, kAfUpdateMod -> modifier;
+			// neither -> not updatable. Author/live-ally update for free (buff OR weaken);
+			// an outsider must win a strength contest, and a player outsider vs a live
+			// author commits an aggressive PK act.
+			const auto &existing = *RoomAffect_i;
+			const bool can_dur = IS_SET(af[0].battleflag, kAfUpdateDuration);
+			const bool can_mod = IS_SET(af[0].battleflag, kAfUpdateMod);
+			if (!can_dur && !can_mod) {
+				success = false;
+			} else {
+				// Only dispellable wards (e.g. kForbidden) require an author/ally + strength
+				// contest to update; non-dispellable room buffs (e.g. room light) update
+				// freely for now (issue.dispellbug).
+				bool may = true;
+				if (IS_SET(af[0].battleflag, kAfDispellable)) {
+					const auto access = ClassifyRoomAffectAccess(ch, existing->caster_id);
+					may = access.free;
+					if (!access.free) {
+						if (!ch->IsNpc() && access.author && !pk_agro_action(ch, access.author)) {
+							success = false;
+						} else if (number(1, 100) <= 5 || af[0].potency > existing->potency) {
+							may = true;
+						} else {
+							success = false;
+						}
+					}
+				}
+				if (success && may) {
+					if (can_dur) {
+						existing->duration =
+							CalcComplexSpellMod(ch, spell_id, GAPPLY_SPELL_EFFECT, af[0].duration);
+					}
+					if (can_mod) {
+						existing->modifier = af[0].modifier;
+					}
+					existing->caster_id = ch->get_uid();   // authorship transfer
+					AddRoomToAffected(room);
+					handled_update = true;
+				}
+			}
 		} else if (IS_SET(af[0].battleflag, kAfUnique)) {
 			RemoveSingleRoomAffect(ch->get_uid(), spell_id);
 		}
@@ -472,7 +532,7 @@ ECastResult CastRoomAffect(CastContext &ctx) {
 	// affect_room_join with kAfAccumulateDuration deciding whether durations
 	// stack. Empty slots (no duration, no location, no kAfMustBeHandled flag)
 	// are skipped.
-	for (int i = 0; success && i < kMaxSpellAffects; i++) {
+	for (int i = 0; !handled_update && success && i < kMaxSpellAffects; i++) {
 		af[i].type = spell_id;
 		if (af[i].duration
 			|| af[i].location != kNone

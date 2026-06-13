@@ -1840,28 +1840,30 @@ bool DispelSucceeds(CharData *ch, CharData *victim, ESpell dispel_spell, ESpell 
 	//   roll  -- a normal weighted potency contest was rolled.
 	auto emit_debug = [&](float spell_pot, const char *kind, bool ok) {
 		spell_trace::Line(ch, nullptr,
-				 "Unaffect: %s [p: %.1f %s]. Target: %s [p: %.1f]. %s.\r\n",
-				 MUD::Spell(dispel_spell).GetCName(), spell_pot, kind,
+				 "Unaffect: %s [p: %.1f]. Target: %s [p: %.1f]. %s (%s).\r\n",
+				 MUD::Spell(dispel_spell).GetCName(), spell_pot,
 				 MUD::Spell(affect_spell).GetCName(), affect_potency,
-				 ok ? "Success" : "Fail");
+				 ok ? "Success" : "Fail", kind);
 	};
 	// Case 3: a non-violent (per-target) dispel removing a buff needs no check.
 	// For an A dispel, the question is whether THIS cast on THIS
 	// victim is aggressive: dispel from an ally hand on an ally buff -> no contest;
 	// dispel from an enemy hand -> potency contest as for any violent dispel.
-	if (!MUD::Spell(dispel_spell).IsViolentAgainst(ch, victim) && !affect_is_debuff) {
-		emit_debug(0.0f, "buff", true);
-		return true;
-	}
-	// Always a 5% chance to remove regardless of potency.
-	if (number(1, 100) <= 5) {
-		emit_debug(0.0f, "luck", true);
-		return true;
-	}
+	// Compute the dispel's potency up front so even the free passes (buff/luck) report
+	// the real rolled power instead of 0 (issue.dispellbug).
 	const auto &roll = MUD::Spell(dispel_spell).GetPotencyRoll();
 	const float spell_potency = static_cast<float>(
 			roll.RollSkillDices() + competence)  // competence base override
 			* potency_weight * static_cast<float>(area_coeff);
+	if (!MUD::Spell(dispel_spell).IsViolentAgainst(ch, victim) && !affect_is_debuff) {
+		emit_debug(spell_potency, "buff", true);
+		return true;
+	}
+	// Always a 5% chance to remove regardless of potency.
+	if (number(1, 100) <= 5) {
+		emit_debug(spell_potency, "luck", true);
+		return true;
+	}
 	const bool ok = spell_potency > affect_potency;
 	emit_debug(spell_potency, "roll", ok);
 	return ok;
@@ -1958,11 +1960,14 @@ void RemoveAffectAndAnnounce(CharData *ch, RoomData *room, ESpell removed) {
 			++it;
 		}
 	}
-	const auto &to_char = MUD::SpellMessages().GetMessage(removed, ESpellMsg::kAffDispelledToChar);
+	// Sheaf-direct (no kDefault fallback): a room dispel shows only the affect's OWN
+	// dispel message, never the char-centric kDefault (issue.dispellbug).
+	const auto &sheaf = MUD::SpellMessages()[removed];
+	const auto &to_char = sheaf.GetMessage(ESpellMsg::kAffDispelledToChar);
 	if (!to_char.empty()) {
 		act(to_char.c_str(), false, ch, nullptr, nullptr, kToChar);
 	}
-	const auto &to_room = MUD::SpellMessages().GetMessage(removed, ESpellMsg::kAffDispelledToRoom);
+	const auto &to_room = sheaf.GetMessage(ESpellMsg::kAffDispelledToRoom);
 	if (!to_room.empty()) {
 		act(to_room.c_str(), true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 	}
@@ -1971,33 +1976,42 @@ void RemoveAffectAndAnnounce(CharData *ch, RoomData *room, ESpell removed) {
 bool DispelSucceeds(CharData *ch, RoomData *room, ESpell dispel_spell, ESpell affect_spell,
 					float potency_weight, double competence, double area_coeff = 1.0) {
 	float affect_potency = 0.0f;
-	bool affect_is_debuff = false;
+	long author_uid = 0;
 	for (const auto &aff : room->affected) {
 		if (aff && aff->type == affect_spell) {
 			affect_potency = aff->potency;
-			affect_is_debuff = aff->debuff;
+			author_uid = aff->caster_id;
 			break;
 		}
 	}
 	auto emit_debug = [&](float spell_pot, const char *kind, bool ok) {
 		spell_trace::Line(ch, nullptr,
-				 "Unaffect: %s [p: %.1f %s]. Target room: %s [p: %.1f]. %s.\r\n",
-				 MUD::Spell(dispel_spell).GetCName(), spell_pot, kind,
+				 "Unaffect: %s [p: %.1f]. Target room: %s [p: %.1f]. %s (%s).\r\n",
+				 MUD::Spell(dispel_spell).GetCName(), spell_pot,
 				 MUD::Spell(affect_spell).GetCName(), affect_potency,
-				 ok ? "Success" : "Fail");
+				 ok ? "Success" : "Fail", kind);
 	};
-	if (!MUD::Spell(dispel_spell).IsViolent() && !affect_is_debuff) {
-		emit_debug(0.0f, "buff", true);
-		return true;
-	}
-	if (number(1, 100) <= 5) {
-		emit_debug(0.0f, "luck", true);
-		return true;
-	}
+	// issue.dispellbug: author/ally-aware room dispel. The affect's author or a live
+	// ally dispels for free; anyone else must win a strength contest, and a player vs a
+	// live author commits an aggressive PK act. (Dispellability is filtered upstream by
+	// the <unaffect affect_flags=> mask, so kAfDispellable is already enforced.)
 	const auto &roll = MUD::Spell(dispel_spell).GetPotencyRoll();
 	const float spell_potency = static_cast<float>(
 			roll.RollSkillDices() + competence)  // competence base override
 			* potency_weight * static_cast<float>(area_coeff);
+	const auto access = room_spells::ClassifyRoomAffectAccess(ch, author_uid);
+	if (access.free) {
+		emit_debug(spell_potency, "ally", true);
+		return true;
+	}
+	if (!ch->IsNpc() && access.author && !pk_agro_action(ch, access.author)) {
+		emit_debug(spell_potency, "pk", false);
+		return false;
+	}
+	if (number(1, 100) <= 5) {
+		emit_debug(spell_potency, "luck", true);
+		return true;
+	}
 	const bool ok = spell_potency > affect_potency;
 	emit_debug(spell_potency, "roll", ok);
 	return ok;

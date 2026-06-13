@@ -67,6 +67,16 @@ void ProcessRoomAffectsOnEntry(CharData *ch, RoomRnum room);
 // the "did someone else cast this?" question (do_enter entry penalty).
 long FindRoomPkPortalUid(RoomData *room, long exclude_uid = 0);
 
+// issue.dispellbug: relationship of an actor to an existing room affect.
+// `free` = actor is the affect's author or a live in-world ally (acts with no
+// strength contest); `author` = the live in-world author (for PK flagging) or
+// nullptr when the author is offline / gone.
+struct RoomAffectActor {
+	bool free;
+	CharData *author;
+};
+RoomAffectActor ClassifyRoomAffectAccess(CharData *ch, long caster_id);
+
 } // namespace room_spells
 
 #endif // MAGIC_ROOMS_HPP_
