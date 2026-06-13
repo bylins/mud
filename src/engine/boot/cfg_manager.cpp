@@ -15,6 +15,7 @@
 #include "gameplay/abilities/abilities_info.h"
 #include "gameplay/classes/pc_classes_info.h"
 #include "gameplay/core/experience.h"
+#include "gameplay/economics/shop_ext.h"
 #include "gameplay/classes/mob_classes_info.h"
 #include "gameplay/magic/spells_info.h"
 #include "gameplay/economics/currencies.h"
@@ -47,6 +48,8 @@ CfgManager::CfgManager() {
 											  std::make_unique<mob_races::MobRacesLoader>(mob_races::MobRacesLoader())));
 	loaders_.emplace("currency_messages", LoaderInfo("cfg/messages/ru/currency_msg.xml",
 											  std::make_unique<currencies::CurrencyNamesLoader>(currencies::CurrencyNamesLoader())));
+	loaders_.emplace("shop_item_sets", LoaderInfo("cfg/economics/shop_item_sets.xml",
+		std::make_unique<ShopExt::ShopItemSetsLoader>()));
 	loaders_.emplace("currencies", LoaderInfo("cfg/economics/currencies.xml",
 											  std::make_unique<currencies::CurrenciesLoader>(currencies::CurrenciesLoader())));
 	loaders_.emplace("class_messages", LoaderInfo("cfg/messages/ru/class_msg.xml",
