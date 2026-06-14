@@ -72,6 +72,11 @@
 #include "engine/db/sqlite_world_data_source.h"
 #endif
 #include "utils/utils.h"
+#include <cstring>
+#include <cerrno>
+#ifndef _WIN32
+#include <sys/resource.h>  // RLIMIT_CORE -- только для unix-сборок
+#endif
 #include "engine/core/conf.h"
 #include "engine/ui/modify.h"
 #include "gameplay/statistics/money_drop.h"
@@ -2269,7 +2274,39 @@ RETSIGTYPE hupsig(int/* sig*/) {
  * SunOS Release 4.0.2 (sun386) needs this too, according to Tim Aldric.
  */
 
+// Поднимаем мягкий лимит на размер core до жёсткого (обычно unlimited), чтобы
+// при падении мада ОС писала ПОЛНЫЙ core. Урезанный по размеру core читается в
+// gdb как каша (стек неполный, фреймы "??"). Заодно логируем итоговый лимит и
+// core_pattern, чтобы было видно, пишутся ли коры и куда.
+static void enable_coredumps_and_log() {
+#ifdef CIRCLE_UNIX
+	struct rlimit rl;
+	if (getrlimit(RLIMIT_CORE, &rl) == 0) {
+		const rlim_t was = rl.rlim_cur;
+		rl.rlim_cur = rl.rlim_max;
+		if (setrlimit(RLIMIT_CORE, &rl) != 0) {
+			log("SYSERR: setrlimit(RLIMIT_CORE) failed: %s", strerror(errno));
+		}
+		getrlimit(RLIMIT_CORE, &rl);
+		auto lim = [](rlim_t v) -> long long { return v == RLIM_INFINITY ? -1 : (long long) v; };
+		log("Core dumps: RLIMIT_CORE was %lld, set cur=%lld max=%lld (-1 = unlimited)",
+			lim(was), lim(rl.rlim_cur), lim(rl.rlim_max));
+	} else {
+		log("SYSERR: getrlimit(RLIMIT_CORE) failed: %s", strerror(errno));
+	}
+	if (FILE *f = fopen("/proc/sys/kernel/core_pattern", "r")) {
+		char pat[256] = {0};
+		if (fgets(pat, sizeof(pat), f)) {
+			pat[strcspn(pat, "\n")] = '\0';
+			log("Core pattern: %s", pat);
+		}
+		fclose(f);
+	}
+#endif
+}
+
 void signal_setup(void) {
+	enable_coredumps_and_log();
 	my_signal(SIGINT, hupsig);
 	my_signal(SIGTERM, hupsig);
 	my_signal(SIGPIPE, SIG_IGN);
