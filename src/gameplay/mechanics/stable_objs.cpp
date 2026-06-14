@@ -4,7 +4,6 @@
 
 #include "stable_objs.h"
 
-#include "engine/boot/boot_constants.h"
 #include "engine/entities/obj_data.h"
 #include "gameplay/core/constants.h"
 #include "utils/parse.h"
@@ -17,8 +16,6 @@
 #include <vector>
 
 namespace stable_objs {
-
-#define STABLE_OBJS_FILE (LIB_CFG "mechanics/stable_objs.xml")
 
 struct UndecayableCriterions {
   std::map<std::string, double> params;
@@ -361,13 +358,17 @@ double ParseCriterionValue(const char *value) {
 	}
 }
 
-void LoadCriterionsCfg() {
-	parser_wrapper::DataNode doc(STABLE_OBJS_FILE);
+void StableObjsLoader::Load(parser_wrapper::DataNode data) {
+	// перезагрузка должна быть идемпотентной -- чистим накопленные критерии
+	for (auto &slot : undecayable_criterions) {
+		slot.params.clear();
+		slot.affects.clear();
+	}
 
 	// Файл -- набор секций верхнего уровня, по одной на тип шмотки (<finger>, <neck>, ...).
 	// Собираем их по имени тега (DataNode из файла стоит на первой секции, дальше -- соседи).
 	std::map<std::string, parser_wrapper::DataNode> sections;
-	for (auto node = doc; node.GetName() && *node.GetName(); ++node) {
+	for (auto node = data; node.GetName() && *node.GetName(); ++node) {
 		sections.emplace(node.GetName(), node);
 	}
 
@@ -395,11 +396,15 @@ void LoadCriterionsCfg() {
 	for (const auto &[tag, wear] : kSectionToWear) {
 		const auto it = sections.find(tag);
 		if (it == sections.end()) {
-			err_log("stable_objs: section <%s> not found in %s", tag.c_str(), STABLE_OBJS_FILE);
+			err_log("stable_objs: section <%s> not found in stable_objs.xml", tag.c_str());
 			continue;
 		}
 		LoadCriterion(it->second, wear);
 	}
+}
+
+void StableObjsLoader::Reload(parser_wrapper::DataNode data) {
+	Load(std::move(data));
 }
 
 void LoadCriterion(parser_wrapper::DataNode criterion, const EWearFlag type) {

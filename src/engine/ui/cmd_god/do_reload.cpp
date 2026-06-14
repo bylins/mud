@@ -89,6 +89,7 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		oload_table.init();
 		ObjData::InitSetTable();
 		MUD::CfgManager().ReloadCfg("mob_races");
+		MUD::CfgManager().ReloadCfg("stable_objs");
 		GlobalDrop::init();
 		offtop_system::Init();
 		celebrates::Load();
@@ -103,6 +104,8 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		MUD::Runestones().SpawnStones();   // phase 3: (re)place physical stones for any new rooms
 	} else if (!str_cmp(arg, "abilities")) {
 		MUD::CfgManager().ReloadCfg("abilities");
+	} else if (!str_cmp(arg, "stableobjs")) {
+		MUD::CfgManager().ReloadCfg("stable_objs");
 	} else if (!str_cmp(arg, "skills")) {
 		MUD::CfgManager().ReloadCfg("skills");
 	} else if (!str_cmp(arg, "spells")) {

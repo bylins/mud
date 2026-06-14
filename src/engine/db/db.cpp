@@ -728,7 +728,7 @@ void BootMudDataBase() {
 
 	boot_profiler.next_step("Loading undecayable object criterions");
 	log("Loading undecayable object criterions.");
-	stable_objs::LoadCriterionsCfg();
+	MUD::CfgManager().LoadCfg("stable_objs");
 
 	boot_profiler.next_step("Loading ingredients magic");
 	log("Booting IM");
