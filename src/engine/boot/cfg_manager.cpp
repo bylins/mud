@@ -111,7 +111,7 @@ CfgManager::CfgManager() {
 										  std::make_unique<CommonMessagesLoader>(CommonMessagesLoader())));
 	loaders_.emplace("socials", LoaderInfo("cfg/messages/ru/social_msg.xml",
 										  std::make_unique<communication::social::SocialsLoader>(communication::social::SocialsLoader())));
-	loaders_.emplace("guilds", LoaderInfo("cfg/guilds.xml",
+	loaders_.emplace("guilds", LoaderInfo("cfg/mechanics/guilds.xml",
 										  std::make_unique<guilds::GuildsLoader>(guilds::GuildsLoader())));
 	loaders_.emplace("zone_types", LoaderInfo("cfg/zone_types.xml",
 										  std::make_unique<zone_types::ZoneTypesLoader>(zone_types::ZoneTypesLoader())));

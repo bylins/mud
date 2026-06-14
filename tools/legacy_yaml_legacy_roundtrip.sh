@@ -26,7 +26,7 @@
 #
 # Pre-requisites:
 #   - A legacy world data_dir at <v1_dir> with world/{wld,mob,obj,zon,trg}/
-#     index + per-zone files and misc/configuration.xml.
+#     index + per-zone files and cfg/configuration.xml.
 #   - convert_to_yaml.py deps installed
 #     (pip install -r tools/converter/requirements.txt).
 #   - YAML build: -Dyaml=builtin or =system.
