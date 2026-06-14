@@ -4,21 +4,21 @@
 
 #include "stable_objs.h"
 
-#include "third_party_libs/pugixml/pugixml.h"
-
 #include "engine/boot/boot_constants.h"
 #include "engine/entities/obj_data.h"
 #include "gameplay/core/constants.h"
+#include "utils/parse.h"
+#include "utils/parser_wrapper.h"
 #include "utils/utils.h"
 
-extern pugi::xml_node XmlLoad(const char *PathToFile,
-							  const char *MainTag,
-							  const char *ErrorStr,
-							  pugi::xml_document &Doc);
+#include <map>
+#include <string>
+#include <utility>
+#include <vector>
 
 namespace stable_objs {
 
-#define CRITERION_FILE "criterion.xml"
+#define STABLE_OBJS_FILE (LIB_CFG "mechanics/stable_objs.xml")
 
 struct UndecayableCriterions {
   std::map<std::string, double> params;
@@ -28,7 +28,7 @@ struct UndecayableCriterions {
 // массив для критерии, каждый элемент массива это отдельный слот
 UndecayableCriterions undecayable_criterions[17]; // = new Item_struct[16];
 
-void LoadCriterion(pugi::xml_node criterion, EWearFlag type);
+void LoadCriterion(parser_wrapper::DataNode criterion, EWearFlag type);
 double CountUnlimitedTimerBonus(const CObjectPrototype *obj, int item_wear);
 
 // определение степени двойки
@@ -349,60 +349,78 @@ bool IsObjFromSystemZone(ObjVnum vnum) {
 	return false;
 }
 
+// Лояльный разбор числа, как было у pugixml as_double(): пустое/некорректное значение -> 0.
+double ParseCriterionValue(const char *value) {
+	if (!value || !*value) {
+		return 0.0;
+	}
+	try {
+		return parse::ReadAsDouble(value);
+	} catch (const std::exception &) {
+		return 0.0;
+	}
+}
+
 void LoadCriterionsCfg() {
-	pugi::xml_document doc1;
-	LoadCriterion(XmlLoad(LIB_MISC CRITERION_FILE, "finger", "Error Loading Criterion.xml: <finger>", doc1),
-				  EWearFlag::kFinger);
-	LoadCriterion(XmlLoad(LIB_MISC CRITERION_FILE, "neck", "Error Loading Criterion.xml: <neck>", doc1),
-				  EWearFlag::kNeck);
-	LoadCriterion(XmlLoad(LIB_MISC CRITERION_FILE, "body", "Error Loading Criterion.xml: <body>", doc1),
-				  EWearFlag::kBody);
-	LoadCriterion(XmlLoad(LIB_MISC CRITERION_FILE, "head", "Error Loading Criterion.xml: <head>", doc1),
-				  EWearFlag::kHead);
-	LoadCriterion(XmlLoad(LIB_MISC CRITERION_FILE, "legs", "Error Loading Criterion.xml: <legs>", doc1),
-				  EWearFlag::kLegs);
-	LoadCriterion(XmlLoad(LIB_MISC CRITERION_FILE, "feet", "Error Loading Criterion.xml: <feet>", doc1),
-				  EWearFlag::kFeet);
-	LoadCriterion(XmlLoad(LIB_MISC CRITERION_FILE, "hands", "Error Loading Criterion.xml: <hands>", doc1),
-				  EWearFlag::kHands);
-	LoadCriterion(XmlLoad(LIB_MISC CRITERION_FILE, "arms", "Error Loading Criterion.xml: <arms>", doc1),
-				  EWearFlag::kArms);
-	LoadCriterion(XmlLoad(LIB_MISC CRITERION_FILE, "shield", "Error Loading Criterion.xml: <shield>", doc1),
-				  EWearFlag::kShield);
-	LoadCriterion(XmlLoad(LIB_MISC CRITERION_FILE, "about", "Error Loading Criterion.xml: <about>", doc1),
-				  EWearFlag::kShoulders);
-	LoadCriterion(XmlLoad(LIB_MISC CRITERION_FILE, "waist", "Error Loading Criterion.xml: <waist>", doc1),
-				  EWearFlag::kWaist);
-	LoadCriterion(XmlLoad(LIB_MISC CRITERION_FILE, "waist", "Error Loading Criterion.xml: <quiver>", doc1),
-				  EWearFlag::kQuiver);
-	LoadCriterion(XmlLoad(LIB_MISC CRITERION_FILE, "wrist", "Error Loading Criterion.xml: <wrist>", doc1),
-				  EWearFlag::kWrist);
-	LoadCriterion(XmlLoad(LIB_MISC CRITERION_FILE, "boths", "Error Loading Criterion.xml: <boths>", doc1),
-				  EWearFlag::kBoth);
-	LoadCriterion(XmlLoad(LIB_MISC CRITERION_FILE, "wield", "Error Loading Criterion.xml: <wield>", doc1),
-				  EWearFlag::kWield);
-	LoadCriterion(XmlLoad(LIB_MISC CRITERION_FILE, "hold", "Error Loading Criterion.xml: <hold>", doc1),
-				  EWearFlag::kHold);
-};
+	parser_wrapper::DataNode doc(STABLE_OBJS_FILE);
 
-void LoadCriterion(pugi::xml_node criterion, const EWearFlag type) {
-	int index = DeterminePowerOfTwoForEnum(type);
-	pugi::xml_node params, CurNode, affects;
-	params = criterion.child("params");
-	affects = criterion.child("affects");
-
-	// добавляем в массив все параметры, типа силы, ловкости, каст и тд
-	for (CurNode = params.child("param"); CurNode; CurNode = CurNode.next_sibling("param")) {
-		undecayable_criterions[index].params.insert(std::make_pair(CurNode.attribute("name").value(),
-																   CurNode.attribute("value").as_double()));
-		//log("str:%s, double:%f", CurNode.attribute("name").value(),  CurNode.attribute("value").as_double());
+	// Файл -- набор секций верхнего уровня, по одной на тип шмотки (<finger>, <neck>, ...).
+	// Собираем их по имени тега (DataNode из файла стоит на первой секции, дальше -- соседи).
+	std::map<std::string, parser_wrapper::DataNode> sections;
+	for (auto node = doc; node.GetName() && *node.GetName(); ++node) {
+		sections.emplace(node.GetName(), node);
 	}
 
-	// добавляем в массив все аффекты
-	for (CurNode = affects.child("affect"); CurNode; CurNode = CurNode.next_sibling("affect")) {
-		undecayable_criterions[index].affects.insert(std::make_pair(CurNode.attribute("name").value(),
-																	CurNode.attribute("value").as_double()));
-		//log("Affects:str:%s, double:%f", CurNode.attribute("name").value(),  CurNode.attribute("value").as_double());
+	// Тег секции -> позиция экипировки. <waist> намеренно используется и для пояса (kWaist),
+	// и для колчана (kQuiver) -- отдельной секции <quiver> в файле нет.
+	static const std::vector<std::pair<std::string, EWearFlag>> kSectionToWear = {
+		{"finger", EWearFlag::kFinger},
+		{"neck",   EWearFlag::kNeck},
+		{"body",   EWearFlag::kBody},
+		{"head",   EWearFlag::kHead},
+		{"legs",   EWearFlag::kLegs},
+		{"feet",   EWearFlag::kFeet},
+		{"hands",  EWearFlag::kHands},
+		{"arms",   EWearFlag::kArms},
+		{"shield", EWearFlag::kShield},
+		{"about",  EWearFlag::kShoulders},
+		{"waist",  EWearFlag::kWaist},
+		{"waist",  EWearFlag::kQuiver},
+		{"wrist",  EWearFlag::kWrist},
+		{"boths",  EWearFlag::kBoth},
+		{"wield",  EWearFlag::kWield},
+		{"hold",   EWearFlag::kHold},
+	};
+
+	for (const auto &[tag, wear] : kSectionToWear) {
+		const auto it = sections.find(tag);
+		if (it == sections.end()) {
+			err_log("stable_objs: section <%s> not found in %s", tag.c_str(), STABLE_OBJS_FILE);
+			continue;
+		}
+		LoadCriterion(it->second, wear);
+	}
+}
+
+void LoadCriterion(parser_wrapper::DataNode criterion, const EWearFlag type) {
+	const int index = DeterminePowerOfTwoForEnum(type);
+
+	// параметры (сила, ловкость, каст и т.д.)
+	if (criterion.GoToChild("params")) {
+		for (auto &param : criterion.Children("param")) {
+			undecayable_criterions[index].params.emplace(param.GetValue("name"),
+														 ParseCriterionValue(param.GetValue("value")));
+		}
+		criterion.GoToParent();
+	}
+
+	// аффекты на объекте
+	if (criterion.GoToChild("affects")) {
+		for (auto &affect : criterion.Children("affect")) {
+			undecayable_criterions[index].affects.emplace(affect.GetValue("name"),
+														  ParseCriterionValue(affect.GetValue("value")));
+		}
+		criterion.GoToParent();
 	}
 }
 

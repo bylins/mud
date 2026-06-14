@@ -6,7 +6,6 @@
 #define BYLINS_SRC_GAME_MECHANICS_STABLE_OBJS_H_
 
 #include "engine/entities/entities_constants.h"
-#include "third_party_libs/pugixml/pugixml.h"
 
 class CObjectPrototype;
 
