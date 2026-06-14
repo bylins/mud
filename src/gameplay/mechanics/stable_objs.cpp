@@ -4,6 +4,7 @@
 
 #include "stable_objs.h"
 
+#include "engine/entities/entities_constants.h"
 #include "engine/entities/obj_data.h"
 #include "gameplay/affects/affect_contants.h"
 #include "utils/parse.h"
@@ -11,7 +12,6 @@
 #include "utils/utils.h"
 
 #include <map>
-#include <sstream>
 #include <string>
 #include <vector>
 
@@ -327,31 +327,6 @@ double ParseCriterionValue(const char *value) {
 	}
 }
 
-// EEquipPos-токен (из <position val=>) -> позиция-флаг EWearFlag, по которой индексируются критерии
-// слота. Парные слоты (kFingerR/kFingerL, kWristR/kWristL) сводятся к одному флагу.
-EWearFlag WearFlagOfEquipPos(const std::string &pos) {
-	static const std::map<std::string, EWearFlag> kPosToWear = {
-		{"kFingerR", EWearFlag::kFinger}, {"kFingerL", EWearFlag::kFinger},
-		{"kNeck", EWearFlag::kNeck},
-		{"kBody", EWearFlag::kBody},
-		{"kHead", EWearFlag::kHead},
-		{"kLegs", EWearFlag::kLegs},
-		{"kFeet", EWearFlag::kFeet},
-		{"kHands", EWearFlag::kHands},
-		{"kArms", EWearFlag::kArms},
-		{"kShield", EWearFlag::kShield},
-		{"kShoulders", EWearFlag::kShoulders},
-		{"kWaist", EWearFlag::kWaist},
-		{"kQuiver", EWearFlag::kQuiver},
-		{"kWristR", EWearFlag::kWrist}, {"kWristL", EWearFlag::kWrist},
-		{"kWield", EWearFlag::kWield},
-		{"kHold", EWearFlag::kHold},
-		{"kBoths", EWearFlag::kBoth},
-	};
-	const auto it = kPosToWear.find(pos);
-	return it != kPosToWear.end() ? it->second : EWearFlag::kUndefined;
-}
-
 // Загружает критерии одной <position> в слот index: <apply id=EApply>, <affect id=EWeaponAffect>.
 void LoadPosition(parser_wrapper::DataNode position, int index) {
 	if (position.GoToChild("params")) {
@@ -386,21 +361,9 @@ void StableObjsLoader::Load(parser_wrapper::DataNode data) {
 	}
 
 	// <equipment_positions> -> набор <position val="EEquipPos|...">. Каждая позиция из списка val
-	// ложится в свой слот критериев (EWearFlag-индекс).
+	// (разбор -- общий ParseWearPositions) ложится в свой слот критериев (EWearFlag-индекс).
 	for (auto &position : data.Children("position")) {
-		const std::string val = position.GetValue("val");
-		if (val.empty()) {
-			err_log("stable_objs: <position> without 'val'");
-			continue;
-		}
-		std::stringstream ss(val);
-		std::string token;
-		while (std::getline(ss, token, '|')) {
-			const EWearFlag wear = WearFlagOfEquipPos(token);
-			if (wear == EWearFlag::kUndefined) {
-				err_log("stable_objs: unsupported equipment position '%s'", token.c_str());
-				continue;
-			}
+		for (const EWearFlag wear : ParseWearPositions(position.GetValue("val"))) {
 			LoadPosition(position, DeterminePowerOfTwoForEnum(wear));
 		}
 	}
