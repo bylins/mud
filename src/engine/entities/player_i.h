@@ -123,12 +123,10 @@ class PlayerI {
 	void spent_hryvn_sub(int /*value*/) {};
 	int get_spent_hryvn() { return 0; };
 	void reset_daily_quest() {};
-	virtual void add_value_cities(bool /* value */) {};
-
 	virtual void str_to_cities(std::string /*value*/) {};
 	std::string cities_to_str() { return ""; };
-	virtual bool check_city(const size_t) { return false; };
-	virtual void mark_city(const size_t) {};
+	virtual bool check_city(const std::string &) { return false; };
+	virtual void mark_city(const std::string &) {};
 
 	virtual int death_player_count() {
 		return 1;

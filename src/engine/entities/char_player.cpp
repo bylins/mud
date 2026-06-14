@@ -193,38 +193,39 @@ void Player::dquest(const int id) {
 	DailyQuest::DoQuest(this, id);
 }
 
-void Player::mark_city(const size_t index) {
-	if (index < cities_visited_.size()) {
-		cities_visited_[index] = true;
-	}
+void Player::mark_city(const std::string &id) {
+	cities_visited_.insert(id);
 }
 
-bool Player::check_city(const size_t index) {
-	if (index < cities_visited_.size()) {
-		return cities_visited_[index];
-	}
-
-	return false;
+bool Player::check_city(const std::string &id) {
+	return cities_visited_.find(id) != cities_visited_.end();
 }
 
+// issue.cities: visited cities are stored as a comma-separated list of city text-ids.
 void Player::str_to_cities(std::string str) {
-	this->cities_visited_.clear();
-	for (auto &it : reverse(str)) {
-		if (it == '1')
-			this->cities_visited_.push_back(true);
-		else
-			this->cities_visited_.push_back(false);
+	cities_visited_.clear();
+	size_t start = 0;
+	while (start <= str.size()) {
+		const size_t comma = str.find(',', start);
+		const std::string item = (comma == std::string::npos)
+			? str.substr(start) : str.substr(start, comma - start);
+		if (!item.empty()) {
+			cities_visited_.insert(item);
+		}
+		if (comma == std::string::npos) {
+			break;
+		}
+		start = comma + 1;
 	}
 }
 
 std::string Player::cities_to_str() {
-	std::string value = "";
-
-	for (auto it : reverse(this->cities_visited_)) {
-		if (it)
-			value += "1";
-		else
-			value += "0";
+	std::string value;
+	for (const auto &id : cities_visited_) {
+		if (!value.empty()) {
+			value += ",";
+		}
+		value += id;
 	}
 	return value;
 }
@@ -1055,7 +1056,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 
 	// character init
 	// initializations necessary to keep some things straight
-	this->str_to_cities(cities::default_str_cities);
+	this->cities_visited_.clear();
 	this->set_npc_name(0);
 	this->player_data.long_descr = "";
 
@@ -1313,18 +1314,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 				else if (!strcmp(tag, "CntF"))
 					this->reset_stats_cnt_[stats_reset::Type::FEATS] = num;
 				else if (!strcmp(tag, "Cits")) {
-					std::string buffer_cities = std::string(line);
-					auto cities_number = cities::CountCities();
-					if (buffer_cities.size() != cities_number) {
-						if (buffer_cities.size() < cities_number) {
-							const size_t b_size = buffer_cities.size();
-							for (unsigned int i = 0; i < cities_number - b_size; i++)
-								buffer_cities += "0";
-						} else {
-							buffer_cities.resize(buffer_cities.size() - (buffer_cities.size() - cities_number));
-						}
-					}
-					this->str_to_cities(std::string(buffer_cities));
+					this->str_to_cities(std::string(line));
 				}
 				break;
 
@@ -1962,10 +1952,6 @@ time_t Player::get_time_daily_quest(int id) {
 	if (this->daily_quest_timed.count(id))
 		return this->daily_quest_timed[id];
 	return 0;
-}
-
-void Player::add_value_cities(bool v) {
-	this->cities_visited_.push_back(v);
 }
 
 void Player::reset_daily_quest() {

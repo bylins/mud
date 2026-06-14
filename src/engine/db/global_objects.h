@@ -17,6 +17,8 @@
 #include "gameplay/mechanics/guilds.h"
 #include "gameplay/communication/social.h"
 #include "gameplay/mechanics/guild_messages.h"
+#include "gameplay/mechanics/cities.h"
+#include "gameplay/mechanics/cities_messages.h"
 #include "gameplay/ai/special_messages.h"
 #include "engine/entities/zone_types.h"
 #include "gameplay/mechanics/rune_spells.h"
@@ -81,6 +83,8 @@ class GlobalObjects {
 	static guilds::GuildsInfo &Guilds();
 	static communication::social::SocialsInfo &Socials();
 	static guilds::GuildMessages &GuildMessages();
+	static cities::CitiesInfo &Cities();
+	static cities::CityMessages &CityMessages();
 	static specials::SpecialMessages &SpecialMessages();
 	static specials::BankMessages &BankMessages();
 	static specials::MailMessages &MailMessages();

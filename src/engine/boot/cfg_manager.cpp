@@ -33,6 +33,8 @@
 #include "gameplay/abilities/feat_messages.h"
 #include "gameplay/core/entity_names.h"
 #include "gameplay/mechanics/guild_messages.h"
+#include "gameplay/mechanics/cities.h"
+#include "gameplay/mechanics/cities_messages.h"
 #include "gameplay/ai/special_messages.h"
 #include "gameplay/affects/affects_loader.h"
 #include "gameplay/affects/affect_messages.h"
@@ -111,6 +113,10 @@ CfgManager::CfgManager() {
 										  std::make_unique<CommonMessagesLoader>(CommonMessagesLoader())));
 	loaders_.emplace("socials", LoaderInfo("cfg/messages/ru/social_msg.xml",
 										  std::make_unique<communication::social::SocialsLoader>(communication::social::SocialsLoader())));
+	loaders_.emplace("city_messages", LoaderInfo("cfg/messages/ru/cities_msg.xml",
+										  std::make_unique<cities::CityMessagesLoader>(cities::CityMessagesLoader())));
+	loaders_.emplace("cities", LoaderInfo("cfg/mechanics/cities.xml",
+										  std::make_unique<cities::CitiesLoader>(cities::CitiesLoader())));
 	loaders_.emplace("guilds", LoaderInfo("cfg/mechanics/guilds.xml",
 										  std::make_unique<guilds::GuildsLoader>(guilds::GuildsLoader())));
 	loaders_.emplace("zone_types", LoaderInfo("cfg/zone_types.xml",

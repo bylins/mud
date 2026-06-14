@@ -690,6 +690,7 @@ main_sources = files(
   'src/gameplay/mechanics/stable_objs.cpp',
   'src/gameplay/mechanics/treasure_cases.cpp',
   'src/gameplay/mechanics/cities.cpp',
+  'src/gameplay/mechanics/cities_messages.cpp',
   'src/gameplay/quests/bodrich_quests.cpp',
   'src/engine/ui/cmd/do_affects.cpp',
   'src/engine/ui/cmd/do_toggle.cpp',

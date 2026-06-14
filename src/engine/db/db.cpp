@@ -883,6 +883,8 @@ void BootMudDataBase() {
 	boot_profiler.next_step("Loading mob races");
 	log("Load mob races.");
 	MUD::CfgManager().LoadCfg("mob_races");
+	MUD::CfgManager().LoadCfg("city_messages");   // issue.cities: names before cities
+	MUD::CfgManager().LoadCfg("cities");
 
 	boot_profiler.next_step("Loading runestones for 'town portal' spell");
 	log("Booting runestones for 'town portal' spell");
@@ -1056,7 +1058,6 @@ void BootMudDataBase() {
 
 	boot_profiler.next_step("Loading cities cfg");
 	log("Loading cities cfg.");
-	cities::LoadCities();
 
 	shutdown_parameters.mark_boot_time();
 	log("Boot db -- DONE.");

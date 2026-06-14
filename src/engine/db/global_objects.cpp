@@ -46,6 +46,8 @@ struct GlobalObjectsStorage {
 	guilds::GuildsInfo guilds_info;
 	communication::social::SocialsInfo socials_info;
 	guilds::GuildMessages guild_messages;
+	cities::CitiesInfo cities_info;
+	cities::CityMessages city_messages;
 	specials::SpecialMessages special_messages;
 	specials::BankMessages bank_messages;
 	specials::MailMessages mail_messages;
@@ -174,6 +176,14 @@ communication::social::SocialsInfo &GlobalObjects::Socials() {
 
 guilds::GuildMessages &GlobalObjects::GuildMessages() {
 	return global_objects().guild_messages;
+}
+
+cities::CitiesInfo &GlobalObjects::Cities() {
+	return global_objects().cities_info;
+}
+
+cities::CityMessages &GlobalObjects::CityMessages() {
+	return global_objects().city_messages;
 }
 
 specials::SpecialMessages &GlobalObjects::SpecialMessages() {

@@ -1,0 +1,30 @@
+<!--
+  issue.cities: Vedun editor scheme for cfg/mechanics/cities.xml. A city is keyed by an integer
+  vnum (identity; immutable) plus a CamelCase text id. Display names live in
+  cfg/messages/ru/cities_msg.xml (keyed by the same vnum), not here. <rent vnums="a|b"/> lists the
+  city rent rooms (| separated; a city may have several). Each city owns a <zones> list; a <zone>
+  has a vnum and an optional suburb flag (absent = inner city). Optional sidecar; undeclared nodes
+  degrade to plain strings and are still validated on save by the loader.
+-->
+<scheme>
+	<tag name="cities" desc="City registry">
+		<child tag="city" multiple="Y"/>
+	</tag>
+	<tag name="city" desc="One city, keyed by integer vnum">
+		<attr name="vnum" type="int" readonly="Y" desc="Unique city vnum (identity; immutable)"/>
+		<attr name="id" type="string" desc="CamelCase text id (stable key used by player visited-lists)"/>
+		<attr name="mode" type="enum" enum="EItemMode" desc="kEnabled / kDisabled / ..."/>
+		<child tag="rent"/>
+		<child tag="zones"/>
+	</tag>
+	<tag name="rent" desc="City rent rooms">
+		<attr name="vnums" type="string" desc="Rent room vnums, | separated (a city may have several)"/>
+	</tag>
+	<tag name="zones" desc="Zones that make up the city">
+		<child tag="zone" multiple="Y"/>
+	</tag>
+	<tag name="zone" desc="One zone of the city">
+		<attr name="vnum" type="int" desc="Zone vnum"/>
+		<attr name="suburb" type="bool" desc="true = outer/suburb zone; absent = inner city"/>
+	</tag>
+</scheme>
