@@ -90,6 +90,7 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		ObjData::InitSetTable();
 		MUD::CfgManager().ReloadCfg("mob_races");
 		MUD::CfgManager().ReloadCfg("stable_objs");
+		MUD::CfgManager().ReloadCfg("group_exp_handicap");
 		GlobalDrop::init();
 		offtop_system::Init();
 		celebrates::Load();
@@ -222,6 +223,8 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 	} else if (!str_cmp(arg, "globaldrop")) {
 		GlobalDrop::init();
+	} else if (!str_cmp(arg, "grouping")) {
+		MUD::CfgManager().ReloadCfg("group_exp_handicap");
 	} else if (!str_cmp(arg, "offtop")) {
 		offtop_system::Init();
 	} else if (!str_cmp(arg, "shop")) {

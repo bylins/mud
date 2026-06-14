@@ -841,7 +841,8 @@ void BootMudDataBase() {
 
 	boot_profiler.next_step("Loading grouping parameters");
 	log("Booting grouping parameters");
-	if (grouping.init()) {
+	MUD::CfgManager().LoadCfg("group_exp_handicap");
+	if (!grouping.loaded()) {
 		fatal_log("Failed to load grouping parameters");
 	}
 
