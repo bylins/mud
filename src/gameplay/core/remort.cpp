@@ -56,13 +56,13 @@ void ProcessRemort(CharData *ch, char *argument, int subcmd) {
 	int place_of_destination;
 	if (!*arg) {
 		const auto msg = fmt::format("Укажите, где вы хотите заново начать свой путь:\r\n{}",
-									 Birthplaces::ShowMenu(PlayerRace::GetRaceBirthPlaces(GET_RACE(ch))));
+									 Birthplaces::ShowMenu(MUD::PcRaces()[GET_RACE(ch)].GetBirthPlaces()));
 		SendMsgToChar(msg, ch);
 		return;
 	} else {
 		place_of_destination = Birthplaces::ParseSelect(arg);
 		if (place_of_destination == kBirthplaceUndefined) {
-			place_of_destination = PlayerRace::CheckBirthPlace(GET_RACE(ch), arg);
+			place_of_destination = player_races::BirthPlaceByMenuChoice(GET_RACE(ch), arg);
 			if (!Birthplaces::CheckId(place_of_destination)) {
 				SendMsgToChar("Багдад далече, выберите себе местечко среди родных осин.\r\n", ch);
 				return;

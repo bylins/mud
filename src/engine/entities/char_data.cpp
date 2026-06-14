@@ -1046,7 +1046,7 @@ std::string CharData::GetTitleAndName() {
 std::string CharData::GetNameWithTitleOrRace() {
 	std::string title = GetTitleAndNameWithoutClan();
 	if (title == get_name()) {
-		return fmt::format("{} {}", PlayerRace::GetRaceNameByNum(GET_RACE(this), this->get_sex()), title);
+		return fmt::format("{} {}", MUD::RaceMessages().GetMessage(GET_RACE(this), this->get_sex()), title);
 	}
 
 	return title;

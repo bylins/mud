@@ -522,6 +522,7 @@ main_sources = files(
   'src/administration/password.cpp',
   'src/gameplay/fight/pk.cpp',
   'src/gameplay/mechanics/player_races.cpp',
+  'src/gameplay/mechanics/pc_race_messages.cpp',
   'src/administration/privilege.cpp',
   'src/third_party_libs/pugixml/pugixml.cpp',
   'src/gameplay/quests/quested.cpp',

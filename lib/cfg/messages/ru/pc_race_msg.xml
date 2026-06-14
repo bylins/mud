@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<!-- issue.player-races-rework: PC race display names, keyed by race vnum (matches pc_races.xml).
+     <name> is the menu label; the four <message> forms are the gendered name (kNeutral/kMale/
+     kFemale/kPoly) selected by the character sex. Loaded (pc_race_messages) BEFORE pc_races. -->
+<msg_container>
+	<msg_sheaf id="kDefault">
+		<name val="неизвестные"/>
+	</msg_sheaf>
+	<msg_sheaf id="0">
+		<name val="Северяне"/>
+		<message type="kNeutral" val="Северне"/>
+		<message type="kMale" val="Северянин"/>
+		<message type="kFemale" val="Северянка"/>
+		<message type="kPoly" val="Северяне"/>
+	</msg_sheaf>
+	<msg_sheaf id="1">
+		<name val="Поляне"/>
+		<message type="kNeutral" val="Поляне"/>
+		<message type="kMale" val="Полянин"/>
+		<message type="kFemale" val="Полянка"/>
+		<message type="kPoly" val="Поляне"/>
+	</msg_sheaf>
+	<msg_sheaf id="2">
+		<name val="Кривичи"/>
+		<message type="kNeutral" val="Кривиче"/>
+		<message type="kMale" val="Кривич"/>
+		<message type="kFemale" val="Кривич"/>
+		<message type="kPoly" val="Кривичи"/>
+	</msg_sheaf>
+	<msg_sheaf id="3">
+		<name val="Вятичи"/>
+		<message type="kNeutral" val="Вятиче"/>
+		<message type="kMale" val="Вятич"/>
+		<message type="kFemale" val="Вятич"/>
+		<message type="kPoly" val="Вятичи"/>
+	</msg_sheaf>
+	<msg_sheaf id="4">
+		<name val="Веляне"/>
+		<message type="kNeutral" val="Веляне"/>
+		<message type="kMale" val="Велянин"/>
+		<message type="kFemale" val="Велянка"/>
+		<message type="kPoly" val="Веляне"/>
+	</msg_sheaf>
+	<msg_sheaf id="5">
+		<name val="Древляне"/>
+		<message type="kNeutral" val="Древляне"/>
+		<message type="kMale" val="Древлянин"/>
+		<message type="kFemale" val="Древлянка"/>
+		<message type="kPoly" val="Древляне"/>
+	</msg_sheaf>
+</msg_container>

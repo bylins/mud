@@ -1,0 +1,28 @@
+<!--
+  issue.player-races-rework: Vedun editor scheme for cfg/mechanics/pc_races.xml. A PC race (tribe) is
+  keyed by an integer vnum (must match the old racenum so existing characters keep their tribe) plus
+  a CamelCase text id. Display names live in cfg/messages/ru/pc_race_msg.xml (keyed by the same vnum),
+  not here. place_of_birth id stays numeric until the birthplaces rework. A feature id is an EFeat
+  token. Optional sidecar; undeclared nodes degrade to plain strings and are validated on save.
+-->
+<scheme>
+	<tag name="pc_races" desc="PC race (tribe) registry">
+		<child tag="race" multiple="Y"/>
+	</tag>
+	<tag name="race" desc="One PC race, keyed by integer vnum (== old racenum)">
+		<attr name="vnum" type="int" readonly="Y" desc="Unique race vnum (identity; must match old racenum)"/>
+		<attr name="id" type="string" desc="CamelCase text id (cross-file key)"/>
+		<attr name="mode" type="enum" enum="EItemMode" desc="kEnabled / kDisabled / ..."/>
+		<child tag="place_of_birth" multiple="Y"/>
+		<child tag="race_features"/>
+	</tag>
+	<tag name="place_of_birth" desc="A birth-place id (numeric until the birthplaces rework)">
+		<attr name="id" type="int" desc="Birth-place id"/>
+	</tag>
+	<tag name="race_features" desc="The race's inborn feats">
+		<child tag="feature" multiple="Y"/>
+	</tag>
+	<tag name="feature" desc="One inborn feat">
+		<attr name="id" type="enum" enum="EFeat" desc="Feat token"/>
+	</tag>
+</scheme>

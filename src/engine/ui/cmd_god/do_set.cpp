@@ -340,10 +340,10 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 		case 8: break;
 		case 9:
 			// Выставляется род для РС
-			rod = PlayerRace::CheckRace(val_arg);
-			if (rod == RACE_UNDEFINED) {
+			rod = player_races::RaceVnumByMenuChoice(val_arg);
+			if (rod == player_races::kRaceUndefined) {
 				SendMsgToChar("Не было таких на земле русской!\r\n", ch);
-				SendMsgToChar(PlayerRace::ShowRacesMenu(), ch);
+				SendMsgToChar(player_races::FormatRacesMenu(), ch);
 				return (0);
 			} else {
 				GET_RACE(vict) = rod;

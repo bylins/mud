@@ -19,6 +19,8 @@
 #include "gameplay/mechanics/guild_messages.h"
 #include "gameplay/mechanics/cities.h"
 #include "gameplay/mechanics/cities_messages.h"
+#include "gameplay/mechanics/player_races.h"
+#include "gameplay/mechanics/pc_race_messages.h"
 #include "gameplay/ai/special_messages.h"
 #include "engine/entities/zone_types.h"
 #include "gameplay/mechanics/rune_spells.h"
@@ -85,6 +87,8 @@ class GlobalObjects {
 	static guilds::GuildMessages &GuildMessages();
 	static cities::CitiesInfo &Cities();
 	static cities::CityMessages &CityMessages();
+	static player_races::PcRacesInfo &PcRaces();
+	static player_races::RaceMessages &RaceMessages();
 	static specials::SpecialMessages &SpecialMessages();
 	static specials::BankMessages &BankMessages();
 	static specials::MailMessages &MailMessages();

@@ -736,10 +736,6 @@ void BootMudDataBase() {
 	log("Loading birthplaces definitions.");
 	Birthplaces::Load(XmlLoad(LIB_MISC BIRTH_PLACES_FILE, BIRTH_PLACE_MAIN_TAG, BIRTH_PLACE_ERROR_STR, doc));
 
-	boot_profiler.next_step("Loading player races definitions");
-	log("Loading player races definitions.");
-	PlayerRace::Load(XmlLoad(LIB_MISC PLAYER_RACE_FILE, RACE_MAIN_TAG, PLAYER_RACE_ERROR_STR, doc));
-
 	boot_profiler.next_step("Loading ingredients magic");
 	log("Booting IM");
 	initIngredientsMagic();
@@ -885,6 +881,8 @@ void BootMudDataBase() {
 	MUD::CfgManager().LoadCfg("mob_races");
 	MUD::CfgManager().LoadCfg("city_messages");   // issue.cities: names before cities
 	MUD::CfgManager().LoadCfg("cities");
+	MUD::CfgManager().LoadCfg("pc_race_messages");   // issue.player-races-rework: names before races
+	MUD::CfgManager().LoadCfg("pc_races");
 
 	boot_profiler.next_step("Loading runestones for 'town portal' spell");
 	log("Booting runestones for 'town portal' spell");

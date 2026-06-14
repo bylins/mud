@@ -48,6 +48,8 @@ struct GlobalObjectsStorage {
 	guilds::GuildMessages guild_messages;
 	cities::CitiesInfo cities_info;
 	cities::CityMessages city_messages;
+	player_races::PcRacesInfo pc_races_info;
+	player_races::RaceMessages race_messages;
 	specials::SpecialMessages special_messages;
 	specials::BankMessages bank_messages;
 	specials::MailMessages mail_messages;
@@ -184,6 +186,14 @@ cities::CitiesInfo &GlobalObjects::Cities() {
 
 cities::CityMessages &GlobalObjects::CityMessages() {
 	return global_objects().city_messages;
+}
+
+player_races::PcRacesInfo &GlobalObjects::PcRaces() {
+	return global_objects().pc_races_info;
+}
+
+player_races::RaceMessages &GlobalObjects::RaceMessages() {
+	return global_objects().race_messages;
 }
 
 specials::SpecialMessages &GlobalObjects::SpecialMessages() {

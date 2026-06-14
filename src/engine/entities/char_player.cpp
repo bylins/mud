@@ -593,7 +593,7 @@ void Player::save_char() {
 	saved.printf(
 			"Race: %d %s\n",
 			GET_RACE(this),
-			PlayerRace::GetRaceNameByNum(GET_RACE(this), this->get_sex()).c_str());
+			MUD::RaceMessages().GetMessage(GET_RACE(this), this->get_sex()).c_str());
 	saved.printf("DrSt: %d\n", GET_DRUNK_STATE(this));
 	saved.printf("Olc : %d\n", GET_OLC_ZONE(this));
 	*buf = '\0';
@@ -1379,7 +1379,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 						auto feat_id = static_cast<EFeat>(num);
 						if (MUD::Feat(feat_id).IsAvailable()) {
 							if (MUD::Class(this->GetClass()).feats.IsAvailable(feat_id) ||
-								PlayerRace::FeatureCheck((int) GET_RACE(this), num)) {
+								MUD::PcRaces()[GET_RACE(this)].HasFeature(static_cast<EFeat>(num))) {
 								this->SetFeat(feat_id);
 							}
 						}

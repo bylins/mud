@@ -2078,10 +2078,9 @@ bool ValidateStats(DescriptorData *d) {
 	}
 
 	//Некорректный номер рода
-	if (PlayerRace::GetRaceNameByNum(GET_RACE(d->character), d->character->get_sex())
-		== RACE_NAME_UNDEFINED) {
+	if (!MUD::PcRaces().IsAvailable(GET_RACE(d->character))) {
 		iosystem::write_to_output("\r\nКакого роду-племени вы будете?\r\n", d);
-		iosystem::write_to_output(string(PlayerRace::ShowRacesMenu()).c_str(), d);
+		iosystem::write_to_output(string(player_races::FormatRacesMenu()).c_str(), d);
 		iosystem::write_to_output("\r\nИз чьих вы будете: ", d);
 		d->state = EConState::kResetRace;
 		return false;
@@ -2936,7 +2935,7 @@ void nanny(DescriptorData *d, char *argument) {
 			}
 
 			iosystem::write_to_output("\r\nКакой род вам ближе всего по духу:\r\n", d);
-			iosystem::write_to_output(string(PlayerRace::ShowRacesMenu()).c_str(), d);
+			iosystem::write_to_output(string(player_races::FormatRacesMenu()).c_str(), d);
 			sprintf(buffer, "Для вашей профессией больше всего подходит %s",
 					default_race[to_underlying(d->character->GetClass())]);
 			iosystem::write_to_output(buffer, d);
@@ -2980,22 +2979,21 @@ void nanny(DescriptorData *d, char *argument) {
 		case EConState::kRace:        // query race
 			if (pre_help(d->character.get(), argument)) {
 				iosystem::write_to_output("Какой род вам ближе всего по духу:\r\n", d);
-				iosystem::write_to_output(string(PlayerRace::ShowRacesMenu()).c_str(), d);
+				iosystem::write_to_output(string(player_races::FormatRacesMenu()).c_str(), d);
 				iosystem::write_to_output("\r\nРод: ", d);
 				d->state = EConState::kRace;
 				return;
 			}
 
-			load_result = PlayerRace::CheckRace(argument);
+			load_result = player_races::RaceVnumByMenuChoice(argument);
 
-			if (load_result == RACE_UNDEFINED) {
+			if (load_result == player_races::kRaceUndefined) {
 				iosystem::write_to_output("Стыдно не помнить предков.\r\n" "Какой род вам ближе всего? ", d);
 				return;
 			}
 
 			GET_RACE(d->character) = load_result;
-			iosystem::write_to_output(string(Birthplaces::ShowMenu(PlayerRace::GetRaceBirthPlaces(
-																				  GET_RACE(d->character)))).c_str(), d);
+			iosystem::write_to_output(string(Birthplaces::ShowMenu(MUD::PcRaces()[GET_RACE(d->character)].GetBirthPlaces())).c_str(), d);
 			iosystem::write_to_output("\r\nГде вы хотите начать свои приключения: ", d);
 			d->state = EConState::kBirthplace;
 
@@ -3003,15 +3001,14 @@ void nanny(DescriptorData *d, char *argument) {
 
 		case EConState::kBirthplace:
 			if (pre_help(d->character.get(), argument)) {
-				iosystem::write_to_output(string(Birthplaces::ShowMenu(PlayerRace::GetRaceBirthPlaces(
-																					  GET_RACE(d->character)))).c_str(),
+				iosystem::write_to_output(string(Birthplaces::ShowMenu(MUD::PcRaces()[GET_RACE(d->character)].GetBirthPlaces())).c_str(),
 						  d);
 				iosystem::write_to_output("\r\nГде вы хотите начать свои приключения: ", d);
 				d->state = EConState::kBirthplace;
 				return;
 			}
 
-			load_result = PlayerRace::CheckBirthPlace(GET_RACE(d->character), argument);
+			load_result = player_races::BirthPlaceByMenuChoice(GET_RACE(d->character), argument);
 
 			if (!Birthplaces::CheckId(load_result)) {
 				iosystem::write_to_output("Не уверены? Бывает.\r\n"
@@ -3448,15 +3445,15 @@ void nanny(DescriptorData *d, char *argument) {
 		case EConState::kResetRace:
 			if (pre_help(d->character.get(), argument)) {
 				iosystem::write_to_output("Какой род вам ближе всего по духу:\r\n", d);
-				iosystem::write_to_output(string(PlayerRace::ShowRacesMenu()).c_str(), d);
+				iosystem::write_to_output(string(player_races::FormatRacesMenu()).c_str(), d);
 				iosystem::write_to_output("\r\nРод: ", d);
 				d->state = EConState::kResetRace;
 				return;
 			}
 
-			load_result = PlayerRace::CheckRace(argument);
+			load_result = player_races::RaceVnumByMenuChoice(argument);
 
-			if (load_result == RACE_UNDEFINED) {
+			if (load_result == player_races::kRaceUndefined) {
 				iosystem::write_to_output("Стыдно не помнить предков.\r\n" "Какой род вам ближе всего? ", d);
 				return;
 			}
