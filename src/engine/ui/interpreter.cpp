@@ -2050,6 +2050,11 @@ void do_entergame(DescriptorData *d) {
 	login_change_invoice(d->character.get());
 	log("Player %s enter at room %d", GET_NAME(d->character), GET_ROOM_VNUM(load_room));
 	char_to_room(d->character, load_room);
+	// Городской стартовый стаф выдаем уже после помещения в комнату -- по реальному городу
+	// появления (cities.xml <start_item>).
+	if (new_char) {
+		Noob::give_city_start_outfit(d->character.get());
+	}
 	act("$n вступил$g в игру.", true, d->character.get(), nullptr, nullptr, kToRoom);
 	affect_total(d->character.get());
 	CheckLight(d->character.get(), kLightNo, kLightNo, kLightNo, kLightNo, 0);

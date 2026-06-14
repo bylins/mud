@@ -4,6 +4,7 @@
 #include "noob.h"
 
 #include "engine/entities/char_data.h"
+#include "engine/db/global_objects.h"
 #include "gameplay/mechanics/cities.h"
 #include "third_party_libs/pugixml/pugixml.h"
 #include "utils/parse.h"
@@ -116,8 +117,9 @@ std::string print_start_outfit(CharData *ch) {
 }
 
 ///
-/// \return список внумов стартовых шмоток из noob_help.xml
-/// + шмоток, зависящих от города, в котором появился чар (cities.xml)
+/// \return список внумов стартовых шмоток из noob_help.xml (зависит только от класса).
+/// Городской стартовый стаф выдается отдельно в give_city_start_outfit() уже ПОСЛЕ того,
+/// как чар помещен в комнату (иначе город еще не известен).
 ///
 std::vector<int> get_start_outfit(CharData *ch) {
 	// стаф из noob_help.xml
@@ -127,10 +129,26 @@ std::vector<int> get_start_outfit(CharData *ch) {
 		out_list.insert(out_list.end(),
 						class_list.at(ch_class).begin(), class_list.at(ch_class).end());
 	}
-	// стартовый стаф из cities.xml (для города, в котором появился чар)
-	std::vector<int> tmp = cities::StartItemsForRoom(GET_ROOM_VNUM(ch->in_room));
-	out_list.insert(out_list.end(), tmp.begin(), tmp.end());
 	return out_list;
+}
+
+/// Выдает (и надевает) стартовый стаф города из cities.xml (<start_item>), исходя из города,
+/// в котором РЕАЛЬНО появился чар. Вызывать только после char_to_room() -- до помещения в
+/// комнату ch->in_room еще не указывает на стартовый город.
+void give_city_start_outfit(CharData *ch) {
+	for (const int vnum : cities::StartItemsForRoom(GET_ROOM_VNUM(ch->in_room))) {
+		const ObjData::shared_ptr obj = world_objects.create_from_prototype_by_vnum(vnum);
+		if (!obj) {
+			continue;
+		}
+		obj->set_extra_flag(EObjFlag::kNosell);
+		obj->set_extra_flag(EObjFlag::kDecay);
+		obj->set_cost(0);
+		obj->set_rent_off(0);
+		obj->set_rent_on(0);
+		PlaceObjToInventory(obj.get(), ch);
+		equip_start_outfit(ch, obj.get());
+	}
 }
 
 ///
