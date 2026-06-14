@@ -114,7 +114,10 @@ EStageResult SpellCharm(CastContext &ctx) {
 		}
 		victim->summon_helpers.clear();
 		if (victim->IsNpc()) {
-			if (!victim->IsFlagged(EMobFlag::kCompanion)) { // только если не маг зверьки ()
+			// a charmed NPC is now an ally -- mark it as a companion (never set on PCs)
+			victim->SetFlag(EMobFlag::kCompanion);
+			// strip equipment unless this is an AnimalMaster mag-zver (charmice keeps its magic gear)
+			if (victim->get_type_charmice() == 0) {
 				for (int i = 0; i < EEquipPos::kNumEquipPos; i++) {
 					if (GET_EQ(victim, i)) {
 						if (!remove_otrigger(GET_EQ(victim, i), victim)) {
@@ -155,7 +158,7 @@ EStageResult SpellCharm(CastContext &ctx) {
 		follow::AddFollower(ch, victim);
 	}
 	// тут обрабатываем, если виктим маг-зверь => передаем в фунцию создание маг шмоток (цель, базовый скил, процент владения)
-	if (victim->IsFlagged(EMobFlag::kCompanion)) {
+	if (victim->get_type_charmice() != 0) {
 		create_charmice_stuff(victim, skill_id, k_skills);
 	}
 	return EStageResult::kSuccess;

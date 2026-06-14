@@ -1341,6 +1341,7 @@ int pet_shops(CharData *ch, void * /*me*/, int cmd, char *argument) {
 		pet = ReadMobile(pet->get_rnum(), kReal);
 		pet->set_exp(0);
 		AFF_FLAGS(pet).set(EAffect::kCharmed);
+		pet->SetFlag(EMobFlag::kCompanion);	// any NPC ally
 
 		if (*pet_name) {
 			sprintf(buf, "%s %s", pet->GetCharAliases().c_str(), pet_name);

@@ -1858,6 +1858,7 @@ CharData *ReadMobile(MobVnum nr, int type) {                // and MobRnum
 		mob_index[i].total_online++;
 		assign_triggers(mob, MOB_TRIGGER);
 	} else {
+		// summoned/revived instance (negative vnum): an ally, loaded without bumping total_online
 		mob->SetFlag(EMobFlag::kCompanion);
 	}
 	chardata_by_uid[mob->get_uid()] = mob;

@@ -315,9 +315,7 @@ void Damage::ProcessDeath(CharData *ch, CharData *victim) const {
 		if (AFF_FLAGGED(killer, EAffect::kGroup)) {
 			// т.к. помечен флагом AFF_GROUP - точно PC
 			group_gain(killer, victim);
-		} else if ((AFF_FLAGGED(killer, EAffect::kCharmed)
-			|| killer->IsFlagged(EMobFlag::kTutelar)
-			|| killer->IsFlagged(EMobFlag::kMentalShadow))
+		} else if ((killer->IsFlagged(EMobFlag::kCompanion))
 			&& killer->has_master())
 			// killer - зачармленный NPC с хозяином
 		{

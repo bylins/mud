@@ -22,6 +22,7 @@ void SetupKeeperStats(CharData *ch, CharData *mob, const CastContext &ctx) {
 	GET_HR(mob) = SummonScaledStat(ctx, 0, 0.0, 12.4);
 	GET_AC(mob) = 100 - SummonScaledStat(ctx, 0, 0.0, 72.6);
 	mob->SetFlag(EMobFlag::kSummoned);	// true conjuration (banishable)
+	mob->SetFlag(EMobFlag::kCompanion);	// any NPC ally
 }
 
 }  // namespace handlers

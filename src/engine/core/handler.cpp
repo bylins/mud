@@ -1750,7 +1750,10 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 		Crash_delete_crashfile(ch);
 	} else {
 //		log("[Extract char] All clear for NPC");
-		if ((ch->get_rnum() >= 0) && !ch->IsFlagged(EMobFlag::kCompanion)) {
+		// A warlock-revived corpse (kResurrected) reuses a real mob's vnum but is loaded without
+		// bumping total_online (see ReadMobile is_corpse), so it must not decrement it either --
+		// otherwise reviving e.g. a zone boss would block that boss's normal respawn.
+		if ((ch->get_rnum() >= 0) && !ch->IsFlagged(EMobFlag::kResurrected)) {
 			mob_index[ch->get_rnum()].total_online--;
 		}
 	}

@@ -186,6 +186,7 @@ EStageResult SummonTutelar(CastContext &ctx) {
 	mob->SetFlag(EMobFlag::kCorpse);
 	mob->SetFlag(EMobFlag::kTutelar);
 	mob->SetFlag(EMobFlag::kSummoned);	// true conjuration (banishable)
+	mob->SetFlag(EMobFlag::kCompanion);	// any NPC ally
 	mob->SetFlag(EMobFlag::kLightingBreath);
 	mob->set_level(GetRealLevel(ch));
 	PlaceCharToRoom(mob, ch->in_room);

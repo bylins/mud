@@ -39,9 +39,7 @@ bool group::same_group(CharData *ch, CharData *tch) {
 		&& ch->has_master()
 		&& !ch->get_master()->IsNpc()
 		&& (mount::IsHorse(ch)
-			|| AFF_FLAGGED(ch, EAffect::kCharmed)
-			|| ch->IsFlagged(EMobFlag::kTutelar)
-			|| ch->IsFlagged(EMobFlag::kMentalShadow))) {
+			|| ch->IsFlagged(EMobFlag::kCompanion))) {
 		ch = ch->get_master();
 	}
 
@@ -49,9 +47,7 @@ bool group::same_group(CharData *ch, CharData *tch) {
 		&& tch->has_master()
 		&& !tch->get_master()->IsNpc()
 		&& (mount::IsHorse(tch)
-			|| AFF_FLAGGED(tch, EAffect::kCharmed)
-			|| tch->IsFlagged(EMobFlag::kTutelar)
-			|| tch->IsFlagged(EMobFlag::kMentalShadow))) {
+			|| tch->IsFlagged(EMobFlag::kCompanion))) {
 		tch = tch->get_master();
 	}
 
@@ -92,9 +88,7 @@ bool is_group_member(CharData *ch, CharData *vict) {
 
 int group::perform_group(CharData *ch, CharData *vict) {
 	if (AFF_FLAGGED(vict, EAffect::kGroup)
-		|| AFF_FLAGGED(vict, EAffect::kCharmed)
-		|| vict->IsFlagged(EMobFlag::kTutelar)
-		|| vict->IsFlagged(EMobFlag::kMentalShadow)
+		|| vict->IsFlagged(EMobFlag::kCompanion)
 		|| mount::IsHorse(vict)
 		|| IsAffectedBySpell(ch, ESpell::kFrenzy)
 		|| IsAffectedBySpell(vict, ESpell::kFrenzy)) {
@@ -373,8 +367,7 @@ void group::print_group(CharData *ch) {
 	}
 
 	for (auto *f : ch->followers) {
-		if (!(AFF_FLAGGED(f, EAffect::kCharmed)
-			|| f->IsFlagged(EMobFlag::kTutelar) || f->IsFlagged(EMobFlag::kMentalShadow))) {
+		if (!(f->IsFlagged(EMobFlag::kCompanion))) {
 			continue;
 		}
 		if (!cfound)
@@ -389,8 +382,7 @@ void group::print_group(CharData *ch) {
 		cfound = 0;
 		for (auto *g : k->followers) {
 			for (auto *f : g->followers) {
-				if (!(AFF_FLAGGED(f, EAffect::kCharmed)
-					|| f->IsFlagged(EMobFlag::kTutelar) || f->IsFlagged(EMobFlag::kMentalShadow))
+				if (!(f->IsFlagged(EMobFlag::kCompanion))
 					|| !AFF_FLAGGED(ch, EAffect::kGroup)) {
 					continue;
 				}
@@ -414,8 +406,7 @@ void group::print_group(CharData *ch) {
 			}
 
 			if (ch->has_master()) {
-				if (!(AFF_FLAGGED(g, EAffect::kCharmed)
-					|| g->IsFlagged(EMobFlag::kTutelar) || g->IsFlagged(EMobFlag::kMentalShadow))
+				if (!(g->IsFlagged(EMobFlag::kCompanion))
 					|| !AFF_FLAGGED(ch, EAffect::kGroup)) {
 					continue;
 				}
@@ -506,8 +497,7 @@ void group::GoGroup(CharData *ch, char *argument) {
 		act("$N слишком агрессивн$W и непредсказуем$W! Нельзя брать $s!", false, ch, nullptr, vict, kToChar);
 	} else {
 		if (!AFF_FLAGGED(vict, EAffect::kGroup)) {
-			if (AFF_FLAGGED(vict, EAffect::kCharmed) || vict->IsFlagged(EMobFlag::kTutelar)
-				|| vict->IsFlagged(EMobFlag::kMentalShadow) || mount::IsHorse(vict)) {
+			if (vict->IsFlagged(EMobFlag::kCompanion) || mount::IsHorse(vict)) {
 				SendMsgToChar("Только равноправные персонажи могут быть включены в группу.\r\n", ch);
 				SendMsgToChar("Только равноправные персонажи могут быть включены в группу.\r\n", vict);
 			};

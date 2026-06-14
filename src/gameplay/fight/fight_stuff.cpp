@@ -59,9 +59,7 @@ void process_mobmax(CharData *ch, CharData *killer) {
 
 	CharData *master = nullptr;
 	if (killer->IsNpc()
-		&& (AFF_FLAGGED(killer, EAffect::kCharmed)
-			|| killer->IsFlagged(EMobFlag::kTutelar)
-			|| killer->IsFlagged(EMobFlag::kMentalShadow))
+		&& (killer->IsFlagged(EMobFlag::kCompanion))
 		&& killer->has_master()) {
 		master = killer->get_master();
 	} else if (!killer->IsNpc()) {
@@ -400,9 +398,7 @@ void auto_loot(CharData *ch, CharData *killer, ObjData *corpse, int local_gold) 
 		get_from_container(killer, corpse, obj, EFind::kObjInventory, 1, false);
 	} else if (ch->IsNpc()
 		&& killer->IsNpc()
-		&& (AFF_FLAGGED(killer, EAffect::kCharmed)
-			|| killer->IsFlagged(EMobFlag::kTutelar)
-			|| killer->IsFlagged(EMobFlag::kMentalShadow))
+		&& (killer->IsFlagged(EMobFlag::kCompanion))
 		&& (corpse != nullptr)
 		&& killer->has_master()
 		&& killer->in_room == killer->get_master()->in_room
@@ -413,9 +409,7 @@ void auto_loot(CharData *ch, CharData *killer, ObjData *corpse, int local_gold) 
 	} else if (ch->IsNpc()
 		&& killer->IsNpc()
 		&& local_gold
-		&& (AFF_FLAGGED(killer, EAffect::kCharmed)
-			|| killer->IsFlagged(EMobFlag::kTutelar)
-			|| killer->IsFlagged(EMobFlag::kMentalShadow))
+		&& (killer->IsFlagged(EMobFlag::kCompanion))
 		&& (corpse != nullptr)
 		&& killer->has_master()
 		&& killer->in_room == killer->get_master()->in_room

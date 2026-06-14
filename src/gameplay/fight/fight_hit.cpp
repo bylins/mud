@@ -614,8 +614,7 @@ void HitData::AddWeaponDmg(CharData *ch, bool need_dice) {
 		damroll = (GET_OBJ_VAL(wielded, 1) * GET_OBJ_VAL(wielded, 2) + GET_OBJ_VAL(wielded, 1)) / 2;
 	}
 	if (ch->IsNpc()
-		&& !AFF_FLAGGED(ch, EAffect::kCharmed)
-		&& !(ch->IsFlagged(EMobFlag::kTutelar) || ch->IsFlagged(EMobFlag::kMentalShadow))) {
+		&& !ch->IsFlagged(EMobFlag::kCompanion)) {
 		damroll *= kMobDamageMult;
 	} else {
 		damroll = std::min(damroll, damroll * wielded->get_current_durability() / std::max(1, wielded->get_maximum_durability()));

@@ -292,9 +292,7 @@ void GroupReporter::get(Variable::shared_ptr &response) {
 	append_char(group_descriptor, ch, master, true);
 	for (auto *f : master->followers) {
 		if (!AFF_FLAGGED(f, EAffect::kGroup)
-			&& !(AFF_FLAGGED(f, EAffect::kCharmed)
-				|| f->IsFlagged(EMobFlag::kTutelar)
-				|| f->IsFlagged(EMobFlag::kMentalShadow))) {
+			&& !(f->IsFlagged(EMobFlag::kCompanion))) {
 			continue;
 		}
 
@@ -306,9 +304,7 @@ void GroupReporter::get(Variable::shared_ptr &response) {
 		}
 
 		for (auto *ff : f->followers) {
-			if (!(AFF_FLAGGED(ff, EAffect::kCharmed)
-				|| ff->IsFlagged(EMobFlag::kTutelar)
-				|| ff->IsFlagged(EMobFlag::kMentalShadow))) {
+			if (!(ff->IsFlagged(EMobFlag::kCompanion))) {
 				continue;
 			}
 

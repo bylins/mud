@@ -441,8 +441,7 @@ CharData *find_friend_cure(CharData *caster, ESpell spell_id) {
 		default: break;
 	}
 
-	if ((AFF_FLAGGED(caster, EAffect::kCharmed) || caster->IsFlagged(EMobFlag::kTutelar)
-		|| caster->IsFlagged(EMobFlag::kMentalShadow) || caster->IsFlagged(EMobFlag::kCompanion)) // ()
+	if (caster->IsFlagged(EMobFlag::kCompanion) // ()
 		&& AFF_FLAGGED(caster, EAffect::kHelper)) {
 		if (get_hp_perc(caster) < AFF_USED) {
 			return caster;
@@ -459,7 +458,7 @@ CharData *find_friend_cure(CharData *caster, ESpell spell_id) {
 	for (const auto vict : world[caster->in_room]->people) {
 		if (!vict->IsNpc()
 			|| AFF_FLAGGED(vict, EAffect::kCharmed)
-			|| ((vict->IsFlagged(EMobFlag::kTutelar) || vict->IsFlagged(EMobFlag::kMentalShadow) || vict->IsFlagged(EMobFlag::kCompanion)) // ()
+			|| (vict->IsFlagged(EMobFlag::kCompanion) // ()
 				&& vict->has_master()
 				&& !vict->get_master()->IsNpc())
 			|| !sight::CanSee(caster, vict)) {
@@ -507,8 +506,7 @@ CharData *find_friend(CharData *caster, ESpell spell_id) {
 		default: break;
 	}
 	if (AFF_FLAGGED(caster, EAffect::kHelper)
-		&& (AFF_FLAGGED(caster, EAffect::kCharmed)
-			|| caster->IsFlagged(EMobFlag::kTutelar) || caster->IsFlagged(EMobFlag::kMentalShadow) || caster->IsFlagged(EMobFlag::kCompanion))) { //()
+		&& caster->IsFlagged(EMobFlag::kCompanion)) { //()
 		if (caster->has_any_affect(AFF_USED)
 			|| IsAffectedBySpell(caster, spellreal)) {
 			return caster;
@@ -526,9 +524,7 @@ CharData *find_friend(CharData *caster, ESpell spell_id) {
 	if (!AFF_USED.empty()) {
 		for (const auto vict : world[caster->in_room]->people) {
 			if (!vict->IsNpc() || AFF_FLAGGED(vict, EAffect::kCharmed) ||
-				((vict->IsFlagged(EMobFlag::kTutelar) ||
-				vict->IsFlagged(EMobFlag::kMentalShadow) ||
-				vict->IsFlagged(EMobFlag::kCompanion)) // ()
+				(vict->IsFlagged(EMobFlag::kCompanion) // ()
 					&& vict->get_master()
 					&& !vict->get_master()->IsNpc())
 				|| !sight::CanSee(caster, vict)) {
@@ -585,8 +581,7 @@ CharData *find_caster(CharData *caster, ESpell spell_id) {
 	}
 
 	if (AFF_FLAGGED(caster, EAffect::kHelper)
-		&& (AFF_FLAGGED(caster, EAffect::kCharmed)
-			|| caster->IsFlagged(EMobFlag::kTutelar) || caster->IsFlagged(EMobFlag::kMentalShadow) || caster->IsFlagged(EMobFlag::kCompanion))) { // ()
+		&& caster->IsFlagged(EMobFlag::kCompanion)) { // ()
 		if (caster->has_any_affect(AFF_USED)
 			|| IsAffectedBySpell(caster, spellreal)) {
 			return caster;
@@ -605,7 +600,7 @@ CharData *find_caster(CharData *caster, ESpell spell_id) {
 		for (const auto vict : world[caster->in_room]->people) {
 			if (!vict->IsNpc()
 				|| AFF_FLAGGED(vict, EAffect::kCharmed)
-				|| ((vict->IsFlagged(EMobFlag::kTutelar) || vict->IsFlagged(EMobFlag::kMentalShadow) || vict->IsFlagged(EMobFlag::kCompanion)) // ()
+				|| (vict->IsFlagged(EMobFlag::kCompanion) // ()
 					&& (vict->get_master() && !vict->get_master()->IsNpc()))
 				|| !sight::CanSee(caster, vict)) {
 				continue;
@@ -672,8 +667,7 @@ CharData *find_affectee(CharData *caster, ESpell spell_id) {
 	else if (spellreal == ESpell::kSnakeEyes)
 		spellreal = ESpell::kDetectPoison;
 
-	if ((AFF_FLAGGED(caster, EAffect::kCharmed) || caster->IsFlagged(EMobFlag::kTutelar) ||
-		caster->IsFlagged(EMobFlag::kMentalShadow) || caster->IsFlagged(EMobFlag::kCompanion)) &&
+	if (caster->IsFlagged(EMobFlag::kCompanion) &&
 		AFF_FLAGGED(caster, EAffect::kHelper)) {
 		if (!IsAffectedBySpell(caster, spellreal)) {
 			return caster;
@@ -691,7 +685,7 @@ CharData *find_affectee(CharData *caster, ESpell spell_id) {
 		for (const auto vict : world[caster->in_room]->people) {
 			if (!vict->IsNpc()
 				|| AFF_FLAGGED(vict, EAffect::kCharmed)
-				|| ((vict->IsFlagged(EMobFlag::kTutelar) || vict->IsFlagged(EMobFlag::kMentalShadow) || vict->IsFlagged(EMobFlag::kCompanion)) // ()
+				|| (vict->IsFlagged(EMobFlag::kCompanion) // ()
 					&& vict->has_master()
 					&& !vict->get_master()->IsNpc())
 				|| !sight::CanSee(caster, vict)) {
@@ -741,8 +735,7 @@ CharData *find_opp_affectee(CharData *caster, ESpell spell_id) {
 	if (GetRealInt(caster) > number(10, 20)) {
 		for (const auto vict : world[caster->in_room]->people) {
 			if ((vict->IsNpc()
-				&& !((vict->IsFlagged(EMobFlag::kTutelar) || vict->IsFlagged(EMobFlag::kMentalShadow) || vict->IsFlagged(EMobFlag::kCompanion) // ()
-					|| AFF_FLAGGED(vict, EAffect::kCharmed))
+				&& !(vict->IsFlagged(EMobFlag::kCompanion)
 					&& vict->has_master()
 					&& !vict->get_master()->IsNpc()))
 				|| !sight::CanSee(caster, vict)) {
@@ -810,8 +803,7 @@ CharData *find_opp_dispellable(CharData *caster) {
 	if (GetRealInt(caster) > number(10, 20)) {
 		for (const auto vict : world[caster->in_room]->people) {
 			if ((vict->IsNpc()
-				&& !((vict->IsFlagged(EMobFlag::kTutelar) || vict->IsFlagged(EMobFlag::kMentalShadow) || vict->IsFlagged(EMobFlag::kCompanion)
-					|| AFF_FLAGGED(vict, EAffect::kCharmed))
+				&& !(vict->IsFlagged(EMobFlag::kCompanion)
 					&& vict->has_master()
 					&& !vict->get_master()->IsNpc()))
 				|| !sight::CanSee(caster, vict)) {
@@ -846,7 +838,7 @@ CharData *find_opp_caster(CharData *caster) {
 
 	for (const auto vict : world[caster->in_room]->people) {
 		if (vict->IsNpc()
-			&& !((vict->IsFlagged(EMobFlag::kTutelar) || vict->IsFlagged(EMobFlag::kMentalShadow) || vict->IsFlagged(EMobFlag::kCompanion)) //
+			&& !(vict->IsFlagged(EMobFlag::kCompanion) //
 				&& vict->has_master()
 				&& !vict->get_master()->IsNpc())) {
 			continue;
@@ -872,9 +864,7 @@ CharData *find_damagee(CharData *caster) {
 	if (GetRealInt(caster) > number(10, 20)) {
 		for (const auto vict : world[caster->in_room]->people) {
 			if ((vict->IsNpc()
-				&& !((vict->IsFlagged(EMobFlag::kTutelar)
-					|| vict->IsFlagged(EMobFlag::kMentalShadow)
-					|| AFF_FLAGGED(vict, EAffect::kCharmed))
+				&& !(vict->IsFlagged(EMobFlag::kCompanion)
 					&& vict->has_master()
 					&& !vict->get_master()->IsNpc()))
 				|| !sight::CanSee(caster, vict)) {
@@ -1022,8 +1012,7 @@ CharData *find_minhp(CharData *caster) {
 	if (GetRealInt(caster) > number(10, 20)) {
 		for (const auto vict : world[caster->in_room]->people) {
 			if ((vict->IsNpc()
-				&& !((vict->IsFlagged(EMobFlag::kTutelar) || vict->IsFlagged(EMobFlag::kMentalShadow) || vict->IsFlagged(EMobFlag::kCompanion) // ()
-					|| AFF_FLAGGED(vict, EAffect::kCharmed))
+				&& !(vict->IsFlagged(EMobFlag::kCompanion)
 					&& vict->has_master()
 					&& !vict->get_master()->IsNpc()))
 				|| !sight::CanSee(caster, vict)) {
@@ -1212,8 +1201,7 @@ void mob_casting(CharData *ch) {
 	// Is this object spell ?
 	if (spell_id_2 != ESpell::kUndefined && victim) {
 		item = ch->carrying;
-		while (!AFF_FLAGGED(ch, EAffect::kCharmed)
-			&& !(ch->IsFlagged(EMobFlag::kTutelar) || ch->IsFlagged(EMobFlag::kMentalShadow))
+		while (!ch->IsFlagged(EMobFlag::kCompanion)
 			&& item
 			&& GET_RACE(ch) == ENpcRace::kHuman) {
 			switch (item->get_type()) {
@@ -1606,13 +1594,7 @@ void using_mob_skills(CharData *ch) {
 						|| AFF_FLAGGED(vict, EAffect::kCharmed)
 						|| AFF_FLAGGED(vict, EAffect::kHelper))
 					|| (attacker->IsNpc()
-						&& !(AFF_FLAGGED(attacker, EAffect::kCharmed)
-							&& attacker->has_master()
-							&& !attacker->get_master()->IsNpc())
-						&& !(attacker->IsFlagged(EMobFlag::kMentalShadow)
-							&& attacker->has_master()
-							&& !attacker->get_master()->IsNpc())
-						&& !(attacker->IsFlagged(EMobFlag::kTutelar)
+						&& !(attacker->IsFlagged(EMobFlag::kCompanion)
 							&& attacker->has_master()
 							&& !attacker->get_master()->IsNpc()))
 					|| !sight::CanSee(ch, vict) // не видно, кого нужно спасать
@@ -2134,9 +2116,7 @@ void perform_violence() {
 		if (it.ch->desc) {
 			msdp_report_chars.insert(it.ch);
 		} else if (it.ch->has_master()
-			&& (AFF_FLAGGED(it.ch, EAffect::kCharmed)
-				|| it.ch->IsFlagged(EMobFlag::kTutelar)
-				|| it.ch->IsFlagged(EMobFlag::kMentalShadow))) {
+			&& (it.ch->IsFlagged(EMobFlag::kCompanion))) {
 			auto master = it.ch->get_master();
 			if (master->desc
 				&& !master->GetEnemy()
@@ -2243,18 +2223,14 @@ int check_agro_follower(CharData *ch, CharData *victim) {
 // translating pointers from charimces to their leaders
 	if (ch->IsNpc()
 		&& ch->has_master()
-		&& (AFF_FLAGGED(ch, EAffect::kCharmed)
-			|| ch->IsFlagged(EMobFlag::kTutelar)
-			|| ch->IsFlagged(EMobFlag::kMentalShadow)
+		&& (ch->IsFlagged(EMobFlag::kCompanion)
 			|| mount::IsHorse(ch))) {
 		ch = ch->get_master();
 	}
 
 	if (victim->IsNpc()
 		&& victim->has_master()
-		&& (AFF_FLAGGED(victim, EAffect::kCharmed)
-			|| victim->IsFlagged(EMobFlag::kTutelar)
-			|| victim->IsFlagged(EMobFlag::kMentalShadow)
+		&& (victim->IsFlagged(EMobFlag::kCompanion)
 			|| mount::IsHorse(victim))) {
 		victim = victim->get_master();
 	}
@@ -2264,8 +2240,7 @@ int check_agro_follower(CharData *ch, CharData *victim) {
 // finding leaders
 	while (cleader->has_master()) {
 		if (cleader->IsNpc()
-			&& !AFF_FLAGGED(cleader, EAffect::kCharmed)
-			&& !(cleader->IsFlagged(EMobFlag::kTutelar) || cleader->IsFlagged(EMobFlag::kMentalShadow))
+			&& !cleader->IsFlagged(EMobFlag::kCompanion)
 			&& !mount::IsHorse(cleader)) {
 			break;
 		}
@@ -2274,8 +2249,7 @@ int check_agro_follower(CharData *ch, CharData *victim) {
 
 	while (vleader->has_master()) {
 		if (vleader->IsNpc()
-			&& !AFF_FLAGGED(vleader, EAffect::kCharmed)
-			&& !(vleader->IsFlagged(EMobFlag::kTutelar) || vleader->IsFlagged(EMobFlag::kMentalShadow))
+			&& !vleader->IsFlagged(EMobFlag::kCompanion)
 			&& !mount::IsHorse(vleader)) {
 			break;
 		}

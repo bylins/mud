@@ -70,6 +70,7 @@ namespace handlers {
 void CloneCascade(CharData *ch, CharData *mob, const CastContext &ctx, int /*duration*/) {
 	ApplyCloneCosmetics(ch, mob);
 	mob->SetFlag(EMobFlag::kSummoned);	// true conjuration (banishable)
+	mob->SetFlag(EMobFlag::kCompanion);	// any NPC ally
 	int already = 0;
 	for (auto *k : ch->followers) {
 		if (AFF_FLAGGED(k, EAffect::kCharmed) && k->get_master() == ch) {
@@ -93,6 +94,7 @@ void CloneCascade(CharData *ch, CharData *mob, const CastContext &ctx, int /*dur
 		ApplyCloneCosmetics(ch, extra);
 		extra->SetFlag(EMobFlag::kNoSkillTrain);
 		extra->SetFlag(EMobFlag::kSummoned);	// true conjuration (banishable)
+		extra->SetFlag(EMobFlag::kCompanion);	// any NPC ally
 		extra->char_specials.saved.alignment = ch->char_specials.saved.alignment;
 	}
 }

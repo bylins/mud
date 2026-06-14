@@ -154,7 +154,7 @@ bool IsCorrectDirection(CharData *ch, int dir, bool check_specials, bool show_ms
 
 		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room(), ERoomFlag::kNoEntryMob) &&
 			!mount::IsHorse(ch) &&
-			!AFF_FLAGGED(ch, EAffect::kCharmed) && !(ch->IsFlagged(EMobFlag::kTutelar) || ch->IsFlagged(EMobFlag::kMentalShadow))
+			!ch->IsFlagged(EMobFlag::kCompanion)
 			&& !ch->IsFlagged(EMobFlag::kIgnoresNoMob))
 			return false;
 

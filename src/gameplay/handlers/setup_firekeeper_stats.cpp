@@ -21,6 +21,7 @@ void SetupFirekeeperStats(CharData *ch, CharData *mob, const CastContext &ctx, i
 	af.affect_type = (get_effective_cha(ch) >= 30) ? EAffect::kFireShield : EAffect::kFireAura;
 	affect_to_char(mob, af);
 	mob->SetFlag(EMobFlag::kSummoned);	// true conjuration (banishable)
+	mob->SetFlag(EMobFlag::kCompanion);	// any NPC ally
 
 	// Cha-driven stats, calibrated onto C = base_cha-20 (kSummonFirekeeper potency: kCha
 	// threshold=20 weight=100) via the same SummonScaledStat/option-2 formula; each cap

@@ -75,6 +75,7 @@ void feed_charmice(CharData *ch, char *local_arg) {
 	af.battleflag = 0;
 
 	ImposeAffect(ch, af);
+	if (ch->IsNpc()) { ch->SetFlag(EMobFlag::kCompanion); }	// any NPC ally
 
 	act("Громко чавкая, $N сожрал$G труп.", true, ch, obj, ch, kToRoom | kToArenaListen);
 	act("Похоже, лакомство пришлось по вкусу.", true, ch, nullptr, ch->get_master(), kToVict);

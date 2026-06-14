@@ -59,8 +59,8 @@ void ApplyAnimalMaster(CharData *ch, CharData *victim, Affect<EApply> &af,
 	k_skills = floorf(0.8*r_cha + 0.5*perc);
 	ch->send_to_TC(false, true, false, "Владение скилом: %d.\r\n", k_skills);
 	// === Формируем новые статы ===
-	// Устанавливаем на виктим флаг маг-сумон (маг-зверь)
-	victim->SetFlag(EMobFlag::kCompanion);
+	// the mag-zver is identified by its non-zero type_charmice (set above);
+	// the kCompanion ally flag is set by the charm spell itself, not here.
 	// Модифицируем имя в зависимости от хари
 	static char descr[kMaxStringLength];
 	int gender;

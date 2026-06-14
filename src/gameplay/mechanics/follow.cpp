@@ -234,9 +234,11 @@ bool StopFollower(CharData *ch, int mode) {
 			} else if (AFF_FLAGGED(ch, EAffect::kHelper)) {
 				AFF_FLAGS(ch).unset(EAffect::kHelper);
 			}
+			// the NPC is no longer an ally once it stops being charmed/helping
+			ch->UnsetFlag(EMobFlag::kCompanion);
 		}
 	}
-	if (ch->IsNpc() && ch->IsFlagged(EMobFlag::kCompanion)) {
+	if (ch->IsNpc() && ch->get_type_charmice() != 0) {
 		act("Магия подпитывающая $n3 развеялась, и $n0 вернул$u в норму.", true, ch, 0, 0, kToRoom | kToArenaListen);
 		ch->restore_npc();
 			// сначало бросаем лишнее

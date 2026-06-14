@@ -55,6 +55,7 @@ int FinalizeSummonedMob(CharData *ch, CharData *mob, ESpell spell_id, bool keepe
 		mob->set_skill(ESkill::kRescue, 100);
 	}
 	mob->SetFlag(EMobFlag::kCorpse);
+	mob->SetFlag(EMobFlag::kCompanion);	// any NPC ally
 	act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kSummonToRoom).c_str(),
 		false, ch, nullptr, mob, kToRoom | kToArenaListen);
 	PlaceCharToRoom(mob, ch->in_room);

@@ -92,6 +92,7 @@ EStageResult SpellMentalShadow(CastContext &ctx) {
 	mob->SetFlag(EMobFlag::kCorpse);
 	mob->SetFlag(EMobFlag::kMentalShadow);
 	mob->SetFlag(EMobFlag::kSummoned);	// true conjuration (banishable)
+	mob->SetFlag(EMobFlag::kCompanion);	// any NPC ally
 	PlaceCharToRoom(mob, ch->in_room);
 	follow::AddFollower(ch, mob);
 	mob->set_protecting(ch);
