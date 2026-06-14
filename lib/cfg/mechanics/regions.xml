@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<!-- issue.regions: geographic region registry (rudimentary). A region is keyed by an integer vnum
+     and has a string id. <capital id=> is a cities.xml city id but is NOT parsed yet (format may
+     change). Later: zones belong to regions, activity feeds the capital's reputation, road zones are
+     trade arteries. -->
+<regions>
+	<region vnum="0" id="KievskojeKnjazhestvo">
+		<capital id="Kiev"/>
+	</region>
+	<region vnum="1" id="NovgorodskieZemli">
+		<capital id="VelikiyNovgorod"/>
+	</region>
+</regions>

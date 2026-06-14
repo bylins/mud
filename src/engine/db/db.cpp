@@ -881,6 +881,8 @@ void BootMudDataBase() {
 	MUD::CfgManager().LoadCfg("mob_races");
 	MUD::CfgManager().LoadCfg("city_messages");   // issue.cities: names before cities
 	MUD::CfgManager().LoadCfg("cities");
+	MUD::CfgManager().LoadCfg("region_messages");   // issue.regions: messages before regions
+	MUD::CfgManager().LoadCfg("regions");
 	MUD::CfgManager().LoadCfg("pc_race_messages");   // issue.player-races-rework: names before races
 	MUD::CfgManager().LoadCfg("pc_races");
 

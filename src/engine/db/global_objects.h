@@ -18,6 +18,8 @@
 #include "gameplay/communication/social.h"
 #include "gameplay/mechanics/guild_messages.h"
 #include "gameplay/mechanics/cities.h"
+#include "gameplay/mechanics/regions.h"
+#include "gameplay/mechanics/region_messages.h"
 #include "gameplay/mechanics/cities_messages.h"
 #include "gameplay/mechanics/player_races.h"
 #include "gameplay/mechanics/pc_race_messages.h"
@@ -86,6 +88,8 @@ class GlobalObjects {
 	static communication::social::SocialsInfo &Socials();
 	static guilds::GuildMessages &GuildMessages();
 	static cities::CitiesInfo &Cities();
+	static regions::RegionsInfo &Regions();
+	static regions::RegionMessages &RegionMessages();
 	static cities::CityMessages &CityMessages();
 	static player_races::PcRacesInfo &PcRaces();
 	static player_races::RaceMessages &RaceMessages();
