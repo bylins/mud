@@ -1,13 +1,26 @@
 <?xml version="1.0" encoding="koi8-r"?>
 <!-- issue.regions: geographic region registry (rudimentary). A region is keyed by an integer vnum
      and has a string id. <capital id=> is a cities.xml city id but is NOT parsed yet (format may
-     change). Later: zones belong to regions, activity feeds the capital's reputation, road zones are
-     trade arteries. -->
+     change). <zones> lists the world zones belonging to the region -- this is how a city resolves to
+     its region (a city owns zones in cities.xml). Later: activity feeds the capital's reputation,
+     road zones are trade arteries. -->
 <regions>
 	<region vnum="0" id="KievskojeKnjazhestvo">
 		<capital id="Kiev"/>
+		<zones>
+			<zone vnum="40"/>   <!-- LesnayaDerevnya -->
+			<zone vnum="50"/>   <!-- DerevnyaUReki -->
+			<zone vnum="60"/>   <!-- StepnayaDerevnya -->
+			<zone vnum="499"/>  <!-- Kiev (capital) -->
+		</zones>
 	</region>
 	<region vnum="1" id="NovgorodskieZemli">
 		<capital id="VelikiyNovgorod"/>
+		<zones>
+			<zone vnum="80"/>   <!-- DerevnyaBelichyaPad -->
+			<zone vnum="70"/>   <!-- PogostHoluy -->
+			<zone vnum="90"/>   <!-- DerevushkaMedvezhyaGora -->
+			<zone vnum="600"/>  <!-- VelikiyNovgorod (capital) -->
+		</zones>
 	</region>
 </regions>

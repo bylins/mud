@@ -47,6 +47,10 @@ CityInfoBuilder::ItemPtr CityInfoBuilder::ParseCity(DataNode node) {
 		}
 		node.GoToParent();
 	}
+
+	for (auto &item : node.Children("start_item")) {
+		city->start_items_.push_back(parse::ReadAsInt(item.GetValue("vnum")));
+	}
 	return city;
 }
 
@@ -135,6 +139,19 @@ bool IsCharInCity(CharData *ch) {
 		}
 	}
 	return false;
+}
+
+std::vector<int> StartItemsForRoom(int room_vnum) {
+	const int zone_vnum = room_vnum / 100;   // зона = внум комнаты / 100 (как в старых birthplaces)
+	for (const auto &city : MUD::Cities()) {
+		if (city.GetId() < 0) {
+			continue;
+		}
+		if (city.HasZone(zone_vnum)) {
+			return city.GetStartItems();
+		}
+	}
+	return {};
 }
 
 void DoCities(CharData *ch, char *, int, int) {

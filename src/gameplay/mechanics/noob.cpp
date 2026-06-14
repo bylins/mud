@@ -4,7 +4,7 @@
 #include "noob.h"
 
 #include "engine/entities/char_data.h"
-#include "gameplay/mechanics/birthplaces.h"
+#include "gameplay/mechanics/cities.h"
 #include "third_party_libs/pugixml/pugixml.h"
 #include "utils/parse.h"
 #include "engine/core/handler.h"
@@ -117,7 +117,7 @@ std::string print_start_outfit(CharData *ch) {
 
 ///
 /// \return список внумов стартовых шмоток из noob_help.xml
-/// + шмоток, завясящих от местонахождения чара из birthplaces.xml
+/// + шмоток, зависящих от города, в котором появился чар (cities.xml)
 ///
 std::vector<int> get_start_outfit(CharData *ch) {
 	// стаф из noob_help.xml
@@ -127,12 +127,9 @@ std::vector<int> get_start_outfit(CharData *ch) {
 		out_list.insert(out_list.end(),
 						class_list.at(ch_class).begin(), class_list.at(ch_class).end());
 	}
-	// стаф из birthplaces.xml (карты родовых)
-	int birth_id = Birthplaces::GetIdByRoom(GET_ROOM_VNUM(ch->in_room));
-	if (birth_id >= 0) {
-		std::vector<int> tmp = Birthplaces::GetItemList(birth_id);
-		out_list.insert(out_list.end(), tmp.begin(), tmp.end());
-	}
+	// стартовый стаф из cities.xml (для города, в котором появился чар)
+	std::vector<int> tmp = cities::StartItemsForRoom(GET_ROOM_VNUM(ch->in_room));
+	out_list.insert(out_list.end(), tmp.begin(), tmp.end());
 	return out_list;
 }
 
@@ -152,22 +149,20 @@ CharData *find_renter(int room_rnum) {
 ///
 /// Проверка при входе в игру чара на ренте, при необходимости выдача
 /// сообщения о возможности получить стартовую экипу у кладовщика.
-/// Сообщение берется из birthplaces.xml или дефолтное из birthplaces::GetRentHelp
+/// Сообщение выдается мобом-рентером (кладовщиком) нубу в стартовом городе.
 ///
 void check_help_message(CharData *ch) {
+	static const char *kRentHelp = "Попроси нашего кладовщика помочь тебе с экипировкой и припасами.";
 	if (Noob::is_noob(ch)
 		&& ch->get_hit() <= 1
 		&& ch->GetCarryingQuantity() <= 0
-		&& ch->GetCarryingWeight() <= 0) {
-		int birth_id = Birthplaces::GetIdByRoom(GET_ROOM_VNUM(ch->in_room));
-		if (birth_id >= 0) {
-			CharData *renter = find_renter(ch->in_room);
-			std::string text = Birthplaces::GetRentHelp(birth_id);
-			if (renter && !text.empty()) {
-				act("\n\\u$n оглядел$g вас с головы до пят.", true, renter, nullptr, ch, kToVict);
-				act("$n посмотрел$g на $N3.", true, renter, nullptr, ch, kToNotVict);
-				tell_to_char(renter, ch, text.c_str());
-			}
+		&& ch->GetCarryingWeight() <= 0
+		&& cities::IsCharInCity(ch)) {
+		CharData *renter = find_renter(ch->in_room);
+		if (renter) {
+			act("\n\\u$n оглядел$g вас с головы до пят.", true, renter, nullptr, ch, kToVict);
+			act("$n посмотрел$g на $N3.", true, renter, nullptr, ch, kToNotVict);
+			tell_to_char(renter, ch, kRentHelp);
 		}
 	}
 }

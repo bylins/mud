@@ -258,7 +258,6 @@
 #include "engine/core/iosystem.h"
 #include "gameplay/ai/spec_procs.h"
 #include "gameplay/mechanics/player_races.h"
-#include "gameplay/mechanics/birthplaces.h"
 #include "engine/db/help.h"
 #include "mapsystem.h"
 #include "gameplay/mechanics/noob.h"
@@ -2993,7 +2992,7 @@ void nanny(DescriptorData *d, char *argument) {
 			}
 
 			GET_RACE(d->character) = load_result;
-			iosystem::write_to_output(string(Birthplaces::ShowMenu(MUD::PcRaces()[GET_RACE(d->character)].GetBirthPlaces())).c_str(), d);
+			iosystem::write_to_output(string(player_races::FormatStartRegionsMenu(GET_RACE(d->character))).c_str(), d);
 			iosystem::write_to_output("\r\nГде вы хотите начать свои приключения: ", d);
 			d->state = EConState::kBirthplace;
 
@@ -3001,21 +3000,24 @@ void nanny(DescriptorData *d, char *argument) {
 
 		case EConState::kBirthplace:
 			if (pre_help(d->character.get(), argument)) {
-				iosystem::write_to_output(string(Birthplaces::ShowMenu(MUD::PcRaces()[GET_RACE(d->character)].GetBirthPlaces())).c_str(),
+				iosystem::write_to_output(string(player_races::FormatStartRegionsMenu(GET_RACE(d->character))).c_str(),
 						  d);
 				iosystem::write_to_output("\r\nГде вы хотите начать свои приключения: ", d);
 				d->state = EConState::kBirthplace;
 				return;
 			}
 
-			load_result = player_races::BirthPlaceByMenuChoice(GET_RACE(d->character), argument);
+			load_result = player_races::StartRegionByMenuChoice(GET_RACE(d->character), argument);
 
-			if (!Birthplaces::CheckId(load_result)) {
-				iosystem::write_to_output("Не уверены? Бывает.\r\n"
-						  "Подумайте еще разок, и выберите:", d);
-				return;
+			{
+				const int start_room = player_races::StartRoomForRaceRegion(GET_RACE(d->character), load_result);
+				if (load_result == player_races::kRaceUndefined || start_room == kNowhere) {
+					iosystem::write_to_output("Не уверены? Бывает.\r\n"
+							  "Подумайте еще разок, и выберите:", d);
+					return;
+				}
+				GET_LOADROOM(d->character) = start_room;
 			}
-			GET_LOADROOM(d->character) = calc_loadroom(d->character.get(), load_result);
 			iosystem::write_to_output(genchar_help, d);
 			iosystem::write_to_output("\r\n\r\nНажмите любую клавишу.\r\n", d);
 			d->state = EConState::kRollStats;

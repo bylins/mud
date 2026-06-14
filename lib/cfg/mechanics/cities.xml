@@ -2,25 +2,30 @@
 <!-- issue.cities: vnum-keyed city registry (InfoContainer). Display names live in
      cfg/messages/ru/cities_msg.xml (keyed by the same vnum). Each city owns a list of zones;
      suburb="true" marks an outer/suburb zone (absent = inner). <rent vnums="a|b"/> lists the
-     city rent rooms (| separated). Ids are CamelCase (no underscores -- the client shows _ as space). -->
+     city rent rooms (| separated). Optional <start_item vnum=> children list the first-login outfit
+     handed out in this city (moved here from the retired birthplaces.xml). Ids are CamelCase (no underscores
+     -- the client shows _ as space). -->
 <cities>
 	<city vnum="1" id="LesnayaDerevnya">
 		<rent vnums="4056"/>
 		<zones>
 			<zone vnum="40"/>
 		</zones>
+		<start_item vnum="4004"/>
 	</city>
 	<city vnum="2" id="DerevnyaUReki">
 		<rent vnums="5000"/>
 		<zones>
 			<zone vnum="50"/>
 		</zones>
+		<start_item vnum="5017"/>
 	</city>
 	<city vnum="3" id="StepnayaDerevnya">
 		<rent vnums="6049"/>
 		<zones>
 			<zone vnum="60"/>
 		</zones>
+		<start_item vnum="6004"/>
 	</city>
 	<city vnum="4" id="DerevnyaBelichyaPad">
 		<rent vnums="8010"/>

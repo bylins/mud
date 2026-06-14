@@ -36,6 +36,7 @@ class CityInfo : public info_container::BaseItem<int> {
 	std::string name_{"undefined"};
 	std::unordered_set<int> rent_vnums_;   // a city may have several rent rooms
 	std::vector<CityZone> zones_;
+	std::vector<int> start_items_;         // items handed out on first login in this city
 
  public:
 	CityInfo() = default;
@@ -54,6 +55,7 @@ class CityInfo : public info_container::BaseItem<int> {
 		}
 		return false;
 	}
+	[[nodiscard]] const std::vector<int> &GetStartItems() const { return start_items_; }
 };
 
 class CityInfoBuilder : public info_container::IItemBuilder<CityInfo> {
@@ -81,6 +83,8 @@ class CitiesLoader : virtual public cfg_manager::IEditableCfgLoader {
 void CheckCityVisit(CharData *ch, RoomRnum room_rnum);
 // True if ch's current zone is one of any city's zones (inner or suburb).
 bool IsCharInCity(CharData *ch);
+// The start-outfit items of the city whose zone contains room_vnum (empty if none).
+std::vector<int> StartItemsForRoom(int room_vnum);
 // The "goroda" (cities) command: lists cities and whether the player has visited each.
 void DoCities(CharData *ch, char *, int, int);
 

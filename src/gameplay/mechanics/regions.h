@@ -20,10 +20,26 @@
 
 namespace regions {
 
+constexpr int kRegionUndefined = -1;
+
 class RegionInfo : public info_container::BaseItem<int> {
+	friend class RegionInfoBuilder;
+
+	std::vector<int> zones_;   // world zone vnums belonging to this region
+
  public:
 	RegionInfo() = default;
 	RegionInfo(int id, std::string &text_id, EItemMode mode) : BaseItem<int>(id, text_id, mode) {};
+
+	[[nodiscard]] const std::vector<int> &GetZones() const { return zones_; }
+	[[nodiscard]] bool HasZone(int zone_vnum) const {
+		for (const int z : zones_) {
+			if (z == zone_vnum) {
+				return true;
+			}
+		}
+		return false;
+	}
 };
 
 class RegionInfoBuilder : public info_container::IItemBuilder<RegionInfo> {
@@ -44,6 +60,12 @@ class RegionsLoader : virtual public cfg_manager::IEditableCfgLoader {
 	[[nodiscard]] std::string CanonicalElementId(const std::string &id) const final;
 	[[nodiscard]] parser_wrapper::DataNode CreateElementNode(parser_wrapper::DataNode root, const std::string &id) const final;
 };
+
+// ---- lookups --------------------------------------------------------------------------------------
+// The region a world zone belongs to, or kRegionUndefined if no region claims it.
+[[nodiscard]] int RegionVnumByZone(int zone_vnum);
+// The region a city belongs to (resolved via the city's zones), or kRegionUndefined if unmapped.
+[[nodiscard]] int RegionVnumByCityId(const std::string &city_id);
 
 } // namespace regions
 

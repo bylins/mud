@@ -2,8 +2,9 @@
   issue.player-races-rework: Vedun editor scheme for cfg/mechanics/pc_races.xml. A PC race (tribe) is
   keyed by an integer vnum (must match the old racenum so existing characters keep their tribe) plus
   a CamelCase text id. Display names live in cfg/messages/ru/pc_race_msg.xml (keyed by the same vnum),
-  not here. place_of_birth id stays numeric until the birthplaces rework. A feature id is an EFeat
-  token. Optional sidecar; undeclared nodes degrade to plain strings and are validated on save.
+  not here. place_of_birth lists the race's birth cities (one per region it spans) by cities.xml id.
+  A feature id is an EFeat token. Optional sidecar; undeclared nodes degrade to plain strings and are
+  validated on save.
 -->
 <scheme>
 	<tag name="pc_races" desc="PC race (tribe) registry">
@@ -13,11 +14,14 @@
 		<attr name="vnum" type="int" readonly="Y" desc="Unique race vnum (identity; must match old racenum)"/>
 		<attr name="id" type="string" desc="CamelCase text id (cross-file key)"/>
 		<attr name="mode" type="enum" enum="EItemMode" desc="kEnabled / kDisabled / ..."/>
-		<child tag="place_of_birth" multiple="Y"/>
+		<child tag="place_of_birth"/>
 		<child tag="race_features"/>
 	</tag>
-	<tag name="place_of_birth" desc="A birth-place id (numeric until the birthplaces rework)">
-		<attr name="id" type="int" desc="Birth-place id"/>
+	<tag name="place_of_birth" desc="The race's birth cities (the player picks a region; the race fixes the village)">
+		<child tag="city" multiple="Y"/>
+	</tag>
+	<tag name="city" desc="A birth city (cities.xml text id)">
+		<attr name="id" type="string" desc="City text id from cities.xml"/>
 	</tag>
 	<tag name="race_features" desc="The race's inborn feats">
 		<child tag="feature" multiple="Y"/>

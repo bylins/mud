@@ -24,7 +24,6 @@
 
 #include "third_party_libs/pugixml/pugixml.h"
 
-#include "gameplay/mechanics/birthplaces.h"
 #include "gameplay/core/remort.h"
 #include "gameplay/communication/boards/boards_changelog_loaders.h"
 #include "gameplay/communication/boards/boards_constants.h"
@@ -294,16 +293,11 @@ const char *START_MESSG =
 	" В добрый час, путник, и да будет скатертью тебе дорога...\r\n" "\r\n";
 
 
-int calc_loadroom(const CharData *ch, int bplace_mode /*= BIRTH_PLACE_UNDEFINED*/) {
+int calc_loadroom(const CharData *ch) {
 	if (privilege::IsImmortal(ch)) {
 		return (immort_start_room);
 	} else if (ch->IsFlagged(EPlrFlag::kFrozen)) {
 		return (frozen_start_room);
-	} else {
-		const int loadroom = Birthplaces::GetLoadRoom(bplace_mode);
-		if (loadroom != kBirthplaceUndefined) {
-			return loadroom;
-		}
 	}
 
 	return (mortal_start_room);

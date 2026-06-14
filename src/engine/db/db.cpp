@@ -15,7 +15,6 @@
 #include "gameplay/communication/social.h"
 #include "gameplay/crafting/jewelry.h"
 #include "gameplay/crafting/mining.h"
-#include "gameplay/mechanics/birthplaces.h"
 #include "gameplay/mechanics/player_races.h"
 #include "gameplay/mechanics/corpse.h"
 #include "gameplay/mechanics/celebrates.h"
@@ -727,14 +726,9 @@ void BootMudDataBase() {
 	log("Loading daily quests.");
 	DailyQuest::LoadFromFile();
 
-	pugi::xml_document doc;
 	boot_profiler.next_step("Loading undecayable object criterions");
 	log("Loading undecayable object criterions.");
 	stable_objs::LoadCriterionsCfg();
-
-	boot_profiler.next_step("Loading birthplaces definitions");
-	log("Loading birthplaces definitions.");
-	Birthplaces::Load(XmlLoad(LIB_MISC BIRTH_PLACES_FILE, BIRTH_PLACE_MAIN_TAG, BIRTH_PLACE_ERROR_STR, doc));
 
 	boot_profiler.next_step("Loading ingredients magic");
 	log("Booting IM");

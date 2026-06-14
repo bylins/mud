@@ -6,6 +6,7 @@
 
 #include "regions.h"
 
+#include "cities.h"
 #include "engine/db/global_objects.h"
 #include "utils/parse.h"
 #include "utils/utils.h"
@@ -20,7 +21,14 @@ RegionInfoBuilder::ItemPtr RegionInfoBuilder::Build(DataNode &node) {
 		std::string text_id = parse::ReadAsStr(node.GetValue("id"));
 		auto mode = RegionInfoBuilder::ParseItemMode(node, EItemMode::kEnabled);
 		// <capital> is intentionally not parsed yet (the format may still change).
-		return std::make_shared<RegionInfo>(vnum, text_id, mode);
+		auto region = std::make_shared<RegionInfo>(vnum, text_id, mode);
+		if (node.GoToChild("zones")) {
+			for (auto &zone : node.Children("zone")) {
+				region->zones_.push_back(parse::ReadAsInt(zone.GetValue("vnum")));
+			}
+			node.GoToParent();
+		}
+		return region;
 	} catch (std::exception &e) {
 		err_log("Region parsing error (incorrect value '%s').", e.what());
 		return nullptr;
@@ -85,6 +93,34 @@ parser_wrapper::DataNode RegionsLoader::CreateElementNode(DataNode root, const s
 	node.SetValue("vnum", id);
 	node.SetValue("id", "Undefined");
 	return node;
+}
+
+// ---- lookups --------------------------------------------------------------------------------------
+
+int RegionVnumByZone(int zone_vnum) {
+	for (const auto &region : MUD::Regions()) {
+		if (region.GetId() < 0) {   // skip the kUndefined sentinel
+			continue;
+		}
+		if (region.HasZone(zone_vnum)) {
+			return region.GetId();
+		}
+	}
+	return kRegionUndefined;
+}
+
+int RegionVnumByCityId(const std::string &city_id) {
+	const auto &city = MUD::Cities().FindItem(city_id);
+	if (city.GetId() < 0) {   // unknown city
+		return kRegionUndefined;
+	}
+	for (const auto &zone : city.GetZones()) {
+		const int region = RegionVnumByZone(zone.vnum);
+		if (region != kRegionUndefined) {
+			return region;
+		}
+	}
+	return kRegionUndefined;
 }
 
 } // namespace regions

@@ -4,10 +4,16 @@
 #include "player_races.h"
 
 #include "pc_race_messages.h"
+#include "cities.h"
+#include "regions.h"
+#include "region_messages.h"
 #include "engine/db/global_objects.h"
+#include "engine/structs/structs.h"
 #include "utils/parse.h"
 #include "utils/utils.h"
+#include "utils/utils_string.h"
 
+#include <algorithm>
 #include <fmt/format.h>
 
 using parser_wrapper::DataNode;
@@ -30,8 +36,11 @@ PcRaceInfoBuilder::ItemPtr PcRaceInfoBuilder::ParseRace(DataNode node) {
 
 	auto race = std::make_shared<PcRaceInfo>(vnum, text_id, mode);
 
-	for (auto &bp : node.Children("place_of_birth")) {
-		race->birth_places_.push_back(parse::ReadAsInt(bp.GetValue("id")));
+	if (node.GoToChild("place_of_birth")) {
+		for (auto &city : node.Children("city")) {
+			race->birth_cities_.push_back(parse::ReadAsStr(city.GetValue("id")));
+		}
+		node.GoToParent();
 	}
 	if (node.GoToChild("race_features")) {
 		for (auto &feat : node.Children("feature")) {
@@ -130,13 +139,73 @@ int RaceVnumByMenuChoice(const char *arg) {
 	return kRaceUndefined;
 }
 
-int BirthPlaceByMenuChoice(int race_vnum, const char *arg) {
+// ---- start-region selection -----------------------------------------------------------------------
+
+std::vector<int> StartRegionsForRace(int race_vnum) {
+	std::vector<int> result;
+	for (const auto &city_id : MUD::PcRaces()[race_vnum].GetBirthCities()) {
+		const int region = regions::RegionVnumByCityId(city_id);
+		if (region == regions::kRegionUndefined) {
+			continue;
+		}
+		if (std::find(result.begin(), result.end(), region) == result.end()) {
+			result.push_back(region);
+		}
+	}
+	return result;
+}
+
+std::string FormatStartRegionsMenu(int race_vnum) {
+	std::string out;
+	int n = 1;
+	for (const int region : StartRegionsForRace(race_vnum)) {
+		out += fmt::format(" {}) {}\r\n", n++,
+						   MUD::RegionMessages().GetMessage(region, regions::ERegionMsg::kName));
+	}
+	return out;
+}
+
+std::string StartCityForRaceRegion(int race_vnum, int region_vnum) {
+	for (const auto &city_id : MUD::PcRaces()[race_vnum].GetBirthCities()) {
+		if (regions::RegionVnumByCityId(city_id) == region_vnum) {
+			return city_id;
+		}
+	}
+	return "";
+}
+
+int StartRegionByMenuChoice(int race_vnum, const char *arg) {
+	const auto regions_list = StartRegionsForRace(race_vnum);
+	// (1) a 1-based number over this race's region list.
 	const int num = atoi(arg);
-	const auto &places = MUD::PcRaces()[race_vnum].GetBirthPlaces();
-	if (num >= 1 && static_cast<size_t>(num) <= places.size()) {
-		return places[num - 1];
+	if (num >= 1 && static_cast<size_t>(num) <= regions_list.size()) {
+		return regions_list[num - 1];
+	}
+	// (2) a region short name, possibly abbreviated (needle is a prefix of the short name).
+	std::string needle = arg;
+	utils::ConvertToLow(needle);
+	if (!needle.empty()) {
+		for (const int region : regions_list) {
+			std::string short_desc = MUD::RegionMessages().GetMessage(region, regions::ERegionMsg::kShortDesc);
+			utils::ConvertToLow(short_desc);
+			if (short_desc.rfind(needle, 0) == 0) {   // needle is a prefix of the short name
+				return region;
+			}
+		}
 	}
 	return kRaceUndefined;
+}
+
+int StartRoomForRaceRegion(int race_vnum, int region_vnum) {
+	const std::string city_id = StartCityForRaceRegion(race_vnum, region_vnum);
+	if (city_id.empty()) {
+		return kNowhere;
+	}
+	const auto &rents = MUD::Cities().FindItem(city_id).GetRentVnums();
+	if (rents.empty()) {
+		return kNowhere;
+	}
+	return *rents.begin();
 }
 
 } // namespace player_races

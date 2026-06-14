@@ -20,8 +20,8 @@ constexpr int kRaceUndefined = -1;
 class PcRaceInfo : public info_container::BaseItem<int> {
 	friend class PcRaceInfoBuilder;
 
-	std::vector<EFeat> features_;       // inborn race feats
-	std::vector<int> birth_places_;     // place_of_birth ids (numeric until the birthplaces rework)
+	std::vector<EFeat> features_;            // inborn race feats
+	std::vector<std::string> birth_cities_;  // place_of_birth: city text-ids (from cities.xml)
 
  public:
 	PcRaceInfo() = default;
@@ -36,7 +36,8 @@ class PcRaceInfo : public info_container::BaseItem<int> {
 		}
 		return false;
 	}
-	[[nodiscard]] const std::vector<int> &GetBirthPlaces() const { return birth_places_; }
+	// The cities (text-ids) where this race may be born -- one per region it spans.
+	[[nodiscard]] const std::vector<std::string> &GetBirthCities() const { return birth_cities_; }
 };
 
 class PcRaceInfoBuilder : public info_container::IItemBuilder<PcRaceInfo> {
@@ -62,7 +63,7 @@ class PcRacesLoader : virtual public cfg_manager::IEditableCfgLoader {
 
 // ---- public API ----------------------------------------------------------------------------------
 // Pure data lookups go directly through the registry:
-//   MUD::PcRaces()[vnum].GetFeatures() / .HasFeature(feat) / .GetBirthPlaces()
+//   MUD::PcRaces()[vnum].GetFeatures() / .HasFeature(feat) / .GetBirthCities()
 //   MUD::PcRaces().IsAvailable(vnum)
 //   MUD::RaceMessages().GetMessage(vnum, ch->get_sex())   // the gendered name
 // Only the helpers carrying real UI logic live here:
@@ -70,8 +71,23 @@ class PcRacesLoader : virtual public cfg_manager::IEditableCfgLoader {
 [[nodiscard]] std::string FormatRacesMenu();
 // Parse a 1-based menu choice into a race vnum; kRaceUndefined if it is not a selectable race.
 [[nodiscard]] int RaceVnumByMenuChoice(const char *arg);
-// Parse a 1-based birth-place menu choice into a place id; kRaceUndefined if out of range.
-[[nodiscard]] int BirthPlaceByMenuChoice(int race_vnum, const char *arg);
+
+// ---- start-region selection -----------------------------------------------------------------------
+// A character is born in a region (the player's choice); the concrete village inside that region is
+// fixed by the race. The selectable regions are derived from the race's birth cities (each city
+// resolves to a region via the regions registry), de-duplicated, in declaration order.
+//
+// The ordered, de-duplicated region vnums this race can be born in.
+[[nodiscard]] std::vector<int> StartRegionsForRace(int race_vnum);
+// A "<n) name" menu of those regions (numbered from 1), names from RegionMessages.
+[[nodiscard]] std::string FormatStartRegionsMenu(int race_vnum);
+// Parse a player's choice -- a 1-based number over this race's region list, or a region short name
+// (matched against RegionMessages kShortDesc) -- into a region vnum; kRaceUndefined if no match.
+[[nodiscard]] int StartRegionByMenuChoice(int race_vnum, const char *arg);
+// The birth city (text-id) for this race in the given region, or "" if the race has none there.
+[[nodiscard]] std::string StartCityForRaceRegion(int race_vnum, int region_vnum);
+// The load-room vnum (the chosen city's rent room) for this race + region, or kNowhere if unresolved.
+[[nodiscard]] int StartRoomForRaceRegion(int race_vnum, int region_vnum);
 
 } // namespace player_races
 

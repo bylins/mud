@@ -1,43 +1,62 @@
 <?xml version="1.0" encoding="koi8-r"?>
-<!-- issue.player-races-rework: PC race (tribe) registry (InfoContainer). vnum must match the old
+<!-- issue.pc-races-improve: PC race (tribe) registry (InfoContainer). vnum must match the old
      racenum so existing characters keep their tribe. Display names live in
-     cfg/messages/ru/pc_race_msg.xml (keyed by the same vnum). place_of_birth id stays numeric
-     until the birthplaces rework. feature id = EFeat token. -->
+     cfg/messages/ru/pc_race_msg.xml (keyed by the same vnum). place_of_birth lists the race's birth
+     cities (cities.xml ids) -- one per region the race spans; the player chooses the region and the
+     race fixes the village. feature id = EFeat token. -->
 <pc_races>
 	<race vnum="0" id="Severjane" mode="kEnabled">
-		<place_of_birth id="1"/>
+		<place_of_birth>
+			<city id="LesnayaDerevnya"/>
+			<city id="DerevnyaBelichyaPad"/>
+		</place_of_birth>
 		<race_features>
 			<feature id="kIronMuscles"/>
 		</race_features>
 	</race>
 	<race vnum="1" id="Poljane" mode="kEnabled">
-		<place_of_birth id="1"/>
+		<place_of_birth>
+			<city id="DerevnyaUReki"/>
+			<city id="PogostHoluy"/>
+		</place_of_birth>
 		<race_features>
 			<feature id="kAnimalDextery"/>
 			<feature id="kGreatEndurance"/>
 		</race_features>
 	</race>
 	<race vnum="2" id="Krivichi" mode="kEnabled">
-		<place_of_birth id="1"/>
+		<place_of_birth>
+			<city id="StepnayaDerevnya"/>
+			<city id="DerevushkaMedvezhyaGora"/>
+		</place_of_birth>
 		<race_features>
 			<feature id="kLegibleWritting"/>
 		</race_features>
 	</race>
 	<race vnum="3" id="Vjatichi" mode="kEnabled">
-		<place_of_birth id="1"/>
+		<place_of_birth>
+			<city id="DerevnyaUReki"/>
+			<city id="PogostHoluy"/>
+		</place_of_birth>
 		<race_features>
 			<feature id="kNaturalCon"/>
 			<feature id="kReliableHealth"/>
 		</race_features>
 	</race>
 	<race vnum="4" id="Veljane" mode="kEnabled">
-		<place_of_birth id="1"/>
+		<place_of_birth>
+			<city id="LesnayaDerevnya"/>
+			<city id="DerevnyaBelichyaPad"/>
+		</place_of_birth>
 		<race_features>
 			<feature id="kMagicSign"/>
 		</race_features>
 	</race>
 	<race vnum="5" id="Drevljane" mode="kEnabled">
-		<place_of_birth id="1"/>
+		<place_of_birth>
+			<city id="StepnayaDerevnya"/>
+			<city id="DerevushkaMedvezhyaGora"/>
+		</place_of_birth>
 		<race_features>
 			<feature id="kBestDestiny"/>
 		</race_features>
