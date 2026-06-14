@@ -1031,7 +1031,7 @@ void BootMudDataBase() {
 
 	boot_profiler.next_step("Loading reset_stats.xml");
 	log("Load reset_stats.xml");
-	stats_reset::init();
+	MUD::CfgManager().LoadCfg("reset_stats");
 
 	boot_profiler.next_step("Loading mail.xml");
 	log("Load mail.xml");

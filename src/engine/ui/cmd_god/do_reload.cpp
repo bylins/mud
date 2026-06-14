@@ -96,7 +96,7 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		celebrates::Load();
 		HelpSystem::reload_all();
 		Noob::init();
-		stats_reset::init();
+		MUD::CfgManager().ReloadCfg("reset_stats");
 		Bonus::bonus_log_load();
 		DailyQuest::LoadFromFile();
 	} else if (!str_cmp(arg, "portals")) {
@@ -243,7 +243,7 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	} else if (!str_cmp(arg, "noobhelp")) {
 		Noob::init();
 	} else if (!str_cmp(arg, "resetstats")) {
-		stats_reset::init();
+		MUD::CfgManager().ReloadCfg("reset_stats");
 	} else if (!str_cmp(arg, "objsets")) {
 		obj_sets::load();
 	} else if (!str_cmp(arg, "daily")) {

@@ -39,6 +39,7 @@
 #include "gameplay/mechanics/stable_objs.h"
 #include "gameplay/mechanics/corpse.h"
 #include "gameplay/classes/pc_classes.h"
+#include "gameplay/core/reset_stats.h"
 #include "gameplay/mechanics/cities_messages.h"
 #include "gameplay/mechanics/player_races.h"
 #include "gameplay/mechanics/pc_race_messages.h"
@@ -134,6 +135,8 @@ CfgManager::CfgManager() {
 										  std::make_unique<GlobalDrop::GlobalDropLoader>(GlobalDrop::GlobalDropLoader())));
 	loaders_.emplace("group_exp_handicap", LoaderInfo("cfg/mechanics/group_exp_handicap.xml",
 										  std::make_unique<GroupPenaltiesLoader>(GroupPenaltiesLoader())));
+	loaders_.emplace("reset_stats", LoaderInfo("cfg/mechanics/reset_stats.xml",
+										  std::make_unique<stats_reset::ResetStatsLoader>(stats_reset::ResetStatsLoader())));
 	loaders_.emplace("pc_race_messages", LoaderInfo("cfg/messages/ru/pc_race_msg.xml",
 										  std::make_unique<player_races::RaceMessagesLoader>(player_races::RaceMessagesLoader())));
 	loaders_.emplace("pc_races", LoaderInfo("cfg/mechanics/pc_races.xml",

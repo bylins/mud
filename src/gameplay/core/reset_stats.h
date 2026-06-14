@@ -7,6 +7,7 @@
 #include "engine/core/conf.h"
 #include "engine/core/sysdep.h"
 #include "engine/network/descriptor_data.h"
+#include "engine/boot/cfg_manager.h"
 
 ///
 /// Платный сброс/перераспределение характеристик персонажа через главное меню.
@@ -21,7 +22,14 @@ enum Type : int {
 	TOTAL_NUM
 };
 
-void init();
+// Загрузчик cfg/mechanics/reset_stats.xml (цены сброса характеристик) через cfg_manager:
+// boot + hot reload (reload resetstats).
+class ResetStatsLoader : public cfg_manager::ICfgLoader {
+ public:
+	void Load(parser_wrapper::DataNode data) final;
+	void Reload(parser_wrapper::DataNode data) final;
+};
+
 void print_menu(DescriptorData *d);
 void parse_menu(DescriptorData *d, const char *arg);
 
