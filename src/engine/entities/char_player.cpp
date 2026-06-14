@@ -425,7 +425,6 @@ void Player::save_char() {
 	if (POOFOUT(this))
 		saved.printf("PfOt: %s\n", POOFOUT(this));
 	saved.printf("Sex : %d %s\n", static_cast<int>(this->get_sex()), genders[(int) this->get_sex()]);
-	saved.printf("Kin : %d %s\n", GET_KIN(this), PlayerRace::GetKinNameByNum(GET_KIN(this), this->get_sex()).c_str());
 	li = this->player_data.time.birth;
 	saved.printf("Brth: %ld %s\n", static_cast<long int>(li), ctime(&li));
 	// Gunner
@@ -594,7 +593,7 @@ void Player::save_char() {
 	saved.printf(
 			"Race: %d %s\n",
 			GET_RACE(this),
-			PlayerRace::GetRaceNameByNum(GET_KIN(this), GET_RACE(this), this->get_sex()).c_str());
+			PlayerRace::GetRaceNameByNum(GET_RACE(this), this->get_sex()).c_str());
 	saved.printf("DrSt: %d\n", GET_DRUNK_STATE(this));
 	saved.printf("Olc : %d\n", GET_OLC_ZONE(this));
 	*buf = '\0';
@@ -1090,7 +1089,6 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 	alignment::SetAlignment(this, 0);
 	GET_BAD_PWS(this) = 0;
 	this->player_data.time.birth = time(0);
-	GET_KIN(this) = 0;
 
 	this->set_str(10);
 	this->set_dex(10);
@@ -1381,7 +1379,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 						auto feat_id = static_cast<EFeat>(num);
 						if (MUD::Feat(feat_id).IsAvailable()) {
 							if (MUD::Class(this->GetClass()).feats.IsAvailable(feat_id) ||
-								PlayerRace::FeatureCheck((int) GET_KIN(this), (int) GET_RACE(this), num)) {
+								PlayerRace::FeatureCheck((int) GET_RACE(this), num)) {
 								this->SetFeat(feat_id);
 							}
 						}
@@ -1439,9 +1437,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 				break;
 
 			case 'K':
-				if (!strcmp(tag, "Kin "))
-					GET_KIN(this) = num;
-				else if (!strcmp(tag, "Karm"))
+				if (!strcmp(tag, "Karm"))
 					KARMA(this) = fbgetstring(fl);
 				break;
 			case 'L':

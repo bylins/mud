@@ -604,8 +604,7 @@ int GetFlagDataByCharClass(const CharData *ch) {
 		return 0;
 	}
 
-	return flag_data_by_num(ch->IsNpc() ? kNumPlayerClasses * kNumKins : to_underlying(ch->GetClass())
-		+ kNumPlayerClasses * GET_KIN(ch));
+	return flag_data_by_num(ch->IsNpc() ? kNumPlayerClasses : to_underlying(ch->GetClass()));
 }
 
 unsigned int ActivateStuff(CharData *ch, ObjData *obj, id_to_set_info_map::const_iterator it,

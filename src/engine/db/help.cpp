@@ -242,7 +242,7 @@ struct activators_obj {
 void activators_obj::fill_class(set_info::const_iterator k) {
 	for (const auto & m : k->second) {
 		for (const auto & q : m.second) {
-			for (int i = 0; i <= kNumPlayerClasses * kNumKins; ++i) {
+			for (int i = 0; i <= kNumPlayerClasses; ++i) {
 				if (check_num_in_unique_bit_flag_data(q.first, i)) {
 					struct clss_activ_node tmp_node;
 					clss_list[i] = tmp_node;

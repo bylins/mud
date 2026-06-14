@@ -2077,20 +2077,11 @@ bool ValidateStats(DescriptorData *d) {
 		return false;
 	}
 
-	//Некорректный номер расы
-	if (PlayerRace::GetKinNameByNum(GET_KIN(d->character), d->character->get_sex()) == KIN_NAME_UNDEFINED) {
-		iosystem::write_to_output("\r\nЧто-то заплутал ты, путник. Откуда бредешь?\r\nВыберите народ:\r\n", d);
-		iosystem::write_to_output(string(PlayerRace::ShowKinsMenu()).c_str(), d);
-		iosystem::write_to_output("\r\nВыберите племя: ", d);
-		d->state = EConState::kResetKin;
-		return false;
-	}
-
 	//Некорректный номер рода
-	if (PlayerRace::GetRaceNameByNum(GET_KIN(d->character), GET_RACE(d->character), d->character->get_sex())
+	if (PlayerRace::GetRaceNameByNum(GET_RACE(d->character), d->character->get_sex())
 		== RACE_NAME_UNDEFINED) {
 		iosystem::write_to_output("\r\nКакого роду-племени вы будете?\r\n", d);
-		iosystem::write_to_output(string(PlayerRace::ShowRacesMenu(GET_KIN(d->character))).c_str(), d);
+		iosystem::write_to_output(string(PlayerRace::ShowRacesMenu()).c_str(), d);
 		iosystem::write_to_output("\r\nИз чьих вы будете: ", d);
 		d->state = EConState::kResetRace;
 		return false;
@@ -2868,7 +2859,6 @@ void nanny(DescriptorData *d, char *argument) {
 			}
 
 			if (d->state == EConState::kCnfpasswd) {
-				GET_KIN(d->character) = 0;
 				DisplaySelectCharClassMenu(d);
 				iosystem::write_to_output(
 					"\r\nВаша профессия? (Для более полной информации вы можете набрать 'справка <интересующая профессия>'): ",
@@ -2911,30 +2901,6 @@ void nanny(DescriptorData *d, char *argument) {
 			d->state = EConState::kName2;
 			return;
 
-		case EConState::kQkin:        // query rass
-			if (pre_help(d->character.get(), argument)) {
-				iosystem::write_to_output("\r\nКакой народ вам ближе по духу:\r\n", d);
-				iosystem::write_to_output(string(PlayerRace::ShowKinsMenu()).c_str(), d);
-				iosystem::write_to_output("\r\nПлемя: ", d);
-				d->state = EConState::kQkin;
-				return;
-			}
-
-			load_result = PlayerRace::CheckKin(argument);
-			if (load_result == KIN_UNDEFINED) {
-				iosystem::write_to_output("Стыдно не помнить предков.\r\n"
-						  "Какое Племя вам ближе по духу? ", d);
-				return;
-			}
-
-			GET_KIN(d->character) = load_result;
-			DisplaySelectCharClassMenu(d);
-			iosystem::write_to_output(
-				"\r\nВаша профессия? (Для более полной информации вы можете набрать 'справка <интересующая профессия>'): ",
-				d);
-			d->state = EConState::kQclass;
-			break;
-
 		case EConState::kQreligion:    // query religion of new user
 			if (pre_help(d->character.get(), argument)) {
 				iosystem::write_to_output(religion_menu, d);
@@ -2970,7 +2936,7 @@ void nanny(DescriptorData *d, char *argument) {
 			}
 
 			iosystem::write_to_output("\r\nКакой род вам ближе всего по духу:\r\n", d);
-			iosystem::write_to_output(string(PlayerRace::ShowRacesMenu(GET_KIN(d->character))).c_str(), d);
+			iosystem::write_to_output(string(PlayerRace::ShowRacesMenu()).c_str(), d);
 			sprintf(buffer, "Для вашей профессией больше всего подходит %s",
 					default_race[to_underlying(d->character->GetClass())]);
 			iosystem::write_to_output(buffer, d);
@@ -3014,13 +2980,13 @@ void nanny(DescriptorData *d, char *argument) {
 		case EConState::kRace:        // query race
 			if (pre_help(d->character.get(), argument)) {
 				iosystem::write_to_output("Какой род вам ближе всего по духу:\r\n", d);
-				iosystem::write_to_output(string(PlayerRace::ShowRacesMenu(GET_KIN(d->character))).c_str(), d);
+				iosystem::write_to_output(string(PlayerRace::ShowRacesMenu()).c_str(), d);
 				iosystem::write_to_output("\r\nРод: ", d);
 				d->state = EConState::kRace;
 				return;
 			}
 
-			load_result = PlayerRace::CheckRace(GET_KIN(d->character), argument);
+			load_result = PlayerRace::CheckRace(argument);
 
 			if (load_result == RACE_UNDEFINED) {
 				iosystem::write_to_output("Стыдно не помнить предков.\r\n" "Какой род вам ближе всего? ", d);
@@ -3028,7 +2994,7 @@ void nanny(DescriptorData *d, char *argument) {
 			}
 
 			GET_RACE(d->character) = load_result;
-			iosystem::write_to_output(string(Birthplaces::ShowMenu(PlayerRace::GetRaceBirthPlaces(GET_KIN(d->character),
+			iosystem::write_to_output(string(Birthplaces::ShowMenu(PlayerRace::GetRaceBirthPlaces(
 																				  GET_RACE(d->character)))).c_str(), d);
 			iosystem::write_to_output("\r\nГде вы хотите начать свои приключения: ", d);
 			d->state = EConState::kBirthplace;
@@ -3037,7 +3003,7 @@ void nanny(DescriptorData *d, char *argument) {
 
 		case EConState::kBirthplace:
 			if (pre_help(d->character.get(), argument)) {
-				iosystem::write_to_output(string(Birthplaces::ShowMenu(PlayerRace::GetRaceBirthPlaces(GET_KIN(d->character),
+				iosystem::write_to_output(string(Birthplaces::ShowMenu(PlayerRace::GetRaceBirthPlaces(
 																					  GET_RACE(d->character)))).c_str(),
 						  d);
 				iosystem::write_to_output("\r\nГде вы хотите начать свои приключения: ", d);
@@ -3045,7 +3011,7 @@ void nanny(DescriptorData *d, char *argument) {
 				return;
 			}
 
-			load_result = PlayerRace::CheckBirthPlace(GET_KIN(d->character), GET_RACE(d->character), argument);
+			load_result = PlayerRace::CheckBirthPlace(GET_RACE(d->character), argument);
 
 			if (!Birthplaces::CheckId(load_result)) {
 				iosystem::write_to_output("Не уверены? Бывает.\r\n"
@@ -3479,43 +3445,16 @@ void nanny(DescriptorData *d, char *argument) {
 
 			break;
 
-		case EConState::kResetKin:
-			if (pre_help(d->character.get(), argument)) {
-				iosystem::write_to_output("\r\nКакой народ вам ближе по духу:\r\n", d);
-				iosystem::write_to_output(string(PlayerRace::ShowKinsMenu()).c_str(), d);
-				iosystem::write_to_output("\r\nПлемя: ", d);
-				d->state = EConState::kResetKin;
-				return;
-			}
-
-			load_result = PlayerRace::CheckKin(argument);
-
-			if (load_result == KIN_UNDEFINED) {
-				iosystem::write_to_output("Стыдно не помнить предков.\r\n"
-						  "Какое Племя вам ближе по духу? ", d);
-				return;
-			}
-
-			GET_KIN(d->character) = load_result;
-
-			if (!ValidateStats(d)) {
-				return;
-			}
-
-			iosystem::write_to_output("\r\n* В связи с проблемами перевода фразы ANYKEY нажмите ENTER *", d);
-			d->state = EConState::kRmotd;
-			break;
-
 		case EConState::kResetRace:
 			if (pre_help(d->character.get(), argument)) {
 				iosystem::write_to_output("Какой род вам ближе всего по духу:\r\n", d);
-				iosystem::write_to_output(string(PlayerRace::ShowRacesMenu(GET_KIN(d->character))).c_str(), d);
+				iosystem::write_to_output(string(PlayerRace::ShowRacesMenu()).c_str(), d);
 				iosystem::write_to_output("\r\nРод: ", d);
 				d->state = EConState::kResetRace;
 				return;
 			}
 
-			load_result = PlayerRace::CheckRace(GET_KIN(d->character), argument);
+			load_result = PlayerRace::CheckRace(argument);
 
 			if (load_result == RACE_UNDEFINED) {
 				iosystem::write_to_output("Стыдно не помнить предков.\r\n" "Какой род вам ближе всего? ", d);

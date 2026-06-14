@@ -1177,11 +1177,6 @@ void Clan::HouseAdd(CharData *ch, std::string &buffer) {
 		}
 	}
 
-	if (GET_KIN(d->character) != GET_KIN(ch)) {
-		SendMsgToChar("Вы не можете сражаться в одном строю с иноплеменником.\r\n", ch);
-		return;
-	}
-
 	GetOneParam(buffer, buffer2);
 
 	// чтобы учесть воеводу с 0 рангом во время приписки и не дать ему приписать еще 10 воевод

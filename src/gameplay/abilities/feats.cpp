@@ -124,7 +124,7 @@ bool CanGetFeat(CharData *ch, EFeat feat) {
 	}
 
 	if ((MUD::Class(ch->GetClass()).feats.IsUnavailable(feat) &&
-		!PlayerRace::FeatureCheck(GET_KIN(ch), GET_RACE(ch), to_underlying(feat))) ||
+		!PlayerRace::FeatureCheck(GET_RACE(ch), to_underlying(feat))) ||
 		(remort::GetRealRemort(ch) < MUD::Class(ch->GetClass()).feats[feat].GetMinRemort())) {
 		return false;
 	}
@@ -221,7 +221,7 @@ bool CanGetFeat(CharData *ch, EFeat feat) {
 
 bool CheckVacantFeatSlot(CharData *ch, EFeat feat_id) {
 	if (MUD::Class(ch->GetClass()).feats[feat_id].IsInborn()
-		|| PlayerRace::FeatureCheck(GET_KIN(ch), GET_RACE(ch), to_underlying(feat_id))) {
+		|| PlayerRace::FeatureCheck(GET_RACE(ch), to_underlying(feat_id))) {
 		return true;
 	}
 
@@ -233,7 +233,7 @@ bool CheckVacantFeatSlot(CharData *ch, EFeat feat_id) {
 	//т.к. возможны свободные слоты меньше требуемого, и при этом верхние заняты все
 	auto slot_list = std::vector<int>();
 	for (const auto &feat : MUD::Class(ch->GetClass()).feats) {
-		if (feat.IsInborn() || PlayerRace::FeatureCheck(GET_KIN(ch), GET_RACE(ch), to_underlying(feat.GetId()))) {
+		if (feat.IsInborn() || PlayerRace::FeatureCheck(GET_RACE(ch), to_underlying(feat.GetId()))) {
 			continue;
 		}
 
@@ -272,7 +272,7 @@ bool CheckVacantFeatSlot(CharData *ch, EFeat feat_id) {
 
 // \todo Надо как-то переделать загрузку родовых способностей, чтобы там было не int, а сразу EFeat
 void SetRaceFeats(CharData *ch) {
-	auto race_features = PlayerRace::GetRaceFeatures((int) GET_KIN(ch), (int) GET_RACE(ch));
+	auto race_features = PlayerRace::GetRaceFeatures((int) GET_RACE(ch));
 	for (int i : race_features) {
 		auto feat_id = static_cast<EFeat>(i);
 		if (CanGetFeat(ch, feat_id)) {
@@ -282,7 +282,7 @@ void SetRaceFeats(CharData *ch) {
 }
 
 void UnsetRaceFeats(CharData *ch) {
-	auto race_features = PlayerRace::GetRaceFeatures((int) GET_KIN(ch), (int) GET_RACE(ch));
+	auto race_features = PlayerRace::GetRaceFeatures((int) GET_RACE(ch));
 	for (int i : race_features) {
 		ch->UnsetFeat(static_cast<EFeat>(i));
 	}
