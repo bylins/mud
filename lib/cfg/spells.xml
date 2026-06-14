@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="koi8-r"?>
 <spells>
 	<spell id="kUndefined" element="kUndefined" mode="kDisabled">
 		<name val="!undefined!" />
@@ -3329,7 +3329,7 @@
 			<action>
 				<affects type="kGodsShield" saving="kNone" resist="kVitality">
 					<duration base="4" skill_divisor="0" min="0" max="0" />
-					<flags val="kAfBattledec|kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable" />
+					<flags val="kAfBattledec|kAfUpdateDuration|kAfUpdateMod" />
 					<apply id="kGodsShield" location="kSavingStability">
 						<modifier min="10.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
 					</apply>
