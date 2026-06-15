@@ -34,9 +34,13 @@ int Attr(parser_wrapper::DataNode &node, const char *key) {
 }
 
 // Читает секцию <name> со строками <mod val="I" .../> и заполняет таблицу через setter.
-// Один раз сообщает в errlog, если секции нет или покрыты не все индексы [0, size).
-template<typename Setter>
-void LoadSection(parser_wrapper::DataNode data, const char *name, int size, Setter setter) {
+// Пропуски и хвост за последним заданным индексом доращиваются значением предыдущего
+// уровня (copy_prev), так что запрос значения выше максимального в таблице вернет
+// последнее заданное, а дырки (напр. 31..34 при заданных 30 и 35) заполнятся из 30.
+// В errlog сообщается, только если секции нет или в ней нет ни одной строки.
+template<typename Setter, typename CopyPrev>
+void LoadSection(parser_wrapper::DataNode data, const char *name, int size,
+				 Setter setter, CopyPrev copy_prev) {
 	auto section = data;
 	if (!section.GoToChild(name)) {
 		err_log("basic.xml: missing <%s> section -- its lookups will return 0.", name);
@@ -65,9 +69,17 @@ void LoadSection(parser_wrapper::DataNode data, const char *name, int size, Sett
 			++covered;
 		}
 	}
-	if (covered < size) {
-		err_log("basic.xml: <%s> has %d of %d rows; missing indices will return 0.",
-				name, covered, size);
+	if (covered == 0) {
+		err_log("basic.xml: <%s> has no rows -- its lookups will return 0.", name);
+		return;
+	}
+	// Доращиваем пропуски и хвост значением предыдущего индекса. Ведущие индексы до
+	// первого заданного (если val=0 не задан) остаются нулевыми -- доращивать неоткуда.
+	for (int i = 1; i < size; ++i) {
+		if (!seen[i]) {
+			copy_prev(i, i - 1);
+			seen[i] = true;
+		}
 	}
 }
 
@@ -91,7 +103,7 @@ void BasicValuesLoader::Load(parser_wrapper::DataNode data) {
 		cha_app[i].morale = Attr(m, "luck");
 		cha_app[i].illusive = Attr(m, "Illusive");
 		cha_app[i].dam_to_hit_rate = Attr(m, "dam_to_hit_rate");
-	});
+	}, [](int d, int s) { cha_app[d] = cha_app[s]; });
 
 	LoadSection(data, "int_mod", kStatModSize, [](int i, parser_wrapper::DataNode &m) {
 		int_app[i].spell_aknowlege = Attr(m, "apell_acknowledge");
@@ -101,24 +113,25 @@ void BasicValuesLoader::Load(parser_wrapper::DataNode data) {
 		int_app[i].improve = Attr(m, "improove_skill");
 		int_app[i].observation = Attr(m, "observation");
 		int_app[i].mana_gain = Attr(m, "mana_gain");
-	});
+	}, [](int d, int s) { int_app[d] = int_app[s]; });
 
 	LoadSection(data, "size_mod", kStatModSize, [](int i, parser_wrapper::DataNode &m) {
 		size_app[i].ac = Attr(m, "ac");
 		size_app[i].interpolate = Attr(m, "interpolate");
 		size_app[i].initiative = Attr(m, "initiative");
 		size_app[i].shocking = Attr(m, "shocking");
-	});
+	}, [](int d, int s) { size_app[d] = size_app[s]; });
 
 	LoadSection(data, "weapon_mod", kStatModSize, [](int i, parser_wrapper::DataNode &m) {
 		weapon_app[i].shocking = Attr(m, "shocking");
 		weapon_app[i].bashing = Attr(m, "bashing");
 		weapon_app[i].parrying = Attr(m, "parrying");
-	});
+	}, [](int d, int s) { weapon_app[d] = weapon_app[s]; });
 
 	LoadSection(data, "wiz_mod", kWisModSize, [](int i, parser_wrapper::DataNode &m) {
 		mana[i] = Attr(m, "mana_amount");
-	});
+	}, [](int d, int s) { mana[d] = mana[s]; });
+
 }
 
 void BasicValuesLoader::Reload(parser_wrapper::DataNode data) {
