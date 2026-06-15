@@ -3,44 +3,49 @@
 //
 #include "city_guards.h"
 
-#include "third_party_libs/pugixml/pugixml.h"
-
+#include "utils/parser_wrapper.h"   // issue.guards: ParserWrapper вместо прямого pugixml
+#include "utils/parse.h"
 #include "engine/boot/boot_constants.h"
 #include "engine/entities/char_data.h"
 #include "engine/entities/entities_constants.h"
 #include "gameplay/clans/house.h"
 #include "utils/logger.h"
 
-#include <fmt/format.h>
 
 namespace city_guards {
 
+using parser_wrapper::DataNode;
+
 GuardianRosterType guardian_roster;
 
-void LoadGuardians() {
-	pugi::xml_document doc;
-	pugi::xml_parse_result result = doc.load_file(LIB_MISC"guards.xml");
-	if (!result) {
-		const auto msg = fmt::format("...{}", result.description());
-		mudlog(msg, CMP, kLvlImmortal, SYSLOG, true);
-		return;
+namespace {
+// issue.guards: целочисленный атрибут через ParserWrapper (parse::ReadAsInt бросает на
+// пустой строке), с дефолтом при отсутствии/ошибке.
+int AttrInt(const DataNode &node, const char *key, int def = 0) {
+	const char *v = node.GetValue(key);
+	if (!v || !*v) {
+		return def;
 	}
-
-	pugi::xml_node xMainNode = doc.child("guardians");
-	if (!xMainNode) {
-		mudlog("...guards.xml read fail", CMP, kLvlImmortal, SYSLOG, true);
-		return;
+	try {
+		return parse::ReadAsInt(v);
+	} catch (const std::exception &) {
+		return def;
 	}
+}
+} // namespace
 
+// issue.guards: data = корневой элемент <guardians wars="N"> (передаётся CfgManager через
+// ParserWrapper). Механика стражников не менялась; формат: глобальный wars стал атрибутом
+// корня, а зоны режима agressor="list" - атрибутами <zone vnum="N"/> (раньше текст тегов).
+void CityGuardsLoader::Load(DataNode data) {
 	guardian_roster.clear();
-	int num_wars_global = atoi(xMainNode.child_value("wars"));
+	int num_wars_global = AttrInt(data, "wars");
 	struct CityGuardian tmp_guard;
-	for (pugi::xml_node xNodeGuard = xMainNode.child("guard"); xNodeGuard;
-		 xNodeGuard = xNodeGuard.next_sibling("guard")) {
-		int guard_vnum = xNodeGuard.attribute("vnum").as_int();
+	for (auto &guard_node : data.Children("guard")) {
+		int guard_vnum = AttrInt(guard_node, "vnum");
 
 		if (guard_vnum <= 0) {
-			log("ERROR: Ошибка загрузки файла %s - некорректное значение VNUM: %d", LIB_MISC"guards.xml", guard_vnum);
+			log("ERROR: Ошибка загрузки файла cfg/mechanics/guards.xml - некорректное значение VNUM: %d", guard_vnum);
 			continue;
 		}
 		//значения по умолчанию
@@ -49,29 +54,33 @@ void LoadGuardians() {
 		tmp_guard.agro_argressors_in_zones.clear();
 		tmp_guard.agro_killers = true;
 
-		int num_wars = xNodeGuard.attribute("wars").as_int();
+		int num_wars = AttrInt(guard_node, "wars");
 
 		if (num_wars && (num_wars != num_wars_global)) {
 			tmp_guard.max_wars_allow = num_wars;
 		}
 
-		if (!strcmp(xNodeGuard.attribute("killer").value(), "no")) {
+		const char *killer = guard_node.GetValue("killer");
+		if (killer && !strcmp(killer, "no")) {
 			tmp_guard.agro_killers = false;
 		}
 
-		if (!strcmp(xNodeGuard.attribute("agressor").value(), "yes")) {
+		const char *agressor = guard_node.GetValue("agressor");
+		if (agressor && !strcmp(agressor, "yes")) {
 			tmp_guard.agro_all_agressors = true;
 		}
 
-		if (!strcmp(xNodeGuard.attribute("agressor").value(), "list")) {
-			for (pugi::xml_node xNodeZone = xNodeGuard.child("zone"); xNodeZone;
-				 xNodeZone = xNodeZone.next_sibling("zone")) {
-				tmp_guard.agro_argressors_in_zones.push_back(atoi(xNodeZone.child_value()));
+		if (agressor && !strcmp(agressor, "list")) {
+			for (auto &zone_node : guard_node.Children("zone")) {
+				tmp_guard.agro_argressors_in_zones.push_back(AttrInt(zone_node, "vnum"));
 			}
 		}
 		guardian_roster[guard_vnum] = tmp_guard;
 	}
+}
 
+void CityGuardsLoader::Reload(DataNode data) {
+	Load(std::move(data));
 }
 
 bool MustGuardianAttack(CharData *ch, CharData *vict) {

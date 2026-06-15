@@ -750,7 +750,7 @@ void BootMudDataBase() {
 
 	boot_profiler.next_step("Loading gurdians");
 	log("Load guardians.");
-	city_guards::LoadGuardians();
+	MUD::CfgManager().LoadCfg("guards");   // issue.guards: cfg/mechanics/guards.xml
 
 	boot_profiler.next_step("Loading world");
 	GameLoader::BootWorld();
