@@ -1,6 +1,6 @@
 #include "daily_quest.h"
 
-#include "third_party_libs/pugixml/pugixml.h"
+#include "utils/parser_wrapper.h"   // issue.daily-quest: ParserWrapper вместо прямого pugixml
 
 #include "engine/entities/char_data.h"
 #include "engine/entities/char_player.h"
@@ -11,6 +11,9 @@
 #include "gameplay/economics/currencies.h"
 #include "engine/core/comm.h"
 
+#include <cstring>
+#include <sstream>
+
 namespace DailyQuest {
 
 DailyQuest::DailyQuest(const std::string &desk, int reward)
@@ -19,126 +22,72 @@ DailyQuest::DailyQuest(const std::string &desk, int reward)
 {
 }
 
-class DailyQuestLoader
-{
-public:
-	DailyQuestLoader();
-
-	// загрузка файла с дейликами. возвращает true в случае успеха
-	bool load();
-
-	// список загруженных квестов. валиден только когда вызов load() был успешен
-	const DailyQuestMap &quest_list() const;
-
-	// диагностическое сообщение о статусе загрузки файла
-	std::string log_message() const;
-
-	// статус последнего вызова load()
-	explicit operator bool();
-
-private:
-	bool do_load();
-
-private:
-	bool m_load_status;
-	DailyQuestMap m_daily_quest_list;
-	std::stringstream m_log_msg;
-};
-
-DailyQuestLoader::DailyQuestLoader()
-	: m_load_status(false)
-{
+namespace {
+// Диагностика последней загрузки (для вывода богу по 'reload daily').
+std::string g_last_load_message;
 }
 
-const DailyQuestMap &DailyQuestLoader::quest_list() const
-{
-	return m_daily_quest_list;
+const std::string &GetLastLoadMessage() {
+	return g_last_load_message;
 }
 
-std::string DailyQuestLoader::log_message() const
-{
-	return m_log_msg.str();
-}
+// issue.daily-quest: data = корневой элемент <daily_quest> (CfgManager + ParserWrapper).
+// Список собирается во временную карту и подменяет глобальный ТОЛЬКО при успехе - при
+// любой ошибке разбора текущие дейлики остаются нетронутыми (как и в прежней версии).
+void DailyQuestLoader::Load(parser_wrapper::DataNode data) {
+	std::stringstream log_msg;
+	DailyQuestMap tmp_list;
 
-bool DailyQuestLoader::load()
-{
-	do_load();
-	mudlog(std::string(m_log_msg.str()).c_str(), CMP, kLvlImmortal, SYSLOG, true);
-	return m_load_status;
-}
-
-DailyQuestLoader::operator bool()
-{
-	return m_load_status;
-}
-
-bool DailyQuestLoader::do_load()
-{
-	m_load_status = false;
-	m_log_msg.str(std::string());
-	m_daily_quest_list.clear();
-
-	pugi::xml_document xml_doc;
-	const auto load_result = xml_doc.load_file(DQ_FILE);
-	if (!load_result) {
-		m_log_msg << load_result.description();
-		return m_load_status;
-	}
-	pugi::xml_node xml_node = xml_doc.child("daily_quest");
-	if (!xml_node) {
-		m_log_msg << "Ошибка загрузки файла с дейликами: " << DQ_FILE;
-		return m_load_status;
+	if (data.IsEmpty() || !data.GetName() || strcmp(data.GetName(), "daily_quest") != 0) {
+		log_msg << "Ошибка загрузки файла с дейликами: cfg/quests/daily_quest.xml";
+		g_last_load_message = log_msg.str();
+		mudlog(g_last_load_message.c_str(), CMP, kLvlImmortal, SYSLOG, true);
+		return;
 	}
 
-	for (auto object = xml_node.child("quest"); object; object = object.next_sibling("quest")) {
-		const std::string attr_id = object.attribute("id").as_string("");
-		const std::string attr_reward = object.attribute("reward").as_string("");
-		const std::string attr_desk = object.attribute("desk").as_string("");
+	for (auto &object : data.Children("quest")) {
+		const char *raw_id = object.GetValue("id");
+		const char *raw_reward = object.GetValue("reward");
+		const char *raw_desk = object.GetValue("desk");
+		const std::string attr_id = raw_id ? raw_id : "";
+		const std::string attr_reward = raw_reward ? raw_reward : "";
+		const std::string attr_desk = raw_desk ? raw_desk : "";
 
 		if (attr_id.empty() || attr_reward.empty() || attr_desk.empty()) {
-			m_log_msg << "Чтений файла дейликов прервано. Найден пустой элемент.";
-			return m_load_status;
+			log_msg << "Чтений файла дейликов прервано. Найден пустой элемент.";
+			g_last_load_message = log_msg.str();
+			mudlog(g_last_load_message.c_str(), CMP, kLvlImmortal, SYSLOG, true);
+			return;
 		}
 
 		int id;
 		int reward;
-		const std::string desk = attr_desk;
 		try {
 			id = std::stoi(attr_id);
 			reward = std::stoi(attr_reward);
-		} catch (const std::invalid_argument& ia) {
-			m_log_msg << "Чтений файла дейликов прервано: найдено некорректное число";
-			return m_load_status;
-		} catch (const std::out_of_range& oor) {
-			m_log_msg << "Чтений файла дейликов прервано: слишком большое число";
-			return m_load_status;
+		} catch (const std::invalid_argument &ia) {
+			log_msg << "Чтений файла дейликов прервано: найдено некорректное число";
+			g_last_load_message = log_msg.str();
+			mudlog(g_last_load_message.c_str(), CMP, kLvlImmortal, SYSLOG, true);
+			return;
+		} catch (const std::out_of_range &oor) {
+			log_msg << "Чтений файла дейликов прервано: слишком большое число";
+			g_last_load_message = log_msg.str();
+			mudlog(g_last_load_message.c_str(), CMP, kLvlImmortal, SYSLOG, true);
+			return;
 		}
 
-		m_daily_quest_list.try_emplace(id, desk, reward);
+		tmp_list.try_emplace(id, attr_desk, reward);
 	}
 
-	m_log_msg << "Daily quests file loading successful. Total quests: " << m_daily_quest_list.size();
-	m_load_status = true;
-	return m_load_status;
+	GlobalObjects::daily_quests() = std::move(tmp_list);
+	log_msg << "Daily quests file loading successful. Total quests: " << GlobalObjects::daily_quests().size();
+	g_last_load_message = log_msg.str();
+	mudlog(g_last_load_message.c_str(), CMP, kLvlImmortal, SYSLOG, true);
 }
 
-void LoadFromFile(CharData *ch)
-{
-	DailyQuestLoader quest_loader;
-	if (quest_loader.load()) {
-		GlobalObjects::daily_quests() = quest_loader.quest_list();
-	}
-
-	if (ch) {
-		SendMsgToChar(quest_loader.log_message(), ch);
-		SendMsgToChar("\r\n", ch);
-
-		if (!quest_loader) {
-			std::stringstream log_message;
-			log_message << "Текущий список квестов оставлен без изменений. Количество квестов: " << GlobalObjects::daily_quests().size() << "\r\n";
-			SendMsgToChar(log_message.str(), ch);
-		}
-	}
+void DailyQuestLoader::Reload(parser_wrapper::DataNode data) {
+	Load(std::move(data));
 }
 
 

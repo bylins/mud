@@ -43,6 +43,7 @@
 #include "gameplay/mechanics/noob.h"
 #include "gameplay/mechanics/celebrates.h"
 #include "gameplay/mechanics/city_guards.h"
+#include "gameplay/quests/daily_quest.h"
 #include "gameplay/mechanics/cities_messages.h"
 #include "gameplay/mechanics/player_races.h"
 #include "gameplay/mechanics/pc_race_messages.h"
@@ -152,6 +153,8 @@ CfgManager::CfgManager() {
 										  std::make_unique<celebrates::CelebratesLoader>()));
 	loaders_.emplace("guards", LoaderInfo("cfg/mechanics/guards.xml",
 										  std::make_unique<city_guards::CityGuardsLoader>()));
+	loaders_.emplace("daily_quest", LoaderInfo("cfg/quests/daily_quest.xml",
+										  std::make_unique<DailyQuest::DailyQuestLoader>()));
 	loaders_.emplace("jewelry", LoaderInfo("cfg/craft/jewelry.xml",
 										  std::make_unique<jewelry::JewelryLoader>(jewelry::JewelryLoader())));
 	loaders_.emplace("item_creation", LoaderInfo("cfg/craft/item_creation.xml",

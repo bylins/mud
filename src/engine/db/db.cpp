@@ -723,7 +723,7 @@ void BootMudDataBase() {
 
 	boot_profiler.next_step("Loading daily quests");
 	log("Loading daily quests.");
-	DailyQuest::LoadFromFile();
+	MUD::CfgManager().LoadCfg("daily_quest");   // issue.daily-quest: cfg/quests/daily_quest.xml
 
 	boot_profiler.next_step("Loading undecayable object criterions");
 	log("Loading undecayable object criterions.");

@@ -102,7 +102,7 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		MUD::CfgManager().ReloadCfg("item_creation");
 		MUD::CfgManager().ReloadCfg("basic");
 		Bonus::bonus_log_load();
-		DailyQuest::LoadFromFile();
+		MUD::CfgManager().ReloadCfg("daily_quest");   // issue.daily-quest
 	} else if (!str_cmp(arg, "portals")) {
 		MUD::CfgManager().ReloadCfg("rune_stone_messages");
 		MUD::CfgManager().ReloadCfg("rune_stones");
@@ -258,7 +258,9 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	} else if (!str_cmp(arg, "objsets")) {
 		obj_sets::load();
 	} else if (!str_cmp(arg, "daily")) {
-		DailyQuest::LoadFromFile(ch);
+		MUD::CfgManager().ReloadCfg("daily_quest");
+		SendMsgToChar(DailyQuest::GetLastLoadMessage(), ch);
+		SendMsgToChar("\r\n", ch);
 	} else {
 		SendMsgToChar("Неверный параметр для перезагрузки файлов.\r\n", ch);
 		return;
