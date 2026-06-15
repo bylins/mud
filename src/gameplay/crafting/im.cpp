@@ -115,6 +115,19 @@ int im_get_recipe_by_name(char *name) {
 	return rid;
 }
 
+// Поиск rid по строковому идентификатору рецепта (англ. CamelCase)
+int im_get_recipe_by_str_id(const char *str_id) {
+	if (!str_id || !*str_id) {
+		return -1;
+	}
+	for (int rid = top_imrecipes; rid >= 0; --rid) {
+		if (imrecipes[rid].str_id && !str_cmp(imrecipes[rid].str_id, str_id)) {
+			return rid;
+		}
+	}
+	return -1;
+}
+
 im_rskill *im_get_char_rskill(CharData *ch, int rid) {
 	im_rskill *rs;
 	for (rs = GET_RSKILL(ch); rs; rs = rs->link)
@@ -421,6 +434,7 @@ void im_cleanup_type(im_type *t) {
 void im_cleanup_recipe(im_recipe *r) {
 	im_addon *a;
 	free(r->name);
+	free(r->str_id);
 	free(r->require);
 	free(r->msg_char[0]);
 	free(r->msg_char[1]);
@@ -604,6 +618,7 @@ void initIngredientsMagic(void) {
 		im_recipe &rec = imrecipes[top_imrecipes];
 		rec.id = AttrInt(r, "vnum", 0);
 		rec.name = str_dup(r.GetValue("name"));
+		rec.str_id = str_dup(r.GetValue("id") ? r.GetValue("id") : "");
 		rec.k_improve = AttrInt(r, "k_improve", 1000);
 		rec.result = AttrInt(r, "result_vnum", 0);
 		{

@@ -77,6 +77,7 @@ extern int top_imtypes;
 struct _im_recipe_tag {
 	int id;            // номер из im.lst
 	char *name;        // название рецепта
+	char *str_id;      // уникальный строковый id (англ., CamelCase)
 	int k_improve;        // сложность прокачки
 	int result;        // VNUM прототипа результата
 	float k[IM_NPARAM], kp;    // курсы перевода
@@ -119,6 +120,7 @@ int im_get_char_rskill_count(CharData *ch);
 void trg_recipeturn(CharData *ch, int rid, int recipediff);
 void AddRecipe(CharData *ch, int rid, int recipediff);
 int im_get_recipe_by_name(char *name);
+int im_get_recipe_by_str_id(const char *str_id);
 im_rskill *im_get_char_rskill(CharData *ch, int rid);
 void compose_recipe(CharData *ch, char *argument, int subcmd);
 void forget_recipe(CharData *ch, char *argument, int subcmd);
