@@ -67,11 +67,11 @@ int HorseBuy(CharData *ch, void *me, char * /*rest*/) {
 			act(specials::HorseMsg(specials::EHorseMsg::kBuyHaveAlready), false, ch, 0, victim, kToChar);
 			return (true);
 		}
-		if (currencies::GetHand(*ch, currencies::kGold) < kHorseCost) {
+		if (currencies::GetHand(*ch, currencies::kGold) < mount::kHorseCost) {
 			act(specials::HorseMsg(specials::EHorseMsg::kBuyNoMoney), false, ch, 0, victim, kToChar);
 			return (true);
 		}
-		if (!(horse = ReadMobile(kHorseVnum, kVirtual))) {
+		if (!(horse = ReadMobile(mount::kHorseVnum, kVirtual))) {
 			act(specials::HorseMsg(specials::EHorseMsg::kBuyNoHorse), false, ch, 0, victim, kToChar);
 			return (true);
 		}
@@ -86,7 +86,7 @@ int HorseBuy(CharData *ch, void *me, char * /*rest*/) {
 		act(fmt::format(fmt::runtime(specials::HorseMsg(specials::EHorseMsg::kBuyGiveRoom)),
 				fmt::arg("horse", GET_PAD(horse, 3)), fmt::arg("pronoun", grammar::PossessivePronoun((horse)->get_sex()))),
 			false, ch, 0, victim, kToRoom);
-		currencies::RemoveHand(*ch, currencies::kGold, kHorseCost);
+		currencies::RemoveHand(*ch, currencies::kGold, mount::kHorseCost);
 		ch->SetFlag(EPlrFlag::kCrashSave);
 		return (true);
 	return (1);
@@ -103,7 +103,7 @@ int HorseSell(CharData *ch, void *me, char * /*rest*/) {
 			return (true);
 		}
 
-		if (!(horse = mount::GetHorse(ch)) || GET_MOB_VNUM(horse) != kHorseVnum) {
+		if (!(horse = mount::GetHorse(ch)) || GET_MOB_VNUM(horse) != mount::kHorseVnum) {
 			act(specials::HorseMsg(specials::EHorseMsg::kSellWrongHorse), false, ch, 0, victim, kToChar);
 			return (true);
 		}
@@ -120,7 +120,7 @@ int HorseSell(CharData *ch, void *me, char * /*rest*/) {
 				fmt::arg("horse", GET_PAD(horse, 3)), fmt::arg("pronoun", grammar::PossessivePronoun((horse)->get_sex()))),
 			false, ch, 0, victim, kToRoom);
 		ExtractCharFromWorld(horse, false);
-		currencies::AddHand(*ch, currencies::kGold, (kHorseCost >> 1));
+		currencies::AddHand(*ch, currencies::kGold, (mount::kHorseCost >> 1));
 		ch->SetFlag(EPlrFlag::kCrashSave);
 		return (true);
 	return (1);
@@ -144,8 +144,8 @@ int horse_keeper(CharData *ch, void *me, int /*cmd*/, char *argument) {
 				return (true);
 			}
 			act(fmt::format(fmt::runtime(specials::HorseMsg(specials::EHorseMsg::kForSale)),
-					fmt::arg("amount", kHorseCost),
-					fmt::arg("currency", MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(kHorseCost, grammar::ECase::kNom).c_str())),
+					fmt::arg("amount", mount::kHorseCost),
+					fmt::arg("currency", MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(mount::kHorseCost, grammar::ECase::kNom).c_str())),
 				false, ch, nullptr, victim, kToChar);
 			return (true);
 		return (1);

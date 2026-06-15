@@ -144,11 +144,6 @@ const int kMobAcMult = 5;
 const int kMobDamageMult = 3;
 const int kMaxGroupedFollowers = 7;
 
-extern const MobVnum kHorseVnum;
-extern const ObjVnum kStartBread;
-extern const ObjVnum kCreateLight;
-extern const int kHorseCost;
-
 // issue.common-msg: SIELENCE / SOUNDPROOF moved to cfg/messages/ru/common_msg.xml (ECommonMsg).
 
 #endif // CONSTANTS_H_
