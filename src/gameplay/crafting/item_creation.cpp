@@ -25,6 +25,7 @@
 #include "gameplay/core/remort.h"
 
 #include <cmath>
+#include <set>
 
 char *format_act(const char *orig, CharData *ch, ObjData *obj, const void *vict_obj);
 
@@ -170,6 +171,7 @@ void ItemCreationLoader::Load(parser_wrapper::DataNode data) {
 			continue;
 		}
 		auto *trec = new MakeRecept();
+		trec->vnum = RecipeAttrInt(rnode, "vnum", 0);
 		trec->skill = skill;
 		const char *locked = rnode.GetValue("locked");
 		trec->locked = locked && (!strcmp(locked, "true") || !strcmp(locked, "1"));
@@ -200,6 +202,104 @@ void ItemCreationLoader::Load(parser_wrapper::DataNode data) {
 
 void ItemCreationLoader::Reload(parser_wrapper::DataNode data) {
 	Load(std::move(data));
+}
+
+// Наименьший свободный (неиспользуемый) vnum рецепта, начиная с 1.
+static int FirstFreeRecipeVnum() {
+	std::set<int> used;
+	for (size_t i = 0; i < make_recepts.size(); ++i) {
+		used.insert(make_recepts[i]->vnum);
+	}
+	int v = 1;
+	while (used.count(v)) {
+		++v;
+	}
+	return v;
+}
+
+std::string ItemCreationLoader::EditableWhat() const { return "makeitems"; }
+
+std::vector<cfg_manager::EditableElement> ItemCreationLoader::ListElements() const {
+	std::vector<cfg_manager::EditableElement> out;
+	for (size_t i = 0; i < make_recepts.size(); ++i) {
+		const auto *r = make_recepts[i];
+		std::string label = NAME_BY_ITEM<ESkill>(r->skill) + " -> obj " + std::to_string(r->obj_proto);
+		if (r->locked) {
+			label += " (locked)";
+		}
+		out.push_back({std::to_string(r->vnum), label});
+	}
+	return out;
+}
+
+cfg_manager::ValidationResult ItemCreationLoader::Validate(parser_wrapper::DataNode &doc) const {
+	// Проверяем валидность умений и УНИКАЛЬНОСТЬ vnum'ов рецептов.
+	std::set<std::string> seen;
+	for (auto &node : doc.Children()) {
+		if (std::string(node.GetName()) != "recipe") {
+			continue;
+		}
+		const char *vnum = node.GetValue("vnum");
+		if (!vnum || !*vnum) {
+			return {false, "a <recipe> is missing its vnum."};
+		}
+		for (const char *c = vnum; *c; ++c) {
+			if (*c < '0' || *c > '9') {
+				return {false, "recipe vnum '" + std::string(vnum) + "' is not a non-negative integer."};
+			}
+		}
+		if (!seen.insert(vnum).second) {
+			return {false, "duplicate recipe vnum '" + std::string(vnum) + "'."};
+		}
+		const char *skill = node.GetValue("skill");
+		try {
+			(void) parse::ReadAsConstant<ESkill>(skill);
+		} catch (const std::exception &) {
+			return {false, "recipe " + std::string(vnum) + ": unknown skill '"
+					+ std::string(skill ? skill : "") + "'."};
+		}
+	}
+	return {true, ""};
+}
+
+parser_wrapper::DataNode ItemCreationLoader::FindElementNode(parser_wrapper::DataNode root,
+															const std::string &id) const {
+	// Рецепт опознается по целочисленному vnum (не по `id`-атрибуту). Идем по всем детям с проверкой
+	// имени тега (а не Children("recipe")): узел, скопированный из отфильтрованного диапазона, унес бы
+	// фильтр и сломал бы свой собственный Children() ниже.
+	for (auto &child : root.Children()) {
+		if (std::string(child.GetName()) == "recipe" && id == child.GetValue("vnum")) {
+			return child;
+		}
+	}
+	return parser_wrapper::DataNode{};
+}
+
+std::string ItemCreationLoader::CanonicalElementId(const std::string &id) const {
+	if (id.empty()) {
+		return "";
+	}
+	// "new"/"auto"/"next" -- создать рецепт с первым свободным vnum.
+	if (id == "new" || id == "auto" || id == "next") {
+		return std::to_string(FirstFreeRecipeVnum());
+	}
+	// Иначе ключом может быть только неотрицательное целое (свободный vnum для нового рецепта или
+	// существующий -- последний обрабатывается через FindElementNode как редактирование).
+	for (const char c : id) {
+		if (c < '0' || c > '9') {
+			return "";
+		}
+	}
+	return id;
+}
+
+parser_wrapper::DataNode ItemCreationLoader::CreateElementNode(parser_wrapper::DataNode root,
+															  const std::string &id) const {
+	auto node = root.AddChild("recipe");
+	node.SetValue("vnum", id);
+	node.SetValue("skill", "kMakeWeapon");
+	node.SetValue("result", "0");
+	return node;
 }
 
 void do_list_make(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
@@ -835,6 +935,7 @@ ObjData *get_obj_in_list_ingr(int num,
 }
 MakeRecept::MakeRecept() : skill(ESkill::kUndefined) {
 	locked = true;        // по умолчанию рецепт залочен.
+	vnum = 0;
 	obj_proto = 0;
 	for (int i = 0; i < MAX_PARTS; i++) {
 		parts[i].proto = 0;

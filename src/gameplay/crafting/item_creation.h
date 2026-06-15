@@ -137,6 +137,7 @@ class MakeRecept {
  public:
 	bool locked;
 
+	int vnum;        // уникальный идентификатор рецепта (для Vedun)
 	ESkill skill;
 	int obj_proto;
 	std::array<ingr_part_type, MAX_PARTS> parts;
@@ -151,10 +152,20 @@ class MakeRecept {
 };
 
 // Загрузка cfg/craft/item_creation.xml через cfg_manager (boot + reload makeitems).
-class ItemCreationLoader : public cfg_manager::ICfgLoader {
+class ItemCreationLoader : public cfg_manager::IEditableCfgLoader {
  public:
 	void Load(parser_wrapper::DataNode data) final;
 	void Reload(parser_wrapper::DataNode data) final;
+	// issue.makeitems: Vedun editor support. A <recipe> is keyed by its integer `vnum`, so the
+	// vnum-attribute lookup / create methods are overridden (like the runestone registry).
+	[[nodiscard]] std::string EditableWhat() const final;
+	[[nodiscard]] std::vector<cfg_manager::EditableElement> ListElements() const final;
+	[[nodiscard]] cfg_manager::ValidationResult Validate(parser_wrapper::DataNode &doc) const final;
+	[[nodiscard]] parser_wrapper::DataNode FindElementNode(
+			parser_wrapper::DataNode root, const std::string &id) const final;
+	[[nodiscard]] std::string CanonicalElementId(const std::string &id) const final;
+	[[nodiscard]] parser_wrapper::DataNode CreateElementNode(
+			parser_wrapper::DataNode root, const std::string &id) const final;
 };
 
 #endif // ITEM_CREATION_HPP_
