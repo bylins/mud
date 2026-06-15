@@ -16,6 +16,9 @@
 #include <unordered_map>
 #include <vector>
 #include <cstdlib>
+#include "gameplay/mechanics/damage.h"
+#include "gameplay/fight/fight_constants.h"
+#include "utils/random.h"
 #include "administration/privilege.h"
 
 #include <string>
@@ -618,6 +621,10 @@ void initIngredientsMagic(void) {
 			const char *d = r.GetValue("damage");
 			if (d && *d)
 				sscanf(d, "%dd%d", &rec.x, &rec.y);
+		}
+		{
+			const char *de = r.GetValue("damage_enabled");
+			rec.damage_enabled = de && (!strcmp(de, "true") || !strcmp(de, "1"));
 		}
 		{
 			std::vector<int> req;
@@ -1451,6 +1458,16 @@ void do_cook(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	imlog(CMP, "Рассылка сообщений");
 	act(imrecipes[rs->rid].msg_char[mres], true, ch, 0, 0, kToChar);
 	act(imrecipes[rs->rid].msg_room[mres], true, ch, 0, 0, kToRoom);
+
+	// issue.ingradient-magic: урон при критическом провале (DAM XdY), если рецепт его разрешает.
+	// kTriggerDeath: своё сообщение уже выдано (msg_char/room[2]), система урона не дублирует.
+	if (mres == kImMsgDam && imrecipes[rs->rid].damage_enabled && imrecipes[rs->rid].x > 0) {
+		Damage potion_dmg(SimpleDmg(fight::EDamageSource::kTriggerDeath),
+						  RollDices(imrecipes[rs->rid].x, imrecipes[rs->rid].y), fight::kUndefDmg);
+		potion_dmg.flags.set(fight::kNoFleeDmg);
+		potion_dmg.Process(ch, ch);
+		return;
+	}
 
 	if (mres == IM_MSG_OK) {
 		imlog(CMP, "Создание результата");

@@ -86,6 +86,7 @@ struct _im_recipe_tag {
 	std::array<char *, 3> msg_char;    // сообщения OK,FAIL,DAM
 	std::array<char *, 3> msg_room;    // сообщения OK,FAIL,DAM
 	int x, y;        // XdY - повреждения
+	bool damage_enabled;    // наносить ли урон при критическом провале
 // +newbook.patch (Alisher)
 	std::array<int, kNumPlayerClasses> classknow; // владеет ли класс данным рецептом
 	int level; // на каком уровне можно выучить рецепт
