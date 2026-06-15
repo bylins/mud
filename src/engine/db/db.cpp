@@ -885,7 +885,7 @@ void BootMudDataBase() {
 
 	boot_profiler.next_step("Loading made items");
 	log("Booting maked items");
-	init_make_items();
+	MUD::CfgManager().LoadCfg("item_creation");
 
 	boot_profiler.next_step("Loading exchange");
 	log("Booting exchange");

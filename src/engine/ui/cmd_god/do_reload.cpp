@@ -57,7 +57,7 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			"  messages : spellmsg skillmsg hitmsg\r\n"
 			"  systems  : portals imagic oloadtable setstuff specials schedule clan proxy boards\r\n"
 			"             globaldrop offtop shop named celebrates setsdrop remort daily resetstats\r\n"
-			"             digging jewelry\r\n"
+			"             digging jewelry makeitems\r\n"
 			"  text     : immlist credits motd rules help info policy handbook background namerules\r\n"
 			"             greetings xhelp socials noobhelp titles emails privilege\r\n"
 			"  depot <char-name>\r\n", ch);
@@ -100,6 +100,7 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		MUD::CfgManager().ReloadCfg("reset_stats");
 		MUD::CfgManager().ReloadCfg("digging");
 		MUD::CfgManager().ReloadCfg("jewelry");
+		MUD::CfgManager().ReloadCfg("item_creation");
 		Bonus::bonus_log_load();
 		DailyQuest::LoadFromFile();
 	} else if (!str_cmp(arg, "portals")) {
@@ -251,6 +252,8 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		MUD::CfgManager().ReloadCfg("digging");
 	} else if (!str_cmp(arg, "jewelry")) {
 		MUD::CfgManager().ReloadCfg("jewelry");
+	} else if (!str_cmp(arg, "makeitems")) {
+		MUD::CfgManager().ReloadCfg("item_creation");
 	} else if (!str_cmp(arg, "objsets")) {
 		obj_sets::load();
 	} else if (!str_cmp(arg, "daily")) {
