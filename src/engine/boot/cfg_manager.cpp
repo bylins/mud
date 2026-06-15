@@ -51,6 +51,7 @@
 #include "gameplay/mechanics/rune_stones_loaders.h"
 #include "administration/privilege_db.h"
 #include "gameplay/crafting/mining.h"
+#include "gameplay/crafting/jewelry.h"
 
 namespace cfg_manager {
 
@@ -143,6 +144,8 @@ CfgManager::CfgManager() {
 										  std::make_unique<Noob::NoobLoader>(Noob::NoobLoader())));
 	loaders_.emplace("digging", LoaderInfo("cfg/mechanics/digging.xml",
 										  std::make_unique<mining::DiggingLoader>(mining::DiggingLoader())));
+	loaders_.emplace("jewelry", LoaderInfo("cfg/craft/jewelry.xml",
+										  std::make_unique<jewelry::JewelryLoader>(jewelry::JewelryLoader())));
 	loaders_.emplace("pc_race_messages", LoaderInfo("cfg/messages/ru/pc_race_msg.xml",
 										  std::make_unique<player_races::RaceMessagesLoader>(player_races::RaceMessagesLoader())));
 	loaders_.emplace("pc_races", LoaderInfo("cfg/mechanics/pc_races.xml",

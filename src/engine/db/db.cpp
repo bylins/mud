@@ -749,10 +749,6 @@ void BootMudDataBase() {
 	MUD::CfgManager().LoadCfg("entity_names");   // issue.thing-names: names before mob_classes/races/zone_types
 	MUD::CfgManager().LoadCfg("zone_types");
 
-	boot_profiler.next_step("Loading insert_wanted.lst");
-	log("Booting insert_wanted.lst.");
-	iwg.init();
-
 	boot_profiler.next_step("Loading gurdians");
 	log("Load guardians.");
 	city_guards::LoadGuardians();
@@ -803,7 +799,7 @@ void BootMudDataBase() {
 	boot_profiler.next_step("Reading skills variables.");
 	log("Reading skills variables.");
 	MUD::CfgManager().LoadCfg("digging");
-	InitJewelryVars();
+	MUD::CfgManager().LoadCfg("jewelry");
 
 	boot_profiler.next_step("Sorting command list");
 	log("Sorting command list.");

@@ -9,41 +9,153 @@
 #include "gameplay/mechanics/sight.h"
 #include "gameplay/mechanics/mount.h"
 
-#include "engine/boot/boot_constants.h"
 #include "engine/entities/char_data.h"
+#include "engine/entities/entities_constants.h"
 #include "engine/core/handler.h"
 #include "mining.h"
 #include "utils/random.h"
+#include "utils/parse.h"
+#include "utils/parser_wrapper.h"
 #include "engine/db/global_objects.h"
+#include "gameplay/affects/affect_contants.h"
+#include "gameplay/skills/skills.h"
 #include "gameplay/mechanics/illumination.h"
 
-skillvariables_insgem insgem_vars;
-insert_wanted_gem iwg;
+namespace jewelry {
 
-void InitJewelryVars() {
-	char line[256];
-	FILE *cfg_file;
+JewelryCfg cfg;
 
-	if (!(cfg_file = fopen(LIB_MISC "skillvariables.lst", "r"))) {
-		log("Cann't open skillvariables list file...");
-		graceful_exit(1);
+namespace {
+
+// Целочисленный атрибут DataNode; def при отсутствии/некорректном значении.
+int AttrInt(parser_wrapper::DataNode &node, const char *key, int def) {
+	const char *v = node.GetValue(key);
+	if (!v || !*v) {
+		return def;
 	}
-
-	while (get_line(cfg_file, line)) {
-		if (!line[0] || line[0] == ';')
-			continue;
-
-		sscanf(line, "insgem_lag %d", &insgem_vars.lag);
-		sscanf(line, "insgem_minus_for_affect %d", &insgem_vars.minus_for_affect);
-		sscanf(line, "insgem_prob_divide %d", &insgem_vars.prob_divide);
-		sscanf(line, "insgem_dikey_percent %d", &insgem_vars.dikey_percent);
-		sscanf(line, "insgem_timer_plus_percent %d", &insgem_vars.timer_plus_percent);
-		sscanf(line, "insgem_timer_minus_percent %d", &insgem_vars.timer_minus_percent);
-
-		line[0] = '\0';
+	try {
+		return parse::ReadAsInt(v);
+	} catch (const std::exception &) {
+		return def;
 	}
-	fclose(cfg_file);
 }
+
+// Значение скалярного тега <tag val="..."/>.
+int ScalarVal(parser_wrapper::DataNode root, const char *tag, int def) {
+	auto node = root;
+	if (node.GoToChild(tag)) {
+		return AttrInt(node, "val", def);
+	}
+	return def;
+}
+
+} // namespace
+
+bool JewelryCfg::IsGem(int vnum) const {
+	return gems.find(vnum) != gems.end();
+}
+
+const GemEffect *JewelryCfg::Find(int vnum, const std::string &key) const {
+	const auto it = gems.find(vnum);
+	if (it == gems.end()) {
+		return nullptr;
+	}
+	for (const auto &eff : it->second) {
+		if (eff.key == key) {
+			return &eff;
+		}
+	}
+	return nullptr;
+}
+
+std::string JewelryCfg::RandomKey(int vnum) const {
+	const auto it = gems.find(vnum);
+	if (it == gems.end() || it->second.empty()) {
+		return "";
+	}
+	return it->second[number(0, static_cast<int>(it->second.size()) - 1)].key;
+}
+
+void JewelryCfg::Show(CharData *ch, int vnum) const {
+	const auto it = gems.find(vnum);
+	if (it == gems.end()) {
+		return;
+	}
+	SendMsgToChar("Будучи искусным ювелиром, вы можете выбрать, какого эффекта вы желаете добиться: \r\n", ch);
+	for (const auto &eff : it->second) {
+		char buf[kMaxInputLength];
+		sprintf(buf, " %s\r\n", eff.key.c_str());
+		SendMsgToChar(buf, ch);
+	}
+}
+
+void JewelryLoader::Load(parser_wrapper::DataNode data) {
+	JewelryCfg tmp;   // собираем во временный, чтобы при ошибке не повредить рабочий
+
+	tmp.lag = ScalarVal(data, "lag", tmp.lag);
+	tmp.skill_divisor = ScalarVal(data, "skill_divisor", tmp.skill_divisor);
+	tmp.skill_penalty_for_affect = ScalarVal(data, "skill_penalty_for_affect", tmp.skill_penalty_for_affect);
+	tmp.target_obj_crash_percent = ScalarVal(data, "target_obj_crash_percent", tmp.target_obj_crash_percent);
+	tmp.target_obj_timer_increment_percent =
+		ScalarVal(data, "target_obj_timer_increment_percent", tmp.target_obj_timer_increment_percent);
+	tmp.target_obj_timer_decrement_percent =
+		ScalarVal(data, "target_obj_timer_decrement_percent", tmp.target_obj_timer_decrement_percent);
+
+	// <gems><gem vnum=""><apply|affect|flag|skill .../></gem></gems>
+	auto gems_node = data;
+	if (gems_node.GoToChild("gems")) {
+		for (auto &gem_node : gems_node.Children("gem")) {
+			const int vnum = AttrInt(gem_node, "vnum", 0);
+			if (!parse::IsValidObjVnum(vnum)) {
+				continue;
+			}
+			std::vector<GemEffect> effects;
+			for (auto &eff_node : gem_node.Children()) {
+				const std::string kind = eff_node.GetName();
+				const char *id_str = eff_node.GetValue("id");
+				GemEffect eff;
+				try {
+					if (kind == "apply") {
+						eff.type = 1;
+						eff.id = static_cast<int>(parse::ReadAsConstant<EApply>(id_str));
+						eff.val = AttrInt(eff_node, "val", 0);
+					} else if (kind == "affect") {
+						eff.type = 2;
+						eff.id = static_cast<int>(parse::ReadAsConstant<EAffect>(id_str));
+					} else if (kind == "flag") {
+						eff.type = 3;
+						eff.id = static_cast<int>(parse::ReadAsConstant<EObjFlag>(id_str));
+					} else if (kind == "skill") {
+						eff.type = 4;
+						eff.id = static_cast<int>(parse::ReadAsConstant<ESkill>(id_str));
+						eff.val = AttrInt(eff_node, "val", 0);
+					} else {
+						continue;   // неизвестный тег внутри <gem>
+					}
+				} catch (const std::exception &) {
+					snprintf(buf, kMaxStringLength, "jewelry: gem %d: bad <%s id='%s'>",
+							 vnum, kind.c_str(), id_str ? id_str : "");
+					mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
+					continue;
+				}
+				const char *alias = eff_node.GetValue("alias");
+				eff.key = (alias && *alias) ? alias : (id_str ? id_str : "");
+				effects.push_back(eff);
+			}
+			if (!effects.empty()) {
+				tmp.gems[vnum] = std::move(effects);
+			}
+		}
+	}
+
+	cfg = std::move(tmp);
+}
+
+void JewelryLoader::Reload(parser_wrapper::DataNode data) {
+	Load(std::move(data));
+}
+
+} // namespace jewelry
 
 bool is_dig_stone(ObjData *obj) {
 	const int vnum = obj->get_vnum();
@@ -53,7 +165,7 @@ bool is_dig_stone(ObjData *obj) {
 		}
 	}
 
-	return iwg.is_gem(vnum);
+	return jewelry::cfg.IsGem(vnum);
 }
 
 void do_insertgem(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
@@ -139,18 +251,18 @@ void do_insertgem(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	percent = number(1, MUD::Skill(ESkill::kJewelry).difficulty);
 	prob = GetSkill(ch, ESkill::kJewelry);
 
-	SetBattleLag(ch, 1);
+	SetBattleLag(ch, jewelry::cfg.lag);
 
 	for (int i = 0; i < kMaxObjAffect; i++) {
 		if (itemobj->get_affected(i).location == EApply::kNone) {
-			prob -= i * insgem_vars.minus_for_affect;
+			prob -= i * jewelry::cfg.skill_penalty_for_affect;
 			break;
 		}
 	}
 
 	for (const auto &i : weapon_affect) {
 		if (itemobj->GetEWeaponAffect(i.aff_pos)) {
-			prob -= insgem_vars.minus_for_affect;
+			prob -= jewelry::cfg.skill_penalty_for_affect;
 		}
 	}
 
@@ -159,7 +271,7 @@ void do_insertgem(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	if (!*arg3) {
 		ImproveSkill(ch, ESkill::kJewelry, 0, nullptr);
 
-		if (percent > prob / insgem_vars.prob_divide) {
+		if (percent > prob / jewelry::cfg.skill_divisor) {
 			sprintf(buf, "Вы неудачно попытались вплавить %s в %s, испортив камень...\r\n",
 					gemobj->get_short_description().c_str(),
 					itemobj->get_PName(grammar::ECase::kAcc).c_str());
@@ -169,7 +281,7 @@ void do_insertgem(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 					itemobj->get_PName(grammar::ECase::kAcc).c_str());
 			act(buf, false, ch, nullptr, nullptr, kToRoom);
 			ExtractObjFromWorld(gemobj);
-			if (number(1, 100) <= insgem_vars.dikey_percent) {
+			if (number(1, 100) <= jewelry::cfg.target_obj_crash_percent) {
 				sprintf(buf, "...и испортив хорошую вещь!\r\n");
 				SendMsgToChar(buf, ch);
 				sprintf(buf, "$n испортил$g %s!\r\n", itemobj->get_PName(grammar::ECase::kAcc).c_str());
@@ -192,8 +304,8 @@ void do_insertgem(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		}
 
 		std::string str(arg3);
-		if (!iwg.exist(GET_OBJ_VNUM(gemobj), str)) {
-			iwg.show(ch, GET_OBJ_VNUM(gemobj));
+		if (!jewelry::cfg.Find(GET_OBJ_VNUM(gemobj), str)) {
+			jewelry::cfg.Show(ch, GET_OBJ_VNUM(gemobj));
 			return;
 		}
 
@@ -220,41 +332,39 @@ void do_insertgem(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	act(buf, false, ch, nullptr, nullptr, kToRoom);
 
 	if (itemobj->get_owner() == ch->get_uid()) {
-		int timer = itemobj->get_timer() + itemobj->get_timer() / 100 * insgem_vars.timer_plus_percent;
+		int timer = itemobj->get_timer() + itemobj->get_timer() / 100 * jewelry::cfg.target_obj_timer_increment_percent;
 		itemobj->set_timer(timer);
 	} else {
-		int timer = itemobj->get_timer() - itemobj->get_timer() / 100 * insgem_vars.timer_minus_percent;
+		int timer = itemobj->get_timer() - itemobj->get_timer() / 100 * jewelry::cfg.target_obj_timer_decrement_percent;
 		itemobj->set_timer(timer);
 	}
 
 	if (gemobj->get_material() == EObjMaterial::kDiamond) {
 		std::string effect;
 		if (!*arg3) {
-			int gem_vnum = GET_OBJ_VNUM(gemobj);
-			effect = iwg.get_random_str_for(gem_vnum);
+			effect = jewelry::cfg.RandomKey(GET_OBJ_VNUM(gemobj));
 		} else {
 			effect = arg3;
 		}
 
-		int tmp_type, tmp_qty;
-		int tmp_bit = iwg.get_bit(GET_OBJ_VNUM(gemobj), effect);
-		tmp_qty = iwg.get_qty(GET_OBJ_VNUM(gemobj), effect);
-		tmp_type = iwg.get_type(GET_OBJ_VNUM(gemobj), effect);
-		switch (tmp_type) {
-			case 1: 
-				set_obj_eff(itemobj, static_cast<EApply>(tmp_bit), tmp_qty);
-				break;
-			case 2: 
-				set_obj_aff(itemobj, static_cast<EAffect>(tmp_bit));
-				break;
-			case 3: 
-				itemobj->set_extra_flag(static_cast<EObjFlag>(tmp_bit));
-				break;
-			case 4:
-				itemobj->set_skill(static_cast<ESkill>(tmp_bit), tmp_qty);
-				break;
-			default: 
-				break;
+		const auto *eff = jewelry::cfg.Find(GET_OBJ_VNUM(gemobj), effect);
+		if (eff) {
+			switch (eff->type) {
+				case 1:
+					set_obj_eff(itemobj, static_cast<EApply>(eff->id), eff->val);
+					break;
+				case 2:
+					set_obj_aff(itemobj, static_cast<EAffect>(eff->id));
+					break;
+				case 3:
+					itemobj->set_extra_flag(static_cast<EObjFlag>(eff->id));
+					break;
+				case 4:
+					itemobj->set_skill(static_cast<ESkill>(eff->id), eff->val);
+					break;
+				default:
+					break;
+			}
 		}
 	}
 
@@ -273,161 +383,6 @@ void do_insertgem(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	}
 	itemobj->set_extra_flag(EObjFlag::kLimitedTimer);
 	ExtractObjFromWorld(gemobj);
-}
-
-void insert_wanted_gem::show(CharData *ch, int gem_vnum) {
-	alias_type::iterator alias_it;
-	char buf[kMaxInputLength];
-
-	const auto it = content.find(gem_vnum);
-	if (it == content.end()) return;
-
-	SendMsgToChar("Будучи искусным ювелиром, вы можете выбрать, какого эффекта вы желаете добиться: \r\n", ch);
-	for (alias_it = it->second.begin(); alias_it != it->second.end(); ++alias_it) {
-		sprintf(buf, " %s\r\n", alias_it->first.c_str());
-		SendMsgToChar(buf, ch);
-	}
-}
-
-void insert_wanted_gem::init() {
-	std::ifstream file;
-	char dummy;
-	char buf[kMaxInputLength];
-	std::string str;
-	int val, val2, curr_val = 0;
-	std::map<int, alias_type>::iterator it;
-	alias_type temp;
-	alias_type::iterator alias_it;
-	struct int3 arr;
-
-	content.clear();
-	temp.clear();
-
-	file.open(LIB_MISC "insert_wanted.lst", std::fstream::in);
-	if (!file.is_open()) {
-		return log("failed to open insert_wanted.lst.");
-	}
-
-	file.width(kMaxInputLength);
-
-	while (true) {
-		if (!(file >> dummy)) break;
-
-		if (dummy == '*') {
-			if (!file.getline(buf, kMaxInputLength)) break;
-			continue;
-		}
-
-		if (dummy == '#') {
-			if (!(file >> val)) break;
-
-			if (!temp.empty() && (curr_val != 0)) {
-				content.insert(std::make_pair(curr_val, temp));
-				temp.clear();
-			}
-			curr_val = val;
-
-			continue;
-		}
-
-		if (dummy == '$') {
-			if (curr_val == 0) break;
-			if (!(file >> str)) break;
-			if (str.size() > kMaxAliasLehgt - 1) break;
-			if (!(file >> val)) break;
-
-			switch (val) {
-				case 1: if (!(file >> val >> val2)) break;
-					arr.type = 1;
-					arr.bit = val;
-					arr.qty = val2;
-					temp.insert(std::make_pair(str, arr));
-					break;
-				case 2:
-				case 3: if (!(file >> val2)) break;
-					arr.type = val;
-					arr.bit = val2;
-					arr.qty = 0;
-					temp.insert(std::make_pair(str, arr));
-					break;
-				case 4: if (!(file >> val >> val2)) break;
-					arr.type = 4;
-					arr.bit = val;
-					arr.qty = val2;
-					temp.insert(std::make_pair(str, arr));
-					break;
-				default: {
-					log("something goes wrong\r\nclosed insert_wanted.lst.");
-					file.close();
-					return;
-				}
-			};
-
-		}
-
-	}
-
-	file.close();
-	log("closed insert_wanted.lst.");
-
-	if (!temp.empty()) {
-		content.insert(std::make_pair(curr_val, temp));
-	}
-}
-
-int insert_wanted_gem::get_type(int gem_vnum, const std::string &str) {
-	return content[gem_vnum][str].type;
-}
-
-int insert_wanted_gem::get_bit(int gem_vnum, const std::string &str) {
-	return content[gem_vnum][str].bit;
-}
-
-int insert_wanted_gem::get_qty(int gem_vnum, const std::string &str) {
-	return content[gem_vnum][str].qty;
-}
-bool insert_wanted_gem::is_gem(int gem_vnum) {
-	const auto it = content.find(gem_vnum);
-	if (it == content.end()) {
-		return false;
-	}
-	return true;
-}
-
-std::string insert_wanted_gem::get_random_str_for(int gem_vnum) {
-	const auto it = content.find(gem_vnum);
-	if (it == content.end()) {
-		return "";
-	}
-
-	auto gem = content[gem_vnum];
-	int rnd = number(0, gem.size() - 1);
-
-	int count = 0;
-	for (const auto& kv : gem) {
-		if (count == rnd) {
-			return kv.first;
-		}
-		count++;
-	}
-
-	return "";
-}
-
-int insert_wanted_gem::exist(const int gem_vnum, const std::string &str) const {
-	alias_type::const_iterator alias_it;
-
-	const auto it = content.find(gem_vnum);
-	if (it == content.end()) {
-		return 0;
-	}
-
-	alias_it = content.at(gem_vnum).find(str);
-	if (alias_it == content.at(gem_vnum).end()) {
-		return 0;
-	}
-
-	return 1;
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
