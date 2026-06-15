@@ -23,7 +23,9 @@ namespace jewelry {
 //   type 2 - affect (id = EAffect)
 //   type 3 - флаг   (id = EObjFlag)
 //   type 4 - умение (id = ESkill,   val = процент)
-// key - имя, по которому игрок выбирает конкретный эффект (по умолчанию - id-токен).
+// key - имя, по которому игрок выбирает эффект: игровое название эффекта (apply_types/
+// affect_msg/extra_bits/название умения), а не внутренний id-токен. Может быть переопределено
+// атрибутом alias="" в конфиге.
 struct GemEffect {
 	int type = 0;
 	int id = 0;
@@ -40,6 +42,9 @@ struct JewelryCfg {
 	int target_obj_crash_percent = 10;            // шанс испортить предмет при неудаче
 	int target_obj_timer_increment_percent = 10;  // на сколько % растет таймер своего предмета
 	int target_obj_timer_decrement_percent = 10;  // на сколько % падает таймер чужого предмета
+	int desired_min_skill = 80;                   // мин. скилл, чтобы вплавлять желаемый эффект
+	int desired_foreign_min_skill = 130;          // мин. скилл, чтобы вплавлять желаемый эффект в чужой предмет
+	int desired_success_offset = 50;              // смещение порога успеха при вплавлении желаемого эффекта
 
 	std::unordered_map<int, std::vector<GemEffect>> gems;   // vnum камня -> эффекты
 

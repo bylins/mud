@@ -18,8 +18,13 @@
 #include "utils/parser_wrapper.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/affects/affect_contants.h"
+#include "gameplay/affects/affect_messages.h"
+#include "gameplay/core/constants.h"
 #include "gameplay/skills/skills.h"
 #include "gameplay/mechanics/illumination.h"
+
+#include <algorithm>
+#include <bit>
 
 namespace jewelry {
 
@@ -37,6 +42,51 @@ int AttrInt(parser_wrapper::DataNode &node, const char *key, int def) {
 		return parse::ReadAsInt(v);
 	} catch (const std::exception &) {
 		return def;
+	}
+}
+
+// Игровое название эффекта (то, что игрок видит и набирает) по его типу и id.
+// type: 1 apply (apply_types), 2 affect (affect_msg kShortDesc), 3 флаг (extra_bits),
+// 4 умение (название умения). Возвращает "" если название не найдено.
+std::string EffectName(int type, int id) {
+	switch (type) {
+		case 1:   // apply
+			if (id > 0 && id < EApply::kNumberApplies) {
+				return apply_types[id];
+			}
+			return "";
+		case 2:   // affect
+			return affects::AffectMsg(static_cast<EAffect>(id), affects::EAffectMsgType::kShortDesc);
+		case 3: {   // extra-flag: extra_bits хранится планами, разделенными "\n"
+			const auto value = static_cast<Bitvector>(id);
+			const Bitvector low = value & 0x3FFFFFFFu;
+			if (low == 0) {
+				return "";
+			}
+			const int plane = static_cast<int>(value >> 30);
+			const int bit = std::countr_zero(low);
+			int cur_plane = 0;
+			int cur_bit = 0;
+			for (int i = 0; i < 256; ++i) {
+				if (*extra_bits[i] == '\n') {
+					if (cur_plane == plane) {
+						return "";   // искомый бит вне списка имен этого плана
+					}
+					++cur_plane;
+					cur_bit = 0;
+					continue;
+				}
+				if (cur_plane == plane && cur_bit == bit) {
+					return extra_bits[i];
+				}
+				++cur_bit;
+			}
+			return "";
+		}
+		case 4:   // skill
+			return MUD::Skill(static_cast<ESkill>(id)).GetName();
+		default:
+			return "";
 	}
 }
 
@@ -61,7 +111,7 @@ const GemEffect *JewelryCfg::Find(int vnum, const std::string &key) const {
 		return nullptr;
 	}
 	for (const auto &eff : it->second) {
-		if (eff.key == key) {
+		if (!str_cmp(eff.key.c_str(), key.c_str())) {   // регистронезависимо
 			return &eff;
 		}
 	}
@@ -100,6 +150,9 @@ void JewelryLoader::Load(parser_wrapper::DataNode data) {
 		ScalarVal(data, "target_obj_timer_increment_percent", tmp.target_obj_timer_increment_percent);
 	tmp.target_obj_timer_decrement_percent =
 		ScalarVal(data, "target_obj_timer_decrement_percent", tmp.target_obj_timer_decrement_percent);
+	tmp.desired_min_skill = ScalarVal(data, "desired_min_skill", tmp.desired_min_skill);
+	tmp.desired_foreign_min_skill = ScalarVal(data, "desired_foreign_min_skill", tmp.desired_foreign_min_skill);
+	tmp.desired_success_offset = ScalarVal(data, "desired_success_offset", tmp.desired_success_offset);
 
 	// <gems><gem vnum=""><apply|affect|flag|skill .../></gem></gems>
 	auto gems_node = data;
@@ -139,7 +192,18 @@ void JewelryLoader::Load(parser_wrapper::DataNode data) {
 					continue;
 				}
 				const char *alias = eff_node.GetValue("alias");
-				eff.key = (alias && *alias) ? alias : (id_str ? id_str : "");
+				if (alias && *alias) {
+					eff.key = alias;
+				} else {
+					eff.key = EffectName(eff.type, eff.id);   // игровое название эффекта
+					if (eff.key.empty()) {
+						eff.key = id_str ? id_str : "";   // запасной вариант: id-токен
+						snprintf(buf, kMaxStringLength,
+								 "jewelry: gem %d: no display name for <%s id='%s'>, using id token as key",
+								 vnum, kind.c_str(), id_str ? id_str : "");
+						mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
+					}
+				}
 				effects.push_back(eff);
 			}
 			if (!effects.empty()) {
@@ -266,12 +330,15 @@ void do_insertgem(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		}
 	}
 
-	argument = one_argument(argument, arg3);
+	// остаток строки целиком - игровое название желаемого эффекта (может быть из нескольких слов)
+	skip_spaces(&argument);
+	strncpy(arg3, argument, kMaxInputLength - 1);
+	arg3[kMaxInputLength - 1] = '\0';
 
 	if (!*arg3) {
 		ImproveSkill(ch, ESkill::kJewelry, 0, nullptr);
 
-		if (percent > prob / jewelry::cfg.skill_divisor) {
+		if (percent > prob / std::max(1, jewelry::cfg.skill_divisor)) {
 			sprintf(buf, "Вы неудачно попытались вплавить %s в %s, испортив камень...\r\n",
 					gemobj->get_short_description().c_str(),
 					itemobj->get_PName(grammar::ECase::kAcc).c_str());
@@ -291,13 +358,14 @@ void do_insertgem(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 			return;
 		}
 	} else {
-		if (GetSkill(ch, ESkill::kJewelry) < 80) {
+		if (GetSkill(ch, ESkill::kJewelry) < jewelry::cfg.desired_min_skill) {
 			sprintf(buf, "Вы должны достигнуть мастерства в умении ювелир, чтобы вплавлять желаемые аффекты!\r\n");
 			SendMsgToChar(buf, ch);
 			return;
 
 		}
-		if (itemobj->get_owner() != ch->get_uid() && (GetSkill(ch, ESkill::kJewelry) < 130)) {
+		if (itemobj->get_owner() != ch->get_uid()
+			&& (GetSkill(ch, ESkill::kJewelry) < jewelry::cfg.desired_foreign_min_skill)) {
 			sprintf(buf, "Вы недостаточно искусны и можете вплавлять желаемые аффекты только в перековку!\r\n");
 			SendMsgToChar(buf, ch);
 			return;
@@ -312,7 +380,8 @@ void do_insertgem(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		ImproveSkill(ch, ESkill::kJewelry, 0, nullptr);
 
 		//успех или фэйл? при 80% скила успех 30% при 100% скила 50% при 200% скила успех 75%
-		if (number(1, GetSkill(ch, ESkill::kJewelry)) > (GetSkill(ch, ESkill::kJewelry) - 50)) {
+		if (number(1, GetSkill(ch, ESkill::kJewelry))
+			> (GetSkill(ch, ESkill::kJewelry) - jewelry::cfg.desired_success_offset)) {
 			sprintf(buf, "Вы неудачно попытались вплавить %s в %s, испортив камень...\r\n",
 					gemobj->get_short_description().c_str(),
 					itemobj->get_PName(grammar::ECase::kAcc).c_str());
