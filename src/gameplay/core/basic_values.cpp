@@ -17,8 +17,8 @@
 
 namespace {
 
-constexpr int kStatModSize = 101;   // индексы 0..100 (как у прежних таблиц)
-constexpr int kWisModSize = 101;    // мудрость 0..100 (как и прочие параметры)
+constexpr int kStatModSize = kBaseStatTableSize;   // индексы 0..100
+constexpr int kWisModSize = kBaseStatTableSize;    // мудрость 0..100
 
 // Целочисленный атрибут <mod>; 0 при отсутствии/некорректном значении.
 int Attr(parser_wrapper::DataNode &node, const char *key) {
@@ -131,7 +131,6 @@ void BasicValuesLoader::Load(parser_wrapper::DataNode data) {
 	LoadSection(data, "wiz_mod", kWisModSize, [](int i, parser_wrapper::DataNode &m) {
 		mana[i] = Attr(m, "mana_amount");
 	}, [](int d, int s) { mana[d] = mana[s]; });
-
 }
 
 void BasicValuesLoader::Reload(parser_wrapper::DataNode data) {

@@ -100,11 +100,22 @@ extern const char *pray_whom[];
 // live in lib/cfg/spell_msg.xml under the kRoomAffect{Visible,Invisible,
 // SelfInvisible} keys per spell. See show_room_affects in sight.cpp.
 extern const char *equipment_types[];
+// Размер таблиц базовых модификаторов: индексы 0..kBaseStatTableSize-1.
+constexpr int kBaseStatTableSize = 101;
 extern struct IntApplies int_app[];
 extern const size_t INT_APP_SIZE;
 extern struct ChaApplies cha_app[];
 extern struct SizeApplies size_app[];
 extern struct WeaponApplies weapon_app[];
+
+// Безопасный доступ к таблицам базовых параметров: индекс за пределами таблицы
+// возвращает последнюю (максимальную) заполненную строку, а не читает за границей
+// массива. Используйте ЭТИ функции, а не прямое индексирование *_app[]/mana[].
+const IntApplies &IntApp(int index);
+const ChaApplies &ChaApp(int index);
+const SizeApplies &SizeApp(int index);
+const WeaponApplies &WeaponApp(int index);
+int Mana(int wis);
 extern std::vector<PrayAffect> pray_affect;
 extern int rev_dir[];
 extern int movement_loss[];

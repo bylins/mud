@@ -13,6 +13,7 @@
 ************************************************************************ */
 
 #include "constants.h"
+#include <algorithm>
 #include "gameplay/magic/spells.h"
 
 const char *circlemud_version = "CircleMUD, version 3.00 beta patchlevel 16";
@@ -809,15 +810,15 @@ const char *fullness[] =
 		""
 	};
 
-struct IntApplies int_app[101] = {};
+struct IntApplies int_app[kBaseStatTableSize] = {};
 
 const size_t INT_APP_SIZE = sizeof(int_app) / sizeof(*int_app);
 
-struct SizeApplies size_app[101] = {};
+struct SizeApplies size_app[kBaseStatTableSize] = {};
 
-struct ChaApplies cha_app[101] = {};
+struct ChaApplies cha_app[kBaseStatTableSize] = {};
 
-struct WeaponApplies weapon_app[101] = {};
+struct WeaponApplies weapon_app[kBaseStatTableSize] = {};
 
 namespace {
 
@@ -1084,7 +1085,19 @@ std::vector<PrayAffect> pray_affect =
 	};
 
 // Количество маны волхва
-int mana[101] = {};
+int mana[kBaseStatTableSize] = {};
+
+// issue.basic: безопасный доступ к таблицам базовых параметров (см. constants.h).
+// Индекс зажимается в [0, kBaseStatTableSize-1]; значения за пределами таблицы
+// (например, при stat>100) берутся из последней заполненной строки.
+namespace {
+inline int ClampStatIndex(int i) { return std::clamp(i, 0, kBaseStatTableSize - 1); }
+}
+const IntApplies &IntApp(int index) { return int_app[ClampStatIndex(index)]; }
+const ChaApplies &ChaApp(int index) { return cha_app[ClampStatIndex(index)]; }
+const SizeApplies &SizeApp(int index) { return size_app[ClampStatIndex(index)]; }
+const WeaponApplies &WeaponApp(int index) { return weapon_app[ClampStatIndex(index)]; }
+int Mana(int wis) { return mana[ClampStatIndex(wis)]; }
 
 // Количество гейн маны волхва в секунду в зависимости от инты
 

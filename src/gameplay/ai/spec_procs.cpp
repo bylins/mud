@@ -843,7 +843,7 @@ int do_npc_steal(CharData *ch, CharData *victim) {
 	if (!sight::CanSee(ch, victim))
 		return (false);
 
-	if (AWAKE(victim) && (number(0, std::max(0, GetRealLevel(ch) - int_app[GetRealInt(victim)].observation)) == 0)) {
+	if (AWAKE(victim) && (number(0, std::max(0, GetRealLevel(ch) - IntApp(GetRealInt(victim)).observation)) == 0)) {
 		act("Вы обнаружили руку $n1 в своем кармане.", false, ch, 0, victim, kToVict);
 		act("$n пытал$u обокрасть $N3.", true, ch, 0, victim, kToNotVict);
 	} else        // Steal some gold coins

@@ -515,8 +515,8 @@ void HitData::CalcCircumstantialHitroll(CharData *ch, CharData *victim) {
 
 	// "Dirty" methods for battle
 	if (skill_num != ESkill::kThrow && skill_num != ESkill::kBackstab) {
-		int prob = (GetSkill(ch, weap_skill) + cha_app[GetRealCha(ch)].illusive) -
-			(GetSkill(victim, weap_skill) + int_app[GetRealInt(victim)].observation);
+		int prob = (GetSkill(ch, weap_skill) + ChaApp(GetRealCha(ch)).illusive) -
+			(GetSkill(victim, weap_skill) + IntApp(GetRealInt(victim)).observation);
 
 		if (prob >= 30 && !victim->battle_affects.get(kEafAwake)
 			&& (ch->IsNpc() || !ch->battle_affects.get(kEafPunctual))) {
