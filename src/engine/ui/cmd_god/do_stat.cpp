@@ -326,7 +326,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 	SendMsgToChar(buf, ch);
 	if (IS_MANA_CASTER(k)) {
 		snprintf(buf, sizeof(buf), " Мана :[%s%d/%d+%d%s]\r\n",
-				kColorGrn, k->mem_queue.stored, mana[MIN(50, GetRealWis(k))], CalcManaGain(k), kColorNrm);
+				kColorGrn, k->mem_queue.stored, mana[GetRealWis(k)], CalcManaGain(k), kColorNrm);
 	} else {
 		snprintf(buf, sizeof(buf), "\r\n");
 	}

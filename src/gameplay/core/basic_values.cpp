@@ -18,7 +18,7 @@
 namespace {
 
 constexpr int kStatModSize = 101;   // индексы 0..100 (как у прежних таблиц)
-constexpr int kWisModSize = 51;     // мудрость ограничивается MIN(50, wis)
+constexpr int kWisModSize = 101;    // мудрость 0..100 (как и прочие параметры)
 
 // Целочисленный атрибут <mod>; 0 при отсутствии/некорректном значении.
 int Attr(parser_wrapper::DataNode &node, const char *key) {
