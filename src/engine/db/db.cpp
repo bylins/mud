@@ -759,10 +759,6 @@ void BootMudDataBase() {
 	log("Booting stuff load table.");
 	oload_table.init();
 
-	boot_profiler.next_step("Loading setstuff table");
-	log("Booting setstuff table.");
-	ObjData::InitSetTable();
-
 	boot_profiler.next_step("Loading item levels");
 	log("Init item levels.");
 	ObjSystem::init_item_levels();

@@ -691,7 +691,6 @@ class ObjData : public CObjectPrototype {
 	void process_periodic_effects();
 
 	static id_to_set_info_map set_table;
-	static void InitSetTable() {};
 
 	void purge();
 

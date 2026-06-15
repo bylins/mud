@@ -55,7 +55,7 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			"  cfg data : abilities skills spells feats classes mobclasses guilds currencies\r\n"
 			"             ztypes runes mobraces objsets\r\n"
 			"  messages : spellmsg skillmsg hitmsg\r\n"
-			"  systems  : portals imagic oloadtable setstuff specials schedule clan proxy boards\r\n"
+			"  systems  : portals imagic oloadtable specials schedule clan proxy boards\r\n"
 			"             globaldrop offtop shop named celebrates setsdrop remort daily resetstats\r\n"
 			"             digging guards jewelry makeitems basic\r\n"
 			"  text     : immlist credits motd rules help info policy handbook background namerules\r\n"
@@ -88,7 +88,6 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		MUD::Runestones().SpawnStones();   // phase 3: (re)place physical stones for any new rooms
 		LoadSheduledReboot();
 		oload_table.init();
-		ObjData::InitSetTable();
 		MUD::CfgManager().ReloadCfg("mob_races");
 		MUD::CfgManager().ReloadCfg("stable_objs");
 		MUD::CfgManager().ReloadCfg("group_exp_handicap");
@@ -149,10 +148,7 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		MUD::CfgManager().ReloadCfg("rune_spells");
 	else if (!str_cmp(arg, "oloadtable"))
 		oload_table.init();
-	else if (!str_cmp(arg, "setstuff")) {
-		ObjData::InitSetTable();
-		HelpSystem::reload(HelpSystem::STATIC);
-	} else if (!str_cmp(arg, "immlist"))
+	else if (!str_cmp(arg, "immlist"))
 		AllocateBufferForFile(IMMLIST_FILE, &immlist);
 	else if (!str_cmp(arg, "credits"))
 		AllocateBufferForFile(CREDITS_FILE, &credits);
