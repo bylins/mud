@@ -323,7 +323,7 @@ CharData* SpawnPet(CharData* owner, const PetSpec& spec, RoomRnum room) {
 	af.battleflag = 0;
 	af.type = ESpell::kCharm;
 	af.duration = 999;  // long enough that no scenario will outlive it
-	af.bitvector = to_underlying(EAffect::kCharmed);
+	af.affect_type = EAffect::kCharmed;
 	affect_to_char(pet, af);
 	follow::AddFollower(owner, pet);
 
