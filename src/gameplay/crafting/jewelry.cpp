@@ -46,14 +46,14 @@ void InitJewelryVars() {
 }
 
 bool is_dig_stone(ObjData *obj) {
-	if ((obj->get_vnum() >= dig_vars.stone1_vnum
-		&& obj->get_vnum() <= dig_vars.last_stone_vnum)
-		|| obj->get_vnum() == dig_vars.glass_vnum
-		|| iwg.is_gem(obj->get_vnum())) {
-		return true;
+	const int vnum = obj->get_vnum();
+	for (const auto &stone : mining::dig_cfg.stones) {
+		if (vnum == stone.stone_vnum || vnum == stone.glass_vnum) {
+			return true;
+		}
 	}
 
-	return false;
+	return iwg.is_gem(vnum);
 }
 
 void do_insertgem(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {

@@ -802,7 +802,7 @@ void BootMudDataBase() {
 
 	boot_profiler.next_step("Reading skills variables.");
 	log("Reading skills variables.");
-	InitMiningVars();
+	MUD::CfgManager().LoadCfg("digging");
 	InitJewelryVars();
 
 	boot_profiler.next_step("Sorting command list");
