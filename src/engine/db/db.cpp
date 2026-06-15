@@ -1010,7 +1010,7 @@ void BootMudDataBase() {
 
 	// сначала сеты, стата мобов, потом дроп сетов
 	boot_profiler.next_step("Loading object sets/mob_stat/drop_sets lists");
-	obj_sets::load();
+	MUD::CfgManager().LoadCfg("obj_sets");   // issue.obj-sets: cfg/mechanics/obj_sets.xml
 	log("Load mob_stat.xml");
 	mob_stat::Load();
 	log("Init SetsDrop lists.");

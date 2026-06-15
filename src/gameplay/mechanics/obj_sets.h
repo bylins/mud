@@ -10,6 +10,7 @@
 #include "engine/structs/structs.h"
 #include "engine/core/sysdep.h"
 #include "engine/core/conf.h"
+#include "engine/boot/cfg_manager.h"   // issue.obj-sets: загрузка через CfgManager
 
 #include <array>
 #include <vector>
@@ -102,7 +103,16 @@ struct activ_sum {
 	std::map<int, ench_type> enchants;
 };
 
-void load();
+// issue.obj-sets: конфиг (cfg/mechanics/obj_sets.xml) грузится через CfgManager
+// (ParserWrapper). Запись файла (save) по-прежнему делает pugixml внутри obj_sets.cpp -
+// её зовёт OLC-редактор и сам loader в конце загрузки (нормализация). Формат сообщений и
+// аффектов переведён с текста тегов на атрибуты (DataNode не читает текст тегов).
+class ObjSetsLoader : public cfg_manager::ICfgLoader {
+ public:
+	void Load(parser_wrapper::DataNode data) final;
+	void Reload(parser_wrapper::DataNode data) final;
+};
+
 void save();
 void print_off_msg(CharData *ch, ObjData *obj);
 void print_identify(CharData *ch, const ObjData *obj);

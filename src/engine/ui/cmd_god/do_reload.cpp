@@ -256,7 +256,7 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	} else if (!str_cmp(arg, "basic")) {
 		MUD::CfgManager().ReloadCfg("basic");
 	} else if (!str_cmp(arg, "objsets")) {
-		obj_sets::load();
+		MUD::CfgManager().ReloadCfg("obj_sets");
 	} else if (!str_cmp(arg, "daily")) {
 		MUD::CfgManager().ReloadCfg("daily_quest");
 		SendMsgToChar(DailyQuest::GetLastLoadMessage(), ch);
