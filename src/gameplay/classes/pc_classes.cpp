@@ -1274,66 +1274,6 @@ int invalid_no_class_proto(CharData *ch, const CObjectPrototype *obj) {
 // The boot call moved to MUD::CfgManager().LoadCfg("rune_spells") at the
 // same boot-step position; `reload runes` goes through ReloadCfg.
 
-void InitBasicValues() {
-	FILE *magic;
-	char line[256], name[kMaxInputLength];
-	int i[10], c, j, mode = 0, *pointer;
-	if (!(magic = fopen(LIB_MISC "basic.lst", "r"))) {
-		log("Can't open basic values list file...");
-		return;
-	}
-	while (get_line(magic, name)) {
-		if (!name[0] || name[0] == ';')
-			continue;
-		i[0] = i[1] = i[2] = i[3] = i[4] = i[5] = 100000;
-		if (sscanf(name, "%s %d %d %d %d %d %d", line, i, i + 1, i + 2, i + 3, i + 4, i + 5) < 1)
-			continue;
-		if (!str_cmp(line, "int"))
-			mode = 1;
-		else if (!str_cmp(line, "cha"))
-			mode = 2;
-		else if (!str_cmp(line, "size"))
-			mode = 3;
-		else if (!str_cmp(line, "weapon"))
-			mode = 4;
-		else if ((c = atoi(line)) > 0 && c <= 100 && mode > 0 && mode < 10) {
-			int fields = 0;
-			switch (mode) {
-				case 1: pointer = (int *) &(int_app[c].spell_aknowlege);
-					fields = sizeof(int_app[c]) / sizeof(int);
-					break;
-
-				case 2: pointer = (int *) &(cha_app[c].leadership);
-					fields = sizeof(cha_app[c]) / sizeof(int);
-					break;
-
-				case 3: pointer = (int *) &(size_app[c].ac);
-					fields = sizeof(size_app[c]) / sizeof(int);
-					break;
-
-				case 4: pointer = (int *) &(weapon_app[c].shocking);
-					fields = sizeof(weapon_app[c]) / sizeof(int);
-					break;
-
-				default: pointer = nullptr;
-			}
-
-			if (pointer)    //log("Mode %d - %d = %d %d %d %d %d %d",mode,c,
-			{
-				//    *i, *(i+1), *(i+2), *(i+3), *(i+4), *(i+5));
-				for (j = 0; j < fields; j++) {
-					if (i[j] != 100000)    //log("[%d] %d <-> %d",j,*(pointer+j),*(i+j));
-					{
-						*(pointer + j) = *(i + j);
-					}
-				}
-				//getchar();
-			}
-		}
-	}
-	fclose(magic);
-}
-
 namespace {
 // Целочисленный атрибут DataNode; def при отсутствии/некорректном значении.
 int HandicapAttrInt(parser_wrapper::DataNode &node, const char *key, int def) {

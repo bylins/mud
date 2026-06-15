@@ -179,7 +179,7 @@ int CalcManaGain(const CharData *ch) {
 			gain = graf(CalcCharAge(ch)->year, restore - 8, restore - 4, restore,
 						restore + 5, restore, restore - 4, restore - 8);
 		} else {
-			gain = mana_gain_cs[GetRealInt(ch)];
+			gain = int_app[GetRealInt(ch)].mana_gain;
 		}
 
 		if (LIKE_ROOM(ch)) {

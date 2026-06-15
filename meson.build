@@ -739,6 +739,7 @@ main_sources = files(
   'src/gameplay/communication/talk.cpp',
   'src/engine/ui/cmd_god/do_echo.cpp',
   'src/gameplay/core/base_stats.cpp',
+  'src/gameplay/core/basic_values.cpp',
   'src/engine/ui/cmd/do_camouflage.cpp',
   'src/engine/ui/cmd/do_hide.cpp',
   'src/engine/ui/cmd/do_steal.cpp',

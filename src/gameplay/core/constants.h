@@ -29,6 +29,7 @@ struct IntApplies {
 	int spell_success;        //  max count of spell on 1s level    //
 	int improve;        // drop_chance to improve skill           //
 	int observation;        // drop_chance to use kAwake/CRITICAL //
+	int mana_gain;          // bonus to mana gain (бывшая таблица mana_gain_cs[]) //
 };
 
 struct ChaApplies {
@@ -108,7 +109,6 @@ extern std::vector<PrayAffect> pray_affect;
 extern int rev_dir[];
 extern int movement_loss[];
 extern int mana[];
-extern int mana_gain_cs[];
 extern const char *material_name[];
 extern const char *godslike_bits[];
 extern const int material_value[];

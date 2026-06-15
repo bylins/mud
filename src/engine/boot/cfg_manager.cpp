@@ -53,6 +53,7 @@
 #include "gameplay/crafting/mining.h"
 #include "gameplay/crafting/jewelry.h"
 #include "gameplay/crafting/item_creation.h"
+#include "gameplay/core/basic_values.h"
 
 namespace cfg_manager {
 
@@ -149,6 +150,8 @@ CfgManager::CfgManager() {
 										  std::make_unique<jewelry::JewelryLoader>(jewelry::JewelryLoader())));
 	loaders_.emplace("item_creation", LoaderInfo("cfg/craft/item_creation.xml",
 										  std::make_unique<ItemCreationLoader>(ItemCreationLoader())));
+	loaders_.emplace("basic", LoaderInfo("cfg/basic.xml",
+										  std::make_unique<BasicValuesLoader>(BasicValuesLoader())));
 	loaders_.emplace("pc_race_messages", LoaderInfo("cfg/messages/ru/pc_race_msg.xml",
 										  std::make_unique<player_races::RaceMessagesLoader>(player_races::RaceMessagesLoader())));
 	loaders_.emplace("pc_races", LoaderInfo("cfg/mechanics/pc_races.xml",

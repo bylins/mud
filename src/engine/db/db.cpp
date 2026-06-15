@@ -180,7 +180,6 @@ int CountMobsInRoom(int m_num, int r_num);
 void SetZoneRnumForObjects();
 void SetZoneRnumForMobiles();
 void SetZoneRnumForTriggers();
-void InitBasicValues();
 int ReadCrashTimerFile(std::size_t index, int temp);
 int LoadExchange();
 void SetPrecipitations(int *wtype, int startvalue, int chance1, int chance2, int chance3);
@@ -833,7 +832,7 @@ void BootMudDataBase() {
 
 	boot_profiler.next_step("Loading basic values");
 	log("Booting basic values");
-	InitBasicValues();
+	MUD::CfgManager().LoadCfg("basic");
 
 	boot_profiler.next_step("Loading grouping parameters");
 	log("Booting grouping parameters");
