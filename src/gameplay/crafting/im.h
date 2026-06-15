@@ -70,7 +70,6 @@ typedef struct _im_addon_tag im_addon;
 const int IM_MSG_OK = 0;
 const int IM_MSG_FAIL = 1;
 const int kImMsgDam = 2;
-const int kKnownRecipe = 1;
 extern int top_imtypes;
 
 // Описание рецепта
@@ -88,11 +87,10 @@ struct _im_recipe_tag {
 	std::array<char *, 3> msg_room;    // сообщения OK,FAIL,DAM
 	int x, y;        // XdY - повреждения
 	bool damage_enabled;    // наносить ли урон при критическом провале
-// +newbook.patch (Alisher)
-	std::array<int, kNumPlayerClasses> classknow; // владеет ли класс данным рецептом
-	int level; // на каком уровне можно выучить рецепт
-	int remort; // сколько ремортов необходимо для рецепта
-// -newbook.patch (Alisher)
+	// issue.class-recipes: принадлежность рецепта классам (владение, уровень, реморт)
+	// больше НЕ хранится здесь. Это свойство класса, а не рецепта: см. секцию
+	// <ingredient_magic> в cfg/classes/pc_*.xml и CharClassInfo::FindIngredientRecipe().
+	// Рецепт адресуется из класса по str_id.
 };
 typedef struct _im_recipe_tag im_recipe;
 

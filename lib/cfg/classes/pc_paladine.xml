@@ -117,4 +117,45 @@
         <feat id="kWarriorSpirit"		level="1"	remort="0"	slot="5"	inborn="0"/>
 		<feat id="kTactician"			level="1"	remort="0"	slot="5"	inborn="0"/>
     </feats>
+    <ingredient_magic>
+		<recipe id="AxePorridge"	level="1"	remort="0"/>
+		<recipe id="SoaringBrew"	level="7"	remort="0"/>
+		<recipe id="BedbugInfusion"	level="20"	remort="0"/>
+		<recipe id="WardingPotion"	level="3"	remort="0"/>
+		<recipe id="YarrowDecoction"	level="3"	remort="0"/>
+		<recipe id="AloeInfusion"	level="3"	remort="0"/>
+		<recipe id="AconiteDecoction"	level="18"	remort="0"/>
+		<recipe id="PlantainDecoction"	level="3"	remort="0"/>
+		<recipe id="ChagaInfusion"	level="1"	remort="0"/>
+		<recipe id="MurkyBrew"	level="1"	remort="0"/>
+		<recipe id="RavensEyeInfusion"	level="1"	remort="0"/>
+		<recipe id="BurnetRootDecoction"	level="1"	remort="0"/>
+		<recipe id="FearlessnessDecoction"	level="5"	remort="0"/>
+		<recipe id="ClearInfusion"	level="3"	remort="0"/>
+		<recipe id="ShiningBrew"	level="12"	remort="0"/>
+		<recipe id="BearBloodInfusion"	level="5"	remort="0"/>
+		<recipe id="DandelionWine"	level="22"	remort="0"/>
+		<recipe id="OwlSightInfusion"	level="1"	remort="0"/>
+		<recipe id="WaterStriderInfusion"	level="10"	remort="0"/>
+		<recipe id="OnionInfusion"	level="15"	remort="0"/>
+		<recipe id="OakBarkDecoction"	level="15"	remort="0"/>
+		<recipe id="GreenFroglingTincture"	level="3"	remort="0"/>
+		<recipe id="ChamomileTincture"	level="19"	remort="0"/>
+		<recipe id="SwellingInfusion"	level="20"	remort="0"/>
+		<recipe id="ElecampaneDecoction"	level="1"	remort="0"/>
+		<recipe id="MeatBroth"	level="1"	remort="0"/>
+		<recipe id="SnakeAgilityPotion"	level="12"	remort="0"/>
+		<recipe id="WolfHearingPotion"	level="12"	remort="0"/>
+		<recipe id="LongRoadPotion"	level="5"	remort="0"/>
+		<recipe id="IcyInfusion"	level="25"	remort="4"/>
+		<recipe id="SmallBugInfusion"	level="22"	remort="0"/>
+		<recipe id="SilveryBrew"	level="25"	remort="6"/>
+		<recipe id="RainbowPotion"	level="14"	remort="0"/>
+		<recipe id="BurningPotion"	level="22"	remort="0"/>
+		<recipe id="MouseInfusion"	level="12"	remort="0"/>
+		<recipe id="TalkativenessDecoction"	level="15"	remort="0"/>
+		<recipe id="CatFurInfusion"	level="20"	remort="2"/>
+		<recipe id="BitterTincture"	level="25"	remort="2"/>
+		<recipe id="RatTailTincture"	level="25"	remort="2"/>
+    </ingredient_magic>
 </class>

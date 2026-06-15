@@ -36,6 +36,7 @@
 #include "engine/db/global_objects.h"
 #include "gameplay/core/base_stats.h"
 #include "gameplay/core/remort.h"
+#include "gameplay/classes/pc_classes_info.h"   // issue.class-recipes: MUD::Class().FindIngredientRecipe()
 
 #define        VAR_CHAR    '@'
 #define imlog(lvl, str)    mudlog(str, lvl, kLvlBuilder, IMLOG, true)
@@ -450,10 +451,8 @@ void im_cleanup_recipe(im_recipe *r) {
 
 // Инициализация подсистемы ингредиентной магии
 void initIngredientsMagic(void) {
-	FILE *im_file = nullptr;
-	char line1[256], line2[256], name[256], text[1024];
-	int i, j, rcpt;
-	int k[5];
+	char text[1024];
+	int i, j;
 
 	// Очистка всего, что есть, на случай reset (преобразование rid у игроков)
 	im_translate_rskill_to_id();
@@ -717,66 +716,9 @@ void initIngredientsMagic(void) {
 		free(imtypes[i].tlst.types);
 	}
 
-	// Прописываем для зарегестрированных рецептов всем классам kKnowSkill,
-	// но уровни и реморты равные -1, т.о. если файл classrecipe.lst поврежден,
-	// рецепты не будут обнулятся, просто станут недоступны для изучения
-	for (i = 0; i <= top_imrecipes; i++) {
-		for (j = 0; j < kNumPlayerClasses; j++)
-			imrecipes[i].classknow[j] = kKnownRecipe;
-		imrecipes[i].level = -1;
-		imrecipes[i].remort = -1;
-	}
-
-	im_file = fopen(LIB_MISC "class.recipes.lst", "r");
-	if (!im_file) {
-		imlog(BRF, "Can not open classrecipe.lst. All recipes unavailable now");
-		return;
-	}
-	while (get_line(im_file, name)) {
-		if (!name[0] || name[0] == ';')
-			continue;
-		if (sscanf(name, "%d %s %s %d %d", k, line1, line2, k + 1, k + 2) != 5) {
-			log("Bad format for recipe string, recipe unavailable now!\r\n"
-				"Format : <recipe number (%%d)> <races (%%s)> <classes (%%s)> <level (%%d)> <remort (%%d)>");
-			continue;
-		}
-		rcpt = im_get_recipe(k[0]);
-
-		if (rcpt < 0) {
-			log("Invalid recipe (%d)", k[0]);
-			continue;
-		}
-
-		if (k[1] < 0 || k[1] >= 31) {
-			log("Bad level type for recipe (%d '%s'), set level to -1 (unavailable)", k[0], imrecipes[rcpt].name);
-			imrecipes[rcpt].level = 0;
-			continue;
-		}
-
-		if (k[2] < 0 || k[2] >= kMaxRemort) {
-			log("Bad remort type for recipe (%d '%s'), set remort to -1 (unavailable)", k[0], imrecipes[rcpt].name);
-			imrecipes[rcpt].remort = 0;
-			continue;
-		}
-
-		imrecipes[rcpt].level = k[1];
-		log("Set recipe (%d '%s') remort %d", k[0], imrecipes[rcpt].name, k[1]);
-
-		imrecipes[rcpt].remort = k[2];
-		log("Set recipe (%d '%s') remort %d", k[0], imrecipes[rcpt].name, k[2]);
-
-// line1 - ограничения для рас еще не реализованы
-
-		for (j = 0; line2[j] && j < kNumPlayerClasses; j++) {
-			if (!strchr("1xX!", line2[j])) {
-				imrecipes[rcpt].classknow[j] = 0;
-			} else {
-				imrecipes[rcpt].classknow[j] = kKnownRecipe;
-				log("Set recipe (%d '%s') classes %d is Know", k[0], imrecipes[rcpt].name, j);
-			}
-		}
-	}
-	fclose(im_file);
+	// issue.class-recipes: принадлежность рецептов классам (владение/уровень/реморт)
+	// перенесена из misc/class.recipes.lst в cfg/classes/pc_*.xml (секция <ingredient_magic>).
+	// Здесь рецепты больше ничего не знают о классах - это свойство класса.
 
 	im_translate_rskill_to_rid();
 
@@ -981,8 +923,11 @@ void list_recipes(CharData *ch, bool all_recipes) {
 						 "------------------------------------------------\r\n");
 		}
 		strcpy(buf1, buf);
+		// issue.class-recipes: доступность рецепта классу спрашиваем у самого класса.
+		const auto &char_class = MUD::Class(ch->GetClass());
 		for (sortpos = 0, i = 0; sortpos <= top_imrecipes; sortpos++) {
-			if (!imrecipes[sortpos].classknow[to_underlying(ch->GetClass())]) {
+			const auto *req = char_class.FindIngredientRecipe(imrecipes[sortpos].str_id);
+			if (!req) {
 				continue;
 			}
 
@@ -991,18 +936,16 @@ void list_recipes(CharData *ch, bool all_recipes) {
 				break;
 			}
 			rs = im_get_char_rskill(ch, sortpos);
+			const bool unavailable = req->level > GetRealLevel(ch) || req->remort > remort::GetRealRemort(ch);
 			if (!ch->IsFlagged(EPrf::kBlindMode)) {
 				sprintf(buf, "     %s%-30s%s %2d (%2d)%s\r\n",
-						(imrecipes[sortpos].level<0 || imrecipes[sortpos].level>GetRealLevel(ch) ||
-							imrecipes[sortpos].remort<0 || imrecipes[sortpos].remort>remort::GetRealRemort(ch)) ?
-						kColorRed : rs ? kColorGrn : kColorNrm, imrecipes[sortpos].name, kColorCyn,
-						imrecipes[sortpos].level, imrecipes[sortpos].remort, kColorNrm);
+						unavailable ? kColorRed : rs ? kColorGrn : kColorNrm,
+						imrecipes[sortpos].name, kColorCyn,
+						req->level, req->remort, kColorNrm);
 			} else {
 				sprintf(buf, " %s %-30s %2d (%2d)\r\n",
-						(imrecipes[sortpos].level < 0 || imrecipes[sortpos].level > GetRealLevel(ch) ||
-							imrecipes[sortpos].remort < 0 || imrecipes[sortpos].remort > remort::GetRealRemort(ch)) ?
-						"[Н]" : rs ? "[И]" : "[Д]", imrecipes[sortpos].name,
-						imrecipes[sortpos].level, imrecipes[sortpos].remort);
+						unavailable ? "[Н]" : rs ? "[И]" : "[Д]", imrecipes[sortpos].name,
+						req->level, req->remort);
 			}
 			strcat(buf1, buf);
 			++i;
@@ -1696,7 +1639,7 @@ void trg_recipeturn(CharData *ch, int rid, int recipediff) {
 	} else {
 		if (!recipediff)
 			return;
-		if (imrecipes[rid].classknow[to_underlying(ch->GetClass())] == kKnownRecipe) {
+		if (MUD::Class(ch->GetClass()).FindIngredientRecipe(imrecipes[rid].str_id)) {
 			CREATE(rs, 1);
 			rs->rid = rid;
 			rs->link = GET_RSKILL(ch);
