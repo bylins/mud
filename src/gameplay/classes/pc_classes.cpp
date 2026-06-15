@@ -33,6 +33,7 @@
 #include "gameplay/mechanics/noob.h"
 #include "gameplay/economics/exchange.h"
 #include "gameplay/magic/spells_info.h"
+#include "gameplay/core/remort.h"
 #include "engine/db/global_objects.h"
 
 const int kExpImpl = 2000000000;
