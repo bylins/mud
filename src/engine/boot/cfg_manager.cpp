@@ -41,6 +41,7 @@
 #include "gameplay/classes/pc_classes.h"
 #include "gameplay/core/reset_stats.h"
 #include "gameplay/mechanics/noob.h"
+#include "gameplay/mechanics/celebrates.h"
 #include "gameplay/mechanics/cities_messages.h"
 #include "gameplay/mechanics/player_races.h"
 #include "gameplay/mechanics/pc_race_messages.h"
@@ -146,6 +147,8 @@ CfgManager::CfgManager() {
 										  std::make_unique<Noob::NoobLoader>(Noob::NoobLoader())));
 	loaders_.emplace("digging", LoaderInfo("cfg/mechanics/digging.xml",
 										  std::make_unique<mining::DiggingLoader>(mining::DiggingLoader())));
+	loaders_.emplace("celebrates", LoaderInfo("cfg/mechanics/celebrates.xml",
+										  std::make_unique<celebrates::CelebratesLoader>()));
 	loaders_.emplace("jewelry", LoaderInfo("cfg/craft/jewelry.xml",
 										  std::make_unique<jewelry::JewelryLoader>(jewelry::JewelryLoader())));
 	loaders_.emplace("item_creation", LoaderInfo("cfg/craft/item_creation.xml",

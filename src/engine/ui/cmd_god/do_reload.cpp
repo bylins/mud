@@ -94,7 +94,7 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		MUD::CfgManager().ReloadCfg("group_exp_handicap");
 		GlobalDrop::init();
 		offtop_system::Init();
-		celebrates::Load();
+		MUD::CfgManager().ReloadCfg("celebrates");   // issue.celebrates
 		HelpSystem::reload_all();
 		MUD::CfgManager().ReloadCfg("noob");
 		MUD::CfgManager().ReloadCfg("reset_stats");
@@ -237,7 +237,7 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	} else if (!str_cmp(arg, "named")) {
 		NamedStuff::load();
 	} else if (!str_cmp(arg, "celebrates")) {
-		celebrates::Load();
+		MUD::CfgManager().ReloadCfg("celebrates");
 	} else if (!str_cmp(arg, "setsdrop") && ch->IsFlagged(EPrf::kCoderinfo)) {
 		skip_spaces(&argument);
 		if (*argument && is_number(argument)) {

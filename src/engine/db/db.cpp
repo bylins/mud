@@ -934,7 +934,7 @@ void BootMudDataBase() {
 
 	boot_profiler.next_step("Loading celebrates");
 	log("Load Celebrates.");
-	celebrates::Load();
+	MUD::CfgManager().LoadCfg("celebrates");   // issue.celebrates: cfg/mechanics/celebrates.xml
 
 	// Триггера комнат должны быть подключены ДО первого ResetZone, иначе
 	// reset_wtrigger / random_wtrigger не найдут их в SCRIPT(room) и не
