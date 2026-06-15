@@ -95,7 +95,7 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		offtop_system::Init();
 		celebrates::Load();
 		HelpSystem::reload_all();
-		Noob::init();
+		MUD::CfgManager().ReloadCfg("noob");
 		MUD::CfgManager().ReloadCfg("reset_stats");
 		Bonus::bonus_log_load();
 		DailyQuest::LoadFromFile();
@@ -241,7 +241,7 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			SetsDrop::reload();
 		}
 	} else if (!str_cmp(arg, "noobhelp")) {
-		Noob::init();
+		MUD::CfgManager().ReloadCfg("noob");
 	} else if (!str_cmp(arg, "resetstats")) {
 		MUD::CfgManager().ReloadCfg("reset_stats");
 	} else if (!str_cmp(arg, "objsets")) {

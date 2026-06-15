@@ -1025,9 +1025,9 @@ void BootMudDataBase() {
 	log("Init SetsDrop lists.");
 	SetsDrop::init();
 
-	boot_profiler.next_step("Loading noob_help.xml");
-	log("Load noob_help.xml");
-	Noob::init();
+	boot_profiler.next_step("Loading noob.xml");
+	log("Load noob.xml");
+	MUD::CfgManager().LoadCfg("noob");
 
 	boot_profiler.next_step("Loading reset_stats.xml");
 	log("Load reset_stats.xml");
