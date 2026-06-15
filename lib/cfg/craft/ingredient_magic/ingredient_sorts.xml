@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<ingredient_sorts>
+	<sort type="HealingHerbs" power="1" gender="kMale">
+		<case id="kNom" name="одуванчик"/>
+		<case id="kGen" name="одуванчика"/>
+		<case id="kDat" name="одуванчику"/>
+		<case id="kAcc" name="одуванчик"/>
+		<case id="kIns" name="одуванчиком"/>
+		<case id="kPre" name="одуванчике"/>
+		<alias name="одуванчик"/>
+	</sort>
+	<sort type="PoisonousHerbs" power="1" gender="kMale">
+		<case id="kNom" name="барбарис"/>
+		<case id="kGen" name="барбариса"/>
+		<case id="kDat" name="барбарису"/>
+		<case id="kAcc" name="барбарис"/>
+		<case id="kIns" name="барбарисом"/>
+		<case id="kPre" name="барбарисе"/>
+		<alias name="барбарис"/>
+	</sort>
+	<sort type="EdibleBerries" power="1" gender="kFemale">
+		<case id="kNom" name="рябина"/>
+		<case id="kGen" name="рябины"/>
+		<case id="kDat" name="рябине"/>
+		<case id="kAcc" name="рябину"/>
+		<case id="kIns" name="рябиной"/>
+		<case id="kPre" name="рябине"/>
+		<alias name="рябина"/>
+	</sort>
+	<sort type="PoisonousBerries" power="1" gender="kMale">
+		<case id="kNom" name="дикий_виноград"/>
+		<case id="kGen" name="дикого_винограда"/>
+		<case id="kDat" name="дикому_винограду"/>
+		<case id="kAcc" name="дикий_виноград"/>
+		<case id="kIns" name="диким_виноградом"/>
+		<case id="kPre" name="диком_винограде"/>
+		<alias name="дикий_виноград"/>
+	</sort>
+	<sort type="Grains" power="1" gender="kPoly">
+		<case id="kNom" name="отруби"/>
+		<case id="kGen" name="отрубей"/>
+		<case id="kDat" name="отрубям"/>
+		<case id="kAcc" name="отруби"/>
+		<case id="kIns" name="отрубями"/>
+		<case id="kPre" name="отрубях"/>
+		<alias name="отруби"/>
+	</sort>
+	<sort type="Minerals" power="1" gender="kMale">
+		<case id="kNom" name="кремень"/>
+		<case id="kGen" name="кремня"/>
+		<case id="kDat" name="кремню"/>
+		<case id="kAcc" name="кремень"/>
+		<case id="kIns" name="кремнем"/>
+		<case id="kPre" name="кремне"/>
+		<alias name="осколок_кремня"/>
+	</sort>
+	<sort type="Metals" power="2" gender="kNeutral">
+		<case id="kNom" name="олово"/>
+		<case id="kGen" name="олова"/>
+		<case id="kDat" name="олову"/>
+		<case id="kAcc" name="олово"/>
+		<case id="kIns" name="оловом"/>
+		<case id="kPre" name="олове"/>
+		<alias name="кусочек_олова"/>
+	</sort>
+	<sort type="Utensils" power="1" gender="kFemale">
+		<case id="kNom" name="глиняная_плошка"/>
+		<case id="kGen" name="глиняной_плошки"/>
+		<case id="kDat" name="глиняной_плошке"/>
+		<case id="kAcc" name="глиняную_плошку"/>
+		<case id="kIns" name="глиняной_плошкой"/>
+		<case id="kPre" name="глиняной_плошке"/>
+		<alias name="глиняная_плошка"/>
+	</sort>
+	<sort type="Liquids" power="1" gender="kFemale">
+		<case id="kNom" name="дождевая_вода"/>
+		<case id="kGen" name="дождевой_воды"/>
+		<case id="kDat" name="дождевой_воде"/>
+		<case id="kAcc" name="дождевую_воду"/>
+		<case id="kIns" name="дождевой_воды"/>
+		<case id="kPre" name="дождевой_воде"/>
+		<alias name="склянка_с_водой_из_лужи"/>
+	</sort>
+	<sort type="Wood" power="1" gender="kMale">
+		<case id="kNom" name="орех"/>
+		<case id="kGen" name="ореха"/>
+		<case id="kDat" name="ореху"/>
+		<case id="kAcc" name="орех"/>
+		<case id="kIns" name="орехом"/>
+		<case id="kPre" name="орехе"/>
+		<alias name="ветка_ореха"/>
+	</sort>
+	<sort type="EdibleMushrooms" power="1" gender="kFemale">
+		<case id="kNom" name="горькушка"/>
+		<case id="kGen" name="горькушки"/>
+		<case id="kDat" name="горькушке"/>
+		<case id="kAcc" name="горькушку"/>
+		<case id="kIns" name="горькушкой"/>
+		<case id="kPre" name="горькушке"/>
+		<alias name="горькушка"/>
+		<room_desc name="Грибок_странного_вида_растет_тут."/>
+	</sort>
+	<sort type="PoisonousMushrooms" power="1" gender="kFemale">
+		<case id="kNom" name="говорушка"/>
+		<case id="kGen" name="говорушки"/>
+		<case id="kDat" name="говорушке"/>
+		<case id="kAcc" name="говорушку"/>
+		<case id="kIns" name="говорушкой"/>
+		<case id="kPre" name="говорушке"/>
+		<alias name="говорушка"/>
+	</sort>
+	<sort type="Vegetables" power="1" gender="kFemale">
+		<case id="kNom" name="морковь"/>
+		<case id="kGen" name="моркови"/>
+		<case id="kDat" name="моркови"/>
+		<case id="kAcc" name="морковь"/>
+		<case id="kIns" name="морковью"/>
+		<case id="kPre" name="моркови"/>
+		<alias name="морковь"/>
+	</sort>
+	<sort type="SmallCreatures" power="1" gender="kMale">
+		<case id="kNom" name="таракашка"/>
+		<case id="kGen" name="таракашки"/>
+		<case id="kDat" name="таракашке"/>
+		<case id="kAcc" name="таракашку"/>
+		<case id="kIns" name="таракашкой"/>
+		<case id="kPre" name="таракашке"/>
+		<alias name="крошечный_таракашка"/>
+	</sort>
+</ingredient_sorts>

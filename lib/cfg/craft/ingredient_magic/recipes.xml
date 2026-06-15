@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<recipes>
+	<recipe vnum="0" name="каша" result_vnum="750" k_improve="1000" damage="2d10">
+		<energy k0="3" k1="0" k2="0.0001" kp="2"/>
+		<require type="EdibleMushrooms" power="3"/>
+		<require type="EdibleMushrooms" power="10"/>
+		<require type="Living" power="2"/>
+		<addon count="3" type="EdibleMushrooms" k0="1" k1="0" k2="0"/>
+		<addon count="1" type="Wool" k0="1" k1="0" k2="3"/>
+		<messages>
+			<success char="Meaaage1" room="Meaaage2"/>
+			<fail char="Meaaage3" room="Meaaage4"/>
+			<damage char="Meaaage5" room="Meaaage6"/>
+		</messages>
+	</recipe>
+</recipes>
