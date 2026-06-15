@@ -187,7 +187,7 @@
 	<obj vnum="1002324" />
 	<obj vnum="1002325" />
     </drop>
-    <!-- сет мл -- -->
+    <!-- сет мл - -->
     <drop ObjVnum = "-12" mob_lvl="1" max_mob_lvl="0" count_mob="1950" drop_chance="200">
 	<obj vnum="1001276" />
 	<obj vnum="1001277" />
@@ -195,7 +195,7 @@
 	<obj vnum="1001279" />
 	<obj vnum="1002342" />
     </drop>
-    <!-- сет сч -- -->
+    <!-- сет сч - -->
     <drop ObjVnum = "-13" mob_lvl="1" max_mob_lvl="0" count_mob="1831" drop_chance="195">
 	<obj vnum="1001280" />
 	<obj vnum="1001281" />

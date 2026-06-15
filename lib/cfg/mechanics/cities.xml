@@ -4,7 +4,7 @@
      suburb="true" marks an outer/suburb zone (absent = inner). <rent vnums="a|b"/> lists the
      city rent rooms (| separated). Optional <start_item vnum=> children list the first-login outfit
      handed out in this city (moved here from the retired birthplaces.xml). Ids are CamelCase (no underscores
-     -- the client shows _ as space). -->
+     - the client shows _ as space). -->
 <cities>
 	<city vnum="1" id="LesnayaDerevnya">
 		<rent vnums="4056"/>
