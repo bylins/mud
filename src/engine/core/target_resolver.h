@@ -257,6 +257,16 @@ ObjPredicate  MakeObjVisibleFilter(CharData *viewer); // CanSeeObj-gated
 // GetTeleportTargetRoom + its per-site GetZoneRooms call into one.
 RoomRnum GetRandomTeleportTargetInZone(CharData *ch, RoomRnum zone_room);
 
+// issue.handler-cleaning (Bucket 4): generic target search (moved from handler).
+ObjData *get_obj_vis_for_locate(CharData *ch, const char *name);
+inline ObjData *get_obj_vis_for_locate(CharData *ch, const std::string &name) {
+	return get_obj_vis_for_locate(ch, name.c_str());
+}
+bool try_locate_obj(CharData *ch, ObjData *i);
+int generic_find(char *arg, Bitvector bitvector, CharData *ch, CharData **tar_ch, ObjData **tar_obj);
+int find_all_dots(char *arg);
+RoomRnum FindRoomRnum(CharData *ch, char *rawroomstr, int trig);
+
 }; // namespace target_resolver
 
 #endif // _TARGET_RESOLVER_HPP_INCLUDED_

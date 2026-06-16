@@ -27,6 +27,13 @@ const int kLightUndef = 2;
 const int kSecsPerPlayerTimed = 1;
 #include "engine/core/char_equip_flags.h"   // CharEquipFlag(s) (issue.handler-cleaning)
 
+#include "engine/core/target_resolver.h"   // issue.handler-cleaning: target search moved here
+using target_resolver::get_obj_vis_for_locate;
+using target_resolver::try_locate_obj;
+using target_resolver::generic_find;
+using target_resolver::find_all_dots;
+using target_resolver::FindRoomRnum;
+
 int get_room_sky(int rnum);
 int IsEquipInMetall(CharData *ch);
 bool IsWearingLight(CharData *ch);   // issue.handler-cleaning: was file-local
@@ -100,13 +107,7 @@ inline ObjData *get_obj_in_list_vis(CharData *ch,
 									const std::string &name,
 									ObjData *list) { return get_obj_in_list_vis(ch, name.c_str(), list); }
 
-ObjData *get_obj_vis_for_locate(CharData *ch, const char *name);
-inline ObjData *get_obj_vis_for_locate(CharData *ch, const std::string &name) {
-	return get_obj_vis_for_locate(ch,
-								  name.c_str());
-}
 
-bool try_locate_obj(CharData *ch, ObjData *i);
 
 ObjData *get_object_in_equip_vis(CharData *ch, const char *arg, ObjData *equipment[], int *j);
 inline ObjData *get_object_in_equip_vis(CharData *ch,
@@ -115,7 +116,6 @@ inline ObjData *get_object_in_equip_vis(CharData *ch,
 										int *j) { return get_object_in_equip_vis(ch, arg.c_str(), equipment, j); }
 // find all dots //
 
-int find_all_dots(char *arg);
 
 const int kFindIndiv = 0;
 const int kFindAll = 1;
@@ -124,7 +124,6 @@ const int kFindAlldot = 2;
 
 // Generic Find //
 
-int generic_find(char *arg, Bitvector bitvector, CharData *ch, CharData **tar_ch, ObjData **tar_obj);
 enum EFind : Bitvector {
 	kCharInRoom = 1 << 0,
 	kCharInWorld = 1 << 1,
@@ -136,7 +135,6 @@ enum EFind : Bitvector {
 	kObjExtraDesc = 1 << 7
 };
 
-RoomRnum FindRoomRnum(CharData *ch, char *rawroomstr, int trig);
 
 // prototypes from crash save system //
 int Crash_delete_crashfile(CharData *ch);

@@ -98,7 +98,6 @@ extern bool CanTakeObj(CharData *ch, ObjData *obj);
 extern void split_or_clan_tax(CharData *ch, long amount);
 
 // external functions
-RoomRnum FindRoomRnum(CharData *ch, char *rawroomstr, int trig);
 void free_varlist(struct TriggerVar *vd);
 int obj_room(ObjData *obj);
 Trigger *read_trigger(int nr);

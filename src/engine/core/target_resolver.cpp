@@ -666,6 +666,271 @@ RoomRnum GetRandomTeleportTargetInZone(CharData *ch, RoomRnum zone_room) {
 	return n ? fnd_room : kNowhere;
 }
 
+
+// issue.handler-cleaning (Bucket 4): generic target-search helpers moved from handler.cpp.
+
+ObjData *get_obj_vis_for_locate(CharData *ch, const char *name) {
+	ObjData *i;
+	int number;
+	char tmpname[kMaxInputLength];
+	char *tmp = tmpname;
+
+	// scan items carried //
+	if ((i = get_obj_in_list_vis(ch, name, ch->carrying)) != nullptr) {
+		return i;
+	}
+
+	// scan room //
+	if ((i = get_obj_in_list_vis(ch, name, world[ch->in_room]->contents)) != nullptr) {
+		return i;
+	}
+
+	strcpy(tmp, name);
+	number = get_number(&tmp);
+	if (number != 1) {
+		return nullptr;
+	}
+
+	// ok.. no luck yet. scan the entire obj list   //
+	const WorldObjects::predicate_f locate_predicate = [&](const ObjData::shared_ptr &i) -> bool {
+		const auto result = sight::CanSeeObj(ch, i.get())
+			&& (isname(tmp, i->get_aliases())
+				|| CHECK_CUSTOM_LABEL(tmp, i.get(), ch))
+			&& try_locate_obj(ch, i.get());
+		return result;
+	};
+
+	return world_objects.find_if(locate_predicate).get();
+}
+
+bool try_locate_obj(CharData *ch, ObjData *i) {
+	if (IS_CORPSE(i) || privilege::IsGod(ch)) //имм может локейтить и можно локейтить трупы
+	{
+		return true;
+	} else if (i->has_flag(EObjFlag::kNolocate)) //если флаг !локейт и ее нет в комнате/инвентаре - пропустим ее
+	{
+		return false;
+	} else if (i->get_carried_by() && i->get_carried_by()->IsNpc()) {
+		if (world[i->get_carried_by()->in_room]->zone_rn
+			== world[ch->in_room]->zone_rn) //шмотки у моба можно локейтить только в одной зоне
+		{
+			return true;
+		} else {
+			return false;
+		}
+	} else if (i->get_in_room() != kNowhere && i->get_in_room()) {
+		if (world[i->get_in_room()]->zone_rn
+			== world[ch->in_room]->zone_rn) //шмотки в клетке можно локейтить только в одной зоне
+		{
+			return true;
+		} else {
+			return false;
+		}
+	} else if (i->get_worn_by() && i->get_worn_by()->IsNpc()) {
+		if (world[i->get_worn_by()->in_room]->zone_rn == world[ch->in_room]->zone_rn) {
+			return true;
+		} else {
+			return false;
+		}
+	} else if (i->get_in_obj()) {
+		if (Clan::is_clan_chest(i->get_in_obj())) {
+			return true;
+		} else {
+			const auto in_obj = i->get_in_obj();
+			if (in_obj->get_carried_by()) {
+				if (in_obj->get_carried_by()->IsNpc()) {
+					if (world[in_obj->get_carried_by()->in_room]->zone_rn == world[ch->in_room]->zone_rn) {
+						return true;
+					} else {
+						return false;
+					}
+				} else {
+					return true;
+				}
+			} else if (in_obj->get_in_room() != kNowhere && in_obj->get_in_room()) {
+				if (world[in_obj->get_in_room()]->zone_rn == world[ch->in_room]->zone_rn) {
+					return true;
+				} else {
+					return false;
+				}
+			} else if (in_obj->get_worn_by()) {
+				const auto worn_by = i->get_in_obj()->get_worn_by();
+				if (worn_by->IsNpc()) {
+					if (world[worn_by->in_room]->zone_rn == world[ch->in_room]->zone_rn) {
+						return true;
+					} else {
+						return false;
+					}
+				} else {
+					return true;
+				}
+			} else {
+				return true;
+			}
+		}
+	} else {
+		return true;
+	}
+}
+
+int generic_find(char *arg, Bitvector bitvector, CharData *ch, CharData **tar_ch, ObjData **tar_obj) {
+	char name[kMaxInputLength];
+
+	*tar_ch = nullptr;
+	*tar_obj = nullptr;
+
+	ObjData *i;
+	int l, number, j = 0;
+	char tmpname[kMaxInputLength];
+	char *tmp = tmpname;
+
+	if (strlen(arg) > 256)
+		return 0;
+	one_argument(arg, name);
+
+	if (!*name)
+		return (0);
+
+	if (IS_SET(bitvector, EFind::kCharInRoom))    // Find person in room
+	{
+		*tar_ch = target_resolver::FindCharInRoom(ch, name);
+		if ((*tar_ch != nullptr))
+			return (EFind::kCharInRoom);
+	}
+	if (IS_SET(bitvector, EFind::kCharInWorld)) {
+		*tar_ch = target_resolver::FindCharInWorld(ch, name);
+		if ((*tar_ch != nullptr))
+			return (EFind::kCharInWorld);
+	}
+	if (IS_SET(bitvector, EFind::kObjWorld)) {
+		if ((*tar_obj = target_resolver::FindObjAround(ch, name)))
+			return (EFind::kObjWorld);
+	}
+
+	// Начало изменений. (с) Дмитрий ака dzMUDiST ака
+
+// Переписан код, обрабатывающий параметры EFind::kObjEquip | EFind::kObjInventory | EFind::kObjRoom
+// В итоге поиск объекта просиходит в " инветаре - комнате - экипировке" согласно
+// общему количеству имеющихся "созвучных" предметов.
+// Старый код закомментирован и подан в конце изменений.
+
+	strcpy(tmp, name);
+	if (!(number = get_number(&tmp)))
+		return 0;
+	if (IS_SET(bitvector, EFind::kObjInventory)) {
+		for (i = ch->carrying; i && (j <= number); i = i->get_next_content()) {
+			if (isname(tmp, i->get_aliases())
+				|| CHECK_CUSTOM_LABEL(tmp, i, ch)
+				|| (IS_SET(bitvector, EFind::kObjExtraDesc)
+					&& sight::find_exdesc(tmp, i->get_ex_description()))) {
+				if (sight::CanSeeObj(ch, i)) {
+					if (++j == number) {
+						*tar_obj = i;
+						return (EFind::kObjInventory);
+					}
+				}
+			}
+		}
+	}
+	if (IS_SET(bitvector, EFind::kObjRoom)) {
+	for (auto i : world[ch->in_room]->contents) {
+		if (j > number) break;
+			if (isname(tmp, i->get_aliases())
+				|| CHECK_CUSTOM_LABEL(tmp, i, ch)
+				|| (IS_SET(bitvector, EFind::kObjExtraDesc)
+					&& sight::find_exdesc(tmp, i->get_ex_description()))) {
+				if (sight::CanSeeObj(ch, i)) {
+					if (++j == number) {
+						*tar_obj = i;
+						return (EFind::kObjRoom);
+					}
+				}
+			}
+		}
+	}
+	if (IS_SET(bitvector, EFind::kObjEquip)) {
+		for (l = 0; l < EEquipPos::kNumEquipPos; l++) {
+			if (GET_EQ(ch, l) && sight::CanSeeObj(ch, GET_EQ(ch, l))) {
+				if (isname(tmp, GET_EQ(ch, l)->get_aliases())
+					|| CHECK_CUSTOM_LABEL(tmp, GET_EQ(ch, l), ch)
+					|| (IS_SET(bitvector, EFind::kObjExtraDesc)
+						&& sight::find_exdesc(tmp, GET_EQ(ch, l)->get_ex_description()))) {
+					if (++j == number) {
+						*tar_obj = GET_EQ(ch, l);
+						return (EFind::kObjEquip);
+					}
+				}
+			}
+		}
+	}
+	return (0);
+}
+
+int find_all_dots(char *arg) {
+	char tmpname[kMaxInputLength];
+
+	if (!str_cmp(arg, "all") || !str_cmp(arg, "все")) {
+		return (kFindAll);
+	} else if (!strn_cmp(arg, "all.", 4) || !strn_cmp(arg, "все.", 4)) {
+		strl_cpy(tmpname, arg + 4, kMaxInputLength);
+		strl_cpy(arg, tmpname, kMaxInputLength);
+		return (kFindAlldot);
+	} else {
+		return (kFindIndiv);
+	}
+}
+
+RoomRnum FindRoomRnum(CharData *ch, char *rawroomstr, int trig) {
+	RoomVnum tmp;
+	RoomRnum location;
+	CharData *target_mob;
+	ObjData *target_obj;
+	char roomstr[kMaxInputLength];
+
+	one_argument(rawroomstr, roomstr);
+
+	if (!*roomstr) {
+		SendMsgToChar("Укажите номер или название комнаты.\r\n", ch);
+		return (kNowhere);
+	}
+	if (a_isdigit(*roomstr) && !strchr(roomstr, '.')) {
+		tmp = atoi(roomstr);
+		if ((location = GetRoomRnum(tmp)) == kNowhere) {
+			SendMsgToChar("Нет комнаты с таким номером.\r\n", ch);
+			return (kNowhere);
+		}
+	} else if ((target_mob = target_resolver::FindCharInWorld(ch, roomstr)) != nullptr) {
+		location = target_mob->in_room;
+	} else if ((target_obj = target_resolver::FindObjInWorld(ch, roomstr)) != nullptr) {
+		if (target_obj->get_in_room() != kNowhere) {
+			location = target_obj->get_in_room();
+		} else {
+			SendMsgToChar("Этот объект вам недоступен.\r\n", ch);
+			return (kNowhere);
+		}
+	} else {
+		SendMsgToChar("В округе нет похожего предмета или создания.\r\n", ch);
+		return (kNowhere);
+	}
+
+	// a location has been found -- if you're < GRGOD, check restrictions.
+	if (!privilege::IsGrGod(ch) && !ch->IsFlagged(EPrf::kCoderinfo)) {
+		if (ROOM_FLAGGED(location, ERoomFlag::kGodsRoom) && GetRealLevel(ch) < kLvlGreatGod) {
+			SendMsgToChar("Вы не столь божественны, чтобы получить доступ в эту комнату!\r\n", ch);
+			return (kNowhere);
+		}
+		if (ROOM_FLAGGED(location, ERoomFlag::kNoTeleportIn) && trig != 1) {
+			SendMsgToChar("В комнату не телепортировать!\r\n", ch);
+			return (kNowhere);
+		}
+		if (!Clan::MayEnter(ch, location, kHousePortal)) {
+			SendMsgToChar("Частная собственность - посторонним в ней делать нечего!\r\n", ch);
+			return (kNowhere);
+		}
+	}
+	return (location);
+}
+
 }; // namespace target_resolver
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
