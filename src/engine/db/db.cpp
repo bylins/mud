@@ -356,10 +356,10 @@ void GameLoader::BootWorld(std::unique_ptr<world_loader::IWorldDataSource> data_
 	// Guarded like the skills load just below; the normal running-server boot reaches here too.
 	if (!affected_bits) {
 		MUD::CfgManager().LoadCfg("affects");
-		MUD::CfgManager().LoadCfg("affect_messages");
+		MUD::CfgManager().LoadCfg("affect_msg");
 		// issue.common-msg: nothing_string (CommonMsg(kNothing)) is used by sprintbits during the
 		// object/mob load below, so common_messages must be ready before the world parses.
-		MUD::CfgManager().LoadCfg("common_messages");
+		MUD::CfgManager().LoadCfg("common_msg");
 	}
 
 	// CharData::set_skill() / CObjectPrototype::set_skill() drop any skill
@@ -372,7 +372,7 @@ void GameLoader::BootWorld(std::unique_ptr<world_loader::IWorldDataSource> data_
 	// loaded the config, does not reload it.
 	if (!MUD::Skills().IsInitizalized())
 	{
-		MUD::CfgManager().LoadCfg("skill_messages");   // issue.thing-names: names/abbr before skills
+		MUD::CfgManager().LoadCfg("skill_msg");   // issue.thing-names: names/abbr before skills
 		MUD::CfgManager().LoadCfg("skills");
 	}
 
@@ -657,13 +657,13 @@ void BootMudDataBase() {
 	log("Loading currencies cfg.");
 	// issue.thing-names: currency names (currency_msg.xml) load before currencies.xml so the builder
 	// can read each currency's display name from the message file.
-	MUD::CfgManager().LoadCfg("currency_messages");
+	MUD::CfgManager().LoadCfg("currency_msg");
 	MUD::CfgManager().LoadCfg("currencies");
 
 	// issue.thing-names: skill messages (which now hold skill names + abbreviations) load before skills.
 	boot_profiler.next_step("Loading skill messages cfg.");
 	log("Loading skill messages cfg.");
-	MUD::CfgManager().LoadCfg("skill_messages");
+	MUD::CfgManager().LoadCfg("skill_msg");
 
 	boot_profiler.next_step("Loading skills cfg.");
 	log("Loading skills cfg.");
@@ -671,14 +671,14 @@ void BootMudDataBase() {
 
 	boot_profiler.next_step("Loading feats cfg.");
 	log("Loading feats cfg.");
-	MUD::CfgManager().LoadCfg("feat_messages");   // issue.thing-names: names before feats
+	MUD::CfgManager().LoadCfg("feat_msg");   // issue.thing-names: names before feats
 	MUD::CfgManager().LoadCfg("feats");
 
 	// issue.thing-names: spell messages (which now hold the Russian display names) load BEFORE
 	// spells, so SpellInfoBuilder::ParseName can read each spell's name from the message container.
 	boot_profiler.next_step("Loading spell messages cfg.");
 	log("Loading spell messages cfg.");
-	MUD::CfgManager().LoadCfg("spell_messages");
+	MUD::CfgManager().LoadCfg("spell_msg");
 
 	boot_profiler.next_step("Loading spells cfg.");
 	log("Loading spells cfg.");
@@ -694,7 +694,7 @@ void BootMudDataBase() {
 
     boot_profiler.next_step("Loading hit type messages cfg.");
     log("Loading hit type messages cfg.");
-    MUD::CfgManager().LoadCfg("fight_messages");
+    MUD::CfgManager().LoadCfg("hit_msg");
 
 	boot_profiler.next_step("Loading abilities definitions");
 	log("Loading abilities.");
@@ -714,8 +714,8 @@ void BootMudDataBase() {
 
 	boot_profiler.next_step("Assigning character classs info.");
 	log("Assigning character classs info.");
-	MUD::CfgManager().LoadCfg("class_messages");   // issue.thing-names: names/abbr before classes
-	MUD::CfgManager().LoadCfg("classes");
+	MUD::CfgManager().LoadCfg("class_msg");   // issue.thing-names: names/abbr before classes
+	MUD::CfgManager().LoadCfg("pc_classes");
 	MUD::CfgManager().LoadCfg("experience_table");   // issue.experience-table
 
 	boot_profiler.next_step("Loading rune spells cfg");
@@ -748,7 +748,7 @@ void BootMudDataBase() {
 
 	boot_profiler.next_step("Loading socials");
 	log("Loading socials.");
-	MUD::CfgManager().LoadCfg("socials");
+	MUD::CfgManager().LoadCfg("social_msg");
 
 	boot_profiler.next_step("Loading players index");
 	log("Generating player index.");
@@ -819,22 +819,22 @@ void BootMudDataBase() {
 	boot_profiler.next_step("Loading special assignments");
 	log("Booting special assignment");
 	MUD::CfgManager().LoadCfg("specials");
-	MUD::CfgManager().LoadCfg("special_messages");   // issue.specials Phase 2: spec-proc messages
-	MUD::CfgManager().LoadCfg("bank_messages");
-	MUD::CfgManager().LoadCfg("mail_messages");
-	MUD::CfgManager().LoadCfg("horse_messages");
-	MUD::CfgManager().LoadCfg("torc_messages");
-	MUD::CfgManager().LoadCfg("mercenary_messages");
-	MUD::CfgManager().LoadCfg("exchange_messages");
-	MUD::CfgManager().LoadCfg("rent_messages");
-	MUD::CfgManager().LoadCfg("shop_messages");
-	MUD::CfgManager().LoadCfg("board_messages");
+	MUD::CfgManager().LoadCfg("special_msg");   // issue.specials Phase 2: spec-proc messages
+	MUD::CfgManager().LoadCfg("bank_msg");
+	MUD::CfgManager().LoadCfg("mail_msg");
+	MUD::CfgManager().LoadCfg("horse_msg");
+	MUD::CfgManager().LoadCfg("torc_msg");
+	MUD::CfgManager().LoadCfg("mercenary_msg");
+	MUD::CfgManager().LoadCfg("exchange_msg");
+	MUD::CfgManager().LoadCfg("rent_msg");
+	MUD::CfgManager().LoadCfg("shop_msg");
+	MUD::CfgManager().LoadCfg("board_msg");
 	// "affects" + "affect_messages" load earlier, at the top of BootWorld (affected_bits must exist
 	// before the world's objects/mobs are parsed) -- see GameLoader::BootWorld.
 
 	boot_profiler.next_step("Assigning guilds info.");
 	log("Assigning guilds info.");
-	MUD::CfgManager().LoadCfg("guild_messages");   // issue.thing-names: messages before guilds
+	MUD::CfgManager().LoadCfg("guild_msg");   // issue.thing-names: messages before guilds
 	MUD::CfgManager().LoadCfg("guilds");
 
 	boot_profiler.next_step("Assigning mob classes info.");
@@ -844,16 +844,16 @@ void BootMudDataBase() {
 	boot_profiler.next_step("Loading mob races");
 	log("Load mob races.");
 	MUD::CfgManager().LoadCfg("mob_races");
-	MUD::CfgManager().LoadCfg("city_messages");   // issue.cities: names before cities
+	MUD::CfgManager().LoadCfg("cities_msg");   // issue.cities: names before cities
 	MUD::CfgManager().LoadCfg("cities");
-	MUD::CfgManager().LoadCfg("region_messages");   // issue.regions: messages before regions
+	MUD::CfgManager().LoadCfg("region_msg");   // issue.regions: messages before regions
 	MUD::CfgManager().LoadCfg("regions");
-	MUD::CfgManager().LoadCfg("pc_race_messages");   // issue.player-races-rework: names before races
+	MUD::CfgManager().LoadCfg("pc_race_msg");   // issue.player-races-rework: names before races
 	MUD::CfgManager().LoadCfg("pc_races");
 
 	boot_profiler.next_step("Loading runestones for 'town portal' spell");
 	log("Booting runestones for 'town portal' spell");
-	MUD::CfgManager().LoadCfg("rune_stone_messages");   // issue.runestones: names before the registry
+	MUD::CfgManager().LoadCfg("rune_stone_msg");   // issue.runestones: names before the registry
 	MUD::CfgManager().LoadCfg("rune_stones");
 	MUD::Runestones().SpawnStones();   // phase 3: place the physical stone object into each room
 
@@ -1010,7 +1010,7 @@ void BootMudDataBase() {
 	// загрузка кейсов
 	boot_profiler.next_step("Loading treasure cases");
 	log("Loading treasure cases.");
-	MUD::CfgManager().LoadCfg("treasure_cases");   // issue.lib-template: cfg/mechanics/cases.xml
+	MUD::CfgManager().LoadCfg("cases");   // issue.lib-template: cfg/mechanics/cases.xml
 
 	// справка должна иниться после всего того, что может в нее что-то добавить
 	boot_profiler.next_step("Reloading help system");

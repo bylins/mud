@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="koi8-r"?>
 <!-- issue.cities: city display names, keyed by city vnum (matches cfg/mechanics/cities.xml).
      Loaded (city_messages) BEFORE cities. id="kDefault" is the shared fallback sheaf. -->
-<msg_container>
+<cities_msg>
 	<msg_sheaf id="kDefault">
 		<name val="Неизвестный город"/>
 	</msg_sheaf>
@@ -98,4 +98,4 @@
 	<msg_sheaf id="31">
 		<name val="Тверь"/>
 	</msg_sheaf>
-</msg_container>
+</cities_msg>

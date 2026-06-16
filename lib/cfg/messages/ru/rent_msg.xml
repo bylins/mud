@@ -5,7 +5,7 @@
     {perday} are fmt args. The assembled per-item rent listing (Crash_report_rent_item) and the general
     do_quit messages stay in code.
 -->
-<msg_container>
+<rent_msg>
 	<msg_sheaf id="kDefault">
 		<message type="kGreeting" val="Чего изволите?"/>
 		<message type="kCanLiveForever" val="Ты сможешь жить у меня до второго пришествия."/>
@@ -42,4 +42,4 @@
 		<message type="kSettleOffer" val="$n предложил$g $N2 поселиться у н$s."/>
 		<message type="kSettleWelcome" val="$N сказал$G вам : &quot;Примем в любое время и почти в любом состоянии!&quot;"/>
 	</msg_sheaf>
-</msg_container>
+</rent_msg>

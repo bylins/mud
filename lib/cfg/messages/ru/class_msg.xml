@@ -4,7 +4,7 @@
     Keyed by class id (ECharClass token). Loaded (class_messages) BEFORE classes.
     <name abbr=".."> + per-number <case id="kNom" val=".."/> declensions (singular/plural).
 -->
-<msg_container>
+<class_msg>
 	<msg_sheaf id="kAssasine">
 		<name abbr="Нм">
 			<singular>
@@ -345,4 +345,4 @@
 			</plural>
 		</name>
 	</msg_sheaf>
-</msg_container>
+</class_msg>

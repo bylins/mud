@@ -5,7 +5,7 @@
   per-language data dir). Undeclared nodes degrade to plain strings.
 -->
 <scheme>
-	<tag name="msg_container" desc="Currency display names, keyed by currency text_id">
+	<tag name="currency_msg" desc="Currency display names, keyed by currency text_id">
 		<child tag="msg_sheaf" multiple="Y"/>
 	</tag>
 	<tag name="msg_sheaf" desc="Names for one currency (id = its text_id)">

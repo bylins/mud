@@ -1,11 +1,11 @@
 <!--
   issue.vedun-msg-editor: editor scheme for skill_msg.xml (the skill message container).
-  Structure: <msg_container> -> <msg_sheaf id="<ESkill>"> -> <message type="<ESkillMsg>" val="text"/>.
+  Structure: <skill_msg> -> <msg_sheaf id="<ESkill>"> -> <message type="<ESkillMsg>" val="text"/>.
   Message text is in the `val` attribute. Optional sidecar; undeclared tags degrade to plain strings
   and are still validated on save by the skill-message loader.
 -->
 <scheme>
-	<tag name="msg_container" desc="Skill message container">
+	<tag name="skill_msg" desc="Skill message container">
 		<child tag="msg_sheaf" multiple="Y"/>
 	</tag>
 	<tag name="msg_sheaf" desc="Messages for one skill (kDefault = shared fallback)">

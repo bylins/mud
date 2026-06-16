@@ -103,10 +103,9 @@ std::string MakeCfgPath(CfgDir dir, std::string_view file) {
 }
 
 struct Registration {
-	std::string_view id;
-	CfgDir dir;              // подпространство cfg/ (см. MakeCfgPath)
-	std::string_view leaf;  // имя файла без расширения (.xml добавит MakeCfgPath)
-	std::string_view root;  // ожидаемый корневой элемент (для централизованной проверки разбора)
+	// issue.cfg-loader-keys: единый ключ = имя файла (без .xml) = корневой элемент XML.
+	std::string_view name;
+	CfgDir dir;             // подпространство cfg/ (см. MakeCfgPath)
 	LoaderPtr (*make)();
 };
 
@@ -114,75 +113,75 @@ struct Registration {
 
 CfgManager::CfgManager() {
 	const Registration registry[] = {
-		{"entity_names",        CfgDir::kMessagesRu, "entity_names",       "entity_names",        [] { return MakeLoader<entity_names::EntityNamesLoader>(); }},
-		{"mob_races",           CfgDir::kMechanics,  "mob_races",          "mob_races",           [] { return MakeLoader<mob_races::MobRacesLoader>(); }},
-		{"currency_messages",   CfgDir::kMessagesRu, "currency_msg",       "msg_container",       [] { return MakeLoader<currencies::CurrencyNamesLoader>(); }},
-		{"shop_item_sets",      CfgDir::kEconomics,  "shop_item_sets",     "shop_item_sets",      [] { return MakeLoader<ShopExt::ShopItemSetsLoader>(); }},
-		{"shops",               CfgDir::kEconomics,  "shops",              "shop_list",           [] { return MakeLoader<ShopExt::ShopsLoader>(); }},
-		{"currencies",          CfgDir::kEconomics,  "currencies",         "currencies",          [] { return MakeLoader<currencies::CurrenciesLoader>(); }},
-		{"class_messages",      CfgDir::kMessagesRu, "class_msg",          "msg_container",       [] { return MakeLoader<classes::ClassNamesLoader>(); }},
-		{"classes",             CfgDir::kClasses,    "pc_classes",         "classes",             [] { return MakeLoader<classes::ClassesLoader>(); }},
-		{"experience_table",    CfgDir::kRoot,       "experience_table",   "experience_table",    [] { return MakeLoader<experience::ExperienceTableLoader>(); }},
-		{"skills",              CfgDir::kRoot,       "skills",             "skills",              [] { return MakeLoader<SkillsLoader>(); }},
-		{"skill_messages",      CfgDir::kMessagesRu, "skill_msg",          "msg_container",       [] { return MakeLoader<skills::SkillMessagesLoader>(); }},
-		{"abilities",           CfgDir::kRoot,       "abilities",          "abilities",           [] { return MakeLoader<abilities::AbilitiesLoader>(); }},
-		{"spells",              CfgDir::kRoot,       "spells",             "spells",              [] { return MakeLoader<spells::SpellsLoader>(); }},
-		{"spell_messages",      CfgDir::kMessagesRu, "spell_msg",          "msg_container",       [] { return MakeLoader<spells::SpellMessagesLoader>(); }},
-		{"points_intensity",    CfgDir::kMessagesRu, "points_intensity",   "points_intensity",    [] { return MakeLoader<points_intensity::PointsIntensityLoader>(); }},
-		{"fight_messages",      CfgDir::kMessagesRu, "hit_msg",            "msg_container",       [] { return MakeLoader<fight::FightMessagesLoader>(); }},
-		{"feat_messages",       CfgDir::kMessagesRu, "feat_msg",           "msg_container",       [] { return MakeLoader<feats::FeatMessagesLoader>(); }},
-		{"feats",               CfgDir::kRoot,       "feats",              "feats",               [] { return MakeLoader<feats::FeatsLoader>(); }},
-		{"guild_messages",      CfgDir::kMessagesRu, "guild_msg",          "msg_container",       [] { return MakeLoader<guilds::GuildMessagesLoader>(); }},
-		{"special_messages",    CfgDir::kMessagesRu, "special_msg",        "msg_container",       [] { return MakeLoader<specials::SpecialMessagesLoader>(); }},
-		{"bank_messages",       CfgDir::kMessagesRu, "bank_msg",           "msg_container",       [] { return MakeLoader<specials::BankMessagesLoader>(); }},
-		{"mail_messages",       CfgDir::kMessagesRu, "mail_msg",           "msg_container",       [] { return MakeLoader<specials::MailMessagesLoader>(); }},
-		{"horse_messages",      CfgDir::kMessagesRu, "horse_msg",          "msg_container",       [] { return MakeLoader<specials::HorseMessagesLoader>(); }},
-		{"torc_messages",       CfgDir::kMessagesRu, "torc_msg",           "msg_container",       [] { return MakeLoader<specials::TorcMessagesLoader>(); }},
-		{"mercenary_messages",  CfgDir::kMessagesRu, "mercenary_msg",      "msg_container",       [] { return MakeLoader<specials::MercMessagesLoader>(); }},
-		{"exchange_messages",   CfgDir::kMessagesRu, "exchange_msg",       "msg_container",       [] { return MakeLoader<specials::ExchMessagesLoader>(); }},
-		{"rent_messages",       CfgDir::kMessagesRu, "rent_msg",           "msg_container",       [] { return MakeLoader<specials::RentMessagesLoader>(); }},
-		{"shop_messages",       CfgDir::kMessagesRu, "shop_msg",           "msg_container",       [] { return MakeLoader<specials::ShopMessagesLoader>(); }},
-		{"board_messages",      CfgDir::kMessagesRu, "board_msg",          "msg_container",       [] { return MakeLoader<specials::BoardMessagesLoader>(); }},
-		{"specials",            CfgDir::kRoot,       "specials",           "specials",            [] { return MakeLoader<SpecialsLoader>(); }},
-		{"affects",             CfgDir::kRoot,       "affects",            "affects",             [] { return MakeLoader<affects::AffectsLoader>(); }},
-		{"affect_messages",     CfgDir::kMessagesRu, "affect_msg",         "msg_container",       [] { return MakeLoader<affects::AffectMessagesLoader>(); }},
-		{"common_messages",     CfgDir::kMessagesRu, "common_msg",         "msg_container",       [] { return MakeLoader<CommonMessagesLoader>(); }},
-		{"socials",             CfgDir::kMessagesRu, "social_msg",         "socials",             [] { return MakeLoader<communication::social::SocialsLoader>(); }},
-		{"city_messages",       CfgDir::kMessagesRu, "cities_msg",         "msg_container",       [] { return MakeLoader<cities::CityMessagesLoader>(); }},
-		{"cities",              CfgDir::kMechanics,  "cities",             "cities",              [] { return MakeLoader<cities::CitiesLoader>(); }},
-		{"region_messages",     CfgDir::kMessagesRu, "region_msg",         "msg_container",       [] { return MakeLoader<regions::RegionMessagesLoader>(); }},
-		{"regions",             CfgDir::kMechanics,  "regions",            "regions",             [] { return MakeLoader<regions::RegionsLoader>(); }},
-		{"stable_objs",         CfgDir::kMechanics,  "stable_objs",        "equipment_positions", [] { return MakeLoader<stable_objs::StableObjsLoader>(); }},
-		{"global_drop",         CfgDir::kMechanics,  "global_drop",        "globaldrop",          [] { return MakeLoader<GlobalDrop::GlobalDropLoader>(); }},
-		{"group_exp_handicap",  CfgDir::kMechanics,  "group_exp_handicap", "group_exp_handicap",  [] { return MakeLoader<GroupPenaltiesLoader>(); }},
-		{"reset_stats",         CfgDir::kMechanics,  "reset_stats",        "reset_stats",         [] { return MakeLoader<stats_reset::ResetStatsLoader>(); }},
-		{"noob",                CfgDir::kMechanics,  "noob",               "noob_help",           [] { return MakeLoader<Noob::NoobLoader>(); }},
-		{"digging",             CfgDir::kMechanics,  "digging",            "digging",             [] { return MakeLoader<mining::DiggingLoader>(); }},
-		{"celebrates",          CfgDir::kMechanics,  "celebrates",         "celebrates",          [] { return MakeLoader<celebrates::CelebratesLoader>(); }},
-		{"guards",              CfgDir::kMechanics,  "guards",             "guardians",           [] { return MakeLoader<city_guards::CityGuardsLoader>(); }},
-		{"daily_quest",         CfgDir::kQuests,     "daily_quest",        "daily_quest",         [] { return MakeLoader<DailyQuest::DailyQuestLoader>(); }},
-		{"obj_sets",            CfgDir::kMechanics,  "obj_sets",           "obj_sets",            [] { return MakeLoader<obj_sets::ObjSetsLoader>(); }},
-		{"treasure_cases",      CfgDir::kMechanics,  "cases",              "cases",               [] { return MakeLoader<treasure_cases::TreasureCasesLoader>(); }},
-		{"jewelry",             CfgDir::kCraft,      "jewelry",            "jewelry",             [] { return MakeLoader<jewelry::JewelryLoader>(); }},
-		{"item_creation",       CfgDir::kCraft,      "item_creation",      "item_creation",       [] { return MakeLoader<ItemCreationLoader>(); }},
-		{"basic",               CfgDir::kRoot,       "basic",              "basic",               [] { return MakeLoader<BasicValuesLoader>(); }},
-		{"pc_race_messages",    CfgDir::kMessagesRu, "pc_race_msg",        "msg_container",       [] { return MakeLoader<player_races::RaceMessagesLoader>(); }},
-		{"pc_races",            CfgDir::kMechanics,  "pc_races",           "pc_races",            [] { return MakeLoader<player_races::PcRacesLoader>(); }},
-		{"guilds",              CfgDir::kMechanics,  "guilds",             "guilds",              [] { return MakeLoader<guilds::GuildsLoader>(); }},
-		{"zone_types",          CfgDir::kRoot,       "zone_types",         "zone_types",          [] { return MakeLoader<zone_types::ZoneTypesLoader>(); }},
-		{"rune_spells",         CfgDir::kMechanics,  "rune_spells",        "rune_spells",         [] { return MakeLoader<rune_spells::RuneSpellsLoader>(); }},
-		{"rune_stone_messages", CfgDir::kMessagesRu, "rune_stone_msg",     "msg_container",       [] { return MakeLoader<RuneStoneMessagesLoader>(); }},
-		{"rune_stones",         CfgDir::kMechanics,  "rune_stones",        "rune_stones",         [] { return MakeLoader<RuneStonesLoader>(); }},
-		{"mob_classes",         CfgDir::kRoot,       "mob_classes",        "mob_classes",         [] { return MakeLoader<mob_classes::MobClassesLoader>(); }},
-		{"privilege",           CfgDir::kRoot,       "privilege",          "privilege",           [] { return MakeLoader<privilege::PrivilegeLoader>(); }},
+		{"entity_names", CfgDir::kMessagesRu, [] { return MakeLoader<entity_names::EntityNamesLoader>(); }},
+		{"mob_races", CfgDir::kMechanics, [] { return MakeLoader<mob_races::MobRacesLoader>(); }},
+		{"currency_msg", CfgDir::kMessagesRu, [] { return MakeLoader<currencies::CurrencyNamesLoader>(); }},
+		{"shop_item_sets", CfgDir::kEconomics, [] { return MakeLoader<ShopExt::ShopItemSetsLoader>(); }},
+		{"shops", CfgDir::kEconomics, [] { return MakeLoader<ShopExt::ShopsLoader>(); }},
+		{"currencies", CfgDir::kEconomics, [] { return MakeLoader<currencies::CurrenciesLoader>(); }},
+		{"class_msg", CfgDir::kMessagesRu, [] { return MakeLoader<classes::ClassNamesLoader>(); }},
+		{"pc_classes", CfgDir::kClasses, [] { return MakeLoader<classes::ClassesLoader>(); }},
+		{"experience_table", CfgDir::kRoot, [] { return MakeLoader<experience::ExperienceTableLoader>(); }},
+		{"skills", CfgDir::kRoot, [] { return MakeLoader<SkillsLoader>(); }},
+		{"skill_msg", CfgDir::kMessagesRu, [] { return MakeLoader<skills::SkillMessagesLoader>(); }},
+		{"abilities", CfgDir::kRoot, [] { return MakeLoader<abilities::AbilitiesLoader>(); }},
+		{"spells", CfgDir::kRoot, [] { return MakeLoader<spells::SpellsLoader>(); }},
+		{"spell_msg", CfgDir::kMessagesRu, [] { return MakeLoader<spells::SpellMessagesLoader>(); }},
+		{"points_intensity", CfgDir::kMessagesRu, [] { return MakeLoader<points_intensity::PointsIntensityLoader>(); }},
+		{"hit_msg", CfgDir::kMessagesRu, [] { return MakeLoader<fight::FightMessagesLoader>(); }},
+		{"feat_msg", CfgDir::kMessagesRu, [] { return MakeLoader<feats::FeatMessagesLoader>(); }},
+		{"feats", CfgDir::kRoot, [] { return MakeLoader<feats::FeatsLoader>(); }},
+		{"guild_msg", CfgDir::kMessagesRu, [] { return MakeLoader<guilds::GuildMessagesLoader>(); }},
+		{"special_msg", CfgDir::kMessagesRu, [] { return MakeLoader<specials::SpecialMessagesLoader>(); }},
+		{"bank_msg", CfgDir::kMessagesRu, [] { return MakeLoader<specials::BankMessagesLoader>(); }},
+		{"mail_msg", CfgDir::kMessagesRu, [] { return MakeLoader<specials::MailMessagesLoader>(); }},
+		{"horse_msg", CfgDir::kMessagesRu, [] { return MakeLoader<specials::HorseMessagesLoader>(); }},
+		{"torc_msg", CfgDir::kMessagesRu, [] { return MakeLoader<specials::TorcMessagesLoader>(); }},
+		{"mercenary_msg", CfgDir::kMessagesRu, [] { return MakeLoader<specials::MercMessagesLoader>(); }},
+		{"exchange_msg", CfgDir::kMessagesRu, [] { return MakeLoader<specials::ExchMessagesLoader>(); }},
+		{"rent_msg", CfgDir::kMessagesRu, [] { return MakeLoader<specials::RentMessagesLoader>(); }},
+		{"shop_msg", CfgDir::kMessagesRu, [] { return MakeLoader<specials::ShopMessagesLoader>(); }},
+		{"board_msg", CfgDir::kMessagesRu, [] { return MakeLoader<specials::BoardMessagesLoader>(); }},
+		{"specials", CfgDir::kRoot, [] { return MakeLoader<SpecialsLoader>(); }},
+		{"affects", CfgDir::kRoot, [] { return MakeLoader<affects::AffectsLoader>(); }},
+		{"affect_msg", CfgDir::kMessagesRu, [] { return MakeLoader<affects::AffectMessagesLoader>(); }},
+		{"common_msg", CfgDir::kMessagesRu, [] { return MakeLoader<CommonMessagesLoader>(); }},
+		{"social_msg", CfgDir::kMessagesRu, [] { return MakeLoader<communication::social::SocialsLoader>(); }},
+		{"cities_msg", CfgDir::kMessagesRu, [] { return MakeLoader<cities::CityMessagesLoader>(); }},
+		{"cities", CfgDir::kMechanics, [] { return MakeLoader<cities::CitiesLoader>(); }},
+		{"region_msg", CfgDir::kMessagesRu, [] { return MakeLoader<regions::RegionMessagesLoader>(); }},
+		{"regions", CfgDir::kMechanics, [] { return MakeLoader<regions::RegionsLoader>(); }},
+		{"stable_objs", CfgDir::kMechanics, [] { return MakeLoader<stable_objs::StableObjsLoader>(); }},
+		{"global_drop", CfgDir::kMechanics, [] { return MakeLoader<GlobalDrop::GlobalDropLoader>(); }},
+		{"group_exp_handicap", CfgDir::kMechanics, [] { return MakeLoader<GroupPenaltiesLoader>(); }},
+		{"reset_stats", CfgDir::kMechanics, [] { return MakeLoader<stats_reset::ResetStatsLoader>(); }},
+		{"noob", CfgDir::kMechanics, [] { return MakeLoader<Noob::NoobLoader>(); }},
+		{"digging", CfgDir::kMechanics, [] { return MakeLoader<mining::DiggingLoader>(); }},
+		{"celebrates", CfgDir::kMechanics, [] { return MakeLoader<celebrates::CelebratesLoader>(); }},
+		{"guards", CfgDir::kMechanics, [] { return MakeLoader<city_guards::CityGuardsLoader>(); }},
+		{"daily_quest", CfgDir::kQuests, [] { return MakeLoader<DailyQuest::DailyQuestLoader>(); }},
+		{"obj_sets", CfgDir::kMechanics, [] { return MakeLoader<obj_sets::ObjSetsLoader>(); }},
+		{"cases", CfgDir::kMechanics, [] { return MakeLoader<treasure_cases::TreasureCasesLoader>(); }},
+		{"jewelry", CfgDir::kCraft, [] { return MakeLoader<jewelry::JewelryLoader>(); }},
+		{"item_creation", CfgDir::kCraft, [] { return MakeLoader<ItemCreationLoader>(); }},
+		{"basic", CfgDir::kRoot, [] { return MakeLoader<BasicValuesLoader>(); }},
+		{"pc_race_msg", CfgDir::kMessagesRu, [] { return MakeLoader<player_races::RaceMessagesLoader>(); }},
+		{"pc_races", CfgDir::kMechanics, [] { return MakeLoader<player_races::PcRacesLoader>(); }},
+		{"guilds", CfgDir::kMechanics, [] { return MakeLoader<guilds::GuildsLoader>(); }},
+		{"zone_types", CfgDir::kRoot, [] { return MakeLoader<zone_types::ZoneTypesLoader>(); }},
+		{"rune_spells", CfgDir::kMechanics, [] { return MakeLoader<rune_spells::RuneSpellsLoader>(); }},
+		{"rune_stone_msg", CfgDir::kMessagesRu, [] { return MakeLoader<RuneStoneMessagesLoader>(); }},
+		{"rune_stones", CfgDir::kMechanics, [] { return MakeLoader<RuneStonesLoader>(); }},
+		{"mob_classes", CfgDir::kRoot, [] { return MakeLoader<mob_classes::MobClassesLoader>(); }},
+		{"privilege", CfgDir::kRoot, [] { return MakeLoader<privilege::PrivilegeLoader>(); }},
 	};
 	for (const auto &reg : registry) {
-		const auto [it, inserted] = loaders_.emplace(std::string(reg.id),
-			LoaderInfo(MakeCfgPath(reg.dir, reg.leaf), std::string(reg.root), reg.make()));
+		const auto [it, inserted] = loaders_.emplace(std::string(reg.name),
+			LoaderInfo(MakeCfgPath(reg.dir, reg.name), reg.make()));
 		(void) it;
 		if (!inserted) {
 			err_log("CfgManager: повторная регистрация загрузчика '%s' - пропущена.",
-					std::string(reg.id).c_str());
+					std::string(reg.name).c_str());
 		}
 	}
 }
@@ -212,10 +211,10 @@ void CfgManager::Apply(const std::string &id, bool reload) {
 	}
 	// Корень не тот, что ожидали - это лишь предупреждение: всё равно грузим (главное, чтобы
 	// файл загрузился; кодовая база не всегда строго следует XML, корень может отличаться).
-	// Пустой info.root отключает проверку для конкретного загрузчика.
-	if (!info.root.empty() && info.root != data.GetName()) {
+	// issue.cfg-loader-keys: ожидаемый корень == ключ конфига (== имя файла).
+	if (id != data.GetName()) {
 		err_log("Cfg %s [%s]: неожиданный корень <%s> (ожидался <%s>) - грузим как есть (%s)",
-			reload ? "reload" : "load", id.c_str(), data.GetName(), info.root.c_str(),
+			reload ? "reload" : "load", id.c_str(), data.GetName(), id.c_str(),
 			info.file.string().c_str());
 	}
 	utils::CExecutionTimer build_timer;

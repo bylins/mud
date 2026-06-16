@@ -3,7 +3,7 @@
     issue.runestones: runestone display text. Per-stone sheaf (id = stone vnum) holds kName; the
     kDefault sheaf holds the shared text ({name}/{count}/{limit}). ("рунные метки" -> "рунные камни".)
 -->
-<msg_container>
+<rune_stone_msg>
 	<msg_sheaf id="kDefault">
 		<message type="kAliases" val="рунный камень"/>
 		<name search="рунный камень">
@@ -87,4 +87,4 @@
 	<msg_sheaf id="44"> <message type="kName" val="скифы"/>     </msg_sheaf>
 	<msg_sheaf id="45"> <message type="kName" val="степь"/>     </msg_sheaf>
 	<msg_sheaf id="46"> <message type="kName" val="выбор"/>     </msg_sheaf>
-</msg_container>
+</rune_stone_msg>

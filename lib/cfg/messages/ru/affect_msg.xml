@@ -6,7 +6,7 @@
     For standalone affects (cocoon/glow/status) kLook is a complete "...line "; for grouped affects
     (shields/auras) kLook is a bare fragment the frame joins. $a = looked-at char gender suffix.
 -->
-<msg_container>
+<affect_msg>
 	<msg_sheaf id="kDefault">
 		<message type="kShieldFrame" val="...окружен$a {list} {noun} "/>
 		<message type="kShieldNoun" val="щитом"/>
@@ -299,4 +299,4 @@
 	<msg_sheaf id="kFrenzy">
 		<message type="kShortDesc" val="исступление"/>
 	</msg_sheaf>
-</msg_container>
+</affect_msg>

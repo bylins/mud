@@ -2,7 +2,7 @@
 <!-- issue.player-races-rework: PC race display names, keyed by race vnum (matches pc_races.xml).
      <name> is the menu label; the four <message> forms are the gendered name (kNeutral/kMale/
      kFemale/kPoly) selected by the character sex. Loaded (pc_race_messages) BEFORE pc_races. -->
-<msg_container>
+<pc_race_msg>
 	<msg_sheaf id="kDefault">
 		<name val="неизвестные"/>
 	</msg_sheaf>
@@ -48,4 +48,4 @@
 		<message type="kFemale" val="Древлянка"/>
 		<message type="kPoly" val="Древляне"/>
 	</msg_sheaf>
-</msg_container>
+</pc_race_msg>

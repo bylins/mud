@@ -5,7 +5,7 @@
     EPosition gates; the six <message> slots are ESocialMsg. The &K..&n colour wrap is applied at
     send time, so message text here is raw. The set of socials is per-locale (this is the ru set).
 -->
-<socials>
+<social_msg>
 	<social vnum="0" keywords="улыбнуться|улыбка" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
 		<message type="kCharNoArg" val="Вы улыбнулись."/>
 		<message type="kOthersNoArg" val="Губы $n1 тронула улыбка."/>
@@ -1225,4 +1225,4 @@
 		<message type="kVictFound" val="У вас зазвенело в голове, когда $n влепил$g вам сочный щелбан."/>
 		<message type="kNotFound" val="Всенепременно! Только кому?"/>
 	</social>
-</socials>
+</social_msg>

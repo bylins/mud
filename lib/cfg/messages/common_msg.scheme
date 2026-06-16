@@ -1,9 +1,9 @@
 <!--
   issue.common-msg: Vedun scheme for common_msg.xml (shared engine strings).
-  <msg_container> -> <msg_sheaf id="kDefault"> -> <message type="<ECommonMsg>" val="text"/>.
+  <common_msg> -> <msg_sheaf id="kDefault"> -> <message type="<ECommonMsg>" val="text"/>.
 -->
 <scheme>
-	<tag name="msg_container" desc="Common engine message container">
+	<tag name="common_msg" desc="Common engine message container">
 		<child tag="msg_sheaf" multiple="Y"/>
 	</tag>
 	<tag name="msg_sheaf" desc="Shared messages (kDefault)">

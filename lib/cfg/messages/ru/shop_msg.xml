@@ -8,7 +8,7 @@
     localized header line is a message. Item-detail diagnostics (diag_weapon/diag_timer/MortShowObjValues)
     stay in code.
 -->
-<msg_container>
+<shop_msg>
 	<msg_sheaf id="kDefault">
 		<message type="kGreeting" val="Чего желаете?"/>
 		<message type="kError" val="Ошибочка вышла."/>
@@ -62,4 +62,4 @@
 		<message type="kCantAffordRepair" val="А вот их у тебя как-раз то и нет."/>
 		<message type="kRepaired" val="$n сноровисто починил$g $o3."/>
 	</msg_sheaf>
-</msg_container>
+</shop_msg>

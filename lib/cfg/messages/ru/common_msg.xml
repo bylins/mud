@@ -5,7 +5,7 @@
     attributes cannot hold newlines); the line messages get "\r\n" appended at the call site,
     kNothing is an inline fragment (no newline).
 -->
-<msg_container>
+<common_msg>
 	<msg_sheaf id="kDefault">
 		<message type="kSilenced" val="Вы немы, как рыба об лед."/>
 		<message type="kSoundproof" val="Стены заглушили ваши слова."/>
@@ -14,4 +14,4 @@
 		<message type="kNothing" val="ничего"/>
 		<message type="kBrokenScales" val="Весы богов сломаны и ваши заслуги не могут быть оценены."/>
 	</msg_sheaf>
-</msg_container>
+</common_msg>

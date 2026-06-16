@@ -5,7 +5,7 @@
     two-sentence originals are split into separate slots (no embedded newline). kUndelivered* form the
     reboot-recovery status (joined with newlines by the code; {count}/{names} are filled in).
 -->
-<msg_container>
+<mail_msg>
 	<msg_sheaf id="kDefault">
 		<message type="kGreeting" val="Что вам угодно на почте?"/>
 		<message type="kMailWaiting" val="$n сказал$g вам : 'Вас ожидает почта.'"/>
@@ -30,4 +30,4 @@
 		<message type="kUndeliveredCount" val="Количество писем: {count}."/>
 		<message type="kUndeliveredNames" val="Адресаты: {names}."/>
 	</msg_sheaf>
-</msg_container>
+</mail_msg>
