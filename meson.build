@@ -693,7 +693,6 @@ main_sources = files(
   'src/gameplay/mechanics/regions.cpp',
   'src/gameplay/mechanics/region_messages.cpp',
   'src/gameplay/mechanics/cities_messages.cpp',
-  'src/gameplay/quests/bodrich_quests.cpp',
   'src/engine/ui/cmd/do_affects.cpp',
   'src/engine/ui/cmd/do_toggle.cpp',
   'src/engine/ui/cmd/do_mode.cpp',
