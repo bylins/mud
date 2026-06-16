@@ -210,11 +210,13 @@ void CfgManager::Apply(const std::string &id, bool reload) {
 			reload ? "reload" : "load", id.c_str(), info.file.string().c_str());
 		return;
 	}
+	// Корень не тот, что ожидали - это лишь предупреждение: всё равно грузим (главное, чтобы
+	// файл загрузился; кодовая база не всегда строго следует XML, корень может отличаться).
+	// Пустой info.root отключает проверку для конкретного загрузчика.
 	if (!info.root.empty() && info.root != data.GetName()) {
-		err_log("Cfg %s [%s]: ПРОПУЩЕН - корень <%s> вместо ожидаемого <%s> (%s)",
+		err_log("Cfg %s [%s]: неожиданный корень <%s> (ожидался <%s>) - грузим как есть (%s)",
 			reload ? "reload" : "load", id.c_str(), data.GetName(), info.root.c_str(),
 			info.file.string().c_str());
-		return;
 	}
 	utils::CExecutionTimer build_timer;
 	if (reload) {
