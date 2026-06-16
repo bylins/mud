@@ -290,27 +290,6 @@ void LoadSheduledReboot() {
 	log("Setting up reboot_uptime: %i", shutdown_parameters.get_reboot_uptime());
 }
 
-// Базовая функция загрузки XML конфигов
-pugi::xml_node XmlLoad(const char *PathToFile, const char *MainTag, const char *ErrorStr, pugi::xml_document &Doc) {
-	std::ostringstream buffer;
-	pugi::xml_parse_result Result;
-	pugi::xml_node NodeList;
-
-	Result = Doc.load_file(PathToFile);
-	if (!Result) {
-		buffer << "..." << Result.description() << "(file: " << PathToFile << ")";
-		mudlog(std::string(buffer.str()).c_str(), CMP, kLvlImmortal, SYSLOG, true);
-		return NodeList;
-	}
-
-	NodeList = Doc.child(MainTag);
-	if (!NodeList) {
-		mudlog(ErrorStr, CMP, kLvlImmortal, SYSLOG, true);
-	}
-
-	return NodeList;
-}
-
 /// конверт поля GET_OBJ_SKILL в емкостях TODO: 12.2013
 int ConvertDrinkconSkillField(CObjectPrototype *obj, bool proto) {
 	if (obj->get_spec_param() > 0
