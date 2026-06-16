@@ -23,17 +23,7 @@ int MAX_LEVEL = 0;
 std::array<std::vector<int>, kNumPlayerClasses> class_list;
 
 // Целочисленный атрибут DataNode; def при отсутствии/некорректном значении.
-static int AttrInt(parser_wrapper::DataNode &node, const char *key, int def) {
-	const char *v = node.GetValue(key);
-	if (!v || !*v) {
-		return def;
-	}
-	try {
-		return parse::ReadAsInt(v);
-	} catch (const std::exception &) {
-		return def;
-	}
-}
+using parse::AttrInt;
 
 ///
 /// Чтение конфига cfg/mechanics/noob.xml через cfg_manager (boot + reload noobhelp).

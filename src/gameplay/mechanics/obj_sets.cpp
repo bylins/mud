@@ -29,21 +29,8 @@ const char *OBJ_SETS_FILE = "cfg/mechanics/obj_sets.xml";
 
 namespace {
 // issue.obj-sets: чтение атрибутов через ParserWrapper.
-int AttrInt(const parser_wrapper::DataNode &node, const char *key, int def = 0) {
-	const char *v = node.GetValue(key);
-	if (!v || !*v) {
-		return def;
-	}
-	try {
-		return parse::ReadAsInt(v);
-	} catch (const std::exception &) {
-		return def;
-	}
-}
-std::string AttrStr(const parser_wrapper::DataNode &node, const char *key) {
-	const char *v = node.GetValue(key);
-	return v ? v : "";
-}
+using parse::AttrInt;
+using parse::AttrStr;
 } // namespace
 /// мин/макс кол-во активаторов для валидного сета
 const unsigned MIN_ACTIVE_SIZE = 2;

@@ -18,17 +18,7 @@ using parser_wrapper::DataNode;
 
 // issue.celebrates: чтение целочисленного атрибута через ParserWrapper (parse::ReadAsInt
 // бросает на пустой строке), с дефолтом при отсутствии/ошибке.
-int AttrInt(const DataNode &node, const char *key, int def = 0) {
-	const char *v = node.GetValue(key);
-	if (!v || !*v) {
-		return def;
-	}
-	try {
-		return parse::ReadAsInt(v);
-	} catch (const std::exception &) {
-		return def;
-	}
-}
+using parse::AttrInt;
 
 const int kCleanPeriod{10};
 

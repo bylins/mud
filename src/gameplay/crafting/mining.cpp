@@ -29,17 +29,7 @@ DiggingCfg dig_cfg;
 namespace {
 
 // Целочисленный атрибут DataNode; def при отсутствии/некорректном значении.
-int AttrInt(parser_wrapper::DataNode &node, const char *key, int def) {
-	const char *v = node.GetValue(key);
-	if (!v || !*v) {
-		return def;
-	}
-	try {
-		return parse::ReadAsInt(v);
-	} catch (const std::exception &) {
-		return def;
-	}
-}
+using parse::AttrInt;
 
 // Разбор списка vnum'ов вида "900|901|902" в вектор.
 std::vector<int> ParseVnumList(const char *value) {

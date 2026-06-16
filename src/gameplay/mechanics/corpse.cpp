@@ -110,17 +110,7 @@ std::vector<global_drop_obj> drop_list_obj;
 const char *STAT_FILE = LIB_PLRSTUFF"global_drop.tmp";
 
 // Целочисленный атрибут DataNode; def при отсутствии/некорректном значении.
-static int AttrInt(parser_wrapper::DataNode &node, const char *key, int def) {
-	const char *v = node.GetValue(key);
-	if (!v || !*v) {
-		return def;
-	}
-	try {
-		return parse::ReadAsInt(v);
-	} catch (const std::exception &) {
-		return def;
-	}
-}
+using parse::AttrInt;
 
 void GlobalDropLoader::Load(parser_wrapper::DataNode data) {
 	// на случай релоада -- чистим все списки
