@@ -38,6 +38,10 @@ class DataNode {
 
 	explicit DataNode(const std::filesystem::path &file_name);
 
+	// issue.cfg-manager: свежий пустой документ, чей курсор стоит на узле-документе, так что
+	// первый AddChild() создаёт корневой элемент. Для построения DOM с нуля (например, для записи).
+	[[nodiscard]] static DataNode NewDocument();
+
 	DataNode(const DataNode &d);
 
 	DataNode(DataNode &&d) noexcept;

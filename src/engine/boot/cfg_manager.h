@@ -33,6 +33,10 @@ class ICfgLoader {
  public:
 	virtual void Load(parser_wrapper::DataNode data) = 0;
 	virtual void Reload(parser_wrapper::DataNode data) = 0;
+	// issue.cfg-manager: сериализовать текущее состояние в DOM (зеркало Load). По умолчанию -
+	// пусто (большинство конфигов только читаются). Переопределяют загрузчики, которые умеют
+	// сохраняться по запросу CfgManager::SaveCfg(id) - они не знают ни пути, ни имени файла.
+	virtual void Save(parser_wrapper::DataNode &/*doc*/) const {}
 	virtual ~ICfgLoader() = default;
 };
 
@@ -95,8 +99,17 @@ class CfgManager {
 	void LoadCfg(const std::string &id);
 	void ReloadCfg(const std::string &id);
 
+	// issue.cfg-manager: запись конфига по запросу - вызывающий не знает ни пути, ни имени файла,
+	// только свой строковый id. CfgManager сам решает, в какой файл писать (по таблице регистрации),
+	// и пишет атомарно (во временный файл + rename).
+	//  - SaveCfg(id): пересборка из памяти - строит пустой DOM, зовёт loader->Save(doc), пишет.
+	//  - Save(id, doc): записать уже готовый DOM (для правок на месте: Vedun, рунные камни).
+	bool SaveCfg(const std::string &id);
+	bool Save(const std::string &id, const parser_wrapper::DataNode &doc);
+
 	// issue.vedun-editor: the editor's discovery surface (loaders implementing IEditableCfgLoader).
 	struct EditableEntry {
+		std::string id;     // issue.cfg-manager: registry id (for CfgManager::Save(id, doc))
 		std::string what;
 		std::filesystem::path file;
 		IEditableCfgLoader *loader;

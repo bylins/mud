@@ -192,12 +192,50 @@ void CfgManager::LoadCfg(const std::string &id) {
 	Apply(id, /*reload=*/false);
 }
 
+// issue.cfg-manager: атомарная запись готового DOM в файл, зарегистрированный за `id`
+// (во временный .new + rename). Вызывающий не знает ни пути, ни имени файла.
+bool CfgManager::Save(const std::string &id, const parser_wrapper::DataNode &doc) {
+	const auto it = loaders_.find(id);
+	if (it == loaders_.end()) {
+		err_log("CfgManager::Save: неизвестный id конфига (%s)", id.c_str());
+		return false;
+	}
+	const auto &file = it->second.file;
+	std::filesystem::path tmp = file;
+	tmp += ".new";
+	if (!doc.Save(tmp)) {
+		err_log("CfgManager::Save: не удалось записать %s", tmp.string().c_str());
+		return false;
+	}
+	std::error_code ec;
+	std::filesystem::rename(tmp, file, ec);
+	if (ec) {
+		std::filesystem::remove(tmp, ec);
+		err_log("CfgManager::Save: не удалось заменить %s (%s)", file.string().c_str(), ec.message().c_str());
+		return false;
+	}
+	return true;
+}
+
+// issue.cfg-manager: пересборка конфига из памяти - строим пустой документ, даём загрузчику
+// заполнить его (loader->Save) и пишем по зарегистрированному пути.
+bool CfgManager::SaveCfg(const std::string &id) {
+	const auto it = loaders_.find(id);
+	if (it == loaders_.end()) {
+		err_log("CfgManager::SaveCfg: неизвестный id конфига (%s)", id.c_str());
+		return false;
+	}
+	auto doc = parser_wrapper::DataNode::NewDocument();
+	it->second.loader->Save(doc);
+	return Save(id, doc);
+}
+
 // issue.vedun-editor: enumerate loaders that opted into editing (implement IEditableCfgLoader).
 std::vector<CfgManager::EditableEntry> CfgManager::EditableEntries() const {
 	std::vector<EditableEntry> out;
 	for (const auto &[id, info] : loaders_) {
 		if (auto *editable = dynamic_cast<IEditableCfgLoader *>(info.loader.get())) {
-			out.push_back({editable->EditableWhat(), info.file, editable});
+			out.push_back({id, editable->EditableWhat(), info.file, editable});
 		}
 	}
 	return out;

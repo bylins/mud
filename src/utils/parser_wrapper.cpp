@@ -28,6 +28,13 @@ DataNode::DataNode(const std::filesystem::path &file_name) :
 	impl_->curren_xml_node = impl_->xml_doc->document_element();
 }
 
+DataNode DataNode::NewDocument() {
+	DataNode d;
+	// Курсор на сам документ (pugi::xml_document : xml_node), чтобы первый AddChild создал корень.
+	d.impl_->curren_xml_node = *d.impl_->xml_doc;
+	return d;
+}
+
 DataNode::DataNode(const DataNode &d) :
 	impl_{std::make_unique<Impl>(*d.impl_)} {}
 

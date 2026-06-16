@@ -5,7 +5,6 @@
 #include "utils/grammar/declensions.h"
 #include "gameplay/mechanics/minions.h"
 #include "obj_sets_stuff.h"
-#include "third_party_libs/pugixml/pugixml.h"   // issue.obj-sets: всё ещё нужен для save()
 #include "utils/parser_wrapper.h"   // issue.obj-sets: загрузка через ParserWrapper
 #include "utils/parse.h"
 #include "engine/ui/color.h"
@@ -23,9 +22,7 @@ int SetNode::uid_cnt = 0;
 
 std::set<int> list_vnum;
 
-// issue.obj-sets: перенесён из misc/ в cfg/mechanics/ (путь относительно мира, как и в
-// CfgManager). save() пишет сюда же.
-const char *OBJ_SETS_FILE = "cfg/mechanics/obj_sets.xml";
+// issue.cfg-manager: путь к файлу знает CfgManager (id "obj_sets"); загрузчик его не знает.
 
 namespace {
 // issue.obj-sets: чтение атрибутов через ParserWrapper.
@@ -338,7 +335,7 @@ void InitMsgNode(SetMsgNode &node, const parser_wrapper::DataNode &xml_msg) {
 /// лоад при старте мада, релоад через 'reload objsets'. data = корень <obj_sets>
 /// (его строит CfgManager через ParserWrapper). В конце нормализуем файл через save().
 void ObjSetsLoader::Load(parser_wrapper::DataNode data) {
-	log("Loadind %s: start", OBJ_SETS_FILE);
+	log("Loadind obj_sets: start");
 	sets_list.clear();
 	init_global_msg();
 
@@ -438,7 +435,7 @@ void ObjSetsLoader::Load(parser_wrapper::DataNode data) {
 	}
 
 	init_obj_index();
-	log("Loadind %s: done", OBJ_SETS_FILE);
+	log("Loadind obj_sets: done");
 	save();
 }
 
@@ -447,131 +444,114 @@ void ObjSetsLoader::Reload(parser_wrapper::DataNode data) {
 }
 
 /// сохранения структуры сообщений в конфиг
-void save_messages(pugi::xml_node &xml, SetMsgNode &msg) {
-	// issue.obj-sets: сообщения теперь атрибуты <messages char_on=.. char_off=.. room_on=.. room_off=../>
+void save_messages(parser_wrapper::DataNode &parent, const SetMsgNode &msg) {
+	// issue.obj-sets: сообщения - атрибуты <messages char_on=.. char_off=.. room_on=.. room_off=../>
 	if (msg.char_on_msg.empty()
 		&& msg.char_off_msg.empty()
 		&& msg.room_on_msg.empty()
 		&& msg.room_off_msg.empty()) {
 		return;
 	}
-	pugi::xml_node xml_messages = xml.append_child("messages");
+	auto m = parent.AddChild("messages");
 	if (!msg.char_on_msg.empty()) {
-		xml_messages.append_attribute("char_on") = msg.char_on_msg.c_str();
+		m.SetValue("char_on", msg.char_on_msg);
 	}
 	if (!msg.char_off_msg.empty()) {
-		xml_messages.append_attribute("char_off") = msg.char_off_msg.c_str();
+		m.SetValue("char_off", msg.char_off_msg);
 	}
 	if (!msg.room_on_msg.empty()) {
-		xml_messages.append_attribute("room_on") = msg.room_on_msg.c_str();
+		m.SetValue("room_on", msg.room_on_msg);
 	}
 	if (!msg.room_off_msg.empty()) {
-		xml_messages.append_attribute("room_off") = msg.room_off_msg.c_str();
+		m.SetValue("room_off", msg.room_off_msg);
 	}
 }
 
-/// сохранение конфига, пишутся и выключенные, и пустые сеты
-void save() {
-	log("Saving %s: start", OBJ_SETS_FILE);
+/// issue.cfg-manager: пересборка всех сетов (включая выключенные и пустые) в DOM из памяти.
+/// Какой файл и куда писать - решает CfgManager (id "obj_sets"); загрузчик пути не знает.
+void ObjSetsLoader::Save(parser_wrapper::DataNode &doc) const {
 	char buf_[256];
-	pugi::xml_document doc;
-	pugi::xml_node xml_obj_sets = doc.append_child("obj_sets");
-	// obj_sets/messages
-	save_messages(xml_obj_sets, global_msg);
+	auto root = doc.AddChild("obj_sets");
+	save_messages(root, global_msg);
 
-	for (auto & i : sets_list) {
-		// obj_sets/set
-		pugi::xml_node xml_set = xml_obj_sets.append_child("set");
+	for (auto &i : sets_list) {
+		auto xset = root.AddChild("set");
 		if (!i->name.empty()) {
-			xml_set.append_attribute("name") = i->name.c_str();
+			xset.SetValue("name", i->name);
 		}
 		if (!i->alias.empty()) {
-			xml_set.append_attribute("alias") = i->alias.c_str();
+			xset.SetValue("alias", i->alias);
 		}
 		if (!i->comment.empty()) {
-			xml_set.append_attribute("comment") = i->comment.c_str();
+			xset.SetValue("comment", i->comment);
 		}
 		if (!i->enabled) {
-			xml_set.append_attribute("enabled") = 0;
+			xset.SetValue("enabled", "0");
 		}
-		// set/messages
-		save_messages(xml_set, i->messages);
-		// set/obj
-		for (auto & o : i->obj_list) {
-			pugi::xml_node xml_obj = xml_set.append_child("obj");
-			xml_obj.append_attribute("vnum") = o.first;
-			save_messages(xml_obj, o.second);
+		save_messages(xset, i->messages);
+		for (auto &o : i->obj_list) {
+			auto xobj = xset.AddChild("obj");
+			xobj.SetValue("vnum", std::to_string(o.first));
+			save_messages(xobj, o.second);
 		}
-		// set/activ
-		for (auto & k : i->activ_list) {
-			pugi::xml_node xml_activ = xml_set.append_child("activ");
-			xml_activ.append_attribute("size") = k.first;
+		for (auto &k : i->activ_list) {
+			auto xa = xset.AddChild("activ");
+			xa.SetValue("size", std::to_string(k.first));
 			if (!k.second.prof.all()) {
-				xml_activ.append_attribute("prof")
-					= k.second.prof.to_string().c_str();
+				xa.SetValue("prof", k.second.prof.to_string());
 			}
 			if (k.second.npc) {
-				xml_activ.append_attribute("npc") = k.second.npc;
+				xa.SetValue("npc", "true");
 			}
-			// set/activ/affects (issue.obj-sets: атрибут вместо текста тега)
+			// issue.obj-sets: аффекты - атрибут (tascii добавляет хвостовой пробел - срезаем)
 			if (!k.second.affects.empty()) {
 				*buf_ = '\0';
 				k.second.affects.tascii(FlagData::kPlanesNumber, buf_, sizeof(buf_));
-				// tascii добавляет хвостовой пробел - убираем для чистоты атрибута
 				for (char *p = buf_ + strlen(buf_); p > buf_ && *(p - 1) == ' '; --p) {
 					*(p - 1) = '\0';
 				}
-				xml_activ.append_attribute("affects") = buf_;
+				xa.SetValue("affects", buf_);
 			}
-			// set/activ/apply
-			for (auto & m : k.second.apply) {
+			for (auto &m : k.second.apply) {
 				if (m.location > 0 && m.location < EApply::kNumberApplies && m.modifier) {
-					pugi::xml_node xml_apply = xml_activ.append_child("apply");
-					xml_apply.append_attribute("loc") = m.location;
-					xml_apply.append_attribute("mod") = m.modifier;
+					auto xap = xa.AddChild("apply");
+					xap.SetValue("loc", std::to_string(to_underlying(m.location)));
+					xap.SetValue("mod", std::to_string(m.modifier));
 				}
 			}
-			// set/activ/skill
 			if (MUD::Skills().IsValid(k.second.skill.first)) {
-				pugi::xml_node xml_skill = xml_activ.append_child("skill");
-				xml_skill.append_attribute("num") = to_underlying(k.second.skill.first);
-				xml_skill.append_attribute("val") = k.second.skill.second;
+				auto xs = xa.AddChild("skill");
+				xs.SetValue("num", std::to_string(to_underlying(k.second.skill.first)));
+				xs.SetValue("val", std::to_string(k.second.skill.second));
 			}
-			// set/activ/enchant
 			if (k.second.enchant.first > 0) {
-				pugi::xml_node xml_enchant = xml_activ.append_child("enchant");
-				xml_enchant.append_attribute("vnum") = k.second.enchant.first;
+				auto xe = xa.AddChild("enchant");
+				xe.SetValue("vnum", std::to_string(k.second.enchant.first));
 				if (k.second.enchant.second.weight > 0) {
-					xml_enchant.append_attribute("weight") =
-						k.second.enchant.second.weight;
+					xe.SetValue("weight", std::to_string(k.second.enchant.second.weight));
 				}
 				if (k.second.enchant.second.ndice > 0) {
-					xml_enchant.append_attribute("ndice") =
-						k.second.enchant.second.ndice;
+					xe.SetValue("ndice", std::to_string(k.second.enchant.second.ndice));
 				}
 				if (k.second.enchant.second.sdice) {
-					xml_enchant.append_attribute("sdice") =
-						k.second.enchant.second.sdice;
+					xe.SetValue("sdice", std::to_string(k.second.enchant.second.sdice));
 				}
 			}
-			// set/activ/phys_dmg
 			if (k.second.bonus.phys_dmg > 0) {
-				pugi::xml_node xml_bonus = xml_activ.append_child("phys_dmg");
-				xml_bonus.append_attribute("pct") = k.second.bonus.phys_dmg;
+				auto x = xa.AddChild("phys_dmg");
+				x.SetValue("pct", std::to_string(k.second.bonus.phys_dmg));
 			}
-			// set/activ/mage_dmg
 			if (k.second.bonus.mage_dmg > 0) {
-				pugi::xml_node xml_bonus = xml_activ.append_child("mage_dmg");
-				xml_bonus.append_attribute("pct") = k.second.bonus.mage_dmg;
+				auto x = xa.AddChild("mage_dmg");
+				x.SetValue("pct", std::to_string(k.second.bonus.mage_dmg));
 			}
 		}
 	}
+}
 
-	pugi::xml_node decl = doc.prepend_child(pugi::node_declaration);
-	decl.append_attribute("version") = "1.0";
-	decl.append_attribute("encoding") = "koi8-r";
-	doc.save_file(OBJ_SETS_FILE);
-	log("Saving %s: done", OBJ_SETS_FILE);
+/// сохранение по запросу: CfgManager сам выбирает файл по id "obj_sets" и пишет атомарно.
+void save() {
+	MUD::CfgManager().SaveCfg("obj_sets");
 }
 ///Создание и заполнение списка сетового набора по 1 вещи из набора
 std::set<int> vnum_list_add(int vnum) {
