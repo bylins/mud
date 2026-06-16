@@ -339,10 +339,6 @@ void ObjSetsLoader::Load(parser_wrapper::DataNode data) {
 	sets_list.clear();
 	init_global_msg();
 
-	if (data.IsEmpty() || !data.GetName() || strcmp(data.GetName(), "obj_sets") != 0) {
-		err_log("<obj_sets> read fail");
-		return;
-	}
 	// <messages> - глобальные
 	{
 		auto xml_msg = data;

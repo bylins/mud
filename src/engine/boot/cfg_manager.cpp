@@ -83,6 +83,7 @@ LoaderPtr MakeLoader() {
 struct Registration {
 	std::string_view id;
 	std::string_view path;
+	std::string_view root;   // ожидаемый корневой элемент (для централизованной проверки разбора)
 	LoaderPtr (*make)();
 };
 
@@ -90,71 +91,71 @@ struct Registration {
 
 CfgManager::CfgManager() {
 	const Registration registry[] = {
-		{"entity_names",        "cfg/messages/ru/entity_names.xml",     [] { return MakeLoader<entity_names::EntityNamesLoader>(); }},
-		{"mob_races",           "cfg/mechanics/mob_races.xml",          [] { return MakeLoader<mob_races::MobRacesLoader>(); }},
-		{"currency_messages",   "cfg/messages/ru/currency_msg.xml",     [] { return MakeLoader<currencies::CurrencyNamesLoader>(); }},
-		{"shop_item_sets",      "cfg/economics/shop_item_sets.xml",     [] { return MakeLoader<ShopExt::ShopItemSetsLoader>(); }},
-		{"shops",               "cfg/economics/shops.xml",              [] { return MakeLoader<ShopExt::ShopsLoader>(); }},
-		{"currencies",          "cfg/economics/currencies.xml",         [] { return MakeLoader<currencies::CurrenciesLoader>(); }},
-		{"class_messages",      "cfg/messages/ru/class_msg.xml",        [] { return MakeLoader<classes::ClassNamesLoader>(); }},
-		{"classes",             "cfg/classes/pc_classes.xml",           [] { return MakeLoader<classes::ClassesLoader>(); }},
-		{"experience_table",    "cfg/experience_table.xml",             [] { return MakeLoader<experience::ExperienceTableLoader>(); }},
-		{"skills",              "cfg/skills.xml",                       [] { return MakeLoader<SkillsLoader>(); }},
-		{"skill_messages",      "cfg/messages/ru/skill_msg.xml",        [] { return MakeLoader<skills::SkillMessagesLoader>(); }},
-		{"abilities",           "cfg/abilities.xml",                    [] { return MakeLoader<abilities::AbilitiesLoader>(); }},
-		{"spells",              "cfg/spells.xml",                       [] { return MakeLoader<spells::SpellsLoader>(); }},
-		{"spell_messages",      "cfg/messages/ru/spell_msg.xml",        [] { return MakeLoader<spells::SpellMessagesLoader>(); }},
-		{"points_intensity",    "cfg/messages/ru/points_intensity.xml", [] { return MakeLoader<points_intensity::PointsIntensityLoader>(); }},
-		{"fight_messages",      "cfg/messages/ru/hit_msg.xml",          [] { return MakeLoader<fight::FightMessagesLoader>(); }},
-		{"feat_messages",       "cfg/messages/ru/feat_msg.xml",         [] { return MakeLoader<feats::FeatMessagesLoader>(); }},
-		{"feats",               "cfg/feats.xml",                        [] { return MakeLoader<feats::FeatsLoader>(); }},
-		{"guild_messages",      "cfg/messages/ru/guild_msg.xml",        [] { return MakeLoader<guilds::GuildMessagesLoader>(); }},
-		{"special_messages",    "cfg/messages/ru/special_msg.xml",      [] { return MakeLoader<specials::SpecialMessagesLoader>(); }},
-		{"bank_messages",       "cfg/messages/ru/bank_msg.xml",         [] { return MakeLoader<specials::BankMessagesLoader>(); }},
-		{"mail_messages",       "cfg/messages/ru/mail_msg.xml",         [] { return MakeLoader<specials::MailMessagesLoader>(); }},
-		{"horse_messages",      "cfg/messages/ru/horse_msg.xml",        [] { return MakeLoader<specials::HorseMessagesLoader>(); }},
-		{"torc_messages",       "cfg/messages/ru/torc_msg.xml",         [] { return MakeLoader<specials::TorcMessagesLoader>(); }},
-		{"mercenary_messages",  "cfg/messages/ru/mercenary_msg.xml",    [] { return MakeLoader<specials::MercMessagesLoader>(); }},
-		{"exchange_messages",   "cfg/messages/ru/exchange_msg.xml",     [] { return MakeLoader<specials::ExchMessagesLoader>(); }},
-		{"rent_messages",       "cfg/messages/ru/rent_msg.xml",         [] { return MakeLoader<specials::RentMessagesLoader>(); }},
-		{"shop_messages",       "cfg/messages/ru/shop_msg.xml",         [] { return MakeLoader<specials::ShopMessagesLoader>(); }},
-		{"board_messages",      "cfg/messages/ru/board_msg.xml",        [] { return MakeLoader<specials::BoardMessagesLoader>(); }},
-		{"specials",            "cfg/specials.xml",                     [] { return MakeLoader<SpecialsLoader>(); }},
-		{"affects",             "cfg/affects.xml",                      [] { return MakeLoader<affects::AffectsLoader>(); }},
-		{"affect_messages",     "cfg/messages/ru/affect_msg.xml",       [] { return MakeLoader<affects::AffectMessagesLoader>(); }},
-		{"common_messages",     "cfg/messages/ru/common_msg.xml",       [] { return MakeLoader<CommonMessagesLoader>(); }},
-		{"socials",             "cfg/messages/ru/social_msg.xml",       [] { return MakeLoader<communication::social::SocialsLoader>(); }},
-		{"city_messages",       "cfg/messages/ru/cities_msg.xml",       [] { return MakeLoader<cities::CityMessagesLoader>(); }},
-		{"cities",              "cfg/mechanics/cities.xml",             [] { return MakeLoader<cities::CitiesLoader>(); }},
-		{"region_messages",     "cfg/messages/ru/region_msg.xml",       [] { return MakeLoader<regions::RegionMessagesLoader>(); }},
-		{"regions",             "cfg/mechanics/regions.xml",            [] { return MakeLoader<regions::RegionsLoader>(); }},
-		{"stable_objs",         "cfg/mechanics/stable_objs.xml",        [] { return MakeLoader<stable_objs::StableObjsLoader>(); }},
-		{"global_drop",         "cfg/mechanics/global_drop.xml",        [] { return MakeLoader<GlobalDrop::GlobalDropLoader>(); }},
-		{"group_exp_handicap",  "cfg/mechanics/group_exp_handicap.xml", [] { return MakeLoader<GroupPenaltiesLoader>(); }},
-		{"reset_stats",         "cfg/mechanics/reset_stats.xml",        [] { return MakeLoader<stats_reset::ResetStatsLoader>(); }},
-		{"noob",                "cfg/mechanics/noob.xml",               [] { return MakeLoader<Noob::NoobLoader>(); }},
-		{"digging",             "cfg/mechanics/digging.xml",            [] { return MakeLoader<mining::DiggingLoader>(); }},
-		{"celebrates",          "cfg/mechanics/celebrates.xml",         [] { return MakeLoader<celebrates::CelebratesLoader>(); }},
-		{"guards",              "cfg/mechanics/guards.xml",             [] { return MakeLoader<city_guards::CityGuardsLoader>(); }},
-		{"daily_quest",         "cfg/quests/daily_quest.xml",           [] { return MakeLoader<DailyQuest::DailyQuestLoader>(); }},
-		{"obj_sets",            "cfg/mechanics/obj_sets.xml",           [] { return MakeLoader<obj_sets::ObjSetsLoader>(); }},
-		{"treasure_cases",      "cfg/mechanics/cases.xml",              [] { return MakeLoader<treasure_cases::TreasureCasesLoader>(); }},
-		{"jewelry",             "cfg/craft/jewelry.xml",                [] { return MakeLoader<jewelry::JewelryLoader>(); }},
-		{"item_creation",       "cfg/craft/item_creation.xml",          [] { return MakeLoader<ItemCreationLoader>(); }},
-		{"basic",               "cfg/basic.xml",                        [] { return MakeLoader<BasicValuesLoader>(); }},
-		{"pc_race_messages",    "cfg/messages/ru/pc_race_msg.xml",      [] { return MakeLoader<player_races::RaceMessagesLoader>(); }},
-		{"pc_races",            "cfg/mechanics/pc_races.xml",           [] { return MakeLoader<player_races::PcRacesLoader>(); }},
-		{"guilds",              "cfg/mechanics/guilds.xml",             [] { return MakeLoader<guilds::GuildsLoader>(); }},
-		{"zone_types",          "cfg/zone_types.xml",                   [] { return MakeLoader<zone_types::ZoneTypesLoader>(); }},
-		{"rune_spells",         "cfg/mechanics/rune_spells.xml",        [] { return MakeLoader<rune_spells::RuneSpellsLoader>(); }},
-		{"rune_stone_messages", "cfg/messages/ru/rune_stone_msg.xml",   [] { return MakeLoader<RuneStoneMessagesLoader>(); }},
-		{"rune_stones",         "cfg/mechanics/rune_stones.xml",        [] { return MakeLoader<RuneStonesLoader>(); }},
-		{"mob_classes",         "cfg/mob_classes.xml",                  [] { return MakeLoader<mob_classes::MobClassesLoader>(); }},
-		{"privilege",           "cfg/privilege.xml",                    [] { return MakeLoader<privilege::PrivilegeLoader>(); }},
+		{"entity_names",        "cfg/messages/ru/entity_names.xml",     "entity_names",        [] { return MakeLoader<entity_names::EntityNamesLoader>(); }},
+		{"mob_races",           "cfg/mechanics/mob_races.xml",          "mob_races",           [] { return MakeLoader<mob_races::MobRacesLoader>(); }},
+		{"currency_messages",   "cfg/messages/ru/currency_msg.xml",     "msg_container",       [] { return MakeLoader<currencies::CurrencyNamesLoader>(); }},
+		{"shop_item_sets",      "cfg/economics/shop_item_sets.xml",     "shop_item_sets",      [] { return MakeLoader<ShopExt::ShopItemSetsLoader>(); }},
+		{"shops",               "cfg/economics/shops.xml",              "shop_list",           [] { return MakeLoader<ShopExt::ShopsLoader>(); }},
+		{"currencies",          "cfg/economics/currencies.xml",         "currencies",          [] { return MakeLoader<currencies::CurrenciesLoader>(); }},
+		{"class_messages",      "cfg/messages/ru/class_msg.xml",        "msg_container",       [] { return MakeLoader<classes::ClassNamesLoader>(); }},
+		{"classes",             "cfg/classes/pc_classes.xml",           "classes",             [] { return MakeLoader<classes::ClassesLoader>(); }},
+		{"experience_table",    "cfg/experience_table.xml",             "experience_table",    [] { return MakeLoader<experience::ExperienceTableLoader>(); }},
+		{"skills",              "cfg/skills.xml",                       "skills",              [] { return MakeLoader<SkillsLoader>(); }},
+		{"skill_messages",      "cfg/messages/ru/skill_msg.xml",        "msg_container",       [] { return MakeLoader<skills::SkillMessagesLoader>(); }},
+		{"abilities",           "cfg/abilities.xml",                    "abilities",           [] { return MakeLoader<abilities::AbilitiesLoader>(); }},
+		{"spells",              "cfg/spells.xml",                       "spells",              [] { return MakeLoader<spells::SpellsLoader>(); }},
+		{"spell_messages",      "cfg/messages/ru/spell_msg.xml",        "msg_container",       [] { return MakeLoader<spells::SpellMessagesLoader>(); }},
+		{"points_intensity",    "cfg/messages/ru/points_intensity.xml", "points_intensity",    [] { return MakeLoader<points_intensity::PointsIntensityLoader>(); }},
+		{"fight_messages",      "cfg/messages/ru/hit_msg.xml",          "msg_container",       [] { return MakeLoader<fight::FightMessagesLoader>(); }},
+		{"feat_messages",       "cfg/messages/ru/feat_msg.xml",         "msg_container",       [] { return MakeLoader<feats::FeatMessagesLoader>(); }},
+		{"feats",               "cfg/feats.xml",                        "feats",               [] { return MakeLoader<feats::FeatsLoader>(); }},
+		{"guild_messages",      "cfg/messages/ru/guild_msg.xml",        "msg_container",       [] { return MakeLoader<guilds::GuildMessagesLoader>(); }},
+		{"special_messages",    "cfg/messages/ru/special_msg.xml",      "msg_container",       [] { return MakeLoader<specials::SpecialMessagesLoader>(); }},
+		{"bank_messages",       "cfg/messages/ru/bank_msg.xml",         "msg_container",       [] { return MakeLoader<specials::BankMessagesLoader>(); }},
+		{"mail_messages",       "cfg/messages/ru/mail_msg.xml",         "msg_container",       [] { return MakeLoader<specials::MailMessagesLoader>(); }},
+		{"horse_messages",      "cfg/messages/ru/horse_msg.xml",        "msg_container",       [] { return MakeLoader<specials::HorseMessagesLoader>(); }},
+		{"torc_messages",       "cfg/messages/ru/torc_msg.xml",         "msg_container",       [] { return MakeLoader<specials::TorcMessagesLoader>(); }},
+		{"mercenary_messages",  "cfg/messages/ru/mercenary_msg.xml",    "msg_container",       [] { return MakeLoader<specials::MercMessagesLoader>(); }},
+		{"exchange_messages",   "cfg/messages/ru/exchange_msg.xml",     "msg_container",       [] { return MakeLoader<specials::ExchMessagesLoader>(); }},
+		{"rent_messages",       "cfg/messages/ru/rent_msg.xml",         "msg_container",       [] { return MakeLoader<specials::RentMessagesLoader>(); }},
+		{"shop_messages",       "cfg/messages/ru/shop_msg.xml",         "msg_container",       [] { return MakeLoader<specials::ShopMessagesLoader>(); }},
+		{"board_messages",      "cfg/messages/ru/board_msg.xml",        "msg_container",       [] { return MakeLoader<specials::BoardMessagesLoader>(); }},
+		{"specials",            "cfg/specials.xml",                     "specials",            [] { return MakeLoader<SpecialsLoader>(); }},
+		{"affects",             "cfg/affects.xml",                      "affects",             [] { return MakeLoader<affects::AffectsLoader>(); }},
+		{"affect_messages",     "cfg/messages/ru/affect_msg.xml",       "msg_container",       [] { return MakeLoader<affects::AffectMessagesLoader>(); }},
+		{"common_messages",     "cfg/messages/ru/common_msg.xml",       "msg_container",       [] { return MakeLoader<CommonMessagesLoader>(); }},
+		{"socials",             "cfg/messages/ru/social_msg.xml",       "socials",             [] { return MakeLoader<communication::social::SocialsLoader>(); }},
+		{"city_messages",       "cfg/messages/ru/cities_msg.xml",       "msg_container",       [] { return MakeLoader<cities::CityMessagesLoader>(); }},
+		{"cities",              "cfg/mechanics/cities.xml",             "cities",              [] { return MakeLoader<cities::CitiesLoader>(); }},
+		{"region_messages",     "cfg/messages/ru/region_msg.xml",       "msg_container",       [] { return MakeLoader<regions::RegionMessagesLoader>(); }},
+		{"regions",             "cfg/mechanics/regions.xml",            "regions",             [] { return MakeLoader<regions::RegionsLoader>(); }},
+		{"stable_objs",         "cfg/mechanics/stable_objs.xml",        "equipment_positions", [] { return MakeLoader<stable_objs::StableObjsLoader>(); }},
+		{"global_drop",         "cfg/mechanics/global_drop.xml",        "globaldrop",          [] { return MakeLoader<GlobalDrop::GlobalDropLoader>(); }},
+		{"group_exp_handicap",  "cfg/mechanics/group_exp_handicap.xml", "group_exp_handicap",  [] { return MakeLoader<GroupPenaltiesLoader>(); }},
+		{"reset_stats",         "cfg/mechanics/reset_stats.xml",        "reset_stats",         [] { return MakeLoader<stats_reset::ResetStatsLoader>(); }},
+		{"noob",                "cfg/mechanics/noob.xml",               "noob_help",           [] { return MakeLoader<Noob::NoobLoader>(); }},
+		{"digging",             "cfg/mechanics/digging.xml",            "digging",             [] { return MakeLoader<mining::DiggingLoader>(); }},
+		{"celebrates",          "cfg/mechanics/celebrates.xml",         "celebrates",          [] { return MakeLoader<celebrates::CelebratesLoader>(); }},
+		{"guards",              "cfg/mechanics/guards.xml",             "guardians",           [] { return MakeLoader<city_guards::CityGuardsLoader>(); }},
+		{"daily_quest",         "cfg/quests/daily_quest.xml",           "daily_quest",         [] { return MakeLoader<DailyQuest::DailyQuestLoader>(); }},
+		{"obj_sets",            "cfg/mechanics/obj_sets.xml",           "obj_sets",            [] { return MakeLoader<obj_sets::ObjSetsLoader>(); }},
+		{"treasure_cases",      "cfg/mechanics/cases.xml",              "cases",               [] { return MakeLoader<treasure_cases::TreasureCasesLoader>(); }},
+		{"jewelry",             "cfg/craft/jewelry.xml",                "jewelry",             [] { return MakeLoader<jewelry::JewelryLoader>(); }},
+		{"item_creation",       "cfg/craft/item_creation.xml",          "item_creation",       [] { return MakeLoader<ItemCreationLoader>(); }},
+		{"basic",               "cfg/basic.xml",                        "basic",               [] { return MakeLoader<BasicValuesLoader>(); }},
+		{"pc_race_messages",    "cfg/messages/ru/pc_race_msg.xml",      "msg_container",       [] { return MakeLoader<player_races::RaceMessagesLoader>(); }},
+		{"pc_races",            "cfg/mechanics/pc_races.xml",           "pc_races",            [] { return MakeLoader<player_races::PcRacesLoader>(); }},
+		{"guilds",              "cfg/mechanics/guilds.xml",             "guilds",              [] { return MakeLoader<guilds::GuildsLoader>(); }},
+		{"zone_types",          "cfg/zone_types.xml",                   "zone_types",          [] { return MakeLoader<zone_types::ZoneTypesLoader>(); }},
+		{"rune_spells",         "cfg/mechanics/rune_spells.xml",        "rune_spells",         [] { return MakeLoader<rune_spells::RuneSpellsLoader>(); }},
+		{"rune_stone_messages", "cfg/messages/ru/rune_stone_msg.xml",   "msg_container",       [] { return MakeLoader<RuneStoneMessagesLoader>(); }},
+		{"rune_stones",         "cfg/mechanics/rune_stones.xml",        "rune_stones",         [] { return MakeLoader<RuneStonesLoader>(); }},
+		{"mob_classes",         "cfg/mob_classes.xml",                  "mob_classes",         [] { return MakeLoader<mob_classes::MobClassesLoader>(); }},
+		{"privilege",           "cfg/privilege.xml",                    "privilege",           [] { return MakeLoader<privilege::PrivilegeLoader>(); }},
 	};
 	for (const auto &reg : registry) {
 		const auto [it, inserted] = loaders_.emplace(std::string(reg.id),
-			LoaderInfo(std::string(reg.path), reg.make()));
+			LoaderInfo(std::string(reg.path), std::string(reg.root), reg.make()));
 		(void) it;
 		if (!inserted) {
 			err_log("CfgManager: повторная регистрация загрузчика '%s' - пропущена.",
@@ -178,6 +179,20 @@ void CfgManager::Apply(const std::string &id, bool reload) {
 	utils::CExecutionTimer parse_timer;
 	auto data = parser_wrapper::DataNode(info.file);
 	const double parse_ms = parse_timer.delta().count() * 1000.0;
+	// issue.cfg-manager: централизованная проверка результата разбора. Если файл не разобран
+	// (нет корня) или корневой элемент не тот, какой ждём, - НЕ зовём загрузчик, чтобы при сбое
+	// текущие данные остались нетронутыми (DataNode уже залогировал ошибку чтения файла).
+	if (data.IsEmpty()) {
+		log("Cfg %s [%s]: ПРОПУЩЕН - файл не разобран/отсутствует, данные не изменены (%s)",
+			reload ? "reload" : "load", id.c_str(), info.file.string().c_str());
+		return;
+	}
+	if (!info.root.empty() && info.root != data.GetName()) {
+		err_log("Cfg %s [%s]: ПРОПУЩЕН - корень <%s> вместо ожидаемого <%s> (%s)",
+			reload ? "reload" : "load", id.c_str(), data.GetName(), info.root.c_str(),
+			info.file.string().c_str());
+		return;
+	}
 	utils::CExecutionTimer build_timer;
 	if (reload) {
 		info.loader->Reload(data);

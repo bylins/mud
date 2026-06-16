@@ -124,9 +124,10 @@ class CfgManager {
 	[[nodiscard]] std::optional<EditableEntry> FindEditable(const std::string &what) const;
  private:
 	struct LoaderInfo {
-		LoaderInfo(std::filesystem::path file, LoaderPtr loader) :
-			file{std::move(file)}, loader{std::move(loader)} {};
+		LoaderInfo(std::filesystem::path file, std::string root, LoaderPtr loader) :
+			file{std::move(file)}, root{std::move(root)}, loader{std::move(loader)} {};
 		std::filesystem::path file;
+		std::string root;   // issue.cfg-manager: ожидаемый корневой элемент (центр. проверка разбора)
 		LoaderPtr loader;
 	};
 
