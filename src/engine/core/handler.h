@@ -25,14 +25,7 @@ const int kLightNo = 0;
 const int kLightYes = 1;
 const int kLightUndef = 2;
 const int kSecsPerPlayerTimed = 1;
-enum class CharEquipFlag : uint8_t {
-	no_cast,	// no spell casting
-	skip_total,	// no total affect update
-	show_msg	// show wear and activation messages
-};
-
-FLAGS_DECLARE_FROM_ENUM(CharEquipFlags, CharEquipFlag);
-FLAGS_DECLARE_OPERATORS(CharEquipFlags, CharEquipFlag);
+#include "engine/core/char_equip_flags.h"   // CharEquipFlag(s) (issue.handler-cleaning)
 
 int get_room_sky(int rnum);
 int IsEquipInMetall(CharData *ch);

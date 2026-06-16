@@ -26,6 +26,7 @@
 #include "gameplay/core/remort.h"
 #include "utils/grammar/declensions.h"
 #include "engine/core/utils_char_obj.inl"
+#include "gameplay/magic/magic_utils.h"
 
 // issue.handler-cleaning: invalid_unique has no header decl (was fwd-declared in handler.cpp)
 int invalid_unique(CharData *ch, const ObjData *obj);
@@ -106,19 +107,7 @@ void DamageObj(ObjData *obj, int dam, int chance) {
 // issue.handler-cleaning (Bucket 1): equip/unequip machinery moved from handler.cpp.
 // ActivateStuff/DeactivateStuff are slated to move to obj_sets in Bucket 3.
 
-int GetFlagDataByCharClass(const CharData *ch) {
-	if (ch == nullptr) {
-		return 0;
-	}
 
-	return flag_data_by_num(ch->IsNpc() ? kNumPlayerClasses : to_underlying(ch->GetClass()));
-}
-
-void CastWeaponAffect(CharData *ch, ESpell spell_id) {
-	CastContext ctx(ch, spell_id, GetRealLevel(ch), {});
-	ctx.cvict = ch;
-	CastAffect(ctx);
-}
 
 void DisplayWearMsg(CharData *ch, ObjData *obj, int position) {
 	const char *wear_messages[][2] =
@@ -190,302 +179,7 @@ void DisplayWearMsg(CharData *ch, ObjData *obj, int position) {
 		ch, obj, nullptr, kToRoom | kToArenaListen);
 }
 
-unsigned int ActivateStuff(CharData *ch, ObjData *obj, id_to_set_info_map::const_iterator it,
-						   int pos, const CharEquipFlags& equip_flags, unsigned int set_obj_qty) {
-	const bool no_cast = equip_flags.test(CharEquipFlag::no_cast);
-	const bool show_msg = equip_flags.test(CharEquipFlag::show_msg);
-	std::string::size_type delim;
 
-	if (pos < EEquipPos::kNumEquipPos) {
-		set_info::const_iterator set_obj_info;
-
-		if (GET_EQ(ch, pos) && GET_EQ(ch, pos)->has_flag(EObjFlag::kSetItem) &&
-			(set_obj_info = it->second.find(GET_OBJ_VNUM(GET_EQ(ch, pos)))) != it->second.end()) {
-			unsigned int oqty = ActivateStuff(ch, obj, it, pos + 1,
-											  (show_msg ? CharEquipFlag::show_msg : CharEquipFlags())
-												  | (no_cast ? CharEquipFlag::no_cast : CharEquipFlags()),
-											  set_obj_qty + 1);
-			qty_to_camap_map::const_iterator qty_info = set_obj_info->second.upper_bound(oqty);
-			qty_to_camap_map::const_iterator old_qty_info = GET_EQ(ch, pos) == obj ?
-															set_obj_info->second.begin() :
-															set_obj_info->second.upper_bound(oqty - 1);
-
-			while (qty_info != old_qty_info) {
-				class_to_act_map::const_iterator class_info;
-
-				qty_info--;
-				unique_bit_flag_data item;
-				const auto flags = GetFlagDataByCharClass(ch);
-				item.set(flags);
-				if ((class_info = qty_info->second.find(item)) != qty_info->second.end()) {
-					if (GET_EQ(ch, pos) != obj) {
-						for (int i = 0; i < kMaxObjAffect; i++) {
-							affect_modify(ch,
-										  GET_EQ(ch, pos)->get_affected(i).location,
-										  GET_EQ(ch, pos)->get_affected(i).modifier,
-										  static_cast<EAffect>(0),
-										  false);
-						}
-
-						if (ch->in_room != kNowhere) {
-							for (const auto &i : weapon_affect) {
-								if (i.aff_bitvector == 0
-									|| !GET_EQ(ch, pos)->GetEWeaponAffect(i.aff_pos)) {
-									continue;
-								}
-								affect_modify(ch, EApply::kNone, 0, static_cast<EAffect>(i.aff_bitvector), false);
-							}
-						}
-					}
-
-					std::string act_msg = GET_EQ(ch, pos)->activate_obj(class_info->second);
-					delim = act_msg.find('\n');
-
-					if (show_msg) {
-						act(act_msg.substr(0, delim).c_str(), false, ch, GET_EQ(ch, pos), nullptr, kToChar);
-						act(act_msg.erase(0, delim + 1).c_str(),
-							ch->IsNpc() && !AFF_FLAGGED(ch, EAffect::kCharmed) ? false : true,
-							ch, GET_EQ(ch, pos), nullptr, kToRoom);
-					}
-
-					for (int i = 0; i < kMaxObjAffect; i++) {
-						affect_modify(ch, GET_EQ(ch, pos)->get_affected(i).location,
-									  GET_EQ(ch, pos)->get_affected(i).modifier, static_cast<EAffect>(0), true);
-					}
-
-					if (ch->in_room != kNowhere) {
-						for (const auto &i : weapon_affect) {
-							if (i.aff_spell == ESpell::kUndefined || !GET_EQ(ch, pos)->GetEWeaponAffect(i.aff_pos)) {
-								continue;
-							}
-							if (!no_cast) {
-								if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoMagic)) {
-									act("Магия $o1 потерпела неудачу и развеялась по воздуху.",
-										false, ch, GET_EQ(ch, pos), nullptr, kToRoom);
-									act("Магия $o1 потерпела неудачу и развеялась по воздуху.",
-										false, ch, GET_EQ(ch, pos), nullptr, kToChar);
-								} else {
-									CastWeaponAffect(ch, i.aff_spell);
-								}
-							} else {
-								affect_modify(ch, GetApplyByWeaponAffect(i.aff_pos, ch).first,
-											  GetApplyByWeaponAffect(i.aff_pos, ch).second,
-											  static_cast<EAffect>(i.aff_bitvector), true);
-							}
-						}
-					}
-
-					return oqty;
-				}
-			}
-
-			if (GET_EQ(ch, pos) == obj) {
-				for (int i = 0; i < kMaxObjAffect; i++) {
-					affect_modify(ch,
-								  obj->get_affected(i).location,
-								  obj->get_affected(i).modifier,
-								  static_cast<EAffect>(0),
-								  true);
-				}
-
-				if (ch->in_room != kNowhere) {
-					for (const auto &i : weapon_affect) {
-						if (i.aff_spell == ESpell::kUndefined || !obj->GetEWeaponAffect(i.aff_pos)) {
-							continue;
-						}
-						if (!no_cast) {
-							if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoMagic)) {
-								act("Магия $o1 потерпела неудачу и развеялась по воздуху.",
-									false, ch, obj, nullptr, kToRoom);
-								act("Магия $o1 потерпела неудачу и развеялась по воздуху.",
-									false, ch, obj, nullptr, kToChar);
-							} else {
-								CastWeaponAffect(ch, i.aff_spell);
-							}
-						} else {
-							affect_modify(ch, GetApplyByWeaponAffect(i.aff_pos, ch).first,
-										  GetApplyByWeaponAffect(i.aff_pos, ch).second,
-										  static_cast<EAffect>(i.aff_bitvector), true);
-						}
-					}
-				}
-			}
-
-			return oqty;
-		} else
-			return ActivateStuff(ch, obj, it, pos + 1,
-								 (show_msg ? CharEquipFlag::show_msg : CharEquipFlags())
-									 | (no_cast ? CharEquipFlag::no_cast : CharEquipFlags()),
-								 set_obj_qty);
-	} else
-		return set_obj_qty;
-}
-
-unsigned int DeactivateStuff(CharData *ch, ObjData *obj, id_to_set_info_map::const_iterator it,
-							 int pos, const CharEquipFlags& equip_flags, unsigned int set_obj_qty) {
-	const bool show_msg = equip_flags.test(CharEquipFlag::show_msg);
-	std::string::size_type delim;
-
-	if (pos < EEquipPos::kNumEquipPos) {
-		set_info::const_iterator set_obj_info;
-
-		if (GET_EQ(ch, pos)
-			&& GET_EQ(ch, pos)->has_flag(EObjFlag::kSetItem)
-			&& (set_obj_info = it->second.find(GET_OBJ_VNUM(GET_EQ(ch, pos)))) != it->second.end()) {
-			unsigned int oqty =
-				DeactivateStuff(ch, obj, it, pos + 1, (show_msg ? CharEquipFlag::show_msg : CharEquipFlags()),
-								set_obj_qty + 1);
-			qty_to_camap_map::const_iterator old_qty_info = set_obj_info->second.upper_bound(oqty);
-			qty_to_camap_map::const_iterator qty_info = GET_EQ(ch, pos) == obj ?
-														set_obj_info->second.begin() :
-														set_obj_info->second.upper_bound(oqty - 1);
-
-			while (old_qty_info != qty_info) {
-				old_qty_info--;
-				unique_bit_flag_data flags1;
-				flags1.set(GetFlagDataByCharClass(ch));
-				class_to_act_map::const_iterator class_info = old_qty_info->second.find(flags1);
-				if (class_info != old_qty_info->second.end()) {
-					while (qty_info != set_obj_info->second.begin()) {
-						qty_info--;
-						unique_bit_flag_data flags2;
-						flags2.set(GetFlagDataByCharClass(ch));
-						class_to_act_map::const_iterator class_info2 = qty_info->second.find(flags2);
-						if (class_info2 != qty_info->second.end()) {
-							for (int i = 0; i < kMaxObjAffect; i++) {
-								affect_modify(ch,
-											  GET_EQ(ch, pos)->get_affected(i).location,
-											  GET_EQ(ch, pos)->get_affected(i).modifier,
-											  static_cast<EAffect>(0),
-											  false);
-							}
-
-							if (ch->in_room != kNowhere) {
-								for (const auto &i : weapon_affect) {
-									if (i.aff_bitvector == 0
-										|| !GET_EQ(ch, pos)->GetEWeaponAffect(i.aff_pos)) {
-										continue;
-									}
-									affect_modify(ch, EApply::kNone, 0, static_cast<EAffect>(i.aff_bitvector), false);
-								}
-							}
-
-							std::string act_msg = GET_EQ(ch, pos)->activate_obj(class_info2->second);
-							delim = act_msg.find('\n');
-
-							if (show_msg) {
-								act(act_msg.substr(0, delim).c_str(), false, ch, GET_EQ(ch, pos), nullptr, kToChar);
-								act(act_msg.erase(0, delim + 1).c_str(),
-									ch->IsNpc() && !AFF_FLAGGED(ch, EAffect::kCharmed) ? false : true,
-									ch, GET_EQ(ch, pos), nullptr, kToRoom);
-							}
-
-							for (int i = 0; i < kMaxObjAffect; i++) {
-								affect_modify(ch,
-											  GET_EQ(ch, pos)->get_affected(i).location,
-											  GET_EQ(ch, pos)->get_affected(i).modifier,
-											  static_cast<EAffect>(0),
-											  true);
-							}
-
-							if (ch->in_room != kNowhere) {
-								for (const auto &i : weapon_affect) {
-									if (i.aff_bitvector == 0
-										|| !GET_EQ(ch, pos)->GetEWeaponAffect(i.aff_pos)) {
-										continue;
-									}
-									affect_modify(ch, EApply::kNone, 0, static_cast<EAffect>(i.aff_bitvector), true);
-								}
-							}
-
-							return oqty;
-						}
-					}
-
-					for (int i = 0; i < kMaxObjAffect; i++) {
-						affect_modify(ch, GET_EQ(ch, pos)->get_affected(i).location,
-									  GET_EQ(ch, pos)->get_affected(i).modifier, static_cast<EAffect>(0), false);
-					}
-
-					if (ch->in_room != kNowhere) {
-						for (const auto &i : weapon_affect) {
-							if (i.aff_bitvector == 0
-								|| !GET_EQ(ch, pos)->GetEWeaponAffect(i.aff_pos)) {
-								continue;
-							}
-							affect_modify(ch, EApply::kNone, 0, static_cast<EAffect>(i.aff_bitvector), false);
-						}
-					}
-
-					std::string deact_msg = GET_EQ(ch, pos)->deactivate_obj(class_info->second);
-					delim = deact_msg.find('\n');
-
-					if (show_msg) {
-						act(deact_msg.substr(0, delim).c_str(), false, ch, GET_EQ(ch, pos), nullptr, kToChar);
-						act(deact_msg.erase(0, delim + 1).c_str(),
-							ch->IsNpc() && !AFF_FLAGGED(ch, EAffect::kCharmed) ? false : true,
-							ch, GET_EQ(ch, pos), nullptr, kToRoom);
-					}
-
-					if (GET_EQ(ch, pos) != obj) {
-						for (int i = 0; i < kMaxObjAffect; i++) {
-							affect_modify(ch,
-										  GET_EQ(ch, pos)->get_affected(i).location,
-										  GET_EQ(ch, pos)->get_affected(i).modifier,
-										  static_cast<EAffect>(0),
-										  true);
-						}
-
-						if (ch->in_room != kNowhere) {
-							for (const auto &i : weapon_affect) {
-								if (i.aff_bitvector == 0 ||
-									!GET_EQ(ch, pos)->GetEWeaponAffect(i.aff_pos)) {
-									continue;
-								}
-								affect_modify(ch, EApply::kNone, 0, static_cast<EAffect>(i.aff_bitvector), true);
-							}
-						}
-					}
-
-					return oqty;
-				}
-			}
-
-			if (GET_EQ(ch, pos) == obj) {
-				for (int i = 0; i < kMaxObjAffect; i++) {
-					affect_modify(ch,
-								  obj->get_affected(i).location,
-								  obj->get_affected(i).modifier,
-								  static_cast<EAffect>(0),
-								  false);
-				}
-
-				if (ch->in_room != kNowhere) {
-					for (const auto &i : weapon_affect) {
-						if (i.aff_bitvector == 0
-							|| !obj->GetEWeaponAffect(i.aff_pos)) {
-							continue;
-						}
-						affect_modify(ch, EApply::kNone, 0, static_cast<EAffect>(i.aff_bitvector), false);
-					}
-				}
-
-				obj->deactivate_obj(activation());
-			}
-
-			return oqty;
-		} else {
-			return DeactivateStuff(ch,
-								   obj,
-								   it,
-								   pos + 1,
-								   (show_msg ? CharEquipFlag::show_msg : CharEquipFlags()),
-								   set_obj_qty);
-		}
-	} else {
-		return set_obj_qty;
-	}
-}
 
 void EquipObj(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip_flags) {
 	int was_lgt = AFF_FLAGGED(ch, EAffect::kSingleLight) ? kLightYes : kLightNo,
@@ -595,7 +289,7 @@ void EquipObj(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip_f
 	if (obj->has_flag(EObjFlag::kSetItem)) {
 		for (; it != ObjData::set_table.end(); it++) {
 			if (it->second.find(GET_OBJ_VNUM(obj)) != it->second.end()) {
-				ActivateStuff(ch, obj, it, 0,
+				obj_sets::ActivateStuff(ch, obj, it, 0,
 							  (show_msg ? CharEquipFlag::show_msg : CharEquipFlags())
 								  | (no_cast ? CharEquipFlag::no_cast : CharEquipFlags()), 0);
 				break;
@@ -677,7 +371,7 @@ ObjData *UnequipChar(CharData *ch, int pos, const CharEquipFlags& equip_flags) {
 	if (obj->has_flag(EObjFlag::kSetItem))
 		for (; it != ObjData::set_table.end(); it++)
 			if (it->second.find(GET_OBJ_VNUM(obj)) != it->second.end()) {
-				DeactivateStuff(ch, obj, it, 0, (show_msg ? CharEquipFlag::show_msg : CharEquipFlags()), 0);
+				obj_sets::DeactivateStuff(ch, obj, it, 0, (show_msg ? CharEquipFlag::show_msg : CharEquipFlags()), 0);
 				break;
 			}
 

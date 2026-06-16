@@ -15,6 +15,7 @@
 #include <array>
 #include <vector>
 #include <set>
+#include "engine/core/char_equip_flags.h"   // CharEquipFlag(s) for set-activation API
 
 /// версия сетовых наборов по принципу навешивания аффектов на чара, а не на
 /// конкретные предметы, подменяя их родные статы + как бонус полноценное олц
@@ -123,6 +124,11 @@ std::set<int> vnum_list_add(int vnum);
 std::string get_name(size_t idx);
 bool is_set_item(ObjData *obj);
 void PrinSetClasses(const std::bitset<kNumPlayerClasses> &bits, std::string &str, bool print_num = false);
+
+unsigned int ActivateStuff(CharData *ch, ObjData *obj, id_to_set_info_map::const_iterator it,
+                           int pos, const CharEquipFlags &equip_flags, unsigned int set_obj_qty);
+unsigned int DeactivateStuff(CharData *ch, ObjData *obj, id_to_set_info_map::const_iterator it,
+                             int pos, const CharEquipFlags &equip_flags, unsigned int set_obj_qty);
 
 } // namespace obj_sets
 

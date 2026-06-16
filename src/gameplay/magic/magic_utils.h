@@ -69,4 +69,6 @@ int CalcCastSuccess(CharData *ch, CharData *victim, ESaving saving, ESpell spell
 
 // Resistance calculate //
 
+void CastWeaponAffect(CharData *ch, ESpell spell_id);
+
 #endif // SPELL_PARSER_HPP_
