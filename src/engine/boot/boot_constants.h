@@ -127,10 +127,6 @@ enum SetStuffMode {
 #define NAME_RULES_FILE LIB_TEXT "namerules" // rules of character's names
 
 #define PROXY_FILE        LIB_MISC "proxy"    // register proxy list
-#define IDEA_FILE        LIB_MISC "ideas"    // for the 'idea'-command
-#define TYPO_FILE        LIB_MISC "typos"    //         'typo'
-#define BUG_FILE        LIB_MISC "bugs"    //         'bug'
-#define SOCMESS_FILE    LIB_MISC "socials"    // messgs for social acts
 #define XNAME_FILE      LIB_MISC "xnames"    // invalid name substrings
 #define ANAME_FILE      LIB_MISC "apr_name" // одобренные имена
 #define DNAME_FILE      LIB_MISC "dis_name" // запрещенные имена
