@@ -69,6 +69,13 @@ std::vector<std::pair<std::string, std::string>> DataNode::Attributes() const {
 
 bool DataNode::SetValue(const std::string &key, const std::string &value) {
 	auto node = impl_->curren_xml_node;
+	// Пустой ключ = текст самого узла (симметрично GetValue("")): пишем inner-text.
+	// pugi::xml_node::text().set() создаёт/обновляет PCDATA-потомка, не трогая атрибуты
+	// и прочих потомков. Существующие файлы пишутся с непустым ключом (имя атрибута),
+	// так что их запись не меняется.
+	if (key.empty()) {
+		return node.text().set(value.c_str());
+	}
 	auto attr = node.attribute(key.c_str());
 	if (!attr) {
 		attr = node.append_attribute(key.c_str());
