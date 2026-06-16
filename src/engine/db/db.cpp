@@ -1031,7 +1031,7 @@ void BootMudDataBase() {
 	// загрузка кейсов
 	boot_profiler.next_step("Loading treasure cases");
 	log("Loading treasure cases.");
-	treasure_cases::LoadTreasureCases();
+	MUD::CfgManager().LoadCfg("treasure_cases");   // issue.lib-template: cfg/mechanics/cases.xml
 
 	// справка должна иниться после всего того, что может в нее что-то добавить
 	boot_profiler.next_step("Reloading help system");

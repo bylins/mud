@@ -57,7 +57,7 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			"  messages : spellmsg skillmsg hitmsg\r\n"
 			"  systems  : portals imagic oloadtable specials schedule clan proxy boards\r\n"
 			"             globaldrop offtop shop named celebrates setsdrop remort daily resetstats\r\n"
-			"             digging guards jewelry makeitems basic\r\n"
+			"             digging guards jewelry makeitems basic cases\r\n"
 			"  text     : immlist credits motd rules help info policy handbook background namerules\r\n"
 			"             greetings xhelp socials noobhelp titles emails privilege\r\n"
 			"  depot <char-name>\r\n", ch);
@@ -257,6 +257,8 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		MUD::CfgManager().ReloadCfg("basic");
 	} else if (!str_cmp(arg, "objsets")) {
 		MUD::CfgManager().ReloadCfg("obj_sets");
+	} else if (!str_cmp(arg, "cases")) {
+		MUD::CfgManager().ReloadCfg("treasure_cases");
 	} else if (!str_cmp(arg, "daily")) {
 		MUD::CfgManager().ReloadCfg("daily_quest");
 		SendMsgToChar(DailyQuest::GetLastLoadMessage(), ch);

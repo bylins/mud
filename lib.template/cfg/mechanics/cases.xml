@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<!-- Сундуки с сокровищами (treasure_cases). Грузится через CfgManager из
+     cfg/mechanics/cases.xml. При открытии предмета-сундука с vnum = casef@vnum игроку
+     падает один случайный предмет из списка <object>. Формат:
+       <casef vnum="VNUM_сундука" drop_chance="N">
+         <object vnum="VNUM_приза"/>
+         ...
+       </casef>
+     В репозитории - только пример (закомментирован); полный боевой файл живёт на проде.
+-->
+<cases>
+<!--
+	<casef vnum="4096" drop_chance="0">
+		<object vnum="3400"/>
+		<object vnum="3401"/>
+	</casef>
+-->
+</cases>

@@ -45,6 +45,7 @@
 #include "gameplay/mechanics/city_guards.h"
 #include "gameplay/quests/daily_quest.h"
 #include "gameplay/mechanics/obj_sets.h"
+#include "gameplay/mechanics/treasure_cases.h"
 #include "gameplay/mechanics/cities_messages.h"
 #include "gameplay/mechanics/player_races.h"
 #include "gameplay/mechanics/pc_race_messages.h"
@@ -158,6 +159,8 @@ CfgManager::CfgManager() {
 										  std::make_unique<DailyQuest::DailyQuestLoader>()));
 	loaders_.emplace("obj_sets", LoaderInfo("cfg/mechanics/obj_sets.xml",
 										  std::make_unique<obj_sets::ObjSetsLoader>()));
+	loaders_.emplace("treasure_cases", LoaderInfo("cfg/mechanics/cases.xml",
+										  std::make_unique<treasure_cases::TreasureCasesLoader>()));
 	loaders_.emplace("jewelry", LoaderInfo("cfg/craft/jewelry.xml",
 										  std::make_unique<jewelry::JewelryLoader>(jewelry::JewelryLoader())));
 	loaders_.emplace("item_creation", LoaderInfo("cfg/craft/item_creation.xml",
