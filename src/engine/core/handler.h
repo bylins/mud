@@ -36,6 +36,12 @@ FLAGS_DECLARE_OPERATORS(CharEquipFlags, CharEquipFlag);
 
 int get_room_sky(int rnum);
 int IsEquipInMetall(CharData *ch);
+bool IsWearingLight(CharData *ch);   // issue.handler-cleaning: was file-local
+// issue.handler-cleaning: defined in equipment.cpp (Bucket 1). Declarations kept here
+// transitionally to avoid touching ~25 callers; a follow-up moves CharEquipFlag + these
+// to equipment.h and drops them from handler.h.
+void EquipObj(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip_flags);
+ObjData *UnequipChar(CharData *ch, int pos, const CharEquipFlags& equip_flags);
 bool IsAwakeOthers(CharData *ch);
 
 void CheckLight(CharData *ch, int was_equip, int was_single, int was_holylight, int was_holydark, int koef);
@@ -59,8 +65,6 @@ bool IsObjsStackable(ObjData *obj_one, ObjData *obj_two);
 void PlaceObjToInventory(ObjData *object, CharData *ch);
 void RemoveObjFromChar(ObjData *object);
 
-void EquipObj(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip_flags);
-ObjData *UnequipChar(CharData *ch, int pos, const CharEquipFlags& equip_flags);
 bool HaveIncompatibleAlign(CharData *ch, ObjData *obj);
 
 ObjData *get_obj_in_list(char *name, ObjData *list);
