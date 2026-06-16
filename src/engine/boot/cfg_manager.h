@@ -111,6 +111,9 @@ class CfgManager {
 		LoaderPtr loader;
 	};
 
+	// issue.cfg-manager: общая реализация LoadCfg/ReloadCfg (reload=true -> Reload).
+	void Apply(const std::string &id, bool reload);
+
 	std::unordered_map<std::string, LoaderInfo> loaders_;
 
 };

@@ -8,6 +8,8 @@
 
 #include "cfg_manager.h"
 
+#include <string_view>
+
 #include "utils/utils_time.h"   // issue.xml-cfg-parsing: reload timing
 #include "utils/logger.h"
 
@@ -62,164 +64,132 @@
 
 namespace cfg_manager {
 
+namespace {
+// issue.cfg-manager: фабрика загрузчика без сырого new (unique_ptr<Derived> -> LoaderPtr).
+template<class T>
+LoaderPtr MakeLoader() {
+	return std::make_unique<T>();
+}
+
+// issue.cfg-manager: единая декларативная таблица регистрации загрузчиков - id, путь к файлу
+// конфига и фабрика. Заменяет ~60 повторяющихся loaders_.emplace(...): все id и пути собраны
+// здесь, в одном месте (внутренние константы менеджера).
+struct Registration {
+	std::string_view id;
+	std::string_view path;
+	LoaderPtr (*make)();
+};
+
+} // namespace
+
 CfgManager::CfgManager() {
-	loaders_.emplace("entity_names", LoaderInfo("cfg/messages/ru/entity_names.xml",
-										  std::make_unique<entity_names::EntityNamesLoader>(entity_names::EntityNamesLoader())));
-	loaders_.emplace("mob_races", LoaderInfo("cfg/mechanics/mob_races.xml",
-											  std::make_unique<mob_races::MobRacesLoader>(mob_races::MobRacesLoader())));
-	loaders_.emplace("currency_messages", LoaderInfo("cfg/messages/ru/currency_msg.xml",
-											  std::make_unique<currencies::CurrencyNamesLoader>(currencies::CurrencyNamesLoader())));
-	loaders_.emplace("shop_item_sets", LoaderInfo("cfg/economics/shop_item_sets.xml",
-		std::make_unique<ShopExt::ShopItemSetsLoader>()));
-	loaders_.emplace("shops", LoaderInfo("cfg/economics/shops.xml",
-		std::make_unique<ShopExt::ShopsLoader>()));
-	loaders_.emplace("currencies", LoaderInfo("cfg/economics/currencies.xml",
-											  std::make_unique<currencies::CurrenciesLoader>(currencies::CurrenciesLoader())));
-	loaders_.emplace("class_messages", LoaderInfo("cfg/messages/ru/class_msg.xml",
-										  std::make_unique<classes::ClassNamesLoader>(classes::ClassNamesLoader())));
-	loaders_.emplace("classes", LoaderInfo("cfg/classes/pc_classes.xml",
-										   std::make_unique<classes::ClassesLoader>(classes::ClassesLoader())));
-	loaders_.emplace("experience_table", LoaderInfo("cfg/experience_table.xml",
-		std::make_unique<experience::ExperienceTableLoader>()));
-	loaders_.emplace("skills", LoaderInfo("cfg/skills.xml",
-										  std::make_unique<SkillsLoader>(SkillsLoader())));
-	loaders_.emplace("skill_messages", LoaderInfo("cfg/messages/ru/skill_msg.xml",
-										  std::make_unique<skills::SkillMessagesLoader>(skills::SkillMessagesLoader())));
-	loaders_.emplace("abilities", LoaderInfo("cfg/abilities.xml",
-										  std::make_unique<abilities::AbilitiesLoader>(abilities::AbilitiesLoader())));
-	loaders_.emplace("spells", LoaderInfo("cfg/spells.xml",
-										  std::make_unique<spells::SpellsLoader>(spells::SpellsLoader())));
-	loaders_.emplace("spell_messages", LoaderInfo("cfg/messages/ru/spell_msg.xml",
-										  std::make_unique<spells::SpellMessagesLoader>(spells::SpellMessagesLoader())));
-	loaders_.emplace("points_intensity", LoaderInfo("cfg/messages/ru/points_intensity.xml",
-										  std::make_unique<points_intensity::PointsIntensityLoader>(points_intensity::PointsIntensityLoader())));
-	loaders_.emplace("fight_messages", LoaderInfo("cfg/messages/ru/hit_msg.xml",
-										  std::make_unique<fight::FightMessagesLoader>(fight::FightMessagesLoader())));
-	loaders_.emplace("feat_messages", LoaderInfo("cfg/messages/ru/feat_msg.xml",
-										  std::make_unique<feats::FeatMessagesLoader>(feats::FeatMessagesLoader())));
-	loaders_.emplace("feats", LoaderInfo("cfg/feats.xml",
-										  std::make_unique<feats::FeatsLoader>(feats::FeatsLoader())));
-	loaders_.emplace("guild_messages", LoaderInfo("cfg/messages/ru/guild_msg.xml",
-										  std::make_unique<guilds::GuildMessagesLoader>(guilds::GuildMessagesLoader())));
-	loaders_.emplace("special_messages", LoaderInfo("cfg/messages/ru/special_msg.xml",
-										  std::make_unique<specials::SpecialMessagesLoader>(specials::SpecialMessagesLoader())));
-	loaders_.emplace("bank_messages", LoaderInfo("cfg/messages/ru/bank_msg.xml",
-										  std::make_unique<specials::BankMessagesLoader>(specials::BankMessagesLoader())));
-	loaders_.emplace("mail_messages", LoaderInfo("cfg/messages/ru/mail_msg.xml",
-										  std::make_unique<specials::MailMessagesLoader>(specials::MailMessagesLoader())));
-	loaders_.emplace("horse_messages", LoaderInfo("cfg/messages/ru/horse_msg.xml",
-										  std::make_unique<specials::HorseMessagesLoader>(specials::HorseMessagesLoader())));
-	loaders_.emplace("torc_messages", LoaderInfo("cfg/messages/ru/torc_msg.xml",
-										  std::make_unique<specials::TorcMessagesLoader>(specials::TorcMessagesLoader())));
-	loaders_.emplace("mercenary_messages", LoaderInfo("cfg/messages/ru/mercenary_msg.xml",
-										  std::make_unique<specials::MercMessagesLoader>(specials::MercMessagesLoader())));
-	loaders_.emplace("exchange_messages", LoaderInfo("cfg/messages/ru/exchange_msg.xml",
-										  std::make_unique<specials::ExchMessagesLoader>(specials::ExchMessagesLoader())));
-	loaders_.emplace("rent_messages", LoaderInfo("cfg/messages/ru/rent_msg.xml",
-										  std::make_unique<specials::RentMessagesLoader>(specials::RentMessagesLoader())));
-	loaders_.emplace("shop_messages", LoaderInfo("cfg/messages/ru/shop_msg.xml",
-										  std::make_unique<specials::ShopMessagesLoader>(specials::ShopMessagesLoader())));
-	loaders_.emplace("board_messages", LoaderInfo("cfg/messages/ru/board_msg.xml",
-										  std::make_unique<specials::BoardMessagesLoader>(specials::BoardMessagesLoader())));
-	loaders_.emplace("specials", LoaderInfo("cfg/specials.xml",
-										  std::make_unique<SpecialsLoader>(SpecialsLoader())));
-	loaders_.emplace("affects", LoaderInfo("cfg/affects.xml",
-										  std::make_unique<affects::AffectsLoader>(affects::AffectsLoader())));
-	loaders_.emplace("affect_messages", LoaderInfo("cfg/messages/ru/affect_msg.xml",
-										  std::make_unique<affects::AffectMessagesLoader>(affects::AffectMessagesLoader())));
-	loaders_.emplace("common_messages", LoaderInfo("cfg/messages/ru/common_msg.xml",
-										  std::make_unique<CommonMessagesLoader>(CommonMessagesLoader())));
-	loaders_.emplace("socials", LoaderInfo("cfg/messages/ru/social_msg.xml",
-										  std::make_unique<communication::social::SocialsLoader>(communication::social::SocialsLoader())));
-	loaders_.emplace("city_messages", LoaderInfo("cfg/messages/ru/cities_msg.xml",
-										  std::make_unique<cities::CityMessagesLoader>(cities::CityMessagesLoader())));
-	loaders_.emplace("cities", LoaderInfo("cfg/mechanics/cities.xml",
-										  std::make_unique<cities::CitiesLoader>(cities::CitiesLoader())));
-	loaders_.emplace("region_messages", LoaderInfo("cfg/messages/ru/region_msg.xml",
-										  std::make_unique<regions::RegionMessagesLoader>(regions::RegionMessagesLoader())));
-	loaders_.emplace("regions", LoaderInfo("cfg/mechanics/regions.xml",
-										  std::make_unique<regions::RegionsLoader>(regions::RegionsLoader())));
-	loaders_.emplace("stable_objs", LoaderInfo("cfg/mechanics/stable_objs.xml",
-										  std::make_unique<stable_objs::StableObjsLoader>(stable_objs::StableObjsLoader())));
-	loaders_.emplace("global_drop", LoaderInfo("cfg/mechanics/global_drop.xml",
-										  std::make_unique<GlobalDrop::GlobalDropLoader>(GlobalDrop::GlobalDropLoader())));
-	loaders_.emplace("group_exp_handicap", LoaderInfo("cfg/mechanics/group_exp_handicap.xml",
-										  std::make_unique<GroupPenaltiesLoader>(GroupPenaltiesLoader())));
-	loaders_.emplace("reset_stats", LoaderInfo("cfg/mechanics/reset_stats.xml",
-										  std::make_unique<stats_reset::ResetStatsLoader>(stats_reset::ResetStatsLoader())));
-	loaders_.emplace("noob", LoaderInfo("cfg/mechanics/noob.xml",
-										  std::make_unique<Noob::NoobLoader>(Noob::NoobLoader())));
-	loaders_.emplace("digging", LoaderInfo("cfg/mechanics/digging.xml",
-										  std::make_unique<mining::DiggingLoader>(mining::DiggingLoader())));
-	loaders_.emplace("celebrates", LoaderInfo("cfg/mechanics/celebrates.xml",
-										  std::make_unique<celebrates::CelebratesLoader>()));
-	loaders_.emplace("guards", LoaderInfo("cfg/mechanics/guards.xml",
-										  std::make_unique<city_guards::CityGuardsLoader>()));
-	loaders_.emplace("daily_quest", LoaderInfo("cfg/quests/daily_quest.xml",
-										  std::make_unique<DailyQuest::DailyQuestLoader>()));
-	loaders_.emplace("obj_sets", LoaderInfo("cfg/mechanics/obj_sets.xml",
-										  std::make_unique<obj_sets::ObjSetsLoader>()));
-	loaders_.emplace("treasure_cases", LoaderInfo("cfg/mechanics/cases.xml",
-										  std::make_unique<treasure_cases::TreasureCasesLoader>()));
-	loaders_.emplace("jewelry", LoaderInfo("cfg/craft/jewelry.xml",
-										  std::make_unique<jewelry::JewelryLoader>(jewelry::JewelryLoader())));
-	loaders_.emplace("item_creation", LoaderInfo("cfg/craft/item_creation.xml",
-										  std::make_unique<ItemCreationLoader>(ItemCreationLoader())));
-	loaders_.emplace("basic", LoaderInfo("cfg/basic.xml",
-										  std::make_unique<BasicValuesLoader>(BasicValuesLoader())));
-	loaders_.emplace("pc_race_messages", LoaderInfo("cfg/messages/ru/pc_race_msg.xml",
-										  std::make_unique<player_races::RaceMessagesLoader>(player_races::RaceMessagesLoader())));
-	loaders_.emplace("pc_races", LoaderInfo("cfg/mechanics/pc_races.xml",
-										  std::make_unique<player_races::PcRacesLoader>(player_races::PcRacesLoader())));
-	loaders_.emplace("guilds", LoaderInfo("cfg/mechanics/guilds.xml",
-										  std::make_unique<guilds::GuildsLoader>(guilds::GuildsLoader())));
-	loaders_.emplace("zone_types", LoaderInfo("cfg/zone_types.xml",
-										  std::make_unique<zone_types::ZoneTypesLoader>(zone_types::ZoneTypesLoader())));
-	loaders_.emplace("rune_spells", LoaderInfo("cfg/mechanics/rune_spells.xml",
-										  std::make_unique<rune_spells::RuneSpellsLoader>(rune_spells::RuneSpellsLoader())));
-	loaders_.emplace("rune_stone_messages", LoaderInfo("cfg/messages/ru/rune_stone_msg.xml",
-										  std::make_unique<RuneStoneMessagesLoader>(RuneStoneMessagesLoader())));
-	loaders_.emplace("rune_stones", LoaderInfo("cfg/mechanics/rune_stones.xml",
-										  std::make_unique<RuneStonesLoader>(RuneStonesLoader())));
-	loaders_.emplace("mob_classes", LoaderInfo("cfg/mob_classes.xml",
-								  std::make_unique<mob_classes::MobClassesLoader>(mob_classes::MobClassesLoader())));
-	loaders_.emplace("privilege", LoaderInfo("cfg/privilege.xml",
-								  std::make_unique<privilege::PrivilegeLoader>(privilege::PrivilegeLoader())));
+	const Registration registry[] = {
+		{"entity_names",        "cfg/messages/ru/entity_names.xml",     [] { return MakeLoader<entity_names::EntityNamesLoader>(); }},
+		{"mob_races",           "cfg/mechanics/mob_races.xml",          [] { return MakeLoader<mob_races::MobRacesLoader>(); }},
+		{"currency_messages",   "cfg/messages/ru/currency_msg.xml",     [] { return MakeLoader<currencies::CurrencyNamesLoader>(); }},
+		{"shop_item_sets",      "cfg/economics/shop_item_sets.xml",     [] { return MakeLoader<ShopExt::ShopItemSetsLoader>(); }},
+		{"shops",               "cfg/economics/shops.xml",              [] { return MakeLoader<ShopExt::ShopsLoader>(); }},
+		{"currencies",          "cfg/economics/currencies.xml",         [] { return MakeLoader<currencies::CurrenciesLoader>(); }},
+		{"class_messages",      "cfg/messages/ru/class_msg.xml",        [] { return MakeLoader<classes::ClassNamesLoader>(); }},
+		{"classes",             "cfg/classes/pc_classes.xml",           [] { return MakeLoader<classes::ClassesLoader>(); }},
+		{"experience_table",    "cfg/experience_table.xml",             [] { return MakeLoader<experience::ExperienceTableLoader>(); }},
+		{"skills",              "cfg/skills.xml",                       [] { return MakeLoader<SkillsLoader>(); }},
+		{"skill_messages",      "cfg/messages/ru/skill_msg.xml",        [] { return MakeLoader<skills::SkillMessagesLoader>(); }},
+		{"abilities",           "cfg/abilities.xml",                    [] { return MakeLoader<abilities::AbilitiesLoader>(); }},
+		{"spells",              "cfg/spells.xml",                       [] { return MakeLoader<spells::SpellsLoader>(); }},
+		{"spell_messages",      "cfg/messages/ru/spell_msg.xml",        [] { return MakeLoader<spells::SpellMessagesLoader>(); }},
+		{"points_intensity",    "cfg/messages/ru/points_intensity.xml", [] { return MakeLoader<points_intensity::PointsIntensityLoader>(); }},
+		{"fight_messages",      "cfg/messages/ru/hit_msg.xml",          [] { return MakeLoader<fight::FightMessagesLoader>(); }},
+		{"feat_messages",       "cfg/messages/ru/feat_msg.xml",         [] { return MakeLoader<feats::FeatMessagesLoader>(); }},
+		{"feats",               "cfg/feats.xml",                        [] { return MakeLoader<feats::FeatsLoader>(); }},
+		{"guild_messages",      "cfg/messages/ru/guild_msg.xml",        [] { return MakeLoader<guilds::GuildMessagesLoader>(); }},
+		{"special_messages",    "cfg/messages/ru/special_msg.xml",      [] { return MakeLoader<specials::SpecialMessagesLoader>(); }},
+		{"bank_messages",       "cfg/messages/ru/bank_msg.xml",         [] { return MakeLoader<specials::BankMessagesLoader>(); }},
+		{"mail_messages",       "cfg/messages/ru/mail_msg.xml",         [] { return MakeLoader<specials::MailMessagesLoader>(); }},
+		{"horse_messages",      "cfg/messages/ru/horse_msg.xml",        [] { return MakeLoader<specials::HorseMessagesLoader>(); }},
+		{"torc_messages",       "cfg/messages/ru/torc_msg.xml",         [] { return MakeLoader<specials::TorcMessagesLoader>(); }},
+		{"mercenary_messages",  "cfg/messages/ru/mercenary_msg.xml",    [] { return MakeLoader<specials::MercMessagesLoader>(); }},
+		{"exchange_messages",   "cfg/messages/ru/exchange_msg.xml",     [] { return MakeLoader<specials::ExchMessagesLoader>(); }},
+		{"rent_messages",       "cfg/messages/ru/rent_msg.xml",         [] { return MakeLoader<specials::RentMessagesLoader>(); }},
+		{"shop_messages",       "cfg/messages/ru/shop_msg.xml",         [] { return MakeLoader<specials::ShopMessagesLoader>(); }},
+		{"board_messages",      "cfg/messages/ru/board_msg.xml",        [] { return MakeLoader<specials::BoardMessagesLoader>(); }},
+		{"specials",            "cfg/specials.xml",                     [] { return MakeLoader<SpecialsLoader>(); }},
+		{"affects",             "cfg/affects.xml",                      [] { return MakeLoader<affects::AffectsLoader>(); }},
+		{"affect_messages",     "cfg/messages/ru/affect_msg.xml",       [] { return MakeLoader<affects::AffectMessagesLoader>(); }},
+		{"common_messages",     "cfg/messages/ru/common_msg.xml",       [] { return MakeLoader<CommonMessagesLoader>(); }},
+		{"socials",             "cfg/messages/ru/social_msg.xml",       [] { return MakeLoader<communication::social::SocialsLoader>(); }},
+		{"city_messages",       "cfg/messages/ru/cities_msg.xml",       [] { return MakeLoader<cities::CityMessagesLoader>(); }},
+		{"cities",              "cfg/mechanics/cities.xml",             [] { return MakeLoader<cities::CitiesLoader>(); }},
+		{"region_messages",     "cfg/messages/ru/region_msg.xml",       [] { return MakeLoader<regions::RegionMessagesLoader>(); }},
+		{"regions",             "cfg/mechanics/regions.xml",            [] { return MakeLoader<regions::RegionsLoader>(); }},
+		{"stable_objs",         "cfg/mechanics/stable_objs.xml",        [] { return MakeLoader<stable_objs::StableObjsLoader>(); }},
+		{"global_drop",         "cfg/mechanics/global_drop.xml",        [] { return MakeLoader<GlobalDrop::GlobalDropLoader>(); }},
+		{"group_exp_handicap",  "cfg/mechanics/group_exp_handicap.xml", [] { return MakeLoader<GroupPenaltiesLoader>(); }},
+		{"reset_stats",         "cfg/mechanics/reset_stats.xml",        [] { return MakeLoader<stats_reset::ResetStatsLoader>(); }},
+		{"noob",                "cfg/mechanics/noob.xml",               [] { return MakeLoader<Noob::NoobLoader>(); }},
+		{"digging",             "cfg/mechanics/digging.xml",            [] { return MakeLoader<mining::DiggingLoader>(); }},
+		{"celebrates",          "cfg/mechanics/celebrates.xml",         [] { return MakeLoader<celebrates::CelebratesLoader>(); }},
+		{"guards",              "cfg/mechanics/guards.xml",             [] { return MakeLoader<city_guards::CityGuardsLoader>(); }},
+		{"daily_quest",         "cfg/quests/daily_quest.xml",           [] { return MakeLoader<DailyQuest::DailyQuestLoader>(); }},
+		{"obj_sets",            "cfg/mechanics/obj_sets.xml",           [] { return MakeLoader<obj_sets::ObjSetsLoader>(); }},
+		{"treasure_cases",      "cfg/mechanics/cases.xml",              [] { return MakeLoader<treasure_cases::TreasureCasesLoader>(); }},
+		{"jewelry",             "cfg/craft/jewelry.xml",                [] { return MakeLoader<jewelry::JewelryLoader>(); }},
+		{"item_creation",       "cfg/craft/item_creation.xml",          [] { return MakeLoader<ItemCreationLoader>(); }},
+		{"basic",               "cfg/basic.xml",                        [] { return MakeLoader<BasicValuesLoader>(); }},
+		{"pc_race_messages",    "cfg/messages/ru/pc_race_msg.xml",      [] { return MakeLoader<player_races::RaceMessagesLoader>(); }},
+		{"pc_races",            "cfg/mechanics/pc_races.xml",           [] { return MakeLoader<player_races::PcRacesLoader>(); }},
+		{"guilds",              "cfg/mechanics/guilds.xml",             [] { return MakeLoader<guilds::GuildsLoader>(); }},
+		{"zone_types",          "cfg/zone_types.xml",                   [] { return MakeLoader<zone_types::ZoneTypesLoader>(); }},
+		{"rune_spells",         "cfg/mechanics/rune_spells.xml",        [] { return MakeLoader<rune_spells::RuneSpellsLoader>(); }},
+		{"rune_stone_messages", "cfg/messages/ru/rune_stone_msg.xml",   [] { return MakeLoader<RuneStoneMessagesLoader>(); }},
+		{"rune_stones",         "cfg/mechanics/rune_stones.xml",        [] { return MakeLoader<RuneStonesLoader>(); }},
+		{"mob_classes",         "cfg/mob_classes.xml",                  [] { return MakeLoader<mob_classes::MobClassesLoader>(); }},
+		{"privilege",           "cfg/privilege.xml",                    [] { return MakeLoader<privilege::PrivilegeLoader>(); }},
+	};
+	for (const auto &reg : registry) {
+		const auto [it, inserted] = loaders_.emplace(std::string(reg.id),
+			LoaderInfo(std::string(reg.path), reg.make()));
+		(void) it;
+		if (!inserted) {
+			err_log("CfgManager: повторная регистрация загрузчика '%s' - пропущена.",
+					std::string(reg.id).c_str());
+		}
+	}
+}
+
+// issue.cfg-manager: общая реализация загрузки/перезагрузки (раньше LoadCfg и ReloadCfg
+// дублировали друг друга). Один поиск по карте; тайминг разбора DOM и сборки логируется.
+void CfgManager::Apply(const std::string &id, bool reload) {
+	const auto it = loaders_.find(id);
+	if (it == loaders_.end()) {
+		err_log("Неверный параметр %s файла конфигурации (%s)",
+				reload ? "перезагрузки" : "загрузки", id.c_str());
+		return;
+	}
+	const auto &info = it->second;
+	// issue.xml-cfg-parsing: time the two phases separately -- DOM parse (file read + pugixml)
+	// vs build/swap (constructing the new register) -- so we know where the lag really is.
+	utils::CExecutionTimer parse_timer;
+	auto data = parser_wrapper::DataNode(info.file);
+	const double parse_ms = parse_timer.delta().count() * 1000.0;
+	utils::CExecutionTimer build_timer;
+	if (reload) {
+		info.loader->Reload(data);
+	} else {
+		info.loader->Load(data);
+	}
+	const double build_ms = build_timer.delta().count() * 1000.0;
+	log("Cfg %s [%s]: parse %.2f ms + %s %.2f ms = %.2f ms (%s)",
+		reload ? "reload" : "load", id.c_str(), parse_ms, reload ? "build/swap" : "build",
+		build_ms, parse_ms + build_ms, info.file.string().c_str());
 }
 
 void CfgManager::ReloadCfg(const std::string &id) {
-	if (!loaders_.contains(id)) {
-		err_log("Неверный параметр перезагрузки файла конфигурации (%s)", id.c_str());
-		return;
-	}
-	const auto &loader_info = loaders_.at(id);
-	// issue.xml-cfg-parsing: time the two phases separately -- DOM parse (file read + pugixml) vs
-	// build+swap (constructing the new register) -- so we know where the hot-reload lag really is.
-	utils::CExecutionTimer parse_timer;
-	auto data = parser_wrapper::DataNode(loader_info.file);
-	const double parse_ms = parse_timer.delta().count() * 1000.0;
-	utils::CExecutionTimer build_timer;
-	loader_info.loader->Reload(data);
-	const double build_ms = build_timer.delta().count() * 1000.0;
-	log("Cfg reload [%s]: parse %.2f ms + build/swap %.2f ms = %.2f ms (%s)",
-		id.c_str(), parse_ms, build_ms, parse_ms + build_ms, loader_info.file.string().c_str());
+	Apply(id, /*reload=*/true);
 }
 
 void CfgManager::LoadCfg(const std::string &id) {
-	if (!loaders_.contains(id)) {
-		err_log("Неверный параметр загрузки файла конфигурации (%s)", id.c_str());
-		return;
-	}
-	const auto &loader_info = loaders_.at(id);
-	// issue.xml-cfg-parsing: boot-time baseline of the same two phases.
-	utils::CExecutionTimer parse_timer;
-	auto data = parser_wrapper::DataNode(loader_info.file);
-	const double parse_ms = parse_timer.delta().count() * 1000.0;
-	utils::CExecutionTimer build_timer;
-	loader_info.loader->Load(data);
-	const double build_ms = build_timer.delta().count() * 1000.0;
-	log("Cfg load [%s]: parse %.2f ms + build %.2f ms = %.2f ms (%s)",
-		id.c_str(), parse_ms, build_ms, parse_ms + build_ms, loader_info.file.string().c_str());
+	Apply(id, /*reload=*/false);
 }
 
 // issue.vedun-editor: enumerate loaders that opted into editing (implement IEditableCfgLoader).
