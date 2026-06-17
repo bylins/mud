@@ -4,6 +4,7 @@
 #include "engine/structs/structs.h"
 #include "engine/structs/meta_enum.h"
 #include "gameplay/skills/skills.h"   // ESkill
+#include "utils/grammar/cases.h"   // grammar::ECase (per-stone object name)
 
 #include <map>
 #include <string>
@@ -23,6 +24,7 @@ class CharData;
 enum class ERuneStoneMsg {
 	kUndefined = 0,
 	kName,                              // the codeword players type / see
+	kAliases,                          // the physical stone object's keyword aliases (default-fallback)
 	kRoomNormal, kRoomDamaged,          // the stone's presence in the room (look)
 	kInspectNormal, kInspectDamaged,    // examining the stone ({name})
 	kLackSkillNormal, kLackSkillDamaged,// examining without enough skill
@@ -33,6 +35,9 @@ enum class ERuneStoneMsg {
 
 [[nodiscard]] const std::string &RuneStoneMsg(ERuneStoneMsg slot);   // shared (kDefault) text
 [[nodiscard]] const std::string &RuneStoneName(int stone_vnum);      // per-stone kName
+// The physical stone object's declined display name (the <name> section), per-stone with a
+// fallback to the kDefault sheaf.
+[[nodiscard]] const std::string &RuneStoneObjName(int stone_vnum, grammar::ECase name_case);
 
 class Runestone {
  public:

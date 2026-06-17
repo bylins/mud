@@ -12,11 +12,29 @@
 	</tag>
 	<tag name="msg_sheaf" desc="kDefault = shared text; a stone vnum = that stone's kName codeword">
 		<attr name="id" type="string" readonly="Y" desc="kDefault (shared) or a stone vnum; immutable"/>
+		<child tag="name"/>
 		<child tag="message" multiple="Y"/>
 	</tag>
 	<tag name="message" desc="One message line (a slot may repeat to form a random pool)">
 		<attr name="type" type="enum" enum="ERuneStoneMsg" desc="Message slot (kName per-stone; the rest shared)"/>
 		<attr name="val" type="string" desc="Text: named fmt args ({name}/{count}/{limit}) and &amp; colour codes"/>
+	</tag>
+	<!-- issue.unstable-hotfixes: the stone object's declined display name (mirrors currency_msg).
+	     The keyword aliases live in a <message type="kAliases">; this <name> holds the cased name. -->
+	<tag name="name" desc="The stone object's declined display name (kDefault sheaf = shared default)">
+		<attr name="search" type="string" desc="Keyword(s) used to find the name"/>
+		<child tag="singular"/>
+		<child tag="plural"/>
+	</tag>
+	<tag name="singular" desc="Singular-number declensions">
+		<child tag="case" multiple="Y"/>
+	</tag>
+	<tag name="plural" desc="Plural-number declensions">
+		<child tag="case" multiple="Y"/>
+	</tag>
+	<tag name="case" desc="One declension form">
+		<attr name="id" type="string" desc="Grammatical case: kNom kGen kDat kAcc kIns kPre"/>
+		<attr name="val" type="string" desc="The declined form"/>
 	</tag>
 </scheme>
 

@@ -5,6 +5,25 @@
 -->
 <msg_container>
 	<msg_sheaf id="kDefault">
+		<message type="kAliases" val="рунный камень"/>
+		<name search="рунный камень">
+			<singular>
+				<case id="kNom" val="рунный камень"/>
+				<case id="kGen" val="рунного камня"/>
+				<case id="kDat" val="рунному камню"/>
+				<case id="kAcc" val="рунный камень"/>
+				<case id="kIns" val="рунным камнем"/>
+				<case id="kPre" val="рунном камне"/>
+			</singular>
+			<plural>
+				<case id="kNom" val="рунные камни"/>
+				<case id="kGen" val="рунных камней"/>
+				<case id="kDat" val="рунным камням"/>
+				<case id="kAcc" val="рунные камни"/>
+				<case id="kIns" val="рунными камнями"/>
+				<case id="kPre" val="рунных камнях"/>
+			</plural>
+		</name>
 		<message type="kRoomNormal" val="Рунный камень с изображением пентаграммы немного выступает из земли."/>
 		<message type="kRoomDamaged" val="Рунный камень с изображением пентаграммы немного выступает из земли... расколот."/>
 		<message type="kInspectNormal" val="На камне огненными рунами начертано слово '&amp;R{name}&amp;n'."/>

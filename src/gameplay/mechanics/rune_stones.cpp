@@ -6,6 +6,7 @@
 #include "engine/db/obj_prototypes.h"        // obj_proto (assign the stone spec proc)
 #include "engine/entities/char_data.h"
 #include "engine/entities/obj_data.h"
+#include "utils/grammar/cases.h"            // grammar::ItemName / ECase
 #include "engine/core/comm.h"
 #include "engine/core/handler.h"             // PlaceObjToRoom
 #include "engine/ui/modify.h"
@@ -32,6 +33,7 @@ namespace {
 const std::map<ERuneStoneMsg, std::string> kRuneStoneMsgNames{
 		{ERuneStoneMsg::kUndefined, "kUndefined"},
 		{ERuneStoneMsg::kName, "kName"},
+		{ERuneStoneMsg::kAliases, "kAliases"},
 		{ERuneStoneMsg::kRoomNormal, "kRoomNormal"},
 		{ERuneStoneMsg::kRoomDamaged, "kRoomDamaged"},
 		{ERuneStoneMsg::kInspectNormal, "kInspectNormal"},
@@ -48,6 +50,32 @@ const std::map<ERuneStoneMsg, std::string> kRuneStoneMsgNames{
 		{ERuneStoneMsg::kCantMemorize, "kCantMemorize"},
 		{ERuneStoneMsg::kCantForget, "kCantForget"},
 	};
+
+// issue.unstable-hotfixes: per-stone declined object names (the <name> section), keyed by stone
+// vnum; kDefault maps to kUndefinedVnum. Parsed alongside the message sheaves (mirrors currencies).
+std::map<int, grammar::ItemName> g_rune_stone_names;
+
+void LoadRuneStoneNames(parser_wrapper::DataNode data) {
+	g_rune_stone_names.clear();
+	for (auto &sheaf : data.Children("msg_sheaf")) {
+		const char *id = sheaf.GetValue("id");
+		if (!id || !*id) {
+			continue;
+		}
+		int vnum;
+		try {
+			vnum = (std::string(id) == "kDefault") ? info_container::kUndefinedVnum : parse::ReadAsInt(id);
+		} catch (const std::exception &) {
+			continue;
+		}
+		if (sheaf.GoToChild("name")) {
+			if (auto built = grammar::ItemName::Build(sheaf)) {
+				g_rune_stone_names.insert_or_assign(vnum, std::move(*built));
+			}
+			sheaf.GoToParent();
+		}
+	}
+}
 
 msg_container::MsgContainer<int, ERuneStoneMsg> &RuneStoneMsgContainer() {
 	static msg_container::MsgContainer<int, ERuneStoneMsg> container;
@@ -82,8 +110,24 @@ const std::string &RuneStoneName(int stone_vnum) {
 	return RuneStoneMsgContainer().GetMessage(stone_vnum, ERuneStoneMsg::kName);
 }
 
-void RuneStoneMessagesLoader::Load(parser_wrapper::DataNode data) { RuneStoneMsgContainer().Init(data.Children()); }
-void RuneStoneMessagesLoader::Reload(parser_wrapper::DataNode data) { RuneStoneMsgContainer().Reload(data.Children()); }
+const std::string &RuneStoneObjName(int stone_vnum, grammar::ECase name_case) {
+	static const grammar::ItemName kEmptyName;
+	auto it = g_rune_stone_names.find(stone_vnum);
+	if (it == g_rune_stone_names.end()) {
+		it = g_rune_stone_names.find(info_container::kUndefinedVnum);
+	}
+	return it == g_rune_stone_names.end() ? kEmptyName.GetSingular(name_case)
+										  : it->second.GetSingular(name_case);
+}
+
+void RuneStoneMessagesLoader::Load(parser_wrapper::DataNode data) {
+	RuneStoneMsgContainer().Init(data.Children());
+	LoadRuneStoneNames(data);
+}
+void RuneStoneMessagesLoader::Reload(parser_wrapper::DataNode data) {
+	RuneStoneMsgContainer().Reload(data.Children());
+	LoadRuneStoneNames(data);
+}
 
 // ---- Vedun editable surface for the message file (vnum-keyed sheaves, mirrors guild_messages) ------
 
@@ -149,7 +193,17 @@ RunestoneRoster::RunestoneRoster() {
 void RunestoneRoster::Load(parser_wrapper::DataNode data) {
 	clear();
 	const char *proto = data.GetValue("prototype");
-	prototype_vnum_ = proto ? parse::ReadAsInt(proto) : 0;
+	// issue.unstable-hotfixes: default to prototype #100 when unset or unparseable (was 0). A
+	// missing object is tolerated -- SpawnStones logs in English and skips, it never crashes.
+	prototype_vnum_ = 100;
+	if (proto && *proto) {
+		try {
+			prototype_vnum_ = parse::ReadAsInt(proto);
+		} catch (const std::exception &e) {
+			log("SYSERR: rune_stones.xml: bad prototype vnum '%s' (%s) -- using default %d.",
+					proto, e.what(), prototype_vnum_);
+		}
+	}
 
 	for (auto &node : data.Children()) {
 		if (std::string(node.GetName()) != "stone") {
@@ -322,6 +376,15 @@ void RunestoneRoster::SpawnStones() {
 		// the stone up. Done per-instance, NOT on the shared prototype (corpses and other
 		// utility objects reuse it and must stay takeable).
 		obj->set_wear_flags(obj->get_wear_flags() & ~to_underlying(EWearFlag::kTake));
+		// issue.unstable-hotfixes: name this stone from the message container -- keyword aliases
+		// (kAliases) for targeting and the declined display name (<name> cases) for show. Both fall
+		// back to the kDefault sheaf when the per-stone sheaf does not define them.
+		obj->set_aliases(RuneStoneMsgContainer().GetMessage(stone.GetVnum(), ERuneStoneMsg::kAliases));
+		for (int ci = grammar::ECase::kFirstCase; ci <= grammar::ECase::kLastCase; ++ci) {
+			const auto name_case = static_cast<grammar::ECase>(ci);
+			obj->set_PName(name_case, RuneStoneObjName(stone.GetVnum(), name_case));
+		}
+		obj->set_short_description(RuneStoneObjName(stone.GetVnum(), grammar::ECase::kNom));
 		PlaceObjToRoom(obj.get(), room_rnum);
 		++placed;
 	}

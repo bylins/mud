@@ -1180,13 +1180,15 @@ static void BoostNecroDamage(CharData *ch, CharData *mob, ESpell spell_id) {
 // hp/ac/dr/hr/class/build, position, gender, flags.
 
 
-// kAnimateDead post-spawn: kResurrected flag + per-tier rescue grants for the kLoyalAssist /
+// kAnimateDead post-spawn: mark undead + per-tier rescue grants for the kLoyalAssist /
 // kHauntingSpirit feats; high-wisdom (75+) casters also gift an ice shield. The wis>=65 magic-
 // glass grant is left commented out as a "if we ever want it back" hook.
 static void EnhanceAnimateDead(CharData *ch, CharData *mob, MobVnum mob_num,
 							   ESpell spell_id, int charm_duration) {
-	mob->SetFlag(EMobFlag::kResurrected);
-	mob->SetFlag(EMobFlag::kUndead);	// issue.npc-races: resurrected => undead
+	// issue.unstable-hotfixes: animate dead must NOT set kResurrected -- that flag marks a corpse
+	// revived by the kResurrection spell (which reuses the original mob's vnum). Animate-dead
+	// summons are fresh necro mobs: undead, but not "resurrected".
+	mob->SetFlag(EMobFlag::kUndead);
 	if (mob_num == kMobSkeleton && CanUseFeat(ch, EFeat::kLoyalAssist)) {
 		mob->set_skill(ESkill::kRescue, 100);
 	}
