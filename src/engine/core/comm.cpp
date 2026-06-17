@@ -83,6 +83,7 @@
 #endif
 #include "engine/core/conf.h"
 #include "engine/ui/modify.h"
+#include "engine/ui/login.h"
 #include "gameplay/statistics/money_drop.h"
 #include "gameplay/statistics/zone_exp.h"
 #include "engine/core/iosystem.h"
@@ -1399,7 +1400,7 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 			string_add(d, comm);
 		} else if (d->state != EConState::kPlaying)    // In menus, etc.
 		{
-			nanny(d, comm);
+			ProcessLoginInput(d, comm);
 		} else    // else: we're playing normally.
 		{
 			if (aliased)    // To prevent recursive aliases.
@@ -1949,7 +1950,7 @@ int new_descriptor(socket_t s)
 
 	// let interpreter to set the ball rolling
 	char dummyArg[] = {""};
-	nanny(newd, dummyArg);
+	ProcessLoginInput(newd, dummyArg);
 
 	// trying to turn on MSDP
 	iosystem::write_to_descriptor(newd->descriptor, will_msdp, sizeof(will_msdp));

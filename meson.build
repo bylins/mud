@@ -433,6 +433,7 @@ main_sources = files(
   'src/gameplay/communication/ignores_loader.cpp',
   'src/gameplay/crafting/im.cpp',
   'src/engine/ui/interpreter.cpp',
+  'src/engine/ui/login.cpp',
   'src/gameplay/crafting/item_creation.cpp',
   'src/gameplay/core/game_limits.cpp',
   'src/gameplay/core/experience.cpp',

@@ -30,7 +30,6 @@ void DoMove(CharData *ch, char *, int, int subcmd);
 
 void command_interpreter(CharData *ch, char *argument);
 // fill_word, half_chop moved to mud_string.h
-void nanny(DescriptorData *d, char *argument);
 
 // is_number moved to utils_string.h
 int find_command(const char *command);
