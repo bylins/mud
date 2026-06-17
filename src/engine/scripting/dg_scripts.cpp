@@ -1490,6 +1490,11 @@ int text_processed(char *field, char *subfield, TriggerVar vd, char *str, size_t
 	return false;
 }
 
+// Команды загрузки из dg_*cmd.cpp - для world.loadobj (загрузка по типу триггера)
+void do_mload(CharData *ch, char *argument, int cmd, int subcmd, Trigger *trig);
+void do_dgoload(ObjData *obj, char *argument, int cmd, int subcmd, Trigger *trig);
+void do_wload(RoomData *room, char *argument, int cmd, int subcmd, Trigger *trig);
+
 void find_replacement(void *go,
 					  Script *sc,
 					  Trigger *trig,
@@ -1881,6 +1886,57 @@ void find_replacement(void *go,
 				} else {
 					snprintf(str, str_size, "0");
 				}
+			} else if (!str_cmp(field, "loadobj") && num > 0) {
+				// world.loadobj(vnum, chance): загрузить предмет с шансом chance (1..1000 промилле),
+				// учитывая MIW. Размещение делает штатная команда load по типу триггера.
+				// Возвращает "1" при загрузке, иначе "0". Загруженный предмет доступен через
+				// %LoadedUid% (выставляет load-команда).
+				const auto rnum = GetObjRnum(num);
+
+				if (rnum <= 0) {
+					trig_log(trig, fmt::format("Указан неверный параметр vnum ({}) в loadobj", num).c_str());
+					snprintf(str, str_size, "0");
+					return;
+				}
+				// второй аргумент (шанс) после vnum в subfield
+				const char *p = subfield;
+				while (*p && *p != ',' && *p != ' ') {
+					p++;
+				}
+				while (*p == ',' || *p == ' ') {
+					p++;
+				}
+				const int chance = atoi(p);
+
+				if (chance < 1 || chance > 1000) {
+					trig_log(trig, fmt::format("Неверный шанс ({}) в loadobj, нужно 1..1000", chance).c_str());
+					snprintf(str, str_size, "0");
+					return;
+				}
+				// проверка максимума в мире (логика как в CanBeLoaded)
+				const bool can_load = stable_objs::IsTimerUnlimited(obj_proto[rnum].get())
+					|| (GetObjMIW(rnum) < 0)
+					|| (obj_proto.actual_count(rnum) < GetObjMIW(rnum));
+
+				if (!can_load) {
+					snprintf(str, str_size, "0");
+					return;
+				}
+				// бросок шанса
+				if (number(1, 1000) > chance) {
+					snprintf(str, str_size, "0");
+					return;
+				}
+				// размещение штатной командой load в зависимости от типа триггера
+				char loadarg[kMaxInputLength];
+				snprintf(loadarg, sizeof(loadarg), "obj %d", num);
+				switch (type) {
+					case MOB_TRIGGER: do_mload((CharData *) go, loadarg, 0, 0, trig); break;
+					case OBJ_TRIGGER: do_dgoload((ObjData *) go, loadarg, 0, 0, trig); break;
+					case WLD_TRIGGER: do_wload((RoomData *) go, loadarg, 0, 0, trig); break;
+					default: snprintf(str, str_size, "0"); return;
+				}
+				snprintf(str, str_size, "1");
 			} else if ((!str_cmp(field, "maxobj") || !str_cmp(field, "maxobjs")) && num > 0) {
 				num = GetObjRnum(num);
 				if (num >= 0) {
