@@ -359,6 +359,7 @@ main_sources = files(
   'src/utils/backtrace.cpp',
   'src/administration/ban.cpp',
   'src/administration/privilege_db.cpp',
+  'src/administration/dupe_check.cpp',
   'src/gameplay/communication/boards/boards_changelog_loaders.cpp',
   'src/gameplay/communication/boards/boards_constants.cpp',
   'src/gameplay/communication/boards/boards.cpp',

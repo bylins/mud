@@ -6,7 +6,7 @@
 #include "interpreter.h"
 #include "gameplay/mechanics/condition.h"
 #include "utils/utils_encoding.h"
-#include "interpreter_utils.h"
+#include "administration/dupe_check.h"
 
 #include "engine/core/char_movement.h"
 #include "administration/ban.h"

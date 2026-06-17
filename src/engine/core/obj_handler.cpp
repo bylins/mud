@@ -4,6 +4,7 @@
 */
 
 #include "engine/core/obj_handler.h"
+#include "engine/core/char_movement.h"
 #include "engine/core/char_handler.h"
 #include "engine/core/char_movement.h"
 #include "administration/privilege.h"
