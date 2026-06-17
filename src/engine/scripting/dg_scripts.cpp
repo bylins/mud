@@ -1889,13 +1889,13 @@ void find_replacement(void *go,
 			} else if (!str_cmp(field, "loadobj") && num > 0) {
 				// world.loadobj(vnum, chance): загрузить предмет с шансом chance (1..1000 промилле),
 				// учитывая MIW. Размещение делает штатная команда load по типу триггера.
-				// Поле ничего не подставляет в скрипт (пустая строка): иначе при рекурсивной
-				// подстановке "1"/"0" примутся за значение и пойдёт спам ошибок, хотя загрузка
-				// и выполнится. Нужен контроль успеха - проверяйте вручную через if и load.
+				// Возвращает "1" при загрузке, иначе "0". Загруженный предмет доступен через
+				// %LoadedUid% (выставляет load-команда).
 				const auto rnum = GetObjRnum(num);
 
 				if (rnum <= 0) {
 					trig_log(trig, fmt::format("Указан неверный параметр vnum ({}) в loadobj", num).c_str());
+					snprintf(str, str_size, "0");
 					return;
 				}
 				// второй аргумент (шанс) после vnum в subfield
@@ -1910,6 +1910,7 @@ void find_replacement(void *go,
 
 				if (chance < 1 || chance > 1000) {
 					trig_log(trig, fmt::format("Неверный шанс ({}) в loadobj, нужно 1..1000", chance).c_str());
+					snprintf(str, str_size, "0");
 					return;
 				}
 				// проверка максимума в мире (логика как в CanBeLoaded)
@@ -1918,10 +1919,12 @@ void find_replacement(void *go,
 					|| (obj_proto.actual_count(rnum) < GetObjMIW(rnum));
 
 				if (!can_load) {
+					snprintf(str, str_size, "0");
 					return;
 				}
 				// бросок шанса
 				if (number(1, 1000) > chance) {
+					snprintf(str, str_size, "0");
 					return;
 				}
 				// размещение штатной командой load в зависимости от типа триггера
@@ -1931,8 +1934,9 @@ void find_replacement(void *go,
 					case MOB_TRIGGER: do_mload((CharData *) go, loadarg, 0, 0, trig); break;
 					case OBJ_TRIGGER: do_dgoload((ObjData *) go, loadarg, 0, 0, trig); break;
 					case WLD_TRIGGER: do_wload((RoomData *) go, loadarg, 0, 0, trig); break;
-					default: break;
+					default: snprintf(str, str_size, "0"); return;
 				}
+				snprintf(str, str_size, "1");
 			} else if ((!str_cmp(field, "maxobj") || !str_cmp(field, "maxobjs")) && num > 0) {
 				num = GetObjRnum(num);
 				if (num >= 0) {
