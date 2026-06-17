@@ -190,36 +190,7 @@ void InitUid(ObjData *object) {
 
 
 
-int get_number(char **name) {
-	int i, res;
-	char *ppos;
 
-	if ((ppos = strchr(*name, '.')) != nullptr) {
-		for (i = 0; *name + i != ppos; i++) {
-			if (!a_isdigit(*(*name + i))) {
-				return 1;
-			}
-		}
-		res = atoi(*name);
-		memmove(*name, ppos + 1, strlen(ppos));
-		return res;
-	}
-	return 1;
-}
-
-int get_number(std::string &name) {
-	std::string::size_type pos = name.find('.');
-
-	if (pos != std::string::npos) {
-		for (std::string::size_type i = 0; i != pos; i++)
-			if (!a_isdigit(name[i]))
-				return (1);
-		int res = atoi(name.substr(0, pos).c_str());
-		name.erase(0, pos + 1);
-		return (res);
-	}
-	return (1);
-}
 
 /**
  * Search an object in list by rnum.

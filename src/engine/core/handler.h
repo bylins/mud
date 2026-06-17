@@ -23,6 +23,7 @@ struct RoomData;
 
 const int kSecsPerPlayerTimed = 1;
 #include "engine/core/char_equip_flags.h"   // CharEquipFlag(s) (issue.handler-cleaning)
+#include "utils/parse.h"   // issue.handler-cleaning: get_number
 #include "engine/core/char_movement.h"   // issue.handler-cleaning: real_sector/check_moves/num_pc_in_room
 #include "gameplay/mechanics/equipment.h"   // issue.handler-cleaning: equip queries
 #include "gameplay/mechanics/illumination.h"   // issue.handler-cleaning: room light + IsWearingLight/CheckLight
@@ -49,8 +50,6 @@ bool IsAwakeOthers(CharData *ch);
 
 // utility //
 char *fname(const char *namelist);
-int get_number(char **name);
-int get_number(std::string &name);
 
 RoomVnum get_room_where_obj(ObjData *obj, bool deep = false);
 
