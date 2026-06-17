@@ -660,6 +660,8 @@ TalentUnaffect::TalentUnaffect(parser_wrapper::DataNode &node) {
 								 : (kAfCurable | kAfDispellable);
 	const char *prob = node.GetValue("prob");
 	prob_ = (prob && *prob) ? parse::ReadAsInt(prob) : 100;
+	const char *dec = node.GetValue("decay");
+	decay_ = (dec && *dec) ? parse::ReadAsInt(dec) : 0;
 	for (auto &child: node.Children()) {
 		const auto name = child.GetName();
 		Set *set = nullptr;

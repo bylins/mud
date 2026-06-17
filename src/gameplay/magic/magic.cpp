@@ -1830,14 +1830,33 @@ void RemoveAffectAndAnnounce(CharData *ch, CharData *victim, ESpell removed) {
 // The check itself: a flat 5% chance to remove regardless of strength, otherwise the dispel's
 // potency -- (RollSkillDices + skill_coeff + stat_coeff) * potency_weight -- must exceed the
 // affect's recorded potency (the strength of the cast that imposed it).
+// issue.debuff-decay: ceiling on an affect's potency. A negative <unaffect decay> RAISES an affect's
+// strength on a failed removal; the cap stops repeated failures from growing it without bound (and
+// guards against overflow once the float feeds integer modifiers). Generous vs normal cast potencies
+// (tens) yet finite and well within int range.
+constexpr float kMaxAffectPotency = 30000.0f;
+
+// issue.debuff-decay: on a FAILED removal, shift the surviving affect's potency by `decay` percent of
+// THIS dispel's rolled potency -- positive decay weakens the affect, negative strengthens it. Floored
+// at 0 (per spec), capped at kMaxAffectPotency.
+void ApplyDispelDecay(float &affect_potency, float spell_potency, int decay) {
+	if (decay == 0) {
+		return;
+	}
+	const float delta = spell_potency * static_cast<float>(decay) / 100.0f;
+	affect_potency = std::clamp(affect_potency - delta, 0.0f, kMaxAffectPotency);
+}
+
 bool DispelSucceeds(CharData *ch, CharData *victim, ESpell dispel_spell, ESpell affect_spell,
-					float potency_weight, double competence, double area_coeff = 1.0) {
+					float potency_weight, double competence, double area_coeff = 1.0, int decay = 0) {
 	float affect_potency = 0.0f;
 	bool affect_is_debuff = false;
+	float *matched_potency = nullptr;
 	for (const auto &aff : victim->affected) {
 		if (aff && aff->type == affect_spell) {
 			affect_potency = aff->potency;
 			affect_is_debuff = aff->debuff;
+			matched_potency = &aff->potency;
 			break;
 		}
 	}
@@ -1874,6 +1893,9 @@ bool DispelSucceeds(CharData *ch, CharData *victim, ESpell dispel_spell, ESpell 
 	}
 	const bool ok = spell_potency > affect_potency;
 	emit_debug(spell_potency, "roll", ok);
+	if (!ok && matched_potency) {
+		ApplyDispelDecay(*matched_potency, spell_potency, decay);
+	}
 	return ok;
 }
 
@@ -1982,13 +2004,15 @@ void RemoveAffectAndAnnounce(CharData *ch, RoomData *room, ESpell removed) {
 }
 
 bool DispelSucceeds(CharData *ch, RoomData *room, ESpell dispel_spell, ESpell affect_spell,
-					float potency_weight, double competence, double area_coeff = 1.0) {
+					float potency_weight, double competence, double area_coeff = 1.0, int decay = 0) {
 	float affect_potency = 0.0f;
 	long author_uid = 0;
+	float *matched_potency = nullptr;
 	for (const auto &aff : room->affected) {
 		if (aff && aff->type == affect_spell) {
 			affect_potency = aff->potency;
 			author_uid = aff->caster_id;
+			matched_potency = &aff->potency;
 			break;
 		}
 	}
@@ -2022,6 +2046,9 @@ bool DispelSucceeds(CharData *ch, RoomData *room, ESpell dispel_spell, ESpell af
 	}
 	const bool ok = spell_potency > affect_potency;
 	emit_debug(spell_potency, "roll", ok);
+	if (!ok && matched_potency) {
+		ApplyDispelDecay(*matched_potency, spell_potency, decay);
+	}
 	return ok;
 }
 
@@ -2064,7 +2091,8 @@ EStageResult RunCastUnaffects(CharData *ch, TTarget *target, ESpell spell_id,
 		bool removed_any = false;
 		bool resisted_any = false;
 		for (const auto &cand : to_remove) {
-			if (DispelSucceeds(ch, target, spell_id, cand.spell, unaffect.GetPotencyWeight(), competence, area_coeff)) {
+			if (DispelSucceeds(ch, target, spell_id, cand.spell, unaffect.GetPotencyWeight(), competence, area_coeff,
+							  unaffect.GetDecay())) {
 				// capture the removed affect's potency BEFORE it is stripped.
 				double removed_pot = 0.0;
 				for (const auto &aff : target->affected) {

@@ -547,6 +547,9 @@ class TalentUnaffect : public IAction {
 	// kAfCurable (cures, doesn't dispel); kDispellMagic to kAfDispellable (dispels, doesn't cure).
 	[[nodiscard]] Bitvector GetAffectFlags() const { return affect_flags_; }
 	[[nodiscard]] int GetProb() const { return prob_; }
+	// issue.debuff-decay: percent of THIS dispel's potency by which a SURVIVING affect's potency
+	// shifts when a removal attempt fails (positive weakens it, negative strengthens it; 0 = none).
+	[[nodiscard]] int GetDecay() const { return decay_; }
 
  private:
 	Set blocking_;       // present -> removal is blocked (chain not affected)
@@ -556,6 +559,7 @@ class TalentUnaffect : public IAction {
 	float potency_weight_{1.0f};
 	Bitvector affect_flags_{kAfCurable | kAfDispellable};
 	int prob_{100};      // percent chance the unaffect block fires at all (default always)
+	int decay_{0};       // issue.debuff-decay: % of dispel potency to shift a surviving affect on a failed removal
 };
 
 using ActionPtr = std::shared_ptr<IAction>;

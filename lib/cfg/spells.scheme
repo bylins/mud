@@ -325,6 +325,7 @@
 		<attr name="affect_flags" type="flagset" enum="EAffFlag" desc="Only affects carrying these flags are eligible"/>
 		<attr name="potency_weight" type="double" min="0" desc="Caster potency multiplier for the dispel contest"/>
 		<attr name="prob" type="int" min="0" max="100" desc="Chance to apply (percent)"/>
+		<attr name="decay" type="int" desc="On a FAILED removal, shift the surviving affect potency by this percent of the dispel potency (negative = strengthen, 0 = none); default 0"/>
 		<child tag="remove"/>
 		<child tag="remove_anyway"/>
 		<child tag="blocking"/>
