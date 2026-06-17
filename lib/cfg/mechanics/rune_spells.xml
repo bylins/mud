@@ -32,7 +32,7 @@
     <spell id="kCureBlind" level="7" runes="200|223|202"/>
     <spell id="kRemovePoison" level="7" runes="230|202"/>
     <spell id="kBless" level="7" runes="202|214|200"/>
-    <!-- [name lookup failed] ;remove curse	       runes 214 229 -1 -1 1 -->
+    <spell id="kRemoveCurse" level="10" runes= "214|229"/>
     <spell id="kMagicMissile" level="1" runes="225"/>
     <spell id="kCureLight" level="3" runes="229|202"/>
     <spell id="kDamageLight" level="3" runes="225|234"/>
@@ -138,7 +138,8 @@
     <spell id="kShock" level="22" runes="206|220|236|245"/>
     <spell id="kAllSeeingEye" level="24" runes="217|229|242"/>
     <spell id="kBreathingAtDepth" level="24" runes="217|223|242"/>
-    <!-- <spell id="kStoneWall" level="24" runes="217|222|242"/> -->
+	<!-- <spell id="kStoneWall" level="24" runes="217|222|242"/> -->
+    <spell id="kCatGrace" level="26" runes="210|215|202"/>
     <spell id="kSnakeEyes" level="24" runes="217|242|240"/>
     <spell id="kSightOfDarkness" level="24" runes="217|207|242"/>
     <spell id="kMagicalGaze" level="24" runes="217|242|224"/>

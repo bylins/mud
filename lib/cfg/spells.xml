@@ -5004,7 +5004,7 @@
 		</components>
 		<misc pos="kStand" violent="N" danger="0" />
 		<mana max="80" min="40" change="1" />
-		<targets val="kTarCharRoom|kTarFightSelf|kTarMinionsOnly" />
+		<targets val="kTarCharRoom|kTarNotSelf|kTarMinionsOnly" />
 		<flags val="kMagAffects|kNpcAffectNpc" />
 		<potency_roll>
 			<dices ndice="5" sdice="9" adice="12" />
@@ -5019,10 +5019,10 @@
 			<action>
 				<target_conditions>
 					<blocking>
-						<mob_flags val="kResurrected|kMounting|kHelper|kClone" />
+						<mob_flags val="kHelper|kMounting|kClone" />
 					</blocking>
 					<required>
-						<mob_flags val="kCorpse" />
+						<mob_flags val="kCorpse|kResurrected" />
 					</required>
 				</target_conditions>
 				<affects type="kStoneBones" saving="kNone" resist="kEarth">
@@ -5200,7 +5200,7 @@
 		<targets val="kTarIgnore" />
 		<flags val="kMagMasses|kMagAffects|kNpcAffectPc" />
 		<potency_roll>
-			<base_skill id="kAirMagic" low_skill_bonus="12" hi_skill_bonus="8" />
+			<base_skill id="kDarkMagic" low_skill_bonus="12" hi_skill_bonus="8" />
 			<base_stat id="kCha" threshold="12" weight="10" />
 		</potency_roll>
 		<success_roll>
