@@ -1111,7 +1111,7 @@
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
 				</affects>
-				<unaffect prob="100" potency_weight="1">
+				<unaffect prob="100" potency_weight="1" decay="25">
 					<breaking any_of="kPrismaticAura" />
 					<remove any_of="kPrismaticAura" />
 				</unaffect>
@@ -4130,7 +4130,7 @@
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
 				</affects>
-				<unaffect prob="100" potency_weight="1">
+				<unaffect prob="100" potency_weight="1" decay="25">
 					<breaking any_of="kSanctuary" />
 					<remove any_of="kSanctuary" />
 				</unaffect>
