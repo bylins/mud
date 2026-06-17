@@ -29,6 +29,8 @@ const int kSecsPerPlayerTimed = 1;
 #include "gameplay/mechanics/illumination.h"   // issue.handler-cleaning: room light + IsWearingLight/CheckLight
 #include "gameplay/abilities/timed_abilities.h"   // issue.handler-cleaning: timed feat/skill timers
 #include "gameplay/mechanics/inventory.h"   // issue.handler-cleaning: inventory API
+#include "engine/core/char_handler.h"   // issue.handler-cleaning: char placement/extraction
+#include "engine/core/obj_handler.h"     // issue.handler-cleaning: object placement/extraction
 
 #include "engine/core/target_resolver.h"   // issue.handler-cleaning: target search moved here
 using target_resolver::get_obj_vis_for_locate;
@@ -50,7 +52,6 @@ bool IsAwakeOthers(CharData *ch);
 
 // utility //
 
-RoomVnum get_room_where_obj(ObjData *obj, bool deep = false);
 
 // ******** objects *********** //
 
@@ -61,26 +62,12 @@ ObjData *GetObjByVnumInContent(int vnum, const ObjData::obj_list_t &list);
 
 //ObjData *get_obj(const char *name, int vnum = 0);
 
-bool CheckObjDecay(ObjData *object, bool need_extract = true);
-bool PlaceObjToRoom(ObjData *object, RoomRnum room);
-void RemoveObjFromRoom(ObjData *object);
-void PlaceObjIntoObj(ObjData *obj, ObjData *obj_to);
-void RemoveObjFromObj(ObjData *obj);
-void object_list_new_owner(ObjData *list, CharData *ch);
 
-void ExtractObjFromWorld(ObjData *obj, bool showlog = false);
 
 // ******* characters ********* //
 
 //CharData *get_char(char *name);
 
-void RemoveCharFromRoom(CharData *ch);
-inline void char_from_room(const CharData::shared_ptr &ch) { RemoveCharFromRoom(ch.get()); }
-void PlaceCharToRoom(CharData *ch, RoomRnum room);
-inline void char_to_room(const CharData::shared_ptr &ch, RoomRnum room) { PlaceCharToRoom(ch.get(), room); }
-void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset = false);
-void DropEquipment(CharData *ch, bool zone_reset);
-void DropInventory(CharData *ch, bool zone_reset);
 
 // find if character can see //
 
@@ -117,8 +104,6 @@ void Crash_idlesave(CharData *ch);
 
 
 
-int get_object_low_rent(ObjData *obj);
-void InitUid(ObjData *object);
 
 
 #endif // HANDLER_H_
