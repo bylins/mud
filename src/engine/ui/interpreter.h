@@ -33,11 +33,6 @@ void command_interpreter(CharData *ch, char *argument);
 
 // is_number moved to utils_string.h
 int find_command(const char *command);
-// блок подобной же фигни для стрингов
-DescriptorData *DescriptorByUid(long uid);
-int GetUniqueByName(std::string name, bool god = false);
-std::string GetNameByUnique(long unique, bool god = false);
-bool IsActiveUser(long unique);
 void CreateFileName(std::string &name);
 std::string ExpFormat(long long exp);
 void name_convert(std::string &text);

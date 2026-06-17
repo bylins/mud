@@ -94,6 +94,15 @@ int IsCorrectUnique(int unique);
 void RecreateSaveinfo(size_t number);
 void BuildPlayerIndexNew();
 
+class DescriptorData;
+
+// Identity lookups (moved from interpreter.cpp, issue.interpreter-cleaning Bucket 3)
+DescriptorData *DescriptorByUid(long uid);
+int GetUniqueByName(std::string name, bool god = false);
+std::string GetNameByUnique(long unique, bool god = false);
+bool IsActiveUser(long unique);
+void DeletePcByHimself(const char *name);
+
 inline SaveInfo *SAVEINFO(const size_t number) {
 	return player_table[number].timer;
 }

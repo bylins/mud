@@ -13,6 +13,7 @@
 ************************************************************************ */
 
 #include <fmt/format.h>
+#include "engine/db/player_index.h"
 #include <string>
 
 #include "modify.h"

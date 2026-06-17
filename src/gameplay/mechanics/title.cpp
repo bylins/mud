@@ -4,6 +4,7 @@
 
 #include "title.h"
 #include "gameplay/economics/currencies.h"
+#include "engine/db/player_index.h"
 #include "engine/entities/char_player.h"
 #include "gameplay/fight/pk.h"
 #include "engine/entities/char_data.h"

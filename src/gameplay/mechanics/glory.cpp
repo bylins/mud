@@ -3,6 +3,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "glory.h"
+#include "engine/db/player_index.h"
 #include "administration/privilege.h"
 #include "utils/grammar/declensions.h"
 

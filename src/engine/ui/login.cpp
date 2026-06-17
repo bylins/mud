@@ -315,7 +315,6 @@ extern char *greetings;
 extern struct show_struct show_fields[];
 extern char *name_rules;
 
-void DeletePcByHimself(const char *name);
 
 // external functions
 void read_saved_vars(CharData *ch);

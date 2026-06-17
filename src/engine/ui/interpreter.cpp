@@ -324,7 +324,6 @@ extern char *greetings;
 extern struct show_struct show_fields[];
 extern char *name_rules;
 
-void DeletePcByHimself(const char *name);
 
 // external functions
 void read_saved_vars(CharData *ch);
@@ -1442,17 +1441,6 @@ enum Mode {
 // берем из первой строки одно слово или подстроку в кавычках, результат удаляется из buffer
 // GetOneParam / CompareParam(x2) moved to utils/parse
 
-// ищет дескриптор игрока(онлайн состояние) по его УИДу
-DescriptorData *DescriptorByUid(long uid) {
-	DescriptorData *d = nullptr;
-
-	for (d = descriptor_list; d; d = d->next) {
-		if (d->character && d->character->get_uid() == uid) {
-			break;
-		}
-	}
-	return (d);
-}
 
 /**
 * ищет УИД игрока по его имени, второй необязательный параметр - учитывать или нет БОГОВ
@@ -1463,56 +1451,8 @@ DescriptorData *DescriptorByUid(long uid) {
 * \return >0 - уид чара, 0 - не нашли, -1 - нашли, но это оказался бог (только при god = true)
 */
 
-int GetUniqueByName(std::string name, bool god) {
-	for (auto &i : player_table) {
-		if (i.uid() != -1 && CompareParam(name, i.name(), true)) {
-			if (!god) {
-				return i.uid();
-			} else {
-				if (i.level < kLvlImmortal) {
-					return i.uid();
-				} else {
-					return -1;
-				}
-			}
-		}
-	}
-	return 0;
-}
 
-bool IsActiveUser(long unique) {
-	time_t currTime = time(nullptr);
-	time_t charLogon;
-	int inactivityDelay = /* day*/ (3600 * 24) * /*days count*/ 60;
-	for (auto &i : player_table) {
-		if (i.uid() == unique) {
-			charLogon = i.last_logon;
-			return currTime - charLogon < inactivityDelay;
-		}
-	}
-	return false;
-}
 
-// ищет имя игрока по его УИДу, второй необязательный параметр - учитывать или нет БОГОВ
-std::string GetNameByUnique(long unique, bool god) {
-	std::string empty;
-
-	for (auto &i : player_table) {
-		if (i.uid() == unique) {
-			if (!god) {
-				return i.name();
-			} else {
-				if (i.level < kLvlImmortal) {
-					return i.name();
-				} else {
-					return empty;
-				}
-			}
-		}
-	}
-
-	return empty;
-}
 
 // замена в name русских символов на англ в нижнем регистре (для файлов)
 void CreateFileName(std::string &name) {
@@ -1545,31 +1485,6 @@ void name_convert(std::string &text) {
 	}
 }
 
-// * Добровольное удаление персонажа через игровое меню.
-void DeletePcByHimself(const char *name) {
-	Player t_st;
-	Player *st = &t_st;
-	int id = LoadPlayerCharacter(name, st, ELoadCharFlags::kFindId);
-
-	if (id >= 0) {
-		st->SetFlag(EPlrFlag::kDeleted);
-		NewNames::remove(st);
-		if (NAME_FINE(st)) {
-			player_table.GetNameAdviser().add(GET_NAME(st));
-		}
-		Clan::remove_from_clan(st->get_uid());
-		st->save_char();
-
-		ClearCrashSavedObjects(id);
-		player_table[id].set_uid(0);
-		player_table[id].level = -1;
-		player_table[id].remorts = -1;
-		player_table[id].last_logon = -1;
-		player_table[id].activity = -1;
-		player_table[id].mail.clear();
-		player_table[id].last_ip.clear();
-	}
-}
 
 // generic function for commands which are normally overridden by
 // special procedures - i.e., shop commands, mail commands, etc.

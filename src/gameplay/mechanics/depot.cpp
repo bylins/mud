@@ -3,6 +3,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "depot.h"
+#include "engine/db/player_index.h"
 #include "administration/privilege.h"
 #include "gameplay/economics/currencies.h"
 #include "gameplay/ai/spec_procs.h"

@@ -3,6 +3,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "parcel.h"
+#include "engine/db/player_index.h"
 #include "administration/privilege.h"
 #include "gameplay/economics/currencies.h"
 #include "gameplay/mechanics/sight.h"

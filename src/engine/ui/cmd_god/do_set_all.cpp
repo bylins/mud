@@ -7,6 +7,7 @@
 */
 
 #include "engine/ui/cmd_god/do_set_all.h"
+#include "engine/db/player_index.h"
 
 #include "administration/karma.h"
 #include "engine/entities/char_data.h"
