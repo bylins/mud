@@ -9,6 +9,8 @@
 #ifndef BYLINS_SRC_GAMEPLAY_CORE_BASE_STATS_H_
 #define BYLINS_SRC_GAMEPLAY_CORE_BASE_STATS_H_
 
+#include "gameplay/mechanics/inventory.h"   // issue.handler-cleaning: CAN_CARRY_N/W moved here
+
 enum { STR_TO_HIT, STR_TO_DAM, STR_CARRY_W, STR_WIELD_W, STR_HOLD_W, STR_BOTH_W, STR_SHIELD_W };
 enum { WIS_MAX_LEARN_L20, WIS_SPELL_SUCCESS, WIS_MAX_SKILLS, WIS_FAILS };
 
@@ -19,9 +21,7 @@ int dex_bonus(int dex);
 int dex_ac_bonus(int dex);
 int wis_bonus(int stat, int type);
 int calc_str_req(int weight, int type);
-int CAN_CARRY_N(const CharData *ch);
 // \todo Переделать на функцию
-#define CAN_CARRY_W(ch) ((str_bonus(GetRealStr(ch), STR_CARRY_W) * ((ch)->HaveFeat(EFeat::kPorter) ? 110 : 100))/100)
 
 #endif //BYLINS_SRC_GAMEPLAY_CORE_BASE_STATS_H_
 

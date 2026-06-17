@@ -509,6 +509,7 @@ main_sources = files(
   'src/engine/db/obj_save.cpp',
   'src/gameplay/mechanics/obj_save_ext.cpp',
   'src/gameplay/mechanics/obj_sets.cpp',
+  'src/gameplay/mechanics/inventory.cpp',
   'src/gameplay/mechanics/obj_sets_olc.cpp',
   'src/gameplay/magic/magic_objects.cpp',
   'src/engine/olc/oedit.cpp',

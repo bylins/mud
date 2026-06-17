@@ -26,6 +26,7 @@ const int kLightYes = 1;
 const int kLightUndef = 2;
 const int kSecsPerPlayerTimed = 1;
 #include "engine/core/char_equip_flags.h"   // CharEquipFlag(s) (issue.handler-cleaning)
+#include "gameplay/mechanics/inventory.h"   // issue.handler-cleaning: inventory API
 
 #include "engine/core/target_resolver.h"   // issue.handler-cleaning: target search moved here
 using target_resolver::get_obj_vis_for_locate;
@@ -61,9 +62,6 @@ int get_number(std::string &name);
 RoomVnum get_room_where_obj(ObjData *obj, bool deep = false);
 
 // ******** objects *********** //
-bool IsObjsStackable(ObjData *obj_one, ObjData *obj_two);
-void PlaceObjToInventory(ObjData *object, CharData *ch);
-void RemoveObjFromChar(ObjData *object);
 
 bool HaveIncompatibleAlign(CharData *ch, ObjData *obj);
 
@@ -148,7 +146,6 @@ void Crash_idlesave(CharData *ch);
 int get_object_low_rent(ObjData *obj);
 void InitUid(ObjData *object);
 
-void can_carry_obj(CharData *ch, ObjData *obj);
 int num_pc_in_room(RoomData *room);
 int check_moves(CharData *ch, int how_moves);
 int real_sector(int room);

@@ -2,6 +2,7 @@
 #define CHAR_OBJ_UTILS_HPP_
 
 #include "handler.h"
+#include "gameplay/mechanics/inventory.h"   // issue.handler-cleaning: CanTakeObj moved here
 #include "gameplay/mechanics/minions.h"
 #include "engine/structs/structs.h"
 #include "engine/entities/char_data.h"
@@ -54,28 +55,6 @@ inline bool CAN_GET_OBJ(const CharData *ch, const ObjData *obj) {
 			&& obj->has_flag(EObjFlag::kBloody));
 }
 
-inline bool CanTakeObj(CharData *ch, ObjData *obj) {
-	if (ch->GetCarryingQuantity() >= CAN_CARRY_N(ch)
-		&& obj->get_type() != EObjType::kMoney) {
-		act("$p: Вы не могете нести столько вещей.", false, ch, obj, nullptr, kToChar);
-		return false;
-	} else if ((ch->GetCarryingWeight() + obj->get_weight()) > CAN_CARRY_W(ch)
-		&& obj->get_type() != EObjType::kMoney) {
-		act("$p: Вы не в состоянии нести еще и $S.", false, ch, obj, nullptr, kToChar);
-		return false;
-	} else if (!(CAN_WEAR(obj, EWearFlag::kTake))) {
-		act("$p: Вы не можете взять $S.", false, ch, obj, nullptr, kToChar);
-		return false;
-	} else if (invalid_anti_class(ch, obj)) {
-		act("$p: Эта вещь не предназначена для вас!", false, ch, obj, nullptr, kToChar);
-		return false;
-	} else if (NamedStuff::check_named(ch, obj, false)) {
-		if (!NamedStuff::wear_msg(ch, obj))
-			act("$p: Эта вещь не предназначена для вас!", false, ch, obj, nullptr, kToChar);
-		return false;
-	}
-	return true;
-}
 
 inline void weight_change_object(ObjData *obj, int weight) {
 	ObjData *tmp_obj;
