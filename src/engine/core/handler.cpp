@@ -198,25 +198,7 @@ void InitUid(ObjData *object) {
  * @param list - given list.
  * @return - ptr to found obj or nullptr.
  */
-ObjData *GetObjByRnumInContent(ObjRnum rnum, ObjData *list) {
-	ObjData *i;
-	for (i = list; i; i = i->get_next_content()) {
-		if (i->get_rnum() == rnum) {
-			return (i);
-		}
-	}
 
-	return nullptr;
-}
-
-ObjData *GetObjByRnumInContent(ObjRnum rnum, const ObjData::obj_list_t &list) {
-	for (auto i : list) {
-		if (i->get_rnum() == rnum) {
-			return i;
-		}
-	}
-	return nullptr;
-}
 
 /**
  * Search an object in list by vnum.
@@ -224,16 +206,6 @@ ObjData *GetObjByRnumInContent(ObjRnum rnum, const ObjData::obj_list_t &list) {
  * @param list - given list.
  * @return - ptr to found obj or nullptr.
  */
-ObjData *GetObjByVnumInContent(ObjVnum vnum, ObjData *list) {
-	ObjData *i;
-	for (i = list; i; i = i->get_next_content()) {
-		if (i->get_vnum() == vnum) {
-			return (i);
-		}
-	}
-
-	return nullptr;
-}
 
 const int kMoneyDestroyTimer = 60;
 const int kDeathDestroyTimer = 5;
@@ -795,155 +767,17 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 *********************************************************************** */
 
 // ищем по имени в character list
-CharData *get_player_of_name(const char *name) {
-	for (const auto &i : character_list) {
-		if (i->IsNpc()) {
-			continue;
-		}
-		if (!isname(name, i->GetCharAliases())) {
-			continue;
-		}
-		return i.get();
-	}
-	return nullptr;
-}
 
-ObjData *get_obj_in_list_vis(CharData *ch, const char *name, const ObjData::obj_list_t &list, bool locate_item) {
-	int j = 0, number;
-	char tmpname[kMaxInputLength];
-	char *tmp = tmpname;
-
-	strcpy(tmp, name);
-	if (!(number = get_number(&tmp)))
-		return (nullptr);
-
-	//Запретим локейт 2. 3. n. стафин
-	if (number > 1 && locate_item)
-		return (nullptr);
-
-	for (auto i : list) {
-		if (j > number) break;
-		if (i->get_extracted_list()) {
-			continue;
-		}
-		if (isname(tmp, i->get_aliases())
-			|| CHECK_CUSTOM_LABEL(tmp, i, ch)) {
-			if (sight::CanSeeObj(ch, i)) {
-				// sprintf(buf,"Show obj %d %s %x ", number, i->name, i);
-				// SendMsgToChar(buf,ch);
-				if (!locate_item) {
-					if (++j == number)
-						return (i);
-				} else {
-					if (try_locate_obj(ch, i))
-						return (i);
-					else
-						continue;
-				}
-			}
-		}
-	}
-
-	return (nullptr);
-}
 
 // Legacy overloads for ObjData* linked lists (carrying, equipment)
-ObjData *get_obj_in_list_vis(CharData *ch, const char *name, ObjData *list, bool locate_item) {
-	ObjData::obj_list_t tmp_list;
-	for (auto obj = list; obj; obj = obj->get_next_content()) {
-		tmp_list.push_back(obj);
-	}
-	return get_obj_in_list_vis(ch, name, tmp_list, locate_item);
-}
 
-ObjData *get_obj_vis_and_dec_num(CharData *ch,
-								 const char *name,
-								 ObjData *list,
-								 std::unordered_set<unsigned int> &id_obj_set,
-								 int &number) {
-	for (auto item = list; item != nullptr; item = item->get_next_content()) {
-		if (sight::CanSeeObj(ch, item)) {
-			if (isname(name, item->get_aliases())
-				|| CHECK_CUSTOM_LABEL(name, item, ch)) {
-				if (--number == 0) {
-					return item;
-				}
-				id_obj_set.insert(item->get_id());
-			}
-		}
-	}
-	return nullptr;
-}
 
 class ExitLoopException : std::exception {};
 
-ObjData *get_obj_vis_and_dec_num(CharData *ch,
-								 const char *name,
-								 const ObjData::obj_list_t &list,
-								 std::unordered_set<unsigned int> &id_obj_set,
-								 int &number) {
-	for (auto item : list) {
-		if (sight::CanSeeObj(ch, item)) {
-			if (isname(name, item->get_aliases())
-				|| CHECK_CUSTOM_LABEL(name, item, ch)) {
-				if (--number == 0) {
-					return item;
-				}
-				id_obj_set.insert(item->get_id());
-			}
-		}
-	}
-
-	return nullptr;
-}
-
-ObjData *get_obj_vis_and_dec_num(CharData *ch,
-								 const char *name,
-								 ObjData *equip[],
-								 std::unordered_set<unsigned int> &id_obj_set,
-								 int &number) {
-	for (auto i = 0; i < EEquipPos::kNumEquipPos; ++i) {
-		auto item = equip[i];
-		if (item && sight::CanSeeObj(ch, item)) {
-			if (isname(name, item->get_aliases())
-				|| CHECK_CUSTOM_LABEL(name, item, ch)) {
-				if (--number == 0) {
-					return item;
-				}
-				id_obj_set.insert(item->get_id());
-			}
-		}
-	}
-
-	return nullptr;
-}
 
 
 
-ObjData *get_object_in_equip_vis(CharData *ch, const char *arg, ObjData *equipment[], int *j) {
-	int l, number;
-	char tmpname[kMaxInputLength];
-	char *tmp = tmpname;
 
-	strcpy(tmp, arg);
-	if (!(number = get_number(&tmp)))
-		return (nullptr);
-
-	for ((*j) = 0, l = 0; (*j) < EEquipPos::kNumEquipPos; (*j)++) {
-		if (equipment[(*j)]) {
-			if (sight::CanSeeObj(ch, equipment[(*j)])) {
-				if (isname(tmp, equipment[(*j)]->get_aliases())
-					|| CHECK_CUSTOM_LABEL(tmp, equipment[(*j)], ch)) {
-					if (++l == number) {
-						return equipment[(*j)];
-					}
-				}
-			}
-		}
-	}
-
-	return (nullptr);
-}
 
 /* Generic Find, designed to find any object/character
  *

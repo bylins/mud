@@ -58,9 +58,6 @@ RoomVnum get_room_where_obj(ObjData *obj, bool deep = false);
 
 ObjData *get_obj_in_list(char *name, ObjData *list);
 ObjData *get_obj_in_list(const char *name, const ObjData::obj_list_t &list);
-ObjData *GetObjByRnumInContent(int obj_rnum, ObjData *list);
-ObjData *GetObjByRnumInContent(int obj_rnum, const ObjData::obj_list_t &list);
-ObjData *GetObjByVnumInContent(int vnum, ObjData *list);
 ObjData *GetObjByVnumInContent(int vnum, const ObjData::obj_list_t &list);
 
 //ObjData *get_obj(const char *name, int vnum = 0);
@@ -87,22 +84,9 @@ void DropEquipment(CharData *ch, bool zone_reset);
 void DropInventory(CharData *ch, bool zone_reset);
 
 // find if character can see //
-ObjData *get_obj_in_list_vis(CharData *ch, const char *name, const ObjData::obj_list_t &list, bool locate_item = false);
-ObjData *get_obj_in_list_vis(CharData *ch, const char *name, ObjData *list, bool locate_item = false);
-inline ObjData *get_obj_in_list_vis(CharData *ch,
-									const std::string &name,
-									const ObjData::obj_list_t &list) { return get_obj_in_list_vis(ch, name.c_str(), list); }
-inline ObjData *get_obj_in_list_vis(CharData *ch,
-									const std::string &name,
-									ObjData *list) { return get_obj_in_list_vis(ch, name.c_str(), list); }
 
 
 
-ObjData *get_object_in_equip_vis(CharData *ch, const char *arg, ObjData *equipment[], int *j);
-inline ObjData *get_object_in_equip_vis(CharData *ch,
-										const std::string &arg,
-										ObjData *equipment[],
-										int *j) { return get_object_in_equip_vis(ch, arg.c_str(), equipment, j); }
 // find all dots //
 
 

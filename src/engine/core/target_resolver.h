@@ -13,6 +13,7 @@
 #include "engine/structs/structs.h"
 #include "engine/entities/entities_constants.h"   // EMobFlag
 #include "gameplay/affects/affect_contants.h"     // EAffect
+#include "engine/entities/obj_data.h"          // ObjData::obj_list_t for the finder decls
 
 #include <cstdint>
 #include <functional>
@@ -268,6 +269,24 @@ int find_all_dots(char *arg);
 RoomRnum FindRoomRnum(CharData *ch, char *rawroomstr, int trig);
 
 }; // namespace target_resolver
+
+// issue.handler-cleaning (split): entity finders moved from handler.cpp (global scope).
+ObjData *GetObjByRnumInContent(int obj_rnum, ObjData *list);
+ObjData *GetObjByRnumInContent(int obj_rnum, const ObjData::obj_list_t &list);
+ObjData *GetObjByVnumInContent(int vnum, ObjData *list);
+CharData *get_player_of_name(const char *name);
+ObjData *get_obj_in_list_vis(CharData *ch, const char *name, const ObjData::obj_list_t &list, bool locate_item = false);
+ObjData *get_obj_in_list_vis(CharData *ch, const char *name, ObjData *list, bool locate_item = false);
+inline ObjData *get_obj_in_list_vis(CharData *ch, const std::string &name, const ObjData::obj_list_t &list) {
+	return get_obj_in_list_vis(ch, name.c_str(), list);
+}
+inline ObjData *get_obj_in_list_vis(CharData *ch, const std::string &name, ObjData *list) {
+	return get_obj_in_list_vis(ch, name.c_str(), list);
+}
+ObjData *get_object_in_equip_vis(CharData *ch, const char *arg, ObjData *equipment[], int *j);
+inline ObjData *get_object_in_equip_vis(CharData *ch, const std::string &arg, ObjData *equipment[], int *j) {
+	return get_object_in_equip_vis(ch, arg.c_str(), equipment, j);
+}
 
 #endif // _TARGET_RESOLVER_HPP_INCLUDED_
 
