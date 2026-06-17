@@ -266,6 +266,8 @@ class Damage : public IAction {
 	int hits_skill_divisor_{25};             // CalcNoviceSkillBonus divisor for the extra-hits bonus
 	int hits_max_{1};                        // upper bound on extra hits
 	int hits_prob_{20};                      // percent chance the bonus fires (0 = random 0..extra)
+	bool has_instant_death_{false};          // issue.instant-death: presence => the spell can kill outright
+	int instant_death_prob_{100};            // percent chance the instant-death attempt is rolled
  public:
 	explicit Damage(parser_wrapper::DataNode &node);
 	[[nodiscard]] int GetProb() const { return prob_; }
@@ -277,6 +279,9 @@ class Damage : public IAction {
 	[[nodiscard]] int GetHitsSkillDivisor() const { return hits_skill_divisor_; }
 	[[nodiscard]] int GetHitsMax() const { return hits_max_; }
 	[[nodiscard]] int GetHitsProb() const { return hits_prob_; }
+	[[nodiscard]] ESaving GetSaving() const { return saving_; }
+	[[nodiscard]] bool HasInstantDeath() const { return has_instant_death_; }
+	[[nodiscard]] int GetInstantDeathProb() const { return instant_death_prob_; }
 
 	void Print(CharData *ch, std::ostringstream &buffer) const override;
 };

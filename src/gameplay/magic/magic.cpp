@@ -52,6 +52,7 @@
 #include "gameplay/mechanics/minions.h"
 #include "gameplay/mechanics/sight.h"
 #include "gameplay/core/remort.h"
+#include "gameplay/abilities/abilities_rollsystem.h"   // issue.instant-death: OppositeLuckTest
 
 extern int interpolate(int min_value, int pulse);
 
@@ -453,6 +454,41 @@ EStageResult CastDamage(CastContext &ctx) {
 	}
 //	if (!ch->IsNpc() && (GetRealLevel(ch) > 10))
 //		modi += (GetRealLevel(ch) - 10);
+
+	// issue.instant-death: a <damage><instant_death prob=.../> spell can kill the target outright.
+	// Gate, in order: the target must FAIL its saving throw; the prob roll must fire (default 100 =
+	// always); the caster must WIN the opposed luck/morale contest. On success the normal damage is
+	// irrelevant -- an NPC takes enough to die (hit + 11, past the -11 death floor); a PC is left at
+	// exactly 1 HP (hit - 1). The lethal hit ignores armour/absorb/sanct/prism so the amount lands exactly.
+	if (ch != victim && ctx.action_or_default().Contains(talents_actions::EAction::kDamage)) {
+		const auto &id_act = ctx.action_or_default().GetDmg();
+		if (id_act.HasInstantDeath()
+				&& !victim->get_role(static_cast<unsigned>(EMobClass::kBoss))   // never on boss monsters
+				&& !CalcGeneralSaving(ch, victim, id_act.GetSaving(), modi)
+				&& number(1, 100) <= id_act.GetInstantDeathProb()
+				&& abilities_roll::AgainstRivalRoll::OppositeLuckTest(ch, victim)) {
+			const int lethal = victim->IsNpc() ? victim->get_hit() + 11
+											   : std::max(0, victim->get_hit() - 1);
+			if (tc) {
+				spell_trace::Line(ch, victim, "&CInstant death %s -> %s: lethal hit %d (%s).&n\r\n",
+					MUD::Spell(spell_id).GetCName(), GET_NAME(victim), lethal,
+					victim->IsNpc() ? "kill" : "leave at 1 HP");
+			}
+			Damage id_dmg(SpellDmg(spell_id), lethal, fight::kMagicDmg);
+			id_dmg.flags.set(fight::kIgnoreArmor);
+			id_dmg.flags.set(fight::kIgnoreAbsorbe);
+			id_dmg.flags.set(fight::kIgnoreSanct);
+			id_dmg.flags.set(fight::kIgnorePrism);
+			id_dmg.flags.set(fight::kNoFleeDmg);
+			const int id_rand = id_dmg.Process(ch, victim);
+			ctx.result.damage = id_rand;
+			if (id_rand < 0) {
+				ctx.is_vict_dead = true;
+				return EStageResult::kBreak;
+			}
+			return EStageResult::kSuccess;
+		}
+	}
 
 	// Multi-hit count: a damage spell with a <hits> child gets its extra-hit
 	// number from CalcExtraHits; the kMagicArrows feat for kMagicMissile is handled inside it.

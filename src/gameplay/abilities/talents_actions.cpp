@@ -421,6 +421,13 @@ Damage::Damage(parser_wrapper::DataNode &node) {
 		hits_prob_ = (hpr && *hpr) ? parse::ReadAsInt(hpr) : hits_prob_;
 		node.GoToParent();
 	}
+	// issue.instant-death: <instant_death prob="N"/> (default 100) -- presence enables the lethal strike.
+	if (node.GoToChild("instant_death")) {
+		has_instant_death_ = true;
+		const char *idp = node.GetValue("prob");
+		instant_death_prob_ = (idp && *idp) ? parse::ReadAsInt(idp) : 100;
+		node.GoToParent();
+	}
 }
 
 // Parse one child amount tag (heal/moves/thirst/cond) into `a`. The shared

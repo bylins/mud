@@ -216,6 +216,11 @@
 		<attr name="prob" type="int" min="0" max="100" desc="Chance to land (percent)"/>
 		<child tag="amount"/>
 		<child tag="hits"/>
+		<child tag="instant_death"/>
+	</tag>
+
+	<tag name="instant_death" desc="Lethal-strike: on a failed save + won luck contest, kill an NPC outright (PC left at 1 HP)">
+		<attr name="prob" type="int" min="0" max="100" desc="Chance the instant-death attempt is rolled (percent, default 100)"/>
 	</tag>
 
 	<tag name="amount" desc="Magnitude formula: min + dices_weight*roll, shaped by alpha/beta">
