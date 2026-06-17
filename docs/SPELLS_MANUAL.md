@@ -496,8 +496,9 @@ customization is a documented TODO in each handler body). It replaced the old `k
 ```
 
 Transforms a target object, running as a **per-target stage** (so an area corrode hits each target's
-item). The skeleton resolves the object (an explicit `ovict`, else a random equipped/carried item of
-the victim), guards the `kNoalter` flag, then dispatches the named handler from the
+item). The skeleton resolves the object (an explicit `ovict`, else — **only for a violent cast**
+(`IsViolentAgainst`) — a random equipped/carried item of the victim; issue.unstable-hotfixes), guards
+the `kNoalter` flag, then dispatches the named handler from the
 `kAlterObjHandlers` registry (`magic.cpp`). The transform itself is irreducibly per-spell, so the
 only attribute is `handler` (mirroring `<manual_cast>`, but with the shared object-resolution +
 guard skeleton around it).
@@ -508,7 +509,11 @@ silent), or **`kFail`** to ask the skeleton for the generic "no effect" line. Cu
 `AlterEnchantWeapon` / `AlterRemovePoison` / `AlterFly` / `AlterAcid` (kAcid + kAcidArrow) /
 `AlterRepair` / `AlterTimerRestore` / `AlterRestoration` / `AlterLight` / `AlterDarkness`. A
 multi-purpose spell (e.g. `kBless`, which also affects a character) carries `<alter_obj>` alongside
-its `<affects>` in the same action. It replaced the old `kMagAlterObjs` flag.
+its `<affects>` in the same action. It replaced the old `kMagAlterObjs` flag. Because the
+random-item fallback now fires **only for violent casts**, casting such a spell on a *character*
+target applies only the `<affects>` (a helpful `kBless` no longer also blesses a random item the
+victim carries); the object branch runs only when an object was explicitly targeted, or when a
+violent spell (acid) collaterally strikes the victim's gear.
 
 > **Object lifetime:** if the cast destroys the target object (the acid corrode, or a consumed
 > material component), it is **deferred-extracted** — flagged `ObjData::purged()` and freed at the
@@ -682,15 +687,31 @@ reflection rates per spell.
 <damage saving="kReflex" prob="100">
     <amount min="0" dices_weight="1.0" alpha="0.5" beta="12.5"/>
     <hits skill_divisor="12" max="2" prob="100"/>
+    <instant_death prob="100"/>
 </damage>
 ```
 
 | Attr / child | Default | Description |
 |---|---|---|
-| `saving` | `kReflex` | `ESaving`: `kReflex`, `kStability`, `kWill`, `kCritical`, `kNone`. A successful save halves damage. |
+| `saving` | `kReflex` | `ESaving`: `kReflex`, `kStability`, `kWill`, `kCritical`, `kNone`. The save is rolled **once** per cast (cached on the context as `last_saving_result`) and a **success halves** the final damage; `kNone` or a self-cast = no save (full damage). The same single roll also gates `<instant_death>` below. |
 | `prob` | `100` | Percent chance the damage actually happens (silent miss otherwise). `prob<100` short-circuits the RNG. |
 | `<amount min= dices_weight= alpha= beta=>` | min=0, dices_weight=1.0, alpha=0, beta=1.0 | Final amount (issue.potency-formula) = `min + dice · dices_weight · (1 + alpha · C) + beta · C`, where `C = skill_coeff + stat_coeff`. `alpha` scales the dice multiplicatively with competence, so the random spread keeps growing with the output instead of going flat (sub-quadratic). `beta` is the additive competence term. `alpha=0` reduces to the legacy additive Formula A. Omit the tag to keep the defaults. |
 | `<hits skill_divisor= max= prob=>` | divisor=25, max=1, prob=20 | Multi-hit support: `count = 1 + CalcExtraHits(...)`. The extra-hit bonus uses the caster's potency-roll `base_skill`, scaled by `min(skill, 75) / skill_divisor`, capped at `max`, fired at `prob`%. `prob=0` means a uniform random pick between 0 and `extra`. Absent tag means a single hit. |
+| `<instant_death prob=>` *(new mechanic)* | absent; `prob=100` | Marks the spell as able to **kill outright**; the `prob` percent is the chance the attempt is even rolled. See the note below. |
+
+> **Saving throw — now live (issue.instant-death).** Regular spell damage used to be gated only by
+> magic resist (`GET_MR`); the `<damage saving>` throw is now actually rolled (once, cached on the
+> context) and a **successful save halves** the final `total_dmg`. Set `saving="kNone"` to exempt a
+> spell (no save → always full damage, and `<instant_death>` is not blocked).
+
+> **`<instant_death prob="N"/>` *(new mechanic, issue.instant-death)*.** After the save is rolled, an
+> instant-death attempt fires only when, in order: (1) the victim is **not a boss** (`EMobClass::kBoss`
+> role); (2) the victim **failed** the saving throw; (3) the `prob` roll passes (percent, default 100);
+> and (4) the caster **wins** the opposed luck/morale contest (`AgainstRivalRoll::OppositeLuckTest` —
+> the inverse of the actor-morale-failure test, now callable standalone). On success the normal damage
+> is irrelevant: an **NPC** is dealt enough to die (`hit + 11`, past the −11 death floor — killed, not
+> merely incapacitated), and a **PC** is left at exactly **1 HP** (`hit − 1`, never actually killed).
+> The lethal hit ignores armour / absorb / sanctuary / prism so the computed amount lands exactly.
 
 ---
 
@@ -1131,7 +1152,7 @@ way until their potency_rolls are normalised.
 ## 9. `<unaffect>` — dispels / cures *(new mechanics)*
 
 ```xml
-<unaffect affect_flags="kAfCurable" potency_weight="1.0" prob="100">
+<unaffect affect_flags="kAfCurable" potency_weight="1.0" prob="100" decay="0">
     <blocking      any_of="kGodsShield" all_of=""/>
     <breaking      any_of="kSanctuary"/>
     <remove_anyway any_of="kQuestMark"/>
@@ -1146,6 +1167,7 @@ way until their potency_rolls are normalised.
 | `affect_flags` | `kAfCurable\|kAfDispellable` | **Which affects this dispel may touch.** An affect is eligible only if it carries at least one of these `EAffFlag` bits. Narrow to `kAfCurable` for cures (cures don't dispel), `kAfDispellable` for `kDispellMagic` (doesn't cure poisons), etc. |
 | `potency_weight` | `1.0` | Multiplier on the dispel spell's potency when contested against an affect's recorded potency. See §9.3. |
 | `prob` | `100` | Percent chance the unaffect block fires at all (silent skip otherwise). |
+| `decay` *(new mechanic, issue.debuff-decay)* | `0` | On a **failed** removal, shift the surviving affect's potency by this percent of **the dispel's** rolled potency (not the affect's): positive **weakens** the affect, negative **strengthens** it. Result is clamped to `[0, 30000]` (floor 0 per design; the cap guards a negative `decay` from growing potency without bound / overflowing). `0` = no change. Applied only on the contest-fail path in `DispelSucceeds`. |
 
 ### 9.2 The four sub-blocks
 
@@ -2076,7 +2098,30 @@ finds them empty.
 
 ---
 
-*Last updated to match the `sventovit.work` head after the
+*Last updated for the `issue.unstable-hotfixes` / `issue.spell-ally-aggression` /
+`issue.debuff-decay` / `issue.instant-death` batch on `unstable` (changes since `7cc7cc4d4`):*
+
+- **`<damage><instant_death prob="N"/>`** *(new, §5)* — lethal-strike: on a **failed** save, a `prob`
+  roll, and a **won** caster luck/morale contest (`OppositeLuckTest`), the spell kills an NPC outright
+  (`hit + 11`, past the −11 death floor) or leaves a PC at exactly 1 HP (`hit − 1`); **never** on
+  `EMobClass::kBoss` mobs.
+- **The `<damage saving>` throw is now live (§5)** — previously regular spell damage was gated only by
+  magic resist; the save is now actually rolled (once, cached as `ctx.last_saving_result`) and a
+  **success halves** the damage. `saving="kNone"` opts a spell out. The same single roll gates the
+  instant-death attempt above.
+- **`<unaffect decay="N">`** *(new, §9.1)* — a **failed** dispel shifts the surviving affect's potency
+  by N% of **the dispel's** potency (positive weakens / negative strengthens, clamped `[0, 30000]`).
+- **`<alter_obj>` collateral item is now violent-only (§3.8.7)** — a helpful spell aimed at a
+  *character* no longer also alters a random item the victim carries; only a violent cast (acid)
+  strikes the victim's gear.
+- **Benign / ally casts are not PK actions** — a non-violent (or ambiguous-resolved-helpful) spell on
+  an ally no longer trips `pk_agro_action`; the clan-castle "protective magic" now evicts the caster
+  only on a genuine hostile PK classification (not on a benign cast or a PvE action).
+- **Animate dead no longer marks its minions `kResurrected`** — that flag identifies a corpse revived
+  by `kResurrection` (reusing the original mob's vnum); animate-dead summons are fresh necro mobs
+  (still `kUndead`).
+
+*Earlier — last updated to match the `sventovit.work` head after the
 `issue.ambiguous-spells` / `issue.dispel-default-msg` /
 `issue.weave-component` / `issue.caster-blocking-refine` /
 `issue.affects-potency-weight` sequence: `<misc violent>` gained a
