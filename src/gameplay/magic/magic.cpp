@@ -2754,16 +2754,22 @@ static ECastResult RunActionOverTargets(CastContext &ctx, const std::vector<Char
 		ctx.cvict = targets.empty() ? nullptr : targets.front();
 		return CastOnTarget(ctx, is_entry);
 	}
-	const auto &area = ctx.action_or_default().GetArea();
-	// N = number of targets actually hit. max <= 0 means "no upper limit" -> everyone in the
-	// roster; else the historical count, capped at the roster size.
-	const int n = (area.max_targets <= 0)
+	// issue.unstable-hotfixes: a multi-target spell with NO <area> block (e.g. a kMagGroups
+	// heal) must hit the WHOLE roster at full strength -- the historical group-spell default.
+	// GetArea() THROWS when there is no <area>, so guard on Contains() first (an unguarded
+	// GetArea() here aborted the whole cast via CastSpell's catch -> 0 effect).
+	const auto &action = ctx.action_or_default();
+	const talents_actions::Area *area =
+			action.Contains(talents_actions::EAction::kArea) ? &action.GetArea() : nullptr;
+	// N = number of targets actually hit. No <area>, or max <= 0, means "no upper limit" ->
+	// everyone in the roster; else the historical count, capped at the roster size.
+	const int n = (area == nullptr || area->max_targets <= 0)
 			? static_cast<int>(targets.size())
-			: std::min(area.CalcTargetsQuantity(caster->GetSkill(MUD::Spell(spell_id).GetSuccessRoll().GetBaseSkill()),
+			: std::min(area->CalcTargetsQuantity(caster->GetSkill(MUD::Spell(spell_id).GetSuccessRoll().GetBaseSkill()),
 													  ctx.potency().stat_coeff),
 					   static_cast<int>(targets.size()));
-	const double decay_eff = (!caster->IsNpc() && CanUseFeat(caster, EFeat::kMultipleCast))
-			? area.decay * 0.6 : area.decay;
+	const double decay_eff = (area == nullptr) ? 0.0
+			: ((!caster->IsNpc() && CanUseFeat(caster, EFeat::kMultipleCast)) ? area->decay * 0.6 : area->decay);
 	const int kCasterCastSuccess = GET_CAST_SUCCESS(caster);
 	const auto &sheaf = MUD::SpellMessages()[spell_id];
 	const bool has_vict_msg = sheaf.HasMessage(ESpellMsg::kAreaToVict);
@@ -2777,7 +2783,7 @@ static ECastResult RunActionOverTargets(CastContext &ctx, const std::vector<Char
 			continue;  // skip a target an earlier action already killed (don't consume a slot)
 		}
 		++j;  // 1-based position; target #1 = primary victim (foes) / first ally (group).
-		const double coeff = caster->IsNpc() ? 1.0 : area.DistributionCoeff(j, n, decay_eff);
+		const double coeff = (area == nullptr || caster->IsNpc()) ? 1.0 : area->DistributionCoeff(j, n, decay_eff);
 		ctx.area_coeff = coeff;
 		GET_CAST_SUCCESS(caster) = static_cast<int>(kCasterCastSuccess * coeff);
 		if (has_vict_msg && target->desc) {

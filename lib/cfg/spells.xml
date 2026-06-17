@@ -1470,6 +1470,10 @@
 				<points>
 					<heal npc_coeff="3" min="0" dices_weight="1.0" alpha="0.5" beta="22" />
 				</points>
+				<area>
+					<targets skill_divisor="20" dice_size="2" min="5" max="-1" />
+					<distribution type="kUniform" />
+				</area>
 			</action>
 		</talent_actions>
 	</spell>
