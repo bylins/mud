@@ -171,6 +171,7 @@ Bitvector ReadAsConstantsBitvector(const char *value) {
 
 // issue.handler-cleaning: parse the leading "N." index of an argument (moved from handler).
 int get_number(char **name);
+char *fname(const char *namelist);   // first keyword of a name list
 int get_number(std::string &name);
 
 #endif // PARSE_HPP_INCLUDED

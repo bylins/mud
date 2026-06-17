@@ -360,4 +360,18 @@ int get_number(std::string &name) {
 	return (1);
 }
 
+
+// issue.handler-cleaning: first keyword of a name list (moved from handler).
+char *fname(const char *namelist) {
+	static char holder[30];
+	char *point;
+
+	for (point = holder; a_isalpha(*namelist); namelist++, point++)
+		*point = *namelist;
+
+	*point = '\0';
+
+	return (holder);
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

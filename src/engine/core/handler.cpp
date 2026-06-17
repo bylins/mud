@@ -63,17 +63,6 @@ extern void change_leader(CharData *ch, CharData *vict);
 char *sight::find_exdesc(const char *word, const ExtraDescription::shared_ptr &list);
 extern void SetSkillCooldown(CharData *ch, ESkill skill, int pulses);
 
-char *fname(const char *namelist) {
-	static char holder[30];
-	char *point;
-
-	for (point = holder; a_isalpha(*namelist); namelist++, point++)
-		*point = *namelist;
-
-	*point = '\0';
-
-	return (holder);
-}
 
 
 

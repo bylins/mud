@@ -49,7 +49,6 @@ bool IsAwakeOthers(CharData *ch);
 // handling the affected-structures //
 
 // utility //
-char *fname(const char *namelist);
 
 RoomVnum get_room_where_obj(ObjData *obj, bool deep = false);
 
