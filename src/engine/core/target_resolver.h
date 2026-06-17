@@ -270,6 +270,34 @@ RoomRnum FindRoomRnum(CharData *ch, char *rawroomstr, int trig);
 
 }; // namespace target_resolver
 
+// issue.handler-cleaning: global-scope finder API + Find modes (moved from handler.h).
+// These names stay at global scope (and the using-bridges below re-export the
+// namespaced finders unqualified) so existing call sites need no qualification.
+using target_resolver::get_obj_vis_for_locate;
+using target_resolver::try_locate_obj;
+using target_resolver::generic_find;
+using target_resolver::find_all_dots;
+using target_resolver::FindRoomRnum;
+
+const int kFindIndiv = 0;
+const int kFindAll = 1;
+const int kFindAlldot = 2;
+
+enum EFind : Bitvector {
+	kCharInRoom = 1 << 0,
+	kCharInWorld = 1 << 1,
+	kCharDisconnected = 1 << 6,
+	kObjInventory = 1 << 2,
+	kObjRoom = 1 << 3,
+	kObjWorld = 1 << 4,
+	kObjEquip = 1 << 5,
+	kObjExtraDesc = 1 << 7
+};
+
+ObjData *get_obj_in_list(char *name, ObjData *list);
+ObjData *get_obj_in_list(const char *name, const ObjData::obj_list_t &list);
+ObjData *GetObjByVnumInContent(int vnum, const ObjData::obj_list_t &list);
+
 // issue.handler-cleaning (split): entity finders moved from handler.cpp (global scope).
 ObjData *GetObjByRnumInContent(int obj_rnum, ObjData *list);
 ObjData *GetObjByRnumInContent(int obj_rnum, const ObjData::obj_list_t &list);

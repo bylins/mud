@@ -21,7 +21,6 @@
 
 struct RoomData;
 
-const int kSecsPerPlayerTimed = 1;
 #include "engine/core/char_equip_flags.h"   // CharEquipFlag(s) (issue.handler-cleaning)
 #include "utils/parse.h"   // issue.handler-cleaning: get_number
 #include "engine/core/char_movement.h"   // issue.handler-cleaning: real_sector/check_moves/num_pc_in_room
@@ -33,18 +32,8 @@ const int kSecsPerPlayerTimed = 1;
 #include "engine/core/obj_handler.h"     // issue.handler-cleaning: object placement/extraction
 
 #include "engine/core/target_resolver.h"   // issue.handler-cleaning: target search moved here
-using target_resolver::get_obj_vis_for_locate;
-using target_resolver::try_locate_obj;
-using target_resolver::generic_find;
-using target_resolver::find_all_dots;
-using target_resolver::FindRoomRnum;
 
 int get_room_sky(int rnum);
-// issue.handler-cleaning: defined in equipment.cpp (Bucket 1). Declarations kept here
-// transitionally to avoid touching ~25 callers; a follow-up moves CharEquipFlag + these
-// to equipment.h and drops them from handler.h.
-void EquipObj(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip_flags);
-ObjData *UnequipChar(CharData *ch, int pos, const CharEquipFlags& equip_flags);
 bool IsAwakeOthers(CharData *ch);
 
 
@@ -56,9 +45,6 @@ bool IsAwakeOthers(CharData *ch);
 // ******** objects *********** //
 
 
-ObjData *get_obj_in_list(char *name, ObjData *list);
-ObjData *get_obj_in_list(const char *name, const ObjData::obj_list_t &list);
-ObjData *GetObjByVnumInContent(int vnum, const ObjData::obj_list_t &list);
 
 //ObjData *get_obj(const char *name, int vnum = 0);
 
@@ -76,23 +62,10 @@ ObjData *GetObjByVnumInContent(int vnum, const ObjData::obj_list_t &list);
 // find all dots //
 
 
-const int kFindIndiv = 0;
-const int kFindAll = 1;
-const int kFindAlldot = 2;
 
 
 // Generic Find //
 
-enum EFind : Bitvector {
-	kCharInRoom = 1 << 0,
-	kCharInWorld = 1 << 1,
-	kCharDisconnected = 1 << 6,
-	kObjInventory = 1 << 2,
-	kObjRoom = 1 << 3,
-	kObjWorld = 1 << 4,
-	kObjEquip = 1 << 5,
-	kObjExtraDesc = 1 << 7
-};
 
 
 // prototypes from crash save system //

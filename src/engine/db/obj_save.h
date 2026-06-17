@@ -59,6 +59,11 @@ void Crash_save_all();
 void Crash_frac_save_all(int frac_part);
 void Crash_frac_rent_time(int frac_part);
 void ClearCrashSavedObjects(std::size_t index);
+// issue.handler-cleaning: moved from handler.h
+int Crash_delete_crashfile(CharData *ch);
+void Crash_listrent(CharData *ch, char *name);
+int Crash_load(CharData *ch);
+void Crash_idlesave(CharData *ch);
 
 namespace ObjSaveSync {
 

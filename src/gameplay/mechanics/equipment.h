@@ -9,12 +9,17 @@
 #ifndef BYLINS_SRC_GAMEPLAY_MECHANICS_EQUIPMENT_H_
 #define BYLINS_SRC_GAMEPLAY_MECHANICS_EQUIPMENT_H_
 
+#include "engine/core/char_equip_flags.h"   // CharEquipFlags (EquipObj/UnequipChar)
+
 class CharData;
 class ObjData;
 void DamageEquipment(CharData *ch, int pos, int dam, int chance);
 void DamageObj(ObjData *obj, int dam, int chance);
 bool HaveIncompatibleAlign(CharData *ch, ObjData *obj);
 int IsEquipInMetall(CharData *ch);
+// issue.handler-cleaning: equip/unequip core (moved out of handler.h).
+void EquipObj(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip_flags);
+ObjData *UnequipChar(CharData *ch, int pos, const CharEquipFlags& equip_flags);
 
 
 #endif //BYLINS_SRC_GAMEPLAY_MECHANICS_EQUIPMENT_H_

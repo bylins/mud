@@ -14,6 +14,8 @@
 
 class CharData;
 
+const int kSecsPerPlayerTimed = 1;
+
 void ImposeTimedFeat(CharData *ch, TimedFeat *timed);
 int IsTimedByFeat(CharData *ch, EFeat feat);
 void ImposeTimedSkill(CharData *ch, TimedSkill *timed);
