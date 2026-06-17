@@ -1255,6 +1255,12 @@ void summon_mob_helpers(CharData *ch) {
 	if (ch->summon_helpers.empty()) {
 		return;
 	}
+	// issue.unstable-hotfix: a mob in lag (SetBattleLag -> get_wait) cannot take active actions, so it
+	// must not call for helpers. Return WITHOUT clearing summon_helpers, so the shout is merely deferred
+	// until the lag ends -- check_mob_helpers re-runs this each combat round.
+	if (ch->get_wait() > 0) {
+		return;
+	}
 	for (auto helpee :ch->summon_helpers) {
 		// Start_fight_mtrigger using inside this loop
 		// So we have to iterate on copy list
