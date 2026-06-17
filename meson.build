@@ -799,6 +799,7 @@ main_sources = files(
   'src/engine/ui/cmd_god/do_zreset.cpp',
   'src/engine/ui/cmd_god/do_dc.cpp',
   'src/engine/ui/cmd_god/do_advance.cpp',
+  'src/engine/ui/cmd_god/do_debug_queues.cpp',
   'src/engine/ui/cmd_god/do_glory.cpp',
   'src/administration/karma.cpp',
   'src/engine/ui/cmd_god/do_arena_restore.cpp',

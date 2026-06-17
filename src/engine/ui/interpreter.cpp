@@ -207,6 +207,8 @@
 #include "engine/entities/obj_data.h"
 #include "engine/db/obj_prototypes.h"
 #include "engine/olc/olc.h"
+#include "engine/olc/vedun/vedun.h"
+#include "engine/ui/cmd_god/do_debug_queues.h"
 #include "gameplay/communication/parcel.h"
 #include "administration/password.h"
 #include "administration/privilege.h"
@@ -328,10 +330,6 @@ extern char *name_rules;
 // external functions
 void read_saved_vars(CharData *ch);
 void oedit_parse(DescriptorData *d, char *arg);
-namespace vedun {  // issue.vedun-editor
-void do_vedun(CharData *ch, char *argument, int cmd, int subcmd);
-void vedun_parse(DescriptorData *d, char *arg);
-}
 void redit_parse(DescriptorData *d, char *arg);
 void zedit_parse(DescriptorData *d, char *arg);
 void medit_parse(DescriptorData *d, char *arg);
@@ -403,28 +401,7 @@ void do_show_mobmax(CharData *ch, char *, int, int);
  * priority.
  */
 
-// здесь храним коды, которые отправили игрокам на почту
-// строка - это мыло, если один чар вошел с необычного места, то блочим сразу всех чаров на этом мыле,
-// пока не введет код (или до ребута)
-std::map<std::string, int> new_loc_codes;
 
-// имя чара на код, отправленный на почту для подтверждения мыла при создании
-std::map<std::string, int> new_char_codes;
-
-void do_debug_queues(CharData * /*ch*/, char *argument, int /*cmd*/, int /*subcmd*/) {
-	std::stringstream ss;
-	if (argument && *argument) {
-		debug::log_queue(argument).print_queue(ss, argument);
-
-		return;
-	}
-
-	for (const auto &q : debug::log_queues()) {
-		q.second.print_queue(ss, q.first);
-	}
-
-	mudlog(ss.str().c_str(), DEF, kLvlGod, ERRLOG, true);
-}
 
 cpp_extern const struct command_info cmd_info[] =
 	{

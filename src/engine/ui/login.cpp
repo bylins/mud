@@ -321,6 +321,15 @@ void read_saved_vars(CharData *ch);
 void oedit_parse(DescriptorData *d, char *arg);
 #include "engine/ui/login.h"
 
+// Defined here (sole user) rather than in interpreter.cpp -- issue.interpreter-cleaning Bucket 5.
+// здесь храним коды, которые отправили игрокам на почту
+// строка - это мыло, если один чар вошел с необычного места, то блочим сразу всех чаров на этом мыле,
+// пока не введет код (или до ребута)
+std::map<std::string, int> new_loc_codes;
+
+// имя чара на код, отправленный на почту для подтверждения мыла при создании
+std::map<std::string, int> new_char_codes;
+
 int _parse_name(char *argument, char *name) {
 	int i;
 
