@@ -196,7 +196,7 @@
 #include "gameplay/mechanics/sight.h"
 #include "engine/core/char_handler.h"
 #include "gameplay/mechanics/illumination.h"
-#include "utils/parse.h"
+#include "utils/utils_parse.h"
 #include "engine/core/heartbeat_commands.h"
 #include "gameplay/clans/house.h"
 #include "gameplay/crafting/item_creation.h"

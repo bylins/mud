@@ -11,7 +11,7 @@
 #include "gameplay/mechanics/inventory.h"
 
 #include "utils/parser_wrapper.h"   // issue.lib-template: ParserWrapper вместо прямого pugixml
-#include "utils/parse.h"
+#include "utils/utils_parse.h"
 
 #include <fmt/format.h>
 

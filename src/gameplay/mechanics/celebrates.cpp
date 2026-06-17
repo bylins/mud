@@ -3,7 +3,7 @@
 #include <fmt/format.h>
 
 #include "utils/parser_wrapper.h"   // issue.celebrates: ParserWrapper вместо прямого pugixml
-#include "utils/parse.h"
+#include "utils/utils_parse.h"
 #include "engine/db/global_objects.h"
 #include "engine/db/obj_prototypes.h"
 #include "engine/core/char_handler.h"

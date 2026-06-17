@@ -1,8 +1,8 @@
 // Copyright (c) 2013 Krodo
 // Part of Bylins http://www.mud.ru
 
-#ifndef PARSE_HPP_INCLUDED
-#define PARSE_HPP_INCLUDED
+#ifndef UTILS_PARSE_HPP_INCLUDED
+#define UTILS_PARSE_HPP_INCLUDED
 
 #include <string>
 #include <set>
@@ -181,6 +181,6 @@ void GetOneParam(std::string &buffer, std::string &buffer2);
 bool CompareParam(const std::string &buffer, const char *str, bool full = false);
 bool CompareParam(const std::string &buffer, const std::string &buffer2, bool full = false);
 
-#endif // PARSE_HPP_INCLUDED
+#endif // UTILS_PARSE_HPP_INCLUDED
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

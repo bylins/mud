@@ -1,7 +1,7 @@
 // Copyright (c) 2013 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include "parse.h"
+#include "utils_parse.h"
 
 #include "third_party_libs/pugixml/pugixml.h"
 #include "utils/parser_wrapper.h"   // issue.xml-parse-cleaning: AttrInt/AttrStr over DataNode

@@ -520,7 +520,7 @@ main_sources = files(
   'src/engine/olc/vedun/scheme.cpp',
   'src/engine/olc/olc.cpp',
   'src/gameplay/communication/parcel.cpp',
-  'src/utils/parse.cpp',
+  'src/utils/utils_parse.cpp',
   'src/administration/password.cpp',
   'src/gameplay/fight/pk.cpp',
   'src/gameplay/mechanics/player_races.cpp',

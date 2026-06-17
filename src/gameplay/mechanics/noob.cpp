@@ -7,7 +7,7 @@
 #include "engine/db/global_objects.h"
 #include "gameplay/mechanics/cities.h"
 #include "utils/parser_wrapper.h"
-#include "utils/parse.h"
+#include "utils/utils_parse.h"
 #include "engine/core/char_equip_flags.h"
 #include "engine/core/char_handler.h"
 #include "gameplay/mechanics/equipment.h"

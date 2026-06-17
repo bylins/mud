@@ -18,7 +18,7 @@
 #include "engine/core/conf.h"
 #include "engine/network/descriptor_data.h"
 #include "engine/entities/entities_constants.h"
-#include "utils/parse.h"   // issue.interpreter-cleaning: parsing helpers moved here (transitional bridge)
+#include "utils/utils_parse.h"   // issue.interpreter-cleaning: parsing helpers moved here (transitional bridge)
 
 #include <string>
 

@@ -14,7 +14,7 @@
 #include "gameplay/fight/common.h"
 #include "gameplay/fight/pk.h"
 #include "engine/core/char_handler.h"
-#include "utils/parse.h"
+#include "utils/utils_parse.h"
 #include "gameplay/clans/house.h"
 #include "gameplay/mechanics/deathtrap.h"
 #include "gameplay/mechanics/sight.h"

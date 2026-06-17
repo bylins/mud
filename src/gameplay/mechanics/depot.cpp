@@ -16,7 +16,7 @@
 #include "engine/core/target_resolver.h"
 #include "engine/entities/char_data.h"
 #include "gameplay/mechanics/inventory.h"
-#include "utils/parse.h"
+#include "utils/utils_parse.h"
 #include "gameplay/economics/auction.h"
 #include "engine/ui/color.h"
 #include "engine/entities/char_player.h"

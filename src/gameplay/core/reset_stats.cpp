@@ -10,7 +10,7 @@
 #include "engine/entities/char_data.h"
 
 #include <fmt/format.h>
-#include "utils/parse.h"
+#include "utils/utils_parse.h"
 #include "utils/parser_wrapper.h"
 
 extern bool ValidateStats(DescriptorData *d);

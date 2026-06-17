@@ -17,7 +17,7 @@
 #include "gameplay/skills/skills_info.h"    // MUD::Skills()[..].GetName() for {skill_name}
 #include "engine/structs/msg_container.h"
 #include "engine/structs/info_container.h"
-#include "utils/parse.h"
+#include "utils/utils_parse.h"
 #include "utils/parser_wrapper.h"
 #include "utils/utils_string.h"              // isname
 #include "utils/mud_string.h"                // one_argument
