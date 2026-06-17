@@ -23,6 +23,7 @@ struct RoomData;
 
 const int kSecsPerPlayerTimed = 1;
 #include "engine/core/char_equip_flags.h"   // CharEquipFlag(s) (issue.handler-cleaning)
+#include "engine/core/char_movement.h"   // issue.handler-cleaning: real_sector/check_moves/num_pc_in_room
 #include "gameplay/mechanics/equipment.h"   // issue.handler-cleaning: equip queries
 #include "gameplay/mechanics/illumination.h"   // issue.handler-cleaning: room light + IsWearingLight/CheckLight
 #include "gameplay/abilities/timed_abilities.h"   // issue.handler-cleaning: timed feat/skill timers
@@ -137,9 +138,6 @@ void Crash_idlesave(CharData *ch);
 int get_object_low_rent(ObjData *obj);
 void InitUid(ObjData *object);
 
-int num_pc_in_room(RoomData *room);
-int check_moves(CharData *ch, int how_moves);
-int real_sector(int room);
 
 #endif // HANDLER_H_
 

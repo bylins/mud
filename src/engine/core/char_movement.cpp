@@ -808,4 +808,88 @@ void FleeToRoom(CharData *ch, RoomRnum room) {
 	cities::CheckCityVisit(ch, room);
 }
 
+
+// issue.handler-cleaning: room occupancy / move energy / effective sector (moved from handler).
+int num_pc_in_room(RoomData *room) {
+	int i = 0;
+	for (const auto ch : room->people) {
+		if (!ch->IsNpc()) {
+			i++;
+		}
+	}
+
+	return i;
+}
+
+int check_moves(CharData *ch, int how_moves) {
+	if (privilege::IsImmortal(ch) || ch->IsNpc())
+		return (true);
+	if (ch->get_move() < how_moves) {
+		SendMsgToChar("Вы слишком устали.\r\n", ch);
+		return (false);
+	}
+	ch->set_move(ch->get_move() - how_moves);
+	return (true);
+}
+
+int real_sector(int room) {
+	int sector = SECT(room);
+
+	if (ROOM_FLAGGED(room, ERoomFlag::kNoWeather))
+		return sector;
+	switch (sector) {
+		case ESector::kInside:
+		case ESector::kCity:
+		case ESector::kOnlyFlying:
+		case ESector::kUnderwater:
+		case ESector::kSecret:
+		case ESector::kStoneroad:
+		case ESector::kRoad:
+		case ESector::kWildroad: return sector;
+			break;
+		case ESector::kField:
+			if (world[room]->weather.snowlevel > 20)
+				return ESector::kFieldSnow;
+			else if (world[room]->weather.rainlevel > 20)
+				return ESector::kFieldRain;
+			else
+				return ESector::kField;
+			break;
+		case ESector::kForest:
+			if (world[room]->weather.snowlevel > 20)
+				return ESector::kForestSnow;
+			else if (world[room]->weather.rainlevel > 20)
+				return ESector::kForestRain;
+			else
+				return ESector::kForest;
+			break;
+		case ESector::kHills:
+			if (world[room]->weather.snowlevel > 20)
+				return ESector::kHillsSnow;
+			else if (world[room]->weather.rainlevel > 20)
+				return ESector::kHillsRain;
+			else
+				return ESector::kHills;
+			break;
+		case ESector::kMountain:
+			if (world[room]->weather.snowlevel > 20)
+				return ESector::kMountainSnow;
+			else
+				return ESector::kMountain;
+			break;
+		case ESector::kWaterSwim:
+		case ESector::kWaterNoswim:
+			if (world[room]->weather.icelevel > 30)
+				return ESector::kThickIce;
+			else if (world[room]->weather.icelevel > 20)
+				return ESector::kNormalIce;
+			else if (world[room]->weather.icelevel > 10)
+				return ESector::kThinIce;
+			else
+				return sector;
+			break;
+	}
+	return ESector::kInside;
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
