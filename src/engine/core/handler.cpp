@@ -254,27 +254,6 @@ bool HaveIncompatibleAlign(CharData *ch, ObjData *obj) {
 
 
 
-bool CheckArmorType(CharData *ch, ObjData *obj) {
-	if (obj->get_type() == EObjType::kLightArmor && !CanUseFeat(ch, EFeat::kWearingLightArmor)) {
-		act("Для использования $o1 требуется способность 'легкие доспехи'.",
-			false, ch, obj, nullptr, kToChar);
-		return false;
-	}
-
-	if (obj->get_type() == EObjType::kMediumArmor && !CanUseFeat(ch, EFeat::kWearingMediumArmor)) {
-		act("Для использования $o1 требуется способность 'средние доспехи'.",
-			false, ch, obj, nullptr, kToChar);
-		return false;
-	}
-
-	if (obj->get_type() == EObjType::kHeavyArmor && !CanUseFeat(ch, EFeat::kWearingHeavyArmor)) {
-		act("Для использования $o1 требуется способность 'тяжелые доспехи'.",
-			false, ch, obj, nullptr, kToChar);
-		return false;
-	}
-
-	return true;
-}
 
 
 
