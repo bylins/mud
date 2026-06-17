@@ -51,7 +51,6 @@ int apply_ac(CharData *ch, int eq_pos);
 int apply_armour(CharData *ch, int eq_pos);
 void UpdateObject(ObjData *obj, int use);
 void UpdateCharObjects(CharData *ch);
-bool IsWearingLight(CharData *ch);
 
 // external functions //
 void PerformDropGold(CharData *ch, int amount);
@@ -76,61 +75,6 @@ char *fname(const char *namelist) {
 	return (holder);
 }
 
-bool IsWearingLight(CharData *ch) {
-	bool wear_light = false;
-	for (int wear_pos = 0; wear_pos < EEquipPos::kNumEquipPos; wear_pos++) {
-		if (GET_EQ(ch, wear_pos)
-			&& GET_EQ(ch, wear_pos)->get_type() == EObjType::kLightSource
-			&& GET_OBJ_VAL(GET_EQ(ch, wear_pos), 2)) {
-			wear_light = true;
-		}
-	}
-	return wear_light;
-}
-
-namespace {
-}  // namespace
-
-void CheckLight(CharData *ch, int was_equip, int was_single, int was_holylight, int was_holydark, int koef) {
-	if (ch->in_room == kNowhere) {
-		return;
-	}
-
-	if (IsWearingLight(ch)) {
-		if (was_equip == kLightNo) {
-			world[ch->in_room]->light = std::max(0, world[ch->in_room]->light + koef);
-		}
-	} else {
-		if (was_equip == kLightYes)
-			world[ch->in_room]->light = std::max(0, world[ch->in_room]->light - koef);
-	}
-
-	if (AFF_FLAGGED(ch, EAffect::kSingleLight)) {
-		if (was_single == kLightNo)
-			world[ch->in_room]->light = std::max(0, world[ch->in_room]->light + koef);
-	} else {
-		if (was_single == kLightYes)
-			world[ch->in_room]->light = std::max(0, world[ch->in_room]->light - koef);
-	}
-
-	if (AFF_FLAGGED(ch, EAffect::kHolyLight)) {
-		if (was_holylight == kLightNo)
-			world[ch->in_room]->glight = std::max(0, world[ch->in_room]->glight + koef);
-	} else {
-		if (was_holylight == kLightYes)
-			world[ch->in_room]->glight = std::max(0, world[ch->in_room]->glight - koef);
-	}
-
-	if (AFF_FLAGGED(ch, EAffect::kHolyDark)) {
-		if (was_holydark == kLightNo) {
-			world[ch->in_room]->gdark = std::max(0, world[ch->in_room]->gdark + koef);
-		}
-	} else {
-		if (was_holydark == kLightYes) {
-			world[ch->in_room]->gdark = std::max(0, world[ch->in_room]->gdark - koef);
-		}
-	}
-}
 
 
 // move a player out of a room

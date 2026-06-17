@@ -21,11 +21,9 @@
 
 struct RoomData;
 
-const int kLightNo = 0;
-const int kLightYes = 1;
-const int kLightUndef = 2;
 const int kSecsPerPlayerTimed = 1;
 #include "engine/core/char_equip_flags.h"   // CharEquipFlag(s) (issue.handler-cleaning)
+#include "gameplay/mechanics/illumination.h"   // issue.handler-cleaning: room light + IsWearingLight/CheckLight
 #include "gameplay/abilities/timed_abilities.h"   // issue.handler-cleaning: timed feat/skill timers
 #include "gameplay/mechanics/inventory.h"   // issue.handler-cleaning: inventory API
 
@@ -38,7 +36,6 @@ using target_resolver::FindRoomRnum;
 
 int get_room_sky(int rnum);
 int IsEquipInMetall(CharData *ch);
-bool IsWearingLight(CharData *ch);   // issue.handler-cleaning: was file-local
 // issue.handler-cleaning: defined in equipment.cpp (Bucket 1). Declarations kept here
 // transitionally to avoid touching ~25 callers; a follow-up moves CharEquipFlag + these
 // to equipment.h and drops them from handler.h.
@@ -46,7 +43,6 @@ void EquipObj(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip_f
 ObjData *UnequipChar(CharData *ch, int pos, const CharEquipFlags& equip_flags);
 bool IsAwakeOthers(CharData *ch);
 
-void CheckLight(CharData *ch, int was_equip, int was_single, int was_holylight, int was_holydark, int koef);
 
 // handling the affected-structures //
 
