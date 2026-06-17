@@ -485,19 +485,16 @@ const std::map<ESkill, std::string> &NAMES_OF<ESkill>() {
 /// \param add = "", строка для добавления после основного сообщения (краткий режим щитов)
 ///
 // Intensity adverb for a hit, substituted into the {intensity} placeholder of
-// kFightHit* messages. Retired absolute-damage tiers in favour of a percentage
-// lookup against MUD::PointsIntensity (issue.mag-points step 2). Percent =
-// damage * 100 / striker's max HP, so the scale reads as "% of the striker's
-// own power" -- the same number every viewer in the room sees. Empty result
-// for the mid tier ("normal hit, no adverb") collapses cleanly because each
-// table row carries its own trailing space.
-//
-// max_hp = 0 (corner case: undead, fully drained, ...) falls back to 0%
-// which floors to the lightest tier rather than dividing by zero.
-static const std::string &HitIntensity(int dam, const CharData *striker) {
-	const int max_hp = striker ? striker->get_real_max_hit() : 0;
-	const int percent = (max_hp > 0) ? (dam * 100) / max_hp : 0;
-	return MUD::PointsIntensity().Resolve(points_intensity::ECategory::kDamage, percent);
+// kFightHit* messages. issue.unstable-hotfixes: graded by ABSOLUTE damage (HP)
+// via MUD::PointsIntensity's <damage> table. The empty mid tier ("normal hit,
+// no adverb") collapses cleanly because each table row carries its own trailing
+// space.
+static const std::string &HitIntensity(int dam, const CharData * /*striker*/) {
+	// issue.unstable-hotfixes: grade the hit by ABSOLUTE damage (HP). The earlier
+	// percentage scale (dam * 100 / striker max HP) was unintuitive for players --
+	// the same hit read differently depending on who threw it. The <damage> table
+	// thresholds in points_intensity.xml are now absolute HP values.
+	return MUD::PointsIntensity().Resolve(points_intensity::ECategory::kDamage, dam);
 }
 
 // Renders one combat-message set (god/death/hit/miss x char/vict/room) for the given
