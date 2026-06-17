@@ -1092,7 +1092,7 @@
 		<misc pos="kFight" violent="N" danger="1" />
 		<mana max="85" min="70" change="2" />
 		<targets val="kTarCharRoom|kTarFightSelf|kTarAllyOnly" />
-		<flags val="kMagAffects|kNpcAffectNpc" />
+		<flags val="kMagAffects|kMagUnaffects|kNpcAffectNpc|kNpcUnaffectNpc" />
 		<potency_roll>
 			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25" />
@@ -1104,11 +1104,6 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<target_conditions>
-					<blocking>
-						<affect_flags val="kPrismaticAura" />
-					</blocking>
-				</target_conditions>
 				<affects type="kSanctuary" saving="kNone" resist="kVitality">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
 					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable" />
@@ -1116,7 +1111,7 @@
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
 				</affects>
-				<unaffect decay="25">
+				<unaffect prob="100" potency_weight="1">
 					<breaking any_of="kPrismaticAura" />
 					<remove any_of="kPrismaticAura" />
 				</unaffect>
@@ -4116,7 +4111,7 @@
 		<misc pos="kFight" violent="N" danger="1" />
 		<mana max="85" min="70" change="4" />
 		<targets val="kTarCharRoom|kTarFightSelf|kTarAllyOnly" />
-		<flags val="kMagAffects|kNpcAffectNpc" />
+		<flags val="kMagAffects|kMagUnaffects|kNpcAffectNpc|kNpcUnaffectNpc" />
 		<potency_roll>
 			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25" />
@@ -4128,11 +4123,6 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<target_conditions>
-					<blocking>
-						<affect_flags val="kSanctuary" />
-					</blocking>
-				</target_conditions>
 				<affects type="kPrismaticAura" saving="kNone" resist="kVitality">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
 					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable" />
@@ -4140,7 +4130,7 @@
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
 				</affects>
-				<unaffect decay="25">
+				<unaffect prob="100" potency_weight="1">
 					<breaking any_of="kSanctuary" />
 					<remove any_of="kSanctuary" />
 				</unaffect>
