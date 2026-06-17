@@ -26,6 +26,7 @@ const int kLightYes = 1;
 const int kLightUndef = 2;
 const int kSecsPerPlayerTimed = 1;
 #include "engine/core/char_equip_flags.h"   // CharEquipFlag(s) (issue.handler-cleaning)
+#include "gameplay/abilities/timed_abilities.h"   // issue.handler-cleaning: timed feat/skill timers
 #include "gameplay/mechanics/inventory.h"   // issue.handler-cleaning: inventory API
 
 #include "engine/core/target_resolver.h"   // issue.handler-cleaning: target search moved here
@@ -48,11 +49,6 @@ bool IsAwakeOthers(CharData *ch);
 void CheckLight(CharData *ch, int was_equip, int was_single, int was_holylight, int was_holydark, int koef);
 
 // handling the affected-structures //
-void ImposeTimedFeat(CharData *ch, TimedFeat *timed);
-int IsTimedByFeat(CharData *ch, EFeat feat);
-void ImposeTimedSkill(CharData *ch, TimedSkill *timed);
-void ExpireTimedSkill(CharData *ch, ESkill skill);
-int IsTimedBySkill(CharData *ch, ESkill id);
 
 // utility //
 char *fname(const char *namelist);

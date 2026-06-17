@@ -407,6 +407,7 @@ main_sources = files(
   'src/gameplay/economics/exchange.cpp',
   'src/engine/core/external_trigger.cpp',
   'src/gameplay/abilities/feats.cpp',
+  'src/gameplay/abilities/timed_abilities.cpp',
   'src/gameplay/fight/arena.cpp',
   'src/gameplay/mechanics/alignment.cpp',
   'src/gameplay/mechanics/condition.cpp',
