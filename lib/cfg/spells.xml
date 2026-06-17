@@ -402,7 +402,7 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<unaffect>
+				<unaffect decay="25">
 					<remove any_of="kBlindness" />
 				</unaffect>
 			</action>
@@ -748,7 +748,7 @@
 						<modifier min="0.0" dices_weight="0.2" alpha="0.2" beta="0" factor="-1" />
 					</apply>
 				</affects>
-				<unaffect>
+				<unaffect decay="25">
 					<breaking any_of="kStrength|kDexterity" />
 					<remove any_of="kStrength|kDexterity" />
 				</unaffect>
@@ -1076,7 +1076,7 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<unaffect>
+				<unaffect decay="25">
 					<remove any_of="kCurse" />
 				</unaffect>
 				<alter_obj handler="AlterRemoveCurse" />
@@ -1116,7 +1116,7 @@
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
 				</affects>
-				<unaffect>
+				<unaffect decay="25">
 					<breaking any_of="kPrismaticAura" />
 					<remove any_of="kPrismaticAura" />
 				</unaffect>
@@ -1215,7 +1215,7 @@
 						<modifier min="5.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
 				</affects>
-				<unaffect>
+				<unaffect decay="25">
 					<breaking any_of="kWeaknes" />
 					<remove any_of="kWeaknes" />
 				</unaffect>
@@ -1322,7 +1322,7 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<unaffect affect_flags="kAfCurable">
+				<unaffect affect_flags="kAfCurable" decay="25">
 					<remove all_of="kPoison|kAconitumPoison|kScopolaPoison|kBelenaPoison|kDaturaPoison" />
 				</unaffect>
 				<alter_obj handler="AlterRemovePoison" />
@@ -2157,7 +2157,7 @@
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="3.5" factor="-1" />
 					</apply>
 				</affects>
-				<unaffect>
+				<unaffect decay="25">
 					<breaking any_of="kStrength|kDexterity" />
 					<remove any_of="kStrength|kDexterity" />
 				</unaffect>
@@ -2303,7 +2303,7 @@
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="7.6" factor="1" />
 					</apply>
 				</affects>
-				<unaffect>
+				<unaffect decay="25">
 					<breaking any_of="kLessening" />
 					<remove any_of="kLessening" />
 				</unaffect>
@@ -2472,7 +2472,7 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<unaffect>
+				<unaffect decay="25">
 					<remove any_of="kHold" />
 				</unaffect>
 			</action>
@@ -2754,7 +2754,7 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<unaffect>
+				<unaffect decay="25">
 					<remove any_of="kSilence" />
 				</unaffect>
 			</action>
@@ -3210,7 +3210,7 @@
 						<modifier min="2.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
 					</apply>
 				</affects>
-				<unaffect>
+				<unaffect decay="25">
 					<breaking any_of="kHaste" />
 					<remove any_of="kHaste" />
 				</unaffect>
@@ -3245,7 +3245,7 @@
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0.9" factor="-1" />
 					</apply>
 				</affects>
-				<unaffect>
+				<unaffect decay="25">
 					<breaking any_of="kSlowdown" />
 					<remove any_of="kSlowdown" />
 				</unaffect>
@@ -3424,7 +3424,7 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<unaffect affect_flags="kAfCurable">
+				<unaffect affect_flags="kAfCurable" decay="25">
 					<remove any_of="kFever" />
 				</unaffect>
 			</action>
@@ -3499,7 +3499,7 @@
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
 				</affects>
-				<unaffect>
+				<unaffect decay="25">
 					<remove all_of="kIceShield|kFireShield" />
 				</unaffect>
 			</action>
@@ -3557,7 +3557,7 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<unaffect affect_flags="kAfDispellable" potency_weight="1.0">
+				<unaffect affect_flags="kAfDispellable" potency_weight="1.0" decay="25">
 					<remove any_of="*" />
 				</unaffect>
 			</action>
@@ -3689,7 +3689,7 @@
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
 				</affects>
-				<unaffect>
+				<unaffect decay="25">
 					<remove all_of="kIceShield|kAirShield" />
 				</unaffect>
 			</action>
@@ -3771,7 +3771,7 @@
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
 				</affects>
-				<unaffect>
+				<unaffect decay="25">
 					<remove all_of="kFireShield|kAirShield" />
 				</unaffect>
 			</action>
@@ -3844,7 +3844,7 @@
 						<modifier min="15.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
 					</apply>
 				</affects>
-				<unaffect>
+				<unaffect decay="25">
 					<breaking any_of="kEnlarge" />
 					<remove any_of="kEnlarge" />
 				</unaffect>
@@ -4140,7 +4140,7 @@
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
 				</affects>
-				<unaffect>
+				<unaffect decay="25">
 					<breaking any_of="kSanctuary" />
 					<remove any_of="kSanctuary" />
 				</unaffect>
@@ -4512,7 +4512,7 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<unaffect>
+				<unaffect decay="25">
 					<remove any_of="kDeafness" />
 				</unaffect>
 			</action>
@@ -4694,7 +4694,7 @@
 				<damage saving="kCritical">
 					<amount min="0" dices_weight="1.0" alpha="1.282051" beta="250" />
 				</damage>
-				<unaffect>
+				<unaffect decay="25">
 					<breaking any_of="kEviless" />
 					<remove any_of="kEviless" />
 				</unaffect>
@@ -5272,7 +5272,7 @@
 					<targets skill_divisor="15" dice_size="3" min="5" max="20" />
 					<distribution type="kStepped" decay="0.05" free_targets="5" />
 				</area>
-				<unaffect>
+				<unaffect decay="25">
 					<remove all_of="kInvisible|kCamouflage|kHide" breaking_by_failure="true" />
 				</unaffect>
 				<affects type="kGlitterDust" saving="kReflex" resist="kEarth">
@@ -7030,7 +7030,7 @@
 						<modifier min="5.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
 				</affects>
-				<unaffect>
+				<unaffect decay="25">
 					<breaking any_of="kWeaknes" />
 					<remove any_of="kWeaknes" />
 				</unaffect>
