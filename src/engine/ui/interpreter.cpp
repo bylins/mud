@@ -1454,36 +1454,8 @@ enum Mode {
 
 
 
-// замена в name русских символов на англ в нижнем регистре (для файлов)
-void CreateFileName(std::string &name) {
-	for (unsigned i = 0; i != name.length(); ++i)
-		name[i] = LOWER(codepages::AtoL(name[i]));
-}
 
-// вывод экспы аля диабла
-std::string ExpFormat(long long exp) {
-	std::string prefix;
-	if (exp < 0) {
-		exp = -exp;
-		prefix = "-";
-	}
-	if (exp < 1000000)
-		return (prefix + fmt::format("{}", exp));
-	else if (exp < 1000000000)
-		return (prefix + fmt::format("{}", exp / 1000) + " тыс");
-	else if (exp < 1000000000000LL)
-		return (prefix + fmt::format("{}", exp / 1000000) + " млн");
-	else
-		return (prefix + fmt::format("{}", exp / 1000000000LL) + " млрд");
-}
 
-// * Конвертация имени в нижний регистр + первый сивмол в верхний (для единообразного поиска в контейнерах)
-void name_convert(std::string &text) {
-	if (!text.empty()) {
-		utils::ConvertToLow(text);
-		*text.begin() = UPPER(*text.begin());
-	}
-}
 
 
 // generic function for commands which are normally overridden by

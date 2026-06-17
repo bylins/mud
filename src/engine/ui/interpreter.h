@@ -33,9 +33,6 @@ void command_interpreter(CharData *ch, char *argument);
 
 // is_number moved to utils_string.h
 int find_command(const char *command);
-void CreateFileName(std::string &name);
-std::string ExpFormat(long long exp);
-void name_convert(std::string &text);
 int special(CharData *ch, int cmd, char *argument, int fnum);
 int GetSpecprocFnum();
 void do_specproc(CharData *ch, char *argument, int cmd, int subcmd);
