@@ -356,10 +356,21 @@ void pk_increment_gkill(CharData *agressor, CharData *victim) {
 }
 
 bool pk_agro_action(CharData *agressor, CharData *victim) {
-	int pkType = 0;
 	pk_translate_pair(&agressor, &victim);
 	if (victim == nullptr) {
 		return false;
+	}
+
+	const int pkType = pk_action_type(agressor, victim);
+	log("pk_agro_action: %s vs %s, pkType = %d", GET_NAME(agressor), GET_NAME(victim), pkType);
+
+	// issue.spell-ally-aggression: police only a genuinely hostile PK classification here.
+	// PK_ACTION_NO (self, an NPC on either side, arena / no-battle rooms, ...) is not an
+	// aggressive act -- it must not trigger clan-castle eviction or PK bookkeeping. This is
+	// the single chokepoint every offensive ability funnels through (melee, skills, spells)
+	// and stays correct once skills and spells share one ability pipeline.
+	if (pkType == PK_ACTION_NO) {
+		return true;
 	}
 	// если клан-замок - выдворяем за пределы
 	if (ROOM_FLAGGED(agressor->in_room, ERoomFlag::kHouse) && !ROOM_FLAGGED(agressor->in_room, ERoomFlag::kArena) && CLAN(agressor)) {
@@ -382,12 +393,7 @@ bool pk_agro_action(CharData *agressor, CharData *victim) {
 		return false;
 	}
 
-	pkType = pk_action_type(agressor, victim);
-	log("pk_agro_action: %s vs %s, pkType = %d", GET_NAME(agressor), GET_NAME(victim), pkType);
-
 	switch (pkType) {
-		case PK_ACTION_NO: break;
-
 		case PK_ACTION_REVENGE:
 			if (pk_increment_revenge(agressor, victim) >= MAX_REVENGE) {
 				pk_decrement_kill(agressor, victim);
