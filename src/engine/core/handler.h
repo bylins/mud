@@ -23,6 +23,7 @@ struct RoomData;
 
 const int kSecsPerPlayerTimed = 1;
 #include "engine/core/char_equip_flags.h"   // CharEquipFlag(s) (issue.handler-cleaning)
+#include "gameplay/mechanics/equipment.h"   // issue.handler-cleaning: equip queries
 #include "gameplay/mechanics/illumination.h"   // issue.handler-cleaning: room light + IsWearingLight/CheckLight
 #include "gameplay/abilities/timed_abilities.h"   // issue.handler-cleaning: timed feat/skill timers
 #include "gameplay/mechanics/inventory.h"   // issue.handler-cleaning: inventory API
@@ -35,7 +36,6 @@ using target_resolver::find_all_dots;
 using target_resolver::FindRoomRnum;
 
 int get_room_sky(int rnum);
-int IsEquipInMetall(CharData *ch);
 // issue.handler-cleaning: defined in equipment.cpp (Bucket 1). Declarations kept here
 // transitionally to avoid touching ~25 callers; a follow-up moves CharEquipFlag + these
 // to equipment.h and drops them from handler.h.
@@ -55,7 +55,6 @@ RoomVnum get_room_where_obj(ObjData *obj, bool deep = false);
 
 // ******** objects *********** //
 
-bool HaveIncompatibleAlign(CharData *ch, ObjData *obj);
 
 ObjData *get_obj_in_list(char *name, ObjData *list);
 ObjData *get_obj_in_list(const char *name, const ObjData::obj_list_t &list);

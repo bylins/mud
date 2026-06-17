@@ -9,12 +9,12 @@
 #ifndef BYLINS_SRC_GAMEPLAY_MECHANICS_EQUIPMENT_H_
 #define BYLINS_SRC_GAMEPLAY_MECHANICS_EQUIPMENT_H_
 
-#include "engine/core/handler.h"   // CharEquipFlag(s)
-
 class CharData;
 class ObjData;
 void DamageEquipment(CharData *ch, int pos, int dam, int chance);
 void DamageObj(ObjData *obj, int dam, int chance);
+bool HaveIncompatibleAlign(CharData *ch, ObjData *obj);
+int IsEquipInMetall(CharData *ch);
 
 
 #endif //BYLINS_SRC_GAMEPLAY_MECHANICS_EQUIPMENT_H_

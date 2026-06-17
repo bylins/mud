@@ -182,18 +182,6 @@ void InitUid(ObjData *object) {
 
 
 
-bool HaveIncompatibleAlign(CharData *ch, ObjData *obj) {
-	if (ch->IsNpc() || privilege::IsImmortal(ch)) {
-		return false;
-	}
-	if (obj->has_anti_flag(EAntiFlag::kMono) && GET_RELIGION(ch) == kReligionMono) {
-		return true;
-	}
-	if (obj->has_anti_flag(EAntiFlag::kPoly) && GET_RELIGION(ch) == kReligionPoly) {
-		return true;
-	}
-	return false;
-}
 
 
 
@@ -1005,27 +993,6 @@ ObjData *get_object_in_equip_vis(CharData *ch, const char *arg, ObjData *equipme
 
 
 
-int IsEquipInMetall(CharData *ch) {
-	int i, wgt = 0;
-
-	if (ch->IsNpc() && !AFF_FLAGGED(ch, EAffect::kCharmed))
-		return (false);
-	if (privilege::IsGod(ch))
-		return (false);
-
-	for (i = 0; i < EEquipPos::kNumEquipPos; i++) {
-		if (GET_EQ(ch, i)
-			&& ObjSystem::is_armor_type(GET_EQ(ch, i))
-			&& GET_EQ(ch, i)->get_material() <= EObjMaterial::kPreciousMetel) {
-			wgt += GET_EQ(ch, i)->get_weight();
-		}
-	}
-
-	if (wgt > GetRealStr(ch))
-		return (true);
-
-	return (false);
-}
 
 // * Берется минимальная цена ренты шмотки, не важно, одетая она будет или снятая.
 int get_object_low_rent(ObjData *obj) {
