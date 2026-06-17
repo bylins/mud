@@ -318,6 +318,10 @@ void RunestoneRoster::SpawnStones() {
 		obj->set_description(RuneStoneMsg(stone.IsEnabled() ? ERuneStoneMsg::kRoomNormal
 															: ERuneStoneMsg::kRoomDamaged));
 		obj->set_extra_flag(EObjFlag::kNodecay);   // a permanent fixture, not loot
+		// issue.unstable-hotfixes: clear the "take" flag on THIS instance so players cannot pick
+		// the stone up. Done per-instance, NOT on the shared prototype (corpses and other
+		// utility objects reuse it and must stay takeable).
+		obj->set_wear_flags(obj->get_wear_flags() & ~to_underlying(EWearFlag::kTake));
 		PlaceObjToRoom(obj.get(), room_rnum);
 		++placed;
 	}
