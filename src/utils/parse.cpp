@@ -9,6 +9,7 @@
 #include "engine/db/obj_prototypes.h"
 #include "engine/db/db.h"
 #include "utils/utils.h"   // a_isdigit
+#include "utils/utils_string.h"   // str_cmp/strn_cmp (search_block)
 
 //extern ObjRnum GetObjRnum(ObjVnum vnum) { return obj_proto.rnum(vnum);
 
@@ -372,6 +373,126 @@ char *fname(const char *namelist) {
 	*point = '\0';
 
 	return (holder);
+}
+
+// issue.interpreter-cleaning: generic argument/token parsing helpers moved from interpreter.cpp.
+int search_block(const char *target_string, const char **list, int exact) {
+	int i;
+	size_t l = strlen(target_string);
+
+	if (exact) {
+		for (i = 0; **(list + i) != '\n'; i++) {
+			if (!str_cmp(target_string, *(list + i))) {
+				return i;
+			}
+		}
+	} else {
+		if (0 == l) {
+			l = 1;    // Avoid "" to match the first available string
+		}
+		for (i = 0; **(list + i) != '\n'; i++) {
+			if (!strn_cmp(target_string, *(list + i), l)) {
+				return i;
+			}
+		}
+	}
+
+	return -1;
+}
+
+int search_block(const std::string &block, const char **list, int exact) {
+	int i;
+	std::string::size_type l = block.length();
+
+	if (exact) {
+		for (i = 0; **(list + i) != '\n'; i++)
+			if (!str_cmp(block, *(list + i)))
+				return (i);
+	} else {
+		if (!l)
+			l = 1;    // Avoid "" to match the first available string
+		for (i = 0; **(list + i) != '\n'; i++)
+			if (!strn_cmp(block, *(list + i), l))
+				return (i);
+	}
+
+	return (-1);
+}
+
+void GetOneParam(std::string &in_buffer, std::string &out_buffer) {
+	std::string::size_type beg_idx = 0, end_idx = 0;
+	beg_idx = in_buffer.find_first_not_of(' ');
+
+	if (beg_idx != std::string::npos) {
+		// случай с кавычками
+		if (in_buffer[beg_idx] == '\'') {
+			if (std::string::npos != (beg_idx = in_buffer.find_first_not_of('\'', beg_idx))) {
+				if (std::string::npos == (end_idx = in_buffer.find_first_of('\'', beg_idx))) {
+					out_buffer = in_buffer.substr(beg_idx);
+					in_buffer.clear();
+				} else {
+					out_buffer = in_buffer.substr(beg_idx, end_idx - beg_idx);
+					in_buffer.erase(0, ++end_idx);
+				}
+			}
+			// случай с одним параметром через пробел
+		} else {
+			if (std::string::npos != (beg_idx = in_buffer.find_first_not_of(' ', beg_idx))) {
+				if (std::string::npos == (end_idx = in_buffer.find_first_of(' ', beg_idx))) {
+					out_buffer = in_buffer.substr(beg_idx);
+					in_buffer.clear();
+				} else {
+					out_buffer = in_buffer.substr(beg_idx, end_idx - beg_idx);
+					in_buffer.erase(0, end_idx);
+				}
+			}
+		}
+		return;
+	}
+
+	in_buffer.clear();
+	out_buffer.clear();
+}
+
+// регистронезависимое сравнение двух строк по длине первой, флаг - для учета длины строк (неравенство)
+bool CompareParam(const std::string &buffer, const char *str, bool full) {
+	if (!str || !*str || buffer.empty() || (full && buffer.length() != strlen(str))) {
+		return false;
+	}
+
+	std::string::size_type i;
+	for (i = 0; i != buffer.length() && *str; ++i, ++str) {
+		if (LOWER(buffer[i]) != LOWER(*str)) {
+			return false;
+		}
+	}
+
+	if (i == buffer.length()) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
+// тоже самое с обоими аргументами стринг
+bool CompareParam(const std::string &buffer, const std::string &buffer2, bool full) {
+	if (buffer.empty() || buffer2.empty()
+		|| (full && buffer.length() != buffer2.length())) {
+		return false;
+	}
+
+	std::string::size_type i;
+	for (i = 0; i != buffer.length() && i != buffer2.length(); ++i) {
+		if (LOWER(buffer[i]) != LOWER(buffer2[i])) {
+			return false;
+		}
+	}
+
+	if (i == buffer.length()) {
+		return true;
+	} else {
+		return false;
+	}
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

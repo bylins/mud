@@ -174,6 +174,13 @@ int get_number(char **name);
 char *fname(const char *namelist);   // first keyword of a name list
 int get_number(std::string &name);
 
+// issue.interpreter-cleaning: generic argument/token parsing helpers moved from interpreter.
+int search_block(const char *target_string, const char **list, int exact);
+int search_block(const std::string &block, const char **list, int exact);
+void GetOneParam(std::string &buffer, std::string &buffer2);
+bool CompareParam(const std::string &buffer, const char *str, bool full = false);
+bool CompareParam(const std::string &buffer, const std::string &buffer2, bool full = false);
+
 #endif // PARSE_HPP_INCLUDED
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

@@ -18,6 +18,7 @@
 #include "engine/core/conf.h"
 #include "engine/network/descriptor_data.h"
 #include "engine/entities/entities_constants.h"
+#include "utils/parse.h"   // issue.interpreter-cleaning: parsing helpers moved here (transitional bridge)
 
 #include <string>
 
@@ -28,17 +29,12 @@ void DoMove(CharData *ch, char *, int, int subcmd);
 #define CMD_IS(cmd_name) (!strn_cmp(cmd_name, cmd_info[cmd].command, strlen(cmd_name)))
 
 void command_interpreter(CharData *ch, char *argument);
-int search_block(const char *target_string, const char **list, int exact);
-int search_block(const std::string &block, const char **list, int exact);
 // fill_word, half_chop moved to mud_string.h
 void nanny(DescriptorData *d, char *argument);
 
 // is_number moved to utils_string.h
 int find_command(const char *command);
 // блок подобной же фигни для стрингов
-void GetOneParam(std::string &buffer, std::string &buffer2);
-bool CompareParam(const std::string &buffer, const char *str, bool full = false);
-bool CompareParam(const std::string &buffer, const std::string &buffer2, bool full = false);
 DescriptorData *DescriptorByUid(long uid);
 int GetUniqueByName(std::string name, bool god = false);
 std::string GetNameByUnique(long unique, bool god = false);

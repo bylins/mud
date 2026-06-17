@@ -1322,48 +1322,7 @@ void command_interpreter(CharData *ch, char *argument) {
  * it to be returned.  Returns -1 if not found; 0...n otherwise.  Array
  * must be terminated with a '\n' so it knows to stop searching.
  */
-int search_block(const char *target_string, const char **list, int exact) {
-	int i;
-	size_t l = strlen(target_string);
-
-	if (exact) {
-		for (i = 0; **(list + i) != '\n'; i++) {
-			if (!str_cmp(target_string, *(list + i))) {
-				return i;
-			}
-		}
-	} else {
-		if (0 == l) {
-			l = 1;    // Avoid "" to match the first available string
-		}
-		for (i = 0; **(list + i) != '\n'; i++) {
-			if (!strn_cmp(target_string, *(list + i), l)) {
-				return i;
-			}
-		}
-	}
-
-	return -1;
-}
-
-int search_block(const std::string &block, const char **list, int exact) {
-	int i;
-	std::string::size_type l = block.length();
-
-	if (exact) {
-		for (i = 0; **(list + i) != '\n'; i++)
-			if (!str_cmp(block, *(list + i)))
-				return (i);
-	} else {
-		if (!l)
-			l = 1;    // Avoid "" to match the first available string
-		for (i = 0; **(list + i) != '\n'; i++)
-			if (!strn_cmp(block, *(list + i), l))
-				return (i);
-	}
-
-	return (-1);
-}
+// search_block(x2) moved to utils/parse
 
 // is_number and delete_doubledollar moved to utils_string.cpp
 
@@ -3533,81 +3492,7 @@ void nanny(DescriptorData *d, char *argument) {
 }
 
 // берем из первой строки одно слово или подстроку в кавычках, результат удаляется из buffer
-void GetOneParam(std::string &in_buffer, std::string &out_buffer) {
-	std::string::size_type beg_idx = 0, end_idx = 0;
-	beg_idx = in_buffer.find_first_not_of(' ');
-
-	if (beg_idx != std::string::npos) {
-		// случай с кавычками
-		if (in_buffer[beg_idx] == '\'') {
-			if (std::string::npos != (beg_idx = in_buffer.find_first_not_of('\'', beg_idx))) {
-				if (std::string::npos == (end_idx = in_buffer.find_first_of('\'', beg_idx))) {
-					out_buffer = in_buffer.substr(beg_idx);
-					in_buffer.clear();
-				} else {
-					out_buffer = in_buffer.substr(beg_idx, end_idx - beg_idx);
-					in_buffer.erase(0, ++end_idx);
-				}
-			}
-			// случай с одним параметром через пробел
-		} else {
-			if (std::string::npos != (beg_idx = in_buffer.find_first_not_of(' ', beg_idx))) {
-				if (std::string::npos == (end_idx = in_buffer.find_first_of(' ', beg_idx))) {
-					out_buffer = in_buffer.substr(beg_idx);
-					in_buffer.clear();
-				} else {
-					out_buffer = in_buffer.substr(beg_idx, end_idx - beg_idx);
-					in_buffer.erase(0, end_idx);
-				}
-			}
-		}
-		return;
-	}
-
-	in_buffer.clear();
-	out_buffer.clear();
-}
-
-// регистронезависимое сравнение двух строк по длине первой, флаг - для учета длины строк (неравенство)
-bool CompareParam(const std::string &buffer, const char *str, bool full) {
-	if (!str || !*str || buffer.empty() || (full && buffer.length() != strlen(str))) {
-		return false;
-	}
-
-	std::string::size_type i;
-	for (i = 0; i != buffer.length() && *str; ++i, ++str) {
-		if (LOWER(buffer[i]) != LOWER(*str)) {
-			return false;
-		}
-	}
-
-	if (i == buffer.length()) {
-		return true;
-	} else {
-		return false;
-	}
-}
-
-// тоже самое с обоими аргументами стринг
-bool CompareParam(const std::string &buffer, const std::string &buffer2, bool full) {
-	if (buffer.empty() || buffer2.empty()
-		|| (full && buffer.length() != buffer2.length())) {
-		return false;
-	}
-
-	std::string::size_type i;
-	for (i = 0; i != buffer.length() && i != buffer2.length(); ++i) {
-		if (LOWER(buffer[i]) != LOWER(buffer2[i])) {
-			return false;
-		}
-	}
-
-	if (i == buffer.length()) {
-		return true;
-	} else {
-		return false;
-	}
-}
+// GetOneParam / CompareParam(x2) moved to utils/parse
 
 // ищет дескриптор игрока(онлайн состояние) по его УИДу
 DescriptorData *DescriptorByUid(long uid) {
