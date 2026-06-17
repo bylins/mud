@@ -95,11 +95,11 @@ void PlaceCharToRoom(CharData *ch, RoomRnum room) {
 		room = ch->get_from_room();
 	}
 
-	if (!ch->IsNpc() 
-			&& NORENTABLE(ch) 
-			&& ROOM_FLAGGED(room, ERoomFlag::kArena) 
+	if (!ch->IsNpc()
+			&& NORENTABLE(ch)
+			&& ROOM_FLAGGED(room, ERoomFlag::kArena)
 			&& !privilege::IsImmortal(ch)) {
-		SendMsgToChar("п▓я▀ п╫п╣ п╪п╬п╤п╣я┌п╣ п©п╬п©п╟я│я┌я▄ п╫п╟ п╟я─п╣п╫я┐ п╡ я│п╬я│я┌п╬я▐п╫п╦п╦ п╠п╬п╣п╡я▀я┘ п╢п╣п╧я│я┌п╡п╦п╧!\r\n", ch);
+		SendMsgToChar("Вы не можете попасть на арену в состоянии боевых действий!\r\n", ch);
 		room = ch->get_from_room();
 	}
 	world[room]->people.push_front(ch);
@@ -111,8 +111,8 @@ void PlaceCharToRoom(CharData *ch, RoomRnum room) {
 	ch->Temporary.unset(EXTRA_FAILCAMOUFLAGE);
 	if (ch->IsFlagged(EPrf::kCoderinfo)) {
 		sprintf(buf,
-				"%sп п╬п╪п╫п╟я┌п╟=%s%d %sп║п╡п╣я┌=%s%d %sп·я│п╡п╣я┴=%s%d %sп п╬я│я┌п╣я─=%s%d %sп⌡п╣п╢=%s%d "
-				"%sп╒я▄п╪п╟=%s%d %sп║п╬п╩п╫я├п╣=%s%d %sп²п╣п╠п╬=%s%d %sп⌡я┐п╫п╟=%s%d%s.\r\n",
+				"%sКомната=%s%d %sСвет=%s%d %sОсвещ=%s%d %sКостер=%s%d %sЛед=%s%d "
+				"%sТьма=%s%d %sСолнце=%s%d %sНебо=%s%d %sЛуна=%s%d%s.\r\n",
 				kColorNrm, kColorBoldBlk, room,
 				kColorRed, kColorBoldRed, world[room]->light,
 				kColorGrn, kColorBoldGrn, world[room]->glight,
@@ -134,8 +134,8 @@ void PlaceCharToRoom(CharData *ch, RoomRnum room) {
 		zone_table[world[room]->zone_rn].used = true;
 		zone_table[world[room]->zone_rn].activity++;
 	} else {
-		//sventovit: п╥п╢п╣я│я▄ п╬п╠я─п╟п╠п╟я┌я▀п╡п╟я▌я┌я│я▐ я┌п╬п╩я▄п╨п╬ п╫п╣п©п╦я│п╦, я┤я┌п╬п╠я▀ п╦пЁя─п╬п╨ я┐я│п©п╣п╩ я┐п╡п╦п╢п╣я┌я▄ п╨п╬п╪п╫п╟я┌я┐
-		//п╨п╟п╨ я│п╢п╣п╩п╟я┌я▄ п╨я─п╟я│п╦п╡п╣п╧ я▐ п╫п╣ п©я─п╦п╢я┐п╪п╟п╩, я┌.п╨. look_at_room п╡я▀п╥я▀п╡п╟п╣я┌я│я▐ п╡ act.movement п╟ п╫п╣ я┌я┐я┌
+		//sventovit: здесь обрабатываются только неписи, чтобы игрок успел увидеть комнату
+		//как сделать красивей я не придумал, т.к. look_at_room вызывается в act.movement а не тут
 		room_spells::ProcessRoomAffectsOnEntry(ch, ch->in_room);
 	}
 	cities::CheckCityVisit(ch, room);
@@ -195,7 +195,7 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 		log("SYSERROR: double extract_char (%s:%d)", __FILE__, __LINE__);
 		return;
 	}
-	
+
 	if (ch->IsFlagged(EMobFlag::kMobFreed) || ch->IsFlagged(EMobFlag::kMobDeleted)) {
 		return;
 	}
@@ -230,7 +230,7 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 		}
 
 		if (ch->desc->snoop_by) {
-			iosystem::write_to_output("п▓п╟я┬п╟ п╤п╣я─я┌п╡п╟ я┌п╣п©п╣я─я▄ п╫п╣п╢п╬я│я┌я┐п©п╫п╟.\r\n", ch->desc->snoop_by);
+			iosystem::write_to_output("Ваша жертва теперь недоступна.\r\n", ch->desc->snoop_by);
 			ch->desc->snoop_by->snooping = nullptr;
 			ch->desc->snoop_by = nullptr;
 		}
@@ -281,7 +281,7 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 //		log("[Extract char] All save for PC");
 		check_auction(ch, nullptr);
 		ch->save_char();
-		//я┐п╢п╟п╩я▐я▌я┌я│я▐ я─п╣п╫я┌-я└п╟п╧п╩я▀, п╣я│п╩п╦ я┌п╬п╩я▄п╨п╬ п©п╣я─я│п╬п╫п╟п╤ п╫п╣ я┐я┬п╣п╩ п╡ я─п╣п╫я┌я┐
+		//удаляются рент-файлы, если только персонаж не ушел в ренту
 		Crash_delete_crashfile(ch);
 	} else {
 //		log("[Extract char] All clear for NPC");

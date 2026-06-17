@@ -69,12 +69,12 @@ const int kRoomDestroyTimer = 10;
 const int kScriptDestroyTimer = 10; // * !!! Never set less than ONE * //
 
 void InitUid(ObjData *object) {
-	if (GET_OBJ_VNUM(object) > 0 && // п·п╠я┼п╣п╨я┌ п╫п╣ п╡п╦я─я┌я┐п╟п╩я▄п╫я▀п╧
-		object->get_unique_id() == 0)   // пё п╬п╠я┼п╣п╨я┌п╟ я┌п╬я┤п╫п╬ п╫п╣я┌ я┐п╦п╢п╟
+	if (GET_OBJ_VNUM(object) > 0 && // Объект не виртуальный
+		object->get_unique_id() == 0)   // У объекта точно нет уида
 	{
-		global_uid++; // пёп╡п╣п╩п╦я┤п╦п╡п╟п╣п╪ пЁп╩п╬п╠п╟п╩я▄п╫я▀п╧ я│я┤п╣я┌я┤п╦п╨ я┐п╦п╢п╬п╡
-		global_uid = global_uid == 0 ? 1 : global_uid; // п∙я│п╩п╦ п©я─п╬п╦п╥п╬я┬п╩п╬ п©п╣я─п╣п©п╬п╩п╫п╣п╫п╦п╣ п╦п╫я┌п╟
-		object->set_unique_id(global_uid); // п²п╟п╥п╫п╟я┤п╟п╣п╪ я┐п╦п╢
+		global_uid++; // Увеличиваем глобальный счетчик уидов
+		global_uid = global_uid == 0 ? 1 : global_uid; // Если произошло переполнение инта
+		object->set_unique_id(global_uid); // Назначаем уид
 	}
 }
 
@@ -95,14 +95,14 @@ bool PlaceObjToRoom(ObjData *object, RoomRnum room) {
 		log("SYSERR: Illegal value(s) passed to PlaceObjToRoom. (Room #%d/%d, obj %p)",
 			room, top_of_world, object);
 		return false;
-	} 
+	}
 	ArrangeObjInList(object, world[room]->contents);
 	if (world[room]->vnum % 100 == 99 && zone_table[world[room]->zone_rn].vnum < dungeons::kZoneStartDungeons) {
 		if (!(object->has_flag(EObjFlag::kAppearsDay)
 				|| object->has_flag(EObjFlag::kAppearsFullmoon)
 				|| object->has_flag(EObjFlag::kAppearsNight))) {
 			debug::backtrace(runtime_config.logs(SYSLOG).handle());
-			sprintf(buf, "п÷п╬п©я▀я┌п╨п╟ п©п╬п╪п╣я│я┌п╦я┌я▄ п╬п╠я┼п╣п╨я┌ п╡ п╡п╦я─я┌я┐п╟п╩я▄п╫я┐я▌ п╨п╬п╪п╫п╟я┌я┐: objvnum %d, objname %s, roomvnum %d, я│п╬п╥п╢п╟п╫ coredump", 
+			sprintf(buf, "Попытка поместить объект в виртуальную комнату: objvnum %d, objname %s, roomvnum %d, создан coredump",
 					object->get_vnum(), object->get_PName(grammar::ECase::kNom).c_str(), world[room]->vnum);
 			mudlog(buf, CMP, kLvlGod, SYSLOG, true);
 		}
@@ -147,9 +147,9 @@ bool CheckObjDecay(ObjData *object,  bool need_extract) {
 		!object->has_flag(EObjFlag::kSwimming) &&
 		!object->has_flag(EObjFlag::kFlying) &&
 		!IS_CORPSE(object))) {
-		act("$o0 п╪п╣п╢п╩п╣п╫п╫п╬ я┐я┌п╬п╫я┐п╩$G.",
+		act("$o0 медленно утонул$G.",
 			false, world[room]->first_character(), object, nullptr, kToRoom);
-		act("$o0 п╪п╣п╢п╩п╣п╫п╫п╬ я┐я┌п╬п╫я┐п╩$G.",
+		act("$o0 медленно утонул$G.",
 			false, world[room]->first_character(), object, nullptr, kToChar);
 		if (need_extract) {
 			log("[Obj decay] for: %s vnum == %d", object->get_PName(grammar::ECase::kNom).c_str(), GET_OBJ_VNUM(object));
@@ -160,9 +160,9 @@ bool CheckObjDecay(ObjData *object,  bool need_extract) {
 
 	if (((sect == ESector::kOnlyFlying) && !IS_CORPSE(object) && !object->has_flag(EObjFlag::kFlying))) {
 
-		act("$o0 я┐п©п╟п╩$G п╡п╫п╦п╥.",
+		act("$o0 упал$G вниз.",
 			false, world[room]->first_character(), object, nullptr, kToRoom);
-		act("$o0 я┐п©п╟п╩$G п╡п╫п╦п╥.",
+		act("$o0 упал$G вниз.",
 			false, world[room]->first_character(), object, nullptr, kToChar);
 		if (need_extract) {
 			log("[Obj decay] for: %s vnum == %d", object->get_PName(grammar::ECase::kNom).c_str(), GET_OBJ_VNUM(object));
@@ -172,9 +172,9 @@ bool CheckObjDecay(ObjData *object,  bool need_extract) {
 	}
 
 	if (object->has_flag(EObjFlag::kDecay) || (object->has_flag(EObjFlag::kZonedecay) && object->get_vnum_zone_from() != zone_table[world[room]->zone_rn].vnum)) {
-		act("$o0 я─п╟я│я│я▀п©п╟п╩$U п╡ п╪п╣п╩п╨я┐я▌ п©я▀п╩я▄, п╨п╬я┌п╬я─я┐я▌ я─п╟п╥п╡п╣я▐п╩ п╡п╣я┌п╣я─.", false,
+		act("$o0 рассыпал$U в мелкую пыль, которую развеял ветер.", false,
 			world[room]->first_character(), object, nullptr, kToRoom);
-		act("$o0 я─п╟я│я│я▀п©п╟п╩$U п╡ п╪п╣п╩п╨я┐я▌ п©я▀п╩я▄, п╨п╬я┌п╬я─я┐я▌ я─п╟п╥п╡п╣я▐п╩ п╡п╣я┌п╣я─.", false,
+		act("$o0 рассыпал$U в мелкую пыль, которую развеял ветер.", false,
 			world[room]->first_character(), object, nullptr, kToChar);
 		if (need_extract) {
 			log("[Obj decay] for: %s vnum == %d", object->get_PName(grammar::ECase::kNom).c_str(), GET_OBJ_VNUM(object));
@@ -183,7 +183,7 @@ bool CheckObjDecay(ObjData *object,  bool need_extract) {
 		return true;
 	}
 	if (ROOM_FLAGGED(object->get_in_room(), ERoomFlag::kDeathTrap)) {
-		act("$o0 п╦я│я┤п╣п╥$Q п╡ я▐я─п╨п╬п╧ п╡я│п©я▀я┬п╨п╣.", false,
+		act("$o0 исчез$Q в яркой вспышке.", false,
 			world[room]->first_character(), object, nullptr, kToChar);
 		if (need_extract) {
 			log("[Obj decay] extract in DT #%d for: %s vnum == %d", world[object->get_in_room()]->vnum, object->get_PName(grammar::ECase::kNom).c_str(), GET_OBJ_VNUM(object));
@@ -300,7 +300,7 @@ void ExtractObjFromWorld(ObjData *obj, bool showlog) {
 		log("[Extract obj] Start for: %s vnum == %d room = %d timer == %d",
 				name, GET_OBJ_VNUM(obj), roomload, obj->get_timer());
 	}
-	// п·п╠я─п╟п╠п╬я┌п╨п╟ я│п╬п╢п╣я─п╤п╦п╪п╬пЁп╬ п╨п╬п╫я┌п╣п╧п╫п╣я─п╟ п©я─п╦ п╣пЁп╬ я┐п╫п╦я┤я┌п╬п╤п╣п╫п╦п╦
+	// Обработка содержимого контейнера при его уничтожении
 	purge_otrigger(obj);
 //	log("[Extract obj] purge_otrigger, delta %f", timer.delta().count());
 	if (obj->get_contains()) {
@@ -337,7 +337,7 @@ void ExtractObjFromWorld(ObjData *obj, bool showlog) {
 			log("[Extract obj] Delta for container: %s vnum == %d room = %d timer == %d delta_time %f",
 					name, GET_OBJ_VNUM(obj), get_room_where_obj(obj, false), obj->get_timer(), timer.delta().count());
 	}
-	// п║п╬п╢п╣я─п╤п╦п╪п╬п╣ п╨п╬п╫я┌п╣п╧п╫п╣я─п╟ я┐п╢п╟п╩п╣п╫п╬
+	// Содержимое контейнера удалено
 
 	if (obj->get_worn_by() != nullptr) {
 		if (UnequipChar(obj->get_worn_by(), obj->get_worn_on(), CharEquipFlags()) != obj) {
@@ -369,13 +369,13 @@ void UpdateCharObjects(CharData *ch) {
 				if (GET_OBJ_VAL(GET_EQ(ch, wear_pos), 2) > 0) {
 					const int i = GET_EQ(ch, wear_pos)->dec_val(2);
 					if (i == 1) {
-						act("$z $o п╥п╟п╪п╣я─я├п╟п╩$G п╦ п╫п╟я┤п╟п╩$G я┐пЁп╟я│п╟я┌я▄.\r\n",
+						act("$z $o замерцал$G и начал$G угасать.\r\n",
 							false, ch, GET_EQ(ch, wear_pos), nullptr, kToChar);
-						act("$o $n1 п╥п╟п╪п╣я─я├п╟п╩$G п╦ п╫п╟я┤п╟п╩$G я┐пЁп╟я│п╟я┌я▄.",
+						act("$o $n1 замерцал$G и начал$G угасать.",
 							false, ch, GET_EQ(ch, wear_pos), nullptr, kToRoom);
 					} else if (i == 0) {
-						act("$z $o п©п╬пЁп╟я│$Q.\r\n", false, ch, GET_EQ(ch, wear_pos), nullptr, kToChar);
-						act("$o $n1 п©п╬пЁп╟я│$Q.", false, ch, GET_EQ(ch, wear_pos), nullptr, kToRoom);
+						act("$z $o погас$Q.\r\n", false, ch, GET_EQ(ch, wear_pos), nullptr, kToChar);
+						act("$o $n1 погас$Q.", false, ch, GET_EQ(ch, wear_pos), nullptr, kToRoom);
 						if (ch->in_room != kNowhere) {
 							if (world[ch->in_room]->light > 0)
 								world[ch->in_room]->light -= 1;
@@ -395,17 +395,17 @@ void DropObjOnZoneReset(CharData *ch, ObjData *obj, bool inv, bool zone_reset) {
 		ExtractObjFromWorld(obj, false);
 	} else {
 		if (inv)
-			act("п▓я▀ п╡я▀п╠я─п╬я│п╦п╩п╦ $o3 п╫п╟ п╥п╣п╪п╩я▌.", false, ch, obj, nullptr, kToChar);
+			act("Вы выбросили $o3 на землю.", false, ch, obj, nullptr, kToChar);
 		else
-			act("п▓я▀ я│п╫я▐п╩п╦ $o3 п╦ п╡я▀п╠я─п╬я│п╦п╩п╦ п╫п╟ п╥п╣п╪п╩я▌.", false, ch, obj, nullptr, kToChar);
-		// п∙я│п╩п╦ я█я┌п╬я┌ п╪п╬п╠ я┌я─я┐п©п╟ п╫п╣ п╬я│я┌п╟п╡п╦я┌, я┌п╬ п╫п╣ п╡я▀п╡п╬п╢п╦я┌я▄ я│п╬п╬п╠я┴п╣п╫п╦п╣
-		// п╦п╫п╟я┤п╣ я┐п╤п╟я│п╫п╬ п╨п╬я─я▐п╡п╬ я│п╪п╬я┌я─п╦я┌я│я▐ п╡ п╠п╬я▌ п╦ п╡ я┌я─п╦пЁп╟я┘
+			act("Вы сняли $o3 и выбросили на землю.", false, ch, obj, nullptr, kToChar);
+		// Если этот моб трупа не оставит, то не выводить сообщение
+		// иначе ужасно коряво смотрится в бою и в тригах
 		bool msgShown = false;
 		if (!ch->IsNpc() || !ch->IsFlagged(EMobFlag::kCorpse)) {
 			if (inv)
-				act("$n п╠я─п╬я│п╦п╩$g $o3 п╫п╟ п╥п╣п╪п╩я▌.", false, ch, obj, nullptr, kToRoom);
+				act("$n бросил$g $o3 на землю.", false, ch, obj, nullptr, kToRoom);
 			else
-				act("$n я│п╫я▐п╩$g $o3 п╦ п╠я─п╬я│п╦п╩$g п╫п╟ п╥п╣п╪п╩я▌.", false, ch, obj, nullptr, kToRoom);
+				act("$n снял$g $o3 и бросил$g на землю.", false, ch, obj, nullptr, kToRoom);
 			msgShown = true;
 		}
 
@@ -415,7 +415,7 @@ void DropObjOnZoneReset(CharData *ch, ObjData *obj, bool inv, bool zone_reset) {
 
 		PlaceObjToRoom(obj, ch->in_room);
 		if (!CheckObjDecay(obj) && !msgShown) {
-			act("п²п╟ п╥п╣п╪п╩п╣ п╬я│я┌п╟п╩$U п╩п╣п╤п╟я┌я▄ $o.", false, ch, obj, nullptr, kToRoom);
+			act("На земле остал$U лежать $o.", false, ch, obj, nullptr, kToRoom);
 		}
 	}
 }
