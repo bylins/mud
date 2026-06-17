@@ -943,8 +943,13 @@ EStageResult CastAffect(CastContext &ctx) {
 		return EStageResult::kSuccess;
 	}
 
-	// Calculate PKILL's affects
-	if (ch != victim) {
+	// Calculate PKILL's affects. issue.spell-ally-aggression: a benign cast is never an
+	// aggressive act -- gate the PK check on the per-target violence verdict. IsViolentAgainst
+	// resolves ambiguous ("A") spells by caster<->target relationship; a static IsViolent()
+	// would wrongly treat A as non-violent and skip the gate for genuinely hostile A-casts.
+	// Without this, an ally-only buff such as kSanctuary / kPrismaticAura (violent="N") cast
+	// on an ally who happens to be in combat tripped pk_agro_action -> clan-castle eviction.
+	if (ch != victim && MUD::Spell(spell_id).IsViolentAgainst(ch, victim)) {
 		if (MUD::Spell(spell_id).IsFlagged(kNpcAffectPc)) {
 			if (!pk_agro_action(ch, victim)) {
 				return EStageResult::kSuccess;
