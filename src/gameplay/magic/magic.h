@@ -17,6 +17,7 @@
 #include "spells_info.h"
 
 #include <cstdlib>
+#include <optional>
 #include <set>
 #include <vector>
 
@@ -128,6 +129,10 @@ class CastContext {
 	ActionResult result;
 	// Set by CastDamage when the target died; the dispatcher stops the action chain.
 	bool is_vict_dead{false};
+	// issue.instant-death: the damage saving throw, rolled once per CastDamage (true = saved).
+	// Shared by the instant-death gate (target must FAIL) and the save-for-half so the throw is
+	// never rolled twice. Unset for non-<damage> casts / self-casts.
+	std::optional<bool> last_saving_result;
 	// Targets for the current cast. cvict will later become a richer target list
 	// built by the target resolver (issue.spell-pipeline note).
 	CharData *cvict{nullptr};

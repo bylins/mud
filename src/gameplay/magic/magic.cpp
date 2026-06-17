@@ -455,6 +455,15 @@ EStageResult CastDamage(CastContext &ctx) {
 //	if (!ch->IsNpc() && (GetRealLevel(ch) > 10))
 //		modi += (GetRealLevel(ch) - 10);
 
+	// issue.instant-death: roll the damage saving throw ONCE here and stash it in the context, so the
+	// instant-death gate (target must FAIL) and the save-for-half below share a single roll instead of
+	// re-rolling. Only for a modern <damage> action vs another char; kNone saving / self-cast make
+	// CalcGeneralSaving return false (no save = failed = full damage, instant-death not blocked).
+	if (ch != victim && ctx.action_or_default().Contains(talents_actions::EAction::kDamage)) {
+		ctx.last_saving_result = CalcGeneralSaving(ch, victim,
+				ctx.action_or_default().GetDmg().GetSaving(), modi);
+	}
+
 	// issue.instant-death: a <damage><instant_death prob=.../> spell can kill the target outright.
 	// Gate, in order: the target must FAIL its saving throw; the prob roll must fire (default 100 =
 	// always); the caster must WIN the opposed luck/morale contest. On success the normal damage is
@@ -464,7 +473,7 @@ EStageResult CastDamage(CastContext &ctx) {
 		const auto &id_act = ctx.action_or_default().GetDmg();
 		if (id_act.HasInstantDeath()
 				&& !victim->get_role(static_cast<unsigned>(EMobClass::kBoss))   // never on boss monsters
-				&& !CalcGeneralSaving(ch, victim, id_act.GetSaving(), modi)
+				&& !ctx.last_saving_result.value_or(false)   // target failed the (already-rolled) save
 				&& number(1, 100) <= id_act.GetInstantDeathProb()
 				&& abilities_roll::AgainstRivalRoll::OppositeLuckTest(ch, victim)) {
 			const int lethal = victim->IsNpc() ? victim->get_hit() + 11
@@ -516,6 +525,11 @@ EStageResult CastDamage(CastContext &ctx) {
 		err_log("%s", e.what());
 	}
 	total_dmg = std::clamp(total_dmg, 0, kMaxHits);
+	// issue.instant-death: a successful saving throw halves the damage (the now-live <damage saving=>
+	// half-save), reusing the single roll stashed above. A failed/absent save leaves full damage.
+	if (ctx.last_saving_result.value_or(false)) {
+		total_dmg /= 2;
+	}
 	if (tc) {
 		spell_trace::Line(ch, victim, "&CDamage %s -> %s: total_dmg %d (area %.2f applied), hits %d.&n\r\n",
 			MUD::Spell(spell_id).GetCName(), GET_NAME(victim), total_dmg, ctx.area_coeff, count);
