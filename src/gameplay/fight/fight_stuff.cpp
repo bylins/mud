@@ -29,7 +29,9 @@
 #include "gameplay/clans/house_exp.h"        // change_rep
 #include "fight_penalties.h"
 #include "fight_hit.h"
-#include "engine/core/handler.h"
+#include "engine/core/char_handler.h"
+#include "engine/core/target_resolver.h"
+#include "utils/parse.h"
 #include "gameplay/mechanics/corpse.h"
 #include "gameplay/clans/house.h"
 #include "pk.h"

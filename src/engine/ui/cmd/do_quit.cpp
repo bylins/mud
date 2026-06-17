@@ -16,7 +16,7 @@
 #include "gameplay/mechanics/depot.h"
 #include "gameplay/clans/house.h"
 #include "gameplay/fight/fight.h"
-#include "engine/core/handler.h"
+#include "engine/core/char_handler.h"
 #include "engine/db/db.h"
 #include "gameplay/ai/spec_procs.h"
 

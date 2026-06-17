@@ -12,6 +12,8 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
+#include "engine/core/char_handler.h"
+#include "gameplay/mechanics/equipment.h"
 #include "gameplay/ai/spec_procs.h"
 #include "administration/privilege.h"
 #include "gameplay/economics/currencies.h"

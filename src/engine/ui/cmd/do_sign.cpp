@@ -1,6 +1,6 @@
 #include "engine/db/obj_prototypes.h"
 #include "engine/entities/char_data.h"
-#include "engine/core/handler.h"
+#include "engine/core/target_resolver.h"
 #include "gameplay/clans/house.h"
 #include "gameplay/mechanics/liquid.h"
 #include "gameplay/fight/pk.h"

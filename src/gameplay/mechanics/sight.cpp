@@ -5,6 +5,8 @@
 \brief Mechanics of sight.
 */
 
+#include "engine/core/char_movement.h"
+#include "engine/core/target_resolver.h"
 #include "sight.h"
 #include "gameplay/mechanics/minions.h"
 #include "administration/privilege.h"

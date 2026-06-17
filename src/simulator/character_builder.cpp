@@ -4,7 +4,7 @@
 #include "utils/utils.h"
 #include "engine/entities/char_data.h"
 #include "engine/structs/structs.h"
-#include "engine/core/handler.h"
+#include "engine/core/char_handler.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/affects/affect_data.h"
 #include "gameplay/affects/affect_contants.h"

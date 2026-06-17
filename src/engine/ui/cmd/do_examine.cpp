@@ -9,7 +9,7 @@
 #include "engine/entities/obj_data.h"
 #include "gameplay/mechanics/sight.h"
 #include "engine/db/global_objects.h"
-#include "engine/core/handler.h"
+#include "engine/core/target_resolver.h"
 
 void do_examine(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	CharData *tmp_char;

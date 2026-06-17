@@ -3,7 +3,9 @@
 #include "engine/entities/char_data.h"
 #include "utils/grammar/declensions.h"
 #include "gameplay/economics/currencies.h"
-#include "engine/core/handler.h"
+#include "engine/core/obj_handler.h"
+#include "engine/core/target_resolver.h"
+#include "gameplay/mechanics/inventory.h"
 #include "gameplay/fight/pk.h"
 #include "engine/db/global_objects.h"
 

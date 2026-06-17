@@ -14,7 +14,6 @@
 #include "gameplay/mechanics/mount.h"
 
 #include "engine/entities/char_data.h"
-#include "engine/core/handler.h"
 #include "engine/core/target_resolver.h"
 #include "engine/ui/color.h"
 #include "gameplay/core/game_limits.h"

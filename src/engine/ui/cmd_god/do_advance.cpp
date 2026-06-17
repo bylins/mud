@@ -9,7 +9,6 @@
 #include "engine/entities/char_data.h"
 #include "gameplay/core/experience.h"
 #include "gameplay/classes/pc_classes.h"
-#include "engine/core/handler.h"
 #include "engine/core/target_resolver.h"
 #include "gameplay/core/game_limits.h"
 

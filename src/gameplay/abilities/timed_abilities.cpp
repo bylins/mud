@@ -9,7 +9,6 @@
 
 #include "timed_abilities.h"
 
-#include "engine/core/handler.h"            // kSecsPerPlayerTimed
 #include "engine/entities/char_data.h"
 #include "engine/db/global_objects.h"       // MUD::Feats()
 #include "gameplay/abilities/feats.h"

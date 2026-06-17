@@ -6,7 +6,7 @@
 #include "administration/privilege.h"
 #include "gameplay/mechanics/minions.h"
 
-#include "engine/core/handler.h"
+#include "utils/parse.h"
 #include "engine/core/utils_char_obj.inl"
 #include "engine/db/world_characters.h"
 #include "engine/db/world_objects.h"

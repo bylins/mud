@@ -6,7 +6,8 @@
 #include "gameplay/fight/common.h"
 #include "gameplay/fight/fight_hit.h"
 #include "parry.h"
-#include "engine/core/handler.h"
+#include "engine/core/char_movement.h"
+#include "engine/entities/char_data.h"
 
 void go_iron_wind(CharData *ch, CharData *victim) {
 	if (IsUnableToAct(ch)) {

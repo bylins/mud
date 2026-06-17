@@ -1,7 +1,7 @@
 #ifndef CHAR_OBJ_UTILS_HPP_
 #define CHAR_OBJ_UTILS_HPP_
 
-#include "handler.h"
+#include "engine/core/obj_handler.h"
 #include "gameplay/mechanics/inventory.h"   // issue.handler-cleaning: CanTakeObj moved here
 #include "gameplay/mechanics/minions.h"
 #include "engine/structs/structs.h"

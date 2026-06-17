@@ -5,7 +5,11 @@
 
 #include "engine/entities/char_data.h"
 #include "gameplay/mechanics/mount.h"
-#include "engine/core/handler.h"
+#include "engine/core/char_equip_flags.h"
+#include "engine/core/char_handler.h"
+#include "engine/core/obj_handler.h"
+#include "gameplay/mechanics/equipment.h"
+#include "gameplay/mechanics/inventory.h"
 #include "utils/logger.h"
 #include "utils/backtrace.h"
 #include "engine/ui/cmd/do_drop.h"

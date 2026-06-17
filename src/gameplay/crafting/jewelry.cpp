@@ -11,7 +11,8 @@
 
 #include "engine/entities/char_data.h"
 #include "engine/entities/entities_constants.h"
-#include "engine/core/handler.h"
+#include "engine/core/obj_handler.h"
+#include "engine/core/target_resolver.h"
 #include "mining.h"
 #include "utils/random.h"
 #include "utils/parse.h"

@@ -6,7 +6,7 @@
 #include "gameplay/economics/currencies.h"
 #include "engine/entities/char_player.h"
 #include "gameplay/fight/pk.h"
-#include "engine/core/handler.h"
+#include "engine/entities/char_data.h"
 #include "engine/core/target_resolver.h"
 #include "administration/privilege.h"
 #include "engine/ui/color.h"

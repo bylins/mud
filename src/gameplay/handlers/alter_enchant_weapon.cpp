@@ -10,7 +10,7 @@
 #include "engine/db/global_objects.h"
 #include "gameplay/magic/spell_messages.h"
 #include "gameplay/magic/magic_internal.h"
-#include "engine/core/handler.h"
+#include "engine/core/target_resolver.h"
 #include "gameplay/mechanics/corpse.h"
 
 namespace handlers {

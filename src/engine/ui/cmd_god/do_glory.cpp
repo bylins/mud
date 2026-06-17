@@ -11,7 +11,6 @@
 #include "gameplay/mechanics/glory.h"
 #include "gameplay/mechanics/glory_misc.h"
 #include "engine/entities/char_player.h"
-#include "engine/core/handler.h"
 #include "engine/core/target_resolver.h"
 #include "administration/karma.h"
 

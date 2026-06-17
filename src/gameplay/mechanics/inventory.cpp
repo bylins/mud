@@ -9,7 +9,7 @@
 
 #include "engine/entities/char_data.h"
 #include "engine/entities/obj_data.h"
-#include "engine/core/handler.h"
+#include "engine/core/obj_handler.h"
 #include "engine/core/utils_char_obj.inl"
 #include "utils/utils.h"
 #include "utils/backtrace.h"

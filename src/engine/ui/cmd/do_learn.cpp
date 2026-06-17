@@ -1,6 +1,8 @@
 #include "do_learn.h"
 
-#include "engine/core/handler.h"
+#include "engine/core/obj_handler.h"
+#include "engine/core/target_resolver.h"
+#include "engine/entities/char_data.h"
 #include "gameplay/classes/classes_spell_slots.h"
 #include "gameplay/classes/pc_classes.h"
 #include "gameplay/magic/spells_info.h"

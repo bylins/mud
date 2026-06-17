@@ -12,7 +12,10 @@
 
 #include "engine/entities/char_data.h"
 #include "engine/entities/obj_data.h"
-#include "engine/core/handler.h"
+#include "engine/core/obj_handler.h"
+#include "engine/core/target_resolver.h"
+#include "gameplay/abilities/timed_abilities.h"
+#include "gameplay/mechanics/inventory.h"
 
 void do_pray(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	int metter = -1;

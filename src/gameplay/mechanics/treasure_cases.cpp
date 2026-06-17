@@ -7,7 +7,8 @@
 #include "engine/entities/char_data.h"
 #include "engine/entities/obj_data.h"
 #include "engine/db/world_objects.h"
-#include "engine/core/handler.h"
+#include "engine/core/obj_handler.h"
+#include "gameplay/mechanics/inventory.h"
 
 #include "utils/parser_wrapper.h"   // issue.lib-template: ParserWrapper вместо прямого pugixml
 #include "utils/parse.h"

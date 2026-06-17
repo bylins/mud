@@ -1,7 +1,7 @@
 #include "do_order.h"
 #include "administration/privilege.h"
 
-#include "engine/core/handler.h"
+#include "engine/entities/char_data.h"
 #include "engine/core/target_resolver.h"
 
 // ****************** CHARM ORDERS PROCEDURES

@@ -8,7 +8,7 @@
 #include "engine/entities/obj_data.h"
 #include "utils/grammar/cases.h"            // grammar::ItemName / ECase
 #include "engine/core/comm.h"
-#include "engine/core/handler.h"             // PlaceObjToRoom
+#include "engine/core/obj_handler.h"
 #include "engine/ui/modify.h"
 #include "engine/ui/interpreter.h"           // CMD_IS / cmd_info
 #include "engine/olc/vedun/vedun.h"          // vedun::IsBeingEdited (don't clobber a live edit)

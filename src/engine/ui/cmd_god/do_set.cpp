@@ -12,7 +12,7 @@
 #include "administration/punishments.h"
 #include "gameplay/mechanics/depot.h"
 #include "engine/entities/char_data.h"
-#include "engine/core/handler.h"
+#include "engine/core/char_handler.h"
 #include "engine/core/target_resolver.h"
 #include "gameplay/mechanics/liquid.h"
 #include "engine/olc/olc.h"

@@ -19,7 +19,9 @@
 
 #include "engine/entities/obj_data.h"
 #include "engine/ui/color.h"
-#include "engine/core/handler.h"
+#include "engine/entities/char_data.h"
+#include "gameplay/mechanics/equipment.h"
+#include "gameplay/mechanics/inventory.h"
 #include "engine/core/target_resolver.h"
 #include "gameplay/mechanics/named_stuff.h"
 #include "gameplay/fight/pk.h"

@@ -1,3 +1,4 @@
+#include "gameplay/mechanics/equipment.h"
 #include "do_stat.h"
 #include "gameplay/core/experience.h"
 #include "gameplay/economics/currencies.h"

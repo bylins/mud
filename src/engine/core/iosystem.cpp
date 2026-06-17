@@ -14,7 +14,7 @@
 #include "gameplay/mechanics/sight.h"
 
 #include "engine/entities/char_data.h"
-#include "engine/core/handler.h"
+#include "gameplay/abilities/timed_abilities.h"
 #include "engine/network/descriptor_data.h"
 #include "engine/network/msdp/msdp.h"
 #include "engine/ui/color.h"

@@ -3,7 +3,9 @@
 #include "skill_messages.h"
 #include "engine/entities/char_data.h"
 #include "engine/db/global_objects.h"
-#include "engine/core/handler.h"
+#include "engine/core/obj_handler.h"
+#include "engine/core/target_resolver.h"
+#include "gameplay/mechanics/inventory.h"
 #include "gameplay/mechanics/meat_maker.h"
 
 extern std::array<int, kMaxMobLevel / 11 + 1> animals_levels;

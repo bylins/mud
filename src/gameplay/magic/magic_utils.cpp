@@ -17,7 +17,9 @@
 
 #include "gameplay/mechanics/groups.h"
 #include "engine/db/global_objects.h"
-#include "engine/core/handler.h"
+#include "engine/entities/char_data.h"
+#include "gameplay/mechanics/equipment.h"
+#include "utils/parse.h"
 #include "engine/core/target_resolver.h"
 #include "engine/ui/color.h"
 #include "gameplay/mechanics/depot.h"

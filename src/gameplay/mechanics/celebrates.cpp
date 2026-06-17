@@ -6,7 +6,10 @@
 #include "utils/parse.h"
 #include "engine/db/global_objects.h"
 #include "engine/db/obj_prototypes.h"
-#include "engine/core/handler.h"
+#include "engine/core/char_handler.h"
+#include "engine/core/obj_handler.h"
+#include "engine/entities/char_data.h"
+#include "gameplay/mechanics/inventory.h"
 #include "utils/backtrace.h"
 #include "weather.h"
 

@@ -3,7 +3,9 @@
 #include "administration/privilege.h"
 
 #include "engine/entities/char_data.h"
-#include "engine/core/handler.h"
+#include "engine/core/char_handler.h"
+#include "engine/core/obj_handler.h"
+#include "engine/core/target_resolver.h"
 #include "do_hire.h"
 #include "gameplay/mechanics/liquid.h"
 #include "gameplay/fight/fight.h"

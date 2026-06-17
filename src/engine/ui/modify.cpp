@@ -18,7 +18,6 @@
 #include "modify.h"
 #include "engine/olc/vedun/vedun.h"
 #include "interpreter.h"
-#include "engine/core/handler.h"
 #include "engine/core/target_resolver.h"
 #include "engine/db/db.h"
 #include "engine/core/comm.h"

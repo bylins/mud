@@ -12,7 +12,7 @@
 #include "names.h"
 #include "utils/grammar/gender.h"
 
-#include "engine/core/handler.h"
+#include "engine/entities/char_data.h"
 #include "engine/core/target_resolver.h"
 #include "engine/ui/color.h"
 #include "engine/entities/char_player.h"

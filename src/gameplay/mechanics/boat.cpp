@@ -12,7 +12,7 @@
 #include "engine/entities/entities_constants.h"
 #include "gameplay/affects/affect_contants.h"
 #include "engine/entities/char_data.h"
-#include "engine/core/handler.h"
+#include "engine/core/char_movement.h"
 #include "engine/ui/cmd/do_equip.h"
 
 bool IsBoatNeedHere(RoomRnum room_rnum);

@@ -2,7 +2,7 @@
 #include "administration/privilege.h"
 
 #include "gameplay/classes/classes_spell_slots.h"
-#include "engine/core/handler.h"
+#include "gameplay/abilities/timed_abilities.h"
 #include "gameplay/magic/spells_info.h"
 #include "gameplay/magic/magic_utils.h"
 #include "gameplay/magic/magic.h"          // CallMagic / IsAffectedBySpell / RemoveAffectFromCharAndRecalculate
