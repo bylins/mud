@@ -8,6 +8,7 @@
 #include "engine/entities/char_data.h"
 #include "engine/entities/obj_data.h"
 #include "engine/scripting/dg_scripts.h"
+#include "engine/ui/cmd/do_follow.h"
 #include "engine/ui/interpreter.h"
 #include "gameplay/magic/spells.h"
 #include "gameplay/mechanics/damage.h"
@@ -335,27 +336,39 @@ int GetObjRoomVnum(const LuaEntityHandle &handle)
 	return world[obj->get_in_room()]->vnum;
 }
 
-bool PurgeEntity(const LuaEntityHandle &handle)
+bool PurgeCharEntity(const LuaEntityHandle &handle, LuaRuntimeContext runtime)
 {
-	if (handle.type == LuaEntityHandle::LuaEntityType::Char)
+	auto *ch = ResolveChar(handle);
+	if (!ch)
 	{
-		auto *ch = ResolveChar(handle);
-		if (!ch)
-		{
-			return false;
-		}
-		ExtractCharFromWorld(ch, false);
+		return false;
 	}
-	else
+	if (!ch->IsNpc())
 	{
-		auto *obj = ResolveObj(handle);
-		if (!obj)
-		{
-			return false;
-		}
-		ExtractObjFromWorld(obj);
+		return LogLuaApiError(runtime.trigger, "purge: purging a PC");
+	}
+	if (ch == runtime.owner)
+	{
+		return LogLuaApiError(runtime.trigger, "purge: purging current trigger owner is not allowed");
+	}
+	if (!ch->followers.empty() || ch->has_master())
+	{
+		die_follower(ch);
 	}
 
+	character_list.AddToExtractedList(ch);
+	return true;
+}
+
+bool PurgeObjEntity(const LuaEntityHandle &handle)
+{
+	auto *obj = ResolveObj(handle);
+	if (!obj)
+	{
+		return false;
+	}
+
+	world_objects.AddToExtractedList(obj);
 	return true;
 }
 
@@ -428,14 +441,17 @@ bool MudDamage(
 	{
 		return LogLuaApiError(runtime.trigger, "damage: character is not in room");
 	}
+	if (attacker->in_room != victim->in_room)
+	{
+		return LogLuaApiError(runtime.trigger, "damage: attacker and victim must be in the same room");
+	}
 	if (victim->IsImmortal() && amount > 0)
 	{
 		return LogLuaApiError(runtime.trigger, "damage: immortal victim");
 	}
 
 	Damage damage(SimpleDmg(kTypeTriggerdeath), amount, damage_type);
-	damage.Process(attacker, victim);
-	return true;
+	return damage.Process(attacker, victim) != 0;
 }
 
 sol::object BuildCharView(sol::state &lua, CharData *ch, LuaRuntimeContext runtime)
@@ -504,8 +520,8 @@ sol::object BuildCharView(sol::state &lua, CharData *ch, LuaRuntimeContext runti
 		}
 		if (key == "purge")
 		{
-			return sol::make_object(lua, sol::as_function([handle]() {
-				return PurgeEntity(handle);
+			return sol::make_object(lua, sol::as_function([handle, runtime]() {
+				return PurgeCharEntity(handle, runtime);
 			}));
 		}
 
@@ -555,7 +571,7 @@ sol::object BuildObjView(sol::state &lua, ObjData *obj)
 		if (key == "purge")
 		{
 			return sol::make_object(lua, sol::as_function([handle]() {
-				return PurgeEntity(handle);
+				return PurgeObjEntity(handle);
 			}));
 		}
 
@@ -657,9 +673,13 @@ ObjData *LoadObjToRoom(const sol::object &vnum, const sol::object &room)
 		return nullptr;
 	}
 
+	obj->set_vnum_zone_from(zone_table[world[room_rnum]->zone_rn].vnum);
 	PlaceObjToRoom(obj.get(), room_rnum);
 	load_otrigger(obj.get());
-	CheckObjDecay(obj.get());
+	if (CheckObjDecay(obj.get()))
+	{
+		return nullptr;
+	}
 	return obj.get();
 }
 
