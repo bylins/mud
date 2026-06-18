@@ -399,6 +399,7 @@ main_sources = files(
   'src/engine/scripting/dg_triggers.cpp',
   'src/engine/scripting/dg_wldcmd.cpp',
   'src/engine/scripting/lua/lua_script_engine.cpp',
+  'src/engine/scripting/lua/lua_wait_coroutine_design.cpp',
   'src/engine/ui/cmd_god/do_luatest.cpp',
   'src/gameplay/economics/dictionary.cpp',
   'src/utils/diskio.cpp',
