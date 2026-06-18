@@ -36,6 +36,7 @@
 #include "gameplay/affects/affect_messages.h"
 #include "engine/core/common_messages.h"
 #include "gameplay/mechanics/rune_stones_loaders.h"
+#include "administration/privilege_db.h"
 
 namespace cfg_manager {
 
@@ -114,6 +115,8 @@ CfgManager::CfgManager() {
 										  std::make_unique<RuneStonesLoader>(RuneStonesLoader())));
 	loaders_.emplace("mob_classes", LoaderInfo("cfg/mob_classes.xml",
 								  std::make_unique<mob_classes::MobClassesLoader>(mob_classes::MobClassesLoader())));
+	loaders_.emplace("privilege", LoaderInfo("cfg/privilege.xml",
+								  std::make_unique<privilege::PrivilegeLoader>(privilege::PrivilegeLoader())));
 }
 
 void CfgManager::ReloadCfg(const std::string &id) {

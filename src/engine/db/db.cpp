@@ -928,6 +928,7 @@ void BootMudDataBase() {
 	boot_profiler.next_step("Loading privileges and gods list");
 	log("Load privilege and god list.");
 	privilege::Load();
+	MUD::CfgManager().LoadCfg("privilege");  // issue.privilege-rework P1: membership DB (inert until P2)
 
 	// должен идти до резета зон
 	boot_profiler.next_step("Initializing depot system");

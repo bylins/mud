@@ -357,6 +357,7 @@ main_sources = files(
   'src/gameplay/economics/auction.cpp',
   'src/utils/backtrace.cpp',
   'src/administration/ban.cpp',
+  'src/administration/privilege_db.cpp',
   'src/gameplay/mechanics/birthplaces.cpp',
   'src/gameplay/communication/boards/boards_changelog_loaders.cpp',
   'src/gameplay/communication/boards/boards_constants.cpp',
