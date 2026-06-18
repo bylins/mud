@@ -41,6 +41,19 @@
 -->
 <privilege>
     <command_groups>
+        <group id="olc" commands="armor|detach|errlog|invis|load|medit|mlist|mredit|mrlist|oedit|olc|olist|purge|redit|rlist|sedit|slist|stat|tlist|trigedit|tstat|vnum|vstat|zedit|zlist|zreset|вномер|занятость|зоныстат|зсписок|исписок|ксписок|мсписок|осписок|пометить|show (affectedrooms bosses death errors mobstat money paths rent triggers worlds zones)"/>
+        <group id="small_olc" commands="detach|invis|load|medit|mlist|oedit|olc|olist|purge|redit|rlist|stat|tlist|trigedit|tstat|vnum|vstat|zedit|zlist|zreset"/>
+        <group id="namestuff" commands="nedit|nlist"/>
+        <group id="goto" commands="goto|poofin|poofout|где|прыжок"/>
+        <group id="mute" commands="mute|замолчать|set (mute)"/>
+        <group id="dumb" commands="dumb|set (dumb)"/>
+        <group id="hell" commands="hell|name|set (hell)"/>
+        <group id="punish" commands="dumb|file|hell|inspect|ip|karma|last|mute|name|stat|t2c|замолчать|занятость|set (dumb hell mute scriptwriter)|show (punishment zones)"/>
+        <group id="log" commands="errlog|imlog|syslog"/>
+        <group id="ban" commands="ban|dc|last|proxy|stat|unban|users|запрет"/>
+        <group id="echo" commands="echo|gecho|гэхо|эхо"/>
+        <group id="hunt" commands="last|snoop|stat|unregister|users|set (email)|show (linkdrop)"/>
+        <group id="imm_assistance" commands="nedit|nlist|sedit|slist|stat|vstat|show (account guild)"/>
     </command_groups>
     <god_list>
         <owner>
