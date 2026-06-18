@@ -1555,12 +1555,29 @@ static void HandleMainMenu(DescriptorData *d, char *argument) {
 
 }
 
-static void HandleName2(DescriptorData *d, char *argument) {
+static void HandleNameCase(DescriptorData *d, char *argument, int step) {
+	// Russian name-declension entry: genitive -> dative -> accusative -> instrumental ->
+	// prepositional. One table-driven handler in place of the former HandleName2..HandleName6.
+	static const struct {
+		grammar::ECase ecase;    // PNames slot stored on success
+		int idx;                 // GetCase declension index for this case
+		const char *prompt;      // prompt body: "<case> падеже (...)"
+		EConState state;         // the EConState routed to this step (used as the next-step target)
+	} kSteps[] = {
+		{grammar::ECase::kGen, 1, "родительном падеже (меч КОГО?)",         EConState::kName2},
+		{grammar::ECase::kDat, 2, "дательном падеже (отправить КОМУ?)",     EConState::kName3},
+		{grammar::ECase::kAcc, 3, "винительном падеже (ударить КОГО?)",     EConState::kName4},
+		{grammar::ECase::kIns, 4, "творительном падеже (сражаться с КЕМ?)", EConState::kName5},
+		{grammar::ECase::kPre, 5, "предложном падеже (говорить о КОМ?)",    EConState::kName6},
+	};
+	constexpr int kLast = 4;
 	char buffer[kMaxStringLength];
 	char tmp_name[kMaxInputLength];
+	const auto &cur = kSteps[step];
+
 	skip_spaces(&argument);
 	if (strlen(argument) == 0) {
-		GetCase(GET_PC_NAME(d->character), d->character->get_sex(), 1, argument);
+		GetCase(GET_PC_NAME(d->character), d->character->get_sex(), cur.idx, argument);
 	}
 	if (!_parse_name(argument, tmp_name)
 		&& strlen(tmp_name) >= kMinNameLength
@@ -1568,129 +1585,26 @@ static void HandleName2(DescriptorData *d, char *argument) {
 		&& !strn_cmp(tmp_name,
 					 GET_PC_NAME(d->character),
 					 std::min<size_t>(kMinNameLength, strlen(GET_PC_NAME(d->character)) - 1))) {
-		d->character->player_data.PNames[grammar::ECase::kGen] = std::string(utils::CAP(tmp_name));
-		GetCase(GET_PC_NAME(d->character), d->character->get_sex(), 2, tmp_name);
-		sprintf(buffer, "Имя в дательном падеже (отправить КОМУ?) [%s]: ", tmp_name);
-		iosystem::write_to_output(buffer, d);
-		d->state = EConState::kName3;
+		d->character->player_data.PNames[cur.ecase] = std::string(utils::CAP(tmp_name));
+		if (step < kLast) {
+			const auto &next = kSteps[step + 1];
+			GetCase(GET_PC_NAME(d->character), d->character->get_sex(), next.idx, tmp_name);
+			sprintf(buffer, "Имя в %s [%s]: ", next.prompt, tmp_name);
+			iosystem::write_to_output(buffer, d);
+			d->state = next.state;
+		} else {
+			sprintf(buffer,
+					"Введите пароль для %s (не вводите пароли типа '123' или 'qwe', иначе ваших персонажев могут украсть) : ",
+					GET_PAD(d->character, 1));
+			iosystem::write_to_output(buffer, d);
+			d->state = EConState::kNewpasswd;
+		}
 	} else {
 		iosystem::write_to_output("Некорректно.\r\n", d);
-		GetCase(GET_PC_NAME(d->character), d->character->get_sex(), 1, tmp_name);
-		sprintf(buffer, "Имя в родительном падеже (меч КОГО?) [%s]: ", tmp_name);
+		GetCase(GET_PC_NAME(d->character), d->character->get_sex(), cur.idx, tmp_name);
+		sprintf(buffer, "Имя в %s [%s]: ", cur.prompt, tmp_name);
 		iosystem::write_to_output(buffer, d);
 	}
-
-}
-
-static void HandleName3(DescriptorData *d, char *argument) {
-	char buffer[kMaxStringLength];
-	char tmp_name[kMaxInputLength];
-	skip_spaces(&argument);
-
-	if (strlen(argument) == 0) {
-		GetCase(GET_PC_NAME(d->character), d->character->get_sex(), 2, argument);
-	}
-
-	if (!_parse_name(argument, tmp_name)
-		&& strlen(tmp_name) >= kMinNameLength
-		&& strlen(tmp_name) <= kMaxNameLength
-		&& !strn_cmp(tmp_name,
-					 GET_PC_NAME(d->character),
-					 std::min<size_t>(kMinNameLength, strlen(GET_PC_NAME(d->character)) - 1))) {
-		d->character->player_data.PNames[grammar::ECase::kDat] = std::string(utils::CAP(tmp_name));
-		GetCase(GET_PC_NAME(d->character), d->character->get_sex(), 3, tmp_name);
-		sprintf(buffer, "Имя в винительном падеже (ударить КОГО?) [%s]: ", tmp_name);
-		iosystem::write_to_output(buffer, d);
-		d->state = EConState::kName4;
-	} else {
-		iosystem::write_to_output("Некорректно.\r\n", d);
-		GetCase(GET_PC_NAME(d->character), d->character->get_sex(), 2, tmp_name);
-		sprintf(buffer, "Имя в дательном падеже (отправить КОМУ?) [%s]: ", tmp_name);
-		iosystem::write_to_output(buffer, d);
-	}
-
-}
-
-static void HandleName4(DescriptorData *d, char *argument) {
-	char buffer[kMaxStringLength];
-	char tmp_name[kMaxInputLength];
-	skip_spaces(&argument);
-
-	if (strlen(argument) == 0) {
-		GetCase(GET_PC_NAME(d->character), d->character->get_sex(), 3, argument);
-	}
-
-	if (!_parse_name(argument, tmp_name)
-		&& strlen(tmp_name) >= kMinNameLength
-		&& strlen(tmp_name) <= kMaxNameLength
-		&& !strn_cmp(tmp_name,
-					 GET_PC_NAME(d->character),
-					 std::min<size_t>(kMinNameLength, strlen(GET_PC_NAME(d->character)) - 1))) {
-		d->character->player_data.PNames[grammar::ECase::kAcc] = std::string(utils::CAP(tmp_name));
-		GetCase(GET_PC_NAME(d->character), d->character->get_sex(), 4, tmp_name);
-		sprintf(buffer, "Имя в творительном падеже (сражаться с КЕМ?) [%s]: ", tmp_name);
-		iosystem::write_to_output(buffer, d);
-		d->state = EConState::kName5;
-	} else {
-		iosystem::write_to_output("Некорректно.\n\r", d);
-		GetCase(GET_PC_NAME(d->character), d->character->get_sex(), 3, tmp_name);
-		sprintf(buffer, "Имя в винительном падеже (ударить КОГО?) [%s]: ", tmp_name);
-		iosystem::write_to_output(buffer, d);
-	}
-
-}
-
-static void HandleName5(DescriptorData *d, char *argument) {
-	char buffer[kMaxStringLength];
-	char tmp_name[kMaxInputLength];
-	skip_spaces(&argument);
-	if (strlen(argument) == 0)
-		GetCase(GET_PC_NAME(d->character), d->character->get_sex(), 4, argument);
-	if (!_parse_name(argument, tmp_name) &&
-		strlen(tmp_name) >= kMinNameLength && strlen(tmp_name) <= kMaxNameLength &&
-		!strn_cmp(tmp_name,
-				  GET_PC_NAME(d->character),
-				  std::min<size_t>(kMinNameLength, strlen(GET_PC_NAME(d->character)) - 1))
-		) {
-		d->character->player_data.PNames[grammar::ECase::kIns] = std::string(utils::CAP(tmp_name));
-		GetCase(GET_PC_NAME(d->character), d->character->get_sex(), 5, tmp_name);
-		sprintf(buffer, "Имя в предложном падеже (говорить о КОМ?) [%s]: ", tmp_name);
-		iosystem::write_to_output(buffer, d);
-		d->state = EConState::kName6;
-	} else {
-		iosystem::write_to_output("Некорректно.\n\r", d);
-		GetCase(GET_PC_NAME(d->character), d->character->get_sex(), 4, tmp_name);
-		sprintf(buffer, "Имя в творительном падеже (сражаться с КЕМ?) [%s]: ", tmp_name);
-		iosystem::write_to_output(buffer, d);
-	}
-
-}
-
-static void HandleName6(DescriptorData *d, char *argument) {
-	char buffer[kMaxStringLength];
-	char tmp_name[kMaxInputLength];
-	skip_spaces(&argument);
-	if (strlen(argument) == 0)
-		GetCase(GET_PC_NAME(d->character), d->character->get_sex(), 5, argument);
-	if (!_parse_name(argument, tmp_name) &&
-		strlen(tmp_name) >= kMinNameLength && strlen(tmp_name) <= kMaxNameLength &&
-		!strn_cmp(tmp_name,
-				  GET_PC_NAME(d->character),
-				  std::min<size_t>(kMinNameLength, strlen(GET_PC_NAME(d->character)) - 1))
-		) {
-		d->character->player_data.PNames[grammar::ECase::kPre] = std::string(utils::CAP(tmp_name));
-		sprintf(buffer,
-				"Введите пароль для %s (не вводите пароли типа '123' или 'qwe', иначе ваших персонажев могут украсть) : ",
-				GET_PAD(d->character, 1));
-		iosystem::write_to_output(buffer, d);
-		d->state = EConState::kNewpasswd;
-	} else {
-		iosystem::write_to_output("Некорректно.\n\r", d);
-		GetCase(GET_PC_NAME(d->character), d->character->get_sex(), 5, tmp_name);
-		sprintf(buffer, "Имя в предложном падеже (говорить о КОМ?) [%s]: ", tmp_name);
-		iosystem::write_to_output(buffer, d);
-	}
-
 }
 
 static void HandleInit(DescriptorData *d, char *argument) {
@@ -2441,19 +2355,19 @@ void ProcessLoginInput(DescriptorData *d, char *argument) {
 			break;
 
 		case EConState::kName2:
-			HandleName2(d, argument);
+			HandleNameCase(d, argument, 0);
 			break;
 		case EConState::kName3:
-			HandleName3(d, argument);
+			HandleNameCase(d, argument, 1);
 			break;
 		case EConState::kName4:
-			HandleName4(d, argument);
+			HandleNameCase(d, argument, 2);
 			break;
 		case EConState::kName5:
-			HandleName5(d, argument);
+			HandleNameCase(d, argument, 3);
 			break;
 		case EConState::kName6:
-			HandleName6(d, argument);
+			HandleNameCase(d, argument, 4);
 			break;
 		case EConState::kClose: break;
 
