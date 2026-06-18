@@ -1175,6 +1175,386 @@ void DisplaySelectCharClassMenu(DescriptorData *d) {
 }
 
 // deal with newcomers and other non-playing sockets
+static void HandleGetName(DescriptorData *d, char *argument) {
+	char buffer[kMaxStringLength];
+	int player_i = 0;
+	char tmp_name[kMaxInputLength], pwd_name[kMaxInputLength], pwd_pwd[kMaxInputLength];
+	if (!d->character) {
+		CreateChar(d);
+	}
+
+	if (!*argument) {
+		d->state = EConState::kClose;
+	} else if (!str_cmp("новый", argument)) {
+		iosystem::write_to_output(name_rules, d);
+
+		std::stringstream ss;
+		ss << "Введите имя";
+		const auto free_name_list = player_table.GetNameAdviser().get_random_name_list();
+		if (!free_name_list.empty()) {
+			ss << " (примеры доступных имен : ";
+			ss << JoinRange(free_name_list);
+			ss << ")";
+		}
+
+		ss << ": ";
+
+		iosystem::write_to_output(ss.str().c_str(), d);
+		d->state = EConState::kNewChar;
+		return;
+	} else {
+		if (sscanf(argument, "%s %s", pwd_name, pwd_pwd) == 2) {
+			if (parse_exist_name(pwd_name, tmp_name)
+				|| (player_i = LoadPlayerCharacter(tmp_name, d->character.get(), ELoadCharFlags::kFindId))
+					< 0) {
+				iosystem::write_to_output("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
+				return;
+			}
+
+			if (d->character->IsFlagged(EPlrFlag::kDeleted)
+				|| !Password::compare_password(d->character.get(), pwd_pwd)) {
+				iosystem::write_to_output("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
+				if (!d->character->IsFlagged(EPlrFlag::kDeleted)) {
+					sprintf(buffer, "Bad PW: %s [%s]", GET_NAME(d->character), d->host);
+					mudlog(buffer, BRF, kLvlImmortal, SYSLOG, true);
+				}
+
+				d->character.reset();
+				return;
+			}
+
+			d->character->UnsetFlag(EPlrFlag::kMailing);
+			d->character->UnsetFlag(EPlrFlag::kWriting);
+			d->character->UnsetFlag(EPlrFlag::kCryo);
+			d->character->set_pfilepos(player_i);
+			DoAfterPassword(d);
+
+			return;
+		} else {
+			if (parse_exist_name(argument, tmp_name) ||
+				strlen(tmp_name) < (kMinNameLength - 1) || // дабы можно было войти чарам с 4 буквами
+				strlen(tmp_name) > kMaxNameLength ||
+				!IsValidName(tmp_name) || fill_word(tmp_name) || reserved_word(tmp_name)) {
+				iosystem::write_to_output("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
+				return;
+			} else if (!IsNameOffline(tmp_name)) {
+				player_i = LoadPlayerCharacter(tmp_name, d->character.get(), ELoadCharFlags::kFindId);
+				d->character->set_pfilepos(player_i);
+				if (privilege::IsImmortal(d->character.get()) || d->character->IsFlagged(EPrf::kCoderinfo)) {
+					iosystem::write_to_output("Игрок с подобным именем является БЕССМЕРТНЫМ в игре.\r\n", d);
+				} else {
+					iosystem::write_to_output("Игрок с подобным именем находится в игре.\r\n", d);
+				}
+				iosystem::write_to_output("Во избежание недоразумений введите пару ИМЯ ПАРОЛЬ.\r\n", d);
+				iosystem::write_to_output("Имя и пароль через пробел : ", d);
+
+				d->character.reset();
+				return;
+			}
+		}
+
+		player_i = LoadPlayerCharacter(tmp_name, d->character.get(), ELoadCharFlags::kFindId);
+		if (player_i > -1) {
+			d->character->set_pfilepos(player_i);
+			if (d->character->IsFlagged(EPlrFlag::kDeleted)) {
+				d->character.reset();
+
+				if (!IsNameAvailable(tmp_name) || _parse_name(tmp_name, tmp_name)) {
+					iosystem::write_to_output("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
+					return;
+				}
+
+				if (strlen(tmp_name) < (kMinNameLength)) {
+					iosystem::write_to_output("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
+					return;
+				}
+
+				CreateChar(d);
+				d->character->SetCharAliases(utils::CAP(tmp_name));
+				d->character->player_data.PNames[grammar::ECase::kNom] = std::string(utils::CAP(tmp_name));
+				d->character->set_pfilepos(player_i);
+				sprintf(buffer, "Вы действительно выбрали имя %s [ Y(Д) / N(Н) ]? ", tmp_name);
+				log("New player %s ip %s", d->character->player_data.PNames[grammar::ECase::kNom].c_str(), d->host);
+				iosystem::write_to_output(buffer, d);
+				d->state = EConState::kNameConfirm;
+			} else    // undo it just in case they are set
+			{
+				if (privilege::IsImmortal(d->character.get()) || d->character->IsFlagged(EPrf::kCoderinfo)) {
+					iosystem::write_to_output("Игрок с подобным именем является БЕССМЕРТНЫМ в игре.\r\n", d);
+					iosystem::write_to_output("Во избежание недоразумений введите пару ИМЯ ПАРОЛЬ.\r\n", d);
+					iosystem::write_to_output("Имя и пароль через пробел : ", d);
+					d->character.reset();
+
+					return;
+				}
+
+				d->character->UnsetFlag(EPlrFlag::kMailing);
+				d->character->UnsetFlag(EPlrFlag::kWriting);
+				d->character->UnsetFlag(EPlrFlag::kCryo);
+				iosystem::write_to_output("Персонаж с таким именем уже существует. Введите пароль : ", d);
+				d->idle_tics = 0;
+				d->state = EConState::kPassword;
+			}
+		} else    // player unknown -- make new character
+		{
+			// еще одна проверка
+			if (strlen(tmp_name) < (kMinNameLength)) {
+				iosystem::write_to_output("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
+				return;
+			}
+
+			// Check for multiple creations of a character.
+			if (!IsNameAvailable(tmp_name) || _parse_name(tmp_name, tmp_name)) {
+				iosystem::write_to_output("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
+				return;
+			}
+
+			if (CmpPtableByName(tmp_name, kMinNameLength) >= 0) {
+				iosystem::write_to_output("Первые символы вашего имени совпадают с уже существующим персонажем.\r\n"
+				 "Для исключения разных недоразумений вам необходимо выбрать другое имя.\r\n"
+				 "Имя  : ", d);
+				return;
+			}
+
+			d->character->SetCharAliases(utils::CAP(tmp_name));
+			d->character->player_data.PNames[grammar::ECase::kNom] = std::string(utils::CAP(tmp_name));
+			iosystem::write_to_output(name_rules, d);
+			sprintf(buffer, "Вы действительно выбрали имя  %s [ Y(Д) / N(Н) ]? ", tmp_name);
+			log("New player %s ip %s", d->character->player_data.PNames[grammar::ECase::kNom].c_str(), d->host);
+			iosystem::write_to_output(buffer, d);
+			d->state = EConState::kNameConfirm;
+		}
+	}
+
+}
+
+static void HandleNewChar(DescriptorData *d, char *argument) {
+	char buffer[kMaxStringLength];
+	int player_i = 0;
+	char tmp_name[kMaxInputLength];
+	bool is_player_deleted;
+	if (!*argument) {
+		d->state = EConState::kClose;
+		return;
+	}
+
+	if (!d->character) {
+		CreateChar(d);
+	}
+
+	if (_parse_name(argument, tmp_name) ||
+		strlen(tmp_name) < kMinNameLength ||
+		strlen(tmp_name) > kMaxNameLength ||
+		!IsValidName(tmp_name) || fill_word(tmp_name) || reserved_word(tmp_name)) {
+		iosystem::write_to_output("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
+		return;
+	}
+
+	player_i = LoadPlayerCharacter(tmp_name, d->character.get(), ELoadCharFlags::kFindId);
+	is_player_deleted = false;
+	if (player_i > -1) {
+		is_player_deleted = d->character->IsFlagged(EPlrFlag::kDeleted);
+		if (is_player_deleted) {
+			d->character.reset();
+			CreateChar(d);
+		} else {
+			iosystem::write_to_output("Такой персонаж уже существует. Выберите другое имя : ", d);
+			d->character.reset();
+
+			return;
+		}
+	}
+
+	if (!IsNameAvailable(tmp_name)) {
+		iosystem::write_to_output("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
+		return;
+	}
+
+	// skip name check for deleted players
+	if (!is_player_deleted && CmpPtableByName(tmp_name, kMinNameLength) >= 0) {
+		iosystem::write_to_output("Первые символы вашего имени совпадают с уже существующим персонажем.\r\n"
+				  "Для исключения разных недоразумений вам необходимо выбрать другое имя.\r\n"
+				  "Имя  : ", d);
+		return;
+	}
+
+	d->character->SetCharAliases(utils::CAP(tmp_name));
+	d->character->player_data.PNames[grammar::ECase::kNom] = std::string(utils::CAP(tmp_name));
+	if (is_player_deleted) {
+		d->character->set_pfilepos(player_i);
+	}
+	if (ban->IsBanned(d->host) >= BanList::BAN_NEW) {
+		sprintf(buffer, "Попытка создания персонажа %s отклонена для [%s] (siteban)",
+				GET_PC_NAME(d->character), d->host);
+		mudlog(buffer, NRM, kLvlGod, SYSLOG, true);
+		iosystem::write_to_output("Извините, создание нового персонажа для вашего IP !!!ЗАПРЕЩЕНО!!!\r\n", d);
+		d->state = EConState::kClose;
+		return;
+	}
+
+	if (circle_restrict) {
+		iosystem::write_to_output("Извините, вы не можете создать новый персонаж в настоящий момент.\r\n", d);
+		sprintf(buffer,
+				"Попытка создания нового персонажа %s отклонена для [%s] (wizlock)",
+				GET_PC_NAME(d->character), d->host);
+		mudlog(buffer, NRM, kLvlGod, SYSLOG, true);
+		d->state = EConState::kClose;
+		return;
+	}
+
+	switch (NewNames::auto_authorize(d)) {
+		case NewNames::AUTO_ALLOW:
+			sprintf(buffer,
+					"Введите пароль для %s (не вводите пароли типа '123' или 'qwe', иначе ваших персонажев могут украсть) : ",
+					GET_PAD(d->character, 1));
+			iosystem::write_to_output(buffer, d);
+			d->state = EConState::kNewpasswd;
+			return;
+
+		case NewNames::AUTO_BAN: d->character.reset();
+			iosystem::write_to_output("Выберите другое имя : ", d);
+			return;
+
+		default: break;
+	}
+
+	iosystem::write_to_output("Ваш пол [ М(M)/Ж(F) ]? ", d);
+	d->state = EConState::kQsex;
+	return;
+
+}
+
+static void HandleMainMenu(DescriptorData *d, char *argument) {
+	char buffer[kMaxStringLength];
+	switch (*argument) {
+		case '0': iosystem::write_to_output("\r\nДо встречи на земле Киевской.\r\n", d);
+
+			if (remort::GetRealRemort(d->character) == 0
+				&& GetRealLevel(d->character) <= 25
+				&& !d->character->IsFlagged(EPlrFlag::kNoDelete)) {
+				int timeout = -1;
+				for (int ci = 0; GetRealLevel(d->character) > pclean_criteria[ci].level; ci++) {
+					//if (GetRealLevel(d->character) == pclean_criteria[ci].level)
+					timeout = pclean_criteria[ci + 1].days;
+				}
+				if (timeout > 0) {
+					time_t deltime = time(nullptr) + timeout * 60 * rent_file_timeout * 24;
+					sprintf(buffer,
+							"В случае вашего отсутствия персонаж будет храниться до %s нашей эры :).\r\n",
+							rustime(localtime(&deltime)));
+					iosystem::write_to_output(buffer, d);
+				}
+			}
+
+			d->state = EConState::kClose;
+
+			break;
+
+		case '1':
+			if (!check_dupes_email(d)) {
+				d->state = EConState::kClose;
+				break;
+			}
+
+			do_entergame(d);
+
+			break;
+
+		case '2':
+			if (!d->character->player_data.description.empty()) {
+				iosystem::write_to_output("Ваше ТЕКУЩЕЕ описание:\r\n", d);
+				iosystem::write_to_output(d->character->player_data.description.c_str(), d);
+				/*
+							 * Don't free this now... so that the old description gets loaded
+							 * as the current buffer in the editor.  Do set up the ABORT buffer
+							 * here, however.
+							 *
+							 * free(d->character->player_data.description);
+							 * d->character->player_data.description = NULL;
+							 */
+				d->backstr = str_dup(d->character->player_data.description.c_str());
+			}
+
+			iosystem::write_to_output("Введите описание вашего героя, которое будет выводиться по команде <осмотреть>.\r\n", d);
+			iosystem::write_to_output("(/s сохранить /h помощь)\r\n", d);
+
+			d->writer =
+				std::make_shared<utils::DelegatedStdStringWriter>(d->character->player_data.description);
+			d->max_str = kExdscrLength;
+			d->state = EConState::kExdesc;
+
+			break;
+
+		case '3': page_string(d, background, 0);
+			d->state = EConState::kRmotd;
+			break;
+
+		case '4': iosystem::write_to_output("\r\nВведите СТАРЫЙ пароль : ", d);
+			d->state = EConState::kChpwdGetOld;
+			break;
+
+		case '5':
+			if (privilege::IsImmortal(d->character.get())) {
+				iosystem::write_to_output("\r\nБоги бессмертны (с) Стрибог, просите чтоб пофризили :)))\r\n", d);
+				iosystem::write_to_output(MENU, d);
+				break;
+			}
+
+			if (d->character->IsFlagged(EPlrFlag::kHelled)
+				|| d->character->IsFlagged(EPlrFlag::kFrozen)) {
+				iosystem::write_to_output("\r\nВы находитесь в АДУ!!! Амнистии подобным образом не будет.\r\n", d);
+				iosystem::write_to_output(MENU, d);
+				break;
+			}
+
+			if (remort::GetRealRemort(d->character) > 5) {
+				iosystem::write_to_output("\r\nНельзя удалить себя достигнув шестого перевоплощения.\r\n", d);
+				iosystem::write_to_output(MENU, d);
+				break;
+			}
+
+			iosystem::write_to_output("\r\nДля подтверждения введите свой пароль : ", d);
+			d->state = EConState::kDelcnf1;
+
+			break;
+
+		case '6':
+			if (privilege::IsImmortal(d->character.get())) {
+				iosystem::write_to_output("\r\nВам это ни к чему...\r\n", d);
+				iosystem::write_to_output(MENU, d);
+				d->state = EConState::kMenu;
+			} else {
+				stats_reset::print_menu(d);
+				d->state = EConState::kMenuStats;
+			}
+			break;
+
+		case '7':
+			if (!d->character->IsFlagged(EPrf::kBlindMode)) {
+				d->character->SetFlag(EPrf::kBlindMode);
+				iosystem::write_to_output("\r\nСпециальный режим слепого игрока ВКЛЮЧЕН.\r\n", d);
+				iosystem::write_to_output(MENU, d);
+				d->state = EConState::kMenu;
+			} else {
+				d->character->UnsetFlag(EPrf::kBlindMode);
+				iosystem::write_to_output("\r\nСпециальный режим слепого игрока ВЫКЛЮЧЕН.\r\n", d);
+				iosystem::write_to_output(MENU, d);
+				d->state = EConState::kMenu;
+			}
+
+			break;
+		case '8': d->character->get_account()->list_players(d);
+			break;
+
+		default: iosystem::write_to_output("\r\nЭто не есть правильный ответ!\r\n", d);
+			iosystem::write_to_output(MENU, d);
+
+			break;
+	}
+
+
+}
+
 void ProcessLoginInput(DescriptorData *d, char *argument) {
 	char buffer[kMaxStringLength];
 	int player_i = 0, load_result;
@@ -1280,154 +1660,8 @@ void ProcessLoginInput(DescriptorData *d, char *argument) {
 			break;
 
 		case EConState::kGetName:    // wait for input of name
-			if (!d->character) {
-				CreateChar(d);
-			}
-
-			if (!*argument) {
-				d->state = EConState::kClose;
-			} else if (!str_cmp("новый", argument)) {
-				iosystem::write_to_output(name_rules, d);
-
-				std::stringstream ss;
-				ss << "Введите имя";
-				const auto free_name_list = player_table.GetNameAdviser().get_random_name_list();
-				if (!free_name_list.empty()) {
-					ss << " (примеры доступных имен : ";
-					ss << JoinRange(free_name_list);
-					ss << ")";
-				}
-
-				ss << ": ";
-
-				iosystem::write_to_output(ss.str().c_str(), d);
-				d->state = EConState::kNewChar;
-				return;
-			} else {
-				if (sscanf(argument, "%s %s", pwd_name, pwd_pwd) == 2) {
-					if (parse_exist_name(pwd_name, tmp_name)
-						|| (player_i = LoadPlayerCharacter(tmp_name, d->character.get(), ELoadCharFlags::kFindId))
-							< 0) {
-						iosystem::write_to_output("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
-						return;
-					}
-
-					if (d->character->IsFlagged(EPlrFlag::kDeleted)
-						|| !Password::compare_password(d->character.get(), pwd_pwd)) {
-						iosystem::write_to_output("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
-						if (!d->character->IsFlagged(EPlrFlag::kDeleted)) {
-							sprintf(buffer, "Bad PW: %s [%s]", GET_NAME(d->character), d->host);
-							mudlog(buffer, BRF, kLvlImmortal, SYSLOG, true);
-						}
-
-						d->character.reset();
-						return;
-					}
-
-					d->character->UnsetFlag(EPlrFlag::kMailing);
-					d->character->UnsetFlag(EPlrFlag::kWriting);
-					d->character->UnsetFlag(EPlrFlag::kCryo);
-					d->character->set_pfilepos(player_i);
-					DoAfterPassword(d);
-
-					return;
-				} else {
-					if (parse_exist_name(argument, tmp_name) ||
-						strlen(tmp_name) < (kMinNameLength - 1) || // дабы можно было войти чарам с 4 буквами
-						strlen(tmp_name) > kMaxNameLength ||
-						!IsValidName(tmp_name) || fill_word(tmp_name) || reserved_word(tmp_name)) {
-						iosystem::write_to_output("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
-						return;
-					} else if (!IsNameOffline(tmp_name)) {
-						player_i = LoadPlayerCharacter(tmp_name, d->character.get(), ELoadCharFlags::kFindId);
-						d->character->set_pfilepos(player_i);
-						if (privilege::IsImmortal(d->character.get()) || d->character->IsFlagged(EPrf::kCoderinfo)) {
-							iosystem::write_to_output("Игрок с подобным именем является БЕССМЕРТНЫМ в игре.\r\n", d);
-						} else {
-							iosystem::write_to_output("Игрок с подобным именем находится в игре.\r\n", d);
-						}
-						iosystem::write_to_output("Во избежание недоразумений введите пару ИМЯ ПАРОЛЬ.\r\n", d);
-						iosystem::write_to_output("Имя и пароль через пробел : ", d);
-
-						d->character.reset();
-						return;
-					}
-				}
-
-				player_i = LoadPlayerCharacter(tmp_name, d->character.get(), ELoadCharFlags::kFindId);
-				if (player_i > -1) {
-					d->character->set_pfilepos(player_i);
-					if (d->character->IsFlagged(EPlrFlag::kDeleted)) {
-						d->character.reset();
-
-						if (!IsNameAvailable(tmp_name) || _parse_name(tmp_name, tmp_name)) {
-							iosystem::write_to_output("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
-							return;
-						}
-
-						if (strlen(tmp_name) < (kMinNameLength)) {
-							iosystem::write_to_output("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
-							return;
-						}
-
-						CreateChar(d);
-						d->character->SetCharAliases(utils::CAP(tmp_name));
-						d->character->player_data.PNames[grammar::ECase::kNom] = std::string(utils::CAP(tmp_name));
-						d->character->set_pfilepos(player_i);
-						sprintf(buffer, "Вы действительно выбрали имя %s [ Y(Д) / N(Н) ]? ", tmp_name);
-						log("New player %s ip %s", d->character->player_data.PNames[grammar::ECase::kNom].c_str(), d->host);
-						iosystem::write_to_output(buffer, d);
-						d->state = EConState::kNameConfirm;
-					} else    // undo it just in case they are set
-					{
-						if (privilege::IsImmortal(d->character.get()) || d->character->IsFlagged(EPrf::kCoderinfo)) {
-							iosystem::write_to_output("Игрок с подобным именем является БЕССМЕРТНЫМ в игре.\r\n", d);
-							iosystem::write_to_output("Во избежание недоразумений введите пару ИМЯ ПАРОЛЬ.\r\n", d);
-							iosystem::write_to_output("Имя и пароль через пробел : ", d);
-							d->character.reset();
-
-							return;
-						}
-
-						d->character->UnsetFlag(EPlrFlag::kMailing);
-						d->character->UnsetFlag(EPlrFlag::kWriting);
-						d->character->UnsetFlag(EPlrFlag::kCryo);
-						iosystem::write_to_output("Персонаж с таким именем уже существует. Введите пароль : ", d);
-						d->idle_tics = 0;
-						d->state = EConState::kPassword;
-					}
-				} else    // player unknown -- make new character
-				{
-					// еще одна проверка
-					if (strlen(tmp_name) < (kMinNameLength)) {
-						iosystem::write_to_output("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
-						return;
-					}
-
-					// Check for multiple creations of a character.
-					if (!IsNameAvailable(tmp_name) || _parse_name(tmp_name, tmp_name)) {
-						iosystem::write_to_output("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
-						return;
-					}
-
-					if (CmpPtableByName(tmp_name, kMinNameLength) >= 0) {
-						iosystem::write_to_output("Первые символы вашего имени совпадают с уже существующим персонажем.\r\n"
-						 "Для исключения разных недоразумений вам необходимо выбрать другое имя.\r\n"
-						 "Имя  : ", d);
-						return;
-					}
-
-					d->character->SetCharAliases(utils::CAP(tmp_name));
-					d->character->player_data.PNames[grammar::ECase::kNom] = std::string(utils::CAP(tmp_name));
-					iosystem::write_to_output(name_rules, d);
-					sprintf(buffer, "Вы действительно выбрали имя  %s [ Y(Д) / N(Н) ]? ", tmp_name);
-					log("New player %s ip %s", d->character->player_data.PNames[grammar::ECase::kNom].c_str(), d->host);
-					iosystem::write_to_output(buffer, d);
-					d->state = EConState::kNameConfirm;
-				}
-			}
+			HandleGetName(d, argument);
 			break;
-
 		case EConState::kNameConfirm:    // wait for conf. of new name
 			if (UPPER(*argument) == 'Y' || UPPER(*argument) == 'Д') {
 				if (ban->IsBanned(d->host) >= BanList::BAN_NEW) {
@@ -1477,95 +1711,8 @@ void ProcessLoginInput(DescriptorData *d, char *argument) {
 			break;
 
 		case EConState::kNewChar:
-			if (!*argument) {
-				d->state = EConState::kClose;
-				return;
-			}
-
-			if (!d->character) {
-				CreateChar(d);
-			}
-
-			if (_parse_name(argument, tmp_name) ||
-				strlen(tmp_name) < kMinNameLength ||
-				strlen(tmp_name) > kMaxNameLength ||
-				!IsValidName(tmp_name) || fill_word(tmp_name) || reserved_word(tmp_name)) {
-				iosystem::write_to_output("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
-				return;
-			}
-
-			player_i = LoadPlayerCharacter(tmp_name, d->character.get(), ELoadCharFlags::kFindId);
-			is_player_deleted = false;
-			if (player_i > -1) {
-				is_player_deleted = d->character->IsFlagged(EPlrFlag::kDeleted);
-				if (is_player_deleted) {
-					d->character.reset();
-					CreateChar(d);
-				} else {
-					iosystem::write_to_output("Такой персонаж уже существует. Выберите другое имя : ", d);
-					d->character.reset();
-
-					return;
-				}
-			}
-
-			if (!IsNameAvailable(tmp_name)) {
-				iosystem::write_to_output("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
-				return;
-			}
-
-			// skip name check for deleted players
-			if (!is_player_deleted && CmpPtableByName(tmp_name, kMinNameLength) >= 0) {
-				iosystem::write_to_output("Первые символы вашего имени совпадают с уже существующим персонажем.\r\n"
-						  "Для исключения разных недоразумений вам необходимо выбрать другое имя.\r\n"
-						  "Имя  : ", d);
-				return;
-			}
-
-			d->character->SetCharAliases(utils::CAP(tmp_name));
-			d->character->player_data.PNames[grammar::ECase::kNom] = std::string(utils::CAP(tmp_name));
-			if (is_player_deleted) {
-				d->character->set_pfilepos(player_i);
-			}
-			if (ban->IsBanned(d->host) >= BanList::BAN_NEW) {
-				sprintf(buffer, "Попытка создания персонажа %s отклонена для [%s] (siteban)",
-						GET_PC_NAME(d->character), d->host);
-				mudlog(buffer, NRM, kLvlGod, SYSLOG, true);
-				iosystem::write_to_output("Извините, создание нового персонажа для вашего IP !!!ЗАПРЕЩЕНО!!!\r\n", d);
-				d->state = EConState::kClose;
-				return;
-			}
-
-			if (circle_restrict) {
-				iosystem::write_to_output("Извините, вы не можете создать новый персонаж в настоящий момент.\r\n", d);
-				sprintf(buffer,
-						"Попытка создания нового персонажа %s отклонена для [%s] (wizlock)",
-						GET_PC_NAME(d->character), d->host);
-				mudlog(buffer, NRM, kLvlGod, SYSLOG, true);
-				d->state = EConState::kClose;
-				return;
-			}
-
-			switch (NewNames::auto_authorize(d)) {
-				case NewNames::AUTO_ALLOW:
-					sprintf(buffer,
-							"Введите пароль для %s (не вводите пароли типа '123' или 'qwe', иначе ваших персонажев могут украсть) : ",
-							GET_PAD(d->character, 1));
-					iosystem::write_to_output(buffer, d);
-					d->state = EConState::kNewpasswd;
-					return;
-
-				case NewNames::AUTO_BAN: d->character.reset();
-					iosystem::write_to_output("Выберите другое имя : ", d);
-					return;
-
-				default: break;
-			}
-
-			iosystem::write_to_output("Ваш пол [ М(M)/Ж(F) ]? ", d);
-			d->state = EConState::kQsex;
-			return;
-
+			HandleNewChar(d, argument);
+			break;
 		case EConState::kPassword:    // get pwd for known player
 			/*
 				   * To really prevent duping correctly, the player's record should
@@ -1889,135 +2036,9 @@ void ProcessLoginInput(DescriptorData *d, char *argument) {
 			break;
 		}
 
-		case EConState::kMenu:        // get selection from main menu
-			switch (*argument) {
-				case '0': iosystem::write_to_output("\r\nДо встречи на земле Киевской.\r\n", d);
-
-					if (remort::GetRealRemort(d->character) == 0
-						&& GetRealLevel(d->character) <= 25
-						&& !d->character->IsFlagged(EPlrFlag::kNoDelete)) {
-						int timeout = -1;
-						for (int ci = 0; GetRealLevel(d->character) > pclean_criteria[ci].level; ci++) {
-							//if (GetRealLevel(d->character) == pclean_criteria[ci].level)
-							timeout = pclean_criteria[ci + 1].days;
-						}
-						if (timeout > 0) {
-							time_t deltime = time(nullptr) + timeout * 60 * rent_file_timeout * 24;
-							sprintf(buffer,
-									"В случае вашего отсутствия персонаж будет храниться до %s нашей эры :).\r\n",
-									rustime(localtime(&deltime)));
-							iosystem::write_to_output(buffer, d);
-						}
-					}
-
-					d->state = EConState::kClose;
-
-					break;
-
-				case '1':
-					if (!check_dupes_email(d)) {
-						d->state = EConState::kClose;
-						break;
-					}
-
-					do_entergame(d);
-
-					break;
-
-				case '2':
-					if (!d->character->player_data.description.empty()) {
-						iosystem::write_to_output("Ваше ТЕКУЩЕЕ описание:\r\n", d);
-						iosystem::write_to_output(d->character->player_data.description.c_str(), d);
-						/*
-									 * Don't free this now... so that the old description gets loaded
-									 * as the current buffer in the editor.  Do set up the ABORT buffer
-									 * here, however.
-									 *
-									 * free(d->character->player_data.description);
-									 * d->character->player_data.description = NULL;
-									 */
-						d->backstr = str_dup(d->character->player_data.description.c_str());
-					}
-
-					iosystem::write_to_output("Введите описание вашего героя, которое будет выводиться по команде <осмотреть>.\r\n", d);
-					iosystem::write_to_output("(/s сохранить /h помощь)\r\n", d);
-
-					d->writer =
-						std::make_shared<utils::DelegatedStdStringWriter>(d->character->player_data.description);
-					d->max_str = kExdscrLength;
-					d->state = EConState::kExdesc;
-
-					break;
-
-				case '3': page_string(d, background, 0);
-					d->state = EConState::kRmotd;
-					break;
-
-				case '4': iosystem::write_to_output("\r\nВведите СТАРЫЙ пароль : ", d);
-					d->state = EConState::kChpwdGetOld;
-					break;
-
-				case '5':
-					if (privilege::IsImmortal(d->character.get())) {
-						iosystem::write_to_output("\r\nБоги бессмертны (с) Стрибог, просите чтоб пофризили :)))\r\n", d);
-						iosystem::write_to_output(MENU, d);
-						break;
-					}
-
-					if (d->character->IsFlagged(EPlrFlag::kHelled)
-						|| d->character->IsFlagged(EPlrFlag::kFrozen)) {
-						iosystem::write_to_output("\r\nВы находитесь в АДУ!!! Амнистии подобным образом не будет.\r\n", d);
-						iosystem::write_to_output(MENU, d);
-						break;
-					}
-
-					if (remort::GetRealRemort(d->character) > 5) {
-						iosystem::write_to_output("\r\nНельзя удалить себя достигнув шестого перевоплощения.\r\n", d);
-						iosystem::write_to_output(MENU, d);
-						break;
-					}
-
-					iosystem::write_to_output("\r\nДля подтверждения введите свой пароль : ", d);
-					d->state = EConState::kDelcnf1;
-
-					break;
-
-				case '6':
-					if (privilege::IsImmortal(d->character.get())) {
-						iosystem::write_to_output("\r\nВам это ни к чему...\r\n", d);
-						iosystem::write_to_output(MENU, d);
-						d->state = EConState::kMenu;
-					} else {
-						stats_reset::print_menu(d);
-						d->state = EConState::kMenuStats;
-					}
-					break;
-
-				case '7':
-					if (!d->character->IsFlagged(EPrf::kBlindMode)) {
-						d->character->SetFlag(EPrf::kBlindMode);
-						iosystem::write_to_output("\r\nСпециальный режим слепого игрока ВКЛЮЧЕН.\r\n", d);
-						iosystem::write_to_output(MENU, d);
-						d->state = EConState::kMenu;
-					} else {
-						d->character->UnsetFlag(EPrf::kBlindMode);
-						iosystem::write_to_output("\r\nСпециальный режим слепого игрока ВЫКЛЮЧЕН.\r\n", d);
-						iosystem::write_to_output(MENU, d);
-						d->state = EConState::kMenu;
-					}
-
-					break;
-				case '8': d->character->get_account()->list_players(d);
-					break;
-
-				default: iosystem::write_to_output("\r\nЭто не есть правильный ответ!\r\n", d);
-					iosystem::write_to_output(MENU, d);
-
-					break;
-			}
-
+		case EConState::kMenu:    // get selection from main menu
+			HandleMainMenu(d, argument);
 			break;
-
 		case EConState::kChpwdGetOld:
 			if (!Password::compare_password(d->character.get(), argument)) {
 				iosystem::write_to_output("\r\nНеверный пароль.\r\n", d);
