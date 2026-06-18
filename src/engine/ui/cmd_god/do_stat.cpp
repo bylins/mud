@@ -1347,7 +1347,7 @@ void do_stat(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 			if (!*buf2)
 				SendMsgToChar("Состояние какого предмета?\r\n", ch);
 			else {
-				if ((object = target_resolver::FindObjAround(ch, buf2)) != nullptr)
+				if ((object = target_resolver::FindObjInWorld(ch, buf2)) != nullptr)
 					do_stat_object(ch, object);
 				else
 					SendMsgToChar("Нет такого предмета в игре.\r\n", ch);
@@ -1379,7 +1379,7 @@ void do_stat(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 			return;
 		}
 		{
-			object = target_resolver::FindObjAround(ch, buf1);
+			object = target_resolver::FindObjInWorld(ch, buf1);
 		}
 		if (object != nullptr) {
 			do_stat_object(ch, object);
