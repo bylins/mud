@@ -1637,7 +1637,7 @@ static void HandleNameCase(DescriptorData *d, char *argument, int step) {
 	}
 }
 
-static void HandleInit(DescriptorData *d, char *argument) {
+static void HandleInit(DescriptorData *d, char * /*argument*/) {
 	char buffer[kMaxStringLength];
 	// just connected
 {
@@ -2022,7 +2022,7 @@ static void HandleGetEmail(DescriptorData *d, char *argument) {
 	return;
 }
 
-static void HandleReadMotd(DescriptorData *d, char *argument) {
+static void HandleReadMotd(DescriptorData *d, char * /*argument*/) {
 	if (!check_dupes_email(d)) {
 		d->state = EConState::kClose;
 		return;
@@ -2230,10 +2230,6 @@ static void HandleResetReligion(DescriptorData *d, char *argument) {
 }
 
 void ProcessLoginInput(DescriptorData *d, char *argument) {
-	char buffer[kMaxStringLength];
-	int player_i = 0, load_result;
-	char tmp_name[kMaxInputLength], pwd_name[kMaxInputLength], pwd_pwd[kMaxInputLength];
-	bool is_player_deleted;
 	if (d->state != EConState::kConsole)
 		skip_spaces(&argument);
 
