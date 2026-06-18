@@ -2125,7 +2125,12 @@ EStageResult RunCastUnaffects(CharData *ch, TTarget *target, ESpell spell_id,
 		if constexpr (std::is_same_v<TTarget, CharData>) {
 			// PK-action check: keyed on the first dispelled affect's spell flags; a
 			// disallowed action aborts the removal entirely. Char target only.
-			if (ch != target) {
+			// issue.spell-ally-aggression (#3455): a benign cast (violent="N") that only
+			// incidentally strips a buff is not an aggressive act. Gate the PK check on the
+			// cast spell's per-target violence verdict, exactly like CastAffect does -- without
+			// it, group prismatic aura stripping an ally's sanctuary tripped pk_agro_action and
+			// evicted the caster from the clan castle. Violent dispels still aggro.
+			if (ch != target && MUD::Spell(spell_id).IsViolentAgainst(ch, target)) {
 				const auto primary = to_remove.front().spell;
 				if (MUD::Spell(primary).IsFlagged(kNpcAffectNpc)) {
 					if (!pk_agro_action(ch, target)) {
