@@ -36,6 +36,7 @@ struct LuaRuntimeContext {
 	Trigger *trigger = nullptr;
 	CharData *owner = nullptr;
 	sol::table entity_handles;
+	void *wait_state = nullptr;
 };
 
 struct LuaExecutionBudget {
@@ -65,13 +66,17 @@ void LogLuaReturnDiagnostic(LuaRuntimeContext runtime, const sol::object &value)
 void HardenLuaState(sol::state &lua);
 void ConfigureLuaGc(sol::state &lua);
 void InstallLuaRuntimeLimits(sol::state &lua, LuaExecutionBudget &budget);
+void InstallLuaRuntimeLimits(lua_State *state, LuaExecutionBudget &budget);
 void ClearLuaRuntimeLimits(sol::state &lua);
+void ClearLuaRuntimeLimits(lua_State *state);
 sol::object BuildCharView(sol::state &lua, CharData *ch, LuaRuntimeContext runtime);
 sol::object BuildObjView(sol::state &lua, ObjData *obj);
 sol::object BuildRoomView(sol::state &lua, CharData *owner);
 sol::object BuildRoomViewByVnum(sol::state &lua, const sol::object &vnum);
 RoomRnum GetRoomFromLua(const sol::object &room);
 bool MudDamage(LuaRuntimeContext runtime, const sol::object &victim, const sol::object &amount, const sol::object &type);
+int MudWait(LuaRuntimeContext runtime, sol::this_state state, sol::variadic_args args);
+bool LuaWaitRegistrySchedule(LuaRuntimeContext runtime, int pulses);
 sol::table BuildMudNamespace(sol::state &lua, LuaRuntimeContext runtime);
 sol::table BuildLuaContext(sol::state &lua, const LuaTriggerContext &source, LuaRuntimeContext runtime);
 int ConvertLuaResult(const sol::protected_function_result &result, LuaRuntimeContext runtime, sol::table ctx, bool call_function);

@@ -13,6 +13,7 @@
 //#include "handler.h"
 
 #include "engine/scripting/dg_scripts.h"
+#include "engine/scripting/lua/lua_script_engine.h"
 #include "gameplay/economics/auction.h"
 #include "utils/backtrace.h"
 #include "utils_char_obj.inl"
@@ -1487,6 +1488,7 @@ RoomVnum get_room_where_obj(ObjData *obj, bool deep) {
 }
 
 void ExtractObjFromWorld(ObjData *obj, bool showlog) {
+	lua_scripting::LuaScriptEngine::CancelWaitsForObject(obj);
 	timechange_unregister_obj(obj);
 	char name[kMaxStringLength];
 	ObjData *temp;
@@ -1683,6 +1685,7 @@ void DropInventory(CharData *ch, bool zone_reset) {
 * \param zone_reset - 0 обычный пурж когда угодно (по умолчанию), 1 - пурж при резете зоны
 */
 void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
+	lua_scripting::LuaScriptEngine::CancelWaitsForOwner(ch);
 	timechange_unregister_mob(ch);
 	if (ch->purged()) {
 		log("SYSERROR: double extract_char (%s:%d)", __FILE__, __LINE__);

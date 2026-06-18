@@ -3,15 +3,32 @@
 #if defined(WITH_LUAJIT_PROTOTYPE)
 
 #include "engine/core/handler.h"
+#include "engine/db/global_objects.h"
 #include "engine/db/obj_prototypes.h"
 #include "engine/db/world_objects.h"
 #include "engine/entities/char_data.h"
 #include "engine/scripting/dg_scripts.h"
+#include "utils/utils.h"
 #include "utils/logger.h"
 #include "utils/random.h"
 
+#include <limits>
+
 namespace lua_scripting {
 namespace {
+
+constexpr long kLuaPulsesPerMudHour = kSecsPerMudHour * kPassesPerSec;
+constexpr long kLuaMaxWaitPulses = std::numeric_limits<int>::max();
+
+bool IsValidWaitTime(long hr, long min)
+{
+	return hr >= 0 && hr < 24 && min >= 0 && min < 60;
+}
+
+bool IsValidWaitDelay(long time)
+{
+	return time > 0 && time <= kLuaMaxWaitPulses;
+}
 
 ObjData *LoadObjToRoom(const sol::object &vnum, const sol::object &room)
 {
@@ -139,7 +156,114 @@ bool MudLog(LuaRuntimeContext runtime, const sol::object &message)
 	return true;
 }
 
+bool ParseWaitDelay(sol::variadic_args args, long &time)
+{
+	time = 0;
+	if (args.size() == 0)
+	{
+		return false;
+	}
+
+	if (args[0].is<int>())
+	{
+		time = args[0].as<int>();
+		if (args.size() > 1 && args[1].is<std::string>())
+		{
+			const auto suffix = args[1].as<std::string>();
+			if (suffix == "t")
+			{
+				time *= kLuaPulsesPerMudHour;
+			}
+			else if (suffix == "s")
+			{
+				time *= kPassesPerSec;
+			}
+		}
+		return IsValidWaitDelay(time);
+	}
+
+	if (!args[0].is<std::string>())
+	{
+		return false;
+	}
+
+	const auto text = args[0].as<std::string>();
+	long value = 0;
+	long hr = 0;
+	long min = 0;
+	char suffix = 0;
+	if (sscanf(text.c_str(), "until %ld:%ld", &hr, &min) == 2)
+	{
+		if (!IsValidWaitTime(hr, min))
+		{
+			return false;
+		}
+		min += hr * 60;
+		const auto target_time = (min * kLuaPulsesPerMudHour) / 60;
+		const auto current_time = static_cast<long>(GlobalObjects::heartbeat().global_pulse_number() % kLuaPulsesPerMudHour)
+			+ (time_info.hours * kLuaPulsesPerMudHour);
+		time = current_time >= target_time
+			? (kSecsPerMudDay * kPassesPerSec) - current_time + target_time
+			: target_time - current_time;
+		return IsValidWaitDelay(time);
+	}
+	if (sscanf(text.c_str(), "until %ld", &hr) == 1)
+	{
+		const auto parsed_hour = hr / 100;
+		const auto parsed_min = hr % 100;
+		if (!IsValidWaitTime(parsed_hour, parsed_min))
+		{
+			return false;
+		}
+		min = parsed_min + (parsed_hour * 60);
+		const auto target_time = (min * kLuaPulsesPerMudHour) / 60;
+		const auto current_time = static_cast<long>(GlobalObjects::heartbeat().global_pulse_number() % kLuaPulsesPerMudHour)
+			+ (time_info.hours * kLuaPulsesPerMudHour);
+		time = current_time >= target_time
+			? (kSecsPerMudDay * kPassesPerSec) - current_time + target_time
+			: target_time - current_time;
+		return IsValidWaitDelay(time);
+	}
+	if (sscanf(text.c_str(), "%ld %c", &value, &suffix) >= 1)
+	{
+		time = value;
+		if (suffix == 't')
+		{
+			time *= kLuaPulsesPerMudHour;
+		}
+		else if (suffix == 's')
+		{
+			time *= kPassesPerSec;
+		}
+		return IsValidWaitDelay(time);
+	}
+	return false;
+}
+
 } // namespace
+
+int MudWait(LuaRuntimeContext runtime, sol::this_state state, sol::variadic_args args)
+{
+	long time = 0;
+	if (!ParseWaitDelay(args, time))
+	{
+		LogLuaApiError(runtime, "wait: invalid delay");
+		return luaL_error(state, "mud.wait: invalid delay");
+	}
+	if (runtime.trigger
+		&& ((runtime.trigger->get_attach_type() == MOB_TRIGGER && IS_SET(GET_TRIG_TYPE(runtime.trigger), MTRIG_DEATH))
+			|| (runtime.trigger->get_attach_type() == OBJ_TRIGGER && IS_SET(GET_TRIG_TYPE(runtime.trigger), OTRIG_PURGE))))
+	{
+		LogLuaApiError(runtime, "wait: unsupported for death/purge triggers");
+		return luaL_error(state, "mud.wait: unsupported for this trigger");
+	}
+	if (!IsValidWaitDelay(time) || !LuaWaitRegistrySchedule(runtime, static_cast<int>(time)))
+	{
+		LogLuaApiError(runtime, "wait: unable to schedule");
+		return luaL_error(state, "mud.wait: unable to schedule");
+	}
+	return lua_yield(state, 0);
+}
 
 sol::table BuildMudNamespace(sol::state &lua, LuaRuntimeContext runtime)
 {
@@ -164,6 +288,9 @@ sol::table BuildMudNamespace(sol::state &lua, LuaRuntimeContext runtime)
 	};
 	mud["damage"] = [runtime](const sol::object &victim, const sol::object &amount, const sol::object &type) {
 		return MudDamage(runtime, victim, amount, type);
+	};
+	mud["wait"] = [runtime](sol::this_state state, sol::variadic_args args) {
+		return MudWait(runtime, state, args);
 	};
 
 	sol::table world_table = lua.create_table();

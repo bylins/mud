@@ -3,12 +3,14 @@
 
 class Trigger;
 class CharData;
+class ObjData;
 
 namespace lua_scripting {
 
 struct LuaTriggerContext {
 	Trigger *trigger = nullptr;
 	CharData *owner = nullptr;
+	ObjData *owner_obj = nullptr;
 	CharData *actor = nullptr;
 	int trigger_type = 0;
 };
@@ -16,6 +18,9 @@ struct LuaTriggerContext {
 class LuaScriptEngine {
  public:
 	static int RunTrigger(Trigger *trigger, const LuaTriggerContext &ctx);
+	static void CancelWaitsForOwner(CharData *owner);
+	static void CancelWaitsForObject(ObjData *obj);
+	static void CancelWaitsForTrigger(Trigger *trigger);
 };
 
 } // namespace lua_scripting

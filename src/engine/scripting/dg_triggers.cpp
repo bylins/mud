@@ -359,7 +359,17 @@ int entry_mtrigger(CharData *ch) {
 	for (auto t : SCRIPT(ch)->script_trig_list) {
 		if (TRIGGER_CHECK(t, MTRIG_ENTRY)
 			&& (number(1, 100) <= GET_TRIG_NARG(t))) {
-			return script_driver(ch, t, MOB_TRIGGER, TRIG_NEW);
+			// First wait-capable Lua dispatch path; DG entry triggers keep script_driver behavior.
+			if (t->get_script_language() == TriggerScriptLanguage::Lua) {
+				lua_scripting::LuaTriggerContext ctx;
+				ctx.trigger = t;
+				ctx.owner = ch;
+				ctx.trigger_type = MOB_TRIGGER;
+
+				return lua_scripting::LuaScriptEngine::RunTrigger(t, ctx);
+			} else {
+				return script_driver(ch, t, MOB_TRIGGER, TRIG_NEW);
+			}
 		}
 	}
 

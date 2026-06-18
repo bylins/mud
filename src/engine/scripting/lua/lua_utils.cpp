@@ -195,20 +195,30 @@ void LuaInstructionHook(lua_State *state, lua_Debug *)
 
 void InstallLuaRuntimeLimits(sol::state &lua, LuaExecutionBudget &budget)
 {
+	InstallLuaRuntimeLimits(lua.lua_state(), budget);
+}
+
+void InstallLuaRuntimeLimits(lua_State *state, LuaExecutionBudget &budget)
+{
 	budget.instructions_left = kLuaInstructionBudget;
 	budget.exhausted = false;
-	lua_pushlightuserdata(lua.lua_state(), &kLuaExecutionBudgetRegistryKey);
-	lua_pushlightuserdata(lua.lua_state(), &budget);
-	lua_rawset(lua.lua_state(), LUA_REGISTRYINDEX);
-	lua_sethook(lua.lua_state(), LuaInstructionHook, LUA_MASKCOUNT, kLuaInstructionHookStep);
+	lua_pushlightuserdata(state, &kLuaExecutionBudgetRegistryKey);
+	lua_pushlightuserdata(state, &budget);
+	lua_rawset(state, LUA_REGISTRYINDEX);
+	lua_sethook(state, LuaInstructionHook, LUA_MASKCOUNT, kLuaInstructionHookStep);
 }
 
 void ClearLuaRuntimeLimits(sol::state &lua)
 {
-	lua_sethook(lua.lua_state(), nullptr, 0, 0);
-	lua_pushlightuserdata(lua.lua_state(), &kLuaExecutionBudgetRegistryKey);
-	lua_pushnil(lua.lua_state());
-	lua_rawset(lua.lua_state(), LUA_REGISTRYINDEX);
+	ClearLuaRuntimeLimits(lua.lua_state());
+}
+
+void ClearLuaRuntimeLimits(lua_State *state)
+{
+	lua_sethook(state, nullptr, 0, 0);
+	lua_pushlightuserdata(state, &kLuaExecutionBudgetRegistryKey);
+	lua_pushnil(state);
+	lua_rawset(state, LUA_REGISTRYINDEX);
 }
 
 } // namespace lua_scripting
