@@ -2,8 +2,11 @@
 
 #include "engine/db/obj_prototypes.h"
 #include "engine/db/db.h"
+#include "engine/db/world_characters.h"
 #include "engine/core/comm.h"
+#include "engine/core/handler.h"
 #include "engine/entities/char_data.h"
+#include "engine/entities/obj_data.h"
 #include "engine/scripting/dg_scripts.h"
 #include "utils/logger.h"
 #include "utils/random.h"
@@ -17,13 +20,36 @@ namespace lua_scripting {
 #if defined(WITH_LUAJIT_PROTOTYPE)
 namespace {
 
-struct LuaCharView {
-	CharData *ch = nullptr;
-};
-
 struct LuaRoomView {
 	RoomRnum room = kNowhere;
 };
+
+struct LuaEntityHandle {
+	enum class LuaEntityType {
+		Char,
+		Obj
+	};
+
+	explicit LuaEntityHandle(LuaEntityType entity_type) : type(entity_type) {}
+
+	LuaEntityType type;
+	CharData *ch = nullptr;
+	object_id_t obj_id = 0;
+};
+
+LuaEntityHandle MakeCharHandle(CharData *ch)
+{
+	LuaEntityHandle handle(LuaEntityHandle::LuaEntityType::Char);
+	handle.ch = ch;
+	return handle;
+}
+
+LuaEntityHandle MakeObjHandle(ObjData *obj)
+{
+	LuaEntityHandle handle(LuaEntityHandle::LuaEntityType::Obj);
+	handle.obj_id = obj ? obj->get_id() : 0;
+	return handle;
+}
 
 int GetTriggerVnum(const Trigger *trigger)
 {
@@ -51,34 +77,60 @@ const char* GetTriggerName(const Trigger *trigger)
 	return GET_TRIG_NAME(trigger);
 }
 
-bool IsValidChar(const LuaCharView &view)
-{
-	return view.ch && !view.ch->purged();
-}
-
 bool IsValidRoom(const LuaRoomView &view)
 {
 	return view.room != kNowhere && view.room >= 0 && view.room <= top_of_world && world[view.room];
 }
 
-std::string GetCharName(const LuaCharView &view)
+CharData *ResolveChar(const LuaEntityHandle &handle)
 {
-	return IsValidChar(view) ? view.ch->get_name() : "";
+	if (handle.type != LuaEntityHandle::LuaEntityType::Char
+		|| !handle.ch
+		|| !character_list.has(handle.ch)
+		|| handle.ch->purged())
+	{
+		return nullptr;
+	}
+
+	return handle.ch;
 }
 
-long GetCharUid(const LuaCharView &view)
+ObjData *ResolveObj(const LuaEntityHandle &handle)
 {
-	return IsValidChar(view) ? view.ch->get_uid() : 0;
+	if (handle.type != LuaEntityHandle::LuaEntityType::Obj || handle.obj_id == 0)
+	{
+		return nullptr;
+	}
+
+	return world_objects.find_by_id(handle.obj_id).get();
 }
 
-int GetCharVnum(const LuaCharView &view)
+bool IsValidEntity(const LuaEntityHandle &handle)
 {
-	if (!IsValidChar(view) || !view.ch->IsNpc())
+	return ResolveChar(handle) || ResolveObj(handle);
+}
+
+std::string GetCharName(const LuaEntityHandle &handle)
+{
+	auto *ch = ResolveChar(handle);
+	return ch ? ch->get_name() : "";
+}
+
+long GetCharUid(const LuaEntityHandle &handle)
+{
+	auto *ch = ResolveChar(handle);
+	return ch ? ch->get_uid() : 0;
+}
+
+int GetCharVnum(const LuaEntityHandle &handle)
+{
+	auto *ch = ResolveChar(handle);
+	if (!ch || !ch->IsNpc())
 	{
 		return 0;
 	}
 
-	const auto rnum = view.ch->get_rnum();
+	const auto rnum = ch->get_rnum();
 	if (rnum < 0 || rnum > top_of_mobt)
 	{
 		return 0;
@@ -87,39 +139,45 @@ int GetCharVnum(const LuaCharView &view)
 	return mob_index[rnum].vnum;
 }
 
-int GetCharHp(const LuaCharView &view)
+int GetCharHp(const LuaEntityHandle &handle)
 {
-	return IsValidChar(view) ? view.ch->get_hit() : 0;
+	auto *ch = ResolveChar(handle);
+	return ch ? ch->get_hit() : 0;
 }
 
-int GetCharMaxHp(const LuaCharView &view)
+int GetCharMaxHp(const LuaEntityHandle &handle)
 {
-	return IsValidChar(view) ? view.ch->get_max_hit() : 0;
+	auto *ch = ResolveChar(handle);
+	return ch ? ch->get_max_hit() : 0;
 }
 
-int GetCharRoomVnum(const LuaCharView &view)
+int GetCharRoomVnum(const LuaEntityHandle &handle)
 {
-	if (!IsValidChar(view) || view.ch->in_room == kNowhere || view.ch->in_room < 0 || view.ch->in_room > top_of_world)
+	auto *ch = ResolveChar(handle);
+	if (!ch || ch->in_room == kNowhere || ch->in_room < 0 || ch->in_room > top_of_world)
 	{
 		return 0;
 	}
 
-	return world[view.ch->in_room]->vnum;
+	return world[ch->in_room]->vnum;
 }
 
-bool IsCharNpc(const LuaCharView &view)
+bool IsCharNpc(const LuaEntityHandle &handle)
 {
-	return IsValidChar(view) && view.ch->IsNpc();
+	auto *ch = ResolveChar(handle);
+	return ch && ch->IsNpc();
 }
 
-int GetCharLevel(const LuaCharView &view)
+int GetCharLevel(const LuaEntityHandle &handle)
 {
-	return IsValidChar(view) ? GetRealLevel(view.ch) : 0;
+	auto *ch = ResolveChar(handle);
+	return ch ? GetRealLevel(ch) : 0;
 }
 
-bool SendToChar(const LuaCharView &view, const sol::object &message)
+bool SendToChar(const LuaEntityHandle &handle, const sol::object &message)
 {
-	if (!IsValidChar(view) || !view.ch->desc || !message.is<std::string>())
+	auto *ch = ResolveChar(handle);
+	if (!ch || !ch->desc || !message.is<std::string>())
 	{
 		return false;
 	}
@@ -130,7 +188,7 @@ bool SendToChar(const LuaCharView &view, const sol::object &message)
 		return false;
 	}
 
-	SendMsgToChar(text + "\r\n", view.ch);
+	SendMsgToChar(text + "\r\n", ch);
 	return true;
 }
 
@@ -156,6 +214,59 @@ bool EchoToRoom(const LuaRoomView &view, const sol::object &message)
 	return true;
 }
 
+int GetObjVnum(const LuaEntityHandle &handle)
+{
+	auto *obj = ResolveObj(handle);
+	return obj ? obj->get_vnum() : 0;
+}
+
+long GetObjId(const LuaEntityHandle &handle)
+{
+	auto *obj = ResolveObj(handle);
+	return obj ? obj->get_id() : 0;
+}
+
+std::string GetObjName(const LuaEntityHandle &handle)
+{
+	auto *obj = ResolveObj(handle);
+	return obj ? obj->get_short_description() : "";
+}
+
+int GetObjRoomVnum(const LuaEntityHandle &handle)
+{
+	auto *obj = ResolveObj(handle);
+	if (!obj || obj->get_in_room() == kNowhere)
+	{
+		return 0;
+	}
+
+	return world[obj->get_in_room()]->vnum;
+}
+
+bool PurgeEntity(const LuaEntityHandle &handle)
+{
+	if (handle.type == LuaEntityHandle::LuaEntityType::Char)
+	{
+		auto *ch = ResolveChar(handle);
+		if (!ch)
+		{
+			return false;
+		}
+		ExtractCharFromWorld(ch, false);
+	}
+	else
+	{
+		auto *obj = ResolveObj(handle);
+		if (!obj)
+		{
+			return false;
+		}
+		ExtractObjFromWorld(obj);
+	}
+
+	return true;
+}
+
 sol::object BuildCharView(sol::state &lua, CharData *ch)
 {
 	if (!ch)
@@ -163,54 +274,60 @@ sol::object BuildCharView(sol::state &lua, CharData *ch)
 		return sol::make_object(lua, sol::nil);
 	}
 
+	auto handle = MakeCharHandle(ch);
 	sol::table view = lua.create_table();
 	sol::table metatable = lua.create_table();
-	metatable[sol::meta_function::index] = [&lua, ch](sol::object, const std::string &key) -> sol::object {
-		LuaCharView view{ch};
+	metatable[sol::meta_function::index] = [&lua, handle](sol::object, const std::string &key) -> sol::object {
 		if (key == "name")
 		{
-			return sol::make_object(lua, GetCharName(view));
+			return sol::make_object(lua, GetCharName(handle));
 		}
 		if (key == "uid")
 		{
-			return sol::make_object(lua, GetCharUid(view));
+			return sol::make_object(lua, GetCharUid(handle));
 		}
 		if (key == "vnum")
 		{
-			return sol::make_object(lua, GetCharVnum(view));
+			return sol::make_object(lua, GetCharVnum(handle));
 		}
 		if (key == "hp")
 		{
-			return sol::make_object(lua, GetCharHp(view));
+			return sol::make_object(lua, GetCharHp(handle));
 		}
 		if (key == "max_hp")
 		{
-			return sol::make_object(lua, GetCharMaxHp(view));
+			return sol::make_object(lua, GetCharMaxHp(handle));
 		}
 		if (key == "room_vnum")
 		{
-			return sol::make_object(lua, GetCharRoomVnum(view));
+			return sol::make_object(lua, GetCharRoomVnum(handle));
 		}
 		if (key == "is_npc")
 		{
-			return sol::make_object(lua, IsCharNpc(view));
+			return sol::make_object(lua, IsCharNpc(handle));
 		}
 		if (key == "level")
 		{
-			return sol::make_object(lua, sol::as_function([ch](sol::object) {
-				return GetCharLevel(LuaCharView{ch});
+			return sol::make_object(lua, sol::as_function([handle]() {
+				return GetCharLevel(handle);
 			}));
 		}
 		if (key == "is_valid")
 		{
-			return sol::make_object(lua, sol::as_function([ch](sol::object) {
-				return IsValidChar(LuaCharView{ch});
+			return sol::make_object(lua, sol::as_function([handle]() {
+				return IsValidEntity(handle);
 			}));
 		}
 		if (key == "send")
 		{
-			return sol::make_object(lua, sol::as_function([ch](sol::object, sol::object message) {
-				return SendToChar(LuaCharView{ch}, message);
+			return sol::make_object(lua, sol::as_function([handle](sol::object message) {
+				return SendToChar(handle, message);
+			}));
+		}
+		if (key == "purge")
+		{
+			return sol::make_object(lua, sol::as_function([handle]() {
+				return PurgeEntity(handle);
 			}));
 		}
 
@@ -218,6 +335,56 @@ sol::object BuildCharView(sol::state &lua, CharData *ch)
 	};
 	metatable[sol::meta_function::new_index] = [](sol::this_state state) {
 		return luaL_error(state, "CharData Lua view is read-only");
+	};
+	view[sol::metatable_key] = metatable;
+
+	return sol::make_object(lua, view);
+}
+
+sol::object BuildObjView(sol::state &lua, ObjData *obj)
+{
+	if (!obj)
+	{
+		return sol::make_object(lua, sol::nil);
+	}
+
+	auto handle = MakeObjHandle(obj);
+	sol::table view = lua.create_table();
+	sol::table metatable = lua.create_table();
+	metatable[sol::meta_function::index] = [&lua, handle](sol::object, const std::string &key) -> sol::object {
+		if (key == "name")
+		{
+			return sol::make_object(lua, GetObjName(handle));
+		}
+		if (key == "id")
+		{
+			return sol::make_object(lua, GetObjId(handle));
+		}
+		if (key == "vnum")
+		{
+			return sol::make_object(lua, GetObjVnum(handle));
+		}
+		if (key == "room_vnum")
+		{
+			return sol::make_object(lua, GetObjRoomVnum(handle));
+		}
+		if (key == "is_valid")
+		{
+			return sol::make_object(lua, sol::as_function([handle]() {
+				return IsValidEntity(handle);
+			}));
+		}
+		if (key == "purge")
+		{
+			return sol::make_object(lua, sol::as_function([handle]() {
+				return PurgeEntity(handle);
+			}));
+		}
+
+		return sol::make_object(lua, sol::nil);
+	};
+	metatable[sol::meta_function::new_index] = [](sol::this_state state) {
+		return luaL_error(state, "ObjData Lua view is read-only");
 	};
 	view[sol::metatable_key] = metatable;
 
@@ -274,6 +441,93 @@ sol::object BuildRoomViewByVnum(sol::state &lua, const sol::object &vnum)
 
 	const auto room = GetRoomRnum(vnum.as<int>());
 	return BuildRoomView(lua, LuaRoomView{room}, false);
+}
+
+RoomRnum GetRoomFromLua(const sol::object &room)
+{
+	if (room.is<int>())
+	{
+		return GetRoomRnum(room.as<int>());
+	}
+	if (!room.is<sol::table>())
+	{
+		return kNowhere;
+	}
+
+	sol::table room_table = room;
+	const sol::object vnum = room_table["vnum"];
+	return vnum.is<int>() ? GetRoomRnum(vnum.as<int>()) : kNowhere;
+}
+
+ObjData *LoadObjToRoom(const sol::object &vnum, const sol::object &room)
+{
+	const auto room_rnum = GetRoomFromLua(room);
+	if (!vnum.is<int>() || !IsValidRoom(LuaRoomView{room_rnum}))
+	{
+		return nullptr;
+	}
+
+	const auto obj_rnum = GetObjRnum(vnum.as<int>());
+	if (obj_rnum < 0)
+	{
+		return nullptr;
+	}
+
+	const auto obj = world_objects.create_from_prototype_by_rnum(obj_rnum);
+	if (!obj)
+	{
+		return nullptr;
+	}
+
+	PlaceObjToRoom(obj.get(), room_rnum);
+	load_otrigger(obj.get());
+	CheckObjDecay(obj.get());
+	return obj.get();
+}
+
+CharData *LoadMobToRoom(const sol::object &vnum, const sol::object &room)
+{
+	const auto room_rnum = GetRoomFromLua(room);
+	if (!vnum.is<int>() || !IsValidRoom(LuaRoomView{room_rnum}))
+	{
+		return nullptr;
+	}
+
+	const auto mob_rnum = GetMobRnum(vnum.as<int>());
+	if (mob_rnum < 0)
+	{
+		return nullptr;
+	}
+
+	auto *mob = ReadMobile(mob_rnum, kReal);
+	if (!mob)
+	{
+		return nullptr;
+	}
+
+	PlaceCharToRoom(mob, room_rnum);
+	load_mtrigger(mob);
+
+	return mob;
+}
+
+bool MudPurge(const sol::object &lua_entity)
+{
+	if (!lua_entity.is<sol::table>())
+	{
+		return false;
+	}
+
+	sol::table entity_table = lua_entity;
+	const sol::object purge = entity_table["purge"];
+	if (purge.get_type() != sol::type::function)
+	{
+		return false;
+	}
+
+	const sol::protected_function purge_function = purge;
+	const sol::protected_function_result result = purge_function();
+	return result.valid() && result.get_type(0) == sol::type::boolean && result.get<bool>();
 }
 
 int GetCurrentObjectCount(const sol::object &vnum)
@@ -334,6 +588,15 @@ sol::table BuildMudNamespace(sol::state &lua, Trigger *trigger)
 	};
 	mud["room"] = [&lua](const sol::object &vnum) {
 		return BuildRoomViewByVnum(lua, vnum);
+	};
+	mud["load_obj"] = [&lua](const sol::object &vnum, const sol::object &room) {
+		return BuildObjView(lua, LoadObjToRoom(vnum, room));
+	};
+	mud["load_mob"] = [&lua](const sol::object &vnum, const sol::object &room) {
+		return BuildCharView(lua, LoadMobToRoom(vnum, room));
+	};
+	mud["purge"] = [](const sol::object &entity) {
+		return MudPurge(entity);
 	};
 
 	sol::table world_table = lua.create_table();
