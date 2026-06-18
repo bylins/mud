@@ -1693,6 +1693,598 @@ static void HandleName6(DescriptorData *d, char *argument) {
 
 }
 
+static void HandleInit(DescriptorData *d, char *argument) {
+	char buffer[kMaxStringLength];
+	// just connected
+{
+	int online_players = 0;
+	for (auto i = descriptor_list; i; i = i->next) {
+		online_players++;
+	}
+	sprintf(buffer, "Online: %d\r\n", online_players);
+}
+
+	iosystem::write_to_output(buffer, d);
+	ShowEncodingPrompt(d, false);
+	d->state = EConState::kGetKeytable;
+	return;
+}
+
+static void HandleGetKeytable(DescriptorData *d, char *argument) {
+	if (strlen(argument) > 0)
+		argument[0] = argument[strlen(argument) - 1];
+	if (*argument == '9') {
+		ShowEncodingPrompt(d, true);
+		return;
+	}
+	if (!*argument || *argument < '0' || *argument >= '0' + kCodePageLast) {
+		iosystem::write_to_output("\r\nUnknown key table. Retry, please : ", d);
+		return;
+	}
+	d->keytable = (ubyte) *argument - (ubyte) '0';
+	ip_log(d->host);
+	iosystem::write_to_output(greetings, d);
+	d->state = EConState::kGetName;
+	return;
+}
+
+static void HandleNameConfirm(DescriptorData *d, char *argument) {
+	char buffer[kMaxStringLength];
+	if (UPPER(*argument) == 'Y' || UPPER(*argument) == 'Д') {
+		if (ban->IsBanned(d->host) >= BanList::BAN_NEW) {
+			sprintf(buffer, "Попытка создания персонажа %s отклонена для [%s] (siteban)",
+					GET_PC_NAME(d->character), d->host);
+			mudlog(buffer, NRM, kLvlGod, SYSLOG, true);
+			iosystem::write_to_output("Извините, создание нового персонажа для вашего IP !!! ЗАПРЕЩЕНО !!!\r\n", d);
+			d->state = EConState::kClose;
+			return;
+		}
+
+		if (circle_restrict) {
+			iosystem::write_to_output("Извините, вы не можете создать новый персонаж в настоящий момент.\r\n", d);
+			sprintf(buffer, "Попытка создания нового персонажа %s отклонена для [%s] (wizlock)",
+					GET_PC_NAME(d->character), d->host);
+			mudlog(buffer, NRM, kLvlGod, SYSLOG, true);
+			d->state = EConState::kClose;
+			return;
+		}
+
+		switch (NewNames::auto_authorize(d)) {
+			case NewNames::AUTO_ALLOW:
+				sprintf(buffer,
+						"Введите пароль для %s (не вводите пароли типа '123' или 'qwe', иначе ваших персонажев могут украсть) : ",
+						GET_PAD(d->character, 1));
+				iosystem::write_to_output(buffer, d);
+				d->state = EConState::kNewpasswd;
+				return;
+
+			case NewNames::AUTO_BAN: d->state = EConState::kClose;
+				return;
+
+			default: break;
+		}
+
+		iosystem::write_to_output("Ваш пол [ М(M)/Ж(F) ]? ", d);
+		d->state = EConState::kQsex;
+		return;
+
+	} else if (UPPER(*argument) == 'N' || UPPER(*argument) == 'Н') {
+		iosystem::write_to_output("Итак, чего изволите? Учтите, бананов нет :)\r\n" "Имя : ", d);
+		d->character->SetCharAliases(nullptr);
+		d->state = EConState::kGetName;
+	} else {
+		iosystem::write_to_output("Ответьте Yes(Да) or No(Нет) : ", d);
+	}
+	return;
+}
+
+static void HandlePassword(DescriptorData *d, char *argument) {
+	char buffer[kMaxStringLength];
+	/*
+		   * To really prevent duping correctly, the player's record should
+		   * be reloaded from disk at this point (after the password has been
+		   * typed). However, I'm afraid that trying to load a character over
+		   * an already loaded character is going to cause some problem down the
+		   * road that I can't see at the moment.  So to compensate, I'm going to
+		   * (1) add a 15 or 20-second time limit for entering a password, and (2)
+		   * re-add the code to cut off duplicates when a player quits.  JE 6 Feb 96
+		   */
+
+	iosystem::write_to_output("\r\n", d);
+
+	if (!*argument) {
+		d->state = EConState::kClose;
+	} else {
+		if (!Password::compare_password(d->character.get(), argument)) {
+			sprintf(buffer, "Bad PW: %s [%s]", GET_NAME(d->character), d->host);
+			mudlog(buffer, BRF, kLvlImmortal, SYSLOG, true);
+			GET_BAD_PWS(d->character)++;
+			d->character->save_char();
+			if (++(d->bad_pws) >= max_bad_pws)    // 3 strikes and you're out.
+			{
+				iosystem::write_to_output("Неверный пароль... Отсоединяемся.\r\n", d);
+				d->state = EConState::kClose;
+			} else {
+				iosystem::write_to_output("Неверный пароль.\r\nПароль : ", d);
+			}
+			return;
+		}
+		DoAfterPassword(d);
+	}
+	return;
+}
+
+static void HandleGetNewPassword(DescriptorData *d, char *argument) {
+	char buffer[kMaxStringLength];
+	if (!Password::check_password(d->character.get(), argument)) {
+		sprintf(buffer, "\r\n%s\r\n", Password::BAD_PASSWORD);
+		iosystem::write_to_output(buffer, d);
+		iosystem::write_to_output("Пароль : ", d);
+		return;
+	}
+
+	Password::set_password(d->character.get(), argument);
+
+	iosystem::write_to_output("\r\nПовторите пароль, пожалуйста : ", d);
+	if (d->state == EConState::kNewpasswd) {
+		d->state = EConState::kCnfpasswd;
+	} else {
+		d->state = EConState::kChpwdVrfy;
+	}
+
+	return;
+}
+
+static void HandleConfirmNewPassword(DescriptorData *d, char *argument) {
+	char buffer[kMaxStringLength];
+	if (!Password::compare_password(d->character.get(), argument)) {
+		iosystem::write_to_output("\r\nПароли не соответствуют... повторим.\r\n", d);
+		iosystem::write_to_output("Пароль: ", d);
+		if (d->state == EConState::kCnfpasswd) {
+			d->state = EConState::kNewpasswd;
+		} else {
+			d->state = EConState::kChpwdGetNew;
+		}
+		return;
+	}
+
+	if (d->state == EConState::kCnfpasswd) {
+		DisplaySelectCharClassMenu(d);
+		iosystem::write_to_output(
+			"\r\nВаша профессия? (Для более полной информации вы можете набрать 'справка <интересующая профессия>'): ",
+			d);
+		d->state = EConState::kQclass;
+	} else {
+		sprintf(buffer, "%s заменил себе пароль.", GET_NAME(d->character));
+		AddKarma(d->character.get(), buffer, "");
+		d->character->save_char();
+		iosystem::write_to_output("\r\nГотово.\r\n", d);
+		iosystem::write_to_output(MENU, d);
+		d->state = EConState::kMenu;
+	}
+
+	return;
+}
+
+static void HandleQuerySex(DescriptorData *d, char *argument) {
+	char buffer[kMaxStringLength];
+	char tmp_name[kMaxInputLength];
+	if (pre_help(d->character.get(), argument)) {
+		iosystem::write_to_output("\r\nВаш пол [ М(M)/Ж(F) ]? ", d);
+		d->state = EConState::kQsex;
+		return;
+	}
+
+	switch (UPPER(*argument)) {
+		case 'М':
+		case 'M': d->character->set_sex(EGender::kMale);
+			break;
+
+		case 'Ж':
+		case 'F': d->character->set_sex(EGender::kFemale);
+			break;
+
+		default: iosystem::write_to_output("Это может быть и пол, но явно не ваш :)\r\n" "А какой у ВАС пол? ", d);
+			return;
+	}
+	iosystem::write_to_output("Проверьте правильность склонения имени. В случае ошибки введите свой вариант.\r\n", d);
+	GetCase(d->character->GetCharAliases(), d->character->get_sex(), 1, tmp_name);
+	sprintf(buffer, "Имя в родительном падеже (меч КОГО?) [%s]: ", tmp_name);
+	iosystem::write_to_output(buffer, d);
+	d->state = EConState::kName2;
+	return;
+}
+
+static void HandleQueryReligion(DescriptorData *d, char *argument) {
+	char buffer[kMaxStringLength];
+	if (pre_help(d->character.get(), argument)) {
+		iosystem::write_to_output(religion_menu, d);
+		iosystem::write_to_output("\n\rРелигия :", d);
+		d->state = EConState::kQreligion;
+		return;
+	}
+
+	switch (UPPER(*argument)) {
+		case 'Я':
+		case 'З':
+		case 'P':
+			if (class_religion[to_underlying(d->character->GetClass())] == kReligionMono) {
+				iosystem::write_to_output("Персонаж выбранной вами профессии не желает быть язычником!\r\n"
+				 "Так каким Богам вы хотите служить? ", d);
+				return;
+			}
+			GET_RELIGION(d->character) = kReligionPoly;
+			break;
+
+		case 'Х':
+		case 'C':
+			if (class_religion[to_underlying(d->character->GetClass())] == kReligionPoly) {
+				iosystem::write_to_output("Персонажу выбранной вами профессии противно христианство!\r\n"
+				 "Так каким Богам вы хотите служить? ", d);
+				return;
+			}
+			GET_RELIGION(d->character) = kReligionMono;
+			break;
+
+		default: iosystem::write_to_output("Атеизм сейчас не моден :)\r\n" "Так каким Богам вы хотите служить? ", d);
+			return;
+	}
+
+	iosystem::write_to_output("\r\nКакой род вам ближе всего по духу:\r\n", d);
+	iosystem::write_to_output(string(player_races::FormatRacesMenu()).c_str(), d);
+	sprintf(buffer, "Для вашей профессией больше всего подходит %s",
+			default_race[to_underlying(d->character->GetClass())]);
+	iosystem::write_to_output(buffer, d);
+	iosystem::write_to_output("\r\nИз чьих вы будете : ", d);
+	d->state = EConState::kRace;
+
+	return;
+}
+
+static void HandleQueryClass(DescriptorData *d, char *argument) {
+	{
+	if (pre_help(d->character.get(), argument)) {
+		DisplaySelectCharClassMenu(d);
+		iosystem::write_to_output("\r\nВаша профессия : ", d);
+		d->state = EConState::kQclass;
+		return;
+	}
+
+	int class_num{-1};
+	ECharClass class_id{ECharClass::kUndefined};
+	try {
+		class_num = std::stoi(argument);
+	} catch (std::exception &) {
+		class_id = FindAvailableCharClassId(argument);
+	}
+	if (class_num != -1) {
+		class_id = MUD::Classes().FindAvailableItem(class_num - 1).GetId();
+	}
+
+	if (class_id == ECharClass::kUndefined) {
+		iosystem::write_to_output("\r\nЭто не профессия.\r\nПрофессия : ", d);
+		return;
+	} else {
+		d->character->set_class(class_id);
+	}
+
+	iosystem::write_to_output(religion_menu, d);
+	iosystem::write_to_output("\n\rРелигия :", d);
+	d->state = EConState::kQreligion;
+	return;
+}
+}
+
+static void HandleQueryRace(DescriptorData *d, char *argument) {
+	int load_result;
+	if (pre_help(d->character.get(), argument)) {
+		iosystem::write_to_output("Какой род вам ближе всего по духу:\r\n", d);
+		iosystem::write_to_output(string(player_races::FormatRacesMenu()).c_str(), d);
+		iosystem::write_to_output("\r\nРод: ", d);
+		d->state = EConState::kRace;
+		return;
+	}
+
+	load_result = player_races::RaceVnumByMenuChoice(argument);
+
+	if (load_result == player_races::kRaceUndefined) {
+		iosystem::write_to_output("Стыдно не помнить предков.\r\n" "Какой род вам ближе всего? ", d);
+		return;
+	}
+
+	GET_RACE(d->character) = load_result;
+	iosystem::write_to_output(string(player_races::FormatStartRegionsMenu(GET_RACE(d->character))).c_str(), d);
+	iosystem::write_to_output("\r\nГде вы хотите начать свои приключения: ", d);
+	d->state = EConState::kBirthplace;
+
+	return;
+}
+
+static void HandleBirthplace(DescriptorData *d, char *argument) {
+	int load_result;
+	if (pre_help(d->character.get(), argument)) {
+		iosystem::write_to_output(string(player_races::FormatStartRegionsMenu(GET_RACE(d->character))).c_str(),
+				  d);
+		iosystem::write_to_output("\r\nГде вы хотите начать свои приключения: ", d);
+		d->state = EConState::kBirthplace;
+		return;
+	}
+
+	load_result = player_races::StartRegionByMenuChoice(GET_RACE(d->character), argument);
+
+	{
+		const int start_room = player_races::StartRoomForRaceRegion(GET_RACE(d->character), load_result);
+		if (load_result == player_races::kRaceUndefined || start_room == kNowhere) {
+			iosystem::write_to_output("Не уверены? Бывает.\r\n"
+					  "Подумайте еще разок, и выберите:", d);
+			return;
+		}
+		GET_LOADROOM(d->character) = start_room;
+	}
+	iosystem::write_to_output(genchar_help, d);
+	iosystem::write_to_output("\r\n\r\nНажмите любую клавишу.\r\n", d);
+	d->state = EConState::kRollStats;
+	SetStartAbils(d->character.get());
+	return;
+}
+
+static void HandleRollStats(DescriptorData *d, char *argument) {
+	if (pre_help(d->character.get(), argument)) {
+		genchar_disp_menu(d->character.get());
+		d->state = EConState::kRollStats;
+		return;
+	}
+
+	switch (genchar_parse(d->character.get(), argument)) {
+		case kGencharContinue: genchar_disp_menu(d->character.get());
+			break;
+		default: iosystem::write_to_output("\r\nВведите ваш E-mail"
+						   "\r\n(ВСЕ ВАШИ ПЕРСОНАЖИ ДОЛЖНЫ ИМЕТЬ ОДИНАКОВЫЙ E-mail)."
+						   "\r\nНа этот адрес вам будет отправлен код для подтверждения: ", d);
+			d->state = EConState::kGetEmail;
+			break;
+	}
+	return;
+}
+
+static void HandleGetEmail(DescriptorData *d, char *argument) {
+	if (!*argument) {
+		iosystem::write_to_output("\r\nВаш E-mail : ", d);
+		return;
+	} else if (!IsValidEmail(argument)) {
+		iosystem::write_to_output("\r\nНекорректный E-mail!" "\r\nВаш E-mail :  ", d);
+		return;
+	}
+#ifdef TEST_BUILD
+	strncpy(GET_EMAIL(d->character), argument, 127);
+	  *(GET_EMAIL(d->character) + 127) = '\0';
+	  utils::ConvertToLow(GET_EMAIL(d->character));
+	  DoAfterEmailConfirm(d);
+	  return;
+#endif
+	{
+		int random_number = number(1000000, 9999999);
+		new_char_codes[d->character->GetCharAliases()] = random_number;
+		strncpy(GET_EMAIL(d->character), argument, 127);
+		*(GET_EMAIL(d->character) + 127) = '\0';
+		utils::ConvertToLow(GET_EMAIL(d->character));
+		std::string cmd_line =
+			fmt::format("python3 send_code.py {} {} &", GET_EMAIL(d->character), random_number);
+		auto result = system(cmd_line.c_str());
+		UNUSED_ARG(result);
+		iosystem::write_to_output("\r\nВам на электронную почту был выслан код. Введите его, пожалуйста: \r\n", d);
+		d->state = EConState::kRandomNumber;
+	}
+	return;
+}
+
+static void HandleReadMotd(DescriptorData *d, char *argument) {
+	if (!check_dupes_email(d)) {
+		d->state = EConState::kClose;
+		return;
+	}
+
+	do_entergame(d);
+
+	return;
+}
+
+static void HandleRandomNumber(DescriptorData *d, char *argument) {
+	{
+	int code_rand = atoi(argument);
+
+	if (new_char_codes.count(d->character->GetCharAliases()) != 0) {
+		if (new_char_codes[d->character->GetCharAliases()] != code_rand) {
+			iosystem::write_to_output("\r\nВы ввели неправильный код, попробуйте еще раз.\r\n", d);
+			return;
+		}
+		new_char_codes.erase(d->character->GetCharAliases());
+		DoAfterEmailConfirm(d);
+		return;
+	}
+
+	if (new_loc_codes.count(GET_EMAIL(d->character)) == 0) {
+		return;
+	}
+
+	if (new_loc_codes[GET_EMAIL(d->character)] != code_rand) {
+		iosystem::write_to_output("\r\nВы ввели неправильный код, попробуйте еще раз.\r\n", d);
+		d->state = EConState::kClose;
+		return;
+	}
+
+	new_loc_codes.erase(GET_EMAIL(d->character));
+	network::add_logon_record(d);
+	DoAfterPassword(d);
+
+	return;
+}
+}
+
+static void HandleGetOldPassword(DescriptorData *d, char *argument) {
+	if (!Password::compare_password(d->character.get(), argument)) {
+		iosystem::write_to_output("\r\nНеверный пароль.\r\n", d);
+		iosystem::write_to_output(MENU, d);
+		d->state = EConState::kMenu;
+	} else {
+		iosystem::write_to_output("\r\nВведите НОВЫЙ пароль : ", d);
+		d->state = EConState::kChpwdGetNew;
+	}
+
+	return;
+}
+
+static void HandleDeleteConfirm1(DescriptorData *d, char *argument) {
+	if (!Password::compare_password(d->character.get(), argument)) {
+		iosystem::write_to_output("\r\nНеверный пароль.\r\n", d);
+		iosystem::write_to_output(MENU, d);
+		d->state = EConState::kMenu;
+	} else {
+		iosystem::write_to_output("\r\n!!! ВАШ ПЕРСОНАЖ БУДЕТ УДАЛЕН !!!\r\n"
+				  "Вы АБСОЛЮТНО В ЭТОМ УВЕРЕНЫ?\r\n\r\n"
+				  "Наберите \"YES / ДА\" для подтверждения: ", d);
+		d->state = EConState::kDelcnf2;
+	}
+
+	return;
+}
+
+static void HandleDeleteConfirm2(DescriptorData *d, char *argument) {
+	char buffer[kMaxStringLength];
+	if (!strcmp(argument, "yes")
+		|| !strcmp(argument, "YES")
+		|| !strcmp(argument, "да")
+		|| !strcmp(argument, "ДА")) {
+		if (d->character->IsFlagged(EPlrFlag::kFrozen)) {
+			iosystem::write_to_output("Вы решились на суицид, но Боги остановили вас.\r\n", d);
+			iosystem::write_to_output("Персонаж не удален.\r\n", d);
+			d->state = EConState::kClose;
+			return;
+		}
+		if (GetRealLevel(d->character) >= kLvlGreatGod) {
+			return;
+		}
+		DeletePcByHimself(GET_NAME(d->character));
+		sprintf(buffer, "Персонаж '%s' удален!\r\n" "До свидания.\r\n", GET_NAME(d->character));
+		iosystem::write_to_output(buffer, d);
+		sprintf(buffer, "%s (lev %d) has self-deleted.", GET_NAME(d->character), GetRealLevel(d->character));
+		mudlog(buffer, NRM, kLvlGod, SYSLOG, true);
+		d->character->get_account()->remove_player(d->character->get_uid());
+		d->state = EConState::kClose;
+		return;
+	} else {
+		iosystem::write_to_output("\r\nПерсонаж не удален.\r\n", d);
+		iosystem::write_to_output(MENU, d);
+		d->state = EConState::kMenu;
+	}
+	return;
+}
+
+static void HandleResetStats(DescriptorData *d, char *argument) {
+	char buffer[kMaxStringLength];
+	if (pre_help(d->character.get(), argument)) {
+		return;
+	}
+
+	switch (genchar_parse(d->character.get(), argument)) {
+		case kGencharContinue: genchar_disp_menu(d->character.get());
+			break;
+
+		default:
+			// после перераспределения и сейва в genchar_parse стартовых статов надо учесть морты и славу
+			GloryMisc::recalculate_stats(d->character.get());
+			// статы срезетили и новые выбрали
+			sprintf(buffer, "\r\n%sБлагодарим за сотрудничество. Ж)%s\r\n", kColorBoldGrn, kColorNrm);
+			iosystem::write_to_output(buffer, d);
+
+			// Проверяем корректность статов
+			// Если что-то некорректно, функция проверки сама вернет чара на доработку.
+			if (!ValidateStats(d)) {
+				return;
+			}
+
+			iosystem::write_to_output("\r\n* В связи с проблемами перевода фразы ANYKEY нажмите ENTER *", d);
+			d->state = EConState::kRmotd;
+	}
+
+	return;
+}
+
+static void HandleResetRace(DescriptorData *d, char *argument) {
+	int load_result;
+	if (pre_help(d->character.get(), argument)) {
+		iosystem::write_to_output("Какой род вам ближе всего по духу:\r\n", d);
+		iosystem::write_to_output(string(player_races::FormatRacesMenu()).c_str(), d);
+		iosystem::write_to_output("\r\nРод: ", d);
+		d->state = EConState::kResetRace;
+		return;
+	}
+
+	load_result = player_races::RaceVnumByMenuChoice(argument);
+
+	if (load_result == player_races::kRaceUndefined) {
+		iosystem::write_to_output("Стыдно не помнить предков.\r\n" "Какой род вам ближе всего? ", d);
+		return;
+	}
+
+	GET_RACE(d->character) = load_result;
+
+	if (!ValidateStats(d)) {
+		return;
+	}
+
+	// способности нового рода проставятся дальше в do_entergame
+	iosystem::write_to_output("\r\n* В связи с проблемами перевода фразы ANYKEY нажмите ENTER *", d);
+	d->state = EConState::kRmotd;
+
+	return;
+}
+
+static void HandleResetReligion(DescriptorData *d, char *argument) {
+	if (pre_help(d->character.get(), argument)) {
+		iosystem::write_to_output(religion_menu, d);
+		iosystem::write_to_output("\n\rРелигия :", d);
+		return;
+	}
+
+	switch (UPPER(*argument)) {
+		case 'Я':
+		case 'З':
+		case 'P':
+			if (class_religion[to_underlying(d->character->GetClass())] == kReligionMono) {
+				iosystem::write_to_output("Персонаж выбранной вами профессии не желает быть язычником!\r\n"
+				 "Так каким Богам вы хотите служить? ", d);
+				return;
+			}
+			GET_RELIGION(d->character) = kReligionPoly;
+			break;
+
+		case 'Х':
+		case 'C':
+			if (class_religion[to_underlying(d->character->GetClass())] == kReligionPoly) {
+				iosystem::write_to_output("Персонажу выбранной вами профессии противно христианство!\r\n"
+						   "Так каким Богам вы хотите служить? ", d);
+				return;
+			}
+
+			GET_RELIGION(d->character) = kReligionMono;
+
+			break;
+
+		default: iosystem::write_to_output("Атеизм сейчас не моден :)\r\n" "Так каким Богам вы хотите служить? ", d);
+			return;
+	}
+
+	if (!ValidateStats(d)) {
+		return;
+	}
+
+	iosystem::write_to_output("\r\n* В связи с проблемами перевода фразы ANYKEY нажмите ENTER *", d);
+	d->state = EConState::kRmotd;
+
+	return;
+}
+
 void ProcessLoginInput(DescriptorData *d, char *argument) {
 	char buffer[kMaxStringLength];
 	int player_i = 0, load_result;
@@ -1703,18 +2295,7 @@ void ProcessLoginInput(DescriptorData *d, char *argument) {
 
 	switch (d->state) {
 		case EConState::kInit:
-			// just connected
-		{
-			int online_players = 0;
-			for (auto i = descriptor_list; i; i = i->next) {
-				online_players++;
-			}
-			sprintf(buffer, "Online: %d\r\n", online_players);
-		}
-
-			iosystem::write_to_output(buffer, d);
-			ShowEncodingPrompt(d, false);
-			d->state = EConState::kGetKeytable;
+			HandleInit(d, argument);
 			break;
 
 #ifdef ENABLE_ADMIN_API
@@ -1781,455 +2362,82 @@ void ProcessLoginInput(DescriptorData *d, char *argument) {
 			//. End of OLC states .*/
 
 		case EConState::kGetKeytable:
-			if (strlen(argument) > 0)
-				argument[0] = argument[strlen(argument) - 1];
-			if (*argument == '9') {
-				ShowEncodingPrompt(d, true);
-				return;
-			}
-			if (!*argument || *argument < '0' || *argument >= '0' + kCodePageLast) {
-				iosystem::write_to_output("\r\nUnknown key table. Retry, please : ", d);
-				return;
-			}
-			d->keytable = (ubyte) *argument - (ubyte) '0';
-			ip_log(d->host);
-			iosystem::write_to_output(greetings, d);
-			d->state = EConState::kGetName;
+			HandleGetKeytable(d, argument);
 			break;
 
 		case EConState::kGetName:    // wait for input of name
 			HandleGetName(d, argument);
 			break;
 		case EConState::kNameConfirm:    // wait for conf. of new name
-			if (UPPER(*argument) == 'Y' || UPPER(*argument) == 'Д') {
-				if (ban->IsBanned(d->host) >= BanList::BAN_NEW) {
-					sprintf(buffer, "Попытка создания персонажа %s отклонена для [%s] (siteban)",
-							GET_PC_NAME(d->character), d->host);
-					mudlog(buffer, NRM, kLvlGod, SYSLOG, true);
-					iosystem::write_to_output("Извините, создание нового персонажа для вашего IP !!! ЗАПРЕЩЕНО !!!\r\n", d);
-					d->state = EConState::kClose;
-					return;
-				}
-
-				if (circle_restrict) {
-					iosystem::write_to_output("Извините, вы не можете создать новый персонаж в настоящий момент.\r\n", d);
-					sprintf(buffer, "Попытка создания нового персонажа %s отклонена для [%s] (wizlock)",
-							GET_PC_NAME(d->character), d->host);
-					mudlog(buffer, NRM, kLvlGod, SYSLOG, true);
-					d->state = EConState::kClose;
-					return;
-				}
-
-				switch (NewNames::auto_authorize(d)) {
-					case NewNames::AUTO_ALLOW:
-						sprintf(buffer,
-								"Введите пароль для %s (не вводите пароли типа '123' или 'qwe', иначе ваших персонажев могут украсть) : ",
-								GET_PAD(d->character, 1));
-						iosystem::write_to_output(buffer, d);
-						d->state = EConState::kNewpasswd;
-						return;
-
-					case NewNames::AUTO_BAN: d->state = EConState::kClose;
-						return;
-
-					default: break;
-				}
-
-				iosystem::write_to_output("Ваш пол [ М(M)/Ж(F) ]? ", d);
-				d->state = EConState::kQsex;
-				return;
-
-			} else if (UPPER(*argument) == 'N' || UPPER(*argument) == 'Н') {
-				iosystem::write_to_output("Итак, чего изволите? Учтите, бананов нет :)\r\n" "Имя : ", d);
-				d->character->SetCharAliases(nullptr);
-				d->state = EConState::kGetName;
-			} else {
-				iosystem::write_to_output("Ответьте Yes(Да) or No(Нет) : ", d);
-			}
+			HandleNameConfirm(d, argument);
 			break;
 
 		case EConState::kNewChar:
 			HandleNewChar(d, argument);
 			break;
 		case EConState::kPassword:    // get pwd for known player
-			/*
-				   * To really prevent duping correctly, the player's record should
-				   * be reloaded from disk at this point (after the password has been
-				   * typed). However, I'm afraid that trying to load a character over
-				   * an already loaded character is going to cause some problem down the
-				   * road that I can't see at the moment.  So to compensate, I'm going to
-				   * (1) add a 15 or 20-second time limit for entering a password, and (2)
-				   * re-add the code to cut off duplicates when a player quits.  JE 6 Feb 96
-				   */
-
-			iosystem::write_to_output("\r\n", d);
-
-			if (!*argument) {
-				d->state = EConState::kClose;
-			} else {
-				if (!Password::compare_password(d->character.get(), argument)) {
-					sprintf(buffer, "Bad PW: %s [%s]", GET_NAME(d->character), d->host);
-					mudlog(buffer, BRF, kLvlImmortal, SYSLOG, true);
-					GET_BAD_PWS(d->character)++;
-					d->character->save_char();
-					if (++(d->bad_pws) >= max_bad_pws)    // 3 strikes and you're out.
-					{
-						iosystem::write_to_output("Неверный пароль... Отсоединяемся.\r\n", d);
-						d->state = EConState::kClose;
-					} else {
-						iosystem::write_to_output("Неверный пароль.\r\nПароль : ", d);
-					}
-					return;
-				}
-				DoAfterPassword(d);
-			}
+			HandlePassword(d, argument);
 			break;
 
 		case EConState::kNewpasswd:
 		case EConState::kChpwdGetNew:
-			if (!Password::check_password(d->character.get(), argument)) {
-				sprintf(buffer, "\r\n%s\r\n", Password::BAD_PASSWORD);
-				iosystem::write_to_output(buffer, d);
-				iosystem::write_to_output("Пароль : ", d);
-				return;
-			}
-
-			Password::set_password(d->character.get(), argument);
-
-			iosystem::write_to_output("\r\nПовторите пароль, пожалуйста : ", d);
-			if (d->state == EConState::kNewpasswd) {
-				d->state = EConState::kCnfpasswd;
-			} else {
-				d->state = EConState::kChpwdVrfy;
-			}
-
+			HandleGetNewPassword(d, argument);
 			break;
 
 		case EConState::kCnfpasswd:
 		case EConState::kChpwdVrfy:
-			if (!Password::compare_password(d->character.get(), argument)) {
-				iosystem::write_to_output("\r\nПароли не соответствуют... повторим.\r\n", d);
-				iosystem::write_to_output("Пароль: ", d);
-				if (d->state == EConState::kCnfpasswd) {
-					d->state = EConState::kNewpasswd;
-				} else {
-					d->state = EConState::kChpwdGetNew;
-				}
-				return;
-			}
-
-			if (d->state == EConState::kCnfpasswd) {
-				DisplaySelectCharClassMenu(d);
-				iosystem::write_to_output(
-					"\r\nВаша профессия? (Для более полной информации вы можете набрать 'справка <интересующая профессия>'): ",
-					d);
-				d->state = EConState::kQclass;
-			} else {
-				sprintf(buffer, "%s заменил себе пароль.", GET_NAME(d->character));
-				AddKarma(d->character.get(), buffer, "");
-				d->character->save_char();
-				iosystem::write_to_output("\r\nГотово.\r\n", d);
-				iosystem::write_to_output(MENU, d);
-				d->state = EConState::kMenu;
-			}
-
+			HandleConfirmNewPassword(d, argument);
 			break;
 
-		case EConState::kQsex:        // query sex of new user
-			if (pre_help(d->character.get(), argument)) {
-				iosystem::write_to_output("\r\nВаш пол [ М(M)/Ж(F) ]? ", d);
-				d->state = EConState::kQsex;
-				return;
-			}
-
-			switch (UPPER(*argument)) {
-				case 'М':
-				case 'M': d->character->set_sex(EGender::kMale);
-					break;
-
-				case 'Ж':
-				case 'F': d->character->set_sex(EGender::kFemale);
-					break;
-
-				default: iosystem::write_to_output("Это может быть и пол, но явно не ваш :)\r\n" "А какой у ВАС пол? ", d);
-					return;
-			}
-			iosystem::write_to_output("Проверьте правильность склонения имени. В случае ошибки введите свой вариант.\r\n", d);
-			GetCase(d->character->GetCharAliases(), d->character->get_sex(), 1, tmp_name);
-			sprintf(buffer, "Имя в родительном падеже (меч КОГО?) [%s]: ", tmp_name);
-			iosystem::write_to_output(buffer, d);
-			d->state = EConState::kName2;
-			return;
+		case EConState::kQsex:    // query sex of new user
+			HandleQuerySex(d, argument);
+			break;
 
 		case EConState::kQreligion:    // query religion of new user
-			if (pre_help(d->character.get(), argument)) {
-				iosystem::write_to_output(religion_menu, d);
-				iosystem::write_to_output("\n\rРелигия :", d);
-				d->state = EConState::kQreligion;
-				return;
-			}
-
-			switch (UPPER(*argument)) {
-				case 'Я':
-				case 'З':
-				case 'P':
-					if (class_religion[to_underlying(d->character->GetClass())] == kReligionMono) {
-						iosystem::write_to_output("Персонаж выбранной вами профессии не желает быть язычником!\r\n"
-						 "Так каким Богам вы хотите служить? ", d);
-						return;
-					}
-					GET_RELIGION(d->character) = kReligionPoly;
-					break;
-
-				case 'Х':
-				case 'C':
-					if (class_religion[to_underlying(d->character->GetClass())] == kReligionPoly) {
-						iosystem::write_to_output("Персонажу выбранной вами профессии противно христианство!\r\n"
-						 "Так каким Богам вы хотите служить? ", d);
-						return;
-					}
-					GET_RELIGION(d->character) = kReligionMono;
-					break;
-
-				default: iosystem::write_to_output("Атеизм сейчас не моден :)\r\n" "Так каким Богам вы хотите служить? ", d);
-					return;
-			}
-
-			iosystem::write_to_output("\r\nКакой род вам ближе всего по духу:\r\n", d);
-			iosystem::write_to_output(string(player_races::FormatRacesMenu()).c_str(), d);
-			sprintf(buffer, "Для вашей профессией больше всего подходит %s",
-					default_race[to_underlying(d->character->GetClass())]);
-			iosystem::write_to_output(buffer, d);
-			iosystem::write_to_output("\r\nИз чьих вы будете : ", d);
-			d->state = EConState::kRace;
-
+			HandleQueryReligion(d, argument);
 			break;
 
-		case EConState::kQclass: {
-			if (pre_help(d->character.get(), argument)) {
-				DisplaySelectCharClassMenu(d);
-				iosystem::write_to_output("\r\nВаша профессия : ", d);
-				d->state = EConState::kQclass;
-				return;
-			}
-
-			int class_num{-1};
-			ECharClass class_id{ECharClass::kUndefined};
-			try {
-				class_num = std::stoi(argument);
-			} catch (std::exception &) {
-				class_id = FindAvailableCharClassId(argument);
-			}
-			if (class_num != -1) {
-				class_id = MUD::Classes().FindAvailableItem(class_num - 1).GetId();
-			}
-
-			if (class_id == ECharClass::kUndefined) {
-				iosystem::write_to_output("\r\nЭто не профессия.\r\nПрофессия : ", d);
-				return;
-			} else {
-				d->character->set_class(class_id);
-			}
-
-			iosystem::write_to_output(religion_menu, d);
-			iosystem::write_to_output("\n\rРелигия :", d);
-			d->state = EConState::kQreligion;
+		case EConState::kQclass:
+			HandleQueryClass(d, argument);
 			break;
-		}
 
-		case EConState::kRace:        // query race
-			if (pre_help(d->character.get(), argument)) {
-				iosystem::write_to_output("Какой род вам ближе всего по духу:\r\n", d);
-				iosystem::write_to_output(string(player_races::FormatRacesMenu()).c_str(), d);
-				iosystem::write_to_output("\r\nРод: ", d);
-				d->state = EConState::kRace;
-				return;
-			}
-
-			load_result = player_races::RaceVnumByMenuChoice(argument);
-
-			if (load_result == player_races::kRaceUndefined) {
-				iosystem::write_to_output("Стыдно не помнить предков.\r\n" "Какой род вам ближе всего? ", d);
-				return;
-			}
-
-			GET_RACE(d->character) = load_result;
-			iosystem::write_to_output(string(player_races::FormatStartRegionsMenu(GET_RACE(d->character))).c_str(), d);
-			iosystem::write_to_output("\r\nГде вы хотите начать свои приключения: ", d);
-			d->state = EConState::kBirthplace;
-
+		case EConState::kRace:    // query race
+			HandleQueryRace(d, argument);
 			break;
 
 		case EConState::kBirthplace:
-			if (pre_help(d->character.get(), argument)) {
-				iosystem::write_to_output(string(player_races::FormatStartRegionsMenu(GET_RACE(d->character))).c_str(),
-						  d);
-				iosystem::write_to_output("\r\nГде вы хотите начать свои приключения: ", d);
-				d->state = EConState::kBirthplace;
-				return;
-			}
-
-			load_result = player_races::StartRegionByMenuChoice(GET_RACE(d->character), argument);
-
-			{
-				const int start_room = player_races::StartRoomForRaceRegion(GET_RACE(d->character), load_result);
-				if (load_result == player_races::kRaceUndefined || start_room == kNowhere) {
-					iosystem::write_to_output("Не уверены? Бывает.\r\n"
-							  "Подумайте еще разок, и выберите:", d);
-					return;
-				}
-				GET_LOADROOM(d->character) = start_room;
-			}
-			iosystem::write_to_output(genchar_help, d);
-			iosystem::write_to_output("\r\n\r\nНажмите любую клавишу.\r\n", d);
-			d->state = EConState::kRollStats;
-			SetStartAbils(d->character.get());
+			HandleBirthplace(d, argument);
 			break;
 
 		case EConState::kRollStats:
-			if (pre_help(d->character.get(), argument)) {
-				genchar_disp_menu(d->character.get());
-				d->state = EConState::kRollStats;
-				return;
-			}
-
-			switch (genchar_parse(d->character.get(), argument)) {
-				case kGencharContinue: genchar_disp_menu(d->character.get());
-					break;
-				default: iosystem::write_to_output("\r\nВведите ваш E-mail"
-								   "\r\n(ВСЕ ВАШИ ПЕРСОНАЖИ ДОЛЖНЫ ИМЕТЬ ОДИНАКОВЫЙ E-mail)."
-								   "\r\nНа этот адрес вам будет отправлен код для подтверждения: ", d);
-					d->state = EConState::kGetEmail;
-					break;
-			}
+			HandleRollStats(d, argument);
 			break;
 
 		case EConState::kGetEmail:
-			if (!*argument) {
-				iosystem::write_to_output("\r\nВаш E-mail : ", d);
-				return;
-			} else if (!IsValidEmail(argument)) {
-				iosystem::write_to_output("\r\nНекорректный E-mail!" "\r\nВаш E-mail :  ", d);
-				return;
-			}
-#ifdef TEST_BUILD
-			strncpy(GET_EMAIL(d->character), argument, 127);
-	  *(GET_EMAIL(d->character) + 127) = '\0';
-	  utils::ConvertToLow(GET_EMAIL(d->character));
-	  DoAfterEmailConfirm(d);
-	  break;
-#endif
-			{
-				int random_number = number(1000000, 9999999);
-				new_char_codes[d->character->GetCharAliases()] = random_number;
-				strncpy(GET_EMAIL(d->character), argument, 127);
-				*(GET_EMAIL(d->character) + 127) = '\0';
-				utils::ConvertToLow(GET_EMAIL(d->character));
-				std::string cmd_line =
-					fmt::format("python3 send_code.py {} {} &", GET_EMAIL(d->character), random_number);
-				auto result = system(cmd_line.c_str());
-				UNUSED_ARG(result);
-				iosystem::write_to_output("\r\nВам на электронную почту был выслан код. Введите его, пожалуйста: \r\n", d);
-				d->state = EConState::kRandomNumber;
-			}
+			HandleGetEmail(d, argument);
 			break;
 
 		case EConState::kRmotd:    // read CR after printing motd
-			if (!check_dupes_email(d)) {
-				d->state = EConState::kClose;
-				break;
-			}
-
-			do_entergame(d);
-
+			HandleReadMotd(d, argument);
 			break;
 
-		case EConState::kRandomNumber: {
-			int code_rand = atoi(argument);
-
-			if (new_char_codes.count(d->character->GetCharAliases()) != 0) {
-				if (new_char_codes[d->character->GetCharAliases()] != code_rand) {
-					iosystem::write_to_output("\r\nВы ввели неправильный код, попробуйте еще раз.\r\n", d);
-					break;
-				}
-				new_char_codes.erase(d->character->GetCharAliases());
-				DoAfterEmailConfirm(d);
-				break;
-			}
-
-			if (new_loc_codes.count(GET_EMAIL(d->character)) == 0) {
-				break;
-			}
-
-			if (new_loc_codes[GET_EMAIL(d->character)] != code_rand) {
-				iosystem::write_to_output("\r\nВы ввели неправильный код, попробуйте еще раз.\r\n", d);
-				d->state = EConState::kClose;
-				break;
-			}
-
-			new_loc_codes.erase(GET_EMAIL(d->character));
-			network::add_logon_record(d);
-			DoAfterPassword(d);
-
+		case EConState::kRandomNumber:
+			HandleRandomNumber(d, argument);
 			break;
-		}
 
 		case EConState::kMenu:    // get selection from main menu
 			HandleMainMenu(d, argument);
 			break;
 		case EConState::kChpwdGetOld:
-			if (!Password::compare_password(d->character.get(), argument)) {
-				iosystem::write_to_output("\r\nНеверный пароль.\r\n", d);
-				iosystem::write_to_output(MENU, d);
-				d->state = EConState::kMenu;
-			} else {
-				iosystem::write_to_output("\r\nВведите НОВЫЙ пароль : ", d);
-				d->state = EConState::kChpwdGetNew;
-			}
-
-			return;
+			HandleGetOldPassword(d, argument);
+			break;
 
 		case EConState::kDelcnf1:
-			if (!Password::compare_password(d->character.get(), argument)) {
-				iosystem::write_to_output("\r\nНеверный пароль.\r\n", d);
-				iosystem::write_to_output(MENU, d);
-				d->state = EConState::kMenu;
-			} else {
-				iosystem::write_to_output("\r\n!!! ВАШ ПЕРСОНАЖ БУДЕТ УДАЛЕН !!!\r\n"
-						  "Вы АБСОЛЮТНО В ЭТОМ УВЕРЕНЫ?\r\n\r\n"
-						  "Наберите \"YES / ДА\" для подтверждения: ", d);
-				d->state = EConState::kDelcnf2;
-			}
-
+			HandleDeleteConfirm1(d, argument);
 			break;
 
 		case EConState::kDelcnf2:
-			if (!strcmp(argument, "yes")
-				|| !strcmp(argument, "YES")
-				|| !strcmp(argument, "да")
-				|| !strcmp(argument, "ДА")) {
-				if (d->character->IsFlagged(EPlrFlag::kFrozen)) {
-					iosystem::write_to_output("Вы решились на суицид, но Боги остановили вас.\r\n", d);
-					iosystem::write_to_output("Персонаж не удален.\r\n", d);
-					d->state = EConState::kClose;
-					return;
-				}
-				if (GetRealLevel(d->character) >= kLvlGreatGod) {
-					return;
-				}
-				DeletePcByHimself(GET_NAME(d->character));
-				sprintf(buffer, "Персонаж '%s' удален!\r\n" "До свидания.\r\n", GET_NAME(d->character));
-				iosystem::write_to_output(buffer, d);
-				sprintf(buffer, "%s (lev %d) has self-deleted.", GET_NAME(d->character), GetRealLevel(d->character));
-				mudlog(buffer, NRM, kLvlGod, SYSLOG, true);
-				d->character->get_account()->remove_player(d->character->get_uid());
-				d->state = EConState::kClose;
-				return;
-			} else {
-				iosystem::write_to_output("\r\nПерсонаж не удален.\r\n", d);
-				iosystem::write_to_output(MENU, d);
-				d->state = EConState::kMenu;
-			}
+			HandleDeleteConfirm2(d, argument);
 			break;
 
 		case EConState::kName2:
@@ -2250,106 +2458,18 @@ void ProcessLoginInput(DescriptorData *d, char *argument) {
 		case EConState::kClose: break;
 
 		case EConState::kResetStats:
-			if (pre_help(d->character.get(), argument)) {
-				return;
-			}
-
-			switch (genchar_parse(d->character.get(), argument)) {
-				case kGencharContinue: genchar_disp_menu(d->character.get());
-					break;
-
-				default:
-					// после перераспределения и сейва в genchar_parse стартовых статов надо учесть морты и славу
-					GloryMisc::recalculate_stats(d->character.get());
-					// статы срезетили и новые выбрали
-					sprintf(buffer, "\r\n%sБлагодарим за сотрудничество. Ж)%s\r\n", kColorBoldGrn, kColorNrm);
-					iosystem::write_to_output(buffer, d);
-
-					// Проверяем корректность статов
-					// Если что-то некорректно, функция проверки сама вернет чара на доработку.
-					if (!ValidateStats(d)) {
-						return;
-					}
-
-					iosystem::write_to_output("\r\n* В связи с проблемами перевода фразы ANYKEY нажмите ENTER *", d);
-					d->state = EConState::kRmotd;
-			}
-
+			HandleResetStats(d, argument);
 			break;
 
 		case EConState::kResetRace:
-			if (pre_help(d->character.get(), argument)) {
-				iosystem::write_to_output("Какой род вам ближе всего по духу:\r\n", d);
-				iosystem::write_to_output(string(player_races::FormatRacesMenu()).c_str(), d);
-				iosystem::write_to_output("\r\nРод: ", d);
-				d->state = EConState::kResetRace;
-				return;
-			}
-
-			load_result = player_races::RaceVnumByMenuChoice(argument);
-
-			if (load_result == player_races::kRaceUndefined) {
-				iosystem::write_to_output("Стыдно не помнить предков.\r\n" "Какой род вам ближе всего? ", d);
-				return;
-			}
-
-			GET_RACE(d->character) = load_result;
-
-			if (!ValidateStats(d)) {
-				return;
-			}
-
-			// способности нового рода проставятся дальше в do_entergame
-			iosystem::write_to_output("\r\n* В связи с проблемами перевода фразы ANYKEY нажмите ENTER *", d);
-			d->state = EConState::kRmotd;
-
+			HandleResetRace(d, argument);
 			break;
 
 		case EConState::kMenuStats: stats_reset::parse_menu(d, argument);
 			break;
 
 		case EConState::kResetReligion:
-			if (pre_help(d->character.get(), argument)) {
-				iosystem::write_to_output(religion_menu, d);
-				iosystem::write_to_output("\n\rРелигия :", d);
-				return;
-			}
-
-			switch (UPPER(*argument)) {
-				case 'Я':
-				case 'З':
-				case 'P':
-					if (class_religion[to_underlying(d->character->GetClass())] == kReligionMono) {
-						iosystem::write_to_output("Персонаж выбранной вами профессии не желает быть язычником!\r\n"
-						 "Так каким Богам вы хотите служить? ", d);
-						return;
-					}
-					GET_RELIGION(d->character) = kReligionPoly;
-					break;
-
-				case 'Х':
-				case 'C':
-					if (class_religion[to_underlying(d->character->GetClass())] == kReligionPoly) {
-						iosystem::write_to_output("Персонажу выбранной вами профессии противно христианство!\r\n"
-								   "Так каким Богам вы хотите служить? ", d);
-						return;
-					}
-
-					GET_RELIGION(d->character) = kReligionMono;
-
-					break;
-
-				default: iosystem::write_to_output("Атеизм сейчас не моден :)\r\n" "Так каким Богам вы хотите служить? ", d);
-					return;
-			}
-
-			if (!ValidateStats(d)) {
-				return;
-			}
-
-			iosystem::write_to_output("\r\n* В связи с проблемами перевода фразы ANYKEY нажмите ENTER *", d);
-			d->state = EConState::kRmotd;
-
+			HandleResetReligion(d, argument);
 			break;
 
 		default:
