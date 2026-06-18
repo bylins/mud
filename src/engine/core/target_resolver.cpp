@@ -498,6 +498,18 @@ ObjData *FindObjAround(CharData *finder, std::string_view name) {
 	return ResolveObj(finder, q);
 }
 
+// World-wide object lookup by name: local scopes first (так первым найдётся то,
+// что под рукой), затем весь реестр world_objects. Восстанавливает поведение
+// старого get_obj_vis -- нужно командам уровня бога вроде do_stat, которым важно
+// найти предмет где угодно в мире (надет на другого игрока, в хранилище и т.п.).
+ObjData *FindObjInWorld(CharData *finder, std::string_view name) {
+	Query q;
+	q.scopes = {Scope::kEquip, Scope::kInventory, Scope::kRoom, Scope::kWorld};
+	q.name = std::string(name);
+	q.walk_containers = true;
+	return ResolveObj(finder, q);
+}
+
 ObjData *FindObjByRnum(ObjRnum rnum) {
 	Query q;
 	q.scopes = {Scope::kRnum};

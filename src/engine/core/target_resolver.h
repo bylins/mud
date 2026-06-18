@@ -188,11 +188,13 @@ std::vector<ObjData *>  ResolveObjs (CharData *searcher, const Query &q);
 //   FindCharInRoom  -- scopes = {kRoom}
 //   FindCharInWorld -- scopes = {kRoom, kWorld}, PC-priority world walk
 //   FindObjAround   -- scopes = {kEquip, kInventory, kRoom}, walks containers
+//   FindObjInWorld  -- scopes = {kEquip, kInventory, kRoom, kWorld} (legacy get_obj_vis)
 //   FindObjByRnum   -- direct world-registry lookup by rnum
 //
 CharData *FindCharInRoom (CharData *finder, std::string_view name);
 CharData *FindCharInWorld(CharData *finder, std::string_view name);
 ObjData  *FindObjAround  (CharData *finder, std::string_view name);
+ObjData  *FindObjInWorld (CharData *finder, std::string_view name);
 ObjData  *FindObjByRnum  (ObjRnum rnum);
 
 // FindPlayer: PC-only world walk. Bypasses CanSee so admin / system code
