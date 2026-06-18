@@ -7,7 +7,6 @@
 #include "engine/entities/char_data.h"
 #include "gameplay/affects/affect_handler.h"
 #include "gameplay/mechanics/alignment.h"
-#include "administration/privilege.h"
 #include "utils/grammar/declensions.h"
 #include "gameplay/mechanics/minions.h"
 #include "gameplay/mechanics/mount.h"

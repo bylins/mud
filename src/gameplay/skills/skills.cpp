@@ -8,7 +8,6 @@
 ************************************************************************ */
 
 #include "engine/db/obj_prototypes.h"
-#include "administration/privilege.h"
 #include "utils/logger.h"
 #include "gameplay/core/experience.h"
 #include "gameplay/mechanics/minions.h"
