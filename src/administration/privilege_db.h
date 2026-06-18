@@ -30,7 +30,7 @@ inline constexpr bool kLegacyPrivilege = true;
 // Privileged tiers, highest first (declared seniority order in the file is purely for readability).
 // Membership in a tier is by name+uid; cumulative nesting (owner > implementator > great-god > god >
 // demigod) is applied by the decision API in P2.
-enum class EGodTier { kOwner, kImplementator, kGreatGod, kGod, kDemigod, kNone };
+enum class EGodTier { kOwner, kImplementator, kGreatGod, kGod, kImmortal, kDemigod, kNone };
 
 // One privileged character as declared in the file. Command access is stored split by kind; group
 // references are kept unexpanded here and resolved by the decision API. `flags` are capability tokens

@@ -25,6 +25,7 @@ EGodTier TierFromSection(const char *tag) {
 	if (!std::strcmp(tag, "implementators")) return EGodTier::kImplementator;
 	if (!std::strcmp(tag, "great_gods")) return EGodTier::kGreatGod;
 	if (!std::strcmp(tag, "gods")) return EGodTier::kGod;
+	if (!std::strcmp(tag, "immortals")) return EGodTier::kImmortal;
 	if (!std::strcmp(tag, "demigods")) return EGodTier::kDemigod;
 	return EGodTier::kNone;
 }
