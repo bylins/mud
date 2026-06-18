@@ -1,0 +1,182 @@
+#include "engine/scripting/lua/lua_internal.h"
+
+#if defined(WITH_LUAJIT_PROTOTYPE)
+
+#include "engine/core/handler.h"
+#include "engine/db/obj_prototypes.h"
+#include "engine/db/world_objects.h"
+#include "engine/entities/char_data.h"
+#include "engine/scripting/dg_scripts.h"
+#include "utils/logger.h"
+#include "utils/random.h"
+
+namespace lua_scripting {
+namespace {
+
+ObjData *LoadObjToRoom(const sol::object &vnum, const sol::object &room)
+{
+	const auto room_rnum = GetRoomFromLua(room);
+	if (!vnum.is<int>() || !IsValidRoom(LuaRoomView{room_rnum}))
+	{
+		return nullptr;
+	}
+
+	const auto obj_rnum = GetObjRnum(vnum.as<int>());
+	if (obj_rnum < 0)
+	{
+		return nullptr;
+	}
+
+	const auto obj = world_objects.create_from_prototype_by_rnum(obj_rnum);
+	if (!obj)
+	{
+		return nullptr;
+	}
+
+	obj->set_vnum_zone_from(zone_table[world[room_rnum]->zone_rn].vnum);
+	PlaceObjToRoom(obj.get(), room_rnum);
+	load_otrigger(obj.get());
+	if (CheckObjDecay(obj.get()))
+	{
+		return nullptr;
+	}
+	return obj.get();
+}
+
+CharData *LoadMobToRoom(const sol::object &vnum, const sol::object &room)
+{
+	const auto room_rnum = GetRoomFromLua(room);
+	if (!vnum.is<int>() || !IsValidRoom(LuaRoomView{room_rnum}))
+	{
+		return nullptr;
+	}
+
+	const auto mob_rnum = GetMobRnum(vnum.as<int>());
+	if (mob_rnum < 0)
+	{
+		return nullptr;
+	}
+
+	auto *mob = ReadMobile(mob_rnum, kReal);
+	if (!mob)
+	{
+		return nullptr;
+	}
+
+	PlaceCharToRoom(mob, room_rnum);
+	load_mtrigger(mob);
+
+	return mob;
+}
+
+bool MudPurge(const sol::object &lua_entity)
+{
+	if (!lua_entity.is<sol::table>())
+	{
+		return false;
+	}
+
+	sol::table entity_table = lua_entity;
+	const sol::object purge = entity_table["purge"];
+	if (purge.get_type() != sol::type::function)
+	{
+		return false;
+	}
+
+	const sol::protected_function purge_function = purge;
+	const sol::protected_function_result result = purge_function();
+	return result.valid() && result.get_type(0) == sol::type::boolean && result.get<bool>();
+}
+
+int GetCurrentObjectCount(const sol::object &vnum)
+{
+	if (!vnum.is<int>())
+	{
+		return 0;
+	}
+
+	const auto rnum = GetObjRnum(vnum.as<int>());
+	if (rnum == kNothing)
+	{
+		return 0;
+	}
+
+	return obj_proto.actual_count(rnum);
+}
+
+int MudRandom(const sol::object &limit)
+{
+	if (!limit.is<int>())
+	{
+		return 0;
+	}
+
+	const auto n = limit.as<int>();
+	return n > 0 ? number(1, n) : 0;
+}
+
+bool MudLog(LuaRuntimeContext runtime, const sol::object &message)
+{
+	if (!message.is<std::string>())
+	{
+		return false;
+	}
+
+	const auto text = message.as<std::string>();
+	if (text.empty())
+	{
+		return false;
+	}
+
+	char buf[kMaxStringLength];
+	snprintf(buf, sizeof(buf), "(Lua trigger: %s, VNum: %d, owner vnum: %d, owner uid: %ld) : %s",
+		GetTriggerName(runtime.trigger),
+		GetTriggerVnum(runtime.trigger),
+		GetOwnerVnum(runtime.owner),
+		GetOwnerUid(runtime.owner),
+		text.c_str());
+	script_log(buf, LogMode::OFF);
+	return true;
+}
+
+} // namespace
+
+sol::table BuildMudNamespace(sol::state &lua, LuaRuntimeContext runtime)
+{
+	sol::table mud = lua.create_table();
+	mud["log"] = [runtime](const sol::object &message) {
+		return MudLog(runtime, message);
+	};
+	mud["random"] = [](const sol::object &limit) {
+		return MudRandom(limit);
+	};
+	mud["room"] = [&lua](const sol::object &vnum) {
+		return BuildRoomViewByVnum(lua, vnum);
+	};
+	mud["load_obj"] = [&lua](const sol::object &vnum, const sol::object &room) {
+		return BuildObjView(lua, LoadObjToRoom(vnum, room));
+	};
+	mud["load_mob"] = [&lua, runtime](const sol::object &vnum, const sol::object &room) {
+		return BuildCharView(lua, LoadMobToRoom(vnum, room), runtime);
+	};
+	mud["purge"] = [](const sol::object &entity) {
+		return MudPurge(entity);
+	};
+	mud["damage"] = [runtime](const sol::object &victim, const sol::object &amount, const sol::object &type) {
+		return MudDamage(runtime, victim, amount, type);
+	};
+
+	sol::table world_table = lua.create_table();
+	world_table["cur_obj_count"] = [](const sol::object &vnum) {
+		return GetCurrentObjectCount(vnum);
+	};
+	mud["world"] = world_table;
+
+	return mud;
+}
+
+} // namespace lua_scripting
+
+#endif // WITH_LUAJIT_PROTOTYPE
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :
