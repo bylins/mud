@@ -5009,10 +5009,10 @@
 			<action>
 				<target_conditions>
 					<blocking>
-						<mob_flags val="kHelper|kMounting|kClone" />
+						<mob_flags val="kHelper|kMounting|kClone|kResurrected" />
 					</blocking>
 					<required>
-						<mob_flags val="kCorpse|kResurrected" />
+						<mob_flags val="kCorpse" />
 					</required>
 				</target_conditions>
 				<affects type="kStoneBones" saving="kNone" resist="kEarth">
