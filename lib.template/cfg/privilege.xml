@@ -39,7 +39,7 @@
   Группы default, default_demigod и arena ЗАШИТЫ в коде и применяются автоматически по тиру -
   в этом файле их перечислять не нужно. Имена/uid берутся из players.lst.
 -->
-<privileges>
+<privilege>
     <command_groups>
     </command_groups>
     <god_list>
@@ -55,4 +55,4 @@
         <immortals/>
         <demigods/>
     </god_list>
-</privileges>
+</privilege>
