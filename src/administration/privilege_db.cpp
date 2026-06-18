@@ -157,6 +157,18 @@ void DoLoad(parser_wrapper::DataNode data) {
 		}
 	}
 	log("privilege.xml loaded: %d command groups, %d privileged characters.", groups, gods);
+	// Validate <groups> references: an id with no matching <command_groups> entry silently grants
+	// nothing (a common config mistake). The hardcoded default/default_demigod/arena groups are
+	// applied by tier and intentionally not declared here, so they are not expected as references.
+	for (const auto &[uid, entry] : g_db.entries()) {
+		for (const auto &gid : entry.groups) {
+			if (g_db.groups().find(gid) == g_db.groups().end()) {
+				log("SYSERR: privilege.xml: entry '%s' (uid %ld) references undefined command group "
+					"'%s' (grants nothing) -- define it in <command_groups> or drop the reference.",
+					entry.name.c_str(), uid, gid.c_str());
+			}
+		}
+	}
 	if constexpr (!kLegacyPrivilege) {
 		privilege::LoadGodBoards();
 	}
