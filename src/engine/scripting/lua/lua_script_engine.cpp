@@ -8,11 +8,23 @@
 #include "engine/entities/char_data.h"
 #include "engine/entities/obj_data.h"
 #include "engine/scripting/dg_scripts.h"
+#include "engine/ui/interpreter.h"
+#include "gameplay/magic/spells.h"
+#include "gameplay/mechanics/damage.h"
 #include "utils/logger.h"
 #include "utils/random.h"
+#include "utils/utils_string.h"
+#include "utils/utils.h"
+
+#include <algorithm>
+#include <array>
 
 #if defined(WITH_LUAJIT_PROTOTYPE)
 #include <sol/sol.hpp>
+#endif
+
+#if defined(WITH_LUAJIT_PROTOTYPE)
+bool mob_script_command_interpreter(CharData *ch, char *argument, Trigger *trig);
 #endif
 
 namespace lua_scripting {
@@ -36,6 +48,16 @@ struct LuaEntityHandle {
 	CharData *ch = nullptr;
 	object_id_t obj_id = 0;
 };
+
+struct LuaRuntimeContext {
+	Trigger *trigger = nullptr;
+	CharData *owner = nullptr;
+	sol::table entity_handles;
+};
+
+constexpr int kLuaMaxTriggerDamage = 1000000;
+
+sol::object BuildCharView(sol::state &lua, CharData *ch, LuaRuntimeContext runtime);
 
 LuaEntityHandle MakeCharHandle(CharData *ch)
 {
@@ -108,6 +130,33 @@ ObjData *ResolveObj(const LuaEntityHandle &handle)
 bool IsValidEntity(const LuaEntityHandle &handle)
 {
 	return ResolveChar(handle) || ResolveObj(handle);
+}
+
+CharData *GetLuaCharFromObject(const sol::object &entity, LuaRuntimeContext runtime)
+{
+	if (!entity.is<sol::table>())
+	{
+		return nullptr;
+	}
+
+	sol::table entity_table = entity;
+	const sol::object handle = runtime.entity_handles[entity_table];
+	if (!handle.is<void*>())
+	{
+		return nullptr;
+	}
+
+	auto *ch = static_cast<CharData *>(handle.as<void*>());
+	return ResolveChar(MakeCharHandle(ch));
+}
+
+bool LogLuaApiError(Trigger *trigger, const char *message)
+{
+	char buf[kMaxStringLength];
+	snprintf(buf, sizeof(buf), "(Lua trigger: %s, VNum: %d) : %s",
+		GetTriggerName(trigger), GetTriggerVnum(trigger), message);
+	script_log(buf, LogMode::OFF);
+	return false;
 }
 
 std::string GetCharName(const LuaEntityHandle &handle)
@@ -192,6 +241,49 @@ bool SendToChar(const LuaEntityHandle &handle, const sol::object &message)
 	return true;
 }
 
+bool ForceCharCommand(Trigger *trigger, const LuaEntityHandle &handle, const sol::object &command)
+{
+	auto *ch = ResolveChar(handle);
+	if (!ch)
+	{
+		return LogLuaApiError(trigger, "force: invalid character");
+	}
+	if (!command.is<std::string>())
+	{
+		return LogLuaApiError(trigger, "force: command must be a string");
+	}
+
+	auto text = command.as<std::string>();
+	utils::Trim(text);
+	if (text.empty())
+	{
+		return LogLuaApiError(trigger, "force: empty command");
+	}
+	if (text.size() >= kMaxInputLength)
+	{
+		return LogLuaApiError(trigger, "force: command is too long");
+	}
+	if (!ch->IsNpc() && !ch->desc)
+	{
+		return LogLuaApiError(trigger, "force: player has no descriptor");
+	}
+	if (!ch->IsNpc() && GetRealLevel(ch) >= kLvlImmortal)
+	{
+		return LogLuaApiError(trigger, "force: immortal target");
+	}
+
+	std::array<char, kMaxInputLength> command_buffer{};
+	std::copy(text.begin(), text.end(), command_buffer.begin());
+
+	if (ch->IsNpc() && mob_script_command_interpreter(ch, command_buffer.data(), trigger))
+	{
+		return LogLuaApiError(trigger, "force: mob trigger commands are not allowed");
+	}
+
+	command_interpreter(ch, command_buffer.data());
+	return true;
+}
+
 int GetRoomVnum(const LuaRoomView &view)
 {
 	return IsValidRoom(view) ? world[view.room]->vnum : 0;
@@ -267,7 +359,86 @@ bool PurgeEntity(const LuaEntityHandle &handle)
 	return true;
 }
 
-sol::object BuildCharView(sol::state &lua, CharData *ch)
+bool ParseLuaDamageType(const sol::object &type, fight::DmgType &damage_type)
+{
+	if (type.get_type() == sol::type::nil)
+	{
+		damage_type = fight::kPureDmg;
+		return true;
+	}
+	if (!type.is<std::string>())
+	{
+		return false;
+	}
+
+	const auto name = type.as<std::string>();
+	if (name == "physic")
+	{
+		damage_type = fight::kPhysDmg;
+		return true;
+	}
+	if (name == "magic")
+	{
+		damage_type = fight::kMagicDmg;
+		return true;
+	}
+	if (name == "poisonous")
+	{
+		damage_type = fight::kPoisonDmg;
+		return true;
+	}
+
+	return false;
+}
+
+bool MudDamage(
+	LuaRuntimeContext runtime,
+	const sol::object &victim_object,
+	const sol::object &amount_object,
+	const sol::object &type_object)
+{
+	auto *victim = GetLuaCharFromObject(victim_object, runtime);
+	if (!victim)
+	{
+		return LogLuaApiError(runtime.trigger, "damage: victim must be a character");
+	}
+	if (!amount_object.is<int>())
+	{
+		return LogLuaApiError(runtime.trigger, "damage: amount must be an integer");
+	}
+
+	const auto amount = amount_object.as<int>();
+	if (amount <= 0 || amount > kLuaMaxTriggerDamage)
+	{
+		return LogLuaApiError(runtime.trigger, "damage: amount is out of range");
+	}
+
+	fight::DmgType damage_type = fight::kPureDmg;
+	if (!ParseLuaDamageType(type_object, damage_type))
+	{
+		return LogLuaApiError(runtime.trigger, "damage: incorrect damage type");
+	}
+
+	auto *attacker = runtime.owner;
+	if (!attacker || !ResolveChar(MakeCharHandle(attacker)))
+	{
+		attacker = victim;
+	}
+	if (victim->in_room == kNowhere || attacker->in_room == kNowhere)
+	{
+		return LogLuaApiError(runtime.trigger, "damage: character is not in room");
+	}
+	if (victim->IsImmortal() && amount > 0)
+	{
+		return LogLuaApiError(runtime.trigger, "damage: immortal victim");
+	}
+
+	Damage damage(SimpleDmg(kTypeTriggerdeath), amount, damage_type);
+	damage.Process(attacker, victim);
+	return true;
+}
+
+sol::object BuildCharView(sol::state &lua, CharData *ch, LuaRuntimeContext runtime)
 {
 	if (!ch)
 	{
@@ -276,8 +447,9 @@ sol::object BuildCharView(sol::state &lua, CharData *ch)
 
 	auto handle = MakeCharHandle(ch);
 	sol::table view = lua.create_table();
+	runtime.entity_handles[view] = static_cast<void *>(ch);
 	sol::table metatable = lua.create_table();
-	metatable[sol::meta_function::index] = [&lua, handle](sol::object, const std::string &key) -> sol::object {
+	metatable[sol::meta_function::index] = [&lua, handle, runtime](sol::object, const std::string &key) -> sol::object {
 		if (key == "name")
 		{
 			return sol::make_object(lua, GetCharName(handle));
@@ -322,6 +494,12 @@ sol::object BuildCharView(sol::state &lua, CharData *ch)
 		{
 			return sol::make_object(lua, sol::as_function([handle](sol::object message) {
 				return SendToChar(handle, message);
+			}));
+		}
+		if (key == "force")
+		{
+			return sol::make_object(lua, sol::as_function([runtime, handle](sol::object, sol::object command) {
+				return ForceCharCommand(runtime.trigger, handle, command);
 			}));
 		}
 		if (key == "purge")
@@ -577,11 +755,11 @@ bool MudLog(Trigger *trigger, const sol::object &message)
 	return true;
 }
 
-sol::table BuildMudNamespace(sol::state &lua, Trigger *trigger)
+sol::table BuildMudNamespace(sol::state &lua, LuaRuntimeContext runtime)
 {
 	sol::table mud = lua.create_table();
-	mud["log"] = [trigger](const sol::object &message) {
-		return MudLog(trigger, message);
+	mud["log"] = [runtime](const sol::object &message) {
+		return MudLog(runtime.trigger, message);
 	};
 	mud["random"] = [](const sol::object &limit) {
 		return MudRandom(limit);
@@ -592,11 +770,14 @@ sol::table BuildMudNamespace(sol::state &lua, Trigger *trigger)
 	mud["load_obj"] = [&lua](const sol::object &vnum, const sol::object &room) {
 		return BuildObjView(lua, LoadObjToRoom(vnum, room));
 	};
-	mud["load_mob"] = [&lua](const sol::object &vnum, const sol::object &room) {
-		return BuildCharView(lua, LoadMobToRoom(vnum, room));
+	mud["load_mob"] = [&lua, runtime](const sol::object &vnum, const sol::object &room) {
+		return BuildCharView(lua, LoadMobToRoom(vnum, room), runtime);
 	};
 	mud["purge"] = [](const sol::object &entity) {
 		return MudPurge(entity);
+	};
+	mud["damage"] = [runtime](const sol::object &victim, const sol::object &amount, const sol::object &type) {
+		return MudDamage(runtime, victim, amount, type);
 	};
 
 	sol::table world_table = lua.create_table();
@@ -634,19 +815,19 @@ void LogLuaError(const Trigger *trigger, const sol::error &err)
 	mudlog(buf, BRF, kLvlBuilder, ERRLOG, true);
 }
 
-sol::table BuildLuaContext(sol::state &lua, Trigger *trigger, const LuaTriggerContext &source)
+sol::table BuildLuaContext(sol::state &lua, const LuaTriggerContext &source, LuaRuntimeContext runtime)
 {
 	sol::table ctx = lua.create_table();
 	sol::table trigger_table = lua.create_table();
 
-	trigger_table["vnum"] = GetTriggerVnum(trigger);
-	trigger_table["rnum"] = trigger ? trigger->get_rnum() : -1;
-	trigger_table["name"] = trigger ? trigger->get_name() : "";
-	trigger_table["attach_type"] = trigger ? static_cast<int>(trigger->get_attach_type()) : 0;
-	trigger_table["trigger_type"] = trigger ? trigger->get_trigger_type() : 0;
+	trigger_table["vnum"] = GetTriggerVnum(runtime.trigger);
+	trigger_table["rnum"] = runtime.trigger ? runtime.trigger->get_rnum() : -1;
+	trigger_table["name"] = runtime.trigger ? runtime.trigger->get_name() : "";
+	trigger_table["attach_type"] = runtime.trigger ? static_cast<int>(runtime.trigger->get_attach_type()) : 0;
+	trigger_table["trigger_type"] = runtime.trigger ? runtime.trigger->get_trigger_type() : 0;
 	ctx["trigger"] = trigger_table;
-	ctx["owner"] = BuildCharView(lua, source.owner);
-	ctx["actor"] = BuildCharView(lua, source.actor);
+	ctx["owner"] = BuildCharView(lua, source.owner, runtime);
+	ctx["actor"] = BuildCharView(lua, source.actor, runtime);
 	ctx["room"] = BuildRoomView(lua, source.owner);
 
 	return ctx;
@@ -710,8 +891,13 @@ int LuaScriptEngine::RunTrigger(Trigger *trigger, const LuaTriggerContext &ctx)
 	lua.open_libraries(sol::lib::base, sol::lib::math, sol::lib::string, sol::lib::table);
 	HardenLuaState(lua);
 
-	lua["mud"] = BuildMudNamespace(lua, trigger);
-	sol::table lua_ctx = BuildLuaContext(lua, trigger, ctx);
+	LuaRuntimeContext runtime;
+	runtime.trigger = trigger;
+	runtime.owner = ctx.owner;
+	runtime.entity_handles = lua.create_table();
+
+	lua["mud"] = BuildMudNamespace(lua, runtime);
+	sol::table lua_ctx = BuildLuaContext(lua, ctx, runtime);
 	const auto result = lua.safe_script(trigger->get_lua_script_source(), sol::script_pass_on_error);
 	return ConvertLuaResult(result, trigger, lua_ctx, true);
 #else
