@@ -70,6 +70,7 @@ void InstallLuaRuntimeLimits(lua_State *state, LuaExecutionBudget &budget);
 void ClearLuaRuntimeLimits(sol::state &lua);
 void ClearLuaRuntimeLimits(lua_State *state);
 sol::object BuildCharView(sol::state &lua, CharData *ch, LuaRuntimeContext runtime);
+sol::object BuildScriptContextView(sol::state &lua, Script *script, long context);
 sol::object BuildObjView(sol::state &lua, ObjData *obj);
 sol::object BuildRoomView(sol::state &lua, CharData *owner);
 sol::object BuildRoomViewByVnum(sol::state &lua, const sol::object &vnum);

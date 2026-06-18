@@ -19,6 +19,7 @@
 
 #include <algorithm>
 #include <array>
+#include <sstream>
 
 bool mob_script_command_interpreter(CharData *ch, char *argument, Trigger *trig);
 
@@ -288,6 +289,116 @@ bool ParseLuaDamageType(const sol::object &type, fight::DmgType &damage_type)
 	return false;
 }
 
+std::string LuaContextValueToString(const sol::object &value)
+{
+	if (value.is<bool>())
+	{
+		return value.as<bool>() ? "1" : "0";
+	}
+	if (value.is<int>())
+	{
+		return std::to_string(value.as<int>());
+	}
+	if (value.get_type() == sol::type::number)
+	{
+		std::ostringstream out;
+		out << value.as<double>();
+		return out.str();
+	}
+	if (value.is<std::string>())
+	{
+		return value.as<std::string>();
+	}
+
+	return "";
+}
+
+std::string NormalizeScriptContextKey(std::string key)
+{
+	utils::ConvertToLow(key);
+	return key;
+}
+
+std::list<TriggerVar>::const_iterator FindScriptContextVar(
+	const std::list<TriggerVar> &var_list,
+	const std::string &key,
+	long context)
+{
+	const auto normalized_key = NormalizeScriptContextKey(key);
+	return std::find_if(var_list.begin(), var_list.end(), [&normalized_key, context](const TriggerVar &var) {
+		return var.name == normalized_key && var.context == context;
+	});
+}
+
+std::list<TriggerVar>::iterator FindScriptContextVar(
+	std::list<TriggerVar> &var_list,
+	const std::string &key,
+	long context)
+{
+	const auto normalized_key = NormalizeScriptContextKey(key);
+	return std::find_if(var_list.begin(), var_list.end(), [&normalized_key, context](const TriggerVar &var) {
+		return var.name == normalized_key && var.context == context;
+	});
+}
+
+sol::object GetScriptContextValue(
+	sol::state &lua,
+	const Script *script,
+	long context,
+	const std::string &key,
+	const sol::object &default_value)
+{
+	if (!script || key.empty())
+	{
+		return default_value.get_type() == sol::type::none
+			? sol::make_object(lua, sol::nil)
+			: default_value;
+	}
+
+	const auto value = FindScriptContextVar(script->global_vars, key, context);
+	if (value == script->global_vars.end())
+	{
+		return default_value.get_type() == sol::type::none
+			? sol::make_object(lua, sol::nil)
+			: default_value;
+	}
+
+	return sol::make_object(lua, value->value);
+}
+
+bool SetScriptContextValue(Script *script, long context, const std::string &key, const sol::object &value)
+{
+	if (!script || key.empty())
+	{
+		return false;
+	}
+	if (!value.is<bool>() && !value.is<int>() && value.get_type() != sol::type::number && !value.is<std::string>())
+	{
+		return false;
+	}
+
+	TriggerVar variable;
+	variable.name = NormalizeScriptContextKey(key);
+	variable.value = LuaContextValueToString(value);
+	variable.context = context;
+
+	const auto existing = FindScriptContextVar(script->global_vars, key, context);
+	if (existing != script->global_vars.end())
+	{
+		*existing = variable;
+	}
+	else
+	{
+		script->global_vars.push_back(variable);
+	}
+	return true;
+}
+
+bool DeleteScriptContextValue(Script *script, long context, const std::string &key)
+{
+	return script && !key.empty() && remove_var_cntx(script->global_vars, key, context);
+}
+
 } // namespace
 
 bool MudDamage(
@@ -340,6 +451,57 @@ bool MudDamage(
 	return damage.Process(attacker, victim) != 0;
 }
 
+sol::object BuildScriptContextView(sol::state &lua, Script *script, long context)
+{
+	if (!script)
+	{
+		return sol::make_object(lua, sol::nil);
+	}
+
+	// DG owner context lifetime follows Script::global_vars: it survives mud.wait
+	// and trigger reruns for the same owner/context, and survives reboot only when
+	// the backing owner/script storage is saved by the world layer. Variable names
+	// are DG-style case-insensitive; values keep the Lua-written string case.
+	sol::table view = lua.create_table();
+	sol::table metatable = lua.create_table();
+	metatable[sol::meta_function::index] = [&lua, script, context](sol::object, const std::string &key) -> sol::object {
+		if (key == "get")
+		{
+			return sol::make_object(lua, sol::as_function([&lua, script, context](
+				sol::object,
+				const std::string &name,
+				sol::variadic_args args) {
+				const sol::object default_value = args.size() > 0
+					? static_cast<sol::object>(args[0])
+					: sol::make_object(lua, sol::nil);
+				return GetScriptContextValue(lua, script, context, name, default_value);
+			}));
+		}
+		if (key == "delete")
+		{
+			return sol::make_object(lua, sol::as_function([script, context](sol::object, const std::string &name) {
+				return DeleteScriptContextValue(script, context, name);
+			}));
+		}
+
+		return GetScriptContextValue(lua, script, context, key, sol::make_object(lua, sol::nil));
+	};
+	metatable[sol::meta_function::new_index] = [script, context](
+		sol::this_state state,
+		sol::object,
+		const std::string &key,
+		sol::object value) {
+		if (!SetScriptContextValue(script, context, key, value))
+		{
+			return luaL_error(state, "ctx.owner.context supports only string, number and boolean values");
+		}
+		return 0;
+	};
+	view[sol::metatable_key] = metatable;
+
+	return sol::make_object(lua, view);
+}
+
 sol::object BuildCharView(sol::state &lua, CharData *ch, LuaRuntimeContext runtime)
 {
 	if (!ch)
@@ -385,6 +547,12 @@ sol::object BuildCharView(sol::state &lua, CharData *ch, LuaRuntimeContext runti
 			return sol::make_object(lua, sol::as_function([handle]() {
 				return GetCharLevel(handle);
 			}));
+		}
+		if (key == "context")
+		{
+			auto *ch = ResolveChar(handle);
+			const auto context = runtime.trigger ? runtime.trigger->context : 0;
+			return BuildScriptContextView(lua, ch ? SCRIPT(ch).get() : nullptr, context);
 		}
 		if (key == "is_valid")
 		{
