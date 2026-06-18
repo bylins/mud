@@ -7,6 +7,7 @@
 
 #include "engine/db/global_objects.h"        // MUD::CfgManager
 #include "engine/entities/char_data.h"
+#include "administration/privilege.h"
 #include "engine/network/descriptor_data.h"
 #include "engine/core/comm.h"                 // SendMsgToChar
 #include "engine/ui/table_wrapper.h"          // table_wrapper::Table
@@ -1063,7 +1064,7 @@ void do_vedun(CharData *ch, char *argument, int /*cmd*/, int /*subcmd*/) {
 	if (!*what) {
 		std::vector<std::string> whats;
 		for (const auto &entry : MUD::CfgManager().EditableEntries()) {
-			whats.push_back(entry.what);
+			if (privilege::CanEditVedun(ch, entry.what)) whats.push_back(entry.what);
 		}
 		std::sort(whats.begin(), whats.end());   // list the editable data sets alphabetically
 		table_wrapper::Table table;
@@ -1088,6 +1089,10 @@ void do_vedun(CharData *ch, char *argument, int /*cmd*/, int /*subcmd*/) {
 	const auto entry = MUD::CfgManager().FindEditable(what);
 	if (!entry) {
 		SendMsgToChar(fmt::format("Vedun: unknown data set '{}'.\r\n", what), ch);
+		return;
+	}
+	if (!privilege::CanEditVedun(ch, what)) {  // issue.privilege-rework: per-file Vedun permission
+		SendMsgToChar(fmt::format("Vedun: you have no permission to edit '{}'.\r\n", what), ch);
 		return;
 	}
 

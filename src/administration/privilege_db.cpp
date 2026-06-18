@@ -122,6 +122,8 @@ void ParseEntry(parser_wrapper::DataNode entry_node, EGodTier tier) {
 			e.groups = SplitTokens(child.GetValue("list"));
 		} else if (!std::strcmp(tag, "commands")) {
 			ParseCommandList(child.GetValue("list"), e.commands, e.set_subs, e.show_subs);
+		} else if (!std::strcmp(tag, "vedun")) {
+			e.vedun = SplitTokens(child.GetValue("list"));
 		}
 	}
 	g_db.AddEntry(std::move(e));

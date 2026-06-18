@@ -44,6 +44,7 @@ struct GodEntry {
 	std::set<std::string> commands;   // plain commands
 	std::set<std::string> set_subs;   // `set (...)` subcommands
 	std::set<std::string> show_subs;  // `show (...)` subcommands
+	std::set<std::string> vedun;      // Vedun data sets this char may edit ("*"/"all" = any)
 };
 
 // The parsed privilege database. Entries are keyed by uid (the name is verified on a match by the

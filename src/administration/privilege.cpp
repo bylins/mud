@@ -169,6 +169,15 @@ std::string FlagToken(int flag) {
 
 bool ModernIsOwner(const CharData *ch) { return OwnerByName(ch); }
 
+bool ModernCanEditVedun(const CharData *ch, const std::string &what) {
+	if (OwnerByName(ch)) return true;
+	const auto *e = FindGod(ch);
+	if (!e) return false;
+	if (e->flags.count("FullAccess")) return true;
+	if (e->vedun.count("*") || e->vedun.count("all")) return true;  // wildcard = any data set
+	return e->vedun.count(what) > 0;
+}
+
 bool ModernHasPrivilege(CharData *ch, const std::string &cmd_name, int cmd_number, int mode, bool check_level) {
 	if (check_level && !mode && cmd_info[cmd_number].minimum_level < kLvlImmortal
 		&& GetRealLevel(ch) >= cmd_info[cmd_number].minimum_level) {
@@ -556,6 +565,11 @@ bool IsGrGod(const CharData *ch) { if constexpr (!kLegacyPrivilege) return AtLea
 bool IsImpl(const CharData *ch) { if constexpr (!kLegacyPrivilege) return AtLeastTier(ch, EGodTier::kImplementator); return !ch->IsNpc() && ch->GetLevel() >= kLvlImplementator; }
 
 bool IsOwner(const CharData *ch) { return ModernIsOwner(ch); }
+
+bool CanEditVedun(const CharData *ch, const std::string &what) {
+	if constexpr (kLegacyPrivilege) return true;  // no per-file Vedun restriction in legacy mode
+	return ModernCanEditVedun(ch, what);
+}
 
 } // namespace Privilege
 

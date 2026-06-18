@@ -31,6 +31,8 @@ bool CheckSkills(const CharData *ch);
 [[nodiscard]] bool IsGrGod(const CharData *ch);
 [[nodiscard]] bool IsImpl(const CharData *ch);
 [[nodiscard]] bool IsOwner(const CharData *ch);  // issue.privilege-rework: replaces is_head
+// issue.privilege-rework: may `ch` edit the Vedun data set `what` (e.g. "spells")? FullAccess/owner -> any.
+[[nodiscard]] bool CanEditVedun(const CharData *ch, const std::string &what);
 
 extern const int kBoards;
 extern const int kUseSkills;
