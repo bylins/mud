@@ -319,7 +319,13 @@ extern char *name_rules;
 // external functions
 void read_saved_vars(CharData *ch);
 void oedit_parse(DescriptorData *d, char *arg);
+void redit_parse(DescriptorData *d, char *arg);
+void zedit_parse(DescriptorData *d, char *arg);
+void medit_parse(DescriptorData *d, char *arg);
+void trigedit_parse(DescriptorData *d, char *arg);
+void init_warcry(CharData *ch);
 #include "engine/ui/login.h"
+#include "engine/olc/vedun/vedun.h"
 
 // Defined here (sole user) rather than in interpreter.cpp -- issue.interpreter-cleaning Bucket 5.
 // здесь храним коды, которые отправили игрокам на почту
@@ -372,6 +378,30 @@ int parse_exist_name(char *argument, char *name) {
  * XXX: Make immortals 'return' instead of being disconnected when switched
  *      into person returns.  This function seems a bit over-extended too.
  */
+// Connection-takeover modes + per-codepage encoding hint strings (moved from interpreter.cpp,
+// issue.after-interpreter-cleaning: their only users -- perform_dupe_check / ShowEncodingPrompt --
+// live here now).
+enum Mode {
+  UNDEFINED,
+  RECON,
+  USURP,
+  UNSWITCH
+};
+
+// Фраза 'Русская азбука: "абв...эюя".' в разных кодировках и для разных клиентов
+#define ENC_HINT_KOI8R          "\xf2\xd5\xd3\xd3\xcb\xc1\xd1 \xc1\xda\xc2\xd5\xcb\xc1: \"\xc1\xc2\xd7...\xdc\xc0\xd1\"."
+#define ENC_HINT_ALT            "\x90\xe3\xe1\xe1\xaa\xa0\xef \xa0\xa7\xa1\xe3\xaa\xa0: \"\xa0\xa1\xa2...\xed\xee\xef\"."
+#define ENC_HINT_WIN            "\xd0\xf3\xf1\xf1\xea\xe0\xff\xff \xe0\xe7\xe1\xf3\xea\xe0: \"\xe0\xe1\xe2...\xfd\xfe\xff\xff\"."
+// обход ошибки с 'я' в zMUD после ver. 6.39+ и CMUD без замены 'я' на 'z'
+#define ENC_HINT_WIN_ZMUD       "\xd0\xf3\xf1\xf1\xea\xe0\xff\xff? \xe0\xe7\xe1\xf3\xea\xe0: \"\xe0\xe1\xe2...\xfd\xfe\xff\xff?\"."
+// замена 'я' на 'z' в zMUD до ver. 6.39a для обхода ошибки,
+// а также в zMUD после ver. 6.39a для совместимости
+#define ENC_HINT_WIN_ZMUD_z     "\xd0\xf3\xf1\xf1\xea\xe0z \xe0\xe7\xe1\xf3\xea\xe0: \"\xe0\xe1\xe2...\xfd\xfez\"."
+#define ENC_HINT_WIN_ZMUD_old   ENC_HINT_WIN_ZMUD_z
+#define ENC_HINT_UTF8           "\xd0\xa0\xd1\x83\xd1\x81\xd1\x81\xd0\xba\xd0\xb0\xd1\x8f "\
+                                "\xd0\xb0\xd0\xb7\xd0\xb1\xd1\x83\xd0\xba\xd0\xb0: "\
+                                "\"\xd0\xb0\xd0\xb1\xd0\xb2...\xd1\x8d\xd1\x8e\xd1\x8f\"."
+
 int perform_dupe_check(DescriptorData *d) {
 	DescriptorData *k, *next_k;
 	Mode mode = UNDEFINED;

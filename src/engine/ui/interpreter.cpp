@@ -1308,29 +1308,6 @@ int find_name(const char *name) {
 	return PlayersIndex::NOT_FOUND == index ? -1 : static_cast<int>(index);
 }
 
-// Login / character-generation (nanny + helpers) moved to engine/ui/login.{cpp,h} (issue.interpreter-cleaning).
-
-enum Mode {
-  UNDEFINED,
-  RECON,
-  USURP,
-  UNSWITCH
-};
-
-// Фраза 'Русская азбука: "абв...эюя".' в разных кодировках и для разных клиентов
-#define ENC_HINT_KOI8R          "\xf2\xd5\xd3\xd3\xcb\xc1\xd1 \xc1\xda\xc2\xd5\xcb\xc1: \"\xc1\xc2\xd7...\xdc\xc0\xd1\"."
-#define ENC_HINT_ALT            "\x90\xe3\xe1\xe1\xaa\xa0\xef \xa0\xa7\xa1\xe3\xaa\xa0: \"\xa0\xa1\xa2...\xed\xee\xef\"."
-#define ENC_HINT_WIN            "\xd0\xf3\xf1\xf1\xea\xe0\xff\xff \xe0\xe7\xe1\xf3\xea\xe0: \"\xe0\xe1\xe2...\xfd\xfe\xff\xff\"."
-// обход ошибки с 'я' в zMUD после ver. 6.39+ и CMUD без замены 'я' на 'z'
-#define ENC_HINT_WIN_ZMUD       "\xd0\xf3\xf1\xf1\xea\xe0\xff\xff? \xe0\xe7\xe1\xf3\xea\xe0: \"\xe0\xe1\xe2...\xfd\xfe\xff\xff?\"."
-// замена 'я' на 'z' в zMUD до ver. 6.39a для обхода ошибки,
-// а также в zMUD после ver. 6.39a для совместимости
-#define ENC_HINT_WIN_ZMUD_z     "\xd0\xf3\xf1\xf1\xea\xe0z \xe0\xe7\xe1\xf3\xea\xe0: \"\xe0\xe1\xe2...\xfd\xfez\"."
-#define ENC_HINT_WIN_ZMUD_old   ENC_HINT_WIN_ZMUD_z
-#define ENC_HINT_UTF8           "\xd0\xa0\xd1\x83\xd1\x81\xd1\x81\xd0\xba\xd0\xb0\xd1\x8f "\
-                                "\xd0\xb0\xd0\xb7\xd0\xb1\xd1\x83\xd0\xba\xd0\xb0: "\
-                                "\"\xd0\xb0\xd0\xb1\xd0\xb2...\xd1\x8d\xd1\x8e\xd1\x8f\"."
-
 // generic function for commands which are normally overridden by
 // special procedures - i.e., shop commands, mail commands, etc.
 void do_not_here(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
