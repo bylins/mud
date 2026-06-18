@@ -48,7 +48,6 @@
 #include "engine/ui/cmd_god/do_shutdown.h"
 #include "engine/ui/cmd_god/do_reload.h"
 #include "engine/ui/cmd_god/do_stat.h"
-#include "engine/ui/cmd_god/do_show.h"
 #include "engine/ui/cmd_god/do_spellstat.h"
 #include "engine/ui/cmd_god/do_liblist.h"
 #include "engine/ui/cmd_god/do_last.h"
@@ -135,9 +134,7 @@
 #include "engine/ui/cmd/do_mode.h"
 #include "engine/ui/cmd/do_courage.h"
 #include "engine/ui/cmd/do_save.h"
-#include "engine/ui/cmd/do_save.h"
 #include "engine/ui/cmd/do_wimpy.h"
-#include "engine/ui/cmd/do_mercenary.h"
 #include "engine/ui/cmd/do_levels.h"
 #include "engine/ui/cmd/do_listen.h"
 #include "engine/ui/cmd/do_look.h"
@@ -174,27 +171,16 @@
 #include "engine/ui/cmd/do_who.h"
 #include "engine/ui/cmd/do_wake.h"
 #include "engine/core/comm.h"
-#include "gameplay/core/constants.h"
-#include "gameplay/crafting/craft_commands.h"
 #include "gameplay/crafting/fry.h"
-#include "gameplay/crafting/jewelry.h"
 #include "engine/db/db.h"
-#include "gameplay/mechanics/depot.h"
 #include "engine/scripting/dg_scripts.h"
-#include "gameplay/abilities/feats.h"
 #include "gameplay/fight/assist.h"
 #include "gameplay/ai/mobact.h"
 #include "gameplay/fight/pk.h"
-#include "engine/ui/cmd/do_kill.h"
 #include "gameplay/core/genchar.h"
-#include "gameplay/classes/pc_classes.h"
 #include "gameplay/mechanics/glory.h"
 #include "gameplay/mechanics/dungeons.h"
 #include "gameplay/mechanics/glory_const.h"
-#include "gameplay/mechanics/glory_misc.h"
-#include "gameplay/mechanics/sight.h"
-#include "engine/core/char_handler.h"
-#include "gameplay/mechanics/illumination.h"
 #include "utils/utils_parse.h"
 #include "engine/core/heartbeat_commands.h"
 #include "gameplay/clans/house.h"
@@ -209,12 +195,7 @@
 #include "engine/olc/olc.h"
 #include "engine/olc/vedun/vedun.h"
 #include "engine/ui/cmd_god/do_debug_queues.h"
-#include "gameplay/communication/parcel.h"
-#include "administration/password.h"
 #include "administration/privilege.h"
-#include "engine/entities/room_data.h"
-#include "engine/network/logon.h"
-#include "engine/ui/color.h"
 #include "gameplay/skills/armoring.h"
 #include "gameplay/skills/skills.h"
 #include "gameplay/skills/backstab.h"
@@ -248,59 +229,34 @@
 #include "gameplay/skills/turnundead.h"
 #include "gameplay/skills/warcry.h"
 #include "gameplay/skills/relocate.h"
-#include "gameplay/skills/repair.h"
 #include "gameplay/skills/skinning.h"
 #include "gameplay/skills/spell_capable.h"
-#include "gameplay/magic/spells.h"
 #include "gameplay/mechanics/title.h"
 #include "gameplay/statistics/top.h"
-#include "gameplay/skills/skills_info.h"
-#include "gameplay/skills/townportal.h"
-#include "gameplay/mechanics/mem_queue.h"
-#include "engine/db/obj_save.h"
-#include "engine/core/iosystem.h"
 #include "gameplay/ai/spec_procs.h"
-#include "gameplay/mechanics/player_races.h"
 #include "engine/db/help.h"
 #include "mapsystem.h"
-#include "gameplay/mechanics/noob.h"
-#include "gameplay/core/reset_stats.h"
 #include "gameplay/mechanics/obj_sets.h"
 #include "utils/utils.h"
-#include "gameplay/magic/magic_temp_spells.h"
 #include "engine/structs/structs.h"
 #include "engine/core/sysdep.h"
-#include "engine/core/conf.h"
 #include "gameplay/mechanics/bonus.h"
-#include "utils/utils_debug.h"
 #include "engine/db/global_objects.h"
 #include "administration/accounts.h"
-#include "gameplay/fight/pk.h"
 #include "gameplay/skills/slay.h"
 #include "gameplay/skills/charge.h"
 #include "gameplay/skills/dazzle.h"
 #include "gameplay/mechanics/cities.h"
-#include "administration/proxy.h"
-#include "gameplay/communication/check_invoice.h"
 #include "gameplay/mechanics/doors.h"
 #include "gameplay/skills/frenzy.h"
 #include "gameplay/mechanics/groups.h"
 #include "gameplay/classes/recalc_mob_params_by_vnum.h"
 #include "alias.h"
 #include "engine/db/player_index.h"
-#include "gameplay/core/remort.h"
-
-#include <ctime>
 
 #if defined WITH_SCRIPTING
 #include "scripting.hpp"
 #endif
-
-#include <fmt/format.h>
-
-#include <memory>
-#include <stdexcept>
-#include <algorithm>
 
 #ifndef WIN32
 #include <sys/socket.h>
@@ -400,8 +356,6 @@ void do_show_mobmax(CharData *ch, char *, int, int);
  * infrequently used and dangerously destructive commands should have low
  * priority.
  */
-
-
 
 cpp_extern const struct command_info cmd_info[] =
 	{
@@ -887,8 +841,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"mute", EPosition::kDead, DoWizutil, kLvlImmortal, kScmdMute, 0},
 		{"medit", EPosition::kDead, do_olc, 0, kScmdOlcMedit, 0},
 		{"name", EPosition::kDead, DoWizutil, kLvlGod, kScmdName, 0},
-		{"nedit", EPosition::kRest, NamedStuff::do_named, kLvlBuilder, SCMD_NAMED_EDIT,
-		 0}, //Именной стаф редактирование
+		{"nedit", EPosition::kRest, NamedStuff::do_named, kLvlBuilder, SCMD_NAMED_EDIT, 0},
 		{"news", EPosition::kDead, Boards::DoBoard, 1, Boards::NEWS_BOARD, -1},
 		{"nlist", EPosition::kRest, NamedStuff::do_named, kLvlBuilder, SCMD_NAMED_LIST, 0},
 		{"notitle", EPosition::kDead, DoWizutil, kLvlGreatGod, kScmdNotitle, 0},
@@ -914,7 +867,6 @@ cpp_extern const struct command_info cmd_info[] =
 		{"proxy", EPosition::kDead, do_proxy, kLvlGreatGod, 0, 0},
 		{"purge", EPosition::kDead, DoPurge, kLvlGod, 0, 0},
 		{"put", EPosition::kRest, do_put, 0, 0, 500},
-//	{"python", EPosition::kDead, do_console, kLevelGod, 0, 0},
 		{"quaff", EPosition::kRest, do_employ, 0, SCMD_QUAFF, 500},
 		{"qui", EPosition::kSleep, do_quit, 0, 0, 0},
 		{"quit", EPosition::kSleep, do_quit, 0, kScmdQuit, -1},
@@ -1287,22 +1239,6 @@ void command_interpreter(CharData *ch, char *argument) {
 	}
 }
 
-// ***************************************************************************
-// * Various other parsing utilities                                         *
-// ***************************************************************************
-
-/*
- * searches an array of strings for a target string.  "exact" can be
- * 0 or non-0, depending on whether the match must be exact for
- * it to be returned.  Returns -1 if not found; 0...n otherwise.  Array
- * must be terminated with a '\n' so it knows to stop searching.
- */
-// search_block(x2) moved to utils/parse
-
-// is_number and delete_doubledollar moved to utils_string.cpp
-
-// fill_word, reserved_word, one_argument, any_one_arg, SplitArgument, half_chop moved to mud_string.cpp
-
 // Used in specprocs, mostly.  (Exactly) matches "command" to cmd number //
 int find_command(const char *command) {
 	int cmd;
@@ -1366,10 +1302,6 @@ int special(CharData *ch, int cmd, char *argument, int /*fnum*/) {
 	return (0);
 }
 
-// **************************************************************************
-// *  Stuff for controlling the non-playing sockets (get name, pwd etc.)     *
-// **************************************************************************
-
 // locate entry in p_table with entry->name == name. -1 mrks failed search
 int find_name(const char *name) {
 	const auto index = player_table.GetIndexByName(name);
@@ -1378,25 +1310,12 @@ int find_name(const char *name) {
 
 // Login / character-generation (nanny + helpers) moved to engine/ui/login.{cpp,h} (issue.interpreter-cleaning).
 
-
 enum Mode {
   UNDEFINED,
   RECON,
   USURP,
   UNSWITCH
 };
-
-
-
-// check_dupes_host / check_dupes_email moved to administration/dupe_check.{cpp,h} (issue.interpreter-cleaning Bucket 2).
-
-
-
-
-
-
-
-
 
 // Фраза 'Русская азбука: "абв...эюя".' в разных кодировках и для разных клиентов
 #define ENC_HINT_KOI8R          "\xf2\xd5\xd3\xd3\xcb\xc1\xd1 \xc1\xda\xc2\xd5\xcb\xc1: \"\xc1\xc2\xd7...\xdc\xc0\xd1\"."
@@ -1411,29 +1330,6 @@ enum Mode {
 #define ENC_HINT_UTF8           "\xd0\xa0\xd1\x83\xd1\x81\xd1\x81\xd0\xba\xd0\xb0\xd1\x8f "\
                                 "\xd0\xb0\xd0\xb7\xd0\xb1\xd1\x83\xd0\xba\xd0\xb0: "\
                                 "\"\xd0\xb0\xd0\xb1\xd0\xb2...\xd1\x8d\xd1\x8e\xd1\x8f\"."
-
-
-
-
-// берем из первой строки одно слово или подстроку в кавычках, результат удаляется из buffer
-// GetOneParam / CompareParam(x2) moved to utils/parse
-
-
-/**
-* ищет УИД игрока по его имени, второй необязательный параметр - учитывать или нет БОГОВ
-* проверка уида на -1 нужна потому, что при делете чара (через меню например), его имя
-* останется в плеер-листе, но все остальные параметры будут -1
-* TODO: т.к. за все это время понадобилось только при добавлении в пкл - встает вопрос нафига было это городить...
-* \param god по умолчанию = 0
-* \return >0 - уид чара, 0 - не нашли, -1 - нашли, но это оказался бог (только при god = true)
-*/
-
-
-
-
-
-
-
 
 // generic function for commands which are normally overridden by
 // special procedures - i.e., shop commands, mail commands, etc.
