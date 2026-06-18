@@ -1,4 +1,5 @@
 #include "bonus_command_parser.h"
+#include "utils/mud_string.h"
 
 #include "engine/ui/interpreter.h"
 

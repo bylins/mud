@@ -4,6 +4,7 @@
 */
 
 #include "classes_spell_slots.h"
+#include "gameplay/core/remort.h"
 #include "administration/privilege.h"
 
 #include "engine/db/global_objects.h"

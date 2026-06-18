@@ -2,6 +2,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "birthplaces.h"
+#include "utils/utils_string.h"
 
 #include "third_party_libs/pugixml/pugixml.h"
 

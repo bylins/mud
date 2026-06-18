@@ -1,4 +1,6 @@
 #include "commands.h"
+#include "utils/utils.h"
+#include "engine/core/comm.h"
 
 #include "utils/levenshtein.h"
 #include "engine/structs/compact_trie.h"
