@@ -178,7 +178,7 @@ void DoSet(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 			// Запрет на злоупотребление командой SET на бессмертных
 			if (!GET_GOD_FLAG(ch, EGf::kDemigod)) {
-				if ((GetRealLevel(ch) <= GetRealLevel(vict)) && !(is_head(ch->get_name_str()))) {
+				if ((GetRealLevel(ch) <= GetRealLevel(vict)) && !(privilege::IsOwner(ch))) {
 					SendMsgToChar("Вы не можете сделать этого.\r\n", ch);
 					return;
 				}
@@ -207,7 +207,7 @@ void DoSet(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if ((player_i = LoadPlayerCharacter(name, cbuf.get(), ELoadCharFlags::kFindId)) > -1) {
 			// Запрет на злоупотребление командой SET на бессмертных
 			if (!GET_GOD_FLAG(ch, EGf::kDemigod)) {
-				if (GetRealLevel(ch) <= GetRealLevel(cbuf) && !(is_head(ch->get_name_str()))) {
+				if (GetRealLevel(ch) <= GetRealLevel(cbuf) && !(privilege::IsOwner(ch))) {
 					SendMsgToChar("Вы не можете сделать этого.\r\n", ch);
 					return;
 				}

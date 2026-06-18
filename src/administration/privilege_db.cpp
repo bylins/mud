@@ -6,6 +6,7 @@
 */
 
 #include "privilege_db.h"
+#include "privilege.h"
 
 #include <cstdlib>
 #include <cstring>
@@ -153,8 +154,10 @@ void DoLoad(parser_wrapper::DataNode data) {
 			}
 		}
 	}
-	log("privilege.xml loaded: %d command groups, %d privileged characters (membership DB; "
-		"inert until P2).", groups, gods);
+	log("privilege.xml loaded: %d command groups, %d privileged characters.", groups, gods);
+	if constexpr (!kLegacyPrivilege) {
+		privilege::LoadGodBoards();
+	}
 }
 
 } // namespace

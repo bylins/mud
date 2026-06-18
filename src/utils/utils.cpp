@@ -85,11 +85,6 @@ return result;
 */
 
 
-bool is_head(std::string name) {
-	if ((name == "Стрибог") || (name == "стрибог"))
-		return true;
-	return false;
-}
 
 // str_cmp, strn_cmp moved to utils_string.cpp
 

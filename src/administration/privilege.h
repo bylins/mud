@@ -30,6 +30,7 @@ bool CheckSkills(const CharData *ch);
 [[nodiscard]] bool IsGod(const CharData *ch);
 [[nodiscard]] bool IsGrGod(const CharData *ch);
 [[nodiscard]] bool IsImpl(const CharData *ch);
+[[nodiscard]] bool IsOwner(const CharData *ch);  // issue.privilege-rework: replaces is_head
 
 extern const int kBoards;
 extern const int kUseSkills;

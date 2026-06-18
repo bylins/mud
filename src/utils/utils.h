@@ -106,7 +106,6 @@ int replace_str(const utils::AbstractStringWriter::shared_ptr &writer, const cha
 void format_text(const utils::AbstractStringWriter::shared_ptr &writer, int mode, DescriptorData *d, size_t maxlen);
 // \todo Заменить на фунции из STD
 int round_up(float fl);
-bool is_head(std::string name);
 
 template<typename T> inline std::string to_string(const T &t) {
 	std::stringstream ss;

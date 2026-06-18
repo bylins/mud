@@ -25,7 +25,7 @@ namespace privilege {
 // membership-based (cfg/privilege.xml) privilege systems. P1 ships the new ingestion inert; P2 rewires
 // the public decision API to honour this switch. Keep `true` until the new system is verified; flipping
 // back to `true` is the instant rollback (the legacy code stays compiled and reachable behind it).
-inline constexpr bool kLegacyPrivilege = true;
+inline constexpr bool kLegacyPrivilege = false;
 
 // Privileged tiers, highest first (declared seniority order in the file is purely for readability).
 // Membership in a tier is by name+uid; cumulative nesting (owner > implementator > great-god > god >

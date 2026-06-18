@@ -1245,7 +1245,7 @@ void command_interpreter(CharData *ch, char *argument) {
 			return;
 		}
 	}
-	if (!is_head(ch->get_name())
+	if (!privilege::IsOwner(ch)
 		&& ((!ch->IsNpc() && (punishments::Get(ch, punishments::EType::kFreeze).level > GetRealLevel(ch))
 			&& (ch->IsFlagged(EPlrFlag::kFrozen)))
 			|| AFF_FLAGGED(ch, EAffect::kHold)

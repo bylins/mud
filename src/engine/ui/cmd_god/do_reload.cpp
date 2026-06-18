@@ -189,8 +189,10 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		TitleSystem::load_title_list();
 	else if (!str_cmp(arg, "emails"))
 		RegisterSystem::load();
-	else if (!str_cmp(arg, "privilege"))
+	else if (!str_cmp(arg, "privilege")) {
 		privilege::Load();
+		MUD::CfgManager().ReloadCfg("privilege");
+	}
 	else if (!str_cmp(arg, "mobraces"))
 		MUD::CfgManager().ReloadCfg("mob_races");
 	else if (!str_cmp(arg, "depot") && ch->IsFlagged(EPrf::kCoderinfo)) {
