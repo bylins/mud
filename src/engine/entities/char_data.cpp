@@ -1902,7 +1902,12 @@ int GetRealLevel(const CharData *ch) {
 		return std::clamp(ch->GetLevel() + ch->get_level_add(), 0, kMaxMobLevel);
 	}
 
-	if (privilege::IsImmortal(ch)) {
+	// GetRealLevel is a LEVEL accessor: characters whose stored level is in the immortal
+	// range keep their real level (no mortal clamp). This must gate on the level itself,
+	// NOT on privilege membership -- otherwise a high-level character who is not listed in
+	// privilege.xml gets clamped to kLvlImmortal-1 while GetLevel() stays high, and the
+	// level-up loops that test GetRealLevel but mutate GetLevel() spin forever (issue.advance-crash-bug).
+	if (ch->GetLevel() >= kLvlImmortal) {
 		return ch->GetLevel();
 	}
 

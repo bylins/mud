@@ -864,7 +864,10 @@ void EndowExpToChar(CharData *ch, int gain) {
 			}
 		}
 		ch->set_exp(std::min(ch->get_exp(), GetExpUntilNextLvl(ch, kLvlImmortal) - 1));
-		while (GetRealLevel(ch) < kLvlImmortal && ch->get_exp() >= GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1)) {
+		// defense-in-depth: also bound on GetLevel() (the value actually mutated) so the loop
+		// terminates even if GetRealLevel() ever diverges from GetLevel() (issue.advance-crash-bug).
+		while (GetRealLevel(ch) < kLvlImmortal && ch->GetLevel() < kLvlImmortal
+			   && ch->get_exp() >= GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1)) {
 			ch->set_level(ch->GetLevel() + 1);
 			num_levels++;
 			sprintf(local_buf, "%sВы достигли следующего уровня!%s\r\n", kColorWht, kColorNrm);
@@ -881,7 +884,8 @@ void EndowExpToChar(CharData *ch, int gain) {
 	} else if (gain < 0 && GetRealLevel(ch) < kLvlImmortal) {
 		gain = std::max(-max_exp_loss_pc(ch), gain);    // Cap max exp lost per death
 		ch->set_exp(ch->get_exp() + gain);
-		while (GetRealLevel(ch) > 1 && ch->get_exp() < GetExpUntilNextLvl(ch, GetRealLevel(ch))) {
+		while (GetRealLevel(ch) > 1 && ch->GetLevel() > 1
+			   && ch->get_exp() < GetExpUntilNextLvl(ch, GetRealLevel(ch))) {
 			ch->set_level(ch->GetLevel() - 1);
 			num_levels++;
 			sprintf(local_buf,
@@ -919,7 +923,10 @@ void gain_exp_regardless(CharData *ch, int gain) {
 	ch->set_exp(ch->get_exp() + gain);
 	if (!ch->IsNpc()) {
 		if (gain > 0) {
-			while (GetRealLevel(ch) < kLvlImplementator && ch->get_exp() >= GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1)) {
+			// defense-in-depth: also bound on GetLevel() (the value actually mutated) so the loop
+			// terminates even if GetRealLevel() ever diverges from GetLevel() (issue.advance-crash-bug).
+			while (GetRealLevel(ch) < kLvlImplementator && ch->GetLevel() < kLvlImplementator
+				   && ch->get_exp() >= GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1)) {
 				ch->set_level(ch->GetLevel() + 1);
 				num_levels++;
 				sprintf(buf, "%sВы достигли следующего уровня!%s\r\n",
@@ -941,7 +948,8 @@ void gain_exp_regardless(CharData *ch, int gain) {
 			//			ch->get_exp() += gain;
 			//			if (ch->get_exp() < 0)
 			//				ch->get_exp() = 0;
-			while (GetRealLevel(ch) > 1 && ch->get_exp() < GetExpUntilNextLvl(ch, GetRealLevel(ch))) {
+			while (GetRealLevel(ch) > 1 && ch->GetLevel() > 1
+				   && ch->get_exp() < GetExpUntilNextLvl(ch, GetRealLevel(ch))) {
 				ch->set_level(ch->GetLevel() - 1);
 				num_levels++;
 				sprintf(buf,
