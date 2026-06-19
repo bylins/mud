@@ -39,7 +39,7 @@ sol::table BuildLuaContext(sol::state &lua, const LuaTriggerContext &source, Lua
 	ctx["trigger"] = trigger_table;
 	ctx["owner"] = BuildCharView(lua, source.owner, runtime);
 	ctx["actor"] = BuildCharView(lua, source.actor, runtime);
-	ctx["room"] = BuildRoomView(lua, source.owner);
+	ctx["room"] = BuildRoomView(lua, source.owner, runtime);
 
 	return ctx;
 }

@@ -274,11 +274,11 @@ sol::table BuildMudNamespace(sol::state &lua, LuaRuntimeContext runtime)
 	mud["random"] = [](const sol::object &limit) {
 		return MudRandom(limit);
 	};
-	mud["room"] = [&lua](const sol::object &vnum) {
-		return BuildRoomViewByVnum(lua, vnum);
+	mud["room"] = [&lua, runtime](const sol::object &vnum) {
+		return BuildRoomViewByVnum(lua, vnum, runtime);
 	};
-	mud["load_obj"] = [&lua](const sol::object &vnum, const sol::object &room) {
-		return BuildObjView(lua, LoadObjToRoom(vnum, room));
+	mud["load_obj"] = [&lua, runtime](const sol::object &vnum, const sol::object &room) {
+		return BuildObjView(lua, LoadObjToRoom(vnum, room), runtime);
 	};
 	mud["load_mob"] = [&lua, runtime](const sol::object &vnum, const sol::object &room) {
 		return BuildCharView(lua, LoadMobToRoom(vnum, room), runtime);
