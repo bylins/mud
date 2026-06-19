@@ -315,7 +315,7 @@ void Damage::ProcessDeath(CharData *ch, CharData *victim) const {
 	if (killer) {
 		if (AFF_FLAGGED(killer, EAffect::kGroup)) {
 			// т.к. помечен флагом AFF_GROUP - точно PC
-			group_gain(killer, victim);
+			experience::group_gain(killer, victim);
 		} else if ((killer->IsFlagged(EMobFlag::kCompanion))
 			&& killer->has_master())
 			// killer - зачармленный NPC с хозяином
@@ -326,16 +326,16 @@ void Damage::ProcessDeath(CharData *ch, CharData *victim) const {
 			if (AFF_FLAGGED(killer->get_master(), EAffect::kGroup)
 				&& killer->in_room == killer->get_master()->in_room) {
 				// Хозяин - PC в группе => опыт группе
-				group_gain(killer->get_master(), victim);
+				experience::group_gain(killer->get_master(), victim);
 			} else if (killer->in_room == killer->get_master()->in_room) {
-				perform_group_gain(killer->get_master(), victim, 1, 100);
+				experience::perform_group_gain(killer->get_master(), victim, 1, 100);
 			}
 			// else
 			// А хозяина то рядом не оказалось, все чармису - убрано
 			// нефиг абьюзить чарм  group::perform_group_gain( killer, victim, 1, 100 );
 		} else {
 			// Просто NPC или PC сам по себе
-			perform_group_gain(killer, victim, 1, 100);
+			experience::perform_group_gain(killer, victim, 1, 100);
 		}
 	}
 

@@ -23,6 +23,10 @@
 #include "engine/db/world_characters.h"
 #include "fight.h"
 #include "fight_stuff.h"
+#include "gameplay/economics/currencies.h"  // currencies:: gold-on-death (was relied on transitively)
+#include "gameplay/skills/spell_capable.h"   // check_spell_capable
+#include "utils/grammar/gender.h"             // NumberForm
+#include "gameplay/clans/house_exp.h"        // change_rep
 #include "fight_penalties.h"
 #include "fight_hit.h"
 #include "engine/core/handler.h"
@@ -425,52 +429,12 @@ void auto_loot(CharData *ch, CharData *killer, ObjData *corpse, int local_gold) 
 	}
 }
 
-void check_spell_capable(CharData *ch, CharData *killer) {
-	if (ch->IsNpc()
-		&& killer
-		&& killer != ch
-		&& ch->IsFlagged(EMobFlag::kClone)
-		&& ch->has_master()
-		&& IsAffectedBySpell(ch, ESpell::kCapable)) {
-		RemoveAffectFromCharAndRecalculate(ch, ESpell::kCapable);
-		act("Чары, наложенные на $n3, тускло засветились и стали превращаться в нечто опасное.",
-			false, ch, nullptr, killer, kToRoom | kToArenaListen);
-		auto pos = ch->GetPosition();
-		ch->SetPosition(EPosition::kStand);
-		CallMagic(ch, killer, nullptr, world[ch->in_room], ch->mob_specials.capable_spell, GetRealLevel(ch));
-		ch->SetPosition(pos);
-	}
-}
-
 void clear_mobs_memory(CharData *ch) {
 	for (const auto &hitter : character_list) {
 		if (hitter->IsNpc() && MEMORY(hitter)) {
 			mob_ai::mobForget(hitter.get(), ch);
 		}
 	}
-}
-
-bool change_rep(CharData *ch, CharData *killer) {
-	return false;
-	// проверяем, в кланах ли оба игрока
-	if ((!CLAN(ch)) || (!CLAN(killer)))
-		return false;
-	// кланы должны быть разные
-	if (CLAN(ch) == CLAN(killer))
-		return false;
-
-	// 1/10 репутации замка уходит замку киллера
-	int rep_ch = CLAN(ch)->get_rep() * 0.1 + 1;
-	CLAN(ch)->set_rep(CLAN(ch)->get_rep() - rep_ch);
-	CLAN(killer)->set_rep(CLAN(killer)->get_rep() + rep_ch);
-	SendMsgToChar("Вы потеряли очко репутации своего клана! Стыд и позор вам.\r\n", ch);
-	SendMsgToChar("Вы заработали очко репутации для своего клана! Честь и похвала вам.\r\n", killer);
-	// проверяем репу клана у убитого
-	if (CLAN(ch)->get_rep() < 1) {
-		// сам распустится
-		//CLAN(ch)->bank = 0;
-	}
-	return true;
 }
 
 void real_kill(CharData *ch, CharData *killer) {
@@ -609,318 +573,6 @@ void raw_kill(CharData *ch, CharData *killer) {
 	}
 }
 
-int get_remort_mobmax(CharData *ch) {
-	int remort = remort::GetRealRemort(ch);
-	if (remort >= 18)
-		return 15;
-	if (remort >= 14)
-		return 7;
-	if (remort >= 9)
-		return 4;
-	return 0;
-}
-
-// даем увеличенную экспу за давно не убитых мобов.
-// за совсем неубитых мобов не даем, что бы новые зоны не давали x10 экспу.
-int get_npc_long_live_exp_bounus(CharData *victim) {
-	if (GET_MOB_VNUM(victim) == -1) {
-		return 1;
-	}
-	if (GET_MOB_VNUM(victim) / 100 >= dungeons::kZoneStartDungeons) {
-		return 1;
-	}
-
-	int exp_multiplier = 1;
-
-	const auto last_kill_time = mob_stat::GetMobKilllastTime(GET_MOB_VNUM(victim));
-	if (last_kill_time > 0) {
-		const auto now_time = time(nullptr);
-		if (now_time > last_kill_time) {
-			const auto delta_time = now_time - last_kill_time;
-			constexpr long delay = 60 * 60 * 24 * 30; // 30 days
-			exp_multiplier = std::clamp(static_cast<int>(floor(delta_time / delay)), 1, 10);
-		}
-	}
-
-	return exp_multiplier;
-}
-
-long long get_extend_exp(long long exp, CharData *ch, CharData *victim) {
-	int base, diff;
-	int koef;
-
-	if (!victim->IsNpc() || ch->IsNpc())
-		return (exp);
-	MobVnum vnum  = GET_MOB_VNUM(victim);
-	if (vnum >= dungeons::kZoneStartDungeons * 100) {
-		ZoneVnum zvn = vnum / 100;
-		MobVnum  mvn = vnum % 100;
-		vnum = zone_table[GetZoneRnum(zvn)].copy_from_zone * 100 + mvn;
-	}
-
-	SendToTC(ch, false, true, false,
-				   "&RУ моба еще %d убийств без замакса, экспа %d, убито %d&n\r\n",
-				   victim->mob_specials.MaxFactor,
-				   exp,
-				   ch->mobmax_get(vnum));
-
-	exp += static_cast<int>(exp * (ch->add_abils.percent_exp_add) / 100.0);
-	for (koef = 100, base = 0, diff =
-		 ch->mobmax_get(vnum) - victim->mob_specials.MaxFactor;
-		 base < diff && koef > 5; base++, koef = koef * (95 - get_remort_mobmax(ch)) / 100);
-	// минимальный опыт при замаксе 15% от полного опыта
-	exp = exp * std::max(15, koef) / 100;
-
-	// делим на реморты
-	exp /= std::max(1.0, 0.5 * (remort::GetRealRemort(ch) - (experience::RemortCoefficientCount() - 1)));
-	return (exp);
-}
-
-// When ch kills victim
-
-/*++
-   Функция начисления опыта
-      ch - кому опыт начислять
-           Вызов этой функции для NPC смысла не имеет, но все равно
-           какие-то проверки внутри зачем то делаются
---*/
-void perform_group_gain(CharData *ch, CharData *victim, int members, int koef) {
-
-
-// Странно, но для NPC эта функция тоже должна работать
-//  if (ch->IsNpc() || !experience::OkGainExp(ch,victim))
-	if (!experience::OkGainExp(ch, victim)) {
-		SendMsgToChar("Ваше деяние никто не оценил.\r\n", ch);
-		return;
-	}
-
-	// 1. Опыт делится поровну на всех
-	long long exp = victim->get_exp() / std::max(members, 1);
-	int long_live_exp_bounus_miltiplier = 1;
-
-	if (experience::GetZoneGroup(victim) > 1 && members < experience::GetZoneGroup(victim)) {
-		// в случае груп-зоны своего рода планка на мин кол-во человек в группе
-		exp = victim->get_exp() / experience::GetZoneGroup(victim);
-	}
-	// 2. Учитывается коэффициент (лидерство, разность уровней)
-	//    На мой взгляд его правильней использовать тут а не в конце процедуры,
-	//    хотя в большинстве случаев это все равно
-	exp = exp * koef / 100;
-	// 3. Вычисление опыта для PC и NPC
-	if (!NPC_FLAGGED(victim, ENpcFlag::kIgnoreRareKill)) {
-		long_live_exp_bounus_miltiplier = get_npc_long_live_exp_bounus(victim);
-	}
-	if (ch->IsNpc()) {
-		exp = std::min(static_cast<long long>(max_exp_gain_npc), exp);
-		exp += std::max(static_cast<long long>(0), (exp * std::min(0, (GetRealLevel(victim) - GetRealLevel(ch)))) / 8);
-	} else
-		exp = std::min(static_cast<long long>(experience::max_exp_gain_pc(ch)), get_extend_exp(exp, ch, victim) * long_live_exp_bounus_miltiplier);
-	// 4. Последняя проверка
-	exp = std::max(static_cast<long long>(1), exp);
-	if (exp > 1) {
-		if (Bonus::is_bonus_active(Bonus::EBonusType::BONUS_EXP) && Bonus::can_get_bonus_exp(ch)) {
-			exp *= Bonus::get_mult_bonus();
-		}
-
-		if (!ch->IsNpc() && !ch->affected.empty() && Bonus::can_get_bonus_exp(ch)) {
-			for (const auto &aff : ch->affected) {
-				if (aff->location == EApply::kExpBonus) // скушал свиток с эксп бонусом
-				{
-					exp *= std::min(3, aff->modifier); // бонус макс тройной
-				}
-			}
-		}
-
-		if (long_live_exp_bounus_miltiplier > 1) {
-			std::string mess;
-			switch (long_live_exp_bounus_miltiplier) {
-				case 2: mess = "Редкая удача! Опыт повышен!\r\n";
-					break;
-				case 3: mess = "Очень редкая удача! Опыт повышен!\r\n";
-					break;
-				case 4: mess = "Очень-очень редкая удача! Опыт повышен!\r\n";
-					break;
-				case 5: mess = "Вы везунчик! Опыт повышен!\r\n";
-					break;
-				case 6: mess = "Ваша удача велика! Опыт повышен!\r\n";
-					break;
-				case 7: mess = "Ваша удача достигла небес! Опыт повышен!\r\n";
-					break;
-				case 8: mess = "Ваша удача коснулась луны! Опыт повышен!\r\n";
-					break;
-				case 9: mess = "Ваша удача затмевает солнце! Опыт повышен!\r\n";
-					break;
-				default: mess = "Ваша удача выше звезд! Опыт повышен!\r\n";
-					break;
-			}
-			SendMsgToChar(mess.c_str(), ch);
-		}
-		if (long_live_exp_bounus_miltiplier >= 10) {
-			const CharData *ch_with_bonus = ch->IsNpc() ? ch->get_master() : ch;
-			if (ch_with_bonus && !ch_with_bonus->IsNpc()) {
-				std::stringstream str_log;
-				str_log << "[INFO] " << ch_with_bonus->get_name() << " получил(а) x" << long_live_exp_bounus_miltiplier << " опыта за убийство моба: [";
-				str_log << GET_MOB_VNUM(victim) << "] " << victim->get_name();
-				mudlog(str_log.str(), NRM, kLvlImmortal, SYSLOG, true);
-			}
-		}
-
-		exp = std::min(static_cast<long long>(experience::max_exp_gain_pc(ch)), exp);
-		SendMsgToChar(ch, "Ваш опыт повысился на %lld %s.\r\n", exp, grammar::GetDeclensionInNumber(exp, grammar::EWhat::kPoint));
-	} else if (exp == 1) {
-		SendMsgToChar("Ваш опыт повысился всего лишь на маленькую единичку.\r\n", ch);
-	}
-	if (!InTestZone(ch)) {
-		experience::EndowExpToChar(ch, exp);
-		alignment::ChangeAlignment(ch, victim);
-		if (!(victim)->Temporary.get(EXTRA_GRP_KILL_COUNT)
-				&& !ch->IsNpc()
-				&& !privilege::IsImmortal(ch)
-				&& victim->IsNpc()
-				&& !IsCharmice(victim)
-				&& !ROOM_FLAGGED(victim->in_room, ERoomFlag::kArena)) {
-				mob_stat::AddMob(victim, members);
-				victim->Temporary.set(EXTRA_GRP_KILL_COUNT);
-		} else if (ch->IsNpc() && !victim->IsNpc()
-			&& !ROOM_FLAGGED(victim->in_room, ERoomFlag::kArena)) {
-			mob_stat::AddMob(ch, 0);
-		}
-	}
-}
-
-/*++
-   Функция расчитывает всякие бонусы для группы при получении опыта,
- после чего вызывает функцию получения опыта для всех членов группы
- Т.к. членом группы может быть только PC, то эта функция раздаст опыт только PC
-
-   ch - обязательно член группы, из чего следует:
-            1. Это не NPC
-            2. Он находится в группе лидера (или сам лидер)
-
-   Просто для PC-последователей эта функция не вызывается
-
---*/
-void group_gain(CharData *killer, CharData *victim) {
-	int inroom_members, koef = 100, maxlevel;
-	int partner_count = 0;
-	int total_group_members = 1;
-	bool use_partner_exp = false;
-
-	// если наем лидер, то тоже режем экспу
-	if (CanUseFeat(killer, EFeat::kCynic)) {
-		maxlevel = 300;
-	} else {
-		maxlevel = GetRealLevel(killer);
-	}
-
-	auto leader = killer->get_master();
-	if (nullptr == leader) {
-		leader = killer;
-	}
-
-	// k - подозрение на лидера группы
-	const bool leader_inroom = AFF_FLAGGED(leader, EAffect::kGroup)
-		&& leader->in_room == killer->in_room;
-
-	// Количество согрупников в комнате
-	if (leader_inroom) {
-		inroom_members = 1;
-		maxlevel = GetRealLevel(leader);
-	} else {
-		inroom_members = 0;
-	}
-
-	// Вычисляем максимальный уровень в группе
-	for (auto *f : leader->followers) {
-		if (AFF_FLAGGED(f, EAffect::kGroup)) ++total_group_members;
-		if (AFF_FLAGGED(f, EAffect::kGroup)
-			&& f->in_room == killer->in_room) {
-			// если в группе наем, то режим опыт всей группе
-			// дабы наема не выгодно было бы брать в группу
-			// ставим 300, чтобы вообще под ноль резало
-			if (CanUseFeat(f, EFeat::kCynic)) {
-				maxlevel = 300;
-			}
-			// просмотр членов группы в той же комнате
-			// член группы => PC автоматически
-			++inroom_members;
-			maxlevel = std::max(maxlevel, GetRealLevel(f));
-			if (!f->IsNpc()) {
-				partner_count++;
-			}
-		}
-	}
-
-	GroupPenaltyCalculator group_penalty(killer, leader, maxlevel, grouping);
-	koef -= group_penalty.get();
-
-	koef = std::max(0, koef);
-
-	if (leader_inroom) {
-		koef += CalcLeadershipGroupExpKoeff(leader, inroom_members, koef);
-	}
-
-	// Раздача опыта
-	// если групповой уровень зоны равняется единице
-	if (zone_table[world[killer->in_room]->zone_rn].group < 2) {
-		// чтобы не абьюзили на суммонах, когда в группе на самом деле больше
-		// двух мемберов, но лишних реколят перед непосредственным рипом
-		use_partner_exp = total_group_members == 2;
-	}
-
-	// если лидер группы в комнате
-	if (leader_inroom) {
-		// если у лидера группы есть способность напарник
-		if (CanUseFeat(leader, EFeat::kPartner) && use_partner_exp) {
-			// если в группе всего двое человек
-			// k - лидер, и один последователь
-			if (partner_count == 1) {
-				// и если кожф. больше или равен 100
-				if (koef >= 100) {
-					if (experience::GetZoneGroup(leader) < 2) {
-						koef += 100;
-					}
-				}
-			}
-		}
-		perform_group_gain(leader, victim, inroom_members, koef);
-	}
-
-	for (auto *f : leader->followers) {
-		if (AFF_FLAGGED(f, EAffect::kGroup)
-				&& f->in_room == killer->in_room) {
-			perform_group_gain(f, victim, inroom_members, koef);
-		}
-	}
-}
-
-char *replace_string(const char *str, const char *weapon_singular, const char *weapon_plural) {
-	static char buf[256];
-	char *cp = buf;
-
-	for (; *str; str++) {
-		if (*str == '#') {
-			switch (*(++str)) {
-				case 'W':
-					for (; *weapon_plural; *(cp++) = *(weapon_plural++)) {
-					}
-					break;
-				case 'w':
-					for (; *weapon_singular; *(cp++) = *(weapon_singular++)) {
-					}
-					break;
-				default: *(cp++) = '#';
-					break;
-			}
-		} else
-			*(cp++) = *str;
-
-		*cp = 0;
-	}            // For
-
-	return (buf);
-}
-
 bool check_valid_chars(CharData *ch, CharData *victim, const char *fname, int line) {
 	if (!ch || ch->purged() || !victim || victim->purged()) {
 		log("SYSERROR: ch = %s, victim = %s (%s:%d)",
@@ -944,32 +596,24 @@ void char_dam_message(int dam, CharData *ch, CharData *victim, bool noflee) {
 		return;
 	if (!victim || victim->purged())
 		return;
+	char msg[256];
 	switch (victim->GetPosition()) {
 		case EPosition::kPerish:
-			if (IsPoly(victim))
-				act("$n смертельно ранены и умрут, если им не помогут.",
-					true, victim, nullptr, nullptr, kToRoom | kToArenaListen);
-			else
-				act("$n смертельно ранен$a и умрет, если $m не помогут.",
-					true, victim, nullptr, nullptr, kToRoom | kToArenaListen);
+			snprintf(msg, sizeof(msg), "$n смертельно ранен$a и умр%s, если $m не помогут.",
+					grammar::NumberForm(IsPoly(victim), "ет", "ут"));
+			act(msg, true, victim, nullptr, nullptr, kToRoom | kToArenaListen);
 			SendMsgToChar("Вы смертельно ранены и умрете, если вам не помогут.\r\n", victim);
 			break;
 		case EPosition::kIncap:
-			if (IsPoly(victim))
-				act("$n без сознания и медленно умирают. Помогите же им.",
-					true, victim, nullptr, nullptr, kToRoom | kToArenaListen);
-			else
-				act("$n без сознания и медленно умирает. Помогите же $m.",
-					true, victim, nullptr, nullptr, kToRoom | kToArenaListen);
+			snprintf(msg, sizeof(msg), "$n без сознания и медленно умира%s. Помогите же $m.",
+					grammar::NumberForm(IsPoly(victim), "ет", "ют"));
+			act(msg, true, victim, nullptr, nullptr, kToRoom | kToArenaListen);
 			SendMsgToChar("Вы без сознания и медленно умираете, брошенные без помощи.\r\n", victim);
 			break;
 		case EPosition::kStun:
-			if (IsPoly(victim))
-				act("$n без сознания, но возможно они еще повоюют (попозже :).",
-					true, victim, nullptr, nullptr, kToRoom | kToArenaListen);
-			else
-				act("$n без сознания, но возможно $e еще повоюет (попозже :).",
-					true, victim, nullptr, nullptr, kToRoom | kToArenaListen);
+			snprintf(msg, sizeof(msg), "$n без сознания, но возможно $e еще повою%s (попозже :).",
+					grammar::NumberForm(IsPoly(victim), "ет", "ют"));
+			act(msg, true, victim, nullptr, nullptr, kToRoom | kToArenaListen);
 			SendMsgToChar("Сознание покинуло вас. В битве от вас пока проку мало.\r\n", victim);
 			break;
 		case EPosition::kDead:
@@ -977,12 +621,10 @@ void char_dam_message(int dam, CharData *ch, CharData *victim, bool noflee) {
 				act("$n вспыхнул$g и рассыпал$u в прах.", false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
 				SendMsgToChar("Похоже вас убили и даже тела не оставили!\r\n", victim);
 			} else {
-				if (IsPoly(victim))
-					act("$n мертвы, их души медленно подымаются в небеса.",
-						false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
-				else
-					act("$n мертв$a, $s душа медленно подымается в небеса.",
-						false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
+				snprintf(msg, sizeof(msg), "$n мертв$a, $s душ%s медленно подыма%s в небеса.",
+						grammar::NumberForm(IsPoly(victim), "а", "и"),
+						grammar::NumberForm(IsPoly(victim), "ется", "ются"));
+				act(msg, false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
 				SendMsgToChar("Вы мертвы! Нам очень жаль...\r\n", victim);
 			}
 			break;

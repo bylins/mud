@@ -755,7 +755,7 @@ int main_function(int argc, char **argv) {
 	if (getcwd(cwd, sizeof(cwd))) {};
 	printf("[%s] Current directory '%s' using '%s' as data directory.\r\n", utils::NowTs().c_str(), cwd, dir);
 	{
-		std::string config_path = std::string(dir) + "/misc/configuration.xml";
+		std::string config_path = std::string(dir) + "/cfg/configuration.xml";
 		runtime_config.load(config_path.c_str());
 	}
 	if (runtime_config.msdp_debug()) {

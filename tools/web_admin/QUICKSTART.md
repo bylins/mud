@@ -29,7 +29,7 @@ cp -r ../lib small/
 cp -r ../lib.template/* small/lib/
 
 # Убедиться что admin_api включен в конфиге
-grep -A 3 "<admin_api>" small/lib/misc/configuration.xml
+grep -A 3 "<admin_api>" small/lib/cfg/configuration.xml
 # Должно быть: <enabled>true</enabled>
 ```
 
@@ -141,7 +141,7 @@ python3 tests/test_admin_api.py full_crud_test
 ### Socket не создан
 1. Проверить сборку: `ldd build_admin/circle | grep ENABLE_ADMIN_API`
 2. Проверить логи: `grep "Admin API" build_admin/small/lib/syslog`
-3. Проверить конфиг: `grep -A 2 admin_api build_admin/small/lib/misc/configuration.xml`
+3. Проверить конфиг: `grep -A 2 admin_api build_admin/small/lib/cfg/configuration.xml`
 
 ### Web сервер не подключается
 1. Проверить путь в `app.py`: `SOCKET_PATH = 'build_admin/small/lib/admin_api.sock'`
