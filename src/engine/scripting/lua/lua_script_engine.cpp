@@ -108,11 +108,6 @@ void RetireLuaState(const std::shared_ptr<LuaWaitState> &state)
 	state->runtime = LuaRuntimeContext{};
 }
 
-void CleanupDeferredLuaStates()
-{
-	lua_gc(LuaVm().lua_state(), LUA_GCSTEP, 0);
-}
-
 class LuaWaitRegistry {
  public:
 	static LuaWaitRegistry &Instance()
@@ -160,6 +155,10 @@ class LuaWaitRegistry {
 		state->trigger_observer.reset();
 		if (state->thread_ref != LUA_NOREF)
 		{
+			if (state->thread)
+			{
+				lua_settop(state->thread, 0);
+			}
 			luaL_unref(LuaVm().lua_state(), LUA_REGISTRYINDEX, state->thread_ref);
 			state->thread_ref = LUA_NOREF;
 		}
@@ -503,7 +502,7 @@ int LuaScriptEngine::RunTrigger(Trigger *trigger, const LuaTriggerContext &ctx)
 	state->runtime.wait_state = state.get();
 
 	sol::environment environment(lua, sol::create, lua.globals());
-	environment["mud"] = BuildMudNamespace(lua, state->runtime);
+	environment["mud"] = BuildMudNamespace(lua, &state->runtime);
 	sol::table lua_ctx = BuildLuaContext(lua, ctx, state->runtime);
 	LuaExecutionBudget budget;
 	InstallLuaRuntimeLimits(lua, budget);
@@ -602,9 +601,6 @@ void LuaScriptEngine::CancelWaitsForTrigger(Trigger *trigger)
 
 void LuaScriptEngine::HeartbeatCleanup()
 {
-#if defined(WITH_LUAJIT_PROTOTYPE)
-	CleanupDeferredLuaStates();
-#endif
 }
 
 } // namespace lua_scripting

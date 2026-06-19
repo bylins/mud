@@ -80,7 +80,7 @@ RoomRnum GetRoomFromLua(const sol::object &room);
 bool MudDamage(LuaRuntimeContext runtime, const sol::object &victim, const sol::object &amount, const sol::object &type);
 int MudWait(LuaRuntimeContext runtime, sol::this_state state, sol::variadic_args args);
 bool LuaWaitRegistrySchedule(LuaRuntimeContext runtime, int pulses);
-sol::table BuildMudNamespace(sol::state &lua, LuaRuntimeContext runtime);
+sol::table BuildMudNamespace(sol::state &lua, LuaRuntimeContext *runtime);
 sol::table BuildLuaContext(sol::state &lua, const LuaTriggerContext &source, LuaRuntimeContext runtime);
 int ConvertLuaResult(const sol::protected_function_result &result, LuaRuntimeContext runtime, sol::table ctx, bool call_function);
 

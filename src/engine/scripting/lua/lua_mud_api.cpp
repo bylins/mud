@@ -482,6 +482,11 @@ bool ParseWaitDelay(sol::variadic_args args, long &time)
 	return false;
 }
 
+LuaRuntimeContext CurrentRuntime(LuaRuntimeContext *runtime)
+{
+	return runtime ? *runtime : LuaRuntimeContext{};
+}
+
 } // namespace
 
 int MudWait(LuaRuntimeContext runtime, sol::this_state state, sol::variadic_args args)
@@ -504,14 +509,14 @@ int MudWait(LuaRuntimeContext runtime, sol::this_state state, sol::variadic_args
 		LogLuaApiError(runtime, "wait: unable to schedule");
 		return luaL_error(state, "mud.wait: unable to schedule");
 	}
-	return lua_yield(state, 0);
+	return 0;
 }
 
-sol::table BuildMudNamespace(sol::state &lua, LuaRuntimeContext runtime)
+sol::table BuildMudNamespace(sol::state &lua, LuaRuntimeContext *runtime)
 {
 	sol::table mud = lua.create_table();
 	mud["log"] = [runtime](const sol::object &message) {
-		return MudLog(runtime, message);
+		return MudLog(CurrentRuntime(runtime), message);
 	};
 	mud["random"] = [](const sol::object &limit) {
 		return MudRandom(limit);
@@ -523,10 +528,10 @@ sol::table BuildMudNamespace(sol::state &lua, LuaRuntimeContext runtime)
 		return MudPercent(chance);
 	};
 	mud["char_by_uid"] = [&lua, runtime](const sol::object &uid) {
-		return BuildCharView(lua, FindCharByUid(uid), runtime);
+		return BuildCharView(lua, FindCharByUid(uid), CurrentRuntime(runtime));
 	};
 	mud["obj_by_id"] = [&lua, runtime](const sol::object &id) {
-		return BuildObjView(lua, FindObjById(id), runtime);
+		return BuildObjView(lua, FindObjById(id), CurrentRuntime(runtime));
 	};
 	mud["mob_count"] = [](const sol::object &vnum) {
 		return GetCurrentMobCount(vnum);
@@ -535,7 +540,7 @@ sol::table BuildMudNamespace(sol::state &lua, LuaRuntimeContext runtime)
 		return GetCurrentObjectCount(vnum);
 	};
 	mud["room"] = [&lua, runtime](const sol::object &vnum) {
-		return BuildRoomViewByVnum(lua, vnum, runtime);
+		return BuildRoomViewByVnum(lua, vnum, CurrentRuntime(runtime));
 	};
 	mud["zone"] = [&lua](const sol::object &vnum) {
 		return BuildZoneView(lua, vnum);
@@ -547,29 +552,29 @@ sol::table BuildMudNamespace(sol::state &lua, LuaRuntimeContext runtime)
 		return BuildWeatherInfo(lua);
 	};
 	mud["load_obj"] = [&lua, runtime](const sol::object &vnum, const sol::object &room) {
-		return BuildObjView(lua, LoadObjToRoom(vnum, room), runtime);
+		return BuildObjView(lua, LoadObjToRoom(vnum, room), CurrentRuntime(runtime));
 	};
 	mud["load_mob"] = [&lua, runtime](const sol::object &vnum, const sol::object &room) {
-		return BuildCharView(lua, LoadMobToRoom(vnum, room), runtime);
+		return BuildCharView(lua, LoadMobToRoom(vnum, room), CurrentRuntime(runtime));
 	};
 	mud["purge"] = [](const sol::object &entity) {
 		return MudPurge(entity);
 	};
 	mud["damage"] = [runtime](const sol::object &victim, const sol::object &amount, const sol::object &type) {
-		return MudDamage(runtime, victim, amount, type);
+		return MudDamage(CurrentRuntime(runtime), victim, amount, type);
 	};
 	mud["transfer"] = [runtime](const sol::object &entity, const sol::object &room) {
-		return MudTransfer(runtime, entity, room);
+		return MudTransfer(CurrentRuntime(runtime), entity, room);
 	};
 	mud["force"] = [runtime](const sol::object &entity, const sol::object &command) {
-		return MudForce(runtime, entity, command);
+		return MudForce(CurrentRuntime(runtime), entity, command);
 	};
 	mud["echo"] = [runtime](const sol::object &message) {
-		return MudEcho(runtime, message);
+		return MudEcho(CurrentRuntime(runtime), message);
 	};
-	mud["wait"] = [runtime](sol::this_state state, sol::variadic_args args) {
-		return MudWait(runtime, state, args);
-	};
+	mud["wait"] = sol::yielding([runtime](sol::this_state state, sol::variadic_args args) {
+		return MudWait(CurrentRuntime(runtime), state, args);
+	});
 
 	sol::table world_table = lua.create_table();
 	world_table["cur_obj_count"] = [](const sol::object &vnum) {
