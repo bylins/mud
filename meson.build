@@ -178,19 +178,30 @@ endif
 threads_dep = dependency('threads')
 dependencies += threads_dep
 
-luajit_prototype_opt = get_option('luajit_prototype')
-if luajit_prototype_opt
-    luajit_dep = dependency('luajit', required: true)
+luajit_opt = get_option('luajit')
+if luajit_opt != 'disabled'
+    if luajit_opt == 'builtin'
+        luajit_sub = subproject('luajit', default_options: ['default_library=static', 'luajit=false'])
+        luajit_dep = dependency('luajit')
+    elif luajit_opt == 'system'
+        luajit_dep = dependency('luajit', required: true, allow_fallback: false)
+    else
+        luajit_dep = dependency('luajit', required: true, fallback: ['luajit'], default_options: ['default_library=static', 'luajit=false'])
+    endif
     sol2_root = get_option('sol2_root')
     if sol2_root != ''
         sol2_header = sol2_root / 'include' / 'sol' / 'sol.hpp'
         if not fs.exists(sol2_header)
             error('sol2 headers not found at @0@. Set -Dsol2_root=/path/to/sol2 or disable -Dluajit_prototype.'.format(sol2_root))
         endif
-        sol2_dep = declare_dependency(include_directories: include_directories(sol2_root / 'include', is_system: true))
+        sol2_base_dep = declare_dependency(include_directories: include_directories(sol2_root / 'include', is_system: true))
     else
-        sol2_dep = dependency('sol2', required: true, fallback: ['sol2', 'sol2_dep'])
+        sol2_sub = subproject('sol2')
+        sol2_base_dep = sol2_sub.get_variable('sol2_dep')
     endif
+    sol2_dep = declare_dependency(
+        dependencies: [sol2_base_dep, luajit_dep]
+    )
     project_args += '-DWITH_LUAJIT_PROTOTYPE'
     dependencies += [luajit_dep, sol2_dep]
 endif
@@ -812,7 +823,7 @@ if get_option('scripting')
     main_sources += files('src/engine/scripting/scripting.cpp')
 endif
 
-if luajit_prototype_opt
+if luajit_opt != 'disabled'
     main_sources += files('src/engine/scripting/lua_prototype.cpp')
 endif
 
@@ -894,7 +905,6 @@ summary({
     'Coverage':        get_option('b_coverage'),
     'ASan':            get_option('with_asan'),
     'Scripting':       get_option('scripting'),
-    'LuaJIT prototype': luajit_prototype_opt,
     'Admin API':       get_option('admin_api'),
     'Epoll':           epoll_enabled,
     'Linker':          linker_choice != '' ? linker_choice : 'default',
@@ -906,7 +916,7 @@ summary({
     'Boost':           boost_opt,
     'fmt':             fmt_opt,
     'gtest':             gtest_opt,
-    'LuaJIT':          luajit_prototype_opt ? 'enabled' : 'disabled',
+    'LuaJIT':          luajit_opt,
     'SQLite':          sqlite_opt,
     'YAML':            yaml_opt,
     'Telegram':        telegram_opt,
