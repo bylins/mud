@@ -3138,6 +3138,218 @@ bool YamlWorldDataSource::SaveTriggers(int zone_rnum, int specific_vnum, int not
 	return true;
 }
 
+void YamlWorldDataSource::EmitRoomBody(Koi8rYamlEmitter &yaml, std::ostream &out, RoomData *room)
+{
+	// Name
+	if (room->name)
+	{
+		yaml.Key("name");
+		yaml.Value(room->name);
+	}
+
+	// Description
+	std::string desc = GlobalObjects::descriptions().get(room->description_num);
+	if (!desc.empty())
+	{
+		yaml.Key("description");
+		yaml.Value(desc, true);  // literal=true
+	}
+
+	// Sector
+	yaml.Key("sector");
+	yaml.Value(ReverseLookupEnum("sectors", static_cast<int>(room->sector_type)));
+
+	// Flags
+	FlagData room_flags = room->read_flags();
+	auto flag_names = ConvertFlagsToNames(room_flags, "room_flags");
+	if (!flag_names.empty())
+	{
+		yaml.Key("flags");
+		yaml.BeginSequence();
+		yaml.IncreaseIndent();
+
+		for (const auto &flag : flag_names)
+		{
+			yaml.SequenceItem(flag);
+		}
+
+		yaml.DecreaseIndent();
+	}
+
+	// Exits (with to_room comments)
+	bool has_exits = false;
+	for (int dir = 0; dir < EDirection::kMaxDirNum; ++dir)
+	{
+		if (room->dir_option_proto[dir])
+		{
+			has_exits = true;
+			break;
+		}
+	}
+
+	if (has_exits)
+	{
+		yaml.Key("exits");
+		yaml.BeginSequence();
+		yaml.IncreaseIndent();
+
+		for (int dir = 0; dir < EDirection::kMaxDirNum; ++dir)
+		{
+			if (!room->dir_option_proto[dir])
+			{
+				continue;
+			}
+
+			out << yaml.GetIndent() << "- direction: ";
+			out << ReverseLookupEnum("directions", dir) << std::endl;
+
+			// to_room (with comment)
+			RoomRnum to_rnum = kNowhere;
+			int to_vnum = -1;
+			if (room->dir_option_proto[dir]->to_room() != kNowhere)
+			{
+				to_rnum = room->dir_option_proto[dir]->to_room();
+				if (to_rnum >= 0 && to_rnum <= top_of_world && world[to_rnum])
+				{
+					to_vnum = world[to_rnum]->vnum;
+				}
+			}
+
+			out << yaml.GetIndent() << "  to_room: " << to_vnum;
+			if (to_vnum != -1 && to_rnum != kNowhere)
+			{
+				std::string room_name = GetRoomNameComment(to_rnum);
+				if (!room_name.empty())
+				{
+					out << "  # " << room_name;
+				}
+			}
+			out << std::endl;
+
+			// Description (optional). Delegate to Koi8rYamlEmitter::Value
+			// for proper clip-vs-strip chomping based on trailing newline
+			// in the source string (otherwise round-trip silently appends
+			// a CR/LF that wasn't in memory).
+			if (!room->dir_option_proto[dir]->general_description.empty())
+			{
+				out << yaml.GetIndent() << "  description:";
+				yaml.IncreaseIndent();
+				yaml.Value(room->dir_option_proto[dir]->general_description, true);
+				yaml.DecreaseIndent();
+			}
+
+			// Keywords (optional). ExitData splits the load value on '|':
+			// keyword = nominative form, vkeyword = accusative. Recombine
+			// them on save with the same delimiter so the next load sees
+			// both forms (otherwise the accusative form is silently lost
+			// and "открыть решетку" no longer matches the door).
+			if (room->dir_option_proto[dir]->keyword)
+			{
+				std::string kws = room->dir_option_proto[dir]->keyword;
+				const char *vk = room->dir_option_proto[dir]->vkeyword;
+				if (vk && *vk && kws != vk)
+				{
+					kws += "|";
+					kws += vk;
+				}
+				out << yaml.GetIndent() << "  keywords:";
+				// IncreaseIndent so yaml.Value's literal-block branch emits
+				// content lines at parent_indent + 2 -- the indicator "2"
+				// matches actual column position. Without this content sits
+				// one indent shy of where "|+2"/"|2" promises it lives.
+				yaml.IncreaseIndent();
+				yaml.Value(kws);
+				yaml.DecreaseIndent();
+			}
+
+			// Exit flags (optional)
+			if (room->dir_option_proto[dir]->exit_info != 0)
+			{
+				out << yaml.GetIndent() << "  exit_flags: ";
+				out << static_cast<int>(room->dir_option_proto[dir]->exit_info) << std::endl;
+			}
+
+			// Key (optional)
+			if (room->dir_option_proto[dir]->key != -1)
+			{
+				out << yaml.GetIndent() << "  key: ";
+				out << room->dir_option_proto[dir]->key << std::endl;
+			}
+
+			// Lock complexity (optional)
+			if (room->dir_option_proto[dir]->lock_complexity != 0)
+			{
+				out << yaml.GetIndent() << "  lock_complexity: ";
+				out << static_cast<int>(room->dir_option_proto[dir]->lock_complexity) << std::endl;
+			}
+		}
+
+		yaml.DecreaseIndent();
+	}
+
+	// Extra descriptions
+	if (room->ex_description)
+	{
+		yaml.Key("extra_descriptions");
+		yaml.BeginSequence();
+		yaml.IncreaseIndent();
+
+		// LoadRoomExtraDescriptions prepends each yaml entry to the
+		// list, so the in-memory head->tail order is the reverse of the
+		// file order. To keep checksums stable through save->load, walk
+		// the list head->tail and write the entries in reverse: a fresh
+		// load will prepend them back to the same in-memory order.
+		std::vector<ExtraDescription *> exdescs;
+		for (auto exdesc = room->ex_description; exdesc; exdesc = exdesc->next)
+		{
+			exdescs.push_back(exdesc.get());
+		}
+		for (auto it = exdescs.rbegin(); it != exdescs.rend(); ++it)
+		{
+			const auto *exdesc = *it;
+			if (exdesc->keyword)
+			{
+				// keywords may start with '-' (legitimately a single dash);
+				// Koi8rYamlEmitter::Value handles leading-indicator quoting.
+				out << yaml.GetIndent() << "- keywords:";
+				// IncreaseIndent so yaml.Value's literal-block branch
+				// emits content lines at the correct column for indicator
+				// "2" (parent_indent + 2). The "  " before `-` already
+				// indented us; we need one more level so a multi-line
+				// keyword doesn't get content at the wrong column.
+				yaml.IncreaseIndent();
+				yaml.Value(std::string(exdesc->keyword));
+				yaml.DecreaseIndent();
+				if (exdesc->description)
+				{
+					out << yaml.GetIndent() << "  description:";
+					yaml.IncreaseIndent();
+					yaml.Value(std::string(exdesc->description), true);
+					yaml.DecreaseIndent();
+				}
+			}
+		}
+
+		yaml.DecreaseIndent();
+	}
+
+	// Triggers (with comments)
+	if (room->proto_script && !room->proto_script->empty())
+	{
+		yaml.Key("triggers");
+		yaml.BeginSequence();
+		yaml.IncreaseIndent();
+
+		for (auto trig_vnum : *room->proto_script)
+		{
+			std::string trig_comment = GetTriggerNameComment(trig_vnum);
+			yaml.SequenceItem(trig_vnum, trig_comment);
+		}
+
+		yaml.DecreaseIndent();
+	}
+}
+
 void YamlWorldDataSource::SaveRooms(int zone_rnum, int specific_vnum)
 {
 	if (zone_rnum < 0 || zone_rnum >= static_cast<int>(zone_table.size()))
@@ -3147,36 +3359,69 @@ void YamlWorldDataSource::SaveRooms(int zone_rnum, int specific_vnum)
 	}
 
 	const ZoneData &zone = zone_table[zone_rnum];
-	// The cached RnumRoomsLocation range is set at boot and misses rooms added
-	// later via OLC/the Admin API (stays (-1,-1) for zones empty at boot, and
-	// never grows when rooms are appended). Always scan the whole world; the
-	// loop below filters by vnum so only this zone's rooms are written.
-	RoomRnum first_room = 0;
-	RoomRnum last_room = top_of_world;
 
-	std::string rooms_dir = m_world_dir + "/zones/" + std::to_string(zone.vnum) + "/rooms";
+	// Collect this zone's rooms, sorted by vnum. The cached RnumRoomsLocation
+	// range misses rooms added via OLC/Admin API, so scan the whole world.
+	// rel == 99 is the runtime-only virtual room (AddVirtualRoomsToAllZones);
+	// it is never persisted (matches RebuildPerZoneIndex), so skip it -- in the
+	// flat layout writing it would resurrect a phantom room on reload.
+	std::vector<std::pair<int, RoomData *>> entries;
+	for (RoomRnum room_rnum = 0; room_rnum <= top_of_world; ++room_rnum)
+	{
+		RoomData *room = world[room_rnum];
+		if (!room || room->vnum < zone.vnum * 100 || room->vnum > zone.top) continue;
+		if (room->vnum % 100 == 99) continue;
+		entries.emplace_back(room->vnum, room);
+	}
+	std::sort(entries.begin(), entries.end(),
+		[](const auto &a, const auto &b) { return a.first < b.first; });
+
 	namespace fs = std::filesystem;
+
+	if (m_save_layout == YamlLayout::Flat)
+	{
+		const std::string flat_path = m_world_dir + "/zones/" + std::to_string(zone.vnum) + "/rooms.yaml";
+		const std::string temp_file = flat_path + ".tmp";
+		std::ofstream out(temp_file);
+		if (!out.is_open())
+		{
+			log("SYSERR: Failed to open %s for writing", temp_file.c_str());
+			return;
+		}
+		Koi8rYamlEmitter yaml(out);
+		yaml.Comment("Rooms for zone " + std::to_string(zone.vnum));
+		for (const auto &[vnum, room] : entries)
+		{
+			yaml.EmptyLine();
+			yaml.Comment("Room #" + std::to_string(vnum));
+			out << yaml.GetIndent() << (vnum % 100) << ":" << std::endl;
+			yaml.IncreaseIndent();
+			EmitRoomBody(yaml, out, room);
+			yaml.DecreaseIndent();
+		}
+		out.close();
+		if (std::rename(temp_file.c_str(), flat_path.c_str()) != 0)
+		{
+			log("SYSERR: Failed to rename %s to %s", temp_file.c_str(), flat_path.c_str());
+			return;
+		}
+		log("Saved %zu rooms (flat) for zone %d", entries.size(), zone.vnum);
+		CleanupOtherLayout(zone.vnum, "rooms", YamlLayout::Flat);
+		return;
+	}
+
+	// Per-file layout: one file per room.
+	const std::string rooms_dir = m_world_dir + "/zones/" + std::to_string(zone.vnum) + "/rooms";
 	if (!fs::exists(rooms_dir))
 	{
 		fs::create_directories(rooms_dir);
 	}
-
 	int saved_count = 0;
-	for (RoomRnum room_rnum = first_room; room_rnum <= last_room && room_rnum <= top_of_world; ++room_rnum)
+	for (const auto &[vnum, room] : entries)
 	{
-		RoomData *room = world[room_rnum];
-		if (!room || room->vnum < zone.vnum * 100 || room->vnum > zone.top)
-		{
-			continue;
-		}
+		if (specific_vnum != -1 && vnum != specific_vnum) continue;
 
-		// If specific_vnum is set, save only that room
-		if (specific_vnum != -1 && room->vnum != specific_vnum)
-		{
-			continue;
-		}
-
-		int rel_num = room->vnum % 100;
+		int rel_num = vnum % 100;
 		std::string room_file = rooms_dir + "/" + fmt::format("{:02d}", rel_num) + ".yaml";
 		std::string temp_file = room_file + ".tmp";
 		std::ofstream out(temp_file);
@@ -3187,238 +3432,22 @@ void YamlWorldDataSource::SaveRooms(int zone_rnum, int specific_vnum)
 		}
 
 		Koi8rYamlEmitter yaml(out);
-
-		// Header comment
-		yaml.Comment("Room #" + std::to_string(room->vnum));
+		yaml.Comment("Room #" + std::to_string(vnum));
 		yaml.EmptyLine();
+		EmitRoomBody(yaml, out, room);
 
-		// Vnum
-		yaml.Key("vnum");
-		yaml.Value(room->vnum);
-
-		// Name
-		if (room->name)
-		{
-			yaml.Key("name");
-			yaml.Value(room->name);
-		}
-
-		// Description
-		std::string desc = GlobalObjects::descriptions().get(room->description_num);
-		if (!desc.empty())
-		{
-			yaml.Key("description");
-			yaml.Value(desc, true);  // literal=true
-		}
-
-		// Sector
-		yaml.Key("sector");
-		yaml.Value(ReverseLookupEnum("sectors", static_cast<int>(room->sector_type)));
-
-		// Flags
-		FlagData room_flags = room->read_flags();
-		auto flag_names = ConvertFlagsToNames(room_flags, "room_flags");
-		if (!flag_names.empty())
-		{
-			yaml.Key("flags");
-			yaml.BeginSequence();
-			yaml.IncreaseIndent();
-
-			for (const auto &flag : flag_names)
-			{
-				yaml.SequenceItem(flag);
-			}
-
-			yaml.DecreaseIndent();
-		}
-
-		// Exits (with to_room comments)
-		bool has_exits = false;
-		for (int dir = 0; dir < EDirection::kMaxDirNum; ++dir)
-		{
-			if (room->dir_option_proto[dir])
-			{
-				has_exits = true;
-				break;
-			}
-		}
-
-		if (has_exits)
-		{
-			yaml.Key("exits");
-			yaml.BeginSequence();
-			yaml.IncreaseIndent();
-
-			for (int dir = 0; dir < EDirection::kMaxDirNum; ++dir)
-			{
-				if (!room->dir_option_proto[dir])
-				{
-					continue;
-				}
-
-				out << yaml.GetIndent() << "- direction: ";
-				out << ReverseLookupEnum("directions", dir) << std::endl;
-
-				// to_room (with comment)
-				RoomRnum to_rnum = kNowhere;
-				int to_vnum = -1;
-				if (room->dir_option_proto[dir]->to_room() != kNowhere)
-				{
-					to_rnum = room->dir_option_proto[dir]->to_room();
-					if (to_rnum >= 0 && to_rnum <= top_of_world && world[to_rnum])
-					{
-						to_vnum = world[to_rnum]->vnum;
-					}
-				}
-
-				out << yaml.GetIndent() << "  to_room: " << to_vnum;
-				if (to_vnum != -1 && to_rnum != kNowhere)
-				{
-					std::string room_name = GetRoomNameComment(to_rnum);
-					if (!room_name.empty())
-					{
-						out << "  # " << room_name;
-					}
-				}
-				out << std::endl;
-
-				// Description (optional). Delegate to Koi8rYamlEmitter::Value
-				// for proper clip-vs-strip chomping based on trailing newline
-				// in the source string (otherwise round-trip silently appends
-				// a CR/LF that wasn't in memory).
-				if (!room->dir_option_proto[dir]->general_description.empty())
-				{
-					out << yaml.GetIndent() << "  description:";
-					yaml.IncreaseIndent();
-					yaml.Value(room->dir_option_proto[dir]->general_description, true);
-					yaml.DecreaseIndent();
-				}
-
-				// Keywords (optional). ExitData splits the load value on '|':
-				// keyword = nominative form, vkeyword = accusative. Recombine
-				// them on save with the same delimiter so the next load sees
-				// both forms (otherwise the accusative form is silently lost
-				// and "открыть решетку" no longer matches the door).
-				if (room->dir_option_proto[dir]->keyword)
-				{
-					std::string kws = room->dir_option_proto[dir]->keyword;
-					const char *vk = room->dir_option_proto[dir]->vkeyword;
-					if (vk && *vk && kws != vk)
-					{
-						kws += "|";
-						kws += vk;
-					}
-					out << yaml.GetIndent() << "  keywords:";
-					// IncreaseIndent so yaml.Value's literal-block branch emits
-					// content lines at parent_indent + 2 -- the indicator "2"
-					// matches actual column position. Without this content sits
-					// one indent shy of where "|+2"/"|2" promises it lives.
-					yaml.IncreaseIndent();
-					yaml.Value(kws);
-					yaml.DecreaseIndent();
-				}
-
-				// Exit flags (optional)
-				if (room->dir_option_proto[dir]->exit_info != 0)
-				{
-					out << yaml.GetIndent() << "  exit_flags: ";
-					out << static_cast<int>(room->dir_option_proto[dir]->exit_info) << std::endl;
-				}
-
-				// Key (optional)
-				if (room->dir_option_proto[dir]->key != -1)
-				{
-					out << yaml.GetIndent() << "  key: ";
-					out << room->dir_option_proto[dir]->key << std::endl;
-				}
-
-				// Lock complexity (optional)
-				if (room->dir_option_proto[dir]->lock_complexity != 0)
-				{
-					out << yaml.GetIndent() << "  lock_complexity: ";
-					out << static_cast<int>(room->dir_option_proto[dir]->lock_complexity) << std::endl;
-				}
-			}
-
-			yaml.DecreaseIndent();
-		}
-
-		// Extra descriptions
-		if (room->ex_description)
-		{
-			yaml.Key("extra_descriptions");
-			yaml.BeginSequence();
-			yaml.IncreaseIndent();
-
-			// LoadRoomExtraDescriptions prepends each yaml entry to the
-			// list, so the in-memory head->tail order is the reverse of the
-			// file order. To keep checksums stable through save->load, walk
-			// the list head->tail and write the entries in reverse: a fresh
-			// load will prepend them back to the same in-memory order.
-			std::vector<ExtraDescription *> exdescs;
-			for (auto exdesc = room->ex_description; exdesc; exdesc = exdesc->next)
-			{
-				exdescs.push_back(exdesc.get());
-			}
-			for (auto it = exdescs.rbegin(); it != exdescs.rend(); ++it)
-			{
-				const auto *exdesc = *it;
-				if (exdesc->keyword)
-				{
-					// keywords may start with '-' (legitimately a single dash);
-					// Koi8rYamlEmitter::Value handles leading-indicator quoting.
-					out << yaml.GetIndent() << "- keywords:";
-					// IncreaseIndent so yaml.Value's literal-block branch
-					// emits content lines at the correct column for indicator
-					// "2" (parent_indent + 2). The "  " before `-` already
-					// indented us; we need one more level so a multi-line
-					// keyword doesn't get content at the wrong column.
-					yaml.IncreaseIndent();
-					yaml.Value(std::string(exdesc->keyword));
-					yaml.DecreaseIndent();
-					if (exdesc->description)
-					{
-						out << yaml.GetIndent() << "  description:";
-						yaml.IncreaseIndent();
-						yaml.Value(std::string(exdesc->description), true);
-						yaml.DecreaseIndent();
-					}
-				}
-			}
-
-			yaml.DecreaseIndent();
-		}
-
-		// Triggers (with comments)
-		if (room->proto_script && !room->proto_script->empty())
-		{
-			yaml.Key("triggers");
-			yaml.BeginSequence();
-			yaml.IncreaseIndent();
-
-			for (auto trig_vnum : *room->proto_script)
-			{
-				std::string trig_comment = GetTriggerNameComment(trig_vnum);
-				yaml.SequenceItem(trig_vnum, trig_comment);
-			}
-
-			yaml.DecreaseIndent();
-		}
-
-		// Close file and rename atomically
 		out.close();
 		if (std::rename(temp_file.c_str(), room_file.c_str()) != 0)
 		{
 			log("SYSERR: Failed to rename %s to %s", temp_file.c_str(), room_file.c_str());
 			continue;
 		}
-
 		++saved_count;
 	}
 
 	log("Saved %d rooms for zone %d", saved_count, zone.vnum);
-
 	RebuildPerZoneIndex(zone.vnum, "rooms");
+	CleanupOtherLayout(zone.vnum, "rooms", YamlLayout::PerFile);
 }
 
 void YamlWorldDataSource::SaveMobs(int zone_rnum, int specific_vnum)
