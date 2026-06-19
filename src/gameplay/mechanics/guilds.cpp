@@ -122,6 +122,14 @@ ItemPtr GuildInfoBuilder::ParseGuild(DataNode node) {
 
 	auto guild_info = std::make_shared<GuildInfo>(vnum, text_id, name, mode);
 
+	if (node.GoToChild("currency")) {
+		try {
+			guild_info->default_currency_vnum_ = MUD::Currencies().FindAvailableItem(parse::ReadAsStr(node.GetValue("val"))).GetId();
+		} catch (std::exception &e) {
+			err_log("guild currency error (%s) in guild '%s'.", e.what(), guild_info->GetName().c_str());
+		}
+		node.GoToParent();
+	}
 	if (node.GoToChild("trainers")) {
 		try {
 			parse::ReadAsIntSet(guild_info->trainers_, node.GetValue("vnums"));
@@ -150,6 +158,14 @@ void GuildInfoBuilder::ParseTalents(ItemPtr &info, DataNode &node) {
 		} catch (std::exception &e) {
 			err_log("talent format error (%s) in guild '%s'.", e.what(), info->GetName().c_str());
 		}
+	}
+	// Talents without their own currency inherit the guild-wide default; if the guild sets none either,
+	// fall back to gold so the price still renders (legacy behaviour).
+	const Vnum guild_currency = info->default_currency_vnum_ != info_container::kUndefinedVnum
+		? info->default_currency_vnum_
+		: currencies::kGoldVnum;
+	for (auto &talent : info->learning_talents_) {
+		talent->ApplyDefaultCurrency(guild_currency);
 	}
 }
 
@@ -458,8 +474,16 @@ GuildInfo::IGuildTalent::IGuildTalent(ETalent talent_type, DataNode &node) {
 
 	if (node.GoToChild("price")) {
 		try {
-			auto currency_text_id = parse::ReadAsStr(node.GetValue("currency"));
-			currency_vnum_ = MUD::Currencies().FindAvailableItem(currency_text_id).GetId();
+			// An absent (or kUndefined/invalid) currency leaves currency_vnum_ at kUndefinedVnum so the
+			// talent inherits the guild-wide default (applied by ApplyDefaultCurrency); only an explicit,
+			// valid currency overrides it.
+			const char *currency_text_id = parse::ReadAsStr(node.GetValue("currency"));
+			if (currency_text_id != nullptr && *currency_text_id != '\0') {
+				const auto id = MUD::Currencies().FindAvailableItem(currency_text_id).GetId();
+				if (id >= 0) {
+					currency_vnum_ = id;
+				}
+			}
 			start_price_ = parse::ReadAsInt(node.GetValue("start"));
 			remort_percemt_ = parse::ReadAsInt(node.GetValue("remort_percent"));
 		} catch (std::exception &e) {
@@ -481,14 +505,12 @@ std::string GuildInfo::IGuildTalent::GetPriceCurrencyStr(long price) const {
 	}
 }
 
-bool HasEnoughCurrency(CharData *ch, Vnum currency_id, long amount);
-void WithdrawCurrency(CharData *ch, Vnum currency_id, long amount);
 
 bool GuildInfo::IGuildTalent::TakePayment(CharData *ch) const {
 	auto price = CalcPrice(ch);
 
-	if (HasEnoughCurrency(ch, currency_vnum_, price)) {
-		WithdrawCurrency(ch, currency_vnum_, price);
+	if (currencies::GetHand(*ch, currency_vnum_) >= price) {
+		currencies::RemoveHand(*ch, currency_vnum_, price);
 		return true;
 	}
 
@@ -613,60 +635,6 @@ std::string GuildInfo::GuildFeat::GetAnnotation(CharData * /*ch*/) const {
 /*
  *  Костыльные функции для проверки/снятия валют, поскольку системы валют пока нет.
  */
-
-bool HasEnoughCurrency(CharData *ch, Vnum currency_id, long amount) {
-	switch (currency_id) {
-		case 0: { // куны
-			return ch->get_gold() >= amount;
-		}
-		case 1: { // слава
-			const auto total_glory = GloryConst::get_glory(ch->get_uid());
-			return total_glory >= amount;
-		}
-		case 2: { // гривны
-			return ch->get_hryvn() >= amount;
-		}
-		case 3: { // лед
-			return ch->get_ice_currency() >= amount;
-		}
-		case 4: { // ногаты
-			return ch->get_nogata() >= amount;
-		}
-		default:
-			return false;
-	}
-}
-
-void WithdrawCurrency(CharData *ch, Vnum currency_id, long amount) {
-	amount = std::max(0L, amount);
-	switch (currency_id) {
-		case 0: { // куны
-			ch->remove_gold(amount);
-			break;
-		}
-		case 1: { // слава
-			GloryConst::add_total_spent(amount);
-			GloryConst::remove_glory(ch->get_uid(), amount);
-			GloryConst::transfer_log("%s spent %ld const glory in a guild.", GET_NAME(ch), amount);
-			break;
-		}
-		case 2: { // гривны
-			ch->sub_hryvn(amount);
-			ch->spent_hryvn_sub(amount);
-			break;
-		}
-		case 3: { // лед
-			ch->sub_ice_currency(amount);
-			break;
-		}
-		case 4: { // ногаты
-			ch->sub_nogata(amount);
-			break;
-		}
-		default:
-			return;
-	}
-}
 
 }
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

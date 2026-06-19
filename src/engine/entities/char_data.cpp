@@ -18,6 +18,7 @@
 #include "engine/db/global_objects.h"
 #include "char_data.h"
 #include "gameplay/statistics/money_drop.h"
+#include "gameplay/economics/currencies.h"
 #include "gameplay/affects/affect_data.h"
 #include "gameplay/mechanics/illumination.h"
 #include "engine/ui/alias.h"
@@ -264,9 +265,6 @@ void CharData::zero_init() {
 	remorts_ = 0;
 	remorts_add_ = 0;
 	last_logon_ = 0;
-	gold_ = 0;
-	bank_gold_ = 0;
-	ruble = 0;
 	str_ = 0;
 	str_add_ = 0;
 	dex_ = 0;
@@ -1051,154 +1049,6 @@ int CharData::get_movereg() const {
 
 void CharData::set_movereg(const int v) {
 	add_abils.movereg = v;
-}
-
-long CharData::get_ruble() {
-	return ruble;
-}
-
-void CharData::set_ruble(int ruble) {
-	this->ruble = ruble;
-}
-
-long CharData::get_gold() const {
-	return gold_;
-}
-
-long CharData::get_bank() const {
-	return bank_gold_;
-}
-
-long CharData::get_total_gold() const {
-	return get_gold() + get_bank();
-}
-
-/**
- * Добавление денег на руках, плюсуются только положительные числа.
- * \param need_log здесь и далее - логировать или нет изменения счета (=true)
- * \param clan_tax - проверять и снимать клан-налог или нет (=false)
- */
-void CharData::add_gold(long num, bool need_log, bool clan_tax) {
-	if (num < 0) {
-		log("SYSERROR: num=%ld (%s:%d %s)", num, __FILE__, __LINE__, __func__);
-		return;
-	}
-	if (clan_tax) {
-		num -= ClanSystem::do_gold_tax(this, num);
-	}
-	set_gold(get_gold() + num, need_log);
-}
-
-// * см. add_gold()
-void CharData::add_bank(long num, bool need_log) {
-	if (num < 0) {
-		log("SYSERROR: num=%ld (%s:%d %s)", num, __FILE__, __LINE__, __func__);
-		return;
-	}
-	set_bank(get_bank() + num, need_log);
-}
-
-/**
- * Сет денег на руках, отрицательные числа просто обнуляют счет с
- * логированием бывшей суммы.
- */
-void CharData::set_gold(long num, bool need_log) {
-	if (get_gold() == num) {
-		// чтобы с логированием не заморачиваться
-		return;
-	}
-	num = std::clamp(num, 0L, kMaxMoneyKept);
-
-	if (need_log && !this->IsNpc()) {
-		long change = num - get_gold();
-		if (change > 0) {
-			log("Gold: %s add %ld", get_name().c_str(), change);
-		} else {
-			log("Gold: %s remove %ld", get_name().c_str(), -change);
-		}
-		if (this->in_room > 0) {
-			MoneyDropStat::add(zone_table[world[this->in_room]->zone_rn].vnum, change);
-		}
-	}
-
-	gold_ = num;
-	msdp_report(msdp::constants::GOLD);
-}
-
-// * см. set_gold()
-void CharData::set_bank(long num, bool need_log) {
-	if (get_bank() == num) {
-		// чтобы с логированием не заморачиваться
-		return;
-	}
-	num = std::clamp(num, 0L, kMaxMoneyKept);
-
-	if (need_log && !this->IsNpc()) {
-		long change = num - get_bank();
-		if (change > 0) {
-			log("Gold: %s add %ld", get_name().c_str(), change);
-		} else {
-			log("Gold: %s remove %ld", get_name().c_str(), -change);
-		}
-	}
-
-	bank_gold_ = num;
-	msdp_report(msdp::constants::GOLD);
-}
-
-/**
- * Снятие находящихся на руках денег.
- * \param num - положительное число
- * \return - кол-во кун, которое не удалось снять с рук (нехватило денег)
- */
-long CharData::remove_gold(long num, bool need_log) {
-	if (num < 0) {
-		log("SYSERROR: num=%ld (%s:%d %s)", num, __FILE__, __LINE__, __func__);
-		return num;
-	}
-	if (num == 0) {
-		return num;
-	}
-
-	long rest = 0;
-	if (get_gold() >= num) {
-		set_gold(get_gold() - num, need_log);
-	} else {
-		rest = num - get_gold();
-		set_gold(0, need_log);
-	}
-
-	return rest;
-}
-
-// * см. remove_gold()
-long CharData::remove_bank(long num, bool need_log) {
-	if (num < 0) {
-		log("SYSERROR: num=%ld (%s:%d %s)", num, __FILE__, __LINE__, __func__);
-		return num;
-	}
-	if (num == 0) {
-		return num;
-	}
-
-	long rest = 0;
-	if (get_bank() >= num) {
-		set_bank(get_bank() - num, need_log);
-	} else {
-		rest = num - get_bank();
-		set_bank(0, need_log);
-	}
-
-	return rest;
-}
-
-/**
- * Попытка снятия денег с банка и, в случае остатка, с рук.
- * \return - кол-во кун, которое не удалось снять (нехватило денег в банке и на руках)
- */
-long CharData::remove_both_gold(long num, bool need_log) {
-	long rest = remove_bank(num, need_log);
-	return remove_gold(rest, need_log);
 }
 
 // * Удача (мораль) для расчетов в скилах и вывода чару по счет все.

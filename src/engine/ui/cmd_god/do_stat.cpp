@@ -1,4 +1,5 @@
 #include "do_stat.h"
+#include "gameplay/economics/currencies.h"
 #include "gameplay/mechanics/condition.h"
 #include "gameplay/mechanics/magic_item.h"
 #include "gameplay/fight/fight_messages.h"
@@ -21,6 +22,7 @@
 #include "gameplay/statistics/mob_stat.h"
 #include "engine/ui/modify.h"
 #include "engine/db/global_objects.h"
+#include "utils/grammar/declensions.h"
 #include "gameplay/mechanics/depot.h"
 #include "gameplay/magic/magic.h"
 #include "gameplay/mechanics/noob.h"
@@ -282,9 +284,15 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 		SendMsgToChar(buf, ch);
 
 		{
-			std::string sline = fmt::sprintf("Рента: [%d], Денег: [%9ld], В банке: [%9ld] (Всего: %ld), Гривны: %d, Ногат: %d",
-					GET_LOADROOM(k), k->get_gold(), k->get_bank(), k->get_total_gold(),
-					k->get_hryvn(), k->get_nogata());
+			std::string sline = fmt::sprintf("Рента: [%d], Денег: [%9ld], В банке: [%9ld] (Всего: %ld)",
+					GET_LOADROOM(k), currencies::GetHand(*k, currencies::kGold), currencies::GetBank(*k, currencies::kGold), currencies::GetTotal(*k, currencies::kGold));
+			for (const auto &cur : MUD::Currencies()) {
+				if (cur.GetId() < 0 || cur.GetTextId() == currencies::kGold) { continue; }
+				const long cur_total = currencies::GetTotal(*k, cur.GetTextId());
+				if (cur_total != 0) {
+					sline += fmt::sprintf(", %s: %ld", cur.GetName(grammar::ECase::kNom).c_str(), cur_total);
+				}
+			}
 			if (GetRealLevel(ch) >= kLvlImmortal) {
 				sline += fmt::sprintf(", %sOLC[%d]%s", kColorGrn, GET_OLC_ZONE(k), kColorNrm);
 			}
@@ -327,7 +335,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 	snprintf(buf, sizeof(buf),
 			"Glory: [%d], ConstGlory: [%d], AC: [%d/%d(%d)], Броня: [%d], Попадания: [%2d/%2d/%d], Повреждения: [%2d/%2d/%d]\r\n",
 			Glory::get_glory(k->get_uid()),
-			GloryConst::get_glory(k->get_uid()),
+			currencies::GetHand(*k, currencies::kGlory),
 			GET_AC(k),
 			GetRealAc(k),
 			CalcBaseAc(k),
@@ -992,10 +1000,7 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 
 		case EObjType::kMoney:
 			snprintf(buf, sizeof(buf), "Сумма: %d\r\nВалюта: %s", GET_OBJ_VAL(j, 0),
-					GET_OBJ_VAL(j, 1) == currency::GOLD ? "куны" :
-					GET_OBJ_VAL(j, 1) == currency::ICE ? "искристые снежинки" :
-					"что-то другое"
-			);
+					MUD::Currency(GET_OBJ_VAL(j, 1)).GetCName(grammar::ECase::kNom));
 			break;
 
 		case EObjType::kMagicIngredient:sprintbit(j->get_spec_param(), ingradient_bits, smallBuf, sizeof(smallBuf));

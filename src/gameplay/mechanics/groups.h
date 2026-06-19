@@ -21,7 +21,7 @@ void print_group(CharData *ch);
 void print_one_line(CharData *ch, CharData *k, int leader, int header);
 void do_report(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/);
 void do_split(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
-void do_split(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, int currency);
+void do_split(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, int currency_vnum);
 }  // namespace group
 #endif //BYLINS_SRC_GAMEPLAY_MECHANICS_GROUPS_H_
 

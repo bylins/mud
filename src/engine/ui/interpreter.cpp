@@ -94,6 +94,7 @@
 #include "engine/ui/cmd/do_mobshout.h"
 #include "engine/ui/cmd/do_commands.h"
 #include "engine/ui/cmd/do_gold.h"
+#include "engine/ui/cmd/do_money.h"
 #include "engine/ui/cmd/do_hidemove.h"
 #include "engine/ui/cmd/do_generic_page.h"
 #include "engine/ui/cmd/do_check_invoice.h"
@@ -544,6 +545,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"зачаровать", EPosition::kStand, DoSpellCapable, 1, 0, 0},
 		{"зачистить", EPosition::kDead, DoSanitize, kLvlGreatGod, 0, 0},
 		{"золото", EPosition::kRest, do_gold, 0, 0, 0},
+		{"деньги", EPosition::kRest, do_money, 0, 0, 0},
 		{"зона", EPosition::kRest, DoZone, 0, 0, 0},
 		{"зоныстат", EPosition::kDead, DoShowZoneStat, kLvlImmortal, 0, 0},
 		{"инвентарь", EPosition::kSleep, DoInventory, 0, 0, 0},
@@ -858,6 +860,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"give", EPosition::kRest, do_give, 0, 0, 500},
 		{"godnews", EPosition::kDead, Boards::DoBoard, 1, Boards::GODNEWS_BOARD, -1},
 		{"gold", EPosition::kRest, do_gold, 0, 0, 0},
+		{"money", EPosition::kRest, do_money, 0, 0, 0},
 		{"glide", EPosition::kStand, DoLightwalk, 0, 0, 0},
 		{"glory", EPosition::kRest, GloryConst::do_glory, kLvlImplementator, 0, 0},
 		{"glorytemp", EPosition::kRest, DoGlory, kLvlBuilder, 0, 0},
@@ -1778,9 +1781,9 @@ void do_entergame(DescriptorData *d) {
 
 	if (GetRealLevel(d->character) > kLvlImmortal
 		&& GetRealLevel(d->character) < kLvlBuilder
-		&& (d->character->get_gold() > 0 || d->character->get_bank() > 0)) {
-		d->character->set_gold(0);
-		d->character->set_bank(0);
+		&& (currencies::GetHand(*d->character, currencies::kGold) > 0 || currencies::GetBank(*d->character, currencies::kGold) > 0)) {
+		currencies::SetHand(*d->character, currencies::kGold, 0);
+		currencies::SetBank(*d->character, currencies::kGold, 0);
 	}
 
 	if (GetRealLevel(d->character) >= kLvlImmortal && GetRealLevel(d->character) < kLvlImplementator) {

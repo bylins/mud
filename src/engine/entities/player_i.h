@@ -115,18 +115,6 @@ class PlayerI {
 	virtual time_t get_board_date(Boards::BoardTypes/* type*/) const { return 0; };
 	virtual void set_board_date(Boards::BoardTypes/* type*/, time_t/* date*/) {};
 
-	virtual int get_ice_currency() { return 0; };
-	virtual void set_ice_currency(int  /* value */) {};
-	virtual void add_ice_currency(int /* value */) {};
-	virtual void sub_ice_currency(int /* value */) {};
-	virtual int get_hryvn() { return 0; }
-	virtual void set_hryvn(int /* value */) {};
-	virtual void sub_hryvn(int /* value */) {};
-	virtual void add_hryvn(int /* value */) {};
-	virtual int get_nogata() { return 0; }
-	virtual void set_nogata(int /* value */) {};
-	virtual void sub_nogata(int /* value */) {};
-	virtual void add_nogata(int /* value */) {};
 
 	virtual void dquest(int /*id */) {};
 	virtual void complete_quest(int /*id */) {};

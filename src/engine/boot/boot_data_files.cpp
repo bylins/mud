@@ -1135,7 +1135,7 @@ void MobileFile::parse_simple_mob(int i, int nr) {
 		fatal_log("SYSERR: Format error in mob #%d, 2th line\n" "...expecting line of form '#d#+# #'", nr);
 	}
 
-	mob_proto[i].set_gold(t[2], false);
+	currencies::SetHand(mob_proto[i], currencies::kGold, t[2], false);
 	GET_GOLD_NoDs(mob_proto + i) = t[0];
 	GET_GOLD_SiDs(mob_proto + i) = t[1];
 	mob_proto[i].set_exp(t[3]);

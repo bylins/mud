@@ -1,6 +1,7 @@
 #include "do_hire.h"
 #include "gameplay/core/remort.h"
 #include "administration/privilege.h"
+#include "gameplay/economics/currencies.h"
 #include "utils/grammar/declensions.h"
 #include "gameplay/mechanics/follow.h"
 #include "gameplay/mechanics/mount.h"
@@ -113,7 +114,7 @@ long CalcHirePrice(CharData *ch, CharData *victim) {
 	hirePoints = hirePoints * 5 * GetRealLevel(ch);
 
 	int min_price = MAX((m_dr / 300 * GetRealLevel(victim)), (GetRealLevel(victim) * 5));
-	min_price = MAX(min_price, mob_proto[victim->get_rnum()].get_gold());
+	min_price = MAX(min_price, currencies::GetHand(mob_proto[victim->get_rnum()], currencies::kGold));
 	long finalPrice = MAX(min_price, (int) ceil(price - hirePoints));
 
 	ch->send_to_TC(true, true, true,
@@ -193,7 +194,7 @@ void DoFindhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (!*arg || times == 0) {
 			const auto cost = CalcHirePrice(ch, helpee);
 			sprintf(buf, "$n сказал$g вам : \"Один час моих услуг стоит %ld %s\".\r\n",
-					cost, grammar::GetDeclensionInNumber(cost, grammar::EWhat::kMoneyU));
+					cost, MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(cost, grammar::ECase::kNom).c_str());
 			act(buf, false, helpee, 0, ch, kToVict | kToNotDeaf);
 			return;
 		}
@@ -211,12 +212,12 @@ void DoFindhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		auto hire_price = CalcHirePrice(ch, helpee);
 		long cost = times * hire_price;
 
-		if ((!isname(isbank, "банк bank") && cost > ch->get_gold()) ||
-			(isname(isbank, "банк bank") && cost > ch->get_bank())) {
+		if ((!isname(isbank, "банк bank") && cost > currencies::GetHand(*ch, currencies::kGold)) ||
+			(isname(isbank, "банк bank") && cost > currencies::GetBank(*ch, currencies::kGold))) {
 			sprintf(buf,
 					"$n сказал$g вам : \" Мои услуги за %d %s стоят %ld %s - это тебе не по карману.\"",
 					times,
-					grammar::GetDeclensionInNumber(times, grammar::EWhat::kHour), cost, grammar::GetDeclensionInNumber(cost, grammar::EWhat::kMoneyU));
+					grammar::GetDeclensionInNumber(times, grammar::EWhat::kHour), cost, MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(cost, grammar::ECase::kNom).c_str());
 			act(buf, false, helpee, 0, ch, kToVict | kToNotDeaf);
 			return;
 		}
@@ -244,12 +245,12 @@ void DoFindhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				long oldcost = MAX(0, (int) (((*aff)->duration - 1) / 2) * (int) abs(hired->mob_specials.hire_price));
 				if (oldcost > 0) {
 					if (hired->mob_specials.hire_price < 0) {
-						ch->add_bank(oldcost);
+						currencies::AddBank(*ch, currencies::kGold, oldcost);
 					} else {
-						ch->add_gold(oldcost);
+						currencies::AddHand(*ch, currencies::kGold, oldcost);
 					}
 					SendMsgToChar(ch, "Вам вернули нерастраченный задаток в %ld %s.\r\n",
-								  oldcost, grammar::GetDeclensionInNumber(cost, grammar::EWhat::kMoneyA));
+								  oldcost, MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(cost, grammar::ECase::kNom).c_str());
 				}
 				af.duration = CalcDuration(helpee, helpee, ESkill::kUndefined, times * kTimeKoeff, 0, 0, 0);
 			}
@@ -257,10 +258,10 @@ void DoFindhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		RemoveAffectFromChar(helpee, ESpell::kCharm);
 		if (!privilege::IsImmortal(ch)) {
 			if (isname(isbank, "банк bank")) {
-				ch->remove_bank(cost);
+				currencies::RemoveBank(*ch, currencies::kGold, cost);
 				helpee->mob_specials.hire_price = -hire_price;
 			} else {
-				ch->remove_gold(cost);
+				currencies::RemoveHand(*ch, currencies::kGold, cost);
 				helpee->mob_specials.hire_price = hire_price;
 			}
 		}
@@ -351,11 +352,11 @@ void DoFreehelpee(CharData *ch, char * /* argument*/, int/* cmd*/, int/* subcmd*
 				long cost = MAX(0, (int) ((aff->duration - 1) / 2) * (int) abs(hired->mob_specials.hire_price));
 				if (cost > 0) {
 					if (hired->mob_specials.hire_price < 0) {
-						ch->add_bank(cost);
+						currencies::AddBank(*ch, currencies::kGold, cost);
 					} else {
-						ch->add_gold(cost);
+						currencies::AddHand(*ch, currencies::kGold, cost);
 					}
-					SendMsgToChar(ch, "Вам вернули нерастраченный задаток в %ld %s.\r\n", cost, grammar::GetDeclensionInNumber(cost, grammar::EWhat::kMoneyA));
+					SendMsgToChar(ch, "Вам вернули нерастраченный задаток в %ld %s.\r\n", cost, MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(cost, grammar::ECase::kNom).c_str());
 				}
 				break;
 			}

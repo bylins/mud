@@ -8,6 +8,7 @@
 
 #include "engine/entities/char_data.h"
 #include "administration/privilege.h"
+#include "gameplay/economics/currencies.h"
 #include "utils/grammar/declensions.h"
 #include "gameplay/mechanics/mount.h"
 #include "engine/entities/obj_data.h"
@@ -158,27 +159,27 @@ void go_steal(CharData *ch, CharData *vict, char *obj_name) {
 			act("$n пытал$u спионерить деньги у $N1.", true, ch, nullptr, vict, kToNotVict | kToArenaListen);
 		} else    // Steal some gold coins
 		{
-			if (!vict->get_gold()) {
+			if (!currencies::GetHand(*vict, currencies::kGold)) {
 				act("$E богат$A, как амбарная мышь :)", false, ch, nullptr, vict, kToChar);
 				return;
 			} else {
 				// Считаем вероятность крит-воровства (воровства всех денег)
 				if ((number(1, 100) - ch->GetSkill(ESkill::kSteal) -
-					ch->get_dex() + vict->get_wis() + vict->get_gold() / 500) < 0) {
+					ch->get_dex() + vict->get_wis() + currencies::GetHand(*vict, currencies::kGold) / 500) < 0) {
 					act("Тугой кошелек $N1 перекочевал к вам.", true, ch, nullptr, vict, kToChar);
-					gold = vict->get_gold();
+					gold = currencies::GetHand(*vict, currencies::kGold);
 				} else
-					gold = (int) ((vict->get_gold() * number(1, 75)) / 100);
+					gold = (int) ((currencies::GetHand(*vict, currencies::kGold) * number(1, 75)) / 100);
 
 				if (gold > 0) {
 					if (gold > 1) {
 						sprintf(buf, "УР-Р-Р-А! Вы таки сперли %d %s.\r\n",
-								gold, grammar::GetDeclensionInNumber(gold, grammar::EWhat::kMoneyU));
+								gold, MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(gold, grammar::ECase::kNom).c_str());
 						SendMsgToChar(buf, ch);
 					} else {
 						SendMsgToChar("УРА-А-А ! Вы сперли :) 1 (одну) куну :(.\r\n", ch);
 					}
-					ch->add_gold(gold);
+					currencies::AddHand(*ch, currencies::kGold, gold);
 					sprintf(buf,
 							"<%s> {%d} нагло спер %d кун у %s.",
 							ch->get_name().c_str(),
@@ -187,7 +188,7 @@ void go_steal(CharData *ch, CharData *vict, char *obj_name) {
 							GET_PAD(vict, 0));
 					mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
 					split_or_clan_tax(ch, gold);
-					vict->remove_gold(gold);
+					currencies::RemoveHand(*vict, currencies::kGold, gold);
 				} else
 					SendMsgToChar("Вы ничего не сумели украсть...\r\n", ch);
 			}

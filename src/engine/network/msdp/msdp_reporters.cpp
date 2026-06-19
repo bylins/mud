@@ -1,4 +1,5 @@
 #include "msdp_reporters.h"
+#include "gameplay/economics/currencies.h"
 #include "gameplay/mechanics/sight.h"
 #include "gameplay/mechanics/mount.h"
 
@@ -114,11 +115,11 @@ bool RoomReporter::blockReport() const {
 void GoldReporter::get(Variable::shared_ptr &response) {
 	const auto gold = std::make_shared<TableValue>();
 
-	const auto pocket_money = std::to_string(descriptor()->character->get_gold());
+	const auto pocket_money = std::to_string(currencies::GetHand(*descriptor()->character, currencies::kGold));
 	gold->add(std::make_shared<Variable>("POCKET",
 			std::make_shared<StringValue>(pocket_money)));
 
-	const auto bank_money = std::to_string(descriptor()->character->get_bank());
+	const auto bank_money = std::to_string(currencies::GetBank(*descriptor()->character, currencies::kGold));
 	gold->add(std::make_shared<Variable>("BANK",
 										 std::make_shared<StringValue>(bank_money)));
 

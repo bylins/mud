@@ -3,6 +3,8 @@
 //
 
 #include "administration/karma.h"
+#include "gameplay/economics/currencies.h"
+#include "engine/db/global_objects.h"
 #include "gameplay/mechanics/mount.h"
 #include "administration/names.h"
 #include "administration/privilege.h"
@@ -111,12 +113,12 @@ SetCmdStruct set_fields[] =
 		{"remort", kLvlImplementator, ESetVict::kPc, ESetValue::kNumber}, // 59
 		{"tester", kLvlImplementator, ESetVict::kPc, ESetValue::kBinary}, // 60
 		{"autobot", kLvlImplementator, ESetVict::kPc, ESetValue::kBinary}, // 61
-		{"hryvn", kLvlImplementator, ESetVict::kPc, ESetValue::kNumber}, // 62
+		{"currency", kLvlImplementator, ESetVict::kBoth, ESetValue::kMisc}, // 62 (generic: <text_id> <amount>, hand)
 		{"scriptwriter", kLvlImplementator, ESetVict::kPc, ESetValue::kBinary}, // 63
 		{"spammer", kLvlGod, ESetVict::kPc, ESetValue::kBinary}, // 64
 		{"gloryhide", kLvlImplementator, ESetVict::kPc, ESetValue::kBinary}, // 65
 		{"telegram", kLvlImplementator, ESetVict::kPc, ESetValue::kMisc}, // 66
-		{"nogata", kLvlImplementator, ESetVict::kPc, ESetValue::kNumber}, // 67
+		{"currency_bank", kLvlImplementator, ESetVict::kBoth, ESetValue::kMisc}, // 67 (generic: <text_id> <amount>, bank)
 		{"position", kLvlImplementator, ESetVict::kPc, ESetValue::kNumber},
 		{"skilltester", kLvlImplementator, ESetVict::kPc, ESetValue::kBinary}, //69
 		{"quest", kLvlImplementator, ESetVict::kPc, ESetValue::kNumber}, //70
@@ -354,9 +356,9 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 		case 11: vict->real_abils.armor = std::clamp(value, -100, 100);
 			affect_total(vict);
 			break;
-		case 12: vict->set_gold(value);
+		case 12: currencies::SetHand(*vict, currencies::kGold, value);
 			break;
-		case 13: vict->set_bank(value);
+		case 13: currencies::SetBank(*vict, currencies::kGold, value);
 			break;
 		case 14: {
 			auto new_value = static_cast<long>(value);
@@ -888,8 +890,15 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 			break;
 		case 61: on_off_mode ? vict->SetFlag(EPlrFlag::kAutobot) : vict->UnsetFlag(EPlrFlag::kAutobot);
 			break;
-		case 62: vict->set_hryvn(value);
+		case 62: {
+			char cur_id[64] = {0}; long amt = 0;
+			if (sscanf(val_arg, "%63s %ld", cur_id, &amt) == 2 && MUD::Currencies().FindAvailableItem(cur_id).GetId() >= 0) {
+				currencies::SetHand(*vict, cur_id, amt, true, true);
+			} else {
+				SendMsgToChar("Формат: set <имя> currency <id_валюты> <количество>.\r\n", ch);
+			}
 			break;
+		}
 		case 63: // флаг скриптера
 			sprintf(buf, "%s", GET_NAME(ch));
 			if (!str_cmp(val_arg, "off") || !str_cmp(val_arg, "выкл")) {
@@ -930,8 +939,15 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 				SendMsgToChar("Ошибка, указано неверное число или персонаж.\r\n", ch);
 			break;
 		}
-		case 67: vict->set_nogata(value);
+		case 67: {
+			char cur_id[64] = {0}; long amt = 0;
+			if (sscanf(val_arg, "%63s %ld", cur_id, &amt) == 2 && MUD::Currencies().FindAvailableItem(cur_id).GetId() >= 0) {
+				currencies::SetBank(*vict, cur_id, amt, true, true);
+			} else {
+				SendMsgToChar("Формат: set <имя> currency_bank <id_валюты> <количество>.\r\n", ch);
+			}
 			break;
+		}
 		case 68: {
 			auto tmpval = (EPosition) value;
 			if (tmpval > EPosition::kDead && tmpval < EPosition::kLast) {

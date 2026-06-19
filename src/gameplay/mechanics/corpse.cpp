@@ -2,6 +2,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "corpse.h"
+#include "gameplay/economics/currencies.h"
 #include "utils/grammar/gender.h"
 #include "gameplay/mechanics/minions.h"
 
@@ -476,12 +477,12 @@ ObjData *make_corpse(CharData *ch, CharData *killer) {
 
 	// transfer gold
 	// following 'if' clause added to fix gold duplication loophole
-	if (ch->get_gold() > 0) {
+	if (currencies::GetHand(*ch, currencies::kGold) > 0) {
 		if (ch->IsNpc()) {
-			const auto money = CreateCurrencyObj(ch->get_gold());
+			const auto money = CreateCurrencyObj(currencies::GetHand(*ch, currencies::kGold));
 			PlaceObjIntoObj(money.get(), corpse.get());
 		} else {
-			const int amount = ch->get_gold();
+			const int amount = currencies::GetHand(*ch, currencies::kGold);
 			const auto money = CreateCurrencyObj(amount);
 			ObjData *purse = nullptr;
 			if (amount >= 100) {
@@ -496,7 +497,7 @@ ObjData *make_corpse(CharData *ch, CharData *killer) {
 				PlaceObjIntoObj(money.get(), corpse.get());
 			}
 		}
-		ch->set_gold(0);
+		currencies::SetHand(*ch, currencies::kGold, 0);
 	}
 
 	ch->carrying = nullptr;

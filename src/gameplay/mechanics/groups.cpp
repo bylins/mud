@@ -639,7 +639,7 @@ void group::do_split(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) 
 	do_split(ch, argument, 0, 0, 0);
 }
 
-void group::do_split(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, int currency) {
+void group::do_split(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, int currency_vnum) {
 	int amount, num, share, rest;
 	CharData *k;
 
@@ -648,14 +648,6 @@ void group::do_split(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, 
 
 	one_argument(argument, buf);
 
-	grammar::EWhat what_currency;
-
-	switch (currency) {
-		case currency::ICE : what_currency = grammar::EWhat::kIceU;
-			break;
-		default : what_currency = grammar::EWhat::kMoneyU;
-			break;
-	}
 
 	if (is_number(buf)) {
 		amount = atoi(buf);
@@ -664,7 +656,7 @@ void group::do_split(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, 
 			return;
 		}
 
-		if (amount > ch->get_gold() && currency == currency::GOLD) {
+		if (amount > currencies::GetHand(*ch, currency_vnum)) {
 			SendMsgToChar("И где бы взять вам столько денег?.\r\n", ch);
 			return;
 		}
@@ -694,27 +686,13 @@ void group::do_split(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, 
 		}
 		//MONEY_HACK
 
-		switch (currency) {
-			case currency::ICE : ch->sub_ice_currency(share * (num - 1));
-				break;
-			case currency::GOLD : ch->remove_gold(share * (num - 1));
-				break;
-		}
+		currencies::RemoveHand(*ch, currency_vnum, share * (num - 1));
 
 		sprintf(buf, "%s разделил%s %d %s; вам досталось %d.\r\n",
-				GET_NAME(ch), grammar::SexEnding((ch)->get_sex(), 1), amount, grammar::GetDeclensionInNumber(amount, what_currency), share);
+				GET_NAME(ch), grammar::SexEnding((ch)->get_sex(), 1), amount, MUD::Currency(currency_vnum).GetNameWithAmount(amount, grammar::ECase::kAcc).c_str(), share);
 		if (AFF_FLAGGED(k, EAffect::kGroup) && k->in_room == ch->in_room && !k->IsNpc() && k != ch) {
 			SendMsgToChar(buf, k);
-			switch (currency) {
-				case currency::ICE : {
-					k->add_ice_currency(share);
-					break;
-				}
-				case currency::GOLD : {
-					k->add_gold(share, true, true);
-					break;
-				}
-			}
+			currencies::AddHand(*k, currency_vnum, share - (currency_vnum == currencies::kGoldVnum ? ClanSystem::do_gold_tax(k, share) : 0), false, true);
 		}
 		for (auto *f : k->followers) {
 			if (AFF_FLAGGED(f, EAffect::kGroup)
@@ -722,27 +700,22 @@ void group::do_split(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, 
 				&& f->in_room == ch->in_room
 				&& f != ch) {
 				SendMsgToChar(buf, f);
-				switch (currency) {
-					case currency::ICE : f->add_ice_currency(share);
-						break;
-					case currency::GOLD : f->add_gold(share, true, true);
-						break;
-				}
+				currencies::AddHand(*f, currency_vnum, share - (currency_vnum == currencies::kGoldVnum ? ClanSystem::do_gold_tax(f, share) : 0), false, true);
 			}
 		}
 		sprintf(buf, "Вы разделили %d %s на %d  -  по %d каждому.\r\n",
-				amount, grammar::GetDeclensionInNumber(amount, what_currency), num, share);
+				amount, MUD::Currency(currency_vnum).GetNameWithAmount(amount, grammar::ECase::kAcc).c_str(), num, share);
 		if (rest) {
 			sprintf(buf + strlen(buf),
 					"Как истинный еврей вы оставили %d %s (которые не смогли разделить нацело) себе.\r\n",
-					rest, grammar::GetDeclensionInNumber(rest, what_currency));
+					rest, MUD::Currency(currency_vnum).GetNameWithAmount(rest, grammar::ECase::kAcc).c_str());
 		}
 
 		SendMsgToChar(buf, ch);
 		// клан-налог лутера с той части, которая пошла каждому в группе
-		if (currency == currency::GOLD) {
+		if (currency_vnum == currencies::kGoldVnum) {
 			const long clan_tax = ClanSystem::do_gold_tax(ch, share);
-			ch->remove_gold(clan_tax);
+			currencies::RemoveHand(*ch, currencies::kGold, clan_tax);
 		}
 	} else {
 		SendMsgToChar("Сколько и чего вы хотите разделить?\r\n", ch);

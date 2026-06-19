@@ -120,10 +120,6 @@ class Player : public CharData {
 	time_t get_board_date(Boards::BoardTypes type) const;
 	void set_board_date(Boards::BoardTypes type, time_t date);
 
-	int get_ice_currency();
-	void set_ice_currency(int value);
-	void add_ice_currency(int value);
-	void sub_ice_currency(int value);
 
 	int death_player_count();
 
@@ -145,16 +141,8 @@ class Player : public CharData {
 	/*void touch_stigma(char *arg);
 	void add_stigma(int wear, int id_stigma);
 	int get_stigma(int wear);*/
-	int get_hryvn();
-	void set_hryvn(int value);
-	void sub_hryvn(int value);
-	void add_hryvn(int value);
 	void dquest(int id) override;
 	void complete_quest(int id);
-	int get_nogata();
-	void set_nogata(int value);
-	void sub_nogata(int value);
-	void add_nogata(int value);
 
 	std::shared_ptr<Account> get_account();
 	// добавить/обновить чармиса в историю игрока
@@ -209,7 +197,6 @@ class Player : public CharData {
 	// временнЫе отметки о прочитанных сообщениях на досках
 	std::array<time_t, Boards::TYPES_NUM> board_date_;
 	// лед (доп. валюта)
-	int ice_currency;
 	// список зон, где чар умер и в каком количестве
 	std::map<int, int> count_death_zone;
 	// время, когда были выполнены все дейлики
@@ -223,9 +210,7 @@ class Player : public CharData {
 	// режим !бот
 	bool setmode_dontbot;
 	// гривны
-	int hryvn;
 	// ногаты
-	int nogata;
 	// id задания и сколько раз было выполненно задание
 	std::map<int, int> daily_quest;
 	// сколько гривен было потрачено в магазине

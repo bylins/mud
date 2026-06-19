@@ -10,6 +10,8 @@
 
 #include "auction.h"
 #include "administration/privilege.h"
+#include "engine/db/global_objects.h"
+#include "gameplay/economics/currencies.h"
 #include "gameplay/mechanics/sight.h"
 #include "utils/grammar/gender.h"
 #include "utils/grammar/declensions.h"
@@ -89,7 +91,7 @@ void showlots(CharData *ch) {
 
 		sprintf(tmpbuf, "Аукцион : лот %2d - %s%s%s - ставка %d %s, попытка %d, владелец %s.\r\n",
 				i, kColorBoldYel, obj->get_PName(grammar::ECase::kNom).c_str(), kColorNrm,
-				GET_LOT(i)->cost, grammar::GetDeclensionInNumber(GET_LOT(i)->cost, grammar::EWhat::kMoneyA),
+				GET_LOT(i)->cost, MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(GET_LOT(i)->cost, grammar::ECase::kNom).c_str(),
 				GET_LOT(i)->tact < 0 ? 1 : GET_LOT(i)->tact + 1, GET_NAME(sch));
 
 		if (GET_LOT(i)->prefect && GET_LOT(i)->prefect_unique == ch->get_uid()) {
@@ -200,15 +202,15 @@ bool auction_drive(CharData *ch, char *argument) {
 
 			if (tch) {
 				sprintf(tmpbuf, "Вы выставили на аукцион $O3 за %d %s (для %s)",
-						value, grammar::GetDeclensionInNumber(value, grammar::EWhat::kMoneyU), GET_PAD(tch, 1));
+						value, MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(value, grammar::ECase::kNom).c_str(), GET_PAD(tch, 1));
 			} else {
 				sprintf(tmpbuf, "Вы выставили на аукцион $O3 за %d %s", value,
-						grammar::GetDeclensionInNumber(value, grammar::EWhat::kMoneyU));
+						MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(value, grammar::ECase::kNom).c_str());
 			}
 			act(tmpbuf, false, ch, 0, obj, kToChar);
 			sprintf(tmpbuf,
 					"Аукцион : новый лот %d - %s - начальная ставка %d %s. \r\n",
-					lot, obj->get_PName(grammar::ECase::kNom).c_str(), value, grammar::GetDeclensionInNumber(value, grammar::EWhat::kMoneyA));
+					lot, obj->get_PName(grammar::ECase::kNom).c_str(), value, MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(value, grammar::ECase::kNom).c_str());
 			message_auction(tmpbuf, nullptr);
 			SetWait(ch, 1, false);
 			return true;
@@ -273,7 +275,7 @@ bool auction_drive(CharData *ch, char *argument) {
 				SendMsgToChar("Повышайте ставку не ниже 5% текущей.\r\n", ch);
 				return false;
 			}
-			if (value > ch->get_gold() + ch->get_bank()) {
+			if (value > currencies::GetHand(*ch, currencies::kGold) + currencies::GetBank(*ch, currencies::kGold)) {
 				SendMsgToChar("У вас нет такой суммы.\r\n", ch);
 				return false;
 			}
@@ -282,7 +284,7 @@ bool auction_drive(CharData *ch, char *argument) {
 			GET_LOT(lot)->buyer = ch;
 			GET_LOT(lot)->buyer_unique = ch->get_uid();
 			sprintf(tmpbuf, "Хорошо, вы согласны заплатить %d %s за %s (лот %d).\r\n",
-					value, grammar::GetDeclensionInNumber(value, grammar::EWhat::kMoneyU), GET_LOT(lot)->item->get_PName(grammar::ECase::kAcc).c_str(), lot);
+					value, MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(value, grammar::ECase::kNom).c_str(), GET_LOT(lot)->item->get_PName(grammar::ECase::kAcc).c_str(), lot);
 			SendMsgToChar(tmpbuf, ch);
 			sprintf(tmpbuf,
 					"Принята ставка %s на лот %d(%s) %d %s.\r\n",
@@ -290,10 +292,10 @@ bool auction_drive(CharData *ch, char *argument) {
 					lot,
 					GET_LOT(lot)->item->get_PName(grammar::ECase::kNom).c_str(),
 					value,
-					grammar::GetDeclensionInNumber(value, grammar::EWhat::kMoneyA));
+					MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(value, grammar::ECase::kNom).c_str());
 			SendMsgToChar(tmpbuf, GET_LOT(lot)->seller);
 			sprintf(tmpbuf, "Аукцион : лот %d(%s) - новая ставка %d %s.", lot,
-					GET_LOT(lot)->item->get_PName(grammar::ECase::kNom).c_str(), value, grammar::GetDeclensionInNumber(value, grammar::EWhat::kMoneyA));
+					GET_LOT(lot)->item->get_PName(grammar::ECase::kNom).c_str(), value, MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(value, grammar::ECase::kNom).c_str());
 			message_auction(tmpbuf, nullptr);
 			SetWait(ch, 1, false);
 			return true;
@@ -322,7 +324,7 @@ bool auction_drive(CharData *ch, char *argument) {
 			if (GET_LOT(lot)->tact < kMaxAuctionTactBuy) {
 				sprintf(whom, "Аукцион : лот %d(%s) продан с аукциона за %d %s.",
 						lot, GET_LOT(lot)->item->get_PName(grammar::ECase::kNom).c_str(), GET_LOT(lot)->cost,
-						grammar::GetDeclensionInNumber(GET_LOT(lot)->cost, grammar::EWhat::kMoneyU));
+						MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(GET_LOT(lot)->cost, grammar::ECase::kNom).c_str());
 				GET_LOT(lot)->tact = kMaxAuctionTactBuy;
 			} else
 				*whom = '\0';
@@ -455,17 +457,17 @@ bool auction_drive(CharData *ch, char *argument) {
 				SendMsgToChar("Господи, а ведь смертные за это деньги платят.\r\n", ch);
 				return false;
 			}
-			if ((ch->get_total_gold() < AUCTION_IDENT_PAY) && (GetRealLevel(ch) < kLvlImplementator)) {
+			if ((currencies::GetTotal(*ch, currencies::kGold) < AUCTION_IDENT_PAY) && (GetRealLevel(ch) < kLvlImplementator)) {
 				SendMsgToChar("У вас не хватит на это денег!\r\n", ch);
 				return false;
 			}
 			MortShowObjValues(iobj, ch, 200);    //200 - весь текст
-			ch->remove_both_gold(AUCTION_IDENT_PAY);
+			currencies::RemoveTotal(*ch, currencies::kGold, AUCTION_IDENT_PAY);
 			SendMsgToChar(ch,
 						  "\r\n%sЗа информацию о предмете с вашего счета сняли %d %s%s\r\n",
 						  kColorBoldGrn,
 						  AUCTION_IDENT_PAY,
-						  grammar::GetDeclensionInNumber(AUCTION_IDENT_PAY, grammar::EWhat::kMoneyU),
+						  MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(AUCTION_IDENT_PAY, grammar::ECase::kNom).c_str(),
 						  kColorNrm);
 
 			return true;
@@ -533,7 +535,7 @@ int check_sell(int lot) {
 		}
 	}
 
-	if (tch->get_total_gold() < GET_LOT(lot)->cost) {
+	if (currencies::GetTotal(*tch, currencies::kGold) < GET_LOT(lot)->cost) {
 		sprintf(tmpbuf, "У вас не хватает денег на покупку %s.\r\n", obj->get_PName(grammar::ECase::kGen).c_str());
 		SendMsgToChar(tmpbuf, tch);
 		sprintf(tmpbuf, "У покупателя %s не хватает денег.\r\n", obj->get_PName(grammar::ECase::kGen).c_str());
@@ -566,7 +568,7 @@ void trans_auction(int lot) {
 		return;
 	}
 	// У покупателя есть 10% суммы на счету.
-	if (tch->get_total_gold() < (GET_LOT(lot)->cost + GET_LOT(lot)->cost / 10)) {
+	if (currencies::GetTotal(*tch, currencies::kGold) < (GET_LOT(lot)->cost + GET_LOT(lot)->cost / 10)) {
 		SendMsgToChar("У вас не хватает денег на передачу предмета.", tch);
 		return;
 	}
@@ -682,8 +684,8 @@ void trans_auction(int lot) {
 	RemoveObjFromChar(obj);
 	PlaceObjToInventory(obj, tch);
 
-	ch->add_bank(GET_LOT(lot)->cost);
-	tch->remove_both_gold(GET_LOT(lot)->cost + (GET_LOT(lot)->cost / 10));
+	currencies::AddBank(*ch, currencies::kGold, GET_LOT(lot)->cost);
+	currencies::RemoveTotal(*tch, currencies::kGold, GET_LOT(lot)->cost + (GET_LOT(lot)->cost / 10));
 
 	clear_auction(lot);
 	return;
@@ -780,8 +782,8 @@ void sell_auction(int lot) {
 	RemoveObjFromChar(obj);
 	PlaceObjToInventory(obj, tch);
 
-	ch->add_bank(GET_LOT(lot)->cost);
-	tch->remove_both_gold(GET_LOT(lot)->cost);
+	currencies::AddBank(*ch, currencies::kGold, GET_LOT(lot)->cost);
+	currencies::RemoveTotal(*tch, currencies::kGold, GET_LOT(lot)->cost);
 
 
 	metrics.send();
@@ -824,7 +826,7 @@ void check_auction(CharData *ch, ObjData *obj) {
 			}
 			if (GET_LOT(i)->item->get_carried_by() != GET_LOT(i)->seller
 				|| (GET_LOT(i)->buyer
-					&& (GET_LOT(i)->buyer->get_total_gold() < GET_LOT(i)->cost))) {
+					&& (currencies::GetTotal(*GET_LOT(i)->buyer, currencies::kGold) < GET_LOT(i)->cost))) {
 				sprintf(tmpbuf, "Аукцион : лот %d(%s) снят с аукциона распорядителем.",
 						i, GET_LOT(i)->item->get_PName(grammar::ECase::kNom).c_str());
 				message_auction(tmpbuf, nullptr);
@@ -846,7 +848,7 @@ void tact_auction(void) {
 		if (++GET_LOT(i)->tact < kMaxAuctionTactBuy) {
 			sprintf(tmpbuf, "Аукцион : лот %d(%s), %d %s, %s", i,
 					GET_LOT(i)->item->get_PName(grammar::ECase::kNom).c_str(), GET_LOT(i)->cost,
-					grammar::GetDeclensionInNumber(GET_LOT(i)->cost, grammar::EWhat::kMoneyA), tact_message[GET_LOT(i)->tact]);
+					MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(GET_LOT(i)->cost, grammar::ECase::kNom).c_str(), tact_message[GET_LOT(i)->tact]);
 			message_auction(tmpbuf, nullptr);
 			continue;
 		} else if (GET_LOT(i)->tact < kMaxAuctionTact) {
@@ -860,7 +862,7 @@ void tact_auction(void) {
 			if (!GET_LOT(i)->prefect) {
 				sprintf(tmpbuf, "Аукцион : лот %d(%s), %d %s - ПРОДАНО.",
 						i, GET_LOT(i)->item->get_PName(grammar::ECase::kNom).c_str(), GET_LOT(i)->cost,
-						grammar::GetDeclensionInNumber(GET_LOT(i)->cost, grammar::EWhat::kMoneyA));
+						MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(GET_LOT(i)->cost, grammar::ECase::kNom).c_str());
 				message_auction(tmpbuf, nullptr);
 				GET_LOT(i)->prefect = GET_LOT(i)->buyer;
 				GET_LOT(i)->prefect_unique = GET_LOT(i)->buyer_unique;

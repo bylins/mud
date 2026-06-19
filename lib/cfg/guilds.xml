@@ -683,7 +683,7 @@
             </skill>
             <skill id="kShortBlades" fail="0">
                 <upgrade practices="10" min="0" max="10"/>
-                <price currency="kGrivna" start="7" remort_percent="20"/>
+                <price currency="kCopperGrivna" start="7" remort_percent="20"/>
             </skill>
             <skill id="kNonstandart" fail="0">
                 <upgrade practices="10" min="0" max="10"/>

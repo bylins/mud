@@ -14,6 +14,7 @@
 
 #include "gameplay/ai/spec_procs.h"
 #include "administration/privilege.h"
+#include "gameplay/economics/currencies.h"
 #include "utils/grammar/gender.h"
 #include "utils/grammar/declensions.h"
 #include "gameplay/mechanics/follow.h"
@@ -66,7 +67,7 @@ int HorseBuy(CharData *ch, void *me, char * /*rest*/) {
 			act(specials::HorseMsg(specials::EHorseMsg::kBuyHaveAlready), false, ch, 0, victim, kToChar);
 			return (true);
 		}
-		if (ch->get_gold() < kHorseCost) {
+		if (currencies::GetHand(*ch, currencies::kGold) < kHorseCost) {
 			act(specials::HorseMsg(specials::EHorseMsg::kBuyNoMoney), false, ch, 0, victim, kToChar);
 			return (true);
 		}
@@ -85,7 +86,7 @@ int HorseBuy(CharData *ch, void *me, char * /*rest*/) {
 		act(fmt::format(fmt::runtime(specials::HorseMsg(specials::EHorseMsg::kBuyGiveRoom)),
 				fmt::arg("horse", GET_PAD(horse, 3)), fmt::arg("pronoun", grammar::PossessivePronoun((horse)->get_sex()))),
 			false, ch, 0, victim, kToRoom);
-		ch->remove_gold(kHorseCost);
+		currencies::RemoveHand(*ch, currencies::kGold, kHorseCost);
 		ch->SetFlag(EPlrFlag::kCrashSave);
 		return (true);
 	return (1);
@@ -119,7 +120,7 @@ int HorseSell(CharData *ch, void *me, char * /*rest*/) {
 				fmt::arg("horse", GET_PAD(horse, 3)), fmt::arg("pronoun", grammar::PossessivePronoun((horse)->get_sex()))),
 			false, ch, 0, victim, kToRoom);
 		ExtractCharFromWorld(horse, false);
-		ch->add_gold((kHorseCost >> 1));
+		currencies::AddHand(*ch, currencies::kGold, (kHorseCost >> 1));
 		ch->SetFlag(EPlrFlag::kCrashSave);
 		return (true);
 	return (1);
@@ -144,7 +145,7 @@ int horse_keeper(CharData *ch, void *me, int /*cmd*/, char *argument) {
 			}
 			act(fmt::format(fmt::runtime(specials::HorseMsg(specials::EHorseMsg::kForSale)),
 					fmt::arg("amount", kHorseCost),
-					fmt::arg("currency", grammar::GetDeclensionInNumber(kHorseCost, grammar::EWhat::kMoneyA))),
+					fmt::arg("currency", MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(kHorseCost, grammar::ECase::kNom).c_str())),
 				false, ch, nullptr, victim, kToChar);
 			return (true);
 		return (1);
@@ -284,7 +285,7 @@ int npc_scavenge(CharData *ch) {
 			if (best_obj != best_cont) {
 				act("$n поднял$g $o3.", false, ch, best_obj, 0, kToRoom);
 				if (best_obj->get_type() == EObjType::kMoney) {
-					ch->add_gold(GET_OBJ_VAL(best_obj, 0));
+					currencies::AddHand(*ch, currencies::kGold, GET_OBJ_VAL(best_obj, 0));
 					ExtractObjFromWorld(best_obj);
 				} else {
 					RemoveObjFromRoom(best_obj);
@@ -294,7 +295,7 @@ int npc_scavenge(CharData *ch) {
 				sprintf(buf, "$n достал$g $o3 из %s.", cont->get_PName(grammar::ECase::kGen).c_str());
 				act(buf, false, ch, best_obj, 0, kToRoom);
 				if (best_obj->get_type() == EObjType::kMoney) {
-					ch->add_gold(GET_OBJ_VAL(best_obj, 0));
+					currencies::AddHand(*ch, currencies::kGold, GET_OBJ_VAL(best_obj, 0));
 					ExtractObjFromWorld(best_obj);
 				} else {
 					RemoveObjFromObj(best_obj);
@@ -328,7 +329,7 @@ int npc_loot(CharData *ch) {
 						sprintf(buf, "$n вытащил$g $o3 из %s.", obj->get_PName(grammar::ECase::kGen).c_str());
 						act(buf, false, ch, loot_obj, 0, kToRoom);
 						if (loot_obj->get_type() == EObjType::kMoney) {
-							ch->add_gold(GET_OBJ_VAL(loot_obj, 0));
+							currencies::AddHand(*ch, currencies::kGold, GET_OBJ_VAL(loot_obj, 0));
 							ExtractObjFromWorld(loot_obj);
 						} else {
 							RemoveObjFromObj(loot_obj);
@@ -355,7 +356,7 @@ int npc_loot(CharData *ch) {
 								sprintf(buf, "$n вытащил$g $o3 из %s.", obj->get_PName(grammar::ECase::kGen).c_str());
 								act(buf, false, ch, cobj, 0, kToRoom);
 								if (cobj->get_type() == EObjType::kMoney) {
-									ch->add_gold(GET_OBJ_VAL(cobj, 0));
+									currencies::AddHand(*ch, currencies::kGold, GET_OBJ_VAL(cobj, 0));
 									ExtractObjFromWorld(cobj);
 								} else {
 									RemoveObjFromObj(cobj);
@@ -401,7 +402,7 @@ int npc_loot(CharData *ch) {
 								sprintf(buf, "$n вытащил$g $o3 из %s.", obj->get_PName(grammar::ECase::kGen).c_str());
 								act(buf, false, ch, cobj, 0, kToRoom);
 								if (cobj->get_type() == EObjType::kMoney) {
-									ch->add_gold(GET_OBJ_VAL(cobj, 0));
+									currencies::AddHand(*ch, currencies::kGold, GET_OBJ_VAL(cobj, 0));
 									ExtractObjFromWorld(cobj);
 								} else {
 									RemoveObjFromObj(cobj);
@@ -847,10 +848,10 @@ int do_npc_steal(CharData *ch, CharData *victim) {
 		act("$n пытал$u обокрасть $N3.", true, ch, 0, victim, kToNotVict);
 	} else        // Steal some gold coins
 	{
-		gold = (int) ((victim->get_gold() * number(1, 10)) / 100);
+		gold = (int) ((currencies::GetHand(*victim, currencies::kGold) * number(1, 10)) / 100);
 		if (gold > 0) {
-			ch->add_gold(gold);
-			victim->remove_gold(gold);
+			currencies::AddHand(*ch, currencies::kGold, gold);
+			currencies::RemoveHand(*victim, currencies::kGold, gold);
 		}
 		// Steal something from equipment
 		if (ch->GetCarryingQuantity() < CAN_CARRY_N(ch) && CalcCurrentSkill(ch, ESkill::kSteal, victim)
@@ -1333,11 +1334,11 @@ int pet_shops(CharData *ch, void * /*me*/, int cmd, char *argument) {
 			SendMsgToChar("There is no such pet!\r\n", ch);
 			return (true);
 		}
-		if (ch->get_gold() < PET_PRICE(pet)) {
+		if (currencies::GetHand(*ch, currencies::kGold) < PET_PRICE(pet)) {
 			SendMsgToChar("You don't have enough gold!\r\n", ch);
 			return (true);
 		}
-		ch->remove_gold(PET_PRICE(pet));
+		currencies::RemoveHand(*ch, currencies::kGold, PET_PRICE(pet));
 
 		pet = ReadMobile(pet->get_rnum(), kReal);
 		pet->set_exp(0);
@@ -1381,51 +1382,82 @@ namespace {
 // words to these handlers and auto-generates the "чего изволите" tooltip from the same list.
 enum class EBankCmd { kBalance, kDeposit, kWithdraw, kTransfer, kTreasury };
 
+// Parse "<amount> [<currency>]" for deposit/withdraw. An omitted currency means gold; a named one
+// must resolve and permit banking (IsStorable). Returns false (after messaging) on a bad value.
+bool ParseBankArg(CharData *ch, char *argument, specials::EBankMsg how_much, int &amount, int &currency) {
+	char amount_arg[kMaxInputLength], curr_arg[kMaxInputLength];
+	argument = one_argument(argument, amount_arg);
+	one_argument(argument, curr_arg);
+	amount = atoi(amount_arg);
+	if (amount <= 0) {
+		SendMsgToChar(specials::BankMsg(how_much) + "\r\n", ch);
+		return false;
+	}
+	currency = currencies::kGoldVnum;
+	if (*curr_arg) {
+		const auto *cur = currencies::FindBySearch(curr_arg);
+		if (!cur || !cur->IsStorable()) {
+			SendMsgToChar(specials::BankMsg(specials::EBankMsg::kCantBank) + "\r\n", ch);
+			return false;
+		}
+		currency = cur->GetId();
+	}
+	return true;
+}
+
 int BankBalance(CharData *ch, void * /*me*/, char * /*argument*/) {
-	if (ch->get_bank() > 0) {
+	bool any = false;
+	for (const auto &[id, amounts] : currencies::HeldByChar(*ch)) {
+		if (amounts.bank <= 0) {
+			continue;
+		}
+		const auto &info = MUD::Currencies().FindAvailableItem(id);
+		if (info.GetId() < 0) {
+			continue;
+		}
 		SendMsgToChar(fmt::format(fmt::runtime(specials::BankMsg(specials::EBankMsg::kBalance)),
-				fmt::arg("amount", ch->get_bank()),
-				fmt::arg("currency", grammar::GetDeclensionInNumber(ch->get_bank(), grammar::EWhat::kMoneyA))) + "\r\n", ch);
-	} else {
+				fmt::arg("amount", amounts.bank),
+				fmt::arg("currency", info.GetNameWithAmount(amounts.bank, grammar::ECase::kNom).c_str())) + "\r\n", ch);
+		any = true;
+	}
+	if (!any) {
 		SendMsgToChar(specials::BankMsg(specials::EBankMsg::kNoMoney) + "\r\n", ch);
 	}
 	return (1);
 }
 
 int BankDeposit(CharData *ch, void * /*me*/, char *argument) {
-	int amount;
-	if ((amount = atoi(argument)) <= 0) {
-		SendMsgToChar(specials::BankMsg(specials::EBankMsg::kDepositHowMuch) + "\r\n", ch);
+	int amount, currency;
+	if (!ParseBankArg(ch, argument, specials::EBankMsg::kDepositHowMuch, amount, currency)) {
 		return (1);
 	}
-	if (ch->get_gold() < amount) {
+	if (currencies::GetHand(*ch, currency) < amount) {
 		SendMsgToChar(specials::BankMsg(specials::EBankMsg::kCantAfford) + "\r\n", ch);
 		return (1);
 	}
-	ch->remove_gold(amount, false);
-	ch->add_bank(amount, false);
+	currencies::RemoveHand(*ch, currency, amount, false);
+	currencies::AddBank(*ch, currency, amount, false, false);
 	SendMsgToChar(fmt::format(fmt::runtime(specials::BankMsg(specials::EBankMsg::kDeposited)),
 			fmt::arg("amount", amount),
-			fmt::arg("currency", grammar::GetDeclensionInNumber(amount, grammar::EWhat::kMoneyU))) + "\r\n", ch);
+			fmt::arg("currency", MUD::Currency(currency).GetNameWithAmount(amount, grammar::ECase::kNom).c_str())) + "\r\n", ch);
 	act(specials::BankMsg(specials::EBankMsg::kFinancialOp), true, ch, nullptr, nullptr, kToRoom);
 	return (1);
 }
 
 int BankWithdraw(CharData *ch, void * /*me*/, char *argument) {
-	int amount;
-	if ((amount = atoi(argument)) <= 0) {
-		SendMsgToChar(specials::BankMsg(specials::EBankMsg::kWithdrawHowMuch) + "\r\n", ch);
+	int amount, currency;
+	if (!ParseBankArg(ch, argument, specials::EBankMsg::kWithdrawHowMuch, amount, currency)) {
 		return (1);
 	}
-	if (ch->get_bank() < amount) {
+	if (currencies::GetBank(*ch, currency) < amount) {
 		SendMsgToChar(specials::BankMsg(specials::EBankMsg::kNeverHadThatMuch) + "\r\n", ch);
 		return (1);
 	}
-	ch->add_gold(amount, false);
-	ch->remove_bank(amount, false);
+	currencies::AddHand(*ch, currency, amount, false, false);
+	currencies::RemoveBank(*ch, currency, amount, false);
 	SendMsgToChar(fmt::format(fmt::runtime(specials::BankMsg(specials::EBankMsg::kWithdrawn)),
 			fmt::arg("amount", amount),
-			fmt::arg("currency", grammar::GetDeclensionInNumber(amount, grammar::EWhat::kMoneyU))) + "\r\n", ch);
+			fmt::arg("currency", MUD::Currency(currency).GetNameWithAmount(amount, grammar::ECase::kNom).c_str())) + "\r\n", ch);
 	act(specials::BankMsg(specials::EBankMsg::kFinancialOp), true, ch, nullptr, nullptr, kToRoom);
 	return (1);
 }
@@ -1449,29 +1481,29 @@ int BankTransfer(CharData *ch, void * /*me*/, char *argument) {
 		return (1);
 	}
 	if (amount <= 100) {
-		if (ch->get_bank() < (amount + 5)) {
+		if (currencies::GetBank(*ch, currencies::kGold) < (amount + 5)) {
 			SendMsgToChar(specials::BankMsg(specials::EBankMsg::kNoTaxMoney) + "\r\n", ch);
 			return (1);
 		}
 	}
 
-	if (ch->get_bank() < amount) {
+	if (currencies::GetBank(*ch, currencies::kGold) < amount) {
 		SendMsgToChar(specials::BankMsg(specials::EBankMsg::kNeverHadThatMuch) + "\r\n", ch);
 		return (1);
 	}
-	if (ch->get_bank() < amount + ((amount * 5) / 100)) {
+	if (currencies::GetBank(*ch, currencies::kGold) < amount + ((amount * 5) / 100)) {
 		SendMsgToChar(specials::BankMsg(specials::EBankMsg::kNoTaxMoney) + "\r\n", ch);
 		return (1);
 	}
 
 	if ((vict = get_player_of_name(arg))) {
-		ch->remove_bank(amount);
-		if (amount <= 100) ch->remove_bank(5);
-		else ch->remove_bank(((amount * 5) / 100));
+		currencies::RemoveBank(*ch, currencies::kGold, amount);
+		if (amount <= 100) currencies::RemoveBank(*ch, currencies::kGold, 5);
+		else currencies::RemoveBank(*ch, currencies::kGold, ((amount * 5) / 100));
 		SendMsgToChar(fmt::format(fmt::runtime(specials::BankMsg(specials::EBankMsg::kTransferSent)),
 				fmt::arg("color", kColorWht), fmt::arg("amount", amount),
 				fmt::arg("recipient", GET_PAD(vict, 2)), fmt::arg("nocolor", kColorNrm)) + "\r\n", ch);
-		vict->add_bank(amount);
+		currencies::AddBank(*vict, currencies::kGold, amount);
 		SendMsgToChar(fmt::format(fmt::runtime(specials::BankMsg(specials::EBankMsg::kTransferReceived)),
 				fmt::arg("color", kColorWht), fmt::arg("amount", amount),
 				fmt::arg("sender", GET_PAD(ch, 1)), fmt::arg("nocolor", kColorNrm)) + "\r\n", vict);
@@ -1492,9 +1524,9 @@ int BankTransfer(CharData *ch, void * /*me*/, char *argument) {
 			return (1);
 		}
 
-		ch->remove_bank(amount);
-		if (amount <= 100) ch->remove_bank(5);
-		else ch->remove_bank(((amount * 5) / 100));
+		currencies::RemoveBank(*ch, currencies::kGold, amount);
+		if (amount <= 100) currencies::RemoveBank(*ch, currencies::kGold, 5);
+		else currencies::RemoveBank(*ch, currencies::kGold, ((amount * 5) / 100));
 		SendMsgToChar(fmt::format(fmt::runtime(specials::BankMsg(specials::EBankMsg::kTransferSent)),
 				fmt::arg("color", kColorWht), fmt::arg("amount", amount),
 				fmt::arg("recipient", GET_PAD(vict, 2)), fmt::arg("nocolor", kColorNrm)) + "\r\n", ch);
@@ -1505,7 +1537,7 @@ int BankTransfer(CharData *ch, void * /*me*/, char *argument) {
 				amount,
 				GET_PAD(vict, 2));
 		mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
-		vict->add_bank(amount);
+		currencies::AddBank(*vict, currencies::kGold, amount);
 		Depot::add_offline_money(vict->get_uid(), amount);
 		vict->save_char();
 

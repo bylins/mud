@@ -18,6 +18,7 @@
 #include "gameplay/communication/ignores.h"
 #include "gameplay/crafting/im.h"
 #include "gameplay/skills/skills.h"
+#include "gameplay/economics/currency_storage.h"
 #include "gameplay/mechanics/rune_stones.h"   // issue.runestones: was townportal.h (runestone classes moved)
 #include "utils/utils.h"
 #include "engine/core/conf.h"
@@ -449,19 +450,9 @@ class CharData : public ProtectedCharData {
 	void set_movereg(int);
 
 	////////////////////////////////////////////////////////////////////////////
-	long get_gold() const;
-	long get_bank() const;
-	long get_total_gold() const;
-
-	void add_gold(long gold, bool log = true, bool clan_tax = false);
-	void add_bank(long gold, bool log = true);
-
-	void set_gold(long num, bool log = true);
-	void set_bank(long num, bool log = true);
-
-	long remove_gold(long num, bool log = true);
-	long remove_bank(long num, bool log = true);
-	long remove_both_gold(long num, bool log = true);
+	// issue.currency-storage: the per-owner currency container (single mutation chokepoint).
+	currencies::CurrencyStorage &currency_storage() { return currency_storage_; }
+	[[nodiscard]] const currencies::CurrencyStorage &currency_storage() const { return currency_storage_; }
 	////////////////////////////////////////////////////////////////////////////
 
 	int calc_morale() const;
@@ -549,8 +540,6 @@ class CharData : public ProtectedCharData {
 	void inc_restore_timer(int num);
 	obj_sets::activ_sum &obj_bonus();
 
-	void set_ruble(int ruble);
-	long get_ruble();
 
 	void set_souls(int souls);
 	void inc_souls();
@@ -655,11 +644,9 @@ class CharData : public ProtectedCharData {
 	// последний вызов базара
 	time_t last_exchange_;
 	// деньги на руках
-	long gold_;
+	currencies::CurrencyStorage currency_storage_;
 	// деньги в банке
-	long bank_gold_;
 	// рубли
-	long ruble;
 	// родная сила
 	int str_;
 	// плюсы на силу
