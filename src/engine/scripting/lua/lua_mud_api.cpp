@@ -110,6 +110,48 @@ ObjData *LoadObjToRoom(const sol::object &vnum, const sol::object &room)
 	return obj.get();
 }
 
+CharData *GetCharArgument(const sol::object &character)
+{
+	if (!character.is<sol::table>())
+	{
+		return nullptr;
+	}
+
+	sol::table character_table = character;
+	const sol::object uid = character_table["uid"];
+	return FindCharByUid(uid);
+}
+
+ObjData *LoadObjToChar(const sol::object &vnum, const sol::object &character)
+{
+	auto *ch = GetCharArgument(character);
+	if (!vnum.is<int>() || !ch || !IsValidRoom(LuaRoomView{ch->in_room}))
+	{
+		return nullptr;
+	}
+
+	const auto obj_rnum = GetObjRnum(vnum.as<int>());
+	if (obj_rnum < 0)
+	{
+		return nullptr;
+	}
+
+	const auto obj = world_objects.create_from_prototype_by_rnum(obj_rnum);
+	if (!obj)
+	{
+		return nullptr;
+	}
+
+	obj->set_vnum_zone_from(zone_table[world[ch->in_room]->zone_rn].vnum);
+	PlaceObjToInventory(obj.get(), ch);
+	load_otrigger(obj.get());
+	if (CheckObjDecay(obj.get()))
+	{
+		return nullptr;
+	}
+	return obj.get();
+}
+
 CharData *LoadMobToRoom(const sol::object &vnum, const sol::object &room)
 {
 	const auto room_rnum = GetRoomFromLua(room);
@@ -553,6 +595,9 @@ sol::table BuildMudNamespace(sol::state &lua, LuaRuntimeContext *runtime)
 	};
 	mud["load_obj"] = [&lua, runtime](const sol::object &vnum, const sol::object &room) {
 		return BuildObjView(lua, LoadObjToRoom(vnum, room), CurrentRuntime(runtime));
+	};
+	mud["load_obj_to_char"] = [&lua, runtime](const sol::object &vnum, const sol::object &character) {
+		return BuildObjView(lua, LoadObjToChar(vnum, character), CurrentRuntime(runtime));
 	};
 	mud["load_mob"] = [&lua, runtime](const sol::object &vnum, const sol::object &room) {
 		return BuildCharView(lua, LoadMobToRoom(vnum, room), CurrentRuntime(runtime));
