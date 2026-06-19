@@ -151,6 +151,7 @@ ObjData::shared_ptr read_one_object_new(char **data, int *error) {
 	char read_line[kMaxStringLength];
 	int t[2];
 	int vnum;
+	ObjRnum rnum = -1;    // vnum->rnum считаем один раз: для создания и для проверки прототипа
 	ObjData::shared_ptr object;
 
 	// Станем на начало предмета
@@ -177,7 +178,13 @@ ObjData::shared_ptr read_one_object_new(char **data, int *error) {
 	if (vnum < 0) {
 		object = world_objects.create_blank();
 	} else {
-		object = world_objects.create_from_prototype_by_vnum(vnum);
+		rnum = GetObjRnum(vnum);
+		if (rnum < 0) {
+			log("Object (V) %d does not exist in database.", vnum);
+			*error = 5;
+			return nullptr;
+		}
+		object = world_objects.create_from_prototype_by_rnum(rnum);
 		if (!object) {
 			*error = 5;
 			return nullptr;
@@ -553,6 +560,17 @@ ObjData::shared_ptr read_one_object_new(char **data, int *error) {
 	ConvertDrinkconSkillField(object.get(), false);
 	object->remove_incorrect_values_keys(object->get_type());
 	object->set_extra_flag(EObjFlag::kTicktimer);
+	// ВРЕМЕННЫЙ КОСТЫЛЬ (2026-06-19, issue #3459): на части предметов игроков
+	// ошибочно оказался флаг kNodrop ("!бросить") вместе с kBless ("благословлен").
+	// Это невозможное сочетание -- благословление снимает kNodrop. Если в прототипе
+	// kNodrop нет, значит на экземпляре флаг навешан ошибочно -- снимаем при загрузке.
+	// УДАЛИТЬ после 2026-07-19: к тому времени база игроков прочитается и очистится,
+	// отдельно конвертировать пфайлы не нужно.
+	if (rnum >= 0 && object->has_flag(EObjFlag::kNodrop) && object->has_flag(EObjFlag::kBless)
+		&& !obj_proto[rnum]->has_flag(EObjFlag::kNodrop)) {
+		// rnum -- прототип-оригинал по vnum (в obj-файле всегда оригиналы), посчитан выше
+		object->unset_extraflag(EObjFlag::kNodrop);
+	}
 	world_objects.decay_manager().insert(object.get());
 	return (object);
 }
