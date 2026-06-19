@@ -37,7 +37,6 @@ struct LuaRuntimeContext {
 	CharData *owner = nullptr;
 	ObjData *owner_obj = nullptr;
 	RoomRnum owner_room = kNowhere;
-	sol::table entity_handles;
 	void *wait_state = nullptr;
 };
 

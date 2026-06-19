@@ -19,9 +19,9 @@ namespace lua_scripting {
 namespace {
 
 struct LuaWaitState {
-	sol::state lua;
 	lua_State *thread = nullptr;
 	int thread_ref = LUA_NOREF;
+	int entrypoint_ref = LUA_NOREF;
 	TriggerEvent event;
 	TriggerEventObserver::shared_ptr trigger_observer;
 	LuaTriggerContext ctx;
@@ -75,10 +75,21 @@ bool ShouldRunFunctionInCoroutine(Trigger *trigger)
 	return CanTriggerWait(trigger);
 }
 
-std::vector<std::shared_ptr<LuaWaitState>> &RetiredLuaStates()
+sol::state &LuaVm()
 {
-	static std::vector<std::shared_ptr<LuaWaitState>> retired_states;
-	return retired_states;
+	static auto *lua = []() {
+		auto *state = new sol::state();
+		state->open_libraries(sol::lib::base, sol::lib::math, sol::lib::string, sol::lib::table);
+		HardenLuaState(*state);
+		ConfigureLuaGc(*state);
+		return state;
+	}();
+	return *lua;
+}
+
+std::shared_ptr<LuaWaitState> MakeLuaState()
+{
+	return std::make_shared<LuaWaitState>();
 }
 
 void RetireLuaState(const std::shared_ptr<LuaWaitState> &state)
@@ -95,13 +106,11 @@ void RetireLuaState(const std::shared_ptr<LuaWaitState> &state)
 	state->ctx.object = nullptr;
 	state->ctx.owner_room = nullptr;
 	state->runtime = LuaRuntimeContext{};
-	RetiredLuaStates().push_back(state);
 }
 
 void CleanupDeferredLuaStates()
 {
-	std::vector<std::shared_ptr<LuaWaitState>> states;
-	states.swap(RetiredLuaStates());
+	lua_gc(LuaVm().lua_state(), LUA_GCSTEP, 0);
 }
 
 class LuaWaitRegistry {
@@ -151,8 +160,13 @@ class LuaWaitRegistry {
 		state->trigger_observer.reset();
 		if (state->thread_ref != LUA_NOREF)
 		{
-			luaL_unref(state->lua.lua_state(), LUA_REGISTRYINDEX, state->thread_ref);
+			luaL_unref(LuaVm().lua_state(), LUA_REGISTRYINDEX, state->thread_ref);
 			state->thread_ref = LUA_NOREF;
+		}
+		if (state->entrypoint_ref != LUA_NOREF)
+		{
+			luaL_unref(LuaVm().lua_state(), LUA_REGISTRYINDEX, state->entrypoint_ref);
+			state->entrypoint_ref = LUA_NOREF;
 		}
 		state->finished = true;
 		m_state_ids.erase(state.get());
@@ -412,11 +426,12 @@ void LuaWaitTriggerObserver::notify(Trigger *)
 
 int StartCoroutine(const std::shared_ptr<LuaWaitState> &state)
 {
-	sol::table lua_ctx = BuildLuaContext(state->lua, state->ctx, state->runtime);
-	lua_State *main_state = state->lua.lua_state();
+	auto &lua = LuaVm();
+	sol::table lua_ctx = BuildLuaContext(lua, state->ctx, state->runtime);
+	lua_State *main_state = lua.lua_state();
 	state->thread = lua_newthread(main_state);
 	state->thread_ref = luaL_ref(main_state, LUA_REGISTRYINDEX);
-	lua_getglobal(main_state, "__mud_lua_entrypoint");
+	lua_rawgeti(main_state, LUA_REGISTRYINDEX, state->entrypoint_ref);
 	lua_xmove(main_state, state->thread, 1);
 	lua_ctx.push();
 	lua_xmove(main_state, state->thread, 1);
@@ -475,7 +490,8 @@ int LuaScriptEngine::RunTrigger(Trigger *trigger, const LuaTriggerContext &ctx)
 	}
 
 #if defined(WITH_LUAJIT_PROTOTYPE)
-	auto state = std::make_shared<LuaWaitState>();
+	auto &lua = LuaVm();
+	auto state = MakeLuaState();
 	state->ctx = ctx;
 	state->owner_uid = ctx.owner ? ctx.owner->get_uid() : 0;
 	state->owner_obj_id = ctx.owner_obj ? ctx.owner_obj->get_id() : 0;
@@ -485,17 +501,25 @@ int LuaScriptEngine::RunTrigger(Trigger *trigger, const LuaTriggerContext &ctx)
 	state->runtime.owner_obj = ctx.owner_obj;
 	state->runtime.owner_room = ResolveOwnerRoom(ctx);
 	state->runtime.wait_state = state.get();
-	state->lua.open_libraries(sol::lib::base, sol::lib::math, sol::lib::string, sol::lib::table);
-	HardenLuaState(state->lua);
-	ConfigureLuaGc(state->lua);
-	state->runtime.entity_handles = state->lua.create_table();
-	state->lua["mud"] = BuildMudNamespace(state->lua, state->runtime);
 
-	sol::table lua_ctx = BuildLuaContext(state->lua, ctx, state->runtime);
+	sol::environment environment(lua, sol::create, lua.globals());
+	environment["mud"] = BuildMudNamespace(lua, state->runtime);
+	sol::table lua_ctx = BuildLuaContext(lua, ctx, state->runtime);
 	LuaExecutionBudget budget;
-	InstallLuaRuntimeLimits(state->lua, budget);
-	const auto chunk_result = state->lua.safe_script(trigger->get_lua_script_source(), sol::script_pass_on_error);
-	ClearLuaRuntimeLimits(state->lua);
+	InstallLuaRuntimeLimits(lua, budget);
+	const sol::load_result load_result = lua.load(trigger->get_lua_script_source());
+	if (!load_result.valid())
+	{
+		ClearLuaRuntimeLimits(lua);
+		const sol::error err = load_result;
+		LogLuaError(state->runtime, "script", err);
+		RetireLuaState(state);
+		return 1;
+	}
+	sol::protected_function chunk = load_result;
+	sol::set_environment(environment, chunk);
+	const auto chunk_result = chunk();
+	ClearLuaRuntimeLimits(lua);
 	if (!chunk_result.valid())
 	{
 		const sol::error err = chunk_result;
@@ -521,7 +545,8 @@ int LuaScriptEngine::RunTrigger(Trigger *trigger, const LuaTriggerContext &ctx)
 		RetireLuaState(state);
 		return result;
 	}
-	state->lua["__mud_lua_entrypoint"] = first;
+	first.push();
+	state->entrypoint_ref = luaL_ref(lua.lua_state(), LUA_REGISTRYINDEX);
 
 	LuaWaitRegistry::Instance().Add(state);
 	const auto result = StartCoroutine(state);

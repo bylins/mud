@@ -32,8 +32,40 @@ namespace {
 
 constexpr int kLuaHandleTypeChar = 1;
 constexpr int kLuaHandleTypeObj = 2;
+char kLuaEntityHandleKey;
 
-CharData *GetLuaCharFromObject(const sol::object &entity, LuaRuntimeContext runtime)
+bool GetEntityHandleTable(sol::table entity_table)
+{
+	lua_State *state = entity_table.lua_state();
+	entity_table.push();
+	lua_pushlightuserdata(state, &kLuaEntityHandleKey);
+	lua_rawget(state, -2);
+	lua_remove(state, -2);
+	return lua_istable(state, -1);
+}
+
+void PopEntityHandleTable(lua_State *state)
+{
+	lua_pop(state, 1);
+}
+
+int GetEntityHandleIntField(lua_State *state, const char *field)
+{
+	lua_getfield(state, -1, field);
+	const auto result = lua_isnumber(state, -1) ? static_cast<int>(lua_tointeger(state, -1)) : 0;
+	lua_pop(state, 1);
+	return result;
+}
+
+long GetEntityHandleLongField(lua_State *state, const char *field)
+{
+	lua_getfield(state, -1, field);
+	const auto result = lua_isnumber(state, -1) ? static_cast<long>(lua_tointeger(state, -1)) : 0;
+	lua_pop(state, 1);
+	return result;
+}
+
+CharData *GetLuaCharFromObject(const sol::object &entity, LuaRuntimeContext)
 {
 	if (!entity.is<sol::table>())
 	{
@@ -41,39 +73,51 @@ CharData *GetLuaCharFromObject(const sol::object &entity, LuaRuntimeContext runt
 	}
 
 	sol::table entity_table = entity;
-	const sol::object handle = runtime.entity_handles[entity_table];
-	if (!handle.is<sol::table>())
+	if (!GetEntityHandleTable(entity_table))
 	{
 		return nullptr;
 	}
 
-	sol::table handle_table = handle;
-	const sol::object type = handle_table["type"];
-	const sol::object uid = handle_table["uid"];
-	if (!type.is<int>() || type.as<int>() != kLuaHandleTypeChar || (!uid.is<long>() && !uid.is<int>()))
+	lua_State *state = entity_table.lua_state();
+	const auto type = GetEntityHandleIntField(state, "type");
+	const auto uid = GetEntityHandleLongField(state, "uid");
+	PopEntityHandleTable(state);
+	if (type != kLuaHandleTypeChar || uid == 0)
 	{
 		return nullptr;
 	}
 
 	LuaEntityHandle char_handle(LuaEntityHandle::LuaEntityType::Char);
-	char_handle.char_uid = uid.is<long>() ? uid.as<long>() : uid.as<int>();
+	char_handle.char_uid = uid;
 	return ResolveChar(char_handle);
 }
 
-void RegisterCharView(sol::state &lua, sol::table entity_handles, sol::table view, CharData *ch)
+void RegisterCharView(sol::state &, sol::table view, CharData *ch)
 {
-	sol::table handle = lua.create_table();
-	handle["type"] = kLuaHandleTypeChar;
-	handle["uid"] = ch ? ch->get_uid() : 0;
-	entity_handles[view] = handle;
+	lua_State *state = view.lua_state();
+	view.push();
+	lua_pushlightuserdata(state, &kLuaEntityHandleKey);
+	lua_newtable(state);
+	lua_pushinteger(state, kLuaHandleTypeChar);
+	lua_setfield(state, -2, "type");
+	lua_pushinteger(state, ch ? ch->get_uid() : 0);
+	lua_setfield(state, -2, "uid");
+	lua_rawset(state, -3);
+	lua_pop(state, 1);
 }
 
-void RegisterObjView(sol::state &lua, sol::table entity_handles, sol::table view, ObjData *obj)
+void RegisterObjView(sol::state &, sol::table view, ObjData *obj)
 {
-	sol::table handle = lua.create_table();
-	handle["type"] = kLuaHandleTypeObj;
-	handle["id"] = obj->get_id();
-	entity_handles[view] = handle;
+	lua_State *state = view.lua_state();
+	view.push();
+	lua_pushlightuserdata(state, &kLuaEntityHandleKey);
+	lua_newtable(state);
+	lua_pushinteger(state, kLuaHandleTypeObj);
+	lua_setfield(state, -2, "type");
+	lua_pushinteger(state, obj ? static_cast<lua_Integer>(obj->get_id()) : 0);
+	lua_setfield(state, -2, "id");
+	lua_rawset(state, -3);
+	lua_pop(state, 1);
 }
 
 bool GetLuaSkillId(const sol::object &value, ESkill &skill_id)
@@ -992,7 +1036,7 @@ sol::object BuildCharView(sol::state &lua, CharData *ch, LuaRuntimeContext runti
 
 	auto handle = MakeCharHandle(ch);
 	sol::table view = lua.create_table();
-	RegisterCharView(lua, runtime.entity_handles, view, ch);
+	RegisterCharView(lua, view, ch);
 	sol::table metatable = lua.create_table();
 	metatable[sol::meta_function::index] = [&lua, handle, runtime](sol::object, const std::string &key) -> sol::object {
 		if (key == "name")
@@ -1176,7 +1220,7 @@ sol::object BuildObjView(sol::state &lua, ObjData *obj, LuaRuntimeContext runtim
 
 	auto handle = MakeObjHandle(obj);
 	sol::table view = lua.create_table();
-	RegisterObjView(lua, runtime.entity_handles, view, obj);
+	RegisterObjView(lua, view, obj);
 	sol::table metatable = lua.create_table();
 	metatable[sol::meta_function::index] = [&lua, handle, runtime](sol::object, const std::string &key) -> sol::object {
 		if (key == "name")
