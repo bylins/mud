@@ -13,6 +13,7 @@
 #include "engine/ui/cmd/do_follow.h"
 #include "engine/ui/interpreter.h"
 #include "gameplay/core/constants.h"
+#include "gameplay/fight/fight.h"
 #include "gameplay/mechanics/damage.h"
 #include "gameplay/magic/spells.h"
 #include "utils/random.h"
@@ -25,6 +26,7 @@
 
 bool mob_script_command_interpreter(CharData *ch, char *argument, Trigger *trig);
 void ExtractTrigger(Trigger *trig);
+extern char arg[kMaxInputLength];
 
 namespace lua_scripting {
 
@@ -539,7 +541,10 @@ bool ForceCharCommand(LuaRuntimeContext runtime, const LuaEntityHandle &handle, 
 		return LogLuaApiError(runtime, "force: mob trigger commands are not allowed");
 	}
 
+	std::array<char, kMaxInputLength> saved_arg{};
+	std::copy(arg, arg + kMaxInputLength, saved_arg.begin());
 	command_interpreter(ch, command_buffer.data());
+	std::copy(saved_arg.begin(), saved_arg.end(), arg);
 	return true;
 }
 
@@ -924,6 +929,18 @@ bool DeleteScriptContextValue(Script *script, long context, const std::string &k
 	return script && !key.empty() && remove_var_cntx(script->global_vars, key, context);
 }
 
+bool ApplyDirectTriggerDamage(CharData *victim, int amount)
+{
+	victim->set_hit(victim->get_hit() - amount);
+	update_pos(victim);
+	char_dam_message(amount, victim, victim, false);
+	if (victim->GetPosition() == EPosition::kDead)
+	{
+		die(victim, nullptr);
+	}
+	return true;
+}
+
 } // namespace
 
 bool MudDamage(
@@ -970,6 +987,10 @@ bool MudDamage(
 	if (victim->IsImmortal() && amount > 0)
 	{
 		return LogLuaApiError(runtime, "damage: immortal victim");
+	}
+	if (type_object.get_type() == sol::type::lua_nil)
+	{
+		return ApplyDirectTriggerDamage(victim, amount);
 	}
 
 	Damage damage(SimpleDmg(kTypeTriggerdeath), amount, damage_type);
