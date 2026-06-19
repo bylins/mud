@@ -72,20 +72,16 @@ bool CanTriggerWait(Trigger *trigger)
 
 bool ShouldRunFunctionInCoroutine(Trigger *trigger)
 {
-	if (!CanTriggerWait(trigger))
-	{
-		return false;
-	}
-	if (!trigger)
-	{
-		return false;
-	}
-
-	const auto &source = trigger->get_lua_script_source();
-	return source.find("mud.wait") != std::string::npos;
+	return CanTriggerWait(trigger);
 }
 
-void RetireFinishedLuaState(const std::shared_ptr<LuaWaitState> &state)
+std::vector<std::shared_ptr<LuaWaitState>> &RetiredLuaStates()
+{
+	static std::vector<std::shared_ptr<LuaWaitState>> retired_states;
+	return retired_states;
+}
+
+void RetireLuaState(const std::shared_ptr<LuaWaitState> &state)
 {
 	if (!state)
 	{
@@ -99,8 +95,13 @@ void RetireFinishedLuaState(const std::shared_ptr<LuaWaitState> &state)
 	state->ctx.object = nullptr;
 	state->ctx.owner_room = nullptr;
 	state->runtime = LuaRuntimeContext{};
-	static std::vector<std::shared_ptr<LuaWaitState>> retired_states;
-	retired_states.push_back(state);
+	RetiredLuaStates().push_back(state);
+}
+
+void CleanupDeferredLuaStates()
+{
+	std::vector<std::shared_ptr<LuaWaitState>> states;
+	states.swap(RetiredLuaStates());
 }
 
 class LuaWaitRegistry {
@@ -140,9 +141,9 @@ class LuaWaitRegistry {
 			auto *event_data = static_cast<LuaWaitEventData *>(state->event.info);
 			remove_event(state->event);
 			delete event_data;
-			state->event.time_remaining = 0;
-			state->event.info = nullptr;
 		}
+		state->event.time_remaining = 0;
+		state->event.info = nullptr;
 		if (unregister_trigger_observer && state->trigger_observer && state->runtime.trigger)
 		{
 			trigger_list.unregister_remove_observer(state->runtime.trigger, state->trigger_observer);
@@ -156,6 +157,7 @@ class LuaWaitRegistry {
 		state->finished = true;
 		m_state_ids.erase(state.get());
 		m_waits.erase(it);
+		RetireLuaState(state);
 	}
 
 	void Cancel(unsigned long long id, bool unregister_trigger_observer = true)
@@ -171,10 +173,16 @@ class LuaWaitRegistry {
 
 	void CancelForOwner(CharData *owner)
 	{
+		if (!owner)
+		{
+			return;
+		}
+
 		std::vector<unsigned long long> ids;
+		const auto owner_uid = owner->get_uid();
 		for (const auto &[id, state] : m_waits)
 		{
-			if (state->ctx.owner == owner)
+			if (state->owner_uid == owner_uid)
 			{
 				ids.push_back(id);
 			}
@@ -233,6 +241,7 @@ class LuaWaitRegistry {
 
 		auto state = it->second;
 		state->event.time_remaining = 0;
+		state->event.info = nullptr;
 		if (!CanResume(*state))
 		{
 			Remove(id);
@@ -491,21 +500,25 @@ int LuaScriptEngine::RunTrigger(Trigger *trigger, const LuaTriggerContext &ctx)
 	{
 		const sol::error err = chunk_result;
 		LogLuaError(state->runtime, "script", err);
+		RetireLuaState(state);
 		return 1;
 	}
 	if (chunk_result.return_count() == 0)
 	{
+		RetireLuaState(state);
 		return 1;
 	}
 	const sol::object first = chunk_result.get<sol::object>(0);
 	if (first.get_type() != sol::type::function)
 	{
-		return ConvertLuaResult(chunk_result, state->runtime, lua_ctx, true);
+		const auto result = ConvertLuaResult(chunk_result, state->runtime, lua_ctx, true);
+		RetireLuaState(state);
+		return result;
 	}
 	if (!ShouldRunFunctionInCoroutine(trigger))
 	{
 		const auto result = ConvertLuaResult(chunk_result, state->runtime, lua_ctx, true);
-		RetireFinishedLuaState(state);
+		RetireLuaState(state);
 		return result;
 	}
 	state->lua["__mud_lua_entrypoint"] = first;
@@ -516,7 +529,6 @@ int LuaScriptEngine::RunTrigger(Trigger *trigger, const LuaTriggerContext &ctx)
 	{
 		const auto wait_id = LuaWaitRegistry::Instance().FindId(state.get());
 		LuaWaitRegistry::Instance().Remove(wait_id);
-		RetireFinishedLuaState(state);
 	}
 	return result;
 #else
@@ -560,6 +572,13 @@ void LuaScriptEngine::CancelWaitsForTrigger(Trigger *trigger)
 	LuaWaitRegistry::Instance().CancelForTrigger(trigger);
 #else
 	(void) trigger;
+#endif
+}
+
+void LuaScriptEngine::HeartbeatCleanup()
+{
+#if defined(WITH_LUAJIT_PROTOTYPE)
+	CleanupDeferredLuaStates();
 #endif
 }
 

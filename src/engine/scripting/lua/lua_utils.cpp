@@ -94,7 +94,8 @@ ObjData *ResolveObj(const LuaEntityHandle &handle)
 		return nullptr;
 	}
 
-	return world_objects.find_by_id(handle.obj_id).get();
+	const auto obj = world_objects.find_by_id(handle.obj_id);
+	return obj && !obj->get_extracted_list() ? obj.get() : nullptr;
 }
 
 bool IsValidEntity(const LuaEntityHandle &handle)

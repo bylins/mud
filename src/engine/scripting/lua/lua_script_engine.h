@@ -36,6 +36,7 @@ class LuaScriptEngine {
 	static void CancelWaitsForOwner(CharData *owner);
 	static void CancelWaitsForObject(ObjData *obj);
 	static void CancelWaitsForTrigger(Trigger *trigger);
+	static void HeartbeatCleanup();
 };
 
 } // namespace lua_scripting

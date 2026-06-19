@@ -76,7 +76,8 @@ ObjData *FindObjById(const sol::object &id)
 		return nullptr;
 	}
 
-	return world_objects.find_by_id(static_cast<object_id_t>(value)).get();
+	const auto obj = world_objects.find_by_id(static_cast<object_id_t>(value));
+	return obj && !obj->get_extracted_list() ? obj.get() : nullptr;
 }
 
 ObjData *LoadObjToRoom(const sol::object &vnum, const sol::object &room)

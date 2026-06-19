@@ -1038,25 +1038,25 @@ sol::object BuildCharView(sol::state &lua, CharData *ch, LuaRuntimeContext runti
 		}
 		if (key == "is_pc")
 		{
-			return sol::make_object(lua, sol::as_function([handle]() {
+			return sol::make_object(lua, sol::as_function([handle](sol::object) {
 				return IsCharPc(handle);
 			}));
 		}
 		if (key == "is_immortal")
 		{
-			return sol::make_object(lua, sol::as_function([handle]() {
+			return sol::make_object(lua, sol::as_function([handle](sol::object) {
 				return IsCharImmortal(handle);
 			}));
 		}
 		if (key == "level")
 		{
-			return sol::make_object(lua, sol::as_function([handle]() {
+			return sol::make_object(lua, sol::as_function([handle](sol::object) {
 				return GetCharLevel(handle);
 			}));
 		}
 		if (key == "position")
 		{
-			return sol::make_object(lua, sol::as_function([handle]() {
+			return sol::make_object(lua, sol::as_function([handle](sol::object) {
 				return GetCharPosition(handle);
 			}));
 		}
@@ -1122,7 +1122,7 @@ sol::object BuildCharView(sol::state &lua, CharData *ch, LuaRuntimeContext runti
 		}
 		if (key == "is_valid")
 		{
-			return sol::make_object(lua, sol::as_function([handle]() {
+			return sol::make_object(lua, sol::as_function([handle](sol::object) {
 				return IsValidEntity(handle);
 			}));
 		}
@@ -1152,7 +1152,7 @@ sol::object BuildCharView(sol::state &lua, CharData *ch, LuaRuntimeContext runti
 		}
 		if (key == "purge")
 		{
-			return sol::make_object(lua, sol::as_function([handle, runtime]() {
+			return sol::make_object(lua, sol::as_function([handle, runtime](sol::object) {
 				return PurgeCharEntity(handle, runtime);
 			}));
 		}
@@ -1221,13 +1221,13 @@ sol::object BuildObjView(sol::state &lua, ObjData *obj, LuaRuntimeContext runtim
 		}
 		if (key == "is_valid")
 		{
-			return sol::make_object(lua, sol::as_function([handle]() {
+			return sol::make_object(lua, sol::as_function([handle](sol::object) {
 				return IsValidEntity(handle);
 			}));
 		}
 		if (key == "purge")
 		{
-			return sol::make_object(lua, sol::as_function([handle]() {
+			return sol::make_object(lua, sol::as_function([handle](sol::object) {
 				return PurgeObjEntity(handle);
 			}));
 		}
