@@ -991,6 +991,7 @@ void BootMudDataBase() {
 
 	boot_profiler.next_step("Loading shop_ext list");
 	log("load shop_ext list start.");
+	MUD::CfgManager().LoadCfg("shop_item_sets");   // issue.shops-ext: catalog before shops
 	ShopExt::load(false);
 	log("load shop_ext list stop.");
 
