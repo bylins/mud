@@ -308,91 +308,80 @@ std::vector<int> YamlWorldDataSource::GetZoneList()
 	return zones;
 }
 
-std::vector<int> YamlWorldDataSource::GetMobList()
+std::vector<EntityFileTask> YamlWorldDataSource::DiscoverEntityFiles(const std::string &sub)
 {
-	std::vector<int> mobs;
-	std::vector<int> zone_vnums = GetZoneList();
+	namespace fs = std::filesystem;
+	std::vector<EntityFileTask> tasks;
 
-	for (int zone_vnum : zone_vnums)
+	for (int zone_vnum : GetZoneList())
 	{
-		std::string index_path = m_world_dir + "/zones/" + std::to_string(zone_vnum) + "/mobs/index.yaml";
+		const std::string zone_dir = m_world_dir + "/zones/" + std::to_string(zone_vnum);
+		const std::string flat_path = zone_dir + "/" + sub + ".yaml";
+
+		if (fs::exists(flat_path))
+		{
+			// Flat layout: the file is a map of rel-number -> entity node and
+			// doubles as its own index. Enumerate the keys here (sequentially,
+			// main thread); the worker re-loads and parses the entities.
+			EntityFileTask task;
+			task.flat = true;
+			task.path = flat_path;
+			try
+			{
+				YAML::Node root = YAML::LoadFile(flat_path);
+				for (auto it = root.begin(); it != root.end(); ++it)
+				{
+					int rel_num = it->first.as<int>();
+					task.vnums.push_back(zone_vnum * 100 + rel_num);
+				}
+			}
+			catch (const YAML::Exception &e)
+			{
+				fatal_log("SYSERR: Failed to load flat %s file for zone %d ('%s'): %s",
+					sub.c_str(), zone_vnum, flat_path.c_str(), e.what());
+			}
+			std::sort(task.vnums.begin(), task.vnums.end());
+			if (!task.vnums.empty())
+			{
+				tasks.push_back(std::move(task));
+			}
+			continue;
+		}
+
+		// Per-file layout: one task per entity, listed in <sub>/index.yaml.
+		// A missing index simply means the zone has no entities of this type.
+		const std::string index_path = zone_dir + "/" + sub + "/index.yaml";
+		if (!fs::exists(index_path))
+		{
+			continue;
+		}
 		try
 		{
 			YAML::Node root = YAML::LoadFile(index_path);
-			if (root["mobs"] && root["mobs"].IsSequence())
+			if (root[sub] && root[sub].IsSequence())
 			{
-				for (const auto &rel_node : root["mobs"])
+				for (const auto &rel_node : root[sub])
 				{
 					int rel_num = rel_node.as<int>();
-					mobs.push_back(zone_vnum * 100 + rel_num);
+					EntityFileTask task;
+					task.flat = false;
+					std::ostringstream ss;
+					ss << zone_dir << "/" << sub << "/"
+					   << std::setfill('0') << std::setw(2) << rel_num << ".yaml";
+					task.path = ss.str();
+					task.vnums.push_back(zone_vnum * 100 + rel_num);
+					tasks.push_back(std::move(task));
 				}
 			}
 		}
 		catch (const YAML::Exception &e)
 		{
-			fatal_log("SYSERR: Failed to load mobs index for zone %d ('%s'): %s", zone_vnum, index_path.c_str(), e.what());
+			fatal_log("SYSERR: Failed to load %s index for zone %d ('%s'): %s",
+				sub.c_str(), zone_vnum, index_path.c_str(), e.what());
 		}
 	}
 
-	return mobs;
-}
-
-std::vector<int> YamlWorldDataSource::GetObjectList()
-{
-	std::vector<int> objects;
-	std::vector<int> zone_vnums = GetZoneList();
-
-	for (int zone_vnum : zone_vnums)
-	{
-		std::string index_path = m_world_dir + "/zones/" + std::to_string(zone_vnum) + "/objects/index.yaml";
-		try
-		{
-			YAML::Node root = YAML::LoadFile(index_path);
-			if (root["objects"] && root["objects"].IsSequence())
-			{
-				for (const auto &rel_node : root["objects"])
-				{
-					int rel_num = rel_node.as<int>();
-					objects.push_back(zone_vnum * 100 + rel_num);
-				}
-			}
-		}
-		catch (const YAML::Exception &e)
-		{
-			fatal_log("SYSERR: Failed to load objects index for zone %d ('%s'): %s", zone_vnum, index_path.c_str(), e.what());
-		}
-	}
-
-	return objects;
-}
-
-std::vector<int> YamlWorldDataSource::GetTriggerList()
-{
-	std::vector<int> triggers;
-	std::vector<int> zone_vnums = GetZoneList();
-
-	for (int zone_vnum : zone_vnums)
-	{
-		std::string index_path = m_world_dir + "/zones/" + std::to_string(zone_vnum) + "/triggers/index.yaml";
-		try
-		{
-			YAML::Node root = YAML::LoadFile(index_path);
-			if (root["triggers"] && root["triggers"].IsSequence())
-			{
-				for (const auto &rel_node : root["triggers"])
-				{
-					int rel_num = rel_node.as<int>();
-					triggers.push_back(zone_vnum * 100 + rel_num);
-				}
-			}
-		}
-		catch (const YAML::Exception &e)
-		{
-			fatal_log("SYSERR: Failed to load triggers index for zone %d ('%s'): %s", zone_vnum, index_path.c_str(), e.what());
-		}
-	}
-
-	return triggers;
+	return tasks;
 }
 
 std::string YamlWorldDataSource::ConvertToKoi8r(const std::string &utf8_str) const
@@ -962,7 +951,12 @@ Trigger* YamlWorldDataSource::ParseTriggerNode(const YAML::Node &root)
 // Parallel trigger loading
 void YamlWorldDataSource::LoadTriggersParallel()
 {
-	std::vector<int> trigger_vnums = GetTriggerList();
+	std::vector<EntityFileTask> tasks = DiscoverEntityFiles("triggers");
+	std::vector<int> trigger_vnums;
+	for (const auto &t : tasks)
+	{
+		trigger_vnums.insert(trigger_vnums.end(), t.vnums.begin(), t.vnums.end());
+	}
 	if (trigger_vnums.empty())
 	{
 		log("No triggers found in YAML index.");
@@ -972,8 +966,8 @@ void YamlWorldDataSource::LoadTriggersParallel()
 	int trig_count = trigger_vnums.size();
 	log("   %d triggers.", trig_count);
 
-	// Distribute triggers into batches
-	auto batches = utils::DistributeBatches(trigger_vnums, m_num_threads);
+	// Distribute trigger files into batches (flat task = many vnums, per-file = one)
+	auto batches = utils::DistributeBatches(tasks, m_num_threads);
 
 	// Thread-local results (each thread collects its triggers)
 	std::vector<std::vector<std::pair<int, Trigger*>>> thread_results(batches.size());
@@ -985,34 +979,34 @@ void YamlWorldDataSource::LoadTriggersParallel()
 	for (size_t thread_id = 0; thread_id < batches.size(); ++thread_id)
 	{
 		futures.push_back(m_thread_pool->Enqueue([this, thread_id, &batches, &thread_results, &error_count]() {
-			log("DEBUG: Thread %zu started, processing %zu triggers", thread_id, batches[thread_id].size());
-			for (int vnum : batches[thread_id])
+			for (const auto &task : batches[thread_id])
 			{
-				int zone_vnum = vnum / 100;
-				int rel_num = vnum % 100;
-				std::ostringstream filepath_ss;
-				filepath_ss << m_world_dir << "/zones/" << zone_vnum << "/triggers/"
-				            << std::setfill('0') << std::setw(2) << rel_num << ".yaml";
-				std::string filepath = filepath_ss.str();
+				YAML::Node file_root;
 				try
 				{
-					log("DEBUG: Thread %zu parsing trigger %d", thread_id, vnum);
-					Trigger* trig = ParseTriggerFile(filepath);
-					thread_results[thread_id].emplace_back(vnum, trig);
-					log("DEBUG: Thread %zu completed trigger %d", thread_id, vnum);
-				}
-				catch (const YAML::Exception &e)
-				{
-					log("SYSERR: Failed to load trigger from '%s': %s", filepath.c_str(), e.what());
-					error_count++;
+					file_root = YAML::LoadFile(task.path);
 				}
 				catch (const std::exception &e)
 				{
-					log("SYSERR: Failed to load trigger from '%s': %s", filepath.c_str(), e.what());
-					error_count++;
+					log("SYSERR: Failed to load triggers from '%s': %s", task.path.c_str(), e.what());
+					error_count += static_cast<int>(task.vnums.size());
+					continue;
+				}
+				for (int vnum : task.vnums)
+				{
+					const YAML::Node node = task.flat ? file_root[vnum % 100] : file_root;
+					try
+					{
+						Trigger* trig = ParseTriggerNode(node);
+						thread_results[thread_id].emplace_back(vnum, trig);
+					}
+					catch (const std::exception &e)
+					{
+						log("SYSERR: Failed to parse trigger %d from '%s': %s", vnum, task.path.c_str(), e.what());
+						error_count++;
+					}
 				}
 			}
-			log("DEBUG: Thread %zu finished all triggers", thread_id);
 		}));
 	}
 
@@ -1157,57 +1151,14 @@ void YamlWorldDataSource::LoadRoomsParallel()
 	world.push_back(new RoomData);
 	top_of_world = kNowhere;
 
-	std::vector<int> zone_vnums = GetZoneList();
-	if (zone_vnums.empty())
+	std::vector<EntityFileTask> tasks = DiscoverEntityFiles("rooms");
+	std::vector<int> room_vnums;
+	for (const auto &t : tasks)
 	{
-		log("No zones found in YAML index.");
-		return;
-	}
-	std::set<int> enabled_zones(zone_vnums.begin(), zone_vnums.end());
-
-	// Collect all room files
-	std::vector<std::pair<int, std::string>> room_files;
-	std::string zones_dir = m_world_dir + "/zones";
-
-	namespace fs = std::filesystem;
-	for (const auto &zone_entry : fs::directory_iterator(zones_dir))
-	{
-		if (!zone_entry.is_directory()) continue;
-
-		std::string zone_dir_name = zone_entry.path().filename().string();
-		if (zone_dir_name.empty() || !std::isdigit(zone_dir_name[0])) continue;
-
-		int zone_vnum = std::stoi(zone_dir_name);
-		if (enabled_zones.find(zone_vnum) == enabled_zones.end()) continue;
-
-		std::string rooms_dir = zone_entry.path().string() + "/rooms";
-		if (!fs::exists(rooms_dir)) continue;
-
-		std::string rooms_index_path = rooms_dir + "/index.yaml";
-		try
-		{
-			YAML::Node rooms_index = YAML::LoadFile(rooms_index_path);
-			if (rooms_index["rooms"] && rooms_index["rooms"].IsSequence())
-			{
-				for (const auto &rel_node : rooms_index["rooms"])
-				{
-					int rel_num = rel_node.as<int>();
-					int vnum = zone_vnum * 100 + rel_num;
-					std::ostringstream ss;
-					ss << rooms_dir << "/" << std::setfill('0') << std::setw(2) << rel_num << ".yaml";
-					room_files.emplace_back(vnum, ss.str());
-				}
-			}
-		}
-		catch (const YAML::Exception &e)
-		{
-			fatal_log("SYSERR: Failed to load rooms index for zone %d: %s", zone_vnum, e.what());
-		}
+		room_vnums.insert(room_vnums.end(), t.vnums.begin(), t.vnums.end());
 	}
 
-	std::sort(room_files.begin(), room_files.end());
-
-	int room_count = room_files.size();
+	int room_count = room_vnums.size();
 	if (room_count == 0)
 	{
 		log("No rooms found in YAML files.");
@@ -1216,8 +1167,8 @@ void YamlWorldDataSource::LoadRoomsParallel()
 
 	log("   %d rooms, %zd bytes.", room_count, sizeof(RoomData) * room_count);
 
-	// Distribute rooms into batches for parallel parsing
-	auto batches = utils::DistributeBatches(room_files, m_num_threads);
+	// Distribute room files into batches (flat task = many vnums, per-file = one)
+	auto batches = utils::DistributeBatches(tasks, m_num_threads);
 	std::atomic<int> error_count{0};
 
 	// Launch parallel loading with thread-local description indices
@@ -1230,49 +1181,57 @@ void YamlWorldDataSource::LoadRoomsParallel()
 			std::vector<std::tuple<int, RoomData*, size_t>> parsed_rooms;
 			std::map<int, std::vector<int>> local_triggers;
 
-			for (const auto &[vnum, filepath] : batches[thread_id])
+			for (const auto &task : batches[thread_id])
 			{
+				YAML::Node file_root;
 				try
 				{
-					// Calculate zone_rnum from vnum
-					ZoneRnum zone_rn = 0;
-					while (zone_rn < static_cast<ZoneRnum>(zone_table.size()) &&
-					       vnum > zone_table[zone_rn].top)
-					{
-						zone_rn++;
-					}
-
-					size_t local_desc_idx = 0;
-					RoomData* room = ParseRoomFile(filepath, zone_rn, local_index, local_desc_idx);
-
-					// Load room triggers (if present)
-					YAML::Node root = YAML::LoadFile(filepath);
-					if (root["triggers"] && root["triggers"].IsSequence())
-					{
-						std::vector<int> trigger_list;
-						for (const auto &trig_node : root["triggers"])
-						{
-							int trigger_vnum = trig_node.as<int>();
-							trigger_list.push_back(trigger_vnum);
-						}
-						if (!trigger_list.empty())
-						{
-							local_triggers[vnum] = std::move(trigger_list);
-						}
-					}
-
-					// Store vnum, room, and local description index
-					parsed_rooms.push_back(std::make_tuple(vnum, room, local_desc_idx));
-				}
-				catch (const YAML::Exception &e)
-				{
-					log("SYSERR: Failed to load room from '%s': %s", filepath.c_str(), e.what());
-					error_count++;
+					file_root = YAML::LoadFile(task.path);
 				}
 				catch (const std::exception &e)
 				{
-					log("SYSERR: Failed to load room from '%s': %s", filepath.c_str(), e.what());
-					error_count++;
+					log("SYSERR: Failed to load rooms from '%s': %s", task.path.c_str(), e.what());
+					error_count += static_cast<int>(task.vnums.size());
+					continue;
+				}
+				for (int vnum : task.vnums)
+				{
+					const YAML::Node node = task.flat ? file_root[vnum % 100] : file_root;
+					try
+					{
+						// Calculate zone_rnum from vnum
+						ZoneRnum zone_rn = 0;
+						while (zone_rn < static_cast<ZoneRnum>(zone_table.size()) &&
+						       vnum > zone_table[zone_rn].top)
+						{
+							zone_rn++;
+						}
+
+						size_t local_desc_idx = 0;
+						RoomData* room = ParseRoomNode(node, vnum, zone_rn, local_index, local_desc_idx);
+
+						// Load room triggers (if present)
+						if (node["triggers"] && node["triggers"].IsSequence())
+						{
+							std::vector<int> trigger_list;
+							for (const auto &trig_node : node["triggers"])
+							{
+								trigger_list.push_back(trig_node.as<int>());
+							}
+							if (!trigger_list.empty())
+							{
+								local_triggers[vnum] = std::move(trigger_list);
+							}
+						}
+
+						// Store vnum, room, and local description index
+						parsed_rooms.push_back(std::make_tuple(vnum, room, local_desc_idx));
+					}
+					catch (const std::exception &e)
+					{
+						log("SYSERR: Failed to parse room %d from '%s': %s", vnum, task.path.c_str(), e.what());
+						error_count++;
+					}
 				}
 			}
 
@@ -1784,7 +1743,12 @@ CharData YamlWorldDataSource::ParseMobNode(const YAML::Node &root)
 // Parallel mob loading
 void YamlWorldDataSource::LoadMobsParallel()
 {
-	std::vector<int> mob_vnums = GetMobList();
+	std::vector<EntityFileTask> tasks = DiscoverEntityFiles("mobs");
+	std::vector<int> mob_vnums;
+	for (const auto &t : tasks)
+	{
+		mob_vnums.insert(mob_vnums.end(), t.vnums.begin(), t.vnums.end());
+	}
 	if (mob_vnums.empty())
 	{
 		log("No mobs found in YAML index.");
@@ -1818,8 +1782,9 @@ void YamlWorldDataSource::LoadMobsParallel()
 	// before workers start, so worker threads never write to globals.
 	player_special_data::s_for_mobiles->saved.NameGod = 1001;
 
-	// Distribute mobs into batches
-	auto batches = utils::DistributeBatches(mob_vnums, m_num_threads);
+	// Distribute mob files into batches (each task is one file; a flat file
+	// carries many vnums, a per-file task exactly one).
+	auto batches = utils::DistributeBatches(tasks, m_num_threads);
 	std::atomic<int> error_count{0};
 
 	// Two-phase loading: workers only parse into thread-local buffers; the
@@ -1836,44 +1801,48 @@ void YamlWorldDataSource::LoadMobsParallel()
 	for (size_t thread_id = 0; thread_id < batches.size(); ++thread_id)
 	{
 		futures.push_back(m_thread_pool->Enqueue([this, thread_id, &batches, &thread_results, &thread_triggers, &error_count]() {
-			for (int vnum : batches[thread_id])
+			for (const auto &task : batches[thread_id])
 			{
-				int zone_vnum = vnum / 100;
-				int rel_num = vnum % 100;
-				std::ostringstream filepath_ss;
-				filepath_ss << m_world_dir << "/zones/" << zone_vnum << "/mobs/"
-				            << std::setfill('0') << std::setw(2) << rel_num << ".yaml";
-				std::string filepath = filepath_ss.str();
+				YAML::Node file_root;
 				try
 				{
-					auto mob_ptr = std::make_unique<CharData>(ParseMobFile(filepath));
-					thread_results[thread_id].emplace_back(vnum, std::move(mob_ptr));
-
-					// Collect triggers for sequential attach in merge phase
-					YAML::Node root = YAML::LoadFile(filepath);
-					if (root["triggers"] && root["triggers"].IsSequence())
-					{
-						std::vector<int> trigger_list;
-						for (const auto &trig_node : root["triggers"])
-						{
-							int trigger_vnum = trig_node.as<int>();
-							trigger_list.push_back(trigger_vnum);
-						}
-						if (!trigger_list.empty())
-						{
-							thread_triggers[thread_id][vnum] = std::move(trigger_list);
-						}
-					}
-				}
-				catch (const YAML::Exception &e)
-				{
-					log("SYSERR: Failed to load mob from '%s': %s", filepath.c_str(), e.what());
-					error_count++;
+					file_root = YAML::LoadFile(task.path);
 				}
 				catch (const std::exception &e)
 				{
-					log("SYSERR: Failed to load mob from '%s': %s", filepath.c_str(), e.what());
-					error_count++;
+					log("SYSERR: Failed to load mobs from '%s': %s", task.path.c_str(), e.what());
+					error_count += static_cast<int>(task.vnums.size());
+					continue;
+				}
+				for (int vnum : task.vnums)
+				{
+					// Flat: entity is the node at the rel-number key. Per-file:
+					// the file root IS the entity node.
+					const YAML::Node node = task.flat ? file_root[vnum % 100] : file_root;
+					try
+					{
+						auto mob_ptr = std::make_unique<CharData>(ParseMobNode(node));
+						thread_results[thread_id].emplace_back(vnum, std::move(mob_ptr));
+
+						// Collect triggers for sequential attach in merge phase
+						if (node["triggers"] && node["triggers"].IsSequence())
+						{
+							std::vector<int> trigger_list;
+							for (const auto &trig_node : node["triggers"])
+							{
+								trigger_list.push_back(trig_node.as<int>());
+							}
+							if (!trigger_list.empty())
+							{
+								thread_triggers[thread_id][vnum] = std::move(trigger_list);
+							}
+						}
+					}
+					catch (const std::exception &e)
+					{
+						log("SYSERR: Failed to parse mob %d from '%s': %s", vnum, task.path.c_str(), e.what());
+						error_count++;
+					}
 				}
 			}
 		}));
@@ -2258,7 +2227,12 @@ CObjectPrototype* YamlWorldDataSource::ParseObjectNode(const YAML::Node &root, i
 // Parallel object loading
 void YamlWorldDataSource::LoadObjectsParallel()
 {
-	std::vector<int> obj_vnums = GetObjectList();
+	std::vector<EntityFileTask> tasks = DiscoverEntityFiles("objects");
+	std::vector<int> obj_vnums;
+	for (const auto &t : tasks)
+	{
+		obj_vnums.insert(obj_vnums.end(), t.vnums.begin(), t.vnums.end());
+	}
 	if (obj_vnums.empty())
 	{
 		log("No objects found in YAML index.");
@@ -2268,8 +2242,8 @@ void YamlWorldDataSource::LoadObjectsParallel()
 	int obj_count = obj_vnums.size();
 	log("   %d objs.", obj_count);
 
-	// Distribute objects into batches
-	auto batches = utils::DistributeBatches(obj_vnums, m_num_threads);
+	// Distribute object files into batches (flat task = many vnums, per-file = one)
+	auto batches = utils::DistributeBatches(tasks, m_num_threads);
 
 	// Thread-local results (each thread collects its objects and triggers)
 	std::vector<std::vector<std::pair<int, CObjectPrototype*>>> thread_results(batches.size());
@@ -2281,45 +2255,47 @@ void YamlWorldDataSource::LoadObjectsParallel()
 	for (size_t thread_id = 0; thread_id < batches.size(); ++thread_id)
 	{
 		futures.push_back(m_thread_pool->Enqueue([this, thread_id, &batches, &thread_results, &thread_triggers, &error_count]() {
-			for (int vnum : batches[thread_id])
+			for (const auto &task : batches[thread_id])
 			{
-				int zone_vnum = vnum / 100;
-				int rel_num = vnum % 100;
-				std::ostringstream filepath_ss;
-				filepath_ss << m_world_dir << "/zones/" << zone_vnum << "/objects/"
-				            << std::setfill('0') << std::setw(2) << rel_num << ".yaml";
-				std::string filepath = filepath_ss.str();
+				YAML::Node file_root;
 				try
 				{
-					CObjectPrototype* obj = ParseObjectFile(filepath, vnum);
-
-					// Load object triggers (if present)
-					YAML::Node root = YAML::LoadFile(filepath);
-					if (root["triggers"] && root["triggers"].IsSequence())
-					{
-						std::vector<int> trigger_list;
-						for (const auto &trig_node : root["triggers"])
-						{
-							int trigger_vnum = trig_node.as<int>();
-							trigger_list.push_back(trigger_vnum);
-						}
-						if (!trigger_list.empty())
-						{
-							thread_triggers[thread_id][vnum] = std::move(trigger_list);
-						}
-					}
-
-					thread_results[thread_id].emplace_back(vnum, obj);
-				}
-				catch (const YAML::Exception &e)
-				{
-					log("SYSERR: Failed to load object from '%s': %s", filepath.c_str(), e.what());
-					error_count++;
+					file_root = YAML::LoadFile(task.path);
 				}
 				catch (const std::exception &e)
 				{
-					log("SYSERR: Failed to load object from '%s': %s", filepath.c_str(), e.what());
-					error_count++;
+					log("SYSERR: Failed to load objects from '%s': %s", task.path.c_str(), e.what());
+					error_count += static_cast<int>(task.vnums.size());
+					continue;
+				}
+				for (int vnum : task.vnums)
+				{
+					const YAML::Node node = task.flat ? file_root[vnum % 100] : file_root;
+					try
+					{
+						CObjectPrototype* obj = ParseObjectNode(node, vnum);
+
+						// Load object triggers (if present)
+						if (node["triggers"] && node["triggers"].IsSequence())
+						{
+							std::vector<int> trigger_list;
+							for (const auto &trig_node : node["triggers"])
+							{
+								trigger_list.push_back(trig_node.as<int>());
+							}
+							if (!trigger_list.empty())
+							{
+								thread_triggers[thread_id][vnum] = std::move(trigger_list);
+							}
+						}
+
+						thread_results[thread_id].emplace_back(vnum, obj);
+					}
+					catch (const std::exception &e)
+					{
+						log("SYSERR: Failed to parse object %d from '%s': %s", vnum, task.path.c_str(), e.what());
+						error_count++;
+					}
 				}
 			}
 		}));

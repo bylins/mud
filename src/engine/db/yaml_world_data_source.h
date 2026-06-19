@@ -40,6 +40,17 @@ namespace world_loader
 // layout used when WRITING.
 enum class YamlLayout { PerFile, Flat };
 
+// One unit of entity-load work: a single YAML file to parse, plus the vnums it
+// contains. Per-file layout -> exactly one vnum (the file IS the entity node).
+// Flat layout -> all vnums of that type in the zone (each entity is the node at
+// the rel-number map key). Distributed across worker threads; each task is
+// parsed entirely by one thread (so the loaded root node is never shared).
+struct EntityFileTask {
+	bool flat = false;
+	std::string path;
+	std::vector<int> vnums;  // sorted ascending
+};
+
 // Result of parsing rooms in a single thread
 struct ParsedRoomBatch {
 	LocalDescriptionIndex descriptions;  // Thread-local description index
@@ -85,9 +96,12 @@ private:
 
 	// Get list of zone vnums from index.yaml
 	std::vector<int> GetZoneList();
-	std::vector<int> GetMobList();
-	std::vector<int> GetObjectList();
-	std::vector<int> GetTriggerList();
+
+	// Discover the entity files for one sub-type ("mobs"/"objects"/"rooms"/
+	// "triggers") across all zones, auto-detecting per (zone, sub) whether the
+	// data lives in a flat <sub>.yaml or a per-file <sub>/ directory. Runs
+	// sequentially in the main thread before tasks are distributed to workers.
+	std::vector<EntityFileTask> DiscoverEntityFiles(const std::string &sub);
 
 	// Zone loading helpers
 	void LoadZoneCommands(ZoneData &zone, const YAML::Node &commands_node);
