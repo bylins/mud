@@ -3,6 +3,7 @@
 // Part of Bylins http://www.bylins.su
 
 #include "title.h"
+#include "gameplay/economics/currencies.h"
 #include "engine/entities/char_player.h"
 #include "gameplay/fight/pk.h"
 #include "engine/core/handler.h"

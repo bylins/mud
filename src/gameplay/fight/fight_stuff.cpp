@@ -6,6 +6,7 @@
 #include "utils/grammar/declensions.h"
 #include "gameplay/mechanics/minions.h"
 #include "gameplay/mechanics/mount.h"
+#include "gameplay/economics/currencies.h"
 
 #include "gameplay/affects/affect_data.h"
 #include "gameplay/magic/magic.h"
