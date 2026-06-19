@@ -10,9 +10,7 @@
 #include "engine/db/global_objects.h"
 #include "gameplay/magic/spell_messages.h"
 #include "gameplay/mechanics/liquid.h"
-
-// defined elsewhere (no header); forward-declared as spells.cpp did.
-void weight_change_object(ObjData *obj, int weight);
+#include "engine/core/utils_char_obj.inl"    // weight_change_object -- inline, нужен #include (не forward-decl), иначе при unity=off падает линковка
 
 namespace handlers {
 
