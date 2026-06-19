@@ -2190,7 +2190,7 @@ RoomRnum FindRoomRnum(CharData *ch, char *rawroomstr, int trig) {
 		}
 	} else if ((target_mob = target_resolver::FindCharInWorld(ch, roomstr)) != nullptr) {
 		location = target_mob->in_room;
-	} else if ((target_obj = target_resolver::FindObjAround(ch, roomstr)) != nullptr) {
+	} else if ((target_obj = target_resolver::FindObjInWorld(ch, roomstr)) != nullptr) {
 		if (target_obj->get_in_room() != kNowhere) {
 			location = target_obj->get_in_room();
 		} else {
