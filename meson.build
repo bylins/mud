@@ -79,6 +79,7 @@ if host_system == 'windows'
             '/source-charset:koi8-r',
             '/execution-charset:koi8-r',
             '/MP',
+            '/bigobj',
             '-DFMT_UNICODE=0',
             '/external:anglebrackets',
             '/external:W0'

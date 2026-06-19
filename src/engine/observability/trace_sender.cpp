@@ -8,7 +8,7 @@ namespace trace_api = opentelemetry::trace;
 namespace tracing {
 
 namespace {
-class NoOpSpan : public ISpan {
+class OtelNoOpSpan : public ISpan {
 public:
 	void End() override {}
 	void AddEvent(const std::string&) override {}
@@ -77,7 +77,7 @@ std::unique_ptr<ISpan> OtelTraceSender::StartSpan(const std::string& name) {
 			return std::make_unique<OtelSpan>(span);
 		}
 	}
-	return std::make_unique<NoOpSpan>();
+	return std::make_unique<OtelNoOpSpan>();
 }
 
 std::unique_ptr<ISpan> OtelTraceSender::StartChildSpan(
@@ -87,7 +87,7 @@ std::unique_ptr<ISpan> OtelTraceSender::StartChildSpan(
 	// Downcast to OtelSpan to get context
 	const OtelSpan* otel_parent = dynamic_cast<const OtelSpan*>(&parent);
 	if (!otel_parent || !otel_parent->IsValid()) {
-		return std::make_unique<NoOpSpan>();
+		return std::make_unique<OtelNoOpSpan>();
 	}
 
 	if (observability::OtelProvider::Instance().IsEnabled()) {
@@ -100,7 +100,7 @@ std::unique_ptr<ISpan> OtelTraceSender::StartChildSpan(
 			return std::make_unique<OtelSpan>(span);
 		}
 	}
-	return std::make_unique<NoOpSpan>();
+	return std::make_unique<OtelNoOpSpan>();
 }
 
 } // namespace tracing
