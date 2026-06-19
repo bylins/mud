@@ -4066,6 +4066,396 @@ void YamlWorldDataSource::SaveMobs(int zone_rnum, int specific_vnum)
 	RebuildPerZoneIndex(zone.vnum, "mobs");
 	CleanupOtherLayout(zone.vnum, "mobs", YamlLayout::PerFile);
 }
+void YamlWorldDataSource::EmitObjectBody(Koi8rYamlEmitter &yaml, std::ostream &out, CObjectPrototype *obj)
+{
+	// Names
+	yaml.Key("names");
+	out << std::endl;
+	yaml.IncreaseIndent();
+
+	yaml.Key("aliases");
+	yaml.Value(obj->get_aliases());
+
+	yaml.Key("nominative");
+	yaml.Value(obj->get_PName(ECase::kNom));
+
+	yaml.Key("genitive");
+	yaml.Value(obj->get_PName(ECase::kGen));
+
+	yaml.Key("dative");
+	yaml.Value(obj->get_PName(ECase::kDat));
+
+	yaml.Key("accusative");
+	yaml.Value(obj->get_PName(ECase::kAcc));
+
+	yaml.Key("instrumental");
+	yaml.Value(obj->get_PName(ECase::kIns));
+
+	yaml.Key("prepositional");
+	yaml.Value(obj->get_PName(ECase::kPre));
+
+	yaml.DecreaseIndent();
+
+	// Long description ("when in room"). Yaml convention: stored under
+	// `short_desc:` to mirror the legacy file's 8th string, which is the
+	// long-form description. m_short_description is the inventory name
+	// (== nominative) and is already serialised via names/nominative.
+	yaml.Key("short_desc");
+	yaml.Value(obj->get_description(), true);  // literal=true
+
+	// Action description (optional)
+	if (!obj->get_action_description().empty())
+	{
+		yaml.Key("action_desc");
+		yaml.Value(obj->get_action_description(), true);  // literal=true
+	}
+
+	// Type
+	yaml.Key("type");
+	yaml.Value(ReverseLookupEnum("obj_types", static_cast<int>(obj->get_type())));
+
+	// Material (with comment)
+	int material_id = static_cast<int>(obj->get_material());
+	yaml.Key("material");
+	yaml.Value(material_id, GetMaterialNameComment(material_id));
+
+	// Values
+	yaml.Key("values");
+	yaml.BeginSequence();
+	yaml.IncreaseIndent();
+
+	yaml.SequenceItem(obj->get_val(0));
+	yaml.SequenceItem(obj->get_val(1));
+	yaml.SequenceItem(obj->get_val(2));
+	yaml.SequenceItem(obj->get_val(3));
+
+	yaml.DecreaseIndent();
+
+	// Weight, cost, rent
+	yaml.Key("weight");
+	yaml.Value(obj->get_weight());
+
+	yaml.Key("cost");
+	yaml.Value(obj->get_cost());
+
+	yaml.Key("rent_off");
+	yaml.Value(obj->get_rent_off());
+
+	yaml.Key("rent_on");
+	yaml.Value(obj->get_rent_on());
+
+	// Spec param (optional)
+	if (obj->get_spec_param() != 0)
+	{
+		yaml.Key("spec_param");
+		yaml.Value(obj->get_spec_param());
+	}
+
+	// Durability and timer
+	yaml.Key("max_durability");
+	yaml.Value(obj->get_maximum_durability());
+
+	yaml.Key("cur_durability");
+	yaml.Value(obj->get_current_durability());
+
+	yaml.Key("timer");
+	yaml.Value(obj->get_timer());
+
+	// Spell (with comment)
+	if (to_underlying(obj->get_spell()) >= 0)
+	{
+		int spell_id = to_underlying(obj->get_spell());
+		yaml.Key("spell");
+		yaml.Value(spell_id, GetSpellNameComment(static_cast<ESpell>(spell_id)));
+	}
+
+	// Level and sex
+	yaml.Key("level");
+	yaml.Value(obj->get_level());
+
+	yaml.Key("sex");
+	yaml.Value(ReverseLookupEnum("genders", static_cast<int>(obj->get_sex())));
+
+	// Max in world (optional)
+	if (obj->get_max_in_world() != -1)
+	{
+		yaml.Key("max_in_world");
+		yaml.Value(obj->get_max_in_world());
+	}
+
+	// Minimum remorts (optional)
+	if (obj->get_minimum_remorts() != 0)
+	{
+		yaml.Key("minimum_remorts");
+		yaml.Value(obj->get_minimum_remorts());
+	}
+
+	// Extra flags
+	auto extra_flags = ConvertFlagsToNames(obj->get_extra_flags(), "extra_flags");
+	if (!extra_flags.empty())
+	{
+		yaml.Key("extra_flags");
+		yaml.BeginSequence();
+		yaml.IncreaseIndent();
+
+		for (const auto &flag : extra_flags)
+		{
+			yaml.SequenceItem(flag);
+		}
+
+		yaml.DecreaseIndent();
+	}
+
+	// Wear flags
+	int wear_flags = obj->get_wear_flags();
+	if (wear_flags != 0)
+	{
+		yaml.Key("wear_flags");
+		yaml.BeginSequence();
+		yaml.IncreaseIndent();
+
+		for (int bit = 0; bit < 32; ++bit)
+		{
+			if (wear_flags & (1 << bit))
+			{
+				std::string flag_name = ReverseLookupEnum("wear_flags", bit);
+				if (!flag_name.empty() && flag_name != std::to_string(bit))
+				{
+					yaml.SequenceItem(flag_name);
+				}
+				else
+				{
+					yaml.SequenceItem("UNUSED_" + std::to_string(bit));
+				}
+			}
+		}
+
+		yaml.DecreaseIndent();
+	}
+
+	// No flags
+	auto no_flags = ConvertFlagsToNames(obj->get_no_flags(), "no_flags");
+	if (!no_flags.empty())
+	{
+		yaml.Key("no_flags");
+		yaml.BeginSequence();
+		yaml.IncreaseIndent();
+
+		for (const auto &flag : no_flags)
+		{
+			yaml.SequenceItem(flag);
+		}
+
+		yaml.DecreaseIndent();
+	}
+
+	// Anti flags
+	auto anti_flags = ConvertFlagsToNames(obj->get_anti_flags(), "anti_flags");
+	if (!anti_flags.empty())
+	{
+		yaml.Key("anti_flags");
+		yaml.BeginSequence();
+		yaml.IncreaseIndent();
+
+		for (const auto &flag : anti_flags)
+		{
+			yaml.SequenceItem(flag);
+		}
+
+		yaml.DecreaseIndent();
+	}
+
+	// Affect flags. m_waffect_flags хранит биты EWeaponAffect, имена
+	// берём из EWeaponAffect-таблицы (не EAffect), иначе round-trip
+	// конвертера сломает item-affects: загружено как kDetectPoison,
+	// сохранено как kHorse (бит 27 в EAffect-словаре). Идём по битам
+	// сами и берём имена через NAME_BY_ITEM<EWeaponAffect>.
+	std::vector<std::string> affect_flags;
+	{
+		const auto &fld = obj->get_affect_flags();
+		for (size_t plane = 0; plane < FlagData::kPlanesNumber; ++plane)
+		{
+			Bitvector plane_bits = fld.get_plane(plane);
+			if (plane_bits == 0) continue;
+			for (int bit = 0; bit < 30; ++bit)
+			{
+				if (!(plane_bits & (1u << bit))) continue;
+				const Bitvector v = (plane == 0) ? (1u << bit) :
+					((plane == 1) ? (kIntOne | (1u << bit)) :
+					(plane == 2) ? (kIntTwo | (1u << bit)) :
+					(kIntThree | (1u << bit)));
+				try
+				{
+					const auto &name = NAME_BY_ITEM<EWeaponAffect>(static_cast<EWeaponAffect>(v));
+					if (!name.empty()) affect_flags.push_back(name);
+				}
+				catch (const std::out_of_range &)
+				{
+					const int idx = static_cast<int>(plane) * 30 + bit;
+					affect_flags.push_back("UNUSED_" + std::to_string(idx));
+				}
+			}
+		}
+	}
+	if (!affect_flags.empty())
+	{
+		yaml.Key("affect_flags");
+		yaml.BeginSequence();
+		yaml.IncreaseIndent();
+
+		for (const auto &flag : affect_flags)
+		{
+			yaml.SequenceItem(flag);
+		}
+
+		yaml.DecreaseIndent();
+	}
+
+	// Applies (with location comments)
+	bool has_applies = false;
+	for (int i = 0; i < kMaxObjAffect; ++i)
+	{
+		if (obj->get_affected(i).location != EApply::kNone)
+		{
+			has_applies = true;
+			break;
+		}
+	}
+
+	if (has_applies)
+	{
+		yaml.Key("applies");
+		yaml.BeginSequence();
+		yaml.IncreaseIndent();
+
+		for (int i = 0; i < kMaxObjAffect; ++i)
+		{
+			if (obj->get_affected(i).location != EApply::kNone)
+			{
+				int location = static_cast<int>(obj->get_affected(i).location);
+				int modifier = obj->get_affected(i).modifier;
+
+				out << yaml.GetIndent() << "- location: " << location;
+				out << "  # " << GetApplyTypeNameComment(location) << std::endl;
+				out << yaml.GetIndent() << "  modifier: " << modifier << std::endl;
+			}
+		}
+
+		yaml.DecreaseIndent();
+	}
+
+	// Умения предмета (legacy S-строки), issue #3386.
+	if (obj->has_skills())
+	{
+		yaml.Key("skills");
+		yaml.BeginSequence();
+		yaml.IncreaseIndent();
+
+		for (const auto &[skill_id, value] : obj->get_skills())
+		{
+			out << yaml.GetIndent() << "- skill_id: " << static_cast<int>(skill_id);
+			out << "  # " << GetSkillNameComment(skill_id) << std::endl;
+			out << yaml.GetIndent() << "  value: " << value << std::endl;
+		}
+
+		yaml.DecreaseIndent();
+	}
+
+	// Extra descriptions
+	if (obj->get_ex_description())
+	{
+		yaml.Key("extra_descriptions");
+		yaml.BeginSequence();
+		yaml.IncreaseIndent();
+
+		// Load prepends each yaml entry, so the in-memory list is
+		// reversed relative to the file. Emit in reverse so a fresh load
+		// rebuilds the same in-memory order -- otherwise the order flips
+		// on every round-trip.
+		std::vector<ExtraDescription *> exdescs;
+		for (auto exdesc = obj->get_ex_description(); exdesc; exdesc = exdesc->next)
+		{
+			exdescs.push_back(exdesc.get());
+		}
+		for (auto it = exdescs.rbegin(); it != exdescs.rend(); ++it)
+		{
+			const auto *exdesc = *it;
+			if (exdesc->keyword)
+			{
+				// keywords may start with '-' (legitimately a single dash);
+				// Koi8rYamlEmitter::Value handles leading-indicator quoting.
+				out << yaml.GetIndent() << "- keywords:";
+				// IncreaseIndent so yaml.Value's literal-block branch
+				// emits content lines at the correct column for indicator
+				// "2" (parent_indent + 2). The "  " before `-` already
+				// indented us; we need one more level so a multi-line
+				// keyword doesn't get content at the wrong column.
+				yaml.IncreaseIndent();
+				yaml.Value(std::string(exdesc->keyword));
+				yaml.DecreaseIndent();
+				if (exdesc->description)
+				{
+					out << yaml.GetIndent() << "  description:";
+					yaml.IncreaseIndent();
+					yaml.Value(std::string(exdesc->description), true);
+					yaml.DecreaseIndent();
+				}
+			}
+		}
+
+		yaml.DecreaseIndent();
+	}
+
+	// Extra values (V-строки): данные зелий и прочих контейнеров с жидкостью.
+	// Без сохранения этой секции данные о заклинаниях зелий пропадут (issue #3218).
+	if (!obj->get_all_values().empty())
+	{
+		std::vector<std::pair<std::string, int>> sorted_vals;
+		for (const auto &kv : obj->get_all_values())
+		{
+			std::string key_str = text_id::ToStr(text_id::kObjVals, to_underlying(kv.first));
+			if (!key_str.empty())
+			{
+				sorted_vals.emplace_back(std::move(key_str), kv.second);
+			}
+		}
+
+		if (!sorted_vals.empty())
+		{
+			std::sort(sorted_vals.begin(), sorted_vals.end(),
+				[](const std::pair<std::string, int> &a, const std::pair<std::string, int> &b) {
+					return a.first < b.first;
+				});
+
+			yaml.Key("extra_values");
+			yaml.BeginBlock();
+			for (const auto &kv : sorted_vals)
+			{
+				yaml.Key(kv.first);
+				yaml.Value(kv.second);
+			}
+			yaml.EndBlock();
+		}
+	}
+
+	// Triggers (with comments)
+	if (obj->get_proto_script_ptr() && !obj->get_proto_script().empty())
+	{
+		yaml.Key("triggers");
+		yaml.BeginSequence();
+		yaml.IncreaseIndent();
+
+		for (auto trig_vnum : obj->get_proto_script())
+		{
+			std::string trig_comment = GetTriggerNameComment(trig_vnum);
+			yaml.SequenceItem(trig_vnum, trig_comment);
+		}
+
+		yaml.DecreaseIndent();
+	}
+
+}
+
 void YamlWorldDataSource::SaveObjects(int zone_rnum, int specific_vnum)
 {
 	if (zone_rnum < 0 || zone_rnum >= static_cast<int>(zone_table.size()))
@@ -4076,41 +4466,64 @@ void YamlWorldDataSource::SaveObjects(int zone_rnum, int specific_vnum)
 
 	const ZoneData &zone = zone_table[zone_rnum];
 
-	namespace fs = std::filesystem;
-
-	int saved_count = 0;
-	int start_vnum = zone.vnum * 100;
-	int end_vnum = zone.top;
-
+	// Collect this zone's objects, sorted by vnum.
+	std::vector<std::pair<int, CObjectPrototype *>> entries;
 	for (const auto &[obj_vnum, obj_rnum] : obj_proto.vnum2index())
 	{
-		if (obj_vnum < start_vnum || obj_vnum > end_vnum)
-		{
-			continue;
-		}
-
-		// If specific_vnum is set, save only that object
-		if (specific_vnum != -1 && obj_vnum != specific_vnum)
-		{
-			continue;
-		}
-
+		if (obj_vnum < zone.vnum * 100 || obj_vnum > zone.top) continue;
 		auto obj = obj_proto[obj_rnum];
-		if (!obj)
-		{
-			continue;
-		}
+		if (!obj) continue;
+		entries.emplace_back(obj_vnum, obj.get());
+	}
+	std::sort(entries.begin(), entries.end(),
+		[](const auto &a, const auto &b) { return a.first < b.first; });
 
-		int zone_vnum_for_obj = obj_vnum / 100;
-		int rel_num = obj_vnum % 100;
-		std::ostringstream objs_dir_ss;
-		objs_dir_ss << m_world_dir << "/zones/" << zone_vnum_for_obj << "/objects";
-		std::string objs_dir = objs_dir_ss.str();
-		if (!fs::exists(objs_dir))
-		{
-			fs::create_directories(objs_dir);
-		}
+	namespace fs = std::filesystem;
 
+	if (m_save_layout == YamlLayout::Flat)
+	{
+		const std::string flat_path = m_world_dir + "/zones/" + std::to_string(zone.vnum) + "/objects.yaml";
+		const std::string temp_file = flat_path + ".tmp";
+		std::ofstream out(temp_file);
+		if (!out.is_open())
+		{
+			log("SYSERR: Failed to open %s for writing", temp_file.c_str());
+			return;
+		}
+		Koi8rYamlEmitter yaml(out);
+		yaml.Comment("Objects for zone " + std::to_string(zone.vnum));
+		for (const auto &[vnum, obj] : entries)
+		{
+			yaml.EmptyLine();
+			yaml.Comment("Object #" + std::to_string(vnum));
+			out << yaml.GetIndent() << (vnum % 100) << ":" << std::endl;
+			yaml.IncreaseIndent();
+			EmitObjectBody(yaml, out, obj);
+			yaml.DecreaseIndent();
+		}
+		out.close();
+		if (std::rename(temp_file.c_str(), flat_path.c_str()) != 0)
+		{
+			log("SYSERR: Failed to rename %s to %s", temp_file.c_str(), flat_path.c_str());
+			return;
+		}
+		log("Saved %zu objects (flat) for zone %d", entries.size(), zone.vnum);
+		CleanupOtherLayout(zone.vnum, "objects", YamlLayout::Flat);
+		return;
+	}
+
+	// Per-file layout: one file per object.
+	const std::string objs_dir = m_world_dir + "/zones/" + std::to_string(zone.vnum) + "/objects";
+	if (!fs::exists(objs_dir))
+	{
+		fs::create_directories(objs_dir);
+	}
+	int saved_count = 0;
+	for (const auto &[vnum, obj] : entries)
+	{
+		if (specific_vnum != -1 && vnum != specific_vnum) continue;
+
+		int rel_num = vnum % 100;
 		std::ostringstream obj_file_ss;
 		obj_file_ss << objs_dir << "/" << std::setfill('0') << std::setw(2) << rel_num << ".yaml";
 		std::string obj_file = obj_file_ss.str();
@@ -4123,417 +4536,23 @@ void YamlWorldDataSource::SaveObjects(int zone_rnum, int specific_vnum)
 		}
 
 		Koi8rYamlEmitter yaml(out);
-
-		// Header comment
-		yaml.Comment("Object #" + std::to_string(obj_vnum));
+		yaml.Comment("Object #" + std::to_string(vnum));
 		yaml.EmptyLine();
+		EmitObjectBody(yaml, out, obj);
 
-		// Vnum (matches Python converter output and SaveRooms convention).
-		yaml.Key("vnum");
-		yaml.Value(obj_vnum);
-
-		// Names
-		yaml.Key("names");
-		out << std::endl;
-		yaml.IncreaseIndent();
-
-		yaml.Key("aliases");
-		yaml.Value(obj->get_aliases());
-
-		yaml.Key("nominative");
-		yaml.Value(obj->get_PName(grammar::ECase::kNom));
-
-		yaml.Key("genitive");
-		yaml.Value(obj->get_PName(grammar::ECase::kGen));
-
-		yaml.Key("dative");
-		yaml.Value(obj->get_PName(grammar::ECase::kDat));
-
-		yaml.Key("accusative");
-		yaml.Value(obj->get_PName(grammar::ECase::kAcc));
-
-		yaml.Key("instrumental");
-		yaml.Value(obj->get_PName(grammar::ECase::kIns));
-
-		yaml.Key("prepositional");
-		yaml.Value(obj->get_PName(grammar::ECase::kPre));
-
-		yaml.DecreaseIndent();
-
-		// Long description ("when in room"). Yaml convention: stored under
-		// `short_desc:` to mirror the legacy file's 8th string, which is the
-		// long-form description. m_short_description is the inventory name
-		// (== nominative) and is already serialised via names/nominative.
-		yaml.Key("short_desc");
-		yaml.Value(obj->get_description(), true);  // literal=true
-
-		// Action description (optional)
-		if (!obj->get_action_description().empty())
-		{
-			yaml.Key("action_desc");
-			yaml.Value(obj->get_action_description(), true);  // literal=true
-		}
-
-		// Type
-		yaml.Key("type");
-		yaml.Value(ReverseLookupEnum("obj_types", static_cast<int>(obj->get_type())));
-
-		// Material (with comment)
-		int material_id = static_cast<int>(obj->get_material());
-		yaml.Key("material");
-		yaml.Value(material_id, GetMaterialNameComment(material_id));
-
-		// Values
-		yaml.Key("values");
-		yaml.BeginSequence();
-		yaml.IncreaseIndent();
-
-		yaml.SequenceItem(obj->get_val(0));
-		yaml.SequenceItem(obj->get_val(1));
-		yaml.SequenceItem(obj->get_val(2));
-		yaml.SequenceItem(obj->get_val(3));
-
-		yaml.DecreaseIndent();
-
-		// Weight, cost, rent
-		yaml.Key("weight");
-		yaml.Value(obj->get_weight());
-
-		yaml.Key("cost");
-		yaml.Value(obj->get_cost());
-
-		yaml.Key("rent_off");
-		yaml.Value(obj->get_rent_off());
-
-		yaml.Key("rent_on");
-		yaml.Value(obj->get_rent_on());
-
-		// Spec param (optional)
-		if (obj->get_spec_param() != 0)
-		{
-			yaml.Key("spec_param");
-			yaml.Value(obj->get_spec_param());
-		}
-
-		// Durability and timer
-		yaml.Key("max_durability");
-		yaml.Value(obj->get_maximum_durability());
-
-		yaml.Key("cur_durability");
-		yaml.Value(obj->get_current_durability());
-
-		yaml.Key("timer");
-		yaml.Value(obj->get_timer());
-
-		// Spell (with comment)
-		if (to_underlying(obj->get_spell()) >= 0)
-		{
-			int spell_id = to_underlying(obj->get_spell());
-			yaml.Key("spell");
-			yaml.Value(spell_id, GetSpellNameComment(static_cast<ESpell>(spell_id)));
-		}
-
-		// Level and sex
-		yaml.Key("level");
-		yaml.Value(obj->get_level());
-
-		yaml.Key("sex");
-		yaml.Value(ReverseLookupEnum("genders", static_cast<int>(obj->get_sex())));
-
-		// Max in world (optional)
-		if (obj->get_max_in_world() != -1)
-		{
-			yaml.Key("max_in_world");
-			yaml.Value(obj->get_max_in_world());
-		}
-
-		// Minimum remorts (optional)
-		if (obj->get_minimum_remorts() != 0)
-		{
-			yaml.Key("minimum_remorts");
-			yaml.Value(obj->get_minimum_remorts());
-		}
-
-		// Extra flags
-		auto extra_flags = ConvertFlagsToNames(obj->get_extra_flags(), "extra_flags");
-		if (!extra_flags.empty())
-		{
-			yaml.Key("extra_flags");
-			yaml.BeginSequence();
-			yaml.IncreaseIndent();
-
-			for (const auto &flag : extra_flags)
-			{
-				yaml.SequenceItem(flag);
-			}
-
-			yaml.DecreaseIndent();
-		}
-
-		// Wear flags
-		int wear_flags = obj->get_wear_flags();
-		if (wear_flags != 0)
-		{
-			yaml.Key("wear_flags");
-			yaml.BeginSequence();
-			yaml.IncreaseIndent();
-
-			for (int bit = 0; bit < 32; ++bit)
-			{
-				if (wear_flags & (1 << bit))
-				{
-					std::string flag_name = ReverseLookupEnum("wear_flags", bit);
-					if (!flag_name.empty() && flag_name != std::to_string(bit))
-					{
-						yaml.SequenceItem(flag_name);
-					}
-					else
-					{
-						yaml.SequenceItem("UNUSED_" + std::to_string(bit));
-					}
-				}
-			}
-
-			yaml.DecreaseIndent();
-		}
-
-		// No flags
-		auto no_flags = ConvertFlagsToNames(obj->get_no_flags(), "no_flags");
-		if (!no_flags.empty())
-		{
-			yaml.Key("no_flags");
-			yaml.BeginSequence();
-			yaml.IncreaseIndent();
-
-			for (const auto &flag : no_flags)
-			{
-				yaml.SequenceItem(flag);
-			}
-
-			yaml.DecreaseIndent();
-		}
-
-		// Anti flags
-		auto anti_flags = ConvertFlagsToNames(obj->get_anti_flags(), "anti_flags");
-		if (!anti_flags.empty())
-		{
-			yaml.Key("anti_flags");
-			yaml.BeginSequence();
-			yaml.IncreaseIndent();
-
-			for (const auto &flag : anti_flags)
-			{
-				yaml.SequenceItem(flag);
-			}
-
-			yaml.DecreaseIndent();
-		}
-
-		// Affect flags. m_waffect_flags хранит биты EWeaponAffect, имена
-		// берём из EWeaponAffect-таблицы (не EAffect), иначе round-trip
-		// конвертера сломает item-affects: загружено как kDetectPoison,
-		// сохранено как kHorse (бит 27 в EAffect-словаре). Идём по битам
-		// сами и берём имена через NAME_BY_ITEM<EWeaponAffect>.
-		std::vector<std::string> affect_flags;
-		{
-			const auto &fld = obj->get_affect_flags();
-			for (size_t plane = 0; plane < FlagData::kPlanesNumber; ++plane)
-			{
-				Bitvector plane_bits = fld.get_plane(plane);
-				if (plane_bits == 0) continue;
-				for (int bit = 0; bit < 30; ++bit)
-				{
-					if (!(plane_bits & (1u << bit))) continue;
-					const Bitvector v = (plane == 0) ? (1u << bit) :
-						((plane == 1) ? (kIntOne | (1u << bit)) :
-						(plane == 2) ? (kIntTwo | (1u << bit)) :
-						(kIntThree | (1u << bit)));
-					try
-					{
-						const auto &name = NAME_BY_ITEM<EWeaponAffect>(static_cast<EWeaponAffect>(v));
-						if (!name.empty()) affect_flags.push_back(name);
-					}
-					catch (const std::out_of_range &)
-					{
-						const int idx = static_cast<int>(plane) * 30 + bit;
-						affect_flags.push_back("UNUSED_" + std::to_string(idx));
-					}
-				}
-			}
-		}
-		if (!affect_flags.empty())
-		{
-			yaml.Key("affect_flags");
-			yaml.BeginSequence();
-			yaml.IncreaseIndent();
-
-			for (const auto &flag : affect_flags)
-			{
-				yaml.SequenceItem(flag);
-			}
-
-			yaml.DecreaseIndent();
-		}
-
-		// Applies (with location comments)
-		bool has_applies = false;
-		for (int i = 0; i < kMaxObjAffect; ++i)
-		{
-			if (obj->get_affected(i).location != EApply::kNone)
-			{
-				has_applies = true;
-				break;
-			}
-		}
-
-		if (has_applies)
-		{
-			yaml.Key("applies");
-			yaml.BeginSequence();
-			yaml.IncreaseIndent();
-
-			for (int i = 0; i < kMaxObjAffect; ++i)
-			{
-				if (obj->get_affected(i).location != EApply::kNone)
-				{
-					int location = static_cast<int>(obj->get_affected(i).location);
-					int modifier = obj->get_affected(i).modifier;
-
-					out << yaml.GetIndent() << "- location: " << location;
-					out << "  # " << GetApplyTypeNameComment(location) << std::endl;
-					out << yaml.GetIndent() << "  modifier: " << modifier << std::endl;
-				}
-			}
-
-			yaml.DecreaseIndent();
-		}
-
-		// Умения предмета (legacy S-строки), issue #3386.
-		if (obj->has_skills())
-		{
-			yaml.Key("skills");
-			yaml.BeginSequence();
-			yaml.IncreaseIndent();
-
-			for (const auto &[skill_id, value] : obj->get_skills())
-			{
-				out << yaml.GetIndent() << "- skill_id: " << static_cast<int>(skill_id);
-				out << "  # " << GetSkillNameComment(skill_id) << std::endl;
-				out << yaml.GetIndent() << "  value: " << value << std::endl;
-			}
-
-			yaml.DecreaseIndent();
-		}
-
-		// Extra descriptions
-		if (obj->get_ex_description())
-		{
-			yaml.Key("extra_descriptions");
-			yaml.BeginSequence();
-			yaml.IncreaseIndent();
-
-			// Load prepends each yaml entry, so the in-memory list is
-			// reversed relative to the file. Emit in reverse so a fresh load
-			// rebuilds the same in-memory order -- otherwise the order flips
-			// on every round-trip.
-			std::vector<ExtraDescription *> exdescs;
-			for (auto exdesc = obj->get_ex_description(); exdesc; exdesc = exdesc->next)
-			{
-				exdescs.push_back(exdesc.get());
-			}
-			for (auto it = exdescs.rbegin(); it != exdescs.rend(); ++it)
-			{
-				const auto *exdesc = *it;
-				if (exdesc->keyword)
-				{
-					// keywords may start with '-' (legitimately a single dash);
-					// Koi8rYamlEmitter::Value handles leading-indicator quoting.
-					out << yaml.GetIndent() << "- keywords:";
-					// IncreaseIndent so yaml.Value's literal-block branch
-					// emits content lines at the correct column for indicator
-					// "2" (parent_indent + 2). The "  " before `-` already
-					// indented us; we need one more level so a multi-line
-					// keyword doesn't get content at the wrong column.
-					yaml.IncreaseIndent();
-					yaml.Value(std::string(exdesc->keyword));
-					yaml.DecreaseIndent();
-					if (exdesc->description)
-					{
-						out << yaml.GetIndent() << "  description:";
-						yaml.IncreaseIndent();
-						yaml.Value(std::string(exdesc->description), true);
-						yaml.DecreaseIndent();
-					}
-				}
-			}
-
-			yaml.DecreaseIndent();
-		}
-
-		// Extra values (V-строки): данные зелий и прочих контейнеров с жидкостью.
-		// Без сохранения этой секции данные о заклинаниях зелий пропадут (issue #3218).
-		if (!obj->get_all_values().empty())
-		{
-			std::vector<std::pair<std::string, int>> sorted_vals;
-			for (const auto &kv : obj->get_all_values())
-			{
-				std::string key_str = text_id::ToStr(text_id::kObjVals, to_underlying(kv.first));
-				if (!key_str.empty())
-				{
-					sorted_vals.emplace_back(std::move(key_str), kv.second);
-				}
-			}
-
-			if (!sorted_vals.empty())
-			{
-				std::sort(sorted_vals.begin(), sorted_vals.end(),
-					[](const std::pair<std::string, int> &a, const std::pair<std::string, int> &b) {
-						return a.first < b.first;
-					});
-
-				yaml.Key("extra_values");
-				yaml.BeginBlock();
-				for (const auto &kv : sorted_vals)
-				{
-					yaml.Key(kv.first);
-					yaml.Value(kv.second);
-				}
-				yaml.EndBlock();
-			}
-		}
-
-		// Triggers (with comments)
-		if (obj->get_proto_script_ptr() && !obj->get_proto_script().empty())
-		{
-			yaml.Key("triggers");
-			yaml.BeginSequence();
-			yaml.IncreaseIndent();
-
-			for (auto trig_vnum : obj->get_proto_script())
-			{
-				std::string trig_comment = GetTriggerNameComment(trig_vnum);
-				yaml.SequenceItem(trig_vnum, trig_comment);
-			}
-
-			yaml.DecreaseIndent();
-		}
-
-		// Close file and rename atomically
 		out.close();
 		if (std::rename(temp_file.c_str(), obj_file.c_str()) != 0)
 		{
 			log("SYSERR: Failed to rename %s to %s", temp_file.c_str(), obj_file.c_str());
 			continue;
 		}
-
 		++saved_count;
 	}
 
 	log("Saved %d objects for zone %d", saved_count, zone.vnum);
-
 	RebuildPerZoneIndex(zone.vnum, "objects");
+	CleanupOtherLayout(zone.vnum, "objects", YamlLayout::PerFile);
 }
-
 // ============================================================================
 // Factory function
 // ============================================================================
