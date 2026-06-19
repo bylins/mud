@@ -3450,6 +3450,525 @@ void YamlWorldDataSource::SaveRooms(int zone_rnum, int specific_vnum)
 	CleanupOtherLayout(zone.vnum, "rooms", YamlLayout::PerFile);
 }
 
+void YamlWorldDataSource::EmitMobBody(Koi8rYamlEmitter &yaml, std::ostream &out, CharData &mob)
+{
+	// Names
+	yaml.Key("names");
+	out << std::endl;
+	yaml.IncreaseIndent();
+
+	// GetCharAliases() returns the full keyword list (name_), matching
+	// what LoadMobs reads via SetCharAliases(GetText(names, "aliases"))
+	// at line 1557. get_npc_name() returns short_descr_ (== nominative),
+	// which would truncate "костяк скелет" -> "скелет" on round-trip.
+	const std::string &aliases = mob.GetCharAliases();
+	if (!aliases.empty())
+	{
+		yaml.Key("aliases");
+		yaml.Value(aliases);
+	}
+	yaml.Key("nominative");
+	yaml.Value(mob.player_data.PNames[ECase::kNom]);
+	yaml.Key("genitive");
+	yaml.Value(mob.player_data.PNames[ECase::kGen]);
+	yaml.Key("dative");
+	yaml.Value(mob.player_data.PNames[ECase::kDat]);
+	yaml.Key("accusative");
+	yaml.Value(mob.player_data.PNames[ECase::kAcc]);
+	yaml.Key("instrumental");
+	yaml.Value(mob.player_data.PNames[ECase::kIns]);
+	yaml.Key("prepositional");
+	yaml.Value(mob.player_data.PNames[ECase::kPre]);
+
+	yaml.DecreaseIndent();
+
+	// Descriptions
+	yaml.Key("descriptions");
+	out << std::endl;
+	yaml.IncreaseIndent();
+
+	yaml.Key("short_desc");
+	yaml.Value(mob.player_data.long_descr, true);  // literal=true
+
+	yaml.Key("long_desc");
+	yaml.Value(mob.player_data.description, true);  // literal=true
+
+	yaml.DecreaseIndent();
+
+	// Alignment
+	yaml.Key("alignment");
+	yaml.Value(GET_ALIGNMENT(&mob));
+
+	// Stats
+	yaml.Key("stats");
+	out << std::endl;
+	yaml.IncreaseIndent();
+
+	yaml.Key("level");
+	yaml.Value(mob.GetLevel());
+
+	// Write in legacy file units to stay symmetric with LoadMob() and
+	// matching convert_to_yaml.py output -- otherwise yaml -> legacy
+	// -> yaml round-trip flips the on-disk hitroll value every pass.
+	yaml.Key("hitroll_penalty");
+	yaml.Value(20 - GET_HR(&mob));
+
+	yaml.Key("armor");
+	yaml.Value(GET_AC(&mob) / 10);
+
+	// HP
+	yaml.Key("hp");
+	out << std::endl;
+	yaml.IncreaseIndent();
+
+	yaml.Key("dice_count");
+	yaml.Value(static_cast<int>(mob.mem_queue.total));  // byte -> int
+
+	yaml.Key("dice_size");
+	yaml.Value(static_cast<int>(mob.mem_queue.stored));  // byte -> int
+
+	yaml.Key("bonus");
+	yaml.Value(mob.get_hit());
+
+	yaml.DecreaseIndent();
+
+	// Damage
+	yaml.Key("damage");
+	out << std::endl;
+	yaml.IncreaseIndent();
+
+	yaml.Key("dice_count");
+	yaml.Value(static_cast<int>(mob.mob_specials.damnodice));  // byte -> int
+
+	yaml.Key("dice_size");
+	yaml.Value(static_cast<int>(mob.mob_specials.damsizedice));  // byte -> int
+
+	yaml.Key("bonus");
+	yaml.Value(mob.real_abils.damroll);
+
+	yaml.DecreaseIndent();
+	yaml.DecreaseIndent();  // stats
+
+	// Gold
+	yaml.Key("gold");
+	out << std::endl;
+	yaml.IncreaseIndent();
+
+	yaml.Key("dice_count");
+	yaml.Value(static_cast<int>(mob.mob_specials.GoldNoDs));  // byte -> int
+
+	yaml.Key("dice_size");
+	yaml.Value(static_cast<int>(mob.mob_specials.GoldSiDs));  // byte -> int
+
+	yaml.Key("bonus");
+	yaml.Value(mob.get_gold());
+
+	yaml.DecreaseIndent();
+
+	// Experience
+	yaml.Key("experience");
+	yaml.Value(mob.get_exp());
+
+	// Position
+	yaml.Key("position");
+	out << std::endl;
+	yaml.IncreaseIndent();
+
+	yaml.Key("default");
+	yaml.Value(ReverseLookupEnum("positions", static_cast<int>(mob.mob_specials.default_pos)));
+
+	yaml.Key("start");
+	yaml.Value(ReverseLookupEnum("positions", static_cast<int>(mob.GetPosition())));
+
+	yaml.DecreaseIndent();
+
+	// Sex
+	yaml.Key("sex");
+	yaml.Value(ReverseLookupEnum("genders", static_cast<int>(mob.get_sex())));
+
+	// Size, height, weight
+	yaml.Key("size");
+	yaml.Value(GET_SIZE(&mob));
+
+	// NPC race, between `size` and `height` as the converter writes it.
+	yaml.Key("race");
+	yaml.Value(static_cast<int>(mob.player_data.Race));
+
+	yaml.Key("height");
+	yaml.Value(static_cast<int>(GET_HEIGHT(&mob)));  // ubyte -> int
+
+	yaml.Key("weight");
+	yaml.Value(static_cast<int>(GET_WEIGHT(&mob)));  // ubyte -> int
+
+	// Attributes (skip if all six are at default 11). LoadMobs sets every
+	// attribute to 11 unconditionally and then overrides from `attributes`
+	// if present; treating "all 11" as "not specified" matches the Python
+	// converter, which only emits this block when legacy data actually
+	// carried per-attribute values.
+	const bool attributes_set =
+		mob.get_str() != 11 || mob.get_dex() != 11 || mob.get_int() != 11 ||
+		mob.get_wis() != 11 || mob.get_con() != 11 || mob.get_cha() != 11;
+	if (attributes_set)
+	{
+		yaml.Key("attributes");
+		out << std::endl;
+		yaml.IncreaseIndent();
+
+		yaml.Key("strength");
+		yaml.Value(mob.get_str());
+
+		yaml.Key("dexterity");
+		yaml.Value(mob.get_dex());
+
+		yaml.Key("intelligence");
+		yaml.Value(mob.get_int());
+
+		yaml.Key("wisdom");
+		yaml.Value(mob.get_wis());
+
+		yaml.Key("constitution");
+		yaml.Value(mob.get_con());
+
+		yaml.Key("charisma");
+		yaml.Value(mob.get_cha());
+
+		yaml.DecreaseIndent();
+	}
+
+	// Action flags
+	auto act_flags = ConvertFlagsToNames(mob.char_specials.saved.act, "action_flags");
+	if (!act_flags.empty())
+	{
+		yaml.Key("action_flags");
+		yaml.BeginSequence();
+		yaml.IncreaseIndent();
+
+		for (const auto &flag : act_flags)
+		{
+			yaml.SequenceItem(flag);
+		}
+
+		yaml.DecreaseIndent();
+	}
+
+	// Affect flags
+	auto aff_flags = ConvertFlagsToNames(AFF_FLAGS(&mob), "affect_flags");
+	if (!aff_flags.empty())
+	{
+		yaml.Key("affect_flags");
+		yaml.BeginSequence();
+		yaml.IncreaseIndent();
+
+		for (const auto &flag : aff_flags)
+		{
+			yaml.SequenceItem(flag);
+		}
+
+		yaml.DecreaseIndent();
+	}
+
+	// Skills (with comments). Use the raw trained-skill map (skillLevel),
+	// NOT GetSkill(): GetSkill() layers on instance context -- equipment,
+	// affects and a kDominationArena clamp keyed off in_room -- which is
+	// meaningless for a prototype (in_room is NOWHERE) and would zero mob
+	// skills on resave. Mirrors WorldChecksum::SerializeMob and the loader
+	// so skills survive the round-trip (issue #3391).
+	std::vector<std::pair<int, int>> mob_skills;
+	for (const auto &kv : mob.GetCharSkills())
+	{
+		if (kv.second.skillLevel > 0)
+		{
+			mob_skills.emplace_back(static_cast<int>(kv.first), kv.second.skillLevel);
+		}
+	}
+	std::sort(mob_skills.begin(), mob_skills.end());
+
+	if (!mob_skills.empty())
+	{
+		yaml.Key("skills");
+		yaml.BeginSequence();
+		yaml.IncreaseIndent();
+
+		for (const auto &kv : mob_skills)
+		{
+			out << yaml.GetIndent() << "- skill_id: " << kv.first;
+			out << "  # " << GetSkillNameComment(static_cast<ESkill>(kv.first)) << std::endl;
+			out << yaml.GetIndent() << "  value: " << kv.second << std::endl;
+		}
+
+		yaml.DecreaseIndent();
+	}
+
+	// Triggers (with comments)
+	if (mob.proto_script && !mob.proto_script->empty())
+	{
+		yaml.Key("triggers");
+		yaml.BeginSequence();
+		yaml.IncreaseIndent();
+
+		for (auto trig_vnum : *mob.proto_script)
+		{
+			std::string trig_comment = GetTriggerNameComment(trig_vnum);
+			yaml.SequenceItem(trig_vnum, trig_comment);
+		}
+
+		yaml.DecreaseIndent();
+	}
+
+	// Enhanced E-spec block. Always emitted because mob_type is always
+	// "E" in this code path and the Python converter writes the block
+	// unconditionally (carrying at least resistances/saves as zero-arrays).
+	// `tascii` appends into the buffer (uses strlen(ascii) + strncat) and
+	// does NOT clear it -- callers must zero-init or its output becomes
+	// the concatenation of whatever was in stack memory from prior mob
+	// iterations. That's the root cause of the "special_bitvector accretes
+	// across mobs" diff: 'f1 0' on mob 1, 'f1 0 0 0' on mob 2, etc.
+	char special_buf[kMaxStringLength];
+	special_buf[0] = '\0';
+	mob.mob_specials.npc_flags.tascii(FlagData::kPlanesNumber, special_buf, sizeof(special_buf));
+	std::string role_str = mob.get_role().to_string();
+	{
+		{
+			yaml.Key("enhanced");
+			out << std::endl;
+			yaml.IncreaseIndent();
+
+			if (mob.get_str_add() != 0)
+			{
+				yaml.Key("str_add");
+				yaml.Value(mob.get_str_add());
+			}
+			if (mob.add_abils.hitreg != 0)
+			{
+				yaml.Key("hp_regen");
+				yaml.Value(mob.add_abils.hitreg);
+			}
+			if (mob.add_abils.armour != 0)
+			{
+				yaml.Key("armour_bonus");
+				yaml.Value(mob.add_abils.armour);
+			}
+			if (mob.add_abils.manareg != 0)
+			{
+				yaml.Key("mana_regen");
+				yaml.Value(mob.add_abils.manareg);
+			}
+			if (mob.add_abils.cast_success != 0)
+			{
+				yaml.Key("cast_success");
+				yaml.Value(mob.add_abils.cast_success);
+			}
+			if (mob.add_abils.morale != 0)
+			{
+				yaml.Key("morale");
+				yaml.Value(mob.add_abils.morale);
+			}
+			if (mob.add_abils.initiative_add != 0)
+			{
+				yaml.Key("initiative_add");
+				yaml.Value(mob.add_abils.initiative_add);
+			}
+			if (mob.add_abils.absorb != 0)
+			{
+				yaml.Key("absorb");
+				yaml.Value(mob.add_abils.absorb);
+			}
+			if (mob.add_abils.aresist != 0)
+			{
+				yaml.Key("aresist");
+				yaml.Value(mob.add_abils.aresist);
+			}
+			if (mob.add_abils.mresist != 0)
+			{
+				yaml.Key("mresist");
+				yaml.Value(mob.add_abils.mresist);
+			}
+			if (mob.add_abils.presist != 0)
+			{
+				yaml.Key("presist");
+				yaml.Value(mob.add_abils.presist);
+			}
+			if (mob.mob_specials.attack_type != 0)
+			{
+				yaml.Key("bare_hand_attack");
+				yaml.Value(mob.mob_specials.attack_type);
+			}
+			if (mob.mob_specials.like_work != 0)
+			{
+				yaml.Key("like_work");
+				yaml.Value(mob.mob_specials.like_work);
+			}
+			if (mob.mob_specials.MaxFactor != 0)
+			{
+				yaml.Key("max_factor");
+				yaml.Value(mob.mob_specials.MaxFactor);
+			}
+			if (mob.mob_specials.extra_attack != 0)
+			{
+				yaml.Key("extra_attack");
+				yaml.Value(mob.mob_specials.extra_attack);
+			}
+			if (mob.get_remort() != 0)
+			{
+				yaml.Key("mob_remort");
+				yaml.Value(mob.get_remort());
+			}
+
+			// tascii leaves a trailing " " (or "0 " for empty) -- strip it
+			// to match the Python converter, which emits "f1" not "f1 ".
+			{
+				size_t len = std::strlen(special_buf);
+				while (len > 0 && special_buf[len - 1] == ' ')
+				{
+					special_buf[--len] = '\0';
+				}
+			}
+			if (special_buf[0] != '0' || special_buf[1] != '\0')
+			{
+				yaml.Key("special_bitvector");
+				yaml.Value(std::string(special_buf));
+			}
+
+			if (!role_str.empty() && role_str != "000000000")
+			{
+				yaml.Key("role");
+				yaml.Value(role_str);
+			}
+
+			// Resistances. The Python converter always emits this block
+			// (even all-zero), so we mirror that for round-trip parity --
+			// otherwise the diff shows `/enhanced/resistances: missing in
+			// v2` for every mob with default resistances.
+			yaml.Key("resistances");
+			yaml.BeginSequence();
+			yaml.IncreaseIndent();
+			for (const auto &val : mob.add_abils.apply_resistance)
+			{
+				yaml.SequenceItem(val);
+			}
+			yaml.DecreaseIndent();
+
+			// Saves -- same rationale as resistances.
+			yaml.Key("saves");
+			yaml.BeginSequence();
+			yaml.IncreaseIndent();
+			for (const auto &val : mob.add_abils.apply_saving_throw)
+			{
+				yaml.SequenceItem(val);
+			}
+			yaml.DecreaseIndent();
+
+			// Feats
+			bool has_feats = false;
+			for (size_t i = 0; i < mob.real_abils.Feats.size(); ++i)
+			{
+				if (mob.real_abils.Feats.test(i)) { has_feats = true; break; }
+			}
+			if (has_feats)
+			{
+				yaml.Key("feats");
+				yaml.BeginSequence();
+				yaml.IncreaseIndent();
+
+				for (size_t i = 0; i < mob.real_abils.Feats.size(); ++i)
+				{
+					if (mob.real_abils.Feats.test(i))
+					{
+						yaml.SequenceItem(static_cast<int>(i));
+					}
+				}
+
+				yaml.DecreaseIndent();
+			}
+
+			// Spells (memorized slot counts). Mirror legacy: a spell with
+			// SplMem[id] == N is serialised as N copies of `id`, matching
+			// the load path which increments SplMem on each occurrence.
+			bool has_spells = false;
+			for (size_t i = 0; i < mob.real_abils.SplMem.size(); ++i)
+			{
+				if (mob.real_abils.SplMem[i] > 0) { has_spells = true; break; }
+			}
+			if (has_spells)
+			{
+				yaml.Key("spells");
+				yaml.BeginSequence();
+				yaml.IncreaseIndent();
+
+				for (size_t i = 0; i < mob.real_abils.SplMem.size(); ++i)
+				{
+					int mem = mob.real_abils.SplMem[i];
+					for (int n = 0; n < mem; ++n)
+					{
+						yaml.SequenceItem(static_cast<int>(i));
+					}
+				}
+
+				yaml.DecreaseIndent();
+			}
+
+			// Helpers
+			if (!mob.summon_helpers.empty())
+			{
+				yaml.Key("helpers");
+				yaml.BeginSequence();
+				yaml.IncreaseIndent();
+
+				for (int helper_vnum : mob.summon_helpers)
+				{
+					yaml.SequenceItem(helper_vnum);
+				}
+
+				yaml.DecreaseIndent();
+			}
+
+			// Destinations: emit only the real route (dest[0..dest_count-1]),
+			// NOT the full kMaxDest array. dest_count is the count the
+			// legacy loader and the converter use; padding the sequence
+			// with the array's trailing zeros makes the loader read
+			// dest_count too large with bogus 0 destinations, breaking the
+			// round-trip for every patrolling mob (issue #3384/#3391).
+			if (mob.mob_specials.dest_count > 0)
+			{
+				yaml.Key("destinations");
+				yaml.BeginSequence();
+				yaml.IncreaseIndent();
+
+				for (int d = 0; d < mob.mob_specials.dest_count
+					&& d < static_cast<int>(mob.mob_specials.dest.size()); ++d)
+				{
+					yaml.SequenceItem(mob.mob_specials.dest[d]);
+				}
+
+				yaml.DecreaseIndent();
+			}
+
+			yaml.DecreaseIndent();  // enhanced
+		}
+	}
+
+	// Dead-load list (legacy L-lines, issue #3291). Top-level, after the
+	// enhanced block so the document layout matches the converter output.
+	// Emitted as raw "- key: value" sequence-of-maps because the
+	// Koi8rYamlEmitter has no Begin/EndMappingItem helpers (the same
+	// pattern is used by the skills block above).
+	if (!mob.dl_list.empty())
+	{
+		yaml.Key("dead_load");
+		yaml.BeginSequence();
+		yaml.IncreaseIndent();
+		for (const auto &dl : mob.dl_list)
+		{
+			out << yaml.GetIndent() << "- obj_vnum: " << dl.obj_vnum << std::endl;
+			out << yaml.GetIndent() << "  load_prob: " << dl.load_prob << std::endl;
+			out << yaml.GetIndent() << "  load_type: " << dl.load_type << std::endl;
+			out << yaml.GetIndent() << "  spec_param: " << dl.spec_param << std::endl;
+		}
+		yaml.DecreaseIndent();
+	}
+
+}
+
 void YamlWorldDataSource::SaveMobs(int zone_rnum, int specific_vnum)
 {
 	if (zone_rnum < 0 || zone_rnum >= static_cast<int>(zone_table.size()))
@@ -3459,42 +3978,65 @@ void YamlWorldDataSource::SaveMobs(int zone_rnum, int specific_vnum)
 	}
 
 	const ZoneData &zone = zone_table[zone_rnum];
-	MobRnum first_mob = 0;
-	MobRnum last_mob = top_of_mobt;
+
+	// Collect this zone's mobs, sorted by vnum.
+	std::vector<std::pair<int, CharData *>> entries;
+	for (MobRnum mob_rnum = 0; mob_rnum <= top_of_mobt; ++mob_rnum)
+	{
+		if (!mob_index[mob_rnum].vnum) continue;
+		int mob_vnum = mob_index[mob_rnum].vnum;
+		if (mob_vnum < zone.vnum * 100 || mob_vnum > zone.top) continue;
+		entries.emplace_back(mob_vnum, &mob_proto[mob_rnum]);
+	}
+	std::sort(entries.begin(), entries.end(),
+		[](const auto &a, const auto &b) { return a.first < b.first; });
 
 	namespace fs = std::filesystem;
 
-	int saved_count = 0;
-	for (MobRnum mob_rnum = first_mob; mob_rnum <= last_mob && mob_rnum <= top_of_mobt; ++mob_rnum)
+	if (m_save_layout == YamlLayout::Flat)
 	{
-		if (!mob_index[mob_rnum].vnum)
+		const std::string flat_path = m_world_dir + "/zones/" + std::to_string(zone.vnum) + "/mobs.yaml";
+		const std::string temp_file = flat_path + ".tmp";
+		std::ofstream out(temp_file);
+		if (!out.is_open())
 		{
-			continue;
+			log("SYSERR: Failed to open %s for writing", temp_file.c_str());
+			return;
 		}
-
-		int mob_vnum = mob_index[mob_rnum].vnum;
-		if (mob_vnum < zone.vnum * 100 || mob_vnum > zone.top)
+		Koi8rYamlEmitter yaml(out);
+		yaml.Comment("Mobs for zone " + std::to_string(zone.vnum));
+		for (const auto &[vnum, mob] : entries)
 		{
-			continue;
+			yaml.EmptyLine();
+			yaml.Comment("Mob #" + std::to_string(vnum));
+			out << yaml.GetIndent() << (vnum % 100) << ":" << std::endl;
+			yaml.IncreaseIndent();
+			EmitMobBody(yaml, out, *mob);
+			yaml.DecreaseIndent();
 		}
-		CharData &mob = mob_proto[mob_rnum];
-
-		// If specific_vnum is set, save only that mob
-		if (specific_vnum != -1 && mob_vnum != specific_vnum)
+		out.close();
+		if (std::rename(temp_file.c_str(), flat_path.c_str()) != 0)
 		{
-			continue;
+			log("SYSERR: Failed to rename %s to %s", temp_file.c_str(), flat_path.c_str());
+			return;
 		}
+		log("Saved %zu mobs (flat) for zone %d", entries.size(), zone.vnum);
+		CleanupOtherLayout(zone.vnum, "mobs", YamlLayout::Flat);
+		return;
+	}
 
-		int zone_vnum = mob_vnum / 100;
-		int rel_num = mob_vnum % 100;
-		std::ostringstream mobs_dir_ss;
-		mobs_dir_ss << m_world_dir << "/zones/" << zone_vnum << "/mobs";
-		std::string mobs_dir = mobs_dir_ss.str();
-		if (!fs::exists(mobs_dir))
-		{
-			fs::create_directories(mobs_dir);
-		}
+	// Per-file layout: one file per mob.
+	const std::string mobs_dir = m_world_dir + "/zones/" + std::to_string(zone.vnum) + "/mobs";
+	if (!fs::exists(mobs_dir))
+	{
+		fs::create_directories(mobs_dir);
+	}
+	int saved_count = 0;
+	for (const auto &[vnum, mob] : entries)
+	{
+		if (specific_vnum != -1 && vnum != specific_vnum) continue;
 
+		int rel_num = vnum % 100;
 		std::ostringstream mob_file_ss;
 		mob_file_ss << mobs_dir << "/" << std::setfill('0') << std::setw(2) << rel_num << ".yaml";
 		std::string mob_file = mob_file_ss.str();
@@ -3507,544 +4049,22 @@ void YamlWorldDataSource::SaveMobs(int zone_rnum, int specific_vnum)
 		}
 
 		Koi8rYamlEmitter yaml(out);
-
-		// Header comment
-		yaml.Comment("Mob #" + std::to_string(mob_vnum));
+		yaml.Comment("Mob #" + std::to_string(vnum));
 		yaml.EmptyLine();
+		EmitMobBody(yaml, out, *mob);
 
-		// Vnum (matches Python converter output and SaveRooms convention).
-		yaml.Key("vnum");
-		yaml.Value(mob_vnum);
-
-		// Names
-		yaml.Key("names");
-		out << std::endl;
-		yaml.IncreaseIndent();
-
-		// GetCharAliases() returns the full keyword list (name_), matching
-		// what LoadMobs reads via SetCharAliases(GetText(names, "aliases"))
-		// at line 1557. get_npc_name() returns short_descr_ (== nominative),
-		// which would truncate "костяк скелет" -> "скелет" on round-trip.
-		const std::string &aliases = mob.GetCharAliases();
-		if (!aliases.empty())
-		{
-			yaml.Key("aliases");
-			yaml.Value(aliases);
-		}
-		yaml.Key("nominative");
-		yaml.Value(mob.player_data.PNames[grammar::ECase::kNom]);
-		yaml.Key("genitive");
-		yaml.Value(mob.player_data.PNames[grammar::ECase::kGen]);
-		yaml.Key("dative");
-		yaml.Value(mob.player_data.PNames[grammar::ECase::kDat]);
-		yaml.Key("accusative");
-		yaml.Value(mob.player_data.PNames[grammar::ECase::kAcc]);
-		yaml.Key("instrumental");
-		yaml.Value(mob.player_data.PNames[grammar::ECase::kIns]);
-		yaml.Key("prepositional");
-		yaml.Value(mob.player_data.PNames[grammar::ECase::kPre]);
-
-		yaml.DecreaseIndent();
-
-		// Descriptions
-		yaml.Key("descriptions");
-		out << std::endl;
-		yaml.IncreaseIndent();
-
-		yaml.Key("short_desc");
-		yaml.Value(mob.player_data.long_descr, true);  // literal=true
-
-		yaml.Key("long_desc");
-		yaml.Value(mob.player_data.description, true);  // literal=true
-
-		yaml.DecreaseIndent();
-
-		// Alignment
-		yaml.Key("alignment");
-		yaml.Value(alignment::GetAlignment(&mob));
-
-		// Stats
-		yaml.Key("stats");
-		out << std::endl;
-		yaml.IncreaseIndent();
-
-		yaml.Key("level");
-		yaml.Value(mob.GetLevel());
-
-		// Write in legacy file units to stay symmetric with LoadMob() and
-		// matching convert_to_yaml.py output -- otherwise yaml -> legacy
-		// -> yaml round-trip flips the on-disk hitroll value every pass.
-		yaml.Key("hitroll_penalty");
-		yaml.Value(20 - GET_HR(&mob));
-
-		yaml.Key("armor");
-		yaml.Value(GET_AC(&mob) / 10);
-
-		// HP
-		yaml.Key("hp");
-		out << std::endl;
-		yaml.IncreaseIndent();
-
-		yaml.Key("dice_count");
-		yaml.Value(static_cast<int>(mob.mem_queue.total));  // byte -> int
-
-		yaml.Key("dice_size");
-		yaml.Value(static_cast<int>(mob.mem_queue.stored));  // byte -> int
-
-		yaml.Key("bonus");
-		yaml.Value(mob.get_hit());
-
-		yaml.DecreaseIndent();
-
-		// Damage
-		yaml.Key("damage");
-		out << std::endl;
-		yaml.IncreaseIndent();
-
-		yaml.Key("dice_count");
-		yaml.Value(static_cast<int>(mob.mob_specials.damnodice));  // byte -> int
-
-		yaml.Key("dice_size");
-		yaml.Value(static_cast<int>(mob.mob_specials.damsizedice));  // byte -> int
-
-		yaml.Key("bonus");
-		yaml.Value(mob.real_abils.damroll);
-
-		yaml.DecreaseIndent();
-		yaml.DecreaseIndent();  // stats
-
-		// Gold
-		yaml.Key("gold");
-		out << std::endl;
-		yaml.IncreaseIndent();
-
-		yaml.Key("dice_count");
-		yaml.Value(static_cast<int>(mob.mob_specials.GoldNoDs));  // byte -> int
-
-		yaml.Key("dice_size");
-		yaml.Value(static_cast<int>(mob.mob_specials.GoldSiDs));  // byte -> int
-
-		yaml.Key("bonus");
-		yaml.Value(currencies::GetHand(mob, currencies::kGold));
-
-		yaml.DecreaseIndent();
-
-		// Experience
-		yaml.Key("experience");
-		yaml.Value(mob.get_exp());
-
-		// Position
-		yaml.Key("position");
-		out << std::endl;
-		yaml.IncreaseIndent();
-
-		yaml.Key("default");
-		yaml.Value(ReverseLookupEnum("positions", static_cast<int>(mob.mob_specials.default_pos)));
-
-		yaml.Key("start");
-		yaml.Value(ReverseLookupEnum("positions", static_cast<int>(mob.GetPosition())));
-
-		yaml.DecreaseIndent();
-
-		// Sex
-		yaml.Key("sex");
-		yaml.Value(ReverseLookupEnum("genders", static_cast<int>(mob.get_sex())));
-
-		// Size, height, weight
-		yaml.Key("size");
-		yaml.Value(GET_SIZE(&mob));
-
-		// NPC race, between `size` and `height` as the converter writes it.
-		yaml.Key("race");
-		yaml.Value(static_cast<int>(mob.player_data.Race));
-
-		yaml.Key("height");
-		yaml.Value(static_cast<int>(GET_HEIGHT(&mob)));  // ubyte -> int
-
-		yaml.Key("weight");
-		yaml.Value(static_cast<int>(GET_WEIGHT(&mob)));  // ubyte -> int
-
-		// Attributes (skip if all six are at default 11). LoadMobs sets every
-		// attribute to 11 unconditionally and then overrides from `attributes`
-		// if present; treating "all 11" as "not specified" matches the Python
-		// converter, which only emits this block when legacy data actually
-		// carried per-attribute values.
-		const bool attributes_set =
-			mob.get_str() != 11 || mob.get_dex() != 11 || mob.get_int() != 11 ||
-			mob.get_wis() != 11 || mob.get_con() != 11 || mob.get_cha() != 11;
-		if (attributes_set)
-		{
-			yaml.Key("attributes");
-			out << std::endl;
-			yaml.IncreaseIndent();
-
-			yaml.Key("strength");
-			yaml.Value(mob.get_str());
-
-			yaml.Key("dexterity");
-			yaml.Value(mob.get_dex());
-
-			yaml.Key("intelligence");
-			yaml.Value(mob.get_int());
-
-			yaml.Key("wisdom");
-			yaml.Value(mob.get_wis());
-
-			yaml.Key("constitution");
-			yaml.Value(mob.get_con());
-
-			yaml.Key("charisma");
-			yaml.Value(mob.get_cha());
-
-			yaml.DecreaseIndent();
-		}
-
-		// Action flags
-		auto act_flags = ConvertFlagsToNames(mob.char_specials.saved.act, "action_flags");
-		if (!act_flags.empty())
-		{
-			yaml.Key("action_flags");
-			yaml.BeginSequence();
-			yaml.IncreaseIndent();
-
-			for (const auto &flag : act_flags)
-			{
-				yaml.SequenceItem(flag);
-			}
-
-			yaml.DecreaseIndent();
-		}
-
-		// Affect flags
-		auto aff_flags = ConvertFlagsToNames(AFF_FLAGS(&mob), "affect_flags");
-		if (!aff_flags.empty())
-		{
-			yaml.Key("affect_flags");
-			yaml.BeginSequence();
-			yaml.IncreaseIndent();
-
-			for (const auto &flag : aff_flags)
-			{
-				yaml.SequenceItem(flag);
-			}
-
-			yaml.DecreaseIndent();
-		}
-
-		// Skills (with comments). Use the raw trained-skill map (skillLevel),
-		// NOT GetSkill(): GetSkill() layers on instance context -- equipment,
-		// affects and a kDominationArena clamp keyed off in_room -- which is
-		// meaningless for a prototype (in_room is NOWHERE) and would zero mob
-		// skills on resave. Mirrors WorldChecksum::SerializeMob and the loader
-		// so skills survive the round-trip (issue #3391).
-		std::vector<std::pair<int, int>> mob_skills;
-		for (const auto &kv : mob.GetCharSkills())
-		{
-			if (kv.second.skill_level > 0)
-			{
-				mob_skills.emplace_back(static_cast<int>(kv.first), kv.second.skill_level);
-			}
-		}
-		std::sort(mob_skills.begin(), mob_skills.end());
-
-		if (!mob_skills.empty())
-		{
-			yaml.Key("skills");
-			yaml.BeginSequence();
-			yaml.IncreaseIndent();
-
-			for (const auto &kv : mob_skills)
-			{
-				out << yaml.GetIndent() << "- skill_id: " << kv.first;
-				out << "  # " << GetSkillNameComment(static_cast<ESkill>(kv.first)) << std::endl;
-				out << yaml.GetIndent() << "  value: " << kv.second << std::endl;
-			}
-
-			yaml.DecreaseIndent();
-		}
-
-		// Triggers (with comments)
-		if (mob.proto_script && !mob.proto_script->empty())
-		{
-			yaml.Key("triggers");
-			yaml.BeginSequence();
-			yaml.IncreaseIndent();
-
-			for (auto trig_vnum : *mob.proto_script)
-			{
-				std::string trig_comment = GetTriggerNameComment(trig_vnum);
-				yaml.SequenceItem(trig_vnum, trig_comment);
-			}
-
-			yaml.DecreaseIndent();
-		}
-
-		// Enhanced E-spec block. Always emitted because mob_type is always
-		// "E" in this code path and the Python converter writes the block
-		// unconditionally (carrying at least resistances/saves as zero-arrays).
-		// `tascii` appends into the buffer (uses strlen(ascii) + strncat) and
-		// does NOT clear it -- callers must zero-init or its output becomes
-		// the concatenation of whatever was in stack memory from prior mob
-		// iterations. That's the root cause of the "special_bitvector accretes
-		// across mobs" diff: 'f1 0' on mob 1, 'f1 0 0 0' on mob 2, etc.
-		char special_buf[kMaxStringLength];
-		special_buf[0] = '\0';
-		mob.mob_specials.npc_flags.tascii(FlagData::kPlanesNumber, special_buf, sizeof(special_buf));
-		std::string role_str = mob.get_role().to_string();
-		{
-			{
-				yaml.Key("enhanced");
-				out << std::endl;
-				yaml.IncreaseIndent();
-
-				if (mob.get_str_add() != 0)
-				{
-					yaml.Key("str_add");
-					yaml.Value(mob.get_str_add());
-				}
-				if (mob.add_abils.hitreg != 0)
-				{
-					yaml.Key("hp_regen");
-					yaml.Value(mob.add_abils.hitreg);
-				}
-				if (mob.add_abils.armour != 0)
-				{
-					yaml.Key("armour_bonus");
-					yaml.Value(mob.add_abils.armour);
-				}
-				if (mob.add_abils.manareg != 0)
-				{
-					yaml.Key("mana_regen");
-					yaml.Value(mob.add_abils.manareg);
-				}
-				if (mob.add_abils.cast_success != 0)
-				{
-					yaml.Key("cast_success");
-					yaml.Value(mob.add_abils.cast_success);
-				}
-				if (mob.add_abils.morale != 0)
-				{
-					yaml.Key("morale");
-					yaml.Value(mob.add_abils.morale);
-				}
-				if (mob.add_abils.initiative_add != 0)
-				{
-					yaml.Key("initiative_add");
-					yaml.Value(mob.add_abils.initiative_add);
-				}
-				if (mob.add_abils.absorb != 0)
-				{
-					yaml.Key("absorb");
-					yaml.Value(mob.add_abils.absorb);
-				}
-				if (mob.add_abils.aresist != 0)
-				{
-					yaml.Key("aresist");
-					yaml.Value(mob.add_abils.aresist);
-				}
-				if (mob.add_abils.mresist != 0)
-				{
-					yaml.Key("mresist");
-					yaml.Value(mob.add_abils.mresist);
-				}
-				if (mob.add_abils.presist != 0)
-				{
-					yaml.Key("presist");
-					yaml.Value(mob.add_abils.presist);
-				}
-				if (mob.mob_specials.attack_type != 0)
-				{
-					yaml.Key("bare_hand_attack");
-					yaml.Value(mob.mob_specials.attack_type);
-				}
-				if (mob.mob_specials.like_work != 0)
-				{
-					yaml.Key("like_work");
-					yaml.Value(mob.mob_specials.like_work);
-				}
-				if (mob.mob_specials.MaxFactor != 0)
-				{
-					yaml.Key("max_factor");
-					yaml.Value(mob.mob_specials.MaxFactor);
-				}
-				if (mob.mob_specials.extra_attack != 0)
-				{
-					yaml.Key("extra_attack");
-					yaml.Value(mob.mob_specials.extra_attack);
-				}
-				if (mob.get_remort() != 0)
-				{
-					yaml.Key("mob_remort");
-					yaml.Value(mob.get_remort());
-				}
-
-				// tascii leaves a trailing " " (or "0 " for empty) -- strip it
-				// to match the Python converter, which emits "f1" not "f1 ".
-				{
-					size_t len = std::strlen(special_buf);
-					while (len > 0 && special_buf[len - 1] == ' ')
-					{
-						special_buf[--len] = '\0';
-					}
-				}
-				if (special_buf[0] != '0' || special_buf[1] != '\0')
-				{
-					yaml.Key("special_bitvector");
-					yaml.Value(std::string(special_buf));
-				}
-
-				if (!role_str.empty() && role_str != "000000000")
-				{
-					yaml.Key("role");
-					yaml.Value(role_str);
-				}
-
-				// Resistances. The Python converter always emits this block
-				// (even all-zero), so we mirror that for round-trip parity --
-				// otherwise the diff shows `/enhanced/resistances: missing in
-				// v2` for every mob with default resistances.
-				yaml.Key("resistances");
-				yaml.BeginSequence();
-				yaml.IncreaseIndent();
-				for (const auto &val : mob.add_abils.apply_resistance)
-				{
-					yaml.SequenceItem(val);
-				}
-				yaml.DecreaseIndent();
-
-				// Saves -- same rationale as resistances.
-				yaml.Key("saves");
-				yaml.BeginSequence();
-				yaml.IncreaseIndent();
-				for (const auto &val : mob.add_abils.apply_saving_throw)
-				{
-					yaml.SequenceItem(val);
-				}
-				yaml.DecreaseIndent();
-
-				// Feats
-				bool has_feats = false;
-				for (size_t i = 0; i < mob.real_abils.Feats.size(); ++i)
-				{
-					if (mob.real_abils.Feats.test(i)) { has_feats = true; break; }
-				}
-				if (has_feats)
-				{
-					yaml.Key("feats");
-					yaml.BeginSequence();
-					yaml.IncreaseIndent();
-
-					for (size_t i = 0; i < mob.real_abils.Feats.size(); ++i)
-					{
-						if (mob.real_abils.Feats.test(i))
-						{
-							yaml.SequenceItem(static_cast<int>(i));
-						}
-					}
-
-					yaml.DecreaseIndent();
-				}
-
-				// Spells (memorized slot counts). Mirror legacy: a spell with
-				// SplMem[id] == N is serialised as N copies of `id`, matching
-				// the load path which increments SplMem on each occurrence.
-				bool has_spells = false;
-				for (size_t i = 0; i < mob.real_abils.SplMem.size(); ++i)
-				{
-					if (mob.real_abils.SplMem[i] > 0) { has_spells = true; break; }
-				}
-				if (has_spells)
-				{
-					yaml.Key("spells");
-					yaml.BeginSequence();
-					yaml.IncreaseIndent();
-
-					for (size_t i = 0; i < mob.real_abils.SplMem.size(); ++i)
-					{
-						int mem = mob.real_abils.SplMem[i];
-						for (int n = 0; n < mem; ++n)
-						{
-							yaml.SequenceItem(static_cast<int>(i));
-						}
-					}
-
-					yaml.DecreaseIndent();
-				}
-
-				// Helpers
-				if (!mob.summon_helpers.empty())
-				{
-					yaml.Key("helpers");
-					yaml.BeginSequence();
-					yaml.IncreaseIndent();
-
-					for (int helper_vnum : mob.summon_helpers)
-					{
-						yaml.SequenceItem(helper_vnum);
-					}
-
-					yaml.DecreaseIndent();
-				}
-
-				// Destinations: emit only the real route (dest[0..dest_count-1]),
-				// NOT the full kMaxDest array. dest_count is the count the
-				// legacy loader and the converter use; padding the sequence
-				// with the array's trailing zeros makes the loader read
-				// dest_count too large with bogus 0 destinations, breaking the
-				// round-trip for every patrolling mob (issue #3384/#3391).
-				if (mob.mob_specials.dest_count > 0)
-				{
-					yaml.Key("destinations");
-					yaml.BeginSequence();
-					yaml.IncreaseIndent();
-
-					for (int d = 0; d < mob.mob_specials.dest_count
-						&& d < static_cast<int>(mob.mob_specials.dest.size()); ++d)
-					{
-						yaml.SequenceItem(mob.mob_specials.dest[d]);
-					}
-
-					yaml.DecreaseIndent();
-				}
-
-				yaml.DecreaseIndent();  // enhanced
-			}
-		}
-
-		// Dead-load list (legacy L-lines, issue #3291). Top-level, after the
-		// enhanced block so the document layout matches the converter output.
-		// Emitted as raw "- key: value" sequence-of-maps because the
-		// Koi8rYamlEmitter has no Begin/EndMappingItem helpers (the same
-		// pattern is used by the skills block above).
-		if (!mob.dl_list.empty())
-		{
-			yaml.Key("dead_load");
-			yaml.BeginSequence();
-			yaml.IncreaseIndent();
-			for (const auto &dl : mob.dl_list)
-			{
-				out << yaml.GetIndent() << "- obj_vnum: " << dl.obj_vnum << std::endl;
-				out << yaml.GetIndent() << "  load_prob: " << dl.load_prob << std::endl;
-				out << yaml.GetIndent() << "  load_type: " << dl.load_type << std::endl;
-				out << yaml.GetIndent() << "  spec_param: " << dl.spec_param << std::endl;
-			}
-			yaml.DecreaseIndent();
-		}
-
-		// Close file and rename atomically
 		out.close();
 		if (std::rename(temp_file.c_str(), mob_file.c_str()) != 0)
 		{
 			log("SYSERR: Failed to rename %s to %s", temp_file.c_str(), mob_file.c_str());
 			continue;
 		}
-
 		++saved_count;
 	}
 
 	log("Saved %d mobs for zone %d", saved_count, zone.vnum);
-
 	RebuildPerZoneIndex(zone.vnum, "mobs");
+	CleanupOtherLayout(zone.vnum, "mobs", YamlLayout::PerFile);
 }
 void YamlWorldDataSource::SaveObjects(int zone_rnum, int specific_vnum)
 {

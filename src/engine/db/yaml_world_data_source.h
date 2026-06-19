@@ -154,6 +154,7 @@ private:
 	// save path, which calls them one indent level deeper under a rel-number key.
 	void EmitTriggerBody(Koi8rYamlEmitter &yaml, Trigger *trig);
 	void EmitRoomBody(Koi8rYamlEmitter &yaml, std::ostream &out, RoomData *room);
+	void EmitMobBody(Koi8rYamlEmitter &yaml, std::ostream &out, CharData &mob);
 
 	// Remove the artifacts of the layout we did NOT just write for a zone's
 	// sub-type, so a save fully migrates between layouts (no leftovers):
