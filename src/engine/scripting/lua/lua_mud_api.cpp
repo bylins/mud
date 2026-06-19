@@ -294,9 +294,15 @@ bool MudPercent(const sol::object &chance)
 	return number(1, 100) <= value;
 }
 
+RoomRnum GetRuntimeOwnerRoom(LuaRuntimeContext runtime)
+{
+	return runtime.owner_room;
+}
+
 bool MudEcho(LuaRuntimeContext runtime, const sol::object &message)
 {
-	if (!runtime.owner || runtime.owner->in_room == kNowhere || !message.is<std::string>())
+	const auto owner_room = GetRuntimeOwnerRoom(runtime);
+	if (owner_room == kNowhere || !message.is<std::string>())
 	{
 		return false;
 	}
@@ -307,7 +313,7 @@ bool MudEcho(LuaRuntimeContext runtime, const sol::object &message)
 		return false;
 	}
 
-	SendMsgToRoom(text.c_str(), runtime.owner->in_room, 0);
+	SendMsgToRoom(text.c_str(), owner_room, 0);
 	return true;
 }
 
@@ -351,14 +357,15 @@ bool MudTransfer(LuaRuntimeContext runtime, const sol::object &entity, const sol
 
 bool MudForce(LuaRuntimeContext runtime, const sol::object &entity, const sol::object &command)
 {
-	if (!runtime.owner || runtime.owner->in_room == kNowhere || !entity.is<sol::table>())
+	const auto owner_room = GetRuntimeOwnerRoom(runtime);
+	if (owner_room == kNowhere || !entity.is<sol::table>())
 	{
 		return LogLuaApiError(runtime, "force: invalid character");
 	}
 
 	sol::table entity_table = entity;
 	const sol::object room_vnum = entity_table["room_vnum"];
-	if (!room_vnum.is<int>() || room_vnum.as<int>() != world[runtime.owner->in_room]->vnum)
+	if (!room_vnum.is<int>() || room_vnum.as<int>() != world[owner_room]->vnum)
 	{
 		return LogLuaApiError(runtime, "force: target must be in trigger owner room");
 	}

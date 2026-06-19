@@ -28,6 +28,57 @@ extern const char *dirs[];
 extern int script_driver(void *go, Trigger *trig, int type, int mode);
 char *matching_quote(char *p);
 
+namespace {
+
+lua_scripting::LuaTriggerContext MakeMobLuaContext(Trigger *trigger, CharData *owner, CharData *actor = nullptr)
+{
+	lua_scripting::LuaTriggerContext ctx;
+	ctx.trigger = trigger;
+	ctx.owner = owner;
+	ctx.actor = actor;
+	ctx.trigger_type = MOB_TRIGGER;
+	return ctx;
+}
+
+lua_scripting::LuaTriggerContext MakeObjLuaContext(Trigger *trigger, ObjData *owner, CharData *actor = nullptr)
+{
+	lua_scripting::LuaTriggerContext ctx;
+	ctx.trigger = trigger;
+	ctx.owner_obj = owner;
+	ctx.actor = actor;
+	ctx.trigger_type = OBJ_TRIGGER;
+	return ctx;
+}
+
+lua_scripting::LuaTriggerContext MakeRoomLuaContext(Trigger *trigger, RoomData *owner, CharData *actor = nullptr)
+{
+	lua_scripting::LuaTriggerContext ctx;
+	ctx.trigger = trigger;
+	ctx.owner_room = owner;
+	ctx.actor = actor;
+	ctx.trigger_type = WLD_TRIGGER;
+	return ctx;
+}
+
+int DispatchTrigger(void *go, Trigger *trigger, int type, const lua_scripting::LuaTriggerContext &ctx)
+{
+	if (trigger->get_script_language() == TriggerScriptLanguage::Lua) {
+		trigger->clear_var_list();
+		const auto result = lua_scripting::LuaScriptEngine::RunTrigger(trigger, ctx);
+		trigger->clear_var_list();
+		return result;
+	}
+
+	return script_driver(go, trigger, type, TRIG_NEW);
+}
+
+void DispatchTriggerNoReturn(void *go, Trigger *trigger, int type, const lua_scripting::LuaTriggerContext &ctx)
+{
+	DispatchTrigger(go, trigger, type, ctx);
+}
+
+} // namespace
+
 void ADD_UID_CHAR_VAR(char *buf, Trigger *trig, const ObjData *go, const char *name, const long context) {
 	sprintf(buf, "%c%ld", UID_CHAR, go->get_id());
 	add_var_cntx(trig->var_list, name, buf, context);
@@ -224,7 +275,7 @@ void random_mtrigger(CharData *ch) {
 
 		if ((TRIGGER_CHECK(t, MTRIG_RANDOM_GLOBAL) || (TRIGGER_CHECK(t, MTRIG_RANDOM) && zone_table[world[ch->in_room]->zone_rn].used))
 			&& (number(1, 100) <= GET_TRIG_NARG(t))) {
-			script_driver(ch, t, MOB_TRIGGER, TRIG_NEW);
+			DispatchTriggerNoReturn(ch, t, MOB_TRIGGER, MakeMobLuaContext(t, ch));
 			break;
 		}
 	}
@@ -295,7 +346,11 @@ void greet_mtrigger(CharData *actor, int dir) {
 				}
 
 				ADD_UID_CHAR_VAR(buf, t, actor, "actor", 0);
-				script_driver(ch, t, MOB_TRIGGER, TRIG_NEW);
+				auto ctx = MakeMobLuaContext(t, ch, actor);
+				if (dir >= 0) {
+					ctx.direction = dirs[rev_dir[dir]];
+				}
+				DispatchTriggerNoReturn(ch, t, MOB_TRIGGER, ctx);
 
 				if (ch->purged()) {
 					break;
@@ -359,17 +414,7 @@ int entry_mtrigger(CharData *ch) {
 	for (auto t : SCRIPT(ch)->script_trig_list) {
 		if (TRIGGER_CHECK(t, MTRIG_ENTRY)
 			&& (number(1, 100) <= GET_TRIG_NARG(t))) {
-			// First wait-capable Lua dispatch path; DG entry triggers keep script_driver behavior.
-			if (t->get_script_language() == TriggerScriptLanguage::Lua) {
-				lua_scripting::LuaTriggerContext ctx;
-				ctx.trigger = t;
-				ctx.owner = ch;
-				ctx.trigger_type = MOB_TRIGGER;
-
-				return lua_scripting::LuaScriptEngine::RunTrigger(t, ctx);
-			} else {
-				return script_driver(ch, t, MOB_TRIGGER, TRIG_NEW);
-			}
+			return DispatchTrigger(ch, t, MOB_TRIGGER, MakeMobLuaContext(t, ch));
 		}
 	}
 
@@ -450,7 +495,10 @@ int command_mtrigger(CharData *actor, char *cmd, const char *argument) {
 					skip_spaces(&cmd);
 					add_var_cntx(t->var_list, "cmd", cmd, 0);
 
-					if (script_driver(ch, t, MOB_TRIGGER, TRIG_NEW)) {
+					auto ctx = MakeMobLuaContext(t, ch, actor);
+					ctx.command = cmd;
+					ctx.argument = argument;
+					if (DispatchTrigger(ch, t, MOB_TRIGGER, ctx)) {
 						return 1;
 					}
 				}
@@ -492,7 +540,9 @@ void speech_mtrigger(CharData *actor, char *str) {
 				if (compare_cmd(GET_TRIG_NARG(t), t->arglist.c_str(), str)) {
 					ADD_UID_CHAR_VAR(buf, t, actor, "actor", 0);
 					add_var_cntx(t->var_list, "speech", str, 0);
-					script_driver(ch, t, MOB_TRIGGER, TRIG_NEW);
+					auto ctx = MakeMobLuaContext(t, ch, actor);
+					ctx.speech = str;
+					DispatchTriggerNoReturn(ch, t, MOB_TRIGGER, ctx);
 
 					break;
 				}
@@ -561,7 +611,7 @@ int fight_mtrigger(CharData *ch) {
 			snprintf(buf, kMaxInputLength, "%d", ch->round_counter);
 			add_var_cntx(t->var_list, "round", buf, 0);
 			ADD_UID_CHAR_VAR(buf, t, ch->GetEnemy(), "actor", 0);
-			return script_driver(ch, t, MOB_TRIGGER, TRIG_NEW);
+			return DispatchTrigger(ch, t, MOB_TRIGGER, MakeMobLuaContext(t, ch, ch->GetEnemy()));
 			break;
 		}
 	}
@@ -593,7 +643,12 @@ int damage_mtrigger(CharData *damager, CharData *victim, int amount, const char*
 			if(obj) {
 				ADD_UID_OBJ_VAR(buf, t, obj, "weapon", 0);
 			}
-			return script_driver(victim, t, MOB_TRIGGER, TRIG_NEW);
+			auto ctx = MakeMobLuaContext(t, victim, damager);
+			ctx.victim = victim;
+			ctx.object = obj;
+			ctx.damage_amount = amount;
+			ctx.damage_type = name_skillorspell ? name_skillorspell : "";
+			return DispatchTrigger(victim, t, MOB_TRIGGER, ctx);
 		}
 	}
 
@@ -659,21 +714,11 @@ int death_mtrigger(CharData *ch, CharData *actor) {
 	
 	for (auto t : SCRIPT(ch)->script_trig_list) {
 		if (TRIGGER_CHECK(t, MTRIG_DEATH)) {
-			if (t->get_script_language() == TriggerScriptLanguage::Lua) {
-				lua_scripting::LuaTriggerContext ctx;
-				ctx.trigger = t;
-				ctx.owner = ch;
-				ctx.actor = actor;
-				ctx.trigger_type = MOB_TRIGGER;
-
-				return lua_scripting::LuaScriptEngine::RunTrigger(t, ctx);
-			} else {
-				if (actor) {
-					ADD_UID_CHAR_VAR(buf, t, actor, "actor", 0);
-				}
-
-				return script_driver(ch, t, MOB_TRIGGER, TRIG_NEW);
+			if (actor) {
+				ADD_UID_CHAR_VAR(buf, t, actor, "actor", 0);
 			}
+
+			return DispatchTrigger(ch, t, MOB_TRIGGER, MakeMobLuaContext(t, ch, actor));
 		}
 	}
 
@@ -681,6 +726,8 @@ int death_mtrigger(CharData *ch, CharData *actor) {
 }
 
 int kill_mtrigger(CharData *ch, CharData *actor) {
+	char buf[kMaxInputLength];
+
 	if (!ch || ch->purged()) {
 		log("SYSERROR: ch = %s (%s:%d)", ch ? "purged" : "false", __FILE__, __LINE__);
 		return 0;
@@ -708,7 +755,7 @@ int kill_mtrigger(CharData *ch, CharData *actor) {
 			}
 			add_var_cntx(t->var_list, "list", out_list.str().c_str(), 0);
 
-			return script_driver(ch, t, MOB_TRIGGER, TRIG_NEW);
+			return DispatchTrigger(ch, t, MOB_TRIGGER, MakeMobLuaContext(t, ch, actor));
 		}
 	}
 
@@ -726,7 +773,7 @@ void load_mtrigger(CharData *ch) {
 	for (auto t : SCRIPT(ch)->script_trig_list) {
 		if (TRIGGER_CHECK(t, MTRIG_LOAD)
 			&& (number(1, 100) <= GET_TRIG_NARG(t))) {
-			script_driver(ch, t, MOB_TRIGGER, TRIG_NEW);
+			DispatchTriggerNoReturn(ch, t, MOB_TRIGGER, MakeMobLuaContext(t, ch));
 
 			break;
 		}
@@ -846,7 +893,7 @@ void random_otrigger(ObjData *obj) {
 				|| (TRIGGER_CHECK(t, OTRIG_RANDOM) && obj->get_in_room() == kNowhere) //в инве или одет
 				|| (TRIGGER_CHECK(t, OTRIG_RANDOM) && obj->get_in_room() != kNowhere && zone_table[world[obj->get_in_room()]->zone_rn].used)) {
 			if (number(1, 100) <= GET_TRIG_NARG(t)) {
-				script_driver(obj, t, OBJ_TRIGGER, TRIG_NEW);
+				DispatchTriggerNoReturn(obj, t, OBJ_TRIGGER, MakeObjLuaContext(t, obj));
 				break;
 			}
 		}
@@ -865,7 +912,7 @@ Bitvector try_run_fight_otriggers(CharData *actor, ObjData *obj, int mode) {
 			snprintf(buf, kMaxInputLength, "%d", actor->round_counter);
 			add_var_cntx(t->var_list, "round", buf, 0);
 			ADD_UID_CHAR_VAR(buf, t, actor, "actor", 0);
-			SET_BIT(result, script_driver(obj, t, OBJ_TRIGGER, TRIG_NEW));
+			SET_BIT(result, DispatchTrigger(obj, t, OBJ_TRIGGER, MakeObjLuaContext(t, obj, actor)));
 		}
 	}
 	return result;
@@ -891,7 +938,7 @@ void timer_otrigger(ObjData *obj) {
 
 	for (auto t : obj->get_script()->script_trig_list) {
 		if (TRIGGER_CHECK(t, OTRIG_TIMER)) {
-			script_driver(obj, t, OBJ_TRIGGER, TRIG_NEW);
+			DispatchTriggerNoReturn(obj, t, OBJ_TRIGGER, MakeObjLuaContext(t, obj));
 		}
 	}
 }
@@ -907,7 +954,7 @@ int get_otrigger(ObjData *obj, CharData *actor) {
 		if (TRIGGER_CHECK(t, OTRIG_GET)
 			&& (number(1, 100) <= GET_TRIG_NARG(t))) {
 			ADD_UID_CHAR_VAR(buf, t, actor, "actor", 0);
-			return script_driver(obj, t, OBJ_TRIGGER, TRIG_NEW);
+			return DispatchTrigger(obj, t, OBJ_TRIGGER, MakeObjLuaContext(t, obj, actor));
 		}
 	}
 
@@ -963,7 +1010,10 @@ int cmd_otrig(ObjData *obj, CharData *actor, char *cmd, const char *argument, in
 				skip_spaces(&cmd);
 				add_var_cntx(t->var_list, "cmd", cmd, 0);
 
-				if (script_driver(obj, t, OBJ_TRIGGER, TRIG_NEW)) {
+				auto ctx = MakeObjLuaContext(t, obj, actor);
+				ctx.command = cmd;
+				ctx.argument = argument;
+				if (DispatchTrigger(obj, t, OBJ_TRIGGER, ctx)) {
 					return 1;
 				}
 			}
@@ -1009,7 +1059,9 @@ int wear_otrigger(ObjData *obj, CharData *actor, int where) {
 			ADD_UID_CHAR_VAR(buf, t, actor, "actor", 0);
 			snprintf(buf, kMaxInputLength, "%d", where);
 			add_var_cntx(t->var_list, "where", buf, 0);
-			return script_driver(obj, t, OBJ_TRIGGER, TRIG_NEW);
+			auto ctx = MakeObjLuaContext(t, obj, actor);
+			ctx.where = where;
+			return DispatchTrigger(obj, t, OBJ_TRIGGER, ctx);
 		}
 	}
 
@@ -1027,7 +1079,9 @@ int put_otrigger(ObjData *obj, CharData *actor, ObjData *cont) {
 		if (TRIGGER_CHECK(t, OTRIG_PUT)) {
 			ADD_UID_CHAR_VAR(buf, t, actor, "actor", 0);
 			ADD_UID_OBJ_VAR(buf, t, obj, "object", 0);
-			return script_driver(cont, t, OBJ_TRIGGER, TRIG_NEW);
+			auto ctx = MakeObjLuaContext(t, cont, actor);
+			ctx.object = obj;
+			return DispatchTrigger(cont, t, OBJ_TRIGGER, ctx);
 		}
 	}
 
@@ -1044,7 +1098,7 @@ int remove_otrigger(ObjData *obj, CharData *actor) {
 	for (auto t : obj->get_script()->script_trig_list) {
 		if (TRIGGER_CHECK(t, OTRIG_REMOVE)) {
 			ADD_UID_CHAR_VAR(buf, t, actor, "actor", 0);
-			return script_driver(obj, t, OBJ_TRIGGER, TRIG_NEW);
+			return DispatchTrigger(obj, t, OBJ_TRIGGER, MakeObjLuaContext(t, obj, actor));
 		}
 	}
 
@@ -1064,7 +1118,7 @@ int drop_otrigger(ObjData *obj, CharData *actor, const Bitvector  argument) {
 			int tmpvar = atoi(t->arglist.c_str());
 			if (tmpvar == 0 || IS_SET(tmpvar, argument)) {
 				ADD_UID_CHAR_VAR(buf, t, actor, "actor", 0);
-				return script_driver(obj, t, OBJ_TRIGGER, TRIG_NEW);
+				return DispatchTrigger(obj, t, OBJ_TRIGGER, MakeObjLuaContext(t, obj, actor));
 			}
 		}
 	}
@@ -1084,7 +1138,9 @@ int give_otrigger(ObjData *obj, CharData *actor, CharData *victim) {
 			&& (number(1, 100) <= GET_TRIG_NARG(t))) {
 			ADD_UID_CHAR_VAR(buf, t, actor, "actor", 0);
 			ADD_UID_CHAR_VAR(buf, t, victim, "victim", 0);
-			return script_driver(obj, t, OBJ_TRIGGER, TRIG_NEW);
+			auto ctx = MakeObjLuaContext(t, obj, actor);
+			ctx.victim = victim;
+			return DispatchTrigger(obj, t, OBJ_TRIGGER, ctx);
 		}
 	}
 
@@ -1099,7 +1155,7 @@ void load_otrigger(ObjData *obj) {
 	for (auto t : obj->get_script()->script_trig_list) {
 		if (TRIGGER_CHECK(t, OTRIG_LOAD)
 			&& (number(1, 100) <= GET_TRIG_NARG(t))) {
-			script_driver(obj, t, OBJ_TRIGGER, TRIG_NEW);
+			DispatchTriggerNoReturn(obj, t, OBJ_TRIGGER, MakeObjLuaContext(t, obj));
 			break;
 		}
 	}
@@ -1111,7 +1167,7 @@ void purge_otrigger(ObjData *obj) {
 	}
 	for (auto t : obj->get_script()->script_trig_list) {
 		if (TRIGGER_CHECK(t, OTRIG_PURGE) && (number(1, 100) <= GET_TRIG_NARG(t))) {
-			script_driver(obj, t, OBJ_TRIGGER, TRIG_NEW);
+			DispatchTriggerNoReturn(obj, t, OBJ_TRIGGER, MakeObjLuaContext(t, obj));
 			break;
 		}
 	}
@@ -1128,7 +1184,7 @@ int pick_otrigger(ObjData *obj, CharData *actor) {
 		if (TRIGGER_CHECK(t, OTRIG_PICK)
 			&& (number(1, 100) <= GET_TRIG_NARG(t))) {
 			ADD_UID_CHAR_VAR(buf, t, actor, "actor", 0);
-			return script_driver(obj, t, OBJ_TRIGGER, TRIG_NEW);
+			return DispatchTrigger(obj, t, OBJ_TRIGGER, MakeObjLuaContext(t, obj, actor));
 		}
 	}
 	return 1;
@@ -1148,7 +1204,7 @@ int open_otrigger(ObjData *obj, CharData *actor, int unlock) {
 			add_var_cntx(t->var_list, "mode", unlock ? "1" : "0", 0);
 			ADD_UID_CHAR_VAR(buf, t, actor, "actor", 0);
 
-			return script_driver(obj, t, OBJ_TRIGGER, TRIG_NEW);
+			return DispatchTrigger(obj, t, OBJ_TRIGGER, MakeObjLuaContext(t, obj, actor));
 		}
 	}
 
@@ -1169,7 +1225,7 @@ int close_otrigger(ObjData *obj, CharData *actor, int lock) {
 			add_var_cntx(t->var_list, "mode", lock ? "1" : "0", 0);
 			ADD_UID_CHAR_VAR(buf, t, actor, "actor", 0);
 
-			return script_driver(obj, t, OBJ_TRIGGER, TRIG_NEW);
+			return DispatchTrigger(obj, t, OBJ_TRIGGER, MakeObjLuaContext(t, obj, actor));
 		}
 	}
 
@@ -1197,7 +1253,11 @@ void greet_otrigger(CharData *actor, int dir) {
 					add_var_cntx(t->var_list, "direction", dirs[rev_dir[dir]], 0);
 				}
 
-				script_driver(obj, t, OBJ_TRIGGER, TRIG_NEW);
+				auto ctx = MakeObjLuaContext(t, obj, actor);
+				if (dir >= 0) {
+					ctx.direction = dirs[rev_dir[dir]];
+				}
+				DispatchTriggerNoReturn(obj, t, OBJ_TRIGGER, ctx);
 			}
 		}
 	}
@@ -1215,7 +1275,10 @@ int timechange_otrigger(ObjData *obj, const int time, const int time_day) {
 			add_var_cntx(t->var_list, "time", buf, 0);
 			snprintf(buf, kMaxInputLength, "%d", time_day);
 			add_var_cntx(t->var_list, "timeday", buf, 0);
-			script_driver(obj, t, OBJ_TRIGGER, TRIG_NEW);
+			auto ctx = MakeObjLuaContext(t, obj);
+			ctx.time = time;
+			ctx.time_day = time_day;
+			DispatchTriggerNoReturn(obj, t, OBJ_TRIGGER, ctx);
 			break;
 		}
 	}
@@ -1232,7 +1295,7 @@ void reset_wtrigger(RoomData *room) {
 	for (auto t : SCRIPT(room)->script_trig_list) {
 		if (TRIGGER_CHECK(t, WTRIG_RESET)
 			&& (number(1, 100) <= GET_TRIG_NARG(t))) {
-			script_driver(room, t, WLD_TRIGGER, TRIG_NEW);
+			DispatchTriggerNoReturn(room, t, WLD_TRIGGER, MakeRoomLuaContext(t, room));
 			break;
 		}
 	}
@@ -1245,7 +1308,7 @@ void random_wtrigger(RoomData *room, const TriggersList &) {
 	for (auto t : SCRIPT(room)->script_trig_list) {
 		if ((TRIGGER_CHECK(t, WTRIG_RANDOM_GLOBAL) || (TRIGGER_CHECK(t, WTRIG_RANDOM) && zone_table[room->zone_rn].used))
 			&& (number(1, 100) <= GET_TRIG_NARG(t))) {
-			script_driver(room, t, WLD_TRIGGER, TRIG_NEW);
+			DispatchTriggerNoReturn(room, t, WLD_TRIGGER, MakeRoomLuaContext(t, room));
 			break;
 		}
 	}
@@ -1267,12 +1330,14 @@ int enter_wtrigger(RoomData *room, CharData *actor, int dir) {
 				&& !actor->IsNpc()))
 			&& (number(1, 100) <= GET_TRIG_NARG(t))) {
 			ADD_UID_CHAR_VAR(buf, t, actor, "actor", 0);
+			auto ctx = MakeRoomLuaContext(t, room, actor);
 			if (dir >= 0) {
 				add_var_cntx(t->var_list, "direction", dirs[rev_dir[dir]], 0);
+				ctx.direction = dirs[rev_dir[dir]];
 			// триггер может удалить выход, но не вернуть 0 (есть такие билдеры)
-				return (script_driver(room, t, WLD_TRIGGER, TRIG_NEW) && CAN_GO(actor, dir));
+				return (DispatchTrigger(room, t, WLD_TRIGGER, ctx) && CAN_GO(actor, dir));
 			} else {
-				return (script_driver(room, t, WLD_TRIGGER, TRIG_NEW));
+				return DispatchTrigger(room, t, WLD_TRIGGER, ctx);
 			}
 		}
 	}
@@ -1334,7 +1399,10 @@ int command_wtrigger(CharData *actor, char *cmd, const char *argument) {
 			skip_spaces(&cmd);
 			add_var_cntx(t->var_list, "cmd", cmd, 0);
 
-			return script_driver(room, t, WLD_TRIGGER, TRIG_NEW);
+			auto ctx = MakeRoomLuaContext(t, room, actor);
+			ctx.command = cmd;
+			ctx.argument = argument;
+			return DispatchTrigger(room, t, WLD_TRIGGER, ctx);
 		}
 	}
 	return 0;
@@ -1350,7 +1418,9 @@ void kill_pc_wtrigger(CharData *killer, CharData *victim) {
 		}
 		ADD_UID_CHAR_VAR(buf, t, killer, "killer", 0);
 		ADD_UID_CHAR_VAR(buf, t, victim, "victim", 0);
-		script_driver(room, t, WLD_TRIGGER, TRIG_NEW);
+		auto ctx = MakeRoomLuaContext(t, room, killer);
+		ctx.victim = victim;
+		DispatchTriggerNoReturn(room, t, WLD_TRIGGER, ctx);
 		break;
 	}
 
@@ -1377,7 +1447,9 @@ void speech_wtrigger(CharData *actor, char *str) {
 		if (compare_cmd(GET_TRIG_NARG(t), t->arglist.c_str(), str)) {
 			ADD_UID_CHAR_VAR(buf, t, actor, "actor", 0);
 			add_var_cntx(t->var_list, "speech", str, 0);
-			script_driver(room, t, WLD_TRIGGER, TRIG_NEW);
+			auto ctx = MakeRoomLuaContext(t, room, actor);
+			ctx.speech = str;
+			DispatchTriggerNoReturn(room, t, WLD_TRIGGER, ctx);
 
 			break;
 		}
@@ -1400,7 +1472,9 @@ int drop_wtrigger(ObjData *obj, CharData *actor) {
 			ADD_UID_CHAR_VAR(buf, t, actor, "actor", 0);
 			ADD_UID_OBJ_VAR(buf, t, obj, "object", 0);
 
-			return script_driver(room, t, WLD_TRIGGER, TRIG_NEW);
+			auto ctx = MakeRoomLuaContext(t, room, actor);
+			ctx.object = obj;
+			return DispatchTrigger(room, t, WLD_TRIGGER, ctx);
 		}
 	}
 
@@ -1421,7 +1495,9 @@ int pick_wtrigger(RoomData *room, CharData *actor, int dir) {
 			add_var_cntx(t->var_list, "direction", dirs[dir], 0);
 			ADD_UID_CHAR_VAR(buf, t, actor, "actor", 0);
 
-			return script_driver(room, t, WLD_TRIGGER, TRIG_NEW);
+			auto ctx = MakeRoomLuaContext(t, room, actor);
+			ctx.direction = dirs[dir];
+			return DispatchTrigger(room, t, WLD_TRIGGER, ctx);
 		}
 	}
 
@@ -1443,7 +1519,9 @@ int open_wtrigger(RoomData *room, CharData *actor, int dir, int unlock) {
 			add_var_cntx(t->var_list, "direction", dirs[dir], 0);
 			ADD_UID_CHAR_VAR(buf, t, actor, "actor", 0);
 
-			return script_driver(room, t, WLD_TRIGGER, TRIG_NEW);
+			auto ctx = MakeRoomLuaContext(t, room, actor);
+			ctx.direction = dirs[dir];
+			return DispatchTrigger(room, t, WLD_TRIGGER, ctx);
 		}
 	}
 
@@ -1466,7 +1544,9 @@ int close_wtrigger(RoomData *room, CharData *actor, int dir, int lock) {
 			add_var_cntx(t->var_list, "direction", dirs[dir], 0);
 			ADD_UID_CHAR_VAR(buf, t, actor, "actor", 0);
 
-			return script_driver(room, t, WLD_TRIGGER, TRIG_NEW);
+			auto ctx = MakeRoomLuaContext(t, room, actor);
+			ctx.direction = dirs[dir];
+			return DispatchTrigger(room, t, WLD_TRIGGER, ctx);
 		}
 	}
 
@@ -1486,7 +1566,10 @@ int timechange_wtrigger(RoomData *room, const int time, const int time_day) {
 			add_var_cntx(t->var_list, "time", buf, 0);
 			snprintf(buf, kMaxInputLength, "%d", time_day);
 			add_var_cntx(t->var_list, "timeday", buf, 0);
-			script_driver(room, t, WLD_TRIGGER, TRIG_NEW);
+			auto ctx = MakeRoomLuaContext(t, room);
+			ctx.time = time;
+			ctx.time_day = time_day;
+			DispatchTriggerNoReturn(room, t, WLD_TRIGGER, ctx);
 			break;;
 		}
 	}

@@ -1,5 +1,7 @@
 #include "engine/scripting/lua/lua_internal.h"
 
+#include "engine/entities/room_data.h"
+
 #if defined(WITH_LUAJIT_PROTOTYPE)
 
 namespace lua_scripting {
@@ -37,9 +39,50 @@ sol::table BuildLuaContext(sol::state &lua, const LuaTriggerContext &source, Lua
 	trigger_table["attach_type"] = runtime.trigger ? static_cast<int>(runtime.trigger->get_attach_type()) : 0;
 	trigger_table["trigger_type"] = runtime.trigger ? runtime.trigger->get_trigger_type() : 0;
 	ctx["trigger"] = trigger_table;
-	ctx["owner"] = BuildCharView(lua, source.owner, runtime);
+	if (source.owner)
+	{
+		ctx["owner"] = BuildCharView(lua, source.owner, runtime);
+	}
+	else if (source.owner_obj)
+	{
+		ctx["owner"] = BuildObjView(lua, source.owner_obj, runtime);
+	}
+	else if (source.owner_room)
+	{
+		ctx["owner"] = BuildRoomView(lua, LuaRoomView{GetRoomRnum(source.owner_room->vnum)}, true, runtime);
+	}
+	else
+	{
+		ctx["owner"] = sol::nil;
+	}
 	ctx["actor"] = BuildCharView(lua, source.actor, runtime);
-	ctx["room"] = BuildRoomView(lua, source.owner, runtime);
+	ctx["victim"] = BuildCharView(lua, source.victim, runtime);
+	ctx["object"] = BuildObjView(lua, source.object, runtime);
+	ctx["command"] = source.command;
+	ctx["argument"] = source.argument;
+	ctx["speech"] = source.speech;
+	ctx["direction"] = source.direction;
+	ctx["damage_amount"] = source.damage_amount;
+	ctx["damage_type"] = source.damage_type;
+	ctx["where"] = source.where;
+	ctx["time"] = source.time;
+	ctx["time_day"] = source.time_day;
+	if (source.owner)
+	{
+		ctx["room"] = BuildRoomView(lua, source.owner, runtime);
+	}
+	else if (source.owner_obj)
+	{
+		ctx["room"] = BuildRoomView(lua, LuaRoomView{runtime.owner_room}, true, runtime);
+	}
+	else if (source.owner_room)
+	{
+		ctx["room"] = BuildRoomView(lua, LuaRoomView{GetRoomRnum(source.owner_room->vnum)}, true, runtime);
+	}
+	else
+	{
+		ctx["room"] = sol::nil;
+	}
 
 	return ctx;
 }

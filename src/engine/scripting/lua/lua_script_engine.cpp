@@ -47,6 +47,8 @@ class LuaWaitTriggerObserver : public TriggerEventObserver {
 
 CharData *ResolveCharacterByUid(long uid);
 ObjData *ResolveObjectById(object_id_t id);
+RoomRnum ResolveObjectRoom(ObjData *obj, int depth = 0);
+RoomRnum ResolveOwnerRoom(const LuaTriggerContext &ctx);
 
 class LuaWaitRegistry {
  public:
@@ -245,7 +247,13 @@ class LuaWaitRegistry {
 		{
 			return false;
 		}
+		if (state.owner_obj_id != 0)
+		{
+			state.ctx.owner_obj = ResolveObjectById(state.owner_obj_id);
+		}
 		state.ctx.actor = state.actor_uid != 0 ? ResolveCharacterByUid(state.actor_uid) : nullptr;
+		state.runtime.owner_obj = state.ctx.owner_obj;
+		state.runtime.owner_room = ResolveOwnerRoom(state.ctx);
 		return true;
 	}
 
@@ -295,6 +303,44 @@ ObjData *ResolveObjectById(object_id_t id)
 
 	auto obj = world_objects.find_by_id(id);
 	return obj && !obj->get_extracted_list() ? obj.get() : nullptr;
+}
+
+RoomRnum ResolveObjectRoom(ObjData *obj, int depth)
+{
+	if (!obj || depth > 16)
+	{
+		return kNowhere;
+	}
+	if (obj->get_in_room() != kNowhere)
+	{
+		return obj->get_in_room();
+	}
+	if (obj->get_carried_by())
+	{
+		return obj->get_carried_by()->in_room;
+	}
+	if (obj->get_worn_by())
+	{
+		return obj->get_worn_by()->in_room;
+	}
+	return ResolveObjectRoom(obj->get_in_obj(), depth + 1);
+}
+
+RoomRnum ResolveOwnerRoom(const LuaTriggerContext &ctx)
+{
+	if (ctx.owner && ctx.owner->in_room != kNowhere)
+	{
+		return ctx.owner->in_room;
+	}
+	if (ctx.owner_obj)
+	{
+		return ResolveObjectRoom(ctx.owner_obj);
+	}
+	if (ctx.owner_room)
+	{
+		return GetRoomRnum(ctx.owner_room->vnum);
+	}
+	return kNowhere;
 }
 
 void LuaWaitTriggerObserver::notify(Trigger *)
@@ -374,6 +420,8 @@ int LuaScriptEngine::RunTrigger(Trigger *trigger, const LuaTriggerContext &ctx)
 	state->actor_uid = ctx.actor ? ctx.actor->get_uid() : 0;
 	state->runtime.trigger = trigger;
 	state->runtime.owner = ctx.owner;
+	state->runtime.owner_obj = ctx.owner_obj;
+	state->runtime.owner_room = ResolveOwnerRoom(ctx);
 	state->runtime.wait_state = state.get();
 	state->lua.open_libraries(sol::lib::base, sol::lib::math, sol::lib::string, sol::lib::table);
 	HardenLuaState(state->lua);

@@ -4,6 +4,9 @@
 class Trigger;
 class CharData;
 class ObjData;
+struct RoomData;
+
+#include <string>
 
 namespace lua_scripting {
 
@@ -11,7 +14,19 @@ struct LuaTriggerContext {
 	Trigger *trigger = nullptr;
 	CharData *owner = nullptr;
 	ObjData *owner_obj = nullptr;
+	RoomData *owner_room = nullptr;
 	CharData *actor = nullptr;
+	CharData *victim = nullptr;
+	ObjData *object = nullptr;
+	std::string command;
+	std::string argument;
+	std::string speech;
+	std::string direction;
+	std::string damage_type;
+	int damage_amount = 0;
+	int where = -1;
+	int time = 0;
+	int time_day = 0;
 	int trigger_type = 0;
 };
 
