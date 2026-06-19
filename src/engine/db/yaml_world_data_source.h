@@ -31,6 +31,15 @@ namespace utils {
 namespace world_loader
 {
 
+// Physical layout of a zone's per-entity YAML files.
+//   PerFile -- one file per entity in a sub-directory (mobs/00.yaml, mobs/01.yaml, ...)
+//              plus a mobs/index.yaml listing the rel-numbers.
+//   Flat    -- all entities of a type in one file (mobs.yaml) as a map keyed by
+//              rel-number; the file is its own index, no index.yaml.
+// Loading auto-detects the layout per (zone, sub-type); this only selects the
+// layout used when WRITING.
+enum class YamlLayout { PerFile, Flat };
+
 // Result of parsing rooms in a single thread
 struct ParsedRoomBatch {
 	LocalDescriptionIndex descriptions;  // Thread-local description index
@@ -64,6 +73,8 @@ public:
 	// Stateless aside from reading the global DictionaryManager singleton --
 	// callers are responsible for loading dictionaries beforehand.
 	CharData ParseMobFile(const std::string &file_path);
+	// Parses a mob from an already-loaded node (per-file and flat layouts).
+	CharData ParseMobNode(const YAML::Node &root);
 
 private:
 	// Initialize dictionaries
@@ -135,12 +146,19 @@ private:
 	// ParseMobFile lives in the public section above (exposed for tests).
 	CObjectPrototype* ParseObjectFile(const std::string &file_path, int vnum);
 
+	// Node-level parsers shared by per-file and flat layouts (the *File
+	// variants above are thin wrappers that LoadFile then delegate here).
+	Trigger* ParseTriggerNode(const YAML::Node &root);
+	RoomData* ParseRoomNode(const YAML::Node &root, int vnum, int zone_rnum, LocalDescriptionIndex &local_index, size_t &local_desc_idx);
+	CObjectPrototype* ParseObjectNode(const YAML::Node &root, int vnum);
+
 	// Helper: get configured thread count from runtime config
 	size_t GetConfiguredThreadCount() const;
 
 	std::string m_world_dir;
 	bool m_dictionaries_loaded = false;
 	bool m_convert_lf_to_crlf = false;  // Convert LF to CR+LF for DOS line endings
+	YamlLayout m_save_layout = YamlLayout::PerFile;  // Layout used when writing zones
 
 	// Threading support
 	std::unique_ptr<utils::ThreadPool> m_thread_pool;

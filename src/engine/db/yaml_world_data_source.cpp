@@ -240,6 +240,25 @@ bool YamlWorldDataSource::LoadWorldConfig()
 			return false;
 		}
 
+		// Read layout setting (optional, defaults to per_file for backward compat).
+		// Controls only how zones are WRITTEN; loading auto-detects per zone.
+		if (config["layout"]) {
+			std::string layout = config["layout"].as<std::string>();
+			if (layout == "flat") {
+				m_save_layout = YamlLayout::Flat;
+				log("World config: flat layout (one file per entity type per zone)");
+			} else if (layout == "per_file") {
+				m_save_layout = YamlLayout::PerFile;
+				log("World config: per-file layout (one file per entity)");
+			} else {
+				log("SYSERR: Invalid layout value '%s' (expected 'flat' or 'per_file')", layout.c_str());
+				return false;
+			}
+		} else {
+			m_save_layout = YamlLayout::PerFile;
+			log("World config: layout not set, defaulting to per-file");
+		}
+
 		return true;
 	} catch (const YAML::Exception &e) {
 		log("SYSERR: Failed to parse world_config.yaml: %s", e.what());
@@ -524,7 +543,10 @@ ZoneData YamlWorldDataSource::ParseZoneFile(const std::string &file_path)
 	int zone_vnum = std::atoi(vnum_str.c_str());
 
 	ZoneData zone;
-	zone.vnum = GetInt(root, "vnum", zone_vnum);
+	// vnum is derived solely from the directory name (zones/<vnum>/zone.yaml),
+	// which is the discovery authority via zones/index.yaml. The file no longer
+	// stores a redundant vnum field (older files may still have one -- ignored).
+	zone.vnum = zone_vnum;
 	zone.name = GetText(root, "name", "Unknown Zone");
 	zone.group = GetInt(root, "zone_group", 1);
 	if (zone.group == 0) zone.group = 1;
@@ -632,13 +654,6 @@ void YamlWorldDataSource::LoadZonesParallel()
 				{
 					size_t zone_idx = vnum_to_idx.at(zone_vnum);
 					zone_table[zone_idx] = ParseZoneFile(zone_path);
-
-					// DEBUG: Check if vnums match
-					if (zone_table[zone_idx].vnum != zone_vnum) {
-						log("ERROR: Zone vnum mismatch! Index says %d, but zone.yaml has vnum=%d (file: %s)",
-							zone_vnum, zone_table[zone_idx].vnum, zone_path.c_str());
-						error_count++;
-					}
 				}
 				catch (const YAML::Exception &e)
 				{
@@ -901,10 +916,14 @@ void YamlWorldDataSource::LoadZoneCommands(ZoneData &zone, const YAML::Node &com
 Trigger* YamlWorldDataSource::ParseTriggerFile(const std::string &file_path)
 {
 	YAML::Node root = YAML::LoadFile(file_path);
+	return ParseTriggerNode(root);
+}
 
-	// Extract vnum from filename
-	// vnum extracted from filename but not used in YAML (stored in file content)
-
+// Parse a single trigger from an already-loaded YAML node. Shared by the
+// per-file layout (one node per file) and the flat layout (one node per
+// rel-number entry in triggers.yaml).
+Trigger* YamlWorldDataSource::ParseTriggerNode(const YAML::Node &root)
+{
 	std::string name = GetText(root, "name", "");
 	int attach_type = ParseEnum(root["attach_type"], "attach_types", 0);
 
@@ -1069,6 +1088,14 @@ RoomData* YamlWorldDataSource::ParseRoomFile(const std::string &file_path, int z
 	int zone_vnum = std::atoi(file_path.substr(zone_start, zone_end - zone_start).c_str());
 	int vnum = zone_vnum * 100 + rel_num;
 
+	return ParseRoomNode(root, vnum, zone_rnum, local_index, local_desc_idx);
+}
+
+// Parse a single room from an already-loaded YAML node. Shared by the per-file
+// layout (vnum derived from the filename) and the flat layout (vnum derived
+// from the rel-number map key). local_desc_idx is an out-param.
+RoomData* YamlWorldDataSource::ParseRoomNode(const YAML::Node &root, int vnum, int zone_rnum, LocalDescriptionIndex &local_index, size_t &local_desc_idx)
+{
 	auto room = new RoomData;
 	room->vnum = vnum;
 	room->zone_rn = zone_rnum;
@@ -1421,8 +1448,13 @@ void YamlWorldDataSource::LoadRoomExtraDescriptions(RoomData *room, const YAML::
 CharData YamlWorldDataSource::ParseMobFile(const std::string &file_path)
 {
 	YAML::Node root = YAML::LoadFile(file_path);
+	return ParseMobNode(root);
+}
 
-	// Note: vnum is passed separately by caller, extracted there
+// Parse a single mob from an already-loaded YAML node. Shared by the per-file
+// and flat layouts; vnum is assigned by the caller during the merge phase.
+CharData YamlWorldDataSource::ParseMobNode(const YAML::Node &root)
+{
 	CharData mob;
 	mob.player_specials = player_special_data::s_for_mobiles;
 	mob.SetNpcAttribute(true);
@@ -1936,7 +1968,14 @@ void YamlWorldDataSource::LoadMobs()
 CObjectPrototype* YamlWorldDataSource::ParseObjectFile(const std::string &file_path, int vnum)
 {
 	YAML::Node root = YAML::LoadFile(file_path);
+	return ParseObjectNode(root, vnum);
+}
 
+// Parse a single object from an already-loaded YAML node. Shared by the
+// per-file layout (vnum from filename) and the flat layout (vnum from the
+// rel-number map key).
+CObjectPrototype* YamlWorldDataSource::ParseObjectNode(const YAML::Node &root, int vnum)
+{
 	// NOTE: This returns raw pointer - caller must wrap in shared_ptr
 	auto obj_ptr = new CObjectPrototype(vnum);
 	
