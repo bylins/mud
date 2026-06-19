@@ -130,7 +130,7 @@ std::string ObjectToString(const sol::object& object)
 	{
 		return "<invalid>";
 	}
-	if (object == sol::nil)
+	if (object == sol::lua_nil)
 	{
 		return "nil";
 	}
@@ -276,7 +276,7 @@ std::string RunDeathTriggerCandidate(const DeathTriggerContext& ctx)
 	sol::table victim = CreateCharacterTable(lua, ctx.victim);
 	sol::object actor_arg = ctx.has_actor
 		? sol::object(lua, sol::in_place, CreateCharacterTable(lua, ctx.actor))
-		: sol::make_object(lua, sol::nil);
+		: sol::make_object(lua, sol::lua_nil);
 
 	const int iterations = ctx.iterations > 0 ? ctx.iterations : 1;
 	int last_result = 1;
@@ -352,7 +352,7 @@ std::string RunDeathMtriggerCandidate(const DeathTriggerContext& ctx)
 	sol::table victim = CreateCharacterTable(lua, ctx.victim);
 	sol::object actor_arg = ctx.has_actor
 		? sol::object(lua, sol::in_place, CreateCharacterTable(lua, ctx.actor))
-		: sol::make_object(lua, sol::nil);
+		: sol::make_object(lua, sol::lua_nil);
 
 	const int iterations = ctx.iterations > 0 ? ctx.iterations : 1;
 	int last_result = 1;

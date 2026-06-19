@@ -739,7 +739,7 @@ bool DetachTriggerFromObj(const LuaEntityHandle &handle, const sol::object &vnum
 
 bool ParseLuaDamageType(const sol::object &type, fight::DmgType &damage_type)
 {
-	if (type.get_type() == sol::type::nil)
+	if (type.get_type() == sol::type::lua_nil)
 	{
 		damage_type = fight::kPureDmg;
 		return true;
@@ -831,7 +831,7 @@ sol::object GetScriptContextValue(
 	if (!script || key.empty())
 	{
 		return default_value.get_type() == sol::type::none
-			? sol::make_object(lua, sol::nil)
+			? sol::make_object(lua, sol::lua_nil)
 			: default_value;
 	}
 
@@ -839,7 +839,7 @@ sol::object GetScriptContextValue(
 	if (value == script->global_vars.end())
 	{
 		return default_value.get_type() == sol::type::none
-			? sol::make_object(lua, sol::nil)
+			? sol::make_object(lua, sol::lua_nil)
 			: default_value;
 	}
 
@@ -935,7 +935,7 @@ sol::object BuildScriptContextView(sol::state &lua, Script *script, long context
 {
 	if (!script)
 	{
-		return sol::make_object(lua, sol::nil);
+		return sol::make_object(lua, sol::lua_nil);
 	}
 
 	// DG owner context lifetime follows Script::global_vars: it survives mud.wait
@@ -953,7 +953,7 @@ sol::object BuildScriptContextView(sol::state &lua, Script *script, long context
 				sol::variadic_args args) {
 				const sol::object default_value = args.size() > 0
 					? static_cast<sol::object>(args[0])
-					: sol::make_object(lua, sol::nil);
+					: sol::make_object(lua, sol::lua_nil);
 				return GetScriptContextValue(lua, script, context, name, default_value);
 			}));
 		}
@@ -964,7 +964,7 @@ sol::object BuildScriptContextView(sol::state &lua, Script *script, long context
 			}));
 		}
 
-		return GetScriptContextValue(lua, script, context, key, sol::make_object(lua, sol::nil));
+		return GetScriptContextValue(lua, script, context, key, sol::make_object(lua, sol::lua_nil));
 	};
 	metatable[sol::meta_function::new_index] = [script, context](
 		sol::this_state state,
@@ -986,7 +986,7 @@ sol::object BuildCharView(sol::state &lua, CharData *ch, LuaRuntimeContext runti
 {
 	if (!ch)
 	{
-		return sol::make_object(lua, sol::nil);
+		return sol::make_object(lua, sol::lua_nil);
 	}
 
 	auto handle = MakeCharHandle(ch);
@@ -1088,7 +1088,7 @@ sol::object BuildCharView(sol::state &lua, CharData *ch, LuaRuntimeContext runti
 			return sol::make_object(lua, sol::as_function([&lua, handle](sol::object, sol::object skill, sol::variadic_args args) {
 				const sol::object value = args.size() > 0
 					? static_cast<sol::object>(args[0])
-					: sol::make_object(lua, sol::nil);
+					: sol::make_object(lua, sol::lua_nil);
 				return CharSkill(handle, skill, value);
 			}));
 		}
@@ -1097,7 +1097,7 @@ sol::object BuildCharView(sol::state &lua, CharData *ch, LuaRuntimeContext runti
 			return sol::make_object(lua, sol::as_function([&lua, handle](sol::object, sol::object feat, sol::variadic_args args) {
 				const sol::object value = args.size() > 0
 					? static_cast<sol::object>(args[0])
-					: sol::make_object(lua, sol::nil);
+					: sol::make_object(lua, sol::lua_nil);
 				return CharFeat(handle, feat, value);
 			}));
 		}
@@ -1145,7 +1145,7 @@ sol::object BuildCharView(sol::state &lua, CharData *ch, LuaRuntimeContext runti
 				sol::variadic_args args) {
 				const sol::object options = args.size() > 0
 					? static_cast<sol::object>(args[0])
-					: sol::make_object(lua, sol::nil);
+					: sol::make_object(lua, sol::lua_nil);
 				return ActFromChar(runtime, handle, message, options);
 			}));
 		}
@@ -1156,7 +1156,7 @@ sol::object BuildCharView(sol::state &lua, CharData *ch, LuaRuntimeContext runti
 			}));
 		}
 
-		return sol::make_object(lua, sol::nil);
+		return sol::make_object(lua, sol::lua_nil);
 	};
 	metatable[sol::meta_function::new_index] = [](sol::this_state state) {
 		return luaL_error(state, "CharData Lua view is read-only");
@@ -1170,7 +1170,7 @@ sol::object BuildObjView(sol::state &lua, ObjData *obj, LuaRuntimeContext runtim
 {
 	if (!obj)
 	{
-		return sol::make_object(lua, sol::nil);
+		return sol::make_object(lua, sol::lua_nil);
 	}
 
 	auto handle = MakeObjHandle(obj);
@@ -1255,7 +1255,7 @@ sol::object BuildObjView(sol::state &lua, ObjData *obj, LuaRuntimeContext runtim
 			}));
 		}
 
-		return sol::make_object(lua, sol::nil);
+		return sol::make_object(lua, sol::lua_nil);
 	};
 	metatable[sol::meta_function::new_index] = [](sol::this_state state) {
 		return luaL_error(state, "ObjData Lua view is read-only");
@@ -1269,7 +1269,7 @@ sol::object BuildRoomView(sol::state &lua, const LuaRoomView &room, bool allow_e
 {
 	if (!IsValidRoom(room))
 	{
-		return sol::make_object(lua, sol::nil);
+		return sol::make_object(lua, sol::lua_nil);
 	}
 
 	sol::table view = lua.create_table();
@@ -1332,7 +1332,7 @@ sol::object BuildRoomView(sol::state &lua, const LuaRoomView &room, bool allow_e
 			return sol::make_object(lua, sol::as_function([&lua, room, runtime](sol::object, sol::object vnum) {
 				return vnum.is<int>()
 					? BuildObjView(lua, LoadObjToRoom(vnum.as<int>(), room.room), runtime)
-					: sol::make_object(lua, sol::nil);
+					: sol::make_object(lua, sol::lua_nil);
 			}));
 		}
 		if (key == "load_mob")
@@ -1340,7 +1340,7 @@ sol::object BuildRoomView(sol::state &lua, const LuaRoomView &room, bool allow_e
 			return sol::make_object(lua, sol::as_function([&lua, room, runtime](sol::object, sol::object vnum) {
 				return vnum.is<int>()
 					? BuildCharView(lua, LoadMobToRoom(vnum.as<int>(), room.room), runtime)
-					: sol::make_object(lua, sol::nil);
+					: sol::make_object(lua, sol::lua_nil);
 			}));
 		}
 		if (key == "attach_trigger")
@@ -1356,7 +1356,7 @@ sol::object BuildRoomView(sol::state &lua, const LuaRoomView &room, bool allow_e
 			}));
 		}
 
-		return sol::make_object(lua, sol::nil);
+		return sol::make_object(lua, sol::lua_nil);
 	};
 	metatable[sol::meta_function::new_index] = [](sol::this_state state) {
 		return luaL_error(state, "RoomData Lua view is read-only");
@@ -1370,7 +1370,7 @@ sol::object BuildRoomView(sol::state &lua, CharData *owner, LuaRuntimeContext ru
 {
 	if (!owner || owner->in_room == kNowhere)
 	{
-		return sol::make_object(lua, sol::nil);
+		return sol::make_object(lua, sol::lua_nil);
 	}
 
 	return BuildRoomView(lua, LuaRoomView{owner->in_room}, true, runtime);
@@ -1380,7 +1380,7 @@ sol::object BuildRoomViewByVnum(sol::state &lua, const sol::object &vnum, LuaRun
 {
 	if (!vnum.is<int>())
 	{
-		return sol::make_object(lua, sol::nil);
+		return sol::make_object(lua, sol::lua_nil);
 	}
 
 	const auto room = GetRoomRnum(vnum.as<int>());

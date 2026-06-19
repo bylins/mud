@@ -144,20 +144,20 @@ void LogLuaReturnDiagnostic(LuaRuntimeContext runtime, const sol::object &value)
 
 void HardenLuaState(sol::state &lua)
 {
-	lua["io"] = sol::nil;
-	lua["os"] = sol::nil;
-	lua["debug"] = sol::nil;
-	lua["ffi"] = sol::nil;
-	lua["jit"] = sol::nil;
-	lua["bit"] = sol::nil;
-	lua["package"] = sol::nil;
-	lua["require"] = sol::nil;
-	lua["module"] = sol::nil;
-	lua["load"] = sol::nil;
-	lua["dofile"] = sol::nil;
-	lua["loadfile"] = sol::nil;
-	lua["loadstring"] = sol::nil;
-	lua["collectgarbage"] = sol::nil;
+	lua["io"] = sol::lua_nil;
+	lua["os"] = sol::lua_nil;
+	lua["debug"] = sol::lua_nil;
+	lua["ffi"] = sol::lua_nil;
+	lua["jit"] = sol::lua_nil;
+	lua["bit"] = sol::lua_nil;
+	lua["package"] = sol::lua_nil;
+	lua["require"] = sol::lua_nil;
+	lua["module"] = sol::lua_nil;
+	lua["load"] = sol::lua_nil;
+	lua["dofile"] = sol::lua_nil;
+	lua["loadfile"] = sol::lua_nil;
+	lua["loadstring"] = sol::lua_nil;
+	lua["collectgarbage"] = sol::lua_nil;
 }
 
 void ConfigureLuaGc(sol::state &lua)

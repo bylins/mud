@@ -190,13 +190,13 @@ sol::object BuildZoneView(sol::state &lua, const sol::object &vnum)
 {
 	if (!vnum.is<int>())
 	{
-		return sol::make_object(lua, sol::nil);
+		return sol::make_object(lua, sol::lua_nil);
 	}
 
 	const auto rnum = GetZoneRnum(vnum.as<int>());
 	if (rnum < 0 || rnum >= static_cast<ZoneRnum>(zone_table.size()))
 	{
-		return sol::make_object(lua, sol::nil);
+		return sol::make_object(lua, sol::lua_nil);
 	}
 
 	sol::table zone = lua.create_table();

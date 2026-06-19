@@ -380,7 +380,7 @@ int StartCoroutine(const std::shared_ptr<LuaWaitState> &state)
 	}
 
 	sol::object first(sol::stack_object(state->thread, 1));
-	if (first.get_type() == sol::type::nil)
+	if (first.get_type() == sol::type::lua_nil)
 	{
 		return 1;
 	}

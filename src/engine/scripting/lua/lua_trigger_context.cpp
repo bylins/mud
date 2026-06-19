@@ -9,7 +9,7 @@ namespace {
 
 int ConvertLuaValue(LuaRuntimeContext runtime, const sol::object &first)
 {
-	if (first.get_type() == sol::type::nil)
+	if (first.get_type() == sol::type::lua_nil)
 	{
 		return 1;
 	}
@@ -53,7 +53,7 @@ sol::table BuildLuaContext(sol::state &lua, const LuaTriggerContext &source, Lua
 	}
 	else
 	{
-		ctx["owner"] = sol::nil;
+		ctx["owner"] = sol::lua_nil;
 	}
 	ctx["actor"] = BuildCharView(lua, source.actor, runtime);
 	ctx["victim"] = BuildCharView(lua, source.victim, runtime);
@@ -81,7 +81,7 @@ sol::table BuildLuaContext(sol::state &lua, const LuaTriggerContext &source, Lua
 	}
 	else
 	{
-		ctx["room"] = sol::nil;
+		ctx["room"] = sol::lua_nil;
 	}
 
 	return ctx;
