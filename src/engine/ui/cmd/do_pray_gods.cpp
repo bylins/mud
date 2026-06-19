@@ -11,6 +11,7 @@
 #include "gameplay/communication/remember.h"
 #include "engine/core/handler.h"
 #include "gameplay/fight/common.h"
+#include "utils/utils_string.h"
 
 void do_pray_gods(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char arg1[kMaxInputLength];
@@ -85,8 +86,18 @@ void do_pray_gods(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				|| (GET_GOD_FLAG(i->character.get(), EGf::kDemigod)
 					&& (GetRealLevel(ch) < 6)))
 				&& (i->character.get() != ch)) {
-				SendMsgToChar(buf, i->character.get());
-				i->character->remember_add(buf, Remember::ALL);
+				CharData *god = i->character.get();
+				// движковая дата + перенос по словам под ширину экрана получателя.
+				// Переносим всю собранную строку, чтобы в расчёт ширины попал и
+				// префикс ("[комната] имя воззвал к богам ..."), и таймстамп.
+				// Цветокоды OutWordsList уже не считает за ширину.
+				std::string line = Remember::time_format() + buf;
+				if (!god->IsNpc() && god->player_specials->saved.stringLength > 0) {
+					// WrapText съедает хвостовой \r\n -- возвращаем его обратно
+					line = utils::WrapText(line, god->player_specials->saved.stringLength) + "\r\n";
+				}
+				SendMsgToChar(line.c_str(), god);
+				god->remember_add(buf, Remember::ALL);
 			}
 		}
 	}

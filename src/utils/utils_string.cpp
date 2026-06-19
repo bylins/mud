@@ -1060,8 +1060,11 @@ std::string utils::OutWordsList(const std::vector<std::string> &words, size_t ma
 	}
 
 	for (const auto &word : words) {
+		// ширину считаем по видимой длине -- цветокоды (&R, &n и т.п.) на экране
+		// места не занимают, иначе строки с цветом переносятся раньше времени
+		const size_t word_len = GetStringWithoutColors(word).size();
 		if (!first) {
-			if (line_length + separator.size() + word.size() > max_length) {
+			if (line_length + separator.size() + word_len > max_length) {
 				result += eol_separator + "\r\n";
 				line_length = 0;
 			} else {
@@ -1070,7 +1073,7 @@ std::string utils::OutWordsList(const std::vector<std::string> &words, size_t ma
 			}
 		}
 		result += word;
-		line_length += word.size();
+		line_length += word_len;
 		first = false;
 	}
 	return result;
