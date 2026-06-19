@@ -413,18 +413,24 @@ private:
 // Evaluates the spell's potency roll against the caster once, so the result can be
 // threaded to the cast-dispatch functions. The roll values do not depend on level;
 // level is carried only to replace that parameter.
-CastContext BuildCastContext(CharData *caster, ESpell spell_id, int level) {
+CastContext BuildCastContext(CharData *caster, ESpell spell_id, int level, float fixed_potency) {
 	const auto &spell = MUD::Spell(spell_id);
 	auto eval = [caster](const talents_actions::Roll &roll) {
 		return RollResult{roll.RollSkillDices(), roll.CalcSkillCoeff(caster),
 						  roll.CalcBaseStatCoeff(caster), roll.CalcLowSkillCoeff(caster)};
 	};
-	CastContext ctx(caster, spell_id, level, eval(spell.GetPotencyRoll()));
+	// issue.potion-potency: a brewed-in fixed potency (>=0) from an item/potion bypasses the
+	// caster's skill/stat roll. Put it in `dices` so CalcCastPotency == the stored potency and the
+	// affect modifier scales with it (competence 0). Negative -> roll from the caster as usual.
+	const RollResult bcc_roll = (fixed_potency >= 0.0f)
+		? RollResult{static_cast<int>(fixed_potency + 0.5f), 0.0, 0.0, 0.0}
+		: eval(spell.GetPotencyRoll());
+	CastContext ctx(caster, spell_id, level, bcc_roll);
 	ctx.casting.insert(spell_id);  // seed the cast-chain loop guard
 	return ctx;
 }
 
-ECastResult CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict, ESpell spell_id, int level) {
+ECastResult CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict, ESpell spell_id, int level, float fixed_potency) {
 	SpellCastMetrics metrics(spell_id, caster, level, cvict, ovict, rvict);
 	utils::CSteppedProfiler profiler("Spell Cast", 0.030);
 
@@ -502,7 +508,7 @@ ECastResult CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomDat
 	metrics.send();
 
 	// Compute both rolls once, now that we know the spell is actually being cast.
-	CastContext ctx = BuildCastContext(caster, spell_id, level);
+	CastContext ctx = BuildCastContext(caster, spell_id, level, fixed_potency);
 	ctx.cvict = cvict;
 	ctx.ovict = ovict;
 	ctx.rvict = rvict;
