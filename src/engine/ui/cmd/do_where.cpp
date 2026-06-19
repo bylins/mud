@@ -3,6 +3,7 @@
 //
 
 #include "engine/entities/char_data.h"
+#include "administration/privilege.h"
 #include "engine/db/world_objects.h"
 #include "gameplay/economics/exchange.h"
 #include "engine/db/global_objects.h"
@@ -12,6 +13,7 @@
 #include "utils/utils_time.h"
 #include "gameplay/mechanics/dungeons.h"
 #include "engine/db/obj_prototypes.h"
+#include "engine/core/target_resolver.h"
 #include "engine/ui/cmd/do_where.h"
 
 #include <fmt/format.h>
@@ -19,6 +21,7 @@
 #include <algorithm>
 #include <string>
 #include <vector>
+#include "gameplay/mechanics/sight.h"
 
 void PerformImmortWhere(CharData *ch, char *arg);
 void PerformMortalWhere(CharData *ch, char *arg);
@@ -31,7 +34,7 @@ static bool CollectWhereObjects(CharData *ch, char *arg, int &num, std::vector<w
 void DoWhere(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	one_argument(argument, arg);
 
-	if (ch->IsGrGod() || ch->IsFlagged(EPrf::kCoderinfo))
+	if (privilege::IsGrGod(ch) || ch->IsFlagged(EPrf::kCoderinfo))
 		PerformImmortWhere(ch, arg);
 	else
 		PerformMortalWhere(ch, arg);
@@ -46,7 +49,7 @@ void PerformImmortWhere(CharData *ch, char *arg) {
 		for (d = descriptor_list; d; d = d->next) {
 			if (d->state == EConState::kPlaying) {
 				const auto i = d->get_character();
-				if (i && CAN_SEE(ch, i) && (i->in_room != kNowhere)) {
+				if (i && sight::CanSee(ch, i) && (i->in_room != kNowhere)) {
 					if (d->original) {
 						ss << fmt::format("{:<20} - [{:>7}] {} (in {})\r\n",
 										  GET_NAME(i),
@@ -63,21 +66,21 @@ void PerformImmortWhere(CharData *ch, char *arg) {
 		SendMsgToChar(ss.str(), ch);
 	} else {
 		std::vector<where_format::WhereRow> rows;
-		for (const auto &i : character_list) {
-			if (CAN_SEE(ch, i)
-				&& i->in_room != kNowhere
-				&& isname(arg, i->GetCharAliases())) {
-				ZoneData *zone = &zone_table[world[i->in_room]->zone_rn];
-				found = 1;
-				where_format::WhereRow row;
-				row.num = num++;
-				row.kind = i->IsNpc() ? where_format::ERowKind::kMob : where_format::ERowKind::kPlayer;
-				row.vnum = GET_MOB_VNUM(i);
-				row.name = GET_NAME(i);
-				row.location_lines.push_back(fmt::format("[{:>7}] {}. Зона: '{}'",
-						GET_ROOM_VNUM(i->in_room), world[i->in_room]->name, zone->name.c_str()));
-				rows.push_back(std::move(row));
-			}
+		target_resolver::Query q;
+		q.scopes = {target_resolver::Scope::kWorld};
+		q.name = arg;
+		q.char_predicate = [](CharData *c) { return c->in_room != kNowhere; };
+		for (CharData *i : target_resolver::ResolveChars(ch, q)) {
+			ZoneData *zone = &zone_table[world[i->in_room]->zone_rn];
+			found = 1;
+			where_format::WhereRow row;
+			row.num = num++;
+			row.kind = i->IsNpc() ? where_format::ERowKind::kMob : where_format::ERowKind::kPlayer;
+			row.vnum = GET_MOB_VNUM(i);
+			row.name = GET_NAME(i);
+			row.location_lines.push_back(fmt::format("[{:>7}] {}. Зона: '{}'",
+					GET_ROOM_VNUM(i->in_room), world[i->in_room]->name, zone->name.c_str()));
+			rows.push_back(std::move(row));
 		}
 		if (CollectWhereObjects(ch, arg, num, rows)) {
 			found = 1;
@@ -97,21 +100,20 @@ void PerformImmortWhere(CharData *ch, char *arg) {
 */
 static bool CollectWhereObjects(CharData *ch, char *arg, int &num, std::vector<where_format::WhereRow> &rows) {
 	bool found = false;
-
-	/* maybe it is possible to create some index instead of linear search */
-	world_objects.foreach([&](const ObjData::shared_ptr& object) {
-	  if (isname(arg, object->get_aliases())) {
-		  where_format::WhereRow row;
-		  row.num = num++;
-		  row.kind = where_format::ERowKind::kObject;
-		  row.vnum = GET_OBJ_VNUM(object.get());
-		  row.name = object->get_short_description();
-		  row.location_lines = ResolveObjLocationLines(object.get(), ch);
-		  rows.push_back(std::move(row));
-		  found = true;
-	  }
-	});
-
+	target_resolver::Query q;
+	q.scopes = {target_resolver::Scope::kWorld};
+	q.name = arg;
+	q.visible_only = false;
+	for (ObjData *obj : target_resolver::ResolveObjs(ch, q)) {
+		where_format::WhereRow row;
+		row.num = num++;
+		row.kind = where_format::ERowKind::kObject;
+		row.vnum = GET_OBJ_VNUM(obj);
+		row.name = obj->get_short_description();
+		row.location_lines = ResolveObjLocationLines(obj, ch);
+		rows.push_back(std::move(row));
+		found = true;
+	}
 	return found;
 }
 
@@ -135,7 +137,7 @@ void PerformMortalWhere(CharData *ch, char *arg) {
 			}
 
 			if (i->in_room == kNowhere
-				|| !CAN_SEE(ch, i)) {
+				|| !sight::CanSee(ch, i)) {
 				continue;
 			}
 
@@ -154,7 +156,7 @@ void PerformMortalWhere(CharData *ch, char *arg) {
 				continue;
 			}
 
-			if (!CAN_SEE(ch, i)
+			if (!sight::CanSee(ch, i)
 				|| world[i->in_room]->zone_rn != world[ch->in_room]->zone_rn) {
 				continue;
 			}
@@ -258,19 +260,19 @@ static std::vector<std::string> ResolveObjLocationLines(const ObjData *obj, Char
 		}
 		if (cur->get_carried_by()) {
 			lines.push_back(fmt::format("затарено {} [{}] в комнате [{}]",
-					PERS(cur->get_carried_by(), ch, 4), GET_MOB_VNUM(cur->get_carried_by()),
+					sight::PersonName(cur->get_carried_by(), ch, 4), GET_MOB_VNUM(cur->get_carried_by()),
 					world[cur->get_carried_by()->in_room]->vnum));
 			return lines;
 		}
 		if (cur->get_worn_by()) {
 			lines.push_back(fmt::format("надет на {} [{}] в комнате [{}]",
-					PERS(cur->get_worn_by(), ch, 3), GET_MOB_VNUM(cur->get_worn_by()),
+					sight::PersonName(cur->get_worn_by(), ch, 3), GET_MOB_VNUM(cur->get_worn_by()),
 					world[cur->get_worn_by()->in_room]->vnum));
 			return lines;
 		}
 		if (cur->get_in_obj() && !Clan::is_clan_chest(cur->get_in_obj())) {// || Clan::is_ingr_chest(cur->get_in_obj())) сделать отдельный поиск
 			lines.push_back(fmt::format("лежит в [{}] {}, который находится",
-					GET_OBJ_VNUM(cur->get_in_obj()), cur->get_in_obj()->get_PName(ECase::kPre)));
+					GET_OBJ_VNUM(cur->get_in_obj()), cur->get_in_obj()->get_PName(grammar::ECase::kPre)));
 			cur = cur->get_in_obj();
 			continue;
 		}
@@ -325,7 +327,7 @@ void FindErrorCountObj(CharData *ch) {
 		}
 		if (sum != (size_t)obj_proto.total_online(orn)) {
 			SendMsgToChar(ch, "Найден предмет с ошибкой в реальном количестве %s #%d sum = %zu \r\n",
-						  (*it)->get_PName(ECase::kNom).c_str(), (*it)->get_vnum(), sum);
+						  (*it)->get_PName(grammar::ECase::kNom).c_str(), (*it)->get_vnum(), sum);
 			for (auto object : objs) {
 				PrintObjectLocation(num++, object, ch);
 			}

@@ -7,6 +7,7 @@
 #include "engine/ui/color.h"
 #include "gameplay/magic/magic_utils.h"
 #include "engine/db/global_objects.h"
+#include "gameplay/core/remort.h"
 
 /* Служебные функции */
 bool CheckVacantFeatSlot(CharData *ch, EFeat feat);
@@ -28,7 +29,7 @@ bool CanUseFeat(const CharData *ch, EFeat feat_id) {
 	if (CalcMaxFeatSlotPerLvl(ch) < MUD::Class(ch->GetClass()).feats[feat_id].GetSlot()) {
 		return false;
 	};
-	if (GetRealRemort(ch) < MUD::Class(ch->GetClass()).feats[feat_id].GetMinRemort()) {
+	if (remort::GetRealRemort(ch) < MUD::Class(ch->GetClass()).feats[feat_id].GetMinRemort()) {
 		return false;
 	};
 
@@ -42,7 +43,7 @@ bool CanUseFeat(const CharData *ch, EFeat feat_id) {
 		case EFeat::kGreatAimingAttack: return (GetRealDex(ch) > 17);
 		case EFeat::kDoubleShot: return (ch->GetSkill(ESkill::kBows) > 39);
 		case EFeat::kJeweller: return (ch->GetSkill(ESkill::kJewelry) > 59);
-		case EFeat::kSkilledTrader: return ((GetRealLevel(ch) + GetRealRemort(ch) / 3) > 19);
+		case EFeat::kSkilledTrader: return ((GetRealLevel(ch) + remort::GetRealRemort(ch) / 3) > 19);
 		case EFeat::kMagicUser: return (GetRealLevel(ch) < 25);
 		case EFeat::kLiveShield: return (ch->GetSkill(ESkill::kRescue) > 124);
 		case EFeat::kShadowThrower: return (ch->GetSkill(ESkill::kDarkMagic) > 120);
@@ -62,7 +63,7 @@ bool CanGetFocusFeat(const CharData *ch, const EFeat feat_id) {
 		}
 	}
 
-	if (count >= 2 + GetRealRemort(ch) / 6) {
+	if (count >= 2 + remort::GetRealRemort(ch) / 6) {
 		return false;
 	}
 
@@ -88,7 +89,7 @@ bool CanGetMasterFeat(const CharData *ch, const EFeat feat_id) {
 			count++;
 		}
 	}
-	if (count >= 1 + GetRealRemort(ch) / 7) {
+	if (count >= 1 + remort::GetRealRemort(ch) / 7) {
 		return false;
 	}
 
@@ -124,7 +125,7 @@ bool CanGetFeat(CharData *ch, EFeat feat) {
 
 	if ((MUD::Class(ch->GetClass()).feats.IsUnavailable(feat) &&
 		!PlayerRace::FeatureCheck(GET_KIN(ch), GET_RACE(ch), to_underlying(feat))) ||
-		(GetRealRemort(ch) < MUD::Class(ch->GetClass()).feats[feat].GetMinRemort())) {
+		(remort::GetRealRemort(ch) < MUD::Class(ch->GetClass()).feats[feat].GetMinRemort())) {
 		return false;
 	}
 
@@ -456,7 +457,7 @@ EPrf GetPrfWithFeatNumber(EFeat feat_id) {
 
 int CalcMaxFeatSlotPerLvl(const CharData *ch) {
 	return (kMinBaseFeatsSlotsAmount + GetRealLevel(ch)*(kMaxBaseFeatsSlotsAmount - 1 +
-		GetRealRemort(ch)/ MUD::Class(ch->GetClass()).GetRemortsNumForFeatSlot())/kLastFeatSlotLvl);
+		remort::GetRealRemort(ch)/ MUD::Class(ch->GetClass()).GetRemortsNumForFeatSlot())/kLastFeatSlotLvl);
 }
 
 int CalcFeatSlotsAmountPerRemort(CharData *ch) {
@@ -506,10 +507,7 @@ ItemPtr FeatInfoBuilder::ParseHeader(DataNode &node) {
 	auto mode = FeatInfoBuilder::ParseItemMode(node, EItemMode::kEnabled);
 
 	auto info = std::make_shared<FeatInfo>(id, mode);
-	try {
-		info->name_ = parse::ReadAsStr(node.GetValue("name"));
-	} catch (std::exception &) {
-	}
+	info->name_ = MUD::FeatMessages().GetName(id);   // issue.thing-names: name from feat_msg.xml
 
 	return info;
 }

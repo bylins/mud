@@ -3,10 +3,12 @@
 // Part of Bylins http://www.mud.ru
 
 #include "dps.h"
+#include "gameplay/mechanics/minions.h"
 
 #include "engine/ui/color.h"
 #include "engine/entities/char_data.h"
 #include "engine/core/handler.h"
+#include "engine/core/target_resolver.h"
 
 namespace DpsSystem {
 
@@ -395,7 +397,7 @@ void PlayerDpsNode::print_charm_stats(table_wrapper::Table &table) const {
 // * Распечатка групповой статистики живых чармисов по данному игроку.
 void PlayerDpsNode::print_group_charm_stats(CharData *ch) const {
 	for (auto *f : ch->followers) {
-		if (!IS_CHARMICE(f)) {
+		if (!IsCharmice(f)) {
 			continue;
 		}
 		const auto it = std::find_if(charm_list_.begin(), charm_list_.end(),
@@ -422,7 +424,7 @@ void check_round(CharData *ch) {
 			CharData *leader = ch->has_master() ? ch->get_master() : ch;
 			leader->dps_end_round(DpsSystem::GROUP_DPS, ch);
 		}
-	} else if (IS_CHARMICE(ch) && ch->has_master()) {
+	} else if (IsCharmice(ch) && ch->has_master()) {
 		ch->get_master()->dps_end_round(DpsSystem::PERS_CHARM_DPS, ch);
 		if (AFF_FLAGGED(ch->get_master(), EAffect::kGroup)) {
 			CharData *leader = ch->get_master()->has_master() ? ch->get_master()->get_master() : ch->get_master();
@@ -437,7 +439,7 @@ void UpdateDpsStatistics(CharData *ch, int real_dam, int over_dam) {
 /*		log("DmetrLog. Name(player): %s, class: %d, remort:%d, level:%d, dmg: %d, over_dmg:%d",
 			GET_NAME(ch),
 			to_underlying(ch->GetClass()),
-			GetRealRemort(ch),
+			remort::GetRealRemort(ch),
 			GetRealLevel(ch),
 			real_dam,
 			over_dam);
@@ -446,13 +448,13 @@ void UpdateDpsStatistics(CharData *ch, int real_dam, int over_dam) {
 			CharData *leader = ch->has_master() ? ch->get_master() : ch;
 			leader->dps_add_dmg(DpsSystem::GROUP_DPS, real_dam, over_dam, ch);
 		}
-	} else if (IS_CHARMICE(ch)
+	} else if (IsCharmice(ch)
 		&& ch->has_master()) {
 		ch->get_master()->dps_add_dmg(DpsSystem::PERS_CHARM_DPS, real_dam, over_dam, ch);
 /*		if (!ch->get_master()->IsNpc()) {
 			log("DmetrLog. Name(charmice): %s, name(master): %s, class: %d, remort: %d, level: %d, dmg: %d, over_dmg:%d",
 				ch->get_name().c_str(), ch->get_master()->get_name().c_str(), to_underlying(ch->get_master()->GetClass()),
-				GetRealRemort(ch->get_master()), GetRealLevel(ch->get_master()), real_dam, over_dam);
+				remort::GetRealRemort(ch->get_master()), GetRealLevel(ch->get_master()), real_dam, over_dam);
 		}
 */
 		if (AFF_FLAGGED(ch->get_master(), EAffect::kGroup)) {
@@ -506,7 +508,7 @@ void do_dmeter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 	} else if (ch->IsFlagged(EPrf::kCoderinfo)) {
 		// распечатка статистики указанного персонажа
-		CharData *vict = get_player_vis(ch, arg, EFind::kCharInWorld);
+		CharData *vict = target_resolver::FindPlayerVis(ch, arg);
 		if (vict) {
 			vict->dps_print_stats(ch);
 		} else {

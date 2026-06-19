@@ -2,8 +2,8 @@
 // Part of Bylins http://www.mud.ru
 
 #include "birthplaces.h"
+#include "utils/utils_string.h"
 
-#include "utils/utils.h"
 #include "third_party_libs/pugixml/pugixml.h"
 
 const char *DEFAULT_RENT_HELP = "Попроси нашего кладовщика помочь тебе с экипировкой и припасами.";

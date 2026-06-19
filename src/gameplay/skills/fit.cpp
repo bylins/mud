@@ -1,7 +1,9 @@
 #include "fit.h"
+#include "utils/grammar/gender.h"
 
 #include "engine/entities/char_data.h"
 #include "engine/core/handler.h"
+#include "engine/core/target_resolver.h"
 
 void DoFit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	ObjData *obj;
@@ -37,7 +39,8 @@ void DoFit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	};
 
 	argument = one_argument(argument, arg2);
-	if (!(vict = get_char_vis(ch, arg2, EFind::kCharInRoom))) {
+	vict = target_resolver::FindCharInRoom(ch, arg2);
+	if (!vict) {
 		SendMsgToChar("Под кого вы хотите переделать эту вещь?\r\n Нет такого создания в округе!\r\n", ch);
 		return;
 	};
@@ -66,7 +69,7 @@ void DoFit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 				&& obj->get_material() != EObjMaterial::kHardWood
 				&& obj->get_material() != EObjMaterial::kGlass) {
 				sprintf(buf, "К сожалению %s сделан%s из неподходящего материала.\r\n",
-						obj->get_PName(ECase::kNom).c_str(), GET_OBJ_SUF_6(obj));
+						obj->get_PName(grammar::ECase::kNom).c_str(), grammar::ObjSexEnding((obj)->get_sex(), 6));
 				SendMsgToChar(buf, ch);
 				return;
 			}
@@ -77,7 +80,7 @@ void DoFit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 				&& obj->get_material() != EObjMaterial::kSkin
 				&& obj->get_material() != EObjMaterial::kOrganic) {
 				sprintf(buf, "К сожалению %s сделан%s из неподходящего материала.\r\n",
-						obj->get_PName(ECase::kNom).c_str(), GET_OBJ_SUF_6(obj));
+						obj->get_PName(grammar::ECase::kNom).c_str(), grammar::ObjSexEnding((obj)->get_sex(), 6));
 				SendMsgToChar(buf, ch);
 				return;
 			}
@@ -90,7 +93,7 @@ void DoFit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	sprintf(buf, "Вы долго пыхтели и сопели, переделывая работу по десять раз.\r\n");
 	sprintf(buf + strlen(buf), "Вы извели кучу времени и 10000 кун золотом.\r\n");
 	sprintf(buf + strlen(buf), "В конце-концов подогнали %s точно по мерке %s.\r\n",
-			obj->get_PName(ECase::kAcc).c_str(), GET_PAD(vict, 1));
+			obj->get_PName(grammar::ECase::kAcc).c_str(), GET_PAD(vict, 1));
 
 	SendMsgToChar(buf, ch);
 }

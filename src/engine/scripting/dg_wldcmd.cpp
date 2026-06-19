@@ -10,6 +10,10 @@
 **************************************************************************/
 
 #include "engine/entities/char_data.h"
+#include "administration/privilege.h"
+#include "gameplay/mechanics/minions.h"
+#include "gameplay/mechanics/follow.h"
+#include "gameplay/mechanics/mount.h"
 #include "engine/ui/cmd/do_follow.h"
 #include "gameplay/fight/fight.h"
 #include "engine/core/handler.h"
@@ -291,7 +295,7 @@ void do_wteleport(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, T
 			RemoveCharFromRoom(ch);
 			PlaceCharToRoom(ch, target);
 			if (!ch->IsNpc()) {
-				look_at_room(ch, true);
+				sight::look_at_room(ch, true);
 				lastchar = ch;
 			}
 		}
@@ -306,17 +310,17 @@ void do_wteleport(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, T
 		for (auto ch_i = next_ch; ch_i != people_copy.end(); ch_i = next_ch) {
 			const auto ch = *ch_i;
 			++next_ch;
-			if (ch->IsNpc() && !IS_CHARMICE(ch)) {
+			if (ch->IsNpc() && !IsCharmice(ch)) {
 				continue;
 			}
 			if (target == ch->in_room) {
 //				wld_log(room, trig, "wteleport allchar target is itself");
 				continue;
 			}
-			if (ch->get_horse()) {
-				if (ch->IsOnHorse() || ch->has_horse(true)) {
-					RemoveCharFromRoom(ch->get_horse());
-					PlaceCharToRoom(ch->get_horse(), target);
+			if (mount::GetHorse(ch)) {
+				if (mount::IsOnHorse(ch) || mount::HasHorse(ch, true)) {
+					RemoveCharFromRoom(mount::GetHorse(ch));
+					PlaceCharToRoom(mount::GetHorse(ch), target);
 					onhorse = true;
 				}
 			}
@@ -327,9 +331,9 @@ void do_wteleport(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, T
 			RemoveCharFromRoom(ch);
 			PlaceCharToRoom(ch, target);
 			if (!onhorse)
-				ch->dismount();
+				mount::Dismount(ch);
 			if (!ch->IsNpc()) {
-				look_at_room(ch, true);
+				sight::look_at_room(ch, true);
 				lastchar = ch;
 			}
 		}
@@ -343,19 +347,19 @@ void do_wteleport(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, T
 //				wld_log(room, trig, "wteleport target is itself");
 				return;
 			}
-			if (IS_CHARMICE(ch) && ch->in_room == ch->get_master()->in_room)
+			if (IsCharmice(ch) && ch->in_room == ch->get_master()->in_room)
 				ch = ch->get_master();
 			const auto people_copy = world[ch->in_room]->people;
 			for (const auto charmee : people_copy) {
-				if (IS_CHARMICE(charmee) && charmee->get_master() == ch) {
+				if (IsCharmice(charmee) && charmee->get_master() == ch) {
 					RemoveCharFromRoom(charmee);
 					PlaceCharToRoom(charmee, target);
 				}
 			}
-			if (ch->get_horse()) {
-				if (ch->IsOnHorse() || ch->has_horse(true)) {
-					RemoveCharFromRoom(ch->get_horse());
-					PlaceCharToRoom(ch->get_horse(), target);
+			if (mount::GetHorse(ch)) {
+				if (mount::IsOnHorse(ch) || mount::HasHorse(ch, true)) {
+					RemoveCharFromRoom(mount::GetHorse(ch));
+					PlaceCharToRoom(mount::GetHorse(ch), target);
 					onhorse = true;
 				}
 			}
@@ -366,8 +370,8 @@ void do_wteleport(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, T
 			RemoveCharFromRoom(ch);
 			PlaceCharToRoom(ch, target);
 			if (!onhorse)
-				ch->dismount();
-			look_at_room(ch, true);
+				mount::Dismount(ch);
+			sight::look_at_room(ch, true);
 			greet_mtrigger(ch, -1);
 			greet_otrigger(ch, -1);
 		} else {
@@ -467,7 +471,7 @@ void do_wpurge(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Trig
 
 	if (!ch->followers.empty()
 		|| ch->get_master()) {
-		die_follower(ch);
+		follow::DieFollower(ch);
 	}
 	character_list.AddToExtractedList(ch);
 }
@@ -550,7 +554,7 @@ void do_wdamage(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 			return;
 		}
 
-		if (ch->IsImmortal() && dam > 0) {
+		if (privilege::IsImmortal(ch) && dam > 0) {
 			SendMsgToChar("Будучи бессмертным, вы избежали повреждения...\r\n", ch);
 			return;
 		}

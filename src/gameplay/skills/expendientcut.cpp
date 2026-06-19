@@ -1,4 +1,6 @@
 #include "expendientcut.h"
+#include "administration/privilege.h"
+#include "gameplay/mechanics/mount.h"
 #include "skill_messages.h"
 #include "engine/db/global_objects.h"
 
@@ -13,10 +15,10 @@
 void ApplyNoFleeAffect(CharData *ch, int duration) {
 	Affect<EApply> noflee;
 	noflee.type = ESpell::kExpedientFail;
-	noflee.bitvector = to_underlying(EAffect::kNoFlee);
+	noflee.affect_type = EAffect::kNoFlee;
 	noflee.location = EApply::kNone;
 	noflee.modifier = 0;
-	noflee.duration = CalcDuration(ch, duration, 0, 0, 0, 0);;
+	noflee.duration = CalcDuration(ch, ch, ESkill::kUndefined, duration, 0, 0, 0);;
 	noflee.battleflag = kAfBattledec | kAfPulsedec;
 	ImposeAffect(ch, noflee, true, false, true, false);
 	SendMsgToChar("Вы выпали из ритма боя.\r\n", ch);
@@ -25,15 +27,15 @@ void ApplyNoFleeAffect(CharData *ch, int duration) {
 void ApplyDebuffs(abilities_roll::TechniqueRoll &roll) {
 	Affect<EApply> cut;
 	cut.type = ESpell::kBattle;
-	cut.duration = CalcDuration(roll.GetActor(), 3 * number(2, 4), 0, 0, 0, 0);;
+	cut.duration = CalcDuration(roll.GetActor(), roll.GetActor(), ESkill::kUndefined, 3 * number(2, 4), 0, 0, 0);;
 	cut.battleflag = kAfBattledec;
 	if (roll.GetActor()->IsFlagged(EPrf::kPerformSerratedBlade)) {
 		cut.modifier = 1;
-		cut.bitvector = to_underlying(EAffect::kLacerations);
+		cut.affect_type = EAffect::kLacerations;
 		cut.location = EApply::kNone;
 	} else {
 		cut.modifier = -std::min(25, number(1, roll.GetActorRating()) / 10) - (roll.IsCriticalSuccess() ? 10 : 0);
-		cut.bitvector = to_underlying(EAffect::kHaemorrhage);
+		cut.affect_type = EAffect::kHaemorrhage;
 		cut.location = EApply::kResistVitality;
 	}
 	ImposeAffect(roll.GetRival(), cut, false, true, false, true);
@@ -44,7 +46,7 @@ void PerformCutSuccess(abilities_roll::TechniqueRoll &roll) {
 		false, roll.GetActor(), nullptr, roll.GetRival(), kToVict);
 	act("$n сделал$g неуловимое движение, сместившись за спину $N1.",
 		true, roll.GetActor(), nullptr, roll.GetRival(), kToNotVict | kToArenaListen);
-	if (!IS_UNDEAD(roll.GetRival()) && GET_RACE(roll.GetRival()) != ENpcRace::kConstruct) {
+	if (!roll.GetRival()->IsFlagged(EMobFlag::kUndead) && GET_RACE(roll.GetRival()) != ENpcRace::kConstruct) {
 		ApplyDebuffs(roll);
 	}
 }
@@ -132,11 +134,11 @@ void SetExtraAttackCut(CharData *ch, CharData *victim) {
 }
 
 void DoExpedientCut(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
-	if (ch->IsNpc() || (!CanUseFeat(ch, EFeat::kCutting) && !ch->IsImpl())) {
+	if (ch->IsNpc() || (!CanUseFeat(ch, EFeat::kCutting) && !privilege::IsImpl(ch))) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kCutting, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
-	if (ch->IsHorsePrevents()) {
+	if (mount::IsBlockedByHorse(ch)) {
 		return;
 	}
 	if (ch->GetPosition() < EPosition::kFight) {

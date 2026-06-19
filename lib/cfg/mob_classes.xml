@@ -2,7 +2,7 @@
 <mob_classes>
     <global_vars lvl_per_difficulty="5" boss_add_lvl="5"/>
     <mobclass id="kUndefined" mode="kEnabled">
-        <name rus="не.определён" eng="Undefined"/>
+        <name eng="Undefined"/>
         <base_stats>
             <stat id="kStr" base="15" low_increment="1" threshold_mort="35" increment="0" deviation_type="0" deviation="0"/>
             <stat id="kDex" base="15" low_increment="1" threshold_mort="35" increment="0" deviation_type="0" deviation="0"/>
@@ -98,7 +98,7 @@
     </mobclass>
 
     <mobclass id="kBoss" mode="kEnabled">
-        <name rus="босс" eng="Boss"/>
+        <name eng="Boss"/>
         <base_stats>
             <stat id="kStr" base="15" low_increment="1" threshold_mort="35" increment="0" deviation_type="0" deviation="0"/>
             <stat id="kDex" base="15" low_increment="1" threshold_mort="35" increment="0" deviation_type="0" deviation="0"/>
@@ -194,7 +194,7 @@
     </mobclass>
 
     <mobclass id="kTrash" mode="kEnabled">
-        <name rus="треш" eng="Trash"/>
+        <name eng="Trash"/>
         <base_stats>
             <stat id="kStr" base="15" low_increment="1" threshold_mort="35" increment="0" deviation_type="0" deviation="0"/>
             <stat id="kDex" base="15" low_increment="1" threshold_mort="35" increment="0" deviation_type="0" deviation="0"/>
@@ -290,7 +290,7 @@
     </mobclass>
 
     <mobclass id="kTank" mode="kEnabled">
-        <name rus="танк" eng="Tank"/>
+        <name eng="Tank"/>
         <base_stats>
             <stat id="kStr" base="15" low_increment="1" threshold_mort="35" increment="0" deviation_type="0" deviation="0"/>
             <stat id="kDex" base="15" low_increment="1" threshold_mort="35" increment="0" deviation_type="0" deviation="0"/>
@@ -386,7 +386,7 @@
     </mobclass>
 
     <mobclass id="kMelleeDmg" mode="kEnabled">
-        <name rus="физ.дамаг" eng="MelleeDmg"/>
+        <name eng="MelleeDmg"/>
         <base_stats>
             <stat id="kStr" base="15" low_increment="1" threshold_mort="35" increment="0" deviation_type="0" deviation="0"/>
             <stat id="kDex" base="15" low_increment="1" threshold_mort="35" increment="0" deviation_type="0" deviation="0"/>
@@ -482,7 +482,7 @@
     </mobclass>
 
     <mobclass id="kArcher" mode="kEnabled">
-        <name rus="лучник" eng="Archer"/>
+        <name eng="Archer"/>
         <base_stats>
             <stat id="kStr" base="15" low_increment="1" threshold_mort="35" increment="0" deviation_type="0" deviation="0"/>
             <stat id="kDex" base="15" low_increment="1" threshold_mort="35" increment="0" deviation_type="0" deviation="0"/>
@@ -578,7 +578,7 @@
     </mobclass>
 
     <mobclass id="kRogue" mode="kEnabled">
-        <name rus="разбойник" eng="Rogue"/>
+        <name eng="Rogue"/>
         <base_stats>
             <stat id="kStr" base="15" low_increment="1" threshold_mort="35" increment="0" deviation_type="0" deviation="0"/>
             <stat id="kDex" base="15" low_increment="1" threshold_mort="35" increment="0" deviation_type="0" deviation="0"/>
@@ -674,7 +674,7 @@
     </mobclass>
 
     <mobclass id="kMageDmg" mode="kEnabled">
-        <name rus="маг.дамаг" eng="MageDmg"/>
+        <name eng="MageDmg"/>
         <base_stats>
             <stat id="kStr" base="15" low_increment="1" threshold_mort="35" increment="0" deviation_type="0" deviation="0"/>
             <stat id="kDex" base="15" low_increment="1" threshold_mort="35" increment="0" deviation_type="0" deviation="0"/>
@@ -770,7 +770,7 @@
     </mobclass>
 
     <mobclass id="kMageBuff" mode="kEnabled">
-        <name rus="маг.ассист" eng="MageBuff"/>
+        <name eng="MageBuff"/>
         <base_stats>
             <stat id="kStr" base="15" low_increment="1" threshold_mort="35" increment="0" deviation_type="0" deviation="0"/>
             <stat id="kDex" base="15" low_increment="1" threshold_mort="35" increment="0" deviation_type="0" deviation="0"/>
@@ -866,7 +866,7 @@
     </mobclass>
 
     <mobclass id="kHealer" mode="kEnabled">
-        <name rus="хилер" eng="Healer"/>
+        <name eng="Healer"/>
         <base_stats>
             <stat id="kStr" base="15" low_increment="1" threshold_mort="35" increment="0" deviation_type="0" deviation="0"/>
             <stat id="kDex" base="15" low_increment="1" threshold_mort="35" increment="0" deviation_type="0" deviation="0"/>

@@ -7,8 +7,11 @@
 */
 
 #include "engine/entities/char_data.h"
+#include "administration/privilege.h"
+#include "utils/grammar/gender.h"
 #include "engine/ui/color.h"
 #include "remember.h"
+#include "gameplay/mechanics/sight.h"
 #include "utils/utils_string.h"
 
 void do_echo(CharData *ch, char *argument, int cmd, int subcmd);
@@ -22,13 +25,13 @@ void tell_to_char(CharData *keeper, CharData *ch, const char *argument) {
 		return;
 	}
 	snprintf(local_buf, kMaxInputLength,
-			 "%s сказал%s вам : '%s'", GET_NAME(keeper), GET_CH_SUF_1(keeper), argument);
+			 "%s сказал%s вам : '%s'", GET_NAME(keeper), grammar::SexEnding((keeper)->get_sex(), 1), argument);
 	SendMsgToChar(ch, "%s%s%s\r\n",
 				  kColorBoldCyn, utils::CAP(local_buf), kColorNrm);
 }
 
 bool tell_can_see(CharData *ch, CharData *vict) {
-	if (CAN_SEE_CHAR(vict, ch) || ch->IsImmortal() || GET_INVIS_LEV(ch)) {
+	if (sight::CanSeeIgnoringLight(vict, ch) || privilege::IsImmortal(ch) || GET_INVIS_LEV(ch)) {
 		return true;
 	} else {
 		return false;
@@ -51,11 +54,11 @@ int is_tell_ok(CharData *ch, CharData *vict) {
 		return (false);
 	}
 
-	if (ch->IsGod() || ch->IsFlagged(EPrf::kCoderinfo))
+	if (privilege::IsGod(ch) || ch->IsFlagged(EPrf::kCoderinfo))
 		return (true);
 
 	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kSoundproof))
-		SendMsgToChar(SOUNDPROOF, ch);
+		SendMsgToChar(CommonMsg(ECommonMsg::kSoundproof) + "\r\n", ch);
 	else if ((!vict->IsNpc() &&
 		(vict->IsFlagged(EPrf::kNoTell) || ignores(vict, ch, EIgnore::kTell))) ||
 		ROOM_FLAGGED(vict->in_room, ERoomFlag::kSoundproof)) {
@@ -77,7 +80,7 @@ int is_tell_ok(CharData *ch, CharData *vict) {
 
 void perform_tell(CharData *ch, CharData *vict, char *arg) {
 	if (vict->IsFlagged(EPrf::kNoInvistell)
-		&& !CAN_SEE(vict, ch)
+		&& !sight::CanSee(vict, ch)
 		&& GetRealLevel(ch) < kLvlImmortal
 		&& !ch->IsFlagged(EPrf::kCoderinfo)) {
 		act("$N не любит разговаривать с теми, кого не видит.", false, ch, nullptr, vict, kToChar | kToSleep);
@@ -86,7 +89,7 @@ void perform_tell(CharData *ch, CharData *vict, char *arg) {
 
 	// TODO: если в act() останется показ иммов, то это и эхо ниже переделать на act()
 	if (tell_can_see(ch, vict)) {
-		snprintf(buf, kMaxStringLength, "%s сказал%s вам : '%s'", GET_NAME(ch), GET_CH_SUF_1(ch), arg);
+		snprintf(buf, kMaxStringLength, "%s сказал%s вам : '%s'", GET_NAME(ch), grammar::SexEnding((ch)->get_sex(), 1), arg);
 	} else {
 		snprintf(buf, kMaxStringLength, "Кто-то сказал вам : '%s'", arg);
 	}
@@ -109,10 +112,10 @@ void perform_tell(CharData *ch, CharData *vict, char *arg) {
 	}
 
 	if (ch->IsFlagged(EPrf::kNoRepeat)) {
-		SendMsgToChar(OK, ch);
+		SendMsgToChar(CommonMsg(ECommonMsg::kOk) + "\r\n", ch);
 	} else {
 		snprintf(buf, kMaxStringLength, "%sВы сказали %s : '%s'%s\r\n", kColorBoldCyn,
-				 tell_can_see(vict, ch) ? vict->player_data.PNames[ECase::kDat].c_str() : "кому-то", arg, kColorNrm);
+				 tell_can_see(vict, ch) ? vict->player_data.PNames[grammar::ECase::kDat].c_str() : "кому-то", arg, kColorNrm);
 		SendMsgToChar(buf, ch);
 		if (!ch->IsNpc()) {
 			ch->remember_add(buf, Remember::ALL);

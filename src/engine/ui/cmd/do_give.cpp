@@ -1,9 +1,14 @@
 #include "engine/entities/char_data.h"
+#include "administration/privilege.h"
+#include "gameplay/mechanics/sight.h"
+#include "utils/grammar/declensions.h"
+#include "gameplay/mechanics/minions.h"
 #include "engine/db/world_objects.h"
 #include "gameplay/economics/currencies.h"
 #include "gameplay/fight/pk.h"
 #include "gameplay/clans/house.h"
 #include "engine/core/utils_char_obj.inl"
+#include "engine/core/target_resolver.h"
 #include "engine/db/global_objects.h"
 
 extern void get_check_money(CharData *ch, ObjData *obj, ObjData *cont);
@@ -12,7 +17,7 @@ extern void split_or_clan_tax(CharData *ch, long amount);
 void perform_give(CharData *ch, CharData *vict, ObjData *obj) {
 	if (!bloody::handle_transfer(ch, vict, obj))
 		return;
-	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoItem) && !ch->IsGod()) {
+	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoItem) && !privilege::IsGod(ch)) {
 		act("Неведомая сила помешала вам сделать это!",
 			false, ch, nullptr, nullptr, kToChar);
 		return;
@@ -78,8 +83,8 @@ CharData *give_find_vict(CharData *ch, char *local_arg) {
 	if (!*local_arg) {
 		SendMsgToChar("Кому?\r\n", ch);
 		return (nullptr);
-	} else if (!(vict = get_char_vis(ch, local_arg, EFind::kCharInRoom))) {
-		SendMsgToChar(NOPERSON, ch);
+	} else if (!(vict = target_resolver::FindCharInRoom(ch, local_arg))) {
+		SendMsgToChar(CommonMsg(ECommonMsg::kNoPerson) + "\r\n", ch);
 		return (nullptr);
 	} else if (vict == ch) {
 		SendMsgToChar("Вы переложили ЭТО из одного кармана в другой.\r\n", ch);
@@ -93,20 +98,20 @@ void perform_give_gold(CharData *ch, CharData *vict, int amount) {
 		SendMsgToChar("Ха-ха-ха (3 раза)...\r\n", ch);
 		return;
 	}
-	if (ch->get_gold() < amount && (ch->IsNpc() || !ch->IsImpl())) {
+	if (ch->get_gold() < amount && (ch->IsNpc() || !privilege::IsImpl(ch))) {
 		SendMsgToChar("И откуда вы их взять собираетесь?\r\n", ch);
 		return;
 	}
-	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoItem) && !ch->IsGod()) {
+	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoItem) && !privilege::IsGod(ch)) {
 		act("Неведомая сила помешала вам сделать это!",
 			false, ch, nullptr, nullptr, kToChar);
 		return;
 	}
-	SendMsgToChar(OK, ch);
-	sprintf(buf, "$n дал$g вам %d %s.", amount, GetDeclensionInNumber(amount, EWhat::kMoneyU));
+	SendMsgToChar(CommonMsg(ECommonMsg::kOk) + "\r\n", ch);
+	sprintf(buf, "$n дал$g вам %d %s.", amount, grammar::GetDeclensionInNumber(amount, grammar::EWhat::kMoneyU));
 	act(buf, false, ch, nullptr, vict, kToVict);
 	sprintf(buf, "$n дал$g %s $N2.",
-			MUD::Currency(currencies::kKunaVnum).GetObjCName(amount, ECase::kAcc));
+			MUD::Currency(currencies::kKunaVnum).GetObjCName(amount, grammar::ECase::kAcc));
 	act(buf, true, ch, nullptr, vict, kToNotVict | kToArenaListen);
 	if (!(ch->IsNpc() || vict->IsNpc())) {
 		sprintf(buf,
@@ -117,11 +122,11 @@ void perform_give_gold(CharData *ch, CharData *vict, int amount) {
 				GET_PAD(vict, 4));
 		mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
 	}
-	if (ch->IsNpc() || !ch->IsImpl()) {
+	if (ch->IsNpc() || !privilege::IsImpl(ch)) {
 		ch->remove_gold(amount);
 	}
 	// если денег дает моб - снимаем клан-налог
-	if (ch->IsNpc() && !IS_CHARMICE(ch)) {
+	if (ch->IsNpc() && !IsCharmice(ch)) {
 		vict->add_gold(amount);
 		split_or_clan_tax(vict, amount);
 	} else {
@@ -135,24 +140,24 @@ void perform_give_nogat(CharData *ch, CharData *vict, int amount) {
 		SendMsgToChar("Ха-ха-ха (3 раза)...\r\n", ch);
 		return;
 	}
-	if (ch->get_nogata() < amount && (ch->IsNpc() || !ch->IsImpl())) {
+	if (ch->get_nogata() < amount && (ch->IsNpc() || !privilege::IsImpl(ch))) {
 		SendMsgToChar("И откуда ты их взять собирался?\r\n", ch);
 		return;
 	}
-	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoItem) && !ch->IsGod()) {
+	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoItem) && !privilege::IsGod(ch)) {
 		act("Неведомая сила помешала вам сделать это!",
 			false, ch, nullptr, nullptr, kToChar);
 		return;
 	}
-	SendMsgToChar(OK, ch);
-	sprintf(buf, "$n дал$g вам %d %s.", amount, GetDeclensionInNumber(amount, EWhat::kNogataU));
+	SendMsgToChar(CommonMsg(ECommonMsg::kOk) + "\r\n", ch);
+	sprintf(buf, "$n дал$g вам %d %s.", amount, grammar::GetDeclensionInNumber(amount, grammar::EWhat::kNogataU));
 	act(buf, false, ch, nullptr, vict, kToVict);
 	if (amount > 4)
-		sprintf(buf, "$n дал$g много %s $N2.", GetDeclensionInNumber(amount, EWhat::kNogataU));
+		sprintf(buf, "$n дал$g много %s $N2.", grammar::GetDeclensionInNumber(amount, grammar::EWhat::kNogataU));
 	else
-		sprintf(buf, "$n дал$g %s $N2.", GetDeclensionInNumber(amount, EWhat::kNogataU));
+		sprintf(buf, "$n дал$g %s $N2.", grammar::GetDeclensionInNumber(amount, grammar::EWhat::kNogataU));
 	act(buf, true, ch, nullptr, vict, kToNotVict | kToArenaListen);
-	if (ch->IsNpc() || !ch->IsImpl()) {
+	if (ch->IsNpc() || !privilege::IsImpl(ch)) {
 		ch->sub_nogata(amount);
 	}
 	vict->add_nogata(amount);
@@ -220,7 +225,7 @@ void do_give(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					next_obj = obj->get_next_content();
 					if (obj->get_extracted_list())
 						continue;
-					if (CAN_SEE_OBJ(ch, obj)
+					if (sight::CanSeeObj(ch, obj)
 						&& (dotmode == kFindAll
 							|| isname(arg, obj->get_aliases())
 							|| CHECK_CUSTOM_LABEL(arg, obj, ch))) {

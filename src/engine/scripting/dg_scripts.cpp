@@ -9,11 +9,15 @@
 **************************************************************************/
 
 #include "dg_scripts.h"
+#include "utils/grammar/gender.h"
+#include "utils/grammar/declensions.h"
+#include "gameplay/mechanics/minions.h"
+#include "gameplay/mechanics/follow.h"
+#include "gameplay/mechanics/mount.h"
 #include "engine/db/global_objects.h"
 #include "engine/db/obj_prototypes.h"
 #include "engine/db/utils_find_obj_id_by_vnum.h"
 #include "engine/core/handler.h"
-#include "engine/ui/cmd/do_follow.h"  // circle_follow для char.leader(UID) (#3398)
 #include "dg_event.h"
 #include "engine/ui/color.h"
 #include "gameplay/clans/house.h"
@@ -30,6 +34,7 @@
 #include "administration/privilege.h"
 #include "gameplay/fight/fight_hit.h"
 #include "engine/core/utils_char_obj.inl"
+#include "engine/core/target_resolver.h"
 #include "gameplay/mechanics/stable_objs.h"
 #include <fmt/format.h>
 #include <fmt/ranges.h>
@@ -43,6 +48,8 @@
 #include "engine/observability/helpers.h"
 #include "engine/observability/metrics.h"
 #include "utils/tracing/trace_manager.h"
+#include "gameplay/mechanics/sight.h"
+#include "gameplay/core/remort.h"
 
 extern int max_exp_gain_pc(CharData *ch);
 extern long GetExpUntilNextLvl(CharData *ch, int level);
@@ -51,7 +58,7 @@ extern std::list<combat_list_element> combat_list;
 
 constexpr long long kPulsesPerMudHour = kSecsPerMudHour*kPassesPerSec;
 
-inline bool IS_CHARMED(CharData* ch) {return (IS_HORSE(ch) || AFF_FLAGGED(ch, EAffect::kCharmed));}
+inline bool IS_CHARMED(CharData* ch) {return (mount::IsHorse(ch) || AFF_FLAGGED(ch, EAffect::kCharmed));}
 
 // Вывод сообщений о неверных управляющих конструкциях DGScript
 #define DG_CODE_ANALYZE
@@ -1109,7 +1116,8 @@ void do_attach(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 	if (utils::IsAbbr(arg, "mtr")) {
-		if ((victim = get_char_vis(ch, targ_name, EFind::kCharInWorld))) {
+		victim = target_resolver::FindCharInWorld(ch, targ_name);
+		if (victim) {
 			if (victim->IsNpc())    // have a valid mob, now get trigger
 			{
 				rn = GetTriggerRnum(tn);
@@ -1131,7 +1139,7 @@ void do_attach(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			SendMsgToChar("That mob does not exist.\r\n", ch);
 		}
 	} else if (utils::IsAbbr(arg, "otr")) {
-		if ((object = get_obj_vis(ch, targ_name)))    // have a valid obj, now get trigger
+		if ((object = target_resolver::FindObjAround(ch, targ_name)))    // have a valid obj, now get trigger
 		{
 			rn = GetTriggerRnum(tn);
 			if ((rn >= 0) && (trig = read_trigger(rn))) {
@@ -1212,14 +1220,15 @@ void do_detach(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 	} else {
 		if (utils::IsAbbr(arg1, "mob")) {
-			if (!(victim = get_char_vis(ch, arg2, EFind::kCharInWorld)))
+			victim = target_resolver::FindCharInWorld(ch, arg2);
+			if (!victim)
 				SendMsgToChar("No such mobile around.\r\n", ch);
 			else if (!*arg3)
 				SendMsgToChar("You must specify a trigger to remove.\r\n", ch);
 			else
 				trigger = arg3;
 		} else if (utils::IsAbbr(arg1, "object")) {
-			if (!(object = get_obj_vis(ch, arg2)))
+			if (!(object = target_resolver::FindObjAround(ch, arg2)))
 				SendMsgToChar("No such object around.\r\n", ch);
 			else if (!*arg3)
 				SendMsgToChar("You must specify a trigger to remove.\r\n", ch);
@@ -1228,10 +1237,10 @@ void do_detach(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		} else {
 			if ((object = get_object_in_equip_vis(ch, arg1, ch->equipment, &tmp)));
 			else if ((object = get_obj_in_list_vis(ch, arg1, ch->carrying)));
-			else if ((victim = get_char_room_vis(ch, arg1)));
+			else if ((victim = target_resolver::FindCharInRoomOrSelf(ch, arg1)));
 			else if ((object = get_obj_in_list_vis(ch, arg1, world[ch->in_room]->contents)));
-			else if ((victim = get_char_vis(ch, arg1, EFind::kCharInWorld)));
-			else if ((object = get_obj_vis(ch, arg1)));
+			else if ((victim = target_resolver::FindCharInWorld(ch, arg1)));
+			else if ((object = target_resolver::FindObjAround(ch, arg1)));
 			else
 				SendMsgToChar("Nothing around by that name.\r\n", ch);
 			trigger = arg2;
@@ -1626,13 +1635,20 @@ void find_replacement(void *go,
 					log("SYSERROR: null ch (%s:%d %s)", __FILE__, __LINE__, __func__);
 					break;
 				}
+				{
+				target_resolver::Query q_mob_in_room;
+				q_mob_in_room.scopes = {target_resolver::Scope::kRoom};
+				q_mob_in_room.name = name.c_str();
+				q_mob_in_room.room_override = ch->in_room;
+				q_mob_in_room.visible_only = false;
 				if ((obj = get_object_in_equip(ch, name.c_str())));
 				else if ((obj = get_obj_in_list(name.c_str(), ch->carrying)));
-				else if ((mob = SearchCharInRoomByName(name.c_str(), ch->in_room)));
+				else if ((mob = target_resolver::ResolveChar(ch, q_mob_in_room)));
 				else if ((obj = get_obj_in_list(name.c_str(), world[ch->in_room]->contents)));
 				else if ((mob = get_char(name.c_str())));
 				else if ((obj = get_obj(name.c_str(), GET_TRIG_VNUM(trig))));
 				else if ((room = get_room(name.c_str()))) {
+				}
 				}
 				break;
 			case OBJ_TRIGGER: tmp_obj = (ObjData *) go;
@@ -1731,7 +1747,7 @@ void find_replacement(void *go,
 				}
 				for (RoomRnum rrn = from; rrn <= to; rrn++) {
 					for (const auto ch : world[rrn]->people) {
-						if (!ch->IsNpc() || IS_CHARMICE(ch))
+						if (!ch->IsNpc() || IsCharmice(ch))
 							continue;
 						snprintf(str + strlen(str), kMaxTrglineLength, "%c%ld ", UID_CHAR, ch->get_uid());
 					}
@@ -1745,7 +1761,7 @@ void find_replacement(void *go,
 				}
 				for (RoomRnum rrn = from; rrn <= to; rrn++) {
 					for (const auto ch : world[rrn]->people) {
-						if (ch->IsNpc() && !IS_CHARMICE(ch))
+						if (ch->IsNpc() && !IsCharmice(ch))
 							continue;
 						if (GET_INVIS_LEV(ch) > 0)
 							continue;
@@ -2305,7 +2321,7 @@ void find_replacement(void *go,
 				if (!mob->IsNpc())
 					snprintf(str, str_size, "%ld", mob->get_uid());
 			} else if (!str_cmp(field, "u")) {
-				snprintf(str, str_size, "%s", GET_CH_SUF_2(mob));
+				snprintf(str, str_size, "%s", grammar::SexEnding((mob)->get_sex(), 2));
 			} else if (!str_cmp(field, "UPiname")) {
 				std::string tmpname = GET_PAD(mob, 0);
 				snprintf(str, str_size, "%s", utils::colorCAP(tmpname).c_str());
@@ -2341,7 +2357,7 @@ void find_replacement(void *go,
 			if (*subfield) {
 				if (strlen(subfield) > MAX_MOB_NAME)
 					subfield[MAX_MOB_NAME - 1] = '\0';
-				mob->player_data.PNames[ECase::kNom] = subfield;
+				mob->player_data.PNames[grammar::ECase::kNom] = subfield;
 			}
 			else
 				snprintf(str, str_size, "%s", GET_PAD(mob, 0));
@@ -2350,7 +2366,7 @@ void find_replacement(void *go,
 			if (*subfield) {
 				if (strlen(subfield) > MAX_MOB_NAME)
 					subfield[MAX_MOB_NAME - 1] = '\0';
-				mob->player_data.PNames[ECase::kGen] = subfield;
+				mob->player_data.PNames[grammar::ECase::kGen] = subfield;
 			}
 			else
 				snprintf(str, str_size, "%s", GET_PAD(mob, 1));
@@ -2359,7 +2375,7 @@ void find_replacement(void *go,
 			if (*subfield) {
 				if (strlen(subfield) > MAX_MOB_NAME)
 					subfield[MAX_MOB_NAME - 1] = '\0';
-				mob->player_data.PNames[ECase::kDat] = subfield;
+				mob->player_data.PNames[grammar::ECase::kDat] = subfield;
 			}
 			else
 				snprintf(str, str_size, "%s", GET_PAD(mob, 2));
@@ -2368,7 +2384,7 @@ void find_replacement(void *go,
 			if (*subfield) {
 				if (strlen(subfield) > MAX_MOB_NAME)
 					subfield[MAX_MOB_NAME - 1] = '\0';
-				mob->player_data.PNames[ECase::kAcc] = subfield;
+				mob->player_data.PNames[grammar::ECase::kAcc] = subfield;
 			}
 			else
 				snprintf(str, str_size, "%s", GET_PAD(mob, 3));
@@ -2377,7 +2393,7 @@ void find_replacement(void *go,
 			if (*subfield) {
 				if (strlen(subfield) > MAX_MOB_NAME)
 					subfield[MAX_MOB_NAME - 1] = '\0';
-				mob->player_data.PNames[ECase::kIns] = subfield;
+				mob->player_data.PNames[grammar::ECase::kIns] = subfield;
 			}
 			else
 				snprintf(str, str_size, "%s", GET_PAD(mob, 4));
@@ -2386,7 +2402,7 @@ void find_replacement(void *go,
 			if (*subfield) {
 				if (strlen(subfield) > MAX_MOB_NAME)
 					subfield[MAX_MOB_NAME - 1] = '\0';
-				mob->player_data.PNames[ECase::kPre] = subfield;
+				mob->player_data.PNames[grammar::ECase::kPre] = subfield;
 			}
 			else
 				snprintf(str, str_size, "%s", GET_PAD(mob, 5));
@@ -2425,7 +2441,7 @@ void find_replacement(void *go,
 		else if (!str_cmp(field, "level"))
 			snprintf(str, str_size, "%d", GetRealLevel(mob));
 		else if (!str_cmp(field, "remort")) {
-			snprintf(str, str_size, "%d", GetRealRemort(mob));
+			snprintf(str, str_size, "%d", remort::GetRealRemort(mob));
 		} else if (!str_cmp(field, "hitp")) {
 			if (*subfield)
 				mob->set_hit((int) std::max(long(1), gm_char_field(mob, field, subfield, (long) mob->get_hit())));
@@ -2547,11 +2563,11 @@ void find_replacement(void *go,
 		} else if (!str_cmp(field, "align")) {
 			if (*subfield) {
 				if (*subfield == '-')
-					GET_ALIGNMENT(mob) -= std::max(1, atoi(subfield + 1));
+					alignment::SetAlignment(mob, alignment::GetAlignment(mob) - std::max(1, atoi(subfield + 1)));
 				else if (*subfield == '+')
-					GET_ALIGNMENT(mob) += std::max(1, atoi(subfield + 1));
+					alignment::SetAlignment(mob, alignment::GetAlignment(mob) + std::max(1, atoi(subfield + 1)));
 			} else
-				snprintf(str, str_size, "%d", GET_ALIGNMENT(mob));
+				snprintf(str, str_size, "%d", alignment::GetAlignment(mob));
 		} else if (!str_cmp(field, "religion")) {
 			if (*subfield && ((atoi(subfield) == kReligionPoly) || (atoi(subfield) == kReligionMono)))
 				GET_RELIGION(mob) = atoi(subfield);
@@ -2581,7 +2597,7 @@ void find_replacement(void *go,
 						GET_PAD(mob, 0),
 						GET_ROOM_VNUM(mob->in_room),
 						value,
-						GetDeclensionInNumber(value, EWhat::kTorcU),
+						grammar::GetDeclensionInNumber(value, grammar::EWhat::kTorcU),
 						GET_TRIG_NAME(trig),
 						GET_TRIG_VNUM(trig));
 				mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
@@ -2628,12 +2644,12 @@ void find_replacement(void *go,
 								}
 							}
 							snprintf(buf, sizeof(buf), "Вы разделили %d %s на %d  -  по %d каждому.\r\n",
-									val, GetDeclensionInNumber(val, EWhat::kNogataU), num, share);
+									val, grammar::GetDeclensionInNumber(val, grammar::EWhat::kNogataU), num, share);
 							SendMsgToChar(buf, mob);
 							if (rest > 0) {
 								SendMsgToChar(mob, "Как истинный еврей вы оставили %d %s (которые не смогли разделить нацело) себе.\r\n",
 											  rest,
-											  GetDeclensionInNumber(rest, EWhat::kNogataU));
+											  grammar::GetDeclensionInNumber(rest, grammar::EWhat::kNogataU));
 							}
 							mob->add_nogata(share+rest);
 						}
@@ -2657,7 +2673,7 @@ void find_replacement(void *go,
 						GET_PAD(mob, 0),
 						GET_ROOM_VNUM(mob->in_room),
 						value,
-						GetDeclensionInNumber(value, EWhat::kMoneyU),
+						grammar::GetDeclensionInNumber(value, grammar::EWhat::kMoneyU),
 						GET_TRIG_NAME(trig),
 						GET_TRIG_VNUM(trig));
 				mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
@@ -2687,7 +2703,7 @@ void find_replacement(void *go,
 		} else if (!str_cmp(field, "exp") || !str_cmp(field, "questbodrich")) {
 			if (!str_cmp(field, "questbodrich")) {
 				if (*subfield) {
-					if (IS_CHARMICE(mob)) {
+					if (IsCharmice(mob)) {
 //						SendMsgToChar(mob->get_master(), "Квест чармисом, берем мастера\r\n");
 						mob->get_master()->dquest(atoi(subfield));
 					}
@@ -2748,25 +2764,27 @@ void find_replacement(void *go,
 			else
 				snprintf(str, str_size, "0");
 		} else if (!str_cmp(field, "m"))
-			snprintf(str, str_size, "%s", HMHR(mob));
+			snprintf(str, str_size, "%s", grammar::DativePronoun((mob)->get_sex()));
 		else if (!str_cmp(field, "s"))
-			snprintf(str, str_size, "%s", HSHR(mob));
+			snprintf(str, str_size, "%s", grammar::PossessivePronoun((mob)->get_sex()));
 		else if (!str_cmp(field, "e"))
-			snprintf(str, str_size, "%s", HSSH(mob));
+			snprintf(str, str_size, "%s", grammar::PersonalPronoun((mob)->get_sex()));
 		else if (!str_cmp(field, "g"))
-			snprintf(str, str_size, "%s", GET_CH_SUF_1(mob));
+			snprintf(str, str_size, "%s", grammar::SexEnding((mob)->get_sex(), 1));
 		else if (!str_cmp(field, "w"))
-			snprintf(str, str_size, "%s", GET_CH_SUF_3(mob));
+			snprintf(str, str_size, "%s", grammar::SexEnding((mob)->get_sex(), 3));
 		else if (!str_cmp(field, "q"))
-			snprintf(str, str_size, "%s", GET_CH_SUF_4(mob));
+			snprintf(str, str_size, "%s", grammar::SexEnding((mob)->get_sex(), 4));
 		else if (!str_cmp(field, "y"))
-			snprintf(str, str_size, "%s", GET_CH_SUF_5(mob));
+			snprintf(str, str_size, "%s", grammar::SexEnding((mob)->get_sex(), 5));
 		else if (!str_cmp(field, "a"))
-			snprintf(str, str_size, "%s", GET_CH_SUF_6(mob));
+			snprintf(str, str_size, "%s", grammar::SexEnding((mob)->get_sex(), 6));
 		else if (!str_cmp(field, "r"))
-			snprintf(str, str_size, "%s", GET_CH_SUF_7(mob));
+			snprintf(str, str_size, "%s", grammar::SexEnding((mob)->get_sex(), 7));
 		else if (!str_cmp(field, "x"))
-			snprintf(str, str_size, "%s", GET_CH_SUF_8(mob));
+			snprintf(str, str_size, "%s", grammar::SexEnding((mob)->get_sex(), 8));
+		else if (!str_cmp(field, "h"))                                   // issue.mag-points
+			snprintf(str, str_size, "%s", grammar::InstrEnding((mob)->get_sex()));
 		else if (!str_cmp(field, "weight"))
 			snprintf(str, str_size, "%d", GET_WEIGHT(mob));
 		else if (!str_cmp(field, "CarryWeight"))
@@ -2775,13 +2793,13 @@ void find_replacement(void *go,
 			snprintf(str, str_size, "%d", CAN_CARRY_W(mob));
 		else if (!str_cmp(field, "CanBeSeen")) {
 			// С аргументом %char.canbeseen(<смотрящий>)% - видит ли указанный
-			// персонаж этого (CAN_SEE учитывает слепоту/невидимость/темноту).
+			// персонаж этого (sight::CanSee учитывает слепоту/невидимость/темноту).
 			// Без аргумента сохраняем прежнее поведение: в MOB_TRIGGER проверяем
 			// видимость мобом-хозяином триггера, иначе считаем видимым.
 			CharData *viewer = *subfield ? get_char(subfield) : nullptr;
 			if (viewer) {
-				snprintf(str, str_size, CAN_SEE(viewer, mob) ? "1" : "0");
-			} else if ((type == MOB_TRIGGER) && !CAN_SEE(((CharData *) go), mob)) {
+				snprintf(str, str_size, sight::CanSee(viewer, mob) ? "1" : "0");
+			} else if ((type == MOB_TRIGGER) && !sight::CanSee(((CharData *) go), mob)) {
 				snprintf(str, str_size, "0");
 			} else {
 				snprintf(str, str_size, "1");
@@ -2801,7 +2819,7 @@ void find_replacement(void *go,
 				snprintf(str, str_size, "0");
 			}
 		} else if (!str_cmp(field, "ischarmice")) {
-			if (IS_CHARMICE(mob)) {
+			if (IsCharmice(mob)) {
 				snprintf(str, str_size, "1");
 			} else {
 				snprintf(str, str_size, "0");
@@ -2930,12 +2948,12 @@ void find_replacement(void *go,
 				}
 			}
 		} else if (!str_cmp(field, "riding")) {
-			if (mob->has_horse(false)) {
-				snprintf(str, str_size, "%c%ld", uid_type, (mob->get_horse())->get_uid());
+			if (mount::HasHorse(mob, false)) {
+				snprintf(str, str_size, "%c%ld", uid_type, (mount::GetHorse(mob))->get_uid());
 			}
 		} else if (!str_cmp(field, "riddenby")) {
-			if (IS_HORSE(mob) && mob->get_master()->IsOnHorse()
-				&& ((mob->get_master()->get_horse())->get_uid() == mob->get_uid())) {
+			if (mount::IsHorse(mob) && mount::IsOnHorse(mob->get_master())
+				&& ((mount::GetHorse(mob->get_master()))->get_uid() == mob->get_uid())) {
 				snprintf(str, str_size, "%c%ld", UID_CHAR, (mob->get_master())->get_uid());
 			}
 		} else if (!str_cmp(field, "realroom")) {
@@ -3072,9 +3090,9 @@ void find_replacement(void *go,
 					snprintf(str, str_size, "%d", static_cast<int>(mob->GetPosition()));
 				} else {
 					auto pos = std::clamp(static_cast<EPosition>(atoi(subfield)), EPosition::kPerish, --EPosition::kLast);
-					if (!mob->IsImmortal()) {
-						if (mob->IsOnHorse()) {
-							mob->dismount();
+					if (!privilege::IsImmortal(mob)) {
+						if (mount::IsOnHorse(mob)) {
+							mount::Dismount(mob);
 						}
 						mob->SetPosition(pos);
 					}
@@ -3084,7 +3102,7 @@ void find_replacement(void *go,
 
 				if (!*subfield || (pos = atoi(subfield)) <= 0) {
 					snprintf(str, str_size, "%d", mob->get_wait());
-				} else if (!mob->IsImmortal()) {
+				} else if (!privilege::IsImmortal(mob)) {
 					char tmp;
 					if (sscanf(subfield, "%d %c", &pos, &tmp) == 2) {
 						if (tmp == 'p') {
@@ -3092,7 +3110,7 @@ void find_replacement(void *go,
 						}
 					}
 					else {
-						SetWaitState(mob, pos * kBattleRound);
+						SetBattleLag(mob, pos);
 					}
 				}
 			} else if (!str_cmp(field, "applyvalue")) {
@@ -3194,15 +3212,15 @@ void find_replacement(void *go,
 					// %actor.leader(UID)% -- установить следование за указанным
 					// персонажем (по UID или имени), как делает команда follow (#3398).
 					CharData *new_leader = get_char(subfield);
-					if (new_leader && new_leader != mob && !circle_follow(mob, new_leader)) {
+					if (new_leader && new_leader != mob && !follow::CircleFollow(mob, new_leader)) {
 						if (mob->has_master()) {
-							stop_follower(mob, kSfEmpty);
+							follow::StopFollower(mob, follow::kSfEmpty);
 						}
 						mob->removeGroupFlags();
 						for (auto *f : mob->followers) {
 							f->removeGroupFlags();
 						}
-						new_leader->add_follower(mob);
+						follow::AddFollower(new_leader, mob);
 						// возвращаем UID нового лидера (если следование удалось установить)
 						if (mob->get_master() == new_leader) {
 							snprintf(str, str_size, "%c%ld", uid_type, new_leader->get_uid());
@@ -3348,38 +3366,38 @@ void find_replacement(void *go,
 				}
 			}
 		} else if (!str_cmp(field, "iname")) {
-			if (!obj->get_PName(ECase::kNom).empty()) {
-				snprintf(str, str_size, "%s", obj->get_PName(ECase::kNom).c_str());
+			if (!obj->get_PName(grammar::ECase::kNom).empty()) {
+				snprintf(str, str_size, "%s", obj->get_PName(grammar::ECase::kNom).c_str());
 			} else {
 				snprintf(str, str_size, "%s", obj->get_aliases().c_str());
 			}
 		} else if (!str_cmp(field, "rname")) {
-			if (!obj->get_PName(ECase::kGen).empty()) {
-				snprintf(str, str_size, "%s", obj->get_PName(ECase::kGen).c_str());
+			if (!obj->get_PName(grammar::ECase::kGen).empty()) {
+				snprintf(str, str_size, "%s", obj->get_PName(grammar::ECase::kGen).c_str());
 			} else {
 				snprintf(str, str_size, "%s", obj->get_aliases().c_str());
 			}
 		} else if (!str_cmp(field, "dname")) {
-			if (!obj->get_PName(ECase::kDat).empty()) {
-				snprintf(str, str_size, "%s", obj->get_PName(ECase::kDat).c_str());
+			if (!obj->get_PName(grammar::ECase::kDat).empty()) {
+				snprintf(str, str_size, "%s", obj->get_PName(grammar::ECase::kDat).c_str());
 			} else {
 				snprintf(str, str_size, "%s", obj->get_aliases().c_str());
 			}
 		} else if (!str_cmp(field, "vname")) {
-			if (!obj->get_PName(ECase::kAcc).empty()) {
-				snprintf(str, str_size, "%s", obj->get_PName(ECase::kAcc).c_str());
+			if (!obj->get_PName(grammar::ECase::kAcc).empty()) {
+				snprintf(str, str_size, "%s", obj->get_PName(grammar::ECase::kAcc).c_str());
 			} else {
 				snprintf(str, str_size, "%s", obj->get_aliases().c_str());
 			}
 		} else if (!str_cmp(field, "tname")) {
-			if (!obj->get_PName(ECase::kIns).empty()) {
-				snprintf(str, str_size, "%s", obj->get_PName(ECase::kIns).c_str());
+			if (!obj->get_PName(grammar::ECase::kIns).empty()) {
+				snprintf(str, str_size, "%s", obj->get_PName(grammar::ECase::kIns).c_str());
 			} else {
 				snprintf(str, str_size, "%s", obj->get_aliases().c_str());
 			}
 		} else if (!str_cmp(field, "pname")) {
-			if (!obj->get_PName(ECase::kPre).empty()) {
-				snprintf(str, str_size, "%s", obj->get_PName(ECase::kPre).c_str());
+			if (!obj->get_PName(grammar::ECase::kPre).empty()) {
+				snprintf(str, str_size, "%s", obj->get_PName(grammar::ECase::kPre).c_str());
 			} else {
 				snprintf(str, str_size, "%s", obj->get_aliases().c_str());
 			}
@@ -3414,7 +3432,7 @@ void find_replacement(void *go,
 					&& !AFF_FLAGGED(viewer, EAffect::kBlind)
 					&& (!is_dark(viewer->in_room)
 						|| obj->has_flag(EObjFlag::kGlow)
-						|| CAN_SEE_IN_DARK(viewer)
+						|| sight::CanSeeInDark(viewer)
 						|| CanUseFeat(viewer, EFeat::kDarkReading));
 			}
 			snprintf(str, str_size, seen ? "1" : "0");
@@ -3627,17 +3645,19 @@ void find_replacement(void *go,
 				*str = '\0';
 			}
 		} else if (!str_cmp(field, "g"))
-			snprintf(str, str_size, "%s", GET_OBJ_SUF_1(obj));
+			snprintf(str, str_size, "%s", grammar::ObjSexEnding((obj)->get_sex(), 1));
 		else if (!str_cmp(field, "q"))
-			snprintf(str, str_size, "%s", GET_OBJ_SUF_4(obj));
+			snprintf(str, str_size, "%s", grammar::ObjSexEnding((obj)->get_sex(), 4));
 		else if (!str_cmp(field, "u"))
-			snprintf(str, str_size, "%s", GET_OBJ_SUF_2(obj));
+			snprintf(str, str_size, "%s", grammar::ObjSexEnding((obj)->get_sex(), 2));
 		else if (!str_cmp(field, "w"))
-			snprintf(str, str_size, "%s", GET_OBJ_SUF_3(obj));
+			snprintf(str, str_size, "%s", grammar::ObjSexEnding((obj)->get_sex(), 3));
 		else if (!str_cmp(field, "y"))
-			snprintf(str, str_size, "%s", GET_OBJ_SUF_5(obj));
+			snprintf(str, str_size, "%s", grammar::ObjSexEnding((obj)->get_sex(), 5));
 		else if (!str_cmp(field, "a"))
-			snprintf(str, str_size, "%s", GET_OBJ_SUF_6(obj));
+			snprintf(str, str_size, "%s", grammar::ObjSexEnding((obj)->get_sex(), 6));
+		else if (!str_cmp(field, "h"))                                   // issue.mag-points
+			snprintf(str, str_size, "%s", grammar::InstrEnding((obj)->get_sex()));
 		else if (!str_cmp(field, "sex"))
 			snprintf(str, str_size, "%d", (int) GET_OBJ_SEX(obj));
 		else if (!str_cmp(field, "room")) {
@@ -3906,9 +3926,17 @@ void find_replacement(void *go,
 				auto &stone = MUD::Runestones().FindRunestone(room->vnum);
 				auto mod = atoi(subfield);
 				stone.SetEnabled(mod);
+				MUD::Runestones().RefreshStoneObject(stone);   // sync the physical stone's room desc
+				MUD::Runestones().SaveState();                 // persist the damaged flag across reboots
+
 				auto msg = fmt::format("Runestone in room {} toggled to {}.",
 								   room->vnum, mod ? "Enabled" : "Disabled");
 				trig_log(trig, msg.c_str());
+			} else {
+				// getter: 1 = healthy, 0 = damaged, -1 = no runestone in this room
+				const auto &stone = MUD::Runestones().FindRunestone(room->vnum);
+				const int state = !stone.IsAllowed() ? -1 : (stone.IsEnabled() ? 1 : 0);
+				snprintf(str, str_size, "%d", state);
 			}
 		} else if (!str_cmp(field, "char")
 			|| !str_cmp(field, "pc")

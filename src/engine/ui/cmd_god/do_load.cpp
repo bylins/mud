@@ -31,7 +31,7 @@ void DoLoad(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 	}
 	int first = atoi(buf2) / 100;
 
-	if (!ch->IsImmortal() && GET_OLC_ZONE(ch) != first) {
+	if (!privilege::IsImmortal(ch) && GET_OLC_ZONE(ch) != first) {
 		SendMsgToChar("Доступ к данной зоне запрещен!\r\n", ch);
 		return;
 	}

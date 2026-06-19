@@ -1,4 +1,5 @@
 #include "utils/utils.h"
+#include "utils/utils_encoding.h"
 
 #include <gtest/gtest.h>
 
@@ -8,7 +9,7 @@
 std::string Utf8ToKoi(const char* utf8_input)
 {
 	char output[1024] = {0};
-	utf8_to_koi(const_cast<char*>(utf8_input), output);
+	codepages::utf8_to_koi(const_cast<char*>(utf8_input), output);
 	return std::string(output);
 }
 

@@ -1,4 +1,5 @@
 #include "engine/entities/char_data.h"
+#include "administration/privilege.h"
 #include "skill_messages.h"
 #include "engine/db/global_objects.h"
 #include "engine/core/utils_char_obj.inl"
@@ -83,7 +84,7 @@ void DoArmoring(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				false, ch, obj, nullptr, kToRoom | kToArenaListen);
 			break;
 
-		default: sprintf(buf, "К сожалению, %s сделан из неподходящего материала.\r\n", OBJN(obj, ch, ECase::kNom));
+		default: sprintf(buf, "К сожалению, %s сделан из неподходящего материала.\r\n", OBJN(obj, ch, grammar::ECase::kNom));
 			SendMsgToChar(buf, ch);
 			return;
 	}
@@ -91,7 +92,7 @@ void DoArmoring(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	percent = number(1, MUD::Skills()[ESkill::kArmoring].difficulty);
 	prob = CalcCurrentSkill(ch, ESkill::kArmoring, nullptr);
 	TrainSkill(ch, ESkill::kArmoring, percent <= prob, nullptr);
-	add_ac = ch->IsImmortal() ? -20 : -number(1, (GetRealLevel(ch) + 4) / 5);
+	add_ac = privilege::IsImmortal(ch) ? -20 : -number(1, (GetRealLevel(ch) + 4) / 5);
 	if (percent > prob || GET_GOD_FLAG(ch, EGf::kGodscurse)) {
 		act("Но только испортили $S.", false, ch, obj, nullptr, kToChar);
 		add_ac = -add_ac;

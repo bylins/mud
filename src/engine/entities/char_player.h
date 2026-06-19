@@ -23,7 +23,6 @@
 #include "gameplay/core/reset_stats.h"
 #include "gameplay/communication/boards/boards_types.h"
 #include "engine/ui/cmd/do_mercenary.h"
-#include "gameplay/economics/ext_money.h"
 
 // кол-во сохраняемых стартовых статов в файле
 const int START_STATS_TOTAL = 6;
@@ -115,11 +114,6 @@ class Player : public CharData {
 	void map_text_olc(const char *arg);
 	const MapSystem::Options *get_map_options() const;
 
-	int get_ext_money(unsigned type) const;
-	void set_ext_money(unsigned type, int num, bool write_log = true);
-	int get_today_torc();
-	void add_today_torc(int num);
-
 	int get_reset_stats_cnt(stats_reset::Type type) const;
 	void inc_reset_stats_cnt(stats_reset::Type type);
 
@@ -210,10 +204,6 @@ class Player : public CharData {
 	bool motion_;
 	// опции отрисовки режима карты
 	MapSystem::Options map_options_;
-	// доп. валюты (гривны)
-	std::array<int, ExtMoney::kTotalTypes> ext_money_;
-	// сколько гривн, в пересчете на бронзу, сегодня уже собрано
-	std::pair<uint8_t /* day 1-31 */, int> today_torc_;
 	// кол-во сбросов характеристик через меню
 	std::array<int, stats_reset::Type::TOTAL_NUM> reset_stats_cnt_;
 	// временнЫе отметки о прочитанных сообщениях на досках

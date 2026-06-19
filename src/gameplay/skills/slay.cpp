@@ -3,6 +3,7 @@
 //
 
 #include "slay.h"
+#include "administration/privilege.h"
 #include "skill_messages.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/fight/pk.h"
@@ -105,11 +106,11 @@ void do_slay(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Вы не можете потрошить врагов и при этом осторожничать!\r\n", ch);
 		return;
 	}
-	if (!ch->IsImmortal() && !(GET_EQ(ch, EEquipPos::kWield) || GET_EQ(ch, EEquipPos::kBoths))) {
+	if (!privilege::IsImmortal(ch) && !(GET_EQ(ch, EEquipPos::kWield) || GET_EQ(ch, EEquipPos::kBoths))) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kSlay, ESkillMsg::kNeedWeapon) + "\r\n", ch);
 		return;
 	}
-	if (!(AFF_FLAGGED(vict, EAffect::kConfused) || ch->IsImmortal())) {
+	if (!(AFF_FLAGGED(vict, EAffect::kConfused) || privilege::IsImmortal(ch))) {
 		SendMsgToChar("Это не так просто! Сначала попробуйте обескуражить противника!\r\n", ch);
 		return;
 	}
@@ -121,7 +122,7 @@ void do_slay(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	if (!check_pkill(ch, vict, arg))
 		return;
-	if (ch->IsImpl() || !ch->GetEnemy()) {
+	if (privilege::IsImpl(ch) || !ch->GetEnemy()) {
 		go_slay(ch, vict);
 	} else if (IsHaveNoExtraAttack(ch)) {
 		if (!ch->IsNpc())

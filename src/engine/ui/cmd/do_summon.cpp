@@ -7,12 +7,13 @@
 */
 
 #include "engine/entities/char_data.h"
+#include "gameplay/mechanics/mount.h"
 #include "engine/core/handler.h"
 #include "gameplay/mechanics/sight.h"
 
 void do_summon(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	CharData *horse = nullptr;
-	horse = ch->get_horse();
+	horse = mount::GetHorse(ch);
 	if (!horse) {
 		SendMsgToChar("У вас нет скакуна!\r\n", ch);
 		return;
@@ -27,7 +28,7 @@ void do_summon(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	act("$n исчез$q в голубом пламени.", true, horse, nullptr, nullptr, kToRoom);
 	RemoveCharFromRoom(horse);
 	PlaceCharToRoom(horse, ch->in_room);
-	look_at_room(horse, 0);
+	sight::look_at_room(horse, 0);
 	act("$n появил$u из голубого пламени!", true, horse, nullptr, nullptr, kToRoom);
 }
 

@@ -7,6 +7,10 @@
 */
 
 #include "engine/core/iosystem.h"
+#include "administration/privilege.h"
+#include "utils/utils_encoding.h"
+#include "utils/grammar/gender.h"
+#include "gameplay/mechanics/sight.h"
 
 #include "engine/entities/char_data.h"
 #include "engine/core/handler.h"
@@ -391,7 +395,7 @@ int process_input(DescriptorData *t) {
 			} else if (isascii(*ptr) && isprint(*ptr)) {
 				*(write_point++) = *ptr;
 				space_left--;
-				if (*ptr == '$' &&  t->state != EConState::kSedit)    // copy one character
+				if (*ptr == '$' &&  t->state != EConState::kSedit && t->state != EConState::kVedun)    // copy one character
 				{
 					*(write_point++) = '$';    // if it's a $, double it
 					space_left--;
@@ -403,15 +407,15 @@ int process_input(DescriptorData *t) {
 					case 0:
 					case kCodePageUTF8: *(write_point++) = *ptr;
 						break;
-					case kCodePageAlt: *(write_point++) = AtoK(*ptr);
+					case kCodePageAlt: *(write_point++) = codepages::AtoK(*ptr);
 						break;
 					case kCodePageWin:
 					case kCodePageWinz:
-					case kCodePageWinzZ: *(write_point++) = WtoK(*ptr);
+					case kCodePageWinzZ: *(write_point++) = codepages::WtoK(*ptr);
 						if (*ptr == (char) 255 && *(ptr + 1) == (char) 255 && ptr + 1 < nl_pos)
 							ptr++;
 						break;
-					case kCodePageWinzOld: *(write_point++) = WtoK(*ptr);
+					case kCodePageWinzOld: *(write_point++) = codepages::WtoK(*ptr);
 						break;
 				}
 				space_left--;
@@ -441,7 +445,7 @@ int process_input(DescriptorData *t) {
 			for (i = 0; i < kMaxSockBuf * 2 * 3; i++) {
 				utf8_tmp[i] = 0;
 			}
-			utf8_to_koi(tmp, utf8_tmp);
+			codepages::utf8_to_koi(tmp, utf8_tmp);
 			len_o = strlen(utf8_tmp);
 			strncpy(tmp, utf8_tmp, kMaxInputLength - 1);
 			space_left = space_left + len_i - len_o;
@@ -1122,7 +1126,7 @@ std::string MakePrompt(DescriptorData *d) {
 		}
 
 		if (ch->IsFlagged(EPrf::kDispExp)) {
-			if (ch->IsImmortal()) {
+			if (privilege::IsImmortal(ch.get())) {
 				fmt::format_to(std::back_inserter(out), "??? ");
 			} else {
 				fmt::format_to(std::back_inserter(out), "{}o ",
@@ -1246,7 +1250,7 @@ char *show_state(CharData *ch, CharData *victim) {
 	const int ch_hp = posi_value(victim->get_hit(), victim->get_real_max_hit()) + 1;
 	sprintf(buf, "%s&q[%s:%s%s]%s&Q ",
 			GetWarmValueColor(victim->get_hit(), victim->get_real_max_hit()),
-			PERS(victim, ch, 0), WORD_STATE[ch_hp], GET_CH_SUF_6(victim), kColorNrm);
+			sight::PersonName(victim, ch, 0), WORD_STATE[ch_hp], grammar::SexEnding((victim)->get_sex(), 6), kColorNrm);
 	return buf;
 }
 

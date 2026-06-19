@@ -7,6 +7,9 @@
 */
 
 #include "engine/ui/cmd/do_follow.h"
+#include "gameplay/mechanics/minions.h"
+#include "gameplay/mechanics/follow.h"
+#include "gameplay/mechanics/portal.h"
 #include "engine/scripting/dg_db_scripts.h"
 #include "dungeons.h"
 #include "engine/core/handler.h"
@@ -238,12 +241,12 @@ void CreateBlankObjsDungeon() {
 			obj->set_aliases("новый предмет");
 			obj->set_description("что-то новое лежит здесь");
 			obj->set_short_description("новый предмет");
-			obj->set_PName(ECase::kNom, "это что");
-			obj->set_PName(ECase::kGen, "нету чего");
-			obj->set_PName(ECase::kDat, "привязать к чему");
-			obj->set_PName(ECase::kAcc, "взять что");
-			obj->set_PName(ECase::kIns, "вооружиться чем");
-			obj->set_PName(ECase::kPre, "говорить о чем");
+			obj->set_PName(grammar::ECase::kNom, "это что");
+			obj->set_PName(grammar::ECase::kGen, "нету чего");
+			obj->set_PName(grammar::ECase::kDat, "привязать к чему");
+			obj->set_PName(grammar::ECase::kAcc, "взять что");
+			obj->set_PName(grammar::ECase::kIns, "вооружиться чем");
+			obj->set_PName(grammar::ECase::kPre, "говорить о чем");
 			obj->set_wear_flags(to_underlying(EWearFlag::kTake));
 			obj_proto.add(obj, obj_vnum);
 		}
@@ -272,7 +275,7 @@ void CreateBlankMobsDungeon() {
 			new_proto[rnum].set_npc_name("пустой моб");
 			new_proto[rnum].SetCharAliases("моб");
 			new_proto[rnum].SetNpcAttribute(true);
-			new_proto[rnum].player_data.PNames[ECase::kNom] = "пустой моб";
+			new_proto[rnum].player_data.PNames[grammar::ECase::kNom] = "пустой моб";
 			new_index[rnum].total_online = 0;
 			new_index[rnum].stored = 0;
 			new_index[rnum].func = nullptr;
@@ -550,7 +553,7 @@ void MobDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 		mob_index[mrn_to] = mob_index[i];
 		mob_index[mrn_to].zone = zrn_to;
 		mob_index[mrn_to].vnum = zone_table[zrn_to].vnum * 100 + mob_index[i].vnum % 100;
-		if (mob_index[i].func == shop_ext) {
+		if (specials::IsMobSpecial(mob_index[i].vnum, specials::ESpecial::kShop)) {
 			AddDungeonShopSeller(i, mrn_to);
 		}
 		for (auto &it : mob_proto[mrn_to].dl_list) {
@@ -833,14 +836,14 @@ void ClearRoom(RoomData *room) {
 		RoomRnum to_room;
 
 		for (const auto vict : people_copy) {
-			if (IS_CHARMICE(vict)) {
+			if (IsCharmice(vict)) {
 				if (vict->get_master() && !vict->get_master()->IsNpc())
 					continue;
 			}
 			if (vict->IsNpc()) {
 				if (!vict->followers.empty()
 					|| vict->has_master()) {
-					die_follower(vict);
+					follow::DieFollower(vict);
 				}
 				if (!vict->purged()) {
 					ExtractCharFromWorld(vict, false);
@@ -851,7 +854,7 @@ void ClearRoom(RoomData *room) {
 					to_room = GetRoomRnum(calc_loadroom(vict));
 				}
 				PlaceCharToRoom(vict, to_room);
-				look_at_room(vict, to_room);
+				sight::look_at_room(vict, to_room);
 			}
 		}
 		people_copy = room->people;
@@ -918,7 +921,7 @@ void MobDataFree(ZoneRnum zrn) {
 	ZoneVnum zvn = zone_table[zrn].vnum;
 
 	for (MobRnum mrn = 0; mrn <= 99; mrn++) {
-		if (mob_index[mrn_start + mrn].func == shop_ext) {
+		if (specials::IsMobSpecial(mob_index[mrn_start + mrn].vnum, specials::ESpecial::kShop)) {
 			RemoveShopSeller(mrn_start + mrn);
 		}
 		mob_proto[mrn_start + mrn].proto_script->clear();
@@ -957,12 +960,12 @@ void ObjDataFree(ZoneRnum zrn) {
 			obj->set_aliases("новый предмет");
 			obj->set_description("что-то новое лежит здесь");
 			obj->set_short_description("новый предмет");
-			obj->set_PName(ECase::kNom, "это что");
-			obj->set_PName(ECase::kGen, "нету чего");
-			obj->set_PName(ECase::kDat, "привязать к чему");
-			obj->set_PName(ECase::kAcc, "взять что");
-			obj->set_PName(ECase::kIns, "вооружиться чем");
-			obj->set_PName(ECase::kPre, "говорить о чем");
+			obj->set_PName(grammar::ECase::kNom, "это что");
+			obj->set_PName(grammar::ECase::kGen, "нету чего");
+			obj->set_PName(grammar::ECase::kDat, "привязать к чему");
+			obj->set_PName(grammar::ECase::kAcc, "взять что");
+			obj->set_PName(grammar::ECase::kIns, "вооружиться чем");
+			obj->set_PName(grammar::ECase::kPre, "говорить о чем");
 			obj->set_wear_flags(to_underlying(EWearFlag::kTake));
 			obj->set_parent_rnum(-1);
 			obj->clear_proto_script();
@@ -1019,7 +1022,7 @@ void AddDungeonShopSeller(MobRnum mrn_from, MobRnum mrn_to) {
 	for (const auto &shop : shop_list) {
 		if (std::find(shop->mob_vnums().begin(), shop->mob_vnums().end(), mvn_from) != std::end(shop->mob_vnums())) {
 			shop->add_mob_vnum(mob_index[mrn_to].vnum);
-			mob_index[mrn_to].func = shop_ext;
+			specials::RegisterMob(mob_index[mrn_to].vnum, specials::ESpecial::kShop);
 		}
 	}
 }
@@ -1031,7 +1034,7 @@ void RemoveShopSeller(MobRnum mrn) {
 		auto it = std::find(shop->mob_vnums().begin(), shop->mob_vnums().end(), mvn);
 		if (it != std::end(shop->mob_vnums())) {
 			shop->remove_mob_vnum(it);
-			mob_index[mrn].func = nullptr;
+			specials::UnregisterMob(mob_index[mrn].vnum, specials::ESpecial::kShop);
 		}
 	}
 }

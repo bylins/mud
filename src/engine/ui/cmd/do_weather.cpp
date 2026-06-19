@@ -7,6 +7,8 @@
 */
 
 #include "engine/entities/char_data.h"
+#include "administration/privilege.h"
+#include "utils/grammar/declensions.h"
 #include "gameplay/mechanics/weather.h"
 
 void do_weather(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
@@ -35,7 +37,7 @@ void do_weather(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 				(weather_info.change >=
 					0 ? "Атмосферное давление повышается." : "Атмосферное давление понижается."));
 		sprintf(buf + strlen(buf), "На дворе %d %s.\r\n",
-				weather_info.temperature, GetDeclensionInNumber(weather_info.temperature, EWhat::kDegree));
+				weather_info.temperature, grammar::GetDeclensionInNumber(weather_info.temperature, grammar::EWhat::kDegree));
 
 		if (IS_SET(weather_info.weather_type, kWeatherBigwind))
 			strcat(buf, "Сильный ветер.\r\n");
@@ -64,7 +66,7 @@ void do_weather(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 	} else {
 		SendMsgToChar("Вы ничего не можете сказать о погоде сегодня.\r\n", ch);
 	}
-	if (ch->IsGod()) {
+	if (privilege::IsGod(ch)) {
 		sprintf(buf, "День: %d Месяц: %s Час: %d Такт = %d\r\n"
 					 "Температура =%-5d, за день = %-8d, за неделю = %-8d\r\n"
 					 "Давление    =%-5d, за день = %-8d, за неделю = %-8d\r\n"

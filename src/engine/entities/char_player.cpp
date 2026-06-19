@@ -3,6 +3,9 @@
 // Part of Bylins http://www.mud.ru
 
 #include "char_player.h"
+#include "administration/privilege.h"
+#include "gameplay/mechanics/condition.h"
+#include "utils/grammar/declensions.h"
 
 #include <sys/stat.h>
 
@@ -19,7 +22,6 @@
 #include "engine/db/global_objects.h"
 #include "gameplay/affects/affect_handler.h"
 #include "gameplay/mechanics/player_races.h"
-#include "gameplay/economics/ext_money.h"
 #include "gameplay/magic/magic_temp_spells.h"
 #include "administration/accounts.h"
 #include "gameplay/mechanics/liquid.h"
@@ -29,6 +31,7 @@
 #include "engine/ui/cmd/do_who.h"
 #include "engine/ui/mapsystem.h"
 #include "engine/db/player_index.h"
+#include "gameplay/core/remort.h"
 
 #ifdef _WIN32
 #else
@@ -75,10 +78,6 @@ Player::Player() :
 	// с учетом того, что здесь у нас абсолютно пустой плеер и внутри set_morph
 	// на деле инит ровно тоже самое, может на перспективу это все было
 	//set_morph(NormalMorph::GetNormalMorph(this));
-
-	for (unsigned i = 0; i < ext_money_.size(); ++i) {
-		ext_money_[i] = 0;
-	}
 
 	for (unsigned i = 0; i < reset_stats_cnt_.size(); ++i) {
 		reset_stats_cnt_.at(i) = 0;
@@ -216,12 +215,12 @@ void Player::sub_nogata(int value) {
 void Player::add_nogata(int value) {
 	this->nogata += value;
 	SendMsgToChar(this, "Вы получили %ld %s.\r\n", static_cast<long>(value),
-				  GetDeclensionInNumber(value, EWhat::kNogataU));
+				  grammar::GetDeclensionInNumber(value, grammar::EWhat::kNogataU));
 
 }
 
 void Player::add_hryvn(int value) {
-	if (GetRealRemort(this) < 6) {
+	if (remort::GetRealRemort(this) < 6) {
 		SendMsgToChar(this, "Глянув на непонятный слиток, Вы решили выкинуть его...\r\n");
 		return;
 	} 
@@ -232,10 +231,10 @@ void Player::add_hryvn(int value) {
 	if ((this->get_hryvn() + value) > cap_hryvn) {
 		value = cap_hryvn - this->get_hryvn();
 		SendMsgToChar(this, "Вы получили только %ld %s, так как в вашу копилку больше не лезет...\r\n",
-					  static_cast<long>(value), GetDeclensionInNumber(value, EWhat::kTorcU));
+					  static_cast<long>(value), grammar::GetDeclensionInNumber(value, grammar::EWhat::kTorcU));
 	} else if (value > 0) {
 		SendMsgToChar(this, "Вы получили %ld %s.\r\n",
-					  static_cast<long>(value), GetDeclensionInNumber(value, EWhat::kTorcU));
+					  static_cast<long>(value), grammar::GetDeclensionInNumber(value, grammar::EWhat::kTorcU));
 	} else if (value == 0) {
 		return;
 	}
@@ -262,7 +261,7 @@ void Player::dquest(const int id) {
 	const int zone_lvl = zone_table[world[this->in_room]->zone_rn].mob_level;
 	value = this->account->zero_hryvn(this, value);
 	if (zone_lvl < 25
-		&& zone_lvl <= (GetRealLevel(this) + GetRealRemort(this) / 5)) {
+		&& zone_lvl <= (GetRealLevel(this) + remort::GetRealRemort(this) / 5)) {
 		value /= 2;
 	}
 	this->add_hryvn(value);
@@ -513,7 +512,7 @@ void Player::save_char() {
 	saved.printf("Wate: %d\n", GET_WEIGHT(this));
 	saved.printf("Size: %d\n", GET_SIZE(this));
 	// структуры
-	saved.printf("Alin: %d\n", GET_ALIGNMENT(this));
+	saved.printf("Alin: %d\n", alignment::GetAlignment(this));
 	*buf = '\0';
 	AFF_FLAGS(this).tascii(FlagData::kPlanesNumber, buf, sizeof(buf));
 	saved.printf("Aff : %s\n", buf);
@@ -642,7 +641,7 @@ void Player::save_char() {
 	saved.printf("ICur: %d\n", get_ice_currency());
 	saved.printf("Ruble: %ld\n", get_ruble());
 	saved.printf("Wimp: %d\n", GET_WIMP_LEV(this));
-	saved.printf("Frez: %d\n", GET_FREEZE_LEV(this));
+	saved.printf("Frez: %d\n", punishments::Get(this, punishments::EType::kFreeze).level);
 	saved.printf("Invs: %d\n", GET_INVIS_LEV(this));
 	saved.printf("Room: %d\n", GET_LOADROOM(this));
 //	li = this->player_data.time.birth;
@@ -658,11 +657,11 @@ void Player::save_char() {
 		saved.printf("St%02d: %i\n", i, this->get_start_stat(i));
 
 	if (GetRealLevel(this) < kLvlImmortal)
-		saved.printf("Hung: %d\n", GET_COND(this, FULL));
+		saved.printf("Hung: %d\n", GET_COND(this, condition::kFull));
 	if (GetRealLevel(this) < kLvlImmortal)
-		saved.printf("Thir: %d\n", GET_COND(this, THIRST));
+		saved.printf("Thir: %d\n", GET_COND(this, condition::kThirst));
 	if (GetRealLevel(this) < kLvlImmortal)
-		saved.printf("Drnk: %d\n", GET_COND(this, DRUNK));
+		saved.printf("Drnk: %d\n", GET_COND(this, condition::kDrunk));
 
 	saved.printf("Reli: %d %s\n", GET_RELIGION(this), religion_name[GET_RELIGION(this)][(int) this->get_sex()]);
 	saved.printf(
@@ -676,55 +675,55 @@ void Player::save_char() {
 	saved.printf("Pref: %s\n", buf);
 	saved.printf("MgSh: %d\n", static_cast<int>(GetBriefShieldsMode()));
 
-	if (MUTE_DURATION(this) > 0 && this->IsFlagged(EPlrFlag::kMuted))
+	if (punishments::Get(this, punishments::EType::kMute).duration > 0 && this->IsFlagged(EPlrFlag::kMuted))
 		saved.printf(
 				"PMut: %ld %d %ld %s~\n",
-				MUTE_DURATION(this),
-				GET_MUTE_LEV(this),
-				MUTE_GODID(this),
-				MUTE_REASON(this));
-	if (NAME_DURATION(this) > 0 && this->IsFlagged(EPlrFlag::kNameDenied))
+				punishments::Get(this, punishments::EType::kMute).duration,
+				punishments::Get(this, punishments::EType::kMute).level,
+				punishments::Get(this, punishments::EType::kMute).godid,
+				punishments::Get(this, punishments::EType::kMute).reason);
+	if (punishments::Get(this, punishments::EType::kName).duration > 0 && this->IsFlagged(EPlrFlag::kNameDenied))
 		saved.printf(
 				"PNam: %ld %d %ld %s~\n",
-				NAME_DURATION(this),
-				GET_NAME_LEV(this),
-				NAME_GODID(this),
-				NAME_REASON(this));
-	if (DUMB_DURATION(this) > 0 && this->IsFlagged(EPlrFlag::kDumbed))
+				punishments::Get(this, punishments::EType::kName).duration,
+				punishments::Get(this, punishments::EType::kName).level,
+				punishments::Get(this, punishments::EType::kName).godid,
+				punishments::Get(this, punishments::EType::kName).reason);
+	if (punishments::Get(this, punishments::EType::kDumb).duration > 0 && this->IsFlagged(EPlrFlag::kDumbed))
 		saved.printf(
 				"PDum: %ld %d %ld %s~\n",
-				DUMB_DURATION(this),
-				GET_DUMB_LEV(this),
-				DUMB_GODID(this),
-				DUMB_REASON(this));
-	if (HELL_DURATION(this) > 0 && this->IsFlagged(EPlrFlag::kHelled))
+				punishments::Get(this, punishments::EType::kDumb).duration,
+				punishments::Get(this, punishments::EType::kDumb).level,
+				punishments::Get(this, punishments::EType::kDumb).godid,
+				punishments::Get(this, punishments::EType::kDumb).reason);
+	if (punishments::Get(this, punishments::EType::kHell).duration > 0 && this->IsFlagged(EPlrFlag::kHelled))
 		saved.printf(
 				"PHel: %ld %d %ld %s~\n",
-				HELL_DURATION(this),
-				GET_HELL_LEV(this),
-				HELL_GODID(this),
-				HELL_REASON(this));
-	if (GCURSE_DURATION(this) > 0)
+				punishments::Get(this, punishments::EType::kHell).duration,
+				punishments::Get(this, punishments::EType::kHell).level,
+				punishments::Get(this, punishments::EType::kHell).godid,
+				punishments::Get(this, punishments::EType::kHell).reason);
+	if (punishments::Get(this, punishments::EType::kGcurse).duration > 0)
 		saved.printf(
 				"PGcs: %ld %d %ld %s~\n",
-				GCURSE_DURATION(this),
-				GET_GCURSE_LEV(this),
-				GCURSE_GODID(this),
-				GCURSE_REASON(this));
-	if (FREEZE_DURATION(this) > 0 && this->IsFlagged(EPlrFlag::kFrozen))
+				punishments::Get(this, punishments::EType::kGcurse).duration,
+				punishments::Get(this, punishments::EType::kGcurse).level,
+				punishments::Get(this, punishments::EType::kGcurse).godid,
+				punishments::Get(this, punishments::EType::kGcurse).reason);
+	if (punishments::Get(this, punishments::EType::kFreeze).duration > 0 && this->IsFlagged(EPlrFlag::kFrozen))
 		saved.printf(
 				"PFrz: %ld %d %ld %s~\n",
-				FREEZE_DURATION(this),
-				GET_FREEZE_LEV(this),
-				FREEZE_GODID(this),
-				FREEZE_REASON(this));
-	if (UNREG_DURATION(this) > 0)
+				punishments::Get(this, punishments::EType::kFreeze).duration,
+				punishments::Get(this, punishments::EType::kFreeze).level,
+				punishments::Get(this, punishments::EType::kFreeze).godid,
+				punishments::Get(this, punishments::EType::kFreeze).reason);
+	if (punishments::Get(this, punishments::EType::kUnreg).duration > 0)
 		saved.printf(
 				"PUnr: %ld %d %ld %s~\n",
-				UNREG_DURATION(this),
-				GET_UNREG_LEV(this),
-				UNREG_GODID(this),
-				UNREG_REASON(this));
+				punishments::Get(this, punishments::EType::kUnreg).duration,
+				punishments::Get(this, punishments::EType::kUnreg).level,
+				punishments::Get(this, punishments::EType::kUnreg).godid,
+				punishments::Get(this, punishments::EType::kUnreg).reason);
 
 	if (KARMA(this)) {
 		snprintf(buf, sizeof(buf), "%s", KARMA(this));
@@ -764,9 +763,15 @@ void Player::save_char() {
 		saved.printf("Affs:\n");
 		for (auto &aff : tmp_aff) {
 			if (aff->type >= ESpell::kFirst) {
-				saved.printf("%d %d %d %d %d %d %s\n", to_underlying(aff->type), aff->duration,
-						aff->modifier, aff->location, static_cast<int>(aff->bitvector),
-						static_cast<int>(aff->battleflag), MUD::Spell(aff->type).GetCName());
+				// Поля после battleflag: potency (сила наложения), debuff (1 -- дебафф, 0 -- бафф)
+				// и stacks (число стаков, issue.affect-stacks). Имя заклинания идёт последним как
+				// читаемый комментарий и при загрузке игнорируется.
+				// (merge: master switched to buffered saved.printf API; phase-1 work keeps
+				// the extended schema -- affect_type / potency / debuff / stacks fields)
+				saved.printf("%d %d %d %d %d %d %f %d %d %s\n", to_underlying(aff->type), aff->duration,
+						aff->modifier, aff->location, static_cast<int>(aff->affect_type),
+						static_cast<int>(aff->battleflag), aff->potency, static_cast<int>(aff->debuff),
+						aff->stacks, MUD::Spell(aff->type).GetCName());
 			}
 		}
 		saved.printf("0 0 0 0 0 0\n");
@@ -832,7 +837,7 @@ void Player::save_char() {
 	i = 0;
 	if (!this->followers.empty()
 		&& CanUseFeat(this, EFeat::kEmployer)
-		&& !this->IsImmortal()) {
+		&& !privilege::IsImmortal(this)) {
 		CharData *found_follower = nullptr;
 		for (auto *k : this->followers) {
 			if (k
@@ -865,10 +870,6 @@ void Player::save_char() {
 	this->mobmax_save(saved);
 	save_pkills(this, saved);
 	saved.printf("Map : %s\n", map_options_.bit_list_.to_string().c_str());
-	saved.printf("TrcG: %d\n", ext_money_[ExtMoney::kTorcGold]);
-	saved.printf("TrcS: %d\n", ext_money_[ExtMoney::kTorcSilver]);
-	saved.printf("TrcB: %d\n", ext_money_[ExtMoney::kTorcBronze]);
-	saved.printf("TrcL: %d %d\n", today_torc_.first, today_torc_.second);
 
 	if (get_reset_stats_cnt(stats_reset::Type::MAIN_STATS) > 0) {
 		saved.printf("CntS: %d\n", get_reset_stats_cnt(stats_reset::Type::MAIN_STATS));
@@ -885,7 +886,7 @@ void Player::save_char() {
 	auto it = this->charmeeHistory.begin();
 	if (this->charmeeHistory.size() > 0 &&
 		(IS_SPELL_SET(this, ESpell::kCharm, ESpellType::kKnow) ||
-		CanUseFeat(this, EFeat::kEmployer) || this->IsImmortal())) {
+		CanUseFeat(this, EFeat::kEmployer) || privilege::IsImmortal(this))) {
 		saved.printf("Chrm:\n");
 		for (; it != this->charmeeHistory.end(); ++it) {
 			saved.printf("%d %d %d %d %d %d\n",
@@ -943,7 +944,7 @@ void Player::save_char() {
 	if (i >= 0) {
 		player_table[i].last_logon = this->get_last_logon();
 		player_table[i].level = GetRealLevel(this);
-		player_table[i].remorts = GetRealRemort(this);
+		player_table[i].remorts = remort::GetRealRemort(this);
 		player_table[i].mail = GET_EMAIL(this);
 		player_table[i].set_uid(this->get_uid());
 		player_table[i].plr_class = GetClass();
@@ -1159,7 +1160,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 	MemQ_init(this);
 
 	GET_AC(this) = 10;
-	GET_ALIGNMENT(this) = 0;
+	alignment::SetAlignment(this, 0);
 	GET_BAD_PWS(this) = 0;
 	this->player_data.time.birth = time(0);
 	GET_KIN(this) = 0;
@@ -1171,44 +1172,44 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 	this->set_wis(10);
 	this->set_cha(10);
 
-	GET_COND(this, DRUNK) = 0;
+	GET_COND(this, condition::kDrunk) = 0;
 	GET_DRUNK_STATE(this) = 0;
 
 // Punish Init
-	DUMB_DURATION(this) = 0;
-	DUMB_REASON(this) = 0;
-	GET_DUMB_LEV(this) = 0;
-	DUMB_GODID(this) = 0;
+	punishments::Get(this, punishments::EType::kDumb).duration = 0;
+	punishments::Get(this, punishments::EType::kDumb).reason = 0;
+	punishments::Get(this, punishments::EType::kDumb).level = 0;
+	punishments::Get(this, punishments::EType::kDumb).godid = 0;
 
-	MUTE_DURATION(this) = 0;
-	MUTE_REASON(this) = 0;
-	GET_MUTE_LEV(this) = 0;
-	MUTE_GODID(this) = 0;
+	punishments::Get(this, punishments::EType::kMute).duration = 0;
+	punishments::Get(this, punishments::EType::kMute).reason = 0;
+	punishments::Get(this, punishments::EType::kMute).level = 0;
+	punishments::Get(this, punishments::EType::kMute).godid = 0;
 
-	HELL_DURATION(this) = 0;
-	HELL_REASON(this) = 0;
-	GET_HELL_LEV(this) = 0;
-	HELL_GODID(this) = 0;
+	punishments::Get(this, punishments::EType::kHell).duration = 0;
+	punishments::Get(this, punishments::EType::kHell).reason = 0;
+	punishments::Get(this, punishments::EType::kHell).level = 0;
+	punishments::Get(this, punishments::EType::kHell).godid = 0;
 
-	FREEZE_DURATION(this) = 0;
-	FREEZE_REASON(this) = 0;
-	GET_FREEZE_LEV(this) = 0;
-	FREEZE_GODID(this) = 0;
+	punishments::Get(this, punishments::EType::kFreeze).duration = 0;
+	punishments::Get(this, punishments::EType::kFreeze).reason = 0;
+	punishments::Get(this, punishments::EType::kFreeze).level = 0;
+	punishments::Get(this, punishments::EType::kFreeze).godid = 0;
 
-	GCURSE_DURATION(this) = 0;
-	GCURSE_REASON(this) = 0;
-	GET_GCURSE_LEV(this) = 0;
-	GCURSE_GODID(this) = 0;
+	punishments::Get(this, punishments::EType::kGcurse).duration = 0;
+	punishments::Get(this, punishments::EType::kGcurse).reason = 0;
+	punishments::Get(this, punishments::EType::kGcurse).level = 0;
+	punishments::Get(this, punishments::EType::kGcurse).godid = 0;
 
-	NAME_DURATION(this) = 0;
-	NAME_REASON(this) = 0;
-	GET_NAME_LEV(this) = 0;
-	NAME_GODID(this) = 0;
+	punishments::Get(this, punishments::EType::kName).duration = 0;
+	punishments::Get(this, punishments::EType::kName).reason = 0;
+	punishments::Get(this, punishments::EType::kName).level = 0;
+	punishments::Get(this, punishments::EType::kName).godid = 0;
 
-	UNREG_DURATION(this) = 0;
-	UNREG_REASON(this) = 0;
-	GET_UNREG_LEV(this) = 0;
-	UNREG_GODID(this) = 0;
+	punishments::Get(this, punishments::EType::kUnreg).duration = 0;
+	punishments::Get(this, punishments::EType::kUnreg).reason = 0;
+	punishments::Get(this, punishments::EType::kUnreg).level = 0;
+	punishments::Get(this, punishments::EType::kUnreg).godid = 0;
 
 // End punish init
 
@@ -1222,7 +1223,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 	this->set_max_hit(21);
 	GET_HEIGHT(this) = 50;
 	GET_HR(this) = 0;
-	GET_COND(this, FULL) = 0;
+	GET_COND(this, condition::kFull) = 0;
 	SET_INVIS_LEV(this, 0);
 	this->player_data.time.logon = time(0);
 	this->set_move(44);
@@ -1239,7 +1240,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 	GET_RELIGION(this) = 1;
 	GET_RACE(this) = 1;
 	this->set_sex(EGender::kNeutral);
-	GET_COND(this, THIRST) = kNormCondition;
+	GET_COND(this, condition::kThirst) = kNormCondition;
 	GET_WEIGHT(this) = 50;
 	GET_WIMP_LEV(this) = 0;
 	this->player_specials->saved.pref.from_string("");    // suspicious line: we should clear flags.. Loading from "" does not clear flags.
@@ -1279,18 +1280,33 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 					i = 0;
 					do {
 						fbgetline(fl, line);
-						sscanf(line, "%d %d %d %d %d %d", &num, &num2, &num3, &num4, &num5, &num6);
+						// New saves carry extra fields after battleflag: potency (float), debuff (0/1)
+						// and stacks (issue.affect-stacks). Old saves parse fewer fields -> the
+						// missing ones keep their defaults (potency 0, debuff false, stacks 1). The
+						// trailing spell name is ignored.
+						float af_potency = 0.0f;
+						int af_debuff = 0;
+						int af_stacks = 1;
+						const int parsed = sscanf(line, "%d %d %d %d %d %d %f %d %d",
+								&num, &num2, &num3, &num4, &num5, &num6, &af_potency, &af_debuff, &af_stacks);
 						if (num > 0) {
 							Affect<EApply> af;
-							af.type = static_cast<ESpell>(num);;
+							af.type = static_cast<ESpell>(num);
 							af.duration = num2;
 							af.modifier = num3;
 							af.location = static_cast<EApply>(num4);
-							af.bitvector = num5;
+							af.affect_type = static_cast<EAffect>(num5);
 							af.battleflag = num6;
-							if (af.type == ESpell::kCombatLuck) {
-								af.handler.reset(new CombatLuckAffectHandler());
+							if (parsed >= 8) {
+								af.potency = af_potency;
+								af.debuff = (af_debuff != 0);
 							}
+							if (parsed >= 9) {
+								af.stacks = std::max(1, af_stacks);
+							}
+//							if (af.type == ESpell::kCombatLuck) {
+//								af.handler.reset(new CombatLuckAffectHandler());
+//							}
 							affect_to_char(this, af);
 							i++;
 						}
@@ -1298,7 +1314,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 					std::reverse(affected.begin(), affected.end());
 					/* do not load affects */
 				} else if (!strcmp(tag, "Alin")) {
-					GET_ALIGNMENT(this) = num;
+					alignment::SetAlignment(this, num);
 				}
 				break;
 
@@ -1392,7 +1408,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 				} else if (!strcmp(tag, "Dex "))
 					this->set_dex(num);
 				else if (!strcmp(tag, "Drnk"))
-					GET_COND(this, DRUNK) = num;
+					GET_COND(this, condition::kDrunk) = num;
 				else if (!strcmp(tag, "DrSt"))
 					GET_DRUNK_STATE(this) = num;
 				else if (!strcmp(tag, "Drol"))
@@ -1437,7 +1453,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 			case 'F':
 				// Оставлено для совместимости со старым форматом наказаний
 				if (!strcmp(tag, "Frez"))
-					GET_FREEZE_LEV(this) = num;
+					punishments::Get(this, punishments::EType::kFreeze).level = num;
 				else if (!strcmp(tag, "Feat")) {
 					do {
 						fbgetline(fl, line);
@@ -1466,12 +1482,12 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 				if (!strcmp(tag, "Gold")) {
 					set_gold(lnum, false);
 				} else if (!strcmp(tag, "GodD"))
-					GCURSE_DURATION(this) = lnum;
+					punishments::Get(this, punishments::EType::kGcurse).duration = lnum;
 				else if (!strcmp(tag, "GdFl"))
 					this->player_specials->saved.GodsLike = lnum;
 					// added by WorM (Видолюб) 2010.06.04 бабки потраченные на найм(возвращаются при креше)
 				else if (!strcmp(tag, "GldH")) {
-					if (num != 0 && !this->IsImmortal() && CanUseFeat(this, EFeat::kEmployer)) {
+					if (num != 0 && !privilege::IsImmortal(this) && CanUseFeat(this, EFeat::kEmployer)) {
 						this->player_specials->saved.HiredCost = num;
 					}
 				}
@@ -1488,7 +1504,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 				else if (!strcmp(tag, "Hrol"))
 					GET_HR(this) = num;
 				else if (!strcmp(tag, "Hung"))
-					GET_COND(this, FULL) = num;
+					GET_COND(this, condition::kFull) = num;
 				else if (!strcmp(tag, "Hry ")) {
 					if (num > cap_hryvn)
 						num = cap_hryvn;
@@ -1579,19 +1595,19 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 				break;
 			case 'N':
 				if (!strcmp(tag, "NmI "))
-					this->player_data.PNames[ECase::kNom] = std::string(line);
+					this->player_data.PNames[grammar::ECase::kNom] = std::string(line);
 				else if (!strcmp(tag, "NmR "))
-					this->player_data.PNames[ECase::kGen] = std::string(line);
+					this->player_data.PNames[grammar::ECase::kGen] = std::string(line);
 				else if (!strcmp(tag, "NmD "))
-					this->player_data.PNames[ECase::kDat] = std::string(line);
+					this->player_data.PNames[grammar::ECase::kDat] = std::string(line);
 				else if (!strcmp(tag, "NmV "))
-					this->player_data.PNames[ECase::kAcc] = std::string(line);
+					this->player_data.PNames[grammar::ECase::kAcc] = std::string(line);
 				else if (!strcmp(tag, "NmT "))
-					this->player_data.PNames[ECase::kIns] = std::string(line);
+					this->player_data.PNames[grammar::ECase::kIns] = std::string(line);
 				else if (!strcmp(tag, "NmP "))
-					this->player_data.PNames[ECase::kPre] = std::string(line);
+					this->player_data.PNames[grammar::ECase::kPre] = std::string(line);
 				else if (!strcmp(tag, "NamD"))
-					NAME_DURATION(this) = lnum;
+					punishments::Get(this, punishments::EType::kName).duration = lnum;
 				else if (!strcmp(tag, "NamG"))
 					(this)->player_specials->saved.NameGod = num;
 				else if (!strcmp(tag, "NaID"))
@@ -1652,46 +1668,46 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 					// Loads Here new punishment strings
 				} else if (!strcmp(tag, "PMut")) {
 					sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &buf[0]);
-					MUTE_DURATION(this) = lnum;
-					GET_MUTE_LEV(this) = num2;
-					MUTE_GODID(this) = lnum3;
-					MUTE_REASON(this) = str_dup(buf);
+					punishments::Get(this, punishments::EType::kMute).duration = lnum;
+					punishments::Get(this, punishments::EType::kMute).level = num2;
+					punishments::Get(this, punishments::EType::kMute).godid = lnum3;
+					punishments::Get(this, punishments::EType::kMute).reason = str_dup(buf);
 				} else if (!strcmp(tag, "PHel")) {
 					sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &buf[0]);
-					HELL_DURATION(this) = lnum;
-					GET_HELL_LEV(this) = num2;
-					HELL_GODID(this) = lnum3;
-					HELL_REASON(this) = str_dup(buf);
+					punishments::Get(this, punishments::EType::kHell).duration = lnum;
+					punishments::Get(this, punishments::EType::kHell).level = num2;
+					punishments::Get(this, punishments::EType::kHell).godid = lnum3;
+					punishments::Get(this, punishments::EType::kHell).reason = str_dup(buf);
 				} else if (!strcmp(tag, "PDum")) {
 					sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &buf[0]);
-					DUMB_DURATION(this) = lnum;
-					GET_DUMB_LEV(this) = num2;
-					DUMB_GODID(this) = lnum3;
-					DUMB_REASON(this) = str_dup(buf);
+					punishments::Get(this, punishments::EType::kDumb).duration = lnum;
+					punishments::Get(this, punishments::EType::kDumb).level = num2;
+					punishments::Get(this, punishments::EType::kDumb).godid = lnum3;
+					punishments::Get(this, punishments::EType::kDumb).reason = str_dup(buf);
 				} else if (!strcmp(tag, "PNam")) {
 					sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &buf[0]);
-					NAME_DURATION(this) = lnum;
-					GET_NAME_LEV(this) = num2;
-					NAME_GODID(this) = lnum3;
-					NAME_REASON(this) = str_dup(buf);
+					punishments::Get(this, punishments::EType::kName).duration = lnum;
+					punishments::Get(this, punishments::EType::kName).level = num2;
+					punishments::Get(this, punishments::EType::kName).godid = lnum3;
+					punishments::Get(this, punishments::EType::kName).reason = str_dup(buf);
 				} else if (!strcmp(tag, "PFrz")) {
 					sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &buf[0]);
-					FREEZE_DURATION(this) = lnum;
-					GET_FREEZE_LEV(this) = num2;
-					FREEZE_GODID(this) = lnum3;
-					FREEZE_REASON(this) = str_dup(buf);
+					punishments::Get(this, punishments::EType::kFreeze).duration = lnum;
+					punishments::Get(this, punishments::EType::kFreeze).level = num2;
+					punishments::Get(this, punishments::EType::kFreeze).godid = lnum3;
+					punishments::Get(this, punishments::EType::kFreeze).reason = str_dup(buf);
 				} else if (!strcmp(tag, "PGcs")) {
 					sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &buf[0]);
-					GCURSE_DURATION(this) = lnum;
-					GET_GCURSE_LEV(this) = num2;
-					GCURSE_GODID(this) = lnum3;
-					GCURSE_REASON(this) = str_dup(buf);
+					punishments::Get(this, punishments::EType::kGcurse).duration = lnum;
+					punishments::Get(this, punishments::EType::kGcurse).level = num2;
+					punishments::Get(this, punishments::EType::kGcurse).godid = lnum3;
+					punishments::Get(this, punishments::EType::kGcurse).reason = str_dup(buf);
 				} else if (!strcmp(tag, "PUnr")) {
 					sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &buf[0]);
-					UNREG_DURATION(this) = lnum;
-					GET_UNREG_LEV(this) = num2;
-					UNREG_GODID(this) = lnum3;
-					UNREG_REASON(this) = str_dup(buf);
+					punishments::Get(this, punishments::EType::kUnreg).duration = lnum;
+					punishments::Get(this, punishments::EType::kUnreg).level = num2;
+					punishments::Get(this, punishments::EType::kUnreg).godid = lnum3;
+					punishments::Get(this, punishments::EType::kUnreg).reason = str_dup(buf);
 				}
 
 				break;
@@ -1845,20 +1861,10 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 
 			case 'T':
 				if (!strcmp(tag, "Thir"))
-					GET_COND(this, THIRST) = num;
+					GET_COND(this, condition::kThirst) = num;
 				else if (!strcmp(tag, "Titl"))
 					this->SetTitleStr(line);
-				else if (!strcmp(tag, "TrcG"))
-					set_ext_money(ExtMoney::kTorcGold, num, false);
-				else if (!strcmp(tag, "TrcS"))
-					set_ext_money(ExtMoney::kTorcSilver, num, false);
-				else if (!strcmp(tag, "TrcB"))
-					set_ext_money(ExtMoney::kTorcBronze, num, false);
-				else if (!strcmp(tag, "TrcL")) {
-					sscanf(line, "%d %d", &num, &num2);
-					today_torc_.first = num;
-					today_torc_.second = num2;
-				} else if (!strcmp(tag, "Tglo")) {
+				else if (!strcmp(tag, "Tglo")) {
 					this->setGloryRespecTime(static_cast<time_t>(num));
 				} else if (!strcmp(tag, "Tlgr")) {
 					if (llnum <= 10000000000000ULL) {
@@ -1903,27 +1909,27 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 	// initialization for imms
 	if (GetRealLevel(this) >= kLvlImmortal) {
 		SetGodSkills(this);
-		GET_COND(this, FULL) = -1;
-		GET_COND(this, THIRST) = -1;
-		GET_COND(this, DRUNK) = -1;
+		GET_COND(this, condition::kFull) = -1;
+		GET_COND(this, condition::kThirst) = -1;
+		GET_COND(this, condition::kDrunk) = -1;
 		GET_LOADROOM(this) = kNowhere;
 	}
 
 //	SetInbornAndRaceFeats(this); ставим в do_entergame
 
-	if (this->IsGrGod()) {
+	if (privilege::IsGrGod(this)) {
 		for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
 			GET_SPELL_TYPE(this, spell_id) = GET_SPELL_TYPE(this, spell_id) |
 				ESpellType::kItemCast | ESpellType::kKnow | ESpellType::kRunes | ESpellType::kScrollCast
 				| ESpellType::kPotionCast | ESpellType::kWandCast;
 		}
-	} else if (!this->IsImmortal()) {
+	} else if (!privilege::IsImmortal(this)) {
 		for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
 			const auto spell = MUD::Class(this->GetClass()).spells[spell_id];
 			if (spell.GetCircle() == kMaxMemoryCircle) {
 				REMOVE_BIT(GET_SPELL_TYPE(this, spell.GetId()), ESpellType::kKnow | ESpellType::kTemp);
 			}
-			if (GetRealRemort(this) < spell.GetMinRemort()) {
+			if (remort::GetRealRemort(this) < spell.GetMinRemort()) {
 				GET_SPELL_MEM(this, spell_id) = 0;
 			}
 		}
@@ -2015,46 +2021,6 @@ void Player::map_print_to_snooper(CharData *imm) {
 	// подменяем флаги карты на снуперские перед распечаткой ему карты
 	MapSystem::print_map(this, imm);
 	map_options_ = tmp;
-}
-
-int Player::get_ext_money(unsigned type) const {
-	if (type < ext_money_.size()) {
-		return ext_money_[type];
-	}
-	return 0;
-}
-
-void Player::set_ext_money(unsigned type, int num, bool write_log) {
-	if (num < 0 || num > kMaxMoneyKept) {
-		return;
-	}
-	if (type < ext_money_.size()) {
-		const int diff = num - ext_money_[type];
-		ext_money_[type] = num;
-		if (diff != 0 && write_log) {
-			ExtMoney::player_drop_log(this, type, diff);
-		}
-	}
-}
-
-int Player::get_today_torc() {
-	uint8_t day = get_day_today();
-	if (today_torc_.first != day) {
-		today_torc_.first = day;
-		today_torc_.second = 0;
-	}
-
-	return today_torc_.second;
-}
-
-void Player::add_today_torc(int num) {
-	uint8_t day = get_day_today();
-	if (today_torc_.first == day) {
-		today_torc_.second += num;
-	} else {
-		today_torc_.first = day;
-		today_torc_.second = num;
-	}
 }
 
 int Player::get_reset_stats_cnt(stats_reset::Type type) const {

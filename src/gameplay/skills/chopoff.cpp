@@ -1,4 +1,6 @@
 #include "chopoff.h"
+#include "administration/privilege.h"
+#include "gameplay/mechanics/mount.h"
 
 #include "skill_messages.h"
 
@@ -10,6 +12,12 @@
 #include "engine/ui/color.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/mechanics/sight.h"
+
+// issue.chardata-cleaning: was the global CLEAR_MIND (only used here).
+static bool ClearMind(const CharData *ch) {
+	return !ch->battle_affects.get(kEafOverwhelm) && !ch->battle_affects.get(kEafHammer);
+}
+
 
 // ************************* CHOPOFF PROCEDURES
 void go_chopoff(CharData *ch, CharData *vict) {
@@ -23,7 +31,7 @@ void go_chopoff(CharData *ch, CharData *vict) {
 		return;
 	}
 
-	if (ch->IsHorsePrevents())
+	if (mount::IsBlockedByHorse(ch))
 		return;
 
 	if ((vict->GetPosition() < EPosition::kFight)) {
@@ -51,7 +59,7 @@ void go_chopoff(CharData *ch, CharData *vict) {
 
 	if (GET_GOD_FLAG(ch, EGf::kGodscurse) ||
 		GET_GOD_FLAG(vict, EGf::kGodsLike) ||
-		vict->IsOnHorse() || vict->GetPosition() < EPosition::kFight || vict->IsFlagged(EMobFlag::kNoUndercut) || vict->IsImmortal())
+		mount::IsOnHorse(vict) || vict->GetPosition() < EPosition::kFight || vict->IsFlagged(EMobFlag::kNoUndercut) || privilege::IsImmortal(vict))
 		prob = 0;
 
 	bool success = percent <= prob;
@@ -69,7 +77,7 @@ void go_chopoff(CharData *ch, CharData *vict) {
 			af.type = ESpell::kExpedient;
 			af.location = EApply::kPhysicResist;
 			af.modifier = 50;
-			af.duration = CalcDuration(ch, 3, 0, 0, 0, 0);
+			af.duration = CalcDuration(ch, ch, ESkill::kUndefined, 3, 0, 0, 0);
 			af.battleflag = kAfBattledec | kAfPulsedec;
 			ImposeAffect(ch, af, false, false, false, false);
 			af.location = EApply::kAffectResist;
@@ -81,7 +89,7 @@ void go_chopoff(CharData *ch, CharData *vict) {
 			act("$n покатил$u по земле, пытаясь избежать атак $N1.", true, ch, nullptr, vict, kToNotVict | kToArenaListen);
 		}
 	} else {
-		if (IS_HORSE(vict) && vict->get_master()->IsOnHorse()) {
+		if (mount::IsHorse(vict) && mount::IsOnHorse(vict->get_master())) {
 			CharData *tch = vict->get_master();
 			act("$n ловко подсек$q $N3, заставив $S споткнуться.", true, ch, nullptr, vict, kToNotVict | kToArenaListen);
 			SendMsgToChar(ch, "%sВы провели подсечку, заставив %s споткнуться.%s\r\n",
@@ -91,7 +99,7 @@ void go_chopoff(CharData *ch, CharData *vict) {
 			if (percent < prob) {
 				SendMsgToChar(tch, "Вы смогли удержаться на спине своего скакуна.\r\n");
 			} else {
-				vict->DropFromHorse();
+				mount::DropFromHorse(vict);
 				SetWait(vict, 1, false); //лошади тоже немнога лагу
 			}
 		} else {
@@ -102,15 +110,15 @@ void go_chopoff(CharData *ch, CharData *vict) {
 			SetWait(vict, 3, false);
 			if (ch->isInSameRoom(vict)) {
 				vict->SetPosition(EPosition::kSit);
-				vict->DropFromHorse();
+				mount::DropFromHorse(vict);
 			}
 		}
 		prob = 1;
 	}
-	Appear(ch);
+	sight::Appear(ch);
 	if (!success) {
 		SetWait(ch, prob, false);
-		if (vict->IsNpc() && CAN_SEE(vict, ch) && vict->have_mind() && CLEAR_MIND(vict) && !vict->GetEnemy()) {
+		if (vict->IsNpc() && sight::CanSee(vict, ch) && vict->have_mind() && ClearMind(vict) && !vict->GetEnemy()) {
 			hit(vict, ch, ESkill::kUndefined, AFF_FLAGGED(vict, EAffect::kStopRight) ? fight::kOffHand : fight::kMainHand);
 		}
 	} else {
@@ -150,7 +158,7 @@ void do_chopoff(CharData *ch, CharData *vict) {
 		return;
 	};
 
-	if (ch->IsOnHorse()) {
+	if (mount::IsOnHorse(ch)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kChopoff, ESkillMsg::kCantWhileMounted) + "\r\n", ch);
 		return;
 	}
@@ -160,7 +168,7 @@ void do_chopoff(CharData *ch, CharData *vict) {
 		return;
 	}
 
-	if (ch->IsImpl() || !ch->GetEnemy())
+	if (privilege::IsImpl(ch) || !ch->GetEnemy())
 		go_chopoff(ch, vict);
 	else if (IsHaveNoExtraAttack(ch)) {
 		if (!ch->IsNpc())

@@ -1,4 +1,5 @@
 #include "engine/entities/char_data.h"
+#include "gameplay/mechanics/mount.h"
 #include "engine/core/handler.h"
 
 void DoLightwalk(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
@@ -9,8 +10,8 @@ void DoLightwalk(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if (ch->IsOnHorse()) {
-		act("Позаботьтесь сперва о мягких тапочках для $N3...", false, ch, nullptr, ch->get_horse(), kToChar);
+	if (mount::IsOnHorse(ch)) {
+		act("Позаботьтесь сперва о мягких тапочках для $N3...", false, ch, nullptr, mount::GetHorse(ch), kToChar);
 		return;
 	}
 
@@ -32,15 +33,15 @@ void DoLightwalk(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/)
 	SendMsgToChar("Хорошо, вы попытаетесь идти, не оставляя лишних следов.\r\n", ch);
 	Affect<EApply> af;
 	af.type = ESpell::kLightWalk;
-	af.duration = CalcDuration(ch, 2, GetRealLevel(ch), 5, 2, 8);
+	af.duration = CalcDuration(ch, ch, ESkill::kHide, 2, 13, 2, 8);
 	af.modifier = 0;
 	af.location = EApply::kNone;
 	af.battleflag = 0;
 	if (number(1, 1000) > number(1, GetRealDex(ch) * 50)) {
-		af.bitvector = 0;
+		af.affect_type = EAffect::kUndefined;
 		SendMsgToChar("Вам не хватает ловкости...\r\n", ch);
 	} else {
-		af.bitvector = to_underlying(EAffect::kLightWalk);
+		af.affect_type = EAffect::kLightWalk;
 		SendMsgToChar("Ваши шаги стали легче перышка.\r\n", ch);
 	}
 	affect_to_char(ch, af);

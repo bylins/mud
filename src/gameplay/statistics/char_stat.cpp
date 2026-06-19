@@ -7,6 +7,8 @@
 */
 
 #include "gameplay/statistics/char_stat.h"
+#include "gameplay/mechanics/minions.h"
+#include "gameplay/mechanics/mount.h"
 
 #include "engine/entities/char_data.h"
 #include "engine/ui/table_wrapper.h"
@@ -130,8 +132,8 @@ void CharStat::UpdateOnKill(CharData *ch, CharData *killer, ullong dec_exp) {
 
 	if (rkiller
 		&& rkiller->IsNpc()
-		&& (IS_CHARMICE(rkiller)
-			|| IS_HORSE(rkiller)
+		&& (IsCharmice(rkiller)
+			|| mount::IsHorse(rkiller)
 			|| killer->IsFlagged(EMobFlag::kTutelar)
 			|| killer->IsFlagged(EMobFlag::kMentalShadow))) {
 		if (rkiller->has_master()) {

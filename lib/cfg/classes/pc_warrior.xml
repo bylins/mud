@@ -1,9 +1,5 @@
 <?xml version="1.0" encoding="koi8-r"?>
 <class id="kWarrior">
-    <name abbr="Бг">
-        <singular nom="богатырь" gen="богатыря" dat="богатырю" acc="богатыря" ins="богатырём" pre="богатыре"/>
-        <plural nom="богатыри" gen="богатырей" dat="богатырям" acc="богатырей" ins="богатырями" pre="богатырях"/>
-    </name>
     <stats>
         <base_stats>
             <stat id="kStr"	gen_min="21"	gen_max="25"	auto="25"	cap="90" />

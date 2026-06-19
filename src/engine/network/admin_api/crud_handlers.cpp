@@ -275,7 +275,7 @@ void HandleListMobs(DescriptorData* d, const char* zone_vnum_str)
 
 		json mob_data;
 		mob_data["vnum"] = mob_vnum;
-		mob_data["name"] = admin_api::json::Koi8rToUtf8(mob_proto[i].player_data.PNames[ECase::kNom]);
+		mob_data["name"] = admin_api::json::Koi8rToUtf8(mob_proto[i].player_data.PNames[grammar::ECase::kNom]);
 		mob_data["aliases"] = admin_api::json::Koi8rToUtf8(mob_proto[i].get_npc_name());
 		mob_data["short_desc"] = admin_api::json::Koi8rToUtf8(mob_proto[i].player_data.long_descr);
 		mob_data["level"] = mob_proto[i].GetLevel();
@@ -360,12 +360,12 @@ void HandleCreateMob(DescriptorData* d, int zone_vnum, const char* json_data)
 		mob->set_npc_name("new mob");
 		mob->player_data.long_descr = "A new mob stands here.\r\n";
 		mob->player_data.description = "Unremarkable in every way.\r\n";
-		mob->player_data.PNames[ECase::kNom] = "new mob";
-		mob->player_data.PNames[ECase::kGen] = "new mob";
-		mob->player_data.PNames[ECase::kDat] = "new mob";
-		mob->player_data.PNames[ECase::kAcc] = "new mob";
-		mob->player_data.PNames[ECase::kIns] = "new mob";
-		mob->player_data.PNames[ECase::kPre] = "new mob";
+		mob->player_data.PNames[grammar::ECase::kNom] = "new mob";
+		mob->player_data.PNames[grammar::ECase::kGen] = "new mob";
+		mob->player_data.PNames[grammar::ECase::kDat] = "new mob";
+		mob->player_data.PNames[grammar::ECase::kAcc] = "new mob";
+		mob->player_data.PNames[grammar::ECase::kIns] = "new mob";
+		mob->player_data.PNames[grammar::ECase::kPre] = "new mob";
 		mob->mob_specials.Questor = nullptr;
 
 		// Apply JSON fields
@@ -590,12 +590,12 @@ void HandleCreateObject(DescriptorData* d, int zone_vnum, const char* json_data)
 		obj->set_aliases("new object");
 		obj->set_description("Something new lies here.");
 		obj->set_short_description("new object");
-		obj->set_PName(ECase::kNom, "new object");
-		obj->set_PName(ECase::kGen, "new object");
-		obj->set_PName(ECase::kDat, "new object");
-		obj->set_PName(ECase::kAcc, "new object");
-		obj->set_PName(ECase::kIns, "new object");
-		obj->set_PName(ECase::kPre, "new object");
+		obj->set_PName(grammar::ECase::kNom, "new object");
+		obj->set_PName(grammar::ECase::kGen, "new object");
+		obj->set_PName(grammar::ECase::kDat, "new object");
+		obj->set_PName(grammar::ECase::kAcc, "new object");
+		obj->set_PName(grammar::ECase::kIns, "new object");
+		obj->set_PName(grammar::ECase::kPre, "new object");
 		obj->set_wear_flags(to_underlying(EWearFlag::kTake));
 
 		// Apply JSON fields

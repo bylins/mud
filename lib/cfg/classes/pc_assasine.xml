@@ -1,9 +1,5 @@
 <?xml version="1.0" encoding="koi8-r"?>
 <class id="kAssasine">
-    <name abbr="Нм">
-        <singular nom="наемник" gen="наемника" dat="наемнику" acc="наемника" ins="наемником" pre="наемнике"/>
-        <plural nom="наемники" gen="наемников" dat="наемникам" acc="наемников" ins="наемниками" pre="наемниках"/>
-    </name>
     <stats>
         <base_stats>
             <stat id="kStr"	gen_min="17"	gen_max="22"	auto="22"	cap="75"/>

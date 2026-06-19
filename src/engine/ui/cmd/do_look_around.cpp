@@ -19,10 +19,10 @@ void DoLookAround(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 	else if (AFF_FLAGGED(ch, EAffect::kBlind))
 		SendMsgToChar("Вы ослеплены!\r\n", ch);
 	else {
-		skip_hide_on_look(ch);
+		sight::skip_hide_on_look(ch);
 		SendMsgToChar("Вы посмотрели по сторонам.\r\n", ch);
 		for (i = 0; i < EDirection::kMaxDirNum; i++) {
-			look_in_direction(ch, i, 0);
+			sight::look_in_direction(ch, i, 0);
 		}
 	}
 }

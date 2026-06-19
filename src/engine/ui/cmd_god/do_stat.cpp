@@ -1,9 +1,13 @@
 #include "do_stat.h"
+#include "gameplay/mechanics/condition.h"
+#include "gameplay/mechanics/magic_item.h"
+#include "gameplay/fight/fight_messages.h"
 
 #include "administration/ban.h"
 #include "engine/entities/char_player.h"
 #include "gameplay/mechanics/player_races.h"
 #include "engine/core/utils_char_obj.inl"
+#include "engine/core/target_resolver.h"
 #include "engine/db/description.h"
 #include "gameplay/fight/fight_hit.h"
 #include "engine/olc/olc.h"
@@ -22,7 +26,6 @@
 #include "gameplay/mechanics/noob.h"
 #include "administration/privilege.h"
 #include "gameplay/mechanics/stable_objs.h"
-#include "gameplay/economics/ext_money.h"
 #include "administration/proxy.h"
 #include "gameplay/ai/spec_procs.h"
 #include "gameplay/mechanics/weather.h"
@@ -31,43 +34,37 @@
 #include "gameplay/communication/parcel.h"
 #include "gameplay/mechanics/armor.h"
 #include "engine/db/player_index.h"
+#include "gameplay/core/remort.h"
 
 #include <fmt/format.h>
 #include <fmt/printf.h>
+#include "gameplay/mechanics/sight.h"
 
-extern char *diag_weapon_to_char(const CObjectPrototype *obj, int show_wear);
 
 std::string print_special(CharData *mob) {
+	// issue.specials: identity via the registry; a mob may carry several specials (comma-joined).
 	std::string out;
-
-	if (mob_index[mob->get_rnum()].func) {
-		auto func = mob_index[mob->get_rnum()].func;
-		if (func == shop_ext)
-			out += "торговец";
-		else if (func == receptionist)
-			out += "рентер";
-		else if (func == postmaster)
-			out += "почтальон";
-		else if (func == bank)
-			out += "банкир";
-		else if (func == exchange)
-			out += "зазывала";
-		else if (func == horse_keeper)
-			out += "конюх";
-		else if (func == guilds::GuildInfo::DoGuildLearn)
-			out += "учитель";
-		else if (func == torc)
-			out += "меняла";
-		else if (func == Noob::outfit)
-			out += "нубхелпер";
-		else if (func == mercenary)
-			out += "ватажник";
-		else
-			out += "глюк";
-	} else {
-		out += "нет";
+	for (const auto s : specials::MobSpecials(GET_MOB_VNUM(mob))) {
+		const char *name = "глюк";
+		switch (s) {
+			case specials::ESpecial::kShop: name = "торговец"; break;
+			case specials::ESpecial::kRent: name = "рентер"; break;
+			case specials::ESpecial::kMail: name = "почтальон"; break;
+			case specials::ESpecial::kBank: name = "банкир"; break;
+			case specials::ESpecial::kExchange: name = "зазывала"; break;
+			case specials::ESpecial::kHorse: name = "конюх"; break;
+			case specials::ESpecial::kGuild: name = "учитель"; break;
+			case specials::ESpecial::kTorc: name = "меняла"; break;
+			case specials::ESpecial::kOutfit: name = "нубхелпер"; break;
+			case specials::ESpecial::kMercenary: name = "ватажник"; break;
+			default: break;
+		}
+		if (!out.empty()) {
+			out += ", ";
+		}
+		out += name;
 	}
-	return out;
+	return out.empty() ? "нет" : out;
 }
 
 
@@ -176,50 +173,50 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 		if (k->player_specials->saved.telegram_id != 0)
 			SendMsgToChar(ch, "Подключен Телеграм, chat_id: %lu\r\n", k->player_specials->saved.telegram_id);
 
-		if (k->IsFlagged(EPlrFlag::kFrozen) && FREEZE_DURATION(k)) {
+		if (k->IsFlagged(EPlrFlag::kFrozen) && punishments::Get(k, punishments::EType::kFreeze).duration) {
 			snprintf(buf, sizeof(buf), "Заморожен : %ld час [%s].\r\n",
-					static_cast<long>((FREEZE_DURATION(k) - time(nullptr)) / 3600),
-					FREEZE_REASON(k) ? FREEZE_REASON(k) : "-");
+					static_cast<long>((punishments::Get(k, punishments::EType::kFreeze).duration - time(nullptr)) / 3600),
+					punishments::Get(k, punishments::EType::kFreeze).reason ? punishments::Get(k, punishments::EType::kFreeze).reason : "-");
 			SendMsgToChar(buf, ch);
 		}
-		if (k->IsFlagged(EPlrFlag::kHelled) && HELL_DURATION(k)) {
+		if (k->IsFlagged(EPlrFlag::kHelled) && punishments::Get(k, punishments::EType::kHell).duration) {
 			snprintf(buf, sizeof(buf), "Находится в темнице : %ld час [%s].\r\n",
-					static_cast<long>((HELL_DURATION(k) - time(nullptr)) / 3600),
-					HELL_REASON(k) ? HELL_REASON(k) : "-");
+					static_cast<long>((punishments::Get(k, punishments::EType::kHell).duration - time(nullptr)) / 3600),
+					punishments::Get(k, punishments::EType::kHell).reason ? punishments::Get(k, punishments::EType::kHell).reason : "-");
 			SendMsgToChar(buf, ch);
 		}
-		if (k->IsFlagged(EPlrFlag::kNameDenied) && NAME_DURATION(k)) {
+		if (k->IsFlagged(EPlrFlag::kNameDenied) && punishments::Get(k, punishments::EType::kName).duration) {
 			snprintf(buf, sizeof(buf), "Находится в комнате имени : %ld час.\r\n",
-					static_cast<long>((NAME_DURATION(k) - time(nullptr)) / 3600));
+					static_cast<long>((punishments::Get(k, punishments::EType::kName).duration - time(nullptr)) / 3600));
 			SendMsgToChar(buf, ch);
 		}
-		if (k->IsFlagged(EPlrFlag::kMuted) && MUTE_DURATION(k)) {
+		if (k->IsFlagged(EPlrFlag::kMuted) && punishments::Get(k, punishments::EType::kMute).duration) {
 			snprintf(buf, sizeof(buf), "Будет молчать : %ld час [%s].\r\n",
-					static_cast<long>((MUTE_DURATION(k) - time(nullptr)) / 3600),
-					MUTE_REASON(k) ? MUTE_REASON(k) : "-");
+					static_cast<long>((punishments::Get(k, punishments::EType::kMute).duration - time(nullptr)) / 3600),
+					punishments::Get(k, punishments::EType::kMute).reason ? punishments::Get(k, punishments::EType::kMute).reason : "-");
 			SendMsgToChar(buf, ch);
 		}
-		if (k->IsFlagged(EPlrFlag::kDumbed) && DUMB_DURATION(k)) {
+		if (k->IsFlagged(EPlrFlag::kDumbed) && punishments::Get(k, punishments::EType::kDumb).duration) {
 			snprintf(buf, sizeof(buf), "Будет нем : %ld мин [%s].\r\n",
-					static_cast<long>((DUMB_DURATION(k) - time(nullptr)) / 60),
-					DUMB_REASON(k) ? DUMB_REASON(k) : "-");
+					static_cast<long>((punishments::Get(k, punishments::EType::kDumb).duration - time(nullptr)) / 60),
+					punishments::Get(k, punishments::EType::kDumb).reason ? punishments::Get(k, punishments::EType::kDumb).reason : "-");
 			SendMsgToChar(buf, ch);
 		}
-		if (!k->IsFlagged(EPlrFlag::kRegistred) && UNREG_DURATION(k)) {
+		if (!k->IsFlagged(EPlrFlag::kRegistred) && punishments::Get(k, punishments::EType::kUnreg).duration) {
 			snprintf(buf, sizeof(buf), "Не будет зарегистрирован : %ld час [%s].\r\n",
-					static_cast<long>((UNREG_DURATION(k) - time(nullptr)) / 3600),
-					UNREG_REASON(k) ? UNREG_REASON(k) : "-");
+					static_cast<long>((punishments::Get(k, punishments::EType::kUnreg).duration - time(nullptr)) / 3600),
+					punishments::Get(k, punishments::EType::kUnreg).reason ? punishments::Get(k, punishments::EType::kUnreg).reason : "-");
 			SendMsgToChar(buf, ch);
 		}
 
-		if (GET_GOD_FLAG(k, EGf::kGodsLike) && GCURSE_DURATION(k)) {
+		if (GET_GOD_FLAG(k, EGf::kGodsLike) && punishments::Get(k, punishments::EType::kGcurse).duration) {
 			snprintf(buf, sizeof(buf), "Под защитой Богов : %ld час.\r\n",
-					static_cast<long>((GCURSE_DURATION(k) - time(nullptr)) / 3600));
+					static_cast<long>((punishments::Get(k, punishments::EType::kGcurse).duration - time(nullptr)) / 3600));
 			SendMsgToChar(buf, ch);
 		}
-		if (GET_GOD_FLAG(k, EGf::kGodscurse) && GCURSE_DURATION(k)) {
+		if (GET_GOD_FLAG(k, EGf::kGodscurse) && punishments::Get(k, punishments::EType::kGcurse).duration) {
 			snprintf(buf, sizeof(buf), "Проклят Богами : %ld час.\r\n",
-					static_cast<long>((GCURSE_DURATION(k) - time(nullptr)) / 3600));
+					static_cast<long>((punishments::Get(k, punishments::EType::kGcurse).duration - time(nullptr)) / 3600));
 			SendMsgToChar(buf, ch);
 		}
 	}
@@ -262,7 +259,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 
 	snprintf(buf, sizeof(buf), ", Уровень: [%s%2d%s], Опыт: [%s%10ld%s]%s, Наклонности: [%4d]\r\n",
 			kColorYel, GetRealLevel(k), kColorNrm, kColorYel,
-			k->get_exp(), kColorNrm, tmp_buf, GET_ALIGNMENT(k));
+			k->get_exp(), kColorNrm, tmp_buf, alignment::GetAlignment(k));
 
 	SendMsgToChar(buf, ch);
 
@@ -284,13 +281,9 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 				t1, t2, k->player_data.time.played / 3600, ((k->player_data.time.played % 3600) / 60), CalcCharAge(k)->year);
 		SendMsgToChar(buf, ch);
 
-		k->add_today_torc(0);
 		{
-			std::string sline = fmt::sprintf("Рента: [%d], Денег: [%9ld], В банке: [%9ld] (Всего: %ld), Гривны: %d/%d/%d %d, Ногат: %d",
+			std::string sline = fmt::sprintf("Рента: [%d], Денег: [%9ld], В банке: [%9ld] (Всего: %ld), Гривны: %d, Ногат: %d",
 					GET_LOADROOM(k), k->get_gold(), k->get_bank(), k->get_total_gold(),
-					k->get_ext_money(ExtMoney::kTorcGold),
-					k->get_ext_money(ExtMoney::kTorcSilver),
-					k->get_ext_money(ExtMoney::kTorcBronze),
 					k->get_hryvn(), k->get_nogata());
 			if (GetRealLevel(ch) >= kLvlImmortal) {
 				sline += fmt::sprintf(", %sOLC[%d]%s", kColorGrn, GET_OLC_ZONE(k), kColorNrm);
@@ -388,7 +381,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 				smallBuf, (k->GetEnemy() ? GET_NAME(k->GetEnemy()) : "Нет"), (IsEquipInMetall(k) ? "Да" : "Нет"));
 		if (k->IsNpc()) {
 			sline += ", Тип атаки: ";
-			sline += attack_hit_text[k->mob_specials.attack_type].singular;
+			sline += fight::GetAttackTypeDescription(k->mob_specials.attack_type);
 		}
 		if (k->desc) {
 			sline += ", Соединение: ";
@@ -527,8 +520,11 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 		snprintf(buf, sizeof(buf), "PRF: %s%s%s\r\n", kColorGrn, utils::OutWordsList(out_str, ch->player_specials->saved.stringLength - 10).c_str(), kColorNrm);
 		SendMsgToChar(buf, ch);
 
-		if (ch->IsImpl()) {
+		if (privilege::IsImpl(ch)) {
 			sprintbitwd(k->player_specials->saved.GodsLike, godslike_bits, smallBuf, sizeof(smallBuf), ", ");
+			if (!*smallBuf) {  // sprintbitwd no longer substitutes the "nothing" word; do_stat is an
+				strcpy(smallBuf, "nothing");  // immortal-only command, so a plain English literal is fine
+			}
 			out_str = utils::Split(smallBuf, ',');
 			snprintf(buf, sizeof(buf), "GFL: %s%s%s\r\n", kColorCyn, utils::OutWordsList(out_str, ch->player_specials->saved.stringLength - 10).c_str(), kColorNrm);
 			SendMsgToChar(buf, ch);
@@ -557,7 +553,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 
 	if (!k->IsNpc()) {
 		snprintf(buf, sizeof(buf), "Голод: %d, Жажда: %d, Опьянение: %d\r\n",
-				GET_COND(k, FULL), GET_COND(k, THIRST), GET_COND(k, DRUNK));
+				GET_COND(k, condition::kFull), GET_COND(k, condition::kThirst), GET_COND(k, condition::kDrunk));
 		SendMsgToChar(buf, ch);
 	}
 
@@ -589,7 +585,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 	std::vector<std::string> out_str = utils::Split(smallBuf, ',');
 	sprintf(buf, "Аффекты: %s%s%s\r\n", kColorYel, utils::OutWordsList(out_str, ch->player_specials->saved.stringLength - 10).c_str(), kColorNrm);
 	SendMsgToChar(buf, ch);
-	snprintf(buf, sizeof(buf), "&GПеревоплощений: %d\r\n&n", GetRealRemort(k));
+	snprintf(buf, sizeof(buf), "&GПеревоплощений: %d\r\n&n", remort::GetRealRemort(k));
 	SendMsgToChar(buf, ch);
 	// Routine to show what spells a char is affected by
 	if (!k->affected.empty()) {
@@ -603,10 +599,13 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 			if (has_modifier) {
 				sline += fmt::sprintf("%+d to %s", aff->modifier, apply_types[(int) aff->location]);
 			}
-			if (aff->bitvector) {
+			if (aff->affect_type != EAffect::kUndefined) {
 				sline += has_modifier ? ", sets " : "sets ";
-				sprintbit(aff->bitvector, affected_bits, buf2, sizeof(buf2));
+				sprintbit(to_underlying(aff->affect_type), affected_bits, buf2, sizeof(buf2));
 				sline += buf2;
+			}
+			if (aff->potency != 0.0f) {
+				sline += fmt::sprintf(" [p: %.1f %s]", aff->potency, aff->debuff ? "debuff" : "buff");
 			}
 			sline += "\r\n";
 			SendMsgToChar(sline, ch);
@@ -673,7 +672,7 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 	ObjVnum rnum, vnum;
 	ObjData *j2;
 	long int li;
-	bool is_grgod = (ch->IsGrGod() || ch->IsFlagged(EPrf::kCoderinfo)) ? true : false;
+	bool is_grgod = (privilege::IsGrGod(ch) || ch->IsFlagged(EPrf::kCoderinfo)) ? true : false;
 
 	vnum = GET_OBJ_VNUM(j);
 	rnum = j->get_rnum();
@@ -727,7 +726,7 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 	{
 		SendMsgToChar(ch, ", &Gпадежи отличны от прототипа&n");
 	}
-	SendMsgToChar(ch, "\r\n%s", diag_weapon_to_char(j, 2));
+	SendMsgToChar(ch, "\r\n%s", sight::diag_weapon_to_char(j, 2));
 	snprintf(buf, sizeof(buf), "L-Des: %s\r\n%s",
 			!j->get_description().empty() ? j->get_description().c_str() : "Нет",
 			kColorNrm);
@@ -1027,7 +1026,7 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 			if ((i = GetObjRnum(GET_OBJ_VAL(j, 1))) >= 0) {
 				size_t buf_len = strlen(buf);
 				snprintf(buf + buf_len, sizeof(buf) - buf_len, "\r\nпрототип %s%s%s.",
-						kColorBoldCyn, obj_proto[i]->get_PName(ECase::kNom).c_str(), kColorNrm);
+						kColorBoldCyn, obj_proto[i]->get_PName(grammar::ECase::kNom).c_str(), kColorNrm);
 			}
 			break;
 		case EObjType::kMagicContaner:
@@ -1157,7 +1156,7 @@ void do_stat_room(CharData *ch, const int rnum = 0) {
 		for (auto k_i = rm->people.begin(); k_i != rm->people.end(); ++k_i) {
 			const auto k = *k_i;
 			++counter;
-			if (!CAN_SEE(ch, k)) {
+			if (!sight::CanSee(ch, k)) {
 				continue;
 			}
 			sline += fmt::sprintf("%s %s(%s)", found++ ? "," : "", GET_NAME(k),
@@ -1180,7 +1179,7 @@ void do_stat_room(CharData *ch, const int rnum = 0) {
 		found = 0;
 		for (auto it = rm->contents.begin(); it != rm->contents.end(); ++it) {
 			auto j = *it;
-			if (!CAN_SEE_OBJ(ch, j))
+			if (!sight::CanSeeObj(ch, j))
 				continue;
 			sline += fmt::sprintf("%s %s", found++ ? "," : "", j->get_short_description().c_str());
 			if (sline.size() >= 62) {
@@ -1252,7 +1251,7 @@ void do_stat(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 		SendMsgToChar("Состояние КОГО или ЧЕГО?\r\n", ch);
 		return;
 	}
-	if (*buf1 && ch->IsImmortal()) {
+	if (*buf1 && privilege::IsImmortal(ch)) {
 		if (utils::IsAbbr(buf1, "room") && level >= kLvlBuilder) {
 			int vnum, rnum = kNowhere;
 			if (*buf2 && (vnum = atoi(buf2))) {
@@ -1269,7 +1268,8 @@ void do_stat(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 			if (!*buf2)
 				SendMsgToChar("Состояние какого создания?\r\n", ch);
 			else {
-				if ((victim = get_char_vis(ch, buf2, EFind::kCharInWorld)) != nullptr)
+				victim = target_resolver::FindCharInWorld(ch, buf2);
+				if ((victim != nullptr))
 					do_stat_character(ch, victim, 0);
 				else
 					SendMsgToChar("Нет такого создания в этом МАДе.\r\n", ch);
@@ -1280,7 +1280,7 @@ void do_stat(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 			if (!*buf2) {
 				SendMsgToChar("Состояние какого игрока?\r\n", ch);
 			} else {
-				if ((victim = get_player_vis(ch, buf2, EFind::kCharInWorld)) != nullptr)
+				if ((victim = target_resolver::FindPlayerVis(ch, buf2)) != nullptr)
 					do_stat_character(ch, victim);
 				else
 					SendMsgToChar("Этого персонажа сейчас нет в игре.\r\n", ch);
@@ -1291,7 +1291,7 @@ void do_stat(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 			if (!*buf2) {
 				SendMsgToChar("Состояние ip какого игрока?\r\n", ch);
 			} else {
-				if ((victim = get_player_vis(ch, buf2, EFind::kCharInWorld)) != nullptr) {
+				if ((victim = target_resolver::FindPlayerVis(ch, buf2)) != nullptr) {
 					do_statip(ch, victim);
 					return;
 				} else {
@@ -1310,7 +1310,7 @@ void do_stat(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 			if (!*buf2) {
 				SendMsgToChar("Карму какого игрока?\r\n", ch);
 			} else {
-				if ((victim = get_player_vis(ch, buf2, EFind::kCharInWorld)) != nullptr) {
+				if ((victim = target_resolver::FindPlayerVis(ch, buf2)) != nullptr) {
 					DoStatKarma(ch, victim);
 					return;
 				} else {
@@ -1347,7 +1347,7 @@ void do_stat(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 			if (!*buf2)
 				SendMsgToChar("Состояние какого предмета?\r\n", ch);
 			else {
-				if ((object = get_obj_vis(ch, buf2)) != nullptr)
+				if ((object = target_resolver::FindObjInWorld(ch, buf2)) != nullptr)
 					do_stat_object(ch, object);
 				else
 					SendMsgToChar("Нет такого предмета в игре.\r\n", ch);
@@ -1355,7 +1355,7 @@ void do_stat(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 			return;
 		}
 	}
-	if (ch->IsImmortal()) {
+	if (privilege::IsImmortal(ch)) {
 		if ((object = get_object_in_equip_vis(ch, buf1, ch->equipment, &tmp)) != nullptr) {
 			do_stat_object(ch, object);
 			return;
@@ -1364,7 +1364,8 @@ void do_stat(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 			do_stat_object(ch, object);
 			return;
 		}
-		if ((victim = get_char_vis(ch, buf1, EFind::kCharInRoom)) != nullptr) {
+		victim = target_resolver::FindCharInRoom(ch, buf1);
+		if ((victim != nullptr)) {
 			do_stat_character(ch, victim);
 			return;
 		}
@@ -1372,11 +1373,15 @@ void do_stat(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 			do_stat_object(ch, object);
 			return;
 		}
-		if ((victim = get_char_vis(ch, buf1, EFind::kCharInWorld)) != nullptr) {
+		victim = target_resolver::FindCharInWorld(ch, buf1);
+		if ((victim != nullptr)) {
 			do_stat_character(ch, victim);
 			return;
 		}
-		if ((object = get_obj_vis(ch, buf1)) != nullptr) {
+		{
+			object = target_resolver::FindObjInWorld(ch, buf1);
+		}
+		if (object != nullptr) {
 			do_stat_object(ch, object);
 			return;
 		}
@@ -1390,7 +1395,8 @@ void do_stat(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 			do_stat_object(ch, object);
 			return;
 		}
-		if ((victim = get_char_vis(ch, buf1, EFind::kCharInRoom)) != nullptr) {
+		victim = target_resolver::FindCharInRoom(ch, buf1);
+		if ((victim != nullptr)) {
 			do_stat_character(ch, victim);
 			return;
 		}

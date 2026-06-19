@@ -59,6 +59,79 @@ const char *DataNode::GetValue(const std::string &key) const {
 	return impl_->curren_xml_node.attribute(key.c_str()).value();
 }
 
+std::vector<std::pair<std::string, std::string>> DataNode::Attributes() const {
+	std::vector<std::pair<std::string, std::string>> out;
+	for (auto attr = impl_->curren_xml_node.first_attribute(); attr; attr = attr.next_attribute()) {
+		out.emplace_back(attr.name(), attr.value());
+	}
+	return out;
+}
+
+bool DataNode::SetValue(const std::string &key, const std::string &value) {
+	auto node = impl_->curren_xml_node;
+	auto attr = node.attribute(key.c_str());
+	if (!attr) {
+		attr = node.append_attribute(key.c_str());
+	}
+	return attr.set_value(value.c_str());
+}
+
+bool DataNode::Save(const std::filesystem::path &file) const {
+	// pugixml's default parser does not retain the <?xml ...?> declaration, so a plain
+	// re-save (e.g. a Vedun edit) would re-emit a bare <?xml version="1.0"?> and drop
+	// encoding="koi8-r" -- the project convention for every cfg file. Restore it here so
+	// editing a cfg file through Vedun no longer silently strips the encoding declaration.
+	auto &doc = *impl_->xml_doc;
+	pugi::xml_node decl = doc.first_child();
+	if (decl.type() != pugi::node_declaration) {
+		decl = doc.prepend_child(pugi::node_declaration);
+	}
+	if (!decl.attribute("version")) {
+		decl.append_attribute("version");
+	}
+	decl.attribute("version").set_value("1.0");
+	if (!decl.attribute("encoding")) {
+		decl.append_attribute("encoding");
+	}
+	decl.attribute("encoding").set_value("koi8-r");
+	return doc.save_file(file.string().c_str());
+}
+
+std::string DataNode::ToXmlString() const {
+	std::ostringstream os;
+	impl_->curren_xml_node.print(os, "  ", pugi::format_default);
+	return os.str();
+}
+
+DataNode DataNode::AddChild(const std::string &name) {
+	auto node = impl_->curren_xml_node.append_child(name.c_str());
+	DataNode child(*this);                 // copy shares the same xml_doc (shared_ptr)
+	child.impl_->curren_xml_node = node;
+	return child;
+}
+
+bool DataNode::RemoveChild(const DataNode &child) {
+	return impl_->curren_xml_node.remove_child(child.impl_->curren_xml_node);
+}
+
+bool DataNode::MoveChildUp(const DataNode &child) {
+	auto node = child.impl_->curren_xml_node;
+	auto prev = node.previous_sibling();
+	if (!prev) {
+		return false;
+	}
+	return !impl_->curren_xml_node.insert_move_before(node, prev).empty();
+}
+
+bool DataNode::MoveChildDown(const DataNode &child) {
+	auto node = child.impl_->curren_xml_node;
+	auto next = node.next_sibling();
+	if (!next) {
+		return false;
+	}
+	return !impl_->curren_xml_node.insert_move_after(node, next).empty();
+}
+
 void DataNode::GoToRadix() {
 	impl_->curren_xml_node = impl_->xml_doc->document_element();
 }
@@ -151,6 +224,8 @@ const DataNode DataNode::operator--(int) {
 
 [[nodiscard]] iterators::Range<DataNode> DataNode::Children() {
 	auto node = *this;
+	node.impl_->filter_name.clear();   // a no-arg Children() iterates ALL children, regardless of any
+	                                   // filter inherited from a node copied out of a Children(key) range.
 	node.impl_->curren_xml_node = node.impl_->curren_xml_node.first_child();
 	return iterators::Range(node);
 }

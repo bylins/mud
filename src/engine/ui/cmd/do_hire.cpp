@@ -1,7 +1,13 @@
 #include "do_hire.h"
+#include "gameplay/core/remort.h"
+#include "administration/privilege.h"
+#include "utils/grammar/declensions.h"
+#include "gameplay/mechanics/follow.h"
+#include "gameplay/mechanics/mount.h"
 
 #include "do_follow.h"
 #include "engine/core/handler.h"
+#include "engine/core/target_resolver.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/core/base_stats.h"
 #include "gameplay/mechanics/weather.h"
@@ -17,26 +23,6 @@ constexpr short kMaxHireTime = 10080 / 2; // Неделя в минутах по
 constexpr long kMaxHirePrice = LONG_MAX / (kMaxHireTime + 1);
 
 //Функции для модифицированного чарма
-float CalcDamagePerRound(CharData *victim) {
-	float dam_per_attack = GET_DR(victim) + str_bonus(victim->get_str(), STR_TO_DAM)
-		+ victim->mob_specials.damnodice * (victim->mob_specials.damsizedice + 1) / 2.0
-		+ (AFF_FLAGGED(victim, EAffect::kCloudOfArrows) ? 14 : 0);
-	int num_attacks = 1 + victim->mob_specials.extra_attack
-		+ (victim->GetSkill(ESkill::kAddshot) ? 2 : 0);
-
-	float dam_per_round = dam_per_attack * num_attacks;
-
-	//Если дыхание - то дамаг умножается
-	if (victim->IsFlagged(EMobFlag::kFireBreath) ||
-		victim->IsFlagged(EMobFlag::kGasBreath) ||
-		victim->IsFlagged(EMobFlag::kFrostBreath) ||
-		victim->IsFlagged(EMobFlag::kAcidBreath) ||
-		victim->IsFlagged(EMobFlag::kLightingBreath)) {
-		dam_per_round *= 1.3f;
-	}
-
-	return dam_per_round;
-}
 
 float CalcChaForHire(CharData *victim) {
 	int i;
@@ -120,7 +106,7 @@ long CalcHirePrice(CharData *ch, CharData *victim) {
 	price += m_luck + m_ini + m_ar + m_mr + m_pr + m_dr + extraAttack;
 	// сколько персонаж может
 	float hirePoints = 0;
-	float rem_hirePoints = GetRealRemort(ch) * 1.8;
+	float rem_hirePoints = remort::GetRealRemort(ch) * 1.8;
 	float int_hirePoints = GetRealInt(ch) * 1.8;
 	float cha_hirePoints = GetRealCha(ch) * 1.8;
 	hirePoints += rem_hirePoints + int_hirePoints + cha_hirePoints;
@@ -136,41 +122,9 @@ long CalcHirePrice(CharData *ch, CharData *victim) {
 	return std::min(finalPrice, kMaxHirePrice);
 }
 
-int GetReformedCharmiceHp(CharData *ch, CharData *victim, ESpell spell_id) {
-	auto r_hp{0.0};
-	auto eff_cha{0.0};
-	auto stat_cap{0.0};
-
-	if (spell_id == ESpell::kResurrection || spell_id == ESpell::kAnimateDead) {
-		eff_cha = CalcEffectiveWis(ch, spell_id);
-		stat_cap = MUD::Class(ch->GetClass()).GetBaseStatCap(EBaseStat::kWis);
-	} else {
-		stat_cap = MUD::Class(ch->GetClass()).GetBaseStatCap(EBaseStat::kCha);
-		eff_cha = get_effective_cha(ch);
-	}
-
-	if (spell_id != ESpell::kCharm) {
-		eff_cha = std::min(stat_cap, eff_cha + 2); // Все кроме чарма кастится с бонусом в 2
-	}
-
-	// Интерполяция между значениями для целых значений обаяния
-	if (eff_cha < stat_cap) {
-		r_hp = victim->get_max_hit() + CalcDamagePerRound(victim) *
-			((1 - eff_cha + (int) eff_cha) * cha_app[(int) eff_cha].dam_to_hit_rate +
-				(eff_cha - (int) eff_cha) * cha_app[(int) eff_cha + 1].dam_to_hit_rate);
-	} else {
-		r_hp = victim->get_max_hit() + CalcDamagePerRound(victim) *
-			((1 - eff_cha + (int) eff_cha) * cha_app[(int) eff_cha].dam_to_hit_rate);
-	}
-
-	if (ch->IsFlagged(EPrf::kTester))
-		SendMsgToChar(ch, "&Gget_reformed_charmice_hp Расчет чарма r_hp = %f \r\n&n", r_hp);
-	return (int) r_hp;
-}
-
 void DoFindhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->IsNpc()
-		|| (!ch->IsImmortal() && !CanUseFeat(ch, EFeat::kEmployer))) {
+		|| (!privilege::IsImmortal(ch) && !CanUseFeat(ch, EFeat::kEmployer))) {
 		SendMsgToChar("Вам недоступно это!\r\n", ch);
 		return;
 	}
@@ -194,7 +148,9 @@ void DoFindhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	const auto helpee = get_char_vis(ch, arg, EFind::kCharInRoom);
+	CharData *helpee = nullptr;
+
+	helpee = target_resolver::FindCharInRoom(ch, arg);
 	if (!helpee) {
 		SendMsgToChar("Вы не видите никого похожего.\r\n", ch);
 		return;
@@ -218,13 +174,13 @@ void DoFindhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		act("$N под чьим-то контролем.", false, ch, 0, helpee, kToChar);
 	else if (AFF_FLAGGED(helpee, EAffect::kDeafness))
 		act("$N не слышит вас.", false, ch, 0, helpee, kToChar);
-	else if (IS_HORSE(helpee))
+	else if (mount::IsHorse(helpee))
 		SendMsgToChar("Это боевой скакун, а не хухры-мухры.\r\n", ch);
 	else if (helpee->GetEnemy() || helpee->GetPosition() < EPosition::kRest)
 		act("$M сейчас, похоже, не до вас.", false, ch, 0, helpee, kToChar);
-	else if (circle_follow(helpee, ch))
+	else if (follow::CircleFollow(helpee, ch))
 		SendMsgToChar("Следование по кругу запрещено.\r\n", ch);
-	else if (GetRealRemort(ch) < GetRealRemort(helpee))
+	else if (remort::GetRealRemort(ch) < remort::GetRealRemort(helpee))
 		act("$N сказал вам: \"Ты слишком слаб, чтобы нанять меня\".", false, ch, 0, helpee, kToChar);
 	else {
 		// Вы издеваетесь? Блок else на три экрана, реально?
@@ -237,7 +193,7 @@ void DoFindhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (!*arg || times == 0) {
 			const auto cost = CalcHirePrice(ch, helpee);
 			sprintf(buf, "$n сказал$g вам : \"Один час моих услуг стоит %ld %s\".\r\n",
-					cost, GetDeclensionInNumber(cost, EWhat::kMoneyU));
+					cost, grammar::GetDeclensionInNumber(cost, grammar::EWhat::kMoneyU));
 			act(buf, false, helpee, 0, ch, kToVict | kToNotDeaf);
 			return;
 		}
@@ -260,13 +216,13 @@ void DoFindhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			sprintf(buf,
 					"$n сказал$g вам : \" Мои услуги за %d %s стоят %ld %s - это тебе не по карману.\"",
 					times,
-					GetDeclensionInNumber(times, EWhat::kHour), cost, GetDeclensionInNumber(cost, EWhat::kMoneyU));
+					grammar::GetDeclensionInNumber(times, grammar::EWhat::kHour), cost, grammar::GetDeclensionInNumber(cost, grammar::EWhat::kMoneyU));
 			act(buf, false, helpee, 0, ch, kToVict | kToNotDeaf);
 			return;
 		}
 
 		if (helpee->has_master() && helpee->get_master() != ch) {
-			if (stop_follower(helpee, kSfMasterdie)) {
+			if (follow::StopFollower(helpee, follow::kSfMasterdie)) {
 				return;
 			}
 		}
@@ -275,8 +231,8 @@ void DoFindhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 		Affect<EApply> af;
 		if (!(hired && hired == helpee)) {
-			ch->add_follower(helpee);
-			af.duration = CalcDuration(helpee, times * kTimeKoeff, 0, 0, 0, 0);
+			follow::AddFollower(ch, helpee);
+			af.duration = CalcDuration(helpee, helpee, ESkill::kUndefined, times * kTimeKoeff, 0, 0, 0);
 		} else {
 			auto aff = hired->affected.begin();
 			for (; aff != hired->affected.end(); ++aff) {
@@ -293,13 +249,13 @@ void DoFindhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 						ch->add_gold(oldcost);
 					}
 					SendMsgToChar(ch, "Вам вернули нерастраченный задаток в %ld %s.\r\n",
-								  oldcost, GetDeclensionInNumber(cost, EWhat::kMoneyA));
+								  oldcost, grammar::GetDeclensionInNumber(cost, grammar::EWhat::kMoneyA));
 				}
-				af.duration = CalcDuration(helpee, times * kTimeKoeff, 0, 0, 0, 0);
+				af.duration = CalcDuration(helpee, helpee, ESkill::kUndefined, times * kTimeKoeff, 0, 0, 0);
 			}
 		}
 		RemoveAffectFromChar(helpee, ESpell::kCharm);
-		if (!ch->IsImmortal()) {
+		if (!privilege::IsImmortal(ch)) {
 			if (isname(isbank, "банк bank")) {
 				ch->remove_bank(cost);
 				helpee->mob_specials.hire_price = -hire_price;
@@ -312,14 +268,15 @@ void DoFindhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		af.type = ESpell::kCharm;
 		af.modifier = 0;
 		af.location = EApply::kNone;
-		af.bitvector = to_underlying(EAffect::kCharmed);
+		af.affect_type = EAffect::kCharmed;
 		af.battleflag = 0;
 		affect_to_char(helpee, af);
+		helpee->SetFlag(EMobFlag::kCompanion);	// any NPC ally
 
 		af.type = ESpell::kCharm;
 		af.modifier = 0;
 		af.location = EApply::kNone;
-		af.bitvector = to_underlying(EAffect::kHelper);
+		af.affect_type = EAffect::kHelper;
 		af.battleflag = 0;
 		affect_to_char(helpee, af);
 
@@ -359,7 +316,7 @@ void DoFindhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 void DoFreehelpee(CharData *ch, char * /* argument*/, int/* cmd*/, int/* subcmd*/) {
 	if (ch->IsNpc()
-		|| (!ch->IsImmortal() && !CanUseFeat(ch, EFeat::kEmployer))) {
+		|| (!privilege::IsImmortal(ch) && !CanUseFeat(ch, EFeat::kEmployer))) {
 		SendMsgToChar("Вам недоступно это!\r\n", ch);
 		return;
 	}
@@ -388,7 +345,7 @@ void DoFreehelpee(CharData *ch, char * /* argument*/, int/* cmd*/, int/* subcmd*
 		return;
 	}
 
-	if (!ch->IsImmortal()) {
+	if (!privilege::IsImmortal(ch)) {
 		for (const auto &aff : hired->affected) {
 			if (aff->type == ESpell::kCharm) {
 				long cost = MAX(0, (int) ((aff->duration - 1) / 2) * (int) abs(hired->mob_specials.hire_price));
@@ -398,7 +355,7 @@ void DoFreehelpee(CharData *ch, char * /* argument*/, int/* cmd*/, int/* subcmd*
 					} else {
 						ch->add_gold(cost);
 					}
-					SendMsgToChar(ch, "Вам вернули нерастраченный задаток в %ld %s.\r\n", cost, GetDeclensionInNumber(cost, EWhat::kMoneyA));
+					SendMsgToChar(ch, "Вам вернули нерастраченный задаток в %ld %s.\r\n", cost, grammar::GetDeclensionInNumber(cost, grammar::EWhat::kMoneyA));
 				}
 				break;
 			}
@@ -407,9 +364,8 @@ void DoFreehelpee(CharData *ch, char * /* argument*/, int/* cmd*/, int/* subcmd*
 
 	act("Вы рассчитали $N3.", false, ch, 0, hired, kToChar);
 	RemoveAffectFromCharAndRecalculate(hired, ESpell::kCharm);
-	stop_follower(hired, kSfCharmlost);
+	follow::StopFollower(hired, follow::kSfCharmlost);
 }
-
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
 

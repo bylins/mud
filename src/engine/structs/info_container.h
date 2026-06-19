@@ -34,6 +34,8 @@ enum class EItemMode {
 template<>
 const std::string &NAME_BY_ITEM<EItemMode>(EItemMode item);
 template<>
+const std::map<EItemMode, std::string> &NAMES_OF<EItemMode>();
+template<>
 EItemMode ITEM_BY_NAME<EItemMode>(const std::string &name);
 
 namespace info_container {
@@ -109,6 +111,9 @@ class InfoContainer {
 	 *  Горячая перезагрузка. Позволяет перегрузить данные контейнера.
 	 */
 	void Reload(const NodeRange &data);
+	// issue.vedun-editor: dry-run parse for the editor's safe commit -- build a fresh register
+	// from `data` WITHOUT swapping the live one. true => safe to write the file and Reload.
+	[[nodiscard]] bool Validate(const NodeRange &data) const;
 	/**
 	 *  Id известен. Не гарантируется, что он означает корректный элемент.
 	 */
@@ -211,6 +216,11 @@ void InfoContainer<IdEnum, Item, ItemBuilder>::Reload(const NodeRange &data) {
 	} else {
 		err_log("Reloading was canceled - file damaged.");
 	}
+}
+
+template<typename IdEnum, typename Item, typename ItemBuilder>
+bool InfoContainer<IdEnum, Item, ItemBuilder>::Validate(const NodeRange &data) const {
+	return static_cast<bool>(RegisterBuilder::Build(data, true));
 }
 
 template<typename IdEnum, typename Item, typename ItemBuilder>
@@ -406,6 +416,9 @@ class InfoContainer<int, Item, ItemBuilder> {
 	 *  Горячая перезагрузка. Позволяет перегрузить данные контейнера.
 	 */
 	void Reload(const NodeRange &data);
+	// issue.vedun-editor: dry-run parse for the editor's safe commit -- build a fresh register
+	// from `data` WITHOUT swapping the live one. true => safe to write the file and Reload.
+	[[nodiscard]] bool Validate(const NodeRange &data) const;
 	/**
 	 *  Id известен. Не гарантируется, что он означает корректный элемент.
 	 */
@@ -519,6 +532,11 @@ void InfoContainer<int, Item, ItemBuilder>::Reload(const NodeRange &data) {
 	} else {
 		err_log("Reloading was canceled - file damaged.");
 	}
+}
+
+template<typename Item, typename ItemBuilder>
+bool InfoContainer<int, Item, ItemBuilder>::Validate(const NodeRange &data) const {
+	return static_cast<bool>(RegisterBuilder::Build(data, true));
 }
 
 template<typename Item, typename ItemBuilder>

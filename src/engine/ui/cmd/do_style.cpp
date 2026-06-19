@@ -3,6 +3,9 @@
 //
 
 #include "do_style.h"
+
+#include "engine/entities/char_data.h"
+#include "engine/ui/interpreter.h"
 #include "engine/ui/color.h"
 #include "gameplay/fight/pk.h"
 

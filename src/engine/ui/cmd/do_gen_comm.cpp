@@ -7,6 +7,9 @@
 */
 
 #include "do_gen_comm.h"
+#include "administration/privilege.h"
+#include "utils/grammar/gender.h"
+#include "gameplay/mechanics/sight.h"
 
 #include "engine/entities/char_data.h"
 #include "engine/network/descriptor_data.h"
@@ -14,6 +17,7 @@
 #include "engine/ui/color.h"
 #include "gameplay/economics/auction.h"
 #include "gameplay/communication/remember.h"
+#include "gameplay/core/remort.h"
 
 struct communication_type {
   const char *muted_msg;
@@ -96,7 +100,7 @@ void do_gen_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		return;
 
 	if (AFF_FLAGGED(ch, EAffect::kSilence)) {
-		SendMsgToChar(SIELENCE, ch);
+		SendMsgToChar(CommonMsg(ECommonMsg::kSilenced) + "\r\n", ch);
 		return;
 	}
 
@@ -111,11 +115,11 @@ void do_gen_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	}
 	//if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kSoundproof) || ROOM_FLAGGED(ch->in_room, ERoomFlag::kTribune))
 	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kSoundproof)) {
-		SendMsgToChar(SOUNDPROOF, ch);
+		SendMsgToChar(CommonMsg(ECommonMsg::kSoundproof) + "\r\n", ch);
 		return;
 	}
 
-	if (GetRealLevel(ch) < com_msgs[subcmd].min_lev && !GetRealRemort(ch)) {
+	if (GetRealLevel(ch) < com_msgs[subcmd].min_lev && !remort::GetRealRemort(ch)) {
 		sprintf(buf1,
 				"Вам стоит достичь хотя бы %d уровня, чтобы вы могли %s.\r\n",
 				com_msgs[subcmd].min_lev, com_msgs[subcmd].action);
@@ -147,7 +151,7 @@ void do_gen_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 #define MAX_UPPERS_CHAR_PRC 30
 #define MAX_UPPERS_SEQ_CHAR 3
 
-	if ((subcmd != kScmdAuction) && (!ch->IsImmortal()) && (!ch->IsNpc())) {
+	if ((subcmd != kScmdAuction) && (!privilege::IsImmortal(ch)) && (!ch->IsNpc())) {
 		const unsigned int bad_smb_procent = MAX_UPPERS_CHAR_PRC;
 		int bad_simb_cnt = 0, bad_seq_cnt = 0;
 
@@ -187,12 +191,12 @@ void do_gen_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		/* Непонятный запрет
 		if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kTribune))
 		{
-			SendMsgToChar(SOUNDPROOF, ch);
+			SendMsgToChar(CommonMsg(ECommonMsg::kSoundproof) + "\r\n", ch);
 			return;
 		}
 		*/
 		if (ch->IsFlagged(EPrf::kNoRepeat))
-			SendMsgToChar(OK, ch);
+			SendMsgToChar(CommonMsg(ECommonMsg::kOk) + "\r\n", ch);
 		else {
 			snprintf(buf1, kMaxStringLength, "%sВы %s : '%s'%s", color_on,
 					 com_msgs[subcmd].you_action, argument, kColorNrm);
@@ -274,7 +278,7 @@ std::string format_gossip(CharData *ch, CharData *vict, int cmd, const char *arg
 					   (cmd == kScmdGossip ? kColorYel : kColorBoldYel),
 					   format_gossip_name(ch, vict).c_str(),
 					   (cmd == kScmdGossip ? "заметил" : "заорал"),
-					   GET_CH_VIS_SUF_1(ch, vict),
+					   grammar::VisSexEnding(sight::CanSee((vict), (ch)), (ch)->get_sex(), 1),
 					   argument,
 					   kColorNrm);
 }
@@ -288,7 +292,7 @@ std::string format_gossip_name(CharData *ch, CharData *vict) {
 		log("SYSERROR: мы не должны были сюда попасть, func: %s", __func__);
 		return "";
 	}
-	std::string name = ch->IsImmortal() ? GET_NAME(ch) : PERS(ch, vict, 0);
+	std::string name = privilege::IsImmortal(ch) ? GET_NAME(ch) : sight::PersonName(ch, vict, 0);
 	name[0] = UPPER(name[0]);
 	return name;
 }

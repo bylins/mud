@@ -3,6 +3,10 @@
 // Part of Bylins http://www.mud.ru
 
 #include "poison.h"
+#include "administration/privilege.h"
+#include "utils/grammar/gender.h"
+#include "gameplay/mechanics/sight.h"
+#include "gameplay/mechanics/mount.h"
 
 #include "engine/entities/obj_data.h"
 #include "engine/entities/char_data.h"
@@ -62,7 +66,7 @@ namespace {
 			Affect<EApply> af[3];
 			af[0].location = EApply::kAconitumPoison;
 			af[0].modifier = ch->GetSkill(ESkill::kPoisoning);
-			af[0].bitvector = to_underlying(EAffect::kNoBattleSwitch);
+			af[0].affect_type = EAffect::kNoBattleSwitch;
 
 			af[1].location = EApply::kPhysicResist;
 			af[1].modifier = -4;
@@ -86,8 +90,7 @@ namespace {
 				}
 			}
 			if (was_poisoned) {
-				vict->poisoner = ch->get_uid();
-				return true;
+				return true;   // автор отравления уже записан в caster_id наложенных аффектов
 			}
 
 		} else if (spell_id == ESpell::kScopolaPoison) {
@@ -97,8 +100,11 @@ namespace {
 			af[1].location = EApply::kSavingCritical;
 			af[2].location = EApply::kSavingWill;
 			af[3].location = EApply::kSavingStability;
-			af[3].bitvector = to_underlying(EAffect::kScopolaPoison)
-							  | to_underlying(EAffect::kNoBattleSwitch);
+			// One EAffect per affect now: keep the poison flag on af[3] and put
+			// kNoBattleSwitch on a sibling. All entries share type/duration, so the
+			// victim ends up with the same flags, applied and removed together.
+			af[3].affect_type = EAffect::kScopolaPoison;
+			af[0].affect_type = EAffect::kNoBattleSwitch;
 			int affect_modifier = 10;
 
 			if (vict->IsNpc()) {
@@ -132,9 +138,11 @@ namespace {
 			// -хитролы/хп-рег/дамаг-физ.атак/скилы
 
 			Affect<EApply> af[4];
-			af[1].bitvector = to_underlying(EAffect::kBelenaPoison)
-							  | to_underlying(EAffect::kSkillReduce)
-							  | to_underlying(EAffect::kNoBattleSwitch);
+			// One EAffect per affect now: the poison flag plus its two secondary
+			// flags are spread across sibling entries (same type/duration).
+			af[1].affect_type = EAffect::kBelenaPoison;
+			af[0].affect_type = EAffect::kSkillReduce;
+			af[2].affect_type = EAffect::kNoBattleSwitch;
 
 			// скилл * 0.05 + 5 на чаров и + 10 на мобов. 5.5-15% и 10.5-20% (10-200 скила)
 			int percent = (std::min(ch->GetSkill(ESkill::kPoisoning), 200) * 5 / 100) + (vict->IsNpc() ? 10 : 5);
@@ -177,9 +185,11 @@ namespace {
 			// AFF_DATURA_POISON - флаг на снижение дамага с заклов
 
 			Affect<EApply> af[3];
-			af[0].bitvector = to_underlying(EAffect::kDaturaPoison)
-							  | to_underlying(EAffect::kSkillReduce)
-							  | to_underlying(EAffect::kNoBattleSwitch);
+			// One EAffect per affect now: the poison flag plus its two secondary
+			// flags are spread across sibling entries (same type/duration).
+			af[0].affect_type = EAffect::kDaturaPoison;
+			af[1].affect_type = EAffect::kSkillReduce;
+			af[2].affect_type = EAffect::kNoBattleSwitch;
 
 			// скилл * 0.05 + 5 на чаров и + 10 на мобов. 5.5-15% и 10.5-20% (10-200 скила)
 			int percent = (std::min(ch->GetSkill(ESkill::kPoisoning), 200) * 5 / 100) + (vict->IsNpc() ? 10 : 5);
@@ -226,23 +236,23 @@ namespace {
 				case 1:
 					// аналог баша с лагом
 					if (vict->GetPosition() >= EPosition::kFight) {
-						if (vict->IsOnHorse()) {
+						if (mount::IsOnHorse(vict)) {
 							SendMsgToChar(ch, "%sОт действия вашего яда у %s закружилась голова!%s\r\n",
-										  kColorGrn, PERS(vict, ch, 1), kColorNrm);
+										  kColorGrn, sight::PersonName(vict, ch, 1), kColorNrm);
 							SendMsgToChar(vict, "Вы почувствовали сильное головокружение и не смогли усидеть на %s!\r\n",
-										  GET_PAD(vict->get_horse(), 5));
+										  GET_PAD(mount::GetHorse(vict), 5));
 							act("$n0 зашатал$u и не смог$q усидеть на $N5.",
-								true, vict, nullptr, vict->get_horse(), kToNotVict);
-							vict->DropFromHorse();
+								true, vict, nullptr, mount::GetHorse(vict), kToNotVict);
+							mount::DropFromHorse(vict);
 						} else {
 							SendMsgToChar(ch, "%sОт действия вашего яда у %s подкосились ноги!%s\r\n",
-										  kColorGrn, PERS(vict, ch, 1), kColorNrm);
+										  kColorGrn, sight::PersonName(vict, ch, 1), kColorNrm);
 							SendMsgToChar(vict, "Вы почувствовали сильное головокружение и не смогли устоять на ногах!\r\n");
 							act("$N0 зашатал$U и не смог$Q устоять на ногах.",
 								true, ch, nullptr, vict, kToNotVict);
 							vict->SetPosition(EPosition::kSit);
-							vict->DropFromHorse();
-							SetWaitState(vict, 3 * kBattleRound);
+							mount::DropFromHorse(vict);
+							SetBattleLag(vict, 3);
 						}
 						break;
 					}
@@ -255,7 +265,7 @@ namespace {
 						af.duration *= 30;
 					}
 					af.modifier = -GetRealLevel(ch) / 6 * 2;
-					af.bitvector = to_underlying(EAffect::kPoisoned);
+					af.affect_type = EAffect::kPoisoned;
 					af.battleflag = kAfSameTime;
 
 					for (int i = EApply::kStr; i <= EApply::kCha; i++) {
@@ -264,7 +274,7 @@ namespace {
 					}
 
 					SendMsgToChar(ch, "%sОт действия вашего яда %s побледнел%s!%s\r\n",
-								  kColorGrn, PERS(vict, ch, 0), GET_CH_VIS_SUF_1(vict, ch), kColorNrm);
+								  kColorGrn, sight::PersonName(vict, ch, 0), grammar::VisSexEnding(sight::CanSee((ch), (vict)), (vict)->get_sex(), 1), kColorNrm);
 					SendMsgToChar(vict, "Вы почувствовали слабость во всем теле!\r\n");
 					act("$N0 побледнел$G на ваших глазах.", true, ch, nullptr, vict, kToNotVict);
 					break;
@@ -278,11 +288,11 @@ namespace {
 					}
 					af.location = EApply::kInitiative;
 					af.modifier = -GetRealLevel(ch) / 6;
-					af.bitvector = to_underlying(EAffect::kPoisoned);
+					af.affect_type = EAffect::kPoisoned;
 					af.battleflag = kAfSameTime;
 					ImposeAffect(vict, af, false, false, false, false);
 					SendMsgToChar(ch, "%sОт действия вашего яда %s стал%s заметно медленнее двигаться!%s\r\n",
-								  kColorGrn, PERS(vict, ch, 0), GET_CH_VIS_SUF_1(vict, ch), kColorNrm);
+								  kColorGrn, sight::PersonName(vict, ch, 0), grammar::VisSexEnding(sight::CanSee((ch), (vict)), (vict)->get_sex(), 1), kColorNrm);
 					SendMsgToChar(vict, "Вы стали заметно медленнее двигаться!\r\n");
 					act("$N0 стал$G заметно медленнее двигаться!",
 						true, ch, nullptr, vict, kToNotVict);
@@ -314,36 +324,36 @@ void PerformToxicate(CharData *ch, CharData *vict, int modifier) {
 	// change strength
 	af[0].type = ESpell::kPoison;
 	af[0].location = EApply::kStr;
-	af[0].duration = CalcDuration(vict, 0, std::max(2, GetRealLevel(ch) - GetRealLevel(vict)), 2, 0, 1);
+	af[0].duration = CalcDuration(ch, vict, ESkill::kUndefined, 1, 0, 0, 0);
 	af[0].modifier = -std::min(2, (modifier + 29) / 40);
-	af[0].bitvector = to_underlying(EAffect::kPoisoned);
+	af[0].affect_type = EAffect::kPoisoned;
 	af[0].battleflag = kAfSameTime;
 	// change damroll
 	af[1].type = ESpell::kPoison;
 	af[1].location = EApply::kDamroll;
 	af[1].duration = af[0].duration;
 	af[1].modifier = -std::min(2, (modifier + 29) / 30);
-	af[1].bitvector = to_underlying(EAffect::kPoisoned);
+	af[1].affect_type = EAffect::kPoisoned;
 	af[1].battleflag = kAfSameTime;
 	// change hitroll
 	af[2].type = ESpell::kPoison;
 	af[2].location = EApply::kHitroll;
 	af[2].duration = af[0].duration;
 	af[2].modifier = -std::min(2, (modifier + 19) / 20);
-	af[2].bitvector = to_underlying(EAffect::kPoisoned);
+	af[2].affect_type = EAffect::kPoisoned;
 	af[2].battleflag = kAfSameTime;
 	// change poison level
 	af[3].type = ESpell::kPoison;
 	af[3].location = EApply::kPoison;
 	af[3].duration = af[0].duration;
 	af[3].modifier = GetRealLevel(ch);
-	af[3].bitvector = to_underlying(EAffect::kPoisoned);
+	af[3].affect_type = EAffect::kPoisoned;
 	af[3].battleflag = kAfSameTime;
 
 	for (auto & i : af) {
+		i.caster_id = ch->get_uid();   // автор отравления -- хранится в аффекте (для засчёта убийства)
 		ImposeAffect(vict, i, false, false, false, false);
 	}
-	vict->poisoner = ch->get_uid();
 
 	snprintf(buf, sizeof(buf), "%sВы отравили $N3.%s", kColorBoldGrn, kColorCyn);
 	act(buf, false, ch, nullptr, vict, kToChar);
@@ -375,29 +385,29 @@ void PerformPoisonedWeapom(CharData *ch, CharData *vict, ESpell spell_id) {
 		if (PoisonVictWithWeapon(ch, vict, spell_id)) {
 			if (spell_id == ESpell::kAconitumPoison) {
 				SendMsgToChar(ch, "Кровоточащие язвы покрыли тело %s.\r\n",
-							  PERS(vict, ch, 1));
+							  sight::PersonName(vict, ch, 1));
 			} else if (spell_id == ESpell::kScopolaPoison) {
-				strcpy(buf1, PERS(vict, ch, 0));
+				strcpy(buf1, sight::PersonName(vict, ch, 0));
 				utils::CAP(buf1);
 				SendMsgToChar(ch, "%s скрючил%s от нестерпимой боли.\r\n",
-							  buf1, GET_CH_VIS_SUF_2(vict, ch));
+							  buf1, grammar::VisSexEnding(sight::CanSee((ch), (vict)), (vict)->get_sex(), 2));
 				vict->battle_affects.set(kEafFirstPoison);
 			} else if (spell_id == ESpell::kBelenaPoison) {
-				strcpy(buf1, PERS(vict, ch, 3));
+				strcpy(buf1, sight::PersonName(vict, ch, 3));
 				utils::CAP(buf1);
 				SendMsgToChar(ch, "%s перестали слушаться руки.\r\n", buf1);
 				vict->battle_affects.set(kEafFirstPoison);
 			} else if (spell_id == ESpell::kDaturaPoison) {
-				strcpy(buf1, PERS(vict, ch, 2));
+				strcpy(buf1, sight::PersonName(vict, ch, 2));
 				utils::CAP(buf1);
 				SendMsgToChar(ch, "%s стало труднее плести заклинания.\r\n", buf1);
 				vict->battle_affects.set(kEafFirstPoison);
 			} else {
-				SendMsgToChar(ch, "Вы отравили %s.\r\n", PERS(ch, vict, 3));
+				SendMsgToChar(ch, "Вы отравили %s.\r\n", sight::PersonName(ch, vict, 3));
 			}
 			SendMsgToChar(vict, "%s%s отравил%s вас.%s\r\n",
-						  kColorBoldRed, PERS(ch, vict, 0),
-						  GET_CH_VIS_SUF_1(ch, vict), kColorNrm);
+						  kColorBoldRed, sight::PersonName(ch, vict, 0),
+						  grammar::VisSexEnding(sight::CanSee((vict), (ch)), (ch)->get_sex(), 1), kColorNrm);
 			ProcessCritWeaponPoison(ch, vict, spell_id);
 		}
 	}
@@ -467,6 +477,7 @@ int ProcessPoisonDmg(CharData *ch, const Affect<EApply>::shared_ptr &af) {
 		//poison_dmg = interpolate(poison_dmg, 2); // И как оно должно работать чото нифига не понял, понял только что оно не работает
 		Damage dmg(SpellDmg(ESpell::kPoison), poison_dmg, fight::kPoisonDmg);
 		dmg.flags.set(fight::kNoFleeDmg);
+		dmg.author_uid = af->caster_id;   // отравитель (для засчёта убийства), 0 если автора нет
 		result = dmg.Process(ch, ch);
 	} else if (af->location == EApply::kAconitumPoison) {
 		int aconitum_dmg = af->modifier / 4;
@@ -474,31 +485,32 @@ int ProcessPoisonDmg(CharData *ch, const Affect<EApply>::shared_ptr &af) {
 		Damage dmg(SpellDmg(ESpell::kPoison), aconitum_dmg, fight::kPoisonDmg);
 		dmg.flags.set(fight::kNoFleeDmg);
 		dmg.flags.set(fight::kIgnoreBlink);
+		dmg.author_uid = af->caster_id;
 		result = dmg.Process(ch, ch);
 	}
 	return result;
 }
 
 void TryDrinkPoison(CharData *ch, ObjData *jar, int amount) {
-	if ((GET_OBJ_VAL(jar, 3) == 1) && !ch->IsGod()) {
+	if ((GET_OBJ_VAL(jar, 3) == 1) && !privilege::IsGod(ch)) {
 		SendMsgToChar("Что-то вкус какой-то странный!\r\n", ch);
 		act("$n поперхнул$u и закашлял$g.", true, ch, 0, 0, kToRoom);
 		Affect<EApply> af;
 		af.type = ESpell::kPoison;
 		//если объем 0 -
-		af.duration = CalcDuration(ch, amount == 0 ? 3 : amount == 1 ? amount : amount * 3, 0, 0, 0, 0);
+		af.duration = CalcDuration(ch, ch, ESkill::kUndefined, amount == 0 ? 3 : amount == 1 ? amount : amount * 3, 0, 0, 0);
 		af.modifier = -2;
 		af.location = EApply::kStr;
-		af.bitvector = to_underlying(EAffect::kPoisoned);
+		af.affect_type = EAffect::kPoisoned;
 		af.battleflag = kAfSameTime;
 		ImposeAffect(ch, af, false, false, false, false);
 		af.type = ESpell::kPoison;
 		af.modifier = amount == 0 ? GetRealLevel(ch) * 3 : amount * 3;
 		af.location = EApply::kPoison;
-		af.bitvector = to_underlying(EAffect::kPoisoned);
+		af.affect_type = EAffect::kPoisoned;
 		af.battleflag = kAfSameTime;
 		ImposeAffect(ch, af, false, false, false, false);
-		ch->poisoner = 0;
+		// самоотравление (выпил яд): автора нет -- caster_id аффектов остаётся 0
 	}
 }
 

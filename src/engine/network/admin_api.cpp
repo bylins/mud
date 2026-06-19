@@ -4,6 +4,7 @@
 */
 
 #include <sys/socket.h>
+#include "utils/utils_encoding.h"
 
 #include "admin_api.h"
 #include "admin_api/crud_handlers.h"
@@ -21,7 +22,6 @@
 #include "engine/olc/olc.h"
 #include "administration/accounts.h"
 #include "administration/password.h"
-#include "utils/utils.h"
 #include "gameplay/core/constants.h"
 #include "third_party_libs/nlohmann/json.hpp"
 
@@ -45,7 +45,7 @@ std::string koi8r_to_utf8(const std::string &koi8r) {
 	strncpy(koi8r_buf, koi8r.c_str(), sizeof(koi8r_buf) - 1);
 	koi8r_buf[sizeof(koi8r_buf) - 1] = 0;
 
-	koi_to_utf8(koi8r_buf, utf8_buf);
+	codepages::koi_to_utf8(koi8r_buf, utf8_buf);
 
 	return std::string(utf8_buf);
 }
@@ -58,7 +58,7 @@ std::string utf8_to_koi8r(const std::string &utf8) {
 	strncpy(utf8_buf, utf8.c_str(), sizeof(utf8_buf) - 1);
 	utf8_buf[sizeof(utf8_buf) - 1] = '\0';
 
-	utf8_to_koi(utf8_buf, koi8r_buf);
+	codepages::utf8_to_koi(utf8_buf, koi8r_buf);
 
 	return std::string(koi8r_buf);
 }

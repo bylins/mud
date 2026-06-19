@@ -140,20 +140,27 @@ bool AbilityRoll::IsActorMoraleFailure() {
 	return true;
 };
 
-// Костыльно-черновой учет морали
-bool AgainstRivalRoll::IsActorMoraleFailure() {
-	int actor_morale = actor_->calc_morale();
-	int rival_morale = rival_->calc_morale();
+// Костыльно-черновой учет морали.
+// issue.instant-death: the contest math is extracted into OppositeLuckTest (true = `actor` wins) so
+// the instant-death path can roll it directly. IsActorMoraleFailure is its exact inverse -- true when
+// the actor's side failed, the meaning every existing caller relies on.
+bool AgainstRivalRoll::OppositeLuckTest(CharData *actor, CharData *vict) {
+	const int actor_morale = actor->calc_morale();
+	const int rival_morale = vict->calc_morale();
 	if (actor_morale > 0 && rival_morale > 0) {
-		return ((number(0, actor_->calc_morale()) - number(0, rival_->calc_morale())) < 0);
+		return ((number(0, actor_morale) - number(0, rival_morale)) >= 0);
 	}
 	if (actor_morale <= 0 && rival_morale <= 0) {
-		return (actor_morale < rival_morale);
+		return (actor_morale >= rival_morale);
 	}
 	if (actor_morale <= 0) {
-		return true;
+		return false;
 	}
-	return false;
+	return true;
+};
+
+bool AgainstRivalRoll::IsActorMoraleFailure() {
+	return !OppositeLuckTest(actor_, rival_);
 };
 
 // TODO: переделать на static, чтобы иметь возможность считать рейтинги, к примеру, при наложении аффектов

@@ -5,14 +5,17 @@
 */
 
 #include "skill_messages.h"
+#include "utils/utils_string.h"   // str_cmp
+
+#include <vector>
 
 #include "engine/db/global_objects.h"
 
 #include <map>
 
-template<>
-const std::string &NAME_BY_ITEM<ESkillMsg>(const ESkillMsg item) {
-	static const std::map<ESkillMsg, std::string> kMap{
+namespace {
+// issue.vedun-msg-editor: file-scope so NAMES_OF can expose it to the editor.
+const std::map<ESkillMsg, std::string> kESkillMsgNames{
 		{ESkillMsg::kUndefined, "kUndefined"},
 		{ESkillMsg::kDontKnowSkill, "kDontKnowSkill"},
 		{ESkillMsg::kOnCooldown, "kOnCooldown"},
@@ -39,7 +42,16 @@ const std::string &NAME_BY_ITEM<ESkillMsg>(const ESkillMsg item) {
 		{ESkillMsg::kFightGodToVict, "kFightGodToVict"},
 		{ESkillMsg::kFightGodToRoom, "kFightGodToRoom"},
 	};
-	return kMap.at(item);
+}  // namespace
+
+template<>
+const std::string &NAME_BY_ITEM<ESkillMsg>(const ESkillMsg item) {
+	return kESkillMsgNames.at(item);
+}
+
+template<>
+const std::map<ESkillMsg, std::string> &NAMES_OF<ESkillMsg>() {
+	return kESkillMsgNames;
 }
 
 template<>
@@ -82,6 +94,48 @@ void SkillMessagesLoader::Load(parser_wrapper::DataNode data) {
 
 void SkillMessagesLoader::Reload(parser_wrapper::DataNode data) {
 	MUD::SkillMessages().Reload(data.Children());
+}
+
+// issue.vedun-msg-editor: editor discovery + safe-commit validation.
+std::string SkillMessagesLoader::EditableWhat() const {
+	return "skillmsg";
+}
+
+std::vector<cfg_manager::EditableElement> SkillMessagesLoader::ListElements() const {
+	std::vector<cfg_manager::EditableElement> out;
+	for (const auto &sheaf : MUD::SkillMessages()) {
+		const ESkill id = sheaf.GetId();
+		const std::string id_str = (id == ESkill::kUndefined) ? "kDefault" : NAME_BY_ITEM<ESkill>(id);
+		std::string label;
+		if (id != ESkill::kUndefined && MUD::Skills().IsKnown(id)) {
+			label = MUD::Skills()[id].GetName();
+		}
+		out.push_back({id_str, label});
+	}
+	return out;
+}
+
+cfg_manager::ValidationResult SkillMessagesLoader::Validate(parser_wrapper::DataNode &doc) const {
+	if (MUD::SkillMessages().Validate(doc.Children())) {
+		return {true, ""};
+	}
+	return {false, "Skill-message data failed to parse (see syslog for the offending sheaf/message)."};
+}
+
+std::string SkillMessagesLoader::CanonicalElementId(const std::string &id) const {
+	for (const auto &[value, name] : NAMES_OF<ESkill>()) {
+		if (value != ESkill::kUndefined && str_cmp(name, id) == 0) {
+			return name;
+		}
+	}
+	return "";
+}
+
+parser_wrapper::DataNode SkillMessagesLoader::CreateElementNode(parser_wrapper::DataNode root, const std::string &id) const {
+	// An empty sheaf for `id`; the editor then adds <message> children.
+	auto node = root.AddChild("msg_sheaf");
+	node.SetValue("id", id);
+	return node;
 }
 
 } // namespace skills

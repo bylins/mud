@@ -8,6 +8,7 @@
 ***************************************************************************/
 
 #include "engine/db/world_characters.h"
+#include "gameplay/fight/fight_messages.h"
 #include "engine/entities/obj_data.h"
 #include "engine/core/comm.h"
 #include "gameplay/magic/spells.h"
@@ -169,12 +170,12 @@ void CopyMobilePrototypeForMedit(CharData *dst, CharData *src, bool partial_copy
 		dst->set_npc_name(tmp.get_npc_name());
 		dst->player_data.long_descr = tmp.player_data.long_descr;
 		dst->player_data.description = tmp.player_data.description;
-		dst->player_data.PNames[ECase::kNom] = tmp.player_data.PNames[ECase::kNom];
-		dst->player_data.PNames[ECase::kGen] = tmp.player_data.PNames[ECase::kGen];
-		dst->player_data.PNames[ECase::kDat] = tmp.player_data.PNames[ECase::kDat];
-		dst->player_data.PNames[ECase::kAcc] = tmp.player_data.PNames[ECase::kAcc];
-		dst->player_data.PNames[ECase::kIns] = tmp.player_data.PNames[ECase::kIns];
-		dst->player_data.PNames[ECase::kPre] = tmp.player_data.PNames[ECase::kPre];
+		dst->player_data.PNames[grammar::ECase::kNom] = tmp.player_data.PNames[grammar::ECase::kNom];
+		dst->player_data.PNames[grammar::ECase::kGen] = tmp.player_data.PNames[grammar::ECase::kGen];
+		dst->player_data.PNames[grammar::ECase::kDat] = tmp.player_data.PNames[grammar::ECase::kDat];
+		dst->player_data.PNames[grammar::ECase::kAcc] = tmp.player_data.PNames[grammar::ECase::kAcc];
+		dst->player_data.PNames[grammar::ECase::kIns] = tmp.player_data.PNames[grammar::ECase::kIns];
+		dst->player_data.PNames[grammar::ECase::kPre] = tmp.player_data.PNames[grammar::ECase::kPre];
 		if (tmp.mob_specials.dest_count > 0) { // ели был маршрут оставим
 			dst->mob_specials.dest_count = tmp.mob_specials.dest_count;
 			for (auto plane = 0; plane < tmp.mob_specials.dest_count; plane++) {
@@ -262,12 +263,12 @@ void medit_setup(DescriptorData *d, int real_num)
 		mob->player_data.long_descr = "Неоконченный моб стоит тут.\r\n";
 		mob->player_data.description = "Выглядит достаточно незавершенно.\r\n";
 
-		mob->player_data.PNames[ECase::kNom] = "неоконченный моб";
-		mob->player_data.PNames[ECase::kGen] = "неоконченного моба";
-		mob->player_data.PNames[ECase::kDat] = "неоконченному мобу";
-		mob->player_data.PNames[ECase::kAcc] = "неоконченного моба";
-		mob->player_data.PNames[ECase::kIns] = "неоконченным мобом";
-		mob->player_data.PNames[ECase::kPre] = "неоконченном мобе";
+		mob->player_data.PNames[grammar::ECase::kNom] = "неоконченный моб";
+		mob->player_data.PNames[grammar::ECase::kGen] = "неоконченного моба";
+		mob->player_data.PNames[grammar::ECase::kDat] = "неоконченному мобу";
+		mob->player_data.PNames[grammar::ECase::kAcc] = "неоконченного моба";
+		mob->player_data.PNames[grammar::ECase::kIns] = "неоконченным мобом";
+		mob->player_data.PNames[grammar::ECase::kPre] = "неоконченном мобе";
 		mob->mob_specials.Questor = nullptr;
 		mob->summon_helpers.clear();
 #if defined(OASIS_MPROG)
@@ -356,7 +357,7 @@ void medit_save_internally(DescriptorData *d) {
 		medit_mobile_free(OLC_MOB(d));
 		// Удаление "оболочки" произойдет в olc_cleanup
 
-		if (mob_index[rmob_num].func == receptionist) {
+		if (specials::IsMobSpecial(mob_index[rmob_num].vnum, specials::ESpecial::kRent)) {
 			clear_mob_charm(&mob_proto[rmob_num]);
 		}
 
@@ -369,7 +370,7 @@ void medit_save_internally(DescriptorData *d) {
 				// Возможна небольшая утечка памяти, но иначе очень большая запара
 				GET_LDESC(live_mob) = GET_LDESC(mob_proto + rmob_num);
 				GET_DDESC(live_mob) = GET_DDESC(mob_proto + rmob_num);
-				for (j = ECase::kFirstCase; j <= ECase::kLastCase; j++) {
+				for (j = grammar::ECase::kFirstCase; j <= grammar::ECase::kLastCase; j++) {
 					live_mob->player_data.PNames[j] = mob_proto[rmob_num].player_data.PNames[j];
 				}
 				live_mob->summon_helpers.clear();
@@ -561,12 +562,12 @@ void medit_save_to_disk(ZoneRnum zone_num) {
 		strip_string(buf2);
 		fprintf(mob_file, "%s~\n" "%s~\n" "%s~\n" "%s~\n" "%s~\n" "%s~\n" "%s~\n" "%s~\n" "%s~\n",
 				(GET_ALIAS(mob) && *GET_ALIAS(mob)) ? GET_ALIAS(mob) : "неопределен",
-				not_empty(mob->player_data.PNames[ECase::kNom], "кто"),
-				not_empty(mob->player_data.PNames[ECase::kGen], "кого"),
-				not_empty(mob->player_data.PNames[ECase::kDat], "кому"),
-				not_empty(mob->player_data.PNames[ECase::kAcc], "кого"),
-				not_empty(mob->player_data.PNames[ECase::kIns], "кем"),
-				not_empty(mob->player_data.PNames[ECase::kPre], "о ком"), buf1, buf2);
+				not_empty(mob->player_data.PNames[grammar::ECase::kNom], "кто"),
+				not_empty(mob->player_data.PNames[grammar::ECase::kGen], "кого"),
+				not_empty(mob->player_data.PNames[grammar::ECase::kDat], "кому"),
+				not_empty(mob->player_data.PNames[grammar::ECase::kAcc], "кого"),
+				not_empty(mob->player_data.PNames[grammar::ECase::kIns], "кем"),
+				not_empty(mob->player_data.PNames[grammar::ECase::kPre], "о ком"), buf1, buf2);
 		if (mob->mob_specials.Questor)
 			snprintf(buf1, sizeof(buf1), "%s", mob->mob_specials.Questor);
 		else
@@ -576,7 +577,7 @@ void medit_save_to_disk(ZoneRnum zone_num) {
 		mob->PrintFlagsToAscii(buf2, sizeof(buf2));
 		AFF_FLAGS(mob).tascii(FlagData::kPlanesNumber, buf2, sizeof(buf2));
 		fprintf(mob_file, "%s%d E\n" "%d %d %d %dd%d+%d %dd%d+%d\n" "%dd%d+%ld %ld\n" "%d %d %d\n",
-				buf2, GET_ALIGNMENT(mob),
+				buf2, alignment::GetAlignment(mob),
 				GetRealLevel(mob), 20 - GET_HR(mob), GET_AC(mob) / 10, mob->mem_queue.total,
 				mob->mem_queue.stored, mob->get_hit(), GET_NDD(mob), GET_SDD(mob), GET_DR(mob), GET_GOLD_NoDs(mob),
 				GET_GOLD_SiDs(mob), mob->get_gold(), mob->get_exp(), static_cast<int>(mob->GetPosition()),
@@ -961,7 +962,7 @@ void medit_disp_attack_types(DescriptorData *d) {
 	SendMsgToChar("[H[J", d->character);
 #endif
 	for (i = 0; i < NUM_ATTACK_TYPES; i++) {
-		snprintf(buf, sizeof(buf), "%s%2d%s) %s\r\n", grn, i, nrm, attack_hit_text[i].singular);
+		snprintf(buf, sizeof(buf), "%s%2d%s) %s\r\n", grn, i, nrm, fight::GetAttackTypeDescription(i).c_str());
 		SendMsgToChar(buf, d->character.get());
 	}
 	SendMsgToChar("Выберите тип удара : ", d->character.get());
@@ -1091,7 +1092,7 @@ void medit_disp_menu(DescriptorData *d) {
 			grn, GET_LDESC(mob).c_str(),
 			grn, GET_DDESC(mob).c_str(),
 			grn, nrm, cyn, mob->GetLevel(), nrm,
-			grn, nrm, cyn, GET_ALIGNMENT(mob), nrm,
+			grn, nrm, cyn, alignment::GetAlignment(mob), nrm,
 			grn, nrm, cyn, GET_HR(mob), nrm,
 			grn, nrm, cyn, GET_DR(mob), nrm,
 			grn, nrm, cyn, GET_NDD(mob), nrm,
@@ -1115,7 +1116,7 @@ void medit_disp_menu(DescriptorData *d) {
 			 "%sV%s) Аффекты (AFF) : %s%s\r\n",
 			 grn, nrm, yel, position_types[(int) mob->GetPosition()],
 			 grn, nrm, yel, position_types[(int) GET_DEFAULT_POS(mob)],
-			 grn, nrm, yel, attack_hit_text[GET_ATTACK(mob)].singular, grn, nrm, cyn, buf1, grn, nrm, cyn, buf2);
+			 grn, nrm, yel, fight::GetAttackTypeDescription(GET_ATTACK(mob)).c_str(), grn, nrm, cyn, buf1, grn, nrm, cyn, buf2);
 	SendMsgToChar(buf, d->character.get());
 
 	mob->mob_specials.npc_flags.sprintbits(function_bits, buf1, sizeof(buf1), ",", 4);
@@ -1221,7 +1222,7 @@ void disp_dl_list(DescriptorData *d) {
 			auto tobj = GetObjectPrototype(p->obj_vnum);
 			const char *objname = nullptr;
 			if (p->obj_vnum && tobj) {
-				objname = tobj->get_PName(ECase::kNom).c_str();
+				objname = tobj->get_PName(grammar::ECase::kNom).c_str();
 			} else {
 				objname = "Нет";
 			}
@@ -1771,23 +1772,23 @@ void medit_parse(DescriptorData *d, char *arg) {
 		case MEDIT_ALIAS: OLC_MOB(d)->SetCharAliases((arg && *arg) ? arg : "неопределен");
 			break;
 
-		case MEDIT_PAD0: OLC_MOB(d)->player_data.PNames[ECase::kNom] = std::string((arg && *arg) ? arg : "кто-то");
+		case MEDIT_PAD0: OLC_MOB(d)->player_data.PNames[grammar::ECase::kNom] = std::string((arg && *arg) ? arg : "кто-то");
 			OLC_MOB(d)->set_npc_name((arg && *arg) ? arg : "кто-то");
 			break;
 
-		case MEDIT_PAD1: OLC_MOB(d)->player_data.PNames[ECase::kGen] = std::string((arg && *arg) ? arg : "кого-то");
+		case MEDIT_PAD1: OLC_MOB(d)->player_data.PNames[grammar::ECase::kGen] = std::string((arg && *arg) ? arg : "кого-то");
 			break;
 
-		case MEDIT_PAD2: OLC_MOB(d)->player_data.PNames[ECase::kDat] = std::string((arg && *arg) ? arg : "кому-то");
+		case MEDIT_PAD2: OLC_MOB(d)->player_data.PNames[grammar::ECase::kDat] = std::string((arg && *arg) ? arg : "кому-то");
 			break;
 
-		case MEDIT_PAD3: OLC_MOB(d)->player_data.PNames[ECase::kAcc] = std::string((arg && *arg) ? arg : "кого-то");
+		case MEDIT_PAD3: OLC_MOB(d)->player_data.PNames[grammar::ECase::kAcc] = std::string((arg && *arg) ? arg : "кого-то");
 			break;
 
-		case MEDIT_PAD4: OLC_MOB(d)->player_data.PNames[ECase::kIns] = std::string((arg && *arg) ? arg : "кем-то");
+		case MEDIT_PAD4: OLC_MOB(d)->player_data.PNames[grammar::ECase::kIns] = std::string((arg && *arg) ? arg : "кем-то");
 			break;
 
-		case MEDIT_PAD5: OLC_MOB(d)->player_data.PNames[ECase::kPre] = std::string((arg && *arg) ? arg : "о ком-то");
+		case MEDIT_PAD5: OLC_MOB(d)->player_data.PNames[grammar::ECase::kPre] = std::string((arg && *arg) ? arg : "о ком-то");
 			break;
 			//-------------------------------------------------------------------
 		case MEDIT_L_DESC:
@@ -2027,7 +2028,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 		case MEDIT_LEVEL: OLC_MOB(d)->set_level(atoi(arg));
 			break;
 
-		case MEDIT_ALIGNMENT: GET_ALIGNMENT(OLC_MOB(d)) = std::max(-1000, std::min(1000, atoi(arg)));
+		case MEDIT_ALIGNMENT: alignment::SetAlignment(OLC_MOB(d), std::max(-1000, std::min(1000, atoi(arg))));
 			break;
 
 		case MEDIT_DESTINATION: number = atoi(arg);

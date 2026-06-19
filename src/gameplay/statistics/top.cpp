@@ -1,4 +1,6 @@
 #include "top.h"
+#include "administration/privilege.h"
+#include "utils/grammar/declensions.h"
 
 #include "gameplay/classes/pc_classes.h"
 #include "engine/ui/color.h"
@@ -9,6 +11,7 @@
 #include "engine/db/global_objects.h"
 #include "engine/ui/table_wrapper.h"
 #include "utils/utils_time.h"
+#include "gameplay/core/remort.h"
 
 
 PlayerChart TopPlayer::chart_(kNumPlayerClasses);
@@ -33,7 +36,7 @@ void TopPlayer::Refresh(CharData *short_ch, bool reboot) {
 	if (short_ch->IsNpc()
 		|| short_ch->IsFlagged(EPlrFlag::kFrozen)
 		|| short_ch->IsFlagged(EPlrFlag::kDeleted)
-		|| short_ch->IsImmortal()) {
+		|| privilege::IsImmortal(short_ch)) {
 		return;
 	}
 	if (!reboot) {
@@ -43,8 +46,8 @@ void TopPlayer::Refresh(CharData *short_ch, bool reboot) {
 	std::list<TopPlayer>::iterator it_exp;
 	for (it_exp = TopPlayer::chart_[short_ch->GetClass()].begin();
 		 it_exp != TopPlayer::chart_[short_ch->GetClass()].end(); ++it_exp) {
-		if (it_exp->remort_ < GetRealRemort(short_ch)
-			|| (it_exp->remort_ == GetRealRemort(short_ch) && it_exp->exp_ < short_ch->get_exp())) {
+		if (it_exp->remort_ < remort::GetRealRemort(short_ch)
+			|| (it_exp->remort_ == remort::GetRealRemort(short_ch) && it_exp->exp_ < short_ch->get_exp())) {
 			break;
 		}
 	}
@@ -52,7 +55,7 @@ void TopPlayer::Refresh(CharData *short_ch, bool reboot) {
 	if (short_ch->get_name().empty()) {
 		return; // у нас все может быть
 	}
-	TopPlayer temp_player(short_ch->get_uid(), GET_NAME(short_ch), short_ch->get_exp(), GetRealRemort(short_ch), 0);
+	TopPlayer temp_player(short_ch->get_uid(), GET_NAME(short_ch), short_ch->get_exp(), remort::GetRealRemort(short_ch), 0);
 
 	if (it_exp != TopPlayer::chart_[short_ch->GetClass()].end()) {
 		TopPlayer::chart_[short_ch->GetClass()].insert(it_exp, temp_player);
@@ -90,10 +93,10 @@ void TopPlayer::RefreshAll() {
 		if (ch->IsNpc()
 			|| ch->IsFlagged(EPlrFlag::kFrozen)
 			|| ch->IsFlagged(EPlrFlag::kDeleted)
-			|| ch->IsImmortal()) {
+			|| privilege::IsImmortal(ch)) {
 			continue;
 		}
-		online[ch->get_uid()] = {ch->get_exp(), GetRealRemort(ch)};
+		online[ch->get_uid()] = {ch->get_exp(), remort::GetRealRemort(ch)};
 	}
 
 	// Early exit: пустой snapshot значит обновлять нечего, нет смысла
@@ -141,7 +144,7 @@ void TopPlayer::PrintPlayersChart(CharData *ch) {
 		table
 			<< it.second.begin()->name_
 			<< it.second.begin()->remort_
-			<< GetDeclensionInNumber(it.second.begin()->remort_, EWhat::kRemort)
+			<< grammar::GetDeclensionInNumber(it.second.begin()->remort_, grammar::EWhat::kRemort)
 			<< MUD::Class(it.first).GetName() << table_wrapper::kEndRow;
 	}
 	table_wrapper::DecorateNoBorderTable(ch, table);
@@ -167,7 +170,7 @@ void TopPlayer::PrintClassChart(CharData *ch, ECharClass id) {
 		table << it.number_
 			<< it.name_
 			<< it.remort_
-			<< GetDeclensionInNumber(it.remort_, EWhat::kRemort) << table_wrapper::kEndRow;
+			<< grammar::GetDeclensionInNumber(it.remort_, grammar::EWhat::kRemort) << table_wrapper::kEndRow;
 		if (table.row_count() >= kPlayerChartSize) {
 			break;
 		}
@@ -194,7 +197,7 @@ void TopPlayer::PrintClassChart(CharData *ch, ECharClass id) {
 	}
 	table_wrapper::Table table3;
 	for (auto &it : upper) {
-		table3 << it.number_ << it.name_ << it.remort_ << GetDeclensionInNumber(it.remort_, EWhat::kRemort) << table_wrapper::kEndRow;
+		table3 << it.number_ << it.name_ << it.remort_ << grammar::GetDeclensionInNumber(it.remort_, grammar::EWhat::kRemort) << table_wrapper::kEndRow;
 	}
 	table_wrapper::DecorateNoBorderTable(ch, table3);
 	table_wrapper::PrintTableToStream(out, table3);
@@ -204,7 +207,7 @@ void TopPlayer::PrintClassChart(CharData *ch, ECharClass id) {
 	for (const auto &it: TopPlayer::chart_[id]) {
 		if (deep == 0) {
 			if (it.unique_ == ch->get_uid()) {
-				out << "\r\n" << " Ваш текущий рейтинг: " << it.number_ << " - " << it.remort_ << " " << GetDeclensionInNumber(it.remort_, EWhat::kRemort) << "\r\n";
+				out << "\r\n" << " Ваш текущий рейтинг: " << it.number_ << " - " << it.remort_ << " " << grammar::GetDeclensionInNumber(it.remort_, grammar::EWhat::kRemort) << "\r\n";
 				out  << "\r\n После вас:\r\n";
 				deep = 1;
 				continue;
@@ -212,7 +215,7 @@ void TopPlayer::PrintClassChart(CharData *ch, ECharClass id) {
 		} else {
 			if (deep++ == 4)
 				break;
-			table4 << it.number_ << it.name_ << it.remort_ << GetDeclensionInNumber(it.remort_, EWhat::kRemort) << table_wrapper::kEndRow;
+			table4 << it.number_ << it.name_ << it.remort_ << grammar::GetDeclensionInNumber(it.remort_, grammar::EWhat::kRemort) << table_wrapper::kEndRow;
 		}
 	}
 	table_wrapper::DecorateNoBorderTable(ch, table4);
@@ -229,7 +232,7 @@ void TopPlayer::PrintClassChart(CharData *ch, ECharClass id) {
 		for (auto &it : upper) {
 			table2 << it.name_
 				<< it.remort_
-				<< GetDeclensionInNumber(it.remort_, EWhat::kRemort) << table_wrapper::kEndRow;
+				<< grammar::GetDeclensionInNumber(it.remort_, grammar::EWhat::kRemort) << table_wrapper::kEndRow;
 		}
 		table_wrapper::DecorateNoBorderTable(ch, table2);
 		table_wrapper::PrintTableToStream(out, table2);

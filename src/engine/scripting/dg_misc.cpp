@@ -10,6 +10,7 @@
 
 #include "dg_scripts.h"
 #include "engine/core/handler.h"
+#include "engine/core/target_resolver.h"
 #include "dg_event.h"
 #include "gameplay/magic/magic.h"
 #include "engine/db/global_objects.h"
@@ -56,12 +57,14 @@ int find_dg_cast_target(ESpell spell_id, const char *t, CharData *ch, CharData *
 		return true;
 	if (*t) {
 		if (MUD::Spell(spell_id).AllowTarget(kTarCharRoom)) {
-			if ((*tch = get_char_vis(ch, t, EFind::kCharInRoom)) != nullptr) {
+			*tch = target_resolver::FindCharInRoom(ch, t);
+			if ((*tch != nullptr)) {
 				return true;
 			}
 		}
 		if (MUD::Spell(spell_id).AllowTarget(kTarCharWorld)) {
-			if ((*tch = get_char_vis(ch, t, EFind::kCharInWorld)) != nullptr) {
+			*tch = target_resolver::FindCharInWorld(ch, t);
+			if ((*tch != nullptr)) {
 				return true;
 			}
 		}
@@ -86,9 +89,10 @@ int find_dg_cast_target(ESpell spell_id, const char *t, CharData *ch, CharData *
 			if ((*tobj = get_obj_in_list_vis(ch, t, world[ch->in_room]->contents)) != nullptr)
 				return true;
 
-		if (MUD::Spell(spell_id).AllowTarget(kTarObjWorld))
-			if ((*tobj = get_obj_vis(ch, t)) != nullptr)
+		if (MUD::Spell(spell_id).AllowTarget(kTarObjWorld)) {
+			if ((*tobj = target_resolver::FindObjAround(ch, t)) != nullptr)
 				return true;
+		}
 	} else {
 		if (MUD::Spell(spell_id).AllowTarget(kTarFightSelf))
 			if (ch->GetEnemy() != nullptr) {
@@ -176,28 +180,28 @@ void do_dg_cast(void *go, Trigger *trig, int type, std::string cmd) {
 		// take select pieces from char_to_room();
 		dummy_mob = true;
 		if (type == OBJ_TRIGGER) {
-			sprintf(buf, "дух %s", ((ObjData *) go)->get_PName(ECase::kGen).c_str());
+			sprintf(buf, "дух %s", ((ObjData *) go)->get_PName(grammar::ECase::kGen).c_str());
 			caster->set_npc_name(buf);
-			sprintf(buf, "дух %s", ((ObjData *) go)->get_PName(ECase::kGen).c_str());
-			caster->player_data.PNames[ECase::kNom] = std::string(buf);
-			sprintf(buf, "духа %s", ((ObjData *) go)->get_PName(ECase::kGen).c_str());
-			caster->player_data.PNames[ECase::kGen] = std::string(buf);
-			sprintf(buf, "духу %s", ((ObjData *) go)->get_PName(ECase::kGen).c_str());
-			caster->player_data.PNames[ECase::kDat] = std::string(buf);
-			sprintf(buf, "духа %s", ((ObjData *) go)->get_PName(ECase::kGen).c_str());
-			caster->player_data.PNames[ECase::kAcc] = std::string(buf);
-			sprintf(buf, "духом %s", ((ObjData *) go)->get_PName(ECase::kGen).c_str());
-			caster->player_data.PNames[ECase::kIns] = std::string(buf);
-			sprintf(buf, "духе %s", ((ObjData *) go)->get_PName(ECase::kGen).c_str());
-			caster->player_data.PNames[ECase::kPre] = std::string(buf);
+			sprintf(buf, "дух %s", ((ObjData *) go)->get_PName(grammar::ECase::kGen).c_str());
+			caster->player_data.PNames[grammar::ECase::kNom] = std::string(buf);
+			sprintf(buf, "духа %s", ((ObjData *) go)->get_PName(grammar::ECase::kGen).c_str());
+			caster->player_data.PNames[grammar::ECase::kGen] = std::string(buf);
+			sprintf(buf, "духу %s", ((ObjData *) go)->get_PName(grammar::ECase::kGen).c_str());
+			caster->player_data.PNames[grammar::ECase::kDat] = std::string(buf);
+			sprintf(buf, "духа %s", ((ObjData *) go)->get_PName(grammar::ECase::kGen).c_str());
+			caster->player_data.PNames[grammar::ECase::kAcc] = std::string(buf);
+			sprintf(buf, "духом %s", ((ObjData *) go)->get_PName(grammar::ECase::kGen).c_str());
+			caster->player_data.PNames[grammar::ECase::kIns] = std::string(buf);
+			sprintf(buf, "духе %s", ((ObjData *) go)->get_PName(grammar::ECase::kGen).c_str());
+			caster->player_data.PNames[grammar::ECase::kPre] = std::string(buf);
 		} else if (type == WLD_TRIGGER) {
 			caster->set_npc_name("Боги");
-			caster->player_data.PNames[ECase::kNom] = "Боги";
-			caster->player_data.PNames[ECase::kGen] = "Богов";
-			caster->player_data.PNames[ECase::kDat] = "Богам";
-			caster->player_data.PNames[ECase::kAcc] = "Богов";
-			caster->player_data.PNames[ECase::kIns] = "Богами";
-			caster->player_data.PNames[ECase::kPre] = "Богах";
+			caster->player_data.PNames[grammar::ECase::kNom] = "Боги";
+			caster->player_data.PNames[grammar::ECase::kGen] = "Богов";
+			caster->player_data.PNames[grammar::ECase::kDat] = "Богам";
+			caster->player_data.PNames[grammar::ECase::kAcc] = "Богов";
+			caster->player_data.PNames[grammar::ECase::kIns] = "Богами";
+			caster->player_data.PNames[grammar::ECase::kPre] = "Богах";
 		}
 		caster_room->people.push_front(caster);
 		caster->in_room = GetRoomRnum(caster_room->vnum);
@@ -319,16 +323,16 @@ void do_dg_affect(void * /*go*/, Script * /*sc*/, Trigger *trig, int/* script_ty
 		if (battle == kAfPulsedec) {
 			af.duration = duration;
 		} else {
-			af.duration = CalcDuration(ch, duration * 2, 0, 0, 0, 0);
+			af.duration = CalcDuration(ch, ch, ESkill::kUndefined, duration * 2, 0, 0, 0);
 		}
 		if (type == AFFECT_TYPE) {
 			af.location = EApply::kNone;
 			af.modifier = 0;
-			af.bitvector = index;
+			af.affect_type = static_cast<EAffect>(index);
 		} else {
 			af.location = static_cast<EApply>(index);
 			af.modifier = value;
-			af.bitvector = 0;
+			af.affect_type = EAffect::kUndefined;
 		}
 		ImposeAffect(ch, af); // перекастим аффект
 	} else {

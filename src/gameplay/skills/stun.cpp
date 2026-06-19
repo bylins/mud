@@ -1,4 +1,5 @@
 #include "stun.h"
+#include "gameplay/mechanics/mount.h"
 #include "skill_messages.h"
 
 #include "gameplay/fight/pk.h"
@@ -6,6 +7,7 @@
 #include "gameplay/fight/fight_hit.h"
 #include "engine/core/handler.h"
 #include "engine/db/global_objects.h"
+#include "gameplay/core/remort.h"
 
 void do_stun(CharData *ch, char *argument, int, int) {
 	if (ch->GetSkill(ESkill::kStun) < 1) {
@@ -17,7 +19,7 @@ void do_stun(CharData *ch, char *argument, int, int) {
 		return;
 	};
 
-	if (!ch->IsOnHorse()) {
+	if (!mount::IsOnHorse(ch)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kStun, ESkillMsg::kMustBeMounted) + "\r\n", ch);
 		return;
 	}
@@ -90,7 +92,7 @@ void go_stun(CharData *ch, CharData *vict) {
 				nullptr, vict, kToNotVict | kToArenaListen);
 		}
 		vict->SetPosition(EPosition::kIncap);
-		SetWaitState(vict, (2 + GetRealRemort(ch) / 5) * kBattleRound * ch->GetSkill(ESkill::kStun) / MUD::Skill(ESkill::kStun).cap);
+		SetWaitState(vict, (2 + remort::GetRealRemort(ch) / 5) * kBattleRound * ch->GetSkill(ESkill::kStun) / MUD::Skill(ESkill::kStun).cap);
 		ch->setSkillCooldown(ESkill::kStun, 3 * kBattleRound);
 		hit(ch, vict, ESkill::kUndefined, AFF_FLAGGED(vict, EAffect::kStopRight) ? fight::kOffHand : fight::kMainHand);
 	}

@@ -3,14 +3,14 @@
 //
 
 #include "engine/ui/color.h"
+#include "administration/privilege.h"
 #include "gameplay/classes/pc_classes.h"
 #include "engine/entities/char_data.h"
 #include "engine/ui/modify.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/mechanics/weather.h"
-/*#include "utils/utils_string.h"
-#include "utils/table_wrapper.h"
-#include "utils/utils.h"*/
+#include "gameplay/core/remort.h"
+#include "gameplay/mechanics/sight.h"
 
 #define USERS_FORMAT \
 "Формат: users [-l minlevel[-maxlevel]] [-n name] [-h host] [-c classlist] [-o] [-p]\r\n"
@@ -52,7 +52,7 @@ void do_users(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					strcpy(buf, buf1);
 					break;
 				case 'l':
-					if (!ch->IsGod())
+					if (!privilege::IsGod(ch))
 						return;
 					playing = 1;
 					half_chop(buf1, arg, buf);
@@ -68,7 +68,7 @@ void do_users(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					half_chop(buf1, host_by_name, buf);
 					break;
 				case 'w':
-					if (!ch->IsGrGod())
+					if (!privilege::IsGrGod(ch))
 						return;
 					playing = 1;
 					locating = 1;
@@ -192,7 +192,7 @@ void do_users(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			if (*name_search && !isname(name_search, GET_NAME(character))) {
 				continue;
 			}
-			if (!CAN_SEE(ch, character) || GetRealLevel(character) < low || GetRealLevel(character) > high) {
+			if (!sight::CanSee(ch, character) || GetRealLevel(character) < low || GetRealLevel(character) > high) {
 				continue;
 			}
 			if (outlaws && !(ch)->IsFlagged(EPlrFlag::kKiller)) {
@@ -210,7 +210,7 @@ void do_users(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					sprintf(classname,
 							"[%2d %2d %s]",
 							GetRealLevel(d->original),
-							GetRealRemort(d->original),
+							remort::GetRealRemort(d->original),
 							MUD::Class(d->original->GetClass()).GetAbbr().c_str());
 				} else {
 					sprintf(classname,
@@ -222,7 +222,7 @@ void do_users(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				sprintf(classname,
 						"[%2d %2d %s]",
 						GetRealLevel(d->character),
-						GetRealRemort(d->character),
+						remort::GetRealRemort(d->character),
 						MUD::Class(d->character->GetClass()).GetAbbr().c_str());
 			} else {
 				sprintf(classname,
@@ -250,7 +250,7 @@ void do_users(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 		if (d->character
 			&& d->state == EConState::kPlaying
-			&& !d->character->IsGod()) {
+			&& !privilege::IsGod(d->character.get())) {
 			sprintf(idletime, "%-3d", d->character->char_specials.timer *
 				kSecsPerMudHour / kSecsPerRealMin);
 		} else {
@@ -299,7 +299,7 @@ void do_users(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			if (d->state == EConState::kPlaying) {
 				const auto ci = d->get_character();
 				if (ci
-					&& CAN_SEE(ch, ci)
+					&& sight::CanSee(ch, ci)
 					&& ci->in_room != kNowhere) {
 					if (d->original && d->character) {
 						sprintf(line2, " [%5d] %s (in %s)",
@@ -321,7 +321,7 @@ void do_users(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			strcpy(line, line2);
 		}
 
-		if (d->state != EConState::kPlaying || (d->state == EConState::kPlaying && d->character && CAN_SEE(ch, d->character))) {
+		if (d->state != EConState::kPlaying || (d->state == EConState::kPlaying && d->character && sight::CanSee(ch, d->character))) {
 			SendMsgToChar(line, ch);
 			num_can_see++;
 		}

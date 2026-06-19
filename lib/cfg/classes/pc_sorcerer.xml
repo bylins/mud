@@ -1,9 +1,5 @@
 <?xml version="1.0" encoding="koi8-r"?>
 <class id="kSorcerer">
-    <name abbr="Лк">
-        <singular nom="лекарь" gen="лекаря" dat="лекарю" acc="лекаря" ins="лекарем" pre="лекаре"/>
-        <plural nom="лекари" gen="лекарей" dat="лекарям" acc="лекарей" ins="лекарями" pre="лекарях"/>
-    </name>
     <stats>
         <base_stats>
             <stat id="kStr"	gen_min="11"	gen_max="14"	auto="11"	cap="50"/>

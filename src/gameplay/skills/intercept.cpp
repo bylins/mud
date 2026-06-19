@@ -7,12 +7,14 @@
 */
 
 #include "engine/db/global_objects.h"
+#include "administration/privilege.h"
 
 #include "skill_messages.h"
 #include "engine/entities/char_data.h"
 #include "gameplay/fight/common.h"
 #include "parry.h"
 #include "engine/core/handler.h"
+#include "engine/core/target_resolver.h"
 
 void GoIntercept(CharData *ch, CharData *vict);
 void PerformIntercept(CharData *ch, CharData *vict, HitData &hit_data);
@@ -28,14 +30,15 @@ void DoIntercept(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	};
 
 	ObjData *primary = GET_EQ(ch, EEquipPos::kWield) ? GET_EQ(ch, EEquipPos::kWield) : GET_EQ(ch, EEquipPos::kBoths);
-	if (!(ch->IsImmortal() || ch->IsNpc() || GET_GOD_FLAG(ch, EGf::kGodsLike) || !primary)) {
+	if (!(privilege::IsImmortal(ch) || ch->IsNpc() || GET_GOD_FLAG(ch, EGf::kGodsLike) || !primary)) {
 		SendMsgToChar("У вас заняты руки.\r\n", ch);
 		return;
 	}
 
 	CharData *vict{nullptr};
 	one_argument(argument, arg);
-	if (!(vict = get_char_vis(ch, arg, EFind::kCharInRoom))) {
+	vict = target_resolver::FindCharInRoom(ch, arg);
+	if (!vict) {
 		for (const auto i : world[ch->in_room]->people) {
 			if (i->GetEnemy() == ch) {
 				vict = i;
@@ -103,14 +106,14 @@ void PerformIntercept(CharData *ch, CharData *vict, HitData &hit_data) {
 		&& !AFF_FLAGGED(vict, EAffect::kStopRight)
 		&& vict->get_wait() <= 0
 		&& !AFF_FLAGGED(vict, EAffect::kHold)
-		&& (vict->IsImmortal() || vict->IsNpc()
+		&& (privilege::IsImmortal(vict) || vict->IsNpc()
 			|| !(GET_EQ(vict, EEquipPos::kWield) || GET_EQ(vict, EEquipPos::kBoths)))
 		&& vict->GetPosition() > EPosition::kSleep) {
 		int percent = number(1, MUD::Skill(ESkill::kIntercept).difficulty);
 		int prob = CalcCurrentSkill(vict, ESkill::kIntercept, ch);
 		TrainSkill(vict, ESkill::kIntercept, prob >= percent, ch);
 		SendSkillBalanceMsg(ch, MUD::Skill(ESkill::kIntercept).name, percent, prob, prob >= 70);
-		if (vict->IsImmortal() || GET_GOD_FLAG(vict, EGf::kGodsLike)) {
+		if (privilege::IsImmortal(vict) || GET_GOD_FLAG(vict, EGf::kGodsLike)) {
 			percent = prob;
 		}
 		if (GET_GOD_FLAG(vict, EGf::kGodscurse)) {

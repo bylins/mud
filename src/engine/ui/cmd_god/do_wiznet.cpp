@@ -7,9 +7,11 @@
 */
 
 #include "engine/entities/char_data.h"
+#include "administration/privilege.h"
 #include "engine/network/descriptor_data.h"
 #include "engine/ui/color.h"
 #include "gameplay/communication/remember.h"
+#include "gameplay/mechanics/sight.h"
 
 void do_wiznet(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	DescriptorData *d;
@@ -55,8 +57,8 @@ void do_wiznet(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			// Обнаруживаем всех кто может (теоретически) нас услышать
 			for (d = descriptor_list; d; d = d->next) {
 				if (d->state == EConState::kPlaying &&
-					(d->character->IsImmortal() || GET_GOD_FLAG(d->character, EGf::kDemigod)) &&
-					!d->character->IsFlagged(EPrf::kNoWiz) && (CAN_SEE(ch, d->character) || ch->IsImpl())) {
+					(privilege::IsImmortal(d->character.get()) || GET_GOD_FLAG(d->character, EGf::kDemigod)) &&
+					!d->character->IsFlagged(EPrf::kNoWiz) && (sight::CanSee(ch, d->character) || privilege::IsImpl(ch))) {
 					if (!bookmark1) {
 						strcpy(buf1,
 							   "Боги/привилегированные которые смогут (наверное) вас услышать:\r\n");
@@ -73,8 +75,8 @@ void do_wiznet(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 			for (d = descriptor_list; d; d = d->next) {
 				if (d->state == EConState::kPlaying &&
-					(d->character->IsImmortal() || GET_GOD_FLAG(d->character, EGf::kDemigod)) &&
-					d->character->IsFlagged(EPrf::kNoWiz) && CAN_SEE(ch, d->character)) {
+					(privilege::IsImmortal(d->character.get()) || GET_GOD_FLAG(d->character, EGf::kDemigod)) &&
+					d->character->IsFlagged(EPrf::kNoWiz) && sight::CanSee(ch, d->character)) {
 					if (!bookmark2) {
 						if (!bookmark1)
 							strcpy(buf1,
@@ -133,7 +135,7 @@ void do_wiznet(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 	}
 	if (ch->IsFlagged(EPrf::kNoRepeat)) {
-		SendMsgToChar(OK, ch);
+		SendMsgToChar(CommonMsg(ECommonMsg::kOk) + "\r\n", ch);
 	}
 }
 

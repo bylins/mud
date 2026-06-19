@@ -1,4 +1,5 @@
 #include "magic_temp_spells.h"
+#include "administration/privilege.h"
 
 #include "engine/db/world_characters.h"
 #include "engine/ui/color.h"
@@ -36,7 +37,7 @@ void update_times() {
 	time_t now = time(nullptr);
 	for (const auto &ch : character_list) {
 		if (ch->IsNpc()
-			|| ch->IsImmortal()) {
+			|| privilege::IsImmortal(ch.get())) {
 			continue;
 		}
 

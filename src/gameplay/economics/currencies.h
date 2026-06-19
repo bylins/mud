@@ -34,6 +34,23 @@ class CurrenciesLoader : virtual public cfg_manager::ICfgLoader {
 	void Reload(parser_wrapper::DataNode data) final;
 };
 
+// issue.thing-names: a currency's display name -- the search string + gendered cased declensions --
+// loaded from cfg/messages/ru/currency_msg.xml (before currencies.xml), keyed by currency text_id.
+struct CurrencyName {
+	EGender gender{EGender::kFemale};
+	std::string search{"!undefined!"};
+	grammar::ItemName cases;
+};
+
+class CurrencyNamesLoader : virtual public cfg_manager::ICfgLoader {
+ public:
+	void Load(parser_wrapper::DataNode data) final;
+	void Reload(parser_wrapper::DataNode data) final;
+};
+
+// The loaded name for a currency text_id, or nullptr if none.
+const CurrencyName *FindCurrencyName(const std::string &text_id);
+
 class CurrencyInfo : public info_container::BaseItem<int> {
 	friend class CurrencyInfoBuilder;
 
@@ -68,18 +85,18 @@ class CurrencyInfo : public info_container::BaseItem<int> {
 
 	[[nodiscard]] EGender GetGender() const { return gender_; };
 	[[nodiscard]] const std::string &GetNameWithAmount(long amount) const;
-	[[nodiscard]] const std::string &GetName(ECase name_case = ECase::kNom) const;
-	[[nodiscard]] const std::string &GetPluralName(ECase name_case = ECase::kNom) const;
-	[[nodiscard]] const char *GetCName(ECase name_case) const;
-	[[nodiscard]] const char *GetPluralCName(ECase name_case) const;
+	[[nodiscard]] const std::string &GetName(grammar::ECase name_case = grammar::ECase::kNom) const;
+	[[nodiscard]] const std::string &GetPluralName(grammar::ECase name_case = grammar::ECase::kNom) const;
+	[[nodiscard]] const char *GetCName(grammar::ECase name_case) const;
+	[[nodiscard]] const char *GetPluralCName(grammar::ECase name_case) const;
 	/**
 	 * Генерация названия объекта, содержащего заданное количество валюты.
 	 * @param amount - количество валюты.
 	 * @param gram_case - в каком падеже нужно название.
 	 * @return - строка-описание объекта.
 	 */
-	[[nodiscard]] std::string GetObjName(long amount, ECase gram_case) const;
-	[[nodiscard]] const char *GetObjCName(long amount, ECase gram_case) const;
+	[[nodiscard]] std::string GetObjName(long amount, grammar::ECase gram_case) const;
+	[[nodiscard]] const char *GetObjCName(long amount, grammar::ECase gram_case) const;
 
 	void Print(CharData */*ch*/, std::ostringstream &buffer) const;
 };

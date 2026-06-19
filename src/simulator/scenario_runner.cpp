@@ -1,4 +1,5 @@
 #include "scenario_runner.h"
+#include "gameplay/mechanics/follow.h"
 
 #include "engine/core/handler.h"
 #include "engine/core/iosystem.h"
@@ -322,9 +323,9 @@ CharData* SpawnPet(CharData* owner, const PetSpec& spec, RoomRnum room) {
 	af.battleflag = 0;
 	af.type = ESpell::kCharm;
 	af.duration = 999;  // long enough that no scenario will outlive it
-	af.bitvector = to_underlying(EAffect::kCharmed);
+	af.affect_type = EAffect::kCharmed;
 	affect_to_char(pet, af);
-	owner->add_follower(pet);
+	follow::AddFollower(owner, pet);
 
 	return pet;
 }

@@ -1,4 +1,7 @@
 #include "overhelm.h"
+#include "administration/privilege.h"
+#include "gameplay/mechanics/sight.h"
+#include "gameplay/mechanics/mount.h"
 #include "skill_messages.h"
 
 #include "gameplay/fight/pk.h"
@@ -96,7 +99,7 @@ void PerformOverhelm(CharData *ch, CharData *victim, HitData &hit_data) {
 	ch->battle_affects.unset(kEafOverwhelm);
 	hit_data.SetFlag(fight::kIgnoreBlink);
 	const int minimum_weapon_weigth = 19;
-	if (ch->IsImmortal()) {
+	if (privilege::IsImmortal(ch)) {
 		hit_data.dam = CalcOverhelmDmg(ch, victim, hit_data.dam);
 	} else if (ch->IsNpc()) {
 		const bool wielded_with_bow = hit_data.wielded &&
@@ -143,17 +146,17 @@ int CalcOverhelmDmg(CharData *ch, CharData *victim, int dmg) {
 		prob = std::max(prob, percent * 150 / 100 + 1);
 	}
 
-	if (victim->IsImmortal()) {
+	if (privilege::IsImmortal(victim)) {
 		prob = 0;
 	}
 
 	if (prob < percent || dmg == 0 || victim->IsFlagged(EMobFlag::kNoOverwhelm)) {
-		sprintf(buf, "&c&qВы попытались оглушить %s, но не смогли.&Q&n\r\n", PERS(victim, ch, 3));
+		sprintf(buf, "&c&qВы попытались оглушить %s, но не смогли.&Q&n\r\n", sight::PersonName(victim, ch, 3));
 		SendMsgToChar(buf, ch);
 		lag = 3;
 		dmg = 0;
 	} else if (prob * 100 / percent < 300) {
-		sprintf(buf, "&g&qВаша мощная атака оглушила %s.&Q&n\r\n", PERS(victim, ch, 3));
+		sprintf(buf, "&g&qВаша мощная атака оглушила %s.&Q&n\r\n", sight::PersonName(victim, ch, 3));
 		SendMsgToChar(buf, ch);
 		lag = 2;
 		int k = ch->GetSkill(ESkill::kOverwhelm) / 30;
@@ -161,15 +164,15 @@ int CalcOverhelmDmg(CharData *ch, CharData *victim, int dmg) {
 			k = std::min(2, k);
 		}
 		dmg *= std::max(2, number(1, k));
-		SetWaitState(victim, 3 * kBattleRound);
-		sprintf(buf, "&R&qВаше сознание слегка помутилось после удара %s.&Q&n\r\n", PERS(ch, victim, 1));
+		SetBattleLag(victim, 3);
+		sprintf(buf, "&R&qВаше сознание слегка помутилось после удара %s.&Q&n\r\n", sight::PersonName(ch, victim, 1));
 		SendMsgToChar(buf, victim);
 		act("$n оглушил$a $N3.", true, ch, nullptr, victim, kToNotVict | kToArenaListen);
 	} else {
 		if (victim->IsFlagged(EMobFlag::kNoBash)) {
-			sprintf(buf, "&G&qВаш мощнейший удар оглушил %s.&Q&n\r\n", PERS(victim, ch, 3));
+			sprintf(buf, "&G&qВаш мощнейший удар оглушил %s.&Q&n\r\n", sight::PersonName(victim, ch, 3));
 		} else {
-			sprintf(buf, "&G&qВаш мощнейший удар сбил %s с ног.&Q&n\r\n", PERS(victim, ch, 3));
+			sprintf(buf, "&G&qВаш мощнейший удар сбил %s с ног.&Q&n\r\n", sight::PersonName(victim, ch, 3));
 		}
 		SendMsgToChar(buf, ch);
 		if (victim->IsFlagged(EMobFlag::kNoBash)) {
@@ -183,14 +186,14 @@ int CalcOverhelmDmg(CharData *ch, CharData *victim, int dmg) {
 			k = std::min(4, k);
 		}
 		dmg *= std::max(3, number(1, k));
-		SetWaitState(victim, 3 * kBattleRound);
+		SetBattleLag(victim, 3);
 		if (victim->GetPosition() > EPosition::kSit && !victim->IsFlagged(EMobFlag::kNoBash)) {
 			victim->SetPosition(EPosition::kSit);
-			victim->DropFromHorse();
-			sprintf(buf, "&R&qОглушающий удар %s сбил вас с ног.&Q&n\r\n", PERS(ch, victim, 1));
+			mount::DropFromHorse(victim);
+			sprintf(buf, "&R&qОглушающий удар %s сбил вас с ног.&Q&n\r\n", sight::PersonName(ch, victim, 1));
 			SendMsgToChar(buf, victim);
 		} else {
-			sprintf(buf, "&R&qВаше сознание слегка помутилось после удара %s.&Q&n\r\n", PERS(ch, victim, 1));
+			sprintf(buf, "&R&qВаше сознание слегка помутилось после удара %s.&Q&n\r\n", sight::PersonName(ch, victim, 1));
 			SendMsgToChar(buf, victim);
 		}
 	}

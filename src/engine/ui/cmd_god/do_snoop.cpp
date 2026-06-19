@@ -8,6 +8,7 @@
 
 #include "engine/entities/char_data.h"
 #include "engine/core/handler.h"
+#include "engine/core/target_resolver.h"
 
 void StopSnooping(CharData *ch) {
 	if (!ch->desc->snooping)
@@ -29,7 +30,7 @@ void DoSnoop(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (!*arg)
 		StopSnooping(ch);
-	else if (!(victim = get_player_vis(ch, arg, EFind::kCharInWorld)))
+	else if (!(victim = target_resolver::FindPlayerVis(ch, arg)))
 		SendMsgToChar("Нет такого создания в игре.\r\n", ch);
 	else if (!victim->desc)
 		act("Вы не можете $S подслушать - он$G потерял$G связь..\r\n",
@@ -53,7 +54,7 @@ void DoSnoop(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			SendMsgToChar("Вы не можете.\r\n", ch);
 			return;
 		}
-		SendMsgToChar(OK, ch);
+		SendMsgToChar(CommonMsg(ECommonMsg::kOk) + "\r\n", ch);
 
 		ch->desc->snoop_with_map = false;
 		if (god_level >= kLvlImplementator && argument && *argument) {

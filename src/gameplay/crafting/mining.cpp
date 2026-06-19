@@ -5,6 +5,9 @@
 */
 
 #include "mining.h"
+#include "administration/privilege.h"
+#include "gameplay/mechanics/sight.h"
+#include "gameplay/mechanics/mount.h"
 
 #include "engine/entities/char_data.h"
 #include "engine/core/handler.h"
@@ -114,9 +117,9 @@ void dig_obj(CharData *ch, ObjData *obj) {
 
 	if (GetObjMIW(obj->get_rnum()) >= obj_proto.actual_count(obj->get_rnum())
 		|| GetObjMIW(obj->get_rnum()) == ObjData::UNLIMITED_GLOBAL_MAXIMUM) {
-		sprintf(textbuf, "Вы нашли %s!\r\n", obj->get_PName(ECase::kAcc).c_str());
+		sprintf(textbuf, "Вы нашли %s!\r\n", obj->get_PName(grammar::ECase::kAcc).c_str());
 		SendMsgToChar(textbuf, ch);
-		sprintf(textbuf, "$n выкопал$g %s!\r\n", obj->get_PName(ECase::kAcc).c_str());
+		sprintf(textbuf, "$n выкопал$g %s!\r\n", obj->get_PName(grammar::ECase::kAcc).c_str());
 		act(textbuf, false, ch, nullptr, nullptr, kToRoom);
 		if (ch->GetCarryingQuantity() >= CAN_CARRY_N(ch)) {
 			SendMsgToChar("Вы не смогли унести столько предметов.\r\n", ch);
@@ -143,33 +146,33 @@ void do_dig(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (!check_for_dig(ch) && !ch->IsImmortal()) {
+	if (!check_for_dig(ch) && !privilege::IsImmortal(ch)) {
 		SendMsgToChar("Вам бы лопату взять в руки... Или кирку...\r\n", ch);
 		return;
 	}
 
 	if (world[ch->in_room]->sector_type != ESector::kMountain &&
-		world[ch->in_room]->sector_type != ESector::kHills && !ch->IsImmortal()) {
+		world[ch->in_room]->sector_type != ESector::kHills && !privilege::IsImmortal(ch)) {
 		SendMsgToChar("Полезные минералы водятся только в гористой местности!\r\n", ch);
 		return;
 	}
 
-	if (!ch->IsImmortal() && ch->IsOnHorse()) {
+	if (!privilege::IsImmortal(ch) && mount::IsOnHorse(ch)) {
 		SendMsgToChar("Верхом это сделать затруднительно.\r\n", ch);
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, EAffect::kBlind) && !ch->IsImmortal()) {
+	if (AFF_FLAGGED(ch, EAffect::kBlind) && !privilege::IsImmortal(ch)) {
 		SendMsgToChar("Вы слепы и не видите где копать.\r\n", ch);
 		return;
 	}
 
-	if (is_dark(ch->in_room) && !CAN_SEE_IN_DARK(ch) && !ch->IsImmortal()) {
+	if (is_dark(ch->in_room) && !sight::CanSeeInDark(ch) && !privilege::IsImmortal(ch)) {
 		SendMsgToChar("Куда копать? Чего копать? Ничего не видно...\r\n", ch);
 		return;
 	}
 
-	if (!make_hole(ch) && !ch->IsImmortal())
+	if (!make_hole(ch) && !privilege::IsImmortal(ch))
 		return;
 
 	if (!check_moves(ch, dig_vars.need_moves))
@@ -202,9 +205,9 @@ void do_dig(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		if (mob) {
 			if (GetRealLevel(mob) <= GetRealLevel(ch)) {
 				mob->SetFlag(EMobFlag::kAgressive);
-				sprintf(textbuf, "Вы выкопали %s!\r\n", mob->player_data.PNames[ECase::kAcc].c_str());
+				sprintf(textbuf, "Вы выкопали %s!\r\n", mob->player_data.PNames[grammar::ECase::kAcc].c_str());
 				SendMsgToChar(textbuf, ch);
-				sprintf(textbuf, "$n выкопал$g %s!\r\n", mob->player_data.PNames[ECase::kAcc].c_str());
+				sprintf(textbuf, "$n выкопал$g %s!\r\n", mob->player_data.PNames[grammar::ECase::kAcc].c_str());
 				act(textbuf, false, ch, nullptr, nullptr, kToRoom);
 				PlaceCharToRoom(mob, ch->in_room);
 				return;
@@ -247,7 +250,7 @@ void do_dig(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	ch->set_int_add(0);
 	ImproveSkill(ch, ESkill::kDigging, 0, nullptr);
 	ch->set_int(old_int);
-	SetWaitState(ch, dig_vars.lag * kBattleRound);
+	SetBattleLag(ch, dig_vars.lag);
 	if (percent > prob / dig_vars.prob_divide) {
 		SendMsgToChar("Вы только зря расковыряли землю и раскидали камни.\r\n", ch);
 		act("$n отрыл$g смешную ямку.", false, ch, nullptr, nullptr, kToRoom);

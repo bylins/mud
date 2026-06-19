@@ -215,7 +215,7 @@ bool FlagData::sprintbits(const char *names[], char *result, size_t result_size,
 	}
 
 	if ('\0' == *result) {
-		strncat(result, nothing_string, result_size - strlen(result) - 1);
+		strncat(result, CommonMsg(ECommonMsg::kNothing).c_str(), result_size - strlen(result) - 1);
 	}
 
 	return have_flags;

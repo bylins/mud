@@ -3,12 +3,14 @@
 //
 
 #include "throwout.h"
+#include "administration/privilege.h"
+#include "gameplay/mechanics/mount.h"
 #include "skill_messages.h"
 #include "engine/db/global_objects.h"
 
 #include "gameplay/fight/fight.h"
 #include "engine/core/char_movement.h"
-#include "engine/core/action_targeting.h"
+#include "engine/core/target_resolver.h"
 #include "gameplay/fight/pk.h"
 #include "gameplay/fight/common.h"
 #include "gameplay/fight/fight_hit.h"
@@ -29,7 +31,7 @@ void DoThrowout(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kThrowout, ESkillMsg::kNoTarget) + "\r\n", ch);
 		return;
 	}
-	if (!IsAffectedBySpell(ch, ESpell::kFrenzy) && !ch->IsImmortal()) {
+	if (!IsAffectedBySpell(ch, ESpell::kFrenzy) && !privilege::IsImmortal(ch)) {
 		SendMsgToChar("Не получается! Вы ещё не достаточно разъярились!\r\n", ch);
 		return;
 	}
@@ -47,7 +49,7 @@ void DoThrowout(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			false, ch, nullptr,vict, kToChar);
 		return;
 	}
-	if (!ch->IsImmortal() && ch->HasCooldown(ESkill::kThrowout)) {
+	if (!privilege::IsImmortal(ch) && ch->HasCooldown(ESkill::kThrowout)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kThrowout, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	}
@@ -80,7 +82,7 @@ void ProcessThrowoutFail(CharData *ch, CharData *vict) {
 void GoThrowout(CharData *ch, CharData *vict) {
 //Если у моба 30 или выше уровня больше 75% хп - вышвырнуть нельзя.
 	int vict_hp_limit = 0.75 * vict->get_real_max_hit();
-	if (!ch->IsImmortal() && GetRealLevel(vict) >= 30 && (vict->get_hit() > vict_hp_limit)) {
+	if (!privilege::IsImmortal(ch) && GetRealLevel(vict) >= 30 && (vict->get_hit() > vict_hp_limit)) {
 		act("Вы не можете вышвырнуть $N3 - $E ещё слишком цел$G и бодр$G!",
 			false, ch, nullptr,vict, kToChar);
 		return;
@@ -92,7 +94,7 @@ void GoThrowout(CharData *ch, CharData *vict) {
 		ProcessThrowoutFail(ch, vict);
 	} else {
 		//Поскольку это соло-умение, запрещаем использование если в клетке есть другие игроки.
-		ActionTargeting::FoesRosterType roster{ch};
+		target_resolver::FoesRosterType roster{ch};
 		for (const auto target: roster) {
 			if (!target->IsNpc() && target != vict) {
 				act("Вы швырнули своего соперника куда подальше, но нечаянно попали им прямо в $N3!",
@@ -113,14 +115,14 @@ void GoThrowout(CharData *ch, CharData *vict) {
 	        act("$N сгреб$Q $n3 в охапку и вышвырнул$G $s прочь!",
 	            false, vict, nullptr, ch, kToNotVict | kToArenaListen);
 	    		if (vict->GetPosition() > EPosition::kSit) {
-	    			vict->DropFromHorse();
+	    			mount::DropFromHorse(vict);
 	    			vict->SetPosition(EPosition::kSit);
 	    			SetWait(vict, 2, false);
 	    			SetSkillCooldown(ch, ESkill::kGlobalCooldown, 1);
 	    		}
 	    	stop_fighting(vict, true);
 			PerformSimpleMove(vict, direction, false, nullptr, EMoveType::kThrowOut);
-	    	if (!ch->IsImmortal()) {
+	    	if (!privilege::IsImmortal(ch)) {
 	    		SetSkillCooldown(ch, ESkill::kThrowout, cooldown_if_success);
 	    	}
 	    } else if (!IsCorrectDirection(vict, direction, false, false)) {

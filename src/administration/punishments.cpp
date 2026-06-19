@@ -7,6 +7,7 @@
 */
 
 #include "administration/punishments.h"
+#include "administration/privilege.h"
 
 #include "administration/karma.h"
 #include "administration/proxy.h"
@@ -20,6 +21,9 @@
 
 namespace punishments {
 
+Punish &Get(CharData *ch, EType type) { return ch->player_specials->punishments[type]; }
+const Punish &Get(const CharData *ch, EType type) { return ch->player_specials->punishments[type]; }
+
 bool IsVictimIncorrect(CharData *ch, CharData *vict);
 bool IsPunishmentIncorrect(CharData *ch, Punish *pundata, const char *reason);
 void SendPunishmentActMessages(CharData *ch, CharData *vict);
@@ -30,7 +34,7 @@ RoomRnum GetStartRoomRnum(CharData *vict);
 inline bool IsPunishCannotBeApplied(CharData *ch, CharData *vict, Punish *pundata, const char *reason);
 
 bool SetMute(CharData *ch, CharData *vict, char *reason, long times) {
-	auto pundata = &(vict)->player_specials->pmute;
+	auto pundata = &Get(vict, EType::kMute);
 	if (IsPunishCannotBeApplied(ch, vict, pundata, reason)) {
 		return false;
 	}
@@ -65,7 +69,7 @@ bool SetMute(CharData *ch, CharData *vict, char *reason, long times) {
 }
 
 bool SetDumb(CharData *ch, CharData *vict, char *reason, long times) {
-	auto pundata = &(vict)->player_specials->pdumb;
+	auto pundata = &Get(vict, EType::kDumb);
 	if (IsPunishCannotBeApplied(ch, vict, pundata, reason)) {
 		return false;
 	}
@@ -100,7 +104,7 @@ bool SetDumb(CharData *ch, CharData *vict, char *reason, long times) {
 }
 
 bool SetHell(CharData *ch, CharData *vict, char *reason, long times) {
-	auto pundata = &(vict)->player_specials->phell;
+	auto pundata = &Get(vict, EType::kHell);
 	if (IsPunishCannotBeApplied(ch, vict, pundata, reason)) {
 		return false;
 	}
@@ -129,7 +133,7 @@ bool SetHell(CharData *ch, CharData *vict, char *reason, long times) {
 			act("$n водворен$a в темницу!", false, vict, nullptr, nullptr, kToRoom);
 			RemoveCharFromRoom(vict);
 			PlaceCharToRoom(vict, r_helled_start_room);
-			look_at_room(vict, r_helled_start_room);
+			sight::look_at_room(vict, r_helled_start_room);
 		};
 		vict->set_was_in_room(kNowhere);
 		sprintf(buf, "%s moved TO hell by %s(%ldh).", GET_NAME(vict), GET_NAME(ch), times);
@@ -146,7 +150,7 @@ bool SetHell(CharData *ch, CharData *vict, char *reason, long times) {
 }
 
 bool SetFreeze(CharData *ch, CharData *vict, char *reason, long times) {
-	auto pundata = &(vict)->player_specials->pfreeze;
+	auto pundata = &Get(vict, EType::kFreeze);
 	if (IsPunishCannotBeApplied(ch, vict, pundata, reason)) {
 		return false;
 	}
@@ -189,7 +193,7 @@ bool SetFreeze(CharData *ch, CharData *vict, char *reason, long times) {
 			act("$n водворен$a в темницу!", false, vict, nullptr, nullptr, kToRoom);
 			RemoveCharFromRoom(vict);
 			PlaceCharToRoom(vict, r_helled_start_room);
-			look_at_room(vict, r_helled_start_room);
+			sight::look_at_room(vict, r_helled_start_room);
 		};
 		SetPunisherParamsToPundata(ch, pundata, reason);
 	}
@@ -198,7 +202,7 @@ bool SetFreeze(CharData *ch, CharData *vict, char *reason, long times) {
 }
 
 bool SetNameRoom(CharData *ch, CharData *vict, char *reason, long times) {
-	auto pundata = &(vict)->player_specials->pname;
+	auto pundata = &Get(vict, EType::kName);
 	if (IsPunishCannotBeApplied(ch, vict, pundata, reason)) {
 		return false;
 	}
@@ -227,7 +231,7 @@ bool SetNameRoom(CharData *ch, CharData *vict, char *reason, long times) {
 			act("$n водворен$a в комнату имени!", false, vict, nullptr, nullptr, kToRoom);
 			RemoveCharFromRoom(vict);
 			PlaceCharToRoom(vict, r_named_start_room);
-			look_at_room(vict, r_named_start_room);
+			sight::look_at_room(vict, r_named_start_room);
 		};
 		vict->set_was_in_room(kNowhere);
 		sprintf(buf, "%s removed to nameroom by %s(%ldh).", GET_NAME(vict), GET_NAME(ch), times);
@@ -244,7 +248,7 @@ bool SetNameRoom(CharData *ch, CharData *vict, char *reason, long times) {
 }
 
 bool SetRegister(CharData *ch, CharData *vict, char *reason) {
-	auto pundata = &(vict)->player_specials->phell;
+	auto pundata = &Get(vict, EType::kHell);
 	if (IsPunishCannotBeApplied(ch, vict, pundata, reason)) {
 		return false;
 	}
@@ -270,7 +274,7 @@ bool SetRegister(CharData *ch, CharData *vict, char *reason) {
 }
 
 bool SetUnregister(CharData *ch, CharData *vict, char *reason, long times) {
-	auto pundata = &(vict)->player_specials->punreg;
+	auto pundata = &Get(vict, EType::kUnreg);
 	if (IsPunishCannotBeApplied(ch, vict, pundata, reason)) {
 		return false;
 	}
@@ -300,7 +304,7 @@ bool SetUnregister(CharData *ch, CharData *vict, char *reason, long times) {
 					false, vict, nullptr, nullptr, kToRoom);
 				RemoveCharFromRoom(vict);
 				PlaceCharToRoom(vict, r_unreg_start_room);
-				look_at_room(vict, r_unreg_start_room);
+				sight::look_at_room(vict, r_unreg_start_room);
 			}
 		}
 		vict->set_was_in_room(kNowhere);
@@ -326,7 +330,7 @@ bool IsVictimIncorrect(CharData *ch, CharData *vict) {
 		SendMsgToChar("Это слишком жестоко...\r\n", ch);
 		return true;
 	}
-	if ((GetRealLevel(vict) >= kLvlImmortal && !ch->IsImpl()) || vict->IsImpl()) {
+	if ((GetRealLevel(vict) >= kLvlImmortal && !privilege::IsImpl(ch)) || privilege::IsImpl(vict)) {
 		SendMsgToChar("Кем вы себя возомнили?\r\n", ch);
 		return true;
 	}
@@ -374,7 +378,7 @@ void MoveToStartRoom(CharData *vict) {
 	RemoveCharFromRoom(vict);
 	RoomRnum room_rnum = GetStartRoomRnum(vict);
 	PlaceCharToRoom(vict, room_rnum);
-	look_at_room(vict, room_rnum);
+	sight::look_at_room(vict, room_rnum);
 }
 
 RoomRnum GetStartRoomRnum(CharData *vict) {

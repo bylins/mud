@@ -2,6 +2,7 @@
 // Created by Sventovit on 07.09.2024.
 //
 #include "engine/entities/char_data.h"
+#include "utils/grammar/declensions.h"
 #include "do_toggle.h"
 #include "gameplay/clans/house.h"
 #include "engine/ui/table_wrapper.h"
@@ -595,7 +596,7 @@ void SetNotifyEchange(CharData *ch, char *argument) {
 		SendMsgToChar(ch,
 					  "Вам будут приходить уведомления о продаже с базара ваших лотов стоимостью не менее чем %ld %s.\r\n",
 					  size,
-					  GetDeclensionInNumber(size, EWhat::kMoneyA));
+					  grammar::GetDeclensionInNumber(size, grammar::EWhat::kMoneyA));
 		(ch)->player_specials->saved.ntfyExchangePrice = size;
 		ch->save_char();
 	} else if (size >= 0 && size < 100) {

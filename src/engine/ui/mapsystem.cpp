@@ -3,6 +3,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "engine/ui/mapsystem.h"
+#include "administration/privilege.h"
 #include <queue>
 #include <unordered_set>
 #include <fmt/format.h>
@@ -18,6 +19,8 @@
 #include "gameplay/ai/spec_procs.h"
 #include "gameplay/mechanics/awake.h"
 #include "gameplay/mechanics/boat.h"
+#include "gameplay/mechanics/sight.h"
+#include "gameplay/core/remort.h"
 
 namespace Noob {
 int outfit(CharData *ch, void *me, int cmd, char *argument);
@@ -219,7 +222,7 @@ const char *signs[] =
 
 
 inline bool GodBigMode(CharData *ch) { 
-	return ch->map_check_option(MAP_MODE_GOD_BIG) && ch->IsImmortal();
+	return ch->map_check_option(MAP_MODE_GOD_BIG) && privilege::IsImmortal(ch);
 }
 // отрисовка символа на поле по координатам
 // при обходе в ширину первый записанный символ - самый близкий к игроку
@@ -264,7 +267,7 @@ void check_position_and_put_on_screen(int next_y, int next_x, int sign_num, int 
 }
 
 void draw_mobs(const CharData *ch, int room_rnum, int next_y, int next_x) {
-	if (is_dark(room_rnum) && !ch->IsImmortal()) {
+	if (is_dark(room_rnum) && !privilege::IsImmortal(ch)) {
 		put_on_screen(next_y, next_x - 1, SCREEN_MOB_UNDEF, 1);
 	} else {
 		int cnt = 0;
@@ -279,7 +282,7 @@ void draw_mobs(const CharData *ch, int room_rnum, int next_y, int next_x) {
 				continue;
 			}
 			if (HERE(tch)
-				&& (CAN_SEE(ch, tch)
+				&& (sight::CanSee(ch, tch)
 					|| awaking(tch, kAwHide | kAwInvis | kAwCamouflage))) {
 				++cnt;
 			}
@@ -294,7 +297,7 @@ void draw_mobs(const CharData *ch, int room_rnum, int next_y, int next_x) {
 }
 
 void draw_objs(const CharData *ch, int room_rnum, int next_y, int next_x) {
-	if (is_dark(room_rnum) && !ch->IsImmortal()) {
+	if (is_dark(room_rnum) && !privilege::IsImmortal(ch)) {
 		put_on_screen(next_y, next_x + 1, SCREEN_OBJ_UNDEF, 1);
 	} else {
 		int cnt = 0;
@@ -319,7 +322,7 @@ void draw_objs(const CharData *ch, int room_rnum, int next_y, int next_x) {
 				&& !ch->map_check_option(MAP_MODE_OTHER_OBJECTS)) {
 				continue;
 			}
-			if (CAN_SEE_OBJ(ch, obj)) {
+			if (sight::CanSeeObj(ch, obj)) {
 				++cnt;
 			}
 		}
@@ -335,35 +338,59 @@ void draw_spec_mobs(const CharData *ch, int room_rnum, int next_y, int next_x, i
 	bool all = ch->map_check_option(MAP_MODE_MOB_SPEC_ALL) ? true : false;
 
 	for (const auto tch : world[room_rnum]->people) {
-		auto func = GET_MOB_SPEC(tch);
-		if (func) {
-			if (func == shop_ext
-				&& (all || ch->map_check_option(MAP_MODE_MOB_SPEC_SHOP))) {
-				put_on_screen(next_y, next_x, SCREEN_MOB_SPEC_SHOP, cur_depth);
-			} else if (func == receptionist
-				&& (all || ch->map_check_option(MAP_MODE_MOB_SPEC_RENT))) {
-				put_on_screen(next_y, next_x, SCREEN_MOB_SPEC_RENT, cur_depth);
-			} else if (func == postmaster
-				&& (all || ch->map_check_option(MAP_MODE_MOB_SPEC_MAIL))) {
-				put_on_screen(next_y, next_x, SCREEN_MOB_SPEC_MAIL, cur_depth);
-			} else if (func == bank
-				&& (all || ch->map_check_option(MAP_MODE_MOB_SPEC_BANK))) {
-				put_on_screen(next_y, next_x, SCREEN_MOB_SPEC_BANK, cur_depth);
-			} else if (func == exchange
-				&& (all || ch->map_check_option(MAP_MODE_MOB_SPEC_EXCH))) {
-				put_on_screen(next_y, next_x, SCREEN_MOB_SPEC_EXCH, cur_depth);
-			} else if (func == horse_keeper
-				&& (all || ch->map_check_option(MAP_MODE_MOB_SPEC_HORSE))) {
-				put_on_screen(next_y, next_x, SCREEN_MOB_SPEC_HORSE, cur_depth);
-			} else if ((func == guilds::GuildInfo::DoGuildLearn)
-				&& (all || ch->map_check_option(MAP_MODE_MOB_SPEC_TEACH))) {
-				put_on_screen(next_y, next_x, SCREEN_MOB_SPEC_TEACH, cur_depth);
-			} else if (func == torc
-				&& (all || ch->map_check_option(MAP_MODE_MOB_SPEC_TORC))) {
-				put_on_screen(next_y, next_x, SCREEN_MOB_SPEC_TORC, cur_depth);
-			} else if (func == Noob::outfit && (Noob::is_noob(ch))) {
-				put_on_screen(next_y, next_x, SCREEN_MOB_SPEC_OUTFIT, cur_depth);
-			}
+		if (!tch->IsNpc()) {
+			continue;
+		}
+		// issue.specials: markers read the registry; a mob may have several specials -> several markers.
+		for (const auto spec : specials::MobSpecials(GET_MOB_VNUM(tch))) {
+		switch (spec) {
+			case specials::ESpecial::kShop:
+				if (all || ch->map_check_option(MAP_MODE_MOB_SPEC_SHOP)) {
+					put_on_screen(next_y, next_x, SCREEN_MOB_SPEC_SHOP, cur_depth);
+				}
+				break;
+			case specials::ESpecial::kRent:
+				if (all || ch->map_check_option(MAP_MODE_MOB_SPEC_RENT)) {
+					put_on_screen(next_y, next_x, SCREEN_MOB_SPEC_RENT, cur_depth);
+				}
+				break;
+			case specials::ESpecial::kMail:
+				if (all || ch->map_check_option(MAP_MODE_MOB_SPEC_MAIL)) {
+					put_on_screen(next_y, next_x, SCREEN_MOB_SPEC_MAIL, cur_depth);
+				}
+				break;
+			case specials::ESpecial::kBank:
+				if (all || ch->map_check_option(MAP_MODE_MOB_SPEC_BANK)) {
+					put_on_screen(next_y, next_x, SCREEN_MOB_SPEC_BANK, cur_depth);
+				}
+				break;
+			case specials::ESpecial::kExchange:
+				if (all || ch->map_check_option(MAP_MODE_MOB_SPEC_EXCH)) {
+					put_on_screen(next_y, next_x, SCREEN_MOB_SPEC_EXCH, cur_depth);
+				}
+				break;
+			case specials::ESpecial::kHorse:
+				if (all || ch->map_check_option(MAP_MODE_MOB_SPEC_HORSE)) {
+					put_on_screen(next_y, next_x, SCREEN_MOB_SPEC_HORSE, cur_depth);
+				}
+				break;
+			case specials::ESpecial::kGuild:
+				if (all || ch->map_check_option(MAP_MODE_MOB_SPEC_TEACH)) {
+					put_on_screen(next_y, next_x, SCREEN_MOB_SPEC_TEACH, cur_depth);
+				}
+				break;
+			case specials::ESpecial::kTorc:
+				if (all || ch->map_check_option(MAP_MODE_MOB_SPEC_TORC)) {
+					put_on_screen(next_y, next_x, SCREEN_MOB_SPEC_TORC, cur_depth);
+				}
+				break;
+			case specials::ESpecial::kOutfit:
+				if (Noob::is_noob(ch)) {
+					put_on_screen(next_y, next_x, SCREEN_MOB_SPEC_OUTFIT, cur_depth);
+				}
+				break;
+			default: break;
+		}
 		}
 	}
 }
@@ -440,7 +467,7 @@ void draw_map_bfs(CharData *ch) {
 
 			if (room->dir_option[i]
 				&& room->dir_option[i]->to_room() != kNowhere
-				&& (!EXIT_FLAGGED(room->dir_option[i], EExitFlag::kHidden) || ch->IsImmortal())) {
+				&& (!EXIT_FLAGGED(room->dir_option[i], EExitFlag::kHidden) || privilege::IsImmortal(ch))) {
 				if (EXIT_FLAGGED(room->dir_option[i], EExitFlag::kClosed)) {
 					put_on_screen(cur_y, cur_x, cur_sign + 1, cur_depth);
 				} else if (EXIT_FLAGGED(room->dir_option[i], EExitFlag::kHidden)) {
@@ -448,12 +475,12 @@ void draw_map_bfs(CharData *ch) {
 				} else {
 					put_on_screen(cur_y, cur_x, cur_sign, cur_depth);
 				}
-				if (EXIT_FLAGGED(room->dir_option[i], EExitFlag::kClosed) && !ch->IsImmortal()) {
+				if (EXIT_FLAGGED(room->dir_option[i], EExitFlag::kClosed) && !privilege::IsImmortal(ch)) {
 					continue;
 				}
 				const RoomData *next_room = world[room->dir_option[i]->to_room()];
 				if (next_room->get_flag(ERoomFlag::kDeathTrap)
-					&& (GetRealRemort(ch) <= 5 || view_dt || ch->IsImmortal())) {
+					&& (remort::GetRealRemort(ch) <= 5 || view_dt || privilege::IsImmortal(ch))) {
 					check_position_and_put_on_screen(next_y, next_x, SCREEN_DEATH_TRAP, cur_depth, i);
 				}
 				if (IsCharNeedBoatThere(ch, next_room->sector_type)) {
@@ -484,7 +511,7 @@ void draw_map_bfs(CharData *ch) {
 					draw_spec_mobs(ch, room->dir_option[i]->to_room(), next_y, next_x, cur_depth);
 				}
 				if ((GodBigMode(ch) || cur_depth == 1)
-					&& (!EXIT_FLAGGED(room->dir_option[i], EExitFlag::kClosed) || ch->IsImmortal())
+					&& (!EXIT_FLAGGED(room->dir_option[i], EExitFlag::kClosed) || privilege::IsImmortal(ch))
 					&& (ch->map_check_option(MAP_MODE_MOBS) || ch->map_check_option(MAP_MODE_PLAYERS))) {
 					if (cur_sign == SCREEN_UP_OPEN) {
 						draw_mobs(ch, room->dir_option[i]->to_room(), next_y - 1, next_x + 3);
@@ -495,7 +522,7 @@ void draw_map_bfs(CharData *ch) {
 					}
 				}
 				if ((GodBigMode(ch) || cur_depth == 1)
-					&& (!EXIT_FLAGGED(room->dir_option[i], EExitFlag::kClosed) || ch->IsImmortal())
+					&& (!EXIT_FLAGGED(room->dir_option[i], EExitFlag::kClosed) || privilege::IsImmortal(ch))
 					&& (ch->map_check_option(MAP_MODE_MOBS_CORPSES)
 						|| ch->map_check_option(MAP_MODE_PLAYER_CORPSES)
 						|| ch->map_check_option(MAP_MODE_INGREDIENTS)
@@ -510,7 +537,7 @@ void draw_map_bfs(CharData *ch) {
 				}
 				if (i != EDirection::kUp && i != EDirection::kDown
 					&& cur_depth < MAX_DEPTH_ROOMS
-					&& (!EXIT_FLAGGED(room->dir_option[i], EExitFlag::kClosed) || ch->IsImmortal())
+					&& (!EXIT_FLAGGED(room->dir_option[i], EExitFlag::kClosed) || privilege::IsImmortal(ch))
 					&& next_room->zone_rn == world[ch->in_room]->zone_rn
 					&& mode_allow(ch, cur_depth)
 					&& visited.find(next_room->vnum) == visited.end()) {
@@ -526,7 +553,7 @@ void draw_map_bfs(CharData *ch) {
 
 // imm по дефолту = 0, если нет, то распечатанная карта засылается ему
 void print_map(CharData *ch, CharData *imm) {
-	if (!ch->IsImpl() && ROOM_FLAGGED(ch->in_room, ERoomFlag::kMoMapper))
+	if (!privilege::IsImpl(ch) && ROOM_FLAGGED(ch->in_room, ERoomFlag::kMoMapper))
 		return;
 	MAX_LINES = MAX_LINES_STANDART;
 	MAX_LENGTH = MAX_LENGTH_STANDART;
@@ -631,7 +658,7 @@ void print_map(CharData *ch, CharData *imm) {
 	unsigned left_margin = 0;
 	unsigned right_margin = MAX_LENGTH - 1;
 
-	if (ch->map_check_option(MAP_MODE_GOD_BIG) && ch->IsImmortal()) {
+	if (ch->map_check_option(MAP_MODE_GOD_BIG) && privilege::IsImmortal(ch)) {
 		left_margin =  MAX_LENGTH;
 		right_margin = 0;
 		for (int i = start_line; i < end_line; ++i) {
@@ -802,7 +829,7 @@ void Options::olc_menu(CharData *ch) {
 				out << "\r\n";
 				break;
 			case MAP_MODE_GOD_BIG:
-				if (ch->IsImmortal()) {
+				if (privilege::IsImmortal(ch)) {
 					++cnt;
 					out << kColorGrn << cnt << kColorNrm
 						<< ") " << (bit_list_[MAP_MODE_GOD_BIG] ? "[x]" : "[ ]")
@@ -839,7 +866,7 @@ void Options::parse_menu(CharData *ch, const char *arg) {
 	int cnt = 0;
 	int mapped = -1;
 	for (int i = 0; i < TOTAL_MAP_OPTIONS; ++i) {
-		if (i == MAP_MODE_GOD_BIG && !ch->IsImmortal()) {
+		if (i == MAP_MODE_GOD_BIG && !privilege::IsImmortal(ch)) {
 			continue;
 		}
 		++cnt;
@@ -858,7 +885,7 @@ void Options::parse_menu(CharData *ch, const char *arg) {
 		bit_list_.reset(MAP_MODE_1_DEPTH);
 		bit_list_.reset(MAP_MODE_2_DEPTH);
 		bit_list_.reset(MAP_MODE_DEPTH_FIXED);
-		if (!ch->IsImmortal()) {
+		if (!privilege::IsImmortal(ch)) {
 			bit_list_.reset(MAP_MODE_GOD_BIG);
 		}
 		olc_menu(ch);
@@ -953,7 +980,7 @@ bool parse_text_olc(CharData *ch, const std::string &str, std::bitset<TOTAL_MAP_
 			bits[MAP_MODE_MOBS_CURR_ROOM] = flag;
 		} else if (isname(*k, "предметы в комнате")) {
 			bits[MAP_MODE_OBJS_CURR_ROOM] = flag;
-		} else if (isname(*k, "карта богов") && ch->IsImmortal()) {
+		} else if (isname(*k, "карта богов") && privilege::IsImmortal(ch)) {
 			bits[MAP_MODE_GOD_BIG] = flag;
 		} else {
 			error = true;
@@ -1001,7 +1028,7 @@ void Options::text_olc(CharData *ch, const char *arg) {
 		bit_list_ = tmp_bits;
 		print_map(ch);
 		bit_list_ = saved_ch_bits;
-	} else if (isname(first_arg, "богов") && ch->IsImmortal()) {
+	} else if (isname(first_arg, "богов") && privilege::IsImmortal(ch)) {
 		bit_list_[MAP_MODE_GOD_BIG].flip();
 		SendMsgToChar(ch, "Карта богов: %s\r\n", bit_list_[MAP_MODE_GOD_BIG] ? "включена" : "выключена");
 	} else {
@@ -1021,7 +1048,7 @@ void do_map(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	} else if (AFF_FLAGGED(ch, EAffect::kBlind)) {
 		SendMsgToChar("Слепому карта не поможет!\r\n", ch);
 		return;
-	} else if (is_dark(ch->in_room) && !CAN_SEE_IN_DARK(ch) && !CanUseFeat(ch, EFeat::kDarkReading)) {
+	} else if (is_dark(ch->in_room) && !sight::CanSeeInDark(ch) && !CanUseFeat(ch, EFeat::kDarkReading)) {
 		SendMsgToChar("Идем на ощупь и на запах!\r\n", ch);
 		return;
 	}

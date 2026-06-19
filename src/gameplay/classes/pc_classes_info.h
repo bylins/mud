@@ -30,6 +30,24 @@ class ClassesLoader : virtual public cfg_manager::ICfgLoader {
 	void Reload(parser_wrapper::DataNode data) final;
 };
 
+// issue.thing-names: a class's cased display name + short abbreviation, moved out of the class config
+// files into the shared cfg/messages/ru/class_msg.xml. Keyed by the class id token (e.g. "kAssasine").
+struct ClassName {
+	std::string abbr{"--"};
+	grammar::ItemName cases;
+};
+
+// Loads class_msg.xml into the name registry; runs BEFORE "classes" so CharClassInfoBuilder can read
+// each class's name from the registry at build time (mirrors currencies::CurrencyNamesLoader).
+class ClassNamesLoader : virtual public cfg_manager::ICfgLoader {
+ public:
+	void Load(parser_wrapper::DataNode data) final;
+	void Reload(parser_wrapper::DataNode data) final;
+};
+
+// Looks up a class's name by its id token, or nullptr if absent.
+const ClassName *FindClassName(const std::string &id);
+
 class CharClassInfo : public info_container::BaseItem<ECharClass> {
  public:
 	template<typename TalentIndexEnum>
@@ -125,19 +143,19 @@ class CharClassInfo : public info_container::BaseItem<ECharClass> {
 	/* Имена */
 	std::unique_ptr<grammar::ItemName> names;
 	std::string abbr;
-	[[nodiscard]] const std::string &GetName(ECase name_case = ECase::kNom) const;
-	[[nodiscard]] const std::string &GetPluralName(ECase name_case = ECase::kNom) const;
+	[[nodiscard]] const std::string &GetName(grammar::ECase name_case = grammar::ECase::kNom) const;
+	[[nodiscard]] const std::string &GetPluralName(grammar::ECase name_case = grammar::ECase::kNom) const;
 	[[nodiscard]] const std::string &GetAbbr() const;
 
 	/**
 	 *  Строка в C-стиле. По возможности используйте std::string.
 	 */
-	[[nodiscard]] const char *GetCName(ECase name_case = ECase::kNom) const;
+	[[nodiscard]] const char *GetCName(grammar::ECase name_case = grammar::ECase::kNom) const;
 
 	/**
 	 *  Строка в C-стиле. По возможности используйте std::string.
 	 */
-	[[nodiscard]] const char *GetPluralCName(ECase name_case = ECase::kNom) const;
+	[[nodiscard]] const char *GetPluralCName(grammar::ECase name_case = grammar::ECase::kNom) const;
 
 	/* Всякого рода таланты класса - скиллы, спеллы и проч. */
 	Skills skills;
@@ -206,7 +224,7 @@ class CharClassInfoBuilder : public info_container::IItemBuilder<CharClassInfo> 
 	static ItemPtr ParseClass(parser_wrapper::DataNode &node);
 	static void ParseStats(ItemPtr &info, parser_wrapper::DataNode &node);
 	static void ParseBaseStats(ItemPtr &info, parser_wrapper::DataNode &node);
-	static void ParseName(ItemPtr &info, parser_wrapper::DataNode &node);
+	static void ParseName(ItemPtr &info);
 	static void ParseSkills(ItemPtr &info, parser_wrapper::DataNode &node);
 	static void ParseSpells(ItemPtr &info, parser_wrapper::DataNode &node);
 	static void ParseFeats(ItemPtr &info, parser_wrapper::DataNode &node);

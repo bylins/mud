@@ -1,9 +1,11 @@
 #include "engine/entities/char_data.h"
+#include "administration/privilege.h"
 #include "skill_messages.h"
 #include "engine/db/obj_prototypes.h"
 #include "engine/db/global_objects.h"
 #include "engine/core/utils_char_obj.inl"
 #include "gameplay/mechanics/stable_objs.h"
+#include "gameplay/core/remort.h"
 
 void DoSharpening(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	ObjData *obj;
@@ -80,7 +82,7 @@ void DoSharpening(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			weight = +1;
 			break;
 
-		default: sprintf(buf, "К сожалению, %s сделан из неподходящего материала.\r\n", OBJN(obj, ch, ECase::kNom));
+		default: sprintf(buf, "К сожалению, %s сделан из неподходящего материала.\r\n", OBJN(obj, ch, grammar::ECase::kNom));
 			SendMsgToChar(buf, ch);
 			return;
 	}
@@ -109,9 +111,9 @@ void DoSharpening(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	//При 200% заточки шмотка будет точиться на 4-5 хитролов и 4-5 дамролов
 	min_mod = ch->GetSkillBonus(ESkill::kSharpening) / 50;
 	//С мортами все меньший уровень требуется для макс. заточки
-	max_mod = std::clamp((GetRealLevel(ch) + 5 + GetRealRemort(ch)/4)/6, 1, 5);
+	max_mod = std::clamp((GetRealLevel(ch) + 5 + remort::GetRealRemort(ch)/4)/6, 1, 5);
 	oldstate = stable_objs::IsTimerUnlimited(obj); // запомним какая шмотка была до заточки
-	if (ch->IsImmortal()) {
+	if (privilege::IsImmortal(ch)) {
 		add_dr = add_hr = 10;
 	} else {
 		add_dr = add_hr = (max_mod <= min_mod) ? min_mod : number(min_mod, max_mod);

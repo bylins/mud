@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<!--
+    issue.specials Phase 2: rent receptionist messages (obj_save.cpp gen_receptionist / Crash_*).
+    act ($n/$N codes) + printf SendMsgToChar. {amount}/{currency}/{day}/{item}/{recep}/{max}/{count}/
+    {perday} are fmt args. The assembled per-item rent listing (Crash_report_rent_item) and the general
+    do_quit messages stay in code.
+-->
+<msg_container>
+	<msg_sheaf id="kDefault">
+		<message type="kGreeting" val="Чего изволите?"/>
+		<message type="kCanLiveForever" val="Ты сможешь жить у меня до второго пришествия."/>
+		<message type="kDeadlineIntro" val="$n сказал$g вам :"/>
+		<message type="kDepotCost" val="&quot;За вещи в хранилище придется доплатить {amount} {currency}.&quot;"/>
+		<message type="kRentCost" val="&quot;Постой обойдется тебе в {amount} {currency}.&quot;"/>
+		<message type="kMoneyLasts" val="&quot;Твоих денег хватит на {amount} {day}.&quot;"/>
+		<message type="kUnrentSet" val="$n сказал$g вам : &quot;Я не приму на постой {item} - требуется две и более вещи из набора.&quot;"/>
+		<message type="kUnrent" val="$n сказал$g вам : &quot;Я не приму на постой {item}.&quot;"/>
+		<message type="kRentIntroEquip" val="$n сказал$g вам : &quot;Одет$W спать будешь? Хм.. Ну смотри, тогда дешевле возьму&quot;"/>
+		<message type="kRentIntroStore" val="$n сказал$g вам : &quot;Это я в чулане запру:&quot;"/>
+		<message type="kNothingToRent" val="$n сказал$g вам : &quot;Но у тебя ведь ничего нет! Просто набери &quot;конец&quot;!&quot;"/>
+		<message type="kTooManyItems1" val="$n сказал$g вам : &quot;Извините, но я не могу хранить больше {max} предметов.&quot;"/>
+		<message type="kTooManyItems2" val="$n сказал$g вам : &quot;В данный момент их у вас {count}.&quot;"/>
+		<message type="kTipForBeer" val="$n сказал$g вам : &quot;И еще {amount} {currency} мне на сбитень с медовухой :)&quot;"/>
+		<message type="kTotalCost" val="$n сказал$g вам : &quot;В сумме это составит {amount} {currency} {perday}.&quot;"/>
+		<message type="kNoMoneyEver" val="&quot;...которых у тебя отродясь не было.&quot;"/>
+		<message type="kHalfPrice" val="$n сказал$g вам : &quot;Так уж и быть, я скощу тебе половину.&quot;"/>
+		<message type="kRecepAsleep" val="{recep} не в состоянии говорить с вами..."/>
+		<message type="kCantSee" val="$n сказал$g : &quot;Не люблю говорить с теми, кого я не вижу!&quot;"/>
+		<message type="kEnemyZone" val="$n сказал$g : &quot;Чужакам здесь не место!&quot;"/>
+		<message type="kNoRentableWar" val="В связи с боевыми действиями эвакуация временно прекращена."/>
+		<message type="kFreeRent" val="$n сказал$g вам : &quot;Сегодня спим нахаляву!&quot;"/>
+		<message type="kDailyCost" val="$n сказал$g вам : &quot;Дневной постой обойдется тебе в! {amount} {currency}.&quot;"/>
+		<message type="kDailyCostCryo" val="$n сказал$g вам : &quot;Дневной постой обойдется тебе в {amount} {currency} (за пользование холодильником :)&quot;"/>
+		<message type="kCantAfford" val="$n сказал$g вам : '..но такой голытьбе, как ты, это не по карману.'"/>
+		<message type="kLockedAway" val="$n запер$q ваши вещи в сундук и повел$g в тесную каморку."/>
+		<message type="kCryoGhost" val="Белый призрак появился в комнате, обдав вас холодом..."/>
+		<message type="kCryoLostTouch" val="Вы потеряли связь с окружающими вас..."/>
+		<message type="kKickedToBench" val="$n проводил$g $N3 мощным пинком на свободную лавку."/>
+		<message type="kHelpedToSleep" val="$n помог$q $N2 отойти ко сну."/>
+		<message type="kOfferStay" val="$N предложил$G $n2 остановиться у н$S."/>
+		<message type="kSettleForced" val="$N сказал$G : &quot;Куда же ты денешься от меня?&quot;"/>
+		<message type="kSettleOffer" val="$n предложил$g $N2 поселиться у н$s."/>
+		<message type="kSettleWelcome" val="$N сказал$G вам : &quot;Примем в любое время и почти в любом состоянии!&quot;"/>
+	</msg_sheaf>
+</msg_container>

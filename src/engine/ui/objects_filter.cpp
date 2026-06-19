@@ -6,6 +6,7 @@
 */
 
 #include "objects_filter.h"
+#include "gameplay/mechanics/sight.h"
 
 #include "gameplay/economics/exchange.h"
 #include "gameplay/clans/house.h"
@@ -18,7 +19,7 @@
 #include <set>
 
 extern ESkill FixNameAndFindSkillId(char *name);
-extern const char *print_obj_state(int tm_pct);
+extern const char *sight::print_obj_state(int tm_pct);
 
 namespace {
 
@@ -510,7 +511,7 @@ bool ParseFilter::init_affect(char *str, size_t str_len) {
 bool ParseFilter::check_name(const CObjectPrototype *obj, CharData *ch) const {
 	bool result = false;
 	char name_obj[kMaxStringLength];
-	strcpy(name_obj, obj->get_PName(ECase::kNom).c_str());
+	strcpy(name_obj, obj->get_PName(grammar::ECase::kNom).c_str());
 	utils::RemoveColors(name_obj);
 	if (name.empty()
 		|| isname(name, name_obj)) {
@@ -950,7 +951,7 @@ std::string ParseFilter::print() const {
 	}
 	if (state >= 0) {
 		buffer += "С";
-		buffer += print_obj_state(state);
+		buffer += sight::print_obj_state(state);
 		buffer += ", ";
 	}
 	if (wear != EWearFlag::kUndefined) {

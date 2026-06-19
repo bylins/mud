@@ -6,6 +6,8 @@
 */
 
 #include "engine/entities/char_data.h"
+#include "administration/privilege.h"
+#include "gameplay/mechanics/sight.h"
 #include "gameplay/mechanics/illumination.h"
 
 void do_blind_exits(CharData *ch);
@@ -26,12 +28,12 @@ void DoExits(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	}
 	for (door = 0; door < EDirection::kMaxDirNum; door++)
 		if (EXIT(ch, door) && EXIT(ch, door)->to_room() != kNowhere && !EXIT_FLAGGED(EXIT(ch, door), EExitFlag::kClosed)) {
-			if (ch->IsGod())
+			if (privilege::IsGod(ch))
 				sprintf(buf2, "%-6s - [%5d] %s\r\n", dirs_rus[door],
 						GET_ROOM_VNUM(EXIT(ch, door)->to_room()), world[EXIT(ch, door)->to_room()]->name);
 			else {
 				sprintf(buf2, "%-6s - ", dirs_rus[door]);
-				if (is_dark(EXIT(ch, door)->to_room()) && !CAN_SEE_IN_DARK(ch))
+				if (is_dark(EXIT(ch, door)->to_room()) && !sight::CanSeeInDark(ch))
 					strcat(buf2, "слишком темно\r\n");
 				else {
 					const RoomRnum rnum_exit_room = EXIT(ch, door)->to_room();
@@ -65,12 +67,12 @@ void do_blind_exits(CharData *ch) {
 	}
 	for (door = 0; door < EDirection::kMaxDirNum; door++)
 		if (EXIT(ch, door) && EXIT(ch, door)->to_room() != kNowhere && !EXIT_FLAGGED(EXIT(ch, door), EExitFlag::kClosed)) {
-			if (ch->IsGod())
+			if (privilege::IsGod(ch))
 				sprintf(buf2, "&W%s - [%d] %s ", dirs_rus[door],
 						GET_ROOM_VNUM(EXIT(ch, door)->to_room()), world[EXIT(ch, door)->to_room()]->name);
 			else {
 				sprintf(buf2, "&W%s - ", dirs_rus[door]);
-				if (is_dark(EXIT(ch, door)->to_room()) && !CAN_SEE_IN_DARK(ch))
+				if (is_dark(EXIT(ch, door)->to_room()) && !sight::CanSeeInDark(ch))
 					strcat(buf2, "слишком темно");
 				else {
 					const RoomRnum rnum_exit_room = EXIT(ch, door)->to_room();

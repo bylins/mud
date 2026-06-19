@@ -13,13 +13,13 @@
 #include "gameplay/mechanics/depot.h"
 #include "engine/scripting/dg_event.h"
 #include "gameplay/economics/shop_ext.h"
-#include "gameplay/economics/ext_money.h"
 #include "gameplay/magic/magic_utils.h"
 #include "gameplay/mechanics/dungeons.h"
 #include "gameplay/mechanics/glory.h"
 #include "gameplay/mechanics/glory_const.h"
 #include "gameplay/mechanics/glory_misc.h"
 #include "engine/core/handler.h"
+#include "engine/core/target_resolver.h"
 #include "engine/ui/modify.h"
 #include "engine/db/obj_prototypes.h"
 #include "gameplay/statistics/mob_stat.h"
@@ -30,8 +30,10 @@
 #include "gameplay/classes/pc_classes.h"
 #include "gameplay/statistics/zone_exp.h"
 #include "engine/db/player_index.h"
+#include "gameplay/core/remort.h"
 
 #include <fmt/format.h>
+#include "gameplay/mechanics/sight.h"
 
 extern void print_rune_stats(CharData *ch);
 void do_shops_list(CharData *ch);
@@ -40,7 +42,7 @@ void show_apply(CharData *ch, CharData *vict) {
 	ObjData *obj = nullptr;
 	for (int i = 0; i < EEquipPos::kNumEquipPos; i++) {
 		if ((obj = GET_EQ(vict, i))) {
-			SendMsgToChar(ch, "Предмет: %s (%d)\r\n", obj->get_PName(ECase::kNom).c_str(), GET_OBJ_VNUM(obj));
+			SendMsgToChar(ch, "Предмет: %s (%d)\r\n", obj->get_PName(grammar::ECase::kNom).c_str(), GET_OBJ_VNUM(obj));
 			// Update weapon applies
 			for (int j = 0; j < kMaxObjAffect; j++) {
 				if (GET_EQ(vict, i)->get_affected(j).modifier != 0) {
@@ -336,7 +338,7 @@ void print_zone_to_buf(char **bufptr, ZoneRnum zone) {
 			 zone_table[zone].name.c_str(),
 			 zone_table[zone].level,
 			 zone_table[zone].mob_level,
-			 zone_types[zone_table[zone].type].name,
+			 MUD::ZoneTypes()[zone_table[zone].type].GetName().c_str(),
 			 zone_table[zone].age, zone_table[zone].lifespan,
 			 zone_table[zone].reset_mode,
 			 (zone_table[zone].reset_mode == 3) ? (CanBeReset(zone) ? 1 : 0) : (IsZoneEmpty(zone) ? 1 : 0),
@@ -446,13 +448,18 @@ std::pair<int, int> TotalMemUse(){
 }
 
 void ListSpellCreate(CharData *ch) {
+	// (issue.runes-migrate) Iterate the new registry directly; runes are now
+	// pipe-separated so 5+-rune spells render fully (legacy %3d x 4 capped).
 	int i = 0;
-	for (auto it : spell_create) {
-		SendMsgToChar(ch, "%3d) Rune spell [%3d] &W%-30s&n runes: %3d %3d %3d %3d level %d\r\n", 
-				++i, to_underlying(it.first), MUD::Spell(it.first).GetCName(),
-				it.second.runes.items[0], it.second.runes.items[1],
-				it.second.runes.items[2], it.second.runes.rnumber,
-				it.second.runes.min_caster_level);
+	for (const auto &[spell_id, info] : MUD::RuneSpells()) {
+		std::string runes_str;
+		for (size_t r = 0; r < info.runes.size(); ++r) {
+			if (r > 0) runes_str += '|';
+			runes_str += std::to_string(info.runes[r]);
+		}
+		SendMsgToChar(ch, "%3d) Rune spell [%3d] &W%-30s&n runes: %s level %d\r\n",
+				++i, to_underlying(spell_id), MUD::Spell(spell_id).GetCName(),
+				runes_str.c_str(), info.min_caster_level);
 	}
 }
 
@@ -570,7 +577,7 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				SendMsgToChar("Уточните имя.\r\n", ch);
 				return;
 			}
-			if (!(vict = get_player_vis(ch, value, EFind::kCharInWorld))) {
+			if (!(vict = target_resolver::FindPlayerVis(ch, value))) {
 				SendMsgToChar("Нет такого игрока.\r\n", ch);
 				return;
 			}
@@ -591,8 +598,8 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				*buf1 = UPPER(*buf1);
 				snprintf(buf + strlen(buf), kMaxStringLength, "Имя одобрено богом %s\r\n", buf1);
 			}
-			if (GetRealRemort(vict) < 4)
-				sprintf(rem, "Перевоплощений: %d\r\n", GetRealRemort(vict));
+			if (remort::GetRealRemort(vict) < 4)
+				sprintf(rem, "Перевоплощений: %d\r\n", remort::GetRealRemort(vict));
 			else
 				sprintf(rem, "Перевоплощений: 3+\r\n");
 			sprintf(buf + strlen(buf), "%s", rem);
@@ -630,7 +637,7 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					if (victim->is_active()) {
 						++motion;
 					}
-					if (CAN_SEE(ch, victim)) {
+					if (sight::CanSee(ch, victim)) {
 						i++;
 						if (victim->desc) {
 							con++;
@@ -705,7 +712,7 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					&& d->character
 					&& d->state == EConState::kPlaying
 					&& d->character->in_room != kNowhere
-					&& ((CAN_SEE(ch, d->character) && GetRealLevel(ch) >= GetRealLevel(d->character))
+					&& ((sight::CanSee(ch, d->character) && GetRealLevel(ch) >= GetRealLevel(d->character))
 						|| ch->IsFlagged(EPrf::kCoderinfo))) {
 					sprintf(buf + strlen(buf),
 							"%-10s - подслушивается %s (map %s).\r\n",
@@ -722,7 +729,7 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			SendMsgToChar(buf, ch);
 			i = 0;
 			for (const auto &character : character_list) {
-				if (character->IsGod() || character->IsNpc() ||
+				if (privilege::IsGod(character.get()) || character->IsNpc() ||
 					character->desc != nullptr || character->in_room == kNowhere) {
 					continue;
 				}
@@ -743,38 +750,38 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				if (d->state != EConState::kPlaying
 					|| (GetRealLevel(ch) < GetRealLevel(d->character) && !ch->IsFlagged(EPrf::kCoderinfo)))
 					continue;
-				if (!CAN_SEE(ch, d->character) || d->character->in_room == kNowhere)
+				if (!sight::CanSee(ch, d->character) || d->character->in_room == kNowhere)
 					continue;
 				buf[0] = 0;
 				if (d->character->IsFlagged(EPlrFlag::kFrozen)
-					&& FREEZE_DURATION(d->character))
+					&& punishments::Get(d->character, punishments::EType::kFreeze).duration)
 					sprintf(buf + strlen(buf), "Заморожен : %ld час [%s].\r\n",
-							static_cast<long>((FREEZE_DURATION(d->character) - time(nullptr)) / 3600),
-							FREEZE_REASON(d->character) ? FREEZE_REASON(d->character) : "-");
+							static_cast<long>((punishments::Get(d->character, punishments::EType::kFreeze).duration - time(nullptr)) / 3600),
+							punishments::Get(d->character, punishments::EType::kFreeze).reason ? punishments::Get(d->character, punishments::EType::kFreeze).reason : "-");
 
 				if (d->character->IsFlagged(EPlrFlag::kMuted)
-					&& MUTE_DURATION(d->character))
+					&& punishments::Get(d->character, punishments::EType::kMute).duration)
 					sprintf(buf + strlen(buf), "Будет молчать : %ld час [%s].\r\n",
-							static_cast<long>((MUTE_DURATION(d->character) - time(nullptr)) / 3600),
-							MUTE_REASON(d->character) ? MUTE_REASON(d->character) : "-");
+							static_cast<long>((punishments::Get(d->character, punishments::EType::kMute).duration - time(nullptr)) / 3600),
+							punishments::Get(d->character, punishments::EType::kMute).reason ? punishments::Get(d->character, punishments::EType::kMute).reason : "-");
 
 				if (d->character->IsFlagged(EPlrFlag::kDumbed)
-					&& DUMB_DURATION(d->character))
+					&& punishments::Get(d->character, punishments::EType::kDumb).duration)
 					sprintf(buf + strlen(buf), "Будет нем : %ld час [%s].\r\n",
-							static_cast<long>((DUMB_DURATION(d->character) - time(nullptr)) / 3600),
-							DUMB_REASON(d->character) ? DUMB_REASON(d->character) : "-");
+							static_cast<long>((punishments::Get(d->character, punishments::EType::kDumb).duration - time(nullptr)) / 3600),
+							punishments::Get(d->character, punishments::EType::kDumb).reason ? punishments::Get(d->character, punishments::EType::kDumb).reason : "-");
 
 				if (d->character->IsFlagged(EPlrFlag::kHelled)
-					&& HELL_DURATION(d->character))
+					&& punishments::Get(d->character, punishments::EType::kHell).duration)
 					sprintf(buf + strlen(buf), "Будет в аду : %ld час [%s].\r\n",
-							static_cast<long>((HELL_DURATION(d->character) - time(nullptr)) / 3600),
-							HELL_REASON(d->character) ? HELL_REASON(d->character) : "-");
+							static_cast<long>((punishments::Get(d->character, punishments::EType::kHell).duration - time(nullptr)) / 3600),
+							punishments::Get(d->character, punishments::EType::kHell).reason ? punishments::Get(d->character, punishments::EType::kHell).reason : "-");
 
 				if (!d->character->IsFlagged(EPlrFlag::kRegistred)
-					&& UNREG_DURATION(d->character)) {
+					&& punishments::Get(d->character, punishments::EType::kUnreg).duration) {
 					sprintf(buf + strlen(buf), "Не сможет заходить с одного IP : %ld час [%s].\r\n",
-							static_cast<long>((UNREG_DURATION(d->character) - time(nullptr)) / 3600),
-							UNREG_REASON(d->character) ? UNREG_REASON(d->character) : "-");
+							static_cast<long>((punishments::Get(d->character, punishments::EType::kUnreg).duration - time(nullptr)) / 3600),
+							punishments::Get(d->character, punishments::EType::kUnreg).reason ? punishments::Get(d->character, punishments::EType::kUnreg).reason : "-");
 				}
 
 				if (buf[0]) {
@@ -816,7 +823,7 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				SendMsgToChar("Уточните имя.\r\n", ch);
 				return;
 			}
-			if (!(vict = get_player_vis(ch, value, EFind::kCharInWorld))) {
+			if (!(vict = target_resolver::FindPlayerVis(ch, value))) {
 				SendMsgToChar("Нет такого игрока.\r\n", ch);
 				return;
 			}
@@ -827,7 +834,7 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				SendMsgToChar("Уточните имя.\r\n", ch);
 				return;
 			}
-			if (!(vict = get_player_vis(ch, value, EFind::kCharInWorld))) {
+			if (!(vict = target_resolver::FindPlayerVis(ch, value))) {
 				SendMsgToChar("Нет такого игрока.\r\n", ch);
 				return;
 			}
@@ -845,7 +852,7 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				SendMsgToChar("Уточните имя.\r\n", ch);
 				return;
 			}
-			if (!(vict = get_player_vis(ch, value, EFind::kCharInWorld))) {
+			if (!(vict = target_resolver::FindPlayerVis(ch, value))) {
 				SendMsgToChar("Нет такого игрока.\r\n", ch);
 				return;
 			}
@@ -887,15 +894,12 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				print_mob_bosses(ch, false);
 			}
 			break;
-		case 25: // remort
-			Remort::show_config(ch);
-			break;
 		case 26: { //Apply
 			if (!*value) {
 				SendMsgToChar("Уточните имя.\r\n", ch);
 				return;
 			}
-			if (!(vict = get_player_vis(ch, value, EFind::kCharInWorld))) {
+			if (!(vict = target_resolver::FindPlayerVis(ch, value))) {
 				SendMsgToChar("Нет такого игрока.\r\n", ch);
 				return;
 			}

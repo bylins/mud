@@ -8,6 +8,9 @@
 ************************************************************************ */
 
 #include "engine/db/obj_prototypes.h"
+#include "administration/privilege.h"
+#include "gameplay/mechanics/minions.h"
+#include "gameplay/mechanics/mount.h"
 #include "engine/db/global_objects.h"
 #include "engine/core/handler.h"
 #include "engine/ui/color.h"
@@ -18,10 +21,12 @@
 #include "gameplay/core/base_stats.h"
 #include "gameplay/mechanics/weather.h"
 #include "gameplay/mechanics/illumination.h"
+#include "gameplay/core/remort.h"
 
 #include <cmath>
 
 #include <fmt/format.h>
+#include "gameplay/mechanics/sight.h"
 
 const int kZeroRemortSkillCap = 80;
 const int kSkillCapBonusPerRemort = 5;;
@@ -468,29 +473,29 @@ const std::string &NAME_BY_ITEM<ESkill>(const ESkill item) {
 	return ESkill_name_by_value.at(item);
 }
 
+template<>
+const std::map<ESkill, std::string> &NAMES_OF<ESkill>() {
+	if (ESkill_name_by_value.empty()) {
+		init_ESkill_ITEM_NAMES();
+	}
+	return ESkill_name_by_value;
+}
+
 
 ///
 /// \param add = "", строка для добавления после основного сообщения (краткий режим щитов)
 ///
-// Intensity adverb (with trailing space) for a hit of the given damage, substituted into
-// the {intensity} placeholder of kFightHit* messages (issue #3322). Reproduces the legacy
-// dam_weapons[] tiers exactly; empty string for the mid-damage tiers.
-static const char *HitIntensity(int dam) {
-	if (dam <= 5) return "легонько ";
-	if (dam <= 11) return "слегка ";
-	if (dam <= 26) return "";
-	if (dam <= 35) return "сильно ";
-	if (dam <= 45) return "очень сильно ";
-	if (dam <= 56) return "чрезвычайно сильно ";
-	if (dam <= 96) return "БОЛЬНО ";
-	if (dam <= 136) return "ОЧЕНЬ БОЛЬНО ";
-	if (dam <= 176) return "ЧРЕЗВЫЧАЙНО БОЛЬНО ";
-	if (dam <= 216) return "НЕВЫНОСИМО БОЛЬНО ";
-	if (dam <= 256) return "ЖЕСТОКО ";
-	if (dam <= 296) return "УЖАСНО ";
-	if (dam <= 400) return "УБИЙСТВЕННО ";
-	if (dam <= 800) return "ИЗУВЕРСКИ ";
-	return "СМЕРТЕЛЬНО ";
+// Intensity adverb for a hit, substituted into the {intensity} placeholder of
+// kFightHit* messages. issue.unstable-hotfixes: graded by ABSOLUTE damage (HP)
+// via MUD::PointsIntensity's <damage> table. The empty mid tier ("normal hit,
+// no adverb") collapses cleanly because each table row carries its own trailing
+// space.
+static const std::string &HitIntensity(int dam, const CharData * /*striker*/) {
+	// issue.unstable-hotfixes: grade the hit by ABSOLUTE damage (HP). The earlier
+	// percentage scale (dam * 100 / striker max HP) was unintuitive for players --
+	// the same hit read differently depending on who threw it. The <damage> table
+	// thresholds in points_intensity.xml are now absolute HP values.
+	return MUD::PointsIntensity().Resolve(points_intensity::ECategory::kDamage, dam);
 }
 
 // Renders one combat-message set (god/death/hit/miss x char/vict/room) for the given
@@ -546,9 +551,11 @@ static bool SendCombatMessages(msg_container::MsgContainer<IdEnum, MsgEnum> &con
 	brief_shields brief(ch, vict, weap, add);
 	brief.reflect = reflect;
 
-	// Substitute the {intensity} placeholder on weapon-hit messages (issue #3322).
-	// Messages without the placeholder (skills/spells, death/miss/god) are used as-is.
-	const char *const intensity = HitIntensity(dam);
+	// Substitute the {intensity} placeholder on weapon-hit messages (issue #3322;
+	// issue.mag-points step 2: switched from absolute-damage tiers to percentage
+	// lookup against MUD::PointsIntensity). Messages without the placeholder
+	// (skills/spells, death/miss/god lines) are used as-is.
+	const std::string &intensity = HitIntensity(dam, ch);
 	auto resolve = [&](MsgEnum type, std::string &buf) -> const char * {
 		const std::string &raw = sheaf.GetMessage(type);
 		if (raw.find("{intensity}") == std::string::npos) {
@@ -609,10 +616,10 @@ int GetRealSave(CharData *ch, const ESkill skill_id) {
 
 	switch (MUD::Skill(skill_id).save_type) {
 		case ESaving::kStability:
-			rate -= dex_bonus(GetRealCon(ch) + (ch->IsOnHorse() ? 20 : 0));
+			rate -= dex_bonus(GetRealCon(ch) + (mount::IsOnHorse(ch) ? 20 : 0));
 			break;
 		case ESaving::kReflex:
-			rate -= dex_bonus(GetRealDex(ch) + (ch->IsOnHorse() ? -20 : 0));
+			rate -= dex_bonus(GetRealDex(ch) + (mount::IsOnHorse(ch) ? -20 : 0));
 			break;
 		case ESaving::kCritical:
 			rate -= dex_bonus(GetRealCon(ch));
@@ -772,21 +779,21 @@ int CalculateVictimRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 			break;
 
 		case ESkill::kPry: {
-			if (CAN_SEE(vict, ch) && AWAKE(vict)) {
+			if (sight::CanSee(vict, ch) && AWAKE(vict)) {
 				rate -= int_app[GetRealInt(ch)].observation;
 			}
 			break;
 		}
 
 		case ESkill::kStrangle: {
-			if (CAN_SEE(ch, vict) && (vict->IsFlagged(EPrf::kAwake))) {
+			if (sight::CanSee(ch, vict) && (vict->IsFlagged(EPrf::kAwake))) {
 				rate -= CalculateSkillAwakeModifier(ch, vict);
 			}
 			break;
 		}
 
 		case ESkill::kDazzle: {
-			if (CAN_SEE(ch, vict) && (vict->IsFlagged(EPrf::kAwake))) {
+			if (sight::CanSee(ch, vict) && (vict->IsFlagged(EPrf::kAwake))) {
 				rate -= CalculateSkillAwakeModifier(ch, vict);
 			}
 			break;
@@ -852,7 +859,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 				bonus += -50;
 			}
 			if (vict) {
-				if (!CAN_SEE(vict, ch)) {
+				if (!sight::CanSee(vict, ch)) {
 					bonus += 25;
 				}
 				if (vict->GetPosition() < EPosition::kFight) {
@@ -913,7 +920,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 		}
 
 		case ESkill::kKick: {
-			if (!ch->IsOnHorse() && vict->IsOnHorse()) {
+			if (!mount::IsOnHorse(ch) && mount::IsOnHorse(vict)) {
 				base_percent = 0;
 			} else {
 				parameter_bonus += GetRealStr(ch);
@@ -944,7 +951,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 				bonus += 20;
 			}
 			if (vict) {
-				if (!CAN_SEE(vict, ch))
+				if (!sight::CanSee(vict, ch))
 					bonus += 25;
 			}
 			break;
@@ -957,7 +964,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 			if (is_dark(ch->in_room))
 				bonus += 20;
 			if (vict) {
-				if (!CAN_SEE(vict, ch))
+				if (!sight::CanSee(vict, ch))
 					bonus += 25;
 				if (AWAKE(vict)) {
 					if (AFF_FLAGGED(vict, EAffect::kAwarness))
@@ -1088,7 +1095,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 				bonus -= 10;
 			}
 			if (vict) {
-				if (!CAN_SEE(vict, ch))
+				if (!sight::CanSee(vict, ch))
 					bonus += 10;
 				if (vict->GetPosition() < EPosition::kSit)
 					bonus -= 50;
@@ -1148,7 +1155,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 		case ESkill::kPry: {
 			parameter_bonus = cha_app[GetRealCha(ch)].illusive;
 			if (vict) {
-				if (!CAN_SEE(vict, ch)) {
+				if (!sight::CanSee(vict, ch)) {
 					bonus += 50;
 				}
 			}
@@ -1178,7 +1185,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 			if (AFF_FLAGGED(vict, EAffect::kHold)) {
 				bonus += 30;
 			} else {
-				if (!CAN_SEE(ch, vict))
+				if (!sight::CanSee(ch, vict))
 					bonus += 20;
 			}
 			break;
@@ -1368,7 +1375,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict, bool /
 			}
 
 			if (vict) {
-				if (!CAN_SEE(vict, ch)) {
+				if (!sight::CanSee(vict, ch)) {
 					bonus += 25;
 				}
 
@@ -1472,7 +1479,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict, bool /
 			if (vict) {
 				if (GetRealLevel(vict) > 35)
 					bonus -= 50;
-				if (!CAN_SEE(vict, ch))
+				if (!sight::CanSee(vict, ch))
 					bonus += 25;
 				if (AWAKE(vict)) {
 					victim_modi -= int_app[GetRealInt(vict)].observation;
@@ -1491,7 +1498,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict, bool /
 
 			if (vict) {
 				victim_sav = CalcSaving(ch, vict, ESaving::kReflex, 0);
-				if (!CAN_SEE(vict, ch))
+				if (!sight::CanSee(vict, ch))
 					bonus += 25;
 				if (AWAKE(vict)) {
 					victim_modi -= int_app[GetRealInt(vict)].observation;
@@ -1672,7 +1679,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict, bool /
 			if (IsEquipInMetall(ch))
 				bonus -= 10;
 			if (vict) {
-				if (!CAN_SEE(vict, ch))
+				if (!sight::CanSee(vict, ch))
 					bonus += 10;
 				if (vict->GetPosition() < EPosition::kSit)
 					bonus -= 50;
@@ -1759,7 +1766,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict, bool /
 		case ESkill::kPry: {
 			bonus = cha_app[GetRealCha(ch)].illusive;
 			if (vict) {
-				if (!CAN_SEE(vict, ch))
+				if (!sight::CanSee(vict, ch))
 					bonus += 50;
 				else if (AWAKE(vict))
 					victim_modi -= int_app[GetRealInt(ch)].observation;
@@ -1791,7 +1798,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict, bool /
 			if (AFF_FLAGGED(vict, EAffect::kHold)) {
 				bonus += (base_percent + bonus) / 2;
 			} else {
-				if (!CAN_SEE(ch, vict))
+				if (!sight::CanSee(ch, vict))
 					bonus += (base_percent + bonus) / 5;
 				if (vict->IsFlagged(EPrf::kAwake))
 					victim_modi -= CalculateSkillAwakeModifier(ch, vict);
@@ -1963,8 +1970,8 @@ void ImproveSkill(CharData *ch, const ESkill skill, int success, CharData *victi
 		}
 		SendMsgToChar(buf, ch);
 		ch->set_skill(skill, (trained_skill + number(1, 2)));
-		if (!ch->IsImmortal()) {
-			ch->set_skill(skill, (std::min(kZeroRemortSkillCap + GetRealRemort(ch) * 5, ch->GetSkillBonus(skill))));
+		if (!privilege::IsImmortal(ch)) {
+			ch->set_skill(skill, (std::min(kZeroRemortSkillCap + remort::GetRealRemort(ch) * 5, ch->GetSkillBonus(skill))));
 		}
 		if (victim && victim->IsNpc()) {
 			victim->SetFlag(EMobFlag::kNoSkillTrain);
@@ -1981,10 +1988,10 @@ void TrainSkill(CharData *ch, const ESkill skill, bool success, CharData *vict) 
 					&& !vict->IsFlagged(EMobFlag::kProtect)
 					&& !vict->IsFlagged(EMobFlag::kNoSkillTrain)
 					&& !AFF_FLAGGED(vict, EAffect::kCharmed)
-					&& !IS_HORSE(vict)))) {
+					&& !mount::IsHorse(vict)))) {
 			ImproveSkill(ch, skill, success, vict);
 		}
-	} else if (!IS_CHARMICE(ch)) {
+	} else if (!IsCharmice(ch)) {
 		if (ch->GetSkill(skill) > 0
 			&& GetRealInt(ch) <= number(0, 1000 - 20 * GetRealWis(ch))
 			&& ch->GetSkill(skill) < MUD::Skill(skill).difficulty) {
@@ -2013,7 +2020,7 @@ int CalculateSkillAwakeModifier(CharData *killer, CharData *victim) {
 //req_lvl - требуемый уровень из книги
 int GetSkillMinLevel(CharData *ch, ESkill skill, int req_lvl) {
 	int min_lvl = std::max(req_lvl, MUD::Class(ch->GetClass()).skills[skill].GetMinLevel())
-		- std::max(0, GetRealRemort(ch) / MUD::Class(ch->GetClass()).GetSkillLvlDecrement());
+		- std::max(0, remort::GetRealRemort(ch) / MUD::Class(ch->GetClass()).GetSkillLvlDecrement());
 	return std::max(1, min_lvl);
 };
 
@@ -2023,12 +2030,12 @@ int GetSkillMinLevel(CharData *ch, ESkill skill, int req_lvl) {
  */
 int GetSkillMinLevel(CharData *ch, ESkill skill) {
 	int min_lvl = MUD::Class(ch->GetClass()).skills[skill].GetMinLevel() -
-		std::max(0, GetRealRemort(ch)/ MUD::Class(ch->GetClass()).GetSkillLvlDecrement());
+		std::max(0, remort::GetRealRemort(ch)/ MUD::Class(ch->GetClass()).GetSkillLvlDecrement());
 	return std::max(1, min_lvl);
 };
 
 bool CanGetSkill(CharData *ch, ESkill skill, int req_lvl) {
-	if (GetRealRemort(ch) < MUD::Class(ch->GetClass()).skills[skill].GetMinRemort() ||
+	if (remort::GetRealRemort(ch) < MUD::Class(ch->GetClass()).skills[skill].GetMinRemort() ||
 		MUD::Class(ch->GetClass()).skills[skill].IsUnavailable()) {
 		return false;
 	}
@@ -2043,7 +2050,7 @@ bool CanGetSkill(CharData *ch, ESkill skill) {
 		return false;
 	}
 
-	if (GetRealRemort(ch) < MUD::Class(ch->GetClass()).skills[skill].GetMinRemort()) {
+	if (remort::GetRealRemort(ch) < MUD::Class(ch->GetClass()).skills[skill].GetMinRemort()) {
 		return false;
 	}
 
@@ -2055,12 +2062,12 @@ bool CanGetSkill(CharData *ch, ESkill skill) {
 }
 
 int CalcSkillRemortCap(const CharData *ch) {
-	return kZeroRemortSkillCap + GetRealRemort(ch) * kSkillCapBonusPerRemort;
+	return kZeroRemortSkillCap + remort::GetRealRemort(ch) * kSkillCapBonusPerRemort;
 }
 
 int CalcSkillWisdomCap(const CharData *ch) {
 	// считаем требования по мудре для капа по скиллов по морту на текущий морт
-	int requirement = 10 + (GetRealRemort(ch) / 10 * 9);
+	int requirement = 10 + (remort::GetRealRemort(ch) / 10 * 9);
 	// на 10 морте требуется 19 мудры, на 20- 28, на 30- 37 И так далее, на 100 морте 100
 	// кап равномерно увеличивается с каждым левелом
 	float cap = CalcSkillRemortCap(ch) * GetRealLevel(ch) / 30;
@@ -2082,6 +2089,14 @@ int CalcSkillHardCap(const CharData *ch, const ESkill skill) {
 
 int CalcSkillMinCap(const CharData *ch, const ESkill skill) {
 	return std::min(CalcSkillWisdomCap(ch), MUD::Skill(skill).cap);
+}
+
+int CalcNoviceSkillBonus(CharData *ch, ESkill skill_id, unsigned skill_divisor) {
+	if (skill_divisor <= 0) {
+		return 0;
+	}
+	auto low_skill = std::min(ch->GetSkill(skill_id), abilities::kNoviceSkillThreshold);
+	return low_skill/skill_divisor;
 }
 
 const ESkill &operator++(ESkill &s) {

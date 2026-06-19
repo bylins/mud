@@ -15,11 +15,17 @@
 #define __CONFIG_C__
 
 #include "config.h"
+#include "administration/privilege.h"
+#include "utils/utils_encoding.h"
+#include "common_messages.h"
+#include "engine/structs/msg_container.h"
+#include "engine/structs/info_container.h"   // kUndefinedVnum
 #include "utils/timestamp.h"
 
 #include "third_party_libs/pugixml/pugixml.h"
 
 #include "gameplay/mechanics/birthplaces.h"
+#include "gameplay/core/remort.h"
 #include "gameplay/communication/boards/boards_changelog_loaders.h"
 #include "gameplay/communication/boards/boards_constants.h"
 #include "engine/entities/char_data.h"
@@ -88,10 +94,8 @@ int dts_are_dumps = YES;
  */
 int load_into_inventory = YES;
 
-const char *OK = "Ладушки.\r\n";
-const char *NOPERSON = "Нет такого создания в этом мире.\r\n";
-const char *NOEFFECT = "Ваши потуги оказались напрасными.\r\n";
-const char *nothing_string = "ничего";
+// issue.common-msg: OK / NOPERSON / nothing_string (and SIELENCE / SOUNDPROOF from constants.cpp) moved
+// to cfg/messages/ru/common_msg.xml; see CommonMsg() / CommonMessagesLoader below.
 
 /*
  * You can define or not define TRACK_THOUGH_DOORS, depending on whether
@@ -114,10 +118,10 @@ int free_rent = YES;
 
 // receptionist's surcharge on top of item costs
 int min_rent_cost(CharData *ch) {
-	if ((GetRealLevel(ch) < 15) && (GetRealRemort(ch) == 0))
+	if ((GetRealLevel(ch) < 15) && (remort::GetRealRemort(ch) == 0))
 		return (0);
 	else
-		return ((GetRealLevel(ch) + 30 * GetRealRemort(ch)) * 2);
+		return ((GetRealLevel(ch) + 30 * remort::GetRealRemort(ch)) * 2);
 }
 
 // Lifetime of crashfiles, forced-rent and idlesave files in days
@@ -294,7 +298,7 @@ int max_exp_gain_pc(CharData *ch) {
 	int result = 1;
 	if (!ch->IsNpc()) {
 		int max_per_lev = GetExpUntilNextLvl(ch, ch->GetLevel() + 1) - GetExpUntilNextLvl(ch, ch->GetLevel() + 0); //тут берем левел без плюсов от стафа
-		result = max_per_lev / (10 + GetRealRemort(ch));
+		result = max_per_lev / (10 + remort::GetRealRemort(ch));
 	}
 	return result;
 }
@@ -304,7 +308,7 @@ int max_exp_loss_pc(CharData *ch) {
 }
 
 int calc_loadroom(const CharData *ch, int bplace_mode /*= BIRTH_PLACE_UNDEFINED*/) {
-	if (ch->IsImmortal()) {
+	if (privilege::IsImmortal(ch)) {
 		return (immort_start_room);
 	} else if (ch->IsFlagged(EPlrFlag::kFrozen)) {
 		return (frozen_start_room);
@@ -405,9 +409,9 @@ void RuntimeConfiguration::setup_converters() {
 		// set up converter
 		const auto &encoding = log_stderr();
 		if ("cp1251" == encoding) {
-			m_syslog_converter = &koi_to_win;
+			m_syslog_converter = &codepages::koi_to_win;
 		} else if ("alt" == encoding) {
-			m_syslog_converter = static_cast<void (*)(char *, int)>(koi_to_alt);
+			m_syslog_converter = static_cast<void (*)(char *, int)>(codepages::koi_to_alt);
 		}
 	}
 }
@@ -974,3 +978,46 @@ void RuntimeConfiguration::load_admin_api_configuration(const pugi::xml_node *ro
 	}
 }
 #endif
+
+// --- issue.common-msg: shared engine messages (cfg/messages/ru/common_msg.xml) ----------------------
+namespace {
+const std::map<ECommonMsg, std::string> kCommonMsgNames{
+		{ECommonMsg::kUndefined, "kUndefined"},
+		{ECommonMsg::kSilenced, "kSilenced"},
+		{ECommonMsg::kSoundproof, "kSoundproof"},
+		{ECommonMsg::kOk, "kOk"},
+		{ECommonMsg::kNoPerson, "kNoPerson"},
+		{ECommonMsg::kNothing, "kNothing"},
+	};
+
+msg_container::MsgContainer<int, ECommonMsg> &CommonMsgContainer() {
+	static msg_container::MsgContainer<int, ECommonMsg> container;
+	return container;
+}
+}  // namespace
+
+template<>
+const std::string &NAME_BY_ITEM<ECommonMsg>(const ECommonMsg item) {
+	return kCommonMsgNames.at(item);
+}
+template<>
+const std::map<ECommonMsg, std::string> &NAMES_OF<ECommonMsg>() {
+	return kCommonMsgNames;
+}
+template<>
+ECommonMsg ITEM_BY_NAME<ECommonMsg>(const std::string &name) {
+	static std::map<std::string, ECommonMsg> by_name;
+	if (by_name.empty()) {
+		for (const auto &[value, token] : kCommonMsgNames) {
+			by_name.emplace(token, value);
+		}
+	}
+	return by_name.at(name);
+}
+
+const std::string &CommonMsg(ECommonMsg id) {
+	return CommonMsgContainer().GetMessage(info_container::kUndefinedVnum, id);
+}
+
+void CommonMessagesLoader::Load(parser_wrapper::DataNode data) { CommonMsgContainer().Init(data.Children()); }
+void CommonMessagesLoader::Reload(parser_wrapper::DataNode data) { CommonMsgContainer().Reload(data.Children()); }

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<!--
+    issue.specials Phase 2: notice board messages (boards.cpp DoBoard / message_no_* / do_list /
+    report_on_board / login + new-post notifications). All SendMsgToChar (code appends the trailing
+    \r\n); no act-codes. Named fmt args: {level} {board} {alias} {subject} {text} {count} {desc}
+    {author} {color} {nocolor}. The board-stats table (DoBoardList) + per-message formatters stay in
+    code as layout; board names/descriptions + server-posted message bodies stay in code as content.
+-->
+<msg_container>
+	<msg_sheaf id="kDefault">
+		<message type="kNoWriteLevel" val="Вам нужно достигнуть {level} уровня, чтобы писать в этот раздел."/>
+		<message type="kNoWriteAccess" val="У вас нет возможности писать в этот раздел."/>
+		<message type="kNoReadAccess" val="У вас нет возможности читать этот раздел."/>
+		<message type="kSpecialUsage" val="Для сообщения в формате обычной работы с доской используйте: {board} писать &lt;заголовок&gt;."/>
+		<message type="kSpecialAlias" val="Команда для быстрого добавления сообщения: {alias} &lt;текст сообщения в одну строку&gt;."/>
+		<message type="kBlind" val="Вы ослеплены!"/>
+		<message type="kNoBoard" val="Чаво?"/>
+		<message type="kNoUnread" val="У вас нет непрочитанных сообщений."/>
+		<message type="kNoSuchMessage" val="Это сообщение может вам только присниться."/>
+		<message type="kSpammer" val="Да вы ведь только что писали сюда."/>
+		<message type="kClanWriteBan" val="Вам запретили сюда писать!"/>
+		<message type="kOverflow" val="Да, набросали всего столько, что файл переполнен. Напомните об этом богам!"/>
+		<message type="kNeedAuthorName" val="Впишите хотя бы имя, от кого будет опубликовано сообщение."/>
+		<message type="kSubjectTruncated" val="Тема сообщения укорочена до '{subject}'."/>
+		<message type="kWritingPrompt" val="Вы пишете сообщение на доску объявлений: '{board}'. (/s записать /h помощь)"/>
+		<message type="kRemoveNeedNumber" val="Укажите корректный номер сообщения."/>
+		<message type="kRemoveNoAccess" val="У вас нет возможности удалить это сообщение."/>
+		<message type="kRemoved" val="Сообщение удалено."/>
+		<message type="kBadCommand" val="Неверный формат команды, ознакомьтесь со 'справка доски'."/>
+		<message type="kNameCollision1" val="Первое слово вашего заголовка совпадает с названием одной из досок сообщений,"/>
+		<message type="kNameCollision2" val="Во избежание недоразумений воспользуйтесь форматом '&lt;имя-доски&gt; писать &lt;заголовок&gt;'."/>
+		<message type="kListIntro1" val="Это доска, на которой всякие разные личности оставили свои IMHO."/>
+		<message type="kListIntro2" val="Формат: ЧИТАТЬ/ОЧИСТИТЬ &lt;номер сообщения&gt;, ПИСАТЬ &lt;тема сообщения&gt;."/>
+		<message type="kListEmpty" val="Никто ниче не накарябал, слава Богам."/>
+		<message type="kListTotal" val="Всего сообщений: {count}"/>
+		<message type="kLoginHeader" val="Вас ожидают сообщения:"/>
+		<message type="kLoginRow" val="{count:&gt;4} в разделе '{desc}' {color}({name}){nocolor}."/>
+		<message type="kNewMessage" val="Новое сообщение в разделе '{board}' от {author}, тема: {subject}"/>
+		<message type="kReportEmpty" val="Пустое сообщение пропущено."/>
+		<message type="kReportNoBoard" val="Доска тупо не найдена... :/"/>
+		<message type="kReportSaved1" val="Текст сообщения:"/>
+		<message type="kReportSaved2" val="Записали. Заранее благодарны."/>
+		<message type="kReportSaved3" val="                        Боги."/>
+	</msg_sheaf>
+</msg_container>

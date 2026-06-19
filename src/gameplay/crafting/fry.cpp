@@ -32,7 +32,7 @@ void do_fry(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	const auto meet_vnum = GET_OBJ_VNUM(meet);
 	if (!meat_mapping.has(meet_vnum)) // не нашлось в массиве
 	{
-		SendMsgToChar(ch, "%s не подходит для жарки.\r\n", meet->get_PName(ECase::kNom).c_str());
+		SendMsgToChar(ch, "%s не подходит для жарки.\r\n", meet->get_PName(grammar::ECase::kNom).c_str());
 		return;
 	}
 
@@ -43,7 +43,7 @@ void do_fry(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	if (tobj) {
 		can_carry_obj(ch, tobj.get());
 		ExtractObjFromWorld(meet);
-		SetWaitState(ch, 1 * kBattleRound);
+		SetBattleLag(ch, 1);
 	} else {
 		mudlog("Невозможно загрузить жаренное мясо в do_fry!", NRM, kLvlGreatGod, ERRLOG, true);
 	}

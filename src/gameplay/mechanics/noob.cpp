@@ -10,6 +10,7 @@
 #include "engine/core/handler.h"
 #include "gameplay/communication/talk.h"
 #include "gameplay/ai/spec_procs.h"
+#include "gameplay/core/remort.h"
 
 int find_eq_pos(CharData *ch, ObjData *obj, char *local_arg);
 
@@ -88,7 +89,7 @@ void init() {
 /// \return true - если ch в коде считается нубом и соотв-но претендует на помощь
 ///
 bool is_noob(const CharData *ch) {
-	if (GetRealLevel(ch) > MAX_LEVEL || GetRealRemort(ch) > 0) {
+	if (GetRealLevel(ch) > MAX_LEVEL || remort::GetRealRemort(ch) > 0) {
 		return false;
 	}
 	return true;
@@ -140,7 +141,7 @@ std::vector<int> get_start_outfit(CharData *ch) {
 ///
 CharData *find_renter(int room_rnum) {
 	for (const auto tch : world[room_rnum]->people) {
-		if (GET_MOB_SPEC(tch) == receptionist) {
+		if (specials::IsMobSpecial(GET_MOB_VNUM(tch), specials::ESpecial::kRent)) {
 			return tch;
 		}
 	}

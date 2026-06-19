@@ -1,4 +1,6 @@
 #include "do_flee.h"
+#include "administration/privilege.h"
+#include "gameplay/mechanics/mount.h"
 
 #include "engine/core/char_movement.h"
 #include "engine/entities/char_data.h"
@@ -20,7 +22,7 @@ void GoFlee(CharData *ch) {
 	}
 
 	if (AFF_FLAGGED(ch, EAffect::kNoFlee) ||
-		AFF_FLAGGED(ch, EAffect::kCombatLuck) ||
+//		AFF_FLAGGED(ch, EAffect::kCombatLuck) ||
 		ch->IsFlagged(EPrf::kIronWind)) {
 		SendMsgToChar("Невидимые оковы мешают вам сбежать.\r\n", ch);
 		return;
@@ -31,12 +33,12 @@ void GoFlee(CharData *ch) {
 		return;
 	}
 
-	if (!ch->IsImmortal()) {
-		SetWaitState(ch, kBattleRound);
+	if (!privilege::IsImmortal(ch)) {
+		SetBattleLag(ch, 1);
 	}
 
-	if (ch->IsOnHorse() && (ch->get_horse()->GetPosition() < EPosition::kFight ||
-		AFF_FLAGGED(ch->get_horse(), EAffect::kHold))) {
+	if (mount::IsOnHorse(ch) && (mount::GetHorse(ch)->GetPosition() < EPosition::kFight ||
+		AFF_FLAGGED(mount::GetHorse(ch), EAffect::kHold))) {
 		SendMsgToChar("Ваш скакун не в состоянии вынести вас из боя!\r\n", ch);
 		return;
 	}
@@ -48,8 +50,8 @@ void GoFlee(CharData *ch) {
 
 		act("$n запаниковал$g и попытал$u сбежать!", true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 		if (PerformSimpleMove(ch, direction, true, nullptr, EMoveType::kFlee)) {
-			if (ch->IsOnHorse()) {
-				act("Верн$W $N вынес$Q вас из боя.", false, ch, nullptr, ch->get_horse(), kToChar);
+			if (mount::IsOnHorse(ch)) {
+				act("Верн$W $N вынес$Q вас из боя.", false, ch, nullptr, mount::GetHorse(ch), kToChar);
 			} else {
 				SendMsgToChar("Вы быстро убежали с поля битвы.\r\n", ch);
 			}
@@ -74,7 +76,7 @@ void GoDirectFlee(CharData *ch, int direction) {
 	}
 
 	if (AFF_FLAGGED(ch, EAffect::kNoFlee) ||
-		AFF_FLAGGED(ch, EAffect::kCombatLuck) ||
+//		AFF_FLAGGED(ch, EAffect::kCombatLuck) ||
 		ch->IsFlagged(EPrf::kIronWind)) {
 		SendMsgToChar("Невидимые оковы мешают вам сбежать.\r\n", ch);
 		return;
@@ -98,8 +100,8 @@ void GoDirectFlee(CharData *ch, int direction) {
 				ReduceExpAfterFlee(ch, was_fighting, was_in);
 			}
 
-			if (!ch->IsImmortal()) {
-				SetWaitState(ch, 1 * kBattleRound);
+			if (!privilege::IsImmortal(ch)) {
+				SetBattleLag(ch, 1);
 			}
 			return;
 		}

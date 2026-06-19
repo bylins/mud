@@ -7,6 +7,7 @@
 */
 
 #include "engine/entities/char_data.h"
+#include "gameplay/mechanics/mount.h"
 #include "engine/core/char_movement.h"
 #include "engine/db/global_objects.h"
 
@@ -27,8 +28,8 @@ void DoHidemove(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Неизвестное направление.\r\n", ch);
 		return;
 	}
-	if (ch->IsOnHorse()) {
-		act("Вам мешает $N.", false, ch, nullptr, ch->get_horse(), kToChar);
+	if (mount::IsOnHorse(ch)) {
+		act("Вам мешает $N.", false, ch, nullptr, mount::GetHorse(ch), kToChar);
 		return;
 	}
 	auto sneaking = IsAffectedBySpell(ch, ESpell::kSneak);
@@ -40,7 +41,7 @@ void DoHidemove(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		af.duration = 1;
 		const int calculated_skill = CalcCurrentSkill(ch, ESkill::kSneak, nullptr);
 		const int chance = number(1, MUD::Skill(ESkill::kSneak).difficulty);
-		af.bitvector = (chance < calculated_skill) ? to_underlying(EAffect::kSneak) : 0;
+		af.affect_type = (chance < calculated_skill) ? EAffect::kSneak : EAffect::kUndefined;
 		af.battleflag = 0;
 		ImposeAffect(ch, af, false, false, false, false);
 	}

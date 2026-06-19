@@ -10,6 +10,8 @@
 #include "engine/structs/structs.h"
 #include "engine/structs/meta_enum.h"
 
+#include <map>
+
 enum class EFeat {
 	kUndefined = 0,			//DO NOT USE
 	kBerserker = 1,				//предсмертная ярость
@@ -196,6 +198,8 @@ template<>
 const std::string &NAME_BY_ITEM<EFeat>(EFeat item);
 template<>
 EFeat ITEM_BY_NAME<EFeat>(const std::string &name);
+template<>
+const std::map<EFeat, std::string> &NAMES_OF<EFeat>();  // issue.thing-names: Vedun enum registry
 
 EFeat& operator++(EFeat &f);
 

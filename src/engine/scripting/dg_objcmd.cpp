@@ -10,6 +10,10 @@
 **************************************************************************/
 
 #include "engine/entities/char_data.h"
+#include "administration/privilege.h"
+#include "gameplay/mechanics/minions.h"
+#include "gameplay/mechanics/follow.h"
+#include "gameplay/mechanics/mount.h"
 #include "engine/ui/cmd/do_follow.h"
 #include "gameplay/fight/fight.h"
 #include "gameplay/fight/pk.h"
@@ -370,7 +374,7 @@ void do_opurge(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Trigge
 
 	if (!ch->followers.empty()
 		|| ch->has_master()) {
-		die_follower(ch);
+		follow::DieFollower(ch);
 	}
 	character_list.AddToExtractedList(ch);
 }
@@ -413,7 +417,7 @@ void do_oteleport(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 			RemoveCharFromRoom(ch);
 			PlaceCharToRoom(ch, target);
 			if (!ch->IsNpc()) {
-				look_at_room(ch, true);
+				sight::look_at_room(ch, true);
 				lastchar = ch;
 			}
 		}
@@ -431,7 +435,7 @@ void do_oteleport(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 				obj_log(obj, trig, "oteleport transports allchar from kNowhere");
 				return;
 			}
-			if (ch->IsNpc() && !IS_CHARMICE(ch)) {
+			if (ch->IsNpc() && !IsCharmice(ch)) {
 				continue;
 			}
 			if (target == ch->in_room) {
@@ -439,10 +443,10 @@ void do_oteleport(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 				continue;
 			}
 
-			if (ch->get_horse()) {
-				if (ch->IsOnHorse() || ch->has_horse(true)) {
-					RemoveCharFromRoom(ch->get_horse());
-					PlaceCharToRoom(ch->get_horse(), target);
+			if (mount::GetHorse(ch)) {
+				if (mount::IsOnHorse(ch) || mount::HasHorse(ch, true)) {
+					RemoveCharFromRoom(mount::GetHorse(ch));
+					PlaceCharToRoom(mount::GetHorse(ch), target);
 					onhorse = true;
 				}
 			}
@@ -452,9 +456,9 @@ void do_oteleport(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 			RemoveCharFromRoom(ch);
 			PlaceCharToRoom(ch, target);
 			if (!onhorse)
-				ch->dismount();
+				mount::Dismount(ch);
 			if (!ch->IsNpc()) {
-				look_at_room(ch, true);
+				sight::look_at_room(ch, true);
 				lastchar = ch;
 			}
 		}
@@ -471,19 +475,19 @@ void do_oteleport(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 //			obj_log(obj, trig, "oteleport: target is itself");
 			return;
 		}
-		if (IS_CHARMICE(ch) && ch->in_room == ch->get_master()->in_room)
+		if (IsCharmice(ch) && ch->in_room == ch->get_master()->in_room)
 			ch = ch->get_master();
 		const auto people_copy = world[ch->in_room]->people;
 		for (const auto charmee: people_copy) {
-			if (IS_CHARMICE(charmee) && charmee->get_master() == ch) {
+			if (IsCharmice(charmee) && charmee->get_master() == ch) {
 				RemoveCharFromRoom(charmee);
 				PlaceCharToRoom(charmee, target);
 			}
 		}
-		if (ch->get_horse()) {
-			if (ch->IsOnHorse() || ch->has_horse(true)) {
-				RemoveCharFromRoom(ch->get_horse());
-				PlaceCharToRoom(ch->get_horse(), target);
+		if (mount::GetHorse(ch)) {
+			if (mount::IsOnHorse(ch) || mount::HasHorse(ch, true)) {
+				RemoveCharFromRoom(mount::GetHorse(ch));
+				PlaceCharToRoom(mount::GetHorse(ch), target);
 				onhorse = true;
 			}
 		}
@@ -493,8 +497,8 @@ void do_oteleport(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 		RemoveCharFromRoom(ch);
 		PlaceCharToRoom(ch, target);
 		if (!onhorse)
-			ch->dismount();
-		look_at_room(ch, true);
+			mount::Dismount(ch);
+		sight::look_at_room(ch, true);
 		greet_mtrigger(ch, -1);
 		greet_otrigger(ch, -1);
 	}
@@ -591,7 +595,7 @@ void do_odamage(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Trigg
 		return;
 	}
 
-	if (ch->IsImmortal()) {
+	if (privilege::IsImmortal(ch)) {
 		SendMsgToChar("Being the cool immortal you are, you sidestep a trap, obviously placed to kill you.", ch);
 		return;
 	}

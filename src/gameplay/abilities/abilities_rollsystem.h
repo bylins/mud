@@ -82,6 +82,9 @@ class AgainstRivalRoll : public AbilityRoll {
  public:
 	void Init(CharData *actor, abilities::EAbility ability_id, CharData *victim);
 	CharData *GetRival() { return rival_; };
+	// issue.instant-death: the raw opposed morale/luck contest, callable without an instance.
+	// Returns true if `actor` WINS against `vict`; IsActorMoraleFailure() is its inverse.
+	static bool OppositeLuckTest(CharData *actor, CharData *vict);
 
 	AgainstRivalRoll() = default;
 };

@@ -10,8 +10,10 @@
 ************************************************************************ */
 
 #include "names.h"
+#include "utils/grammar/gender.h"
 
 #include "engine/core/handler.h"
+#include "engine/core/target_resolver.h"
 #include "engine/ui/color.h"
 #include "engine/entities/char_player.h"
 #include "engine/db/player_index.h"
@@ -381,7 +383,7 @@ static void go_name(CharData *ch, CharData *vict, int action) {
 		//SendMsgToChar("Имя одобрено!\r\n", ch);
 		SendMsgToChar(vict, "&GВаше имя одобрено!&n\r\n");
 		agree_name(vict, GET_NAME(ch), god_level);
-		sprintf(buf, "&c%s одобрил%s имя игрока %s.&n\r\n", GET_NAME(ch), GET_CH_SUF_1(ch), GET_NAME(vict));
+		sprintf(buf, "&c%s одобрил%s имя игрока %s.&n\r\n", GET_NAME(ch), grammar::SexEnding((ch)->get_sex(), 1), GET_NAME(vict));
 		SendMsgToGods(buf, true);
 		// В этом теперь нет смысла
 		//mudlog(buf, CMP, kLevelGod, SYSLOG, true);
@@ -392,7 +394,7 @@ static void go_name(CharData *ch, CharData *vict, int action) {
 		//SendMsgToChar("Имя запрещено!\r\n", ch);
 		SendMsgToChar(vict, "&RВаше имя запрещено!&n\r\n");
 		disagree_name(vict, GET_NAME(ch), god_level);
-		sprintf(buf, "&c%s запретил%s имя игрока %s.&n\r\n", GET_NAME(ch), GET_CH_SUF_1(ch), GET_NAME(vict));
+		sprintf(buf, "&c%s запретил%s имя игрока %s.&n\r\n", GET_NAME(ch), grammar::SexEnding((ch)->get_sex(), 1), GET_NAME(vict));
 		SendMsgToGods(buf, true);
 		//mudlog(buf, CMP, kLevelGod, SYSLOG, true);
 
@@ -439,8 +441,8 @@ void do_name(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	CharData *vict;
-	if ((vict = get_player_vis(ch, name, EFind::kCharInWorld)) != nullptr) {
-		if (!(vict = get_player_pun(ch, name, EFind::kCharInWorld))) {
+	if ((vict = target_resolver::FindPlayerVis(ch, name)) != nullptr) {
+		if (!(vict = target_resolver::FindPlayer(ch, name))) {
 			SendMsgToChar("Нет такого игрока.\r\n", ch);
 			return;
 		}

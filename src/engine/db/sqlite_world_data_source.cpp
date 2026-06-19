@@ -4,6 +4,7 @@
 #ifdef HAVE_SQLITE
 
 #include "sqlite_world_data_source.h"
+#include "utils/utils_encoding.h"
 #include "db.h"
 #include "obj_prototypes.h"
 #include "utils/logger.h"
@@ -142,6 +143,7 @@ static std::unordered_map<std::string, Bitvector> mob_action_flag_map = {
 	{"kIgnoresFear", EMobFlag::kNoFear},
 	{"kNoGroup", EMobFlag::kNoGroup},
 	{"kCorpse", EMobFlag::kCorpse},
+	{"kUndead", EMobFlag::kUndead},
 	{"kLooter", EMobFlag::kLooter},
 	{"kLooting", EMobFlag::kLooter},
 	{"kProtected", EMobFlag::kProtect},
@@ -166,7 +168,9 @@ static std::unordered_map<std::string, Bitvector> mob_action_flag_map = {
 	{"kClone", EMobFlag::kClone},
 	{"kTutelar", EMobFlag::kTutelar},
 	{"kMentalShadow", EMobFlag::kMentalShadow},
-	{"kSummoner", EMobFlag::kSummoned},
+	{"kSummoner", EMobFlag::kCompanion},
+	{"kCompanion", EMobFlag::kCompanion},
+	{"kSummoned", EMobFlag::kSummoned},
 	{"kFireCreature", EMobFlag::kFireBreath},
 	{"kWaterCreature", EMobFlag::kSwimming},
 	{"kEarthCreature", EMobFlag::kNoBash},
@@ -630,7 +634,7 @@ std::string SqliteWorldDataSource::GetText(sqlite3_stmt *stmt, int col)
 	static char buffer[65536];
 	char *input = const_cast<char*>(text);
 	char *output = buffer;
-	utf8_to_koi(input, output);
+	codepages::utf8_to_koi(input, output);
 	return buffer;
 }
 
@@ -1321,19 +1325,19 @@ void SqliteWorldDataSource::LoadMobs()
 		// Names
 		mob.SetCharAliases(GetText(stmt, 1));
 		mob.set_npc_name(GetText(stmt, 2));
-		mob.player_data.PNames[ECase::kNom] = GetText(stmt, 2);
-		mob.player_data.PNames[ECase::kGen] = GetText(stmt, 3);
-		mob.player_data.PNames[ECase::kDat] = GetText(stmt, 4);
-		mob.player_data.PNames[ECase::kAcc] = GetText(stmt, 5);
-		mob.player_data.PNames[ECase::kIns] = GetText(stmt, 6);
-		mob.player_data.PNames[ECase::kPre] = GetText(stmt, 7);
+		mob.player_data.PNames[grammar::ECase::kNom] = GetText(stmt, 2);
+		mob.player_data.PNames[grammar::ECase::kGen] = GetText(stmt, 3);
+		mob.player_data.PNames[grammar::ECase::kDat] = GetText(stmt, 4);
+		mob.player_data.PNames[grammar::ECase::kAcc] = GetText(stmt, 5);
+		mob.player_data.PNames[grammar::ECase::kIns] = GetText(stmt, 6);
+		mob.player_data.PNames[grammar::ECase::kPre] = GetText(stmt, 7);
 
 		// Descriptions
 		mob.player_data.long_descr = utils::colorCAP(GetText(stmt, 8));
 		mob.player_data.description = GetText(stmt, 9);
 
 		// Base parameters
-		GET_ALIGNMENT(&mob) = sqlite3_column_int(stmt, 10);
+		alignment::SetAlignment(&mob, sqlite3_column_int(stmt, 10));
 
 		// Stats
 		mob.set_level(sqlite3_column_int(stmt, 12));
@@ -1912,12 +1916,12 @@ void SqliteWorldDataSource::LoadObjects()
 		// Names
 		obj->set_aliases(GetText(stmt, 1));
 		obj->set_short_description(utils::colorLOW(GetText(stmt, 2)));
-		obj->set_PName(ECase::kNom, utils::colorLOW(GetText(stmt, 2)));
-		obj->set_PName(ECase::kGen, utils::colorLOW(GetText(stmt, 3)));
-		obj->set_PName(ECase::kDat, utils::colorLOW(GetText(stmt, 4)));
-		obj->set_PName(ECase::kAcc, utils::colorLOW(GetText(stmt, 5)));
-		obj->set_PName(ECase::kIns, utils::colorLOW(GetText(stmt, 6)));
-		obj->set_PName(ECase::kPre, utils::colorLOW(GetText(stmt, 7)));
+		obj->set_PName(grammar::ECase::kNom, utils::colorLOW(GetText(stmt, 2)));
+		obj->set_PName(grammar::ECase::kGen, utils::colorLOW(GetText(stmt, 3)));
+		obj->set_PName(grammar::ECase::kDat, utils::colorLOW(GetText(stmt, 4)));
+		obj->set_PName(grammar::ECase::kAcc, utils::colorLOW(GetText(stmt, 5)));
+		obj->set_PName(grammar::ECase::kIns, utils::colorLOW(GetText(stmt, 6)));
+		obj->set_PName(grammar::ECase::kPre, utils::colorLOW(GetText(stmt, 7)));
 		obj->set_description(utils::colorCAP(GetText(stmt, 8)));
 		obj->set_action_description(GetText(stmt, 9));
 
@@ -2860,19 +2864,19 @@ void SqliteWorldDataSource::SaveMobRecord(int mob_vnum, CharData &mob)
 	
 	// Names
 	sqlite3_bind_text(stmt, col++, GET_PC_NAME(&mob), -1, SQLITE_TRANSIENT);
-	sqlite3_bind_text(stmt, col++, mob.player_data.PNames[ECase::kNom].c_str(), -1, SQLITE_TRANSIENT);
-	sqlite3_bind_text(stmt, col++, mob.player_data.PNames[ECase::kGen].c_str(), -1, SQLITE_TRANSIENT);
-	sqlite3_bind_text(stmt, col++, mob.player_data.PNames[ECase::kDat].c_str(), -1, SQLITE_TRANSIENT);
-	sqlite3_bind_text(stmt, col++, mob.player_data.PNames[ECase::kAcc].c_str(), -1, SQLITE_TRANSIENT);
-	sqlite3_bind_text(stmt, col++, mob.player_data.PNames[ECase::kIns].c_str(), -1, SQLITE_TRANSIENT);
-	sqlite3_bind_text(stmt, col++, mob.player_data.PNames[ECase::kPre].c_str(), -1, SQLITE_TRANSIENT);
+	sqlite3_bind_text(stmt, col++, mob.player_data.PNames[grammar::ECase::kNom].c_str(), -1, SQLITE_TRANSIENT);
+	sqlite3_bind_text(stmt, col++, mob.player_data.PNames[grammar::ECase::kGen].c_str(), -1, SQLITE_TRANSIENT);
+	sqlite3_bind_text(stmt, col++, mob.player_data.PNames[grammar::ECase::kDat].c_str(), -1, SQLITE_TRANSIENT);
+	sqlite3_bind_text(stmt, col++, mob.player_data.PNames[grammar::ECase::kAcc].c_str(), -1, SQLITE_TRANSIENT);
+	sqlite3_bind_text(stmt, col++, mob.player_data.PNames[grammar::ECase::kIns].c_str(), -1, SQLITE_TRANSIENT);
+	sqlite3_bind_text(stmt, col++, mob.player_data.PNames[grammar::ECase::kPre].c_str(), -1, SQLITE_TRANSIENT);
 	
 	// Descriptions
 	sqlite3_bind_text(stmt, col++, mob.player_data.long_descr.c_str(), -1, SQLITE_TRANSIENT);
 	sqlite3_bind_text(stmt, col++, mob.player_data.description.c_str(), -1, SQLITE_TRANSIENT);
 	
 	// Base parameters
-	sqlite3_bind_int(stmt, col++, GET_ALIGNMENT(&mob));
+	sqlite3_bind_int(stmt, col++, alignment::GetAlignment(&mob));
 	
 	// Mob type (E or S)
 	std::string mob_type = (mob.get_str() > 0) ? "E" : "S";
@@ -3217,12 +3221,12 @@ void SqliteWorldDataSource::SaveObjectRecord(int obj_vnum, CObjectPrototype *obj
 	
 	// Names
 	sqlite3_bind_text(stmt, col++, obj->get_aliases().c_str(), -1, SQLITE_TRANSIENT);
-	sqlite3_bind_text(stmt, col++, obj->get_PName(ECase::kNom).c_str(), -1, SQLITE_TRANSIENT);
-	sqlite3_bind_text(stmt, col++, obj->get_PName(ECase::kGen).c_str(), -1, SQLITE_TRANSIENT);
-	sqlite3_bind_text(stmt, col++, obj->get_PName(ECase::kDat).c_str(), -1, SQLITE_TRANSIENT);
-	sqlite3_bind_text(stmt, col++, obj->get_PName(ECase::kAcc).c_str(), -1, SQLITE_TRANSIENT);
-	sqlite3_bind_text(stmt, col++, obj->get_PName(ECase::kIns).c_str(), -1, SQLITE_TRANSIENT);
-	sqlite3_bind_text(stmt, col++, obj->get_PName(ECase::kPre).c_str(), -1, SQLITE_TRANSIENT);
+	sqlite3_bind_text(stmt, col++, obj->get_PName(grammar::ECase::kNom).c_str(), -1, SQLITE_TRANSIENT);
+	sqlite3_bind_text(stmt, col++, obj->get_PName(grammar::ECase::kGen).c_str(), -1, SQLITE_TRANSIENT);
+	sqlite3_bind_text(stmt, col++, obj->get_PName(grammar::ECase::kDat).c_str(), -1, SQLITE_TRANSIENT);
+	sqlite3_bind_text(stmt, col++, obj->get_PName(grammar::ECase::kAcc).c_str(), -1, SQLITE_TRANSIENT);
+	sqlite3_bind_text(stmt, col++, obj->get_PName(grammar::ECase::kIns).c_str(), -1, SQLITE_TRANSIENT);
+	sqlite3_bind_text(stmt, col++, obj->get_PName(grammar::ECase::kPre).c_str(), -1, SQLITE_TRANSIENT);
 	
 	// Descriptions
 	sqlite3_bind_text(stmt, col++, obj->get_description().c_str(), -1, SQLITE_TRANSIENT);

@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<!--
+    Rune-spell registry (issue.runes-migrate).
+
+    Each <spell> entry binds an ESpell text_id to a list of rune vnums plus
+    the minimum caster level. Replaces lib/misc/runes.lst, which the legacy
+    InitSpellLevels() parser in pc_classes.cpp used to read.
+
+    runes= is a |-separated list of integer rune vnums; the legacy format had
+    a fixed 4-slot ceiling, the new schema accepts arbitrary length.
+    level= is clamped to [1, 34] at load time (the legacy invariant).
+
+    Commented <!-- <spell .../> --> entries preserve lines that started with
+    ";" in runes.lst -- the data is kept for archaeology / future re-enabling.
+
+    Reload at runtime via `reload runes` (issue.runes-migrate retired the legacy
+    `reload rune_levels` path through the standard cfg_manager).
+-->
+<rune_spells>
+    <spell id="kDetectAlign" level="1" runes="223"/>
+    <spell id="kDetectInvis" level="1" runes="225"/>
+    <spell id="kDetectMagic" level="3" runes="223|202"/>
+    <spell id="kDetectPoison" level="1" runes="223"/>
+    <!-- <spell id="kSenseLife" level="7" runes="222|214"/> -->
+    <spell id="kCreateLight" level="1" runes="224"/>
+    <spell id="kCreateFood" level="1" runes="222"/>
+    <spell id="kCreateWater" level="1" runes="223"/>
+    <spell id="kCloudly" level="7" runes="223|225|230"/>
+    <spell id="kArmor" level="1" runes="225"/>
+    <spell id="kStrength" level="3" runes="225|202"/>
+    <spell id="kWeaknes" level="7" runes="229|214|200"/>
+    <spell id="kCureBlind" level="7" runes="200|223|202"/>
+    <spell id="kRemovePoison" level="7" runes="230|202"/>
+    <spell id="kBless" level="7" runes="202|214|200"/>
+    <!-- [name lookup failed] ;remove curse	       runes 214 229 -1 -1 1 -->
+    <spell id="kMagicMissile" level="1" runes="225"/>
+    <spell id="kCureLight" level="3" runes="229|202"/>
+    <spell id="kDamageLight" level="3" runes="225|234"/>
+    <spell id="kInvisible" level="7" runes="230"/>
+    <spell id="kFly" level="12" runes="210|221"/>
+    <spell id="kFear" level="12" runes="214|213"/>
+    <spell id="kRemoveSilence" level="12" runes="202|232"/>
+    <spell id="kCureFever" level="7" runes="200|223"/>
+    <spell id="kRemoveHold" level="12" runes="210|232"/>
+    <spell id="kChillTouch" level="12" runes="223|245"/>
+    <spell id="kCureSerious" level="12" runes="202|232"/>
+    <spell id="kDamageSerious" level="12" runes="234|210"/>
+    <spell id="kResfresh" level="12" runes="210|232"/>
+    <spell id="kAwareness" level="7" runes="214|229"/>
+    <spell id="kLight" level="19" runes="206|232"/>
+    <spell id="kDarkness" level="24" runes="207|211"/>
+    <spell id="kWaterbreath" level="7" runes="223|230"/>
+    <!-- [name lookup failed] ;protect evil             runes 209 207 -1 -1 24 -->
+    <spell id="kEnergyDrain" level="27" runes="215|216|241"/>
+    <spell id="kBlindness" level="12" runes="224|213"/>
+    <spell id="kDispellMagic" level="16" runes="245|229"/>
+    <spell id="kSilence" level="16" runes="213|207|235"/>
+    <spell id="kSleep" level="19" runes="207|243"/>
+    <spell id="kStoneSkin" level="12" runes="200|232|222"/>
+    <spell id="kDamageCritic" level="16" runes="235|215|202"/>
+    <spell id="kLightingBolt" level="12" runes="245|224"/>
+    <spell id="kAcid" level="16" runes="234|223|235"/>
+    <spell id="kMadness" level="27" runes="216|240|203"/>
+    <!-- <spell id="kNoflee" level="19" runes="214|201"/> -->
+    <spell id="kWeb" level="12" runes="210|201"/>
+    <spell id="kWorldOfRecall" level="19" runes="229|243|221"/>
+    <spell id="kFireBlast" level="19" runes="224|243|208"/>
+    <spell id="kEarthquake" level="27" runes="218|222"/>
+    <!-- <spell id="kAnimateDead" level="19" runes="204|209|200|222"/> -->
+    <spell id="kHaste" level="19" runes="243|215"/>
+    <spell id="kSlowdown" level="19" runes="243|214"/>
+    <spell id="kRepair" level="19" runes="219|242"/>
+    <spell id="kSanctuary" level="12" runes="221|232|230"/>
+    <spell id="kPrismaticAura" level="16" runes="214|219|206"/>
+    <!-- <spell id="kDispelEvil" level="27" runes="208|207"/> -->
+    <spell id="kDispelGood" level="19" runes="207|208|213"/>
+    <spell id="kCureCritic" level="16" runes="202|215"/>
+    <!-- <spell id="kCharm" level="19" runes="220|216"/> -->
+    <spell id="kForbidden" level="19" runes="210|242"/>
+    <spell id="kExtraHits" level="16" runes="215|202|200"/>
+    <spell id="kEnlarge" level="16" runes="215|219|210"/>
+    <spell id="kLessening" level="19" runes="242|215|219"/>
+    <spell id="kBlink" level="12" runes="210|230"/>
+    <spell id="kLocateObject" level="24" runes="212|216|209"/>
+    <spell id="kPowerBlindness" level="19" runes="215|207|213"/>
+    <spell id="kTeleport" level="24" runes="210|209|243"/>
+    <spell id="kFastRegeneration" level="16" runes="215|229|200"/>
+    <!-- <spell id="kFever" level="16" runes="215|203|201"/> -->
+    <spell id="kPowerSilence" level="19" runes="216|211|214"/>
+    <spell id="kHold" level="24" runes="216|211|242|215"/>
+    <spell id="kIceBolts" level="16" runes="219|234|224"/>
+    <spell id="kColdWind" level="19" runes="219|223|225"/>
+    <spell id="kShineFlash" level="7" runes="214|224|234"/>
+    <spell id="kHarm" level="24" runes="216|215"/>
+    <!-- <spell id="kResurrection" level="27" runes="220|219|210|209"/> -->
+    <spell id="kClone" level="24" runes="202|209|214|239"/>
+    <spell id="kFireball" level="24" runes="208|212|224"/>
+    <spell id="kGodsWrath" level="27" runes="221|234|224|240"/>
+    <spell id="kArmageddon" level="30" runes="226|220|218|221"/>
+    <!-- <spell id="kStoneHands" level="24" runes="219|220|222|212"/> -->
+    <!-- <spell id="kPoison" level="19" runes="201|207|235"/> -->
+    <spell id="kMassBlindness" level="27" runes="224|218|241|213"/>
+    <spell id="kMassSilence" level="30" runes="203|240|213"/>
+    <spell id="kGroupHaste" level="24" runes="217|219|210"/>
+    <!-- <spell id="kMassSlow" level="27" runes="240|201"/> -->
+    <spell id="kPowerHold" level="27" runes="216|205|240"/>
+    <spell id="kGroupRecall" level="27" runes="221|210|218"/>
+    <spell id="kMindless" level="27" runes="205|216"/>
+    <spell id="kChainLighting" level="24" runes="224|216|245|243"/>
+    <!-- <spell id="kRelocate" level="27" runes="238|209|210"/> -->
+    <!-- <spell id="kSacrifice" level="19" runes="215|203|201"/> -->
+    <spell id="kIceStorm" level="30" runes="240|223|220|203"/>
+    <spell id="kHeal" level="24" runes="209|215|202"/>
+    <spell id="kSummonKeeper" level="24" runes="202|209|229|239"/>
+    <spell id="kGroupArmor" level="24" runes="217|225|242"/>
+    <spell id="kGroupStrength" level="24" runes="217|232|200"/>
+    <spell id="kGroupBless" level="27" runes="217|238|200"/>
+    <spell id="kGroupFly" level="24" runes="217|210|221"/>
+    <spell id="kGroupInvisible" level="27" runes="217|213|238"/>
+    <!-- <spell id="kSummonFirekeeper" level="30" runes="209|204|206|224"/> -->
+    <spell id="kPortal" level="27" runes="205|216|242"/>
+    <!-- <spell id="kSummon" level="27" runes="240|241|216"/> -->
+    <spell id="kPatronage" level="12" runes="202|206|229"/>
+    <spell id="kControlWeather" level="12" runes="213|245"/>
+    <spell id="kEnchantWeapon" level="30" runes="204|224|209"/>
+    <!-- <spell id="kCreateWeapon" level="30" runes="226|217|209|224"/> -->
+    <spell id="kMeteorStorm" level="24" runes="222|216|245|208"/>
+    <!-- <spell id="kMassHold" level="30" runes="226|220|211"/> -->
+    <!-- <spell id="kGroupHeal" level="30" runes="220|216|221|210"/> -->
+    <!-- <spell id="kFireShield" level="27" runes="220|209|204|224"/> -->
+    <!-- <spell id="kIceShield" level="27" runes="220|208|205|223"/> -->
+    <!-- <spell id="kAirShield" level="27" runes="226|202|217"/> -->
+    <!-- <spell id="kGodsShield" level="30" runes="226|204|217"/> -->
+    <!-- <spell id="kVacuum" level="30" runes="226|220|208"/> -->
+    <!-- <spell id="kGroupMagicGlass" level="30" runes="226|220|212|213"/> -->
+    <spell id="kFailure" level="22" runes="207|235|243"/>
+    <spell id="kShadowCloak" level="20" runes="207|219|225|230"/>
+    <spell id="kShock" level="22" runes="206|220|236|245"/>
+    <spell id="kAllSeeingEye" level="24" runes="217|229|242"/>
+    <spell id="kBreathingAtDepth" level="24" runes="217|223|242"/>
+    <!-- <spell id="kStoneWall" level="24" runes="217|222|242"/> -->
+    <spell id="kSnakeEyes" level="24" runes="217|242|240"/>
+    <spell id="kSightOfDarkness" level="24" runes="217|207|242"/>
+    <spell id="kMagicalGaze" level="24" runes="217|242|224"/>
+    <spell id="kGroupSincerity" level="24" runes="217|202|229"/>
+    <spell id="kGeneralRecovery" level="27" runes="217|209|210|242"/>
+    <spell id="kClod" level="27" runes="240|222|242"/>
+    <spell id="kWhirlwind" level="27" runes="240|245|242"/>
+</rune_spells>

@@ -9,6 +9,12 @@
 ************************************************************************ */
 
 #include "mail.h"
+#include "administration/privilege.h"
+#include "utils/grammar/declensions.h"
+#include "gameplay/ai/special_messages.h"
+
+#include <fmt/format.h>
+#include "gameplay/ai/subcmd_resolver.h"
 #include "utils/utils_string.h"
 
 #include "engine/db/world_objects.h"
@@ -19,6 +25,7 @@
 #include "engine/ui/color.h"
 #include "engine/ui/modify.h"
 #include "engine/db/player_index.h"
+#include "gameplay/core/remort.h"
 
 #include <third_party_libs/pugixml/pugixml.h>
 
@@ -75,9 +82,9 @@ void print_undelivered(CharData *ch) {
 	auto i = undelivered_list.find(ch->get_uid());
 	if (i != undelivered_list.end()) {
 		std::ostringstream out;
-		out << "Информация по недоставленным (на момент перезагрузки) письмам." << "\r\n"
-			<< "Количество писем: " << i->second.total_num << "." << "\r\n"
-			<< "Адресаты: " << i->second.names << "." << "\r\n";
+		out << specials::MailMsg(specials::EMailMsg::kUndeliveredHeader) << "\r\n"
+			<< fmt::format(fmt::runtime(specials::MailMsg(specials::EMailMsg::kUndeliveredCount)), fmt::arg("count", i->second.total_num)) << "\r\n"
+			<< fmt::format(fmt::runtime(specials::MailMsg(specials::EMailMsg::kUndeliveredNames)), fmt::arg("names", i->second.names)) << "\r\n";
 		SendMsgToChar(out.str(), ch);
 	}
 }
@@ -97,50 +104,66 @@ const int MAX_MAIL_SIZE = 32768;
 //* Below is the spec_proc for a postmaster using the above      *
 //* routines.  Written by Jeremy Elson (jelson@circlemud.org)    *
 //****************************************************************
-int postmaster(CharData *ch, void *me, int cmd, char *argument) {
-	if (!ch->desc || ch->IsNpc())
-		return (0);    // so mobs don't get caught here
+namespace {
+// issue.specials: post-office subcommands. почта with no arg checks mail (in the wrapper); the rest
+// (отправить/получить/вернуть/проверить) go through the resolver.
+enum class EMailCmd { kSend, kReceive, kReturn, kCheck };
 
-	if (!(CMD_IS("mail") || CMD_IS("check") || CMD_IS("receive")
-		|| CMD_IS("почта") || CMD_IS("получить") || CMD_IS("отправить")
-		|| CMD_IS("return") || CMD_IS("вернуть")))
-		return (0);
+int MailSend(CharData *ch, void *me, char *rest) {
+	postmaster_send_mail(ch, reinterpret_cast<CharData *>(me), 0, rest);
+	return 1;
+}
+int MailCheck(CharData *ch, void *me, char *rest) {
+	postmaster_check_mail(ch, reinterpret_cast<CharData *>(me), 0, rest);
+	return 1;
+}
+int MailReceive(CharData *ch, void *me, char *rest) {
+	one_argument(rest, arg);
+	if (utils::IsAbbr(arg, "вещи")) {
+		NamedStuff::receive_items(ch, reinterpret_cast<CharData *>(me));
+	} else {
+		postmaster_receive_mail(ch, reinterpret_cast<CharData *>(me), 0, rest);
+	}
+	return 1;
+}
+int MailReturn(CharData *ch, void *me, char * /*rest*/) {
+	Parcel::bring_back(ch, reinterpret_cast<CharData *>(me));
+	return 1;
+}
 
-	if (CMD_IS("mail") || CMD_IS("отправить")) {
-		postmaster_send_mail(ch, (CharData *) me, cmd, argument);
-		return (1);
-	} else if (CMD_IS("check") || CMD_IS("почта")) {
-		postmaster_check_mail(ch, (CharData *) me, cmd, argument);
-		return (1);
-	} else if (CMD_IS("receive") || CMD_IS("получить")) {
-		one_argument(argument, arg);
-		if (utils::IsAbbr(arg, "вещи")) {
-			NamedStuff::receive_items(ch, (CharData *) me);
-		} else {
-			postmaster_receive_mail(ch, (CharData *) me, cmd, argument);
-		}
-		return (1);
-	} else if (CMD_IS("return") || CMD_IS("вернуть")) {
-		Parcel::bring_back(ch, (CharData *) me);
-		return (1);
-	} else
+const SubCmdResolver kMailCmds([] { return specials::MailMsg(specials::EMailMsg::kGreeting); }, {
+	{{"отправить", "mail"}, static_cast<int>(EMailCmd::kSend), MailSend},
+	{{"получить", "receive"}, static_cast<int>(EMailCmd::kReceive), MailReceive},
+	{{"вернуть"}, static_cast<int>(EMailCmd::kReturn), MailReturn},
+	{{"проверить", "check"}, static_cast<int>(EMailCmd::kCheck), MailCheck},
+});
+} // namespace
+
+int postmaster(CharData *ch, void *me, int /*cmd*/, char *argument) {
+	if (!ch->desc || ch->IsNpc()) {
 		return (0);
+	}
+	skip_spaces(&argument);
+	if (!*argument) {
+		postmaster_check_mail(ch, reinterpret_cast<CharData *>(me), 0, argument);
+		return (1);
+	}
+	return kMailCmds.Dispatch(ch, me, argument);
 }
 
 void postmaster_check_mail(CharData *ch, CharData *mailman, int/* cmd*/, char * /*arg*/) {
 	bool empty = true;
 	if (mail::has_mail(ch->get_uid())) {
 		empty = false;
-		act("$n сказал$g вам : 'Вас ожидает почта.'", false, mailman, 0, ch, kToVict);
+		act(specials::MailMsg(specials::EMailMsg::kMailWaiting), false, mailman, 0, ch, kToVict);
 	}
 	if (Parcel::has_parcel(ch)) {
 		empty = false;
-		act("$n сказал$g вам : 'Вас ожидает посылка.'", false, mailman, 0, ch, kToVict);
+		act(specials::MailMsg(specials::EMailMsg::kParcelWaiting), false, mailman, 0, ch, kToVict);
 	}
 
 	if (empty) {
-		act("$n сказал$g вам : 'Похоже, сегодня вам ничего нет.'",
-			false, mailman, 0, ch, kToVict);
+		act(specials::MailMsg(specials::EMailMsg::kNothingToday), false, mailman, 0, ch, kToVict);
 	}
 	Parcel::print_sending_stuff(ch);
 	print_undelivered(ch);
@@ -148,8 +171,7 @@ void postmaster_check_mail(CharData *ch, CharData *mailman, int/* cmd*/, char * 
 
 void postmaster_receive_mail(CharData *ch, CharData *mailman, int/* cmd*/, char * /*arg*/) {
 	if (!Parcel::has_parcel(ch) && !mail::has_mail(ch->get_uid())) {
-		act("$n удивленно сказал$g вам : 'Но для вас нет писем!?'",
-			false, mailman, 0, ch, kToVict);
+		act(specials::MailMsg(specials::EMailMsg::kNoLetters), false, mailman, 0, ch, kToVict);
 		return;
 	}
 	Parcel::receive(ch, mailman);
@@ -161,18 +183,15 @@ void postmaster_send_mail(CharData *ch, CharData *mailman, int/* cmd*/, char *ar
 	int cost;
 	char buf[256];
 
-	ch->IsImmortal() || ch->IsFlagged(EPrf::kCoderinfo) ? cost = 0 : cost = STAMP_PRICE;
+	privilege::IsImmortal(ch) || ch->IsFlagged(EPrf::kCoderinfo) ? cost = 0 : cost = STAMP_PRICE;
 
 	if (GetRealLevel(ch) < MIN_MAIL_LEVEL) {
-		sprintf(buf,
-				"$n сказал$g вам, 'Извините, вы должны достигнуть %d уровня, чтобы отправить письмо!'",
-				MIN_MAIL_LEVEL);
-		act(buf, false, mailman, 0, ch, kToVict);
+		act(fmt::format(fmt::runtime(specials::MailMsg(specials::EMailMsg::kLevelTooLow)), fmt::arg("level", MIN_MAIL_LEVEL)),
+			false, mailman, 0, ch, kToVict);
 		return;
 	}
 	if (!mail::check_poster_cnt(ch)) {
-		act("$n сказал$g вам, 'Извините, вы уже отправили максимальное кол-во сообщений!'",
-			false, mailman, 0, ch, kToVict);
+		act(specials::MailMsg(specials::EMailMsg::kTooManyMessages), false, mailman, 0, ch, kToVict);
 		return;
 	}
 
@@ -180,11 +199,11 @@ void postmaster_send_mail(CharData *ch, CharData *mailman, int/* cmd*/, char *ar
 
 	if (!*buf)        // you'll get no argument from me!
 	{
-		act("$n сказал$g вам, 'Вы не указали адресата!'", false, mailman, 0, ch, kToVict);
+		act(specials::MailMsg(specials::EMailMsg::kNoRecipient), false, mailman, 0, ch, kToVict);
 		return;
 	}
 	if ((recipient = GetUniqueByName(buf)) <= 0) {
-		act("$n сказал$g вам, 'Извините, но такой игрок не зарегистрирован в игре!'", false, mailman, 0, ch, kToVict);
+		act(specials::MailMsg(specials::EMailMsg::kNotRegistered), false, mailman, 0, ch, kToVict);
 		return;
 	}
 
@@ -193,38 +212,37 @@ void postmaster_send_mail(CharData *ch, CharData *mailman, int/* cmd*/, char *ar
 		if ((ch->in_room == r_helled_start_room) ||
 			(ch->in_room == r_named_start_room) ||
 			(ch->in_room == r_unreg_start_room)) {
-			act("$n сказал$g вам : 'Посылку? Не положено!'", false, mailman, 0, ch, kToVict);
+			act(specials::MailMsg(specials::EMailMsg::kNoParcelHere), false, mailman, 0, ch, kToVict);
 			return;
 		}
 		long vict_uid = GetUniqueByName(buf);
 		if (vict_uid > 0) {
 			Parcel::send(ch, mailman, vict_uid, arg);
 		} else {
-			act("$n сказал$g вам : 'Ошибочка вышла, сообщите Богам!'", false, mailman, 0, ch, kToVict);
+			act(specials::MailMsg(specials::EMailMsg::kParcelError), false, mailman, 0, ch, kToVict);
 		}
 		return;
 	}
 
 	if (ch->get_gold() < cost) {
-		sprintf(buf, "$n сказал$g вам, 'Письмо стоит %d %s.'\r\n"
-					 "$n сказал$g вам, '...которых у вас просто-напросто нет.'",
-				STAMP_PRICE, GetDeclensionInNumber(STAMP_PRICE, EWhat::kMoneyU));
-		act(buf, false, mailman, 0, ch, kToVict);
+		act(fmt::format(fmt::runtime(specials::MailMsg(specials::EMailMsg::kCantAffordCost)),
+				fmt::arg("amount", STAMP_PRICE),
+				fmt::arg("currency", grammar::GetDeclensionInNumber(STAMP_PRICE, grammar::EWhat::kMoneyU))),
+			false, mailman, 0, ch, kToVict);
+		act(specials::MailMsg(specials::EMailMsg::kCantAffordNoMoney), false, mailman, 0, ch, kToVict);
 		return;
 	}
 
-	act("$n начал$g писать письмо.", true, ch, 0, 0, kToRoom);
+	act(specials::MailMsg(specials::EMailMsg::kStartWriting), true, ch, 0, 0, kToRoom);
 	if (cost == 0) {
-		sprintf(buf, "$n сказал$g вам, 'Со своих - почтовый сбор не берем.'\r\n"
-					 "$n сказал$g вам, 'Можете писать, (/s saves /h for help)'");
+		act(specials::MailMsg(specials::EMailMsg::kFreePostage), false, mailman, 0, ch, kToVict);
 	} else {
-		sprintf(buf,
-				"$n сказал$g вам, 'Отлично, с вас %d %s почтового сбора.'\r\n"
-				"$n сказал$g вам, 'Можете писать, (/s saves /h for help)'",
-				STAMP_PRICE, GetDeclensionInNumber(STAMP_PRICE, EWhat::kMoneyA));
+		act(fmt::format(fmt::runtime(specials::MailMsg(specials::EMailMsg::kPostageCharged)),
+				fmt::arg("amount", STAMP_PRICE),
+				fmt::arg("currency", grammar::GetDeclensionInNumber(STAMP_PRICE, grammar::EWhat::kMoneyA))),
+			false, mailman, 0, ch, kToVict);
 	}
-
-	act(buf, false, mailman, 0, ch, kToVict);
+	act(specials::MailMsg(specials::EMailMsg::kCanWrite), false, mailman, 0, ch, kToVict);
 	ch->remove_gold(cost);
 	ch->SetFlag(EPlrFlag::kMailing);    // string_write() sets writing.
 
@@ -434,7 +452,7 @@ void sub_poster(int uid) {
 bool check_poster_cnt(CharData *ch) {
 	auto i = poster_list.find(ch->get_uid());
 	if (i != poster_list.end()) {
-		if (GetRealRemort(ch) <= 0
+		if (remort::GetRealRemort(ch) <= 0
 			&& GetRealLevel(ch) <= kNameLevel
 			&& i->second >= LOW_LVL_MAX_POST) {
 			return false;
@@ -504,12 +522,12 @@ void receive(CharData *ch, CharData *mailman) {
 		obj->set_aliases("mail paper letter письмо почта бумага");
 		obj->set_short_description("письмо");
 		obj->set_description("Кто-то забыл здесь свое письмо.");
-		obj->set_PName(ECase::kNom, "письмо");
-		obj->set_PName(ECase::kGen, "письма");
-		obj->set_PName(ECase::kDat, "письма");
-		obj->set_PName(ECase::kAcc, "письмо");
-		obj->set_PName(ECase::kIns, "письмом");
-		obj->set_PName(ECase::kPre, "письме");
+		obj->set_PName(grammar::ECase::kNom, "письмо");
+		obj->set_PName(grammar::ECase::kGen, "письма");
+		obj->set_PName(grammar::ECase::kDat, "письма");
+		obj->set_PName(grammar::ECase::kAcc, "письмо");
+		obj->set_PName(grammar::ECase::kIns, "письмом");
+		obj->set_PName(grammar::ECase::kPre, "письме");
 		obj->set_sex(EGender::kNeutral);
 		obj->set_type(EObjType::kNote);
 		obj->set_wear_flags(to_underlying(EWearFlag::kTake) | to_underlying(EWearFlag::kHold));
@@ -542,8 +560,8 @@ void receive(CharData *ch, CharData *mailman) {
 		}
 		obj->set_action_description(buf_ + text + "\r\n\r\n");
 		PlaceObjToInventory(obj.get(), ch);
-		act("$n дал$g вам письмо.", false, mailman, 0, ch, kToVict);
-		act("$N дал$G $n2 письмо.", false, ch, 0, mailman, kToRoom);
+		act(specials::MailMsg(specials::EMailMsg::kLetterGiven), false, mailman, 0, ch, kToVict);
+		act(specials::MailMsg(specials::EMailMsg::kLetterGivenRoom), false, ch, 0, mailman, kToRoom);
 
 		sub_poster(i->second.from);
 	}

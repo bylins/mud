@@ -20,7 +20,6 @@ constexpr unsigned int MAX_BOARD_MESSAGES = 200;
 constexpr unsigned int MAX_REPORT_MESSAGES = 999;
 
 namespace constants {
-extern const char *OVERFLOW_MESSAGE;
 extern const char *CHANGELOG_FILE_NAME;
 
 namespace loader_formats {

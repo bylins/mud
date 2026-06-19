@@ -7,9 +7,11 @@
 */
 
 #include "damage.h"
-
-#include <fmt/format.h>
-
+#include "administration/privilege.h"
+#include "utils/grammar/gender.h"
+#include "gameplay/mechanics/minions.h"
+#include "gameplay/mechanics/mount.h"
+#include "gameplay/mechanics/resist.h"
 #include "gameplay/mechanics/bonus.h"
 #include "engine/entities/char_data.h"
 #include "utils/utils_time.h"
@@ -20,8 +22,7 @@
 #include "gameplay/clans/house_exp.h"
 #include "gameplay/statistics/dps.h"
 #include "engine/observability/event_sink.h"
-
-#include <chrono>
+#include "gameplay/core/remort.h"
 #include "engine/ui/color.h"
 #include "gameplay/core/game_limits.h"
 #include "engine/core/utils_char_obj.inl"
@@ -33,6 +34,9 @@
 #include "gameplay/mechanics/sight.h"
 #include "utils/backtrace.h"
 
+#include <chrono>
+
+#include <fmt/format.h>
 
 void TryRemoveExtrahits(CharData *ch, CharData *victim);
 
@@ -49,7 +53,7 @@ bool Damage::CalcMagisShieldsDmgAbsoption(CharData *ch, CharData *victim) {
 	if (AFF_FLAGGED(victim, EAffect::kMagicGlass)
 		&& dmg_type == fight::kMagicDmg) {
 		int pct = 6;
-		if (victim->IsNpc() && !IS_CHARMICE(victim)) {
+		if (victim->IsNpc() && !IsCharmice(victim)) {
 			pct += 2;
 			if (victim->get_role(static_cast<unsigned>(EMobClass::kBoss))) {
 				pct += 2;
@@ -75,7 +79,7 @@ bool Damage::CalcMagisShieldsDmgAbsoption(CharData *ch, CharData *victim) {
 		if (dmg_type == fight::kPhysDmg
 			&& !flags[fight::kIgnoreFireShield]) {
 			int pct = 15;
-			if (victim->IsNpc() && !IS_CHARMICE(victim)) {
+			if (victim->IsNpc() && !IsCharmice(victim)) {
 				pct += 5;
 				if (victim->get_role(static_cast<unsigned>(EMobClass::kBoss))) {
 					pct += 5;
@@ -178,7 +182,7 @@ bool Damage::CalcDmgAbsorption(CharData *ch, CharData *victim) {
 		&& dam > 0
 		&& GET_ABSORBE(victim) > 0) {
 		// шансы поглощения: непробиваемый в осторожке 15%, остальные 10%
-		int chance = 10 + GetRealRemort(victim) / 3;
+		int chance = 10 + remort::GetRealRemort(victim) / 3;
 		if (CanUseFeat(victim, EFeat::kImpregnable)
 			&& victim->IsFlagged(EPrf::kAwake)) {
 			chance += 5;
@@ -213,20 +217,20 @@ void Damage::SendCritHitMsg(CharData *ch, CharData *victim) {
 	// так что добавил отдельные сообщения для ледяного щита (Купала)
 	if (!flags[fight::kVictimIceShield]) {
 		sprintf(buf, "&G&qВаше меткое попадание тяжело ранило %s.&Q&n\r\n",
-				PERS(victim, ch, 3));
+				sight::PersonName(victim, ch, 3));
 	} else {
 		sprintf(buf, "&B&qВаше меткое попадание утонуло в ледяной пелене щита %s.&Q&n\r\n",
-				PERS(victim, ch, 1));
+				sight::PersonName(victim, ch, 1));
 	}
 
 	SendMsgToChar(buf, ch);
 
 	if (!flags[fight::kVictimIceShield]) {
 		sprintf(buf, "&r&qМеткое попадание %s тяжело ранило вас.&Q&n\r\n",
-				PERS(ch, victim, 1));
+				sight::PersonName(ch, victim, 1));
 	} else {
 		sprintf(buf, "&r&qМеткое попадание %s утонуло в ледяной пелене вашего щита.&Q&n\r\n",
-				PERS(ch, victim, 1));
+				sight::PersonName(ch, victim, 1));
 	}
 
 	SendMsgToChar(buf, victim);
@@ -242,7 +246,7 @@ void Damage::ProcessBlink(CharData *ch, CharData *victim) {
 	if (dmg_type == fight::kMagicDmg) {
 		if (AFF_FLAGGED(victim, EAffect::kCloudly) || victim->add_abils.percent_spell_blink_mag > 0) {
 			if (victim->IsNpc()) {
-				blink = GetRealLevel(victim) + GetRealRemort(victim);
+				blink = GetRealLevel(victim) + remort::GetRealRemort(victim);
 			} else if(victim->add_abils.percent_spell_blink_mag > 0) {
 				blink = victim->add_abils.percent_spell_blink_mag;
 			} else {
@@ -252,7 +256,7 @@ void Damage::ProcessBlink(CharData *ch, CharData *victim) {
 	} else if(dmg_type == fight::kPhysDmg) {
 		if (AFF_FLAGGED(victim, EAffect::kBlink) || victim->add_abils.percent_spell_blink_phys > 0) {
 			if (victim->IsNpc()) {
-				blink = GetRealLevel(victim) + GetRealRemort(victim);
+				blink = GetRealLevel(victim) + remort::GetRealRemort(victim);
 			} else if (victim->add_abils.percent_spell_blink_phys > 0) {
 				blink = victim->add_abils.percent_spell_blink_phys;
 			} else {
@@ -284,11 +288,15 @@ void Damage::ProcessDeath(CharData *ch, CharData *victim) const {
 
 	if (victim->IsNpc() || victim->desc) {
 		if (victim == ch && victim->in_room != kNowhere) {
-			if (spell_id == ESpell::kPoison) {
-				for (const auto poisoner : world[victim->in_room]->people) {
-					if (poisoner != victim
-						&& poisoner->get_uid() == victim->poisoner) {
-						killer = poisoner;
+			// Урон сам себе (тик повреждающего аффекта и т.п.): убийство засчитывается "автору"
+			// урона (author_uid -- обычно caster_id аффекта), если он рядом. Нет автора (0) или
+			// автор сам victim -- не засчитывается. Любой будущий повреждающий аффект просто
+			// выставляет author_uid, отдельная ветка тут не нужна.
+			if (author_uid != 0 && author_uid != victim->get_uid()) {
+				for (const auto author : world[victim->in_room]->people) {
+					if (author != victim && author->get_uid() == author_uid) {
+						killer = author;
+						break;
 					}
 				}
 			} else if (damage_source == fight::EDamageSource::kSuffering) {
@@ -308,9 +316,7 @@ void Damage::ProcessDeath(CharData *ch, CharData *victim) const {
 		if (AFF_FLAGGED(killer, EAffect::kGroup)) {
 			// т.к. помечен флагом AFF_GROUP - точно PC
 			group_gain(killer, victim);
-		} else if ((AFF_FLAGGED(killer, EAffect::kCharmed)
-			|| killer->IsFlagged(EMobFlag::kTutelar)
-			|| killer->IsFlagged(EMobFlag::kMentalShadow))
+		} else if ((killer->IsFlagged(EMobFlag::kCompanion))
 			&& killer->has_master())
 			// killer - зачармленный NPC с хозяином
 		{
@@ -341,7 +347,7 @@ void Damage::ProcessDeath(CharData *ch, CharData *victim) const {
 
 		for (const auto &ch_vict : world[ch->in_room]->people) {
 			//Мобы все кто присутствовал при смерти игрока забывают
-			if (ch_vict->IsImmortal())
+			if (privilege::IsImmortal(ch_vict))
 				continue;
 			if (!HERE(ch_vict))
 				continue;
@@ -365,7 +371,7 @@ void Damage::ProcessDeath(CharData *ch, CharData *victim) const {
  * У мобов работают все 3 щита, у чаров только 1 рандомный на текущий удар.
  */
 void Damage::SetPostInitShieldFlags(CharData *victim) {
-	if (victim->IsNpc() && !IS_CHARMICE(victim)) {
+	if (victim->IsNpc() && !IsCharmice(victim)) {
 		if (AFF_FLAGGED(victim, EAffect::kFireShield)) {
 			flags.set(fight::kVictimFireShield);
 		}
@@ -454,9 +460,9 @@ int Damage::Process(CharData *ch, CharData *victim) {
 		return 0;
 	}
 	if (dam > 0) {
-		if (victim->IsGod()) {
+		if (privilege::IsGod(victim)) {
 			dam = 0;
-		} else if (victim->IsImmortal() || GET_GOD_FLAG(victim, EGf::kGodsLike)) {
+		} else if (privilege::IsImmortal(victim) || GET_GOD_FLAG(victim, EGf::kGodsLike)) {
 			dam /= 4;
 		} else if (GET_GOD_FLAG(victim, EGf::kGodscurse)) {
 			dam *= 2;
@@ -484,14 +490,14 @@ int Damage::Process(CharData *ch, CharData *victim) {
 		}
 
 		// лошадь сбрасывает седока при уроне
-		if (ch->IsOnHorse() && ch->get_horse() == victim) {
-			victim->DropFromHorse();
-		} else if (victim->IsOnHorse() && victim->get_horse() == ch) {
-			ch->DropFromHorse();
+		if (mount::IsOnHorse(ch) && mount::GetHorse(ch) == victim) {
+			mount::DropFromHorse(victim);
+		} else if (mount::IsOnHorse(victim) && mount::GetHorse(victim) == ch) {
+			mount::DropFromHorse(ch);
 		}
 	}
-	Appear(ch);
-	Appear(victim);
+	sight::Appear(ch);
+	sight::Appear(victim);
 
 	if (dam < 0 || ch->in_room == kNowhere || victim->in_room == kNowhere || ch->in_room != victim->in_room) {
 		return 0;
@@ -559,14 +565,14 @@ int Damage::Process(CharData *ch, CharData *victim) {
 	// прочие множители
 
 	if (AFF_FLAGGED(victim, EAffect::kHold) && dmg_type == fight::kPhysDmg) {
-		if (ch->IsNpc() && !IS_CHARMICE(ch)) {
+		if (ch->IsNpc() && !IsCharmice(ch)) {
 			dam = dam * 15 / 10;
 		} else {
 			dam = dam * 125 / 100;
 		}
 	}
 
-	if (!victim->IsNpc() && IS_CHARMICE(ch)) {
+	if (!victim->IsNpc() && IsCharmice(ch)) {
 		dam = dam * 8 / 10;
 	}
 
@@ -578,7 +584,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 						   "&CУчет поглощения урона: %d начислено, %d применено.&n\r\n", dam, ResultDam);
 		dam = ResultDam;
 	}
-	if (!ch->IsImmortal() && AFF_FLAGGED(victim, EAffect::kGodsShield)) {
+	if (!privilege::IsImmortal(ch) && AFF_FLAGGED(victim, EAffect::kGodsShield)) {
 		if (skill_id == ESkill::kBash) {
 			SendSkillMessages(dam, ch, victim, skill_id);
 		}
@@ -646,7 +652,11 @@ int Damage::Process(CharData *ch, CharData *victim) {
 			if (!damage_mtrigger(ch, victim, dam, MUD::Skill(skill_id).GetName(), 1, wielded))
 				return 0;
 		} else if (dmg_type == fight::kMagicDmg) {
-			if (!damage_mtrigger(ch, victim, dam, MUD::Spell(spell_id).GetCName(), 0, wielded))
+			// spell_id is kUndefined for spell-less magic damage (e.g. mob breath, which
+			// is magic melee of an element). Use an empty name rather than looking up an
+			// invalid spell.
+			const char *dmg_name = (spell_id > ESpell::kUndefined) ? MUD::Spell(spell_id).GetCName() : "";
+			if (!damage_mtrigger(ch, victim, dam, dmg_name, 0, wielded))
 				return 0;
 		} else if (dmg_type == fight::kPoisonDmg) {
 			if (!damage_mtrigger(ch, victim, dam, MUD::Spell(spell_id).GetCName(), 2, wielded))
@@ -691,9 +701,9 @@ int Damage::Process(CharData *ch, CharData *victim) {
 		ev.attrs["skill_id"] = static_cast<std::int64_t>(skill_id);
 		// Чармис/поднятая нежить -- атаковал не сам PC, а его подчинённый.
 		// Визуализатору это нужно, чтобы отделить вклад хозяина и слуг.
-		ev.attrs["attacker_is_charmie"] = IS_CHARMICE(ch);
+		ev.attrs["attacker_is_charmie"] = IsCharmice(ch);
 		ev.attrs["attacker_master_name"] = observability::EngineStringToUtf8(
-			(IS_CHARMICE(ch) && ch->has_master() && GET_NAME(ch->get_master()))
+			(IsCharmice(ch) && ch->has_master() && GET_NAME(ch->get_master()))
 				? GET_NAME(ch->get_master()) : "");
 		observability::EmitToAllSinks(ev);
 	}
@@ -827,7 +837,7 @@ void TryRemoveExtrahits(CharData *ch, CharData *victim) {
 	{
 		victim->set_hit(victim->get_real_max_hit());
 		SendMsgToChar(victim, "%s'Будь%s тощ%s аки прежде' - мелькнула чужая мысль в вашей голове.%s\r\n",
-					  kColorWht, GET_CH_POLY_1(victim), GET_CH_EXSUF_1(victim), kColorNrm);
+					  kColorWht, grammar::PluralVerbEnding(IS_POLY(victim)), grammar::InstrEnding((victim)->get_sex()), kColorNrm);
 		act("Вы прервали золотистую нить, питающую $N3 жизнью.", false, ch, nullptr, victim, kToChar);
 		act("$n прервал$g золотистую нить, питающую $N3 жизнью.", false, ch, nullptr, victim, kToNotVict | kToArenaListen);
 	}

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<!--
+    issue.specials Phase 2: mercenary boss messages (do_mercenary.cpp). tell_to_char + act +
+    SendMsgToChar lines. List headers stored as full short/full x role sentences. {amount}/{currency}
+    /{boss}/{mob} are fmt args; kSummon* keep $n act-codes. The dash rule lines stay in code.
+-->
+<msg_container>
+	<msg_sheaf id="kDefault">
+		<message type="kNoAccess" val="Эти знания тебе недоступны, ступай с миром"/>
+		<message type="kUnknownCmd" val="Доступные команды: список (полный), привести &lt;номер&gt; (банк), фаворит &lt;номер&gt;"/>
+		<message type="kEmptyEmployer" val="Ступай, поначалу заведи знакомства, потом ко мне приходи."/>
+		<message type="kEmptyCharmer" val="Поищи себе марионетку, да потренируйся, а затем ко мне приходи."/>
+		<message type="kEmptyImmortal" val="Не гневайся, боже, но не было у тебя последователей еще."/>
+		<message type="kListImmortalShort" val="Вот, краткий список тварей земных, чьим разумом ты владел:"/>
+		<message type="kListImmortalFull" val="Вот, полный список тварей земных, чьим разумом ты владел:"/>
+		<message type="kListEmployerShort" val="Краткий список тех, с кем знакомство ты водишь:"/>
+		<message type="kListEmployerFull" val="Полный список тех, с кем знакомство ты водишь:"/>
+		<message type="kListCharmerShort" val="Вот краткий список тварей земных, чьим разумом ты владел с помощью чар колдовских:"/>
+		<message type="kListCharmerFull" val="Вот полный список тварей земных, чьим разумом ты владел с помощью чар колдовских:"/>
+		<message type="kTableHeader" val=" ##   Имя                                                   "/>
+		<message type="kListTotal" val="А всего за {amount} кун моя ватага приведёт тебе любого из них живым и невредимым."/>
+		<message type="kUnknownChar" val="Протри глаза, такой персонаж тебе неведом!"/>
+		<message type="kTooExpensive" val="Мои услуги стоят {amount} {currency} - это тебе не по карману."/>
+		<message type="kCantFind" val="С персонажем стряслось что то, не могу его найти."/>
+		<message type="kSummonHideCharm" val="$n окрикнул$g своих парней и скрыл$u из виду."/>
+		<message type="kSummonBackCharm" val="Спустя некоторое время, взмыленная ватага вернулась, волоча на аркане $n3."/>
+		<message type="kSummonHide" val="$n вскочил$g и скрыл$u из виду."/>
+		<message type="kSummonBack" val="Спустя некоторое время, {boss} вернул$U, ведя за собой $n3."/>
+		<message type="kRefuseMale" val="{mob} показал большую дулю и свалил от вас подальше."/>
+		<message type="kRefuseFemale" val="{mob} показала большую дулю и свалила от вас подальше."/>
+		<message type="kFavAdded" val="Персонаж {mob} добавлен в список любимчиков."/>
+		<message type="kFavRemoved" val="Персонаж {mob} попал в опалу."/>
+	</msg_sheaf>
+</msg_container>

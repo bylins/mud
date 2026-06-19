@@ -12,6 +12,10 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 #include "mobact.h"
+#include "gameplay/mechanics/minions.h"
+#include "gameplay/mechanics/follow.h"
+#include "gameplay/mechanics/mount.h"
+#include "gameplay/ai/spec_procs.h"
 #include "utils/utils_time.h"
 
 #include "gameplay/skills/backstab.h"
@@ -27,7 +31,7 @@
 #include "gameplay/skills/kick.h"
 
 #include "gameplay/abilities/abilities_rollsystem.h"
-#include "engine/core/action_targeting.h"
+#include "engine/core/target_resolver.h"
 #include "engine/core/comm.h"
 #include "engine/observability/helpers.h"
 #include "engine/observability/metrics.h"
@@ -48,6 +52,8 @@
 #include "gameplay/classes/pc_classes.h"
 #include "gameplay/mechanics/illumination.h"
 #include "gameplay/mechanics/hide.h"
+#include "gameplay/mechanics/sight.h"
+#include "gameplay/fight/fight_stuff.h"
 
 // external structs
 extern int no_specials;
@@ -171,19 +177,17 @@ int attack_best(CharData *ch, CharData *victim, bool do_mode) {
 	ObjData *wielded = GET_EQ(ch, EEquipPos::kWield);
 
 	if (victim) {
-		if (ch->GetSkill(ESkill::kStrangle) && !IsTimedBySkill(ch, ESkill::kStrangle) 
-				&& !(IS_UNDEAD(victim) 
-						|| victim->player_data.Race == ENpcRace::kFish
-						|| victim->player_data.Race == ENpcRace::kPlant
-						|| victim->player_data.Race == ENpcRace::kConstruct)) {
+		// issue.npc-races: strangle needs a victim that breathes (race <respiration/>) and isn't undead.
+		if (ch->GetSkill(ESkill::kStrangle) && !IsTimedBySkill(ch, ESkill::kStrangle)
+				&& CanBreathe(victim) && !victim->IsFlagged(EMobFlag::kUndead)) {
 			if (do_mode)
 				do_strangle(ch, victim);
 			else
 				go_strangle(ch, victim);
 			return (true);
 		}
-		if ((ch->GetSkill(ESkill::kBackstab) && (!victim->GetEnemy() || CanUseFeat(ch, EFeat::kThieveStrike)) && !IS_CHARMICE(ch))
-				|| (IS_CHARMICE(ch) && GET_EQ(ch, EEquipPos::kWield) && ch->GetSkill(ESkill::kBackstab)
+		if ((ch->GetSkill(ESkill::kBackstab) && (!victim->GetEnemy() || CanUseFeat(ch, EFeat::kThieveStrike)) && !IsCharmice(ch))
+				|| (IsCharmice(ch) && GET_EQ(ch, EEquipPos::kWield) && ch->GetSkill(ESkill::kBackstab)
 						&& (!victim->GetEnemy() || CanUseFeat(ch, EFeat::kThieveStrike)))) {
 
 			if (do_mode)
@@ -192,8 +196,8 @@ int attack_best(CharData *ch, CharData *victim, bool do_mode) {
 				GoBackstab(ch, victim);
 			return (true);
 		}
-		if ((ch->GetSkill(ESkill::kHammer) && !IS_CHARMICE(ch))
-			|| (IS_CHARMICE(ch)
+		if ((ch->GetSkill(ESkill::kHammer) && !IsCharmice(ch))
+			|| (IsCharmice(ch)
 				&& !(GET_EQ(ch, EEquipPos::kWield) || GET_EQ(ch, EEquipPos::kBoths) || GET_EQ(ch, EEquipPos::kHold))
 				&& ch->GetSkill(ESkill::kHammer))) {
 			if (do_mode)
@@ -281,7 +285,7 @@ int npc_track(CharData *ch) {
 
 	for (auto *d = descriptor_list; d; d = d->next) {
 		const auto vict = d->character.get();
-		if (vict && d->state == EConState::kPlaying && CAN_SEE(ch, vict) && vict->in_room != kNowhere) {
+		if (vict && d->state == EConState::kPlaying && sight::CanSee(ch, vict) && vict->in_room != kNowhere) {
 			for (auto names = MEMORY(ch); names; names = names->next) {
 				if (vict->get_uid() == names->id
 					&& (!ch->IsFlagged(EMobFlag::kStayZone)
@@ -308,7 +312,7 @@ int npc_track(CharData *ch) {
 }
 
 CharData *selectRandomSkirmisherFromGroup(CharData *leader) {
-	ActionTargeting::FriendsRosterType roster{leader};
+	target_resolver::FriendsRosterType roster{leader};
 	auto isSkirmisher = [](CharData *ch) { return ch->IsFlagged(EPrf::kSkirmisher); };
 	int skirmishers = roster.count(isSkirmisher);
 	if (skirmishers == 0 || skirmishers == roster.amount()) {
@@ -361,10 +365,10 @@ CharData *find_best_stupidmob_victim(CharData *ch, int extmode) {
 	victim = ch->GetEnemy();
 
 	for (const auto vict : world[ch->in_room]->people) {
-		if ((vict->IsNpc() && !IS_SET(extmode, CHECK_OPPONENT) && !IS_CHARMICE(vict))
-			|| (IS_CHARMICE(vict) && !vict->GetEnemy()) // чармиса агрим только если он уже с кем-то сражается
+		if ((vict->IsNpc() && !IS_SET(extmode, CHECK_OPPONENT) && !IsCharmice(vict))
+			|| (IsCharmice(vict) && !vict->GetEnemy()) // чармиса агрим только если он уже с кем-то сражается
 			|| vict->IsFlagged(EPrf::kNohassle)
-			|| !MAY_SEE(ch, ch, vict)
+			|| !sight::MaySee(ch, ch, vict)
 			|| (IS_SET(extmode, CHECK_OPPONENT) && ch != vict->GetEnemy())
 			|| (!may_kill_here(ch, vict, NoArgument) && !IS_SET(extmode, GUARD_ATTACK)))//старжники агрят в мирках
 		{
@@ -387,7 +391,7 @@ CharData *find_best_stupidmob_victim(CharData *ch, int extmode) {
 			&& vict->GetEnemy() != ch
 			&& vict->GetEnemy()->IsNpc()
 			&& !AFF_FLAGGED(vict->GetEnemy(), EAffect::kCharmed)
-			&& SAME_ALIGN(ch, vict->GetEnemy())) {
+			&& alignment::SameAlign(ch, vict->GetEnemy())) {
 			kill_this = true;
 		} else {
 			// ... but no aggressive for this char
@@ -420,7 +424,7 @@ CharData *find_best_stupidmob_victim(CharData *ch, int extmode) {
 				AFF_FLAGS(vict).unset(EAffect::kDisguise);
 			}
 		}
-		if (!CAN_SEE(ch, vict)) {
+		if (!sight::CanSee(ch, vict)) {
 			continue;
 		}
 		// Mobile aggresive
@@ -502,7 +506,7 @@ CharData *find_best_stupidmob_victim(CharData *ch, int extmode) {
 // TODO invert and rename for clarity: -> isStrayCharmice(), to return true if a charmice, and master is absent =II
 bool find_master_charmice(CharData *charmice) {
 	// проверяем на спелл чарма, ищем хозяина и сравниваем румы
-	if (!IS_CHARMICE(charmice) || !charmice->has_master()) {
+	if (!IsCharmice(charmice) || !charmice->has_master()) {
 		return true;
 	}
 
@@ -515,11 +519,11 @@ bool find_master_charmice(CharData *charmice) {
 
 bool filter_victim (CharData *ch, CharData *vict, int extmode) {
 	bool kill_this = false;
-	if ((vict->IsNpc() && !IS_CHARMICE(vict))
-		|| (IS_CHARMICE(vict) && !vict->GetEnemy()
+	if ((vict->IsNpc() && !IsCharmice(vict))
+		|| (IsCharmice(vict) && !vict->GetEnemy()
 			&& find_master_charmice(vict)) // чармиса агрим только если нет хозяина в руме.
 		|| vict->IsFlagged(EPrf::kNohassle)
-		|| !MAY_SEE(ch, ch, vict) // если не видим цель,
+		|| !sight::MaySee(ch, ch, vict) // если не видим цель,
 		|| (IS_SET(extmode, CHECK_OPPONENT) && ch != vict->GetEnemy())
 		|| (!may_kill_here(ch, vict, NoArgument) && !IS_SET(extmode, GUARD_ATTACK)))//старжники агрят в мирках
 	{
@@ -569,7 +573,7 @@ bool filter_victim (CharData *ch, CharData *vict, int extmode) {
 			AFF_FLAGS(vict).unset(EAffect::kDisguise);
 		}
 	}
-	if (!CAN_SEE(ch, vict)) {
+	if (!sight::CanSee(ch, vict)) {
 		return false;
 	}
 	if (!kill_this && extra_aggr) {
@@ -664,7 +668,7 @@ CharData *find_best_mob_victim(CharData *ch, int extmode) {
 		all_targets.push_back(target);
 	}
 	for (auto& target : all_targets) {
-		if (target.ch->IsLeader()) {
+		if (follow::IsLeader(target.ch)) {
 			target.weight = target.weight * 3 / 2;
 		}
 	}
@@ -743,10 +747,10 @@ int perform_best_horde_attack(CharData *ch, int extmode) {
 	}
 
 	for (const auto vict : world[ch->in_room]->people) {
-		if (!vict->IsNpc() || !MAY_SEE(ch, ch, vict) || vict->IsFlagged(EMobFlag::kProtect) || vict->IsFlagged(EMobFlag::kNoFight)) {
+		if (!vict->IsNpc() || !sight::MaySee(ch, ch, vict) || vict->IsFlagged(EMobFlag::kProtect) || vict->IsFlagged(EMobFlag::kNoFight)) {
 			continue;
 		}
-		if (!SAME_ALIGN(ch, vict)) {
+		if (!alignment::SameAlign(ch, vict)) {
 			if (ch->GetPosition() < EPosition::kFight && ch->GetPosition() > EPosition::kSleep) {
 				act("$n вскочил$g.", false, ch, nullptr, nullptr, kToRoom);
 				ch->SetPosition(EPosition::kStand);
@@ -789,7 +793,7 @@ int perform_mob_switch(CharData *ch) {
 }
 
 void do_aggressive_mob(CharData *ch, int check_sneak, bool skip_hide_camouflage_checks) {
-	if (!ch || ch->in_room == kNowhere || !ch->IsNpc() || !MAY_ATTACK(ch) || AFF_FLAGGED(ch, EAffect::kBlind)) {
+	if (!ch || ch->in_room == kNowhere || !ch->IsNpc() || !MayAttack(ch) || AFF_FLAGGED(ch, EAffect::kBlind)) {
 		return;
 	}
 
@@ -869,13 +873,13 @@ void do_aggressive_room(CharData *ch, int check_sneak) {
  * \return true - можно войти, false - нельзя
  */
 bool allow_enter(RoomData *room, CharData *ch) {
-	if (!ch->IsNpc() || !GET_MOB_SPEC(ch)) {
+	if (!ch->IsNpc() || !specials::IsMobSpecial(GET_MOB_VNUM(ch))) {
 		return true;
 	}
 
 	for (const auto vict : room->people) {
 		if (vict->IsNpc()
-			&& GET_MOB_SPEC(vict) == GET_MOB_SPEC(ch)) {
+			&& specials::SharesMobSpecial(GET_MOB_VNUM(vict), GET_MOB_VNUM(ch))) {
 			return false;
 		}
 	}
@@ -974,7 +978,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 		  continue;
 	  }
 
-	  if (IS_HORSE(ch)) {
+	  if (mount::IsHorse(ch)) {
 		  if (ch->GetPosition() < EPosition::kFight) {
 			  ch->SetPosition(EPosition::kStand);
 		  }
@@ -1003,7 +1007,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 		  }
 
 		  if (!vict->IsNpc()
-			  && CAN_SEE(ch, vict)) {
+			  && sight::CanSee(ch, vict)) {
 			  max = true;
 		  }
 	  }
@@ -1014,7 +1018,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 		  && ch->get_hit() < ch->get_real_max_hit() 
 		  && !ch->IsFlagged(EMobFlag::kTutelar)
 		  && !ch->IsFlagged(EMobFlag::kMentalShadow)
-		  && !ch->IsOnHorse()
+		  && !mount::IsOnHorse(ch.get())
 		  && ch->GetPosition() > EPosition::kRest) {
 		  act("$n присел$g отдохнуть.", false, ch.get(), nullptr, nullptr, kToRoom);
 		  ch->SetPosition(EPosition::kRest);
@@ -1131,7 +1135,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 			  if (!rdata
 				  || rdata->to_room() == kNowhere
 				  || !IsCorrectDirection(ch.get(), door, true, false)
-				  || (is_room_forbidden(world[rdata->to_room()])
+				  || (IsRoomForbidden(world[rdata->to_room()])
 					  && !ch->IsFlagged(EMobFlag::kIgnoreForbidden))
 				  || is_dark(rdata->to_room())
 				  || (ch->IsFlagged(EMobFlag::kStayZone)
@@ -1143,10 +1147,10 @@ void mobile_activity(int activity_level, int missed_pulses) {
 			  for (auto first : room->people) {
 				  if (first->IsNpc()
 					  && !AFF_FLAGGED(first, EAffect::kCharmed)
-					  && !IS_HORSE(first)
-					  && CAN_SEE(ch, first)
+					  && !mount::IsHorse(first)
+					  && sight::CanSee(ch, first)
 					  && first->GetEnemy()
-					  && SAME_ALIGN(ch, first)) {
+					  && alignment::SameAlign(ch.get(), first)) {
 					  found = true;
 					  break;
 				  }
@@ -1189,7 +1193,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 		  && EXIT(ch, door)
 		  && EXIT(ch, door)->to_room() != kNowhere
 		  && IsCorrectDirection(ch.get(), door, true, false)
-		  && (!is_room_forbidden(world[EXIT(ch, door)->to_room()]) || ch->IsFlagged(EMobFlag::kIgnoreForbidden))
+		  && (!IsRoomForbidden(world[EXIT(ch, door)->to_room()]) || ch->IsFlagged(EMobFlag::kIgnoreForbidden))
 		  && (!ch->IsFlagged(EMobFlag::kStayZone)
 			  || world[EXIT(ch, door)->to_room()]->zone_rn == world[ch->in_room]->zone_rn)
 		  && allow_enter(world[EXIT(ch, door)->to_room()], ch.get())) {
@@ -1215,7 +1219,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 			  || GET_SPELL_MEM(ch, ESpell::kRelocate) > 0); names = names->next) {
 			  for (const auto &vict : character_list) {
 				  if (names->id == vict->get_uid()
-					  && CAN_SEE(ch, vict) && !vict->IsFlagged(EPrf::kNohassle)) {
+					  && sight::CanSee(ch, vict) && !vict->IsFlagged(EPrf::kNohassle)) {
 					  if (GET_SPELL_MEM(ch, ESpell::kSummon) > 0) {
 						  CastSpell(ch.get(), vict.get(), nullptr, nullptr, ESpell::kSummon, ESpell::kSummon);
 						  break;
@@ -1245,12 +1249,12 @@ ObjData *create_charmice_box(CharData *ch) {
 	obj->set_short_description(descr);
 	obj->set_description("Туго набитый узел лежит тут.");
 	obj->set_ex_description(descr.c_str(), "Кто-то сильно торопился, когда набивал этот узелок.");
-	obj->set_PName(ECase::kNom, "узелок");
-	obj->set_PName(ECase::kGen, "узелка");
-	obj->set_PName(ECase::kDat, "узелку");
-	obj->set_PName(ECase::kAcc, "узелок");
-	obj->set_PName(ECase::kIns, "узелком");
-	obj->set_PName(ECase::kPre, "узелке");
+	obj->set_PName(grammar::ECase::kNom, "узелок");
+	obj->set_PName(grammar::ECase::kGen, "узелка");
+	obj->set_PName(grammar::ECase::kDat, "узелку");
+	obj->set_PName(grammar::ECase::kAcc, "узелок");
+	obj->set_PName(grammar::ECase::kIns, "узелком");
+	obj->set_PName(grammar::ECase::kPre, "узелке");
 	obj->set_sex(EGender::kMale);
 	obj->set_type(EObjType::kContainer);
 	obj->set_wear_flags(to_underlying(EWearFlag::kTake));

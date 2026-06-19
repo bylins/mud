@@ -1,4 +1,8 @@
 #include "affect_data.h"
+#include "administration/privilege.h"
+#include "gameplay/mechanics/condition.h"
+#include "gameplay/mechanics/follow.h"
+#include "gameplay/mechanics/mount.h"
 #include "engine/observability/event_sink.h"
 #include "gameplay/affects/mobile_affect_update_profiler.h"
 #include "gameplay/affects/player_affect_update_profiler.h"
@@ -22,6 +26,7 @@
 #include "utils/backtrace.h"
 
 #include <chrono>
+#include "gameplay/core/remort.h"
 
 std::unordered_set<CharData *> affected_mobs;
 
@@ -43,7 +48,7 @@ void EmitAffectEvent(const char *kind, const CharData *ch,
 	ev.attrs["duration"] = static_cast<std::int64_t>(af.duration);
 	ev.attrs["modifier"] = static_cast<std::int64_t>(af.modifier);
 	ev.attrs["location"] = static_cast<std::int64_t>(af.location);
-	ev.attrs["bitvector"] = static_cast<std::int64_t>(af.bitvector);
+	ev.attrs["affect_type"] = static_cast<std::int64_t>(af.affect_type);
 	observability::EmitToAllSinks(ev);
 }
 
@@ -144,10 +149,10 @@ int apply_armour(CharData *ch, int eq_pos) {
 // Была ошибка, у нубов реген хитов был всегда 50, хотя с 26 по 30, должен быть 60.
 // Теперь аффект регенерация новичка держится 3 реморта, с каждыи ремортом все слабее и слабее
 void apply_natural_affects(CharData *ch) {
-	if (GetRealRemort(ch) <= 3 && !ch->IsImmortal()) {
-		affect_modify(ch, EApply::kHpRegen, 60 - (GetRealRemort(ch) * 10), EAffect::kNoobRegen, true);
+	if (remort::GetRealRemort(ch) <= 3 && !privilege::IsImmortal(ch)) {
+		affect_modify(ch, EApply::kHpRegen, 60 - (remort::GetRealRemort(ch) * 10), EAffect::kNoobRegen, true);
 		affect_modify(ch, EApply::kMoveRegen, 100, EAffect::kNoobRegen, true);
-		affect_modify(ch, EApply::kManaRegen, 100 - (GetRealRemort(ch) * 20), EAffect::kNoobRegen, true);
+		affect_modify(ch, EApply::kManaRegen, 100 - (remort::GetRealRemort(ch) * 20), EAffect::kNoobRegen, true);
 	}
 }
 
@@ -501,7 +506,7 @@ void mobile_affect_update() {
 
 			if (affect->duration == 0) {
 				if (affect->type >= ESpell::kFirst && affect->type <= ESpell::kLast) {
-					if (affect->type == ESpell::kCharm || affect->bitvector == to_underlying(EAffect::kCharmed)) {
+					if (affect->type == ESpell::kCharm || affect->affect_type == EAffect::kCharmed) {
 						was_charmed = true;
 					}
 					auto next_affect_i = affect_i;
@@ -588,7 +593,7 @@ void mobile_affect_update() {
 			}
 			if (was_charmed) {
 				utils::CExecutionTimer stop_follower_timer;
-				stop_follower(ch, kSfCharmlost);
+				follow::StopFollower(ch, follow::kSfCharmlost);
 				profile.sections[static_cast<std::size_t>(Section::kStopFollower)] += stop_follower_timer.delta().count();
 				++profile.counters[static_cast<std::size_t>(Counter::kCharmStops)];
 			}
@@ -765,7 +770,7 @@ void affect_total(CharData *ch) {
 
 	// move affect modifiers
 	for (const auto &af : ch->affected) {
-		affect_modify(ch, af->location, af->modifier, static_cast<EAffect>(af->bitvector), true);
+		affect_modify(ch, af->location, af->modifier, af->affect_type, true);
 	}
 
 	// move race and class modifiers
@@ -788,7 +793,7 @@ void affect_total(CharData *ch) {
 				ch->set_hit_add(ch->get_hit_add() - (i - 1));
 			}
 		}
-		if (!ch->IsImmortal() && ch->IsOnHorse()) {
+		if (!privilege::IsImmortal(ch) && mount::IsOnHorse(ch)) {
 			AFF_FLAGS(ch).unset(EAffect::kHide);
 			AFF_FLAGS(ch).unset(EAffect::kSneak);
 			AFF_FLAGS(ch).unset(EAffect::kDisguise);
@@ -797,7 +802,7 @@ void affect_total(CharData *ch) {
 	}
 
 	// correctize all weapon
-	if (!ch->IsImmortal()) {
+	if (!privilege::IsImmortal(ch)) {
 		if ((obj = GET_EQ(ch, EEquipPos::kBoths)) && !CanBeTakenInBothHands(ch, obj)) {
 			if (!ch->IsNpc()) {
 				act("Вам слишком тяжело держать $o3 в обоих руках!", false, ch, obj, nullptr, kToChar);
@@ -866,9 +871,9 @@ void affect_total(CharData *ch) {
 	}
 
 	// бонусы от морта
-	if (GetRealRemort(ch) >= 20) {
-		ch->add_abils.mresist += GetRealRemort(ch) - 19;
-		ch->add_abils.presist += GetRealRemort(ch) - 19;
+	if (remort::GetRealRemort(ch) >= 20) {
+		ch->add_abils.mresist += remort::GetRealRemort(ch) - 19;
+		ch->add_abils.presist += remort::GetRealRemort(ch) - 19;
 	}
 
 	//капы
@@ -912,7 +917,7 @@ void affect_total(CharData *ch) {
 
 void ImposeAffect(CharData *ch, const Affect<EApply> &af) {
 	for (const auto &affect : ch->affected) {
-		const bool same_affect = (af.location == EApply::kNone) && (affect->bitvector == af.bitvector);
+		const bool same_affect = (af.location == EApply::kNone) && (affect->affect_type == af.affect_type);
 		const bool same_type = (af.location != EApply::kNone) && (affect->type == af.type) && (affect->location == af.location);
 		if (same_affect || same_type) {
 			if (affect->modifier < af.modifier) {
@@ -968,8 +973,8 @@ void affect_to_char(CharData *ch, const Affect<EApply> &af) {
 	ch->affected.push_front(affected_alloc);
 
 	AFF_FLAGS(ch) += af.aff;
-	if (af.bitvector)
-		affect_modify(ch, af.location, af.modifier, static_cast<EAffect>(af.bitvector), true);
+	if (af.affect_type != EAffect::kUndefined)
+		affect_modify(ch, af.location, af.modifier, af.affect_type, true);
 	//log("[AFFECT_TO_CHAR->AFFECT_TOTAL] Start");
 	affect_total(ch);
 	EmitAffectEvent("affect_added", ch, af);
@@ -986,15 +991,15 @@ void affect_to_char_no_recalc(CharData *ch, const Affect<EApply> &af) {
 	ch->affected.push_front(affected_alloc);
 
 	AFF_FLAGS(ch) += af.aff;
-	if (af.bitvector)
-		affect_modify(ch, af.location, af.modifier, static_cast<EAffect>(af.bitvector), true);
+	if (af.affect_type != EAffect::kUndefined)
+		affect_modify(ch, af.location, af.modifier, af.affect_type, true);
 }
 
 // Same as ImposeAffect but without affect_total() recalculation.
 // Caller MUST call affect_total(ch) after all affects are applied.
 void ImposeAffectNoRecalc(CharData *ch, const Affect<EApply> &af) {
 	for (const auto &affect : ch->affected) {
-		const bool same_affect = (af.location == EApply::kNone) && (affect->bitvector == af.bitvector);
+		const bool same_affect = (af.location == EApply::kNone) && (affect->affect_type == af.affect_type);
 		const bool same_type = (af.location != EApply::kNone) && (affect->type == af.type) && (affect->location == af.location);
 		if (same_affect || same_type) {
 			if (affect->modifier < af.modifier) {
@@ -1003,6 +1008,12 @@ void ImposeAffectNoRecalc(CharData *ch, const Affect<EApply> &af) {
 			if (affect->duration < af.duration) {
 				affect->duration = af.duration;
 			}
+			// Refresh the dispel potency/nature too (issue): a stronger re-cast raises the
+			// recorded potency; the nature follows the (re-)casting spell.
+			if (affect->potency < af.potency) {
+				affect->potency = af.potency;
+			}
+			affect->debuff = af.debuff;
 			return;
 		}
 	}
@@ -1187,7 +1198,7 @@ void reset_affects(CharData *ch) {
 			++af;
 		}
 	}
-	GET_COND(ch, DRUNK) = 0; // Чтобы не шатало без аффекта "под мухой"
+	GET_COND(ch, condition::kDrunk) = 0; // Чтобы не шатало без аффекта "под мухой"
 	affect_total(ch);
 }
 
@@ -1206,7 +1217,7 @@ void reset_affects_no_recalc(CharData *ch) {
 			++af;
 		}
 	}
-	GET_COND(ch, DRUNK) = 0;
+	GET_COND(ch, condition::kDrunk) = 0;
 }
 bool IsAffectedBySpell(CharData *ch, ESpell type) {
 	if (type == ESpell::kPowerHold) {
@@ -1272,32 +1283,24 @@ bool GetAffectNumByName(const std::string &affName, EAffect &result) {
 	return false;
 }
 
-int CalcDuration(CharData *ch, int cnst, int level, int level_divisor, int min, int max) {
-	int result = 0;
-
-	if (ch->IsNpc()) {
-		result = cnst;
-		if (level > 0 && level_divisor > 0)
-			level = level / level_divisor;
-		else
-			level = 0;
-		if (min > 0)
-			level = std::min(level, min);
-		if (max > 0)
-			level = std::max(level, max);
-		return (level + result);
+// issue.calc-duration: skill-based duration. `caster` provides the skill (bounded by
+// CalcNoviceSkillBonus's kNoviceSkillThreshold cap, so monster durations no longer grow with
+// raw mob level), `victim` decides the unit (PC: convert hours to player-affect ticks; NPC: raw).
+// skill_id == kUndefined skips the skill bonus -- used for flat durations and for spells without
+// a <potency_roll>. min/max keep the OLD-style "0 means no clamp on that side" semantics.
+int CalcDuration(CharData *caster, CharData *victim, ESkill skill_id,
+				 unsigned base, unsigned skill_divisor, int min, int max) {
+	if (skill_divisor == 0 && min == 0 && max == 0) {
+		return (victim->IsNpc() ? base : (base * kSecsPerMudHour / kSecsPerPlayerAffect));
 	}
-	result = cnst * kSecsPerMudHour;
-	if (level > 0 && level_divisor > 0)
-		level = level * kSecsPerMudHour / level_divisor;
-	else
-		level = 0;
-	if (min > 0)
-		level = std::min(level, min * kSecsPerMudHour);
-	if (max > 0)
-		level = std::max(level, max * kSecsPerMudHour);
-	result = (level + result) / kSecsPerPlayerAffect;
-	return (result);
+	int skill_bonus = (skill_id == ESkill::kUndefined)
+		? 0
+		: CalcNoviceSkillBonus(caster, skill_id, skill_divisor);
+	if (min > 0) skill_bonus = std::max(skill_bonus, min);
+	if (max > 0) skill_bonus = std::min(skill_bonus, max);
+	const auto duration = base + static_cast<unsigned>(skill_bonus);
+	return (victim->IsNpc() ? duration : (duration * kSecsPerMudHour / kSecsPerPlayerAffect));
 }
+
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

@@ -1,4 +1,6 @@
 #include "do_spells.h"
+#include "administration/privilege.h"
+#include "gameplay/mechanics/magic_item.h"
 
 #include "engine/ui/color.h"
 #include "engine/entities/char_data.h"
@@ -7,6 +9,7 @@
 #include "gameplay/magic/spells_info.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/mechanics/weather.h"
+#include "gameplay/core/remort.h"
 
 #include <cmath>
 
@@ -62,17 +65,17 @@ void DisplaySpells(CharData *ch, CharData *vict, bool all) {
 			continue;
 		if (IS_MANA_CASTER(ch) && !spell_create.contains(spell_id))
 			continue;
-		if (!IS_MANA_CASTER(ch) && !ch->IsGod() && ROOM_FLAGGED(ch->in_room, ERoomFlag::kDominationArena)) {
+		if (!IS_MANA_CASTER(ch) && !privilege::IsGod(ch) && ROOM_FLAGGED(ch->in_room, ERoomFlag::kDominationArena)) {
 			if (!IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kTemp) && !all)
 				continue;
 		}
 		if ((CalcMinSpellLvl(ch, spell_id) > GetRealLevel(ch) ||
-			class_spell.GetMinRemort() > GetRealRemort(ch) ||
+			class_spell.GetMinRemort() > remort::GetRealRemort(ch) ||
 			CalcCircleSlotsAmount(ch, class_spell.GetCircle()) <= 0) &&
 			all && !GET_SPELL_TYPE(ch, spell_id)) {
 			continue;
 		}
-		if (class_spell.GetMinRemort() > GetRealRemort(ch)) {
+		if (class_spell.GetMinRemort() > remort::GetRealRemort(ch)) {
 			slot_num = kMaxMemoryCircle - 1;
 		} else {
 			slot_num = class_spell.GetCircle() - 1;

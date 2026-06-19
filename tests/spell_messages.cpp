@@ -24,9 +24,10 @@ TEST(SpellMessages, UndefinedKeepsCanonicalName) {
 }
 
 TEST(SpellMessages, ESpellMsgNameRoundTrip) {
-	EXPECT_EQ(ESpellMsg::kPointsToVict, ITEM_BY_NAME<ESpellMsg>("kPointsToVict"));
-	EXPECT_EQ(ESpellMsg::kPointsToVict, parse::ReadAsConstant<ESpellMsg>("kPointsToVict"));
-	EXPECT_EQ("kPointsToVict", NAME_BY_ITEM<ESpellMsg>(ESpellMsg::kPointsToVict));
+	// issue.point-bugs #2: kPointsToVict replaced by per-category keys.
+	EXPECT_EQ(ESpellMsg::kHealToVict, ITEM_BY_NAME<ESpellMsg>("kHealToVict"));
+	EXPECT_EQ(ESpellMsg::kHealToVict, parse::ReadAsConstant<ESpellMsg>("kHealToVict"));
+	EXPECT_EQ("kHealToVict", NAME_BY_ITEM<ESpellMsg>(ESpellMsg::kHealToVict));
 
 	for (const auto type : {ESpellMsg::kAreaToChar, ESpellMsg::kAreaToRoom, ESpellMsg::kAreaToVict,
 							ESpellMsg::kCantCastSleeping, ESpellMsg::kCantCastResting,
@@ -44,8 +45,7 @@ TEST(SpellMessages, ESpellMsgNameRoundTrip) {
 							ESpellMsg::kSummonNoProto, ESpellMsg::kSummonWarhorse,
 							ESpellMsg::kResurrectBadCorpse, ESpellMsg::kResurrectConsecrated,
 							ESpellMsg::kResurrectNoPower, ESpellMsg::kResurrectProtected,
-							ESpellMsg::kDamageToChar, ESpellMsg::kDamageToNotVict,
-							ESpellMsg::kDamageToVict, ESpellMsg::kLaggedToRoom, ESpellMsg::kLaggedToChar,
+							ESpellMsg::kLaggedToRoom, ESpellMsg::kLaggedToChar,
 							ESpellMsg::kKnockdownToRoom, ESpellMsg::kKnockdownToChar,
 							ESpellMsg::kAcidCorrodeObj,
 							ESpellMsg::kCastPhraseHeathen, ESpellMsg::kCastPhraseChristian,
@@ -54,7 +54,16 @@ TEST(SpellMessages, ESpellMsgNameRoundTrip) {
 							ESpellMsg::kFightMissToVict, ESpellMsg::kFightMissToRoom,
 							ESpellMsg::kFightHitToChar, ESpellMsg::kFightHitToVict,
 							ESpellMsg::kFightHitToRoom, ESpellMsg::kFightGodToChar,
-							ESpellMsg::kFightGodToVict, ESpellMsg::kFightGodToRoom}) {
+							ESpellMsg::kFightGodToVict, ESpellMsg::kFightGodToRoom,
+							ESpellMsg::kReflectedToChar, ESpellMsg::kReflectedToVict,
+							ESpellMsg::kReflectedToRoom, ESpellMsg::kAffExpired,
+							ESpellMsg::kCastForbiddenToChar, ESpellMsg::kCastForbiddenToRoom,
+							ESpellMsg::kRoomAffectVisible, ESpellMsg::kRoomAffectInvisible,
+							ESpellMsg::kRoomAffectSelfInvisible,
+							ESpellMsg::kRoomAffectPkVisible, ESpellMsg::kRoomAffectPkInvisible,
+							ESpellMsg::kComponentUse, ESpellMsg::kComponentMissing,
+							ESpellMsg::kComponentExhausted,
+							ESpellMsg::kCantCastSilenced}) {
 		EXPECT_EQ(type, ITEM_BY_NAME<ESpellMsg>(NAME_BY_ITEM<ESpellMsg>(type)));
 	}
 }

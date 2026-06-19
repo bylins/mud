@@ -8,7 +8,6 @@
 #define BYLINS_SRC_STRUCTS_DESCRIPTOR_DATA_H_
 
 #include "gameplay/communication/boards/boards_types.h"
-#include "gameplay/economics/ext_money.h"
 #include "engine/structs/structs.h"
 #include "engine/core/sysdep.h"
 #include "engine/core/iosystem.h"
@@ -25,6 +24,9 @@ namespace GloryConst {
 }
 namespace NamedStuff {
 	struct stuff_node;
+}
+namespace vedun {
+	struct Session;
 }
 namespace MapSystem {
 	struct Options;
@@ -86,13 +88,13 @@ enum class EConState : uint8_t {
   kResetKin = 49,        // выбор расы после смены/удаления оной (или иного испоганивания значения)
   kResetRace = 50,        // выбор РОДА посла смены/сброса оного
   kConsole = 51,            // Интерактивная скриптовая консоль
-  kTorcExch = 52,        // обмен гривен
   kMenuStats = 53,        // оплата сброса стартовых статов из главного меню
   kSedit = 54,            // sedit - редактирование сетов
   kResetReligion = 55,    // сброс религии из меню сброса статов
   kRandomNumber = 56,    // Verification code entry: where player enter the game from new location
   kInit = 57,               // just connected
-  kAdminAPI = 58            // Admin API connection
+  kAdminAPI = 58,           // Admin API connection
+  kVedun = 59               // Vedun data editor (issue.vedun-editor)
 };
 // Номера оставлены, чтобы было удобней ориентироваться в списке описаний -- Svent
 // не забываем отражать новые состояния в connection_descriptions -- Krodo
@@ -156,6 +158,7 @@ struct DescriptorData {
 	unsigned long ip; // ип адрес в виде числа для внутреннего пользования
 	std::weak_ptr<Boards::Board> board; // редактируемая доска
 	Message::shared_ptr message; // редактируемое сообщение
+	std::shared_ptr<vedun::Session> vedun_session; // Vedun editor session (issue.vedun-editor)
 	std::shared_ptr<struct ClanOLC> clan_olc; // редактирование привилегий клана
 	std::shared_ptr<struct ClanInvite> clan_invite; // приглашение в дружину
 	bool registered_email; // чтобы не шарить каждую секунду по списку мыл
@@ -170,7 +173,6 @@ struct DescriptorData {
 	ObjVnum old_vnum;                    // старый внум именной шмотки
 	std::shared_ptr<MapSystem::Options> map_options; // редактирование опций режима карты
 	bool snoop_with_map; // показывать снуперу карту цели с опциями самого снупера
-	std::array<int, ExtMoney::kTotalTypes> ext_money{}; // обмен доп.денег
 	std::shared_ptr<obj_sets_olc::sedit> sedit; // редактирование сетов
 	bool mxp{}; // Для MXP
 

@@ -6,6 +6,7 @@
  **/
 
 #include "gameplay/classes/mob_classes_info.h"
+#include "gameplay/mechanics/minions.h"
 #include "engine/entities/char_data.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/magic/magic.h"
@@ -248,7 +249,7 @@ static EBaseStat BaseStatByIndex(int idx) {
 // Возвращает true, если хоть что-то было применено.
 //
 static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty) {
-	if (!ch || !ch->IsNpc() || IS_CHARMICE(ch)) {
+	if (!ch || !ch->IsNpc() || IsCharmice(ch)) {
 		return false;
 	}
 

@@ -1,4 +1,5 @@
 #include "manadrain.h"
+#include "administration/privilege.h"
 #include "skill_messages.h"
 
 #include "engine/core/handler.h"
@@ -80,7 +81,7 @@ void do_manadrain(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	manadrainDamage.flags.set(fight::kIgnoreBlink);
 	manadrainDamage.Process(ch, vict);
 
-	if (!ch->IsImmortal()) {
+	if (!privilege::IsImmortal(ch)) {
 		timed.skill = ESkill::kJinx;
 		if (CritLuckTest(ch, vict) || !success)
 			timed.time = 1;

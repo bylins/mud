@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<!--
+    issue.specials Phase 2: torc / гривна exchange messages (ext_money.cpp). Opened by `менять` as a
+    stateful menu. Parse responses + menu pieces. {amount}/{from}/{to}/{rate} are fmt args; kRow is the
+    menu-line template with named args (incl. {from:<17}/{to:<17} alignment, written &lt;17 in XML).
+-->
+<msg_container>
+	<msg_sheaf id="kDefault">
+		<message type="kNotEnough" val="Нет необходимого количества гривен!"/>
+		<message type="kReducedTo" val="Количество меняемых гривен уменьшено до {amount}."/>
+		<message type="kExchanged" val="Произведен обмен: {from} -> {to}."/>
+		<message type="kInvalidChoice" val="Неверный выбор!"/>
+		<message type="kMinAmount" val="Минимальное количество гривен для данного обмена: {amount}."/>
+		<message type="kCancelled" val="Обмен отменен."/>
+		<message type="kTechError" val="Обмен отменен по техническим причинам, обратитесь к Богам."/>
+		<message type="kConfirmed" val="Обмен произведен."/>
+		<message type="kRatesHeader" val="Курсы обмена гривен:"/>
+		<message type="kRateBronze" val="{rate}  бронзовых &lt;-&gt; 1 серебряная"/>
+		<message type="kRateSilver" val="{rate} серебряных &lt;-&gt; 1 золотая"/>
+		<message type="kBalance" val="Текущий баланс:"/>
+		<message type="kRow" val="   {nc}{num}) {fc}{from:&lt;17}{nrm} -> {tc}{to:&lt;17}{nrm} [{rfrom} -> {rto}]"/>
+		<message type="kLabelBronze" val="Бронзовые гривны"/>
+		<message type="kLabelSilver" val="Серебряные гривны"/>
+		<message type="kLabelGold" val="Золотые гривны"/>
+		<message type="kInstrMin" val="&lt;номер действия&gt; - один минимальный обмен указанного вида"/>
+		<message type="kInstrAmount" val="&lt;номер действия&gt; &lt;число х&gt; - обмен х имеющихся гривен"/>
+		<message type="kOptCancel" val="Отменить обмен и выйти"/>
+		<message type="kOptConfirm" val="Подтвердить обмен и выйти"/>
+		<message type="kPrompt" val="Ваш выбор:"/>
+	</msg_sheaf>
+</msg_container>

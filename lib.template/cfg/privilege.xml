@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<!--
+  issue.privilege-rework: привилегии задаются ЧЛЕНСТВОМ в этом файле (имя + uid),
+  а НЕ уровнем персонажа. Уровень сам по себе не даёт ничего: ни привилегированных
+  команд, ни просмотра сквозь невидимость иммов, ни включения невидимости.
+  Файл редактируется ТОЛЬКО на сервере (в редакторе Ведун НЕ правится - безопасность).
+
+  Секции <god_list> идут по старшинству сверху вниз: owner, implementators,
+  great_gods, gods, immortals, demigods. Членство в секции = должны совпасть И имя, И uid.
+  Тиры вложенные: имплементатор считается и богом, и иммом, и т.д. Владелец (owner)
+  захардкожен по имени (Стрибог), имя/uid в секции <owner> игнорируются, лишних владельцев нет.
+
+  ФЛАГИ (<flags list="..."/>):
+    FullAccess  - полный доступ ко ВСЕМ командам (как раньше давал 34й уровень). Чтобы у
+                  админа остались только явно перечисленные команды (например, на время
+                  отсутствия, ради безопасности) - снимите этот флаг, оставив нужные <commands>.
+    skills      - пользоваться умениями/заклинаниями/рунами, взламывать двери.
+    boards      - полный доступ к доскам (ошибки, кодеры и т.п.).
+    arena       - команды арена-мастера (действуют ТОЛЬКО на клетках арены).
+    fullzedit   - открытие/закрытие зон на запись (zed lock/unlock).
+    title       - одобрение/запрет чужих титулов.
+    misprint    - доска опечаток.   suggest - доска придумок.   kroder - служебный флаг.
+
+  НАСТРОЙКА ДОСТУПА К КОМАНДАМ:
+    <groups   list="Olc|Goto"/>  - подключить группы из <command_groups> (по их id).
+    <commands list="freeze|invis|set (email frozen)|show (zones errors)"/>  - отдельные
+                  команды; разделитель "|". Записи вида set (...) и show (...) задают
+                  доступные ПОДкоманды команд set и show.
+    Итоговый доступ персонажа = его <commands> + раскрытые <groups> + авто-группа по тиру
+                  (default для иммов и выше, default_demigod для демигодов).
+    FullAccess перекрывает всё перечисленное (доступно всё).
+
+  ДОСТУП К РЕДАКТОРУ ВЕДУН ПОФАЙЛОВО (<vedun list="..."/>):
+    Список наборов данных, которые персонаж может править Ведуном; имена - как в команде
+    "vedun <набор>" (напр. spells|cities|rune_stones). При вводе "vedun spells" проверяется,
+    что "spells" есть в этом списке (сами подкоманды Ведуна не проверяются). "*" или "all" -
+    любой набор. FullAccess даёт все наборы. Для входа в Ведун нужна и команда vedun в <commands>.
+
+  Группы default, default_demigod и arena ЗАШИТЫ в коде и применяются автоматически по тиру -
+  в этом файле их перечислять не нужно. Имена/uid берутся из players.lst.
+-->
+<privilege>
+    <command_groups>
+        <group id="olc" commands="armor|detach|errlog|invis|load|medit|mlist|mredit|mrlist|oedit|olc|olist|purge|redit|rlist|sedit|slist|stat|tlist|trigedit|tstat|vnum|vstat|zedit|zlist|zreset|вномер|занятость|зоныстат|зсписок|исписок|ксписок|мсписок|осписок|пометить|show (affectedrooms bosses death errors mobstat money paths rent triggers worlds zones)"/>
+        <group id="small_olc" commands="detach|invis|load|medit|mlist|oedit|olc|olist|purge|redit|rlist|stat|tlist|trigedit|tstat|vnum|vstat|zedit|zlist|zreset"/>
+        <group id="namestuff" commands="nedit|nlist"/>
+        <group id="goto" commands="goto|poofin|poofout|где|прыжок"/>
+        <group id="mute" commands="mute|замолчать|set (mute)"/>
+        <group id="dumb" commands="dumb|set (dumb)"/>
+        <group id="hell" commands="hell|name|set (hell)"/>
+        <group id="punish" commands="dumb|file|hell|inspect|ip|karma|last|mute|name|stat|t2c|замолчать|занятость|set (dumb hell mute scriptwriter)|show (punishment zones)"/>
+        <group id="log" commands="errlog|imlog|syslog"/>
+        <group id="ban" commands="ban|dc|last|proxy|stat|unban|users|запрет"/>
+        <group id="echo" commands="echo|gecho|гэхо|эхо"/>
+        <group id="hunt" commands="last|snoop|stat|unregister|users|set (email)|show (linkdrop)"/>
+        <group id="imm_assistance" commands="nedit|nlist|sedit|slist|stat|vstat|show (account guild)"/>
+    </command_groups>
+    <god_list>
+        <owner>
+        </owner>
+        <implementators>
+            <entry name="Свентовит" uid="1">
+                <flags list="FullAccess"/>
+            </entry>
+        </implementators>
+        <great_gods/>
+        <gods/>
+        <immortals/>
+        <demigods/>
+    </god_list>
+</privilege>

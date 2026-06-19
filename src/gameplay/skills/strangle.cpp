@@ -1,6 +1,7 @@
 //Modified by Svetodar 14.09.2023
 
 #include "strangle.h"
+#include "gameplay/mechanics/mount.h"
 #include "skill_messages.h"
 #include "engine/db/global_objects.h"
 #include "chopoff.h"
@@ -51,8 +52,8 @@ void do_strangle(CharData *ch, CharData *vict) {
 		return;
 	}
 
-	if (IS_UNDEAD(vict) || GET_RACE(vict) == ENpcRace::kFish ||
-		GET_RACE(vict) == ENpcRace::kPlant || GET_RACE(vict) == ENpcRace::kConstruct) {
+	// issue.npc-races: only a breathing (race <respiration/>), non-undead victim can be strangled.
+	if (!CanBreathe(vict) || vict->IsFlagged(EMobFlag::kUndead)) {
 		SendMsgToChar("Вы бы еще верстовой столб удавить попробовали...\r\n", ch);
 		return;
 	}
@@ -109,7 +110,7 @@ void go_strangle(CharData *ch, CharData *vict) {
 	af.type = ESpell::kStrangle;
 	af.duration = strangle_duration;
 	af.battleflag = kNone;
-	af.bitvector = to_underlying(EAffect::kStrangled);
+	af.affect_type = EAffect::kStrangled;
 	af.caster_id = ch->get_uid();
 
 	TrainSkill(ch, ESkill::kStrangle, success, vict);
@@ -133,7 +134,7 @@ void go_strangle(CharData *ch, CharData *vict) {
 		af2.modifier = -skill_strangle/3;
 		af2.location = EApply::kMagicDamagePercent;
 		af2.battleflag = kAfBattledec;
-		af2.bitvector = to_underlying(EAffect::kSilence);
+		af2.affect_type = EAffect::kSilence;
 		affect_to_char(vict, af2);
 
 		Damage dmg(SkillDmg(ESkill::kStrangle), dam, fight::kPhysDmg, nullptr);
@@ -142,14 +143,14 @@ void go_strangle(CharData *ch, CharData *vict) {
 		dmg.Process(ch, vict);
 		if (vict->GetPosition() > EPosition::kDead) {
 			SetWait(vict, 2, true);
-			if (vict->IsOnHorse()) {
+			if (mount::IsOnHorse(vict)) {
 				act("Рванув на себя, $N стащил$G Вас на землю.",
 					false, vict, nullptr, ch, kToChar);
 				act("Рванув на себя, Вы стащили $n3 на землю.",
 					false, vict, nullptr, ch, kToVict);
 				act("Рванув на себя, $N стащил$G $n3 на землю.",
 					false, vict, nullptr, ch, kToNotVict | kToArenaListen);
-				vict->DropFromHorse();
+				mount::DropFromHorse(vict);
 			}
 		}
 		SetSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 2);

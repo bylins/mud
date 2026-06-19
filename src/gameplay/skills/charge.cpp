@@ -3,6 +3,7 @@
 //
 
 #include "charge.h"
+#include "gameplay/mechanics/mount.h"
 
 #include "skill_messages.h"
 #include "engine/db/global_objects.h"
@@ -12,10 +13,11 @@
 #include "gameplay/fight/pk.h"
 #include "protect.h"
 #include "bash.h"
-#include "engine/core/action_targeting.h"
+#include "engine/core/target_resolver.h"
 #include "gameplay/fight/common.h"
 #include "gameplay/ai/mobact.h"
 #include "gameplay/mechanics/damage.h"
+#include "gameplay/mechanics/sight.h"
 
 void DoCharge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int direction;
@@ -28,7 +30,7 @@ void DoCharge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kCharge, ESkillMsg::kCantFightNow) + "\r\n", ch);
 		return;
 	}
-	if (ch->IsOnHorse()) {
+	if (mount::IsOnHorse(ch)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kCharge, ESkillMsg::kCantWhileMounted) + "\r\n", ch);
 		return;
 	}
@@ -84,23 +86,23 @@ void GoCharge(CharData *ch, int direction) {
 	af.type = ESpell::kNoCharge;
 	af.duration = 4;
 	af.battleflag = kNone;
-	af.bitvector = to_underlying(EAffect::kNoCharge);
+	af.affect_type = EAffect::kNoCharge;
 	af.caster_id = ch->get_uid();
 
 	Affect<EApply> af2;
 	af2.type = ESpell::kUndefined;
 	af2.duration = 3;
 	af2.battleflag = kAfSameTime;
-	af2.bitvector = to_underlying(EAffect::kConfused);
+	af2.affect_type = EAffect::kConfused;
 	SetWait(ch, 1, false);
 
 	Damage dmg(SkillDmg(ESkill::kCharge), dam, fight::kPhysDmg, nullptr);
 
-	ActionTargeting::FoesRosterType roster{ch};
+	target_resolver::FoesRosterType roster{ch};
 	for (const auto target: roster) {
 //		if (target->purged() || target->in_room == kNowhere)
 //			continue;
-		if (target->IsFlagged(EMobFlag::kProtect) || !may_kill_here(ch,target, arg) ||target == ch || !CAN_SEE(ch,target)) {
+		if (target->IsFlagged(EMobFlag::kProtect) || !may_kill_here(ch,target, arg) ||target == ch || !sight::CanSee(ch,target)) {
 			--victims_amount;
 		} else {
 			if (IsAffectedBySpellWithCasterId(ch, target, ESpell::kNoCharge)) {

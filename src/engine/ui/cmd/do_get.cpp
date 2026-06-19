@@ -1,4 +1,6 @@
 #include "gameplay/mechanics/depot.h"
+#include "gameplay/mechanics/sight.h"
+#include "utils/grammar/declensions.h"
 #include "engine/entities/char_data.h"
 #include "gameplay/fight/pk.h"
 #include "engine/core/handler.h"
@@ -11,7 +13,7 @@
 #include <fmt/format.h>
 
 extern bool CanTakeObj(CharData *ch, ObjData *obj);
-extern char *find_exdesc(const char *word, const ExtraDescription::shared_ptr &list);
+extern char *sight::find_exdesc(const char *word, const ExtraDescription::shared_ptr &list);
 
 /// считаем сколько у ch в группе еще игроков (не мобов)
 int other_pc_in_group(CharData *ch) {
@@ -54,7 +56,7 @@ void get_check_money(CharData *ch, ObjData *obj, ObjData *cont) {
 	}
 
 	if (curr_type == currency::ICE) {
-		sprintf(buf, "Это составило %d %s.\r\n", value, GetDeclensionInNumber(value, EWhat::kIceU));
+		sprintf(buf, "Это составило %d %s.\r\n", value, grammar::GetDeclensionInNumber(value, grammar::EWhat::kIceU));
 		SendMsgToChar(buf, ch);
 		ch->add_ice_currency(value);
 		//Делить лед ВСЕГДА!
@@ -73,7 +75,7 @@ void get_check_money(CharData *ch, ObjData *obj, ObjData *cont) {
 		return;
 	}
 */
-	sprintf(buf, "Это составило %d %s.\r\n", value, GetDeclensionInNumber(value, EWhat::kMoneyU));
+	sprintf(buf, "Это составило %d %s.\r\n", value, grammar::GetDeclensionInNumber(value, grammar::EWhat::kMoneyU));
 	SendMsgToChar(buf, ch);
 	if (InTestZone(ch)) {
 		ExtractObjFromWorld(obj);
@@ -90,7 +92,7 @@ void get_check_money(CharData *ch, ObjData *obj, ObjData *cont) {
 				ch->get_name().c_str(),
 				GET_ROOM_VNUM(ch->in_room),
 				value,
-				GetDeclensionInNumber(value, EWhat::kMoneyU));
+				grammar::GetDeclensionInNumber(value, grammar::EWhat::kMoneyU));
 		mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
 		char local_buf[256];
 		sprintf(local_buf, "%d", value);
@@ -100,14 +102,14 @@ void get_check_money(CharData *ch, ObjData *obj, ObjData *cont) {
 		// налогом не облагается, т.к. уже все уплочено
 		// на данном этапе cont уже не содержит владельца
 		sprintf(buf, "%s взял деньги из кошелька: %d  %s.", ch->get_name().c_str(), value,
-				GetDeclensionInNumber(value, EWhat::kMoneyU));
+				grammar::GetDeclensionInNumber(value, grammar::EWhat::kMoneyU));
 		mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
 		ch->add_gold(value);
 	} else if ((cont && IS_MOB_CORPSE(cont)) || GET_OBJ_VNUM(obj) != -1) {
 		// лут из трупа моба или из предметов-денег с внумом
 		// (предметы-награды в зонах) - снимаем клан-налог
 		sprintf(buf, "%s заработал %d  %s.", ch->get_name().c_str(), value,
-				GetDeclensionInNumber(value, EWhat::kMoneyU));
+				grammar::GetDeclensionInNumber(value, grammar::EWhat::kMoneyU));
 		mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
 		ch->add_gold(value, true, true);
 	} else {
@@ -116,7 +118,7 @@ void get_check_money(CharData *ch, ObjData *obj, ObjData *cont) {
 				ch->get_name().c_str(),
 				GET_ROOM_VNUM(ch->in_room),
 				value,
-				GetDeclensionInNumber(value, EWhat::kMoneyU));
+				grammar::GetDeclensionInNumber(value, grammar::EWhat::kMoneyU));
 		mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
 		ch->add_gold(value);
 	}
@@ -194,7 +196,7 @@ void get_from_container(CharData *ch, ObjData *cont, char *local_arg, int mode, 
 		}
 		for (obj = cont->get_contains(); obj; obj = next_obj) {
 			next_obj = obj->get_next_content();
-			if (CAN_SEE_OBJ(ch, obj)
+			if (sight::CanSeeObj(ch, obj)
 				&& (obj_dotmode == kFindAll
 					|| isname(local_arg, obj->get_aliases())
 					|| CHECK_CUSTOM_LABEL(local_arg, obj, ch))) {
@@ -251,7 +253,7 @@ void get_from_room(CharData *ch, char *local_arg, int howmany) {
 	bool found = false;
 
 	// Are they trying to take something in a room extra description?
-	if (find_exdesc(local_arg, world[ch->in_room]->ex_description) != nullptr) {
+	if (sight::find_exdesc(local_arg, world[ch->in_room]->ex_description) != nullptr) {
 		SendMsgToChar("Вы не можете это взять.\r\n", ch);
 		return;
 	}
@@ -277,7 +279,7 @@ void get_from_room(CharData *ch, char *local_arg, int howmany) {
 		}
 		for (auto it = world[ch->in_room]->contents.begin(); it != world[ch->in_room]->contents.end(); ) {
 			auto obj = *it; ++it;
-			if (CAN_SEE_OBJ(ch, obj)
+			if (sight::CanSeeObj(ch, obj)
 				&& (dotmode == kFindAll
 					|| isname(local_arg, obj->get_aliases())
 					|| CHECK_CUSTOM_LABEL(local_arg, obj, ch))) {
@@ -360,7 +362,7 @@ void do_get(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				return;
 			}
 			for (cont = ch->carrying; cont && IS_SET(where_bits, EFind::kObjInventory); cont = cont->get_next_content()) {
-				if (CAN_SEE_OBJ(ch, cont)
+				if (sight::CanSeeObj(ch, cont)
 					&& (cont_dotmode == kFindAll
 						|| isname(thecont, cont->get_aliases())
 						|| CHECK_CUSTOM_LABEL(thecont, cont, ch))) {
@@ -374,7 +376,7 @@ void do_get(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				}
 			}
 			if (IS_SET(where_bits, EFind::kObjRoom)) for (auto cont : world[ch->in_room]->contents) {
-				if (CAN_SEE_OBJ(ch, cont)
+				if (sight::CanSeeObj(ch, cont)
 					&& (cont_dotmode == kFindAll
 						|| isname(thecont, cont->get_aliases())
 						|| CHECK_CUSTOM_LABEL(thecont, cont, ch))) {

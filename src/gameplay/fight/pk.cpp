@@ -12,6 +12,9 @@
 ************************************************************************ */
 
 #include "pk.h"
+#include "administration/privilege.h"
+#include "gameplay/mechanics/minions.h"
+#include "gameplay/mechanics/mount.h"
 
 #include "utils/buffered_file_writer.h"
 
@@ -66,7 +69,7 @@ bool check_agrobd(CharData *ch) {
 	return false;
 }
 
-PK_Memory_type *findPKEntry(CharData *agressor, CharData *victim) {
+PkMemory *findPKEntry(CharData *agressor, CharData *victim) {
 	auto it = agressor->pk_map.find(victim->get_uid());
 	if (it != agressor->pk_map.end()) {
 		return &it->second;
@@ -114,7 +117,7 @@ int pk_calc_spamm(CharData *ch) {
 void pk_check_spamm(CharData *ch) {
 	if (pk_calc_spamm(ch) > MAX_PKILL_FOR_PERIOD) {
 		SET_BIT(ch->player_specials->saved.GodsLike, EGf::kGodscurse);
-		GCURSE_DURATION(ch) = time(0) + TIME_GODS_CURSE * 60 * 60;
+		punishments::Get(ch, punishments::EType::kGcurse).duration = time(0) + TIME_GODS_CURSE * 60 * 60;
 		act("Боги прокляли тот день, когда ты появился на свет!", false, ch, 0, 0, kToChar);
 	}
 	if (pk_player_count(ch) >= KillerPK) {
@@ -136,7 +139,7 @@ void pk_translate_pair(CharData **pkiller, CharData **pvictim) {
 		if (pvictim[0]->IsNpc()
 			&& pvictim[0]->has_master()
 			&& (AFF_FLAGGED(pvictim[0], EAffect::kCharmed)
-				|| IS_HORSE(pvictim[0]))) {
+				|| mount::IsHorse(pvictim[0]))) {
 			if (pvictim[0]->in_room == pvictim[0]->get_master()->in_room) {
 				if (HERE(pvictim[0]->get_master()))
 					pvictim[0] = pvictim[0]->get_master();
@@ -154,7 +157,7 @@ void pk_translate_pair(CharData **pkiller, CharData **pvictim) {
 void pk_update_clanflag(CharData *agressor, CharData *victim) {
 	const long uid = victim->get_uid();
 
-	if (victim->IsGod() && agressor->pk_map.count(uid) == 0) {
+	if (privilege::IsGod(victim) && agressor->pk_map.count(uid) == 0) {
 		agressor->save_char();
 		agressor->agrobd = true;
 		return;
@@ -163,7 +166,7 @@ void pk_update_clanflag(CharData *agressor, CharData *victim) {
 	auto &pk = agressor->pk_map[uid];
 	pk.unique = uid;
 
-	if (victim->desc && (!victim->IsGod())) {
+	if (victim->desc && (!privilege::IsGod(victim))) {
 		if (pk.clan_exp > time(nullptr)) {
 			act("Вы продлили право клановой мести $N2!", false, victim, 0, agressor, kToChar);
 			act("$N продлил$G право еще раз отомстить вам!", false, agressor, 0, victim, kToChar);
@@ -225,7 +228,7 @@ void pk_increment_kill(CharData *agressor, CharData *victim, int rent, bool flag
 		pk_update_clanflag(agressor, victim);
 	} else {
 		const long uid = victim->get_uid();
-		if (!victim->IsGod() || agressor->pk_map.count(uid) > 0) {
+		if (!privilege::IsGod(victim) || agressor->pk_map.count(uid) > 0) {
 			auto &pk = agressor->pk_map[uid];
 			pk.unique = uid;
 			if (victim->desc) {
@@ -333,7 +336,7 @@ void pk_increment_gkill(CharData *agressor, CharData *victim) {
 
 	CharData *leader;
 	bool has_clanmember = false;
-	if (!victim->IsGod()) {
+	if (!privilege::IsGod(victim)) {
 		has_clanmember = has_clan_members_in_group(victim);
 	}
 
@@ -354,10 +357,21 @@ void pk_increment_gkill(CharData *agressor, CharData *victim) {
 }
 
 bool pk_agro_action(CharData *agressor, CharData *victim) {
-	int pkType = 0;
 	pk_translate_pair(&agressor, &victim);
 	if (victim == nullptr) {
 		return false;
+	}
+
+	const int pkType = pk_action_type(agressor, victim);
+	log("pk_agro_action: %s vs %s, pkType = %d", GET_NAME(agressor), GET_NAME(victim), pkType);
+
+	// issue.spell-ally-aggression: police only a genuinely hostile PK classification here.
+	// PK_ACTION_NO (self, an NPC on either side, arena / no-battle rooms, ...) is not an
+	// aggressive act -- it must not trigger clan-castle eviction or PK bookkeeping. This is
+	// the single chokepoint every offensive ability funnels through (melee, skills, spells)
+	// and stays correct once skills and spells share one ability pipeline.
+	if (pkType == PK_ACTION_NO) {
+		return true;
 	}
 	// если клан-замок - выдворяем за пределы
 	if (ROOM_FLAGGED(agressor->in_room, ERoomFlag::kHouse) && !ROOM_FLAGGED(agressor->in_room, ERoomFlag::kArena) && CLAN(agressor)) {
@@ -374,18 +388,13 @@ bool pk_agro_action(CharData *agressor, CharData *victim) {
 		}
 		SendMsgToChar("Защитная магия взяла вас за шиворот и выкинула вон из замка!\r\n", agressor);
 		PlaceCharToRoom(agressor, GetRoomRnum(CLAN(agressor)->out_rent));
-		look_at_room(agressor, GetRoomRnum(CLAN(agressor)->out_rent));
+		sight::look_at_room(agressor, GetRoomRnum(CLAN(agressor)->out_rent));
 		act("$n свалил$u с небес, выкрикивая какие-то ругательства!", true, agressor, 0, 0, kToRoom);
 		SetWait(agressor, 1, true);
 		return false;
 	}
 
-	pkType = pk_action_type(agressor, victim);
-	log("pk_agro_action: %s vs %s, pkType = %d", GET_NAME(agressor), GET_NAME(victim), pkType);
-
 	switch (pkType) {
-		case PK_ACTION_NO: break;
-
 		case PK_ACTION_REVENGE:
 			if (pk_increment_revenge(agressor, victim) >= MAX_REVENGE) {
 				pk_decrement_kill(agressor, victim);
@@ -398,7 +407,7 @@ bool pk_agro_action(CharData *agressor, CharData *victim) {
 			break;
 
 		case PK_ACTION_KILL:
-			if (agressor->IsGod() || victim->IsGod()) {
+			if (privilege::IsGod(agressor) || privilege::IsGod(victim)) {
 				break;
 			}
 			pk_increment_gkill(agressor, victim);
@@ -438,9 +447,9 @@ int pk_action_type_summon(CharData *agressor, CharData *victim) {
 			// действия клан-флага
 			pk.clan_exp > time(nullptr))
 			return PK_ACTION_REVENGE;    // месть по клан-флагу
-		if (pk.kill_num && !(CLAN(agressor) && CLAN(victim)) && !agressor->IsGod())
+		if (pk.kill_num && !(CLAN(agressor) && CLAN(victim)) && !privilege::IsGod(agressor))
 			return PK_ACTION_REVENGE;    // обычная месть
-		if (pk.thief_exp > time(nullptr) && (!agressor->IsGod()))
+		if (pk.thief_exp > time(nullptr) && (!privilege::IsGod(agressor)))
 			return PK_ACTION_REVENGE;    // месть вору
 	}
 
@@ -462,7 +471,7 @@ void pk_thiefs_action(CharData *thief, CharData *victim) {
 		case PK_ACTION_KILL: {
 			// продлить/установить флаг воровства
 			const long uid = victim->get_uid();
-			if (thief->pk_map.count(uid) > 0 || victim->IsGod() || thief->IsGod()) {
+			if (thief->pk_map.count(uid) > 0 || privilege::IsGod(victim) || privilege::IsGod(thief)) {
 				break;
 			}
 			auto &pk = thief->pk_map[uid];
@@ -739,7 +748,7 @@ void do_forgive(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *found = nullptr;
 	for (const auto &tch : character_list) {
 		if (tch->IsNpc()
-			|| !CAN_SEE_CHAR(ch, tch)
+			|| !sight::CanSeeIgnoringLight(ch, tch)
 			|| !isname(GET_NAME(tch), arg)) {
 			continue;
 		}
@@ -861,13 +870,13 @@ int may_kill_here(CharData *ch, CharData *victim, char *argument) {
 		// но это специальные мобы
 		if (victim->IsFlagged(EMobFlag::kHorde))
 			return true;
-		if (ch->IsFlagged(EMobFlag::kIgnoresPeaceRoom) && !IS_CHARMICE(ch))
+		if (ch->IsFlagged(EMobFlag::kIgnoresPeaceRoom) && !IsCharmice(ch))
 			return true;
 		// моб по триггеру имеет право
 		if (ch->IsNpc() && ch->get_rnum() == GetMobRnum(kDgCasterProxy))
 			return true;
 		// богам, мстящим и продолжающим агро-бд можно
-		if (ch->IsGod() || pk_action_type(ch, victim) & (PK_ACTION_REVENGE | PK_ACTION_FIGHT))
+		if (privilege::IsGod(ch) || pk_action_type(ch, victim) & (PK_ACTION_REVENGE | PK_ACTION_FIGHT))
 			return true;
 		SendMsgToChar("Здесь слишком мирно, чтобы начинать драку...\r\n", ch);
 		return false;
@@ -875,7 +884,7 @@ int may_kill_here(CharData *ch, CharData *victim, char *argument) {
 	//Проверка на чармиса(своего или группы)
 	if (argument) {
 		skip_spaces(&argument);
-		if (victim && IS_CHARMICE(victim) && victim->get_master() && !victim->get_master()->IsNpc()) {
+		if (victim && IsCharmice(victim) && victim->get_master() && !victim->get_master()->IsNpc()) {
 			if (!name_cmp(victim, argument)) {
 				SendMsgToChar(ch, "Для исключения незапланированной агрессии введите имя жертвы полностью.\r\n");
 				return false;
@@ -1042,7 +1051,7 @@ void bloody::remove_obj(const ObjData *obj) {
 bool bloody::handle_transfer(CharData *ch, CharData *victim, ObjData *obj, ObjData *container) {
 	CharData *initial_ch = ch;
 	CharData *initial_victim = victim;
-	if (!obj || (ch && ch->IsGod())) return true;
+	if (!obj || (ch && privilege::IsGod(ch))) return true;
 	pk_translate_pair(&ch, &victim);
 	bool result = false;
 	BloodyInfoMap::iterator it = bloody_map.find(obj);
@@ -1059,7 +1068,7 @@ bool bloody::handle_transfer(CharData *ch, CharData *victim, ObjData *obj, ObjDa
 				|| player_table[GetPtableByUnique(it->second.owner_unique)].mail == GET_EMAIL(victim))) {
 			remove_obj(obj); //снимаем флаг
 			result = true;
-		} else if (!ch && victim && (!victim->IsGod())) //лут не владельцем
+		} else if (!ch && victim && (!privilege::IsGod(victim))) //лут не владельцем
 		{
 			if (initial_victim->IsNpc()) //чармисам брать нельзя
 			{
@@ -1104,7 +1113,7 @@ void bloody::handle_corpse(ObjData *corpse, CharData *ch, CharData *killer) {
 		&& !killer->IsNpc()
 		&& !ch->IsFlagged(EPlrFlag::kKiller)
 		&& !AGRO(ch)
-		&& !killer->IsGod()) {
+		&& !privilege::IsGod(killer)) {
 		//Проверим, может у killer есть месть на ch
 		auto it = ch->pk_map.find(killer->get_uid());
 		bool has_revenge = it != ch->pk_map.end()
@@ -1125,6 +1134,41 @@ bool bloody::is_bloody(const ObjData *obj) {
 	return result;
 }
 
+bool bloody::CatchBloodyCorpse(ObjData *l) {
+	bool temp_bloody = false;
+	ObjData *next_element;
+
+	if (!l->get_contains()) {
+		return false;
+	}
+
+	if (bloody::is_bloody(l->get_contains())) {
+		return true;
+	}
+
+	if (!l->get_contains()->get_next_content()) {
+		return false;
+	}
+
+	next_element = l->get_contains()->get_next_content();
+	while (next_element) {
+		if (next_element->get_contains()) {
+			temp_bloody = bloody::CatchBloodyCorpse(next_element->get_contains());
+			if (temp_bloody) {
+				return true;
+			}
+		}
+
+		if (bloody::is_bloody(next_element)) {
+			return true;
+		}
+
+		next_element = next_element->get_contains();
+	}
+
+	return false;
+}
+
 void UpdatePkLogs(CharData *ch, CharData *victim) {
 	ClanPkLog::check(ch, victim);
 	sprintf(buf2, "%s killed by %s at %s [%d] ", GET_NAME(victim), GET_NAME(ch),
@@ -1138,7 +1182,7 @@ void UpdatePkLogs(CharData *ch, CharData *victim) {
 		&& !ROOM_FLAGGED(victim->in_room, ERoomFlag::kArena)) {
 		mudlog(buf2, BRF, kLvlImplementator, SYSLOG, false);
 		if (ch->IsNpc()
-			&& (AFF_FLAGGED(ch, EAffect::kCharmed) || IS_HORSE(ch))
+			&& (AFF_FLAGGED(ch, EAffect::kCharmed) || mount::IsHorse(ch))
 			&& ch->has_master()
 			&& !ch->get_master()->IsNpc()) {
 			sprintf(buf2, "%s is following %s.", GET_NAME(ch), GET_PAD(ch->get_master(), 2));

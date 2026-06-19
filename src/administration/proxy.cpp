@@ -7,6 +7,7 @@
 */
 
 #include "administration/proxy.h"
+#include "administration/privilege.h"
 
 #include "engine/network/descriptor_data.h"
 #include "engine/boot/boot_constants.h"
@@ -94,7 +95,7 @@ int CountPlayersFromIp(DescriptorData *d) {
 	for (auto *i = descriptor_list; i; i = i->next) {
 		if (i != d
 			&& i->character
-			&& !i->character->IsImmortal()
+			&& !privilege::IsImmortal(i->character.get())
 			&& i->ip == d->ip
 			&& (i->state == EConState::kPlaying || i->state == EConState::kMenu)) {
 			count++;

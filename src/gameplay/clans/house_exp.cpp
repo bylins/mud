@@ -3,6 +3,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "house_exp.h"
+#include "utils/grammar/gender.h"
 
 #include "engine/entities/char_data.h"
 #include "house.h"
@@ -189,7 +190,7 @@ void ClanPkLog::check(CharData *ch, CharData *victim) {
 		strftime(timeBuf, sizeof(timeBuf), "%d-%m-%Y (%H:%M)", localtime(&curr_time));
 		std::stringstream out;
 		out << timeBuf << ": "
-			<< GET_NAME(victim) << " убит" << GET_CH_SUF_6(victim) << " "
+			<< GET_NAME(victim) << " убит" << grammar::SexEnding((victim)->get_sex(), 6) << " "
 			<< GET_PAD(killer, 4) << "\r\n";
 
 		CLAN(victim)->pk_log.add(out.str());

@@ -2,6 +2,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "obj_sets.h"
+#include "utils/grammar/declensions.h"
 
 #include <string>
 #include <vector>
@@ -974,10 +975,10 @@ void sedit::parse_activ_add(CharData *ch, const char *arg) {
 	auto i = olc_set.activ_list.find(num);
 	if (i != olc_set.activ_list.end()) {
 		SendMsgToChar(ch, "В наборе уже есть активатор на %d %s.\r\n",
-					  num, GetDeclensionInNumber(num, EWhat::kObject));
+					  num, grammar::GetDeclensionInNumber(num, grammar::EWhat::kObject));
 	} else {
 		SendMsgToChar(ch, "Активатор на %d %s добавлен в набор.\r\n",
-					  num, GetDeclensionInNumber(num, EWhat::kObject));
+					  num, grammar::GetDeclensionInNumber(num, grammar::EWhat::kObject));
 		ActivNode node;
 		// GCC 4.4
 		//olc_set.activ_list.emplace(num, node);
@@ -1502,7 +1503,7 @@ void sedit::parse_activ_change(CharData *ch, const char *arg) {
 	} else if (olc_set.activ_list.find(num) != olc_set.activ_list.end()) {
 		SendMsgToChar(ch,
 					  "Набор уже содержит активатор на %d %s.\r\n",
-					  num, GetDeclensionInNumber(num, EWhat::kObject));
+					  num, grammar::GetDeclensionInNumber(num, grammar::EWhat::kObject));
 	} else {
 		ActivNode activ;
 		auto i = olc_set.activ_list.find(activ_edit);
@@ -1515,7 +1516,7 @@ void sedit::parse_activ_change(CharData *ch, const char *arg) {
 		//olc_set.activ_list.emplace(num, activ);
 		olc_set.activ_list.insert(std::make_pair(num, activ));
 		SendMsgToChar(ch, "Активатор на %d %s добавлен в набор.\r\n",
-					  num, GetDeclensionInNumber(num, EWhat::kObject));
+					  num, grammar::GetDeclensionInNumber(num, grammar::EWhat::kObject));
 	}
 	show_activ_edit(ch);
 }

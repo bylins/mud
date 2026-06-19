@@ -2,8 +2,10 @@
 
 #include "engine/entities/char_data.h"
 #include "engine/core/handler.h"
+#include "engine/core/target_resolver.h"
 #include "pk.h"
 #include "fight.h"
+#include "gameplay/mechanics/sight.h"
 
 // \TODO Надо разобраться, как сделать ассист в файте, не подключая туда этот файл, а assist перенести в команды
 
@@ -34,8 +36,9 @@ void do_assist(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			return;
 		}
 	} else {
-		if (!(helpee = get_char_vis(ch, arg, EFind::kCharInRoom))) {
-			SendMsgToChar(NOPERSON, ch);
+		helpee = target_resolver::FindCharInRoom(ch, arg);
+		if (!helpee) {
+			SendMsgToChar(CommonMsg(ECommonMsg::kNoPerson) + "\r\n", ch);
 			return;
 		}
 	}
@@ -58,7 +61,7 @@ void do_assist(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (!opponent)
 		act("Но никто не сражается с $N4!", false, ch, 0, helpee, kToChar);
-	else if (!CAN_SEE(ch, opponent))
+	else if (!sight::CanSee(ch, opponent))
 		act("Вы не видите противника $N1!", false, ch, 0, helpee, kToChar);
 	else if (opponent == ch)
 		act("Дык $E сражается с ВАМИ!", false, ch, 0, helpee, kToChar);

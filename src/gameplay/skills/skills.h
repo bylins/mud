@@ -154,6 +154,8 @@ template<>
 ESkill ITEM_BY_NAME<ESkill>(const std::string &name);
 template<>
 const std::string &NAME_BY_ITEM<ESkill>(ESkill item);
+template<>
+const std::map<ESkill, std::string> &NAMES_OF<ESkill>();  // issue.vedun-editor: editor pick-list
 
 struct SkillRollResult {
 	bool success{true};
@@ -191,6 +193,7 @@ void SendSkillBalanceMsg(CharData *ch, const std::string &skill_name, int percen
 int CalculateSkillAwakeModifier(CharData *killer, CharData *victim);
 bool CritLuckTest(CharData *ch, CharData *vict);
 int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict);
+int CalcNoviceSkillBonus(CharData *ch, ESkill skill_id, unsigned skill_divisor);
 #endif // SKILLS_H_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

@@ -3,6 +3,10 @@
 // Part of Bylins http://www.mud.ru
 
 #include "shop_ext.h"
+#include "utils/grammar/declensions.h"
+#include "gameplay/ai/subcmd_resolver.h"
+#include "gameplay/ai/special_messages.h"
+#include "gameplay/mechanics/identify.h"
 
 #include "third_party_libs/pugixml/pugixml.h"
 
@@ -93,17 +97,17 @@ void load_item_desc() {
 			child = item.child("short_description");
 			desc_node.short_description = child.child_value();
 			child = item.child("PNames0");
-			desc_node.PNames[ECase::kNom] = child.child_value();
+			desc_node.PNames[grammar::ECase::kNom] = child.child_value();
 			child = item.child("PNames1");
-			desc_node.PNames[ECase::kGen] = child.child_value();
+			desc_node.PNames[grammar::ECase::kGen] = child.child_value();
 			child = item.child("PNames2");
-			desc_node.PNames[ECase::kDat] = child.child_value();
+			desc_node.PNames[grammar::ECase::kDat] = child.child_value();
 			child = item.child("PNames3");
-			desc_node.PNames[ECase::kAcc] = child.child_value();
+			desc_node.PNames[grammar::ECase::kAcc] = child.child_value();
 			child = item.child("PNames4");
-			desc_node.PNames[ECase::kIns] = child.child_value();
+			desc_node.PNames[grammar::ECase::kIns] = child.child_value();
 			child = item.child("PNames5");
-			desc_node.PNames[ECase::kPre] = child.child_value();
+			desc_node.PNames[grammar::ECase::kPre] = child.child_value();
 			child = item.child("sex");
 			desc_node.sex = static_cast<EGender>(atoi(child.child_value()));
 
@@ -251,7 +255,7 @@ void load(bool reload) {
 							 "...shopkeeper already with special (mob_vnum=%d)", mob_vnum);
 					mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 				} else {
-					mob_index[mob_rnum].func = shop_ext;
+					specials::RegisterMob(mob_vnum, specials::ESpecial::kShop);
 				}
 			} else {
 				snprintf(buf, kMaxStringLength, "...incorrect mob_vnum=%d", mob_vnum);
@@ -360,103 +364,123 @@ int get_spent_today() {
 
 using namespace ShopExt;
 
-int shop_ext(CharData *ch, void *me, int cmd, char *argument) {
+namespace {
+// issue.specials: shop subcommands. One function per action; the resolver maps the synonym words to
+// these handlers and auto-generates the "Чего желаете" tooltip from the same list. The legacy steal
+// override is gone (shops are entity-verb "магазин <действие>" now).
+enum class EShopCmd { kList, kBuy, kSell, kValue, kRepair, kFilter, kExamine, kIdentify };
+
+shop_node::shared_ptr ShopOf(CharData *ch, CharData *keeper) {
+	for (const auto &s : shop_list) {
+		if (std::find(s->mob_vnums().begin(), s->mob_vnums().end(), GET_MOB_VNUM(keeper)) != s->mob_vnums().end()) {
+			return s;
+		}
+	}
+	log("SYSERROR : магазин не найден mob_vnum=%d (%s:%d)", GET_MOB_VNUM(keeper), __FILE__, __LINE__);
+	SendMsgToChar(specials::ShopMsg(specials::EShopMsg::kError) + "\r\n", ch);
+	return nullptr;
+}
+
+int ShopList(CharData *ch, void *me, char *rest) {
+	auto *const keeper = reinterpret_cast<CharData *>(me);
+	const auto shop = ShopOf(ch, keeper);
+	if (!shop) {
+		return 1;
+	}
+	std::string buffer = rest, buffer2;
+	GetOneParam(buffer, buffer2);
+	shop->print_shop_list(ch, buffer2, GET_MOB_VNUM(keeper));
+	return 1;
+}
+
+int ShopFilter(CharData *ch, void *me, char *rest) {
+	auto *const keeper = reinterpret_cast<CharData *>(me);
+	const auto shop = ShopOf(ch, keeper);
+	if (!shop) {
+		return 1;
+	}
+	shop->filter_shop_list(ch, rest, GET_MOB_VNUM(keeper));
+	return 1;
+}
+
+int ShopBuy(CharData *ch, void *me, char *rest) {
+	auto *const keeper = reinterpret_cast<CharData *>(me);
+	const auto shop = ShopOf(ch, keeper);
+	if (!shop) {
+		return 1;
+	}
+	shop->process_buy(ch, keeper, rest);
+	return 1;
+}
+
+int ShopSell(CharData *ch, void *me, char *rest) {
+	auto *const keeper = reinterpret_cast<CharData *>(me);
+	const auto shop = ShopOf(ch, keeper);
+	if (!shop) {
+		return 1;
+	}
+	shop->process_cmd(ch, keeper, rest, "Продать");
+	return 1;
+}
+
+int ShopValue(CharData *ch, void *me, char *rest) {
+	auto *const keeper = reinterpret_cast<CharData *>(me);
+	const auto shop = ShopOf(ch, keeper);
+	if (!shop) {
+		return 1;
+	}
+	shop->process_cmd(ch, keeper, rest, "Оценить");
+	return 1;
+}
+
+int ShopRepair(CharData *ch, void *me, char *rest) {
+	auto *const keeper = reinterpret_cast<CharData *>(me);
+	const auto shop = ShopOf(ch, keeper);
+	if (!shop) {
+		return 1;
+	}
+	shop->process_cmd(ch, keeper, rest, "Чинить");
+	return 1;
+}
+
+int ShopExamine(CharData *ch, void *me, char *rest) {
+	auto *const keeper = reinterpret_cast<CharData *>(me);
+	const auto shop = ShopOf(ch, keeper);
+	if (!shop) {
+		return 1;
+	}
+	shop->process_ident(ch, keeper, rest, "Рассмотреть");
+	return 1;
+}
+
+int ShopIdentify(CharData *ch, void *me, char *rest) {
+	auto *const keeper = reinterpret_cast<CharData *>(me);
+	const auto shop = ShopOf(ch, keeper);
+	if (!shop) {
+		return 1;
+	}
+	shop->process_ident(ch, keeper, rest, "Характеристики");
+	return 1;
+}
+
+const SubCmdResolver kShopCmds([] { return specials::ShopMsg(specials::EShopMsg::kGreeting); }, {
+	{{"список", "list"}, static_cast<int>(EShopCmd::kList), ShopList},
+	{{"купить", "buy"}, static_cast<int>(EShopCmd::kBuy), ShopBuy},
+	{{"продать", "sell"}, static_cast<int>(EShopCmd::kSell), ShopSell},
+	{{"оценить", "value"}, static_cast<int>(EShopCmd::kValue), ShopValue},
+	{{"чинить", "repair"}, static_cast<int>(EShopCmd::kRepair), ShopRepair},
+	{{"фильтровать", "filter"}, static_cast<int>(EShopCmd::kFilter), ShopFilter},
+	{{"рассмотреть", "examine"}, static_cast<int>(EShopCmd::kExamine), ShopExamine},
+	{{"характеристики", "identify"}, static_cast<int>(EShopCmd::kIdentify), ShopIdentify},
+});
+} // namespace
+
+int shop_ext(CharData *ch, void *me, int /*cmd*/, char *argument) {
 	if (!ch->desc
 		|| ch->IsNpc()) {
 		return 0;
 	}
-
-	if (!(CMD_IS("список")
-		|| CMD_IS("list")
-		|| CMD_IS("купить")
-		|| CMD_IS("buy")
-		|| CMD_IS("продать")
-		|| CMD_IS("sell")
-		|| CMD_IS("оценить")
-		|| CMD_IS("value")
-		|| CMD_IS("чинить")
-		|| CMD_IS("repair")
-		|| CMD_IS("украсть")
-		|| CMD_IS("steal")
-		|| CMD_IS("фильтровать")
-		|| CMD_IS("filter")
-		|| CMD_IS("рассмотреть")
-		|| CMD_IS("examine")
-		|| CMD_IS("характеристики")
-		|| CMD_IS("identify"))) {
-		return 0;
-	}
-
-	char argm[kMaxInputLength];
-	CharData *const keeper = reinterpret_cast<CharData *>(me);
-	shop_node::shared_ptr shop;
-	for (const auto &s : shop_list) {
-		const auto found =
-			std::find(s->mob_vnums().begin(), s->mob_vnums().end(), GET_MOB_VNUM(keeper)) != s->mob_vnums().end();
-		if (found) {
-			shop = s;
-			break;
-		}
-	}
-
-	if (!shop) {
-		log("SYSERROR : магазин не найден mob_vnum=%d (%s:%d)", GET_MOB_VNUM(keeper), __FILE__, __LINE__);
-		SendMsgToChar("Ошибочка вышла.\r\n", ch);
-
-		return 1;
-	}
-
-	if (CMD_IS("steal")
-		|| CMD_IS("украсть")) {
-		sprintf(argm, "$N вскричал$G '%s'", MSG_NO_STEAL_HERE);
-		sprintf(buf, "ругать %s", GET_NAME(ch));
-		do_social(keeper, buf);
-		act(argm, false, ch, 0, keeper, kToChar);
-		return 1;
-	}
-
-	if (CMD_IS("список")
-		|| CMD_IS("list")) {
-		std::string buffer = argument, buffer2;
-		GetOneParam(buffer, buffer2);
-		shop->print_shop_list(ch, buffer2, GET_MOB_VNUM(keeper));
-		return 1;
-	}
-
-	if (CMD_IS("фильтровать")
-		|| CMD_IS("filter")) {
-		shop->filter_shop_list(ch, argument, GET_MOB_VNUM(keeper));
-		return 1;
-	}
-
-	if (CMD_IS("купить")
-		|| CMD_IS("buy")) {
-		shop->process_buy(ch, keeper, argument);
-		return 1;
-	}
-	if (CMD_IS("характеристики") || CMD_IS("identify")) {
-		shop->process_ident(ch, keeper, argument, "Характеристики");
-		return 1;
-	}
-
-	if (CMD_IS("value") || CMD_IS("оценить")) {
-		shop->process_cmd(ch, keeper, argument, "Оценить");
-		return 1;
-	}
-	if (CMD_IS("продать") || CMD_IS("sell")) {
-		shop->process_cmd(ch, keeper, argument, "Продать");
-		return 1;
-	}
-	if (CMD_IS("чинить") || CMD_IS("repair")) {
-		shop->process_cmd(ch, keeper, argument, "Чинить");
-		return 1;
-	}
-	if (CMD_IS("рассмотреть") || CMD_IS("examine")) {
-		shop->process_ident(ch, keeper, argument, "Рассмотреть");
-		return 1;
-	}
-
-	return 0;
+	return kShopCmds.Dispatch(ch, me, argument);
 }
 
 // * Лоад странствующих продавцов в каждой ренте.
@@ -465,7 +489,7 @@ void town_shop_keepers() {
 	std::set<int> zone_list;
 
 	for (const auto &ch : character_list) {
-		if (IS_RENTKEEPER(ch)
+		if (specials::IsRentkeeper(ch.get())
 			&& ch->in_room > 0
 			&& !Clan::GetClanByRoom(ch->in_room)
 			&& !ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena)
@@ -509,14 +533,14 @@ void DoStoreShop(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					continue;
 				}
 				const auto obj = shop->GetObjFromShop(item_list.node(i)->uid());
-				if (isname(stufina, obj->get_PName(ECase::kNom))) {
+				if (isname(stufina, obj->get_PName(grammar::ECase::kNom))) {
 					SendMsgToChar(ch, "Характеристики предмета: %s\r\n", stufina);
-					mort_show_obj_values(obj, ch, 200);
+					MortShowObjValues(obj, ch, 200);
 					ch->remove_bank(kChestIdentPay);
 					SendMsgToChar(ch,
 								  "&GЗа информацию о предмете с вашего банковского счета сняли %d %s&n\r\n",
 								  kChestIdentPay,
-								  GetDeclensionInNumber(kChestIdentPay, EWhat::kMoneyU));
+								  grammar::GetDeclensionInNumber(kChestIdentPay, grammar::EWhat::kMoneyU));
 					return;
 				}
 			}

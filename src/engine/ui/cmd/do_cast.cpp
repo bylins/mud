@@ -1,4 +1,5 @@
 #include "do_cast.h"
+#include "administration/privilege.h"
 
 #include <string>
 
@@ -9,6 +10,7 @@
 #include "gameplay/magic/spells_info.h"
 #include "engine/ui/color.h"
 #include "engine/db/global_objects.h"
+#include "gameplay/core/remort.h"
 
 auto FindSubstituteSpellId(CharData *ch, ESpell spell_id) {
 	static const std::set<ESpell> healing_spells{
@@ -43,10 +45,9 @@ auto FindSubstituteSpellId(CharData *ch, ESpell spell_id) {
 void DoCast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	if (ch->IsNpc() && AFF_FLAGGED(ch, EAffect::kCharmed))
 		return;
-	if (AFF_FLAGGED(ch, EAffect::kSilence)) {
-		SendMsgToChar("Вы не смогли вымолвить и слова.\r\n", ch);
-		return;
-	}
+	// The kSilence gate moved below FixNameAndFindSpellId so that we can
+	// consult the resolved spell's verbal component (issue.spellcomponents):
+	// non-verbal spells are castable under kSilence, verbal ones still fizzle.
 	if (ch->HasCooldown(ESkill::kGlobalCooldown)) {
 		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
 		return;
@@ -86,9 +87,17 @@ void DoCast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		SendMsgToChar("И откуда вы набрались таких выражений?\r\n", ch);
 		return;
 	}
+	// Verbal-component gate (issue.spellcomponents): spell_id is now known,
+	// so we can refuse only verbal spells while leaving non-verbal ones
+	// castable under kSilence. Message comes from the spell's sheaf (with
+	// kDefault fallback supplying the generic "Вы не смогли вымолвить...").
+	if (MUD::Spell(spell_id).IsVerbal() && AFF_FLAGGED(ch, EAffect::kSilence)) {
+		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCantCastSilenced) + "\r\n", ch);
+		return;
+	}
 	if (const auto spell = MUD::Class(ch->GetClass()).spells[spell_id];
 		(!IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kTemp | ESpellType::kKnow) ||
-		GetRealRemort(ch) < spell.GetMinRemort()) &&
+		remort::GetRealRemort(ch) < spell.GetMinRemort()) &&
 		(GetRealLevel(ch) < kLvlGreatGod) && !ch->IsNpc()) {
 		if (GetRealLevel(ch) < CalcMinSpellLvl(ch, spell_id)
 			|| classes::CalcCircleSlotsAmount(ch, spell.GetCircle()) <= 0) {
@@ -101,7 +110,7 @@ void DoCast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	}
 
 	auto substitute_spell_id{ESpell::kUndefined};
-	if (!GET_SPELL_MEM(ch, spell_id) && !ch->IsImmortal()) {
+	if (!GET_SPELL_MEM(ch, spell_id) && !privilege::IsImmortal(ch)) {
 		substitute_spell_id = FindSubstituteSpellId(ch, spell_id);
 		if (substitute_spell_id == ESpell::kUndefined) {
 			SendMsgToChar("Вы совершенно не помните, как произносится это заклинание...\r\n", ch);
@@ -140,12 +149,12 @@ void DoCast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 
 	ch->SetCast(ESpell::kUndefined, ESpell::kUndefined, nullptr, nullptr, nullptr);
 	if (!CalcCastSuccess(ch, tch, ESaving::kStability, spell_id)) {
-		if (!(ch->IsImmortal() || GET_GOD_FLAG(ch, EGf::kGodsLike)))
-			SetWaitState(ch, kBattleRound);
+		if (!(privilege::IsImmortal(ch) || GET_GOD_FLAG(ch, EGf::kGodsLike)))
+			SetBattleLag(ch, 1);
 		if (GET_SPELL_MEM(ch, substitute_spell_id)) {
 			GET_SPELL_MEM(ch, substitute_spell_id)--;
 		}
-		if (!ch->IsNpc() && !ch->IsImmortal() && ch->IsFlagged(EPrf::kAutomem)) {
+		if (!ch->IsNpc() && !privilege::IsImmortal(ch) && ch->IsFlagged(EPrf::kAutomem)) {
 			MemQ_remember(ch, substitute_spell_id);
 		}
 		affect_total(ch);
@@ -153,15 +162,15 @@ void DoCast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 			SendMsgToChar("Вы не смогли сосредоточиться!\r\n", ch);
 		}
 	} else {
-		if (ch->GetEnemy() && !ch->IsImpl()) {
+		if (ch->GetEnemy() && !privilege::IsImpl(ch)) {
 			ch->SetCast(spell_id, substitute_spell_id, tch, tobj, troom);
 			sprintf(buf, "Вы приготовились применить заклинание %s'%s'%s%s.\r\n",
 					kColorCyn, MUD::Spell(spell_id).GetCName(), kColorNrm,
 					tch == ch ? " на себя" : tch ? " на $N3" : tobj ? " на $o3" : troom ? " на всех" : "");
 			act(buf, false, ch, tobj, tch, kToChar);
-		} else if (CastSpell(ch, tch, tobj, troom, spell_id, substitute_spell_id) >= 0) {
-			if (!(ch->IsImmortal() || ch->get_wait() > 0))
-				SetWaitState(ch, kBattleRound);
+		} else if (CastSpell(ch, tch, tobj, troom, spell_id, substitute_spell_id) != ECastResult::kTargetDied) {
+			if (!(privilege::IsImmortal(ch) || ch->get_wait() > 0))
+				SetBattleLag(ch, 1);
 		} else if (ch->get_wait() == 0)
 			SetWaitState(ch, 1);
 	}

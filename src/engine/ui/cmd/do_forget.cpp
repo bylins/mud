@@ -1,4 +1,5 @@
 #include "do_forget.h"
+#include "administration/privilege.h"
 
 #include <string>
 
@@ -51,7 +52,7 @@ void do_forget(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 		return;
 	}
-	if (ch->IsImmortal()) {
+	if (privilege::IsImmortal(ch)) {
 		SendMsgToChar("Господи, тебе лень набрать skillset?\r\n", ch);
 		return;
 	}

@@ -11,29 +11,32 @@
 */
 
 //#include "handler.h"
+#include "administration/privilege.h"
 
 #include "engine/scripting/dg_scripts.h"
+#include "gameplay/mechanics/sight.h"
+#include "utils/grammar/declensions.h"
+#include "gameplay/mechanics/minions.h"
+#include "gameplay/mechanics/follow.h"
+#include "gameplay/fight/fight_stuff.h"
 #include "gameplay/economics/auction.h"
 #include "utils/backtrace.h"
 #include "utils_char_obj.inl"
+#include "engine/core/target_resolver.h"
 #include "engine/entities/char_player.h"
 #include "engine/db/world_characters.h"
-#include "engine/ui/cmd/do_follow.h"
 #include "gameplay/economics/exchange.h"
-#include "gameplay/economics/ext_money.h"
 #include "gameplay/fight/fight.h"
 #include "gameplay/clans/house.h"
-#include "gameplay/mechanics/liquid.h"
 #include "gameplay/magic/magic.h"
 #include "engine/db/obj_prototypes.h"
 #include "engine/ui/color.h"
-#include "gameplay/magic/magic_utils.h"
 #include "gameplay/classes/classes_spell_slots.h"
-#include "gameplay/mechanics/depot.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/mechanics/dungeons.h"
 #include "gameplay/mechanics/cities.h"
 #include "gameplay/mechanics/player_races.h"
+#include "gameplay/core/remort.h"
 #include "gameplay/magic/magic_rooms.h"
 #include "gameplay/mechanics/weather.h"
 #include "gameplay/core/base_stats.h"
@@ -57,7 +60,7 @@ void DoReturn(CharData *ch, char *argument, int cmd, int subcmd);
 //extern std::vector<City> Cities;
 extern int global_uid;
 extern void change_leader(CharData *ch, CharData *vict);
-char *find_exdesc(const char *word, const ExtraDescription::shared_ptr &list);
+char *sight::find_exdesc(const char *word, const ExtraDescription::shared_ptr &list);
 extern void SetSkillCooldown(CharData *ch, ESkill skill, int pulses);
 
 char *fname(const char *namelist) {
@@ -83,6 +86,16 @@ bool IsWearingLight(CharData *ch) {
 	}
 	return wear_light;
 }
+
+namespace {
+// Cast a gear-borne weapon affect on the wearer, bypassing the normal cast
+// gates (component/room/mana) exactly as the legacy direct CastAffect did.
+void CastWeaponAffect(CharData *ch, ESpell spell_id) {
+	CastContext ctx(ch, spell_id, GetRealLevel(ch), {});
+	ctx.cvict = ch;
+	CastAffect(ctx);
+}
+}  // namespace
 
 void CheckLight(CharData *ch, int was_equip, int was_single, int was_holylight, int was_holydark, int koef) {
 	if (ch->in_room == kNowhere) {
@@ -230,7 +243,7 @@ void PlaceCharToRoom(CharData *ch, RoomRnum room) {
 	if (!ch->IsNpc() 
 			&& NORENTABLE(ch) 
 			&& ROOM_FLAGGED(room, ERoomFlag::kArena) 
-			&& !ch->IsImmortal()) {
+			&& !privilege::IsImmortal(ch)) {
 		SendMsgToChar("Вы не можете попасть на арену в состоянии боевых действий!\r\n", ch);
 		room = ch->get_from_room();
 	}
@@ -435,7 +448,7 @@ void PlaceObjToInventory(ObjData *object, CharData *ch) {
 				{
 					sprintf(buf,
 							"Copy detected and prepared to extract! Object %s (UID=%ld, VNUM=%d), holder %s. In world %d.",
-							object->get_PName(ECase::kNom).c_str(),
+							object->get_PName(grammar::ECase::kNom).c_str(),
 							object->get_unique_id(),
 							GET_OBJ_VNUM(object),
 							GET_NAME(ch),
@@ -450,7 +463,7 @@ void PlaceObjToInventory(ObjData *object, CharData *ch) {
 				InitUid(object);
 				log("%s obj_to_char %s #%d|%ld",
 					GET_NAME(ch),
-					object->get_PName(ECase::kNom).c_str(),
+					object->get_PName(grammar::ECase::kNom).c_str(),
 					GET_OBJ_VNUM(object),
 					object->get_unique_id());
 			}
@@ -503,7 +516,7 @@ void RemoveObjFromChar(ObjData *object) {
 }
 
 bool HaveIncompatibleAlign(CharData *ch, ObjData *obj) {
-	if (ch->IsNpc() || ch->IsImmortal()) {
+	if (ch->IsNpc() || privilege::IsImmortal(ch)) {
 		return false;
 	}
 	if (obj->has_anti_flag(EAntiFlag::kMono) && GET_RELIGION(ch) == kReligionMono) {
@@ -670,7 +683,7 @@ unsigned int ActivateStuff(CharData *ch, ObjData *obj, id_to_set_info_map::const
 									act("Магия $o1 потерпела неудачу и развеялась по воздуху.",
 										false, ch, GET_EQ(ch, pos), nullptr, kToChar);
 								} else {
-									CastAffect(GetRealLevel(ch), ch, ch, i.aff_spell);
+									CastWeaponAffect(ch, i.aff_spell);
 								}
 							} else {
 								affect_modify(ch, GetApplyByWeaponAffect(i.aff_pos, ch).first,
@@ -705,7 +718,7 @@ unsigned int ActivateStuff(CharData *ch, ObjData *obj, id_to_set_info_map::const
 								act("Магия $o1 потерпела неудачу и развеялась по воздуху.",
 									false, ch, obj, nullptr, kToChar);
 							} else {
-								CastAffect(GetRealLevel(ch), ch, ch, i.aff_spell);
+								CastWeaponAffect(ch, i.aff_spell);
 							}
 						} else {
 							affect_modify(ch, GetApplyByWeaponAffect(i.aff_pos, ch).first,
@@ -772,7 +785,7 @@ void EquipObj(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip_f
 	//	return;
 	//}
 	if (obj->get_in_room() != kNowhere) {
-		log("SYSERR: EQUIP: %s - Obj is in_room when equip.", OBJN(obj, ch, ECase::kNom));
+		log("SYSERR: EQUIP: %s - Obj is in_room when equip.", OBJN(obj, ch, grammar::ECase::kNom));
 		return;
 	}
 
@@ -785,7 +798,7 @@ void EquipObj(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip_f
 		PlaceObjToRoom(obj, ch->in_room);
 		CheckObjDecay(obj);
 		return;
-	} else if ((!ch->IsNpc() || IS_CHARMICE(ch)) && obj->has_flag(EObjFlag::kNamed)
+	} else if ((!ch->IsNpc() || IsCharmice(ch)) && obj->has_flag(EObjFlag::kNamed)
 		&& NamedStuff::check_named(ch, obj, true)) {
 		if (!NamedStuff::wear_msg(ch, obj))
 			SendMsgToChar("Просьба не трогать! Частная собственность!\r\n", ch);
@@ -806,23 +819,23 @@ void EquipObj(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip_f
 		return;
 	}
 
-	if (!ch->IsNpc() || IS_CHARMICE(ch)) {
-		CharData *master = IS_CHARMICE(ch) && ch->has_master() ? ch->get_master() : ch;
-		if ((obj->get_auto_mort_req() >= 0) && (obj->get_auto_mort_req() > GetRealRemort(master))
-			&& !master->IsImmortal()) {
+	if (!ch->IsNpc() || IsCharmice(ch)) {
+		CharData *master = IsCharmice(ch) && ch->has_master() ? ch->get_master() : ch;
+		if ((obj->get_auto_mort_req() >= 0) && (obj->get_auto_mort_req() > remort::GetRealRemort(master))
+			&& !privilege::IsImmortal(master)) {
 			SendMsgToChar(master, "Для использования %s требуется %d %s.\r\n",
-						  obj->get_PName(ECase::kGen).c_str(),
+						  obj->get_PName(grammar::ECase::kGen).c_str(),
 						  obj->get_auto_mort_req(),
-						  GetDeclensionInNumber(obj->get_auto_mort_req(), EWhat::kRemort));
+						  grammar::GetDeclensionInNumber(obj->get_auto_mort_req(), grammar::EWhat::kRemort));
 			act("$n попытал$u использовать $o3, но у н$s ничего не получилось.", false, ch, obj, nullptr, kToRoom);
 			if (!obj->get_carried_by()) {
 				PlaceObjToInventory(obj, ch);
 			}
 			return;
-		} else if ((obj->get_auto_mort_req() < -1) && (abs(obj->get_auto_mort_req()) < GetRealRemort(master))
-			&& !master->IsImmortal()) {
+		} else if ((obj->get_auto_mort_req() < -1) && (abs(obj->get_auto_mort_req()) < remort::GetRealRemort(master))
+			&& !privilege::IsImmortal(master)) {
 			SendMsgToChar(master, "Максимально количество перевоплощений для использования %s равно %d.\r\n",
-						  obj->get_PName(ECase::kGen).c_str(),
+						  obj->get_PName(grammar::ECase::kGen).c_str(),
 						  abs(obj->get_auto_mort_req()));
 			act("$n попытал$u использовать $o3, но у н$s ничего не получилось.",
 				false, ch, obj, nullptr, kToRoom);
@@ -885,7 +898,7 @@ void EquipObj(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip_f
 						act("Магия $o1 потерпела неудачу и развеялась по воздуху.",
 							false, ch, obj, nullptr, kToChar);
 					} else {
-						CastAffect(GetRealLevel(ch), ch, ch, j.aff_spell);
+						CastWeaponAffect(ch, j.aff_spell);
 					}
 				} else {
 					affect_modify(ch, GetApplyByWeaponAffect(j.aff_pos, ch).first,
@@ -1230,39 +1243,6 @@ ObjData *GetObjByVnumInContent(ObjVnum vnum, ObjData *list) {
 	return nullptr;
 }
 
-/**
- * Search the entire world for an object by virtual number.
- * @param vnum - object vnum.
- * @return - ptr to found obj or nullptr.
- */
-ObjData *SearchObjByRnum(ObjRnum rnum) {
-	const auto result = world_objects.find_first_by_rnum(rnum);
-	return result.get();
-}
-
-// search a room for a char, and return a pointer if found..  //
-CharData *SearchCharInRoomByName(const char *name, RoomRnum room) {
-	char tmpname[kMaxInputLength];
-	char *tmp = tmpname;
-
-	strcpy(tmp, name);
-	const int number = get_number(&tmp);
-	if (0 == number) {
-		return nullptr;
-	}
-
-	int j = 0;
-	for (const auto i : world[room]->people) {
-		if (isname(tmp, i->GetCharAliases())) {
-			if (++j == number) {
-				return i;
-			}
-		}
-	}
-
-	return nullptr;
-}
-
 const int kMoneyDestroyTimer = 60;
 const int kDeathDestroyTimer = 5;
 const int kRoomDestroyTimer = 10;
@@ -1289,7 +1269,7 @@ bool PlaceObjToRoom(ObjData *object, RoomRnum room) {
 				|| object->has_flag(EObjFlag::kAppearsNight))) {
 			debug::backtrace(runtime_config.logs(SYSLOG).handle());
 			sprintf(buf, "Попытка поместить объект в виртуальную комнату: objvnum %d, objname %s, roomvnum %d, создан coredump", 
-					object->get_vnum(), object->get_PName(ECase::kNom).c_str(), world[room]->vnum);
+					object->get_vnum(), object->get_PName(grammar::ECase::kNom).c_str(), world[room]->vnum);
 			mudlog(buf, CMP, kLvlGod, SYSLOG, true);
 		}
 	}
@@ -1329,7 +1309,7 @@ bool CheckObjDecay(ObjData *object,  bool need_extract) {
 	}
 	if (room < 0 || room > top_of_world) {
 		log("SYSERR: CheckObjDecay: object '%s' vnum %d has invalid room %d",
-			object->get_PName(ECase::kNom).c_str(), GET_OBJ_VNUM(object), room);
+			object->get_PName(grammar::ECase::kNom).c_str(), GET_OBJ_VNUM(object), room);
 		return false;
 	}
 	sect = real_sector(room);
@@ -1343,7 +1323,7 @@ bool CheckObjDecay(ObjData *object,  bool need_extract) {
 		act("$o0 медленно утонул$G.",
 			false, world[room]->first_character(), object, nullptr, kToChar);
 		if (need_extract) {
-			log("[Obj decay] for: %s vnum == %d", object->get_PName(ECase::kNom).c_str(), GET_OBJ_VNUM(object));
+			log("[Obj decay] for: %s vnum == %d", object->get_PName(grammar::ECase::kNom).c_str(), GET_OBJ_VNUM(object));
 			ExtractObjFromWorld(object);
 		}
 		return true;
@@ -1356,7 +1336,7 @@ bool CheckObjDecay(ObjData *object,  bool need_extract) {
 		act("$o0 упал$G вниз.",
 			false, world[room]->first_character(), object, nullptr, kToChar);
 		if (need_extract) {
-			log("[Obj decay] for: %s vnum == %d", object->get_PName(ECase::kNom).c_str(), GET_OBJ_VNUM(object));
+			log("[Obj decay] for: %s vnum == %d", object->get_PName(grammar::ECase::kNom).c_str(), GET_OBJ_VNUM(object));
 			ExtractObjFromWorld(object);
 		}
 		return true;
@@ -1368,7 +1348,7 @@ bool CheckObjDecay(ObjData *object,  bool need_extract) {
 		act("$o0 рассыпал$U в мелкую пыль, которую развеял ветер.", false,
 			world[room]->first_character(), object, nullptr, kToChar);
 		if (need_extract) {
-			log("[Obj decay] for: %s vnum == %d", object->get_PName(ECase::kNom).c_str(), GET_OBJ_VNUM(object));
+			log("[Obj decay] for: %s vnum == %d", object->get_PName(grammar::ECase::kNom).c_str(), GET_OBJ_VNUM(object));
 			ExtractObjFromWorld(object);
 		}
 		return true;
@@ -1377,7 +1357,7 @@ bool CheckObjDecay(ObjData *object,  bool need_extract) {
 		act("$o0 исчез$Q в яркой вспышке.", false,
 			world[room]->first_character(), object, nullptr, kToChar);
 		if (need_extract) {
-			log("[Obj decay] extract in DT #%d for: %s vnum == %d", world[object->get_in_room()]->vnum, object->get_PName(ECase::kNom).c_str(), GET_OBJ_VNUM(object));
+			log("[Obj decay] extract in DT #%d for: %s vnum == %d", world[object->get_in_room()]->vnum, object->get_PName(grammar::ECase::kNom).c_str(), GET_OBJ_VNUM(object));
 			ExtractObjFromWorld(object);
 		}
 		return true;
@@ -1488,7 +1468,7 @@ void ExtractObjFromWorld(ObjData *obj, bool showlog) {
 	int roomload = get_room_where_obj(obj, false);
 	utils::CExecutionTimer timer;
 
-	strcpy(name, obj->get_PName(ECase::kNom).c_str());
+	strcpy(name, obj->get_PName(grammar::ECase::kNom).c_str());
 	if (showlog) {
 		log("[Extract obj] Start for: %s vnum == %d room = %d timer == %d",
 				name, GET_OBJ_VNUM(obj), roomload, obj->get_timer());
@@ -1628,7 +1608,7 @@ void change_npc_leader(CharData *ch) {
 
 	for (auto *i : ch->followers) {
 		if (i->IsNpc()
-			&& !IS_CHARMICE(i)
+			&& !IsCharmice(i)
 			&& i->get_master() == ch) {
 			tmp_list.push_back(i);
 		}
@@ -1639,13 +1619,13 @@ void change_npc_leader(CharData *ch) {
 
 	CharData *leader = nullptr;
 	for (auto i : tmp_list) {
-		if (stop_follower(i, kSfSilence)) {
+		if (follow::StopFollower(i, follow::kSfSilence)) {
 			continue;
 		}
 		if (!leader) {
 			leader = i;
 		} else {
-			leader->add_follower_silently(i);
+			follow::AddFollowerSilently(leader, i);
 		}
 	}
 }
@@ -1686,6 +1666,13 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 		return;
 	}
 
+	// issue.npc-races: every resurrected mob must also be marked undead (kResurrected => kUndead).
+	// A kResurrected mob without kUndead means a game designer set the flag by mistake -- log it.
+	if (ch->IsFlagged(EMobFlag::kResurrected) && !ch->IsFlagged(EMobFlag::kUndead)) {
+		log("SYSERR: mob VNUM %d has kResurrected without kUndead (designer error: resurrected mobs must be undead).",
+			GET_MOB_VNUM(ch));
+	}
+
 	std::string name = GET_NAME(ch);
 	DescriptorData *t_desc;
 	utils::CExecutionTimer timer;
@@ -1722,11 +1709,6 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 		DropInventory(ch, zone_reset);
 	}
 
-	if (ch->IsNpc()) {
-		// дроп гривен до изменений последователей за мобом
-		ExtMoney::drop_torc(ch);
-	}
-
 	if (!ch->IsNpc()
 		&& !ch->has_master()
 		&& !ch->followers.empty()
@@ -1734,7 +1716,7 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 //		log("[Extract char] Change group leader");
 		change_leader(ch, nullptr);
 	} else if (ch->IsNpc()
-		&& !IS_CHARMICE(ch)
+		&& !IsCharmice(ch)
 		&& !ch->has_master()
 		&& !ch->followers.empty()) {
 //		log("[Extract char] Changing NPC leader");
@@ -1743,10 +1725,10 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 
 //	log("[Extract char] Die followers");
 	if (!ch->followers.empty() || ch->has_master()) {
-		die_follower(ch);
+		follow::DieFollower(ch);
 	}
 //	log("[Extract char] Stop all fight for opponee");
-	change_fighting(ch, true);
+	ChangeFighting(ch, true);
 
 //	log("[Extract char] Remove char from room");
 	if (ch->in_room != kNowhere) {
@@ -1769,7 +1751,10 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 		Crash_delete_crashfile(ch);
 	} else {
 //		log("[Extract char] All clear for NPC");
-		if ((ch->get_rnum() >= 0) && !ch->IsFlagged(EMobFlag::kSummoned)) {
+		// A warlock-revived corpse (kResurrected) reuses a real mob's vnum but is loaded without
+		// bumping total_online (see ReadMobile is_corpse), so it must not decrement it either --
+		// otherwise reviving e.g. a zone boss would block that boss's normal respawn.
+		if ((ch->get_rnum() >= 0) && !ch->IsFlagged(EMobFlag::kResurrected)) {
 			mob_index[ch->get_rnum()].total_online--;
 		}
 	}
@@ -1820,106 +1805,6 @@ CharData *get_player_of_name(const char *name) {
 	return nullptr;
 }
 
-CharData *get_player_vis(CharData *ch, const char *name, int inroom) {
-	DescriptorData *d;
-	for (d = descriptor_list; d; d = d->next) {
-		if (d->state != EConState::kPlaying) {
-			continue;
-		}
-		if (!HERE(d->character))
-			continue;
-		if ((inroom & EFind::kCharInRoom) && d->character->in_room != ch->in_room)
-			continue;
-		if (!CAN_SEE_CHAR(ch, d->character))
-			continue;
-		if (!isname(name, d->character->GetCharAliases())) {
-			continue;
-		}
-		return d->character.get();
-	}
-	return nullptr;
-}
-
-CharData *get_player_pun(CharData *ch, const char *name, int inroom) {
-	for (const auto &i : character_list) {
-		if (i->IsNpc())
-			continue;
-		if ((inroom & EFind::kCharInRoom) && i->in_room != ch->in_room)
-			continue;
-		if (!isname(name, i->GetCharAliases())) {
-			continue;
-		}
-		return i.get();
-	}
-	return nullptr;
-}
-
-CharData *get_char_room_vis(CharData *ch, const char *name) {
-	char tmpname[kMaxInputLength];
-	char *tmp = tmpname;
-	// JE 7/18/94 :-) :-)
-	if (!str_cmp(name, "self")
-		|| !str_cmp(name, "me")
-		|| !str_cmp(name, "я")
-		|| !str_cmp(name, "меня")
-		|| !str_cmp(name, "себя")) {
-		return (ch);
-	}
-	// 0.<name> means PC with name
-	strl_cpy(tmp, name, kMaxInputLength);
-	const int number = get_number(&tmp);
-	if (0 == number) {
-		return get_player_vis(ch, tmp, EFind::kCharInRoom);
-	}
-	int j = 0;
-	for (const auto i : world[ch->in_room]->people) {
-		if (HERE(i) && CAN_SEE(ch, i)
-			&& isname(tmp, i->GetCharAliases())) {
-			if (++j == number) {
-				return i;
-			}
-		}
-	}
-	return nullptr;
-}
-
-CharData *get_char_vis(CharData *ch, const char *name, int where) {
-	CharData *i;
-	char tmpname[kMaxInputLength];
-	char *tmp = tmpname;
-
-	// check the room first
-	if (where == EFind::kCharInRoom) {
-		return get_char_room_vis(ch, name);
-	} else if (where == EFind::kCharInWorld) {
-		if ((i = get_char_room_vis(ch, name)) != nullptr) {
-			return (i);
-		}
-
-		strcpy(tmp, name);
-		const int number = get_number(&tmp);
-		if (0 == number) {
-			return get_player_vis(ch, tmp, EFind::kCharInRoom);
-		}
-		if (number == 1) {
-			CharData *tmp_ch = get_player_vis(ch, tmp, EFind::kCharInWorld);
-			if (tmp_ch != nullptr) {
-				return tmp_ch;
-			}
-		}
-		int j = 0;
-		for (const auto &target : character_list) {
-			if (HERE(target) && CAN_SEE(ch, target)
-				&& isname(tmp, target->GetCharAliases())) {
-				if (++j == number) {
-					return target.get();
-				}
-			}
-		}
-	}
-	return nullptr;
-}
-
 ObjData *get_obj_in_list_vis(CharData *ch, const char *name, const ObjData::obj_list_t &list, bool locate_item) {
 	int j = 0, number;
 	char tmpname[kMaxInputLength];
@@ -1940,7 +1825,7 @@ ObjData *get_obj_in_list_vis(CharData *ch, const char *name, const ObjData::obj_
 		}
 		if (isname(tmp, i->get_aliases())
 			|| CHECK_CUSTOM_LABEL(tmp, i, ch)) {
-			if (CAN_SEE_OBJ(ch, i)) {
+			if (sight::CanSeeObj(ch, i)) {
 				// sprintf(buf,"Show obj %d %s %x ", number, i->name, i);
 				// SendMsgToChar(buf,ch);
 				if (!locate_item) {
@@ -1974,7 +1859,7 @@ ObjData *get_obj_vis_and_dec_num(CharData *ch,
 								 std::unordered_set<unsigned int> &id_obj_set,
 								 int &number) {
 	for (auto item = list; item != nullptr; item = item->get_next_content()) {
-		if (CAN_SEE_OBJ(ch, item)) {
+		if (sight::CanSeeObj(ch, item)) {
 			if (isname(name, item->get_aliases())
 				|| CHECK_CUSTOM_LABEL(name, item, ch)) {
 				if (--number == 0) {
@@ -1995,7 +1880,7 @@ ObjData *get_obj_vis_and_dec_num(CharData *ch,
 								 std::unordered_set<unsigned int> &id_obj_set,
 								 int &number) {
 	for (auto item : list) {
-		if (CAN_SEE_OBJ(ch, item)) {
+		if (sight::CanSeeObj(ch, item)) {
 			if (isname(name, item->get_aliases())
 				|| CHECK_CUSTOM_LABEL(name, item, ch)) {
 				if (--number == 0) {
@@ -2016,7 +1901,7 @@ ObjData *get_obj_vis_and_dec_num(CharData *ch,
 								 int &number) {
 	for (auto i = 0; i < EEquipPos::kNumEquipPos; ++i) {
 		auto item = equip[i];
-		if (item && CAN_SEE_OBJ(ch, item)) {
+		if (item && sight::CanSeeObj(ch, item)) {
 			if (isname(name, item->get_aliases())
 				|| CHECK_CUSTOM_LABEL(name, item, ch)) {
 				if (--number == 0) {
@@ -2027,76 +1912,6 @@ ObjData *get_obj_vis_and_dec_num(CharData *ch,
 		}
 	}
 
-	return nullptr;
-}
-
-// search the entire world for an object, and return a pointer
-ObjData *get_obj_vis(CharData *ch, const char *name) {
-	int number;
-	char tmpname[kMaxInputLength];
-	char *tmp = tmpname;
-
-	strcpy(tmp, name);
-	number = get_number(&tmp);
-	if (number < 1) {
-		return nullptr;
-	}
-
-	auto id_obj_set = std::unordered_set<unsigned int>();
-
-	//Scan in equipment
-	auto obj = get_obj_vis_and_dec_num(ch, tmp, ch->equipment, id_obj_set, number);
-	if (obj) {
-		return obj;
-	}
-
-	//Scan in carried items
-	obj = get_obj_vis_and_dec_num(ch, tmp, ch->carrying, id_obj_set, number);
-	if (obj) {
-		return obj;
-	}
-
-	//Scan in room
-	obj = get_obj_vis_and_dec_num(ch, tmp, world[ch->in_room]->contents, id_obj_set, number);
-	if (obj) {
-		return obj;
-	}
-
-	//Scan charater's in room
-	for (const auto &vict : world[ch->in_room]->people) {
-		if (ch->get_uid() == vict->get_uid()) {
-			continue;
-		}
-
-		//Scan in equipment
-		obj = get_obj_vis_and_dec_num(ch, tmp, vict->equipment, id_obj_set, number);
-		if (obj) {
-			return obj;
-		}
-
-		//Scan in carried items
-		obj = get_obj_vis_and_dec_num(ch, tmp, vict->carrying, id_obj_set, number);
-		if (obj) {
-			return obj;
-		}
-	}
-
-	// ok.. no luck yet. scan the entire obj list except already found
-	const WorldObjects::predicate_f predicate = [&ch, &tmp, &id_obj_set](const ObjData::shared_ptr &i) -> bool {
-		const auto result = CAN_SEE_OBJ(ch, i.get())
-			&& (isname(tmp, i->get_aliases())
-				|| CHECK_CUSTOM_LABEL(tmp, i.get(), ch))
-			&& (id_obj_set.count(i.get()->get_id()) == 0);
-		return result;
-	};
-	obj = world_objects.find_if(predicate, number).get();
-		if (obj) {
-		return obj;
-	}
-	obj = Depot::find_obj_from_depot_and_dec_number(tmp, number);
-		if (obj) {
-		return obj;
-	}
 	return nullptr;
 }
 
@@ -2125,7 +1940,7 @@ ObjData *get_obj_vis_for_locate(CharData *ch, const char *name) {
 
 	// ok.. no luck yet. scan the entire obj list   //
 	const WorldObjects::predicate_f locate_predicate = [&](const ObjData::shared_ptr &i) -> bool {
-		const auto result = CAN_SEE_OBJ(ch, i.get())
+		const auto result = sight::CanSeeObj(ch, i.get())
 			&& (isname(tmp, i->get_aliases())
 				|| CHECK_CUSTOM_LABEL(tmp, i.get(), ch))
 			&& try_locate_obj(ch, i.get());
@@ -2136,7 +1951,7 @@ ObjData *get_obj_vis_for_locate(CharData *ch, const char *name) {
 }
 
 bool try_locate_obj(CharData *ch, ObjData *i) {
-	if (IS_CORPSE(i) || ch->IsGod()) //имм может локейтить и можно локейтить трупы
+	if (IS_CORPSE(i) || privilege::IsGod(ch)) //имм может локейтить и можно локейтить трупы
 	{
 		return true;
 	} else if (i->has_flag(EObjFlag::kNolocate)) //если флаг !локейт и ее нет в комнате/инвентаре - пропустим ее
@@ -2216,7 +2031,7 @@ ObjData *get_object_in_equip_vis(CharData *ch, const char *arg, ObjData *equipme
 
 	for ((*j) = 0, l = 0; (*j) < EEquipPos::kNumEquipPos; (*j)++) {
 		if (equipment[(*j)]) {
-			if (CAN_SEE_OBJ(ch, equipment[(*j)])) {
+			if (sight::CanSeeObj(ch, equipment[(*j)])) {
 				if (isname(tmp, equipment[(*j)]->get_aliases())
 					|| CHECK_CUSTOM_LABEL(tmp, equipment[(*j)], ch)) {
 					if (++l == number) {
@@ -2266,15 +2081,17 @@ int generic_find(char *arg, Bitvector bitvector, CharData *ch, CharData **tar_ch
 
 	if (IS_SET(bitvector, EFind::kCharInRoom))    // Find person in room
 	{
-		if ((*tar_ch = get_char_vis(ch, name, EFind::kCharInRoom)) != nullptr)
+		*tar_ch = target_resolver::FindCharInRoom(ch, name);
+		if ((*tar_ch != nullptr))
 			return (EFind::kCharInRoom);
 	}
 	if (IS_SET(bitvector, EFind::kCharInWorld)) {
-		if ((*tar_ch = get_char_vis(ch, name, EFind::kCharInWorld)) != nullptr)
+		*tar_ch = target_resolver::FindCharInWorld(ch, name);
+		if ((*tar_ch != nullptr))
 			return (EFind::kCharInWorld);
 	}
 	if (IS_SET(bitvector, EFind::kObjWorld)) {
-		if ((*tar_obj = get_obj_vis(ch, name)))
+		if ((*tar_obj = target_resolver::FindObjAround(ch, name)))
 			return (EFind::kObjWorld);
 	}
 
@@ -2293,8 +2110,8 @@ int generic_find(char *arg, Bitvector bitvector, CharData *ch, CharData **tar_ch
 			if (isname(tmp, i->get_aliases())
 				|| CHECK_CUSTOM_LABEL(tmp, i, ch)
 				|| (IS_SET(bitvector, EFind::kObjExtraDesc)
-					&& find_exdesc(tmp, i->get_ex_description()))) {
-				if (CAN_SEE_OBJ(ch, i)) {
+					&& sight::find_exdesc(tmp, i->get_ex_description()))) {
+				if (sight::CanSeeObj(ch, i)) {
 					if (++j == number) {
 						*tar_obj = i;
 						return (EFind::kObjInventory);
@@ -2309,8 +2126,8 @@ int generic_find(char *arg, Bitvector bitvector, CharData *ch, CharData **tar_ch
 			if (isname(tmp, i->get_aliases())
 				|| CHECK_CUSTOM_LABEL(tmp, i, ch)
 				|| (IS_SET(bitvector, EFind::kObjExtraDesc)
-					&& find_exdesc(tmp, i->get_ex_description()))) {
-				if (CAN_SEE_OBJ(ch, i)) {
+					&& sight::find_exdesc(tmp, i->get_ex_description()))) {
+				if (sight::CanSeeObj(ch, i)) {
 					if (++j == number) {
 						*tar_obj = i;
 						return (EFind::kObjRoom);
@@ -2321,11 +2138,11 @@ int generic_find(char *arg, Bitvector bitvector, CharData *ch, CharData **tar_ch
 	}
 	if (IS_SET(bitvector, EFind::kObjEquip)) {
 		for (l = 0; l < EEquipPos::kNumEquipPos; l++) {
-			if (GET_EQ(ch, l) && CAN_SEE_OBJ(ch, GET_EQ(ch, l))) {
+			if (GET_EQ(ch, l) && sight::CanSeeObj(ch, GET_EQ(ch, l))) {
 				if (isname(tmp, GET_EQ(ch, l)->get_aliases())
 					|| CHECK_CUSTOM_LABEL(tmp, GET_EQ(ch, l), ch)
 					|| (IS_SET(bitvector, EFind::kObjExtraDesc)
-						&& find_exdesc(tmp, GET_EQ(ch, l)->get_ex_description()))) {
+						&& sight::find_exdesc(tmp, GET_EQ(ch, l)->get_ex_description()))) {
 					if (++j == number) {
 						*tar_obj = GET_EQ(ch, l);
 						return (EFind::kObjEquip);
@@ -2371,9 +2188,9 @@ RoomRnum FindRoomRnum(CharData *ch, char *rawroomstr, int trig) {
 			SendMsgToChar("Нет комнаты с таким номером.\r\n", ch);
 			return (kNowhere);
 		}
-	} else if ((target_mob = get_char_vis(ch, roomstr, EFind::kCharInWorld)) != nullptr) {
+	} else if ((target_mob = target_resolver::FindCharInWorld(ch, roomstr)) != nullptr) {
 		location = target_mob->in_room;
-	} else if ((target_obj = get_obj_vis(ch, roomstr)) != nullptr) {
+	} else if ((target_obj = target_resolver::FindObjAround(ch, roomstr)) != nullptr) {
 		if (target_obj->get_in_room() != kNowhere) {
 			location = target_obj->get_in_room();
 		} else {
@@ -2386,7 +2203,7 @@ RoomRnum FindRoomRnum(CharData *ch, char *rawroomstr, int trig) {
 	}
 
 	// a location has been found -- if you're < GRGOD, check restrictions.
-	if (!ch->IsGrGod() && !ch->IsFlagged(EPrf::kCoderinfo)) {
+	if (!privilege::IsGrGod(ch) && !ch->IsFlagged(EPrf::kCoderinfo)) {
 		if (ROOM_FLAGGED(location, ERoomFlag::kGodsRoom) && GetRealLevel(ch) < kLvlGreatGod) {
 			SendMsgToChar("Вы не столь божественны, чтобы получить доступ в эту комнату!\r\n", ch);
 			return (kNowhere);
@@ -2408,7 +2225,7 @@ int IsEquipInMetall(CharData *ch) {
 
 	if (ch->IsNpc() && !AFF_FLAGGED(ch, EAffect::kCharmed))
 		return (false);
-	if (ch->IsGod())
+	if (privilege::IsGod(ch))
 		return (false);
 
 	for (i = 0; i < EEquipPos::kNumEquipPos; i++) {
@@ -2440,7 +2257,7 @@ void can_carry_obj(CharData *ch, ObjData *obj) {
 		CheckObjDecay(obj);
 	} else {
 		if (obj->get_weight() + ch->GetCarryingWeight() > CAN_CARRY_W(ch)) {
-			sprintf(buf, "Вам слишком тяжело нести еще и %s.", obj->get_PName(ECase::kAcc).c_str());
+			sprintf(buf, "Вам слишком тяжело нести еще и %s.", obj->get_PName(grammar::ECase::kAcc).c_str());
 			SendMsgToChar(buf, ch);
 			PlaceObjToRoom(obj, ch->in_room);
 			// obj_decay(obj);
@@ -2462,7 +2279,7 @@ int num_pc_in_room(RoomData *room) {
 }
 
 int check_moves(CharData *ch, int how_moves) {
-	if (ch->IsImmortal() || ch->IsNpc())
+	if (privilege::IsImmortal(ch) || ch->IsNpc())
 		return (true);
 	if (ch->get_move() < how_moves) {
 		SendMsgToChar("Вы слишком устали.\r\n", ch);

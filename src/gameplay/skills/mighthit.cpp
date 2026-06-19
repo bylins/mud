@@ -1,4 +1,7 @@
 #include "mighthit.h"
+#include "administration/privilege.h"
+#include "gameplay/mechanics/sight.h"
+#include "gameplay/mechanics/mount.h"
 #include "skill_messages.h"
 
 #include "gameplay/fight/pk.h"
@@ -90,7 +93,7 @@ void DoMighthit(CharData *ch, CharData *victim) {
 			SendMsgToChar("Невозможно. Вы сосредоточены на захвате противника.\r\n", ch);
 		return;
 	}
-	if (!ch->IsNpc() && !ch->IsImmortal()
+	if (!ch->IsNpc() && !privilege::IsImmortal(ch)
 		&& (GET_EQ(ch, EEquipPos::kBoths)
 			|| GET_EQ(ch, EEquipPos::kWield)
 			|| GET_EQ(ch, EEquipPos::kHold)
@@ -126,7 +129,7 @@ void PerformMighthit(CharData *ch, CharData *victim, HitData &hit_data) {
 		percent = number(1, 25);
 	}
 
-	if (victim->IsImmortal()) {
+	if (privilege::IsImmortal(victim)) {
 		prob = 0;
 	}
 
@@ -144,59 +147,59 @@ void PerformMighthit(CharData *ch, CharData *victim, HitData &hit_data) {
 	} else {
 		might = prob * 100 / percent;
 		if (might < 180) {
-			sprintf(buf, "&b&qВаш богатырский удар задел %s.&Q&n\r\n", PERS(victim, ch, 3));
+			sprintf(buf, "&b&qВаш богатырский удар задел %s.&Q&n\r\n", sight::PersonName(victim, ch, 3));
 			SendMsgToChar(buf, ch);
 			lag = 1;
-			SetWaitState(victim, kBattleRound);
+			SetBattleLag(victim, 1);
 			Affect<EApply> af;
 			af.type = ESpell::kBattle;
-			af.bitvector = to_underlying(EAffect::kStopFight);
+			af.affect_type = EAffect::kStopFight;
 			af.location = EApply::kNone;
 			af.modifier = 0;
-			af.duration = CalcDuration(victim, 1, 0, 0, 0, 0);
+			af.duration = CalcDuration(victim, victim, ESkill::kUndefined, 1, 0, 0, 0);
 			af.battleflag = kAfBattledec | kAfPulsedec;
 			ImposeAffect(victim, af, true, false, true, false);
-			sprintf(buf, "&R&qВаше сознание затуманилось после удара %s.&Q&n\r\n", PERS(ch, victim, 1));
+			sprintf(buf, "&R&qВаше сознание затуманилось после удара %s.&Q&n\r\n", sight::PersonName(ch, victim, 1));
 			SendMsgToChar(buf, victim);
 			act("$N содрогнул$U от богатырского удара $n1.", true, ch, nullptr, victim, kToNotVict | kToArenaListen);
 			if (!number(0, 2)) {
 				ProcessMighthitBash(ch, victim);
 			}
 		} else if (might < 800) {
-			sprintf(buf, "&g&qВаш богатырский удар пошатнул %s.&Q&n\r\n", PERS(victim, ch, 3));
+			sprintf(buf, "&g&qВаш богатырский удар пошатнул %s.&Q&n\r\n", sight::PersonName(victim, ch, 3));
 			SendMsgToChar(buf, ch);
 			lag = 2;
 			hit_data.dam += (hit_data.dam / 1);
-			SetWaitState(victim, 2 * kBattleRound);
+			SetBattleLag(victim, 2);
 			Affect<EApply> af;
 			af.type = ESpell::kBattle;
-			af.bitvector = to_underlying(EAffect::kStopFight);
+			af.affect_type = EAffect::kStopFight;
 			af.location = EApply::kNone;
 			af.modifier = 0;
-			af.duration = CalcDuration(victim, 2, 0, 0, 0, 0);
+			af.duration = CalcDuration(victim, victim, ESkill::kUndefined, 2, 0, 0, 0);
 			af.battleflag = kAfBattledec | kAfPulsedec;
 			ImposeAffect(victim, af, true, false, true, false);
-			sprintf(buf, "&R&qВаше сознание помутилось после удара %s.&Q&n\r\n", PERS(ch, victim, 1));
+			sprintf(buf, "&R&qВаше сознание помутилось после удара %s.&Q&n\r\n", sight::PersonName(ch, victim, 1));
 			SendMsgToChar(buf, victim);
 			act("$N пошатнул$U от богатырского удара $n1.", true, ch, nullptr, victim, kToNotVict | kToArenaListen);
 			if (!number(0, 1)) {
 				ProcessMighthitBash(ch, victim);
 			}
 		} else {
-			sprintf(buf, "&G&qВаш богатырский удар сотряс %s.&Q&n\r\n", PERS(victim, ch, 3));
+			sprintf(buf, "&G&qВаш богатырский удар сотряс %s.&Q&n\r\n", sight::PersonName(victim, ch, 3));
 			SendMsgToChar(buf, ch);
 			lag = 2;
 			hit_data.dam *= 4;
-			SetWaitState(victim, 3 * kBattleRound);
+			SetBattleLag(victim, 3);
 			Affect<EApply> af;
 			af.type = ESpell::kBattle;
-			af.bitvector = to_underlying(EAffect::kStopFight);
+			af.affect_type = EAffect::kStopFight;
 			af.location = EApply::kNone;
 			af.modifier = 0;
-			af.duration = CalcDuration(victim, 3, 0, 0, 0, 0);
+			af.duration = CalcDuration(victim, victim, ESkill::kUndefined, 3, 0, 0, 0);
 			af.battleflag = kAfBattledec | kAfPulsedec;
 			ImposeAffect(victim, af, true, false, true, false);
-			sprintf(buf, "&R&qВаше сознание померкло после удара %s.&Q&n\r\n", PERS(ch, victim, 1));
+			sprintf(buf, "&R&qВаше сознание померкло после удара %s.&Q&n\r\n", sight::PersonName(ch, victim, 1));
 			SendMsgToChar(buf, victim);
 			act("$N зашатал$U от богатырского удара $n1.", true, ch, nullptr, victim, kToNotVict | kToArenaListen);
 			ProcessMighthitBash(ch, victim);
@@ -214,12 +217,12 @@ void ProcessMighthitBash(CharData *ch, CharData *victim) {
 	}
 
 	act("$n обреченно повалил$u на землю.", true, victim, nullptr, nullptr, kToRoom | kToArenaListen);
-	SetWaitState(victim, 3 * kBattleRound);
+	SetBattleLag(victim, 3);
 
 	if (victim->GetPosition() > EPosition::kSit) {
 		victim->SetPosition(EPosition::kSit);
-		victim->DropFromHorse();
-		SendMsgToChar(victim, "&R&qБогатырский удар %s сбил вас с ног.&Q&n\r\n", PERS(ch, victim, 1));
+		mount::DropFromHorse(victim);
+		SendMsgToChar(victim, "&R&qБогатырский удар %s сбил вас с ног.&Q&n\r\n", sight::PersonName(ch, victim, 1));
 	}
 }
 

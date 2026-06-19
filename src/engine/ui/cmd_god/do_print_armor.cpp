@@ -7,6 +7,7 @@
 */
 
 #include "engine/entities/char_data.h"
+#include "administration/privilege.h"
 #include "engine/db/obj_prototypes.h"
 #include "engine/db/global_objects.h"
 #include "engine/ui/color.h"
@@ -24,7 +25,7 @@ struct FilterType {
 };
 
 void DoPrintArmor(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (ch->IsNpc() || (!ch->IsGrGod() && !ch->IsFlagged(EPrf::kCoderinfo))) {
+	if (ch->IsNpc() || (!privilege::IsGrGod(ch) && !ch->IsFlagged(EPrf::kCoderinfo))) {
 		SendMsgToChar("Чаво?\r\n", ch);
 		return;
 	}
@@ -312,7 +313,7 @@ void DoPrintArmor(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			<< std::setw(2) << it->first << " | "
 			<< std::setw(7) << obj->get_vnum() << " | "
 			<< std::setw(14) << material_name[obj->get_material()] << " | "
-			<< obj->get_PName(ECase::kNom) << "\r\n";
+			<< obj->get_PName(grammar::ECase::kNom) << "\r\n";
 
 		for (int i = 0; i < kMaxObjAffect; i++) {
 			auto drndice = obj->get_affected(i).location;

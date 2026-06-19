@@ -10,7 +10,7 @@
 
 void DoInventory(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	SendMsgToChar("Вы несете:\r\n", ch);
-	list_obj_to_char(ch->carrying, ch, 1, 2);
+	sight::list_obj_to_char(ch->carrying, ch, 1, 2);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

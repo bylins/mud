@@ -1,4 +1,6 @@
 #include "kick.h"
+#include "administration/privilege.h"
+#include "gameplay/mechanics/mount.h"
 
 #include "skill_messages.h"
 #include "engine/db/global_objects.h"
@@ -9,6 +11,7 @@
 #include "protect.h"
 #include "gameplay/core/base_stats.h"
 #include "gameplay/mechanics/damage.h"
+#include "gameplay/core/remort.h"
 
 // ******************  KICK PROCEDURES
 void go_kick(CharData *ch, CharData *vict) {
@@ -38,7 +41,7 @@ void go_kick(CharData *ch, CharData *vict) {
 		if (GET_GOD_FLAG(vict, EGf::kGodscurse) || AFF_FLAGGED(vict, EAffect::kHold)) {
 			prob = percent;
 		}
-		if (GET_GOD_FLAG(ch, EGf::kGodscurse) || (!ch->IsOnHorse() && vict->IsOnHorse())) {
+		if (GET_GOD_FLAG(ch, EGf::kGodscurse) || (!mount::IsOnHorse(ch) && mount::IsOnHorse(vict))) {
 			prob = 0;
 		}
 		if (IsAffectedBySpell(ch, ESpell::kWeb)) {
@@ -64,7 +67,7 @@ void go_kick(CharData *ch, CharData *vict) {
 	int weight_modi = 5 * (20 + (GET_EQ(ch, EEquipPos::kFeet) ? GET_EQ(ch, EEquipPos::kFeet)->get_weight() : 0));
 	dam = dam * weight_modi / 100;
 	dam = number(dam * 2  /5, dam);
-		if (ch->IsOnHorse() && (ch->GetSkill(ESkill::kRiding) >= 150) && (ch->GetSkill(ESkill::kKick) >= 150)) {
+		if (mount::IsOnHorse(ch) && (ch->GetSkill(ESkill::kRiding) >= 150) && (ch->GetSkill(ESkill::kKick) >= 150)) {
 			Affect<EApply> af;
 			af.location = EApply::kNone;
 			af.type = ESpell::kBattle;
@@ -81,22 +84,22 @@ void go_kick(CharData *ch, CharData *vict) {
 							to_vict = "Мощный удар ноги $n1 изуродовал вам правую руку.";
 							to_room = "След сапога $n1 надолго запомнится $N2, если конечно он$Q выживет.";
 							af.type = ESpell::kBattle;
-							af.bitvector = to_underlying(EAffect::kStopRight);
-							af.duration = CalcDuration(vict, 3 + GetRealRemort(ch) / 4, 0, 0, 0, 0);
+							af.affect_type = EAffect::kStopRight;
+							af.duration = CalcDuration(vict, vict, ESkill::kUndefined, 3 + remort::GetRealRemort(ch) / 4, 0, 0, 0);
 							af.battleflag = kAfBattledec | kAfPulsedec;
 						} else if (!AFF_FLAGGED(vict, EAffect::kStopLeft)) {
 							to_char = "Каблук вашего сапога надолго запомнится $N2, если конечно он выживет.";
 							to_vict = "Мощный удар ноги $n1 изуродовал вам левую руку.";
 							to_room = "След сапога $n1 надолго запомнится $N2, если конечно он выживет.";
-							af.bitvector = to_underlying(EAffect::kStopLeft);
-							af.duration = CalcDuration(vict, 3 + GetRealRemort(ch) / 4, 0, 0, 0, 0);
+							af.affect_type = EAffect::kStopLeft;
+							af.duration = CalcDuration(vict, vict, ESkill::kUndefined, 3 + remort::GetRealRemort(ch) / 4, 0, 0, 0);
 							af.battleflag = kAfBattledec | kAfPulsedec;
 						} else {
 							to_char = "Каблук вашего сапога надолго запомнится $N2, $M теперь даже бить вас нечем.";
 							to_vict = "Мощный удар ноги $n1 вывел вас из строя.";
 							to_room = "Каблук сапога $n1 надолго запомнится $N2, $M теперь даже биться нечем.";
-							af.bitvector = to_underlying(EAffect::kStopFight);
-							af.duration = CalcDuration(vict, 3 + GetRealRemort(ch) / 4, 0, 0, 0, 0);
+							af.affect_type = EAffect::kStopFight;
+							af.duration = CalcDuration(vict, vict, ESkill::kUndefined, 3 + remort::GetRealRemort(ch) / 4, 0, 0, 0);
 							af.battleflag = kAfBattledec | kAfPulsedec;
 						}
 						break;
@@ -106,17 +109,17 @@ void go_kick(CharData *ch, CharData *vict) {
 						to_vict = "Мощный удар ноги $n1 попал вам точно в челюсть, заставив вас замолчать.";
 						to_room = "Сильно пнув ногой в челюсть $N3, $n заставил$q $S замолчать.";
 						af.type = ESpell::kBattle;
-						af.bitvector = to_underlying(EAffect::kSilence);
-						af.duration = CalcDuration(vict, 3 + GetRealRemort(ch) / 5, 0, 0, 0, 0);
+						af.affect_type = EAffect::kSilence;
+						af.duration = CalcDuration(vict, vict, ESkill::kUndefined, 3 + remort::GetRealRemort(ch) / 5, 0, 0, 0);
 						af.battleflag = kAfBattledec | kAfPulsedec;
 						dam *= 2;
 						break;
 					default:
 						if (!vict->IsFlagged(EMobFlag::kNoBash)) {
-							SetWaitState(vict, number(2, 5) * kBattleRound);
+							SetBattleLag(vict, number(2, 5));
 							if (vict->GetPosition() > EPosition::kSit) {
 								vict->SetPosition(EPosition::kSit);
-								vict->DropFromHorse();
+								mount::DropFromHorse(vict);
 							}
 							to_char = "Ваш мощный пинок выбил пару зубов $N2, усадив $S на землю!";
 							to_vict = "Мощный удар ноги $n1 попал точно в голову, свалив вас с ног.";
@@ -149,15 +152,15 @@ void go_kick(CharData *ch, CharData *vict) {
 		}
 
 		if (vict->battle_affects.get(kEafAwake)) {
-			dam >>= (2 - (ch->IsOnHorse() ? 1 : 0));
+			dam >>= (2 - (mount::IsOnHorse(ch) ? 1 : 0));
 		}
-		if (result.CritLuck && !ch->IsOnHorse()) {
+		if (result.CritLuck && !mount::IsOnHorse(ch)) {
 			dam *= 2;
 			if (!vict->IsFlagged(EMobFlag::kNoBash)) {
 				if (vict->GetPosition() > EPosition::kSit) {
 					vict->SetPosition(EPosition::kSit);
-					vict->DropFromHorse();
-					SetWaitState(vict, 2 * kBattleRound);
+					mount::DropFromHorse(vict);
+					SetBattleLag(vict, 2);
 					to_char = "$N упал$A на землю!";
 					to_vict = "Мощный удар $n1 свалил вас с ног.";
 					to_room = "Мощный пинок $n1 усадил $N1 на землю!";
@@ -219,7 +222,7 @@ void do_kick(CharData *ch, CharData *vict) {
 		return;
 	}
 
-	if (ch->IsImpl() || !ch->GetEnemy()) {
+	if (privilege::IsImpl(ch) || !ch->GetEnemy()) {
 		go_kick(ch, vict);
 	} else if (IsHaveNoExtraAttack(ch)) {
 		act("Хорошо. Вы попытаетесь пнуть $N3.", false, ch, nullptr, vict, kToChar);

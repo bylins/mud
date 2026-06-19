@@ -1,4 +1,5 @@
 #include "disarm.h"
+#include "administration/privilege.h"
 
 #include "skill_messages.h"
 #include "engine/db/global_objects.h"
@@ -58,14 +59,14 @@ void do_disarm(CharData *ch, CharData *vict) {
 			act("Не получится - $N уже понял$G, что от Вас можно ожидать всякого!",
 				false, ch, nullptr, vict, kToChar);
 		} else if (IsAffectedBySpellWithCasterId(ch, vict, ESpell::kNoInjure) && (vict->HasWeapon())) {
-			if (ch->IsImpl() || !ch->GetEnemy()) {
+			if (privilege::IsImpl(ch) || !ch->GetEnemy()) {
 				go_disarm(ch, vict);
 			} else if (IsHaveNoExtraAttack(ch)) {
 				act("Хорошо. Вы попытаетесь разоружить $N3.", false, ch, nullptr, vict, kToChar);
 				ch->SetExtraAttack(kExtraAttackDisarm, vict);
 			}
 		} else {
-			if (ch->IsImpl() || !ch->GetEnemy()) {
+			if (privilege::IsImpl(ch) || !ch->GetEnemy()) {
 				go_injure(ch, vict);
 			} else if (IsHaveNoExtraAttack(ch)) {
 				act("Хорошо. Вы попытаетесь ранить $N3.", false, ch, nullptr, vict, kToChar);
@@ -77,7 +78,7 @@ void do_disarm(CharData *ch, CharData *vict) {
 			SendMsgToChar("Вы не сможете обезоружить безоружного!\r\n", ch);
 			return;
 		} else {
-			if (ch->IsImpl() || !ch->GetEnemy()) {
+			if (privilege::IsImpl(ch) || !ch->GetEnemy()) {
 				go_disarm(ch, vict);
 			} else if (IsHaveNoExtraAttack(ch)) {
 				act("Хорошо. Вы попытаетесь разоружить $N3.", false, ch, nullptr, vict, kToChar);
@@ -99,14 +100,14 @@ void go_injure(CharData *ch, CharData *vict) {
 		}
 
 //Ввожу ДВА аффекта: 1. Короткий - собственно сам дебафф. 2. Долгий, для запрета повторного наложения.
-//af.bitvector = to_underlying(EAffect::kInjured); - этот битвектор нафиг не нужен. Ввел его только для того чтобы не показывало !UNDEF! при выводе аффектов
+//af.affect_type = EAffect::kInjured; - этот битвектор нафиг не нужен. Ввел его только для того чтобы не показывало !UNDEF! при выводе аффектов
 		Affect<EApply> af;
 		af.type = ESpell::kLowerEffectiveness;
 		af.duration = injure_duration;
 		af.modifier = -(10 + std::min((ch->GetSkill(ESkill::kDisarm) / 10), 20));
 		af.location = EApply::kPhysicDamagePercent;
 		af.battleflag = kAfBattledec;
-		af.bitvector = to_underlying(EAffect::kInjured);
+		af.affect_type = EAffect::kInjured;
 		affect_to_char(vict, af);
 
 		act("Вы ранили $N3! Как же $E теперь будет Вас бить?...",
@@ -187,9 +188,9 @@ void go_disarm(CharData *ch, CharData *vict) {
 	bool success = result.success;
 	int lag;
 
-	if (ch->IsImmortal() || GET_GOD_FLAG(vict, EGf::kGodscurse) || GET_GOD_FLAG(ch, EGf::kGodsLike))
+	if (privilege::IsImmortal(ch) || GET_GOD_FLAG(vict, EGf::kGodscurse) || GET_GOD_FLAG(ch, EGf::kGodsLike))
 		success = true;
-	if (vict->IsImmortal() || GET_GOD_FLAG(ch, EGf::kGodscurse) || GET_GOD_FLAG(vict, EGf::kGodsLike)
+	if (privilege::IsImmortal(vict) || GET_GOD_FLAG(ch, EGf::kGodscurse) || GET_GOD_FLAG(vict, EGf::kGodsLike)
 		|| CanUseFeat(vict, EFeat::kStrongClutch))
 		success = false;
 
@@ -204,9 +205,9 @@ void go_disarm(CharData *ch, CharData *vict) {
 	} else {
 		wielded = GET_EQ(vict, pos);
 		SendMsgToChar(ch, "%sВы ловко выбили %s из рук %s!%s\r\n",
-					  kColorBoldBlu, wielded->get_PName(ECase::kAcc).c_str(), GET_PAD(vict, 1), kColorNrm);
+					  kColorBoldBlu, wielded->get_PName(grammar::ECase::kAcc).c_str(), GET_PAD(vict, 1), kColorNrm);
 		SendMsgToChar(vict, "Ловкий удар %s выбил %s%s из ваших рук.\r\n",
-					  GET_PAD(ch, 1), wielded->get_PName(ECase::kAcc).c_str(), char_get_custom_label(wielded, vict).c_str());
+					  GET_PAD(ch, 1), wielded->get_PName(grammar::ECase::kAcc).c_str(), char_get_custom_label(wielded, vict).c_str());
 		act("$n ловко выбил$g $o3 из рук $N1.", true, ch, wielded, vict, kToNotVict | kToArenaListen);
 		UnequipChar(vict, pos, CharEquipFlags());
 		SetSkillCooldown(ch, ESkill::kGlobalCooldown, vict->IsNpc() ? 1 : 2);

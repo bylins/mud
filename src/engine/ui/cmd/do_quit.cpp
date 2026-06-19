@@ -7,6 +7,7 @@
 */
 
 #include "engine/ui/cmd/do_quit.h"
+#include "utils/grammar/declensions.h"
 
 #include "engine/entities/char_data.h"
 #include "engine/network/descriptor_data.h"
@@ -14,6 +15,8 @@
 #include "gameplay/clans/house.h"
 #include "gameplay/fight/fight.h"
 #include "engine/core/handler.h"
+#include "engine/db/db.h"
+#include "gameplay/ai/spec_procs.h"
 
 void do_quit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	DescriptorData *d, *next_d;
@@ -45,6 +48,16 @@ void do_quit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			SendMsgToChar("В связи с боевыми действиями эвакуация временно прекращена.\r\n", ch);
 			return;
 		}
+		// issue.specials: quitting next to a rentkeeper logs you back in here (the поселиться effect).
+		if (ch->in_room != r_helled_start_room && ch->in_room != r_named_start_room
+			&& ch->in_room != r_unreg_start_room) {
+			for (const auto vict : world[ch->in_room]->people) {
+				if (specials::IsRentkeeper(vict)) {
+					GET_LOADROOM(ch) = GET_ROOM_VNUM(ch->in_room);
+					break;
+				}
+			}
+		}
 		if (!GET_INVIS_LEV(ch))
 			act("$n покинул$g игру.", true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 		sprintf(buf, "%s quit the game.", GET_NAME(ch));
@@ -56,10 +69,10 @@ void do_quit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			SendMsgToChar(ch,
 						  "За вещи в хранилище придется заплатить %ld %s в день.\r\n",
 						  depot_cost,
-						  GetDeclensionInNumber(depot_cost, EWhat::kMoneyU));
+						  grammar::GetDeclensionInNumber(depot_cost, grammar::EWhat::kMoneyU));
 			long deadline = ((ch->get_gold() + ch->get_bank()) / depot_cost);
 			SendMsgToChar(ch, "Твоих денег хватит на %ld %s.\r\n", deadline,
-						  GetDeclensionInNumber(deadline, EWhat::kDay));
+						  grammar::GetDeclensionInNumber(deadline, grammar::EWhat::kDay));
 		}
 		Depot::exit_char(ch);
 		Clan::clan_invoice(ch, false);

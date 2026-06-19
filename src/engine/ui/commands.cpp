@@ -1,6 +1,7 @@
 #include "commands.h"
+#include "utils/utils.h"
+#include "engine/core/comm.h"
 
-#include "engine/entities/char_data.h"
 #include "utils/levenshtein.h"
 #include "engine/structs/compact_trie.h"
 

@@ -3,11 +3,14 @@
 *  ************************************************************************/
 
 #include "track.h"
+#include "administration/privilege.h"
 #include "skill_messages.h"
 
 #include "gameplay/ai/graph.h"
 #include "engine/core/handler.h"
+#include "engine/core/target_resolver.h"
 #include "engine/db/global_objects.h"
+#include "gameplay/core/remort.h"
 
 const char *track_when[] = {"совсем свежие",
 							"свежие",
@@ -55,9 +58,9 @@ int go_track(CharData *ch, CharData *victim, const ESkill skill_no) {
 	if_sense = (skill_no == ESkill::kSense) ? 100 : 0;
 	percent = number(0, MUD::Skill(skill_no).difficulty - if_sense);
 	//current_skillpercent = GET_SKILL(ch, ESkill::kSense);
-	if ((!victim->IsNpc()) && (!ch->IsGod()) && (!ch->IsNpc())) //Если цель чар и ищет не бог
+	if ((!victim->IsNpc()) && (!privilege::IsGod(ch)) && (!ch->IsNpc())) //Если цель чар и ищет не бог
 	{
-		percent = MIN(99, number(0, GetRealRemort(victim)) + percent);
+		percent = MIN(99, number(0, remort::GetRealRemort(victim)) + percent);
 	}
 	if (percent > CalcCurrentSkill(ch, skill_no, victim)) {
 		int tries = 10;
@@ -128,7 +131,9 @@ void do_track(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if ((vict = get_char_vis(ch, arg, EFind::kCharInRoom))) {
+	vict = target_resolver::FindCharInRoom(ch, arg);
+
+	if (vict) {
 		act("Вы же в одной комнате с $N4!", false, ch, nullptr, vict, kToChar);
 		return;
 	}

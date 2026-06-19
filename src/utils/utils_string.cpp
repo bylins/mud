@@ -1,6 +1,7 @@
 //#include "utils_string.h"
 
 #include "utils.h"
+#include "utils/utils_encoding.h"
 #include "gameplay/core/constants.h"
 
 namespace utils {
@@ -235,13 +236,13 @@ std::string SubstToLow(std::string s) {
 
 void ConvertKtoW(std::string &text) {
 	for (char &it: text) {
-		it = KtoW(it);
+		it = codepages::KtoW(it);
 	}
 }
 
 void ConvertWtoK(std::string &text) {
 	for (char &it: text) {
-		it = WtoK(it);
+		it = codepages::WtoK(it);
 	}
 }
 

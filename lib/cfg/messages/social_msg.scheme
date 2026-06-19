@@ -1,0 +1,22 @@
+<!--
+  issue.socials: Vedun scheme for social_msg.xml. <socials> -> <social vnum=.. keywords=.. position
+  gates..> -> <message type="<ESocialMsg>" val=".."/>. Optional sidecar.
+-->
+<scheme>
+	<tag name="socials" desc="Social commands (vnum-keyed)">
+		<child tag="social" multiple="Y"/>
+	</tag>
+	<tag name="social" desc="One social, keyed by integer vnum">
+		<attr name="vnum" type="int" readonly="Y" desc="Unique social vnum (identity; immutable)"/>
+		<attr name="keywords" type="string" desc="Pipe-separated command synonyms (e.g. улыбнуться|улыбка)"/>
+		<attr name="ch_min" type="enum" enum="EPosition" desc="Actor min position"/>
+		<attr name="ch_max" type="enum" enum="EPosition" desc="Actor max position"/>
+		<attr name="vict_min" type="enum" enum="EPosition" desc="Target min position"/>
+		<attr name="vict_max" type="enum" enum="EPosition" desc="Target max position"/>
+		<child tag="message" multiple="Y"/>
+	</tag>
+	<tag name="message" desc="One message slot">
+		<attr name="type" type="enum" enum="ESocialMsg" desc="Slot"/>
+		<attr name="val" type="string" desc="Text: $n/$N act-codes"/>
+	</tag>
+</scheme>
