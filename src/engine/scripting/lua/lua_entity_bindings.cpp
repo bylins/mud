@@ -498,6 +498,68 @@ bool ForceCharCommand(LuaRuntimeContext runtime, const LuaEntityHandle &handle, 
 	return true;
 }
 
+bool ActFromChar(
+	LuaRuntimeContext runtime,
+	const LuaEntityHandle &handle,
+	const sol::object &message,
+	const sol::object &options)
+{
+	auto *ch = ResolveChar(handle);
+	if (!ch || !message.is<std::string>())
+	{
+		return false;
+	}
+
+	const auto text = message.as<std::string>();
+	if (text.empty())
+	{
+		return false;
+	}
+
+	auto target = kToRoom;
+	CharData *victim = nullptr;
+	bool hide_invisible = false;
+	if (options.is<sol::table>())
+	{
+		sol::table table = options;
+		const sol::object victim_object = table["victim"];
+		victim = GetLuaCharFromObject(victim_object, runtime);
+		const sol::object hide_invisible_object = table["hide_invisible"];
+		if (hide_invisible_object.is<bool>())
+		{
+			hide_invisible = hide_invisible_object.as<bool>();
+		}
+		const sol::object to = table["to"];
+		if (to.is<std::string>())
+		{
+			const auto to_value = to.as<std::string>();
+			if (to_value == "char")
+			{
+				target = kToChar;
+			}
+			else if (to_value == "victim")
+			{
+				target = kToVict;
+			}
+			else if (to_value == "notvictim")
+			{
+				target = kToNotVict;
+			}
+			else if (to_value != "room")
+			{
+				return LogLuaApiError(runtime, "act: invalid target");
+			}
+		}
+	}
+	if ((target == kToVict || target == kToNotVict) && !victim)
+	{
+		return LogLuaApiError(runtime, "act: victim target requires valid victim");
+	}
+
+	act(text.c_str(), hide_invisible, ch, nullptr, victim, target);
+	return true;
+}
+
 int GetRoomVnum(const LuaRoomView &view)
 {
 	return IsValidRoom(view) ? world[view.room]->vnum : 0;
@@ -1073,6 +1135,18 @@ sol::object BuildCharView(sol::state &lua, CharData *ch, LuaRuntimeContext runti
 		{
 			return sol::make_object(lua, sol::as_function([runtime, handle](sol::object, sol::object command) {
 				return ForceCharCommand(runtime, handle, command);
+			}));
+		}
+		if (key == "act")
+		{
+			return sol::make_object(lua, sol::as_function([&lua, runtime, handle](
+				sol::object,
+				sol::object message,
+				sol::variadic_args args) {
+				const sol::object options = args.size() > 0
+					? static_cast<sol::object>(args[0])
+					: sol::make_object(lua, sol::nil);
+				return ActFromChar(runtime, handle, message, options);
 			}));
 		}
 		if (key == "purge")

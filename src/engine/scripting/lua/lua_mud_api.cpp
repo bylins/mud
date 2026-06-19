@@ -3,11 +3,14 @@
 #if defined(WITH_LUAJIT_PROTOTYPE)
 
 #include "engine/core/handler.h"
+#include "engine/core/comm.h"
 #include "engine/db/global_objects.h"
 #include "engine/db/obj_prototypes.h"
+#include "engine/db/world_characters.h"
 #include "engine/db/world_objects.h"
 #include "engine/entities/char_data.h"
 #include "engine/scripting/dg_scripts.h"
+#include "gameplay/mechanics/weather.h"
 #include "utils/utils.h"
 #include "utils/logger.h"
 #include "utils/random.h"
@@ -19,6 +22,8 @@ namespace {
 
 constexpr long kLuaPulsesPerMudHour = kSecsPerMudHour * kPassesPerSec;
 constexpr long kLuaMaxWaitPulses = std::numeric_limits<int>::max();
+constexpr int kLuaMaxRollDice = 1000;
+constexpr int kLuaMaxRollSides = 1000000;
 
 bool IsValidWaitTime(long hr, long min)
 {
@@ -28,6 +33,50 @@ bool IsValidWaitTime(long hr, long min)
 bool IsValidWaitDelay(long time)
 {
 	return time > 0 && time <= kLuaMaxWaitPulses;
+}
+
+bool GetLuaLong(const sol::object &value, long &result)
+{
+	if (value.is<long>())
+	{
+		result = value.as<long>();
+		return true;
+	}
+	if (value.is<int>())
+	{
+		result = value.as<int>();
+		return true;
+	}
+	return false;
+}
+
+CharData *FindCharByUid(const sol::object &uid)
+{
+	long value = 0;
+	if (!GetLuaLong(uid, value))
+	{
+		return nullptr;
+	}
+
+	for (const auto &character : character_list.get_list())
+	{
+		if (character && character->get_uid() == value && !character->purged())
+		{
+			return character.get();
+		}
+	}
+	return nullptr;
+}
+
+ObjData *FindObjById(const sol::object &id)
+{
+	long value = 0;
+	if (!GetLuaLong(id, value) || value <= 0)
+	{
+		return nullptr;
+	}
+
+	return world_objects.find_by_id(static_cast<object_id_t>(value)).get();
 }
 
 ObjData *LoadObjToRoom(const sol::object &vnum, const sol::object &room)
@@ -121,6 +170,75 @@ int GetCurrentObjectCount(const sol::object &vnum)
 	return obj_proto.actual_count(rnum);
 }
 
+int GetCurrentMobCount(const sol::object &vnum)
+{
+	if (!vnum.is<int>())
+	{
+		return 0;
+	}
+
+	const auto rnum = GetMobRnum(vnum.as<int>());
+	if (rnum < 0 || rnum > top_of_mobt)
+	{
+		return 0;
+	}
+
+	return mob_index[rnum].total_online;
+}
+
+sol::object BuildZoneView(sol::state &lua, const sol::object &vnum)
+{
+	if (!vnum.is<int>())
+	{
+		return sol::make_object(lua, sol::nil);
+	}
+
+	const auto rnum = GetZoneRnum(vnum.as<int>());
+	if (rnum < 0 || rnum >= static_cast<ZoneRnum>(zone_table.size()))
+	{
+		return sol::make_object(lua, sol::nil);
+	}
+
+	sol::table zone = lua.create_table();
+	zone["vnum"] = zone_table[rnum].vnum;
+	zone["name"] = zone_table[rnum].name;
+	zone["top"] = zone_table[rnum].top;
+	zone["age"] = zone_table[rnum].age;
+	zone["lifespan"] = zone_table[rnum].lifespan;
+	zone["reset_mode"] = zone_table[rnum].reset_mode;
+	zone["used"] = zone_table[rnum].used;
+	zone["locked"] = zone_table[rnum].locked;
+	zone["under_construction"] = zone_table[rnum].under_construction;
+	return sol::make_object(lua, zone);
+}
+
+sol::table BuildTimeInfo(sol::state &lua)
+{
+	sol::table time = lua.create_table();
+	time["hour"] = time_info.hours;
+	time["day"] = time_info.day + 1;
+	time["month"] = time_info.month + 1;
+	time["year"] = time_info.year;
+	return time;
+}
+
+sol::table BuildWeatherInfo(sol::state &lua)
+{
+	sol::table weather = lua.create_table();
+	weather["temperature"] = weather_info.temperature;
+	weather["pressure"] = weather_info.pressure;
+	weather["change"] = weather_info.change;
+	weather["sky"] = weather_info.sky;
+	weather["sunlight"] = weather_info.sunlight;
+	weather["moon_day"] = weather_info.moon_day;
+	weather["season"] = static_cast<int>(weather_info.season);
+	weather["weather_type"] = weather_info.weather_type;
+	weather["rainlevel"] = weather_info.rainlevel;
+	weather["snowlevel"] = weather_info.snowlevel;
+	weather["icelevel"] = weather_info.icelevel;
+	return weather;
+}
+
 int MudRandom(const sol::object &limit)
 {
 	if (!limit.is<int>())
@@ -130,6 +248,122 @@ int MudRandom(const sol::object &limit)
 
 	const auto n = limit.as<int>();
 	return n > 0 ? number(1, n) : 0;
+}
+
+int MudRoll(const sol::object &count, const sol::object &sides)
+{
+	if (!count.is<int>() || !sides.is<int>())
+	{
+		return 0;
+	}
+
+	const auto dice_count = count.as<int>();
+	const auto dice_sides = sides.as<int>();
+	if (dice_count <= 0
+		|| dice_count > kLuaMaxRollDice
+		|| dice_sides <= 0
+		|| dice_sides > kLuaMaxRollSides)
+	{
+		return 0;
+	}
+
+	long long result = 0;
+	for (int i = 0; i < dice_count; ++i)
+	{
+		result += number(1, dice_sides);
+	}
+	return result > std::numeric_limits<int>::max() ? std::numeric_limits<int>::max() : static_cast<int>(result);
+}
+
+bool MudPercent(const sol::object &chance)
+{
+	if (!chance.is<int>())
+	{
+		return false;
+	}
+
+	const auto value = chance.as<int>();
+	if (value <= 0)
+	{
+		return false;
+	}
+	if (value >= 100)
+	{
+		return true;
+	}
+	return number(1, 100) <= value;
+}
+
+bool MudEcho(LuaRuntimeContext runtime, const sol::object &message)
+{
+	if (!runtime.owner || runtime.owner->in_room == kNowhere || !message.is<std::string>())
+	{
+		return false;
+	}
+
+	const auto text = message.as<std::string>();
+	if (text.empty())
+	{
+		return false;
+	}
+
+	SendMsgToRoom(text.c_str(), runtime.owner->in_room, 0);
+	return true;
+}
+
+bool CallEntityMethod(
+	LuaRuntimeContext runtime,
+	const sol::object &entity,
+	const char *method_name,
+	const sol::object &argument)
+{
+	if (!entity.is<sol::table>())
+	{
+		return false;
+	}
+
+	sol::table entity_table = entity;
+	const sol::object method = entity_table[method_name];
+	if (method.get_type() != sol::type::function)
+	{
+		return false;
+	}
+
+	const sol::protected_function function = method;
+	const sol::protected_function_result result = function(entity, argument);
+	if (!result.valid())
+	{
+		const sol::error err = result;
+		LogLuaError(runtime, method_name, err);
+		return false;
+	}
+	return result.valid() && result.get_type(0) == sol::type::boolean && result.get<bool>();
+}
+
+bool MudTransfer(LuaRuntimeContext runtime, const sol::object &entity, const sol::object &room)
+{
+	if (CallEntityMethod(runtime, entity, "teleport", room))
+	{
+		return true;
+	}
+	return CallEntityMethod(runtime, entity, "move_to_room", room);
+}
+
+bool MudForce(LuaRuntimeContext runtime, const sol::object &entity, const sol::object &command)
+{
+	if (!runtime.owner || runtime.owner->in_room == kNowhere || !entity.is<sol::table>())
+	{
+		return LogLuaApiError(runtime, "force: invalid character");
+	}
+
+	sol::table entity_table = entity;
+	const sol::object room_vnum = entity_table["room_vnum"];
+	if (!room_vnum.is<int>() || room_vnum.as<int>() != world[runtime.owner->in_room]->vnum)
+	{
+		return LogLuaApiError(runtime, "force: target must be in trigger owner room");
+	}
+
+	return CallEntityMethod(runtime, entity, "force", command);
 }
 
 bool MudLog(LuaRuntimeContext runtime, const sol::object &message)
@@ -274,8 +508,35 @@ sol::table BuildMudNamespace(sol::state &lua, LuaRuntimeContext runtime)
 	mud["random"] = [](const sol::object &limit) {
 		return MudRandom(limit);
 	};
+	mud["roll"] = [](const sol::object &count, const sol::object &sides) {
+		return MudRoll(count, sides);
+	};
+	mud["percent"] = [](const sol::object &chance) {
+		return MudPercent(chance);
+	};
+	mud["char_by_uid"] = [&lua, runtime](const sol::object &uid) {
+		return BuildCharView(lua, FindCharByUid(uid), runtime);
+	};
+	mud["obj_by_id"] = [&lua, runtime](const sol::object &id) {
+		return BuildObjView(lua, FindObjById(id), runtime);
+	};
+	mud["mob_count"] = [](const sol::object &vnum) {
+		return GetCurrentMobCount(vnum);
+	};
+	mud["obj_count"] = [](const sol::object &vnum) {
+		return GetCurrentObjectCount(vnum);
+	};
 	mud["room"] = [&lua, runtime](const sol::object &vnum) {
 		return BuildRoomViewByVnum(lua, vnum, runtime);
+	};
+	mud["zone"] = [&lua](const sol::object &vnum) {
+		return BuildZoneView(lua, vnum);
+	};
+	mud["time"] = [&lua]() {
+		return BuildTimeInfo(lua);
+	};
+	mud["weather"] = [&lua]() {
+		return BuildWeatherInfo(lua);
 	};
 	mud["load_obj"] = [&lua, runtime](const sol::object &vnum, const sol::object &room) {
 		return BuildObjView(lua, LoadObjToRoom(vnum, room), runtime);
@@ -288,6 +549,15 @@ sol::table BuildMudNamespace(sol::state &lua, LuaRuntimeContext runtime)
 	};
 	mud["damage"] = [runtime](const sol::object &victim, const sol::object &amount, const sol::object &type) {
 		return MudDamage(runtime, victim, amount, type);
+	};
+	mud["transfer"] = [runtime](const sol::object &entity, const sol::object &room) {
+		return MudTransfer(runtime, entity, room);
+	};
+	mud["force"] = [runtime](const sol::object &entity, const sol::object &command) {
+		return MudForce(runtime, entity, command);
+	};
+	mud["echo"] = [runtime](const sol::object &message) {
+		return MudEcho(runtime, message);
 	};
 	mud["wait"] = [runtime](sol::this_state state, sol::variadic_args args) {
 		return MudWait(runtime, state, args);
