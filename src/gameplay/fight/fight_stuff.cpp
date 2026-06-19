@@ -1,8 +1,14 @@
 // Part of Bylins http://www.mud.ru
 
 #include <random>
+#include "gameplay/mechanics/alignment.h"
+#include "administration/privilege.h"
+#include "utils/grammar/declensions.h"
+#include "gameplay/mechanics/minions.h"
+#include "gameplay/mechanics/mount.h"
 
 #include "gameplay/affects/affect_data.h"
+#include "gameplay/magic/magic.h"
 #include "gameplay/mechanics/dead_load.h"
 #include "gameplay/mechanics/dungeons.h"
 #include "gameplay/ai/mobact.h"
@@ -10,6 +16,7 @@
 #include "engine/ui/cmd/do_flee.h"
 #include "engine/db/world_characters.h"
 #include "fight.h"
+#include "fight_stuff.h"
 #include "fight_penalties.h"
 #include "fight_hit.h"
 #include "engine/core/handler.h"
@@ -17,7 +24,6 @@
 #include "gameplay/clans/house.h"
 #include "pk.h"
 #include "gameplay/mechanics/stuff.h"
-#include "gameplay/statistics/top.h"
 #include "engine/ui/color.h"
 #include "gameplay/statistics/mob_stat.h"
 #include "gameplay/mechanics/bonus.h"
@@ -33,6 +39,7 @@
 #include "gameplay/mechanics/illumination.h"
 #include "utils/utils_time.h"
 #include "gameplay/skills/leadership.h"
+#include "gameplay/core/remort.h"
 
 // extern
 void PerformDropGold(CharData *ch, int amount);
@@ -53,9 +60,7 @@ void process_mobmax(CharData *ch, CharData *killer) {
 
 	CharData *master = nullptr;
 	if (killer->IsNpc()
-		&& (AFF_FLAGGED(killer, EAffect::kCharmed)
-			|| killer->IsFlagged(EMobFlag::kTutelar)
-			|| killer->IsFlagged(EMobFlag::kMentalShadow))
+		&& (killer->IsFlagged(EMobFlag::kCompanion))
 		&& killer->has_master()) {
 		master = killer->get_master();
 	} else if (!killer->IsNpc()) {
@@ -147,10 +152,10 @@ void process_mobmax(CharData *ch, CharData *killer) {
 
 bool stone_rebirth(CharData *ch, CharData *killer) {
 	RoomRnum rnum_start, rnum_stop;
-	if (ch->IsNpc() && !IS_CHARMICE(ch)){
+	if (ch->IsNpc() && !IsCharmice(ch)){
 		return false;
 	}
-	if (killer && (!killer->IsNpc() || IS_CHARMICE(killer)) && (ch != killer)) { //не нычка в ПК
+	if (killer && (!killer->IsNpc() || IsCharmice(killer)) && (ch != killer)) { //не нычка в ПК
 		return false;
 	}
 	GetZoneRooms(world[ch->in_room]->zone_rn, &rnum_start, &rnum_stop);
@@ -167,7 +172,7 @@ bool stone_rebirth(CharData *ch, CharData *killer) {
 					SendMsgToChar("Божественная сила спасла вашу жизнь!\r\n", ch);
 					RemoveCharFromRoom(ch);
 					PlaceCharToRoom(ch, rnum_start);
-					ch->dismount();
+					mount::Dismount(ch);
 					ch->set_hit(1);
 					update_pos(ch);
 					while (!ch->affected.empty()) {
@@ -175,11 +180,11 @@ bool stone_rebirth(CharData *ch, CharData *killer) {
 					}
 					affect_total(ch);
 					ch->SetPosition(EPosition::kStand);
-					look_at_room(ch, 0);
+					sight::look_at_room(ch, 0);
 					greet_mtrigger(ch, -1);
 					greet_otrigger(ch, -1);
 					act("$n медленно появил$u откуда-то.", false, ch, nullptr, nullptr, kToRoom);
-					SetWaitState(ch, 10 * kBattleRound);
+					SetBattleLag(ch, 10);
 					return true;
 				}
 			}
@@ -196,7 +201,7 @@ bool check_tester_death(CharData *ch, CharData *killer) {
 		return false;
 	}
 
-	if (killer && (!killer->IsNpc() || IS_CHARMICE(killer))
+	if (killer && (!killer->IsNpc() || IsCharmice(killer))
 		&& (ch != killer)) // рип в тестовой зоне от моба но не чармиса
 	{
 		return false;
@@ -214,7 +219,7 @@ bool check_tester_death(CharData *ch, CharData *killer) {
 	SendMsgToChar("Божественная сила спасла вашу жизнь.!\r\n", ch);
 	RemoveCharFromRoom(ch);
 	PlaceCharToRoom(ch, rent_room);
-	ch->dismount();
+	mount::Dismount(ch);
 	ch->set_hit(1);
 	update_pos(ch);
 	act("$n медленно появил$u откуда-то.", false, ch, nullptr, nullptr, kToRoom);
@@ -223,7 +228,7 @@ bool check_tester_death(CharData *ch, CharData *killer) {
 	}
 	affect_total(ch);
 	ch->SetPosition(EPosition::kStand);
-	look_at_room(ch, 0);
+	sight::look_at_room(ch, 0);
 	greet_mtrigger(ch, -1);
 	greet_otrigger(ch, -1);
 	return true;
@@ -248,20 +253,20 @@ void die(CharData *ch, CharData *killer) {
 		|| !ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena)
 		|| NORENTABLE(ch)) {
 		if (!(ch->IsNpc()
-			|| ch->IsImmortal()
+			|| privilege::IsImmortal(ch)
 			|| GET_GOD_FLAG(ch, EGf::kGodsLike)
 			|| (killer && killer->IsFlagged(EPrf::kExecutor))))//если убил не палач
 		{
 			if (!NORENTABLE(ch))
 				dec_exp =
-					(GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1) - GetExpUntilNextLvl(ch, GetRealLevel(ch))) / (3 + std::min(3, GetRealRemort(ch) / 5))
+					(GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1) - GetExpUntilNextLvl(ch, GetRealLevel(ch))) / (3 + std::min(3, remort::GetRealRemort(ch) / 5))
 						/ ch->death_player_count();
 			else
 				dec_exp = (GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1) - GetExpUntilNextLvl(ch, GetRealLevel(ch)))
-					/ (3 + std::min(3, GetRealRemort(ch) / 5));
+					/ (3 + std::min(3, remort::GetRealRemort(ch) / 5));
 			EndowExpToChar(ch, -dec_exp);
 			dec_exp = char_exp - ch->get_exp();
-			sprintf(buf, "Вы потеряли %ld %s опыта.\r\n", dec_exp, GetDeclensionInNumber(dec_exp, EWhat::kPoint));
+			sprintf(buf, "Вы потеряли %ld %s опыта.\r\n", dec_exp, grammar::GetDeclensionInNumber(dec_exp, grammar::EWhat::kPoint));
 			SendMsgToChar(buf, ch);
 		}
 
@@ -298,7 +303,7 @@ int can_loot(CharData *ch) {
 void death_cry(CharData *ch, CharData *killer) {
 	int door;
 	if (killer) {
-		if (IS_CHARMICE(killer)) {
+		if (IsCharmice(killer)) {
 			if (killer->get_master() && killer->get_master()->in_room == killer->in_room) {
 				act("Кровушка стынет в жилах от предсмертного крика $N1.",
 					false, killer->get_master(), nullptr, ch, kToRoom | kToNotDeaf);
@@ -329,9 +334,9 @@ void arena_kill(CharData *ch, CharData *killer) {
 		killer->set_gold(ch->get_gold() + killer->get_gold());
 		ch->set_gold(0);
 	}
-	change_fighting(ch, true);
+	ChangeFighting(ch, true);
 	ch->set_hit(1);
-	ch->DropFromHorse();
+	mount::DropFromHorse(ch);
 	ch->SetPosition(EPosition::kSit);
 	int to_room = GetRoomRnum(GET_LOADROOM(ch));
 	// тут придется ручками тащить чара за ворота, если ему в замке не рады
@@ -340,11 +345,11 @@ void arena_kill(CharData *ch, CharData *killer) {
 	}
 	if (to_room == kNowhere) {
 		ch->SetFlag(EPlrFlag::kHelled);
-		HELL_DURATION(ch) = time(nullptr) + 6;
+		punishments::Get(ch, punishments::EType::kHell).duration = time(nullptr) + 6;
 		to_room = r_helled_start_room;
 	}
 	for (auto *f : ch->followers) {
-		if (IS_CHARMICE(f)) {
+		if (IsCharmice(f)) {
 			RemoveCharFromRoom(f);
 			PlaceCharToRoom(f, to_room);
 		}
@@ -360,7 +365,7 @@ void arena_kill(CharData *ch, CharData *killer) {
 	affect_total(ch);
 	RemoveCharFromRoom(ch);
 	PlaceCharToRoom(ch, to_room);
-	look_at_room(ch, to_room);
+	sight::look_at_room(ch, to_room);
 	act("$n со стонами упал$g с небес...", false, ch, nullptr, nullptr, kToRoom);
 	enter_wtrigger(world[ch->in_room], ch, -1);
 }
@@ -369,7 +374,7 @@ void auto_loot(CharData *ch, CharData *killer, ObjData *corpse, int local_gold) 
 	char obj[256];
 
 	if (is_dark(killer->in_room)
-		&& !(CAN_SEE_IN_DARK(killer) || CanUseFeat(killer, EFeat::kDarkReading))
+		&& !(sight::CanSeeInDark(killer) || CanUseFeat(killer, EFeat::kDarkReading))
 		&& !(killer->IsNpc()
 			&& AFF_FLAGGED(killer, EAffect::kCharmed)
 			&& killer->has_master()
@@ -394,9 +399,7 @@ void auto_loot(CharData *ch, CharData *killer, ObjData *corpse, int local_gold) 
 		get_from_container(killer, corpse, obj, EFind::kObjInventory, 1, false);
 	} else if (ch->IsNpc()
 		&& killer->IsNpc()
-		&& (AFF_FLAGGED(killer, EAffect::kCharmed)
-			|| killer->IsFlagged(EMobFlag::kTutelar)
-			|| killer->IsFlagged(EMobFlag::kMentalShadow))
+		&& (killer->IsFlagged(EMobFlag::kCompanion))
 		&& (corpse != nullptr)
 		&& killer->has_master()
 		&& killer->in_room == killer->get_master()->in_room
@@ -407,9 +410,7 @@ void auto_loot(CharData *ch, CharData *killer, ObjData *corpse, int local_gold) 
 	} else if (ch->IsNpc()
 		&& killer->IsNpc()
 		&& local_gold
-		&& (AFF_FLAGGED(killer, EAffect::kCharmed)
-			|| killer->IsFlagged(EMobFlag::kTutelar)
-			|| killer->IsFlagged(EMobFlag::kMentalShadow))
+		&& (killer->IsFlagged(EMobFlag::kCompanion))
 		&& (corpse != nullptr)
 		&& killer->has_master()
 		&& killer->in_room == killer->get_master()->in_room
@@ -490,7 +491,7 @@ void real_kill(CharData *ch, CharData *killer) {
 		//scripting::on_pc_dead(ch, killer, corpse);
 #endif
 	} else {
-		if (killer && (!killer->IsNpc() || IS_CHARMICE(killer))) {
+		if (killer && (!killer->IsNpc() || IsCharmice(killer))) {
 			log("Killed: %d %d %ld", GetRealLevel(ch), ch->get_max_hit(), ch->get_exp());
 			obj_load_on_death(corpse, ch);
 		}
@@ -504,7 +505,7 @@ void real_kill(CharData *ch, CharData *killer) {
 #endif
 	}
 /*	до будущих времен
-	if (!ch->IsNpc() && GetRealRemort(ch) > 7 && (GetRealLevel(ch) == 29 || GetRealLevel(ch) == 30))
+	if (!ch->IsNpc() && remort::GetRealRemort(ch) > 7 && (GetRealLevel(ch) == 29 || GetRealLevel(ch) == 30))
 	{
 		// лоадим свиток с экспой
 		const auto rnum = GetObjRnum(100);
@@ -547,7 +548,7 @@ void raw_kill(CharData *ch, CharData *killer) {
 	// OpenTelemetry: count player deaths
 	if (!ch->IsNpc()) {
 		std::string death_type = "pve";
-		if (killer && !killer->IsNpc() && !IS_CHARMICE(killer)) {
+		if (killer && !killer->IsNpc() && !IsCharmice(killer)) {
 			death_type = "pvp";
 		} else if (!killer) {
 			death_type = "other";
@@ -579,7 +580,7 @@ void raw_kill(CharData *ch, CharData *killer) {
 	if (ch->IsNpc() && killer) {
 		if (CanUseFeat(killer, EFeat::kSoulsCollector)) {
 			if (GetRealLevel(ch) >= GetRealLevel(killer)) {
-				if (killer->get_souls() < (GetRealRemort(killer) + 1)) {
+				if (killer->get_souls() < (remort::GetRealRemort(killer) + 1)) {
 					act("&GВы забрали душу $N1 себе!&n", false, killer, nullptr, ch, kToChar);
 					act("$n забрал душу $N1 себе!", false, killer, nullptr, ch, kToNotVict | kToArenaListen);
 					killer->inc_souls();
@@ -588,7 +589,7 @@ void raw_kill(CharData *ch, CharData *killer) {
 		}
 	}
 	if (ch->in_room != kNowhere) {
-		if (killer && (!killer->IsNpc() || IS_CHARMICE(killer)) && !ch->IsNpc())
+		if (killer && (!killer->IsNpc() || IsCharmice(killer)) && !ch->IsNpc())
  			kill_pc_wtrigger(killer, ch);
 		if (!ch->IsNpc() && (!NORENTABLE(ch) && ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena))) {
 			//Если убили на арене
@@ -605,7 +606,7 @@ void raw_kill(CharData *ch, CharData *killer) {
 }
 
 int get_remort_mobmax(CharData *ch) {
-	int remort = GetRealRemort(ch);
+	int remort = remort::GetRealRemort(ch);
 	if (remort >= 18)
 		return 15;
 	if (remort >= 14)
@@ -667,18 +668,11 @@ long long get_extend_exp(long long exp, CharData *ch, CharData *victim) {
 	exp = exp * std::max(15, koef) / 100;
 
 	// делим на реморты
-	exp /= std::max(1.0, 0.5 * (GetRealRemort(ch) - kMaxExpCoefficientsUsed));
+	exp /= std::max(1.0, 0.5 * (remort::GetRealRemort(ch) - kMaxExpCoefficientsUsed));
 	return (exp);
 }
 
 // When ch kills victim
-void change_alignment(CharData *ch, CharData *victim) {
-	/*
-	 * new alignment change algorithm: if you kill a monster with alignment A,
-	 * you move 1/16th of the way to having alignment -A.  Simple and fast.
-	 */
-	GET_ALIGNMENT(ch) += (-GET_ALIGNMENT(victim) - GET_ALIGNMENT(ch)) / 16;
-}
 
 /*++
    Функция начисления опыта
@@ -768,19 +762,18 @@ void perform_group_gain(CharData *ch, CharData *victim, int members, int koef) {
 		}
 
 		exp = std::min(static_cast<long long>(max_exp_gain_pc(ch)), exp);
-		SendMsgToChar(ch, "Ваш опыт повысился на %lld %s.\r\n", exp, GetDeclensionInNumber(exp, EWhat::kPoint));
+		SendMsgToChar(ch, "Ваш опыт повысился на %lld %s.\r\n", exp, grammar::GetDeclensionInNumber(exp, grammar::EWhat::kPoint));
 	} else if (exp == 1) {
 		SendMsgToChar("Ваш опыт повысился всего лишь на маленькую единичку.\r\n", ch);
 	}
 	if (!InTestZone(ch)) {
 		EndowExpToChar(ch, exp);
-		change_alignment(ch, victim);
-		TopPlayer::Refresh(ch);
+		alignment::ChangeAlignment(ch, victim);
 		if (!(victim)->Temporary.get(EXTRA_GRP_KILL_COUNT)
 				&& !ch->IsNpc()
-				&& !ch->IsImmortal()
+				&& !privilege::IsImmortal(ch)
 				&& victim->IsNpc()
-				&& !IS_CHARMICE(victim)
+				&& !IsCharmice(victim)
 				&& !ROOM_FLAGGED(victim->in_room, ERoomFlag::kArena)) {
 				mob_stat::AddMob(victim, members);
 				victim->Temporary.set(EXTRA_GRP_KILL_COUNT);
@@ -1034,4 +1027,65 @@ void do_show_mobmax(CharData *ch, char *, int, int) {
 	SendMsgToChar(ch, "&BВ стадии тестирования!!!&n\n");
 	player->show_mobmax();
 }
+
+void ChangeFighting(CharData *ch, int need_stop) {
+//	utils::CExecutionTimer time;
+//	log("ChangeFighting start %f vnum %d", time.delta().count(), GET_MOB_VNUM(ch));
+	//Loop for all entities is necessary for unprotecting
+//	for (const auto &k : character_list) {
+	for (const auto &k : world[ch->in_room]->people) {
+
+		if (k->get_protecting() == ch) {
+			k->remove_protecting();
+		}
+//		log("ChangeFighting protecting %f", time.delta().count());
+		if (k->get_touching() == ch) {
+			k->set_touching(0);
+		}
+//		log("ChangeFighting touching %f", time.delta().count());
+		if (k->GetExtraVictim() == ch) {
+			k->SetExtraAttack(kExtraAttackUnused, 0);
+		}
+
+		if (k->GetCastChar() == ch) {
+			k->SetCast(ESpell::kUndefined, ESpell::kUndefined, 0, 0, 0);
+		}
+//		log("ChangeFighting set cast %f", time.delta().count());
+
+		if (k->GetEnemy() == ch && k->in_room != kNowhere) {
+//			log("ChangeFighting Change victim %f", time.delta().count());
+			bool found = false;
+			for (const auto j : world[ch->in_room]->people) {
+				if (j->GetEnemy() == k) {
+					act("Вы переключили внимание на $N3.", false, k, 0, j, kToChar);
+					act("$n переключил$u на вас!", false, k, 0, j, kToVict);
+					k->SetEnemy(j);
+					found = true;
+//					log("ChangeFighting Change victim %f", time.delta().count());
+					break;
+				}
+			}
+
+			if (!found && need_stop) {
+//				log("ChangeFighting stop fighting %f", time.delta().count());
+				stop_fighting(k, false);
+			}
+		}
+	}
+//	log("ChangeFighting stop %f", time.delta().count());
+}
+
+bool MayAttack(const CharData *sub) {
+	return (!AFF_FLAGGED((sub), EAffect::kCharmed)
+		&& !mount::IsHorse((sub))
+		&& !AFF_FLAGGED((sub), EAffect::kStopFight)
+		&& !AFF_FLAGGED((sub), EAffect::kMagicStopFight)
+		&& !AFF_FLAGGED((sub), EAffect::kHold)
+		&& !AFF_FLAGGED((sub), EAffect::kSleep)
+		&& !(sub)->IsFlagged(EMobFlag::kNoFight)
+		&& sub->get_wait() <= 0
+		&& !sub->GetEnemy()
+		&& sub->GetPosition() >= EPosition::kRest);
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<!--
+	issue.thing-names: currency display names, moved out of currencies.xml.
+	Keyed by currency text_id. Loaded (currency_messages) BEFORE currencies.xml.
+	<name gender=".." search="имя для поиска"> + per-number <case id="kNom" val=".."/> declensions.
+-->
+<msg_container>
+	<msg_sheaf id="kKuna">
+		<name gender="kFemale" search="куны">
+			<singular>
+				<case id="kNom" val="куна"/>
+				<case id="kGen" val="куны"/>
+				<case id="kDat" val="куне"/>
+				<case id="kAcc" val="куну"/>
+				<case id="kIns" val="куной"/>
+				<case id="kPre" val="куне"/>
+			</singular>
+			<plural>
+				<case id="kNom" val="куны"/>
+				<case id="kGen" val="кун"/>
+				<case id="kDat" val="кунам"/>
+				<case id="kAcc" val="куны"/>
+				<case id="kIns" val="кунами"/>
+				<case id="kPre" val="кунах"/>
+			</plural>
+		</name>
+	</msg_sheaf>
+	<msg_sheaf id="kGlory">
+		<name gender="kNeutral" search="слава">
+			<singular>
+				<case id="kNom" val="очко славы"/>
+				<case id="kGen" val="очка славы"/>
+				<case id="kDat" val="очку славы"/>
+				<case id="kAcc" val="очко славы"/>
+				<case id="kIns" val="очком славы"/>
+				<case id="kPre" val="очке славы"/>
+			</singular>
+			<plural>
+				<case id="kNom" val="очки славы"/>
+				<case id="kGen" val="очков славы"/>
+				<case id="kDat" val="очкам славы"/>
+				<case id="kAcc" val="очки славы"/>
+				<case id="kIns" val="очками славы"/>
+				<case id="kPre" val="очках славы"/>
+			</plural>
+		</name>
+	</msg_sheaf>
+	<msg_sheaf id="kGrivna">
+		<name gender="kFemale" search="гривны">
+			<singular>
+				<case id="kNom" val="гривна"/>
+				<case id="kGen" val="гривны"/>
+				<case id="kDat" val="гривне"/>
+				<case id="kAcc" val="гривну"/>
+				<case id="kIns" val="гривно"/>
+				<case id="kPre" val="гривне"/>
+			</singular>
+			<plural>
+				<case id="kNom" val="гривны"/>
+				<case id="kGen" val="гривен"/>
+				<case id="kDat" val="гривнам"/>
+				<case id="kAcc" val="гривны"/>
+				<case id="kIns" val="гривнами"/>
+				<case id="kPre" val="гривнах"/>
+			</plural>
+		</name>
+	</msg_sheaf>
+	<msg_sheaf id="kMagicIce">
+		<name gender="kMale" search="волшебный лед">
+			<singular>
+				<case id="kNom" val="осколок волшебного льда"/>
+				<case id="kGen" val="осколка волшебного льда"/>
+				<case id="kDat" val="осколку волшебного льда"/>
+				<case id="kAcc" val="осколок волшебного льда"/>
+				<case id="kIns" val="осколком волшебного льда"/>
+				<case id="kPre" val="осколком волшебного льда"/>
+			</singular>
+			<plural>
+				<case id="kNom" val="осколки волшебного льда"/>
+				<case id="kGen" val="осколков волшебного льда"/>
+				<case id="kDat" val="осколкам волшебного льда"/>
+				<case id="kAcc" val="осколки волшебного льда"/>
+				<case id="kIns" val="осколками волшебного льда"/>
+				<case id="kPre" val="осколками волшебного льда"/>
+			</plural>
+		</name>
+	</msg_sheaf>
+	<msg_sheaf id="kNogata">
+		<name gender="kFemale" search="ногата">
+			<singular>
+				<case id="kNom" val="ногата"/>
+				<case id="kGen" val="ногаты"/>
+				<case id="kDat" val="ногате"/>
+				<case id="kAcc" val="ногату"/>
+				<case id="kIns" val="ногатой"/>
+				<case id="kPre" val="ногате"/>
+			</singular>
+			<plural>
+				<case id="kNom" val="ногаты"/>
+				<case id="kGen" val="ногат"/>
+				<case id="kDat" val="ногатам"/>
+				<case id="kAcc" val="ногаты"/>
+				<case id="kIns" val="ногатами"/>
+				<case id="kPre" val="ногатах"/>
+			</plural>
+		</name>
+	</msg_sheaf>
+</msg_container>

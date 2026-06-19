@@ -9,6 +9,7 @@
 #include "json_helpers.h"
 #include "../../../engine/structs/structs.h"
 #include "../../../engine/db/obj_prototypes.h"
+#include "../../../engine/db/global_objects.h"
 #include "../../../engine/entities/room_data.h"
 #include "../../../engine/scripting/dg_scripts.h"
 #include "../../../gameplay/core/constants.h"
@@ -29,12 +30,12 @@ json SerializeMob(const CharData& mob, int vnum)
 	// Names (all 6 Russian cases + aliases)
 	json names;
 	names["aliases"] = Koi8rToUtf8(mob.get_npc_name());
-	names["nominative"] = Koi8rToUtf8(mob.player_data.PNames[ECase::kNom]);
-	names["genitive"] = Koi8rToUtf8(mob.player_data.PNames[ECase::kGen]);
-	names["dative"] = Koi8rToUtf8(mob.player_data.PNames[ECase::kDat]);
-	names["accusative"] = Koi8rToUtf8(mob.player_data.PNames[ECase::kAcc]);
-	names["instrumental"] = Koi8rToUtf8(mob.player_data.PNames[ECase::kIns]);
-	names["prepositional"] = Koi8rToUtf8(mob.player_data.PNames[ECase::kPre]);
+	names["nominative"] = Koi8rToUtf8(mob.player_data.PNames[grammar::ECase::kNom]);
+	names["genitive"] = Koi8rToUtf8(mob.player_data.PNames[grammar::ECase::kGen]);
+	names["dative"] = Koi8rToUtf8(mob.player_data.PNames[grammar::ECase::kDat]);
+	names["accusative"] = Koi8rToUtf8(mob.player_data.PNames[grammar::ECase::kAcc]);
+	names["instrumental"] = Koi8rToUtf8(mob.player_data.PNames[grammar::ECase::kIns]);
+	names["prepositional"] = Koi8rToUtf8(mob.player_data.PNames[grammar::ECase::kPre]);
 	mob_obj["names"] = names;
 
 	// Descriptions
@@ -194,6 +195,7 @@ json SerializeObject(const CObjectPrototype& obj, int vnum)
 	obj_data["description"] = Koi8rToUtf8(obj.get_description());
 	obj_data["action_desc"] = Koi8rToUtf8(obj.get_action_description());
 	obj_data["type"] = static_cast<int>(obj.get_type());
+	obj_data["spec_param"] = obj.get_spec_param();   // symmetry: ParseObjectUpdate reads it
 
 	// Extra flags (4 planes)
 	obj_data["extra_flags"] = json::array();
@@ -225,18 +227,18 @@ json SerializeObject(const CObjectPrototype& obj, int vnum)
 
 	// Names (7 case forms)
 	json names;
-	for (int c = ECase::kFirstCase; c <= ECase::kLastCase; ++c)
+	for (int c = grammar::ECase::kFirstCase; c <= grammar::ECase::kLastCase; ++c)
 	{
-		ECase ecase = static_cast<ECase>(c);
+		grammar::ECase ecase = static_cast<grammar::ECase>(c);
 		std::string case_name;
 		switch (ecase)
 		{
-			case ECase::kNom: case_name = "nominative"; break;
-			case ECase::kGen: case_name = "genitive"; break;
-			case ECase::kDat: case_name = "dative"; break;
-			case ECase::kAcc: case_name = "accusative"; break;
-			case ECase::kIns: case_name = "instrumental"; break;
-			case ECase::kPre: case_name = "prepositional"; break;
+			case grammar::ECase::kNom: case_name = "nominative"; break;
+			case grammar::ECase::kGen: case_name = "genitive"; break;
+			case grammar::ECase::kDat: case_name = "dative"; break;
+			case grammar::ECase::kAcc: case_name = "accusative"; break;
+			case grammar::ECase::kIns: case_name = "instrumental"; break;
+			case grammar::ECase::kPre: case_name = "prepositional"; break;
 			default: continue;
 		}
 		names[case_name] = Koi8rToUtf8(obj.get_PName(ecase));
@@ -309,10 +311,17 @@ json SerializeRoom(RoomData& room, int vnum)
 	room_data["vnum"] = vnum;
 	room_data["name"] = Koi8rToUtf8(room.name);
 
-	// Description stored in GlobalObjects::descriptions()
+	// Description: temp_description holds a freshly-edited (unsaved) value; the
+	// persisted description lives in the shared pool by description_num. Reading
+	// only temp_description dropped the description from JSON for normal rooms
+	// (issue #3401) -- fall back to the pooled text.
 	if (room.temp_description)
 	{
 		room_data["description"] = Koi8rToUtf8(room.temp_description);
+	}
+	else if (room.description_num > 0)
+	{
+		room_data["description"] = Koi8rToUtf8(GlobalObjects::descriptions().get(room.description_num).c_str());
 	}
 	room_data["sector_type"] = static_cast<int>(room.sector_type);
 

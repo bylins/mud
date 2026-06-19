@@ -1,0 +1,606 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<!--
+	Сообщения игрокам для умений (issue #3310).
+	Загружается через cfg_manager (LoadCfg/ReloadCfg "skill_messages"),
+	доступ из кода как MUD::SkillMessages().
+
+	id связки (msg_sheaf) - значение ESkill; "kDefault" соответствует ESkill::kUndefined
+	и хранит сообщения, общие для всех умений.
+	type сообщения (message) - значение ESkillMsg; текст в атрибуте val.
+
+	Сообщение в связке умения переопределяет одноимённое сообщение из kDefault.
+	Текст сообщений хранится без завершающего "\r\n" (его добавляет вызывающий код).
+-->
+<msg_container>
+	<!-- Общие сообщения: помещаются сюда, если совпадают (или почти совпадают)
+	     у большинства умений. Связка умения переопределяет их при отличии. -->
+	<msg_sheaf id="kDefault">
+		<name val="!UNDEF!" abbr="!Icr" />
+
+		<message type="kDontKnowSkill" val="Вы не знаете как." />
+		<message type="kOnCooldown" val="Вам нужно набраться сил." />
+		<message type="kCantWhileMounted" val="Верхом это сделать затруднительно." />
+		<message type="kGetOnFeet" val="Вам стоит встать на ноги." />
+		<message type="kCantFightNow" val="Вы временно не в состоянии сражаться." />
+		<message type="kNotFighting" val="Но вы ни с кем не сражаетесь?" />
+		<message type="kWrongWeapon" val="У вас нет подходящего оружия." />
+	</msg_sheaf>
+
+	<!-- Заколоть (kBackstab): сообщения, специфичные для умения. -->
+	<msg_sheaf id="kBackstab">
+		<name val="заколоть" abbr="Зк" />
+
+		<message type="kNoTarget" val="Кого вы так сильно ненавидите, что хотите заколоть?" />
+		<message type="kCantTargetSelf" val="Вы, определенно, садомазохист!" />
+		<message type="kNeedWeapon" val="Требуется держать оружие в правой руке." />
+		<message type="kWrongWeapon" val="ЗаКОЛоть можно только КОЛющим оружием!" />
+		<message type="kFightDeathToChar" val="Вы нанизали $N3 на $o3. Теперь $E просто кусок мяса." />
+		<message type="kFightDeathToVict" val="Внезапно $n уколол$g вас в спину. Но отомстите вы $m попозже." />
+		<message type="kFightDeathToRoom" val="$n нанизал$g $N3 на свое оружие. \u$N теперь словно поросёнок на вертеле." />
+		<message type="kFightMissToChar" val="Вы не смогли заколоть $N3. Мало практиковались?" />
+		<message type="kFightMissToVict" val="$n попытал$u нанести вам удар в спину, но вы заметили $s." />
+		<message type="kFightMissToRoom" val="$n попытал$u нанести $N2 удар в спину, но $s заметили." />
+		<message type="kFightHitToChar" val="Вы воткнули $o3 в спину $N1, котор$W застонал$G от боли." />
+		<message type="kFightHitToVict" val="Внезапно $n уколол$g вас в спину." />
+		<message type="kFightHitToRoom" val="$n воткнул$g свое оружие в спину $N1. Ща начнется убивство." />
+		<message type="kFightGodToChar" val="Под взглядом $N1 лезвие чуть не отрезало вам же палец." />
+		<message type="kFightGodToVict" val="$n надумал$g уколоть вас в спину - думать $s видно не учили." />
+		<message type="kFightGodToRoom" val="$n надумал$g уколоть $N3 в спину. Как$x $e забавн$w." />
+		<message type="kFightDeathToChar" val="Вы мастерским ударом закололи $N3, $E и пикнуть не успел$G." />
+		<message type="kFightDeathToVict" val="Мастерским ударом в спину $n отправил$g вас к праотцам." />
+		<message type="kFightDeathToRoom" val="Мастерским ударом в спину $n отправил$g $N3 к праотцам." />
+		<message type="kFightMissToChar" val="Вам не удалось нанизать $N3 на $o3. Тренируйтесь." />
+		<message type="kFightMissToVict" val="Вам удалось избежать коварного удара $n1." />
+		<message type="kFightMissToRoom" val="$n не попал$g своим оружием в спину $N1." />
+		<message type="kFightHitToChar" val="Вы укололи $N3, $S просто передернуло от боли." />
+		<message type="kFightHitToVict" val="$n нанес$q вам удар своим оружием, и этот факт вас не радует." />
+		<message type="kFightHitToRoom" val="$n нанес$q удар своим оружием в спину $N1." />
+		<message type="kFightGodToChar" val="Вы чуть не вывихнули себе руку, когда попытались заколоть $N3." />
+		<message type="kFightGodToVict" val="Руку $n1 свело судорогой, когда $e пытал$u заколоть вас." />
+		<message type="kFightGodToRoom" val="$n чуть не вывихнул$g себе руку, когда попытал$u заколоть $N3." />
+	</msg_sheaf>
+	<msg_sheaf id="kBash">
+		<name val="сбить" abbr="Сб" />
+
+		<message type="kNoTarget" val="Кого же вы так сильно желаете сбить?" />
+		<message type="kWrongWeapon" val="Вы не можете сделать этого без щита." />
+		<message type="kCantTargetSelf" val="Ваш сокрушающий удар поверг вас наземь... Вы почувствовали себя глупо." />
+		<message type="kFightDeathToChar" val="$N пал$G ниц после вашего удара! Встать $M уже не суждено." />
+		<message type="kFightDeathToVict" val="Удар $n1 надолго отбил у вас охоту вставать." />
+		<message type="kFightDeathToRoom" val="$N завалил$U на землю от удара $n1, да так и остал$U лежать." />
+		<message type="kFightMissToChar" val="$N слишком сильн$W для вас, чтобы сбить $S с ног." />
+		<message type="kFightMissToVict" val="$n хотел$g завалить вас, но не рассчитал$g сил." />
+		<message type="kFightMissToRoom" val="$N избежал$G попытки $n1 завалить $S." />
+		<message type="kFightHitToChar" val="Вы завалили $N3 на землю своим мощным ударом." />
+		<message type="kFightHitToVict" val="Вы полетели на землю от мощного удара $n1." />
+		<message type="kFightHitToRoom" val="$n завалил$g $N3 на землю мощным ударом." />
+		<message type="kFightGodToChar" val="Вы попытались завалить $N3. Вот так и сидите." />
+		<message type="kFightGodToVict" val="$n неумело попытал$u завалить вас." />
+		<message type="kFightGodToRoom" val="$n рискнул$g завалить $N3, но не сумел$q." />
+		<message type="kFightDeathToChar" val="Вы мощным ударом завалили $N3 на землю! От такого удара $E скончал$U." />
+		<message type="kFightDeathToVict" val="После удара $n1, вы с треском костей рухнули на землю. Встать вам уже не судьба." />
+		<message type="kFightDeathToRoom" val="$N рухнул$G на землю и рассыпал$U после мощного удара $n1." />
+		<message type="kFightMissToChar" val="Вы попытались сбить $N3, но не смогли. Учитесь." />
+		<message type="kFightMissToVict" val="$n попытал$u сбить вас с ног, но в итоге только зря потратил$g силы." />
+		<message type="kFightMissToRoom" val="$n попытал$u завалить $N3, но не тут-то было." />
+		<message type="kFightHitToChar" val="Вы завалили $N3 на землю." />
+		<message type="kFightHitToVict" val="$n завалил$g вас на землю. Поднимайтесь!" />
+		<message type="kFightHitToRoom" val="Одним ударом $n повалил$g $N3 на землю." />
+		<message type="kFightGodToChar" val="Сбить $N3?! Да вы с ума сошли!!!" />
+		<message type="kFightGodToVict" val="Ваш взгляд заставил $n3 передумать." />
+		<message type="kFightGodToRoom" val="$n2 стало плохо при мысли сбить $N3." />
+	</msg_sheaf>
+	<msg_sheaf id="kKick">
+		<name val="пнуть" abbr="Пн" />
+
+		<message type="kNoTarget" val="Кто это так сильно путается под вашими ногами?" />
+		<message type="kCantTargetSelf" val="Вы БОЛЬНО пнули себя! Поздравляю, вы сошли с ума..." />
+		<message type="kFightDeathToChar" val="Ваш мощный пинок отправил $N3 к праотцам." />
+		<message type="kFightDeathToVict" val="$n пнул$g вас, отделив душу от тела." />
+		<message type="kFightDeathToRoom" val="$N погиб$Q от мощного удара ноги $n1." />
+		<message type="kFightMissToChar" val="Ваш мощный пинок пропал втуне." />
+		<message type="kFightMissToVict" val="$n попытал$u пнуть вас, но промахнул$u." />
+		<message type="kFightMissToRoom" val="$n попытал$u пнуть $N3. Займите же $m ловкости." />
+		<message type="kFightHitToChar" val="Вы {intensity}пнули $N3. Теперь $M наложат гипс." />
+		<message type="kFightHitToVict" val="$n {intensity}пнул$g вас, $e просто изверг." />
+		<message type="kFightHitToRoom" val="$n {intensity}пнул$g $N3. Морда $N1 искривилась в гримасе боли." />
+		<message type="kFightGodToChar" val="$N глянул$G на вас так, что вы покраснели." />
+		<message type="kFightGodToVict" val="Пинать $n3 учили плохо - $e промахнул$u." />
+		<message type="kFightGodToRoom" val="$n пнул$g огромный камень, созданный $N4." />
+		<message type="kFightDeathToChar" val="Вы отвесили $N2 смачного пинка. Больше $M ничего не понадобится." />
+		<message type="kFightDeathToVict" val="Своим ядреным пинком $n отправил$g вас в путешествие по другим мирам." />
+		<message type="kFightDeathToRoom" val="$n убил$g $N3 своим ядреным пинком." />
+		<message type="kFightMissToChar" val="Ваш пинок не достиг цели - вам остается лишь тренироваться." />
+		<message type="kFightMissToVict" val="$n промахнул$u, когда пытался пнуть вас." />
+		<message type="kFightMissToRoom" val="Мощный пинок $n1 не достиг $N1" />
+		<message type="kFightHitToChar" val="Вы {intensity}пнули $N3, $S аж скрючило от боли." />
+		<message type="kFightHitToVict" val="$n {intensity}пнул$g вас. Ваши глаза на лоб полезли от этой дикой боли." />
+		<message type="kFightHitToRoom" val="$n {intensity}пнул$g $N3. Теперь $N дико вращает глазами от боли." />
+		<message type="kFightGodToChar" val="Вы хотели отвесить пинка $N2, но запнулись." />
+		<message type="kFightGodToVict" val="Размах на рубль - удар на копейку. Это про $n3." />
+		<message type="kFightGodToRoom" val="$n2 стало плохо при мысли пнуть $N3." />
+	</msg_sheaf>
+	<msg_sheaf id="kDisarm">
+		<name val="обезоружить" abbr="Об" />
+
+		<message type="kNoTarget" val="Кого обезоруживаем?" />
+		<message type="kCantTargetSelf" val="Попробуйте набрать &quot;снять &lt;название.оружия&gt;&quot;." />
+	</msg_sheaf>
+	<msg_sheaf id="kChopoff">
+		<name val="подножка" abbr="Пд" />
+
+		<message type="kNoTarget" val="Кого вы собираетесь подсечь?" />
+		<message type="kCantTargetSelf" val="Вы можете воспользоваться командой &lt;сесть&gt;." />
+	</msg_sheaf>
+	<msg_sheaf id="kCharge">
+		<name val="натиск" abbr="Нт" />
+
+		<message type="kCantFightNow" val="Вы временно не в состоянии это сделать." />
+		<message type="kGetOnFeet" val="Вы не можете ринуться в бой из этого положения!" />
+		<message type="kNoTarget" val="В каком направлении Вы желаете ринуться в бой?" />
+	</msg_sheaf>
+	<msg_sheaf id="kIntercept">
+		<name val="перехватить атаку" abbr="Пх" />
+
+		<message type="kCantTargetSelf" val=", вы похожи на котенка, ловящего собственный хвост." />
+	</msg_sheaf>
+	<msg_sheaf id="kDazzle">
+		<name val="ослепить" abbr="Осл" />
+
+		<message type="kNoTarget" val="Кого же вы так сильно желаете лишить зрения?" />
+		<message type="kCantTargetSelf" val="Лучше уж выколите себе глаза, чтобы не мучаться!" />
+	</msg_sheaf>
+	<msg_sheaf id="kOverwhelm">
+		<name val="оглушить" abbr="Ог" />
+
+		<message type="kNoTarget" val="Кого вы хотите оглушить?" />
+		<message type="kCantTargetSelf" val="Вы громко заорали, заглушая свой собственный голос." />
+	</msg_sheaf>
+	<msg_sheaf id="kHammer">
+		<name val="богатырский молот" abbr="Бм" />
+
+		<message type="kNoTarget" val="Кого вы хотите СИЛЬНО ударить?" />
+		<message type="kCantTargetSelf" val="Вы СИЛЬНО ударили себя. Но вы и не спали." />
+	</msg_sheaf>
+	<msg_sheaf id="kStun">
+		<name val="ошеломить" abbr="Ош" />
+
+		<message type="kMustBeMounted" val="Вы привстали на стременах и поняли: 'лошадь украли!!!'" />
+		<message type="kNeedWeapon" val="Вы должны держать оружие в основной руке." />
+		<message type="kNoTarget" val="Кто это так сильно путается у вас под руками?" />
+		<message type="kCantTargetSelf" val="Вы БОЛЬНО стукнули себя по голове! 'А еще я туда ем', - подумали вы..." />
+	</msg_sheaf>
+	<msg_sheaf id="kParry">
+		<name val="парировать" abbr="Пр" />
+	</msg_sheaf>
+	<msg_sheaf id="kMultiparry">
+		<name val="веерная защита" abbr="Вз" />
+	</msg_sheaf>
+	<msg_sheaf id="kShieldBlock">
+		<name val="блокировать щитом" abbr="Бщ" />
+
+		<message type="kNotFighting" val="Но вы ни с кем не сражаетесь!" />
+	</msg_sheaf>
+	<msg_sheaf id="kDodge">
+		<name val="уклониться" abbr="Укл" />
+
+		<message type="kNotFighting" val="Но вы ведь ни с кем не сражаетесь!" />
+	</msg_sheaf>
+	<msg_sheaf id="kIronwind">
+		<name val="железный ветер" abbr="Жв" />
+
+		<message type="kNoTarget" val="Кого вам угодно изрубить в капусту?" />
+		<message type="kCantTargetSelf" val="Вы с чувством собственного достоинства мощно пустили ветры... Железные." />
+	</msg_sheaf>
+	<msg_sheaf id="kThrowout">
+		<name val="вышвырнуть" abbr="Выш" />
+
+		<message type="kNoTarget" val="Кого вы так сильно ненавидите, что хотите вышвырнуть отсюда?" />
+		<message type="kCantTargetSelf" val="Вышвырнуть самого себя?!" />
+	</msg_sheaf>
+	<msg_sheaf id="kStrangle">
+		<name val="удавить" abbr="Уд" />
+
+		<message type="kDontKnowSkill" val="Вы не умеете этого." />
+		<message type="kNoTarget" val="Кого вы жаждете удавить?" />
+		<message type="kCantTargetSelf" val="Воспользуйтесь услугами княжеского палача. Постоянным клиентам - скидки!" />
+		<message type="kFightDeathToChar" val="Стоило вам слегка придушить $N3 - и $E спокойно испустил$G дух." />
+		<message type="kFightDeathToVict" val="Удавка $n1 оборвала ваш земной путь. Покойтесь с миром." />
+		<message type="kFightDeathToRoom" val="$N вытаращил$G глаза и тихо испустил$G дух в удавке $n1." />
+		<message type="kFightMissToChar" val="Вы не смогли удавить $N3. Надо было больше тренироваться и чаще брить голову!" />
+		<message type="kFightMissToVict" val="Удавка $n1 попусту рассекла воздух - вам удалось увернуться." />
+		<message type="kFightMissToRoom" val="Удавка $n1 лишь попусту рассекла воздух - $N увернул$U." />
+		<message type="kFightHitToChar" val="$N захрипел$G и смешно задергал$U, когда вы затянули на $S шее удавку." />
+		<message type="kFightHitToVict" val="Удавка $n1 впилась вам в горло! Не помешало бы глотнуть воздуха!" />
+		<message type="kFightHitToRoom" val="$N захрипел$G и выпучил$G глаза, когда $n накинул$g на $S шею удавку." />
+		<message type="kFightGodToChar" val="Задушить? $N3?! А если $E на вас плюнет?!" />
+		<message type="kFightGodToVict" val="$n попытал$u задушить вас. Как бы не лопнул$g с натуги, бедняжка..." />
+		<message type="kFightGodToRoom" val="$n попытал$u удавить $N3. Доживать свой век $e будет лягушкой в ближайшем болоте." />
+	</msg_sheaf>
+	<msg_sheaf id="kSlay">
+		<name val="сразить" abbr="Ср" />
+
+		<message type="kDontKnowSkill" val="Вы не умеете сражать, только сра... В общем, не умеете." />
+		<message type="kNoTarget" val="Кого же вы хотите сразить?" />
+		<message type="kCantTargetSelf" val="Сразить себя?! Вы же дружинник, а не самурай!" />
+		<message type="kNeedWeapon" val="Для этого Вам потребуется оружие!" />
+		<message type="kFightDeathToChar" val="Вы сразили $N3 наповал!" />
+		<message type="kFightDeathToVict" val="Удар $n1 надолго отбил у вас охоту вставать." />
+		<message type="kFightDeathToRoom" val="$N сражен$A наповал ударом $n1! Впечатляет!" />
+		<message type="kFightMissToChar" val="$N ловко увернул$U, и Вы не смогли сразить $S." />
+		<message type="kFightMissToVict" val="$n хотел$g одним ударом сразить вас, но, куды там..." />
+		<message type="kFightMissToRoom" val="$N избежал$G попытки $n1 сразить $S." />
+		<message type="kFightHitToChar" val="Вы поразили $N3 своим точным ударом. Эх, хорошо!" />
+		<message type="kFightHitToVict" val="Вы закряхтели от мощного удара $n1. Ну-ка, начислите ему сдачи!" />
+		<message type="kFightHitToRoom" val="$n неожиданно поразил$g $N3 резким ударом." />
+		<message type="kFightGodToChar" val="Вы попытались сразить $N3. Жалкое зрелище." />
+		<message type="kFightGodToVict" val="$n неумело попытал$u сразить вас." />
+		<message type="kFightGodToRoom" val="$n рискнул$g сразить $N3 наповал, но $s удар пролетел мимо." />
+		<message type="kFightDeathToChar" val="Вы сразили $N3 наповал! Он$G отказывается дальше жить." />
+		<message type="kFightDeathToVict" val="После удара $n1, вы опали на землю как озимы. Встать вам уже не судьба." />
+		<message type="kFightDeathToRoom" val="$N рухнул$G на землю после мощного удара $n1." />
+		<message type="kFightMissToChar" val="Вы попытались сразить $N3 сильнейшим ударом. Жалкое зрелище." />
+		<message type="kFightMissToVict" val="$n попытал$u сразить вас наповал, но, в итоге просто разрубил$g воздух." />
+		<message type="kFightMissToRoom" val="$n попытал$u сразить $N3, но не тут-то было." />
+		<message type="kFightHitToChar" val="Вы поразили $N3 своим ударом. Мощно приложились, внушает!" />
+		<message type="kFightHitToVict" val="$n поразил$g вас метким ударом! Как Вам такое?!" />
+		<message type="kFightHitToRoom" val="$n поразил$g $N3 молниеносным ударом!" />
+		<message type="kFightGodToChar" val="Сразить $N3?! Да вы с ума сошли!!!" />
+		<message type="kFightGodToVict" val="Ваш взгляд заставил $n3 передумать." />
+		<message type="kFightGodToRoom" val="$n2 стало плохо при мысли о попытке сразить $N3." />
+	</msg_sheaf>
+	<msg_sheaf id="kCutting">
+		<name val="!порез!" abbr="Пр" />
+
+		<message type="kDontKnowSkill" val="Вы не владеете таким приемом." />
+		<message type="kNoTarget" val="Кого вы хотите порезать?" />
+		<message type="kCantTargetSelf" val="Вы таки да? Ой-вей, но тут Древняя Русь, а не Палестина!" />
+		<message type="kFightDeathToChar" val="Вы перерезали нить жизни $N1." />
+		<message type="kFightDeathToVict" val="Клинок $n1 перерезал нить вашей жизни." />
+		<message type="kFightDeathToRoom" val="Клинок $n1 перерезал нить жизни $N1." />
+		<message type="kFightMissToChar" val="Вы попытались порезать $N3, но лишь потеряли равновесие, неловко взмахнув оружием." />
+		<message type="kFightMissToVict" val="Вы только хмыкнули, увидев, как $n едва не упал$g, пытаясь порезать вас." />
+		<message type="kFightMissToRoom" val="$n взмахнул$g клинками, пытаясь порезать $N3, но лишь едва не упал$g." />
+		<message type="kFightHitToChar" val="Вы оставили несколько глубоких порезов на шкуре $N1." />
+		<message type="kFightHitToVict" val="Клинки $n1 оставили несколько глубоких порезов на шкуре $N1." />
+		<message type="kFightHitToRoom" val="Быстрые удары $n1 оставили несколько глубоких порезов на шкуре $N1." />
+		<message type="kFightGodToChar" val="Вы едва не совершили сэппуку, пытаясь порезать $N1." />
+		<message type="kFightGodToVict" val="$n попытал$g вас порезать. $n явно душевноболь$x." />
+		<message type="kFightGodToRoom" val="Прыжки и ужимки $n1 лишь позабавили $N1." />
+		<message type="kFightDeathToChar" val="Ваши порезы выпустили последние капли крови из $N1." />
+		<message type="kFightDeathToVict" val="Вы исткели кровью от нанесенных $n4 порезов." />
+		<message type="kFightDeathToRoom" val="$N истек$q кровью от нанесенных $n4 порезов." />
+		<message type="kFightMissToChar" val="Вы не смогли порезать $N3. Нужно больше практики." />
+		<message type="kFightMissToVict" val="$n не сумел$g порезать вас. $m надо было больше тренироваться." />
+		<message type="kFightMissToRoom" val="$n попытал$u порезать $N3, но не тут-то было." />
+		<message type="kFightHitToChar" val="Вы глубоко вспороли шкуру $N1." />
+		<message type="kFightHitToVict" val="Удары оружия $n1 глубоко вспороли вашу кожу." />
+		<message type="kFightHitToRoom" val="Быстрые удары $n1 причинили $N2 несколько глубоких порезов." />
+		<message type="kFightGodToChar" val="Вы едва не отрезали себе нос при попытке порезать $N1." />
+		<message type="kFightGodToVict" val="$n вытащил$g ножик и принял$u скакать вокруг вас. Вот скоморох." />
+		<message type="kFightGodToRoom" val="$n вытащил$g ножик и принял$u скакать вокруг $N1. Вот скоморох." />
+	</msg_sheaf>
+	<msg_sheaf id="kFrenzy">
+		<name val="исступление" abbr="Ис" />
+
+		<message type="kDontKnowSkill" val="Вам это не по силам." />
+		<message type="kPeacefulRoom" val="Вы не можете впасть в &amp;Rисступление&amp;n находясь в тишине и покое!" />
+	</msg_sheaf>
+	<msg_sheaf id="kRescue">
+		<name val="спасти" abbr="Спс" />
+
+		<message type="kDontKnowSkill" val="Но вы не знаете как." />
+		<message type="kNoTarget" val="Кто это так сильно путается под вашими ногами?" />
+		<message type="kCantTargetSelf" val="Ваше спасение вы можете доверить только Богам." />
+	</msg_sheaf>
+	<msg_sheaf id="kThrow">
+		<name val="метнуть" abbr="Мт" />
+
+		<message type="kNoTarget" val="В кого мечем?" />
+		<message type="kCantTargetSelf" val="Вы начали метаться как белка в колесе." />
+		<message type="kFightDeathToChar" val="Ваш меткий бросок заставил $N3 покинуть сей бренный мир." />
+		<message type="kFightDeathToVict" val="$n швырнул$g в вас свое смертоносное оружие - вам хватило..." />
+		<message type="kFightDeathToRoom" val="Меткий бросок $n1 заставил $N3 покинуть сей бренный мир." />
+		<message type="kFightMissToChar" val="Вы попытались метнуть оружие в $N3, но промахнулись." />
+		<message type="kFightMissToVict" val="Вы усмехнулись, когда $n не попал$g в вас." />
+		<message type="kFightMissToRoom" val="$n промахнул$u, пытаясь бросить свое оружие в $N3." />
+		<message type="kFightHitToChar" val="Ваш меткий бросок надолго запомнится $N2." />
+		<message type="kFightHitToVict" val="Меткий бросок $n1 достиг цели - это достаточно больно." />
+		<message type="kFightHitToRoom" val="Меткий бросок $n1 заставил $N3 застонать от боли." />
+		<message type="kFightGodToChar" val="Ваше оружие послушно легло к ногам $N1." />
+		<message type="kFightGodToVict" val="$n швырнул$g в вас свое оружие, но промахнул$u." />
+		<message type="kFightGodToRoom" val="Бросок $n1 вызвал лишь легкую улыбку на губах $N1." />
+	</msg_sheaf>
+	<msg_sheaf id="kProtect">
+		<name val="прикрыть" abbr="Пк" />
+
+		<message type="kNoTarget" val="И кто так сильно мил вашему сердцу?" />
+		<message type="kCantTargetSelf" val="Вы явно пацифист, или мазохист." />
+	</msg_sheaf>
+	<msg_sheaf id="kTurnUndead">
+		<name val="изгнать нежить" abbr="Из" />
+
+		<message type="kDontKnowSkill" val="Вам это не по силам." />
+		<message type="kOnCooldown" val="Вам нужно набраться сил для применения этого навыка." />
+		<message type="kFightDeathToChar" val="Ослепительный луч света спалил $N3 дотла." />
+		<message type="kFightDeathToVict" val="Ослепительный луч света просто испепелил вас. Нам будет вас не хватать." />
+		<message type="kFightDeathToRoom" val="Исходящий от $n1 свет превратил $N3 в кучку золы." />
+		<message type="kFightMissToChar" val="Вы не смогли нанести урон $N2." />
+		<message type="kFightMissToVict" val="Лучи света безвредно скользнули по вам." />
+		<message type="kFightMissToRoom" val="Лучи света безвредно скользнули по $N2." />
+		<message type="kFightHitToChar" val="Лучи света опалили $N3." />
+		<message type="kFightHitToVict" val="$n опалил$g вас лучами света. БОЛЬНО!" />
+		<message type="kFightHitToRoom" val="Луч света опалил $N3 и $E содрогнул$U от боли." />
+		<message type="kFightGodToChar" val="Вы попытались обжечь $N3. Кажется, $M на вас наплевать." />
+		<message type="kFightGodToVict" val="$n попытал$u обжечь вас - и чуть не сгорел$g!" />
+		<message type="kFightGodToRoom" val="$n попытал$u обжечь $N3 - и чуть не сгорел$g!" />
+	</msg_sheaf>
+	<msg_sheaf id="kWarcry">
+		<name val="боевой клич" abbr="Бк" />
+
+		<message type="kDontKnowSkill" val="Но вы не знаете как." />
+	</msg_sheaf>
+	<msg_sheaf id="kJinx">
+		<name val="сглазить" abbr="Сг" />
+
+		<message type="kNoTarget" val="Кого вы столь сильно ненавидите?" />
+		<message type="kCantTargetSelf" val="Вы укусили себя за левое ухо." />
+		<message type="kFightDeathToChar" val="Стоило вам только посмотреть на $N3, как $E просто умер$Q. Похоже от страха!" />
+		<message type="kFightDeathToVict" val="Последнее что вы увидели в своей жизни, это злой взгляд $n1 в вашу сторону." />
+		<message type="kFightDeathToRoom" val="Под радостным взглядом $n1 $N0 весело умер$Q." />
+		<message type="kFightMissToChar" val="Вы зло посмотрели на $N3, но $M похоже наплевать." />
+		<message type="kFightMissToVict" val="Злобный взгляд $n1 упал на вас. Упал и пропал." />
+		<message type="kFightMissToRoom" val="Пылающий злобой взгляд $n1 готов испепелить $N3. Но проку маловато." />
+		<message type="kFightHitToChar" val="Вы посмотрели своим недобрым глазом на $N3, $E передернул$U от боли." />
+		<message type="kFightHitToVict" val="$n посмотрел$g на вас своим недобрым глазом. Мама, роди меня обратно!" />
+		<message type="kFightHitToRoom" val="$n прищурил$u и зло зыркнул$g на $N3. \u$N3 просто передернуло от боли." />
+		<message type="kFightGodToChar" val="Вы прищурились, кинули взгляд на $N3 и чуть не ослепли!" />
+		<message type="kFightGodToVict" val="$n тупо уставил$u на вас - идиот идиотом." />
+		<message type="kFightGodToRoom" val="$n прищурил$u и тупо глянул$g на $N3. Ну и морда!" />
+	</msg_sheaf>
+	<msg_sheaf id="kFirstAid">
+		<name val="лечить" abbr="Лч" />
+
+		<message type="kDontKnowSkill" val="Вам следует этому научиться." />
+		<message type="kNoTarget" val="Кого вы хотите подлечить?" />
+	</msg_sheaf>
+	<msg_sheaf id="kCampfire">
+		<name val="разжечь костер" abbr="Рк" />
+
+		<message type="kDontKnowSkill" val="Но вы не знаете как." />
+		<message type="kCantWhileMounted" val="Верхом это будет затруднительно." />
+	</msg_sheaf>
+	<msg_sheaf id="kHideTrack">
+		<name val="замести следы" abbr="Зс" />
+
+		<message type="kDontKnowSkill" val="Но вы не знаете как." />
+	</msg_sheaf>
+	<msg_sheaf id="kArmoring">
+		<name val="укрепить" abbr="Укр" />
+
+		<message type="kDontKnowSkill" val="Вы не умеете этого." />
+		<message type="kNoTarget" val="Что вы хотите укрепить?" />
+	</msg_sheaf>
+	<msg_sheaf id="kSharpening">
+		<name val="заточить" abbr="Зат" />
+
+		<message type="kDontKnowSkill" val="Вы не умеете этого." />
+		<message type="kNoTarget" val="Что вы хотите заточить?" />
+	</msg_sheaf>
+	<msg_sheaf id="kRepair">
+		<name val="ремонт" abbr="Рм" />
+
+		<message type="kDontKnowSkill" val="Вы не умеете этого." />
+		<message type="kNoTarget" val="Что вы хотите ремонтировать?" />
+	</msg_sheaf>
+	<msg_sheaf id="kPoisoning">
+		<name val="отравить" abbr="Отр" />
+
+		<message type="kDontKnowSkill" val="Вы не умеете этого." />
+		<message type="kNoTarget" val="Что вы хотите отравить?" />
+	</msg_sheaf>
+	<msg_sheaf id="kSkinning">
+		<name val="освежевать" abbr="Осв" />
+
+		<message type="kDontKnowSkill" val="Вы не умеете этого." />
+		<message type="kNoTarget" val="Что вы хотите освежевать?" />
+	</msg_sheaf>
+	<msg_sheaf id="kIdentify">
+		<name val="опознание" abbr="Оп" />
+
+		<message type="kDontKnowSkill" val="Вам стоит сначала этому научиться." />
+		<message type="kOnCooldown" val="Вы же недавно опознавали - подождите чуток." />
+	</msg_sheaf>
+	<msg_sheaf id="kTownportal">
+		<name val="врата" abbr="Вр" />
+
+		<message type="kDontKnowSkill" val="Прежде изучите секрет постановки врат." />
+	</msg_sheaf>
+	<msg_sheaf id="kShieldBash">
+		<name val="удар щитом" abbr="Ущ" />
+
+		<message type="kFightDeathToChar" val="Ваш мощнейший удар щитом сразил $N3 наповал!" />
+		<message type="kFightDeathToVict" val="После мощнейшего удара щитом $n1 Вам уже не жить!" />
+		<message type="kFightDeathToRoom" val="$N сражен$A наповал ударом щита $n1!" />
+		<message type="kFightMissToChar" val="$N ловко увернул$U, и Вы не смогли ударить щитом $S." />
+		<message type="kFightMissToVict" val="$n хотел$g сразить вас ударом щита, но, куды там..." />
+		<message type="kFightMissToRoom" val="$N избежал$G попытки $n1 сразить щитом $S." />
+		<message type="kFightHitToChar" val="Вы поразили $N3 своим точным ударом щита. Эх, хорошо!" />
+		<message type="kFightHitToVict" val="Вы закряхтели от мощного удара щитом $n1. Ну-ка, начислите ему сдачи!" />
+		<message type="kFightHitToRoom" val="$n неожиданно поразил$g $N3 резким ударом щита." />
+		<message type="kFightGodToChar" val="Вы попытались сразить щитом $N3. Жалкое зрелище." />
+		<message type="kFightGodToVict" val="$n неумело попытал$u сразить вас своим щитом." />
+		<message type="kFightGodToRoom" val="$n рискнул$g сразить $N3 наповал ударом щита, но $s удар пролетел мимо." />
+	</msg_sheaf>
+	<msg_sheaf id="kReligion">
+		<name val="!молитва или жертва!" abbr="Error" />
+	</msg_sheaf>
+	<msg_sheaf id="kAny">
+		<name val="!any" abbr="Any" />
+	</msg_sheaf>
+	<msg_sheaf id="kGlobalCooldown">
+		<name val="!cooldown" abbr="ОЗ" />
+	</msg_sheaf>
+	<msg_sheaf id="kHide">
+		<name val="спрятаться" abbr="Сп" />
+	</msg_sheaf>
+	<msg_sheaf id="kPickLock">
+		<name val="взломать" abbr="Вз" />
+	</msg_sheaf>
+	<msg_sheaf id="kPunch">
+		<name val="кулачный бой" abbr="Кб" />
+	</msg_sheaf>
+	<msg_sheaf id="kSneak">
+		<name val="подкрасться" abbr="Пд" />
+	</msg_sheaf>
+	<msg_sheaf id="kSteal">
+		<name val="украсть" abbr="Ук" />
+	</msg_sheaf>
+	<msg_sheaf id="kTrack">
+		<name val="выследить" abbr="Выс" />
+	</msg_sheaf>
+	<msg_sheaf id="kTwohands">
+		<name val="двуручники" abbr="Дв" />
+	</msg_sheaf>
+	<msg_sheaf id="kLongBlades">
+		<name val="длинные лезвия" abbr="Дл" />
+	</msg_sheaf>
+	<msg_sheaf id="kSpades">
+		<name val="копья и рогатины" abbr="Кр" />
+	</msg_sheaf>
+	<msg_sheaf id="kShortBlades">
+		<name val="короткие лезвия" abbr="Кл" />
+	</msg_sheaf>
+	<msg_sheaf id="kBows">
+		<name val="луки" abbr="Лк" />
+	</msg_sheaf>
+	<msg_sheaf id="kClubs">
+		<name val="палицы и дубины" abbr="Пд" />
+	</msg_sheaf>
+	<msg_sheaf id="kPicks">
+		<name val="проникающее оружие" abbr="Прн" />
+	</msg_sheaf>
+	<msg_sheaf id="kNonstandart">
+		<name val="иное оружие" abbr="Ин" />
+	</msg_sheaf>
+	<msg_sheaf id="kAxes">
+		<name val="секиры" abbr="Ск" />
+	</msg_sheaf>
+	<msg_sheaf id="kSideAttack">
+		<name val="атака левой рукой" abbr="Ал" />
+	</msg_sheaf>
+	<msg_sheaf id="kLooking">
+		<name val="приглядеться" abbr="Прг" />
+	</msg_sheaf>
+	<msg_sheaf id="kHearing">
+		<name val="прислушаться" abbr="Прс" />
+	</msg_sheaf>
+	<msg_sheaf id="kMorph">
+		<name val="оборотничество" abbr="Обр" />
+	</msg_sheaf>
+	<msg_sheaf id="kAddshot">
+		<name val="дополнительный выстрел" abbr="Доп" />
+	</msg_sheaf>
+	<msg_sheaf id="kDisguise">
+		<name val="маскировка" abbr="Мск" />
+	</msg_sheaf>
+	<msg_sheaf id="kCourage">
+		<name val="ярость" abbr="Яр" />
+	</msg_sheaf>
+	<msg_sheaf id="kPry">
+		<name val="подсмотреть" abbr="Пдм" />
+	</msg_sheaf>
+	<msg_sheaf id="kHangovering">
+		<name val="опохмелиться" abbr="Опх" />
+	</msg_sheaf>
+	<msg_sheaf id="kLeftHit">
+		<name val="удар левой рукой" abbr="Улр" />
+	</msg_sheaf>
+	<msg_sheaf id="kLeadership">
+		<name val="лидерство" abbr="Лд" />
+	</msg_sheaf>
+	<msg_sheaf id="kPunctual">
+		<name val="точный стиль" abbr="Тс" />
+	</msg_sheaf>
+	<msg_sheaf id="kAwake">
+		<name val="осторожный стиль" abbr="Ос" />
+	</msg_sheaf>
+	<msg_sheaf id="kSense">
+		<name val="найти" abbr="Нйт" />
+	</msg_sheaf>
+	<msg_sheaf id="kRiding">
+		<name val="сражение верхом" abbr="Срв" />
+	</msg_sheaf>
+	<msg_sheaf id="kReforging">
+		<name val="перековать" abbr="Прк" />
+	</msg_sheaf>
+	<msg_sheaf id="kMakeBow">
+		<name val="смастерить лук" abbr="Сл" />
+	</msg_sheaf>
+	<msg_sheaf id="kMakeWeapon">
+		<name val="выковать оружие" abbr="Вкр" />
+	</msg_sheaf>
+	<msg_sheaf id="kMakeArmor">
+		<name val="выковать доспех" abbr="Вкд" />
+	</msg_sheaf>
+	<msg_sheaf id="kMakeWear">
+		<name val="сшить одежду" abbr="Сш" />
+	</msg_sheaf>
+	<msg_sheaf id="kMakeJewel">
+		<name val="смастерить диковинку" abbr="Сд" />
+	</msg_sheaf>
+	<msg_sheaf id="kNoParryHit">
+		<name val="скрытый удар" abbr="Сд" />
+	</msg_sheaf>
+	<msg_sheaf id="kDigging">
+		<name val="горное дело" abbr="Гд" />
+	</msg_sheaf>
+	<msg_sheaf id="kJewelry">
+		<name val="ювелир" abbr="Юв" />
+	</msg_sheaf>
+	<msg_sheaf id="kAirMagic">
+		<name val="магия воздуха" abbr="Ма" />
+	</msg_sheaf>
+	<msg_sheaf id="kFireMagic">
+		<name val="магия огня" abbr="Мо" />
+	</msg_sheaf>
+	<msg_sheaf id="kWaterMagic">
+		<name val="магия воды" abbr="Мвд" />
+	</msg_sheaf>
+	<msg_sheaf id="kEarthMagic">
+		<name val="магия земли" abbr="Мз" />
+	</msg_sheaf>
+	<msg_sheaf id="kLightMagic">
+		<name val="магия света" abbr="Мс" />
+	</msg_sheaf>
+	<msg_sheaf id="kDarkMagic">
+		<name val="магия тьмы" abbr="Мт" />
+	</msg_sheaf>
+	<msg_sheaf id="kMindMagic">
+		<name val="магия разума" abbr="Мр" />
+	</msg_sheaf>
+	<msg_sheaf id="kLifeMagic">
+		<name val="магия жизни" abbr="Мж" />
+	</msg_sheaf>
+	<msg_sheaf id="kMakeAmulet">
+		<name val="смастерить оберег" abbr="Со" />
+	</msg_sheaf>
+	<msg_sheaf id="kCreateBow">
+		<name val="!отключено" abbr="!error" />
+	</msg_sheaf>
+	<msg_sheaf id="kCreatePotion">
+		<name val="!отключено" abbr="!error" />
+	</msg_sheaf>
+	<msg_sheaf id="kCreateScroll">
+		<name val="!отключено" abbr="!error" />
+	</msg_sheaf>
+	<msg_sheaf id="kCreateWand">
+		<name val="!отключено" abbr="!error" />
+	</msg_sheaf>
+	<msg_sheaf id="kMakeStaff">
+		<name val="!отключено" abbr="!error" />
+	</msg_sheaf>
+	<msg_sheaf id="kMakePotion">
+		<name val="!отключено" abbr="!error" />
+	</msg_sheaf>
+</msg_container>

@@ -1,5 +1,7 @@
 #include "gameplay/ai/spec_assign.h"
 
+#include "engine/db/global_objects.h"
+
 #include "engine/db/db.h"
 #include "engine/db/obj_prototypes.h"
 #include "engine/entities/char_data.h"
@@ -9,35 +11,29 @@
 
 using special_f = int(CharData *, void *, int, char *);
 
-int dump(CharData *ch, void *me, int cmd, char *argument);
-int puff(CharData *ch, void *me, int cmd, char *argument);
-
 namespace {
 
-bool IsManagedMobSpecial(const special_f *func) {
-	return func == puff
-		|| func == receptionist
-		|| func == postmaster
-		|| func == bank
-		|| func == horse_keeper
-		|| func == exchange
-		|| func == torc
-		|| func == Noob::outfit
-		|| func == mercenary;
-}
+// The cfg/specials.xml + AssignMobiles-driven mob specials. Dropped before the reassign below so
+// that entries removed from cfg actually disappear; kShop (shop config) and kGuild (guilds) are
+// managed elsewhere and left intact. (Mobs are data-driven now -- no func pointer to inspect.)
+const specials::ESpecial kReloadableMobSpecials[] = {
+	specials::ESpecial::kRent, specials::ESpecial::kMail, specials::ESpecial::kBank,
+	specials::ESpecial::kHorse, specials::ESpecial::kExchange, specials::ESpecial::kTorc,
+	specials::ESpecial::kMercenary, specials::ESpecial::kOutfit, specials::ESpecial::kPuff,
+};
 
 bool IsManagedObjectSpecial(const special_f *func) {
 	return func == Boards::Static::Special;
 }
 
-bool IsManagedRoomSpecial(const special_f *func) {
-	return func == dump;
+bool IsManagedRoomSpecial(const special_f * /*func*/) {
+	return false;  // dump (the only room special) removed
 }
 
 void ClearManagedSpecProcs() {
 	for (MobRnum i = 0; i <= top_of_mobt; ++i) {
-		if (IsManagedMobSpecial(mob_index[i].func)) {
-			mob_index[i].func = nullptr;
+		for (const auto sp : kReloadableMobSpecials) {
+			specials::UnregisterMob(mob_index[i].vnum, sp);
 		}
 	}
 
@@ -61,7 +57,7 @@ void ReloadSpecProcs() {
 	AssignMobiles();
 	AssignObjects();
 	AssignRooms();
-	InitSpecProcs();
+	MUD::CfgManager().ReloadCfg("specials");
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

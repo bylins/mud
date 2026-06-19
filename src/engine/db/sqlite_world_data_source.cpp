@@ -4,6 +4,7 @@
 #ifdef HAVE_SQLITE
 
 #include "sqlite_world_data_source.h"
+#include "utils/utils_encoding.h"
 #include "db.h"
 #include "obj_prototypes.h"
 #include "utils/logger.h"
@@ -142,6 +143,7 @@ static std::unordered_map<std::string, Bitvector> mob_action_flag_map = {
 	{"kIgnoresFear", EMobFlag::kNoFear},
 	{"kNoGroup", EMobFlag::kNoGroup},
 	{"kCorpse", EMobFlag::kCorpse},
+	{"kUndead", EMobFlag::kUndead},
 	{"kLooter", EMobFlag::kLooter},
 	{"kLooting", EMobFlag::kLooter},
 	{"kProtected", EMobFlag::kProtect},
@@ -166,7 +168,9 @@ static std::unordered_map<std::string, Bitvector> mob_action_flag_map = {
 	{"kClone", EMobFlag::kClone},
 	{"kTutelar", EMobFlag::kTutelar},
 	{"kMentalShadow", EMobFlag::kMentalShadow},
-	{"kSummoner", EMobFlag::kSummoned},
+	{"kSummoner", EMobFlag::kCompanion},
+	{"kCompanion", EMobFlag::kCompanion},
+	{"kSummoned", EMobFlag::kSummoned},
 	{"kFireCreature", EMobFlag::kFireBreath},
 	{"kWaterCreature", EMobFlag::kSwimming},
 	{"kEarthCreature", EMobFlag::kNoBash},
@@ -630,7 +634,7 @@ std::string SqliteWorldDataSource::GetText(sqlite3_stmt *stmt, int col)
 	static char buffer[65536];
 	char *input = const_cast<char*>(text);
 	char *output = buffer;
-	utf8_to_koi(input, output);
+	codepages::utf8_to_koi(input, output);
 	return buffer;
 }
 
@@ -1182,6 +1186,10 @@ void SqliteWorldDataSource::LoadRoomExits(const std::map<int, int> &vnum_to_rnum
 		// Set exit flags (stored as string in database, parse as integer)
 		exit_data->exit_info = exit_flags;
 
+		// Дропаем полностью пустые D-блоки (симметрично с legacy/yaml),
+		// см. issue #3272.
+		if (exit_data->is_empty()) continue;
+
 		room->dir_option_proto[dir] = exit_data;
 		exits_loaded++;
 	}
@@ -1290,7 +1298,8 @@ void SqliteWorldDataSource::LoadMobs()
 					  "attr_str, attr_dex, attr_int, attr_wis, attr_con, attr_cha, "
 					  "attr_str_add, hp_regen, armour_bonus, mana_regen, cast_success, morale, "
 					  "initiative_add, absorb, aresist, mresist, presist, bare_hand_attack, "
-					  "like_work, max_factor, extra_attack, mob_remort, special_bitvector, role "
+					  "like_work, max_factor, extra_attack, mob_remort, special_bitvector, role, "
+					  "speed "
 					  "FROM mobs WHERE enabled = 1 ORDER BY vnum";
 
 	sqlite3_stmt *stmt;
@@ -1316,19 +1325,19 @@ void SqliteWorldDataSource::LoadMobs()
 		// Names
 		mob.SetCharAliases(GetText(stmt, 1));
 		mob.set_npc_name(GetText(stmt, 2));
-		mob.player_data.PNames[ECase::kNom] = GetText(stmt, 2);
-		mob.player_data.PNames[ECase::kGen] = GetText(stmt, 3);
-		mob.player_data.PNames[ECase::kDat] = GetText(stmt, 4);
-		mob.player_data.PNames[ECase::kAcc] = GetText(stmt, 5);
-		mob.player_data.PNames[ECase::kIns] = GetText(stmt, 6);
-		mob.player_data.PNames[ECase::kPre] = GetText(stmt, 7);
+		mob.player_data.PNames[grammar::ECase::kNom] = GetText(stmt, 2);
+		mob.player_data.PNames[grammar::ECase::kGen] = GetText(stmt, 3);
+		mob.player_data.PNames[grammar::ECase::kDat] = GetText(stmt, 4);
+		mob.player_data.PNames[grammar::ECase::kAcc] = GetText(stmt, 5);
+		mob.player_data.PNames[grammar::ECase::kIns] = GetText(stmt, 6);
+		mob.player_data.PNames[grammar::ECase::kPre] = GetText(stmt, 7);
 
 		// Descriptions
 		mob.player_data.long_descr = utils::colorCAP(GetText(stmt, 8));
 		mob.player_data.description = GetText(stmt, 9);
 
 		// Base parameters
-		GET_ALIGNMENT(&mob) = sqlite3_column_int(stmt, 10);
+		alignment::SetAlignment(&mob, sqlite3_column_int(stmt, 10));
 
 		// Stats
 		mob.set_level(sqlite3_column_int(stmt, 12));
@@ -1423,6 +1432,12 @@ void SqliteWorldDataSource::LoadMobs()
 			CharData::role_t role(role_str);
 			mob.set_role(role);
 		}
+
+		// Movement speed: -1 == default cadence (the common 3-field legacy
+		// position line). Older DBs without the column read NULL -> -1, the
+		// same default the YAML loader uses (issue #3384 class).
+		mob.mob_specials.speed = (sqlite3_column_type(stmt, 57) == SQLITE_NULL)
+			? -1 : sqlite3_column_int(stmt, 57);
 
 		// Set NPC flag
 
@@ -1838,6 +1853,13 @@ void SqliteWorldDataSource::LoadMobDestinations()
 		if (dest_order >= 0 && dest_order < static_cast<int>(mob.mob_specials.dest.size()))
 		{
 			mob.mob_specials.dest[dest_order] = room_vnum;
+			// dest_count drives GET_DEST / the movement-route logic; rows are
+			// ordered by dest_order so this leaves dest_count == number of
+			// destinations, matching the legacy parser (issue #3384).
+			if (dest_order + 1 > mob.mob_specials.dest_count)
+			{
+				mob.mob_specials.dest_count = dest_order + 1;
+			}
 			destinations_set++;
 		}
 	}
@@ -1894,12 +1916,12 @@ void SqliteWorldDataSource::LoadObjects()
 		// Names
 		obj->set_aliases(GetText(stmt, 1));
 		obj->set_short_description(utils::colorLOW(GetText(stmt, 2)));
-		obj->set_PName(ECase::kNom, utils::colorLOW(GetText(stmt, 2)));
-		obj->set_PName(ECase::kGen, utils::colorLOW(GetText(stmt, 3)));
-		obj->set_PName(ECase::kDat, utils::colorLOW(GetText(stmt, 4)));
-		obj->set_PName(ECase::kAcc, utils::colorLOW(GetText(stmt, 5)));
-		obj->set_PName(ECase::kIns, utils::colorLOW(GetText(stmt, 6)));
-		obj->set_PName(ECase::kPre, utils::colorLOW(GetText(stmt, 7)));
+		obj->set_PName(grammar::ECase::kNom, utils::colorLOW(GetText(stmt, 2)));
+		obj->set_PName(grammar::ECase::kGen, utils::colorLOW(GetText(stmt, 3)));
+		obj->set_PName(grammar::ECase::kDat, utils::colorLOW(GetText(stmt, 4)));
+		obj->set_PName(grammar::ECase::kAcc, utils::colorLOW(GetText(stmt, 5)));
+		obj->set_PName(grammar::ECase::kIns, utils::colorLOW(GetText(stmt, 6)));
+		obj->set_PName(grammar::ECase::kPre, utils::colorLOW(GetText(stmt, 7)));
 		obj->set_description(utils::colorCAP(GetText(stmt, 8)));
 		obj->set_action_description(GetText(stmt, 9));
 
@@ -1962,6 +1984,9 @@ void SqliteWorldDataSource::LoadObjects()
 
 	// Load object applies
 	LoadObjectApplies();
+
+	// Load object skills (legacy `S` lines, issue #3386)
+	LoadObjectSkills();
 
 	// Load object triggers
 	LoadObjectTriggers();
@@ -2125,6 +2150,36 @@ void SqliteWorldDataSource::LoadObjectApplies()
 	sqlite3_finalize(stmt);
 
 	log("   Loaded %d object applies.", applies_loaded);
+}
+
+void SqliteWorldDataSource::LoadObjectSkills()
+{
+	const char *sql = "SELECT obj_vnum, skill_id, value FROM obj_skills";
+
+	sqlite3_stmt *stmt;
+	if (sqlite3_prepare_v2(m_db, sql, -1, &stmt, nullptr) != SQLITE_OK)
+	{
+		return;
+	}
+
+	int skills_loaded = 0;
+	while (sqlite3_step(stmt) == SQLITE_ROW)
+	{
+		int obj_vnum = sqlite3_column_int(stmt, 0);
+		int skill_id = sqlite3_column_int(stmt, 1);
+		int value = sqlite3_column_int(stmt, 2);
+
+		int rnum = obj_proto.get_rnum(obj_vnum);
+		if (rnum < 0) continue;
+
+		// Mirrors the legacy `S` line handler; without it object skill
+		// bonuses are silently dropped in the SQLite world (issue #3386).
+		obj_proto[rnum]->set_skill(static_cast<ESkill>(skill_id), value);
+		skills_loaded++;
+	}
+	sqlite3_finalize(stmt);
+
+	log("   Loaded %d object skills.", skills_loaded);
 }
 
 void SqliteWorldDataSource::LoadObjectTriggers()
@@ -2795,8 +2850,8 @@ void SqliteWorldDataSource::SaveMobRecord(int mob_vnum, CharData &mob)
 		"attr_str, attr_dex, attr_int, attr_wis, attr_con, attr_cha, "
 		"attr_str_add, hp_regen, armour_bonus, mana_regen, cast_success, morale, "
 		"initiative_add, absorb, aresist, mresist, presist, bare_hand_attack, "
-		"like_work, max_factor, extra_attack, mob_remort, special_bitvector, role, enabled) "
-		"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)";
+		"like_work, max_factor, extra_attack, mob_remort, special_bitvector, role, speed, enabled) "
+		"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)";
 
 	if (sqlite3_prepare_v2(m_db, insert_sql, -1, &stmt, nullptr) != SQLITE_OK)
 	{
@@ -2809,19 +2864,19 @@ void SqliteWorldDataSource::SaveMobRecord(int mob_vnum, CharData &mob)
 	
 	// Names
 	sqlite3_bind_text(stmt, col++, GET_PC_NAME(&mob), -1, SQLITE_TRANSIENT);
-	sqlite3_bind_text(stmt, col++, mob.player_data.PNames[ECase::kNom].c_str(), -1, SQLITE_TRANSIENT);
-	sqlite3_bind_text(stmt, col++, mob.player_data.PNames[ECase::kGen].c_str(), -1, SQLITE_TRANSIENT);
-	sqlite3_bind_text(stmt, col++, mob.player_data.PNames[ECase::kDat].c_str(), -1, SQLITE_TRANSIENT);
-	sqlite3_bind_text(stmt, col++, mob.player_data.PNames[ECase::kAcc].c_str(), -1, SQLITE_TRANSIENT);
-	sqlite3_bind_text(stmt, col++, mob.player_data.PNames[ECase::kIns].c_str(), -1, SQLITE_TRANSIENT);
-	sqlite3_bind_text(stmt, col++, mob.player_data.PNames[ECase::kPre].c_str(), -1, SQLITE_TRANSIENT);
+	sqlite3_bind_text(stmt, col++, mob.player_data.PNames[grammar::ECase::kNom].c_str(), -1, SQLITE_TRANSIENT);
+	sqlite3_bind_text(stmt, col++, mob.player_data.PNames[grammar::ECase::kGen].c_str(), -1, SQLITE_TRANSIENT);
+	sqlite3_bind_text(stmt, col++, mob.player_data.PNames[grammar::ECase::kDat].c_str(), -1, SQLITE_TRANSIENT);
+	sqlite3_bind_text(stmt, col++, mob.player_data.PNames[grammar::ECase::kAcc].c_str(), -1, SQLITE_TRANSIENT);
+	sqlite3_bind_text(stmt, col++, mob.player_data.PNames[grammar::ECase::kIns].c_str(), -1, SQLITE_TRANSIENT);
+	sqlite3_bind_text(stmt, col++, mob.player_data.PNames[grammar::ECase::kPre].c_str(), -1, SQLITE_TRANSIENT);
 	
 	// Descriptions
 	sqlite3_bind_text(stmt, col++, mob.player_data.long_descr.c_str(), -1, SQLITE_TRANSIENT);
 	sqlite3_bind_text(stmt, col++, mob.player_data.description.c_str(), -1, SQLITE_TRANSIENT);
 	
 	// Base parameters
-	sqlite3_bind_int(stmt, col++, GET_ALIGNMENT(&mob));
+	sqlite3_bind_int(stmt, col++, alignment::GetAlignment(&mob));
 	
 	// Mob type (E or S)
 	std::string mob_type = (mob.get_str() > 0) ? "E" : "S";
@@ -2916,6 +2971,9 @@ void SqliteWorldDataSource::SaveMobRecord(int mob_vnum, CharData &mob)
 	{
 		sqlite3_bind_null(stmt, col++);
 	}
+
+	// Movement speed (issue #3384 class)
+	sqlite3_bind_int(stmt, col++, mob.mob_specials.speed);
 
 	int rc = sqlite3_step(stmt);
 	if (rc != SQLITE_DONE)
@@ -3163,12 +3221,12 @@ void SqliteWorldDataSource::SaveObjectRecord(int obj_vnum, CObjectPrototype *obj
 	
 	// Names
 	sqlite3_bind_text(stmt, col++, obj->get_aliases().c_str(), -1, SQLITE_TRANSIENT);
-	sqlite3_bind_text(stmt, col++, obj->get_PName(ECase::kNom).c_str(), -1, SQLITE_TRANSIENT);
-	sqlite3_bind_text(stmt, col++, obj->get_PName(ECase::kGen).c_str(), -1, SQLITE_TRANSIENT);
-	sqlite3_bind_text(stmt, col++, obj->get_PName(ECase::kDat).c_str(), -1, SQLITE_TRANSIENT);
-	sqlite3_bind_text(stmt, col++, obj->get_PName(ECase::kAcc).c_str(), -1, SQLITE_TRANSIENT);
-	sqlite3_bind_text(stmt, col++, obj->get_PName(ECase::kIns).c_str(), -1, SQLITE_TRANSIENT);
-	sqlite3_bind_text(stmt, col++, obj->get_PName(ECase::kPre).c_str(), -1, SQLITE_TRANSIENT);
+	sqlite3_bind_text(stmt, col++, obj->get_PName(grammar::ECase::kNom).c_str(), -1, SQLITE_TRANSIENT);
+	sqlite3_bind_text(stmt, col++, obj->get_PName(grammar::ECase::kGen).c_str(), -1, SQLITE_TRANSIENT);
+	sqlite3_bind_text(stmt, col++, obj->get_PName(grammar::ECase::kDat).c_str(), -1, SQLITE_TRANSIENT);
+	sqlite3_bind_text(stmt, col++, obj->get_PName(grammar::ECase::kAcc).c_str(), -1, SQLITE_TRANSIENT);
+	sqlite3_bind_text(stmt, col++, obj->get_PName(grammar::ECase::kIns).c_str(), -1, SQLITE_TRANSIENT);
+	sqlite3_bind_text(stmt, col++, obj->get_PName(grammar::ECase::kPre).c_str(), -1, SQLITE_TRANSIENT);
 	
 	// Descriptions
 	sqlite3_bind_text(stmt, col++, obj->get_description().c_str(), -1, SQLITE_TRANSIENT);
@@ -3252,6 +3310,20 @@ void SqliteWorldDataSource::SaveObjectRecord(int obj_vnum, CObjectPrototype *obj
 				sqlite3_step(stmt);
 				sqlite3_finalize(stmt);
 			}
+		}
+	}
+
+	// Save object skills (legacy `S` lines, issue #3386)
+	const char *obj_skill_sql = "INSERT OR REPLACE INTO obj_skills (obj_vnum, skill_id, value) VALUES (?, ?, ?)";
+	for (const auto &kv : obj->get_skills())
+	{
+		if (sqlite3_prepare_v2(m_db, obj_skill_sql, -1, &stmt, nullptr) == SQLITE_OK)
+		{
+			sqlite3_bind_int(stmt, 1, obj_vnum);
+			sqlite3_bind_int(stmt, 2, to_underlying(kv.first));
+			sqlite3_bind_int(stmt, 3, kv.second);
+			sqlite3_step(stmt);
+			sqlite3_finalize(stmt);
 		}
 	}
 

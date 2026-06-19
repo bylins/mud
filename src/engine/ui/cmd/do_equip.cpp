@@ -7,6 +7,9 @@
 */
 
 #include "engine/ui/cmd/do_equip.h"
+#include "administration/privilege.h"
+#include "gameplay/mechanics/sight.h"
+#include "utils/grammar/declensions.h"
 
 #include "engine/entities/char_data.h"
 #include "engine/core/handler.h"
@@ -174,7 +177,7 @@ int find_eq_pos(CharData *ch, ObjData *obj, char *local_arg) {
 	return equip_pos;
 }
 
-void perform_wear(CharData *ch, ObjData *obj, int equip_pos) {
+void perform_wear(CharData *ch, ObjData *obj, int equip_pos, bool skip_total = false) {
 	/*
 	   * kTake is used for objects that do not require special bits
 	   * to be put into that position (e.g. you can hold any object, not just
@@ -267,7 +270,7 @@ void perform_wear(CharData *ch, ObjData *obj, int equip_pos) {
 		return;
 	}
 	// нельзя надеть щит, если недостаточно силы
-	if (!ch->IsImmortal() && (equip_pos == EEquipPos::kShield) && !CanBeWearedAsShield(ch, obj)) {
+	if (!privilege::IsImmortal(ch) && (equip_pos == EEquipPos::kShield) && !CanBeWearedAsShield(ch, obj)) {
 	}
 
 	if ((equip_pos == EEquipPos::kFingerR) || (equip_pos == EEquipPos::kNeck) || (equip_pos == EEquipPos::kWristR))
@@ -282,7 +285,11 @@ void perform_wear(CharData *ch, ObjData *obj, int equip_pos) {
 		return;
 
 	//obj_from_char(obj);
-	EquipObj(ch, obj, equip_pos, CharEquipFlag::show_msg);
+	CharEquipFlags equip_flags{CharEquipFlag::show_msg};
+	if (skip_total) {
+		equip_flags.set(CharEquipFlag::skip_total);
+	}
+	EquipObj(ch, obj, equip_pos, equip_flags);
 }
 
 void do_wear(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
@@ -314,14 +321,17 @@ void do_wear(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		for (obj = ch->carrying; obj && !AFF_FLAGGED(ch, EAffect::kHold) &&
 			ch->GetPosition() > EPosition::kSleep; obj = next_obj) {
 			next_obj = obj->get_next_content();
-			if (CAN_SEE_OBJ(ch, obj)
+			if (sight::CanSeeObj(ch, obj)
 				&& (equip_pos = find_eq_pos(ch, obj, nullptr)) >= 0) {
 				items_worn++;
-				perform_wear(ch, obj, equip_pos);
+				perform_wear(ch, obj, equip_pos, true);
 			}
 		}
 		if (!items_worn) {
 			SendMsgToChar("Увы, но надеть вам нечего.\r\n", ch);
+		} else {
+			ch->obj_bonus().update(ch);
+			affect_total(ch);
 		}
 	} else if (dotmode == kFindAlldot) {
 		if (!*arg1) {
@@ -331,16 +341,22 @@ void do_wear(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (!(obj = get_obj_in_list_vis(ch, arg1, ch->carrying))) {
 			sprintf(buf, "У вас нет ничего похожего на '%s'.\r\n", arg1);
 			SendMsgToChar(buf, ch);
-		} else
+		} else {
 			while (obj && !AFF_FLAGGED(ch, EAffect::kHold) && ch->GetPosition() > EPosition::kSleep) {
 				next_obj = get_obj_in_list_vis(ch, arg1, obj->get_next_content());
 				if ((equip_pos = find_eq_pos(ch, obj, nullptr)) >= 0) {
-					perform_wear(ch, obj, equip_pos);
+					perform_wear(ch, obj, equip_pos, true);
+					items_worn++;
 				} else {
 					act("Вы не можете надеть $o3.", false, ch, obj, nullptr, kToChar);
 				}
 				obj = next_obj;
 			}
+			if (items_worn > 0) {
+				ch->obj_bonus().update(ch);
+				affect_total(ch);
+			}
+		}
 	} else {
 		if (!(obj = get_obj_in_list_vis(ch, arg1, ch->carrying))) {
 			sprintf(buf, "У вас нет ничего похожего на '%s'.\r\n", arg1);
@@ -384,7 +400,7 @@ void do_wield(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			if (!str_cmp(arg, "обе")
 				&& CAN_WEAR(obj, EWearFlag::kBoth)) {
 				// иногда бывает надо
-				if (!ch->IsImmortal() && !CanBeTakenInBothHands(ch, obj)) {
+				if (!privilege::IsImmortal(ch) && !CanBeTakenInBothHands(ch, obj)) {
 					act("Вам слишком тяжело держать $o3 двумя руками.",
 						false, ch, obj, nullptr, kToChar);
 					message_str_need(ch, obj, STR_BOTH_W);
@@ -400,7 +416,7 @@ void do_wield(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				wear = EEquipPos::kBoths;
 			}
 
-			if (wear == EEquipPos::kWield && !ch->IsImmortal() && !CanBeTakenInMajorHand(ch, obj)) {
+			if (wear == EEquipPos::kWield && !privilege::IsImmortal(ch) && !CanBeTakenInMajorHand(ch, obj)) {
 				act("Вам слишком тяжело держать $o3 в правой руке.",
 					false, ch, obj, nullptr, kToChar);
 				message_str_need(ch, obj, STR_WIELD_W);
@@ -412,7 +428,7 @@ void do_wield(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				}
 			}
 
-			if (wear == EEquipPos::kBoths && !ch->IsImmortal() && !CanBeTakenInBothHands(ch, obj)) {
+			if (wear == EEquipPos::kBoths && !privilege::IsImmortal(ch) && !CanBeTakenInBothHands(ch, obj)) {
 				act("Вам слишком тяжело держать $o3 двумя руками.",
 					false, ch, obj, nullptr, kToChar);
 				message_str_need(ch, obj, STR_BOTH_W);
@@ -463,7 +479,7 @@ void do_grab(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				SendMsgToChar("Ожившие трупы не могут вооружаться.\r\n", ch);
 				return;
 			}
-			if (!ch->IsImmortal()
+			if (!privilege::IsImmortal(ch)
 				&& !CanBeTakenInMinorHand(ch, obj)) {
 				act("Вам слишком тяжело держать $o3 в левой руке.",
 					false, ch, obj, nullptr, kToChar);
@@ -507,7 +523,7 @@ void message_str_need(CharData *ch, ObjData *obj, int type) {
 			return;
 	}
 	SendMsgToChar(ch, "Для этого требуется %d %s.\r\n",
-				  need_str, GetDeclensionInNumber(need_str, EWhat::kStr));
+				  need_str, grammar::GetDeclensionInNumber(need_str, grammar::EWhat::kStr));
 }
 
 bool CanBeTakenInBothHands(CharData *ch, ObjData *obj) {

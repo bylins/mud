@@ -25,6 +25,11 @@ class ExitData {
 	RoomRnum to_room() const;
 	void to_room(const RoomRnum _);
 
+	// Полностью пустой D-блок из .wld/yaml/sqlite (мусор из старых редакторов).
+	// На рантайм не влияет и фильтруется загрузчиком, чтобы не засорять
+	// отчёт show errors и зря не держать ExitData в памяти.
+	bool is_empty() const;
+
 	std::string general_description;    // When look DIR.         //
 
 	char *keyword;        // for open/close       //
@@ -98,7 +103,9 @@ struct RoomData {
 	ubyte fires;        // Time when fires - костерок    //
 	ubyte ices;        // Time when ices restore //
 
-	long pkPenterUnique; //Постановщик пенты по мести
+	// pkPenterUnique retired (issue.affect-flags): the imposing-caster's uid
+	// for a PK-revenge pentagram moved onto the kPortalTimer affect itself
+	// (Affect::pk_unique). Read via room_spells::FindRoomPkPortalUid.
 	int holes;        // Дырки для камне - копателей //
 	int poison;        // Степень заражения территории в SPELL_DEADLY_FOG //
 	bool get_flag(const Bitvector flag) const { return m_room_flags.get(flag); }

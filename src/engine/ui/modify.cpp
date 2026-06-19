@@ -16,8 +16,10 @@
 #include <string>
 
 #include "modify.h"
+#include "engine/olc/vedun/vedun.h"
 #include "interpreter.h"
 #include "engine/core/handler.h"
+#include "engine/core/target_resolver.h"
 #include "engine/db/db.h"
 #include "engine/core/comm.h"
 #include "gameplay/magic/magic_utils.h"
@@ -892,8 +894,10 @@ void do_featset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (!(vict = get_char_vis(ch, name, EFind::kCharInWorld))) {
-		SendMsgToChar(NOPERSON, ch);
+	vict = target_resolver::FindCharInWorld(ch, name);
+
+	if (!vict) {
+		SendMsgToChar(CommonMsg(ECommonMsg::kNoPerson) + "\r\n", ch);
 		return;
 	}
 	skip_spaces(&argument);
@@ -1000,8 +1004,10 @@ void do_skillset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (!(vict = get_char_vis(ch, name, EFind::kCharInWorld))) {
-		SendMsgToChar(NOPERSON, ch);
+	vict = target_resolver::FindCharInWorld(ch, name);
+
+	if (!vict) {
+		SendMsgToChar(CommonMsg(ECommonMsg::kNoPerson) + "\r\n", ch);
 		return;
 	}
 	skip_spaces(&argument);
@@ -1308,6 +1314,11 @@ void print_con_prompt(DescriptorData *d) {
 	}
 	if (d->state == EConState::kResetStats) {
 		genchar_disp_menu(d->character.get());
+	}
+	// issue.vedun-hotfixes: after the pager (used by the editor's "?" value-list help) is dismissed,
+	// redraw the Vedun editor's current prompt so the session does not look dead.
+	if (d->state == EConState::kVedun) {
+		vedun::vedun_reprompt(d);
 	}
 }
 

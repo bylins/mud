@@ -7,6 +7,7 @@
 */
 
 #include "engine/entities/char_data.h"
+#include "gameplay/mechanics/minions.h"
 #include "gameplay/skills/skills.h"
 #include "utils/utils.h"
 
@@ -67,7 +68,7 @@ void UpdateLeadership(CharData *ch, CharData *killer) {
 			&& killer->in_room == killer->get_master()->in_room) {
 			ImproveSkill(killer->get_master(), ESkill::kLeadership, number(0, 1), ch);
 		} else if (killer->IsNpc() // Убил чармис загрупленного чара
-			&& IS_CHARMICE(killer)
+			&& IsCharmice(killer)
 			&& killer->has_master()
 			&& AFF_FLAGGED(killer->get_master(), EAffect::kGroup)) {
 			if (killer->get_master()->has_master() // Владелец чармиса НЕ лидер

@@ -99,7 +99,6 @@ void Characters::AddToExtractedList(CharData *ch) {
 	if (ch->IsNpc()) {
 		mobs_by_vnum_remove(ch, mob_index[(ch)->get_rnum()].vnum);
 	}
-	log("add mob to extracted list %s %d", GET_NAME(ch), GET_MOB_VNUM(ch));
 	ch->set_purged(true);
 	DropEquipment(ch, false);
 	DropInventory(ch, false);
@@ -111,7 +110,6 @@ void Characters::PurgeExtractedList() {
 	if (!m_extracted_list.empty()) {
 		auto extracted_list_copy = m_extracted_list;  // чистится в Characters::remove
 
-		log("Start mob PurgeExtractedList");
 		for (auto &it : extracted_list_copy) {
 			it->set_purged(false);  // игрок может остаться в игре
 			ExtractCharFromWorld(it, false);

@@ -23,7 +23,6 @@
 #include "gameplay/core/reset_stats.h"
 #include "gameplay/communication/boards/boards_types.h"
 #include "engine/ui/cmd/do_mercenary.h"
-#include "gameplay/economics/ext_money.h"
 
 // кол-во сохраняемых стартовых статов в файле
 const int START_STATS_TOTAL = 6;
@@ -34,6 +33,8 @@ enum {
 	DIS_EXCHANGE_MESSAGE,
 	DIS_TOTAL_NUM
 };
+
+class BufferedFileWriter;
 
 class Player : public CharData {
  public:
@@ -75,14 +76,14 @@ class Player : public CharData {
 	bool quested_get(int vnum) const;
 	std::string quested_get_text(int vnum) const;
 	std::string quested_print() const;
-	void quested_save(FILE *saved) const; // TODO мб убрать
+	void quested_save(BufferedFileWriter &saved) const;
 
 	// обертка на MobMax
 	int mobmax_get(int vnum) const;
 	void mobmax_add(CharData *ch, int vnum, int count, int level);
 	void mobmax_load(CharData *ch, int vnum, int count, int level);
 	void mobmax_remove(int vnum);
-	void mobmax_save(FILE *saved) const; ///< TODO мб убрать
+	void mobmax_save(BufferedFileWriter &saved) const;
 	void show_mobmax();
 
 	// обертка на Dps
@@ -112,11 +113,6 @@ class Player : public CharData {
 	void map_print_to_snooper(CharData *imm);
 	void map_text_olc(const char *arg);
 	const MapSystem::Options *get_map_options() const;
-
-	int get_ext_money(unsigned type) const;
-	void set_ext_money(unsigned type, int num, bool write_log = true);
-	int get_today_torc();
-	void add_today_torc(int num);
 
 	int get_reset_stats_cnt(stats_reset::Type type) const;
 	void inc_reset_stats_cnt(stats_reset::Type type);
@@ -208,10 +204,6 @@ class Player : public CharData {
 	bool motion_;
 	// опции отрисовки режима карты
 	MapSystem::Options map_options_;
-	// доп. валюты (гривны)
-	std::array<int, ExtMoney::kTotalTypes> ext_money_;
-	// сколько гривн, в пересчете на бронзу, сегодня уже собрано
-	std::pair<uint8_t /* day 1-31 */, int> today_torc_;
 	// кол-во сбросов характеристик через меню
 	std::array<int, stats_reset::Type::TOTAL_NUM> reset_stats_cnt_;
 	// временнЫе отметки о прочитанных сообщениях на досках

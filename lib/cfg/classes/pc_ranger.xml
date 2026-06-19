@@ -1,9 +1,5 @@
 <?xml version="1.0" encoding="koi8-r"?>
 <class id="kRanger">
-    <name abbr="Ох">
-        <singular nom="охотник" gen="охотника" dat="охотнику" acc="охотника" ins="охотником" pre="охотнике"/>
-        <plural nom="охотники" gen="охотников" dat="охотникам" acc="охотников" ins="охотниками" pre="охотниках"/>
-    </name>
     <stats>
         <base_stats>
             <stat id="kStr"	gen_min="19"	gen_max="25"	auto="25"	cap="50"/>

@@ -48,6 +48,67 @@ MUD_SOCKET=~/repos/world.yaml/admin_api.sock python3 app.py
 
 http://127.0.0.1:5000
 
+## Запуск в Docker
+
+Образ собирается на `python:3.12-alpine`, web-сервер крутится под gunicorn,
+логи (HTTP-запросы + успехи/ошибки аутентификации) пишутся в stdout.
+
+### Сокет в выделенном каталоге
+
+Монтировать в контейнер нужно **каталог** с сокетом, а не сам файл сокета.
+Причина: при рестарте циркуль делает `unlink()`+`bind()` и пересоздаёт сокет с
+новым inode; bind-mount одного файла зафиксирует старый inode, и после рестарта
+в контейнере останется «протухший» сокет. Монтирование каталога показывает
+контейнеру актуальный файл сразу.
+
+Поэтому держите сокет в отдельном каталоге. В `configuration.xml`:
+```xml
+<admin_api>
+    <enabled>true</enabled>
+    <socket_path>run/admin_api.sock</socket_path>
+    <require_auth>true</require_auth>
+</admin_api>
+```
+Путь относителен каталогу мира. Каталог `run/` циркуль создаёт автоматически
+при старте (см. `init_unix_socket` в `src/engine/core/comm.cpp`).
+
+### Права доступа
+
+Сокет создаётся с правами `0600` (owner-only). Контейнер обязан подключаться от
+того же пользователя, под которым работает циркуль, иначе будет «Connection
+refused». Поэтому запускаем контейнер с `--user UID:GID` владельца сокета.
+
+### docker run
+
+```bash
+docker build -t mud-web-admin tools/web_admin
+
+docker run -d --name mud-web-admin \
+  -p 127.0.0.1:12001:5000 \
+  -v /opt/mud/lib/run:/mud/socket:ro \
+  --user "$(id -u):$(id -g)" \
+  mud-web-admin
+# морда на http://127.0.0.1:12001
+
+docker logs -f mud-web-admin    # запросы и ошибки аутентификации
+```
+
+### docker compose
+
+```bash
+MUD_SOCKET_DIR=/opt/mud/lib/run \
+WEB_ADMIN_UID=$(id -u) WEB_ADMIN_GID=$(id -g) \
+  docker compose -f tools/web_admin/docker-compose.yml up -d --build
+```
+
+### Переменные окружения контейнера
+
+| Переменная | Назначение | По умолчанию |
+|---|---|---|
+| `MUD_SOCKET` | путь к сокету внутри контейнера | `/mud/socket/admin_api.sock` |
+| `LOG_LEVEL` | уровень логирования (`INFO`/`DEBUG`/…) | `INFO` |
+| `FLASK_SECRET_KEY` | постоянный секрет сессий (необязательно) | случайный на запуск |
+
 ## Конфигурация
 
 ### Переменная окружения MUD_SOCKET (обязательна)

@@ -12,6 +12,10 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 #include "char_movement.h"
+#include "administration/privilege.h"
+#include "gameplay/mechanics/condition.h"
+#include "gameplay/mechanics/minions.h"
+#include "gameplay/mechanics/mount.h"
 
 #include "gameplay/mechanics/deathtrap.h"
 #include "gameplay/mechanics/hide.h"
@@ -78,10 +82,10 @@ int CalcMoveCost(CharData *ch, int dir) {
 		ch_toroom = GetMountainsPathsSect(ch_toroom);
 	}
 
-	int need_movement = (IS_FLY(ch) || ch->IsOnHorse()) ? 1 :
+	int need_movement = (AFF_FLAGGED(ch, EAffect::kFly) || mount::IsOnHorse(ch)) ? 1 :
 						(movement_loss[ch_inroom] + movement_loss[ch_toroom]) / 2;
 
-	if (ch->IsImmortal())
+	if (privilege::IsImmortal(ch))
 		need_movement = 0;
 	else if (IsAffectedBySpell(ch, ESpell::kCamouflage))
 		need_movement += kCamouflageMoves;
@@ -116,7 +120,7 @@ bool IsCorrectDirection(CharData *ch, int dir, bool check_specials, bool show_ms
 	}
 
 	// charmed
-	if (IS_CHARMICE(ch) && ch->has_master() && ch->in_room == ch->get_master()->in_room) {
+	if (IsCharmice(ch) && ch->has_master() && ch->in_room == ch->get_master()->in_room) {
 		if (show_msg) {
 			SendMsgToChar("Вы не можете покинуть свой идеал.\r\n", ch);
 			act("$N попытал$U покинуть вас.", false, ch->get_master(), nullptr, ch, kToChar);
@@ -150,18 +154,18 @@ bool IsCorrectDirection(CharData *ch, int dir, bool check_specials, bool show_ms
 			return false;
 
 		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room(), ERoomFlag::kNoEntryMob) &&
-			!IS_HORSE(ch) &&
-			!AFF_FLAGGED(ch, EAffect::kCharmed) && !(ch->IsFlagged(EMobFlag::kTutelar) || ch->IsFlagged(EMobFlag::kMentalShadow))
+			!mount::IsHorse(ch) &&
+			!ch->IsFlagged(EMobFlag::kCompanion)
 			&& !ch->IsFlagged(EMobFlag::kIgnoresNoMob))
 			return false;
 
-		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room(), ERoomFlag::kDeathTrap) && !IS_HORSE(ch))
+		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room(), ERoomFlag::kDeathTrap) && !mount::IsHorse(ch))
 			return false;
 
 		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room(), ERoomFlag::kGodsRoom))
 			return false;
 
-		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room(), ERoomFlag::kNohorse) && IS_HORSE(ch))
+		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room(), ERoomFlag::kNohorse) && mount::IsHorse(ch))
 			return false;
 	} else {
 		//Вход в замок
@@ -180,7 +184,7 @@ bool IsCorrectDirection(CharData *ch, int dir, bool check_specials, bool show_ms
 			return false;
 		}
 		if (real_sector(EXIT(ch, dir)->to_room()) == ESector::kOnlyFlying
-			&& !ch->IsGod()
+			&& !privilege::IsGod(ch)
 			&& !AFF_FLAGGED(ch, EAffect::kFly)) {
 			if (show_msg) {
 				SendMsgToChar("Туда можно только влететь.\r\n", ch);
@@ -188,7 +192,7 @@ bool IsCorrectDirection(CharData *ch, int dir, bool check_specials, bool show_ms
 			return false;
 		}
 
-		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room(), ERoomFlag::kDeathTrap) && ch->IsOnHorse()) {
+		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room(), ERoomFlag::kDeathTrap) && mount::IsOnHorse(ch)) {
 			if (show_msg) {
 				SendMsgToChar("Ваш скакун артачится и боится идти туда.\r\n", ch);
 			}
@@ -219,11 +223,11 @@ bool IsCorrectDirection(CharData *ch, int dir, bool check_specials, bool show_ms
 		}
 
 		//чтобы конь не лез в комнату с флагом !лошадь
-		if (ch->IsOnHorse() && !IsCorrectDirection(ch->get_horse(), dir, check_specials, false)) {
+		if (mount::IsOnHorse(ch) && !IsCorrectDirection(mount::GetHorse(ch), dir, check_specials, false)) {
 			if (show_msg) {
 				act("$Z $N отказывается туда идти, и вам пришлось соскочить.",
-					false, ch, nullptr, ch->get_horse(), kToChar);
-				ch->dismount();
+					false, ch, nullptr, mount::GetHorse(ch), kToChar);
+				mount::Dismount(ch);
 			}
 		}
 		//проверка на ванрум: скидываем игрока с коня, если там незанято
@@ -234,30 +238,30 @@ bool IsCorrectDirection(CharData *ch, int dir, bool check_specials, bool show_ms
 			return (false);
 		}
 
-		if (ch->IsOnHorse() && GET_HORSESTATE(ch->get_horse()) <= 0) {
+		if (mount::IsOnHorse(ch) && GET_HORSESTATE(mount::GetHorse(ch)) <= 0) {
 			if (show_msg)
 				act("$Z $N загнан$G настолько, что не может нести вас на себе.",
-					false, ch, nullptr, ch->get_horse(), kToChar);
+					false, ch, nullptr, mount::GetHorse(ch), kToChar);
 			return false;
 		}
 
-		if (ch->IsOnHorse()
-			&& (AFF_FLAGGED(ch->get_horse(), EAffect::kHold)
-				|| AFF_FLAGGED(ch->get_horse(), EAffect::kSleep))) {
+		if (mount::IsOnHorse(ch)
+			&& (AFF_FLAGGED(mount::GetHorse(ch), EAffect::kHold)
+				|| AFF_FLAGGED(mount::GetHorse(ch), EAffect::kSleep))) {
 			if (show_msg)
-				act("$Z $N не в состоянии нести вас на себе.\r\n", false, ch, nullptr, ch->get_horse(), kToChar);
+				act("$Z $N не в состоянии нести вас на себе.\r\n", false, ch, nullptr, mount::GetHorse(ch), kToChar);
 			return false;
 		}
 
-		if (ch->IsOnHorse()
+		if (mount::IsOnHorse(ch)
 			&& (ROOM_FLAGGED(EXIT(ch, dir)->to_room(), ERoomFlag::kTunnel)
 				|| ROOM_FLAGGED(EXIT(ch, dir)->to_room(), ERoomFlag::kNohorse))) {
 			if (show_msg)
-				act("$Z $N не в состоянии пройти туда.\r\n", false, ch, nullptr, ch->get_horse(), kToChar);
+				act("$Z $N не в состоянии пройти туда.\r\n", false, ch, nullptr, mount::GetHorse(ch), kToChar);
 			return false;
 		}
 
-		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room(), ERoomFlag::kGodsRoom) && !ch->IsGrGod()) {
+		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room(), ERoomFlag::kGodsRoom) && !privilege::IsGrGod(ch)) {
 			if (show_msg)
 				SendMsgToChar("Вы не столь Божественны, как вам кажется!\r\n", ch);
 			return false;
@@ -269,13 +273,13 @@ bool IsCorrectDirection(CharData *ch, int dir, bool check_specials, bool show_ms
 			if (NPC_FLAGGED(tch, 1 << dir)
 				&& AWAKE(tch)
 				&& tch->GetPosition() > EPosition::kSleep
-				&& CAN_SEE(tch, ch)
+				&& sight::CanSee(tch, ch)
 				&& !AFF_FLAGGED(tch, EAffect::kCharmed)
 				&& !AFF_FLAGGED(tch, EAffect::kHold)) {
 				if (show_msg) {
 					act("$N преградил$G вам путь.", false, ch, nullptr, tch, kToChar);
 				}
-				if (ch->IsGrGod() || InTestZone(ch)) {
+				if (privilege::IsGrGod(ch) || InTestZone(ch)) {
 					act("Но уважительно пропустил$G дальше.", false, ch, nullptr, tch, kToChar);
 					return true;
 				}
@@ -304,7 +308,7 @@ void PerformDunkSong(CharData *ch) {
 											   " - разухабисто протянул$g $n.",
 	};
 	// орем песни
-	if (!ch->GetEnemy() && number(10, 24) < GET_COND(ch, DRUNK)) {
+	if (!ch->GetEnemy() && number(10, 24) < GET_COND(ch, condition::kDrunk)) {
 		sprintf(buf, "%s", drunk_songs[number(0, kMaxDrunkSong - 1)]);
 		SendMsgToChar(buf, ch);
 		SendMsgToChar("\r\n", ch);
@@ -342,8 +346,8 @@ EDirection SelectRndDirection(CharData *ch, int fail_chance) {
 
 int SelectDrunkDirection(CharData *ch, int direction) {
 	auto drunk_dir{direction};
-	if (!ch->IsNpc() && GET_COND(ch, DRUNK) >= kMortallyDrunked &&
-		!ch->IsOnHorse() && GET_COND(ch, DRUNK) >= number(kDrunked, 50)) {
+	if (!ch->IsNpc() && GET_COND(ch, condition::kDrunk) >= kMortallyDrunked &&
+		!mount::IsOnHorse(ch) && GET_COND(ch, condition::kDrunk) >= number(kDrunked, 50)) {
 		drunk_dir = SelectRndDirection(ch, 60);
 	}
 
@@ -380,7 +384,7 @@ bool PerformSimpleMove(CharData *ch, int dir, int following, CharData *leader, E
 	}
 
 	// Now we know we're allowed to go into the room.
-	if (!ch->IsImmortal() && !ch->IsNpc())
+	if (!privilege::IsImmortal(ch) && !ch->IsNpc())
 		ch->set_move(ch->get_move() - CalcMoveCost(ch, dir));
 
 	i = MUD::Skill(ESkill::kSneak).difficulty;
@@ -415,13 +419,13 @@ bool PerformSimpleMove(CharData *ch, int dir, int following, CharData *leader, E
 		act(buf, false, ch, nullptr, leader, kToChar);
 	}
 	if (ch->IsNpc() && ch->IsFlagged(EMobFlag::kSentinel) &&
-	!IS_CHARMICE(ch) && ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena))
+	!IsCharmice(ch) && ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena))
 		return false;
 	was_in = ch->in_room;
 	go_to = world[was_in]->dir_option[dir]->to_room();
-	use_horse = ch->IsOnHorse() && ch->has_horse(false)
-		&& (ch->get_horse()->in_room == was_in || ch->get_horse()->in_room == go_to);
-	is_horse = IS_HORSE(ch)
+	use_horse = mount::IsOnHorse(ch) && mount::HasHorse(ch, false)
+		&& (mount::GetHorse(ch)->in_room == was_in || mount::GetHorse(ch)->in_room == go_to);
+	is_horse = mount::IsHorse(ch)
 		&& ch->has_master()
 		&& !AFF_FLAGGED(ch->get_master(), EAffect::kInvisible)
 		&& (ch->get_master()->in_room == was_in
@@ -452,7 +456,7 @@ bool PerformSimpleMove(CharData *ch, int dir, int following, CharData *leader, E
 			|| real_sector(was_in) == ESector::kUnderwater) {
 			strcpy(smallBuf, "уплыл$g");
 		} else if (use_horse) {
-			horse = ch->get_horse();
+			horse = mount::GetHorse(ch);
 			if (horse && AFF_FLAGGED(horse, EAffect::kFly))
 				strcpy(smallBuf, "улетел$g");
 			else
@@ -471,8 +475,8 @@ bool PerformSimpleMove(CharData *ch, int dir, int following, CharData *leader, E
 		act("Кто-то тихо удалился отсюда.", true, ch, nullptr, nullptr, kToRoomSensors);
 	}
 
-	if (ch->IsOnHorse())
-		horse = ch->get_horse();
+	if (mount::IsOnHorse(ch))
+		horse = mount::GetHorse(ch);
 
 	// Если сбежали, и по противнику никто не бьет, то убираем с него аттаку
 	if (move_type == EMoveType::kFlee) {
@@ -533,7 +537,7 @@ bool PerformSimpleMove(CharData *ch, int dir, int following, CharData *leader, E
 			|| real_sector(go_to) == ESector::kUnderwater) {
 			strcpy(smallBuf, "приплыл$g");
 		} else if (use_horse) {
-			horse = ch->get_horse();
+			horse = mount::GetHorse(ch);
 			if (horse && AFF_FLAGGED(horse, EAffect::kFly)) {
 				strcpy(smallBuf, "прилетел$g");
 			} else {
@@ -555,7 +559,7 @@ bool PerformSimpleMove(CharData *ch, int dir, int following, CharData *leader, E
 	}
 
 	if (ch->desc != nullptr)
-		look_at_room(ch, 0, move_type != EMoveType::kFlee);
+		sight::look_at_room(ch, 0, move_type != EMoveType::kFlee);
 
 	if (!ch->IsNpc())
 		room_spells::ProcessRoomAffectsOnEntry(ch, ch->in_room);
@@ -599,7 +603,7 @@ bool PerformSimpleMove(CharData *ch, int dir, int following, CharData *leader, E
 
 		if (track) {
 			SET_BIT(track->time_income[Reverse[dir]], 1);
-			if (IsAffectedBySpell(ch, ESpell::kLightWalk) && !ch->IsOnHorse())
+			if (IsAffectedBySpell(ch, ESpell::kLightWalk) && !mount::IsOnHorse(ch))
 				if (AFF_FLAGGED(ch, EAffect::kLightWalk))
 					track->time_income[Reverse[dir]] <<= number(15, 30);
 			REMOVE_BIT(track->track_info, TRACK_HIDE);
@@ -621,7 +625,7 @@ bool PerformSimpleMove(CharData *ch, int dir, int following, CharData *leader, E
 		}
 		if (track) {
 			SET_BIT(track->time_outgone[dir], 1);
-			if (IsAffectedBySpell(ch, ESpell::kLightWalk) && !ch->IsOnHorse())
+			if (IsAffectedBySpell(ch, ESpell::kLightWalk) && !mount::IsOnHorse(ch))
 				if (AFF_FLAGGED(ch, EAffect::kLightWalk))
 					track->time_outgone[dir] <<= number(15, 30);
 			REMOVE_BIT(track->track_info, TRACK_HIDE);
@@ -649,7 +653,7 @@ bool PerformSimpleMove(CharData *ch, int dir, int following, CharData *leader, E
 				continue;
 			}
 
-			if (!CAN_SEE(vict, ch)
+			if (!sight::CanSee(vict, ch)
 				|| AFF_FLAGGED(ch, EAffect::kSneak)
 				|| AFF_FLAGGED(ch, EAffect::kDisguise)
 				|| vict->GetEnemy()
@@ -685,7 +689,7 @@ bool PerformMove(CharData *ch, int dir, int need_specials_check, int checkmob, C
 
 	RoomRnum was_in;
 /*
-	if (!ch->IsNpc() || IS_CHARMICE(ch)) {
+	if (!ch->IsNpc() || IsCharmice(ch)) {
 		std::ostringstream out;
 		out << "Двигаемся по направлению: " << dir << "\r\n";
 		mudlog(out.str());
@@ -725,7 +729,7 @@ bool PerformMove(CharData *ch, int dir, int need_specials_check, int checkmob, C
 					&& (k->IsNpc()
 						|| (!k->IsFlagged(EPlrFlag::kMailing)
 							&& !k->IsFlagged(EPlrFlag::kWriting)))
-					&& (!IS_HORSE(k)
+					&& (!mount::IsHorse(k)
 						|| !AFF_FLAGGED(k, EAffect::kTethered))) {
 					if (k->GetPosition() < EPosition::kStand) {
 						if (k->IsNpc()
@@ -761,7 +765,7 @@ void FleeToRoom(CharData *ch, RoomRnum room) {
 		room = ch->get_from_room();
 	}
 
-	if (!ch->IsNpc() && NORENTABLE(ch) && ROOM_FLAGGED(room, ERoomFlag::kArena) && !ch->IsImmortal()) {
+	if (!ch->IsNpc() && NORENTABLE(ch) && ROOM_FLAGGED(room, ERoomFlag::kArena) && !privilege::IsImmortal(ch)) {
 		SendMsgToChar("Вы не можете попасть на арену в состоянии боевых действий!\r\n", ch);
 		room = ch->get_from_room();
 	}

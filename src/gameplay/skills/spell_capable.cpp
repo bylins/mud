@@ -1,10 +1,12 @@
 #include <string>
+#include "administration/privilege.h"
 
 #include "gameplay/classes/classes_spell_slots.h"
 #include "engine/core/handler.h"
 #include "gameplay/magic/spells_info.h"
 #include "gameplay/magic/magic_utils.h"
 #include "engine/db/global_objects.h"
+#include "gameplay/core/remort.h"
 
 // Вложить закл в клона
 void DoSpellCapable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
@@ -13,12 +15,12 @@ void DoSpellCapable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	struct TimedFeat timed;
 
-	if (!ch->IsImpl() && (ch->IsNpc() || !CanUseFeat(ch, EFeat::kSpellCapabler))) {
+	if (!privilege::IsImpl(ch) && (ch->IsNpc() || !CanUseFeat(ch, EFeat::kSpellCapabler))) {
 		SendMsgToChar("Вы не столь могущественны.\r\n", ch);
 		return;
 	}
 
-	if (IsTimedByFeat(ch, EFeat::kSpellCapabler) && !ch->IsImpl()) {
+	if (IsTimedByFeat(ch, EFeat::kSpellCapabler) && !privilege::IsImpl(ch)) {
 		SendMsgToChar("Невозможно использовать это так часто.\r\n", ch);
 		return;
 	}
@@ -57,7 +59,7 @@ void DoSpellCapable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	const auto spell = MUD::Class(ch->GetClass()).spells[spell_id];
 	if ((!IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kTemp | ESpellType::kKnow) ||
-		GetRealRemort(ch) < spell.GetMinRemort()) &&
+		remort::GetRealRemort(ch) < spell.GetMinRemort()) &&
 		(GetRealLevel(ch) < kLvlGreatGod) && (!ch->IsNpc())) {
 		if (GetRealLevel(ch) < CalcMinSpellLvl(ch, spell_id) ||
 			CalcCircleSlotsAmount(ch, spell.GetCircle()) <= 0) {
@@ -69,7 +71,7 @@ void DoSpellCapable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 	}
 
-	if (!GET_SPELL_MEM(ch, spell_id) && !ch->IsImmortal()) {
+	if (!GET_SPELL_MEM(ch, spell_id) && !privilege::IsImmortal(ch)) {
 		SendMsgToChar("Вы совершенно не помните, как произносится это заклинание...\r\n", ch);
 		return;
 	}
@@ -85,7 +87,7 @@ void DoSpellCapable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			break;
 		}
 	}
-	if (!GET_SPELL_MEM(ch, spell_id) && !ch->IsImmortal()) {
+	if (!GET_SPELL_MEM(ch, spell_id) && !privilege::IsImmortal(ch)) {
 		SendMsgToChar("Вы совершенно не помните, как произносится это заклинание...\r\n", ch);
 		return;
 	}
@@ -99,7 +101,7 @@ void DoSpellCapable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	act("$n принял$u делать какие-то пассы и что-то бормотать в сторону $N3.", false, ch, nullptr, follower, kToRoom);
 
 	GET_SPELL_MEM(ch, spell_id)--;
-	if (!ch->IsNpc() && !ch->IsImmortal() && ch->IsFlagged(EPrf::kAutomem))
+	if (!ch->IsNpc() && !privilege::IsImmortal(ch) && ch->IsFlagged(EPrf::kAutomem))
 		MemQ_remember(ch, spell_id);
 
 	if (!MUD::Spell(spell_id).IsViolent() ||
@@ -138,19 +140,19 @@ void DoSpellCapable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 	ImposeTimedFeat(ch, &timed);
 
-	GET_CAST_SUCCESS(follower) = GetRealRemort(ch) * 4;
+	GET_CAST_SUCCESS(follower) = remort::GetRealRemort(ch) * 4;
 	Affect<EApply> af;
 	af.type = ESpell::kCapable;
 	af.duration = 48;
-	if (GetRealRemort(ch) > 0) {
-		af.modifier = GetRealRemort(ch) * 4;//вешаецо аффект который дает +морт*4 касту
+	if (remort::GetRealRemort(ch) > 0) {
+		af.modifier = remort::GetRealRemort(ch) * 4;//вешаецо аффект который дает +морт*4 касту
 		af.location = EApply::kCastSuccess;
 	} else {
 		af.modifier = 0;
 		af.location = EApply::kNone;
 	}
 	af.battleflag = 0;
-	af.bitvector = 0;
+	af.affect_type = EAffect::kUndefined;
 	affect_to_char(follower, af);
 	follower->mob_specials.capable_spell = spell_id;
 }

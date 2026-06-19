@@ -23,6 +23,7 @@ enum ELoadCharFlags : int {
 struct MERCDATA;
 
 class Account;
+class BufferedFileWriter;
 namespace DpsSystem {
 class Dps;
 }
@@ -74,13 +75,13 @@ class PlayerI {
 	virtual bool quested_get(int/* vnum*/) const { return false; };
 	virtual std::string quested_get_text(int/* vnum*/) const { return ""; };
 	virtual std::string quested_print() const { return ""; };
-	virtual void quested_save(FILE * /*saved*/) const {};
+	virtual void quested_save(BufferedFileWriter & /*saved*/) const {};
 
 	virtual int mobmax_get(int/* vnum*/) const { return 0; };
 	virtual void mobmax_add(CharData * /*ch*/, int/* vnum*/, int/* count*/, int/* level*/) {};
 	virtual void mobmax_load(CharData * /*ch*/, int/* vnum*/, int/* count*/, int/* level*/) {};
 	virtual void mobmax_remove(int/* vnum*/) {};
-	virtual void mobmax_save(FILE * /*saved*/) const {};
+	virtual void mobmax_save(BufferedFileWriter & /*saved*/) const {};
 
 	virtual void dps_add_dmg(int/* type*/, int/* dmg*/, int/* over_dmg*/ = 0, CharData * /*ch*/ = nullptr) {};
 	virtual void dps_clear(int/* type*/) {};
@@ -107,12 +108,6 @@ class PlayerI {
 	virtual void map_print_to_snooper(CharData * /*imm*/) {};
 	virtual void map_text_olc(const char * /*arg*/) {};
 	virtual const MapSystem::Options *get_map_options() const { return &empty_map_options; };
-
-	virtual int get_ext_money(unsigned/* type*/) const { return 0; };
-	virtual void set_ext_money(unsigned/* type*/, int/* num*/, bool/* write_log*/ = true) {};
-
-	virtual int get_today_torc() { return 0; };
-	virtual void add_today_torc(int/* num*/) {};
 
 	virtual int get_reset_stats_cnt(stats_reset::Type/* type*/) const { return 0; };
 	virtual void inc_reset_stats_cnt(stats_reset::Type/* type*/) {};

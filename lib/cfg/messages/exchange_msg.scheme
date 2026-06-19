@@ -1,0 +1,18 @@
+<!--
+  issue.specials Phase 2: Vedun scheme for exchange_msg.xml (п╠п╟п╥п╟я─ command replies + broadcasts).
+  Structure: <msg_container> -> <msg_sheaf id="kDefault"> -> <message type="<EExchMsg>" val="text"/>.
+  "kDefault" is the shared sheaf (info_container::kUndefinedVnum). Optional sidecar.
+-->
+<scheme>
+	<tag name="msg_container" desc="Exchange message container">
+		<child tag="msg_sheaf" multiple="Y"/>
+	</tag>
+	<tag name="msg_sheaf" desc="Shared messages (kDefault) or a per-mob override (vnum)">
+		<attr name="id" type="string" readonly="Y" desc="kDefault (shared) or a trader vnum; immutable"/>
+		<child tag="message" multiple="Y"/>
+	</tag>
+	<tag name="message" desc="One message line (a slot may repeat to form a random pool)">
+		<attr name="type" type="enum" enum="EExchMsg" desc="Message slot"/>
+		<attr name="val" type="string" desc="Text: act-codes ($O3), named fmt args ({level} {amount} {currency} {item} {lot} {suf} {filter} {color} {nocolor})"/>
+	</tag>
+</scheme>

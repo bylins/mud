@@ -1,4 +1,5 @@
 #include "do_eat.h"
+#include "administration/privilege.h"
 
 #include "engine/entities/char_data.h"
 #include "engine/core/handler.h"
@@ -60,12 +61,10 @@ void feed_charmice(CharData *ch, char *local_arg) {
 	}
 	if (weather_info.moon_day < 14) {
 		max_charm_duration =
-			CalcDuration(ch, GetRealWis(ch->get_master()) - 6 + number(0, weather_info.moon_day % 14), 0, 0, 0, 0);
+			CalcDuration(ch, ch, ESkill::kUndefined, GetRealWis(ch->get_master()) - 6 + number(0, weather_info.moon_day % 14), 0, 0, 0);
 	} else {
 		max_charm_duration =
-			CalcDuration(ch,
-						 GetRealWis(ch->get_master()) - 6 + number(0, 14 - weather_info.moon_day % 14),
-						 0, 0, 0, 0);
+			CalcDuration(ch, ch, ESkill::kUndefined, GetRealWis(ch->get_master()) - 6 + number(0, 14 - weather_info.moon_day % 14), 0, 0, 0);
 	}
 
 	Affect<EApply> af;
@@ -73,10 +72,11 @@ void feed_charmice(CharData *ch, char *local_arg) {
 	af.duration = std::min(max_charm_duration, (int) (mob_level * max_charm_duration / 30));
 	af.modifier = 0;
 	af.location = EApply::kNone;
-	af.bitvector = to_underlying(EAffect::kCharmed);
+	af.affect_type = EAffect::kCharmed;
 	af.battleflag = 0;
 
 	ImposeAffect(ch, af);
+	if (ch->IsNpc()) { ch->SetFlag(EMobFlag::kCompanion); }	// any NPC ally
 
 	act("Громко чавкая, $N сожрал$G труп.", true, ch, obj, ch, kToRoom | kToArenaListen);
 	act("Похоже, лакомство пришлось по вкусу.", true, ch, nullptr, ch->get_master(), kToVict);
@@ -139,7 +139,7 @@ void do_eat(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		return;
 	}
 
-	if (!ch->IsGod()) {
+	if (!privilege::IsGod(ch)) {
 		if (food->get_type() == EObjType::kMagicComponent) //Сообщение на случай попытки проглотить ингры
 		{
 			SendMsgToChar("Не можешь приготовить - покупай готовое!\r\n", ch);
@@ -151,7 +151,7 @@ void do_eat(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			return;
 		}
 	}
-	if (GET_COND(ch, FULL) == 0
+	if (GET_COND(ch, condition::kFull) == 0
 		&& food->get_type() != EObjType::kNote)    // Stomach full
 	{
 		SendMsgToChar("Вы слишком сыты для этого!\r\n", ch);
@@ -172,9 +172,9 @@ void do_eat(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			  ? GET_OBJ_VAL(food, 0)
 			  : 1);
 
-	gain_condition(ch, FULL, -2 * amount);
+	gain_condition(ch, condition::kFull, -2 * amount);
 
-	if (GET_COND(ch, FULL) == 0) {
+	if (GET_COND(ch, condition::kFull) == 0) {
 		SendMsgToChar("Вы наелись.\r\n", ch);
 	}
 
@@ -183,16 +183,16 @@ void do_eat(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			Affect<EApply> af;
 			af.location = food->get_affected(i).location;
 			af.modifier = food->get_affected(i).modifier;
-			af.bitvector = 0;
+			af.affect_type = EAffect::kUndefined;
 			af.type = ESpell::kFullFeed;
 //			af.battleflag = 0;
-			af.duration = CalcDuration(ch, 10 * 2, 0, 0, 0, 0);
+			af.duration = CalcDuration(ch, ch, ESkill::kUndefined, 10 * 2, 0, 0, 0);
 			ImposeAffect(ch, af);
 		}
 
 	}
 
-	if ((GET_OBJ_VAL(food, 3) == 1) && !ch->IsImmortal())    // The shit was poisoned !
+	if ((GET_OBJ_VAL(food, 3) == 1) && !privilege::IsImmortal(ch))    // The shit was poisoned !
 	{
 		SendMsgToChar("Однако, какой странный вкус!\r\n", ch);
 		act("$n закашлял$u и начал$g отплевываться.",
@@ -200,20 +200,20 @@ void do_eat(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 		Affect<EApply> af;
 		af.type = ESpell::kPoison;
-		af.duration = CalcDuration(ch, amount == 1 ? amount : amount * 2, 0, 0, 0, 0);
+		af.duration = CalcDuration(ch, ch, ESkill::kUndefined, amount == 1 ? amount : amount * 2, 0, 0, 0);
 		af.modifier = 0;
 		af.location = EApply::kStr;
-		af.bitvector = to_underlying(EAffect::kPoisoned);
+		af.affect_type = EAffect::kPoisoned;
 		af.battleflag = kAfSameTime;
 		ImposeAffect(ch, af, false, false, false, false);
 		af.type = ESpell::kPoison;
-		af.duration = CalcDuration(ch, amount == 1 ? amount : amount * 2, 0, 0, 0, 0);
+		af.duration = CalcDuration(ch, ch, ESkill::kUndefined, amount == 1 ? amount : amount * 2, 0, 0, 0);
 		af.modifier = amount * 3;
 		af.location = EApply::kPoison;
-		af.bitvector = to_underlying(EAffect::kPoisoned);
+		af.affect_type = EAffect::kPoisoned;
 		af.battleflag = kAfSameTime;
 		ImposeAffect(ch, af, false, false, false, false);
-		ch->poisoner = 0;
+		// отравленная еда -- сам виноват: у аффекта нет автора (caster_id остаётся 0)
 	}
 	if (subcmd == kScmdEat
 		|| (subcmd == kScmdTaste

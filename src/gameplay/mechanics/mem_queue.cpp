@@ -6,6 +6,8 @@
 */
 
 #include "mem_queue.h"
+#include "administration/privilege.h"
+#include "gameplay/mechanics/magic_item.h"
 
 #include "engine/ui/color.h"
 #include "engine/entities/char_data.h"
@@ -14,6 +16,7 @@
 #include "gameplay/magic/magic_utils.h"
 #include "gameplay/magic/spells_info.h"
 #include "engine/db/global_objects.h"
+#include "gameplay/core/remort.h"
 
 const double kManaCostModifier = 0.5;
 
@@ -132,7 +135,7 @@ float druid_manacost_modifier[] {
 int CalcSpellManacost(CharData *ch, ESpell spell_id) {
 	int result = 0;
 
-	if (ch->IsImmortal()) {
+	if (privilege::IsImmortal(ch)) {
 		return 1;
 	}
 	if (IS_MANA_CASTER(ch) && GetRealLevel(ch) >= MagusCastRequiredLevel(ch, spell_id)) {
@@ -154,7 +157,7 @@ int CalcSpellManacost(CharData *ch, ESpell spell_id) {
 	} else {
 		if (!IS_MANA_CASTER(ch)
 					&& GetRealLevel(ch) >= CalcMinSpellLvl(ch, spell_id)
-					&& GetRealRemort(ch) >= MUD::Class(ch->GetClass()).spells[spell_id].GetMinRemort()) {
+					&& remort::GetRealRemort(ch) >= MUD::Class(ch->GetClass()).spells[spell_id].GetMinRemort()) {
 			result = std::max(MUD::Spell(spell_id).GetMaxMana() 
 					- (MUD::Spell(spell_id).GetManaChange() * (GetRealLevel(ch) - CalcMinSpellLvl(ch, spell_id))),
 				MUD::Spell(spell_id).GetMinMana());
@@ -172,7 +175,7 @@ int CalcSpellManacost(CharData *ch, ESpell spell_id) {
 		}
 	}
 	if (result > 0)
-		return result * koef_skill_magic(ch->GetSkill(GetMagicSkillId(spell_id))) / 100;
+		return result * koef_skill_magic(ch->GetSkill(MUD::Spell(spell_id).GetSuccessRoll().GetBaseSkill())) / 100;
 		// при скилле 200 + 25%, чем меньше тем лучше
 	else
 		return 99999;
@@ -291,7 +294,7 @@ int *MemQ_slots(CharData *ch) {
 		}
 		sloti = MUD::Class(ch->GetClass()).spells[spell_id].GetCircle() - 1;
 		if (CalcMinSpellLvl(ch, spell_id) > GetRealLevel(ch) ||
-			MUD::Class(ch->GetClass()).spells[spell_id].GetMinRemort() > GetRealRemort(ch)) {
+			MUD::Class(ch->GetClass()).spells[spell_id].GetMinRemort() > remort::GetRealRemort(ch)) {
 			GET_SPELL_MEM(ch, spell_id) = 0;
 			continue;
 		}
@@ -308,7 +311,7 @@ int *MemQ_slots(CharData *ch) {
 		if (sloti >= 0 && sloti <= 10) {
 			--slots[sloti];
 			if (slots[sloti] >= 0 && CalcMinSpellLvl(ch, q[0]->spell_id) <= GetRealLevel(ch) &&
-				MUD::Class(ch->GetClass()).spells[q[0]->spell_id].GetMinRemort() <= GetRealRemort(ch)) {
+				MUD::Class(ch->GetClass()).spells[q[0]->spell_id].GetMinRemort() <= remort::GetRealRemort(ch)) {
 				q = &(q[0]->next);
 			} else {
 				if (q == &ch->mem_queue.queue)
@@ -388,8 +391,8 @@ void forget_all_spells(CharData *ch) {
 		af.modifier = 1; // номер круга, который восстанавливаем
 		//добавим 1 проход про запас, иначе неуспевает отмемиться последний круг -- аффект спадает раньше
 
-		af.duration = CalcDuration(ch, max_slot*kRecallSpellsInterval + kSecsPerPlayerAffect, 0, 0, 0, 0);
-		af.bitvector = to_underlying(EAffect::kMemorizeSpells);
+		af.duration = CalcDuration(ch, ch, ESkill::kUndefined, max_slot*kRecallSpellsInterval + kSecsPerPlayerAffect, 0, 0, 0);
+		af.affect_type = EAffect::kMemorizeSpells;
 		af.battleflag = kAfPulsedec | kAfDeadkeep;
 		ImposeAffect(ch, af, false, false, false, false);
 	}

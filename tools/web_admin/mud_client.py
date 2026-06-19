@@ -8,10 +8,12 @@ import json
 class MudAdminClient:
     """Client for communicating with MUD Admin API via Unix socket"""
 
-    def __init__(self, socket_path='admin_api.sock', username=None, password=None):
+    def __init__(self, socket_path='admin_api.sock', username=None, password=None, client_ip=None):
         self.socket_path = socket_path
         self.username = username
         self.password = password
+        # IP клиента веб-панели, прокидывается в auth для лога fail2ban (issue #3388).
+        self.client_ip = client_ip
         self.authenticated = False
     
     def _recv_line(self, sock, max_size=1048576):
@@ -40,6 +42,8 @@ class MudAdminClient:
             # Authenticate if credentials provided
             if self.username and self.password:
                 auth_cmd = {"command": "auth", "username": self.username, "password": self.password}
+                if self.client_ip:
+                    auth_cmd["client_ip"] = self.client_ip
                 sock.sendall((json.dumps(auth_cmd) + '\n').encode())
                 auth_resp_data = self._recv_line(sock)
                 auth_resp = json.loads(auth_resp_data.decode())
@@ -97,6 +101,10 @@ class MudAdminClient:
     def create_mob(self, zone, data):
         """Create new mob in zone"""
         return self._send_command("create_mob", zone=zone, data=data)
+
+    def delete_mob(self, vnum):
+        """Delete a mob prototype by vnum"""
+        return self._send_command("delete_mob", vnum=int(vnum))
     
     # Object operations
     def list_objects(self, zone):
@@ -114,6 +122,10 @@ class MudAdminClient:
     def create_object(self, zone, data):
         """Create new object in zone"""
         return self._send_command("create_object", zone=zone, data=data)
+
+    def delete_object(self, vnum):
+        """Delete an object prototype by vnum"""
+        return self._send_command("delete_object", vnum=int(vnum))
     
     # Room operations
     def list_rooms(self, zone):
@@ -131,6 +143,10 @@ class MudAdminClient:
     def create_room(self, zone, data):
         """Create new room in zone"""
         return self._send_command("create_room", zone=zone, data=data)
+
+    def delete_room(self, vnum):
+        """Delete a room by vnum"""
+        return self._send_command("delete_room", vnum=int(vnum))
     
     # Trigger operations
     def list_triggers(self, zone):
@@ -148,6 +164,27 @@ class MudAdminClient:
     def create_trigger(self, zone, data):
         """Create new trigger in zone"""
         return self._send_command("create_trigger", zone=zone, data=data)
+
+    def delete_trigger(self, vnum):
+        """Delete a trigger by vnum"""
+        return self._send_command("delete_trigger", vnum=int(vnum))
+
+    # Zone reset command operations
+    def list_zone_commands(self, zone):
+        """List reset commands (M/O/E/G/P/D/T/V/F/Q) of a zone"""
+        return self._send_command("list_zone_commands", zone=int(zone))
+
+    def add_zone_command(self, zone, data):
+        """Append a reset command to a zone (data: {command, mob_vnum, room_vnum, ...})"""
+        return self._send_command("add_zone_command", zone=int(zone), data=data)
+
+    def delete_zone_command(self, zone, index):
+        """Delete a reset command from a zone by its index"""
+        return self._send_command("delete_zone_command", zone=int(zone), index=int(index))
+
+    def reset_zone(self, zone):
+        """Force an immediate reset (repop) of a zone"""
+        return self._send_command("reset_zone", zone=int(zone))
 
     def get_stats(self):
         """Get server statistics (zones, mobs, objects, rooms, triggers counts)"""

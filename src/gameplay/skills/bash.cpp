@@ -1,4 +1,8 @@
 #include "bash.h"
+#include "administration/privilege.h"
+#include "gameplay/mechanics/mount.h"
+
+#include "skill_messages.h"
 #include "gameplay/fight/pk.h"
 #include "gameplay/fight/common.h"
 #include "protect.h"
@@ -13,13 +17,13 @@
 // ************************* BASH PROCEDURES
 void do_bash(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!ch->GetSkill(ESkill::kBash)) {
-		SendMsgToChar("Вы не знаете как.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kBash, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
 
 	CharData *vict = FindVictim(ch, argument);
 	if (!vict) {
-		SendMsgToChar("Кого же вы так сильно желаете сбить?\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kBash, ESkillMsg::kNoTarget) + "\r\n", ch);
 		return;
 	}
 
@@ -38,26 +42,26 @@ void do_bash(CharData *ch, CharData *vict) {
 	}
 
 	if (ch->HasCooldown(ESkill::kBash)) {
-		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kBash, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	}
 
 	if (ch->HasCooldown(ESkill::kGlobalCooldown)) {
-		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kBash, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	}
 
-	if (ch->IsOnHorse()) {
-		SendMsgToChar("Верхом это сделать затруднительно.\r\n", ch);
+	if (mount::IsOnHorse(ch)) {
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kBash, ESkillMsg::kCantWhileMounted) + "\r\n", ch);
 		return;
 	}
 
 	if (vict == ch) {
-		SendMsgToChar("Ваш сокрушающий удар поверг вас наземь... Вы почувствовали себя глупо.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kBash, ESkillMsg::kCantTargetSelf) + "\r\n", ch);
 		return;
 	}
 
-	if (ch->IsImpl() || !ch->GetEnemy()) {
+	if (privilege::IsImpl(ch) || !ch->GetEnemy()) {
 		go_bash(ch, vict);
 	} else if (IsHaveNoExtraAttack(ch)) {
 		if (!ch->IsNpc())
@@ -74,37 +78,38 @@ void go_bash(CharData *ch, CharData *vict) {
 		return;
 	}
 	if (IsUnableToAct(ch) || AFF_FLAGGED(ch, EAffect::kStopLeft)) {
-		SendMsgToChar("Вы временно не в состоянии сражаться.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kBash, ESkillMsg::kCantFightNow) + "\r\n", ch);
 		return;
 	}
 	if (ch->HasCooldown(ESkill::kBash)) {
-		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kBash, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	}
 
 	if (ch->HasCooldown(ESkill::kGlobalCooldown)) {
-		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kBash, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	}
-	if (!(ch->IsNpc() || GET_EQ(ch, kShield) || ch->IsImmortal() || AFF_FLAGGED(vict, EAffect::kHold)
+	if (!(ch->IsNpc() || GET_EQ(ch, kShield) || privilege::IsImmortal(ch) || AFF_FLAGGED(vict, EAffect::kHold)
 		|| GET_GOD_FLAG(vict, EGf::kGodscurse))) {
 		SendMsgToChar("Вы не можете сделать этого без щита.\r\n", ch);
+      SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kBash, ESkillMsg::kWrongWeapon) + "\r\n", ch);
 		return;
 	}
 	if (ch->IsFlagged(EPrf::kIronWind)) {
 		SendMsgToChar("Вы не можете применять этот прием в таком состоянии!\r\n", ch);
 		return;
 	}
-	if (ch->IsHorsePrevents()) {
-		SendMsgToChar("Верхом это сделать затруднительно.\r\n", ch);
+	if (mount::IsBlockedByHorse(ch)) {
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kBash, ESkillMsg::kCantWhileMounted) + "\r\n", ch);
 		return;
 	}
 	if (ch == vict) {
-		SendMsgToChar("Ваш сокрушающий удар поверг вас наземь... Вы почувствовали себя глупо.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kBash, ESkillMsg::kCantTargetSelf) + "\r\n", ch);
 		return;
 	}
 	if (ch->GetPosition() < EPosition::kFight) {
-		SendMsgToChar("Вам стоит встать на ноги.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kBash, ESkillMsg::kGetOnFeet) + "\r\n", ch);
 		return;
 	}
 //	if (vict->purged()) {
@@ -128,7 +133,7 @@ void go_bash(CharData *ch, CharData *vict) {
 			af.type = ESpell::kConfuse;
 			af.duration = 2;
 			af.battleflag = kAfSameTime;
-			af.bitvector = to_underlying(EAffect::kConfused);
+			af.affect_type = EAffect::kConfused;
 			if (!vict->IsNpc()) {
 				af.duration *= 30;
 			}
@@ -165,8 +170,8 @@ void go_bash(CharData *ch, CharData *vict) {
 		}
 //Полный фейл, падаем на жопу:
 		if (!can_shield_bash || (!shield_bash_success && !still_stands)) {
-			SetFighting(ch, vict);
-			SetFighting(vict, ch);
+			if (!ch->GetEnemy()) SetFighting(ch, vict);
+			if (!vict->GetEnemy()) SetFighting(vict, ch);
 			ch->SetPosition(EPosition::kSit);
 			SetWait(ch, 2, true);
 			act("&WВы попытались сбить $N3, но упали сами. Учитесь.&n",
@@ -183,7 +188,7 @@ void go_bash(CharData *ch, CharData *vict) {
 			SetSkillCooldownInFight(ch, ESkill::kBash, 1);
 //Фейл баша, фейл удара щитом, но удержались на ногах:
 		} else if (can_shield_bash && !shield_bash_success && still_stands) {
-			SetFighting(ch, vict);
+			if (!ch->GetEnemy()) SetFighting(ch, vict);
 			SetSkillCooldownInFight(ch, ESkill::kBash, 1);
 			act("&WНеуклюже попытавшись ударить $N3 щитом, Вы сами еле удержались на ногах!&n",
 				false, ch, nullptr, vict, kToChar);
@@ -207,7 +212,7 @@ void go_bash(CharData *ch, CharData *vict) {
 			&& !AFF_FLAGGED(vict, EAffect::kStopLeft)
 			&& vict->get_wait() <= 0
 			&& AFF_FLAGGED(vict, EAffect::kHold) == 0) {
-			if (!(GET_EQ(vict, kShield) || vict->IsNpc() || vict->IsImmortal() || GET_GOD_FLAG(vict, EGf::kGodsLike)))
+			if (!(GET_EQ(vict, kShield) || vict->IsNpc() || privilege::IsImmortal(vict) || GET_GOD_FLAG(vict, EGf::kGodsLike)))
 				SendMsgToChar("У вас нечем отразить атаку противника.\r\n", vict);
 			else {
 				int range, prob2;
@@ -244,10 +249,10 @@ void go_bash(CharData *ch, CharData *vict) {
 		dmg.flags.set(fight::kIgnoreBlink);
 		damage = dmg.Process(ch, vict);
 		// Сам баш:
-		if (!vict->IsImpl()) {
+		if (!privilege::IsImpl(vict)) {
 			if (vict->GetPosition() > EPosition::kSit) {
 				vict->SetPosition(EPosition::kSit);
-				vict->DropFromHorse();
+				mount::DropFromHorse(vict);
 			}
 			SetWait(vict, 3, true);
 		}

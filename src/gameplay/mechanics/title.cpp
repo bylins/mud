@@ -6,8 +6,10 @@
 #include "engine/entities/char_player.h"
 #include "gameplay/fight/pk.h"
 #include "engine/core/handler.h"
+#include "engine/core/target_resolver.h"
 #include "administration/privilege.h"
 #include "engine/ui/color.h"
+#include "gameplay/core/remort.h"
 
 extern void SendMsgToGods(char *text, bool demigod);
 
@@ -79,11 +81,11 @@ void TitleSystem::do_title(CharData *ch, char *argument, int/* cmd*/, int/* subc
 
 	// какие тока извраты не приходится делать, чтобы соответствовать синтаксису одобрения имен
 	int result = TITLE_NEED_HELP;
-	if (ch->IsGod() || privilege::CheckFlag(ch, privilege::kTitle)) {
+	if (privilege::IsGod(ch) || privilege::CheckFlag(ch, privilege::kTitle)) {
 		utils::Trim(buffer);
 		if (CompareParam(buffer, "удалить")) {
 			utils::Trim(buffer2);
-			CharData *vict = get_player_pun(ch, buffer2, EFind::kCharInWorld);
+			CharData *vict = target_resolver::FindPlayer(ch, buffer2);
 			if (!vict) {
 				SendMsgToChar("Нет такого игрока.\r\n", ch);
 				return;
@@ -138,7 +140,7 @@ void TitleSystem::do_title(CharData *ch, char *argument, int/* cmd*/, int/* subc
 			if (!check_title(buffer, ch)) return;
 			title = buffer;
 		}
-		if (ch->IsGod() || privilege::CheckFlag(ch, privilege::kTitle)) {
+		if (privilege::IsGod(ch) || privilege::CheckFlag(ch, privilege::kTitle)) {
 			set_player_title(ch, pre_title, title, GET_NAME(ch));
 			SendMsgToChar("Титул установлен\r\n", ch);
 			return;
@@ -203,7 +205,7 @@ void TitleSystem::do_title(CharData *ch, char *argument, int/* cmd*/, int/* subc
 bool TitleSystem::check_title(const std::string &text, CharData *ch) {
 	if (!check_alphabet(text, ch, " ,.-?Ёё")) return false;
 
-	if (GetRealLevel(ch) < 25 && !GetRealRemort(ch) && !ch->IsGod() && !privilege::CheckFlag(ch, privilege::kTitle)) {
+	if (GetRealLevel(ch) < 25 && !remort::GetRealRemort(ch) && !privilege::IsGod(ch) && !privilege::CheckFlag(ch, privilege::kTitle)) {
 		SendMsgToChar(ch, "Для права на титул вы должны достигнуть 25го уровня или иметь перевоплощения.\r\n");
 		return false;
 	}
@@ -221,10 +223,10 @@ bool TitleSystem::check_pre_title(const std::string& text, CharData *ch) {
 	if (!check_alphabet(text, ch, " .-?Ёё")) 
 		return false;
 
-	if (ch->IsGod() || privilege::CheckFlag(ch, privilege::kTitle)) 
+	if (privilege::IsGod(ch) || privilege::CheckFlag(ch, privilege::kTitle)) 
 		return true;
 
-	if (!GetRealRemort(ch)) {
+	if (!remort::GetRealRemort(ch)) {
 		SendMsgToChar(ch, "Вы должны иметь по крайней мере одно перевоплощение для предтитула.\r\n");
 		return false;
 	}
@@ -240,7 +242,7 @@ bool TitleSystem::check_pre_title(const std::string& text, CharData *ch) {
 		SendMsgToChar(ch, "Слишком много слов в предтитуле.\r\n");
 		return false;
 	}
-	if (word > GetRealRemort(ch)) {
+	if (word > remort::GetRealRemort(ch)) {
 		SendMsgToChar(ch, "У вас недостаточно перевоплощений для стольких слов в предтитуле.\r\n");
 		return false;
 	}
@@ -393,7 +395,7 @@ void TitleSystem::set_player_title(CharData *ch,
 
 // * Для распечатки разных подсказок имму и игроку
 const char *TitleSystem::print_help_string(CharData *ch) {
-	if (ch->IsGod() || privilege::CheckFlag(ch, privilege::kTitle))
+	if (privilege::IsGod(ch) || privilege::CheckFlag(ch, privilege::kTitle))
 		return GOD_DO_TITLE_FORMAT;
 
 	return MORTAL_DO_TITLE_FORMAT;
@@ -462,7 +464,7 @@ std::string TitleSystem::print_agree_string(bool new_petition) {
 
 // * Обработка пустого вызова команды титул
 void TitleSystem::do_title_empty(CharData *ch) {
-	if ((ch->IsGod() || privilege::CheckFlag(ch, privilege::kTitle)) && !title_list.empty())
+	if ((privilege::IsGod(ch) || privilege::CheckFlag(ch, privilege::kTitle)) && !title_list.empty())
 		show_title_list(ch);
 	else {
 		std::stringstream out;

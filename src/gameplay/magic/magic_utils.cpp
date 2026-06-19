@@ -13,14 +13,17 @@
 ************************************************************************ */
 
 #include "magic_utils.h"
+#include "administration/privilege.h"
 
 #include "gameplay/mechanics/groups.h"
 #include "engine/db/global_objects.h"
 #include "engine/core/handler.h"
+#include "engine/core/target_resolver.h"
 #include "engine/ui/color.h"
 #include "gameplay/mechanics/depot.h"
 #include "gameplay/communication/parcel.h"
 #include "magic.h"
+#include "magic_internal.h"
 #include "gameplay/classes/pc_classes.h"
 #include "gameplay/mechanics/weather.h"
 #include "gameplay/core/base_stats.h"
@@ -30,112 +33,116 @@
 #include <fmt/format.h>
 #include "engine/observability/helpers.h"
 #include "engine/observability/metrics.h"
-#include "utils/tracing/trace_manager.h"
+#include "utils/utils_time.h"
 
 char cast_argument[kMaxInputLength];
 
-extern int what_sky;
-
-
-int MagusCastRequiredLevel(const CharData *ch, ESpell spell_id) {
-	int required_level;
-	if (spell_create.contains(spell_id)) {
-		required_level = spell_create[spell_id].runes.min_caster_level;
+// True if `ch`'s race counts as "verbal": the cast is narrated as articulated speech
+// (PC always, plus the five humanoid NPC races that historically had their own narration
+// set). Non-humanoid NPC races default to "sound" -- a single collapsed narration line.
+// Caster-side "Вы произнесли заклинание ..." / "Вы выкрикнули ..." banner.
+// The kCastIncantToChar sheaf carries the line; {color}/{name}/{nrm}
+// placeholders are filled in with bold-red / bold-green by IsViolentAgainst
+// or bold-yellow for an ambiguous spell whose
+// target wasn't resolved (e.g. an area cast where the banner can't pick a side).
+static void EmitCastIncantBanner(CharData *ch, ESpell spell_id, const CharData *tch) {
+	std::string incant = MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCastIncantToChar);
+	const auto &spell = MUD::Spell(spell_id);
+	const char *color;
+	if (spell.GetViolent() == spells::EViolent::kAmbiguous && !tch) {
+		color = kColorBoldYel;
 	} else {
-		return 999;
+		color = spell.IsViolentAgainst(ch, tch ? tch : ch) ? kColorBoldRed : kColorBoldGrn;
 	}
-	if (required_level >= kLvlGod)
-		return required_level;
-	if (CanUseFeat(ch, EFeat::kSecretRunes)) {
-		required_level -= GetRealRemort(ch)/ MUD::Class(ch->GetClass()).GetSpellLvlDecrement();
-	}
-	return std::max(1, required_level);
+	auto subst = [&incant](const char *token, const char *value) {
+		const auto pos = incant.find(token);
+		if (pos != std::string::npos) {
+			incant.replace(pos, std::strlen(token), value);
+		}
+	};
+	subst("{color}", color);
+	subst("{name}", MUD::Spell(spell_id).GetCName());
+	subst("{nrm}", kColorNrm);
+	SendMsgToChar(incant + "\r\n", ch);
 }
 
 // SaySpell erodes buf, buf1, buf2
 void SaySpell(CharData *ch, ESpell spell_id, CharData *tch, ObjData *tobj) {
 	char lbuf[256];
-	const char *say_to_self, *say_to_other, *say_to_obj_vis, *say_to_something,
-		*helpee_vict, *damagee_vict, *format;
+
+	// Silenced caster can't speak the phrase regardless of whether the spell
+	// is verbal. A verbal spell shouldn't even reach SaySpell while silenced
+	// (do_cast / CastSpell / process_player_attack bail out earlier), but
+	// a non-verbal spell will, and still has no business announcing prose.
+	// The cast itself continues; only the spoken phrase + room narration
+	// are suppressed.
+	if (AFF_FLAGGED(ch, EAffect::kSilence)) {
+		return;
+	}
 
 	*buf = '\0';
 	strcpy(lbuf, MUD::Spell(spell_id).GetEngCName());
-	// Say phrase ?
-	const auto &cast_phrase_list = GetCastPhrase(spell_id);
-	if (!cast_phrase_list) {
-		sprintf(buf, "[ERROR]: SaySpell: для спелла %d не объявлена cast_phrase", to_underlying(spell_id));
-		mudlog(buf, CMP, kLvlGod, SYSLOG, true);
+	const auto &cast_phrase_sheaf = MUD::SpellMessages()[spell_id];
+	if (!cast_phrase_sheaf.HasMessage(ESpellMsg::kCastPhraseHeathen)
+		&& !cast_phrase_sheaf.HasMessage(ESpellMsg::kCastPhraseChristian)) {
+		// A non-verbal spell may legitimately ship no cast phrase -- the
+		// caster simply makes no sound here. A verbal spell with no phrase
+		// IS a content gap, so keep the CMP-level mudlog for that case.
+		// (cast phrase is decorative for non-verbal
+		// spells. Speak it if present; stay silent otherwise.)
+		if (MUD::Spell(spell_id).IsVerbal()) {
+			sprintf(buf, "[ERROR]: SaySpell: для спелла %d не объявлена cast_phrase", to_underlying(spell_id));
+			mudlog(buf, CMP, kLvlGod, SYSLOG, true);
+		}
 		return;
 	}
-	if (ch->IsNpc()) {
-		switch (GET_RACE(ch)) {
-			case ENpcRace::kBoggart:
-			case ENpcRace::kGhost:
-			case ENpcRace::kHuman:
-			case ENpcRace::kZombie:
-			case ENpcRace::kSpirit: {
-				const int religion = number(kReligionPoly, kReligionMono);
-				const std::string &cast_phrase = religion ? cast_phrase_list->text_for_christian : cast_phrase_list->text_for_heathen;
-				if (!cast_phrase.empty()) {
-					strcpy(buf, cast_phrase.c_str());
-				}
-				say_to_self = "$n пробормотал$g : '%s'.";
-				say_to_other = "$n взглянул$g на $N3 и бросил$g : '%s'.";
-				say_to_obj_vis = "$n глянул$g на $o3 и произнес$q : '%s'.";
-				say_to_something = "$n произнес$q : '%s'.";
-				damagee_vict = "$n зыркнул$g на вас и проревел$g : '%s'.";
-				helpee_vict = "$n улыбнул$u вам и произнес$q : '%s'.";
-				break;
-			}
-			default: say_to_self = "$n издал$g непонятный звук.";
-				say_to_other = "$n издал$g непонятный звук.";
-				say_to_obj_vis = "$n издал$g непонятный звук.";
-				say_to_something = "$n издал$g непонятный звук.";
-				damagee_vict = "$n издал$g непонятный звук.";
-				helpee_vict = "$n издал$g непонятный звук.";
-		}
-	} else {
-		if (ch->IsFlagged(EPrf::kNoRepeat)) {
-			if (!ch->GetEnemy()) {
-				SendMsgToChar(OK, ch);
-			}
-		} else {
-			if (MUD::Spell(spell_id).IsFlagged(kMagWarcry))
-				sprintf(buf, "Вы выкрикнули \"%s%s%s\".\r\n",
-						MUD::Spell(spell_id).IsViolent() ? kColorBoldRed : kColorBoldGrn,
-						MUD::Spell(spell_id).GetCName(), kColorNrm);
-			else
-				sprintf(buf, "Вы произнесли заклинание \"%s%s%s\".\r\n",
-						MUD::Spell(spell_id).IsViolent() ? kColorBoldRed : kColorBoldGrn,
-						MUD::Spell(spell_id).GetCName(), kColorNrm);
-			SendMsgToChar(buf, ch);
-		}
-		const std::string &cast_phrase = GET_RELIGION(ch) ? cast_phrase_list->text_for_christian : cast_phrase_list->text_for_heathen;
+
+	const bool verbal = IsAbleToSay(ch);
+
+	// Resolve the cast phrase used for viewers who don't Know the spell. PCs pick
+	// by religion; NPCs pick at random per cast. Sound-voice casters don't speak
+	// so the phrase stays empty (kCastSaySound has no %s slot anyway).
+	if (verbal) {
+		const int religion = ch->IsNpc()
+				? number(kReligionPoly, kReligionMono)
+				: GET_RELIGION(ch);
+		const std::string &cast_phrase = cast_phrase_sheaf.GetMessage(
+				religion ? ESpellMsg::kCastPhraseChristian : ESpellMsg::kCastPhraseHeathen);
 		if (!cast_phrase.empty()) {
 			strcpy(buf, cast_phrase.c_str());
 		}
-		say_to_self = "$n прикрыл$g глаза и прошептал$g : '%s'.";
-		say_to_other = "$n взглянул$g на $N3 и произнес$q : '%s'.";
-		say_to_obj_vis = "$n посмотрел$g на $o3 и произнес$q : '%s'.";
-		say_to_something = "$n произнес$q : '%s'.";
-		damagee_vict = "$n зыркнул$g на вас и произнес$q : '%s'.";
-		helpee_vict = "$n подмигнул$g вам и произнес$q : '%s'.";
 	}
 
-	if (tch != nullptr && tch->in_room == ch->in_room) {
-		if (tch == ch) {
-			format = say_to_self;
+	// Caster-side banner -- PC only (NPCs have no client to message).
+	if (!ch->IsNpc()) {
+		if (ch->IsFlagged(EPrf::kNoRepeat)) {
+			if (!ch->GetEnemy()) {
+				SendMsgToChar(CommonMsg(ECommonMsg::kOk) + "\r\n", ch);
+			}
 		} else {
-			format = say_to_other;
+			EmitCastIncantBanner(ch, spell_id, tch);
 		}
-	} else if (tobj != nullptr && (tobj->get_in_room() == ch->in_room || tobj->get_carried_by() == ch)) {
-		format = say_to_obj_vis;
-	} else {
-		format = say_to_something;
 	}
 
-	sprintf(buf1, format, MUD::Spell(spell_id).GetCName());
-	sprintf(buf2, format, buf);
+	// Pick the room-narration key by cast situation; sound voice collapses every
+	// slot to kCastSaySound. The per-spell sheaf may override (with kDefault
+	// fallback); when a key has multiple variants the container picks one at random.
+	ESpellMsg room_key;
+	if (tch != nullptr && tch->in_room == ch->in_room) {
+		room_key = (tch == ch) ? ESpellMsg::kCastSayToSelf : ESpellMsg::kCastSayToOther;
+	} else if (tobj != nullptr && (tobj->get_in_room() == ch->in_room || tobj->get_carried_by() == ch)) {
+		room_key = ESpellMsg::kCastSayToObj;
+	} else {
+		room_key = ESpellMsg::kCastSayToSomething;
+	}
+	const std::string &room_format = MUD::SpellMessages().GetMessage(
+			spell_id, verbal ? room_key : ESpellMsg::kCastSaySound);
+
+	// The %s slot (when present) is filled by sprintf with the spell name for
+	// viewers who Know the cast, or the cast phrase for everyone else. Sound-voice
+	// narration has no %s and the argument is ignored, which is safe in standard C.
+	sprintf(buf1, room_format.c_str(), MUD::Spell(spell_id).GetCName());
+	sprintf(buf2, room_format.c_str(), buf);
 
 	for (const auto i : world[ch->in_room]->people) {
 		if (i == ch || i == tch || !i->desc || !AWAKE(i) || AFF_FLAGGED(i, EAffect::kDeafness)) {
@@ -152,15 +159,15 @@ void SaySpell(CharData *ch, ESpell spell_id, CharData *tch, ObjData *tobj) {
 	act(buf1, 1, ch, tobj, tch, kToArenaListen);
 
 	if (tch != nullptr && tch != ch && tch->in_room == ch->in_room && !AFF_FLAGGED(tch, EAffect::kDeafness)) {
-		if (MUD::Spell(spell_id).IsViolent()) {
-			sprintf(buf1, damagee_vict,
-					IS_SET(GET_SPELL_TYPE(tch, spell_id), ESpellType::kKnow | ESpellType::kTemp) ?
-					MUD::Spell(spell_id).GetCName() : buf);
-		} else {
-			sprintf(buf1, helpee_vict,
-					IS_SET(GET_SPELL_TYPE(tch, spell_id), ESpellType::kKnow | ESpellType::kTemp) ?
-					MUD::Spell(spell_id).GetCName() : buf);
-		}
+		const ESpellMsg vict_key = !verbal
+				? ESpellMsg::kCastSaySound
+				: (MUD::Spell(spell_id).IsViolentAgainst(ch, tch)
+						? ESpellMsg::kCastSayDamageeToVict
+						: ESpellMsg::kCastSayHelpeeToVict);
+		const std::string &vict_format = MUD::SpellMessages().GetMessage(spell_id, vict_key);
+		sprintf(buf1, vict_format.c_str(),
+				IS_SET(GET_SPELL_TYPE(tch, spell_id), ESpellType::kKnow | ESpellType::kTemp) ?
+				MUD::Spell(spell_id).GetCName() : buf);
 		act(buf1, false, ch, nullptr, tch, kToVict);
 	}
 }
@@ -216,16 +223,9 @@ ESpell FindSpellId(const char *name) {
 }
 
 ESpell FindSpellIdWithName(const std::string &name) {
-	for (const auto &spell : MUD::Spells()) {
-		if (spell.IsInvalid()) {
-			continue;
-		}
-		if (utils::IsEquivalent(name, spell.GetName())) {
-			return spell.GetId();
-		}
-	}
-
-	return ESpell::kUndefined;
+	// issue.thing-names: search the string container (where the display names now live) and return
+	// the spell id, instead of scanning gameplay records.
+	return MUD::SpellMessages().FindByName(name);
 }
 
 template<typename T>
@@ -271,8 +271,8 @@ abilities::EAbility FixNameAndFindAbilityId(const std::string &name) {
 	return FindAbilityId(copy.c_str());
 }
 
-bool MayCastInNomagic(CharData *caster, ESpell spell_id) {
-	if (caster->IsGrGod() || MUD::Spell(spell_id).IsFlagged(kMagWarcry)) {
+bool MayCastInForbiddenRoom(CharData *caster) {
+	if (privilege::IsGrGod(caster)) {
 		return true;
 	}
 	if (caster->IsNpc() &&
@@ -281,14 +281,55 @@ bool MayCastInNomagic(CharData *caster, ESpell spell_id) {
 	return false;
 }
 
+// Data-driven room-flag block: true if `room` carries any of the flags listed in
+// the spell's <blocking><room_flags val="..."/></blocking>. Mirrors the per-target
+// blocking helper in magic.cpp but examines the caster's room instead of the victim.
+// Together with MayCastInForbiddenRoom() this replaces the hard-coded
+// ROOM_FLAGGED(..., kNoMagic) check that used to live at the top of CallMagic, and
+// drives the kRuneLabel fizzle that used to live in CallMagicToRoom's switch.
+bool IsRoomBlocked(RoomData *room, const talents_actions::FlagCondition &cond) {
+	if (!room) {
+		return false;
+	}
+	for (const auto flag : cond.room_flags) {
+		if (room->get_flag(flag)) {
+			return true;
+		}
+	}
+	return false;
+}
+
+float CalcCastPotency(const RollResult &potency) {
+	return static_cast<float>(potency.dices + potency.skill_coeff + potency.stat_coeff);
+}
+
+int ComputeApplyModifier(const talents_actions::TalentAffect::Apply &apply, double competence,
+						 const RollResult &potency) {
+	// `competence` replaces the caster's skill+stat for chained actions
+	// (it equals skill+stat for the entry action / base==kCompetence). potency.dices stays.
+	const double competencies = competence;
+	// Option-2 subquadratic: dice amplified by skill/stat (alpha)
+	// plus an additive term (beta). alpha=0 -> old Formula A.
+	double raw = apply.min + std::ceil(
+			potency.dices * apply.dices_weight * (1.0 + apply.alpha * competencies)
+			+ apply.beta * competencies);
+	// Optional cap on raw magnitude before factor. 0 = no cap.
+	// Clamps the buff/debuff magnitude regardless of factor sign.
+	if (apply.cap > 0) {
+		raw = std::min(raw, static_cast<double>(apply.cap));
+	}
+	return static_cast<int>(apply.factor * raw);
+}
+
 bool MayCastHere(CharData *caster, CharData *victim, ESpell spell_id) {
 	int ignore;
 
-	if (caster->IsGrGod() || !ROOM_FLAGGED(caster->in_room, ERoomFlag::kPeaceful)) {
+	if (privilege::IsGrGod(caster) || !ROOM_FLAGGED(caster->in_room, ERoomFlag::kPeaceful)) {
 		return true;
 	}
 
-	if (ROOM_FLAGGED(caster->in_room, ERoomFlag::kNoBattle) && MUD::Spell(spell_id).IsViolent()) {
+	if (ROOM_FLAGGED(caster->in_room, ERoomFlag::kNoBattle)
+		&& MUD::Spell(spell_id).IsViolentAgainst(caster, victim)) {
 		return false;
 	}
 
@@ -302,7 +343,7 @@ bool MayCastHere(CharData *caster, CharData *victim, ESpell spell_id) {
 
 	if (ignore && !MUD::Spell(spell_id).IsFlagged(kMagMasses) &&
 		!MUD::Spell(spell_id).IsFlagged(kMagGroups)) {
-		if (MUD::Spell(spell_id).IsViolent()) {
+		if (MUD::Spell(spell_id).IsViolentAgainst(caster, victim)) {
 			return false;
 		}
 		return victim == nullptr ? true : false;
@@ -313,15 +354,15 @@ bool MayCastHere(CharData *caster, CharData *victim, ESpell spell_id) {
 					!MUD::Spell(spell_id).IsFlagged(kMagAreas);
 
 	for (const auto ch_vict : world[caster->in_room]->people) {
-		if (ch_vict->IsImmortal())
+		if (privilege::IsImmortal(ch_vict))
 			continue;
 		if (!HERE(ch_vict))
 			continue;
-		if (MUD::Spell(spell_id).IsViolent() && group::same_group(caster, ch_vict))
+		if (MUD::Spell(spell_id).IsViolentAgainst(caster, ch_vict) && group::same_group(caster, ch_vict))
 			continue;
 		if (ignore && ch_vict != victim)
 			continue;
-		if (MUD::Spell(spell_id).IsViolent()) {
+		if (MUD::Spell(spell_id).IsViolentAgainst(caster, ch_vict)) {
 			if (!may_kill_here(caster, ch_vict, NoArgument)) {
 				return false;
 			}
@@ -341,18 +382,12 @@ public:
 	                 const CharData* cvict, const ObjData* ovict, const RoomData* rvict)
 		: m_spell_name(MUD::Spell(spell_id).GetCName())
 		, m_caster_class(MUD::Class(caster->GetClass()).GetName())
-		, m_span(tracing::TraceManager::Instance().StartSpan("Spell Cast"))
 		, m_duration("spell.cast.duration", {
 			{"spell_name",   m_spell_name},
 			{"caster_class", m_caster_class}
 		  })
 	{
-		const std::string target = cvict ? "char" : ovict ? "obj" : rvict ? "room" : "none";
-		m_span->SetAttribute("spell_id",     static_cast<int64_t>(to_underlying(spell_id)));
-		m_span->SetAttribute("spell_name",   m_spell_name);
-		m_span->SetAttribute("caster_class", m_caster_class);
-		m_span->SetAttribute("spell_level",  static_cast<int64_t>(level));
-		m_span->SetAttribute("target_type",  target);
+		(void)level; (void)cvict; (void)ovict; (void)rvict;
 	}
 
 	void send() {
@@ -365,7 +400,6 @@ public:
 private:
 	std::string m_spell_name;
 	std::string m_caster_class;
-	std::unique_ptr<tracing::ISpan> m_span;
 	observability::ScopedMetric m_duration;
 };
 
@@ -376,52 +410,136 @@ private:
  * This is also the entry point for non-spoken or unrestricted spells.
  * Spellnum 0 is legal but silently ignored here, to make callers simpler.
  */
-int CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict, ESpell spell_id, int level) {
-	SpellCastMetrics metrics(spell_id, caster, level, cvict, ovict, rvict);
+// Evaluates the spell's potency roll against the caster once, so the result can be
+// threaded to the cast-dispatch functions. The roll values do not depend on level;
+// level is carried only to replace that parameter.
+CastContext BuildCastContext(CharData *caster, ESpell spell_id, int level) {
+	const auto &spell = MUD::Spell(spell_id);
+	auto eval = [caster](const talents_actions::Roll &roll) {
+		return RollResult{roll.RollSkillDices(), roll.CalcSkillCoeff(caster),
+						  roll.CalcBaseStatCoeff(caster), roll.CalcLowSkillCoeff(caster)};
+	};
+	CastContext ctx(caster, spell_id, level, eval(spell.GetPotencyRoll()));
+	ctx.casting.insert(spell_id);  // seed the cast-chain loop guard
+	return ctx;
+}
 
+ECastResult CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict, ESpell spell_id, int level) {
+	SpellCastMetrics metrics(spell_id, caster, level, cvict, ovict, rvict);
+	utils::CSteppedProfiler profiler("Spell Cast", 0.030);
 
 	if (spell_id < ESpell::kFirst || spell_id > ESpell::kLast)
-		return 0;
+		return ECastResult::kNotCast;
 
-	if (ROOM_FLAGGED(caster->in_room, ERoomFlag::kNoMagic) && !MayCastInNomagic(caster, spell_id)) {
-		SendMsgToChar("Ваша магия потерпела неудачу и развеялась по воздуху.\r\n", caster);
-		act("Магия $n1 потерпела неудачу и развеялась по воздуху.",
-			false, caster, nullptr, nullptr, kToRoom | kToArenaListen);
-		return 0;
+	// Data-driven room block: any spell whose XML
+	// <talent_actions><action><blocking><room_flags val="..."/></blocking></action>
+	// matches the caster's room fizzles here, AND any spell carrying <components><weave/>
+	// fizzles in a kNoMagic room (weave is the single source of
+	// truth for "is this magic", replacing the data-driven kNoMagic blocking that used
+	// to be duplicated across 228 spells). MayCastInForbiddenRoom() is the per-caster
+	// bypass (greater gods, uncharmed NPCs). The fizzle messages live in spell_msg.xml --
+	// the default sheaf carries the generic narration; spells like kRuneLabel override
+	// with their own kCastForbidden* keys.
+	const bool weave_blocked =
+			MUD::Spell(spell_id).GetComponents().HasWeaveComponent()
+			&& ROOM_FLAGGED(caster->in_room, ERoomFlag::kNoMagic);
+	const bool data_blocked = IsRoomBlocked(world[caster->in_room],
+			MUD::Spell(spell_id).actions.GetBlocking());
+	if ((weave_blocked || data_blocked) && !MayCastInForbiddenRoom(caster)) {
+		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCastForbiddenToChar) + "\r\n", caster);
+		const auto &to_room = MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCastForbiddenToRoom);
+		if (!to_room.empty()) {
+			act(to_room.c_str(), false, caster, nullptr, nullptr, kToRoom | kToArenaListen);
+		}
+		return ECastResult::kNotCast;
+	}
+
+	// issue.sight-component: a spell carrying <components><sight/> requires the caster to see -- a
+	// blind caster cannot cast it. The "blinded" notice is inline for now; the generic no-effect
+	// line comes from the spell's message sheaf (kNoeffect).
+	if (MUD::Spell(spell_id).GetComponents().HasSightComponent() && AFF_FLAGGED(caster, EAffect::kBlind)) {
+		SendMsgToChar("Вы ослеплены!\r\n", caster);
+		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", caster);
+		return ECastResult::kNotCast;
 	}
 
 	if (!MayCastHere(caster, cvict, spell_id)) {
-		if (MUD::Spell(spell_id).IsFlagged(kMagWarcry)) {
-			SendMsgToChar("Ваш громовой глас сотряс воздух, но ничего не произошло!\r\n", caster);
-			act("Вы вздрогнули от неожиданного крика, но ничего не произошло.",
-				false, caster, nullptr, nullptr, kToRoom | kToArenaListen);
-		} else {
-			SendMsgToChar("Ваша магия обратилась всего лишь в яркую вспышку!\r\n", caster);
-			act("Яркая вспышка на миг осветила комнату, и тут же погасла.",
-				false, caster, nullptr, nullptr, kToRoom | kToArenaListen);
+		// MayCastHere fizzle: per-spell sheaf with kDefault
+		// fallback supplies the narration. Warcry spells override with their louder
+		// variant; the default is the magic-flash line.
+		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCantCastHereToChar) + "\r\n", caster);
+		const auto &cant_here_room =
+				MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCantCastHereToRoom);
+		if (!cant_here_room.empty()) {
+			act(cant_here_room.c_str(), false, caster, nullptr, nullptr, kToRoom | kToArenaListen);
 		}
-		return 0;
+		return ECastResult::kNotCast;
+	}
+
+	// kTarAllyOnly (issue cast-to-ally-only): a PC may cast such spells only on self
+	// or a groupmate, whatever the cast source (command, scroll, wand, staff, ...).
+	// NPCs are unrestricted; self/groupmates pass via same_group; a null/non-char
+	// target falls through to the spell's normal handling.
+	if (cvict && !caster->IsNpc() && MUD::Spell(spell_id).AllowTarget(kTarAllyOnly)
+			&& !group::same_group(caster, cvict)) {
+		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCantCastNotAlly) + "\r\n", caster);
+		return ECastResult::kNotCast;
+	}
+
+	// Spell-level caster gate: a spell is castable by the caster
+	// or not, so this is checked ONCE here -- before per-target dispatch -- not per target.
+	// e.g. kDispelEvil carries <caster_conditions><blocking><align val="kEvil"/></blocking>
+	// so an evil caster simply can't fire it. Always emits kNoeffect to the one caster.
+	if (CasterBlocked(caster, MUD::Spell(spell_id).GetCasterConditions())) {
+		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", caster);
+		return ECastResult::kNotCast;
 	}
 
 	if (SpellUsage::is_active) {
 		SpellUsage::AddSpellStat(caster->GetClass(), spell_id);
 	}
-	
+
 	metrics.send();
 
+	// Compute both rolls once, now that we know the spell is actually being cast.
+	CastContext ctx = BuildCastContext(caster, spell_id, level);
+	ctx.cvict = cvict;
+	ctx.ovict = ovict;
+	ctx.rvict = rvict;
+
 	if (MUD::Spell(spell_id).IsFlagged(kMagAreas) || MUD::Spell(spell_id).IsFlagged(kMagMasses)) {
-		return CallMagicToArea(caster, cvict, rvict, spell_id, abs(level));
+		profiler.next_step("area");
+		ctx.level = abs(level);
+		return CastSpell(ctx, ECastTargets::kFoes);
 	}
 
 	if (MUD::Spell(spell_id).IsFlagged(kMagGroups)) {
-		return CallMagicToGroup(level, caster, spell_id);
+		profiler.next_step("group");
+		return CastSpell(ctx, ECastTargets::kFriends);
 	}
 
 	if (MUD::Spell(spell_id).IsFlagged(kMagRoom)) {
-		return room_spells::CallMagicToRoom(abs(level), caster, rvict, spell_id);
+		profiler.next_step("room");
+		CastContext room_ctx = ctx;
+		room_ctx.level = abs(level);
+		return room_spells::CallMagicToRoom(caster, rvict, room_ctx);
 	}
 
-	return CastToSingleTarget(level, caster, cvict, ovict, spell_id);
+	// issue.dispellbug: dispel magic cast with no character/object target dispels the
+	// caster's current room (room wards like kForbidden) via CastUnaffects' room branch
+	// (author/ally + strength contest). Bypasses CallMagicToRoom so the ward itself
+	// cannot block its own removal.
+	if (spell_id == ESpell::kDispellMagic && !cvict && !ovict) {
+		profiler.next_step("room-dispel");
+		CastContext room_ctx = ctx;
+		room_ctx.cvict = nullptr;
+		room_ctx.rvict = world[caster->in_room];
+		return (CastUnaffects(room_ctx) == EStageResult::kBreak)
+				? ECastResult::kNotCast : ECastResult::kSuccess;
+	}
+
+	profiler.next_step("single");
+	return CastSpell(ctx, ECastTargets::kSingle);
 }
 
 const char *what_sky_type[] = {"пасмурно",
@@ -458,25 +576,30 @@ ObjData *FindObjForLocate(CharData *ch, const char *name) {
 	return obj;
 }
 
+// Sends the kNoTarget message to `ch` keyed on the cast spell with the {target}
+// placeholder resolved against the spell's accepted target classes
+// Object-accepting spells get "ЧТО" ("what"); char-only
+// spells get "КОГО" ("whom"). Per-spell sheafs with no {target} (e.g. the
+// kControlWeather "тип погоды" override) just pass through.
+static void SendNoTargetMsg(ESpell spell_id, CharData *ch) {
+	std::string msg = MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoTarget);
+	const auto pos = msg.find("{target}");
+	if (pos != std::string::npos) {
+		const char *what = MUD::Spell(spell_id).AllowTarget(
+				kTarObjRoom | kTarObjInv | kTarObjWorld | kTarObjEquip) ? "ЧТО" : "КОГО";
+		msg.replace(pos, std::strlen("{target}"), what);
+	}
+	SendMsgToChar(msg + "\r\n", ch);
+}
+
 int FindCastTarget(ESpell spell_id, const char *t, CharData *ch, CharData **tch, ObjData **tobj, RoomData **troom) {
 	*tch = nullptr;
 	*tobj = nullptr;
 	*troom = world[ch->in_room];
 
-	if (spell_id == ESpell::kControlWeather) {
-		if ((what_sky = search_block(t, what_sky_type, false)) < 0) {
-			SendMsgToChar("Не указан тип погоды.\r\n", ch);
-			return false;
-		} else
-			what_sky >>= 1;
-	}
-	if (spell_id == ESpell::kCreateWeapon) {
-		if ((what_sky = search_block(t, what_weapon, false)) < 0) {
-			SendMsgToChar("Не указан тип оружия.\r\n", ch);
-			return false;
-		} else
-			what_sky = 5 + (what_sky >> 1);
-	}
+	// kControlWeather / kCreateWeapon used to parse their argument here (weather / weapon type);
+	// that moved into the respective handlers (issue.spell-pipeline-cleaning #2/#3), so the generic
+	// resolver no longer special-cases spell ids.
 	strcpy(cast_argument, t);
 	if (MUD::Spell(spell_id).AllowTarget(kTarRoomThis))
 		return true;
@@ -484,8 +607,9 @@ int FindCastTarget(ESpell spell_id, const char *t, CharData *ch, CharData **tch,
 		return true;
 	else if (*t) {
 		if (MUD::Spell(spell_id).AllowTarget(kTarCharRoom)) {
-			if ((*tch = get_char_vis(ch, t, EFind::kCharInRoom)) != nullptr) {
-				if (MUD::Spell(spell_id).IsViolent() && !check_pkill(ch, *tch, t))
+			*tch = target_resolver::FindCharInRoom(ch, t);
+			if ((*tch != nullptr)) {
+				if (MUD::Spell(spell_id).IsViolentAgainst(ch, *tch) && !check_pkill(ch, *tch, t))
 					return false;
 				return true;
 			}
@@ -506,10 +630,11 @@ int FindCastTarget(ESpell spell_id, const char *t, CharData *ch, CharData **tch,
 					}
 				}
 			}
-			if ((*tch = get_char_vis(ch, t, EFind::kCharInWorld)) != nullptr) {
+			*tch = target_resolver::FindCharInWorld(ch, t);
+			if ((*tch != nullptr)) {
 				// чтобы мобов не чекали
 				if (ch->IsNpc() || !(*tch)->IsNpc()) {
-					if (MUD::Spell(spell_id).IsViolent() && !check_pkill(ch, *tch, t))
+					if (MUD::Spell(spell_id).IsViolentAgainst(ch, *tch) && !check_pkill(ch, *tch, t))
 						return false;
 					else
 						return true;
@@ -533,7 +658,7 @@ int FindCastTarget(ESpell spell_id, const char *t, CharData *ch, CharData **tch,
 			if (spell_id == ESpell::kLocateObject) {
 				*tobj = FindObjForLocate(ch, t);
 			} else {
-				*tobj = get_obj_vis(ch, t);
+				*tobj = target_resolver::FindObjAround(ch, t);
 			}
 			if (*tobj) {
 				return true;
@@ -550,21 +675,25 @@ int FindCastTarget(ESpell spell_id, const char *t, CharData *ch, CharData **tch,
 				*tch = ch->GetEnemy();
 				return true;
 			}
+		// issue.dispellbug: dispel magic (kDispellMagic) with no character target (out
+		// of combat) dispels the caster's current room (room wards) instead of defaulting
+		// to self. tch stays null -> CallMagic routes to the room-dispel path. In combat
+		// the kTarFightSelf branch above already targets self (cleanse convenience).
+		if (spell_id == ESpell::kDispellMagic) {
+			*tch = nullptr;
+			*troom = world[ch->in_room];
+			return true;
+		}
 		if (MUD::Spell(spell_id).AllowTarget(kTarCharRoom) && !MUD::Spell(spell_id).IsViolent()) {
 			*tch = ch;
 			return true;
 		}
 	}
 	// TODO: добавить обработку TAR_ROOM_DIR и TAR_ROOM_WORLD
-	if (MUD::Spell(spell_id).IsFlagged(kMagWarcry))
-		sprintf(buf, "И на %s же вы хотите так громко крикнуть?\r\n",
-				MUD::Spell(spell_id).AllowTarget(kTarObjRoom | kTarObjInv | kTarObjWorld | kTarObjEquip)
-				? "ЧТО" : "КОГО");
-	else
-		sprintf(buf, "На %s Вы хотите ЭТО колдовать?\r\n",
-				MUD::Spell(spell_id).AllowTarget(kTarObjRoom | kTarObjInv | kTarObjWorld | kTarObjEquip)
-				? "ЧТО" : "КОГО");
-	SendMsgToChar(buf, ch);
+	// Warcry vs regular phrasing is data-driven through the per-spell kNoTarget
+	// override: warcry sheaves carry the "так громко
+	// крикнуть" variant; the kDefault sheaf has the regular line.
+	SendNoTargetMsg(spell_id, ch);
 	return false;
 }
 
@@ -576,15 +705,15 @@ int FindCastTarget(ESpell spell_id, const char *t, CharData *ch, CharData **tch,
  * Entry point for NPC casts.  Recommended entry point for spells cast
  * by NPCs via specprocs.
  */
-int CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, ESpell spell_id, ESpell spell_subst) {
+ECastResult CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, ESpell spell_id, ESpell spell_subst) {
 	if (spell_id == ESpell::kUndefined) {
 		log("SYSERR: CastSpell trying to call spell id %d.\n", to_underlying(spell_id));
-		return 0;
+		return ECastResult::kNotCast;
 	}
 
 	if (tch && ch) {
-		if (tch->IsNpc() && ch->IsNpc() && !SAME_ALIGN(ch, tch) && !MUD::Spell(spell_id).IsViolent()) {
-			return 0;
+		if (tch->IsNpc() && ch->IsNpc() && !alignment::SameAlign(ch, tch) && !MUD::Spell(spell_id).IsViolent()) {
+			return ECastResult::kNotCast;
 		}
 	}
 
@@ -594,46 +723,63 @@ int CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, ESpel
 
 	if (ch->GetPosition() < MUD::Spell(spell_id).GetMinPos()) {
 		switch (ch->GetPosition()) {
-			case EPosition::kSleep: SendMsgToChar("Вы спите и не могете думать больше ни о чем.\r\n", ch);
+			case EPosition::kSleep: SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCantCastSleeping) + "\r\n", ch);
 				break;
-			case EPosition::kRest: SendMsgToChar("Вы расслаблены и отдыхаете. И далась вам эта магия?\r\n", ch);
+			case EPosition::kRest: SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCantCastResting) + "\r\n", ch);
 				break;
-			case EPosition::kSit: SendMsgToChar("Похоже, в этой позе Вы много не наколдуете.\r\n", ch);
+			case EPosition::kSit: SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCantCastSitting) + "\r\n", ch);
 				break;
-			case EPosition::kFight: SendMsgToChar("Невозможно! Вы сражаетесь! Это вам не шухры-мухры.\r\n", ch);
+			case EPosition::kFight: SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCantCastFighting) + "\r\n", ch);
 				break;
-			default: SendMsgToChar("Вам вряд ли это удастся.\r\n", ch);
+			default: SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCantCastPosition) + "\r\n", ch);
 				break;
 		}
-		return 0;
+		return ECastResult::kNotCast;
 	}
 
 	if (AFF_FLAGGED(ch, EAffect::kCharmed) && ch->get_master() == tch) {
-		SendMsgToChar("Вы не посмеете поднять руку на вашего повелителя!\r\n", ch);
-		return 0;
+		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCantCastMaster) + "\r\n", ch);
+		return ECastResult::kNotCast;
 	}
 
-	if (tch != ch && !ch->IsImmortal() && MUD::Spell(spell_id).AllowTarget(kTarSelfOnly)) {
-		SendMsgToChar("Вы можете колдовать это только на себя!\r\n", ch);
-		return 0;
+	// Verbal-component gate: CastSpell is the
+	// universal entry point for "spoken" casts (PC do_cast, NPC specprocs,
+	// queued combat casts via process_player_attack, ...). Refuse only
+	// verbal spells under kSilence; non-verbal spells fall through.
+	if (MUD::Spell(spell_id).IsVerbal() && AFF_FLAGGED(ch, EAffect::kSilence)) {
+		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCantCastSilenced) + "\r\n", ch);
+		return ECastResult::kNotCast;
+	}
+
+	// Material-component gate: a spoken cast consumes its material component(s)
+	// here, at launch -- alongside the verbal gate -- NOT inside CastAffect. CastAffect also runs
+	// for casts from equipment / scrolls / procs (which reach CallMagic directly, bypassing this
+	// function) and those must not require components. A missing component refuses the cast.
+	if (ProcessMatComponents(ch, ch, spell_id) == EStageResult::kBreak) {
+		return ECastResult::kNotCast;
+	}
+
+	if (tch != ch && !privilege::IsImmortal(ch) && MUD::Spell(spell_id).AllowTarget(kTarSelfOnly)) {
+		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCantCastSelfOnly) + "\r\n", ch);
+		return ECastResult::kNotCast;
 	}
 
 	if (tch == ch && MUD::Spell(spell_id).AllowTarget(kTarNotSelf)) {
-		SendMsgToChar("Колдовать? ЭТО? На себя?! Да вы с ума сошли!\r\n", ch);
-		return 0;
+		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCantCastNotSelf) + "\r\n", ch);
+		return ECastResult::kNotCast;
 	}
 
 	if ((!tch || tch->in_room == kNowhere) && !tobj && !troom &&
 		MUD::Spell(spell_id).AllowTarget(kTarCharRoom | kTarCharWorld | kTarFightSelf | kTarFightVict |
 			kTarObjInv | kTarObjRoom | kTarObjWorld | kTarObjEquip | kTarRoomThis | kTarRoomDir)) {
-		SendMsgToChar("Цель заклинания недоступна.\r\n", ch);
-		return 0;
+		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kTargetUnavailable) + "\r\n", ch);
+		return ECastResult::kNotCast;
 	}
 
 	if (tch != nullptr && tch->in_room != ch->in_room) {
 		if (!MUD::Spell(spell_id).AllowTarget(kTarCharWorld)) {
-			SendMsgToChar("Цель заклинания недоступна.\r\n", ch);
-			return 0;
+			SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kTargetUnavailable) + "\r\n", ch);
+			return ECastResult::kNotCast;
 		}
 	}
 
@@ -642,27 +788,31 @@ int CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, ESpel
 			MUD::Spell(spell_id).IsFlagged(kMagMasses) ||
 			MUD::Spell(spell_id).IsFlagged(kMagGroups);
 		if (ignore) { // индивидуальная цель
-			if (MUD::Spell(spell_id).IsViolent()) {
-				SendMsgToChar("Ваша душа полна смирения, и вы не желаете творить зло.\r\n", ch);
-				return false;    // нельзя злые кастовать
+			// Peaceful blocks anything that *could* be aggressive,
+			// including kAmbiguous, because mass/area/no-target casts have no single victim
+			// to resolve the relationship against -- the conservative read is "this might
+			// hit an outsider".
+			if (MUD::Spell(spell_id).GetViolent() != spells::EViolent::kNo) {
+				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCantCastPeaceful) + "\r\n", ch);
+				return ECastResult::kNotCast;    // нельзя злые кастовать
 			}
 		}
 		for (const auto ch_vict : world[ch->in_room]->people) {
-			if (MUD::Spell(spell_id).IsViolent()) {
+			if (MUD::Spell(spell_id).IsViolentAgainst(ch, ch_vict)) {
 				if (ch_vict == tch) {
-					SendMsgToChar("Ваша душа полна смирения, и вы не желаете творить зло.\r\n", ch);
-					return false;
+					SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCantCastPeaceful) + "\r\n", ch);
+					return ECastResult::kNotCast;
 				}
 			} else {
 				if (ch_vict == tch && !group::same_group(ch, ch_vict)) {
-					SendMsgToChar("Ваша душа полна смирения, и вы не желаете творить зло.\r\n", ch);
-					return false;
+					SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCantCastPeaceful) + "\r\n", ch);
+					return ECastResult::kNotCast;
 				}
 			}
 		}
 	}
 
-	if (auto skill_id = GetMagicSkillId(spell_id); skill_id != ESkill::kUndefined) {
+	if (auto skill_id = MUD::Spell(spell_id).GetSuccessRoll().GetBaseSkill(); skill_id != ESkill::kUndefined) {
 		TrainSkill(ch, skill_id, true, tch);
 	}
 	// Комнату тут в SaySpell не обрабатываем - будет сказал "что-то"
@@ -673,7 +823,7 @@ int CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, ESpel
 		GET_SPELL_MEM(ch, spell_subst) = 0;
 	}
 
-	if (!ch->IsNpc() && !ch->IsImmortal() && ch->IsFlagged(EPrf::kAutomem)) {
+	if (!ch->IsNpc() && !privilege::IsImmortal(ch) && ch->IsFlagged(EPrf::kAutomem)) {
 		MemQ_remember(ch, spell_subst);
 	}
 
@@ -687,7 +837,7 @@ int CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, ESpel
 }
 
 int CalcCastSuccess(CharData *ch, CharData *victim, ESaving saving, ESpell spell_id) {
-	if (ch->IsImmortal() || GET_GOD_FLAG(ch, EGf::kGodsLike)) {
+	if (privilege::IsImmortal(ch) || GET_GOD_FLAG(ch, EGf::kGodsLike)) {
 		return true;
 	}
 
@@ -713,14 +863,17 @@ int CalcCastSuccess(CharData *ch, CharData *victim, ESaving saving, ESpell spell
 	}
 
 	prob = CalcComplexSpellMod(ch, spell_id, GAPPLY_SPELL_SUCCESS, prob);
+	// God-flag prob modifiers: the violent vs helpful question
+	// is per-target, so victim's relationship to the caster picks the side for an A spell.
+	const bool aggressive_cast = victim && MUD::Spell(spell_id).IsViolentAgainst(ch, victim);
 	if (GET_GOD_FLAG(ch, EGf::kGodscurse) ||
-		(MUD::Spell(spell_id).IsViolent() && victim && GET_GOD_FLAG(victim, EGf::kGodsLike)) ||
-		(!MUD::Spell(spell_id).IsViolent() && victim && GET_GOD_FLAG(victim, EGf::kGodscurse))) {
+		(aggressive_cast && GET_GOD_FLAG(victim, EGf::kGodsLike)) ||
+		(!aggressive_cast && victim && GET_GOD_FLAG(victim, EGf::kGodscurse))) {
 		prob -= 50;
 	}
 
-	if ((MUD::Spell(spell_id).IsViolent() && victim && GET_GOD_FLAG(victim, EGf::kGodscurse)) ||
-		(!MUD::Spell(spell_id).IsViolent() && victim && GET_GOD_FLAG(victim, EGf::kGodsLike))) {
+	if ((aggressive_cast && GET_GOD_FLAG(victim, EGf::kGodscurse)) ||
+		(!aggressive_cast && victim && GET_GOD_FLAG(victim, EGf::kGodsLike))) {
 		prob += 50;
 	}
 
@@ -728,42 +881,12 @@ int CalcCastSuccess(CharData *ch, CharData *victim, ESaving saving, ESpell spell
 		prob += GetRealLevel(ch) - 20;
 	}
 
-	const ESkill skill_number = GetMagicSkillId(spell_id);
+	const ESkill skill_number = MUD::Spell(spell_id).GetSuccessRoll().GetBaseSkill();
 	if (skill_number != ESkill::kUndefined) {
 		prob += ch->GetSkill(skill_number) / 20;
 	}
 
 	return (prob > number(0, 100));
-}
-
-EResist GetResisTypeWithElement(EElement element) {
-	switch (element) {
-		case EElement::kFire: return EResist::kFire;
-		case EElement::kDark: return EResist::kDark;
-		case EElement::kAir: return EResist::kAir;
-		case EElement::kWater: return EResist::kWater;
-		case EElement::kEarth: return EResist::kEarth;
-		case EElement::kLight: return EResist::kVitality;
-		case EElement::kMind: return EResist::kMind;
-		case EElement::kLife: return EResist::kImmunity;
-		default: return EResist::kVitality;
-	}
-};
-
-EResist GetResistType(ESpell spell_id) {
-	return GetResisTypeWithElement(MUD::Spell(spell_id).GetElement());
-}
-
-int ApplyResist(CharData *ch, EResist resist_type, int value) {
-	int resistance = GET_RESIST(ch, resist_type);
-	if (resistance <= 0) {
-		return value - resistance * value / 100;
-	}
-	if (!ch->IsNpc()) {
-		resistance = std::min(kMaxPcResist, resistance);
-	}
-	auto result = static_cast<int>(value - (resistance + number(0, resistance)) * value / 200.0);
-	return std::max(0, result);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

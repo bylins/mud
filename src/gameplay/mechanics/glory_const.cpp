@@ -4,6 +4,8 @@
 // Part of Bylins http://www.mud.ru
 
 #include "glory_const.h"
+#include "administration/privilege.h"
+#include "utils/grammar/declensions.h"
 
 #include <list>
 #include <map>
@@ -24,6 +26,7 @@
 #include "engine/db/db.h"
 #include "gameplay/core/genchar.h"
 #include "engine/core/handler.h"
+#include "engine/core/target_resolver.h"
 #include "engine/entities/char_player.h"
 #include "glory_misc.h"
 #include "gameplay/statistics/top.h"
@@ -183,7 +186,7 @@ void add_glory(long uid, int amount) {
 	if (d) {
 		SendMsgToChar(d->character.get(), "%sВы заслужили %d %s постоянной славы!%s\r\n",
 					  kColorGrn,
-					  amount, GetDeclensionInNumber(amount, EWhat::kPoint),
+					  amount, grammar::GetDeclensionInNumber(amount, grammar::EWhat::kPoint),
 					  kColorNrm);
 	}
 	save();
@@ -585,7 +588,7 @@ const char *GLORY_CONST_FORMAT =
 
 void do_spend_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	GloryListType::iterator it = glory_list.find(ch->get_uid());
-	if (glory_list.end() == it || ch->IsImmortal()) {
+	if (glory_list.end() == it || privilege::IsImmortal(ch)) {
 		SendMsgToChar("Вам это не нужно...\r\n", ch);
 		return;
 	}
@@ -785,7 +788,7 @@ void do_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	CharData *vict = get_player_vis(ch, arg, EFind::kCharInWorld);
+	CharData *vict = target_resolver::FindPlayerVis(ch, arg);
 	if (vict && vict->desc && vict->desc->state == EConState::kGloryConst) {
 		SendMsgToChar("Персонаж в данный момент редактирует свою славу.\r\n", ch);
 		return;
@@ -1098,7 +1101,7 @@ void PrintGloryChart(CharData *ch) {
 	std::stringstream hide;
 
 	bool print_hide = false;
-	if (ch->IsImmortal()) {
+	if (privilege::IsImmortal(ch)) {
 		print_hide = true;
 		hide << "\r\nПерсонажи, исключенные из списка: ";
 	}

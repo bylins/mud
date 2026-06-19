@@ -1,4 +1,6 @@
 #include "engine/entities/char_data.h"
+#include "skill_messages.h"
+#include "engine/db/global_objects.h"
 #include "engine/core/handler.h"
 #include "gameplay/mechanics/liquid.h"
 #include "gameplay/mechanics/poison.h"
@@ -6,7 +8,7 @@
 
 void DoPoisoning(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!ch->GetSkill(ESkill::kPoisoning)) {
-		SendMsgToChar("Вы не умеете этого.", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kPoisoning, ESkillMsg::kDontKnowSkill), ch);
 		return;
 	}
 
@@ -14,7 +16,7 @@ void DoPoisoning(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	skip_spaces(&argument);
 
 	if (!*arg) {
-		SendMsgToChar("Что вы хотите отравить?\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kPoisoning, ESkillMsg::kNoTarget) + "\r\n", ch);
 		return;
 	} else if (!*argument) {
 		SendMsgToChar("Из чего вы собираете взять яд?\r\n", ch);
@@ -38,13 +40,13 @@ void DoPoisoning(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar(ch, "У вас нет \'%s\'.\r\n", argument);
 		return;
 	} else if (cont->get_type() != EObjType::kLiquidContainer) {
-		SendMsgToChar(ch, "%s не является емкостью.\r\n", cont->get_PName(ECase::kNom).c_str());
+		SendMsgToChar(ch, "%s не является емкостью.\r\n", cont->get_PName(grammar::ECase::kNom).c_str());
 		return;
 	} else if (GET_OBJ_VAL(cont, 1) <= 0) {
-		SendMsgToChar(ch, "В %s нет никакой жидкости.\r\n", cont->get_PName(ECase::kPre).c_str());
+		SendMsgToChar(ch, "В %s нет никакой жидкости.\r\n", cont->get_PName(grammar::ECase::kPre).c_str());
 		return;
 	} else if (!poison_in_vessel(GET_OBJ_VAL(cont, 2))) {
-		SendMsgToChar(ch, "В %s нет подходящего яда.\r\n", cont->get_PName(ECase::kPre).c_str());
+		SendMsgToChar(ch, "В %s нет подходящего яда.\r\n", cont->get_PName(grammar::ECase::kPre).c_str());
 		return;
 	}
 

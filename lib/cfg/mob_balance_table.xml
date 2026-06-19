@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<!--
+
+ -->
+<balance_tables>
+<table text_id="level_1" vnum="1">
+    <base_stats>
+        <stat id="kStr"	min="17"	max="23"/>
+        <stat id="kDex"	min="19"	max="23"/>
+        <stat id="kCon"	min="14"	max="23"/>
+        <stat id="kWis"	min="12"	max="23"/>
+        <stat id="kInt"	min="11"    max="23"/>
+        <stat id="kCha"	min="9"     max="23"/>
+    </base_stats>
+    <savings>
+        <saving id="kWill"	    min="17"	max="25"/>
+        <saving id="kCritical"	min="17"	max="25"/>
+        <saving id="kStability"	min="17"	max="25"/>
+        <saving id="kReflex"	min="17"	max="25"/>
+    </savings>
+    <resistances>
+        <resistance id="kFire"      min="20"  max="25"/>
+        <resistance id="kAir"       min="20"  max="25"/>
+        <resistance id="kWater"     min="20"  max="25"/>
+        <resistance id="kEarth"     min="20"  max="25"/>
+        <resistance id="kVitality"  min="20"  max="25"/>
+        <resistance id="kMind"      min="20"  max="25"/>
+        <resistance id="kImmunity"  min="20"  max="25"/>
+        <resistance id="kDark"      min="20"  max="25"/>
+    </resistances>
+    <skills>
+        <skill id="kPunch"      min="5"    max="12"/>
+        <skill id="kLifeMagic"  min="5"    max="12"/>
+    </skills>
+</table>
+</balance_tables>

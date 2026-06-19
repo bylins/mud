@@ -7,10 +7,14 @@
 */
 
 #include "engine/entities/char_data.h"
+#include "administration/privilege.h"
+#include "utils/grammar/gender.h"
 #include "engine/network/descriptor_data.h"
 #include "gameplay/communication/remember.h"
 #include "engine/core/handler.h"
+#include "engine/core/target_resolver.h"
 #include "gameplay/fight/common.h"
+#include "utils/utils_string.h"
 
 void do_pray_gods(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char arg1[kMaxInputLength];
@@ -24,7 +28,7 @@ void do_pray_gods(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (ch->IsImmortal()) {
+	if (privilege::IsImmortal(ch)) {
 		// Выделяем чара кому отвечают иммы
 		argument = one_argument(argument, arg1);
 		skip_spaces(&argument);
@@ -32,7 +36,7 @@ void do_pray_gods(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			SendMsgToChar("Какому смертному вы собираетесь ответить?\r\n", ch);
 			return;
 		}
-		victim = get_player_vis(ch, arg1, EFind::kCharInWorld);
+		victim = target_resolver::FindPlayerVis(ch, arg1);
 		if (victim == nullptr) {
 			SendMsgToChar("Такого нет в игре!\r\n", ch);
 			return;
@@ -45,11 +49,11 @@ void do_pray_gods(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 	if (ch->IsFlagged(EPrf::kNoRepeat))
-		SendMsgToChar(OK, ch);
+		SendMsgToChar(CommonMsg(ECommonMsg::kOk) + "\r\n", ch);
 	else {
 		if (ch->IsNpc())
 			return;
-		if (ch->IsImmortal()) {
+		if (privilege::IsImmortal(ch)) {
 			sprintf(buf, "&RВы одарили СЛОВОМ %s : '%s'&n\r\n", GET_PAD(victim, 3), argument);
 		} else {
 			sprintf(buf, "&RВы воззвали к Богам с сообщением : '%s'&n\r\n", argument);
@@ -59,34 +63,44 @@ void do_pray_gods(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		ch->remember_add(buf, Remember::PRAY_PERSONAL);
 	}
 
-	if (ch->IsImmortal()) {
-		sprintf(buf, "&R%s ответил%s вам : '%s'&n\r\n", GET_NAME(ch), GET_CH_SUF_1(ch), argument);
+	if (privilege::IsImmortal(ch)) {
+		sprintf(buf, "&R%s ответил%s вам : '%s'&n\r\n", GET_NAME(ch), grammar::SexEnding((ch)->get_sex(), 1), argument);
 		SendMsgToChar(buf, victim);
 		victim->remember_add(buf, Remember::PRAY_PERSONAL);
 
 		snprintf(buf1, kMaxStringLength, "&R%s ответил%s %s : '%s&n\r\n",
-				 GET_NAME(ch), GET_CH_SUF_1(ch), GET_PAD(victim, 2), argument);
+				 GET_NAME(ch), grammar::SexEnding((ch)->get_sex(), 1), GET_PAD(victim, 2), argument);
 		ch->remember_add(buf1, Remember::PRAY);
 
 		snprintf(buf, kMaxStringLength, "&R%s ответил%s на воззвание %s : '%s'&n\r\n",
-				 GET_NAME(ch), GET_CH_SUF_1(ch), GET_PAD(victim, 1), argument);
+				 GET_NAME(ch), grammar::SexEnding((ch)->get_sex(), 1), GET_PAD(victim, 1), argument);
 	} else {
 		snprintf(buf1, kMaxStringLength, "&R%s воззвал%s к богам : '%s&n\r\n",
-				 GET_NAME(ch), GET_CH_SUF_1(ch), argument);
+				 GET_NAME(ch), grammar::SexEnding((ch)->get_sex(), 1), argument);
 		ch->remember_add(buf1, Remember::PRAY);
 
 		snprintf(buf, kMaxStringLength, "&R[%5d] %s воззвал%s к богам с сообщением : '%s'&n\r\n",
-				 world[ch->in_room]->vnum, GET_NAME(ch), GET_CH_SUF_1(ch), argument);
+				 world[ch->in_room]->vnum, GET_NAME(ch), grammar::SexEnding((ch)->get_sex(), 1), argument);
 	}
 
 	for (i = descriptor_list; i; i = i->next) {
 		if  (i->state == EConState::kPlaying) {
-			if ((i->character->IsImmortal()
+			if ((privilege::IsImmortal(i->character.get())
 				|| (GET_GOD_FLAG(i->character.get(), EGf::kDemigod)
 					&& (GetRealLevel(ch) < 6)))
 				&& (i->character.get() != ch)) {
-				SendMsgToChar(buf, i->character.get());
-				i->character->remember_add(buf, Remember::ALL);
+				CharData *god = i->character.get();
+				// движковая дата + перенос по словам под ширину экрана получателя.
+				// Переносим всю собранную строку, чтобы в расчёт ширины попал и
+				// префикс ("[комната] имя воззвал к богам ..."), и таймстамп.
+				// Цветокоды OutWordsList уже не считает за ширину.
+				std::string line = Remember::time_format() + buf;
+				if (!god->IsNpc() && god->player_specials->saved.stringLength > 0) {
+					// WrapText съедает хвостовой \r\n -- возвращаем его обратно
+					line = utils::WrapText(line, god->player_specials->saved.stringLength) + "\r\n";
+				}
+				SendMsgToChar(line.c_str(), god);
+				god->remember_add(buf, Remember::ALL);
 			}
 		}
 	}

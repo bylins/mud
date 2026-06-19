@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<!--
+    issue.specials Phase 2: horse keeper messages (spec_procs.cpp). All act() lines ($n/$N codes, to
+    char/room). {amount} {currency} = horse price; {horse} = padded horse name (case 3); {pronoun} =
+    HSHR. kSellTaken is used for both the to-char and to-room delivery lines (identical text).
+-->
+<msg_container>
+	<msg_sheaf id="kDefault">
+		<message type="kGreeting" val="Что вам угодно?"/>
+		<message type="kAlreadyHave" val="$N поинтересовал$U : &quot;$n, зачем тебе второй скакун? У тебя ведь одно седалище.&quot;"/>
+		<message type="kForSale" val="$N сказал$G : &quot;Я продам тебе скакуна за {amount} {currency}.&quot;"/>
+		<message type="kBuyHaveAlready" val="$N засмеял$U : &quot;$n, ты шутишь, у тебя же есть скакун.&quot;"/>
+		<message type="kBuyNoMoney" val="&quot;Ступай отсюда, злыдень, у тебя нет таких денег!&quot;-заорал$G $N"/>
+		<message type="kBuyNoHorse" val="&quot;Извини, у меня нет для тебя скакуна.&quot;-смущенно произнес$Q $N"/>
+		<message type="kBuyGiveChar" val="$N оседлал$G {horse} и отдал$G {pronoun} вам."/>
+		<message type="kBuyGiveRoom" val="$N оседлал$G {horse} и отдал$G {pronoun} $n2."/>
+		<message type="kSellNoHorse" val="$N засмеял$U : &quot;$n, ты не влезешь в мое стойло.&quot;"/>
+		<message type="kSellOnHorse" val="&quot;Я не собираюсь платить еще и за всадника.&quot;-усмехнул$U $N"/>
+		<message type="kSellWrongHorse" val="&quot;Извини, твой скакун мне не подходит.&quot;- заявил$G $N"/>
+		<message type="kSellHorseAway" val="&quot;Извини, твой скакун где-то бродит.&quot;- заявил$G $N"/>
+		<message type="kSellTaken" val="$N расседлал$G {horse} и отвел$G {pronoun} в стойло."/>
+	</msg_sheaf>
+</msg_container>

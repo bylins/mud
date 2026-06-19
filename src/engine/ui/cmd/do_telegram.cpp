@@ -1,4 +1,5 @@
 #include "do_telegram.h"
+#include "utils/utils_encoding.h"
 #include "engine/entities/char_player.h"
 #include "engine/db/world_characters.h"
 
@@ -43,7 +44,7 @@ void do_telegram([[maybe_unused]] CharData *ch, [[maybe_unused]] char *argument,
 	}
 
 	snprintf(smallBuf, kMaxInputLength, "Поступила телега от %s, сообщают следующее:\r\n%s", GET_NAME(ch), output);
-	koi_to_utf8(const_cast<char *>(smallBuf), utfBuf);
+	codepages::koi_to_utf8(const_cast<char *>(smallBuf), utfBuf);
 	if (strlen(utfBuf) < 10) {
 		SendMsgToChar("Ошибочка вышла..\r\n", ch);
 		return;

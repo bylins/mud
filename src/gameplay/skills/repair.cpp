@@ -1,9 +1,11 @@
 #include "engine/db/global_objects.h"
+#include "utils/grammar/gender.h"
+#include "skill_messages.h"
 #include "engine/core/handler.h"
 
 void DoRepair(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!ch->GetSkill(ESkill::kRepair)) {
-		SendMsgToChar("Вы не умеете этого.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kRepair, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
 	if (IsTimedBySkill(ch, ESkill::kRepair)) {
@@ -19,7 +21,7 @@ void DoRepair(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	if (!*arg) {
-		SendMsgToChar("Что вы хотите ремонтировать?\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kRepair, ESkillMsg::kNoTarget) + "\r\n", ch);
 		return;
 	}
 
@@ -74,7 +76,7 @@ void DoRepair(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		ImposeTimedSkill(ch, &timed);
 		obj->set_current_durability(std::min(obj->get_maximum_durability(), obj->get_current_durability() * percent / prob + 1));
 		SendMsgToChar(ch, "Теперь %s выгляд%s лучше.\r\n",
-					  obj->get_PName(ECase::kNom).c_str(), GET_OBJ_POLY_1(ch, obj));
+					  obj->get_PName(grammar::ECase::kNom).c_str(), grammar::ObjPluralVerbEnding((obj)->get_sex()));
 		act("$n умело починил$g $o3.", false, ch, obj, nullptr, kToRoom | kToArenaListen);
 	}
 }

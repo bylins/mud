@@ -28,6 +28,11 @@
  */
 
 #include "engine/core/sysdep_net.h"
+#include "administration/privilege.h"
+#include "utils/grammar/gender.h"
+#include "gameplay/fight/arena.h"
+#include "utils/grammar/declensions.h"
+#include "gameplay/mechanics/magic_item.h"
 
 #include "comm.h"
 
@@ -43,6 +48,7 @@
 #include "handler.h"
 #include "gameplay/clans/house.h"
 #include "engine/olc/olc.h"
+#include "engine/olc/vedun/vedun.h"
 #include "administration/ban.h"
 #include "administration/proxy.h"
 #include "gameplay/economics/exchange.h"
@@ -67,6 +73,11 @@
 #include "engine/db/sqlite_world_data_source.h"
 #endif
 #include "utils/utils.h"
+#include <cstring>
+#include <cerrno>
+#ifndef _WIN32
+#include <sys/resource.h>  // RLIMIT_CORE -- только для unix-сборок
+#endif
 #include "engine/core/conf.h"
 #include "engine/ui/modify.h"
 #include "gameplay/statistics/money_drop.h"
@@ -88,6 +99,7 @@
 #include "engine/network/admin_api.h"
 #include <sys/un.h>
 #include <sys/stat.h>
+#include <filesystem>
 #endif
 
 #ifdef CIRCLE_MACINTOSH        // Includes for the Macintosh
@@ -599,6 +611,7 @@ void gettimeofday(struct timeval *t, void *dummy)
 #endif                // CIRCLE_WINDOWS || CIRCLE_MACINTOSH
 
 #include <iostream>
+#include "gameplay/mechanics/sight.h"
 
 int main_function(int argc, char **argv) {
 #ifdef TEST_BUILD
@@ -618,6 +631,8 @@ int main_function(int argc, char **argv) {
 	ush_int port;
 	int pos = 1;
 	const char *dir;
+	const char *save_target = nullptr;
+	const char *save_format = nullptr;
 	char cwd[256];
 
 	// Initialize these to check for overruns later.
@@ -653,6 +668,28 @@ int main_function(int argc, char **argv) {
 			case 's': no_specials = 1;
 		puts("Suppressing assignment of special routines.");
 		break;
+	case 'S':
+		if (*(argv[pos] + 2))
+			save_target = argv[pos] + 2;
+		else if (++pos < argc)
+			save_target = argv[pos];
+		else {
+			puts("SYSERR: Output directory arg expected after option -S.");
+			exit(1);
+		}
+		printf("Resave-and-exit mode enabled, target='%s'.\n", save_target);
+		break;
+	case 'T':
+		if (*(argv[pos] + 2))
+			save_format = argv[pos] + 2;
+		else if (++pos < argc)
+			save_format = argv[pos];
+		else {
+			puts("SYSERR: Format arg expected after option -T (legacy|yaml|sqlite).");
+			exit(1);
+		}
+		printf("Resave target format: '%s'.\n", save_format);
+		break;
 	case 'W':
 		enable_world_checksum = true;
 		puts("World checksum calculation enabled.");
@@ -675,7 +712,11 @@ int main_function(int argc, char **argv) {
 					   "  -h             Print this command line argument help.\n"
 					   "  -o <file>      Write log to <file> instead of stderr.\n"
 					   "  -r             Restrict MUD -- no new players allowed.\n"
-					   "  -s             Suppress special procedure assignments.\n", argv[0]);
+					   "  -s             Suppress special procedure assignments.\n"
+					   "  -S <out_dir>   Load world, re-emit it via the configured backend\n"
+					   "                 into <out_dir> and exit (round-trip diagnostic).\n"
+					   "  -T <format>   Override -S target format: legacy|yaml|sqlite\n"
+					   "                 (default = compile-time backend).\n", argv[0]);
 				exit(0);
 
 			default: printf("SYSERR: Unknown option -%c in argument string.\n", *(argv[pos] + 1));
@@ -685,7 +726,11 @@ int main_function(int argc, char **argv) {
 					   "  -h             Print this command line argument help.\n"
 					   "  -o <file>      Write log to <file> instead of stderr.\n"
 					   "  -r             Restrict MUD -- no new players allowed.\n"
-					   "  -s             Suppress special procedure assignments.\n", argv[0]);
+					   "  -s             Suppress special procedure assignments.\n"
+					   "  -S <out_dir>   Load world, re-emit it via the configured backend\n"
+					   "                 into <out_dir> and exit (round-trip diagnostic).\n"
+					   "  -T <format>   Override -S target format: legacy|yaml|sqlite\n"
+					   "                 (default = compile-time backend).\n", argv[0]);
 				exit(1);
 			break;
 		}
@@ -730,7 +775,15 @@ int main_function(int argc, char **argv) {
 	}
 	LogBuildInfo();
 	printf("[%s] Code version %s, revision: %s\r\nCompiler: %s\r\nEnabled features: %s\r\n", utils::NowTs().c_str(), build_datetime, revision, build_compiler, build_features);
-	if (scheck) {
+	if (save_target) {
+		GameLoader::BootWorld();
+		// target_dir is interpreted relative to the world data directory
+		// (we chdir'd there above), so callers see the path they passed.
+		int errors = GameLoader::ResaveWorld(save_target,
+			save_format ? std::string(save_format) : std::string());
+		printf("Resave finished, errors=%d\n", errors);
+		return errors == 0 ? 0 : 2;
+	} else if (scheck) {
 		GameLoader::BootWorld();
 		printf("Done.");
 	} else {
@@ -1040,6 +1093,20 @@ socket_t init_unix_socket(const char *path) {
 	sa.sun_family = AF_UNIX;
 	strncpy(sa.sun_path, path, sizeof(sa.sun_path) - 1);
 
+	// Создаём родительский каталог сокета, если его нет: bind() сам каталоги не
+	// создаёт, а сокет удобно держать в выделенной директории (например, чтобы
+	// монтировать её в Docker-контейнер web-админки).
+	const std::filesystem::path sock_path(path);
+	const auto parent_dir = sock_path.parent_path();
+	if (!parent_dir.empty()) {
+		std::error_code ec;
+		std::filesystem::create_directories(parent_dir, ec);
+		if (ec) {
+			log("SYSERR: Cannot create directory %s for Unix socket: %s",
+				parent_dir.c_str(), ec.message().c_str());
+		}
+	}
+
 	unlink(path);
 
 	if (bind(s, (struct sockaddr *)&sa, sizeof(sa)) < 0) {
@@ -1156,9 +1223,9 @@ int shutting_down(void) {
 			sprintf(buf, "ОСТАНОВКА через ");
 		}
 		if (wait < 60)
-			sprintf(buf + strlen(buf), "%d %s.\r\n", wait, GetDeclensionInNumber(wait, EWhat::kSec));
+			sprintf(buf + strlen(buf), "%d %s.\r\n", wait, grammar::GetDeclensionInNumber(wait, grammar::EWhat::kSec));
 		else
-			sprintf(buf + strlen(buf), "%d %s.\r\n", wait / 60, GetDeclensionInNumber(wait / 60, EWhat::kMinU));
+			sprintf(buf + strlen(buf), "%d %s.\r\n", wait / 60, grammar::GetDeclensionInNumber(wait / 60, grammar::EWhat::kMinU));
 		SendMsgToAll(buf);
 		lastmessage = time(nullptr);
 		// на десятой секунде засейвим нужное нам в сислог
@@ -1287,10 +1354,10 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 		if (d->character) {
 			d->character->punctual_wait -=
 				(d->character->punctual_wait > 0 ? 1 : 0);
-			if (d->character->IsImmortal()) {
+			if (privilege::IsImmortal(d->character.get())) {
 				d->character->zero_wait();
 			}
-			if (d->character->IsImmortal()
+			if (privilege::IsImmortal(d->character.get())
 				|| d->character->punctual_wait < 0) {
 				d->character->punctual_wait = 0;
 			}
@@ -1302,7 +1369,7 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 		if (!get_from_q(&d->input, comm, &aliased)) {
 			if (d->state != EConState::kPlaying &&
 				d->state != EConState::kDisconnect &&
-				time(nullptr) - d->input_time > 300 && d->character && !d->character->IsGod())
+				time(nullptr) - d->input_time > 300 && d->character && !privilege::IsGod(d->character.get()))
 #ifdef HAS_EPOLL
 				close_socket(d, true, epoll, events, n);
 #else
@@ -1912,6 +1979,7 @@ bool any_other_ch(CharData *ch) {
 }
 
 #ifdef HAS_EPOLL
+namespace vedun { void vedun_cleanup(DescriptorData *d); }  // issue.vedun-editor
 void close_socket(DescriptorData *d, int direct, int epoll, struct epoll_event *events, int n_ev)
 #else
 void close_socket(DescriptorData * d, int direct)
@@ -1965,6 +2033,8 @@ void close_socket(DescriptorData * d, int direct)
 		case EConState::kMredit:
 		case EConState::kTrigedit: cleanup_olc(d, CLEANUP_ALL);
 			break;
+		case EConState::kVedun: vedun::vedun_cleanup(d);
+			break;
 			/*case CON_CONSOLE:
 				d->console.reset();
 				break;*/
@@ -1991,7 +2061,6 @@ void close_socket(DescriptorData * d, int direct)
 			|| d->state == EConState::kGloryConst
 			|| d->state == EConState::kNamedStuff
 			|| d->state == EConState::kMapMenu
-			|| d->state == EConState::kTorcExch
 			|| d->state == EConState::kSedit || d->state == EConState::kConsole) {
 			d->state = EConState::kPlaying;
 		}
@@ -2206,7 +2275,39 @@ RETSIGTYPE hupsig(int/* sig*/) {
  * SunOS Release 4.0.2 (sun386) needs this too, according to Tim Aldric.
  */
 
+// Поднимаем мягкий лимит на размер core до жёсткого (обычно unlimited), чтобы
+// при падении мада ОС писала ПОЛНЫЙ core. Урезанный по размеру core читается в
+// gdb как каша (стек неполный, фреймы "??"). Заодно логируем итоговый лимит и
+// core_pattern, чтобы было видно, пишутся ли коры и куда.
+static void enable_coredumps_and_log() {
+#ifdef CIRCLE_UNIX
+	struct rlimit rl;
+	if (getrlimit(RLIMIT_CORE, &rl) == 0) {
+		const rlim_t was = rl.rlim_cur;
+		rl.rlim_cur = rl.rlim_max;
+		if (setrlimit(RLIMIT_CORE, &rl) != 0) {
+			log("SYSERR: setrlimit(RLIMIT_CORE) failed: %s", strerror(errno));
+		}
+		getrlimit(RLIMIT_CORE, &rl);
+		auto lim = [](rlim_t v) -> long long { return v == RLIM_INFINITY ? -1 : (long long) v; };
+		log("Core dumps: RLIMIT_CORE was %lld, set cur=%lld max=%lld (-1 = unlimited)",
+			lim(was), lim(rl.rlim_cur), lim(rl.rlim_max));
+	} else {
+		log("SYSERR: getrlimit(RLIMIT_CORE) failed: %s", strerror(errno));
+	}
+	if (FILE *f = fopen("/proc/sys/kernel/core_pattern", "r")) {
+		char pat[256] = {0};
+		if (fgets(pat, sizeof(pat), f)) {
+			pat[strcspn(pat, "\n")] = '\0';
+			log("Core pattern: %s", pat);
+		}
+		fclose(f);
+	}
+#endif
+}
+
 void signal_setup(void) {
+	enable_coredumps_and_log();
 	my_signal(SIGINT, hupsig);
 	my_signal(SIGTERM, hupsig);
 	my_signal(SIGPIPE, SIG_IGN);
@@ -2307,7 +2408,7 @@ void SendMsgToGods(const char *msg) {
 	}
 
 	for (i = descriptor_list; i; i = i->next) {
-		if  (i->state != EConState::kPlaying || i->character == nullptr || !i->character->IsGod()) {
+		if  (i->state != EConState::kPlaying || i->character == nullptr || !privilege::IsGod(i->character.get())) {
 			continue;
 		}
 		iosystem::write_to_output(msg, i);
@@ -2362,7 +2463,7 @@ void perform_act(const char *orig,
 						snprintf(nbuf,
 								 sizeof(nbuf),
 								 "&q%s&Q",
-								 (!ch->IsNpc() && (ch->IsImmortal() || GET_INVIS_LEV(ch))) ? GET_NAME(ch) : APERS(ch,
+								 (!ch->IsNpc() && (privilege::IsImmortal(ch) || GET_INVIS_LEV(ch))) ? GET_NAME(ch) : arena::VisibleName(ch,
 																												to,
 																												0,
 																												arena));
@@ -2372,8 +2473,8 @@ void perform_act(const char *orig,
 						snprintf(nbuf,
 								 sizeof(nbuf),
 								 "&q%s&Q",
-								 (!ch->IsNpc() && (ch->IsImmortal() || GET_INVIS_LEV(ch))) ? GET_PAD(ch, padis)
-																						  : APERS(ch, to, padis, arena));
+								 (!ch->IsNpc() && (privilege::IsImmortal(ch) || GET_INVIS_LEV(ch))) ? GET_PAD(ch, padis)
+																						  : arena::VisibleName(ch, to, padis, arena));
 						i = nbuf;
 					}
 					break;
@@ -2382,56 +2483,56 @@ void perform_act(const char *orig,
 						snprintf(nbuf,
 								 sizeof(nbuf),
 								 "&q%s&Q",
-								 CHK_NULL(vict_obj, APERS((const CharData *) vict_obj, to, 0, arena)));
+								 CHK_NULL(vict_obj, arena::VisibleName((const CharData *) vict_obj, to, 0, arena)));
 						i = nbuf;
 					} else {
 						padis = *(++orig) - '0';
 						snprintf(nbuf,
 								 sizeof(nbuf),
 								 "&q%s&Q",
-								 CHK_NULL(vict_obj, APERS((const CharData *) vict_obj, to, padis, arena)));
+								 CHK_NULL(vict_obj, arena::VisibleName((const CharData *) vict_obj, to, padis, arena)));
 						i = nbuf;
 					}
 					dg_victim = (CharData *) vict_obj;
 					break;
 
-				case 'm': i = HMHR(ch);
+				case 'm': i = grammar::DativePronoun((ch)->get_sex());
 					break;
 				case 'M':
 					if (vict_obj)
-						i = HMHR((const CharData *) vict_obj);
-					else CHECK_NULL(obj, OMHR(obj));
+						i = grammar::DativePronoun(((const CharData *) vict_obj)->get_sex());
+					else CHECK_NULL(obj, grammar::DativePronoun((obj)->get_sex()));
 					dg_victim = (CharData *) vict_obj;
 					break;
 
-				case 's': i = HSHR(ch);
+				case 's': i = grammar::PossessivePronoun((ch)->get_sex());
 					break;
 				case 'S':
 					if (vict_obj)
-						i = CHK_NULL(vict_obj, HSHR((const CharData *) vict_obj));
-					else CHECK_NULL(obj, OSHR(obj));
+						i = CHK_NULL(vict_obj, grammar::PossessivePronoun(((const CharData *) vict_obj)->get_sex()));
+					else CHECK_NULL(obj, grammar::PossessivePronoun((obj)->get_sex()));
 					dg_victim = (CharData *) vict_obj;
 					break;
 
-				case 'e': i = HSSH(ch);
+				case 'e': i = grammar::PersonalPronoun((ch)->get_sex());
 					break;
 				case 'E':
 					if (vict_obj)
-						i = CHK_NULL(vict_obj, HSSH((const CharData *) vict_obj));
-					else CHECK_NULL(obj, OSSH(obj));
+						i = CHK_NULL(vict_obj, grammar::PersonalPronoun(((const CharData *) vict_obj)->get_sex()));
+					else CHECK_NULL(obj, grammar::PersonalPronoun((obj)->get_sex()));
 					dg_victim = (CharData *) vict_obj;
 					break;
 
 				case 'o':
 					if (*(orig + 1) < '0' || *(orig + 1) > '5') {
-						snprintf(nbuf, sizeof(nbuf), "&q%s&Q", CHK_NULL(obj, AOBJN(obj, to, ECase::kNom, arena)));
+						snprintf(nbuf, sizeof(nbuf), "&q%s&Q", CHK_NULL(obj, arena::VisibleObjName(obj, to, grammar::ECase::kNom, arena)));
 						i = nbuf;
 					} else {
 						padis = *(++orig) - '0';
 						snprintf(nbuf,
 								 sizeof(nbuf),
 								 "&q%s&Q",
-								 CHK_NULL(obj, AOBJN(obj, to, padis > ECase::kLastCase ? ECase::kNom : static_cast<ECase>(padis), arena)));
+								 CHK_NULL(obj, arena::VisibleObjName(obj, to, padis > grammar::ECase::kLastCase ? grammar::ECase::kNom : static_cast<grammar::ECase>(padis), arena)));
 						i = nbuf;
 					}
 					break;
@@ -2440,23 +2541,23 @@ void perform_act(const char *orig,
 						snprintf(nbuf,
 								 sizeof(nbuf),
 								 "&q%s&Q",
-								 CHK_NULL(vict_obj, AOBJN((const ObjData *) vict_obj, to, ECase::kNom, arena)));
+								 CHK_NULL(vict_obj, arena::VisibleObjName((const ObjData *) vict_obj, to, grammar::ECase::kNom, arena)));
 						i = nbuf;
 					} else {
 						padis = *(++orig) - '0';
 						snprintf(nbuf, sizeof(nbuf), "&q%s&Q", CHK_NULL(vict_obj,
-																		AOBJN((const ObjData *) vict_obj,
+																		arena::VisibleObjName((const ObjData *) vict_obj,
 																			  to,
-																			  padis > ECase::kLastCase ? ECase::kNom : static_cast<ECase>(padis),
+																			  padis > grammar::ECase::kLastCase ? grammar::ECase::kNom : static_cast<grammar::ECase>(padis),
 																			  arena)));
 						i = nbuf;
 					}
 					dg_victim = (CharData *) vict_obj;
 					break;
 
-				case 'p': CHECK_NULL(obj, AOBJS(obj, to, arena));
+				case 'p': CHECK_NULL(obj, arena::VisibleObjShort(obj, to, arena));
 					break;
-				case 'P': CHECK_NULL(vict_obj, AOBJS((const ObjData *) vict_obj, to, arena));
+				case 'P': CHECK_NULL(vict_obj, arena::VisibleObjShort((const ObjData *) vict_obj, to, arena));
 					dg_victim = (CharData *) vict_obj;
 					break;
 
@@ -2472,95 +2573,106 @@ void perform_act(const char *orig,
 				case '$': i = "$";
 					break;
 
-				case 'a': i = ch->IsImmortal() || (arena) ? GET_CH_SUF_6(ch) : GET_CH_VIS_SUF_6(ch, to);
+				case 'a': i = privilege::IsImmortal(ch) || (arena) ? grammar::SexEnding((ch)->get_sex(), 6) : grammar::VisSexEnding(sight::CanSee((to), (ch)), (ch)->get_sex(), 6);
 					break;
 				case 'A':
 					if (vict_obj)
-						i = arena ? GET_CH_SUF_6((const CharData *) vict_obj)
-								  : GET_CH_VIS_SUF_6((const CharData *) vict_obj, to);
-					else CHECK_NULL(obj, arena ? GET_OBJ_SUF_6(obj) : GET_OBJ_VIS_SUF_6(obj, to));
+						i = arena ? grammar::SexEnding(((const CharData *) vict_obj)->get_sex(), 6)
+								  : grammar::VisSexEnding(sight::CanSee((to), ((const CharData *) vict_obj)), ((const CharData *) vict_obj)->get_sex(), 6);
+					else CHECK_NULL(obj, arena ? grammar::ObjSexEnding((obj)->get_sex(), 6) : grammar::ObjVisSexEnding(sight::CanSeeObj((to), (obj)), (obj)->get_sex(), 6));
 					dg_victim = (CharData *) vict_obj;
 					break;
 
-				case 'g': i = ch->IsImmortal() || (arena) ? GET_CH_SUF_1(ch) : GET_CH_VIS_SUF_1(ch, to);
+				case 'g': i = privilege::IsImmortal(ch) || (arena) ? grammar::SexEnding((ch)->get_sex(), 1) : grammar::VisSexEnding(sight::CanSee((to), (ch)), (ch)->get_sex(), 1);
 					break;
 				case 'G':
 					if (vict_obj)
-						i = arena ? GET_CH_SUF_1((const CharData *) vict_obj)
-								  : GET_CH_VIS_SUF_1((const CharData *) vict_obj, to);
-					else CHECK_NULL(obj, arena ? GET_OBJ_SUF_1(obj) : GET_OBJ_VIS_SUF_1(obj, to));
+						i = arena ? grammar::SexEnding(((const CharData *) vict_obj)->get_sex(), 1)
+								  : grammar::VisSexEnding(sight::CanSee((to), ((const CharData *) vict_obj)), ((const CharData *) vict_obj)->get_sex(), 1);
+					else CHECK_NULL(obj, arena ? grammar::ObjSexEnding((obj)->get_sex(), 1) : grammar::ObjVisSexEnding(sight::CanSeeObj((to), (obj)), (obj)->get_sex(), 1));
 					dg_victim = (CharData *) vict_obj;
 					break;
 
-				case 'y': i = ch->IsImmortal() || (arena) ? GET_CH_SUF_5(ch) : GET_CH_VIS_SUF_5(ch, to);
+				case 'y': i = privilege::IsImmortal(ch) || (arena) ? grammar::SexEnding((ch)->get_sex(), 5) : grammar::VisSexEnding(sight::CanSee((to), (ch)), (ch)->get_sex(), 5);
 					break;
 				case 'Y':
 					if (vict_obj)
-						i = arena ? GET_CH_SUF_5((const CharData *) vict_obj)
-								  : GET_CH_VIS_SUF_5((const CharData *) vict_obj, to);
-					else CHECK_NULL(obj, arena ? GET_OBJ_SUF_5(obj) : GET_OBJ_VIS_SUF_5(obj, to));
+						i = arena ? grammar::SexEnding(((const CharData *) vict_obj)->get_sex(), 5)
+								  : grammar::VisSexEnding(sight::CanSee((to), ((const CharData *) vict_obj)), ((const CharData *) vict_obj)->get_sex(), 5);
+					else CHECK_NULL(obj, arena ? grammar::ObjSexEnding((obj)->get_sex(), 5) : grammar::ObjVisSexEnding(sight::CanSeeObj((to), (obj)), (obj)->get_sex(), 5));
 					dg_victim = (CharData *) vict_obj;
 					break;
 
-				case 'u': i = ch->IsImmortal() || (arena) ? GET_CH_SUF_2(ch) : GET_CH_VIS_SUF_2(ch, to);
+				case 'u': i = privilege::IsImmortal(ch) || (arena) ? grammar::SexEnding((ch)->get_sex(), 2) : grammar::VisSexEnding(sight::CanSee((to), (ch)), (ch)->get_sex(), 2);
 					break;
 				case 'U':
 					if (vict_obj)
-						i = arena ? GET_CH_SUF_2((const CharData *) vict_obj)
-								  : GET_CH_VIS_SUF_2((const CharData *) vict_obj, to);
-					else CHECK_NULL(obj, arena ? GET_OBJ_SUF_2(obj) : GET_OBJ_VIS_SUF_2(obj, to));
+						i = arena ? grammar::SexEnding(((const CharData *) vict_obj)->get_sex(), 2)
+								  : grammar::VisSexEnding(sight::CanSee((to), ((const CharData *) vict_obj)), ((const CharData *) vict_obj)->get_sex(), 2);
+					else CHECK_NULL(obj, arena ? grammar::ObjSexEnding((obj)->get_sex(), 2) : grammar::ObjVisSexEnding(sight::CanSeeObj((to), (obj)), (obj)->get_sex(), 2));
 					dg_victim = (CharData *) vict_obj;
 					break;
 
-				case 'w': i = ch->IsImmortal() || (arena) ? GET_CH_SUF_3(ch) : GET_CH_VIS_SUF_3(ch, to);
+				case 'w': i = privilege::IsImmortal(ch) || (arena) ? grammar::SexEnding((ch)->get_sex(), 3) : grammar::VisSexEnding(sight::CanSee((to), (ch)), (ch)->get_sex(), 3);
 					break;
 				case 'W':
 					if (vict_obj)
-						i = arena ? GET_CH_SUF_3((const CharData *) vict_obj)
-								  : GET_CH_VIS_SUF_3((const CharData *) vict_obj, to);
-					else CHECK_NULL(obj, arena ? GET_OBJ_SUF_3(obj) : GET_OBJ_VIS_SUF_3(obj, to));
+						i = arena ? grammar::SexEnding(((const CharData *) vict_obj)->get_sex(), 3)
+								  : grammar::VisSexEnding(sight::CanSee((to), ((const CharData *) vict_obj)), ((const CharData *) vict_obj)->get_sex(), 3);
+					else CHECK_NULL(obj, arena ? grammar::ObjSexEnding((obj)->get_sex(), 3) : grammar::ObjVisSexEnding(sight::CanSeeObj((to), (obj)), (obj)->get_sex(), 3));
 					dg_victim = (CharData *) vict_obj;
 					break;
 
-				case 'q': i = ch->IsImmortal() || (arena) ? GET_CH_SUF_4(ch) : GET_CH_VIS_SUF_4(ch, to);
+				case 'q': i = privilege::IsImmortal(ch) || (arena) ? grammar::SexEnding((ch)->get_sex(), 4) : grammar::VisSexEnding(sight::CanSee((to), (ch)), (ch)->get_sex(), 4);
 					break;
 				case 'Q':
 					if (vict_obj)
-						i = arena ? GET_CH_SUF_4((const CharData *) vict_obj)
-								  : GET_CH_VIS_SUF_4((const CharData *) vict_obj, to);
-					else CHECK_NULL(obj, arena ? GET_OBJ_SUF_4(obj) : GET_OBJ_VIS_SUF_4(obj, to));
+						i = arena ? grammar::SexEnding(((const CharData *) vict_obj)->get_sex(), 4)
+								  : grammar::VisSexEnding(sight::CanSee((to), ((const CharData *) vict_obj)), ((const CharData *) vict_obj)->get_sex(), 4);
+					else CHECK_NULL(obj, arena ? grammar::ObjSexEnding((obj)->get_sex(), 4) : grammar::ObjVisSexEnding(sight::CanSeeObj((to), (obj)), (obj)->get_sex(), 4));
 					dg_victim = (CharData *) vict_obj;
 					break;
 //суффикс глуп(ым,ой,ыми)
-				case 'r': i = ch->IsImmortal() || (arena) ? GET_CH_SUF_7(ch) : GET_CH_VIS_SUF_7(ch, to);
+				case 'r': i = privilege::IsImmortal(ch) || (arena) ? grammar::SexEnding((ch)->get_sex(), 7) : grammar::VisSexEnding(sight::CanSee((to), (ch)), (ch)->get_sex(), 7);
 					break;
 				case 'R':
 					if (vict_obj)
-						i = arena ? GET_CH_SUF_7((const CharData *) vict_obj)
-								  : GET_CH_VIS_SUF_7((const CharData *) vict_obj, to);
-					else CHECK_NULL(obj, arena ? GET_OBJ_SUF_7(obj) : GET_OBJ_VIS_SUF_7(obj, to));
+						i = arena ? grammar::SexEnding(((const CharData *) vict_obj)->get_sex(), 7)
+								  : grammar::VisSexEnding(sight::CanSee((to), ((const CharData *) vict_obj)), ((const CharData *) vict_obj)->get_sex(), 7);
+					else CHECK_NULL(obj, arena ? grammar::ObjSexEnding((obj)->get_sex(), 7) : grammar::ObjVisSexEnding(sight::CanSeeObj((to), (obj)), (obj)->get_sex(), 7));
 					dg_victim = (CharData *) vict_obj;
 					break;
 //суффикс как(ое,ой,ая,ие)
-				case 'x': i = ch->IsImmortal() || (arena) ? GET_CH_SUF_8(ch) : GET_CH_VIS_SUF_8(ch, to);
+				case 'x': i = privilege::IsImmortal(ch) || (arena) ? grammar::SexEnding((ch)->get_sex(), 8) : grammar::VisSexEnding(sight::CanSee((to), (ch)), (ch)->get_sex(), 8);
 					break;
 				case 'X':
 					if (vict_obj)
-						i = arena ? GET_CH_SUF_8((const CharData *) vict_obj)
-								  : GET_CH_VIS_SUF_8((const CharData *) vict_obj, to);
-					else CHECK_NULL(obj, arena ? GET_OBJ_SUF_8(obj) : GET_OBJ_VIS_SUF_8(obj, to));
+						i = arena ? grammar::SexEnding(((const CharData *) vict_obj)->get_sex(), 8)
+								  : grammar::VisSexEnding(sight::CanSee((to), ((const CharData *) vict_obj)), ((const CharData *) vict_obj)->get_sex(), 8);
+					else CHECK_NULL(obj, arena ? grammar::ObjSexEnding((obj)->get_sex(), 8) : grammar::ObjVisSexEnding(sight::CanSeeObj((to), (obj)), (obj)->get_sex(), 8));
+					dg_victim = (CharData *) vict_obj;
+					break;
+//суффикс посвежевш(им,ей,ими) -- мягкая основа, творительный падеж
+//(issue.mag-points; см. GET_CH_EXSUF_1 в utils.h).
+				case 'h': i = privilege::IsImmortal(ch) || (arena) ? grammar::InstrEnding((ch)->get_sex()) : grammar::VisInstrEnding(sight::CanSee((to), (ch)), (ch)->get_sex());
+					break;
+				case 'H':
+					if (vict_obj)
+						i = arena ? grammar::InstrEnding(((const CharData *) vict_obj)->get_sex())
+								  : grammar::VisInstrEnding(sight::CanSee((to), ((const CharData *) vict_obj)), ((const CharData *) vict_obj)->get_sex());
+					else CHECK_NULL(obj, arena ? grammar::InstrEnding((obj)->get_sex()) : grammar::VisInstrEnding(sight::CanSeeObj((to), (obj)), (obj)->get_sex()));
 					dg_victim = (CharData *) vict_obj;
 					break;
 //склонение местоимения Ваш(е,а,и)
 				case 'z':
 					if (obj)
-						i = OYOU(obj);
-					else CHECK_NULL(obj, OYOU(obj));
+						i = grammar::PossessiveYourObj((obj)->get_sex());
+					else CHECK_NULL(obj, grammar::PossessiveYourObj((obj)->get_sex()));
 					break;
 				case 'Z':
 					if (vict_obj)
-						i = HYOU((const CharData *) vict_obj);
-					else CHECK_NULL(vict_obj, HYOU((const CharData *) vict_obj))
+						i = grammar::PossessiveYour(((const CharData *) vict_obj)->get_sex());
+					else CHECK_NULL(vict_obj, grammar::PossessiveYour(((const CharData *) vict_obj)->get_sex()))
 					break;
 				default: log("SYSERR: Illegal $-code to act(): %c", *orig);
 					log("SYSERR: %s", orig);
@@ -2721,7 +2833,7 @@ void act(const char *str,
 			if (!SENDOK(to) || (to == ch)) {
 				continue;
 			}
-			if (hide_invisible && ch && !CAN_SEE(to, ch))
+			if (hide_invisible && ch && !sight::CanSee(to, ch))
 				continue;
 			if ((type != kToRoom && type != kToRoomSensors) && to == vict_obj)
 				continue;
@@ -2739,7 +2851,7 @@ void act(const char *str,
 			if (type == kToRoomSensors && to->IsFlagged(EPrf::kHolylight)) {
 				std::string buffer = str;
 				if (!IS_MALE(ch)) {
-					utils::ReplaceFirst(buffer, "ся", GET_CH_SUF_2(ch));
+					utils::ReplaceFirst(buffer, "ся", grammar::SexEnding((ch)->get_sex(), 2));
 				}
 				utils::ReplaceFirst(buffer, "Кто-то", ch->get_name());
 				perform_act(buffer.c_str(), ch, obj, vict_obj, to, kick_type);
@@ -2749,7 +2861,7 @@ void act(const char *str,
 		}
 	}
 	//Реализация флага слышно арену
-	if ((to_arena) && (ch) && !ch->IsImmortal() && (ch->in_room != kNowhere) && ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena)
+	if ((to_arena) && (ch) && !privilege::IsImmortal(ch) && (ch->in_room != kNowhere) && ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena)
 		&& ROOM_FLAGGED(ch->in_room, ERoomFlag::kArenaSend) && !ROOM_FLAGGED(ch->in_room, ERoomFlag::kTribune)) {
 		arena_room_rnum = ch->in_room;
 		// находим первую клетку в зоне

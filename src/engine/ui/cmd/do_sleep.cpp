@@ -6,14 +6,15 @@
 */
 
 #include "engine/entities/char_data.h"
+#include "gameplay/mechanics/mount.h"
 
 void do_sleep(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	if (GetRealLevel(ch) >= kLvlImmortal) {
 		SendMsgToChar("Не время вам спать, родина в опасности!\r\n", ch);
 		return;
 	}
-	if (ch->IsOnHorse()) {
-		act("Прежде всего, вам стоит слезть с $N1.", false, ch, nullptr, ch->get_horse(), kToChar);
+	if (mount::IsOnHorse(ch)) {
+		act("Прежде всего, вам стоит слезть с $N1.", false, ch, nullptr, mount::GetHorse(ch), kToChar);
 		return;
 	}
 	switch (ch->GetPosition()) {

@@ -7,6 +7,8 @@
 */
 
 #include "engine/entities/char_data.h"
+#include "gameplay/mechanics/sight.h"
+#include "utils/grammar/gender.h"
 #include "gameplay/communication/remember.h"
 #include "gameplay/core/constants.h"
 #include "gameplay/communication/talk.h"
@@ -16,7 +18,7 @@ void do_gsay(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *k;
 
 	if (AFF_FLAGGED(ch, EAffect::kSilence)) {
-		SendMsgToChar(SIELENCE, ch);
+		SendMsgToChar(CommonMsg(ECommonMsg::kSilenced) + "\r\n", ch);
 		return;
 	}
 
@@ -51,7 +53,7 @@ void do_gsay(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				sprintf(buf1,
 						"%s сообщил%s группе : '%s'\r\n",
 						tell_can_see(ch, k) ? ch->get_name().c_str() : "Кто-то",
-						GET_CH_VIS_SUF_1(ch, k),
+						grammar::VisSexEnding(sight::CanSee((k), (ch)), (ch)->get_sex(), 1),
 						argument);
 				k->remember_add(buf1, Remember::ALL);
 				k->remember_add(buf1, Remember::GROUP);
@@ -67,7 +69,7 @@ void do_gsay(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					sprintf(buf1,
 							"%s сообщил%s группе : '%s'\r\n",
 							tell_can_see(ch, f) ? ch->get_name().c_str() : "Кто-то",
-							GET_CH_VIS_SUF_1(ch, f),
+							grammar::VisSexEnding(sight::CanSee((f), (ch)), (ch)->get_sex(), 1),
 							argument);
 					f->remember_add(buf1, Remember::ALL);
 					f->remember_add(buf1, Remember::GROUP);
@@ -76,7 +78,7 @@ void do_gsay(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 
 		if (ch->IsFlagged(EPrf::kNoRepeat))
-			SendMsgToChar(OK, ch);
+			SendMsgToChar(CommonMsg(ECommonMsg::kOk) + "\r\n", ch);
 		else {
 			sprintf(buf, "Вы сообщили группе : '%s'\r\n", argument);
 			SendMsgToChar(buf, ch);

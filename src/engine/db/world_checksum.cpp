@@ -9,7 +9,10 @@
 #include "engine/entities/zone.h"
 #include "engine/entities/room_data.h"
 #include "engine/entities/char_data.h"
+#include "engine/entities/obj_data.h"
+#include "gameplay/mechanics/dead_load.h"
 #include "utils/logger.h"
+#include "utils/utils.h"
 #include "utils/utils_string.h"
 #include "engine/structs/extra_description.h"
 
@@ -192,6 +195,23 @@ std::string SerializeRoom(const RoomData *room)
 			oss << trig_vnum << ",";
 		}
 	}
+	oss << "|";
+
+	// Extra descriptions (E-blocks in the legacy room file). Without these
+	// the checksum is blind to a yaml/sqlite converter that silently drops
+	// the room's ex_description list (see boot_data_files.cpp:463-475).
+	for (auto ed = room->ex_description; ed; ed = ed->next)
+	{
+		if (ed->keyword)
+		{
+			oss << ed->keyword << ":";
+		}
+		if (ed->description)
+		{
+			oss << ed->description;
+		}
+		oss << ";";
+	}
 
 	return oss.str();
 }
@@ -283,6 +303,107 @@ std::string SerializeMob(int vnum, const CharData &mob)
 	oss << mob.add_abils.aresist << "|";
 	oss << mob.add_abils.mresist << "|";
 	oss << mob.add_abils.presist << "|";
+
+	// Basic numeric block fields parsed by parse_simple_mob() that were
+	// previously absent -- their loss in the yaml/sqlite pipeline would slip
+	// past the round-trip test before this PR.
+	oss << alignment::GetAlignment(&mob) << "|";
+	oss << mob.real_abils.hitroll << "|";
+	oss << static_cast<int>(mob.real_abils.armor) << "|";
+	oss << mob.real_abils.damroll << "|";
+	oss << static_cast<int>(mob.real_abils.size) << "|";
+	oss << mob.mem_queue.total << "," << mob.mem_queue.stored << "|";
+	oss << mob.get_gold() << "|";
+	oss << GET_GOLD_NoDs(&mob) << "," << GET_GOLD_SiDs(&mob) << "|";
+	oss << mob.get_exp() << "|";
+	oss << static_cast<int>(mob.GetPosition()) << "|";
+	oss << static_cast<int>(mob.mob_specials.default_pos) << "|";
+	oss << static_cast<int>(mob.get_sex()) << "|";
+	oss << mob.mob_specials.speed << "|";
+	oss << static_cast<int>(mob.get_race()) << "|";
+	oss << static_cast<int>(mob.get_height()) << "|";
+	oss << static_cast<int>(mob.get_weight()) << "|";
+
+	// E-spec arrays (Resistances, Saves, Destination).
+	for (int r = 0; r <= EResist::kLastResist; ++r)
+	{
+		oss << GET_RESIST(&mob, r) << ",";
+	}
+	oss << "|";
+	for (auto save = ESaving::kFirst; save <= ESaving::kLast; ++save)
+	{
+		oss << GetSave(const_cast<CharData *>(&mob), save) << ",";
+	}
+	oss << "|";
+	oss << mob.mob_specials.dest_count << ":";
+	for (int d = 0; d < mob.mob_specials.dest_count && d < kMaxDest; ++d)
+	{
+		oss << mob.mob_specials.dest[d] << ",";
+	}
+	oss << "|";
+
+	// Feats (bitset over EFeat). Iterate over the whole bitset width so the
+	// serialisation length is stable across mobs.
+	for (size_t f = 0; f < mob.real_abils.Feats.size(); ++f)
+	{
+		if (mob.real_abils.Feats.test(f))
+		{
+			oss << f << ",";
+		}
+	}
+	oss << "|";
+
+	// Skills: sort by ESkill id for determinism.
+	{
+		std::vector<std::pair<int, int>> sk;
+		for (const auto &kv : mob.GetCharSkills())
+		{
+			sk.emplace_back(static_cast<int>(kv.first), kv.second.skillLevel);
+		}
+		std::sort(sk.begin(), sk.end());
+		for (const auto &kv : sk)
+		{
+			oss << kv.first << ":" << kv.second << ",";
+		}
+	}
+	oss << "|";
+
+	// Spell memory (Spell: lines parsed into SplMem[]).
+	for (int s = static_cast<int>(ESpell::kFirst); s <= static_cast<int>(ESpell::kLast); ++s)
+	{
+		const auto val = mob.real_abils.SplMem[s];
+		if (val != 0)
+		{
+			oss << s << ":" << static_cast<int>(val) << ",";
+		}
+	}
+	oss << "|";
+
+	// Helper: lines -> summon_helpers list.
+	for (const auto &h : mob.summon_helpers)
+	{
+		oss << h << ",";
+	}
+	oss << "|";
+
+	// Role bits.
+	{
+		const auto &role = mob.get_role();
+		for (size_t i = 0; i < role.size(); ++i)
+		{
+			oss << (role.test(i) ? '1' : '0');
+		}
+	}
+	oss << "|";
+
+	// L-lines -> dead-load list (issue #3291). The yaml/sqlite pipeline
+	// silently drops these without this entry in the checksum.
+	for (const auto &dl : mob.dl_list)
+	{
+		oss << dl.obj_vnum << ":" << dl.load_prob << ":"
+		    << dl.load_type << ":" << dl.spec_param << ",";
+	}
+	oss << "|";
 
 	// Proto script
 	if (mob.proto_script)
@@ -390,9 +511,9 @@ std::string SerializeObject(const CObjectPrototype::shared_ptr &obj)
 	oss << obj->get_short_description() << "|";
 	oss << obj->get_description() << "|";
 	oss << obj->get_aliases() << "|";
-	for (int i = 0; i <= ECase::kLastCase; ++i)
+	for (int i = 0; i <= grammar::ECase::kLastCase; ++i)
 	{
-		oss << obj->get_PName(static_cast<ECase>(i)) << ",";
+		oss << obj->get_PName(static_cast<grammar::ECase>(i)) << ",";
 	}
 	oss << "|";
 
@@ -416,7 +537,22 @@ std::string SerializeObject(const CObjectPrototype::shared_ptr &obj)
 	{
 		oss << trig_vnum << ",";
 	}
+	oss << "|";
 
+	// Skill bindings (S-line in the legacy obj file, boot_data_files.cpp:802).
+	// Iterate the prototype's skill map sorted by skill id.
+	{
+		std::vector<std::pair<int, int>> sk;
+		for (const auto &kv : obj->get_skills())
+		{
+			sk.emplace_back(static_cast<int>(kv.first), kv.second);
+		}
+		std::sort(sk.begin(), sk.end());
+		for (const auto &kv : sk)
+		{
+			oss << kv.first << ":" << kv.second << ",";
+		}
+	}
 
 	return oss.str();
 }

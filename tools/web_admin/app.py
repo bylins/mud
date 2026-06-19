@@ -5,21 +5,40 @@ Flask application for managing MUD world via Admin API
 from flask import Flask, render_template, request, jsonify, redirect, url_for, session
 from functools import wraps
 from mud_client import MudAdminClient
+import logging
 import os
+import sys
+
+# Logging to stdout so `docker logs` (and systemd/journald) capture everything:
+# HTTP-запросы пишет werkzeug/gunicorn, а события аутентификации и проблемы с
+# сокетом логируем явно здесь.
+logging.basicConfig(
+    level=getattr(logging, os.environ.get('LOG_LEVEL', 'INFO').upper(), logging.INFO),
+    format='%(asctime)s %(levelname)s %(name)s: %(message)s',
+    stream=sys.stdout,
+)
+logger = logging.getLogger('web_admin')
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = os.urandom(24)
+# Постоянный секрет из окружения позволяет сессиям переживать рестарт контейнера
+# и корректно работать при нескольких воркерах; иначе — случайный на запуск.
+app.config['SECRET_KEY'] = os.environ.get('FLASK_SECRET_KEY') or os.urandom(24)
 
 # Get socket path from environment or use default (current directory)
 SOCKET_PATH = os.environ.get('MUD_SOCKET', 'admin_api.sock')
 SOCKET_PATH = os.path.expanduser(SOCKET_PATH)
 
-# Check if socket exists
+# Сокет может отсутствовать в момент старта (циркуль ещё поднимается или
+# перезапускается). Не падаем — подключение выполняется на каждый запрос, а
+# mud_client вернёт понятную ошибку, если сокета нет.
 if not os.path.exists(SOCKET_PATH):
-    print(f"ERROR: Socket file not found: {SOCKET_PATH}")
-    print(f"Make sure MUD server is running with Admin API enabled.")
-    print(f"You can override socket path with: MUD_SOCKET=/path/to/socket python3 app.py")
-    exit(1)
+    logger.warning(
+        "Socket not found at startup: %s. Это нормально, если MUD-сервер ещё "
+        "стартует или перезапускается; подключение будет повторяться на каждый запрос.",
+        SOCKET_PATH,
+    )
+else:
+    logger.info("Using MUD Admin API socket: %s", SOCKET_PATH)
 
 # Helper function to get MUD client with session credentials
 def get_mud_client():
@@ -107,9 +126,15 @@ def login():
         username = request.form.get('username')
         password = request.form.get('password')
 
+        # IP клиента для лога неудачных входов (fail2ban, issue #3388).
+        # За обратным прокси берём первый адрес из X-Forwarded-For.
+        forwarded = request.headers.get('X-Forwarded-For', '')
+        client_ip = forwarded.split(',')[0].strip() if forwarded else request.remote_addr
+
         # Try to authenticate with MUD
         try:
-            test_client = MudAdminClient(SOCKET_PATH, username=username, password=password)
+            test_client = MudAdminClient(SOCKET_PATH, username=username, password=password,
+                                         client_ip=client_ip)
             # Test connection with real command
             response = test_client._send_command('list_zones')
 
@@ -117,14 +142,19 @@ def login():
                 # Authentication successful - save to session
                 session['username'] = username
                 session['password'] = password
+                logger.info("auth OK: user=%s from=%s", username, client_ip)
                 return redirect(url_for('index'))
             else:
-                return render_template('login.html', error=f"Ошибка: {response.get('error', 'Неизвестная ошибка')}")
+                err = response.get('error', 'Неизвестная ошибка')
+                logger.warning("auth FAILED: user=%s from=%s reason=%s", username, client_ip, err)
+                return render_template('login.html', error=f"Ошибка: {err}")
 
         except ValueError as e:
             # Authentication failed
+            logger.warning("auth FAILED: user=%s from=%s reason=%s", username, client_ip, e)
             return render_template('login.html', error=str(e))
         except Exception as e:
+            logger.error("auth ERROR: user=%s from=%s reason=%s", username, client_ip, e)
             return render_template('login.html', error=f'Ошибка подключения: {str(e)}')
 
     return render_template('login.html')
@@ -468,6 +498,151 @@ def api_zone(vnum):
     """API: Get zone details"""
     mud = get_mud_client()
     return jsonify(mud.get_zone(vnum))
+
+
+# ===== WORLD-BUILDING API (programmatic zone construction) =====
+# These JSON endpoints let a client build a whole zone over HTTP: create
+# rooms/mobs/objects/triggers, manage zone reset commands, and trigger a repop.
+# Each create endpoint accepts the entity "data" object as the JSON body and
+# forwards it to the Admin API socket via mud_client.
+
+def _json_body():
+    """Return the request JSON body or (None, error_response)."""
+    data = request.get_json(silent=True)
+    if data is None:
+        return None, (jsonify({'status': 'error', 'error': 'No JSON data received'}), 400)
+    return data, None
+
+
+@app.route('/api/zones/<int:zone>/rooms', methods=['POST'])
+@login_required
+def api_create_room(zone):
+    """Create a room in the zone. Body = room data object."""
+    data, err = _json_body()
+    if err:
+        return err
+    return jsonify(get_mud_client().create_room(zone, data))
+
+
+@app.route('/api/zones/<int:zone>/mobs', methods=['POST'])
+@login_required
+def api_create_mob(zone):
+    """Create a mob in the zone. Body = mob data object."""
+    data, err = _json_body()
+    if err:
+        return err
+    return jsonify(get_mud_client().create_mob(zone, data))
+
+
+@app.route('/api/zones/<int:zone>/objects', methods=['POST'])
+@login_required
+def api_create_object(zone):
+    """Create an object in the zone. Body = object data object."""
+    data, err = _json_body()
+    if err:
+        return err
+    return jsonify(get_mud_client().create_object(zone, data))
+
+
+@app.route('/api/zones/<int:zone>/triggers', methods=['POST'])
+@login_required
+def api_create_trigger(zone):
+    """Create a DG-script trigger in the zone. Body = trigger data object."""
+    data, err = _json_body()
+    if err:
+        return err
+    return jsonify(get_mud_client().create_trigger(zone, data))
+
+
+@app.route('/api/zones/<int:zone>/commands', methods=['GET'])
+@login_required
+def api_list_zone_commands(zone):
+    """List the zone's reset commands."""
+    return jsonify(get_mud_client().list_zone_commands(zone))
+
+
+@app.route('/api/zones/<int:zone>/commands', methods=['POST'])
+@login_required
+def api_add_zone_command(zone):
+    """Append a reset command. Body = {command, mob_vnum, room_vnum, ...}."""
+    data, err = _json_body()
+    if err:
+        return err
+    return jsonify(get_mud_client().add_zone_command(zone, data))
+
+
+@app.route('/api/zones/<int:zone>/commands/<int:index>', methods=['DELETE'])
+@login_required
+def api_delete_zone_command(zone, index):
+    """Delete a reset command by its index."""
+    return jsonify(get_mud_client().delete_zone_command(zone, index))
+
+
+@app.route('/api/zones/<int:zone>/reset', methods=['POST'])
+@login_required
+def api_reset_zone(zone):
+    """Force an immediate reset (repop) of the zone."""
+    return jsonify(get_mud_client().reset_zone(zone))
+
+
+@app.route('/api/rooms/<int:vnum>', methods=['DELETE'])
+@login_required
+def api_delete_room(vnum):
+    """Delete a room by vnum."""
+    return jsonify(get_mud_client().delete_room(vnum))
+
+
+@app.route('/api/mobs/<int:vnum>', methods=['DELETE'])
+@login_required
+def api_delete_mob(vnum):
+    """Delete a mob prototype by vnum."""
+    return jsonify(get_mud_client().delete_mob(vnum))
+
+
+@app.route('/api/objects/<int:vnum>', methods=['DELETE'])
+@login_required
+def api_delete_object(vnum):
+    """Delete an object prototype by vnum."""
+    return jsonify(get_mud_client().delete_object(vnum))
+
+
+@app.route('/api/triggers/<int:vnum>', methods=['DELETE'])
+@login_required
+def api_delete_trigger(vnum):
+    """Delete a trigger by vnum."""
+    return jsonify(get_mud_client().delete_trigger(vnum))
+
+
+# Symmetric JSON read of individual entities (mirror the update/create payloads).
+# Previously only HTML edit forms (/room, /object, ...) existed; a programmatic
+# client could write but not read entities back as JSON. GET coexists with the
+# DELETE routes above on the same paths (different HTTP methods).
+@app.route('/api/rooms/<int:vnum>')
+@login_required
+def api_room(vnum):
+    """API: Get room details (full, symmetric with /room/<v>/update)"""
+    return jsonify(get_mud_client().get_room(vnum))
+
+
+@app.route('/api/objects/<int:vnum>')
+@login_required
+def api_object(vnum):
+    """API: Get object details (full, symmetric with /object/<v>/update)"""
+    return jsonify(get_mud_client().get_object(vnum))
+
+
+@app.route('/api/mobs/<int:vnum>')
+@login_required
+def api_mob(vnum):
+    """API: Get mob details (full, symmetric with /mob/<v>/update)"""
+    return jsonify(get_mud_client().get_mob(vnum))
+
+
+@app.route('/api/triggers/<int:vnum>')
+@login_required
+def api_trigger(vnum):
+    """API: Get trigger details (full, symmetric with /trigger/<v>/update)"""
+    return jsonify(get_mud_client().get_trigger(vnum))
 
 
 # ===== API ENDPOINTS FOR AUTOCOMPLETE =====

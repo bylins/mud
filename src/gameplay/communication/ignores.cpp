@@ -1,4 +1,5 @@
 #include "engine/entities/char_data.h"
+#include "administration/privilege.h"
 #include "engine/db/player_index.h"
 
 bool ignores(CharData *who, CharData *whom, unsigned int flag) {
@@ -6,7 +7,7 @@ bool ignores(CharData *who, CharData *whom, unsigned int flag) {
 
 	long ign_id;
 
-	if (whom->IsImmortal()) {
+	if (privilege::IsImmortal(whom)) {
 		return false;
 	}
 

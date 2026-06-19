@@ -6,6 +6,7 @@
 */
 
 #include "json_helpers.h"
+#include "utils/utils_encoding.h"
 #include "../../../engine/structs/structs.h"
 #include "../../../utils/utils.h"
 
@@ -67,7 +68,7 @@ std::string Koi8rToUtf8(const char* koi8r)
 	}
 
 	char utf8_buf[kMaxStringLength];
-	koi_to_utf8(const_cast<char*>(koi8r), utf8_buf);
+	codepages::koi_to_utf8(const_cast<char*>(koi8r), utf8_buf);
 	return std::string(utf8_buf);
 }
 
@@ -82,7 +83,7 @@ std::string Koi8rToUtf8(const std::string& koi8r)
 	strncpy(koi8r_buf, koi8r.c_str(), sizeof(koi8r_buf) - 1);
 	koi8r_buf[sizeof(koi8r_buf) - 1] = '\0';
 
-	koi_to_utf8(koi8r_buf, utf8_buf);
+	codepages::koi_to_utf8(koi8r_buf, utf8_buf);
 
 	return std::string(utf8_buf);
 }
@@ -95,7 +96,7 @@ std::string Utf8ToKoi8r(const std::string& utf8)
 	strncpy(utf8_buf, utf8.c_str(), sizeof(utf8_buf) - 1);
 	utf8_buf[sizeof(utf8_buf) - 1] = '\0';
 
-	utf8_to_koi(utf8_buf, koi8r_buf);
+	codepages::utf8_to_koi(utf8_buf, koi8r_buf);
 
 	return std::string(koi8r_buf);
 }

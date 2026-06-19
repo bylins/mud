@@ -2,6 +2,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "administration/karma.h"
+#include "utils/grammar/declensions.h"
 #include "genchar.h"
 #include "engine/ui/color.h"
 #include "engine/entities/char_data.h"
@@ -129,10 +130,10 @@ void print_menu(DescriptorData *d) {
 		"5) отменить и вернуться в главное меню\r\n"
 		"\r\nВаш выбор:",
 		kColorBoldGrn, kColorNrm,
-		stats_price, GetDeclensionInNumber(stats_price, EWhat::kMoneyA),
-		race_price, GetDeclensionInNumber(race_price, EWhat::kMoneyA),
-		feats_price, GetDeclensionInNumber(feats_price, EWhat::kMoneyA),
-		religion_price, GetDeclensionInNumber(religion_price, EWhat::kMoneyA));
+		stats_price, grammar::GetDeclensionInNumber(stats_price, grammar::EWhat::kMoneyA),
+		race_price, grammar::GetDeclensionInNumber(race_price, grammar::EWhat::kMoneyA),
+		feats_price, grammar::GetDeclensionInNumber(feats_price, grammar::EWhat::kMoneyA),
+		religion_price, grammar::GetDeclensionInNumber(religion_price, grammar::EWhat::kMoneyA));
 iosystem::write_to_output(str.c_str(), d);
 }
 

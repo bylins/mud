@@ -6,6 +6,7 @@
 */
 
 #include "engine/entities/char_data.h"
+#include "administration/privilege.h"
 #include "engine/ui/color.h"
 #include "gameplay/mechanics/sight.h"
 #include "engine/db/global_objects.h"
@@ -33,8 +34,8 @@ void DoListen(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 			SendMsgToChar("Вы начали сосредоточенно прислушиваться.\r\n", ch);
 			for (i = 0; i < EDirection::kMaxDirNum; i++)
 				hear_in_direction(ch, i, 0);
-			if (!(ch->IsImmortal() || GET_GOD_FLAG(ch, EGf::kGodsLike)))
-				SetWaitState(ch, 1 * kBattleRound);
+			if (!(privilege::IsImmortal(ch) || GET_GOD_FLAG(ch, EGf::kGodsLike)))
+				SetBattleLag(ch, 1);
 		}
 	} else
 		SendMsgToChar("Выучите сначала как это следует делать.\r\n", ch);
@@ -76,7 +77,7 @@ void hear_in_direction(CharData *ch, int dir, int info_is) {
 			if ((probe >= percent
 				|| ((!AFF_FLAGGED(tch, EAffect::kSneak) || !AFF_FLAGGED(tch, EAffect::kHide))
 					&& (probe > percent * 2)))
-				&& (percent < 100 || ch->IsImmortal())
+				&& (percent < 100 || privilege::IsImmortal(ch))
 				&& !fight_count) {
 				if (tch->IsNpc()) {
 					if (GET_RACE(tch) == ENpcRace::kConstruct) {
@@ -122,7 +123,7 @@ void hear_in_direction(CharData *ch, int dir, int info_is) {
 
 		SendMsgToChar(kColorNrm, ch);
 	} else {
-		if (info_is & EXIT_SHOW_WALL) {
+		if (info_is & sight::EXIT_SHOW_WALL) {
 			SendMsgToChar("И что вы там хотите услышать?\r\n", ch);
 		}
 	}

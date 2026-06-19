@@ -1,4 +1,5 @@
 #include "engine/entities/char_data.h"
+#include "administration/privilege.h"
 #include "gameplay/fight/pk.h"
 #include "gameplay/mechanics/groups.h"
 
@@ -77,7 +78,7 @@ void DoTrample(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 			if (aff_i != room->affected.end()
 				&& (AFF_FLAGGED(ch, EAffect::kDetectMagic)
-					|| ch->IsImmortal()
+					|| privilege::IsImmortal(ch)
 					|| ch->IsFlagged(EPrf::kCoderinfo))) {
 				SendMsgToChar("Шаркнув несколько раз по земле, вы стерли светящуюся надпись.\r\n", ch);
 				act("$n шаркнул$g несколько раз по светящимся рунам, полностью их уничтожив.",
@@ -104,8 +105,8 @@ void DoTrample(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		default: break;
 	}
 
-	if (!ch->IsImmortal()) {
-		SetWaitState(ch, lag * kBattleRound);
+	if (!privilege::IsImmortal(ch)) {
+		SetBattleLag(ch, lag);
 	}
 }
 

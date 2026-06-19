@@ -1,6 +1,7 @@
 //#include "heartbeat.h"
 
 #include <utility>
+#include "gameplay/mechanics/magic_item.h"
 
 #include "administration/proxy.h"
 #include "gameplay/economics/auction.h"
@@ -37,13 +38,12 @@
 #include "gameplay/communication/check_invoice.h"
 #include "gameplay/mechanics/depot.h"
 #include "gameplay/statistics/spell_usage.h"
+#include "gameplay/statistics/top.h"
 #include "utils/tracing/trace_manager.h"
 
 #if defined WITH_SCRIPTING
 #include "scripting.hpp"
 #endif
-
-extern std::pair<int, int> TotalMemUse();
 
 constexpr bool FRAC_SAVE = true;
 
@@ -65,17 +65,6 @@ void check_idle_passwords() {
 }
 
 void record_usage() {
-	int sockets_connected = 0, sockets_playing = 0;
-	DescriptorData *d;
-
-	for (d = descriptor_list; d; d = d->next) {
-		sockets_connected++;
-		if (d->state == EConState::kPlaying)
-			sockets_playing++;
-	}
-
-	log("nusage: %-3d sockets connected, %-3d sockets playing", sockets_connected, sockets_playing);
-
 #ifdef RUSAGE            // Not RUSAGE_SELF because it doesn't guarantee prototype.
 	{
 		struct rusage ru;
@@ -368,6 +357,10 @@ Heartbeat::steps_t &pulse_steps() {
 							 60 * 60 * kPassesPerSec,
 							 47,
 							 std::make_shared<SimpleCall>(print_rune_log)),
+		Heartbeat::PulseStep("Top player chart refresh",
+							 60 * 60 * kPassesPerSec,
+							 43,
+							 std::make_shared<SimpleCall>(TopPlayer::RefreshAll)),
 		Heartbeat::PulseStep("Mob stats saving",
 							 60 * mob_stat::kSavePeriod * kPassesPerSec,
 							 57,
@@ -636,11 +629,8 @@ void Heartbeat::advance_pulse_numbers() {
 }
 
 void Heartbeat::pulse(const int missed_pulses, pulse_label_t &label) {
-	static int last_pmem_used = 0;
-
 	label.clear();
 	advance_pulse_numbers();
-	log("Heartbeat pulse");
 	{
 		auto span = tracing::TraceManager::Instance().StartSpan("Characters::PurgeExtractedList");
 		character_list.PurgeExtractedList();
@@ -651,31 +641,19 @@ void Heartbeat::pulse(const int missed_pulses, pulse_label_t &label) {
 	}
 	for (std::size_t i = 0; i != m_steps.size(); ++i) {
 		auto &step = m_steps[i];
-		auto get_mem = TotalMemUse();
-		int vmem_used = get_mem.first;
-		int pmem_used = get_mem.second;
 		if (step.off()) {
 			continue;
 		}
 
 		if (0 == (m_pulse_number + step.offset()) % step.modulo()) {
 			utils::CExecutionTimer timer;
-			
+
 			// Create child span for this step
 			auto step_span = tracing::TraceManager::Instance().StartSpan(step.name());
 			step_span->SetAttribute("step_index", static_cast<int64_t>(i));
 			step_span->SetAttribute("step_modulo", static_cast<int64_t>(step.modulo()));
 			step.action()->perform(pulse_number(), missed_pulses);
 			const auto execution_time = timer.delta().count();
-			if (step.modulo() >= kSecsPerMudHour * kPassesPerSec) {
-				log("Heartbeat step: %s", step.name().c_str());
-			}
-			if (pmem_used != last_pmem_used) {
-//				char buf [128];
-				last_pmem_used = pmem_used;
-				log("HeartBeat memory resize, step:(%s), memory used: virt (%d kB) phys (%d kB)", step.name().c_str(), vmem_used, pmem_used);
-//				mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-			}
 			step_span->SetAttribute("execution_time_seconds", execution_time);
 			step_span->End();
 			label.emplace(i, execution_time);

@@ -37,7 +37,47 @@ Admin API предоставляет JSON-интерфейс через Unix Dom
 - Кодировка UTF-8 (автоматическая конвертация в/из KOI8-R)
 - Одно постоянное соединение (рекомендуется переиспользование)
 
-**Ограничение подключений:** Максимум 1 одновременное admin-подключение
+**Ограничение подключений:** Максимум 1 одновременное admin-подключение (для
+HTTP web-admin поднимите `<max_connections>` в `configuration.xml`, иначе
+веб-соединения упираются в лимит).
+
+## Развёртывание и работа со стеком (Docker)
+
+Готовый стек поднимается одним compose-файлом и состоит из:
+- `circle` — сам MUD-сервер (порт игры; сокет admin_api внутри контейнера);
+- `web-admin` — HTTP-обёртка над сокетом (`http://127.0.0.1:12001`), даёт REST/HTML;
+- наблюдаемость (grafana/loki/tempo/otel) — опционально.
+
+**Поднять стек** (мир монтируется с хоста в контейнер `circle` как `/world`):
+```bash
+MUD_WORLD_DIR=/путь/к/миру/lib \
+  docker compose -f tools/docker/docker-compose.full.yml up -d circle web-admin
+```
+После старта `circle` подождите ~30 с, прежде чем web-admin начнёт пускать
+(ранние подключения к ещё не готовому сокету таймаутят).
+
+**Пользоваться готовым стеком:**
+- Через HTTP web-admin: `http://127.0.0.1:12001`, вход builder-аккаунтом
+  (имя+пароль персонажа уровня ≥ kLvlBuilder). JSON-эндпоинты: `GET/POST
+  /api/zones/...`, `GET /api/{rooms,objects,mobs,triggers}/<vnum>` (чтение
+  сущности), `POST /<entity>/<vnum>/update`, и т.д.
+- Напрямую через сокет: `admin_api.sock` лежит в `/world/run/` внутри контейнера
+  (root, 0600) — достучаться можно только `docker exec mud-circle`. Для скриптов
+  обычно проще ходить по HTTP.
+
+**Файлы мира доступны в контейнере `circle` как `/world`** (rw-монтирование с
+хоста). Если нужно прочитать/поправить файл мира напрямую (он root-owned на
+хосте) — это делается через контейнер: `docker exec mud-circle cat /world/...`
+или `docker cp ... mud-circle:/world/...`. Менять контент лучше через API (он
+сам персистит в YAML), но конфиги/служебные файлы иногда правят так.
+
+**Пересборка после правок кода:**
+```bash
+docker compose -f tools/docker/docker-compose.full.yml build circle web-admin
+docker compose -f tools/docker/docker-compose.full.yml up -d --no-build --force-recreate circle web-admin
+```
+ВАЖНО: правки `tools/web_admin/app.py` иногда не подхватываются из-за кэша
+COPY-слоя — тогда `build --no-cache web-admin`.
 
 ## Аутентификация
 
@@ -506,6 +546,7 @@ Admin API предоставляет JSON-интерфейс через Unix Dom
     },
     "stats": {
       "type": 1,
+      "spec_param": 0,
       "wear_flags": ["TAKE", "HOLD"],
       "extra_flags": [],
       "no_flags": [],
@@ -720,11 +761,13 @@ Admin API предоставляет JSON-интерфейс через Unix Dom
 }
 ```
 
-**Ответ:**
+**Ответ:** (с обновлённым `room` — симметрично `update_mob`/`update_object`)
 ```json
 {
   "status": "ok",
-  "message": "Room updated successfully"
+  "message": "Room updated successfully",
+  "room": { "vnum": 100, "name": "...", "description": "...\n", "sector_type": 0,
+            "room_flags": [0,0,0,0], "exits": [], "extra_descriptions": [], "triggers": [] }
 }
 ```
 

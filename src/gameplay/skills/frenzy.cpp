@@ -3,6 +3,8 @@
 //
 
 #include "engine/entities/char_data.h"
+#include "administration/privilege.h"
+#include "skill_messages.h"
 #include "engine/entities/obj_data.h"
 #include "engine/core/handler.h"
 #include "engine/db/global_objects.h"
@@ -10,19 +12,19 @@
 
 void do_frenzy(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	if (!ch->GetSkill(ESkill::kFrenzy)) {
-		SendMsgToChar("Вам это не по силам.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kFrenzy, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
 	if (ch->GetPosition() != EPosition::kFight
-		&& !ch->IsImmortal()
+		&& !privilege::IsImmortal(ch)
 		&& (!IsAffectedBySpell(ch, ESpell::kCourage)
 			|| !IsAffectedBySpell(ch, ESpell::kFrenzy)
 			|| !IsAffectedBySpell(ch, ESpell::kBerserk))) {
-		SendMsgToChar("Вы не можете впасть в &Rисступление&n находясь в тишине и покое!\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kFrenzy, ESkillMsg::kPeacefulRoom) + "\r\n", ch);
 		return;
 	}
-	if (ch->HasCooldown(ESkill::kFrenzy) && !ch->IsImmortal()) {
-		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
+	if (ch->HasCooldown(ESkill::kFrenzy) && !privilege::IsImmortal(ch)) {
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kFrenzy, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	}
 	if (ch->get_move() < MUD::Spell(ESpell::kFrenzy).GetMaxMana()) {
@@ -34,7 +36,7 @@ void do_frenzy(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	const int duration = CalcDuration(ch, 23, 0, 0, 0, 0);;
+	const int duration = CalcDuration(ch, ch, ESkill::kUndefined, 23, 0, 0, 0);;
 	const int hp_regen = ch->GetSkill(ESkill::kFrenzy) / 12.5;
 	const int dmg_multiplier = ch->GetSkill(ESkill::kFrenzy) / 12.5;
 
@@ -43,13 +45,13 @@ void do_frenzy(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	af[0].duration = duration;
 	af[0].modifier = hp_regen;
 	af[0].location = EApply::kHpRegen;
-	af[0].bitvector = to_underlying(EAffect::kFrenzy);
+	af[0].affect_type = EAffect::kFrenzy;
 	af[0].battleflag = kAfPulsedec;
 	af[1].type = ESpell::kFrenzy;
 	af[1].duration = duration;
 	af[1].modifier = dmg_multiplier;
 	af[1].location = EApply::kPhysicDamagePercent;
-	af[1].bitvector = to_underlying(EAffect::kNoFlee);
+	af[1].affect_type = EAffect::kNoFlee;
 	af[1].battleflag = kAfPulsedec;
 	bool has_frenzy = false;
 	bool can_be_angrier = false;
@@ -91,7 +93,7 @@ void do_frenzy(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 			SendMsgToChar("&RВы жаждете крови своих соперников!&n\r\n", ch);
 		}
 	}
-	if (!ch->IsImmortal()) {
+	if (!privilege::IsImmortal(ch)) {
 		constexpr int cooldown = 7;
 		SetSkillCooldown(ch, ESkill::kFrenzy, cooldown);
 		SetSkillCooldown(ch, ESkill::kGlobalCooldown, 1);

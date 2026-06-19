@@ -11,7 +11,7 @@ This is **Bylins MUD** - a Russian-language Multi-User Dungeon game server based
 ### Initial Setup (Ubuntu/WSL)
 ```bash
 sudo apt update && sudo apt upgrade
-sudo apt install build-essential make libssl-dev libcurl4-gnutls-dev libexpat1-dev gettext unzip cmake gdb libgtest-dev zlib1g-dev
+sudo apt install build-essential meson ninja-build libssl-dev libcurl4-gnutls-dev libexpat1-dev gettext unzip gdb libgtest-dev zlib1g-dev
 git clone --recurse-submodules https://github.com/bylins/mud
 cd mud
 cp -n -r lib.template/* lib
@@ -25,47 +25,42 @@ git submodule update --init --recurse-submodules
 
 ### Standard Build (without tests)
 ```bash
-mkdir build
-cd build
-cmake -DBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Release ..
-make -j$(($(nproc)/2))
-cd ..
+meson setup build -Dbuild_tests=false -Dbuild_profile=release
+ninja -C build -j$(($(nproc)/2))
 ./build/circle 4000  # Start server on port 4000
 ```
 
 ### Build with Tests
 ```bash
-mkdir build
-cd build
-cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=ON ..
-make tests -j$(($(nproc)/2))
-./tests/tests  # Run all tests
+meson setup build -Dbuild_profile=release -Dbuild_tests=true
+ninja -C build -j$(($(nproc)/2))
+./build/tests/tests  # Run all tests
 ```
 
 **Important:** Always use `-j$(($(nproc)/2))` for parallel builds to avoid overloading the system.
 
-**Important:** Always use `-DCMAKE_BUILD_TYPE=Release` for development builds. The `Test` and `FastTest` build types are legacy — do not use them. Never build without tests first and then rebuild with tests — use `-DBUILD_TESTS=ON` from the start to avoid double compilation.
+**Important:** Always use `-Dbuild_profile=release` for development builds. The `dev` and `fasttest` profiles are legacy — do not use them. Never build without tests first and then rebuild with tests — pass `-Dbuild_tests=true` to `meson setup` from the start to avoid double compilation.
 
-### Build Types
-- **Release** - Optimized production build (-O0 with debug symbols, -rdynamic, -Wall)
-- **Debug** - Debug build with ASAN (-fsanitize=address, NO _GLIBCXX_DEBUG due to yaml-cpp ABI compatibility)
-- **Test** - Test build with optimizations (-O3, -DTEST_BUILD, -DNOCRYPT)
-- **FastTest** - Fast test build (-Ofast, -DTEST_BUILD)
+### Build Profiles (`-Dbuild_profile=`)
+- **release** - Optimized production build (-Og with debug symbols, ggdb3, -Wall)
+- **debug** - Debug build (-O0, ggdb3); add `-Dwith_asan=true` for AddressSanitizer
+- **dev** - Test build with optimizations (-O3, -DTEST_BUILD)
+- **fasttest** - Fast test build (-Ofast, -DTEST_BUILD)
+- **custom** - No specific flags, fully user-controlled
 
-### Docker Build & Run
+### Reconfiguring an existing build directory
 ```bash
-docker build -t mud-server --build-arg BUILD_TYPE=Test .
-docker run -d -p 4000:4000 -e MUD_PORT=4000 -v ./lib:/mud/lib --name mud mud-server
-docker stop mud
+meson configure build_yaml -Dyaml=builtin   # turn yaml on
+meson configure build_yaml                  # list current options
 ```
 
 ### Running the Server
 
 **CRITICAL**: ALL binaries (circle, tests, converters, etc.) must ALWAYS be run from their build directory, NEVER from the source directory. Running binaries from the source directory creates runtime files (data/, misc/, etc.) in the wrong location and pollutes the source tree.
 
-**CRITICAL**: Build directories must ALWAYS be out-of-source (outside the source tree). Never run cmake or binaries from within the src/ directory or repository root.
+**CRITICAL**: Build directories must ALWAYS be out-of-source (outside the source tree). Never run `meson setup`/`ninja` or binaries from within the src/ directory or repository root.
 
-**CRITICAL**: CMake automatically creates test world `small/` in the build directory. All world data and configs are in `small/` directory itself, NOT in `small/lib/`. The `lib/` subdirectory DOES NOT EXIST in cmake-generated worlds. All paths in configuration.xml are relative to the `small/` directory.
+**CRITICAL**: With `-Dsmall_world=true` meson copies test world data into `small/` inside the build directory (see `tools/meson/setup_world.py`). All world data and configs live in `small/` itself, NOT in `small/lib/`. The `lib/` subdirectory DOES NOT EXIST in meson-generated worlds. All paths in configuration.xml are relative to the `small/` directory.
 
 **Correct usage**:
 ```bash
@@ -84,11 +79,11 @@ cd build_debug
 ./circle -d small 4000
 ```
 
-**World Structure (cmake-generated):**
+**World Structure (meson-generated):**
 ```
 build_debug/
 ├── circle           # Binary
-└── small/           # Test world (created by cmake)
+└── small/           # Test world (created by meson with -Dsmall_world=true)
     ├── misc/
     │   └── configuration.xml
     ├── world/       # Zone files
@@ -99,13 +94,19 @@ build_debug/
 **NOTE**: Do NOT confuse with repository's `lib/` directory - that is completely separate and used only for production deployments.
 
 ### Running Tests
-```bash
-# Run all tests
-cd build
-./tests/tests
+Тесты используют относительные пути к данным (`data/boards/...`, `misc/grouping`, `data/mob_classes/...`), которые meson копирует в `meson.project_build_root()`. Поэтому запускать тесты надо из самой `build_dir`, иначе `Boards_Changelog`, `FightPenalties` и `MobClassesLoaderTest` упадут с «file not found».
 
-# Run with CTest
-make checks  # or: ctest -V
+```bash
+# Способ 1 — через meson (workdir выставляется автоматически)
+meson test -C build
+
+# Способ 2 — напрямую (cd в build, иначе пути к данным не найдутся)
+cd build && ./tests/tests
+```
+
+Фильтр по подмножеству:
+```bash
+cd build && ./tests/tests --gtest_filter="Boards_Changelog.*:FightPenalties.*"
 ```
 
 ## Code Architecture
@@ -194,10 +195,9 @@ Access world state via `MUD::` namespace functions:
 ### Code Style
 - **Standard**: C++20 (C++17 minimum)
 - **Indentation**: Tabs (size 4), no spaces for indentation
-- **Braces**: Opening brace on new line, same indent as statement
+- **Braces**: An opening brace on the same line separated by a space
 ```cpp
-if (condition)
-{
+if (condition) {
     // code here
 }
 ```
@@ -210,7 +210,7 @@ const auto& reference = message;
 ```
 
 ### File Management
-- All new files must be added to `CMakeLists.txt`
+- All new files must be added to `meson.build` (sources go into `main_sources` / `library_sources`, depending on the section)
 - Include vim modeline at end of files:
 ```cpp
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
@@ -237,13 +237,13 @@ const auto& reference = message;
 1. Create `src/engine/ui/cmd/do_mycommand.h` and `.cpp`
 2. Add function signature: `void do_mycommand(CharData *ch, char *argument, int cmd, int subcmd)`
 3. Register in `src/engine/ui/interpreter.cpp` command table
-4. Add to `CMakeLists.txt` SOURCES and HEADERS lists
+4. Add the `.cpp` to the appropriate sources list in `meson.build`
 
 ### Adding a New Skill
 1. Define skill in `src/gameplay/skills/skills_info.cpp`
 2. Create handler in `src/gameplay/skills/myskill.h` and `.cpp`
 3. Hook into skill system via `SkillRollCheck()` or direct calls
-4. Add to `CMakeLists.txt`
+4. Add the `.cpp` to the appropriate sources list in `meson.build`
 
 ### Adding a DG Script Trigger Type
 1. Define trigger constant in `src/engine/scripting/dg_scripts.h`
@@ -354,25 +354,28 @@ The heartbeat system includes built-in profiling:
 ## Claude Code Workflow Rules
 
 ### Build Directory Convention
-Use separate build directories for different CMake configurations to avoid lengthy rebuilds:
+Use separate build directories for different meson configurations to avoid lengthy rebuilds:
 ```
 build/        - default build (without optional features)
-build_sqlite/ - build with -DHAVE_SQLITE=ON
-build_debug/  - debug build with -DCMAKE_BUILD_TYPE=Debug
-build_otel/   - build with -DWITH_OTEL=ON (requires vcpkg)
+build_sqlite/ - build with -Dsqlite=builtin
+build_yaml/   - build with -Dyaml=builtin
+build_debug/  - debug build with -Dbuild_profile=debug
+build_otel/   - build with -Dotel=builtin (requires vcpkg)
 build_test/   - test data and converted worlds (not for compilation)
 ```
-**Always warn the user when changing build directories or running cmake/make in a different directory.**
+Reconfigure an existing dir with `meson configure build_dir -Dyaml=builtin` instead of recreating it from scratch when only options change.
 
-### OpenTelemetry Build (WITH_OTEL)
-opentelemetry-cpp is installed via vcpkg at `~/repos/vcpkg`. Always pass the toolchain file and prefix path:
+**Always warn the user when changing build directories or running `meson setup`/`meson configure`/`ninja` in a different directory.**
+
+### OpenTelemetry Build (`-Dotel=builtin`)
+opentelemetry-cpp is installed via vcpkg at `~/repos/vcpkg`. Point meson at the vcpkg pkg-config / cmake search paths:
 ```bash
-cmake -S . -B build_otel \
-  -DCMAKE_BUILD_TYPE=Release \
-  -DWITH_OTEL=ON \
-  -DCMAKE_TOOLCHAIN_FILE=~/repos/vcpkg/scripts/buildsystems/vcpkg.cmake \
-  -DCMAKE_PREFIX_PATH=~/repos/vcpkg/installed/x64-linux
-make -C build_otel -j$(($(nproc)/2))
+PKG_CONFIG_PATH=~/repos/vcpkg/installed/x64-linux/lib/pkgconfig \
+CMAKE_PREFIX_PATH=~/repos/vcpkg/installed/x64-linux \
+meson setup build_otel \
+  -Dbuild_profile=release \
+  -Dotel=system
+ninja -C build_otel -j$(($(nproc)/2))
 ```
 
 ### File Encoding - CRITICAL
@@ -430,8 +433,8 @@ Patches preserve encoding and fail cleanly if context doesn't match.
 
 ### Directory Change Notifications
 Always explicitly notify the user before:
-- Running cmake in a different build directory
-- Running make in a different build directory  
+- Running `meson setup`/`meson configure` in a different build directory
+- Running `ninja` in a different build directory
 - Changing the working directory for any build operation
 
 Example: "Switching to build_sqlite/ directory for SQLite-enabled build."
@@ -440,8 +443,8 @@ Example: "Switching to build_sqlite/ directory for SQLite-enabled build."
 
 The project supports three world data formats:
 1. **Legacy** - Original CircleMUD text format (default, in lib/ + lib.template/)
-2. **SQLite** - World data in SQLite database (requires -DHAVE_SQLITE=ON)
-3. **YAML** - Human-readable YAML format (requires -DHAVE_YAML=ON)
+2. **SQLite** - World data in SQLite database (requires `-Dsqlite=builtin` or `-Dsqlite=system`)
+3. **YAML** - Human-readable YAML format (requires `-Dyaml=builtin` or `-Dyaml=system`)
 
 **CRITICAL: Never use lib/ from repository directly!**
 - `lib/` contains base configuration files only (NOT complete world data)

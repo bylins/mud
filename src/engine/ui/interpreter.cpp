@@ -14,6 +14,7 @@
 #define INTERPRETER_CPP_
 
 #include "interpreter.h"
+#include "utils/utils_encoding.h"
 #include "interpreter_utils.h"
 
 #include "engine/core/char_movement.h"
@@ -259,7 +260,6 @@
 #include "gameplay/mechanics/birthplaces.h"
 #include "engine/db/help.h"
 #include "mapsystem.h"
-#include "gameplay/economics/ext_money.h"
 #include "gameplay/mechanics/noob.h"
 #include "gameplay/core/reset_stats.h"
 #include "gameplay/mechanics/obj_sets.h"
@@ -285,6 +285,7 @@
 #include "gameplay/classes/recalc_mob_params_by_vnum.h"
 #include "alias.h"
 #include "engine/db/player_index.h"
+#include "gameplay/core/remort.h"
 
 #include <ctime>
 
@@ -327,6 +328,10 @@ void DeletePcByHimself(const char *name);
 // external functions
 void read_saved_vars(CharData *ch);
 void oedit_parse(DescriptorData *d, char *arg);
+namespace vedun {  // issue.vedun-editor
+void do_vedun(CharData *ch, char *argument, int cmd, int subcmd);
+void vedun_parse(DescriptorData *d, char *arg);
+}
 void redit_parse(DescriptorData *d, char *arg);
 void zedit_parse(DescriptorData *d, char *arg);
 void medit_parse(DescriptorData *d, char *arg);
@@ -353,7 +358,6 @@ void do_horseput(CharData *ch, char *argument, int cmd, int subcmd);
 void do_horseget(CharData *ch, char *argument, int cmd, int subcmd);
 void do_horsetake(CharData *ch, char *argument, int cmd, int subcmd);
 void do_givehorse(CharData *ch, char *argument, int cmd, int subcmd);
-void DoStoreShop(CharData *ch, char *argument, int, int);
 void do_not_here(CharData *ch, char *argument, int cmd, int subcmd);
 void do_olc(CharData *ch, char *argument, int cmd, int subcmd);
 void do_report(CharData *ch, char *argument, int cmd, int subcmd);
@@ -381,6 +385,7 @@ void do_recipes(CharData *ch, char *argument, int cmd, int subcmd);
 void do_cook(CharData *ch, char *argument, int cmd, int subcmd);
 void do_forgive(CharData *ch, char *argument, int cmd, int subcmd);
 void DoTownportal(CharData *ch, char *argument, int, int);
+void DoRunestone(CharData *ch, char *argument, int, int);
 void do_dmeter(CharData *ch, char *argument, int cmd, int subcmd);
 void DoShowZoneStat(CharData *ch, char *argument, int, int);
 void do_show_mobmax(CharData *ch, char *, int, int);
@@ -446,7 +451,8 @@ cpp_extern const struct command_info cmd_info[] =
 		{"анонсы", EPosition::kDead, Boards::DoBoard, 1, Boards::NOTICE_BOARD, -1},
 
 		{"базар", EPosition::kRest, do_exchange, 1, 0, -1},
-		{"баланс", EPosition::kStand, do_not_here, 1, 0, 0},
+		{"банк", EPosition::kStand, do_specproc, 0, static_cast<int>(specials::ESpecial::kBank), -1},
+		{"баланс", EPosition::kStand, do_specword, 1, static_cast<int>(specials::ESpecial::kBank), 0},
 		{"баги", EPosition::kDead, Boards::DoBoard, 1, Boards::ERROR_BOARD, 0},
 		{"бежать", EPosition::kFight, DoFlee, 1, 0, -1},
 		{"бинтовать", EPosition::kRest, DoBandage, 0, 0, 0},
@@ -466,8 +472,9 @@ cpp_extern const struct command_info cmd_info[] =
 		{"взглянуть", EPosition::kRest, do_diagnose, 0, 0, 100},
 		{"взломать", EPosition::kStand, do_gen_door, 1, EDoorScmd::kScmdPick, -1},
 		{"вихрь", EPosition::kFight, do_iron_wind, 0, 0, -1},
-		{"вложить", EPosition::kStand, do_not_here, 1, 0, -1},
-		{"вернуть", EPosition::kStand, do_not_here, 0, 0, -1},
+		{"вклад", EPosition::kStand, do_specword, 1, static_cast<int>(specials::ESpecial::kBank), -1},
+		{"вложить", EPosition::kStand, do_specword, 1, static_cast<int>(specials::ESpecial::kBank), -1},
+		{"вернуть", EPosition::kStand, do_specword, 0, static_cast<int>(specials::ESpecial::kMail), -1},
 		{"вернуться", EPosition::kDead, DoReturn, 0, 0, -1},
 		{"войти", EPosition::kStand, DoEnter, 0, 0, -2},
 		{"война", EPosition::kRest, ClanSystem::DoShowWars, 0, 0, 0},
@@ -552,8 +559,9 @@ cpp_extern const struct command_info cmd_info[] =
 		{"имя", EPosition::kSleep, do_name, kLvlImmortal, 0, 0},
 
 		{"колдовать", EPosition::kSit, DoCast, 1, 0, -1},
-		{"казна", EPosition::kRest, do_not_here, 1, 0, 0},
+		{"казна", EPosition::kRest, do_specword, 1, static_cast<int>(specials::ESpecial::kBank), 0},
 		{"карта", EPosition::kRest, do_map, 0, 0, 0},
+		{"камень", EPosition::kSit, DoRunestone, 1, 0, -1},
 		{"клан", EPosition::kRest, ClanSystem::DoHouse, 0, 0, 0},
 		{"клич", EPosition::kFight, do_warcry, 1, 0, -1},
 		{"кодер", EPosition::kDead, Boards::DoBoard, 1, Boards::CODER_BOARD, -1},
@@ -567,18 +575,18 @@ cpp_extern const struct command_info cmd_info[] =
 		{"кто", EPosition::kRest, DoWho, 0, 0, 0},
 		{"ктодружина", EPosition::kRest, ClanSystem::DoWhoClan, 0, 0, 0},
 		{"ктоя", EPosition::kDead, DoWhoAmI, 0, 0, 0},
-		{"купить", EPosition::kStand, do_not_here, 0, 0, -1},
+		{"купить", EPosition::kStand, do_specword, 0, static_cast<int>(specials::ESpecial::kShop), -1},
 
 		{"леваярука", EPosition::kRest, do_grab, 1, 0, 300},
 		{"лечить", EPosition::kStand, DoFirstaid, 0, 0, -1},
 		{"лить", EPosition::kStand, do_pour, 0, kScmdPour, 500},
-		{"лошадь", EPosition::kStand, do_not_here, 1, 0, -1},
+		{"лошадь", EPosition::kStand, do_specproc, 1, static_cast<int>(specials::ESpecial::kHorse), -1},
 		{"лучшие", EPosition::kDead, Rating::DoBest, 0, 0, 0},
 
 		{"маскировка", EPosition::kRest, do_camouflage, 0, 0, 500},
-		{"магазины", EPosition::kDead, DoStoreShop, kLvlImmortal, 0, 0},
 		{"метнуть", EPosition::kFight, DoThrow, 0, kScmdPhysicalThrow, -1},
-		{"менять", EPosition::kStand, do_not_here, 0, 0, -1},
+		{"магазин", EPosition::kStand, do_specproc, 0, static_cast<int>(specials::ESpecial::kShop), -1},
+		{"менять", EPosition::kStand, do_specproc, 0, static_cast<int>(specials::ESpecial::kTorc), -1},
 		{"месть", EPosition::kRest, do_revenge, 0, 0, 0},
 		{"молот", EPosition::kFight, DoMighthit, 0, 0, -1},
 		{"молиться", EPosition::kStand, do_pray, 1, SCMD_PRAY, -1},
@@ -586,7 +594,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"мысл", EPosition::kDead, do_quit, 0, 0, 0},
 		{"мысль", EPosition::kDead, Boards::report_on_board, 0, Boards::SUGGEST_BOARD, 0},
 
-		{"наемник", EPosition::kStand, do_not_here, 1, 0, -1},
+		{"наемник", EPosition::kStand, do_specproc, 1, static_cast<int>(specials::ESpecial::kMercenary), -1},
 		{"наказания", EPosition::kDead, Boards::DoBoard, 1, Boards::GODPUNISH_BOARD, -1},
 		{"налить", EPosition::kStand, do_pour, 0, kScmdFill, 500},
 		{"наполнить", EPosition::kStand, do_pour, 0, kScmdFill, 500},
@@ -600,8 +608,8 @@ cpp_extern const struct command_info cmd_info[] =
 
 		{"обезоружить", EPosition::kFight, do_disarm, 0, 0, -1},
 		{"облачить", EPosition::kRest, do_wear, 0, 0, 500},
-		{"обмен", EPosition::kStand, do_not_here, 0, 0, 0},
-		{"обменять", EPosition::kStand, do_not_here, 0, 0, 0},
+		{"обмен", EPosition::kStand, do_specproc, 0, static_cast<int>(specials::ESpecial::kTorc), 0},
+		{"обменять", EPosition::kStand, do_specproc, 0, static_cast<int>(specials::ESpecial::kTorc), 0},
 		{"оглядеться", EPosition::kRest, DoLookAround, 0, 0, 0},
 		{"оглушить", EPosition::kFight, DoOverhelm, 0, 0, -1},
 		{"одеть", EPosition::kRest, do_wear, 0, 0, 500},
@@ -627,10 +635,10 @@ cpp_extern const struct command_info cmd_info[] =
 		{"отравить", EPosition::kFight, DoPoisoning, 0, 0, -1},
 		{"отринуть", EPosition::kRest, do_antigods, 1, 0, -1},
 		{"отступить", EPosition::kFight, do_retreat, 1, 0, -1},
-		{"отправить", EPosition::kStand, do_not_here, 1, 0, -1},
+		{"отправить", EPosition::kStand, do_specword, 1, static_cast<int>(specials::ESpecial::kMail), -1},
 		{"оффтоп", EPosition::kDead, do_offtop, 0, 0, -1},
 		{"ошеломить", EPosition::kStand, do_stun, 1, 0, -1},
-		{"оценить", EPosition::kStand, do_not_here, 0, 0, 500},
+		{"оценить", EPosition::kStand, do_specword, 0, static_cast<int>(specials::ESpecial::kShop), 500},
 		{"очки", EPosition::kDead, DoScore, 0, 0, 0},
 		{"очепятки", EPosition::kDead, Boards::DoBoard, 1, Boards::MISPRINT_BOARD, 0},
 		{"очистить", EPosition::kDead, do_not_here, 0, kScmdClear, -1},
@@ -641,7 +649,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"перехватить", EPosition::kFight, DoIntercept, 0, 0, -1},
 		{"перековать", EPosition::kStand, do_transform_weapon, 0, SCMD_TRANSFORMWEAPON, -1},
 		{"передать", EPosition::kStand, do_givehorse, 0, 0, -1},
-		{"перевести", EPosition::kStand, do_not_here, 1, 0, -1},
+		{"перевести", EPosition::kStand, do_specword, 1, static_cast<int>(specials::ESpecial::kBank), -1},
 		{"переместиться", EPosition::kStand, do_relocate, 1, 0, 0},
 		{"перевоплотитьс", EPosition::kStand, DoRemort, 0, 0, -1},
 		{"перевоплотиться", EPosition::kStand, DoRemort, 0, 1, -1},
@@ -661,20 +669,20 @@ cpp_extern const struct command_info cmd_info[] =
 		{"переделать", EPosition::kRest, DoFit, 0, kScmdDoAdapt, 500},
 		{"подсмотреть", EPosition::kRest, DoLook, 0, kScmdLookHide, 0},
 		{"положить", EPosition::kRest, do_put, 0, 0, 400},
-		{"получить", EPosition::kStand, do_not_here, 1, 0, -1},
+		{"получить", EPosition::kStand, do_receive, 1, 0, -1},
 		{"политика", EPosition::kSleep, ClanSystem::DoShowPolitics, 0, 0, 0},
 		{"помочь", EPosition::kFight, do_assist, 1, 0, -1},
 		{"помощь", EPosition::kDead, do_help, 0, 0, 0},
 		{"пометить", EPosition::kDead, do_mark, kLvlImplementator, 0, 0},
 		{"порез", EPosition::kFight, DoExpedientCut, 0, 0, -1},
-		{"поселиться", EPosition::kStand, do_not_here, 1, 0, -1},
-		{"постой", EPosition::kStand, do_not_here, 1, 0, -1},
-		{"почта", EPosition::kStand, do_not_here, 1, 0, -1},
+		{"поселиться", EPosition::kStand, do_specword, 1, static_cast<int>(specials::ESpecial::kRent), -1},
+		{"постой", EPosition::kStand, do_specword, 1, static_cast<int>(specials::ESpecial::kRent), -1},
+		{"почта", EPosition::kStand, do_specproc, 1, static_cast<int>(specials::ESpecial::kMail), -1},
 		{"пополнить", EPosition::kStand, do_refill, 0, 0, 300},
 		{"поручения", EPosition::kRest, do_quest, 1, 0, -1},
 		{"появиться", EPosition::kRest, do_visible, 1, 0, -1},
 		{"правила", EPosition::kDead, DoGenericPage, 0, kScmdPolicies, 0},
-		{"предложение", EPosition::kStand, do_not_here, 1, 0, 500},
+		{"предложение", EPosition::kStand, do_specword, 1, static_cast<int>(specials::ESpecial::kRent), 500},
 		//{"призвать", EPosition::kStand, do_summon, 1, 0, -1},
 		{"приказ", EPosition::kRest, do_order, 1, 0, -1},
 		{"привязать", EPosition::kRest, do_horseput, 0, 0, 500},
@@ -691,8 +699,8 @@ cpp_extern const struct command_info cmd_info[] =
 		{"простить", EPosition::kRest, do_forgive, 0, 0, 0},
 		{"пробовать", EPosition::kRest, do_eat, 0, kScmdTaste, 300},
 		{"сожрать", EPosition::kRest, do_eat, 0, kScmdDevour, 300},
-		{"продать", EPosition::kStand, do_not_here, 0, 0, -1},
-		{"фильтровать", EPosition::kStand, do_not_here, 0, 0, -1},
+		{"продать", EPosition::kStand, do_specword, 0, static_cast<int>(specials::ESpecial::kShop), -1},
+		{"фильтровать", EPosition::kStand, do_specword, 0, static_cast<int>(specials::ESpecial::kShop), -1},
 		{"прыжок", EPosition::kSleep, DoGoto, kLvlGod, 0, 0},
 
 		{"разбудить", EPosition::kRest, do_wake, 0, kScmdWakeUp, -1},
@@ -701,7 +709,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"разделы", EPosition::kRest, do_help, 1, 0, 500},
 		{"разжечь", EPosition::kStand, DoCampfire, 0, 0, -1},
 		{"распустить", EPosition::kDead, do_ungroup, 0, 0, 500},
-		{"рассмотреть", EPosition::kStand, do_not_here, 0, 0, -1},
+		{"рассмотреть", EPosition::kStand, do_specword, 0, static_cast<int>(specials::ESpecial::kShop), -1},
 		{"рассчитать", EPosition::kRest, DoFreehelpee, 0, 0, -1},
 		{"режим", EPosition::kDead, DoMode, 0, 0, 0},
 		{"ремонт", EPosition::kRest, DoRepair, 0, 0, -1},
@@ -710,6 +718,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"руны", EPosition::kFight, do_mixture, 0, SCMD_RUNES, -1},
 
 		{"сбить", EPosition::kFight, do_bash, 1, 0, -1},
+		{"сальдо", EPosition::kStand, do_specword, 1, static_cast<int>(specials::ESpecial::kBank), -1},
 		{"свойства", EPosition::kStand, do_not_here, 0, 0, -1},
 		{"сгруппа", EPosition::kSleep, do_gsay, 0, 0, -1},
 		{"сглазить", EPosition::kFight, do_manadrain, 0, 0, -1},
@@ -736,7 +745,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"спать", EPosition::kSleep, do_sleep, 0, 0, -1},
 		{"спасти", EPosition::kFight, do_rescue, 1, 0, -1},
 		{"способности", EPosition::kSleep, DoFeatures, 0, 0, 0},
-		{"список", EPosition::kStand, do_not_here, 0, 0, -1},
+		{"список", EPosition::kStand, do_specword, 0, static_cast<int>(specials::ESpecial::kShop), -1},
 		{"справка", EPosition::kDead, do_help, 0, 0, 0},
 		{"спросить", EPosition::kRest, do_spec_comm, 0, kScmdAsk, -1},
 		{"сбросить", EPosition::kRest, dungeons::DoDungeonReset, kLvlImplementator, 0, -1},
@@ -765,11 +774,11 @@ cpp_extern const struct command_info cmd_info[] =
 		{"умения", EPosition::kSleep, DoSkills, 0, 0, 0},
 		{"уровень", EPosition::kDead, DoScore, 0, 0, 0},
 		{"уровни", EPosition::kDead, do_levels, 0, 0, 0},
-		{"учить", EPosition::kStand, do_not_here, 0, 0, -1},
+		{"учить", EPosition::kStand, do_specproc, 0, static_cast<int>(specials::ESpecial::kGuild), -1},
 		{"хранилище", EPosition::kDead, ClanSystem::DoStoreHouse, 0, 0, 0},
-		{"характеристики", EPosition::kStand, do_not_here, 0, 0, -1},
+		{"характеристики", EPosition::kStand, do_specword, 0, static_cast<int>(specials::ESpecial::kShop), -1},
 		{"кланстаф", EPosition::kStand, ClanSystem::do_clanstuff, 0, 0, 0},
-		{"чинить", EPosition::kStand, do_not_here, 0, 0, -1},
+		{"чинить", EPosition::kStand, do_specword, 0, static_cast<int>(specials::ESpecial::kShop), -1},
 		{"читать", EPosition::kRest, DoLook, 0, kScmdRead, 200},
 		{"шептать", EPosition::kRest, do_spec_comm, 0, kScmdWhisper, -1},
 		{"экипировка", EPosition::kSleep, DoEquipment, 0, 0, 0},
@@ -795,17 +804,18 @@ cpp_extern const struct command_info cmd_info[] =
 		{"auction", EPosition::kRest, do_gen_comm, 0, kScmdAuction, -1},
 		{"arenarestore", EPosition::kSleep, DoArenaRestore, kLvlGod, 0, 0},
 		{"backstab", EPosition::kStand, DoBackstab, 1, 0, 1},
-		{"balance", EPosition::kStand, do_not_here, 1, 0, -1},
+		{"bank", EPosition::kStand, do_specproc, 0, static_cast<int>(specials::ESpecial::kBank), -1},
+		{"balance", EPosition::kStand, do_specword, 1, static_cast<int>(specials::ESpecial::kBank), -1},
 		{"ban", EPosition::kDead, do_ban, kLvlGreatGod, 0, 0},
 		{"bash", EPosition::kFight, do_bash, 1, 0, -1},
 		{"beep", EPosition::kDead, do_beep, kLvlImmortal, 0, 0},
 		{"block", EPosition::kFight, do_block, 0, 0, -1},
 		{"bug", EPosition::kDead, Boards::report_on_board, 0, Boards::ERROR_BOARD, 0},
-		{"buy", EPosition::kStand, do_not_here, 0, 0, -1},
+		{"buy", EPosition::kStand, do_specword, 0, static_cast<int>(specials::ESpecial::kShop), -1},
 		{"best", EPosition::kDead, Rating::DoBest, 0, 0, 0},
 		{"cast", EPosition::kSit, DoCast, 1, 0, -1},
 		{"charge", EPosition::kStand, DoCharge, 0, 0, 0},
-		{"check", EPosition::kStand, do_not_here, 1, 0, -1},
+		{"check", EPosition::kStand, do_specword, 1, static_cast<int>(specials::ESpecial::kMail), -1},
 		{"chopoff", EPosition::kFight, do_chopoff, 0, 0, 500},
 		{"clear", EPosition::kDead, DoGenericPage, 0, kScmdClear, 0},
 		{"close", EPosition::kSit, do_gen_door, 0, kScmdClose, 500},
@@ -816,7 +826,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"date", EPosition::kDead, DoPageDateTime, kLvlImmortal, kScmdDate, 0},
 		{"dazzle", EPosition::kFight, DoDazzle, 1, 0, -1},
 		{"dc", EPosition::kDead, DoDropConnect, kLvlGreatGod, 0, 0},
-		{"deposit", EPosition::kStand, do_not_here, 1, 0, 500},
+		{"deposit", EPosition::kStand, do_specword, 1, static_cast<int>(specials::ESpecial::kBank), 500},
 		{"deviate", EPosition::kFight, DoDeviate, 0, 0, -1},
 		{"diagnose", EPosition::kRest, do_diagnose, 0, 0, 500},
 		{"dig", EPosition::kStand, do_dig, 0, 0, -1},
@@ -866,7 +876,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"hit", EPosition::kFight, DoHit, 0, kScmdHit, -1},
 		{"hold", EPosition::kRest, do_grab, 1, 0, 500},
 		{"holler", EPosition::kRest, do_gen_comm, 1, kScmdHoller, -1},
-		{"horse", EPosition::kStand, do_not_here, 0, 0, -1},
+		{"horse", EPosition::kStand, do_specproc, 0, static_cast<int>(specials::ESpecial::kHorse), -1},
 		{"house", EPosition::kRest, ClanSystem::DoHouse, 0, 0, 0},
 		{"huk", EPosition::kFight, DoMighthit, 0, 0, -1},
 		{"idea", EPosition::kDead, Boards::DoBoard, 1, Boards::IDEA_BOARD, 0},
@@ -883,14 +893,14 @@ cpp_extern const struct command_info cmd_info[] =
 		{"kill", EPosition::kFight, DoKill, 0, 0, -1},
 		{"last", EPosition::kDead, DoPageLastLogins, kLvlGod, 0, 0},
 		{"levels", EPosition::kDead, do_levels, 0, 0, 0},
-		{"list", EPosition::kStand, do_not_here, 0, 0, -1},
+		{"list", EPosition::kStand, do_specword, 0, static_cast<int>(specials::ESpecial::kShop), -1},
 		{"load", EPosition::kDead, DoLoad, 0, 0, 0},
 		{"loadstat", EPosition::kDead, DoLoadstat, kLvlImplementator, 0, 0},
 		{"look", EPosition::kRest, DoLook, 0, kScmdLook, 200},
 		{"lock", EPosition::kSit, do_gen_door, 0, kScmdLock, 500},
 		{"map", EPosition::kRest, do_map, 0, 0, 0},
-		{"mail", EPosition::kStand, do_not_here, 1, 0, -1},
-		{"mercenary", EPosition::kStand, do_not_here, 1, 0, -1},
+		{"mail", EPosition::kStand, do_specword, 1, static_cast<int>(specials::ESpecial::kMail), -1},
+		{"mercenary", EPosition::kStand, do_specproc, 1, static_cast<int>(specials::ESpecial::kMercenary), -1},
 		{"mode", EPosition::kDead, DoMode, 0, 0, 0},
 		{"mshout", EPosition::kRest, do_mobshout, 0, 0, -1},
 		{"motd", EPosition::kDead, DoGenericPage, 0, kScmdMotd, 0},
@@ -906,7 +916,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"objfind", EPosition::kStand, DoFindObjByRnum, kLvlImplementator, 0, 0},
 		{"odelete", EPosition::kStand, DoDeleteObj, kLvlImplementator, 0, 0},
 		{"oedit", EPosition::kDead, do_olc, 0, kScmdOlcOedit, 0},
-		{"offer", EPosition::kStand, do_not_here, 1, 0, 0},
+		{"offer", EPosition::kStand, do_specword, 1, static_cast<int>(specials::ESpecial::kRent), 0},
 		{"olc", EPosition::kDead, do_olc, kLvlGod, kScmdOlcSaveinfo, 0},
 		{"open", EPosition::kSit, do_gen_door, 0, kScmdOpen, 500},
 		{"order", EPosition::kRest, do_order, 1, 0, -1},
@@ -919,7 +929,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"poofin", EPosition::kDead, DoSetPoofMsg, kLvlGod, kScmdPoofin, 0},
 		{"poofout", EPosition::kDead, DoSetPoofMsg, kLvlGod, kScmdPoofout, 0},
 		{"pour", EPosition::kStand, do_pour, 0, kScmdPour, -1},
-		{"practice", EPosition::kStand, do_not_here, 0, 0, -1},
+		{"practice", EPosition::kStand, do_specproc, 0, static_cast<int>(specials::ESpecial::kGuild), -1},
 		{"prompt", EPosition::kDead, do_display, 0, 0, 0},
 		{"profile", EPosition::kDead, do_profile, kLvlImmortal, 0, 0},
 		{"proxy", EPosition::kDead, do_proxy, kLvlGreatGod, 0, 0},
@@ -930,7 +940,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"qui", EPosition::kSleep, do_quit, 0, 0, 0},
 		{"quit", EPosition::kSleep, do_quit, 0, kScmdQuit, -1},
 		{"read", EPosition::kRest, DoLook, 0, kScmdRead, 200},
-		{"receive", EPosition::kStand, do_not_here, 1, 0, -1},
+		{"receive", EPosition::kStand, do_specword, 1, static_cast<int>(specials::ESpecial::kMail), -1},
 		{"recipes", EPosition::kRest, do_recipes, 0, 0, 0},
 		{"recite", EPosition::kRest, do_employ, 0, SCMD_RECITE, 500},
 		{"redit", EPosition::kDead, do_olc, 0, kScmdOlcRedit, 0},
@@ -938,7 +948,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"unregister", EPosition::kDead, DoWizutil, kLvlImmortal, kScmdUnregister, 0},
 		{"reload", EPosition::kDead, DoReload, kLvlImplementator, 0, 0},
 		{"remove", EPosition::kRest, do_remove, 0, 0, 500},
-		{"rent", EPosition::kStand, do_not_here, 1, 0, -1},
+		{"rent", EPosition::kStand, do_specword, 1, static_cast<int>(specials::ESpecial::kRent), -1},
 		{"reply", EPosition::kRest, do_reply, 0, 0, -1},
 		{"report", EPosition::kRest, do_report, 0, 0, -1},
 		{"reroll", EPosition::kDead, DoWizutil, kLvlGreatGod, kScmdReroll, 0},
@@ -953,11 +963,12 @@ cpp_extern const struct command_info cmd_info[] =
 		{"say", EPosition::kRest, do_say, 0, 0, -1},
 		{"scan", EPosition::kRest, DoLookAround, 0, 0, 500},
 		{"score", EPosition::kDead, DoScore, 0, 0, 0},
-		{"sell", EPosition::kStand, do_not_here, 0, 0, -1},
+		{"shop", EPosition::kStand, do_specproc, 0, static_cast<int>(specials::ESpecial::kShop), -1},
+		{"sell", EPosition::kStand, do_specword, 0, static_cast<int>(specials::ESpecial::kShop), -1},
 		{"send", EPosition::kSleep, DoSendMsgToChar, kLvlGreatGod, 0, 0},
 		{"sense", EPosition::kStand, do_sense, 0, 0, 500},
 		{"set", EPosition::kDead, DoSet, kLvlImmortal, 0, 0},
-		{"settle", EPosition::kStand, do_not_here, 1, 0, -1},
+		{"settle", EPosition::kStand, do_specword, 1, static_cast<int>(specials::ESpecial::kRent), -1},
 		{"shout", EPosition::kRest, do_gen_comm, 0, kScmdShout, -1},
 		{"show", EPosition::kDead, do_show, kLvlImmortal, 0, 0},
 		{"shutdown", EPosition::kDead, DoShutdown, kLvlImplementator, 0, 0},
@@ -976,6 +987,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"stand", EPosition::kRest, do_stand, 0, 0, -1},
 		{"stat", EPosition::kDead, do_stat, 0, 0, 0},
 		{"steal", EPosition::kStand, do_steal, 1, 0, 300},
+		{"stone", EPosition::kSit, DoRunestone, 1, 0, -1},
 		{"strangle", EPosition::kFight, do_strangle, 0, 0, -1},
 		{"stupor", EPosition::kFight, DoOverhelm, 0, 0, -1},
 		{"switch", EPosition::kDead, DoSwitch, kLvlGreatGod, 0, 0},
@@ -995,7 +1007,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"title", EPosition::kDead, TitleSystem::do_title, 0, 0, 0},
 		{"touch", EPosition::kFight, DoIntercept, 0, 0, -1},
 		{"track", EPosition::kStand, do_track, 0, 0, -1},
-		{"transfer", EPosition::kStand, do_not_here, 1, 0, -1},
+		{"transfer", EPosition::kStand, do_specword, 1, static_cast<int>(specials::ESpecial::kBank), -1},
 		{"trigedit", EPosition::kDead, do_olc, 0, kScmdOlcTrigedit, 0},
 		{"turn undead", EPosition::kRest, do_turn_undead, 0, 0, -1},
 		{"typo", EPosition::kDead, Boards::report_on_board, 0, Boards::MISPRINT_BOARD, 0},
@@ -1007,7 +1019,8 @@ cpp_extern const struct command_info cmd_info[] =
 		{"uptime", EPosition::kDead, DoPageDateTime, kLvlImmortal, kScmdUptime, 0},
 		{"use", EPosition::kSit, do_employ, 1, SCMD_USE, 500},
 		{"users", EPosition::kDead, do_users, kLvlImmortal, 0, 0},
-		{"value", EPosition::kStand, do_not_here, 0, 0, -1},
+		{"value", EPosition::kStand, do_specword, 0, static_cast<int>(specials::ESpecial::kShop), -1},
+		{"vedun", EPosition::kDead, vedun::do_vedun, kLvlImplementator, 0, 0},
 		{"version", EPosition::kDead, DoGenericPage, 0, kScmdVersion, 0},
 		{"visible", EPosition::kRest, do_visible, 1, 0, -1},
 		{"vnum", EPosition::kDead, DoTabulate, kLvlGreatGod, 0, 0},
@@ -1024,7 +1037,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"whoami", EPosition::kDead, DoWhoAmI, 0, 0, 0},
 		{"wield", EPosition::kRest, do_wield, 0, 0, 500},
 		{"wimpy", EPosition::kDead, do_wimpy, 0, 0, 0},
-		{"withdraw", EPosition::kStand, do_not_here, 1, 0, -1},
+		{"withdraw", EPosition::kStand, do_specword, 1, static_cast<int>(specials::ESpecial::kBank), -1},
 		{"wizhelp", EPosition::kSleep, do_commands, kLvlImmortal, kScmdWizhelp, 0},
 		{"wizlock", EPosition::kDead, DoWizlock, kLvlImplementator, 0, 0},
 		{"wiznet", EPosition::kDead, do_wiznet, kLvlImmortal, 0, 0},
@@ -1120,6 +1133,29 @@ bool check_frozen_cmd(CharData * /*ch*/, int cmd) {
  * It makes sure you are the proper level and position to execute the command,
  * then calls the appropriate function.
  */
+namespace { int s_specproc_fnum = 1; }
+int GetSpecprocFnum() { return s_specproc_fnum; }
+
+// Bare spec-proc action words (список/продать/...) route here: the command word IS the action, so we
+// prepend it to the argument and run it through the room carrier -- a player at a shop can just type
+// "список" instead of "магазин список", and gets the carrier's reply, not "command not available".
+void do_specword(CharData *ch, char *argument, int cmd, int subcmd) {
+	char line[kMaxInputLength];
+	snprintf(line, sizeof(line), "%s %s", cmd_info[cmd].command, argument);
+	specials::RunSpecCommand(ch, static_cast<specials::ESpecial>(subcmd), line);
+}
+
+// "получить" is claimed by both the bank (withdraw) and the post office (receive); when both could
+// apply we prefer the bank (банк получить / почта получить are always unambiguous).
+void do_receive(CharData *ch, char *argument, int cmd, int /*subcmd*/) {
+	char line[kMaxInputLength];
+	snprintf(line, sizeof(line), "%s %s", cmd_info[cmd].command, argument);
+	const auto target = specials::IsMobSpecialInRoom(ch->in_room, specials::ESpecial::kBank)
+		? specials::ESpecial::kBank
+		: specials::ESpecial::kMail;
+	specials::RunSpecCommand(ch, target, line);
+}
+
 void command_interpreter(CharData *ch, char *argument) {
 	int cmd, social = false, hardcopy = false;
 	char *line;
@@ -1170,7 +1206,7 @@ void command_interpreter(CharData *ch, char *argument) {
 		&& !AFF_FLAGGED(ch, EAffect::kHold)
 		&& !AFF_FLAGGED(ch, EAffect::kStopFight)
 		&& !AFF_FLAGGED(ch, EAffect::kMagicStopFight)
-		&& !(ch->IsGod() && !strcmp(arg, "invis")))  // let immortals switch to wizinvis to avoid broken command triggers
+		&& !(privilege::IsGod(ch) && !strcmp(arg, "invis")))  // let immortals switch to wizinvis to avoid broken command triggers
 	{
 		int cont;    // continue the command checks
 		cont = command_wtrigger(ch, arg, line);
@@ -1211,8 +1247,8 @@ void command_interpreter(CharData *ch, char *argument) {
 			return;
 		}
 	}
-	if (!is_head(ch->get_name())
-		&& ((!ch->IsNpc() && (GET_FREEZE_LEV(ch) > GetRealLevel(ch))
+	if (!privilege::IsOwner(ch)
+		&& ((!ch->IsNpc() && (punishments::Get(ch, punishments::EType::kFreeze).level > GetRealLevel(ch))
 			&& (ch->IsFlagged(EPlrFlag::kFrozen)))
 			|| AFF_FLAGGED(ch, EAffect::kHold)
 			|| AFF_FLAGGED(ch, EAffect::kStopFight)
@@ -1259,6 +1295,7 @@ void command_interpreter(CharData *ch, char *argument) {
 		do_social(ch, argument);
 	} else if (no_specials || !special(ch, cmd, line, fnum)) {
 		check_hiding_cmd(ch, cmd_info[cmd].unhide_percent);
+		s_specproc_fnum = fnum;
 		(*cmd_info[cmd].command_pointer)(ch, line, cmd, cmd_info[cmd].subcmd);
 		if (ch->purged()) {
 			return;
@@ -1342,7 +1379,7 @@ int find_command(const char *command) {
 }
 
 // int fnum - номер найденного в комнате спешиал-моба, для обработки нескольких спешиал-мобов в одной комнате //
-int special(CharData *ch, int cmd, char *argument, int fnum) {
+int special(CharData *ch, int cmd, char *argument, int /*fnum*/) {
 	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kHouse)) {
 		const auto clan = Clan::GetClanByRoom(ch->in_room);
 		if (!clan) {
@@ -1379,15 +1416,7 @@ int special(CharData *ch, int cmd, char *argument, int fnum) {
 		}
 	}
 
-	// special in mobile present? //
-	int specialNum = 1; //если номер не указан - по умолчанию берется первый
-	for (const auto k : world[ch->in_room]->people) {
-		if (GET_MOB_SPEC(k) != nullptr && (fnum == 1 || fnum == specialNum++)
-			&& GET_MOB_SPEC(k)(ch, k, cmd, argument)) {
-			check_hiding_cmd(ch, -1);
-			return (1);
-		}
-	}
+	// (mob spec procs are data-driven now -- dispatched via do_specproc, not special(); see spec_assign)
 
 	// special in object present? //
 	for (auto i : world[ch->in_room]->contents) {
@@ -1634,7 +1663,7 @@ int pre_help(CharData *ch, char *argument) {
 //   4. Нет proxy записи - проверяем регистрацию персонажа/email
 //   5. Не зарегистрирован - в комнату незарегов
 int check_dupes_host(DescriptorData *d, bool autocheck) {
-	if (!d->character || d->character->IsImmortal() || d->character->desc->original) {
+	if (!d->character || privilege::IsImmortal(d->character.get()) || d->character->desc->original) {
 		return 1;
 	}
 
@@ -1677,7 +1706,7 @@ int check_dupes_host(DescriptorData *d, bool autocheck) {
 	}
 
 	for (auto *i = descriptor_list; i; i = i->next) {
-		if (i != d && i->ip == d->ip && i->character && !i->character->IsImmortal()
+		if (i != d && i->ip == d->ip && i->character && !privilege::IsImmortal(i->character.get())
 			&& (i->state == EConState::kPlaying || i->state == EConState::kMenu)) {
 			SendMsgToChar(d->character.get(),
 						  "&RВы вошли с игроком %s с одного IP(%s)!\r\n"
@@ -1698,7 +1727,7 @@ int check_dupes_host(DescriptorData *d, bool autocheck) {
 
 int check_dupes_email(DescriptorData *d) {
 	if (!d->character
-		|| d->character->IsImmortal()) {
+		|| privilege::IsImmortal(d->character.get())) {
 		return (1);
 	}
 
@@ -1708,7 +1737,7 @@ int check_dupes_email(DescriptorData *d) {
 			continue;
 		}
 
-		if (!ch->IsImmortal()
+		if (!privilege::IsImmortal(ch.get())
 			&& (!str_cmp(GET_EMAIL(ch), GET_EMAIL(d->character)))) {
 			sprintf(buf, "Персонаж с таким email уже находится в игре, вы не можете войти одновременно с ним!");
 			SendMsgToChar(buf, d->character.get());
@@ -1922,7 +1951,7 @@ void do_entergame(DescriptorData *d) {
 	// Check & remove/add natural, race & unavailable features
 	UnsetInaccessibleFeats(d->character.get());
 	SetInbornAndRaceFeats(d->character.get());
-	if (!d->character->IsImmortal()) {
+	if (!privilege::IsImmortal(d->character.get())) {
 		for (const auto &skill : MUD::Skills()) {
 			if (MUD::Class((d->character)->GetClass()).skills[skill.GetId()].IsInvalid()) {
 				d->character->set_skill(skill.GetId(), 0);
@@ -1944,7 +1973,7 @@ void do_entergame(DescriptorData *d) {
 	d->character->remove_affect(EAffect::kGroup);
 	d->character->remove_affect(EAffect::kHorse);
 
-	d->character->DeleteIrrelevantRunestones();
+	DeleteIrrelevantRunestones(d->character.get());
 
 	// with the copyover patch, this next line goes in enter_player_game()
 	chardata_by_uid[d->character->get_uid()] = d->character.get();
@@ -2023,7 +2052,7 @@ void do_entergame(DescriptorData *d) {
 	act("$n вступил$g в игру.", true, d->character.get(), nullptr, nullptr, kToRoom);
 	affect_total(d->character.get());
 	CheckLight(d->character.get(), kLightNo, kLightNo, kLightNo, kLightNo, 0);
-	look_at_room(d->character.get(), false);
+	sight::look_at_room(d->character.get(), false);
 
 	if (new_char) {
 		SendMsgToChar("\r\nВоспользуйтесь командой НОВИЧОК для получения вводной информации игроку.\r\n",
@@ -2243,7 +2272,7 @@ void init_char(CharData *ch, PlayerIndexElement &element) {
 	ch->real_abils.size = 50;
 
 	for (i = 0; i < 3; i++) {
-		GET_COND(ch, i) = (GetRealLevel(ch) == kLvlImplementator ? -1 : i == DRUNK ? 0 : 24);
+		GET_COND(ch, i) = (GetRealLevel(ch) == kLvlImplementator ? -1 : i == condition::kDrunk ? 0 : 24);
 	}
 	ch->player_specials->saved.LastIP[0] = 0;
 	//	GET_LOADROOM(ch) = start_room;
@@ -2425,6 +2454,9 @@ void nanny(DescriptorData *d, char *argument) {
 		case EConState::kMredit: mredit_parse(d, argument);
 			break;
 
+		case EConState::kVedun: vedun::vedun_parse(d, argument);
+			break;
+
 		case EConState::kClanedit: d->clan_olc->clan->Manage(d, argument);
 			break;
 
@@ -2447,9 +2479,6 @@ void nanny(DescriptorData *d, char *argument) {
 			break;
 
 		case EConState::kMapMenu: d->map_options->parse_menu(d->character.get(), argument);
-			break;
-
-		case EConState::kTorcExch: ExtMoney::torc_exch_parse(d->character.get(), argument);
 			break;
 
 		case EConState::kSedit: {
@@ -2544,7 +2573,7 @@ void nanny(DescriptorData *d, char *argument) {
 					} else if (!IsNameOffline(tmp_name)) {
 						player_i = LoadPlayerCharacter(tmp_name, d->character.get(), ELoadCharFlags::kFindId);
 						d->character->set_pfilepos(player_i);
-						if (d->character->IsImmortal() || d->character->IsFlagged(EPrf::kCoderinfo)) {
+						if (privilege::IsImmortal(d->character.get()) || d->character->IsFlagged(EPrf::kCoderinfo)) {
 							iosystem::write_to_output("Игрок с подобным именем является БЕССМЕРТНЫМ в игре.\r\n", d);
 						} else {
 							iosystem::write_to_output("Игрок с подобным именем находится в игре.\r\n", d);
@@ -2575,15 +2604,15 @@ void nanny(DescriptorData *d, char *argument) {
 
 						CreateChar(d);
 						d->character->SetCharAliases(utils::CAP(tmp_name));
-						d->character->player_data.PNames[ECase::kNom] = std::string(utils::CAP(tmp_name));
+						d->character->player_data.PNames[grammar::ECase::kNom] = std::string(utils::CAP(tmp_name));
 						d->character->set_pfilepos(player_i);
 						sprintf(buffer, "Вы действительно выбрали имя %s [ Y(Д) / N(Н) ]? ", tmp_name);
-						log("New player %s ip %s", d->character->player_data.PNames[ECase::kNom].c_str(), d->host);
+						log("New player %s ip %s", d->character->player_data.PNames[grammar::ECase::kNom].c_str(), d->host);
 						iosystem::write_to_output(buffer, d);
 						d->state = EConState::kNameConfirm;
 					} else    // undo it just in case they are set
 					{
-						if (d->character->IsImmortal() || d->character->IsFlagged(EPrf::kCoderinfo)) {
+						if (privilege::IsImmortal(d->character.get()) || d->character->IsFlagged(EPrf::kCoderinfo)) {
 							iosystem::write_to_output("Игрок с подобным именем является БЕССМЕРТНЫМ в игре.\r\n", d);
 							iosystem::write_to_output("Во избежание недоразумений введите пару ИМЯ ПАРОЛЬ.\r\n", d);
 							iosystem::write_to_output("Имя и пароль через пробел : ", d);
@@ -2621,10 +2650,10 @@ void nanny(DescriptorData *d, char *argument) {
 					}
 
 					d->character->SetCharAliases(utils::CAP(tmp_name));
-					d->character->player_data.PNames[ECase::kNom] = std::string(utils::CAP(tmp_name));
+					d->character->player_data.PNames[grammar::ECase::kNom] = std::string(utils::CAP(tmp_name));
 					iosystem::write_to_output(name_rules, d);
 					sprintf(buffer, "Вы действительно выбрали имя  %s [ Y(Д) / N(Н) ]? ", tmp_name);
-					log("New player %s ip %s", d->character->player_data.PNames[ECase::kNom].c_str(), d->host);
+					log("New player %s ip %s", d->character->player_data.PNames[grammar::ECase::kNom].c_str(), d->host);
 					iosystem::write_to_output(buffer, d);
 					d->state = EConState::kNameConfirm;
 				}
@@ -2726,7 +2755,7 @@ void nanny(DescriptorData *d, char *argument) {
 			}
 
 			d->character->SetCharAliases(utils::CAP(tmp_name));
-			d->character->player_data.PNames[ECase::kNom] = std::string(utils::CAP(tmp_name));
+			d->character->player_data.PNames[grammar::ECase::kNom] = std::string(utils::CAP(tmp_name));
 			if (is_player_deleted) {
 				d->character->set_pfilepos(player_i);
 			}
@@ -3120,7 +3149,7 @@ void nanny(DescriptorData *d, char *argument) {
 			switch (*argument) {
 				case '0': iosystem::write_to_output("\r\nДо встречи на земле Киевской.\r\n", d);
 
-					if (GetRealRemort(d->character) == 0
+					if (remort::GetRealRemort(d->character) == 0
 						&& GetRealLevel(d->character) <= 25
 						&& !d->character->IsFlagged(EPlrFlag::kNoDelete)) {
 						int timeout = -1;
@@ -3185,7 +3214,7 @@ void nanny(DescriptorData *d, char *argument) {
 					break;
 
 				case '5':
-					if (d->character->IsImmortal()) {
+					if (privilege::IsImmortal(d->character.get())) {
 						iosystem::write_to_output("\r\nБоги бессмертны (с) Стрибог, просите чтоб пофризили :)))\r\n", d);
 						iosystem::write_to_output(MENU, d);
 						break;
@@ -3198,7 +3227,7 @@ void nanny(DescriptorData *d, char *argument) {
 						break;
 					}
 
-					if (GetRealRemort(d->character) > 5) {
+					if (remort::GetRealRemort(d->character) > 5) {
 						iosystem::write_to_output("\r\nНельзя удалить себя достигнув шестого перевоплощения.\r\n", d);
 						iosystem::write_to_output(MENU, d);
 						break;
@@ -3210,7 +3239,7 @@ void nanny(DescriptorData *d, char *argument) {
 					break;
 
 				case '6':
-					if (d->character->IsImmortal()) {
+					if (privilege::IsImmortal(d->character.get())) {
 						iosystem::write_to_output("\r\nВам это ни к чему...\r\n", d);
 						iosystem::write_to_output(MENU, d);
 						d->state = EConState::kMenu;
@@ -3310,7 +3339,7 @@ void nanny(DescriptorData *d, char *argument) {
 				&& !strn_cmp(tmp_name,
 							 GET_PC_NAME(d->character),
 							 std::min<size_t>(kMinNameLength, strlen(GET_PC_NAME(d->character)) - 1))) {
-				d->character->player_data.PNames[ECase::kGen] = std::string(utils::CAP(tmp_name));
+				d->character->player_data.PNames[grammar::ECase::kGen] = std::string(utils::CAP(tmp_name));
 				GetCase(GET_PC_NAME(d->character), d->character->get_sex(), 2, tmp_name);
 				sprintf(buffer, "Имя в дательном падеже (отправить КОМУ?) [%s]: ", tmp_name);
 				iosystem::write_to_output(buffer, d);
@@ -3335,7 +3364,7 @@ void nanny(DescriptorData *d, char *argument) {
 				&& !strn_cmp(tmp_name,
 							 GET_PC_NAME(d->character),
 							 std::min<size_t>(kMinNameLength, strlen(GET_PC_NAME(d->character)) - 1))) {
-				d->character->player_data.PNames[ECase::kDat] = std::string(utils::CAP(tmp_name));
+				d->character->player_data.PNames[grammar::ECase::kDat] = std::string(utils::CAP(tmp_name));
 				GetCase(GET_PC_NAME(d->character), d->character->get_sex(), 3, tmp_name);
 				sprintf(buffer, "Имя в винительном падеже (ударить КОГО?) [%s]: ", tmp_name);
 				iosystem::write_to_output(buffer, d);
@@ -3360,7 +3389,7 @@ void nanny(DescriptorData *d, char *argument) {
 				&& !strn_cmp(tmp_name,
 							 GET_PC_NAME(d->character),
 							 std::min<size_t>(kMinNameLength, strlen(GET_PC_NAME(d->character)) - 1))) {
-				d->character->player_data.PNames[ECase::kAcc] = std::string(utils::CAP(tmp_name));
+				d->character->player_data.PNames[grammar::ECase::kAcc] = std::string(utils::CAP(tmp_name));
 				GetCase(GET_PC_NAME(d->character), d->character->get_sex(), 4, tmp_name);
 				sprintf(buffer, "Имя в творительном падеже (сражаться с КЕМ?) [%s]: ", tmp_name);
 				iosystem::write_to_output(buffer, d);
@@ -3382,7 +3411,7 @@ void nanny(DescriptorData *d, char *argument) {
 						  GET_PC_NAME(d->character),
 						  std::min<size_t>(kMinNameLength, strlen(GET_PC_NAME(d->character)) - 1))
 				) {
-				d->character->player_data.PNames[ECase::kIns] = std::string(utils::CAP(tmp_name));
+				d->character->player_data.PNames[grammar::ECase::kIns] = std::string(utils::CAP(tmp_name));
 				GetCase(GET_PC_NAME(d->character), d->character->get_sex(), 5, tmp_name);
 				sprintf(buffer, "Имя в предложном падеже (говорить о КОМ?) [%s]: ", tmp_name);
 				iosystem::write_to_output(buffer, d);
@@ -3404,7 +3433,7 @@ void nanny(DescriptorData *d, char *argument) {
 						  GET_PC_NAME(d->character),
 						  std::min<size_t>(kMinNameLength, strlen(GET_PC_NAME(d->character)) - 1))
 				) {
-				d->character->player_data.PNames[ECase::kPre] = std::string(utils::CAP(tmp_name));
+				d->character->player_data.PNames[grammar::ECase::kPre] = std::string(utils::CAP(tmp_name));
 				sprintf(buffer,
 						"Введите пароль для %s (не вводите пароли типа '123' или 'qwe', иначе ваших персонажев могут украсть) : ",
 						GET_PAD(d->character, 1));
@@ -3711,7 +3740,7 @@ std::string GetNameByUnique(long unique, bool god) {
 // замена в name русских символов на англ в нижнем регистре (для файлов)
 void CreateFileName(std::string &name) {
 	for (unsigned i = 0; i != name.length(); ++i)
-		name[i] = LOWER(AtoL(name[i]));
+		name[i] = LOWER(codepages::AtoL(name[i]));
 }
 
 // вывод экспы аля диабла

@@ -7,6 +7,9 @@
  */
 
 #include "engine/ui/color.h"
+#include "administration/privilege.h"
+#include "utils/grammar/declensions.h"
+#include "gameplay/mechanics/mount.h"
 #include "gameplay/communication/mail.h"
 #include "gameplay/communication/parcel.h"
 #include "engine/entities/char_data.h"
@@ -24,6 +27,7 @@
 #include "gameplay/core/game_limits.h"
 #include "gameplay/core/base_stats.h"
 #include "gameplay/mechanics/groups.h"
+#include "gameplay/core/remort.h"
 
 #include <cmath>
 #include <fmt/format.h>
@@ -116,15 +120,15 @@ void PrintScoreList(CharData *ch) {
 				  MUD::Class(ch->GetClass()).GetCName(),
 				  buf1,
 				  GetRealLevel(ch),
-				  GetRealRemort(ch));
+				  remort::GetRealRemort(ch));
 	SendMsgToChar(ch, "Ваш возраст: %d, размер: %d(%d), рост: %d(%d), вес %d(%d).\r\n",
 				  CalcCharAge(ch)->year,
 				  GET_SIZE(ch), GET_REAL_SIZE(ch),
 				  GET_HEIGHT(ch), GET_REAL_HEIGHT(ch),
 				  GET_WEIGHT(ch), GET_REAL_WEIGHT(ch));
 	SendMsgToChar(ch, "Вы можете выдержать %d(%d) %s повреждений, и пройти %d(%d) %s по ровной местности.\r\n",
-				  ch->get_hit(), ch->get_real_max_hit(), GetDeclensionInNumber(ch->get_hit(), EWhat::kOneU),
-				  ch->get_move(), ch->get_real_max_move(), GetDeclensionInNumber(ch->get_move(), EWhat::kMoveU));
+				  ch->get_hit(), ch->get_real_max_hit(), grammar::GetDeclensionInNumber(ch->get_hit(), grammar::EWhat::kOneU),
+				  ch->get_move(), ch->get_real_max_move(), grammar::GetDeclensionInNumber(ch->get_move(), grammar::EWhat::kMoveU));
 	if (IS_MANA_CASTER(ch)) {
 		SendMsgToChar(ch, "Ваша магическая энергия %d(%d) и вы восстанавливаете %d в сек.\r\n",
 					  ch->mem_queue.stored, mana[MIN(50, GetRealWis(ch))], CalcManaGain(ch));
@@ -147,7 +151,7 @@ void PrintScoreList(CharData *ch) {
 	SendMsgToChar(ch, "Попадание: %d, повреждение: %d, запоминание: %d, успех колдовства: %d, удача: %d, инициатива: %d.\r\n",
 				  CalcHitroll(ch),
 				  max_dam,
-				  int(GET_MANAREG(ch) * ch->get_cond_penalty(P_CAST)),
+				  int(GET_MANAREG(ch) * condition::GetCondPenalty(ch, condition::kCast)),
 				  CalcAntiSavings(ch),
 				  ch->calc_morale(),
 				  calc_initiative(ch, false));
@@ -179,7 +183,7 @@ void PrintScoreList(CharData *ch) {
 				  move_gain(ch));
 	int ac = CalcBaseAc(ch) / 10;
 	if (ac < 5) {
-		const int mod = (1 - ch->get_cond_penalty(P_AC)) * 40;
+		const int mod = (1 - condition::GetCondPenalty(ch, condition::kAc)) * 40;
 		ac = ac + mod > 5 ? 5 : ac + mod;
 	}
 	SendMsgToChar(ch, "Броня: %d, защита: %d, поглощение %d.\r\n",
@@ -191,16 +195,16 @@ void PrintScoreList(CharData *ch) {
 				  ch->get_bank(),
 				  ch->get_hryvn(),
 				  ch->get_exp(),
-				  ch->IsImmortal() ? 1 : GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1) - ch->get_exp());
-	if (!ch->IsOnHorse())
+				  privilege::IsImmortal(ch) ? 1 : GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1) - ch->get_exp());
+	if (!mount::IsOnHorse(ch))
 		SendMsgToChar(ch, "Ваша позиция: %s", GetPositionStr(ch));
 	else
-		SendMsgToChar(ch, "Ваша позиция: Вы верхом на %s.\r\n", GET_PAD(ch->get_horse(), 5));
+		SendMsgToChar(ch, "Ваша позиция: Вы верхом на %s.\r\n", GET_PAD(mount::GetHorse(ch), 5));
 	if (ch->IsFlagged(EPrf::KSummonable))
 		SendMsgToChar(ch, "Вы можете быть призваны.\r\n");
 	else
 		SendMsgToChar(ch, "Вы защищены от призыва.\r\n");
-	SendMsgToChar(ch, "Голоден: %s, жажда: %s.\r\n", (GET_COND(ch, FULL) > kNormCondition)? "да" : "нет", GET_COND_M(ch, THIRST)? "да" : "нет");
+	SendMsgToChar(ch, "Голоден: %s, жажда: %s.\r\n", (GET_COND(ch, condition::kFull) > kNormCondition)? "да" : "нет", condition::GetCondAboveNorm(ch, condition::kThirst)? "да" : "нет");
 	//Напоминаем о метке, если она есть.
 	RoomData *label_room = room_spells::FindAffectedRoomByCasterID(ch->get_uid(), ESpell::kRuneLabel);
 	if (label_room) {
@@ -208,9 +212,9 @@ void PrintScoreList(CharData *ch) {
 		if (timer_room_label > 0) {
 			*buf2 = '\0';
 			(timer_room_label + 1) / kSecsPerMudHour ? sprintf(buf2, "%d %s.", (timer_room_label + 1) / kSecsPerMudHour + 1,
-															   GetDeclensionInNumber(
+															   grammar::GetDeclensionInNumber(
 																   (timer_room_label + 1) / kSecsPerMudHour + 1,
-																   EWhat::kHour)) : sprintf(buf2, "менее часа.");
+																   grammar::EWhat::kHour)) : sprintf(buf2, "менее часа.");
 			SendMsgToChar(ch, "Вы поставили рунную метку в комнате: '%s', она продержится еще %s\r\n", label_room->name, buf2);
 			*buf2 = '\0';
 		}
@@ -222,10 +226,10 @@ void PrintScoreList(CharData *ch) {
 		SendMsgToChar(ch, "ВНИМАНИЕ! ваше имя запрещено богами. Очень скоро вы прекратите получать опыт.\r\n");
 	}
 	SendMsgToChar(ch, "Вы можете вступить в группу с максимальной разницей в %2d %-75s\r\n",
-				  grouping[ch->GetClass()][static_cast<int>(GetRealRemort(ch))],
+				  grouping[ch->GetClass()][static_cast<int>(remort::GetRealRemort(ch))],
 				  (std::string(
-					  GetDeclensionInNumber(grouping[ch->GetClass()][static_cast<int>(GetRealRemort(
-						  ch))], EWhat::kLvl)
+					  grammar::GetDeclensionInNumber(grouping[ch->GetClass()][static_cast<int>(remort::GetRealRemort(
+						  ch))], grammar::EWhat::kLvl)
 						  + std::string(" без потерь для опыта.")).substr(0, 76).c_str()));
 
 	SendMsgToChar(ch, "Вы можете принять в группу максимум %d соратников.\r\n", group::max_group_size(ch));
@@ -251,11 +255,11 @@ const std::string &InfoStrPrefix(CharData *ch) {
 }
 
 void PrintHorseInfo(CharData *ch, std::ostringstream &out) {
-	if (ch->has_horse(false)) {
-		if (ch->IsOnHorse()) {
-			out << InfoStrPrefix(ch) << "Вы верхом на " << GET_PAD(ch->get_horse(), 5) << "." << "\r\n";
+	if (mount::HasHorse(ch, false)) {
+		if (mount::IsOnHorse(ch)) {
+			out << InfoStrPrefix(ch) << "Вы верхом на " << GET_PAD(mount::GetHorse(ch), 5) << "." << "\r\n";
 		} else {
-			out << InfoStrPrefix(ch) << "У вас есть " << ch->get_horse()->get_name() << "." << "\r\n";
+			out << InfoStrPrefix(ch) << "У вас есть " << mount::GetHorse(ch)->get_name() << "." << "\r\n";
 		}
 	}
 }
@@ -270,7 +274,7 @@ void PrintRuneLabelInfo(CharData *ch, std::ostringstream &out) {
 			out << "[продержится еще ";
 			timer_room_label = (timer_room_label + 1) / kSecsPerMudHour + 1;
 			if (timer_room_label > 0) {
-				out << timer_room_label << " " << GetDeclensionInNumber(timer_room_label, EWhat::kHour) << "]." << "\r\n";
+				out << timer_room_label << " " << grammar::GetDeclensionInNumber(timer_room_label, grammar::EWhat::kHour) << "]." << "\r\n";
 			} else {
 				out << "менее часа]." << "\r\n";
 			}
@@ -283,7 +287,7 @@ void PrintGloryInfo(CharData *ch, std::ostringstream &out) {
 	auto glory = GloryConst::get_glory(ch->get_uid());
 	if (glory > 0) {
 		out << InfoStrPrefix(ch) << "Вы заслужили "
-			<< glory << " " << GetDeclensionInNumber(glory, EWhat::kPoint) << " постоянной славы." << "\r\n";
+			<< glory << " " << grammar::GetDeclensionInNumber(glory, grammar::EWhat::kPoint) << " постоянной славы." << "\r\n";
 	}
 }
 
@@ -329,9 +333,9 @@ void PrintBlindModeInfo(CharData *ch, std::ostringstream &out) {
 void PrintGroupMembershipInfo(CharData *ch, std::ostringstream &out) {
 	if (GetRealLevel(ch) < kLvlImmortal) {
 		out << InfoStrPrefix(ch) << "Вы можете вступить в группу с максимальной разницей "
-			<< grouping[ch->GetClass()][static_cast<int>(GetRealRemort(ch))] << " "
-			<< GetDeclensionInNumber(grouping[ch->GetClass()][static_cast<int>(GetRealRemort(ch))],
-									 EWhat::kLvl)
+			<< grouping[ch->GetClass()][static_cast<int>(remort::GetRealRemort(ch))] << " "
+			<< grammar::GetDeclensionInNumber(grouping[ch->GetClass()][static_cast<int>(remort::GetRealRemort(ch))],
+									 grammar::EWhat::kLvl)
 			<< " без потерь для опыта." << "\r\n";
 
 		out << InfoStrPrefix(ch) << "Вы можете принять в группу максимум "
@@ -345,9 +349,9 @@ void PrintRentableInfo(CharData *ch, std::ostringstream &out) {
 		const auto minutes = rent_time > 60 ? rent_time / 60 : 0;
 		out << InfoStrPrefix(ch) << kColorBoldRed << "В связи с боевыми действиями вы не можете уйти на постой еще ";
 		if (minutes) {
-			out << minutes << " " << GetDeclensionInNumber(minutes, EWhat::kMinU) << "." << kColorNrm << "\r\n";
+			out << minutes << " " << grammar::GetDeclensionInNumber(minutes, grammar::EWhat::kMinU) << "." << kColorNrm << "\r\n";
 		} else {
-			out << rent_time << " " << GetDeclensionInNumber(rent_time, EWhat::kSec) << "." << kColorNrm << "\r\n";
+			out << rent_time << " " << grammar::GetDeclensionInNumber(rent_time, grammar::EWhat::kSec) << "." << kColorNrm << "\r\n";
 		}
 	} else if ((ch->in_room != kNowhere) && ROOM_FLAGGED(ch->in_room, ERoomFlag::kPeaceful) && !ch->IsFlagged(EPlrFlag::kKiller)) {
 		out << InfoStrPrefix(ch) << kColorBoldGrn << "Тут вы чувствуете себя в безопасности." << kColorNrm << "\r\n";
@@ -411,8 +415,8 @@ void PrintSinglePunishmentInfo(const ScorePunishmentInfo &info, std::ostringstre
 	const auto mins = ((info.punish->duration - current_time)%3600 + 59)/60;
 
 	out << InfoStrPrefix(info.ch) << kColorBoldRed << info.msg
-		<< hrs << " " << GetDeclensionInNumber(hrs, EWhat::kHour) << " "
-		<< mins << " " << GetDeclensionInNumber(mins, EWhat::kMinU);
+		<< hrs << " " << grammar::GetDeclensionInNumber(hrs, grammar::EWhat::kHour) << " "
+		<< mins << " " << grammar::GetDeclensionInNumber(mins, grammar::EWhat::kMinU);
 
 	if (info.punish->reason != nullptr) {
 		if (info.punish->reason[0] != '\0' && str_cmp(info.punish->reason, "(null)") != 0) {
@@ -438,25 +442,25 @@ void PrintPunishmentsInfo(CharData *ch, std::ostringstream &out) {
 
 	ScorePunishmentInfo punish_info{ch};
 
-	punish_info.SetFInfo(EPlrFlag::kHelled, &ch->player_specials->phell);
+	punish_info.SetFInfo(EPlrFlag::kHelled, &punishments::Get(ch, punishments::EType::kHell));
 	if (IsPunished(punish_info)) {
 		punish_info.msg = "Вам предстоит провести в темнице еще ";
 		PrintSinglePunishmentInfo(punish_info, out);
 	}
 
-	punish_info.SetFInfo(EPlrFlag::kFrozen, &ch->player_specials->pfreeze);
+	punish_info.SetFInfo(EPlrFlag::kFrozen, &punishments::Get(ch, punishments::EType::kFreeze));
 	if (IsPunished(punish_info)) {
 		punish_info.msg = "Вы будете заморожены еще ";
 		PrintSinglePunishmentInfo(punish_info, out);
 	}
 
-	punish_info.SetFInfo(EPlrFlag::kMuted, &ch->player_specials->pmute);
+	punish_info.SetFInfo(EPlrFlag::kMuted, &punishments::Get(ch, punishments::EType::kMute));
 	if (IsPunished(punish_info)) {
 		punish_info.msg = "Вы не сможете кричать еще ";
 		PrintSinglePunishmentInfo(punish_info, out);
 	}
 
-	punish_info.SetFInfo(EPlrFlag::kDumbed, &ch->player_specials->pdumb);
+	punish_info.SetFInfo(EPlrFlag::kDumbed, &punishments::Get(ch, punishments::EType::kDumb));
 	if (IsPunished(punish_info)) {
 		punish_info.msg = "Вы будете молчать еще ";
 		PrintSinglePunishmentInfo(punish_info, out);
@@ -467,8 +471,8 @@ void PrintPunishmentsInfo(CharData *ch, std::ostringstream &out) {
  	* наказаний, а отдельными флагами. По-хорошему, надо их привести к общему знаменателю (тем более, что счесть
  	* избранность богами наказанием - в некотором смысле символично).
  	*/
-	if (GET_GOD_FLAG(ch, EGf::kGodscurse) && GCURSE_DURATION(ch)) {
-		punish_info.punish = &ch->player_specials->pgcurse;
+	if (GET_GOD_FLAG(ch, EGf::kGodscurse) && punishments::Get(ch, punishments::EType::kGcurse).duration) {
+		punish_info.punish = &punishments::Get(ch, punishments::EType::kGcurse);
 		punish_info.msg = "Вы прокляты Богами на ";
 		PrintSinglePunishmentInfo(punish_info, out);
 	}
@@ -478,8 +482,8 @@ void PrintPunishmentsInfo(CharData *ch, std::ostringstream &out) {
 	 * персонаж НЕ наказан. Было бы разумнее ставить новым персонажам по умолчанию флаг unreg и снимать его при
 	 * регистрации, но увы.
 	 */
-	if (!ch->IsFlagged(EPlrFlag::kRegistred) && UNREG_DURATION(ch) != 0 && UNREG_DURATION(ch) > time(nullptr)) {
-		punish_info.punish = &ch->player_specials->punreg;
+	if (!ch->IsFlagged(EPlrFlag::kRegistred) && punishments::Get(ch, punishments::EType::kUnreg).duration != 0 && punishments::Get(ch, punishments::EType::kUnreg).duration > time(nullptr)) {
+		punish_info.punish = &punishments::Get(ch, punishments::EType::kUnreg);
 		punish_info.msg = "Вы не сможете входить с одного IP еще ";
 		PrintSinglePunishmentInfo(punish_info, out);
 	}
@@ -497,7 +501,7 @@ int PrintBaseInfoToTable(CharData *ch, table_wrapper::Table &table, std::size_t 
 	table[row][col] = std::string("Племя: ") + PlayerRace::GetRaceNameByNum(GET_KIN(ch), GET_RACE(ch), ch->get_sex());
 	table[++row][col] = std::string("Вера: ") + religion_name[GET_RELIGION(ch)][static_cast<int>(ch->get_sex())];
 	table[++row][col] = std::string("Уровень: ") + std::to_string(GetRealLevel(ch));
-	table[++row][col] = std::string("Перевоплощений: ") + std::to_string(GetRealRemort(ch));
+	table[++row][col] = std::string("Перевоплощений: ") + std::to_string(remort::GetRealRemort(ch));
 	table[++row][col] = std::string("Возраст: ") + std::to_string(CalcCharAge(ch)->year);
 	if (ch->GetLevel() < kLvlImmortal) {
 		table[++row][col] = std::string("Опыт: ") + PrintNumberByDigits(ch->get_exp());
@@ -507,9 +511,9 @@ int PrintBaseInfoToTable(CharData *ch, table_wrapper::Table &table, std::size_t 
 	table[++row][col] = std::string("Кун: ") + PrintNumberByDigits(ch->get_gold());
 	table[++row][col] = std::string("На счету: ") + PrintNumberByDigits(ch->get_bank());
 	table[++row][col] = GetShortPositionStr(ch);
-	table[++row][col] = std::string("Голоден: ") + (GET_COND(ch, FULL) > kNormCondition ? "Угу :(" : "Нет");
-	table[++row][col] = std::string("Жажда: ") + (GET_COND_M(ch, THIRST) ? "Наливай!" : "Нет");
-	if (GET_COND(ch, DRUNK) >= kDrunked) {
+	table[++row][col] = std::string("Голоден: ") + (GET_COND(ch, condition::kFull) > kNormCondition ? "Угу :(" : "Нет");
+	table[++row][col] = std::string("Жажда: ") + (condition::GetCondAboveNorm(ch, condition::kThirst) ? "Наливай!" : "Нет");
+	if (GET_COND(ch, condition::kDrunk) >= kDrunked) {
 		table[++row][col] = (IsAffectedBySpell(ch, ESpell::kAbstinent) ? "Похмелье." : "Вы пьяны.");
 	}
 	if (PlayerSystem::weight_dex_penalty(ch)) {
@@ -567,7 +571,7 @@ int PrintSecondaryStatsToTable(CharData *ch, table_wrapper::Table &table, std::s
 	table[row][col] = "Попадание";		table[row][col + 1] = std::to_string(CalcHitroll(ch));
 	table[++row][col] = "Повреждение";	table[row][col + 1] = std::to_string(max_dam);
 	table[++row][col] = "Колдовство";	table[row][col + 1] = std::to_string(CalcAntiSavings(ch));
-	table[++row][col] = "Запоминание";	table[row][col + 1] = std::to_string(std::lround(GET_MANAREG(ch)*ch->get_cond_penalty(P_CAST)));
+	table[++row][col] = "Запоминание";	table[row][col + 1] = std::to_string(std::lround(GET_MANAREG(ch)*condition::GetCondPenalty(ch, condition::kCast)));
 	table[++row][col] = "Удача";		table[row][col + 1] = std::to_string(ch->calc_morale());
 	table[++row][col] = "Сила заклинаний %";	table[row][col + 1] = std::to_string(ch->add_abils.percent_spellpower_add);
 	table[++row][col] = "Физ. урон %";	table[row][col + 1] = std::to_string(ch->add_abils.percent_physdam_add);
@@ -592,7 +596,7 @@ int PrintProtectiveStatsToTable(CharData *ch, table_wrapper::Table &table, std::
 	std::size_t row{0};
 	int ac = CalcBaseAc(ch) / 10;
 	if (ac < 5) {
-		const int mod = (1 - ch->get_cond_penalty(P_AC)) * 40;
+		const int mod = (1 - condition::GetCondPenalty(ch, condition::kAc)) * 40;
 		ac = ac + mod > 5 ? 5 : ac + mod;
 	}
 
@@ -703,7 +707,7 @@ void PrintScoreBase(CharData *ch) {
 
 	PrintNameStatusInfo(ch, out);
 	const auto &age = CalcCharAge(ch);
-	out << "Сейчас вам " << age->year << " " << GetDeclensionInNumber(age->year, EWhat::kYear) << ".";
+	out << "Сейчас вам " << age->year << " " << grammar::GetDeclensionInNumber(age->year, grammar::EWhat::kYear) << ".";
 	if (CalcCharAge(ch)->month == 0 && CalcCharAge(ch)->day == 0) {
 		out << kColorBoldRed << " У вас сегодня День Варенья!" << kColorNrm;
 	}
@@ -714,9 +718,9 @@ void PrintScoreBase(CharData *ch) {
 
 	sprintf(buf,
 			"Вы можете выдержать %d(%d) %s повреждения, и пройти %d(%d) %s по ровной местности.\r\n",
-			ch->get_hit(), ch->get_real_max_hit(), GetDeclensionInNumber(ch->get_hit(),
-																	 EWhat::kOneU),
-			ch->get_move(), ch->get_real_max_move(), GetDeclensionInNumber(ch->get_move(), EWhat::kMoveU));
+			ch->get_hit(), ch->get_real_max_hit(), grammar::GetDeclensionInNumber(ch->get_hit(),
+																	 grammar::EWhat::kOneU),
+			ch->get_move(), ch->get_real_max_move(), grammar::GetDeclensionInNumber(ch->get_move(), grammar::EWhat::kMoveU));
 
 	if (IS_MANA_CASTER(ch)) {
 		sprintf(buf + strlen(buf),
@@ -744,7 +748,7 @@ void PrintScoreBase(CharData *ch) {
 			GET_SIZE(ch), GET_REAL_SIZE(ch),
 			GET_HEIGHT(ch), GET_REAL_HEIGHT(ch), GET_WEIGHT(ch), GET_REAL_WEIGHT(ch), kColorNrm);
 
-	if (ch->IsImmortal()) {
+	if (privilege::IsImmortal(ch)) {
 		sprintf(buf + strlen(buf),
 				"%sВаши боевые качества :\r\n"
 				"  AC   : %4d(%4d)"
@@ -755,7 +759,7 @@ void PrintScoreBase(CharData *ch) {
 		int ac = CalcBaseAc(ch) / 10;
 
 		if (ac < 5) {
-			const int mod = (1 - ch->get_cond_penalty(P_AC)) * 40;
+			const int mod = (1 - condition::GetCondPenalty(ch, condition::kAc)) * 40;
 			ac = ac + mod > 5 ? 5 : ac + mod;
 		}
 
@@ -766,7 +770,7 @@ void PrintScoreBase(CharData *ch) {
 				ac, ac_text[ac_t], GET_ARMOUR(ch), GET_ABSORBE(ch));
 	}
 	sprintf(buf + strlen(buf), "Ваш опыт - %ld %s, бонус %d %c. ", ch->get_exp(),
-			GetDeclensionInNumber(ch->get_exp(), EWhat::kPoint), ch->add_abils.percent_exp_add, '%');
+			grammar::GetDeclensionInNumber(ch->get_exp(), grammar::EWhat::kPoint), ch->add_abils.percent_exp_add, '%');
 	if (GetRealLevel(ch) < kLvlImmortal) {
 		if (ch->IsFlagged(EPrf::kBlindMode)) {
 			sprintf(buf + strlen(buf), "\r\n");
@@ -774,28 +778,28 @@ void PrintScoreBase(CharData *ch) {
 		sprintf(buf + strlen(buf),
 				"Вам осталось набрать %ld %s до следующего уровня.\r\n",
 				GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1) - ch->get_exp(),
-				GetDeclensionInNumber(GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1) - ch->get_exp(), EWhat::kPoint));
+				grammar::GetDeclensionInNumber(GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1) - ch->get_exp(), grammar::EWhat::kPoint));
 	} else
 		sprintf(buf + strlen(buf), "\r\n");
 
 	sprintf(buf + strlen(buf),
 			"У вас на руках %ld %s и %d %s",
 			ch->get_gold(),
-			GetDeclensionInNumber(ch->get_gold(), EWhat::kMoneyA),
+			grammar::GetDeclensionInNumber(ch->get_gold(), grammar::EWhat::kMoneyA),
 			ch->get_hryvn(),
-			GetDeclensionInNumber(ch->get_hryvn(), EWhat::kTorc));
+			grammar::GetDeclensionInNumber(ch->get_hryvn(), grammar::EWhat::kTorc));
 	if (ch->get_bank() > 0)
 		sprintf(buf + strlen(buf), " (и еще %ld %s припрятано в лежне).\r\n",
-				ch->get_bank(), GetDeclensionInNumber(ch->get_bank(), EWhat::kMoneyA));
+				ch->get_bank(), grammar::GetDeclensionInNumber(ch->get_bank(), grammar::EWhat::kMoneyA));
 	else
 		strncat(buf, ".\r\n", sizeof(buf) - strlen(buf) - 1);
 
 	if (GetRealLevel(ch) < kLvlImmortal) {
 		sprintf(buf + strlen(buf),
 				"Вы можете вступить в группу с максимальной разницей в %d %s без потерь для опыта.\r\n",
-				grouping[ch->GetClass()][static_cast<int>(GetRealRemort(ch))],
-				GetDeclensionInNumber(grouping[ch->GetClass()][static_cast<int>(GetRealRemort(ch))],
-									  EWhat::kLvl));
+				grouping[ch->GetClass()][static_cast<int>(remort::GetRealRemort(ch))],
+				grammar::GetDeclensionInNumber(grouping[ch->GetClass()][static_cast<int>(remort::GetRealRemort(ch))],
+									  grammar::EWhat::kLvl));
 	}
 
 	//Напоминаем о метке, если она есть.
@@ -813,20 +817,20 @@ void PrintScoreBase(CharData *ch) {
 	glory = GloryConst::get_glory(ch->get_uid());
 	if (glory) {
 		sprintf(buf + strlen(buf), "Вы заслужили %d %s постоянной славы.\r\n",
-				glory, GetDeclensionInNumber(glory, EWhat::kPoint));
+				glory, grammar::GetDeclensionInNumber(glory, grammar::EWhat::kPoint));
 	}
 
 	TimeInfoData playing_time = *CalcRealTimePassed((time(nullptr) - ch->player_data.time.logon) + ch->player_data.time.played, 0);
 	sprintf(buf + strlen(buf), "Вы играете %d %s %d %s реального времени.\r\n",
-			playing_time.day, GetDeclensionInNumber(playing_time.day, EWhat::kDay),
-			playing_time.hours, GetDeclensionInNumber(playing_time.hours, EWhat::kHour));
+			playing_time.day, grammar::GetDeclensionInNumber(playing_time.day, grammar::EWhat::kDay),
+			playing_time.hours, grammar::GetDeclensionInNumber(playing_time.hours, grammar::EWhat::kHour));
 	SendMsgToChar(buf, ch);
 
-	if (!ch->IsOnHorse())
+	if (!mount::IsOnHorse(ch))
 		SendMsgToChar(ch, "%s", GetPositionStr(ch));
 
 	snprintf(buf, sizeof(buf), "%s", kColorBoldGrn);
-	const auto value_drunked = GET_COND(ch, DRUNK);
+	const auto value_drunked = GET_COND(ch, condition::kDrunk);
 	if (value_drunked >= kDrunked) {
 		if (IsAffectedBySpell(ch, ESpell::kAbstinent))
 			strncat(buf, "Привет с большого бодуна!\r\n", sizeof(buf) - strlen(buf) - 1);
@@ -842,9 +846,9 @@ void PrintScoreBase(CharData *ch) {
 		}
 
 	}
-	if (GET_COND_M(ch, FULL))
+	if (condition::GetCondAboveNorm(ch, condition::kFull))
 		strncat(buf, "Вы голодны.\r\n", sizeof(buf) - strlen(buf) - 1);
-	if (GET_COND_M(ch, THIRST))
+	if (condition::GetCondAboveNorm(ch, condition::kThirst))
 		strncat(buf, "Вас мучает жажда.\r\n", sizeof(buf) - strlen(buf) - 1);
 	/*
 	   strcat(buf, KICYN);
@@ -855,12 +859,12 @@ void PrintScoreBase(CharData *ch) {
 	if (ch->IsFlagged(EPrf::KSummonable))
 		strncat(buf, "Вы можете быть призваны.\r\n", sizeof(buf) - strlen(buf) - 1);
 
-	if (ch->has_horse(false)) {
+	if (mount::HasHorse(ch, false)) {
 		size_t buf_len = strlen(buf);
-		if (ch->IsOnHorse())
-			snprintf(buf + buf_len, sizeof(buf) - buf_len, "Вы верхом на %s.\r\n", GET_PAD(ch->get_horse(), 5));
+		if (mount::IsOnHorse(ch))
+			snprintf(buf + buf_len, sizeof(buf) - buf_len, "Вы верхом на %s.\r\n", GET_PAD(mount::GetHorse(ch), 5));
 		else
-			snprintf(buf + buf_len, sizeof(buf) - buf_len, "У вас есть %s.\r\n", GET_NAME(ch->get_horse()));
+			snprintf(buf + buf_len, sizeof(buf) - buf_len, "У вас есть %s.\r\n", GET_NAME(mount::GetHorse(ch)));
 	}
 	strncat(buf, kColorNrm, sizeof(buf) - strlen(buf) - 1);
 	SendMsgToChar(buf, ch);
@@ -893,55 +897,55 @@ void PrintScoreBase(CharData *ch) {
 		SendMsgToChar(buf, ch);
 	}
 
-	if (ch->IsFlagged(EPlrFlag::kHelled) && HELL_DURATION(ch) && HELL_DURATION(ch) > time(nullptr)) {
-		const int hrs = (HELL_DURATION(ch) - time(nullptr)) / 3600;
-		const int mins = ((HELL_DURATION(ch) - time(nullptr)) % 3600 + 59) / 60;
+	if (ch->IsFlagged(EPlrFlag::kHelled) && punishments::Get(ch, punishments::EType::kHell).duration && punishments::Get(ch, punishments::EType::kHell).duration > time(nullptr)) {
+		const int hrs = (punishments::Get(ch, punishments::EType::kHell).duration - time(nullptr)) / 3600;
+		const int mins = ((punishments::Get(ch, punishments::EType::kHell).duration - time(nullptr)) % 3600 + 59) / 60;
 		snprintf(buf, sizeof(buf),
 				"Вам предстоит провести в темнице еще %d %s %d %s [%s].\r\n",
-				hrs, GetDeclensionInNumber(hrs, EWhat::kHour), mins, GetDeclensionInNumber(mins,
-																						   EWhat::kMinU),
-				HELL_REASON(ch) ? HELL_REASON(ch) : "-");
+				hrs, grammar::GetDeclensionInNumber(hrs, grammar::EWhat::kHour), mins, grammar::GetDeclensionInNumber(mins,
+																						   grammar::EWhat::kMinU),
+				punishments::Get(ch, punishments::EType::kHell).reason ? punishments::Get(ch, punishments::EType::kHell).reason : "-");
 		SendMsgToChar(buf, ch);
 	}
-	if (ch->IsFlagged(EPlrFlag::kMuted) && MUTE_DURATION(ch) != 0 && MUTE_DURATION(ch) > time(nullptr)) {
-		const int hrs = (MUTE_DURATION(ch) - time(nullptr)) / 3600;
-		const int mins = ((MUTE_DURATION(ch) - time(nullptr)) % 3600 + 59) / 60;
+	if (ch->IsFlagged(EPlrFlag::kMuted) && punishments::Get(ch, punishments::EType::kMute).duration != 0 && punishments::Get(ch, punishments::EType::kMute).duration > time(nullptr)) {
+		const int hrs = (punishments::Get(ch, punishments::EType::kMute).duration - time(nullptr)) / 3600;
+		const int mins = ((punishments::Get(ch, punishments::EType::kMute).duration - time(nullptr)) % 3600 + 59) / 60;
 		snprintf(buf, sizeof(buf), "Вы не сможете кричать еще %d %s %d %s [%s].\r\n",
-				hrs, GetDeclensionInNumber(hrs, EWhat::kHour),
-				mins, GetDeclensionInNumber(mins, EWhat::kMinU), MUTE_REASON(ch) ? MUTE_REASON(ch) : "-");
+				hrs, grammar::GetDeclensionInNumber(hrs, grammar::EWhat::kHour),
+				mins, grammar::GetDeclensionInNumber(mins, grammar::EWhat::kMinU), punishments::Get(ch, punishments::EType::kMute).reason ? punishments::Get(ch, punishments::EType::kMute).reason : "-");
 		SendMsgToChar(buf, ch);
 	}
-	if (ch->IsFlagged(EPlrFlag::kDumbed) && DUMB_DURATION(ch) != 0 && DUMB_DURATION(ch) > time(nullptr)) {
-		const int hrs = (DUMB_DURATION(ch) - time(nullptr)) / 3600;
-		const int mins = ((DUMB_DURATION(ch) - time(nullptr)) % 3600 + 59) / 60;
+	if (ch->IsFlagged(EPlrFlag::kDumbed) && punishments::Get(ch, punishments::EType::kDumb).duration != 0 && punishments::Get(ch, punishments::EType::kDumb).duration > time(nullptr)) {
+		const int hrs = (punishments::Get(ch, punishments::EType::kDumb).duration - time(nullptr)) / 3600;
+		const int mins = ((punishments::Get(ch, punishments::EType::kDumb).duration - time(nullptr)) % 3600 + 59) / 60;
 		snprintf(buf, sizeof(buf), "Вы будете молчать еще %d %s %d %s [%s].\r\n",
-				hrs, GetDeclensionInNumber(hrs, EWhat::kHour),
-				mins, GetDeclensionInNumber(mins, EWhat::kMinU), DUMB_REASON(ch) ? DUMB_REASON(ch) : "-");
+				hrs, grammar::GetDeclensionInNumber(hrs, grammar::EWhat::kHour),
+				mins, grammar::GetDeclensionInNumber(mins, grammar::EWhat::kMinU), punishments::Get(ch, punishments::EType::kDumb).reason ? punishments::Get(ch, punishments::EType::kDumb).reason : "-");
 		SendMsgToChar(buf, ch);
 	}
-	if (ch->IsFlagged(EPlrFlag::kFrozen) && FREEZE_DURATION(ch) != 0 && FREEZE_DURATION(ch) > time(nullptr)) {
-		const int hrs = (FREEZE_DURATION(ch) - time(nullptr)) / 3600;
-		const int mins = ((FREEZE_DURATION(ch) - time(nullptr)) % 3600 + 59) / 60;
+	if (ch->IsFlagged(EPlrFlag::kFrozen) && punishments::Get(ch, punishments::EType::kFreeze).duration != 0 && punishments::Get(ch, punishments::EType::kFreeze).duration > time(nullptr)) {
+		const int hrs = (punishments::Get(ch, punishments::EType::kFreeze).duration - time(nullptr)) / 3600;
+		const int mins = ((punishments::Get(ch, punishments::EType::kFreeze).duration - time(nullptr)) % 3600 + 59) / 60;
 		snprintf(buf, sizeof(buf), "Вы будете заморожены еще %d %s %d %s [%s].\r\n",
-				hrs, GetDeclensionInNumber(hrs, EWhat::kHour),
-				mins, GetDeclensionInNumber(mins, EWhat::kMinU), FREEZE_REASON(ch) ? FREEZE_REASON(ch) : "-");
+				hrs, grammar::GetDeclensionInNumber(hrs, grammar::EWhat::kHour),
+				mins, grammar::GetDeclensionInNumber(mins, grammar::EWhat::kMinU), punishments::Get(ch, punishments::EType::kFreeze).reason ? punishments::Get(ch, punishments::EType::kFreeze).reason : "-");
 		SendMsgToChar(buf, ch);
 	}
 
-	if (!ch->IsFlagged(EPlrFlag::kRegistred) && UNREG_DURATION(ch) != 0 && UNREG_DURATION(ch) > time(nullptr)) {
-		const int hrs = (UNREG_DURATION(ch) - time(nullptr)) / 3600;
-		const int mins = ((UNREG_DURATION(ch) - time(nullptr)) % 3600 + 59) / 60;
+	if (!ch->IsFlagged(EPlrFlag::kRegistred) && punishments::Get(ch, punishments::EType::kUnreg).duration != 0 && punishments::Get(ch, punishments::EType::kUnreg).duration > time(nullptr)) {
+		const int hrs = (punishments::Get(ch, punishments::EType::kUnreg).duration - time(nullptr)) / 3600;
+		const int mins = ((punishments::Get(ch, punishments::EType::kUnreg).duration - time(nullptr)) % 3600 + 59) / 60;
 		snprintf(buf, sizeof(buf), "Вы не сможете заходить с одного IP еще %d %s %d %s [%s].\r\n",
-				hrs, GetDeclensionInNumber(hrs, EWhat::kHour),
-				mins, GetDeclensionInNumber(mins, EWhat::kMinU), UNREG_REASON(ch) ? UNREG_REASON(ch) : "-");
+				hrs, grammar::GetDeclensionInNumber(hrs, grammar::EWhat::kHour),
+				mins, grammar::GetDeclensionInNumber(mins, grammar::EWhat::kMinU), punishments::Get(ch, punishments::EType::kUnreg).reason ? punishments::Get(ch, punishments::EType::kUnreg).reason : "-");
 		SendMsgToChar(buf, ch);
 	}
 
-	if (GET_GOD_FLAG(ch, EGf::kGodscurse) && GCURSE_DURATION(ch)) {
-		const int hrs = (GCURSE_DURATION(ch) - time(nullptr)) / 3600;
-		const int mins = ((GCURSE_DURATION(ch) - time(nullptr)) % 3600 + 59) / 60;
+	if (GET_GOD_FLAG(ch, EGf::kGodscurse) && punishments::Get(ch, punishments::EType::kGcurse).duration) {
+		const int hrs = (punishments::Get(ch, punishments::EType::kGcurse).duration - time(nullptr)) / 3600;
+		const int mins = ((punishments::Get(ch, punishments::EType::kGcurse).duration - time(nullptr)) % 3600 + 59) / 60;
 		snprintf(buf, sizeof(buf), "Вы прокляты Богами на %d %s %d %s.\r\n",
-				hrs, GetDeclensionInNumber(hrs, EWhat::kHour), mins, GetDeclensionInNumber(mins, EWhat::kMinU));
+				hrs, grammar::GetDeclensionInNumber(hrs, grammar::EWhat::kHour), mins, grammar::GetDeclensionInNumber(mins, grammar::EWhat::kMinU));
 		SendMsgToChar(buf, ch);
 	}
 
@@ -983,7 +987,7 @@ void PrintScoreBase(CharData *ch) {
 			snprintf(buf, sizeof(buf), "У вас в наличии есть одна жалкая ногата.\r\n");
 		}
 		else {
-			snprintf(buf, sizeof(buf), "У вас в наличии есть %d %s.\r\n", value, GetDeclensionInNumber(value, EWhat::kNogataU));
+			snprintf(buf, sizeof(buf), "У вас в наличии есть %d %s.\r\n", value, grammar::GetDeclensionInNumber(value, grammar::EWhat::kNogataU));
 		}
 		SendMsgToChar(buf, ch);
 	}
@@ -1052,8 +1056,8 @@ int CalcHitroll(CharData *ch) {
 	if (ch->IsFlagged(EPrf::kPerformGreatAimingAttack)) {
 		hr += 4;
 	}
-	hr -= (ch->IsOnHorse() ? (10 - ch->GetSkill(ESkill::kRiding) / 20) : 0);
-	hr *= ch->get_cond_penalty(P_HITROLL);
+	hr -= (mount::IsOnHorse(ch) ? (10 - ch->GetSkill(ESkill::kRiding) / 20) : 0);
+	hr *= condition::GetCondPenalty(ch, condition::kHitroll);
 	return hr;
 }
 
@@ -1089,7 +1093,7 @@ const char *GetPositionStr(CharData *ch) {
 }
 
 const char *GetShortPositionStr(CharData *ch) {
-	if (!ch->IsOnHorse()) {
+	if (!mount::IsOnHorse(ch)) {
 		switch (ch->GetPosition()) {
 			case EPosition::kDead: return "Вы МЕРТВЫ!";
 			case EPosition::kPerish: return "Вы умираете!";

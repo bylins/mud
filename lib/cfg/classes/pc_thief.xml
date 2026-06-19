@@ -1,9 +1,5 @@
 <?xml version="1.0" encoding="koi8-r"?>
 <class id="kThief">
-    <name abbr="Тт">
-        <singular nom="тать" gen="татя" dat="татю" acc="татя" ins="татем" pre="тате"/>
-        <plural nom="тати" gen="татей" dat="татям" acc="татей" ins="татями" pre="татях"/>
-    </name>
     <stats>
         <base_stats>
             <stat id="kStr"	gen_min="16"	gen_max="19"	auto="19"	cap="75"/>

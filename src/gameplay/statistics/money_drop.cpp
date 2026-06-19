@@ -7,6 +7,7 @@
 */
 
 #include "engine/entities/char_data.h"
+#include "administration/privilege.h"
 #include "engine/ui/modify.h"
 
 #include <map>
@@ -26,7 +27,7 @@ void add(int zone_vnum, long money) {
 }
 
 void print(CharData *ch) {
-	if (!ch->IsGrGod()) {
+	if (!privilege::IsGrGod(ch)) {
 		SendMsgToChar(ch, "Только для иммов 33+.\r\n");
 		return;
 	}

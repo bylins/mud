@@ -138,12 +138,15 @@ const int PLANE_BITS = 2;
 
 TEST(sprintbitwd, PrintZero_SimpleBitNames_NoPrintFlags)
 {
+	// issue.common-msg: sprintbitwd is a pure formatter -- an empty bitvector yields an empty result
+	// (and returns false). The "nothing" word is substituted by the wrappers above it, not here.
 	Bitvector bitvector = 0;
 	constexpr std::size_t BUFFER_SIZE = 1024;
 	char result[BUFFER_SIZE];
-	sprintbitwd(bitvector, BIT_NAMES, result, sizeof(result), SPLITTER);
+	const bool any = sprintbitwd(bitvector, BIT_NAMES, result, sizeof(result), SPLITTER);
 
-	EXPECT_EQ(0, strcmp(result, "ничего"));  // "ничего" (KOI8-R)
+	EXPECT_FALSE(any);
+	EXPECT_STREQ("", result);
 }
 
 TEST(sprintbitwd, SingleBit_SimpleBitNames_NoPrintFlags)

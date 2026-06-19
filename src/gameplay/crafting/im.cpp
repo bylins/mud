@@ -11,6 +11,7 @@
 // Реализация ингредиентной магии
 
 #include "im.h"
+#include "administration/privilege.h"
 
 #include <string>
 
@@ -20,10 +21,13 @@
 #include "gameplay/mechanics/mob_races.h"
 #include "engine/db/obj_prototypes.h"
 #include "engine/core/handler.h"
+#include "engine/core/target_resolver.h"
 #include "engine/ui/color.h"
 #include "engine/ui/modify.h"
 #include "engine/entities/zone.h"
+#include "engine/db/global_objects.h"
 #include "gameplay/core/base_stats.h"
+#include "gameplay/core/remort.h"
 
 #define        VAR_CHAR    '@'
 #define imlog(lvl, str)    mudlog(str, lvl, kLvlBuilder, IMLOG, true)
@@ -303,8 +307,8 @@ int im_assign_power(ObjData *obj)
 
 	// Замена описаний
 	// Падежи, описание, alias
-	for (j = ECase::kFirstCase; j <= ECase::kLastCase; ++j) {
-		auto name_case = static_cast<ECase>(j);
+	for (j = grammar::ECase::kFirstCase; j <= grammar::ECase::kLastCase; ++j) {
+		auto name_case = static_cast<grammar::ECase>(j);
 		const char *ptr = obj_proto[obj->get_rnum()]->get_PName(name_case).c_str();
 		obj->set_PName(name_case, replace_alias(ptr, sample, rnum, def_alias[j]));
 	}
@@ -898,19 +902,25 @@ void im_reset_room(RoomData *room, int level, int type) {
 		return;
 	}
 
-	if (!zone_types[type].ingr_qty
+	// (issue.ztypes-migrate) Reach zone-type data through the new info_container
+	// registry. Unknown vnum yields the kUndefined entry whose ingredient list is
+	// empty, so the short-circuit below covers both "no ingredients configured"
+	// and "zone.type out of range" cases the legacy array used to hit.
+	const auto &zone_type_info = MUD::ZoneTypes()[type];
+	const auto &ingredients = zone_type_info.GetIngredients();
+	if (ingredients.empty()
 		|| room->get_flag(ERoomFlag::kDeathTrap)) {
 		return;
 	}
-	for (i = 0; i < zone_types[type].ingr_qty; i++) {
+	for (i = 0; i < static_cast<int>(ingredients.size()); i++) {
 		//	3% - 1-17
 		//	2% - 18-34
 		//	1% - 35-50
 		//		if (number(1, 100) <= 3 - 3 * (level - 1) / MAX_ZONE_LEVEL)
 		if (number(1, 1000) <= (4 - level / 10) * 10) {
-			indx = im_type_rnum(zone_types[type].ingr_types[i]);
+			indx = im_type_rnum(ingredients[i]);
 			if (indx == -1) {
-				log("SYSERR: WRONG INGREDIENT TYPE Id %d IN ZTYPES.LST", zone_types[type].ingr_types[i]);
+				log("SYSERR: WRONG INGREDIENT TYPE Id %d IN zone_types.xml", ingredients[i]);
 				continue;
 			}
 			after = nullptr;
@@ -952,17 +962,17 @@ ObjData *try_make_ingr(int *ing_list, int vnum, int max_prob) {
 }
 
 ObjData *try_make_ingr(CharData *mob, int prob_default) {
-	auto it = mob_races::mobraces_list.find(GET_RACE(mob));
 	const int vnum = GET_MOB_VNUM(mob);
-	if (it != mob_races::mobraces_list.end()) {
-		size_t num_inrgs = it->second->ingrlist.size();
+	if (MUD::MobRaces().IsKnown(GET_RACE(mob))) {
+		const auto &ingrlist = MUD::MobRaces()[GET_RACE(mob)].GetIngredients();
+		size_t num_inrgs = ingrlist.size();
 		int *ingr_to_load_list = nullptr;
 		CREATE(ingr_to_load_list, num_inrgs * 2 + 1);
 		size_t j = 0;
 		const int level_mob = GetRealLevel(mob) > 0 ? GetRealLevel(mob) : 1;
 		for (; j < num_inrgs; j++) {
-			ingr_to_load_list[2 * j] = im_get_idx_by_type(it->second->ingrlist[j].imtype);
-			ingr_to_load_list[2 * j + 1] = it->second->ingrlist[j].prob.at(level_mob - 1);
+			ingr_to_load_list[2 * j] = im_get_idx_by_type(ingrlist[j].imtype);
+			ingr_to_load_list[2 * j + 1] = ingrlist[j].prob.at(level_mob - 1);
 			ingr_to_load_list[2 * j + 1] |= (level_mob << 16);
 		}
 		ingr_to_load_list[2 * j] = -1;
@@ -1005,13 +1015,13 @@ void list_recipes(CharData *ch, bool all_recipes) {
 			if (!ch->IsFlagged(EPrf::kBlindMode)) {
 				sprintf(buf, "     %s%-30s%s %2d (%2d)%s\r\n",
 						(imrecipes[sortpos].level<0 || imrecipes[sortpos].level>GetRealLevel(ch) ||
-							imrecipes[sortpos].remort<0 || imrecipes[sortpos].remort>GetRealRemort(ch)) ?
+							imrecipes[sortpos].remort<0 || imrecipes[sortpos].remort>remort::GetRealRemort(ch)) ?
 						kColorRed : rs ? kColorGrn : kColorNrm, imrecipes[sortpos].name, kColorCyn,
 						imrecipes[sortpos].level, imrecipes[sortpos].remort, kColorNrm);
 			} else {
 				sprintf(buf, " %s %-30s %2d (%2d)\r\n",
 						(imrecipes[sortpos].level < 0 || imrecipes[sortpos].level > GetRealLevel(ch) ||
-							imrecipes[sortpos].remort < 0 || imrecipes[sortpos].remort > GetRealRemort(ch)) ?
+							imrecipes[sortpos].remort < 0 || imrecipes[sortpos].remort > remort::GetRealRemort(ch)) ?
 						"[Н]" : rs ? "[И]" : "[Д]", imrecipes[sortpos].name,
 						imrecipes[sortpos].level, imrecipes[sortpos].remort);
 			}
@@ -1083,8 +1093,10 @@ void do_rset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (!(vict = get_char_vis(ch, name, EFind::kCharInWorld))) {
-		SendMsgToChar(NOPERSON, ch);
+	vict = target_resolver::FindCharInWorld(ch, name);
+
+	if (!vict) {
+		SendMsgToChar(CommonMsg(ECommonMsg::kNoPerson) + "\r\n", ch);
 		return;
 	}
 	skip_spaces(&argument);
@@ -1183,8 +1195,8 @@ void im_improve_recipe(CharData *ch, im_rskill *rs, int success) {
 						kColorBoldCyn, imrecipes[rs->rid].name, kColorNrm);
 			SendMsgToChar(buf, ch);
 			rs->perc += number(1, 2);
-			if (!ch->IsImmortal())
-				rs->perc = MIN(kZeroRemortSkillCap + GetRealRemort(ch) * 5, rs->perc);
+			if (!privilege::IsImmortal(ch))
+				rs->perc = MIN(kZeroRemortSkillCap + remort::GetRealRemort(ch) * 5, rs->perc);
 		}
 	}
 }
@@ -1214,7 +1226,7 @@ ObjData **im_obtain_ingredients(CharData *ch, char *argument, int *count) {
 			break;
 		}
 		if (im_type_rnum(GET_OBJ_VAL(o, IM_TYPE_SLOT)) < 0) {
-			sprintf(buf, "Магическая сила %s утеряна, похоже, безвозвратно.\r\n", o->get_PName(ECase::kGen).c_str());
+			sprintf(buf, "Магическая сила %s утеряна, похоже, безвозвратно.\r\n", o->get_PName(grammar::ECase::kGen).c_str());
 			break;
 		}
 		for (i = 0; i < n; ++i) {
@@ -1344,7 +1356,7 @@ void do_cook(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		// минимальное качество ингров для варки рецепта (REQ рецепта/2)
 		int min_osk = osk / 2;
 		if (itype < min_osk) {
-			SendMsgToChar(ch, "Качество %s ниже минимально допустимого.\r\n", objs[i]->get_PName(ECase::kGen).c_str());
+			SendMsgToChar(ch, "Качество %s ниже минимально допустимого.\r\n", objs[i]->get_PName(grammar::ECase::kGen).c_str());
 			sprintf(name, "Качество ингров ниже допустимого: itype=%d, min_osk=%d", itype, min_osk);
 			imlog(NRM, name);
 			free(objs);

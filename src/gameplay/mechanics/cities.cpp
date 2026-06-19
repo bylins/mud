@@ -3,6 +3,7 @@
 //
 
 #include "cities.h"
+#include "administration/privilege.h"
 #include "engine/entities/char_data.h"
 #include "engine/entities/zone.h"
 
@@ -63,7 +64,7 @@ void DoCities(CharData *ch, char *, int, int) {
 	SendMsgToChar("Города на Руси:\r\n", ch);
 	for (unsigned int i = 0; i < cities_roster.size(); i++) {
 		sprintf(buf, "%3d.", i + 1);
-		if (ch->IsImmortal()) {
+		if (privilege::IsImmortal(ch)) {
 			sprintf(buf1, " [VNUM: %d]", cities_roster[i].rent_vnum);
 			strcat(buf, buf1);
 		}

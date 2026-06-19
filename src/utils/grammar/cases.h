@@ -14,7 +14,15 @@
 #include <string>
 #include <string>
 
-// \TODO Перенести список падажей в неймспейс grammar
+
+namespace parser_wrapper {
+// forward declaration
+class DataNode;
+}
+
+namespace grammar {
+
+// Grammatical cases (падежи). issue.chardata-cleaning: moved into namespace grammar.
 enum ECase {
   kNom = 0,
   kGen,
@@ -26,13 +34,6 @@ enum ECase {
   kLastCase = kPre,
 };
 
-namespace parser_wrapper {
-// forward declaration
-class DataNode;
-}
-
-namespace grammar {
-
 //! A class for describing individual object, containing declension for singular and plural cases.
 class ItemName {
  public:
@@ -42,6 +43,8 @@ class ItemName {
   using NameCases = std::array<std::string, ECase::kLastCase + 1>;
   ItemName(ItemName &&i) noexcept;
   ItemName &operator=(ItemName &&i) noexcept;
+  ItemName(const ItemName &i) = default;            // issue.thing-names: copyable for the name registry
+  ItemName &operator=(const ItemName &i) = default;
 
   [[nodiscard]] const std::string &GetSingular(ECase name_case = ECase::kNom) const;
   [[nodiscard]] const std::string &GetPlural(ECase name_case = ECase::kNom) const;
@@ -51,6 +54,16 @@ class ItemName {
   NameCases singular_names_;
   NameCases plural_names_;
 };
+
+// The indefinite pronoun "кто-то" ("someone") declined by grammatical-case index
+// (pad: 0=nom .. 5=pre). issue.utils-cleaning: the GET_PAD_PERS fallback name, moved out of
+// utils.h; sight's PersonName returns this when a viewer cannot see a character.
+const char *SomebodyInCase(int pad);
+
+// The indefinite pronoun "что-то" ("something", neuter) declined by case index
+// (pad: 0=nom .. 5=pre). issue.utils-cleaning: the GET_PAD_OBJ fallback name, moved out of
+// utils.h; the arena/sight object-name helpers use it when a viewer cannot see an object.
+const char *SomethingInCase(int pad);
 
 }
 

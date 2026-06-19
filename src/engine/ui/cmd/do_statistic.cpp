@@ -11,6 +11,7 @@
 #include "engine/ui/color.h"
 #include "gameplay/statistics/mob_stat.h"
 #include "engine/ui/cmd_god/do_date.h"
+#include "gameplay/core/remort.h"
 
 #include <map>
 
@@ -38,7 +39,7 @@ void do_statistic(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 			continue;
 		}
 		CLAN(tch) ? ++clan : ++noclan;
-		GetRealRemort(tch) >= 1 ? ++rem : ++norem;
+		remort::GetRealRemort(tch) >= 1 ? ++rem : ++norem;
 		pk_count(tch.get()) >= 1 ? ++pk : ++nopk;
 
 		if (GetRealLevel(tch) >= 25) {

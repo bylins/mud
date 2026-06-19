@@ -2,6 +2,7 @@
 // Created by Sventovit on 07.09.2024.
 //
 #include "engine/entities/char_data.h"
+#include "utils/grammar/declensions.h"
 #include "do_toggle.h"
 #include "gameplay/clans/house.h"
 #include "engine/ui/table_wrapper.h"
@@ -562,8 +563,15 @@ void SetScreen(CharData *ch, char *argument, int flag) {
 	else if (flag == 1 && (size < 10 || size > 100))
 		SendMsgToChar("Высота экрана должна быть в пределах 10 - 100 строк.\r\n", ch);
 	else if (!flag) {
-		(ch)->player_specials->saved.stringLength = size;
-		SendMsgToChar("Ладушки.\r\n", ch);
+		std::string out(size, '.');
+
+		ch->player_specials->saved.stringLength = size;
+		SendMsgToChar("Выводим тестовую строку:\r\n", ch);
+		for (auto i = 5; i <= size; i +=5) {
+			const auto num = std::to_string(i);
+			out.replace(i - 1, num.length(), num);   // длина строки не меняется -- позиции не уползают
+		}
+		SendMsgToChar(ch, "%s\r\n", out.c_str());
 		ch->save_char();
 	} else if (flag == 1) {
 		(ch)->player_specials->saved.stringWidth = size;
@@ -588,7 +596,7 @@ void SetNotifyEchange(CharData *ch, char *argument) {
 		SendMsgToChar(ch,
 					  "Вам будут приходить уведомления о продаже с базара ваших лотов стоимостью не менее чем %ld %s.\r\n",
 					  size,
-					  GetDeclensionInNumber(size, EWhat::kMoneyA));
+					  grammar::GetDeclensionInNumber(size, grammar::EWhat::kMoneyA));
 		(ch)->player_specials->saved.ntfyExchangePrice = size;
 		ch->save_char();
 	} else if (size >= 0 && size < 100) {

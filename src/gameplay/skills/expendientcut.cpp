@@ -1,4 +1,8 @@
 #include "expendientcut.h"
+#include "administration/privilege.h"
+#include "gameplay/mechanics/mount.h"
+#include "skill_messages.h"
+#include "engine/db/global_objects.h"
 
 #include "gameplay/abilities/abilities_rollsystem.h"
 #include "engine/ui/color.h"
@@ -11,10 +15,10 @@
 void ApplyNoFleeAffect(CharData *ch, int duration) {
 	Affect<EApply> noflee;
 	noflee.type = ESpell::kExpedientFail;
-	noflee.bitvector = to_underlying(EAffect::kNoFlee);
+	noflee.affect_type = EAffect::kNoFlee;
 	noflee.location = EApply::kNone;
 	noflee.modifier = 0;
-	noflee.duration = CalcDuration(ch, duration, 0, 0, 0, 0);;
+	noflee.duration = CalcDuration(ch, ch, ESkill::kUndefined, duration, 0, 0, 0);;
 	noflee.battleflag = kAfBattledec | kAfPulsedec;
 	ImposeAffect(ch, noflee, true, false, true, false);
 	SendMsgToChar("Вы выпали из ритма боя.\r\n", ch);
@@ -23,15 +27,15 @@ void ApplyNoFleeAffect(CharData *ch, int duration) {
 void ApplyDebuffs(abilities_roll::TechniqueRoll &roll) {
 	Affect<EApply> cut;
 	cut.type = ESpell::kBattle;
-	cut.duration = CalcDuration(roll.GetActor(), 3 * number(2, 4), 0, 0, 0, 0);;
+	cut.duration = CalcDuration(roll.GetActor(), roll.GetActor(), ESkill::kUndefined, 3 * number(2, 4), 0, 0, 0);;
 	cut.battleflag = kAfBattledec;
 	if (roll.GetActor()->IsFlagged(EPrf::kPerformSerratedBlade)) {
 		cut.modifier = 1;
-		cut.bitvector = to_underlying(EAffect::kLacerations);
+		cut.affect_type = EAffect::kLacerations;
 		cut.location = EApply::kNone;
 	} else {
 		cut.modifier = -std::min(25, number(1, roll.GetActorRating()) / 10) - (roll.IsCriticalSuccess() ? 10 : 0);
-		cut.bitvector = to_underlying(EAffect::kHaemorrhage);
+		cut.affect_type = EAffect::kHaemorrhage;
 		cut.location = EApply::kResistVitality;
 	}
 	ImposeAffect(roll.GetRival(), cut, false, true, false, true);
@@ -42,7 +46,7 @@ void PerformCutSuccess(abilities_roll::TechniqueRoll &roll) {
 		false, roll.GetActor(), nullptr, roll.GetRival(), kToVict);
 	act("$n сделал$g неуловимое движение, сместившись за спину $N1.",
 		true, roll.GetActor(), nullptr, roll.GetRival(), kToNotVict | kToArenaListen);
-	if (!IS_UNDEAD(roll.GetRival()) && GET_RACE(roll.GetRival()) != ENpcRace::kConstruct) {
+	if (!roll.GetRival()->IsFlagged(EMobFlag::kUndead) && GET_RACE(roll.GetRival()) != ENpcRace::kConstruct) {
 		ApplyDebuffs(roll);
 	}
 }
@@ -62,12 +66,12 @@ void PerformCutFail(abilities_roll::TechniqueRoll &roll) {
 
 void GoExpedientCut(CharData *ch, CharData *vict) {
 	if (IsUnableToAct(ch)) {
-		SendMsgToChar("Вы временно не в состоянии сражаться.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kCutting, ESkillMsg::kCantFightNow) + "\r\n", ch);
 		return;
 	}
 
 	if (ch->HasCooldown(ESkill::kGlobalCooldown)) {
-		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kCutting, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	}
 //	if (vict->purged()) {
@@ -104,12 +108,10 @@ void GoExpedientCut(CharData *ch, CharData *vict) {
 	damage.dam = dmg;
 	damage.flags.set(fight::kIgnoreBlink);
 	damage.wielded = GET_EQ(ch, EEquipPos::kWield);
-	damage.msg_num = to_underlying(ESkill::kCutting) + kTypeHit;
 	damage.Process(roll.GetActor(), roll.GetRival());
 	if (roll.GetActor()->in_room == roll.GetRival()->in_room) {
 		damage.dam = dmg;
 		damage.wielded = GET_EQ(ch, EEquipPos::kHold);
-		damage.msg_num = to_underlying(ESkill::kCutting) + kTypeHit;
 		damage.Process(roll.GetActor(), roll.GetRival());
 		ApplyNoFleeAffect(ch, no_flee_duration);
 	}
@@ -132,28 +134,28 @@ void SetExtraAttackCut(CharData *ch, CharData *victim) {
 }
 
 void DoExpedientCut(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
-	if (ch->IsNpc() || (!CanUseFeat(ch, EFeat::kCutting) && !ch->IsImpl())) {
-		SendMsgToChar("Вы не владеете таким приемом.\r\n", ch);
+	if (ch->IsNpc() || (!CanUseFeat(ch, EFeat::kCutting) && !privilege::IsImpl(ch))) {
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kCutting, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
-	if (ch->IsHorsePrevents()) {
+	if (mount::IsBlockedByHorse(ch)) {
 		return;
 	}
 	if (ch->GetPosition() < EPosition::kFight) {
-		SendMsgToChar("Вам стоит встать на ноги.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kCutting, ESkillMsg::kGetOnFeet) + "\r\n", ch);
 		return;
 	}
 	if (AFF_FLAGGED(ch, EAffect::kStopRight) || IsUnableToAct(ch)) {
-		SendMsgToChar("Вы временно не в состоянии сражаться.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kCutting, ESkillMsg::kCantFightNow) + "\r\n", ch);
 		return;
 	}
 	CharData *vict = FindVictim(ch, argument);
 	if (!vict) {
-		SendMsgToChar("Кого вы хотите порезать?\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kCutting, ESkillMsg::kNoTarget) + "\r\n", ch);
 		return;
 	}
 	if (vict == ch) {
-		SendMsgToChar("Вы таки да? Ой-вей, но тут Древняя Русь, а не Палестина!\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kCutting, ESkillMsg::kCantTargetSelf) + "\r\n", ch);
 		return;
 	}
         if (ch->GetEnemy()) {

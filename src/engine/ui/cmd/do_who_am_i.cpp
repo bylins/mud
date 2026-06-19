@@ -9,6 +9,7 @@
 #include "engine/entities/char_data.h"
 #include "gameplay/clans/house.h"
 #include "engine/db/player_index.h"
+#include "gameplay/core/remort.h"
 
 void DoWhoAmI(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	sprintf(buf, "Персонаж : %s\r\n", GET_NAME(ch));
@@ -40,7 +41,7 @@ void DoWhoAmI(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 			snprintf(buf, kMaxStringLength, "&WИмя одобрено %s %s&n\r\n", by_rank, buf1);
 		SendMsgToChar(buf, ch);
 	}
-	sprintf(buf, "Перевоплощений: %d\r\n", GetRealRemort(ch));
+	sprintf(buf, "Перевоплощений: %d\r\n", remort::GetRealRemort(ch));
 	SendMsgToChar(buf, ch);
 	Clan::CheckPkList(ch);
 	if (ch->player_specials->saved.telegram_id != 0) { //тут прямое обращение, ибо базовый класс, а не наследник

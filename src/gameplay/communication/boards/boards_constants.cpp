@@ -1,7 +1,7 @@
 
 namespace Boards {
 namespace constants {
-const char *OVERFLOW_MESSAGE = "Да, набросали всего столько, что файл переполнен. Напомните об этом богам!\r\n";
+// OVERFLOW_MESSAGE migrated to board_msg.xml (specials::EBoardMsg::kOverflow); see boards.cpp.
 const char *CHANGELOG_FILE_NAME = "../build/changelog";
 
 namespace loader_formats {

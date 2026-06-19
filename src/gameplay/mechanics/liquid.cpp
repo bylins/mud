@@ -8,6 +8,9 @@
 ************************************************************************ */
 
 #include "liquid.h"
+#include "administration/privilege.h"
+#include "utils/grammar/gender.h"
+#include "utils/grammar/declensions.h"
 
 #include "engine/entities/obj_data.h"
 #include "engine/entities/char_data.h"
@@ -19,10 +22,6 @@
 
 #include <cmath>
 
-const int kDrunked = 10;
-const int kMortallyDrunked = 18;
-const int kMaxCondition = 48;
-const int kNormCondition = 22;
 
 const char *drinks[] = {"воды",
 						"пива",
@@ -238,27 +237,27 @@ void copy_potion_values(const CObjectPrototype *from_obj, CObjectPrototype *to_o
 
 using namespace drinkcon;
 
-int cast_potion_spell(CharData *ch, ObjData *obj, int num) {
+ECastResult cast_potion_spell(CharData *ch, ObjData *obj, int num) {
 	const auto spell_id = static_cast<ESpell>(obj->GetPotionValueKey(init_spell_num(num)));
 	const int level = -obj->GetPotionValueKey(init_spell_lvl(num));
 
 	if (spell_id > ESpell::kUndefined) {
 		return CallMagic(ch, ch, nullptr, world[ch->in_room], spell_id, level);
 	}
-	return 1;
+	return ECastResult::kSuccess;
 }
 
 int TryCastSpellsFromLiquid(CharData *ch, ObjData *jar) {
 	if (is_potion(jar) && jar->GetPotionValueKey(ObjVal::EValueKey::POTION_PROTO_VNUM) >= 0) {
 		act("$n выпил$g зелья из $o1.", true, ch, jar, 0, kToRoom);
-		SendMsgToChar(ch, "Вы выпили зелья из %s.\r\n", OBJN(jar, ch, ECase::kGen));
+		SendMsgToChar(ch, "Вы выпили зелья из %s.\r\n", OBJN(jar, ch, grammar::ECase::kGen));
 
 		//не очень понятно, но так было
 		for (int i = 1; i <= 3; ++i)
-			if (cast_potion_spell(ch, jar, i) <= 0)
+			if (cast_potion_spell(ch, jar, i) != ECastResult::kSuccess)
 				break;
 
-		SetWaitState(ch, kBattleRound);
+		SetBattleLag(ch, 1);
 		jar->dec_weight();
 		// все выпито
 		jar->dec_val(1);
@@ -473,8 +472,8 @@ void name_from_drinkcon(ObjData *obj) {
 	sprintf(new_name, "%s", tmp.c_str());
 	obj->set_short_description(new_name);
 
-	for (int c = ECase::kFirstCase; c <= ECase::kLastCase; c++) {
-		auto name_case = static_cast<ECase>(c);
+	for (int c = grammar::ECase::kFirstCase; c <= grammar::ECase::kLastCase; c++) {
+		auto name_case = static_cast<grammar::ECase>(c);
 		pos = find_liquid_name(obj->get_PName(name_case).c_str());
 		if (pos == std::string::npos) return;
 		tmp = obj->get_PName(name_case).substr(0, pos - 3);
@@ -497,8 +496,8 @@ void name_to_drinkcon(ObjData *obj, int type) {
 	snprintf(new_name, kMaxInputLength, "%s с %s", obj->get_short_description().c_str(), potion_name);
 	obj->set_short_description(new_name);
 
-	for (c = ECase::kFirstCase; c <= ECase::kLastCase; c++) {
-		auto name_case = static_cast<ECase>(c);
+	for (c = grammar::ECase::kFirstCase; c <= grammar::ECase::kLastCase; c++) {
+		auto name_case = static_cast<grammar::ECase>(c);
 		snprintf(new_name, kMaxInputLength, "%s с %s", obj->get_PName(name_case).c_str(), potion_name);
 		obj->set_PName(name_case, new_name);
 	}
@@ -553,7 +552,7 @@ void identify(CharData *ch, const ObjData *obj) {
 
 	snprintf(buf_, sizeof(buf_), "Может вместить зелья: %s%d %s%s\r\n",
 			 kColorCyn,
-			 volume, GetDeclensionInNumber(volume, EWhat::kGulp),
+			 volume, grammar::GetDeclensionInNumber(volume, grammar::EWhat::kGulp),
 			 kColorNrm);
 	out += buf_;
 
@@ -561,23 +560,23 @@ void identify(CharData *ch, const ObjData *obj) {
 	if (amount > 0) {
 		// есть какие-то заклы
 		if (obj->GetPotionValueKey(ObjVal::EValueKey::POTION_PROTO_VNUM) >= 0) {
-			if (ch->IsImmortal()) {
+			if (privilege::IsImmortal(ch)) {
 				snprintf(buf_, sizeof(buf_), "Содержит %d %s %s (VNUM: %d).\r\n",
 						 amount,
-						 GetDeclensionInNumber(amount, EWhat::kGulp),
+						 grammar::GetDeclensionInNumber(amount, grammar::EWhat::kGulp),
 						 drinks[GET_OBJ_VAL(obj, 2)],
 						 obj->GetPotionValueKey(ObjVal::EValueKey::POTION_PROTO_VNUM));
 			} else {
 				snprintf(buf_, sizeof(buf_), "Содержит %d %s %s.\r\n",
 						 amount,
-						 GetDeclensionInNumber(amount, EWhat::kGulp),
+						 grammar::GetDeclensionInNumber(amount, grammar::EWhat::kGulp),
 						 drinks[GET_OBJ_VAL(obj, 2)]);
 			}
 			out += buf_;
 			out += print_spells(obj);
 		} else {
 			snprintf(buf_, sizeof(buf_), "Заполнен%s %s на %d%%\r\n",
-					 GET_OBJ_SUF_6(obj),
+					 grammar::ObjSexEnding((obj)->get_sex(), 6),
 					 drinknames[GET_OBJ_VAL(obj, 2)],
 					 amount * 100 / (volume ? volume : 1));
 			out += buf_;
@@ -603,7 +602,7 @@ char *daig_filling_drink(const ObjData *obj, const CharData *ch) {
 	}
 	else {
 		if (GET_OBJ_VAL(obj, 0) <= 0 || GET_OBJ_VAL(obj, 1) > GET_OBJ_VAL(obj, 0)) {
-			sprintf(buf1, "Заполнен%s вакуумом?!", GET_OBJ_SUF_6(obj));    // BUG
+			sprintf(buf1, "Заполнен%s вакуумом?!", grammar::ObjSexEnding((obj)->get_sex(), 6));    // BUG
 			return buf1;
 		}
 		else {
@@ -611,7 +610,7 @@ char *daig_filling_drink(const ObjData *obj, const CharData *ch) {
 			int amt = (GET_OBJ_VAL(obj, 1) * 5) / GET_OBJ_VAL(obj, 0);
 			sprinttype(GET_OBJ_VAL(obj, 2), color_liquid, tmp);
 			snprintf(buf1, kMaxStringLength,
-					 "Наполнен%s %s%s%s жидкостью", GET_OBJ_SUF_6(obj), fullness[amt], tmp, msg);
+					 "Наполнен%s %s%s%s жидкостью", grammar::ObjSexEnding((obj)->get_sex(), 6), fullness[amt], tmp, msg);
 			return buf1;
 		}
 	}

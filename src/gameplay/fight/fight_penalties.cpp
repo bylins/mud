@@ -1,6 +1,7 @@
 #include "fight_penalties.h"
 
 #include "engine/entities/char_data.h"
+#include "gameplay/core/remort.h"
 
 int GroupPenaltyCalculator::get() const {
 	const bool leader_is_npc = m_leader->IsNpc();
@@ -37,7 +38,7 @@ int GroupPenaltyCalculator::get() const {
 }
 
 bool GroupPenaltyCalculator::penalty_by_leader(const CharData *player, int &penalty) const {
-	const int player_remorts = static_cast<int>(GetRealRemort(player));
+	const int player_remorts = static_cast<int>(remort::GetRealRemort(player));
 	const int player_level = GetRealLevel(player);
 
 	if (player->IsNpc()) {

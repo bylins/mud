@@ -7,6 +7,7 @@
 */
 
 #include "engine/entities/char_data.h"
+#include "gameplay/mechanics/mount.h"
 #include "engine/core/handler.h"
 
 void DoAtRoom(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
@@ -39,7 +40,7 @@ void DoAtRoom(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		RemoveCharFromRoom(ch);
 		PlaceCharToRoom(ch, original_loc);
 	}
-	ch->dismount();
+	mount::Dismount(ch);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

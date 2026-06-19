@@ -10,6 +10,9 @@ str.cpp - PyUnicode_FromString на PyUnicode_DecodeLocale, PyUnicode_FromString
 Т.е. делаем все так же, как и здесь http://habrahabr.ru/post/161931/
 */
 #include "scripting.h"
+#include "administration/privilege.h"
+#include "gameplay/mechanics/sight.h"
+#include "gameplay/mechanics/mount.h"
 
 #include "engine/db/world_characters.h"
 #include "engine/db/obj_prototypes.h"
@@ -24,10 +27,12 @@ str.cpp - PyUnicode_FromString на PyUnicode_DecodeLocale, PyUnicode_FromString
 #include "gameplay/magic/magic_utils.h"
 #include "gameplay/magic/spells.h"
 #include "engine/core/handler.h"
+#include "engine/core/target_resolver.h"
 #include "gameplay/core/constants.h"
 #include "engine/ui/modify.h"
 #include "gameplay/magic/spells_info.h"
 #include "engine/db/global_objects.h"
+#include "gameplay/core/remort.h"
 
 // Required because pyconfig.h defines ssize_t by himself
 #if defined(ssize_t)
@@ -183,12 +188,12 @@ class CharacterWrapper : public Wrapper<CharacterData> {
 
 	bool is_immortal() {
 		Ensurer ch(*this);
-		return ch->IsImmortal();
+		return privilege::IsImmortal(ch);
 	}
 
 	bool is_impl() {
 		Ensurer ch(*this);
-		return ch->IsImpl();
+		return privilege::IsImpl(ch);
 	}
 
 	bool is_NPC() {
@@ -482,7 +487,7 @@ class CharacterWrapper : public Wrapper<CharacterData> {
 
 	short get_remort() const {
 		Ensurer ch(*this);
-		return GetRealRemort(ch);
+		return remort::GetRealRemort(ch);
 	}
 
 	int get_skill(int skill_num) const {
@@ -549,7 +554,7 @@ class CharacterWrapper : public Wrapper<CharacterData> {
 		Ensurer ch(*this);
 		char_from_room(ch);
 		char_to_room(ch, in_room);
-		ch->dismount();
+		mount::Dismount(ch);
 	}
 
 	bool is_affected_by_spell(int spell_num) const {
@@ -564,7 +569,12 @@ class CharacterWrapper : public Wrapper<CharacterData> {
 
 	CharacterWrapper get_vis(const char *name, int where) const {
 		Ensurer ch(*this);
-		CharacterData *r = get_char_vis(ch, name, where);
+		target_resolver::Query _q;
+		_q.scopes = (where == EFind::kCharInWorld)
+			? std::vector<target_resolver::Scope>{target_resolver::Scope::kRoom, target_resolver::Scope::kWorld}
+			: std::vector<target_resolver::Scope>{target_resolver::Scope::kRoom};
+		_q.name = name;
+		CharData *r = target_resolver::ResolveChar(ch, _q);
 		if (!r) {
 			PyErr_SetString(PyExc_ValueError, "Character not found");
 			throw_error_already_set();
@@ -694,7 +704,7 @@ std::string get_location_str(const AFFECT_DATA<EApplyLocation> &af) {
 
 std::string get_bitvector_str(const AFFECT_DATA<EApplyLocation> &af) {
 	char buf[MAX_STRING_LENGTH];
-	sprintbitwd(af.bitvector, affected_bits, buf, sizeof(buf), ", ");
+	sprintbitwd(to_underlying(af.affect_type), affected_bits, buf, sizeof(buf), ", ");
 	return buf;
 }
 
@@ -1185,8 +1195,8 @@ void char_to_room_wrap(CharacterWrapper &c, int vnum) {
 	}
 	char_from_room(ch);
 	char_to_room(ch, location);
-	ch->dismount();
-	look_at_room(ch, 0);
+	mount::Dismount(ch);
+	sight::look_at_room(ch, 0);
 
 }
 

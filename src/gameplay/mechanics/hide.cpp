@@ -8,6 +8,7 @@
 
 #include "engine/entities/char_data.h"
 #include "awake.h"
+#include "gameplay/mechanics/sight.h"
 
 void MakeVisible(CharData *ch, EAffect affect);
 
@@ -17,7 +18,7 @@ void MakeVisible(CharData *ch, EAffect affect);
 int SkipHiding(CharData *ch, CharData *vict) {
 	int percent, prob;
 
-	if (MAY_SEE(ch, vict, ch) && IsAffectedBySpell(ch, ESpell::kHide)) {
+	if (sight::MaySee(ch, vict, ch) && IsAffectedBySpell(ch, ESpell::kHide)) {
 		if (awake_hide(ch)) {
 			SendMsgToChar("Вы попытались спрятаться, но ваша экипировка выдала вас.\r\n", ch);
 			RemoveAffectFromChar(ch, ESpell::kHide);
@@ -47,7 +48,7 @@ int SkipHiding(CharData *ch, CharData *vict) {
 int SkipCamouflage(CharData *ch, CharData *vict) {
 	int percent, prob;
 
-	if (MAY_SEE(ch, vict, ch) && IsAffectedBySpell(ch, ESpell::kCamouflage)) {
+	if (sight::MaySee(ch, vict, ch) && IsAffectedBySpell(ch, ESpell::kCamouflage)) {
 		if (awake_camouflage(ch)) {
 			SendMsgToChar("Вы попытались замаскироваться, но ваша экипировка выдала вас.\r\n", ch);
 			RemoveAffectFromChar(ch, ESpell::kCamouflage);
@@ -79,7 +80,7 @@ int SkipSneaking(CharData *ch, CharData *vict) {
 	int percent, prob, absolute_fail;
 	bool try_fail;
 
-	if (MAY_SEE(ch, vict, ch) && IsAffectedBySpell(ch, ESpell::kSneak)) {
+	if (sight::MaySee(ch, vict, ch) && IsAffectedBySpell(ch, ESpell::kSneak)) {
 		if (awake_sneak(ch))    //if (affected_by_spell(ch,SPELL_SNEAK))
 		{
 			SendMsgToChar("Вы попытались подкрасться, но ваша экипировка выдала вас.\r\n", ch);

@@ -51,13 +51,17 @@ void ZoneTrafficSave();
 void ResetZone(ZoneRnum zone);
 void LoadSheduledReboot();
 void initIngredientsMagic();
-void InitZoneTypes();
 int AllocateBufferForFile(const char *name, char **destination_buf);
 int LoadPlayerCharacter(const char *name, CharData *char_element, int load_flags);
 CharData *ReadMobile(MobVnum nr, int type);
 void SaveGlobalUID();
 void FlushPlayerIndex();
 bool IsZoneEmpty(ZoneRnum zone_nr, bool debug = false);
+// issue.utils-cleaning: player/depot file kinds (was loose const ints in utils.h).
+enum EPlayerFile {
+	kAliasFile = 1, kScriptVarsFile, kPlayersFile, kTextCrashFile,
+	kTimeCrashFile, kPersDepotFile, kShareDepotFile, kPurgeDepotFile,
+};
 int get_filename(const char *orig_name, char *filename, int mode);
 CharData *find_char(long n);
 CharData *find_pc(long n);
@@ -108,15 +112,12 @@ struct ExtraAffects {
 
 // for queueing zones for update
 struct reset_q_element {
-	ZoneRnum zone_to_reset;    // ref to zone_data
-	struct reset_q_element *next;
+	ZoneRnum zone_to_reset{0};
+	bool force_reset{false};
 };
 
-// structure for the update queue
-struct reset_q_type {
-	struct reset_q_element *head;
-	struct reset_q_element *tail;
-};
+using ResetQueue = std::list<reset_q_element>;
+extern ResetQueue reset_q;
 
 const int kObjectSaveActivity = 300;
 const int kPlayerSaveActivity = 305;
@@ -219,6 +220,20 @@ class GameLoader {
 
 	static void BootWorld(std::unique_ptr<world_loader::IWorldDataSource> data_source = nullptr);
 	static void BootIndex(EBootType mode);
+
+	// Diagnostic: re-emit loaded world via the current backend's Save* APIs
+	// into a fresh directory. Used by `circle -S <out_dir>` for the
+	// load -> save -> diff round-trip test. Returns 0 on success or the
+	// number of save errors encountered.
+	//
+	// target_format selects the saver explicitly: "", "auto" or nullptr
+	// keeps the compile-time default (YAML when HAVE_YAML, SQLite when
+	// HAVE_SQLITE, otherwise legacy). Explicit values: "legacy", "yaml",
+	// "sqlite". Selecting a backend not compiled in returns a non-zero
+	// error count. The legacy target also regenerates per-subdir index
+	// files so the resulting tree is bootable.
+	static int ResaveWorld(const std::string &target_dir,
+		const std::string &target_format = std::string());
 
  private:
 	static void PrepareGlobalStructures(const EBootType mode, const int rec_count);

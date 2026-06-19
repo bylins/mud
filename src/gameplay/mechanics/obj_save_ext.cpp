@@ -6,7 +6,6 @@
 #include "depot.h"
 #include "gameplay/communication/parcel.h"
 #include "engine/db/world_characters.h"
-#include "utils/backtrace.h"
 
 namespace ObjSaveSync {
 
@@ -45,11 +44,9 @@ void write_file(long uid, int type) {
 		CharData *ch = find_char(uid);
 		if (ch) {
 			Crash_crashsave(ch);
-			return;
-		} else {
-			mudlog(fmt::format("Запрошена запись в файл неизвестного игрока, uid {} Создан coredump", uid));
-			debug::backtrace(runtime_config.logs(SYSLOG).handle());
 		}
+		// Игрок ушёл оффлайн до срабатывания зависимости -
+		// сохранение уже произошло при выходе.
 	} else if (type == CLAN_SAVE) {
 		for (const auto &i : Clan::ClanList) {
 			if (i->GetRent() == uid) {

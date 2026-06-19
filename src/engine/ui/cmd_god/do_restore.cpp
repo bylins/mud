@@ -9,6 +9,7 @@
 #include "engine/entities/char_data.h"
 #include "administration/privilege.h"
 #include "engine/core/handler.h"
+#include "engine/core/target_resolver.h"
 #include "gameplay/fight/fight.h"
 
 void DoRestore(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
@@ -17,8 +18,8 @@ void DoRestore(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	one_argument(argument, buf);
 	if (!*buf)
 		SendMsgToChar("Кого вы хотите восстановить?\r\n", ch);
-	else if (!(vict = get_char_vis(ch, buf, EFind::kCharInWorld)))
-		SendMsgToChar(NOPERSON, ch);
+	else if (!(vict = target_resolver::FindCharInWorld(ch, buf)))
+		SendMsgToChar(CommonMsg(ECommonMsg::kNoPerson) + "\r\n", ch);
 	else {
 		// имм с привилегией arena может ресторить только чаров, находящихся с ним на этой же арене
 		// плюс исключается ситуация, когда они в одной зоне, но чар не в клетке арены
@@ -36,7 +37,7 @@ void DoRestore(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		} else {
 			vict->mem_queue.stored = vict->mem_queue.total;
 		}
-		if (ch->IsGrGod() && vict->IsImmortal()) {
+		if (privilege::IsGrGod(ch) && privilege::IsImmortal(vict)) {
 			vict->set_str(25);
 			vict->set_int(25);
 			vict->set_wis(25);
@@ -46,14 +47,14 @@ void DoRestore(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		}
 		update_pos(vict);
 		RemoveAffectFromChar(vict, ESpell::kDrunked);
-		GET_DRUNK_STATE(vict) = GET_COND(vict, DRUNK) = 0;
+		GET_DRUNK_STATE(vict) = GET_COND(vict, condition::kDrunk) = 0;
 		RemoveAffectFromChar(vict, ESpell::kAbstinent);
 
 		//сброс таймеров скиллов и фитов
 		ch->timed_skill.clear();
 		ch->timed_feat.clear();
 		if (subcmd == kScmdRestoreGod) {
-			SendMsgToChar(OK, ch);
+			SendMsgToChar(CommonMsg(ECommonMsg::kOk) + "\r\n", ch);
 			act("Вы были полностью восстановлены $N4!",
 				false, vict, nullptr, ch, kToChar);
 		}

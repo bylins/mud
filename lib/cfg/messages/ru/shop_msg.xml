@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<!--
+    issue.specials Phase 2: shop keeper messages (shop_ext.cpp / shops_implementation.cpp).
+    tell_to_char (keeper -> char), printf SendMsgToChar (code appends the trailing \r\n) and one act
+    line (kRepaired keeps $n/$g/$o3). Named fmt args: {amount}/{currency} (money), {count} (quantity),
+    {item} (object in the proper case), {name} (player), {type}/{material}/{filter}/{cmd}. Gender splits
+    into *Male/*Female keys. The list/filter table layout + ASCII separator stay in code; only the
+    localized header line is a message. Item-detail diagnostics (diag_weapon/diag_timer/MortShowObjValues)
+    stay in code.
+-->
+<msg_container>
+	<msg_sheaf id="kDefault">
+		<message type="kGreeting" val="Чего желаете?"/>
+		<message type="kError" val="Ошибочка вышла."/>
+		<message type="kBuyWhat" val="ЧТО ты хочешь купить?"/>
+		<message type="kNoSuchItem" val="Протри глаза, у меня нет такой вещи."/>
+		<message type="kTooGreedy" val="А морда не треснет?"/>
+		<message type="kWrongClass" val="Мне жаль, но эта вещь тебе не подходит."/>
+		<message type="kCantAfford" val="У вас нет столько {currency}!"/>
+		<message type="kSwearing" val="$n злобно обругал$g $N3."/>
+		<message type="kDrinkEmoteMale" val="отхлебнул$g немелкий глоток водки"/>
+		<message type="kDrinkEmoteFemale" val="отхлебнул$g немелкий глоток медовухи"/>
+		<message type="kHandsFull1" val="{name}, я понимаю, своя ноша карман не тянет,"/>
+		<message type="kHandsFull2" val="но {item} вам явно некуда положить."/>
+		<message type="kCheaterMale" val="Мошенник, ты можешь оплатить только {count}."/>
+		<message type="kCheaterFemale" val="Мошенница, ты можешь оплатить только {count}."/>
+		<message type="kCarryOnly" val="Ты сможешь унести только {count}."/>
+		<message type="kLiftOnly" val="Ты сможешь поднять только {count}."/>
+		<message type="kSellOnly" val="Я продам тебе только {count}."/>
+		<message type="kSellNothing" val="Я не продам тебе ничего."/>
+		<message type="kHryvnReset" val="Мессага о том, что гривны были сброшены."/>
+		<message type="kPrice" val="Это будет стоить {amount} {currency}."/>
+		<message type="kHappyOwnerMale" val="Теперь вы стали счастливым обладателем {item}."/>
+		<message type="kHappyOwnerFemale" val="Теперь вы стали счастливой обладательницей {item}."/>
+		<message type="kListHeader" val=" ##    Доступно   Предмет                                      Цена ({currency})"/>
+		<message type="kFilterHeader" val=" ##      Доступно  Предмет                                       Цена ({currency})"/>
+		<message type="kFilterSelection" val="Выборка: {filter}"/>
+		<message type="kBulk" val="Навалом"/>
+		<message type="kOwnSuppliers" val="Извини, у меня свои поставщики..."/>
+		<message type="kCmdWhat" val="{cmd} ЧТО?"/>
+		<message type="kNoItem" val="У вас нет {item}!"/>
+		<message type="kIdentWhat" val="Характеристики ЧЕГО ты хочешь узнать?"/>
+		<message type="kInspectIntro" val="Предмет {item}: {type}"/>
+		<message type="kMaterial" val="Материал : {material}."/>
+		<message type="kInspectExdesc" val="Рассматривая {item} вы смогли прочитать:"/>
+		<message type="kCantCarry" val="Но лучше бы тебе не заглядываться на эту вещь, не унесешь все равно."/>
+		<message type="kNoMoney" val="У вас нет столько денег!"/>
+		<message type="kIdentCost" val="Эта услуга будет стоить {amount} {currency}."/>
+		<message type="kIdentResult" val="Характеристики предмета: {item}"/>
+		<message type="kWontDeal" val="Я не собираюсь иметь дела с этой вещью."/>
+		<message type="kNoUsedItems" val="Я не покупаю использованные вещи!"/>
+		<message type="kNoPigInPoke" val="Не надо предлагать мне кота в мешке."/>
+		<message type="kBloodyValue" val="Иди от крови отмой сначала!"/>
+		<message type="kWontBuy" val="Такое я не покупаю."/>
+		<message type="kValueOffer" val="Я, пожалуй, куплю {item} за {amount} {currency}."/>
+		<message type="kBloodySell" val="Пшел вон убивец, и руки от крови отмой!"/>
+		<message type="kSellPaid" val="Получи за {item} {amount} {currency}."/>
+		<message type="kBloodyRepair" val="Я не буду чинить окровавленные вещи!"/>
+		<message type="kNoRepairNeeded" val="{item} не нужно чинить."/>
+		<message type="kWontRepair" val="Я не буду тратить свое драгоценное время на {item}."/>
+		<message type="kRepairCost" val="Починка {item} обойдется в {amount} {currency}."/>
+		<message type="kCantAffordRepair" val="А вот их у тебя как-раз то и нет."/>
+		<message type="kRepaired" val="$n сноровисто починил$g $o3."/>
+	</msg_sheaf>
+</msg_container>

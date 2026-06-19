@@ -46,8 +46,9 @@ archive/
 /changelog
 /profiler.log
 
-# Claude Code worktrees and state
-.claude/
+# Claude Code worktrees and state (but keep shared skills)
+.claude/*
+!.claude/skills/
 
 # Backup files from patch/sed
 *.orig

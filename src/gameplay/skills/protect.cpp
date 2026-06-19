@@ -1,16 +1,18 @@
 #include "protect.h"
+#include "skill_messages.h"
 
 #include "gameplay/fight/pk.h"
 #include "gameplay/fight/fight.h"
 #include "gameplay/fight/common.h"
 #include "gameplay/fight/fight_hit.h"
 #include "engine/core/handler.h"
+#include "engine/core/target_resolver.h"
 #include "engine/db/global_objects.h"
 
 // ************** PROTECT PROCEDURES
 void go_protect(CharData *ch, CharData *vict) {
 	if (IsUnableToAct(ch)) {
-		SendMsgToChar("Вы временно не в состоянии сражаться.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kProtect, ESkillMsg::kCantFightNow) + "\r\n", ch);
 		return;
 	}
 	ch->set_protecting(vict);
@@ -30,17 +32,19 @@ void do_protect(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	if (ch->IsNpc() || !ch->GetSkill(ESkill::kProtect)) {
-		SendMsgToChar("Вы не знаете как.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kProtect, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
 	if (ch->HasCooldown(ESkill::kProtect)) {
-		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kProtect, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	};
 
-	CharData *vict = get_char_vis(ch, arg, EFind::kCharInRoom);
+	CharData * vict = nullptr;
+
+	vict = target_resolver::FindCharInRoom(ch, arg);
 	if (!vict) {
-		SendMsgToChar("И кто так сильно мил вашему сердцу?\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kProtect, ESkillMsg::kNoTarget) + "\r\n", ch);
 		return;
 	};
 
@@ -50,7 +54,7 @@ void do_protect(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	if (ch->GetEnemy() == vict) {
-		SendMsgToChar("Вы явно пацифист, или мазохист.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kProtect, ESkillMsg::kCantTargetSelf) + "\r\n", ch);
 		return;
 	}
 
@@ -104,13 +108,13 @@ CharData *TryToFindProtector(CharData *victim, CharData *ch) {
 					false, vict, 0, victim, kToChar);
 				act("$N пытается напасть на вас! Лучше бы вам отойти.", false, victim, 0, vict, kToChar);
 				vict->remove_protecting();
-				SetWaitState(vict, kBattleRound);
+				SetBattleLag(vict, 1);
 				Affect<EApply> af;
 				af.type = ESpell::kBattle;
-				af.bitvector = to_underlying(EAffect::kStopFight);
+				af.affect_type = EAffect::kStopFight;
 				af.location = EApply::kNone;
 				af.modifier = 0;
-				af.duration = CalcDuration(vict, 1, 0, 0, 0, 0);
+				af.duration = CalcDuration(vict, vict, ESkill::kUndefined, 1, 0, 0, 0);
 				af.battleflag = kAfBattledec | kAfPulsedec;
 				ImposeAffect(vict, af, true, false, true, false);
 				return victim;

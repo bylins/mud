@@ -2,6 +2,7 @@
 
 #if defined(WITH_LUAJIT_PROTOTYPE)
 
+#include "administration/privilege.h"
 #include "engine/core/comm.h"
 #include "engine/core/handler.h"
 #include "engine/db/obj_prototypes.h"
@@ -13,8 +14,11 @@
 #include "engine/ui/cmd/do_follow.h"
 #include "engine/ui/interpreter.h"
 #include "gameplay/core/constants.h"
+#include "gameplay/fight/fight_constants.h"
 #include "gameplay/fight/fight.h"
 #include "gameplay/mechanics/damage.h"
+#include "gameplay/mechanics/follow.h"
+#include "gameplay/mechanics/sight.h"
 #include "gameplay/magic/spells.h"
 #include "utils/random.h"
 #include "utils/utils.h"
@@ -164,7 +168,7 @@ bool GetLuaAffectId(const sol::object &value, EAffect &affect_id)
 	}
 
 	const auto affect = ITEM_BY_NAME<EAffect>(value.as<std::string>());
-	if (affect == EAffect::kUndefinded)
+	if (affect == EAffect::kUndefined)
 	{
 		return false;
 	}
@@ -373,7 +377,7 @@ bool IsCharPc(const LuaEntityHandle &handle)
 bool IsCharImmortal(const LuaEntityHandle &handle)
 {
 	auto *ch = ResolveChar(handle);
-	return ch && ch->IsImmortal();
+	return ch && privilege::IsImmortal(ch);
 }
 
 int GetCharLevel(const LuaEntityHandle &handle)
@@ -391,7 +395,7 @@ int GetCharPosition(const LuaEntityHandle &handle)
 bool CharHasAffect(const LuaEntityHandle &handle, const sol::object &affect)
 {
 	auto *ch = ResolveChar(handle);
-	EAffect affect_id = EAffect::kUndefinded;
+	EAffect affect_id = EAffect::kUndefined;
 	return ch && GetLuaAffectId(affect, affect_id) && AFF_FLAGGED(ch, affect_id);
 }
 
@@ -399,7 +403,7 @@ bool CharCanSee(LuaRuntimeContext runtime, const LuaEntityHandle &handle, const 
 {
 	auto *ch = ResolveChar(handle);
 	auto *victim = GetLuaCharFromObject(target, runtime);
-	return ch && victim && CAN_SEE(ch, victim);
+	return ch && victim && sight::CanSee(ch, victim);
 }
 
 CharData *GetCharEnemy(const LuaEntityHandle &handle)
@@ -720,7 +724,7 @@ bool PurgeCharEntity(const LuaEntityHandle &handle, LuaRuntimeContext runtime)
 	}
 	if (!ch->followers.empty() || ch->has_master())
 	{
-		die_follower(ch);
+		follow::DieFollower(ch);
 	}
 
 	character_list.AddToExtractedList(ch);
@@ -984,7 +988,7 @@ bool MudDamage(
 	{
 		return LogLuaApiError(runtime, "damage: attacker and victim must be in the same room");
 	}
-	if (victim->IsImmortal() && amount > 0)
+	if (privilege::IsImmortal(victim) && amount > 0)
 	{
 		return LogLuaApiError(runtime, "damage: immortal victim");
 	}
@@ -993,7 +997,7 @@ bool MudDamage(
 		return ApplyDirectTriggerDamage(victim, amount);
 	}
 
-	Damage damage(SimpleDmg(kTypeTriggerdeath), amount, damage_type);
+	Damage damage(SimpleDmg(fight::EDamageSource::kTriggerDeath), amount, damage_type);
 	return damage.Process(attacker, victim) != 0;
 }
 

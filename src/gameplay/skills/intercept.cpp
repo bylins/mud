@@ -7,33 +7,38 @@
 */
 
 #include "engine/db/global_objects.h"
+#include "administration/privilege.h"
+
+#include "skill_messages.h"
 #include "engine/entities/char_data.h"
 #include "gameplay/fight/common.h"
 #include "parry.h"
 #include "engine/core/handler.h"
+#include "engine/core/target_resolver.h"
 
 void GoIntercept(CharData *ch, CharData *vict);
 void PerformIntercept(CharData *ch, CharData *vict, HitData &hit_data);
 
 void DoIntercept(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->IsNpc() || !ch->GetSkill(ESkill::kIntercept)) {
-		SendMsgToChar("Вы не знаете как.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kIntercept, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
 	if (ch->HasCooldown(ESkill::kIntercept)) {
-		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kIntercept, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	};
 
 	ObjData *primary = GET_EQ(ch, EEquipPos::kWield) ? GET_EQ(ch, EEquipPos::kWield) : GET_EQ(ch, EEquipPos::kBoths);
-	if (!(ch->IsImmortal() || ch->IsNpc() || GET_GOD_FLAG(ch, EGf::kGodsLike) || !primary)) {
+	if (!(privilege::IsImmortal(ch) || ch->IsNpc() || GET_GOD_FLAG(ch, EGf::kGodsLike) || !primary)) {
 		SendMsgToChar("У вас заняты руки.\r\n", ch);
 		return;
 	}
 
 	CharData *vict{nullptr};
 	one_argument(argument, arg);
-	if (!(vict = get_char_vis(ch, arg, EFind::kCharInRoom))) {
+	vict = target_resolver::FindCharInRoom(ch, arg);
+	if (!vict) {
 		for (const auto i : world[ch->in_room]->people) {
 			if (i->GetEnemy() == ch) {
 				vict = i;
@@ -53,7 +58,7 @@ void DoIntercept(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (ch == vict) {
 		SendMsgToChar(GET_NAME(ch), ch);
-		SendMsgToChar(", вы похожи на котенка, ловящего собственный хвост.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kIntercept, ESkillMsg::kCantTargetSelf) + "\r\n", ch);
 		return;
 	}
 	if (vict->GetEnemy() != ch && ch->GetEnemy() != vict) {
@@ -74,7 +79,7 @@ void DoIntercept(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 void GoIntercept(CharData *ch, CharData *vict) {
 	if (IsUnableToAct(ch)) {
-		SendMsgToChar("Вы временно не в состоянии сражаться.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kIntercept, ESkillMsg::kCantFightNow) + "\r\n", ch);
 		return;
 	}
 	act("Вы попытаетесь перехватить следующую атаку $N1.", false, ch, nullptr, vict, kToChar);
@@ -101,14 +106,14 @@ void PerformIntercept(CharData *ch, CharData *vict, HitData &hit_data) {
 		&& !AFF_FLAGGED(vict, EAffect::kStopRight)
 		&& vict->get_wait() <= 0
 		&& !AFF_FLAGGED(vict, EAffect::kHold)
-		&& (vict->IsImmortal() || vict->IsNpc()
+		&& (privilege::IsImmortal(vict) || vict->IsNpc()
 			|| !(GET_EQ(vict, EEquipPos::kWield) || GET_EQ(vict, EEquipPos::kBoths)))
 		&& vict->GetPosition() > EPosition::kSleep) {
 		int percent = number(1, MUD::Skill(ESkill::kIntercept).difficulty);
 		int prob = CalcCurrentSkill(vict, ESkill::kIntercept, ch);
 		TrainSkill(vict, ESkill::kIntercept, prob >= percent, ch);
 		SendSkillBalanceMsg(ch, MUD::Skill(ESkill::kIntercept).name, percent, prob, prob >= 70);
-		if (vict->IsImmortal() || GET_GOD_FLAG(vict, EGf::kGodsLike)) {
+		if (privilege::IsImmortal(vict) || GET_GOD_FLAG(vict, EGf::kGodsLike)) {
 			percent = prob;
 		}
 		if (GET_GOD_FLAG(vict, EGf::kGodscurse)) {

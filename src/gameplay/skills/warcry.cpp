@@ -1,4 +1,6 @@
 #include "warcry.h"
+#include "administration/privilege.h"
+#include "skill_messages.h"
 
 #include "engine/core/handler.h"
 #include "engine/ui/color.h"
@@ -12,7 +14,7 @@ void do_warcry(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 
 	if (!ch->GetSkill(ESkill::kWarcry)) {
-		SendMsgToChar("Но вы не знаете как.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kWarcry, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
 
@@ -37,8 +39,16 @@ void do_warcry(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				&& ch->GetSkill(ESkill::kWarcry) >= MUD::Spell(spell_id).GetManaChange()) {
 				if (!IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kKnow | ESpellType::kTemp))
 					continue;
+				// (issue.ambiguous-spells) Catalog row has no concrete target, so colour
+				// reflects the spell's intrinsic kind: red for Y, green for N, yellow for A.
+				const char *row_color;
+				switch (MUD::Spell(spell_id).GetViolent()) {
+					case spells::EViolent::kYes:       row_color = kColorBoldRed; break;
+					case spells::EViolent::kAmbiguous: row_color = kColorBoldYel; break;
+					default:                           row_color = kColorBoldGrn; break;
+				}
 				sprintf(buf + strlen(buf), "%s%2d%s) %s%s%s\r\n",
-						kColorGrn, cnt++, kColorNrm, MUD::Spell(spell_id).IsViolent() ? kColorBoldRed : kColorBoldGrn, realname, kColorNrm);
+						kColorGrn, cnt++, kColorNrm, row_color, realname, kColorNrm);
 			}
 		}
 		SendMsgToChar(buf, ch);
@@ -89,10 +99,10 @@ void do_warcry(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	SaySpell(ch, spell_id, nullptr, nullptr);
 
-	if (CallMagic(ch, nullptr, nullptr, nullptr, spell_id, GetRealLevel(ch)) >= 0) {
-		if (!ch->IsImmortal()) {
+	if (CallMagic(ch, nullptr, nullptr, nullptr, spell_id, GetRealLevel(ch)) != ECastResult::kTargetDied) {
+		if (!privilege::IsImmortal(ch)) {
 			if (ch->get_wait() <= 0) {
-				SetWaitState(ch, kBattleRound);
+				SetBattleLag(ch, 1);
 			}
 			ImposeTimedSkill(ch, &timed);
 			ch->set_move(ch->get_move() - MUD::Spell(spell_id).GetMaxMana());

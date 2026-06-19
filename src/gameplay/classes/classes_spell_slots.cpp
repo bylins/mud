@@ -4,6 +4,8 @@
 */
 
 #include "classes_spell_slots.h"
+#include "gameplay/core/remort.h"
+#include "administration/privilege.h"
 
 #include "engine/db/global_objects.h"
 
@@ -1167,7 +1169,7 @@ int CalcCircleSlotsAmount(CharData *ch, int circle) {
 		return -1;
 	}
 
-	if (ch->IsImmortal()) {
+	if (privilege::IsImmortal(ch)) {
 		return SPELL_SLOTS_FOR_IMMORTAL;
 	}
 
@@ -1212,8 +1214,8 @@ int CalcCircleSlotsAmount(CharData *ch, int circle) {
 	if (wis_is == -1) {
 		return 0;
 	}
-	return ((wis_is || (GetRealRemort(ch) > circle)) ?
-		std::min(kMaxSlotPerCircle, wis_is  + GetRealRemort(ch)) + ch->get_obj_slot(circle): 0) ;
+	return ((wis_is || (remort::GetRealRemort(ch) > circle)) ?
+		std::min(kMaxSlotPerCircle, wis_is  + remort::GetRealRemort(ch)) + ch->get_obj_slot(circle): 0) ;
 }
 
 }; // namespace ClassPlayer

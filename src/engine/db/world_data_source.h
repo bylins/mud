@@ -39,6 +39,13 @@ public:
 	virtual void SaveRooms(int zone_rnum, int specific_vnum = -1) = 0;
 	virtual void SaveMobs(int zone_rnum, int specific_vnum = -1) = 0;
 	virtual void SaveObjects(int zone_rnum, int specific_vnum = -1) = 0;
+
+	// Called once after a full-world resave (GameLoader::ResaveWorld) so a
+	// backend can finalize global structures that aren't maintained
+	// incrementally by per-zone Save*. YAML/SQLite rebuild their indexes
+	// inside Save* and need nothing here; the legacy backend regenerates its
+	// per-subdir boot "index" files. Default: no-op.
+	virtual void FinalizeResave() {}
 };
 
 // Factory function type for creating data sources

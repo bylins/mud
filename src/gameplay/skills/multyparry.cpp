@@ -7,6 +7,8 @@
 */
 
 #include "multyparry.h"
+#include "administration/privilege.h"
+#include "skill_messages.h"
 
 #include "engine/entities/char_data.h"
 #include "utils/random.h"
@@ -20,7 +22,7 @@ bool CanPerformMultyparry(CharData *victim, const HitData &hit_data);
 
 void go_multyparry(CharData *ch) {
 	if (AFF_FLAGGED(ch, EAffect::kStopRight) || AFF_FLAGGED(ch, EAffect::kStopLeft) || IsUnableToAct(ch)) {
-		SendMsgToChar("Вы временно не в состоянии сражаться.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kMultiparry, ESkillMsg::kCantFightNow) + "\r\n", ch);
 		return;
 	}
 
@@ -30,15 +32,15 @@ void go_multyparry(CharData *ch) {
 
 void do_multyparry(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	if (ch->IsNpc() || !ch->GetSkill(ESkill::kMultiparry)) {
-		SendMsgToChar("Вы не знаете как.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kMultiparry, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
 	if (ch->HasCooldown(ESkill::kMultiparry)) {
-		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kMultiparry, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	};
 	if (!ch->GetEnemy()) {
-		SendMsgToChar("Но вы ни с кем не сражаетесь?\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kMultiparry, ESkillMsg::kNotFighting) + "\r\n", ch);
 		return;
 	}
 
@@ -48,7 +50,7 @@ void do_multyparry(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*
 			&& primary->get_type() == EObjType::kWeapon
 			&& offhand
 			&& offhand->get_type() == EObjType::kWeapon)
-		|| ch->IsImmortal()
+		|| privilege::IsImmortal(ch)
 		|| GET_GOD_FLAG(ch, EGf::kGodsLike))) {
 		SendMsgToChar("Вы не можете отражать атаки безоружным.\r\n", ch);
 		return;
@@ -69,15 +71,15 @@ void ProcessMultyparry(CharData *ch, CharData *victim, HitData &hit_data) {
 		&& GET_EQ(victim, EEquipPos::kHold)
 		&& GET_EQ(victim, EEquipPos::kHold)->get_type() == EObjType::kWeapon)
 		|| victim->IsNpc()
-		|| victim->IsImmortal())) {
+		|| privilege::IsImmortal(victim))) {
 		SendMsgToChar("У вас нечем отклонять атаки противников.\r\n", victim);
 	} else {
 		int range = number(1, MUD::Skill(ESkill::kMultiparry).difficulty) + 15*victim->battle_counter;
 		int prob = CalcCurrentSkill(victim, ESkill::kMultiparry, ch);
 		prob = prob * 100 / range;
 
-		if ((hit_data.weap_skill == ESkill::kBows || hit_data.hit_type == fight::type_maul)
-			&& !victim->IsImmortal()
+		if ((hit_data.weap_skill == ESkill::kBows || hit_data.hit_type == to_underlying(fight::EDamageSource::kMaul))
+			&& !privilege::IsImmortal(victim)
 			&& (!CanUseFeat(victim, EFeat::kParryArrow)
 				|| number(1, 1000) >= 20 * std::min(GetRealDex(victim), 35))) {
 			prob = 0;

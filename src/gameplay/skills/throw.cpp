@@ -1,6 +1,10 @@
 #include "throw.h"
+#include "administration/privilege.h"
+#include "gameplay/mechanics/mount.h"
+#include "skill_messages.h"
+#include "engine/db/global_objects.h"
 
-#include "engine/core/action_targeting.h"
+#include "engine/core/target_resolver.h"
 #include "gameplay/abilities/abilities_rollsystem.h"
 #include "gameplay/fight/pk.h"
 #include "gameplay/fight/fight_hit.h"
@@ -8,6 +12,7 @@
 #include "protect.h"
 #include "gameplay/fight/common.h"
 #include "gameplay/mechanics/damage.h"
+#include "gameplay/mechanics/sight.h"
 
 // ************* THROW PROCEDURES
 
@@ -36,8 +41,8 @@ void PerformShadowThrowSideAbilities(abilities_roll::TechniqueRoll &technique) {
 				"Копье $N1 попало вам в колено. Вы рухнули наземь! Кажется, ваши приключения сейчас закончатся...";
 			to_room = "Копье $N1 сбило $n3 наземь!";
 			DoSideAction = ([](abilities_roll::TechniqueRoll &technique) {
-				if (technique.GetRival()->IsOnHorse()) { //если на лошади - падение с лагом 3
-					technique.GetRival()->DropFromHorse();
+				if (mount::IsOnHorse(technique.GetRival())) { //если на лошади - падение с лагом 3
+					mount::DropFromHorse(technique.GetRival());
 				} else { // иначе просто садится на попу с лагом 2
 					auto pos = std::min(technique.GetRival()->GetPosition(), EPosition::kSit);
 					technique.GetRival()->SetPosition(pos);
@@ -56,8 +61,8 @@ void PerformShadowThrowSideAbilities(abilities_roll::TechniqueRoll &technique) {
 			DoSideAction = ([](abilities_roll::TechniqueRoll &technique) {
 				Affect<EApply> af;
 				af.type = ESpell::kBattle;
-				af.bitvector = to_underlying(EAffect::kSilence);
-				af.duration = CalcDuration(technique.GetRival(), 2, GetRealLevel(technique.GetActor()), 9, 6, 2);
+				af.affect_type = EAffect::kSilence;
+				af.duration = CalcDuration(technique.GetActor(), technique.GetRival(), ESkill::kDarkMagic, 2, 23, 2, 6);
 				af.battleflag = kAfBattledec | kAfPulsedec;
 				ImposeAffect(technique.GetRival(), af, false, false, false, false);
 			});
@@ -71,8 +76,8 @@ void PerformShadowThrowSideAbilities(abilities_roll::TechniqueRoll &technique) {
 			DoSideAction = ([](abilities_roll::TechniqueRoll &technique) {
 				Affect<EApply> af;
 				af.type = ESpell::kBattle;
-				af.bitvector = to_underlying(EAffect::kStopFight);
-				af.duration = CalcDuration(technique.GetRival(), 3, 0, 0, 0, 0);
+				af.affect_type = EAffect::kStopFight;
+				af.duration = CalcDuration(technique.GetRival(), technique.GetRival(), ESkill::kUndefined, 3, 0, 0, 0);
 				af.battleflag = kAfBattledec | kAfPulsedec;
 				ImposeAffect(technique.GetRival(), af, false, false, false, false);
 				SetWait(technique.GetRival(), 3, false);
@@ -121,7 +126,7 @@ void PerformWeaponThrow(abilities_roll::TechniqueRoll &technique, Damage &damage
 			ObjData *weapon = UnequipChar(technique.GetActor(), technique.GetWeaponEquipPosition(), CharEquipFlags());
 			if (weapon) {
 				PlaceObjToInventory(weapon, technique.GetActor());
-				SendMsgToChar(technique.GetActor(), "&BВы выронили %s!&n\r\n", weapon->get_PName(ECase::kAcc).c_str());
+				SendMsgToChar(technique.GetActor(), "&BВы выронили %s!&n\r\n", weapon->get_PName(grammar::ECase::kAcc).c_str());
 			};
 		};
 	};
@@ -131,7 +136,7 @@ void PerformWeaponThrow(abilities_roll::TechniqueRoll &technique, Damage &damage
 void GoThrow(CharData *ch, CharData *victim) {
 
 	if (IsUnableToAct(ch)) {
-		SendMsgToChar("Вы временно не в состоянии сражаться.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kThrow, ESkillMsg::kCantFightNow) + "\r\n", ch);
 		return;
 	}
 	// TODO: Возможно, стоит добавить простой тест на добавление целей.
@@ -155,8 +160,8 @@ void GoThrow(CharData *ch, CharData *victim) {
 	Damage damage(SkillDmg(ESkill::kThrow), fight::kZeroDmg, dmg_type, nullptr); //х3 как тут с оружием
 	damage.element = EElement::kDark;
 
-	ActionTargeting::FoesRosterType
-		roster{ch, victim, [](CharData *ch, CharData *victim) { return CAN_SEE(ch, victim); }};
+	target_resolver::FoesRosterType
+		roster{ch, victim, [](CharData *ch, CharData *victim) { return sight::CanSee(ch, victim); }};
 	for (auto target : roster) {
 //		if (target->purged() || target->in_room == kNowhere)
 //			continue;
@@ -193,7 +198,7 @@ void DoThrow(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 	CharData *victim = FindVictim(ch, argument);
 	if (!victim) {
-		SendMsgToChar("В кого мечем?\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kThrow, ESkillMsg::kNoTarget) + "\r\n", ch);
 		return;
 	}
 
@@ -227,11 +232,11 @@ void DoThrow(CharData *ch, CharData *victim) {
 	};
 
 	if (ch == victim) {
-		SendMsgToChar("Вы начали метаться как белка в колесе.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kThrow, ESkillMsg::kCantTargetSelf) + "\r\n", ch);
 		return;
 	}
 
-	if (ch->IsImpl() || !ch->GetEnemy()) {
+	if (privilege::IsImpl(ch) || !ch->GetEnemy()) {
 		GoThrow(ch, victim);
 	} else {
 		if (IsHaveNoExtraAttack(ch)) {

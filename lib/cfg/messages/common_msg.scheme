@@ -1,0 +1,17 @@
+<!--
+  issue.common-msg: Vedun scheme for common_msg.xml (shared engine strings).
+  <msg_container> -> <msg_sheaf id="kDefault"> -> <message type="<ECommonMsg>" val="text"/>.
+-->
+<scheme>
+	<tag name="msg_container" desc="Common engine message container">
+		<child tag="msg_sheaf" multiple="Y"/>
+	</tag>
+	<tag name="msg_sheaf" desc="Shared messages (kDefault)">
+		<attr name="id" type="string" readonly="Y" desc="kDefault (shared); immutable"/>
+		<child tag="message" multiple="Y"/>
+	</tag>
+	<tag name="message" desc="One common message">
+		<attr name="type" type="enum" enum="ECommonMsg" desc="Slot"/>
+		<attr name="val" type="string" desc="Text (no trailing newline; added by the caller)"/>
+	</tag>
+</scheme>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<!--
+    issue.runestones: TEST-WORLD runestone registry. setup_world.py overlays lib.template over a
+    copy of lib, so this file overrides the full production lib/cfg/mechanics/rune_stones.xml in the
+    small/test world only. Every stone sits in zone 40 (which the test world boots) so there are no
+    missing-room errors. Codewords (names) are in the sibling cfg/messages/ru/rune_stone_msg.xml
+    override. Legacy portals.lst lines this came from (кончало/фырчало remapped from
+    the non-existent 4064/4065 to 4070/4071, which the test world's zone 40 has):
+        4000 3 начало     4001 3 мочало     4061 3 торчало
+        4060 3 мычало     4003 3 бурчало    4062 3 рычало
+        4063 3 шкворчало   4070 3 кончало    4071 3 фырчало
+-->
+<rune_stones prototype="190">
+	<stone vnum="0" id="kBegin"      room_vnum="4000"> <skill id="kTownportal" val="3"/> </stone>
+	<stone vnum="1" id="kMochalo"    room_vnum="4001"> <skill id="kTownportal" val="3"/> </stone>
+	<stone vnum="2" id="kTorchalo"   room_vnum="4061"> <skill id="kTownportal" val="3"/> </stone>
+	<stone vnum="3" id="kMychalo"    room_vnum="4060"> <skill id="kTownportal" val="3"/> </stone>
+	<stone vnum="4" id="kBurchalo"   room_vnum="4003"> <skill id="kTownportal" val="3"/> </stone>
+	<stone vnum="5" id="kRychalo"    room_vnum="4062"> <skill id="kTownportal" val="3"/> </stone>
+	<stone vnum="6" id="kShkvorchalo" room_vnum="4063"> <skill id="kTownportal" val="3"/> </stone>
+	<stone vnum="7" id="kKonchalo"   room_vnum="4070"> <skill id="kTownportal" val="3"/> </stone>
+	<stone vnum="8" id="kFyrchalo"   room_vnum="4071"> <skill id="kTownportal" val="3"/> </stone>
+</rune_stones>

@@ -1,34 +1,37 @@
 #include "gameplay/fight/pk.h"
+#include "administration/privilege.h"
+#include "gameplay/mechanics/mount.h"
+#include "skill_messages.h"
 #include "gameplay/fight/common.h"
 #include "gameplay/fight/fight.h"
 #include "protect.h"
 #include "engine/db/global_objects.h"
 #include "dazzle.h"
-#include "engine/core/action_targeting.h"
+#include "engine/core/target_resolver.h"
 #include "engine/core/handler.h"
 
 //
 // Created by Svetodar on 04.01.2024.
 //
 void DoDazzle(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (!ch->IsImmortal() && IsUnableToAct(ch)) {
-		SendMsgToChar("Вы временно не в состоянии сражаться.\r\n", ch);
+	if (!privilege::IsImmortal(ch) && IsUnableToAct(ch)) {
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kDazzle, ESkillMsg::kCantFightNow) + "\r\n", ch);
 		return;
 	}
 	if (!ch->GetSkill(ESkill::kDazzle)) {
-		SendMsgToChar("Вы не знаете как.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kDazzle, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
-	if (!ch->IsImmortal() && ch->HasCooldown(ESkill::kDazzle)) {
-		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
+	if (!privilege::IsImmortal(ch) && ch->HasCooldown(ESkill::kDazzle)) {
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kDazzle, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	}
-	if (ch->IsOnHorse()) {
-		SendMsgToChar("Верхом это сделать затруднительно.\r\n", ch);
+	if (mount::IsOnHorse(ch)) {
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kDazzle, ESkillMsg::kCantWhileMounted) + "\r\n", ch);
 		return;
 	}
 	if (ch->GetPosition() < EPosition::kFight) {
-		SendMsgToChar("Вам стоит встать на ноги.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kDazzle, ESkillMsg::kGetOnFeet) + "\r\n", ch);
 		return;
 	}
 	if (!ch->GetEnemy()) {
@@ -38,14 +41,14 @@ void DoDazzle(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *vict = FindVictim(ch, argument);
 
 	if (!vict) {
-		SendMsgToChar("Кого же вы так сильно желаете лишить зрения?\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kDazzle, ESkillMsg::kNoTarget) + "\r\n", ch);
 		return;
 	}
 	if (vict == ch) {
-		SendMsgToChar("Лучше уж выколите себе глаза, чтобы не мучаться!\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kDazzle, ESkillMsg::kCantTargetSelf) + "\r\n", ch);
 		return;
 	}
-	if (!ch->IsImmortal() && IsAffectedBySpellWithCasterId(vict, ch, ESpell::kDazzle)) {
+	if (!privilege::IsImmortal(ch) && IsAffectedBySpellWithCasterId(vict, ch, ESpell::kDazzle)) {
 		SendMsgToChar("Невозможно ослепить жертву повторно!\r\n", ch);
 		return;
 	}
@@ -55,17 +58,17 @@ void DoDazzle(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 void GoDazzle(CharData *ch, CharData *vict) {
 	if (IsUnableToAct(ch)) {
-		SendMsgToChar("Вы временно не в состоянии сражаться.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kDazzle, ESkillMsg::kCantFightNow) + "\r\n", ch);
 		return;
 	}
 
 	if (ch == vict) {
-		SendMsgToChar("Лучше уж выколите себе глаза, чтобы не мучаться!\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kDazzle, ESkillMsg::kCantTargetSelf) + "\r\n", ch);
 		return;
 	}
 
 	if (ch->GetPosition() < EPosition::kFight) {
-		SendMsgToChar("Вам стоит встать на ноги.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kDazzle, ESkillMsg::kGetOnFeet) + "\r\n", ch);
 		return;
 	}
 	bool has_pepper = false;
@@ -81,7 +84,7 @@ void GoDazzle(CharData *ch, CharData *vict) {
 		}
 	}
 
-	if (!ch->IsImmortal() && !has_pepper) {
+	if (!privilege::IsImmortal(ch) && !has_pepper) {
 		SendMsgToChar("&WЧем Вы собираетесь ослепить соперника?! У вас нет ни щепотки жгучей смеси!\r\n&n", ch);
 		return;
 	}
@@ -95,7 +98,7 @@ void GoDazzle(CharData *ch, CharData *vict) {
 	af.type = ESpell::kBlindness;
 	af.battleflag = kAfPulsedec;
 	af.duration = 150 + (ch->GetSkill(ESkill::kDazzle) * 1.25);
-	af.bitvector = to_underlying(EAffect::kBlind);
+	af.affect_type = EAffect::kBlind;
 
 	Affect<EApply> af2;
 	af2.type = ESpell::kDazzle;
@@ -103,10 +106,10 @@ void GoDazzle(CharData *ch, CharData *vict) {
 	af2.battleflag = kNone;
 	af2.caster_id = ch->get_uid();
 
-	ActionTargeting::FoesRosterType roster{ch};
+	target_resolver::FoesRosterType roster{ch};
 	for (const auto target: roster) {
 		if (!IsAffectedBySpellWithCasterId(ch, target, ESpell::kDazzle)) {
-			if (!ch->IsImmortal() && !target->IsNpc()) {
+			if (!privilege::IsImmortal(ch) && !target->IsNpc()) {
 				SendMsgToChar("Нельзя слепить человеков! Чтобы видали кому кланяться...\r\n", ch);
 				continue;
 			} else {
@@ -147,7 +150,7 @@ void GoDazzle(CharData *ch, CharData *vict) {
 				break;
 		}
 	}
-	if (!ch->IsImmortal()) {
+	if (!privilege::IsImmortal(ch)) {
 		SetSkillCooldownInFight(ch, ESkill::kDazzle, 2);
 	}
 }

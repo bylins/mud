@@ -1,0 +1,348 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<!--
+    issue.thing-names: class display names + abbreviations, moved out of cfg/classes/pc_*.xml.
+    Keyed by class id (ECharClass token). Loaded (class_messages) BEFORE classes.
+    <name abbr=".."> + per-number <case id="kNom" val=".."/> declensions (singular/plural).
+-->
+<msg_container>
+	<msg_sheaf id="kAssasine">
+		<name abbr="Нм">
+			<singular>
+				<case id="kNom" val="наемник"/>
+				<case id="kGen" val="наемника"/>
+				<case id="kDat" val="наемнику"/>
+				<case id="kAcc" val="наемника"/>
+				<case id="kIns" val="наемником"/>
+				<case id="kPre" val="наемнике"/>
+			</singular>
+			<plural>
+				<case id="kNom" val="наемники"/>
+				<case id="kGen" val="наемников"/>
+				<case id="kDat" val="наемникам"/>
+				<case id="kAcc" val="наемников"/>
+				<case id="kIns" val="наемниками"/>
+				<case id="kPre" val="наемниках"/>
+			</plural>
+		</name>
+	</msg_sheaf>
+	<msg_sheaf id="kCharmer">
+		<name abbr="Кд">
+			<singular>
+				<case id="kNom" val="кудесник"/>
+				<case id="kGen" val="кудесника"/>
+				<case id="kDat" val="кудеснику"/>
+				<case id="kAcc" val="кудесника"/>
+				<case id="kIns" val="кудесником"/>
+				<case id="kPre" val="кудеснике"/>
+			</singular>
+			<plural>
+				<case id="kNom" val="кудесники"/>
+				<case id="kGen" val="кудесников"/>
+				<case id="kDat" val="кудесникам"/>
+				<case id="kAcc" val="кудесников"/>
+				<case id="kIns" val="кудесниками"/>
+				<case id="kPre" val="кудесниках"/>
+			</plural>
+		</name>
+	</msg_sheaf>
+	<msg_sheaf id="kConjurer">
+		<name abbr="Кл">
+			<singular>
+				<case id="kNom" val="колдун"/>
+				<case id="kGen" val="колдуна"/>
+				<case id="kDat" val="колдуну"/>
+				<case id="kAcc" val="колдуна"/>
+				<case id="kIns" val="колдуном"/>
+				<case id="kPre" val="колдуне"/>
+			</singular>
+			<plural>
+				<case id="kNom" val="колдуны"/>
+				<case id="kGen" val="колдунов"/>
+				<case id="kDat" val="колдунам"/>
+				<case id="kAcc" val="колдунов"/>
+				<case id="kIns" val="колдунами"/>
+				<case id="kPre" val="колдунах"/>
+			</plural>
+		</name>
+	</msg_sheaf>
+	<msg_sheaf id="kGuard">
+		<name abbr="Др">
+			<singular>
+				<case id="kNom" val="дружинник"/>
+				<case id="kGen" val="дружинника"/>
+				<case id="kDat" val="дружиннику"/>
+				<case id="kAcc" val="дружинника"/>
+				<case id="kIns" val="дружинником"/>
+				<case id="kPre" val="дружиннике"/>
+			</singular>
+			<plural>
+				<case id="kNom" val="дружинники"/>
+				<case id="kGen" val="дружинников"/>
+				<case id="kDat" val="дружинникам"/>
+				<case id="kAcc" val="дружинников"/>
+				<case id="kIns" val="дружинниками"/>
+				<case id="kPre" val="дружинниках"/>
+			</plural>
+		</name>
+	</msg_sheaf>
+	<msg_sheaf id="kMagus">
+		<name abbr="Вх">
+			<singular>
+				<case id="kNom" val="волхв"/>
+				<case id="kGen" val="волхва"/>
+				<case id="kDat" val="волхву"/>
+				<case id="kAcc" val="волхва"/>
+				<case id="kIns" val="волхвом"/>
+				<case id="kPre" val="волхве"/>
+			</singular>
+			<plural>
+				<case id="kNom" val="волхвы"/>
+				<case id="kGen" val="волхвов"/>
+				<case id="kDat" val="волхвам"/>
+				<case id="kAcc" val="волхвов"/>
+				<case id="kIns" val="волхвами"/>
+				<case id="kPre" val="волхвах"/>
+			</plural>
+		</name>
+	</msg_sheaf>
+	<msg_sheaf id="kMerchant">
+		<name abbr="Кп">
+			<singular>
+				<case id="kNom" val="купец"/>
+				<case id="kGen" val="купца"/>
+				<case id="kDat" val="купцу"/>
+				<case id="kAcc" val="купца"/>
+				<case id="kIns" val="купцом"/>
+				<case id="kPre" val="купце"/>
+			</singular>
+			<plural>
+				<case id="kNom" val="купцы"/>
+				<case id="kGen" val="купцов"/>
+				<case id="kDat" val="купцам"/>
+				<case id="kAcc" val="купцов"/>
+				<case id="kIns" val="купцами"/>
+				<case id="kPre" val="купцах"/>
+			</plural>
+		</name>
+	</msg_sheaf>
+	<msg_sheaf id="kNecromancer">
+		<name abbr="Чр">
+			<singular>
+				<case id="kNom" val="чернокнижник"/>
+				<case id="kGen" val="чернокнижника"/>
+				<case id="kDat" val="чернокнижнику"/>
+				<case id="kAcc" val="чернокнижника"/>
+				<case id="kIns" val="чернокнижником"/>
+				<case id="kPre" val="чернокнижнике"/>
+			</singular>
+			<plural>
+				<case id="kNom" val="чернокнижники"/>
+				<case id="kGen" val="чернокнижников"/>
+				<case id="kDat" val="чернокнижникам"/>
+				<case id="kAcc" val="чернокнижников"/>
+				<case id="kIns" val="чернокнижниками"/>
+				<case id="kPre" val="чернокнижниках"/>
+			</plural>
+		</name>
+	</msg_sheaf>
+	<msg_sheaf id="kPaladine">
+		<name abbr="Вт">
+			<singular>
+				<case id="kNom" val="витязь"/>
+				<case id="kGen" val="витязя"/>
+				<case id="kDat" val="витязю"/>
+				<case id="kAcc" val="витязя"/>
+				<case id="kIns" val="витязем"/>
+				<case id="kPre" val="витязе"/>
+			</singular>
+			<plural>
+				<case id="kNom" val="витязи"/>
+				<case id="kGen" val="витязей"/>
+				<case id="kDat" val="витязям"/>
+				<case id="kAcc" val="витязей"/>
+				<case id="kIns" val="витязями"/>
+				<case id="kPre" val="витязях"/>
+			</plural>
+		</name>
+	</msg_sheaf>
+	<msg_sheaf id="kRanger">
+		<name abbr="Ох">
+			<singular>
+				<case id="kNom" val="охотник"/>
+				<case id="kGen" val="охотника"/>
+				<case id="kDat" val="охотнику"/>
+				<case id="kAcc" val="охотника"/>
+				<case id="kIns" val="охотником"/>
+				<case id="kPre" val="охотнике"/>
+			</singular>
+			<plural>
+				<case id="kNom" val="охотники"/>
+				<case id="kGen" val="охотников"/>
+				<case id="kDat" val="охотникам"/>
+				<case id="kAcc" val="охотников"/>
+				<case id="kIns" val="охотниками"/>
+				<case id="kPre" val="охотниках"/>
+			</plural>
+		</name>
+	</msg_sheaf>
+	<msg_sheaf id="kSorcerer">
+		<name abbr="Лк">
+			<singular>
+				<case id="kNom" val="лекарь"/>
+				<case id="kGen" val="лекаря"/>
+				<case id="kDat" val="лекарю"/>
+				<case id="kAcc" val="лекаря"/>
+				<case id="kIns" val="лекарем"/>
+				<case id="kPre" val="лекаре"/>
+			</singular>
+			<plural>
+				<case id="kNom" val="лекари"/>
+				<case id="kGen" val="лекарей"/>
+				<case id="kDat" val="лекарям"/>
+				<case id="kAcc" val="лекарей"/>
+				<case id="kIns" val="лекарями"/>
+				<case id="kPre" val="лекарях"/>
+			</plural>
+		</name>
+	</msg_sheaf>
+	<msg_sheaf id="kThief">
+		<name abbr="Тт">
+			<singular>
+				<case id="kNom" val="тать"/>
+				<case id="kGen" val="татя"/>
+				<case id="kDat" val="татю"/>
+				<case id="kAcc" val="татя"/>
+				<case id="kIns" val="татем"/>
+				<case id="kPre" val="тате"/>
+			</singular>
+			<plural>
+				<case id="kNom" val="тати"/>
+				<case id="kGen" val="татей"/>
+				<case id="kDat" val="татям"/>
+				<case id="kAcc" val="татей"/>
+				<case id="kIns" val="татями"/>
+				<case id="kPre" val="татях"/>
+			</plural>
+		</name>
+	</msg_sheaf>
+	<msg_sheaf id="kVigilant">
+		<name abbr="Кз">
+			<singular>
+				<case id="kNom" val="кузнец"/>
+				<case id="kGen" val="кузнеца"/>
+				<case id="kDat" val="кузнецу"/>
+				<case id="kAcc" val="кузнеца"/>
+				<case id="kIns" val="кузнецом"/>
+				<case id="kPre" val="кузнеце"/>
+			</singular>
+			<plural>
+				<case id="kNom" val="кузнецы"/>
+				<case id="kGen" val="кузнецов"/>
+				<case id="kDat" val="кузнецам"/>
+				<case id="kAcc" val="кузнецов"/>
+				<case id="kIns" val="кузнецами"/>
+				<case id="kPre" val="кузнецах"/>
+			</plural>
+		</name>
+	</msg_sheaf>
+	<msg_sheaf id="kWarrior">
+		<name abbr="Бг">
+			<singular>
+				<case id="kNom" val="богатырь"/>
+				<case id="kGen" val="богатыря"/>
+				<case id="kDat" val="богатырю"/>
+				<case id="kAcc" val="богатыря"/>
+				<case id="kIns" val="богатырём"/>
+				<case id="kPre" val="богатыре"/>
+			</singular>
+			<plural>
+				<case id="kNom" val="богатыри"/>
+				<case id="kGen" val="богатырей"/>
+				<case id="kDat" val="богатырям"/>
+				<case id="kAcc" val="богатырей"/>
+				<case id="kIns" val="богатырями"/>
+				<case id="kPre" val="богатырях"/>
+			</plural>
+		</name>
+	</msg_sheaf>
+	<msg_sheaf id="kWizard">
+		<name abbr="Вл">
+			<singular>
+				<case id="kNom" val="волшебник"/>
+				<case id="kGen" val="волшебника"/>
+				<case id="kDat" val="волшебнику"/>
+				<case id="kAcc" val="волшебника"/>
+				<case id="kIns" val="волшебником"/>
+				<case id="kPre" val="волшебнике"/>
+			</singular>
+			<plural>
+				<case id="kNom" val="волшебники"/>
+				<case id="kGen" val="волшебников"/>
+				<case id="kDat" val="волшебникам"/>
+				<case id="kAcc" val="волшебников"/>
+				<case id="kIns" val="волшебниками"/>
+				<case id="kPre" val="волшебниках"/>
+			</plural>
+		</name>
+	</msg_sheaf>
+	<msg_sheaf id="kUndefined">
+		<name abbr="--">
+			<singular>
+				<case id="kNom" val="undefined"/>
+				<case id="kGen" val="undefined"/>
+				<case id="kDat" val="undefined"/>
+				<case id="kAcc" val="undefined"/>
+				<case id="kIns" val="undefined"/>
+				<case id="kPre" val="undefined"/>
+			</singular>
+			<plural>
+				<case id="kNom" val="undefined"/>
+				<case id="kGen" val="undefined"/>
+				<case id="kDat" val="undefined"/>
+				<case id="kAcc" val="undefined"/>
+				<case id="kIns" val="undefined"/>
+				<case id="kPre" val="undefined"/>
+			</plural>
+		</name>
+	</msg_sheaf>
+	<msg_sheaf id="kMob">
+		<name abbr="--">
+			<singular>
+				<case id="kNom" val="моб"/>
+				<case id="kGen" val="моба"/>
+				<case id="kDat" val="мобу"/>
+				<case id="kAcc" val="моба"/>
+				<case id="kIns" val="мобом"/>
+				<case id="kPre" val="мобе"/>
+			</singular>
+			<plural>
+				<case id="kNom" val="мобы"/>
+				<case id="kGen" val="мобов"/>
+				<case id="kDat" val="мобам"/>
+				<case id="kAcc" val="мобов"/>
+				<case id="kIns" val="мобами"/>
+				<case id="kPre" val="мобах"/>
+			</plural>
+		</name>
+	</msg_sheaf>
+	<msg_sheaf id="kNpcBase">
+		<name abbr="--">
+			<singular>
+				<case id="kNom" val="base_npc"/>
+				<case id="kGen" val="base_npc"/>
+				<case id="kDat" val="base_npc"/>
+				<case id="kAcc" val="base_npc"/>
+				<case id="kIns" val="base_npc"/>
+				<case id="kPre" val="base_npc"/>
+			</singular>
+			<plural>
+				<case id="kNom" val="base_npc"/>
+				<case id="kGen" val="base_npc"/>
+				<case id="kDat" val="base_npc"/>
+				<case id="kAcc" val="base_npc"/>
+				<case id="kIns" val="base_npc"/>
+				<case id="kPre" val="base_npc"/>
+			</plural>
+		</name>
+	</msg_sheaf>
+</msg_container>

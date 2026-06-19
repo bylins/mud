@@ -3,7 +3,7 @@
 
 class CharData;
 
-void RemoveEquipment(CharData *ch, int pos);
+void RemoveEquipment(CharData *ch, int pos, bool skip_total = false);
 void do_remove(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
 
 #endif //BYLINS_SRC_CMD_REMOVE_H_

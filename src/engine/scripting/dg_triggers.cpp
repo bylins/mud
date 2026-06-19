@@ -21,6 +21,7 @@
 #include "engine/db/global_objects.h"
 #include "engine/scripting/lua/lua_script_engine.h"
 #include "utils/backtrace.h"
+#include "gameplay/mechanics/sight.h"
 
 extern const char *dirs[];
 
@@ -334,10 +335,10 @@ void greet_mtrigger(CharData *actor, int dir) {
 
 		for (auto t : SCRIPT(ch)->script_trig_list) {
 			if (((IS_SET(GET_TRIG_TYPE(t), MTRIG_GREET)
-				&& CAN_SEE(ch, actor))
+				&& sight::CanSee(ch, actor))
 				|| IS_SET(GET_TRIG_TYPE(t), MTRIG_GREET_ALL)
 				|| (IS_SET(GET_TRIG_TYPE(t), MTRIG_GREET_PC)
-					&& !actor->IsNpc() && CAN_SEE(ch, actor))
+					&& !actor->IsNpc() && sight::CanSee(ch, actor))
 				|| (IS_SET(GET_TRIG_TYPE(t), MTRIG_GREET_PC_ALL)
 					&& !actor->IsNpc())) && !GET_TRIG_DEPTH(t)
 				&& (number(1, 100) <= GET_TRIG_NARG(t))) {
@@ -376,7 +377,7 @@ void income_mtrigger(CharData *ch, int dir) {
 
 	for (const auto i : world[ch->in_room]->people) {
 		if ((!i->IsNpc()
-			&& CAN_SEE(ch, i)) && !GET_INVIS_LEV(i)) {
+			&& sight::CanSee(ch, i)) && !GET_INVIS_LEV(i)) {
 			ispcinroom = 1;
 			actor = i;
 		}
@@ -849,7 +850,10 @@ int cast_mtrigger(CharData *ch, CharData *actor, ESpell spell_id) {
 			sprintf(buf, "%d", to_underlying(spell_id));
 			add_var_cntx(t->var_list, "castnum", buf, 0);
 			add_var_cntx(t->var_list, "castname", MUD::Spell(spell_id).GetCName(), 0);
-			if (MUD::Spell(spell_id).IsViolent()) {
+			// (issue.ambiguous-spells) %violent% reflects the resolved sign of the cast
+			// from the trigger owner's standpoint -- A spells set "1" for an outsider-cast
+			// and "0" for an ally-cast. The script doesn't need to know about ambiguity.
+			if (MUD::Spell(spell_id).IsViolentAgainst(actor, ch)) {
 				add_var_cntx(t->var_list, "violent", "1", 0);
 			} else {
 				add_var_cntx(t->var_list, "violent", "0", 0);
@@ -975,7 +979,7 @@ int cmd_otrig(ObjData *obj, CharData *actor, char *cmd, const char *argument, in
 						 GET_TRIG_VNUM(t),
 						 attach_name[(int) t->get_attach_type()],
 						 attach_name[OBJ_TRIGGER],
-						 obj->get_PName(ECase::kNom).empty() ? obj->get_PName(ECase::kNom).c_str() : "undefined",
+						 obj->get_PName(grammar::ECase::kNom).empty() ? obj->get_PName(grammar::ECase::kNom).c_str() : "undefined",
 						 GET_OBJ_VNUM(obj));
 				mudlog(buf, NRM, kLvlBuilder, ERRLOG, true);
 				obj->get_script()->remove_trigger(trig_index[(t)->get_rnum()]->vnum);

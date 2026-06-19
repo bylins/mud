@@ -6,6 +6,16 @@
 */
 
 #include "sight.h"
+#include "administration/privilege.h"
+#include "utils/grammar/gender.h"
+#include "utils/grammar/cases.h"
+#include "utils/grammar/declensions.h"
+#include "gameplay/mechanics/mount.h"
+#include "gameplay/mechanics/magic_item.h"
+#include "gameplay/affects/affect_messages.h"
+
+#include <fmt/format.h>
+#include <fmt/ranges.h>   // fmt::join
 
 #include "engine/entities/char_data.h"
 #include "engine/entities/obj_data.h"
@@ -26,6 +36,8 @@
 #include "weather.h"
 #include "gameplay/mechanics/illumination.h"
 #include "gameplay/mechanics/awake.h"
+
+namespace sight {
 
 #define TAG_NIGHT       "<night>"
 #define TAG_DAY         "<day>"
@@ -62,7 +74,7 @@ void do_auto_exits(CharData *ch);
 void show_extend_room(const char *description, CharData *ch);
 void list_char_to_char_thing(const RoomData::people_t &list, CharData *ch);
 int paste_description(char *string, const char *tag, int need);
-void show_room_affects(CharData *ch, const char *name_affects[], const char *name_self_affects[]);
+void show_room_affects(CharData *ch);
 bool quest_item(ObjData *obj);
 void look_at_char(CharData *i, CharData *ch);
 std::string AddLeadingStringSpace(const std::string& text);
@@ -87,10 +99,10 @@ std::string BuildCompactShieldSuffix(const CharData *viewer, const CharData *tar
 
 	std::string result;
 	auto append = [&result](const char *text) {
-		if (!result.empty()) {
-			result += " ";
-		}
-		result += text;
+	  if (!result.empty()) {
+		  result += " ";
+	  }
+	  result += text;
 	};
 
 	if (AFF_FLAGGED(target, EAffect::kFireShield)) {
@@ -139,7 +151,7 @@ void AppendCompactShieldSuffix(std::string &text, const CharData *viewer, const 
 void look_at_room(CharData *ch, int ignore_brief, bool msdp_mode) {
 	if (!ch->desc)
 		return;
-	if (is_dark(ch->in_room) && !CAN_SEE_IN_DARK(ch) && !CanUseFeat(ch, EFeat::kDarkReading)) {
+	if (is_dark(ch->in_room) && !CanSeeInDark(ch) && !CanUseFeat(ch, EFeat::kDarkReading)) {
 		SendMsgToChar("Слишком темно...\r\n", ch);
 		show_glow_objs(ch);
 		return;
@@ -203,35 +215,18 @@ void look_at_room(CharData *ch, int ignore_brief, bool msdp_mode) {
 	}
 
 	// Отображаем аффекты комнаты. После автовыходов чтобы не ломать популярный маппер.
-	if (AFF_FLAGGED(ch, EAffect::kDetectMagic) || ch->IsImmortal()) {
-		show_room_affects(ch, room_aff_invis_bits, room_self_aff_invis_bits);
-	} else {
-		show_room_affects(ch, room_aff_visib_bits, room_aff_visib_bits);
-	}
+	// Описания живут в spell_msg.xml под ключами kRoomAffect{Visible,Invisible,SelfInvisible}
+	// (issue.sight-fmt); show_room_affects выбирает нужный по флагам ch.
+	show_room_affects(ch);
 
 	// now list characters & objects
 	if (world[ch->in_room]->fires) {
 		sprintf(buf, "%sВ центре %s.%s\r\n", kColorRed, Fires[MIN(world[ch->in_room]->fires, MAX_FIRES - 1)], kColorNrm);
 		SendMsgToChar(buf, ch);
 	}
-	if (room_spells::IsRoomAffected(world[ch->in_room], ESpell::kPortalTimer)) {
-		for (const auto &aff : world[ch->in_room]->affected) {
-			if (aff->type == ESpell::kPortalTimer && aff->bitvector != room_spells::ERoomAffect::kNoPortalExit) {
-				if (ch->IsGod()) {
-					sprintf(buf, "&BЛазурная пентаграмма ярко сверкает здесь. (время: %d, куда: %d)&n\r\n",
-							aff->duration,  world[aff->modifier]->vnum);
-				} else {
-					if (world[ch->in_room]->pkPenterUnique) {
-						sprintf(buf, "%sЛазурная пентаграмма %sс кровавым отблеском%s ярко сверкает здесь.%s\r\n",
-								kColorBoldBlu, kColorBoldRed, kColorBoldBlu, kColorNrm);
-					} else {
-						sprintf(buf, "&BЛазурная пентаграмма ярко сверкает здесь.&n\r\n");
-					}
-				}
-				SendMsgToChar(buf, ch);
-			}
-		}
-	}
+	// kPortalTimer rendering (regular + PK variant + immortal/tester timer suffix)
+	// moved into show_room_affects (issue.affect-flags): the PK uid lives on the
+	// affect (Affect::pk_unique) and spell_msg.xml supplies all narration variants.
 
 	if (world[ch->in_room]->holes) {
 		const int ar = round_up(world[ch->in_room]->holes / kHolesTime);
@@ -279,7 +274,8 @@ void look_at_room(CharData *ch, int ignore_brief, bool msdp_mode) {
 		}
 	}
 	SendMsgToChar("&Y&q", ch);
-	MUD::Runestones().ShowRunestone(ch);
+	// issue.runestones phase 3: the runestone now shows itself as a physical object in the room
+	// contents below (no registry-driven room-presence hack needed).
 	list_obj_to_char(world[ch->in_room]->contents, ch, 0, false);
 	list_char_to_char_thing(world[ch->in_room]->people, ch);  //добавим отдельный вызов если моб типа предмет выводим желтым
 	SendMsgToChar("&R&q", ch);
@@ -298,7 +294,7 @@ void look_at_room(CharData *ch, int ignore_brief, bool msdp_mode) {
 				zone_table[inroom].first_enter = ch->get_master() ? ch->get_master()->get_name() : ch->get_name();
 			}
 			if (zone_table[world[ch->get_from_room()]->zone_rn].vnum >= dungeons::kZoneStartDungeons
-					&& zone_table[inroom].vnum < dungeons::kZoneStartDungeons) {
+				&& zone_table[inroom].vnum < dungeons::kZoneStartDungeons) {
 				SendMsgToChar("&GВы покинули зазеркалье.\r\n&n", ch);
 //				dungeons::SwapObjectDungeon(ch); перенесено на закрытие данжа
 			}
@@ -418,11 +414,6 @@ bool look_at_target(CharData *ch, char *arg, int subcmd) {
 	else if (isname(where, "экипировка equipment"))
 		where_bits = EFind::kObjEquip;
 
-	// для townportal
-	if (isname(whatp, "камень") && MUD::Runestones().ViewRunestone(ch, where_bits)) {
-		return false;
-	}
-
 	bits = generic_find(what, where_bits, ch, &found_char, &found_obj);
 	// Is the target a character?
 	if (found_char != nullptr) {
@@ -434,12 +425,12 @@ bool look_at_target(CharData *ch, char *arg, int subcmd) {
 				fnum = number(1, MUD::Skill(ESkill::kPry).difficulty);
 				found = CalcCurrentSkill(ch, ESkill::kPry, found_char);
 				TrainSkill(ch, ESkill::kPry, found < fnum, found_char);
-				if (!ch->IsImmortal())
-					SetWaitState(ch, 1 * kBattleRound);
-				if (found >= fnum && (fnum < 100 || ch->IsImmortal()) && !found_char->IsImmortal())
+				if (!privilege::IsImmortal(ch))
+					SetBattleLag(ch, 1);
+				if (found >= fnum && (fnum < 100 || privilege::IsImmortal(ch)) && !privilege::IsImmortal(found_char))
 					return false;
 			}
-			if (CAN_SEE(found_char, ch))
+			if (CanSee(found_char, ch))
 				act("$n оглядел$g вас с головы до пят.", true, ch, nullptr, found_char, kToVict);
 			act("$n посмотрел$g на $N3.", true, ch, nullptr, found_char, kToNotVict);
 		}
@@ -459,7 +450,7 @@ bool look_at_target(CharData *ch, char *arg, int subcmd) {
 
 		for (const auto &aff : world[ch->in_room]->affected) {
 			if (aff->type == ESpell::kPortalTimer) {
-				if (aff->bitvector == room_spells::ERoomAffect::kNoPortalExit) {
+				if (aff->affect_type == room_spells::ERoomAffect::kNoPortalExit) {
 					SendMsgToChar("Похоже, этого здесь нет!\r\n", ch);
 					return false;
 				}
@@ -468,7 +459,7 @@ bool look_at_target(CharData *ch, char *arg, int subcmd) {
 				}
 				for (const auto &aff : world[to_room]->affected) {
 					if (aff->type == ESpell::kPortalTimer) {
-						if (aff->bitvector == room_spells::ERoomAffect::kNoPortalExit) {
+						if (aff->affect_type == room_spells::ERoomAffect::kNoPortalExit) {
 							one_way = true;
 						}
 					}
@@ -530,8 +521,8 @@ bool look_at_target(CharData *ch, char *arg, int subcmd) {
 
 		// Собственно изменение. Вместо проверки "if (!found)" юзается проверка
 		// наличия описания у объекта, найденного функцией "generic_find"
-		if (!(desc = find_exdesc(what, found_obj->get_ex_description())) 
-				|| ((found_obj->get_type() == EObjType::kNote) && !found_obj->get_action_description().empty())) {
+		if (!(desc = find_exdesc(what, found_obj->get_ex_description()))
+			|| ((found_obj->get_type() == EObjType::kNote) && !found_obj->get_action_description().empty())) {
 			show_obj_to_char(found_obj, ch, 5, true, 1);    // Show no-description
 		} else {
 			SendMsgToChar(desc, ch);
@@ -655,7 +646,7 @@ void look_at_char(CharData *i, CharData *ch) {
 					sprintf(buf,
 							IS_POLY(i) ? "$n будут слушаться вас еще %d %s." : "$n будет слушаться вас еще %d %s.",
 							aff->duration/2,
-							GetDeclensionInNumber(aff->duration/2, EWhat::kHour));
+							grammar::GetDeclensionInNumber(aff->duration/2, grammar::EWhat::kHour));
 					act(buf, false, i, nullptr, ch, kToVict);
 					break;
 				}
@@ -663,7 +654,7 @@ void look_at_char(CharData *i, CharData *ch) {
 		}
 	}
 
-	if (IS_HORSE(i)
+	if (mount::IsHorse(i)
 		&& i->get_master() == ch) {
 		strcpy(buf, "\r\nЭто ваш скакун. Он ");
 		if (GET_HORSESTATE(i) <= 0)
@@ -681,14 +672,14 @@ void look_at_char(CharData *i, CharData *ch) {
 
 	found = false;
 	for (j = 0; !found && j < EEquipPos::kNumEquipPos; j++) {
-		if (GET_EQ(i, j) && CAN_SEE_OBJ(ch, GET_EQ(i, j)))
+		if (GET_EQ(i, j) && CanSeeObj(ch, GET_EQ(i, j)))
 			found = true;
 	}
 	if (found) {
 		SendMsgToChar("\r\n", ch);
 		act("$n одет$a :", false, i, nullptr, ch, kToVict);
 		for (j = 0; j < EEquipPos::kNumEquipPos; j++) {
-			if (GET_EQ(i, j) && CAN_SEE_OBJ(ch, GET_EQ(i, j))) {
+			if (GET_EQ(i, j) && CanSeeObj(ch, GET_EQ(i, j))) {
 				SendMsgToChar(where[j], ch);
 				if (i->has_master()
 					&& i->IsNpc()) {
@@ -700,11 +691,11 @@ void look_at_char(CharData *i, CharData *ch) {
 		}
 	}
 
-	if (ch != i && (ch->GetSkill(ESkill::kPry) || ch->IsImmortal())) {
+	if (ch != i && (ch->GetSkill(ESkill::kPry) || privilege::IsImmortal(ch))) {
 		found = false;
 		act("\r\nВы попытались заглянуть в $s ношу:", false, i, nullptr, ch, kToVict);
 		for (tmp_obj = i->carrying; tmp_obj; tmp_obj = tmp_obj->get_next_content()) {
-			if (CAN_SEE_OBJ(ch, tmp_obj) && (number(0, 30) < GetRealLevel(ch))) {
+			if (CanSeeObj(ch, tmp_obj) && (number(0, 30) < GetRealLevel(ch))) {
 				if (!push) {
 					push = tmp_obj;
 					push_count = 1;
@@ -735,73 +726,128 @@ void list_char_to_char_thing(const RoomData::people_t &list, CharData *ch) {
 	}
 }
 
-void show_room_affects(CharData *ch, const char *name_affects[], const char *name_self_affects[]) {
+// Emits a description line for every room-affect on ch's room that has a
+// kRoomAffect{Visible,Invisible,SelfInvisible} message in spell_msg.xml
+// (issue.sight-fmt). Replaces the per-spell switch + 3 static arrays that
+// previously lived in constants.cpp; new room-affects only need their XML
+// rows added, not a code change.
+//
+// Lookup priority per affect (sheaf-direct, no kDefault fallback):
+//   pk_unique != 0:
+//     detect_magic:          kRoomAffectPkInvisible -> kRoomAffectPkVisible
+//                            -> (fall through to the regular chain below)
+//     !detect_magic:         kRoomAffectPkVisible -> (fall through to regular)
+//   regular chain:
+//     detect_magic && caster:  kRoomAffectSelfInvisible
+//                              -> kRoomAffectInvisible
+//                              -> kRoomAffectVisible
+//     detect_magic && !caster: kRoomAffectInvisible
+//                              -> kRoomAffectVisible
+//     !detect_magic:           kRoomAffectVisible (no fallback)
+//
+// Each step falls through only on empty results, so a spell that wants to
+// stay silent to non-detect-magic viewers (kRuneLabel, kForbidden) simply
+// omits kRoomAffectVisible; a spell with one universal description
+// (kLight, kHypnoticPattern, ...) sets only kRoomAffectVisible and the
+// detect-magic lookups fall through to it. The Pk override is data-driven
+// via Affect::pk_unique (set by SpellPortal when pkPortal fires); only
+// kPortalTimer ships Pk variants today. kPortal still has no row and is
+// rendered separately.
+//
+// Per-affect filters:
+//   * kPortalTimer with affect_type == kNoPortalExit: silent (one-way side).
+//
+// After each visible description, detect-magic viewers (and immortals) get a
+// one-line star-rating banner [*..*****] showing how close the room-affect's
+// recorded modifier is to its <modifier cap="N"/> ceiling (5/4/3/2/1 stars at
+// >99/>80/>60/>40/>20 percent). Spells whose first <apply> has no cap (cap == 0)
+// or whose affect carries no modifier value emit no banner -- the rating only
+// makes sense relative to a known ceiling. Stars rather than prose because the
+// description hooks (which file, which sheaf, which key) would have to be
+// invented per spell, and the indicator only matters for testers / debuggers.
+//
+// kPortalTimer adds one extra debug line for immortals/testers:
+// "[timer: <duration> into: <destination-vnum>]", echoing the immortals-only
+// "(время: %d, куда: %d)" suffix that used to live in look_at_room.
+void show_room_affects(CharData *ch) {
 	std::ostringstream buffer;
-	
+
+	const bool has_detect_magic =
+			AFF_FLAGGED(ch, EAffect::kDetectMagic) || privilege::IsImmortal(ch);
+	const auto viewer_uid = ch->get_uid();
+	const bool is_immortal_or_tester =
+			privilege::IsImmortal(ch) || ch->IsFlagged(EPrf::kTester);
+
 	for (const auto &af : world[ch->in_room]->affected) {
-		switch (af->type) {
-			case ESpell::kLight:
-				if (af->caster_id == ch->get_uid() && *name_self_affects[0] != '\0') {
-					buffer << name_self_affects[0] << "\r\n";
-				} else if (*name_affects[0] != '\0') {
-					buffer << name_affects[0] << "\r\n";
+		// One-way portal: side flagged kNoPortalExit shows nothing (mirrors
+		// the old look_at_room behaviour). kPortalTimer-only special case.
+		if (af->type == ESpell::kPortalTimer
+				&& af->affect_type == room_spells::ERoomAffect::kNoPortalExit) {
+			continue;
+		}
+
+		const auto &sheaf = MUD::SpellMessages()[af->type];
+		const bool is_caster = (af->caster_id == viewer_uid);
+		const bool is_pk = (af->pk_unique != 0);
+
+		const std::string *text = nullptr;
+		// Pk override chain (issue.affect-flags): tried before the regular keys.
+		if (is_pk) {
+			if (has_detect_magic) {
+				const auto &m = sheaf.GetMessage(ESpellMsg::kRoomAffectPkInvisible);
+				if (!m.empty()) text = &m;
+			}
+			if (!text) {
+				const auto &m = sheaf.GetMessage(ESpellMsg::kRoomAffectPkVisible);
+				if (!m.empty()) text = &m;
+			}
+		}
+		// Regular chain (fall-through when no Pk variant).
+		if (!text && has_detect_magic && is_caster) {
+			const auto &m = sheaf.GetMessage(ESpellMsg::kRoomAffectSelfInvisible);
+			if (!m.empty()) text = &m;
+		}
+		if (!text && has_detect_magic) {
+			const auto &m = sheaf.GetMessage(ESpellMsg::kRoomAffectInvisible);
+			if (!m.empty()) text = &m;
+		}
+		if (!text) {
+			const auto &m = sheaf.GetMessage(ESpellMsg::kRoomAffectVisible);
+			if (!m.empty()) text = &m;
+		}
+		if (text) {
+			// Star-rating marker (seal strength) on the SAME line as the affect text,
+			// detect-magic / immortal only (issue.dispellbug).
+			const char *stars = nullptr;
+			if (has_detect_magic
+					&& MUD::Spell(af->type).actions.Contains(talents_actions::EAction::kAffect)) {
+				const auto &applies = MUD::Spell(af->type).actions.GetAffect().GetApplies();
+				if (!applies.empty() && applies[0].cap > 0) {
+					const int pct = (af->modifier * 100) / applies[0].cap;
+					stars =
+							pct > 99 ? "*****"
+							: pct > 80 ? "****"
+							: pct > 60 ? "***"
+							: pct > 40 ? "**"
+							: pct > 20 ? "*"
+							: nullptr;
 				}
-				break;
-			case ESpell::kDeadlyFog:
-				if (af->caster_id == ch->get_uid() && *name_self_affects[1] != '\0') {
-					buffer << name_self_affects[1] << "\r\n";
-				} else if (*name_affects[1] != '\0') {
-					buffer << name_affects[1] << "\r\n";
-				}
-				break;
-			case ESpell::kRuneLabel:                // 1 << 2
-				if (af->caster_id == ch->get_uid() && *name_self_affects[2] != '\0') {
-					buffer << name_self_affects[2] << "\r\n";
-				} else if (*name_affects[2] != '\0') {
-					buffer << name_affects[2] << "\r\n";
-				}
-				break;
-			case ESpell::kForbidden:
-				if (af->caster_id == ch->get_uid() && *name_self_affects[3] != '\0') {
-					buffer << name_self_affects[3] << "\r\n";
-				} else if (*name_affects[3] != '\0') {
-					buffer << name_affects[3] << "\r\n";
-				}
-				break;
-			case ESpell::kHypnoticPattern:
-				if (af->caster_id == ch->get_uid() && *name_self_affects[4] != '\0') {
-					buffer << name_self_affects[4] << "\r\n";
-				} else if (*name_affects[4] != '\0') {
-					buffer << name_affects[4] << "\r\n";
-				}
-				break;
-			case ESpell::kBlackTentacles:
-				if (af->caster_id == ch->get_uid() && *name_self_affects[5] != '\0') {
-					buffer << name_self_affects[5] << "\r\n";
-				} else if (*name_affects[5] != '\0') {
-					buffer << name_affects[5] << "\r\n";
-				}
-				break;
-			case ESpell::kMeteorStorm:
-				if (af->caster_id == ch->get_uid() && *name_self_affects[6] != '\0') {
-					buffer << name_self_affects[6] << "\r\n";
-				} else if (*name_affects[6] != '\0') {
-					buffer << name_affects[6] << "\r\n";
-				}
-				break;
-			case ESpell::kThunderstorm:
-				if (af->caster_id == ch->get_uid() && *name_self_affects[7] != '\0') {
-					buffer << name_self_affects[7] << "\r\n";
-				} else if (*name_affects[7] != '\0') {
-						buffer << name_affects[7] << "\r\n";
-				}
-				break;
-			case ESpell::kPortal:
-				//выводится в look_at_room
-				break;
-			default: 
-				log("SYSERR: Unknown room (#%d) spell type: %d", world[ch->in_room]->vnum, to_underlying(af->type));
-				break;
+			}
+			buffer << *text;
+			if (stars) {
+				buffer << " [" << stars << "]";
+			}
+			buffer << "\r\n";
+			// kPortalTimer debug suffix: timer (room-tick pulses) + destination vnum.
+			// Replaces the immortals-only "(время: %d, куда: %d)" suffix that used to
+			// be inlined into the main description in look_at_room.
+			if (af->type == ESpell::kPortalTimer && is_immortal_or_tester) {
+				char debug_buf[128];
+				snprintf(debug_buf, sizeof(debug_buf),
+						 "[timer: %d into: %d]\r\n",
+						 af->duration, world[af->modifier]->vnum);
+				buffer << debug_buf;
+			}
 		}
 	}
 
@@ -887,7 +933,7 @@ void list_obj_to_char(ObjData *list, CharData *ch, int mode, int show) {
 	}
 
 	for (i = list; i; i = i->get_next_content()) {
-		if (CAN_SEE_OBJ(ch, i)) {
+		if (CanSeeObj(ch, i)) {
 			if (!push) {
 				push = i;
 				push_count = 1;
@@ -941,7 +987,7 @@ void list_obj_to_char(const ObjData::obj_list_t &list, CharData *ch, int mode, i
 	}
 
 	for (auto i : list) {
-		if (CAN_SEE_OBJ(ch, i)) {
+		if (CanSeeObj(ch, i)) {
 			if (!push) {
 				push = i;
 				push_count = 1;
@@ -980,12 +1026,12 @@ void list_char_to_char(const RoomData::people_t &list, CharData *ch) {
 	for (const auto i : list) {
 		if (ch != i) {
 			if (HERE(i) && (GET_RACE(i) != ENpcRace::kConstruct)
-				&& (CAN_SEE(ch, i)
+				&& (CanSee(ch, i)
 					|| awaking(i, kAwHide | kAwInvis | kAwCamouflage))) {
 				ListOneChar(i, ch, ESkill::kAny);
 			} else if (is_dark(i->in_room)
 				&& i->in_room == ch->in_room
-				&& !CAN_SEE_IN_DARK(ch)
+				&& !CanSeeInDark(ch)
 				&& AFF_FLAGGED(i, EAffect::kInfravision)) {
 				SendMsgToChar("Пара светящихся глаз смотрит на вас.\r\n", ch);
 			}
@@ -1038,10 +1084,10 @@ void look_in_direction(CharData *ch, int dir, int info_is) {
 					percent = number(1, MUD::Skill(ESkill::kLooking).difficulty);
 					probe = CalcCurrentSkill(ch, ESkill::kLooking, tch);
 					TrainSkill(ch, ESkill::kLooking, probe >= percent, tch);
-					if (HERE(tch) && INVIS_OK(ch, tch) && probe >= percent
-						&& (percent < 100 || ch->IsImmortal())) {
+					if (HERE(tch) && InvisOk(ch, tch) && probe >= percent
+						&& (percent < 100 || privilege::IsImmortal(ch))) {
 						// Если моб не вещь и смотрящий не им
-						if (GET_RACE(tch) != ENpcRace::kConstruct || ch->IsImmortal()) {
+						if (GET_RACE(tch) != ENpcRace::kConstruct || privilege::IsImmortal(ch)) {
 							ListOneChar(tch, ch, ESkill::kLooking);
 							count++;
 						}
@@ -1119,7 +1165,7 @@ void look_in_obj(CharData *ch, char *arg) {
 			if (IS_SET(GET_OBJ_VAL((obj), 1), (EContainerFlag::kShutted))) {
 				act("Закрыт$A.", false, ch, obj, nullptr, kToChar);
 				const int skill_pick = ch->GetSkill(ESkill::kPickLock);
-				int count = sprintf(buf, "Заперт%s.", GET_OBJ_SUF_6(obj));
+				int count = sprintf(buf, "Заперт%s.", grammar::ObjSexEnding((obj)->get_sex(), 6));
 				if (IS_SET(GET_OBJ_VAL((obj), 1), (EContainerFlag::kLockedUp)) && skill_pick) {
 					if (IS_SET(GET_OBJ_VAL((obj), 1), (EContainerFlag::kUncrackable)))
 						count += sprintf(buf + count,
@@ -1135,7 +1181,7 @@ void look_in_obj(CharData *ch, char *arg) {
 					SendMsgToChar(buf, ch);
 				}
 			} else {
-				SendMsgToChar(OBJN(obj, ch, ECase::kNom), ch);
+				SendMsgToChar(OBJN(obj, ch, grammar::ECase::kNom), ch);
 				switch (bits) {
 					case EFind::kObjInventory: SendMsgToChar("(в руках)\r\n", ch);
 						break;
@@ -1155,7 +1201,7 @@ void look_in_obj(CharData *ch, char *arg) {
 						   выраженные числами от 0 до 5. (причем 5 будет лишь при полностью полном контейнере)
 						*/
 						amt = std::clamp((obj->get_weight() * 100) / (GET_OBJ_VAL(obj, 0) * 20), 0, 5);
-						sprintf(buf, "Заполнен%s содержимым %s:\r\n", GET_OBJ_SUF_6(obj), fullness[amt]);
+						sprintf(buf, "Заполнен%s содержимым %s:\r\n", grammar::ObjSexEnding((obj)->get_sex(), 6), fullness[amt]);
 						SendMsgToChar(buf, ch);
 					}
 					list_obj_to_char(obj->get_contains(), ch, 1, bits != EFind::kObjRoom);
@@ -1225,10 +1271,10 @@ const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_s
 				if (GET_OBJ_VAL(object, 2) == -1)
 					strcpy(buf2, " (вечный свет)");
 				else if (GET_OBJ_VAL(object, 2) == 0)
-					sprintf(buf2, " (погас%s)", GET_OBJ_SUF_4(object));
+					sprintf(buf2, " (погас%s)", grammar::ObjSexEnding((object)->get_sex(), 4));
 				else
 					sprintf(buf2, " (%d %s)",
-							GET_OBJ_VAL(object, 2), GetDeclensionInNumber(GET_OBJ_VAL(object, 2), EWhat::kHour));
+							GET_OBJ_VAL(object, 2), grammar::GetDeclensionInNumber(GET_OBJ_VAL(object, 2), grammar::EWhat::kHour));
 			} else {
 				if (object->timed_spell().IsSpellPoisoned() != ESpell::kUndefined) {
 					sprintf(buf2, " %s*%s%s", kColorGrn,
@@ -1251,23 +1297,23 @@ const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_s
 					strcat(buf2, " (есть содержимое)");
 				} else {
 					if (GET_OBJ_VAL(object, 3) < 1) // есть ключ для открытия, пустоту не показываем2
-						sprintf(buf2 + strlen(buf2), " (пуст%s)", GET_OBJ_SUF_6(object));
+						sprintf(buf2 + strlen(buf2), " (пуст%s)", grammar::ObjSexEnding((object)->get_sex(), 6));
 				}
 			}
 			if ((object->get_type() == EObjType::kNote) && !object->get_action_description().empty()) {
-					strcat(buf2, " (что-то накарябано)");
+				strcat(buf2, " (что-то накарябано)");
 			}
 		} else if (mode >= 2 && how <= 1) {
-			std::string obj_name = OBJN(object, ch, ECase::kNom);
+			std::string obj_name = OBJN(object, ch, grammar::ECase::kNom);
 			obj_name[0] = UPPER(obj_name[0]);
 			if (object->get_type() == EObjType::kLightSource) {
 				if (GET_OBJ_VAL(object, 2) == -1) {
 					sprintf(buf2, "\r\n%s дает вечный свет.", obj_name.c_str());
 				} else if (GET_OBJ_VAL(object, 2) == 0) {
-					sprintf(buf2, "\r\n%s погас%s.", obj_name.c_str(), GET_OBJ_SUF_4(object));
+					sprintf(buf2, "\r\n%s погас%s.", obj_name.c_str(), grammar::ObjSexEnding((object)->get_sex(), 4));
 				} else {
 					sprintf(buf2, "\r\n%s будет светить %d %s.", obj_name.c_str(), GET_OBJ_VAL(object, 2),
-							GetDeclensionInNumber(GET_OBJ_VAL(object, 2), EWhat::kHour));
+							grammar::GetDeclensionInNumber(GET_OBJ_VAL(object, 2), grammar::EWhat::kHour));
 				}
 			} else if (object->get_current_durability() < object->get_maximum_durability()) {
 				sprintf(buf2, "\r\n%s %s.", obj_name.c_str(), diag_obj_to_char(object, 2));
@@ -1280,7 +1326,7 @@ const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_s
 	}
 	if (mode != 3 && how <= 1) {
 		if (object->has_flag(EObjFlag::kInvisible)) {
-			sprintf(buf2, " (невидим%s)", GET_OBJ_SUF_6(object));
+			sprintf(buf2, " (невидим%s)", grammar::ObjSexEnding((object)->get_sex(), 6));
 			strcat(buf, buf2);
 		}
 		if (object->has_flag(EObjFlag::kBless)
@@ -1291,7 +1337,7 @@ const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_s
 			strcat(buf, " ..желтая аура!");
 		if (object->has_flag(EObjFlag::kPoisoned)
 			&& AFF_FLAGGED(ch, EAffect::kDetectPoison)) {
-			sprintf(buf2, "..отравлен%s!", GET_OBJ_SUF_6(object));
+			sprintf(buf2, "..отравлен%s!", grammar::ObjSexEnding((object)->get_sex(), 6));
 			strcat(buf, buf2);
 		}
 		if (object->has_flag(EObjFlag::kGlow))
@@ -1301,7 +1347,7 @@ const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_s
 		if (object->has_flag(EObjFlag::kFire))
 			strcat(buf, " ..горит!");
 		if (object->has_flag(EObjFlag::kBloody)) {
-			sprintf(buf2, " %s..покрыт%s кровью!%s", kColorBoldRed, GET_OBJ_SUF_6(object), kColorNrm);
+			sprintf(buf2, " %s..покрыт%s кровью!%s", kColorBoldRed, grammar::ObjSexEnding((object)->get_sex(), 6), kColorNrm);
 			strcat(buf, buf2);
 		}
 	}
@@ -1311,13 +1357,13 @@ const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_s
 		if (show_state == 3) {
 			sprintf(buf + strlen(buf), " [%d %s]\r\n",
 					object->get_rent_on() * kClanStorehouseCoeff / 100,
-					GetDeclensionInNumber(object->get_rent_on() * kClanStorehouseCoeff / 100, EWhat::kMoneyA));
+					grammar::GetDeclensionInNumber(object->get_rent_on() * kClanStorehouseCoeff / 100, grammar::EWhat::kMoneyA));
 			return buf;
 		}
 			// ингры
 		else if (show_state == 4) {
 			sprintf(buf + strlen(buf), " [%d %s]\r\n", object->get_rent_off(),
-					GetDeclensionInNumber(object->get_rent_off(), EWhat::kMoneyA));
+					grammar::GetDeclensionInNumber(object->get_rent_off(), grammar::EWhat::kMoneyA));
 			return buf;
 		}
 	}
@@ -1348,7 +1394,7 @@ void print_zone_info(CharData *ch) {
 	if (zone->group > 1) {
 		delim = put_delim(out, delim);
 		out << "групповая на " << zone->group
-			<< " " << GetDeclensionInNumber(zone->group, EWhat::kPeople);
+			<< " " << grammar::GetDeclensionInNumber(zone->group, grammar::EWhat::kPeople);
 	}
 	if (delim) {
 		out << ")";
@@ -1442,33 +1488,33 @@ void diag_char_to_char(CharData *i, CharData *ch) {
 	else
 		percent = -1;    // How could MAX_HIT be < 1??
 
-	strcpy(buf, PERS(i, ch, 0));
+	strcpy(buf, PersonName(i, ch, 0));
 	utils::CAP(buf);
 
 	if (percent >= 100) {
-		sprintf(buf2, " невредим%s", GET_CH_SUF_6(i));
+		sprintf(buf2, " невредим%s", grammar::SexEnding((i)->get_sex(), 6));
 		strcat(buf, buf2);
 	} else if (percent >= 90) {
-		sprintf(buf2, " слегка поцарапан%s", GET_CH_SUF_6(i));
+		sprintf(buf2, " слегка поцарапан%s", grammar::SexEnding((i)->get_sex(), 6));
 		strcat(buf, buf2);
 	} else if (percent >= 75) {
-		sprintf(buf2, " легко ранен%s", GET_CH_SUF_6(i));
+		sprintf(buf2, " легко ранен%s", grammar::SexEnding((i)->get_sex(), 6));
 		strcat(buf, buf2);
 	} else if (percent >= 50) {
-		sprintf(buf2, " ранен%s", GET_CH_SUF_6(i));
+		sprintf(buf2, " ранен%s", grammar::SexEnding((i)->get_sex(), 6));
 		strcat(buf, buf2);
 	} else if (percent >= 30) {
-		sprintf(buf2, " тяжело ранен%s", GET_CH_SUF_6(i));
+		sprintf(buf2, " тяжело ранен%s", grammar::SexEnding((i)->get_sex(), 6));
 		strcat(buf, buf2);
 	} else if (percent >= 15) {
-		sprintf(buf2, " смертельно ранен%s", GET_CH_SUF_6(i));
+		sprintf(buf2, " смертельно ранен%s", grammar::SexEnding((i)->get_sex(), 6));
 		strcat(buf, buf2);
 	} else if (percent >= 0)
 		strcat(buf, " в ужасном состоянии");
 	else
 		strcat(buf, " умирает");
 
-	if (!i->IsOnHorse())
+	if (!mount::IsOnHorse(i))
 		switch (i->GetPosition()) {
 			case EPosition::kPerish: strcat(buf, ".");
 				break;
@@ -1498,7 +1544,7 @@ void diag_char_to_char(CharData *i, CharData *ch) {
 
 	if (AFF_FLAGGED(ch, EAffect::kDetectPoison))
 		if (AFF_FLAGGED(i, EAffect::kPoisoned)) {
-			sprintf(buf2, " (отравлен%s)", GET_CH_SUF_6(i));
+			sprintf(buf2, " (отравлен%s)", grammar::SexEnding((i)->get_sex(), 6));
 			strcat(buf, buf2);
 		}
 
@@ -1580,9 +1626,89 @@ void obj_info(CharData *ch, ObjData *obj, char buf[kMaxStringLength]) {
 	}
 }
 
+// issue.ext-affects: render the affect "aura" look lines for char i as seen by ch. All text is data --
+// each affect's sheaf in affect_msg.xml (kLook/kLookPoly) plus the shared kDefault sheaf, whose
+// kShieldFrame/kAuraFrame are fmt templates with {list} (the joined fragments) and {noun} (the
+// count-picked group noun). Composition, gender ($a), poly choice and the count pick stay here; the
+// line structure ("..." prefixes, spacing, word order) lives in the data. Shared by both ListOneChar
+// display paths (the old code had two drifted copies); produces their union -- the commander stag (was
+// PC-only) and the black forces-of-evil aura (was NPC-long-descr-only) now show everywhere. Honours
+// brief-shield modes.
+static void ShowAffectAuras(CharData *i, CharData *ch) {
+	using affects::AffectMsg;
+	using EAMT = affects::EAffectMsgType;
+	const auto brief = ch->GetBriefShieldsMode();
+	std::string line;
+
+	// cocoon + sanctuary/prismatic glow: each kLook is a complete "...fragment " (structure in data)
+	if (AFF_FLAGGED(i, EAffect::kGodsShield)) {
+		line += AffectMsg(EAffect::kGodsShield, EAMT::kLook);
+	}
+	if (AFF_FLAGGED(i, EAffect::kSanctuary)) {
+		line += AffectMsg(EAffect::kSanctuary, IS_POLY(i) ? EAMT::kLookPoly : EAMT::kLook);
+	} else if (AFF_FLAGGED(i, EAffect::kPrismaticAura)) {
+		line += AffectMsg(EAffect::kPrismaticAura, IS_POLY(i) ? EAMT::kLookPoly : EAMT::kLook);
+	}
+	if (!line.empty() && brief != EBriefShieldsMode::kCompressed) {
+		act(line.c_str(), false, i, nullptr, ch, kToVict);
+	}
+
+	// elemental shields -> kShieldFrame template "{list} {noun}"
+	std::vector<std::string> frags;
+	if (AFF_FLAGGED(i, EAffect::kAirShield)) frags.push_back(AffectMsg(EAffect::kAirShield, EAMT::kLook));
+	if (AFF_FLAGGED(i, EAffect::kFireShield)) frags.push_back(AffectMsg(EAffect::kFireShield, EAMT::kLook));
+	if (AFF_FLAGGED(i, EAffect::kIceShield)) frags.push_back(AffectMsg(EAffect::kIceShield, EAMT::kLook));
+	if (!frags.empty()) {
+		line = fmt::format(fmt::runtime(AffectMsg(EAffect::kUndefined, EAMT::kShieldFrame)),
+				fmt::arg("list", fmt::join(frags, ", ")),
+				fmt::arg("noun", AffectMsg(EAffect::kUndefined,
+						frags.size() == 1 ? EAMT::kShieldNoun : EAMT::kShieldNounMany)));
+		if (brief != EBriefShieldsMode::kCompact && brief != EBriefShieldsMode::kCompressed) {
+			act(line.c_str(), false, i, nullptr, ch, kToVict);
+		}
+	}
+
+	// detect-magic auras -> kAuraFrame template (only the viewer with kDetectMagic sees them)
+	if (AFF_FLAGGED(ch, EAffect::kDetectMagic)) {
+		frags.clear();
+		if (AFF_FLAGGED(i, EAffect::kMagicGlass)
+			&& brief != EBriefShieldsMode::kCompact && brief != EBriefShieldsMode::kCompressed) {
+			frags.push_back(AffectMsg(EAffect::kMagicGlass, EAMT::kLook));
+		}
+		if (AFF_FLAGGED(i, EAffect::kBrokenChains)) frags.push_back(AffectMsg(EAffect::kBrokenChains, EAMT::kLook));
+		if (AFF_FLAGGED(i, EAffect::kForcesOfEvil)) frags.push_back(AffectMsg(EAffect::kForcesOfEvil, EAMT::kLook));
+		if (!frags.empty()) {
+			line = fmt::format(fmt::runtime(AffectMsg(EAffect::kUndefined, EAMT::kAuraFrame)),
+					fmt::arg("list", fmt::join(frags, ", ")),
+					fmt::arg("noun", AffectMsg(EAffect::kUndefined,
+							frags.size() == 1 ? EAMT::kAuraNoun : EAMT::kAuraNounMany)));
+			if (brief != EBriefShieldsMode::kCompressed) {
+				act(line.c_str(), false, i, nullptr, ch, kToVict);
+			}
+		}
+	}
+
+	// status afflictions: each kLook is a complete "...fragment", concatenated into one line
+	line.clear();
+	if (AFF_FLAGGED(ch, EAffect::kDetectMagic)) {
+		if (AFF_FLAGGED(i, EAffect::kHold)) line += AffectMsg(EAffect::kHold, EAMT::kLook);
+		if (AFF_FLAGGED(i, EAffect::kSilence) && !AFF_FLAGGED(i, EAffect::kStrangled)) {
+			line += AffectMsg(EAffect::kSilence, EAMT::kLook);
+		}
+	}
+	if (AFF_FLAGGED(i, EAffect::kBlind)) line += AffectMsg(EAffect::kBlind, EAMT::kLook);
+	if (AFF_FLAGGED(i, EAffect::kDeafness)) line += AffectMsg(EAffect::kDeafness, EAMT::kLook);
+	if (AFF_FLAGGED(i, EAffect::kStrangled) && AFF_FLAGGED(i, EAffect::kSilence)) {
+		line += AffectMsg(EAffect::kStrangled, EAMT::kLook);
+	}
+	if (AFF_FLAGGED(i, EAffect::kCommander)) line += AffectMsg(EAffect::kCommander, EAMT::kLook);
+	if (!line.empty()) {
+		act(line.c_str(), false, i, nullptr, ch, kToVict);
+	}
+}
+
 void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 	int sector = ESector::kCity;
-	int n;
 	char aura_txt[200];
 	const char *positions[] =
 		{
@@ -1611,7 +1737,7 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 			"стоят здесь. "
 		};
 
-	if (IS_HORSE(i) && i->get_master()->IsOnHorse()) {
+	if (mount::IsHorse(i) && mount::IsOnHorse(i->get_master())) {
 		if (ch == i->get_master()) {
 			if (!IS_POLY(i)) {
 				act("$N несет вас на своей спине.", false, ch, nullptr, i, kToChar);
@@ -1624,8 +1750,8 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 	}
 
 	if (mode == ESkill::kLooking) {
-		if (HERE(i) && INVIS_OK(ch, i) && GetRealLevel(ch) >= (i->IsNpc() ? 0 : GET_INVIS_LEV(i))) {
-			if (GET_RACE(i) == ENpcRace::kConstruct && ch->IsImmortal()) {
+		if (HERE(i) && InvisOk(ch, i) && GetRealLevel(ch) >= (i->IsNpc() ? 0 : GET_INVIS_LEV(i))) {
+			if (GET_RACE(i) == ENpcRace::kConstruct && privilege::IsImmortal(ch)) {
 				sprintf(buf, "Вы разглядели %s.(предмет)\r\n", GET_PAD(i, 3));
 			} else {
 				sprintf(buf, "Вы разглядели %s.\r\n", GET_PAD(i, 3));
@@ -1636,7 +1762,7 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 	}
 
 	Bitvector mode_flags{0};
-	if (!CAN_SEE(ch, i)) {
+	if (!CanSee(ch, i)) {
 		mode_flags =
 			check_awake(i, kAcheckAffects | kAcheckLight | kAcheckHumming | kAcheckGlowing | kAcheckWeight);
 		*buf = 0;
@@ -1679,7 +1805,7 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 		&& i->GetPosition() == GET_DEFAULT_POS(i)
 		&& ch->in_room == i->in_room
 		&& !AFF_FLAGGED(i, EAffect::kCharmed)
-		&& !IS_HORSE(i)) {
+		&& !mount::IsHorse(i)) {
 		*buf = '\0';
 		if (ch->IsFlagged(EPrf::kRoomFlags) || InTestZone(ch)) {
 			sprintf(buf, "[%5d] ", GET_MOB_VNUM(i));
@@ -1708,11 +1834,11 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 			}
 		}
 		if (AFF_FLAGGED(i, EAffect::kInvisible))
-			sprintf(buf + strlen(buf), "(невидим%s) ", GET_CH_SUF_6(i));
+			sprintf(buf + strlen(buf), "(невидим%s) ", grammar::SexEnding((i)->get_sex(), 6));
 		if (AFF_FLAGGED(i, EAffect::kHide))
-			sprintf(buf + strlen(buf), "(спрятал%s) ", GET_CH_SUF_2(i));
+			sprintf(buf + strlen(buf), "(спрятал%s) ", grammar::SexEnding((i)->get_sex(), 2));
 		if (AFF_FLAGGED(i, EAffect::kDisguise))
-			sprintf(buf + strlen(buf), "(замаскировал%s) ", GET_CH_SUF_2(i));
+			sprintf(buf + strlen(buf), "(замаскировал%s) ", grammar::SexEnding((i)->get_sex(), 2));
 		if (AFF_FLAGGED(i, EAffect::kFly))
 			strcat(buf, IS_POLY(i) ? "(летят) " : "(летит) ");
 		if (AFF_FLAGGED(i, EAffect::kHorse))
@@ -1723,100 +1849,7 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 		AppendCompactShieldSuffix(line, ch, i);
 		SendMsgToChar(line, ch);
 
-		*aura_txt = '\0';
-		if (AFF_FLAGGED(i, EAffect::kGodsShield)) {
-			strcat(aura_txt, "...окутан");
-			strcat(aura_txt, GET_CH_SUF_6(i));
-			strcat(aura_txt, " сверкающим коконом ");
-		}
-		if (AFF_FLAGGED(i, EAffect::kSanctuary))
-			strcat(aura_txt, IS_POLY(i) ? "...светятся ярким сиянием " : "...светится ярким сиянием ");
-		else if (AFF_FLAGGED(i, EAffect::kPrismaticAura))
-			strcat(aura_txt, IS_POLY(i) ? "...переливаются всеми цветами " : "...переливается всеми цветами ");
-		if (ch->GetBriefShieldsMode() != EBriefShieldsMode::kCompressed)
-			act(aura_txt, false, i, nullptr, ch, kToVict);
-
-		*aura_txt = '\0';
-		n = 0;
-		strcat(aura_txt, "...окружен");
-		strcat(aura_txt, GET_CH_SUF_6(i));
-		if (AFF_FLAGGED(i, EAffect::kAirShield)) {
-			strcat(aura_txt, " воздушным");
-			n++;
-		}
-		if (AFF_FLAGGED(i, EAffect::kFireShield)) {
-			if (n > 0)
-				strcat(aura_txt, ", огненным");
-			else
-				strcat(aura_txt, " огненным");
-			n++;
-		}
-		if (AFF_FLAGGED(i, EAffect::kIceShield)) {
-			if (n > 0)
-				strcat(aura_txt, ", ледяным");
-			else
-				strcat(aura_txt, " ледяным");
-			n++;
-		}
-		if (n == 1)
-			strcat(aura_txt, " щитом ");
-		else if (n > 1)
-			strcat(aura_txt, " щитами ");
-		if (n > 0 && ch->GetBriefShieldsMode() != EBriefShieldsMode::kCompact
-			&& ch->GetBriefShieldsMode() != EBriefShieldsMode::kCompressed)
-			act(aura_txt, false, i, nullptr, ch, kToVict);
-
-		if (AFF_FLAGGED(ch, EAffect::kDetectMagic)) {
-			*aura_txt = '\0';
-			n = 0;
-			strcat(aura_txt, "...");
-			if (AFF_FLAGGED(i, EAffect::kMagicGlass)
-				&& ch->GetBriefShieldsMode() != EBriefShieldsMode::kCompact
-				&& ch->GetBriefShieldsMode() != EBriefShieldsMode::kCompressed) {
-				if (n > 0)
-					strcat(aura_txt, ", серебристая");
-				else
-					strcat(aura_txt, "серебристая");
-				n++;
-			}
-			if (AFF_FLAGGED(i, EAffect::kBrokenChains)) {
-				if (n > 0)
-					strcat(aura_txt, ", ярко-синяя");
-				else
-					strcat(aura_txt, "ярко-синяя");
-				n++;
-			}
-			if (AFF_FLAGGED(i, EAffect::kForcesOfEvil)) {
-				if (n > 0)
-					strcat(aura_txt, ", черная");
-				else
-					strcat(aura_txt, "черная");
-				n++;
-			}
-			if (n == 1)
-				strcat(aura_txt, " аура ");
-			else if (n > 1)
-				strcat(aura_txt, " ауры ");
-
-			if (n > 0 && ch->GetBriefShieldsMode() != EBriefShieldsMode::kCompressed)
-				act(aura_txt, false, i, nullptr, ch, kToVict);
-		}
-		*aura_txt = '\0';
-		if (AFF_FLAGGED(ch, EAffect::kDetectMagic)) {
-			if (AFF_FLAGGED(i, EAffect::kHold))
-				strcat(aura_txt, "...парализован$a");
-			if (AFF_FLAGGED(i, EAffect::kSilence) && (!AFF_FLAGGED(i, EAffect::kStrangled)))
-				strcat(aura_txt, "...нем$a");
-		}
-		if (AFF_FLAGGED(i, EAffect::kBlind))
-			strcat(aura_txt, "...слеп$a");
-		if (AFF_FLAGGED(i, EAffect::kDeafness))
-			strcat(aura_txt, "...глух$a");
-		if (AFF_FLAGGED(i, EAffect::kStrangled) && AFF_FLAGGED(i, EAffect::kSilence))
-			strcat(aura_txt, "...задыхается.");
-
-		if (*aura_txt)
-			act(aura_txt, false, i, nullptr, ch, kToVict);
+		ShowAffectAuras(i, ch);
 
 		return;
 	}
@@ -1833,27 +1866,27 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 
 	snprintf(buf, kMaxStringLength, "%s%s", AFF_FLAGGED(i, EAffect::kCharmed) ? "*" : "", buf1);
 	if (AFF_FLAGGED(i, EAffect::kInvisible))
-		sprintf(buf + strlen(buf), "(невидим%s) ", GET_CH_SUF_6(i));
+		sprintf(buf + strlen(buf), "(невидим%s) ", grammar::SexEnding((i)->get_sex(), 6));
 	if (AFF_FLAGGED(i, EAffect::kHide))
-		sprintf(buf + strlen(buf), "(спрятал%s) ", GET_CH_SUF_2(i));
+		sprintf(buf + strlen(buf), "(спрятал%s) ", grammar::SexEnding((i)->get_sex(), 2));
 	if (AFF_FLAGGED(i, EAffect::kDisguise))
-		sprintf(buf + strlen(buf), "(замаскировал%s) ", GET_CH_SUF_2(i));
+		sprintf(buf + strlen(buf), "(замаскировал%s) ", grammar::SexEnding((i)->get_sex(), 2));
 	if (!i->IsNpc() && !i->desc)
-		sprintf(buf + strlen(buf), "(потерял%s связь) ", GET_CH_SUF_1(i));
+		sprintf(buf + strlen(buf), "(потерял%s связь) ", grammar::SexEnding((i)->get_sex(), 1));
 	if (!i->IsNpc() && i->IsFlagged(EPlrFlag::kWriting))
 		strcat(buf, "(пишет) ");
 
 	if (i->GetPosition() != EPosition::kFight) {
-		if (i->IsOnHorse()) {
-			CharData *horse = i->get_horse();
+		if (mount::IsOnHorse(i)) {
+			CharData *horse = mount::GetHorse(i);
 			if (horse) {
 				const char *msg =
 					AFF_FLAGGED(horse, EAffect::kFly) ? "летает" : "сидит";
 				sprintf(buf + strlen(buf), "%s здесь верхом на %s. ",
-						msg, PERS(horse, ch, 5));
+						msg, PersonName(horse, ch, 5));
 			}
-		} else if (IS_HORSE(i) && AFF_FLAGGED(i, EAffect::kTethered))
-			sprintf(buf + strlen(buf), "привязан%s здесь. ", GET_CH_SUF_6(i));
+		} else if (mount::IsHorse(i) && AFF_FLAGGED(i, EAffect::kTethered))
+			sprintf(buf + strlen(buf), "привязан%s здесь. ", grammar::SexEnding((i)->get_sex(), 6));
 		else if ((sector = real_sector(i->in_room)) == ESector::kOnlyFlying)
 			strcat(buf, IS_POLY(i) ? "летают здесь. " : "летает здесь. ");
 		else if (sector == ESector::kUnderwater)
@@ -1876,15 +1909,15 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 				strcat(buf, "ВАМИ");
 			else
 				strcat(buf, GET_PAD(i->GetEnemy(), 4));
-			if (i->IsOnHorse())
-				sprintf(buf + strlen(buf), ", сидя верхом на %s! ", PERS(i->get_horse(), ch, 5));
+			if (mount::IsOnHorse(i))
+				sprintf(buf + strlen(buf), ", сидя верхом на %s! ", PersonName(mount::GetHorse(i), ch, 5));
 			else
 				strcat(buf, "! ");
 		} else        // NIL fighting pointer
 		{
 			strcat(buf, IS_POLY(i) ? "колотят по воздуху" : "колотит по воздуху");
-			if (i->IsOnHorse())
-				sprintf(buf + strlen(buf), ", сидя верхом на %s. ", PERS(i->get_horse(), ch, 5));
+			if (mount::IsOnHorse(i))
+				sprintf(buf + strlen(buf), ", сидя верхом на %s. ", PersonName(mount::GetHorse(i), ch, 5));
 			else
 				strcat(buf, ". ");
 		}
@@ -1897,13 +1930,13 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 	}
 	if (AFF_FLAGGED(ch, EAffect::kDetectAlign)) {
 		if (i->IsNpc()) {
-			if (IS_EVIL(i)) {
+			if (alignment::IsEvil(i)) {
 				if (AFF_FLAGGED(ch, EAffect::kDetectMagic)
 					&& AFF_FLAGGED(i, EAffect::kForcesOfEvil))
 					strcat(buf, "(иссиня-черная аура) ");
 				else
 					strcat(buf, "(темная аура) ");
-			} else if (IS_GOOD(i)) {
+			} else if (alignment::IsGood(i)) {
 				if (AFF_FLAGGED(ch, EAffect::kDetectMagic)
 					&& AFF_FLAGGED(i, EAffect::kForcesOfEvil))
 					strcat(buf, "(серая аура) ");
@@ -1926,149 +1959,27 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 			|| IsAffectedBySpell(i, ESpell::kAconitumPoison)
 			|| IsAffectedBySpell(i, ESpell::kScopolaPoison)
 			|| IsAffectedBySpell(i, ESpell::kBelenaPoison))
-			sprintf(buf + strlen(buf), "(отравлен%s) ", GET_CH_SUF_6(i));
+			sprintf(buf + strlen(buf), "(отравлен%s) ", grammar::SexEnding((i)->get_sex(), 6));
 
 	std::string line = buf;
 	AppendCompactShieldSuffix(line, ch, i);
 	line += "\r\n";
 	SendMsgToChar(line, ch);
 
-	*aura_txt = '\0';
-	if (AFF_FLAGGED(i, EAffect::kGodsShield)) {
-		strcat(aura_txt, "...окутан");
-		strcat(aura_txt, GET_CH_SUF_6(i));
-		strcat(aura_txt, " сверкающим коконом ");
-	}
-	if (AFF_FLAGGED(i, EAffect::kSanctuary))
-		strcat(aura_txt, IS_POLY(i) ? "...светятся ярким сиянием " : "...светится ярким сиянием ");
-	else if (AFF_FLAGGED(i, EAffect::kPrismaticAura))
-		strcat(aura_txt, IS_POLY(i) ? "...переливаются всеми цветами " : "...переливается всеми цветами ");
-	if (ch->GetBriefShieldsMode() != EBriefShieldsMode::kCompressed)
-		act(aura_txt, false, i, nullptr, ch, kToVict);
-
-	*aura_txt = '\0';
-	n = 0;
-	strcat(aura_txt, "...окружен");
-	strcat(aura_txt, GET_CH_SUF_6(i));
-	if (AFF_FLAGGED(i, EAffect::kAirShield)) {
-		strcat(aura_txt, " воздушным");
-		n++;
-	}
-	if (AFF_FLAGGED(i, EAffect::kFireShield)) {
-		if (n > 0)
-			strcat(aura_txt, ", огненным");
-		else
-			strcat(aura_txt, " огненным");
-		n++;
-	}
-	if (AFF_FLAGGED(i, EAffect::kIceShield)) {
-		if (n > 0)
-			strcat(aura_txt, ", ледяным");
-		else
-			strcat(aura_txt, " ледяным");
-		n++;
-	}
-	if (n == 1)
-		strcat(aura_txt, " щитом ");
-	else if (n > 1)
-		strcat(aura_txt, " щитами ");
-	if (n > 0 && ch->GetBriefShieldsMode() != EBriefShieldsMode::kCompact
-		&& ch->GetBriefShieldsMode() != EBriefShieldsMode::kCompressed)
-		act(aura_txt, false, i, nullptr, ch, kToVict);
-	if (AFF_FLAGGED(ch, EAffect::kDetectMagic)) {
-		*aura_txt = '\0';
-		n = 0;
-		strcat(aura_txt, " ..");
-		if (AFF_FLAGGED(i, EAffect::kMagicGlass)
-			&& ch->GetBriefShieldsMode() != EBriefShieldsMode::kCompact
-			&& ch->GetBriefShieldsMode() != EBriefShieldsMode::kCompressed) {
-			if (n > 0)
-				strcat(aura_txt, ", серебристая");
-			else
-				strcat(aura_txt, "серебристая");
-			n++;
-		}
-		if (AFF_FLAGGED(i, EAffect::kBrokenChains)) {
-			if (n > 0)
-				strcat(aura_txt, ", ярко-синяя");
-			else
-				strcat(aura_txt, "ярко-синяя");
-			n++;
-		}
-		if (n == 1)
-			strcat(aura_txt, " аура ");
-		else if (n > 1)
-			strcat(aura_txt, " ауры ");
-
-		if (n > 0 && ch->GetBriefShieldsMode() != EBriefShieldsMode::kCompressed)
-			act(aura_txt, false, i, nullptr, ch, kToVict);
-	}
-	*aura_txt = '\0';
-	if (AFF_FLAGGED(ch, EAffect::kDetectMagic)) {
-		if (AFF_FLAGGED(i, EAffect::kHold))
-			strcat(aura_txt, " ...парализован$a");
-		if (AFF_FLAGGED(i, EAffect::kSilence) && (!AFF_FLAGGED(i, EAffect::kStrangled)))
-			strcat(aura_txt, " ...нем$a");
-	}
-	if (AFF_FLAGGED(i, EAffect::kBlind))
-		strcat(aura_txt, " ...слеп$a");
-	if (AFF_FLAGGED(i, EAffect::kDeafness))
-		strcat(aura_txt, " ...глух$a");
-	if (AFF_FLAGGED(i, EAffect::kStrangled) && AFF_FLAGGED(i, EAffect::kSilence))
-		strcat(aura_txt, " ...задыхается");
-	if (AFF_FLAGGED(i, EAffect::kCommander))
-		strcat(aura_txt, " ...реет стяг над головой");
-	if (*aura_txt)
-		act(aura_txt, false, i, nullptr, ch, kToVict);
-/*	if (IS_MANA_CASTER(i)) {
-		*aura_txt = '\0';
-		if (i->GetMorphSkill(ESkill::kDarkMagic) > 0)
-			strcat(aura_txt, "...все сферы магии кружатся над головой");
-		else if (i->GetMorphSkill(ESkill::kAirMagic) > 0)
-			strcat(aura_txt, "...сферы четырех магий кружатся над головой");
-		else if (i->GetMorphSkill(ESkill::kEarthMagic) > 0)
-			strcat(aura_txt, "...сферы трех магий кружатся над головой");
-		else if (i->GetMorphSkill(ESkill::kWaterMagic) > 0)
-			strcat(aura_txt, "...сферы двух магий кружатся над головой");
-		else if (i->GetMorphSkill(ESkill::kFireMagic) > 0)
-			strcat(aura_txt, "...сфера огня кружит над головой");
-		if (*aura_txt)
-			act(aura_txt, false, i, nullptr, ch, kToVict);
-	}
-*/
+	ShowAffectAuras(i, ch);
 }
 
 char *diag_weapon_to_char(const CObjectPrototype *obj, int show_wear) {
 	static char out_str[kMaxStringLength];
-	int skill = 0;
 	int need_str = 0;
 
 	*out_str = '\0';
 	if (obj->get_type() == EObjType::kWeapon) {
-		switch (static_cast<ESkill>(obj->get_spec_param())) {
-			case ESkill::kBows: skill = 1;
-				break;
-			case ESkill::kShortBlades: skill = 2;
-				break;
-			case ESkill::kLongBlades: skill = 3;
-				break;
-			case ESkill::kAxes: skill = 4;
-				break;
-			case ESkill::kClubs: skill = 5;
-				break;
-			case ESkill::kNonstandart: skill = 6;
-				break;
-			case ESkill::kTwohands: skill = 7;
-				break;
-			case ESkill::kPicks: skill = 8;
-				break;
-			case ESkill::kSpades: skill = 9;
-				break;
-			default: sprintf(out_str, "!! Не принадлежит к известным типам оружия - сообщите Богам (skill=%d) !!\r\n", obj->get_spec_param());
-				break;
-		}
-		if (skill) {
-			sprintf(out_str, "Принадлежит к классу \"%s\".\r\n", weapon_class[skill - 1]);
+		const auto skill = static_cast<ESkill>(obj->get_spec_param());
+		if (skill != ESkill::kUndefined) {
+			sprintf(out_str, "Принадлежит к классу \"%s\".\r\n", MUD::Skill(skill).name.c_str());
+		} else {
+			sprintf(out_str, "!! Не принадлежит к известным типам оружия - сообщите Богам (skill=%d) !!\r\n", obj->get_spec_param());
 		}
 	}
 	if (show_wear) {
@@ -2114,28 +2025,28 @@ char *diag_weapon_to_char(const CObjectPrototype *obj, int show_wear) {
 				sprintf(out_str + strlen(out_str),
 						"Можно использовать как щит (требуется %d %s).\r\n",
 						need_str,
-						GetDeclensionInNumber(need_str, EWhat::kStr));
+						grammar::GetDeclensionInNumber(need_str, grammar::EWhat::kStr));
 			}
 			if (CAN_WEAR(obj, EWearFlag::kWield)) {
 				need_str = std::max(0, calc_str_req(obj->get_weight(), STR_WIELD_W));
 				sprintf(out_str + strlen(out_str),
 						"Можно взять в правую руку (требуется %d %s).\r\n",
 						need_str,
-						GetDeclensionInNumber(need_str, EWhat::kStr));
+						grammar::GetDeclensionInNumber(need_str, grammar::EWhat::kStr));
 			}
 			if (CAN_WEAR(obj, EWearFlag::kHold)) {
 				need_str = std::max(0, calc_str_req(obj->get_weight(), STR_HOLD_W));
 				sprintf(out_str + strlen(out_str),
 						"Можно взять в левую руку (требуется %d %s).\r\n",
 						need_str,
-						GetDeclensionInNumber(need_str, EWhat::kStr));
+						grammar::GetDeclensionInNumber(need_str, grammar::EWhat::kStr));
 			}
 			if (CAN_WEAR(obj, EWearFlag::kBoth)) {
 				need_str = std::max(0, calc_str_req(obj->get_weight(), STR_BOTH_W));
 				sprintf(out_str + strlen(out_str),
 						"Можно взять в обе руки (требуется %d %s).\r\n",
 						need_str,
-						GetDeclensionInNumber(need_str, EWhat::kStr));
+						grammar::GetDeclensionInNumber(need_str, grammar::EWhat::kStr));
 			}
 		} else {
 			if (CAN_WEAR(obj, EWearFlag::kShield)) {
@@ -2185,7 +2096,7 @@ char *diag_uses_to_char(ObjData *obj, CharData *ch) {
 		int i = -1;
 		if ((i = GetObjRnum(GET_OBJ_VAL(obj, 1))) >= 0) {
 			sprintf(out_str, "Прототип: %s%s%s.\r\n",
-					kColorBoldCyn, obj_proto[i]->get_PName(ECase::kNom).c_str(), kColorNrm);
+					kColorBoldCyn, obj_proto[i]->get_PName(grammar::ECase::kNom).c_str(), kColorNrm);
 		}
 		sprintf(out_str + strlen(out_str), "Осталось применений: %s%d&n.\r\n",
 				GET_OBJ_VAL(obj, 2) > 100 ? "&G" : "&R", GET_OBJ_VAL(obj, 2));
@@ -2271,5 +2182,82 @@ void Appear(CharData *ch) {
 		}
 	}
 }
+
+bool CanSeeInDark(const CharData *ch) {
+	return AFF_FLAGGED(ch, EAffect::kInfravision) || (!ch->IsNpc() && ch->IsFlagged(EPrf::kHolylight));
+}
+
+bool InvisOk(const CharData *sub, const CharData *obj) {
+	return !AFF_FLAGGED(sub, EAffect::kBlind)
+		&& ((!AFF_FLAGGED(obj, EAffect::kInvisible)
+			|| AFF_FLAGGED(sub, EAffect::kDetectInvisible))
+			&& ((!AFF_FLAGGED(obj, EAffect::kHide)
+				&& !AFF_FLAGGED(obj, EAffect::kDisguise))
+				|| AFF_FLAGGED(sub, EAffect::kDetectLife)));
+}
+
+bool MortCanSee(const CharData *sub, const CharData *obj, bool consider_light) {
+	return HERE(obj)
+		&& InvisOk(sub, obj)
+		&& (!consider_light
+			|| !is_dark((obj)->in_room)
+			|| AFF_FLAGGED((sub), EAffect::kInfravision));
+}
+
+bool MaySee(const CharData *ch, const CharData *sub, const CharData *obj) {
+	return !(GET_INVIS_LEV(ch) > 30)
+		&& !AFF_FLAGGED(sub, EAffect::kBlind)
+		&& (!is_dark(sub->in_room)
+			|| AFF_FLAGGED(sub, EAffect::kInfravision))
+		&& (!AFF_FLAGGED(obj, EAffect::kInvisible)
+			|| AFF_FLAGGED(sub, EAffect::kDetectInvisible));
+}
+
+bool ImmCanSee(const CharData *sub, const CharData *obj, bool consider_light) {
+	return MortCanSee(sub, obj, consider_light)
+		|| (!sub->IsNpc()
+			&& sub->IsFlagged(EPrf::kHolylight));
+}
+
+bool CanSee(const CharData *sub, const CharData *obj) {
+	return sub == obj
+		|| ((GetRealLevel(sub) >= (obj->IsNpc() ? 0 : GET_INVIS_LEV(obj)))
+			&& ImmCanSee(sub, obj));
+}
+
+// issue.utils-cleaning: the "see without light" variant -- folds the old CAN_SEE_CHAR macro
+// (same as CanSee but skips the room-darkness check via consider_light=false).
+bool CanSeeIgnoringLight(const CharData *sub, const CharData *obj) {
+	return sub == obj
+		|| ((GetRealLevel(sub) >= (obj->IsNpc() ? 0 : GET_INVIS_LEV(obj)))
+			&& ImmCanSee(sub, obj, false));
+}
+
+const char *PersonName(const CharData *ch, const CharData *viewer, int pad) {
+	return CanSee(viewer, ch) ? GET_PAD(ch, pad) : grammar::SomebodyInCase(pad);
+}
+
+bool MortCanSeeObj(const CharData *sub, const ObjData *obj) {
+	return INVIS_OK_OBJ(sub, obj)
+		&& !AFF_FLAGGED(sub, EAffect::kBlind)
+		&& (!is_dark(obj->get_in_room())
+			|| obj->has_flag(EObjFlag::kGlow)
+			|| (IS_CORPSE(obj)
+				&& AFF_FLAGGED(sub, EAffect::kInfravision))
+			|| CanUseFeat(sub, EFeat::kDarkReading));
+}
+
+bool CanSeeObj(const CharData *sub, const ObjData *obj) {
+	return (obj->get_worn_by() == sub
+		|| obj->get_carried_by() == sub
+		|| (obj->get_in_obj()
+			&& (obj->get_in_obj()->get_worn_by() == sub
+				|| obj->get_in_obj()->get_carried_by() == sub))
+		|| MortCanSeeObj(sub, obj)
+		|| (!sub->IsNpc()
+			&& (sub)->IsFlagged(EPrf::kHolylight)));
+}
+
+}  // namespace sight
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

@@ -7,9 +7,11 @@
 */
 
 #include "damage.h"
-
-#include <fmt/format.h>
-
+#include "administration/privilege.h"
+#include "utils/grammar/gender.h"
+#include "gameplay/mechanics/minions.h"
+#include "gameplay/mechanics/mount.h"
+#include "gameplay/mechanics/resist.h"
 #include "gameplay/mechanics/bonus.h"
 #include "engine/entities/char_data.h"
 #include "utils/utils_time.h"
@@ -19,6 +21,8 @@
 #include "gameplay/mechanics/equipment.h"
 #include "gameplay/clans/house_exp.h"
 #include "gameplay/statistics/dps.h"
+#include "engine/observability/event_sink.h"
+#include "gameplay/core/remort.h"
 #include "engine/ui/color.h"
 #include "gameplay/core/game_limits.h"
 #include "engine/core/utils_char_obj.inl"
@@ -30,181 +34,15 @@
 #include "gameplay/mechanics/sight.h"
 #include "utils/backtrace.h"
 
+#include <chrono>
+
+#include <fmt/format.h>
 
 void TryRemoveExtrahits(CharData *ch, CharData *victim);
 
 // Estern - нужно разобраться, почему функции работы с опытом распиханы по всем углам
 int max_exp_gain_pc(CharData *ch);
 //int max_exp_loss_pc(CharData *ch);
-
-// message for doing damage with a weapon
-void Damage::SendDmgMsg(CharData *ch, CharData *victim) const {
-	int dam_msgnum;
-	int w_type = msg_num;
-
-	static const struct dam_weapon_type {
-	  const char *to_room;
-	  const char *to_char;
-	  const char *to_victim;
-	} dam_weapons[] =
-		{
-
-			// use #w for singular (i.e. "slash") and #W for plural (i.e. "slashes")
-
-			{
-				"$n попытал$u #W $N3, но промахнул$u.",    // 0: 0      0 //
-				"Вы попытались #W $N3, но промахнулись.",
-				"$n попытал$u #W вас, но промахнул$u."
-			}, {
-				"$n легонько #w$g $N3.",    //  1..5 1 //
-				"Вы легонько #wи $N3.",
-				"$n легонько #w$g вас."
-			}, {
-				"$n слегка #w$g $N3.",    //  6..11  2 //
-				"Вы слегка #wи $N3.",
-				"$n слегка #w$g вас."
-			}, {
-				"$n #w$g $N3.",    //  12..18   3 //
-				"Вы #wи $N3.",
-				"$n #w$g вас."
-			}, {
-				"$n #w$g $N3.",    // 19..26  4 //
-				"Вы #wи $N3.",
-				"$n #w$g вас."
-			}, {
-				"$n сильно #w$g $N3.",    // 27..35  5 //
-				"Вы сильно #wи $N3.",
-				"$n сильно #w$g вас."
-			}, {
-				"$n очень сильно #w$g $N3.",    //  36..45 6  //
-				"Вы очень сильно #wи $N3.",
-				"$n очень сильно #w$g вас."
-			}, {
-				"$n чрезвычайно сильно #w$g $N3.",    //  46..55  7 //
-				"Вы чрезвычайно сильно #wи $N3.",
-				"$n чрезвычайно сильно #w$g вас."
-			}, {
-				"$n БОЛЬНО #w$g $N3.",    //  56..96   8 //
-				"Вы БОЛЬНО #wи $N3.",
-				"$n БОЛЬНО #w$g вас."
-			}, {
-				"$n ОЧЕНЬ БОЛЬНО #w$g $N3.",    //    97..136  9  //
-				"Вы ОЧЕНЬ БОЛЬНО #wи $N3.",
-				"$n ОЧЕНЬ БОЛЬНО #w$g вас."
-			}, {
-				"$n ЧРЕЗВЫЧАЙНО БОЛЬНО #w$g $N3.",    //   137..176  10 //
-				"Вы ЧРЕЗВЫЧАЙНО БОЛЬНО #wи $N3.",
-				"$n ЧРЕЗВЫЧАЙНО БОЛЬНО #w$g вас."
-			}, {
-				"$n НЕВЫНОСИМО БОЛЬНО #w$g $N3.",    //    177..216  11 //
-				"Вы НЕВЫНОСИМО БОЛЬНО #wи $N3.",
-				"$n НЕВЫНОСИМО БОЛЬНО #w$g вас."
-			}, {
-				"$n ЖЕСТОКО #w$g $N3.",    //    217..256  13 //
-				"Вы ЖЕСТОКО #wи $N3.",
-				"$n ЖЕСТОКО #w$g вас."
-			}, {
-				"$n УЖАСНО #w$g $N3.",    //    257..296  13 //
-				"Вы УЖАСНО #wи $N3.",
-				"$n УЖАСНО #w$g вас."
-			}, {
-				"$n УБИЙСТВЕННО #w$g $N3.",    //    297..400  15 //
-				"Вы УБИЙСТВЕННО #wи $N3.",
-				"$n УБИЙСТВЕННО #w$g вас."
-			}, {
-				"$n ИЗУВЕРСКИ #w$g $N3.",    //    297..400  15 //
-				"Вы ИЗУВЕРСКИ #wи $N3.",
-				"$n ИЗУВЕРСКИ #w$g вас."
-			}, {
-				"$n СМЕРТЕЛЬНО #w$g $N3.",    // 400+  16 //
-				"Вы СМЕРТЕЛЬНО #wи $N3.",
-				"$n СМЕРТЕЛЬНО #w$g вас."
-			}
-		};
-
-	if (w_type >= kTypeHit && w_type < kTypeMagic)
-		w_type -= kTypeHit;    // Change to base of table with text //
-	else
-		w_type = kTypeHit;
-
-	if (dam == 0)
-		dam_msgnum = 0;
-	else if (dam <= 5)
-		dam_msgnum = 1;
-	else if (dam <= 11)
-		dam_msgnum = 2;
-	else if (dam <= 18)
-		dam_msgnum = 3;
-	else if (dam <= 26)
-		dam_msgnum = 4;
-	else if (dam <= 35)
-		dam_msgnum = 5;
-	else if (dam <= 45)
-		dam_msgnum = 6;
-	else if (dam <= 56)
-		dam_msgnum = 7;
-	else if (dam <= 96)
-		dam_msgnum = 8;
-	else if (dam <= 136)
-		dam_msgnum = 9;
-	else if (dam <= 176)
-		dam_msgnum = 10;
-	else if (dam <= 216)
-		dam_msgnum = 11;
-	else if (dam <= 256)
-		dam_msgnum = 12;
-	else if (dam <= 296)
-		dam_msgnum = 13;
-	else if (dam <= 400)
-		dam_msgnum = 14;
-	else if (dam <= 800)
-		dam_msgnum = 15;
-	else
-		dam_msgnum = 16;
-	// damage message to onlookers
-	char *buf_ptr = replace_string(dam_weapons[dam_msgnum].to_room,
-								   attack_hit_text[w_type].singular, attack_hit_text[w_type].plural);
-	if (brief_shields_.empty()) {
-		act(buf_ptr, false, ch, nullptr, victim, kToNotVict | kToArenaListen);
-	} else {
-		char buf_[kMaxInputLength];
-		snprintf(buf_, sizeof(buf_), "%s%s", buf_ptr, brief_shields_.c_str());
-		act(buf_, false, ch, nullptr, victim, kToNotVict | kToArenaListen | kToBriefShields);
-		act(buf_ptr, false, ch, nullptr, victim, kToNotVict | kToArenaListen | kToNoBriefShields);
-	}
-
-	// damage message to damager
-	SendMsgToChar(ch, "%s", dam ? "&Y&q" : "&y&q");
-	if (!brief_shields_.empty() && ch->IsFlagged(EPrf::kBriefShields)) {
-		char buf_[kMaxInputLength];
-		snprintf(buf_, sizeof(buf_), "%s%s",
-				 replace_string(dam_weapons[dam_msgnum].to_char,
-								attack_hit_text[w_type].singular, attack_hit_text[w_type].plural),
-				 brief_shields_.c_str());
-		act(buf_, false, ch, nullptr, victim, kToChar);
-	} else {
-		buf_ptr = replace_string(dam_weapons[dam_msgnum].to_char,
-								 attack_hit_text[w_type].singular, attack_hit_text[w_type].plural);
-		act(buf_ptr, false, ch, nullptr, victim, kToChar);
-	}
-	SendMsgToChar("&Q&n", ch);
-
-	// damage message to damagee
-	SendMsgToChar("&R&q", victim);
-	if (!brief_shields_.empty() && victim->IsFlagged(EPrf::kBriefShields)) {
-		char buf_[kMaxInputLength];
-		snprintf(buf_, sizeof(buf_), "%s%s",
-				 replace_string(dam_weapons[dam_msgnum].to_victim,
-								attack_hit_text[w_type].singular, attack_hit_text[w_type].plural),
-				 brief_shields_.c_str());
-		act(buf_, false, ch, nullptr, victim, kToVict | kToSleep);
-	} else {
-		buf_ptr = replace_string(dam_weapons[dam_msgnum].to_victim,
-								 attack_hit_text[w_type].singular, attack_hit_text[w_type].plural);
-		act(buf_ptr, false, ch, nullptr, victim, kToVict | kToSleep);
-	}
-	SendMsgToChar("&Q&n", victim);
-}
 
 bool Damage::CalcMagisShieldsDmgAbsoption(CharData *ch, CharData *victim) {
 	if (dam <= 0) {
@@ -215,7 +53,7 @@ bool Damage::CalcMagisShieldsDmgAbsoption(CharData *ch, CharData *victim) {
 	if (AFF_FLAGGED(victim, EAffect::kMagicGlass)
 		&& dmg_type == fight::kMagicDmg) {
 		int pct = 6;
-		if (victim->IsNpc() && !IS_CHARMICE(victim)) {
+		if (victim->IsNpc() && !IsCharmice(victim)) {
 			pct += 2;
 			if (victim->get_role(static_cast<unsigned>(EMobClass::kBoss))) {
 				pct += 2;
@@ -241,7 +79,7 @@ bool Damage::CalcMagisShieldsDmgAbsoption(CharData *ch, CharData *victim) {
 		if (dmg_type == fight::kPhysDmg
 			&& !flags[fight::kIgnoreFireShield]) {
 			int pct = 15;
-			if (victim->IsNpc() && !IS_CHARMICE(victim)) {
+			if (victim->IsNpc() && !IsCharmice(victim)) {
 				pct += 5;
 				if (victim->get_role(static_cast<unsigned>(EMobClass::kBoss))) {
 					pct += 5;
@@ -344,7 +182,7 @@ bool Damage::CalcDmgAbsorption(CharData *ch, CharData *victim) {
 		&& dam > 0
 		&& GET_ABSORBE(victim) > 0) {
 		// шансы поглощения: непробиваемый в осторожке 15%, остальные 10%
-		int chance = 10 + GetRealRemort(victim) / 3;
+		int chance = 10 + remort::GetRealRemort(victim) / 3;
 		if (CanUseFeat(victim, EFeat::kImpregnable)
 			&& victim->IsFlagged(EPrf::kAwake)) {
 			chance += 5;
@@ -379,20 +217,20 @@ void Damage::SendCritHitMsg(CharData *ch, CharData *victim) {
 	// так что добавил отдельные сообщения для ледяного щита (Купала)
 	if (!flags[fight::kVictimIceShield]) {
 		sprintf(buf, "&G&qВаше меткое попадание тяжело ранило %s.&Q&n\r\n",
-				PERS(victim, ch, 3));
+				sight::PersonName(victim, ch, 3));
 	} else {
 		sprintf(buf, "&B&qВаше меткое попадание утонуло в ледяной пелене щита %s.&Q&n\r\n",
-				PERS(victim, ch, 1));
+				sight::PersonName(victim, ch, 1));
 	}
 
 	SendMsgToChar(buf, ch);
 
 	if (!flags[fight::kVictimIceShield]) {
 		sprintf(buf, "&r&qМеткое попадание %s тяжело ранило вас.&Q&n\r\n",
-				PERS(ch, victim, 1));
+				sight::PersonName(ch, victim, 1));
 	} else {
 		sprintf(buf, "&r&qМеткое попадание %s утонуло в ледяной пелене вашего щита.&Q&n\r\n",
-				PERS(ch, victim, 1));
+				sight::PersonName(ch, victim, 1));
 	}
 
 	SendMsgToChar(buf, victim);
@@ -408,7 +246,7 @@ void Damage::ProcessBlink(CharData *ch, CharData *victim) {
 	if (dmg_type == fight::kMagicDmg) {
 		if (AFF_FLAGGED(victim, EAffect::kCloudly) || victim->add_abils.percent_spell_blink_mag > 0) {
 			if (victim->IsNpc()) {
-				blink = GetRealLevel(victim) + GetRealRemort(victim);
+				blink = GetRealLevel(victim) + remort::GetRealRemort(victim);
 			} else if(victim->add_abils.percent_spell_blink_mag > 0) {
 				blink = victim->add_abils.percent_spell_blink_mag;
 			} else {
@@ -418,7 +256,7 @@ void Damage::ProcessBlink(CharData *ch, CharData *victim) {
 	} else if(dmg_type == fight::kPhysDmg) {
 		if (AFF_FLAGGED(victim, EAffect::kBlink) || victim->add_abils.percent_spell_blink_phys > 0) {
 			if (victim->IsNpc()) {
-				blink = GetRealLevel(victim) + GetRealRemort(victim);
+				blink = GetRealLevel(victim) + remort::GetRealRemort(victim);
 			} else if (victim->add_abils.percent_spell_blink_phys > 0) {
 				blink = victim->add_abils.percent_spell_blink_phys;
 			} else {
@@ -450,14 +288,18 @@ void Damage::ProcessDeath(CharData *ch, CharData *victim) const {
 
 	if (victim->IsNpc() || victim->desc) {
 		if (victim == ch && victim->in_room != kNowhere) {
-			if (spell_id == ESpell::kPoison) {
-				for (const auto poisoner : world[victim->in_room]->people) {
-					if (poisoner != victim
-						&& poisoner->get_uid() == victim->poisoner) {
-						killer = poisoner;
+			// Урон сам себе (тик повреждающего аффекта и т.п.): убийство засчитывается "автору"
+			// урона (author_uid -- обычно caster_id аффекта), если он рядом. Нет автора (0) или
+			// автор сам victim -- не засчитывается. Любой будущий повреждающий аффект просто
+			// выставляет author_uid, отдельная ветка тут не нужна.
+			if (author_uid != 0 && author_uid != victim->get_uid()) {
+				for (const auto author : world[victim->in_room]->people) {
+					if (author != victim && author->get_uid() == author_uid) {
+						killer = author;
+						break;
 					}
 				}
-			} else if (msg_num == kTypeSuffering) {
+			} else if (damage_source == fight::EDamageSource::kSuffering) {
 				for (const auto attacker : world[victim->in_room]->people) {
 					if (attacker->GetEnemy() == victim) {
 						killer = attacker;
@@ -474,9 +316,7 @@ void Damage::ProcessDeath(CharData *ch, CharData *victim) const {
 		if (AFF_FLAGGED(killer, EAffect::kGroup)) {
 			// т.к. помечен флагом AFF_GROUP - точно PC
 			group_gain(killer, victim);
-		} else if ((AFF_FLAGGED(killer, EAffect::kCharmed)
-			|| killer->IsFlagged(EMobFlag::kTutelar)
-			|| killer->IsFlagged(EMobFlag::kMentalShadow))
+		} else if ((killer->IsFlagged(EMobFlag::kCompanion))
 			&& killer->has_master())
 			// killer - зачармленный NPC с хозяином
 		{
@@ -507,7 +347,7 @@ void Damage::ProcessDeath(CharData *ch, CharData *victim) const {
 
 		for (const auto &ch_vict : world[ch->in_room]->people) {
 			//Мобы все кто присутствовал при смерти игрока забывают
-			if (ch_vict->IsImmortal())
+			if (privilege::IsImmortal(ch_vict))
 				continue;
 			if (!HERE(ch_vict))
 				continue;
@@ -531,7 +371,7 @@ void Damage::ProcessDeath(CharData *ch, CharData *victim) const {
  * У мобов работают все 3 щита, у чаров только 1 рандомный на текущий удар.
  */
 void Damage::SetPostInitShieldFlags(CharData *victim) {
-	if (victim->IsNpc() && !IS_CHARMICE(victim)) {
+	if (victim->IsNpc() && !IsCharmice(victim)) {
 		if (AFF_FLAGGED(victim, EAffect::kFireShield)) {
 			flags.set(fight::kVictimFireShield);
 		}
@@ -576,19 +416,6 @@ void Damage::SetPostInitShieldFlags(CharData *victim) {
 }
 
 void Damage::PerformPostInit(CharData *ch, CharData *victim) {
-	if (msg_num == -1) {
-		// ABYRVALG тут нужно переделать на взятие сообщения из структуры абилок
-		if (MUD::Skills().IsValid(skill_id)) {
-			msg_num = to_underlying(skill_id) + kTypeHit;
-		} else if (spell_id > ESpell::kUndefined) {
-			msg_num = to_underlying(spell_id);
-		} else if (hit_type >= 0) {
-			msg_num = hit_type + kTypeHit;
-		} else {
-			msg_num = kTypeHit;
-		}
-	}
-
 	if (ch_start_pos == EPosition::kUndefined) {
 		ch_start_pos = ch->GetPosition();
 	}
@@ -633,9 +460,9 @@ int Damage::Process(CharData *ch, CharData *victim) {
 		return 0;
 	}
 	if (dam > 0) {
-		if (victim->IsGod()) {
+		if (privilege::IsGod(victim)) {
 			dam = 0;
-		} else if (victim->IsImmortal() || GET_GOD_FLAG(victim, EGf::kGodsLike)) {
+		} else if (privilege::IsImmortal(victim) || GET_GOD_FLAG(victim, EGf::kGodsLike)) {
 			dam /= 4;
 		} else if (GET_GOD_FLAG(victim, EGf::kGodscurse)) {
 			dam *= 2;
@@ -663,14 +490,14 @@ int Damage::Process(CharData *ch, CharData *victim) {
 		}
 
 		// лошадь сбрасывает седока при уроне
-		if (ch->IsOnHorse() && ch->get_horse() == victim) {
-			victim->DropFromHorse();
-		} else if (victim->IsOnHorse() && victim->get_horse() == ch) {
-			ch->DropFromHorse();
+		if (mount::IsOnHorse(ch) && mount::GetHorse(ch) == victim) {
+			mount::DropFromHorse(victim);
+		} else if (mount::IsOnHorse(victim) && mount::GetHorse(victim) == ch) {
+			mount::DropFromHorse(ch);
 		}
 	}
-	Appear(ch);
-	Appear(victim);
+	sight::Appear(ch);
+	sight::Appear(victim);
 
 	if (dam < 0 || ch->in_room == kNowhere || victim->in_room == kNowhere || ch->in_room != victim->in_room) {
 		return 0;
@@ -738,14 +565,14 @@ int Damage::Process(CharData *ch, CharData *victim) {
 	// прочие множители
 
 	if (AFF_FLAGGED(victim, EAffect::kHold) && dmg_type == fight::kPhysDmg) {
-		if (ch->IsNpc() && !IS_CHARMICE(ch)) {
+		if (ch->IsNpc() && !IsCharmice(ch)) {
 			dam = dam * 15 / 10;
 		} else {
 			dam = dam * 125 / 100;
 		}
 	}
 
-	if (!victim->IsNpc() && IS_CHARMICE(ch)) {
+	if (!victim->IsNpc() && IsCharmice(ch)) {
 		dam = dam * 8 / 10;
 	}
 
@@ -757,9 +584,9 @@ int Damage::Process(CharData *ch, CharData *victim) {
 						   "&CУчет поглощения урона: %d начислено, %d применено.&n\r\n", dam, ResultDam);
 		dam = ResultDam;
 	}
-	if (!ch->IsImmortal() && AFF_FLAGGED(victim, EAffect::kGodsShield)) {
+	if (!privilege::IsImmortal(ch) && AFF_FLAGGED(victim, EAffect::kGodsShield)) {
 		if (skill_id == ESkill::kBash) {
-			SendSkillMessages(dam, ch, victim, msg_num);
+			SendSkillMessages(dam, ch, victim, skill_id);
 		}
 		if (ch != victim) {
 			act("Магический кокон полностью поглотил удар $N1.", false, victim, nullptr, ch, kToChar);
@@ -825,7 +652,11 @@ int Damage::Process(CharData *ch, CharData *victim) {
 			if (!damage_mtrigger(ch, victim, dam, MUD::Skill(skill_id).GetName(), 1, wielded))
 				return 0;
 		} else if (dmg_type == fight::kMagicDmg) {
-			if (!damage_mtrigger(ch, victim, dam, MUD::Spell(spell_id).GetCName(), 0, wielded))
+			// spell_id is kUndefined for spell-less magic damage (e.g. mob breath, which
+			// is magic melee of an element). Use an empty name rather than looking up an
+			// invalid spell.
+			const char *dmg_name = (spell_id > ESpell::kUndefined) ? MUD::Spell(spell_id).GetCName() : "";
+			if (!damage_mtrigger(ch, victim, dam, dmg_name, 0, wielded))
 				return 0;
 		} else if (dmg_type == fight::kPoisonDmg) {
 			if (!damage_mtrigger(ch, victim, dam, MUD::Spell(spell_id).GetCName(), 2, wielded))
@@ -846,6 +677,36 @@ int Damage::Process(CharData *ch, CharData *victim) {
 	}
 	// собственно нанесение дамага
 	victim->set_hit(victim->get_hit() - dam);
+	// Точка инструментации для автономного симулятора баланса (issue #2967):
+	// эмитим точные числа на каждый успешный удар. В проде список sink'ов
+	// пуст -- HasAnyEventSink() возвращает false, ранний выход без построения
+	// Event и без аллокаций.
+	if (observability::HasAnyEventSink()) {
+		observability::Event ev;
+		ev.name = "damage";
+		ev.ts_unix_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+			std::chrono::system_clock::now().time_since_epoch()).count();
+		ev.attrs["attacker_name"] = observability::EngineStringToUtf8(GET_NAME(ch) ? GET_NAME(ch) : "");
+		ev.attrs["victim_name"] = observability::EngineStringToUtf8(GET_NAME(victim) ? GET_NAME(victim) : "");
+		ev.attrs["dam"] = static_cast<std::int64_t>(dam);
+		ev.attrs["real_dam"] = static_cast<std::int64_t>(real_dam);
+		ev.attrs["over_dam"] = static_cast<std::int64_t>(over_dam);
+		ev.attrs["victim_hp_after"] = static_cast<std::int64_t>(victim->get_hit());
+		ev.attrs["dmg_type"] = static_cast<std::int64_t>(dmg_type);
+		ev.attrs["crit"] = flags[fight::kCritHit];
+		// spell_id/skill_id выставлены если урон пришёл из заклинания/умения
+		// (kUndefined для обычной автоатаки). В виз позволяет отличить
+		// melee от cast.
+		ev.attrs["spell_id"] = static_cast<std::int64_t>(spell_id);
+		ev.attrs["skill_id"] = static_cast<std::int64_t>(skill_id);
+		// Чармис/поднятая нежить -- атаковал не сам PC, а его подчинённый.
+		// Визуализатору это нужно, чтобы отделить вклад хозяина и слуг.
+		ev.attrs["attacker_is_charmie"] = IsCharmice(ch);
+		ev.attrs["attacker_master_name"] = observability::EngineStringToUtf8(
+			(IsCharmice(ch) && ch->has_master() && GET_NAME(ch->get_master()))
+				? GET_NAME(ch->get_master()) : "");
+		observability::EmitToAllSinks(ev);
+	}
 	victim->send_to_TC(false, true, true, "&MПолучен урон = %d&n\r\n", dam);
 	ch->send_to_TC(false, true, true, "&MПрименен урон = %d&n\r\n", dam);
 	if (dmg_type == fight::kPhysDmg && GET_GOD_FLAG(ch, EGf::kSkillTester) && skill_id != ESkill::kUndefined) {
@@ -917,18 +778,14 @@ int Damage::Process(CharData *ch, CharData *victim) {
 		brief_shields_ = buf_;
 	}
 	// сообщения об ударах //
-	if (MUD::Skills().IsValid(skill_id) || spell_id > ESpell::kUndefined || hit_type < 0) {
-		// скилл, спелл, необычный дамаг
-		SendSkillMessages(dam, ch, victim, msg_num, brief_shields_);
+	if (MUD::Skills().IsValid(skill_id)) {
+		SendSkillMessages(dam, ch, victim, skill_id, brief_shields_);
+	} else if (spell_id > ESpell::kUndefined) {
+		SendSkillMessages(dam, ch, victim, spell_id, brief_shields_);
 	} else {
-		// простой удар рукой/оружием
-		if (victim->GetPosition() == EPosition::kDead || dam == 0) {
-			if (!SendSkillMessages(dam, ch, victim, msg_num, brief_shields_)) {
-				SendDmgMsg(ch, victim);
-			}
-		} else {
-			SendDmgMsg(ch, victim);
-		}
+		// удар оружием/рукой или серверный урон - всё из контейнера сообщений
+		// (для ударов оружием kFightHit* содержит плейсхолдер {intensity}, issue #3322)
+		SendSkillMessages(dam, ch, victim, damage_source, brief_shields_);
 	}
 	/// Use SendMsgToChar -- act() doesn't send message if you are DEAD.
 	char_dam_message(dam, ch, victim, flags[fight::kNoFleeDmg]);
@@ -980,7 +837,7 @@ void TryRemoveExtrahits(CharData *ch, CharData *victim) {
 	{
 		victim->set_hit(victim->get_real_max_hit());
 		SendMsgToChar(victim, "%s'Будь%s тощ%s аки прежде' - мелькнула чужая мысль в вашей голове.%s\r\n",
-					  kColorWht, GET_CH_POLY_1(victim), GET_CH_EXSUF_1(victim), kColorNrm);
+					  kColorWht, grammar::PluralVerbEnding(IS_POLY(victim)), grammar::InstrEnding((victim)->get_sex()), kColorNrm);
 		act("Вы прервали золотистую нить, питающую $N3 жизнью.", false, ch, nullptr, victim, kToChar);
 		act("$n прервал$g золотистую нить, питающую $N3 жизнью.", false, ch, nullptr, victim, kToNotVict | kToArenaListen);
 	}

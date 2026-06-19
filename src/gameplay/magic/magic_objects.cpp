@@ -3,6 +3,9 @@
 // Part of Bylins http://www.mud.ru
 
 #include "spells.h"
+#include "gameplay/mechanics/sight.h"
+#include "utils/grammar/gender.h"
+#include "utils/grammar/declensions.h"
 
 #include "engine/entities/obj_data.h"
 #include "engine/ui/color.h"
@@ -70,21 +73,21 @@ void PrepareSpellRemoving(ObjData *obj, ESpell spell_id, bool send_message) {
 			case ESpell::kBelenaPoison:
 			case ESpell::kDaturaPoison:
 				SendMsgToChar(ch, "С %s испарились последние капельки яда.\r\n",
-							  obj->get_PName(ECase::kGen).c_str());
+							  obj->get_PName(grammar::ECase::kGen).c_str());
 				break;
 
 			case ESpell::kFly:
 				SendMsgToChar(ch, "Ваш%s %s перестал%s парить в воздухе.\r\n",
-							  GET_OBJ_VIS_SUF_7(obj, ch),
-							  obj->get_PName(ECase::kNom).c_str(),
-							  GET_OBJ_VIS_SUF_1(obj, ch));
+							  grammar::ObjVisSexEnding(sight::CanSeeObj((ch), (obj)), (obj)->get_sex(), 7),
+							  obj->get_PName(grammar::ECase::kNom).c_str(),
+							  grammar::ObjVisSexEnding(sight::CanSeeObj((ch), (obj)), (obj)->get_sex(), 1));
 				break;
 
 			case ESpell::kLight:
 				SendMsgToChar(ch, "Ваш%s %s перестал%s светиться.\r\n",
-							  GET_OBJ_VIS_SUF_7(obj, ch),
-							  obj->get_PName(ECase::kNom).c_str(),
-							  GET_OBJ_VIS_SUF_1(obj, ch));
+							  grammar::ObjVisSexEnding(sight::CanSeeObj((ch), (obj)), (obj)->get_sex(), 7),
+							  obj->get_PName(grammar::ECase::kNom).c_str(),
+							  grammar::ObjVisSexEnding(sight::CanSeeObj((ch), (obj)), (obj)->get_sex(), 1));
 				break;
 			default: break;
 		}
@@ -105,7 +108,7 @@ std::string print_spell_str(ESpell spell_id, int timer) {
 		case ESpell::kBelenaPoison:
 		case ESpell::kDaturaPoison:
 			out << kColorGrn << "Отравлено " << GetPoisonName(spell_id) << " еще " << timer << " "
-				<< GetDeclensionInNumber(timer, EWhat::kMinU) << ".\r\n" << kColorNrm;
+				<< grammar::GetDeclensionInNumber(timer, grammar::EWhat::kMinU) << ".\r\n" << kColorNrm;
 			break;
 
 		default:

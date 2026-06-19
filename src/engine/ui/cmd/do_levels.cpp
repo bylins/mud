@@ -6,6 +6,7 @@
 #include "engine/ui/color.h"
 #include "engine/ui/modify.h"
 #include "gameplay/classes/pc_classes.h"
+#include "gameplay/core/remort.h"
 
 void do_levels(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	int i;
@@ -22,7 +23,7 @@ void do_levels(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		ptr += sprintf(ptr, "%s[%2d] %13s-%-13s %-13s%s\r\n", (GetRealLevel(ch) == i) ? kColorBoldCyn : "", i,
 					   thousands_sep(GetExpUntilNextLvl(ch, i)).c_str(),
 					   thousands_sep(GetExpUntilNextLvl(ch, i + 1) - 1).c_str(),
-					   thousands_sep((int) (GetExpUntilNextLvl(ch, i + 1) - GetExpUntilNextLvl(ch, i)) / (10 + GetRealRemort(ch))).c_str(),
+					   thousands_sep((int) (GetExpUntilNextLvl(ch, i + 1) - GetExpUntilNextLvl(ch, i)) / (10 + remort::GetRealRemort(ch))).c_str(),
 					   (GetRealLevel(ch) == i) ? kColorNrm : "");
 	}
 

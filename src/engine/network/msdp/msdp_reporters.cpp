@@ -1,4 +1,6 @@
 #include "msdp_reporters.h"
+#include "gameplay/mechanics/sight.h"
+#include "gameplay/mechanics/mount.h"
 
 #include "engine/entities/char_data.h"
 #include "gameplay/magic/magic.h"
@@ -101,7 +103,7 @@ bool RoomReporter::blockReport() const {
 	bool nomapper = true;
 	const auto blind = (descriptor()->character->IsFlagged(EPrf::kBlindMode)) //В режиме слепого игрока карта недоступна
 		|| (AFF_FLAGGED((descriptor()->character), EAffect::kBlind));  //Слепому карта не поможет!
-	const auto cannot_see_in_dark = (is_dark(descriptor()->character->in_room) && !CAN_SEE_IN_DARK(descriptor()->character));
+	const auto cannot_see_in_dark = (is_dark(descriptor()->character->in_room) && !sight::CanSeeInDark(descriptor()->character.get()));
 	if (descriptor()->character->in_room != kNowhere)
 		nomapper = ROOM_FLAGGED(descriptor()->character->in_room, ERoomFlag::kMoMapper);
 	const auto scriptwriter = descriptor()->character->IsFlagged(EPlrFlag::kScriptWriter); // скриптеру не шлем
@@ -225,7 +227,7 @@ void GroupReporter::append_char(const std::shared_ptr<ArrayValue> &group,
 		affects += "Л";
 	}
 
-	if (!character->IsNpc() && character->IsOnHorse()) {
+	if (!character->IsNpc() && mount::IsOnHorse(character)) {
 		affects += "В";
 	}
 
@@ -290,9 +292,7 @@ void GroupReporter::get(Variable::shared_ptr &response) {
 	append_char(group_descriptor, ch, master, true);
 	for (auto *f : master->followers) {
 		if (!AFF_FLAGGED(f, EAffect::kGroup)
-			&& !(AFF_FLAGGED(f, EAffect::kCharmed)
-				|| f->IsFlagged(EMobFlag::kTutelar)
-				|| f->IsFlagged(EMobFlag::kMentalShadow))) {
+			&& !(f->IsFlagged(EMobFlag::kCompanion))) {
 			continue;
 		}
 
@@ -304,9 +304,7 @@ void GroupReporter::get(Variable::shared_ptr &response) {
 		}
 
 		for (auto *ff : f->followers) {
-			if (!(AFF_FLAGGED(ff, EAffect::kCharmed)
-				|| ff->IsFlagged(EMobFlag::kTutelar)
-				|| ff->IsFlagged(EMobFlag::kMentalShadow))) {
+			if (!(ff->IsFlagged(EMobFlag::kCompanion))) {
 				continue;
 			}
 

@@ -1,4 +1,5 @@
 #include "do_memorize.h"
+#include "administration/privilege.h"
 
 #include <string>
 
@@ -9,6 +10,7 @@
 #include "gameplay/magic/magic_utils.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/core/game_limits.h"
+#include "gameplay/core/remort.h"
 
 #include <fmt/format.h>
 
@@ -21,7 +23,7 @@ void do_memorize(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		show_wizdom(ch, 0x07);
 		return;
 	}
-	if (ch->IsImmortal()) {
+	if (privilege::IsImmortal(ch)) {
 		SendMsgToChar("Господи, хоть ты не подкалывай!\r\n", ch);
 		return;
 	}
@@ -49,7 +51,7 @@ void do_memorize(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 	const auto spell = MUD::Class(ch->GetClass()).spells[spell_id];
 	if (GetRealLevel(ch) < CalcMinSpellLvl(ch, spell_id)
-		|| GetRealRemort(ch) < spell.GetMinRemort()
+		|| remort::GetRealRemort(ch) < spell.GetMinRemort()
 		|| CalcCircleSlotsAmount(ch, spell.GetCircle()) <= 0) {
 		SendMsgToChar("Рано еще вам бросаться такими словами!\r\n", ch);
 		return;
@@ -77,7 +79,7 @@ void show_wizdom(CharData *ch, int bitset) {
 				continue;
 			}
 			count = GET_SPELL_MEM(ch, spell_id);
-			if (ch->IsImmortal())
+			if (privilege::IsImmortal(ch))
 				count = 10;
 			if (!count)
 				continue;

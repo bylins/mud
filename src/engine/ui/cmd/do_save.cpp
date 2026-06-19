@@ -17,7 +17,7 @@ void do_save(CharData *ch, char * /*argument*/, int cmd, int/* subcmd*/) {
 	// Only tell the char we're saving if they actually typed "save"
 	if (cmd) {
 		SendMsgToChar("Сохраняю игрока, синонимы и вещи.\r\n", ch);
-		SetWaitState(ch, 3 * kBattleRound);
+		SetBattleLag(ch, 3);
 	}
 	WriteAliases(ch);
 	ch->save_char();

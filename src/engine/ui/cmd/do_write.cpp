@@ -7,6 +7,7 @@
 */
 
 #include "engine/entities/char_data.h"
+#include "gameplay/mechanics/sight.h"
 #include "engine/entities/obj_data.h"
 #include "engine/core/utils_char_obj.inl"
 #include "engine/ui/modify.h"
@@ -57,7 +58,7 @@ void do_write(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			SendMsgToChar(buf, ch);
 			return;
 		}
-		if (!CAN_SEE_OBJ(ch, GET_EQ(ch, kHold))) {
+		if (!sight::CanSeeObj(ch, GET_EQ(ch, kHold))) {
 			SendMsgToChar("Вы держите что-то невидимое!  Жаль, но писать этим трудно!!\r\n", ch);
 			return;
 		}

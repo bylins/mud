@@ -108,7 +108,6 @@ enum SetStuffMode {
 #define ZON_PREFIX    LIB_WORLD "zon" SLASH    // zon defs & command tables
 #define TRG_PREFIX    LIB_WORLD "trg" SLASH    // shop definitions
 #define HLP_PREFIX    LIB_TEXT "help" SLASH    // for HELP <keyword>
-#define SOC_PREFIX    LIB_MISC
 #define PLAYER_F_PREFIX LIB_PLRS "" LIB_F
 #define PLAYER_K_PREFIX LIB_PLRS "" LIB_K
 #define PLAYER_P_PREFIX LIB_PLRS "" LIB_P
@@ -131,7 +130,6 @@ enum SetStuffMode {
 #define IDEA_FILE        LIB_MISC "ideas"    // for the 'idea'-command
 #define TYPO_FILE        LIB_MISC "typos"    //         'typo'
 #define BUG_FILE        LIB_MISC "bugs"    //         'bug'
-#define MESS_FILE       LIB_MISC "messages"    // damage messages
 #define SOCMESS_FILE    LIB_MISC "socials"    // messgs for social acts
 #define XNAME_FILE      LIB_MISC "xnames"    // invalid name substrings
 #define ANAME_FILE      LIB_MISC "apr_name" // одобренные имена
@@ -151,8 +149,7 @@ enum EBootType : int {
 	DB_BOOT_OBJ = 2,
 	DB_BOOT_ZON = 3,
 	DB_BOOT_HLP = 4,
-	DB_BOOT_TRG = 5,
-	DB_BOOT_SOCIAL = 6
+	DB_BOOT_TRG = 5
 };
 
 class FilesPrefixes : private std::unordered_map<int, std::string> {

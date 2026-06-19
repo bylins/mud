@@ -1,0 +1,17 @@
+<!--
+  issue.specials: Vedun editor scheme for specials.xml. Mobs are grouped under each special; a
+  <special> (keyed by its ESpecial id token) is the editable element, with <mob vnum=> children.
+  Optional sidecar; the loader's Validate() also enforces id + positive vnum on save.
+-->
+<scheme>
+	<tag name="specials" desc="Special-procedure assignments, grouped by special">
+		<child tag="special" multiple="Y"/>
+	</tag>
+	<tag name="special" desc="One special procedure and the mobs that have it">
+		<attr name="id" type="enum" enum="ESpecial" desc="The special procedure (kRent, kBank, ...)"/>
+		<child tag="mob" multiple="Y"/>
+	</tag>
+	<tag name="mob" desc="A mob prototype assigned this special">
+		<attr name="vnum" type="int" min="1" desc="Mob vnum (positive integer)"/>
+	</tag>
+</scheme>

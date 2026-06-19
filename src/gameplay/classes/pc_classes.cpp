@@ -19,6 +19,9 @@
  * the appropriate new special cases for your new class.
  */
 #include "pc_classes.h"
+#include "administration/privilege.h"
+#include "gameplay/mechanics/condition.h"
+#include "gameplay/mechanics/minions.h"
 
 #include "gameplay/magic/magic_utils.h"
 #include "engine/core/handler.h"
@@ -31,6 +34,7 @@
 #include "gameplay/mechanics/noob.h"
 #include "gameplay/economics/exchange.h"
 #include "gameplay/magic/spells_info.h"
+#include "gameplay/core/remort.h"
 #include "engine/db/global_objects.h"
 
 const int kExpImpl = 2000000000;
@@ -983,7 +987,7 @@ void DoPcInit(CharData *ch, bool is_newbie) {
 	ch->set_level(1);
 	ch->set_exp(1);
 	ch->set_max_hit(10);
-	if (is_newbie || (GetRealRemort(ch) >= 9 && GetRealRemort(ch) % 3 == 0)) {
+	if (is_newbie || (remort::GetRealRemort(ch) >= 9 && remort::GetRealRemort(ch) % 3 == 0)) {
 		ch->set_skill(ESkill::kHangovering, 10);
 	}
 
@@ -1044,9 +1048,9 @@ void DoPcInit(CharData *ch, bool is_newbie) {
 	ch->set_hit(ch->get_real_max_hit());
 	ch->set_move(ch->get_real_max_move());
 
-	GET_COND(ch, THIRST) = 0;
-	GET_COND(ch, FULL) = 0;
-	GET_COND(ch, DRUNK) = 0;
+	GET_COND(ch, condition::kThirst) = 0;
+	GET_COND(ch, condition::kFull) = 0;
+	GET_COND(ch, condition::kDrunk) = 0;
 	// проставим кличи
 	init_warcry(ch);
 	if (siteok_everyone) {
@@ -1073,7 +1077,7 @@ void levelup_events(CharData *ch) {
 	if (EXCHANGE_MIN_CHAR_LEV == GetRealLevel(ch)
 		&& !ch->get_disposable_flag(DIS_EXCHANGE_MESSAGE)) {
 		// по умолчанию базар у всех включен, поэтому не спамим даже однократно
-		if (GetRealRemort(ch) <= 0) {
+		if (remort::GetRealRemort(ch) <= 0) {
 			SendMsgToChar(ch,
 						  "%sТеперь вы можете покупать и продавать вещи на базаре ('справка базар!').%s\r\n",
 						  kColorBoldGrn, kColorNrm);
@@ -1111,7 +1115,7 @@ void advance_level(CharData *ch) {
 
 	SetInbornAndRaceFeats(ch);
 
-	if (ch->IsImmortal()) {
+	if (privilege::IsImmortal(ch)) {
 		for (i = 0; i < 3; i++) {
 			GET_COND(ch, i) = (char) -1;
 		}
@@ -1151,7 +1155,7 @@ void decrease_level(CharData *ch) {
 	ch->set_max_move(ch->get_max_move() - std::clamp(add_move, 1, ch->get_max_move()));
 
 	GET_WIMP_LEV(ch) = std::clamp(GET_WIMP_LEV(ch), 0, ch->get_real_max_hit()/2);
-	if (!ch->IsImmortal()) {
+	if (!privilege::IsImmortal(ch)) {
 		ch->UnsetFlag(EPrf::kHolylight);
 	}
 
@@ -1177,7 +1181,7 @@ int invalid_unique(CharData *ch, const ObjData *obj) {
 		|| !obj
 		|| (ch->IsNpc()
 			&& !AFF_FLAGGED(ch, EAffect::kCharmed))
-		|| ch->IsImmortal()
+		|| privilege::IsImmortal(ch)
 		|| obj->get_owner() == 0
 		|| obj->get_owner() == ch->get_uid()) {
 		return (false);
@@ -1197,7 +1201,7 @@ int invalid_anti_class(CharData *ch, const ObjData *obj) {
 		&& AFF_FLAGGED(ch, EAffect::kCharmed)) {
 		return (true);
 	}
-	if ((ch->IsNpc() || ch->IsImmortal()) && !IS_CHARMICE(ch)) {
+	if ((ch->IsNpc() || privilege::IsImmortal(ch)) && !IsCharmice(ch)) {
 		return (false);
 	}
 	if ((obj->has_anti_flag(EAntiFlag::kNoPkClan) && char_to_pk_clan(ch))) {
@@ -1238,9 +1242,9 @@ int invalid_no_class(CharData *ch, const ObjData *obj) {
 		return true;
 	}
 
-	if (!IS_CHARMICE(ch)
+	if (!IsCharmice(ch)
 		&& (ch->IsNpc()
-			|| ch->IsImmortal())) {
+			|| privilege::IsImmortal(ch))) {
 		return false;
 	}
 
@@ -1274,88 +1278,94 @@ int invalid_no_class(CharData *ch, const ObjData *obj) {
 	return false;
 }
 
+int invalid_anti_class_proto(CharData *ch, const CObjectPrototype *obj) {
+	if (obj->has_anti_flag(EAntiFlag::kCharmice)
+		&& AFF_FLAGGED(ch, EAffect::kCharmed)) {
+		return (true);
+	}
+	if ((ch->IsNpc() || privilege::IsImmortal(ch)) && !IsCharmice(ch)) {
+		return (false);
+	}
+	if ((obj->has_anti_flag(EAntiFlag::kNoPkClan) && char_to_pk_clan(ch))) {
+		return (true);
+	}
+	if ((obj->has_anti_flag(EAntiFlag::kMono) && GET_RELIGION(ch) == kReligionMono)
+		|| (obj->has_anti_flag(EAntiFlag::kPoly) && GET_RELIGION(ch) == kReligionPoly)
+		|| (obj->has_anti_flag(EAntiFlag::kMage) && IsMage(ch))
+		|| (obj->has_anti_flag(EAntiFlag::kConjurer) && IS_CONJURER(ch))
+		|| (obj->has_anti_flag(EAntiFlag::kCharmer) && IS_CHARMER(ch))
+		|| (obj->has_anti_flag(EAntiFlag::kWizard) && IS_WIZARD(ch))
+		|| (obj->has_anti_flag(EAntiFlag::kNecromancer) && IS_NECROMANCER(ch))
+		|| (obj->has_anti_flag(EAntiFlag::kFighter) && IsFighter(ch))
+		|| (obj->has_anti_flag(EAntiFlag::kMale) && IS_MALE(ch))
+		|| (obj->has_anti_flag(EAntiFlag::kFemale) && IS_FEMALE(ch))
+		|| (obj->has_anti_flag(EAntiFlag::kSorcerer) && IS_SORCERER(ch))
+		|| (obj->has_anti_flag(EAntiFlag::kWarrior) && IS_WARRIOR(ch))
+		|| (obj->has_anti_flag(EAntiFlag::kGuard) && IS_GUARD(ch))
+		|| (obj->has_anti_flag(EAntiFlag::kThief) && IS_THIEF(ch))
+		|| (obj->has_anti_flag(EAntiFlag::kAssasine) && IS_ASSASINE(ch))
+		|| (obj->has_anti_flag(EAntiFlag::kPaladine) && IS_PALADINE(ch))
+		|| (obj->has_anti_flag(EAntiFlag::kRanger) && IS_RANGER(ch))
+		|| (obj->has_anti_flag(EAntiFlag::kVigilant) && IS_VIGILANT(ch))
+		|| (obj->has_anti_flag(EAntiFlag::kMerchant) && IS_MERCHANT(ch))
+		|| (obj->has_anti_flag(EAntiFlag::kMagus) && IS_MAGUS(ch))
+		|| (obj->has_anti_flag(EAntiFlag::kKiller) && ch->IsFlagged(EPlrFlag::kKiller))
+		|| (obj->has_anti_flag(EAntiFlag::kBattle) && check_agrobd(ch))
+		|| (obj->has_anti_flag(EAntiFlag::kColored) && pk_count(ch))) {
+		return (true);
+	}
+	return (false);
+}
+
+int invalid_no_class_proto(CharData *ch, const CObjectPrototype *obj) {
+	if (obj->has_no_flag(ENoFlag::kCharmice)
+		&& AFF_FLAGGED(ch, EAffect::kCharmed)) {
+		return true;
+	}
+	if (!IsCharmice(ch)
+		&& (ch->IsNpc()
+			|| privilege::IsImmortal(ch))) {
+		return false;
+	}
+	if ((obj->has_no_flag(ENoFlag::kMono) && GET_RELIGION(ch) == kReligionMono)
+		|| (obj->has_no_flag(ENoFlag::kPoly) && GET_RELIGION(ch) == kReligionPoly)
+		|| (obj->has_no_flag(ENoFlag::kMage) && IsMage(ch))
+		|| (obj->has_no_flag(ENoFlag::kConjurer) && IS_CONJURER(ch))
+		|| (obj->has_no_flag(ENoFlag::kCharmer) && IS_CHARMER(ch))
+		|| (obj->has_no_flag(ENoFlag::kWizard) && IS_WIZARD(ch))
+		|| (obj->has_no_flag(ENoFlag::kNecromancer) && IS_NECROMANCER(ch))
+		|| (obj->has_no_flag(ENoFlag::kFighter) && IsFighter(ch))
+		|| (obj->has_no_flag(ENoFlag::kMale) && IS_MALE(ch))
+		|| (obj->has_no_flag(ENoFlag::kFemale) && IS_FEMALE(ch))
+		|| (obj->has_no_flag(ENoFlag::kSorcerer) && IS_SORCERER(ch))
+		|| (obj->has_no_flag(ENoFlag::kWarrior) && IS_WARRIOR(ch))
+		|| (obj->has_no_flag(ENoFlag::kGuard) && IS_GUARD(ch))
+		|| (obj->has_no_flag(ENoFlag::kThief) && IS_THIEF(ch))
+		|| (obj->has_no_flag(ENoFlag::kAssasine) && IS_ASSASINE(ch))
+		|| (obj->has_no_flag(ENoFlag::kPaladine) && IS_PALADINE(ch))
+		|| (obj->has_no_flag(ENoFlag::kRanger) && IS_RANGER(ch))
+		|| (obj->has_no_flag(ENoFlag::kVigilant) && IS_VIGILANT(ch))
+		|| (obj->has_no_flag(ENoFlag::kMerchant) && IS_MERCHANT(ch))
+		|| (obj->has_no_flag(ENoFlag::kMagus) && IS_MAGUS(ch))
+		|| (obj->has_no_flag(ENoFlag::kKiller) && ch->IsFlagged(EPlrFlag::kKiller))
+		|| (obj->has_no_flag(ENoFlag::kBattle) && check_agrobd(ch))
+		|| (!IS_VIGILANT(ch) && (obj->has_flag(EObjFlag::kSharpen) || obj->has_flag(EObjFlag::kArmored)))
+		|| (obj->has_no_flag(ENoFlag::kColored) && pk_count(ch))) {
+		return true;
+	}
+	return false;
+}
+
 /*
  * SPELLS AND SKILLS.  This area defines which spells are assigned to
  * which classes, and the minimum level the character must be to use
  * the spell or skill.
  */
 #include "classes_spell_slots.h"
-void InitSpellLevels() {
-	FILE *magic;
-	char line1[256], line2[256], line3[256], name[256];
-	int i[15];
-
-	if (!(magic = fopen(LIB_MISC "runes.lst", "r"))) {
-		log("Cann't open items list file...");
-		graceful_exit(1);
-	}
-
-	auto sp_num{ESpell::kUndefined};;
-	while (get_line(magic, name)) {
-		if (!name[0] || name[0] == ';')
-			continue;
-		if (sscanf(name, "%s %s %s %d %d %d %d %d", line1, line2, line3, i, i + 1, i + 2, i + 3, i + 4) != 8) {
-			log("Bad format for magic string!\r\n"
-				"Format : <spell name (%%s %%s)> <type (%%s)> <items_vnum (%%d %%d %%d %%d)>");
-			graceful_exit(1);
-		}
-
-		if (i[4] > 34)
-			i[4] = 34;
-		if (i[4] < 1)
-			i[4] = 1;
-
-		name[0] = '\0';
-		strcat(name, line1);
-		if (*line2 != '*') {
-			*(name + strlen(name) + 1) = '\0';
-			*(name + strlen(name) + 0) = ' ';
-			strcat(name, line2);
-		}
-		if ((sp_num = FixNameAndFindSpellId(name)) < ESpell::kFirst) {
-			log("Spell '%s' not found...", name);
-			graceful_exit(1);
-		}
-		size_t c = strlen(line3);
-/*		if (!strn_cmp(line3, "potion", c)) {
-			spell_create[sp_num].potion.items[0] = i[0];
-			spell_create[sp_num].potion.items[1] = i[1];
-			spell_create[sp_num].potion.items[2] = i[2];
-			spell_create[sp_num].potion.rnumber = i[3];
-			spell_create[sp_num].potion.min_caster_level = i[4];
-		} else if (!strn_cmp(line3, "wand", c)) {
-			spell_create[sp_num].wand.items[0] = i[0];
-			spell_create[sp_num].wand.items[1] = i[1];
-			spell_create[sp_num].wand.items[2] = i[2];
-			spell_create[sp_num].wand.rnumber = i[3];
-			spell_create[sp_num].wand.min_caster_level = i[4];
-		} else if (!strn_cmp(line3, "scroll", c)) {
-			spell_create[sp_num].scroll.items[0] = i[0];
-			spell_create[sp_num].scroll.items[1] = i[1];
-			spell_create[sp_num].scroll.items[2] = i[2];
-			spell_create[sp_num].scroll.rnumber = i[3];
-			spell_create[sp_num].scroll.min_caster_level = i[4];
-		} else if (!strn_cmp(line3, "items", c)) {
-			spell_create[sp_num].items.items[0] = i[0];
-			spell_create[sp_num].items.items[1] = i[1];
-			spell_create[sp_num].items.items[2] = i[2];
-			spell_create[sp_num].items.rnumber = i[3];
-			spell_create[sp_num].items.min_caster_level = i[4];
-		} else 
-*/
-		if (!strn_cmp(line3, "runes", c)) {
-			spell_create[sp_num].runes.items[0] = i[0];
-			spell_create[sp_num].runes.items[1] = i[1];
-			spell_create[sp_num].runes.items[2] = i[2];
-			spell_create[sp_num].runes.rnumber = i[3];
-			spell_create[sp_num].runes.min_caster_level = i[4];
-		} else {
-			log("Unknown items option : %s", line3);
-			graceful_exit(1);
-		}
-	}
-	fclose(magic);
-}
+// (issue.runes-migrate) InitSpellLevels() retired in favour of the
+// cfg_manager-driven rune_spells loader (cfg/mechanics/rune_spells.xml).
+// The boot call moved to MUD::CfgManager().LoadCfg("rune_spells") at the
+// same boot-step position; `reload runes` goes through ReloadCfg.
 
 void InitBasicValues() {
 	FILE *magic;
@@ -1520,8 +1530,8 @@ long GetExpUntilNextLvl(CharData *ch, int level) {
 
 	// Exp required for normal mortals is below
 	float exp_modifier;
-	if (GetRealRemort(ch) < kMaxExpCoefficientsUsed) {
-		exp_modifier = static_cast<float>(exp_coefficients[GetRealRemort(ch)]);
+	if (remort::GetRealRemort(ch) < kMaxExpCoefficientsUsed) {
+		exp_modifier = static_cast<float>(exp_coefficients[remort::GetRealRemort(ch)]);
 	} else {
 		exp_modifier = static_cast<float>(exp_coefficients[kMaxExpCoefficientsUsed]);
 	}

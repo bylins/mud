@@ -15,6 +15,7 @@
 #define UTILS_H_
 
 #include <string>
+#include "gameplay/mechanics/minions.h"
 #include <list>
 #include <new>
 #include <utility>
@@ -34,6 +35,7 @@
 
 struct RoomData;    // forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
 class CharData;    // forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
+class ObjData;
 struct DescriptorData;
 
 // external declarations and prototypes *********************************
@@ -79,7 +81,6 @@ struct DescriptorData;
 //	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false
 //};
 
-
 inline const char *not_empty(const std::string &s) {
 	return s.empty() ? "undefined" : s.c_str();
 }
@@ -89,18 +90,11 @@ inline const char *not_empty(const std::string &s, const char *subst) {
 }
 
 //extern struct Weather weather_info;
-extern char AltToKoi[];
-extern char KoiToAlt[];
-extern char WinToKoi[];
-extern char KoiToWin[];
-extern char KoiToWin2[];
-extern char AltToLat[];
 
 // public functions in utils.cpp
 char *rustime(const struct tm *timeptr);
 char *str_dup(const char *source);
 char *str_add(char *dst, const char *src);
-// str_cmp, strn_cmp moved to utils_string.h
 int touch(const char *path);
 // \todo убрать и оставить только в random.h
 int number(int from, int to);
@@ -110,16 +104,8 @@ void sprinttype(int type, const char *names[], char *result);
 int get_line(FILE *fl, char *buf);
 int replace_str(const utils::AbstractStringWriter::shared_ptr &writer, const char *pattern, const char *replacement, int rep_all, int max_size);
 void format_text(const utils::AbstractStringWriter::shared_ptr &writer, int mode, DescriptorData *d, size_t maxlen);
-void koi_to_alt(char *str, int len);
-std::string koi_to_alt(const std::string &input);
-void koi_to_win(char *str, int len);
-void koi_to_utf8(char *str_i, char *str_o);
-void utf8_to_koi(char *str_i, char *str_o);
 // \todo Заменить на фунции из STD
 int round_up(float fl);
-// IsValidEmail, skip_dots, str_str, kill_ems, cut_one_word moved to utils_string.h
-// strl_cpy moved to utils_string.h
-bool is_head(std::string name);
 
 template<typename T> inline std::string to_string(const T &t) {
 	std::stringstream ss;
@@ -143,31 +129,12 @@ constexpr int kMinTitleLev = 25;
 #undef MIN
 #endif
 
-constexpr int kSfEmpty = 1 << 0;
-constexpr int kSfMasterdie = 1 << 2;
-constexpr int kSfCharmlost = 1 << 3;
-constexpr int kSfSilence = 1 << 4;
-
 int MAX(int a, int b);
 int MIN(int a, int b);
 
-inline char KtoW(char c) { return (ubyte)(c) < 128 ? c : KoiToWin[(ubyte)(c) - 128]; }
-inline char KtoW2(char c) { return (ubyte)(c) < 128 ? c : KoiToWin2[(ubyte)(c) - 128]; }
-inline char KtoA(char c) { return (ubyte)(c) < 128 ? c : KoiToAlt[(ubyte)(c) - 128]; }
-inline char WtoK(char c) { return (ubyte)(c) < 128 ? c : WinToKoi[(ubyte)(c) - 128]; }
-inline char AtoK(char c) { return (ubyte)(c) < 128 ? c : AltToKoi[(ubyte)(c) - 128]; }
-inline char AtoL(char c) { return (ubyte)(c) < 128 ? c : AltToLat[(ubyte)(c) - 128]; }
 
 // various constants ****************************************************
 // get_filename() //
-const int kAliasFile = 1;
-const int kScriptVarsFile = 2;
-const int kPlayersFile = 3;
-const int kTextCrashFile = 4;
-const int kTimeCrashFile = 5;
-const int kPersDepotFile = 6;
-const int kShareDepotFile = 7;
-const int kPurgeDepotFile = 8;
 
 // breadth-first searching //
 const int kBfsError = -1;
@@ -178,14 +145,6 @@ const int kBfsNoPath = -3;
 const int kSecsPerRealMin = 60;
 constexpr int kSecsPerRealHour = 60*kSecsPerRealMin;
 constexpr int kSecsPerRealDay = 24*kSecsPerRealHour;
-
-// IS_IMMORTAL/IS_GOD/IS_GRGOD/IS_IMPL заменены на методы CharData:
-// ch->IsImmortal(), ch->IsGod(), ch->IsGrGod(), ch->IsImpl()
-
-#define IS_SHOPKEEPER(ch) ((ch)->IsNpc() && mob_index[(ch)->get_rnum()].func == shop_ext)
-#define IS_RENTKEEPER(ch) ((ch)->IsNpc() && mob_index[(ch)->get_rnum()].func == receptionist)
-#define IS_POSTKEEPER(ch) ((ch)->IsNpc() && mob_index[(ch)->get_rnum()].func == postmaster)
-#define IS_BANKKEEPER(ch) ((ch)->IsNpc() && mob_index[(ch)->get_rnum()].func == bank)
 
 // string utils *********************************************************
 
@@ -321,7 +280,6 @@ inline void TOGGLE_BIT(T &var, const Bitvector bit) {
 	var = var ^ (bit & 0x3FFFFFFF);
 }
 
-
 #define NPC_FLAGGED(ch, flag)   ((ch)->mob_specials.npc_flags.get(flag))
 #define ROOM_FLAGGED(loc, flag) (world[(loc)]->get_flag(flag))
 #define EXIT_FLAGGED(exit, flag)     (IS_SET((exit)->exit_info, (flag)))
@@ -370,7 +328,7 @@ inline T VPOSI(const T val, const T min, const T max) {
 #define GET_POS_SIZE(ch)  (Posi(GET_REAL_SIZE(ch) >> 1))
 #define GET_HR(ch)         ((ch)->real_abils.hitroll)
 #define GET_HR_ADD(ch)    ((ch)->add_abils.hr_add)
-#define GET_REAL_HR(ch)   (VPOSI(GET_HR(ch)+GET_HR_ADD(ch), -50, (IS_MORTIFIER(ch) ? 100 : 50)))
+#define GET_REAL_HR(ch)   (VPOSI(GET_HR(ch)+GET_HR_ADD(ch), -50, (IsMortifier(ch) ? 100 : 50)))
 #define GET_DR(ch)         ((ch)->real_abils.damroll)
 #define GET_DR_ADD(ch)    ((ch)->add_abils.dr_add)
 #define GET_AC(ch)         ((ch)->real_abils.armor)
@@ -398,11 +356,6 @@ inline T VPOSI(const T val, const T min, const T max) {
 #define GET_NDD(ch) ((ch)->mob_specials.damnodice)
 #define GET_SDD(ch) ((ch)->mob_specials.damsizedice)
 
-const int kAligEvilLess = -300;
-const int kAligGoodMore = 300;
-
-#define GET_ALIGNMENT(ch)     ((ch)->char_specials.saved.alignment)
-
 const int kNameLevel = 5;
 #define NAME_FINE(ch)          ((ch)->player_specials->saved.NameGod>1000)
 #define NAME_BAD(ch)           ((ch)->player_specials->saved.NameGod<1000 && (ch)->player_specials->saved.NameGod)
@@ -424,37 +377,6 @@ const int kNameLevel = 5;
 #define GET_LOGS(ch)        ((ch)->player_specials->logs)
 
 // Punishments structs
-#define MUTE_REASON(ch)        ((ch)->player_specials->pmute.reason)
-#define DUMB_REASON(ch)        ((ch)->player_specials->pdumb.reason)
-#define HELL_REASON(ch)        ((ch)->player_specials->phell.reason)
-#define FREEZE_REASON(ch)    ((ch)->player_specials->pfreeze.reason)
-#define GCURSE_REASON(ch)    ((ch)->player_specials->pgcurse.reason)
-#define NAME_REASON(ch)        ((ch)->player_specials->pname.reason)
-#define UNREG_REASON(ch)    ((ch)->player_specials->punreg.reason)
-
-#define GET_MUTE_LEV(ch)    ((ch)->player_specials->pmute.level)
-#define GET_DUMB_LEV(ch)    ((ch)->player_specials->pdumb.level)
-#define GET_HELL_LEV(ch)    ((ch)->player_specials->phell.level)
-#define GET_FREEZE_LEV(ch)    ((ch)->player_specials->pfreeze.level)
-#define GET_GCURSE_LEV(ch)    ((ch)->player_specials->pgcurse.level)
-#define GET_NAME_LEV(ch)    ((ch)->player_specials->pname.level)
-#define GET_UNREG_LEV(ch)    ((ch)->player_specials->punreg.level)
-
-#define MUTE_GODID(ch)        ((ch)->player_specials->pmute.godid)
-#define DUMB_GODID(ch)        ((ch)->player_specials->pdumb.godid)
-#define HELL_GODID(ch)        ((ch)->player_specials->phell.godid)
-#define FREEZE_GODID(ch)    ((ch)->player_specials->pfreeze.godid)
-#define GCURSE_GODID(ch)    ((ch)->player_specials->pgcurse.godid)
-#define NAME_GODID(ch)        ((ch)->player_specials->pname.godid)
-#define UNREG_GODID(ch)        ((ch)->player_specials->punreg.godid)
-
-#define GCURSE_DURATION(ch)    ((ch)->player_specials->pgcurse.duration)
-#define MUTE_DURATION(ch)    ((ch)->player_specials->pmute.duration)
-#define DUMB_DURATION(ch)    ((ch)->player_specials->pdumb.duration)
-#define FREEZE_DURATION(ch)    ((ch)->player_specials->pfreeze.duration)
-#define HELL_DURATION(ch)    ((ch)->player_specials->phell.duration)
-#define NAME_DURATION(ch)    ((ch)->player_specials->pname.duration)
-#define UNREG_DURATION(ch)    ((ch)->player_specials->punreg.duration)
 
 #define KARMA(ch)            ((ch)->player_specials->Karma)
 #define LOGON_LIST(ch)        ((ch)->player_specials->logons)
@@ -464,14 +386,12 @@ const int kNameLevel = 5;
 #define GET_CLAN_STATUS(ch)    ((ch)->player_specials->clanStatus)
 
 #define IS_SPELL_SET(ch, i, pct) (GET_SPELL_TYPE((ch), (i)) & (pct))
-#define GET_SPELL_TYPE(ch, i) ((ch)->real_abils.SplKnw[to_underlying(i)])
+// GET_SPELL_TYPE / GET_SPELL_MEM -- теперь constexpr-функции в char_data.h
 #define UNSET_SPELL_TYPE(ch, i, pct) (GET_SPELL_TYPE((ch), (i)) &= ~(pct))
-#define GET_SPELL_MEM(ch, i)  ((ch)->real_abils.SplMem[to_underlying(i)])
 #define SET_SPELL_MEM(ch, i, pct) ((ch)->real_abils.SplMem[to_underlying(i)] = (pct))
 
 #define GET_EQ(ch, i)      ((ch)->equipment[i])
 
-#define GET_MOB_SPEC(ch)   ((ch)->IsNpc() ? mob_index[(ch)->get_rnum()].func : nullptr)
 #define GET_MOB_RNUM(mob)  (mob)->get_rnum()
 #define GET_MOB_VNUM(mob)  ((mob)->IsNpc() ? mob_index[(mob)->get_rnum()].vnum : -1)
 
@@ -486,194 +406,13 @@ const int kNameLevel = 5;
 #define GET_HORSESTATE(ch)  ((ch)->mob_specials.HorseState)
 #define GET_LASTROOM(ch)    ((ch)->mob_specials.LastRoom)
 
-#define CAN_SEE_IN_DARK(ch) \
-   (AFF_FLAGGED(ch, EAffect::kInfravision) || (!(ch)->IsNpc() && (ch)->IsFlagged(EPrf::kHolylight)))
-
-#define IS_GOOD(ch)          (GET_ALIGNMENT(ch) >= kAligGoodMore)
-#define IS_EVIL(ch)          (GET_ALIGNMENT(ch) <= kAligEvilLess)
-#define ALIGN_DELTA  10
-#define SAME_ALIGN(ch, vict)  (GET_ALIGNMENT(ch)>GET_ALIGNMENT(vict)?\
-                              (GET_ALIGNMENT(ch)-GET_ALIGNMENT(vict))<=ALIGN_DELTA:\
-                              (GET_ALIGNMENT(vict)-GET_ALIGNMENT(ch))<=ALIGN_DELTA\
-                             )
-#define GET_CH_SUF_1(ch) (IS_NOSEXY(ch) ? "о" :\
-                          IS_MALE(ch) ? ""  :\
-                          IS_FEMALE(ch) ? "а" : "и")
-#define GET_CH_SUF_2(ch) (IS_NOSEXY(ch) ? "ось" :\
-                          IS_MALE(ch) ? "ся"  :\
-                          IS_FEMALE(ch) ? "ась" : "ись")
-#define GET_CH_SUF_3(ch) (IS_NOSEXY(ch) ? "ое" :\
-                          IS_MALE(ch) ? "ый"  :\
-                          IS_FEMALE(ch) ? "ая" : "ые")
-#define GET_CH_SUF_4(ch) (IS_NOSEXY(ch) ? "ло" :\
-                          IS_MALE(ch) ? ""  :\
-                          IS_FEMALE(ch) ? "ла" : "ли")
-#define GET_CH_SUF_5(ch) (IS_NOSEXY(ch) ? "ло" :\
-                          IS_MALE(ch) ? "ел"  :\
-                          IS_FEMALE(ch) ? "ла" : "ли")
-#define GET_CH_SUF_6(ch) (IS_NOSEXY(ch) ? "о" :\
-                          IS_MALE(ch) ? ""  :\
-                          IS_FEMALE(ch) ? "а" : "ы")
-#define GET_CH_SUF_7(ch) (IS_NOSEXY(ch) ? "ым" :\
-                          IS_MALE(ch) ? "ым"  :\
-                          IS_FEMALE(ch) ? "ой" : "ыми")
-#define GET_CH_SUF_8(ch) (IS_NOSEXY(ch) ? "ое" :\
-                          IS_MALE(ch) ? "ой"  :\
-                          IS_FEMALE(ch) ? "ая" : "ие")
-
-#define GET_CH_VIS_SUF_1(ch, och) (!CAN_SEE(och,ch) ? "" :\
-                          IS_NOSEXY(ch) ? "о" :\
-                          IS_MALE(ch) ? ""  :\
-                          IS_FEMALE(ch) ? "а" : "и")
-#define GET_CH_VIS_SUF_2(ch, och) (!CAN_SEE(och,ch) ? "ся" :\
-                          IS_NOSEXY(ch) ? "ось" :\
-                          IS_MALE(ch) ? "ся"  :\
-                          IS_FEMALE(ch) ? "ась" : "ись")
-#define GET_CH_VIS_SUF_3(ch, och) (!CAN_SEE(och,ch) ? "ый" :\
-                          IS_NOSEXY(ch) ? "ое" :\
-                          IS_MALE(ch) ? "ый"  :\
-                          IS_FEMALE(ch) ? "ая" : "ые")
-#define GET_CH_VIS_SUF_4(ch, och) (!CAN_SEE(och,ch) ? "" :\
-                          IS_NOSEXY(ch) ? "ло" :\
-                          IS_MALE(ch) ? ""  :\
-                          IS_FEMALE(ch) ? "ла" : "ли")
-#define GET_CH_VIS_SUF_5(ch, och) (!CAN_SEE(och,ch) ? "ел" :\
-                          IS_NOSEXY(ch) ? "ло" :\
-                          IS_MALE(ch) ? "ел"  :\
-                          IS_FEMALE(ch) ? "ла" : "ли")
-#define GET_CH_VIS_SUF_6(ch, och) (!CAN_SEE(och,ch) ? "" :\
-                          IS_NOSEXY(ch) ? "о" :\
-                          IS_MALE(ch) ? ""  :\
-                          IS_FEMALE(ch) ? "а" : "ы")
-#define GET_CH_VIS_SUF_7(ch, och) (!CAN_SEE(och,ch) ? "ым" :\
-                          IS_NOSEXY(ch) ? "ым" :\
-                          IS_MALE(ch) ? "ой"  :\
-                          IS_FEMALE(ch) ? "ым" : "ыми")
-#define GET_CH_VIS_SUF_8(ch, och) (!CAN_SEE(och,ch) ? "ой" :\
-                          IS_NOSEXY(ch) ? "ое" :\
-                          IS_MALE(ch) ? "ой"  :\
-                          IS_FEMALE(ch) ? "ая" : "ие")
-
 #define GET_OBJ_SEX(obj) ((obj)->get_sex())
-#define IS_OBJ_NOSEXY(obj)    (GET_OBJ_SEX(obj) == EGender::kNeutral)
-#define IS_OBJ_MALE(obj)   (GET_OBJ_SEX(obj) == EGender::kMale)
-#define IS_OBJ_FEMALE(obj)    (GET_OBJ_SEX(obj) == EGender::kFemale)
-#define GET_OBJ_SUF_1(obj) (IS_OBJ_NOSEXY(obj) ? "о" :\
-                            IS_OBJ_MALE(obj) ? ""  :\
-                            IS_OBJ_FEMALE(obj) ? "а" : "и")
-#define GET_OBJ_SUF_2(obj) (IS_OBJ_NOSEXY(obj) ? "ось" :\
-                            IS_OBJ_MALE(obj) ? "ся"  :\
-                            IS_OBJ_FEMALE(obj) ? "ась" : "ись")
-#define GET_OBJ_SUF_3(obj) (IS_OBJ_NOSEXY(obj) ? "ое" :\
-                            IS_OBJ_MALE(obj) ? "ый"  :\
-                            IS_OBJ_FEMALE(obj) ? "ая" : "ые")
-#define GET_OBJ_SUF_4(obj) (IS_OBJ_NOSEXY(obj) ? "ло" :\
-                            IS_OBJ_MALE(obj) ? ""  :\
-                            IS_OBJ_FEMALE(obj) ? "ла" : "ли")
-#define GET_OBJ_SUF_5(obj) (IS_OBJ_NOSEXY(obj) ? "ло" :\
-                            IS_OBJ_MALE(obj) ? ""  :\
-                            IS_OBJ_FEMALE(obj) ? "ла" : "ли")
-#define GET_OBJ_SUF_6(obj) (IS_OBJ_NOSEXY(obj) ? "о" :\
-                            IS_OBJ_MALE(obj) ? ""  :\
-                            IS_OBJ_FEMALE(obj) ? "а" : "ы")
-#define GET_OBJ_SUF_7(obj) (IS_OBJ_NOSEXY(obj) ? "е" :\
-                            IS_OBJ_MALE(obj) ? ""  :\
-                            IS_OBJ_FEMALE(obj) ? "а" : "и")
-#define GET_OBJ_SUF_8(ch) (IS_OBJ_NOSEXY(obj) ? "ое" :\
-                          IS_OBJ_MALE(obj) ? "ой"  :\
-                          IS_OBJ_FEMALE(obj) ? "ая" : "ие")
-
-#define GET_OBJ_VIS_SUF_1(obj, ch) (!CAN_SEE_OBJ(ch,obj) ? "о" :\
-                            IS_OBJ_NOSEXY(obj) ? "о" :\
-                            IS_OBJ_MALE(obj) ? ""  :\
-                            IS_OBJ_FEMALE(obj) ? "а" : "и")
-#define GET_OBJ_VIS_SUF_2(obj, ch) (!CAN_SEE_OBJ(ch,obj) ? "ось" :\
-                            IS_OBJ_NOSEXY(obj) ? "ось" :\
-                            IS_OBJ_MALE(obj) ? "ся"  :\
-                            IS_OBJ_FEMALE(obj) ? "ась" : "ись")
-#define GET_OBJ_VIS_SUF_3(obj, ch) (!CAN_SEE_OBJ(ch,obj) ? "ый" :\
-                            IS_OBJ_NOSEXY(obj) ? "ое" :\
-                            IS_OBJ_MALE(obj) ? "ый"  :\
-                            IS_OBJ_FEMALE(obj) ? "ая" : "ые")
-#define GET_OBJ_VIS_SUF_4(obj, ch) (!CAN_SEE_OBJ(ch,obj) ? "ло" :\
-                            IS_OBJ_NOSEXY(obj) ? "ло" :\
-                            IS_OBJ_MALE(obj) ? ""  :\
-                            IS_OBJ_FEMALE(obj) ? "ла" : "ли")
-#define GET_OBJ_VIS_SUF_5(obj, ch) (!CAN_SEE_OBJ(ch,obj) ? "ло" :\
-                            IS_OBJ_NOSEXY(obj) ? "ло" :\
-                            IS_OBJ_MALE(obj) ? ""  :\
-                            IS_OBJ_FEMALE(obj) ? "ла" : "ли")
-#define GET_OBJ_VIS_SUF_6(obj, ch) (!CAN_SEE_OBJ(ch,obj) ? "о" :\
-                            IS_OBJ_NOSEXY(obj) ? "о" :\
-                            IS_OBJ_MALE(obj) ? ""  :\
-                            IS_OBJ_FEMALE(obj) ? "а" : "ы")
-#define GET_OBJ_VIS_SUF_7(obj, ch) (!CAN_SEE_OBJ(ch,obj) ? "е" :\
-                            IS_OBJ_NOSEXY(obj) ? "е" :\
-                            IS_OBJ_MALE(obj) ? ""  :\
-                            IS_OBJ_FEMALE(obj) ? "а" : "и")
-#define GET_OBJ_VIS_SUF_8(obj, ch) (!CAN_SEE_OBJ(ch,obj) ? "ой" :\
-                          IS_OBJ_NOSEXY(obj) ? "ое" :\
-                          IS_OBJ_MALE(obj) ? "ой"  :\
-                          IS_OBJ_FEMALE(obj) ? "ая" : "ие")
-
-#define GET_CH_EXSUF_1(ch) (IS_NOSEXY(ch) ? "им" :\
-                            IS_MALE(ch) ? "им"  :\
-                            IS_FEMALE(ch) ? "ей" : "ими")
-#define GET_CH_POLY_1(ch) (IS_POLY(ch) ? "те" : "")
-
-#define GET_OBJ_POLY_1(ch, obj) ((GET_OBJ_SEX(obj) == EGender::kPoly) ? "ят" : "ит")
 
 #define PUNCTUAL_WAIT_STATE(ch, cycle) do { (ch)->punctual_wait = (cycle); } while(0)
 
 // compound utilities and other macros *********************************
 
-#define HSHR(ch) (EGender::kNeutral != ((ch)->get_sex()) ? (IS_MALE(ch) ? "его": (IS_FEMALE(ch) ? "ее" : "их")) :"его")
-#define HSSH(ch) (EGender::kNeutral != ((ch)->get_sex()) ? (IS_MALE(ch) ? "он": (IS_FEMALE(ch) ? "она" : "они")) :"оно")
-#define HMHR(ch) (EGender::kNeutral != ((ch)->get_sex()) ? (IS_MALE(ch) ? "ему": (IS_FEMALE(ch) ? "ей" : "им")) :"ему")
-#define HYOU(ch) (EGender::kNeutral != ((ch)->get_sex()) ? (IS_MALE(ch) ? "ваш": (IS_FEMALE(ch) ? "ваша" : (IS_NOSEXY(ch) ? "ваше": "ваши"))) :"ваш")
-
-#define OSHR(ch) (EGender::kNeutral != GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch) == EGender::kMale ? "его": (GET_OBJ_SEX(ch) == EGender::kFemale ? "ее" : "их")) :"его")
-#define OSSH(ch) (EGender::kNeutral != GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch) == EGender::kMale ? "он": (GET_OBJ_SEX(ch) == EGender::kFemale ? "она" : "они")) :"оно")
-#define OMHR(ch) (EGender::kNeutral != GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch) == EGender::kMale ? "ему": (GET_OBJ_SEX(ch) == EGender::kFemale ? "ей" : "им")) :"ему")
-#define OYOU(ch) (EGender::kNeutral != GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch) == EGender::kMale ? "ваш": (GET_OBJ_SEX(ch) == EGender::kFemale ? "ваша" : "ваши")) :"ваше")
-
 #define HERE(ch)  (((ch)->IsNpc() || (ch)->desc || NORENTABLE(ch)))
-
-// Can subject see character "obj" without light
-#define MORT_CAN_SEE_CHAR(sub, obj) (HERE(obj) && INVIS_OK(sub,obj))
-
-#define IMM_CAN_SEE_CHAR(sub, obj) \
-        (MORT_CAN_SEE_CHAR(sub, obj) || (!(sub)->IsNpc() && (sub)->IsFlagged(EPrf::kHolylight)))
-
-#define CAN_SEE_CHAR(sub, obj) (SELF(sub, obj) || \
-        ((GetRealLevel(sub) >= ((obj)->IsNpc() ? 0 : GET_INVIS_LEV(obj))) && \
-         IMM_CAN_SEE_CHAR(sub, obj)))
-// End of CAN_SEE
-
-#define GET_PAD_PERS(pad) ((pad) == 5 ? "ком-то" :\
-                           (pad) == 4 ? "кем-то" :\
-                           (pad) == 3 ? "кого-то" :\
-                           (pad) == 2 ? "кому-то" :\
-                           (pad) == 1 ? "кого-то" : "кто-то")
-
-#define PERS(ch, vict, pad) (CAN_SEE(vict, ch) ? GET_PAD(ch,pad) : GET_PAD_PERS(pad))
-//для арены
-#define APERS(ch, vict, pad, arena) ((arena) || CAN_SEE(vict, ch) ? GET_PAD(ch,pad) : GET_PAD_PERS(pad))
-
-//для арены
-#define AOBJS(obj, vict, arena) ((arena) || CAN_SEE_OBJ((vict), (obj)) ? \
-                      (obj)->get_short_description().c_str() : "что-то")
-
-#define GET_PAD_OBJ(pad)  ((pad) == 5 ? "чем-то" :\
-                           (pad) == 4 ? "чем-то" :\
-                           (pad) == 3 ? "что-то" :\
-                           (pad) == 2 ? "чему-то" :\
-                           (pad) == 1 ? "чего-то" : "что-то")
-
-//для арены
-#define AOBJN(obj, vict, pad, arena) ((arena) || CAN_SEE_OBJ((vict), (obj)) ? \
-                           (!(obj)->get_PName(pad).empty()) ? (obj)->get_PName(pad).c_str() : (obj)->get_short_description().c_str() \
-                           : GET_PAD_OBJ(pad))
 
 #define EXITDATA(room, door) (((room) >= 0 && (room) <= top_of_world) ? \
                              world[(room)]->dir_option[(door)] : nullptr)
@@ -714,51 +453,6 @@ const int kNameLevel = 5;
 
 #define OUTSIDE(ch) (!ROOM_FLAGGED((ch)->in_room, ERoomFlag::kIndoors))
 
-
-// PADS for something ***************************************************
-enum class EWhat : int  {
-	kDay,
-	kHour,
-	kYear,
-	kPoint,
-	kMinA,
-	kMinU,
-	kMoneyA,
-	kMoneyU,
-	kThingA,
-	kThingU,
-	kLvl,
-	kMoveA,
-	kMoveU,
-	kOneA,
-	kOneU,
-	kSec,
-	kDegree,
-	kRow,
-	kObject,
-	kObjU,
-	kRemort,
-	kWeek,
-	kMonth,
-	kWeekU,
-	kGlory,
-	kGloryU,
-	kPeople,
-	kStr,
-	kGulp,
-	kTorc,
-	kGoldTorc,
-	kSilverTorc,
-	kBronzeTorc,
-	kTorcU,
-	kGoldTorcU,
-	kSilverTorcU,
-	kBronzeTorcU,
-	kIceU,
-	kNogataU
-};
-
-const char *GetDeclensionInNumber(long amount, EWhat of_what);
 std::string FormatTimeToStr(long in_timer, bool flag = false);
 
 // defines for fseek
@@ -913,9 +607,6 @@ void skip_spaces(T string) {
 	for (; **string && a_isspace(**string); (*string)++);
 }
 
-
-// thousands_sep moved to utils_string.h
-
 #define IS_CORPSE(obj)     ((obj)->get_type() == EObjType::kContainer && \
                GET_OBJ_VAL((obj), 3) == ObjData::CORPSE_INDICATOR)
 #define IS_MOB_CORPSE(obj) (IS_CORPSE(obj) &&  GET_OBJ_VAL((obj), 2) != -1)
@@ -998,9 +689,7 @@ inline void graceful_exit(int retcode) {
 	_exit(retcode);
 }
 
-// isname, one_word, ReadEndString moved to utils_string.h
 // замена символа (в данном случае конца строки) на свою строку, для остального функций хватает
-// StringReplace, format_news_message moved to utils_string.h
 
 template<typename T>
 class JoinRange {
@@ -1110,9 +799,6 @@ reversion_wrapper<T> reverse (T&& iterable) { return { iterable }; }
  *  @param num  - обрабатываемоле число.
  *  @param separator - разделитель разрядов.
  */
-// PrintNumberByDigits moved to utils_string.h
-
-// PruneCrlf moved to utils_string.h
 
 bool sprintbitwd(Bitvector bitvector, const char *names[], char *result, size_t result_size, const char *div, int print_flag = 0);
 

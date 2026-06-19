@@ -2,6 +2,8 @@
 // Part of Bylins http://www.mud.ru
 
 #include "corpse.h"
+#include "utils/grammar/gender.h"
+#include "gameplay/mechanics/minions.h"
 
 #include "engine/db/world_objects.h"
 #include "engine/db/obj_prototypes.h"
@@ -363,19 +365,19 @@ void make_arena_corpse(CharData *ch, CharData *killer) {
 	corpse->set_short_description(buf2);
 
 	sprintf(buf2, "останки %s", GET_PAD(ch, 1));
-	corpse->set_PName(ECase::kNom, buf2);
+	corpse->set_PName(grammar::ECase::kNom, buf2);
 	corpse->set_aliases(buf2);
 
 	sprintf(buf2, "останков %s", GET_PAD(ch, 1));
-	corpse->set_PName(ECase::kGen, buf2);
+	corpse->set_PName(grammar::ECase::kGen, buf2);
 	sprintf(buf2, "останкам %s", GET_PAD(ch, 1));
-	corpse->set_PName(ECase::kDat, buf2);
+	corpse->set_PName(grammar::ECase::kDat, buf2);
 	sprintf(buf2, "останки %s", GET_PAD(ch, 1));
-	corpse->set_PName(ECase::kAcc, buf2);
+	corpse->set_PName(grammar::ECase::kAcc, buf2);
 	sprintf(buf2, "останками %s", GET_PAD(ch, 1));
-	corpse->set_PName(ECase::kIns, buf2);
+	corpse->set_PName(grammar::ECase::kIns, buf2);
 	sprintf(buf2, "останках %s", GET_PAD(ch, 1));
-	corpse->set_PName(ECase::kPre, buf2);
+	corpse->set_PName(grammar::ECase::kPre, buf2);
 
 	corpse->set_type(EObjType::kContainer);
 	corpse->set_wear_flag(EWearFlag::kTake);
@@ -386,17 +388,17 @@ void make_arena_corpse(CharData *ch, CharData *killer) {
 	corpse->set_val(3, 1);    // corpse identifier
 	corpse->set_weight(GET_WEIGHT(ch));
 	corpse->set_rent_off(100000);
-	if (ch->IsNpc() && !IS_CHARMICE(ch)) {
+	if (ch->IsNpc() && !IsCharmice(ch)) {
 		corpse->set_timer(5);
 	} else {
 		corpse->set_timer(0);
 	}
 	ExtraDescription::shared_ptr exdesc(new ExtraDescription());
-	exdesc->keyword = str_dup(corpse->get_PName(ECase::kNom).c_str());    // косметика
+	exdesc->keyword = str_dup(corpse->get_PName(grammar::ECase::kNom).c_str());    // косметика
 	if (killer) {
-		sprintf(buf, "Убит%s на арене %s.\r\n", GET_CH_SUF_6(ch), GET_PAD(killer, 4));
+		sprintf(buf, "Убит%s на арене %s.\r\n", grammar::SexEnding((ch)->get_sex(), 6), GET_PAD(killer, 4));
 	} else {
-		sprintf(buf, "Умер%s на арене.\r\n", GET_CH_SUF_4(ch));
+		sprintf(buf, "Умер%s на арене.\r\n", grammar::SexEnding((ch)->get_sex(), 4));
 	}
 	exdesc->description = str_dup(buf);    // косметика
 	exdesc->next = corpse->get_ex_description();
@@ -419,17 +421,17 @@ ObjData *make_corpse(CharData *ch, CharData *killer) {
 	sprintf(buf2, "труп %s", GET_PAD(ch, 1));
 	corpse->set_short_description(buf2);
 	sprintf(buf2, "труп %s", GET_PAD(ch, 1));
-	corpse->set_PName(ECase::kNom, buf2);
+	corpse->set_PName(grammar::ECase::kNom, buf2);
 	sprintf(buf2, "трупа %s", GET_PAD(ch, 1));
-	corpse->set_PName(ECase::kGen, buf2);
+	corpse->set_PName(grammar::ECase::kGen, buf2);
 	sprintf(buf2, "трупу %s", GET_PAD(ch, 1));
-	corpse->set_PName(ECase::kDat, buf2);
+	corpse->set_PName(grammar::ECase::kDat, buf2);
 	sprintf(buf2, "труп %s", GET_PAD(ch, 1));
-	corpse->set_PName(ECase::kAcc, buf2);
+	corpse->set_PName(grammar::ECase::kAcc, buf2);
 	sprintf(buf2, "трупом %s", GET_PAD(ch, 1));
-	corpse->set_PName(ECase::kIns, buf2);
+	corpse->set_PName(grammar::ECase::kIns, buf2);
 	sprintf(buf2, "трупе %s", GET_PAD(ch, 1));
-	corpse->set_PName(ECase::kPre, buf2);
+	corpse->set_PName(grammar::ECase::kPre, buf2);
 
 	corpse->set_type(EObjType::kContainer);
 	corpse->set_wear_flag(EWearFlag::kTake);
@@ -441,7 +443,7 @@ ObjData *make_corpse(CharData *ch, CharData *killer) {
 	corpse->set_val(3, ObjData::CORPSE_INDICATOR);    // corpse identifier
 	corpse->set_rent_off(100000);
 
-	if (ch->IsNpc() && !IS_CHARMICE(ch)) {
+	if (ch->IsNpc() && !IsCharmice(ch)) {
 		corpse->set_timer(max_npc_corpse_time * 2);
 		corpse->set_destroyer(max_npc_corpse_time * 2);
 	} else {
@@ -510,7 +512,7 @@ ObjData *make_corpse(CharData *ch, CharData *killer) {
 	}
 
 	// если чармис убит палачом или на арене(и владелец не в бд) то труп попадает не в клетку а в инвентарь к владельцу чармиса
-	if (IS_CHARMICE(ch) && !ch->IsFlagged(EMobFlag::kCorpse)
+	if (IsCharmice(ch) && !ch->IsFlagged(EMobFlag::kCorpse)
 		&& ((killer && killer->IsFlagged(EPrf::kExecutor)) || (ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena) && !NORENTABLE(ch->get_master())))) {
 		if (ch->has_master()) {
 			PlaceObjToInventory(corpse.get(), ch->get_master());

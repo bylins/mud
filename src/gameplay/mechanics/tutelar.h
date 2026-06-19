@@ -10,7 +10,8 @@
 #define BYLINS_SRC_GAMEPLAY_SKILLS_TUTELAR_H_
 
 class CharData;
-void SummonTutelar(CharData *ch);
+class CastContext;        // defined in magic.h (issue.summons-fix)
+enum class EStageResult;  // defined in magic.h
 void CheckTutelarSelfSacrfice(CharData *ch, CharData *victim);
 void TryToRescueWithTutelar(CharData *ch);
 

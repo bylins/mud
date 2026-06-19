@@ -57,7 +57,7 @@ void do_alias(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			GET_ALIASES(ch) = a;
 			SendMsgToChar("Алиас успешно добавлен.\r\n", ch);
 		}
-		SetWaitState(ch, 1 * kBattleRound);
+		SetBattleLag(ch, 1);
 		WriteAliases(ch);
 	}
 }

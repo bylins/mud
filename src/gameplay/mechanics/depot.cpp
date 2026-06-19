@@ -3,6 +3,10 @@
 // Part of Bylins http://www.mud.ru
 
 #include "depot.h"
+#include "administration/privilege.h"
+#include "gameplay/ai/spec_procs.h"
+#include "utils/grammar/gender.h"
+#include "utils/grammar/declensions.h"
 
 #include "engine/db/world_characters.h"
 #include "engine/db/world_objects.h"
@@ -18,6 +22,7 @@
 #include "stable_objs.h"
 #include "weather.h"
 #include "gameplay/mechanics/dungeons.h"
+#include "gameplay/core/remort.h"
 
 #include <fmt/format.h>
 
@@ -29,7 +34,7 @@ extern void olc_update_object(int robj_num, ObjData *obj, ObjData *olc_proto);
 namespace Depot {
 
 // максимальное кол-во шмоток в персональном хранилище (волхвам * 2)
-inline unsigned int MAX_PERS_SLOTS(CharData *ch) {return GetRealLevel(ch) + GetRealRemort(ch) * 3;};
+inline unsigned int MAX_PERS_SLOTS(CharData *ch) {return GetRealLevel(ch) + remort::GetRealRemort(ch) * 3;};
 //const unsigned int MAX_PERS_INGR_SLOTS = 50;
 
 // * Для оффлайнового списка шмоток в хранилище.
@@ -234,7 +239,7 @@ std::string generate_purged_text(long uid, int obj_vnum, unsigned int obj_uid) {
 			std::ostringstream text;
 			text << "[Персональное хранилище]: " << kColorBoldRed << "'"
 				 << obj->get_short_description() << char_get_custom_label(obj.get(), ch)
-				 << " рассыпал" << GET_OBJ_SUF_2(obj.get())
+				 << " рассыпал" << grammar::ObjSexEnding((obj.get())->get_sex(), 2)
 				 << " в прах'" << kColorNrm << "\r\n";
 			ExtractObjFromWorld(obj.get());
 			return text.str();
@@ -464,7 +469,7 @@ void load_chests() {
 		const auto rnum = ch->get_rnum();
 		if (rnum > 0
 			&& rnum <= top_of_mobt
-			&& mob_index[rnum].func == bank) {
+			&& specials::IsBankkeeper(ch.get())) {
 			const auto pers_chest = world_objects.create_from_prototype_by_rnum(system_obj::PERS_CHEST_RNUM);
 			if (!pers_chest) {
 				return;
@@ -626,7 +631,7 @@ void CharNode::update_online_item() {
 					SendMsgToChar(ch, "[Персональное хранилище]: %s'%s%s рассыпал%s в прах'%s\r\n",
 								  kColorBoldRed, (*obj_it)->get_short_description().c_str(),
 								  char_get_custom_label(obj_it->get(), ch).c_str(),
-								  GET_OBJ_SUF_2((*obj_it)), kColorNrm);
+								  grammar::ObjSexEnding(((*obj_it))->get_sex(), 2), kColorNrm);
 				} else {
 					add_purged_message(ch->get_uid(), GET_OBJ_VNUM(obj_it->get()), (*obj_it)->get_unique_id());
 				}
@@ -796,7 +801,7 @@ void print_obj(std::stringstream &i_out, std::stringstream &s_out,
 		out << " [" << count << "]";
 	}
 	out << " [" << get_object_low_rent(obj) << " "
-		<< GetDeclensionInNumber(get_object_low_rent(obj), EWhat::kMoneyA) << "]\r\n";
+		<< grammar::GetDeclensionInNumber(get_object_low_rent(obj), grammar::EWhat::kMoneyA) << "]\r\n";
 }
 
 // * Расчет кол-ва слотов под шмотки в персональном хранилище с учетом профы чара.
@@ -854,10 +859,10 @@ std::string print_obj_list(CharData *ch, ObjListType &cont) {
 	std::stringstream head;
 	head << kColorWht
 		 << "Ваше персональное хранилище. Рента в день: "
-		 << rent_per_day << " " << GetDeclensionInNumber(rent_per_day, EWhat::kMoneyA);
+		 << rent_per_day << " " << grammar::GetDeclensionInNumber(rent_per_day, grammar::EWhat::kMoneyA);
 	if (rent_per_day) {
 		head << ", денег хватит на " << expired
-			 << " " << GetDeclensionInNumber(expired, EWhat::kDay);
+			 << " " << grammar::GetDeclensionInNumber(expired, grammar::EWhat::kDay);
 	}
 	head << ".\r\n"
 		 << "Заполненность отделения для вещей: "
@@ -904,7 +909,7 @@ void show_depot(CharData *ch) {
 	if (ch->IsNpc()) return;
 
 #ifndef TEST_BUILD
-	if (ch->IsImmortal() && !ch->IsImpl()) {
+	if (privilege::IsImmortal(ch) && !privilege::IsImpl(ch)) {
 		SendMsgToChar("И без хранилища обойдешься...\r\n", ch);
 		return;
 	}
@@ -940,7 +945,7 @@ void put_gold_chest(CharData *ch, const ObjData::shared_ptr &obj) {
 	ch->add_bank(gold);
 	RemoveObjFromChar(obj.get());
 	ExtractObjFromWorld(obj.get());
-	SendMsgToChar(ch, "Вы вложили %ld %s.\r\n", gold, GetDeclensionInNumber(gold, EWhat::kMoneyU));
+	SendMsgToChar(ch, "Вы вложили %ld %s.\r\n", gold, grammar::GetDeclensionInNumber(gold, grammar::EWhat::kMoneyU));
 }
 
 /**
@@ -952,14 +957,14 @@ bool can_put_chest(CharData *ch, ObjData *obj) {
 	if (obj->is_unrentable()
 		|| obj->has_flag(EObjFlag::kDecay)
 		|| NamedStuff::check_named(ch, obj, 0)) {
-		SendMsgToChar(ch, "Неведомая сила помешала положить %s в хранилище.\r\n", obj->get_PName(ECase::kAcc).c_str());
+		SendMsgToChar(ch, "Неведомая сила помешала положить %s в хранилище.\r\n", obj->get_PName(grammar::ECase::kAcc).c_str());
 		return 0;
 	} else if (obj->get_type() == EObjType::kContainer
 		&& obj->get_contains()) {
-		SendMsgToChar(ch, "В %s что-то лежит.\r\n", obj->get_PName(ECase::kPre).c_str());
+		SendMsgToChar(ch, "В %s что-то лежит.\r\n", obj->get_PName(grammar::ECase::kPre).c_str());
 		return 0;
 	} else if (SetSystem::is_norent_set(ch, obj)) {
-		snprintf(buf, kMaxStringLength, "%s - требуется две и более вещи из набора.\r\n", obj->get_PName(ECase::kNom).c_str());
+		snprintf(buf, kMaxStringLength, "%s - требуется две и более вещи из набора.\r\n", obj->get_PName(grammar::ECase::kNom).c_str());
 		SendMsgToChar(utils::CAP(buf), ch);
 		return 0;
 	}
@@ -982,7 +987,7 @@ bool put_depot(CharData *ch, ObjData::shared_ptr &obj) {
 	if (ch->IsNpc()) return 0;
 
 #ifndef TEST_BUILD
-	if (ch->IsImmortal() && !ch->IsImpl()) {
+	if (privilege::IsImmortal(ch) && !privilege::IsImpl(ch)) {
 		SendMsgToChar("И без хранилища обойдешься...\r\n", ch);
 		return 0;
 	}
@@ -1050,7 +1055,7 @@ void take_depot(CharData *vict, char *arg, int howmany) {
 	if (vict->IsNpc()) return;
 
 #ifndef TEST_BUILD
-	if (vict->IsImmortal() && !vict->IsImpl()) {
+	if (privilege::IsImmortal(vict) && !privilege::IsImpl(vict)) {
 		SendMsgToChar("И без хранилища обойдешься...\r\n", vict);
 		return;
 	}
@@ -1292,7 +1297,7 @@ void enter_char(CharData *ch) {
 		if (it->second.money_spend > 0) {
 			SendMsgToChar(ch, "%sХранилище: за время вашего отсутствия удержано %ld %s.%s\r\n\r\n",
 						  kColorWht, it->second.money_spend,
-						  GetDeclensionInNumber(it->second.money_spend, EWhat::kMoneyA), kColorNrm);
+						  grammar::GetDeclensionInNumber(it->second.money_spend, grammar::EWhat::kMoneyA), kColorNrm);
 
 			long rest = ch->remove_both_gold(it->second.money_spend);
 			if (rest > 0) {
@@ -1410,17 +1415,17 @@ void reload_char(long uid, CharData *ch) {
 std::string PrintSpellLocateObject(CharData *ch, ObjData *obj) {
 	for (auto it : depot_list) {
 		for (auto obj_it : it.second.pers_online) {
-			if (!ch->IsGod()) {
+			if (!privilege::IsGod(ch)) {
 				if (number(1, 100) > (40 + std::max((GetRealInt(ch) - 25) * 2, 0))) {
 					continue;
 				}
 				if (obj_it->has_flag(EObjFlag::kNolocate)
-					&& !ch->IsGod()) {
+					&& !privilege::IsGod(ch)) {
 					continue;
 				}
 			}
 			if (obj->get_id() == obj_it->get_id()) {
-				return fmt::format("{} наход{}ся у кого-то в персональном хранилище.\r\n", obj_it->get_short_description().c_str(), GET_OBJ_POLY_1(ch, obj_it));
+				return fmt::format("{} наход{}ся у кого-то в персональном хранилище.\r\n", obj_it->get_short_description().c_str(), grammar::ObjPluralVerbEnding((obj_it)->get_sex()));
 			}
 		}
 	}
@@ -1434,7 +1439,7 @@ std::string print_imm_where_obj(const ObjData *obj) {
 			 ++obj_it) {
 			if (obj->get_id() ==  (*obj_it)->get_id()) {
 				str = fmt::format("наход{}ся в персональном хранилище ({}).\r\n",
-						GET_OBJ_POLY_1(ch, (*obj_it)),
+						grammar::ObjPluralVerbEnding(((*obj_it))->get_sex()),
 						it->second.name.c_str());
 				return str;
 			}
@@ -1520,7 +1525,7 @@ int report_unrentables(CharData *ch, CharData *recep) {
 			if (SetSystem::is_norent_set(ch, obj_it->get())) {
 				snprintf(buf, kMaxStringLength,
 						 "$n сказал$g вам : \"Я не приму на постой %s - требуется две и более вещи из набора.\"",
-						 OBJN(obj_it->get(), ch, ECase::kAcc));
+						 OBJN(obj_it->get(), ch, grammar::ECase::kAcc));
 				act(buf, false, recep, 0, ch, kToVict);
 				return 1;
 			}

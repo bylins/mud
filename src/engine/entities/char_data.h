@@ -5,7 +5,11 @@
 #define CHAR_HPP_INCLUDED
 
 #include "player_i.h"
+#include "gameplay/mechanics/alignment.h"
 #include "administration/punishments.h"
+#include "gameplay/fight/pk.h"
+#include "gameplay/magic/magic_temp_spells.h"
+#include "gameplay/mechanics/condition.h"
 #include "gameplay/mechanics/obj_sets.h"
 #include "gameplay/mechanics/dead_load.h"
 #include "engine/db/db.h"
@@ -14,7 +18,7 @@
 #include "gameplay/communication/ignores.h"
 #include "gameplay/crafting/im.h"
 #include "gameplay/skills/skills.h"
-#include "gameplay/skills/townportal.h"
+#include "gameplay/mechanics/rune_stones.h"   // issue.runestones: was townportal.h (runestone classes moved)
 #include "utils/utils.h"
 #include "engine/core/conf.h"
 #include "gameplay/affects/affect_data.h"
@@ -29,9 +33,7 @@
 #include <map>
 
 // pernalty types
-enum { P_DAMROLL, P_HITROLL, P_CAST, P_MEM_GAIN, P_MOVE_GAIN, P_HIT_GAIN, P_AC };
 
-enum { DRUNK, FULL, THIRST };
 
 // These data contain information about a players time data
 struct time_data {
@@ -56,21 +58,6 @@ struct char_player_data {
 	ubyte Race;        // PC / NPC's race
 };
 
-struct PK_Memory_type {
-	long unique{0};
-	long kill_num{0};
-	long kill_at{0};
-	long revenge_num{0};
-	long battle_exp{0};
-	long thief_exp{0};
-	long clan_exp{0};
-};
-
-struct TemporarySpell {
-	ESpell spell{ESpell::kUndefined};
-	time_t set_time{0};
-	time_t duration{0};
-};
 
 enum class EBriefShieldsMode : int {
 	kOff = 0,
@@ -262,14 +249,7 @@ struct player_special_data {
 
   	network::LogonRecords logons;
 
-// Punishments structs
-  	punishments::Punish pmute;
-  	punishments::Punish pdumb;
-  	punishments::Punish phell;
-  	punishments::Punish pname;
-  	punishments::Punish pfreeze;
-  	punishments::Punish pgcurse;
-  	punishments::Punish punreg;
+	punishments::CharPunishments punishments;  // mute/dumb/hell/name/freeze/gcurse/unreg
 
 	char *clanStatus; // строка для отображения приписки по кто
 	// TODO: однозначно переписать
@@ -356,11 +336,11 @@ class CharData : public ProtectedCharData {
 	bool HaveFeat(EFeat feat_id) const { return real_abils.Feats.test(to_underlying(feat_id)); };
 
 	void set_skill(ESkill skill_id, int percent);
-	void SetSkillAfterRemort();
 	void clear_skills();
 	int GetSkill(ESkill skill_id) const;
 	int GetSkillWithoutEquip(ESkill skill_id) const;
 	int get_skills_count() const;
+	const CharSkillsType &GetCharSkills() const { return skills; }
 	int GetEquippedSkill(ESkill skill_id) const;
 	int get_skill_bonus() const;
 	void set_skill_bonus(int);
@@ -542,7 +522,6 @@ class CharData : public ProtectedCharData {
 	/**
 	 * Возвращает коэффициент штрафа за состояние
 	**/
-	float get_cond_penalty(int type) const;
 	std::string GetTitle() const;
 	std::string get_pretitle() const;
 	std::string get_race_name() const;
@@ -604,12 +583,6 @@ class CharData : public ProtectedCharData {
 	void msdp_report(const std::string &name);
 
 	void removeGroupFlags();
-	void add_follower(CharData *ch);
-	/** Do NOT call this before having checked if a circle of followers
-	* will arise. CH will follow leader
-	* \param silent - для смены лидера группы без лишнего спама (по дефолту 0)
-	*/
-	void add_follower_silently(CharData *ch);
 	const followers_list_t &get_followers_list() const { return followers; }
 	const player_special_data::ignores_t &get_ignores() const;
 	void add_ignore(const ignore_data::shared_ptr& ignore);
@@ -631,10 +604,6 @@ class CharData : public ProtectedCharData {
 	bool IsNpc() const { return is_npc_; }
 	void SetNpcAttribute(bool _) { is_npc_ = _; }
 	bool IsPlayer() const { return !IsNpc(); }
-	bool IsImmortal() const { return !IsNpc() && GetLevel() >= kLvlImmortal; }
-	bool IsGod() const { return !IsNpc() && GetLevel() >= kLvlGod; }
-	bool IsGrGod() const { return !IsNpc() && GetLevel() >= kLvlGreatGod; }
-	bool IsImpl() const { return !IsNpc() && GetLevel() >= kLvlImplementator; }
 	bool have_mind() const;
 	bool HasWeapon();
 
@@ -735,8 +704,6 @@ class CharData : public ProtectedCharData {
 	RoomRnum in_room;    // Location (real room number)
 
  private:
-	void report_loop_error(CharData::ptr_t master) const;
-	void print_leaders_chain(std::ostream &ss) const;
 
 	unsigned m_wait;            // wait for how many loops
 	CharData *m_master;        // Who is char following?
@@ -777,12 +744,8 @@ class CharData : public ProtectedCharData {
 	struct mob_special_data mob_specials;        // NPC specials
 
 	player_special_data::shared_ptr player_specials;    // PC specials
-  	void ClearRunestones() { player_specials->runestones.Clear(); };
-  	void AddRunestone(const Runestone &stone);
-  	void RemoveRunestone(const Runestone &stone);
-  	void DeleteIrrelevantRunestones() { player_specials->runestones.DeleteIrrelevant(this); };
-	void PageRunestonesToChar() { player_specials->runestones.PageToChar(this); };
-  	bool IsRunestoneKnown(const Runestone &stone) { return player_specials->runestones.Contains(stone); };
+	// issue.runestones-utils: the per-character runestone helpers moved to free functions in
+	// gameplay/mechanics/rune_stones.h (ClearRunestones/AddRunestone/... taking a CharData*).
   	void ClearStatistics() { player_specials->saved.personal_statistics_.Clear(); };
   	void ClearThisRemortStatistics() { player_specials->saved.personal_statistics_.ClearThisRemort(); };
   	void IncreaseStatistic(CharStat::ECategory category, ullong increment);
@@ -833,7 +796,7 @@ class CharData : public ProtectedCharData {
 
 	int caster_level;
 	int damage_level;
-	std::unordered_map<long, PK_Memory_type> pk_map;
+	std::unordered_map<long, PkMemory> pk_map;
 
 	int track_dirs;
 	bool check_aggressive;
@@ -847,8 +810,6 @@ class CharData : public ProtectedCharData {
 
 	FlagData battle_affects;
 
-	int poisoner;
-
 	dead_load::OnDeadLoadList dl_list;    // загружаемые в труп предметы
 	bool agrobd;        // показывает, агробд или нет
 
@@ -861,51 +822,9 @@ class CharData : public ProtectedCharData {
 	CharData::ptr_t get_master() const { return m_master; }
 	void set_master(CharData::ptr_t master);
 	bool has_master() const { return nullptr != m_master; }
-	bool makes_loop(CharData::ptr_t master) const;
-	// MOUNTS
-	bool IsOnHorse() const;
-	bool has_horse(bool same_room) const;
-	CharData *get_horse();
-	bool DropFromHorse();
-	bool IsHorsePrevents();
-	void dismount();
-	bool IsLeader();
 };
 
-enum ERemovableSpell {
-	kRemAbstinent = 0,
-	kRemPoison,
-	kRemMadness,
-	kRemWeakness,
-	kRemSlowdown,
-	kRemMindless,
-	kRemColdWind,
-	kRemFever,
-	kRemCurse,
-	kRemDeafness,
-	kRemSilence,
-	kRemBlindness,
-	kRemSleep,
-	kRemHold,
-	kRemVacuum,
-	kRemHaemorrhage,
-	kRemBattle,
-	kMaxFirstaidRemove
-};
-
-inline ESpell GetRemovableSpellId(int num) {
-	static const ESpell spell[kMaxFirstaidRemove] = {
-		ESpell::kAbstinent, ESpell::kPoison, ESpell::kMadness,
-		ESpell::kWeaknes, ESpell::kSlowdown, ESpell::kMindless, ESpell::kColdWind,
-		ESpell::kFever, ESpell::kCurse, ESpell::kDeafness, ESpell::kSilence,
-		ESpell::kBlindness, ESpell::kSleep, ESpell::kHold, ESpell::kVacuum,
-		ESpell::kHaemorrhage, ESpell::kBattle
-	};
-	if (num < kMaxFirstaidRemove) {
-		return spell[num];
-	}
-	return ESpell::kUndefined;
-}
+// ERemovableSpell / GetRemovableSpellId moved to gameplay/magic/magic.h (issue.affect-dispell-flags).
 inline const player_special_data::ignores_t &CharData::get_ignores() const {
 	const auto &ps = get_player_specials();
 	return ps->ignores;
@@ -935,15 +854,35 @@ inline void SET_INVIS_LEV(const CharData *ch, const int level) {
 }
 inline void SET_INVIS_LEV(const CharData::shared_ptr &ch, const int level) { SET_INVIS_LEV(ch.get(), level); }
 
+// issue.utils-cleaning: IsGood/IsEvil/IsNeutral moved to gameplay/mechanics/alignment.h
+// (re-exported via the #include above so existing callers are unaffected).
+
 inline void SetWaitState(CharData *ch, const unsigned cycle) {
 	if (ch->get_wait() < cycle) {
 		ch->set_wait(cycle);
 	}
 }
 
+// Lag the character by `lag` battle rounds. Thin wrapper over SetWaitState that spells the
+// "rounds, not raw pulses" intent at the call site -- preferred over the ubiquitous
+// SetWaitState(ch, N * kBattleRound) idiom that previously dotted the codebase.
+inline void SetBattleLag(CharData *ch, const unsigned lag) {
+	SetWaitState(ch, lag * kBattleRound);
+}
+
 inline FlagData &AFF_FLAGS(CharData *ch) { return ch->char_specials.saved.affected_by; }
 inline const FlagData &AFF_FLAGS(const CharData *ch) { return ch->char_specials.saved.affected_by; }
 inline const FlagData &AFF_FLAGS(const CharData::shared_ptr &ch) { return ch->char_specials.saved.affected_by; }
+
+// Бывшие макросы GET_SPELL_MEM / GET_SPELL_TYPE из utils.h. Возвращают ссылку,
+// т.к. используются и как lvalue (GET_SPELL_MEM(ch, sp)++ и т.п.).
+constexpr ubyte &GET_SPELL_MEM(CharData *ch, ESpell spell) { return ch->real_abils.SplMem[to_underlying(spell)]; }
+constexpr ubyte GET_SPELL_MEM(const CharData *ch, ESpell spell) { return ch->real_abils.SplMem[to_underlying(spell)]; }
+inline ubyte &GET_SPELL_MEM(const CharData::shared_ptr &ch, ESpell spell) { return GET_SPELL_MEM(ch.get(), spell); }
+
+constexpr ubyte &GET_SPELL_TYPE(CharData *ch, ESpell spell) { return ch->real_abils.SplKnw[to_underlying(spell)]; }
+constexpr ubyte GET_SPELL_TYPE(const CharData *ch, ESpell spell) { return ch->real_abils.SplKnw[to_underlying(spell)]; }
+inline ubyte &GET_SPELL_TYPE(const CharData::shared_ptr &ch, ESpell spell) { return GET_SPELL_TYPE(ch.get(), spell); }
 
 inline bool AFF_FLAGGED(const CharData *ch, const EAffect flag) {
 	return AFF_FLAGS(ch).get(flag);
@@ -954,53 +893,16 @@ inline bool AFF_FLAGGED(const CharData::shared_ptr &ch, const EAffect flag) {
 //		|| ch->isAffected(flag); //обойдемся без морфа
 }
 
-bool IS_CHARMICE(const CharData *ch);
-inline bool IS_CHARMICE(const CharData::shared_ptr &ch) { return IS_CHARMICE(ch.get()); }
 
-inline bool IS_FLY(const CharData *ch) {
-	return AFF_FLAGGED(ch, EAffect::kFly);
-}
+// issue.utils-cleaning: InvisOk -> sight::InvisOk (gameplay/mechanics/sight.h).
 
-inline bool INVIS_OK(const CharData *sub, const CharData *obj) {
-	return !AFF_FLAGGED(sub, EAffect::kBlind)
-		&& ((!AFF_FLAGGED(obj, EAffect::kInvisible)
-			|| AFF_FLAGGED(sub, EAffect::kDetectInvisible))
-			&& ((!AFF_FLAGGED(obj, EAffect::kHide)
-				&& !AFF_FLAGGED(obj, EAffect::kDisguise))
-				|| AFF_FLAGGED(sub, EAffect::kDetectLife)));
-}
-
-inline bool INVIS_OK(const CharData *sub, const CharData::shared_ptr &obj) { return INVIS_OK(sub, obj.get()); }
-
-bool MORT_CAN_SEE(const CharData *sub, const CharData *obj);
-bool IMM_CAN_SEE(const CharData *sub, const CharData *obj);
-
-inline bool SELF(const CharData *sub, const CharData *obj) { return sub == obj; }
-inline bool SELF(const CharData *sub, const CharData::shared_ptr &obj) { return sub == obj.get(); }
 
 /// Can subject see character "obj"?
-bool CAN_SEE(const CharData *sub, const CharData *obj);
-inline bool CAN_SEE(const CharData *sub, const CharData::shared_ptr &obj) { return CAN_SEE(sub, obj.get()); }
-inline bool CAN_SEE(const CharData::shared_ptr &sub, const CharData *obj) { return CAN_SEE(sub.get(), obj); }
-inline bool CAN_SEE(const CharData::shared_ptr &sub, const CharData::shared_ptr &obj) {
-	return CAN_SEE(sub.get(),
-				   obj.get());
-}
 
-bool MAY_SEE(const CharData *ch, const CharData *sub, const CharData *obj);
-
-bool IS_HORSE(const CharData *ch);
-inline bool IS_HORSE(const CharData::shared_ptr &ch) { return IS_HORSE(ch.get()); }
-bool IS_MORTIFIER(const CharData *ch);
-
-bool MAY_ATTACK(const CharData *sub);
-inline bool MAY_ATTACK(const CharData::shared_ptr &sub) { return MAY_ATTACK(sub.get()); }
 
 bool AWAKE(const CharData *ch);
 inline bool AWAKE(const CharData::shared_ptr &ch) { return AWAKE(ch.get()); }
 
-bool CLEAR_MIND(const CharData *ch);
-inline bool CLEAR_MIND(const CharData::shared_ptr &ch) { return CLEAR_MIND(ch.get()); }
 
 inline bool CAN_START_MTRIG(const CharData *ch) {
 	return !AFF_FLAGGED(ch, EAffect::kCharmed);
@@ -1051,25 +953,13 @@ inline void SetSave(CharData *ch, ESaving save, int mod) {
 	ch->add_abils.apply_saving_throw[to_underlying(save)] = mod;
 }
 
-inline bool IS_UNDEAD(CharData *ch) {
-	return ch->IsNpc()
-			&& (ch->IsFlagged(EMobFlag::kResurrected)
-					|| GET_RACE(ch) == ENpcRace::kZombie
-					|| GET_RACE(ch) == ENpcRace::kGhost);
-}
-
-void change_fighting(CharData *ch, int need_stop);
-
 /*
  *  Это все, разумеется, безобразно. Уровни-реморты должны возвращаться какие есть, а всякие таблицы принимать любой
  *  уровень и возвращать вращумтельное значение. Но имеем, что имеем, потому пока так.
  */
 int GetRealLevel(const CharData *ch);
 int GetRealLevel(const std::shared_ptr<CharData> &ch);
-int GetRealRemort(const CharData *ch);
-int GetRealRemort(const std::shared_ptr<CharData> &ch);
 
 #endif // CHAR_HPP_INCLUDED
-
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

@@ -192,4 +192,83 @@ TEST(SerializeObject, ObjectsDifferingOnlyByExtraValuesSerializeDifferently) {
 		<< "Potions with different POTION_SPELL* must hash differently";
 }
 
+// Issue #3384: the YAML/SQLite mob loaders filled mob_specials.dest[] but
+// forgot to set dest_count, so the patrol route was invisible at runtime
+// (GET_DEST keys off dest_count) yet the static checksum would only catch it
+// if dest_count is part of the serialized form. Pin both halves down.
+TEST(SerializeMob, MobsDifferingOnlyByDestinationsSerializeDifferently) {
+	CharData a, b;
+	a.SetNpcAttribute(true);
+	b.SetNpcAttribute(true);
+	a.mob_specials.dest[0] = 100;
+	a.mob_specials.dest[1] = 200;
+	a.mob_specials.dest_count = 2;
+
+	const std::string sa = WorldChecksum::SerializeMob(42, a);
+	const std::string sb = WorldChecksum::SerializeMob(42, b);
+	EXPECT_NE(sa, sb)
+		<< "Mobs with different destinations must hash differently";
+}
+
+// The exact #3384 failure mode: dest[] is populated identically but dest_count
+// is left at 0 (loader bug) vs the correct count (legacy). The checksum MUST
+// distinguish them, otherwise the regression hides behind a green run.
+TEST(SerializeMob, DestCountIsPartOfChecksum) {
+	CharData with_count, without_count;
+	with_count.SetNpcAttribute(true);
+	without_count.SetNpcAttribute(true);
+	with_count.mob_specials.dest[0] = 100;
+	without_count.mob_specials.dest[0] = 100;
+	with_count.mob_specials.dest_count = 1;
+	without_count.mob_specials.dest_count = 0;   // the loader bug
+
+	const std::string sa = WorldChecksum::SerializeMob(42, with_count);
+	const std::string sb = WorldChecksum::SerializeMob(42, without_count);
+	EXPECT_NE(sa, sb)
+		<< "Same dest[] but different dest_count must hash differently";
+}
+
+// parse_simple_mob leaves speed == -1 for 3-field position lines and an
+// explicit value for 4-field ones. The YAML/SQLite loaders used to drop the
+// field entirely, so every mob reloaded with speed 0. Pin speed into the
+// checksum so the divergence is caught (same class as #3384/#3386).
+TEST(SerializeMob, MobsDifferingOnlyBySpeedSerializeDifferently) {
+	CharData a, b;
+	a.SetNpcAttribute(true);
+	b.SetNpcAttribute(true);
+	a.mob_specials.speed = -1;   // legacy default for 3-field lines
+	b.mob_specials.speed = 0;    // what the buggy loader produced
+
+	const std::string sa = WorldChecksum::SerializeMob(42, a);
+	const std::string sb = WorldChecksum::SerializeMob(42, b);
+	EXPECT_NE(sa, sb)
+		<< "Mobs with different movement speed must hash differently";
+}
+
+// Issue #3386: the object converter/loaders dropped the legacy `S` skill
+// lines. SerializeObject must include the skill map so a dropped skill shows
+// up as a Legacy-vs-YAML checksum mismatch instead of slipping through.
+TEST(SerializeObject, IncludesSkillBindings) {
+	auto obj = std::make_shared<CObjectPrototype>(42);
+	obj->set_skill(static_cast<ESkill>(20), 10);
+	obj->set_skill(static_cast<ESkill>(166), 10);
+
+	const std::string out = WorldChecksum::SerializeObject(obj);
+	EXPECT_NE(std::string::npos, out.find("20:10"))
+		<< "object skill 20:10 must appear in checksum input; got: " << out;
+	EXPECT_NE(std::string::npos, out.find("166:10"))
+		<< "object skill 166:10 must appear in checksum input; got: " << out;
+}
+
+TEST(SerializeObject, ObjectsDifferingOnlyBySkillsSerializeDifferently) {
+	auto a = std::make_shared<CObjectPrototype>(42);
+	auto b = std::make_shared<CObjectPrototype>(42);
+	a->set_skill(static_cast<ESkill>(20), 10);
+
+	const std::string sa = WorldChecksum::SerializeObject(a);
+	const std::string sb = WorldChecksum::SerializeObject(b);
+	EXPECT_NE(sa, sb)
+		<< "Objects with different skill bindings must hash differently";
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

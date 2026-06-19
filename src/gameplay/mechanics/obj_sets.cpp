@@ -2,6 +2,8 @@
 // Part of Bylins http://www.mud.ru
 
 #include "engine/db/obj_prototypes.h"
+#include "utils/grammar/declensions.h"
+#include "gameplay/mechanics/minions.h"
 #include "obj_sets_stuff.h"
 #include "third_party_libs/pugixml/pugixml.h"
 #include "engine/ui/color.h"
@@ -130,7 +132,7 @@ bool is_duplicate(int set_uid, int vnum) {
 void update_char_sets() {
 	for (const auto &ch : character_list) {
 		if (!ch->IsNpc()
-			|| IS_CHARMICE(ch)) {
+			|| IsCharmice(ch)) {
 			ch->obj_bonus().update(ch.get());
 		}
 	}
@@ -751,7 +753,7 @@ void print_identify(CharData *ch, const ObjData *obj) {
 		auto i = obj->get_activator();
 		if (i.second > 0) {
 			snprintf(buf_2, sizeof(buf_2), " (активно %d %s)",
-					 i.second, GetDeclensionInNumber(i.second, EWhat::kObject));
+					 i.second, grammar::GetDeclensionInNumber(i.second, grammar::EWhat::kObject));
 		}
 
 		snprintf(buf_, sizeof(buf_), "Свойства набора%s: %sсправка %s%s\r\n",
@@ -858,7 +860,7 @@ std::string print_activ_enchant(const std::pair<int, ench_type> &ench) {
 			snprintf(buf_, sizeof(buf_),
 					 " +    %s%s вес %s на %d%s\r\n",
 					 kColorCyn, ench.second.weight > 0 ? "увеличивает" : "уменьшает",
-					 obj_proto[rnum]->get_PName(ECase::kGen).c_str(),
+					 obj_proto[rnum]->get_PName(grammar::ECase::kGen).c_str(),
 					 abs(ench.second.weight), kColorNrm);
 			out += buf_;
 		}
@@ -866,17 +868,17 @@ std::string print_activ_enchant(const std::pair<int, ench_type> &ench) {
 			if (ench.second.ndice >= 0 && ench.second.sdice >= 0) {
 				snprintf(buf_, sizeof(buf_),
 						 " +    %sувеличивает урон %s на %dD%d%s\r\n",
-						 kColorCyn, obj_proto[rnum]->get_PName(ECase::kGen).c_str(),
+						 kColorCyn, obj_proto[rnum]->get_PName(grammar::ECase::kGen).c_str(),
 						 abs(ench.second.ndice), abs(ench.second.sdice), kColorNrm);
 			} else if (ench.second.ndice <= 0 && ench.second.sdice <= 0) {
 				snprintf(buf_, sizeof(buf_),
 						 " +    %sуменьшает урон %s на %dD%d%s\r\n",
-						 kColorCyn, obj_proto[rnum]->get_PName(ECase::kGen).c_str(),
+						 kColorCyn, obj_proto[rnum]->get_PName(grammar::ECase::kGen).c_str(),
 						 abs(ench.second.ndice), abs(ench.second.sdice), kColorNrm);
 			} else {
 				snprintf(buf_, sizeof(buf_),
 						 " +    %sизменяет урон %s на %+dD%+d%s\r\n",
-						 kColorCyn, obj_proto[rnum]->get_PName(ECase::kGen).c_str(),
+						 kColorCyn, obj_proto[rnum]->get_PName(grammar::ECase::kGen).c_str(),
 						 ench.second.ndice, ench.second.sdice, kColorNrm);
 			}
 			out += buf_;
@@ -934,10 +936,10 @@ std::string print_activ_help(const SetNode &set) {
 				PrinSetClasses(i.second.prof, prof_list);
 			}
 			snprintf(buf_, sizeof(buf_), "%d %s (%s)\r\n",
-					 i.first, GetDeclensionInNumber(i.first, EWhat::kObject), prof_list.c_str());
+					 i.first, grammar::GetDeclensionInNumber(i.first, grammar::EWhat::kObject), prof_list.c_str());
 		} else {
 			snprintf(buf_, sizeof(buf_), "%d %s\r\n",
-					 i.first, GetDeclensionInNumber(i.first, EWhat::kObject));
+					 i.first, grammar::GetDeclensionInNumber(i.first, grammar::EWhat::kObject));
 		}
 		out += buf_;
 		// аффекты

@@ -1,4 +1,6 @@
 #include "shield_block.h"
+#include "administration/privilege.h"
+#include "skill_messages.h"
 
 #include "gameplay/fight/pk.h"
 #include "gameplay/fight/fight_hit.h"
@@ -18,20 +20,20 @@ void go_block(CharData *ch) {
 
 void do_block(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	if (ch->IsNpc() || !ch->GetSkill(ESkill::kShieldBlock)) {
-		SendMsgToChar("Вы не знаете как.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kShieldBlock, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
 	if (ch->HasCooldown(ESkill::kShieldBlock)) {
-		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kShieldBlock, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	};
 	if (!ch->GetEnemy()) {
-		SendMsgToChar("Но вы ни с кем не сражаетесь!\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kShieldBlock, ESkillMsg::kNotFighting) + "\r\n", ch);
 		return;
 	};
 	if (!(ch->IsNpc()
 		|| GET_EQ(ch, kShield)
-		|| ch->IsImmortal()
+		|| privilege::IsImmortal(ch)
 		|| GET_GOD_FLAG(ch, EGf::kGodsLike))) {
 		SendMsgToChar("Вы не можете сделать это без щита.\r\n", ch);
 		return;
@@ -47,7 +49,7 @@ void ProcessShieldBlock(CharData *ch, CharData *victim, HitData &hit_data) {
 	if (!CanPerformShieldBlock(victim, hit_data)) {
 		return;
 	}
-	if (!(GET_EQ(victim, EEquipPos::kShield) || victim->IsNpc() || victim->IsImmortal())) {
+	if (!(GET_EQ(victim, EEquipPos::kShield) || victim->IsNpc() || privilege::IsImmortal(victim))) {
 		SendMsgToChar("У вас нечем отразить атаку противника.\r\n", victim);
 	} else {
 		int range = number(1, MUD::Skill(ESkill::kShieldBlock).difficulty);

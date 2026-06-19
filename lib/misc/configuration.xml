@@ -152,7 +152,13 @@
 	</telemetry>
 	<admin_api>
 		<enabled>false</enabled>
-		<socket_path>admin_api.sock</socket_path>
+		<socket_path>run/admin_api.sock</socket_path>
 		<!-- <max_connections>5</max_connections> -->
 	</admin_api>
+	<!--
+	Default thread pool size for background I/O tasks (saving chests, etc.).
+	0 (default) = hardware_concurrency() / 2 (physical cores with HT).
+	Override at runtime: MUD_WORKERS=N environment variable.
+	-->
+	<!-- <thread_pools><workers>4</workers></thread_pools> -->
 </configuration>

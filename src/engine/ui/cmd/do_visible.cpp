@@ -7,12 +7,13 @@
 */
 
 #include "engine/ui/cmd/do_visible.h"
+#include "administration/privilege.h"
 
 #include "engine/entities/char_data.h"
 #include "gameplay/mechanics/sight.h"
 
 void do_visible(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	if (ch->IsImmortal()) {
+	if (privilege::IsImmortal(ch)) {
 		perform_immort_vis(ch);
 		return;
 	}
@@ -21,7 +22,7 @@ void do_visible(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 		|| AFF_FLAGGED(ch, EAffect::kDisguise)
 		|| AFF_FLAGGED(ch, EAffect::kHide)
 		|| AFF_FLAGGED(ch, EAffect::kSneak)) {
-		Appear(ch);
+		sight::Appear(ch);
 		SendMsgToChar("Вы перестали быть невидимым.\r\n", ch);
 	} else
 		SendMsgToChar("Вы и так видимы.\r\n", ch);
@@ -36,7 +37,7 @@ void perform_immort_vis(CharData *ch) {
 	}
 
 	SET_INVIS_LEV(ch, 0);
-	Appear(ch);
+	sight::Appear(ch);
 	SendMsgToChar("Вы теперь полностью видны.\r\n", ch);
 }
 

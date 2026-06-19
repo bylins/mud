@@ -7,6 +7,8 @@
 *  $Revision$                                                     *
 ************************************************************************ */
 #include "item_creation.h"
+#include "administration/privilege.h"
+#include "utils/grammar/gender.h"
 
 #include "engine/db/obj_prototypes.h"
 #include "engine/core/handler.h"
@@ -18,6 +20,7 @@
 #include "gameplay/core/base_stats.h"
 #include "gameplay/core/constants.h"
 #include "engine/observability/metrics.h"
+#include "gameplay/core/remort.h"
 
 #include <cmath>
 
@@ -419,13 +422,13 @@ void mredit_disp_ingr_menu(DescriptorData *d) {
 	trec = OLC_MREC(d);
 	auto tobj = GetObjectPrototype(trec->obj_proto);
 	if (trec->obj_proto && tobj) {
-		objname = tobj->get_PName(ECase::kNom);
+		objname = tobj->get_PName(grammar::ECase::kNom);
 	} else {
 		objname = "Нет";
 	}
 	tobj = GetObjectPrototype(trec->parts[index].proto);
 	if (trec->parts[index].proto && tobj) {
-		ingrname = tobj->get_PName(ECase::kNom);
+		ingrname = tobj->get_PName(grammar::ECase::kNom);
 	} else {
 		ingrname = "Нет";
 	}
@@ -457,7 +460,7 @@ void mredit_disp_menu(DescriptorData *d) {
 	trec = OLC_MREC(d);
 	auto tobj = GetObjectPrototype(trec->obj_proto);
 	if (trec->obj_proto && tobj) {
-		objname = tobj->get_PName(ECase::kNom);
+		objname = tobj->get_PName(grammar::ECase::kNom);
 	} else {
 		objname = "Нет";
 	}
@@ -487,7 +490,7 @@ void mredit_disp_menu(DescriptorData *d) {
 	for (int i = 0; i < MAX_PARTS; i++) {
 		tobj = GetObjectPrototype(trec->parts[i].proto);
 		if (trec->parts[i].proto && tobj) {
-			objname = tobj->get_PName(ECase::kNom);
+			objname = tobj->get_PName(grammar::ECase::kNom);
 		} else {
 			objname = "Нет";
 		}
@@ -522,7 +525,7 @@ void do_list_make(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 		trec = make_recepts[i];
 		auto obj = GetObjectPrototype(trec->obj_proto);
 		if (obj) {
-			obj_name = utils::RemoveColors(obj->get_PName(ECase::kNom).substr(0, 39));
+			obj_name = utils::RemoveColors(obj->get_PName(grammar::ECase::kNom).substr(0, 39));
 		}
 		while (make_skills[j].num != ESkill::kUndefined) {
 			if (make_skills[j].num == trec->skill) {
@@ -538,7 +541,7 @@ void do_list_make(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 			if (trec->parts[j].proto != 0) {
 				obj = GetObjectPrototype(trec->parts[j].proto);
 				if (obj) {
-					obj_name = utils::RemoveColors(obj->get_PName(ECase::kNom).substr(0, 34));
+					obj_name = utils::RemoveColors(obj->get_PName(grammar::ECase::kNom).substr(0, 34));
 				} else {
 					obj_name = "Нет";
 				}
@@ -614,7 +617,7 @@ void do_make_item(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			auto tobj = GetObjectPrototype(canlist[i]->obj_proto);
 			if (!tobj)
 				return;
-			sprintf(tmpbuf, "%zd) %s\r\n", i + 1, tobj->get_PName(ECase::kNom).c_str());
+			sprintf(tmpbuf, "%zd) %s\r\n", i + 1, tobj->get_PName(grammar::ECase::kNom).c_str());
 			tmpstr += string(tmpbuf);
 		};
 		SendMsgToChar(tmpstr.c_str(), ch);
@@ -929,7 +932,7 @@ void do_transform_weapon(CharData *ch, char *argument, int/* cmd*/, int subcmd) 
 				act("$o сделан$G из неподходящего материала.", false, ch, obj, 0, kToChar);
 				return;
 			}
-			if (!ch->IsImmortal()) {
+			if (!privilege::IsImmortal(ch)) {
 				if (!ROOM_FLAGGED(ch->in_room, ERoomFlag::kForge)) {
 					SendMsgToChar("Вам нужно попасть в кузницу для этого.\r\n", ch);
 					return;
@@ -1234,7 +1237,7 @@ int MakeRecept::can_make(CharData *ch) {
 		int ingr_lev = get_ingr_lev(ingrobj);
 		// Если чар ниже уровня ингридиента то он не может делать рецепты с его
 		// участием.
-		if (!ch->IsImpl() && (ingr_lev > (GetRealLevel(ch) + 2 * GetRealRemort(ch)))) {
+		if (!privilege::IsImpl(ch) && (ingr_lev > (GetRealLevel(ch) + 2 * remort::GetRealRemort(ch)))) {
 			SendMsgToChar("Вы слишком малого уровня и вам что-то не подходит для шитья.\r\n", ch);
 			return (false);
 		}
@@ -1478,21 +1481,21 @@ void MakeRecept::make_object(CharData *ch, ObjData *obj, ObjData *ingrs[MAX_PART
 	int i, j;
 	//ставим именительные именительные падежи в алиасы
 	sprintf(buf, "%s %s %s %s",
-			obj->get_PName(ECase::kNom).c_str(),
-			ingrs[0]->get_PName(ECase::kGen).c_str(),
-			ingrs[1]->get_PName(ECase::kIns).c_str(),
-			ingrs[2]->get_PName(ECase::kIns).c_str());
+			obj->get_PName(grammar::ECase::kNom).c_str(),
+			ingrs[0]->get_PName(grammar::ECase::kGen).c_str(),
+			ingrs[1]->get_PName(grammar::ECase::kIns).c_str(),
+			ingrs[2]->get_PName(grammar::ECase::kIns).c_str());
 	obj->set_aliases(buf);
-	for (i = ECase::kFirstCase; i <= ECase::kLastCase; i++) // ставим падежи в имя с учетов ингров
+	for (i = grammar::ECase::kFirstCase; i <= grammar::ECase::kLastCase; i++) // ставим падежи в имя с учетов ингров
 	{
-		auto name_case = static_cast<ECase>(i);
+		auto name_case = static_cast<grammar::ECase>(i);
 		sprintf(buf, "%s", obj->get_PName(name_case).c_str());
 		strcat(buf, " из ");
-		strcat(buf, ingrs[0]->get_PName(ECase::kGen).c_str());
+		strcat(buf, ingrs[0]->get_PName(grammar::ECase::kGen).c_str());
 		strcat(buf, " с ");
-		strcat(buf, ingrs[1]->get_PName(ECase::kIns).c_str());
+		strcat(buf, ingrs[1]->get_PName(grammar::ECase::kIns).c_str());
 		strcat(buf, " и ");
-		strcat(buf, ingrs[2]->get_PName(ECase::kIns).c_str());
+		strcat(buf, ingrs[2]->get_PName(grammar::ECase::kIns).c_str());
 		obj->set_PName(name_case, buf);
 		if (i == 0) // именительный падеж
 		{
@@ -1572,7 +1575,7 @@ void MakeRecept::make_object(CharData *ch, ObjData *obj, ObjData *ingrs[MAX_PART
 static std::string craft_recipe_name(int recipe_id) {
 	const auto proto = GetObjectPrototype(recipe_id);
 	if (proto) {
-		return proto->get_PName(ECase::kNom); // KOI8-R; auto-converted by OtelMetrics
+		return proto->get_PName(grammar::ECase::kNom); // KOI8-R; auto-converted by OtelMetrics
 	}
 	return std::to_string(recipe_id);
 }
@@ -1618,7 +1621,7 @@ int MakeRecept::make(CharData *ch) {
 		return 0;
 	}
 	// Проверяем возможность создания предмета
-	if (!ch->IsImmortal() && (skill == ESkill::kMakeStaff)) {
+	if (!privilege::IsImmortal(ch) && (skill == ESkill::kMakeStaff)) {
 		const ObjData obj(*tobj);
 		act("Вы не готовы к тому чтобы сделать $o3.", false, ch, &obj, 0, kToChar);
 		return (false);
@@ -1631,15 +1634,15 @@ int MakeRecept::make(CharData *ch) {
 			break;
 		ingrs[i] = get_obj_in_list_ingr(parts[i].proto, ch->carrying);
 		ingr_lev = get_ingr_lev(ingrs[i]);
-		if (!ch->IsImpl() && (ingr_lev > (GetRealLevel(ch) + 2 * GetRealRemort(ch)))) {
-			tmpstr = "Вы побоялись испортить " + ingrs[i]->get_PName(ECase::kAcc)
-				+ "\r\n и прекратили работу над " + tobj->get_PName(ECase::kIns) + ".\r\n";
+		if (!privilege::IsImpl(ch) && (ingr_lev > (GetRealLevel(ch) + 2 * remort::GetRealRemort(ch)))) {
+			tmpstr = "Вы побоялись испортить " + ingrs[i]->get_PName(grammar::ECase::kAcc)
+				+ "\r\n и прекратили работу над " + tobj->get_PName(grammar::ECase::kIns) + ".\r\n";
 			SendMsgToChar(tmpstr.c_str(), ch);
 			return (false);
 		};
 		ingr_pow = get_ingr_pow(ingrs[i]);
 		if (ingr_pow < parts[i].min_power) {
-			tmpstr = "$o не подходит для изготовления " + tobj->get_PName(ECase::kGen) + ".";
+			tmpstr = "$o не подходит для изготовления " + tobj->get_PName(grammar::ECase::kGen) + ".";
 			act(tmpstr.c_str(), false, ch, ingrs[i], 0, kToChar);
 			return (false);
 		}
@@ -1651,7 +1654,7 @@ int MakeRecept::make(CharData *ch) {
 		case ESkill::kMakeWeapon:
 		case ESkill::kMakeArmor:
 			// Проверяем есть ли тут наковальня или комната кузня.
-			if ((!ROOM_FLAGGED(ch->in_room, ERoomFlag::kForge)) && (!ch->IsImmortal())) {
+			if ((!ROOM_FLAGGED(ch->in_room, ERoomFlag::kForge)) && (!privilege::IsImmortal(ch))) {
 				SendMsgToChar("Вам нужно попасть в кузницу для этого.\r\n", ch);
 				return (false);
 			}
@@ -1777,8 +1780,8 @@ int MakeRecept::make(CharData *ch) {
 			created_lev += ingr_lev;
 		}
 		// Шанс испортить не ингредиент всетаки есть.
-		if ((number(0, 30) < (5 + ingr_lev - GetRealLevel(ch) - 2 * GetRealRemort(ch))) && !ch->IsImpl()) {
-			tmpstr = "Вы испортили " + ingrs[i]->get_PName(ECase::kAcc) + ".\r\n";
+		if ((number(0, 30) < (5 + ingr_lev - GetRealLevel(ch) - 2 * remort::GetRealRemort(ch))) && !privilege::IsImpl(ch)) {
+			tmpstr = "Вы испортили " + ingrs[i]->get_PName(grammar::ECase::kAcc) + ".\r\n";
 			SendMsgToChar(tmpstr.c_str(), ch);
 			//extract_obj(ingrs[i]); //заменим на обнуление веса
 			//чтобы не крешило дальше в обработке фейла (Купала)
@@ -1794,11 +1797,11 @@ int MakeRecept::make(CharData *ch) {
 	if (ch->get_move() < craft_move) {
 		ch->set_move(0);
 		// Вам не хватило сил доделать.
-		tmpstr = "Вам не хватило сил доделать " + tobj->get_PName(ECase::kAcc) + ".\r\n";
+		tmpstr = "Вам не хватило сил доделать " + tobj->get_PName(grammar::ECase::kAcc) + ".\r\n";
 		SendMsgToChar(tmpstr.c_str(), ch);
 		make_fail = true;
 	} else {
-		if (!ch->IsImpl()) {
+		if (!privilege::IsImpl(ch)) {
 			ch->set_move(ch->get_move() - craft_move);
 		}
 	}
@@ -1811,7 +1814,7 @@ int MakeRecept::make(CharData *ch) {
 			{
 				IS_CARRYING_W(ch) -= ingrs[0]->get_weight();
 				ingrs[0]->set_weight(0);  // шкуру дикеим полностью
-				tmpstr = "Вы раскроили полностью " + ingrs[0]->get_PName(ECase::kAcc) + ".\r\n";
+				tmpstr = "Вы раскроили полностью " + ingrs[0]->get_PName(grammar::ECase::kAcc) + ".\r\n";
 				SendMsgToChar(tmpstr.c_str(), ch);
 				continue;
 			}
@@ -1840,7 +1843,7 @@ int MakeRecept::make(CharData *ch) {
 				//Сперва проверяем сколько нам нужно. Если вес ингра больше, чем требуется, то вычитаем вес и останавливаем итерацию.
 				if (ingrs[i]->get_weight() > state) {
 					ingrs[i]->sub_weight(state);
-					SendMsgToChar(ch, "Вы использовали %s.\r\n", ingrs[i]->get_PName(ECase::kAcc).c_str());
+					SendMsgToChar(ch, "Вы использовали %s.\r\n", ingrs[i]->get_PName(grammar::ECase::kAcc).c_str());
 					IS_CARRYING_W(ch) -= state;
 					break;
 				}
@@ -1848,7 +1851,7 @@ int MakeRecept::make(CharData *ch) {
 				else if (ingrs[i]->get_weight() == state) {
 					IS_CARRYING_W(ch) -= ingrs[i]->get_weight();
 					ingrs[i]->set_weight(0);
-					SendMsgToChar(ch, "Вы полностью использовали %s.\r\n", ingrs[i]->get_PName(ECase::kAcc).c_str());
+					SendMsgToChar(ch, "Вы полностью использовали %s.\r\n", ingrs[i]->get_PName(grammar::ECase::kAcc).c_str());
 					//extract_obj(ingrs[i]);
 					break;
 				}
@@ -1857,8 +1860,8 @@ int MakeRecept::make(CharData *ch) {
 					state = state - ingrs[i]->get_weight();
 					SendMsgToChar(ch,
 								  "Вы полностью использовали %s и начали искать следующий ингредиент.\r\n",
-								  ingrs[i]->get_PName(ECase::kAcc).c_str());
-					std::string tmpname = std::string(ingrs[i]->get_PName(ECase::kGen).c_str());
+								  ingrs[i]->get_PName(grammar::ECase::kAcc).c_str());
+					std::string tmpname = std::string(ingrs[i]->get_PName(grammar::ECase::kGen).c_str());
 					IS_CARRYING_W(ch) -= ingrs[i]->get_weight();
 					ingrs[i]->set_weight(0);
 					ExtractObjFromWorld(ingrs[i]);
@@ -2280,48 +2283,48 @@ char *format_act(const char *orig, CharData *ch, ObjData *obj, const void *vict_
 					//dg_victim = (CharacterData *) vict_obj;
 					break;
 
-				case 'm': i = HMHR(ch);
+				case 'm': i = grammar::DativePronoun((ch)->get_sex());
 					break;
 				case 'M':
 					if (vict_obj)
-						i = HMHR((const CharData *) vict_obj);
-					else CHECK_NULL(obj, OMHR(obj));
+						i = grammar::DativePronoun(((const CharData *) vict_obj)->get_sex());
+					else CHECK_NULL(obj, grammar::DativePronoun((obj)->get_sex()));
 					//dg_victim = (CharacterData *) vict_obj;
 					break;
 
-				case 's': i = HSHR(ch);
+				case 's': i = grammar::PossessivePronoun((ch)->get_sex());
 					break;
 				case 'S':
 					if (vict_obj)
-						i = HSHR((const CharData *) vict_obj);
-					else CHECK_NULL(obj, OSHR(obj));
+						i = grammar::PossessivePronoun(((const CharData *) vict_obj)->get_sex());
+					else CHECK_NULL(obj, grammar::PossessivePronoun((obj)->get_sex()));
 					//dg_victim = (CharacterData *) vict_obj;
 					break;
 
-				case 'e': i = HSSH(ch);
+				case 'e': i = grammar::PersonalPronoun((ch)->get_sex());
 					break;
 				case 'E':
 					if (vict_obj)
-						i = HSSH((const CharData *) vict_obj);
-					else CHECK_NULL(obj, OSSH(obj));
+						i = grammar::PersonalPronoun(((const CharData *) vict_obj)->get_sex());
+					else CHECK_NULL(obj, grammar::PersonalPronoun((obj)->get_sex()));
 					break;
 
 				case 'o':
 					if (*(orig + 1) < '0' || *(orig + 1) > '5') {
-						CHECK_NULL(obj, obj->get_PName(ECase::kNom).c_str());
+						CHECK_NULL(obj, obj->get_PName(grammar::ECase::kNom).c_str());
 					} else {
 						padis = *(++orig) - '0';
-						CHECK_NULL(obj, obj->get_PName(padis > ECase::kLastCase ?
-						ECase::kFirstCase : static_cast<ECase>(padis)).c_str());
+						CHECK_NULL(obj, obj->get_PName(padis > grammar::ECase::kLastCase ?
+						grammar::ECase::kFirstCase : static_cast<grammar::ECase>(padis)).c_str());
 					}
 					break;
 				case 'O':
 					if (*(orig + 1) < '0' || *(orig + 1) > '5') {
-						CHECK_NULL(vict_obj, ((const ObjData *) vict_obj)->get_PName(ECase::kNom).c_str());
+						CHECK_NULL(vict_obj, ((const ObjData *) vict_obj)->get_PName(grammar::ECase::kNom).c_str());
 					} else {
 						padis = *(++orig) - '0';
-						CHECK_NULL(vict_obj, ((const ObjData *) vict_obj)->get_PName(padis > ECase::kLastCase ?
-						ECase::kFirstCase : static_cast<ECase>(padis)).c_str());
+						CHECK_NULL(vict_obj, ((const ObjData *) vict_obj)->get_PName(padis > grammar::ECase::kLastCase ?
+						grammar::ECase::kFirstCase : static_cast<grammar::ECase>(padis)).c_str());
 					}
 					//dg_victim = (CharacterData *) vict_obj;
 					break;
@@ -2338,68 +2341,68 @@ char *format_act(const char *orig, CharData *ch, ObjData *obj, const void *vict_
 				case '$': i = "$";
 					break;
 
-				case 'a': i = GET_CH_SUF_6(ch);
+				case 'a': i = grammar::SexEnding((ch)->get_sex(), 6);
 					break;
 				case 'A':
 					if (vict_obj)
-						i = GET_CH_SUF_6((const CharData *) vict_obj);
-					else CHECK_NULL(obj, GET_OBJ_SUF_6(obj));
+						i = grammar::SexEnding(((const CharData *) vict_obj)->get_sex(), 6);
+					else CHECK_NULL(obj, grammar::ObjSexEnding((obj)->get_sex(), 6));
 					//dg_victim = (CharacterData *) vict_obj;
 					break;
 
-				case 'g': i = GET_CH_SUF_1(ch);
+				case 'g': i = grammar::SexEnding((ch)->get_sex(), 1);
 					break;
 				case 'G':
 					if (vict_obj)
-						i = GET_CH_SUF_1((const CharData *) vict_obj);
-					else CHECK_NULL(obj, GET_OBJ_SUF_1(obj));
+						i = grammar::SexEnding(((const CharData *) vict_obj)->get_sex(), 1);
+					else CHECK_NULL(obj, grammar::ObjSexEnding((obj)->get_sex(), 1));
 					//dg_victim = (CharacterData *) vict_obj;
 					break;
 
-				case 'y': i = GET_CH_SUF_5(ch);
+				case 'y': i = grammar::SexEnding((ch)->get_sex(), 5);
 					break;
 				case 'Y':
 					if (vict_obj)
-						i = GET_CH_SUF_5((const CharData *) vict_obj);
-					else CHECK_NULL(obj, GET_OBJ_SUF_5(obj));
+						i = grammar::SexEnding(((const CharData *) vict_obj)->get_sex(), 5);
+					else CHECK_NULL(obj, grammar::ObjSexEnding((obj)->get_sex(), 5));
 					//dg_victim = (CharacterData *) vict_obj;
 					break;
 
-				case 'u': i = GET_CH_SUF_2(ch);
+				case 'u': i = grammar::SexEnding((ch)->get_sex(), 2);
 					break;
 				case 'U':
 					if (vict_obj)
-						i = GET_CH_SUF_2((const CharData *) vict_obj);
-					else CHECK_NULL(obj, GET_OBJ_SUF_2(obj));
+						i = grammar::SexEnding(((const CharData *) vict_obj)->get_sex(), 2);
+					else CHECK_NULL(obj, grammar::ObjSexEnding((obj)->get_sex(), 2));
 					//dg_victim = (CharacterData *) vict_obj;
 					break;
 
-				case 'w': i = GET_CH_SUF_3(ch);
+				case 'w': i = grammar::SexEnding((ch)->get_sex(), 3);
 					break;
 				case 'W':
 					if (vict_obj)
-						i = GET_CH_SUF_3((const CharData *) vict_obj);
-					else CHECK_NULL(obj, GET_OBJ_SUF_3(obj));
+						i = grammar::SexEnding(((const CharData *) vict_obj)->get_sex(), 3);
+					else CHECK_NULL(obj, grammar::ObjSexEnding((obj)->get_sex(), 3));
 					//dg_victim = (CharacterData *) vict_obj;
 					break;
 
-				case 'q': i = GET_CH_SUF_4(ch);
+				case 'q': i = grammar::SexEnding((ch)->get_sex(), 4);
 					break;
 				case 'Q':
 					if (vict_obj)
-						i = GET_CH_SUF_4((const CharData *) vict_obj);
-					else CHECK_NULL(obj, GET_OBJ_SUF_4(obj));
+						i = grammar::SexEnding(((const CharData *) vict_obj)->get_sex(), 4);
+					else CHECK_NULL(obj, grammar::ObjSexEnding((obj)->get_sex(), 4));
 					//dg_victim = (CharacterData *) vict_obj;
 					break;
 				case 'z':
 					if (obj)
-						i = OYOU(obj);
-					else CHECK_NULL(obj, OYOU(obj));
+						i = grammar::PossessiveYourObj((obj)->get_sex());
+					else CHECK_NULL(obj, grammar::PossessiveYourObj((obj)->get_sex()));
 					break;
 				case 'Z':
 					if (vict_obj)
-						i = HYOU((const CharData *) vict_obj);
-					else CHECK_NULL(vict_obj, HYOU((const CharData *) vict_obj));
+						i = grammar::PossessiveYour(((const CharData *) vict_obj)->get_sex());
+					else CHECK_NULL(vict_obj, grammar::PossessiveYour(((const CharData *) vict_obj)->get_sex()));
 					break;
 				default: log("SYSERR: Illegal $-code to act(): %c", *orig);
 					log("SYSERR: %s", orig);

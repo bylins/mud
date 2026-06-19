@@ -14,11 +14,25 @@
 #ifndef _PVP_H_
 #define _PVP_H_
 
-#include "engine/entities/char_data.h"
+#include <memory>
 
 #include <string>
 
+class CharData;
+
+// issue.chardata-cleaning: per-victim PK bookkeeping (was PK_Memory_type in char_data.h).
+struct PkMemory {
+	long unique{0};
+	long kill_num{0};
+	long kill_at{0};
+	long revenge_num{0};
+	long battle_exp{0};
+	long thief_exp{0};
+	long clan_exp{0};
+};
+
 class ObjData;    // forward declaration to avoid inclusion of obj.hpp and any dependencies of that header.
+class BufferedFileWriter;
 
 //*************************************************************************
 // Основные функци и разрешения конфликтных ситуаций между игроками
@@ -85,7 +99,7 @@ int pk_player_count(CharData *ch);
 
 void AddPkAuraDescription(CharData *victim, char *s);
 const char *GetPkNameColor(CharData *victim);
-inline const char *GetPkNameColor(const CharData::shared_ptr &victim) {
+inline const char *GetPkNameColor(const std::shared_ptr<CharData> &victim) {
 	return GetPkNameColor(victim.get());
 }
 void pk_list_sprintf(CharData *ch, char *buff);
@@ -94,7 +108,7 @@ void UpdatePkLogs(CharData *ch, CharData *victim);
 
 //*************************************************************************
 // Системные функции сохранения/загрузки ПК флагов
-void save_pkills(CharData *ch, FILE *saved);
+void save_pkills(CharData *ch, BufferedFileWriter &saved);
 
 //*************************************************************************
 bool has_clan_members_in_group(CharData *ch);
@@ -119,6 +133,8 @@ bool handle_transfer(CharData *ch, CharData *victim, ObjData *obj, ObjData *cont
 //Помечает стаф в трупе как кровавый
 void handle_corpse(ObjData *corpse, CharData *ch, CharData *killer);
 bool is_bloody(const ObjData *obj);
+//рекурсивно ищет кровавый предмет внутри трупа/контейнера
+bool CatchBloodyCorpse(ObjData *l);
 }
 
 //Структура для хранения информации о кровавом стафе

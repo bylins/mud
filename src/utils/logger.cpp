@@ -1,4 +1,5 @@
 #include "engine/db/global_objects.h"
+#include "utils/utils_encoding.h"
 #include "engine/ui/color.h"
 #include "backtrace.h"
 
@@ -6,7 +7,7 @@
 #include <chrono>
 #include <cstdarg>
 #include <cstdio>
-#include <format>
+#include <fmt/chrono.h>
 
 #if defined(__clang__) || defined(__CYGWIN__)
 #define HAS_TIME_ZONE 0
@@ -36,7 +37,7 @@ void pers_log(CharData *ch, const char *format, ...) {
 		char filename[128], name[64], *ptr;
 		strcpy(name, GET_NAME(ch));
 		for (ptr = name; *ptr; ptr++) {
-			*ptr = LOWER(AtoL(*ptr));
+			*ptr = LOWER(codepages::AtoL(*ptr));
 		}
 		sprintf(filename, "%s/perslog/%s.log", runtime_config.log_dir().c_str(), name);
 		ch->desc->pers_log = fopen(filename, "a");
@@ -70,7 +71,12 @@ static std::string make_timestamp() {
     }
     const auto utc_now = std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::system_clock::now());
     const auto now = std::chrono::zoned_time{time_zone, utc_now};
-    return std::format("{:%Y-%m-%d %T}", now);
+    // fmt v12 не имеет formatter'а для zoned_time / local_time напрямую,
+    // подсовываем локальное time_point под видом sys_time -- для
+    // спецификаторов %Y-%m-%d %T fmt смотрит только на time_since_epoch.
+    const auto local_as_sys = std::chrono::sys_time<std::chrono::milliseconds>{
+        now.get_local_time().time_since_epoch()};
+    return fmt::format("{:%Y-%m-%d %T}", local_as_sys);
 #else
     const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::system_clock::now());
     const auto time_t_now = std::chrono::system_clock::to_time_t(now);
@@ -311,6 +317,25 @@ void ip_log(const char *ip) {
 
 	fprintf(iplog, "%s\n", ip);
 	fclose(iplog);
+}
+
+// Лог неудачных входов в админ-панель (Admin API) для fail2ban (issue #3388).
+// Формат строки языконезависимый и стабильный для разбора:
+//   <дата> :: accesadminpanel: login failed ip=<IP> user='<name>'
+void admin_panel_access_log(const char *ip, const char *username) {
+	const auto filename = runtime_config.log_dir() + "/accesadminpanel.log";
+
+	FILE *file = fopen(filename.c_str(), "a");
+	if (!file) {
+		log("SYSERR: can't open %s!", filename.c_str());
+		return;
+	}
+
+	write_time(file);
+	fprintf(file, "accesadminpanel: login failed ip=%s user='%s'\n",
+			ip && *ip ? ip : "unknown",
+			username ? username : "");
+	fclose(file);
 }
 
 /*

@@ -7,6 +7,7 @@
 */
 
 #include "engine/entities/char_data.h"
+#include "gameplay/mechanics/mount.h"
 #include "engine/db/global_objects.h"
 
 void do_sneak(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
@@ -16,8 +17,8 @@ void do_sneak(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Но вы не знаете как.\r\n", ch);
 		return;
 	}
-	if (ch->IsOnHorse()) {
-		act("Вам стоит подумать о мягкой обуви для $N1", false, ch, nullptr, ch->get_horse(), kToChar);
+	if (mount::IsOnHorse(ch)) {
+		act("Вам стоит подумать о мягкой обуви для $N1", false, ch, nullptr, mount::GetHorse(ch), kToChar);
 		return;
 	}
 	if (IsAffectedBySpell(ch, ESpell::kGlitterDust)) {
@@ -32,14 +33,14 @@ void do_sneak(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 
 	Affect<EApply> af;
 	af.type = ESpell::kSneak;
-	af.duration = CalcDuration(ch, 0, GetRealLevel(ch), 8, 0, 1);
+	af.duration = CalcDuration(ch, ch, ESkill::kSneak, 0, 20, 0, 1);
 	af.modifier = 0;
 	af.location = EApply::kNone;
 	af.battleflag = 0;
 	if (percent > prob) {
-		af.bitvector = 0;
+		af.affect_type = EAffect::kUndefined;
 	} else {
-		af.bitvector = to_underlying(EAffect::kSneak);
+		af.affect_type = EAffect::kSneak;
 	}
 	affect_to_char(ch, af);
 }

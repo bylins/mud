@@ -39,13 +39,14 @@
 #   --checksums       Run only tests WITH checksum calculation
 #   --no-checksums    Run only tests WITHOUT checksum calculation
 #   --quick           Run quick comparison: Small_Legacy_checksums vs Small_YAML_checksums
-#   --rebuild         Force full rebuild (make clean && make)
-#   --build-type=TYPE Set CMAKE_BUILD_TYPE (Release|Debug|Test|FastTest)
+#   --rebuild         Force full rebuild (ninja -t clean && ninja)
+#   --build-type=TYPE Set meson build_profile (release|debug|dev|fasttest|custom)
 #   --recreate-builds Delete and recreate all build directories (implies world recreation)
 #   --help            Show this help
 #
 # ENVIRONMENT VARIABLES:
-#   FULL_WORLD_ARCHIVE   Path to full world archive (default: ~/repos/world.tgz)
+#   FULL_WORLD_ARCHIVE   Path to full world archive (tarball). REQUIRED for full-world tests;
+#                        small-world-only runs (e.g. --quick or --world=small) ignore it.
 #
 
 MUD_DIR="$(cd "$(dirname "$0")/.." && pwd)"
@@ -100,115 +101,145 @@ for arg in "$@"; do
     esac
 done
 
-# Quick mode: only Small_Legacy_checksums and Small_YAML_checksums
+# Quick mode: only Small_Legacy_checksums and Small_YAML_checksums.
+# Skip sqlite explicitly -- the project ships no sqlite3.wrap and the test box
+# may not have libsqlite3-dev installed, in which case `meson setup
+# -Dsqlite=auto` would error out.
+QUICK_SKIP_SQLITE=0
 if [ $QUICK_MODE -eq 1 ]; then
     FILTER_LOADER=""  # Will run both legacy and yaml
     FILTER_WORLD="small"
     FILTER_CHECKSUMS="yes"
+    QUICK_SKIP_SQLITE=1
     echo "Quick mode: Running Small_Legacy_checksums and Small_YAML_checksums"
     echo ""
 fi
 
-# Default location of full world archive
-FULL_WORLD_ARCHIVE="${FULL_WORLD_ARCHIVE:-$HOME/repos/world.tgz}"
+# Path to full world archive (tarball). No default -- caller MUST pass via env.
+# When the full-world tests run and this is unset/missing, they are skipped with
+# an error message pointing the operator to FULL_WORLD_ARCHIVE.
+FULL_WORLD_ARCHIVE="${FULL_WORLD_ARCHIVE:-}"
 
-# Function to build a specific binary variant
+# Map a CMake-style build type ("Debug"/"Release"/"Test"/"FastTest") to the
+# corresponding meson profile. Pass through anything we don't recognise.
+map_build_type_to_meson_profile() {
+    case "$1" in
+        Debug|debug)        echo "debug" ;;
+        Release|release)    echo "release" ;;
+        Test|test|Dev|dev)  echo "dev" ;;
+        FastTest|fasttest)  echo "fasttest" ;;
+        Custom|custom)      echo "custom" ;;
+        "")                 echo "" ;;
+        *)                  echo "$1" ;;
+    esac
+}
+
+# Function to build a specific binary variant.
+# Uses meson + ninja (the project's current build system).
+#
+# Args:
+#   $1 = build_dir (out-of-source directory to set up)
+#   $2 = meson_opts (space-separated -Doption=value flags)
+#   $3 = binary_name (label for log files, e.g. "legacy"/"yaml")
 build_binary() {
     local build_dir="$1"
-    local cmake_opts="$2"
+    local meson_opts="$2"
     local binary_name="$3"
-    local needs_reconfigure=0
-    
+    local needs_setup=0
+
     echo ""
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo "Building: $binary_name"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    
-    # Check if we need to recreate or reconfigure
-    if [ ! -d "$build_dir" ]; then
+
+    # Detect meson + ninja; allow ~/.local/bin fallback for pip --user installs.
+    local meson_bin
+    if command -v meson >/dev/null 2>&1; then
+        meson_bin=meson
+    elif [ -x "$HOME/.local/bin/meson" ]; then
+        meson_bin="$HOME/.local/bin/meson"
+    else
+        echo "X ERROR: meson not found. Install with: pip install --user meson ninja"
+        return 1
+    fi
+
+    local ninja_bin
+    if command -v ninja >/dev/null 2>&1; then
+        ninja_bin=ninja
+    elif [ -x "$HOME/.local/bin/ninja" ]; then
+        ninja_bin="$HOME/.local/bin/ninja"
+    else
+        echo "X ERROR: ninja not found. Install with: pip install --user meson ninja"
+        return 1
+    fi
+
+    # Decide if we need a fresh `meson setup`.
+    if [ ! -d "$build_dir" ] || [ ! -f "$build_dir/build.ninja" ]; then
         mkdir -p "$build_dir"
-        needs_reconfigure=1
+        needs_setup=1
     elif [ $RECREATE_BUILDS -eq 1 ]; then
         echo "Recreating build directory (--recreate-builds)..."
         rm -rf "$build_dir"
         mkdir -p "$build_dir"
-        needs_reconfigure=1
-    elif [ -n "$BUILD_TYPE" ] && [ -f "$build_dir/CMakeCache.txt" ]; then
-        # Check if BUILD_TYPE changed
-        local current_type=$(grep "CMAKE_BUILD_TYPE:" "$build_dir/CMakeCache.txt" 2>/dev/null | cut -d= -f2)
-        if [ "$current_type" != "$BUILD_TYPE" ]; then
-            echo "Build type changed ($current_type -> $BUILD_TYPE), reconfiguring..."
-            needs_reconfigure=1
-        fi
-    elif [ ! -f "$build_dir/CMakeCache.txt" ]; then
-        needs_reconfigure=1
+        needs_setup=1
     fi
-    
-    cd "$build_dir"
-    
-    # Apply BUILD_TYPE override if specified
-    local final_cmake_opts="$cmake_opts"
+
+    # Translate optional BUILD_TYPE into a meson profile flag.
+    local effective_opts="$meson_opts"
     if [ -n "$BUILD_TYPE" ]; then
-        # Replace existing -DCMAKE_BUILD_TYPE or add if missing
-        if echo "$cmake_opts" | grep -q "CMAKE_BUILD_TYPE"; then
-            final_cmake_opts=$(echo "$cmake_opts" | sed "s/-DCMAKE_BUILD_TYPE=[^ ]*/-DCMAKE_BUILD_TYPE=$BUILD_TYPE/")
-        else
-            final_cmake_opts="$cmake_opts -DCMAKE_BUILD_TYPE=$BUILD_TYPE"
-        fi
+        local profile
+        profile=$(map_build_type_to_meson_profile "$BUILD_TYPE")
+        # Strip any existing -Dbuild_profile=... so we don't end up with two.
+        effective_opts=$(echo "$effective_opts" | sed -E 's/-Dbuild_profile=[^ ]*//g')
+        effective_opts="$effective_opts -Dbuild_profile=$profile"
     fi
-    
-    # Run cmake if needed
-    if [ $needs_reconfigure -eq 1 ]; then
-        echo "[1/2] Configuring with CMake..."
-        echo "      Options: $final_cmake_opts"
-        cmake $final_cmake_opts .. > /tmp/build_${binary_name}_cmake.log 2>&1 || {
-            echo "X ERROR: CMake configuration failed"
-            echo "  Log: /tmp/build_${binary_name}_cmake.log"
-            cd "$MUD_DIR"
+
+    if [ $needs_setup -eq 1 ]; then
+        echo "[1/2] Configuring with meson..."
+        echo "      Options: $effective_opts"
+        "$meson_bin" setup "$build_dir" $effective_opts > /tmp/build_${binary_name}_meson.log 2>&1 || {
+            echo "X ERROR: meson setup failed"
+            echo "  Log: /tmp/build_${binary_name}_meson.log"
+            echo "  Last 20 lines:"
+            tail -20 /tmp/build_${binary_name}_meson.log
             return 1
         }
-        echo " CMake configuration complete"
+        echo " meson configuration complete"
     else
-        echo "[1/2] Using cached CMake configuration"
+        echo "[1/2] Using existing meson configuration"
+        # Allow `meson configure` to absorb an updated BUILD_TYPE override.
+        if [ -n "$BUILD_TYPE" ]; then
+            "$meson_bin" configure "$build_dir" -Dbuild_profile="$(map_build_type_to_meson_profile "$BUILD_TYPE")" \
+                >> /tmp/build_${binary_name}_meson.log 2>&1 || true
+        fi
     fi
-    
-    # Build
+
+    # Build (parallel; use half of cores to keep the box responsive).
     echo "[2/2] Compiling (this may take a while)..."
     echo "      Log: /tmp/build_${binary_name}.log"
     echo "      Tip: Run 'tail -f /tmp/build_${binary_name}.log' in another terminal to watch progress"
     echo ""
-    # Clean if rebuild requested
+
+    local nprocs=$(($(nproc)/2))
+    if [ "$nprocs" -lt 1 ]; then nprocs=1; fi
+
     if [ $REBUILD_MODE -eq 1 ]; then
-        echo "      Running make clean (rebuild mode)..."
-        make clean > /tmp/build_${binary_name}.log 2>&1
-        make circle -j$(nproc) >> /tmp/build_${binary_name}.log 2>&1 || {
-            echo "X ERROR: Build failed"
-            echo "  Log: /tmp/build_${binary_name}.log"
-            echo "  Last 20 lines:"
-            tail -20 /tmp/build_${binary_name}.log
-            cd "$MUD_DIR"
-            return 1
-        }
-    else
-        make circle -j$(nproc) > /tmp/build_${binary_name}.log 2>&1 || {
-            echo "X ERROR: Build failed"
-            echo "  Log: /tmp/build_${binary_name}.log"
-            echo "  Last 20 lines:"
-            tail -20 /tmp/build_${binary_name}.log
-            cd "$MUD_DIR"
-            return 1
-        }
+        echo "      Cleaning previous build..."
+        "$ninja_bin" -C "$build_dir" -t clean > /tmp/build_${binary_name}.log 2>&1 || true
     fi
-    
-    cd "$MUD_DIR"
-    
-    # Verify binary was created
-    if [ ! -x "$build_dir/circle" ]; then
-        echo "X ERROR: Binary not created despite successful make"
+
+    "$ninja_bin" -C "$build_dir" circle "-j$nprocs" >> /tmp/build_${binary_name}.log 2>&1 || {
+        echo "X ERROR: Build failed"
         echo "  Log: /tmp/build_${binary_name}.log"
         echo "  Last 20 lines:"
         tail -20 /tmp/build_${binary_name}.log
-        cd "$MUD_DIR"
+        return 1
+    }
+
+    if [ ! -x "$build_dir/circle" ]; then
+        echo "X ERROR: Binary not created despite successful build"
+        echo "  Log: /tmp/build_${binary_name}.log"
+        tail -20 /tmp/build_${binary_name}.log
         return 1
     fi
     echo " Successfully built $build_dir/circle"
@@ -240,34 +271,18 @@ setup_small_world() {
 
     rm -rf "$dest_dir"
 
-    # Reconfigure CMake to recreate small directory with symlinks
-    echo "Reconfiguring CMake to create small world structure..."
-
-    cd "$build_dir"
-    if [ "$loader" = "legacy" ]; then
-        cmake -DCMAKE_BUILD_TYPE=Debug .. > /tmp/cmake_small_legacy.log 2>&1 || {
-            echo "X ERROR: CMake reconfiguration failed"
-            echo "  Log: /tmp/cmake_small_legacy.log"
-            cd "$MUD_DIR"
-            return 1
-        }
-    elif [ "$loader" = "sqlite" ]; then
-        cmake -DHAVE_SQLITE=ON -DCMAKE_BUILD_TYPE=Debug .. > /tmp/cmake_small_sqlite.log 2>&1 || {
-            echo "X ERROR: CMake reconfiguration failed"
-            echo "  Log: /tmp/cmake_small_sqlite.log"
-            cd "$MUD_DIR"
-            return 1
-        }
-    elif [ "$loader" = "yaml" ]; then
-        cmake -DHAVE_YAML=ON -DCMAKE_BUILD_TYPE=Debug .. > /tmp/cmake_small_yaml.log 2>&1 || {
-            echo "X ERROR: CMake reconfiguration failed"
-            echo "  Log: /tmp/cmake_small_yaml.log"
-            cd "$MUD_DIR"
-            return 1
-        }
-    fi
-    cd "$MUD_DIR"
-    echo " CMake created $dest_dir (copied lib + lib.template)"
+    # Materialise the small world via the meson helper (the same one that
+    # `-Dsmall_world=true` triggers during configure). It copies lib/ -> small/
+    # and overlays lib.template/.
+    echo "Running tools/meson/setup_world.py to create small world structure..."
+    python3 "$MUD_DIR/tools/meson/setup_world.py" \
+        "$build_dir" "$MUD_DIR" "" > /tmp/setup_small_${loader}.log 2>&1 || {
+        echo "X ERROR: small world setup failed"
+        echo "  Log: /tmp/setup_small_${loader}.log"
+        cat /tmp/setup_small_${loader}.log
+        return 1
+    }
+    echo " Small world created at $dest_dir (lib + lib.template)"
 
     if [ "$loader" = "legacy" ]; then
         echo " Legacy world ready (using lib.template/world)"
@@ -334,35 +349,40 @@ setup_full_world() {
     
     local dest_dir="$build_dir/full"
     
-    if [ ! -f "$FULL_WORLD_ARCHIVE" ]; then
-        echo "⚠ WARNING: Full world archive not found: $FULL_WORLD_ARCHIVE"
-        echo "  Set FULL_WORLD_ARCHIVE environment variable to override"
+    if [ -z "$FULL_WORLD_ARCHIVE" ]; then
+        echo "X ERROR: FULL_WORLD_ARCHIVE is not set."
+        echo "  Set it to the path of the world tarball, e.g.:"
+        echo "    FULL_WORLD_ARCHIVE=~/worlds/world.20260427.cleaned.tgz $0"
         return 1
     fi
-    
+    if [ ! -f "$FULL_WORLD_ARCHIVE" ]; then
+        echo "X ERROR: Full world archive not found: $FULL_WORLD_ARCHIVE"
+        return 1
+    fi
+
     echo ""
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo "Setting up: full world ($loader)"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    
+
     echo "[1/3] Extracting archive..."
     echo "      Source: $FULL_WORLD_ARCHIVE"
     echo "      Target: $dest_dir"
-    
+
     rm -rf "$dest_dir"
     mkdir -p "$dest_dir"
-    tar -xzf "$FULL_WORLD_ARCHIVE" -C "$dest_dir" > /tmp/extract_full.log 2>&1 || {
+    # --strip-components=1 drops the archive's top-level directory (whatever it
+    # is named -- "lib/", "world.YYYYMMDD/", ...) so contents land directly in
+    # $dest_dir. Keeps the script portable across archive layouts.
+    tar -xzf "$FULL_WORLD_ARCHIVE" -C "$dest_dir" --strip-components=1 > /tmp/extract_full.log 2>&1 || {
         echo "X ERROR: Extraction failed"
         echo "  Log: /tmp/extract_full.log"
         return 1
     }
     echo " Extracted successfully"
-    
-    # Archive contains ./lib/ which extracts to $dest_dir/lib/
+
     if [ "$loader" = "legacy" ]; then
         echo "[2/3] Preparing legacy world..."
-        mv "$dest_dir/lib/"* "$dest_dir/"
-        rmdir "$dest_dir/lib"
         echo " Ready at $dest_dir"
     elif [ "$loader" = "sqlite" ] || [ "$loader" = "yaml" ]; then
         echo "[2/3] Converting world data (this may take several minutes)..."
@@ -373,10 +393,10 @@ setup_full_world() {
 
         if [ "$loader" = "sqlite" ]; then
             python3 "$MUD_DIR/tools/converter/convert_to_yaml.py" \
-                -i "$dest_dir/lib" \
-                -o "$dest_dir/lib" \
+                -i "$dest_dir" \
+                -o "$dest_dir" \
                 -f sqlite \
-                --db "$dest_dir/lib/world.db" \
+                --db "$dest_dir/world.db" \
  > /tmp/convert_full_sqlite.log 2>&1 || {
                 echo "X ERROR: Conversion failed"
                 echo "  Log: /tmp/convert_full_sqlite.log"
@@ -386,8 +406,8 @@ setup_full_world() {
             echo " Converted to SQLite format"
         else
             python3 "$MUD_DIR/tools/converter/convert_to_yaml.py" \
-                -i "$dest_dir/lib" \
-                -o "$dest_dir/lib" \
+                -i "$dest_dir" \
+                -o "$dest_dir" \
                 -f yaml \
  > /tmp/convert_full_yaml.log 2>&1 || {
                 echo "X ERROR: Conversion failed"
@@ -397,13 +417,8 @@ setup_full_world() {
             }
             echo " Converted to YAML format"
         fi
-
-        echo "[3/3] Flattening world structure..."
-        mv "$dest_dir/lib/"* "$dest_dir/"
-        rmdir "$dest_dir/lib"
-
     fi
-    
+
     echo ""
     return 0
 }
@@ -428,6 +443,21 @@ fi
 if [ -z "$FILTER_LOADER" ] || [ "$FILTER_LOADER" = "sqlite" ]; then
     NEED_SQLITE=1
 fi
+if [ $QUICK_SKIP_SQLITE -eq 1 ]; then
+    NEED_SQLITE=0
+fi
+# Auto-skip SQLite when libsqlite3 dev headers aren't available. Avoids
+# forcing the operator to apt-install just to run the wider test pipeline;
+# explicit `--loader=sqlite` invocations still hit the build error so the
+# missing dependency is surfaced when actually requested.
+if [ $NEED_SQLITE -eq 1 ] && [ "$FILTER_LOADER" != "sqlite" ]; then
+    if ! pkg-config --exists sqlite3 2>/dev/null; then
+        echo "⚠ SQLite dev headers not found (pkg-config sqlite3). Skipping SQLite tests."
+        echo "  Install libsqlite3-dev to enable, or pass --loader=sqlite to force-fail."
+        echo ""
+        NEED_SQLITE=0
+    fi
+fi
 if [ -z "$FILTER_LOADER" ] || [ "$FILTER_LOADER" = "yaml" ]; then
     NEED_YAML=1
 fi
@@ -442,17 +472,20 @@ fi
 # Build binaries if needed (with Admin API enabled for testing)
 if [ $NEED_LEGACY -eq 1 ]; then
 
-    build_binary "$MUD_DIR/build_test" "-DENABLE_ADMIN_API=ON -DCMAKE_BUILD_TYPE=Debug" "legacy" || exit 1
+    build_binary "$MUD_DIR/build_test" "-Dadmin_api=true -Dbuild_profile=debug" "legacy" || exit 1
 fi
 
 if [ $NEED_SQLITE -eq 1 ]; then
 
-    build_binary "$MUD_DIR/build_sqlite" "-DENABLE_ADMIN_API=ON -DHAVE_SQLITE=ON -DCMAKE_BUILD_TYPE=Debug" "sqlite" || exit 1
+    # sqlite=auto: prefer system libsqlite3, fall back to the meson subproject
+    # (which requires a checked-in subprojects/sqlite3.wrap that we currently
+    # don't ship).
+    build_binary "$MUD_DIR/build_sqlite" "-Dadmin_api=true -Dsqlite=auto -Dbuild_profile=debug" "sqlite" || exit 1
 fi
 if [ $NEED_YAML -eq 1 ]; then
 
 
-    build_binary "$MUD_DIR/build_yaml" "-DENABLE_ADMIN_API=ON -DHAVE_YAML=ON -DCMAKE_BUILD_TYPE=Debug" "yaml" || exit 1
+    build_binary "$MUD_DIR/build_yaml" "-Dadmin_api=true -Dyaml=builtin -Dbuild_profile=debug" "yaml" || exit 1
 fi
 # Setup worlds
 if [ $NEED_SMALL -eq 1 ]; then
@@ -503,6 +536,13 @@ should_run_test() {
         is_admin_api=1
     fi
 
+    # Round-trip is a diagnostic stage in its own right (resave + reboot);
+    # checksums-filter doesn't apply to it.
+    local is_roundtrip=0
+    if echo "$test_name" | grep -qi "roundtrip"; then
+        is_roundtrip=1
+    fi
+
     if echo "$test_name" | grep -q "checksums$"; then
         local has_checksums="yes"
     else
@@ -518,8 +558,9 @@ should_run_test() {
         return 1
     fi
 
-    # Admin API tests ignore checksums filter (they test API, not boot performance)
-    if [ $is_admin_api -eq 0 ] && [ -n "$FILTER_CHECKSUMS" ]; then
+    # Admin API and round-trip tests ignore checksums filter (they test
+    # different aspects of the system, not boot performance).
+    if [ $is_admin_api -eq 0 ] && [ $is_roundtrip -eq 0 ] && [ -n "$FILTER_CHECKSUMS" ]; then
         if [ "$FILTER_CHECKSUMS" = "yes" ] && [ "$has_checksums" != "yes" ]; then
             return 1
         fi
@@ -664,6 +705,49 @@ run_admin_api_test() {
     cd "$MUD_DIR"
 
     return $test_result
+}
+
+# Round-trip diagnostic: resave the world via `circle -S world_v2`, swap
+# `world_v2` over `world`, then reuse run_test() to boot the re-emitted world
+# and compute its checksum (cs3). The cs3 file (/tmp/${name}_checksums.txt)
+# is later compared with cs2 in the CHECKSUM COMPARISON section.
+#
+# Mutates the world dir in-place; admin API tests further down re-extract from
+# the archive, so no restore is needed here.
+run_roundtrip_test() {
+    local name="$1"
+    local binary="$2"
+    local test_dir="$3"
+
+    if ! should_run_test "$name"; then
+        return 0
+    fi
+
+    echo "--- $name ---"
+
+    if [ ! -d "$test_dir/world" ]; then
+        echo "  X ERROR: $test_dir/world not present (cs2 stage didn't run?)"
+        return 1
+    fi
+
+    (cd "$test_dir" && rm -rf world_v2 stdout_rt.log)
+
+    echo "  Resaving world via '-S world_v2' ..."
+    (cd "$test_dir" && exec "$binary" -d . -S world_v2 4001 > stdout_rt.log 2>&1)
+    local rc=$?
+    if [ $rc -ne 0 ] || [ ! -d "$test_dir/world_v2" ]; then
+        echo "  X ERROR: circle -S exited rc=$rc, world_v2 present: $([ -d "$test_dir/world_v2" ] && echo yes || echo no)"
+        echo "  Last 30 lines of stdout_rt.log:"
+        tail -30 "$test_dir/stdout_rt.log" 2>/dev/null || true
+        return 1
+    fi
+
+    echo "  Swapping world <- world_v2 ..."
+    (cd "$test_dir" && rm -rf world && mv world_v2 world)
+
+    # Re-boot the re-emitted world with -W to compute cs3. run_test handles
+    # syslog parsing, boot timing, checksum capture, and copy to /tmp.
+    run_test "$name" "$binary" "$test_dir" "-W"
 }
 
 # Function to run a single test
@@ -822,40 +906,58 @@ echo ""
 if [ -z "$FILTER_WORLD" ] || [ "$FILTER_WORLD" = "small" ]; then
     echo "=== SMALL WORLD ==="
     echo ""
-    [ -n "$LEGACY_BIN" ] && run_test "Small_Legacy_checksums" "$LEGACY_BIN" "$MUD_DIR/build_test/small" "-W"
-    [ -n "$LEGACY_BIN" ] && run_test "Small_Legacy_no_checksums" "$LEGACY_BIN" "$MUD_DIR/build_test/small" ""
-    [ -n "$SQLITE_BIN" ] && run_test "Small_SQLite_checksums" "$SQLITE_BIN" "$MUD_DIR/build_sqlite/small" "-W"
-    [ -n "$SQLITE_BIN" ] && run_test "Small_SQLite_no_checksums" "$SQLITE_BIN" "$MUD_DIR/build_sqlite/small" ""
-    [ -n "$YAML_BIN" ] && [ -d "$MUD_DIR/build_yaml/small" ] && run_test "Small_YAML_checksums" "$YAML_BIN" "$MUD_DIR/build_yaml/small" "-W"
-    [ -n "$YAML_BIN" ] && [ -d "$MUD_DIR/build_yaml/small" ] && run_test "Small_YAML_no_checksums" "$YAML_BIN" "$MUD_DIR/build_yaml/small" ""
+    [ -x "$LEGACY_BIN" ] && run_test "Small_Legacy_checksums" "$LEGACY_BIN" "$MUD_DIR/build_test/small" "-W"
+    [ -x "$LEGACY_BIN" ] && run_test "Small_Legacy_no_checksums" "$LEGACY_BIN" "$MUD_DIR/build_test/small" ""
+    [ -x "$SQLITE_BIN" ] && run_test "Small_SQLite_checksums" "$SQLITE_BIN" "$MUD_DIR/build_sqlite/small" "-W"
+    [ -x "$SQLITE_BIN" ] && run_test "Small_SQLite_no_checksums" "$SQLITE_BIN" "$MUD_DIR/build_sqlite/small" ""
+    [ -x "$YAML_BIN" ] && [ -d "$MUD_DIR/build_yaml/small" ] && run_test "Small_YAML_checksums" "$YAML_BIN" "$MUD_DIR/build_yaml/small" "-W"
+    [ -x "$YAML_BIN" ] && [ -d "$MUD_DIR/build_yaml/small" ] && run_test "Small_YAML_no_checksums" "$YAML_BIN" "$MUD_DIR/build_yaml/small" ""
 
-    # Admin API CRUD Tests (only for checksums variant to avoid duplication)
+    # YAML round-trip on the small world (resave -> re-boot -> capture cs3).
+    echo ""
+    echo "=== SMALL WORLD - YAML ROUND-TRIP ==="
+    echo ""
+    [ -x "$YAML_BIN" ] && [ -d "$MUD_DIR/build_yaml/small" ] && run_roundtrip_test "Small_YAML_RoundTrip" "$YAML_BIN" "$MUD_DIR/build_yaml/small"
+
+    # Admin API CRUD Tests last -- they recreate the world from scratch and
+    # mutate it, so anything order-sensitive has to run before this stage.
     echo ""
     echo "=== SMALL WORLD - ADMIN API TESTS ==="
     echo ""
-    [ -n "$LEGACY_BIN" ] && run_admin_api_test "Small_Legacy_AdminAPI" "$LEGACY_BIN" "$MUD_DIR/build_test/small" "legacy"
-    [ -n "$SQLITE_BIN" ] && run_admin_api_test "Small_SQLite_AdminAPI" "$SQLITE_BIN" "$MUD_DIR/build_sqlite/small" "sqlite"
-    [ -n "$YAML_BIN" ] && [ -d "$MUD_DIR/build_yaml/small" ] && run_admin_api_test "Small_YAML_AdminAPI" "$YAML_BIN" "$MUD_DIR/build_yaml/small" "yaml"
+    [ -x "$LEGACY_BIN" ] && run_admin_api_test "Small_Legacy_AdminAPI" "$LEGACY_BIN" "$MUD_DIR/build_test/small" "legacy"
+    [ -x "$SQLITE_BIN" ] && run_admin_api_test "Small_SQLite_AdminAPI" "$SQLITE_BIN" "$MUD_DIR/build_sqlite/small" "sqlite"
+    [ -x "$YAML_BIN" ] && [ -d "$MUD_DIR/build_yaml/small" ] && run_admin_api_test "Small_YAML_AdminAPI" "$YAML_BIN" "$MUD_DIR/build_yaml/small" "yaml"
 fi
 
 # Full World Tests
 if [ -z "$FILTER_WORLD" ] || [ "$FILTER_WORLD" = "full" ]; then
     echo "=== FULL WORLD ==="
     echo ""
-    [ -n "$LEGACY_BIN" ] && run_test "Full_Legacy_checksums" "$LEGACY_BIN" "$MUD_DIR/build_test/full" "-W"
-    [ -n "$LEGACY_BIN" ] && run_test "Full_Legacy_no_checksums" "$LEGACY_BIN" "$MUD_DIR/build_test/full" ""
-    [ -n "$SQLITE_BIN" ] && run_test "Full_SQLite_checksums" "$SQLITE_BIN" "$MUD_DIR/build_sqlite/full" "-W"
-    [ -n "$SQLITE_BIN" ] && run_test "Full_SQLite_no_checksums" "$SQLITE_BIN" "$MUD_DIR/build_sqlite/full" ""
-    [ -n "$YAML_BIN" ] && [ -d "$MUD_DIR/build_yaml/full" ] && run_test "Full_YAML_checksums" "$YAML_BIN" "$MUD_DIR/build_yaml/full" "-W"
-    [ -n "$YAML_BIN" ] && [ -d "$MUD_DIR/build_yaml/full" ] && run_test "Full_YAML_no_checksums" "$YAML_BIN" "$MUD_DIR/build_yaml/full" ""
+    [ -x "$LEGACY_BIN" ] && run_test "Full_Legacy_checksums" "$LEGACY_BIN" "$MUD_DIR/build_test/full" "-W"
+    [ -x "$LEGACY_BIN" ] && run_test "Full_Legacy_no_checksums" "$LEGACY_BIN" "$MUD_DIR/build_test/full" ""
+    [ -x "$SQLITE_BIN" ] && run_test "Full_SQLite_checksums" "$SQLITE_BIN" "$MUD_DIR/build_sqlite/full" "-W"
+    [ -x "$SQLITE_BIN" ] && run_test "Full_SQLite_no_checksums" "$SQLITE_BIN" "$MUD_DIR/build_sqlite/full" ""
+    [ -x "$YAML_BIN" ] && [ -d "$MUD_DIR/build_yaml/full" ] && run_test "Full_YAML_checksums" "$YAML_BIN" "$MUD_DIR/build_yaml/full" "-W"
+    [ -x "$YAML_BIN" ] && [ -d "$MUD_DIR/build_yaml/full" ] && run_test "Full_YAML_no_checksums" "$YAML_BIN" "$MUD_DIR/build_yaml/full" ""
 
-    # Admin API CRUD Tests (only for checksums variant to avoid duplication)
+    # YAML round-trip: resave the YAML world via -S, reboot the re-emitted
+    # copy, capture cs3, and compare with cs2 in the CHECKSUM COMPARISON
+    # section. Runs after the regular YAML tests because it mutates the world
+    # in place; admin API tests below re-extract from the archive anyway.
+    echo ""
+    echo "=== FULL WORLD - YAML ROUND-TRIP ==="
+    echo ""
+    [ -x "$YAML_BIN" ] && [ -d "$MUD_DIR/build_yaml/full" ] && run_roundtrip_test "Full_YAML_RoundTrip" "$YAML_BIN" "$MUD_DIR/build_yaml/full"
+
+    # Admin API CRUD Tests last -- they recreate the world from scratch and
+    # mutate it (CRUD operations on running server), so anything order-sensitive
+    # has to run before this stage.
     echo ""
     echo "=== FULL WORLD - ADMIN API TESTS ==="
     echo ""
-    [ -n "$LEGACY_BIN" ] && run_admin_api_test "Full_Legacy_AdminAPI" "$LEGACY_BIN" "$MUD_DIR/build_test/full" "legacy"
-    [ -n "$SQLITE_BIN" ] && run_admin_api_test "Full_SQLite_AdminAPI" "$SQLITE_BIN" "$MUD_DIR/build_sqlite/full" "sqlite"
-    [ -n "$YAML_BIN" ] && [ -d "$MUD_DIR/build_yaml/full" ] && run_admin_api_test "Full_YAML_AdminAPI" "$YAML_BIN" "$MUD_DIR/build_yaml/full" "yaml"
+    [ -x "$LEGACY_BIN" ] && run_admin_api_test "Full_Legacy_AdminAPI" "$LEGACY_BIN" "$MUD_DIR/build_test/full" "legacy"
+    [ -x "$SQLITE_BIN" ] && run_admin_api_test "Full_SQLite_AdminAPI" "$SQLITE_BIN" "$MUD_DIR/build_sqlite/full" "sqlite"
+    [ -x "$YAML_BIN" ] && [ -d "$MUD_DIR/build_yaml/full" ] && run_admin_api_test "Full_YAML_AdminAPI" "$YAML_BIN" "$MUD_DIR/build_yaml/full" "yaml"
 fi
 
 # Compare checksums (only if checksums were calculated)
@@ -892,6 +994,9 @@ if [ -z "$FILTER_CHECKSUMS" ] || [ "$FILTER_CHECKSUMS" = "yes" ]; then
         if [ -z "$FILTER_LOADER" ] || [ "$FILTER_LOADER" = "sqlite" ] || [ "$FILTER_LOADER" = "yaml" ]; then
             compare_checksums "Small_SQLite_checksums" "Small_YAML_checksums"
         fi
+        if [ -z "$FILTER_LOADER" ] || [ "$FILTER_LOADER" = "yaml" ]; then
+            compare_checksums "Small_YAML_checksums" "Small_YAML_RoundTrip"
+        fi
         echo ""
     fi
 
@@ -905,6 +1010,9 @@ if [ -z "$FILTER_CHECKSUMS" ] || [ "$FILTER_CHECKSUMS" = "yes" ]; then
         fi
         if [ -z "$FILTER_LOADER" ] || [ "$FILTER_LOADER" = "sqlite" ] || [ "$FILTER_LOADER" = "yaml" ]; then
             compare_checksums "Full_SQLite_checksums" "Full_YAML_checksums"
+        fi
+        if [ -z "$FILTER_LOADER" ] || [ "$FILTER_LOADER" = "yaml" ]; then
+            compare_checksums "Full_YAML_checksums" "Full_YAML_RoundTrip"
         fi
         echo ""
     fi

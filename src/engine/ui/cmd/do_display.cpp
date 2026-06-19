@@ -7,6 +7,7 @@
 */
 
 #include "engine/entities/char_data.h"
+#include "administration/privilege.h"
 
 const char *DISPLAY_HELP = "Формат: статус { { Ж | Э | З | В | Д | У | О | Б | П | К } | все | нет }\r\n";
 
@@ -75,7 +76,7 @@ void do_display(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 	}
 
-	SendMsgToChar(OK, ch);
+	SendMsgToChar(CommonMsg(ECommonMsg::kOk) + "\r\n", ch);
 }
 
 void set_display_bits(CharData *ch, bool flag) {
@@ -89,7 +90,7 @@ void set_display_bits(CharData *ch, bool flag) {
 		ch->SetFlag(EPrf::kDispExp);
 		ch->SetFlag(EPrf::kDispFight);
 		ch->SetFlag(EPrf::kDispCooldowns);
-		if (!ch->IsImmortal()) {
+		if (!privilege::IsImmortal(ch)) {
 			ch->SetFlag(EPrf::kDispTimed);
 		}
 	} else {

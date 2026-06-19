@@ -3,6 +3,8 @@
 // Part of Bylins http://www.mud.ru
 
 #include "glory.h"
+#include "administration/privilege.h"
+#include "utils/grammar/declensions.h"
 
 #include "administration/karma.h"
 #include "engine/core/conf.h"
@@ -307,7 +309,7 @@ void add_glory(long uid, int amount) {
 	DescriptorData *d = DescriptorByUid(uid);
 	if (d)
 		SendMsgToChar(d->character.get(), "Вы заслужили %d %s славы.\r\n",
-					  amount, GetDeclensionInNumber(amount, EWhat::kPoint));
+					  amount, grammar::GetDeclensionInNumber(amount, grammar::EWhat::kPoint));
 }
 
 /**
@@ -708,7 +710,7 @@ void spend_glory_menu(CharData *ch) {
 
 	int diff = ch->desc->glory->olc_node->spend_glory - ch->desc->glory->olc_add_spend_glory;
 	if (diff > 0) {
-		out << "  Вы должны распределить вложенные ранее " << diff << " " << GetDeclensionInNumber(diff, EWhat::kPoint) << "\r\n";
+		out << "  Вы должны распределить вложенные ранее " << diff << " " << grammar::GetDeclensionInNumber(diff, grammar::EWhat::kPoint) << "\r\n";
 	} else if (ch->desc->glory->olc_add_spend_glory > ch->desc->glory->olc_node->spend_glory
 		|| ch->desc->glory->olc_str != ch->GetInbornStr()
 		|| ch->desc->glory->olc_dex != ch->GetInbornDex()
@@ -755,7 +757,7 @@ void print_glory(CharData *ch, GloryListType::iterator &it) {
 // * Команда 'слава' - вложение имеющейся у игрока славы в статы без участия иммов.
 void do_spend_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	auto it = glory_list.find(ch->get_uid());
-	if (it == glory_list.end() || ch->IsImmortal()) {
+	if (it == glory_list.end() || privilege::IsImmortal(ch)) {
 		SendMsgToChar("Вам это не нужно...\r\n", ch);
 		return;
 	}
@@ -951,7 +953,7 @@ bool remove_stats(CharData *ch, CharData *god, int amount) {
 				  "С %s снято %d %s вложенной ранее славы.\r\n",
 				  GET_PAD(ch, 1),
 				  removed,
-				  GetDeclensionInNumber(removed, EWhat::kPoint));
+				  grammar::GetDeclensionInNumber(removed, grammar::EWhat::kPoint));
 	// надо пересчитать хп на случай снятия с тела
 	check_max_hp(ch);
 	save_glory();
@@ -963,7 +965,7 @@ bool remove_stats(CharData *ch, CharData *god, int amount) {
 * что было у передающего (свободная слава плюсуется).
 */
 void transfer_stats(CharData *ch, CharData *god, const std::string& name, char *reason) {
-	if (ch->IsImmortal()) {
+	if (privilege::IsImmortal(ch)) {
 		SendMsgToChar(god, "Трансфер славы с бессмертных на других персонажей запрещен.\r\n");
 		return;
 	}
@@ -1001,7 +1003,7 @@ void transfer_stats(CharData *ch, CharData *god, const std::string& name, char *
 	}
 
 	// дальше у нас принимающий vict в любом случае
-	if (vict->IsImmortal()) {
+	if (privilege::IsImmortal(vict.get())) {
 		SendMsgToChar(god, "Трансфер славы на бессмертного - это глупо.\r\n");
 		return;
 	}

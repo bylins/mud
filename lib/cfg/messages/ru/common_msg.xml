@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<!--
+    issue.common-msg: shared one-off engine strings that were global const char* (config.cpp /
+    constants.cpp). kDefault sheaf, keyed by ECommonMsg. Stored WITHOUT a trailing \r\n (XML
+    attributes cannot hold newlines); the line messages get "\r\n" appended at the call site,
+    kNothing is an inline fragment (no newline).
+-->
+<msg_container>
+	<msg_sheaf id="kDefault">
+		<message type="kSilenced" val="Вы немы, как рыба об лед."/>
+		<message type="kSoundproof" val="Стены заглушили ваши слова."/>
+		<message type="kOk" val="Ладушки."/>
+		<message type="kNoPerson" val="Нет такого создания в этом мире."/>
+		<message type="kNothing" val="ничего"/>
+	</msg_sheaf>
+</msg_container>

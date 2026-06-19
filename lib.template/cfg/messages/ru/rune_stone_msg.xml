@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<!--
+    issue.runestones: TEST-WORLD runestone messages (lib.template override). The kDefault
+    sheaf mirrors the production file; the per-stone kName sheaves carry the test codewords
+    for the 9 zone-40 stones in the sibling rune_stones.xml override.
+-->
+<msg_container>
+	<msg_sheaf id="kDefault">
+		<message type="kAliases" val="рунный камень"/>
+		<name search="рунный камень">
+			<singular>
+				<case id="kNom" val="рунный камень"/>
+				<case id="kGen" val="рунного камня"/>
+				<case id="kDat" val="рунному камню"/>
+				<case id="kAcc" val="рунный камень"/>
+				<case id="kIns" val="рунным камнем"/>
+				<case id="kPre" val="рунном камне"/>
+			</singular>
+			<plural>
+				<case id="kNom" val="рунные камни"/>
+				<case id="kGen" val="рунных камней"/>
+				<case id="kDat" val="рунным камням"/>
+				<case id="kAcc" val="рунные камни"/>
+				<case id="kIns" val="рунными камнями"/>
+				<case id="kPre" val="рунных камнях"/>
+			</plural>
+		</name>
+		<message type="kRoomNormal" val="Рунный камень с изображением пентаграммы немного выступает из земли."/>
+		<message type="kRoomDamaged" val="Рунный камень с изображением пентаграммы немного выступает из земли... расколот."/>
+		<message type="kInspectNormal" val="На камне огненными рунами начертано слово '&amp;R{name}&amp;n'."/>
+		<message type="kInspectDamaged" val="Камень грубо расколот на несколько частей и прочитать надпись невозможно."/>
+		<message type="kLackSkillNormal" val="Здесь что-то написано огненными рунами, но вы еще недостаточно искусны в умении &amp;C{skill_name}&amp;n, чтобы разобрать слово."/>
+		<message type="kLackSkillDamaged" val="Камень расколот, и вы при всем желании не разберете, что на нем было написано."/>
+		<message type="kListEmpty" val="В настоящий момент вам неизвестны рунные камни."/>
+		<message type="kListHeader" val="Вам известны следующие рунные камни:"/>
+		<message type="kListCount" val="Сейчас вы помните {count} рунных камней."/>
+		<message type="kListLimit" val="Максимально возможно {limit}."/>
+		<message type="kMemorized" val="Вы осмотрели надпись и крепко запомнили начертанное огненными рунами слово '&amp;R{name}&amp;n'."/>
+		<message type="kForgotten" val="Вы полностью забыли, как выглядит рунный камень '&amp;R{name}&amp;n'."/>
+		<message type="kMemoryFull" val="В вашей памяти не осталось места для новых рунных камней. Сперва забудьте какой-нибудь."/>
+		<message type="kCantMemorize" val="Руны всё время странно искажаются и вам не удаётся их запомнить."/>
+		<message type="kCantForget" val="Чтобы забыть что-нибудь ненужное, следует сперва изучить что-нибудь ненужное..."/>
+	</msg_sheaf>
+	<msg_sheaf id="0"> <message type="kName" val="начало"/>    </msg_sheaf>
+	<msg_sheaf id="1"> <message type="kName" val="мочало"/>    </msg_sheaf>
+	<msg_sheaf id="2"> <message type="kName" val="торчало"/>   </msg_sheaf>
+	<msg_sheaf id="3"> <message type="kName" val="мычало"/>    </msg_sheaf>
+	<msg_sheaf id="4"> <message type="kName" val="бурчало"/>   </msg_sheaf>
+	<msg_sheaf id="5"> <message type="kName" val="рычало"/>    </msg_sheaf>
+	<msg_sheaf id="6"> <message type="kName" val="шкворчало"/> </msg_sheaf>
+	<msg_sheaf id="7"> <message type="kName" val="кончало"/>   </msg_sheaf>
+	<msg_sheaf id="8"> <message type="kName" val="фырчало"/>   </msg_sheaf>
+</msg_container>

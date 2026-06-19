@@ -7,6 +7,8 @@
 
 #include "currencies.h"
 
+#include <unordered_map>
+
 #include "engine/ui/color.h"
 #include "engine/db/global_objects.h"
 //#include "utils/parse.h"
@@ -24,6 +26,40 @@ void CurrenciesLoader::Reload(DataNode data) {
 	MUD::Currencies().Reload(data.Children());
 }
 
+// issue.thing-names: currency display names, keyed by text_id, loaded from currency_msg.xml.
+static std::unordered_map<std::string, CurrencyName> g_currency_names;
+
+static void LoadCurrencyNames(DataNode data) {
+	g_currency_names.clear();
+	for (auto &sheaf : data.Children("msg_sheaf")) {
+		const char *id = sheaf.GetValue("id");
+		if (!id || !*id) {
+			continue;
+		}
+		CurrencyName cn;
+		if (sheaf.GoToChild("name")) {
+			try {
+				cn.gender = parse::ReadAsConstant<EGender>(sheaf.GetValue("gender"));
+			} catch (std::exception &) {}
+			const char *search = sheaf.GetValue("search");
+			cn.search = (search && *search) ? search : id;
+			if (auto built = grammar::ItemName::Build(sheaf)) {
+				cn.cases = std::move(*built);
+			}
+			sheaf.GoToParent();
+		}
+		g_currency_names[id] = std::move(cn);
+	}
+}
+
+void CurrencyNamesLoader::Load(DataNode data) { LoadCurrencyNames(data); }
+void CurrencyNamesLoader::Reload(DataNode data) { LoadCurrencyNames(data); }
+
+const CurrencyName *FindCurrencyName(const std::string &text_id) {
+	const auto it = g_currency_names.find(text_id);
+	return it == g_currency_names.end() ? nullptr : &it->second;
+}
+
 ItemPtr CurrencyInfoBuilder::Build(DataNode &node) {
 	try {
 		return ParseCurrency(node);
@@ -37,13 +73,25 @@ ItemPtr CurrencyInfoBuilder::ParseCurrency(DataNode node) {
 	auto vnum = std::clamp(parse::ReadAsInt(node.GetValue("vnum")), 0, kMaxProtoNumber);
 	auto mode = SkillInfoBuilder::ParseItemMode(node, EItemMode::kEnabled);
 	std::string text_id{"kUndefined"};
-	std::string name{"undefined"};
 	try {
 		text_id = parse::ReadAsStr(node.GetValue("text_id"));
-		name = parse::ReadAsStr(node.GetValue("name"));
 	} catch (...) {}
 
+	// issue.thing-names: name (search string + gendered declensions) comes from currency_msg.xml.
+	std::string name{"undefined"};
+	EGender gender{EGender::kFemale};
+	auto names = std::make_unique<grammar::ItemName>();
+	if (const auto *cn = FindCurrencyName(text_id)) {
+		name = cn->search;
+		gender = cn->gender;
+		names = std::make_unique<grammar::ItemName>(cn->cases);
+	} else {
+		err_log("currency '%s' has no name in currency_msg.xml.", text_id.c_str());
+	}
+
 	auto currency_info = std::make_shared<CurrencyInfo>(vnum, text_id, name, mode);
+	currency_info->gender_ = gender;
+	currency_info->names_ = std::move(names);
 
 	if (node.GoToChild("flags")) {
 		try {
@@ -72,13 +120,6 @@ ItemPtr CurrencyInfoBuilder::ParseCurrency(DataNode node) {
 		node.GoToParent();
 	}
 
-	if (node.GoToChild("name")) {
-		try {
-			currency_info->gender_ = parse::ReadAsConstant<EGender>(node.GetValue("gender"));
-		} catch (std::exception &e) {}
-		currency_info->names_ = grammar::ItemName::Build(node);
-	}
-
 	return currency_info;
 }
 
@@ -99,34 +140,34 @@ void CurrencyInfo::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 		<< "\r\n";
 }
 
-const std::string &CurrencyInfo::GetName(ECase name_case) const {
+const std::string &CurrencyInfo::GetName(grammar::ECase name_case) const {
 	return names_->GetSingular(name_case);
 }
 
-const std::string &CurrencyInfo::GetPluralName(ECase name_case) const {
+const std::string &CurrencyInfo::GetPluralName(grammar::ECase name_case) const {
 	return names_->GetPlural(name_case);
 }
 
-const char *CurrencyInfo::GetCName(ECase name_case) const {
+const char *CurrencyInfo::GetCName(grammar::ECase name_case) const {
 	return names_->GetSingular(name_case).c_str();
 }
 
-const char *CurrencyInfo::GetPluralCName(ECase name_case) const {
+const char *CurrencyInfo::GetPluralCName(grammar::ECase name_case) const {
 	return names_->GetPlural(name_case).c_str();
 }
 
 const std::string &CurrencyInfo::GetNameWithAmount(long amount) const {
 	auto remainder = amount % 20;
 	if ((remainder >= 5 && remainder <= 19) || remainder == 0) {
-		return GetPluralName(ECase::kGen);
+		return GetPluralName(grammar::ECase::kGen);
 	} else if (remainder >= 2 && remainder <= 4) {
-		return GetPluralName(ECase::kAcc);
+		return GetPluralName(grammar::ECase::kAcc);
 	} else {
 		return GetName();
 	}
 }
 
-std::string CurrencyInfo::GetObjName(long amount, ECase gram_case) const {
+std::string CurrencyInfo::GetObjName(long amount, grammar::ECase gram_case) const {
 	const char *plural[6][3] =
 		{
 			{
@@ -138,44 +179,44 @@ std::string CurrencyInfo::GetObjName(long amount, ECase gram_case) const {
 				"ой", "е", "е"}
 		};
 
-	using Cases = std::unordered_map<ECase, std::string>;
+	using Cases = std::unordered_map<grammar::ECase, std::string>;
 	using Suffixes = std::unordered_map<EGender, Cases>;
 
 	static const Suffixes kNumeralSuffixes {
 		{EGender::kMale, {
-			{ECase::kNom, "ин"},
-			{ECase::kGen, "ного"},
-			{ECase::kDat, "ному"},
-			{ECase::kAcc, "нин"},
-			{ECase::kIns, "ним"},
-			{ECase::kPre, "ном"}
+			{grammar::ECase::kNom, "ин"},
+			{grammar::ECase::kGen, "ного"},
+			{grammar::ECase::kDat, "ному"},
+			{grammar::ECase::kAcc, "нин"},
+			{grammar::ECase::kIns, "ним"},
+			{grammar::ECase::kPre, "ном"}
 			}
 		},
 		{EGender::kFemale,{
-			{ECase::kNom, "на"},
-			{ECase::kGen, "ной"},
-			{ECase::kDat, "ной"},
-			{ECase::kAcc, "ну"},
-			{ECase::kIns, "ной"},
-			{ECase::kPre, "ной"}
+			{grammar::ECase::kNom, "на"},
+			{grammar::ECase::kGen, "ной"},
+			{grammar::ECase::kDat, "ной"},
+			{grammar::ECase::kAcc, "ну"},
+			{grammar::ECase::kIns, "ной"},
+			{grammar::ECase::kPre, "ной"}
 			}
 		},
 		{EGender::kNeutral, {
-			{ECase::kNom, "но"},
-			{ECase::kGen, "ного"},
-			{ECase::kDat, "ному"},
-			{ECase::kAcc, "но"},
-			{ECase::kIns, "ним"},
-			{ECase::kPre, "ном"}
+			{grammar::ECase::kNom, "но"},
+			{grammar::ECase::kGen, "ного"},
+			{grammar::ECase::kDat, "ному"},
+			{grammar::ECase::kAcc, "но"},
+			{grammar::ECase::kIns, "ним"},
+			{grammar::ECase::kPre, "ном"}
 			}
 		},
 		{EGender::kPoly, {
-			{ECase::kNom, "ни"},
-			{ECase::kGen, "них"},
-			{ECase::kDat, "ним"},
-			{ECase::kAcc, "ни"},
-			{ECase::kIns, "ними"},
-			{ECase::kPre, "них"}
+			{grammar::ECase::kNom, "ни"},
+			{grammar::ECase::kGen, "них"},
+			{grammar::ECase::kDat, "ним"},
+			{grammar::ECase::kAcc, "ни"},
+			{grammar::ECase::kIns, "ними"},
+			{grammar::ECase::kPre, "них"}
 			}
 		}
 	};
@@ -191,50 +232,50 @@ std::string CurrencyInfo::GetObjName(long amount, ECase gram_case) const {
 		out << "од" << kNumeralSuffixes.at(GetGender()).at(gram_case) << " " << GetName(gram_case);
 	} else if (amount <= 20) {
 		out << "малюсеньк" << plural[gram_case][0] << " горстк" << plural[gram_case][1]
-			<< " " << GetPluralName(ECase::kGen);
+			<< " " << GetPluralName(grammar::ECase::kGen);
 	} else if (amount <= 50) {
 		out << "маленьк" << plural[gram_case][0] << " горстк" << plural[gram_case][1]
-			<< " " << GetPluralName(ECase::kGen);
+			<< " " << GetPluralName(grammar::ECase::kGen);
 	} else if (amount <= 150) {
 		out << "небольш" << plural[gram_case][0] << " горстк" << plural[gram_case][1]
-			<< " " << GetPluralName(ECase::kGen);
+			<< " " << GetPluralName(grammar::ECase::kGen);
 	} else if (amount <= 300) {
 		out << "маленьк" << plural[gram_case][0] << " кучк" << plural[gram_case][1]
-			<< " " << GetPluralName(ECase::kGen);
+			<< " " << GetPluralName(grammar::ECase::kGen);
 	} else if (amount <= 1000) {
 		out << "небольш" << plural[gram_case][0] << " кучк" << plural[gram_case][1]
-			<< " " << GetPluralName(ECase::kGen);
+			<< " " << GetPluralName(grammar::ECase::kGen);
 	} else if (amount <= 5000) {
-		out << "кучк" << plural[gram_case][1] << " " << GetPluralName(ECase::kGen);
+		out << "кучк" << plural[gram_case][1] << " " << GetPluralName(grammar::ECase::kGen);
 	} else if (amount <= 20000) {
 		out << "больш" << plural[gram_case][0] << " кучк" << plural[gram_case][1]
-			<< " " << GetPluralName(ECase::kGen);
+			<< " " << GetPluralName(grammar::ECase::kGen);
 	} else if (amount <= 50000) {
 		out << "небольш" << plural[gram_case][0] << " горк" << plural[gram_case][1]
-			<< " " << GetPluralName(ECase::kGen);
+			<< " " << GetPluralName(grammar::ECase::kGen);
 	} else if (amount <= 75000) {
-		out << "горк" << plural[gram_case][1] << " " << GetPluralName(ECase::kGen);
+		out << "горк" << plural[gram_case][1] << " " << GetPluralName(grammar::ECase::kGen);
 	} else if (amount <= 100000) {
 		out << "больш" << plural[gram_case][0] << " горк" << plural[gram_case][1]
-			<< " " << GetPluralName(ECase::kGen);
+			<< " " << GetPluralName(grammar::ECase::kGen);
 	} else if (amount <= 150000) {
-		out << "груд" << plural[gram_case][2] << " " << GetPluralCName(ECase::kGen);
+		out << "груд" << plural[gram_case][2] << " " << GetPluralCName(grammar::ECase::kGen);
 	} else if (amount <= 250000) {
 		out << "больш" << plural[gram_case][0] << " груд" << plural[gram_case][2]
-			<< " " << GetPluralName(ECase::kGen);
+			<< " " << GetPluralName(grammar::ECase::kGen);
 	} else if (amount <= 500000) {
-		out << "гор" << plural[gram_case][1] << " " << GetPluralName(ECase::kGen);
+		out << "гор" << plural[gram_case][1] << " " << GetPluralName(grammar::ECase::kGen);
 	} else if (amount <= 1000000) {
 		out << "больш" << plural[gram_case][0] << " гор" << plural[gram_case][2]
-			<< " " << GetPluralName(ECase::kGen);
+			<< " " << GetPluralName(grammar::ECase::kGen);
 	} else  {
 		out << "огромн" << plural[gram_case][0] << " гор" << plural[gram_case][2]
-			<< " " << GetPluralName(ECase::kGen);
+			<< " " << GetPluralName(grammar::ECase::kGen);
 	}
 
 	return out.str();
 }
-const char *CurrencyInfo::GetObjCName(long amount, ECase gram_case) const {
+const char *CurrencyInfo::GetObjCName(long amount, grammar::ECase gram_case) const {
 	static char buf[128];
 	sprintf(buf, "%s", GetObjName(amount, gram_case).c_str());
 	return buf;

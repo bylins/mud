@@ -1,6 +1,8 @@
 #include "do_order.h"
+#include "administration/privilege.h"
 
 #include "engine/core/handler.h"
+#include "engine/core/target_resolver.h"
 
 // ****************** CHARM ORDERS PROCEDURES
 void do_order(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
@@ -23,13 +25,13 @@ void do_order(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 	if (!*name || !*message)
 		SendMsgToChar("Приказать что и кому?\r\n", ch);
-	else if (!(vict = get_char_vis(ch, name, EFind::kCharInRoom)) &&
+	else if (!(vict = target_resolver::FindCharInRoom(ch, name)) &&
 		!utils::IsAbbr(name, "followers") && !utils::IsAbbr(name, "все") && !utils::IsAbbr(name, "всем"))
 		SendMsgToChar("Вы не видите такого персонажа.\r\n", ch);
 	else if (ch == vict && !utils::IsAbbr(name, "все") && !utils::IsAbbr(name, "всем"))
 		SendMsgToChar("Вы начали слышать императивные голоса - срочно к психиатру!\r\n", ch);
 	else {
-		if (vict && !vict->IsNpc() && !ch->IsGod()) {
+		if (vict && !vict->IsNpc() && !privilege::IsGod(ch)) {
 			SendMsgToChar(ch, "Игрокам приказывать могут только Боги!\r\n");
 			return;
 		}
@@ -56,7 +58,7 @@ void do_order(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					act("$n безразлично смотрят по сторонам.", false, vict, 0, 0, kToRoom);
 				}
 			} else {
-				SendMsgToChar(OK, ch);
+				SendMsgToChar(CommonMsg(ECommonMsg::kOk) + "\r\n", ch);
 				if (vict->get_wait() <= 0) {
 					command_interpreter(vict, message);
 				} else if (vict->GetEnemy()) {
@@ -86,7 +88,7 @@ void do_order(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 
 			if (found) {
-				SendMsgToChar(OK, ch);
+				SendMsgToChar(CommonMsg(ECommonMsg::kOk) + "\r\n", ch);
 			} else {
 				SendMsgToChar("Вы страдаете манией величия!\r\n", ch);
 			}

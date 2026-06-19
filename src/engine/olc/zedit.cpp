@@ -15,6 +15,7 @@
 #include "engine/entities/room_data.h"
 #include "engine/db/help.h"
 #include "engine/entities/zone.h"
+#include "engine/db/global_objects.h"
 #include "utils/logger.h"
 #include "utils/utils.h"
 #include "engine/structs/structs.h"
@@ -29,7 +30,7 @@ extern CharData *mob_proto;
 extern IndexData *mob_index;
 extern char const *equipment_types[];
 extern char const *dirs[];
-extern struct ZoneCategory *zone_types;
+// (issue.ztypes-migrate) zone_types[] -> MUD::ZoneTypes(); see engine/entities/zone_types.h.
 //---------------------------------
 
 // * Function prototypes.
@@ -877,7 +878,6 @@ void zedit_disp_menu(DescriptorData *d) {
 			"%sS%s) Уровень зоны     : %s%d (качество ингридиентов)\r\n"
 			"%sY%s) Тип зоны         : %s%s\r\n"
 			"%sL%s) Время жизни      : %s%d minutes\r\n"
-			"%sP%s) Макс.комната     : %s%d\r\n"
 			"%sR%s) Тип очистки      : %s%s\r\n"
 			"%sI%s) Оч. никто не был : %s%s%s\r\n",
 			cyn,
@@ -912,15 +912,11 @@ void zedit_disp_menu(DescriptorData *d) {
 			grn,
 			nrm,
 			yel,
-			zone_types[OLC_ZONE(d)->type].name,
+			MUD::ZoneTypes()[OLC_ZONE(d)->type].GetName().c_str(),
 			grn,
 			nrm,
 			yel,
 			OLC_ZONE(d)->lifespan,
-			grn,
-			nrm,
-			yel,
-			OLC_ZONE(d)->top,
 			grn,
 			nrm,
 			yel,
@@ -987,14 +983,17 @@ void zedit_disp_menu(DescriptorData *d) {
 
 //MZ.load
 void zedit_disp_type_menu(DescriptorData *d) {
-	int counter, columns = 0;
+	int columns = 0;
 
 #if defined(CLEAR_SCREEN)
 	SendMsgToChar("[H[J", d->character);
 #endif
-	for (counter = 0; *zone_types[counter].name != '\n'; counter++) {
-		sprintf(buf, "%s%2d%s) %-20.20s %s", grn, counter, nrm,
-				zone_types[counter].name, !(++columns % 2) ? "\r\n" : "");
+	// (issue.ztypes-migrate) Iterate registry directly; ordering and contiguity
+	// of vnums is the configuration author's responsibility (the legacy ztypes.lst
+	// loader implicitly assumed 0..N-1 contiguous slots, the registry doesn't).
+	for (const auto &zone_type : MUD::ZoneTypes()) {
+		sprintf(buf, "%s%2d%s) %-20.20s %s", grn, zone_type.GetId(), nrm,
+				zone_type.GetName().c_str(), !(++columns % 2) ? "\r\n" : "");
 		SendMsgToChar(buf, d->character.get());
 	}
 	SendMsgToChar("\r\nВыберите тип зоны : ", d->character.get());
@@ -1497,17 +1496,6 @@ void zedit_parse(DescriptorData *d, char *arg) {
 				case 'V': SendMsgToChar(d->character.get(), "Укажите vnum основного входа в зону: ");
 					OLC_MODE(d) = ZEDIT_ZONE_ENTRANCE;
 					break;
-				case 'p':
-				case 'P':
-					// * Edit top of zone.
-					if (GetRealLevel(d->character) < kLvlImplementator)
-						zedit_disp_menu(d);
-					else {
-						SendMsgToChar("Введите новую старшую комнату зоны.\r\n"
-									 "Помните, она всегда должны быть равна НомерЗоны*100+99 : ", d->character.get());
-						OLC_MODE(d) = ZEDIT_ZONE_TOP;
-					}
-					break;
 				case 'l':
 				case 'L':
 					// * Edit zone lifespan.
@@ -1876,19 +1864,16 @@ void zedit_parse(DescriptorData *d, char *arg) {
 		case ZEDIT_ZONE_TYPE:
 			// * Parse and add new zone type and return to main menu.
 			pos = atoi(arg);
-			if (!is_number(arg) || (pos < 0))
+			if (!is_number(arg) || (pos < 0)) {
 				zedit_disp_type_menu(d);
-			else {
-				for (i = 0; *zone_types[i].name != '\n'; i++)
-					if (i == pos)
-						break;
-				if (*zone_types[i].name == '\n')
-					zedit_disp_type_menu(d);
-				else {
-					OLC_ZONE(d)->type = pos;
-					OLC_ZONE(d)->vnum = 1;
-					zedit_disp_menu(d);
-				}
+			} else if (!MUD::ZoneTypes().IsKnown(pos)) {
+				// (issue.ztypes-migrate) IsKnown(vnum) replaces the legacy
+				// "walk to sentinel" search; vnums may now be non-contiguous.
+				zedit_disp_type_menu(d);
+			} else {
+				OLC_ZONE(d)->type = pos;
+				OLC_ZONE(d)->vnum = 1;
+				zedit_disp_menu(d);
 			}
 			break;
 //-MZ.load
@@ -2110,5 +2095,7 @@ void zedit_parse(DescriptorData *d, char *arg) {
 }
 
 // * End of parse_zedit()
+
+#undef ZCMD
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

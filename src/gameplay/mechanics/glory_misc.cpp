@@ -3,6 +3,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "glory_misc.h"
+#include "administration/privilege.h"
 #include "glory.h"
 #include "glory_const.h"
 #include "gameplay/core/genchar.h"
@@ -11,6 +12,7 @@
 #include "engine/entities/char_player.h"
 #include "engine/ui/modify.h"
 #include "engine/db/global_objects.h"
+#include "gameplay/core/remort.h"
 
 namespace GloryMisc {
 
@@ -192,7 +194,7 @@ bool bad_start_stats(CharData *ch) {
 */
 int bad_real_stats(CharData *ch, int check) {
 	check -= kBaseStatsSum; // стартовые статы у всех по 95
-	check -= 6 * GetRealRemort(ch); // реморты
+	check -= 6 * remort::GetRealRemort(ch); // реморты
 	// влитая слава
 	check -= Glory::get_spend_glory(ch);
 	check -= GloryConst::main_stats_count(ch);
@@ -206,7 +208,7 @@ int bad_real_stats(CharData *ch, int check) {
 */
 bool check_stats(CharData *ch) {
 	// иммов травмировать не стоит
-	if (ch->IsImmortal()) {
+	if (privilege::IsImmortal(ch)) {
 		return 1;
 	}
 
@@ -219,12 +221,12 @@ bool check_stats(CharData *ch) {
 										 "Сила: %d, Ловкость: %d, Ум: %d, Мудрость: %d, Телосложение: %d, Обаяние: %d\r\n"
 										 "Просим вас заново распределить основные параметры персонажа.%s\r\n",
 				 kColorBoldGrn,
-				 ch->GetInbornStr() - GetRealRemort(ch),
-				 ch->GetInbornDex() - GetRealRemort(ch),
-				 ch->GetInbornInt() - GetRealRemort(ch),
-				 ch->GetInbornWis() - GetRealRemort(ch),
-				 ch->GetInbornCon() - GetRealRemort(ch),
-				 ch->GetInbornCha() - GetRealRemort(ch),
+				 ch->GetInbornStr() - remort::GetRealRemort(ch),
+				 ch->GetInbornDex() - remort::GetRealRemort(ch),
+				 ch->GetInbornInt() - remort::GetRealRemort(ch),
+				 ch->GetInbornWis() - remort::GetRealRemort(ch),
+				 ch->GetInbornCon() - remort::GetRealRemort(ch),
+				 ch->GetInbornCha() - remort::GetRealRemort(ch),
 				 kColorNrm);
 	iosystem::write_to_output(buf, ch->desc);
 
@@ -259,13 +261,13 @@ void recalculate_stats(CharData *ch) {
 	ch->set_wis(ch->get_start_stat(G_WIS));
 	ch->set_cha(ch->get_start_stat(G_CHA));
 	// морты
-	if (GetRealRemort(ch)) {
-		ch->inc_str(GetRealRemort(ch));
-		ch->inc_dex(GetRealRemort(ch));
-		ch->inc_con(GetRealRemort(ch));
-		ch->inc_wis(GetRealRemort(ch));
-		ch->inc_int(GetRealRemort(ch));
-		ch->inc_cha(GetRealRemort(ch));
+	if (remort::GetRealRemort(ch)) {
+		ch->inc_str(remort::GetRealRemort(ch));
+		ch->inc_dex(remort::GetRealRemort(ch));
+		ch->inc_con(remort::GetRealRemort(ch));
+		ch->inc_wis(remort::GetRealRemort(ch));
+		ch->inc_int(remort::GetRealRemort(ch));
+		ch->inc_cha(remort::GetRealRemort(ch));
 	}
 	// влитая слава
 	Glory::set_stats(ch);

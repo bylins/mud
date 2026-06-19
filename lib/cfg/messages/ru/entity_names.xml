@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<!--
+    issue.thing-names: shared display names for simple-name entity types that have no message
+    container of their own. One section per type; each <name id=".." val=".."/> is keyed by that
+    entity id token (mob class / ENpcRace token) or text_id (zone type). Loaded (entity_names)
+    BEFORE mob_classes, mob_races and zone_types. Mob classes keep their English admin name (eng)
+    in cfg/mob_classes.xml; only the player-facing Russian name lives here.
+-->
+<entity_names>
+	<mob_classes>
+		<name id="kUndefined" val="не.определён"/>
+		<name id="kBoss" val="босс"/>
+		<name id="kTrash" val="треш"/>
+		<name id="kTank" val="танк"/>
+		<name id="kMelleeDmg" val="физ.дамаг"/>
+		<name id="kArcher" val="лучник"/>
+		<name id="kRogue" val="разбойник"/>
+		<name id="kMageDmg" val="маг.дамаг"/>
+		<name id="kMageBuff" val="маг.ассист"/>
+		<name id="kHealer" val="хилер"/>
+	</mob_classes>
+	<mob_races>
+		<name id="kBasic" val="Обычный"/>
+		<name id="kHuman" val="Человек"/>
+		<name id="kBeastman" val="Зверолюд"/>
+		<name id="kBird" val="Птица"/>
+		<name id="kAnimal" val="Животное"/>
+		<name id="kReptile" val="Пресмыкающееся"/>
+		<name id="kFish" val="Рыба"/>
+		<name id="kInsect" val="Насекомое"/>
+		<name id="kPlant" val="Растение"/>
+		<name id="kConstruct" val="Предмет"/>
+		<name id="kZombie" val="Живой труп"/>
+		<name id="kGhost" val="Призрак"/>
+		<name id="kBoggart" val="Нечисть"/>
+		<name id="kSpirit" val="Нематериальный дух"/>
+		<name id="kMagicCreature" val="Магическое создание"/>
+	</mob_races>
+	<zone_types>
+		<name id="kNone" val="Ингридиентов нет"/>
+		<name id="kTown" val="Город"/>
+		<name id="kLightForest" val="Светлый лес"/>
+		<name id="kDarkForest" val="Темный лес"/>
+		<name id="kFields" val="Поля"/>
+		<name id="kMountains" val="Горы"/>
+		<name id="kRivers" val="Реки"/>
+		<name id="kHouse" val="Дом"/>
+		<name id="kNearHouse" val="Лужайка"/>
+		<name id="kHills" val="Холмы"/>
+		<name id="kCaves" val="Пещеры"/>
+		<name id="kLittleTown" val="Поселок"/>
+		<name id="kVillage" val="Деревня"/>
+		<name id="kTownEnvirons" val="Городские окрестности"/>
+		<name id="kWieldForest" val="Дикий лес"/>
+		<name id="kWieldSteppe" val="Дикая степь"/>
+		<name id="kSea" val="Океан"/>
+		<name id="kRuins" val="Руины"/>
+		<name id="kForestWay" val="Лесная тропа"/>
+		<name id="kSteppeWay" val="Степная дорога"/>
+		<name id="kMountainWay" val="Горная тропа"/>
+		<name id="kSwamp" val="Болото"/>
+		<name id="kDesert" val="Пустыня"/>
+		<name id="kCastle" val="Замок"/>
+		<name id="kNearCastle" val="Окрестности замка"/>
+	</zone_types>
+</entity_names>

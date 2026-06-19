@@ -3,6 +3,8 @@
 // Part of Bylins http://www.mud.ru
 
 #include "obj_data.h"
+#include "utils/grammar/declensions.h"
+#include "gameplay/mechanics/minions.h"
 
 #include "engine/db/obj_save.h"
 #include "engine/db/world_objects.h"
@@ -534,8 +536,8 @@ void ObjData::copy_name_from(const CObjectPrototype *src) {
 	set_description(!src->get_description().empty() ? src->get_description().c_str() : "неопределено");
 
 	//Копируем имя по падежам
-	for (i = ECase::kFirstCase; i <= ECase::kLastCase; i++) {
-		auto name_case = static_cast<ECase>(i);
+	for (i = grammar::ECase::kFirstCase; i <= grammar::ECase::kLastCase; i++) {
+		auto name_case = static_cast<grammar::ECase>(i);
 		set_PName(name_case, src->get_PName(name_case));
 	}
 }
@@ -692,7 +694,7 @@ void ObjData::dec_timer(int time, bool ignore_utimer, bool exchange) {
 		|| this->get_type() == EObjType::kWorm
 		|| this->get_type() == EObjType::kWeapon)) {
 		buffer << "У предмета [" << GET_OBJ_VNUM(this)
-			   << "] имя: " << this->get_PName(ECase::kNom).c_str() << ", id: " << get_id() << ", таймер > 100к равен: "
+			   << "] имя: " << this->get_PName(grammar::ECase::kNom).c_str() << ", id: " << get_id() << ", таймер > 100к равен: "
 			   << get_timer();
 		if (get_in_room() != kNowhere) {
 			buffer << ", находится в комнате vnum: " << world[get_in_room()]->vnum;
@@ -705,7 +707,7 @@ void ObjData::dec_timer(int time, bool ignore_utimer, bool exchange) {
 				   << "] в комнате: ["
 				   << world[get_worn_by()->in_room]->vnum << "]";
 		} else if (get_in_obj()) {
-			buffer << ", находится в сумке: " << get_in_obj()->get_PName(ECase::kNom) << " в комнате: ["
+			buffer << ", находится в сумке: " << get_in_obj()->get_PName(grammar::ECase::kNom) << " в комнате: ["
 				   << world[get_in_obj()->get_in_room()]->vnum << "]";
 		}
 		mudlog(buffer.str(), BRF, kLvlGod, SYSLOG, true);
@@ -759,10 +761,10 @@ void CObjectPrototype::set_extracted_list(bool _) {
 		m_in_extracted_list = _;
 }
 
-std::string CObjectPrototype::item_count_message(int num, ECase name_case) {
+std::string CObjectPrototype::item_count_message(int num, grammar::ECase name_case) {
 	if (num <= 0
-		|| name_case < ECase::kFirstCase
-		|| name_case > ECase::kLastCase
+		|| name_case < grammar::ECase::kFirstCase
+		|| name_case > grammar::ECase::kLastCase
 		|| get_PName(name_case).empty()) {
 		log("SYSERROR : num=%d, pad=%d, pname=%s (%s:%d)", num, name_case, get_PName(name_case).c_str(), __FILE__, __LINE__);
 
@@ -772,7 +774,7 @@ std::string CObjectPrototype::item_count_message(int num, ECase name_case) {
 	std::stringstream out;
 	out << get_PName(name_case);
 	if (num > 1) {
-		out << " (x " << num << " " << GetDeclensionInNumber(num, EWhat::kThingA) << ")";
+		out << " (x " << num << " " << grammar::GetDeclensionInNumber(num, grammar::EWhat::kThingA) << ")";
 	}
 	return out.str();
 }
@@ -1045,12 +1047,12 @@ ObjData *create_purse(CharData *ch, int/* gold*/) {
 	obj->set_aliases("тугой кошелек");
 	obj->set_short_description("тугой кошелек");
 	obj->set_description("Кем-то оброненный тугой кошелек лежит здесь.");
-	obj->set_PName(ECase::kNom, "тугой кошелек");
-	obj->set_PName(ECase::kGen, "тугого кошелька");
-	obj->set_PName(ECase::kDat, "тугому кошельку");
-	obj->set_PName(ECase::kAcc, "тугой кошелек");
-	obj->set_PName(ECase::kIns, "тугим кошельком");
-	obj->set_PName(ECase::kPre, "тугом кошельке");
+	obj->set_PName(grammar::ECase::kNom, "тугой кошелек");
+	obj->set_PName(grammar::ECase::kGen, "тугого кошелька");
+	obj->set_PName(grammar::ECase::kDat, "тугому кошельку");
+	obj->set_PName(grammar::ECase::kAcc, "тугой кошелек");
+	obj->set_PName(grammar::ECase::kIns, "тугим кошельком");
+	obj->set_PName(grammar::ECase::kPre, "тугом кошельке");
 
 	char buf_[kMaxInputLength];
 	snprintf(buf_, sizeof(buf_),
@@ -1058,7 +1060,7 @@ ObjData *create_purse(CharData *ch, int/* gold*/) {
 			 "Владелец: %s\r\n"
 			 "В случае потери просьба вернуть за вознаграждение.\r\n"
 			 "--------------------------------------------------\r\n", ch->get_name().c_str());
-	obj->set_ex_description(obj->get_PName(ECase::kNom).c_str(), buf_);
+	obj->set_ex_description(obj->get_PName(grammar::ECase::kNom).c_str(), buf_);
 
 	obj->set_type(EObjType::kContainer);
 	obj->set_wear_flags(to_underlying(EWearFlag::kTake));
@@ -1508,7 +1510,7 @@ bool is_norent_set(CharData *ch, ObjData *obj, bool clan_chest) {
 	// чармисы
 	if (!ch->followers.empty()) {
 		for (auto *k : ch->followers) {
-			if (!IS_CHARMICE(k)
+			if (!IsCharmice(k)
 				|| !k->has_master()) {
 				continue;
 			}

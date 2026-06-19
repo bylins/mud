@@ -1,9 +1,12 @@
 #include "turnundead.h"
+#include "gameplay/mechanics/minions.h"
+#include "skill_messages.h"
+#include "engine/db/global_objects.h"
 
 #include "gameplay/fight/pk.h"
 #include "gameplay/fight/fight_hit.h"
 #include "gameplay/fight/common.h"
-#include "engine/core/action_targeting.h"
+#include "engine/core/target_resolver.h"
 #include "gameplay/abilities/abilities_rollsystem.h"
 #include "engine/core/handler.h"
 #include "engine/ui/cmd/do_flee.h"
@@ -16,11 +19,11 @@
 void do_turn_undead(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 
 	if (!ch->GetSkill(ESkill::kTurnUndead)) {
-		SendMsgToChar("Вам это не по силам.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kTurnUndead, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
 	if (ch->HasCooldown(ESkill::kTurnUndead)) {
-		SendMsgToChar("Вам нужно набраться сил для применения этого навыка.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kTurnUndead, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	};
 
@@ -49,7 +52,7 @@ void do_turn_undead(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd
 	damage.element = EElement::kLight;
 	damage.flags.set(fight::kIgnoreFireShield);
 	abilities_roll::TechniqueRoll roll;
-	ActionTargeting::FoesRosterType roster{ch, [](CharData *, CharData *target) { return IS_UNDEAD(target); }};
+	target_resolver::FoesRosterType roster{ch, [](CharData *, CharData *target) { return target->IsFlagged(EMobFlag::kUndead); }};
 	for (const auto target: roster) {
 //		if (target->purged() || target->in_room == kNowhere)
 //			continue;
@@ -63,24 +66,24 @@ void do_turn_undead(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd
 				damage.dam = roll.CalcDamage();
 				victims_hp_amount -= damage.dam;
 			};
-		} else if (roll.IsCriticalFail() && !IS_CHARMICE(target)) {
+		} else if (roll.IsCriticalFail() && !IsCharmice(target)) {
 			act("&BВаши жалкие лучи света лишь привели $n3 в ярость!\r\n&n",
 				false, target, nullptr, ch, kToVict);
 			act("&BЧахлый луч света $N1 лишь привел $n3 в ярость!\r\n&n",
 				false, target, nullptr, ch, kToNotVict | kToArenaListen);
 			Affect<EApply> af1;
 			af1.type = ESpell::kCourage;
-			af1.duration = CalcDuration(target, 3, 0, 0, 0, 0);
+			af1.duration = CalcDuration(target, target, ESkill::kUndefined, 3, 0, 0, 0);
 			af1.modifier = std::max(1, roll.GetSuccessDegree() * 2);
 			af1.location = EApply::kDamroll;
-			af1.bitvector = to_underlying(EAffect::kNoFlee);
+			af1.affect_type = EAffect::kNoFlee;
 			af1.battleflag = 0;
 			Affect<EApply> af2;
 			af2.type = ESpell::kCourage;
-			af2.duration = CalcDuration(target, 3, 0, 0, 0, 0);
+			af2.duration = CalcDuration(target, target, ESkill::kUndefined, 3, 0, 0, 0);
 			af2.modifier = std::max(1, 25 + roll.GetSuccessDegree() * 5);
 			af2.location = EApply::kHpRegen;
-			af2.bitvector = to_underlying(EAffect::kNoFlee);
+			af2.affect_type = EAffect::kNoFlee;
 			af2.battleflag = 0;
 			ImposeAffect(target, af1, true, false, true, false);
 			ImposeAffect(target, af2, true, false, true, false);

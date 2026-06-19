@@ -7,6 +7,9 @@
 */
 
 #include "engine/entities/char_data.h"
+#include "administration/privilege.h"
+#include "utils/grammar/declensions.h"
+#include "gameplay/mechanics/mount.h"
 #include "engine/entities/obj_data.h"
 #include "engine/core/handler.h"
 #include "gameplay/skills/skills.h"
@@ -16,7 +19,10 @@
 #include "gameplay/fight/fight_hit.h"
 #include "do_get.h"
 #include "engine/core/utils_char_obj.inl"
+#include "engine/core/target_resolver.h"
 #include "gameplay/ai/spec_procs.h"
+#include "gameplay/mechanics/sight.h"
+#include "gameplay/fight/fight_stuff.h"
 
 void go_steal(CharData *ch, CharData *vict, char *obj_name) {
 	int percent, gold, eq_pos, ohoh = 0, success = 0, prob;
@@ -26,12 +32,12 @@ void go_steal(CharData *ch, CharData *vict, char *obj_name) {
 		return;
 	}
 
-	if (!ch->IsImmortal() && vict->GetEnemy()) {
+	if (!privilege::IsImmortal(ch) && vict->GetEnemy()) {
 		act("$N слишком быстро перемещается.", false, ch, nullptr, vict, kToChar);
 		return;
 	}
 
-	if (!ch->IsImmortal() && ROOM_FLAGGED(vict->in_room, ERoomFlag::kArena)) {
+	if (!privilege::IsImmortal(ch) && ROOM_FLAGGED(vict->in_room, ERoomFlag::kArena)) {
 		SendMsgToChar("Воровство при поединке недопустимо.\r\n", ch);
 		return;
 	}
@@ -39,15 +45,15 @@ void go_steal(CharData *ch, CharData *vict, char *obj_name) {
 	// 101% is a complete failure
 	percent = number(1, MUD::Skill(ESkill::kSteal).difficulty);
 
-	if (ch->IsImmortal() || (vict->GetPosition() <= EPosition::kSleep && !AFF_FLAGGED(vict, EAffect::kSleep)))
+	if (privilege::IsImmortal(ch) || (vict->GetPosition() <= EPosition::kSleep && !AFF_FLAGGED(vict, EAffect::kSleep)))
 		success = 1;    // ALWAYS SUCCESS, unless heavy object.
 
 	if (!AWAKE(vict))    // Easier to steal from sleeping people.
 		percent = MAX(percent - 50, 0);
 
 	// NO, NO With Imp's and Shopkeepers, and if player thieving is not allowed
-	if ((vict->IsImmortal() || GET_GOD_FLAG(vict, EGf::kGodsLike) || GET_MOB_SPEC(vict) == shop_ext)
-		&& !ch->IsImpl()) {
+	if ((privilege::IsImmortal(vict) || GET_GOD_FLAG(vict, EGf::kGodsLike) || specials::IsMobSpecial(GET_MOB_VNUM(vict), specials::ESpecial::kShop))
+		&& !privilege::IsImpl(ch)) {
 		SendMsgToChar("Вы постеснялись красть у такого хорошего человека.\r\n", ch);
 		return;
 	}
@@ -60,7 +66,7 @@ void go_steal(CharData *ch, CharData *vict, char *obj_name) {
 			for (eq_pos = 0; eq_pos < EEquipPos::kNumEquipPos; eq_pos++) {
 				if (GET_EQ(vict, eq_pos)
 					&& (isname(obj_name, GET_EQ(vict, eq_pos)->get_aliases()))
-					&& CAN_SEE_OBJ(ch, GET_EQ(vict, eq_pos))) {
+					&& sight::CanSeeObj(ch, GET_EQ(vict, eq_pos))) {
 					obj = GET_EQ(vict, eq_pos);
 					break;
 				}
@@ -103,7 +109,7 @@ void go_steal(CharData *ch, CharData *vict, char *obj_name) {
 
 			if (AFF_FLAGGED(ch, EAffect::kHide))
 				prob += 5;
-			if (!ch->IsImmortal() && AFF_FLAGGED(vict, EAffect::kSleep))
+			if (!privilege::IsImmortal(ch) && AFF_FLAGGED(vict, EAffect::kSleep))
 				prob = 0;
 			if (percent > prob && !success) {
 				ohoh = true;
@@ -129,7 +135,7 @@ void go_steal(CharData *ch, CharData *vict, char *obj_name) {
 					return;
 				}
 			}
-			if (CAN_SEE(vict, ch) && AWAKE(vict))
+			if (sight::CanSee(vict, ch) && AWAKE(vict))
 				ImproveSkill(ch, ESkill::kSteal, 0, vict);
 		}
 	} else        // Steal some coins
@@ -137,7 +143,7 @@ void go_steal(CharData *ch, CharData *vict, char *obj_name) {
 		prob = CalcCurrentSkill(ch, ESkill::kSteal, vict);
 		if (AFF_FLAGGED(ch, EAffect::kHide))
 			prob += 5;
-		if (!ch->IsImmortal() && AFF_FLAGGED(vict, EAffect::kSleep))
+		if (!privilege::IsImmortal(ch) && AFF_FLAGGED(vict, EAffect::kSleep))
 			prob = 0;
 		if (percent > prob && !success) {
 			ohoh = true;
@@ -167,7 +173,7 @@ void go_steal(CharData *ch, CharData *vict, char *obj_name) {
 				if (gold > 0) {
 					if (gold > 1) {
 						sprintf(buf, "УР-Р-Р-А! Вы таки сперли %d %s.\r\n",
-								gold, GetDeclensionInNumber(gold, EWhat::kMoneyU));
+								gold, grammar::GetDeclensionInNumber(gold, grammar::EWhat::kMoneyU));
 						SendMsgToChar(buf, ch);
 					} else {
 						SendMsgToChar("УРА-А-А ! Вы сперли :) 1 (одну) куну :(.\r\n", ch);
@@ -186,13 +192,13 @@ void go_steal(CharData *ch, CharData *vict, char *obj_name) {
 					SendMsgToChar("Вы ничего не сумели украсть...\r\n", ch);
 			}
 		}
-		if (CAN_SEE(vict, ch) && AWAKE(vict))
+		if (sight::CanSee(vict, ch) && AWAKE(vict))
 			ImproveSkill(ch, ESkill::kSteal, 0, vict);
 	}
-	if (!ch->IsImmortal() && ohoh)
-		SetWaitState(ch, 3 * kBattleRound);
+	if (!privilege::IsImmortal(ch) && ohoh)
+		SetBattleLag(ch, 3);
 	pk_thiefs_action(ch, vict);
-	if (ohoh && vict->IsNpc() && AWAKE(vict) && CAN_SEE(vict, ch) && MAY_ATTACK(vict))
+	if (ohoh && vict->IsNpc() && AWAKE(vict) && sight::CanSee(vict, ch) && MayAttack(vict))
 		hit(vict, ch, ESkill::kUndefined, fight::kMainHand);
 }
 
@@ -204,19 +210,20 @@ void do_steal(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Но вы не знаете как.\r\n", ch);
 		return;
 	}
-	if (!ch->IsImmortal() && ch->IsOnHorse()) {
+	if (!privilege::IsImmortal(ch) && mount::IsOnHorse(ch)) {
 		SendMsgToChar("Верхом это сделать затруднительно.\r\n", ch);
 		return;
 	}
 	two_arguments(argument, obj_name, vict_name);
-	if (!(vict = get_char_vis(ch, vict_name, EFind::kCharInRoom))) {
+	vict = target_resolver::FindCharInRoom(ch, vict_name);
+	if (!vict) {
 		SendMsgToChar("Украсть у кого?\r\n", ch);
 		return;
 	} else if (vict == ch) {
 		SendMsgToChar("Попробуйте набрать \"бросить <n> кун\".\r\n", ch);
 		return;
 	}
-	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kPeaceful) && !(ch->IsImmortal() || GET_GOD_FLAG(ch, EGf::kGodsLike))) {
+	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kPeaceful) && !(privilege::IsImmortal(ch) || GET_GOD_FLAG(ch, EGf::kGodsLike))) {
 		SendMsgToChar("Здесь слишком мирно. Вам не хочется нарушать сию благодать...\r\n", ch);
 		return;
 	}
@@ -226,7 +233,7 @@ void do_steal(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 	if (vict->IsNpc() && (vict->IsFlagged(EMobFlag::kNoFight) || AFF_FLAGGED(vict, EAffect::kGodsShield)
 		|| vict->IsFlagged(EMobFlag::kProtect))
-		&& !(ch->IsImmortal() || GET_GOD_FLAG(ch, EGf::kGodsLike))) {
+		&& !(privilege::IsImmortal(ch) || GET_GOD_FLAG(ch, EGf::kGodsLike))) {
 		SendMsgToChar("А ежели поймают? Посодют ведь!\r\nПодумав так, вы отказались от сего намеренья.\r\n", ch);
 		return;
 	}

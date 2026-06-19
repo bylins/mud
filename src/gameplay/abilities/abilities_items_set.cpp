@@ -1,7 +1,6 @@
 #include "abilities_items_set.h"
 
 #include "engine/entities/obj_data.h"
-#include "utils/utils.h"
 
 // TODO: Добавить учет типов ударов (уколол и проч).
 bool TechniqueItem::operator==(const ObjData *item) const {

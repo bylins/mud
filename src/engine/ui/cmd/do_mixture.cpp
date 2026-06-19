@@ -1,4 +1,5 @@
 #include "do_mixture.h"
+#include "gameplay/mechanics/magic_item.h"
 
 #include <string>
 
@@ -14,7 +15,7 @@
 void do_mixture(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	if (ch->IsNpc())
 		return;
-	if (ch->IsImmortal() && !privilege::CheckFlag(ch, privilege::kUseSkills)) {
+	if (privilege::IsImmortal(ch) && !privilege::CheckFlag(ch, privilege::kUseSkills)) {
 		SendMsgToChar("Не положено...\r\n", ch);
 		return;
 	}
@@ -65,7 +66,7 @@ void do_mixture(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	if (((!IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kItemCast)
 		&& subcmd == SCMD_ITEMS)
 		|| (!IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kRunes)
-			&& subcmd == SCMD_RUNES)) && !ch->IsGod()) {
+			&& subcmd == SCMD_RUNES)) && !privilege::IsGod(ch)) {
 			if (subcmd == SCMD_RUNES)
 				SendMsgToChar("Что-то пошло не так...\r\n", ch);
 			else if (subcmd == SCMD_ITEMS)
@@ -102,7 +103,7 @@ void do_mixture(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		return;
 	}
 
-	if (tch != ch && !ch->IsImmortal() && MUD::Spell(spell_id).AllowTarget(kTarSelfOnly)) {
+	if (tch != ch && !privilege::IsImmortal(ch) && MUD::Spell(spell_id).AllowTarget(kTarSelfOnly)) {
 		SendMsgToChar("Вы можете колдовать это только на себя!\r\n", ch);
 		return;
 	}
@@ -122,7 +123,7 @@ void do_mixture(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 	if (CheckRecipeItems(ch, spell_id, subcmd == SCMD_ITEMS ? ESpellType::kItemCast : ESpellType::kRunes, true, tch)) {
 		if (!CalcCastSuccess(ch, tch, ESaving::kStability, spell_id)) {
-			SetWaitState(ch, kBattleRound);
+			SetBattleLag(ch, 1);
 			if (!tch || !SendSkillMessages(0, ch, tch, spell_id)) {
 				if (subcmd == SCMD_ITEMS)
 					SendMsgToChar("Вы неправильно смешали ингредиенты!\r\n", ch);
@@ -130,9 +131,9 @@ void do_mixture(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 					SendMsgToChar("Вы не смогли правильно истолковать значение рун!\r\n", ch);
 			}
 		} else {
-			if (CallMagic(ch, tch, tobj, world[ch->in_room], spell_id, GetRealLevel(ch)) >= 0) {
-				if (!(ch->IsImmortal() || ch->get_wait() > 0 ))
-					SetWaitState(ch, kBattleRound);
+			if (CallMagic(ch, tch, tobj, world[ch->in_room], spell_id, GetRealLevel(ch)) != ECastResult::kTargetDied) {
+				if (!(privilege::IsImmortal(ch) || ch->get_wait() > 0 ))
+					SetBattleLag(ch, 1);
 			}
 		}
 	}

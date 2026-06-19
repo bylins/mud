@@ -9,6 +9,8 @@
 #include <cstdio>
 #include <array>
 #include <functional>
+#include <map>
+#include <string>
 
 /*
 * Should the game automatically save people?  (i.e., save player data
@@ -189,6 +191,8 @@ class RuntimeConfiguration {
 	
 	void load_telemetry_configuration(const pugi::xml_node *root);
 	size_t yaml_threads() const { return m_yaml_threads; }
+	size_t thread_pools_workers() const { return m_thread_pools_workers; }
+
 
 #ifdef ENABLE_ADMIN_API
 	const auto &admin_socket_path() const { return m_admin_socket_path; }
@@ -216,6 +220,8 @@ class RuntimeConfiguration {
 	void load_statistics_configuration(const pugi::xml_node *root);
 	void load_telemetry_configuration_impl(const pugi::xml_node *root);
 	void load_world_loader_configuration(const pugi::xml_node *root);
+	void load_thread_pools_configuration(const pugi::xml_node *root);
+
 #ifdef ENABLE_ADMIN_API
 	void load_admin_api_configuration(const pugi::xml_node *root);
 #endif
@@ -244,7 +250,7 @@ class RuntimeConfiguration {
 	ETelemetryLogMode m_telemetry_log_mode;
 
 	size_t m_yaml_threads;
-
+	size_t m_thread_pools_workers;
 #ifdef ENABLE_ADMIN_API
 	std::string m_admin_socket_path{"admin_api.sock"};
 	bool m_admin_api_enabled{false};
@@ -257,9 +263,25 @@ extern RuntimeConfiguration runtime_config;
 
 int calc_loadroom(const CharData *ch, int bplace_mode = kBirthplaceUndefined);
 
-extern char const *OK;
-extern char const *NOPERSON;
-extern char const *NOEFFECT;
-extern const char *nothing_string;
+// issue.common-msg: shared one-off engine strings, moved into cfg/messages/ru/common_msg.xml. The enum
+// + accessor live here (config.h is widely included, so call sites need no extra include); the cfg
+// loader is in common_messages.h. Values are stored without a trailing \r\n -- line callers append it.
+enum class ECommonMsg {
+	kUndefined = 0,
+	kSilenced,     // was SIELENCE
+	kSoundproof,   // was SOUNDPROOF
+	kOk,           // was OK
+	kNoPerson,     // was NOPERSON
+	kNothing,      // was nothing_string (inline fragment; no newline)
+};
+
+[[nodiscard]] const std::string &CommonMsg(ECommonMsg id);
+
+template<>
+const std::string &NAME_BY_ITEM<ECommonMsg>(ECommonMsg item);
+template<>
+ECommonMsg ITEM_BY_NAME<ECommonMsg>(const std::string &name);
+template<>
+const std::map<ECommonMsg, std::string> &NAMES_OF<ECommonMsg>();
 
 #endif // __CONFIG_HPP__

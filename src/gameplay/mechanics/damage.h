@@ -36,13 +36,14 @@ struct SpellDmg {
 };
 
 /**
- * Для входа с необычного дамага без инита остальных полей (инится сразу номер messages):
- * Damage obj(SimpleDmg(TYPE_NUM), dam, FightSystem::UNDEF_DMG|PHYS_DMG|MAGE_DMG)
+ * Для входа с необычного (серверного) дамага без инита остальных полей: источник урона
+ * задаётся сразу как fight::EDamageSource (ловушка, кровотечение и т.п.):
+ * Damage obj(SimpleDmg(fight::EDamageSource::kSuffering), dam, fight::kUndefDmg)
  * obj.process(ch, victim);
  */
 struct SimpleDmg {
-  explicit SimpleDmg(int num) : msg_num(num) {};
-  int msg_num;
+  explicit SimpleDmg(fight::EDamageSource source) : damage_source(source) {};
+  fight::EDamageSource damage_source;
 };
 
 /**
@@ -76,7 +77,7 @@ class Damage {
   Damage(SimpleDmg obj, int in_dam, fight::DmgType in_dmg_type)
 	  : dam(in_dam),
 		dmg_type(in_dmg_type),
-		msg_num(obj.msg_num) {};
+		damage_source(obj.damage_source) {};
 
   int Process(CharData *ch, CharData *victim);
 
@@ -95,11 +96,9 @@ class Damage {
   // Применяется, если урон магический, но наносится не спеллом.
   // Если спеллом - стихия берется из самого спелла.
   EElement element{EElement::kUndefined};
-  // см. описание в HitData, но здесь может быть -1
-  int hit_type{-1};
-  // номер сообщения об ударе из файла messages
-  // инится только начиная с вызова process
-  int msg_num{-1};
+  // Источник урона для выбора боевого сообщения: тип атаки оружием (kHit..kSting),
+  // либо серверный урон (ловушка/кровотечение). kUndefined - источник не задан.
+  fight::EDamageSource damage_source{fight::EDamageSource::kUndefined};
   // набор флагов из HitType
   std::bitset<fight::kHitFlagsNum> flags;
   // позиция атакующего на начало атаки (по дефолту будет = текущему положению)
@@ -108,6 +107,10 @@ class Damage {
   EPosition victim_start_pos{EPosition::kUndefined};
   // Оружие которым нанесли дамаг
   ObjData *wielded{nullptr};
+  // UID персонажа-"автора" этого урона для начисления убийства, когда прямого атакующего
+  // нет (урон нанесён сам себе: тик повреждающего аффекта и т.п.). Обычно это caster_id
+  // аффекта. 0 - автора нет; равен UID жертвы - урон самому себе, убийство не засчитывается.
+  long author_uid{0};
 
  private:
   // инит всех полей дефолтными значениями для конструкторов
@@ -121,7 +124,6 @@ class Damage {
   bool CalcDmgAbsorption(CharData *ch, CharData *victim);
   void ProcessDeath(CharData *ch, CharData *victim) const;
   void SendCritHitMsg(CharData *ch, CharData *victim);
-  void SendDmgMsg(CharData *ch, CharData *victim) const;
   void ProcessBlink(CharData *ch, CharData *victim);
 
   // обратный дамаг от огненного щита

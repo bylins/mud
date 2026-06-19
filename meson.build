@@ -80,6 +80,7 @@ if host_system == 'windows'
             '/source-charset:koi8-r',
             '/execution-charset:koi8-r',
             '/MP',
+            '/bigobj',
             '-DFMT_UNICODE=0',
             '/external:anglebrackets',
             '/external:W0'
@@ -166,12 +167,20 @@ if boost_opt != 'disabled'
     endif
 endif
 
-if get_option('nocrypt') or build_profile in ['dev', 'fasttest'] or host_system == 'darwin'
+has_crypt = false
+if get_option('nocrypt') or build_profile in ['dev', 'fasttest']
     project_args += '-DNOCRYPT'
 else
     libcrypt = cpp.find_library('crypt', required: false)
     if libcrypt.found()
         dependencies += libcrypt
+        has_crypt = true
+    elif cpp.has_function('crypt', prefix: '#include <unistd.h>')
+        message('crypt() found in system library, no libcrypt needed')
+        has_crypt = true
+    else
+        warning('crypt() not found, building without crypt support')
+        project_args += '-DNOCRYPT'
     endif
 endif
 
@@ -258,6 +267,16 @@ if otel_opt != 'disabled'
     endif
     project_args += '-DWITH_OTEL'
     dependencies += [otel_dep, dependency('libcurl', required: true, allow_fallback: false)]
+    # protobuf >= 22 splits utf8_range into a separate library; add it when present.
+    cxx = meson.get_compiler('cpp')
+    utf8_range_dep = cxx.find_library('utf8_range', required: false)
+    if utf8_range_dep.found()
+        dependencies += utf8_range_dep
+    endif
+    utf8_validity_dep = cxx.find_library('utf8_validity', required: false)
+    if utf8_validity_dep.found()
+        dependencies += utf8_validity_dep
+    endif
 endif
 
 has_epoll_opt = get_option('has_epoll')
@@ -339,6 +358,7 @@ compiler_id = '@0@ @1@ (@2@-@3@)'.format(
 version_cpp = custom_target('version_gen',
   input: 'src/version.cpp.in',
   output: 'version.cpp',
+  build_always_stale: true,
   command: [
     py3,
     files('tools/meson/generate_version.py'),
@@ -358,7 +378,7 @@ main_sources = files(
   'src/engine/core/heartbeat_commands.cpp',
   'src/gameplay/abilities/abilities_rollsystem.cpp',
   'src/administration/accounts.cpp',
-  'src/engine/core/action_targeting.cpp',
+  'src/engine/core/target_resolver.cpp',
   'src/engine/ui/cmd/do_sign.cpp',
   'src/engine/core/char_movement.cpp',
   'src/gameplay/communication/social.cpp',
@@ -367,6 +387,7 @@ main_sources = files(
   'src/gameplay/economics/auction.cpp',
   'src/utils/backtrace.cpp',
   'src/administration/ban.cpp',
+  'src/administration/privilege_db.cpp',
   'src/gameplay/mechanics/birthplaces.cpp',
   'src/gameplay/communication/boards/boards_changelog_loaders.cpp',
   'src/gameplay/communication/boards/boards_constants.cpp',
@@ -420,10 +441,13 @@ main_sources = files(
   'src/gameplay/statistics/dps.cpp',
   'src/engine/entities/entities_constants.cpp',
   'src/gameplay/economics/exchange.cpp',
-  'src/gameplay/economics/ext_money.cpp',
   'src/engine/core/external_trigger.cpp',
   'src/gameplay/abilities/feats.cpp',
+  'src/gameplay/fight/arena.cpp',
+  'src/gameplay/mechanics/alignment.cpp',
+  'src/gameplay/mechanics/condition.cpp',
   'src/gameplay/fight/fight.cpp',
+  'src/gameplay/fight/fight_messages.cpp',
   'src/gameplay/fight/fight_hit.cpp',
   'src/gameplay/fight/fight_penalties.cpp',
   'src/gameplay/fight/fight_stuff.cpp',
@@ -438,6 +462,7 @@ main_sources = files(
   'src/gameplay/clans/house.cpp',
   'src/gameplay/clans/house_exp.cpp',
   'src/gameplay/clans/ingr_chest_saver.cpp',
+  'src/gameplay/clans/chest_saver.cpp',
   'src/gameplay/communication/ignores.cpp',
   'src/gameplay/communication/ignores_loader.cpp',
   'src/gameplay/crafting/im.cpp',
@@ -454,6 +479,53 @@ main_sources = files(
   'src/gameplay/magic/magic_utils.cpp',
   'src/gameplay/magic/spells.cpp',
   'src/gameplay/magic/spells_info.cpp',
+  'src/gameplay/magic/spell_messages.cpp',
+  'src/gameplay/magic/spell_trace.cpp',
+  'src/gameplay/handlers/alter_bless.cpp',
+  'src/gameplay/handlers/alter_curse.cpp',
+  'src/gameplay/handlers/alter_invisible.cpp',
+  'src/gameplay/handlers/alter_poison.cpp',
+  'src/gameplay/handlers/alter_remove_curse.cpp',
+  'src/gameplay/handlers/alter_enchant_weapon.cpp',
+  'src/gameplay/handlers/alter_remove_poison.cpp',
+  'src/gameplay/handlers/alter_fly.cpp',
+  'src/gameplay/handlers/alter_acid.cpp',
+  'src/gameplay/handlers/alter_repair.cpp',
+  'src/gameplay/handlers/alter_timer_restore.cpp',
+  'src/gameplay/handlers/alter_restoration.cpp',
+  'src/gameplay/handlers/alter_light.cpp',
+  'src/gameplay/handlers/alter_darkness.cpp',
+  'src/gameplay/handlers/create_weapon.cpp',
+  'src/gameplay/handlers/create_armor.cpp',
+  'src/gameplay/handlers/summon_tutelar.cpp',
+  'src/gameplay/handlers/setup_keeper_stats.cpp',
+  'src/gameplay/handlers/setup_firekeeper_stats.cpp',
+  'src/gameplay/handlers/clone_cascade.cpp',
+  'src/gameplay/handlers/handle_thunderstorm_tick.cpp',
+  'src/gameplay/handlers/spell_create_water.cpp',
+  'src/gameplay/handlers/spell_recall.cpp',
+  'src/gameplay/handlers/spell_teleport.cpp',
+  'src/gameplay/handlers/spell_relocate.cpp',
+  'src/gameplay/handlers/spell_portal.cpp',
+  'src/gameplay/handlers/spell_summon.cpp',
+  'src/gameplay/handlers/spell_locate_object.cpp',
+  'src/gameplay/handlers/spell_charm.cpp',
+  'src/gameplay/handlers/spell_identify.cpp',
+  'src/gameplay/handlers/spell_full_identify.cpp',
+  'src/gameplay/handlers/spell_control_weather.cpp',
+  'src/gameplay/handlers/spell_fear.cpp',
+  'src/gameplay/handlers/spell_energydrain.cpp',
+  'src/gameplay/handlers/spell_holystrike.cpp',
+  'src/gameplay/handlers/spell_vampirism.cpp',
+  'src/gameplay/handlers/spell_mental_shadow.cpp',
+  'src/gameplay/core/remort.cpp',
+  'src/gameplay/mechanics/summon.cpp',
+  'src/gameplay/mechanics/portal.cpp',
+  'src/gameplay/mechanics/identify.cpp',
+  'src/gameplay/mechanics/magic_item.cpp',
+  'src/gameplay/mechanics/resist.cpp',
+  'src/gameplay/mechanics/saving.cpp',
+  'src/gameplay/magic/points_intensity.cpp',
   'src/gameplay/magic/magic_temp_spells.cpp',
   'src/gameplay/communication/mail.cpp',
   'src/engine/ui/mapsystem.cpp',
@@ -475,6 +547,9 @@ main_sources = files(
   'src/gameplay/mechanics/obj_sets_olc.cpp',
   'src/gameplay/magic/magic_objects.cpp',
   'src/engine/olc/oedit.cpp',
+  'src/engine/olc/vedun/vedun.cpp',
+  'src/engine/olc/vedun/enum_registry.cpp',
+  'src/engine/olc/vedun/scheme.cpp',
   'src/engine/olc/olc.cpp',
   'src/gameplay/communication/parcel.cpp',
   'src/utils/parse.cpp',
@@ -494,10 +569,15 @@ main_sources = files(
   'src/administration/shutdown_parameters.cpp',
   'src/gameplay/skills/skills.cpp',
   'src/gameplay/skills/skills_info.cpp',
+  'src/gameplay/skills/skill_messages.cpp',
+  'src/gameplay/abilities/feat_messages.cpp',
+  'src/gameplay/core/entity_names.cpp',
   'src/gameplay/communication/spam.cpp',
   'src/gameplay/ai/spec_assign.cpp',
   'src/gameplay/ai/spec_assign_reload.cpp',
   'src/gameplay/ai/spec_procs.cpp',
+  'src/gameplay/ai/special_messages.cpp',
+  'src/gameplay/ai/subcmd_resolver.cpp',
   'src/engine/network/descriptor_data.cpp',
   'src/gameplay/mechanics/stuff.cpp',
   'src/utils/id_converter.cpp',
@@ -505,6 +585,7 @@ main_sources = files(
   'src/gameplay/mechanics/title.cpp',
   'src/gameplay/statistics/top.cpp',
   'src/utils/utils.cpp',
+  'src/utils/utils_encoding.cpp',
   'src/gameplay/mechanics/weather.cpp',
   'src/engine/olc/zedit.cpp',
   'src/utils/utils_string.cpp',
@@ -517,9 +598,9 @@ main_sources = files(
   'src/gameplay/economics/shops_implementation.cpp',
   'src/engine/db/world_characters.cpp',
   'src/utils/utils_debug.cpp',
-  'src/engine/structs/radix_trie.cpp',
   'src/engine/structs/compact_trie.cpp',
   'src/engine/entities/zone.cpp',
+  'src/engine/entities/zone_types.cpp',
   'src/gameplay/mechanics/strengthening.cpp',
   'src/gameplay/skills/backstab.cpp',
   'src/gameplay/skills/bash.cpp',
@@ -541,10 +622,12 @@ main_sources = files(
   'src/gameplay/skills/expendientcut.cpp',
   'src/gameplay/skills/turnundead.cpp',
   'src/gameplay/skills/townportal.cpp',
+  'src/gameplay/mechanics/rune_stones.cpp',
   'src/gameplay/skills/manadrain.cpp',
   'src/gameplay/skills/warcry.cpp',
   'src/gameplay/skills/identify.cpp',
   'src/gameplay/skills/relocate.cpp',
+  'src/gameplay/mechanics/follow.cpp',
   'src/gameplay/mechanics/mount.cpp',
   'src/gameplay/fight/assist.cpp',
   'src/engine/ui/cmd/do_kill.cpp',
@@ -610,6 +693,8 @@ main_sources = files(
   'src/gameplay/crafting/fry.cpp',
   'src/engine/ui/cmd/do_refill.cpp',
   'src/gameplay/mechanics/guilds.cpp',
+  'src/gameplay/mechanics/guild_messages.cpp',
+  'src/gameplay/mechanics/rune_spells.cpp',
   'src/engine/ui/cmd/do_features.cpp',
   'src/engine/ui/cmd/do_spells.cpp',
   'src/engine/ui/cmd/do_skills.cpp',
@@ -617,6 +702,7 @@ main_sources = files(
   'src/gameplay/skills/spell_capable.cpp',
   'src/gameplay/skills/lightwalk.cpp',
   'src/gameplay/skills/death_rage.cpp',
+  'src/gameplay/skills/animal_master.cpp',
   'src/gameplay/skills/fit.cpp',
   'src/gameplay/abilities/talents_effects.cpp',
   'src/gameplay/abilities/feats_constants.cpp',
@@ -674,6 +760,8 @@ main_sources = files(
   'src/engine/ui/cmd_god/do_invisible.cpp',
   'src/engine/ui/cmd_god/do_set_all.cpp',
   'src/utils/grammar/cases.cpp',
+  'src/utils/grammar/declensions.cpp',
+  'src/utils/grammar/gender.cpp',
   'src/engine/core/iosystem.cpp',
   'src/gameplay/mechanics/groups.cpp',
   'src/gameplay/statistics/money_drop.cpp',
@@ -798,6 +886,11 @@ main_sources = files(
   'src/engine/observability/provider.cpp',
   'src/engine/observability/metrics.cpp',
   'src/engine/observability/helpers.cpp',
+  # Event sink (issue #2967 balance simulator): in-process event fanout +
+  # JSONL file writer. Always compiled -- damage.cpp / fight_hit.cpp call
+  # observability::HasAnyEventSink() unconditionally (NoOp in prod).
+  'src/engine/observability/event_sink.cpp',
+  'src/engine/observability/file_event_sink.cpp',
   # World Data Sources
   'src/engine/db/world_checksum.cpp',
   'src/engine/db/world_data_source_manager.cpp',
@@ -892,6 +985,24 @@ circle_ex = executable('circle',
     override_options: profile_target_opts
 )
 
+# Headless balance simulator (issue #2967). Reuses the engine via circle_dep
+# without the network layer. See src/simulator/README for the design.
+# Requires YAML: the simulator parses YAML scenarios, and the project is
+# migrating toward YAML world data anyway.
+if yaml_opt != 'disabled'
+    mud_sim_ex = executable('mud-sim',
+        files(
+            'src/simulator/character_builder.cpp',
+            'src/simulator/main.cpp',
+            'src/simulator/scenario_loader.cpp',
+            'src/simulator/scenario_runner.cpp',
+        ),
+        dependencies: [dependencies, circle_dep],
+        export_dynamic: true,
+        override_options: profile_target_opts
+    )
+endif
+
 summary({
     'Build Type':      buildtype,
     'Git Revision':    git_rev,
@@ -904,6 +1015,7 @@ summary({
     'Coverage':        get_option('b_coverage'),
     'ASan':            get_option('with_asan'),
     'Scripting':       get_option('scripting'),
+    'Crypt': has_crypt,
     'Admin API':       get_option('admin_api'),
     'Epoll':           epoll_enabled,
     'Linker':          linker_choice != '' ? linker_choice : 'default',

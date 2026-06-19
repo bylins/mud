@@ -11,21 +11,51 @@
 
 #include "engine/structs/structs.h"
 
+#include <set>
+
 class CharData;
 int exchange(CharData *ch, void *me, int cmd, char *argument);
 int horse_keeper(CharData *ch, void *me, int cmd, char *argument);
-int torc(CharData *ch, void *me, int cmd, char *argument);
 int mercenary(CharData *ch, void * /*me*/, int cmd, char *argument);
 int shop_ext(CharData *ch, void *me, int cmd, char *argument);
 bool is_post(RoomRnum room);
 bool is_rent(RoomRnum room);
 
-int receptionist(CharData *, void *, int, char *);
+int RentReceptionist(CharData *ch, void *me, int cmd, char *argument);
 int postmaster(CharData *, void *, int, char *);
 int bank(CharData *, void *, int, char *);
 int shop_ext(CharData *, void *, int, char *);
 int mercenary(CharData *, void *, int, char *);
 void npc_groupbattle(CharData *ch);
+
+namespace specials {
+// issue.specials: data-driven registry of "what special is this", mirroring the prototype func
+// pointer; the single source of truth for special-entity IDENTITY (replaces GET_MOB_SPEC == fn).
+enum class ESpecial {
+	kNone, kRent, kMail, kBank, kHorse, kExchange, kMercenary, kOutfit, kTorc, kPuff,
+	kShop, kGuild, kBoard, kDump,
+};
+void RegisterMob(int vnum, ESpecial s);
+void UnregisterMob(int vnum, ESpecial s);  // remove ONE special (vs RegisterMob(kNone) = erase all)
+void RegisterObj(int vnum, ESpecial s);
+void RegisterRoom(int vnum, ESpecial s);
+[[nodiscard]] const std::set<ESpecial> &MobSpecials(int vnum);  // a mob may have several specials
+[[nodiscard]] ESpecial ObjSpecial(int vnum);
+[[nodiscard]] bool IsMobSpecial(int vnum);
+[[nodiscard]] bool IsMobSpecial(int vnum, ESpecial s);
+[[nodiscard]] bool IsMobSpecialInRoom(RoomRnum room, ESpecial s);
+[[nodiscard]] bool SharesMobSpecial(int v1, int v2);  // do two mobs have any special in common
+// issue.utils-cleaning: service-keeper identity, registry-backed. Replaces the IS_*KEEPER macros
+// that compared mob_index[].func -- which is no longer set for mobs (all mob specials are
+// data-driven via cfg/specials.xml -> do_specproc), so those macros were dead/always-false.
+[[nodiscard]] bool IsShopkeeper(const CharData *ch);
+[[nodiscard]] bool IsPostkeeper(const CharData *ch);
+[[nodiscard]] bool IsBankkeeper(const CharData *ch);
+[[nodiscard]] bool IsRentkeeper(const CharData *ch);
+// Find the room carrier registered with `s` (honouring fnum) and run `line` through its handler;
+// if no carrier handles it, send the standard "wrong place" reply.
+void RunSpecCommand(CharData *ch, ESpecial s, char *line);
+} // namespace specials
 
 #endif //BYLINS_SRC_GAMEPLAY_AI_SPEC_PROCS_H_
 

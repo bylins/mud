@@ -1,0 +1,510 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<mob_races>
+  <mob_race id="kBasic">
+    <traits>
+      <respiration />
+    </traits>
+  </mob_race>
+  <mob_race id="kHuman">
+    <imlist>
+      <im type="201" name ="зубы">
+        <prob lvl="1" val="1" />
+        <prob lvl="11" val="2" />
+        <prob lvl="21" val="3" />
+        <prob lvl="26" val="4" />
+        <prob lvl="31" val="3" />
+        <prob lvl="36" val="2" />
+        <prob lvl="41" val="2" />
+        <prob lvl="46" val="4" />
+      </im>
+      <im type="203" name ="глаза">
+        <prob lvl="1" val="1" />
+        <prob lvl="11" val="1" />
+        <prob lvl="21" val="2" />
+        <prob lvl="26" val="3" />
+        <prob lvl="31" val="2" />
+        <prob lvl="36" val="2" />
+        <prob lvl="41" val="2" />
+        <prob lvl="46" val="3" />
+      </im>
+      <im type="205" name ="волосы">
+        <prob lvl="1" val="1" />
+        <prob lvl="11" val="4" />
+        <prob lvl="21" val="6" />
+        <prob lvl="26" val="17" />
+        <prob lvl="31" val="26" />
+        <prob lvl="36" val="25" />
+        <prob lvl="41" val="25" />
+        <prob lvl="46" val="17" />
+      </im>
+      <im type="206" name ="сердце">
+        <prob lvl="1" val="1" />
+        <prob lvl="11" val="3" />
+        <prob lvl="21" val="5" />
+        <prob lvl="26" val="6" />
+        <prob lvl="31" val="5" />
+        <prob lvl="36" val="4" />
+        <prob lvl="41" val="4" />
+        <prob lvl="46" val="6" />
+      </im>
+    </imlist>
+    <npc_flags val="kUsingMagicItems" />
+    <traits>
+      <vocal />
+      <respiration />
+    </traits>
+  </mob_race>
+  <mob_race id="kBeastman">
+    <imlist>
+      <im type="1" name="шерсть">
+        <prob lvl="1" val="1" />
+        <prob lvl="11" val="6" />
+        <prob lvl="21" val="11" />
+        <prob lvl="26" val="32" />
+        <prob lvl="31" val="41" />
+        <prob lvl="36" val="40" />
+        <prob lvl="41" val="40" />
+        <prob lvl="46" val="32" />
+      </im>
+      <im type="201" name ="зубы">
+        <prob lvl="1" val="1" />
+        <prob lvl="11" val="2" />
+        <prob lvl="21" val="3" />
+        <prob lvl="26" val="4" />
+        <prob lvl="31" val="3" />
+        <prob lvl="36" val="2" />
+        <prob lvl="41" val="2" />
+        <prob lvl="46" val="4" />
+      </im>
+      <im type="203" name ="глаза">
+        <prob lvl="1" val="1" />
+        <prob lvl="11" val="3" />
+        <prob lvl="21" val="5" />
+        <prob lvl="26" val="6" />
+        <prob lvl="31" val="5" />
+        <prob lvl="36" val="4" />
+        <prob lvl="41" val="4" />
+        <prob lvl="46" val="6" />
+      </im>
+      <im type="204" name ="печень">
+        <prob lvl="1" val="1" />
+        <prob lvl="11" val="2" />
+        <prob lvl="21" val="4" />
+        <prob lvl="26" val="5" />
+        <prob lvl="31" val="4" />
+        <prob lvl="36" val="3" />
+        <prob lvl="41" val="3" />
+        <prob lvl="46" val="5" />
+      </im>
+      <im type="205" name ="волосы">
+        <prob lvl="1" val="1" />
+        <prob lvl="11" val="6" />
+        <prob lvl="21" val="7" />
+        <prob lvl="26" val="19" />
+        <prob lvl="31" val="28" />
+        <prob lvl="36" val="27" />
+        <prob lvl="41" val="27" />
+        <prob lvl="46" val="19" />
+      </im>
+      <im type="206" name ="сердце">
+        <prob lvl="1" val="1" />
+        <prob lvl="11" val="3" />
+        <prob lvl="21" val="5" />
+        <prob lvl="26" val="6" />
+        <prob lvl="31" val="5" />
+        <prob lvl="36" val="4" />
+        <prob lvl="41" val="4" />
+        <prob lvl="46" val="6" />
+      </im>
+    </imlist>
+    <traits>
+      <respiration />
+      <skinnable />
+    </traits>
+  </mob_race>
+  <mob_race id="kBird">
+    <imlist>
+      <im type="202" name ="когти">
+        <prob lvl="1" val="1" />
+        <prob lvl="11" val="13" />
+        <prob lvl="21" val="18" />
+        <prob lvl="26" val="30" />
+        <prob lvl="31" val="40" />
+        <prob lvl="36" val="48" />
+        <prob lvl="41" val="48" />
+        <prob lvl="46" val="31" />
+      </im>
+      <im type="203" name ="глаза">
+        <prob lvl="1" val="1" />
+        <prob lvl="11" val="3" />
+        <prob lvl="21" val="5" />
+        <prob lvl="26" val="6" />
+        <prob lvl="31" val="5" />
+        <prob lvl="36" val="4" />
+        <prob lvl="41" val="4" />
+        <prob lvl="46" val="6" />
+      </im>
+      <im type="204" name ="печень">
+        <prob lvl="1" val="1" />
+        <prob lvl="11" val="2" />
+        <prob lvl="21" val="4" />
+        <prob lvl="26" val="5" />
+        <prob lvl="31" val="4" />
+        <prob lvl="36" val="3" />
+        <prob lvl="41" val="3" />
+        <prob lvl="46" val="5" />
+      </im>
+      <im type="206" name ="сердце">
+        <prob lvl="1" val="1" />
+        <prob lvl="11" val="3" />
+        <prob lvl="21" val="5" />
+        <prob lvl="26" val="6" />
+        <prob lvl="31" val="5" />
+        <prob lvl="36" val="4" />
+        <prob lvl="41" val="4" />
+        <prob lvl="46" val="6" />
+      </im>
+      <im type="208" name ="крылья">
+        <prob lvl="1" val="1" />
+        <prob lvl="11" val="14" />
+        <prob lvl="21" val="30" />
+        <prob lvl="26" val="61" />
+        <prob lvl="31" val="60" />
+        <prob lvl="36" val="59" />
+        <prob lvl="41" val="59" />
+        <prob lvl="46" val="41" />
+      </im>
+    </imlist>
+    <traits>
+      <respiration />
+      <skinnable />
+    </traits>
+  </mob_race>
+  <mob_race id="kAnimal">
+    <imlist>
+      <im type="1" name="шерсть">
+        <prob lvl="1" val="1" />
+        <prob lvl="11" val="14" />
+        <prob lvl="21" val="22" />
+        <prob lvl="26" val="43" />
+        <prob lvl="31" val="42" />
+        <prob lvl="36" val="41" />
+        <prob lvl="41" val="41" />
+        <prob lvl="46" val="33" />
+      </im>
+      <im type="201" name ="зубы">
+        <prob lvl="1" val="1" />
+        <prob lvl="11" val="3" />
+        <prob lvl="21" val="5" />
+        <prob lvl="26" val="6" />
+        <prob lvl="31" val="5" />
+        <prob lvl="36" val="4" />
+        <prob lvl="41" val="4" />
+        <prob lvl="46" val="6" />
+      </im>
+      <im type="203" name ="глаза">
+        <prob lvl="1" val="1" />
+        <prob lvl="11" val="2" />
+        <prob lvl="21" val="4" />
+        <prob lvl="26" val="5" />
+        <prob lvl="31" val="4" />
+        <prob lvl="36" val="3" />
+        <prob lvl="41" val="3" />
+        <prob lvl="46" val="5" />
+      </im>
+      <im type="204" name ="печень">
+        <prob lvl="1" val="1" />
+        <prob lvl="11" val="4" />
+        <prob lvl="21" val="5" />
+        <prob lvl="26" val="6" />
+        <prob lvl="31" val="6" />
+        <prob lvl="36" val="4" />
+        <prob lvl="41" val="4" />
+        <prob lvl="46" val="6" />
+      </im>
+      <im type="206" name ="сердце">
+        <prob lvl="1" val="1" />
+        <prob lvl="11" val="3" />
+        <prob lvl="21" val="5" />
+        <prob lvl="26" val="6" />
+        <prob lvl="31" val="5" />
+        <prob lvl="36" val="4" />
+        <prob lvl="41" val="4" />
+        <prob lvl="46" val="6" />
+      </im>
+    </imlist>
+    <traits>
+      <respiration />
+      <skinnable />
+    </traits>
+  </mob_race>
+  <mob_race id="kReptile">
+    <imlist>
+      <im type="201" name ="зубы">
+        <prob lvl="1" val="1" />
+        <prob lvl="11" val="3" />
+        <prob lvl="21" val="5" />
+        <prob lvl="26" val="6" />
+        <prob lvl="31" val="5" />
+        <prob lvl="36" val="4" />
+        <prob lvl="41" val="4" />
+        <prob lvl="46" val="6" />
+      </im>
+      <im type="203" name ="глаза">
+        <prob lvl="1" val="1" />
+        <prob lvl="11" val="2" />
+        <prob lvl="21" val="4" />
+        <prob lvl="26" val="5" />
+        <prob lvl="31" val="4" />
+        <prob lvl="36" val="3" />
+        <prob lvl="41" val="3" />
+        <prob lvl="46" val="5" />
+      </im>
+      <im type="204" name ="печень">
+        <prob lvl="1" val="1" />
+        <prob lvl="11" val="2" />
+        <prob lvl="21" val="4" />
+        <prob lvl="26" val="5" />
+        <prob lvl="31" val="4" />
+        <prob lvl="36" val="3" />
+        <prob lvl="41" val="3" />
+        <prob lvl="46" val="5" />
+      </im>
+      <im type="206" name ="сердце">
+        <prob lvl="1" val="1" />
+        <prob lvl="11" val="3" />
+        <prob lvl="21" val="5" />
+        <prob lvl="26" val="6" />
+        <prob lvl="31" val="5" />
+        <prob lvl="36" val="4" />
+        <prob lvl="41" val="4" />
+        <prob lvl="46" val="6" />
+      </im>
+      <im type="207" name ="чешуйка">
+        <prob lvl="1" val="1" />
+        <prob lvl="11" val="12" />
+        <prob lvl="21" val="31" />
+        <prob lvl="26" val="42" />
+        <prob lvl="31" val="41" />
+        <prob lvl="36" val="40" />
+        <prob lvl="41" val="40" />
+        <prob lvl="46" val="32" />
+      </im>
+    </imlist>
+    <traits>
+      <respiration />
+      <skinnable />
+    </traits>
+  </mob_race>
+  <mob_race id="kFish">
+    <imlist>
+      <im type="203" name ="глаза">
+        <prob lvl="1" val="1" />
+        <prob lvl="11" val="3" />
+        <prob lvl="21" val="5" />
+        <prob lvl="26" val="6" />
+        <prob lvl="31" val="5" />
+        <prob lvl="36" val="4" />
+        <prob lvl="41" val="4" />
+        <prob lvl="46" val="6" />
+      </im>
+      <im type="204" name ="печень">
+        <prob lvl="1" val="1" />
+        <prob lvl="11" val="2" />
+        <prob lvl="21" val="4" />
+        <prob lvl="26" val="5" />
+        <prob lvl="31" val="4" />
+        <prob lvl="36" val="3" />
+        <prob lvl="41" val="3" />
+        <prob lvl="46" val="5" />
+      </im>
+      <im type="206" name ="сердце">
+        <prob lvl="1" val="1" />
+        <prob lvl="11" val="3" />
+        <prob lvl="21" val="5" />
+        <prob lvl="26" val="6" />
+        <prob lvl="31" val="5" />
+        <prob lvl="36" val="4" />
+        <prob lvl="41" val="4" />
+        <prob lvl="46" val="6" />
+      </im>
+      <im type="207" name ="чешуйка">
+        <prob lvl="1" val="1" />
+        <prob lvl="11" val="7" />
+        <prob lvl="21" val="25" />
+        <prob lvl="26" val="31" />
+        <prob lvl="31" val="30" />
+        <prob lvl="36" val="49" />
+        <prob lvl="41" val="49" />
+        <prob lvl="46" val="31" />
+      </im>
+    </imlist>
+    <traits>
+      <skinnable />
+    </traits>
+  </mob_race>
+  <mob_race id="kInsect">
+    <traits>
+      <respiration />
+    </traits>
+  </mob_race>
+  <mob_race id="kPlant">
+  </mob_race>
+  <mob_race id="kConstruct">
+  </mob_race>
+  <mob_race id="kZombie">
+    <mob_flags val="kUndead" />
+    <imlist>
+      <im type="201" name ="зубы">
+        <prob lvl="1" val="1" />
+        <prob lvl="11" val="3" />
+        <prob lvl="21" val="5" />
+        <prob lvl="26" val="6" />
+        <prob lvl="31" val="5" />
+        <prob lvl="36" val="4" />
+        <prob lvl="41" val="4" />
+        <prob lvl="46" val="6" />
+      </im>
+      <im type="203" name ="глаза">
+        <prob lvl="1" val="1" />
+        <prob lvl="11" val="3" />
+        <prob lvl="21" val="4" />
+        <prob lvl="26" val="5" />
+        <prob lvl="31" val="4" />
+        <prob lvl="36" val="3" />
+        <prob lvl="41" val="3" />
+        <prob lvl="46" val="5" />
+      </im>
+    </imlist>
+    <traits>
+      <vocal />
+    </traits>
+  </mob_race>
+  <mob_race id="kGhost">
+    <mob_flags val="kUndead" />
+    <traits>
+      <vocal />
+    </traits>
+  </mob_race>
+  <mob_race id="kBoggart">
+    <imlist>
+      <im type="1" name="шерсть">
+        <prob lvl="1" val="1" />
+        <prob lvl="11" val="5" />
+        <prob lvl="21" val="15" />
+        <prob lvl="26" val="18" />
+        <prob lvl="31" val="15" />
+        <prob lvl="36" val="15" />
+        <prob lvl="41" val="15" />
+        <prob lvl="46" val="12" />
+      </im>
+      <im type="201" name ="зубы">
+        <prob lvl="1" val="1" />
+        <prob lvl="11" val="3" />
+        <prob lvl="21" val="5" />
+        <prob lvl="26" val="6" />
+        <prob lvl="31" val="5" />
+        <prob lvl="36" val="4" />
+        <prob lvl="41" val="4" />
+        <prob lvl="46" val="6" />
+      </im>
+      <im type="202" name ="когти">
+        <prob lvl="1" val="1" />
+        <prob lvl="11" val="7" />
+        <prob lvl="21" val="9" />
+        <prob lvl="26" val="20" />
+        <prob lvl="31" val="49" />
+        <prob lvl="36" val="48" />
+        <prob lvl="41" val="48" />
+        <prob lvl="46" val="24" />
+      </im>
+      <im type="203" name ="глаза">
+        <prob lvl="1" val="1" />
+        <prob lvl="11" val="3" />
+        <prob lvl="21" val="5" />
+        <prob lvl="26" val="6" />
+        <prob lvl="31" val="5" />
+        <prob lvl="36" val="4" />
+        <prob lvl="41" val="4" />
+        <prob lvl="46" val="6" />
+      </im>
+      <im type="204" name ="печень">
+        <prob lvl="1" val="1" />
+        <prob lvl="11" val="3" />
+        <prob lvl="21" val="4" />
+        <prob lvl="26" val="5" />
+        <prob lvl="31" val="4" />
+        <prob lvl="36" val="3" />
+        <prob lvl="41" val="3" />
+        <prob lvl="46" val="5" />
+      </im>
+      <im type="205" name ="волосы">
+        <prob lvl="1" val="1" />
+        <prob lvl="11" val="6" />
+        <prob lvl="21" val="8" />
+        <prob lvl="26" val="19" />
+        <prob lvl="31" val="28" />
+        <prob lvl="36" val="27" />
+        <prob lvl="41" val="27" />
+        <prob lvl="46" val="19" />
+      </im>
+      <im type="206" name ="сердце">
+        <prob lvl="1" val="1" />
+        <prob lvl="11" val="3" />
+        <prob lvl="21" val="5" />
+        <prob lvl="26" val="6" />
+        <prob lvl="31" val="5" />
+        <prob lvl="36" val="4" />
+        <prob lvl="41" val="4" />
+        <prob lvl="46" val="6" />
+      </im>
+      <im type="207" name ="чешуйка">
+        <prob lvl="1" val="1" />
+        <prob lvl="11" val="7" />
+        <prob lvl="21" val="15" />
+        <prob lvl="26" val="15" />
+        <prob lvl="31" val="17" />
+        <prob lvl="36" val="14" />
+        <prob lvl="41" val="14" />
+        <prob lvl="46" val="12" />
+      </im>
+    </imlist>
+    <traits>
+      <vocal />
+      <respiration />
+    </traits>
+  </mob_race>
+  <mob_race id="kSpirit">
+    <traits>
+      <vocal />
+      <respiration />
+    </traits>
+  </mob_race>
+  <mob_race id="kMagicCreature">
+    <imlist>
+      <im type="203" name ="глаза">
+        <prob lvl="1" val="1" />
+        <prob lvl="11" val="3" />
+        <prob lvl="21" val="5" />
+        <prob lvl="26" val="6" />
+        <prob lvl="31" val="5" />
+        <prob lvl="36" val="4" />
+        <prob lvl="41" val="4" />
+        <prob lvl="46" val="6" />
+      </im>
+      <im type="206" name ="сердце">
+        <prob lvl="1" val="1" />
+        <prob lvl="11" val="3" />
+        <prob lvl="21" val="5" />
+        <prob lvl="26" val="6" />
+        <prob lvl="31" val="5" />
+        <prob lvl="36" val="4" />
+        <prob lvl="41" val="4" />
+        <prob lvl="46" val="6" />
+      </im>
+    </imlist>
+    <traits>
+      <respiration />
+    </traits>
+  </mob_race>
+</mob_races>

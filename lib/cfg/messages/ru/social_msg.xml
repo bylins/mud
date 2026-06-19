@@ -1,0 +1,1228 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<!--
+    issue.socials: socials moved out of the legacy lib/misc/socials flat file into the messaging
+    system. vnum-keyed (like guilds); keywords = pipe-separated command synonyms; ch_*/vict_* are
+    EPosition gates; the six <message> slots are ESocialMsg. The &K..&n colour wrap is applied at
+    send time, so message text here is raw. The set of socials is per-locale (this is the ru set).
+-->
+<socials>
+	<social vnum="0" keywords="улыбнуться|улыбка" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы улыбнулись."/>
+		<message type="kOthersNoArg" val="Губы $n1 тронула улыбка."/>
+		<message type="kCharFound" val="Вы улыбнулись $N2."/>
+		<message type="kOthersFound" val="$n мило улыбнул$u $N2."/>
+		<message type="kVictFound" val="$n мило улыбнул$u вам."/>
+		<message type="kNotFound" val="Ваша улыбка пропала напрасно."/>
+	</social>
+	<social vnum="1" keywords="смайлик|:)" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val=":)))"/>
+		<message type="kOthersNoArg" val="Губы $n1 тронула улыбка."/>
+		<message type="kCharFound" val="Вы улыбнулись $N2."/>
+		<message type="kOthersFound" val="$n мило улыбнул$u $N2."/>
+		<message type="kVictFound" val="$n мило улыбнул$u вам."/>
+		<message type="kNotFound" val="Ваша улыбка пропала напрасно."/>
+	</social>
+	<social vnum="2" keywords="хихикать|хихиканье" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы захихикали."/>
+		<message type="kOthersNoArg" val="$n захихикал$g."/>
+		<message type="kCharFound" val="Вы посмотрели на $N3 и захихикали."/>
+		<message type="kOthersFound" val="$n посмотрел$g на $N3 и захихикал$g."/>
+		<message type="kVictFound" val="$n посмотрел$g на вас и захихикал$g."/>
+	</social>
+	<social vnum="3" keywords="визжать|визг" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы завизжали от восторга!"/>
+		<message type="kOthersNoArg" val="$n завизжал$g от восторга!"/>
+		<message type="kCharFound" val="Вы посмотрели на $N3 и взвизгнули от восторга!"/>
+		<message type="kOthersFound" val="$n визжит от восторга, глядя на $N1!"/>
+		<message type="kVictFound" val="$n смотрит на вас и взвизгивает от восторга!"/>
+	</social>
+	<social vnum="4" keywords="смеяться|смех" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы задорно рассмеялись."/>
+		<message type="kOthersNoArg" val="$n весело рассмеял$u."/>
+		<message type="kCharFound" val="$N вызвал$G у вас приступ заразительного смеха."/>
+		<message type="kOthersFound" val="$n указал$g на $N3 и задорно засмеял$u. Очень смешно..."/>
+		<message type="kVictFound" val="$n посмотрел$g на вас и разразил$u приступом смеха."/>
+		<message type="kNotFound" val="Посмейтесь над кем-нибудь другим."/>
+	</social>
+	<social vnum="5" keywords="шляпа" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы вежливо приподняли шляпу."/>
+		<message type="kOthersNoArg" val="$n вежливо приподнял$g свою шляпу."/>
+		<message type="kCharFound" val="Вы вежливо приподняли свою шляпу перед $N4."/>
+		<message type="kOthersFound" val="$n вежливо приподнял$g свою шляпу перед $N4."/>
+		<message type="kVictFound" val="$n вежливо приподнял$g свою шляпу перед вами."/>
+		<message type="kNotFound" val="На кого вы хотите произвести впечатление?"/>
+	</social>
+	<social vnum="6" keywords="танцевать|танец|пляс" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="С криком &quot;Эх, Семеновна&quot; вы пустились в пляс."/>
+		<message type="kOthersNoArg" val="$n пустил$u вприсядку, но $m, похоже, стоит взять пару уроков."/>
+		<message type="kCharFound" val="Вы пригласили $N3 в хоровод."/>
+		<message type="kOthersFound" val="$n взял$g за руку $N3 и они принялись водить хоровод. Не хотите присоединиться?"/>
+		<message type="kVictFound" val="&quot;Разрешите&quot; - сказал$g вам $n, и не дождавшись ответа, закружил$g вас в лихой пляске."/>
+		<message type="kNotFound" val="Вам придется подыскать другого партнера."/>
+	</social>
+	<social vnum="7" keywords="шутка|шутить|анекдот" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="А у вас вся спина белая!"/>
+		<message type="kOthersNoArg" val="$n принял$u подшучивать над всеми."/>
+		<message type="kCharFound" val="Вы решили проверить чувство юмора $N3."/>
+		<message type="kOthersFound" val="$n что-то шепнул$g $N2, от чего $E залил$U громким смехом."/>
+		<message type="kVictFound" val="$n рассказал$g вам анекдот. Ничего смешного. Правда?"/>
+		<message type="kNotFound" val="Шютник, да?"/>
+	</social>
+	<social vnum="8" keywords="плакать|плач|слезы|рыдать" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы залились слезами."/>
+		<message type="kOthersNoArg" val="$n разрыдал$u. Так и до потопа недалеко."/>
+		<message type="kCharFound" val="Вы низвергли поток слез на $N3. Вам стало легче."/>
+		<message type="kOthersFound" val="$n уткнул$u в жилетку $N1 и зарыдал$g."/>
+		<message type="kVictFound" val="$n разрыдал$u вам в жилетку. Вы вспомнили детство и мокрые пеленки."/>
+		<message type="kNotFound" val="Поищите кого-нибудь поближе для слезоизлияния."/>
+	</social>
+	<social vnum="9" keywords="жалоба|жаловаться|причитать" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы стали жаловаться богам на свою судьбу."/>
+		<message type="kOthersNoArg" val="&quot;Житие мое...&quot; - жалобно запричитал$g $n."/>
+		<message type="kCharFound" val="Вы начали жаловаться $N2 на свою тяжелую участь."/>
+		<message type="kOthersFound" val="$n жалобно запричитал$g, глядя на $N3."/>
+		<message type="kVictFound" val="&quot;И снимут с меня буйну голову...&quot; - запричитал$g $n, глядя на вас."/>
+		<message type="kNotFound" val="Ваши жалобы растворились в пустоте."/>
+	</social>
+	<social vnum="10" keywords="винить|обвинить|обвинять|вина" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы взяли всю вину на себя. С чего это вдруг?"/>
+		<message type="kOthersNoArg" val="$n упал$g на колени и начал$g вымаливать себе прощение."/>
+		<message type="kCharFound" val="&quot;Это ты во всем виноват$G!&quot; - завопили вы, указывая на $N3."/>
+		<message type="kOthersFound" val="&quot;Это из-за н$S вымерли мамонты.&quot; - заключил$g $n, указывая на $N3."/>
+		<message type="kVictFound" val="$n принял$u обвинять вас во всех смертных грехах. Да как он$g смеет?"/>
+		<message type="kNotFound" val="Помните - об отсутствующих либо хорошо, либо никак!"/>
+	</social>
+	<social vnum="11" keywords="хмуриться" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы нахмурили брови."/>
+		<message type="kOthersNoArg" val="&quot;А по башке?&quot; - вопросил$g $n и нахмурил$g брови."/>
+		<message type="kCharFound" val="Вы хмуро взглянули на $N3."/>
+		<message type="kOthersFound" val="&quot;Доколе я буду это терпеть?&quot; - хмуро спросил$g $n у $N1."/>
+		<message type="kVictFound" val="$n грозно нахмурил$g брови. А что $m не нравится?"/>
+		<message type="kNotFound" val="У вас и так морщин на лице много."/>
+	</social>
+	<social vnum="12" keywords="упрек" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы упрекнули себя."/>
+		<message type="kOthersNoArg" val="&quot;Ну я ступил$g.&quot; - упрекнул$g $n себя."/>
+		<message type="kCharFound" val="Вы упрекнули $N3 в глупости."/>
+		<message type="kOthersFound" val="$n ткнул$g $N2 перстом в нос и возопил$g: &quot;Ты что делаешь, падла?&quot;"/>
+		<message type="kVictFound" val="$n ткнул$g вам перстом в нос и возопил$g: &quot;Ты что делаешь, падла?&quot;"/>
+		<message type="kNotFound" val="А сами то хороши?"/>
+	</social>
+	<social vnum="13" keywords="гнев|гневаться" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы разгневанно обвели взглядом комнату."/>
+		<message type="kOthersNoArg" val="Похоже, $n разгневан$g не на шутку. Не пора ли убираться отсюда?"/>
+		<message type="kCharFound" val="Вы разгневанно высказали все, что думаете про $N3."/>
+		<message type="kOthersFound" val="&quot;Еще раз и живота лишу!..&quot; - гневно сказал$g $n $N2."/>
+		<message type="kVictFound" val="$n не на шутку разгневан$g на вас. Так и до ПКилла рукой подать."/>
+		<message type="kNotFound" val="Не гневайтесь попусту, это приводит к болезни печени."/>
+	</social>
+	<social vnum="14" keywords="радость|радоваться" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Ваша радость не знает предела."/>
+		<message type="kOthersNoArg" val="$n начал$g бросаться на шею ко всем подряд, пытаясь поделиться своей радостью."/>
+		<message type="kCharFound" val="Не скрывая своей радости, вы бросились на шею $N2."/>
+		<message type="kOthersFound" val="При виде $N1, $n обрадовал$u, как ребенок."/>
+		<message type="kVictFound" val="$n бросил$u к вам на шею, не скрывая радости."/>
+		<message type="kNotFound" val="Не расплескивайте свою радость попусту - ничего ведь не останется."/>
+	</social>
+	<social vnum="15" keywords="ласкать|приласкать" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы стали гладить себя. Странно..."/>
+		<message type="kOthersNoArg" val="$n начал$g рукоблудствовать. В таком нежном возрасте - и столько проблем :("/>
+		<message type="kCharFound" val="Вы нежно приласкали $N3."/>
+		<message type="kOthersFound" val="$n начал$g нежно ласкать $N3. Пора отвернуться!"/>
+		<message type="kVictFound" val="$n начал$g нежно поглаживать вас. С ума сойти..."/>
+		<message type="kNotFound" val="Приберегите свои ласки для любимого партнера."/>
+	</social>
+	<social vnum="16" keywords="флирт|ухаживать" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Это можно проделать только с партнером..."/>
+		<message type="kOthersNoArg" val="$n обвел$g взглядом комнату. &quot;Кого же я щас хочу?&quot; - читается в $s глазах."/>
+		<message type="kCharFound" val="Вы начали подбивать клинья к $N2. Интересно - чем $E ответит."/>
+		<message type="kOthersFound" val="&quot;А не завести ли нам семью?&quot; - спросил$g $n у $N1."/>
+		<message type="kVictFound" val="&quot;Пошли на сеновал...&quot; - не мудрствуя лукаво предложил$g вам $n."/>
+		<message type="kNotFound" val="Вам лучше найти живого партнера..."/>
+	</social>
+	<social vnum="17" keywords="думать|задуматься" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы крепко задумались о своей дальнейшей судьбе."/>
+		<message type="kOthersNoArg" val="$n подпер$q буйну головушку кулаком и начал$g думать думу тяжкую."/>
+		<message type="kCharFound" val="Вы задумались над дальнейшей судьбой $N1."/>
+		<message type="kOthersFound" val="&quot;Пить или пить? Вот в чем вопрос.&quot; - задумал$u $n глядя на $N3."/>
+		<message type="kVictFound" val="$n уставил$u на вас и задумал$u. &quot;А шестеренки не мешало бы смазать...&quot; - решили вы."/>
+		<message type="kNotFound" val="Даже и не думайте об этом - крыша не выдержит..."/>
+	</social>
+	<social vnum="18" keywords="мечтать" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Я Круче всех! Я, я... я всех победю!!!"/>
+		<message type="kOthersNoArg" val="$n начал$g мечтать о славе. Но это $m не по зубам."/>
+		<message type="kCharFound" val="Вы мечтательно уставились на $N3."/>
+		<message type="kOthersFound" val="$n мечтательно уставил$u на $N3. Ну у н$s и запросы!"/>
+		<message type="kVictFound" val="$n мечтательно уставил$u на вас. Будь $e немного краше - у н$s был бы шанс."/>
+		<message type="kNotFound" val="Спуститесь на землю - так и до ереси недалеко!!!"/>
+	</social>
+	<social vnum="19" keywords="указать" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы возомнили себя центром мироздания."/>
+		<message type="kOthersNoArg" val="$n стал$g похож$g на пуп Земли."/>
+		<message type="kCharFound" val="Вы решили сосредоточить внимание на $N5."/>
+		<message type="kOthersFound" val="$n кивнул$g в сторону $N1 : &quot;Со всеми вопросами к н$M.&quot;"/>
+		<message type="kVictFound" val="$n кивнул$g в вашу сторону. &quot;Бить будут?&quot; - мелькнула у вас мысль."/>
+		<message type="kNotFound" val="Так далеко вам не дотянуться."/>
+	</social>
+	<social vnum="20" keywords="ждать|ожидать" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="&quot;Ждемс-с-с...&quot; - смиренно решили вы."/>
+		<message type="kOthersNoArg" val="$n уставил$u на ближайшую гору и стал$g терпеливо ждать."/>
+		<message type="kCharFound" val="&quot;Пожалуй, лучшего гонца, чем $N, мне не найти&quot;, - решили вы."/>
+		<message type="kOthersFound" val="$n устроил$u поудобней и стал$g терпеливо ждать $N3."/>
+		<message type="kVictFound" val="&quot;Тебя за смертью только посылать...&quot;,- с упреком произнес$q $n."/>
+		<message type="kNotFound" val="Помните - промедление смерти подобно!"/>
+	</social>
+	<social vnum="21" keywords="торопить|спешить" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы начали торопливо собираться."/>
+		<message type="kOthersNoArg" val="$n начал$g торопливо засовывать вещи в походную сумку."/>
+		<message type="kCharFound" val="Вы поторопили $N3."/>
+		<message type="kOthersFound" val="$n пинками и затрещинами начал$g помогать $N2 в сборах."/>
+		<message type="kVictFound" val="&quot;Да шевелись ты поживее!&quot; - заорал$g на вас $n."/>
+		<message type="kNotFound" val="Спешка хороша при ловле блох!"/>
+	</social>
+	<social vnum="22" keywords="молитва|молиться" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы упали на колени и начали отбивать поклоны."/>
+		<message type="kOthersNoArg" val="$n упал$g на колени и загнусавил$g - &quot;Отче наш, иже еси...&quot;\r\nТут $e запнул$u и, сконфуженн$w, встал$g на ноги."/>
+		<message type="kCharFound" val="Вы упали на колени и затянули - &quot;$N наш$G, иже еси на Руси...&quot;"/>
+		<message type="kOthersFound" val="$n упал$g на колени и начал$g отбивать поклоны $N2."/>
+		<message type="kVictFound" val="&quot;$N, солнце наше ясное, вовек не забуду...&quot; - забормотал$g $n, упав перед вами на колени."/>
+		<message type="kNotFound" val="Креститься надо справа налево! Сколько вас можно учить!"/>
+	</social>
+	<social vnum="23" keywords="благодарить|кланяться" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы раскланялись в благодарности."/>
+		<message type="kOthersNoArg" val="&quot;Величайше благодарю&quot; - возвестил$g $n и раскланял$u."/>
+		<message type="kCharFound" val="Вы начали усиленно благодарить $N3."/>
+		<message type="kOthersFound" val="$n сердечно поблагодарил$g $N3 и поклонил$u $M в пояс."/>
+		<message type="kVictFound" val="&quot;По гроб буду обязан$g...&quot; - сказал$g вам $n и поклонил$u."/>
+		<message type="kNotFound" val="Оставьте свои благодарности Богам."/>
+	</social>
+	<social vnum="24" keywords="поклон" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы поклонились."/>
+		<message type="kOthersNoArg" val="$n глубоко поклонил$u перед всеми."/>
+		<message type="kCharFound" val="Вы склонили голову пред $N4."/>
+		<message type="kOthersFound" val="$n склонил$g голову пред $N4. Вас бы так уважали..."/>
+		<message type="kVictFound" val="$n склонил$g пред вами голову."/>
+		<message type="kNotFound" val="Осторожнее, так и лоб расшибить недолго."/>
+	</social>
+	<social vnum="25" keywords="скромно|краснеть|румянец" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы скромно потупили взор."/>
+		<message type="kOthersNoArg" val="Лицо $n1 залилось румянцем и $e скромно отош$y в сторону."/>
+		<message type="kCharFound" val="Вы посмотрели на $N1 и тут же покраснели."/>
+		<message type="kOthersFound" val="При взгляде на $N1 лицо $n1 залил румянец."/>
+		<message type="kVictFound" val="Стоило только $n2 посмотреть на вас, как тут же румянец залил $s лицо."/>
+		<message type="kNotFound" val="Вы не девушка на выданье, чтобы краснеть по каждому поводу."/>
+	</social>
+	<social vnum="26" keywords="хвастаться" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Скромность украшает человека!"/>
+		<message type="kOthersNoArg" val="&quot;А я в сто раз сильнее вас!&quot; - хвастливо заявил$g $n."/>
+		<message type="kCharFound" val="Вы прихвастнули перед $N4."/>
+		<message type="kOthersFound" val="$n начал$g хвастаться перед $N4 своими подвигами."/>
+		<message type="kVictFound" val="&quot;А я тут походя Горыныча завалил$g!&quot; - хвастливо заявил$g вам $n."/>
+		<message type="kNotFound" val="Ну что дохвастался? Вот и Горыныч пожаловал."/>
+	</social>
+	<social vnum="27" keywords="хвалить|молодец|умница" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Смири гордыню и покайся, дитя мое..."/>
+		<message type="kOthersNoArg" val="&quot;Ай да я, ай да умница!&quot; - заявил$g $n и козырем прошествовал$g по комнате."/>
+		<message type="kCharFound" val="Вы начали громко превозносить добродетели $N1."/>
+		<message type="kOthersFound" val="&quot;Эх, если бы не $N, Кащей бы о нас уже ноги вытирал!&quot; - авторитетно заявил$g $n."/>
+		<message type="kVictFound" val="$n затянул$g дифирамбы в вашу честь. Приятно, черт возьми..."/>
+		<message type="kNotFound" val="Не время и не место пустым похвальбам."/>
+	</social>
+	<social vnum="28" keywords="петь" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы возвысили свой ангельский голос. Что это все врассыпную бросились."/>
+		<message type="kOthersNoArg" val="&quot;Имел$g бы я златые горы...&quot; - затянул$g $n. Лучше бы $e имел$g голос... и слух."/>
+		<message type="kCharFound" val="Вы предложили $N2 спеть дуэтом."/>
+		<message type="kOthersFound" val="&quot;Вот кто-то с горочки спустился, наверно мил$w там идет!&quot;- затянул$g $n, подмигивая $N2."/>
+		<message type="kVictFound" val="$n предложил$g вам спеть дуэтом..."/>
+		<message type="kNotFound" val="Похоже, дуэта у вас не получится."/>
+	</social>
+	<social vnum="29" keywords="щекотать" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы пощекотали себя... а чем еще в свободное время заниматься?"/>
+		<message type="kOthersNoArg" val="&quot;Ничто так не веселит человека, как щекотка&quot;,- решили вы, глядя на $n3."/>
+		<message type="kCharFound" val="&quot;Ути-пути, моя лапусенька...&quot; - попытались вы пощекотать $N3."/>
+		<message type="kOthersFound" val="$n пощекотал$g $N3. Господи, $E же боится щекотки."/>
+		<message type="kVictFound" val="$n начал$g бесцеремонно щекотать вас. Экая наглость..."/>
+		<message type="kNotFound" val="Не время и не место, когда Родина в опасности."/>
+	</social>
+	<social vnum="30" keywords="пощечина" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Осторожней, это же ваше лицо."/>
+		<message type="kOthersNoArg" val="$n начал$g усиленно хлестать себя по щекам."/>
+		<message type="kCharFound" val="Вы залепили $N2 звонкую пощечину."/>
+		<message type="kOthersFound" val="&quot;Знай свое место, холоп!&quot; - воскликнул$g $n и залепил$g $N2 звонкую пощечину."/>
+		<message type="kVictFound" val="&quot;Вы есть изволили мою морковь!&quot; - заявил$g $n и залепил$g вам звонкую пощечину."/>
+		<message type="kNotFound" val="Кого вы хотите вызвать?"/>
+	</social>
+	<social vnum="31" keywords="шлепать" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы занялись самобичеванием."/>
+		<message type="kOthersNoArg" val="&quot;Шоб вы отсохли!&quot; - закричал$g $n и начал$g хлестать себя по ногам."/>
+		<message type="kCharFound" val="&quot;Надо, $N, надо&quot; - решили вы и занялись $S воспитанием."/>
+		<message type="kOthersFound" val="$n начал$g воспитательный сеанс $N1."/>
+		<message type="kVictFound" val="&quot;А почему без порток?&quot; - завопил$g $n и начал$g шлепать вас по заднице."/>
+		<message type="kNotFound" val="Тебе руки девать некуда?"/>
+	</social>
+	<social vnum="32" keywords="кусать" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="До локтя вам дотянуться не удалось."/>
+		<message type="kOthersNoArg" val="$n безрезультатно попытал$u укусить свой собственный локоть."/>
+		<message type="kCharFound" val="&quot;А не отужинать ли мне $N4?&quot; - подумали вы и приступили к еде."/>
+		<message type="kOthersFound" val="$n достал$g солонку, высыпал$g ее содержимое на $N3, и приступил$g к трапезе."/>
+		<message type="kVictFound" val="&quot;Под хреном цены бы тебе не было.&quot; - заявил$g $n, кусая вас."/>
+		<message type="kNotFound" val="Рятуйте, православные! Людоеды!"/>
+	</social>
+	<social vnum="33" keywords="лизнуть" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы последовали по стопам бездельничающего кота."/>
+		<message type="kOthersNoArg" val="$n начал$g вылизываться."/>
+		<message type="kCharFound" val="Вы неумело пытались вылизать $N3."/>
+		<message type="kOthersFound" val="&quot;Экая грязнуля!&quot; - промурлыкал$g $n и начал$g вылизывать $N3."/>
+		<message type="kVictFound" val="$n начал$g вас облизывать. Не подхватить бы от н$s какой заразы..."/>
+		<message type="kNotFound" val="Оставьте свои ласки для близких людей."/>
+	</social>
+	<social vnum="34" keywords="облизаться|облизнуться" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы облизнулись."/>
+		<message type="kOthersNoArg" val="У $n1 потекли слюнки и $e аппетитно облизнул$u."/>
+		<message type="kCharFound" val="Вы взлянули на $N3 и представили $S с горилкой да на вертеле."/>
+		<message type="kOthersFound" val="$n с аппетитом взглянул$a на $N3. Тоже мне... гурман."/>
+		<message type="kVictFound" val="$n решил$a отужинать вами."/>
+		<message type="kNotFound" val="Хватит демонстрировать всем ваши кулинарные пристрастия."/>
+	</social>
+	<social vnum="35" keywords="целовать" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы осыпали себя поцелуями."/>
+		<message type="kOthersNoArg" val="$n чуть не зацеловал$g себя до смерти. Какая самовлюбленность!"/>
+		<message type="kCharFound" val="Вы подарили $N2 страстный поцелуй."/>
+		<message type="kOthersFound" val="&quot;Любим$W, я ваш$g навеки...&quot; - прошептал$g $n и страстно поцеловал$g $N3."/>
+		<message type="kVictFound" val="$n сгреб$q вас в охапку и начал$g осыпать поцелуями."/>
+		<message type="kNotFound" val="Ваши ласки абсолютно неуместны."/>
+	</social>
+	<social vnum="36" keywords="затрещина|оплеуха" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="От такого удара вам оправиться нескоро."/>
+		<message type="kOthersNoArg" val="$n залепил$g себе увесистую затрещину."/>
+		<message type="kCharFound" val="Вы отвесили $N2 звонкую затрещину."/>
+		<message type="kOthersFound" val="&quot;Вот я тебе щас покажу!&quot; - заорал$g $n и закатил$g $N2 увесистую оплеуху."/>
+		<message type="kVictFound" val="&quot;Не бери того, что плохо лежит!&quot; - воскликнул$g $n и залепил$g вам смачную плюху."/>
+		<message type="kNotFound" val="Нападайте на других игроков на свой страх и риск."/>
+	</social>
+	<social vnum="37" keywords="вмазать" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы в кровь разбили себе физиономию."/>
+		<message type="kOthersNoArg" val="$n заехал$g себе кулаком в глаз."/>
+		<message type="kCharFound" val="&quot;Да я тебе все зубы выбью!&quot; - и вы заехали кулаком по физиономии $N1."/>
+		<message type="kOthersFound" val="&quot;Экий богатырь!&quot; - подумали вы, когда кулак $n1 выбил зубы $N1."/>
+		<message type="kVictFound" val="&quot;ОЙ КАК БОЛЬНО!&quot; - всплыла сквозь красную муть мысль, когда кулак $n1 раскрошил ваши передние зубы."/>
+		<message type="kNotFound" val="Похоже, у вас и вправду длинные руки."/>
+	</social>
+	<social vnum="38" keywords="кулак" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Хороший, большой..."/>
+		<message type="kOthersNoArg" val="$n начал$g потирать свой кулак в поисках цели."/>
+		<message type="kCharFound" val="Вы сунули кулак под нос $N2: &quot;Чем пахнет?&quot;"/>
+		<message type="kOthersFound" val="$n поднес$q кулак под нос $N2. Если не успокоятся, быть драке."/>
+		<message type="kVictFound" val="&quot;Пахнет тумаками.&quot; - решили вы, увидя кулак $n1 в опасной близи от своего лица."/>
+		<message type="kNotFound" val="А может решить все спокойно? Если грозить можно и нарваться."/>
+	</social>
+	<social vnum="39" keywords="плюнуть" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Тьфу..."/>
+		<message type="kOthersNoArg" val="$n начал$g брызгаться слюной..."/>
+		<message type="kCharFound" val="&quot;Тьфу на тебя еще раз...&quot; - сказали вы $N2 и претворили свои слова в дело."/>
+		<message type="kOthersFound" val="Меткий плевок $n1 достиг физиономии $N1 в мгновенье ока."/>
+		<message type="kVictFound" val="&quot;$n нарывается на грубости.&quot; - подумали вы, вытирая $s плевок с лица."/>
+		<message type="kNotFound" val="Да вам на ярмарке с этим номером выступать можно."/>
+	</social>
+	<social vnum="40" keywords="сплюнуть" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Что-то пол шибко чистый. Может еще раз плюнуть?"/>
+		<message type="kOthersNoArg" val="$n с досадой сплюнул$g на пол."/>
+		<message type="kCharFound" val="Вы плюнули на сапог $N2. &quot;Ну что ты на это скажешь?&quot;"/>
+		<message type="kOthersFound" val="$n зло сплюнул$g на сапог $N2."/>
+		<message type="kVictFound" val="$n плюнул$g вам на сапог! Да как $e смеет?!"/>
+		<message type="kNotFound" val="А до потолка доплюнуть слабо?"/>
+	</social>
+	<social vnum="41" keywords="хлопать|аплодисменты" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Браво! Бис!"/>
+		<message type="kOthersNoArg" val="$n разразил$u бурными аплодисментами, плавно перетекающими в овации."/>
+		<message type="kCharFound" val="&quot;Молодца! Молодца!&quot; - воскликнули вы и разразились аплодисментами в адрес $N1."/>
+		<message type="kOthersFound" val="$n разразил$u бурными аплодисментами в честь $N1."/>
+		<message type="kVictFound" val="$n по достоинству оценил$g вас, разразившись аплодисментами."/>
+		<message type="kNotFound" val="Не стоит делать этого в его отстутствие."/>
+	</social>
+	<social vnum="42" keywords="просить|молить|умолять" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы стали на колени, поставили перед собой шляпу и жалобно затянули Лазаря."/>
+		<message type="kOthersNoArg" val="$n стал$g на колени, положил$g перед собой драную шапку, и жалобно затянул$g Лазаря."/>
+		<message type="kCharFound" val="Вы стали упрашивать $N3 : &quot;Ну помоги, ну че те стоит...&quot;"/>
+		<message type="kOthersFound" val="$n стал$g на колени и жалобно затянул$g : &quot;Не откажи в милости своей...&quot;"/>
+		<message type="kVictFound" val="$n стал$g перед вами на колени и жалобно затянул$g : &quot;Христом-Богом прошу...&quot;"/>
+		<message type="kNotFound" val="Не унижайтесь понапрасну."/>
+	</social>
+	<social vnum="43" keywords="прощение|прости" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Простите, люди добрые, бес попутал."/>
+		<message type="kOthersNoArg" val="$n упал$g на колени и запричитал$g : &quot;Не виноват$w я...&quot;"/>
+		<message type="kCharFound" val="Вы начали униженно вымаливать прощения у $N1."/>
+		<message type="kOthersFound" val="$n упал$g в ноги $N1 и начал$g покаянно рвать на себе волосы."/>
+		<message type="kVictFound" val="&quot;Прости, друг...&quot;- пробормотал$g $n, виновато глядя в ваши глаза."/>
+		<message type="kNotFound" val="Прощение проси не у него."/>
+	</social>
+	<social vnum="44" keywords="чихать|чихнуть" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Ап-чхи!"/>
+		<message type="kOthersNoArg" val="$n громко чихает."/>
+		<message type="kCharFound" val="&quot;Да чихать мне на тебя!&quot; - решили вы и чихнули на $N3."/>
+		<message type="kOthersFound" val="$n чихает на $N3. Хорошо, что вы стояли в сторонке.."/>
+		<message type="kVictFound" val="$n чихает на вас."/>
+	</social>
+	<social vnum="45" keywords="здоровье|будьздоров" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы пожелали себе много-много хитов."/>
+		<message type="kOthersNoArg" val="&quot;Шоб я лопнул$g&quot; - пожелал$g себе $n."/>
+		<message type="kCharFound" val="Вы пожелали $N2 крепкого здоровья."/>
+		<message type="kOthersFound" val="&quot;Долгия лета...&quot; - затянул$g $n в адрес $N1."/>
+		<message type="kVictFound" val="&quot;Будь здоров, не кашляй...&quot;- пожелал$g вам $n."/>
+		<message type="kNotFound" val="Да с ним все и так в порядке."/>
+	</social>
+	<social vnum="46" keywords="кашлянуть" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы зашлись в приступе кашля."/>
+		<message type="kOthersNoArg" val="$n зашел$u в приступе ужасного кашля."/>
+		<message type="kCharFound" val="Вы порекомендовали $N2 курить поменьше."/>
+		<message type="kOthersFound" val="&quot;Лучше нету того свету&quot; - тактично успокоил$g $n $N1."/>
+		<message type="kVictFound" val="&quot;А вдруг заразный?&quot; - подумали вы, когда $n сильно кашлянул в вашу сторону."/>
+		<message type="kNotFound" val="И кого вы хотите заразить?"/>
+	</social>
+	<social vnum="47" keywords="сморкаться" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы громко прочистили свой нос."/>
+		<message type="kOthersNoArg" val="$n сноровисто зажал$g ноздрю пальцем и громко высморкал$u."/>
+		<message type="kCharFound" val="Вы высморкались в полу кафтана $N1."/>
+		<message type="kOthersFound" val="$n опорожнил$g свой нос прямо в полу кафтана $N1."/>
+		<message type="kVictFound" val="$n высморкал$u в полу вашего кафтана. Ну, знаете..."/>
+		<message type="kNotFound" val="Привыкайте пользоваться носовым платком."/>
+	</social>
+	<social vnum="48" keywords="курить|затянуться" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Забористый у вас самосад."/>
+		<message type="kOthersNoArg" val="$n скрутил$g козью ножку и с наслажденьем затянул$u."/>
+		<message type="kCharFound" val="Вы протянули кисет $N2 и предложили угоститься."/>
+		<message type="kOthersFound" val="$n стрельнул$g у $N1 чинарик."/>
+		<message type="kVictFound" val="&quot;А ты маво попробуй!&quot; - предложил$g вам $n, протягивая свой кисет."/>
+		<message type="kNotFound" val="Минздрав предупреждает - курение опасно для евонного здоровья."/>
+	</social>
+	<social vnum="49" keywords="бухать|тост" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Будьмо!"/>
+		<message type="kOthersNoArg" val="&quot;Мы собрались здесь для того чтобы выпить. Так выпьем же за то, ради чего мы здесь собрались!&quot; - провозгласил$g свой тост $n."/>
+		<message type="kCharFound" val="&quot;За здоровье?&quot; - то ли спросили, то ли предложили вы $N2."/>
+		<message type="kOthersFound" val="&quot;Чтоб не последний раз!&quot; - предложил$g $n тост за здоровье $N1."/>
+		<message type="kVictFound" val="&quot;Третьим бушь?&quot; - спросил$g $n, протягивая вам четверть с мутноватой жидкостью."/>
+		<message type="kNotFound" val="Так и спиться не долго..."/>
+	</social>
+	<social vnum="50" keywords="да|кивнуть|угу" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы утвердительно кивнули."/>
+		<message type="kOthersNoArg" val="$n согласно кивнул$g."/>
+		<message type="kCharFound" val="Вы утвердительно кивнули $N2."/>
+		<message type="kOthersFound" val="$n кивнул$g $N2."/>
+		<message type="kVictFound" val="$n утвердительно кивнул$g вам."/>
+		<message type="kNotFound" val="Кому вы хотите кивнуть?"/>
+	</social>
+	<social vnum="51" keywords="согласен|поддержать" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Согласен."/>
+		<message type="kOthersNoArg" val="&quot;Эт точно...&quot; - согласил$u $n."/>
+		<message type="kCharFound" val="Вы поддержали мнение $N1."/>
+		<message type="kOthersFound" val="&quot;Тонко подмечено...&quot; - поддержал$g $n $N3."/>
+		<message type="kVictFound" val="$n согласил$u с вашим предложением."/>
+		<message type="kNotFound" val="Кого вы собираетесь поддержать?"/>
+	</social>
+	<social vnum="52" keywords="привет|здорово" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="А вот и я!"/>
+		<message type="kOthersNoArg" val="&quot;Здорово!&quot; - приветственно помахал$g $n."/>
+		<message type="kCharFound" val="Вы поприветствовали $N3."/>
+		<message type="kOthersFound" val="&quot;Здраве буде, $N!&quot; - завопил$g $n."/>
+		<message type="kVictFound" val="&quot;Да продлят боги твои годы!&quot; - поприветствовал$g вас $n."/>
+		<message type="kNotFound" val="С кем это вы?"/>
+	</social>
+	<social vnum="53" keywords="нет|отрицать" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Нет уж, дудки..."/>
+		<message type="kOthersNoArg" val="$n отрицательно замотал$g головой."/>
+		<message type="kCharFound" val="Вы не согласны с $N4."/>
+		<message type="kOthersFound" val="$n взглянул на $N3 и отрицательно помотал$g головой."/>
+		<message type="kVictFound" val="&quot;Нет, нет и нет!&quot; - заявил$g вам $n."/>
+		<message type="kNotFound" val="С кем вы не согласны?"/>
+	</social>
+	<social vnum="54" keywords="кукиш|фига|дуля" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы попытались скрутить известную комбинацию из трех пальцев."/>
+		<message type="kOthersNoArg" val="$n начал$g демонстрировать размеры фиг, которые $m доводилось видеть."/>
+		<message type="kCharFound" val="Вы сунули под нос $N2 огромную дулю."/>
+		<message type="kOthersFound" val="&quot;Накося-ка выкуси-ка!&quot; - заорал$g $n и сунул$g под нос $N2 огромный кукиш."/>
+		<message type="kVictFound" val="$n предложил$g вам полакомиться $s дулей."/>
+		<message type="kNotFound" val="Что за детские замашки!"/>
+	</social>
+	<social vnum="55" keywords="послать" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Да пошли вы все..."/>
+		<message type="kOthersNoArg" val="$n предложил$g посетить ближайший хутор, где $e недавно видел$g огромных бабочек."/>
+		<message type="kCharFound" val="Вы предложили $N2 совершить трехдневный пеший переход."/>
+		<message type="kOthersFound" val="&quot;Иди ты на ...!&quot;- посоветовал$g $n $N2 и показал$g направление движения."/>
+		<message type="kVictFound" val="$n грубо послал$g вас. Да пош$y $e туда сам$g!"/>
+		<message type="kNotFound" val="Ну и словечки у вас!"/>
+	</social>
+	<social vnum="56" keywords="ругаться|мат" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы грязно выругались, смакуя каждое слово."/>
+		<message type="kOthersNoArg" val="&quot;%бЩДХНБЕФЕФХФЕУФШИПФШПДОПНБФЕТОПЕУМПЧПй&quot; - грязно выругал$u $n."/>
+		<message type="kCharFound" val="Вы обругали $N3. Будьте осторожны в выражениях!"/>
+		<message type="kOthersFound" val="&quot;Этот нехороший человек предаст нас при первой же опасности!&quot; - выпалил$g $n, указывая на $N3."/>
+		<message type="kVictFound" val="$n применил$g к вам интересные идиоматические выражения."/>
+		<message type="kNotFound" val="Где вы научились такой фене?!"/>
+	</social>
+	<social vnum="57" keywords="утешить" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Ничего страшного, в следующий раз обязательно получится."/>
+		<message type="kOthersNoArg" val="$n утешил$u. $m понравилось, и $e утешил$u еще раз."/>
+		<message type="kCharFound" val="&quot;А кому сейчас легко?&quot; - утешили вы $N3."/>
+		<message type="kOthersFound" val="$n ласково похлопал$g по плечу $N3, пытаясь утешить $S горе."/>
+		<message type="kVictFound" val="$n похлопал$g вас по плечу. Ничего, все пройдет, все образуется."/>
+		<message type="kNotFound" val="Не унывай, а кому это вы???"/>
+	</social>
+	<social vnum="58" keywords="язвить|подкалывать" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы начали объяснять окружающим их недостатки."/>
+		<message type="kOthersNoArg" val="&quot;Да, были люди в наше время, Богатыри - не вы.&quot; - язвительно заметил$g $n."/>
+		<message type="kCharFound" val="Вы начали язвить над $N4."/>
+		<message type="kOthersFound" val="&quot;Его родили посмеяться, а он выжил&quot; - провозгласил$g $n, глядя на $N3."/>
+		<message type="kVictFound" val="&quot;Безнадега :(&quot; - махнул$g на вас рукой $n."/>
+		<message type="kNotFound" val="Боюсь, что действительно все запущено."/>
+	</social>
+	<social vnum="59" keywords="готов|ура" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Где наша не пропадала? Урааааа!"/>
+		<message type="kOthersNoArg" val="Рука $n1 взметнулась в салюте и $e отрапортовал$g : &quot;Всегда готов$g!&quot;"/>
+		<message type="kCharFound" val="Вы попросили $N3 подтвердить готовность."/>
+		<message type="kOthersFound" val="&quot;Готов?&quot; - спросил$g $n у $N1."/>
+		<message type="kVictFound" val="&quot;Ну готов$G, нет?&quot; - спросил$g у вас $n."/>
+		<message type="kNotFound" val="Кого вы спрашиваете?"/>
+	</social>
+	<social vnum="60" keywords="ухмылка|оскал" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы стали похожи на оборотня."/>
+		<message type="kOthersNoArg" val="$n ощерил$g зубы в гнусной ухмылке."/>
+		<message type="kCharFound" val="Вы ухмыльнулись $N2."/>
+		<message type="kOthersFound" val="$n широко ухмыльнул$u, глядя на $N3."/>
+		<message type="kVictFound" val="$n ухмыльнул$u вам."/>
+		<message type="kNotFound" val="Не стоит гримасничать."/>
+	</social>
+	<social vnum="61" keywords="рычать" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы начали бросаться на окружающих."/>
+		<message type="kOthersNoArg" val="&quot;Р-р-р!&quot; - зарычал$g $n. Припадошн$w наверно."/>
+		<message type="kCharFound" val="Вы зарычали на $N3: &quot;Пасть порву! Моргала выколю!&quot;"/>
+		<message type="kOthersFound" val="$n посмотрел$g на $N3. Глаза $s налились кровью, волосы встали дыбом, и $e истошно завопил$g : &quot;Мясо!&quot;"/>
+		<message type="kVictFound" val="&quot;Порву как грелку!&quot; - зарычал$g $n, набрасываясь на вас."/>
+		<message type="kNotFound" val="Поменьше эмоций!"/>
+	</social>
+	<social vnum="62" keywords="брысь" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="А ну гэть звидсы!"/>
+		<message type="kOthersNoArg" val="Но тут приш$y $n и начал$g всех разгонять."/>
+		<message type="kCharFound" val="Вы решили гнать взашей $N3."/>
+		<message type="kOthersFound" val="&quot;А ну брысь отсель!&quot; - заорал$g $n на $N3."/>
+		<message type="kVictFound" val="$n вооружил$u поганой метлой и пош$y на вас в атаку."/>
+		<message type="kNotFound" val="Ухожу, ухожу, ухожу..."/>
+	</social>
+	<social vnum="63" keywords="отрыжка|рыгнуть|рыгать" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Благородно. Но не благовоспитанно."/>
+		<message type="kOthersNoArg" val="$n громко рыгнул$g."/>
+		<message type="kCharFound" val="Вы решили оставить на $N5 остатки завтрака."/>
+		<message type="kOthersFound" val="$n оставил$g на $N5 следы своего завтрака."/>
+		<message type="kVictFound" val="$n оставил$g на вашем камзоле следы своего завтрака. Опять стирать придется."/>
+		<message type="kNotFound" val="Не гадьте против ветра."/>
+	</social>
+	<social vnum="64" keywords="икать" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="И-и-и-к..."/>
+		<message type="kOthersNoArg" val="$n громко икнул$g."/>
+	</social>
+	<social vnum="65" keywords="пукнуть|пердеть" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="От это истинно русский дух."/>
+		<message type="kOthersNoArg" val="Гороховый супчик сыграл с $n4 злую шутку - $e испустил$g ДУХ."/>
+	</social>
+	<social vnum="66" keywords="зевать" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Смотри - ворона в рот залетит."/>
+		<message type="kOthersNoArg" val="$n зевнул$g и потянул$u."/>
+	</social>
+	<social vnum="67" keywords="скоро|ждите" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Жди меня, и я вернусь..."/>
+		<message type="kOthersNoArg" val="$n отошел$g в сторону и попросил$g подождать"/>
+		<message type="kCharFound" val="Вы пробормотали $N2: &quot;Скоро буду...&quot;"/>
+		<message type="kOthersFound" val="&quot;Жди меня, и я вернусь...&quot; - патетически пропел$g $n $N2 и моментом испарил$u."/>
+		<message type="kVictFound" val="&quot;Скоро буду&quot; - сказал$g вам $n."/>
+		<message type="kNotFound" val="Да никому вы не нужны."/>
+	</social>
+	<social vnum="68" keywords="обнять" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы уселись в позу лотоса и обхватили себя руками."/>
+		<message type="kOthersNoArg" val="$n обнял$g себя. Видно, в детстве $m не хватало ласки."/>
+		<message type="kCharFound" val="Вы крепко обняли $N3."/>
+		<message type="kOthersFound" val="$n стиснул$g $N3 в своих объятиях."/>
+		<message type="kVictFound" val="$n стиснул$g вас в своих медвежьих объятиях и заорал$g: &quot;Сколько лет, сколько зим&quot;."/>
+	</social>
+	<social vnum="69" keywords="повалить|играть" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы подпрыгнули и поджав ноги плюхнулись на землю."/>
+		<message type="kOthersNoArg" val="$n начал$g валять дурака."/>
+		<message type="kCharFound" val="Вы повалили $N3 на землю."/>
+		<message type="kOthersFound" val="&quot;Покалечу!&quot; - игриво закричал$g $n и набросил$u на $N3."/>
+		<message type="kVictFound" val="$n повалил$g вас на землю, приглашая поиграть."/>
+		<message type="kNotFound" val="Полегче, полегче."/>
+	</social>
+	<social vnum="70" keywords="изумление|удивление" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Епрст!?"/>
+		<message type="kOthersNoArg" val="$n изумленно поглядел$g по сторонам в поисках своей челюсти."/>
+		<message type="kCharFound" val="&quot;Господи, кто же тебя так?&quot; - изумились вы, глядя на $N3."/>
+		<message type="kOthersFound" val="&quot;Ну нифига себе!&quot; - изумленно присвистнул$g $n, глядя на $N3."/>
+		<message type="kVictFound" val="&quot;Кто тебя так ужасно обрил?&quot; - изумленно простонал$g $n."/>
+		<message type="kNotFound" val="А чему тут удивляться?"/>
+	</social>
+	<social vnum="71" keywords="восторг" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы завизжали от восторга."/>
+		<message type="kOthersNoArg" val="$n громко завизжал$g от восторга."/>
+		<message type="kCharFound" val="&quot;Вот вырасту - стану таким же, как $N&quot; - решили вы для себя."/>
+		<message type="kOthersFound" val="&quot;$N - это голова...&quot; - восторженно объявил$g $n."/>
+		<message type="kVictFound" val="$n начал$g восторженно разглядывать вас."/>
+	</social>
+	<social vnum="72" keywords="трусить|бояться" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Ой, мамочка...."/>
+		<message type="kOthersNoArg" val="$n побледнел$g, как полотно и задрожал$g от страха."/>
+		<message type="kCharFound" val="&quot;Ужас-то какой!..&quot; - подумали вы, со страхом глядя на $N3."/>
+		<message type="kOthersFound" val="$n испуганно забил$u в угол при виде $N1."/>
+		<message type="kVictFound" val="При виде вас, $n наложил$g в штаны от страха."/>
+	</social>
+	<social vnum="73" keywords="спасайся|сос|рекол" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Спасайся кто может!!!"/>
+		<message type="kOthersNoArg" val="&quot;Чего ждете... уже убегать надо!!!!!&quot; - заорал$g $n, беря свиток возврата в руки."/>
+		<message type="kCharFound" val="&quot;Хва геройствовать, беги!&quot; - заорали вы."/>
+		<message type="kOthersFound" val="&quot;$N, линяй!!! Замочат!&quot; - заорал$g $n."/>
+		<message type="kVictFound" val="&quot;Спасайся!!! Я их задержу!!!&quot; - крикнул$g вам $n."/>
+		<message type="kNotFound" val="О себе побеспокойся! Не ровен час замочат..."/>
+	</social>
+	<social vnum="74" keywords="приступ" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы захрипели, выгнулись дугой и забились в судорогах."/>
+		<message type="kOthersNoArg" val="$n забил$u в приступе тяжкой, доселе неизвестной болезни."/>
+	</social>
+	<social vnum="75" keywords="обморок" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Срочно, воды... и хлеба!"/>
+		<message type="kOthersNoArg" val="$n побледнел$g, как полотно и грохнул$u в обморок."/>
+	</social>
+	<social vnum="76" keywords="грусть" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы повесили голову."/>
+		<message type="kOthersNoArg" val="$n обвел$g окружающих грустными глазами."/>
+	</social>
+	<social vnum="77" keywords="скандал|ссора" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Эх, давно мир не видал такого скандала."/>
+		<message type="kOthersNoArg" val="$n начал$g скандалить, выискивая малейший повод для ссоры."/>
+		<message type="kCharFound" val="Вы отдали $N2 плюшевого медвежонка и потребовали обратно свой горшок."/>
+		<message type="kOthersFound" val="$n достал$g пилу и начал$g делить с $N4 их скромный скарб."/>
+		<message type="kVictFound" val="&quot;Развод и девичья фамилия!&quot; - заявил$g вам $n."/>
+		<message type="kNotFound" val="Тихо, тихо. Вы же еще не отсидели за то дело. Зачем опять нервничать?"/>
+	</social>
+	<social vnum="78" keywords="пессимизм" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="&quot;Это пипец, а пипец неизлечим&quot;,- поняли вы."/>
+		<message type="kOthersNoArg" val="$n повесил$g голову и начал$g переодеваться в чистое белье."/>
+		<message type="kCharFound" val="Вы поглядели на $N3 и пессимистично закивали."/>
+		<message type="kOthersFound" val="&quot;Дай бог моему тэляти вовка з'исты&quot; - пессемистисно заметил$g $n обращаясь к $N2."/>
+		<message type="kVictFound" val="&quot;Приплыли&quot; - пессимистично заметил$g вам $n."/>
+		<message type="kNotFound" val="Не вешайте голову раньше времени."/>
+	</social>
+	<social vnum="79" keywords="оптимизм|подбодрить|уверенно" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="&quot;Это фигня, а фигню мы не лечим&quot;,- заявили вы."/>
+		<message type="kOthersNoArg" val="&quot;Да я их одним ударом...&quot; - уверенно заявил$g $n."/>
+		<message type="kCharFound" val="Вы хлопнули $N3 по плечу и оптимистично заметили: &quot;Мы еще повоюем&quot;."/>
+		<message type="kOthersFound" val="&quot;Где наша не пропадала&quot; - подбодрил$g $N3 $n."/>
+		<message type="kVictFound" val="&quot;Авось пронесет&quot; - подбодрил$g вас $n."/>
+		<message type="kNotFound" val="На бога надейся, а сам не плошай."/>
+	</social>
+	<social vnum="80" keywords="цыкнуть|молчи|ша" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Ша!"/>
+		<message type="kOthersNoArg" val="&quot;А ну все притихли - быстро!&quot; - заявил$g $n."/>
+		<message type="kCharFound" val="Вы заткнули $N3."/>
+		<message type="kOthersFound" val="&quot;А ну-ка ша!&quot; - оборвал$g $n $N3."/>
+		<message type="kVictFound" val="$n грубо заткнул$g вас."/>
+		<message type="kNotFound" val="Он нем, как рыба."/>
+	</social>
+	<social vnum="81" keywords="умничать|заумно" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы хоть сами поняли, что сказали?"/>
+		<message type="kOthersNoArg" val="&quot;Иммуномодулирующее влияние реактиваторов 1,3-ацетилгексаметальдегида на эндотелиоретикулярную систему каналикульцевой ренальной паренхимы несомненно приводит к нарастанию клиренса индолилуксусной кислоты!&quot; - авторитетно заявил$g $n."/>
+	</social>
+	<social vnum="82" keywords="класс|хорошо|ляпота" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Ну ничего себе."/>
+		<message type="kOthersNoArg" val="$n восторженно присвистнул$g."/>
+	</social>
+	<social vnum="83" keywords="созерцать" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы занялись самосозерцанием."/>
+		<message type="kOthersNoArg" val="$n попытал$u взглянуть на себя со стороны. Что-то не так?"/>
+	</social>
+	<social vnum="84" keywords="лаги|связь" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Да, связь могла быть и получше."/>
+		<message type="kOthersNoArg" val="$n начал$g жаловаться на конект и качество связи."/>
+	</social>
+	<social vnum="85" keywords="феня|ботать" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Из ваших уст полилась блатная музыка."/>
+		<message type="kOthersNoArg" val="&quot;Клевые марухи на Ярилиной хазе с рыжьем сидят...&quot;- заботал$g $n."/>
+	</social>
+	<social vnum="86" keywords="ужас|отпрянуть" ch_min="kRest" ch_max="kStand" vict_min="kSleep" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы в ужасе отпрянули."/>
+		<message type="kOthersNoArg" val="$n в ужасе отпрянул$g."/>
+		<message type="kCharFound" val="Вы в ужасе отпрянули от $N1."/>
+		<message type="kOthersFound" val="&quot;О, Господи...&quot; - в ужасе прошептал$g $n и отпрянул$g от $N1."/>
+		<message type="kVictFound" val="$n в ужасе отпрянул$g от вас."/>
+		<message type="kNotFound" val="Это ужасно, и правда."/>
+	</social>
+	<social vnum="87" keywords="обалдеть|ошалеть" ch_min="kRest" ch_max="kStand" vict_min="kSleep" vict_max="kStand">
+		<message type="kCharNoArg" val="Обалдеть можно!"/>
+		<message type="kOthersNoArg" val="$n обвел$g комнату обалделым взглядом."/>
+		<message type="kCharFound" val="Вы ошалели от вида $N1."/>
+		<message type="kOthersFound" val="&quot;Обалдеть можно.&quot; - только и промолвил$g $n, поглядев на $N3."/>
+		<message type="kVictFound" val="$n обалдело уставил$u на вас."/>
+		<message type="kNotFound" val="Кто это вас так сильно удивил?"/>
+	</social>
+	<social vnum="88" keywords="храпеть" ch_min="kSleep" ch_max="kSleep" vict_min="kSleep" vict_max="kSleep">
+		<message type="kCharNoArg" val="Вы громко захрапели."/>
+		<message type="kOthersNoArg" val="$n громко захрапел$g."/>
+	</social>
+	<social vnum="89" keywords="причмокивать" ch_min="kSleep" ch_max="kSleep" vict_min="kSleep" vict_max="kSleep">
+		<message type="kCharNoArg" val="Вы причмокнули."/>
+		<message type="kOthersNoArg" val="$n начал$g причмокивать."/>
+	</social>
+	<social vnum="90" keywords="кошмар" ch_min="kSleep" ch_max="kSleep" vict_min="kSleep" vict_max="kSleep">
+		<message type="kCharNoArg" val="Какой ужасный сон."/>
+		<message type="kOthersNoArg" val="$n громко вскрикнул$g во сне. Наверное, $m приснился кошмар."/>
+	</social>
+	<social vnum="91" keywords="взъерошить|волосы" ch_min="kRest" ch_max="kStand" vict_min="kSleep" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы растрепали свою прическу."/>
+		<message type="kOthersNoArg" val="$n взъерошил$g волосы."/>
+		<message type="kCharFound" val="Вы погладили $N3 против шерстки."/>
+		<message type="kOthersFound" val="$n легким движением взъерошил$g волосы $N1."/>
+		<message type="kVictFound" val="$n взъерошил$g вам волосы. Такая прическа - коту под хвост :("/>
+		<message type="kNotFound" val="Вам не над кем поиздеваться."/>
+	</social>
+	<social vnum="92" keywords="дыбом" ch_min="kRest" ch_max="kStand" vict_min="kSleep" vict_max="kStand">
+		<message type="kCharNoArg" val="Ваши волосы вздыбились."/>
+		<message type="kOthersNoArg" val="От увиденного у $n1 волосы встали дыбом."/>
+		<message type="kCharFound" val="При виде $N1 ваши волосы встали дыбом."/>
+		<message type="kOthersFound" val="При виде $N1 волосы $n1 встали дыбом."/>
+		<message type="kVictFound" val="&quot;$N, что с тобой!&quot; - пробормотал$g $n и $s волосы встали дыбом."/>
+		<message type="kNotFound" val="Но вы не видите никого похожего."/>
+	</social>
+	<social vnum="93" keywords="примоститься|рядом" ch_min="kRest" ch_max="kStand" vict_min="kSleep" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы примостились поудобнее."/>
+		<message type="kOthersNoArg" val="$n примостил$u поудобнее."/>
+		<message type="kCharFound" val="Вы пристроились под крылышко $N1."/>
+		<message type="kOthersFound" val="&quot;Подвинься.&quot; - потребовал$g $n, и примостил$u рядышком с $N4."/>
+		<message type="kVictFound" val="$n удобно пристроил$u под ваше крылышко."/>
+		<message type="kNotFound" val="Похоже, вы проведете вечер в одиночестве."/>
+	</social>
+	<social vnum="94" keywords="судьба" ch_min="kRest" ch_max="kStand" vict_min="kSleep" vict_max="kStand">
+		<message type="kCharNoArg" val="Житие мое..."/>
+		<message type="kOthersNoArg" val="&quot;Житие мое...&quot;- опечаленно произнес$q $n."/>
+	</social>
+	<social vnum="95" keywords="рок" ch_min="kRest" ch_max="kStand" vict_min="kSleep" vict_max="kStand">
+		<message type="kCharNoArg" val="Похоже, над вами довлеет проклятие."/>
+		<message type="kOthersNoArg" val="&quot;Это рок!&quot; - сокрушенно заявил$g $n."/>
+	</social>
+	<social vnum="96" keywords="зависть" ch_min="kRest" ch_max="kStand" vict_min="kSleep" vict_max="kStand">
+		<message type="kCharNoArg" val="Вас обуяла зависть."/>
+		<message type="kOthersNoArg" val="$n завистливо оглядел$u."/>
+		<message type="kCharFound" val="Вы завистливо посмотрели на $N3."/>
+		<message type="kOthersFound" val="&quot;Везет некоторым...&quot; - завистливо пробормотал$g $n, взглянув на $N3."/>
+		<message type="kVictFound" val="$n завистливо поглядел$g на вас."/>
+		<message type="kNotFound" val="Не грешите понапрасну."/>
+	</social>
+	<social vnum="97" keywords="печаль" ch_min="kRest" ch_max="kStand" vict_min="kSleep" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы опечаленно вздохнули."/>
+		<message type="kOthersNoArg" val="&quot;Нет в жизни счастья...&quot; - опечаленно вздохнул$g $n."/>
+	</social>
+	<social vnum="98" keywords="вздыхать|вздох" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы вздохнули."/>
+		<message type="kOthersNoArg" val="$n вздохнул$g."/>
+		<message type="kCharFound" val="Вы вздыхаете, когда думаете о $N5."/>
+		<message type="kOthersFound" val="$n вздохнул$g по $N2."/>
+		<message type="kVictFound" val="$n вздыхает, когда думает о вас. Трогательно, да?"/>
+		<message type="kNotFound" val="Вы действительно вздыхаете, когда не видите друга."/>
+	</social>
+	<social vnum="99" keywords="сиять|счастье" ch_min="kRest" ch_max="kStand" vict_min="kSleep" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы засветились от счастья."/>
+		<message type="kOthersNoArg" val="$n засиял$g, как начищенный пятак."/>
+		<message type="kCharFound" val="Вы засияли при виде $N1."/>
+		<message type="kOthersFound" val="$n засиял$g от счастья, увидев $N3."/>
+		<message type="kVictFound" val="$n засиял$g от счастья при виде вас."/>
+		<message type="kNotFound" val="Нет в жизни счастья."/>
+	</social>
+	<social vnum="100" keywords="ерепениться" ch_min="kRest" ch_max="kStand" vict_min="kSleep" vict_max="kStand">
+		<message type="kCharNoArg" val="Если не вы - то кто же?"/>
+		<message type="kOthersNoArg" val="&quot;Ну почему всегда я!&quot; - взъерепенил$u $n."/>
+	</social>
+	<social vnum="101" keywords="швырять|швырнуть" ch_min="kRest" ch_max="kStand" vict_min="kSleep" vict_max="kStand">
+		<message type="kCharNoArg" val="Вот так всегда!"/>
+		<message type="kOthersNoArg" val="$n начал$g швыряться чем ни попадя."/>
+		<message type="kCharFound" val="Вы швырнули здоровый комок грязи в $N3."/>
+		<message type="kOthersFound" val="$n наскреб$q с земли здоровенный комок грязи и метнул$g в $N3. Гляди-ка, попал$g..."/>
+		<message type="kVictFound" val="Комок грязи, брошенный $n4, врезался вам в лицо!"/>
+		<message type="kNotFound" val="Хе-хе. А тут чисто и швырятся нечем."/>
+	</social>
+	<social vnum="102" keywords="истово|креститься" ch_min="kRest" ch_max="kStand" vict_min="kSleep" vict_max="kStand">
+		<message type="kCharNoArg" val="Свят, свят, свят..."/>
+		<message type="kOthersNoArg" val="$n начал$g истово креститься."/>
+		<message type="kCharFound" val="Вы перекрестились при виде $N1."/>
+		<message type="kOthersFound" val="&quot;Господи, помилуй мя от $N1!&quot; - начал$g истово креститься $n."/>
+		<message type="kVictFound" val="При виде вас $n начал$g истово креститься."/>
+		<message type="kNotFound" val="Кто вас так напугал?"/>
+	</social>
+	<social vnum="103" keywords="онеметь" ch_min="kRest" ch_max="kStand" vict_min="kSleep" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы проглотили язык."/>
+		<message type="kOthersNoArg" val="Похоже, $n потерял$g дар речи от всего этого."/>
+	</social>
+	<social vnum="104" keywords="язык" ch_min="kRest" ch_max="kStand" vict_min="kSleep" vict_max="kStand">
+		<message type="kCharNoArg" val="Не обезьяничайте."/>
+		<message type="kOthersNoArg" val="$n показал$g всем язык."/>
+		<message type="kCharFound" val="Вы показали язык $N2."/>
+		<message type="kOthersFound" val="$n показал$g язык $N2. Ну и длина, как у коровы..."/>
+		<message type="kVictFound" val="$n высунул$g язык и стал$g дразниться."/>
+		<message type="kNotFound" val="Смотри, оторвут..."/>
+	</social>
+	<social vnum="105" keywords="укор" ch_min="kRest" ch_max="kStand" vict_min="kSleep" vict_max="kStand">
+		<message type="kCharNoArg" val="Ну разве так можно..."/>
+		<message type="kOthersNoArg" val="$n обвел$g укоряющим взглядом комнату."/>
+		<message type="kCharFound" val="Вы укорили $N3."/>
+		<message type="kOthersFound" val="&quot;Ну что же ты, $N!&quot; - укоряюще произнес$q $n."/>
+		<message type="kVictFound" val="&quot;Ну сколько тебя учить можно!&quot; - укорил$g вас $n."/>
+		<message type="kNotFound" val="Вы сами виноваты в своих бедах!"/>
+	</social>
+	<social vnum="106" keywords="смущение|смутиться" ch_min="kRest" ch_max="kStand" vict_min="kSleep" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы опустили взор."/>
+		<message type="kOthersNoArg" val="$n смущенно отвел$g глаза."/>
+	</social>
+	<social vnum="107" keywords="вспотел|пот" ch_min="kRest" ch_max="kStand" vict_min="kSleep" vict_max="kStand">
+		<message type="kCharNoArg" val="Похоже, становится жарко."/>
+		<message type="kOthersNoArg" val="$n3 пробил пот."/>
+	</social>
+	<social vnum="108" keywords="дрожь|озноб" ch_min="kRest" ch_max="kStand" vict_min="kSleep" vict_max="kStand">
+		<message type="kCharNoArg" val="Бр-р-р-р-р..."/>
+		<message type="kOthersNoArg" val="$n задрожал$g, как осиновый лист."/>
+	</social>
+	<social vnum="109" keywords="помрачнеть" ch_min="kRest" ch_max="kStand" vict_min="kSleep" vict_max="kStand">
+		<message type="kCharNoArg" val="Спокойствие, только спокойствие."/>
+		<message type="kOthersNoArg" val="$n помрачнел$g."/>
+	</social>
+	<social vnum="110" keywords="супиться|насупиться" ch_min="kRest" ch_max="kStand" vict_min="kSleep" vict_max="kStand">
+		<message type="kCharNoArg" val="Не грусти, друг."/>
+		<message type="kOthersNoArg" val="$n насупил$u."/>
+	</social>
+	<social vnum="111" keywords="поморщиться|морщиться|брезгливо" ch_min="kRest" ch_max="kStand" vict_min="kSleep" vict_max="kStand">
+		<message type="kCharNoArg" val="Фи, какая гадость..."/>
+		<message type="kOthersNoArg" val="$n брезгливо поморщил$u."/>
+	</social>
+	<social vnum="112" keywords="кривляться|обезьяничать|гримаса" ch_min="kRest" ch_max="kStand" vict_min="kSleep" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы начали гримасничать."/>
+		<message type="kOthersNoArg" val="$n начал$g корчить рожицы."/>
+		<message type="kCharFound" val="Вы состроили $N2 уморительную гримасу."/>
+		<message type="kOthersFound" val="$n состроил$g $N2 уморительную гримасу."/>
+		<message type="kVictFound" val="&quot;Ну и умора!&quot; - подумали вы, глядя на кривлянья $n1."/>
+	</social>
+	<social vnum="113" keywords="бубнить|бормотать" ch_min="kRest" ch_max="kStand" vict_min="kSleep" vict_max="kStand">
+		<message type="kCharNoArg" val="Бу-бу-бу..."/>
+		<message type="kOthersNoArg" val="&quot;Ну вот, всегда так...&quot; - обиженно забубнил$g $n."/>
+	</social>
+	<social vnum="114" keywords="трепет" ch_min="kRest" ch_max="kStand" vict_min="kSleep" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы затрепетали."/>
+		<message type="kOthersNoArg" val="$n затрепетал$g."/>
+	</social>
+	<social vnum="115" keywords="ворчать" ch_min="kRest" ch_max="kStand" vict_min="kSleep" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы угрюмо заворчали."/>
+		<message type="kOthersNoArg" val="&quot;Понапридумывают тут...&quot; - угрюмо заворчал$g $n."/>
+		<message type="kCharFound" val="Вы угрюмо заворчали на $N3."/>
+		<message type="kOthersFound" val="&quot;С $N4 одни проблемы...&quot; - угрюмо заворчал$g $n."/>
+		<message type="kVictFound" val="&quot;Ну скоко можно тупить...&quot; - угрюмо проворчал$g вам $n."/>
+		<message type="kNotFound" val="Не ворчите понапрасну."/>
+	</social>
+	<social vnum="116" keywords="бестолково" ch_min="kRest" ch_max="kStand" vict_min="kSleep" vict_max="kStand">
+		<message type="kCharNoArg" val="Ну и бестолочь же вы!"/>
+		<message type="kOthersNoArg" val="$n начал$g бестолково оглядываться."/>
+	</social>
+	<social vnum="117" keywords="осунуться|понуриться" ch_min="kRest" ch_max="kStand" vict_min="kSleep" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы понурились."/>
+		<message type="kOthersNoArg" val="$n понуренно опустил$g плечи."/>
+	</social>
+	<social vnum="118" keywords="шататься|бесцельно" ch_min="kFight" ch_max="kStand" vict_min="kSleep" vict_max="kStand">
+		<message type="kCharNoArg" val="Куда вас черти несут?"/>
+		<message type="kOthersNoArg" val="$n начал$g бесцельно слоняться по сторонам."/>
+	</social>
+	<social vnum="119" keywords="брыкаться|лягаться" ch_min="kRest" ch_max="kStand" vict_min="kSleep" vict_max="kStand">
+		<message type="kCharNoArg" val="Оставьте меня в покое!"/>
+		<message type="kOthersNoArg" val="&quot;Да отстаньте, наконец, от меня...&quot; - с досадой отбрыкнул$u $n."/>
+		<message type="kCharFound" val="Вы отбрыкнулись от $N1."/>
+		<message type="kOthersFound" val="&quot;Задолбал$G уже...&quot; - отбрыкнул$u $n от $N1."/>
+		<message type="kVictFound" val="&quot;Да отстань ты от меня!&quot; - отбрыкнул$u от вас $n."/>
+		<message type="kNotFound" val="Вы не лошадь."/>
+	</social>
+	<social vnum="120" keywords="шарахаться|отпрянуть|отшатнуться" ch_min="kRest" ch_max="kStand" vict_min="kSleep" vict_max="kStand">
+		<message type="kCharNoArg" val="О, Ужас!"/>
+		<message type="kOthersNoArg" val="$n в ужасе отпрянул$g в сторону."/>
+		<message type="kCharFound" val="Вы отшатнулись от $N1."/>
+		<message type="kOthersFound" val="$n в ужасе отпрянул$g от $N1."/>
+		<message type="kVictFound" val="$n поскорее шарахнул$u от вас в сторону."/>
+		<message type="kNotFound" val="Стойте ровно!"/>
+	</social>
+	<social vnum="121" keywords="насторожиться|напрячься" ch_min="kRest" ch_max="kStand" vict_min="kSleep" vict_max="kStand">
+		<message type="kCharNoArg" val="Будьте бдительны! Враг не спит."/>
+		<message type="kOthersNoArg" val="$n насторожил$u."/>
+		<message type="kCharFound" val="Вы напряглись при виде $N1."/>
+		<message type="kOthersFound" val="&quot;С $N4 нужно держать ухо востро.&quot; - насторожил$g $n."/>
+		<message type="kVictFound" val="При взгляде на вас $n насторожил$u."/>
+		<message type="kNotFound" val="Вы слишком мнительны."/>
+	</social>
+	<social vnum="122" keywords="лепет|оправдываться" ch_min="kRest" ch_max="kStand" vict_min="kSleep" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы похожи на ребенка."/>
+		<message type="kOthersNoArg" val="&quot;Я больше не буду...&quot; - виновато пролепетал$g $n."/>
+		<message type="kCharFound" val="Вы попытались оправдаться перед $N4. Детский лепет!"/>
+		<message type="kOthersFound" val="&quot;$N, я больше не буду...&quot; - пролепетал$g $n."/>
+		<message type="kVictFound" val="$n залепетал$g что-то невразумительно, оправдываясь перед вами."/>
+		<message type="kNotFound" val="Вам нет оправдания."/>
+	</social>
+	<social vnum="123" keywords="прихорашиваться" ch_min="kRest" ch_max="kStand" vict_min="kSleep" vict_max="kStand">
+		<message type="kCharNoArg" val="Симпатяга, черт побери..."/>
+		<message type="kOthersNoArg" val="$n расчесал$g волосы и начал$g прихорашиваться. А $e ничего..."/>
+	</social>
+	<social vnum="124" keywords="пока" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Пока, ребяты..."/>
+		<message type="kOthersNoArg" val="$n взмахнул$g рукой в прощальном жесте : &quot;Всем пока...&quot;"/>
+		<message type="kCharFound" val="Вы пожелали $N2 всего хорошего."/>
+		<message type="kOthersFound" val="&quot;Пока, $N...&quot; - махнул$g рукой $n."/>
+		<message type="kVictFound" val="$n махнул$g вам рукой напоследок : &quot;Пока, малыш.&quot;"/>
+		<message type="kNotFound" val="Ступай с миром... А кому это вы?"/>
+	</social>
+	<social vnum="125" keywords="прощай" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Прощайте, товарищи, с Богом. УРРРРА!!!"/>
+		<message type="kOthersNoArg" val="$n тепло попрощал$u со всеми."/>
+		<message type="kCharFound" val="Вы тепло попрощались с $N4."/>
+		<message type="kOthersFound" val="$n обнял$g и расцеловал$g $N3 на прощание."/>
+		<message type="kVictFound" val="&quot;Прощай, друг!&quot; - надрывно произнес$q вам $n."/>
+		<message type="kNotFound" val="Прощай... А кому это вы?"/>
+	</social>
+	<social vnum="126" keywords="лесть|льстить" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы затянули дифирамбы."/>
+		<message type="kOthersNoArg" val="$n рассыпал$u в лестных выражениях."/>
+		<message type="kCharFound" val="Вы начали петь дифирамбы в честь $N1."/>
+		<message type="kOthersFound" val="$n начал$g источать льстивые речи в адрес $N1."/>
+		<message type="kVictFound" val="$n завил$u мелким бесом вокруг вас, рассыпая неприкрытую лесть."/>
+		<message type="kNotFound" val="Не льстите понапрасну."/>
+	</social>
+	<social vnum="127" keywords="коза|пальцовка" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы раскинули рамсы..."/>
+		<message type="kOthersNoArg" val="&quot;В натуре...&quot; - растопырил$g пальцы $n."/>
+		<message type="kCharFound" val="Вы решили померяться пальцами с $N4."/>
+		<message type="kOthersFound" val="&quot;А ну ка... давай мернем у кого больше...&quot;,- изрек$q $n и вытянул$a свои пальцы."/>
+		<message type="kVictFound" val="$n предложил$a вам померяться пальцами."/>
+		<message type="kNotFound" val="Не стоит раскидывать пальцы в одиночестве."/>
+	</social>
+	<social vnum="128" keywords="холодно" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы и впрямь замерзли."/>
+		<message type="kOthersNoArg" val="&quot;Че-то стало холодать!&quot; - заметил$g $n, поглубже укутываясь в тулупчик."/>
+	</social>
+	<social vnum="129" keywords="жарко|духота" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Ну и духотища..."/>
+		<message type="kOthersNoArg" val="&quot;Похоже, становится жарко!&quot; - заметил$g $n."/>
+	</social>
+	<social vnum="130" keywords="интрига" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы сплели тонкую сеть интриг."/>
+		<message type="kOthersNoArg" val="$n интригующе посмотрел$g по сторонам."/>
+	</social>
+	<social vnum="131" keywords="зябко" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Однако, не май месяц."/>
+		<message type="kOthersNoArg" val="$n зябко повел$g плечами."/>
+	</social>
+	<social vnum="132" keywords="скучно" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Эх, скукотища..."/>
+		<message type="kOthersNoArg" val="&quot;А не наложить ли мне в рояль?&quot; - скучающим взглядом обвел$g комнату $n."/>
+	</social>
+	<social vnum="133" keywords="грустно|грусть|грустить" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Хорошо, что вам не взбледнулось."/>
+		<message type="kOthersNoArg" val="$n загрустил$g."/>
+	</social>
+	<social vnum="134" keywords="бледно|бледнеть" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы стали похожи на холст."/>
+		<message type="kOthersNoArg" val="$n смертельно побледнел$g."/>
+	</social>
+	<social vnum="135" keywords="тоскливо|тоска|тосковать" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы затосковали."/>
+		<message type="kOthersNoArg" val="$n посмотрел$g по сторонам тоскливым взглядом."/>
+	</social>
+	<social vnum="136" keywords="мычать" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Му-у-у-у..."/>
+		<message type="kOthersNoArg" val="$n промычал$g что-то нечленораздельное..."/>
+	</social>
+	<social vnum="137" keywords="выть|луна" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Сегодня, к сожалению, новолуние..."/>
+		<message type="kOthersNoArg" val="$n раздирающе завыл$g на луну..."/>
+	</social>
+	<social vnum="138" keywords="оплакивать|причитать" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="От этих мыслей на глазах у вас навернулись слезы."/>
+		<message type="kOthersNoArg" val="&quot;Помилуй, господи...&quot; - начал$g причитать $n. Чур $s..."/>
+		<message type="kCharFound" val="Вы начали оплакивать $N3."/>
+		<message type="kOthersFound" val="&quot;Ой, на кого же ты меня оставил$G...&quot; - начал$g оплакивать $N3 $n."/>
+		<message type="kVictFound" val="&quot;Ой, как же я без тебя...&quot; - начал$g оплакивать вас $n. Чур $s..."/>
+		<message type="kNotFound" val="Не причитайте вы раньше времени."/>
+	</social>
+	<social vnum="139" keywords="труба|швах" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Похоже, дело дрянь..."/>
+		<message type="kOthersNoArg" val="&quot;Дело пахнет керосином...&quot; - подвел$g итоги $n."/>
+	</social>
+	<social vnum="140" keywords="проблема|неурядица" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Богам бы ваши проблемы..."/>
+		<message type="kOthersNoArg" val="$n начал$g жаловаться на постигшие $s неурядицы."/>
+	</social>
+	<social vnum="141" keywords="понты" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы сделали пальцы веером и попытались надуть пузырь из соплей."/>
+		<message type="kOthersNoArg" val="&quot;Какие понты?&quot; - поинтересовал$u $n."/>
+	</social>
+	<social vnum="142" keywords="всхлипывать" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы начали шмыгать носом."/>
+		<message type="kOthersNoArg" val="$n всхлипнул$g."/>
+	</social>
+	<social vnum="143" keywords="чертики|белочка" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Закусывать нужно..."/>
+		<message type="kOthersNoArg" val="$n побелел$g... нагрел$u... и стал$g расшвыривать по сторонам чертиков. Нет, похоже, белочек."/>
+	</social>
+	<social vnum="144" keywords="ржать|хохотать" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Ха-ха-ха..."/>
+		<message type="kOthersNoArg" val="$n громко захохотал$g. Вы вспомнили детство, проведенное рядом с конюшней."/>
+	</social>
+	<social vnum="145" keywords="досада" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Какая досада!"/>
+		<message type="kOthersNoArg" val="$n раздосадованно выругал$u."/>
+	</social>
+	<social vnum="146" keywords="писец" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Не материтесь - на канале могут быть несовершеннолетние."/>
+		<message type="kOthersNoArg" val="$n начал$g оплакивать свою преждевременную кончину."/>
+		<message type="kCharFound" val="&quot;Прибью, падлу!&quot; - закричали вы $N2."/>
+		<message type="kOthersFound" val="&quot;$N, ты более не жилец на этом свете!&quot; - свирепо прорычал$g $n."/>
+		<message type="kVictFound" val="$n пообещал$g вам ускорить ваш конец."/>
+	</social>
+	<social vnum="147" keywords="щупать" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Частит, пожалуй	..."/>
+		<message type="kOthersNoArg" val="$n начал$g ощупывать себя - все ли цело?"/>
+		<message type="kCharFound" val="Вы грубо облапали $N3."/>
+		<message type="kOthersFound" val="Руки $n1 бесцеремонно залезли за пазуху $N1."/>
+		<message type="kVictFound" val="$n начал$g грязно приставать к вам."/>
+	</social>
+	<social vnum="148" keywords="щипать|щипнуть" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Да не спите вы, не спите..."/>
+		<message type="kOthersNoArg" val="$n БОЛЬНО ущипнул$g себя. Да, такое и в кошмарном сне не привидится."/>
+		<message type="kCharFound" val="&quot;Пышечка ты наш$G, аппетитн$W&quot; - решили вы и ущипнули $N3."/>
+		<message type="kOthersFound" val="&quot;На супчик, пожалуй, рановато...&quot; - решил$g $n, ощупывая $N3."/>
+		<message type="kVictFound" val="&quot;Худорбыночка ты наш$g&quot; - протянул$g $n, ущипнув вас за ягодицу."/>
+	</social>
+	<social vnum="149" keywords="благословить" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Во имя Отца, и Сына, и Святага Духа..."/>
+		<message type="kOthersNoArg" val="$n благословил$g себя на подвиг."/>
+		<message type="kCharFound" val="&quot;Храни тебя Господь, $N!&quot; - перекрестили вы $S."/>
+		<message type="kOthersFound" val="&quot;Да поможет тебе Господь&quot; - сказал$g $n и перекрестил$g $N3."/>
+		<message type="kVictFound" val="$n перекрестил$g вас."/>
+	</social>
+	<social vnum="150" keywords="гадость|возмущение" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Господи, какая гадость..."/>
+		<message type="kOthersNoArg" val="$n начал$g гадливо плеваться по сторонам."/>
+		<message type="kCharFound" val="&quot;Ну и вид у $N1!&quot; - заметили вы."/>
+		<message type="kOthersFound" val="&quot;На кого $E похож$G!&quot; - указал$g $n на $N3."/>
+		<message type="kVictFound" val="При виде вас $n начал$g возмущенно плеваться."/>
+	</social>
+	<social vnum="151" keywords="ковыряться" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Осторожней, это ведь ваш нос."/>
+		<message type="kOthersNoArg" val="$n выудил$g из носа огромную соплю и начал$g сосредоточенно ее разглядывать."/>
+	</social>
+	<social vnum="152" keywords="тревога|шухер|атас" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Атас, Горыныч обкурился!"/>
+		<message type="kOthersNoArg" val="&quot;Тревога, тревога!&quot; - завопил$g изо всей мочи $n. Да, забористая у н$s травка."/>
+	</social>
+	<social vnum="153" keywords="круто" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Учись, молодежь..."/>
+		<message type="kOthersNoArg" val="$n с гордостью продемонстрировал$g свои достопримечательности окружающим."/>
+		<message type="kCharFound" val="&quot;Наш$G $N - молоток!&quot; - уверенно заявили вы и хлопнули $S по плечу."/>
+		<message type="kOthersFound" val="&quot;Вот они, герои нашего времени!&quot; - заявил$g $n и указал$g на $N3."/>
+		<message type="kVictFound" val="$n оценил$g вашу крутость."/>
+	</social>
+	<social vnum="154" keywords="челюсть" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="И правда... а где это ваша челюсть?"/>
+		<message type="kOthersNoArg" val="$n вдруг потерял$a свою челюсть."/>
+		<message type="kCharFound" val="Вы вдруг заметили что челюсть $N1 лежит в двух метрах от н$S."/>
+		<message type="kOthersFound" val="$n заметил$a, что челюсть $N1 лежит в двух метрах от н$S."/>
+		<message type="kVictFound" val="$n указал$a вам на вашу же челюсть, беззаботно валяющуюся в двух метрах от вас."/>
+		<message type="kNotFound" val="Вы тут не археолог, чтобы чужие челюсти искать."/>
+	</social>
+	<social vnum="155" keywords="похмелье" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="О, Боже, за что такие муки?"/>
+		<message type="kOthersNoArg" val="&quot;Не знаю хто такий Будьмо, але пить за него бильше не буду!&quot;,- с трудом ворочая языком произнес$q $n."/>
+	</social>
+	<social vnum="156" keywords="пожать" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы пожали плечами."/>
+		<message type="kOthersNoArg" val="$n невозмутимо пожал$g плечами."/>
+		<message type="kCharFound" val="Вы пожали руку $N2."/>
+		<message type="kOthersFound" val="$n крепко пожал$g руку $N2."/>
+		<message type="kVictFound" val="$n пожал$g вам руку, ну и силища."/>
+		<message type="kNotFound" val="Вы застыли с протянутой рукой."/>
+	</social>
+	<social vnum="157" keywords="вопрос" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы вопросительно посмотрели по сторонам."/>
+		<message type="kOthersNoArg" val="$n озадачен$g каким-то вопросом."/>
+		<message type="kCharFound" val="Вы вопросительно посмотрели на $N3."/>
+		<message type="kOthersFound" val="$n вопросительно посмотрел$g на $N3."/>
+		<message type="kVictFound" val="$n взглянул$g на вас, похоже $s гложет какой-то вопрос."/>
+		<message type="kNotFound" val="Нечего спрашивать. Читайте справку."/>
+	</social>
+	<social vnum="158" keywords="мигнуть|подмигнуть" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы удивленно моргнули."/>
+		<message type="kOthersNoArg" val="$n обалдело заморгал$g."/>
+		<message type="kCharFound" val="Вы подмигнули $N2."/>
+		<message type="kOthersFound" val="$n игриво подмигнул$g $N2."/>
+		<message type="kVictFound" val="$n игриво подмигнул$g вам. Чего $e добивается?"/>
+		<message type="kNotFound" val="Не мигайте, и не мигуемы будете."/>
+	</social>
+	<social vnum="159" keywords="прыгнуть|запрыгнуть" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы принялись скакать вокруг да около."/>
+		<message type="kOthersNoArg" val="$n весело запрыгал$g на одной ножке."/>
+		<message type="kCharFound" val="Вы вскочили на $N3 и пришпорили $S."/>
+		<message type="kOthersFound" val="$n вскочил$g на $N3 и завопил$g: &quot;Шашки наголо!&quot;."/>
+		<message type="kVictFound" val="$n запрыгнул$g к вам на плечи. Хамье!"/>
+		<message type="kNotFound" val="Вы попытались запрыгнуть к себе на плечи."/>
+	</social>
+	<social vnum="160" keywords="кирпич" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Кирпич как кирпич. Крепкий, тяжелый."/>
+		<message type="kOthersNoArg" val="$n достал$g из-за пазухи кирпич и начал$g нехорошо присматриваться к окружающим."/>
+		<message type="kCharFound" val="Вы примерились кирпичом к физиономии $N1."/>
+		<message type="kOthersFound" val="&quot;Кашу маслом не испортишь!&quot; - заявил$g $n, примеряясь кирпичом к физиономии $N1."/>
+		<message type="kVictFound" val="$n примерил$u кирпичом к вашей физиономии."/>
+		<message type="kNotFound" val="Поберегите кирпичи - еще пригодятся."/>
+	</social>
+	<social vnum="161" keywords="чесать" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы начали ожесточенно чесаться."/>
+		<message type="kOthersNoArg" val="$n задумчиво почесал$g репу."/>
+		<message type="kCharFound" val="Вы почесали спинку $N2."/>
+		<message type="kOthersFound" val="$n ласково почесал$g спинку $N2."/>
+		<message type="kVictFound" val="$n почесал$g вам спину."/>
+		<message type="kNotFound" val="Вы сделали несколько царапающих движений и задумались."/>
+	</social>
+	<social vnum="162" keywords="трогать|потрогать" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы начали трогать себя. Что с вами?"/>
+		<message type="kOthersNoArg" val="$n начал$g трогать себя в разных местах..."/>
+		<message type="kCharFound" val="Вы потрогали $N3."/>
+		<message type="kOthersFound" val="$n потрогал$g $N3."/>
+		<message type="kVictFound" val="$n потрогал$g вас."/>
+		<message type="kNotFound" val="Кого вы хотите потрогать?"/>
+	</social>
+	<social vnum="163" keywords="нюхать|принюхаться" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Припав к земле, вы стали принюхиваться. Уши стали торчком, кончик хвоста нервно задергался... Так, стоп!"/>
+		<message type="kOthersNoArg" val="$n припал$g к земле и принюхал$u к следам."/>
+		<message type="kCharFound" val="Вы обнюхали $N3."/>
+		<message type="kOthersFound" val="$n обнюхал$g $N3."/>
+		<message type="kVictFound" val="$n обнюхал$g вас с головы до ног, несколько раз лизнул и кажется, даже попробовал$g на зуб!"/>
+		<message type="kNotFound" val="Вы судорожно принюхались!"/>
+	</social>
+	<social vnum="164" keywords="идем|звать|позвать" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы предложили всем следовать за вами."/>
+		<message type="kOthersNoArg" val="&quot;Следуйте за мной&quot; - предложил$g всем $n."/>
+		<message type="kCharFound" val="Вы предложили $N2 следовать за вами."/>
+		<message type="kOthersFound" val="&quot;Следуй за мной&quot; - предложил$g $n $N2."/>
+		<message type="kVictFound" val="&quot;Следуй за мной&quot; - предложил$g вам $n."/>
+		<message type="kNotFound" val="Кого вы зовете?"/>
+	</social>
+	<social vnum="165" keywords="протест|против" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы против всех, а если они соберутся и будут против вас?"/>
+		<message type="kOthersNoArg" val="$n выразил$g протест против мнения большинства."/>
+		<message type="kCharFound" val="Вы высказали свой протест $N2."/>
+		<message type="kOthersFound" val="$n решительно против слов $N1."/>
+		<message type="kVictFound" val="Кажется, $n решительно против ваших слов."/>
+		<message type="kNotFound" val="Оставьте свой протест при себе."/>
+	</social>
+	<social vnum="166" keywords="лидер" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="&quot;Я ваш лидер&quot; - заявили вы."/>
+		<message type="kOthersNoArg" val="$n хвастливо заявил$g, что $e сегодня лидер."/>
+		<message type="kCharFound" val="Вы объяснили, что лидером является $N."/>
+		<message type="kOthersFound" val="$n начал$g показывать жестами, что лидером является $N и вся ответственность лежит именно на $N5."/>
+		<message type="kVictFound" val="Похоже $n считает, что вы сегодня лидер, какой ужас!"/>
+		<message type="kNotFound" val="&quot;Я лидер&quot; - заявили вы в пустоту и почувствовали себя глупо."/>
+	</social>
+	<social vnum="167" keywords="успокоить" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Спокойствие, только спокойствие!"/>
+		<message type="kOthersNoArg" val="&quot;Ша, не мельтешите!&quot; - авторитетно успокоил$g всех $n."/>
+		<message type="kCharFound" val="Вы заботливо успокоили $N3."/>
+		<message type="kOthersFound" val="$n заботливо успокоил$g $N3."/>
+		<message type="kVictFound" val="&quot;Не бойся - я с тобой!&quot; - принялся успокаивать вас $n."/>
+		<message type="kNotFound" val="Спокойствие, только спокойствие!"/>
+	</social>
+	<social vnum="168" keywords="истерика" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы закатили отвратительную истерику."/>
+		<message type="kOthersNoArg" val="Кажется, у $n1 назревает истерика - лучше отойти подальше."/>
+		<message type="kCharFound" val="Вы закатили $N2 роскошную истерику."/>
+		<message type="kOthersFound" val="$n закатил$g $N2 истерику. Зачем же выносить сор из избы?"/>
+		<message type="kVictFound" val="&quot;Надрывал$u, издаля, все твоей забавы для...&quot; - закатил$g вам истерику $n."/>
+		<message type="kNotFound" val="Берегите нервы, пейте рыбий жир, мойте руки перед едой."/>
+	</social>
+	<social vnum="169" keywords="пищать" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Пииип-пип-пипииииииип..."/>
+		<message type="kOthersNoArg" val="$n вдруг громко запищал$g, где же $e так заразил$u?"/>
+	</social>
+	<social vnum="170" keywords="крушить" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы начали крушить все вокруг."/>
+		<message type="kOthersNoArg" val="&quot;Всех изувечу!!!&quot; - заорал$g $n, размахивая здоровенной оглоблей."/>
+		<message type="kCharFound" val="Вы пообещали переломать все кости $N2."/>
+		<message type="kOthersFound" val="$n пообещал$g переломать все кости $N2."/>
+		<message type="kVictFound" val="&quot;Да я тебе ноги переломаю!&quot; - зарычал$g на вас $n."/>
+		<message type="kNotFound" val="Осторожней, так и до увечья недалеко."/>
+	</social>
+	<social vnum="171" keywords="хитрить" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы хитро прищурились, поглядывая по сторонам."/>
+		<message type="kOthersNoArg" val="$n хитро прищурил$u и оглядел$g окружающих. Явно что-то замышляет..."/>
+		<message type="kCharFound" val="Вы хитро посмотрели на $N3."/>
+		<message type="kOthersFound" val="$n хитро посмотрел$g на $N3. Зреет заговор?"/>
+		<message type="kVictFound" val="$n хитро прищурил$u, глядя на вас."/>
+		<message type="kNotFound" val="Вы обхитрили самого себя, уставившись в пустоту."/>
+	</social>
+	<social vnum="172" keywords="жадно" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы принялись жадно зыркать по сторонам."/>
+		<message type="kOthersNoArg" val="$n с жадностью зыркнул$g на окружащих. Назревает душегубство?"/>
+		<message type="kCharFound" val="Вы нервно облизнулись и жадно посмотрели на $N3."/>
+		<message type="kOthersFound" val="$n нервно облизнул$u и жадно посмотрел$g на $N3. Чего же $e хочет?"/>
+		<message type="kVictFound" val="$n жадно глядит на вас. Чего $m надо?"/>
+		<message type="kNotFound" val="Раз-два-три-четрые-пять, жадность - это скверно!"/>
+	</social>
+	<social vnum="173" keywords="любовь" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы начали признаваться всем в любви."/>
+		<message type="kOthersNoArg" val="$n начал$g признаваться всем в любви - видать весна на дворе."/>
+		<message type="kCharFound" val="Вы признались в любви $N2."/>
+		<message type="kOthersFound" val="$n достал$g букет роз и признал$u $N2 в любви."/>
+		<message type="kVictFound" val="$n признал$u вам в любви. Как трогательно."/>
+		<message type="kNotFound" val="Увы, но оценить ваши признания некому."/>
+	</social>
+	<social vnum="174" keywords="обида" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы обиделись на весь свет."/>
+		<message type="kOthersNoArg" val="$n СМЕРТЕЛЬНО обидел$u на всех."/>
+		<message type="kCharFound" val="Вы обиделись на $N3. Ну так выясните отношения."/>
+		<message type="kOthersFound" val="$n дал$g понять всем, что обидел$u на $N3."/>
+		<message type="kVictFound" val="$n обидел$u на вас."/>
+		<message type="kNotFound" val="Больше позитива! Все равно дуться не на кого."/>
+	</social>
+	<social vnum="175" keywords="охранять" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы решили чего-нибудь поохранять."/>
+		<message type="kOthersNoArg" val="&quot;Со мной вас никто и пальцем не тронет!&quot; - заявил$g $n."/>
+		<message type="kCharFound" val="Вы вооружились до зубов и встали на защиту $N1."/>
+		<message type="kOthersFound" val="$n вывалил$g весь свой арсенал и встал$g на защиту $N1."/>
+		<message type="kVictFound" val="$n вооружил$u до зубов и заявил$g, что будет вас охранять."/>
+		<message type="kNotFound" val="Усё... Уже некого. :("/>
+	</social>
+	<social vnum="176" keywords="страдать" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Ох, за что же такие муки..."/>
+		<message type="kOthersNoArg" val="&quot;Бедн$w я, горемычн$w&quot; - страдающе затянул$g $n."/>
+		<message type="kCharFound" val="Вы решили, что не переживете разлуки с $N4."/>
+		<message type="kOthersFound" val="&quot;Без $N1 мне жизнь не мила!&quot; - заявил$g $n."/>
+		<message type="kVictFound" val="$n заявил$g, что будет страдать без вас. А вам не все ли равно?"/>
+		<message type="kNotFound" val="Да нету здесь этого, нету... Страдайте в одиночестве."/>
+	</social>
+	<social vnum="177" keywords="искать" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы начали что-то выискивать."/>
+		<message type="kOthersNoArg" val="$n начал$g шумно искаться."/>
+		<message type="kCharFound" val="Вы начали старательно искать $N3, но тщетно..."/>
+		<message type="kOthersFound" val="$n никак не может найти $N3. Что у н$s со зрением?"/>
+		<message type="kVictFound" val="$n что-то старательно ищет. Не вас ли?"/>
+		<message type="kNotFound" val="Дааавно след простыл..."/>
+	</social>
+	<social vnum="178" keywords="паника" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Вас охватила паника."/>
+		<message type="kOthersNoArg" val="В панике $n принял$u рвать волосы на... ногах."/>
+		<message type="kCharFound" val="При виде $N1 вас охватила паника."/>
+		<message type="kOthersFound" val="&quot;Я твой ишааак...&quot; - испуганно заревел$g $n при виде $N1 и кинул$u бежать."/>
+		<message type="kVictFound" val="&quot;Я твой ишааак...&quot; - испуганно заревел$g $n при виде вас и кинул$u бежать."/>
+		<message type="kNotFound" val="Без паники! Бригада выехала."/>
+	</social>
+	<social vnum="179" keywords="щелбан" ch_min="kRest" ch_max="kStand" vict_min="kRest" vict_max="kStand">
+		<message type="kCharNoArg" val="Вы отвесили себе смачного щелбана."/>
+		<message type="kOthersNoArg" val="&quot;Бздынь!&quot; - $n вкатил$g сам$g себе в лоб смачный щелбан."/>
+		<message type="kCharFound" val="Вы вкатили $N2 отличного щелбана!"/>
+		<message type="kOthersFound" val="Раздался мелодичный звон - это $n вкатил$g $N2 отличный щелбан."/>
+		<message type="kVictFound" val="У вас зазвенело в голове, когда $n влепил$g вам сочный щелбан."/>
+		<message type="kNotFound" val="Всенепременно! Только кому?"/>
+	</social>
+</socials>

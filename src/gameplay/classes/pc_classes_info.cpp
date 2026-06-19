@@ -13,10 +13,49 @@
 //#include "utils/table_wrapper.h"
 #include "engine/entities/entities_constants.h"
 
+#include <memory>
+#include <unordered_map>
+
 namespace classes {
 
 using DataNode = parser_wrapper::DataNode;
 using ItemPtr = CharClassInfoBuilder::ItemPtr;
+
+// issue.thing-names: class display names live in cfg/messages/ru/class_msg.xml, loaded into this
+// registry before the class config so the builder can pull each class's name/abbr by id token.
+namespace {
+std::unordered_map<std::string, ClassName> g_class_names;
+
+void LoadClassNames(DataNode data) {
+	g_class_names.clear();
+	for (auto &sheaf : data.Children("msg_sheaf")) {
+		const char *id = sheaf.GetValue("id");
+		if (!id || !*id) {
+			continue;
+		}
+		ClassName cn;
+		if (sheaf.GoToChild("name")) {
+			const char *abbr = sheaf.GetValue("abbr");
+			if (abbr && *abbr) {
+				cn.abbr = abbr;
+			}
+			if (auto built = grammar::ItemName::Build(sheaf)) {
+				cn.cases = std::move(*built);
+			}
+			sheaf.GoToParent();
+		}
+		g_class_names[id] = std::move(cn);
+	}
+}
+} // namespace
+
+void ClassNamesLoader::Load(DataNode data) { LoadClassNames(std::move(data)); }
+void ClassNamesLoader::Reload(DataNode data) { LoadClassNames(std::move(data)); }
+
+const ClassName *FindClassName(const std::string &id) {
+	const auto it = g_class_names.find(id);
+	return it == g_class_names.end() ? nullptr : &it->second;
+}
 
 void ClassesLoader::Load(DataNode data) {
 	MUD::Classes().Init(data.Children());
@@ -69,24 +108,27 @@ ItemPtr CharClassInfoBuilder::ParseClass(DataNode &node) {
 	auto mode = CharClassInfoBuilder::ParseItemMode(node, EItemMode::kEnabled);
 	auto info = std::make_shared<CharClassInfo>(id, mode);
 
-	if (node.GoToChild("name")) {
-		ParseName(info, node);
-	}
+	// issue.thing-names: the name now comes from class_msg.xml (registry), not the <name> child.
+	ParseName(info);
 
-	if (node.GoToSibling("stats")) {
+	if (node.GoToChild("stats")) {
 		ParseStats(info, node);
+		node.GoToParent();
 	}
 
-	if (node.GoToSibling("skills")) {
+	if (node.GoToChild("skills")) {
 		ParseSkills(info, node);
+		node.GoToParent();
 	}
 
-	if (node.GoToSibling("spells")) {
+	if (node.GoToChild("spells")) {
 		ParseSpells(info, node);
+		node.GoToParent();
 	}
 
-	if (node.GoToSibling("feats")) {
+	if (node.GoToChild("feats")) {
 		ParseFeats(info, node);
+		node.GoToParent();
 	}
 
 	TemporarySetStat(info);	// Временное проставление параметроа не из файла, а вручную
@@ -138,13 +180,16 @@ void CharClassInfo::PrintBaseStatsTable(CharData *ch, std::ostringstream &buffer
 	table_wrapper::PrintTableToStream(buffer, table);
 }
 
-void CharClassInfoBuilder::ParseName(ItemPtr &info, DataNode &node) {
-	try {
-		info->abbr = parse::ReadAsStr(node.GetValue("abbr"));
-	} catch (std::exception &) {
+void CharClassInfoBuilder::ParseName(ItemPtr &info) {
+	const std::string id = NAME_BY_ITEM<ECharClass>(info->GetId());
+	if (const auto *cn = FindClassName(id)) {
+		info->abbr = cn->abbr;
+		info->names = std::make_unique<grammar::ItemName>(cn->cases);
+	} else {
+		err_log("class '%s' has no name in class_msg.xml.", id.c_str());
 		info->abbr = "--";
+		info->names = std::make_unique<grammar::ItemName>();
 	}
-	info->names = grammar::ItemName::Build(node);
 }
 
 int ParseLevelDecrement(DataNode &node) {
@@ -184,11 +229,11 @@ void CharClassInfo::PrintHeader(std::ostringstream &buffer) const {
 		   << " Mode: " << kColorGrn << NAME_BY_ITEM<EItemMode>(GetMode()) << kColorNrm << "\r\n"
 		   << " Abbr: " << kColorGrn << GetAbbr() << kColorNrm << "\r\n"
 		   << " Name: " << kColorGrn << GetName()
-		   << "/" << names->GetSingular(ECase::kGen)
-		   << "/" << names->GetSingular(ECase::kDat)
-		   << "/" << names->GetSingular(ECase::kAcc)
-		   << "/" << names->GetSingular(ECase::kIns)
-		   << "/" << names->GetSingular(ECase::kPre) << kColorNrm << "\r\n";
+		   << "/" << names->GetSingular(grammar::ECase::kGen)
+		   << "/" << names->GetSingular(grammar::ECase::kDat)
+		   << "/" << names->GetSingular(grammar::ECase::kAcc)
+		   << "/" << names->GetSingular(grammar::ECase::kIns)
+		   << "/" << names->GetSingular(grammar::ECase::kPre) << kColorNrm << "\r\n";
 }
 
 void CharClassInfo::Print(CharData *ch, std::ostringstream &buffer) const {
@@ -204,19 +249,19 @@ const std::string &CharClassInfo::GetAbbr() const {
 	return abbr;
 };
 
-const std::string &CharClassInfo::GetName(ECase name_case) const {
+const std::string &CharClassInfo::GetName(grammar::ECase name_case) const {
 	return names->GetSingular(name_case);
 }
 
-const std::string &CharClassInfo::GetPluralName(ECase name_case) const {
+const std::string &CharClassInfo::GetPluralName(grammar::ECase name_case) const {
 	return names->GetPlural(name_case);
 }
 
-const char *CharClassInfo::GetCName(ECase name_case) const {
+const char *CharClassInfo::GetCName(grammar::ECase name_case) const {
 	return names->GetSingular(name_case).c_str();
 }
 
-const char *CharClassInfo::GetPluralCName(ECase name_case) const {
+const char *CharClassInfo::GetPluralCName(grammar::ECase name_case) const {
 	return names->GetPlural(name_case).c_str();
 }
 

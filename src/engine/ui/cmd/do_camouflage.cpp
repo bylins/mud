@@ -7,6 +7,8 @@
 */
 
 #include "engine/entities/char_data.h"
+#include "administration/privilege.h"
+#include "gameplay/mechanics/mount.h"
 #include "engine/core/handler.h"
 #include "gameplay/skills/skills.h"
 #include "engine/db/global_objects.h"
@@ -20,7 +22,7 @@ void do_camouflage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*
 		return;
 	}
 
-	if (ch->IsOnHorse()) {
+	if (mount::IsOnHorse(ch)) {
 		SendMsgToChar("Вы замаскировались под статую Юрия Долгорукого.\r\n", ch);
 		return;
 	}
@@ -35,7 +37,7 @@ void do_camouflage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*
 		return;
 	}
 
-	if (ch->IsImmortal()) {
+	if (privilege::IsImmortal(ch)) {
 		RemoveAffectFromChar(ch, ESpell::kCamouflage);
 	}
 
@@ -51,19 +53,19 @@ void do_camouflage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*
 
 	Affect<EApply> af;
 	af.type = ESpell::kCamouflage;
-	af.duration = CalcDuration(ch, 0, GetRealLevel(ch), 6, 0, 2);
+	af.duration = CalcDuration(ch, ch, ESkill::kDisguise, 0, 15, 0, 2);
 	af.modifier = world[ch->in_room]->zone_rn;
 	af.location = EApply::kNone;
 	af.battleflag = 0;
 
 	if (percent > prob) {
-		af.bitvector = 0;
+		af.affect_type = EAffect::kUndefined;
 	} else {
-		af.bitvector = to_underlying(EAffect::kDisguise);
+		af.affect_type = EAffect::kDisguise;
 	}
 
 	affect_to_char(ch, af);
-	if (!ch->IsImmortal()) {
+	if (!privilege::IsImmortal(ch)) {
 		timed.skill = ESkill::kDisguise;
 		timed.time = 2;
 		ImposeTimedSkill(ch, &timed);

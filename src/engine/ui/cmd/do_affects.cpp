@@ -3,6 +3,8 @@
 //
 
 #include "engine/entities/char_data.h"
+#include "administration/privilege.h"
+#include "utils/grammar/declensions.h"
 #include "engine/ui/color.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/mechanics/weather.h"
@@ -30,7 +32,8 @@ void do_affects(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	aff_copy.sprintbits(affected_bits, buf2, sizeof(buf2), ", ");
-	snprintf(buf, kMaxStringLength, "Аффекты: %s%s%s\r\n", kColorBoldYel, buf2, kColorNrm);
+	std::vector<std::string> out_str = utils::Split(buf2, ',');
+	snprintf(buf, kMaxStringLength, "Аффекты: %s%s%s\r\n", kColorYel, utils::OutWordsList(out_str, ch->player_specials->saved.stringLength - 10).c_str(), kColorNrm);
 	SendMsgToChar(buf, ch);
 
 	// Routine to show what spells a char is affected by
@@ -54,13 +57,13 @@ void do_affects(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			? sprintf(buf2,
 					  "(%d %s)",
 					  (mod + 1) / kSecsPerMudHour + 1,
-					  GetDeclensionInNumber((mod + 1) / kSecsPerMudHour + 1, EWhat::kHour))
+					  grammar::GetDeclensionInNumber((mod + 1) / kSecsPerMudHour + 1, grammar::EWhat::kHour))
 			: sprintf(buf2, "(менее часа)");
 			snprintf(buf, kMaxStringLength, "%s%s%-21s %-12s%s ",
 					 *sp_name == '!' ? "Состояние  : " : "Заклинание : ",
 					 kColorBoldCyn, sp_name, buf2, kColorNrm);
 			*buf2 = '\0';
-			if (!ch->IsImmortal()) {
+			if (!privilege::IsImmortal(ch)) {
 				auto next_affect_i = affect_i;
 				++next_affect_i;
 				if (next_affect_i != ch->affected.end()) {
@@ -74,17 +77,28 @@ void do_affects(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					sprintf(buf2, "%-3d к параметру: %s", aff->modifier, apply_types[(int) aff->location]);
 					snprintf(buf + strlen(buf), sizeof(buf) - strlen(buf), "%s", buf2);
 				}
-				if (aff->bitvector) {
+				if (aff->affect_type != EAffect::kUndefined) {
 					if (*buf2) {
 						strncat(buf, ", устанавливает ", sizeof(buf) - strlen(buf) - 1);
 					} else {
 						strncat(buf, "устанавливает ", sizeof(buf) - strlen(buf) - 1);
 					}
 					strncat(buf, kColorBoldRed, sizeof(buf) - strlen(buf) - 1);
-					sprintbit(aff->bitvector, affected_bits, buf2, sizeof(buf2));
+					sprintbit(to_underlying(aff->affect_type), affected_bits, buf2, sizeof(buf2));
 					snprintf(buf + strlen(buf), sizeof(buf) - strlen(buf), "%s", buf2);
 					strncat(buf, kColorNrm, sizeof(buf) - strlen(buf) - 1);
 				}
+			}
+			// Stack count (issue.affect-stacks): show [xN] for a multi-stack affect.
+			if (aff->stacks > 1) {
+				snprintf(buf + strlen(buf), sizeof(buf) - strlen(buf), " [x%d]", aff->stacks);
+			}
+			// Potency for immortals / testers: the cast-roll strength (dice+skill+stat)
+			// recorded on the affect at impose time; drives the dispel comparison in
+			// CastUnaffects::DispelSucceeds. 0 means "not recorded" (charms, name-tied
+			// affects, etc.).
+			if (privilege::IsImmortal(ch) || ch->IsFlagged(EPrf::kTester)) {
+				snprintf(buf + strlen(buf), sizeof(buf) - strlen(buf), " [p: %.1f]", aff->potency);
 			}
 			SendMsgToChar(strcat(buf, "\r\n"), ch);
 		}
@@ -101,7 +115,7 @@ void do_affects(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				? sprintf(buf2,
 						  "(%d %s)",
 						  (mod + 1) / kSecsPerMudHour + 1,
-						  GetDeclensionInNumber((mod + 1) / kSecsPerMudHour + 1, EWhat::kHour))
+						  grammar::GetDeclensionInNumber((mod + 1) / kSecsPerMudHour + 1, grammar::EWhat::kHour))
 				: sprintf(buf2, "(менее часа)");
 				snprintf(buf,
 						 kMaxStringLength,
