@@ -23,6 +23,7 @@ class RoomData;
 class CharData;
 struct Trigger;
 class CObjectPrototype;
+class Koi8rYamlEmitter;
 
 namespace utils {
 	class ThreadPool;
@@ -145,6 +146,18 @@ private:
 	// global prototype table, collects entries whose vnum/100 == zone_vnum,
 	// writes the rel-numbers (vnum % 100) into <m_world_dir>/zones/<zone>/<sub>/index.yaml.
 	bool RebuildPerZoneIndex(int zone_vnum, const std::string &sub) const;
+
+	// Emit one entity's body (everything except the vnum, which is implied by
+	// the filename in per-file layout or the map key in flat layout) at the
+	// emitter's current indent. Shared by the per-file save loops and the flat
+	// save path, which calls them one indent level deeper under a rel-number key.
+	void EmitTriggerBody(Koi8rYamlEmitter &yaml, Trigger *trig);
+
+	// Remove the artifacts of the layout we did NOT just write for a zone's
+	// sub-type, so a save fully migrates between layouts (no leftovers):
+	// after a flat save, drop the <sub>/ directory; after a per-file save,
+	// drop the <sub>.yaml file.
+	void CleanupOtherLayout(int zone_vnum, const std::string &sub, YamlLayout written) const;
 
 	// Parallel loading methods (only used when m_num_threads > 1)
 	void LoadZonesParallel();

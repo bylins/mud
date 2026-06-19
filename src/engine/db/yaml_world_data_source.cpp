@@ -2938,10 +2938,105 @@ void YamlWorldDataSource::SaveZone(int zone_rnum)
 	WriteIndexYaml(m_world_dir + "/zones/index.yaml", "zones", zone_vnums);
 }
 
+// Remove the artifacts of the layout we did NOT just write, so a save migrates
+// a zone's sub-type fully between layouts with no leftovers.
+void YamlWorldDataSource::CleanupOtherLayout(int zone_vnum, const std::string &sub, YamlLayout written) const
+{
+	namespace fs = std::filesystem;
+	const std::string base = m_world_dir + "/zones/" + std::to_string(zone_vnum);
+	std::error_code ec;
+	if (written == YamlLayout::Flat)
+	{
+		// We wrote <sub>.yaml -- drop the stale per-file directory (and index).
+		fs::remove_all(base + "/" + sub, ec);
+	}
+	else
+	{
+		// We wrote the <sub>/ directory -- drop the stale flat file.
+		fs::remove(base + "/" + sub + ".yaml", ec);
+	}
+}
+
+void YamlWorldDataSource::EmitTriggerBody(Koi8rYamlEmitter &yaml, Trigger *trig)
+{
+	// Name
+	yaml.Key("name");
+	yaml.Value(GET_TRIG_NAME(trig));
+
+	// Attach type
+	yaml.Key("attach_type");
+	yaml.Value(ReverseLookupEnum("attach_types", trig->get_attach_type()));
+
+	// Narg
+	yaml.Key("narg");
+	yaml.Value(GET_TRIG_NARG(trig));
+
+	// Arglist (optional)
+	if (!trig->arglist.empty())
+	{
+		yaml.Key("arglist");
+		yaml.Value(trig->arglist);
+	}
+
+	// Trigger types
+	bool has_trigger_types = false;
+	for (int bit = 0; bit < 32; ++bit)
+	{
+		if (GET_TRIG_TYPE(trig) & (1L << bit))
+		{
+			has_trigger_types = true;
+			break;
+		}
+	}
+
+	if (has_trigger_types)
+	{
+		yaml.Key("trigger_types");
+		yaml.BeginSequence();
+		yaml.IncreaseIndent();
+
+		for (int bit = 0; bit < 32; ++bit)
+		{
+			if (GET_TRIG_TYPE(trig) & (1L << bit))
+			{
+				std::string type_name = ReverseLookupEnum("trigger_types", bit);
+				if (!type_name.empty() && type_name != std::to_string(bit))
+				{
+					yaml.SequenceItem(type_name);
+				}
+			}
+		}
+
+		yaml.DecreaseIndent();
+	}
+
+	// Script (multiline literal block). ParseTriggerScript keeps
+	// whitespace-only lines from the source as cmd_list nodes whose
+	// cmd is "" after TrimRight; we must round-trip the node count or
+	// the world checksum shifts. The original whitespace text is no
+	// longer available, so we serialise empty cmds as a single space:
+	// on reload, ParseTriggerScript sees a non-empty line, TrimRights
+	// it back to "", and the node count is preserved.
+	std::string script;
+	for (auto cmd = *trig->cmdlist; cmd; cmd = cmd->next)
+	{
+		script += cmd->cmd.empty() ? std::string(" ") : cmd->cmd;
+		if (cmd->next)
+		{
+			script += "\n";
+		}
+	}
+
+	if (!script.empty())
+	{
+		yaml.Key("script");
+		yaml.Value(script, true);  // literal=true
+	}
+}
+
 bool YamlWorldDataSource::SaveTriggers(int zone_rnum, int specific_vnum, int notify_level)
 {
 	(void)notify_level; // YAML saves don't use mudlog - errors go to log file
-	log("SaveTriggers called: zone_rnum=%d, specific_vnum=%d", zone_rnum, specific_vnum);
 	if (zone_rnum < 0 || zone_rnum >= static_cast<int>(zone_table.size()))
 	{
 		log("SYSERR: Invalid zone_rnum %d for SaveTriggers", zone_rnum);
@@ -2949,55 +3044,73 @@ bool YamlWorldDataSource::SaveTriggers(int zone_rnum, int specific_vnum, int not
 	}
 
 	const ZoneData &zone = zone_table[zone_rnum];
-	TrgRnum first_trig = 0;
-	TrgRnum last_trig = top_of_trigt;
+
+	// Collect this zone's triggers, sorted by vnum.
+	std::vector<std::pair<int, Trigger *>> entries;  // (vnum, proto)
+	for (TrgRnum trig_rnum = 0; trig_rnum < top_of_trigt; ++trig_rnum)
+	{
+		if (!trig_index[trig_rnum]) continue;
+		int trig_vnum = trig_index[trig_rnum]->vnum;
+		if (trig_vnum < zone.vnum * 100 || trig_vnum > zone.top) continue;
+		Trigger *trig = trig_index[trig_rnum]->proto;
+		if (!trig) continue;
+		entries.emplace_back(trig_vnum, trig);
+	}
+	std::sort(entries.begin(), entries.end(),
+		[](const auto &a, const auto &b) { return a.first < b.first; });
 
 	namespace fs = std::filesystem;
 
-	int saved_count = 0;
-	log("SaveTriggers: Iterating triggers from %d to %d, specific_vnum=%d", first_trig, last_trig, specific_vnum);
-	for (TrgRnum trig_rnum = first_trig; trig_rnum <= last_trig && trig_rnum < top_of_trigt; ++trig_rnum)
+	if (m_save_layout == YamlLayout::Flat)
 	{
-		if (!trig_index[trig_rnum])
+		// Flat layout ignores specific_vnum: the whole zone file is rewritten
+		// from the in-memory prototypes (which already reflect the edit).
+		const std::string flat_path = m_world_dir + "/zones/" + std::to_string(zone.vnum) + "/triggers.yaml";
+		const std::string temp_file = flat_path + ".tmp";
+		std::ofstream out(temp_file);
+		if (!out.is_open())
 		{
-			continue;
+			log("SYSERR: Failed to open %s for writing", temp_file.c_str());
+			return false;
 		}
-
-		int trig_vnum = trig_index[trig_rnum]->vnum;
-		if (trig_vnum < zone.vnum * 100 || trig_vnum > zone.top)
+		Koi8rYamlEmitter yaml(out);
+		yaml.Comment("Triggers for zone " + std::to_string(zone.vnum));
+		for (const auto &[trig_vnum, trig] : entries)
 		{
-			continue;
+			yaml.EmptyLine();
+			yaml.Comment("Trigger #" + std::to_string(trig_vnum));
+			out << yaml.GetIndent() << (trig_vnum % 100) << ":" << std::endl;
+			yaml.IncreaseIndent();
+			EmitTriggerBody(yaml, trig);
+			yaml.DecreaseIndent();
 		}
-		Trigger *trig = trig_index[trig_rnum]->proto;
-
-		if (!trig)
+		out.close();
+		if (std::rename(temp_file.c_str(), flat_path.c_str()) != 0)
 		{
-			continue;
+			log("SYSERR: Failed to rename %s to %s", temp_file.c_str(), flat_path.c_str());
+			return false;
 		}
+		log("Saved %zu triggers (flat) for zone %d", entries.size(), zone.vnum);
+		CleanupOtherLayout(zone.vnum, "triggers", YamlLayout::Flat);
+		return true;
+	}
 
-		// If specific_vnum is set, save only that trigger
-		if (specific_vnum != -1 && trig_vnum != specific_vnum)
-		{
-			log("SaveTriggers: Skipping trigger %d (looking for %d)", trig_vnum, specific_vnum);
-			continue;
-		}
+	// Per-file layout: one file per trigger.
+	int saved_count = 0;
+	for (const auto &[trig_vnum, trig] : entries)
+	{
+		if (specific_vnum != -1 && trig_vnum != specific_vnum) continue;
 
-		log("SaveTriggers: Saving trigger #%d", trig_vnum);
-		// Build per-zone path
-		int zone_vnum_for_trig = trig_vnum / 100;
 		int rel_num = trig_vnum % 100;
-		std::ostringstream trig_dir_ss;
-		trig_dir_ss << m_world_dir << "/zones/" << zone_vnum_for_trig << "/triggers";
-		std::string trig_dir = trig_dir_ss.str();
+		const std::string trig_dir = m_world_dir + "/zones/" + std::to_string(zone.vnum) + "/triggers";
 		if (!fs::exists(trig_dir))
 		{
 			fs::create_directories(trig_dir);
 		}
 		std::ostringstream trig_file_ss;
 		trig_file_ss << trig_dir << "/" << std::setfill('0') << std::setw(2) << rel_num << ".yaml";
-		std::string trig_file = trig_file_ss.str();
-		std::string temp_file = trig_file + ".tmp";
-		log("SaveTriggers: Writing to %s", temp_file.c_str());
+		const std::string trig_file = trig_file_ss.str();
+		const std::string temp_file = trig_file + ".tmp";
 		std::ofstream out(temp_file);
 		if (!out.is_open())
 		{
@@ -3006,103 +3119,22 @@ bool YamlWorldDataSource::SaveTriggers(int zone_rnum, int specific_vnum, int not
 		}
 
 		Koi8rYamlEmitter yaml(out);
-
-		// Header comment
 		yaml.Comment("Trigger #" + std::to_string(trig_vnum));
 		yaml.EmptyLine();
+		EmitTriggerBody(yaml, trig);
 
-		// Vnum (matches Python converter output and SaveRooms convention).
-		yaml.Key("vnum");
-		yaml.Value(trig_vnum);
-
-		// Name
-		yaml.Key("name");
-		yaml.Value(GET_TRIG_NAME(trig));
-
-		// Attach type
-		yaml.Key("attach_type");
-		yaml.Value(ReverseLookupEnum("attach_types", trig->get_attach_type()));
-
-		// Narg
-		yaml.Key("narg");
-		yaml.Value(GET_TRIG_NARG(trig));
-
-		// Arglist (optional)
-		if (!trig->arglist.empty())
-		{
-			yaml.Key("arglist");
-			yaml.Value(trig->arglist);
-		}
-
-		// Trigger types
-		bool has_trigger_types = false;
-		for (int bit = 0; bit < 32; ++bit)
-		{
-			if (GET_TRIG_TYPE(trig) & (1L << bit))
-			{
-				has_trigger_types = true;
-				break;
-			}
-		}
-
-		if (has_trigger_types)
-		{
-			yaml.Key("trigger_types");
-			yaml.BeginSequence();
-			yaml.IncreaseIndent();
-
-			for (int bit = 0; bit < 32; ++bit)
-			{
-				if (GET_TRIG_TYPE(trig) & (1L << bit))
-				{
-					std::string type_name = ReverseLookupEnum("trigger_types", bit);
-					if (!type_name.empty() && type_name != std::to_string(bit))
-					{
-						yaml.SequenceItem(type_name);
-					}
-				}
-			}
-
-			yaml.DecreaseIndent();
-		}
-
-		// Script (multiline literal block). ParseTriggerScript keeps
-		// whitespace-only lines from the source as cmd_list nodes whose
-		// cmd is "" after TrimRight; we must round-trip the node count or
-		// the world checksum shifts. The original whitespace text is no
-		// longer available, so we serialise empty cmds as a single space:
-		// on reload, ParseTriggerScript sees a non-empty line, TrimRights
-		// it back to "", and the node count is preserved.
-		std::string script;
-		for (auto cmd = *trig->cmdlist; cmd; cmd = cmd->next)
-		{
-			script += cmd->cmd.empty() ? std::string(" ") : cmd->cmd;
-			if (cmd->next)
-			{
-				script += "\n";
-			}
-		}
-
-		if (!script.empty())
-		{
-			yaml.Key("script");
-			yaml.Value(script, true);  // literal=true
-		}
-
-		// Close file and rename atomically
 		out.close();
 		if (std::rename(temp_file.c_str(), trig_file.c_str()) != 0)
 		{
 			log("SYSERR: Failed to rename %s to %s", temp_file.c_str(), trig_file.c_str());
 			continue;
 		}
-
 		++saved_count;
 	}
 
 	log("Saved %d triggers for zone %d", saved_count, zone.vnum);
-
 	RebuildPerZoneIndex(zone.vnum, "triggers");
+	CleanupOtherLayout(zone.vnum, "triggers", YamlLayout::PerFile);
 	return true;
 }
 
