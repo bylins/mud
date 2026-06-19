@@ -1,6 +1,11 @@
 // Part of Bylins http://www.mud.ru
 
 #include <random>
+#include "administration/privilege.h"
+#include "utils/logger.h"
+#include "gameplay/core/experience.h"
+#include "engine/entities/char_data.h"
+#include "gameplay/affects/affect_handler.h"
 #include "gameplay/mechanics/alignment.h"
 #include "administration/privilege.h"
 #include "utils/grammar/declensions.h"
@@ -177,7 +182,7 @@ bool stone_rebirth(CharData *ch, CharData *killer) {
 					ch->set_hit(1);
 					update_pos(ch);
 					while (!ch->affected.empty()) {
-						ch->AffectRemove(ch->affected.begin());
+						RemoveAffect(ch, ch->affected.begin());
 					}
 					affect_total(ch);
 					ch->SetPosition(EPosition::kStand);
@@ -225,7 +230,7 @@ bool check_tester_death(CharData *ch, CharData *killer) {
 	update_pos(ch);
 	act("$n медленно появил$u откуда-то.", false, ch, nullptr, nullptr, kToRoom);
 	while (!ch->affected.empty()) {
-		ch->AffectRemove(ch->affected.begin());
+		RemoveAffect(ch, ch->affected.begin());
 	}
 	affect_total(ch);
 	ch->SetPosition(EPosition::kStand);
@@ -655,7 +660,7 @@ long long get_extend_exp(long long exp, CharData *ch, CharData *victim) {
 		vnum = zone_table[GetZoneRnum(zvn)].copy_from_zone * 100 + mvn;
 	}
 
-	ch->send_to_TC(false, true, false,
+	SendToTC(ch, false, true, false,
 				   "&RУ моба еще %d убийств без замакса, экспа %d, убито %d&n\r\n",
 				   victim->mob_specials.MaxFactor,
 				   exp,
@@ -685,8 +690,8 @@ void perform_group_gain(CharData *ch, CharData *victim, int members, int koef) {
 
 
 // Странно, но для NPC эта функция тоже должна работать
-//  if (ch->IsNpc() || !OK_GAIN_EXP(ch,victim))
-	if (!OK_GAIN_EXP(ch, victim)) {
+//  if (ch->IsNpc() || !experience::OkGainExp(ch,victim))
+	if (!experience::OkGainExp(ch, victim)) {
 		SendMsgToChar("Ваше деяние никто не оценил.\r\n", ch);
 		return;
 	}
@@ -695,9 +700,9 @@ void perform_group_gain(CharData *ch, CharData *victim, int members, int koef) {
 	long long exp = victim->get_exp() / std::max(members, 1);
 	int long_live_exp_bounus_miltiplier = 1;
 
-	if (victim->get_zone_group() > 1 && members < victim->get_zone_group()) {
+	if (experience::GetZoneGroup(victim) > 1 && members < experience::GetZoneGroup(victim)) {
 		// в случае груп-зоны своего рода планка на мин кол-во человек в группе
-		exp = victim->get_exp() / victim->get_zone_group();
+		exp = victim->get_exp() / experience::GetZoneGroup(victim);
 	}
 	// 2. Учитывается коэффициент (лидерство, разность уровней)
 	//    На мой взгляд его правильней использовать тут а не в конце процедуры,
@@ -874,7 +879,7 @@ void group_gain(CharData *killer, CharData *victim) {
 			if (partner_count == 1) {
 				// и если кожф. больше или равен 100
 				if (koef >= 100) {
-					if (leader->get_zone_group() < 2) {
+					if (experience::GetZoneGroup(leader) < 2) {
 						koef += 100;
 					}
 				}
@@ -943,7 +948,7 @@ void char_dam_message(int dam, CharData *ch, CharData *victim, bool noflee) {
 		return;
 	switch (victim->GetPosition()) {
 		case EPosition::kPerish:
-			if (IS_POLY(victim))
+			if (IsPoly(victim))
 				act("$n смертельно ранены и умрут, если им не помогут.",
 					true, victim, nullptr, nullptr, kToRoom | kToArenaListen);
 			else
@@ -952,7 +957,7 @@ void char_dam_message(int dam, CharData *ch, CharData *victim, bool noflee) {
 			SendMsgToChar("Вы смертельно ранены и умрете, если вам не помогут.\r\n", victim);
 			break;
 		case EPosition::kIncap:
-			if (IS_POLY(victim))
+			if (IsPoly(victim))
 				act("$n без сознания и медленно умирают. Помогите же им.",
 					true, victim, nullptr, nullptr, kToRoom | kToArenaListen);
 			else
@@ -961,7 +966,7 @@ void char_dam_message(int dam, CharData *ch, CharData *victim, bool noflee) {
 			SendMsgToChar("Вы без сознания и медленно умираете, брошенные без помощи.\r\n", victim);
 			break;
 		case EPosition::kStun:
-			if (IS_POLY(victim))
+			if (IsPoly(victim))
 				act("$n без сознания, но возможно они еще повоюют (попозже :).",
 					true, victim, nullptr, nullptr, kToRoom | kToArenaListen);
 			else
@@ -974,7 +979,7 @@ void char_dam_message(int dam, CharData *ch, CharData *victim, bool noflee) {
 				act("$n вспыхнул$g и рассыпал$u в прах.", false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
 				SendMsgToChar("Похоже вас убили и даже тела не оставили!\r\n", victim);
 			} else {
-				if (IS_POLY(victim))
+				if (IsPoly(victim))
 					act("$n мертвы, их души медленно подымаются в небеса.",
 						false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
 				else
@@ -1087,6 +1092,19 @@ bool MayAttack(const CharData *sub) {
 		&& sub->get_wait() <= 0
 		&& !sub->GetEnemy()
 		&& sub->GetPosition() >= EPosition::kRest);
+}
+
+// issue.chardata-cleaning: was CharData::HasWeapon.
+bool HasWeapon(const CharData *ch) {
+	if ((GET_EQ(ch, EEquipPos::kWield)
+	  && GET_EQ(ch, EEquipPos::kWield)->get_type() != EObjType::kLightSource)
+	  || (GET_EQ(ch, EEquipPos::kHold)
+	  && GET_EQ(ch, EEquipPos::kHold)->get_type() != EObjType::kLightSource)
+	  || (GET_EQ(ch, EEquipPos::kBoths)
+	  && GET_EQ(ch, EEquipPos::kBoths)->get_type() != EObjType::kLightSource)) {
+		return true;
+	}
+	return false;
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

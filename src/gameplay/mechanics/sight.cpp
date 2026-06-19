@@ -6,6 +6,7 @@
 */
 
 #include "sight.h"
+#include "gameplay/mechanics/minions.h"
 #include "administration/privilege.h"
 #include "gameplay/economics/currencies.h"
 #include "utils/grammar/gender.h"
@@ -422,7 +423,7 @@ bool look_at_target(CharData *ch, char *arg, int subcmd) {
 			return false;
 		look_at_char(found_char, ch);
 		if (ch != found_char) {
-			if (subcmd == kScmdLookHide && ch->GetSkill(ESkill::kPry) > 0) {
+			if (subcmd == kScmdLookHide && GetSkill(ch, ESkill::kPry) > 0) {
 				fnum = number(1, MUD::Skill(ESkill::kPry).difficulty);
 				found = CalcCurrentSkill(ch, ESkill::kPry, found_char);
 				TrainSkill(ch, ESkill::kPry, found < fnum, found_char);
@@ -553,7 +554,7 @@ void look_at_char(CharData *i, CharData *ch) {
 			SendMsgToChar(ch, "*\r\n%s*\r\n", AddLeadingStringSpace(i->player_data.description).c_str());
 	} else if (!i->IsNpc()) {
 		strcpy(buf, "\r\nЭто");
-		if (IS_FEMALE(i)) {
+		if (IsFemale(i)) {
 			if (GET_HEIGHT(i) <= 151) {
 				if (GET_WEIGHT(i) >= 140)
 					strcat(buf, " маленькая плотная дамочка.\r\n");
@@ -639,13 +640,13 @@ void look_at_char(CharData *i, CharData *ch) {
 
 	if (AFF_FLAGGED(i, EAffect::kCharmed)
 		&& i->get_master() == ch) {
-		if (i->low_charm()) {
+		if (IsCharmExpiring(i)) {
 			act("$n скоро перестанет следовать за вами.", false, i, nullptr, ch, kToVict);
 		} else {
 			for (const auto &aff : i->affected) {
 				if (aff->type == ESpell::kCharm) {
 					sprintf(buf,
-							IS_POLY(i) ? "$n будут слушаться вас еще %d %s." : "$n будет слушаться вас еще %d %s.",
+							IsPoly(i) ? "$n будут слушаться вас еще %d %s." : "$n будет слушаться вас еще %d %s.",
 							aff->duration/2,
 							grammar::GetDeclensionInNumber(aff->duration/2, grammar::EWhat::kHour));
 					act(buf, false, i, nullptr, ch, kToVict);
@@ -692,7 +693,7 @@ void look_at_char(CharData *i, CharData *ch) {
 		}
 	}
 
-	if (ch != i && (ch->GetSkill(ESkill::kPry) || privilege::IsImmortal(ch))) {
+	if (ch != i && (GetSkill(ch, ESkill::kPry) || privilege::IsImmortal(ch))) {
 		found = false;
 		act("\r\nВы попытались заглянуть в $s ношу:", false, i, nullptr, ch, kToVict);
 		for (tmp_obj = i->carrying; tmp_obj; tmp_obj = tmp_obj->get_next_content()) {
@@ -1056,7 +1057,7 @@ void look_in_direction(CharData *ch, int dir, int info_is) {
 				count += sprintf(buf + count, " закрыто (вероятно дверь).\r\n");
 			}
 
-			const int skill_pick = ch->GetSkill(ESkill::kPickLock);
+			const int skill_pick = GetSkill(ch, ESkill::kPickLock);
 			if (EXIT_FLAGGED(rdata, EExitFlag::kLocked) && skill_pick) {
 				if (EXIT_FLAGGED(rdata, EExitFlag::kPickroof)) {
 					count += sprintf(buf + count - 2,
@@ -1165,7 +1166,7 @@ void look_in_obj(CharData *ch, char *arg) {
 		if (obj->get_type() == EObjType::kContainer) {
 			if (IS_SET(GET_OBJ_VAL((obj), 1), (EContainerFlag::kShutted))) {
 				act("Закрыт$A.", false, ch, obj, nullptr, kToChar);
-				const int skill_pick = ch->GetSkill(ESkill::kPickLock);
+				const int skill_pick = GetSkill(ch, ESkill::kPickLock);
 				int count = sprintf(buf, "Заперт%s.", grammar::ObjSexEnding((obj)->get_sex(), 6));
 				if (IS_SET(GET_OBJ_VAL((obj), 1), (EContainerFlag::kLockedUp)) && skill_pick) {
 					if (IS_SET(GET_OBJ_VAL((obj), 1), (EContainerFlag::kUncrackable)))
@@ -1218,7 +1219,7 @@ void look_in_obj(CharData *ch, char *arg) {
 
 void skip_hide_on_look(CharData *ch) {
 	if (AFF_FLAGGED(ch, EAffect::kHide) &&
-		((!ch->GetSkill(ESkill::kPry) ||
+		((!GetSkill(ch, ESkill::kPry) ||
 			((number(1, 100) -
 				CalcCurrentSkill(ch, ESkill::kPry, nullptr) - 2 * (ch->get_wis() - 9)) > 0)))) {
 		RemoveAffectFromChar(ch, ESpell::kHide);
@@ -1519,29 +1520,29 @@ void diag_char_to_char(CharData *i, CharData *ch) {
 		switch (i->GetPosition()) {
 			case EPosition::kPerish: strcat(buf, ".");
 				break;
-			case EPosition::kIncap: strcat(buf, IS_POLY(i) ? ", лежат без сознания." : ", лежит без сознания.");
+			case EPosition::kIncap: strcat(buf, IsPoly(i) ? ", лежат без сознания." : ", лежит без сознания.");
 				break;
-			case EPosition::kStun: strcat(buf, IS_POLY(i) ? ", лежат в обмороке." : ", лежит в обмороке.");
+			case EPosition::kStun: strcat(buf, IsPoly(i) ? ", лежат в обмороке." : ", лежит в обмороке.");
 				break;
-			case EPosition::kSleep: strcat(buf, IS_POLY(i) ? ", спят." : ", спит.");
+			case EPosition::kSleep: strcat(buf, IsPoly(i) ? ", спят." : ", спит.");
 				break;
-			case EPosition::kRest: strcat(buf, IS_POLY(i) ? ", отдыхают." : ", отдыхает.");
+			case EPosition::kRest: strcat(buf, IsPoly(i) ? ", отдыхают." : ", отдыхает.");
 				break;
-			case EPosition::kSit: strcat(buf, IS_POLY(i) ? ", сидят." : ", сидит.");
+			case EPosition::kSit: strcat(buf, IsPoly(i) ? ", сидят." : ", сидит.");
 				break;
-			case EPosition::kStand: strcat(buf, IS_POLY(i) ? ", стоят." : ", стоит.");
+			case EPosition::kStand: strcat(buf, IsPoly(i) ? ", стоят." : ", стоит.");
 				break;
 			case EPosition::kFight:
 				if (i->GetEnemy())
-					strcat(buf, IS_POLY(i) ? ", сражаются." : ", сражается.");
+					strcat(buf, IsPoly(i) ? ", сражаются." : ", сражается.");
 				else
-					strcat(buf, IS_POLY(i) ? ", махают кулаками." : ", махает кулаками.");
+					strcat(buf, IsPoly(i) ? ", махают кулаками." : ", махает кулаками.");
 				break;
 			default: return;
 				break;
 		}
 	else
-		strcat(buf, IS_POLY(i) ? ", сидят верхом." : ", сидит верхом.");
+		strcat(buf, IsPoly(i) ? ", сидят верхом." : ", сидит верхом.");
 
 	if (AFF_FLAGGED(ch, EAffect::kDetectPoison))
 		if (AFF_FLAGGED(i, EAffect::kPoisoned)) {
@@ -1558,7 +1559,7 @@ void diag_char_to_char(CharData *i, CharData *ch) {
 //buf это буфер в который дописывать инфу, в нем уже может быть что-то иначе надо перед вызовом присвоить *buf='\0'
 void obj_info(CharData *ch, ObjData *obj, char buf[kMaxStringLength]) {
 	int j;
-	if (CanUseFeat(ch, EFeat::kSkilledTrader) || ch->IsFlagged(EPrf::kHolylight) || ch->GetSkill(ESkill::kJewelry)) {
+	if (CanUseFeat(ch, EFeat::kSkilledTrader) || ch->IsFlagged(EPrf::kHolylight) || GetSkill(ch, ESkill::kJewelry)) {
 		sprintf(buf + strlen(buf), "Материал : %s", kColorCyn);
 		sprinttype(obj->get_material(), material_name, buf + strlen(buf));
 		sprintf(buf + strlen(buf), "\r\n%s", kColorNrm);
@@ -1646,9 +1647,9 @@ static void ShowAffectAuras(CharData *i, CharData *ch) {
 		line += AffectMsg(EAffect::kGodsShield, EAMT::kLook);
 	}
 	if (AFF_FLAGGED(i, EAffect::kSanctuary)) {
-		line += AffectMsg(EAffect::kSanctuary, IS_POLY(i) ? EAMT::kLookPoly : EAMT::kLook);
+		line += AffectMsg(EAffect::kSanctuary, IsPoly(i) ? EAMT::kLookPoly : EAMT::kLook);
 	} else if (AFF_FLAGGED(i, EAffect::kPrismaticAura)) {
-		line += AffectMsg(EAffect::kPrismaticAura, IS_POLY(i) ? EAMT::kLookPoly : EAMT::kLook);
+		line += AffectMsg(EAffect::kPrismaticAura, IsPoly(i) ? EAMT::kLookPoly : EAMT::kLook);
 	}
 	if (!line.empty() && brief != EBriefShieldsMode::kCompressed) {
 		act(line.c_str(), false, i, nullptr, ch, kToVict);
@@ -1724,7 +1725,7 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 			"стоит здесь. "
 		};
 
-	// Здесь и далее при использовании IS_POLY() - патч для отображения позиций мобов типа "они" -- Ковшегуб
+	// Здесь и далее при использовании IsPoly() - патч для отображения позиций мобов типа "они" -- Ковшегуб
 	const char *poly_positions[] =
 		{
 			"лежат здесь, мертвые. ",
@@ -1740,7 +1741,7 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 
 	if (mount::IsHorse(i) && mount::IsOnHorse(i->get_master())) {
 		if (ch == i->get_master()) {
-			if (!IS_POLY(i)) {
+			if (!IsPoly(i)) {
 				act("$N несет вас на своей спине.", false, ch, nullptr, i, kToChar);
 			} else {
 				act("$N несут вас на своей спине.", false, ch, nullptr, i, kToChar);
@@ -1841,7 +1842,7 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 		if (AFF_FLAGGED(i, EAffect::kDisguise))
 			sprintf(buf + strlen(buf), "(замаскировал%s) ", grammar::SexEnding((i)->get_sex(), 2));
 		if (AFF_FLAGGED(i, EAffect::kFly))
-			strcat(buf, IS_POLY(i) ? "(летят) " : "(летит) ");
+			strcat(buf, IsPoly(i) ? "(летят) " : "(летит) ");
 		if (AFF_FLAGGED(i, EAffect::kHorse))
 			strcat(buf, "(под седлом) ");
 
@@ -1889,21 +1890,21 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 		} else if (mount::IsHorse(i) && AFF_FLAGGED(i, EAffect::kTethered))
 			sprintf(buf + strlen(buf), "привязан%s здесь. ", grammar::SexEnding((i)->get_sex(), 6));
 		else if ((sector = real_sector(i->in_room)) == ESector::kOnlyFlying)
-			strcat(buf, IS_POLY(i) ? "летают здесь. " : "летает здесь. ");
+			strcat(buf, IsPoly(i) ? "летают здесь. " : "летает здесь. ");
 		else if (sector == ESector::kUnderwater)
-			strcat(buf, IS_POLY(i) ? "плавают здесь. " : "плавает здесь. ");
+			strcat(buf, IsPoly(i) ? "плавают здесь. " : "плавает здесь. ");
 		else if (i->GetPosition() > EPosition::kSleep && AFF_FLAGGED(i, EAffect::kFly))
-			strcat(buf, IS_POLY(i) ? "летают здесь. " : "летает здесь. ");
+			strcat(buf, IsPoly(i) ? "летают здесь. " : "летает здесь. ");
 		else if (sector == ESector::kWaterSwim || sector == ESector::kWaterNoswim)
-			strcat(buf, IS_POLY(i) ? "плавают здесь. " : "плавает здесь. ");
+			strcat(buf, IsPoly(i) ? "плавают здесь. " : "плавает здесь. ");
 		else
 			strcat(buf,
-				   IS_POLY(i) ? poly_positions[static_cast<int>(i->GetPosition())] : positions[static_cast<int>(i->GetPosition())]);
+				   IsPoly(i) ? poly_positions[static_cast<int>(i->GetPosition())] : positions[static_cast<int>(i->GetPosition())]);
 		if (AFF_FLAGGED(ch, EAffect::kDetectMagic) && i->IsNpc() && IsAffectedBySpell(i, ESpell::kCapable))
 			sprintf(buf + strlen(buf), "(аура магии) ");
 	} else {
 		if (i->GetEnemy()) {
-			strcat(buf, IS_POLY(i) ? "сражаются с " : "сражается с ");
+			strcat(buf, IsPoly(i) ? "сражаются с " : "сражается с ");
 			if (i->in_room != i->GetEnemy()->in_room)
 				strcat(buf, "чьей-то тенью");
 			else if (i->GetEnemy() == ch)
@@ -1916,7 +1917,7 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 				strcat(buf, "! ");
 		} else        // NIL fighting pointer
 		{
-			strcat(buf, IS_POLY(i) ? "колотят по воздуху" : "колотит по воздуху");
+			strcat(buf, IsPoly(i) ? "колотят по воздуху" : "колотит по воздуху");
 			if (mount::IsOnHorse(i))
 				sprintf(buf + strlen(buf), ", сидя верхом на %s. ", PersonName(mount::GetHorse(i), ch, 5));
 			else

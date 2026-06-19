@@ -13,6 +13,7 @@ extern FILE *logfile;
 extern std::list<FILE *> opened_files;
 
 void pers_log(CharData *ch, const char *format, ...) __attribute__((format(printf, 2, 3)));
+void SendToTC(CharData *ch, bool to_impl, bool to_tester, bool to_coder, const char *msg, ...) __attribute__((format(printf, 5, 6)));
 
 void log(std::string format);
 void log(const char *format, ...) __attribute__((format(printf, 1, 2)));

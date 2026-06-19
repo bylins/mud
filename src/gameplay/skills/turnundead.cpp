@@ -18,16 +18,16 @@
 
 void do_turn_undead(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 
-	if (!ch->GetSkill(ESkill::kTurnUndead)) {
+	if (!GetSkill(ch, ESkill::kTurnUndead)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kTurnUndead, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
-	if (ch->HasCooldown(ESkill::kTurnUndead)) {
+	if (ch->Skills().HasActiveCooldown(ESkill::kTurnUndead)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kTurnUndead, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	};
 
-	int skill = ch->GetSkill(ESkill::kTurnUndead);
+	int skill = GetSkill(ch, ESkill::kTurnUndead);
 	TimedSkill timed;
 	timed.skill = ESkill::kTurnUndead;
 	if (CanUseFeat(ch, EFeat::kExorcist)) {

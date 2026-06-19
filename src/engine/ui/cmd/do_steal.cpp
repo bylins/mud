@@ -164,7 +164,7 @@ void go_steal(CharData *ch, CharData *vict, char *obj_name) {
 				return;
 			} else {
 				// Считаем вероятность крит-воровства (воровства всех денег)
-				if ((number(1, 100) - ch->GetSkill(ESkill::kSteal) -
+				if ((number(1, 100) - GetSkill(ch, ESkill::kSteal) -
 					ch->get_dex() + vict->get_wis() + currencies::GetHand(*vict, currencies::kGold) / 500) < 0) {
 					act("Тугой кошелек $N1 перекочевал к вам.", true, ch, nullptr, vict, kToChar);
 					gold = currencies::GetHand(*vict, currencies::kGold);
@@ -207,7 +207,7 @@ void do_steal(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *vict;
 	char vict_name[kMaxInputLength], obj_name[kMaxInputLength];
 
-	if (ch->IsNpc() || !ch->GetSkill(ESkill::kSteal)) {
+	if (ch->IsNpc() || !GetSkill(ch, ESkill::kSteal)) {
 		SendMsgToChar("Но вы не знаете как.\r\n", ch);
 		return;
 	}

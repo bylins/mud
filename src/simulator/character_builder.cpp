@@ -209,7 +209,7 @@ void CharacterBuilder::grant_class_skills_and_feats()
 	// докачал.
 	for (const auto &skill : class_info.skills) {
 		if (level >= skill.GetMinLevel() && remort >= skill.GetMinRemort()) {
-			m_result->set_skill(skill.GetId(), 200);
+			SetSkill(m_result.get(), skill.GetId(), 200);
 		}
 	}
 

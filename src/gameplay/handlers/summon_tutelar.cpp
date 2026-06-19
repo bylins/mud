@@ -103,7 +103,7 @@ EStageResult SummonTutelar(CastContext &ctx) {
 		affect_to_char(mob, af);
 	}
 
-	if (IS_FEMALE(ch)) {
+	if (IsFemale(ch)) {
 		mob->set_sex(EGender::kMale);
 		mob->SetCharAliases("Небесный защитник");
 		mob->player_data.PNames[grammar::ECase::kNom] = "Небесный защитник";
@@ -167,9 +167,9 @@ EStageResult SummonTutelar(CastContext &ctx) {
 	mob->SetPosition(EPosition::kStand);
 	GET_DEFAULT_POS(mob) = EPosition::kStand;
 
-	mob->set_skill(ESkill::kRescue, floorf(base_rescue + additional_rescue_for_charisma * eff_cha));
-	mob->set_skill(ESkill::kAwake, floorf(base_awake + additional_awake_for_charisma * eff_cha));
-	mob->set_skill(ESkill::kMultiparry, floorf(base_multiparry + additional_multiparry_for_charisma * eff_cha));
+	SetSkill(mob, ESkill::kRescue, floorf(base_rescue + additional_rescue_for_charisma * eff_cha));
+	SetSkill(mob, ESkill::kAwake, floorf(base_awake + additional_awake_for_charisma * eff_cha));
+	SetSkill(mob, ESkill::kMultiparry, floorf(base_multiparry + additional_multiparry_for_charisma * eff_cha));
 
 	int base_spell = 2 + count_shields;
 
@@ -178,7 +178,7 @@ EStageResult SummonTutelar(CastContext &ctx) {
 	SET_SPELL_MEM(mob, ESpell::kRemovePoison, base_spell);
 	SET_SPELL_MEM(mob, ESpell::kHeal, floorf(base_heal + additional_heal_for_charisma * eff_cha));
 	mob->mob_specials.have_spell = true;
-	if (mob->GetSkill(ESkill::kAwake)) {
+	if (GetSkill(mob, ESkill::kAwake)) {
 		mob->SetFlag(EPrf::kAwake);
 	}
 	GET_LIKES(mob) = 100;
@@ -191,7 +191,7 @@ EStageResult SummonTutelar(CastContext &ctx) {
 	mob->SetFlag(EMobFlag::kLightingBreath);
 	mob->set_level(GetRealLevel(ch));
 	PlaceCharToRoom(mob, ch->in_room);
-	if (IS_FEMALE(mob)) {
+	if (IsFemale(mob)) {
 		act("Небесная защитница появилась в яркой вспышке света!",
 			true, mob, nullptr, nullptr, kToRoom | kToArenaListen);
 	} else {

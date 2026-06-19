@@ -827,7 +827,7 @@ void Clan::SetClanData(CharData *ch) {
 	}
 	// куда-то таки приписан
 	std::string buffer;
-	if (IS_MALE(ch))
+	if (IsMale(ch))
 		buffer = CLAN(ch)->ranks[CLAN_MEMBER(ch)->rank_num] + " " + CLAN(ch)->title;
 	else
 		buffer = CLAN(ch)->ranks_female[CLAN_MEMBER(ch)->rank_num] + " " + CLAN(ch)->title_female;
@@ -3426,7 +3426,7 @@ void Clan::HouseOwner(CharData *ch, std::string &buffer) {
 		}
 		this->owner = buffer2;
 		SendMsgToChar(ch, "Поздравляем, вы передали свои полномочия %s!\r\n", GET_PAD(d->character, 2));
-		if (IS_MALE(ch))
+		if (IsMale(ch))
 			sprintf(buf,
 					"&RВнимание!!!&n %s ушел на пенсию и добровольно передал руководство дружины %s игроку %s.\r\n",
 					GET_NAME(ch),
@@ -4011,11 +4011,11 @@ void Clan::clan_invoice(CharData *ch, bool enter) {
 			&& d->character->IsFlagged(EPrf::kClanmembersMode)) {
 			if (enter) {
 				SendMsgToChar(d->character.get(), "%sДружинни%s %s вош%s в мир.%s\r\n",
-							  kColorBoldBlk, IS_MALE(ch) ? "к" : "ца", GET_NAME(ch),
+							  kColorBoldBlk, IsMale(ch) ? "к" : "ца", GET_NAME(ch),
 							  grammar::SexEnding((ch)->get_sex(), 5), kColorNrm);
 			} else {
 				SendMsgToChar(d->character.get(), "%sДружинни%s %s покинул%s мир.%s\r\n",
-							  kColorBoldBlk, IS_MALE(ch) ? "к" : "ца", GET_NAME(ch),
+							  kColorBoldBlk, IsMale(ch) ? "к" : "ца", GET_NAME(ch),
 							  grammar::SexEnding((ch)->get_sex(), 1), kColorNrm);
 			}
 		}
@@ -4891,7 +4891,7 @@ void DoClanList(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!all) {
 		buffer2 << fmt::format(fmt::runtime(clanFormat), 1, (*clan)->abbrev, (*clan)->owner, (*clan)->name);
 		for (const auto &it : temp_list) {
-			buffer2 << fmt::format(fmt::runtime(memberFormat), (IS_MALE(it) ? (*clan)->ranks[CLAN_MEMBER(it)->rank_num]
+			buffer2 << fmt::format(fmt::runtime(memberFormat), (IsMale(it) ? (*clan)->ranks[CLAN_MEMBER(it)->rank_num]
 																			: (*clan)->ranks_female[CLAN_MEMBER(it)->rank_num]),
 								   GetPkNameColor(it), (it)->GetNameWithTitleOrRace(),
 								   kColorNrm, kColorBoldRed,

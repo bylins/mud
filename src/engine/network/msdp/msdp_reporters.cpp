@@ -1,4 +1,5 @@
 #include "msdp_reporters.h"
+#include "gameplay/mechanics/minions.h"
 #include "gameplay/economics/currencies.h"
 #include "gameplay/mechanics/sight.h"
 #include "gameplay/mechanics/mount.h"
@@ -233,7 +234,7 @@ void GroupReporter::append_char(const std::shared_ptr<ArrayValue> &group,
 	}
 
 	if (character->IsNpc()
-		&& character->low_charm()) {
+		&& IsCharmExpiring(character)) {
 		affects += "Т";
 	}
 

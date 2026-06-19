@@ -7,6 +7,7 @@
 */
 
 #include "damage.h"
+#include "utils/logger.h"
 #include "administration/privilege.h"
 #include "utils/grammar/gender.h"
 #include "gameplay/mechanics/minions.h"
@@ -266,8 +267,8 @@ void Damage::ProcessBlink(CharData *ch, CharData *victim) {
 	}
 	if(blink < 1)
 		return;
-//	ch->send_to_TC(false, true, false, "Шанс мигалки равен == %d процентов.\r\n", blink);
-//	victim->send_to_TC(false, true, false, "Шанс мигалки равен == %d процентов.\r\n", blink);
+//	SendToTC(ch, false, true, false, "Шанс мигалки равен == %d процентов.\r\n", blink);
+//	SendToTC(victim, false, true, false, "Шанс мигалки равен == %d процентов.\r\n", blink);
 	int bottom = 1;
 	if (ch->calc_morale() > number(1, 100)) // удача
 		bottom = 10;
@@ -578,9 +579,9 @@ int Damage::Process(CharData *ch, CharData *victim) {
 
 	if (GET_PR(victim) && dmg_type == fight::kPhysDmg) {
 		int ResultDam = dam - (dam * GET_PR(victim) / 100);
-		ch->send_to_TC(false, true, false,
+		SendToTC(ch, false, true, false,
 					   "&CУчет поглощения урона: %d начислено, %d применено.&n\r\n", dam, ResultDam);
-		victim->send_to_TC(false, true, false,
+		SendToTC(victim, false, true, false,
 						   "&CУчет поглощения урона: %d начислено, %d применено.&n\r\n", dam, ResultDam);
 		dam = ResultDam;
 	}
@@ -707,8 +708,8 @@ int Damage::Process(CharData *ch, CharData *victim) {
 				? GET_NAME(ch->get_master()) : "");
 		observability::EmitToAllSinks(ev);
 	}
-	victim->send_to_TC(false, true, true, "&MПолучен урон = %d&n\r\n", dam);
-	ch->send_to_TC(false, true, true, "&MПрименен урон = %d&n\r\n", dam);
+	SendToTC(victim, false, true, true, "&MПолучен урон = %d&n\r\n", dam);
+	SendToTC(ch, false, true, true, "&MПрименен урон = %d&n\r\n", dam);
 	if (dmg_type == fight::kPhysDmg && GET_GOD_FLAG(ch, EGf::kSkillTester) && skill_id != ESkill::kUndefined) {
 		log("SKILLTEST:;%s;skill;%s;damage;%d;Luck;%s", GET_NAME(ch), MUD::Skill(skill_id).GetName(), dam, flags[fight::kCritLuck] ? "yes" : "no");
 	}
@@ -731,7 +732,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 	DpsSystem::UpdateDpsStatistics(ch, real_dam, over_dam);
 	// запись дамага в список атакеров
 	if (victim->IsNpc()) {
-		victim->add_attacker(ch, ATTACKER_DAMAGE, real_dam);
+		victim->mark_attacked(ch);
 	}
 	// попытка спасти жертву через ангела
 	CheckTutelarSelfSacrfice(ch, victim);
@@ -837,7 +838,7 @@ void TryRemoveExtrahits(CharData *ch, CharData *victim) {
 	{
 		victim->set_hit(victim->get_real_max_hit());
 		SendMsgToChar(victim, "%s'Будь%s тощ%s аки прежде' - мелькнула чужая мысль в вашей голове.%s\r\n",
-					  kColorWht, grammar::PluralVerbEnding(IS_POLY(victim)), grammar::InstrEnding((victim)->get_sex()), kColorNrm);
+					  kColorWht, grammar::PluralVerbEnding(IsPoly(victim)), grammar::InstrEnding((victim)->get_sex()), kColorNrm);
 		act("Вы прервали золотистую нить, питающую $N3 жизнью.", false, ch, nullptr, victim, kToChar);
 		act("$n прервал$g золотистую нить, питающую $N3 жизнью.", false, ch, nullptr, victim, kToNotVict | kToArenaListen);
 	}

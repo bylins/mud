@@ -8,12 +8,29 @@
 #include "engine/core/handler.h"
 #include "engine/core/target_resolver.h"
 #include "engine/db/global_objects.h"
+#include "utils/grammar/gender.h"
+
+// Stop covering one's protectee, announcing it to both parties. The message is a
+// protect-skill concern; CharData::remove_protecting() is a silent data primitive
+// (also called from death/extract/dtor paths, where these messages must not fire).
+static void StopProtecting(CharData *ch) {
+	auto *vict = ch->get_protecting();
+	if (!vict) {
+		return;
+	}
+	SendMsgToChar(ch, "Вы перестали прикрывать %s.\r\n", GET_PAD(vict, 3));
+	SendMsgToChar(vict, "%s перестал%s прикрывать вас.\r\n", GET_NAME(ch), grammar::SexEnding(ch->get_sex(), 1));
+	ch->remove_protecting();
+}
 
 // ************** PROTECT PROCEDURES
 void go_protect(CharData *ch, CharData *vict) {
 	if (IsUnableToAct(ch)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kProtect, ESkillMsg::kCantFightNow) + "\r\n", ch);
 		return;
+	}
+	if (ch->get_protecting() && ch->get_protecting() != vict) {
+		StopProtecting(ch);
 	}
 	ch->set_protecting(vict);
 	act("Вы попытаетесь прикрыть $N3 от нападения.", false, ch, 0, vict, kToChar);
@@ -23,19 +40,18 @@ void do_protect(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	one_argument(argument, arg);
 	if (!*arg) {
 		if (ch->get_protecting()) {
-			ch->remove_protecting();
-			SendMsgToChar("Вы перестали прикрывать своего товарища.\r\n", ch);
+			StopProtecting(ch);
 		} else {
 			SendMsgToChar("Вы никого не прикрываете.\r\n", ch);
 		}
 		return;
 	}
 
-	if (ch->IsNpc() || !ch->GetSkill(ESkill::kProtect)) {
+	if (ch->IsNpc() || !GetSkill(ch, ESkill::kProtect)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kProtect, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
-	if (ch->HasCooldown(ESkill::kProtect)) {
+	if (ch->Skills().HasActiveCooldown(ESkill::kProtect)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kProtect, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	};
@@ -131,7 +147,7 @@ CharData *TryToFindProtector(CharData *victim, CharData *ch) {
 			percent = number(1, MUD::Skill(ESkill::kProtect).difficulty);
 			prob = CalcCurrentSkill(vict, ESkill::kProtect, victim);
 			prob = prob * 8 / 10;
-			if (vict->HasCooldown(ESkill::kProtect)) {
+			if (vict->Skills().HasActiveCooldown(ESkill::kProtect)) {
 				prob /= 2;
 			};
 			if (GET_GOD_FLAG(vict, EGf::kGodscurse)) {

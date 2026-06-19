@@ -133,7 +133,7 @@ float CalcDamagePerRound(CharData *victim) {
 		+ victim->mob_specials.damnodice * (victim->mob_specials.damsizedice + 1) / 2.0
 		+ (AFF_FLAGGED(victim, EAffect::kCloudOfArrows) ? 14 : 0);
 	int num_attacks = 1 + victim->mob_specials.extra_attack
-		+ (victim->GetSkill(ESkill::kAddshot) ? 2 : 0);
+		+ (GetSkill(victim, ESkill::kAddshot) ? 2 : 0);
 
 	float dam_per_round = dam_per_attack * num_attacks;
 
@@ -243,6 +243,16 @@ bool IsMortifier(const CharData *ch) {
 	return ch->IsNpc()
 		&& ch->has_master()
 		&& ch->IsFlagged(EMobFlag::kCorpse);
+}
+
+// issue.chardata-cleaning: was CharData::low_charm -- a kCharm affect about to wear off.
+bool IsCharmExpiring(const CharData *ch) {
+	for (const auto &aff : ch->affected) {
+		if (aff->type == ESpell::kCharm && aff->duration <= 1) {
+			return true;
+		}
+	}
+	return false;
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

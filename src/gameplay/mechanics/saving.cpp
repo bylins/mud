@@ -5,6 +5,7 @@
 */
 
 #include "gameplay/mechanics/saving.h"
+#include "utils/logger.h"
 #include "gameplay/mechanics/mount.h"
 
 #include "engine/entities/char_data.h"
@@ -128,7 +129,7 @@ int GetBasicSave(CharData *ch, ESaving saving, bool log) {
 	save += mount::SavingModifier(ch, saving);
 //	ss << " с учетом статов: " << save << "\r\n";
 	if (log) {
-//		ch->send_to_TC(false, true, true, "%s", ss.str().c_str());
+//		SendToTC(ch, false, true, true, "%s", ss.str().c_str());
 //		mudlog(ss.str(), CMP, kLvlImmortal, SYSLOG, true);
 	}
 	return save;
@@ -149,13 +150,13 @@ int CalcSaving(CharData *killer, CharData *victim, ESaving saving, bool need_log
 	// Учет осторожного стиля
 	if (victim->IsFlagged(EPrf::kAwake)) {
 		if (CanUseFeat(victim, EFeat::kImpregnable)) {
-			save -= std::max(0, victim->GetSkill(ESkill::kAwake) - 80) / 2;
+			save -= std::max(0, GetSkill(victim, ESkill::kAwake) - 80) / 2;
 		// справка танцующая: "Осторожный стиль" добавочно увеличивает спас-броски персонажа. почему-то было давно убрано с комментом "фикс осторожки дружинника"
 		} else if (CanUseFeat(victim, EFeat::kShadowStrike)) {
-			save -= std::max(0, victim->GetSkill(ESkill::kAwake) - 80) / 2.5;
+			save -= std::max(0, GetSkill(victim, ESkill::kAwake) - 80) / 2.5;
 		}
 
-		save -= victim->GetSkill(ESkill::kAwake) / 5; //CalculateSkillAwakeModifier(killer, victim);
+		save -= GetSkill(victim, ESkill::kAwake) / 5; //CalculateSkillAwakeModifier(killer, victim);
 	}
 	save += round(GetSave(victim, saving) * abilities::kSaveWeight);    // одежда бафы и слава
 	if (need_log) {
@@ -164,7 +165,7 @@ int CalcSaving(CharData *killer, CharData *victim, ESaving saving, bool need_log
 				saving_name.find(saving)->second.c_str(),
 				GET_NAME(killer), GET_NAME(victim), GET_MOB_VNUM(victim), GetRealLevel(victim),
 				GetBasicSave(victim, saving, false), GetSave(victim, saving),
-				victim->GetSkill(ESkill::kAwake) / 5, save);
+				GetSkill(victim, ESkill::kAwake) / 5, save);
 	}
 	// Throwing a 0 is always a failure.
 	return save;

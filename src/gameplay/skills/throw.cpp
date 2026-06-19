@@ -186,7 +186,7 @@ void GoThrow(CharData *ch, CharData *victim) {
 
 void DoThrow(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	//Svent TODO: Не забыть убрать заглушку после дописывания навыков
-	if (!ch->GetSkill(ESkill::kThrow)) {
+	if (!GetSkill(ch, ESkill::kThrow)) {
 		SendMsgToChar("Вы принялись метать икру. Это единственное, что вы умеете метать.\r\n", ch);
 		return;
 	}
@@ -221,12 +221,12 @@ void DoThrow(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 }
 
 void DoThrow(CharData *ch, CharData *victim) {
-	if (!ch->GetSkill(ESkill::kThrow)) {
+	if (!GetSkill(ch, ESkill::kThrow)) {
 		log("ERROR: вызов метнуть для персонажа %s (%d) без проверки умения", ch->get_name().c_str(), GET_MOB_VNUM(ch));
 		return;
 	}
 
-	if (ch->HasCooldown(ESkill::kThrow)) {
+	if (ch->Skills().HasActiveCooldown(ESkill::kThrow)) {
 		SendMsgToChar("Так и рука отвалится, нужно передохнуть.\r\n", ch);
 		return;
 	};

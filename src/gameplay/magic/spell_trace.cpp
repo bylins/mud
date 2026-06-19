@@ -4,6 +4,7 @@
 */
 
 #include "spell_trace.h"
+#include "utils/logger.h"
 #include "gameplay/mechanics/minions.h"
 
 #include "engine/entities/char_data.h"
@@ -55,10 +56,10 @@ void Line(CharData *caster, CharData *victim, const char *fmt, ...) {
 	vsnprintf(buf, sizeof(buf), fmt, args);
 	va_end(args);
 	if (caster != nullptr) {
-		caster->send_to_TC(false, true, true, "%s", buf);
+		SendToTC(caster, false, true, true, "%s", buf);
 	}
 	if (victim != nullptr && victim != caster) {
-		victim->send_to_TC(false, true, true, "%s", buf);
+		SendToTC(victim, false, true, true, "%s", buf);
 	}
 }
 

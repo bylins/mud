@@ -7,6 +7,7 @@
 */
 
 #include "engine/entities/char_data.h"
+#include "gameplay/mechanics/condition.h"
 #include "administration/privilege.h"
 #include "engine/core/handler.h"
 #include "engine/core/target_resolver.h"

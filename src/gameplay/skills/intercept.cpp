@@ -20,11 +20,11 @@ void GoIntercept(CharData *ch, CharData *vict);
 void PerformIntercept(CharData *ch, CharData *vict, HitData &hit_data);
 
 void DoIntercept(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (ch->IsNpc() || !ch->GetSkill(ESkill::kIntercept)) {
+	if (ch->IsNpc() || !GetSkill(ch, ESkill::kIntercept)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kIntercept, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
-	if (ch->HasCooldown(ESkill::kIntercept)) {
+	if (ch->Skills().HasActiveCooldown(ESkill::kIntercept)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kIntercept, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	};

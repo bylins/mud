@@ -4,6 +4,7 @@
 
 #include "engine/entities/char_data.h"
 #include "administration/privilege.h"
+#include "gameplay/affects/affect_handler.h"
 #include "skill_messages.h"
 #include "engine/entities/obj_data.h"
 #include "engine/core/handler.h"
@@ -11,7 +12,7 @@
 #include "gameplay/fight/common.h"
 
 void do_frenzy(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	if (!ch->GetSkill(ESkill::kFrenzy)) {
+	if (!GetSkill(ch, ESkill::kFrenzy)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kFrenzy, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
@@ -23,7 +24,7 @@ void do_frenzy(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kFrenzy, ESkillMsg::kPeacefulRoom) + "\r\n", ch);
 		return;
 	}
-	if (ch->HasCooldown(ESkill::kFrenzy) && !privilege::IsImmortal(ch)) {
+	if (ch->Skills().HasActiveCooldown(ESkill::kFrenzy) && !privilege::IsImmortal(ch)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kFrenzy, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	}
@@ -37,8 +38,8 @@ void do_frenzy(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	const int duration = CalcDuration(ch, ch, ESkill::kUndefined, 23, 0, 0, 0);;
-	const int hp_regen = ch->GetSkill(ESkill::kFrenzy) / 12.5;
-	const int dmg_multiplier = ch->GetSkill(ESkill::kFrenzy) / 12.5;
+	const int hp_regen = GetSkill(ch, ESkill::kFrenzy) / 12.5;
+	const int dmg_multiplier = GetSkill(ch, ESkill::kFrenzy) / 12.5;
 
 	Affect<EApply> af[2];
 	af[0].type = ESpell::kFrenzy;
@@ -71,7 +72,7 @@ void do_frenzy(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 				can_be_angrier = true;
 			}
 			a.duration = duration;
-			it = ch->AffectRemove(it);
+			it = RemoveAffect(ch, it);
 			affect_to_char(ch, a);
 			// continue не обязателен: it уже установлен на следующий
 		} else {

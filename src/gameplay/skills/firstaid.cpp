@@ -68,7 +68,7 @@ float ComputeFirstAidPotency(CharData *ch) {
 	}
 	dice += kFirstAidDiceAdd;
 
-	const int skill = ch->GetSkill(ESkill::kFirstAid);
+	const int skill = GetSkill(ch, ESkill::kFirstAid);
 	const int low_skill = std::min(skill, abilities::kNoviceSkillThreshold);
 	const int hi_skill = std::max(0, skill - abilities::kNoviceSkillThreshold);
 	const double skill_coeff = (low_skill * kFirstAidLowSkillBonus
@@ -168,7 +168,7 @@ void ApplyFirstAidCooldown(CharData *ch) {
 }  // namespace
 
 void DoFirstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (!ch->GetSkill(ESkill::kFirstAid)) {
+	if (!GetSkill(ch, ESkill::kFirstAid)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kFirstAid, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
@@ -308,7 +308,7 @@ void DoFirstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 void DoFirstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	struct TimedSkill timed;
 
-	if (!ch->GetSkill(ESkill::kFirstAid)) {
+	if (!GetSkill(ch, ESkill::kFirstAid)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kFirstAid, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}

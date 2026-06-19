@@ -295,7 +295,7 @@ bool RunestoneRoster::ViewRunestone(CharData *ch) {
 	if (!stone.IsAllowed()) {
 		return false;
 	}
-	const bool can_read = ch->GetSkill(stone.GetSkill()) >= stone.GetSkillLevel();
+	const bool can_read = GetSkill(ch, stone.GetSkill()) >= stone.GetSkillLevel();
 	if (stone.IsDisabled()) {
 		SendMsgToChar(RuneStoneMsg(can_read ? ERuneStoneMsg::kInspectDamaged
 											: ERuneStoneMsg::kLackSkillDamaged) + "\r\n", ch);
@@ -648,7 +648,7 @@ void CharacterRunestoneRoster::ShrinkToLimit(CharData *ch) {
 }
 
 std::size_t CharacterRunestoneRoster::CalcLimit(CharData *ch) {
-	const auto skill = ch->GetSkill(ESkill::kTownportal);
+	const auto skill = GetSkill(ch, ESkill::kTownportal);
 	auto low_skill = std::min(skill, abilities::kNoviceSkillThreshold);
 	auto hi_skill = std::max(0, skill - abilities::kNoviceSkillThreshold);
 	return (1 + low_skill/9 + hi_skill/5);

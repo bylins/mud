@@ -55,7 +55,7 @@ static void KeeperNoMoneyReaction(CharData *keeper, CharData *ch) {
 		case 1: {
 			char local_buf[kMaxInputLength];
 			snprintf(local_buf, kMaxInputLength, "%s",
-					 ShopMsg(IS_MALE(keeper) ? ESM::kDrinkEmoteMale : ESM::kDrinkEmoteFemale).c_str());
+					 ShopMsg(IsMale(keeper) ? ESM::kDrinkEmoteMale : ESM::kDrinkEmoteFemale).c_str());
 			do_echo(keeper, local_buf, 0, kScmdEmote);
 			break;
 		}
@@ -398,7 +398,7 @@ void shop_node::process_buy(CharData *ch, CharData *keeper, char *argument) {
 	if (bought < item_count) {
 		std::string reply;
 		if (!check_money(ch, price, currency)) {
-			reply = fmt::format(fmt::runtime(ShopMsg(IS_MALE(ch) ? ESM::kCheaterMale : ESM::kCheaterFemale)),
+			reply = fmt::format(fmt::runtime(ShopMsg(IsMale(ch) ? ESM::kCheaterMale : ESM::kCheaterFemale)),
 					fmt::arg("count", bought));
 		} else if (ch->GetCarryingQuantity() >= CAN_CARRY_N(ch)) {
 			reply = fmt::format(fmt::runtime(ShopMsg(ESM::kCarryOnly)), fmt::arg("count", bought));
@@ -430,7 +430,7 @@ void shop_node::process_buy(CharData *ch, CharData *keeper, char *argument) {
 					 price);
 			mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 		}
-		SendMsgToChar(fmt::format(fmt::runtime(ShopMsg(IS_MALE(ch) ? ESM::kHappyOwnerMale : ESM::kHappyOwnerFemale)),
+		SendMsgToChar(fmt::format(fmt::runtime(ShopMsg(IsMale(ch) ? ESM::kHappyOwnerMale : ESM::kHappyOwnerFemale)),
 				fmt::arg("item", obj->item_count_message(bought, grammar::ECase::kGen))) + "\r\n", ch);
 	}
 }

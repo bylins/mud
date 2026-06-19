@@ -1,5 +1,6 @@
 #include "affect_data.h"
 #include "administration/privilege.h"
+#include "gameplay/affects/affect_handler.h"
 #include "gameplay/mechanics/condition.h"
 #include "gameplay/mechanics/follow.h"
 #include "gameplay/mechanics/mount.h"
@@ -213,7 +214,7 @@ void UpdateAffectOnPulse(CharData *ch, int count) {
 		pulse_aff = true;
 
 		if (affect->duration == 0) { //-1 вечный таймер по задумке
-			affect_i = ch->AffectRemove(affect_i);
+			affect_i = RemoveAffect(ch, affect_i);
 		} else {
 			if (affect->duration > 0) {
 				affect->duration -= count;
@@ -330,7 +331,7 @@ void player_affect_update() {
 				if (affect->type == ESpell::kDrunked) {
 					set_abstinent = true;
 				}
-				affect_i = i->AffectRemove(affect_i);
+				affect_i = RemoveAffect(i.get(), affect_i);
 				need_recalc = true;
 			} else {
 				if (affect->duration > 0) {
@@ -376,7 +377,7 @@ void player_affect_update() {
 		}
 		if (set_abstinent) {
 			utils::CExecutionTimer abstinent_timer;
-			i->set_abstinent();
+			condition::SetAbstinent(i.get());
 			profile.sections[static_cast<std::size_t>(Section::kSetAbstinent)] += abstinent_timer.delta().count();
 			++profile.counters[static_cast<std::size_t>(Counter::kAbstinentPlayers)];
 		}
@@ -434,7 +435,7 @@ void battle_affect_update(CharData *ch) {
 					ShowAffExpiredMsg(affect->type, ch);
 				}
 			}
-			affect_i = ch->AffectRemove(affect_i);
+			affect_i = RemoveAffect(ch, affect_i);
 			need_recalc = true;
 		} else {
 			if (affect->duration > 0) {
@@ -517,7 +518,7 @@ void mobile_affect_update() {
 						ShowAffExpiredMsg(affect->type, ch);
 					}
 				}
-				affect_i = ch->AffectRemove(affect_i);
+				affect_i = RemoveAffect(ch, affect_i);
 				need_recalc = true;
 			} else {
 				if (affect->duration > 0) {
@@ -626,7 +627,7 @@ void RemoveAffectFromChar(CharData *ch, ESpell spell_id) {
 		Affect<EApply>::shared_ptr affect = *it;
 		if (affect->type == spell_id) {
 			EmitAffectEvent("affect_removed", ch, *affect);
-			it = ch->AffectRemove(it);
+			it = RemoveAffect(ch, it);
 		}
 		else {
 			++it;
@@ -951,7 +952,7 @@ void ImposeAffect(CharData *ch, Affect<EApply> &af, bool add_dur, bool max_dur, 
 				} else if (max_mod) {
 					af.modifier = std::max(af.modifier, affect->modifier);
 				}
-				ch->AffectRemove(it);
+				RemoveAffect(ch, it);
 				affect_to_char(ch, af);
 				return;
 			} else {
@@ -1040,7 +1041,7 @@ void ImposeAffectNoRecalc(CharData *ch, Affect<EApply> &af, bool add_dur, bool m
 				} else if (max_mod) {
 					af.modifier = std::max(af.modifier, affect->modifier);
 				}
-				ch->AffectRemove(it);
+				RemoveAffect(ch, it);
 				affect_to_char_no_recalc(ch, af);
 				return;
 			} else {
@@ -1193,7 +1194,7 @@ void reset_affects(CharData *ch) {
 		const auto &affect = *af;
 
 		if (!IS_SET(affect->battleflag, kAfDeadkeep)) {
-			af = ch->AffectRemove(af);
+			af = RemoveAffect(ch, af);
 		} else {
 			++af;
 		}
@@ -1212,7 +1213,7 @@ void reset_affects_no_recalc(CharData *ch) {
 		const auto &affect = *af;
 
 		if (!IS_SET(affect->battleflag, kAfDeadkeep)) {
-			af = ch->AffectRemove(af);
+			af = RemoveAffect(ch, af);
 		} else {
 			++af;
 		}

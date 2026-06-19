@@ -13,6 +13,7 @@
 ************************************************************************ */
 
 #include "gameplay/core/game_limits.h"
+#include "gameplay/core/experience.h"
 #include "administration/privilege.h"
 #include "gameplay/mechanics/condition.h"
 #include "utils/grammar/gender.h"
@@ -405,9 +406,7 @@ void beat_punish(const CharData::shared_ptr &i) {
 	// Проверяем на выпуск чара из кутузки
 	if (i->IsFlagged(EPlrFlag::kHelled) && punishments::Get(i, punishments::EType::kHell).duration && punishments::Get(i, punishments::EType::kHell).duration <= time(nullptr)) {
 		i->UnsetFlag(EPlrFlag::kHelled);
-		if (punishments::Get(i, punishments::EType::kHell).reason)
-			free(punishments::Get(i, punishments::EType::kHell).reason);
-		punishments::Get(i, punishments::EType::kHell).reason = nullptr;
+		punishments::Get(i, punishments::EType::kHell).reason.clear();
 		punishments::Get(i, punishments::EType::kHell).level = 0;
 		punishments::Get(i, punishments::EType::kHell).godid = 0;
 		punishments::Get(i, punishments::EType::kHell).duration = 0;
@@ -432,10 +431,7 @@ void beat_punish(const CharData::shared_ptr &i) {
 		&& punishments::Get(i, punishments::EType::kName).duration
 		&& punishments::Get(i, punishments::EType::kName).duration <= time(nullptr)) {
 		i->UnsetFlag(EPlrFlag::kNameDenied);
-		if (punishments::Get(i, punishments::EType::kName).reason) {
-			free(punishments::Get(i, punishments::EType::kName).reason);
-		}
-		punishments::Get(i, punishments::EType::kName).reason = nullptr;
+		punishments::Get(i, punishments::EType::kName).reason.clear();
 		punishments::Get(i, punishments::EType::kName).level = 0;
 		punishments::Get(i, punishments::EType::kName).godid = 0;
 		punishments::Get(i, punishments::EType::kName).duration = 0;
@@ -466,9 +462,7 @@ void beat_punish(const CharData::shared_ptr &i) {
 		&& punishments::Get(i, punishments::EType::kMute).duration != 0
 		&& punishments::Get(i, punishments::EType::kMute).duration <= time(nullptr)) {
 		i->UnsetFlag(EPlrFlag::kMuted);
-		if (punishments::Get(i, punishments::EType::kMute).reason)
-			free(punishments::Get(i, punishments::EType::kMute).reason);
-		punishments::Get(i, punishments::EType::kMute).reason = nullptr;
+		punishments::Get(i, punishments::EType::kMute).reason.clear();
 		punishments::Get(i, punishments::EType::kMute).level = 0;
 		punishments::Get(i, punishments::EType::kMute).godid = 0;
 		punishments::Get(i, punishments::EType::kMute).duration = 0;
@@ -479,9 +473,7 @@ void beat_punish(const CharData::shared_ptr &i) {
 		&& punishments::Get(i, punishments::EType::kDumb).duration != 0
 		&& punishments::Get(i, punishments::EType::kDumb).duration <= time(nullptr)) {
 		i->UnsetFlag(EPlrFlag::kDumbed);
-		if (punishments::Get(i, punishments::EType::kDumb).reason)
-			free(punishments::Get(i, punishments::EType::kDumb).reason);
-		punishments::Get(i, punishments::EType::kDumb).reason = nullptr;
+		punishments::Get(i, punishments::EType::kDumb).reason.clear();
 		punishments::Get(i, punishments::EType::kDumb).level = 0;
 		punishments::Get(i, punishments::EType::kDumb).godid = 0;
 		punishments::Get(i, punishments::EType::kDumb).duration = 0;
@@ -492,9 +484,7 @@ void beat_punish(const CharData::shared_ptr &i) {
 		&& punishments::Get(i, punishments::EType::kUnreg).duration != 0
 		&& punishments::Get(i, punishments::EType::kUnreg).duration <= time(nullptr)) {
 		i->UnsetFlag(EPlrFlag::kRegistred);
-		if (punishments::Get(i, punishments::EType::kUnreg).reason)
-			free(punishments::Get(i, punishments::EType::kUnreg).reason);
-		punishments::Get(i, punishments::EType::kUnreg).reason = nullptr;
+		punishments::Get(i, punishments::EType::kUnreg).reason.clear();
 		punishments::Get(i, punishments::EType::kUnreg).level = 0;
 		punishments::Get(i, punishments::EType::kUnreg).godid = 0;
 		punishments::Get(i, punishments::EType::kUnreg).duration = 0;
@@ -543,10 +533,7 @@ void beat_punish(const CharData::shared_ptr &i) {
 		&& punishments::Get(i, punishments::EType::kFreeze).duration != 0
 		&& punishments::Get(i, punishments::EType::kFreeze).duration <= time(nullptr)) {
 		i->UnsetFlag(EPlrFlag::kFrozen);
-		if (punishments::Get(i, punishments::EType::kFreeze).reason) {
-			free(punishments::Get(i, punishments::EType::kFreeze).reason);
-		}
-		punishments::Get(i, punishments::EType::kFreeze).reason = nullptr;
+		punishments::Get(i, punishments::EType::kFreeze).reason.clear();
 		punishments::Get(i, punishments::EType::kFreeze).level = 0;
 		punishments::Get(i, punishments::EType::kFreeze).godid = 0;
 		punishments::Get(i, punishments::EType::kFreeze).duration = 0;
@@ -1765,7 +1752,7 @@ void gain_battle_exp(CharData *ch, CharData *victim, int dam) {
 		return;
 	}
 	// получение игроками экспы
-	if (!ch->IsNpc() && OK_GAIN_EXP(ch, victim)) {
+	if (!ch->IsNpc() && experience::OkGainExp(ch, victim)) {
 		int max_exp = std::min(max_exp_gain_pc(ch), (GetRealLevel(victim) * victim->get_max_hit() + 4) /
 			(5 * std::max(1, remort::GetRealRemort(ch) - kMaxExpCoefficientsUsed - 1)));
 		double coeff = std::min(dam, victim->get_hit()) / static_cast<double>(victim->get_max_hit());
@@ -1781,7 +1768,7 @@ void gain_battle_exp(CharData *ch, CharData *victim, int dam) {
 	if (ch->IsNpc() && AFF_FLAGGED(ch, EAffect::kCharmed)) {
 		CharData *master = ch->get_master();
 		// проверяем что есть мастер и он может получать экспу с данной цели
-		if (master && OK_GAIN_EXP(master, victim)) {
+		if (master && experience::OkGainExp(master, victim)) {
 			int max_exp = std::min(max_exp_gain_pc(master), (GetRealLevel(victim) * victim->get_max_hit() + 4) /
 				(5 * std::max(1, remort::GetRealRemort(master) - kMaxExpCoefficientsUsed - 1)));
 

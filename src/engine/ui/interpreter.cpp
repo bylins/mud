@@ -14,6 +14,7 @@
 #define INTERPRETER_CPP_
 
 #include "interpreter.h"
+#include "gameplay/mechanics/condition.h"
 #include "utils/utils_encoding.h"
 #include "interpreter_utils.h"
 
@@ -1088,7 +1089,7 @@ void check_hiding_cmd(CharData *ch, int percent) {
 		if (percent == -2) {
 			if (AFF_FLAGGED(ch, EAffect::kSneak)) {
 				remove_hide = number(1, MUD::Skill(ESkill::kSneak).difficulty) >
-					ch->GetSkill(ESkill::kHide);
+					GetSkill(ch, ESkill::kHide);
 			} else {
 				percent = 500;
 			}
@@ -1096,7 +1097,7 @@ void check_hiding_cmd(CharData *ch, int percent) {
 		if (percent == -1) {
 			remove_hide = true;
 		} else if (percent > 0) {
-			remove_hide = number(1, percent) > ch->GetSkill(ESkill::kHide);
+			remove_hide = number(1, percent) > GetSkill(ch, ESkill::kHide);
 		}
 		if (remove_hide) {
 			RemoveAffectFromChar(ch, ESpell::kHide);
@@ -1905,12 +1906,12 @@ void do_entergame(DescriptorData *d) {
 	}
 
 	if (d->character->IsFlagged(EPrf::kPunctual)
-		&& !d->character->GetSkill(ESkill::kPunctual)) {
+		&& !GetSkill(d->character.get(), ESkill::kPunctual)) {
 		d->character->UnsetFlag(EPrf::kPunctual);
 	}
 
 	if (d->character->IsFlagged(EPrf::kAwake)
-		&& !d->character->GetSkill(ESkill::kAwake)) {
+		&& !GetSkill(d->character.get(), ESkill::kAwake)) {
 		d->character->UnsetFlag(EPrf::kAwake);
 	}
 
@@ -1955,7 +1956,7 @@ void do_entergame(DescriptorData *d) {
 	if (!privilege::IsImmortal(d->character.get())) {
 		for (const auto &skill : MUD::Skills()) {
 			if (MUD::Class((d->character)->GetClass()).skills[skill.GetId()].IsInvalid()) {
-				d->character->set_skill(skill.GetId(), 0);
+				SetSkill(d->character.get(), skill.GetId(), 0);
 			}
 		}
 

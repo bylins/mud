@@ -7,6 +7,7 @@
  */
 
 #include "engine/ui/color.h"
+#include "gameplay/mechanics/condition.h"
 #include "administration/privilege.h"
 #include "gameplay/economics/currencies.h"
 #include "engine/db/global_objects.h"
@@ -363,9 +364,9 @@ void PrintRentableInfo(CharData *ch, std::ostringstream &out) {
 // \todo Сделать авторазмещение в комнате-кузнице горна и убрать эту функцию.
 void PrinForgeInfo(CharData *ch, std::ostringstream &out) {
 	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kForge)
-		&& (ch->GetSkill(ESkill::kJewelry)
-		|| ch->GetSkill(ESkill::kRepair)
-		|| ch->GetSkill(ESkill::kReforging))) {
+		&& (GetSkill(ch, ESkill::kJewelry)
+		|| GetSkill(ch, ESkill::kRepair)
+		|| GetSkill(ch, ESkill::kReforging))) {
 		out << InfoStrPrefix(ch) << kColorBoldYel << "Это место отлично подходит для занятий кузнечным делом."
 			<< kColorNrm << "\r\n";
 	}
@@ -421,8 +422,8 @@ void PrintSinglePunishmentInfo(const ScorePunishmentInfo &info, std::ostringstre
 		<< hrs << " " << grammar::GetDeclensionInNumber(hrs, grammar::EWhat::kHour) << " "
 		<< mins << " " << grammar::GetDeclensionInNumber(mins, grammar::EWhat::kMinU);
 
-	if (info.punish->reason != nullptr) {
-		if (info.punish->reason[0] != '\0' && str_cmp(info.punish->reason, "(null)") != 0) {
+	if (!info.punish->reason.empty()) {
+		if (info.punish->reason[0] != '\0' && str_cmp(info.punish->reason.c_str(), "(null)") != 0) {
 			out << " [" << info.punish->reason << "]";
 		}
 	}
@@ -877,7 +878,7 @@ void PrintScoreBase(CharData *ch) {
 	}
 
 	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kForge)
-		&& (ch->GetSkill(ESkill::kJewelry) || ch->GetSkill(ESkill::kRepair) || ch->GetSkill(ESkill::kReforging))) {
+		&& (GetSkill(ch, ESkill::kJewelry) || GetSkill(ch, ESkill::kRepair) || GetSkill(ch, ESkill::kReforging))) {
 		snprintf(buf, sizeof(buf),
 				"%sЭто место отлично подходит для занятий кузнечным делом.%s\r\n",
 				kColorBoldGrn,
@@ -902,7 +903,7 @@ void PrintScoreBase(CharData *ch) {
 				"Вам предстоит провести в темнице еще %d %s %d %s [%s].\r\n",
 				hrs, grammar::GetDeclensionInNumber(hrs, grammar::EWhat::kHour), mins, grammar::GetDeclensionInNumber(mins,
 																						   grammar::EWhat::kMinU),
-				punishments::Get(ch, punishments::EType::kHell).reason ? punishments::Get(ch, punishments::EType::kHell).reason : "-");
+				punishments::Get(ch, punishments::EType::kHell).reason.empty() ? "-" : punishments::Get(ch, punishments::EType::kHell).reason.c_str());
 		SendMsgToChar(buf, ch);
 	}
 	if (ch->IsFlagged(EPlrFlag::kMuted) && punishments::Get(ch, punishments::EType::kMute).duration != 0 && punishments::Get(ch, punishments::EType::kMute).duration > time(nullptr)) {
@@ -910,7 +911,7 @@ void PrintScoreBase(CharData *ch) {
 		const int mins = ((punishments::Get(ch, punishments::EType::kMute).duration - time(nullptr)) % 3600 + 59) / 60;
 		snprintf(buf, sizeof(buf), "Вы не сможете кричать еще %d %s %d %s [%s].\r\n",
 				hrs, grammar::GetDeclensionInNumber(hrs, grammar::EWhat::kHour),
-				mins, grammar::GetDeclensionInNumber(mins, grammar::EWhat::kMinU), punishments::Get(ch, punishments::EType::kMute).reason ? punishments::Get(ch, punishments::EType::kMute).reason : "-");
+				mins, grammar::GetDeclensionInNumber(mins, grammar::EWhat::kMinU), punishments::Get(ch, punishments::EType::kMute).reason.empty() ? "-" : punishments::Get(ch, punishments::EType::kMute).reason.c_str());
 		SendMsgToChar(buf, ch);
 	}
 	if (ch->IsFlagged(EPlrFlag::kDumbed) && punishments::Get(ch, punishments::EType::kDumb).duration != 0 && punishments::Get(ch, punishments::EType::kDumb).duration > time(nullptr)) {
@@ -918,7 +919,7 @@ void PrintScoreBase(CharData *ch) {
 		const int mins = ((punishments::Get(ch, punishments::EType::kDumb).duration - time(nullptr)) % 3600 + 59) / 60;
 		snprintf(buf, sizeof(buf), "Вы будете молчать еще %d %s %d %s [%s].\r\n",
 				hrs, grammar::GetDeclensionInNumber(hrs, grammar::EWhat::kHour),
-				mins, grammar::GetDeclensionInNumber(mins, grammar::EWhat::kMinU), punishments::Get(ch, punishments::EType::kDumb).reason ? punishments::Get(ch, punishments::EType::kDumb).reason : "-");
+				mins, grammar::GetDeclensionInNumber(mins, grammar::EWhat::kMinU), punishments::Get(ch, punishments::EType::kDumb).reason.empty() ? "-" : punishments::Get(ch, punishments::EType::kDumb).reason.c_str());
 		SendMsgToChar(buf, ch);
 	}
 	if (ch->IsFlagged(EPlrFlag::kFrozen) && punishments::Get(ch, punishments::EType::kFreeze).duration != 0 && punishments::Get(ch, punishments::EType::kFreeze).duration > time(nullptr)) {
@@ -926,7 +927,7 @@ void PrintScoreBase(CharData *ch) {
 		const int mins = ((punishments::Get(ch, punishments::EType::kFreeze).duration - time(nullptr)) % 3600 + 59) / 60;
 		snprintf(buf, sizeof(buf), "Вы будете заморожены еще %d %s %d %s [%s].\r\n",
 				hrs, grammar::GetDeclensionInNumber(hrs, grammar::EWhat::kHour),
-				mins, grammar::GetDeclensionInNumber(mins, grammar::EWhat::kMinU), punishments::Get(ch, punishments::EType::kFreeze).reason ? punishments::Get(ch, punishments::EType::kFreeze).reason : "-");
+				mins, grammar::GetDeclensionInNumber(mins, grammar::EWhat::kMinU), punishments::Get(ch, punishments::EType::kFreeze).reason.empty() ? "-" : punishments::Get(ch, punishments::EType::kFreeze).reason.c_str());
 		SendMsgToChar(buf, ch);
 	}
 
@@ -935,7 +936,7 @@ void PrintScoreBase(CharData *ch) {
 		const int mins = ((punishments::Get(ch, punishments::EType::kUnreg).duration - time(nullptr)) % 3600 + 59) / 60;
 		snprintf(buf, sizeof(buf), "Вы не сможете заходить с одного IP еще %d %s %d %s [%s].\r\n",
 				hrs, grammar::GetDeclensionInNumber(hrs, grammar::EWhat::kHour),
-				mins, grammar::GetDeclensionInNumber(mins, grammar::EWhat::kMinU), punishments::Get(ch, punishments::EType::kUnreg).reason ? punishments::Get(ch, punishments::EType::kUnreg).reason : "-");
+				mins, grammar::GetDeclensionInNumber(mins, grammar::EWhat::kMinU), punishments::Get(ch, punishments::EType::kUnreg).reason.empty() ? "-" : punishments::Get(ch, punishments::EType::kUnreg).reason.c_str());
 		SendMsgToChar(buf, ch);
 	}
 
@@ -977,7 +978,7 @@ int CalcHitroll(CharData *ch) {
 	if (weapon) {
 		if (weapon->get_type() == EObjType::kWeapon) {
 			skill = static_cast<ESkill>(weapon->get_spec_param());
-			if (ch->GetSkill(skill) == 0) {
+			if (GetSkill(ch, skill) == 0) {
 				hr -= (50 - std::min(50, GetRealInt(ch))) / 3;
 			} else {
 				GetClassWeaponMod(ch->GetClass(), skill, &max_dam, &hr);
@@ -988,7 +989,7 @@ int CalcHitroll(CharData *ch) {
 		if (weapon) {
 			if (weapon->get_type() == EObjType::kWeapon) {
 				skill = static_cast<ESkill>(weapon->get_spec_param());
-				if (ch->GetSkill(skill) == 0) {
+				if (GetSkill(ch, skill) == 0) {
 					hr -= (50 - std::min(50, GetRealInt(ch))) / 3;
 				} else {
 					GetClassWeaponMod(ch->GetClass(), skill, &max_dam, &hr);
@@ -999,7 +1000,7 @@ int CalcHitroll(CharData *ch) {
 		if (weapon) {
 			if (weapon->get_type() == EObjType::kWeapon) {
 				skill = static_cast<ESkill>(weapon->get_spec_param());
-				if (ch->GetSkill(skill) == 0) {
+				if (GetSkill(ch, skill) == 0) {
 					hr -= (50 - std::min(50, GetRealInt(ch))) / 3;
 				} else {
 					GetClassWeaponMod(ch->GetClass(), skill, &max_dam, &hr);
@@ -1032,7 +1033,7 @@ int CalcHitroll(CharData *ch) {
 	if (ch->IsFlagged(EPrf::kPerformGreatAimingAttack)) {
 		hr += 4;
 	}
-	hr -= (mount::IsOnHorse(ch) ? (10 - ch->GetSkill(ESkill::kRiding) / 20) : 0);
+	hr -= (mount::IsOnHorse(ch) ? (10 - GetSkill(ch, ESkill::kRiding) / 20) : 0);
 	hr *= condition::GetCondPenalty(ch, condition::kHitroll);
 	return hr;
 }

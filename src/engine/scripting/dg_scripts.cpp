@@ -9,6 +9,7 @@
 **************************************************************************/
 
 #include "dg_scripts.h"
+#include "gameplay/mechanics/groups.h"
 #include "gameplay/economics/currencies.h"
 #include "engine/db/global_objects.h"
 #include "utils/grammar/gender.h"
@@ -3174,9 +3175,9 @@ void find_replacement(void *go,
 						if (mob->has_master()) {
 							follow::StopFollower(mob, follow::kSfEmpty);
 						}
-						mob->removeGroupFlags();
+						group::RemoveGroupFlags(mob);
 						for (auto *f : mob->followers) {
-							f->removeGroupFlags();
+							group::RemoveGroupFlags(f);
 						}
 						follow::AddFollower(new_leader, mob);
 						// возвращаем UID нового лидера (если следование удалось установить)

@@ -31,7 +31,7 @@ void GoMighthit(CharData *ch, CharData *victim) {
 	if (!ch->GetEnemy()) {
 		ch->battle_affects.set(kEafHammer);
 		hit(ch, victim, ESkill::kHammer, fight::kMainHand);
-		if (ch->getSkillCooldown(ESkill::kHammer) > 0) {
+		if (ch->Skills().GetCooldown(ESkill::kHammer) > 0) {
 			SetSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 1);
 		}
 		//set_wait(ch, 2, true);
@@ -53,7 +53,7 @@ void GoMighthit(CharData *ch, CharData *victim) {
 }
 
 void DoMighthit(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (ch->GetSkill(ESkill::kHammer) < 1) {
+	if (GetSkill(ch, ESkill::kHammer) < 1) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kHammer, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
@@ -73,12 +73,12 @@ void DoMighthit(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 void DoMighthit(CharData *ch, CharData *victim) {
-	if (ch->GetSkill(ESkill::kHammer) < 1) {
+	if (GetSkill(ch, ESkill::kHammer) < 1) {
 		log("ERROR: вызов молота для персонажа %s (%d) без проверки умения", ch->get_name().c_str(), GET_MOB_VNUM(ch));
 		return;
 	}
 
-	if (ch->HasCooldown(ESkill::kHammer)) {
+	if (ch->Skills().HasActiveCooldown(ESkill::kHammer)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kHammer, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	};

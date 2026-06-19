@@ -1,4 +1,5 @@
 #include "do_hire.h"
+#include "utils/logger.h"
 #include "gameplay/core/remort.h"
 #include "administration/privilege.h"
 #include "gameplay/economics/currencies.h"
@@ -46,7 +47,7 @@ long CalcHirePrice(CharData *ch, CharData *victim) {
 	int m_dex = victim->get_dex() * 20;
 	int m_con = victim->get_con() * 20;
 	int m_cha = victim->get_cha() * 10;
-	ch->send_to_TC(true, true, true, "Базовые статы найма: Str:%d Int:%d Wis:%d Dex:%d Con:%d Cha:%d\r\n",
+	SendToTC(ch, true, true, true, "Базовые статы найма: Str:%d Int:%d Wis:%d Dex:%d Con:%d Cha:%d\r\n",
 				   m_str, m_int, m_wis, m_dex, m_con, m_cha);
 	price += m_str + m_int + m_wis + m_dex + m_con + m_cha;
 
@@ -56,7 +57,7 @@ long CalcHirePrice(CharData *ch, CharData *victim) {
 	float m_hr = GET_HR(victim) * 50;
 	float m_armor = GET_ARMOUR(victim) * 25;
 	float m_absorb = GET_ABSORBE(victim) * 4;
-	ch->send_to_TC(true,
+	SendToTC(ch, true,
 				   true,
 				   true,
 				   "Статы живучести: HP:%.4lf LVL:%.4lf AC:%.4lf HR:%.4lf ARMOR:%.4lf ABSORB:%.4lf\r\n",
@@ -73,7 +74,7 @@ long CalcHirePrice(CharData *ch, CharData *victim) {
 	int m_ref = GetSave(victim, ESaving::kReflex) * (-4);
 	int m_crit = GetSave(victim, ESaving::kCritical) * (-4);
 	int m_wil = GetSave(victim, ESaving::kWill) * (-4);
-	ch->send_to_TC(true, true, true, "Сейвы: STAB:%d REF:%d CRIT:%d WILL:%d\r\n",
+	SendToTC(ch, true, true, true, "Сейвы: STAB:%d REF:%d CRIT:%d WILL:%d\r\n",
 				   m_stab, m_ref, m_crit, m_wil);
 	price += m_stab + m_ref + m_crit + m_wil;
 	// магические резисты
@@ -85,7 +86,7 @@ long CalcHirePrice(CharData *ch, CharData *victim) {
 	int m_mind = GET_RESIST(victim, EResist::kMind) * 4;
 	int m_immu = GET_RESIST(victim, EResist::kImmunity) * 4;
 	int m_dark = GET_RESIST(victim, EResist::kDark) * 4;
-	ch->send_to_TC(true, true, true,
+	SendToTC(ch, true, true, true,
 				   "Маг.резисты: Fire:%d Air:%d Water:%d Earth:%d Vita:%d Mind:%d Immu:%d Dark:%d\r\n",
 				   m_fire, m_air, m_water, m_earth, m_vita, m_mind, m_immu, m_dark);
 	price += m_fire + m_air + m_water + m_earth + m_vita + m_mind + m_immu + m_dark;
@@ -101,7 +102,7 @@ long CalcHirePrice(CharData *ch, CharData *victim) {
 		+ GET_DR(victim)) * 10;
 	float extraAttack = victim->mob_specials.extra_attack * m_dr;
 
-	ch->send_to_TC(true, true, true, "Остальные статы: Luck:%d Ini:%d AR:%d MR:%d PR:%d DR:%d ExAttack:%.4lf\r\n",
+	SendToTC(ch, true, true, true, "Остальные статы: Luck:%d Ini:%d AR:%d MR:%d PR:%d DR:%d ExAttack:%.4lf\r\n",
 				   m_luck, m_ini, m_ar, m_mr, m_pr, m_dr, extraAttack);
 
 	price += m_luck + m_ini + m_ar + m_mr + m_pr + m_dr + extraAttack;
@@ -117,7 +118,7 @@ long CalcHirePrice(CharData *ch, CharData *victim) {
 	min_price = MAX(min_price, currencies::GetHand(mob_proto[victim->get_rnum()], currencies::kGold));
 	long finalPrice = MAX(min_price, (int) ceil(price - hirePoints));
 
-	ch->send_to_TC(true, true, true,
+	SendToTC(ch, true, true, true,
 				   "Параметры персонажа: RMRT: %.4lf, CHA: %.4lf, INT: %.4lf, TOTAL: %.4lf. Цена чармиса:  %.4lf. Итоговая цена: %d \r\n",
 				   rem_hirePoints, cha_hirePoints, int_hirePoints, hirePoints, price, finalPrice);
 	return std::min(finalPrice, kMaxHirePrice);
@@ -281,7 +282,7 @@ void DoFindhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		af.battleflag = 0;
 		affect_to_char(helpee, af);
 
-		sprintf(buf, "$n сказал$g вам : \"Приказывай, %s!\"", IS_FEMALE(ch) ? "хозяйка" : "хозяин");
+		sprintf(buf, "$n сказал$g вам : \"Приказывай, %s!\"", IsFemale(ch) ? "хозяйка" : "хозяин");
 		act(buf, false, helpee, 0, ch, kToVict | kToNotDeaf);
 
 		if (helpee->IsNpc()) {
@@ -300,7 +301,7 @@ void DoFindhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			helpee->UnsetFlag(EMobFlag::kSpec);
 			helpee->UnsetFlag(EPrf::kPunctual);
 			helpee->SetFlag(EMobFlag::kNoSkillTrain);
-			helpee->set_skill(ESkill::kPunctual, 0);
+			SetSkill(helpee, ESkill::kPunctual, 0);
 			if (!NPC_FLAGGED(helpee, ENpcFlag::kNoMercList)) {
 				MobVnum mvn = GET_MOB_VNUM(helpee);
 

@@ -251,7 +251,7 @@ int npc_scavenge(CharData *ch) {
 
 				// Заперто, взламываем, если умеем
 				if (IS_SET(GET_OBJ_VAL((obj), 1), (EContainerFlag::kLockedUp))
-					&& ch->GetSkill(ESkill::kPickLock)
+					&& GetSkill(ch, ESkill::kPickLock)
 					&& IsPickLockSucessdul(ch, 0, obj, EDirection::kUndefinedDir, kScmdPick)) {
 					do_doorcmd(ch, obj, EDirection::kUndefinedDir, kScmdPick);
 				}
@@ -385,7 +385,7 @@ int npc_loot(CharData *ch) {
 
 						// ...или взломаем?
 						if (IS_SET(GET_OBJ_VAL((loot_obj), 1), (EContainerFlag::kLockedUp))
-							&& ch->GetSkill(ESkill::kPickLock)
+							&& GetSkill(ch, ESkill::kPickLock)
 							&& IsPickLockSucessdul(ch, 0, loot_obj, EDirection::kUndefinedDir, kScmdPick)) {
 							loot_obj->toggle_val_bit(1, EContainerFlag::kLockedUp);
 						}
@@ -539,8 +539,8 @@ void npc_wield(CharData *ch) {
 	if (!NPC_FLAGGED(ch, ENpcFlag::kWielding))
 		return;
 
-	if (ch->GetSkill(ESkill::kHammer) > 0
-		&& ch->GetSkill(ESkill::kOverwhelm) < ch->GetSkill(ESkill::kHammer)) {
+	if (GetSkill(ch, ESkill::kHammer) > 0
+		&& GetSkill(ch, ESkill::kOverwhelm) < GetSkill(ch, ESkill::kHammer)) {
 		return;
 	}
 

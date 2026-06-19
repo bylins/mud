@@ -35,7 +35,7 @@ void SetupFirekeeperStats(CharData *ch, CharData *mob, const CastContext &ctx, i
 	const int m = SummonScaledStat(ctx, 300, 0.0, 14.0, 720);
 	mob->set_hit(m);
 	mob->set_max_hit(m);
-	mob->set_skill(ESkill::kAwake, SummonScaledStat(ctx, 50, 0.0, 2.0, 110));
+	SetSkill(mob, ESkill::kAwake, SummonScaledStat(ctx, 50, 0.0, 2.0, 110));
 	mob->SetFlag(EPrf::kAwake);
 }
 

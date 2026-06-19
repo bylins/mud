@@ -658,8 +658,8 @@ void medit_save_to_disk(ZoneRnum zone_num) {
 			}
 		}
 		for (const auto &skill : MUD::Skills()) {
-			if (mob->GetSkill(skill.GetId()) && skill.IsValid()) {
-				fprintf(mob_file, "Skill: %d %d\n", to_underlying(skill.GetId()), mob->GetSkill(skill.GetId()));
+			if (GetSkill(mob, skill.GetId()) && skill.IsValid()) {
+				fprintf(mob_file, "Skill: %d %d\n", to_underlying(skill.GetId()), GetSkill(mob, skill.GetId()));
 			}
 		}
 		for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
@@ -996,8 +996,8 @@ void medit_disp_skills(DescriptorData *d) {
 			continue;
 		}
 
-		if (OLC_MOB(d)->GetSkill(skill.GetId())) {
-			snprintf(buf1, sizeof(buf1), "%s[%3d]%s", cyn, OLC_MOB(d)->GetSkill(skill.GetId()), nrm);
+		if (GetSkill(OLC_MOB(d), skill.GetId())) {
+			snprintf(buf1, sizeof(buf1), "%s[%3d]%s", cyn, GetSkill(OLC_MOB(d), skill.GetId()), nrm);
 		} else {
 			snprintf(buf1, sizeof(buf1), "     ");
 		}
@@ -2083,12 +2083,12 @@ void medit_parse(DescriptorData *d, char *arg) {
 			auto skill_id = static_cast<ESkill>(number);
 			if (MUD::Skills().IsInvalid(skill_id)) {
 				SendMsgToChar("Неизвестное умение.\r\n", d->character.get());
-			} else if (OLC_MOB(d)->GetSkill(skill_id)) {
-				OLC_MOB(d)->set_skill(skill_id, 0);
+			} else if (GetSkill(OLC_MOB(d), skill_id)) {
+				SetSkill(OLC_MOB(d), skill_id, 0);
 			} else if (sscanf(arg, "%d %d", &plane, &bit) < 2) {
 				SendMsgToChar("Не указан уровень владения умением.\r\n", d->character.get());
 			} else {
-				OLC_MOB(d)->set_skill(skill_id, std::clamp(bit, 0, MUD::Skill(skill_id).cap));
+				SetSkill(OLC_MOB(d), skill_id, std::clamp(bit, 0, MUD::Skill(skill_id).cap));
 			}
 			medit_disp_skills(d);
 			return;

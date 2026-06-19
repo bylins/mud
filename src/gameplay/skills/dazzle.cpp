@@ -18,11 +18,11 @@ void DoDazzle(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kDazzle, ESkillMsg::kCantFightNow) + "\r\n", ch);
 		return;
 	}
-	if (!ch->GetSkill(ESkill::kDazzle)) {
+	if (!GetSkill(ch, ESkill::kDazzle)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kDazzle, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
-	if (!privilege::IsImmortal(ch) && ch->HasCooldown(ESkill::kDazzle)) {
+	if (!privilege::IsImmortal(ch) && ch->Skills().HasActiveCooldown(ESkill::kDazzle)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kDazzle, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	}
@@ -90,14 +90,14 @@ void GoDazzle(CharData *ch, CharData *vict) {
 	}
 
 	int victims_amount = 3;
-	if (ch->GetSkill(ESkill::kDazzle) > 200) {
+	if (GetSkill(ch, ESkill::kDazzle) > 200) {
 		victims_amount = 4;
 	};
 
 	Affect<EApply> af;
 	af.type = ESpell::kBlindness;
 	af.battleflag = kAfPulsedec;
-	af.duration = 150 + (ch->GetSkill(ESkill::kDazzle) * 1.25);
+	af.duration = 150 + (GetSkill(ch, ESkill::kDazzle) * 1.25);
 	af.affect_type = EAffect::kBlind;
 
 	Affect<EApply> af2;

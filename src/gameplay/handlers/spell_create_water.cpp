@@ -4,6 +4,7 @@
 */
 
 #include "gameplay/handlers/spell_handlers.h"
+#include "gameplay/mechanics/condition.h"
 #include "administration/privilege.h"
 #include "engine/entities/char_data.h"
 #include "engine/core/comm.h"

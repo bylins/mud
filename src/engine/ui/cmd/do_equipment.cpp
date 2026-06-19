@@ -52,7 +52,7 @@ void DoEquipment(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 	}
 	if (!found) {
-		if (IS_FEMALE(ch)) {
+		if (IsFemale(ch)) {
 			SendMsgToChar("Костюм Евы вам очень идет :)\r\n", ch);
 		} else {
 			SendMsgToChar(" Вы голы, аки сокол.\r\n", ch);

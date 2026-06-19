@@ -2942,7 +2942,7 @@ int CountMobsInRoom(int m_num, int r_num) {
 void SetGodSkills(CharData *ch) {
 	for (auto i = ESkill::kFirst; i <= ESkill::kLast; ++i) {
 		if (MUD::Skills().IsValid(i)) {
-			ch->set_skill(i, 200);
+			SetSkill(ch, i, 200);
 		}
 	}
 }
@@ -3276,7 +3276,7 @@ void CharTimerUpdate() {
 	std::list<CharData *> cooldown_list;
 
 	for (auto it : chardata_cooldown_list) {
-		if (!it->HaveDecreaseCooldowns()) {
+		if (!it->Skills().DecreaseCooldownsAndCheck()) {
 			cooldown_list.push_back(it);
 		}
 	}

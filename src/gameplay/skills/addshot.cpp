@@ -24,7 +24,7 @@ void ProcessAddshotHits(CharData *ch, CharData *victim, ESkill type, fight::Atta
 
 void ProcessMultyShotHits(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) {
 	if (IsArmedWithBow(ch, weapon)) {
-		if (ch->GetSkill(ESkill::kAddshot)) {
+		if (GetSkill(ch, ESkill::kAddshot)) {
 			ProcessAddshotHits(ch, victim, type, weapon);
 		} else {
 			ProcessDoubleShotHits(ch, type, weapon);
@@ -42,7 +42,7 @@ bool IsArmedWithBow(CharData *ch, fight::AttackType weapon) {
 
 void ProcessDoubleShotHits(CharData *ch, ESkill type, fight::AttackType weapon) {
 	if (CanUseFeat(ch, EFeat::kDoubleShot)) {
-		if (std::min(850, 200 + ch->GetSkill(ESkill::kBows) * 4 + GetRealDex(ch) * 5) >= number(1, 1000)) {
+		if (std::min(850, 200 + GetSkill(ch, ESkill::kBows) * 4 + GetRealDex(ch) * 5) >= number(1, 1000)) {
 			hit(ch, ch->GetEnemy(), type, weapon);
 		}
 	}

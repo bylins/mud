@@ -8,7 +8,7 @@
 #include "administration/privilege.h"
 #include "char_player.h"
 #include "gameplay/mechanics/player_races.h"
-#include "gameplay/mechanics/mount.h"   // issue.mount-mechanics: mount::GetHorse etc.
+#include "gameplay/mechanics/mount.h"
 #include "gameplay/mechanics/follow.h"
 #include "utils/cache.h"
 #include "gameplay/fight/fight.h"
@@ -20,6 +20,7 @@
 #include "gameplay/statistics/money_drop.h"
 #include "gameplay/economics/currencies.h"
 #include "gameplay/affects/affect_data.h"
+#include "gameplay/affects/affect_handler.h"
 #include "gameplay/mechanics/illumination.h"
 #include "engine/ui/alias.h"
 #include "gameplay/core/remort.h"
@@ -52,7 +53,6 @@ void check_purged(const CharData *ch, const char *fnc) {
 }
 
 } // namespace
-
 
 ProtectedCharData::ProtectedCharData() : m_rnum(kNobody) {
 }
@@ -91,7 +91,6 @@ CharData::CharData() :
 	script(new Script()) {
 	this->zero_init();
 	caching::character_cache.Add(this);
-	skills[ESkill::kGlobalCooldown].skillLevel = 0; //добавим позицию в map
 }
 
 CharData::~CharData() {
@@ -132,7 +131,6 @@ bool CharData::in_used_zone() const {
 //вычисление штрафов за голод и жажду
 //P_DAMROLL, P_HITROLL, P_CAST, P_MEM_GAIN, P_MOVE_GAIN, P_HIT_GAIN
 
-
 void CharData::reset() {
 	int i;
 
@@ -169,47 +167,6 @@ void CharData::reset() {
 	PlayerI::reset();
 }
 
-void CharData::set_abstinent() {
-	int duration = CalcDuration(this, this, ESkill::kHangovering, 2, 10, 2, 5);
-
-	if (CanUseFeat(this, EFeat::kDrunkard)) {
-		duration /= 2;
-	}
-
-	Affect<EApply> af;
-	af.type = ESpell::kAbstinent;
-	af.affect_type = EAffect::kAbstinent;
-	af.duration = duration;
-
-	af.location = EApply::kAc;
-	af.modifier = 20;
-	ImposeAffect(this, af, false, false, false, false);
-
-	af.location = EApply::kHitroll;
-	af.modifier = -2;
-	ImposeAffect(this, af, false, false, false, false);
-
-	af.location = EApply::kDamroll;
-	af.modifier = -2;
-	ImposeAffect(this, af, false, false, false, false);
-}
-
-CharData::char_affects_list_t::iterator CharData::AffectRemove(const char_affects_list_t::iterator &affect_i) {
-	if (affected.empty()) {
-		log("SYSERR: affect_remove(%s) when no affects...", GET_NAME(this));
-		return affected.end();
-	}
-	const auto af = *affect_i;
-	if (af->type == ESpell::kAbstinent) {
-		if (player_specials) {
-			GET_DRUNK_STATE(this) = GET_COND(this, condition::kDrunk) = std::min(GET_COND(this, condition::kDrunk), kDrunked - 1);
-		} else {
-			log("SYSERR: player_specials is not set.");
-		}
-	}
-	return affected.erase(affect_i);
-}
-
 bool CharData::has_any_affect(const affects_list_t &affects) {
 	for (const auto &affect : affects) {
 		if (AFF_FLAGGED(this, affect)) {
@@ -237,7 +194,7 @@ size_t CharData::remove_random_affects(const size_t count) {
 		std::shuffle(removable_affects.begin(), removable_affects.end(), std::mt19937(std::random_device()()));
 		for (auto counter = 0u; counter < to_remove; ++counter) {
 			const auto affect_i = removable_affects[counter];
-			AffectRemove(affect_i);    //count тут не сработает, удаляются все аффекты а не первый
+			RemoveAffect(this, affect_i);    //count тут не сработает, удаляются все аффекты а не первый
 		}
 		affect_total(this);
 	}
@@ -252,9 +209,9 @@ void CharData::zero_init() {
 	set_sex(EGender::kMale);
 	is_npc_ = false;
 	set_race(0);
-	protecting_ = nullptr;
-	touching_ = nullptr;
-	enemy_ = nullptr;
+	fight_targets_.protecting = nullptr;
+	fight_targets_.intercepting = nullptr;
+	fight_targets_.enemy = nullptr;
 	purged_ = false;
 	// на плеер-таблицу
 	chclass_ = ECharClass::kUndefined;
@@ -280,7 +237,7 @@ void CharData::zero_init() {
 	skill_bonus_ = 0;
 	type_charmice_ = 0;
 	role_.reset();
-	attackers_.clear();
+	was_attacked_ = false;
 	restore_timer_ = 0;
 	// char_data
 	set_rnum(kNobody);
@@ -350,9 +307,6 @@ void CharData::zero_init() {
 void CharData::purge() {
 	caching::character_cache.Remove(this);
 
-//	if (!get_name().empty()) {
-//		log("[FREE CHAR] (%s)", GET_NAME(this));
-//	}
 	int i, id = -1;
 	struct alias_data *a;
 
@@ -398,22 +352,6 @@ void CharData::purge() {
 		}
 		// порталы
 		ClearRunestones(this);
-// Cleanup punish reasons
-		if (punishments::Get(this, punishments::EType::kMute).reason)
-			free(punishments::Get(this, punishments::EType::kMute).reason);
-		if (punishments::Get(this, punishments::EType::kDumb).reason)
-			free(punishments::Get(this, punishments::EType::kDumb).reason);
-		if (punishments::Get(this, punishments::EType::kHell).reason)
-			free(punishments::Get(this, punishments::EType::kHell).reason);
-		if (punishments::Get(this, punishments::EType::kFreeze).reason)
-			free(punishments::Get(this, punishments::EType::kFreeze).reason);
-		if (punishments::Get(this, punishments::EType::kName).reason)
-			free(punishments::Get(this, punishments::EType::kName).reason);
-		if (punishments::Get(this, punishments::EType::kGcurse).reason)
-			free(punishments::Get(this, punishments::EType::kGcurse).reason);
-		if (punishments::Get(this, punishments::EType::kUnreg).reason)
-			free(punishments::Get(this, punishments::EType::kUnreg).reason);
-// End reasons cleanup
 
 		if (KARMA(this))
 			free(KARMA(this));
@@ -445,187 +383,19 @@ void CharData::purge() {
 	followers.clear();
 }
 
-int CharData::GetSkillBonus(const ESkill skill_id) const {
-	if (ROOM_FLAGGED(this->in_room, ERoomFlag::kDominationArena)) {
-		if (MUD::Class(chclass_).skills[skill_id].IsAvailable()) {
-			return 100;
-		}
-	}
-	if (privilege::CheckSkills(this)) {
-		return std::clamp(GetTrainedSkill(skill_id), 0, MUD::Skill(skill_id).cap);
-	}
-	return 0;
-
-}
-/*
- * Умение с учетом всех бонусов и штрафов (экипировка, таланты, яд).
- */
-int CharData::GetSkill(const ESkill skill_id) const {
-	int skill = GetSkillBonus(skill_id);
-
-	if (skill > 0) {
-		skill += GetAddSkill(skill_id) + GetEquippedSkill(skill_id);
-	}
-
-	if (AFF_FLAGGED(this, EAffect::kSkillReduce)) {
-		skill -= skill * GET_SKILL_REDUCE(this) / 100;
-	}
-
-	if (ROOM_FLAGGED(this->in_room, ERoomFlag::kDominationArena)) {
-		return std::clamp(skill, 0, CalcSkillRemortCap(this));
-	} else {
-		return skill;
-	}
-}
-
-/*
- * Умение с учетом талантов, но без экипировки.
- */
-int CharData::GetSkillWithoutEquip(const ESkill skill_id) const {
-	auto skill = GetTrainedSkill(skill_id);
-	if (skill) {
-		skill += GetAddSkill(skill_id);
-	}
-	return skill;
-}
-
-/*
- * Бонусы умения от экипировки. Учитываются, только
- * если у персонажа уже изучено данное умение.
- */
-int CharData::GetEquippedSkill(const ESkill skill_id) const {
-	int skill = 0;
-
-	bool is_native = this->IsNpc() || MUD::Class(chclass_).skills[skill_id].IsValid();
-	for (const auto item : equipment) {
-		if (item && is_native) {
-				skill += item->get_skill(skill_id);
-		}
-	}
-	if (is_native) {
-		skill += obj_bonus_.get_skill(skill_id);
-	}
-	if (GetSkillBonus(skill_id) > 0) {
-		skill += get_skill_bonus();
-	}
-	
-	return skill;
-}
-
-/*
- * Уровень умения без учета каких-либо бонусов.
- */
-int CharData::GetTrainedSkill(const ESkill skill_num) const {
-	if (privilege::CheckSkills(this)) {
-		auto it = skills.find(skill_num);
-		if (it != skills.end()) {
-			return std::clamp(it->second.skillLevel, 0, MUD::Skill(skill_num).cap);
-		}
-	}
-	return 0;
-}
-
-// * Нулевой скилл мы не сетим, а при обнулении уже имеющегося удалем эту запись.
-void CharData::set_skill(const ESkill skill_id, int percent) {
-	if (MUD::Skills().IsInvalid(skill_id)) {
-		// Только лишний спам в логе.
-		//log("SYSERROR: некорректный номер скилла %d в set_skill.", to_underlying(skill_id));
-		return;
-	}
-	auto it = skills.find(skill_id);
-	if (it != skills.end()) {
-		if (percent) {
-			it->second.skillLevel = percent;
-		} else {
-			skills.erase(it);
-		}
-	} else if (percent) {
-		skills[skill_id].skillLevel = percent;
+void CharData::setSkillCooldown(ESkill skill_id, unsigned cooldown) {
+	if (skills_.SetCooldown(skill_id, cooldown)) {
+		chardata_cooldown_list.insert(this);
 	}
 }
 
 void CharData::clear_skills() {
-	skills.clear();
+	skills_.Clear();
 }
 
 int CharData::get_skills_count() const {
-	return static_cast<int>(skills.size());
+	return skills_.Count();
 }
-
-void CharacterSkillDataType::decreaseCooldown(unsigned value) {
-	if (cooldown > value) {
-		cooldown -= value;
-	} else {
-		cooldown = 0u;
-	};
-};
-
-void CharData::setSkillCooldown(ESkill skillID, unsigned cooldown) {
-	auto skillData = skills.find(skillID);
-	if (skillData != skills.end()) {
-		skillData->second.cooldown = cooldown;
-		chardata_cooldown_list.insert(this);
-	}
-};
-
-unsigned CharData::getSkillCooldown(ESkill skillID) {
-	auto skillData = skills.find(skillID);
-	if (skillData != skills.end()) {
-		return skillData->second.cooldown;
-	}
-	return 0;
-};
-
-int CharData::getSkillCooldownInPulses(ESkill skillID) {
-	//return static_cast<int>(std::ceil(skillData->second.cooldown/(0.0 + kBattleRound)));
-	return static_cast<int>(std::ceil(getSkillCooldown(skillID) / (0.0 + kBattleRound)));
-};
-
-/* Понадобится - тогда и раскомментим...
-void CharacterData::decreaseSkillCooldown(ESkill skillID, unsigned value) {
-	auto skillData = skills.find(skillID);
-	if (skillData != skills.end()) {
-		skillData->second.decreaseCooldown(value);
-	}
-};
-*/
-void CharData::decreaseSkillsCooldowns(unsigned value) {
-	for (auto &skillData : skills) {
-		skillData.second.decreaseCooldown(value);
-	}
-};
-
-bool CharData::HaveDecreaseCooldowns() {
-	bool has_cooldown = false;
-	for (auto &skillData : skills) {
-		skillData.second.decreaseCooldown(1);
-		if (skillData.second.cooldown > 0) {
-			has_cooldown = true;
-		}
-	}
-	return has_cooldown;
-}
-
-void CharData::ZeroCooldowns() {
-	for (auto &skillData : skills) {
-		skillData.second.cooldown = 0u;
-	}
-}
-
-bool CharData::haveSkillCooldown(ESkill skillID) {
-	auto skillData = skills.find(skillID);
-	if (skillData != skills.end()) {
-		return (skillData->second.cooldown > 0);
-	}
-	return false;
-};
-
-bool CharData::HasCooldown(ESkill skillID) {
-	if (skills[ESkill::kGlobalCooldown].cooldown > 0) {
-		return true;
-	}
-	return haveSkillCooldown(skillID);
-};
 
 int CharData::get_obj_slot(int slot_num) {
 	if (slot_num >= 0 && slot_num < MAX_ADD_SLOTS) {
@@ -641,46 +411,42 @@ void CharData::add_obj_slot(int slot_num, int count) {
 }
 
 void CharData::set_touching(CharData *vict) {
-	touching_ = vict;
+	fight_targets_.intercepting = vict;
 }
 
 CharData *CharData::get_touching() const {
-	return touching_;
+	return fight_targets_.intercepting;
 }
 
 void CharData::set_protecting(CharData *vict) {
-	if (protecting_) {
+	if (fight_targets_.protecting) {
 		remove_protecting();
 	}
-	protecting_ = vict;
+	fight_targets_.protecting = vict;
 	vict->who_protecting.push_back(this);
 }
 
 void CharData::remove_protecting() {
-
-	if (protecting_) {
+	if (fight_targets_.protecting) {
 		auto predicate = [this](auto p) { return (this  ==  p); };
-		auto it = std::find_if(protecting_->who_protecting.begin(), protecting_->who_protecting.end(), predicate);
-		if (it != protecting_->who_protecting.end()) {
-			protecting_->who_protecting.erase(it);
-			SendMsgToChar(this, "Вы перестали прикрывать %s.\r\n", 
-				GET_PAD(protecting_, 3));
-			SendMsgToChar(get_protecting(), "%s перестал%s прикрывать вас.\r\n", GET_NAME(this), grammar::SexEnding((this)->get_sex(), 1));
+		auto it = std::find_if(fight_targets_.protecting->who_protecting.begin(), fight_targets_.protecting->who_protecting.end(), predicate);
+		if (it != fight_targets_.protecting->who_protecting.end()) {
+			fight_targets_.protecting->who_protecting.erase(it);
 		}
 	}
-	protecting_ = nullptr;
+	fight_targets_.protecting = nullptr;
 }
 
 CharData *CharData::get_protecting() const {
-	return protecting_;
+	return fight_targets_.protecting;
 }
 
 void CharData::SetEnemy(CharData *enemy) {
-	enemy_ = enemy;
+	fight_targets_.enemy = enemy;
 }
 
 CharData *CharData::GetEnemy() const {
-	return enemy_;
+	return fight_targets_.enemy;
 }
 
 void CharData::SetExtraAttack(EExtraAttack Attack, CharData *vict) {
@@ -726,34 +492,15 @@ bool AWAKE(const CharData *ch) {
 		&& !AFF_FLAGGED(ch, EAffect::kSleep);
 }
 
-//Вы уверены,что функцияам расчете опыта самое место в классе персонажа?
-bool OK_GAIN_EXP(const CharData *ch, const CharData *victim) {
-	return !NAME_BAD(ch)
-		&& (NAME_FINE(ch)
-			|| !(GetRealLevel(ch) == kNameLevel))
-		&& !ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena)
-		&& victim->IsNpc()
-		&& (victim->get_exp() > 0)
-		&& (!victim->IsNpc()
-			|| !ch->IsNpc()
-			|| AFF_FLAGGED(ch, EAffect::kCharmed))
-		&& !mount::IsHorse(victim)
-		&& !ROOM_FLAGGED(ch->in_room, ERoomFlag::kDominationArena);
-}
-
-bool IS_MALE(const CharData *ch) {
+bool IsMale(const CharData *ch) {
 	return ch->get_sex() == EGender::kMale;
 }
 
-bool IS_FEMALE(const CharData *ch) {
+bool IsFemale(const CharData *ch) {
 	return ch->get_sex() == EGender::kFemale;
 }
 
-bool IS_NOSEXY(const CharData *ch) {
-	return ch->get_sex() == EGender::kNeutral;
-}
-
-bool IS_POLY(const CharData *ch) {
+bool IsPoly(const CharData *ch) {
 	return ch->get_sex() == EGender::kPoly;
 }
 
@@ -1054,9 +801,7 @@ void CharData::set_movereg(const int v) {
 // * Удача (мораль) для расчетов в скилах и вывода чару по счет все.
 int CharData::calc_morale() const {
 	return GetRealCha(this) / 2 + GET_MORALE(this);
-//	return cha_app[GetRealCha(this)].morale + GET_MORALE(this);
 }
-///////////////////////////////////////////////////////////////////////////////
 int CharData::get_str() const {
 	check_purged(this, "get_str");
 	return GetInbornStr();
@@ -1081,7 +826,6 @@ int CharData::get_str_add() const {
 void CharData::set_str_add(int param) {
 	str_add_ = param;
 }
-///////////////////////////////////////////////////////////////////////////////
 int CharData::get_dex() const {
 	check_purged(this, "get_dex");
 	return GetInbornDex();
@@ -1106,7 +850,6 @@ int CharData::get_dex_add() const {
 void CharData::set_dex_add(int param) {
 	dex_add_ = param;
 }
-///////////////////////////////////////////////////////////////////////////////
 int CharData::get_con() const {
 	check_purged(this, "get_con");
 	return GetInbornCon();
@@ -1130,7 +873,6 @@ int CharData::get_con_add() const {
 void CharData::set_con_add(int param) {
 	con_add_ = param;
 }
-//////////////////////////////////////
 
 int CharData::get_int() const {
 	check_purged(this, "get_int");
@@ -1156,7 +898,6 @@ int CharData::get_int_add() const {
 void CharData::set_int_add(int param) {
 	int_add_ = param;
 }
-////////////////////////////////////////
 int CharData::get_wis() const {
 	check_purged(this, "get_wis");
 	return GetInbornWis();
@@ -1197,7 +938,6 @@ int CharData::get_wis_add() const {
 void CharData::set_wis_add(int param) {
 	wis_add_ = param;
 }
-///////////////////////////////////////////////////////////////////////////////
 int CharData::get_cha() const {
 	check_purged(this, "get_cha");
 	return GetInbornCha();
@@ -1239,9 +979,6 @@ void CharData::SetAddSkill(ESkill skill_id, int value) {
 	skills_add_[skill_id] += value;
 }
 
-
-///////////////////////////////////////////////////////////////////////////////
-
 void CharData::clear_add_apply_affects() {
 	// Clear all affect, because recalc one
 	add_abils = {};
@@ -1257,19 +994,6 @@ void CharData::clear_add_apply_affects() {
 	set_skill_bonus(0);
 	skills_add_.clear();
 }
-///////////////////////////////////////////////////////////////////////////////
-int CharData::get_zone_group() const {
-	const auto rnum = get_rnum();
-	if (this->IsNpc()
-		&& rnum >= 0
-		&& mob_index[rnum].zone >= 0) {
-		const auto zone = GetZoneRnum(GET_MOB_VNUM(this) / 100);
-		return std::max(1, zone_table[zone].group);
-	}
-
-	return 1;
-}
-
 // обрезает строку и выдергивает из нее предтитул
 std::string CharData::GetTitle() const {
 	std::string tmp = this->player_data.title;
@@ -1294,10 +1018,6 @@ std::string CharData::get_pretitle() const {
 	return pos == std::string::npos
 		   ? std::string()
 		   : tmp.substr(pos + 1, tmp.length() - (pos + 1));
-}
-
-std::string CharData::get_race_name() const {
-	return PlayerRace::GetRaceNameByNum(GET_KIN(this), GET_RACE(this), this->get_sex());
 }
 
 std::string CharData::GetTitleAndNameWithoutClan() const {
@@ -1336,7 +1056,7 @@ std::string CharData::GetTitleAndName() {
 std::string CharData::GetNameWithTitleOrRace() {
 	std::string title = GetTitleAndNameWithoutClan();
 	if (title == get_name()) {
-		return fmt::format("{} {}", get_race_name(), title);
+		return fmt::format("{} {}", PlayerRace::GetRaceNameByNum(GET_KIN(this), GET_RACE(this), this->get_sex()), title);
 	}
 
 	return title;
@@ -1377,22 +1097,6 @@ void CharData::msdp_report(const std::string &name) {
 	}
 }
 
-void CharData::removeGroupFlags() {
-	AFF_FLAGS(this).unset(EAffect::kGroup);
-	this->UnsetFlag(EPrf::kSkirmisher);
-}
-
-
-bool CharData::low_charm() const {
-	for (const auto &aff : affected) {
-		if (aff->type == ESpell::kCharm
-			&& aff->duration <= 1) {
-			return true;
-		}
-	}
-	return false;
-}
-
 void CharData::cleanup_script() {
 	script->cleanup();
 }
@@ -1401,84 +1105,18 @@ const CharData::role_t &CharData::get_role_bits() const {
 	return role_;
 }
 
-// добавляет указанного ch чара в список атакующих босса с параметром type
-// или обновляет его данные в этом списке
-void CharData::add_attacker(CharData *ch, unsigned type, int num) {
-	if (!this->IsNpc() || ch->IsNpc() || !get_role(static_cast<unsigned>(EMobClass::kBoss))) {
+// отмечает, что босса атаковал игрок: взводит флаг пост-боевого таймера рефреша
+void CharData::mark_attacked(CharData *attacker) {
+	if (!this->IsNpc() || attacker->IsNpc() || !get_role(static_cast<unsigned>(EMobClass::kBoss))) {
 		return;
 	}
-
-	int uid = ch->get_uid();
-	if (IsCharmice(ch) && ch->has_master()) {
-		uid = ch->get_master()->get_uid();
-	}
-
-	auto i = attackers_.find(uid);
-	if (i != attackers_.end()) {
-		switch (type) {
-			case ATTACKER_DAMAGE: i->second.damage += num;
-				break;
-			case ATTACKER_ROUNDS: i->second.rounds += num;
-				break;
-		}
-	} else {
-		attacker_node tmp_node;
-		switch (type) {
-			case ATTACKER_DAMAGE: tmp_node.damage = num;
-				break;
-			case ATTACKER_ROUNDS: tmp_node.rounds = num;
-				break;
-		}
-		attackers_.insert(std::make_pair(uid, tmp_node));
-	}
-}
-
-// возвращает количественный параметр по флагу type указанного ch чара
-// из списка атакующих данного босса
-int CharData::get_attacker(CharData *ch, unsigned type) const {
-	if (!this->IsNpc() || ch->IsNpc() || !get_role(static_cast<unsigned>(EMobClass::kBoss))) {
-		return -1;
-	}
-	auto i = attackers_.find(ch->get_uid());
-	if (i != attackers_.end()) {
-		switch (type) {
-			case ATTACKER_DAMAGE: return i->second.damage;
-			case ATTACKER_ROUNDS: return i->second.rounds;
-		}
-	}
-	return 0;
-}
-
-// поиск в списке атакующих нанесшего максимальный урон, который при этом
-// находится в данный момент в этой же комнате с боссом и онлайн
-std::pair<int /* uid */, int /* rounds */> CharData::get_max_damager_in_room() const {
-	std::pair<int, int> damager(-1, 0);
-
-	if (!this->IsNpc() || !get_role(static_cast<unsigned>(EMobClass::kBoss))) {
-		return damager;
-	}
-
-	int max_dmg = 0;
-	for (const auto i : world[this->in_room]->people) {
-		if (!i->IsNpc() && i->desc) {
-			auto it = attackers_.find(i->get_uid());
-			if (it != attackers_.end()) {
-				if (it->second.damage > max_dmg) {
-					max_dmg = it->second.damage;
-					damager.first = it->first;
-					damager.second = it->second.rounds;
-				}
-			}
-		}
-	}
-
-	return damager;
+	was_attacked_ = true;
 }
 
 // обновление босса вне боя по прошествии MOB_RESTORE_TIMER секунд
 void CharData::restore_mob() {
 	restore_timer_ = 0;
-	attackers_.clear();
+	was_attacked_ = false;
 
 	this->set_hit(this->get_real_max_hit());
 	this->set_move(this->get_real_max_move());
@@ -1493,7 +1131,7 @@ void CharData::restore_mob() {
 void CharData::restore_npc() {
 	if(!this->IsNpc()) return;
 	
-	attackers_.clear();
+	was_attacked_ = false;
 	auto proto = (&mob_proto[this->get_rnum()]);
 	// ресторим хпшки / мувы
 		
@@ -1503,19 +1141,19 @@ void CharData::restore_npc() {
 	this->set_move(proto->get_real_max_move());
 	update_pos(this);
 	// ресторим хиты / дамы / ас / армор
-	GET_WEIGHT(this) = GET_WEIGHT(proto);
-	GET_HEIGHT(this) = GET_HEIGHT(proto);
-	GET_SIZE(this) = GET_SIZE(proto);
-	GET_HR(this) = GET_HR(proto);
-	GET_AC(this) = GET_AC(proto);
-	GET_DR(this) = GET_DR(proto);
-	GET_ARMOUR(this) = GET_ARMOUR(proto);
-	GET_INITIATIVE(this) = GET_INITIATIVE(proto);
-	GET_MORALE(this) = GET_MORALE(proto);
+	this->set_weight(proto->get_weight());
+	this->set_height(proto->get_height());
+	this->real_abils.size = proto->real_abils.size;
+	this->real_abils.hitroll = proto->real_abils.hitroll;
+	this->real_abils.armor = proto->real_abils.armor;
+	this->real_abils.damroll = proto->real_abils.damroll;
+	this->add_abils.armour = proto->add_abils.armour;
+	this->add_abils.initiative_add = proto->add_abils.initiative_add;
+	this->add_abils.morale = proto->add_abils.morale;
 	// ресторим резисты ФР/МР/АР
-	GET_AR(this) = GET_AR(proto);
-	GET_MR(this) = GET_MR(proto);
-	GET_PR(this) = GET_PR(proto);
+	this->add_abils.aresist = proto->add_abils.aresist;
+	this->add_abils.mresist = proto->add_abils.mresist;
+	this->add_abils.presist = proto->add_abils.presist;
 	// ресторим имена
 	this->player_data.PNames[grammar::ECase::kNom] = proto->player_data.PNames[grammar::ECase::kNom];
 	this->player_data.PNames[grammar::ECase::kGen] = proto->player_data.PNames[grammar::ECase::kGen];
@@ -1523,15 +1161,12 @@ void CharData::restore_npc() {
 	this->player_data.PNames[grammar::ECase::kAcc] = proto->player_data.PNames[grammar::ECase::kAcc];
 	this->player_data.PNames[grammar::ECase::kIns] = proto->player_data.PNames[grammar::ECase::kIns];
 	this->player_data.PNames[grammar::ECase::kPre] = proto->player_data.PNames[grammar::ECase::kPre];
-	this->SetCharAliases(GET_PC_NAME(proto));
-	this->set_npc_name(GET_NAME(proto));
+	this->SetCharAliases(proto->GetCharAliases());
+	this->set_npc_name(proto->get_name());
     // кубики // екстра атаки
 	this->mob_specials.damnodice = proto->mob_specials.damnodice;
 	this->mob_specials.damsizedice = proto->mob_specials.damsizedice;
 	this->mob_specials.extra_attack = proto->mob_specials.extra_attack;
-	// this->mob_specials.damnodice = 1;
-	// this->mob_specials.damsizedice = 1;
-	// this->mob_specials.ExtraAttack = 0;
 	//флаги
 	this->char_specials.saved.act = proto->char_specials.saved.act;
 	this->set_touching(nullptr);
@@ -1552,7 +1187,7 @@ void CharData::restore_npc() {
 
 	for (const auto &skill : MUD::Skills()) {
 		if (skill.IsValid()) {
-			this->set_skill(skill.GetId(), proto->GetSkill(skill.GetId()));
+			SetSkill(this, skill.GetId(), GetSkill(proto, skill.GetId()));
 		}
 	}
 
@@ -1589,7 +1224,7 @@ void CharData::set_wait(const unsigned _) {
 // который находится вне боя и до этого был кем-то бит
 // (т.к. имеет не нулевой список атакеров)
 void CharData::inc_restore_timer(int num) {
-		if (get_role(static_cast<unsigned>(EMobClass::kBoss)) && !attackers_.empty() && !GetEnemy()) {
+	if (get_role(static_cast<unsigned>(EMobClass::kBoss)) && was_attacked_ && !GetEnemy()) {
 		restore_timer_ += num;
 		if (restore_timer_ > num) {
 			restore_mob();
@@ -1597,74 +1232,8 @@ void CharData::inc_restore_timer(int num) {
 	}
 }
 
-//метод передачи отладочного сообщения:
-//имморталу, тестеру или кодеру
-//остальные параметры - функция printf
-void CharData::send_to_TC(bool to_impl, bool to_tester, bool to_coder, const char *msg, ...) {
-	bool needSend = false;
-	// проверка на ситуацию "чармис стоит, хозяина уже нет с нами"
-	if (IsCharmice(this) && !this->has_master()) {
-		sprintf(buf, "[WARNING] CharacterData::send_to_TC. Чармис без хозяина: %s", this->get_name().c_str());
-		mudlog(buf, CMP, kLvlGod, SYSLOG, true);
-		return;
-	}
-	if ((IsCharmice(this) && this->get_master()->IsNpc()) //если это чармис у нпц
-		|| (this->IsNpc() && !IsCharmice(this))) //просто непись
-		return;
-
-	if (to_impl &&
-		(privilege::IsImpl(this) || (IsCharmice(this) && privilege::IsImpl(this->get_master()))))
-		needSend = true;
-	if (!needSend && to_coder &&
-		(this->IsFlagged(EPrf::kCoderinfo) || (IsCharmice(this) && (this->get_master()->IsFlagged(EPrf::kCoderinfo)))))
-		needSend = true;
-	if (!needSend && to_tester &&
-		(this->IsFlagged(EPrf::kTester) || (IsCharmice(this) && (this->get_master()->IsFlagged(EPrf::kTester)))))
-		needSend = true;
-	if (!needSend)
-		return;
-
-	va_list args;
-	char tmpbuf[kMaxStringLength];
-
-	va_start(args, msg);
-	vsnprintf(tmpbuf, sizeof(tmpbuf), msg, args);
-	va_end(args);
-
-	if (tmpbuf[0] == '\0') {
-		sprintf(buf, "[WARNING] CharacterData::send_to_TC. Передано пустое сообщение");
-		mudlog(buf, BRF, kLvlGod, SYSLOG, true);
-		return;
-	}
-	// проверка на нпц была ранее. Шлем хозяину чармиса или самому тестеру
-	SendMsgToChar(tmpbuf, IsCharmice(this) ? this->get_master() : this);
-}
-
-bool CharData::have_mind() const {
-	if (!AFF_FLAGGED(this, EAffect::kCharmed) && !mount::IsHorse(this))
-		return true;
-	return false;
-}
-
-// персонаж на лошади?
-
-#include "utils/backtrace.h"
-
-
 obj_sets::activ_sum &CharData::obj_bonus() {
 	return obj_bonus_;
-}
-
-bool CharData::HasWeapon() {
-	if ((GET_EQ(this, EEquipPos::kWield)
-	  && GET_EQ(this, EEquipPos::kWield)->get_type() != EObjType::kLightSource)
-	  || (GET_EQ(this, EEquipPos::kHold)
-	  && GET_EQ(this, EEquipPos::kHold)->get_type() != EObjType::kLightSource)
-	  || (GET_EQ(this, EEquipPos::kBoths)
-	  && GET_EQ(this, EEquipPos::kBoths)->get_type() != EObjType::kLightSource)) {
-		return true;
-	}
-	return false;
 }
 
 player_special_data::player_special_data() :

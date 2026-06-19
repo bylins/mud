@@ -28,8 +28,8 @@ void do_insult(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 				switch (number(0, 2)) {
 					case 0:
-						if (IS_MALE(ch)) {
-							if (IS_MALE(victim))
+						if (IsMale(ch)) {
+							if (IsMale(victim))
 								act("&K$n высмеял$g вашу манеру держать меч !&n",
 									false, ch, nullptr, victim, kToVict);
 							else
@@ -37,7 +37,7 @@ void do_insult(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 									false, ch, nullptr, victim, kToVict);
 						} else    // Ch == Woman
 						{
-							if (IS_MALE(victim))
+							if (IsMale(victim))
 								act("&K$n заявил$g вам, что у н$s больше... (что $e имел$g в виду?)&n",
 									false, ch, nullptr, victim, kToVict);
 							else
