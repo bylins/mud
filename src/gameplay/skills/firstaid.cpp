@@ -49,14 +49,19 @@ namespace {
 // First Aid roll constants. These play the role of <potency_roll> for the future
 // universal-ability config; once spells.xml grows to cover skills the values move
 // there and this block disappears.
-constexpr int kFirstAidDiceNum = 3;
-constexpr int kFirstAidDiceSize = 6;
-constexpr int kFirstAidDiceAdd = 0;
-constexpr double kFirstAidLowSkillBonus = 3.0;   // mirrors typical cast roll: heavy weight while
-constexpr double kFirstAidHiSkillBonus = 1.0;    // skill < kNoviceSkillThreshold, lighter past it
-constexpr int kFirstAidStatThreshold = 22;       // Int stat threshold (mirrors most cast rolls)
-constexpr double kFirstAidStatWeight = 1.5;
-constexpr float kFirstAidPotencyWeight = 1.0f;   // affect-contest weight; tune like CastUnaffects
+// Tuned to mirror an offensive affect spell's <potency_roll> (e.g. kSleep: 5d9+12, skill
+// 3/1.25, Int thr 22 wt 0.5) so the contest is between comparable rolls, then PotencyWeight 1.2
+// gives the healer ~8/10 odds to cure an affect from a mage of similar skill+stat (issue.sleep-hotfix).
+constexpr int kFirstAidDiceNum = 5;
+constexpr int kFirstAidDiceSize = 9;
+constexpr int kFirstAidDiceAdd = 12;
+constexpr double kFirstAidLowSkillBonus = 3.0;   // skill <  kNoviceSkillThreshold (pipeline weight)
+constexpr double kFirstAidHiSkillBonus = 1.25;   // skill >= kNoviceSkillThreshold (pipeline weight)
+constexpr int kFirstAidStatThreshold = 22;       // Int stat threshold (mirrors cast rolls)
+constexpr double kFirstAidStatWeight = 0.5;      // Int weight (mirrors cast rolls)
+constexpr float kFirstAidPotencyWeight = 1.2f;   // ~8/10 win vs a same-skill/stat mage's affect
+constexpr float kFirstAidFailDecayFraction = 0.40f;  // failed cure still weakens the affect by 40%
+                                                     // of the rolled heal potency (like unaffect decay)
 
 // Compute the First Aid cure potency for the contest with affect.potency.
 // Math mirrors talents_actions::Roll::CalcSkillCoeff + CalcBaseStatCoeff so the new
@@ -249,6 +254,9 @@ void DoFirstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			affect_cleared = true;
 		} else {
 			affect_contest_failed = true;
+			// Like unaffect-spell decay: a failed cure still chips the affect (by a fraction of the
+			// rolled heal potency) so repeated First Aid eventually removes it. Floored at 0.
+			target_aff->potency = std::max(0.0f, target_aff->potency - kFirstAidFailDecayFraction * potency);
 		}
 	}
 
