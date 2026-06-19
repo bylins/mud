@@ -49,21 +49,22 @@ CharData *GetLuaCharFromObject(const sol::object &entity, LuaRuntimeContext runt
 
 	sol::table handle_table = handle;
 	const sol::object type = handle_table["type"];
-	const sol::object ptr = handle_table["ptr"];
-	if (!type.is<int>() || type.as<int>() != kLuaHandleTypeChar || !ptr.is<void*>())
+	const sol::object uid = handle_table["uid"];
+	if (!type.is<int>() || type.as<int>() != kLuaHandleTypeChar || (!uid.is<long>() && !uid.is<int>()))
 	{
 		return nullptr;
 	}
 
-	auto *ch = static_cast<CharData *>(ptr.as<void*>());
-	return ResolveChar(MakeCharHandle(ch));
+	LuaEntityHandle char_handle(LuaEntityHandle::LuaEntityType::Char);
+	char_handle.char_uid = uid.is<long>() ? uid.as<long>() : uid.as<int>();
+	return ResolveChar(char_handle);
 }
 
 void RegisterCharView(sol::state &lua, sol::table entity_handles, sol::table view, CharData *ch)
 {
 	sol::table handle = lua.create_table();
 	handle["type"] = kLuaHandleTypeChar;
-	handle["ptr"] = static_cast<void *>(ch);
+	handle["uid"] = ch ? ch->get_uid() : 0;
 	entity_handles[view] = handle;
 }
 
@@ -1127,7 +1128,7 @@ sol::object BuildCharView(sol::state &lua, CharData *ch, LuaRuntimeContext runti
 		}
 		if (key == "send")
 		{
-			return sol::make_object(lua, sol::as_function([handle](sol::object message) {
+			return sol::make_object(lua, sol::as_function([handle](sol::object, sol::object message) {
 				return SendToChar(handle, message);
 			}));
 		}

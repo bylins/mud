@@ -12,7 +12,7 @@ namespace lua_scripting {
 LuaEntityHandle MakeCharHandle(CharData *ch)
 {
 	LuaEntityHandle handle(LuaEntityHandle::LuaEntityType::Char);
-	handle.ch = ch;
+	handle.char_uid = ch ? ch->get_uid() : 0;
 	return handle;
 }
 
@@ -72,15 +72,19 @@ long GetOwnerUid(const CharData *owner)
 
 CharData *ResolveChar(const LuaEntityHandle &handle)
 {
-	if (handle.type != LuaEntityHandle::LuaEntityType::Char
-		|| !handle.ch
-		|| !character_list.has(handle.ch)
-		|| handle.ch->purged())
+	if (handle.type != LuaEntityHandle::LuaEntityType::Char || handle.char_uid == 0)
 	{
 		return nullptr;
 	}
 
-	return handle.ch;
+	CharData *result = nullptr;
+	character_list.foreach([&result, uid = handle.char_uid](const CharData::shared_ptr &ch) {
+		if (!result && ch && ch->get_uid() == uid && !ch->purged())
+		{
+			result = ch.get();
+		}
+	});
+	return result;
 }
 
 ObjData *ResolveObj(const LuaEntityHandle &handle)

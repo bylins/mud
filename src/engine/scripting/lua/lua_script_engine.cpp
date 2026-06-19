@@ -1,5 +1,8 @@
 #include "engine/scripting/lua/lua_internal.h"
 
+#include "engine/scripting/dg_scripts.h"
+#include "utils/logger.h"
+
 #include "engine/db/world_characters.h"
 #include "engine/db/world_objects.h"
 #include "engine/entities/obj_data.h"
@@ -49,6 +52,56 @@ CharData *ResolveCharacterByUid(long uid);
 ObjData *ResolveObjectById(object_id_t id);
 RoomRnum ResolveObjectRoom(ObjData *obj, int depth = 0);
 RoomRnum ResolveOwnerRoom(const LuaTriggerContext &ctx);
+
+bool CanTriggerWait(Trigger *trigger)
+{
+	if (!trigger)
+	{
+		return false;
+	}
+	if (trigger->get_attach_type() == MOB_TRIGGER && IS_SET(GET_TRIG_TYPE(trigger), MTRIG_DEATH))
+	{
+		return false;
+	}
+	if (trigger->get_attach_type() == OBJ_TRIGGER && IS_SET(GET_TRIG_TYPE(trigger), OTRIG_PURGE))
+	{
+		return false;
+	}
+	return true;
+}
+
+bool ShouldRunFunctionInCoroutine(Trigger *trigger)
+{
+	if (!CanTriggerWait(trigger))
+	{
+		return false;
+	}
+	if (!trigger)
+	{
+		return false;
+	}
+
+	const auto &source = trigger->get_lua_script_source();
+	return source.find("mud.wait") != std::string::npos;
+}
+
+void RetireFinishedLuaState(const std::shared_ptr<LuaWaitState> &state)
+{
+	if (!state)
+	{
+		return;
+	}
+
+	state->ctx.owner = nullptr;
+	state->ctx.actor = nullptr;
+	state->ctx.victim = nullptr;
+	state->ctx.owner_obj = nullptr;
+	state->ctx.object = nullptr;
+	state->ctx.owner_room = nullptr;
+	state->runtime = LuaRuntimeContext{};
+	static std::vector<std::shared_ptr<LuaWaitState>> retired_states;
+	retired_states.push_back(state);
+}
 
 class LuaWaitRegistry {
  public:
@@ -449,17 +502,36 @@ int LuaScriptEngine::RunTrigger(Trigger *trigger, const LuaTriggerContext &ctx)
 	{
 		return ConvertLuaResult(chunk_result, state->runtime, lua_ctx, true);
 	}
+	if (!ShouldRunFunctionInCoroutine(trigger))
+	{
+		const auto result = ConvertLuaResult(chunk_result, state->runtime, lua_ctx, true);
+		RetireFinishedLuaState(state);
+		return result;
+	}
 	state->lua["__mud_lua_entrypoint"] = first;
 
 	LuaWaitRegistry::Instance().Add(state);
 	const auto result = StartCoroutine(state);
 	if (!state->waiting)
 	{
-		LuaWaitRegistry::Instance().Remove(LuaWaitRegistry::Instance().FindId(state.get()));
+		const auto wait_id = LuaWaitRegistry::Instance().FindId(state.get());
+		LuaWaitRegistry::Instance().Remove(wait_id);
+		RetireFinishedLuaState(state);
 	}
 	return result;
 #else
 	(void) ctx;
+	const auto trigger_rnum = trigger->get_rnum();
+	const auto trigger_vnum = trigger_rnum >= 0 && trigger_rnum < top_of_trigt && trig_index && trig_index[trigger_rnum]
+		? trig_index[trigger_rnum]->vnum
+		: 0;
+	char buf[kMaxStringLength];
+	snprintf(buf,
+		sizeof(buf),
+		"ERROR: Lua trigger skipped because binary was built without LuaJIT support: name='%s', vnum=%d",
+		GET_TRIG_NAME(trigger),
+		trigger_vnum);
+	mudlog(buf, BRF, kLvlBuilder, ERRLOG, true);
 	return 1;
 #endif
 }

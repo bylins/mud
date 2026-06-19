@@ -28,7 +28,7 @@ struct LuaEntityHandle {
 	explicit LuaEntityHandle(LuaEntityType entity_type) : type(entity_type) {}
 
 	LuaEntityType type;
-	CharData *ch = nullptr;
+	long char_uid = 0;
 	object_id_t obj_id = 0;
 };
 
