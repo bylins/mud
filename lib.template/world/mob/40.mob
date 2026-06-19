@@ -1191,38 +1191,4 @@ Weight: 200
 Special_Bitvector: d1 
 Skill: 136 75
 E
-#4071
-злая мышь~
-злая мышь~
-злой мыши~
-злой мыши~
-злую мышь~
-злой мышью~
-злой мыши~
-Злая мышь пытается юркнуть в подходящую норку.
-~
-Обычная домовая мышь, только очень злая.
-~
-d0g0n0p0i1f2 m1 0 E
-1 18 9 5d3+20 1d3+1
-0d0+0 100
-8 8 2
-BareHandAttack: 4
-Str: 3
-Dex: 7
-Int: 3
-Wis: 7
-Con: 5
-Cha: 7
-Size: 3
-MaxFactor: 10
-Class: 103
-Race: 104
-Height: 4
-Weight: 1
-Special_Bitvector: i0 
-Skill: 136 9
-E
-I шерсть:5
-T 4021
 $
