@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="koi8-r"?>
 <class id="kWizard">
+    <experience_table id="kMageTable"/>
     <stats>
         <base_stats>
             <stat id="kStr"	gen_min="10"	gen_max="14"	auto="10"	cap="50" />

@@ -7,6 +7,7 @@
 */
 
 #include "damage.h"
+#include "gameplay/core/experience.h"
 #include "utils/logger.h"
 #include "administration/privilege.h"
 #include "utils/grammar/gender.h"
@@ -42,9 +43,7 @@
 void TryRemoveExtrahits(CharData *ch, CharData *victim);
 
 // Estern - нужно разобраться, почему функции работы с опытом распиханы по всем углам
-int max_exp_gain_pc(CharData *ch);
-//int max_exp_loss_pc(CharData *ch);
-
+//
 bool Damage::CalcMagisShieldsDmgAbsoption(CharData *ch, CharData *victim) {
 	if (dam <= 0) {
 		return false;
@@ -665,7 +664,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 		}
 	}
 	if (!InTestZone(ch)) {
-		gain_battle_exp(ch, victim, dam);
+		experience::gain_battle_exp(ch, victim, dam);
 	}
 
 	// real_dam так же идет в обратку от огн.щита

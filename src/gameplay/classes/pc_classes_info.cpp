@@ -111,6 +111,11 @@ ItemPtr CharClassInfoBuilder::ParseClass(DataNode &node) {
 	// issue.thing-names: the name now comes from class_msg.xml (registry), not the <name> child.
 	ParseName(info);
 
+	if (node.GoToChild("experience_table")) {
+		info->exp_table_id = parse::ReadAsStr(node.GetValue("id"));
+		node.GoToParent();
+	}
+
 	if (node.GoToChild("stats")) {
 		ParseStats(info, node);
 		node.GoToParent();

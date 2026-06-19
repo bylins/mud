@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="koi8-r"?>
 <class id="kThief">
+    <experience_table id="kThiefTable"/>
     <stats>
         <base_stats>
             <stat id="kStr"	gen_min="16"	gen_max="19"	auto="19"	cap="75"/>

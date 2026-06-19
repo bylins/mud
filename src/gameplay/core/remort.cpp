@@ -3,6 +3,7 @@
 //
 
 #include "gameplay/core/remort.h"
+#include "gameplay/core/experience.h"
 #include "administration/privilege.h"
 
 #include "administration/karma.h"
@@ -34,7 +35,7 @@ void ProcessRemort(CharData *ch, char *argument, int subcmd) {
 		SendMsgToChar("Вам это, похоже, совсем ни к чему.\r\n", ch);
 		return;
 	}
-	if (ch->get_exp() < GetExpUntilNextLvl(ch, kLvlImmortal) - 1) {
+	if (ch->get_exp() < experience::GetExpUntilNextLvl(ch, kLvlImmortal) - 1) {
 		SendMsgToChar("ЧАВО???\r\n", ch);
 		return;
 	}
