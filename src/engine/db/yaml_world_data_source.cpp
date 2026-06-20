@@ -240,8 +240,8 @@ bool YamlWorldDataSource::LoadWorldConfig()
 			return false;
 		}
 
-		// Read layout setting (optional, defaults to per_file for backward compat).
-		// Controls only how zones are WRITTEN; loading auto-detects per zone.
+		// Read layout setting (optional, defaults to flat). Controls only how
+		// zones are WRITTEN; loading auto-detects the layout per zone regardless.
 		if (config["layout"]) {
 			std::string layout = config["layout"].as<std::string>();
 			if (layout == "flat") {
@@ -255,8 +255,8 @@ bool YamlWorldDataSource::LoadWorldConfig()
 				return false;
 			}
 		} else {
-			m_save_layout = YamlLayout::PerFile;
-			log("World config: layout not set, defaulting to per-file");
+			m_save_layout = YamlLayout::Flat;
+			log("World config: layout not set, defaulting to flat");
 		}
 
 		return true;
@@ -317,8 +317,28 @@ std::vector<EntityFileTask> YamlWorldDataSource::DiscoverEntityFiles(const std::
 	{
 		const std::string zone_dir = m_world_dir + "/zones/" + std::to_string(zone_vnum);
 		const std::string flat_path = zone_dir + "/" + sub + ".yaml";
+		const std::string index_path = zone_dir + "/" + sub + "/index.yaml";
+		const bool has_flat = fs::exists(flat_path);
+		const bool has_perfile = fs::exists(index_path);
 
-		if (fs::exists(flat_path))
+		// Normally only one layout exists (saves are self-cleaning). If both are
+		// present -- a half-finished migration or a leftover from a failed
+		// cleanup -- the configured layout (m_save_layout, from world_config.yaml)
+		// decides which one is authoritative; the other is ignored.
+		bool use_flat;
+		if (has_flat && has_perfile)
+		{
+			use_flat = (m_save_layout == YamlLayout::Flat);
+			log("WARNING: zone %d has both flat %s.yaml and per-file %s/ -- using "
+				"%s per world_config layout; the other is ignored.",
+				zone_vnum, sub.c_str(), sub.c_str(), use_flat ? "flat" : "per-file");
+		}
+		else
+		{
+			use_flat = has_flat;
+		}
+
+		if (use_flat)
 		{
 			// Flat layout: the file is a map of rel-number -> entity node and
 			// doubles as its own index. Enumerate the keys here (sequentially,
@@ -350,8 +370,7 @@ std::vector<EntityFileTask> YamlWorldDataSource::DiscoverEntityFiles(const std::
 
 		// Per-file layout: one task per entity, listed in <sub>/index.yaml.
 		// A missing index simply means the zone has no entities of this type.
-		const std::string index_path = zone_dir + "/" + sub + "/index.yaml";
-		if (!fs::exists(index_path))
+		if (!has_perfile)
 		{
 			continue;
 		}

@@ -963,7 +963,7 @@ class YamlSaver(BaseSaver):
         world/zones/{zone_vnum}/triggers/index.yaml - List of triggers per zone
     """
 
-    def __init__(self, output_dir, layout='per_file'):
+    def __init__(self, output_dir, layout='flat'):
         self.output_dir = Path(output_dir) / 'world'
         # 'per_file': one file per entity + per-dir index.yaml (legacy default).
         # 'flat': all entities of a type in one <sub>.yaml as a rel_num -> body
@@ -4118,7 +4118,7 @@ def parse_file(input_path, file_type):
         return []
 
 
-def create_world_config(output_dir, layout='per_file'):
+def create_world_config(output_dir, layout='flat'):
     """Create world_config.yaml for YAML loader.
 
     Args:
@@ -4165,7 +4165,7 @@ layout: {layout}
 
 
 def convert_directory(input_dir, output_dir, delete_source=False, max_workers=None,
-                     output_format='yaml', db_path=None, layout='per_file'):
+                     output_format='yaml', db_path=None, layout='flat'):
     """Convert all files in a world directory.
 
     Architecture:
@@ -4316,9 +4316,9 @@ def main():
                        help=f'Number of parallel workers (default: {default_workers})')
     parser.add_argument('--yaml-lib', choices=['ruamel', 'pyyaml'], default='ruamel',
                        help='YAML library: ruamel (with comments, default) or pyyaml (fast, no literal blocks)')
-    parser.add_argument('--layout', choices=['per_file', 'flat'], default='per_file',
-                       help='YAML entity layout: per_file (one file per entity + index, default) '
-                            'or flat (all entities of a type in one <sub>.yaml). Loader auto-detects either.')
+    parser.add_argument('--layout', choices=['per_file', 'flat'], default='flat',
+                       help='YAML entity layout: flat (all entities of a type in one <sub>.yaml, '
+                            'default) or per_file (one file per entity + index). Loader auto-detects either.')
 
     args = parser.parse_args()
 

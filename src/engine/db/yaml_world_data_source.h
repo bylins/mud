@@ -189,7 +189,7 @@ private:
 	std::string m_world_dir;
 	bool m_dictionaries_loaded = false;
 	bool m_convert_lf_to_crlf = false;  // Convert LF to CR+LF for DOS line endings
-	YamlLayout m_save_layout = YamlLayout::PerFile;  // Layout used when writing zones
+	YamlLayout m_save_layout = YamlLayout::Flat;  // Layout used when writing zones (default: flat)
 
 	// Threading support
 	std::unique_ptr<utils::ThreadPool> m_thread_pool;
