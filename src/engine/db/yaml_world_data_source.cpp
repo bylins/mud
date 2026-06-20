@@ -1591,7 +1591,7 @@ CharData YamlWorldDataSource::ParseMobFile(const std::string &file_path)
 		{
 			int skill_id = GetInt(skill_node, "skill_id", 0);
 			int value = GetInt(skill_node, "value", 0);
-			mob.set_skill(static_cast<ESkill>(skill_id), value);
+			SetSkill(&mob, static_cast<ESkill>(skill_id), value);
 		}
 	}
 
@@ -2177,7 +2177,7 @@ CObjectPrototype* YamlWorldDataSource::ParseObjectFile(const std::string &file_p
 				{
 					int skill_id = GetInt(skill_node, "skill_id", 0);
 					int value = GetInt(skill_node, "value", 0);
-					SetSkill(obj_ptr, static_cast<ESkill>(skill_id), value);
+					obj_ptr->set_skill(static_cast<ESkill>(skill_id), value);
 				}
 			}
 
@@ -3549,7 +3549,7 @@ void YamlWorldDataSource::SaveMobs(int zone_rnum, int specific_vnum)
 		yaml.Value(static_cast<int>(mob.mob_specials.GoldSiDs));  // byte -> int
 
 		yaml.Key("bonus");
-		yaml.Value(currencies::GetHand(*mob, currencies::kGold));
+		yaml.Value(currencies::GetHand(mob, currencies::kGold));
 
 		yaml.DecreaseIndent();
 

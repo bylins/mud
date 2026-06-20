@@ -1577,7 +1577,7 @@ void SqliteWorldDataSource::LoadMobSkills()
 		if (it == vnum_to_rnum.end()) continue;
 
 		auto skill = static_cast<ESkill>(skill_id);
-		mob_proto[it->second].set_skill(skill, value);
+		SetSkill(&mob_proto[it->second], skill, value);
 		skills_set++;
 	}
 	sqlite3_finalize(stmt);
@@ -2900,7 +2900,7 @@ void SqliteWorldDataSource::SaveMobRecord(int mob_vnum, CharData &mob)
 	// Gold dice
 	sqlite3_bind_int(stmt, col++, mob.mob_specials.GoldNoDs);
 	sqlite3_bind_int(stmt, col++, mob.mob_specials.GoldSiDs);
-	sqlite3_bind_int(stmt, col++, currencies::GetHand(*mob, currencies::kGold));
+	sqlite3_bind_int(stmt, col++, currencies::GetHand(mob, currencies::kGold));
 	
 	// Experience
 	sqlite3_bind_int(stmt, col++, mob.get_exp());
@@ -3033,7 +3033,7 @@ void SqliteWorldDataSource::SaveMobRecord(int mob_vnum, CharData &mob)
 	const char *skill_sql = "INSERT INTO mob_skills (mob_vnum, skill_id, value) VALUES (?, ?, ?)";
 	for (ESkill skill = ESkill::kFirst; skill <= ESkill::kLast; ++skill)
 	{
-		int value = mob.GetSkill(skill);
+		int value = GetSkill(&mob, skill);
 		if (value > 0)
 		{
 			if (sqlite3_prepare_v2(m_db, skill_sql, -1, &stmt, nullptr) == SQLITE_OK)
