@@ -106,7 +106,7 @@ void Account::list_players(DescriptorData *d) {
 		iosystem::write_to_output("\r\n", d);
 		count++;
 	}
-	iosystem::write_to_output(MENU, d);
+	ShowMainMenu(d);
 }
 
 void Account::save_to_file() {

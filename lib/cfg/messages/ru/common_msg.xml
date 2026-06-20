@@ -13,5 +13,15 @@
 		<message type="kNoPerson" val="Нет такого создания в этом мире."/>
 		<message type="kNothing" val="ничего"/>
 		<message type="kBrokenScales" val="Весы богов сломаны и ваши заслуги не могут быть оценены."/>
+		<message type="kMenuExit" val="Отсоединиться."/>
+		<message type="kMenuEnterGame" val="Начать игру."/>
+		<message type="kMenuDescription" val="Ввести описание вашего персонажа."/>
+		<message type="kMenuHistory" val="Узнать историю."/>
+		<message type="kMenuChangePassword" val="Изменить пароль."/>
+		<message type="kMenuDelete" val="Удалить персонажа."/>
+		<message type="kMenuResetStats" val="Изменить параметры персонажа."/>
+		<message type="kMenuBlind" val="Включить/выключить режим слепого игрока."/>
+		<message type="kMenuEmailList" val="Посмотреть всех персонажей на данном email'e."/>
+		<message type="kMenuPrompt" val="Чего ваша душа желает?"/>
 	</msg_sheaf>
 </common_msg>

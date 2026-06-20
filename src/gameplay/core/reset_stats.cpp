@@ -134,7 +134,7 @@ void process(DescriptorData *d, Type type) {
 
 	if (currencies::GetTotal(*ch, currencies::kGold) < price) {
 	iosystem::write_to_output("\r\nУ вас нет такой суммы!\r\n", d);
-	iosystem::write_to_output(MENU, d);
+	ShowMainMenu(d);
 		d->state = EConState::kMenu;
 	} else {
 		char buf_[kMaxInputLength];
@@ -145,7 +145,7 @@ void process(DescriptorData *d, Type type) {
 			// если мы попали сюда, значит чара не вывело на переброс статов
 			// после проверки в ValidateStats()
 		iosystem::write_to_output("Произошла какая-то ошибка, сообщите богам!\r\n", d);
-		iosystem::write_to_output(MENU, d);
+		ShowMainMenu(d);
 			d->state = EConState::kMenu;
 			snprintf(buf_, sizeof(buf_), "%s failed to change %s",
 					 d->character->get_name().c_str(), reset_prices.at(type).log_text.c_str());
@@ -205,7 +205,7 @@ void parse_menu(DescriptorData *d, const char *arg) {
 
 	if (!result) {
 	iosystem::write_to_output("Изменение параметров персонажа было отменено.\r\n", d);
-	iosystem::write_to_output(MENU, d);
+	ShowMainMenu(d);
 		d->state = EConState::kMenu;
 	}
 }
