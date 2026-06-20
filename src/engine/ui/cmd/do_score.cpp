@@ -7,6 +7,7 @@
  */
 
 #include "engine/ui/color.h"
+#include "utils/utils_string.h"
 #include "gameplay/core/experience.h"
 #include "gameplay/mechanics/condition.h"
 #include "administration/privilege.h"
@@ -797,6 +798,28 @@ void PrintScoreBase(CharData *ch) {
 				MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(currencies::GetBank(*ch, currencies::kGold)).c_str());
 	else
 		strncat(buf, ".\r\n", sizeof(buf) - strlen(buf) - 1);
+
+	// Прочие валюты (гривны, ногаты и т.п.), кроме кун и славы (они выводятся отдельно):
+	// одной строкой с переносом по ширине, запятые ставит разделитель OutWordsList.
+	std::vector<std::string> money_parts;
+	for (const auto &cur : MUD::Currencies()) {
+		if (cur.GetId() < 0
+			|| cur.GetTextId() == currencies::kGold
+			|| cur.GetTextId() == currencies::kGlory) {
+			continue;
+		}
+		const long cur_total = currencies::GetTotal(*ch, cur.GetTextId());
+		if (cur_total > 0) {
+			money_parts.push_back(std::to_string(cur_total) + " " + cur.GetNameWithAmount(cur_total));
+		}
+	}
+	if (!money_parts.empty()) {
+		const size_t width = ch->player_specials->saved.stringLength > 0
+				? ch->player_specials->saved.stringLength : 80;
+		const std::string money_line =
+				"Также у вас: " + utils::OutWordsList(money_parts, width, ", ") + ".\r\n";
+		strncat(buf, money_line.c_str(), sizeof(buf) - strlen(buf) - 1);
+	}
 
 	if (GetRealLevel(ch) < kLvlImmortal) {
 		sprintf(buf + strlen(buf),
