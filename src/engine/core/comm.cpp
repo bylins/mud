@@ -383,7 +383,6 @@ extern const char *DFLT_IP;
 extern const char *LOGNAME;
 extern int max_playing;
 extern int nameserver_is_slow;    // see config.cpp
-extern int mana[];
 extern const char *save_info_msg[];    // In olc.cpp
 extern void tact_auction();
 extern void LogBuildInfo();

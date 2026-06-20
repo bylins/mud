@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<!-- Сеты предметов (obj_sets). Файл перенесён в cfg/mechanics; формат сообщений и
+     аффектов переведён на атрибуты (ParserWrapper не читает текст тегов):
+       <messages char_on=".." char_off=".." room_on=".." room_off=".."/>  (глобальные и на сет/предмет)
+       <set name=".." alias=".." comment=".."> <obj vnum=".."/>
+         <activ size="N" affects="флаги" prof="битовая_маска" npc="true">
+           <apply loc=".." mod=".."/> <skill num=".." val=".."/>
+           <enchant vnum=".." weight=".." ndice=".." sdice=".."/>
+           <phys_dmg pct=".."/> <mage_dmg pct=".."/>
+         </activ>
+       </set>
+     Сеты валидируются по миру (VerifySet), поэтому в репозитории держим только глобальные
+     сообщения - полный боевой файл живёт отдельно (cfg/mechanics/obj_sets.xml на проде).
+-->
+<obj_sets>
+	<messages char_on="&amp;W$o0 засветил$U мягким сиянием.&amp;n" char_off="&amp;WСияние $o1 медленно угасло.&amp;n" room_on="&amp;W$o0 $n1 засветил$U мягким сиянием.&amp;n" room_off="&amp;WСияние $o1 $n1 медленно угасло.&amp;n"/>
+</obj_sets>

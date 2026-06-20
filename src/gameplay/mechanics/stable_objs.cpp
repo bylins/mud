@@ -4,31 +4,27 @@
 
 #include "stable_objs.h"
 
-#include "third_party_libs/pugixml/pugixml.h"
-
-#include "engine/boot/boot_constants.h"
+#include "engine/entities/entities_constants.h"
 #include "engine/entities/obj_data.h"
-#include "gameplay/core/constants.h"
+#include "gameplay/affects/affect_contants.h"
+#include "utils/parse.h"
+#include "utils/parser_wrapper.h"
 #include "utils/utils.h"
 
-extern pugi::xml_node XmlLoad(const char *PathToFile,
-							  const char *MainTag,
-							  const char *ErrorStr,
-							  pugi::xml_document &Doc);
+#include <map>
+#include <string>
+#include <vector>
 
 namespace stable_objs {
 
-#define CRITERION_FILE "criterion.xml"
-
 struct UndecayableCriterions {
-  std::map<std::string, double> params;
-  std::map<std::string, double> affects;
+  std::map<EApply, double> params;          // вес параметра предмета (EApply)
+  std::map<EWeaponAffect, double> affects;  // вес аффекта предмета (EWeaponAffect)
 };
 
-// массив для критерии, каждый элемент массива это отдельный слот
+// массив для критерии, каждый элемент массива это отдельный слот (индекс = степень двойки EWearFlag)
 UndecayableCriterions undecayable_criterions[17]; // = new Item_struct[16];
 
-void LoadCriterion(pugi::xml_node criterion, EWearFlag type);
 double CountUnlimitedTimerBonus(const CObjectPrototype *obj, int item_wear);
 
 // определение степени двойки
@@ -133,43 +129,38 @@ double CountUnlimitedTimer(const CObjectPrototype *obj) {
 	return result;
 }
 
-double CountUnlimitedTimerBonus(const CObjectPrototype *obj, int item_wear) {
+// Суммарный вес положительных параметров предмета по критериям слота item_wear.
+double SumParamWeights(const CObjectPrototype *obj, int item_wear) {
 	double sum = 0.0;
-	double sum_aff = 0.0;
-	char buf_temp[kMaxStringLength];
-	char buf_temp1[kMaxStringLength];
-
-	// проходим по всем характеристикам предмета
+	const auto &params = undecayable_criterions[item_wear].params;
 	for (int i = 0; i < kMaxObjAffect; i++) {
-		if (obj->get_affected(i).modifier) {
-			sprinttype(obj->get_affected(i).location, apply_types, buf_temp);
-			// проходим по нашей таблице с критериями
-			for (auto &param : undecayable_criterions[item_wear].params) {
-				if (strcmp(param.first.c_str(), buf_temp) == 0) {
-					if (obj->get_affected(i).modifier > 0) {
-						sum += param.second * obj->get_affected(i).modifier;
-					}
-				}
-
-				//std::cout << it->first << " " << it->second << "\r\n";
+		const auto &af = obj->get_affected(i);
+		if (af.modifier > 0) {
+			const auto it = params.find(af.location);
+			if (it != params.end()) {
+				sum += it->second * af.modifier;
 			}
 		}
 	}
-	obj->get_affect_flags().sprintbits(weapon_affects, buf_temp1, sizeof(buf_temp1), ",");
-
-	for (auto &affect : undecayable_criterions[item_wear].affects) {
-		if (strstr(buf_temp1, affect.first.c_str()) != nullptr) {
-			sum_aff += affect.second;
-		}
-	}
-	sum += sum_aff;
 	return sum;
 }
 
+// Суммарный вес аффектов предмета по критериям слота item_wear.
+double SumAffectWeights(const CObjectPrototype *obj, int item_wear) {
+	double sum = 0.0;
+	for (const auto &[weapon_affect, weight] : undecayable_criterions[item_wear].affects) {
+		if (obj->GetEWeaponAffect(weapon_affect)) {
+			sum += weight;
+		}
+	}
+	return sum;
+}
+
+double CountUnlimitedTimerBonus(const CObjectPrototype *obj, int item_wear) {
+	return SumParamWeights(obj, item_wear) + SumAffectWeights(obj, item_wear);
+}
+
 bool IsTimerUnlimited(const CObjectPrototype *obj) {
-	char buf_temp[kMaxStringLength];
-	char buf_temp1[kMaxStringLength];
-	//sleep(15);
 	// куда надевается наш предмет.
 	int item_wear = -1;
 	bool type_item = false;
@@ -179,10 +170,6 @@ bool IsTimerUnlimited(const CObjectPrototype *obj) {
 		|| obj->get_type() == EObjType::kWeapon) {
 		type_item = true;
 	}
-	// сумма для статов
-	double sum = 0;
-	// сумма для аффектов
-	double sum_aff = 0;
 	// по другому чот не получилось
 	if (obj->has_wear_flag(EWearFlag::kFinger)) {
 		item_wear = DeterminePowerOfTwoForEnum(EWearFlag::kFinger);
@@ -295,30 +282,9 @@ bool IsTimerUnlimited(const CObjectPrototype *obj) {
 	if (obj->get_timer() == 0) {
 		return false;
 	}
-	// проходим по всем характеристикам предмета
-	for (int i = 0; i < kMaxObjAffect; i++) {
-		if (obj->get_affected(i).modifier) {
-			sprinttype(obj->get_affected(i).location, apply_types, buf_temp);
-			// проходим по нашей таблице с критериями
-			for (auto &param : undecayable_criterions[item_wear].params) {
-				if (strcmp(param.first.c_str(), buf_temp) == 0) {
-					if (obj->get_affected(i).modifier > 0) {
-						sum += param.second * obj->get_affected(i).modifier;
-					}
-				}
-			}
-		}
-	}
-	obj->get_affect_flags().sprintbits(weapon_affects, buf_temp1, sizeof(buf_temp1), ",");
-
-	// проходим по всем аффектам в нашей таблице
-	for (auto &affect : undecayable_criterions[item_wear].affects) {
-		// проверяем, есть ли наш аффект на предмете
-		if (strstr(buf_temp1, affect.first.c_str()) != nullptr) {
-			sum_aff += affect.second;
-		}
-		//std::cout << it->first << " " << it->second << "\r\n";
-	}
+	// сумма весов параметров и аффектов предмета по критериям слота
+	const double sum = SumParamWeights(obj, item_wear);
+	const double sum_aff = SumAffectWeights(obj, item_wear);
 
 	// если сумма больше или равна единице
 	if (sum >= 1) {
@@ -349,61 +315,62 @@ bool IsObjFromSystemZone(ObjVnum vnum) {
 	return false;
 }
 
-void LoadCriterionsCfg() {
-	pugi::xml_document doc1;
-	LoadCriterion(XmlLoad(LIB_MISC CRITERION_FILE, "finger", "Error Loading Criterion.xml: <finger>", doc1),
-				  EWearFlag::kFinger);
-	LoadCriterion(XmlLoad(LIB_MISC CRITERION_FILE, "neck", "Error Loading Criterion.xml: <neck>", doc1),
-				  EWearFlag::kNeck);
-	LoadCriterion(XmlLoad(LIB_MISC CRITERION_FILE, "body", "Error Loading Criterion.xml: <body>", doc1),
-				  EWearFlag::kBody);
-	LoadCriterion(XmlLoad(LIB_MISC CRITERION_FILE, "head", "Error Loading Criterion.xml: <head>", doc1),
-				  EWearFlag::kHead);
-	LoadCriterion(XmlLoad(LIB_MISC CRITERION_FILE, "legs", "Error Loading Criterion.xml: <legs>", doc1),
-				  EWearFlag::kLegs);
-	LoadCriterion(XmlLoad(LIB_MISC CRITERION_FILE, "feet", "Error Loading Criterion.xml: <feet>", doc1),
-				  EWearFlag::kFeet);
-	LoadCriterion(XmlLoad(LIB_MISC CRITERION_FILE, "hands", "Error Loading Criterion.xml: <hands>", doc1),
-				  EWearFlag::kHands);
-	LoadCriterion(XmlLoad(LIB_MISC CRITERION_FILE, "arms", "Error Loading Criterion.xml: <arms>", doc1),
-				  EWearFlag::kArms);
-	LoadCriterion(XmlLoad(LIB_MISC CRITERION_FILE, "shield", "Error Loading Criterion.xml: <shield>", doc1),
-				  EWearFlag::kShield);
-	LoadCriterion(XmlLoad(LIB_MISC CRITERION_FILE, "about", "Error Loading Criterion.xml: <about>", doc1),
-				  EWearFlag::kShoulders);
-	LoadCriterion(XmlLoad(LIB_MISC CRITERION_FILE, "waist", "Error Loading Criterion.xml: <waist>", doc1),
-				  EWearFlag::kWaist);
-	LoadCriterion(XmlLoad(LIB_MISC CRITERION_FILE, "waist", "Error Loading Criterion.xml: <quiver>", doc1),
-				  EWearFlag::kQuiver);
-	LoadCriterion(XmlLoad(LIB_MISC CRITERION_FILE, "wrist", "Error Loading Criterion.xml: <wrist>", doc1),
-				  EWearFlag::kWrist);
-	LoadCriterion(XmlLoad(LIB_MISC CRITERION_FILE, "boths", "Error Loading Criterion.xml: <boths>", doc1),
-				  EWearFlag::kBoth);
-	LoadCriterion(XmlLoad(LIB_MISC CRITERION_FILE, "wield", "Error Loading Criterion.xml: <wield>", doc1),
-				  EWearFlag::kWield);
-	LoadCriterion(XmlLoad(LIB_MISC CRITERION_FILE, "hold", "Error Loading Criterion.xml: <hold>", doc1),
-				  EWearFlag::kHold);
-};
+// Лояльный разбор числа, как было у pugixml as_double(): пустое/некорректное значение -> 0.
+double ParseCriterionValue(const char *value) {
+	if (!value || !*value) {
+		return 0.0;
+	}
+	try {
+		return parse::ReadAsDouble(value);
+	} catch (const std::exception &) {
+		return 0.0;
+	}
+}
 
-void LoadCriterion(pugi::xml_node criterion, const EWearFlag type) {
-	int index = DeterminePowerOfTwoForEnum(type);
-	pugi::xml_node params, CurNode, affects;
-	params = criterion.child("params");
-	affects = criterion.child("affects");
+// Загружает критерии одной <position> в слот index: <apply id=EApply>, <affect id=EWeaponAffect>.
+void LoadPosition(parser_wrapper::DataNode position, int index) {
+	if (position.GoToChild("params")) {
+		for (auto &apply : position.Children("apply")) {
+			try {
+				const EApply id = parse::ReadAsConstant<EApply>(apply.GetValue("id"));
+				undecayable_criterions[index].params[id] = ParseCriterionValue(apply.GetValue("value"));
+			} catch (const std::exception &) {
+				err_log("stable_objs: unknown <apply id> '%s'", apply.GetValue("id"));
+			}
+		}
+		position.GoToParent();
+	}
+	if (position.GoToChild("affects")) {
+		for (auto &affect : position.Children("affect")) {
+			try {
+				const EWeaponAffect id = parse::ReadAsConstant<EWeaponAffect>(affect.GetValue("id"));
+				undecayable_criterions[index].affects[id] = ParseCriterionValue(affect.GetValue("value"));
+			} catch (const std::exception &) {
+				err_log("stable_objs: unknown <affect id> '%s'", affect.GetValue("id"));
+			}
+		}
+		position.GoToParent();
+	}
+}
 
-	// добавляем в массив все параметры, типа силы, ловкости, каст и тд
-	for (CurNode = params.child("param"); CurNode; CurNode = CurNode.next_sibling("param")) {
-		undecayable_criterions[index].params.insert(std::make_pair(CurNode.attribute("name").value(),
-																   CurNode.attribute("value").as_double()));
-		//log("str:%s, double:%f", CurNode.attribute("name").value(),  CurNode.attribute("value").as_double());
+void StableObjsLoader::Load(parser_wrapper::DataNode data) {
+	// перезагрузка должна быть идемпотентной -- чистим накопленные критерии
+	for (auto &slot : undecayable_criterions) {
+		slot.params.clear();
+		slot.affects.clear();
 	}
 
-	// добавляем в массив все аффекты
-	for (CurNode = affects.child("affect"); CurNode; CurNode = CurNode.next_sibling("affect")) {
-		undecayable_criterions[index].affects.insert(std::make_pair(CurNode.attribute("name").value(),
-																	CurNode.attribute("value").as_double()));
-		//log("Affects:str:%s, double:%f", CurNode.attribute("name").value(),  CurNode.attribute("value").as_double());
+	// <equipment_positions> -> набор <position val="EEquipPos|...">. Каждая позиция из списка val
+	// (разбор -- общий ParseWearPositions) ложится в свой слот критериев (EWearFlag-индекс).
+	for (auto &position : data.Children("position")) {
+		for (const EWearFlag wear : ParseWearPositions(position.GetValue("val"))) {
+			LoadPosition(position, DeterminePowerOfTwoForEnum(wear));
+		}
 	}
+}
+
+void StableObjsLoader::Reload(parser_wrapper::DataNode data) {
+	Load(std::move(data));
 }
 
 } // namespace stable_obj

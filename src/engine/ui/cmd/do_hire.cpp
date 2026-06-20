@@ -30,12 +30,12 @@ float CalcChaForHire(CharData *victim) {
 	int i;
 	float reformed_hp = 0.0, needed_cha = 0.0;
 	for (i = 0; i < 50; i++) {
-		reformed_hp = victim->get_max_hit() + CalcDamagePerRound(victim) * cha_app[i].dam_to_hit_rate;
-		if (cha_app[i].charms >= reformed_hp)
+		reformed_hp = victim->get_max_hit() + CalcDamagePerRound(victim) * ChaApp(i).dam_to_hit_rate;
+		if (ChaApp(i).charms >= reformed_hp)
 			break;
 	}
 	i = Posi(i);
-	needed_cha = i - 1 + (reformed_hp - cha_app[i - 1].charms) / (cha_app[i].charms - cha_app[i - 1].charms);
+	needed_cha = i - 1 + (reformed_hp - ChaApp(i - 1).charms) / (ChaApp(i).charms - ChaApp(i - 1).charms);
 	return VPOSI<float>(needed_cha, 1.0, 50.0);
 }
 

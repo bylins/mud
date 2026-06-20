@@ -11,6 +11,9 @@
 #include "engine/structs/structs.h"
 #include "engine/structs/meta_enum.h"
 
+#include <string>
+#include <vector>
+
 /*
  * ========================================================================================
  *  								General entities constants
@@ -687,6 +690,17 @@ template<>
 const std::string &NAME_BY_ITEM<EWearFlag>(EWearFlag item);
 template<>
 EWearFlag ITEM_BY_NAME<EWearFlag>(const std::string &name);
+
+// Equipment-position parsing shared across config loaders (criteria, future spells.xml caster
+// requirements, ...). An equipment-position token is an EEquipPos member name (e.g. "kFingerR");
+// it resolves to the wear-flag position used for per-position lookups (paired slots like
+// kFingerR/kFingerL collapse to one flag). Returns EWearFlag::kUndefined for unknown tokens.
+// TODO: these describe the equipment mechanic, not objects per se -- move them into
+//       gameplay/mechanics/equipment together with EEquipPos/EWearFlag when that module owns them.
+[[nodiscard]] EWearFlag WearFlagByEquipPos(const std::string &equip_pos);
+// Parse a '|'-separated list of equipment-position tokens (e.g. "kFingerR|kFingerL") into the
+// distinct wear flags they map to. Unknown tokens are logged and skipped.
+[[nodiscard]] std::vector<EWearFlag> ParseWearPositions(const std::string &val);
 
 /**
  * Extra object flags: used by obj_data.obj_flags.extra_flags

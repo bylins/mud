@@ -10,15 +10,14 @@
 #include "engine/entities/char_data.h"
 
 #include <fmt/format.h>
-#include "third_party_libs/pugixml/pugixml.h"
+#include "utils/parse.h"
+#include "utils/parser_wrapper.h"
 
 extern bool ValidateStats(DescriptorData *d);
 extern int check_dupes_email(DescriptorData *d);
 extern void do_entergame(DescriptorData *d);
 
 namespace stats_reset {
-
-const char *CONFIG_FILE = LIB_MISC"reset_stats.xml";
 
 // для списка reset_prices
 struct price_node {
@@ -38,46 +37,43 @@ std::array<price_node, Type::TOTAL_NUM> reset_prices =
 		 {400000, 200000, 1000000, "religion"}
 	 }};
 
-///
-/// Парс отдельной записи в CONFIG_FILE из init()
-///
-void parse_prices(const pugi::xml_node &cur_node, Type type) {
-	if (cur_node) {
-		reset_prices.at(type).base_price = parse::ReadAttrAsInt(cur_node, "price");
-		reset_prices.at(type).add_price = parse::ReadAttrAsInt(cur_node, "price_add");
-		reset_prices.at(type).max_price = parse::ReadAttrAsInt(cur_node, "max_price");
+// Целочисленный атрибут DataNode; 0 при отсутствии/некорректном значении (как старый ReadAttrAsInt).
+static int AttrInt(parser_wrapper::DataNode &node, const char *key) {
+	const char *v = node.GetValue(key);
+	if (!v || !*v) {
+		return 0;
+	}
+	try {
+		return parse::ReadAsInt(v);
+	} catch (const std::exception &) {
+		return 0;
 	}
 }
 
 ///
-/// Лоад/релоад CONFIG_FILE, релоадится через 'reload <имя файла>'
+/// Парс отдельной секции <reset_stats> (<main_stats>/<race>/<feats>/<religion>).
 ///
-void init() {
-	pugi::xml_document doc;
-	pugi::xml_parse_result result = doc.load_file(CONFIG_FILE);
-	if (!result) {
-		snprintf(buf, kMaxStringLength, "...%s", result.description());
-		mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
+static void parse_section(parser_wrapper::DataNode main_node, const char *tag, Type type) {
+	if (!main_node.GoToChild(tag)) {
 		return;
 	}
+	reset_prices.at(type).base_price = AttrInt(main_node, "price");
+	reset_prices.at(type).add_price = AttrInt(main_node, "price_add");
+	reset_prices.at(type).max_price = AttrInt(main_node, "max_price");
+}
 
-	pugi::xml_node main_node = doc.child("reset_stats");
-	if (!main_node) {
-		snprintf(buf, kMaxStringLength, "...<reset_stats> read fail");
-		mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
-		return;
-	}
+///
+/// Лоад/релоад cfg/mechanics/reset_stats.xml через cfg_manager (boot + reload resetstats).
+///
+void ResetStatsLoader::Load(parser_wrapper::DataNode data) {
+	parse_section(data, "main_stats", Type::MAIN_STATS);
+	parse_section(data, "race", Type::RACE);
+	parse_section(data, "feats", Type::FEATS);
+	parse_section(data, "religion", Type::RELIGION);
+}
 
-	pugi::xml_node cur_node = parse::GetChild(main_node, "main_stats");
-	parse_prices(cur_node, Type::MAIN_STATS);
-
-	cur_node = parse::GetChild(main_node, "race");
-	parse_prices(cur_node, Type::RACE);
-
-	cur_node = parse::GetChild(main_node, "feats");
-	parse_prices(cur_node, Type::FEATS);
-	cur_node = parse::GetChild(main_node, "religion");
-	parse_prices(cur_node, Type::RELIGION);
+void ResetStatsLoader::Reload(parser_wrapper::DataNode data) {
+	Load(std::move(data));
 }
 
 ///

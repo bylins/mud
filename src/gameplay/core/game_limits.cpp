@@ -175,11 +175,11 @@ int CalcManaGain(const CharData *ch) {
 		}
 
 		if (!IS_MANA_CASTER(ch)) {
-			auto restore = int_app[GetRealInt(ch)].mana_per_tic;
+			auto restore = IntApp(GetRealInt(ch)).mana_per_tic;
 			gain = graf(CalcCharAge(ch)->year, restore - 8, restore - 4, restore,
 						restore + 5, restore, restore - 4, restore - 8);
 		} else {
-			gain = mana_gain_cs[GetRealInt(ch)];
+			gain = IntApp(GetRealInt(ch)).mana_gain;
 		}
 
 		if (LIKE_ROOM(ch)) {
@@ -776,16 +776,16 @@ void beat_points_update(int pulse) {
 		}
 
 		// Гейн маны у волхвов
-		if (IS_MANA_CASTER(d->character.get()) && d->character->mem_queue.stored < mana[MIN(50, GetRealWis(d->character.get()))]) {
+		if (IS_MANA_CASTER(d->character.get()) && d->character->mem_queue.stored < Mana(GetRealWis(d->character.get()))) {
 			d->character->mem_queue.stored += CalcManaGain(d->character.get());
-			if (d->character->mem_queue.stored >= mana[MIN(50, GetRealWis(d->character.get()))]) {
-				d->character->mem_queue.stored = mana[MIN(50, GetRealWis(d->character.get()))];
+			if (d->character->mem_queue.stored >= Mana(GetRealWis(d->character.get()))) {
+				d->character->mem_queue.stored = Mana(GetRealWis(d->character.get()));
 				SendMsgToChar("Ваша магическая энергия полностью восстановилась\r\n", d->character.get());
 			}
 		}
 
-		if (IS_MANA_CASTER(d->character.get()) && d->character->mem_queue.stored > mana[MIN(50, GetRealWis(d->character.get()))]) {
-			d->character->mem_queue.stored = mana[MIN(50, GetRealWis(d->character.get()))];
+		if (IS_MANA_CASTER(d->character.get()) && d->character->mem_queue.stored > Mana(GetRealWis(d->character.get()))) {
+			d->character->mem_queue.stored = Mana(GetRealWis(d->character.get()));
 		}
 
 		// Restore moves

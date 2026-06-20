@@ -135,7 +135,7 @@ void PrintScoreList(CharData *ch) {
 				  ch->get_move(), ch->get_real_max_move(), grammar::GetDeclensionInNumber(ch->get_move(), grammar::EWhat::kMoveU));
 	if (IS_MANA_CASTER(ch)) {
 		SendMsgToChar(ch, "Ваша магическая энергия %d(%d) и вы восстанавливаете %d в сек.\r\n",
-					  ch->mem_queue.stored, mana[MIN(50, GetRealWis(ch))], CalcManaGain(ch));
+					  ch->mem_queue.stored, Mana(GetRealWis(ch)), CalcManaGain(ch));
 	}
 	SendMsgToChar(ch, "Ваша сила: %d(%d), ловкость: %d(%d), телосложение: %d(%d), ум: %d(%d), мудрость: %d(%d), обаяние: %d(%d).\r\n",
 				  ch->get_str(), GetRealStr(ch),
@@ -551,7 +551,7 @@ int PrintBaseStatsToTable(CharData *ch, table_wrapper::Table &table, std::size_t
 	table[++row][col] = "Выносливость";	table[row][col + 1] = std::to_string(ch->get_move()) + "(" + std::to_string(ch->get_real_max_move()) + ")";
 	table[++row][col] = "Восст. сил";	table[row][col + 1] = "+" + std::to_string(ch->get_movereg()) + "% (" + std::to_string(move_gain(ch)) + ")";
 	if (IS_MANA_CASTER(ch)) {
-		table[++row][col] = "Мана"; 		table[row][col + 1] = std::to_string(ch->mem_queue.stored) + "(" + std::to_string(mana[MIN(50, GetRealWis(ch))]) + ")";
+		table[++row][col] = "Мана"; 		table[row][col + 1] = std::to_string(ch->mem_queue.stored) + "(" + std::to_string(Mana(GetRealWis(ch))) + ")";
 		table[++row][col] = "Восст. маны";	table[row][col + 1] = "+" + std::to_string(CalcManaGain(ch)) + " сек.";
 	}
 
@@ -729,7 +729,7 @@ void PrintScoreBase(CharData *ch) {
 	if (IS_MANA_CASTER(ch)) {
 		sprintf(buf + strlen(buf),
 				"Ваша магическая энергия %d(%d) и вы восстанавливаете %d в сек.\r\n",
-				ch->mem_queue.stored, mana[MIN(50, GetRealWis(ch))], CalcManaGain(ch));
+				ch->mem_queue.stored, Mana(GetRealWis(ch)), CalcManaGain(ch));
 	}
 
 	sprintf(buf + strlen(buf),

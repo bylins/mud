@@ -36,6 +36,16 @@
 #include "gameplay/mechanics/cities.h"
 #include "gameplay/mechanics/regions.h"
 #include "gameplay/mechanics/region_messages.h"
+#include "gameplay/mechanics/stable_objs.h"
+#include "gameplay/mechanics/corpse.h"
+#include "gameplay/classes/pc_classes.h"
+#include "gameplay/core/reset_stats.h"
+#include "gameplay/mechanics/noob.h"
+#include "gameplay/mechanics/celebrates.h"
+#include "gameplay/mechanics/city_guards.h"
+#include "gameplay/quests/daily_quest.h"
+#include "gameplay/mechanics/obj_sets.h"
+#include "gameplay/mechanics/treasure_cases.h"
 #include "gameplay/mechanics/cities_messages.h"
 #include "gameplay/mechanics/player_races.h"
 #include "gameplay/mechanics/pc_race_messages.h"
@@ -45,6 +55,10 @@
 #include "engine/core/common_messages.h"
 #include "gameplay/mechanics/rune_stones_loaders.h"
 #include "administration/privilege_db.h"
+#include "gameplay/crafting/mining.h"
+#include "gameplay/crafting/jewelry.h"
+#include "gameplay/crafting/item_creation.h"
+#include "gameplay/core/basic_values.h"
 
 namespace cfg_manager {
 
@@ -125,6 +139,34 @@ CfgManager::CfgManager() {
 										  std::make_unique<regions::RegionMessagesLoader>(regions::RegionMessagesLoader())));
 	loaders_.emplace("regions", LoaderInfo("cfg/mechanics/regions.xml",
 										  std::make_unique<regions::RegionsLoader>(regions::RegionsLoader())));
+	loaders_.emplace("stable_objs", LoaderInfo("cfg/mechanics/stable_objs.xml",
+										  std::make_unique<stable_objs::StableObjsLoader>(stable_objs::StableObjsLoader())));
+	loaders_.emplace("global_drop", LoaderInfo("cfg/mechanics/global_drop.xml",
+										  std::make_unique<GlobalDrop::GlobalDropLoader>(GlobalDrop::GlobalDropLoader())));
+	loaders_.emplace("group_exp_handicap", LoaderInfo("cfg/mechanics/group_exp_handicap.xml",
+										  std::make_unique<GroupPenaltiesLoader>(GroupPenaltiesLoader())));
+	loaders_.emplace("reset_stats", LoaderInfo("cfg/mechanics/reset_stats.xml",
+										  std::make_unique<stats_reset::ResetStatsLoader>(stats_reset::ResetStatsLoader())));
+	loaders_.emplace("noob", LoaderInfo("cfg/mechanics/noob.xml",
+										  std::make_unique<Noob::NoobLoader>(Noob::NoobLoader())));
+	loaders_.emplace("digging", LoaderInfo("cfg/mechanics/digging.xml",
+										  std::make_unique<mining::DiggingLoader>(mining::DiggingLoader())));
+	loaders_.emplace("celebrates", LoaderInfo("cfg/mechanics/celebrates.xml",
+										  std::make_unique<celebrates::CelebratesLoader>()));
+	loaders_.emplace("guards", LoaderInfo("cfg/mechanics/guards.xml",
+										  std::make_unique<city_guards::CityGuardsLoader>()));
+	loaders_.emplace("daily_quest", LoaderInfo("cfg/quests/daily_quest.xml",
+										  std::make_unique<DailyQuest::DailyQuestLoader>()));
+	loaders_.emplace("obj_sets", LoaderInfo("cfg/mechanics/obj_sets.xml",
+										  std::make_unique<obj_sets::ObjSetsLoader>()));
+	loaders_.emplace("treasure_cases", LoaderInfo("cfg/mechanics/cases.xml",
+										  std::make_unique<treasure_cases::TreasureCasesLoader>()));
+	loaders_.emplace("jewelry", LoaderInfo("cfg/craft/jewelry.xml",
+										  std::make_unique<jewelry::JewelryLoader>(jewelry::JewelryLoader())));
+	loaders_.emplace("item_creation", LoaderInfo("cfg/craft/item_creation.xml",
+										  std::make_unique<ItemCreationLoader>(ItemCreationLoader())));
+	loaders_.emplace("basic", LoaderInfo("cfg/basic.xml",
+										  std::make_unique<BasicValuesLoader>(BasicValuesLoader())));
 	loaders_.emplace("pc_race_messages", LoaderInfo("cfg/messages/ru/pc_race_msg.xml",
 										  std::make_unique<player_races::RaceMessagesLoader>(player_races::RaceMessagesLoader())));
 	loaders_.emplace("pc_races", LoaderInfo("cfg/mechanics/pc_races.xml",

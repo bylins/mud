@@ -25,7 +25,7 @@ void DoArenaRestore(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		vict->set_hit(vict->get_real_max_hit());
 		vict->set_move(vict->get_real_max_move());
 		if (IS_MANA_CASTER(vict)) {
-			vict->mem_queue.stored = mana[MIN(50, GetRealWis(vict))];
+			vict->mem_queue.stored = Mana(GetRealWis(vict));
 		} else {
 			vict->mem_queue.stored = vict->mem_queue.total;
 		}

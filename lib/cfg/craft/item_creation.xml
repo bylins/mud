@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<!-- "Make item" recipes (я│п╪п╟я│я┌п╣я─п╦я┌я▄/п╡я▀п╨п╬п╡п╟я┌я▄/я│я┬п╦я┌я▄ ...).
+     Each recipe: a crafting skill (ESkill token), the crafted item vnum, and up to
+     3 ingredient parts. An ingredient: vnum + min_weight + min_power (the minimums
+     the supplied component must meet). Add locked="true" to disable a recipe.
+     Each recipe also has a unique vnum (its identity, used by the Vedun editor).
+     The full production recipe set lives outside the repo; this is a sample. -->
+<item_creation>
+	<recipe vnum="1" skill="kMakeBow" result="1500">
+		<ingredient vnum="1400" min_weight="10" min_power="5"/>
+		<ingredient vnum="1428" min_weight="1" min_power="5"/>
+	</recipe>
+</item_creation>

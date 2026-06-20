@@ -2,7 +2,7 @@
 <!-- issue.pc-races-improve: PC race (tribe) registry (InfoContainer). vnum must match the old
      racenum so existing characters keep their tribe. Display names live in
      cfg/messages/ru/pc_race_msg.xml (keyed by the same vnum). place_of_birth lists the race's birth
-     cities (cities.xml ids) -- one per region the race spans; the player chooses the region and the
+     cities (cities.xml ids) - one per region the race spans; the player chooses the region and the
      race fixes the village. feature id = EFeat token. -->
 <pc_races>
 	<race vnum="0" id="Severjane" mode="kEnabled">

@@ -7,7 +7,7 @@
     id: kRent kMail kBank kHorse kExchange kTorc kMercenary kOutfit kPuff.  vnum: positive integer.
     Editable in Vedun: "vedun special kRent" opens a <special> element; add/remove its <mob> children.
     Generated from INPUT/specials.lst (the legacy flat file). kShop comes from the shop config,
-    kGuild from guilds.xml, kBoard (objects) from code (AssignObjects) -- none belong here.
+    kGuild from guilds.xml, kBoard (objects) from code (AssignObjects) - none belong here.
 -->
 <specials>
 	<special id="kRent">

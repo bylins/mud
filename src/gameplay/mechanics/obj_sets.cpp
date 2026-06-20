@@ -5,7 +5,9 @@
 #include "utils/grammar/declensions.h"
 #include "gameplay/mechanics/minions.h"
 #include "obj_sets_stuff.h"
-#include "third_party_libs/pugixml/pugixml.h"
+#include "third_party_libs/pugixml/pugixml.h"   // issue.obj-sets: всё ещё нужен для save()
+#include "utils/parser_wrapper.h"   // issue.obj-sets: загрузка через ParserWrapper
+#include "utils/parse.h"
 #include "engine/ui/color.h"
 #include "engine/ui/modify.h"
 #include "engine/db/help.h"
@@ -13,6 +15,7 @@
 #include "engine/db/global_objects.h"
 
 #include <fmt/format.h>
+#include <cstring>
 
 namespace obj_sets {
 
@@ -20,7 +23,28 @@ int SetNode::uid_cnt = 0;
 
 std::set<int> list_vnum;
 
-const char *OBJ_SETS_FILE = LIB_MISC"obj_sets.xml";
+// issue.obj-sets: перенесён из misc/ в cfg/mechanics/ (путь относительно мира, как и в
+// CfgManager). save() пишет сюда же.
+const char *OBJ_SETS_FILE = "cfg/mechanics/obj_sets.xml";
+
+namespace {
+// issue.obj-sets: чтение атрибутов через ParserWrapper.
+int AttrInt(const parser_wrapper::DataNode &node, const char *key, int def = 0) {
+	const char *v = node.GetValue(key);
+	if (!v || !*v) {
+		return def;
+	}
+	try {
+		return parse::ReadAsInt(v);
+	} catch (const std::exception &) {
+		return def;
+	}
+}
+std::string AttrStr(const parser_wrapper::DataNode &node, const char *key) {
+	const char *v = node.GetValue(key);
+	return v ? v : "";
+}
+} // namespace
 /// мин/макс кол-во активаторов для валидного сета
 const unsigned MIN_ACTIVE_SIZE = 2;
 /// вобщем-то равняется кол-ву допустимых для сетов слотов
@@ -316,113 +340,111 @@ void init_global_msg() {
 
 /// инит структуры сообщений из конфига
 /// отсутствие какой-то из строк (всех) не является ошибкой
-void InitMsgNode(SetMsgNode &node, const pugi::xml_node &xml_msg) {
-	node.char_on_msg = xml_msg.child_value("char_on_msg");
-	node.char_off_msg = xml_msg.child_value("char_off_msg");
-	node.room_on_msg = xml_msg.child_value("room_on_msg");
-	node.room_off_msg = xml_msg.child_value("room_off_msg");
+void InitMsgNode(SetMsgNode &node, const parser_wrapper::DataNode &xml_msg) {
+	// issue.obj-sets: сообщения теперь атрибуты <messages char_on=.. char_off=.. room_on=.. room_off=../>
+	node.char_on_msg = AttrStr(xml_msg, "char_on");
+	node.char_off_msg = AttrStr(xml_msg, "char_off");
+	node.room_on_msg = AttrStr(xml_msg, "room_on");
+	node.room_off_msg = AttrStr(xml_msg, "room_off");
 }
 
-/// лоад при старте мада, релоад через 'reload obj_sets.xml'
-void load() {
+/// лоад при старте мада, релоад через 'reload objsets'. data = корень <obj_sets>
+/// (его строит CfgManager через ParserWrapper). В конце нормализуем файл через save().
+void ObjSetsLoader::Load(parser_wrapper::DataNode data) {
 	log("Loadind %s: start", OBJ_SETS_FILE);
 	sets_list.clear();
 	init_global_msg();
 
-	pugi::xml_document doc;
-	pugi::xml_parse_result result = doc.load_file(OBJ_SETS_FILE);
-	if (!result) {
-		err_log("%s", result.description());
-		return;
-	}
-	pugi::xml_node xml_obj_sets = doc.child("obj_sets");
-	if (xml_obj_sets.empty()) {
+	if (data.IsEmpty() || !data.GetName() || strcmp(data.GetName(), "obj_sets") != 0) {
 		err_log("<obj_sets> read fail");
 		return;
 	}
-	// <messages>
-	pugi::xml_node xml_msg = xml_obj_sets.child("messages");
-	if (!xml_msg.empty()) {
-		InitMsgNode(global_msg, xml_msg);
+	// <messages> - глобальные
+	{
+		auto xml_msg = data;
+		if (xml_msg.GoToChild("messages")) {
+			InitMsgNode(global_msg, xml_msg);
+		}
 	}
 	// <set>
-	for (const auto & set_node : xml_obj_sets.children("set")) {
+	for (auto &set_node : data.Children("set")) {
 		std::shared_ptr<SetNode> tmp_set = std::make_shared<SetNode>();
 		// имя, алиас и камент не обязательны
-		tmp_set->name = set_node.attribute("name").value();
-		tmp_set->alias = set_node.attribute("alias").value();
-		tmp_set->comment = set_node.attribute("comment").value();
+		tmp_set->name = AttrStr(set_node, "name");
+		tmp_set->alias = AttrStr(set_node, "alias");
+		tmp_set->comment = AttrStr(set_node, "comment");
 		// enabled не обязателен, по дефолту сет включен
-		tmp_set->enabled = (set_node.attribute("enabled").as_int(1) == 1 ? true : false);
+		tmp_set->enabled = (AttrInt(set_node, "enabled", 1) == 1);
 
-		for (auto & obj_node : set_node.children("obj")) {
+		for (auto &obj_node : set_node.Children("obj")) {
 			struct SetMsgNode tmp_msg;
-			pugi::xml_node xml_msg = obj_node.child("messages");
-			if (!xml_msg.empty()) {
+			auto xml_msg = obj_node;
+			if (xml_msg.GoToChild("messages")) {
 				InitMsgNode(tmp_msg, xml_msg);
 			}
-			// GCC 4.4
-			tmp_set->obj_list.emplace(parse::ReadAttrAsInt(obj_node, "vnum"), tmp_msg);
-			//tmp_set->obj_list.insert(std::make_pair(Parse::attr_int(obj_node, "vnum"), tmp_msg));
+			tmp_set->obj_list.emplace(AttrInt(obj_node, "vnum"), tmp_msg);
 		}
 
-		for (const auto & activ_node : set_node.children("activ")) {
+		for (auto &activ_node : set_node.Children("activ")) {
 			ActivNode tmp_activ;
-			tmp_activ.affects.from_string(activ_node.child_value("affects"));
-			for (const auto & apply_node : activ_node.children("apply")) {
+			tmp_activ.affects.from_string(AttrStr(activ_node, "affects").c_str());
+			for (auto &apply_node : activ_node.Children("apply")) {
 				// заполняются только первые kMaxObjAffect
-				for (auto & i : tmp_activ.apply) {
+				for (auto &i : tmp_activ.apply) {
 					if (i.location <= 0) {
-						i.location = static_cast<EApply>(parse::ReadAttrAsInt(apply_node, "loc"));
-						i.modifier = parse::ReadAttrAsInt(apply_node, "mod");
+						i.location = static_cast<EApply>(AttrInt(apply_node, "loc"));
+						i.modifier = AttrInt(apply_node, "mod");
 						break;
 					}
 				}
 			}
 
-			pugi::xml_node xml_cur = activ_node.child("skill");
-			if (!xml_cur.empty()) {
-				tmp_activ.skill.first = static_cast<ESkill>(parse::ReadAttrAsInt(xml_cur, "num"));
-				tmp_activ.skill.second = parse::ReadAttrAsInt(xml_cur, "val");
+			{
+				auto xml_cur = activ_node;
+				if (xml_cur.GoToChild("skill")) {
+					tmp_activ.skill.first = static_cast<ESkill>(AttrInt(xml_cur, "num"));
+					tmp_activ.skill.second = AttrInt(xml_cur, "val");
+				}
 			}
-
-			xml_cur = activ_node.child("enchant");
-			if (!xml_cur.empty()) {
-				tmp_activ.enchant.first = parse::ReadAttrAsInt(xml_cur, "vnum");
-				tmp_activ.enchant.second.weight =
-					xml_cur.attribute("weight").as_int(0);
-				tmp_activ.enchant.second.ndice =
-					xml_cur.attribute("ndice").as_int(0);
-				tmp_activ.enchant.second.sdice =
-					xml_cur.attribute("sdice").as_int(0);
+			{
+				auto xml_cur = activ_node;
+				if (xml_cur.GoToChild("enchant")) {
+					tmp_activ.enchant.first = AttrInt(xml_cur, "vnum");
+					tmp_activ.enchant.second.weight = AttrInt(xml_cur, "weight", 0);
+					tmp_activ.enchant.second.ndice = AttrInt(xml_cur, "ndice", 0);
+					tmp_activ.enchant.second.sdice = AttrInt(xml_cur, "sdice", 0);
+				}
 			}
-			// <phys_dmg>
-			xml_cur = activ_node.child("phys_dmg");
-			if (!xml_cur.empty()) {
-				tmp_activ.bonus.phys_dmg = parse::ReadAttrAsInt(xml_cur, "pct");
+			{
+				auto xml_cur = activ_node;
+				if (xml_cur.GoToChild("phys_dmg")) {
+					tmp_activ.bonus.phys_dmg = AttrInt(xml_cur, "pct");
+				}
 			}
-			// <mage_dmg>
-			xml_cur = activ_node.child("mage_dmg");
-			if (!xml_cur.empty()) {
-				tmp_activ.bonus.mage_dmg = parse::ReadAttrAsInt(xml_cur, "pct");
+			{
+				auto xml_cur = activ_node;
+				if (xml_cur.GoToChild("mage_dmg")) {
+					tmp_activ.bonus.mage_dmg = AttrInt(xml_cur, "pct");
+				}
 			}
 			// если нет атрибута prof - значит актив на все профы
-			pugi::xml_attribute xml_prof = activ_node.attribute("prof");
-			if (!xml_prof.empty()) {
-				std::bitset<kNumPlayerClasses> tmp_p(std::string(xml_prof.value()));
-				tmp_activ.prof = tmp_p;
+			const std::string prof = AttrStr(activ_node, "prof");
+			if (!prof.empty()) {
+				tmp_activ.prof = std::bitset<kNumPlayerClasses>(prof);
 			}
-			// активится ли сет на мобах
-			pugi::xml_attribute xml_npc = activ_node.attribute("npc");
-			if (!xml_npc.empty()) {
-				tmp_activ.npc = xml_npc.as_bool();
+			// активится ли сет на мобах (атрибут пишется pugixml как "true"/"false")
+			const std::string npc = AttrStr(activ_node, "npc");
+			if (!npc.empty()) {
+				tmp_activ.npc = (npc == "true" || npc == "1");
 			}
-			tmp_set->activ_list[parse::ReadAttrAsInt(activ_node, "size")] = tmp_activ;
+			tmp_set->activ_list[AttrInt(activ_node, "size")] = tmp_activ;
 		}
-		// <messages>
-		pugi::xml_node xml_msg = set_node.child("messages");
-		if (xml_msg) {
-			InitMsgNode(tmp_set->messages, xml_msg);
+		// <messages> - на сет
+		{
+			auto xml_msg = set_node;
+			if (xml_msg.GoToChild("messages")) {
+				InitMsgNode(tmp_set->messages, xml_msg);
+			}
 		}
 		sets_list.push_back(tmp_set);
 		VerifySet(*tmp_set);
@@ -433,33 +455,31 @@ void load() {
 	save();
 }
 
+void ObjSetsLoader::Reload(parser_wrapper::DataNode data) {
+	Load(std::move(data));
+}
+
 /// сохранения структуры сообщений в конфиг
 void save_messages(pugi::xml_node &xml, SetMsgNode &msg) {
-	if (!msg.char_on_msg.empty()
-		|| !msg.char_off_msg.empty()
-		|| !msg.room_on_msg.empty()
-		|| !msg.room_off_msg.empty()) {
-		xml.append_child("messages");
-	} else {
+	// issue.obj-sets: сообщения теперь атрибуты <messages char_on=.. char_off=.. room_on=.. room_off=../>
+	if (msg.char_on_msg.empty()
+		&& msg.char_off_msg.empty()
+		&& msg.room_on_msg.empty()
+		&& msg.room_off_msg.empty()) {
 		return;
 	}
-
-	pugi::xml_node xml_messages = xml.last_child();
+	pugi::xml_node xml_messages = xml.append_child("messages");
 	if (!msg.char_on_msg.empty()) {
-		pugi::xml_node xml_msg = xml_messages.append_child("char_on_msg");
-		xml_msg.append_child(pugi::node_pcdata).set_value(msg.char_on_msg.c_str());
+		xml_messages.append_attribute("char_on") = msg.char_on_msg.c_str();
 	}
 	if (!msg.char_off_msg.empty()) {
-		pugi::xml_node xml_msg = xml_messages.append_child("char_off_msg");
-		xml_msg.append_child(pugi::node_pcdata).set_value(msg.char_off_msg.c_str());
+		xml_messages.append_attribute("char_off") = msg.char_off_msg.c_str();
 	}
 	if (!msg.room_on_msg.empty()) {
-		pugi::xml_node xml_msg = xml_messages.append_child("room_on_msg");
-		xml_msg.append_child(pugi::node_pcdata).set_value(msg.room_on_msg.c_str());
+		xml_messages.append_attribute("room_on") = msg.room_on_msg.c_str();
 	}
 	if (!msg.room_off_msg.empty()) {
-		pugi::xml_node xml_msg = xml_messages.append_child("room_off_msg");
-		xml_msg.append_child(pugi::node_pcdata).set_value(msg.room_off_msg.c_str());
+		xml_messages.append_attribute("room_off") = msg.room_off_msg.c_str();
 	}
 }
 
@@ -506,12 +526,15 @@ void save() {
 			if (k.second.npc) {
 				xml_activ.append_attribute("npc") = k.second.npc;
 			}
-			// set/activ/affects
+			// set/activ/affects (issue.obj-sets: атрибут вместо текста тега)
 			if (!k.second.affects.empty()) {
-				pugi::xml_node xml_affects = xml_activ.append_child("affects");
 				*buf_ = '\0';
 				k.second.affects.tascii(FlagData::kPlanesNumber, buf_, sizeof(buf_));
-				xml_affects.append_child(pugi::node_pcdata).set_value(buf_);
+				// tascii добавляет хвостовой пробел - убираем для чистоты атрибута
+				for (char *p = buf_ + strlen(buf_); p > buf_ && *(p - 1) == ' '; --p) {
+					*(p - 1) = '\0';
+				}
+				xml_activ.append_attribute("affects") = buf_;
 			}
 			// set/activ/apply
 			for (auto & m : k.second.apply) {

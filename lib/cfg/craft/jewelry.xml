@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<!-- "Jeweler" skill (kJewelry) configuration. -->
+<jewelry>
+	<lag val="1"/>
+	<skill_divisor val="1"/>
+	<skill_penalty_for_affect val="15"/>
+	<target_obj_crash_percent val="10"/>
+	<target_obj_timer_increment_percent val="10"/>
+	<target_obj_timer_decrement_percent val="10"/>
+	<desired_min_skill val="80"/>
+	<desired_foreign_min_skill val="130"/>
+	<desired_success_offset val="50"/>
+	<!-- Per-gem (by object vnum) lists of effects that a master jeweler can melt
+	     into an item. Effect kinds:
+	         <apply  id="EApply"  val="N"/>   - stat/apply modifier
+	         <affect id="EAffect"/>           - affect flag (invis, fly, ...)
+	         <flag   id="EObjFlag"/>          - object extra-flag (e.g. kNodisarm)
+	         <skill  id="ESkill" val="N"/>    - skill bonus
+	     The player selects an effect by its in-game name (apply_types / affect
+	     message / extra_bits / skill name), NOT the id token. Optional alias=""
+	     overrides that selection name. Example:
+	         <gem vnum="900">
+	             <apply id="kHpRegen" val="30"/>
+	             <affect id="kDetectInvisible"/>
+	             <flag id="kNodisarm"/>
+	             <skill id="kKick" val="5"/>
+	         </gem>
+	-->
+	<gems>
+	</gems>
+</jewelry>

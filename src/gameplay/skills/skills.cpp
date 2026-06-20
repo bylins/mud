@@ -652,7 +652,7 @@ int CalculateVictimRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 				rate += 30;
 			}
 			rate += dex_bonus(GetRealDex(vict));
-			//rate -= size_app[GET_POS_SIZE(vict)].ac;
+			//rate -= SizeApp(GET_POS_SIZE(vict)).ac;
 			break;
 		}
 
@@ -681,13 +681,13 @@ int CalculateVictimRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 
 		case ESkill::kHide: {
 			if (AWAKE(vict)) {
-				rate -= int_app[GetRealInt(vict)].observation;
+				rate -= IntApp(GetRealInt(vict)).observation;
 			}
 			break;
 		}
 
 		case ESkill::kKick: {
-			//rate += size_app[GET_POS_SIZE(vict)].interpolate;
+			//rate += SizeApp(GET_POS_SIZE(vict)).interpolate;
 			rate += GetRealCon(vict);
 			if (vict->IsFlagged(EPrf::kAwake)) {
 				rate += CalculateSkillAwakeModifier(ch, vict);
@@ -697,14 +697,14 @@ int CalculateVictimRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 
 		case ESkill::kSneak: {
 			if (AWAKE(vict)) {
-				rate -= int_app[GetRealInt(vict)].observation;
+				rate -= IntApp(GetRealInt(vict)).observation;
 			}
 			break;
 		}
 
 		case ESkill::kSteal: {
 			if (AWAKE(vict)) {
-				rate -= int_app[GetRealInt(vict)].observation;
+				rate -= IntApp(GetRealInt(vict)).observation;
 			}
 			break;
 		}
@@ -722,7 +722,7 @@ int CalculateVictimRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 
 		case ESkill::kIntercept: {
 			rate -= dex_bonus(GetRealDex(vict));
-			rate -= size_app[GET_POS_SIZE(vict)].interpolate;
+			rate -= SizeApp(GET_POS_SIZE(vict)).interpolate;
 			break;
 		}
 
@@ -742,7 +742,7 @@ int CalculateVictimRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 
 		case ESkill::kDisguise: {
 			if (AWAKE(vict))
-				rate -= int_app[GetRealInt(vict)].observation;
+				rate -= IntApp(GetRealInt(vict)).observation;
 			break;
 		}
 
@@ -761,9 +761,9 @@ int CalculateVictimRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 
 		case ESkill::kHammer: {
 			if (vict->IsNpc())
-				rate -= size_app[GET_POS_SIZE(vict)].shocking / 2;
+				rate -= SizeApp(GET_POS_SIZE(vict)).shocking / 2;
 			else
-				rate -= size_app[GET_POS_SIZE(vict)].shocking;
+				rate -= SizeApp(GET_POS_SIZE(vict)).shocking;
 			break;
 		}
 
@@ -773,18 +773,18 @@ int CalculateVictimRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 		}
 
 		case ESkill::kPunctual: {
-			rate -= int_app[GetRealInt(vict)].observation;
+			rate -= IntApp(GetRealInt(vict)).observation;
 			break;
 		}
 
 		case ESkill::kAwake: {
-			rate -= int_app[GetRealInt(vict)].observation;
+			rate -= IntApp(GetRealInt(vict)).observation;
 		}
 			break;
 
 		case ESkill::kPry: {
 			if (sight::CanSee(vict, ch) && AWAKE(vict)) {
-				rate -= int_app[GetRealInt(ch)].observation;
+				rate -= IntApp(GetRealInt(ch)).observation;
 			}
 			break;
 		}
@@ -835,7 +835,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 		return 0;
 	}
 
-	base_percent += int_app[GetRealInt(ch)].to_skilluse;
+	base_percent += IntApp(GetRealInt(ch)).to_skilluse;
 	if (!ch->IsNpc() && !ch->affected.empty()) {
 		for (const auto &aff: ch->affected) {
 			if (aff->location == EApply::kPlague) {
@@ -847,7 +847,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 	if (!ch->IsNpc()) {
 		size = std::max(0, GET_REAL_SIZE(ch) - 50);
 	} else {
-		size = size_app[GET_POS_SIZE(ch)].interpolate / 2;
+		size = SizeApp(GET_POS_SIZE(ch)).interpolate / 2;
 	}
 
 	switch (skill_id) {
@@ -876,7 +876,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 		case ESkill::kBash: {
 			parameter_bonus += dex_bonus(GetRealDex(ch));
 			bonus = (GET_REAL_SIZE(ch) - 50) + (GET_EQ(ch, EEquipPos::kShield) ?
-							weapon_app[std::clamp(GET_EQ(ch, EEquipPos::kShield)->get_weight(), 0, 35)].bashing : 0);
+							WeaponApp(std::clamp(GET_EQ(ch, EEquipPos::kShield)->get_weight(), 0, 35)).bashing : 0);
 			if (ch->IsFlagged(EPrf::kAwake)) {
 				bonus = -50;
 			}
@@ -903,7 +903,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 
 		case ESkill::kHide: {
 			parameter_bonus += dex_bonus(GetRealDex(ch));
-			bonus = size_app[GET_POS_SIZE(ch)].ac;
+			bonus = SizeApp(GET_POS_SIZE(ch)).ac;
 			if (IsAwakeOthers(ch) || IsEquipInMetall(ch)) {
 				bonus -= 50;
 			}
@@ -979,7 +979,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 		}
 
 		case ESkill::kTrack: {
-			parameter_bonus = int_app[GetRealInt(ch)].observation;
+			parameter_bonus = IntApp(GetRealInt(ch)).observation;
 			if (SECT(ch->in_room) == ESector::kForest
 				|| SECT(ch->in_room) == ESector::kField) {
 				bonus += 10;
@@ -1002,7 +1002,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 		}
 
 		case ESkill::kSense: {
-			parameter_bonus += int_app[GetRealInt(ch)].observation;
+			parameter_bonus += IntApp(GetRealInt(ch)).observation;
 			break;
 		}
 
@@ -1014,7 +1014,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 			}
 			if (GET_EQ(ch, EEquipPos::kHold)
 				&& GET_EQ(ch, EEquipPos::kHold)->get_type() == EObjType::kWeapon) {
-				bonus += weapon_app[std::clamp(GET_EQ(ch, EEquipPos::kHold)->get_weight(), 0, 50)].parrying;
+				bonus += WeaponApp(std::clamp(GET_EQ(ch, EEquipPos::kHold)->get_weight(), 0, 50)).parrying;
 			}
 			break;
 		}
@@ -1029,7 +1029,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 		case ESkill::kIntercept: {
 			parameter_bonus += dex_bonus(GetRealDex(ch));
 			if (vict) {
-				bonus += size_app[GET_POS_SIZE(vict)].interpolate;
+				bonus += SizeApp(GET_POS_SIZE(vict)).interpolate;
 			}
 			break;
 		}
@@ -1046,7 +1046,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 
 		case ESkill::kLooking:[[fallthrough]];
 		case ESkill::kHearing: {
-			parameter_bonus += int_app[GetRealInt(ch)].observation;
+			parameter_bonus += IntApp(GetRealInt(ch)).observation;
 			break;
 		}
 
@@ -1068,7 +1068,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 		}
 
 		case ESkill::kDisguise: {
-			parameter_bonus = dex_bonus(GetRealDex(ch)) - size_app[GET_POS_SIZE(ch)].ac;
+			parameter_bonus = dex_bonus(GetRealDex(ch)) - SizeApp(GET_POS_SIZE(ch)).ac;
 			if (IsAwakeOthers(ch))
 				bonus -= 100;
 			if (is_dark(ch->in_room))
@@ -1087,7 +1087,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 		}
 
 		case ESkill::kDodge: {
-			parameter_bonus = -size_app[GET_POS_SIZE(ch)].ac + dex_bonus(GetRealDex(ch));
+			parameter_bonus = -SizeApp(GET_POS_SIZE(ch)).ac + dex_bonus(GetRealDex(ch));
 			if (IsEquipInMetall(ch))
 				bonus -= 40;
 			break;
@@ -1115,17 +1115,17 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 		case ESkill::kOverwhelm: {
 			bonus = dex_bonus(GetRealStr(ch));
 			if (GET_EQ(ch, EEquipPos::kWield)) {
-				bonus += weapon_app[GET_EQ(ch, EEquipPos::kWield)->get_weight()].shocking;
+				bonus += WeaponApp(GET_EQ(ch, EEquipPos::kWield)->get_weight()).shocking;
 			} else {
 				if (GET_EQ(ch, EEquipPos::kBoths)) {
-					bonus += weapon_app[GET_EQ(ch, EEquipPos::kBoths)->get_weight()].shocking;
+					bonus += WeaponApp(GET_EQ(ch, EEquipPos::kBoths)->get_weight()).shocking;
 				}
 			}
 			break;
 		}
 
 		case ESkill::kLeadership: {
-			parameter_bonus += cha_app[GetRealCha(ch)].leadership;
+			parameter_bonus += ChaApp(GetRealCha(ch)).leadership;
 			break;
 		}
 
@@ -1147,17 +1147,17 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 
 		case ESkill::kAwake: {
 			parameter_bonus = dex_bonus(GetRealDex(ch));
-			bonus += int_app[GetRealInt(ch)].observation;
+			bonus += IntApp(GetRealInt(ch)).observation;
 		}
 			break;
 
 		case ESkill::kIdentify: {
-			parameter_bonus = int_app[GetRealInt(ch)].observation;
+			parameter_bonus = IntApp(GetRealInt(ch)).observation;
 			break;
 		}
 
 		case ESkill::kPry: {
-			parameter_bonus = cha_app[GetRealCha(ch)].illusive;
+			parameter_bonus = ChaApp(GetRealCha(ch)).illusive;
 			if (vict) {
 				if (!sight::CanSee(vict, ch)) {
 					bonus += 50;
@@ -1180,7 +1180,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 		}
 
 		case ESkill::kRiding: {
-			bonus = cha_app[GetRealCha(ch)].leadership;
+			bonus = ChaApp(GetRealCha(ch)).leadership;
 			break;
 		}
 
@@ -1203,9 +1203,9 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 		case ESkill::kStun: {
 			parameter_bonus = dex_bonus(GetRealStr(ch));
 			if (GET_EQ(ch, EEquipPos::kWield))
-				bonus += weapon_app[GET_EQ(ch, EEquipPos::kWield)->get_weight()].shocking;
+				bonus += WeaponApp(GET_EQ(ch, EEquipPos::kWield)->get_weight()).shocking;
 			else if (GET_EQ(ch, EEquipPos::kBoths))
-				bonus += weapon_app[GET_EQ(ch, EEquipPos::kBoths)->get_weight()].shocking;
+				bonus += WeaponApp(GET_EQ(ch, EEquipPos::kBoths)->get_weight()).shocking;
 			break;
 		}
 		default: break;
@@ -1367,7 +1367,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict, bool /
 		}
 	}
 
-	base_percent += int_app[GetRealInt(ch)].to_skilluse;
+	base_percent += IntApp(GetRealInt(ch)).to_skilluse;
 
 	switch (skill_id) {
 		case ESkill::kBackstab: {
@@ -1388,7 +1388,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict, bool /
 				} else if (AFF_FLAGGED(vict, EAffect::kAwarness)) {
 					victim_modi -= 30;
 				}
-				victim_modi += size_app[GET_POS_SIZE(vict)].ac;
+				victim_modi += SizeApp(GET_POS_SIZE(vict)).ac;
 				victim_modi -= dex_bonus(GetRealDex(vict));
 			}
 			break;
@@ -1399,7 +1399,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict, bool /
 			bonus = (GET_REAL_SIZE(ch) - 50)
 				+ dex_bonus(GetRealDex(ch))
 				+ (GET_EQ(ch, EEquipPos::kShield)
-				   ? weapon_app[std::clamp(GET_EQ(ch, EEquipPos::kShield)->get_weight(), 0, 50)].bashing
+				   ? WeaponApp(std::clamp(GET_EQ(ch, EEquipPos::kShield)->get_weight(), 0, 50)).bashing
 				   : 0);
 			if (vict) {
 				if (vict->GetPosition() < EPosition::kFight && vict->GetPosition() > EPosition::kSleep) {
@@ -1413,7 +1413,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict, bool /
 		}
 
 		case ESkill::kHide: {
-			bonus = dex_bonus(GetRealDex(ch)) - size_app[GET_POS_SIZE(ch)].ac;
+			bonus = dex_bonus(GetRealDex(ch)) - SizeApp(GET_POS_SIZE(ch)).ac;
 			if (IsAwakeOthers(ch) || IsEquipInMetall(ch)) {
 				bonus -= 50;
 			}
@@ -1435,7 +1435,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict, bool /
 
 			if (vict) {
 				if (AWAKE(vict)) {
-					victim_modi -= int_app[GetRealInt(vict)].observation;
+					victim_modi -= IntApp(GetRealInt(vict)).observation;
 				}
 			}
 			break;
@@ -1445,7 +1445,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict, bool /
 			victim_sav = CalcSaving(ch, vict, ESaving::kStability, 0);
 			bonus = dex_bonus(GetRealDex(ch)) + dex_bonus(GetRealStr(ch));
 			if (vict) {
-				victim_modi += size_app[GET_POS_SIZE(vict)].interpolate;
+				victim_modi += SizeApp(GET_POS_SIZE(vict)).interpolate;
 				victim_modi -= GetRealCon(vict);
 				if (vict->IsFlagged(EPrf::kAwake)) {
 					victim_modi -= CalculateSkillAwakeModifier(ch, vict);
@@ -1486,7 +1486,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict, bool /
 				if (!sight::CanSee(vict, ch))
 					bonus += 25;
 				if (AWAKE(vict)) {
-					victim_modi -= int_app[GetRealInt(vict)].observation;
+					victim_modi -= IntApp(GetRealInt(vict)).observation;
 				}
 			}
 			break;
@@ -1505,7 +1505,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict, bool /
 				if (!sight::CanSee(vict, ch))
 					bonus += 25;
 				if (AWAKE(vict)) {
-					victim_modi -= int_app[GetRealInt(vict)].observation;
+					victim_modi -= IntApp(GetRealInt(vict)).observation;
 					if (AFF_FLAGGED(vict, EAffect::kAwarness))
 						bonus -= 30;
 				}
@@ -1516,7 +1516,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict, bool /
 		case ESkill::kTrack: {
 			ignore_luck = true;
 			total_percent =
-				base_percent + int_app[GetRealInt(ch)].observation;
+				base_percent + IntApp(GetRealInt(ch)).observation;
 
 			if (SECT(ch->in_room) == ESector::kForest || SECT(ch->in_room) == ESector::kField) {
 				total_percent += 10;
@@ -1539,7 +1539,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict, bool /
 		}
 
 		case ESkill::kSense: {
-			bonus = int_app[GetRealInt(ch)].observation;
+			bonus = IntApp(GetRealInt(ch)).observation;
 			break;
 		}
 
@@ -1554,7 +1554,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict, bool /
 			if (GET_EQ(ch, EEquipPos::kHold)
 				&& GET_EQ(ch, EEquipPos::kHold)->get_type() == EObjType::kWeapon) {
 				bonus +=
-					weapon_app[std::clamp(GET_EQ(ch, EEquipPos::kHold)->get_weight(), 0, 50)].parrying;
+					WeaponApp(std::clamp(GET_EQ(ch, EEquipPos::kHold)->get_weight(), 0, 50)).parrying;
 			}
 			victim_modi = 100;
 			break;
@@ -1572,11 +1572,11 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict, bool /
 		case ESkill::kIntercept: {
 			victim_sav = dex_bonus(GetRealDex(vict));
 			bonus = dex_bonus(GetRealDex(ch)) +
-				size_app[GET_POS_SIZE(vict)].interpolate;
+				SizeApp(GET_POS_SIZE(vict)).interpolate;
 
 			if (vict) {
 				victim_modi -= dex_bonus(GetRealDex(vict));
-				victim_modi -= size_app[GET_POS_SIZE(vict)].interpolate;
+				victim_modi -= SizeApp(GET_POS_SIZE(vict)).interpolate;
 			}
 			break;
 		}
@@ -1608,7 +1608,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict, bool /
 
 		case ESkill::kLooking:[[fallthrough]];
 		case ESkill::kHearing: {
-			bonus = int_app[GetRealInt(ch)].observation;
+			bonus = IntApp(GetRealInt(ch)).observation;
 			break;
 		}
 
@@ -1638,7 +1638,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict, bool /
 		}
 
 		case ESkill::kDisguise: {
-			bonus = dex_bonus(GetRealDex(ch)) - size_app[GET_POS_SIZE(ch)].ac;
+			bonus = dex_bonus(GetRealDex(ch)) - SizeApp(GET_POS_SIZE(ch)).ac;
 
 			if (IsAwakeOthers(ch))
 				bonus -= 100;
@@ -1658,13 +1658,13 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict, bool /
 
 			if (vict) {
 				if (AWAKE(vict))
-					victim_modi -= int_app[GetRealInt(vict)].observation;
+					victim_modi -= IntApp(GetRealInt(vict)).observation;
 			}
 			break;
 		}
 
 		case ESkill::kDodge: {
-			bonus = -size_app[GET_POS_SIZE(ch)].ac +
+			bonus = -SizeApp(GET_POS_SIZE(ch)).ac +
 				dex_bonus(GetRealDex(ch));
 
 			if (IsEquipInMetall(ch))
@@ -1679,7 +1679,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict, bool /
 		case ESkill::kChopoff: {
 			victim_sav = CalcSaving(ch, vict, ESaving::kReflex, 0);
 			bonus = dex_bonus(GetRealDex(ch)) + ((dex_bonus(GetRealDex(ch)) * 5) / 10)
-				+ size_app[GET_POS_SIZE(ch)].ac; // тест х3 признан вредительским
+				+ SizeApp(GET_POS_SIZE(ch)).ac; // тест х3 признан вредительским
 			if (IsEquipInMetall(ch))
 				bonus -= 10;
 			if (vict) {
@@ -1700,9 +1700,9 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict, bool /
 			bonus = (GET_REAL_SIZE(ch) - 50) + dex_bonus(GetRealStr(ch));
 
 			if (vict->IsNpc())
-				victim_modi -= (size_app[GET_POS_SIZE(vict)].shocking) / 2;
+				victim_modi -= (SizeApp(GET_POS_SIZE(vict)).shocking) / 2;
 			else
-				victim_modi -= size_app[GET_POS_SIZE(vict)].shocking;
+				victim_modi -= SizeApp(GET_POS_SIZE(vict)).shocking;
 			break;
 		}
 
@@ -1711,10 +1711,10 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict, bool /
 			bonus = dex_bonus(GetRealStr(ch));
 			if (GET_EQ(ch, EEquipPos::kWield))
 				bonus +=
-					weapon_app[GET_EQ(ch, EEquipPos::kWield)->get_weight()].shocking;
+					WeaponApp(GET_EQ(ch, EEquipPos::kWield)->get_weight()).shocking;
 			else if (GET_EQ(ch, EEquipPos::kBoths))
 				bonus +=
-					weapon_app[GET_EQ(ch, EEquipPos::kBoths)->get_weight()].shocking;
+					WeaponApp(GET_EQ(ch, EEquipPos::kBoths)->get_weight()).shocking;
 
 			if (vict) {
 				victim_modi -= GetRealCon(vict);
@@ -1723,7 +1723,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict, bool /
 		}
 
 		case ESkill::kLeadership: {
-			bonus = cha_app[GetRealCha(ch)].leadership;
+			bonus = ChaApp(GetRealCha(ch)).leadership;
 			break;
 		}
 
@@ -1742,7 +1742,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict, bool /
 				bonus += std::max(25, GET_EQ(ch, EEquipPos::kBoths)->get_weight()) - 25
 					+ std::max(30, GET_EQ(ch, EEquipPos::kBoths)->get_weight()) - 30;
 			if (vict) {
-				victim_modi -= int_app[GetRealInt(vict)].observation;
+				victim_modi -= IntApp(GetRealInt(vict)).observation;
 			}
 			break;
 		}
@@ -1750,10 +1750,10 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict, bool /
 		case ESkill::kAwake: {
 			const size_t real_dex = static_cast<size_t>(GetRealDex(ch));
 			if (real_dex < INT_APP_SIZE) {
-				bonus = int_app[real_dex].observation;
+				bonus = IntApp(real_dex).observation;
 
 				if (vict) {
-					victim_modi -= int_app[GetRealInt(vict)].observation;
+					victim_modi -= IntApp(GetRealInt(vict)).observation;
 				}
 			} else {
 				log("SYSERR: Global buffer overflow for ESkill::kAwake. Requested real_dex is %zd, but maximal allowed is %zd.",
@@ -1763,17 +1763,17 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict, bool /
 			break;
 
 		case ESkill::kIdentify: {
-			bonus = int_app[GetRealInt(ch)].observation;
+			bonus = IntApp(GetRealInt(ch)).observation;
 			break;
 		}
 
 		case ESkill::kPry: {
-			bonus = cha_app[GetRealCha(ch)].illusive;
+			bonus = ChaApp(GetRealCha(ch)).illusive;
 			if (vict) {
 				if (!sight::CanSee(vict, ch))
 					bonus += 50;
 				else if (AWAKE(vict))
-					victim_modi -= int_app[GetRealInt(ch)].observation;
+					victim_modi -= IntApp(GetRealInt(ch)).observation;
 			}
 			break;
 		}
@@ -1792,7 +1792,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict, bool /
 		}
 
 		case ESkill::kRiding: {
-			bonus = cha_app[GetRealCha(ch)].leadership;
+			bonus = ChaApp(GetRealCha(ch)).leadership;
 			break;
 		}
 
@@ -1819,9 +1819,9 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict, bool /
 
 			bonus = dex_bonus(GetRealStr(ch));
 			if (GET_EQ(ch, EEquipPos::kWield))
-				bonus += weapon_app[GET_EQ(ch, EEquipPos::kWield)->get_weight()].shocking;
+				bonus += WeaponApp(GET_EQ(ch, EEquipPos::kWield)->get_weight()).shocking;
 			else if (GET_EQ(ch, EEquipPos::kBoths))
-				bonus += weapon_app[GET_EQ(ch, EEquipPos::kBoths)->get_weight()].shocking;
+				bonus += WeaponApp(GET_EQ(ch, EEquipPos::kBoths)->get_weight()).shocking;
 
 			if (vict->IsFlagged(EPrf::kAwake))
 				victim_modi -= CalculateSkillAwakeModifier(ch, vict);
@@ -1950,7 +1950,7 @@ void ImproveSkill(CharData *ch, const ESkill skill, int success, CharData *victi
 	int INT_PLAYER = (GetTrainedSkill(ch, skill) < 51
 		&& (AFF_FLAGGED(ch, EAffect::kNoobRegen))) ? 50 : GetRealInt(ch);
 
-	long div = int_app[INT_PLAYER].improve;
+	long div = IntApp(INT_PLAYER).improve;
 	if ((ch)->GetClass() >= ECharClass::kFirst && (ch)->GetClass() <= ECharClass::kLast) {
 		div += MUD::Class((ch)->GetClass()).skills[skill].GetImprove()/100;
 	}

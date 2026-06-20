@@ -8,11 +8,12 @@
 
 #include "engine/db/world_objects.h"
 #include "engine/db/obj_prototypes.h"
+#include "engine/db/global_objects.h"
 #include "engine/entities/char_data.h"
 #include "engine/core/handler.h"
-#include "third_party_libs/pugixml/pugixml.h"
 #include "gameplay/clans/house.h"
 #include "utils/parse.h"
+#include "utils/parser_wrapper.h"
 #include "utils/random.h"
 #include "gameplay/mechanics/weather.h"
 #include "gameplay/mechanics/sets_drop.h"
@@ -106,52 +107,52 @@ DropListType drop_list;
 
 std::vector<global_drop_obj> drop_list_obj;
 
-const char *CONFIG_FILE = LIB_MISC"global_drop.xml";
 const char *STAT_FILE = LIB_PLRSTUFF"global_drop.tmp";
 
-void init() {
-	// на случай релоада
+// Целочисленный атрибут DataNode; def при отсутствии/некорректном значении.
+static int AttrInt(parser_wrapper::DataNode &node, const char *key, int def) {
+	const char *v = node.GetValue(key);
+	if (!v || !*v) {
+		return def;
+	}
+	try {
+		return parse::ReadAsInt(v);
+	} catch (const std::exception &) {
+		return def;
+	}
+}
+
+void GlobalDropLoader::Load(parser_wrapper::DataNode data) {
+	// на случай релоада -- чистим все списки
 	drop_list.clear();
 	drop_list_obj.clear();
-	// конфиг
-	pugi::xml_document doc;
-	pugi::xml_parse_result result = doc.load_file(CONFIG_FILE);
-	if (!result) {
-		snprintf(buf, kMaxStringLength, "...%s", result.description());
-		mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
-		return;
-	}
-	pugi::xml_node node_list = doc.child("globaldrop");
-	if (!node_list) {
-		snprintf(buf, kMaxStringLength, "...<globaldrop> read fail");
-		mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
-		return;
-	}
-	for (pugi::xml_node node = node_list.child("tdrop"); node; node = node.next_sibling("tdrop")) {
-		int chance = parse::ReadAttrAsInt(node, "drop_chance");
-		int count_mobs = parse::ReadAttrAsInt(node, "count_mobs");
-		int vnum_obj = parse::ReadAttrAsInt(node, "ObjVnum");
+	tables_drop.clear();
+
+	// табличный дроп (<tdrop>): случайные мобы из списка
+	for (auto &node : data.Children("tdrop")) {
+		const int chance = AttrInt(node, "drop_chance", 0);
+		const int count_mobs = AttrInt(node, "count_mobs", 0);
+		const int vnum_obj = AttrInt(node, "ObjVnum", 0);
 		std::vector<int> list_mobs;
-		for (pugi::xml_node node_ = node.child("mobs"); node_; node_ = node_.next_sibling("mobs")) {
-			list_mobs.push_back(parse::ReadAttrAsInt(node_, "vnum"));
+		for (auto &mob : node.Children("mobs")) {
+			list_mobs.push_back(AttrInt(mob, "vnum", 0));
 		}
-		table_drop tmp(list_mobs, chance, count_mobs, vnum_obj);
-		tables_drop.push_back(tmp);
+		tables_drop.emplace_back(list_mobs, chance, count_mobs, vnum_obj);
 	}
-	for (pugi::xml_node node = node_list.child("freedrop_obj"); node; node = node.next_sibling("freedrop_obj")) {
+
+	// свободный дроп вещей (<freedrop_obj>)
+	for (auto &node : data.Children("freedrop_obj")) {
 		global_drop_obj tmp;
-		int obj_vnum = parse::ReadAttrAsInt(node, "ObjVnum");
-		int chance = parse::ReadAttrAsInt(node, "drop_chance");
-		int day_start = parse::ReadAttrAsIntT(node, "day_start"); // если не определено в файле возвращаем -1
-		int day_end = parse::ReadAttrAsIntT(node, "day_end");
+		const int obj_vnum = AttrInt(node, "ObjVnum", 0);
+		const int chance = AttrInt(node, "drop_chance", 0);
+		int day_start = AttrInt(node, "day_start", -1); // если не определено в файле возвращаем -1
+		int day_end = AttrInt(node, "day_end", -1);
 		if (day_start == -1) {
 			day_end = 360;
 			day_start = 0;
 		}
-		std::string tmp_str = parse::ReadAattrAsStr(node, "sects");
-		std::vector<std::string> strs;
-		strs = utils::Split(tmp_str);
-		for (const auto &i : strs) {
+		const std::string sects = node.GetValue("sects");
+		for (const auto &i : utils::Split(sects)) {
 			tmp.sects.push_back(std::stoi(i));
 		}
 		tmp.vnum = obj_vnum;
@@ -160,23 +161,23 @@ void init() {
 		tmp.day_end = day_end;
 		drop_list_obj.push_back(tmp);
 	}
-	for (pugi::xml_node node = node_list.child("drop"); node; node = node.next_sibling("drop")) {
-		int obj_vnum = parse::ReadAttrAsInt(node, "ObjVnum");
-		int mob_lvl = parse::ReadAttrAsInt(node, "mob_lvl");
-		int max_mob_lvl = parse::ReadAttrAsInt(node, "max_mob_lvl");
-		int count_mob = parse::ReadAttrAsInt(node, "count_mob");
-		int day_start = parse::ReadAttrAsIntT(node, "day_start"); // если не определено в файле возвращаем -1
-		int day_end = parse::ReadAttrAsIntT(node, "day_end");
-		int race_mob = parse::ReadAttrAsIntT(node, "race_mob");
-		int chance = parse::ReadAttrAsIntT(node, "drop_chance");
+
+	// основной глобальный дроп (<drop>)
+	for (auto &node : data.Children("drop")) {
+		const int obj_vnum = AttrInt(node, "ObjVnum", 0);
+		const int mob_lvl = AttrInt(node, "mob_lvl", 0);
+		const int max_mob_lvl = AttrInt(node, "max_mob_lvl", 0);
+		const int count_mob = AttrInt(node, "count_mob", 0);
+		int day_start = AttrInt(node, "day_start", -1); // если не определено в файле возвращаем -1
+		int day_end = AttrInt(node, "day_end", -1);
+		int race_mob = AttrInt(node, "race_mob", -1);
+		int chance = AttrInt(node, "drop_chance", -1);
 		if (chance == -1)
 			chance = 1000;
 		if (day_start == -1)
 			day_start = 0;
 		if (day_end == -1)
 			day_end = 360;
-		if (race_mob == -1)
-			race_mob = -1; // -1 для всех рас
 
 		if (obj_vnum == -1 || mob_lvl <= 0 || count_mob <= 0 || max_mob_lvl < 0) {
 			snprintf(buf, kMaxStringLength,
@@ -208,7 +209,7 @@ void init() {
 		tmp_node.chance = chance;
 
 		if (obj_vnum >= 0) {
-			int obj_rnum = GetObjRnum(obj_vnum);
+			const int obj_rnum = GetObjRnum(obj_vnum);
 			if (obj_rnum < 0) {
 				snprintf(buf, kMaxStringLength, "...incorrect ObjVnum=%d", obj_vnum);
 				mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
@@ -217,8 +218,8 @@ void init() {
 			tmp_node.rnum = obj_rnum;
 		} else {
 			// список шмоток с единым дропом
-			for (pugi::xml_node item = node.child("obj"); item; item = item.next_sibling("obj")) {
-				int item_vnum = parse::ReadAttrAsInt(item, "vnum");
+			for (auto &item : node.Children("obj")) {
+				const int item_vnum = AttrInt(item, "vnum", 0);
 				if (item_vnum <= 0) {
 					snprintf(buf, kMaxStringLength,
 							 "...bad shop attributes (item_vnum=%d)", item_vnum);
@@ -226,7 +227,7 @@ void init() {
 					return;
 				}
 				// проверяем шмотку
-				int item_rnum = GetObjRnum(item_vnum);
+				const int item_rnum = GetObjRnum(item_vnum);
 				if (item_rnum < 0) {
 					snprintf(buf, kMaxStringLength, "...incorrect item_vnum=%d", item_vnum);
 					mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
@@ -242,6 +243,15 @@ void init() {
 		}
 		drop_list.push_back(tmp_node);
 	}
+}
+
+void GlobalDropLoader::Reload(parser_wrapper::DataNode data) {
+	Load(std::move(data));
+}
+
+void init() {
+	// разбор конфига -- через cfg_manager (cfg/mechanics/global_drop.xml)
+	MUD::CfgManager().LoadCfg("global_drop");
 
 	// сохраненные статы по убитым ранее мобам
 	std::ifstream file(STAT_FILE);

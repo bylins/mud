@@ -2,6 +2,7 @@
 #define CELEBRATES_HPP_INCLUDED
 
 #include "engine/structs/structs.h"
+#include "engine/boot/cfg_manager.h"   // issue.celebrates: загрузка через CfgManager
 
 #include <string>
 #include <vector>
@@ -66,12 +67,20 @@ using CelebrateList = std::map<int, CelebrateDayPtr>; //номер дня в г�
 using CelebrateMobs = std::map<long, CharData *>;
 using CelebrateObjs = std::map<long, ObjData *>;
 
+// issue.celebrates: конфиг (cfg/mechanics/celebrates.xml) грузится через CfgManager.
+// Формат и механика не изменились - только источник загрузки (ParserWrapper вместо
+// прямого pugixml) и точка вызова (LoadCfg/ReloadCfg "celebrates").
+class CelebratesLoader : public cfg_manager::ICfgLoader {
+ public:
+	void Load(parser_wrapper::DataNode data) final;
+	void Reload(parser_wrapper::DataNode data) final;
+};
+
 std::string GetNameMono(int day);
 std::string GetNamePoly(int day);
 std::string GetNameReal(int day);
 int GetMudDay();
 int GetRealDay();
-void Load();
 void Sanitize();
 void RemoveFromObjLists(long uid);
 void RemoveFromMobLists(long uid);

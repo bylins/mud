@@ -2468,7 +2468,7 @@ void find_replacement(void *go,
 				snprintf(str, str_size, "%d", mob->mem_queue.stored);
 			}
 		} else if (!str_cmp(field, "maxmana")) {
-			snprintf(str, str_size, "%d", mana[MIN(50, GetRealWis(mob))]);
+			snprintf(str, str_size, "%d", Mana(GetRealWis(mob)));
 		} else if (!str_cmp(field, "getstat")) {
 			if (*subfield)  {
 				snprintf(str, str_size, "%lld", mob->GetStatistic(static_cast<CharStat::ECategory>(atoi(subfield))));

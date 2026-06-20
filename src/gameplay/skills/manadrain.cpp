@@ -75,8 +75,8 @@ void do_manadrain(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	bool success = percent <= prob;
 	if (success) {
 		skill = std::max(10, skill - 10 * std::max(0, GetRealLevel(ch) - GetRealLevel(vict)));
-		drained_mana = (mana[MIN(50, GetRealWis(ch))] - ch->mem_queue.stored) * skill / 100;
-		ch->mem_queue.stored = std::min(mana[MIN(50, GetRealWis(ch))], ch->mem_queue.stored + drained_mana);
+		drained_mana = (Mana(GetRealWis(ch)) - ch->mem_queue.stored) * skill / 100;
+		ch->mem_queue.stored = std::min(Mana(GetRealWis(ch)), ch->mem_queue.stored + drained_mana);
 		manadrainDamage.dam = 10;
 	}
 	manadrainDamage.flags.set(fight::kIgnoreBlink);

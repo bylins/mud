@@ -1669,9 +1669,8 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 						if (num < 0)
 							break;
 						num = im_get_recipe(num);
-// +newbook.patch (Alisher)
-						if (num < 0 || imrecipes[num].classknow[(int) this->GetClass()] != kKnownRecipe)
-// -newbook.patch (Alisher)
+// issue.class-recipes: владение рецептом - свойство класса (cfg/classes/pc_*.xml).
+						if (num < 0 || !MUD::Class(this->GetClass()).FindIngredientRecipe(imrecipes[num].str_id))
 							continue;
 						CREATE(rs, 1);
 						rs->rid = num;

@@ -1,0 +1,474 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<!-- Базовые модификаторы характеристик (бывший misc/basic.lst + таблицы из constants.cpp).
+     cha_mod  - по обаянию (charisma)
+     int_mod  - по интеллекту (intelligence), mana_gain - бывший mana_gain_cs[]
+     size_mod - по размеру (size)
+     weapon_mod - по весу оружия/щита
+     wiz_mod  - по мудрости (wisdom), mana_amount - бывший mana[] -->
+<basic>
+	<cha_mod>
+		<mod val="0" leadership="-6" charms="10" luck="0" Illusive="-6" dam_to_hit_rate="26"/>
+		<mod val="1" leadership="-6" charms="50" luck="0" Illusive="-6" dam_to_hit_rate="26"/>
+		<mod val="2" leadership="-6" charms="80" luck="0" Illusive="-6" dam_to_hit_rate="26"/>
+		<mod val="3" leadership="-6" charms="100" luck="0" Illusive="-5" dam_to_hit_rate="26"/>
+		<mod val="4" leadership="-5" charms="150" luck="0" Illusive="-5" dam_to_hit_rate="26"/>
+		<mod val="5" leadership="-4" charms="200" luck="0" Illusive="-4" dam_to_hit_rate="26"/>
+		<mod val="6" leadership="-3" charms="250" luck="0" Illusive="-4" dam_to_hit_rate="26"/>
+		<mod val="7" leadership="-2" charms="300" luck="0" Illusive="-4" dam_to_hit_rate="26"/>
+		<mod val="8" leadership="-1" charms="400" luck="1" Illusive="-3" dam_to_hit_rate="26"/>
+		<mod val="9" leadership="0" charms="500" luck="2" Illusive="-3" dam_to_hit_rate="26"/>
+		<mod val="10" leadership="0" charms="600" luck="3" Illusive="-2" dam_to_hit_rate="26"/>
+		<mod val="11" leadership="1" charms="800" luck="4" Illusive="-1" dam_to_hit_rate="26"/>
+		<mod val="12" leadership="2" charms="1000" luck="5" Illusive="0" dam_to_hit_rate="25"/>
+		<mod val="13" leadership="3" charms="1200" luck="6" Illusive="1" dam_to_hit_rate="24"/>
+		<mod val="14" leadership="4" charms="1400" luck="7" Illusive="3" dam_to_hit_rate="23"/>
+		<mod val="15" leadership="5" charms="1600" luck="8" Illusive="4" dam_to_hit_rate="22"/>
+		<mod val="16" leadership="6" charms="1875" luck="9" Illusive="5" dam_to_hit_rate="21"/>
+		<mod val="17" leadership="7" charms="2100" luck="10" Illusive="6" dam_to_hit_rate="20"/>
+		<mod val="18" leadership="8" charms="2400" luck="11" Illusive="7" dam_to_hit_rate="20"/>
+		<mod val="19" leadership="9" charms="2780" luck="12" Illusive="9" dam_to_hit_rate="19"/>
+		<mod val="20" leadership="10" charms="3230" luck="13" Illusive="10" dam_to_hit_rate="19"/>
+		<mod val="21" leadership="11" charms="3620" luck="14" Illusive="11" dam_to_hit_rate="18"/>
+		<mod val="22" leadership="12" charms="3940" luck="15" Illusive="12" dam_to_hit_rate="18"/>
+		<mod val="23" leadership="13" charms="4210" luck="16" Illusive="13" dam_to_hit_rate="17"/>
+		<mod val="24" leadership="14" charms="4440" luck="17" Illusive="14" dam_to_hit_rate="17"/>
+		<mod val="25" leadership="15" charms="4778" luck="18" Illusive="15" dam_to_hit_rate="17"/>
+		<mod val="26" leadership="16" charms="5071" luck="19" Illusive="16" dam_to_hit_rate="17"/>
+		<mod val="27" leadership="17" charms="5334" luck="20" Illusive="17" dam_to_hit_rate="17"/>
+		<mod val="28" leadership="18" charms="5587" luck="21" Illusive="18" dam_to_hit_rate="17"/>
+		<mod val="29" leadership="19" charms="5830" luck="22" Illusive="19" dam_to_hit_rate="17"/>
+		<mod val="30" leadership="20" charms="6063" luck="23" Illusive="20" dam_to_hit_rate="17"/>
+		<mod val="31" leadership="21" charms="6286" luck="24" Illusive="21" dam_to_hit_rate="17"/>
+		<mod val="32" leadership="22" charms="6499" luck="25" Illusive="22" dam_to_hit_rate="17"/>
+		<mod val="33" leadership="23" charms="6702" luck="26" Illusive="23" dam_to_hit_rate="17"/>
+		<mod val="34" leadership="24" charms="6895" luck="27" Illusive="24" dam_to_hit_rate="17"/>
+		<mod val="35" leadership="25" charms="7088" luck="28" Illusive="25" dam_to_hit_rate="17"/>
+		<mod val="36" leadership="26" charms="7281" luck="29" Illusive="26" dam_to_hit_rate="17"/>
+		<mod val="37" leadership="27" charms="7474" luck="30" Illusive="27" dam_to_hit_rate="17"/>
+		<mod val="38" leadership="28" charms="7667" luck="31" Illusive="28" dam_to_hit_rate="17"/>
+		<mod val="39" leadership="29" charms="7860" luck="32" Illusive="29" dam_to_hit_rate="16"/>
+		<mod val="40" leadership="30" charms="8053" luck="33" Illusive="30" dam_to_hit_rate="16"/>
+		<mod val="41" leadership="31" charms="8246" luck="34" Illusive="31" dam_to_hit_rate="16"/>
+		<mod val="42" leadership="32" charms="8439" luck="35" Illusive="32" dam_to_hit_rate="16"/>
+		<mod val="43" leadership="33" charms="8632" luck="36" Illusive="33" dam_to_hit_rate="16"/>
+		<mod val="44" leadership="34" charms="8825" luck="37" Illusive="34" dam_to_hit_rate="16"/>
+		<mod val="45" leadership="35" charms="9018" luck="38" Illusive="35" dam_to_hit_rate="16"/>
+		<mod val="46" leadership="36" charms="9211" luck="39" Illusive="36" dam_to_hit_rate="15"/>
+		<mod val="47" leadership="37" charms="9404" luck="40" Illusive="37" dam_to_hit_rate="14"/>
+		<mod val="48" leadership="38" charms="9597" luck="41" Illusive="38" dam_to_hit_rate="13"/>
+		<mod val="49" leadership="39" charms="9790" luck="42" Illusive="39" dam_to_hit_rate="12"/>
+		<mod val="50" leadership="40" charms="9983" luck="43" Illusive="40" dam_to_hit_rate="12"/>
+		<mod val="51" leadership="41" charms="10104" luck="44" Illusive="41" dam_to_hit_rate="12"/>
+		<mod val="52" leadership="42" charms="10302" luck="45" Illusive="42" dam_to_hit_rate="12"/>
+		<mod val="53" leadership="43" charms="10492" luck="46" Illusive="43" dam_to_hit_rate="11"/>
+		<mod val="54" leadership="44" charms="10685" luck="47" Illusive="44" dam_to_hit_rate="11"/>
+		<mod val="55" leadership="44" charms="10825" luck="48" Illusive="45" dam_to_hit_rate="11"/>
+		<mod val="56" leadership="45" charms="10965" luck="49" Illusive="46" dam_to_hit_rate="11"/>
+		<mod val="57" leadership="46" charms="11105" luck="50" Illusive="47" dam_to_hit_rate="11"/>
+		<mod val="58" leadership="47" charms="11245" luck="51" Illusive="48" dam_to_hit_rate="11"/>
+		<mod val="59" leadership="48" charms="11385" luck="52" Illusive="49" dam_to_hit_rate="11"/>
+		<mod val="60" leadership="49" charms="11525" luck="53" Illusive="50" dam_to_hit_rate="11"/>
+		<mod val="61" leadership="50" charms="11665" luck="54" Illusive="51" dam_to_hit_rate="10"/>
+		<mod val="62" leadership="51" charms="11805" luck="55" Illusive="52" dam_to_hit_rate="10"/>
+		<mod val="63" leadership="52" charms="11945" luck="56" Illusive="53" dam_to_hit_rate="10"/>
+		<mod val="64" leadership="53" charms="12085" luck="57" Illusive="54" dam_to_hit_rate="10"/>
+		<mod val="65" leadership="54" charms="12225" luck="58" Illusive="55" dam_to_hit_rate="10"/>
+		<mod val="66" leadership="55" charms="12365" luck="59" Illusive="56" dam_to_hit_rate="10"/>
+		<mod val="67" leadership="56" charms="12505" luck="60" Illusive="57" dam_to_hit_rate="10"/>
+		<mod val="68" leadership="57" charms="12645" luck="61" Illusive="58" dam_to_hit_rate="10"/>
+		<mod val="69" leadership="58" charms="12785" luck="62" Illusive="59" dam_to_hit_rate="10"/>
+		<mod val="70" leadership="59" charms="12925" luck="63" Illusive="60" dam_to_hit_rate="10"/>
+		<mod val="71" leadership="60" charms="13065" luck="64" Illusive="61" dam_to_hit_rate="10"/>
+		<mod val="72" leadership="61" charms="13205" luck="65" Illusive="62" dam_to_hit_rate="9"/>
+		<mod val="73" leadership="62" charms="13345" luck="66" Illusive="62" dam_to_hit_rate="9"/>
+		<mod val="74" leadership="63" charms="13485" luck="67" Illusive="63" dam_to_hit_rate="9"/>
+		<mod val="75" leadership="65" charms="13625" luck="68" Illusive="64" dam_to_hit_rate="9"/>
+		<mod val="76" leadership="66" charms="13765" luck="69" Illusive="65" dam_to_hit_rate="9"/>
+		<mod val="77" leadership="67" charms="13905" luck="70" Illusive="66" dam_to_hit_rate="9"/>
+		<mod val="78" leadership="68" charms="14045" luck="71" Illusive="67" dam_to_hit_rate="9"/>
+		<mod val="79" leadership="69" charms="14185" luck="72" Illusive="68" dam_to_hit_rate="9"/>
+		<mod val="80" leadership="70" charms="14325" luck="73" Illusive="69" dam_to_hit_rate="9"/>
+		<mod val="81" leadership="71" charms="14465" luck="73" Illusive="70" dam_to_hit_rate="9"/>
+		<mod val="82" leadership="72" charms="14605" luck="74" Illusive="71" dam_to_hit_rate="9"/>
+		<mod val="83" leadership="73" charms="14745" luck="75" Illusive="71" dam_to_hit_rate="9"/>
+		<mod val="84" leadership="74" charms="14885" luck="76" Illusive="72" dam_to_hit_rate="9"/>
+		<mod val="85" leadership="75" charms="15025" luck="77" Illusive="73" dam_to_hit_rate="9"/>
+		<mod val="86" leadership="76" charms="15165" luck="77" Illusive="74" dam_to_hit_rate="9"/>
+		<mod val="87" leadership="77" charms="15305" luck="78" Illusive="75" dam_to_hit_rate="9"/>
+		<mod val="88" leadership="78" charms="15445" luck="79" Illusive="76" dam_to_hit_rate="9"/>
+		<mod val="89" leadership="79" charms="15585" luck="80" Illusive="77" dam_to_hit_rate="9"/>
+		<mod val="90" leadership="80" charms="15725" luck="81" Illusive="78" dam_to_hit_rate="9"/>
+		<mod val="91" leadership="76" charms="9000" luck="0" Illusive="81" dam_to_hit_rate="20"/>
+		<mod val="92" leadership="77" charms="9100" luck="0" Illusive="82" dam_to_hit_rate="20"/>
+		<mod val="93" leadership="78" charms="9100" luck="0" Illusive="83" dam_to_hit_rate="20"/>
+		<mod val="94" leadership="79" charms="9100" luck="0" Illusive="84" dam_to_hit_rate="20"/>
+		<mod val="95" leadership="80" charms="9200" luck="0" Illusive="85" dam_to_hit_rate="20"/>
+		<mod val="96" leadership="81" charms="9300" luck="0" Illusive="86" dam_to_hit_rate="20"/>
+		<mod val="97" leadership="82" charms="9400" luck="0" Illusive="87" dam_to_hit_rate="20"/>
+		<mod val="98" leadership="83" charms="9500" luck="0" Illusive="88" dam_to_hit_rate="20"/>
+		<mod val="99" leadership="84" charms="9600" luck="0" Illusive="89" dam_to_hit_rate="20"/>
+		<mod val="100" leadership="85" charms="9700" luck="0" Illusive="90" dam_to_hit_rate="20"/>
+	</cha_mod>
+	<int_mod>
+		<mod val="0" apell_acknowledge="10" to_skill_use="-10" mana_per_tic="10" fails="34" improove_skill="0" observation="-5" mana_gain="2"/>
+		<mod val="1" apell_acknowledge="10" to_skill_use="-9" mana_per_tic="10" fails="38" improove_skill="1" observation="-5" mana_gain="3"/>
+		<mod val="2" apell_acknowledge="10" to_skill_use="-8" mana_per_tic="10" fails="42" improove_skill="1" observation="-5" mana_gain="3"/>
+		<mod val="3" apell_acknowledge="14" to_skill_use="-7" mana_per_tic="10" fails="46" improove_skill="2" observation="-4" mana_gain="4"/>
+		<mod val="4" apell_acknowledge="18" to_skill_use="-6" mana_per_tic="15" fails="50" improove_skill="2" observation="-4" mana_gain="4"/>
+		<mod val="5" apell_acknowledge="22" to_skill_use="-5" mana_per_tic="20" fails="52" improove_skill="3" observation="-3" mana_gain="5"/>
+		<mod val="6" apell_acknowledge="26" to_skill_use="-4" mana_per_tic="25" fails="54" improove_skill="3" observation="-2" mana_gain="5"/>
+		<mod val="7" apell_acknowledge="30" to_skill_use="-3" mana_per_tic="30" fails="56" improove_skill="4" observation="-2" mana_gain="6"/>
+		<mod val="8" apell_acknowledge="34" to_skill_use="-2" mana_per_tic="40" fails="58" improove_skill="4" observation="-1" mana_gain="6"/>
+		<mod val="9" apell_acknowledge="38" to_skill_use="-1" mana_per_tic="50" fails="60" improove_skill="5" observation="-1" mana_gain="7"/>
+		<mod val="10" apell_acknowledge="42" to_skill_use="0" mana_per_tic="60" fails="140" improove_skill="5" observation="0" mana_gain="7"/>
+		<mod val="11" apell_acknowledge="46" to_skill_use="1" mana_per_tic="63" fails="160" improove_skill="6" observation="0" mana_gain="8"/>
+		<mod val="12" apell_acknowledge="50" to_skill_use="2" mana_per_tic="66" fails="180" improove_skill="7" observation="0" mana_gain="8"/>
+		<mod val="13" apell_acknowledge="53" to_skill_use="3" mana_per_tic="69" fails="200" improove_skill="8" observation="0" mana_gain="9"/>
+		<mod val="14" apell_acknowledge="57" to_skill_use="4" mana_per_tic="72" fails="220" improove_skill="9" observation="0" mana_gain="9"/>
+		<mod val="15" apell_acknowledge="60" to_skill_use="5" mana_per_tic="75" fails="240" improove_skill="10" observation="1" mana_gain="10"/>
+		<mod val="16" apell_acknowledge="64" to_skill_use="6" mana_per_tic="78" fails="260" improove_skill="11" observation="2" mana_gain="11"/>
+		<mod val="17" apell_acknowledge="68" to_skill_use="7" mana_per_tic="81" fails="280" improove_skill="12" observation="3" mana_gain="12"/>
+		<mod val="18" apell_acknowledge="72" to_skill_use="8" mana_per_tic="84" fails="300" improove_skill="13" observation="4" mana_gain="13"/>
+		<mod val="19" apell_acknowledge="76" to_skill_use="9" mana_per_tic="87" fails="320" improove_skill="14" observation="5" mana_gain="14"/>
+		<mod val="20" apell_acknowledge="80" to_skill_use="10" mana_per_tic="90" fails="340" improove_skill="15" observation="6" mana_gain="15"/>
+		<mod val="21" apell_acknowledge="82" to_skill_use="11" mana_per_tic="92" fails="360" improove_skill="16" observation="7" mana_gain="16"/>
+		<mod val="22" apell_acknowledge="84" to_skill_use="12" mana_per_tic="94" fails="380" improove_skill="17" observation="8" mana_gain="17"/>
+		<mod val="23" apell_acknowledge="86" to_skill_use="13" mana_per_tic="96" fails="400" improove_skill="18" observation="9" mana_gain="18"/>
+		<mod val="24" apell_acknowledge="88" to_skill_use="14" mana_per_tic="98" fails="420" improove_skill="19" observation="9" mana_gain="19"/>
+		<mod val="25" apell_acknowledge="90" to_skill_use="15" mana_per_tic="100" fails="440" improove_skill="20" observation="10" mana_gain="20"/>
+		<mod val="26" apell_acknowledge="91" to_skill_use="16" mana_per_tic="105" fails="460" improove_skill="21" observation="11" mana_gain="22"/>
+		<mod val="27" apell_acknowledge="92" to_skill_use="17" mana_per_tic="110" fails="480" improove_skill="22" observation="12" mana_gain="24"/>
+		<mod val="28" apell_acknowledge="93" to_skill_use="18" mana_per_tic="115" fails="500" improove_skill="23" observation="13" mana_gain="26"/>
+		<mod val="29" apell_acknowledge="94" to_skill_use="19" mana_per_tic="120" fails="520" improove_skill="24" observation="14" mana_gain="27"/>
+		<mod val="30" apell_acknowledge="95" to_skill_use="20" mana_per_tic="130" fails="540" improove_skill="25" observation="15" mana_gain="29"/>
+		<mod val="31" apell_acknowledge="95" to_skill_use="21" mana_per_tic="135" fails="560" improove_skill="26" observation="16" mana_gain="31"/>
+		<mod val="32" apell_acknowledge="95" to_skill_use="22" mana_per_tic="140" fails="580" improove_skill="27" observation="17" mana_gain="33"/>
+		<mod val="33" apell_acknowledge="95" to_skill_use="23" mana_per_tic="145" fails="600" improove_skill="28" observation="18" mana_gain="35"/>
+		<mod val="34" apell_acknowledge="95" to_skill_use="24" mana_per_tic="150" fails="620" improove_skill="29" observation="19" mana_gain="37"/>
+		<mod val="35" apell_acknowledge="96" to_skill_use="25" mana_per_tic="150" fails="640" improove_skill="30" observation="20" mana_gain="39"/>
+		<mod val="36" apell_acknowledge="96" to_skill_use="26" mana_per_tic="155" fails="660" improove_skill="31" observation="21" mana_gain="41"/>
+		<mod val="37" apell_acknowledge="96" to_skill_use="27" mana_per_tic="155" fails="680" improove_skill="32" observation="22" mana_gain="44"/>
+		<mod val="38" apell_acknowledge="96" to_skill_use="28" mana_per_tic="160" fails="700" improove_skill="33" observation="23" mana_gain="47"/>
+		<mod val="39" apell_acknowledge="96" to_skill_use="29" mana_per_tic="160" fails="720" improove_skill="34" observation="24" mana_gain="50"/>
+		<mod val="40" apell_acknowledge="97" to_skill_use="30" mana_per_tic="165" fails="740" improove_skill="35" observation="25" mana_gain="53"/>
+		<mod val="41" apell_acknowledge="97" to_skill_use="31" mana_per_tic="165" fails="760" improove_skill="36" observation="26" mana_gain="56"/>
+		<mod val="42" apell_acknowledge="97" to_skill_use="32" mana_per_tic="170" fails="780" improove_skill="37" observation="27" mana_gain="59"/>
+		<mod val="43" apell_acknowledge="97" to_skill_use="33" mana_per_tic="170" fails="800" improove_skill="38" observation="28" mana_gain="62"/>
+		<mod val="44" apell_acknowledge="97" to_skill_use="34" mana_per_tic="175" fails="820" improove_skill="39" observation="29" mana_gain="65"/>
+		<mod val="45" apell_acknowledge="98" to_skill_use="35" mana_per_tic="175" fails="840" improove_skill="40" observation="30" mana_gain="68"/>
+		<mod val="46" apell_acknowledge="98" to_skill_use="36" mana_per_tic="180" fails="860" improove_skill="41" observation="31" mana_gain="71"/>
+		<mod val="47" apell_acknowledge="98" to_skill_use="37" mana_per_tic="180" fails="880" improove_skill="42" observation="32" mana_gain="74"/>
+		<mod val="48" apell_acknowledge="99" to_skill_use="38" mana_per_tic="190" fails="900" improove_skill="43" observation="33" mana_gain="77"/>
+		<mod val="49" apell_acknowledge="99" to_skill_use="39" mana_per_tic="190" fails="920" improove_skill="44" observation="34" mana_gain="80"/>
+		<mod val="50" apell_acknowledge="100" to_skill_use="40" mana_per_tic="200" fails="940" improove_skill="45" observation="35" mana_gain="83"/>
+		<mod val="51" apell_acknowledge="100" to_skill_use="40" mana_per_tic="200" fails="940" improove_skill="45" observation="35" mana_gain="84"/>
+		<mod val="52" apell_acknowledge="100" to_skill_use="40" mana_per_tic="200" fails="940" improove_skill="45" observation="35" mana_gain="85"/>
+		<mod val="53" apell_acknowledge="100" to_skill_use="40" mana_per_tic="200" fails="940" improove_skill="45" observation="35" mana_gain="86"/>
+		<mod val="54" apell_acknowledge="100" to_skill_use="40" mana_per_tic="200" fails="940" improove_skill="45" observation="35" mana_gain="87"/>
+		<mod val="55" apell_acknowledge="100" to_skill_use="40" mana_per_tic="200" fails="940" improove_skill="45" observation="35" mana_gain="88"/>
+		<mod val="56" apell_acknowledge="100" to_skill_use="40" mana_per_tic="200" fails="940" improove_skill="45" observation="35" mana_gain="89"/>
+		<mod val="57" apell_acknowledge="100" to_skill_use="40" mana_per_tic="200" fails="940" improove_skill="45" observation="35" mana_gain="90"/>
+		<mod val="58" apell_acknowledge="100" to_skill_use="40" mana_per_tic="200" fails="940" improove_skill="45" observation="35" mana_gain="91"/>
+		<mod val="59" apell_acknowledge="100" to_skill_use="40" mana_per_tic="200" fails="940" improove_skill="45" observation="35" mana_gain="92"/>
+		<mod val="60" apell_acknowledge="100" to_skill_use="40" mana_per_tic="200" fails="940" improove_skill="45" observation="35" mana_gain="93"/>
+		<mod val="61" apell_acknowledge="100" to_skill_use="40" mana_per_tic="200" fails="940" improove_skill="45" observation="35" mana_gain="94"/>
+		<mod val="62" apell_acknowledge="100" to_skill_use="40" mana_per_tic="200" fails="940" improove_skill="45" observation="35" mana_gain="95"/>
+		<mod val="63" apell_acknowledge="100" to_skill_use="40" mana_per_tic="200" fails="940" improove_skill="45" observation="35" mana_gain="96"/>
+		<mod val="64" apell_acknowledge="100" to_skill_use="40" mana_per_tic="200" fails="940" improove_skill="45" observation="35" mana_gain="97"/>
+		<mod val="65" apell_acknowledge="100" to_skill_use="40" mana_per_tic="200" fails="940" improove_skill="45" observation="35" mana_gain="98"/>
+		<mod val="66" apell_acknowledge="100" to_skill_use="40" mana_per_tic="200" fails="940" improove_skill="45" observation="35" mana_gain="99"/>
+		<mod val="67" apell_acknowledge="100" to_skill_use="40" mana_per_tic="200" fails="940" improove_skill="45" observation="35" mana_gain="100"/>
+		<mod val="68" apell_acknowledge="100" to_skill_use="40" mana_per_tic="200" fails="940" improove_skill="45" observation="35" mana_gain="101"/>
+		<mod val="69" apell_acknowledge="100" to_skill_use="40" mana_per_tic="200" fails="940" improove_skill="45" observation="35" mana_gain="102"/>
+		<mod val="70" apell_acknowledge="100" to_skill_use="40" mana_per_tic="200" fails="940" improove_skill="45" observation="35" mana_gain="103"/>
+		<mod val="71" apell_acknowledge="100" to_skill_use="40" mana_per_tic="200" fails="940" improove_skill="45" observation="35" mana_gain="104"/>
+		<mod val="72" apell_acknowledge="100" to_skill_use="40" mana_per_tic="200" fails="940" improove_skill="45" observation="35" mana_gain="105"/>
+		<mod val="73" apell_acknowledge="100" to_skill_use="40" mana_per_tic="200" fails="940" improove_skill="45" observation="35" mana_gain="106"/>
+		<mod val="74" apell_acknowledge="100" to_skill_use="40" mana_per_tic="200" fails="940" improove_skill="45" observation="35" mana_gain="107"/>
+		<mod val="75" apell_acknowledge="100" to_skill_use="40" mana_per_tic="200" fails="940" improove_skill="45" observation="35" mana_gain="108"/>
+		<mod val="76" apell_acknowledge="100" to_skill_use="40" mana_per_tic="200" fails="940" improove_skill="45" observation="35" mana_gain="109"/>
+		<mod val="77" apell_acknowledge="100" to_skill_use="40" mana_per_tic="200" fails="940" improove_skill="45" observation="35" mana_gain="110"/>
+		<mod val="78" apell_acknowledge="100" to_skill_use="40" mana_per_tic="200" fails="940" improove_skill="45" observation="35" mana_gain="111"/>
+		<mod val="79" apell_acknowledge="100" to_skill_use="40" mana_per_tic="200" fails="940" improove_skill="45" observation="35" mana_gain="112"/>
+		<mod val="80" apell_acknowledge="100" to_skill_use="40" mana_per_tic="200" fails="940" improove_skill="45" observation="35" mana_gain="113"/>
+		<mod val="81" apell_acknowledge="100" to_skill_use="40" mana_per_tic="200" fails="940" improove_skill="45" observation="35" mana_gain="114"/>
+		<mod val="82" apell_acknowledge="100" to_skill_use="40" mana_per_tic="200" fails="940" improove_skill="45" observation="35" mana_gain="115"/>
+		<mod val="83" apell_acknowledge="100" to_skill_use="40" mana_per_tic="200" fails="940" improove_skill="45" observation="35" mana_gain="116"/>
+		<mod val="84" apell_acknowledge="100" to_skill_use="40" mana_per_tic="200" fails="940" improove_skill="45" observation="35" mana_gain="117"/>
+		<mod val="85" apell_acknowledge="100" to_skill_use="40" mana_per_tic="200" fails="940" improove_skill="45" observation="35" mana_gain="118"/>
+		<mod val="86" apell_acknowledge="100" to_skill_use="40" mana_per_tic="200" fails="940" improove_skill="45" observation="35" mana_gain="119"/>
+		<mod val="87" apell_acknowledge="100" to_skill_use="40" mana_per_tic="200" fails="940" improove_skill="45" observation="35" mana_gain="120"/>
+		<mod val="88" apell_acknowledge="100" to_skill_use="40" mana_per_tic="200" fails="940" improove_skill="45" observation="35" mana_gain="121"/>
+		<mod val="89" apell_acknowledge="100" to_skill_use="40" mana_per_tic="200" fails="940" improove_skill="45" observation="35" mana_gain="122"/>
+		<mod val="90" apell_acknowledge="100" to_skill_use="40" mana_per_tic="200" fails="940" improove_skill="45" observation="35" mana_gain="123"/>
+		<mod val="91" apell_acknowledge="100" to_skill_use="40" mana_per_tic="200" fails="940" improove_skill="45" observation="35" mana_gain="124"/>
+		<mod val="92" apell_acknowledge="100" to_skill_use="40" mana_per_tic="200" fails="940" improove_skill="45" observation="35" mana_gain="125"/>
+		<mod val="93" apell_acknowledge="100" to_skill_use="40" mana_per_tic="200" fails="940" improove_skill="45" observation="35" mana_gain="126"/>
+		<mod val="94" apell_acknowledge="100" to_skill_use="40" mana_per_tic="200" fails="940" improove_skill="45" observation="35" mana_gain="127"/>
+		<mod val="95" apell_acknowledge="100" to_skill_use="40" mana_per_tic="200" fails="940" improove_skill="45" observation="35" mana_gain="128"/>
+		<mod val="96" apell_acknowledge="100" to_skill_use="40" mana_per_tic="200" fails="940" improove_skill="45" observation="35" mana_gain="129"/>
+		<mod val="97" apell_acknowledge="100" to_skill_use="40" mana_per_tic="200" fails="940" improove_skill="45" observation="35" mana_gain="130"/>
+		<mod val="98" apell_acknowledge="100" to_skill_use="40" mana_per_tic="200" fails="940" improove_skill="45" observation="35" mana_gain="131"/>
+		<mod val="99" apell_acknowledge="100" to_skill_use="40" mana_per_tic="200" fails="940" improove_skill="45" observation="35" mana_gain="132"/>
+		<mod val="100" apell_acknowledge="100" to_skill_use="40" mana_per_tic="200" fails="940" improove_skill="45" observation="35" mana_gain="133"/>
+	</int_mod>
+	<size_mod>
+		<mod val="0" ac="-5" interpolate="10" initiative="5" shocking="1"/>
+		<mod val="1" ac="-5" interpolate="10" initiative="5" shocking="1"/>
+		<mod val="2" ac="-5" interpolate="10" initiative="5" shocking="1"/>
+		<mod val="3" ac="-5" interpolate="9" initiative="4" shocking="1"/>
+		<mod val="4" ac="-5" interpolate="9" initiative="4" shocking="2"/>
+		<mod val="5" ac="-5" interpolate="8" initiative="4" shocking="2"/>
+		<mod val="6" ac="-4" interpolate="8" initiative="4" shocking="2"/>
+		<mod val="7" ac="-4" interpolate="7" initiative="4" shocking="2"/>
+		<mod val="8" ac="-4" interpolate="7" initiative="3" shocking="2"/>
+		<mod val="9" ac="-4" interpolate="7" initiative="3" shocking="3"/>
+		<mod val="10" ac="-3" interpolate="6" initiative="3" shocking="3"/>
+		<mod val="11" ac="-3" interpolate="6" initiative="3" shocking="3"/>
+		<mod val="12" ac="-3" interpolate="6" initiative="3" shocking="3"/>
+		<mod val="13" ac="-3" interpolate="5" initiative="2" shocking="4"/>
+		<mod val="14" ac="-2" interpolate="5" initiative="2" shocking="4"/>
+		<mod val="15" ac="-2" interpolate="4" initiative="2" shocking="4"/>
+		<mod val="16" ac="-2" interpolate="4" initiative="2" shocking="4"/>
+		<mod val="17" ac="-2" interpolate="4" initiative="2" shocking="5"/>
+		<mod val="18" ac="-1" interpolate="3" initiative="1" shocking="5"/>
+		<mod val="19" ac="-1" interpolate="3" initiative="1" shocking="6"/>
+		<mod val="20" ac="-1" interpolate="2" initiative="1" shocking="6"/>
+		<mod val="21" ac="0" interpolate="2" initiative="1" shocking="7"/>
+		<mod val="22" ac="0" interpolate="1" initiative="1" shocking="7"/>
+		<mod val="23" ac="0" interpolate="1" initiative="0" shocking="8"/>
+		<mod val="24" ac="0" interpolate="0" initiative="0" shocking="9"/>
+		<mod val="25" ac="0" interpolate="0" initiative="0" shocking="9"/>
+		<mod val="26" ac="0" interpolate="0" initiative="0" shocking="10"/>
+		<mod val="27" ac="0" interpolate="-1" initiative="0" shocking="11"/>
+		<mod val="28" ac="0" interpolate="-1" initiative="-1" shocking="11"/>
+		<mod val="29" ac="0" interpolate="-1" initiative="-1" shocking="12"/>
+		<mod val="30" ac="0" interpolate="-2" initiative="-1" shocking="12"/>
+		<mod val="31" ac="1" interpolate="-2" initiative="-1" shocking="13"/>
+		<mod val="32" ac="1" interpolate="-2" initiative="-1" shocking="13"/>
+		<mod val="33" ac="1" interpolate="-3" initiative="-2" shocking="14"/>
+		<mod val="34" ac="1" interpolate="-3" initiative="-2" shocking="14"/>
+		<mod val="35" ac="1" interpolate="-4" initiative="-2" shocking="15"/>
+		<mod val="36" ac="2" interpolate="-4" initiative="-2" shocking="16"/>
+		<mod val="37" ac="2" interpolate="-5" initiative="-2" shocking="17"/>
+		<mod val="38" ac="2" interpolate="-5" initiative="-3" shocking="18"/>
+		<mod val="39" ac="2" interpolate="-5" initiative="-3" shocking="19"/>
+		<mod val="40" ac="3" interpolate="-6" initiative="-3" shocking="20"/>
+		<mod val="41" ac="3" interpolate="-6" initiative="-3" shocking="21"/>
+		<mod val="42" ac="3" interpolate="-7" initiative="-3" shocking="22"/>
+		<mod val="43" ac="3" interpolate="-7" initiative="-4" shocking="23"/>
+		<mod val="44" ac="3" interpolate="-7" initiative="-4" shocking="24"/>
+		<mod val="45" ac="4" interpolate="-8" initiative="-4" shocking="25"/>
+		<mod val="46" ac="4" interpolate="-8" initiative="-4" shocking="26"/>
+		<mod val="47" ac="4" interpolate="-9" initiative="-4" shocking="27"/>
+		<mod val="48" ac="5" interpolate="-9" initiative="-5" shocking="28"/>
+		<mod val="49" ac="5" interpolate="-10" initiative="-5" shocking="29"/>
+		<mod val="50" ac="5" interpolate="-10" initiative="-5" shocking="30"/>
+		<mod val="51" ac="5" interpolate="-10" initiative="-5" shocking="30"/>
+		<mod val="52" ac="5" interpolate="-10" initiative="-5" shocking="30"/>
+		<mod val="53" ac="5" interpolate="-10" initiative="-5" shocking="30"/>
+		<mod val="54" ac="5" interpolate="-10" initiative="-5" shocking="30"/>
+		<mod val="55" ac="5" interpolate="-10" initiative="-5" shocking="30"/>
+		<mod val="56" ac="5" interpolate="-10" initiative="-5" shocking="30"/>
+		<mod val="57" ac="5" interpolate="-10" initiative="-5" shocking="30"/>
+		<mod val="58" ac="5" interpolate="-10" initiative="-5" shocking="30"/>
+		<mod val="59" ac="5" interpolate="-10" initiative="-5" shocking="30"/>
+		<mod val="60" ac="5" interpolate="-10" initiative="-5" shocking="30"/>
+		<mod val="61" ac="5" interpolate="-10" initiative="-5" shocking="30"/>
+		<mod val="62" ac="5" interpolate="-10" initiative="-5" shocking="30"/>
+		<mod val="63" ac="5" interpolate="-10" initiative="-5" shocking="30"/>
+		<mod val="64" ac="5" interpolate="-10" initiative="-5" shocking="30"/>
+		<mod val="65" ac="5" interpolate="-10" initiative="-5" shocking="30"/>
+		<mod val="66" ac="5" interpolate="-10" initiative="-5" shocking="30"/>
+		<mod val="67" ac="5" interpolate="-10" initiative="-5" shocking="30"/>
+		<mod val="68" ac="5" interpolate="-10" initiative="-5" shocking="30"/>
+		<mod val="69" ac="5" interpolate="-10" initiative="-5" shocking="30"/>
+		<mod val="70" ac="5" interpolate="-10" initiative="-5" shocking="30"/>
+		<mod val="71" ac="5" interpolate="-10" initiative="-5" shocking="30"/>
+		<mod val="72" ac="5" interpolate="-10" initiative="-5" shocking="30"/>
+		<mod val="73" ac="5" interpolate="-10" initiative="-5" shocking="30"/>
+		<mod val="74" ac="5" interpolate="-10" initiative="-5" shocking="30"/>
+		<mod val="75" ac="5" interpolate="-10" initiative="-5" shocking="30"/>
+		<mod val="76" ac="5" interpolate="-10" initiative="-5" shocking="30"/>
+		<mod val="77" ac="5" interpolate="-10" initiative="-5" shocking="30"/>
+		<mod val="78" ac="5" interpolate="-10" initiative="-5" shocking="30"/>
+		<mod val="79" ac="5" interpolate="-10" initiative="-5" shocking="30"/>
+		<mod val="80" ac="5" interpolate="-10" initiative="-5" shocking="30"/>
+		<mod val="81" ac="5" interpolate="-10" initiative="-5" shocking="30"/>
+		<mod val="82" ac="5" interpolate="-10" initiative="-5" shocking="30"/>
+		<mod val="83" ac="5" interpolate="-10" initiative="-5" shocking="30"/>
+		<mod val="84" ac="5" interpolate="-10" initiative="-5" shocking="30"/>
+		<mod val="85" ac="5" interpolate="-10" initiative="-5" shocking="30"/>
+		<mod val="86" ac="5" interpolate="-10" initiative="-5" shocking="30"/>
+		<mod val="87" ac="5" interpolate="-10" initiative="-5" shocking="30"/>
+		<mod val="88" ac="5" interpolate="-10" initiative="-5" shocking="30"/>
+		<mod val="89" ac="5" interpolate="-10" initiative="-5" shocking="30"/>
+		<mod val="90" ac="5" interpolate="-10" initiative="-5" shocking="30"/>
+		<mod val="91" ac="5" interpolate="-10" initiative="-5" shocking="30"/>
+		<mod val="92" ac="5" interpolate="-10" initiative="-5" shocking="30"/>
+		<mod val="93" ac="5" interpolate="-10" initiative="-5" shocking="30"/>
+		<mod val="94" ac="5" interpolate="-10" initiative="-5" shocking="30"/>
+		<mod val="95" ac="5" interpolate="-10" initiative="-5" shocking="30"/>
+		<mod val="96" ac="5" interpolate="-10" initiative="-5" shocking="30"/>
+		<mod val="97" ac="5" interpolate="-10" initiative="-5" shocking="30"/>
+		<mod val="98" ac="5" interpolate="-10" initiative="-5" shocking="30"/>
+		<mod val="99" ac="5" interpolate="-10" initiative="-5" shocking="30"/>
+		<mod val="100" ac="5" interpolate="-10" initiative="-5" shocking="30"/>
+	</size_mod>
+	<weapon_mod>
+		<mod val="0" shocking="1" bashing="0" parrying="-10"/>
+		<mod val="1" shocking="1" bashing="0" parrying="-10"/>
+		<mod val="2" shocking="1" bashing="0" parrying="-8"/>
+		<mod val="3" shocking="2" bashing="0" parrying="-6"/>
+		<mod val="4" shocking="2" bashing="0" parrying="-4"/>
+		<mod val="5" shocking="3" bashing="1" parrying="-2"/>
+		<mod val="6" shocking="3" bashing="2" parrying="0"/>
+		<mod val="7" shocking="4" bashing="3" parrying="2"/>
+		<mod val="8" shocking="4" bashing="4" parrying="4"/>
+		<mod val="9" shocking="5" bashing="5" parrying="6"/>
+		<mod val="10" shocking="5" bashing="6" parrying="8"/>
+		<mod val="11" shocking="5" bashing="7" parrying="10"/>
+		<mod val="12" shocking="6" bashing="8" parrying="11"/>
+		<mod val="13" shocking="6" bashing="9" parrying="12"/>
+		<mod val="14" shocking="7" bashing="10" parrying="13"/>
+		<mod val="15" shocking="7" bashing="11" parrying="15"/>
+		<mod val="16" shocking="8" bashing="12" parrying="16"/>
+		<mod val="17" shocking="8" bashing="13" parrying="17"/>
+		<mod val="18" shocking="9" bashing="14" parrying="18"/>
+		<mod val="19" shocking="9" bashing="15" parrying="19"/>
+		<mod val="20" shocking="10" bashing="15" parrying="20"/>
+		<mod val="21" shocking="11" bashing="16" parrying="21"/>
+		<mod val="22" shocking="12" bashing="17" parrying="22"/>
+		<mod val="23" shocking="13" bashing="18" parrying="23"/>
+		<mod val="24" shocking="14" bashing="19" parrying="24"/>
+		<mod val="25" shocking="15" bashing="20" parrying="25"/>
+		<mod val="26" shocking="16" bashing="21" parrying="26"/>
+		<mod val="27" shocking="17" bashing="22" parrying="27"/>
+		<mod val="28" shocking="18" bashing="23" parrying="28"/>
+		<mod val="29" shocking="19" bashing="24" parrying="29"/>
+		<mod val="30" shocking="20" bashing="25" parrying="30"/>
+		<mod val="31" shocking="22" bashing="26" parrying="31"/>
+		<mod val="32" shocking="24" bashing="27" parrying="32"/>
+		<mod val="33" shocking="26" bashing="28" parrying="33"/>
+		<mod val="34" shocking="28" bashing="29" parrying="34"/>
+		<mod val="35" shocking="30" bashing="30" parrying="35"/>
+		<mod val="36" shocking="32" bashing="31" parrying="36"/>
+		<mod val="37" shocking="34" bashing="32" parrying="37"/>
+		<mod val="38" shocking="36" bashing="33" parrying="38"/>
+		<mod val="39" shocking="38" bashing="34" parrying="39"/>
+		<mod val="40" shocking="40" bashing="35" parrying="40"/>
+		<mod val="41" shocking="41" bashing="36" parrying="41"/>
+		<mod val="42" shocking="42" bashing="37" parrying="42"/>
+		<mod val="43" shocking="43" bashing="38" parrying="43"/>
+		<mod val="44" shocking="44" bashing="39" parrying="44"/>
+		<mod val="45" shocking="45" bashing="40" parrying="45"/>
+		<mod val="46" shocking="46" bashing="41" parrying="46"/>
+		<mod val="47" shocking="47" bashing="42" parrying="47"/>
+		<mod val="48" shocking="48" bashing="43" parrying="48"/>
+		<mod val="49" shocking="49" bashing="44" parrying="49"/>
+		<mod val="50" shocking="50" bashing="45" parrying="50"/>
+		<mod val="51" shocking="50" bashing="45" parrying="50"/>
+		<mod val="52" shocking="50" bashing="45" parrying="50"/>
+		<mod val="53" shocking="50" bashing="45" parrying="50"/>
+		<mod val="54" shocking="50" bashing="45" parrying="50"/>
+		<mod val="55" shocking="50" bashing="45" parrying="50"/>
+		<mod val="56" shocking="50" bashing="45" parrying="50"/>
+		<mod val="57" shocking="50" bashing="45" parrying="50"/>
+		<mod val="58" shocking="50" bashing="45" parrying="50"/>
+		<mod val="59" shocking="50" bashing="45" parrying="50"/>
+		<mod val="60" shocking="50" bashing="45" parrying="50"/>
+		<mod val="61" shocking="50" bashing="45" parrying="50"/>
+		<mod val="62" shocking="50" bashing="45" parrying="50"/>
+		<mod val="63" shocking="50" bashing="45" parrying="50"/>
+		<mod val="64" shocking="50" bashing="45" parrying="50"/>
+		<mod val="65" shocking="50" bashing="45" parrying="50"/>
+		<mod val="66" shocking="50" bashing="45" parrying="50"/>
+		<mod val="67" shocking="50" bashing="45" parrying="50"/>
+		<mod val="68" shocking="50" bashing="45" parrying="50"/>
+		<mod val="69" shocking="50" bashing="45" parrying="50"/>
+		<mod val="70" shocking="50" bashing="45" parrying="50"/>
+		<mod val="71" shocking="50" bashing="45" parrying="50"/>
+		<mod val="72" shocking="50" bashing="45" parrying="50"/>
+		<mod val="73" shocking="50" bashing="45" parrying="50"/>
+		<mod val="74" shocking="50" bashing="45" parrying="50"/>
+		<mod val="75" shocking="50" bashing="45" parrying="50"/>
+		<mod val="76" shocking="50" bashing="45" parrying="50"/>
+		<mod val="77" shocking="50" bashing="45" parrying="50"/>
+		<mod val="78" shocking="50" bashing="45" parrying="50"/>
+		<mod val="79" shocking="50" bashing="45" parrying="50"/>
+		<mod val="80" shocking="50" bashing="45" parrying="50"/>
+		<mod val="81" shocking="50" bashing="45" parrying="50"/>
+		<mod val="82" shocking="50" bashing="45" parrying="50"/>
+		<mod val="83" shocking="50" bashing="45" parrying="50"/>
+		<mod val="84" shocking="50" bashing="45" parrying="50"/>
+		<mod val="85" shocking="50" bashing="45" parrying="50"/>
+		<mod val="86" shocking="50" bashing="45" parrying="50"/>
+		<mod val="87" shocking="50" bashing="45" parrying="50"/>
+		<mod val="88" shocking="50" bashing="45" parrying="50"/>
+		<mod val="89" shocking="50" bashing="45" parrying="50"/>
+		<mod val="90" shocking="50" bashing="45" parrying="50"/>
+		<mod val="91" shocking="50" bashing="45" parrying="50"/>
+		<mod val="92" shocking="50" bashing="45" parrying="50"/>
+		<mod val="93" shocking="50" bashing="45" parrying="50"/>
+		<mod val="94" shocking="50" bashing="45" parrying="50"/>
+		<mod val="95" shocking="50" bashing="45" parrying="50"/>
+		<mod val="96" shocking="50" bashing="45" parrying="50"/>
+		<mod val="97" shocking="50" bashing="45" parrying="50"/>
+		<mod val="98" shocking="50" bashing="45" parrying="50"/>
+		<mod val="99" shocking="50" bashing="45" parrying="50"/>
+		<mod val="100" shocking="50" bashing="45" parrying="50"/>
+	</weapon_mod>
+	<wiz_mod>
+		<mod val="0" mana_amount="0"/>
+		<mod val="1" mana_amount="100"/>
+		<mod val="2" mana_amount="250"/>
+		<mod val="3" mana_amount="500"/>
+		<mod val="4" mana_amount="750"/>
+		<mod val="5" mana_amount="1000"/>
+		<mod val="6" mana_amount="1250"/>
+		<mod val="7" mana_amount="1500"/>
+		<mod val="8" mana_amount="1750"/>
+		<mod val="9" mana_amount="2000"/>
+		<mod val="10" mana_amount="2250"/>
+		<mod val="11" mana_amount="2500"/>
+		<mod val="12" mana_amount="2750"/>
+		<mod val="13" mana_amount="3000"/>
+		<mod val="14" mana_amount="3250"/>
+		<mod val="15" mana_amount="3500"/>
+		<mod val="16" mana_amount="3650"/>
+		<mod val="17" mana_amount="3900"/>
+		<mod val="18" mana_amount="4400"/>
+		<mod val="19" mana_amount="4900"/>
+		<mod val="20" mana_amount="5400"/>
+		<mod val="21" mana_amount="5900"/>
+		<mod val="22" mana_amount="6400"/>
+		<mod val="23" mana_amount="6900"/>
+		<mod val="24" mana_amount="7400"/>
+		<mod val="25" mana_amount="7900"/>
+		<mod val="26" mana_amount="8400"/>
+		<mod val="27" mana_amount="8900"/>
+		<mod val="28" mana_amount="9400"/>
+		<mod val="29" mana_amount="9900"/>
+		<mod val="30" mana_amount="10400"/>
+		<mod val="31" mana_amount="10900"/>
+		<mod val="32" mana_amount="11400"/>
+		<mod val="33" mana_amount="11900"/>
+		<mod val="34" mana_amount="12400"/>
+		<mod val="35" mana_amount="12900"/>
+		<mod val="36" mana_amount="13400"/>
+		<mod val="37" mana_amount="13900"/>
+		<mod val="38" mana_amount="14400"/>
+		<mod val="39" mana_amount="14900"/>
+		<mod val="40" mana_amount="15400"/>
+		<mod val="41" mana_amount="15900"/>
+		<mod val="42" mana_amount="16400"/>
+		<mod val="43" mana_amount="16900"/>
+		<mod val="44" mana_amount="17400"/>
+		<mod val="45" mana_amount="17900"/>
+		<mod val="46" mana_amount="18400"/>
+		<mod val="47" mana_amount="18900"/>
+		<mod val="48" mana_amount="19400"/>
+		<mod val="49" mana_amount="19900"/>
+		<mod val="50" mana_amount="25000"/>
+	</wiz_mod>
+</basic>

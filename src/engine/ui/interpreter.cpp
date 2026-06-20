@@ -1056,7 +1056,6 @@ cpp_extern const struct command_info cmd_info[] =
 
 		// Команды крафтинга - для тестига пока уровня имма
 		{"mrlist", EPosition::kDead, do_list_make, kLvlBuilder, 0, 0},
-		{"mredit", EPosition::kDead, do_edit_make, kLvlBuilder, 0, 0},
 		{"сшить", EPosition::kStand, do_make_item, 0, MAKE_WEAR, 0},
 		{"выковать", EPosition::kStand, do_make_item, 0, MAKE_METALL, 0},
 		{"смастерить", EPosition::kStand, do_make_item, 0, MAKE_CRAFT, 0},
@@ -2447,8 +2446,6 @@ void nanny(DescriptorData *d, char *argument) {
 		case EConState::kTrigedit: trigedit_parse(d, argument);
 			break;
 
-		case EConState::kMredit: mredit_parse(d, argument);
-			break;
 
 		case EConState::kVedun: vedun::vedun_parse(d, argument);
 			break;

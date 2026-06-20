@@ -7,11 +7,20 @@
 #include "engine/core/conf.h"
 #include "engine/core/sysdep.h"
 #include "engine/structs/structs.h"
+#include "engine/boot/cfg_manager.h"
 
 void make_arena_corpse(CharData *ch, CharData *killer);
 ObjData *make_corpse(CharData *ch, CharData *killer = nullptr);
 
 namespace GlobalDrop {
+// Loads cfg/mechanics/global_drop.xml (the drop config) into the drop lists. Plain cfg_manager
+// loader: boot via init() (LoadCfg + kill-stat restore) and hot reload (reload globaldrop).
+class GlobalDropLoader : public cfg_manager::ICfgLoader {
+ public:
+	void Load(parser_wrapper::DataNode data) final;
+	void Reload(parser_wrapper::DataNode data) final;
+};
+
 void init();
 void save();
 bool check_mob(ObjData *corpse, CharData *ch);

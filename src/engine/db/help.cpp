@@ -570,11 +570,14 @@ std::string OutRecipiesHelp(ECharClass ch_class) {
 
 	out << "Список доступных рецептов:\r\n";
 	out2 << "\r\n&GРецепты, доступные после одного или нескольких перевоплощений:&n\r\n";
+	// issue.class-recipes: набор рецептов класса спрашиваем у самого класса.
+	const auto &recipe_class = MUD::Class(ch_class);
 	for (int sortpos = 0; sortpos <= top_imrecipes; sortpos++) {
-		if (!imrecipes[sortpos].classknow[to_underlying(ch_class)]) {
+		const auto *req = recipe_class.FindIngredientRecipe(imrecipes[sortpos].str_id);
+		if (!req) {
 				continue;
 		}
-		if (imrecipes[sortpos].remort > 0) {
+		if (req->remort > 0) {
 			skills_list2.push_back(imrecipes[sortpos].name);
 			continue;
 		}

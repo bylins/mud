@@ -25,7 +25,7 @@ bool IsLearningFailed(CharData *ch, ObjData *obj) {
 	addchance += (GET_OBJ_VAL(obj, 0) == EBook::kSpell) ? 0 : 10;
 
 	if (!obj->has_flag(EObjFlag::kNofail)
-		&& number(1, 100) > int_app[Posi(GetRealInt(ch))].spell_aknowlege + addchance) {
+		&& number(1, 100) > IntApp(Posi(GetRealInt(ch))).spell_aknowlege + addchance) {
 		return true;
 	}
 	return false;
@@ -146,20 +146,16 @@ void LearnReceiptBook(CharData *ch, ObjData *obj) {
 		SendMsgToChar("РЕЦЕПТ НЕ ОПРЕДЕЛЕН - сообщите Богам!\r\n", ch);
 		throw LearningError();
 	}
-	if (imrecipes[receipt_id].classknow[(int) ch->GetClass()] != kKnownRecipe) {
+	// issue.class-recipes: доступность рецепта - свойство класса (cfg/classes/pc_*.xml).
+	if (!MUD::Class(ch->GetClass()).FindIngredientRecipe(imrecipes[receipt_id].str_id)) {
 		throw NotAvailable();
 	}
 	im_rskill *receipt_skill = im_get_char_rskill(ch, receipt_id);
 	if (receipt_skill) {
 		throw AlreadyKnown(receipt_name);
 	}
-	if (MAX(GET_OBJ_VAL(obj, 2), imrecipes[receipt_id].level) <= GetRealLevel(ch) &&
-		imrecipes[receipt_id].remort <= remort::GetRealRemort(ch)) {
-		if (imrecipes[receipt_id].level == -1 || imrecipes[receipt_id].remort == -1) {
-			SendMsgToChar("Некорректная запись рецепта для вашего класса - сообщите Богам.\r\n", ch);
-			throw LowRemortOrLvl();
-		}
-	}
+	// Класс владеет рецептом => уровень/реморт всегда корректны (прежняя проверка на "-1",
+	// сигнализировавшая о битой записи class.recipes.lst, больше не нужна).
 	if (IsLearningFailed(ch, obj)) {
 		throw LearningFail();
 	}

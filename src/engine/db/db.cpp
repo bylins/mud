@@ -180,7 +180,6 @@ int CountMobsInRoom(int m_num, int r_num);
 void SetZoneRnumForObjects();
 void SetZoneRnumForMobiles();
 void SetZoneRnumForTriggers();
-void InitBasicValues();
 int ReadCrashTimerFile(std::size_t index, int temp);
 int LoadExchange();
 void SetPrecipitations(int *wtype, int startvalue, int chance1, int chance2, int chance3);
@@ -724,11 +723,11 @@ void BootMudDataBase() {
 
 	boot_profiler.next_step("Loading daily quests");
 	log("Loading daily quests.");
-	DailyQuest::LoadFromFile();
+	MUD::CfgManager().LoadCfg("daily_quest");   // issue.daily-quest: cfg/quests/daily_quest.xml
 
 	boot_profiler.next_step("Loading undecayable object criterions");
 	log("Loading undecayable object criterions.");
-	stable_objs::LoadCriterionsCfg();
+	MUD::CfgManager().LoadCfg("stable_objs");
 
 	boot_profiler.next_step("Loading ingredients magic");
 	log("Booting IM");
@@ -749,13 +748,9 @@ void BootMudDataBase() {
 	MUD::CfgManager().LoadCfg("entity_names");   // issue.thing-names: names before mob_classes/races/zone_types
 	MUD::CfgManager().LoadCfg("zone_types");
 
-	boot_profiler.next_step("Loading insert_wanted.lst");
-	log("Booting insert_wanted.lst.");
-	iwg.init();
-
 	boot_profiler.next_step("Loading gurdians");
 	log("Load guardians.");
-	city_guards::LoadGuardians();
+	MUD::CfgManager().LoadCfg("guards");   // issue.guards: cfg/mechanics/guards.xml
 
 	boot_profiler.next_step("Loading world");
 	GameLoader::BootWorld();
@@ -763,10 +758,6 @@ void BootMudDataBase() {
 	boot_profiler.next_step("Loading stuff load table");
 	log("Booting stuff load table.");
 	oload_table.init();
-
-	boot_profiler.next_step("Loading setstuff table");
-	log("Booting setstuff table.");
-	ObjData::InitSetTable();
 
 	boot_profiler.next_step("Loading item levels");
 	log("Init item levels.");
@@ -802,8 +793,8 @@ void BootMudDataBase() {
 
 	boot_profiler.next_step("Reading skills variables.");
 	log("Reading skills variables.");
-	InitMiningVars();
-	InitJewelryVars();
+	MUD::CfgManager().LoadCfg("digging");
+	MUD::CfgManager().LoadCfg("jewelry");
 
 	boot_profiler.next_step("Sorting command list");
 	log("Sorting command list.");
@@ -837,11 +828,12 @@ void BootMudDataBase() {
 
 	boot_profiler.next_step("Loading basic values");
 	log("Booting basic values");
-	InitBasicValues();
+	MUD::CfgManager().LoadCfg("basic");
 
 	boot_profiler.next_step("Loading grouping parameters");
 	log("Booting grouping parameters");
-	if (grouping.init()) {
+	MUD::CfgManager().LoadCfg("group_exp_handicap");
+	if (!grouping.loaded()) {
 		fatal_log("Failed to load grouping parameters");
 	}
 
@@ -888,7 +880,7 @@ void BootMudDataBase() {
 
 	boot_profiler.next_step("Loading made items");
 	log("Booting maked items");
-	init_make_items();
+	MUD::CfgManager().LoadCfg("item_creation");
 
 	boot_profiler.next_step("Loading exchange");
 	log("Booting exchange");
@@ -938,7 +930,7 @@ void BootMudDataBase() {
 
 	boot_profiler.next_step("Loading celebrates");
 	log("Load Celebrates.");
-	celebrates::Load();
+	MUD::CfgManager().LoadCfg("celebrates");   // issue.celebrates: cfg/mechanics/celebrates.xml
 
 	// Триггера комнат должны быть подключены ДО первого ResetZone, иначе
 	// reset_wtrigger / random_wtrigger не найдут их в SCRIPT(room) и не
@@ -1018,19 +1010,19 @@ void BootMudDataBase() {
 
 	// сначала сеты, стата мобов, потом дроп сетов
 	boot_profiler.next_step("Loading object sets/mob_stat/drop_sets lists");
-	obj_sets::load();
+	MUD::CfgManager().LoadCfg("obj_sets");   // issue.obj-sets: cfg/mechanics/obj_sets.xml
 	log("Load mob_stat.xml");
 	mob_stat::Load();
 	log("Init SetsDrop lists.");
 	SetsDrop::init();
 
-	boot_profiler.next_step("Loading noob_help.xml");
-	log("Load noob_help.xml");
-	Noob::init();
+	boot_profiler.next_step("Loading noob.xml");
+	log("Load noob.xml");
+	MUD::CfgManager().LoadCfg("noob");
 
 	boot_profiler.next_step("Loading reset_stats.xml");
 	log("Load reset_stats.xml");
-	stats_reset::init();
+	MUD::CfgManager().LoadCfg("reset_stats");
 
 	boot_profiler.next_step("Loading mail.xml");
 	log("Load mail.xml");
@@ -1039,7 +1031,7 @@ void BootMudDataBase() {
 	// загрузка кейсов
 	boot_profiler.next_step("Loading treasure cases");
 	log("Loading treasure cases.");
-	treasure_cases::LoadTreasureCases();
+	MUD::CfgManager().LoadCfg("treasure_cases");   // issue.lib-template: cfg/mechanics/cases.xml
 
 	// справка должна иниться после всего того, что может в нее что-то добавить
 	boot_profiler.next_step("Reloading help system");

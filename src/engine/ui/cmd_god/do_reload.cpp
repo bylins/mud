@@ -55,8 +55,9 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			"  cfg data : abilities skills spells feats classes mobclasses guilds currencies\r\n"
 			"             ztypes runes mobraces objsets\r\n"
 			"  messages : spellmsg skillmsg hitmsg\r\n"
-			"  systems  : portals imagic oloadtable setstuff specials schedule clan proxy boards\r\n"
+			"  systems  : portals imagic oloadtable specials schedule clan proxy boards\r\n"
 			"             globaldrop offtop shop named celebrates setsdrop remort daily resetstats\r\n"
+			"             digging guards jewelry makeitems basic cases\r\n"
 			"  text     : immlist credits motd rules help info policy handbook background namerules\r\n"
 			"             greetings xhelp socials noobhelp titles emails privilege\r\n"
 			"  depot <char-name>\r\n", ch);
@@ -87,22 +88,29 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		MUD::Runestones().SpawnStones();   // phase 3: (re)place physical stones for any new rooms
 		LoadSheduledReboot();
 		oload_table.init();
-		ObjData::InitSetTable();
 		MUD::CfgManager().ReloadCfg("mob_races");
+		MUD::CfgManager().ReloadCfg("stable_objs");
+		MUD::CfgManager().ReloadCfg("group_exp_handicap");
 		GlobalDrop::init();
 		offtop_system::Init();
-		celebrates::Load();
+		MUD::CfgManager().ReloadCfg("celebrates");   // issue.celebrates
 		HelpSystem::reload_all();
-		Noob::init();
-		stats_reset::init();
+		MUD::CfgManager().ReloadCfg("noob");
+		MUD::CfgManager().ReloadCfg("reset_stats");
+		MUD::CfgManager().ReloadCfg("digging");
+		MUD::CfgManager().ReloadCfg("jewelry");
+		MUD::CfgManager().ReloadCfg("item_creation");
+		MUD::CfgManager().ReloadCfg("basic");
 		Bonus::bonus_log_load();
-		DailyQuest::LoadFromFile();
+		MUD::CfgManager().ReloadCfg("daily_quest");   // issue.daily-quest
 	} else if (!str_cmp(arg, "portals")) {
 		MUD::CfgManager().ReloadCfg("rune_stone_messages");
 		MUD::CfgManager().ReloadCfg("rune_stones");
 		MUD::Runestones().SpawnStones();   // phase 3: (re)place physical stones for any new rooms
 	} else if (!str_cmp(arg, "abilities")) {
 		MUD::CfgManager().ReloadCfg("abilities");
+	} else if (!str_cmp(arg, "stableobjs")) {
+		MUD::CfgManager().ReloadCfg("stable_objs");
 	} else if (!str_cmp(arg, "skills")) {
 		MUD::CfgManager().ReloadCfg("skills");
 	} else if (!str_cmp(arg, "spells")) {
@@ -140,10 +148,7 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		MUD::CfgManager().ReloadCfg("rune_spells");
 	else if (!str_cmp(arg, "oloadtable"))
 		oload_table.init();
-	else if (!str_cmp(arg, "setstuff")) {
-		ObjData::InitSetTable();
-		HelpSystem::reload(HelpSystem::STATIC);
-	} else if (!str_cmp(arg, "immlist"))
+	else if (!str_cmp(arg, "immlist"))
 		AllocateBufferForFile(IMMLIST_FILE, &immlist);
 	else if (!str_cmp(arg, "credits"))
 		AllocateBufferForFile(CREDITS_FILE, &credits);
@@ -219,6 +224,8 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 	} else if (!str_cmp(arg, "globaldrop")) {
 		GlobalDrop::init();
+	} else if (!str_cmp(arg, "grouping")) {
+		MUD::CfgManager().ReloadCfg("group_exp_handicap");
 	} else if (!str_cmp(arg, "offtop")) {
 		offtop_system::Init();
 	} else if (!str_cmp(arg, "shop")) {
@@ -226,7 +233,7 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	} else if (!str_cmp(arg, "named")) {
 		NamedStuff::load();
 	} else if (!str_cmp(arg, "celebrates")) {
-		celebrates::Load();
+		MUD::CfgManager().ReloadCfg("celebrates");
 	} else if (!str_cmp(arg, "setsdrop") && ch->IsFlagged(EPrf::kCoderinfo)) {
 		skip_spaces(&argument);
 		if (*argument && is_number(argument)) {
@@ -235,13 +242,27 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			SetsDrop::reload();
 		}
 	} else if (!str_cmp(arg, "noobhelp")) {
-		Noob::init();
+		MUD::CfgManager().ReloadCfg("noob");
 	} else if (!str_cmp(arg, "resetstats")) {
-		stats_reset::init();
+		MUD::CfgManager().ReloadCfg("reset_stats");
+	} else if (!str_cmp(arg, "digging")) {
+		MUD::CfgManager().ReloadCfg("digging");
+	} else if (!str_cmp(arg, "guards")) {
+		MUD::CfgManager().ReloadCfg("guards");
+	} else if (!str_cmp(arg, "jewelry")) {
+		MUD::CfgManager().ReloadCfg("jewelry");
+	} else if (!str_cmp(arg, "makeitems")) {
+		MUD::CfgManager().ReloadCfg("item_creation");
+	} else if (!str_cmp(arg, "basic")) {
+		MUD::CfgManager().ReloadCfg("basic");
 	} else if (!str_cmp(arg, "objsets")) {
-		obj_sets::load();
+		MUD::CfgManager().ReloadCfg("obj_sets");
+	} else if (!str_cmp(arg, "cases")) {
+		MUD::CfgManager().ReloadCfg("treasure_cases");
 	} else if (!str_cmp(arg, "daily")) {
-		DailyQuest::LoadFromFile(ch);
+		MUD::CfgManager().ReloadCfg("daily_quest");
+		SendMsgToChar(DailyQuest::GetLastLoadMessage(), ch);
+		SendMsgToChar("\r\n", ch);
 	} else {
 		SendMsgToChar("Неверный параметр для перезагрузки файлов.\r\n", ch);
 		return;

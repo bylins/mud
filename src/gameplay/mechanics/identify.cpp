@@ -155,22 +155,19 @@ switch (obj->get_type()) {
 
 			case EBook::kReceipt: drndice = im_get_recipe(GET_OBJ_VAL(obj, 1));
 				if (drndice >= 0) {
-					drsdice = std::max(GET_OBJ_VAL(obj, 2), imrecipes[drndice].level);
-					int count = imrecipes[drndice].remort;
-					if (imrecipes[drndice].classknow[to_underlying(ch->GetClass())] != kKnownRecipe)
-						drsdice = kLvlImplementator;
-					sprintf(buf, "содержит рецепт отвара     : \"%s\"\r\n", imrecipes[drndice].name);
-					SendMsgToChar(buf, ch);
-					if (drsdice == -1 || count == -1) {
-						SendMsgToChar(kColorBoldRed, ch);
-						SendMsgToChar("Некорректная запись рецепта для вашего класса - сообщите Богам.\r\n", ch);
-						SendMsgToChar(kColorNrm, ch);
-					} else if (drsdice == kLvlImplementator) {
-						sprintf(buf, "уровень изучения (количество ремортов) : %d (--)\r\n", drsdice);
+					// issue.class-recipes: требования к рецепту берём у класса игрока.
+					{
+						const auto *req = MUD::Class(ch->GetClass()).FindIngredientRecipe(imrecipes[drndice].str_id);
+						sprintf(buf, "содержит рецепт отвара     : \"%s\"\r\n", imrecipes[drndice].name);
 						SendMsgToChar(buf, ch);
-					} else {
-						sprintf(buf, "уровень изучения (количество ремортов) : %d (%d)\r\n", drsdice, count);
-						SendMsgToChar(buf, ch);
+						if (!req) {
+							sprintf(buf, "уровень изучения (количество ремортов) : %d (--)\r\n", kLvlImplementator);
+							SendMsgToChar(buf, ch);
+						} else {
+							drsdice = std::max(GET_OBJ_VAL(obj, 2), req->level);
+							sprintf(buf, "уровень изучения (количество ремортов) : %d (%d)\r\n", drsdice, req->remort);
+							SendMsgToChar(buf, ch);
+						}
 					}
 				}
 				break;

@@ -1383,7 +1383,7 @@ void set_mob_skills_flags(CharData *ch) {
 }
 
 int calc_initiative(CharData *ch, bool mode) {
-	int initiative = size_app[GET_POS_SIZE(ch)].initiative;
+	int initiative = SizeApp(GET_POS_SIZE(ch)).initiative;
 	if (mode) //Добавим булевую переменную, чтобы счет все выдавал постоянное значение, а не каждый раз рандом
 	{
 		int i = number(1, 10);
