@@ -2591,13 +2591,13 @@ void find_replacement(void *go,
 			}
 		} else if (!str_cmp(field, "Currency")) {
 			// %actor.Currency(<text_id>)% - кол-во любой валюты на руках (валюта задаётся id-аргументом).
-			const auto &money_cur = currencies::FindByTextIdNoCase(subfield);
-			if (money_cur.GetId() < 0) {
+			const auto *money_cur = &currencies::FindByTextIdNoCase(subfield);
+			if (money_cur->GetId() < 0) {
 				char errbuf[kMaxInputLength];
 				snprintf(errbuf, sizeof(errbuf), "actor.Currency: unknown currency '%s'!", subfield);
 				trig_log(trig, errbuf);
 			}
-			snprintf(str, str_size, "%ld", money_cur.GetId() >= 0 ? currencies::GetHand(*mob, money_cur.GetTextId()) : 0L);
+			snprintf(str, str_size, "%ld", money_cur->GetId() >= 0 ? currencies::GetHand(*mob, money_cur->GetTextId()) : 0L);
 		} else if (!str_cmp(field, "AddCurrency")) {
 			// %actor.AddCurrency(<text_id>, <amount>)% - начислить (минус снимает). Слава и immortal-валюты не начисляются (страж откажет).
 			auto args = utils::Split(subfield, ',');
@@ -5762,8 +5762,8 @@ void do_dg_add_currency(void * /*go*/, Script * /*sc*/, Trigger *trig, int/* scr
 		trig_log(trig, buf2);
 		return;
 	}
-	const auto &cur = currencies::FindByTextIdNoCase(cur_id);
-	if (cur.GetId() < 0) {
+	const auto *cur = &currencies::FindByTextIdNoCase(cur_id);
+	if (cur->GetId() < 0) {
 		snprintf(buf2, sizeof(buf2), "dg_addcurrency: unknown currency '%s'!", cur_id);
 		trig_log(trig, buf2);
 		return;
@@ -5774,7 +5774,7 @@ void do_dg_add_currency(void * /*go*/, Script * /*sc*/, Trigger *trig, int/* scr
 		trig_log(trig, buf2);
 		return;
 	}
-	currencies::AddHand(*ch, cur.GetTextId(), atoi(value_c));
+	currencies::AddHand(*ch, cur->GetTextId(), atoi(value_c));
 }
 
 int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
