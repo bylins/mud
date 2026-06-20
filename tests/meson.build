@@ -16,6 +16,7 @@ test_sources = files(
     'vedun.scheme.cpp',
     'vedun.datanode_mutation.cpp',
     'vedun.element_find.cpp',
+    'msg_container.cdata.cpp',
     'guilds.loader.cpp',
     'socials.loader.cpp',
     'subcmd_resolver.cpp',
