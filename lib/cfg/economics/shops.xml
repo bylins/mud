@@ -1,44 +1,768 @@
 <?xml version="1.0" encoding="koi8-r"?>
+
 <shops>
-	<shop currency="kKuna" id="MagicShop" profit="30" waste_time_min="0" can_buy="false">
+	<shop id="DominationShop" currency="kNogata" profit="20" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="15204" />
+		<item_set id="Domination" />
+	</shop>
+	<shop id="GemsShop" currency="kKuna" profit="20" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="1900" />
+		<item_set id="Gems" />
+	</shop>
+	<shop id="SpellbooknyShop" currency="kMagicIce" profit="20" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="82951" />
+		<item_set id="SpellsBookNy" />
+	</shop>
+	<shop id="RunesShop" currency="kMagicIce" profit="20" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="82908" />
+		<item_set id="RunesNyShop" />
+	</shop>
+	<shop id="RunesShop2" currency="kMagicIce" profit="20" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="82952" />
+		<item_set id="NySets" />
+	</shop>
+	<shop id="BandageShop" currency="kKuna" profit="20" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="1901" />
+		<item_set id="Bandage" />
+		<item_set id="Gems" />
+		<item_set id="HardScroll" />
+	</shop>
+	<shop id="HorseShop" currency="kKuna" profit="0" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="5004" />
+		<mob mob_vnum="49921" />
+		<mob mob_vnum="49954" />
+		<mob mob_vnum="60013" />
+		<mob mob_vnum="76005" />
+		<item_set id="Horse" />
+	</shop>
+	<!-- ========= МАГАЗИНЫ СВИТКОВ И ЗЕЛИЙ ========= -->
+	<shop id="MagicShop" currency="kKuna" profit="30" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="31116" />
+		<mob mob_vnum="85607" />
+		<mob mob_vnum="85502" template="bu" />
+		<mob mob_vnum="85110" />
+		<mob mob_vnum="79006" template="zao" />
+		<mob mob_vnum="77704" />
+		<mob mob_vnum="77605" template="rk" />
+		<mob mob_vnum="77507" />
+		<mob mob_vnum="77033" />
+		<mob mob_vnum="76607" />
+		<mob mob_vnum="76033" />
+		<mob mob_vnum="75006" />
+		<mob mob_vnum="75007" />
+		<mob mob_vnum="73008" />
+		<mob mob_vnum="72013" />
+		<mob mob_vnum="71306" />
+		<mob mob_vnum="69001" />
+		<mob mob_vnum="68013" />
+		<mob mob_vnum="66005" />
+		<mob mob_vnum="64024" />
+		<mob mob_vnum="63015" />
+		<mob mob_vnum="62008" />
+		<mob mob_vnum="61010" />
+		<mob mob_vnum="60203" />
+		<mob mob_vnum="60002" />
+		<mob mob_vnum="58106" />
+		<mob mob_vnum="58009" />
+		<mob mob_vnum="49909" />
+		<mob mob_vnum="49818" />
+		<mob mob_vnum="42104" />
+		<mob mob_vnum="35711" />
+		<mob mob_vnum="35604" />
+		<mob mob_vnum="35009" />
+		<mob mob_vnum="34415" />
+		<mob mob_vnum="32416" />
+		<mob mob_vnum="31206" />
+		<mob mob_vnum="40602" />
+		<mob mob_vnum="30405" />
+		<mob mob_vnum="30215" />
+		<mob mob_vnum="27003" />
+		<mob mob_vnum="25613" />
+		<mob mob_vnum="25301" />
+		<mob mob_vnum="25005" />
+		<mob mob_vnum="24005" />
+		<mob mob_vnum="23710" />
+		<mob mob_vnum="21307" />
+		<mob mob_vnum="21207" />
+		<mob mob_vnum="21105" template="tz" />
+		<mob mob_vnum="21000" />
+		<mob mob_vnum="20903" template="rsp" />
+		<mob mob_vnum="18207" />
+		<mob mob_vnum="16002" />
+		<mob mob_vnum="15905" />
+		<mob mob_vnum="15801" />
+		<mob mob_vnum="14601" />
+		<mob mob_vnum="13907" />
+		<mob mob_vnum="13518" />
+		<mob mob_vnum="13401" />
+		<mob mob_vnum="13107" />
+		<mob mob_vnum="12606" template="nd" />
+		<mob mob_vnum="12510" template="os" />
+		<mob mob_vnum="19903" />
+		<mob mob_vnum="9019" />
+		<mob mob_vnum="8019" />
+		<mob mob_vnum="7015" />
+		<mob mob_vnum="6030" />
+		<mob mob_vnum="5007" />
 		<mob mob_vnum="4026" />
-		<item_set id="BasePotions"/>
-		<item_set id="BasePotionBottles"/> 
-		<item_set id="BaseSpellingrs"/>
-		<item_set id="BaseScrolls"/>
-		<item_set id="BaseRunes"/>
-		<item_set id="BasePoisons"/>
-	    </shop>
-	<shop currency="kKuna" id="FoodShop2" profit="20" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="82909" />
+		<mob mob_vnum="98609" />
+		<item_set id="BasePotions" />
+		<item_set id="BasePotionBottles" />
+		<item_set id="BaseSpellingrs" />
+		<item_set id="BaseScrolls" />
+		<item_set id="BaseRunes" />
+		<item_set id="BasePoisons" />
+	</shop>
+	<shop id="HryvShop1" currency="kCopperGrivna" profit="20" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="40501" />
+		<item_set id="HryvNminiset" />
+	</shop>
+	<shop id="HryvShop2" currency="kCopperGrivna" profit="20" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="40506" />
+		<item_set id="HryvNminiset2" />
+	</shop>
+	<shop id="HryvShop3" currency="kCopperGrivna" profit="20" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="40507" />
+		<item_set id="HryvNminiset3" />
+	</shop>
+	<shop id="AdditionalMagicShop" currency="kKuna" profit="20" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="63600" />
+		<mob mob_vnum="27029" />
+		<mob mob_vnum="13525" />
+		<item_set id="BasePotions" />
+		<item_set id="BaseSpellingrs" />
+		<item_set id="BaseScrolls" />
+		<item_set id="UpRunes" />
+		<item_set id="AdditionalPotions" />
+		<item_set id="AdditionalScrolls" />
+	</shop>
+	<!-- ========= МАГИЗИНЫ С ЕДОЙ ========= -->
+	<!-- Базовый городской (клановый) магазин еды -->
+	<shop id="FoodShop1" currency="kKuna" profit="45" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="31125" />
+		<mob mob_vnum="85608" />
+		<mob mob_vnum="79003" />
+		<mob mob_vnum="77703" />
+		<mob mob_vnum="77000" />
+		<mob mob_vnum="75003" />
+		<mob mob_vnum="73014" />
+		<mob mob_vnum="72007" />
+		<mob mob_vnum="85508" />
+		<mob mob_vnum="77509" />
+		<mob mob_vnum="68012" />
+		<mob mob_vnum="66004" />
+		<mob mob_vnum="63606" />
+		<mob mob_vnum="64006" />
+		<mob mob_vnum="63009" />
+		<mob mob_vnum="62001" />
+		<mob mob_vnum="60012" />
+		<mob mob_vnum="58010" />
+		<mob mob_vnum="49901" />
+		<mob mob_vnum="49806" />
+		<mob mob_vnum="42105" />
+		<mob mob_vnum="31204" />
+		<mob mob_vnum="30408" />
+		<mob mob_vnum="35712" />
+		<mob mob_vnum="27077" />
+		<mob mob_vnum="25308" />
+		<mob mob_vnum="40606" />
+		<mob mob_vnum="25000" />
+		<mob mob_vnum="24057" />
+		<mob mob_vnum="23717" />
+		<mob mob_vnum="21209" template="htz" />
+		<mob mob_vnum="21102" template="tz" />
+		<mob mob_vnum="21004" />
+		<mob mob_vnum="18203" />
+		<mob mob_vnum="16006" />
+		<mob mob_vnum="16000" />
+		<mob mob_vnum="15904" />
+		<mob mob_vnum="15800" />
+		<mob mob_vnum="14616" />
+		<mob mob_vnum="13909" />
+		<mob mob_vnum="13514" />
+		<mob mob_vnum="13403" />
+		<mob mob_vnum="13109" />
+		<mob mob_vnum="12604" />
+		<mob mob_vnum="12511" />
+		<mob mob_vnum="19900" />
+		<mob mob_vnum="98610" />
+		<mob mob_vnum="98421" />
+		<item_set id="StandartFoodBread" />
+		<item_set id="StandartFoodPone" />
+		<item_set id="StandartFoodConfectionery" />
+		<item_set id="StandartFoodPies" />
+		<item_set id="StandartFoodPancakes" />
+		<item_set id="StandartFoodMeat" />
+		<item_set id="StandartFoodMeals2" />
+		<item_set id="StandartFoodBeverages" />
+		<item_set id="StandartFoodAlcoholicBeverages" />
+		<item_set id="StandartFoodSpirits" />
+	</shop>
+	<!-- Базовый городской (клановый) магазин еды Вариант 2 -->
+	<shop id="FoodShop12" currency="kKuna" profit="45" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="20906" template="rsp" />
+		<item_set id="StandartFoodBerries" />
+		<item_set id="StandartFoodBread" />
+		<item_set id="StandartFoodPone" />
+		<item_set id="StandartFoodConfectionery" />
+		<item_set id="StandartFoodPies" />
+		<item_set id="StandartFoodPancakes" />
+		<item_set id="StandartFoodMeat" />
+		<item_set id="StandartFoodMeals2" />
+		<item_set id="StandartFoodBeverages" />
+		<item_set id="StandartFoodAlcoholicBeverages" />
+	</shop>
+	<!-- Деревенская харчевня -->
+	<shop id="FoodShop2" currency="kKuna" profit="20" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="76609" />
+		<mob mob_vnum="62202" />
+		<mob mob_vnum="62004" />
+		<mob mob_vnum="61004" />
+		<mob mob_vnum="42923" />
+		<mob mob_vnum="35007" />
+		<mob mob_vnum="34410" />
+		<mob mob_vnum="32403" />
+		<mob mob_vnum="30214" />
+		<mob mob_vnum="25612" />
+		<mob mob_vnum="9014" />
+		<mob mob_vnum="8014" />
+		<mob mob_vnum="7022" />
+		<mob mob_vnum="6001" />
+		<mob mob_vnum="5009" />
 		<mob mob_vnum="4009" />
-		<item_set id="StandartFoodBread"/>
-		<item_set id="StandartFoodBerries"/>
-		<item_set id="StandartFoodVegetables"/>
-		<item_set id="StandartFoodMushrooms"/>
-		<item_set id="StandartFoodFish"/>
-		<item_set id="StandartFoodCheapMeals"/>
-		<item_set id="StandartFoodCereals"/>
-		<item_set id="StandartFoodBeverages"/>
-		<item_set id="StandartFoodSpirits"/>
-	    </shop>
-	<shop currency="kKuna" id="FoodShop3" profit="30" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="82914" />
+		<item_set id="StandartFoodBread" />
+		<item_set id="StandartFoodBerries" />
+		<item_set id="StandartFoodVegetables" />
+		<item_set id="StandartFoodMushrooms" />
+		<item_set id="StandartFoodFish" />
+		<item_set id="StandartFoodCheapMeals" />
+		<item_set id="StandartFoodCereals" />
+		<item_set id="StandartFoodBeverages" />
+		<item_set id="StandartFoodSpirits" />
+	</shop>
+	<!-- Притон (только выпивка и закуска) -->
+	<shop id="FoodShop3" currency="kKuna" profit="30" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="93606" />
+		<mob mob_vnum="75001" />
+		<mob mob_vnum="71305" />
+		<mob mob_vnum="69003" />
+		<mob mob_vnum="62005" />
+		<mob mob_vnum="60201" />
+		<mob mob_vnum="50101" />
+		<mob mob_vnum="27004" />
+		<mob mob_vnum="24009" />
 		<mob mob_vnum="4024" />
-		<item_set id="StandartFoodSnacks"/>
-		<item_set id="StandartFoodAlcoholicBeverages"/>
-		<item_set id="StandartFoodSpirits"/>
-	    </shop>
-	<shop currency="kKuna" id="ClothingShopLowLevel" profit="20" waste_time_min="0">
+		<item_set id="StandartFoodSnacks" />
+		<item_set id="StandartFoodAlcoholicBeverages" />
+		<item_set id="StandartFoodSpirits" />
+	</shop>
+	<!-- Дорогая столичная харчевня -->
+	<shop id="FoodShop4" currency="kKuna" profit="50" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="49901" />
+		<item_set id="StandartFoodBread" />
+		<item_set id="StandartFoodPone" />
+		<item_set id="StandartFoodConfectionery" />
+		<item_set id="StandartFoodPies" />
+		<item_set id="StandartFoodPancakes" />
+		<item_set id="StandartFoodFruits" />
+		<item_set id="StandartFoodMeat" />
+		<item_set id="StandartFoodMeals1" />
+		<item_set id="StandartFoodEliteMeals" />
+		<item_set id="StandartFoodBeverages" />
+		<item_set id="StandartFoodAlcoholicBeverages" />
+		<item_set id="StandartFoodSpirits" />
+	</shop>
+	<!-- Пекарня (магазин хлеба) -->
+	<shop id="FoodShopBread" currency="kKuna" profit="50" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="27101" />
+		<item_set id="StandartFoodBread" />
+		<item_set id="StandartFoodPone" />
+		<item_set id="StandartFoodConfectionery" />
+		<item_set id="StandartFoodPies" />
+	</shop>
+	<!-- Магазин пирожков -->
+	<shop id="FoodShopPies" currency="kKuna" profit="50" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="50115" />
+		<item_set id="StandartFoodPies" />
+	</shop>
+	<!-- ========= МАГАЗИНЫ С БРОНЕЙ И ЭКИПИРОВКОЙ ========= -->
+	<!-- магазин кожи и ткани - низкий уровень -->
+	<shop id="ClothingShopLowLevel" currency="kKuna" profit="20" waste_time_min="0">
+		<mob mob_vnum="9022" />
+		<mob mob_vnum="8022" />
+		<mob mob_vnum="7021" />
+		<mob mob_vnum="7020" />
+		<mob mob_vnum="6009" />
+		<mob mob_vnum="5011" />
 		<mob mob_vnum="4055" />
 		<mob mob_vnum="4025" />
-		<item_set id="StandartClothingLowLevel"/>
-		<item_set id="StandartLeatherLowLevel"/>
-		<item_set id="StandartItemsLowLevel"/>
-	    </shop>
-	<shop currency="kKuna" id="ArmorAndWeaponShopLowLevel" profit="20" waste_time_min="0">
+		<item_set id="StandartClothingLowLevel" />
+		<item_set id="StandartLeatherLowLevel" />
+		<item_set id="StandartItemsLowLevel" />
+	</shop>
+	<!-- магазин кожи и ткани - средний уровень -->
+	<shop id="ClothingShopMiddleLevel" currency="kKuna" profit="40" waste_time_min="0">
+		<mob mob_vnum="93601" />
+		<mob mob_vnum="76606" />
+		<mob mob_vnum="60202" />
+		<mob mob_vnum="27010" />
+		<mob mob_vnum="24006" />
+		<mob mob_vnum="24004" />
+		<item_set id="StandartClothingMiddleLevel" />
+		<item_set id="StandartLeatherMiddleLevel" />
+		<item_set id="StandartItemsMiddleLevel" />
+		<item_set id="BaseBowMaterials" />
+	</shop>
+	<!-- магазин кожи и ткани - высокий уровень и кланы -->
+	<shop id="ClothingShopHighLevel" currency="kKuna" profit="30" waste_time_min="0">
+		<mob mob_vnum="31115" />
+		<mob mob_vnum="85609" />
+		<mob mob_vnum="85503" template="bu" />
+		<mob mob_vnum="85503" />
+		<mob mob_vnum="79007" template="zao" />
+		<mob mob_vnum="77705" />
+		<mob mob_vnum="77602" template="rk" />
+		<mob mob_vnum="77506" />
+		<mob mob_vnum="77032" />
+		<mob mob_vnum="76032" />
+		<mob mob_vnum="75008" />
+		<mob mob_vnum="73013" />
+		<mob mob_vnum="72010" />
+		<mob mob_vnum="71307" />
+		<mob mob_vnum="68001" />
+		<mob mob_vnum="66000" />
+		<mob mob_vnum="63601" />
+		<mob mob_vnum="63017" />
+		<mob mob_vnum="62007" />
+		<mob mob_vnum="60001" />
+		<mob mob_vnum="58104" />
+		<mob mob_vnum="58004" />
+		<mob mob_vnum="49925" />
+		<mob mob_vnum="49819" />
+		<mob mob_vnum="42103" />
+		<mob mob_vnum="35703" />
+		<mob mob_vnum="35602" />
+		<mob mob_vnum="35010" />
+		<mob mob_vnum="34414" />
+		<mob mob_vnum="31201" />
+		<mob mob_vnum="30404" template="lb" />
+		<mob mob_vnum="30208" />
+		<mob mob_vnum="25313" />
+		<mob mob_vnum="25003" />
+		<mob mob_vnum="23702" />
+		<mob mob_vnum="21306" />
+		<mob mob_vnum="21206" template="htz" />
+		<mob mob_vnum="21119" template="tz" />
+		<mob mob_vnum="21025" template="vs" />
+		<mob mob_vnum="20953" template="rsp" />
+		<mob mob_vnum="18205" />
+		<mob mob_vnum="15920" />
+		<mob mob_vnum="15802" />
+		<mob mob_vnum="13906" />
+		<mob mob_vnum="14609" />
+		<mob mob_vnum="13517" />
+		<mob mob_vnum="13409" />
+		<mob mob_vnum="13106" />
+		<mob mob_vnum="25316" />
+		<mob mob_vnum="40612" />
+		<mob mob_vnum="12649" />
+		<mob mob_vnum="12505" template="os" />
+		<mob mob_vnum="19908" />
+		<mob mob_vnum="85107" />
+		<mob mob_vnum="82910" />
+		<mob mob_vnum="98607" />
+		<item_set id="StandartClothingHighLevel" />
+		<item_set id="StandartLeatherHighLevel" />
+		<item_set id="StandartItemsHighLevel" />
+		<item_set id="BaseBowMaterials" />
+	</shop>
+	<!-- магазин металлической брони, оружия и инструментов - низкий уровень -->
+	<shop id="ArmorAndWeaponShopLowLevel" currency="kKuna" profit="20" waste_time_min="0">
+		<mob mob_vnum="9004" />
+		<mob mob_vnum="8004" />
+		<mob mob_vnum="7019" />
+		<mob mob_vnum="6029" />
+		<mob mob_vnum="5003" />
 		<mob mob_vnum="4003" />
-		<item_set id="StandartWeaponLowLevel"/>
-		<item_set id="StandartArmorLowLevel"/>
-		<item_set id="BaseBlacksmithingTools"/>
-		<item_set id="BaseMiningTools"/>
-	    </shop>
+		<item_set id="StandartWeaponLowLevel" />
+		<item_set id="StandartArmorLowLevel" />
+		<item_set id="BaseBlacksmithingTools" />
+		<item_set id="BaseMiningTools" />
+	</shop>
+	<!-- магазин металлической брони, оружия и инструментов - средний уровень -->
+	<shop id="ArmorAndWeaponShopMiddleLevel" currency="kKuna" profit="30" waste_time_min="0">
+		<mob mob_vnum="93600" />
+		<mob mob_vnum="76605" />
+		<mob mob_vnum="76037" />
+		<mob mob_vnum="61009" />
+		<mob mob_vnum="60205" />
+		<mob mob_vnum="32406" />
+		<mob mob_vnum="27011" />
+		<mob mob_vnum="24002" />
+		<item_set id="StandartWeaponMiddleLevel" />
+		<item_set id="StandartArmorMiddleLevel" />
+		<item_set id="BaseBlacksmithingTools" />
+		<item_set id="BaseMiningTools" />
+		<item_set id="BaseJewelryTools" />
+	</shop>
+	<!-- магазин металлической брони, оружия и инструментов - высокий уровень и кланы -->
+	<shop id="ArmorAndWeaponShopHighLevel" currency="kKuna" profit="75" waste_time_min="0">
+		<mob mob_vnum="31138" />
+		<mob mob_vnum="85605" />
+		<mob mob_vnum="85504" />
+		<mob mob_vnum="79005" />
+		<mob mob_vnum="77706" />
+		<mob mob_vnum="77606" template="rk" />
+		<mob mob_vnum="71309" />
+		<mob mob_vnum="77505" />
+		<mob mob_vnum="77014" />
+		<mob mob_vnum="76014" />
+		<mob mob_vnum="75011" />
+		<mob mob_vnum="73011" />
+		<mob mob_vnum="72003" />
+		<mob mob_vnum="71309" />
+		<mob mob_vnum="69000" />
+		<mob mob_vnum="68019" />
+		<mob mob_vnum="66001" />
+		<mob mob_vnum="64026" />
+		<mob mob_vnum="63607" />
+		<mob mob_vnum="63010" />
+		<mob mob_vnum="62006" />
+		<mob mob_vnum="60021" />
+		<mob mob_vnum="58107" />
+		<mob mob_vnum="58002" />
+		<mob mob_vnum="49903" />
+		<mob mob_vnum="49821" />
+		<mob mob_vnum="42116" />
+		<mob mob_vnum="35702" />
+		<mob mob_vnum="35603" />
+		<mob mob_vnum="35008" />
+		<mob mob_vnum="34411" />
+		<mob mob_vnum="32407" />
+		<mob mob_vnum="31215" />
+		<mob mob_vnum="30402" />
+		<mob mob_vnum="30201" />
+		<mob mob_vnum="25302" />
+		<mob mob_vnum="25004" />
+		<mob mob_vnum="23711" />
+		<mob mob_vnum="21303" />
+		<mob mob_vnum="21205" template="htz" />
+		<mob mob_vnum="21104" template="tz" />
+		<mob mob_vnum="21003" />
+		<mob mob_vnum="40607" />
+		<mob mob_vnum="20902" template="rsp" />
+		<mob mob_vnum="18206" />
+		<mob mob_vnum="16001" />
+		<mob mob_vnum="15900" />
+		<mob mob_vnum="15803" />
+		<mob mob_vnum="14606" />
+		<mob mob_vnum="13905" />
+		<mob mob_vnum="13516" />
+		<mob mob_vnum="13406" />
+		<mob mob_vnum="13105" />
+		<mob mob_vnum="12603" />
+		<mob mob_vnum="12504" template="os" />
+		<mob mob_vnum="19904" />
+		<mob mob_vnum="82911" />
+		<mob mob_vnum="98616" />
+		<item_set id="StandartWeaponHighLevel" />
+		<item_set id="StandartArmorHighLevel" />
+		<item_set id="BaseBlacksmithingTools" />
+		<item_set id="BaseMiningTools" />
+		<item_set id="BaseJewelryTools" />
+	</shop>
+	<!-- Магазин только для ковки -->
+	<shop id="BlacsmithingShop" currency="kKuna" profit="95" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="14605" />
+		<item_set id="BaseScrolls" />
+		<item_set id="BaseBlacksmithingTools" />
+	</shop>
+	<!-- МАГАЗИНЫ ДОРОГОГО СТАФА НА КОРАБЛЯХ -->
+	<shop id="EliteShopOnShip1" currency="kKuna" profit="99" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="3803" />
+		<item_set id="EliteItemsDarkLeather" />
+		<item_set id="EliteItemsLightLeather" />
+	</shop>
+	<shop id="EliteShopOnShip2" currency="kKuna" profit="99" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="3902" />
+		<item_set id="EliteItemsThornLeather" />
+		<item_set id="EliteItemsRoughPlates" />
+	</shop>
+	<shop id="EliteShopOnShip3" currency="kKuna" profit="99" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="3900" />
+		<item_set id="EliteItemsWolfSkin" />
+		<item_set id="EliteItemsTigerSkin" />
+	</shop>
+	<shop id="EliteShopOnShip4" currency="kKuna" profit="99" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="3802" />
+		<item_set id="EliteItemsBoarSkin" />
+		<item_set id="EliteItemsLightStrong" />
+	</shop>
+	<shop id="EliteShopOnShip5" currency="kKuna" profit="99" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="3801" />
+		<item_set id="EliteItemsDamaskSteel" />
+		<item_set id="EliteItemsKhoroloog" />
+	</shop>
+	<shop id="EliteShopOnShip6" currency="kKuna" profit="99" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="3901" />
+		<item_set id="EliteItemsBluedSteel" />
+		<item_set id="EliteItemsRareSteel" />
+	</shop>
+	<shop id="EliteShopOnShip7" currency="kKuna" profit="99" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="3903" />
+		<item_set id="EliteItemsStrongUft" />
+		<item_set id="EliteItemsMisc" />
+	</shop>
+	<shop id="EliteShopOnShip8" currency="kKuna" profit="99" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="3800" />
+		<item_set id="EliteItemsOverseas" />
+		<item_set id="EliteItemsBright" />
+		<item_set id="EliteItemsMisc2" />
+	</shop>
+	<!-- АНТУРАЖНЫЕ МАГАЗИНЫ В ЗОНАХ -->
+	<!-- магазин резчика в Японии -->
+	<shop id="JapanShop" currency="kKuna" profit="99" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="15708" />
+		<item_set id="JapaneseGoods" />
+	</shop>
+	<!-- торговец рыбой в Ершовой Слободе -->
+	<shop id="FishmansVillageShop" currency="kKuna" profit="99" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="35300" />
+		<item_set id="Fish1" />
+	</shop>
+	<!-- магазин коптильщика на пристани Корсуни -->
+	<shop id="FishmansVillageShop2" currency="kKuna" profit="99" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="27100" />
+		<item_set id="StandartFoodSmoked" />
+	</shop>
+	<!-- магазин ключей у ворюги в Тотьме -->
+	<shop id="TotmaKeysShop" currency="kKuna" profit="99" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="62011" />
+		<item_set id="TotmaKeys" />
+	</shop>
+	<!-- магазин зелий в марьином чертоге -->
+	<shop id="MarynCastlePotionsShop" currency="kKuna" profit="99" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="69309" />
+		<item_set id="MarynCastlePotions" />
+	</shop>
+	<!-- магазин в херсонесе -->
+	<shop id="KhersonesShop1" currency="kKuna" profit="99" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="189019" />
+		<item_set id="KhersonesItems1" />
+	</shop>
+	<!-- асхана в херсонесе -->
+	<shop id="KhersonesFoodShop1" currency="kKuna" profit="99" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="189012" />
+		<item_set id="KhersonesFood1" />
+	</shop>
+	<!-- кузница в Херсонесе -->
+	<shop id="KhersonesWeaponShop1" currency="kKuna" profit="99" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="189014" />
+		<item_set id="KhersonesWeapons1" />
+	</shop>
+	<!-- антуражные магазины в Ростове -->
+	<shop id="RostovShop1" currency="kKuna" profit="99" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="85128" />
+		<item_set id="RostovItems1" />
+	</shop>
+	<shop id="RostovShop2" currency="kKuna" profit="99" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="85104" />
+		<item_set id="RostovItems2" />
+	</shop>
+	<shop id="RostovShop3" currency="kKuna" profit="99" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="85139" />
+		<item_set id="RostovItems3" />
+	</shop>
+	<shop id="RostovShop4" currency="kKuna" profit="99" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="85109" />
+		<item_set id="RostovItems4" />
+	</shop>
+	<shop id="RostovShop5" currency="kKuna" profit="99" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="85109" />
+		<item_set id="RostovItems5" />
+	</shop>
+	<shop id="RostovShop6" currency="kKuna" profit="99" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="85103" />
+		<item_set id="EliteItemsStrongUft" />
+		<item_set id="RostovItems6" />
+	</shop>
+	<!-- ===== китайские магазины ==== -->
+	<shop id="ChinaShop1" currency="kKuna" profit="99" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="333300" />
+		<item_set id="ChinaItems1" />
+	</shop>
+	<!-- китайские магазины -->
+	<shop id="ChinaShop2" currency="kKuna" profit="99" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="333306" />
+		<item_set id="ChinaItems2" />
+	</shop>
+	<!-- китайские магазины -->
+	<shop id="ChinaShop3" currency="kKuna" profit="99" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="333305" />
+		<item_set id="ChinaItems3" />
+	</shop>
+	<!-- китайские магазины -->
+	<shop id="ChinaShop4" currency="kKuna" profit="99" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="333307" />
+		<item_set id="ChinaItems4" />
+	</shop>
+	<!-- китайские магазины -->
+	<shop id="ChinaShop5" currency="kKuna" profit="99" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="333308" />
+		<item_set id="ChinaItems5" />
+	</shop>
+	<!-- китайские магазины -->
+	<shop id="ChinaShop6" currency="kKuna" profit="99" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="333309" />
+		<item_set id="ChinaItems6" />
+	</shop>
+	<!-- китайские магазины -->
+	<shop id="ChinaShop7" currency="kKuna" profit="99" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="333311" />
+		<item_set id="ChinaItems7" />
+	</shop>
+	<!-- китайские магазины -->
+	<shop id="ChinaShop8" currency="kKuna" profit="99" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="333313" />
+		<item_set id="ChinaItems8" />
+	</shop>
+	<!-- китайские магазины -->
+	<shop id="ChinaShop9" currency="kKuna" profit="99" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="333315" />
+		<item_set id="ChinaItems9" />
+	</shop>
+	<!-- китайские магазины -->
+	<shop id="ChinaShop10" currency="kKuna" profit="99" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="333316" />
+		<item_set id="ChinaItems10" />
+	</shop>
+	<!-- китайские магазины -->
+	<shop id="ChinaShop11" currency="kKuna" profit="99" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="333317" />
+		<item_set id="ChinaItems11" />
+	</shop>
+	<!-- китайские магазины -->
+	<shop id="ChinaShop12" currency="kKuna" profit="99" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="333301" />
+		<item_set id="ChinaItems12" />
+	</shop>
+	<!-- китайские магазины -->
+	<shop id="ChinaShop13" currency="kKuna" profit="99" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="333318" />
+		<item_set id="ChinaItems13" />
+	</shop>
+	<!-- китайские магазины -->
+	<shop id="ChinaShop14" currency="kKuna" profit="99" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="333319" />
+		<item_set id="ChinaItems14" />
+	</shop>
+	<!-- китайские магазины -->
+	<shop id="ChinaShop15" currency="kKuna" profit="99" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="333320" />
+		<item_set id="ChinaItems15" />
+	</shop>
+	<!-- китайские магазины -->
+	<shop id="ChinaShop16" currency="kKuna" profit="99" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="333321" />
+		<item_set id="ChinaItems16" />
+	</shop>
+	<!-- китайские магазины -->
+	<shop id="ChinaShop17" currency="kKuna" profit="99" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="333322" />
+		<item_set id="ChinaItems17" />
+	</shop>
+	<!-- китайские магазины -->
+	<shop id="ChinaShop18" currency="kKuna" profit="99" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="333323" />
+		<item_set id="ChinaItems18" />
+	</shop>
+	<!-- китайские магазины -->
+	<shop id="ChinaShop19" currency="kKuna" profit="99" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="333324" />
+		<item_set id="ChinaItems19" />
+	</shop>
+	<!-- китайские магазины -->
+	<shop id="ChinaShop20" currency="kKuna" profit="99" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="333325" />
+		<item_set id="ChinaItems20" />
+	</shop>
+	<!-- китайские магазины -->
+	<shop id="ChinaShop21" currency="kKuna" profit="99" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="333326" />
+		<item_set id="ChinaItems21" />
+	</shop>
+	<!-- китайские магазины -->
+	<shop id="ChinaShop22" currency="kKuna" profit="99" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="333327" />
+		<item_set id="ChinaItems22" />
+	</shop>
+	<!-- китайские магазины -->
+	<shop id="ChinaShop23" currency="kKuna" profit="99" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="333304" />
+		<item_set id="ChinaItems23" />
+	</shop>
+	<!-- Наградные магазины на прадубе -->
+	<!-- Вариантов шесть, но загружается только один -->
+	<shop id="PradubPrizesShop1" currency="kKuna" profit="99" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="96533" />
+		<item_set id="PradubPrize1" />
+	</shop>
+	<shop id="PradubPrizesShop2" currency="kKuna" profit="99" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="96534" />
+		<item_set id="PradubPrize2" />
+	</shop>
+	<shop id="PradubPrizesShop3" currency="kKuna" profit="99" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="96535" />
+		<item_set id="PradubPrize3" />
+	</shop>
+	<shop id="PradubPrizesShop4" currency="kKuna" profit="99" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="96536" />
+		<item_set id="PradubPrize4" />
+	</shop>
+	<shop id="PradubPrizesShop5" currency="kKuna" profit="99" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="96537" />
+		<item_set id="PradubPrize5" />
+	</shop>
+	<shop id="PradubPrizesShop6" currency="kKuna" profit="99" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="96538" />
+		<item_set id="PradubPrize6" />
+	</shop>
+	<!-- Магазины новой MUD-школы -->
+	<shop id="NewMudScool1" currency="kKuna" profit="99" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="75917" />
+		<item_set id="MudScoolStepan" />
+	</shop>
+	<shop id="NewMudScool2" currency="kKuna" profit="99" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="75926" />
+		<item_set id="MudScoolZhir" />
+	</shop>
+	<shop id="NewMudScool3" currency="kKuna" profit="99" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="75925" />
+		<item_set id="MudScoolKarma" />
+	</shop>
+	<!-- Магазин славы -->
+	<shop id="GloryShop" currency="kGlory" profit="99" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="27026" />
+		<item_set id="KorsaGlory" />
+	</shop>
+	<shop id="SpellsBooksHryv" currency="kCopperGrivna" profit="20" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="98440" />
+		<item_set id="SpellsBooksHryv" />
+	</shop>
+	<!-- Магазин ветхих сетов -->
+	<shop id="DilapidatedSetsShop" currency="kCopperGrivna" profit="20" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="40512" />
+		<item_set id="DilapidatedSet" />
+	</shop>
+	<!-- Магазин ветхих шмоток -->
+	<shop id="DilapidatedItemsShop" currency="kKuna" profit="20" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="3908" />
+		<item_set id="DilapidatedItems" />
+	</shop>
+	<shop id="MiscShop" currency="kKuna" profit="20" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="62604" />
+		<item_set id="AssasineShop" />
+	</shop>
 </shops>

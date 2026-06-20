@@ -1,5 +1,6 @@
 #include "gameplay/mechanics/equipment.h"
 #include "do_stat.h"
+#include "utils/utils_string.h"
 #include "gameplay/core/experience.h"
 #include "gameplay/economics/currencies.h"
 #include "gameplay/mechanics/condition.h"
@@ -285,20 +286,23 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 		SendMsgToChar(buf, ch);
 
 		{
-			std::string sline = fmt::sprintf("Рента: [%d], Денег: [%9ld], В банке: [%9ld] (Всего: %ld)",
-					GET_LOADROOM(k), currencies::GetHand(*k, currencies::kGold), currencies::GetBank(*k, currencies::kGold), currencies::GetTotal(*k, currencies::kGold));
+			// сегменты без запятых -- разделитель ", " и перенос по ширине добавит OutWordsList
+			std::vector<std::string> parts;
+			parts.push_back(fmt::sprintf("Рента: [%d], Денег: [%9ld], В банке: [%9ld] (Всего: %ld)",
+					GET_LOADROOM(k), currencies::GetHand(*k, currencies::kGold), currencies::GetBank(*k, currencies::kGold), currencies::GetTotal(*k, currencies::kGold)));
 			for (const auto &cur : MUD::Currencies()) {
 				if (cur.GetId() < 0 || cur.GetTextId() == currencies::kGold) { continue; }
 				const long cur_total = currencies::GetTotal(*k, cur.GetTextId());
 				if (cur_total != 0) {
-					sline += fmt::sprintf(", %s: %ld", cur.GetName(grammar::ECase::kNom).c_str(), cur_total);
+					parts.push_back(fmt::sprintf("%s: %ld", cur.GetName(grammar::ECase::kNom).c_str(), cur_total));
 				}
 			}
 			if (GetRealLevel(ch) >= kLvlImmortal) {
-				sline += fmt::sprintf(", %sOLC[%d]%s", kColorGrn, GET_OLC_ZONE(k), kColorNrm);
+				parts.push_back(fmt::sprintf("%sOLC[%d]%s", kColorGrn, GET_OLC_ZONE(k), kColorNrm));
 			}
-			sline += "\r\n";
-			SendMsgToChar(sline, ch);
+			const size_t width = (!ch->IsNpc() && ch->player_specials->saved.stringLength > 0)
+					? ch->player_specials->saved.stringLength : 120;
+			SendMsgToChar(utils::OutWordsList(parts, width, ", ") + "\r\n", ch);
 		}
 	} else {
 		int mob_online = mob_index[k->get_rnum()].total_online - (virt ? 1 : 0);
