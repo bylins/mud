@@ -7,6 +7,23 @@
 namespace lua_scripting {
 namespace {
 
+RoomRnum GetContextRoom(const LuaTriggerContext &source, LuaRuntimeContext runtime)
+{
+	if (runtime.owner_room != kNowhere)
+	{
+		return runtime.owner_room;
+	}
+	if (source.actor && source.actor->in_room != kNowhere)
+	{
+		return source.actor->in_room;
+	}
+	if (source.victim && source.victim->in_room != kNowhere)
+	{
+		return source.victim->in_room;
+	}
+	return kNowhere;
+}
+
 int ConvertLuaValue(LuaRuntimeContext runtime, const sol::object &first)
 {
 	if (first.get_type() == sol::type::lua_nil)
@@ -31,7 +48,14 @@ int ConvertLuaValue(LuaRuntimeContext runtime, const sol::object &first)
 sol::table BuildLuaContext(sol::state &lua, const LuaTriggerContext &source, LuaRuntimeContext runtime)
 {
 	sol::table ctx = lua.create_table();
+	RefreshLuaContext(lua, ctx, source, runtime);
+	return ctx;
+}
+
+void RefreshLuaContext(sol::state &lua, sol::table ctx, const LuaTriggerContext &source, LuaRuntimeContext runtime)
+{
 	sol::table trigger_table = lua.create_table();
+	const auto context_room = GetContextRoom(source, runtime);
 
 	trigger_table["vnum"] = GetTriggerVnum(runtime.trigger);
 	trigger_table["rnum"] = runtime.trigger ? runtime.trigger->get_rnum() : -1;
@@ -55,8 +79,8 @@ sol::table BuildLuaContext(sol::state &lua, const LuaTriggerContext &source, Lua
 	{
 		ctx["owner"] = sol::lua_nil;
 	}
-	ctx["actor"] = BuildCharView(lua, source.actor, runtime);
-	ctx["victim"] = BuildCharView(lua, source.victim, runtime);
+	ctx["actor"] = BuildCharView(lua, source.actor, runtime, context_room);
+	ctx["victim"] = BuildCharView(lua, source.victim, runtime, context_room);
 	ctx["object"] = BuildObjView(lua, source.object, runtime);
 	ctx["command"] = source.command;
 	ctx["argument"] = source.argument;
@@ -83,8 +107,6 @@ sol::table BuildLuaContext(sol::state &lua, const LuaTriggerContext &source, Lua
 	{
 		ctx["room"] = sol::lua_nil;
 	}
-
-	return ctx;
 }
 
 int ConvertLuaResult(const sol::protected_function_result &result, LuaRuntimeContext runtime, sol::table ctx, bool call_function)

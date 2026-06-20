@@ -22,6 +22,7 @@ struct LuaWaitState {
 	lua_State *thread = nullptr;
 	int thread_ref = LUA_NOREF;
 	int entrypoint_ref = LUA_NOREF;
+	int ctx_ref = LUA_NOREF;
 	TriggerEvent event;
 	TriggerEventObserver::shared_ptr trigger_observer;
 	LuaTriggerContext ctx;
@@ -29,6 +30,8 @@ struct LuaWaitState {
 	long owner_uid = 0;
 	object_id_t owner_obj_id = 0;
 	long actor_uid = 0;
+	long victim_uid = 0;
+	object_id_t object_id = 0;
 	bool waiting = false;
 	bool finished = false;
 	bool cancelled = false;
@@ -176,6 +179,11 @@ class LuaWaitRegistry {
 			luaL_unref(LuaVm().lua_state(), LUA_REGISTRYINDEX, state->entrypoint_ref);
 			state->entrypoint_ref = LUA_NOREF;
 		}
+		if (state->ctx_ref != LUA_NOREF)
+		{
+			luaL_unref(LuaVm().lua_state(), LUA_REGISTRYINDEX, state->ctx_ref);
+			state->ctx_ref = LUA_NOREF;
+		}
 		state->finished = true;
 		m_state_ids.erase(state.get());
 		m_waits.erase(it);
@@ -269,6 +277,15 @@ class LuaWaitRegistry {
 			Remove(id);
 			return;
 		}
+		if (state->ctx_ref != LUA_NOREF)
+		{
+			auto &lua = LuaVm();
+			lua_State *main_state = lua.lua_state();
+			lua_rawgeti(main_state, LUA_REGISTRYINDEX, state->ctx_ref);
+			sol::table lua_ctx(sol::stack_object(main_state, -1));
+			RefreshLuaContext(lua, lua_ctx, state->ctx, state->runtime);
+			lua_pop(main_state, 1);
+		}
 
 		LuaExecutionBudget budget;
 		InstallLuaRuntimeLimits(state->thread, budget);
@@ -336,6 +353,8 @@ class LuaWaitRegistry {
 			state.ctx.owner_obj = ResolveObjectById(state.owner_obj_id);
 		}
 		state.ctx.actor = state.actor_uid != 0 ? ResolveCharacterByUid(state.actor_uid) : nullptr;
+		state.ctx.victim = state.victim_uid != 0 ? ResolveCharacterByUid(state.victim_uid) : nullptr;
+		state.ctx.object = state.object_id != 0 ? ResolveObjectById(state.object_id) : nullptr;
 		state.runtime.owner_obj = state.ctx.owner_obj;
 		state.runtime.owner_room = ResolveOwnerRoom(state.ctx);
 		return true;
@@ -437,11 +456,13 @@ int StartCoroutine(const std::shared_ptr<LuaWaitState> &state)
 	auto &lua = LuaVm();
 	sol::table lua_ctx = BuildLuaContext(lua, state->ctx, state->runtime);
 	lua_State *main_state = lua.lua_state();
+	lua_ctx.push();
+	state->ctx_ref = luaL_ref(main_state, LUA_REGISTRYINDEX);
 	state->thread = lua_newthread(main_state);
 	state->thread_ref = luaL_ref(main_state, LUA_REGISTRYINDEX);
 	lua_rawgeti(main_state, LUA_REGISTRYINDEX, state->entrypoint_ref);
 	lua_xmove(main_state, state->thread, 1);
-	lua_ctx.push();
+	lua_rawgeti(main_state, LUA_REGISTRYINDEX, state->ctx_ref);
 	lua_xmove(main_state, state->thread, 1);
 
 	LuaExecutionBudget budget;
@@ -509,6 +530,8 @@ int LuaScriptEngine::RunTrigger(Trigger *trigger, const LuaTriggerContext &ctx)
 	state->owner_uid = ctx.owner ? ctx.owner->get_uid() : 0;
 	state->owner_obj_id = ctx.owner_obj ? ctx.owner_obj->get_id() : 0;
 	state->actor_uid = ctx.actor ? ctx.actor->get_uid() : 0;
+	state->victim_uid = ctx.victim ? ctx.victim->get_uid() : 0;
+	state->object_id = ctx.object ? ctx.object->get_id() : 0;
 	state->runtime.trigger = trigger;
 	state->runtime.owner = ctx.owner;
 	state->runtime.owner_obj = ctx.owner_obj;

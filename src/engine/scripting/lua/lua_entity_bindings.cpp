@@ -29,6 +29,7 @@
 #include <algorithm>
 #include <array>
 #include <sstream>
+#include <tuple>
 
 bool mob_script_command_interpreter(CharData *ch, char *argument, Trigger *trig);
 void ExtractTrigger(Trigger *trig);
@@ -73,6 +74,14 @@ long GetEntityHandleLongField(lua_State *state, const char *field)
 	return result;
 }
 
+RoomRnum GetEntityHandleRoomField(lua_State *state, const char *field)
+{
+	lua_getfield(state, -1, field);
+	const auto result = lua_isnumber(state, -1) ? static_cast<RoomRnum>(lua_tointeger(state, -1)) : kNowhere;
+	lua_pop(state, 1);
+	return result;
+}
+
 CharData *GetLuaCharFromObject(const sol::object &entity, LuaRuntimeContext)
 {
 	if (!entity.is<sol::table>())
@@ -89,6 +98,7 @@ CharData *GetLuaCharFromObject(const sol::object &entity, LuaRuntimeContext)
 	lua_State *state = entity_table.lua_state();
 	const auto type = GetEntityHandleIntField(state, "type");
 	const auto uid = GetEntityHandleLongField(state, "uid");
+	const auto required_room = GetEntityHandleRoomField(state, "required_room");
 	PopEntityHandleTable(state);
 	if (type != kLuaHandleTypeChar || uid == 0)
 	{
@@ -97,10 +107,11 @@ CharData *GetLuaCharFromObject(const sol::object &entity, LuaRuntimeContext)
 
 	LuaEntityHandle char_handle(LuaEntityHandle::LuaEntityType::Char);
 	char_handle.char_uid = uid;
+	char_handle.required_room = required_room;
 	return ResolveChar(char_handle);
 }
 
-void RegisterCharView(sol::state &, sol::table view, CharData *ch)
+void RegisterCharView(sol::state &, sol::table view, CharData *ch, RoomRnum required_room)
 {
 	lua_State *state = view.lua_state();
 	view.push();
@@ -110,6 +121,8 @@ void RegisterCharView(sol::state &, sol::table view, CharData *ch)
 	lua_setfield(state, -2, "type");
 	lua_pushinteger(state, ch ? ch->get_uid() : 0);
 	lua_setfield(state, -2, "uid");
+	lua_pushinteger(state, required_room);
+	lua_setfield(state, -2, "required_room");
 	lua_rawset(state, -3);
 	lua_pop(state, 1);
 }
@@ -494,7 +507,6 @@ std::string GetCharMessageField(LuaRuntimeContext runtime, const LuaEntityHandle
 	auto *ch = ResolveChar(handle);
 	if (!ch || !field.is<std::string>())
 	{
-		LogLuaApiError(runtime, "message field: invalid arguments");
 		return "";
 	}
 
@@ -784,6 +796,137 @@ bool EchoToRoom(const LuaRoomView &view, const sol::object &message)
 	}
 
 	SendMsgToRoom(text.c_str(), view.room, 0);
+	return true;
+}
+
+int CountRoomPeople(LuaRoomView room)
+{
+	if (!IsValidRoom(room))
+	{
+		return 0;
+	}
+	return static_cast<int>(world[room.room]->people.size());
+}
+
+CharData *GetRoomPersonAt(LuaRoomView room, int index)
+{
+	if (!IsValidRoom(room))
+	{
+		return nullptr;
+	}
+	if (index <= 0)
+	{
+		return nullptr;
+	}
+	int current = 1;
+	for (auto *ch : world[room.room]->people)
+	{
+		if (current++ == index)
+		{
+			return ch;
+		}
+	}
+	return nullptr;
+}
+
+int CountRoomObjects(LuaRoomView room)
+{
+	if (!IsValidRoom(room))
+	{
+		return 0;
+	}
+	return static_cast<int>(world[room.room]->contents.size());
+}
+
+ObjData *GetRoomObjectAt(LuaRoomView room, int index)
+{
+	if (!IsValidRoom(room))
+	{
+		return nullptr;
+	}
+	if (index <= 0)
+	{
+		return nullptr;
+	}
+	int current = 1;
+	for (auto *obj : world[room.room]->contents)
+	{
+		if (current++ == index)
+		{
+			return obj;
+		}
+	}
+	return nullptr;
+}
+
+sol::object GetLiveCollectionItem(sol::state &lua, LuaRuntimeContext runtime, LuaRoomView room, bool people, int index)
+{
+	return people
+		? BuildCharView(lua, GetRoomPersonAt(room, index), runtime)
+		: BuildObjView(lua, GetRoomObjectAt(room, index), runtime);
+}
+
+sol::object BuildLiveRoomCollection(sol::state &lua, LuaRoomView room, LuaRuntimeContext runtime, bool people)
+{
+	sol::table view = lua.create_table();
+	sol::table metatable = lua.create_table();
+	metatable[sol::meta_function::index] = [&lua, room, runtime, people](sol::object, sol::object key) -> sol::object {
+		if (key.is<int>())
+		{
+			return GetLiveCollectionItem(lua, runtime, room, people, key.as<int>());
+		}
+		if (key.is<std::string>())
+		{
+			const auto name = key.as<std::string>();
+			if (name == "count" || name == "size")
+			{
+				const auto count = people ? CountRoomPeople(room) : CountRoomObjects(room);
+				return sol::make_object(lua, count);
+			}
+		}
+		return sol::make_object(lua, sol::lua_nil);
+	};
+	metatable[sol::meta_function::length] = [room, people]() {
+		return people ? CountRoomPeople(room) : CountRoomObjects(room);
+	};
+	metatable["__live_ipairs"] = [&lua, room, runtime, people](sol::object collection) {
+		auto iterator = sol::make_object(lua, sol::as_function(
+			[&lua, room, runtime, people](sol::object, int previous) -> std::tuple<sol::object, sol::object> {
+				const auto next = previous + 1;
+				auto value = GetLiveCollectionItem(lua, runtime, room, people, next);
+				if (value == sol::lua_nil)
+				{
+					return std::make_tuple(sol::make_object(lua, sol::lua_nil), sol::make_object(lua, sol::lua_nil));
+				}
+				return std::make_tuple(sol::make_object(lua, next), value);
+			}));
+		return std::make_tuple(iterator, collection, 0);
+	};
+	metatable[sol::meta_function::new_index] = [](sol::this_state state) {
+		return luaL_error(state, "Room collection Lua view is read-only");
+	};
+	view[sol::metatable_key] = metatable;
+	return sol::make_object(lua, view);
+}
+
+bool PushLuaLiveCollectionIpairsInternal(lua_State *state)
+{
+	if (!lua_istable(state, 1) || !lua_getmetatable(state, 1))
+	{
+		return false;
+	}
+
+	lua_getfield(state, -1, "__live_ipairs");
+	if (!lua_isfunction(state, -1))
+	{
+		lua_pop(state, 2);
+		return false;
+	}
+
+	lua_pushvalue(state, 1);
+	lua_call(state, 1, 3);
+	lua_remove(state, -4);
+	lua_remove(state, 1);
 	return true;
 }
 
@@ -1182,6 +1325,11 @@ bool ApplyDirectTriggerDamage(CharData *victim, int amount)
 
 } // namespace
 
+bool PushLuaLiveCollectionIpairs(lua_State *state)
+{
+	return PushLuaLiveCollectionIpairsInternal(state);
+}
+
 bool MudDamage(
 	LuaRuntimeContext runtime,
 	const sol::object &victim_object,
@@ -1287,16 +1435,16 @@ sol::object BuildScriptContextView(sol::state &lua, Script *script, long context
 	return sol::make_object(lua, view);
 }
 
-sol::object BuildCharView(sol::state &lua, CharData *ch, LuaRuntimeContext runtime)
+sol::object BuildCharView(sol::state &lua, CharData *ch, LuaRuntimeContext runtime, RoomRnum required_room)
 {
 	if (!ch)
 	{
 		return sol::make_object(lua, sol::lua_nil);
 	}
 
-	auto handle = MakeCharHandle(ch);
+	auto handle = MakeCharHandle(ch, required_room);
 	sol::table view = lua.create_table();
-	RegisterCharView(lua, view, ch);
+	RegisterCharView(lua, view, ch, required_room);
 	sol::table metatable = lua.create_table();
 	metatable[sol::meta_function::index] = [&lua, handle, runtime](sol::object, const std::string &key) -> sol::object {
 		if (key == "name")
@@ -1643,33 +1791,13 @@ sol::object BuildRoomView(sol::state &lua, const LuaRoomView &room, bool allow_e
 		if (key == "people")
 		{
 			return sol::make_object(lua, sol::as_function([&lua, room, runtime](sol::object) {
-				sol::table result = lua.create_table();
-				if (!IsValidRoom(room))
-				{
-					return result;
-				}
-				int index = 1;
-				for (auto *ch : world[room.room]->people)
-				{
-					result[index++] = BuildCharView(lua, ch, runtime);
-				}
-				return result;
+				return BuildLiveRoomCollection(lua, room, runtime, true);
 			}));
 		}
 		if (key == "objects")
 		{
 			return sol::make_object(lua, sol::as_function([&lua, room, runtime](sol::object) {
-				sol::table result = lua.create_table();
-				if (!IsValidRoom(room))
-				{
-					return result;
-				}
-				int index = 1;
-				for (auto *obj : world[room.room]->contents)
-				{
-					result[index++] = BuildObjView(lua, obj, runtime);
-				}
-				return result;
+				return BuildLiveRoomCollection(lua, room, runtime, false);
 			}));
 		}
 		if (key == "exit")

@@ -8,11 +8,30 @@
 #include "utils/logger.h"
 
 namespace lua_scripting {
+namespace {
 
-LuaEntityHandle MakeCharHandle(CharData *ch)
+int LuaIpairs(lua_State *state)
+{
+	if (PushLuaLiveCollectionIpairs(state))
+	{
+		return 3;
+	}
+
+	lua_pushvalue(state, lua_upvalueindex(1));
+	lua_pushvalue(state, 1);
+	lua_call(state, 1, LUA_MULTRET);
+	const auto result_count = lua_gettop(state) - 1;
+	lua_remove(state, 1);
+	return result_count;
+}
+
+} // namespace
+
+LuaEntityHandle MakeCharHandle(CharData *ch, RoomRnum required_room)
 {
 	LuaEntityHandle handle(LuaEntityHandle::LuaEntityType::Char);
 	handle.char_uid = ch ? ch->get_uid() : 0;
+	handle.required_room = required_room;
 	return handle;
 }
 
@@ -84,6 +103,10 @@ CharData *ResolveChar(const LuaEntityHandle &handle)
 			result = ch.get();
 		}
 	});
+	if (result && handle.required_room != kNowhere && result->in_room != handle.required_room)
+	{
+		return nullptr;
+	}
 	return result;
 }
 
@@ -149,6 +172,11 @@ void LogLuaReturnDiagnostic(LuaRuntimeContext runtime, const sol::object &value)
 
 void HardenLuaState(sol::state &lua)
 {
+	lua_State *state = lua.lua_state();
+	lua_getglobal(state, "ipairs");
+	lua_pushcclosure(state, LuaIpairs, 1);
+	lua_setglobal(state, "ipairs");
+
 	lua["io"] = sol::lua_nil;
 	lua["os"] = sol::lua_nil;
 	lua["debug"] = sol::lua_nil;

@@ -318,6 +318,7 @@ mud.wait("until 0730")
 - Нельзя использовать в death-триггерах мобов.
 - Нельзя использовать в purge-триггерах объектов.
 - Если владелец, объект или сам триггер удалены во время ожидания, продолжение отменяется.
+- После ожидания поля `ctx` обновляются по текущему состоянию мира. `ctx.actor`/`ctx.victim` остаются live-view персонажей из события; если персонаж вышел из комнаты события, действия с ним вернут `false`/пустые значения без ошибки. `room:people()` и `room:objects()` возвращают live-view комнаты, без копирования списка в Lua.
 
 ## Char
 
@@ -432,8 +433,8 @@ Room - Lua-view комнаты. Все поля read-only.
 | Метод | Возврат | Описание |
 | --- | --- | --- |
 | `room:echo(message)` | bool | Сообщение в комнату. Доступно для `ctx.room` и owner-room. Для `mud.room(vnum)` echo отключен. |
-| `room:people()` | table | Список Char в комнате, индексация с 1. |
-| `room:objects()` | table | Список Obj в комнате, индексация с 1. |
+| `room:people()` | live-view | Текущий список Char в комнате, индексация с 1, поддерживает `ipairs`. |
+| `room:objects()` | live-view | Текущий список Obj в комнате, индексация с 1, поддерживает `ipairs`. |
 | `room:exit(direction)` | Room или nil | Комната по направлению. `direction` может быть числом или строкой. |
 | `room:set_exit(direction, options)` | bool | Создает или изменяет выход. `options`: `flags`, `to_room`, `description`, `key`, `name`, `lock`. `flags` задаются как в DG `wdoor ... flags`. `to_room` можно передать числом-VNUM или Lua-объектом `Room`; если целевая комната не существует, метод вернет `false`. |
 | `room:purge_exit(direction)` | bool | Удаляет выход в направлении, как DG `wdoor ... purge`. |
