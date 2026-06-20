@@ -238,9 +238,13 @@ end
 | --- | --- | --- |
 | `mud.char_by_uid(uid)` | Char или nil | Находит персонажа по UID. |
 | `mud.obj_by_id(id)` | Obj или nil | Находит объект по runtime id. |
+| `mud.find_mob(vnum)` | Char или nil | Находит первого live-моба по VNUM. Lua-замена `calcuid ... mob`. |
+| `mud.find_obj(vnum)` | Obj или nil | Находит первый live-объект по VNUM. Lua-замена `calcuid ... obj`. |
 | `mud.mob_count(vnum)` | number | Сколько мобов данного VNUM сейчас в мире. |
 | `mud.obj_count(vnum)` | number | Сколько объектов данного VNUM сейчас в мире. |
-| `mud.world.cur_obj_count(vnum)` | number | То же, что `mud.obj_count(vnum)`. |
+| `mud.world.cur_obj_count(vnum)` | number | DG-семантика `%world.curobjs%`: текущий count объекта, но для stable/unlimited timer объектов возвращает 0. |
+| `mud.world.game_obj_count(vnum)` | number | DG-семантика `%world.gameobs%`/`%world.gameobjs%`: считает игровые экземпляры, для обычных takeable не-quest предметов учитывает parent-прототип. |
+| `mud.world.max_obj_count(vnum)` | number | DG-семантика `%world.maxobj%`: MIW объекта, для unlimited возвращает `9999999`. |
 
 ### Комнаты, зоны, время и погода
 

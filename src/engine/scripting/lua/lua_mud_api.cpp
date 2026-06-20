@@ -10,12 +10,14 @@
 #include "engine/db/world_objects.h"
 #include "engine/entities/char_data.h"
 #include "engine/scripting/dg_scripts.h"
+#include "gameplay/mechanics/stable_objs.h"
 #include "gameplay/mechanics/weather.h"
 #include "utils/utils.h"
 #include "utils/logger.h"
 #include "utils/random.h"
 
 #include <limits>
+#include <list>
 
 namespace lua_scripting {
 namespace {
@@ -78,6 +80,43 @@ ObjData *FindObjById(const sol::object &id)
 
 	const auto obj = world_objects.find_by_id(static_cast<object_id_t>(value));
 	return obj && !obj->get_extracted_list() ? obj.get() : nullptr;
+}
+
+int CountWorldObjectsByRnum(ObjRnum rnum)
+{
+	std::list<ObjData *> objs;
+	world_objects.GetObjListByRnum(rnum, objs);
+	return static_cast<int>(objs.size());
+}
+
+ObjData *FindObjByVnum(const sol::object &vnum)
+{
+	if (!vnum.is<int>())
+	{
+		return nullptr;
+	}
+
+	const auto obj = world_objects.find_first_by_vnum(vnum.as<int>());
+	return obj && !obj->get_extracted_list() ? obj.get() : nullptr;
+}
+
+CharData *FindMobByVnum(const sol::object &vnum)
+{
+	if (!vnum.is<int>())
+	{
+		return nullptr;
+	}
+
+	Characters::list_t mobs;
+	character_list.get_mobs_by_vnum(vnum.as<int>(), mobs);
+	for (const auto &mob : mobs)
+	{
+		if (mob && !mob->purged())
+		{
+			return mob.get();
+		}
+	}
+	return nullptr;
 }
 
 ObjData *LoadObjToRoom(const sol::object &vnum, const sol::object &room)
@@ -211,6 +250,69 @@ int GetCurrentObjectCount(const sol::object &vnum)
 	}
 
 	return obj_proto.actual_count(rnum);
+}
+
+int GetWorldCurrentObjectCount(const sol::object &vnum)
+{
+	if (!vnum.is<int>())
+	{
+		return 0;
+	}
+
+	const auto rnum = GetObjRnum(vnum.as<int>());
+	if (rnum <= 0)
+	{
+		return 0;
+	}
+
+	if (stable_objs::IsTimerUnlimited(obj_proto[rnum].get()))
+	{
+		return 0;
+	}
+	return obj_proto.actual_count(rnum);
+}
+
+int GetWorldGameObjectCount(const sol::object &vnum)
+{
+	if (!vnum.is<int>())
+	{
+		return 0;
+	}
+
+	const auto rnum = GetObjRnum(vnum.as<int>());
+	if (rnum <= 0)
+	{
+		return 0;
+	}
+
+	const ObjRnum parent_rnum = obj_proto[rnum]->get_parent_rnum();
+	if (parent_rnum > -1
+		&& CAN_WEAR(obj_proto[rnum].get(), EWearFlag::kTake)
+		&& !obj_proto[rnum]->has_flag(EObjFlag::kQuestItem))
+	{
+		return CountWorldObjectsByRnum(parent_rnum);
+	}
+	return CountWorldObjectsByRnum(rnum);
+}
+
+int GetWorldMaxObjectCount(const sol::object &vnum)
+{
+	if (!vnum.is<int>())
+	{
+		return 0;
+	}
+
+	const auto rnum = GetObjRnum(vnum.as<int>());
+	if (rnum < 0)
+	{
+		return 0;
+	}
+
+	if (stable_objs::IsTimerUnlimited(obj_proto[rnum].get()) || GetObjMIW(rnum) < 0)
+	{
+		return 9999999;
+	}
+	return GetObjMIW(rnum);
 }
 
 int GetCurrentMobCount(const sol::object &vnum)
@@ -575,6 +677,12 @@ sol::table BuildMudNamespace(sol::state &lua, LuaRuntimeContext *runtime)
 	mud["obj_by_id"] = [&lua, runtime](const sol::object &id) {
 		return BuildObjView(lua, FindObjById(id), CurrentRuntime(runtime));
 	};
+	mud["find_obj"] = [&lua, runtime](const sol::object &vnum) {
+		return BuildObjView(lua, FindObjByVnum(vnum), CurrentRuntime(runtime));
+	};
+	mud["find_mob"] = [&lua, runtime](const sol::object &vnum) {
+		return BuildCharView(lua, FindMobByVnum(vnum), CurrentRuntime(runtime));
+	};
 	mud["mob_count"] = [](const sol::object &vnum) {
 		return GetCurrentMobCount(vnum);
 	};
@@ -623,7 +731,13 @@ sol::table BuildMudNamespace(sol::state &lua, LuaRuntimeContext *runtime)
 
 	sol::table world_table = lua.create_table();
 	world_table["cur_obj_count"] = [](const sol::object &vnum) {
-		return GetCurrentObjectCount(vnum);
+		return GetWorldCurrentObjectCount(vnum);
+	};
+	world_table["game_obj_count"] = [](const sol::object &vnum) {
+		return GetWorldGameObjectCount(vnum);
+	};
+	world_table["max_obj_count"] = [](const sol::object &vnum) {
+		return GetWorldMaxObjectCount(vnum);
 	};
 	mud["world"] = world_table;
 
