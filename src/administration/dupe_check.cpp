@@ -8,6 +8,7 @@
 #include "administration/proxy.h"
 #include "administration/privilege.h"
 #include "engine/network/descriptor_data.h"
+#include "engine/db/world_characters.h"
 #include "engine/entities/char_data.h"
 #include "engine/core/comm.h"
 #include "engine/db/db.h"

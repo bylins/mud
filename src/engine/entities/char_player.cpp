@@ -49,19 +49,6 @@
 
 
 
-namespace {
-
-[[maybe_unused]] uint8_t get_day_today() {
-	time_t rawtime;
-	struct tm *timeinfo;
-
-	time(&rawtime);
-	timeinfo = localtime(&rawtime);
-
-	return timeinfo->tm_mday;
-}
-
-} // namespace
 
 Player::Player() :
 	pfilepos_(-1),
