@@ -3487,17 +3487,17 @@ void YamlWorldDataSource::EmitMobBody(Koi8rYamlEmitter &yaml, std::ostream &out,
 		yaml.Value(aliases);
 	}
 	yaml.Key("nominative");
-	yaml.Value(mob.player_data.PNames[ECase::kNom]);
+	yaml.Value(mob.player_data.PNames[grammar::ECase::kNom]);
 	yaml.Key("genitive");
-	yaml.Value(mob.player_data.PNames[ECase::kGen]);
+	yaml.Value(mob.player_data.PNames[grammar::ECase::kGen]);
 	yaml.Key("dative");
-	yaml.Value(mob.player_data.PNames[ECase::kDat]);
+	yaml.Value(mob.player_data.PNames[grammar::ECase::kDat]);
 	yaml.Key("accusative");
-	yaml.Value(mob.player_data.PNames[ECase::kAcc]);
+	yaml.Value(mob.player_data.PNames[grammar::ECase::kAcc]);
 	yaml.Key("instrumental");
-	yaml.Value(mob.player_data.PNames[ECase::kIns]);
+	yaml.Value(mob.player_data.PNames[grammar::ECase::kIns]);
 	yaml.Key("prepositional");
-	yaml.Value(mob.player_data.PNames[ECase::kPre]);
+	yaml.Value(mob.player_data.PNames[grammar::ECase::kPre]);
 
 	yaml.DecreaseIndent();
 
@@ -3516,7 +3516,7 @@ void YamlWorldDataSource::EmitMobBody(Koi8rYamlEmitter &yaml, std::ostream &out,
 
 	// Alignment
 	yaml.Key("alignment");
-	yaml.Value(GET_ALIGNMENT(&mob));
+	yaml.Value(alignment::GetAlignment(&mob));
 
 	// Stats
 	yaml.Key("stats");
@@ -3580,7 +3580,7 @@ void YamlWorldDataSource::EmitMobBody(Koi8rYamlEmitter &yaml, std::ostream &out,
 	yaml.Value(static_cast<int>(mob.mob_specials.GoldSiDs));  // byte -> int
 
 	yaml.Key("bonus");
-	yaml.Value(mob.get_gold());
+	yaml.Value(currencies::GetHand(mob, currencies::kGold));
 
 	yaml.DecreaseIndent();
 
@@ -3686,7 +3686,7 @@ void YamlWorldDataSource::EmitMobBody(Koi8rYamlEmitter &yaml, std::ostream &out,
 		yaml.DecreaseIndent();
 	}
 
-	// Skills (with comments). Use the raw trained-skill map (skillLevel),
+	// Skills (with comments). Use the raw trained-skill map (skill_level),
 	// NOT GetSkill(): GetSkill() layers on instance context -- equipment,
 	// affects and a kDominationArena clamp keyed off in_room -- which is
 	// meaningless for a prototype (in_room is NOWHERE) and would zero mob
@@ -3695,9 +3695,9 @@ void YamlWorldDataSource::EmitMobBody(Koi8rYamlEmitter &yaml, std::ostream &out,
 	std::vector<std::pair<int, int>> mob_skills;
 	for (const auto &kv : mob.GetCharSkills())
 	{
-		if (kv.second.skillLevel > 0)
+		if (kv.second.skill_level > 0)
 		{
-			mob_skills.emplace_back(static_cast<int>(kv.first), kv.second.skillLevel);
+			mob_skills.emplace_back(static_cast<int>(kv.first), kv.second.skill_level);
 		}
 	}
 	std::sort(mob_skills.begin(), mob_skills.end());
@@ -4096,22 +4096,22 @@ void YamlWorldDataSource::EmitObjectBody(Koi8rYamlEmitter &yaml, std::ostream &o
 	yaml.Value(obj->get_aliases());
 
 	yaml.Key("nominative");
-	yaml.Value(obj->get_PName(ECase::kNom));
+	yaml.Value(obj->get_PName(grammar::ECase::kNom));
 
 	yaml.Key("genitive");
-	yaml.Value(obj->get_PName(ECase::kGen));
+	yaml.Value(obj->get_PName(grammar::ECase::kGen));
 
 	yaml.Key("dative");
-	yaml.Value(obj->get_PName(ECase::kDat));
+	yaml.Value(obj->get_PName(grammar::ECase::kDat));
 
 	yaml.Key("accusative");
-	yaml.Value(obj->get_PName(ECase::kAcc));
+	yaml.Value(obj->get_PName(grammar::ECase::kAcc));
 
 	yaml.Key("instrumental");
-	yaml.Value(obj->get_PName(ECase::kIns));
+	yaml.Value(obj->get_PName(grammar::ECase::kIns));
 
 	yaml.Key("prepositional");
-	yaml.Value(obj->get_PName(ECase::kPre));
+	yaml.Value(obj->get_PName(grammar::ECase::kPre));
 
 	yaml.DecreaseIndent();
 
