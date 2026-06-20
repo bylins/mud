@@ -5,10 +5,10 @@
     is the resolver's "wrong shop" reply; kNotHere is RunSpecCommand's reply when no carrier is present.
     Per-procedure greetings and texts live in their own files (bank_msg.xml, ...).
 -->
-<msg_container>
+<special_msg>
 	<msg_sheaf id="kDefault">
 		<message type="kAmbiguous" val="Уточните, что именно:"/>
 		<message type="kUnknownCommand" val="Вам явно в какое-то другое заведение."/>
 		<message type="kNotHere" val="Это нельзя сделать здесь."/>
 	</msg_sheaf>
-</msg_container>
+</special_msg>

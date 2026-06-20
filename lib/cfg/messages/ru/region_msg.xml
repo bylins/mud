@@ -2,7 +2,7 @@
 <!-- issue.regions: region messages, keyed by region vnum (matches cfg/mechanics/regions.xml).
      kName = full region name, kShortDesc = short label. Loaded (region_messages) BEFORE regions.
      id="kDefault" is the shared fallback sheaf. -->
-<msg_container>
+<region_msg>
 	<msg_sheaf id="kDefault">
 		<message type="kName" val="неизвестная область"/>
 		<message type="kShortDesc" val="неизвестно"/>
@@ -15,4 +15,4 @@
 		<message type="kName" val="Новгородские земли"/>
 		<message type="kShortDesc" val="Новгород"/>
 	</msg_sheaf>
-</msg_container>
+</region_msg>

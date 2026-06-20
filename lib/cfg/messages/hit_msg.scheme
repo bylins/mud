@@ -1,11 +1,11 @@
 <!--
   issue.vedun-msg-editor: editor scheme for hit_msg.xml (weapon/attack message container).
-  Structure: <msg_container> -> <msg_sheaf id="<EDamageSource>"> -> <message type="<EFightMsg>" val="text"/>.
+  Structure: <hit_msg> -> <msg_sheaf id="<EDamageSource>"> -> <message type="<EFightMsg>" val="text"/>.
   Message text is in the `val` attribute. Optional sidecar; undeclared tags degrade to plain strings
   and are still validated on save by the fight-message loader.
 -->
 <scheme>
-	<tag name="msg_container" desc="Attack message container">
+	<tag name="hit_msg" desc="Attack message container">
 		<child tag="msg_sheaf" multiple="Y"/>
 	</tag>
 	<tag name="msg_sheaf" desc="Messages for one damage source / attack type (kDefault = shared fallback)">

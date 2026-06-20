@@ -1,12 +1,12 @@
 <!--
   issue.vedun-msg-editor: editor scheme for spell_msg.xml (the spell message container).
-  Structure: <msg_container> -> <msg_sheaf id="<ESpell>"> -> <message type="<ESpellMsg>" val="text"/>.
+  Structure: <spell_msg> -> <msg_sheaf id="<ESpell>"> -> <message type="<ESpellMsg>" val="text"/>.
   The message text lives in the `val` attribute, so the editor's attribute editor handles it.
   Optional sidecar; anything not declared degrades to a plain string field and is still validated on
   save by the spell-message loader.
 -->
 <scheme>
-	<tag name="msg_container" desc="Spell message container">
+	<tag name="spell_msg" desc="Spell message container">
 		<child tag="msg_sheaf" multiple="Y"/>
 	</tag>
 

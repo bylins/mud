@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="koi8-r"?>
-<shop_list>
+<shops>
 	<shop currency="kKuna" id="MagicShop" profit="30" waste_time_min="0" can_buy="false">
 		<mob mob_vnum="4026" />
 		<item_set id="BasePotions"/>
@@ -41,4 +41,4 @@
 		<item_set id="BaseBlacksmithingTools"/>
 		<item_set id="BaseMiningTools"/>
 	    </shop>
-</shop_list>
+</shops>

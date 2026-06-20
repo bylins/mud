@@ -52,6 +52,49 @@ TEST(Vedun_DataNodeMutation, SetValueAndSaveRoundTrip) {
 	std::remove(out);
 }
 
+TEST(Vedun_DataNodeMutation, SetInnerTextRoundTrip) {
+	// issue.datanode-innertext: SetValue("") writes the node's inner text (symmetric with
+	// GetValue("")); a non-empty key still writes an attribute, untouched on the same node.
+	const char *src = "vedun_text_src.xml";
+	const char *out = "vedun_text_out.xml";
+	{
+		std::ofstream f(src);
+		f << R"(<root><msg id="a">old</msg><msg id="b" keep="1"/></root>)";
+	}
+
+	parser_wrapper::DataNode doc(src);
+	for (auto &child : doc.Children()) {
+		const std::string id = child.GetValue("id");
+		if (id == "a") {
+			EXPECT_TRUE(child.SetValue("", "new text"));   // overwrite existing inner text
+		} else if (id == "b") {
+			EXPECT_TRUE(child.SetValue("", "fresh"));       // add inner text where there was none
+			EXPECT_TRUE(child.SetValue("note", "x"));       // attribute write still works alongside
+		}
+	}
+	ASSERT_TRUE(doc.Save(out));
+
+	parser_wrapper::DataNode reloaded(out);
+	bool saw_a = false, saw_b = false;
+	for (auto &child : reloaded.Children()) {
+		const std::string id = child.GetValue("id");
+		if (id == "a") {
+			EXPECT_STREQ(child.GetValue(), "new text");     // GetValue() reads inner text back
+			saw_a = true;
+		} else if (id == "b") {
+			EXPECT_STREQ(child.GetValue(), "fresh");
+			EXPECT_STREQ(child.GetValue("keep"), "1");      // pre-existing attribute preserved
+			EXPECT_STREQ(child.GetValue("note"), "x");
+			saw_b = true;
+		}
+	}
+	EXPECT_TRUE(saw_a);
+	EXPECT_TRUE(saw_b);
+
+	std::remove(src);
+	std::remove(out);
+}
+
 TEST(Vedun_DataNodeMutation, MoveChildReorders) {
 	const char *src = "vedun_move_src.xml";
 	{

@@ -444,17 +444,9 @@ void RunestoneRoster::SaveState() {
 			node.SetValue("damaged", "false");
 		}
 	}
-	std::filesystem::path tmp = path;
-	tmp += ".new";
-	if (!doc.Save(tmp)) {
-		log("SYSERROR: Runestones: could not write %s -- damaged state not persisted.", tmp.string().c_str());
-		return;
-	}
-	std::error_code ec;
-	std::filesystem::rename(tmp, path, ec);
-	if (ec) {
-		std::filesystem::remove(tmp, ec);
-		log("SYSERROR: Runestones: could not replace %s (%s).", path.string().c_str(), ec.message().c_str());
+	// issue.cfg-manager: запись делает CfgManager (атомарно, по id) - путь знает он, не мы.
+	if (!MUD::CfgManager().Save(entry->id, doc)) {
+		log("SYSERROR: Runestones: damaged state not persisted.");
 	}
 }
 

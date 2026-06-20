@@ -1,10 +1,10 @@
 <!--
   issue.thing-names: editor scheme for feat_msg.xml (the feat message container).
-  Structure: <msg_container> -> <msg_sheaf id="<EFeat>"> -> <message type="<EFeatMsg>" val="text"/>.
+  Structure: <feat_msg> -> <msg_sheaf id="<EFeat>"> -> <message type="<EFeatMsg>" val="text"/>.
   For now sheaves carry only <name val="..."/>; feat messages will be added later. Optional sidecar.
 -->
 <scheme>
-	<tag name="msg_container" desc="Feat message container">
+	<tag name="feat_msg" desc="Feat message container">
 		<child tag="msg_sheaf" multiple="Y"/>
 	</tag>
 	<tag name="msg_sheaf" desc="Messages for one feat (kDefault = shared fallback)">

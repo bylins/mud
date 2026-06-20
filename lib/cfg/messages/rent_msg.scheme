@@ -1,10 +1,10 @@
 <!--
   issue.specials Phase 2: Vedun scheme for rent_msg.xml (rent receptionist messages).
-  Structure: <msg_container> -> <msg_sheaf id="kDefault"> -> <message type="<ERentMsg>" val="text"/>.
+  Structure: <rent_msg> -> <msg_sheaf id="kDefault"> -> <message type="<ERentMsg>" val="text"/>.
   "kDefault" is the shared sheaf (info_container::kUndefinedVnum). Optional sidecar.
 -->
 <scheme>
-	<tag name="msg_container" desc="Rent receptionist message container">
+	<tag name="rent_msg" desc="Rent receptionist message container">
 		<child tag="msg_sheaf" multiple="Y"/>
 	</tag>
 	<tag name="msg_sheaf" desc="Shared messages (kDefault) or a per-mob override (vnum)">

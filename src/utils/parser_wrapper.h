@@ -38,6 +38,10 @@ class DataNode {
 
 	explicit DataNode(const std::filesystem::path &file_name);
 
+	// issue.cfg-manager: свежий пустой документ, чей курсор стоит на узле-документе, так что
+	// первый AddChild() создаёт корневой элемент. Для построения DOM с нуля (например, для записи).
+	[[nodiscard]] static DataNode NewDocument();
+
 	DataNode(const DataNode &d);
 
 	DataNode(DataNode &&d) noexcept;
@@ -149,8 +153,9 @@ class DataNode {
 	[[nodiscard]] std::vector<std::pair<std::string, std::string>> Attributes() const;
 
 	/*
-	 * issue.vedun-editor: set an attribute's value on the current node (creating the attribute
-	 * if absent). Mutates the shared document. Returns false on failure.
+	 * issue.vedun-editor: set a value on the current node, mutating the shared document. A non-empty
+	 * key sets that attribute (creating it if absent); an EMPTY key sets the node's inner text
+	 * (symmetric with GetValue("")). Returns false on failure.
 	 */
 	bool SetValue(const std::string &key, const std::string &value);
 

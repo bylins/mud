@@ -18,6 +18,10 @@ class xml_node;
 class xml_document;
 }
 
+namespace parser_wrapper {
+class DataNode;
+}
+
 namespace text_id {
 
 enum EIdType {
@@ -53,6 +57,12 @@ void ReadAsIntSet(std::unordered_set<int> &num_set, const char *value);
 float ReadAsFloat(const char *value);
 double ReadAsDouble(const char *value);
 bool ReadAsBool(const char *value);
+
+// issue.xml-parse-cleaning: толерантное чтение атрибута узла DataNode со значением по
+// умолчанию (было продублировано как локальная AttrInt в ~десятке загрузчиков):
+// отсутствующий/пустой/неразобранный атрибут -> def, без исключений.
+int AttrInt(const parser_wrapper::DataNode &node, const char *key, int def = 0);
+std::string AttrStr(const parser_wrapper::DataNode &node, const char *key, const char *def = "");
 
 template<typename T>
 T ReadAsConstant(const char *value) {

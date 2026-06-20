@@ -17,17 +17,7 @@
 namespace treasure_cases {
 
 namespace {
-int AttrInt(const parser_wrapper::DataNode &node, const char *key, int def = 0) {
-	const char *v = node.GetValue(key);
-	if (!v || !*v) {
-		return def;
-	}
-	try {
-		return parse::ReadAsInt(v);
-	} catch (const std::exception &) {
-		return def;
-	}
-}
+using parse::AttrInt;
 } // namespace
 
 struct TreasureCase {

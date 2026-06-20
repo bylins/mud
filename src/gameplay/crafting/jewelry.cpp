@@ -33,17 +33,7 @@ JewelryCfg cfg;
 namespace {
 
 // Целочисленный атрибут DataNode; def при отсутствии/некорректном значении.
-int AttrInt(parser_wrapper::DataNode &node, const char *key, int def) {
-	const char *v = node.GetValue(key);
-	if (!v || !*v) {
-		return def;
-	}
-	try {
-		return parse::ReadAsInt(v);
-	} catch (const std::exception &) {
-		return def;
-	}
-}
+using parse::AttrInt;
 
 // Игровое название эффекта (то, что игрок видит и набирает) по его типу и id.
 // type: 1 apply (apply_types), 2 affect (affect_msg kShortDesc), 3 флаг (extra_bits),

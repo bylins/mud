@@ -111,6 +111,8 @@ class ObjSetsLoader : public cfg_manager::ICfgLoader {
  public:
 	void Load(parser_wrapper::DataNode data) final;
 	void Reload(parser_wrapper::DataNode data) final;
+	// issue.cfg-manager: пересборка сетов в DOM из памяти; путь к файлу выбирает CfgManager.
+	void Save(parser_wrapper::DataNode &doc) const final;
 };
 
 void save();

@@ -652,17 +652,9 @@ void SaveSession(DescriptorData *d) {
 			result.error), ch);
 		return;
 	}
-	std::filesystem::path tmp = s.file;
-	tmp += ".new";
-	if (!s.doc.Save(tmp)) {
+	// issue.cfg-manager: атомарную запись в нужный файл делает CfgManager (по id).
+	if (!MUD::CfgManager().Save(s.id, s.doc)) {
 		SendMsgToChar("&RVedun: save failed (could not write the file).&n\r\n", ch);
-		return;
-	}
-	std::error_code ec;
-	std::filesystem::rename(tmp, s.file, ec);
-	if (ec) {
-		std::filesystem::remove(tmp, ec);
-		SendMsgToChar("&RVedun: save failed (rename).&n\r\n", ch);
 		return;
 	}
 	s.loader->Reload(parser_wrapper::DataNode(s.file));
@@ -1180,6 +1172,7 @@ void do_vedun(CharData *ch, char *argument, int /*cmd*/, int /*subcmd*/) {
 		return;
 	}
 	auto session = std::make_shared<Session>();
+	session->id = entry->id;
 	session->what = entry->what;
 	session->lock_key = lock_key;
 	session->file = entry->file;

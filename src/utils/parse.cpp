@@ -4,6 +4,7 @@
 #include "parse.h"
 
 #include "third_party_libs/pugixml/pugixml.h"
+#include "utils/parser_wrapper.h"   // issue.xml-parse-cleaning: AttrInt/AttrStr over DataNode
 
 #include "engine/db/obj_prototypes.h"
 #include "engine/db/db.h"
@@ -301,6 +302,26 @@ bool ReadAsBool(const char *value) {
 	}
 	return (strcmp(value, "1") == 0 || strcmp(value, "true") == 0 || strcmp(value, "t") == 0
 				|| strcmp(value, "T") == 0 || strcmp(value, "y") == 0 || strcmp(value, "Y") == 0);
+}
+
+// issue.xml-parse-cleaning: единые толерантные читатели атрибутов DataNode (заменяют
+// локальные AttrInt/AttrStr, ранее продублированные в загрузчиках). Пустой/отсутствующий/
+// неразобранный атрибут -> def.
+int AttrInt(const parser_wrapper::DataNode &node, const char *key, int def) {
+	const char *v = node.GetValue(key);
+	if (!v || !*v) {
+		return def;
+	}
+	try {
+		return ReadAsInt(v);
+	} catch (const std::exception &) {
+		return def;
+	}
+}
+
+std::string AttrStr(const parser_wrapper::DataNode &node, const char *key, const char *def) {
+	const char *v = node.GetValue(key);
+	return (v && *v) ? std::string(v) : std::string(def);
 }
 
 } // namespace parse

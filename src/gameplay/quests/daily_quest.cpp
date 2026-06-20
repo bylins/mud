@@ -38,12 +38,6 @@ void DailyQuestLoader::Load(parser_wrapper::DataNode data) {
 	std::stringstream log_msg;
 	DailyQuestMap tmp_list;
 
-	if (data.IsEmpty() || !data.GetName() || strcmp(data.GetName(), "daily_quest") != 0) {
-		log_msg << "Ошибка загрузки файла с дейликами: cfg/quests/daily_quest.xml";
-		g_last_load_message = log_msg.str();
-		mudlog(g_last_load_message.c_str(), CMP, kLvlImmortal, SYSLOG, true);
-		return;
-	}
 
 	for (auto &object : data.Children("quest")) {
 		const char *raw_id = object.GetValue("id");

@@ -39,7 +39,7 @@
         <mobs vnum="4003" />
 <tdrop>
 -->
-<globaldrop>
+<global_drop>
     <!-- свитки с наградами -->
   <drop ObjVnum = "-2" mob_lvl="5" max_mob_lvl="20" count_mob="3405">
 	<obj vnum="2603" />
@@ -281,4 +281,4 @@
     <drop ObjVnum = "2347" mob_lvl="35" max_mob_lvl="0" count_mob="452" drop_chance="600"/>
     <drop ObjVnum = "2344" mob_lvl="33" max_mob_lvl="0" count_mob="54" drop_chance="50"/>
 -->
-</globaldrop>
+</global_drop>

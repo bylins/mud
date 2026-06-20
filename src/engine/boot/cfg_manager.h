@@ -2,8 +2,14 @@
  \authors Created by Sventovit
  \date 14.02.2022.
  \brief Менеджер файлов конфигурации.
- \details Менеджер файлов конфигурации должен хранить информацию об именах и местоположении файлов конфигурации,
- порядке их загрузки и управлять процессом загрузки данных из файлов по контейнерам.
+ \details Менеджер хранит имена и расположение файлов конфигурации (декларативная таблица регистрации
+ id -> путь -> фабрика загрузчика) и по запросу выполняет загрузку/перезагрузку/запись данных через
+ соответствующий ICfgLoader.
+ ВАЖНО: ПОРЯДОК загрузки менеджер пока НЕ задаёт - он определяется последовательностью вызовов
+ LoadCfg(...) в BootMudDataBase(), где загрузка конфигов перемежается со сторонними загрузчиками
+ (в т.ч. загрузкой игрового мира, которую в менеджер не вынести) и зависит от порядка инициализации
+ подсистем (например, города/гильдии должны быть готовы раньше связанных с ними данных). Передача
+ управления порядком самому менеджеру - отдельная нетривиальная задача (TODO).
  */
 
 #ifndef BYLINS_SRC_BOOT_CFG_MANAGER_H_
@@ -33,6 +39,10 @@ class ICfgLoader {
  public:
 	virtual void Load(parser_wrapper::DataNode data) = 0;
 	virtual void Reload(parser_wrapper::DataNode data) = 0;
+	// issue.cfg-manager: сериализовать текущее состояние в DOM (зеркало Load). По умолчанию -
+	// пусто (большинство конфигов только читаются). Переопределяют загрузчики, которые умеют
+	// сохраняться по запросу CfgManager::SaveCfg(id) - они не знают ни пути, ни имени файла.
+	virtual void Save(parser_wrapper::DataNode &/*doc*/) const {}
 	virtual ~ICfgLoader() = default;
 };
 
@@ -95,8 +105,17 @@ class CfgManager {
 	void LoadCfg(const std::string &id);
 	void ReloadCfg(const std::string &id);
 
+	// issue.cfg-manager: запись конфига по запросу - вызывающий не знает ни пути, ни имени файла,
+	// только свой строковый id. CfgManager сам решает, в какой файл писать (по таблице регистрации),
+	// и пишет атомарно (во временный файл + rename).
+	//  - SaveCfg(id): пересборка из памяти - строит пустой DOM, зовёт loader->Save(doc), пишет.
+	//  - Save(id, doc): записать уже готовый DOM (для правок на месте: Vedun, рунные камни).
+	bool SaveCfg(const std::string &id);
+	bool Save(const std::string &id, const parser_wrapper::DataNode &doc);
+
 	// issue.vedun-editor: the editor's discovery surface (loaders implementing IEditableCfgLoader).
 	struct EditableEntry {
+		std::string id;     // issue.cfg-manager: registry id (for CfgManager::Save(id, doc))
 		std::string what;
 		std::filesystem::path file;
 		IEditableCfgLoader *loader;
@@ -110,6 +129,9 @@ class CfgManager {
 		std::filesystem::path file;
 		LoaderPtr loader;
 	};
+
+	// issue.cfg-manager: общая реализация LoadCfg/ReloadCfg (reload=true -> Reload).
+	void Apply(const std::string &id, bool reload);
 
 	std::unordered_map<std::string, LoaderInfo> loaders_;
 

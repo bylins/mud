@@ -5,7 +5,7 @@
     {level}/{amount}/{currency}/{item}/{lot}/{suf}/{filter}/{color}/{nocolor} are fmt args. The help
     screen, item-detail assembly, lot tables and MortShowObjValues stay in code as layout/diagnostics.
 -->
-<msg_container>
+<exchange_msg>
 	<msg_sheaf id="kDefault">
 		<message type="kSilenced" val="Вы немы, как рыба об лед."/>
 		<message type="kDumbed" val="Вам запрещено общаться с торговцами!"/>
@@ -55,4 +55,4 @@
 		<message type="kNotHuman" val="Торговать?! Да вы же не человек!"/>
 		<message type="kNeedTrader" val="Вам необходимо находиться возле базарного торговца, чтобы воспользоваться этой командой."/>
 	</msg_sheaf>
-</msg_container>
+</exchange_msg>

@@ -2,7 +2,7 @@
 <!-- issue.criterion: undecayable-object ("stable objs") criteria, per equipment position.
      <position val="EEquipPos|..."> groups slots that share criteria. <apply id=EApply> weighs an
      object stat; <affect id=EWeaponAffect> weighs an object weapon-affect. value = weight. -->
-<equipment_positions>
+<stable_objs>
 	<position val="kFingerR|kFingerL">
 		<params>
 			<apply id="kStr" value="0.501"/>
@@ -1353,4 +1353,4 @@
 			<affect id="kDeafness" value="-0.05"/>
 		</affects>
 	</position>
-</equipment_positions>
+</stable_objs>

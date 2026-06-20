@@ -38,17 +38,7 @@ std::array<price_node, Type::TOTAL_NUM> reset_prices =
 	 }};
 
 // Целочисленный атрибут DataNode; 0 при отсутствии/некорректном значении (как старый ReadAttrAsInt).
-static int AttrInt(parser_wrapper::DataNode &node, const char *key) {
-	const char *v = node.GetValue(key);
-	if (!v || !*v) {
-		return 0;
-	}
-	try {
-		return parse::ReadAsInt(v);
-	} catch (const std::exception &) {
-		return 0;
-	}
-}
+using parse::AttrInt;
 
 ///
 /// Парс отдельной секции <reset_stats> (<main_stats>/<race>/<feats>/<religion>).
