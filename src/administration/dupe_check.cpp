@@ -11,6 +11,7 @@
 #include "engine/entities/char_data.h"
 #include "engine/core/comm.h"
 #include "engine/db/db.h"
+#include "engine/db/world_characters.h"
 #include "utils/utils.h"
 #include "utils/utils_string.h"
 
