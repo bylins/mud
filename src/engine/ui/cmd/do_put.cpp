@@ -1,4 +1,5 @@
 #include "gameplay/mechanics/depot.h"
+#include "engine/core/target_resolver.h"
 #include "gameplay/mechanics/sight.h"
 #include "engine/entities/char_data.h"
 #include "engine/db/world_objects.h"

@@ -1,4 +1,5 @@
 #include "engine/entities/char_data.h"
+#include "engine/core/target_resolver.h"
 #include "administration/privilege.h"
 #include "skill_messages.h"
 #include "engine/db/obj_prototypes.h"

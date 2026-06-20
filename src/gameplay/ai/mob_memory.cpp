@@ -10,7 +10,7 @@
 #include "gameplay/ai/mobact.h"
 #include "gameplay/fight/fight_hit.h"
 #include "engine/entities/char_data.h"
-#include "engine/core/handler.h"
+#include "gameplay/abilities/timed_abilities.h"
 #include "gameplay/fight/pk.h"
 #include "gameplay/fight/fight_constants.h"
 #include "gameplay/mechanics/weather.h"

@@ -3,7 +3,8 @@
 #include "skill_messages.h"
 
 #include "engine/entities/char_data.h"
-#include "engine/core/handler.h"
+#include "engine/core/target_resolver.h"
+#include "gameplay/abilities/timed_abilities.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/mechanics/identify.h"
 #include "gameplay/skills/skills.h"

@@ -12,7 +12,6 @@
 
 #include "engine/entities/char_data.h"
 #include "engine/entities/entities_constants.h"
-#include "engine/core/handler.h"
 #include "engine/ui/color.h"
 #include "gameplay/abilities/feats.h"
 #include "gameplay/magic/spells_info.h"   // MUD::Spell(...).GetSuccessRoll().GetBaseSkill()

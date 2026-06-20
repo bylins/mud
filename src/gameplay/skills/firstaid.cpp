@@ -6,7 +6,7 @@
 #include "gameplay/magic/magic.h"
 #include "gameplay/magic/magic_utils.h"
 #include "skill_messages.h"
-#include "engine/core/handler.h"
+#include "gameplay/abilities/timed_abilities.h"
 #include "engine/core/target_resolver.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/abilities/abilities_constants.h"

@@ -11,7 +11,10 @@
 
 #include "engine/db/world_objects.h"
 #include "engine/core/utils_char_obj.inl"
-#include "engine/core/handler.h"
+#include "engine/core/obj_handler.h"
+#include "engine/core/target_resolver.h"
+#include "engine/entities/char_data.h"
+#include "gameplay/mechanics/inventory.h"
 #include "gameplay/economics/auction.h"
 #include "engine/ui/color.h"
 #include "engine/entities/char_player.h"

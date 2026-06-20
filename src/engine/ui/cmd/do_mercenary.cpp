@@ -1,7 +1,8 @@
 //#include "engine/ui/cmd/mercenary.h"
 #include "administration/privilege.h"
 
-#include "engine/core/handler.h"
+#include "engine/core/char_handler.h"
+#include "engine/entities/char_data.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/economics/currencies.h"
 #include "utils/grammar/declensions.h"

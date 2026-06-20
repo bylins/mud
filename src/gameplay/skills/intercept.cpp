@@ -13,7 +13,6 @@
 #include "engine/entities/char_data.h"
 #include "gameplay/fight/common.h"
 #include "parry.h"
-#include "engine/core/handler.h"
 #include "engine/core/target_resolver.h"
 
 void GoIntercept(CharData *ch, CharData *vict);

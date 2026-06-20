@@ -1,5 +1,6 @@
 #include "world_characters.h"
-#include "engine/core/handler.h"
+#include "engine/core/char_handler.h"
+#include "engine/entities/char_data.h"
 #include "gameplay/ai/mobact.h"
 #include "global_objects.h"
 #include "gameplay/ai/mob_memory.h"

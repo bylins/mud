@@ -168,18 +168,5 @@ int calc_str_req(int weight, int type) {
 	return str;
 }
 
-int CAN_CARRY_N(const CharData *ch) {
-	int n = 5 + GetRealDex(ch) / 2 + GetRealLevel(ch) / 2;
-	if (ch->HaveFeat(EFeat::kJuggler)) {
-		n += GetRealLevel(ch) / 2;
-		if (CanUseFeat(ch, EFeat::kThrifty)) {
-			n += 5;
-		}
-	}
-	if (CanUseFeat(ch, EFeat::kThrifty)) {
-		n += 5;
-	}
-	return std::max(n, 1);
-}
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

@@ -17,7 +17,9 @@
 
 #include "gameplay/mechanics/groups.h"
 #include "engine/db/global_objects.h"
-#include "engine/core/handler.h"
+#include "engine/entities/char_data.h"
+#include "gameplay/mechanics/equipment.h"
+#include "utils/parse.h"
 #include "engine/core/target_resolver.h"
 #include "engine/ui/color.h"
 #include "gameplay/mechanics/depot.h"
@@ -887,6 +889,14 @@ int CalcCastSuccess(CharData *ch, CharData *victim, ESaving saving, ESpell spell
 	}
 
 	return (prob > number(0, 100));
+}
+
+
+// issue.handler-cleaning (Bucket 3): weapon cast-affect helper (was file-local in handler).
+void CastWeaponAffect(CharData *ch, ESpell spell_id) {
+	CastContext ctx(ch, spell_id, GetRealLevel(ch), {});
+	ctx.cvict = ch;
+	CastAffect(ctx);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

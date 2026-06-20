@@ -11,7 +11,7 @@
 #include "engine/entities/obj_data.h"
 #include "utils/grammar/gender.h"
 #include "dg_scripts.h"
-#include "engine/core/handler.h"
+#include "engine/entities/char_data.h"
 #include "engine/core/target_resolver.h"
 #include "engine/core/utils_char_obj.inl"
 #include "gameplay/mechanics/sight.h"

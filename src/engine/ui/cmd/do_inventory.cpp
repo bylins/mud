@@ -1,16 +1,13 @@
 /**
-\file inventory.cpp - a part of the Bylins engine.
-\authors Created by Sventovit.
-\date 11.09.2024.
-\brief description.
+\file do_inventory.cpp - a part of the Bylins engine.
+\brief The "inventory" player command. Display logic lives in the inventory mechanic.
 */
 
-#include "engine/entities/char_data.h"
-#include "gameplay/mechanics/sight.h"
+#include "do_inventory.h"
+#include "gameplay/mechanics/inventory.h"
 
 void DoInventory(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	SendMsgToChar("Вы несете:\r\n", ch);
-	sight::list_obj_to_char(ch->carrying, ch, 1, 2);
+	ShowInventory(ch);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

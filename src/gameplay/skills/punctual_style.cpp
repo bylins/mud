@@ -15,7 +15,9 @@
 #include "engine/entities/char_data.h"
 #include "gameplay/magic/spells_constants.h"
 #include "engine/entities/entities_constants.h"
-#include "engine/core/handler.h"
+#include "engine/core/char_equip_flags.h"
+#include "engine/core/obj_handler.h"
+#include "gameplay/mechanics/inventory.h"
 #include "gameplay/magic/magic_utils.h"
 #include "gameplay/mechanics/equipment.h"
 

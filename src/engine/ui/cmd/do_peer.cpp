@@ -8,7 +8,7 @@
 #include "engine/entities/char_data.h"
 #include "administration/privilege.h"
 #include "gameplay/mechanics/sight.h"
-#include "engine/core/handler.h"
+#include "engine/core/char_movement.h"
 
 void DoPeer(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	int i;

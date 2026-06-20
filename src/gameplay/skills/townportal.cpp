@@ -3,7 +3,8 @@
 #include "skill_messages.h"
 
 #include "engine/ui/modify.h"
-#include "engine/core/handler.h"
+#include "engine/entities/char_data.h"
+#include "gameplay/abilities/timed_abilities.h"
 #include "gameplay/abilities/abilities_constants.h"
 #include "gameplay/fight/pk.h"
 #include "gameplay/magic/magic_rooms.h"

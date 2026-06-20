@@ -8,7 +8,10 @@
 
 #include "gameplay/core/constants.h"
 #include "engine/entities/entities_constants.h"
-#include "engine/core/handler.h"
+#include "engine/core/char_handler.h"
+#include "engine/core/char_movement.h"
+#include "engine/core/obj_handler.h"
+#include "engine/entities/char_data.h"
 #include "gameplay/clans/house.h"
 #include "corpse.h"
 #include "gameplay/fight/fight.h"

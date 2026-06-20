@@ -1,7 +1,11 @@
 #include "do_employ.h"
 
 #include "engine/entities/char_data.h"
-#include "engine/core/handler.h"
+#include "engine/core/char_equip_flags.h"
+#include "engine/core/obj_handler.h"
+#include "engine/core/target_resolver.h"
+#include "gameplay/mechanics/equipment.h"
+#include "gameplay/mechanics/inventory.h"
 #include "gameplay/magic/magic_items.h"
 
 void apply_enchant(CharData *ch, ObjData *obj, std::string text);

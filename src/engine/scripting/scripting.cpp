@@ -26,7 +26,7 @@ str.cpp - PyUnicode_FromString на PyUnicode_DecodeLocale, PyUnicode_FromString
 #include "utils/cache.h"
 #include "gameplay/magic/magic_utils.h"
 #include "gameplay/magic/spells.h"
-#include "engine/core/handler.h"
+#include "engine/core/char_handler.h"
 #include "engine/core/target_resolver.h"
 #include "gameplay/core/constants.h"
 #include "engine/ui/modify.h"

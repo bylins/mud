@@ -5,7 +5,7 @@
 #include "gameplay/fight/fight.h"
 #include "gameplay/fight/common.h"
 #include "gameplay/fight/fight_hit.h"
-#include "engine/core/handler.h"
+#include "engine/entities/char_data.h"
 #include "engine/core/target_resolver.h"
 #include "engine/db/global_objects.h"
 #include "utils/grammar/gender.h"

@@ -10,7 +10,7 @@
 #include "administration/privilege.h"
 #include "gameplay/clans/house.h"
 #include "gameplay/mechanics/noob.h"
-#include "engine/core/handler.h"
+#include "engine/core/char_handler.h"
 #include "gameplay/mechanics/sight.h"
 
 void do_recall(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {

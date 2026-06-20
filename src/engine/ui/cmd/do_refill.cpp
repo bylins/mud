@@ -1,5 +1,6 @@
 #include "engine/entities/char_data.h"
-#include "engine/core/handler.h"
+#include "engine/core/obj_handler.h"
+#include "engine/core/target_resolver.h"
 
 //переложить стрелы из пучка стрел в колчан
 void do_refill(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {

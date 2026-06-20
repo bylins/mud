@@ -9,7 +9,10 @@
 #include "engine/entities/char_data.h"
 #include "gameplay/mechanics/condition.h"
 #include "administration/privilege.h"
-#include "engine/core/handler.h"
+#include "engine/core/char_equip_flags.h"
+#include "engine/core/obj_handler.h"
+#include "gameplay/mechanics/equipment.h"
+#include "gameplay/mechanics/inventory.h"
 #include "engine/core/target_resolver.h"
 #include "gameplay/fight/fight.h"
 

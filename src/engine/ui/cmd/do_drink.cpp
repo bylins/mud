@@ -6,6 +6,7 @@
 \detail Detail description.
 */
 
+#include "engine/core/target_resolver.h"
 #include "do_drink.h"
 #include "gameplay/mechanics/condition.h"
 #include "administration/privilege.h"

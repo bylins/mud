@@ -14,7 +14,7 @@
 ************************************************************************ */
 
 #include "dg_scripts.h"
-#include "engine/core/handler.h"
+#include "engine/entities/char_data.h"
 #include "gameplay/magic/magic_utils.h"
 #include "dg_event.h"
 #include "engine/db/global_objects.h"

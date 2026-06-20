@@ -7,7 +7,6 @@
 #include "gameplay/affects/affect_handler.h"
 #include "skill_messages.h"
 #include "engine/entities/obj_data.h"
-#include "engine/core/handler.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/fight/common.h"
 

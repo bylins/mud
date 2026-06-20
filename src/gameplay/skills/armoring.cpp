@@ -1,3 +1,4 @@
+#include "engine/core/target_resolver.h"
 #include "engine/entities/char_data.h"
 #include "administration/privilege.h"
 #include "skill_messages.h"

@@ -9,7 +9,7 @@
 #include "engine/entities/char_data.h"
 #include "administration/privilege.h"
 #include "gameplay/mechanics/mount.h"
-#include "engine/core/handler.h"
+#include "gameplay/abilities/timed_abilities.h"
 #include "gameplay/skills/skills.h"
 #include "engine/db/global_objects.h"
 

@@ -25,7 +25,6 @@
 #include "engine/core/comm.h"
 #include "engine/db/db.h"
 #include "gameplay/core/genchar.h"
-#include "engine/core/handler.h"
 #include "engine/core/target_resolver.h"
 #include "engine/entities/char_player.h"
 #include "glory_misc.h"

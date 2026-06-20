@@ -15,7 +15,8 @@
 
 #include "engine/db/global_objects.h"
 #include "engine/db/obj_prototypes.h"
-#include "engine/core/handler.h"
+#include "engine/core/char_handler.h"
+#include "engine/entities/char_data.h"
 #include "gameplay/clans/house.h"
 #include "shops_implementation.h"
 #include "gameplay/ai/spec_procs.h"

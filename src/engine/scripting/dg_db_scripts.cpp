@@ -17,7 +17,7 @@
 
 #include "engine/db/obj_prototypes.h"
 #include "dg_scripts.h"
-#include "engine/core/handler.h"
+#include "engine/entities/char_data.h"
 #include "dg_event.h"
 #include "gameplay/magic/magic.h"
 #include "gameplay/magic/magic_temp_spells.h"

@@ -26,7 +26,8 @@
 #include "gameplay/mechanics/minions.h"
 
 #include "gameplay/magic/magic_utils.h"
-#include "engine/core/handler.h"
+#include "engine/entities/char_data.h"
+#include "gameplay/mechanics/inventory.h"
 #include "gameplay/fight/pk.h"
 #include "gameplay/statistics/top.h"
 #include "gameplay/communication/offtop.h"
