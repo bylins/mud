@@ -273,6 +273,17 @@ enum class ECommonMsg {
 	kNoPerson,     // was NOPERSON
 	kNothing,      // was nothing_string (inline fragment; no newline)
 	kBrokenScales, // exp table missing/broken; experience cannot be granted
+	// issue.exit-menu: main connection-menu lines (display order, not enum value, sets the number)
+	kMenuExit,
+	kMenuEnterGame,
+	kMenuDescription,
+	kMenuHistory,
+	kMenuChangePassword,
+	kMenuDelete,
+	kMenuResetStats,
+	kMenuBlind,
+	kMenuEmailList,
+	kMenuPrompt,
 };
 
 [[nodiscard]] const std::string &CommonMsg(ECommonMsg id);

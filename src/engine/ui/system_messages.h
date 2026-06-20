@@ -2,7 +2,7 @@
 \file system_messages.h - a part of the Bylins engine.
 \authors Created by Claude (issue.sml-cdata-msg).
 \brief Container for the game's static "system texts" (greetings, motd, immortal rules, ...).
-\details The nine system texts formerly loaded from lib/text/* into global char* strings now live
+\details The nine system texts formerly loaded from lib/text into global char-pointer strings now live
 		 in one cfg/messages/ru/system_msg.xml, inside a single msg_sheaf (id="kDefault"). Each
 		 message carries its multi-line preformatted body in a <![CDATA[...]]> block (read verbatim
 		 by MsgSheafBuilder). Loaded through cfg_manager (SystemMessagesLoader) and exposed via

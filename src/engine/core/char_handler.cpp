@@ -297,7 +297,7 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 	if (!is_npc
 		&& ch->desc != nullptr) {
 		ch->desc->state = EConState::kMenu;
-		iosystem::write_to_output(MENU, ch->desc);
+		ShowMainMenu(ch->desc);
 		if (!ch->IsNpc() && NORENTABLE(ch) && clear_objs) {
 			ch->zero_wait();
 			do_entergame(ch->desc);

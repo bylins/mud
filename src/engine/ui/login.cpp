@@ -5,6 +5,7 @@
 */
 #include "interpreter.h"
 #include "engine/ui/system_messages.h"
+#include "engine/core/config.h"
 #include "gameplay/mechanics/condition.h"
 #include "administration/dupe_check.h"
 
@@ -1297,135 +1298,149 @@ static void HandleNewChar(DescriptorData *d, char *argument) {
 
 }
 
-static void HandleMainMenu(DescriptorData *d, char *argument) {
+// --- Main connection menu (issue.exit-menu) ---------------------------------
+// One handler per entry; kMainMenu drives BOTH the auto-numbered display
+// (ShowMainMenu) and the dispatch (HandleMainMenu), so the number a player sees
+// and the action it triggers can never drift apart. Line labels live in common_msg.
+
+static void HandleMenuExit(DescriptorData *d) {
 	char buffer[kMaxStringLength];
-	switch (*argument) {
-		case '0': iosystem::write_to_output("\r\nДо встречи на земле Киевской.\r\n", d);
-
-			if (remort::GetRealRemort(d->character) == 0
-				&& GetRealLevel(d->character) <= 25
-				&& !d->character->IsFlagged(EPlrFlag::kNoDelete)) {
-				int timeout = -1;
-				for (int ci = 0; GetRealLevel(d->character) > pclean_criteria[ci].level; ci++) {
-					//if (GetRealLevel(d->character) == pclean_criteria[ci].level)
-					timeout = pclean_criteria[ci + 1].days;
-				}
-				if (timeout > 0) {
-					time_t deltime = time(nullptr) + timeout * 60 * rent_file_timeout * 24;
-					sprintf(buffer,
-							"В случае вашего отсутствия персонаж будет храниться до %s нашей эры :).\r\n",
-							rustime(localtime(&deltime)));
-					iosystem::write_to_output(buffer, d);
-				}
-			}
-
-			d->state = EConState::kClose;
-
-			break;
-
-		case '1':
-			if (!check_dupes_email(d)) {
-				d->state = EConState::kClose;
-				break;
-			}
-
-			do_entergame(d);
-
-			break;
-
-		case '2':
-			if (!d->character->player_data.description.empty()) {
-				iosystem::write_to_output("Ваше ТЕКУЩЕЕ описание:\r\n", d);
-				iosystem::write_to_output(d->character->player_data.description.c_str(), d);
-				/*
-							 * Don't free this now... so that the old description gets loaded
-							 * as the current buffer in the editor.  Do set up the ABORT buffer
-							 * here, however.
-							 *
-							 * free(d->character->player_data.description);
-							 * d->character->player_data.description = NULL;
-							 */
-				d->backstr = str_dup(d->character->player_data.description.c_str());
-			}
-
-			iosystem::write_to_output("Введите описание вашего героя, которое будет выводиться по команде <осмотреть>.\r\n", d);
-			iosystem::write_to_output("(/s сохранить /h помощь)\r\n", d);
-
-			d->writer =
-				std::make_shared<utils::DelegatedStdStringWriter>(d->character->player_data.description);
-			d->max_str = kExdscrLength;
-			d->state = EConState::kExdesc;
-
-			break;
-
-		case '3': page_string(d, system_messages::GetText(system_messages::ESystemMsg::kBackground));
-			d->state = EConState::kRmotd;
-			break;
-
-		case '4': iosystem::write_to_output("\r\nВведите СТАРЫЙ пароль : ", d);
-			d->state = EConState::kChpwdGetOld;
-			break;
-
-		case '5':
-			if (privilege::IsImmortal(d->character.get())) {
-				iosystem::write_to_output("\r\nБоги бессмертны (с) Стрибог, просите чтоб пофризили :)))\r\n", d);
-				iosystem::write_to_output(MENU, d);
-				break;
-			}
-
-			if (d->character->IsFlagged(EPlrFlag::kHelled)
-				|| d->character->IsFlagged(EPlrFlag::kFrozen)) {
-				iosystem::write_to_output("\r\nВы находитесь в АДУ!!! Амнистии подобным образом не будет.\r\n", d);
-				iosystem::write_to_output(MENU, d);
-				break;
-			}
-
-			if (remort::GetRealRemort(d->character) > 5) {
-				iosystem::write_to_output("\r\nНельзя удалить себя достигнув шестого перевоплощения.\r\n", d);
-				iosystem::write_to_output(MENU, d);
-				break;
-			}
-
-			iosystem::write_to_output("\r\nДля подтверждения введите свой пароль : ", d);
-			d->state = EConState::kDelcnf1;
-
-			break;
-
-		case '6':
-			if (privilege::IsImmortal(d->character.get())) {
-				iosystem::write_to_output("\r\nВам это ни к чему...\r\n", d);
-				iosystem::write_to_output(MENU, d);
-				d->state = EConState::kMenu;
-			} else {
-				stats_reset::print_menu(d);
-				d->state = EConState::kMenuStats;
-			}
-			break;
-
-		case '7':
-			if (!d->character->IsFlagged(EPrf::kBlindMode)) {
-				d->character->SetFlag(EPrf::kBlindMode);
-				iosystem::write_to_output("\r\nСпециальный режим слепого игрока ВКЛЮЧЕН.\r\n", d);
-				iosystem::write_to_output(MENU, d);
-				d->state = EConState::kMenu;
-			} else {
-				d->character->UnsetFlag(EPrf::kBlindMode);
-				iosystem::write_to_output("\r\nСпециальный режим слепого игрока ВЫКЛЮЧЕН.\r\n", d);
-				iosystem::write_to_output(MENU, d);
-				d->state = EConState::kMenu;
-			}
-
-			break;
-		case '8': d->character->get_account()->list_players(d);
-			break;
-
-		default: iosystem::write_to_output("\r\nЭто не есть правильный ответ!\r\n", d);
-			iosystem::write_to_output(MENU, d);
-
-			break;
+	iosystem::write_to_output("\r\nДо встречи на земле Киевской.\r\n", d);
+	if (remort::GetRealRemort(d->character) == 0
+		&& GetRealLevel(d->character) <= 25
+		&& !d->character->IsFlagged(EPlrFlag::kNoDelete)) {
+		int timeout = -1;
+		for (int ci = 0; GetRealLevel(d->character) > pclean_criteria[ci].level; ci++) {
+			timeout = pclean_criteria[ci + 1].days;
+		}
+		if (timeout > 0) {
+			time_t deltime = time(nullptr) + timeout * 60 * rent_file_timeout * 24;
+			sprintf(buffer,
+					"В случае вашего отсутствия персонаж будет храниться до %s нашей эры :).\r\n",
+					rustime(localtime(&deltime)));
+			iosystem::write_to_output(buffer, d);
+		}
 	}
+	d->state = EConState::kClose;
+}
 
+static void HandleMenuEnterGame(DescriptorData *d) {
+	if (!check_dupes_email(d)) {
+		d->state = EConState::kClose;
+		return;
+	}
+	do_entergame(d);
+}
 
+static void HandleMenuDescription(DescriptorData *d) {
+	if (!d->character->player_data.description.empty()) {
+		iosystem::write_to_output("Ваше ТЕКУЩЕЕ описание:\r\n", d);
+		iosystem::write_to_output(d->character->player_data.description.c_str(), d);
+		// keep the old description as the editor's ABORT buffer
+		d->backstr = str_dup(d->character->player_data.description.c_str());
+	}
+	iosystem::write_to_output("Введите описание вашего героя, которое будет выводиться по команде <осмотреть>.\r\n", d);
+	iosystem::write_to_output("(/s сохранить /h помощь)\r\n", d);
+	d->writer =
+		std::make_shared<utils::DelegatedStdStringWriter>(d->character->player_data.description);
+	d->max_str = kExdscrLength;
+	d->state = EConState::kExdesc;
+}
+
+static void HandleMenuHistory(DescriptorData *d) {
+	page_string(d, system_messages::GetText(system_messages::ESystemMsg::kBackground));
+	d->state = EConState::kRmotd;
+}
+
+static void HandleMenuChangePassword(DescriptorData *d) {
+	iosystem::write_to_output("\r\nВведите СТАРЫЙ пароль : ", d);
+	d->state = EConState::kChpwdGetOld;
+}
+
+static void HandleMenuDelete(DescriptorData *d) {
+	if (privilege::IsImmortal(d->character.get())) {
+		iosystem::write_to_output("\r\nБоги бессмертны (с) Стрибог, просите чтоб пофризили :)))\r\n", d);
+		ShowMainMenu(d);
+		return;
+	}
+	if (d->character->IsFlagged(EPlrFlag::kHelled)
+		|| d->character->IsFlagged(EPlrFlag::kFrozen)) {
+		iosystem::write_to_output("\r\nВы находитесь в АДУ!!! Амнистии подобным образом не будет.\r\n", d);
+		ShowMainMenu(d);
+		return;
+	}
+	if (remort::GetRealRemort(d->character) > 5) {
+		iosystem::write_to_output("\r\nНельзя удалить себя достигнув шестого перевоплощения.\r\n", d);
+		ShowMainMenu(d);
+		return;
+	}
+	iosystem::write_to_output("\r\nДля подтверждения введите свой пароль : ", d);
+	d->state = EConState::kDelcnf1;
+}
+
+static void HandleMenuResetStats(DescriptorData *d) {
+	if (privilege::IsImmortal(d->character.get())) {
+		iosystem::write_to_output("\r\nВам это ни к чему...\r\n", d);
+		ShowMainMenu(d);
+		d->state = EConState::kMenu;
+	} else {
+		stats_reset::print_menu(d);
+		d->state = EConState::kMenuStats;
+	}
+}
+
+static void HandleMenuBlind(DescriptorData *d) {
+	if (!d->character->IsFlagged(EPrf::kBlindMode)) {
+		d->character->SetFlag(EPrf::kBlindMode);
+		iosystem::write_to_output("\r\nСпециальный режим слепого игрока ВКЛЮЧЕН.\r\n", d);
+	} else {
+		d->character->UnsetFlag(EPrf::kBlindMode);
+		iosystem::write_to_output("\r\nСпециальный режим слепого игрока ВЫКЛЮЧЕН.\r\n", d);
+	}
+	ShowMainMenu(d);
+	d->state = EConState::kMenu;
+}
+
+static void HandleMenuEmailList(DescriptorData *d) {
+	d->character->get_account()->list_players(d);
+}
+
+static const struct {
+	ECommonMsg label;                   // menu-line text (common_msg)
+	void (*handler)(DescriptorData *);  // action when this entry is chosen
+} kMainMenu[] = {
+	{ECommonMsg::kMenuExit,           HandleMenuExit},
+	{ECommonMsg::kMenuEnterGame,      HandleMenuEnterGame},
+	{ECommonMsg::kMenuDescription,    HandleMenuDescription},
+	{ECommonMsg::kMenuHistory,        HandleMenuHistory},
+	{ECommonMsg::kMenuChangePassword, HandleMenuChangePassword},
+	{ECommonMsg::kMenuDelete,         HandleMenuDelete},
+	{ECommonMsg::kMenuResetStats,     HandleMenuResetStats},
+	{ECommonMsg::kMenuBlind,          HandleMenuBlind},
+	{ECommonMsg::kMenuEmailList,      HandleMenuEmailList},
+};
+static constexpr size_t kMainMenuSize = sizeof(kMainMenu) / sizeof(kMainMenu[0]);
+
+// Render the menu with sequential 0-based numbers (line index == the digit typed).
+void ShowMainMenu(DescriptorData *d) {
+	std::string out = "\r\n";
+	char line[kMaxInputLength];
+	for (size_t i = 0; i < kMainMenuSize; ++i) {
+		snprintf(line, sizeof(line), "%zu) %s\r\n", i, CommonMsg(kMainMenu[i].label).c_str());
+		out += line;
+	}
+	out += "\r\n   " + CommonMsg(ECommonMsg::kMenuPrompt) + " ";
+	iosystem::write_to_output(out.c_str(), d);
+}
+
+static void HandleMainMenu(DescriptorData *d, char *argument) {
+	const unsigned char c = static_cast<unsigned char>(*argument);
+	if (c >= '0' && c < '0' + static_cast<int>(kMainMenuSize)) {
+		kMainMenu[c - '0'].handler(d);
+		return;
+	}
+	iosystem::write_to_output("\r\nЭто не есть правильный ответ!\r\n", d);
+	ShowMainMenu(d);
 }
 
 static void HandleNameCase(DescriptorData *d, char *argument, int step) {
@@ -1646,7 +1661,7 @@ static void HandleConfirmNewPassword(DescriptorData *d, char *argument) {
 		AddKarma(d->character.get(), buffer, "");
 		d->character->save_char();
 		iosystem::write_to_output("\r\nГотово.\r\n", d);
-		iosystem::write_to_output(MENU, d);
+		ShowMainMenu(d);
 		d->state = EConState::kMenu;
 	}
 
@@ -1911,7 +1926,7 @@ static void HandleRandomNumber(DescriptorData *d, char *argument) {
 static void HandleGetOldPassword(DescriptorData *d, char *argument) {
 	if (!Password::compare_password(d->character.get(), argument)) {
 		iosystem::write_to_output("\r\nНеверный пароль.\r\n", d);
-		iosystem::write_to_output(MENU, d);
+		ShowMainMenu(d);
 		d->state = EConState::kMenu;
 	} else {
 		iosystem::write_to_output("\r\nВведите НОВЫЙ пароль : ", d);
@@ -1924,7 +1939,7 @@ static void HandleGetOldPassword(DescriptorData *d, char *argument) {
 static void HandleDeleteConfirm1(DescriptorData *d, char *argument) {
 	if (!Password::compare_password(d->character.get(), argument)) {
 		iosystem::write_to_output("\r\nНеверный пароль.\r\n", d);
-		iosystem::write_to_output(MENU, d);
+		ShowMainMenu(d);
 		d->state = EConState::kMenu;
 	} else {
 		iosystem::write_to_output("\r\n!!! ВАШ ПЕРСОНАЖ БУДЕТ УДАЛЕН !!!\r\n"
@@ -1961,7 +1976,7 @@ static void HandleDeleteConfirm2(DescriptorData *d, char *argument) {
 		return;
 	} else {
 		iosystem::write_to_output("\r\nПерсонаж не удален.\r\n", d);
-		iosystem::write_to_output(MENU, d);
+		ShowMainMenu(d);
 		d->state = EConState::kMenu;
 	}
 	return;

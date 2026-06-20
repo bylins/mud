@@ -819,7 +819,7 @@ void string_add(DescriptorData *d, char *str) {
 			if (terminator != 1) {
 				iosystem::write_to_output("Создание описания прервано.\r\n", d);
 			}
-			iosystem::write_to_output(MENU, d);
+			ShowMainMenu(d);
 			d->state = EConState::kMenu;
 			//log("[SA] 7f");
 		} else if (d->state == EConState::kPlaying && d->character && !d->character->IsNpc()) {

@@ -267,18 +267,6 @@ int siteok_everyone = true;
 
 int nameserver_is_slow = YES;
 
-const char *MENU = "\r\n"
-				   "0) Отсоединиться.\r\n"
-				   "1) Начать игру.\r\n"
-				   "2) Ввести описание вашего персонажа.\r\n"
-				   "3) Узнать историю.\r\n"
-				   "4) Изменить пароль.\r\n"
-				   "5) Удалить персонажа.\r\n"
-				   "6) Изменить параметры персонажа.\r\n"
-				   "7) Включить/выключить режим слепого игрока.\r\n"
-				   "8) Посмотреть всех персонажей на данном email'e.\r\n"
-				   "\r\n"
-				   "   Чего ваша душа желает? ";
 
 
 int calc_loadroom(const CharData *ch) {
@@ -958,6 +946,16 @@ const std::map<ECommonMsg, std::string> kCommonMsgNames{
 		{ECommonMsg::kNoPerson, "kNoPerson"},
 		{ECommonMsg::kNothing, "kNothing"},
 		{ECommonMsg::kBrokenScales, "kBrokenScales"},
+		{ECommonMsg::kMenuExit, "kMenuExit"},
+		{ECommonMsg::kMenuEnterGame, "kMenuEnterGame"},
+		{ECommonMsg::kMenuDescription, "kMenuDescription"},
+		{ECommonMsg::kMenuHistory, "kMenuHistory"},
+		{ECommonMsg::kMenuChangePassword, "kMenuChangePassword"},
+		{ECommonMsg::kMenuDelete, "kMenuDelete"},
+		{ECommonMsg::kMenuResetStats, "kMenuResetStats"},
+		{ECommonMsg::kMenuBlind, "kMenuBlind"},
+		{ECommonMsg::kMenuEmailList, "kMenuEmailList"},
+		{ECommonMsg::kMenuPrompt, "kMenuPrompt"},
 	};
 
 msg_container::MsgContainer<int, ECommonMsg> &CommonMsgContainer() {
