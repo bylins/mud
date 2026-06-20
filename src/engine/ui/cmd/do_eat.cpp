@@ -106,7 +106,9 @@ void do_eat(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	one_argument(argument, arg);
 
 	if (subcmd == kScmdDevour) {
-		if (ch->IsFlagged(EMobFlag::kResurrected)
+		// kUndead покрывает и умертвий (animate dead), и оживлённых (kResurrection):
+		// раньше тут было kResurrected, но animate dead его больше не ставит (issue #3482)
+		if (ch->IsFlagged(EMobFlag::kUndead)
 			&& CanUseFeat(ch->get_master(), EFeat::kZombieDrover)) {
 			feed_charmice(ch, arg);
 			return;
