@@ -119,7 +119,7 @@ long CalcHirePrice(CharData *ch, CharData *victim) {
 	long finalPrice = MAX(min_price, (int) ceil(price - hirePoints));
 
 	SendToTC(ch, true, true, true,
-				   "Параметры персонажа: RMRT: %.4lf, CHA: %.4lf, INT: %.4lf, TOTAL: %.4lf. Цена чармиса:  %.4lf. Итоговая цена: %d \r\n",
+				   "Параметры персонажа: RMRT: %.4lf, CHA: %.4lf, INT: %.4lf, TOTAL: %.4lf. Цена чармиса:  %.4lf. Итоговая цена: %ld \r\n",
 				   rem_hirePoints, cha_hirePoints, int_hirePoints, hirePoints, price, finalPrice);
 	return std::min(finalPrice, kMaxHirePrice);
 }

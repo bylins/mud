@@ -1444,7 +1444,7 @@ void using_charmice_skills(CharData *ch) {
 			msg << ch->get_name() << " использует оглушение: " << ((do_skill_without_command && skill_ready) ? "ДА" : "НЕТ") << "\r\n";
 			msg << "Проверка шанса применения: " << (do_skill_without_command ? "ДА" : "НЕТ");
 			msg << ", скилл откатился: " << (skill_ready ? "ДА" : "НЕТ") << "\r\n";
-			SendToTC(master, true, true, true, msg.str().c_str());
+			SendToTC(master, true, true, true, "%s", msg.str().c_str());
 		}
 		if (do_skill_without_command && skill_ready) {
 			ch->battle_affects.set(kEafOverwhelm);
@@ -1456,7 +1456,7 @@ void using_charmice_skills(CharData *ch) {
 			msg << ch->get_name() << " использует богатырский молот: " << ((do_skill_without_command && skill_ready) ? "ДА" : "НЕТ") << "\r\n";
 			msg << "Проверка шанса применения: " << (do_skill_without_command ? "ДА" : "НЕТ");
 			msg << ", скилл откатился: " << (skill_ready ? "ДА" : "НЕТ") << "\r\n";
-			SendToTC(master, true, true, true, msg.str().c_str());
+			SendToTC(master, true, true, true, "%s", msg.str().c_str());
 		}
 		if (do_skill_without_command && skill_ready) {
 			ch->battle_affects.set(kEafHammer);
@@ -1468,7 +1468,7 @@ void using_charmice_skills(CharData *ch) {
 			msg << ch->get_name() << " использует метнуть : " << ((do_skill_without_command && skill_ready) ? "ДА" : "НЕТ") << "\r\n";
 			msg << "Проверка шанса применения: " << (do_skill_without_command ? "ДА" : "НЕТ");
 			msg << ", скилл откатился: " << (skill_ready ? "ДА" : "НЕТ") << "\r\n";
-			SendToTC(master, true, true, true, msg.str().c_str());
+			SendToTC(master, true, true, true, "%s", msg.str().c_str());
 		}
 		if (do_skill_without_command && skill_ready) {
 			ch->SetExtraAttack(kExtraAttackThrow, ch->GetEnemy());
@@ -1481,7 +1481,7 @@ void using_charmice_skills(CharData *ch) {
 			msg << ch->get_name() << " использует подножку : " << ((do_skill_without_command && skill_ready) ? "ДА" : "НЕТ") << "\r\n";
 			msg << "Проверка шанса применения: " << (do_skill_without_command ? "ДА" : "НЕТ");
 			msg << ", скилл откатился: " << (skill_ready ? "ДА" : "НЕТ") << "\r\n";
-			SendToTC(master, true, true, true, msg.str().c_str());
+			SendToTC(master, true, true, true, "%s", msg.str().c_str());
 		}
 		if (do_skill_without_command && skill_ready) {
 			if (ch->GetPosition() < EPosition::kFight) return;
@@ -1495,7 +1495,7 @@ void using_charmice_skills(CharData *ch) {
 			msg << ch->get_name() << " использует ВИХРЬ : " << ((do_skill_without_command && skill_ready) ? "ДА" : "НЕТ") << "\r\n";
 			msg << "Проверка шанса применения: " << (do_skill_without_command ? "ДА" : "НЕТ");
 			msg << ", скилл откатился: " << (skill_ready ? "ДА" : "НЕТ") << "\r\n";
-			SendToTC(master, true, true, true, msg.str().c_str());
+			SendToTC(master, true, true, true, "%s", msg.str().c_str());
 		}
 		if (do_skill_without_command && skill_ready) {
 			if (ch->GetPosition() < EPosition::kFight) return;

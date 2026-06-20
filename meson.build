@@ -333,7 +333,7 @@ version_cpp = custom_target('version_gen',
   command: [
     py3,
     files('tools/meson/generate_version.py'),
-    '@INPUT@', '@OUTPUT@', git_rev, buildtype, features, compiler_id
+    '@INPUT@', '@OUTPUT@', git_rev, buildtype, features, compiler_id, meson.project_source_root()
   ]
 )
 
