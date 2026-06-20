@@ -32,6 +32,8 @@ enum class ESystemMsg {
 	kNameRules,    // character-name rules (char-gen)
 	kPolicies,     // policies page
 	kImmRules,     // rules for immortals (was lib/text/rules)
+	kWelcome,      // welcome shown after login (was config.cpp WELC_MESSG)
+	kStartMessage, // first-login message for a new character (was config.cpp START_MESSG)
 };
 } // namespace system_messages
 

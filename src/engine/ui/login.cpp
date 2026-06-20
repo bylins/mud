@@ -149,8 +149,6 @@
 
 extern RoomRnum r_frozen_start_room;
 extern const char *religion_menu;
-extern const char *WELC_MESSG;
-extern const char *START_MESSG;
 extern int circle_restrict;
 extern int no_specials;
 extern int max_bad_pws;
@@ -535,7 +533,7 @@ void do_entergame(DescriptorData *d) {
 			load_room = r_mortal_start_room;
 	}
 
-	SendMsgToChar(WELC_MESSG, d->character.get());
+	SendMsgToChar(system_messages::GetText(system_messages::ESystemMsg::kWelcome), d->character.get());
 
 	CharData *character = nullptr;
 	for (const auto &character_i : character_list) {
@@ -682,7 +680,7 @@ void do_entergame(DescriptorData *d) {
 		d->character->set_last_exchange(time(nullptr));
 		DoPcInit(d->character.get(), true);
 		d->character->mem_queue.stored = 0;
-		SendMsgToChar(START_MESSG, d->character.get());
+		SendMsgToChar(system_messages::GetText(system_messages::ESystemMsg::kStartMessage), d->character.get());
 	}
 
 	init_warcry(d->character.get());

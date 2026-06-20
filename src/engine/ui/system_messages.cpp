@@ -20,6 +20,8 @@ const std::map<system_messages::ESystemMsg, std::string> kSystemMsgNames{
 	{system_messages::ESystemMsg::kNameRules, "kNameRules"},
 	{system_messages::ESystemMsg::kPolicies, "kPolicies"},
 	{system_messages::ESystemMsg::kImmRules, "kImmRules"},
+	{system_messages::ESystemMsg::kWelcome, "kWelcome"},
+	{system_messages::ESystemMsg::kStartMessage, "kStartMessage"},
 };
 } // namespace
 

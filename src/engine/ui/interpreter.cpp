@@ -266,8 +266,6 @@
 
 extern RoomRnum r_frozen_start_room;
 extern const char *religion_menu;
-extern const char *WELC_MESSG;
-extern const char *START_MESSG;
 extern int circle_restrict;
 extern int no_specials;
 extern int max_bad_pws;
