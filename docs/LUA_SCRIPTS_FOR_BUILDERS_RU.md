@@ -273,6 +273,7 @@ end
 | --- | --- | --- |
 | `mud.purge(entity)` | bool | Удаляет сущность через ее метод `purge`. PC удалить нельзя. |
 | `mud.damage(victim, amount, type)` | bool | Наносит урон. `type`: `nil`, `"physic"`, `"magic"`, `"poisonous"`. |
+| `mud.cast_spell(spell_name, target)` | bool | Скриптовый каст заклинания от имени владельца триггера; ближайший DG-аналог - `dgcast`. `target`: `nil`, строка поиска, Char, Obj или Room. |
 | `mud.transfer(entity, room)` | bool | Перемещает Char или Obj в комнату. |
 | `mud.force(char, command)` | bool | Заставляет персонажа выполнить команду. Цель должна быть в комнате владельца триггера. |
 | `mud.echo(message)` | bool | Сообщение в комнату владельца триггера. |
@@ -286,6 +287,8 @@ end
 mud.damage(ctx.actor, mud.random(50), nil)       -- без боя, DG-style mdamage
 mud.damage(ctx.actor, 20, "magic")              -- typed damage через Damage::Process
 ```
+
+`mud.cast_spell(spell_name, target)` возвращает `true`, если игровая `CallMagic`-логика дала эффект. Ближайший DG-аналог - `dgcast`, но это самостоятельный Lua API, а не точная обертка: строковая цель ищется как в обычном cast-поиске, а direct-цели Char/Obj/Room проверяются по target-флагам заклинания и расположению цели. Direct Obj-цель должна быть в инвентаре, экипировке или комнате кастера; для `locate object` передавайте строковую цель. Для room/object-триггеров без персонажа-кастера Lua создает временного системного кастера в комнате владельца.
 
 ## `mud.wait`
 

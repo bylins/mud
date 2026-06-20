@@ -10,6 +10,10 @@
 #include "engine/db/world_objects.h"
 #include "engine/entities/char_data.h"
 #include "engine/scripting/dg_scripts.h"
+#include "gameplay/core/constants.h"
+#include "gameplay/fight/pk.h"
+#include "gameplay/magic/magic_utils.h"
+#include "gameplay/mechanics/sight.h"
 #include "gameplay/mechanics/stable_objs.h"
 #include "gameplay/mechanics/weather.h"
 #include "utils/utils.h"
@@ -80,6 +84,18 @@ ObjData *FindObjById(const sol::object &id)
 
 	const auto obj = world_objects.find_by_id(static_cast<object_id_t>(value));
 	return obj && !obj->get_extracted_list() ? obj.get() : nullptr;
+}
+
+ObjData *GetObjArgument(const sol::object &object)
+{
+	if (!object.is<sol::table>())
+	{
+		return nullptr;
+	}
+
+	sol::table object_table = object;
+	const sol::object id = object_table["id"];
+	return FindObjById(id);
 }
 
 int CountWorldObjectsByRnum(ObjRnum rnum)
@@ -159,6 +175,241 @@ CharData *GetCharArgument(const sol::object &character)
 	sol::table character_table = character;
 	const sol::object uid = character_table["uid"];
 	return FindCharByUid(uid);
+}
+
+CharData *FindObjectCarrier(ObjData *obj, int depth = 0)
+{
+	if (!obj || depth > 10)
+	{
+		return nullptr;
+	}
+	if (obj->get_carried_by())
+	{
+		return obj->get_carried_by();
+	}
+	if (obj->get_worn_by())
+	{
+		return obj->get_worn_by();
+	}
+	return FindObjectCarrier(obj->get_in_obj(), depth + 1);
+}
+
+CharData *CreateLuaSpellProxyCaster(LuaRuntimeContext runtime)
+{
+	if (runtime.owner_room == kNowhere)
+	{
+		return nullptr;
+	}
+
+	auto *caster = ReadMobile(kDgCasterProxy, kVirtual);
+	if (!caster)
+	{
+		return nullptr;
+	}
+
+	PlaceCharToRoom(caster, runtime.owner_room);
+	return caster;
+}
+
+CharData *ResolveLuaSpellCaster(LuaRuntimeContext runtime, bool &temporary)
+{
+	temporary = false;
+	if (runtime.owner && runtime.owner->in_room != kNowhere)
+	{
+		return runtime.owner;
+	}
+
+	if (runtime.owner_obj)
+	{
+		if (auto *carrier = FindObjectCarrier(runtime.owner_obj))
+		{
+			if (carrier->in_room != kNowhere)
+			{
+				return carrier;
+			}
+		}
+	}
+
+	temporary = true;
+	return CreateLuaSpellProxyCaster(runtime);
+}
+
+bool ValidateLuaSpellCharTarget(
+	LuaRuntimeContext runtime,
+	ESpell spell_id,
+	CharData *caster,
+	CharData *target_char)
+{
+	if (!target_char || target_char->purged() || target_char->in_room == kNowhere)
+	{
+		return LogLuaApiError(runtime, "cast_spell: character target is not in world");
+	}
+
+	if (!MUD::Spell(spell_id).AllowTarget(kTarCharRoom | kTarCharWorld))
+	{
+		return LogLuaApiError(runtime, "cast_spell: spell does not accept character target");
+	}
+
+	const bool room_target = MUD::Spell(spell_id).AllowTarget(kTarCharRoom) && target_char->in_room == caster->in_room;
+	const bool world_target = MUD::Spell(spell_id).AllowTarget(kTarCharWorld)
+		&& (caster->IsNpc() || !target_char->IsNpc() || target_char->in_room == caster->in_room);
+	if (!room_target && !world_target)
+	{
+		return LogLuaApiError(runtime, "cast_spell: character target is outside allowed scope");
+	}
+
+	if (!sight::CanSee(caster, target_char))
+	{
+		return LogLuaApiError(runtime, "cast_spell: character target is not visible to caster");
+	}
+
+	if (MUD::Spell(spell_id).IsViolentAgainst(caster, target_char) && !check_pkill(caster, target_char, target_char->get_name()))
+	{
+		return false;
+	}
+
+	return true;
+}
+
+bool ValidateLuaSpellObjTarget(
+	LuaRuntimeContext runtime,
+	ESpell spell_id,
+	CharData *caster,
+	ObjData *target_obj)
+{
+	if (!target_obj || target_obj->get_extracted_list())
+	{
+		return LogLuaApiError(runtime, "cast_spell: object target is not in world");
+	}
+
+	if (!MUD::Spell(spell_id).AllowTarget(kTarObjInv | kTarObjEquip | kTarObjRoom | kTarObjWorld))
+	{
+		return LogLuaApiError(runtime, "cast_spell: spell does not accept object target");
+	}
+	if (spell_id == ESpell::kLocateObject)
+	{
+		return LogLuaApiError(runtime, "cast_spell: locate object requires string target");
+	}
+
+	const bool inventory_target = MUD::Spell(spell_id).AllowTarget(kTarObjInv) && target_obj->get_carried_by() == caster;
+	const bool equipment_target = MUD::Spell(spell_id).AllowTarget(kTarObjEquip) && target_obj->get_worn_by() == caster;
+	const bool room_target = MUD::Spell(spell_id).AllowTarget(kTarObjRoom) && target_obj->get_in_room() == caster->in_room;
+	if (!inventory_target && !equipment_target && !room_target)
+	{
+		return LogLuaApiError(runtime, "cast_spell: object target is outside allowed scope");
+	}
+
+	if (!sight::CanSeeObj(caster, target_obj))
+	{
+		return LogLuaApiError(runtime, "cast_spell: object target is not visible to caster");
+	}
+
+	return true;
+}
+
+bool ResolveLuaSpellTarget(
+	LuaRuntimeContext runtime,
+	ESpell spell_id,
+	CharData *caster,
+	const sol::object &target,
+	CharData **tch,
+	ObjData **tobj,
+	RoomData **troom)
+{
+	*tch = nullptr;
+	*tobj = nullptr;
+	*troom = caster && caster->in_room != kNowhere ? world[caster->in_room] : nullptr;
+	if (!caster || caster->in_room == kNowhere)
+	{
+		return LogLuaApiError(runtime, "cast_spell: caster is not in room");
+	}
+
+	if (target.get_type() == sol::type::lua_nil)
+	{
+		return FindCastTarget(spell_id, "", caster, tch, tobj, troom);
+	}
+	if (target.is<std::string>())
+	{
+		const auto target_name = target.as<std::string>();
+		return FindCastTarget(spell_id, target_name.c_str(), caster, tch, tobj, troom);
+	}
+	if (!target.is<sol::table>())
+	{
+		return LogLuaApiError(runtime, "cast_spell: target must be nil, string, Char, Obj, or Room");
+	}
+
+	if (auto *target_char = GetCharArgument(target))
+	{
+		if (!ValidateLuaSpellCharTarget(runtime, spell_id, caster, target_char))
+		{
+			return false;
+		}
+		*tch = target_char;
+		return true;
+	}
+
+	if (auto *target_obj = GetObjArgument(target))
+	{
+		if (!ValidateLuaSpellObjTarget(runtime, spell_id, caster, target_obj))
+		{
+			return false;
+		}
+		*tobj = target_obj;
+		return true;
+	}
+
+	const auto room_rnum = GetRoomFromLua(target);
+	if (room_rnum != kNowhere)
+	{
+		if (!MUD::Spell(spell_id).AllowTarget(kTarRoomThis))
+		{
+			return LogLuaApiError(runtime, "cast_spell: spell does not accept room target");
+		}
+		if (room_rnum != caster->in_room)
+		{
+			return LogLuaApiError(runtime, "cast_spell: room target must be caster room");
+		}
+		*troom = world[room_rnum];
+		return true;
+	}
+
+	return LogLuaApiError(runtime, "cast_spell: invalid target");
+}
+
+bool MudCastSpell(LuaRuntimeContext runtime, const sol::object &spell_name, const sol::object &target)
+{
+	if (!spell_name.is<std::string>())
+	{
+		return LogLuaApiError(runtime, "cast_spell: spell name must be a string");
+	}
+
+	auto spell_name_text = spell_name.as<std::string>();
+	const auto spell_id = FixNameAndFindSpellId(spell_name_text);
+	if (spell_id == ESpell::kUndefined)
+	{
+		return LogLuaApiError(runtime, "cast_spell: unknown spell");
+	}
+
+	bool temporary_caster = false;
+	auto *caster = ResolveLuaSpellCaster(runtime, temporary_caster);
+	if (!caster)
+	{
+		return LogLuaApiError(runtime, "cast_spell: unable to resolve caster");
+	}
+
+	CharData *tch = nullptr;
+	ObjData *tobj = nullptr;
+	RoomData *troom = nullptr;
+	const bool target_found = ResolveLuaSpellTarget(runtime, spell_id, caster, target, &tch, &tobj, &troom);
+	const auto result = target_found
+		? CallMagic(caster, tch, tobj, troom, spell_id, GetRealLevel(caster))
+		: ECastResult::kNotCast;
+
+	if (temporary_caster)
+	{
+		ExtractCharFromWorld(caster, false);
+	}
+	return CastTookEffect(result);
 }
 
 ObjData *LoadObjToChar(const sol::object &vnum, const sol::object &character)
@@ -715,6 +966,9 @@ sol::table BuildMudNamespace(sol::state &lua, LuaRuntimeContext *runtime)
 	};
 	mud["damage"] = [runtime](const sol::object &victim, const sol::object &amount, const sol::object &type) {
 		return MudDamage(CurrentRuntime(runtime), victim, amount, type);
+	};
+	mud["cast_spell"] = [runtime](const sol::object &spell_name, const sol::object &target) {
+		return MudCastSpell(CurrentRuntime(runtime), spell_name, target);
 	};
 	mud["transfer"] = [runtime](const sol::object &entity, const sol::object &room) {
 		return MudTransfer(CurrentRuntime(runtime), entity, room);
