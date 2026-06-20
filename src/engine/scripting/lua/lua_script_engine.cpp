@@ -108,6 +108,14 @@ void RetireLuaState(const std::shared_ptr<LuaWaitState> &state)
 	state->runtime = LuaRuntimeContext{};
 }
 
+void MarkLuaTriggerFinished(Trigger *trigger)
+{
+	if (trigger)
+	{
+		GET_TRIG_DEPTH(trigger) = 0;
+	}
+}
+
 class LuaWaitRegistry {
  public:
 	static LuaWaitRegistry &Instance()
@@ -148,6 +156,7 @@ class LuaWaitRegistry {
 		}
 		state->event.time_remaining = 0;
 		state->event.info = nullptr;
+		MarkLuaTriggerFinished(state->runtime.trigger);
 		if (unregister_trigger_observer && state->trigger_observer && state->runtime.trigger)
 		{
 			trigger_list.unregister_remove_observer(state->runtime.trigger, state->trigger_observer);
@@ -489,6 +498,11 @@ int LuaScriptEngine::RunTrigger(Trigger *trigger, const LuaTriggerContext &ctx)
 	}
 
 #if defined(WITH_LUAJIT_PROTOTYPE)
+	if (GET_TRIG_DEPTH(trigger))
+	{
+		return 1;
+	}
+
 	auto &lua = LuaVm();
 	auto state = MakeLuaState();
 	state->ctx = ctx;
@@ -500,6 +514,7 @@ int LuaScriptEngine::RunTrigger(Trigger *trigger, const LuaTriggerContext &ctx)
 	state->runtime.owner_obj = ctx.owner_obj;
 	state->runtime.owner_room = ResolveOwnerRoom(ctx);
 	state->runtime.wait_state = state.get();
+	GET_TRIG_DEPTH(trigger) = 1;
 
 	sol::environment environment(lua, sol::create, lua.globals());
 	environment["mud"] = BuildMudNamespace(lua, &state->runtime);
@@ -512,6 +527,7 @@ int LuaScriptEngine::RunTrigger(Trigger *trigger, const LuaTriggerContext &ctx)
 		ClearLuaRuntimeLimits(lua);
 		const sol::error err = load_result;
 		LogLuaError(state->runtime, "script", err);
+		MarkLuaTriggerFinished(trigger);
 		RetireLuaState(state);
 		return 1;
 	}
@@ -523,11 +539,13 @@ int LuaScriptEngine::RunTrigger(Trigger *trigger, const LuaTriggerContext &ctx)
 	{
 		const sol::error err = chunk_result;
 		LogLuaError(state->runtime, "script", err);
+		MarkLuaTriggerFinished(trigger);
 		RetireLuaState(state);
 		return 1;
 	}
 	if (chunk_result.return_count() == 0)
 	{
+		MarkLuaTriggerFinished(trigger);
 		RetireLuaState(state);
 		return 1;
 	}
@@ -535,12 +553,14 @@ int LuaScriptEngine::RunTrigger(Trigger *trigger, const LuaTriggerContext &ctx)
 	if (first.get_type() != sol::type::function)
 	{
 		const auto result = ConvertLuaResult(chunk_result, state->runtime, lua_ctx, true);
+		MarkLuaTriggerFinished(trigger);
 		RetireLuaState(state);
 		return result;
 	}
 	if (!ShouldRunFunctionInCoroutine(trigger))
 	{
 		const auto result = ConvertLuaResult(chunk_result, state->runtime, lua_ctx, true);
+		MarkLuaTriggerFinished(trigger);
 		RetireLuaState(state);
 		return result;
 	}
