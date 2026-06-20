@@ -710,6 +710,61 @@ bool RewardDailyQuest(const LuaEntityHandle &handle, const sol::object &id)
 	return true;
 }
 
+bool HasQuest(const LuaEntityHandle &handle, const sol::object &id)
+{
+	auto *ch = ResolveChar(handle);
+	if (!ch || !id.is<int>())
+	{
+		return false;
+	}
+
+	const auto quest_id = id.as<int>();
+	return quest_id > 0 && ch->quested_get(quest_id);
+}
+
+std::string GetQuest(const LuaEntityHandle &handle, const sol::object &id)
+{
+	auto *ch = ResolveChar(handle);
+	if (!ch || !id.is<int>())
+	{
+		return "";
+	}
+
+	const auto quest_id = id.as<int>();
+	return quest_id > 0 ? ch->quested_get_text(quest_id) : "";
+}
+
+bool SetQuest(const LuaEntityHandle &handle, const sol::object &id, const sol::object &text)
+{
+	auto *ch = ResolveChar(handle);
+	if (!ch || !id.is<int>() || !text.is<std::string>())
+	{
+		return false;
+	}
+
+	const auto quest_id = id.as<int>();
+	if (quest_id <= 0)
+	{
+		return false;
+	}
+
+	auto quest_text = text.as<std::string>();
+	ch->quested_add(ch, quest_id, quest_text.data());
+	return ch->quested_get(quest_id);
+}
+
+bool UnsetQuest(const LuaEntityHandle &handle, const sol::object &id)
+{
+	auto *ch = ResolveChar(handle);
+	if (!ch || !id.is<int>())
+	{
+		return false;
+	}
+
+	const auto quest_id = id.as<int>();
+	return quest_id > 0 && ch->quested_remove(quest_id);
+}
+
 bool ActFromChar(
 	LuaRuntimeContext runtime,
 	const LuaEntityHandle &handle,
@@ -1634,6 +1689,30 @@ sol::object BuildCharView(sol::state &lua, CharData *ch, LuaRuntimeContext runti
 		{
 			return sol::make_object(lua, sol::as_function([handle](sol::object, sol::object id) {
 				return RewardDailyQuest(handle, id);
+			}));
+		}
+		if (key == "has_quest")
+		{
+			return sol::make_object(lua, sol::as_function([handle](sol::object, sol::object id) {
+				return HasQuest(handle, id);
+			}));
+		}
+		if (key == "get_quest")
+		{
+			return sol::make_object(lua, sol::as_function([handle](sol::object, sol::object id) {
+				return GetQuest(handle, id);
+			}));
+		}
+		if (key == "set_quest")
+		{
+			return sol::make_object(lua, sol::as_function([handle](sol::object, sol::object id, sol::object text) {
+				return SetQuest(handle, id, text);
+			}));
+		}
+		if (key == "unset_quest")
+		{
+			return sol::make_object(lua, sol::as_function([handle](sol::object, sol::object id) {
+				return UnsetQuest(handle, id);
 			}));
 		}
 		if (key == "act")

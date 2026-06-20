@@ -371,6 +371,10 @@ Char - это Lua-view персонажа или моба. Все поля read-
 | `ch:send(message)` | bool | Отправляет сообщение персонажу с descriptor. |
 | `ch:force(command)` | bool | Заставляет персонажа выполнить команду. |
 | `ch:reward_daily_quest(id)` | bool | Запускает выдачу награды daily quest по id; Lua-аналог DG `%actor.questbodrich(id)%`. Если `ch` - charmice, награда оформляется на его мастера. |
+| `ch:has_quest(id)` | bool | Lua-аналог DG `%actor.quested(id)%`: проверяет наличие quested-записи. |
+| `ch:get_quest(id)` | string | Lua-аналог DG `%actor.getquest(id)%`: возвращает текст quested-записи или пустую строку. |
+| `ch:set_quest(id, text)` | bool | Lua-аналог DG `%actor.setquest(id text)%`: сохраняет quested-запись. Работает по тем же правилам, что DG: только для игроков, не для иммов. |
+| `ch:unset_quest(id)` | bool | Lua-аналог DG `%actor.unsetquest(id)%`: удаляет quested-запись. |
 | `ch:act(message, options)` | bool | Вызывает игровой `act`. |
 | `ch:purge()` | bool | Удаляет NPC. PC и текущего владельца триггера удалить нельзя. |
 
