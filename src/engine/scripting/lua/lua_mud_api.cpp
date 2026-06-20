@@ -713,6 +713,49 @@ bool MudEcho(LuaRuntimeContext runtime, const sol::object &message)
 	return true;
 }
 
+bool CanReceiveLuaEchoAround(CharData *ch)
+{
+	return ch && ch->desc && AWAKE(ch) && (ch->IsNpc() || !ch->IsFlagged(EPlrFlag::kWriting));
+}
+
+bool MudEchoAround(LuaRuntimeContext runtime, const sol::object &actor, const sol::object &message)
+{
+	auto *ch = GetCharArgument(actor);
+	if (!ch || ch->in_room == kNowhere)
+	{
+		return LogLuaApiError(runtime, "echoaround: invalid actor");
+	}
+	const auto owner_room = GetRuntimeOwnerRoom(runtime);
+	if (owner_room == kNowhere || ch->in_room != owner_room)
+	{
+		return LogLuaApiError(runtime, "echoaround: actor must be in trigger owner room");
+	}
+	if (!message.is<std::string>())
+	{
+		return LogLuaApiError(runtime, "echoaround: message must be a string");
+	}
+
+	const auto text = message.as<std::string>();
+	if (text.empty())
+	{
+		return LogLuaApiError(runtime, "echoaround: empty message");
+	}
+	if (text.size() >= kMaxInputLength)
+	{
+		return LogLuaApiError(runtime, "echoaround: message is too long");
+	}
+
+	const auto output = text + "\n\r";
+	for (auto *to : world[ch->in_room]->people)
+	{
+		if (to != ch && CanReceiveLuaEchoAround(to))
+		{
+			SendMsgToChar(output, to);
+		}
+	}
+	return true;
+}
+
 bool CallEntityMethod(
 	LuaRuntimeContext runtime,
 	const sol::object &entity,
@@ -978,6 +1021,9 @@ sol::table BuildMudNamespace(sol::state &lua, LuaRuntimeContext *runtime)
 	};
 	mud["echo"] = [runtime](const sol::object &message) {
 		return MudEcho(CurrentRuntime(runtime), message);
+	};
+	mud["echoaround"] = [runtime](const sol::object &actor, const sol::object &message) {
+		return MudEchoAround(CurrentRuntime(runtime), actor, message);
 	};
 	mud["wait"] = sol::yielding([runtime](sol::this_state state, sol::variadic_args args) {
 		return MudWait(CurrentRuntime(runtime), state, args);

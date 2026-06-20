@@ -277,6 +277,7 @@ end
 | `mud.transfer(entity, room)` | bool | Перемещает Char или Obj в комнату. |
 | `mud.force(char, command)` | bool | Заставляет персонажа выполнить команду. Цель должна быть в комнате владельца триггера. |
 | `mud.echo(message)` | bool | Сообщение в комнату владельца триггера. |
+| `mud.echoaround(actor, message)` | bool | Lua-аналог DG `echoaround`/`mechoaround`/`oechoaround`/`wechoaround`: сообщение всем SENDOK в комнате `actor`, без отправки самому `actor` и без запуска ACT-триггеров. `actor` должен быть в комнате владельца триггера. |
 | `mud.wait(...)` | yield | Приостанавливает Lua-триггер. |
 
 `mud.force` запрещает внутренние mob script команды (`mload`, `mecho` и т.п.) и пропускает строку через обычный игровой command interpreter.
@@ -289,6 +290,14 @@ mud.damage(ctx.actor, 20, "magic")              -- typed damage через Damag
 ```
 
 `mud.cast_spell(spell_name, target)` возвращает `true`, если игровая `CallMagic`-логика дала эффект. Ближайший DG-аналог - `dgcast`, но это самостоятельный Lua API, а не точная обертка: строковая цель ищется как в обычном cast-поиске, а direct-цели Char/Obj/Room проверяются по target-флагам заклинания и расположению цели. Direct Obj-цель должна быть в инвентаре, экипировке или комнате кастера; для `locate object` передавайте строковую цель. Для room/object-триггеров без персонажа-кастера Lua создает временного системного кастера в комнате владельца.
+
+`mud.echoaround(actor, message)` подходит для переноса DG `echoaround`/`mechoaround`/`oechoaround`/`wechoaround`, когда нужно показать текст вокруг персонажа без отдельного сообщения самому `actor`. Это простая рассылка сообщения, а не игровой `act`, поэтому `$n`/`$N` act-подстановки не раскрываются; для имени и окончаний собирайте строку явно через `actor.iname`, `actor.g`, `actor.u`:
+
+```lua
+mud.echoaround(ctx.actor, ctx.actor.iname .. " вздрагивает" .. ctx.actor.g .. " и осматривается.")
+```
+
+Если нужен полный игровой `act` с victim/to-режимами, используйте `actor:act(..., { to = "room" })`.
 
 ## `mud.wait`
 
