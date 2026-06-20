@@ -356,6 +356,7 @@ Char - это Lua-view персонажа или моба. Все поля read-
 | `ch:detach_trigger(vnum)` | bool | Снимает trigger; работает только для NPC. |
 | `ch:send(message)` | bool | Отправляет сообщение персонажу с descriptor. |
 | `ch:force(command)` | bool | Заставляет персонажа выполнить команду. |
+| `ch:reward_daily_quest(id)` | bool | Запускает выдачу награды daily quest по id; Lua-аналог DG `%actor.questbodrich(id)%`. Если `ch` - charmice, награда оформляется на его мастера. |
 | `ch:act(message, options)` | bool | Вызывает игровой `act`. |
 | `ch:purge()` | bool | Удаляет NPC. PC и текущего владельца триггера удалить нельзя. |
 

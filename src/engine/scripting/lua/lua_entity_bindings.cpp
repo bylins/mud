@@ -19,6 +19,7 @@
 #include "gameplay/fight/fight.h"
 #include "gameplay/mechanics/damage.h"
 #include "gameplay/mechanics/follow.h"
+#include "gameplay/mechanics/minions.h"
 #include "gameplay/mechanics/sight.h"
 #include "gameplay/magic/spells.h"
 #include "utils/random.h"
@@ -642,6 +643,28 @@ bool ForceCharCommand(LuaRuntimeContext runtime, const LuaEntityHandle &handle, 
 	std::copy(arg, arg + kMaxInputLength, saved_arg.begin());
 	command_interpreter(ch, command_buffer.data());
 	std::copy(saved_arg.begin(), saved_arg.end(), arg);
+	return true;
+}
+
+bool RewardDailyQuest(const LuaEntityHandle &handle, const sol::object &id)
+{
+	auto *ch = ResolveChar(handle);
+	if (!ch || !id.is<int>())
+	{
+		return false;
+	}
+
+	if (IsCharmice(ch))
+	{
+		if (!ch->has_master())
+		{
+			return false;
+		}
+		ch->get_master()->dquest(id.as<int>());
+		return true;
+	}
+
+	ch->dquest(id.as<int>());
 	return true;
 }
 
@@ -1421,6 +1444,12 @@ sol::object BuildCharView(sol::state &lua, CharData *ch, LuaRuntimeContext runti
 		{
 			return sol::make_object(lua, sol::as_function([runtime, handle](sol::object, sol::object command) {
 				return ForceCharCommand(runtime, handle, command);
+			}));
+		}
+		if (key == "reward_daily_quest")
+		{
+			return sol::make_object(lua, sol::as_function([handle](sol::object, sol::object id) {
+				return RewardDailyQuest(handle, id);
 			}));
 		}
 		if (key == "act")
