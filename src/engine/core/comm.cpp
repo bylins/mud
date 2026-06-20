@@ -567,7 +567,6 @@ void medit_save_to_disk(int zone_num);
 void zedit_save_to_disk(int zone_num);
 void Crash_ldsave(CharData *ch);
 void Crash_save_all_rent();
-long GetExpUntilNextLvl(CharData *ch, int level);
 unsigned long TxtToIp(const char *text);
 
 #ifdef __CXREF__
@@ -756,7 +755,7 @@ int main_function(int argc, char **argv) {
 	if (getcwd(cwd, sizeof(cwd))) {};
 	printf("[%s] Current directory '%s' using '%s' as data directory.\r\n", utils::NowTs().c_str(), cwd, dir);
 	{
-		std::string config_path = std::string(dir) + "/misc/configuration.xml";
+		std::string config_path = std::string(dir) + "/cfg/configuration.xml";
 		runtime_config.load(config_path.c_str());
 	}
 	if (runtime_config.msdp_debug()) {
@@ -2325,7 +2324,7 @@ void signal_setup(void) {
 void send_stat_char(const CharData *ch) {
 	char fline[256];
 	sprintf(fline, "%d[%d]HP %d[%d]Mv %ldG %dL ",
-			ch->get_hit(), ch->get_real_max_hit(), ch->get_move(), ch->get_real_max_move(), ch->get_gold(), GetRealLevel(ch));
+			ch->get_hit(), ch->get_real_max_hit(), ch->get_move(), ch->get_real_max_move(), currencies::GetHand(*ch, currencies::kGold), GetRealLevel(ch));
 	iosystem::write_to_output(fline, ch->desc);
 }
 
@@ -2850,7 +2849,7 @@ void act(const char *str,
 				continue;
 			if (type == kToRoomSensors && to->IsFlagged(EPrf::kHolylight)) {
 				std::string buffer = str;
-				if (!IS_MALE(ch)) {
+				if (!IsMale(ch)) {
 					utils::ReplaceFirst(buffer, "ся", grammar::SexEnding((ch)->get_sex(), 2));
 				}
 				utils::ReplaceFirst(buffer, "Кто-то", ch->get_name());

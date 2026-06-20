@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="koi8-r"?>
 <class id="kAssasine">
+    <experience_table id="kAssasineTable"/>
     <stats>
         <base_stats>
             <stat id="kStr"	gen_min="17"	gen_max="22"	auto="22"	cap="75"/>

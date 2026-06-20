@@ -9,6 +9,10 @@
 **************************************************************************/
 
 #include "dg_scripts.h"
+#include "gameplay/core/experience.h"
+#include "gameplay/mechanics/groups.h"
+#include "gameplay/economics/currencies.h"
+#include "engine/db/global_objects.h"
 #include "utils/grammar/gender.h"
 #include "utils/grammar/declensions.h"
 #include "gameplay/mechanics/minions.h"
@@ -51,8 +55,6 @@
 #include "gameplay/mechanics/sight.h"
 #include "gameplay/core/remort.h"
 
-extern int max_exp_gain_pc(CharData *ch);
-extern long GetExpUntilNextLvl(CharData *ch, int level);
 extern int CalcSaving(CharData *killer, CharData *victim, ESaving saving, bool need_log);
 extern std::list<combat_list_element> combat_list;
 
@@ -2587,119 +2589,75 @@ void find_replacement(void *go,
 				mob->affected.clear();
 				affect_total(mob);
 			}
-		} else if (!str_cmp(field, "hryvn")) {
-			if (*subfield) {
-				const long before = mob->get_hryvn();
-				int value;
-				mob->set_hryvn(std::max(long(0), gm_char_field(mob, field, subfield, mob->get_hryvn())));
-				value = mob->get_hryvn() - before;
-				snprintf(buf, sizeof(buf), "<%s> {%d} получил триггером %d %s. [Trigger: %s, Vnum: %d]",
-						GET_PAD(mob, 0),
-						GET_ROOM_VNUM(mob->in_room),
-						value,
-						grammar::GetDeclensionInNumber(value, grammar::EWhat::kTorcU),
-						GET_TRIG_NAME(trig),
-						GET_TRIG_VNUM(trig));
-				mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
-			} else
-				snprintf(str, str_size, "%d", mob->get_hryvn());
-		} else if (!str_cmp(field, "point_nogata")) {
-				if (*subfield) {
-					mob->set_nogata(std::max(long(0), gm_char_field(mob, field, subfield, mob->get_nogata())));
-				}
-				else
-					snprintf(str, str_size, "%d", mob->get_nogata());
-		} else if (!str_cmp(field, "nogata")) {
-			if (*subfield) {
-				int val = 0, num;
-				CharData *k;
-				if (*subfield == '-') {
-					val = atoi(subfield + 1);
-					mob->set_nogata(std::max(0, mob->get_nogata() - val));
-				}
-				else if (*subfield == '+') {
-					val = atoi(subfield + 1);
-					if (val > 1) {
-						k = mob->has_master() ? mob->get_master() : mob;
-						if (AFF_FLAGGED(k, EAffect::kGroup) && (k->in_room == mob->in_room)) {
-							num = 1;
-						} else {
-							num = 0;
-						}
-						for (auto *f : k->followers) {
-							if (AFF_FLAGGED(f, EAffect::kGroup)
-									&& !f->IsNpc() && f->in_room == mob->in_room) {
-								num++;
-							}
-						}
-						if (num > 1) {
-							int share = val / num;
-							int rest = val % num;
-							if (AFF_FLAGGED(k, EAffect::kGroup) && k->in_room == mob->in_room && !k->IsNpc() && k != mob)
-								k->add_nogata(share);
-							for (auto *f : k->followers) {
-								if (AFF_FLAGGED(f, EAffect::kGroup)
-										&& !f->IsNpc() && f->in_room == mob->in_room && f != mob) {
-									f->add_nogata(share);
-								}
-							}
-							snprintf(buf, sizeof(buf), "Вы разделили %d %s на %d  -  по %d каждому.\r\n",
-									val, grammar::GetDeclensionInNumber(val, grammar::EWhat::kNogataU), num, share);
-							SendMsgToChar(buf, mob);
-							if (rest > 0) {
-								SendMsgToChar(mob, "Как истинный еврей вы оставили %d %s (которые не смогли разделить нацело) себе.\r\n",
-											  rest,
-											  grammar::GetDeclensionInNumber(rest, grammar::EWhat::kNogataU));
-							}
-							mob->add_nogata(share+rest);
-						}
-					 	else {
-							mob->add_nogata(val);
-						}
-					}
-				}
+		} else if (!str_cmp(field, "Currency")) {
+			// %actor.Currency(<text_id>)% - кол-во любой валюты на руках (валюта задаётся id-аргументом).
+			const auto &money_cur = currencies::FindByTextIdNoCase(subfield);
+			if (money_cur.GetId() < 0) {
+				char errbuf[kMaxInputLength];
+				snprintf(errbuf, sizeof(errbuf), "actor.Currency: unknown currency '%s'!", subfield);
+				trig_log(trig, errbuf);
 			}
-			else {
-				snprintf(str, str_size, "%d", mob->get_nogata());
+			snprintf(str, str_size, "%ld", money_cur.GetId() >= 0 ? currencies::GetHand(*mob, money_cur.GetTextId()) : 0L);
+		} else if (!str_cmp(field, "AddCurrency")) {
+			// %actor.AddCurrency(<text_id>, <amount>)% - начислить (минус снимает). Слава и immortal-валюты не начисляются (страж откажет).
+			auto args = utils::Split(subfield, ',');
+			if (args.size() >= 2) {
+				utils::TrimLeft(args[0]);
+				utils::TrimRight(args[0]);
+				const auto &money_cur = currencies::FindByTextIdNoCase(args[0]);
+				if (money_cur.GetId() >= 0) {
+					const long amount = atol(args[1].c_str());
+					if (amount >= 0) {
+						currencies::AddHand(*mob, money_cur.GetTextId(), amount);
+					} else {
+						currencies::RemoveHand(*mob, money_cur.GetTextId(), -amount);
+					}
+				} else {
+					char errbuf[kMaxInputLength];
+					snprintf(errbuf, sizeof(errbuf), "actor.AddCurrency: unknown currency '%s'!", args[0].c_str());
+					trig_log(trig, errbuf);
+				}
+			} else {
+				trig_log(trig, "actor.AddCurrency: usage is %actor.AddCurrency(<currency_id>, <amount>)%");
 			}
 		} else if (!str_cmp(field, "gold")) {
 			if (*subfield) {
-				const long before = mob->get_gold();
+				const long before = currencies::GetHand(*mob, currencies::kGold);
 				int value;
-				mob->set_gold(std::max(long(0), gm_char_field(mob, field, subfield, mob->get_gold())));
-				value = mob->get_gold() - before;
+				currencies::SetHand(*mob, currencies::kGold, std::max(long(0), gm_char_field(mob, field, subfield, currencies::GetHand(*mob, currencies::kGold))));
+				value = currencies::GetHand(*mob, currencies::kGold) - before;
 				snprintf(buf, sizeof(buf),
 						"<%s> {%d} получил триггером %d %s. [Trigger: %s, Vnum: %d]",
 						GET_PAD(mob, 0),
 						GET_ROOM_VNUM(mob->in_room),
 						value,
-						grammar::GetDeclensionInNumber(value, grammar::EWhat::kMoneyU),
+						MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(value, grammar::ECase::kNom).c_str(),
 						GET_TRIG_NAME(trig),
 						GET_TRIG_VNUM(trig));
 				mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
 				// клан-налог
-				const long diff = mob->get_gold() - before;
+				const long diff = currencies::GetHand(*mob, currencies::kGold) - before;
 				split_or_clan_tax(mob, diff);
 				// стата для show money
 				if (!mob->IsNpc() && mob->in_room > 0) {
 					MoneyDropStat::add(zone_table[world[mob->in_room]->zone_rn].vnum, diff);
 				}
 			} else {
-				snprintf(str, str_size, "%ld", mob->get_gold());
+				snprintf(str, str_size, "%ld", currencies::GetHand(*mob, currencies::kGold));
 			}
 		} else if (!str_cmp(field, "bank")) {
 			if (*subfield) {
-				const long before = mob->get_bank();
-				mob->set_bank(std::max(long(0), gm_char_field(mob, field, subfield, mob->get_bank())));
+				const long before = currencies::GetBank(*mob, currencies::kGold);
+				currencies::SetBank(*mob, currencies::kGold, std::max(long(0), gm_char_field(mob, field, subfield, currencies::GetBank(*mob, currencies::kGold))));
 				// клан-налог
-				const long diff = mob->get_bank() - before;
+				const long diff = currencies::GetBank(*mob, currencies::kGold) - before;
 				split_or_clan_tax(mob, diff);
 				// стата для show money
 				if (!mob->IsNpc() && mob->in_room > 0) {
 					MoneyDropStat::add(zone_table[world[mob->in_room]->zone_rn].vnum, diff);
 				} 
 			} else
-				snprintf(str, str_size, "%ld", mob->get_bank());
+				snprintf(str, str_size, "%ld", currencies::GetBank(*mob, currencies::kGold));
 		} else if (!str_cmp(field, "exp") || !str_cmp(field, "questbodrich")) {
 			if (!str_cmp(field, "questbodrich")) {
 				if (*subfield) {
@@ -2714,7 +2672,7 @@ void find_replacement(void *go,
 			} else {
 				if (*subfield) {
 					if (*subfield == '-') {
-						EndowExpToChar(mob, -std::max(1, atoi(subfield + 1)));
+						experience::EndowExpToChar(mob, -std::max(1, atoi(subfield + 1)));
 						snprintf(buf, sizeof(buf),
 								"SCRIPT_LOG (exp) у %s уменьшен опыт на %d в триггере %d",
 								GET_NAME(mob),
@@ -2722,7 +2680,7 @@ void find_replacement(void *go,
 								GET_TRIG_VNUM(trig));
 						mudlog(buf, BRF, kLvlGreatGod, ERRLOG, 1);
 					} else if (*subfield == '+') {
-						EndowExpToChar(mob, +std::max(1, atoi(subfield + 1)));
+						experience::EndowExpToChar(mob, +std::max(1, atoi(subfield + 1)));
 						snprintf(buf, sizeof(buf),
 								"SCRIPT_LOG (exp) у %s увеличен опыт на %d в триггере %d",
 								GET_NAME(mob),
@@ -2741,9 +2699,9 @@ void find_replacement(void *go,
 					snprintf(str, str_size, "%ld", mob->get_exp());
 			}
 		} else if (!str_cmp(field, "MaxGainExp")) {
-			snprintf(str, str_size, "%ld", (long) max_exp_gain_pc(mob));
+			snprintf(str, str_size, "%ld", (long) experience::max_exp_gain_pc(mob));
 		} else if (!str_cmp(field, "TnlExp")) {
-			snprintf(str, str_size, "%ld", GetExpUntilNextLvl(mob, mob->GetLevel() + 1) - mob->get_exp());
+			snprintf(str, str_size, "%ld", experience::GetExpUntilNextLvl(mob, mob->GetLevel() + 1) - mob->get_exp());
 		} else if (!str_cmp(field, "sex")) {
 			snprintf(str, str_size, "%d", (int) mob->get_sex());
 		} else if (!str_cmp(field, "clan")) {
@@ -3216,9 +3174,9 @@ void find_replacement(void *go,
 						if (mob->has_master()) {
 							follow::StopFollower(mob, follow::kSfEmpty);
 						}
-						mob->removeGroupFlags();
+						group::RemoveGroupFlags(mob);
 						for (auto *f : mob->followers) {
-							f->removeGroupFlags();
+							group::RemoveGroupFlags(f);
 						}
 						follow::AddFollower(new_leader, mob);
 						// возвращаем UID нового лидера (если следование удалось установить)
@@ -5789,31 +5747,34 @@ int script_driver(void *go, Trigger *trig, int type, int mode) {
 	return return_code;
 }
 
-void do_dg_add_ice_currency(void * /*go*/, Script * /*sc*/, Trigger *trig, int/* script_type*/, char *cmd) {
+void do_dg_add_currency(void * /*go*/, Script * /*sc*/, Trigger *trig, int/* script_type*/, char *cmd) {
 	CharData *ch = nullptr;
-	int value;
 	char junk[kMaxInputLength];
-	char charname[kMaxInputLength], value_c[kMaxInputLength];
+	char charname[kMaxInputLength], cur_id[kMaxInputLength], value_c[kMaxInputLength];
 
 	half_chop(cmd, junk, cmd);
 	half_chop(cmd, charname, cmd);
+	half_chop(cmd, cur_id, cmd);
 	half_chop(cmd, value_c, cmd);
 
-	if (!*charname || !*value_c) {
-		snprintf(buf2, sizeof(buf2), "dg_addicecurrency usage: <target> <value>");
+	if (!*charname || !*cur_id || !*value_c) {
+		snprintf(buf2, sizeof(buf2), "dg_addcurrency usage: <target> <currency_id> <value>");
 		trig_log(trig, buf2);
 		return;
 	}
-
-	value = atoi(value_c);
-	// locate the target
+	const auto &cur = currencies::FindByTextIdNoCase(cur_id);
+	if (cur.GetId() < 0) {
+		snprintf(buf2, sizeof(buf2), "dg_addcurrency: unknown currency '%s'!", cur_id);
+		trig_log(trig, buf2);
+		return;
+	}
 	ch = get_char(charname);
 	if (!ch) {
-		snprintf(buf2, sizeof(buf2), "dg_addicecurrency: cannot locate target!");
+		snprintf(buf2, sizeof(buf2), "dg_addcurrency: cannot locate target!");
 		trig_log(trig, buf2);
 		return;
 	}
-	ch->add_ice_currency(value);
+	currencies::AddHand(*ch, cur.GetTextId(), atoi(value_c));
 }
 
 int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
@@ -6034,8 +5995,8 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 				do_dg_affect(go, sc, trig, type, cmd);
 			} else if (!strncmp(cmd, "global ", 7)) {
 				process_global(sc, trig, cmd, trig->context);
-			} else if (!strncmp(cmd, "addicecurrency ", 15)) {
-				do_dg_add_ice_currency(go, sc, trig, type, cmd);
+			} else if (!strncmp(cmd, "addcurrency ", 12)) {
+				do_dg_add_currency(go, sc, trig, type, cmd);
 			} else if (!strncmp(cmd, "bonus ", 6)) {
 				Bonus::dg_do_bonus(cmd + 6);
 			} else if (!strncmp(cmd, "worldecho ", 10)) {

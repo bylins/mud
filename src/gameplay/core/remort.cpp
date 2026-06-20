@@ -3,6 +3,7 @@
 //
 
 #include "gameplay/core/remort.h"
+#include "gameplay/core/experience.h"
 #include "administration/privilege.h"
 
 #include "administration/karma.h"
@@ -34,7 +35,7 @@ void ProcessRemort(CharData *ch, char *argument, int subcmd) {
 		SendMsgToChar("Вам это, похоже, совсем ни к чему.\r\n", ch);
 		return;
 	}
-	if (ch->get_exp() < GetExpUntilNextLvl(ch, kLvlImmortal) - 1) {
+	if (ch->get_exp() < experience::GetExpUntilNextLvl(ch, kLvlImmortal) - 1) {
 		SendMsgToChar("ЧАВО???\r\n", ch);
 		return;
 	}
@@ -201,8 +202,8 @@ int GetRealRemort(const std::shared_ptr<CharData> &ch) {
 void SetSkillAfterRemort(CharData *ch) {
 	for (const auto &it : ch->GetCharSkills()) {
 		const int max_skill_level = CalcSkillHardCap(ch, it.first);
-		if (ch->GetSkillBonus(it.first) > max_skill_level) {
-			ch->set_skill(it.first, max_skill_level);
+		if (GetSkillBonus(ch, it.first) > max_skill_level) {
+			SetSkill(ch, it.first, max_skill_level);
 		}
 	}
 }

@@ -89,6 +89,7 @@ const char *VisInstrEnding(bool visible, EGender sex) {
 }
 
 const char *PluralVerbEnding(bool is_poly) { return is_poly ? "те" : ""; }
+const char *NumberForm(bool is_poly, const char *one, const char *many) { return is_poly ? many : one; }
 const char *ObjPluralVerbEnding(EGender sex) { return sex == EGender::kPoly ? "ят" : "ит"; }
 
 const char *PossessivePronoun(EGender sex) { return kPossessive[gi(sex)]; }

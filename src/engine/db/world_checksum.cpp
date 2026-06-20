@@ -2,6 +2,7 @@
 // World checksum calculation for detecting changes during refactoring
 
 #include "world_checksum.h"
+#include "gameplay/economics/currencies.h"
 
 #include "db.h"
 #include "obj_prototypes.h"
@@ -313,7 +314,7 @@ std::string SerializeMob(int vnum, const CharData &mob)
 	oss << mob.real_abils.damroll << "|";
 	oss << static_cast<int>(mob.real_abils.size) << "|";
 	oss << mob.mem_queue.total << "," << mob.mem_queue.stored << "|";
-	oss << mob.get_gold() << "|";
+	oss << currencies::GetHand(mob, currencies::kGold) << "|";
 	oss << GET_GOLD_NoDs(&mob) << "," << GET_GOLD_SiDs(&mob) << "|";
 	oss << mob.get_exp() << "|";
 	oss << static_cast<int>(mob.GetPosition()) << "|";
@@ -358,7 +359,7 @@ std::string SerializeMob(int vnum, const CharData &mob)
 		std::vector<std::pair<int, int>> sk;
 		for (const auto &kv : mob.GetCharSkills())
 		{
-			sk.emplace_back(static_cast<int>(kv.first), kv.second.skillLevel);
+			sk.emplace_back(static_cast<int>(kv.first), kv.second.skill_level);
 		}
 		std::sort(sk.begin(), sk.end());
 		for (const auto &kv : sk)

@@ -29,6 +29,8 @@ bool IsCharmice(const CharData *ch);                                       // ch
 inline bool IsCharmice(const std::shared_ptr<CharData> &ch) { return IsCharmice(ch.get()); }
 bool IsMortifier(const CharData *ch);                                      // raised-corpse minion
 
+bool IsCharmExpiring(const CharData *ch);   // has a kCharm affect about to wear off (duration <= 1)
+
 #endif //BYLINS_SRC_GAMEPLAY_MECHANICS_MINIONS_H_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

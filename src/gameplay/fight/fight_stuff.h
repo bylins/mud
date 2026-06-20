@@ -16,6 +16,7 @@ void ChangeFighting(CharData *ch, int need_stop);
 // issue.chardata-cleaning: may this char start/continue an attack? (moved off CharData)
 bool MayAttack(const CharData *sub);
 inline bool MayAttack(const std::shared_ptr<CharData> &sub) { return MayAttack(sub.get()); }
+bool HasWeapon(const CharData *ch);   // wields/holds/two-hands a real weapon (not just a light source)
 
 #endif // __FIGHT_STUFF_HPP__
 

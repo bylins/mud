@@ -27,6 +27,7 @@ const std::map<specials::EBankMsg, std::string> kBankMsgNames{
 		{specials::EBankMsg::kNoMoney, "kNoMoney"},
 		{specials::EBankMsg::kDepositHowMuch, "kDepositHowMuch"},
 		{specials::EBankMsg::kCantAfford, "kCantAfford"},
+		{specials::EBankMsg::kCantBank, "kCantBank"},
 		{specials::EBankMsg::kDeposited, "kDeposited"},
 		{specials::EBankMsg::kWithdrawHowMuch, "kWithdrawHowMuch"},
 		{specials::EBankMsg::kNeverHadThatMuch, "kNeverHadThatMuch"},

@@ -35,7 +35,7 @@ int FinalizeSummonedMob(CharData *ch, CharData *mob, ESpell spell_id, bool keepe
 	mob->set_exp(0);
 	IS_CARRYING_W(mob) = 0;
 	IS_CARRYING_N(mob) = 0;
-	mob->set_gold(0);
+	currencies::SetHand(*mob, currencies::kGold, 0);
 	GET_GOLD_NoDs(mob) = 0;
 	GET_GOLD_SiDs(mob) = 0;
 	const auto days_from_full_moon =
@@ -53,7 +53,7 @@ int FinalizeSummonedMob(CharData *ch, CharData *mob, ESpell spell_id, bool keepe
 	if (keeper) {
 		af.affect_type = EAffect::kHelper;
 		affect_to_char(mob, af);
-		mob->set_skill(ESkill::kRescue, 100);
+		SetSkill(mob, ESkill::kRescue, 100);
 	}
 	mob->SetFlag(EMobFlag::kCorpse);
 	mob->SetFlag(EMobFlag::kCompanion);	// any NPC ally

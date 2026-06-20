@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<shop_list>
+	<shop currency="kKuna" id="MagicShop" profit="30" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="4026" />
+		<item_set id="BasePotions"/>
+		<item_set id="BasePotionBottles"/> 
+		<item_set id="BaseSpellingrs"/>
+		<item_set id="BaseScrolls"/>
+		<item_set id="BaseRunes"/>
+		<item_set id="BasePoisons"/>
+	    </shop>
+	<shop currency="kKuna" id="FoodShop2" profit="20" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="4009" />
+		<item_set id="StandartFoodBread"/>
+		<item_set id="StandartFoodBerries"/>
+		<item_set id="StandartFoodVegetables"/>
+		<item_set id="StandartFoodMushrooms"/>
+		<item_set id="StandartFoodFish"/>
+		<item_set id="StandartFoodCheapMeals"/>
+		<item_set id="StandartFoodCereals"/>
+		<item_set id="StandartFoodBeverages"/>
+		<item_set id="StandartFoodSpirits"/>
+	    </shop>
+	<shop currency="kKuna" id="FoodShop3" profit="30" waste_time_min="0" can_buy="false">
+		<mob mob_vnum="4024" />
+		<item_set id="StandartFoodSnacks"/>
+		<item_set id="StandartFoodAlcoholicBeverages"/>
+		<item_set id="StandartFoodSpirits"/>
+	    </shop>
+	<shop currency="kKuna" id="ClothingShopLowLevel" profit="20" waste_time_min="0">
+		<mob mob_vnum="4055" />
+		<mob mob_vnum="4025" />
+		<item_set id="StandartClothingLowLevel"/>
+		<item_set id="StandartLeatherLowLevel"/>
+		<item_set id="StandartItemsLowLevel"/>
+	    </shop>
+	<shop currency="kKuna" id="ArmorAndWeaponShopLowLevel" profit="20" waste_time_min="0">
+		<mob mob_vnum="4003" />
+		<item_set id="StandartWeaponLowLevel"/>
+		<item_set id="StandartArmorLowLevel"/>
+		<item_set id="BaseBlacksmithingTools"/>
+		<item_set id="BaseMiningTools"/>
+	    </shop>
+</shop_list>

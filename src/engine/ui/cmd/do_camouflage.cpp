@@ -17,7 +17,7 @@ void do_camouflage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*
 	struct TimedSkill timed;
 	int prob, percent;
 
-	if (ch->IsNpc() || !ch->GetSkill(ESkill::kDisguise)) {
+	if (ch->IsNpc() || !GetSkill(ch, ESkill::kDisguise)) {
 		SendMsgToChar("Но вы не знаете как.\r\n", ch);
 		return;
 	}

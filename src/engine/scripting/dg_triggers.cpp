@@ -22,6 +22,11 @@
 #include "utils/backtrace.h"
 #include "gameplay/mechanics/sight.h"
 
+// issue.chardata-cleaning: was an inline in char_data.h, used only here.
+static bool CAN_START_MTRIG(const CharData *ch) {
+	return !AFF_FLAGGED(ch, EAffect::kCharmed);
+}
+
 extern const char *dirs[];
 
 // external functions from scripts.cpp

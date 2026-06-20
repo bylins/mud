@@ -748,6 +748,7 @@ void BootMudDataBase() {
 	log("Assigning character classs info.");
 	MUD::CfgManager().LoadCfg("class_messages");   // issue.thing-names: names/abbr before classes
 	MUD::CfgManager().LoadCfg("classes");
+	MUD::CfgManager().LoadCfg("experience_table");   // issue.experience-table
 
 	boot_profiler.next_step("Loading rune spells cfg");
 	log("Loading rune spells cfg.");
@@ -990,6 +991,7 @@ void BootMudDataBase() {
 
 	boot_profiler.next_step("Loading shop_ext list");
 	log("load shop_ext list start.");
+	MUD::CfgManager().LoadCfg("shop_item_sets");   // issue.shops-ext: catalog before shops
 	ShopExt::load(false);
 	log("load shop_ext list stop.");
 
@@ -1848,7 +1850,7 @@ CharData *ReadMobile(MobVnum nr, int type) {                // and MobRnum
 		GET_ACTIVITY(mob) = number(0, mob->mob_specials.speed);
 	mob->extract_timer = 0;
 	mob->points.move = mob->points.max_move;
-	mob->add_gold(RollDices(GET_GOLD_NoDs(mob), GET_GOLD_SiDs(mob)));
+	currencies::AddHand(*mob, currencies::kGold, RollDices(GET_GOLD_NoDs(mob), GET_GOLD_SiDs(mob)));
 
 	mob->player_data.time.birth = time(nullptr);
 	mob->player_data.time.played = 0;
@@ -2942,7 +2944,7 @@ int CountMobsInRoom(int m_num, int r_num) {
 void SetGodSkills(CharData *ch) {
 	for (auto i = ESkill::kFirst; i <= ESkill::kLast; ++i) {
 		if (MUD::Skills().IsValid(i)) {
-			ch->set_skill(i, 200);
+			SetSkill(ch, i, 200);
 		}
 	}
 }
@@ -3276,7 +3278,7 @@ void CharTimerUpdate() {
 	std::list<CharData *> cooldown_list;
 
 	for (auto it : chardata_cooldown_list) {
-		if (!it->HaveDecreaseCooldowns()) {
+		if (!it->Skills().DecreaseCooldownsAndCheck()) {
 			cooldown_list.push_back(it);
 		}
 	}

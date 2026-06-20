@@ -143,6 +143,8 @@ class CharClassInfo : public info_container::BaseItem<ECharClass> {
 	/* Имена */
 	std::unique_ptr<grammar::ItemName> names;
 	std::string abbr;
+	std::string exp_table_id;   // issue.experience-table: id into cfg/experience_table.xml
+	[[nodiscard]] const std::string &GetExpTableId() const { return exp_table_id; }
 	[[nodiscard]] const std::string &GetName(grammar::ECase name_case = grammar::ECase::kNom) const;
 	[[nodiscard]] const std::string &GetPluralName(grammar::ECase name_case = grammar::ECase::kNom) const;
 	[[nodiscard]] const std::string &GetAbbr() const;

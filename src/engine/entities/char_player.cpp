@@ -3,7 +3,11 @@
 // Part of Bylins http://www.mud.ru
 
 #include "char_player.h"
+#include "gameplay/core/experience.h"
 #include "administration/privilege.h"
+#include "gameplay/economics/currencies.h"
+#include "gameplay/quests/daily_quest.h"
+#include "engine/db/global_objects.h"
 #include "gameplay/mechanics/condition.h"
 #include "utils/grammar/declensions.h"
 
@@ -41,7 +45,6 @@
 #endif
 
 
-long GetExpUntilNextLvl(CharData *ch, int level);
 
 namespace {
 
@@ -63,9 +66,6 @@ Player::Player() :
 	from_room_(0),
 	answer_id_(kNobody),
 	motion_(true),
-	ice_currency(0),
-	hryvn(0),
-	nogata(0),
 	spent_hryvn(0) {
 	for (int i = 0; i < START_STATS_TOTAL; ++i) {
 		start_stats_.at(i) = 0;
@@ -184,88 +184,13 @@ void Player::set_last_tell(const char *text) {
 }
 
 
-int Player::get_hryvn() {
-	return this->hryvn;
-}
-
-short cap_hryvn = 1500;
-
-void Player::set_hryvn(int value) {
-	if (value > cap_hryvn)
-		value = cap_hryvn;
-	this->hryvn = value;
-}
-
-void Player::sub_hryvn(int value) {
-	this->hryvn -= value;
-}
-
-int Player::get_nogata() {
-	return this->nogata;
-}
-
-void Player::set_nogata(int value) {
-	this->nogata = value;
-}
-
-void Player::sub_nogata(int value) {
-	this->nogata -= value;
-}
-
-void Player::add_nogata(int value) {
-	this->nogata += value;
-	SendMsgToChar(this, "Вы получили %ld %s.\r\n", static_cast<long>(value),
-				  grammar::GetDeclensionInNumber(value, grammar::EWhat::kNogataU));
-
-}
-
-void Player::add_hryvn(int value) {
-	if (remort::GetRealRemort(this) < 6) {
-		SendMsgToChar(this, "Глянув на непонятный слиток, Вы решили выкинуть его...\r\n");
-		return;
-	} 
-	if (zone_table[world[this->in_room]->zone_rn].under_construction) {
-		SendMsgToChar(this, "Зона тестовая, вашу гривну отобрали боги.\r\n");
-		return;
-	}
-	if ((this->get_hryvn() + value) > cap_hryvn) {
-		value = cap_hryvn - this->get_hryvn();
-		SendMsgToChar(this, "Вы получили только %ld %s, так как в вашу копилку больше не лезет...\r\n",
-					  static_cast<long>(value), grammar::GetDeclensionInNumber(value, grammar::EWhat::kTorcU));
-	} else if (value > 0) {
-		SendMsgToChar(this, "Вы получили %ld %s.\r\n",
-					  static_cast<long>(value), grammar::GetDeclensionInNumber(value, grammar::EWhat::kTorcU));
-	} else if (value == 0) {
-		return;
-	}
-	log("Персонаж %s получил %d [гривны].", GET_NAME(this), value);
-	this->hryvn += value;
-}
 
 void Player::complete_quest(const int id) {
 	this->account->complete_quest(id);
 }
 
 void Player::dquest(const int id) {
-	const auto quest = MUD::daily_quests().find(id);
-
-	if (quest == MUD::daily_quests().end()) {
-		log("Quest Id: %d - не найден", id);
-		return;
-	}
-	if (!this->account->quest_is_available(id)) {
-		SendMsgToChar(this, "Сегодня вы уже получали гривны за выполнение этого задания.\r\n");
-		return;
-	}
-	int value = quest->second.reward + number(1, 3);
-	const int zone_lvl = zone_table[world[this->in_room]->zone_rn].mob_level;
-	value = this->account->zero_hryvn(this, value);
-	if (zone_lvl < 25
-		&& zone_lvl <= (GetRealLevel(this) + remort::GetRealRemort(this) / 5)) {
-		value /= 2;
-	}
-	this->add_hryvn(value);
-	this->account->complete_quest(id);
+	DailyQuest::DoQuest(this, id);
 }
 
 void Player::mark_city(const size_t index) {
@@ -550,7 +475,7 @@ void Player::save_char() {
 		int skill_val;
 		for (const auto &skill : MUD::Skills()) {
 			if (skill.IsAvailable()) {
-				skill_val = this->GetTrainedSkill(skill.GetId());
+				skill_val = GetTrainedSkill(this, skill.GetId());
 				if (skill_val) {
 					saved.printf("%d %d %s\n", to_underlying(skill.GetId()), skill_val, skill.GetName());
 				}
@@ -631,15 +556,16 @@ void Player::save_char() {
 	saved.printf("Hrol: %d\n", GET_HR(this));
 	saved.printf("Drol: %d\n", GET_DR(this));
 	saved.printf("Ac  : %d\n", GET_AC(this));
-	saved.printf("Hry : %d\n", this->get_hryvn());
 	saved.printf("Tglo: %ld\n", static_cast<long int>(this->getGloryRespecTime()));
 	saved.printf("Hit : %d/%d\n", this->get_hit(), this->get_max_hit());
 	saved.printf("Mana: %d/%d\n", this->mem_queue.stored, (this)->mem_queue.total);
 	saved.printf("Move: %d/%d\n", this->get_move(), this->get_max_move());
-	saved.printf("Gold: %ld\n", get_gold());
-	saved.printf("Bank: %ld\n", get_bank());
-	saved.printf("ICur: %d\n", get_ice_currency());
-	saved.printf("Ruble: %ld\n", get_ruble());
+	// All character currencies live in the unified container; persist each generically by text_id.
+	for (const auto &[cur_id, cur_amounts] : this->currency_storage().data()) {
+		if (cur_amounts.hand != 0 || cur_amounts.bank != 0) {
+			saved.printf("Curr: %s %ld %ld\n", cur_id.c_str(), cur_amounts.hand, cur_amounts.bank);
+		}
+	}
 	saved.printf("Wimp: %d\n", GET_WIMP_LEV(this));
 	saved.printf("Frez: %d\n", punishments::Get(this, punishments::EType::kFreeze).level);
 	saved.printf("Invs: %d\n", GET_INVIS_LEV(this));
@@ -681,49 +607,49 @@ void Player::save_char() {
 				punishments::Get(this, punishments::EType::kMute).duration,
 				punishments::Get(this, punishments::EType::kMute).level,
 				punishments::Get(this, punishments::EType::kMute).godid,
-				punishments::Get(this, punishments::EType::kMute).reason);
+				punishments::Get(this, punishments::EType::kMute).reason.c_str());
 	if (punishments::Get(this, punishments::EType::kName).duration > 0 && this->IsFlagged(EPlrFlag::kNameDenied))
 		saved.printf(
 				"PNam: %ld %d %ld %s~\n",
 				punishments::Get(this, punishments::EType::kName).duration,
 				punishments::Get(this, punishments::EType::kName).level,
 				punishments::Get(this, punishments::EType::kName).godid,
-				punishments::Get(this, punishments::EType::kName).reason);
+				punishments::Get(this, punishments::EType::kName).reason.c_str());
 	if (punishments::Get(this, punishments::EType::kDumb).duration > 0 && this->IsFlagged(EPlrFlag::kDumbed))
 		saved.printf(
 				"PDum: %ld %d %ld %s~\n",
 				punishments::Get(this, punishments::EType::kDumb).duration,
 				punishments::Get(this, punishments::EType::kDumb).level,
 				punishments::Get(this, punishments::EType::kDumb).godid,
-				punishments::Get(this, punishments::EType::kDumb).reason);
+				punishments::Get(this, punishments::EType::kDumb).reason.c_str());
 	if (punishments::Get(this, punishments::EType::kHell).duration > 0 && this->IsFlagged(EPlrFlag::kHelled))
 		saved.printf(
 				"PHel: %ld %d %ld %s~\n",
 				punishments::Get(this, punishments::EType::kHell).duration,
 				punishments::Get(this, punishments::EType::kHell).level,
 				punishments::Get(this, punishments::EType::kHell).godid,
-				punishments::Get(this, punishments::EType::kHell).reason);
+				punishments::Get(this, punishments::EType::kHell).reason.c_str());
 	if (punishments::Get(this, punishments::EType::kGcurse).duration > 0)
 		saved.printf(
 				"PGcs: %ld %d %ld %s~\n",
 				punishments::Get(this, punishments::EType::kGcurse).duration,
 				punishments::Get(this, punishments::EType::kGcurse).level,
 				punishments::Get(this, punishments::EType::kGcurse).godid,
-				punishments::Get(this, punishments::EType::kGcurse).reason);
+				punishments::Get(this, punishments::EType::kGcurse).reason.c_str());
 	if (punishments::Get(this, punishments::EType::kFreeze).duration > 0 && this->IsFlagged(EPlrFlag::kFrozen))
 		saved.printf(
 				"PFrz: %ld %d %ld %s~\n",
 				punishments::Get(this, punishments::EType::kFreeze).duration,
 				punishments::Get(this, punishments::EType::kFreeze).level,
 				punishments::Get(this, punishments::EType::kFreeze).godid,
-				punishments::Get(this, punishments::EType::kFreeze).reason);
+				punishments::Get(this, punishments::EType::kFreeze).reason.c_str());
 	if (punishments::Get(this, punishments::EType::kUnreg).duration > 0)
 		saved.printf(
 				"PUnr: %ld %d %ld %s~\n",
 				punishments::Get(this, punishments::EType::kUnreg).duration,
 				punishments::Get(this, punishments::EType::kUnreg).level,
 				punishments::Get(this, punishments::EType::kUnreg).godid,
-				punishments::Get(this, punishments::EType::kUnreg).reason);
+				punishments::Get(this, punishments::EType::kUnreg).reason.c_str());
 
 	if (KARMA(this)) {
 		snprintf(buf, sizeof(buf), "%s", KARMA(this));
@@ -1105,8 +1031,8 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 	// если с загруженными выше полями что-то хочется делать после лоада - делайте это здесь
 
 	//Indexing experience - if his exp is lover than required for his level - set it to required
-	if (this->get_exp() < GetExpUntilNextLvl(this, GetRealLevel(this))) {
-		set_exp(GetExpUntilNextLvl(this, GetRealLevel(this)));
+	if (this->get_exp() < experience::GetExpUntilNextLvl(this, GetRealLevel(this))) {
+		set_exp(experience::GetExpUntilNextLvl(this, GetRealLevel(this)));
 	}
 	this->account = Account::get_account(GET_EMAIL(this));
 	if (this->account == nullptr) {
@@ -1177,37 +1103,37 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 
 // Punish Init
 	punishments::Get(this, punishments::EType::kDumb).duration = 0;
-	punishments::Get(this, punishments::EType::kDumb).reason = 0;
+	punishments::Get(this, punishments::EType::kDumb).reason.clear();
 	punishments::Get(this, punishments::EType::kDumb).level = 0;
 	punishments::Get(this, punishments::EType::kDumb).godid = 0;
 
 	punishments::Get(this, punishments::EType::kMute).duration = 0;
-	punishments::Get(this, punishments::EType::kMute).reason = 0;
+	punishments::Get(this, punishments::EType::kMute).reason.clear();
 	punishments::Get(this, punishments::EType::kMute).level = 0;
 	punishments::Get(this, punishments::EType::kMute).godid = 0;
 
 	punishments::Get(this, punishments::EType::kHell).duration = 0;
-	punishments::Get(this, punishments::EType::kHell).reason = 0;
+	punishments::Get(this, punishments::EType::kHell).reason.clear();
 	punishments::Get(this, punishments::EType::kHell).level = 0;
 	punishments::Get(this, punishments::EType::kHell).godid = 0;
 
 	punishments::Get(this, punishments::EType::kFreeze).duration = 0;
-	punishments::Get(this, punishments::EType::kFreeze).reason = 0;
+	punishments::Get(this, punishments::EType::kFreeze).reason.clear();
 	punishments::Get(this, punishments::EType::kFreeze).level = 0;
 	punishments::Get(this, punishments::EType::kFreeze).godid = 0;
 
 	punishments::Get(this, punishments::EType::kGcurse).duration = 0;
-	punishments::Get(this, punishments::EType::kGcurse).reason = 0;
+	punishments::Get(this, punishments::EType::kGcurse).reason.clear();
 	punishments::Get(this, punishments::EType::kGcurse).level = 0;
 	punishments::Get(this, punishments::EType::kGcurse).godid = 0;
 
 	punishments::Get(this, punishments::EType::kName).duration = 0;
-	punishments::Get(this, punishments::EType::kName).reason = 0;
+	punishments::Get(this, punishments::EType::kName).reason.clear();
 	punishments::Get(this, punishments::EType::kName).level = 0;
 	punishments::Get(this, punishments::EType::kName).godid = 0;
 
 	punishments::Get(this, punishments::EType::kUnreg).duration = 0;
-	punishments::Get(this, punishments::EType::kUnreg).reason = 0;
+	punishments::Get(this, punishments::EType::kUnreg).reason.clear();
 	punishments::Get(this, punishments::EType::kUnreg).level = 0;
 	punishments::Get(this, punishments::EType::kUnreg).godid = 0;
 
@@ -1215,9 +1141,8 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 
 	GET_DR(this) = 0;
 
-	set_gold(0, false);
-	set_bank(0, false);
-	set_ruble(0);
+	currencies::SetHand(*this, currencies::kGold, 0, false);
+	currencies::SetBank(*this, currencies::kGold, 0, false);
 	this->player_specials->saved.GodsLike = 0;
 	this->set_hit(21);
 	this->set_max_hit(21);
@@ -1321,8 +1246,6 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 			case 'B':
 				if (!strcmp(tag, "Badp")) {
 					GET_BAD_PWS(this) = num;
-				} else if (!strcmp(tag, "Bank")) {
-					set_bank(lnum, false);
 				} else if (!strcmp(tag, "Br01"))
 					set_board_date(Boards::GENERAL_BOARD, llnum);
 				else if (!strcmp(tag, "Br02"))
@@ -1361,7 +1284,14 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 				break;
 
 			case 'C':
-				if (!strcmp(tag, "Cha "))
+				if (!strcmp(tag, "Curr")) {
+					char cur_id[128] = {0};
+					long cur_hand = 0, cur_bank = 0;
+					if (sscanf(line, "%127s %ld %ld", cur_id, &cur_hand, &cur_bank) >= 1) {
+						currencies::SetHand(*this, cur_id, cur_hand, false);
+						currencies::SetBank(*this, cur_id, cur_bank, false);
+					}
+				} else if (!strcmp(tag, "Cha "))
 					this->set_cha(num);
 				else if (!strcmp(tag, "Chrm")) {
 					log("Load_char: Charmees loading");
@@ -1479,9 +1409,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 				break;
 
 			case 'G':
-				if (!strcmp(tag, "Gold")) {
-					set_gold(lnum, false);
-				} else if (!strcmp(tag, "GodD"))
+				if (!strcmp(tag, "GodD"))
 					punishments::Get(this, punishments::EType::kGcurse).duration = lnum;
 				else if (!strcmp(tag, "GdFl"))
 					this->player_specials->saved.GodsLike = lnum;
@@ -1505,11 +1433,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 					GET_HR(this) = num;
 				else if (!strcmp(tag, "Hung"))
 					GET_COND(this, condition::kFull) = num;
-				else if (!strcmp(tag, "Hry ")) {
-					if (num > cap_hryvn)
-						num = cap_hryvn;
-					this->set_hryvn(num);
-				} else if (!strcmp(tag, "Host"))
+				else if (!strcmp(tag, "Host"))
 					strcpy(this->player_specials->saved.LastIP, line);
 				break;
 
@@ -1521,9 +1445,6 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 				} else if (!strcmp(tag, "Ignr")) {
 					IgnoresLoader ignores_loader(this);
 					ignores_loader.load_from_string(line);
-				} else if (!strcmp(tag, "ICur")) {
-					this->set_ice_currency(num);
-//				this->set_ice_currency(0); // чистка льда
 				}
 				break;
 
@@ -1671,43 +1592,43 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 					punishments::Get(this, punishments::EType::kMute).duration = lnum;
 					punishments::Get(this, punishments::EType::kMute).level = num2;
 					punishments::Get(this, punishments::EType::kMute).godid = lnum3;
-					punishments::Get(this, punishments::EType::kMute).reason = str_dup(buf);
+					punishments::Get(this, punishments::EType::kMute).reason = buf;
 				} else if (!strcmp(tag, "PHel")) {
 					sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &buf[0]);
 					punishments::Get(this, punishments::EType::kHell).duration = lnum;
 					punishments::Get(this, punishments::EType::kHell).level = num2;
 					punishments::Get(this, punishments::EType::kHell).godid = lnum3;
-					punishments::Get(this, punishments::EType::kHell).reason = str_dup(buf);
+					punishments::Get(this, punishments::EType::kHell).reason = buf;
 				} else if (!strcmp(tag, "PDum")) {
 					sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &buf[0]);
 					punishments::Get(this, punishments::EType::kDumb).duration = lnum;
 					punishments::Get(this, punishments::EType::kDumb).level = num2;
 					punishments::Get(this, punishments::EType::kDumb).godid = lnum3;
-					punishments::Get(this, punishments::EType::kDumb).reason = str_dup(buf);
+					punishments::Get(this, punishments::EType::kDumb).reason = buf;
 				} else if (!strcmp(tag, "PNam")) {
 					sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &buf[0]);
 					punishments::Get(this, punishments::EType::kName).duration = lnum;
 					punishments::Get(this, punishments::EType::kName).level = num2;
 					punishments::Get(this, punishments::EType::kName).godid = lnum3;
-					punishments::Get(this, punishments::EType::kName).reason = str_dup(buf);
+					punishments::Get(this, punishments::EType::kName).reason = buf;
 				} else if (!strcmp(tag, "PFrz")) {
 					sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &buf[0]);
 					punishments::Get(this, punishments::EType::kFreeze).duration = lnum;
 					punishments::Get(this, punishments::EType::kFreeze).level = num2;
 					punishments::Get(this, punishments::EType::kFreeze).godid = lnum3;
-					punishments::Get(this, punishments::EType::kFreeze).reason = str_dup(buf);
+					punishments::Get(this, punishments::EType::kFreeze).reason = buf;
 				} else if (!strcmp(tag, "PGcs")) {
 					sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &buf[0]);
 					punishments::Get(this, punishments::EType::kGcurse).duration = lnum;
 					punishments::Get(this, punishments::EType::kGcurse).level = num2;
 					punishments::Get(this, punishments::EType::kGcurse).godid = lnum3;
-					punishments::Get(this, punishments::EType::kGcurse).reason = str_dup(buf);
+					punishments::Get(this, punishments::EType::kGcurse).reason = buf;
 				} else if (!strcmp(tag, "PUnr")) {
 					sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &buf[0]);
 					punishments::Get(this, punishments::EType::kUnreg).duration = lnum;
 					punishments::Get(this, punishments::EType::kUnreg).level = num2;
 					punishments::Get(this, punishments::EType::kUnreg).godid = lnum3;
-					punishments::Get(this, punishments::EType::kUnreg).reason = str_dup(buf);
+					punishments::Get(this, punishments::EType::kUnreg).reason = buf;
 				}
 
 				break;
@@ -1735,8 +1656,6 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 					IncreaseStatistic(CharStat::MobRip, num);
 				else if (!strcmp(tag, "Rimt"))
 					IncreaseStatistic(CharStat::MobRemortRip, num);
-				else if (!strcmp(tag, "Ruble"))
-					this->set_ruble(num);
 				else if (!strcmp(tag, "Ripp"))
 					IncreaseStatistic(CharStat::PkRip, num);
 				else if (!strcmp(tag, "Ript"))
@@ -1793,7 +1712,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 						if (num != 0) {
 							auto skill_id = static_cast<ESkill>(num);
 							if (MUD::Class(this->GetClass()).skills[skill_id].IsAvailable()) {
-								this->set_skill(skill_id, num2);
+								SetSkill(this, skill_id, num2);
 							}
 						}
 					} while (num != 0);
@@ -2027,21 +1946,6 @@ int Player::get_reset_stats_cnt(stats_reset::Type type) const {
 	return reset_stats_cnt_.at(type);
 }
 
-int Player::get_ice_currency() {
-	return this->ice_currency;
-}
-
-void Player::set_ice_currency(int value) {
-	this->ice_currency = value;
-}
-
-void Player::add_ice_currency(int value) {
-	this->ice_currency += value;
-}
-
-void Player::sub_ice_currency(int value) {
-	this->ice_currency = MAX(0, ice_currency - value);
-}
 
 bool Player::is_arena_player() {
 	return this->arena_player;

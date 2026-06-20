@@ -2,6 +2,8 @@
 // Part of Bylins http://www.mud.ru
 
 #include "administration/karma.h"
+#include "engine/db/global_objects.h"
+#include "gameplay/economics/currencies.h"
 #include "utils/grammar/declensions.h"
 #include "genchar.h"
 #include "engine/ui/color.h"
@@ -130,10 +132,10 @@ void print_menu(DescriptorData *d) {
 		"5) отменить и вернуться в главное меню\r\n"
 		"\r\nВаш выбор:",
 		kColorBoldGrn, kColorNrm,
-		stats_price, grammar::GetDeclensionInNumber(stats_price, grammar::EWhat::kMoneyA),
-		race_price, grammar::GetDeclensionInNumber(race_price, grammar::EWhat::kMoneyA),
-		feats_price, grammar::GetDeclensionInNumber(feats_price, grammar::EWhat::kMoneyA),
-		religion_price, grammar::GetDeclensionInNumber(religion_price, grammar::EWhat::kMoneyA));
+		stats_price, MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(stats_price, grammar::ECase::kNom).c_str(),
+		race_price, MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(race_price, grammar::ECase::kNom).c_str(),
+		feats_price, MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(feats_price, grammar::ECase::kNom).c_str(),
+		religion_price, MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(religion_price, grammar::ECase::kNom).c_str());
 iosystem::write_to_output(str.c_str(), d);
 }
 
@@ -144,7 +146,7 @@ void process(DescriptorData *d, Type type) {
 	const auto &ch = d->character;
 	const int price = calc_price(ch.get(), type);
 
-	if (ch->get_total_gold() < price) {
+	if (currencies::GetTotal(*ch, currencies::kGold) < price) {
 	iosystem::write_to_output("\r\nУ вас нет такой суммы!\r\n", d);
 	iosystem::write_to_output(MENU, d);
 		d->state = EConState::kMenu;
@@ -168,7 +170,7 @@ void process(DescriptorData *d, Type type) {
 					 reset_prices.at(type).log_text.c_str(), price);
 			AddKarma(ch.get(), buf_, "auto");
 
-			ch->remove_both_gold(price);
+			currencies::RemoveTotal(*ch, currencies::kGold, price);
 			ch->save_char();
 
 			snprintf(buf_, sizeof(buf_), "%s changed %s, price=%d",

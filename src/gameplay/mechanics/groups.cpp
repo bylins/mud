@@ -126,7 +126,7 @@ void change_leader(CharData *ch, CharData *vict) {
 				continue;
 			if (!leader)
 				leader = l;
-			else if (l->GetSkill(ESkill::kLeadership) > leader->GetSkill(ESkill::kLeadership))
+			else if (GetSkill(l, ESkill::kLeadership) > GetSkill(leader, ESkill::kLeadership))
 				leader = l;
 		}
 	}
@@ -163,7 +163,7 @@ void change_leader(CharData *ch, CharData *vict) {
 	if (vict) {
 		// флаг группы надо снять, иначе при регрупе не будет писаться о старом лидере
 		//AFF_FLAGS(ch).unset(EAffectFlag::AFF_GROUP);
-		ch->removeGroupFlags();
+		group::RemoveGroupFlags(ch);
 		follow::AddFollowerSilently(leader, ch);
 	}
 
@@ -281,7 +281,7 @@ void group::print_one_line(CharData *ch, CharData *k, int leader, int header) {
 
 		// АФФЕКТЫ
 		buffer << fmt::format(" {:<5}", generate_affects_string(k));
-		buffer << fmt::format("{:<1} &n|", k->low_charm() ? "&nТ" : " ");
+		buffer << fmt::format("{:<1} &n|", IsCharmExpiring(k) ? "&nТ" : " ");
 
 		// ДЕБАФЫ
 		buffer << fmt::format(" {:<7} &n|", generate_debuf_string(k));
@@ -512,7 +512,7 @@ void group::GoGroup(CharData *ch, char *argument) {
 			act("Вы исключены из группы $n1!", false, ch, nullptr, vict, kToVict);
 			act("$N был$G исключен$A из группы $n1!", false, ch, nullptr, vict, kToNotVict | kToArenaListen);
 			//AFF_FLAGS(vict).unset(EAffectFlag::AFF_GROUP);
-			vict->removeGroupFlags();
+			group::RemoveGroupFlags(vict);
 		}
 	}
 }
@@ -525,7 +525,7 @@ void group::GoUngroup(CharData *ch, char *argument) {
 		for (auto *f : copy) {
 			if (AFF_FLAGGED(f, EAffect::kGroup)) {
 				//AFF_FLAGS(f->ch).unset(EAffectFlag::AFF_GROUP);
-				f->removeGroupFlags();
+				group::RemoveGroupFlags(f);
 				SendMsgToChar(buf2, f);
 				if (!AFF_FLAGGED(f, EAffect::kCharmed)
 					&& !(f->IsNpc()
@@ -535,7 +535,7 @@ void group::GoUngroup(CharData *ch, char *argument) {
 			}
 		}
 		AFF_FLAGS(ch).unset(EAffect::kGroup);
-		ch->removeGroupFlags();
+		group::RemoveGroupFlags(ch);
 		SendMsgToChar("Вы распустили группу.\r\n", ch);
 		return;
 	}
@@ -546,7 +546,7 @@ void group::GoUngroup(CharData *ch, char *argument) {
 			&& !AFF_FLAGGED(tch, EAffect::kCharmed)
 			&& !mount::IsHorse(tch)) {
 			//AFF_FLAGS(tch).unset(EAffectFlag::AFF_GROUP);
-			tch->removeGroupFlags();
+			group::RemoveGroupFlags(tch);
 			act("$N более не член вашей группы.", false, ch, nullptr, tch, kToChar);
 			act("Вы исключены из группы $n1!", false, ch, nullptr, tch, kToVict);
 			act("$N был$G изгнан$A из группы $n1!", false, ch, nullptr, tch, kToNotVict | kToArenaListen);
@@ -616,7 +616,7 @@ void do_report(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 					SendMsgToChar(ch, "%s доложил%s свои умения:", utils::CAP(f->get_name()).c_str(), grammar::SexEnding((f)->get_sex(), 1));
 					for (const auto &skill : MUD::Skills()) {
-						if (skill.IsValid() && f->GetSkill(skill.GetId())) {
+						if (skill.IsValid() && GetSkill(f, skill.GetId())) {
 							str += fmt::format(" {},", skill.GetName());
 						}
 					}
@@ -639,7 +639,7 @@ void group::do_split(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) 
 	do_split(ch, argument, 0, 0, 0);
 }
 
-void group::do_split(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, int currency) {
+void group::do_split(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, int currency_vnum) {
 	int amount, num, share, rest;
 	CharData *k;
 
@@ -648,14 +648,6 @@ void group::do_split(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, 
 
 	one_argument(argument, buf);
 
-	grammar::EWhat what_currency;
-
-	switch (currency) {
-		case currency::ICE : what_currency = grammar::EWhat::kIceU;
-			break;
-		default : what_currency = grammar::EWhat::kMoneyU;
-			break;
-	}
 
 	if (is_number(buf)) {
 		amount = atoi(buf);
@@ -664,7 +656,7 @@ void group::do_split(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, 
 			return;
 		}
 
-		if (amount > ch->get_gold() && currency == currency::GOLD) {
+		if (amount > currencies::GetHand(*ch, currency_vnum)) {
 			SendMsgToChar("И где бы взять вам столько денег?.\r\n", ch);
 			return;
 		}
@@ -694,27 +686,13 @@ void group::do_split(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, 
 		}
 		//MONEY_HACK
 
-		switch (currency) {
-			case currency::ICE : ch->sub_ice_currency(share * (num - 1));
-				break;
-			case currency::GOLD : ch->remove_gold(share * (num - 1));
-				break;
-		}
+		currencies::RemoveHand(*ch, currency_vnum, share * (num - 1));
 
 		sprintf(buf, "%s разделил%s %d %s; вам досталось %d.\r\n",
-				GET_NAME(ch), grammar::SexEnding((ch)->get_sex(), 1), amount, grammar::GetDeclensionInNumber(amount, what_currency), share);
+				GET_NAME(ch), grammar::SexEnding((ch)->get_sex(), 1), amount, MUD::Currency(currency_vnum).GetNameWithAmount(amount, grammar::ECase::kAcc).c_str(), share);
 		if (AFF_FLAGGED(k, EAffect::kGroup) && k->in_room == ch->in_room && !k->IsNpc() && k != ch) {
 			SendMsgToChar(buf, k);
-			switch (currency) {
-				case currency::ICE : {
-					k->add_ice_currency(share);
-					break;
-				}
-				case currency::GOLD : {
-					k->add_gold(share, true, true);
-					break;
-				}
-			}
+			currencies::AddHand(*k, currency_vnum, share - (currency_vnum == currencies::kGoldVnum ? ClanSystem::do_gold_tax(k, share) : 0), false, true);
 		}
 		for (auto *f : k->followers) {
 			if (AFF_FLAGGED(f, EAffect::kGroup)
@@ -722,32 +700,33 @@ void group::do_split(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, 
 				&& f->in_room == ch->in_room
 				&& f != ch) {
 				SendMsgToChar(buf, f);
-				switch (currency) {
-					case currency::ICE : f->add_ice_currency(share);
-						break;
-					case currency::GOLD : f->add_gold(share, true, true);
-						break;
-				}
+				currencies::AddHand(*f, currency_vnum, share - (currency_vnum == currencies::kGoldVnum ? ClanSystem::do_gold_tax(f, share) : 0), false, true);
 			}
 		}
 		sprintf(buf, "Вы разделили %d %s на %d  -  по %d каждому.\r\n",
-				amount, grammar::GetDeclensionInNumber(amount, what_currency), num, share);
+				amount, MUD::Currency(currency_vnum).GetNameWithAmount(amount, grammar::ECase::kAcc).c_str(), num, share);
 		if (rest) {
 			sprintf(buf + strlen(buf),
 					"Как истинный еврей вы оставили %d %s (которые не смогли разделить нацело) себе.\r\n",
-					rest, grammar::GetDeclensionInNumber(rest, what_currency));
+					rest, MUD::Currency(currency_vnum).GetNameWithAmount(rest, grammar::ECase::kAcc).c_str());
 		}
 
 		SendMsgToChar(buf, ch);
 		// клан-налог лутера с той части, которая пошла каждому в группе
-		if (currency == currency::GOLD) {
+		if (currency_vnum == currencies::kGoldVnum) {
 			const long clan_tax = ClanSystem::do_gold_tax(ch, share);
-			ch->remove_gold(clan_tax);
+			currencies::RemoveHand(*ch, currencies::kGold, clan_tax);
 		}
 	} else {
 		SendMsgToChar("Сколько и чего вы хотите разделить?\r\n", ch);
 		return;
 	}
+}
+
+// issue.chardata-cleaning: was CharData::removeGroupFlags.
+void group::RemoveGroupFlags(CharData *ch) {
+	AFF_FLAGS(ch).unset(EAffect::kGroup);
+	ch->UnsetFlag(EPrf::kSkirmisher);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

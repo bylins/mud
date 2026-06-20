@@ -64,7 +64,6 @@ using ETelemetryLogMode = RuntimeConfiguration::ETelemetryLogMode;
  * efficency of doing it the other way.
  *
  */
-long GetExpUntilNextLvl(CharData *ch, int level);
 
 // GAME PLAY OPTIONS
 
@@ -294,18 +293,6 @@ const char *START_MESSG =
 	" Твоя задача непроста, но надеемся, что ты сумеешь достойно решить ее.\r\n"
 	" В добрый час, путник, и да будет скатертью тебе дорога...\r\n" "\r\n";
 
-int max_exp_gain_pc(CharData *ch) {
-	int result = 1;
-	if (!ch->IsNpc()) {
-		int max_per_lev = GetExpUntilNextLvl(ch, ch->GetLevel() + 1) - GetExpUntilNextLvl(ch, ch->GetLevel() + 0); //тут берем левел без плюсов от стафа
-		result = max_per_lev / (10 + remort::GetRealRemort(ch));
-	}
-	return result;
-}
-
-int max_exp_loss_pc(CharData *ch) {
-	return (ch->IsNpc() ? 1 : (GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1) - GetExpUntilNextLvl(ch, GetRealLevel(ch) + 0)) / 3);
-}
 
 int calc_loadroom(const CharData *ch, int bplace_mode /*= BIRTH_PLACE_UNDEFINED*/) {
 	if (privilege::IsImmortal(ch)) {
@@ -733,7 +720,7 @@ const std::string &NAME_BY_ITEM<CLogInfo::EMode>(const CLogInfo::EMode item) {
 	return EMode_name_by_value.at(item);
 }
 
-const char *RuntimeConfiguration::CONFIGURATION_FILE_NAME = "misc/configuration.xml";
+const char *RuntimeConfiguration::CONFIGURATION_FILE_NAME = "cfg/configuration.xml";
 
 const RuntimeConfiguration::logs_t LOGS({
 											CLogInfo("syslog", "СИСТЕМНЫЙ"),
@@ -988,6 +975,7 @@ const std::map<ECommonMsg, std::string> kCommonMsgNames{
 		{ECommonMsg::kOk, "kOk"},
 		{ECommonMsg::kNoPerson, "kNoPerson"},
 		{ECommonMsg::kNothing, "kNothing"},
+		{ECommonMsg::kBrokenScales, "kBrokenScales"},
 	};
 
 msg_container::MsgContainer<int, ECommonMsg> &CommonMsgContainer() {

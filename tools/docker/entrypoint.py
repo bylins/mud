@@ -118,7 +118,7 @@ def main():
 
     if env_bool("FORCE_CONFIG", True):
         log("FORCE_CONFIG=on — гарантирую admin_api + otel-only")
-        force_config(os.path.join(world_dir, "misc", "configuration.xml"), socket_rel)
+        force_config(os.path.join(world_dir, "cfg", "configuration.xml"), socket_rel)
     else:
         log("FORCE_CONFIG=off — использую configuration.xml мира как есть")
 

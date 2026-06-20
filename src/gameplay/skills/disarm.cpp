@@ -1,4 +1,5 @@
 #include "disarm.h"
+#include "gameplay/fight/fight_stuff.h"
 #include "administration/privilege.h"
 
 #include "skill_messages.h"
@@ -16,7 +17,7 @@
 
 // ************* DISARM PROCEDURES
 void do_disarm(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (ch->IsNpc() || !ch->GetSkill(ESkill::kDisarm)) {
+	if (ch->IsNpc() || !GetSkill(ch, ESkill::kDisarm)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kDisarm, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
@@ -36,12 +37,12 @@ void do_disarm(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 void do_disarm(CharData *ch, CharData *vict) {
-	if (ch->IsNpc() || !ch->GetSkill(ESkill::kDisarm)) {
+	if (ch->IsNpc() || !GetSkill(ch, ESkill::kDisarm)) {
 		log("ERROR: вызов дизарма для персонажа %s (%d) без проверки умения", ch->get_name().c_str(), GET_MOB_VNUM(ch));
 		return;
 	}
 	
-	if (ch->HasCooldown(ESkill::kDisarm)) {
+	if (ch->Skills().HasActiveCooldown(ESkill::kDisarm)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kDisarm, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	};
@@ -55,10 +56,10 @@ void do_disarm(CharData *ch, CharData *vict) {
 //	}
 
 	if (CanUseFeat(ch, EFeat::kInjure)) {
-		if (IsAffectedBySpellWithCasterId(ch, vict, ESpell::kNoInjure) && (!vict->HasWeapon())) {
+		if (IsAffectedBySpellWithCasterId(ch, vict, ESpell::kNoInjure) && (!HasWeapon(vict))) {
 			act("Не получится - $N уже понял$G, что от Вас можно ожидать всякого!",
 				false, ch, nullptr, vict, kToChar);
-		} else if (IsAffectedBySpellWithCasterId(ch, vict, ESpell::kNoInjure) && (vict->HasWeapon())) {
+		} else if (IsAffectedBySpellWithCasterId(ch, vict, ESpell::kNoInjure) && (HasWeapon(vict))) {
 			if (privilege::IsImpl(ch) || !ch->GetEnemy()) {
 				go_disarm(ch, vict);
 			} else if (IsHaveNoExtraAttack(ch)) {
@@ -74,7 +75,7 @@ void do_disarm(CharData *ch, CharData *vict) {
 			}
 		}
 	} else {
-		if (!vict->HasWeapon()) {
+		if (!HasWeapon(vict)) {
 			SendMsgToChar("Вы не сможете обезоружить безоружного!\r\n", ch);
 			return;
 		} else {
@@ -93,7 +94,7 @@ void go_injure(CharData *ch, CharData *vict) {
 	bool injure_success = result.success;
 
 	if (injure_success) {
-		int injure_duration = std::min((2 + ch->GetSkill(ESkill::kDisarm) / 20), 10);
+		int injure_duration = std::min((2 + GetSkill(ch, ESkill::kDisarm) / 20), 10);
 
 		if (!vict->IsNpc()) {
 			injure_duration *= 30;
@@ -104,7 +105,7 @@ void go_injure(CharData *ch, CharData *vict) {
 		Affect<EApply> af;
 		af.type = ESpell::kLowerEffectiveness;
 		af.duration = injure_duration;
-		af.modifier = -(10 + std::min((ch->GetSkill(ESkill::kDisarm) / 10), 20));
+		af.modifier = -(10 + std::min((GetSkill(ch, ESkill::kDisarm) / 10), 20));
 		af.location = EApply::kPhysicDamagePercent;
 		af.battleflag = kAfBattledec;
 		af.affect_type = EAffect::kInjured;
@@ -117,7 +118,7 @@ void go_injure(CharData *ch, CharData *vict) {
 		act("$N ранил$G $n3. Кажется $n0 уже передумал$g драться...",
 			false, vict, nullptr, ch, kToNotVict | kToArenaListen);
 
-		int dam = number(ceil(ch->GetSkill(ESkill::kDisarm) / 1.25), ceil(ch->GetSkill(ESkill::kDisarm) * 1.25))
+		int dam = number(ceil(GetSkill(ch, ESkill::kDisarm) / 1.25), ceil(GetSkill(ch, ESkill::kDisarm) * 1.25))
 			* GetRealLevel(ch) / 30;
 		Damage dmg(SkillDmg(ESkill::kDisarm), dam, fight::kPhysDmg, nullptr);
 		dmg.flags.set(fight::kIgnoreBlink);
@@ -148,7 +149,7 @@ void go_injure(CharData *ch, CharData *vict) {
 		af2.caster_id = ch->get_uid();
 		affect_to_char(vict, af2);
 
-		if (!vict->HasWeapon()) {
+		if (!HasWeapon(vict)) {
 			TrainSkill(ch, ESkill::kDisarm, injure_success, vict);
 			SetSkillCooldown(ch, ESkill::kDisarm, 1);
 			return;
@@ -168,7 +169,7 @@ void go_disarm(CharData *ch, CharData *vict) {
 		return;
 	}
 
-	if (!vict->HasWeapon()) {
+	if (!HasWeapon(vict)) {
 		SendMsgToChar("Вы не можете обезоружить безоружного.\r\n", ch);
 		return;
 	}

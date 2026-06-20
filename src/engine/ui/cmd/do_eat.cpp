@@ -1,4 +1,5 @@
 #include "do_eat.h"
+#include "gameplay/mechanics/condition.h"
 #include "administration/privilege.h"
 
 #include "engine/entities/char_data.h"

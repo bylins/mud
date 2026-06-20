@@ -14,6 +14,7 @@
 #define INTERPRETER_CPP_
 
 #include "interpreter.h"
+#include "gameplay/mechanics/condition.h"
 #include "utils/utils_encoding.h"
 #include "interpreter_utils.h"
 
@@ -94,6 +95,7 @@
 #include "engine/ui/cmd/do_mobshout.h"
 #include "engine/ui/cmd/do_commands.h"
 #include "engine/ui/cmd/do_gold.h"
+#include "engine/ui/cmd/do_money.h"
 #include "engine/ui/cmd/do_hidemove.h"
 #include "engine/ui/cmd/do_generic_page.h"
 #include "engine/ui/cmd/do_check_invoice.h"
@@ -544,6 +546,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"зачаровать", EPosition::kStand, DoSpellCapable, 1, 0, 0},
 		{"зачистить", EPosition::kDead, DoSanitize, kLvlGreatGod, 0, 0},
 		{"золото", EPosition::kRest, do_gold, 0, 0, 0},
+		{"деньги", EPosition::kRest, do_money, 0, 0, 0},
 		{"зона", EPosition::kRest, DoZone, 0, 0, 0},
 		{"зоныстат", EPosition::kDead, DoShowZoneStat, kLvlImmortal, 0, 0},
 		{"инвентарь", EPosition::kSleep, DoInventory, 0, 0, 0},
@@ -858,6 +861,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"give", EPosition::kRest, do_give, 0, 0, 500},
 		{"godnews", EPosition::kDead, Boards::DoBoard, 1, Boards::GODNEWS_BOARD, -1},
 		{"gold", EPosition::kRest, do_gold, 0, 0, 0},
+		{"money", EPosition::kRest, do_money, 0, 0, 0},
 		{"glide", EPosition::kStand, DoLightwalk, 0, 0, 0},
 		{"glory", EPosition::kRest, GloryConst::do_glory, kLvlImplementator, 0, 0},
 		{"glorytemp", EPosition::kRest, DoGlory, kLvlBuilder, 0, 0},
@@ -1085,7 +1089,7 @@ void check_hiding_cmd(CharData *ch, int percent) {
 		if (percent == -2) {
 			if (AFF_FLAGGED(ch, EAffect::kSneak)) {
 				remove_hide = number(1, MUD::Skill(ESkill::kSneak).difficulty) >
-					ch->GetSkill(ESkill::kHide);
+					GetSkill(ch, ESkill::kHide);
 			} else {
 				percent = 500;
 			}
@@ -1093,7 +1097,7 @@ void check_hiding_cmd(CharData *ch, int percent) {
 		if (percent == -1) {
 			remove_hide = true;
 		} else if (percent > 0) {
-			remove_hide = number(1, percent) > ch->GetSkill(ESkill::kHide);
+			remove_hide = number(1, percent) > GetSkill(ch, ESkill::kHide);
 		}
 		if (remove_hide) {
 			RemoveAffectFromChar(ch, ESpell::kHide);
@@ -1778,9 +1782,9 @@ void do_entergame(DescriptorData *d) {
 
 	if (GetRealLevel(d->character) > kLvlImmortal
 		&& GetRealLevel(d->character) < kLvlBuilder
-		&& (d->character->get_gold() > 0 || d->character->get_bank() > 0)) {
-		d->character->set_gold(0);
-		d->character->set_bank(0);
+		&& (currencies::GetHand(*d->character, currencies::kGold) > 0 || currencies::GetBank(*d->character, currencies::kGold) > 0)) {
+		currencies::SetHand(*d->character, currencies::kGold, 0);
+		currencies::SetBank(*d->character, currencies::kGold, 0);
 	}
 
 	if (GetRealLevel(d->character) >= kLvlImmortal && GetRealLevel(d->character) < kLvlImplementator) {
@@ -1902,12 +1906,12 @@ void do_entergame(DescriptorData *d) {
 	}
 
 	if (d->character->IsFlagged(EPrf::kPunctual)
-		&& !d->character->GetSkill(ESkill::kPunctual)) {
+		&& !GetSkill(d->character.get(), ESkill::kPunctual)) {
 		d->character->UnsetFlag(EPrf::kPunctual);
 	}
 
 	if (d->character->IsFlagged(EPrf::kAwake)
-		&& !d->character->GetSkill(ESkill::kAwake)) {
+		&& !GetSkill(d->character.get(), ESkill::kAwake)) {
 		d->character->UnsetFlag(EPrf::kAwake);
 	}
 
@@ -1952,7 +1956,7 @@ void do_entergame(DescriptorData *d) {
 	if (!privilege::IsImmortal(d->character.get())) {
 		for (const auto &skill : MUD::Skills()) {
 			if (MUD::Class((d->character)->GetClass()).skills[skill.GetId()].IsInvalid()) {
-				d->character->set_skill(skill.GetId(), 0);
+				SetSkill(d->character.get(), skill.GetId(), 0);
 			}
 		}
 

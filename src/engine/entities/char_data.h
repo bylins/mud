@@ -9,18 +9,19 @@
 #include "administration/punishments.h"
 #include "gameplay/fight/pk.h"
 #include "gameplay/magic/magic_temp_spells.h"
-#include "gameplay/mechanics/condition.h"
 #include "gameplay/mechanics/obj_sets.h"
 #include "gameplay/mechanics/dead_load.h"
 #include "engine/db/db.h"
 #include "entities_constants.h"
 #include "room_data.h"
+#include "obj_data.h"
+#include "engine/scripting/dg_scripts.h"
 #include "gameplay/communication/ignores.h"
 #include "gameplay/crafting/im.h"
 #include "gameplay/skills/skills.h"
-#include "gameplay/mechanics/rune_stones.h"   // issue.runestones: was townportal.h (runestone classes moved)
+#include "gameplay/economics/currency_storage.h"
+#include "gameplay/mechanics/rune_stones.h"
 #include "utils/utils.h"
-#include "engine/core/conf.h"
 #include "gameplay/affects/affect_data.h"
 #include "gameplay/mechanics/mem_queue.h"
 #include "gameplay/ai/mob_memory.h"
@@ -31,9 +32,6 @@
 #include <bitset>
 #include <list>
 #include <map>
-
-// pernalty types
-
 
 // These data contain information about a players time data
 struct time_data {
@@ -58,15 +56,13 @@ struct char_player_data {
 	ubyte Race;        // PC / NPC's race
 };
 
-
 enum class EBriefShieldsMode : int {
 	kOff = 0,
 	kBrief = 1,
 	kCompact = 2,
 	kCompressed = 3
 };
-// кол-во +слотов со шмоток
-const int MAX_ADD_SLOTS = 10;
+const int MAX_ADD_SLOTS = 10;  // кол-во +слотов со шмоток
 
 // Char's additional abilities. Used only while work
 struct char_played_ability_data {
@@ -252,34 +248,13 @@ struct player_special_data {
 	punishments::CharPunishments punishments;  // mute/dumb/hell/name/freeze/gcurse/unreg
 
 	char *clanStatus; // строка для отображения приписки по кто
-	// TODO: однозначно переписать
 	std::shared_ptr<class Clan> clan; // собсна клан, если он есть
 	std::shared_ptr<class ClanMember> clan_member; // поле мембера в клане
 
 	static player_special_data::shared_ptr s_for_mobiles;
 };
 
-struct attacker_node {
-	attacker_node() : damage(0), rounds(0) {};
-	// влитый дамаг
-	int damage;
-	// кол-во раундов в бою
-	int rounds;
-};
-
-enum {
-	ATTACKER_DAMAGE,
-	ATTACKER_ROUNDS
-};
-
-struct CharacterSkillDataType {
-	int skillLevel;
-	unsigned cooldown;
-
-	void decreaseCooldown(unsigned value);
-};
-
-using CharSkillsType = std::map<ESkill, CharacterSkillDataType>;
+#include "gameplay/skills/character_skills.h"
 
 class ProtectedCharData;    // to break up cyclic dependencies
 
@@ -316,6 +291,16 @@ class ProtectedCharData : public PlayerI {
 };
 
 // * Общий класс для игроков/мобов.
+class CharData;   // for FightTargets below
+
+// CharData's combat-relationship targets, grouped: each must be cleared when its target is
+// extracted. Reached through get/set_protecting, get/set_touching and Get/SetEnemy.
+struct FightTargets {
+	CharData *enemy{nullptr};         // current fight target
+	CharData *protecting{nullptr};    // target of 'прикрыть' (cover)
+	CharData *intercepting{nullptr};  // target of 'перехватить' (intercept)
+};
+
 class CharData : public ProtectedCharData {
 // новое
  public:
@@ -335,13 +320,14 @@ class CharData : public ProtectedCharData {
 	void UnsetFeat(EFeat feat_id) { real_abils.Feats.reset(to_underlying(feat_id)); affect_total(this); };
 	bool HaveFeat(EFeat feat_id) const { return real_abils.Feats.test(to_underlying(feat_id)); };
 
-	void set_skill(ESkill skill_id, int percent);
 	void clear_skills();
-	int GetSkill(ESkill skill_id) const;
-	int GetSkillWithoutEquip(ESkill skill_id) const;
 	int get_skills_count() const;
-	const CharSkillsType &GetCharSkills() const { return skills; }
-	int GetEquippedSkill(ESkill skill_id) const;
+	const CharacterSkills::Map &GetCharSkills() const { return skills_.data(); }
+	CharacterSkills &Skills() { return skills_; }
+	const CharacterSkills &Skills() const { return skills_; }
+	// Sets a skill's cooldown and registers the char in the global cooldown list (the one cooldown
+	// op that is a char-level concern, hence here and not on CharacterSkills).
+	void setSkillCooldown(ESkill skill_id, unsigned cooldown);
 	int get_skill_bonus() const;
 	void set_skill_bonus(int);
 	int GetAddSkill(ESkill skill_id) const;
@@ -351,7 +337,6 @@ class CharData : public ProtectedCharData {
 	void add_obj_slot(int slot_num, int count);
 	// ресет нпс
 	void restore_npc();
-	////////////////////////////////////////////////////////////////////////////
 	CharData *get_touching() const;
 	void set_touching(CharData *vict);
 
@@ -367,14 +352,11 @@ class CharData : public ProtectedCharData {
 	CharData *GetEnemy() const;
 	void SetEnemy(CharData *enemy);
 
-	// TODO: касты можно сделать и красивее (+ troom не используется, CastSpell/cast_subst/cast_obj только по разу)
 	void SetCast(ESpell spell_id, ESpell spell_subst, CharData *tch, ObjData *tobj, RoomData *troom);
 	ESpell GetCastSpell() const;
 	ESpell GetCastSubst() const;
 	CharData *GetCastChar() const;
 	ObjData *GetCastObj() const;
-
-	////////////////////////////////////////////////////////////////////////////
 
 	bool purged() const;
 
@@ -448,21 +430,9 @@ class CharData : public ProtectedCharData {
 	int get_movereg() const;
 	void set_movereg(int);
 
-	////////////////////////////////////////////////////////////////////////////
-	long get_gold() const;
-	long get_bank() const;
-	long get_total_gold() const;
-
-	void add_gold(long gold, bool log = true, bool clan_tax = false);
-	void add_bank(long gold, bool log = true);
-
-	void set_gold(long num, bool log = true);
-	void set_bank(long num, bool log = true);
-
-	long remove_gold(long num, bool log = true);
-	long remove_bank(long num, bool log = true);
-	long remove_both_gold(long num, bool log = true);
-	////////////////////////////////////////////////////////////////////////////
+	// issue.currency-storage: the per-owner currency container (single mutation chokepoint).
+	currencies::CurrencyStorage &currency_storage() { return currency_storage_; }
+	[[nodiscard]] const currencies::CurrencyStorage &currency_storage() const { return currency_storage_; }
 
 	int calc_morale() const;
 
@@ -492,7 +462,6 @@ class CharData : public ProtectedCharData {
 	void set_cha(int);
 	void inc_cha(int);
 
-	////////////////////////////////////////////////////////////////////////////
 	void clear_add_apply_affects();
 	int get_str_add() const;
 	void set_str_add(int);
@@ -506,30 +475,17 @@ class CharData : public ProtectedCharData {
 	void set_int_add(int);
 	int get_cha_add() const;
 	void set_cha_add(int);
-	////////////////////////////////////////////////////////////////////////////
-
-	/**
-	 * \return поле group из зон файла данного моба
-	 * <= 1 - обычная зона (соло), >= 2 - групповая зона на указанное кол-во человек
-	 */
-	int get_zone_group() const;
 
 	/**
 	** Returns true if character is mob and located in used zone.
 	**/
 	bool in_used_zone() const;
 
-	/**
-	 * Возвращает коэффициент штрафа за состояние
-	**/
 	std::string GetTitle() const;
 	std::string get_pretitle() const;
-	std::string get_race_name() const;
 	std::string GetTitleAndName();
 	std::string GetNameWithTitleOrRace();
 	std::string race_or_title();
-	int GetSkillBonus(const ESkill skill_id) const;
-	int GetTrainedSkill(ESkill skill_num) const;
 	bool isAffected(EAffect flag) const;
 
 	void set_who_mana(unsigned int);
@@ -542,15 +498,11 @@ class CharData : public ProtectedCharData {
 	void set_role(unsigned num, bool flag);
 	const CharData::role_t &get_role_bits() const;
 
-	void add_attacker(CharData *ch, unsigned type, int num);
-	int get_attacker(CharData *ch, unsigned type) const;
-	std::pair<int /* uid */, int /* rounds */> get_max_damager_in_room() const;
+	void mark_attacked(CharData *attacker);
 
 	void inc_restore_timer(int num);
 	obj_sets::activ_sum &obj_bonus();
-
-	void set_ruble(int ruble);
-	long get_ruble();
+	[[nodiscard]] const obj_sets::activ_sum &obj_bonus() const { return obj_bonus_; }
 
 	void set_souls(int souls);
 	void inc_souls();
@@ -562,19 +514,9 @@ class CharData : public ProtectedCharData {
 	void set_wait(const unsigned _);
 	void wait_dec() { m_wait -= 0 < m_wait ? 1 : 0; }
 	void zero_wait() { m_wait = 0; }
-	void setSkillCooldown(ESkill skillID, unsigned cooldown);
-	void decreaseSkillsCooldowns(unsigned value);
-	bool haveSkillCooldown(ESkill skillID);
-	bool HasCooldown(ESkill skillID);
-	bool HaveDecreaseCooldowns();
-	int getSkillCooldownInPulses(ESkill skillID);
-	void ZeroCooldowns();
-	unsigned getSkillCooldown(ESkill skillID);
 
 	void reset() override;
 
-	void set_abstinent();
-	char_affects_list_t::iterator AffectRemove(const char_affects_list_t::iterator &affect_i);
 	bool has_any_affect(const affects_list_t &affects);
 	size_t remove_random_affects(size_t count);
 
@@ -582,7 +524,6 @@ class CharData : public ProtectedCharData {
 	void set_role(const role_t &new_role) { role_ = new_role; }
 	void msdp_report(const std::string &name);
 
-	void removeGroupFlags();
 	const followers_list_t &get_followers_list() const { return followers; }
 	const player_special_data::ignores_t &get_ignores() const;
 	void add_ignore(const ignore_data::shared_ptr& ignore);
@@ -592,7 +533,6 @@ class CharData : public ProtectedCharData {
 	void set_affect(T affect) { char_specials.saved.affected_by.set(affect); }
 	template<typename T>
 	void remove_affect(T affect) { char_specials.saved.affected_by.unset(affect); }
-	bool low_charm() const;
 
 	void set_purged(const bool _ = true) {
 		purged_ = _;
@@ -604,8 +544,6 @@ class CharData : public ProtectedCharData {
 	bool IsNpc() const { return is_npc_; }
 	void SetNpcAttribute(bool _) { is_npc_ = _; }
 	bool IsPlayer() const { return !IsNpc(); }
-	bool have_mind() const;
-	bool HasWeapon();
 
  private:
 	const auto &get_player_specials() const { return player_specials; }
@@ -618,76 +556,40 @@ class CharData : public ProtectedCharData {
 
 	void purge();
 
-	CharSkillsType skills;    // список изученных скиллов
-	////////////////////////////////////////////////////////////////////////////
-	CharData *protecting_{nullptr}; // цель для 'прикрыть'
-	CharData *touching_;   // цель для 'перехватить'
-	CharData *enemy_;
+	CharacterSkills skills_;    // learned skills (level + cooldown)
+	FightTargets fight_targets_;   // enemy / cover / intercept targets (cleared on target extraction)
 
 	struct extra_attack_type extra_attack_; // атаки типа баша, пинка и т.п.
 	struct CastAttack cast_attack_;   // каст заклинания
-	////////////////////////////////////////////////////////////////////////////
-	// true - чар очищен и ждет вызова delete для оболочки
-	bool purged_;
+	bool purged_;  // true - чар очищен и ждет вызова delete для оболочки
 
-// * TODO: пока сюда скидывается, чтобы поля private были
-	// имя чара или алиасы моба
-	std::string name_;
-	// имя моба (им.падеж)
-	std::string short_descr_;
-	// профессия чара/класс моба
-	ECharClass chclass_;
+	std::string name_;  // имя чара или алиасы моба
+	std::string short_descr_;  // имя моба (им.падеж)
+	ECharClass chclass_;  // профессия чара/класс моба
 	bool is_npc_;
-	// уровень
-	int level_;
-	// плюс на уровень
-	int level_add_;
-	// id чара (не тот, что для тригов), у мобов -1
-	long uid_;
-	// экспа
-	long exp_;
-	// реморты
-	int remorts_;
-	// плюсы на реморт
-	int remorts_add_;
-	// время последнего входа в игру //by kilnik
-	time_t last_logon_;
-	// последний вызов базара
-	time_t last_exchange_;
-	// деньги на руках
-	long gold_;
-	// деньги в банке
-	long bank_gold_;
-	// рубли
-	long ruble;
-	// родная сила
-	int str_;
-	// плюсы на силу
-	int str_add_;
-	// родная ловкость
-	int dex_;
-	// плюсы на ловкость
-	int dex_add_;
-	// родное тело
-	int con_;
-	// плюсы на тело
-	int con_add_;
-	// родная мудра
-	int wis_;
-	// плюсы на мудру
-	int wis_add_;
-	// родная инта
-	int int_;
-	// плюсы на инту
-	int int_add_;
-	// родная харизма
-	int cha_;
-	// плюсы на харизму
-	int cha_add_;
-	// аналог класса у моба
-	role_t role_;
-	// для боссов: список атакующих (и им сочувствующих), uid->attacker
-	std::unordered_map<int, attacker_node> attackers_;
+	int level_;  // уровень
+	int level_add_;  // плюс на уровень
+	long uid_;  // id чара (не тот, что для тригов), у мобов -1
+	long exp_;  // экспа
+	int remorts_;  // реморты
+	int remorts_add_;  // плюсы на реморт
+	time_t last_logon_;  // время последнего входа в игру //by kilnik
+	time_t last_exchange_;  // последний вызов базара
+	currencies::CurrencyStorage currency_storage_;  // деньги на руках
+	int str_;  // родная сила
+	int str_add_;  // плюсы на силу
+	int dex_;  // родная ловкость
+	int dex_add_;  // плюсы на ловкость
+	int con_;  // родное тело
+	int con_add_;  // плюсы на тело
+	int wis_;  // родная мудра
+	int wis_add_;  // плюсы на мудру
+	int int_;  // родная инта
+	int int_add_;  // плюсы на инту
+	int cha_;  // родная харизма
+	int cha_add_;  // плюсы на харизму
+	role_t role_;  // аналог класса у моба
+	bool was_attacked_{false};  // для боссов: атаковал ли босса игрок (взводит таймер рефреша после боя)
 	// для боссов: таймер (в секундах), включающийся по окончанию боя
 	// через который происходит сброс списка атакующих и рефреш моба
 	int restore_timer_;
@@ -744,8 +646,6 @@ class CharData : public ProtectedCharData {
 	struct mob_special_data mob_specials;        // NPC specials
 
 	player_special_data::shared_ptr player_specials;    // PC specials
-	// issue.runestones-utils: the per-character runestone helpers moved to free functions in
-	// gameplay/mechanics/rune_stones.h (ClearRunestones/AddRunestone/... taking a CharData*).
   	void ClearStatistics() { player_specials->saved.personal_statistics_.Clear(); };
   	void ClearThisRemortStatistics() { player_specials->saved.personal_statistics_.ClearThisRemort(); };
   	void IncreaseStatistic(CharStat::ECategory category, ullong increment);
@@ -789,7 +689,6 @@ class CharData : public ProtectedCharData {
 	Script::shared_ptr script;    // script info for the object
 
 	//отладочные сообщения имморталу/тестеру/кодеру
-	void send_to_TC(bool to_impl, bool to_tester, bool to_coder, const char *msg, ...);
 
 	// очередь изучаемых заклинаний
 	SpellMemQueue mem_queue;
@@ -824,7 +723,6 @@ class CharData : public ProtectedCharData {
 	bool has_master() const { return nullptr != m_master; }
 };
 
-// ERemovableSpell / GetRemovableSpellId moved to gameplay/magic/magic.h (issue.affect-dispell-flags).
 inline const player_special_data::ignores_t &CharData::get_ignores() const {
 	const auto &ps = get_player_specials();
 	return ps->ignores;
@@ -893,30 +791,14 @@ inline bool AFF_FLAGGED(const CharData::shared_ptr &ch, const EAffect flag) {
 //		|| ch->isAffected(flag); //обойдемся без морфа
 }
 
-
-// issue.utils-cleaning: InvisOk -> sight::InvisOk (gameplay/mechanics/sight.h).
-
-
-/// Can subject see character "obj"?
-
-
 bool AWAKE(const CharData *ch);
 inline bool AWAKE(const CharData::shared_ptr &ch) { return AWAKE(ch.get()); }
 
-
-inline bool CAN_START_MTRIG(const CharData *ch) {
-	return !AFF_FLAGGED(ch, EAffect::kCharmed);
-}
-
-bool OK_GAIN_EXP(const CharData *ch, const CharData *victim);
-
-bool IS_MALE(const CharData *ch);
-inline bool IS_MALE(const CharData::shared_ptr &ch) { return IS_MALE(ch.get()); }
-bool IS_FEMALE(const CharData *ch);
-inline bool IS_FEMALE(const CharData::shared_ptr &ch) { return IS_FEMALE(ch.get()); }
-bool IS_NOSEXY(const CharData *ch);
-inline bool IS_NOSEXY(const CharData::shared_ptr &ch) { return IS_NOSEXY(ch.get()); }
-bool IS_POLY(const CharData *ch);
+bool IsMale(const CharData *ch);
+inline bool IsMale(const CharData::shared_ptr &ch) { return IsMale(ch.get()); }
+bool IsFemale(const CharData *ch);
+inline bool IsFemale(const CharData::shared_ptr &ch) { return IsFemale(ch.get()); }
+bool IsPoly(const CharData *ch);
 
 int GetRealBaseStat(const CharData *ch, EBaseStat stat_id);
 

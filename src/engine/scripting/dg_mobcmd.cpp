@@ -24,6 +24,7 @@
  ***************************************************************************/
 
 #include "engine/entities/char_data.h"
+#include "gameplay/core/experience.h"
 #include "administration/privilege.h"
 #include "gameplay/mechanics/minions.h"
 #include "gameplay/mechanics/follow.h"
@@ -730,7 +731,7 @@ void do_mexp(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger 
 	}
 	sprintf(buf, "mexp: victim (%s) получил опыт %d", name, atoi(amount));
 	mob_log(ch, trig, buf);
-	EndowExpToChar(victim, atoi(amount));
+	experience::EndowExpToChar(victim, atoi(amount));
 }
 
 // increases the target's gold
@@ -764,9 +765,9 @@ void do_mgold(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger
 
 	int num = atoi(amount);
 	if (num >= 0) {
-		victim->add_gold(num);
+		currencies::AddHand(*victim, currencies::kGold, num);
 	} else {
-		num = victim->remove_gold(num);
+		num = currencies::RemoveHand(*victim, currencies::kGold, num);
 		if (num > 0) {
 			mob_log(ch, trig, "mgold subtracting more gold than character has");
 		}
@@ -875,7 +876,7 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 			ch->set_max_hit(m->get_max_hit());
 			ch->set_exp(m->get_exp());
 		}
-		ch->set_gold(m->get_gold());
+		currencies::SetHand(*ch, currencies::kGold, currencies::GetHand(*m, currencies::kGold));
 		ch->SetPosition(m->GetPosition());
 		IS_CARRYING_W(ch) = IS_CARRYING_W(m);
 		IS_CARRYING_N(ch) = IS_CARRYING_N(m);

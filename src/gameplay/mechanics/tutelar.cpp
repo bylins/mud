@@ -73,7 +73,7 @@ void TryToRescueWithTutelar(CharData *ch) {
 				if (vict->GetEnemy() == ch
 					&& vict != ch
 					&& vict != k) {
-					if (k->GetSkill(ESkill::kRescue)) {
+					if (GetSkill(k, ESkill::kRescue)) {
 						go_rescue(k, ch, vict);
 					}
 					break;

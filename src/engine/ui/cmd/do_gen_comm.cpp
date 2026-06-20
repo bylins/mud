@@ -223,7 +223,7 @@ void do_gen_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			default: ign_flag = 0;
 		}
 		snprintf(out_str, kMaxStringLength, "$n %s : '%s'", com_msgs[subcmd].hi_action, argument);
-		if (IS_FEMALE(ch)) {
+		if (IsFemale(ch)) {
 			if (!ch->IsNpc() && (subcmd == kScmdGossip)) {
 				snprintf(buf1, kMaxStringLength, "%s%s заметила :'%s'%s\r\n", color_on, GET_NAME(ch), argument, kColorNrm);
 				ch->remember_add(buf1, Remember::GOSSIP);

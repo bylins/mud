@@ -17,7 +17,7 @@
 # Pre-requisites:
 #   - <data_dir>/world contains a valid YAML world (world_config.yaml,
 #     dictionaries/, zones/index.yaml + per-zone trees).
-#   - <data_dir>/misc/configuration.xml exists (circle needs it on boot).
+#   - <data_dir>/cfg/configuration.xml exists (circle needs it on boot).
 #
 # Exit codes:
 #   0  resave succeeded and v1 ~= v2 (no structural diffs);

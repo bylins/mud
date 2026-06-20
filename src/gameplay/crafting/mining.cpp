@@ -141,7 +141,7 @@ void do_dig(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	int vnum;
 	int old_int;
 
-	if (ch->IsNpc() || !ch->GetSkill(ESkill::kDigging)) {
+	if (ch->IsNpc() || !GetSkill(ch, ESkill::kDigging)) {
 		SendMsgToChar("Но вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -192,7 +192,7 @@ void do_dig(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		act("$n выкопал$g клад!", false, ch, nullptr, nullptr, kToRoom);
 		sprintf(textbuf, "Вы насчитали %i монет.\r\n", gold);
 		SendMsgToChar(textbuf, ch);
-		ch->add_gold(gold);
+		currencies::AddHand(*ch, currencies::kGold, gold);
 		sprintf(buf, "<%s> {%d} нарыл %d кун.", ch->get_name().c_str(), GET_ROOM_VNUM(ch->in_room), gold);
 		mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
 		split_or_clan_tax(ch, gold);
@@ -244,7 +244,7 @@ void do_dig(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	percent = number(1, MUD::Skill(ESkill::kDigging).difficulty);
-	prob = ch->GetSkill(ESkill::kDigging);
+	prob = GetSkill(ch, ESkill::kDigging);
 	old_int = ch->get_int();
 	ch->set_int(13);
 	ch->set_int_add(0);

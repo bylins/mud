@@ -96,11 +96,11 @@ bool IsBlockedByHorse(CharData *ch) {
 
 void ApplyRiderToHit(CharData *ch, CharData *victim, int &calc_thaco) {
 	TrainSkill(ch, ESkill::kRiding, true, victim);
-	calc_thaco += 10 - ch->GetSkill(ESkill::kRiding) / 20;
+	calc_thaco += 10 - GetSkill(ch, ESkill::kRiding) / 20;
 }
 
 void ApplyRiderHitAndDamage(CharData *ch, int &dam, int &calc_thaco) {
-	const int prob = ch->GetSkill(ESkill::kRiding);
+	const int prob = GetSkill(ch, ESkill::kRiding);
 	const int range = MUD::Skill(ESkill::kRiding).difficulty / 2;
 	dam += (prob + 19) / 10;
 	if (range > prob) {
@@ -111,8 +111,8 @@ void ApplyRiderHitAndDamage(CharData *ch, int &dam, int &calc_thaco) {
 }
 
 void ApplyRiderDamageMult(CharData *ch, int &dam) {
-	if (IsOnHorse(ch) && ch->GetSkill(ESkill::kRiding) > 100) {
-		dam *= 1.0 + (ch->GetSkill(ESkill::kRiding) - 100) / 500.0;
+	if (IsOnHorse(ch) && GetSkill(ch, ESkill::kRiding) > 100) {
+		dam *= 1.0 + (GetSkill(ch, ESkill::kRiding) - 100) / 500.0;
 		if (ch->IsFlagged(EPrf::kExecutor))
 			SendMsgToChar(ch, "&YДамага с учетом лошади (при скилле 200 +20 процентов)== %d&n\r\n", dam);
 	}
@@ -124,7 +124,7 @@ int SavingModifier(const CharData *ch, ESaving saving) {
 	}
 	switch (saving) {
 		case ESaving::kReflex: return 20;
-		case ESaving::kStability: return -20 - ch->GetSkill(ESkill::kRiding) / 25;
+		case ESaving::kStability: return -20 - GetSkill(ch, ESkill::kRiding) / 25;
 		default: return 0;
 	}
 }

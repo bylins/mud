@@ -1496,7 +1496,7 @@ CharData YamlWorldDataSource::ParseMobFile(const std::string &file_path)
 	{
 		mob.mob_specials.GoldNoDs = GetInt(gold, "dice_count", 0);
 		mob.mob_specials.GoldSiDs = GetInt(gold, "dice_size", 0);
-		mob.set_gold(GetInt(gold, "bonus", 0));
+		currencies::SetHand(mob, currencies::kGold, GetInt(gold, "bonus", 0));
 	}
 
 	// Experience
@@ -1591,7 +1591,7 @@ CharData YamlWorldDataSource::ParseMobFile(const std::string &file_path)
 		{
 			int skill_id = GetInt(skill_node, "skill_id", 0);
 			int value = GetInt(skill_node, "value", 0);
-			mob.set_skill(static_cast<ESkill>(skill_id), value);
+			SetSkill(&mob, static_cast<ESkill>(skill_id), value);
 		}
 	}
 
@@ -3549,7 +3549,7 @@ void YamlWorldDataSource::SaveMobs(int zone_rnum, int specific_vnum)
 		yaml.Value(static_cast<int>(mob.mob_specials.GoldSiDs));  // byte -> int
 
 		yaml.Key("bonus");
-		yaml.Value(mob.get_gold());
+		yaml.Value(currencies::GetHand(mob, currencies::kGold));
 
 		yaml.DecreaseIndent();
 
@@ -3664,9 +3664,9 @@ void YamlWorldDataSource::SaveMobs(int zone_rnum, int specific_vnum)
 		std::vector<std::pair<int, int>> mob_skills;
 		for (const auto &kv : mob.GetCharSkills())
 		{
-			if (kv.second.skillLevel > 0)
+			if (kv.second.skill_level > 0)
 			{
-				mob_skills.emplace_back(static_cast<int>(kv.first), kv.second.skillLevel);
+				mob_skills.emplace_back(static_cast<int>(kv.first), kv.second.skill_level);
 			}
 		}
 		std::sort(mob_skills.begin(), mob_skills.end());

@@ -28,9 +28,6 @@ void char_dam_message(int dam, CharData *ch, CharData *victim, bool mayflee);
 void TestSelfHitroll(CharData *ch);
 int check_agro_follower(CharData *ch, CharData *victim);
 bool check_valid_chars(CharData *ch, CharData *victim, const char *fname, int line);
-void perform_group_gain(CharData *ch, CharData *victim, int members, int koef);
-void group_gain(CharData *ch, CharData *victim);
-char *replace_string(const char *str, const char *weapon_singular, const char *weapon_plural);
 ObjData *GetUsedWeapon(CharData *ch, fight::AttackType AttackType);
 
 #endif

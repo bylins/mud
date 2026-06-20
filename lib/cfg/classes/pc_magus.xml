@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="koi8-r"?>
 <class id="kMagus">
+    <experience_table id="kSorcererTable"/>
     <stats>
         <base_stats>
             <stat id="kStr"	gen_min="15"	gen_max="18"	auto="16"	cap="50" />

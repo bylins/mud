@@ -16,7 +16,7 @@
 
 // ************************* BASH PROCEDURES
 void do_bash(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (!ch->GetSkill(ESkill::kBash)) {
+	if (!GetSkill(ch, ESkill::kBash)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kBash, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
@@ -36,17 +36,17 @@ void do_bash(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 void do_bash(CharData *ch, CharData *vict) {
-	if (!ch->GetSkill(ESkill::kBash)) {
+	if (!GetSkill(ch, ESkill::kBash)) {
 		log("ERROR: вызов баша для персонажа %s (%d) без проверки умения", ch->get_name().c_str(), GET_MOB_VNUM(ch));
 		return;
 	}
 
-	if (ch->HasCooldown(ESkill::kBash)) {
+	if (ch->Skills().HasActiveCooldown(ESkill::kBash)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kBash, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	}
 
-	if (ch->HasCooldown(ESkill::kGlobalCooldown)) {
+	if (ch->Skills().HasActiveCooldown(ESkill::kGlobalCooldown)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kBash, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	}
@@ -81,12 +81,12 @@ void go_bash(CharData *ch, CharData *vict) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kBash, ESkillMsg::kCantFightNow) + "\r\n", ch);
 		return;
 	}
-	if (ch->HasCooldown(ESkill::kBash)) {
+	if (ch->Skills().HasActiveCooldown(ESkill::kBash)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kBash, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	}
 
-	if (ch->HasCooldown(ESkill::kGlobalCooldown)) {
+	if (ch->Skills().HasActiveCooldown(ESkill::kGlobalCooldown)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kBash, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	}
@@ -117,9 +117,9 @@ void go_bash(CharData *ch, CharData *vict) {
 //	}
 	int lag;
 
-	int damage = number(ch->GetSkill(ESkill::kBash) / 1.25, ch->GetSkill(ESkill::kBash) * 1.25);
+	int damage = number(GetSkill(ch, ESkill::kBash) / 1.25, GetSkill(ch, ESkill::kBash) * 1.25);
 	bool can_shield_bash = false;
-	if (ch->GetSkill(ESkill::kShieldBash) && GET_EQ(ch, kShield) && !ch->IsFlagged(kAwake)) {
+	if (GetSkill(ch, ESkill::kShieldBash) && GET_EQ(ch, kShield) && !ch->IsFlagged(kAwake)) {
 		can_shield_bash = true;
 	}
 	SkillRollResult result_shield_bash = MakeSkillTest(ch, ESkill::kShieldBash, vict);
@@ -138,7 +138,7 @@ void go_bash(CharData *ch, CharData *vict) {
 				af.duration *= 30;
 			}
 			affect_to_char(vict, af);
-			const auto shield_bash = ch->GetSkill(ESkill::kShieldBash);
+			const auto shield_bash = GetSkill(ch, ESkill::kShieldBash);
 			const auto char_size = GET_REAL_SIZE(ch);
 			const auto shield_weight = GET_EQ(ch, EEquipPos::kShield)->get_weight();
 			const auto skill_base = (char_size * shield_weight * 1.5) / 5 + shield_bash * 3 + shield_bash * 2;
@@ -165,7 +165,7 @@ void go_bash(CharData *ch, CharData *vict) {
 // Если баш - фейл. Немного нахуевертил. Смысл в том, чтобы оставаться на ногах даже при фейле баша и удара щитом, если удар щитом прокачан 200+.
 	if (!success) {
 		bool still_stands = true;
-		if (number(1, 100) > (ch->GetSkill(ESkill::kShieldBash) / 2)) {
+		if (number(1, 100) > (GetSkill(ch, ESkill::kShieldBash) / 2)) {
 			still_stands = false;
 		}
 //Полный фейл, падаем на жопу:
@@ -204,8 +204,8 @@ void go_bash(CharData *ch, CharData *vict) {
 			|| (CanUseFeat(vict, EFeat::kDefender)
 				&& GET_EQ(vict, kShield)
 				&& vict->IsFlagged(EPrf::kAwake)
-				&& vict->GetSkill(ESkill::kAwake)
-				&& vict->GetSkill(ESkill::kShieldBlock)
+				&& GetSkill(vict, ESkill::kAwake)
+				&& GetSkill(vict, ESkill::kShieldBlock)
 				&& vict->GetPosition() > EPosition::kSit))
 			&& !AFF_FLAGGED(vict, EAffect::kStopFight)
 			&& !AFF_FLAGGED(vict, EAffect::kMagicStopFight)

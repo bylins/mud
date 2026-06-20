@@ -1,4 +1,10 @@
 #include "engine/db/global_objects.h"
+#include "utils/utils.h"
+#include "engine/structs/structs.h"
+#include "engine/core/comm.h"
+#include "administration/privilege.h"
+#include "gameplay/mechanics/minions.h"
+#include "engine/entities/char_data.h"
 #include "utils/utils_encoding.h"
 #include "engine/ui/color.h"
 #include "backtrace.h"
@@ -509,6 +515,47 @@ void OutputThread::output_loop() {
 			output_message(message.text.get(), message.channel);
 		}
 	}
+}
+
+// issue.chardata-cleaning: was CharData::send_to_TC -- a tester/coder/impl debug channel.
+void SendToTC(CharData *ch, bool to_impl, bool to_tester, bool to_coder, const char *msg, ...) {
+	bool needSend = false;
+	// проверка на ситуацию "чармис стоит, хозяина уже нет с нами"
+	if (IsCharmice(ch) && !ch->has_master()) {
+		sprintf(buf, "[WARNING] SendToTC. Чармис без хозяина: %s", ch->get_name().c_str());
+		mudlog(buf, CMP, kLvlGod, SYSLOG, true);
+		return;
+	}
+	if ((IsCharmice(ch) && ch->get_master()->IsNpc()) //если это чармис у нпц
+		|| (ch->IsNpc() && !IsCharmice(ch))) //просто непись
+		return;
+
+	if (to_impl &&
+		(privilege::IsImpl(ch) || (IsCharmice(ch) && privilege::IsImpl(ch->get_master()))))
+		needSend = true;
+	if (!needSend && to_coder &&
+		(ch->IsFlagged(EPrf::kCoderinfo) || (IsCharmice(ch) && (ch->get_master()->IsFlagged(EPrf::kCoderinfo)))))
+		needSend = true;
+	if (!needSend && to_tester &&
+		(ch->IsFlagged(EPrf::kTester) || (IsCharmice(ch) && (ch->get_master()->IsFlagged(EPrf::kTester)))))
+		needSend = true;
+	if (!needSend)
+		return;
+
+	va_list args;
+	char tmpbuf[kMaxStringLength];
+
+	va_start(args, msg);
+	vsnprintf(tmpbuf, sizeof(tmpbuf), msg, args);
+	va_end(args);
+
+	if (tmpbuf[0] == '\0') {
+		sprintf(buf, "[WARNING] SendToTC. Передано пустое сообщение");
+		mudlog(buf, BRF, kLvlGod, SYSLOG, true);
+		return;
+	}
+	// проверка на нпц была ранее. Шлем хозяину чармиса или самому тестеру
+	SendMsgToChar(tmpbuf, IsCharmice(ch) ? ch->get_master() : ch);
 }
 
 /* vim: set ts=4 sw=4 tw=0 noet syntax=cpp :*/

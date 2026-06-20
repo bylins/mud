@@ -1,6 +1,7 @@
 // issue.chardata-cleaning: the character-following mechanic (logic moved off CharData).
 
 #include "follow.h"
+#include "gameplay/mechanics/groups.h"
 
 #include "engine/entities/char_data.h"
 #include "gameplay/mechanics/mount.h"
@@ -149,10 +150,10 @@ void DieFollower(CharData *ch) {
 
 		ch->get_master()->followers.remove(ch);
 		if (ch->get_master()->followers.empty() && !ch->get_master()->has_master()) {
-			ch->get_master()->removeGroupFlags();
+			group::RemoveGroupFlags(ch->get_master());
 		}
 		ch->set_master(nullptr);
-		ch->removeGroupFlags();
+		group::RemoveGroupFlags(ch);
 	}
 
 	if (mount::IsOnHorse(ch)) {
@@ -202,13 +203,13 @@ bool StopFollower(CharData *ch, int mode) {
 		if (ch->get_master()->followers.empty()
 			&& !ch->get_master()->has_master()) {
 			//AFF_FLAGS(ch->get_master()).unset(EAffectFlag::AFF_GROUP);
-			ch->get_master()->removeGroupFlags();
+			group::RemoveGroupFlags(ch->get_master());
 		}
 	}
 
 	ch->set_master(nullptr);
 	//AFF_FLAGS(ch).unset(EAffectFlag::AFF_GROUP);
-	ch->removeGroupFlags();
+	group::RemoveGroupFlags(ch);
 
 	if (AFF_FLAGGED(ch, EAffect::kCharmed)
 		|| AFF_FLAGGED(ch, EAffect::kHelper)
@@ -227,8 +228,8 @@ bool StopFollower(CharData *ch, int mode) {
 			if (ch->IsFlagged(EMobFlag::kCorpse)) {
 				act("Налетевший ветер развеял $n3, не оставив и следа.", true, ch, 0, 0, kToRoom | kToArenaListen);
 				GET_LASTROOM(ch) = ch->in_room;
-				PerformDropGold(ch, ch->get_gold());
-				ch->set_gold(0);
+				PerformDropGold(ch, currencies::GetHand(*ch, currencies::kGold));
+				currencies::SetHand(*ch, currencies::kGold, 0);
 					ExtractCharFromWorld(ch, false);
 				return (true);
 			} else if (AFF_FLAGGED(ch, EAffect::kHelper)) {

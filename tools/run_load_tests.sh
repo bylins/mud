@@ -645,7 +645,7 @@ run_admin_api_test() {
     cd "$work_dir"
 
     # Enable admin_api in configuration
-    enable_admin_api "$data_dir/misc/configuration.xml"
+    enable_admin_api "$data_dir/cfg/configuration.xml"
 
     # Clean previous run; also kill any stale process on port 4001
     rm -rf "$data_dir/syslog" "$data_dir/admin_api.sock" 2>/dev/null || true

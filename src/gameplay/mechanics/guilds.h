@@ -64,11 +64,13 @@ class GuildsLoader : virtual public cfg_manager::IEditableCfgLoader {
 class GuildInfo : public info_container::BaseItem<int> {
 	friend class GuildInfoBuilder;
 
+	Vnum default_currency_vnum_{info_container::kUndefinedVnum};  // guild-wide default; talents inherit it
+
 	enum class ETalent { kSkill, kSpell, kFeat };
 
 	class IGuildTalent {
 		ETalent talent_type_;
-		Vnum currency_vnum_{0};
+		Vnum currency_vnum_{info_container::kUndefinedVnum};
 		int start_price_{0};
 		int remort_percemt_{0};
 		int fail_chance_{0};
@@ -80,6 +82,8 @@ class GuildInfo : public info_container::BaseItem<int> {
 
 		[[nodiscard]] ETalent GetTalentType() const { return talent_type_; };
 		[[nodiscard]] Vnum GetCurrencyId() const { return currency_vnum_; };
+		// Use the guild-level default currency when this talent did not specify its own.
+		void ApplyDefaultCurrency(Vnum v) { if (currency_vnum_ == info_container::kUndefinedVnum) { currency_vnum_ = v; } };
 		[[nodiscard]] int GetFailChance() const { return fail_chance_; };
 		[[nodiscard]] bool IsLearnable(CharData *ch) const;
 		[[nodiscard]] bool IsUnlearnable(CharData *ch) const { return !IsLearnable(ch); };

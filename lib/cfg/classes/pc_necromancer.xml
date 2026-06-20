@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="koi8-r"?>
 <class id="kNecromancer">
+    <experience_table id="kMageTable"/>
     <stats>
         <base_stats>
             <stat id="kStr"	gen_min="9"		gen_max="15"	auto="14"	cap="50"/>

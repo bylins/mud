@@ -12,6 +12,7 @@
 		<message type="kNoMoney" val="У вас нет денег."/>
 		<message type="kDepositHowMuch" val="Сколько вы хотите вложить?"/>
 		<message type="kCantAfford" val="О такой сумме вы можете только мечтать!"/>
+		<message type="kCantBank" val="Эту валюту нельзя хранить в банке."/>
 		<message type="kDeposited" val="Вы вложили {amount} {currency}."/>
 		<message type="kWithdrawHowMuch" val="Уточните количество денег, которые вы хотите получить?"/>
 		<message type="kNeverHadThatMuch" val="Да вы отродясь столько денег не видели!"/>

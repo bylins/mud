@@ -163,7 +163,7 @@ void Characters::remove(CharData *character) {
 	}
 	auto clist = chardata_cooldown_list.find(character);
 	if (clist != chardata_cooldown_list.end()) {
-		character->ZeroCooldowns();
+		character->Skills().ZeroCooldowns();
 		chardata_cooldown_list.erase(clist);
 	}
 	m_list.erase(index_i->second);

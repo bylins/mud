@@ -7,6 +7,8 @@
 */
 
 #include "damage.h"
+#include "gameplay/core/experience.h"
+#include "utils/logger.h"
 #include "administration/privilege.h"
 #include "utils/grammar/gender.h"
 #include "gameplay/mechanics/minions.h"
@@ -41,9 +43,7 @@
 void TryRemoveExtrahits(CharData *ch, CharData *victim);
 
 // Estern - нужно разобраться, почему функции работы с опытом распиханы по всем углам
-int max_exp_gain_pc(CharData *ch);
-//int max_exp_loss_pc(CharData *ch);
-
+//
 bool Damage::CalcMagisShieldsDmgAbsoption(CharData *ch, CharData *victim) {
 	if (dam <= 0) {
 		return false;
@@ -266,8 +266,8 @@ void Damage::ProcessBlink(CharData *ch, CharData *victim) {
 	}
 	if(blink < 1)
 		return;
-//	ch->send_to_TC(false, true, false, "Шанс мигалки равен == %d процентов.\r\n", blink);
-//	victim->send_to_TC(false, true, false, "Шанс мигалки равен == %d процентов.\r\n", blink);
+//	SendToTC(ch, false, true, false, "Шанс мигалки равен == %d процентов.\r\n", blink);
+//	SendToTC(victim, false, true, false, "Шанс мигалки равен == %d процентов.\r\n", blink);
 	int bottom = 1;
 	if (ch->calc_morale() > number(1, 100)) // удача
 		bottom = 10;
@@ -315,7 +315,7 @@ void Damage::ProcessDeath(CharData *ch, CharData *victim) const {
 	if (killer) {
 		if (AFF_FLAGGED(killer, EAffect::kGroup)) {
 			// т.к. помечен флагом AFF_GROUP - точно PC
-			group_gain(killer, victim);
+			experience::group_gain(killer, victim);
 		} else if ((killer->IsFlagged(EMobFlag::kCompanion))
 			&& killer->has_master())
 			// killer - зачармленный NPC с хозяином
@@ -326,16 +326,16 @@ void Damage::ProcessDeath(CharData *ch, CharData *victim) const {
 			if (AFF_FLAGGED(killer->get_master(), EAffect::kGroup)
 				&& killer->in_room == killer->get_master()->in_room) {
 				// Хозяин - PC в группе => опыт группе
-				group_gain(killer->get_master(), victim);
+				experience::group_gain(killer->get_master(), victim);
 			} else if (killer->in_room == killer->get_master()->in_room) {
-				perform_group_gain(killer->get_master(), victim, 1, 100);
+				experience::perform_group_gain(killer->get_master(), victim, 1, 100);
 			}
 			// else
 			// А хозяина то рядом не оказалось, все чармису - убрано
 			// нефиг абьюзить чарм  group::perform_group_gain( killer, victim, 1, 100 );
 		} else {
 			// Просто NPC или PC сам по себе
-			perform_group_gain(killer, victim, 1, 100);
+			experience::perform_group_gain(killer, victim, 1, 100);
 		}
 	}
 
@@ -578,9 +578,9 @@ int Damage::Process(CharData *ch, CharData *victim) {
 
 	if (GET_PR(victim) && dmg_type == fight::kPhysDmg) {
 		int ResultDam = dam - (dam * GET_PR(victim) / 100);
-		ch->send_to_TC(false, true, false,
+		SendToTC(ch, false, true, false,
 					   "&CУчет поглощения урона: %d начислено, %d применено.&n\r\n", dam, ResultDam);
-		victim->send_to_TC(false, true, false,
+		SendToTC(victim, false, true, false,
 						   "&CУчет поглощения урона: %d начислено, %d применено.&n\r\n", dam, ResultDam);
 		dam = ResultDam;
 	}
@@ -664,7 +664,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 		}
 	}
 	if (!InTestZone(ch)) {
-		gain_battle_exp(ch, victim, dam);
+		experience::gain_battle_exp(ch, victim, dam);
 	}
 
 	// real_dam так же идет в обратку от огн.щита
@@ -707,8 +707,8 @@ int Damage::Process(CharData *ch, CharData *victim) {
 				? GET_NAME(ch->get_master()) : "");
 		observability::EmitToAllSinks(ev);
 	}
-	victim->send_to_TC(false, true, true, "&MПолучен урон = %d&n\r\n", dam);
-	ch->send_to_TC(false, true, true, "&MПрименен урон = %d&n\r\n", dam);
+	SendToTC(victim, false, true, true, "&MПолучен урон = %d&n\r\n", dam);
+	SendToTC(ch, false, true, true, "&MПрименен урон = %d&n\r\n", dam);
 	if (dmg_type == fight::kPhysDmg && GET_GOD_FLAG(ch, EGf::kSkillTester) && skill_id != ESkill::kUndefined) {
 		log("SKILLTEST:;%s;skill;%s;damage;%d;Luck;%s", GET_NAME(ch), MUD::Skill(skill_id).GetName(), dam, flags[fight::kCritLuck] ? "yes" : "no");
 	}
@@ -731,7 +731,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 	DpsSystem::UpdateDpsStatistics(ch, real_dam, over_dam);
 	// запись дамага в список атакеров
 	if (victim->IsNpc()) {
-		victim->add_attacker(ch, ATTACKER_DAMAGE, real_dam);
+		victim->mark_attacked(ch);
 	}
 	// попытка спасти жертву через ангела
 	CheckTutelarSelfSacrfice(ch, victim);
@@ -837,7 +837,7 @@ void TryRemoveExtrahits(CharData *ch, CharData *victim) {
 	{
 		victim->set_hit(victim->get_real_max_hit());
 		SendMsgToChar(victim, "%s'Будь%s тощ%s аки прежде' - мелькнула чужая мысль в вашей голове.%s\r\n",
-					  kColorWht, grammar::PluralVerbEnding(IS_POLY(victim)), grammar::InstrEnding((victim)->get_sex()), kColorNrm);
+					  kColorWht, grammar::PluralVerbEnding(IsPoly(victim)), grammar::InstrEnding((victim)->get_sex()), kColorNrm);
 		act("Вы прервали золотистую нить, питающую $N3 жизнью.", false, ch, nullptr, victim, kToChar);
 		act("$n прервал$g золотистую нить, питающую $N3 жизнью.", false, ch, nullptr, victim, kToNotVict | kToArenaListen);
 	}

@@ -22,7 +22,7 @@ void DoPeer(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Виделся часто сон беспокойный...\r\n", ch);
 	else if (AFF_FLAGGED(ch, EAffect::kBlind))
 		SendMsgToChar("Вы ослеплены!\r\n", ch);
-	else if (ch->GetSkill(ESkill::kLooking)) {
+	else if (GetSkill(ch, ESkill::kLooking)) {
 		if (check_moves(ch, kLookingMoves)) {
 			SendMsgToChar("Вы напрягли зрение и начали присматриваться по сторонам.\r\n", ch);
 			for (i = 0; i < EDirection::kMaxDirNum; i++)

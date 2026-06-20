@@ -34,6 +34,9 @@ enum EPenalty { kDamroll, kHitroll, kCast, kMemGain, kMoveGain, kHitGain, kAc };
 // Combat/regen multiplier (0..1) from hunger+thirst for the given penalty axis. Was
 // CharData::get_cond_penalty.
 [[nodiscard]] float GetCondPenalty(const CharData *ch, EPenalty type);
+// Impose the hangover (abstinence) affect on a drinker whose drunkenness wore off. Was
+// CharData::set_abstinent; called from the affect update loop.
+void SetAbstinent(CharData *ch);
 
 }  // namespace condition
 

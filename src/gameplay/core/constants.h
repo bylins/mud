@@ -113,8 +113,6 @@ extern const char *material_name[];
 extern const char *godslike_bits[];
 extern const int material_value[];
 
-//The number of changing coefficients (the others are unchanged)
-const int kMaxExpCoefficientsUsed = 15;
 // unless you change this, Puff casts all your dg spells
 const int kDgCasterProxy = 113;
 

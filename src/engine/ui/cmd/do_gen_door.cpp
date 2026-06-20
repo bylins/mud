@@ -17,7 +17,7 @@ void do_gen_door(CharData *ch, char *argument, int, int subcmd) {
 		return;
 	}
 
-	if (subcmd == kScmdPick && !ch->GetSkill(ESkill::kPickLock)) {
+	if (subcmd == kScmdPick && !GetSkill(ch, ESkill::kPickLock)) {
 		SendMsgToChar("Это умение вам недоступно.\r\n", ch);
 		return;
 	}

@@ -19,7 +19,7 @@ const char *cstyles[] = {"normal",
 };
 
 void DoStyle(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (ch->HasCooldown(ESkill::kGlobalCooldown)) {
+	if (ch->Skills().HasActiveCooldown(ESkill::kGlobalCooldown)) {
 		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
 		return;
 	};
@@ -40,7 +40,7 @@ void DoStyle(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 	tp >>= 1;
-	if ((tp == 1 && !ch->GetSkill(ESkill::kPunctual)) || (tp == 2 && !ch->GetSkill(ESkill::kAwake))) {
+	if ((tp == 1 && !GetSkill(ch, ESkill::kPunctual)) || (tp == 2 && !GetSkill(ch, ESkill::kAwake))) {
 		SendMsgToChar("Вам неизвестен такой стиль боя.\r\n", ch);
 		return;
 	}

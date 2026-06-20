@@ -7,6 +7,7 @@
 */
 
 #include "armor.h"
+#include "gameplay/mechanics/condition.h"
 #include "gameplay/mechanics/minions.h"
 
 #include "engine/entities/char_data.h"
@@ -34,7 +35,7 @@ int CalcBaseAc(CharData *ch) {
 	}
 
 	if (ch->IsFlagged(EPrf::kIronWind)) {
-		armorclass += ch->GetSkill(ESkill::kIronwind) / 2;
+		armorclass += GetSkill(ch, ESkill::kIronwind) / 2;
 	}
 
 	armorclass += (size_app[GET_POS_SIZE(ch)].ac * 10);
