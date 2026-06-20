@@ -6,7 +6,7 @@
 
 #include "gameplay/skills/skill_messages.h"
 #include "gameplay/skills/skills.h"
-#include "utils/parse.h"
+#include "utils/utils_parse.h"
 
 #include <gtest/gtest.h>
 #include <stdexcept>

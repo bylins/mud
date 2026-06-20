@@ -28,7 +28,7 @@
 #include "gameplay/mechanics/equipment.h"
 #include "gameplay/mechanics/illumination.h"
 #include "gameplay/mechanics/inventory.h"
-#include "utils/parse.h"
+#include "utils/utils_parse.h"
 #include "dg_event.h"
 #include "engine/ui/color.h"
 #include "gameplay/clans/house.h"

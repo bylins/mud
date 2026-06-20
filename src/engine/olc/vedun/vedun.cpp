@@ -17,7 +17,7 @@
 #include "utils/utils_string.h"               // str_cmp (case-insensitive)
 #include "utils/logger.h"                      // log (boot-time scheme lint)
 #include "gameplay/magic/spells_info.h"        // SpellInfo::Print -- the `l` spellinfo view
-#include "utils/parse.h"                        // parse::ReadAsConstant<ESpell>
+#include "utils/utils_parse.h"                        // parse::ReadAsConstant<ESpell>
 
 #include <fmt/format.h>
 

@@ -8,7 +8,7 @@
 
 #include "engine/db/global_objects.h"
 #include "gameplay/magic/spells_info.h"
-#include "utils/parse.h"
+#include "utils/utils_parse.h"
 #include "utils/utils_string.h"
 
 namespace rune_spells {

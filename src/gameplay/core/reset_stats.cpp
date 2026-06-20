@@ -10,11 +10,11 @@
 #include "engine/entities/char_data.h"
 
 #include <fmt/format.h>
-#include "utils/parse.h"
+#include "utils/utils_parse.h"
 #include "utils/parser_wrapper.h"
 
 extern bool ValidateStats(DescriptorData *d);
-extern int check_dupes_email(DescriptorData *d);
+#include "administration/dupe_check.h"
 extern void do_entergame(DescriptorData *d);
 
 namespace stats_reset {

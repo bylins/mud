@@ -14,7 +14,7 @@
 #include "engine/entities/char_data.h"
 #include "engine/core/char_handler.h"
 #include "engine/ui/color.h"
-#include "engine/ui/interpreter_utils.h"
+#include "administration/dupe_check.h"
 #include "gameplay/mechanics/glory.h"
 #include "gameplay/mechanics/sight.h"
 

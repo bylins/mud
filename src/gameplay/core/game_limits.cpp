@@ -29,7 +29,7 @@
 #include "gameplay/mechanics/equipment.h"
 #include "gameplay/mechanics/inventory.h"
 #include "engine/ui/color.h"
-#include "engine/ui/interpreter_utils.h"
+#include "administration/dupe_check.h"
 #include "gameplay/clans/house.h"
 #include "gameplay/economics/exchange.h"
 #include "gameplay/mechanics/deathtrap.h"

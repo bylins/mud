@@ -7,7 +7,7 @@
 #include "engine/entities/entities_constants.h"
 #include "engine/entities/obj_data.h"
 #include "gameplay/affects/affect_contants.h"
-#include "utils/parse.h"
+#include "utils/utils_parse.h"
 #include "utils/parser_wrapper.h"
 #include "utils/utils.h"
 

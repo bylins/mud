@@ -5,6 +5,7 @@
 ******************************************************************************/
 
 #include "house.h"
+#include "engine/db/player_index.h"
 #include "gameplay/economics/currencies.h"
 #include "utils/utils_encoding.h"
 #include "utils/grammar/gender.h"

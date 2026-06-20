@@ -420,6 +420,15 @@ inline bool isname(const std::string &str, const std::string &namelist) {
 /// Дубль: utils::ExtractFirstArgument - похожий функционал через std::string.
 const char *one_word(const char *argument, char *first_arg);
 
+/// Replace Russian letters in name with lowercase Latin (for file names).
+void CreateFileName(std::string &name);
+
+/// Lowercase a name with the first letter uppercased (uniform container lookup).
+void name_convert(std::string &text);
+
+/// Compact experience formatting (e.g. 1234567 -> "1 тыс"): thousands/millions/billions suffix.
+std::string ExpFormat(long long exp);
+
 #endif // UTILS_STRING_HPP_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

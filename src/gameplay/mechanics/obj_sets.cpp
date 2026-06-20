@@ -6,7 +6,7 @@
 #include "gameplay/mechanics/minions.h"
 #include "obj_sets_stuff.h"
 #include "utils/parser_wrapper.h"   // issue.obj-sets: загрузка через ParserWrapper
-#include "utils/parse.h"
+#include "utils/utils_parse.h"
 #include "engine/ui/color.h"
 #include "engine/ui/modify.h"
 #include "engine/db/help.h"

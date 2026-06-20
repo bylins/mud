@@ -3,6 +3,7 @@
 //
 
 #include "administration/ban.h"
+#include "engine/db/player_index.h"
 #include <map>
 #include "engine/entities/char_data.h"
 #include "gameplay/clans/house.h"

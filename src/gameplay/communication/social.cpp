@@ -16,7 +16,7 @@
 #include "gameplay/communication/ignores.h"
 #include "utils/logger.h"
 #include "utils/mud_string.h"
-#include "utils/parse.h"
+#include "utils/utils_parse.h"
 #include "utils/utils_string.h"
 
 #include <algorithm>

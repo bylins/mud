@@ -7,7 +7,7 @@
 *  $Revision$                                                     *
 ************************************************************************ */
 #include "item_creation.h"
-#include "utils/parse.h"
+#include "utils/utils_parse.h"
 #include "utils/parser_wrapper.h"
 #include "administration/privilege.h"
 #include "utils/grammar/gender.h"

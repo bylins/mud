@@ -4,7 +4,7 @@
 #include "mob_stat.h"
 
 #include "third_party_libs/pugixml/pugixml.h"
-#include "utils/parse.h"
+#include "utils/utils_parse.h"
 #include "utils/logger.h"
 #include "utils/utils_time.h"
 #include "engine/entities/char_data.h"

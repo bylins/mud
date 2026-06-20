@@ -9,7 +9,7 @@
 #include "engine/db/global_objects.h"
 #include "engine/entities/char_data.h"
 #include "engine/entities/zone.h"
-#include "utils/parse.h"
+#include "utils/utils_parse.h"
 #include "utils/utils.h"
 
 using parser_wrapper::DataNode;

@@ -39,7 +39,7 @@
 #include "gameplay/magic/spells_info.h"
 #include "gameplay/core/remort.h"
 #include "engine/db/global_objects.h"
-#include "utils/parse.h"
+#include "utils/utils_parse.h"
 #include "utils/parser_wrapper.h"
 
 #include <algorithm>

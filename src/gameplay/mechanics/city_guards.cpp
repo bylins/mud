@@ -4,7 +4,7 @@
 #include "city_guards.h"
 
 #include "utils/parser_wrapper.h"   // issue.guards: ParserWrapper вместо прямого pugixml
-#include "utils/parse.h"
+#include "utils/utils_parse.h"
 #include "engine/boot/boot_constants.h"
 #include "engine/entities/char_data.h"
 #include "engine/entities/entities_constants.h"

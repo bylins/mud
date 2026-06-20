@@ -15,7 +15,7 @@
 #include "gameplay/mechanics/equipment.h"
 #include "gameplay/mechanics/inventory.h"
 #include "gameplay/clans/house.h"
-#include "utils/parse.h"
+#include "utils/utils_parse.h"
 #include "utils/parser_wrapper.h"
 #include "utils/random.h"
 #include "gameplay/mechanics/weather.h"

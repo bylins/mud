@@ -18,7 +18,7 @@
 #include "engine/db/global_objects.h"
 #include "gameplay/core/base_stats.h"
 #include "gameplay/mechanics/illumination.h"
-#include "utils/parse.h"
+#include "utils/utils_parse.h"
 #include "utils/utils_string.h"
 
 #include <algorithm>

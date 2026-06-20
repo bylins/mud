@@ -15,7 +15,7 @@
 #include "engine/db/db.h"
 #include "engine/db/world_data_source_manager.h"
 #include "olc.h"
-#include "utils/parse.h"
+#include "utils/utils_parse.h"
 #include "engine/scripting/dg_olc.h"
 #include "gameplay/core/constants.h"
 #include "gameplay/crafting/im.h"
