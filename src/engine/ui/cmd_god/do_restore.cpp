@@ -24,7 +24,7 @@ void DoRestore(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	else {
 		// имм с привилегией arena может ресторить только чаров, находящихся с ним на этой же арене
 		// плюс исключается ситуация, когда они в одной зоне, но чар не в клетке арены
-		if (privilege::CheckFlag(ch, privilege::kArenaMaster)) {
+		if (privilege::CheckFlag(ch, privilege::kArenaMaster) && !privilege::IsImpl(ch)) {
 			if (!ROOM_FLAGGED(vict->in_room, ERoomFlag::kArena) || world[ch->in_room]->zone_rn != world[vict->in_room]->zone_rn) {
 				SendMsgToChar("Не положено...\r\n", ch);
 				return;
