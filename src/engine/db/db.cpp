@@ -15,7 +15,6 @@
 #include "gameplay/communication/social.h"
 #include "gameplay/crafting/jewelry.h"
 #include "gameplay/crafting/mining.h"
-#include "gameplay/mechanics/birthplaces.h"
 #include "gameplay/mechanics/player_races.h"
 #include "gameplay/mechanics/corpse.h"
 #include "gameplay/mechanics/celebrates.h"
@@ -727,18 +726,9 @@ void BootMudDataBase() {
 	log("Loading daily quests.");
 	DailyQuest::LoadFromFile();
 
-	pugi::xml_document doc;
 	boot_profiler.next_step("Loading undecayable object criterions");
 	log("Loading undecayable object criterions.");
 	stable_objs::LoadCriterionsCfg();
-
-	boot_profiler.next_step("Loading birthplaces definitions");
-	log("Loading birthplaces definitions.");
-	Birthplaces::Load(XmlLoad(LIB_MISC BIRTH_PLACES_FILE, BIRTH_PLACE_MAIN_TAG, BIRTH_PLACE_ERROR_STR, doc));
-
-	boot_profiler.next_step("Loading player races definitions");
-	log("Loading player races definitions.");
-	PlayerRace::Load(XmlLoad(LIB_MISC PLAYER_RACE_FILE, RACE_MAIN_TAG, PLAYER_RACE_ERROR_STR, doc));
 
 	boot_profiler.next_step("Loading ingredients magic");
 	log("Booting IM");
@@ -883,6 +873,12 @@ void BootMudDataBase() {
 	boot_profiler.next_step("Loading mob races");
 	log("Load mob races.");
 	MUD::CfgManager().LoadCfg("mob_races");
+	MUD::CfgManager().LoadCfg("city_messages");   // issue.cities: names before cities
+	MUD::CfgManager().LoadCfg("cities");
+	MUD::CfgManager().LoadCfg("region_messages");   // issue.regions: messages before regions
+	MUD::CfgManager().LoadCfg("regions");
+	MUD::CfgManager().LoadCfg("pc_race_messages");   // issue.player-races-rework: names before races
+	MUD::CfgManager().LoadCfg("pc_races");
 
 	boot_profiler.next_step("Loading runestones for 'town portal' spell");
 	log("Booting runestones for 'town portal' spell");
@@ -1056,7 +1052,6 @@ void BootMudDataBase() {
 
 	boot_profiler.next_step("Loading cities cfg");
 	log("Loading cities cfg.");
-	cities::LoadCities();
 
 	shutdown_parameters.mark_boot_time();
 	log("Boot db -- DONE.");

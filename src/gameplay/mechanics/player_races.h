@@ -1,119 +1,95 @@
-// $RCSfile$     $Date$     $Revision$
 // Part of Bylins http://www.mud.ru
+// issue.player-races-rework: player races (PC tribes) as a cfg-driven, Vedun-editable InfoContainer.
 
 #ifndef PLAYER_RACES_HPP_INCLUDED
 #define PLAYER_RACES_HPP_INCLUDED
 
+#include "engine/boot/cfg_manager.h"
+#include "engine/structs/info_container.h"
+#include "gameplay/abilities/feats_constants.h"   // EFeat
+
 #include <string>
 #include <vector>
 
-#include "third_party_libs/pugixml/pugixml.h"
+namespace player_races {
 
-#include "engine/entities/entities_constants.h"
-#include "engine/core/conf.h"
-#include "engine/core/sysdep.h"
-#include "engine/structs/structs.h"
+constexpr int kRaceUndefined = -1;
 
-// PC Kin - выпилить к чертям
-const int kNumKins = 3;
+// One PC race (a tribe / "rod"), keyed by an integer vnum. The display name (four gendered forms) lives
+// in pc_race_msg.xml (MUD::RaceMessages()); this item holds only the mechanical data.
+class PcRaceInfo : public info_container::BaseItem<int> {
+	friend class PcRaceInfoBuilder;
 
-const int RACE_UNDEFINED = -1;
-const int KIN_UNDEFINED = -1;
-#define RACE_NAME_UNDEFINED "RaceUndef"
-#define KIN_NAME_UNDEFINED "KinUndef"
-#define PLAYER_RACE_FILE "playerraces.xml"
-#define RACE_MAIN_TAG "races"
-#define PLAYER_RACE_ERROR_STR "...players races reading fail"
+	std::vector<EFeat> features_;            // inborn race feats
+	std::vector<std::string> birth_cities_;  // place_of_birth: city text-ids (from cities.xml)
 
-class PlayerKin;
-class PlayerRace;
-
-typedef std::shared_ptr<PlayerRace> PlayerRacePtr;
-typedef std::vector<PlayerRacePtr> PlayerRaceListType;
-typedef std::shared_ptr<PlayerKin> PlayerKinPtr;
-typedef std::vector<PlayerKinPtr> PlayerKinListType;
-
-class PlayerKin {
  public:
-	PlayerRaceListType PlayerRaceList;
+	PcRaceInfo() = default;
+	PcRaceInfo(int id, std::string &text_id, EItemMode mode) : BaseItem<int>(id, text_id, mode) {};
 
-	PlayerKin();
-	//	void ShowMenu(CharacterData *ch);
-
-	int KinNum;                    // Номер расы
-	bool Enabled;               // Флаг доступности для создания персонажей
-	std::string KinMenuStr;        // Название расы в меню выбора
-	std::string KinItName;        // Название расы в среднем роде
-	std::string KinHeName;      // Название расы в мужском роде
-	std::string KinSheName;     // Название расы в женском роде
-	std::string KinPluralName;  // Название расы в множественном числе
+	[[nodiscard]] const std::vector<EFeat> &GetFeatures() const { return features_; }
+	[[nodiscard]] bool HasFeature(EFeat feat) const {
+		for (const EFeat f : features_) {
+			if (f == feat) {
+				return true;
+			}
+		}
+		return false;
+	}
+	// The cities (text-ids) where this race may be born -- one per region it spans.
+	[[nodiscard]] const std::vector<std::string> &GetBirthCities() const { return birth_cities_; }
 };
 
-class PlayerRace {
+class PcRaceInfoBuilder : public info_container::IItemBuilder<PcRaceInfo> {
  public:
-	static PlayerKinListType PlayerKinList;
-
-	void SetRaceNum(int Num) {
-		_RaceNum = Num;
-	};
-	void SetEnabledFlag(bool Flag) {
-		_Enabled = Flag;
-	};
-
-	void SetRaceMenuStr(std::string MenuStr) {
-		_RaceMenuStr = MenuStr;
-	};
-	void SetRaceItName(std::string Name) {
-		_RaceItName = Name;
-	};
-	void SetRaceHeName(std::string Name) {
-		_RaceHeName = Name;
-	};
-	void SetRaceSheName(std::string Name) {
-		_RaceSheName = Name;
-	};
-	void SetRacePluralName(std::string Name) {
-		_RacePluralName = Name;
-	};
-	int GetRaceNum() {
-		return _RaceNum;
-	};
-	std::string GetMenuStr() {
-		return _RaceMenuStr;
-	};
-
-	void AddRaceFeature(int feat);
-	void AddRaceBirthPlace(int id);
-	//static void Load(const char *PathToFile);
-	static void Load(pugi::xml_node XMLSRaceList);
-	static PlayerKinPtr GetPlayerKin(int Kin);
-	static PlayerRacePtr GetPlayerRace(int Kin, int Race);
-	static std::vector<int> GetRaceFeatures(int Kin, int Race);
-	static void GetKinNamesList(CharData *ch);
-	static bool FeatureCheck(int Kin, int Race, int Feat);
-	static int GetKinNumByName(const std::string &KinName);
-	static int GetRaceNumByName(int Kin, const std::string &RaceName);
-	static std::string GetKinNameByNum(int KinNum, const EGender Sex);
-	static std::string GetRaceNameByNum(int KinNum, int RaceNum, const EGender Sex);
-	static std::string ShowRacesMenu(int KinNum);
-	static int CheckRace(int KinNum, char *arg);
-	static std::string ShowKinsMenu();
-	static int CheckKin(char *arg);
-	static std::vector<int> GetRaceBirthPlaces(int Kin, int Race);
-	static int CheckBirthPlace(int Kin, int Race, char *arg);
-
+	ItemPtr Build(parser_wrapper::DataNode &node) final;
  private:
-	int _RaceNum;                // Номер _рода_
-	bool _Enabled;               // Флаг доступности
-	std::string _RaceMenuStr;   // Название рода в меню
-	std::string _RaceItName;    // Название рода в среднем роде
-	std::string _RaceHeName;    // Название рода в мужском роде
-	std::string _RaceSheName;   // Название рода в женском роде
-	std::string _RacePluralName;// Название рода в множественном числе
-	std::vector<int> _RaceFeatureList; // Список родовых способностей
-	std::vector<int> _RaceBirthPlaceList; // Список "мест рождений" новых персонажей данной расы
-
+	static ItemPtr ParseRace(parser_wrapper::DataNode node);
 };
+
+using PcRacesInfo = info_container::InfoContainer<int, PcRaceInfo, PcRaceInfoBuilder>;
+
+class PcRacesLoader : virtual public cfg_manager::IEditableCfgLoader {
+ public:
+	void Load(parser_wrapper::DataNode data) final;
+	void Reload(parser_wrapper::DataNode data) final;
+	[[nodiscard]] std::string EditableWhat() const final;
+	[[nodiscard]] std::vector<cfg_manager::EditableElement> ListElements() const final;
+	[[nodiscard]] cfg_manager::ValidationResult Validate(parser_wrapper::DataNode &doc) const final;
+	[[nodiscard]] parser_wrapper::DataNode FindElementNode(parser_wrapper::DataNode root, const std::string &id) const final;
+	[[nodiscard]] std::string CanonicalElementId(const std::string &id) const final;
+	[[nodiscard]] parser_wrapper::DataNode CreateElementNode(parser_wrapper::DataNode root, const std::string &id) const final;
+};
+
+// ---- public API ----------------------------------------------------------------------------------
+// Pure data lookups go directly through the registry:
+//   MUD::PcRaces()[vnum].GetFeatures() / .HasFeature(feat) / .GetBirthCities()
+//   MUD::PcRaces().IsAvailable(vnum)
+//   MUD::RaceMessages().GetMessage(vnum, ch->get_sex())   // the gendered name
+// Only the helpers carrying real UI logic live here:
+// A "<n) name" menu of the selectable races (numbered from 1).
+[[nodiscard]] std::string FormatRacesMenu();
+// Parse a 1-based menu choice into a race vnum; kRaceUndefined if it is not a selectable race.
+[[nodiscard]] int RaceVnumByMenuChoice(const char *arg);
+
+// ---- start-region selection -----------------------------------------------------------------------
+// A character is born in a region (the player's choice); the concrete village inside that region is
+// fixed by the race. The selectable regions are derived from the race's birth cities (each city
+// resolves to a region via the regions registry), de-duplicated, in declaration order.
+//
+// The ordered, de-duplicated region vnums this race can be born in.
+[[nodiscard]] std::vector<int> StartRegionsForRace(int race_vnum);
+// A "<n) name" menu of those regions (numbered from 1), names from RegionMessages.
+[[nodiscard]] std::string FormatStartRegionsMenu(int race_vnum);
+// Parse a player's choice -- a 1-based number over this race's region list, or a region short name
+// (matched against RegionMessages kShortDesc) -- into a region vnum; kRaceUndefined if no match.
+[[nodiscard]] int StartRegionByMenuChoice(int race_vnum, const char *arg);
+// The birth city (text-id) for this race in the given region, or "" if the race has none there.
+[[nodiscard]] std::string StartCityForRaceRegion(int race_vnum, int region_vnum);
+// The load-room vnum (the chosen city's rent room) for this race + region, or kNowhere if unresolved.
+[[nodiscard]] int StartRoomForRaceRegion(int race_vnum, int region_vnum);
+
+} // namespace player_races
 
 #endif // PLAYER_RACES_HPP_INCLUDED
 

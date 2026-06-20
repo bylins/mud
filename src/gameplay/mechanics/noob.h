@@ -19,6 +19,8 @@ int outfit(CharData *ch, void *me, int cmd, char *argument);
 bool is_noob(const CharData *ch);
 std::string print_start_outfit(CharData *ch);
 std::vector<int> get_start_outfit(CharData *ch);
+// City start outfit (cities.xml <start_item>); call only AFTER the char is placed in their room.
+void give_city_start_outfit(CharData *ch);
 void check_help_message(CharData *ch);
 void equip_start_outfit(CharData *ch, ObjData *obj);
 

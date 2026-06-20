@@ -33,6 +33,12 @@
 #include "gameplay/abilities/feat_messages.h"
 #include "gameplay/core/entity_names.h"
 #include "gameplay/mechanics/guild_messages.h"
+#include "gameplay/mechanics/cities.h"
+#include "gameplay/mechanics/regions.h"
+#include "gameplay/mechanics/region_messages.h"
+#include "gameplay/mechanics/cities_messages.h"
+#include "gameplay/mechanics/player_races.h"
+#include "gameplay/mechanics/pc_race_messages.h"
 #include "gameplay/ai/special_messages.h"
 #include "gameplay/affects/affects_loader.h"
 #include "gameplay/affects/affect_messages.h"
@@ -111,6 +117,18 @@ CfgManager::CfgManager() {
 										  std::make_unique<CommonMessagesLoader>(CommonMessagesLoader())));
 	loaders_.emplace("socials", LoaderInfo("cfg/messages/ru/social_msg.xml",
 										  std::make_unique<communication::social::SocialsLoader>(communication::social::SocialsLoader())));
+	loaders_.emplace("city_messages", LoaderInfo("cfg/messages/ru/cities_msg.xml",
+										  std::make_unique<cities::CityMessagesLoader>(cities::CityMessagesLoader())));
+	loaders_.emplace("cities", LoaderInfo("cfg/mechanics/cities.xml",
+										  std::make_unique<cities::CitiesLoader>(cities::CitiesLoader())));
+	loaders_.emplace("region_messages", LoaderInfo("cfg/messages/ru/region_msg.xml",
+										  std::make_unique<regions::RegionMessagesLoader>(regions::RegionMessagesLoader())));
+	loaders_.emplace("regions", LoaderInfo("cfg/mechanics/regions.xml",
+										  std::make_unique<regions::RegionsLoader>(regions::RegionsLoader())));
+	loaders_.emplace("pc_race_messages", LoaderInfo("cfg/messages/ru/pc_race_msg.xml",
+										  std::make_unique<player_races::RaceMessagesLoader>(player_races::RaceMessagesLoader())));
+	loaders_.emplace("pc_races", LoaderInfo("cfg/mechanics/pc_races.xml",
+										  std::make_unique<player_races::PcRacesLoader>(player_races::PcRacesLoader())));
 	loaders_.emplace("guilds", LoaderInfo("cfg/mechanics/guilds.xml",
 										  std::make_unique<guilds::GuildsLoader>(guilds::GuildsLoader())));
 	loaders_.emplace("zone_types", LoaderInfo("cfg/zone_types.xml",

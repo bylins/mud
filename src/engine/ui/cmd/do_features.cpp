@@ -76,7 +76,7 @@ void DisplayFeats(CharData *ch, CharData *vict, bool all_feats) {
 		}
 		for (const auto &feat : MUD::Class(ch->GetClass()).feats) {
 			if (feat.IsUnavailable() &&
-				!PlayerRace::FeatureCheck((int) GET_KIN(ch), (int) GET_RACE(ch), to_underlying(feat.GetId()))) {
+				!MUD::PcRaces()[GET_RACE(ch)].HasFeature(feat.GetId())) {
 				continue;
 			}
 			if (!ch->IsFlagged(EPrf::kBlindMode)) {
@@ -94,7 +94,7 @@ void DisplayFeats(CharData *ch, CharData *vict, bool all_feats) {
 			}
 
 			if (feat.IsInborn() ||
-				PlayerRace::FeatureCheck((int) GET_KIN(ch), (int) GET_RACE(ch), to_underlying(feat.GetId()))) {
+				MUD::PcRaces()[GET_RACE(ch)].HasFeature(feat.GetId())) {
 				strcat(buf2, buf);
 				j++;
 			} else if (feat.GetSlot() < max_slot) {
@@ -175,7 +175,7 @@ void DisplayFeats(CharData *ch, CharData *vict, bool all_feats) {
 				sprintf(buf, "[-Н-] %s\r\n", MUD::Feat(feat.GetId()).GetCName());
 			}
 			if (feat.IsInborn() ||
-				PlayerRace::FeatureCheck((int) GET_KIN(ch), (int) GET_RACE(ch), to_underlying(feat.GetId()))) {
+				MUD::PcRaces()[GET_RACE(ch)].HasFeature(feat.GetId())) {
 				sprintf(buf2 + strlen(buf2), "    ");
 				strcat(buf2, buf);
 				j++;
@@ -216,11 +216,10 @@ void DisplayFeats(CharData *ch, CharData *vict, bool all_feats) {
 
 	if (j)
 		SendMsgToChar(buf2, vict);
-	auto race_features = PlayerRace::GetRaceFeatures((int) GET_KIN(ch), (int) GET_RACE(ch));
+	const auto &race_features = MUD::PcRaces()[GET_RACE(ch)].GetFeatures();
 	if (race_features.size() > 0) {
 		SendMsgToChar(vict,  "Родовые способности :\r\n");
-		for (int i : race_features) {
-			auto feat_id = static_cast<EFeat>(i);
+		for (const EFeat feat_id : race_features) {
 			SendMsgToChar(vict, "          %s\r\n", MUD::Feat(feat_id).GetCName());
 		}
 	}

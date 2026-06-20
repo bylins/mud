@@ -1,0 +1,28 @@
+<!--
+  issue.regions: Vedun editor scheme for cfg/mechanics/regions.xml. A region is keyed by an integer
+  vnum plus a string id. <capital id=> is a city id from cities.xml (declared so the editor knows the
+  shape; the loader does not parse it yet). <zones> lists the world zones belonging to the region
+  (this is how a city resolves to its region). Optional sidecar; undeclared nodes degrade to plain
+  strings and are validated on save by the loader.
+-->
+<scheme>
+	<tag name="regions" desc="Region registry">
+		<child tag="region" multiple="Y"/>
+	</tag>
+	<tag name="region" desc="One geographic region, keyed by integer vnum">
+		<attr name="vnum" type="int" readonly="Y" desc="Unique region vnum (identity; immutable)"/>
+		<attr name="id" type="string" desc="CamelCase text id (the region's stable key)"/>
+		<attr name="mode" type="enum" enum="EItemMode" desc="kEnabled / kDisabled / ..."/>
+		<child tag="capital"/>
+		<child tag="zones"/>
+	</tag>
+	<tag name="capital" desc="The region's capital (a cities.xml city id; not parsed yet)">
+		<attr name="id" type="string" desc="City id from cities.xml"/>
+	</tag>
+	<tag name="zones" desc="The world zones belonging to this region">
+		<child tag="zone" multiple="Y"/>
+	</tag>
+	<tag name="zone" desc="One world zone in the region">
+		<attr name="vnum" type="int" desc="Zone vnum"/>
+	</tag>
+</scheme>

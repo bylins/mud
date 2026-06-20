@@ -1,310 +1,213 @@
-// $RCSfile$     $Date$     $Revision$
 // Part of Bylins http://www.mud.ru
-
-#include "utils/utils.h"
-#include "third_party_libs/pugixml/pugixml.h"
+// issue.player-races-rework: cfg-driven, Vedun-editable PC-race InfoContainer.
 
 #include "player_races.h"
 
-PlayerKinListType PlayerRace::PlayerKinList;
+#include "pc_race_messages.h"
+#include "cities.h"
+#include "regions.h"
+#include "region_messages.h"
+#include "engine/db/global_objects.h"
+#include "engine/structs/structs.h"
+#include "utils/parse.h"
+#include "utils/utils.h"
+#include "utils/utils_string.h"
 
-void LoadRace(pugi::xml_node RaceNode, PlayerKinPtr KinPtr);
-void LoadKin(pugi::xml_node KinNode);
+#include <algorithm>
+#include <fmt/format.h>
 
-PlayerKin::PlayerKin() {
-//Create kin
-};
+using parser_wrapper::DataNode;
 
-//Создаем новый _род_ и распихиваем по его полям значения из файла
-void LoadRace(pugi::xml_node RaceNode, PlayerKinPtr KinPtr) {
-	pugi::xml_node CurNode;
-	PlayerRacePtr TmpRace(new PlayerRace);
+namespace player_races {
 
-	TmpRace->SetRaceNum(RaceNode.attribute("racenum").as_int());
-	TmpRace->SetEnabledFlag(RaceNode.attribute("enabled").as_bool());
-	TmpRace->SetRaceMenuStr(RaceNode.child("menu").child_value());
-	CurNode = RaceNode.child("racename");
-	TmpRace->SetRaceItName(CurNode.child("itname").child_value());
-	TmpRace->SetRaceHeName(CurNode.child("hename").child_value());
-	TmpRace->SetRaceSheName(CurNode.child("shename").child_value());
-	TmpRace->SetRacePluralName(CurNode.child("pluralname").child_value());
-	//Add race features
-	for (CurNode = RaceNode.child("feature"); CurNode; CurNode = CurNode.next_sibling("feature")) {
-		TmpRace->AddRaceFeature(CurNode.attribute("featnum").as_int());
-	}
-	//Добавляем родовые места "появления на свет" новых персонажей
-	for (CurNode = RaceNode.child("birthplace"); CurNode; CurNode = CurNode.next_sibling("birthplace")) {
-		TmpRace->AddRaceBirthPlace(CurNode.attribute("id").as_int());
-	}
-	//Add new race in list
-	KinPtr->PlayerRaceList.push_back(TmpRace);
-}
-
-//Создаем новую расу и заполняем ее поля значениями из файлда
-void LoadKin(pugi::xml_node KinNode) {
-	pugi::xml_node CurNode;
-	PlayerKinPtr TmpKin(new PlayerKin);
-
-	//Parse kin's parameters
-	TmpKin->KinNum = KinNode.attribute("kinnum").as_int();
-	TmpKin->Enabled = KinNode.attribute("enabled").as_bool();
-	CurNode = KinNode.child("menu");
-	TmpKin->KinMenuStr = CurNode.child_value();
-	CurNode = KinNode.child("kinname");
-	TmpKin->KinItName = CurNode.child("itname").child_value();
-	TmpKin->KinHeName = CurNode.child("hename").child_value();
-	TmpKin->KinSheName = CurNode.child("shename").child_value();
-	TmpKin->KinPluralName = CurNode.child("pluralname").child_value();
-
-	//Parce kin races
-	CurNode = KinNode.child("kinraces");
-	for (CurNode = CurNode.child("race"); CurNode; CurNode = CurNode.next_sibling("race")) {
-		LoadRace(CurNode, TmpKin);
-	}
-	//Add new kin in kin list
-	PlayerRace::PlayerKinList.push_back(TmpKin);
-}
-
-//Загрузка параметров родов и рас
-void PlayerRace::Load(pugi::xml_node XMLSRaceList) {
-	pugi::xml_node CurNode;
-
-	for (CurNode = XMLSRaceList.child("kin"); CurNode; CurNode = CurNode.next_sibling("kin")) {
-		LoadKin(CurNode);
+PcRaceInfoBuilder::ItemPtr PcRaceInfoBuilder::Build(DataNode &node) {
+	try {
+		return ParseRace(node);
+	} catch (std::exception &e) {
+		err_log("PC race parsing error (incorrect value '%s').", e.what());
+		return nullptr;
 	}
 }
 
-// Добавление новой родовой способности в список
-void PlayerRace::AddRaceFeature(int feat) {
-	std::vector<int>::iterator RaceFeature = find(_RaceFeatureList.begin(), _RaceFeatureList.end(), feat);
-	if (RaceFeature == _RaceFeatureList.end())
-		_RaceFeatureList.push_back(feat);
-};
+PcRaceInfoBuilder::ItemPtr PcRaceInfoBuilder::ParseRace(DataNode node) {
+	const int vnum = parse::ReadAsInt(node.GetValue("vnum"));
+	std::string text_id = parse::ReadAsStr(node.GetValue("id"));
+	auto mode = PcRaceInfoBuilder::ParseItemMode(node, EItemMode::kEnabled);
 
-// Добавление нового места рождения персонажей
-void PlayerRace::AddRaceBirthPlace(int id) {
-	std::vector<int>::iterator BirthPlace = find(_RaceBirthPlaceList.begin(), _RaceBirthPlaceList.end(), id);
-	if (BirthPlace == _RaceBirthPlaceList.end())
-		_RaceBirthPlaceList.push_back(id);
-};
+	auto race = std::make_shared<PcRaceInfo>(vnum, text_id, mode);
 
-//Получение указателя на расу PC
-PlayerKinPtr PlayerRace::GetPlayerKin(int Kin) {
-	PlayerKinPtr KinPtr;
-	for (PlayerKinListType::iterator it = PlayerKinList.begin(); it != PlayerKinList.end(); ++it)
-		if ((*it)->KinNum == Kin)
-			KinPtr = *it;
-	return KinPtr;
-};
-
-//Получение указателя на род PC
-PlayerRacePtr PlayerRace::GetPlayerRace(int Kin, int Race) {
-	PlayerRacePtr RacePtr;
-	PlayerKinPtr KinPtr = PlayerRace::GetPlayerKin(Kin);
-
-	if (KinPtr != nullptr)
-		for (PlayerRaceListType::iterator it = KinPtr->PlayerRaceList.begin(); it != KinPtr->PlayerRaceList.end(); ++it)
-			if ((*it)->_RaceNum == Race)
-				RacePtr = *it;
-	return RacePtr;
-};
-
-//Проверка наличия у данного рода+расы способности с указанным номером
-bool PlayerRace::FeatureCheck(int Kin, int Race, int Feat) {
-	PlayerRacePtr RacePtr = PlayerRace::GetPlayerRace(Kin, Race);
-	if (RacePtr == nullptr)
-		return false;
-	auto RaceFeature = find(RacePtr->_RaceFeatureList.begin(), RacePtr->_RaceFeatureList.end(), Feat);
-	if (RaceFeature != RacePtr->_RaceFeatureList.end())
-		return true;
-
-	return false;
-};
-
-void PlayerRace::GetKinNamesList(CharData * /*ch*/) {
-	//char buf[kMaxInputLength];
-	//snprintf(buf, kMaxStringLength, " %d \r\n", PlayerKinList[0]->PlayerRaceList[0]->GetFeatNum());
-	//SendMsgToChar(buf, ch);
-	//for (PlayerKinListType::iterator it = PlayerKinList.begin();it != PlayerKinList.end();++it)
-	//{
-	//	snprintf(buf, kMaxStringLength, " %s \r\n", (*it)->KinHeName.c_str());
-	//	SendMsgToChar(buf, ch);
-	//}
-	//test message
-	//char buf33[kMaxInputLength];
-	//snprintf(buf33, kMaxStringLength, "!==!...%s", CurNode.child("shename").child_value());
-	//mudlog(buf33, CMP, kLevelImmortal, SYSLOG, true);
-}
-
-//Получение всего списка способностей для указанного рода+расы
-std::vector<int> PlayerRace::GetRaceFeatures(int Kin, int Race) {
-	std::vector<int> RaceFeatures;
-	PlayerRacePtr RacePtr = PlayerRace::GetPlayerRace(Kin, Race);
-	if (RacePtr != nullptr) {
-		RaceFeatures = RacePtr->_RaceFeatureList;
+	if (node.GoToChild("place_of_birth")) {
+		for (auto &city : node.Children("city")) {
+			race->birth_cities_.push_back(parse::ReadAsStr(city.GetValue("id")));
+		}
+		node.GoToParent();
 	}
-	return RaceFeatures;
+	if (node.GoToChild("race_features")) {
+		for (auto &feat : node.Children("feature")) {
+			race->features_.push_back(parse::ReadAsConstant<EFeat>(feat.GetValue("id")));
+		}
+		node.GoToParent();
+	}
+	return race;
 }
 
-//Получение номера расы по названию
-int PlayerRace::GetKinNumByName(const std::string &KinName) {
-	for (PlayerKinListType::const_iterator it = PlayerKinList.begin(); it != PlayerKinList.end(); ++it) {
-		if ((*it)->KinMenuStr == KinName) {
-			return (*it)->KinNum;
+void PcRacesLoader::Load(DataNode data) {
+	MUD::PcRaces().Init(data.Children());
+}
+
+void PcRacesLoader::Reload(DataNode data) {
+	MUD::PcRaces().Reload(data.Children());
+}
+
+std::string PcRacesLoader::EditableWhat() const {
+	return "pcrace";
+}
+
+std::vector<cfg_manager::EditableElement> PcRacesLoader::ListElements() const {
+	std::vector<cfg_manager::EditableElement> out;
+	for (const auto &race : MUD::PcRaces()) {
+		if (race.GetId() < 0) {   // skip the kUndefined sentinel
+			continue;
+		}
+		out.push_back({std::to_string(race.GetId()),
+					   race.GetTextId() + " " + MUD::RaceMessages().GetName(race.GetId())});
+	}
+	return out;
+}
+
+cfg_manager::ValidationResult PcRacesLoader::Validate(DataNode &doc) const {
+	if (MUD::PcRaces().Validate(doc.Children())) {
+		return {true, ""};
+	}
+	return {false, "PC race data failed to parse (see syslog for the offending race)."};
+}
+
+parser_wrapper::DataNode PcRacesLoader::FindElementNode(DataNode root, const std::string &id) const {
+	// A <race> is keyed by its integer vnum; iterate all children with a name check (a node copied
+	// out of a keyed range would otherwise carry that range's filter -- see GuildsLoader).
+	for (auto &child : root.Children()) {
+		if (std::string(child.GetName()) == "race" && id == child.GetValue("vnum")) {
+			return child;
 		}
 	}
+	return parser_wrapper::DataNode{};
+}
 
-	return RACE_UNDEFINED;
-};
+std::string PcRacesLoader::CanonicalElementId(const std::string &id) const {
+	if (id.empty()) {
+		return "";
+	}
+	for (const char c : id) {
+		if (c < '0' || c > '9') {
+			return "";
+		}
+	}
+	return id;
+}
 
-//Получение номера рода по названию
-int PlayerRace::GetRaceNumByName(int Kin, const std::string &RaceName) {
-	PlayerKinPtr KinPtr = PlayerRace::GetPlayerKin(Kin);
-	if (KinPtr != nullptr) {
-		for (PlayerRaceListType::const_iterator it = KinPtr->PlayerRaceList.begin(); it != KinPtr->PlayerRaceList.end();
-			 ++it) {
-			if ((*it)->_RaceMenuStr == RaceName) {
-				return (*it)->_RaceNum;
+parser_wrapper::DataNode PcRacesLoader::CreateElementNode(DataNode root, const std::string &id) const {
+	auto node = root.AddChild("race");
+	node.SetValue("vnum", id);
+	node.SetValue("id", "Undefined");
+	node.SetValue("mode", "kEnabled");
+	node.AddChild("race_features");
+	return node;
+}
+
+// ---- public API ----------------------------------------------------------------------------------
+
+std::string FormatRacesMenu() {
+	std::string out;
+	for (const auto &race : MUD::PcRaces()) {
+		if (race.GetId() < 0 || !race.IsAvailable()) {
+			continue;
+		}
+		out += fmt::format(" {}) {}\r\n", race.GetId() + 1, MUD::RaceMessages().GetName(race.GetId()));
+	}
+	return out;
+}
+
+int RaceVnumByMenuChoice(const char *arg) {
+	const int num = atoi(arg);
+	if (num < 1) {
+		return kRaceUndefined;
+	}
+	const int vnum = num - 1;
+	if (MUD::PcRaces().IsAvailable(vnum)) {
+		return vnum;
+	}
+	return kRaceUndefined;
+}
+
+// ---- start-region selection -----------------------------------------------------------------------
+
+std::vector<int> StartRegionsForRace(int race_vnum) {
+	std::vector<int> result;
+	for (const auto &city_id : MUD::PcRaces()[race_vnum].GetBirthCities()) {
+		const int region = regions::RegionVnumByCityId(city_id);
+		if (region == regions::kRegionUndefined) {
+			continue;
+		}
+		if (std::find(result.begin(), result.end(), region) == result.end()) {
+			result.push_back(region);
+		}
+	}
+	return result;
+}
+
+std::string FormatStartRegionsMenu(int race_vnum) {
+	std::string out;
+	int n = 1;
+	for (const int region : StartRegionsForRace(race_vnum)) {
+		out += fmt::format(" {}) {}\r\n", n++,
+						   MUD::RegionMessages().GetMessage(region, regions::ERegionMsg::kName));
+	}
+	return out;
+}
+
+std::string StartCityForRaceRegion(int race_vnum, int region_vnum) {
+	for (const auto &city_id : MUD::PcRaces()[race_vnum].GetBirthCities()) {
+		if (regions::RegionVnumByCityId(city_id) == region_vnum) {
+			return city_id;
+		}
+	}
+	return "";
+}
+
+int StartRegionByMenuChoice(int race_vnum, const char *arg) {
+	const auto regions_list = StartRegionsForRace(race_vnum);
+	// (1) a 1-based number over this race's region list.
+	const int num = atoi(arg);
+	if (num >= 1 && static_cast<size_t>(num) <= regions_list.size()) {
+		return regions_list[num - 1];
+	}
+	// (2) a region short name, possibly abbreviated (needle is a prefix of the short name).
+	std::string needle = arg;
+	utils::ConvertToLow(needle);
+	if (!needle.empty()) {
+		for (const int region : regions_list) {
+			std::string short_desc = MUD::RegionMessages().GetMessage(region, regions::ERegionMsg::kShortDesc);
+			utils::ConvertToLow(short_desc);
+			if (short_desc.rfind(needle, 0) == 0) {   // needle is a prefix of the short name
+				return region;
 			}
 		}
 	}
-
-	return RACE_UNDEFINED;
-};
-
-//Получение названия расы по номеру и полу
-std::string PlayerRace::GetKinNameByNum(int KinNum, const EGender Sex) {
-	for (PlayerKinListType::iterator it = PlayerKinList.begin(); it != PlayerKinList.end(); ++it) {
-		if ((*it)->KinNum == KinNum) {
-			switch (Sex) {
-				case EGender::kNeutral: return PlayerRace::PlayerKinList[KinNum]->KinItName;
-					break;
-
-				case EGender::kMale: return PlayerRace::PlayerKinList[KinNum]->KinHeName;
-					break;
-
-				case EGender::kFemale: return PlayerRace::PlayerKinList[KinNum]->KinSheName;
-					break;
-
-				case EGender::kPoly: return PlayerRace::PlayerKinList[KinNum]->KinPluralName;
-					break;
-
-				default: return PlayerRace::PlayerKinList[KinNum]->KinHeName;
-			}
-		}
-	}
-
-	return KIN_NAME_UNDEFINED;
-};
-
-//Получение названия рода по номеру и полу
-std::string PlayerRace::GetRaceNameByNum(int KinNum, int RaceNum, const EGender Sex) {
-	//static char out_str[kMaxStringLength];
-	//*out_str = '\0';
-	//sprintf(out_str, "Число рас %d %d", KinNum, RaceNum);
-	//return out_str; //PlayerRace::PlayerKinList[KinNum]->PlayerRaceList[RaceNum]->_RaceHeName;
-	PlayerKinPtr KinPtr;
-	if ((KinNum > KIN_UNDEFINED) && (static_cast<unsigned>(KinNum) < PlayerRace::PlayerKinList.size())) {
-		KinPtr = PlayerRace::PlayerKinList[KinNum];
-		for (PlayerRaceListType::iterator it = KinPtr->PlayerRaceList.begin(); it != KinPtr->PlayerRaceList.end();
-			 ++it) {
-			if ((*it)->_RaceNum == RaceNum) {
-				switch (Sex) {
-					case EGender::kNeutral: return PlayerRace::PlayerKinList[KinNum]->PlayerRaceList[RaceNum]->_RaceItName;
-						break;
-
-					case EGender::kMale: return PlayerRace::PlayerKinList[KinNum]->PlayerRaceList[RaceNum]->_RaceHeName;
-						break;
-
-					case EGender::kFemale: return PlayerRace::PlayerKinList[KinNum]->PlayerRaceList[RaceNum]->_RaceSheName;
-						break;
-
-					case EGender::kPoly: return PlayerRace::PlayerKinList[KinNum]->PlayerRaceList[RaceNum]->_RacePluralName;
-						break;
-
-					default: return PlayerRace::PlayerKinList[KinNum]->PlayerRaceList[RaceNum]->_RaceHeName;
-				};
-			}
-		}
-	}
-
-	return RACE_NAME_UNDEFINED;
-};
-
-//Вывод списка родов в виде меню
-std::string PlayerRace::ShowRacesMenu(int KinNum) {
-	std::ostringstream buffer;
-	PlayerKinPtr KinPtr = PlayerRace::GetPlayerKin(KinNum);
-
-	if (KinPtr != nullptr)
-		for (PlayerRaceListType::iterator it = KinPtr->PlayerRaceList.begin(); it != KinPtr->PlayerRaceList.end(); ++it)
-			buffer << " " << (*it)->_RaceNum + 1 << ") " << (*it)->_RaceMenuStr << "\r\n";
-
-	return buffer.str();
-};
-
-//Проверяем наличие рода с введнным номером
-//Возвращаем номер рода или "неопределено"
-int PlayerRace::CheckRace(int KinNum, char *arg) {
-	unsigned RaceNum = atoi(arg);
-	//Поскольку меню формируется в этом же модуле функцией ShowRacesMenu
-	//То для доступа к конкретному _роду_ можно использовать просто само введенное число
-	//как индекс массива (с поправкой на единицу). Нужно только убедиться, что введено вменяемое значение.
-	//То есть от единицы до максимального индекса+1 (ибо в меню нумерация с 1)
-	//Но вот возвращать надо номер _рода_ а не индекс, ибо теоретически они могут и не совпадать
-	if (!RaceNum || (RaceNum < 1) ||
-		(RaceNum > PlayerRace::PlayerKinList[KinNum]->PlayerRaceList.size()) ||
-		!PlayerKinList[KinNum]->PlayerRaceList[RaceNum - 1]->_Enabled) {
-		return RACE_UNDEFINED;
-	}
-
-	if ((KinNum > RACE_UNDEFINED) && (static_cast<unsigned>(KinNum) < PlayerRace::PlayerKinList.size())) {
-		return PlayerRace::PlayerKinList[KinNum]->PlayerRaceList[RaceNum - 1]->_RaceNum;
-	}
-
-	return RACE_UNDEFINED;
-};
-
-//Вывод списка рас в виде меню
-std::string PlayerRace::ShowKinsMenu() {
-	std::ostringstream buffer;
-	for (PlayerKinListType::iterator it = PlayerKinList.begin(); it != PlayerKinList.end(); ++it)
-		buffer << " " << (*it)->KinNum + 1 << ") " << (*it)->KinMenuStr << "\r\n";
-
-	return buffer.str();
-};
-
-//Проверяем наличие расы с введенным номером
-int PlayerRace::CheckKin(char *arg) {
-	int KinNum = atoi(arg);
-	if (!KinNum || (KinNum < 1) ||
-		(static_cast<unsigned>(KinNum) > PlayerRace::PlayerKinList.size()) ||
-		!PlayerRace::PlayerKinList[KinNum - 1]->Enabled)
-		return KIN_UNDEFINED;
-
-	return PlayerRace::PlayerKinList[KinNum - 1]->KinNum;
-};
-
-std::vector<int> PlayerRace::GetRaceBirthPlaces(int Kin, int Race) {
-	std::vector<int> BirthPlaces;
-	PlayerRacePtr RacePtr = PlayerRace::GetPlayerRace(Kin, Race);
-	if (RacePtr != nullptr)
-		BirthPlaces = RacePtr->_RaceBirthPlaceList;
-
-	return BirthPlaces;
+	return kRaceUndefined;
 }
 
-int PlayerRace::CheckBirthPlace(int Kin, int Race, char *arg) {
-	int BirthPlaceNum = atoi(arg);
-	if (BirthPlaceNum &&
-		((Kin > RACE_UNDEFINED) && (static_cast<unsigned>(Kin) < PlayerRace::PlayerKinList.size())) &&
-		(Race > RACE_UNDEFINED) && (static_cast<unsigned>(Race) < PlayerRace::PlayerKinList[Kin]->PlayerRaceList.size())
-		&&
-			((BirthPlaceNum > 0) && (static_cast<unsigned>(BirthPlaceNum)
-				<= PlayerRace::PlayerKinList[Kin]->PlayerRaceList[Race]->_RaceBirthPlaceList.size())))
-		return PlayerRace::PlayerKinList[Kin]->PlayerRaceList[Race]->_RaceBirthPlaceList[BirthPlaceNum - 1];
+int StartRoomForRaceRegion(int race_vnum, int region_vnum) {
+	const std::string city_id = StartCityForRaceRegion(race_vnum, region_vnum);
+	if (city_id.empty()) {
+		return kNowhere;
+	}
+	const auto &rents = MUD::Cities().FindItem(city_id).GetRentVnums();
+	if (rents.empty()) {
+		return kNowhere;
+	}
+	return *rents.begin();
+}
 
-	return RACE_UNDEFINED;
-};
+} // namespace player_races
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

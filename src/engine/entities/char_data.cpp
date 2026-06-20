@@ -701,16 +701,6 @@ void CharData::set_religion(const ubyte v) {
 	}
 }
 
-ubyte CharData::get_kin() const {
-	return player_data.Kin;
-}
-
-void CharData::set_kin(const ubyte v) {
-	if (v < kNumKins) {
-		player_data.Kin = v;
-	}
-}
-
 ubyte CharData::get_race() const {
 	return player_data.Race;
 }
@@ -1056,7 +1046,7 @@ std::string CharData::GetTitleAndName() {
 std::string CharData::GetNameWithTitleOrRace() {
 	std::string title = GetTitleAndNameWithoutClan();
 	if (title == get_name()) {
-		return fmt::format("{} {}", PlayerRace::GetRaceNameByNum(GET_KIN(this), GET_RACE(this), this->get_sex()), title);
+		return fmt::format("{} {}", MUD::RaceMessages().GetMessage(GET_RACE(this), this->get_sex()), title);
 	}
 
 	return title;

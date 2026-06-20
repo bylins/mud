@@ -121,6 +121,15 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		MUD::CfgManager().ReloadCfg("mob_classes");
 	} else if (!str_cmp(arg, "guilds")) {
 		MUD::CfgManager().ReloadCfg("guilds");
+	} else if (!str_cmp(arg, "cities")) {
+		MUD::CfgManager().ReloadCfg("city_messages");
+		MUD::CfgManager().ReloadCfg("cities");
+	} else if (!str_cmp(arg, "regions")) {
+		MUD::CfgManager().ReloadCfg("region_messages");
+		MUD::CfgManager().ReloadCfg("regions");
+	} else if (!str_cmp(arg, "pcraces")) {
+		MUD::CfgManager().ReloadCfg("pc_race_messages");
+		MUD::CfgManager().ReloadCfg("pc_races");
 	} else if (!str_cmp(arg, "currencies")) {
 		MUD::CfgManager().ReloadCfg("currencies");
 	} else if (!str_cmp(arg, "imagic"))

@@ -371,16 +371,6 @@ class CharacterWrapper : public Wrapper<CharacterData> {
 		ch->set_religion(v);
 	}
 
-	ubyte get_kin() const {
-		Ensurer ch(*this);
-		return ch->get_kin();
-	}
-
-	void set_kin(const ubyte v) {
-		Ensurer ch(*this);
-		ch->set_kin(v);
-	}
-
 	ubyte get_race() const {
 		Ensurer ch(*this);
 		return ch->get_race();
@@ -1321,7 +1311,6 @@ BOOST_PYTHON_MODULE (mud) {
 					  &CharacterWrapper::get_religion,
 					  &CharacterWrapper::set_religion,
 					  "п═п╣п╩п╦пЁп╦п╬п╥п╫п╟я▐ п╫п╟п©я─п╟п╡п╩п╣п╫п╫п╬я│я┌я▄. 0 - п©п╬п╩п╦я┌п╣п╦п╥п╪, 1 - п╪п╬п╫п╬я┌п╣п╦п╥п╪.")
-		.add_property("kin", &CharacterWrapper::get_kin, &CharacterWrapper::set_kin, "п©п╩п╣п╪я▐")
 		.add_property("race", &CharacterWrapper::get_race, &CharacterWrapper::set_race, "я─п╬п╢")
 		.add_property("hit",
 					  &CharacterWrapper::get_hit,

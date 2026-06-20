@@ -5,6 +5,7 @@
 #ifndef CHAR_PLAYER_HPP_INCLUDED
 #define CHAR_PLAYER_HPP_INCLUDED
 
+#include <set>
 #include <string>
 #include <array>
 #include <vector>
@@ -133,11 +134,10 @@ class Player : public CharData {
 	int get_spent_hryvn();
 	void reset_daily_quest();
 
-	void add_value_cities(bool v);
 	void str_to_cities(std::string str);
 	std::string cities_to_str();
-	bool check_city(const size_t index);
-	void mark_city(const size_t index);
+	bool check_city(const std::string &id);
+	void mark_city(const std::string &id);
 	/*void touch_stigma(char *arg);
 	void add_stigma(int wear, int id_stigma);
 	int get_stigma(int wear);*/
@@ -204,7 +204,7 @@ class Player : public CharData {
 	// сколько дней подряд выполнялись дейлики
 	int count_daily_quest;
 	// Отметка о том, в каких городах был наш чар
-	std::vector<bool> cities_visited_;
+	std::set<std::string> cities_visited_;
 	// здесь храним инфу о татуировках
 	//std::map<unsigned int, StigmaWear> stigmas;
 	// режим !бот
