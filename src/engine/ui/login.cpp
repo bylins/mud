@@ -4,6 +4,7 @@
         extracted from interpreter.cpp. Entry point ProcessLoginInput (was nanny).
 */
 #include "interpreter.h"
+#include "engine/ui/system_messages.h"
 #include "gameplay/mechanics/condition.h"
 #include "administration/dupe_check.h"
 
@@ -148,11 +149,6 @@
 
 extern RoomRnum r_frozen_start_room;
 extern const char *religion_menu;
-extern char *motd;
-extern char *rules;
-extern char *background;
-extern const char *WELC_MESSG;
-extern const char *START_MESSG;
 extern int circle_restrict;
 extern int no_specials;
 extern int max_bad_pws;
@@ -160,9 +156,7 @@ extern const char *default_race[];
 extern struct PCCleanCriteria pclean_criteria[];
 extern int rent_file_timeout;
 
-extern char *greetings;
 extern struct show_struct show_fields[];
-extern char *name_rules;
 
 
 // external functions
@@ -539,7 +533,7 @@ void do_entergame(DescriptorData *d) {
 			load_room = r_mortal_start_room;
 	}
 
-	SendMsgToChar(WELC_MESSG, d->character.get());
+	SendMsgToChar(system_messages::GetText(system_messages::ESystemMsg::kWelcome), d->character.get());
 
 	CharData *character = nullptr;
 	for (const auto &character_i : character_list) {
@@ -686,7 +680,7 @@ void do_entergame(DescriptorData *d) {
 		d->character->set_last_exchange(time(nullptr));
 		DoPcInit(d->character.get(), true);
 		d->character->mem_queue.stored = 0;
-		SendMsgToChar(START_MESSG, d->character.get());
+		SendMsgToChar(system_messages::GetText(system_messages::ESystemMsg::kStartMessage), d->character.get());
 	}
 
 	init_warcry(d->character.get());
@@ -995,7 +989,7 @@ void DoAfterEmailConfirm(DescriptorData *d) {
 	// remove from free names
 	player_table.GetNameAdviser().remove(GET_NAME(d->character));
 
-	iosystem::write_to_output(motd, d);
+	iosystem::write_to_output(system_messages::GetText(system_messages::ESystemMsg::kMotd).c_str(), d);
 	iosystem::write_to_output("\r\n* В связи с проблемами перевода фразы ANYKEY нажмите ENTER *", d);
 	d->state = EConState::kRmotd;
 	d->character->set_who_mana(0);
@@ -1065,7 +1059,7 @@ static void HandleGetName(DescriptorData *d, char *argument) {
 	if (!*argument) {
 		d->state = EConState::kClose;
 	} else if (!str_cmp("новый", argument)) {
-		iosystem::write_to_output(name_rules, d);
+		iosystem::write_to_output(system_messages::GetText(system_messages::ESystemMsg::kNameRules).c_str(), d);
 
 		std::stringstream ss;
 		ss << "Введите имя";
@@ -1197,7 +1191,7 @@ static void HandleGetName(DescriptorData *d, char *argument) {
 
 			d->character->SetCharAliases(utils::CAP(tmp_name));
 			d->character->player_data.PNames[grammar::ECase::kNom] = std::string(utils::CAP(tmp_name));
-			iosystem::write_to_output(name_rules, d);
+			iosystem::write_to_output(system_messages::GetText(system_messages::ESystemMsg::kNameRules).c_str(), d);
 			sprintf(buffer, "Вы действительно выбрали имя  %s [ Y(Д) / N(Н) ]? ", tmp_name);
 			log("New player %s ip %s", d->character->player_data.PNames[grammar::ECase::kNom].c_str(), d->host);
 			iosystem::write_to_output(buffer, d);
@@ -1364,7 +1358,7 @@ static void HandleMainMenu(DescriptorData *d, char *argument) {
 
 			break;
 
-		case '3': page_string(d, background, 0);
+		case '3': page_string(d, system_messages::GetText(system_messages::ESystemMsg::kBackground));
 			d->state = EConState::kRmotd;
 			break;
 
@@ -1516,7 +1510,7 @@ static void HandleGetKeytable(DescriptorData *d, char *argument) {
 	}
 	d->keytable = (ubyte) *argument - (ubyte) '0';
 	ip_log(d->host);
-	iosystem::write_to_output(greetings, d);
+	iosystem::write_to_output(system_messages::GetText(system_messages::ESystemMsg::kGreetings).c_str(), d);
 	d->state = EConState::kGetName;
 	return;
 }

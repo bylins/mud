@@ -114,17 +114,7 @@ enum SetStuffMode {
 #define PLAYER_U_PREFIX LIB_PLRS "" LIB_U
 #define PLAYER_Z_PREFIX LIB_PLRS "" LIB_Z
 
-#define CREDITS_FILE    LIB_TEXT "credits"    // for the 'credits' command
-#define MOTD_FILE       LIB_TEXT "motd"    // messages of the day / mortal
-#define RULES_FILE      LIB_TEXT "rules"    // rules for immort
-#define GREETINGS_FILE    LIB_TEXT "greetings"    // The opening screen.
 #define HELP_PAGE_FILE    LIB_TEXT_HELP "screen"    // for HELP <CR>
-#define INFO_FILE       LIB_TEXT "info"    // for INFO
-#define IMMLIST_FILE    LIB_TEXT "immlist"    // for IMMLIST
-#define BACKGROUND_FILE    LIB_TEXT "background"    // for the background story
-#define POLICIES_FILE    LIB_TEXT "policies"    // player policies/rules
-#define HANDBOOK_FILE    LIB_TEXT "handbook"    // handbook for new immorts
-#define NAME_RULES_FILE LIB_TEXT "namerules" // rules of character's names
 
 #define PROXY_FILE        LIB_MISC "proxy"    // register proxy list
 #define XNAME_FILE      LIB_MISC "xnames"    // invalid name substrings

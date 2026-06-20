@@ -79,8 +79,13 @@ class MsgSheaf : public info_container::BaseItem<IdEnum> {
 
 /**
  * Builds a single MsgSheaf from one <msg_sheaf id="..."> XML node.
- * Note: parser_wrapper has no inner-tag-text support, so message text lives in
- * the "val" attribute: <message type="kCastFail" val="..." />.
+ * Message text is normally in the "val" attribute: <message type="kCastFail" val="..." />.
+ * For multi-line preformatted text a message may instead carry its text as element
+ * inner text (PCDATA or a <![CDATA[...]]> block) and omit "val":
+ *   <message type="kCastFail"><![CDATA[line 1\nline 2]]></message>
+ * When "val" is absent the inner text (DataNode::GetValue("")) is used verbatim.
+ * Such files are server-edited only and marked vedun="false" so the editor never
+ * rewrites them (a whole-file save would flatten CDATA into escaped PCDATA).
  */
 template<typename IdEnum, typename MsgType>
 class MsgSheafBuilder : public info_container::IItemBuilder<MsgSheaf<IdEnum, MsgType>> {
@@ -117,7 +122,10 @@ class MsgSheafBuilder : public info_container::IItemBuilder<MsgSheaf<IdEnum, Msg
 			const char *type_str = message.GetValue("type");
 			try {
 				const MsgType type = parse::ReadAsConstant<MsgType>(type_str);
-				sheaf->AddMessage(type, message.GetValue("val"));
+				// "val" attribute if present, else the element's inner text (PCDATA/CDATA),
+				// read verbatim -- this is how multi-line preformatted messages are stored.
+				const char *val_attr = message.GetValue("val");
+				sheaf->AddMessage(type, (val_attr && *val_attr) ? val_attr : message.GetValue(""));
 			} catch (const std::exception &) {
 				err_log("MsgSheafBuilder: message has unknown 'type' ('%s') in msg_sheaf '%s'.", type_str, id_str);
 			}

@@ -1153,6 +1153,17 @@ void do_vedun(CharData *ch, char *argument, int /*cmd*/, int /*subcmd*/) {
 	// Locate the element's DOM node via the loader (it owns its file layout / id-attribute). The
 	// returned node shares `doc`'s document, so edits through the session are persisted with the file.
 	parser_wrapper::DataNode doc(entry->file);
+	// issue.sml-cdata-msg: a config whose root carries vedun="false" holds multi-line preformatted
+	// text (element inner text / <![CDATA[...]]>). Vedun saves whole files through DataNode, which
+	// rewrites inner text as escaped PCDATA and would flatten that formatting -- so refuse to open
+	// such a file for editing; it is maintained directly on the server.
+	if (std::string(doc.GetValue("vedun")) == "false") {
+		SendMsgToChar(fmt::format("Vedun: '{}' is stored in a file marked vedun=\"false\" because it "
+			"holds multi-line preformatted text (CDATA). The editor saves whole files and would "
+			"flatten that formatting, so it cannot be edited here -- edit the file directly on the "
+			"server.\r\n", entry->what), ch);
+		return;
+	}
 	parser_wrapper::DataNode found = entry->loader->FindElementNode(doc, resolved_id);
 	if (found.IsEmpty()) {
 		// Valid id but no element on disk yet: create a minimal one and open it for editing.

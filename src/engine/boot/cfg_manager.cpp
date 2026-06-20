@@ -44,6 +44,7 @@
 #include "gameplay/mechanics/cities.h"
 #include "gameplay/mechanics/regions.h"
 #include "gameplay/mechanics/region_messages.h"
+#include "engine/ui/system_messages.h"
 #include "gameplay/mechanics/stable_objs.h"
 #include "gameplay/mechanics/corpse.h"
 #include "gameplay/classes/pc_classes.h"
@@ -150,6 +151,7 @@ CfgManager::CfgManager() {
 		{"cities_msg", CfgDir::kMessagesRu, [] { return MakeLoader<cities::CityMessagesLoader>(); }},
 		{"cities", CfgDir::kMechanics, [] { return MakeLoader<cities::CitiesLoader>(); }},
 		{"region_msg", CfgDir::kMessagesRu, [] { return MakeLoader<regions::RegionMessagesLoader>(); }},
+		{"system_msg", CfgDir::kMessagesRu, [] { return MakeLoader<system_messages::SystemMessagesLoader>(); }},
 		{"regions", CfgDir::kMechanics, [] { return MakeLoader<regions::RegionsLoader>(); }},
 		{"stable_objs", CfgDir::kMechanics, [] { return MakeLoader<stable_objs::StableObjsLoader>(); }},
 		{"global_drop", CfgDir::kMechanics, [] { return MakeLoader<GlobalDrop::GlobalDropLoader>(); }},
