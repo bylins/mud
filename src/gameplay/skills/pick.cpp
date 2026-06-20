@@ -83,7 +83,7 @@ PickProbabilityInformation get_pick_probability(CharData *ch, int lock_complexit
 		text_info << std::boolalpha << "Шанс взлома: " << pbi.unlock_probability << "%, шанс сломать замок: " << pbi.brake_lock_probability << "%, возможность прокачки скила: " << pbi.skill_train_allowed << "\r\n";
 		text_info << std::boolalpha << "Сложность замка: " << lock_complexity << ", разница между скилом и сложностью замка: " << skill_difference << "\r\n";
 		text_info << std::boolalpha << "Возможность прокачки скила (от сложности скила): " << skill_train_allowed << ", ограничение прокачки по сложности скила: "  << complexity_restriction << "\r\n";
-		SendToTC(ch, true, true, true, text_info.str().c_str());
+		SendToTC(ch, true, true, true, "%s", text_info.str().c_str());
 	}
 
 	return pbi;

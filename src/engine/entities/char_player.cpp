@@ -48,7 +48,7 @@
 
 namespace {
 
-uint8_t get_day_today() {
+[[maybe_unused]] uint8_t get_day_today() {
 	time_t rawtime;
 	struct tm *timeinfo;
 

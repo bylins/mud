@@ -541,7 +541,7 @@ long long get_extend_exp(long long exp, CharData *ch, CharData *victim) {
 	}
 
 	SendToTC(ch, false, true, false,
-				   "&RУ моба еще %d убийств без замакса, экспа %d, убито %d&n\r\n",
+				   "&RУ моба еще %d убийств без замакса, экспа %lld, убито %d&n\r\n",
 				   victim->mob_specials.MaxFactor,
 				   exp,
 				   ch->mobmax_get(vnum));

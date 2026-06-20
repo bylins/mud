@@ -229,7 +229,7 @@ void CharacterBuilder::grant_class_skills_and_feats()
 	for (const auto &spell : class_info.spells) {
 		if (level >= spell.GetMinLevel() && remort >= spell.GetMinRemort()) {
 			SET_BIT(GET_SPELL_TYPE(m_result, spell.GetId()), ESpellType::kKnow);
-			SET_SPELL_MEM(m_result, spell.GetId(), 1000);
+			SET_SPELL_MEM(m_result, spell.GetId(), 255);
 		}
 	}
 }
