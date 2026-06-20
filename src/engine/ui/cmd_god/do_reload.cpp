@@ -31,17 +31,8 @@
 #include <fmt/format.h>
 #include "administration/proxy.h"
 
-extern char *credits;
-extern char *info;
-extern char *motd;
-extern char *rules;
-extern char *immlist;
-extern char *policies;
 extern char *handbook;
-extern char *name_rules;
-extern char *background;
 extern char *help;
-extern char *greetings;
 
 void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	argument = one_argument(argument, arg);
@@ -59,26 +50,15 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			"  systems  : portals imagic oloadtable specials schedule clan proxy boards\r\n"
 			"             globaldrop offtop shop named celebrates setsdrop remort daily resetstats\r\n"
 			"             digging guards jewelry makeitems basic cases\r\n"
-			"  text     : immlist credits motd rules help info policy handbook background namerules\r\n"
-			"             greetings xhelp socials noobhelp titles emails privilege\r\n"
+			"  text     : systemmsg help handbook xhelp socials noobhelp titles emails privilege\r\n"
 			"  depot <char-name>\r\n", ch);
 		return;
 	}
 
 	if (!str_cmp(arg, "all") || *arg == '*') {
-		if (AllocateBufferForFile(GREETINGS_FILE, &greetings) == 0) {
-			PruneCrlf(greetings);
-		}
-		AllocateBufferForFile(IMMLIST_FILE, &immlist);
-		AllocateBufferForFile(CREDITS_FILE, &credits);
-		AllocateBufferForFile(MOTD_FILE, &motd);
-		AllocateBufferForFile(RULES_FILE, &rules);
 		AllocateBufferForFile(HELP_PAGE_FILE, &help);
-		AllocateBufferForFile(INFO_FILE, &info);
-		AllocateBufferForFile(POLICIES_FILE, &policies);
 		AllocateBufferForFile(HANDBOOK_FILE, &handbook);
-		AllocateBufferForFile(BACKGROUND_FILE, &background);
-		AllocateBufferForFile(NAME_RULES_FILE, &name_rules);
+		MUD::CfgManager().ReloadCfg("system_msg");
 		MUD::CfgManager().ReloadCfg("social_msg");
 		initIngredientsMagic();
 		MUD::CfgManager().ReloadCfg("zone_types");
@@ -149,30 +129,13 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		MUD::CfgManager().ReloadCfg("rune_spells");
 	else if (!str_cmp(arg, "oloadtable"))
 		oload_table.init();
-	else if (!str_cmp(arg, "immlist"))
-		AllocateBufferForFile(IMMLIST_FILE, &immlist);
-	else if (!str_cmp(arg, "credits"))
-		AllocateBufferForFile(CREDITS_FILE, &credits);
-	else if (!str_cmp(arg, "motd"))
-		AllocateBufferForFile(MOTD_FILE, &motd);
-	else if (!str_cmp(arg, "rules"))
-		AllocateBufferForFile(RULES_FILE, &rules);
+	else if (!str_cmp(arg, "systemmsg"))
+		MUD::CfgManager().ReloadCfg("system_msg");
 	else if (!str_cmp(arg, "help"))
 		AllocateBufferForFile(HELP_PAGE_FILE, &help);
-	else if (!str_cmp(arg, "info"))
-		AllocateBufferForFile(INFO_FILE, &info);
-	else if (!str_cmp(arg, "policy"))
-		AllocateBufferForFile(POLICIES_FILE, &policies);
 	else if (!str_cmp(arg, "handbook"))
 		AllocateBufferForFile(HANDBOOK_FILE, &handbook);
-	else if (!str_cmp(arg, "background"))
-		AllocateBufferForFile(BACKGROUND_FILE, &background);
-	else if (!str_cmp(arg, "namerules"))
-		AllocateBufferForFile(NAME_RULES_FILE, &name_rules);
-	else if (!str_cmp(arg, "greetings")) {
-		if (AllocateBufferForFile(GREETINGS_FILE, &greetings) == 0)
-			PruneCrlf(greetings);
-	} else if (!str_cmp(arg, "xhelp")) {
+	else if (!str_cmp(arg, "xhelp")) {
 		HelpSystem::reload_all();
 	} else if (!str_cmp(arg, "socials"))
 		MUD::CfgManager().ReloadCfg("social_msg");

@@ -266,9 +266,6 @@
 
 extern RoomRnum r_frozen_start_room;
 extern const char *religion_menu;
-extern char *motd;
-extern char *rules;
-extern char *background;
 extern const char *WELC_MESSG;
 extern const char *START_MESSG;
 extern int circle_restrict;
@@ -278,9 +275,7 @@ extern const char *default_race[];
 extern struct PCCleanCriteria pclean_criteria[];
 extern int rent_file_timeout;
 
-extern char *greetings;
 extern struct show_struct show_fields[];
-extern char *name_rules;
 
 
 // external functions

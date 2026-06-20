@@ -697,6 +697,7 @@ main_sources = files(
   'src/gameplay/mechanics/cities.cpp',
   'src/gameplay/mechanics/regions.cpp',
   'src/gameplay/mechanics/region_messages.cpp',
+  'src/engine/ui/system_messages.cpp',
   'src/gameplay/mechanics/cities_messages.cpp',
   'src/engine/ui/cmd/do_affects.cpp',
   'src/engine/ui/cmd/do_toggle.cpp',

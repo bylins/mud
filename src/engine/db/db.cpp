@@ -145,18 +145,9 @@ RoomRnum r_helled_start_room;
 RoomRnum r_named_start_room;
 RoomRnum r_unreg_start_room;
 
-char *credits{nullptr};        // game credits
-char *info{nullptr};        // info page
-char *motd{nullptr};        // message of the day - mortals
-char *rules{nullptr};        // rules for immorts
-char *immlist{nullptr};        // list of peon gods
-char *policies{nullptr};        // policies page
 char *handbook{nullptr};        // handbook for new immortals
 
-char *greetings{nullptr};        // opening credits screen
 char *help{nullptr};        // help screen
-char *background{nullptr};    // background story
-char *name_rules{nullptr};        // rules of character's names
 
 TimeInfoData time_info;
 ResetQueue reset_q;
@@ -646,18 +637,9 @@ void BootMudDataBase() {
 
 	boot_profiler.next_step("Reading credits, help, bground, info & motds.");
 	log("Reading credits, help, bground, info & motds.");
-	AllocateBufferForFile(CREDITS_FILE, &credits);
-	AllocateBufferForFile(MOTD_FILE, &motd);
-	AllocateBufferForFile(RULES_FILE, &rules);
 	AllocateBufferForFile(HELP_PAGE_FILE, &help);
-	AllocateBufferForFile(INFO_FILE, &info);
-	AllocateBufferForFile(IMMLIST_FILE, &immlist);
-	AllocateBufferForFile(POLICIES_FILE, &policies);
 	AllocateBufferForFile(HANDBOOK_FILE, &handbook);
-	AllocateBufferForFile(BACKGROUND_FILE, &background);
-	AllocateBufferForFile(NAME_RULES_FILE, &name_rules);
-	if (AllocateBufferForFile(GREETINGS_FILE, &greetings) == 0)
-		PruneCrlf(greetings);
+	MUD::CfgManager().LoadCfg("system_msg");
 
 	boot_profiler.next_step("Loading currencies cfg.");
 	log("Loading currencies cfg.");

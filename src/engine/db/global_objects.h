@@ -20,6 +20,7 @@
 #include "gameplay/mechanics/cities.h"
 #include "gameplay/mechanics/regions.h"
 #include "gameplay/mechanics/region_messages.h"
+#include "engine/ui/system_messages.h"
 #include "gameplay/mechanics/cities_messages.h"
 #include "gameplay/mechanics/player_races.h"
 #include "gameplay/mechanics/pc_race_messages.h"
@@ -90,6 +91,7 @@ class GlobalObjects {
 	static cities::CitiesInfo &Cities();
 	static regions::RegionsInfo &Regions();
 	static regions::RegionMessages &RegionMessages();
+	static system_messages::SystemMessages &SystemMessages();
 	static cities::CityMessages &CityMessages();
 	static player_races::PcRacesInfo &PcRaces();
 	static player_races::RaceMessages &RaceMessages();
