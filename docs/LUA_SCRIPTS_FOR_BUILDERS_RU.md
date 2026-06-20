@@ -358,6 +358,7 @@ Char - это Lua-view персонажа или моба. Все поля read-
 | `ch:teleport(room)` | bool | Перемещает персонажа в комнату. |
 | `ch:equipment(pos)` | Obj или nil | Предмет в слоте экипировки `pos`, как DG `%actor.eq(pos)%`. |
 | `ch:eq(pos)` | Obj или nil | Короткий алиас для `ch:equipment(pos)`. |
+| `ch:have_obj(vnum_or_name)` / `ch:haveobj(...)` | Obj или nil | Lua-аналог DG `%self.haveobj(...)%`: ищет предмет только в инвентаре. Число ищется как VNUM, строка - как видимое имя. |
 | `ch:lag(value)` | bool | Ставит battle lag, как DG `%actor.lag(value)%`. |
 | `ch:lag(10, "p")` | bool | Ставит wait state в пульсах, эквивалент DG `%actor.lag(10p)%`. |
 | `ch:skill(skill_id)` | number | Возвращает значение skill. |

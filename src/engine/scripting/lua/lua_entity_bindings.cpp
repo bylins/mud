@@ -412,6 +412,36 @@ ObjData *GetCharEquipment(const LuaEntityHandle &handle, const sol::object &posi
 	return pos >= 0 && pos < EEquipPos::kNumEquipPos ? GET_EQ(ch, pos) : nullptr;
 }
 
+ObjData *GetCharInventoryObject(const LuaEntityHandle &handle, const sol::object &target)
+{
+	auto *ch = ResolveChar(handle);
+	if (!ch)
+	{
+		return nullptr;
+	}
+
+	if (target.is<int>())
+	{
+		const auto vnum = target.as<int>();
+		for (auto *obj = ch->carrying; obj; obj = obj->get_next_content())
+		{
+			if (GET_OBJ_VNUM(obj) == vnum)
+			{
+				return obj;
+			}
+		}
+		return nullptr;
+	}
+
+	if (target.is<std::string>())
+	{
+		const auto name = target.as<std::string>();
+		return name.empty() ? nullptr : get_obj_in_list_vis(ch, name.c_str(), ch->carrying);
+	}
+
+	return nullptr;
+}
+
 bool CharLag(LuaRuntimeContext runtime, const LuaEntityHandle &handle, const sol::object &value, const sol::object &unit)
 {
 	auto *ch = ResolveChar(handle);
@@ -1378,6 +1408,12 @@ sol::object BuildCharView(sol::state &lua, CharData *ch, LuaRuntimeContext runti
 		{
 			return sol::make_object(lua, sol::as_function([&lua, runtime, handle](sol::object, sol::object position) {
 				return BuildObjView(lua, GetCharEquipment(handle, position), runtime);
+			}));
+		}
+		if (key == "have_obj" || key == "haveobj")
+		{
+			return sol::make_object(lua, sol::as_function([&lua, runtime, handle](sol::object, sol::object target) {
+				return BuildObjView(lua, GetCharInventoryObject(handle, target), runtime);
 			}));
 		}
 		if (key == "lag")
