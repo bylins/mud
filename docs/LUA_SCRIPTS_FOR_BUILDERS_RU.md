@@ -421,6 +421,8 @@ Room - Lua-view комнаты. Все поля read-only.
 | `room:people()` | table | Список Char в комнате, индексация с 1. |
 | `room:objects()` | table | Список Obj в комнате, индексация с 1. |
 | `room:exit(direction)` | Room или nil | Комната по направлению. `direction` может быть числом или строкой. |
+| `room:set_exit(direction, options)` | bool | Создает или изменяет выход. `options`: `flags`, `to_room`, `description`, `key`, `name`, `lock`. `flags` задаются как в DG `wdoor ... flags`. `to_room` можно передать числом-VNUM или Lua-объектом `Room`; если целевая комната не существует, метод вернет `false`. |
+| `room:purge_exit(direction)` | bool | Удаляет выход в направлении, как DG `wdoor ... purge`. |
 | `room:load_obj(vnum)` | Obj или nil | Создает объект в комнате. |
 | `room:load_mob(vnum)` | Char или nil | Создает моба в комнате. |
 | `room:attach_trigger(vnum)` | bool | Прикрепляет room trigger. |

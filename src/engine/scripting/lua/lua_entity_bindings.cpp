@@ -11,6 +11,7 @@
 #include "engine/entities/char_data.h"
 #include "engine/entities/obj_data.h"
 #include "engine/scripting/dg_scripts.h"
+#include "engine/structs/flag_data.h"
 #include "engine/ui/cmd/do_follow.h"
 #include "engine/ui/interpreter.h"
 #include "gameplay/core/constants.h"
@@ -742,6 +743,95 @@ RoomRnum GetRoomExit(const LuaRoomView &view, const sol::object &direction)
 	}
 
 	return world[view.room]->dir_option[dir]->to_room();
+}
+
+bool PurgeRoomExit(const LuaRoomView &view, const sol::object &direction)
+{
+	int dir = 0;
+	if (!IsValidRoom(view) || !GetLuaDirection(direction, dir))
+	{
+		return false;
+	}
+
+	if (world[view.room]->dir_option[dir])
+	{
+		world[view.room]->dir_option[dir].reset();
+	}
+	return true;
+}
+
+bool SetRoomExit(const LuaRoomView &view, const sol::object &direction, const sol::object &options)
+{
+	int dir = 0;
+	if (!IsValidRoom(view) || !GetLuaDirection(direction, dir) || !options.is<sol::table>())
+	{
+		return false;
+	}
+
+	auto exit = world[view.room]->dir_option[dir];
+	if (!exit)
+	{
+		exit = std::make_shared<ExitData>();
+		world[view.room]->dir_option[dir] = exit;
+	}
+
+	bool result = true;
+	sol::table table = options;
+	const sol::object flags = table["flags"];
+	if (flags.is<std::string>())
+	{
+		const auto value = flags.as<std::string>();
+		asciiflag_conv(value.c_str(), &exit->exit_info);
+	}
+
+	const sol::object to_room = table["to_room"];
+	if (to_room.valid() && to_room != sol::lua_nil)
+	{
+		const auto room_rnum = GetRoomFromLua(to_room);
+		if (room_rnum != kNowhere)
+		{
+			exit->to_room(room_rnum);
+		}
+		else
+		{
+			result = false;
+		}
+	}
+
+	const sol::object description = table["description"];
+	if (description.is<std::string>())
+	{
+		exit->general_description = description.as<std::string>() + "\r\n";
+	}
+
+	const sol::object key = table["key"];
+	if (key.is<int>())
+	{
+		exit->key = key.as<int>();
+	}
+
+	const sol::object name = table["name"];
+	if (name.is<std::string>())
+	{
+		const auto value = name.as<std::string>();
+		exit->set_keywords(value.c_str());
+	}
+
+	const sol::object lock = table["lock"];
+	if (lock.is<int>())
+	{
+		const auto value = lock.as<int>();
+		if (value >= 0 && value <= 255)
+		{
+			exit->lock_complexity = value;
+		}
+		else
+		{
+			result = false;
+		}
+	}
+
+	return result;
 }
 
 bool AttachTriggerToRoom(const LuaRoomView &view, const sol::object &vnum)
@@ -1521,6 +1611,18 @@ sol::object BuildRoomView(sol::state &lua, const LuaRoomView &room, bool allow_e
 		{
 			return sol::make_object(lua, sol::as_function([&lua, room, runtime](sol::object, sol::object direction) {
 				return BuildRoomView(lua, LuaRoomView{GetRoomExit(room, direction)}, false, runtime);
+			}));
+		}
+		if (key == "set_exit")
+		{
+			return sol::make_object(lua, sol::as_function([room](sol::object, sol::object direction, sol::object options) {
+				return SetRoomExit(room, direction, options);
+			}));
+		}
+		if (key == "purge_exit")
+		{
+			return sol::make_object(lua, sol::as_function([room](sol::object, sol::object direction) {
+				return PurgeRoomExit(room, direction);
 			}));
 		}
 		if (key == "load_obj")
