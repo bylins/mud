@@ -392,6 +392,98 @@ int GetCharPosition(const LuaEntityHandle &handle)
 	return ch ? static_cast<int>(ch->GetPosition()) : 0;
 }
 
+int GetCharClass(const LuaEntityHandle &handle)
+{
+	auto *ch = ResolveChar(handle);
+	return ch ? to_underlying(ch->GetClass()) : 0;
+}
+
+ObjData *GetCharEquipment(const LuaEntityHandle &handle, const sol::object &position)
+{
+	auto *ch = ResolveChar(handle);
+	if (!ch || !position.is<int>())
+	{
+		return nullptr;
+	}
+
+	const auto pos = position.as<int>();
+	return pos >= 0 && pos < EEquipPos::kNumEquipPos ? GET_EQ(ch, pos) : nullptr;
+}
+
+bool CharLag(LuaRuntimeContext runtime, const LuaEntityHandle &handle, const sol::object &value, const sol::object &unit)
+{
+	auto *ch = ResolveChar(handle);
+	if (!ch)
+	{
+		return LogLuaApiError(runtime, "lag: invalid character");
+	}
+	if (!value.is<int>())
+	{
+		return LogLuaApiError(runtime, "lag: value must be an integer");
+	}
+
+	const auto delay = value.as<int>();
+	if (delay <= 0)
+	{
+		return LogLuaApiError(runtime, "lag: value must be positive");
+	}
+	if (privilege::IsImmortal(ch))
+	{
+		return true;
+	}
+
+	if (unit.get_type() == sol::type::lua_nil)
+	{
+		SetBattleLag(ch, delay);
+		return true;
+	}
+	if (!unit.is<std::string>())
+	{
+		return LogLuaApiError(runtime, "lag: unit must be a string");
+	}
+
+	const auto unit_name = unit.as<std::string>();
+	if (unit_name == "p")
+	{
+		SetWaitState(ch, delay);
+		return true;
+	}
+	if (unit_name == "battle" || unit_name == "round")
+	{
+		SetBattleLag(ch, delay);
+		return true;
+	}
+
+	return LogLuaApiError(runtime, "lag: unsupported unit");
+}
+
+std::string GetCharMessageField(LuaRuntimeContext runtime, const LuaEntityHandle &handle, const sol::object &field)
+{
+	auto *ch = ResolveChar(handle);
+	if (!ch || !field.is<std::string>())
+	{
+		LogLuaApiError(runtime, "message field: invalid arguments");
+		return "";
+	}
+
+	const auto field_name = field.as<std::string>();
+	if (field_name == "iname")
+	{
+		return GET_PAD(ch, 0);
+	}
+	if (field_name == "g")
+	{
+		return grammar::SexEnding(ch->get_sex(), 1);
+	}
+	if (field_name == "u")
+	{
+		return grammar::SexEnding(ch->get_sex(), 2);
+	}
+
+	LogLuaApiError(runtime, "message field: unsupported field");
+	return "";
+}
+
 bool CharHasAffect(const LuaEntityHandle &handle, const sol::object &affect)
 {
 	auto *ch = ResolveChar(handle);
@@ -1129,6 +1221,22 @@ sol::object BuildCharView(sol::state &lua, CharData *ch, LuaRuntimeContext runti
 				return GetCharPosition(handle);
 			}));
 		}
+		if (key == "class")
+		{
+			return sol::make_object(lua, GetCharClass(handle));
+		}
+		if (key == "iname")
+		{
+			return sol::make_object(lua, GetCharMessageField(runtime, handle, sol::make_object(lua, "iname")));
+		}
+		if (key == "g")
+		{
+			return sol::make_object(lua, GetCharMessageField(runtime, handle, sol::make_object(lua, "g")));
+		}
+		if (key == "u")
+		{
+			return sol::make_object(lua, GetCharMessageField(runtime, handle, sol::make_object(lua, "u")));
+		}
 		if (key == "has_affect")
 		{
 			return sol::make_object(lua, sol::as_function([handle](sol::object, sol::object affect) {
@@ -1151,6 +1259,24 @@ sol::object BuildCharView(sol::state &lua, CharData *ch, LuaRuntimeContext runti
 		{
 			return sol::make_object(lua, sol::as_function([handle](sol::object, sol::object room) {
 				return TeleportChar(handle, room);
+			}));
+		}
+		if (key == "equipment" || key == "eq")
+		{
+			return sol::make_object(lua, sol::as_function([&lua, runtime, handle](sol::object, sol::object position) {
+				return BuildObjView(lua, GetCharEquipment(handle, position), runtime);
+			}));
+		}
+		if (key == "lag")
+		{
+			return sol::make_object(lua, sol::as_function([&lua, runtime, handle](
+				sol::object,
+				sol::object value,
+				sol::variadic_args args) {
+				const sol::object unit = args.size() > 0
+					? static_cast<sol::object>(args[0])
+					: sol::make_object(lua, sol::lua_nil);
+				return CharLag(runtime, handle, value, unit);
 			}));
 		}
 		if (key == "skill")

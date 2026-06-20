@@ -321,6 +321,10 @@ Char - это Lua-view персонажа или моба. Все поля read-
 | `ch.room` | Room или nil | Текущая комната. |
 | `ch.room_vnum` | number | VNUM текущей комнаты или 0. |
 | `ch.is_npc` | bool | `true` для NPC. Это поле, не функция. |
+| `ch.class` | number | Числовой ID класса, как DG `%actor.class%`. |
+| `ch.iname` | string | Именительный падеж имени, как DG `%actor.iname%`. |
+| `ch.g` | string | DG-окончание `%actor.g%`. |
+| `ch.u` | string | DG-окончание `%actor.u%`. |
 | `ch.context` | Context или nil | Переменные DG-контекста владельца. |
 
 ### Методы
@@ -336,6 +340,10 @@ Char - это Lua-view персонажа или моба. Все поля read-
 | `ch:can_see(target)` | bool | Видит ли `ch` другого персонажа. |
 | `ch:enemy()` | Char или nil | Текущий противник. |
 | `ch:teleport(room)` | bool | Перемещает персонажа в комнату. |
+| `ch:equipment(pos)` | Obj или nil | Предмет в слоте экипировки `pos`, как DG `%actor.eq(pos)%`. |
+| `ch:eq(pos)` | Obj или nil | Короткий алиас для `ch:equipment(pos)`. |
+| `ch:lag(value)` | bool | Ставит battle lag, как DG `%actor.lag(value)%`. |
+| `ch:lag(10, "p")` | bool | Ставит wait state в пульсах, эквивалент DG `%actor.lag(10p)%`. |
 | `ch:skill(skill_id)` | number | Возвращает значение skill. |
 | `ch:skill(skill_id, value)` | number | Устанавливает skill и возвращает значение. |
 | `ch:feat(feat_id)` | bool | Проверяет feat. |
