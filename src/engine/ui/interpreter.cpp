@@ -796,7 +796,6 @@ cpp_extern const struct command_info cmd_info[] =
 		{"group", EPosition::kRest, do_group, 1, 0, 500},
 		{"gsay", EPosition::kSleep, do_gsay, 0, 0, -1},
 		{"gtell", EPosition::kSleep, do_gsay, 0, 0, -1},
-		{"handbook", EPosition::kDead, DoGenericPage, kLvlImmortal, kScmdHandbook, 0},
 		{"hcontrol", EPosition::kDead, ClanSystem::DoHcontrol, kLvlGreatGod, 0, 0},
 		{"help", EPosition::kDead, do_help, 0, 0, 0},
 		{"hell", EPosition::kDead, DoWizutil, kLvlGod, kScmdHell, 0},

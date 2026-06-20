@@ -12,7 +12,6 @@
 class CharData;
 
 extern const int kScmdInfo;
-extern const int kScmdHandbook;
 extern const int kScmdCredits;
 extern const int kScmdPolicies;
 extern const int kScmdVersion;

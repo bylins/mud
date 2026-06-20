@@ -31,7 +31,6 @@
 #include <fmt/format.h>
 #include "administration/proxy.h"
 
-extern char *handbook;
 extern char *help;
 
 void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
@@ -50,14 +49,13 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			"  systems  : portals imagic oloadtable specials schedule clan proxy boards\r\n"
 			"             globaldrop offtop shop named celebrates setsdrop remort daily resetstats\r\n"
 			"             digging guards jewelry makeitems basic cases\r\n"
-			"  text     : systemmsg help handbook xhelp socials noobhelp titles emails privilege\r\n"
+			"  text     : systemmsg help xhelp socials noobhelp titles emails privilege\r\n"
 			"  depot <char-name>\r\n", ch);
 		return;
 	}
 
 	if (!str_cmp(arg, "all") || *arg == '*') {
 		AllocateBufferForFile(HELP_PAGE_FILE, &help);
-		AllocateBufferForFile(HANDBOOK_FILE, &handbook);
 		MUD::CfgManager().ReloadCfg("system_msg");
 		MUD::CfgManager().ReloadCfg("social_msg");
 		initIngredientsMagic();
@@ -133,8 +131,6 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		MUD::CfgManager().ReloadCfg("system_msg");
 	else if (!str_cmp(arg, "help"))
 		AllocateBufferForFile(HELP_PAGE_FILE, &help);
-	else if (!str_cmp(arg, "handbook"))
-		AllocateBufferForFile(HANDBOOK_FILE, &handbook);
 	else if (!str_cmp(arg, "xhelp")) {
 		HelpSystem::reload_all();
 	} else if (!str_cmp(arg, "socials"))

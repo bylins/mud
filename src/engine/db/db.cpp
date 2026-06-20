@@ -145,7 +145,6 @@ RoomRnum r_helled_start_room;
 RoomRnum r_named_start_room;
 RoomRnum r_unreg_start_room;
 
-char *handbook{nullptr};        // handbook for new immortals
 
 char *help{nullptr};        // help screen
 
@@ -638,7 +637,6 @@ void BootMudDataBase() {
 	boot_profiler.next_step("Reading credits, help, bground, info & motds.");
 	log("Reading credits, help, bground, info & motds.");
 	AllocateBufferForFile(HELP_PAGE_FILE, &help);
-	AllocateBufferForFile(HANDBOOK_FILE, &handbook);
 	MUD::CfgManager().LoadCfg("system_msg");
 
 	boot_profiler.next_step("Loading currencies cfg.");

@@ -115,7 +115,6 @@ enum SetStuffMode {
 #define PLAYER_Z_PREFIX LIB_PLRS "" LIB_Z
 
 #define HELP_PAGE_FILE    LIB_TEXT_HELP "screen"    // for HELP <CR>
-#define HANDBOOK_FILE    LIB_TEXT "handbook"    // handbook for new immorts
 
 #define PROXY_FILE        LIB_MISC "proxy"    // register proxy list
 #define XNAME_FILE      LIB_MISC "xnames"    // invalid name substrings

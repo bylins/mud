@@ -12,7 +12,6 @@
 #include "engine/ui/system_messages.h"
 
 const int kScmdInfo{0};
-const int kScmdHandbook{1};
 const int kScmdCredits{2};
 const int kScmdPolicies{3};
 const int kScmdVersion{4};
@@ -22,8 +21,7 @@ const int kScmdRules{7};
 const int kScmdClear{8};
 
 // credits/info/motd/immlist/policies and immortal rules moved to the system-message
-// container (system_messages::GetText). handbook stays on the old lib/text loader.
-extern char *handbook;
+// container (system_messages::GetText); the dead "handbook" command was removed.
 
 extern void ShowBuildInfo(CharData *ch);
 
@@ -34,8 +32,6 @@ void DoGenericPage(CharData *ch, char * /*argument*/, int/* cmd*/, int subcmd) {
 		case kScmdInfo: page_string(ch->desc, system_messages::GetText(system_messages::ESystemMsg::kInfo));
 			break;
 		case kScmdImmlist: page_string(ch->desc, system_messages::GetText(system_messages::ESystemMsg::kImmList));
-			break;
-		case kScmdHandbook: page_string(ch->desc, handbook, 0);
 			break;
 		case kScmdPolicies: page_string(ch->desc, system_messages::GetText(system_messages::ESystemMsg::kPolicies));
 			break;
