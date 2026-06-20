@@ -336,20 +336,22 @@ void CurrencyInfo::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 		<< "\r\n";
 }
 
+static const std::string kCurrencyNoName;
+
 const std::string &CurrencyInfo::GetName(grammar::ECase name_case) const {
-	return names_->GetSingular(name_case);
+	return names_ ? names_->GetSingular(name_case) : kCurrencyNoName;
 }
 
 const std::string &CurrencyInfo::GetPluralName(grammar::ECase name_case) const {
-	return names_->GetPlural(name_case);
+	return names_ ? names_->GetPlural(name_case) : kCurrencyNoName;
 }
 
 const char *CurrencyInfo::GetCName(grammar::ECase name_case) const {
-	return names_->GetSingular(name_case).c_str();
+	return names_ ? names_->GetSingular(name_case).c_str() : "";
 }
 
 const char *CurrencyInfo::GetPluralCName(grammar::ECase name_case) const {
-	return names_->GetPlural(name_case).c_str();
+	return names_ ? names_->GetPlural(name_case).c_str() : "";
 }
 
 const std::string &CurrencyInfo::GetNameWithAmount(long amount, grammar::ECase one_case) const {
