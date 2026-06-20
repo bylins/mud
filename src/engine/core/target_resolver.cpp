@@ -3,6 +3,7 @@
 */
 
 #include "target_resolver.h"
+#include "engine/core/target_resolver.h"
 #include "administration/privilege.h"
 #include "gameplay/mechanics/minions.h"
 

@@ -1,4 +1,5 @@
 #include "scenario_runner.h"
+#include "engine/core/target_resolver.h"
 #include "gameplay/mechanics/follow.h"
 
 #include "engine/core/char_equip_flags.h"
