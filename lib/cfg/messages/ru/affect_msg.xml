@@ -407,4 +407,7 @@
 	<msg_sheaf id="kPhysdamageBonus">
 		<message type="kShortDesc" val="точность"/>
 	</msg_sheaf>
+	<msg_sheaf id="kSuspiciousness">
+		<message type="kShortDesc" val="подозрительность"/>
+	</msg_sheaf>
 </msg_container>

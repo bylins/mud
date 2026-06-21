@@ -5,7 +5,7 @@ void CheckDeathRage(CharData *ch) {
 	struct TimedFeat timed;
 	int prob;
 
-	if (IsAffectedBySpell(ch, ESpell::kBerserk) &&
+	if (AffSuccessFlagged(ch, ESpell::kBerserk) &&
 		(ch->get_hit() > ch->get_real_max_hit() / 2)) {
 		RemoveAffectFromChar(ch, ESpell::kBerserk);
 		SendMsgToChar("Предсмертное исступление оставило вас.\r\n", ch);
@@ -33,7 +33,8 @@ void CheckDeathRage(CharData *ch) {
 			act("$n0 исступленно взвыл$g и бросил$u на противника!", false, ch, nullptr, vict, kToNotVict);
 			act("$n0 исступленно взвыл$g и бросил$u на вас!", false, ch, nullptr, vict, kToVict);
 		} else {
-			af.affect_type = EAffect::kUndefined;
+			af.affect_type = EAffect::kBerserk;
+			af.battleflag = kAfFailed;
 			act("Вы истошно завопили, пытаясь напугать противника. Без толку.", false, ch, nullptr, nullptr, kToChar);
 			act("$n0 истошно завопил$g, пытаясь напугать противника. Забавно...", false, ch, nullptr, vict, kToNotVict);
 			act("$n0 истошно завопил$g, пытаясь напугать вас. Забавно...", false, ch, nullptr, vict, kToVict);

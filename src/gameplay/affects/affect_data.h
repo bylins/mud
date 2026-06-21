@@ -110,6 +110,9 @@ void affect_to_char(CharData *ch, const Affect<EApply> &af);
 void RemoveAffectFromChar(CharData *ch, ESpell spell_id);
 void RemoveAffectFromCharAndRecalculate(CharData *ch, ESpell spell_id);
 bool IsAffectedBySpell(CharData *ch, ESpell type);
+// Like IsAffectedBySpell, but ignores failed-attempt markers (affects carrying kAfFailed):
+// returns true only when ch has a full-fledged, working affect of this spell type.
+bool AffSuccessFlagged(CharData *ch, ESpell type);
 bool IsAffectedBySpellWithCasterId(CharData *ch, CharData *vict, ESpell type);
 void ImposeAffect(CharData *ch, const Affect<EApply> &af);
 void ImposeAffect(CharData *ch, Affect<EApply> &af, bool add_dur, bool max_dur, bool add_mod, bool max_mod);

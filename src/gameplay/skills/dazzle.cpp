@@ -105,6 +105,7 @@ void GoDazzle(CharData *ch, CharData *vict) {
 	af2.duration = 5;
 	af2.battleflag = kNone;
 	af2.caster_id = ch->get_uid();
+	af2.affect_type = EAffect::kSuspiciousness;
 
 	target_resolver::FoesRosterType roster{ch};
 	for (const auto target: roster) {

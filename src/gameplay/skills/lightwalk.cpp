@@ -15,7 +15,7 @@ void DoLightwalk(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if (IsAffectedBySpell(ch, ESpell::kLightWalk)) {
+	if (AffSuccessFlagged(ch, ESpell::kLightWalk)) {
 		SendMsgToChar("Вы уже двигаетесь легким шагом.\r\n", ch);
 		return;
 	}
@@ -38,7 +38,8 @@ void DoLightwalk(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/)
 	af.location = EApply::kNone;
 	af.battleflag = 0;
 	if (number(1, 1000) > number(1, GetRealDex(ch) * 50)) {
-		af.affect_type = EAffect::kUndefined;
+		af.affect_type = EAffect::kLightWalk;
+		af.battleflag = kAfFailed;
 		SendMsgToChar("Вам не хватает ловкости...\r\n", ch);
 	} else {
 		af.affect_type = EAffect::kLightWalk;

@@ -26,7 +26,8 @@ enum EAffFlag : Bitvector {
   kAfDispellable		= 1u << 7,	// аффект можно снять магией (источник истины для CheckNodispel)
   kAfCurable			= 1u << 8,	// аффект можно вылечить (первая помощь и будущая механика лечения)
   kAfMustBeHandled		= 1u << 9,	// у аффекта есть периодический обработчик в коде (room-affect tick, см. HandleRoomAffect) -- бывший Affect::must_handled
-  kAfUnique				= 1u << 10	// перед наложением снять предыдущий аффект этого же типа от того же кастера (room-affect "только один в мире") -- бывший локальный only_one в CallMagicToRoom
+  kAfUnique				= 1u << 10,	// перед наложением снять предыдущий аффект этого же типа от того же кастера (room-affect "только один в мире") -- бывший локальный only_one в CallMagicToRoom
+  kAfFailed				= 1u << 11	// the affect is a failed-attempt marker: it carries the success affect_type but must NOT count as the real effect (the affect_total rebuild skips its flag bit; query via AffSuccessFlagged)
 };
 
 /**
@@ -160,6 +161,7 @@ enum class EAffect : Bitvector {
 	kConcentration = 123,
 	kBattleLuck = 124,
 	kPhysdamageBonus = 125,
+	kSuspiciousness = 126,
 };
 
 // --- BitsetFlags integration for EAffect ----------------------------------------------------------
@@ -169,7 +171,7 @@ enum class EAffect : Bitvector {
 // BitsetFlags<EAffect> stays byte-identical to the old FlagData on disk. count = 89 distinct bits.
 template<>
 struct flag_traits<EAffect> {
-	static constexpr std::size_t count = 125;
+	static constexpr std::size_t count = 126;
 };
 template<>
 struct flag_index_mapping<EAffect> {

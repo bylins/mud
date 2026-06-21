@@ -38,7 +38,8 @@ void do_sneak(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	af.location = EApply::kNone;
 	af.battleflag = 0;
 	if (percent > prob) {
-		af.affect_type = EAffect::kUndefined;
+		af.affect_type = EAffect::kSneak;
+		af.battleflag = kAfFailed;
 	} else {
 		af.affect_type = EAffect::kSneak;
 	}

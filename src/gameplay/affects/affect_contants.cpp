@@ -162,6 +162,7 @@ void init_EAffectFlag_ITEM_NAMES() {
 	EAffectFlag_name_by_value[EAffect::kConcentration] = "kConcentration";
 	EAffectFlag_name_by_value[EAffect::kBattleLuck] = "kBattleLuck";
 	EAffectFlag_name_by_value[EAffect::kPhysdamageBonus] = "kPhysdamageBonus";
+	EAffectFlag_name_by_value[EAffect::kSuspiciousness] = "kSuspiciousness";
 	for (const auto &i : EAffectFlag_name_by_value) {
 		EAffectFlag_value_by_name[i.second] = i.first;
 	}
@@ -512,6 +513,7 @@ void init_EAffFlag_ITEM_NAMES() {
 	EAffFlag_name_by_value[EAffFlag::kAfCurable] = "kAfCurable";
 	EAffFlag_name_by_value[EAffFlag::kAfMustBeHandled] = "kAfMustBeHandled";
 	EAffFlag_name_by_value[EAffFlag::kAfUnique] = "kAfUnique";
+	EAffFlag_name_by_value[EAffFlag::kAfFailed] = "kAfFailed";
 
 	for (const auto &i : EAffFlag_name_by_value) {
 		EAffFlag_value_by_name[i.second] = i.first;

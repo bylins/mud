@@ -41,8 +41,8 @@ void DoHidemove(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		af.duration = 1;
 		const int calculated_skill = CalcCurrentSkill(ch, ESkill::kSneak, nullptr);
 		const int chance = number(1, MUD::Skill(ESkill::kSneak).difficulty);
-		af.affect_type = (chance < calculated_skill) ? EAffect::kSneak : EAffect::kUndefined;
-		af.battleflag = 0;
+		af.affect_type = EAffect::kSneak;
+		af.battleflag = (chance < calculated_skill) ? 0 : kAfFailed;
 		ImposeAffect(ch, af, false, false, false, false);
 	}
 	PerformMove(ch, dir, 0, true, nullptr);

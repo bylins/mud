@@ -776,7 +776,12 @@ void affect_total(CharData *ch) {
 
 	// move affect modifiers
 	for (const auto &af : ch->affected) {
-		affect_modify(ch, af->location, af->modifier, af->affect_type, true);
+		// Failed-attempt markers (kAfFailed) keep the success affect_type for identity/display,
+		// but must NOT raise the affected_by flag bit -- otherwise a botched hide/berserk would
+		// read as the real effect everywhere AFF_FLAGGED is checked. Apply the modifier (a no-op
+		// for these markers: location kNone) without the flag.
+		const EAffect bitv = IS_SET(af->battleflag, kAfFailed) ? EAffect::kUndefined : af->affect_type;
+		affect_modify(ch, af->location, af->modifier, bitv, true);
 	}
 
 	// move race and class modifiers
@@ -1235,6 +1240,24 @@ bool IsAffectedBySpell(CharData *ch, ESpell type) {
 
 	for (const auto &affect : ch->affected) {
 		if (affect->type == type) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool AffSuccessFlagged(CharData *ch, ESpell type) {
+	if (type == ESpell::kPowerHold) {
+		type = ESpell::kHold;
+	} else if (type == ESpell::kPowerSilence) {
+		type = ESpell::kSilence;
+	} else if (type == ESpell::kPowerBlindness) {
+		type = ESpell::kBlindness;
+	}
+
+	for (const auto &affect : ch->affected) {
+		if (affect->type == type && !IS_SET(affect->battleflag, kAfFailed)) {
 			return true;
 		}
 	}

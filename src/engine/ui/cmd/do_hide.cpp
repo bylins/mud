@@ -55,7 +55,8 @@ void do_hide(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	af.battleflag = 0;
 
 	if (percent > prob) {
-		af.affect_type = EAffect::kUndefined;
+		af.affect_type = EAffect::kHide;
+		af.battleflag = kAfFailed;
 	} else {
 		af.affect_type = EAffect::kHide;
 	}
