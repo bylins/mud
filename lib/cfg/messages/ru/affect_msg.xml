@@ -6,7 +6,7 @@
     For standalone affects (cocoon/glow/status) kLook is a complete "...line "; for grouped affects
     (shields/auras) kLook is a bare fragment the frame joins. $a = looked-at char gender suffix.
 -->
-<affect_msg>
+<msg_container>
 	<msg_sheaf id="kDefault">
 		<message type="kShieldFrame" val="...окружен$a {list} {noun} "/>
 		<message type="kShieldNoun" val="щитом"/>
@@ -299,4 +299,112 @@
 	<msg_sheaf id="kFrenzy">
 		<message type="kShortDesc" val="исступление"/>
 	</msg_sheaf>
-</affect_msg>
+	<msg_sheaf id="kMagicArmor">
+		<message type="kShortDesc" val="магическая защита"/>
+	</msg_sheaf>
+	<msg_sheaf id="kShivering">
+		<message type="kShortDesc" val="озноб"/>
+	</msg_sheaf>
+	<msg_sheaf id="kDespodency">
+		<message type="kShortDesc" val="упадок сил"/>
+	</msg_sheaf>
+	<msg_sheaf id="kMagicStrength">
+		<message type="kShortDesc" val="волшебная сила"/>
+	</msg_sheaf>
+	<msg_sheaf id="kPatronage">
+		<message type="kShortDesc" val="покровительство"/>
+	</msg_sheaf>
+	<msg_sheaf id="kStoneSkin">
+		<message type="kShortDesc" val="каменная кожа"/>
+	</msg_sheaf>
+	<msg_sheaf id="kMagicWeaknes">
+		<message type="kShortDesc" val="колдовская слабость"/>
+	</msg_sheaf>
+	<msg_sheaf id="kEnlarge">
+		<message type="kShortDesc" val="увеличение"/>
+	</msg_sheaf>
+	<msg_sheaf id="kMagicShield">
+		<message type="kShortDesc" val="волшебный щит"/>
+	</msg_sheaf>
+	<msg_sheaf id="kForbidden">
+		<message type="kShortDesc" val="магическая печать"/>
+	</msg_sheaf>
+	<msg_sheaf id="kFrostbite">
+		<message type="kShortDesc" val="обморожение"/>
+	</msg_sheaf>
+	<msg_sheaf id="kSlowdown">
+		<message type="kShortDesc" val="колдовское замедление"/>
+	</msg_sheaf>
+	<msg_sheaf id="kFever">
+		<message type="kShortDesc" val="лихорадка"/>
+	</msg_sheaf>
+	<msg_sheaf id="kFastRegeneration">
+		<message type="kShortDesc" val="быстрое восстановление"/>
+	</msg_sheaf>
+	<msg_sheaf id="kLessening">
+		<message type="kShortDesc" val="уменьшение"/>
+	</msg_sheaf>
+	<msg_sheaf id="kMadness">
+		<message type="kShortDesc" val="безумие"/>
+	</msg_sheaf>
+	<msg_sheaf id="kMindless">
+		<message type="kShortDesc" val="повреждение разума"/>
+	</msg_sheaf>
+	<msg_sheaf id="kFascination">
+		<message type="kShortDesc" val="призматическая аура"/>
+	</msg_sheaf>
+	<msg_sheaf id="kContusion">
+		<message type="kShortDesc" val="контузия"/>
+	</msg_sheaf>
+	<msg_sheaf id="kStoneBones">
+		<message type="kShortDesc" val="каменные кости"/>
+	</msg_sheaf>
+	<msg_sheaf id="kFailure">
+		<message type="kShortDesc" val="недоля"/>
+	</msg_sheaf>
+	<msg_sheaf id="kCatGrace">
+		<message type="kShortDesc" val="ловкость кошки"/>
+	</msg_sheaf>
+	<msg_sheaf id="kBullBody">
+		<message type="kShortDesc" val="бычье тело"/>
+	</msg_sheaf>
+	<msg_sheaf id="kSnakeWisdom">
+		<message type="kShortDesc" val="мудрость змеи"/>
+	</msg_sheaf>
+	<msg_sheaf id="kGimmicry">
+		<message type="kShortDesc" val="хитроумие"/>
+	</msg_sheaf>
+	<msg_sheaf id="kIndecision">
+		<message type="kShortDesc" val="нерешительность"/>
+	</msg_sheaf>
+	<msg_sheaf id="kInsanity">
+		<message type="kShortDesc" val="помешательство"/>
+	</msg_sheaf>
+	<msg_sheaf id="kRousing">
+		<message type="kShortDesc" val="решительность"/>
+	</msg_sheaf>
+	<msg_sheaf id="kPassion">
+		<message type="kShortDesc" val="вдохновение боя"/>
+	</msg_sheaf>
+	<msg_sheaf id="kSurgeOfPower">
+		<message type="kShortDesc" val="прилив сил"/>
+	</msg_sheaf>
+	<msg_sheaf id="kSurgeOfValour">
+		<message type="kShortDesc" val="доблесть"/>
+	</msg_sheaf>
+	<msg_sheaf id="kBattleCourage">
+		<message type="kShortDesc" val="отвага"/>
+	</msg_sheaf>
+	<msg_sheaf id="kInspiration">
+		<message type="kShortDesc" val="воодушевление"/>
+	</msg_sheaf>
+	<msg_sheaf id="kConcentration">
+		<message type="kShortDesc" val="сосредоточенность"/>
+	</msg_sheaf>
+	<msg_sheaf id="kBattleLuck">
+		<message type="kShortDesc" val="удача в бою"/>
+	</msg_sheaf>
+	<msg_sheaf id="kPhysdamageBonus">
+		<message type="kShortDesc" val="точность"/>
+	</msg_sheaf>
+</msg_container>

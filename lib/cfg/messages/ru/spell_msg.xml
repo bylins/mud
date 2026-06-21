@@ -9,7 +9,7 @@
 	type сообщения (message) - значение ESpellMsg; текст в атрибуте val.
 
 -->
-<spell_msg>
+<msg_container>
 	<!-- Ветвь по умолчанию: сюда позже переедут сообщения, общие для всех
 	     заклинаний (проверки позиции каста и т.п. из magic_utils.cpp). -->
 	<msg_sheaf id="kDefault">
@@ -2905,4 +2905,4 @@
 	<msg_sheaf id="kTestFive">
 		<name val="тест 5" />
 	</msg_sheaf>
-</spell_msg>
+</msg_container>

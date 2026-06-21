@@ -123,6 +123,43 @@ enum class EAffect : Bitvector {
 	kNoCharge = 87,
 	kInjured = 88,
 	kFrenzy = 89,
+	// issue.affect-migration: per-spell affects (each spell gets its own flag).
+	kMagicArmor = 90,
+	kShivering = 91,
+	kDespodency = 92,
+	kMagicStrength = 93,
+	kPatronage = 94,
+	kStoneSkin = 95,
+	kMagicWeaknes = 96,
+	kEnlarge = 97,
+	kMagicShield = 98,
+	kForbidden = 99,
+	kFrostbite = 100,
+	kSlowdown = 101,
+	kFever = 102,
+	kFastRegeneration = 103,
+	kLessening = 104,
+	kMadness = 105,
+	kMindless = 106,
+	kFascination = 107,
+	kContusion = 108,
+	kStoneBones = 109,
+	kFailure = 110,
+	kCatGrace = 111,
+	kBullBody = 112,
+	kSnakeWisdom = 113,
+	kGimmicry = 114,
+	kIndecision = 115,
+	kInsanity = 116,
+	kRousing = 117,
+	kPassion = 118,
+	kSurgeOfPower = 119,
+	kSurgeOfValour = 120,
+	kBattleCourage = 121,
+	kInspiration = 122,
+	kConcentration = 123,
+	kBattleLuck = 124,
+	kPhysdamageBonus = 125,
 };
 
 // --- BitsetFlags integration for EAffect ----------------------------------------------------------
@@ -132,7 +169,7 @@ enum class EAffect : Bitvector {
 // BitsetFlags<EAffect> stays byte-identical to the old FlagData on disk. count = 89 distinct bits.
 template<>
 struct flag_traits<EAffect> {
-	static constexpr std::size_t count = 89;
+	static constexpr std::size_t count = 125;
 };
 template<>
 struct flag_index_mapping<EAffect> {
