@@ -106,9 +106,9 @@ void PlaceCharToRoom(CharData *ch, RoomRnum room) {
 
 	ch->in_room = room;
 	CheckLight(ch, kLightNo, kLightNo, kLightNo, kLightNo, 1);
-	ch->Temporary.unset(EXTRA_FAILHIDE);
-	ch->Temporary.unset(EXTRA_FAILSNEAK);
-	ch->Temporary.unset(EXTRA_FAILCAMOUFLAGE);
+	ch->Temporary.unset(ECharExtraFlag::kFailHide);
+	ch->Temporary.unset(ECharExtraFlag::kFailSneak);
+	ch->Temporary.unset(ECharExtraFlag::kFailCamouflage);
 	if (ch->IsFlagged(EPrf::kCoderinfo)) {
 		sprintf(buf,
 				"%sКомната=%s%d %sСвет=%s%d %sОсвещ=%s%d %sКостер=%s%d %sЛед=%s%d "

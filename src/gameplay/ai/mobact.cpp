@@ -409,7 +409,7 @@ CharData *find_best_stupidmob_victim(CharData *ch, int extmode) {
 		// skip sneaking, hiding and camouflaging pc
 		if (IS_SET(extmode, SKIP_SNEAKING)) {
 			SkipSneaking(vict, ch);
-			if (((vict)->Temporary.get(EXTRA_FAILSNEAK))) {
+			if (((vict)->Temporary.get(ECharExtraFlag::kFailSneak))) {
 				AFF_FLAGS(vict).unset(EAffect::kSneak);
 			}
 			if (AFF_FLAGGED(vict, EAffect::kSneak))
@@ -418,14 +418,14 @@ CharData *find_best_stupidmob_victim(CharData *ch, int extmode) {
 
 		if (IS_SET(extmode, SKIP_HIDING)) {
 			SkipHiding(vict, ch);
-			if ((vict)->Temporary.get(EXTRA_FAILHIDE)) {
+			if ((vict)->Temporary.get(ECharExtraFlag::kFailHide)) {
 				AFF_FLAGS(vict).unset(EAffect::kHide);
 			}
 		}
 
 		if (IS_SET(extmode, SKIP_CAMOUFLAGE)) {
 			SkipCamouflage(vict, ch);
-			if ((vict)->Temporary.get(EXTRA_FAILCAMOUFLAGE)) {
+			if ((vict)->Temporary.get(ECharExtraFlag::kFailCamouflage)) {
 				AFF_FLAGS(vict).unset(EAffect::kDisguise);
 			}
 		}
@@ -557,7 +557,7 @@ bool filter_victim (CharData *ch, CharData *vict, int extmode) {
 	}
 	if (IS_SET(extmode, SKIP_SNEAKING)) {
 		SkipSneaking(vict, ch);
-		if ((vict)->Temporary.get(EXTRA_FAILSNEAK)) {
+		if ((vict)->Temporary.get(ECharExtraFlag::kFailSneak)) {
 			AFF_FLAGS(vict).unset(EAffect::kSneak);
 		}
 
@@ -567,14 +567,14 @@ bool filter_victim (CharData *ch, CharData *vict, int extmode) {
 	}
 	if (IS_SET(extmode, SKIP_HIDING)) {
 		SkipHiding(vict, ch);
-		if ((vict)->Temporary.get(EXTRA_FAILHIDE)) {
+		if ((vict)->Temporary.get(ECharExtraFlag::kFailHide)) {
 			AFF_FLAGS(vict).unset(EAffect::kHide);
 		}
 	}
 
 	if (IS_SET(extmode, SKIP_CAMOUFLAGE)) {
 		SkipCamouflage(vict, ch);
-		if ((vict)->Temporary.get(EXTRA_FAILCAMOUFLAGE)) {
+		if ((vict)->Temporary.get(ECharExtraFlag::kFailCamouflage)) {
 			AFF_FLAGS(vict).unset(EAffect::kDisguise);
 		}
 	}

@@ -47,7 +47,7 @@ void do_camouflage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*
 	}
 
 	SendMsgToChar("Вы начали усиленно маскироваться.\r\n", ch);
-	ch->Temporary.unset(EXTRA_FAILCAMOUFLAGE);
+	ch->Temporary.unset(ECharExtraFlag::kFailCamouflage);
 	percent = number(1, MUD::Skill(ESkill::kDisguise).difficulty);
 	prob = CalcCurrentSkill(ch, ESkill::kDisguise, nullptr);
 

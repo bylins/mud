@@ -23,7 +23,7 @@ int SkipHiding(CharData *ch, CharData *vict) {
 			SendMsgToChar("Вы попытались спрятаться, но ваша экипировка выдала вас.\r\n", ch);
 			RemoveAffectFromChar(ch, ESpell::kHide);
 			MakeVisible(ch, EAffect::kHide);
-			ch->Temporary.set(EXTRA_FAILHIDE);
+			ch->Temporary.set(ECharExtraFlag::kFailHide);
 		} else if (IsAffectedBySpell(ch, ESpell::kHide)) {
 			if (AFF_FLAGGED(vict, EAffect::kDetectLife)) {
 				act("$N почувствовал$G ваше присутствие.", false, ch, nullptr, vict, kToChar);
@@ -53,7 +53,7 @@ int SkipCamouflage(CharData *ch, CharData *vict) {
 			SendMsgToChar("Вы попытались замаскироваться, но ваша экипировка выдала вас.\r\n", ch);
 			RemoveAffectFromChar(ch, ESpell::kCamouflage);
 			MakeVisible(ch, EAffect::kDisguise);
-			ch->Temporary.set(EXTRA_FAILCAMOUFLAGE);
+			ch->Temporary.set(ECharExtraFlag::kFailCamouflage);
 		} else if (IsAffectedBySpell(ch, ESpell::kCamouflage)) {
 			if (AFF_FLAGGED(vict, EAffect::kDetectLife)) {
 				act("$N почувствовал$G ваше присутствие.", false, ch, nullptr, vict, kToChar);

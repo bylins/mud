@@ -43,7 +43,7 @@ void do_hide(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	SendMsgToChar("Хорошо, вы попытаетесь спрятаться.\r\n", ch);
-	ch->Temporary.unset(EXTRA_FAILHIDE);
+	ch->Temporary.unset(ECharExtraFlag::kFailHide);
 	percent = number(1, MUD::Skill(ESkill::kHide).difficulty);
 	prob = CalcCurrentSkill(ch, ESkill::kHide, nullptr);
 

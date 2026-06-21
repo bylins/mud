@@ -13,6 +13,7 @@
 #include "gameplay/mechanics/dead_load.h"
 #include "engine/db/db.h"
 #include "entities_constants.h"
+#include "engine/structs/bitset_flags.h"
 #include "room_data.h"
 #include "obj_data.h"
 #include "engine/scripting/dg_scripts.h"
@@ -698,7 +699,7 @@ class CharData : public ProtectedCharData {
 	bool check_aggressive;
 	int extract_timer;
 
-	FlagData Temporary;
+	BitsetFlags<ECharExtraFlag> Temporary;
 
 	int initiative;
 	int battle_counter;
