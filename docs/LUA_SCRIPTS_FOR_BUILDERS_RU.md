@@ -425,12 +425,24 @@ Obj - Lua-view объекта. Все поля read-only.
 | --- | --- | --- |
 | `obj:is_valid()` | bool | Проверяет, что объект еще существует и не extracted. |
 | `obj:purge()` | bool | Удаляет объект из мира. |
+| `obj:val(index)` | number | Читает старый object value по индексу 0..3, как DG `%obj.val0%`..`%obj.val3%`. |
+| `obj:val(index, value)` | number | Устанавливает старый object value по индексу 0..3 и возвращает итоговое значение, как DG `%obj.valN(value)%`. |
 | `obj:move_to_room(room)` | bool | Перемещает объект в комнату. |
 | `obj:give_to(char)` | bool | Тихо кладет объект в инвентарь персонажа. Не показывает `give`-сообщения. |
 | `obj:attach_trigger(vnum)` | bool | Прикрепляет object trigger. |
 | `obj:detach_trigger(vnum)` | bool | Снимает object trigger. |
 
 Важно: `obj:give_to(char)` не равен игровой команде `give`. Если нужны обычные сообщения и give/receive-триггеры, загрузите объект в инвентарь моба и используйте `mud.force(mob, "give ...")`.
+
+DG-паттерн `%LoadedUid.valN(...)%` после `oload` переносится через объект, который вернул `load_obj`:
+
+```lua
+local scroll = ctx.room:load_obj(11026)
+if scroll then
+  scroll:val(0, skill_id)
+  scroll:val(1, 1)
+end
+```
 
 ## Room
 

@@ -1405,6 +1405,27 @@ int GetObjTimer(const LuaEntityHandle &handle)
 	return obj ? obj->get_timer() : 0;
 }
 
+int ObjVal(const LuaEntityHandle &handle, const sol::object &index, const sol::object &value)
+{
+	auto *obj = ResolveObj(handle);
+	if (!obj || !index.is<int>())
+	{
+		return 0;
+	}
+
+	const auto val_index = index.as<int>();
+	if (val_index < 0 || val_index > 3)
+	{
+		return 0;
+	}
+
+	if (value.is<int>())
+	{
+		obj->set_val(static_cast<size_t>(val_index), value.as<int>());
+	}
+	return GET_OBJ_VAL(obj, static_cast<size_t>(val_index));
+}
+
 bool PurgeCharEntity(const LuaEntityHandle &handle, LuaRuntimeContext runtime)
 {
 	auto *ch = ResolveChar(handle);
@@ -2056,6 +2077,18 @@ sol::object BuildObjView(sol::state &lua, ObjData *obj, LuaRuntimeContext runtim
 		if (key == "timer")
 		{
 			return sol::make_object(lua, GetObjTimer(handle));
+		}
+		if (key == "val")
+		{
+			return sol::make_object(lua, sol::as_function([&lua, handle](
+				sol::object,
+				sol::object index,
+				sol::variadic_args args) {
+				const sol::object value = args.size() > 0
+					? static_cast<sol::object>(args[0])
+					: sol::make_object(lua, sol::lua_nil);
+				return ObjVal(handle, index, value);
+			}));
 		}
 		if (key == "is_valid")
 		{
