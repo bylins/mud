@@ -1469,7 +1469,12 @@ bool PurgeCharEntity(const LuaEntityHandle &handle, LuaRuntimeContext runtime)
 	}
 	if (ch == runtime.owner)
 	{
-		return LogLuaApiError(runtime, "purge: purging current trigger owner is not allowed");
+		// mimic DG: halt the trigger so no further script execution
+		if (runtime.trigger) {
+			GET_TRIG_DEPTH(runtime.trigger) = 0;
+		}
+		// cancel any pending waits for this trigger/owner
+		LuaScriptEngine::CancelWaitsForTrigger(runtime.trigger);
 	}
 	if (!ch->followers.empty() || ch->has_master())
 	{

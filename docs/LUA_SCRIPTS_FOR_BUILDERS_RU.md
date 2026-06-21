@@ -274,7 +274,7 @@ end
 
 | Вызов | Возврат | Описание |
 | --- | --- | --- |
-| `mud.purge(entity)` | bool | Удаляет сущность через ее метод `purge`. PC удалить нельзя. |
+| `mud.purge(entity)` | bool | Удаляет сущность через ее метод `purge`. PC удалить нельзя. Самопурж владельца триггера (mob/object) разрешён (аналогично DG). |
 | `mud.damage(victim, amount, type)` | bool | Наносит урон. `type`: `nil`, `"physic"`, `"magic"`, `"poisonous"`. |
 | `mud.cast_spell(spell_name, target)` | bool | Скриптовый каст заклинания от имени владельца триггера; ближайший DG-аналог - `dgcast`. `target`: `nil`, строка поиска, Char, Obj или Room. |
 | `mud.transfer(entity, room)` | bool | Перемещает Char или Obj в комнату. |
@@ -392,7 +392,7 @@ Char - это Lua-view персонажа или моба. Все поля read-
 | `ch:set_quest(id, text)` | bool | Lua-аналог DG `%actor.setquest(id text)%`: сохраняет quested-запись. Работает по тем же правилам, что DG: только для игроков, не для иммов. |
 | `ch:unset_quest(id)` | bool | Lua-аналог DG `%actor.unsetquest(id)%`: удаляет quested-запись. |
 | `ch:act(message, options)` | bool | Вызывает игровой `act`. |
-| `ch:purge()` | bool | Удаляет NPC. PC и текущего владельца триггера удалить нельзя. |
+| `ch:purge()` | bool | Удаляет NPC. PC удалить нельзя. Самопурж владельца триггера (текущий `ctx.owner`, если это NPC) разрешён — работает как в DG-триггерах (скрипт останавливается). |
 
 Пример `act`:
 
@@ -429,7 +429,7 @@ Obj - Lua-view объекта. Все поля read-only.
 | Метод | Возврат | Описание |
 | --- | --- | --- |
 | `obj:is_valid()` | bool | Проверяет, что объект еще существует и не extracted. |
-| `obj:purge()` | bool | Удаляет объект из мира. |
+| `obj:purge()` | bool | Удаляет объект из мира. Самопурж владельца триггера (если `ctx.owner` — объект) разрешён. |
 | `obj:val(index)` | number | Читает старый object value по индексу 0..3, как DG `%obj.val0%`..`%obj.val3%`. |
 | `obj:val(index, value)` | number | Устанавливает старый object value по индексу 0..3 и возвращает итоговое значение, как DG `%obj.valN(value)%`. |
 | `obj:move_to_room(room)` | bool | Перемещает объект в комнату. |
@@ -496,6 +496,7 @@ ctx.owner.context:delete("foo")
 
 - Проверяйте `nil` и `:is_valid()` перед использованием `ctx.actor`, `ctx.victim`, `ctx.object`.
 - После `mud.wait` проверки нужно повторить.
+- Самопурж владельца триггера (`ctx.owner:purge()` или `mud.purge(ctx.owner)`) разрешён для NPC и объектов — триггер останавливается (как в DG). После пуржа не выполняйте код, который обращается к `ctx.owner`.
 - Для команд через `force` предпочитайте ASCII-команды (`give`, `say`, `look`) и ASCII-служебные слова (`all`), если нет явной необходимости в русском alias.
 - Lua `force` передает строку только в обычный игровой command interpreter и не исполняет DG-команды. Для бывших DG-команд используйте Lua API: например `mgold actor 2000` переносится как `ctx.actor:gold(2000)`.
 - `mud.load_obj_to_char` кладет объект в инвентарь без видимых сообщений. Чтобы игроки увидели передачу, используйте затем обычную команду через `force`.
