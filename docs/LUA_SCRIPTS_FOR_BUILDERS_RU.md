@@ -450,6 +450,7 @@ Room - Lua-view комнаты. Все поля read-only.
 | `room:echo(message)` | bool | Сообщение в комнату. Доступно для `ctx.room` и owner-room. Для `mud.room(vnum)` echo отключен. |
 | `room:people()` | live-view | Текущий список Char в комнате, индексация с 1, поддерживает `ipairs`. |
 | `room:objects()` | live-view | Текущий список Obj в комнате, индексация с 1, поддерживает `ipairs`. |
+| `room:wteleport(target, room)` | bool | Lua-аналог DG `wteleport`: переносит `target` из этой комнаты в указанную комнату с DG-обвязкой для charmice/лошадей, look и greet-триггеров. `target`: Char, `"all"` или `"allchar"`. |
 | `room:exit(direction)` | Room или nil | Комната по направлению. `direction` может быть числом или строкой. |
 | `room:set_exit(direction, options)` | bool | Создает или изменяет выход. `options`: `flags`, `to_room`, `description`, `key`, `name`, `lock`. `flags` задаются как в DG `wdoor ... flags`. `to_room` можно передать числом-VNUM или Lua-объектом `Room`; если целевая комната не существует, метод вернет `false`. |
 | `room:purge_exit(direction)` | bool | Удаляет выход в направлении, как DG `wdoor ... purge`. |
@@ -484,3 +485,46 @@ ctx.owner.context:delete("foo")
 - `mud.damage(victim, amount, "physic"|"magic"|"poisonous")` атакует от имени владельца триггера, если он валиден; иначе от имени самой жертвы. Атакующий и жертва должны быть в одной комнате; такой урон может начать бой.
 - `mud.transfer` вызывает `teleport` для Char и `move_to_room` для Obj.
 - Lua-view read-only: нельзя писать `ctx.actor.hp = 10` или `obj.timer = 0`.
+
+### Перенос некоторых DG-команд
+
+`osend`/`wsend` в Lua обычно заменяются прямой отправкой известному персонажу:
+
+```lua
+ctx.actor:send("Текст сообщения.\r\n")
+```
+
+Lua не запускает DG `sub_write` для `$n`/`%actor.name%` внутри строки, поэтому подстановки собираются явно через Lua API:
+
+```lua
+local n = ctx.actor.names
+ctx.actor:send(n.UPiname .. " кивает" .. n.g .. ".\r\n")
+```
+
+`wat <room> <command>` в Lua чаще не нужен: берите комнату явно и вызывайте нужный метод:
+
+```lua
+local room = mud.room(3001)
+if room then
+  room:load_mob(30010)
+  room:set_exit("north", { to_room = 3002 })
+end
+```
+
+Для `mud.room(vnum)` намеренно отключен `room:echo`; прямого аналога `wat <room> echo ...` сейчас нет.
+
+`wteleport <target> <room>` покрывается методом комнаты:
+
+```lua
+ctx.room:wteleport(ctx.actor, 3001)
+ctx.room:wteleport("all", 3001)
+ctx.room:wteleport("allchar", 3001)
+```
+
+`room:wteleport` повторяет DG-обвязку `wteleport`: для одиночной цели переносит charmice владельца, учитывает лошадь, вызывает `look` и greet-триггеры; для `"all"` переносит всех из source-room; для `"allchar"` переносит игроков и charmice.
+
+Если нужна простая техническая перестановка без DG-обвязки, используйте `ch:teleport(room)` или `mud.transfer(ch, room)`:
+
+```lua
+ctx.actor:teleport(3001)
+```

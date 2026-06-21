@@ -20,6 +20,7 @@
 #include "gameplay/mechanics/damage.h"
 #include "gameplay/mechanics/follow.h"
 #include "gameplay/mechanics/minions.h"
+#include "gameplay/mechanics/mount.h"
 #include "gameplay/mechanics/sight.h"
 #include "gameplay/magic/spells.h"
 #include "utils/grammar/gender.h"
@@ -973,6 +974,149 @@ bool EchoToRoom(const LuaRoomView &view, const sol::object &message)
 
 	SendMsgToRoom(text.c_str(), view.room, 0);
 	return true;
+}
+
+bool MoveCharForDgTeleport(CharData *ch, RoomRnum target, bool look, bool greet)
+{
+	if (!ch || ch->in_room == kNowhere || ch->in_room == target)
+	{
+		return false;
+	}
+
+	RemoveCharFromRoom(ch);
+	PlaceCharToRoom(ch, target);
+	if (look && !ch->IsNpc())
+	{
+		sight::look_at_room(ch, true);
+	}
+	if (greet)
+	{
+		greet_mtrigger(ch, -1);
+		greet_otrigger(ch, -1);
+	}
+	return true;
+}
+
+bool DgTeleportSingleChar(CharData *ch, RoomRnum source, RoomRnum target)
+{
+	if (!ch || ch->in_room != source || ch->in_room == target)
+	{
+		return false;
+	}
+
+	bool onhorse = false;
+	if (IsCharmice(ch) && ch->has_master() && ch->in_room == ch->get_master()->in_room)
+	{
+		ch = ch->get_master();
+	}
+
+	const auto people_copy = world[ch->in_room]->people;
+	for (const auto charmee : people_copy)
+	{
+		if (IsCharmice(charmee) && charmee->get_master() == ch)
+		{
+			MoveCharForDgTeleport(charmee, target, false, false);
+		}
+	}
+
+	if (mount::GetHorse(ch) && (mount::IsOnHorse(ch) || mount::HasHorse(ch, true)))
+	{
+		MoveCharForDgTeleport(mount::GetHorse(ch), target, false, false);
+		onhorse = true;
+	}
+
+	MoveCharForDgTeleport(ch, target, true, true);
+	if (!onhorse)
+	{
+		mount::Dismount(ch);
+	}
+	return true;
+}
+
+bool DgTeleportRoomPeople(LuaRoomView source, RoomRnum target, bool chars_only)
+{
+	if (!IsValidRoom(source) || !IsValidRoom(LuaRoomView{target}))
+	{
+		return false;
+	}
+
+	bool moved = false;
+	CharData *lastchar = nullptr;
+	const auto people_copy = world[source.room]->people;
+	for (auto *ch : people_copy)
+	{
+		if (!ch || ch->in_room != source.room)
+		{
+			continue;
+		}
+		if (chars_only && ch->IsNpc() && !IsCharmice(ch))
+		{
+			continue;
+		}
+		if (ch->in_room == target)
+		{
+			continue;
+		}
+
+		bool onhorse = false;
+		if (chars_only && mount::GetHorse(ch) && (mount::IsOnHorse(ch) || mount::HasHorse(ch, true)))
+		{
+			MoveCharForDgTeleport(mount::GetHorse(ch), target, false, false);
+			onhorse = true;
+		}
+
+		moved = MoveCharForDgTeleport(ch, target, true, false) || moved;
+		if (chars_only && !onhorse)
+		{
+			mount::Dismount(ch);
+		}
+		if (!ch->IsNpc())
+		{
+			lastchar = ch;
+		}
+	}
+
+	if (lastchar)
+	{
+		greet_mtrigger(lastchar, -1);
+		greet_otrigger(lastchar, -1);
+	}
+	return moved;
+}
+
+bool DgTeleportFromRoom(LuaRuntimeContext runtime, LuaRoomView source, const sol::object &target, const sol::object &room)
+{
+	if (!IsValidRoom(source))
+	{
+		return LogLuaApiError(runtime, "wteleport: invalid source room");
+	}
+
+	const auto room_rnum = GetRoomFromLua(room);
+	if (!IsValidRoom(LuaRoomView{room_rnum}))
+	{
+		return LogLuaApiError(runtime, "wteleport: invalid target room");
+	}
+
+	if (target.is<std::string>())
+	{
+		const auto target_name = target.as<std::string>();
+		if (target_name == "all")
+		{
+			return DgTeleportRoomPeople(source, room_rnum, false);
+		}
+		if (target_name == "allchar")
+		{
+			return DgTeleportRoomPeople(source, room_rnum, true);
+		}
+		return LogLuaApiError(runtime, "wteleport: string target must be all or allchar");
+	}
+
+	auto *ch = GetLuaCharFromObject(target, runtime);
+	if (!ch)
+	{
+		return LogLuaApiError(runtime, "wteleport: target must be all, allchar, or Char");
+	}
+	return DgTeleportSingleChar(ch, source.room, room_rnum);
 }
 
 int CountRoomPeople(LuaRoomView room)
@@ -1994,6 +2138,15 @@ sol::object BuildRoomView(sol::state &lua, const LuaRoomView &room, bool allow_e
 		{
 			return sol::make_object(lua, sol::as_function([&lua, room, runtime](sol::object) {
 				return BuildLiveRoomCollection(lua, room, runtime, false);
+			}));
+		}
+		if (key == "wteleport")
+		{
+			return sol::make_object(lua, sol::as_function([runtime, room](
+				sol::object,
+				sol::object target,
+				sol::object destination) {
+				return DgTeleportFromRoom(runtime, room, target, destination);
 			}));
 		}
 		if (key == "exit")
