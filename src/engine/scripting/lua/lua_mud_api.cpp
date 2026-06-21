@@ -20,6 +20,7 @@
 #include "utils/logger.h"
 #include "utils/random.h"
 
+#include <ctime>
 #include <limits>
 #include <list>
 
@@ -635,6 +636,54 @@ sol::table BuildWeatherInfo(sol::state &lua)
 	return weather;
 }
 
+sol::object BuildRealDate(sol::state &lua, const sol::object &format, const sol::object &ts)
+{
+	std::time_t t = std::time(nullptr);
+	if (ts.is<long>()) {
+		t = ts.as<long>();
+	} else if (ts.is<int>()) {
+		t = static_cast<std::time_t>(ts.as<int>());
+	} else if (ts.is<double>()) {
+		t = static_cast<std::time_t>(ts.as<double>());
+	}
+
+	if (format.is<std::string>()) {
+		const std::string fmt = format.as<std::string>();
+		if (fmt == "*t" || fmt == "!*t") {
+			const bool utc = (fmt[0] == '!');
+			struct tm *tm = utc ? std::gmtime(&t) : std::localtime(&t);
+			if (!tm) {
+				return sol::make_object(lua, sol::lua_nil);
+			}
+			sol::table tbl = lua.create_table();
+			tbl["year"] = tm->tm_year + 1900;
+			tbl["month"] = tm->tm_mon + 1;
+			tbl["day"] = tm->tm_mday;
+			tbl["hour"] = tm->tm_hour;
+			tbl["min"] = tm->tm_min;
+			tbl["sec"] = tm->tm_sec;
+			tbl["wday"] = tm->tm_wday + 1;
+			tbl["yday"] = tm->tm_yday + 1;
+			tbl["isdst"] = tm->tm_isdst != 0;
+			return tbl;
+		}
+		char buf[256] = {};
+		struct tm *tm = std::localtime(&t);
+		if (tm && std::strftime(buf, sizeof(buf), fmt.c_str(), tm) != 0) {
+			return sol::make_object(lua, std::string(buf));
+		}
+		return sol::make_object(lua, std::string(""));
+	}
+
+	// default
+	char buf[256] = {};
+	struct tm *tm = std::localtime(&t);
+	if (tm && std::strftime(buf, sizeof(buf), "%c", tm) != 0) {
+		return sol::make_object(lua, std::string(buf));
+	}
+	return sol::make_object(lua, std::string(""));
+}
+
 int MudRandom(const sol::object &limit)
 {
 	if (!limit.is<int>())
@@ -994,6 +1043,11 @@ sol::table BuildMudNamespace(sol::state &lua, LuaRuntimeContext *runtime)
 	};
 	mud["weather"] = [&lua]() {
 		return BuildWeatherInfo(lua);
+	};
+	mud["date"] = [&lua](sol::variadic_args args) -> sol::object {
+		sol::object fmt = (args.size() > 0 ? args[0].get<sol::object>() : sol::lua_nil);
+		sol::object ts = (args.size() > 1 ? args[1].get<sol::object>() : sol::lua_nil);
+		return BuildRealDate(lua, fmt, ts);
 	};
 	mud["load_obj"] = [&lua, runtime](const sol::object &vnum, const sol::object &room) {
 		return BuildObjView(lua, LoadObjToRoom(vnum, room), CurrentRuntime(runtime));

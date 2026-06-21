@@ -4,6 +4,8 @@
 
 Lua-поддержка сейчас является прототипом и работает только в сборке с `-Dluajit_prototype=true`. Обычная сборка без LuaJIT должна продолжать читать DG-триггеры как раньше.
 
+**Безопасность:** глобалы `os`, `io`, `debug`, `package` и `require` намеренно отключены. Для реального календарного времени используйте `mud.date("%j")`, `mud.date("*t")` и т.п. (не os.date).
+
 ## Формат триггера
 
 Lua-триггер отличается от DG-триггера пятым словом `lua` в строке параметров:
@@ -252,7 +254,8 @@ end
 | --- | --- | --- |
 | `mud.room(vnum)` | Room или nil | Комната по VNUM. |
 | `mud.zone(vnum)` | table или nil | Зона по VNUM. |
-| `mud.time()` | table | `{ hour, day, month, year }`. |
+| `mud.time()` | table | `{ hour, day, month, year }` (игровое время). |
+| `mud.date(fmt [, ts])` | string или table | Реальное календарное время (безопасный аналог os.date). `mud.date("%j")` — день года строкой, `mud.date("*t")` — таблица {year,month,day,...,yday}. |
 | `mud.weather()` | table | Данные погоды. |
 
 Поля `mud.zone(vnum)`: `vnum`, `name`, `top`, `age`, `lifespan`, `reset_mode`, `used`, `locked`, `under_construction`.
