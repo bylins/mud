@@ -74,6 +74,11 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=admin123
       - GF_USERS_ALLOW_SIGN_UP=false
       - GF_FEATURE_TOGGLES_ENABLE=traceqlEditor
+      # Dead-man алёрт (provisioning/alerting/deadman.yaml). Значения — из
+      # tools/observability/.env (gitignored, см. .env.example). В репу не коммитим.
+      - BYLINS_ROOSTER_TOKEN=${BYLINS_ROOSTER_TOKEN:-}
+      - BYLINS_ROOSTER_CHATID=${BYLINS_ROOSTER_CHATID:-}
+      - GRAFANA_EXTERNAL_URL=${GRAFANA_EXTERNAL_URL:-}
     volumes:
       - ./grafana/provisioning:/etc/grafana/provisioning:ro
       - ./dashboards:/var/lib/grafana/dashboards:ro
