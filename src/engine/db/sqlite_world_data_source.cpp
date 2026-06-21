@@ -471,9 +471,9 @@ std::string ReverseLookupFlag(const std::unordered_map<std::string, T> &flag_map
 }
 
 // Save flags helper (template version)
-template<typename T>
+template<typename T, typename FlagsT>
 void SaveFlagsToTable(sqlite3 *db, const std::string &table_name, const std::string &vnum_col,
-                      int vnum, const FlagData &flags,
+                      int vnum, const FlagsT &flags,
                       const std::unordered_map<std::string, T> &flag_map,
                       const std::string &category = "")
 {
@@ -1539,7 +1539,7 @@ void SqliteWorldDataSource::LoadMobFlags()
 			auto flag_it = mob_affect_flag_map.find(flag_name);
 			if (flag_it != mob_affect_flag_map.end() && flag_it->second != 0)
 			{
-				AFF_FLAGS(&mob).set(static_cast<Bitvector>(flag_it->second));
+				AFF_FLAGS(&mob).set(static_cast<EAffect>(flag_it->second));
 				flags_set++;
 			}
 		}
@@ -2988,8 +2988,7 @@ void SqliteWorldDataSource::SaveMobRecord(int mob_vnum, CharData &mob)
 	SaveFlagsToTable(m_db, "mob_flags", "mob_vnum", mob_vnum, act_flags, mob_action_flag_map, "action");
 
 	// Save mob affect flags
-	FlagData affect_flags = mob.char_specials.saved.affected_by;
-	SaveFlagsToTable(m_db, "mob_flags", "mob_vnum", mob_vnum, affect_flags, mob_affect_flag_map, "affect");
+	SaveFlagsToTable(m_db, "mob_flags", "mob_vnum", mob_vnum, mob.char_specials.saved.affected_by, mob_affect_flag_map, "affect");
 
 
 	// Save mob resistances

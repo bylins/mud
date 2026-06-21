@@ -9,6 +9,7 @@
 
 #include "gameplay/magic/spells_constants.h"
 #include "gameplay/mechanics/condition.h"
+#include "engine/structs/bitset_flags.h"
 
 // Константа, определяющая скорость таймера аффектов
 const int kSecsPerPlayerAffect = 2;
@@ -122,6 +123,23 @@ enum class EAffect : Bitvector {
 	kNoCharge = kIntTwo | (1u << 26),
 	kInjured = kIntTwo | (1u << 27),
 	kFrenzy = kIntTwo | (1u << 28),
+};
+
+// --- BitsetFlags integration for EAffect (transitional) -------------------------------------------
+// EAffect is still encoded as legacy packed bitmasks (plane<<30 | 1<<bit), so map each enumerator to
+// its dense bit index via packed_to_index. The logical size matches FlagData's full 4-plane space
+// (120), so CharData::affected_by as BitsetFlags<EAffect> is behaviour- and byte-identical to the old
+// FlagData. After EAffect is renumbered to plain 0..N (a separate task) these specializations drop
+// out: count becomes a kCount sentinel and the index mapping reverts to the identity default.
+template<>
+struct flag_traits<EAffect> {
+	static constexpr std::size_t count = 120;
+};
+template<>
+struct flag_index_mapping<EAffect> {
+	static constexpr std::size_t to_index(EAffect f) {
+		return bitset_flags_detail::packed_to_index(static_cast<std::uint32_t>(f));
+	}
 };
 
 template<>

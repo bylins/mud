@@ -42,7 +42,7 @@ namespace bitset_flags_detail {
 constexpr std::size_t kPlaneSize = 30;
 
 // Decode a legacy "packed" flag value -- (plane << 30) | (1 << bit) -- into a flat bit index.
-inline std::size_t packed_to_index(std::uint32_t packed) {
+constexpr std::size_t packed_to_index(std::uint32_t packed) {
 	const std::size_t plane = packed >> 30;
 	const std::uint32_t mask = packed & 0x3FFFFFFFu;
 	std::size_t bit = 0;
@@ -87,6 +87,15 @@ struct flag_traits {
 
 template<class EnumT>
 inline constexpr std::size_t flag_count_v = flag_traits<EnumT>::count;
+
+// Maps a flag enumerator to its dense bit index. Default: the enum value IS the index (plain-integer
+// enums). Specialize for enums still using the legacy packed-bitmask encoding -- a transitional hook
+// so a packed enum can be stored in a BitsetFlags without renumbering it yet (the bit numbers, and
+// therefore the on-disk bytes, stay identical to FlagData).
+template<class EnumT>
+struct flag_index_mapping {
+	static constexpr std::size_t to_index(EnumT f) { return static_cast<std::size_t>(f); }
+};
 
 template<class EnumT, std::size_t N = flag_count_v<EnumT>>
 class BitsetFlags {
@@ -147,6 +156,25 @@ class BitsetFlags {
 	bool test_index(std::size_t i) const { return check_index(i) ? m_bits[i] : false; }
 	void set_index(std::size_t i) { if (check_index(i)) { m_bits[i] = true; } }
 	void unset_index(std::size_t i) { if (check_index(i)) { m_bits[i] = false; } }
+	bool toggle_index(std::size_t i) {
+		if (!check_index(i)) {
+			return false;
+		}
+		m_bits[i] = !m_bits[i];
+		return m_bits[i];
+	}
+	// Legacy 30-bit "plane" view: bits [plane*30, plane*30+30). For checksum / FlagData-compatible
+	// serialization paths that still think in planes.
+	std::uint32_t get_plane(std::size_t plane) const {
+		std::uint32_t v = 0;
+		for (std::size_t b = 0; b < bitset_flags_detail::kPlaneSize; ++b) {
+			const std::size_t i = plane * bitset_flags_detail::kPlaneSize + b;
+			if (i < kCapacity && m_bits[i]) {
+				v |= (1u << b);
+			}
+		}
+		return v;
+	}
 	template<class F>
 	void for_each_set(F &&f) const {
 		for (std::size_t i = 0; i < kCapacity; ++i) {
@@ -219,7 +247,7 @@ class BitsetFlags {
 
 	std::bitset<kCapacity> m_bits{};
 
-	static std::size_t idx(EnumT f) { return static_cast<std::size_t>(f); }
+	static constexpr std::size_t idx(EnumT f) { return flag_index_mapping<EnumT>::to_index(f); }
 
 	// Number of 30-bit planes to write: enough to cover every set bit (so a reserve bit past N is
 	// still persisted), but never fewer than the legacy 4 -- so output stays byte-identical to

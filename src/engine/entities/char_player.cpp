@@ -1064,7 +1064,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 	for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
 		GET_SPELL_MEM(this, spell_id) = 0;
 	}
-	this->char_specials.saved.affected_by = clear_flags;
+	this->char_specials.saved.affected_by.clear();
 	POOFIN(this) = nullptr;
 	POOFOUT(this) = nullptr;
 	GET_RSKILL(this) = nullptr;    // рецептов не знает

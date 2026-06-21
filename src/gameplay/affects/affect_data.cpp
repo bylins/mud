@@ -697,7 +697,7 @@ void affect_total(CharData *ch) {
 	}
 	ObjData *obj;
 
-	FlagData saved;
+	BitsetFlags<EAffect> saved;
 
 	// Init struct
 	saved.clear();
@@ -708,7 +708,7 @@ void affect_total(CharData *ch) {
 		if (ch->IsNpc()) {
 			ch->char_specials.saved.affected_by = mob_proto[ch->get_rnum()].char_specials.saved.affected_by;
 		} else {
-			ch->char_specials.saved.affected_by = clear_flags;
+			ch->char_specials.saved.affected_by.clear();
 		}
 		for (const auto &i : char_saved_aff) {
 			if (saved.get(i)) {
@@ -967,6 +967,19 @@ void ImposeAffect(CharData *ch, Affect<EApply> &af, bool add_dur, bool max_dur, 
 	affect_to_char(ch, af);
 }
 
+// Transitional bridge: OR a FlagData bundle of affect flags into a BitsetFlags<EAffect>.
+// Affect::aff is still a FlagData; CharData::affected_by is now a BitsetFlags<EAffect>.
+static void MergeAffectFlags(BitsetFlags<EAffect> &dst, const FlagData &src) {
+	for (size_t plane = 0; plane < FlagData::kPlanesNumber; ++plane) {
+		const Bitvector bits = src.get_plane(plane);
+		for (int bit = 0; bit < 30; ++bit) {
+			if (bits & (1u << bit)) {
+				dst.set_index(plane * 30 + bit);
+			}
+		}
+	}
+}
+
 /* Insert an affect_type in a char_data structure
    Automatically sets appropriate bits and apply's */
 void affect_to_char(CharData *ch, const Affect<EApply> &af) {
@@ -977,7 +990,7 @@ void affect_to_char(CharData *ch, const Affect<EApply> &af) {
 	}
 	ch->affected.push_front(affected_alloc);
 
-	AFF_FLAGS(ch) += af.aff;
+	MergeAffectFlags(AFF_FLAGS(ch), af.aff);
 	if (af.affect_type != EAffect::kUndefined)
 		affect_modify(ch, af.location, af.modifier, af.affect_type, true);
 	//log("[AFFECT_TO_CHAR->AFFECT_TOTAL] Start");
@@ -995,7 +1008,7 @@ void affect_to_char_no_recalc(CharData *ch, const Affect<EApply> &af) {
 	}
 	ch->affected.push_front(affected_alloc);
 
-	AFF_FLAGS(ch) += af.aff;
+	MergeAffectFlags(AFF_FLAGS(ch), af.aff);
 	if (af.affect_type != EAffect::kUndefined)
 		affect_modify(ch, af.location, af.modifier, af.affect_type, true);
 }

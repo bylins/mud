@@ -132,7 +132,7 @@ struct char_point_data {
 struct char_special_data_saved {
 	int alignment;        // +-1000 for alignments
 	FlagData act;        // act flag for NPC's; player flag for PC's
-	FlagData affected_by;
+	BitsetFlags<EAffect> affected_by;
 	// Bitvector for spells/skills affected by
 };
 
@@ -766,9 +766,9 @@ inline void SetBattleLag(CharData *ch, const unsigned lag) {
 	SetWaitState(ch, lag * kBattleRound);
 }
 
-inline FlagData &AFF_FLAGS(CharData *ch) { return ch->char_specials.saved.affected_by; }
-inline const FlagData &AFF_FLAGS(const CharData *ch) { return ch->char_specials.saved.affected_by; }
-inline const FlagData &AFF_FLAGS(const CharData::shared_ptr &ch) { return ch->char_specials.saved.affected_by; }
+inline BitsetFlags<EAffect> &AFF_FLAGS(CharData *ch) { return ch->char_specials.saved.affected_by; }
+inline const BitsetFlags<EAffect> &AFF_FLAGS(const CharData *ch) { return ch->char_specials.saved.affected_by; }
+inline const BitsetFlags<EAffect> &AFF_FLAGS(const CharData::shared_ptr &ch) { return ch->char_specials.saved.affected_by; }
 
 // Бывшие макросы GET_SPELL_MEM / GET_SPELL_TYPE из utils.h. Возвращают ссылку,
 // т.к. используются и как lvalue (GET_SPELL_MEM(ch, sp)++ и т.п.).

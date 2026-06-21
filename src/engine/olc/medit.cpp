@@ -1849,7 +1849,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 			} else if (number == 0) {
 				break;
 			} else {
-				OLC_MOB(d)->char_specials.saved.affected_by.toggle_flag(plane, 1 << bit);
+				OLC_MOB(d)->char_specials.saved.affected_by.toggle_index(plane * 30 + bit);
 				medit_disp_aff_flags(d);
 				return;
 			}
