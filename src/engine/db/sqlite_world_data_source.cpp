@@ -470,6 +470,34 @@ std::string ReverseLookupFlag(const std::unordered_map<std::string, T> &flag_map
 	return "";  // Not found
 }
 
+// EAffect was renumbered to plain 1-based ints, so the packed-bit reconstruction in
+// SaveFlagsToTable no longer matches the (enum-valued) affect map. Save affects by testing each
+// mapped affect through the typed BitsetFlags API instead.
+static void SaveAffectFlags(sqlite3 *db, const std::string &table_name, const std::string &vnum_col,
+                            int vnum, const BitsetFlags<EAffect> &flags,
+                            const std::unordered_map<std::string, Bitvector> &flag_map,
+                            const std::string &category)
+{
+	const std::string sql = "INSERT INTO " + table_name + " (" + vnum_col
+			+ ", flag_category, flag_name) VALUES (?, ?, ?)";
+	for (const auto &[name, value] : flag_map)
+	{
+		if (!flags.test(static_cast<EAffect>(value)))
+		{
+			continue;
+		}
+		sqlite3_stmt *stmt = nullptr;
+		if (sqlite3_prepare_v2(db, sql.c_str(), -1, &stmt, nullptr) == SQLITE_OK)
+		{
+			sqlite3_bind_int(stmt, 1, vnum);
+			sqlite3_bind_text(stmt, 2, category.c_str(), -1, SQLITE_TRANSIENT);
+			sqlite3_bind_text(stmt, 3, name.c_str(), -1, SQLITE_TRANSIENT);
+			sqlite3_step(stmt);
+			sqlite3_finalize(stmt);
+		}
+	}
+}
+
 // Save flags helper (template version)
 template<typename T, typename FlagsT>
 void SaveFlagsToTable(sqlite3 *db, const std::string &table_name, const std::string &vnum_col,
@@ -2988,7 +3016,7 @@ void SqliteWorldDataSource::SaveMobRecord(int mob_vnum, CharData &mob)
 	SaveFlagsToTable(m_db, "mob_flags", "mob_vnum", mob_vnum, act_flags, mob_action_flag_map, "action");
 
 	// Save mob affect flags
-	SaveFlagsToTable(m_db, "mob_flags", "mob_vnum", mob_vnum, mob.char_specials.saved.affected_by, mob_affect_flag_map, "affect");
+	SaveAffectFlags(m_db, "mob_flags", "mob_vnum", mob_vnum, mob.char_specials.saved.affected_by, mob_affect_flag_map, "affect");
 
 
 	// Save mob resistances

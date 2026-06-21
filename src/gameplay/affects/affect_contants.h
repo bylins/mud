@@ -33,112 +33,113 @@ enum EAffFlag : Bitvector {
  * Affect bits: used in char_data.char_specials.saved.affected_by //
  */
 enum class EAffect : Bitvector {
-	kUndefined = 0u,
-	kBlind = 1u << 0,                    ///< (R) Char is blind
-	kInvisible = 1u << 1,                ///< Char is invisible
-	kDetectAlign = 1u << 2,                ///< Char is sensitive to align
-	kDetectInvisible = 1u << 3,                ///< Char can see invis entities
-	kDetectMagic = 1u << 4,                ///< Char is sensitive to magic
-	kDetectLife = 1u << 5,                ///< Char can sense hidden life
-	kWaterWalk = 1u << 6,                ///< Char can walk on water
-	kSanctuary = 1u << 7,                ///< Char protected by sanct.
-	kGroup = 1u << 8,                    ///< (R) Char is grouped
-	kCurse = 1u << 9,                    ///< Char is cursed
-	kInfravision = 1u << 10,                ///< Char can see in dark
-	kPoisoned = 1u << 11,                    ///< (R) Char is poisoned
-	kProtectFromDark = 1u << 12,            ///
-	kProtectFromMind = 1u << 13,            ///
-	kSleep = 1u << 14,                    ///< (R) Char magically asleep
-	kNoTrack = 1u << 15,                    ///< Char can't be tracked
-	kTethered = 1u << 16,                ///< Room for future expansion
-	kBless = 1u << 17,                    ///< Room for future expansion
-	kSneak = 1u << 18,                    ///< Char can move quietly
-	kHide = 1u << 19,                    ///< Char is hidden
-	kCourage = 1u << 20,                    ///< Room for future expansion
-	kCharmed = 1u << 21,                    ///< Char is charmed
-	kHold = 1u << 22,
-	kFly = 1u << 23,
-	kSilence = 1u << 24,
-	kAwarness = 1u << 25,
-	kBlink = 1u << 26,
-	kHorse = 1u << 27,                    ///< NPC - is horse, PC - is horsed
-	kNoFlee = 1u << 28,
-	kSingleLight = 1u << 29,
-	kHolyLight = kIntOne | (1u << 0),
-	kHolyDark = kIntOne | (1u << 1),
-	kDetectPoison = kIntOne | (1u << 2),
-	kDrunked = kIntOne | (1u << 3),
-	kAbstinent = kIntOne | (1u << 4),
-	kStopRight = kIntOne | (1u << 5),
-	kStopLeft = kIntOne | (1u << 6),
-	kStopFight = kIntOne | (1u << 7),
-	kHaemorrhage = kIntOne | (1u << 8),
-	kDisguise = kIntOne | (1u << 9),
-	kWaterBreath = kIntOne | (1u << 10),
-	kSlow = kIntOne | (1u << 11),
-	kHaste = kIntOne | (1u << 12),
-	kGodsShield = kIntOne | (1u << 13),
-	kAirShield = kIntOne | (1u << 14),
-	kFireShield = kIntOne | (1u << 15),
-	kIceShield = kIntOne | (1u << 16),
-	kMagicGlass = kIntOne | (1u << 17),
-	kStairs = kIntOne | (1u << 18),
-	kStoneHands = kIntOne | (1u << 19),
-	kPrismaticAura = kIntOne | (1u << 20),
-	kHelper = kIntOne | (1u << 21),
-	kForcesOfEvil = kIntOne | (1u << 22),
-	kAirAura = kIntOne | (1u << 23),
-	kFireAura = kIntOne | (1u << 24),
-	kIceAura = kIntOne | (1u << 25),
-	kDeafness = kIntOne | (1u << 26),
-	kCrying = kIntOne | (1u << 27),
-	kPeaceful = kIntOne | (1u << 28),
-	kMagicStopFight = kIntOne | (1u << 29),
-	kBerserk = kIntTwo | (1u << 0),
-	kLightWalk = kIntTwo | (1u << 1),
-	kBrokenChains = kIntTwo | (1u << 2),
-	kCloudOfArrows = kIntTwo | (1u << 3),
-	kShadowCloak = kIntTwo | (1u << 4),
-	kGlitterDust = kIntTwo | (1u << 5),
-	kAffright = kIntTwo | (1u << 6),
-	kScopolaPoison = kIntTwo | (1u << 7),
-	kDaturaPoison = kIntTwo | (1u << 8),
-	kSkillReduce = kIntTwo | (1u << 9),
-	kNoBattleSwitch = kIntTwo | (1u << 10),
-	kBelenaPoison = kIntTwo | (1u << 11),
-	kNoTeleport = kIntTwo | (1u << 12),
-	kCombatLuck = kIntTwo | (1u << 13),
-	kBandage = kIntTwo | (1u << 14),
-	kCannotBeBandaged = kIntTwo | (1u << 15),
-	kMorphing = kIntTwo | (1u << 16),
-	kStrangled = kIntTwo | (1u << 17),
-	kMemorizeSpells = kIntTwo | (1u << 18),
-	kNoobRegen = kIntTwo | (1u << 19),
-	kVampirism = kIntTwo | (1u << 20),
-	kLacerations = kIntTwo | (1u << 21),
-	kCommander = kIntTwo | (1u << 22),
-	kEarthAura = kIntTwo | (1u << 23),
-	kCloudly = kIntTwo | (1u << 24),
-	kConfused = kIntTwo | (1u << 25),
-	kNoCharge = kIntTwo | (1u << 26),
-	kInjured = kIntTwo | (1u << 27),
-	kFrenzy = kIntTwo | (1u << 28),
+	kUndefined = 0,
+	kBlind = 1,
+	kInvisible = 2,
+	kDetectAlign = 3,
+	kDetectInvisible = 4,
+	kDetectMagic = 5,
+	kDetectLife = 6,
+	kWaterWalk = 7,
+	kSanctuary = 8,
+	kGroup = 9,
+	kCurse = 10,
+	kInfravision = 11,
+	kPoisoned = 12,
+	kProtectFromDark = 13,
+	kProtectFromMind = 14,
+	kSleep = 15,
+	kNoTrack = 16,
+	kTethered = 17,
+	kBless = 18,
+	kSneak = 19,
+	kHide = 20,
+	kCourage = 21,
+	kCharmed = 22,
+	kHold = 23,
+	kFly = 24,
+	kSilence = 25,
+	kAwarness = 26,
+	kBlink = 27,
+	kHorse = 28,                    ///< NPC - is horse, PC - is horsed
+	kNoFlee = 29,
+	kSingleLight = 30,
+	kHolyLight = 31,
+	kHolyDark = 32,
+	kDetectPoison = 33,
+	kDrunked = 34,
+	kAbstinent = 35,
+	kStopRight = 36,
+	kStopLeft = 37,
+	kStopFight = 38,
+	kHaemorrhage = 39,
+	kDisguise = 40,
+	kWaterBreath = 41,
+	kSlow = 42,
+	kHaste = 43,
+	kGodsShield = 44,
+	kAirShield = 45,
+	kFireShield = 46,
+	kIceShield = 47,
+	kMagicGlass = 48,
+	kStairs = 49,
+	kStoneHands = 50,
+	kPrismaticAura = 51,
+	kHelper = 52,
+	kForcesOfEvil = 53,
+	kAirAura = 54,
+	kFireAura = 55,
+	kIceAura = 56,
+	kDeafness = 57,
+	kCrying = 58,
+	kPeaceful = 59,
+	kMagicStopFight = 60,
+	kBerserk = 61,
+	kLightWalk = 62,
+	kBrokenChains = 63,
+	kCloudOfArrows = 64,
+	kShadowCloak = 65,
+	kGlitterDust = 66,
+	kAffright = 67,
+	kScopolaPoison = 68,
+	kDaturaPoison = 69,
+	kSkillReduce = 70,
+	kNoBattleSwitch = 71,
+	kBelenaPoison = 72,
+	kNoTeleport = 73,
+	kCombatLuck = 74,
+	kBandage = 75,
+	kCannotBeBandaged = 76,
+	kMorphing = 77,
+	kStrangled = 78,
+	kMemorizeSpells = 79,
+	kNoobRegen = 80,
+	kVampirism = 81,
+	kLacerations = 82,
+	kCommander = 83,
+	kEarthAura = 84,
+	kCloudly = 85,
+	kConfused = 86,
+	kNoCharge = 87,
+	kInjured = 88,
+	kFrenzy = 89,
 };
 
-// --- BitsetFlags integration for EAffect (transitional) -------------------------------------------
-// EAffect is still encoded as legacy packed bitmasks (plane<<30 | 1<<bit), so map each enumerator to
-// its dense bit index via packed_to_index. The logical size matches FlagData's full 4-plane space
-// (120), so CharData::affected_by as BitsetFlags<EAffect> is behaviour- and byte-identical to the old
-// FlagData. After EAffect is renumbered to plain 0..N (a separate task) these specializations drop
-// out: count becomes a kCount sentinel and the index mapping reverts to the identity default.
+// --- BitsetFlags integration for EAffect ----------------------------------------------------------
+// EAffect values are plain integers now: kUndefined=0 (the "no flag" sentinel, used by affect_type{}
+// defaults and static_cast<EAffect>(0)), real affects 1-based kBlind=1..kFrenzy=89. The flat bit index
+// is value-1, which equals the legacy plane*30+bit position -- so CharData::affected_by as
+// BitsetFlags<EAffect> stays byte-identical to the old FlagData on disk. count = 89 distinct bits.
 template<>
 struct flag_traits<EAffect> {
-	static constexpr std::size_t count = 120;
+	static constexpr std::size_t count = 89;
 };
 template<>
 struct flag_index_mapping<EAffect> {
 	static constexpr std::size_t to_index(EAffect f) {
-		return bitset_flags_detail::packed_to_index(static_cast<std::uint32_t>(f));
+		// kUndefined=0 is reserved as "no flag"; real affects are 1-based (kBlind=1..kFrenzy=89),
+		// so the flat bit index (= legacy plane*30+bit, preserving on-disk bytes) is value-1.
+		return static_cast<std::size_t>(f) - 1;
 	}
 };
 

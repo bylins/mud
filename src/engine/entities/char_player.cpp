@@ -676,7 +676,7 @@ void Player::save_char() {
 
 	// affected_type
 	if (!tmp_aff.empty()) {
-		saved.printf("Affs:\n");
+		saved.printf("Aff2:\n");
 		for (auto &aff : tmp_aff) {
 			if (aff->type >= ESpell::kFirst) {
 				// Поля после battleflag: potency (сила наложения), debuff (1 -- дебафф, 0 -- бафф)
@@ -1190,7 +1190,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 					GET_AC(this) = num;
 				} else if (!strcmp(tag, "Aff ")) {
 					AFF_FLAGS(this).from_string(line);
-				} else if (!strcmp(tag, "Affs")) {
+				} else if (!strcmp(tag, "Aff2")) {
 					i = 0;
 					do {
 						fbgetline(fl, line);
@@ -1227,6 +1227,13 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 					} while (num != 0);
 					std::reverse(affected.begin(), affected.end());
 					/* do not load affects */
+				} else if (!strcmp(tag, "Affs")) {
+					// Legacy pre-renumber affect block: affect_type was stored as a packed value that no
+					// longer maps to the renumbered EAffect. Drop these (active spell buffs); recast in game.
+					do {
+						fbgetline(fl, line);
+						num = atoi(line);
+					} while (num != 0);
 				} else if (!strcmp(tag, "Alin")) {
 					alignment::SetAlignment(this, num);
 				}

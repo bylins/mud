@@ -50,7 +50,6 @@ class Affect {
 	// follows the affect's location kind via AffectFlagType (EAffect for chars,
 	// ERoomAffect for rooms). kUndefined/0 means the affect sets no flag.
 	typename AffectFlagType<TLocation>::type affect_type{};
-	FlagData aff;
 	long caster_id; //Unique caster ID //
 	// (Бывшее поле `must_handled` мигрировало в `battleflag & kAfMustBeHandled`; занимало
 	// одно и то же место в семантике и теперь не дублирует battleflag. См. EAffFlag.)
