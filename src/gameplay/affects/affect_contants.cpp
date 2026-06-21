@@ -13,19 +13,18 @@
 #include "engine/structs/msg_container.h"
 #include "engine/structs/info_container.h"   // kUndefinedVnum
 #include "utils/logger.h"
+#include "engine/core/config.h"   // CommonMsg / ECommonMsg
 
 #include <array>
 #include <bit>
 #include <set>
 
-// issue.ext-affects: the affect short display names are data now (cfg/affects.xml). affected_bits is
-// rebuilt at boot into the same flat, bit-positional, '\n'-plane-terminated layout sprintbits expects
-// (see affects_loader.h / AffectsLoader below). Owned by g_affected_bits_*; null until the cfg loads.
+// issue.affect-migration: affect short names are queried straight from the affect system
+// (affects::DescribeActive / AffectMsg) -- no affected_bits[] projection. This flag only tracks
+// whether the affect_messages cfg has loaded yet (the boot guard in db.cpp uses it).
 namespace {
-std::vector<std::string> g_affected_bits_storage;   // owns the strings + '\n' plane markers
-std::vector<const char *> g_affected_bits_ptrs;     // stable c_str() view handed to sprintbits
+bool g_affect_messages_loaded = false;
 }  // namespace
-const char **affected_bits = nullptr;
 
 typedef std::map<EAffect, std::string> EAffectFlag_name_by_value_t;
 typedef std::map<const std::string, EAffect> EAffectFlag_value_by_name_t;
@@ -547,49 +546,6 @@ msg_container::MsgContainer<EAffect, affects::EAffectMsgType> &AffectMsgContaine
 	return container;
 }
 
-// Rebuild affected_bits from each affect's kShortDesc. The EAffect bit (kept in C++) gives each name
-// its plane (value>>30) and bit (ctz of the low 30) -> the same flat, '\n'-plane-terminated array
-// sprintbits walks. An affect with no kShortDesc becomes an "UNUSED" placeholder (positions aligned).
-void RebuildAffectedBits() {
-	constexpr int kPlanes = 3;
-	std::array<std::map<int, std::string>, kPlanes> planes;
-	for (const auto &[affect, token] : NAMES_OF<EAffect>()) {
-		if (affect == EAffect::kUndefined) {
-			continue;
-		}
-		const Bitvector value = to_underlying(affect);
-		const int plane = static_cast<int>(value >> 30);
-		const Bitvector low = value & 0x3FFFFFFFu;
-		if (plane >= kPlanes || low == 0) {
-			continue;
-		}
-		const std::string &short_name =
-			AffectMsgContainer().GetMessage(affect, affects::EAffectMsgType::kShortDesc);
-		if (short_name.empty()) {
-			log("SYSERROR: affect_msg.xml: affect '%s' has no kShortDesc message.", token.c_str());
-		}
-		planes[plane][std::countr_zero(low)] = short_name.empty() ? "UNUSED" : short_name;
-	}
-
-	g_affected_bits_storage.clear();
-	for (int plane = 0; plane < kPlanes; ++plane) {
-		const int max_bit = planes[plane].empty() ? -1 : planes[plane].rbegin()->first;
-		for (int bit = 0; bit <= max_bit; ++bit) {
-			const auto it = planes[plane].find(bit);
-			g_affected_bits_storage.push_back(it != planes[plane].end() ? it->second : "UNUSED");
-		}
-		g_affected_bits_storage.push_back("\n");   // plane separator sprintbits counts
-	}
-	g_affected_bits_storage.push_back("\n");        // trailing terminator (empty plane 3)
-
-	g_affected_bits_ptrs.clear();
-	g_affected_bits_ptrs.reserve(g_affected_bits_storage.size());
-	for (const auto &entry : g_affected_bits_storage) {
-		g_affected_bits_ptrs.push_back(entry.c_str());
-	}
-	affected_bits = g_affected_bits_ptrs.data();
-}
-
 // affects.xml is the affect registry (id-only for now; grows per-affect handler/action data later).
 // Validate every <affect id> is a known affect and every affect has a row.
 void ValidateAffectRegistry(parser_wrapper::DataNode data) {
@@ -639,15 +595,78 @@ namespace affects {
 const std::string &AffectMsg(EAffect affect, EAffectMsgType slot) {
 	return AffectMsgContainer().GetMessage(affect, slot);
 }
+
+bool MessagesLoaded() { return g_affect_messages_loaded; }
+
+// Affects in NAMES_OF order (kUndefined excluded) -- the ordered list the OLC affect editor
+// numbers and toggles by index.
+const std::vector<EAffect> &MenuOrder() {
+	static std::vector<EAffect> order;
+	if (order.empty()) {
+		for (const auto &[affect, token] : NAMES_OF<EAffect>()) {
+			if (affect != EAffect::kUndefined) {
+				order.push_back(affect);
+			}
+		}
+	}
+	return order;
+}
+
+// The flat bit index of an active affect back to its EAffect (the inverse of the 1-based
+// flag_index_mapping<EAffect>: enum value = index + 1). kUndefined if it is not a known affect.
+EAffect AffectByIndex(std::size_t flat_index) {
+	const EAffect affect = static_cast<EAffect>(flat_index + 1);
+	return NAMES_OF<EAffect>().count(affect) ? affect : EAffect::kUndefined;
+}
+
+// Joined short descriptions of all active affects, queried straight from the affect system (no
+// affected_bits[] projection). Returns CommonMsg(kNothing) when none are set.
+std::string DescribeActive(const BitsetFlags<EAffect> &flags, const char *div) {
+	std::string result;
+	flags.for_each_set([&](std::size_t i) {
+		const EAffect affect = AffectByIndex(i);
+		if (affect == EAffect::kUndefined) {
+			return;
+		}
+		const std::string &name = AffectMsg(affect, EAffectMsgType::kShortDesc);
+		if (name.empty()) {
+			return;
+		}
+		if (!result.empty()) {
+			result += div;
+		}
+		result += name;
+	});
+	return result.empty() ? CommonMsg(ECommonMsg::kNothing) : result;
+}
+
+// Resolve an affect by its short description (prefix match, mirroring the old ext_search_block on
+// affected_bits). Iterates in EAffect order for deterministic first-match.
+bool FindByShortDesc(const std::string &name, EAffect &out) {
+	if (name.empty()) {
+		return false;
+	}
+	for (const auto &[affect, token] : NAMES_OF<EAffect>()) {
+		if (affect == EAffect::kUndefined) {
+			continue;
+		}
+		const std::string &sd = AffectMsg(affect, EAffectMsgType::kShortDesc);
+		if (!sd.empty() && sd.size() >= name.size() && sd.compare(0, name.size(), name) == 0) {
+			out = affect;
+			return true;
+		}
+	}
+	return false;
+}
 void AffectsLoader::Load(parser_wrapper::DataNode data) { ValidateAffectRegistry(data); }
 void AffectsLoader::Reload(parser_wrapper::DataNode data) { ValidateAffectRegistry(data); }
 void AffectMessagesLoader::Load(parser_wrapper::DataNode data) {
 	AffectMsgContainer().Init(data.Children());
-	RebuildAffectedBits();
+	g_affect_messages_loaded = true;
 }
 void AffectMessagesLoader::Reload(parser_wrapper::DataNode data) {
 	AffectMsgContainer().Reload(data.Children());
-	RebuildAffectedBits();
+	g_affect_messages_loaded = true;
 }
 }  // namespace affects
 

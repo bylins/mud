@@ -1,4 +1,5 @@
 #include <filesystem>
+#include "gameplay/affects/affect_messages.h"
 #include "utils/utils_encoding.h"
 #include "gameplay/mechanics/minions.h"
 #include "gameplay/mechanics/follow.h"
@@ -350,7 +351,7 @@ void GameLoader::BootWorld(std::unique_ptr<world_loader::IWorldDataSource> data_
 	// affect_messages loads -- and object/mob parsing below renders affect flags through it (sprintbits),
 	// so it must be populated before the world loads. affects (the id registry) is validated alongside.
 	// Guarded like the skills load just below; the normal running-server boot reaches here too.
-	if (!affected_bits) {
+	if (!affects::MessagesLoaded()) {
 		MUD::CfgManager().LoadCfg("affects");
 		MUD::CfgManager().LoadCfg("affect_msg");
 		// issue.common-msg: nothing_string (CommonMsg(kNothing)) is used by sprintbits during the

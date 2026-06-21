@@ -852,7 +852,7 @@ bool ObjectFile::check_object(ObjData *obj) {
 			obj->get_short_description().c_str());
 	}
 
-	obj->get_affect_flags().sprintbits(affected_bits, buf, sizeof(buf), ",", 4);
+	obj->get_affect_flags().sprintbits(weapon_affects, buf, sizeof(buf), ",", 4);
 
 	if (strstr(buf, "UNDEFINED")) {
 		error = true;

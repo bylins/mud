@@ -9,6 +9,7 @@
 **************************************************************************/
 
 #include "dg_scripts.h"
+#include "gameplay/affects/affect_messages.h"
 #include "gameplay/core/experience.h"
 #include "gameplay/mechanics/groups.h"
 #include "gameplay/economics/currencies.h"
@@ -3098,7 +3099,17 @@ void find_replacement(void *go,
 				}
 				snprintf(str, str_size, "%d", sum);
 			} else if (!str_cmp(field, "affect")) {
-				mob->char_specials.saved.affected_by.gm_flag(subfield, affected_bits, str);
+				EAffect aff_id = EAffect::kUndefined;
+				const char *aff_name = subfield;
+				const bool aff_rem = (*aff_name == '-');
+				const bool aff_add = (*aff_name == '+');
+				if (aff_rem || aff_add) { ++aff_name; }
+				if (*aff_name && affects::FindByShortDesc(aff_name, aff_id)) {
+					auto &aff_flags = mob->char_specials.saved.affected_by;
+					if (aff_rem) { aff_flags.unset(aff_id); *str = '\0'; }
+					else if (aff_add) { aff_flags.set(aff_id); *str = '\0'; }
+					else { strcpy(str, aff_flags.get(aff_id) ? "1" : "0"); }
+				}
 				//подозреваю что никто из билдеров даже не вкурсе насчет всего функционала этого affect
 				//к тому же аффекты в том списке не все кличи например никак там не отображаются
 			} else if (!str_cmp(field, "affectedby")) {

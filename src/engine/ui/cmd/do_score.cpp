@@ -7,6 +7,7 @@
  */
 
 #include "engine/ui/color.h"
+#include "gameplay/affects/affect_messages.h"
 #include "utils/utils_string.h"
 #include "gameplay/core/experience.h"
 #include "gameplay/mechanics/condition.h"
@@ -875,7 +876,7 @@ void PrintScoreBase(CharData *ch) {
 	/*
 	   strcat(buf, KICYN);
 	   strcat(buf,"Аффекты :\r\n");
-	   (ch)->char_specials.saved.affected_by.sprintbits(affected_bits, buf2, sizeof(buf2), "\r\n");
+	   snprintf(buf2, sizeof(buf2), "%s", affects::DescribeActive((ch)->char_specials.saved.affected_by, "\r\n").c_str());
 	   strcat(buf,buf2);
 	 */
 	if (ch->IsFlagged(EPrf::KSummonable))

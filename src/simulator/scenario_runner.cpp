@@ -1,4 +1,5 @@
 #include "scenario_runner.h"
+#include "gameplay/affects/affect_messages.h"
 #include "engine/core/target_resolver.h"
 #include "gameplay/mechanics/follow.h"
 
@@ -512,7 +513,7 @@ void EmitCharState(const char* role,
 	// автоматически подхватывали новые флаги движка.
 	{
 		char buf[kMaxStringLength];
-		AFF_FLAGS(ch).sprintbits(affected_bits, buf, sizeof(buf), "|", 0);
+		snprintf(buf, sizeof(buf), "%s", affects::DescribeActive(AFF_FLAGS(ch), "|").c_str());
 		std::string s(buf);
 		// FlagData::sprintbits пишет nothing_string ("ничего") когда
 		// ни одного флага не выставлено -- для UI пустая строка лучше.

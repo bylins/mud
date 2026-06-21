@@ -9,6 +9,7 @@
 ************************************************************************ */
 
 #include "dg_scripts.h"
+#include "gameplay/affects/affect_messages.h"
 #include "engine/core/char_handler.h"
 #include "engine/entities/char_data.h"
 #include "engine/core/target_resolver.h"
@@ -256,6 +257,7 @@ void do_dg_affect(void * /*go*/, Script * /*sc*/, Trigger *trig, int/* script_ty
 	CharData *ch = nullptr;
 	int value = 0, duration = 0, battle = 0;
 	int index = 0, type = 0;
+	EAffect dg_affect_type = EAffect::kUndefined;
 
 	// parse: "dgaffect <target> <property> <spell> <value> <duration> [battlepos]"
 	std::string remains = cmd;
@@ -289,7 +291,7 @@ void do_dg_affect(void * /*go*/, Script * /*sc*/, Trigger *trig, int/* script_ty
 	if ((index = search_block(property.c_str(), apply_types, false)) != -1) {
 		type = APPLY_TYPE;
 	} else {
-		if ((index = ext_search_block(property.c_str(), affected_bits, false)) != 0)
+		if (affects::FindByShortDesc(property, dg_affect_type))
 			type = AFFECT_TYPE;
 	}
 
@@ -329,7 +331,7 @@ void do_dg_affect(void * /*go*/, Script * /*sc*/, Trigger *trig, int/* script_ty
 		if (type == AFFECT_TYPE) {
 			af.location = EApply::kNone;
 			af.modifier = 0;
-			af.affect_type = static_cast<EAffect>(index);
+			af.affect_type = dg_affect_type;
 		} else {
 			af.location = static_cast<EApply>(index);
 			af.modifier = value;

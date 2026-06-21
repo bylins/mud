@@ -1,4 +1,5 @@
 #include "affect_data.h"
+#include "gameplay/affects/affect_messages.h"
 #include "administration/privilege.h"
 #include "gameplay/affects/affect_handler.h"
 #include "gameplay/mechanics/condition.h"
@@ -1268,23 +1269,7 @@ bool IsNegativeApply(EApply location) {
 }
 
 bool GetAffectNumByName(const std::string &affName, EAffect &result) {
-	int base = 0, offset = 0, counter = 0;
-	bool endOfArray = false;
-	while (!endOfArray) {
-		if (affName == std::string(affected_bits[counter])) {
-			result = static_cast<EAffect>((base << 30) | (1 << offset));
-			return true;
-		}
-		offset++;
-		if (*affected_bits[counter] == '\n') {
-			base++;
-			offset = 0;
-			if (*affected_bits[counter + 1] == '\n')
-				endOfArray = true;
-		}
-		counter++;
-	}
-	return false;
+	return affects::FindByShortDesc(affName, result);
 }
 
 // issue.calc-duration: skill-based duration. `caster` provides the skill (bounded by

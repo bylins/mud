@@ -10,6 +10,7 @@ str.cpp - PyUnicode_FromString на PyUnicode_DecodeLocale, PyUnicode_FromString
 Т.е. делаем все так же, как и здесь http://habrahabr.ru/post/161931/
 */
 #include "scripting.h"
+#include "gameplay/affects/affect_messages.h"
 #include "administration/privilege.h"
 #include "gameplay/mechanics/sight.h"
 #include "gameplay/mechanics/mount.h"
@@ -693,9 +694,7 @@ std::string get_location_str(const AFFECT_DATA<EApplyLocation> &af) {
 }
 
 std::string get_bitvector_str(const AFFECT_DATA<EApplyLocation> &af) {
-	char buf[MAX_STRING_LENGTH];
-	sprintbitwd(to_underlying(af.affect_type), affected_bits, buf, sizeof(buf), ", ");
-	return buf;
+	return std::string(affects::AffectMsg(af.affect_type, affects::EAffectMsgType::kShortDesc));
 }
 
 typedef std::array<obj_affected_type, MAX_OBJ_AFFECT> affected_t;

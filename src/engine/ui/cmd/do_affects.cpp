@@ -3,6 +3,7 @@
 //
 
 #include "engine/entities/char_data.h"
+#include "gameplay/affects/affect_messages.h"
 #include "administration/privilege.h"
 #include "utils/grammar/declensions.h"
 #include "engine/ui/color.h"
@@ -31,7 +32,7 @@ void do_affects(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		aff_copy.unset(j);
 	}
 
-	aff_copy.sprintbits(affected_bits, buf2, sizeof(buf2), ", ");
+	snprintf(buf2, sizeof(buf2), "%s", affects::DescribeActive(aff_copy, ", ").c_str());
 	std::vector<std::string> out_str = utils::Split(buf2, ',');
 	snprintf(buf, kMaxStringLength, "Аффекты: %s%s%s\r\n", kColorYel, utils::OutWordsList(out_str, ch->player_specials->saved.stringLength - 10).c_str(), kColorNrm);
 	SendMsgToChar(buf, ch);
@@ -84,7 +85,7 @@ void do_affects(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 						strncat(buf, "устанавливает ", sizeof(buf) - strlen(buf) - 1);
 					}
 					strncat(buf, kColorBoldRed, sizeof(buf) - strlen(buf) - 1);
-					sprintbit(to_underlying(aff->affect_type), affected_bits, buf2, sizeof(buf2));
+					snprintf(buf2, sizeof(buf2), "%s", affects::AffectMsg(aff->affect_type, affects::EAffectMsgType::kShortDesc).c_str());
 					snprintf(buf + strlen(buf), sizeof(buf) - strlen(buf), "%s", buf2);
 					strncat(buf, kColorNrm, sizeof(buf) - strlen(buf) - 1);
 				}

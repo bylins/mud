@@ -16,6 +16,7 @@
 #include "affect_contants.h"   // EAffect
 
 #include <map>
+#include <vector>
 #include <string>
 
 namespace affects {
@@ -38,6 +39,13 @@ enum class EAffectMsgType {
 
 // affect = the affect whose sheaf to read (EAffect::kUndefined => the shared "kDefault" sheaf).
 [[nodiscard]] const std::string &AffectMsg(EAffect affect, EAffectMsgType slot);
+
+// Direct affect-system queries (replacing the legacy affected_bits[] projection):
+[[nodiscard]] EAffect AffectByIndex(std::size_t flat_index);   // set-bit index -> EAffect
+[[nodiscard]] std::string DescribeActive(const BitsetFlags<EAffect> &flags, const char *div);
+[[nodiscard]] bool FindByShortDesc(const std::string &name, EAffect &out);
+[[nodiscard]] bool MessagesLoaded();   // affect_messages cfg loaded? (boot guard)
+[[nodiscard]] const std::vector<EAffect> &MenuOrder();   // ordered affects for the OLC editor
 
 class AffectMessagesLoader : public cfg_manager::ICfgLoader {  // cfg id "affect_messages"
  public:

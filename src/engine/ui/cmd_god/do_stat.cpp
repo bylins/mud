@@ -1,4 +1,5 @@
 #include "gameplay/mechanics/equipment.h"
+#include "gameplay/affects/affect_messages.h"
 #include "do_stat.h"
 #include "utils/utils_string.h"
 #include "gameplay/core/experience.h"
@@ -594,7 +595,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 		}
 	}
 	// Showing the bitvector
-	k->char_specials.saved.affected_by.sprintbits(affected_bits, smallBuf, sizeof(smallBuf), ", ", 4);
+	snprintf(smallBuf, sizeof(smallBuf), "%s", affects::DescribeActive(k->char_specials.saved.affected_by, ", ").c_str());
 	std::vector<std::string> out_str = utils::Split(smallBuf, ',');
 	sprintf(buf, "Аффекты: %s%s%s\r\n", kColorYel, utils::OutWordsList(out_str, ch->player_specials->saved.stringLength - 10).c_str(), kColorNrm);
 	SendMsgToChar(buf, ch);
@@ -614,7 +615,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 			}
 			if (aff->affect_type != EAffect::kUndefined) {
 				sline += has_modifier ? ", sets " : "sets ";
-				sprintbit(to_underlying(aff->affect_type), affected_bits, buf2, sizeof(buf2));
+				snprintf(buf2, sizeof(buf2), "%s", affects::AffectMsg(aff->affect_type, affects::EAffectMsgType::kShortDesc).c_str());
 				sline += buf2;
 			}
 			if (aff->potency != 0.0f) {

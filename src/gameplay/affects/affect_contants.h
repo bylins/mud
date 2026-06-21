@@ -314,7 +314,6 @@ using WeaponAffectArray = std::array<WeaponAffect, kWeaponAffectCount>;
 extern WeaponAffectArray weapon_affect;
 // issue.ext-affects: built at boot from cfg/affects.xml (see affects_loader.h), indexed positionally by
 // the EAffect bit so sprintbits keeps working unchanged; null until the "affects" cfg is loaded.
-extern const char **affected_bits;
 extern const char *apply_types[];
 
 #endif //BYLINS_SRC_AFFECTS_AFFECT_CONTANTS_H_
