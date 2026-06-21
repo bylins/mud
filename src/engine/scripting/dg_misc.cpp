@@ -335,7 +335,7 @@ void do_dg_affect(void * /*go*/, Script * /*sc*/, Trigger *trig, int/* script_ty
 		} else {
 			af.location = static_cast<EApply>(index);
 			af.modifier = value;
-			af.affect_type = EAffect::kUndefined;
+			af.affect_type = EAffect::kDefault;
 		}
 		ImposeAffect(ch, af); // перекастим аффект
 	} else {

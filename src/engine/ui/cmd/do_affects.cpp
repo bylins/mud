@@ -78,7 +78,9 @@ void do_affects(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					sprintf(buf2, "%-3d к параметру: %s", aff->modifier, apply_types[(int) aff->location]);
 					snprintf(buf + strlen(buf), sizeof(buf) - strlen(buf), "%s", buf2);
 				}
-				if (aff->affect_type != EAffect::kUndefined) {
+				// Show the affect's short-desc; an anonymous affect (kDefault/kUndefined) resolves
+				// via the shared kDefault sheaf fallback to "странное ощущение".
+				if (!affects::AffectMsg(aff->affect_type, affects::EAffectMsgType::kShortDesc).empty()) {
 					if (*buf2) {
 						strncat(buf, ", устанавливает ", sizeof(buf) - strlen(buf) - 1);
 					} else {

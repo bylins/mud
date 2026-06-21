@@ -35,6 +35,9 @@ enum EAffFlag : Bitvector {
  */
 enum class EAffect : Bitvector {
 	kUndefined = 0,
+	// Alias of kUndefined: the generic "default" affect (a script/skill effect with no
+	// specific identity). Displays via the shared kDefault sheaf's fallback kShortDesc.
+	kDefault = kUndefined,
 	kBlind = 1,
 	kInvisible = 2,
 	kDetectAlign = 3,

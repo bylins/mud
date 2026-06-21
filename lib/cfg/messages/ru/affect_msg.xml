@@ -8,6 +8,7 @@
 -->
 <msg_container>
 	<msg_sheaf id="kDefault">
+		<message type="kShortDesc" val="странное ощущение"/>
 		<message type="kShieldFrame" val="...окружен$a {list} {noun} "/>
 		<message type="kShieldNoun" val="щитом"/>
 		<message type="kShieldNounMany" val="щитами"/>
