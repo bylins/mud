@@ -1517,9 +1517,7 @@ void MakeRecept::make_object(CharData *ch, ObjData *obj, ObjData *ingrs[MAX_PART
 	add_flags(ch, &temp_flags, &ingrs[0]->get_affect_flags(), get_ingr_pow(ingrs[0]));
 	obj->SetWeaponAffectFlags(temp_flags);
 	// перносим эффекты ... с ингров на прототип, 0 объект шкура переносим все, с остальных 1 рандом
-	temp_flags = obj->get_extra_flags();
-	add_flags(ch, &temp_flags, &ingrs[0]->get_extra_flags(), get_ingr_pow(ingrs[0]));
-	obj->set_extra_flags(temp_flags);
+	merge_extra_flags(ch, obj, ingrs[0], get_ingr_pow(ingrs[0]));
 	auto temp_affected = obj->get_all_affected();
 	add_affects(ch, temp_affected, ingrs[0]->get_all_affected(), get_ingr_pow(ingrs[0]));
 	obj->set_all_affected(temp_affected);
@@ -1565,9 +1563,7 @@ void MakeRecept::make_object(CharData *ch, ObjData *obj, ObjData *ingrs[MAX_PART
 		add_flags(ch, &temp_flags, &ingrs[j]->get_affect_flags(), get_ingr_pow(ingrs[j]));
 		obj->SetWeaponAffectFlags(temp_flags);
 		// перносим эффекты ... с ингров на прототип.
-		temp_flags = obj->get_extra_flags();
-		add_flags(ch, &temp_flags, &ingrs[j]->get_extra_flags(), get_ingr_pow(ingrs[j]));
-		obj->set_extra_flags(temp_flags);
+		merge_extra_flags(ch, obj, ingrs[j], get_ingr_pow(ingrs[j]));
 		// переносим 1 рандом аффект
 		add_rnd_skills(ch, ingrs[j], obj); //переноси случайную умелку с ингров
 	}
@@ -2021,10 +2017,8 @@ int MakeRecept::make(CharData *ch) {
 			auto temp_flags = obj->get_affect_flags();
 			add_flags(ch, &temp_flags, &ingrs[j]->get_affect_flags(), ingr_pow);
 			obj->SetWeaponAffectFlags(temp_flags);
-			temp_flags = obj->get_extra_flags();
 			// перносим эффекты ... с ингров на прототип.
-			add_flags(ch, &temp_flags, &ingrs[j]->get_extra_flags(), ingr_pow);
-			obj->set_extra_flags(temp_flags);
+			merge_extra_flags(ch, obj.get(), ingrs[j], ingr_pow);
 			auto temp_affected = obj->get_all_affected();
 			add_affects(ch, temp_affected, ingrs[j]->get_all_affected(), ingr_pow);
 			obj->set_all_affected(temp_affected);
@@ -2211,6 +2205,34 @@ int MakeRecept::add_flags(CharData *ch, FlagData *base_flag, const FlagData *add
 	}
 	return (true);
 }
+
+// Переносит extra-флаги ингредиента на предмет (как add_flags), но НЕ даёт ингредиенту
+// навешивать служебные/привязочные/распадные флаги (issue #3459: крафт плодил "!бросить" и т.п.).
+// Свои такие флаги предмет сохраняет -- блокируется только добавление их с ингредиента.
+void MakeRecept::merge_extra_flags(CharData *ch, ObjData *obj, ObjData *ingr, int pow) {
+	static const EObjFlag kNotTransferable[] = {
+		EObjFlag::kNodrop, EObjFlag::kNorent, EObjFlag::kNodonate, EObjFlag::kNosell,
+		EObjFlag::kBless, EObjFlag::kNamed, EObjFlag::kDecay, EObjFlag::kZonedecay,
+		EObjFlag::kRepopDecay, EObjFlag::kNodecay, EObjFlag::kQuestItem, EObjFlag::kUnique,
+		EObjFlag::kSetItem, EObjFlag::kLimitedTimer, EObjFlag::kNoRentTimer, EObjFlag::kTicktimer,
+		EObjFlag::kBindOnPurchase, EObjFlag::kNotOneInClanChest, EObjFlag::kNolocate,
+		EObjFlag::kTimedLvl, EObjFlag::kNoalter,
+	};
+	bool had[std::size(kNotTransferable)];
+	for (std::size_t i = 0; i < std::size(kNotTransferable); ++i) {
+		had[i] = obj->has_flag(kNotTransferable[i]);
+	}
+	auto temp = obj->get_extra_flags();
+	add_flags(ch, &temp, &ingr->get_extra_flags(), pow);
+	obj->set_extra_flags(temp);
+	// откатываем только те служебные флаги, которых у предмета не было (т.е. их добавил ингредиент)
+	for (std::size_t i = 0; i < std::size(kNotTransferable); ++i) {
+		if (!had[i] && obj->has_flag(kNotTransferable[i])) {
+			obj->unset_extraflag(kNotTransferable[i]);
+		}
+	}
+}
+
 int MakeRecept::add_affects(CharData *ch,
 							std::array<obj_affected_type, kMaxObjAffect> &base,
 							const std::array<obj_affected_type, kMaxObjAffect> &add,
