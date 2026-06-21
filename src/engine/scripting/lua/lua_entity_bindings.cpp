@@ -34,7 +34,6 @@
 #include <sstream>
 #include <tuple>
 
-bool mob_script_command_interpreter(CharData *ch, char *argument, Trigger *trig);
 void ExtractTrigger(Trigger *trig);
 extern char arg[kMaxInputLength];
 
@@ -670,6 +669,42 @@ CharData *GetCharEnemy(const LuaEntityHandle &handle)
 	return ch ? ch->GetEnemy() : nullptr;
 }
 
+long CharGold(const LuaEntityHandle &handle, const sol::object &delta)
+{
+	auto *ch = ResolveChar(handle);
+	if (!ch)
+	{
+		return 0;
+	}
+
+	if (delta.is<long>())
+	{
+		const auto amount = delta.as<long>();
+		if (amount > 0)
+		{
+			ch->add_gold(amount);
+		}
+		else if (amount < 0)
+		{
+			ch->remove_gold(-amount);
+		}
+	}
+	else if (delta.is<int>())
+	{
+		const auto amount = static_cast<long>(delta.as<int>());
+		if (amount > 0)
+		{
+			ch->add_gold(amount);
+		}
+		else if (amount < 0)
+		{
+			ch->remove_gold(-amount);
+		}
+	}
+
+	return ch->get_gold();
+}
+
 bool TeleportChar(const LuaEntityHandle &handle, const sol::object &room)
 {
 	auto *ch = ResolveChar(handle);
@@ -797,11 +832,6 @@ bool ForceCharCommand(LuaRuntimeContext runtime, const LuaEntityHandle &handle, 
 
 	std::array<char, kMaxInputLength> command_buffer{};
 	std::copy(text.begin(), text.end(), command_buffer.begin());
-
-	if (ch->IsNpc() && mob_script_command_interpreter(ch, command_buffer.data(), runtime.trigger))
-	{
-		return LogLuaApiError(runtime, "force: mob trigger commands are not allowed");
-	}
 
 	std::array<char, kMaxInputLength> saved_arg{};
 	std::copy(arg, arg + kMaxInputLength, saved_arg.begin());
@@ -1881,6 +1911,15 @@ sol::object BuildCharView(sol::state &lua, CharData *ch, LuaRuntimeContext runti
 		{
 			return sol::make_object(lua, sol::as_function([&lua, runtime, handle](sol::object) {
 				return BuildCharView(lua, GetCharEnemy(handle), runtime);
+			}));
+		}
+		if (key == "gold")
+		{
+			return sol::make_object(lua, sol::as_function([&lua, handle](sol::object, sol::variadic_args args) {
+				const sol::object delta = args.size() > 0
+					? static_cast<sol::object>(args[0])
+					: sol::make_object(lua, sol::lua_nil);
+				return CharGold(handle, delta);
 			}));
 		}
 		if (key == "teleport")

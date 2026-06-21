@@ -367,6 +367,8 @@ Char - это Lua-view персонажа или моба. Все поля read-
 | `ch:has_affect(name)` | bool | Проверяет affect по строковому имени enum. |
 | `ch:can_see(target)` | bool | Видит ли `ch` другого персонажа. |
 | `ch:enemy()` | Char или nil | Текущий противник. |
+| `ch:gold()` | number | Возвращает наличные деньги персонажа. |
+| `ch:gold(delta)` | number | Изменяет наличные на `delta` и возвращает итоговое значение. Положительное значение добавляет, отрицательное снимает. Заменяет DG `mgold` и `%actor.gold(+amount)%`. |
 | `ch:teleport(room)` | bool | Перемещает персонажа в комнату. |
 | `ch:equipment(pos)` | Obj или nil | Предмет в слоте экипировки `pos`, как DG `%actor.eq(pos)%`. |
 | `ch:eq(pos)` | Obj или nil | Короткий алиас для `ch:equipment(pos)`. |
@@ -492,6 +494,7 @@ ctx.owner.context:delete("foo")
 - Проверяйте `nil` и `:is_valid()` перед использованием `ctx.actor`, `ctx.victim`, `ctx.object`.
 - После `mud.wait` проверки нужно повторить.
 - Для команд через `force` предпочитайте ASCII-команды (`give`, `say`, `look`) и ASCII-служебные слова (`all`), если нет явной необходимости в русском alias.
+- Lua `force` передает строку только в обычный игровой command interpreter и не исполняет DG-команды. Для бывших DG-команд используйте Lua API: например `mgold actor 2000` переносится как `ctx.actor:gold(2000)`.
 - `mud.load_obj_to_char` кладет объект в инвентарь без видимых сообщений. Чтобы игроки увидели передачу, используйте затем обычную команду через `force`.
 - `mud.damage(victim, amount, nil)` повторяет DG `mdamage` без типа и не начинает бой.
 - `mud.damage(victim, amount, "physic"|"magic"|"poisonous")` атакует от имени владельца триггера, если он валиден; иначе от имени самой жертвы. Атакующий и жертва должны быть в одной комнате; такой урон может начать бой.
