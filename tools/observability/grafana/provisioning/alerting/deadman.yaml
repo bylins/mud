@@ -1,0 +1,102 @@
+apiVersion: 1
+
+# Dead-man алёрт: если от циркуля нет логов в Loki дольше порога — шлём в Телеграм.
+# Принцип: sum(count_over_time(...[12m])) instant-запросом. Если поток молчит ≥12 мин,
+# Loki возвращает пусто → NoData → noDataState=Alerting. execErrState=Alerting,
+# чтобы недоступность Loki тоже считалась тревогой (иначе — слепы).
+#
+# Серверо-зависимые значения берутся из env (tools/observability/.env, gitignored;
+# см. .env.example): BYLINS_ROOSTER_TOKEN, BYLINS_ROOSTER_CHATID, GRAFANA_EXTERNAL_URL.
+
+contactPoints:
+  - orgId: 1
+    name: bylins-telegram
+    receivers:
+      - uid: bylins_telegram_rooster
+        type: telegram
+        settings:
+          bottoken: ${BYLINS_ROOSTER_TOKEN}
+          chatid: ${BYLINS_ROOSTER_CHATID}
+          parse_mode: HTML
+          message: |-
+            {{ if eq .Status "firing" -}}
+            🔴 <b>Циркуль молчит</b>
+            {{ range .Alerts }}
+            Сервис: <code>{{ .Labels.service }}</code>
+            Severity: <code>{{ .Labels.severity }}</code>
+            {{ .Annotations.summary }}
+            🔎 <a href="{{ .Annotations.logs_url }}">Логи сервиса в Grafana</a>
+            {{ end }}
+            {{- else -}}
+            ✅ <b>Логи снова идут</b>
+            {{ range .Alerts }}
+            Сервис: <code>{{ .Labels.service }}</code>
+            {{ end }}
+            {{- end }}
+        disableResolveMessage: false
+
+groups:
+  - orgId: 1
+    name: dead-man-logs
+    folder: Dead-man
+    interval: 1m
+    rules:
+      - uid: deadman_bylins_new
+        title: "Логи циркуля молчат: bylins-new (основной)"
+        condition: C
+        for: 0m
+        noDataState: Alerting
+        execErrState: Alerting
+        labels:
+          severity: critical
+          service: bylins-bylins-new-4000
+        annotations:
+          summary: "Основной сервер Былин не шлёт логи в Loki уже ≥12 минут."
+          logs_url: "${GRAFANA_EXTERNAL_URL}/explore?schemaVersion=1&amp;orgId=1&amp;panes=%7B%22adm%22%3A%7B%22datasource%22%3A%22loki%22%2C%22queries%22%3A%5B%7B%22refId%22%3A%22A%22%2C%22expr%22%3A%22%7Bservice_name%3D%5C%22bylins-bylins-new-4000%5C%22%7D%22%2C%22datasource%22%3A%7B%22type%22%3A%22loki%22%2C%22uid%22%3A%22loki%22%7D%7D%5D%2C%22range%22%3A%7B%22from%22%3A%22now-1h%22%2C%22to%22%3A%22now%22%7D%7D%7D"
+        notification_settings:
+          receiver: bylins-telegram
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 900
+              to: 0
+            datasourceUid: loki
+            model:
+              datasource:
+                type: loki
+                uid: loki
+              editorMode: code
+              expr: 'sum(count_over_time({service_name="bylins-bylins-new-4000"} [12m]))'
+              queryType: instant
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: A
+          - refId: B
+            relativeTimeRange:
+              from: 900
+              to: 0
+            datasourceUid: __expr__
+            model:
+              type: reduce
+              reducer: last
+              expression: A
+              refId: B
+              datasource:
+                type: __expr__
+                uid: __expr__
+          - refId: C
+            relativeTimeRange:
+              from: 900
+              to: 0
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
+              refId: C
+              datasource:
+                type: __expr__
+                uid: __expr__
+              conditions:
+                - evaluator:
+                    type: lt
+                    params: [1]
