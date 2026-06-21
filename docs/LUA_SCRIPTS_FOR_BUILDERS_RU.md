@@ -291,13 +291,23 @@ mud.damage(ctx.actor, 20, "magic")              -- typed damage через Damag
 
 `mud.cast_spell(spell_name, target)` возвращает `true`, если игровая `CallMagic`-логика дала эффект. Ближайший DG-аналог - `dgcast`, но это самостоятельный Lua API, а не точная обертка: строковая цель ищется как в обычном cast-поиске, а direct-цели Char/Obj/Room проверяются по target-флагам заклинания и расположению цели. Direct Obj-цель должна быть в инвентаре, экипировке или комнате кастера; для `locate object` передавайте строковую цель. Для room/object-триггеров без персонажа-кастера Lua создает временного системного кастера в комнате владельца.
 
-`mud.echoaround(actor, message)` подходит для переноса DG `echoaround`/`mechoaround`/`oechoaround`/`wechoaround`, когда нужно показать текст вокруг персонажа без отдельного сообщения самому `actor`. Это простая рассылка сообщения, а не игровой `act`, поэтому `$n`/`$N` act-подстановки не раскрываются; для имени и окончаний собирайте строку явно через `actor.iname`, `actor.g`, `actor.u`:
+`mud.echoaround(actor, message)` подходит для переноса DG `echoaround`/`mechoaround`/`oechoaround`/`wechoaround`, когда нужно показать текст вокруг персонажа без отдельного сообщения самому `actor`. Это простая рассылка сообщения, а не игровой `act`, поэтому `$n`/`$N` act-подстановки не раскрываются; для имени и окончаний собирайте строку явно через `actor.names.*`:
 
 ```lua
-mud.echoaround(ctx.actor, ctx.actor.iname .. " вздрагивает" .. ctx.actor.g .. " и осматривается.")
+mud.echoaround(ctx.actor, ctx.actor.names.iname .. " вздрагивает" .. ctx.actor.names.g .. " и осматривается.")
 ```
 
 Если нужен полный игровой `act` с victim/to-режимами, используйте `actor:act(..., { to = "room" })`.
+
+Если DG-скрипт выбирал имя и окончание через лидера, в Lua берите лидера явно:
+
+```lua
+local actor = ctx.actor
+local who = actor and (actor.leader or actor)
+if who then
+  mud.echoaround(actor, who.names.iname .. " осматривается" .. who.names.u .. ".")
+end
+```
 
 ## `mud.wait`
 
@@ -337,12 +347,13 @@ Char - это Lua-view персонажа или моба. Все поля read-
 | `ch.move` | number | Очки движения. |
 | `ch.room` | Room или nil | Текущая комната. |
 | `ch.room_vnum` | number | VNUM текущей комнаты или 0. |
+| `ch.leader` | Char или nil | Lua-аналог DG `%actor.leader%`: текущий лидер/master, если персонаж за кем-то следует. |
+| `ch.names` | table | Read-only таблица имен, местоимений и окончаний для текстов. |
 | `ch.is_npc` | bool | `true` для NPC. Это поле, не функция. |
 | `ch.class` | number | Числовой ID класса, как DG `%actor.class%`. |
-| `ch.iname` | string | Именительный падеж имени, как DG `%actor.iname%`. |
-| `ch.g` | string | DG-окончание `%actor.g%`. |
-| `ch.u` | string | DG-окончание `%actor.u%`. |
 | `ch.context` | Context или nil | Переменные DG-контекста владельца. |
+
+Поля `ch.names`: `name`, `iname`, `rname`, `dname`, `vname`, `tname`, `pname`, `UPname`, `UPiname`, `UPrname`, `UPdname`, `UPvname`, `UPtname`, `UPpname`, `m`, `s`, `e`, `g`, `u`, `w`, `q`, `y`, `a`, `r`, `x`, `h`. Они соответствуют одноименным DG-подстановкам персонажа, например `%actor.iname%` -> `actor.names.iname`, `%actor.UPiname%` -> `actor.names.UPiname`, `%actor.u%` -> `actor.names.u`.
 
 ### Методы
 

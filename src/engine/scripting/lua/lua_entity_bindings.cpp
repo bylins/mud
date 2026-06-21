@@ -22,12 +22,14 @@
 #include "gameplay/mechanics/minions.h"
 #include "gameplay/mechanics/sight.h"
 #include "gameplay/magic/spells.h"
+#include "utils/grammar/gender.h"
 #include "utils/random.h"
 #include "utils/utils.h"
 #include "utils/utils_string.h"
 
 #include <algorithm>
 #include <array>
+#include <optional>
 #include <sstream>
 #include <tuple>
 
@@ -342,6 +344,12 @@ int GetCharVnum(const LuaEntityHandle &handle)
 	return mob_index[rnum].vnum;
 }
 
+CharData *GetCharLeader(const LuaEntityHandle &handle)
+{
+	auto *ch = ResolveChar(handle);
+	return ch && ch->has_master() ? ch->get_master() : nullptr;
+}
+
 int GetCharHp(const LuaEntityHandle &handle)
 {
 	auto *ch = ResolveChar(handle);
@@ -502,18 +510,89 @@ bool CharLag(LuaRuntimeContext runtime, const LuaEntityHandle &handle, const sol
 	return LogLuaApiError(runtime, "lag: unsupported unit");
 }
 
-std::string GetCharMessageField(LuaRuntimeContext runtime, const LuaEntityHandle &handle, const sol::object &field)
+std::optional<std::string> GetCharNamesField(const LuaEntityHandle &handle, const std::string &field_name)
 {
 	auto *ch = ResolveChar(handle);
-	if (!ch || !field.is<std::string>())
+	if (!ch)
 	{
-		return "";
+		return std::nullopt;
 	}
 
-	const auto field_name = field.as<std::string>();
+	if (field_name == "name")
+	{
+		return GET_NAME(ch);
+	}
 	if (field_name == "iname")
 	{
 		return GET_PAD(ch, 0);
+	}
+	if (field_name == "rname")
+	{
+		return GET_PAD(ch, 1);
+	}
+	if (field_name == "dname")
+	{
+		return GET_PAD(ch, 2);
+	}
+	if (field_name == "vname")
+	{
+		return GET_PAD(ch, 3);
+	}
+	if (field_name == "tname")
+	{
+		return GET_PAD(ch, 4);
+	}
+	if (field_name == "pname")
+	{
+		return GET_PAD(ch, 5);
+	}
+	if (field_name == "UPname")
+	{
+		auto name = std::string(GET_NAME(ch));
+		return utils::colorCAP(name);
+	}
+	if (field_name == "UPiname")
+	{
+		auto name = std::string(GET_PAD(ch, 0));
+		return utils::colorCAP(name);
+	}
+	if (field_name == "UPrname")
+	{
+		auto name = std::string(GET_PAD(ch, 1));
+		return utils::colorCAP(name);
+	}
+	if (field_name == "UPdname")
+	{
+		auto name = std::string(GET_PAD(ch, 2));
+		return utils::colorCAP(name);
+	}
+	if (field_name == "UPvname")
+	{
+		auto name = std::string(GET_PAD(ch, 3));
+		return utils::colorCAP(name);
+	}
+	if (field_name == "UPtname")
+	{
+		auto name = std::string(GET_PAD(ch, 4));
+		return utils::colorCAP(name);
+	}
+	if (field_name == "UPpname")
+	{
+		auto name = std::string(GET_PAD(ch, 5));
+		return utils::colorCAP(name);
+	}
+
+	if (field_name == "m")
+	{
+		return grammar::DativePronoun(ch->get_sex());
+	}
+	if (field_name == "s")
+	{
+		return grammar::PossessivePronoun(ch->get_sex());
+	}
+	if (field_name == "e")
+	{
+		return grammar::PersonalPronoun(ch->get_sex());
 	}
 	if (field_name == "g")
 	{
@@ -523,9 +602,51 @@ std::string GetCharMessageField(LuaRuntimeContext runtime, const LuaEntityHandle
 	{
 		return grammar::SexEnding(ch->get_sex(), 2);
 	}
+	if (field_name == "w")
+	{
+		return grammar::SexEnding(ch->get_sex(), 3);
+	}
+	if (field_name == "q")
+	{
+		return grammar::SexEnding(ch->get_sex(), 4);
+	}
+	if (field_name == "y")
+	{
+		return grammar::SexEnding(ch->get_sex(), 5);
+	}
+	if (field_name == "a")
+	{
+		return grammar::SexEnding(ch->get_sex(), 6);
+	}
+	if (field_name == "r")
+	{
+		return grammar::SexEnding(ch->get_sex(), 7);
+	}
+	if (field_name == "x")
+	{
+		return grammar::SexEnding(ch->get_sex(), 8);
+	}
+	if (field_name == "h")
+	{
+		return grammar::InstrEnding(ch->get_sex());
+	}
 
-	LogLuaApiError(runtime, "message field: unsupported field");
-	return "";
+	return std::nullopt;
+}
+
+sol::object BuildCharNamesView(sol::state &lua, const LuaEntityHandle &handle)
+{
+	sol::table view = lua.create_table();
+	sol::table metatable = lua.create_table();
+	metatable[sol::meta_function::index] = [&lua, handle](sol::object, const std::string &key) -> sol::object {
+		const auto value = GetCharNamesField(handle, key);
+		return value ? sol::make_object(lua, *value) : sol::make_object(lua, sol::lua_nil);
+	};
+	metatable[sol::meta_function::new_index] = [](sol::this_state state) {
+		return luaL_error(state, "CharData names Lua view is read-only");
+	};
+	view[sol::metatable_key] = metatable;
+	return sol::make_object(lua, view);
 }
 
 bool CharHasAffect(const LuaEntityHandle &handle, const sol::object &affect)
@@ -1539,6 +1660,10 @@ sol::object BuildCharView(sol::state &lua, CharData *ch, LuaRuntimeContext runti
 		{
 			return sol::make_object(lua, GetCharRoomVnum(handle));
 		}
+		if (key == "leader")
+		{
+			return BuildCharView(lua, GetCharLeader(handle), runtime);
+		}
 		if (key == "is_npc")
 		{
 			return sol::make_object(lua, IsCharNpc(handle));
@@ -1571,17 +1696,9 @@ sol::object BuildCharView(sol::state &lua, CharData *ch, LuaRuntimeContext runti
 		{
 			return sol::make_object(lua, GetCharClass(handle));
 		}
-		if (key == "iname")
+		if (key == "names")
 		{
-			return sol::make_object(lua, GetCharMessageField(runtime, handle, sol::make_object(lua, "iname")));
-		}
-		if (key == "g")
-		{
-			return sol::make_object(lua, GetCharMessageField(runtime, handle, sol::make_object(lua, "g")));
-		}
-		if (key == "u")
-		{
-			return sol::make_object(lua, GetCharMessageField(runtime, handle, sol::make_object(lua, "u")));
+			return BuildCharNamesView(lua, handle);
 		}
 		if (key == "has_affect")
 		{
