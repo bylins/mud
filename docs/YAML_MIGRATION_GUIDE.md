@@ -96,7 +96,9 @@ python3 -m venv .venv
 source .venv/bin/activate
 pip install ruamel.yaml
 
-# Конвертировать lib/world/ (legacy) → world/ (YAML)
+# Конвертировать lib/world/ (legacy) → lib/world/ (YAML).
+# Раскладка по умолчанию — flat (один файл на тип сущности в зоне).
+# Для старой раскладки «файл на сущность» добавьте --layout per_file.
 python3 tools/converter/convert_to_yaml.py \
     --input lib/ \
     --output lib/ \
@@ -105,39 +107,33 @@ python3 tools/converter/convert_to_yaml.py \
     --workers $(nproc)
 
 # Проверить результат
-ls -la lib/world/
 ls -la lib/world/zones/
-ls -la lib/world/mobs/
+ls -la lib/world/zones/1/
 
-# Статистика
+# Статистика (flat-раскладка)
 echo "=== Статистика конверсии ==="
-
-ZONES_FILES=$(ls -d lib/world/zones/*/ 2>/dev/null | wc -l)
-ZONES_INDEX=$(grep -c '^[[:space:]]*- ' lib/world/zones/index.yaml 2>/dev/null || echo 0)
-echo "Зоны:     файлов: $ZONES_FILES, в индексе: $ZONES_INDEX"
-
-ROOMS_FILES=$(find lib/world/zones/*/rooms/ -name '*.yaml' 2>/dev/null | wc -l)
-echo "Комнаты:  файлов: $ROOMS_FILES"
-
-MOBS_FILES=$(ls lib/world/mobs/*.yaml 2>/dev/null | grep -v index.yaml | wc -l)
-MOBS_INDEX=$(grep -c '^[[:space:]]*- ' lib/world/mobs/index.yaml 2>/dev/null || echo 0)
-echo "Мобы:     файлов: $MOBS_FILES, в индексе: $MOBS_INDEX"
-
-OBJS_FILES=$(ls lib/world/objects/*.yaml 2>/dev/null | grep -v index.yaml | wc -l)
-OBJS_INDEX=$(grep -c '^[[:space:]]*- ' lib/world/objects/index.yaml 2>/dev/null || echo 0)
-echo "Объекты:  файлов: $OBJS_FILES, в индексе: $OBJS_INDEX"
-
-TRIGS_FILES=$(ls lib/world/triggers/*.yaml 2>/dev/null | grep -v index.yaml | wc -l)
-TRIGS_INDEX=$(grep -c '^[[:space:]]*- ' lib/world/triggers/index.yaml 2>/dev/null || echo 0)
-echo "Триггеры: файлов: $TRIGS_FILES, в индексе: $TRIGS_INDEX"
+ZONES_INDEX=$(grep -cE '^[[:space:]]*-[[:space:]]' lib/world/zones/index.yaml 2>/dev/null || echo 0)
+echo "Зон в индексе: $ZONES_INDEX"
+echo "mobs.yaml:     $(find lib/world/zones -maxdepth 2 -name mobs.yaml | wc -l)"
+echo "objects.yaml:  $(find lib/world/zones -maxdepth 2 -name objects.yaml | wc -l)"
+echo "rooms.yaml:    $(find lib/world/zones -maxdepth 2 -name rooms.yaml | wc -l)"
+echo "triggers.yaml: $(find lib/world/zones -maxdepth 2 -name triggers.yaml | wc -l)"
+echo "Размер мира:   $(du -sh lib/world | cut -f1)"
 
 # Деактивировать виртуальное окружение
 deactivate
 ```
 
 **Ожидаемый результат:**
-- Поддиректории: `zones/`, `mobs/`, `objects/`, `triggers/` созданы в `lib/world/`
-- YAML файлы в KOI8-R кодировке
+- В `lib/world/zones/<vnum>/` лежит `zone.yaml` и (flat) файлы `mobs.yaml` / `objects.yaml` / `rooms.yaml` / `triggers.yaml`, либо (`--layout per_file`) подкаталоги `mobs/` / `objects/` / `rooms/` / `triggers/` с `index.yaml`.
+- Загрузчик автодетектит раскладку по каждой зоне отдельно — миры можно смешивать.
+- YAML файлы в KOI8-R кодировке.
+
+> **Альтернатива конвертеру — пересохранение бинарником (`-S`).** Уже собранный YAML-мир можно перевести в другую раскладку (или просто пересохранить) без Python:
+> ```bash
+> circle -d <каталог_данных> -S <выходной_каталог>
+> ```
+> где `<каталог_данных>` содержит `world/world_config.yaml`. Раскладка берётся из `layout` в `world_config.yaml` (по умолчанию flat). `-d` принимает путь явно — `cd` в каталог данных не нужен (при `-d .` из неверного cwd будет «World is in Legacy format»). Миграция двунаправленная и самоочищающаяся: после flat-сейва каталоги `<sub>/` удаляются, после per-file — файлы `<sub>.yaml`.
 
 ---
 

@@ -750,6 +750,70 @@ run_roundtrip_test() {
     run_test "$name" "$binary" "$test_dir" "-W"
 }
 
+# Flat-layout round-trip: switch the YAML world to flat save, re-emit the whole
+# world via `-S` (which must produce flat <sub>.yaml files and remove the
+# per-file directories), boot the flat world under -W, and capture its
+# checksums. The CHECKSUM COMPARISON section diffs these against the per-file
+# YAML checksums -- they must be identical. The shared world dir is restored to
+# its pristine per-file state afterwards so later tests are unaffected.
+run_flat_roundtrip_test() {
+    local name="$1"
+    local binary="$2"
+    local test_dir="$3"
+
+    if ! should_run_test "$name"; then
+        return 0
+    fi
+
+    echo "--- $name ---"
+
+    local cfg="$test_dir/world/world_config.yaml"
+    if [ ! -d "$test_dir/world" ] || [ ! -f "$cfg" ]; then
+        echo "  X ERROR: $test_dir/world (with world_config.yaml) not present"
+        return 1
+    fi
+
+    (cd "$test_dir" && rm -rf world_flat world_pf_keep stdout_flat.log)
+    cp "$cfg" "$cfg.flatbak"
+
+    # Switch the source world to flat-save.
+    if grep -q '^layout:' "$cfg"; then
+        sed -i 's/^layout:.*/layout: flat/' "$cfg"
+    else
+        printf 'layout: flat\n' >> "$cfg"
+    fi
+
+    echo "  Resaving world (layout=flat) via '-S world_flat' ..."
+    (cd "$test_dir" && exec "$binary" -d . -S world_flat 4001 > stdout_flat.log 2>&1)
+    local rc=$?
+    if [ $rc -ne 0 ] || [ ! -d "$test_dir/world_flat" ]; then
+        echo "  X ERROR: circle -S (flat) exited rc=$rc, world_flat present: $([ -d "$test_dir/world_flat" ] && echo yes || echo no)"
+        tail -30 "$test_dir/stdout_flat.log" 2>/dev/null || true
+        mv "$cfg.flatbak" "$cfg"
+        return 1
+    fi
+
+    # Sanity: the re-emitted world must actually be flat -- a flat <sub>.yaml
+    # present and no per-file entity directory left behind in the same zone.
+    local zdir
+    zdir=$(find "$test_dir/world_flat/zones" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | head -1)
+    if [ -z "$zdir" ] || [ ! -f "$zdir/mobs.yaml" ] || [ -d "$zdir/mobs" ]; then
+        echo "  X ERROR: -S did not produce a clean flat layout in '$zdir'"
+        ls "$zdir" 2>/dev/null
+        (cd "$test_dir" && rm -rf world_flat)
+        mv "$cfg.flatbak" "$cfg"
+        return 1
+    fi
+
+    # Boot the flat world under -W and capture checksums.
+    (cd "$test_dir" && mv world world_pf_keep && mv world_flat world)
+    run_test "$name" "$binary" "$test_dir" "-W"
+
+    # Restore the pristine per-file world + config for later tests.
+    (cd "$test_dir" && rm -rf world && mv world_pf_keep world)
+    mv "$cfg.flatbak" "$cfg"
+}
+
 # Function to run a single test
 run_test() {
     local name="$1"
@@ -918,6 +982,9 @@ if [ -z "$FILTER_WORLD" ] || [ "$FILTER_WORLD" = "small" ]; then
     echo "=== SMALL WORLD - YAML ROUND-TRIP ==="
     echo ""
     [ -x "$YAML_BIN" ] && [ -d "$MUD_DIR/build_yaml/small" ] && run_roundtrip_test "Small_YAML_RoundTrip" "$YAML_BIN" "$MUD_DIR/build_yaml/small"
+    # Flat-layout round-trip: per-file world -> flat re-emit -> reboot. Checksums
+    # must match the per-file YAML run (compared below).
+    [ -x "$YAML_BIN" ] && [ -d "$MUD_DIR/build_yaml/small" ] && run_flat_roundtrip_test "Small_YAML_FlatRoundTrip" "$YAML_BIN" "$MUD_DIR/build_yaml/small"
 
     # Admin API CRUD Tests last -- they recreate the world from scratch and
     # mutate it, so anything order-sensitive has to run before this stage.
@@ -948,6 +1015,7 @@ if [ -z "$FILTER_WORLD" ] || [ "$FILTER_WORLD" = "full" ]; then
     echo "=== FULL WORLD - YAML ROUND-TRIP ==="
     echo ""
     [ -x "$YAML_BIN" ] && [ -d "$MUD_DIR/build_yaml/full" ] && run_roundtrip_test "Full_YAML_RoundTrip" "$YAML_BIN" "$MUD_DIR/build_yaml/full"
+    [ -x "$YAML_BIN" ] && [ -d "$MUD_DIR/build_yaml/full" ] && run_flat_roundtrip_test "Full_YAML_FlatRoundTrip" "$YAML_BIN" "$MUD_DIR/build_yaml/full"
 
     # Admin API CRUD Tests last -- they recreate the world from scratch and
     # mutate it (CRUD operations on running server), so anything order-sensitive
@@ -996,6 +1064,7 @@ if [ -z "$FILTER_CHECKSUMS" ] || [ "$FILTER_CHECKSUMS" = "yes" ]; then
         fi
         if [ -z "$FILTER_LOADER" ] || [ "$FILTER_LOADER" = "yaml" ]; then
             compare_checksums "Small_YAML_checksums" "Small_YAML_RoundTrip"
+            compare_checksums "Small_YAML_checksums" "Small_YAML_FlatRoundTrip"
         fi
         echo ""
     fi
@@ -1013,6 +1082,7 @@ if [ -z "$FILTER_CHECKSUMS" ] || [ "$FILTER_CHECKSUMS" = "yes" ]; then
         fi
         if [ -z "$FILTER_LOADER" ] || [ "$FILTER_LOADER" = "yaml" ]; then
             compare_checksums "Full_YAML_checksums" "Full_YAML_RoundTrip"
+            compare_checksums "Full_YAML_checksums" "Full_YAML_FlatRoundTrip"
         fi
         echo ""
     fi
