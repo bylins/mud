@@ -240,6 +240,25 @@ bool YamlWorldDataSource::LoadWorldConfig()
 			return false;
 		}
 
+		// Read layout setting (optional, defaults to flat). Controls only how
+		// zones are WRITTEN; loading auto-detects the layout per zone regardless.
+		if (config["layout"]) {
+			std::string layout = config["layout"].as<std::string>();
+			if (layout == "flat") {
+				m_save_layout = YamlLayout::Flat;
+				log("World config: flat layout (one file per entity type per zone)");
+			} else if (layout == "per_file") {
+				m_save_layout = YamlLayout::PerFile;
+				log("World config: per-file layout (one file per entity)");
+			} else {
+				log("SYSERR: Invalid layout value '%s' (expected 'flat' or 'per_file')", layout.c_str());
+				return false;
+			}
+		} else {
+			m_save_layout = YamlLayout::Flat;
+			log("World config: layout not set, defaulting to flat");
+		}
+
 		return true;
 	} catch (const YAML::Exception &e) {
 		log("SYSERR: Failed to parse world_config.yaml: %s", e.what());
@@ -289,91 +308,99 @@ std::vector<int> YamlWorldDataSource::GetZoneList()
 	return zones;
 }
 
-std::vector<int> YamlWorldDataSource::GetMobList()
+std::vector<EntityFileTask> YamlWorldDataSource::DiscoverEntityFiles(const std::string &sub)
 {
-	std::vector<int> mobs;
-	std::vector<int> zone_vnums = GetZoneList();
+	namespace fs = std::filesystem;
+	std::vector<EntityFileTask> tasks;
 
-	for (int zone_vnum : zone_vnums)
+	for (int zone_vnum : GetZoneList())
 	{
-		std::string index_path = m_world_dir + "/zones/" + std::to_string(zone_vnum) + "/mobs/index.yaml";
+		const std::string zone_dir = m_world_dir + "/zones/" + std::to_string(zone_vnum);
+		const std::string flat_path = zone_dir + "/" + sub + ".yaml";
+		const std::string index_path = zone_dir + "/" + sub + "/index.yaml";
+		const bool has_flat = fs::exists(flat_path);
+		const bool has_perfile = fs::exists(index_path);
+
+		// Normally only one layout exists (saves are self-cleaning). If both are
+		// present -- a half-finished migration or a leftover from a failed
+		// cleanup -- the configured layout (m_save_layout, from world_config.yaml)
+		// decides which one is authoritative; the other is ignored.
+		bool use_flat;
+		if (has_flat && has_perfile)
+		{
+			use_flat = (m_save_layout == YamlLayout::Flat);
+			log("WARNING: zone %d has both flat %s.yaml and per-file %s/ -- using "
+				"%s per world_config layout; the other is ignored.",
+				zone_vnum, sub.c_str(), sub.c_str(), use_flat ? "flat" : "per-file");
+		}
+		else
+		{
+			use_flat = has_flat;
+		}
+
+		if (use_flat)
+		{
+			// Flat layout: the file is a map of rel-number -> entity node and
+			// doubles as its own index. Enumerate the keys here (sequentially,
+			// main thread); the worker re-loads and parses the entities.
+			EntityFileTask task;
+			task.flat = true;
+			task.path = flat_path;
+			try
+			{
+				YAML::Node root = YAML::LoadFile(flat_path);
+				for (auto it = root.begin(); it != root.end(); ++it)
+				{
+					int rel_num = it->first.as<int>();
+					task.vnums.push_back(zone_vnum * 100 + rel_num);
+				}
+			}
+			catch (const YAML::Exception &e)
+			{
+				fatal_log("SYSERR: Failed to load flat %s file for zone %d ('%s'): %s",
+					sub.c_str(), zone_vnum, flat_path.c_str(), e.what());
+			}
+			std::sort(task.vnums.begin(), task.vnums.end());
+			if (!task.vnums.empty())
+			{
+				tasks.push_back(std::move(task));
+			}
+			continue;
+		}
+
+		// Per-file layout: one task per entity, listed in <sub>/index.yaml.
+		// A missing index simply means the zone has no entities of this type.
+		if (!has_perfile)
+		{
+			continue;
+		}
 		try
 		{
 			YAML::Node root = YAML::LoadFile(index_path);
-			if (root["mobs"] && root["mobs"].IsSequence())
+			if (root[sub] && root[sub].IsSequence())
 			{
-				for (const auto &rel_node : root["mobs"])
+				for (const auto &rel_node : root[sub])
 				{
 					int rel_num = rel_node.as<int>();
-					mobs.push_back(zone_vnum * 100 + rel_num);
+					EntityFileTask task;
+					task.flat = false;
+					std::ostringstream ss;
+					ss << zone_dir << "/" << sub << "/"
+					   << std::setfill('0') << std::setw(2) << rel_num << ".yaml";
+					task.path = ss.str();
+					task.vnums.push_back(zone_vnum * 100 + rel_num);
+					tasks.push_back(std::move(task));
 				}
 			}
 		}
 		catch (const YAML::Exception &e)
 		{
-			fatal_log("SYSERR: Failed to load mobs index for zone %d ('%s'): %s", zone_vnum, index_path.c_str(), e.what());
+			fatal_log("SYSERR: Failed to load %s index for zone %d ('%s'): %s",
+				sub.c_str(), zone_vnum, index_path.c_str(), e.what());
 		}
 	}
 
-	return mobs;
-}
-
-std::vector<int> YamlWorldDataSource::GetObjectList()
-{
-	std::vector<int> objects;
-	std::vector<int> zone_vnums = GetZoneList();
-
-	for (int zone_vnum : zone_vnums)
-	{
-		std::string index_path = m_world_dir + "/zones/" + std::to_string(zone_vnum) + "/objects/index.yaml";
-		try
-		{
-			YAML::Node root = YAML::LoadFile(index_path);
-			if (root["objects"] && root["objects"].IsSequence())
-			{
-				for (const auto &rel_node : root["objects"])
-				{
-					int rel_num = rel_node.as<int>();
-					objects.push_back(zone_vnum * 100 + rel_num);
-				}
-			}
-		}
-		catch (const YAML::Exception &e)
-		{
-			fatal_log("SYSERR: Failed to load objects index for zone %d ('%s'): %s", zone_vnum, index_path.c_str(), e.what());
-		}
-	}
-
-	return objects;
-}
-
-std::vector<int> YamlWorldDataSource::GetTriggerList()
-{
-	std::vector<int> triggers;
-	std::vector<int> zone_vnums = GetZoneList();
-
-	for (int zone_vnum : zone_vnums)
-	{
-		std::string index_path = m_world_dir + "/zones/" + std::to_string(zone_vnum) + "/triggers/index.yaml";
-		try
-		{
-			YAML::Node root = YAML::LoadFile(index_path);
-			if (root["triggers"] && root["triggers"].IsSequence())
-			{
-				for (const auto &rel_node : root["triggers"])
-				{
-					int rel_num = rel_node.as<int>();
-					triggers.push_back(zone_vnum * 100 + rel_num);
-				}
-			}
-		}
-		catch (const YAML::Exception &e)
-		{
-			fatal_log("SYSERR: Failed to load triggers index for zone %d ('%s'): %s", zone_vnum, index_path.c_str(), e.what());
-		}
-	}
-
-	return triggers;
+	return tasks;
 }
 
 std::string YamlWorldDataSource::ConvertToKoi8r(const std::string &utf8_str) const
@@ -524,7 +551,10 @@ ZoneData YamlWorldDataSource::ParseZoneFile(const std::string &file_path)
 	int zone_vnum = std::atoi(vnum_str.c_str());
 
 	ZoneData zone;
-	zone.vnum = GetInt(root, "vnum", zone_vnum);
+	// vnum is derived solely from the directory name (zones/<vnum>/zone.yaml),
+	// which is the discovery authority via zones/index.yaml. The file no longer
+	// stores a redundant vnum field (older files may still have one -- ignored).
+	zone.vnum = zone_vnum;
 	zone.name = GetText(root, "name", "Unknown Zone");
 	zone.group = GetInt(root, "zone_group", 1);
 	if (zone.group == 0) zone.group = 1;
@@ -632,13 +662,6 @@ void YamlWorldDataSource::LoadZonesParallel()
 				{
 					size_t zone_idx = vnum_to_idx.at(zone_vnum);
 					zone_table[zone_idx] = ParseZoneFile(zone_path);
-
-					// DEBUG: Check if vnums match
-					if (zone_table[zone_idx].vnum != zone_vnum) {
-						log("ERROR: Zone vnum mismatch! Index says %d, but zone.yaml has vnum=%d (file: %s)",
-							zone_vnum, zone_table[zone_idx].vnum, zone_path.c_str());
-						error_count++;
-					}
 				}
 				catch (const YAML::Exception &e)
 				{
@@ -901,10 +924,14 @@ void YamlWorldDataSource::LoadZoneCommands(ZoneData &zone, const YAML::Node &com
 Trigger* YamlWorldDataSource::ParseTriggerFile(const std::string &file_path)
 {
 	YAML::Node root = YAML::LoadFile(file_path);
+	return ParseTriggerNode(root);
+}
 
-	// Extract vnum from filename
-	// vnum extracted from filename but not used in YAML (stored in file content)
-
+// Parse a single trigger from an already-loaded YAML node. Shared by the
+// per-file layout (one node per file) and the flat layout (one node per
+// rel-number entry in triggers.yaml).
+Trigger* YamlWorldDataSource::ParseTriggerNode(const YAML::Node &root)
+{
 	std::string name = GetText(root, "name", "");
 	int attach_type = ParseEnum(root["attach_type"], "attach_types", 0);
 
@@ -943,7 +970,12 @@ Trigger* YamlWorldDataSource::ParseTriggerFile(const std::string &file_path)
 // Parallel trigger loading
 void YamlWorldDataSource::LoadTriggersParallel()
 {
-	std::vector<int> trigger_vnums = GetTriggerList();
+	std::vector<EntityFileTask> tasks = DiscoverEntityFiles("triggers");
+	std::vector<int> trigger_vnums;
+	for (const auto &t : tasks)
+	{
+		trigger_vnums.insert(trigger_vnums.end(), t.vnums.begin(), t.vnums.end());
+	}
 	if (trigger_vnums.empty())
 	{
 		log("No triggers found in YAML index.");
@@ -953,8 +985,8 @@ void YamlWorldDataSource::LoadTriggersParallel()
 	int trig_count = trigger_vnums.size();
 	log("   %d triggers.", trig_count);
 
-	// Distribute triggers into batches
-	auto batches = utils::DistributeBatches(trigger_vnums, m_num_threads);
+	// Distribute trigger files into batches (flat task = many vnums, per-file = one)
+	auto batches = utils::DistributeBatches(tasks, m_num_threads);
 
 	// Thread-local results (each thread collects its triggers)
 	std::vector<std::vector<std::pair<int, Trigger*>>> thread_results(batches.size());
@@ -966,34 +998,34 @@ void YamlWorldDataSource::LoadTriggersParallel()
 	for (size_t thread_id = 0; thread_id < batches.size(); ++thread_id)
 	{
 		futures.push_back(m_thread_pool->Enqueue([this, thread_id, &batches, &thread_results, &error_count]() {
-			log("DEBUG: Thread %zu started, processing %zu triggers", thread_id, batches[thread_id].size());
-			for (int vnum : batches[thread_id])
+			for (const auto &task : batches[thread_id])
 			{
-				int zone_vnum = vnum / 100;
-				int rel_num = vnum % 100;
-				std::ostringstream filepath_ss;
-				filepath_ss << m_world_dir << "/zones/" << zone_vnum << "/triggers/"
-				            << std::setfill('0') << std::setw(2) << rel_num << ".yaml";
-				std::string filepath = filepath_ss.str();
+				YAML::Node file_root;
 				try
 				{
-					log("DEBUG: Thread %zu parsing trigger %d", thread_id, vnum);
-					Trigger* trig = ParseTriggerFile(filepath);
-					thread_results[thread_id].emplace_back(vnum, trig);
-					log("DEBUG: Thread %zu completed trigger %d", thread_id, vnum);
-				}
-				catch (const YAML::Exception &e)
-				{
-					log("SYSERR: Failed to load trigger from '%s': %s", filepath.c_str(), e.what());
-					error_count++;
+					file_root = YAML::LoadFile(task.path);
 				}
 				catch (const std::exception &e)
 				{
-					log("SYSERR: Failed to load trigger from '%s': %s", filepath.c_str(), e.what());
-					error_count++;
+					log("SYSERR: Failed to load triggers from '%s': %s", task.path.c_str(), e.what());
+					error_count += static_cast<int>(task.vnums.size());
+					continue;
+				}
+				for (int vnum : task.vnums)
+				{
+					const YAML::Node node = task.flat ? file_root[vnum % 100] : file_root;
+					try
+					{
+						Trigger* trig = ParseTriggerNode(node);
+						thread_results[thread_id].emplace_back(vnum, trig);
+					}
+					catch (const std::exception &e)
+					{
+						log("SYSERR: Failed to parse trigger %d from '%s': %s", vnum, task.path.c_str(), e.what());
+						error_count++;
+					}
 				}
 			}
-			log("DEBUG: Thread %zu finished all triggers", thread_id);
 		}));
 	}
 
@@ -1069,6 +1101,14 @@ RoomData* YamlWorldDataSource::ParseRoomFile(const std::string &file_path, int z
 	int zone_vnum = std::atoi(file_path.substr(zone_start, zone_end - zone_start).c_str());
 	int vnum = zone_vnum * 100 + rel_num;
 
+	return ParseRoomNode(root, vnum, zone_rnum, local_index, local_desc_idx);
+}
+
+// Parse a single room from an already-loaded YAML node. Shared by the per-file
+// layout (vnum derived from the filename) and the flat layout (vnum derived
+// from the rel-number map key). local_desc_idx is an out-param.
+RoomData* YamlWorldDataSource::ParseRoomNode(const YAML::Node &root, int vnum, int zone_rnum, LocalDescriptionIndex &local_index, size_t &local_desc_idx)
+{
 	auto room = new RoomData;
 	room->vnum = vnum;
 	room->zone_rn = zone_rnum;
@@ -1130,57 +1170,14 @@ void YamlWorldDataSource::LoadRoomsParallel()
 	world.push_back(new RoomData);
 	top_of_world = kNowhere;
 
-	std::vector<int> zone_vnums = GetZoneList();
-	if (zone_vnums.empty())
+	std::vector<EntityFileTask> tasks = DiscoverEntityFiles("rooms");
+	std::vector<int> room_vnums;
+	for (const auto &t : tasks)
 	{
-		log("No zones found in YAML index.");
-		return;
-	}
-	std::set<int> enabled_zones(zone_vnums.begin(), zone_vnums.end());
-
-	// Collect all room files
-	std::vector<std::pair<int, std::string>> room_files;
-	std::string zones_dir = m_world_dir + "/zones";
-
-	namespace fs = std::filesystem;
-	for (const auto &zone_entry : fs::directory_iterator(zones_dir))
-	{
-		if (!zone_entry.is_directory()) continue;
-
-		std::string zone_dir_name = zone_entry.path().filename().string();
-		if (zone_dir_name.empty() || !std::isdigit(zone_dir_name[0])) continue;
-
-		int zone_vnum = std::stoi(zone_dir_name);
-		if (enabled_zones.find(zone_vnum) == enabled_zones.end()) continue;
-
-		std::string rooms_dir = zone_entry.path().string() + "/rooms";
-		if (!fs::exists(rooms_dir)) continue;
-
-		std::string rooms_index_path = rooms_dir + "/index.yaml";
-		try
-		{
-			YAML::Node rooms_index = YAML::LoadFile(rooms_index_path);
-			if (rooms_index["rooms"] && rooms_index["rooms"].IsSequence())
-			{
-				for (const auto &rel_node : rooms_index["rooms"])
-				{
-					int rel_num = rel_node.as<int>();
-					int vnum = zone_vnum * 100 + rel_num;
-					std::ostringstream ss;
-					ss << rooms_dir << "/" << std::setfill('0') << std::setw(2) << rel_num << ".yaml";
-					room_files.emplace_back(vnum, ss.str());
-				}
-			}
-		}
-		catch (const YAML::Exception &e)
-		{
-			fatal_log("SYSERR: Failed to load rooms index for zone %d: %s", zone_vnum, e.what());
-		}
+		room_vnums.insert(room_vnums.end(), t.vnums.begin(), t.vnums.end());
 	}
 
-	std::sort(room_files.begin(), room_files.end());
-
-	int room_count = room_files.size();
+	int room_count = room_vnums.size();
 	if (room_count == 0)
 	{
 		log("No rooms found in YAML files.");
@@ -1189,8 +1186,8 @@ void YamlWorldDataSource::LoadRoomsParallel()
 
 	log("   %d rooms, %zd bytes.", room_count, sizeof(RoomData) * room_count);
 
-	// Distribute rooms into batches for parallel parsing
-	auto batches = utils::DistributeBatches(room_files, m_num_threads);
+	// Distribute room files into batches (flat task = many vnums, per-file = one)
+	auto batches = utils::DistributeBatches(tasks, m_num_threads);
 	std::atomic<int> error_count{0};
 
 	// Launch parallel loading with thread-local description indices
@@ -1203,49 +1200,57 @@ void YamlWorldDataSource::LoadRoomsParallel()
 			std::vector<std::tuple<int, RoomData*, size_t>> parsed_rooms;
 			std::map<int, std::vector<int>> local_triggers;
 
-			for (const auto &[vnum, filepath] : batches[thread_id])
+			for (const auto &task : batches[thread_id])
 			{
+				YAML::Node file_root;
 				try
 				{
-					// Calculate zone_rnum from vnum
-					ZoneRnum zone_rn = 0;
-					while (zone_rn < static_cast<ZoneRnum>(zone_table.size()) &&
-					       vnum > zone_table[zone_rn].top)
-					{
-						zone_rn++;
-					}
-
-					size_t local_desc_idx = 0;
-					RoomData* room = ParseRoomFile(filepath, zone_rn, local_index, local_desc_idx);
-
-					// Load room triggers (if present)
-					YAML::Node root = YAML::LoadFile(filepath);
-					if (root["triggers"] && root["triggers"].IsSequence())
-					{
-						std::vector<int> trigger_list;
-						for (const auto &trig_node : root["triggers"])
-						{
-							int trigger_vnum = trig_node.as<int>();
-							trigger_list.push_back(trigger_vnum);
-						}
-						if (!trigger_list.empty())
-						{
-							local_triggers[vnum] = std::move(trigger_list);
-						}
-					}
-
-					// Store vnum, room, and local description index
-					parsed_rooms.push_back(std::make_tuple(vnum, room, local_desc_idx));
-				}
-				catch (const YAML::Exception &e)
-				{
-					log("SYSERR: Failed to load room from '%s': %s", filepath.c_str(), e.what());
-					error_count++;
+					file_root = YAML::LoadFile(task.path);
 				}
 				catch (const std::exception &e)
 				{
-					log("SYSERR: Failed to load room from '%s': %s", filepath.c_str(), e.what());
-					error_count++;
+					log("SYSERR: Failed to load rooms from '%s': %s", task.path.c_str(), e.what());
+					error_count += static_cast<int>(task.vnums.size());
+					continue;
+				}
+				for (int vnum : task.vnums)
+				{
+					const YAML::Node node = task.flat ? file_root[vnum % 100] : file_root;
+					try
+					{
+						// Calculate zone_rnum from vnum
+						ZoneRnum zone_rn = 0;
+						while (zone_rn < static_cast<ZoneRnum>(zone_table.size()) &&
+						       vnum > zone_table[zone_rn].top)
+						{
+							zone_rn++;
+						}
+
+						size_t local_desc_idx = 0;
+						RoomData* room = ParseRoomNode(node, vnum, zone_rn, local_index, local_desc_idx);
+
+						// Load room triggers (if present)
+						if (node["triggers"] && node["triggers"].IsSequence())
+						{
+							std::vector<int> trigger_list;
+							for (const auto &trig_node : node["triggers"])
+							{
+								trigger_list.push_back(trig_node.as<int>());
+							}
+							if (!trigger_list.empty())
+							{
+								local_triggers[vnum] = std::move(trigger_list);
+							}
+						}
+
+						// Store vnum, room, and local description index
+						parsed_rooms.push_back(std::make_tuple(vnum, room, local_desc_idx));
+					}
+					catch (const std::exception &e)
+					{
+						log("SYSERR: Failed to parse room %d from '%s': %s", vnum, task.path.c_str(), e.what());
+						error_count++;
+					}
 				}
 			}
 
@@ -1421,8 +1426,13 @@ void YamlWorldDataSource::LoadRoomExtraDescriptions(RoomData *room, const YAML::
 CharData YamlWorldDataSource::ParseMobFile(const std::string &file_path)
 {
 	YAML::Node root = YAML::LoadFile(file_path);
+	return ParseMobNode(root);
+}
 
-	// Note: vnum is passed separately by caller, extracted there
+// Parse a single mob from an already-loaded YAML node. Shared by the per-file
+// and flat layouts; vnum is assigned by the caller during the merge phase.
+CharData YamlWorldDataSource::ParseMobNode(const YAML::Node &root)
+{
 	CharData mob;
 	mob.player_specials = player_special_data::s_for_mobiles;
 	mob.SetNpcAttribute(true);
@@ -1752,7 +1762,12 @@ CharData YamlWorldDataSource::ParseMobFile(const std::string &file_path)
 // Parallel mob loading
 void YamlWorldDataSource::LoadMobsParallel()
 {
-	std::vector<int> mob_vnums = GetMobList();
+	std::vector<EntityFileTask> tasks = DiscoverEntityFiles("mobs");
+	std::vector<int> mob_vnums;
+	for (const auto &t : tasks)
+	{
+		mob_vnums.insert(mob_vnums.end(), t.vnums.begin(), t.vnums.end());
+	}
 	if (mob_vnums.empty())
 	{
 		log("No mobs found in YAML index.");
@@ -1786,8 +1801,9 @@ void YamlWorldDataSource::LoadMobsParallel()
 	// before workers start, so worker threads never write to globals.
 	player_special_data::s_for_mobiles->saved.NameGod = 1001;
 
-	// Distribute mobs into batches
-	auto batches = utils::DistributeBatches(mob_vnums, m_num_threads);
+	// Distribute mob files into batches (each task is one file; a flat file
+	// carries many vnums, a per-file task exactly one).
+	auto batches = utils::DistributeBatches(tasks, m_num_threads);
 	std::atomic<int> error_count{0};
 
 	// Two-phase loading: workers only parse into thread-local buffers; the
@@ -1804,44 +1820,48 @@ void YamlWorldDataSource::LoadMobsParallel()
 	for (size_t thread_id = 0; thread_id < batches.size(); ++thread_id)
 	{
 		futures.push_back(m_thread_pool->Enqueue([this, thread_id, &batches, &thread_results, &thread_triggers, &error_count]() {
-			for (int vnum : batches[thread_id])
+			for (const auto &task : batches[thread_id])
 			{
-				int zone_vnum = vnum / 100;
-				int rel_num = vnum % 100;
-				std::ostringstream filepath_ss;
-				filepath_ss << m_world_dir << "/zones/" << zone_vnum << "/mobs/"
-				            << std::setfill('0') << std::setw(2) << rel_num << ".yaml";
-				std::string filepath = filepath_ss.str();
+				YAML::Node file_root;
 				try
 				{
-					auto mob_ptr = std::make_unique<CharData>(ParseMobFile(filepath));
-					thread_results[thread_id].emplace_back(vnum, std::move(mob_ptr));
-
-					// Collect triggers for sequential attach in merge phase
-					YAML::Node root = YAML::LoadFile(filepath);
-					if (root["triggers"] && root["triggers"].IsSequence())
-					{
-						std::vector<int> trigger_list;
-						for (const auto &trig_node : root["triggers"])
-						{
-							int trigger_vnum = trig_node.as<int>();
-							trigger_list.push_back(trigger_vnum);
-						}
-						if (!trigger_list.empty())
-						{
-							thread_triggers[thread_id][vnum] = std::move(trigger_list);
-						}
-					}
-				}
-				catch (const YAML::Exception &e)
-				{
-					log("SYSERR: Failed to load mob from '%s': %s", filepath.c_str(), e.what());
-					error_count++;
+					file_root = YAML::LoadFile(task.path);
 				}
 				catch (const std::exception &e)
 				{
-					log("SYSERR: Failed to load mob from '%s': %s", filepath.c_str(), e.what());
-					error_count++;
+					log("SYSERR: Failed to load mobs from '%s': %s", task.path.c_str(), e.what());
+					error_count += static_cast<int>(task.vnums.size());
+					continue;
+				}
+				for (int vnum : task.vnums)
+				{
+					// Flat: entity is the node at the rel-number key. Per-file:
+					// the file root IS the entity node.
+					const YAML::Node node = task.flat ? file_root[vnum % 100] : file_root;
+					try
+					{
+						auto mob_ptr = std::make_unique<CharData>(ParseMobNode(node));
+						thread_results[thread_id].emplace_back(vnum, std::move(mob_ptr));
+
+						// Collect triggers for sequential attach in merge phase
+						if (node["triggers"] && node["triggers"].IsSequence())
+						{
+							std::vector<int> trigger_list;
+							for (const auto &trig_node : node["triggers"])
+							{
+								trigger_list.push_back(trig_node.as<int>());
+							}
+							if (!trigger_list.empty())
+							{
+								thread_triggers[thread_id][vnum] = std::move(trigger_list);
+							}
+						}
+					}
+					catch (const std::exception &e)
+					{
+						log("SYSERR: Failed to parse mob %d from '%s': %s", vnum, task.path.c_str(), e.what());
+						error_count++;
+					}
 				}
 			}
 		}));
@@ -1936,7 +1956,14 @@ void YamlWorldDataSource::LoadMobs()
 CObjectPrototype* YamlWorldDataSource::ParseObjectFile(const std::string &file_path, int vnum)
 {
 	YAML::Node root = YAML::LoadFile(file_path);
+	return ParseObjectNode(root, vnum);
+}
 
+// Parse a single object from an already-loaded YAML node. Shared by the
+// per-file layout (vnum from filename) and the flat layout (vnum from the
+// rel-number map key).
+CObjectPrototype* YamlWorldDataSource::ParseObjectNode(const YAML::Node &root, int vnum)
+{
 	// NOTE: This returns raw pointer - caller must wrap in shared_ptr
 	auto obj_ptr = new CObjectPrototype(vnum);
 	
@@ -2219,7 +2246,12 @@ CObjectPrototype* YamlWorldDataSource::ParseObjectFile(const std::string &file_p
 // Parallel object loading
 void YamlWorldDataSource::LoadObjectsParallel()
 {
-	std::vector<int> obj_vnums = GetObjectList();
+	std::vector<EntityFileTask> tasks = DiscoverEntityFiles("objects");
+	std::vector<int> obj_vnums;
+	for (const auto &t : tasks)
+	{
+		obj_vnums.insert(obj_vnums.end(), t.vnums.begin(), t.vnums.end());
+	}
 	if (obj_vnums.empty())
 	{
 		log("No objects found in YAML index.");
@@ -2229,8 +2261,8 @@ void YamlWorldDataSource::LoadObjectsParallel()
 	int obj_count = obj_vnums.size();
 	log("   %d objs.", obj_count);
 
-	// Distribute objects into batches
-	auto batches = utils::DistributeBatches(obj_vnums, m_num_threads);
+	// Distribute object files into batches (flat task = many vnums, per-file = one)
+	auto batches = utils::DistributeBatches(tasks, m_num_threads);
 
 	// Thread-local results (each thread collects its objects and triggers)
 	std::vector<std::vector<std::pair<int, CObjectPrototype*>>> thread_results(batches.size());
@@ -2242,45 +2274,47 @@ void YamlWorldDataSource::LoadObjectsParallel()
 	for (size_t thread_id = 0; thread_id < batches.size(); ++thread_id)
 	{
 		futures.push_back(m_thread_pool->Enqueue([this, thread_id, &batches, &thread_results, &thread_triggers, &error_count]() {
-			for (int vnum : batches[thread_id])
+			for (const auto &task : batches[thread_id])
 			{
-				int zone_vnum = vnum / 100;
-				int rel_num = vnum % 100;
-				std::ostringstream filepath_ss;
-				filepath_ss << m_world_dir << "/zones/" << zone_vnum << "/objects/"
-				            << std::setfill('0') << std::setw(2) << rel_num << ".yaml";
-				std::string filepath = filepath_ss.str();
+				YAML::Node file_root;
 				try
 				{
-					CObjectPrototype* obj = ParseObjectFile(filepath, vnum);
-
-					// Load object triggers (if present)
-					YAML::Node root = YAML::LoadFile(filepath);
-					if (root["triggers"] && root["triggers"].IsSequence())
-					{
-						std::vector<int> trigger_list;
-						for (const auto &trig_node : root["triggers"])
-						{
-							int trigger_vnum = trig_node.as<int>();
-							trigger_list.push_back(trigger_vnum);
-						}
-						if (!trigger_list.empty())
-						{
-							thread_triggers[thread_id][vnum] = std::move(trigger_list);
-						}
-					}
-
-					thread_results[thread_id].emplace_back(vnum, obj);
-				}
-				catch (const YAML::Exception &e)
-				{
-					log("SYSERR: Failed to load object from '%s': %s", filepath.c_str(), e.what());
-					error_count++;
+					file_root = YAML::LoadFile(task.path);
 				}
 				catch (const std::exception &e)
 				{
-					log("SYSERR: Failed to load object from '%s': %s", filepath.c_str(), e.what());
-					error_count++;
+					log("SYSERR: Failed to load objects from '%s': %s", task.path.c_str(), e.what());
+					error_count += static_cast<int>(task.vnums.size());
+					continue;
+				}
+				for (int vnum : task.vnums)
+				{
+					const YAML::Node node = task.flat ? file_root[vnum % 100] : file_root;
+					try
+					{
+						CObjectPrototype* obj = ParseObjectNode(node, vnum);
+
+						// Load object triggers (if present)
+						if (node["triggers"] && node["triggers"].IsSequence())
+						{
+							std::vector<int> trigger_list;
+							for (const auto &trig_node : node["triggers"])
+							{
+								trigger_list.push_back(trig_node.as<int>());
+							}
+							if (!trigger_list.empty())
+							{
+								thread_triggers[thread_id][vnum] = std::move(trigger_list);
+							}
+						}
+
+						thread_results[thread_id].emplace_back(vnum, obj);
+					}
+					catch (const std::exception &e)
+					{
+						log("SYSERR: Failed to parse object %d from '%s': %s", vnum, task.path.c_str(), e.what());
+						error_count++;
+					}
 				}
 			}
 		}));
@@ -2924,10 +2958,105 @@ void YamlWorldDataSource::SaveZone(int zone_rnum)
 	WriteIndexYaml(m_world_dir + "/zones/index.yaml", "zones", zone_vnums);
 }
 
+// Remove the artifacts of the layout we did NOT just write, so a save migrates
+// a zone's sub-type fully between layouts with no leftovers.
+void YamlWorldDataSource::CleanupOtherLayout(int zone_vnum, const std::string &sub, YamlLayout written) const
+{
+	namespace fs = std::filesystem;
+	const std::string base = m_world_dir + "/zones/" + std::to_string(zone_vnum);
+	std::error_code ec;
+	if (written == YamlLayout::Flat)
+	{
+		// We wrote <sub>.yaml -- drop the stale per-file directory (and index).
+		fs::remove_all(base + "/" + sub, ec);
+	}
+	else
+	{
+		// We wrote the <sub>/ directory -- drop the stale flat file.
+		fs::remove(base + "/" + sub + ".yaml", ec);
+	}
+}
+
+void YamlWorldDataSource::EmitTriggerBody(Koi8rYamlEmitter &yaml, Trigger *trig)
+{
+	// Name
+	yaml.Key("name");
+	yaml.Value(GET_TRIG_NAME(trig));
+
+	// Attach type
+	yaml.Key("attach_type");
+	yaml.Value(ReverseLookupEnum("attach_types", trig->get_attach_type()));
+
+	// Narg
+	yaml.Key("narg");
+	yaml.Value(GET_TRIG_NARG(trig));
+
+	// Arglist (optional)
+	if (!trig->arglist.empty())
+	{
+		yaml.Key("arglist");
+		yaml.Value(trig->arglist);
+	}
+
+	// Trigger types
+	bool has_trigger_types = false;
+	for (int bit = 0; bit < 32; ++bit)
+	{
+		if (GET_TRIG_TYPE(trig) & (1L << bit))
+		{
+			has_trigger_types = true;
+			break;
+		}
+	}
+
+	if (has_trigger_types)
+	{
+		yaml.Key("trigger_types");
+		yaml.BeginSequence();
+		yaml.IncreaseIndent();
+
+		for (int bit = 0; bit < 32; ++bit)
+		{
+			if (GET_TRIG_TYPE(trig) & (1L << bit))
+			{
+				std::string type_name = ReverseLookupEnum("trigger_types", bit);
+				if (!type_name.empty() && type_name != std::to_string(bit))
+				{
+					yaml.SequenceItem(type_name);
+				}
+			}
+		}
+
+		yaml.DecreaseIndent();
+	}
+
+	// Script (multiline literal block). ParseTriggerScript keeps
+	// whitespace-only lines from the source as cmd_list nodes whose
+	// cmd is "" after TrimRight; we must round-trip the node count or
+	// the world checksum shifts. The original whitespace text is no
+	// longer available, so we serialise empty cmds as a single space:
+	// on reload, ParseTriggerScript sees a non-empty line, TrimRights
+	// it back to "", and the node count is preserved.
+	std::string script;
+	for (auto cmd = *trig->cmdlist; cmd; cmd = cmd->next)
+	{
+		script += cmd->cmd.empty() ? std::string(" ") : cmd->cmd;
+		if (cmd->next)
+		{
+			script += "\n";
+		}
+	}
+
+	if (!script.empty())
+	{
+		yaml.Key("script");
+		yaml.Value(script, true);  // literal=true
+	}
+}
+
 bool YamlWorldDataSource::SaveTriggers(int zone_rnum, int specific_vnum, int notify_level)
 {
 	(void)notify_level; // YAML saves don't use mudlog - errors go to log file
-	log("SaveTriggers called: zone_rnum=%d, specific_vnum=%d", zone_rnum, specific_vnum);
 	if (zone_rnum < 0 || zone_rnum >= static_cast<int>(zone_table.size()))
 	{
 		log("SYSERR: Invalid zone_rnum %d for SaveTriggers", zone_rnum);
@@ -2935,55 +3064,73 @@ bool YamlWorldDataSource::SaveTriggers(int zone_rnum, int specific_vnum, int not
 	}
 
 	const ZoneData &zone = zone_table[zone_rnum];
-	TrgRnum first_trig = 0;
-	TrgRnum last_trig = top_of_trigt;
+
+	// Collect this zone's triggers, sorted by vnum.
+	std::vector<std::pair<int, Trigger *>> entries;  // (vnum, proto)
+	for (TrgRnum trig_rnum = 0; trig_rnum < top_of_trigt; ++trig_rnum)
+	{
+		if (!trig_index[trig_rnum]) continue;
+		int trig_vnum = trig_index[trig_rnum]->vnum;
+		if (trig_vnum < zone.vnum * 100 || trig_vnum > zone.top) continue;
+		Trigger *trig = trig_index[trig_rnum]->proto;
+		if (!trig) continue;
+		entries.emplace_back(trig_vnum, trig);
+	}
+	std::sort(entries.begin(), entries.end(),
+		[](const auto &a, const auto &b) { return a.first < b.first; });
 
 	namespace fs = std::filesystem;
 
-	int saved_count = 0;
-	log("SaveTriggers: Iterating triggers from %d to %d, specific_vnum=%d", first_trig, last_trig, specific_vnum);
-	for (TrgRnum trig_rnum = first_trig; trig_rnum <= last_trig && trig_rnum < top_of_trigt; ++trig_rnum)
+	if (m_save_layout == YamlLayout::Flat)
 	{
-		if (!trig_index[trig_rnum])
+		// Flat layout ignores specific_vnum: the whole zone file is rewritten
+		// from the in-memory prototypes (which already reflect the edit).
+		const std::string flat_path = m_world_dir + "/zones/" + std::to_string(zone.vnum) + "/triggers.yaml";
+		const std::string temp_file = flat_path + ".tmp";
+		std::ofstream out(temp_file);
+		if (!out.is_open())
 		{
-			continue;
+			log("SYSERR: Failed to open %s for writing", temp_file.c_str());
+			return false;
 		}
-
-		int trig_vnum = trig_index[trig_rnum]->vnum;
-		if (trig_vnum < zone.vnum * 100 || trig_vnum > zone.top)
+		Koi8rYamlEmitter yaml(out);
+		yaml.Comment("Triggers for zone " + std::to_string(zone.vnum));
+		for (const auto &[trig_vnum, trig] : entries)
 		{
-			continue;
+			yaml.EmptyLine();
+			yaml.Comment("Trigger #" + std::to_string(trig_vnum));
+			out << yaml.GetIndent() << (trig_vnum % 100) << ":" << std::endl;
+			yaml.IncreaseIndent();
+			EmitTriggerBody(yaml, trig);
+			yaml.DecreaseIndent();
 		}
-		Trigger *trig = trig_index[trig_rnum]->proto;
-
-		if (!trig)
+		out.close();
+		if (std::rename(temp_file.c_str(), flat_path.c_str()) != 0)
 		{
-			continue;
+			log("SYSERR: Failed to rename %s to %s", temp_file.c_str(), flat_path.c_str());
+			return false;
 		}
+		log("Saved %zu triggers (flat) for zone %d", entries.size(), zone.vnum);
+		CleanupOtherLayout(zone.vnum, "triggers", YamlLayout::Flat);
+		return true;
+	}
 
-		// If specific_vnum is set, save only that trigger
-		if (specific_vnum != -1 && trig_vnum != specific_vnum)
-		{
-			log("SaveTriggers: Skipping trigger %d (looking for %d)", trig_vnum, specific_vnum);
-			continue;
-		}
+	// Per-file layout: one file per trigger.
+	int saved_count = 0;
+	for (const auto &[trig_vnum, trig] : entries)
+	{
+		if (specific_vnum != -1 && trig_vnum != specific_vnum) continue;
 
-		log("SaveTriggers: Saving trigger #%d", trig_vnum);
-		// Build per-zone path
-		int zone_vnum_for_trig = trig_vnum / 100;
 		int rel_num = trig_vnum % 100;
-		std::ostringstream trig_dir_ss;
-		trig_dir_ss << m_world_dir << "/zones/" << zone_vnum_for_trig << "/triggers";
-		std::string trig_dir = trig_dir_ss.str();
+		const std::string trig_dir = m_world_dir + "/zones/" + std::to_string(zone.vnum) + "/triggers";
 		if (!fs::exists(trig_dir))
 		{
 			fs::create_directories(trig_dir);
 		}
 		std::ostringstream trig_file_ss;
 		trig_file_ss << trig_dir << "/" << std::setfill('0') << std::setw(2) << rel_num << ".yaml";
-		std::string trig_file = trig_file_ss.str();
-		std::string temp_file = trig_file + ".tmp";
-		log("SaveTriggers: Writing to %s", temp_file.c_str());
+		const std::string trig_file = trig_file_ss.str();
+		const std::string temp_file = trig_file + ".tmp";
 		std::ofstream out(temp_file);
 		if (!out.is_open())
 		{
@@ -2992,104 +3139,235 @@ bool YamlWorldDataSource::SaveTriggers(int zone_rnum, int specific_vnum, int not
 		}
 
 		Koi8rYamlEmitter yaml(out);
-
-		// Header comment
 		yaml.Comment("Trigger #" + std::to_string(trig_vnum));
 		yaml.EmptyLine();
+		EmitTriggerBody(yaml, trig);
 
-		// Vnum (matches Python converter output and SaveRooms convention).
-		yaml.Key("vnum");
-		yaml.Value(trig_vnum);
-
-		// Name
-		yaml.Key("name");
-		yaml.Value(GET_TRIG_NAME(trig));
-
-		// Attach type
-		yaml.Key("attach_type");
-		yaml.Value(ReverseLookupEnum("attach_types", trig->get_attach_type()));
-
-		// Narg
-		yaml.Key("narg");
-		yaml.Value(GET_TRIG_NARG(trig));
-
-		// Arglist (optional)
-		if (!trig->arglist.empty())
-		{
-			yaml.Key("arglist");
-			yaml.Value(trig->arglist);
-		}
-
-		// Trigger types
-		bool has_trigger_types = false;
-		for (int bit = 0; bit < 32; ++bit)
-		{
-			if (GET_TRIG_TYPE(trig) & (1L << bit))
-			{
-				has_trigger_types = true;
-				break;
-			}
-		}
-
-		if (has_trigger_types)
-		{
-			yaml.Key("trigger_types");
-			yaml.BeginSequence();
-			yaml.IncreaseIndent();
-
-			for (int bit = 0; bit < 32; ++bit)
-			{
-				if (GET_TRIG_TYPE(trig) & (1L << bit))
-				{
-					std::string type_name = ReverseLookupEnum("trigger_types", bit);
-					if (!type_name.empty() && type_name != std::to_string(bit))
-					{
-						yaml.SequenceItem(type_name);
-					}
-				}
-			}
-
-			yaml.DecreaseIndent();
-		}
-
-		// Script (multiline literal block). ParseTriggerScript keeps
-		// whitespace-only lines from the source as cmd_list nodes whose
-		// cmd is "" after TrimRight; we must round-trip the node count or
-		// the world checksum shifts. The original whitespace text is no
-		// longer available, so we serialise empty cmds as a single space:
-		// on reload, ParseTriggerScript sees a non-empty line, TrimRights
-		// it back to "", and the node count is preserved.
-		std::string script;
-		for (auto cmd = *trig->cmdlist; cmd; cmd = cmd->next)
-		{
-			script += cmd->cmd.empty() ? std::string(" ") : cmd->cmd;
-			if (cmd->next)
-			{
-				script += "\n";
-			}
-		}
-
-		if (!script.empty())
-		{
-			yaml.Key("script");
-			yaml.Value(script, true);  // literal=true
-		}
-
-		// Close file and rename atomically
 		out.close();
 		if (std::rename(temp_file.c_str(), trig_file.c_str()) != 0)
 		{
 			log("SYSERR: Failed to rename %s to %s", temp_file.c_str(), trig_file.c_str());
 			continue;
 		}
-
 		++saved_count;
 	}
 
 	log("Saved %d triggers for zone %d", saved_count, zone.vnum);
-
 	RebuildPerZoneIndex(zone.vnum, "triggers");
+	CleanupOtherLayout(zone.vnum, "triggers", YamlLayout::PerFile);
 	return true;
+}
+
+void YamlWorldDataSource::EmitRoomBody(Koi8rYamlEmitter &yaml, std::ostream &out, RoomData *room)
+{
+	// Name
+	if (room->name)
+	{
+		yaml.Key("name");
+		yaml.Value(room->name);
+	}
+
+	// Description
+	std::string desc = GlobalObjects::descriptions().get(room->description_num);
+	if (!desc.empty())
+	{
+		yaml.Key("description");
+		yaml.Value(desc, true);  // literal=true
+	}
+
+	// Sector
+	yaml.Key("sector");
+	yaml.Value(ReverseLookupEnum("sectors", static_cast<int>(room->sector_type)));
+
+	// Flags
+	FlagData room_flags = room->read_flags();
+	auto flag_names = ConvertFlagsToNames(room_flags, "room_flags");
+	if (!flag_names.empty())
+	{
+		yaml.Key("flags");
+		yaml.BeginSequence();
+		yaml.IncreaseIndent();
+
+		for (const auto &flag : flag_names)
+		{
+			yaml.SequenceItem(flag);
+		}
+
+		yaml.DecreaseIndent();
+	}
+
+	// Exits (with to_room comments)
+	bool has_exits = false;
+	for (int dir = 0; dir < EDirection::kMaxDirNum; ++dir)
+	{
+		if (room->dir_option_proto[dir])
+		{
+			has_exits = true;
+			break;
+		}
+	}
+
+	if (has_exits)
+	{
+		yaml.Key("exits");
+		yaml.BeginSequence();
+		yaml.IncreaseIndent();
+
+		for (int dir = 0; dir < EDirection::kMaxDirNum; ++dir)
+		{
+			if (!room->dir_option_proto[dir])
+			{
+				continue;
+			}
+
+			out << yaml.GetIndent() << "- direction: ";
+			out << ReverseLookupEnum("directions", dir) << std::endl;
+
+			// to_room (with comment)
+			RoomRnum to_rnum = kNowhere;
+			int to_vnum = -1;
+			if (room->dir_option_proto[dir]->to_room() != kNowhere)
+			{
+				to_rnum = room->dir_option_proto[dir]->to_room();
+				if (to_rnum >= 0 && to_rnum <= top_of_world && world[to_rnum])
+				{
+					to_vnum = world[to_rnum]->vnum;
+				}
+			}
+
+			out << yaml.GetIndent() << "  to_room: " << to_vnum;
+			if (to_vnum != -1 && to_rnum != kNowhere)
+			{
+				std::string room_name = GetRoomNameComment(to_rnum);
+				if (!room_name.empty())
+				{
+					out << "  # " << room_name;
+				}
+			}
+			out << std::endl;
+
+			// Description (optional). Delegate to Koi8rYamlEmitter::Value
+			// for proper clip-vs-strip chomping based on trailing newline
+			// in the source string (otherwise round-trip silently appends
+			// a CR/LF that wasn't in memory).
+			if (!room->dir_option_proto[dir]->general_description.empty())
+			{
+				out << yaml.GetIndent() << "  description:";
+				yaml.IncreaseIndent();
+				yaml.Value(room->dir_option_proto[dir]->general_description, true);
+				yaml.DecreaseIndent();
+			}
+
+			// Keywords (optional). ExitData splits the load value on '|':
+			// keyword = nominative form, vkeyword = accusative. Recombine
+			// them on save with the same delimiter so the next load sees
+			// both forms (otherwise the accusative form is silently lost
+			// and "открыть решетку" no longer matches the door).
+			if (room->dir_option_proto[dir]->keyword)
+			{
+				std::string kws = room->dir_option_proto[dir]->keyword;
+				const char *vk = room->dir_option_proto[dir]->vkeyword;
+				if (vk && *vk && kws != vk)
+				{
+					kws += "|";
+					kws += vk;
+				}
+				out << yaml.GetIndent() << "  keywords:";
+				// IncreaseIndent so yaml.Value's literal-block branch emits
+				// content lines at parent_indent + 2 -- the indicator "2"
+				// matches actual column position. Without this content sits
+				// one indent shy of where "|+2"/"|2" promises it lives.
+				yaml.IncreaseIndent();
+				yaml.Value(kws);
+				yaml.DecreaseIndent();
+			}
+
+			// Exit flags (optional)
+			if (room->dir_option_proto[dir]->exit_info != 0)
+			{
+				out << yaml.GetIndent() << "  exit_flags: ";
+				out << static_cast<int>(room->dir_option_proto[dir]->exit_info) << std::endl;
+			}
+
+			// Key (optional)
+			if (room->dir_option_proto[dir]->key != -1)
+			{
+				out << yaml.GetIndent() << "  key: ";
+				out << room->dir_option_proto[dir]->key << std::endl;
+			}
+
+			// Lock complexity (optional)
+			if (room->dir_option_proto[dir]->lock_complexity != 0)
+			{
+				out << yaml.GetIndent() << "  lock_complexity: ";
+				out << static_cast<int>(room->dir_option_proto[dir]->lock_complexity) << std::endl;
+			}
+		}
+
+		yaml.DecreaseIndent();
+	}
+
+	// Extra descriptions
+	if (room->ex_description)
+	{
+		yaml.Key("extra_descriptions");
+		yaml.BeginSequence();
+		yaml.IncreaseIndent();
+
+		// LoadRoomExtraDescriptions prepends each yaml entry to the
+		// list, so the in-memory head->tail order is the reverse of the
+		// file order. To keep checksums stable through save->load, walk
+		// the list head->tail and write the entries in reverse: a fresh
+		// load will prepend them back to the same in-memory order.
+		std::vector<ExtraDescription *> exdescs;
+		for (auto exdesc = room->ex_description; exdesc; exdesc = exdesc->next)
+		{
+			exdescs.push_back(exdesc.get());
+		}
+		for (auto it = exdescs.rbegin(); it != exdescs.rend(); ++it)
+		{
+			const auto *exdesc = *it;
+			if (exdesc->keyword)
+			{
+				// keywords may start with '-' (legitimately a single dash);
+				// Koi8rYamlEmitter::Value handles leading-indicator quoting.
+				out << yaml.GetIndent() << "- keywords:";
+				// IncreaseIndent so yaml.Value's literal-block branch
+				// emits content lines at the correct column for indicator
+				// "2" (parent_indent + 2). The "  " before `-` already
+				// indented us; we need one more level so a multi-line
+				// keyword doesn't get content at the wrong column.
+				yaml.IncreaseIndent();
+				yaml.Value(std::string(exdesc->keyword));
+				yaml.DecreaseIndent();
+				if (exdesc->description)
+				{
+					out << yaml.GetIndent() << "  description:";
+					yaml.IncreaseIndent();
+					yaml.Value(std::string(exdesc->description), true);
+					yaml.DecreaseIndent();
+				}
+			}
+		}
+
+		yaml.DecreaseIndent();
+	}
+
+	// Triggers (with comments)
+	if (room->proto_script && !room->proto_script->empty())
+	{
+		yaml.Key("triggers");
+		yaml.BeginSequence();
+		yaml.IncreaseIndent();
+
+		for (auto trig_vnum : *room->proto_script)
+		{
+			std::string trig_comment = GetTriggerNameComment(trig_vnum);
+			yaml.SequenceItem(trig_vnum, trig_comment);
+		}
+
+		yaml.DecreaseIndent();
+	}
 }
 
 void YamlWorldDataSource::SaveRooms(int zone_rnum, int specific_vnum)
@@ -3101,36 +3379,69 @@ void YamlWorldDataSource::SaveRooms(int zone_rnum, int specific_vnum)
 	}
 
 	const ZoneData &zone = zone_table[zone_rnum];
-	// The cached RnumRoomsLocation range is set at boot and misses rooms added
-	// later via OLC/the Admin API (stays (-1,-1) for zones empty at boot, and
-	// never grows when rooms are appended). Always scan the whole world; the
-	// loop below filters by vnum so only this zone's rooms are written.
-	RoomRnum first_room = 0;
-	RoomRnum last_room = top_of_world;
 
-	std::string rooms_dir = m_world_dir + "/zones/" + std::to_string(zone.vnum) + "/rooms";
+	// Collect this zone's rooms, sorted by vnum. The cached RnumRoomsLocation
+	// range misses rooms added via OLC/Admin API, so scan the whole world.
+	// rel == 99 is the runtime-only virtual room (AddVirtualRoomsToAllZones);
+	// it is never persisted (matches RebuildPerZoneIndex), so skip it -- in the
+	// flat layout writing it would resurrect a phantom room on reload.
+	std::vector<std::pair<int, RoomData *>> entries;
+	for (RoomRnum room_rnum = 0; room_rnum <= top_of_world; ++room_rnum)
+	{
+		RoomData *room = world[room_rnum];
+		if (!room || room->vnum < zone.vnum * 100 || room->vnum > zone.top) continue;
+		if (room->vnum % 100 == 99) continue;
+		entries.emplace_back(room->vnum, room);
+	}
+	std::sort(entries.begin(), entries.end(),
+		[](const auto &a, const auto &b) { return a.first < b.first; });
+
 	namespace fs = std::filesystem;
+
+	if (m_save_layout == YamlLayout::Flat)
+	{
+		const std::string flat_path = m_world_dir + "/zones/" + std::to_string(zone.vnum) + "/rooms.yaml";
+		const std::string temp_file = flat_path + ".tmp";
+		std::ofstream out(temp_file);
+		if (!out.is_open())
+		{
+			log("SYSERR: Failed to open %s for writing", temp_file.c_str());
+			return;
+		}
+		Koi8rYamlEmitter yaml(out);
+		yaml.Comment("Rooms for zone " + std::to_string(zone.vnum));
+		for (const auto &[vnum, room] : entries)
+		{
+			yaml.EmptyLine();
+			yaml.Comment("Room #" + std::to_string(vnum));
+			out << yaml.GetIndent() << (vnum % 100) << ":" << std::endl;
+			yaml.IncreaseIndent();
+			EmitRoomBody(yaml, out, room);
+			yaml.DecreaseIndent();
+		}
+		out.close();
+		if (std::rename(temp_file.c_str(), flat_path.c_str()) != 0)
+		{
+			log("SYSERR: Failed to rename %s to %s", temp_file.c_str(), flat_path.c_str());
+			return;
+		}
+		log("Saved %zu rooms (flat) for zone %d", entries.size(), zone.vnum);
+		CleanupOtherLayout(zone.vnum, "rooms", YamlLayout::Flat);
+		return;
+	}
+
+	// Per-file layout: one file per room.
+	const std::string rooms_dir = m_world_dir + "/zones/" + std::to_string(zone.vnum) + "/rooms";
 	if (!fs::exists(rooms_dir))
 	{
 		fs::create_directories(rooms_dir);
 	}
-
 	int saved_count = 0;
-	for (RoomRnum room_rnum = first_room; room_rnum <= last_room && room_rnum <= top_of_world; ++room_rnum)
+	for (const auto &[vnum, room] : entries)
 	{
-		RoomData *room = world[room_rnum];
-		if (!room || room->vnum < zone.vnum * 100 || room->vnum > zone.top)
-		{
-			continue;
-		}
+		if (specific_vnum != -1 && vnum != specific_vnum) continue;
 
-		// If specific_vnum is set, save only that room
-		if (specific_vnum != -1 && room->vnum != specific_vnum)
-		{
-			continue;
-		}
-
-		int rel_num = room->vnum % 100;
+		int rel_num = vnum % 100;
 		std::string room_file = rooms_dir + "/" + fmt::format("{:02d}", rel_num) + ".yaml";
 		std::string temp_file = room_file + ".tmp";
 		std::ofstream out(temp_file);
@@ -3141,238 +3452,541 @@ void YamlWorldDataSource::SaveRooms(int zone_rnum, int specific_vnum)
 		}
 
 		Koi8rYamlEmitter yaml(out);
-
-		// Header comment
-		yaml.Comment("Room #" + std::to_string(room->vnum));
+		yaml.Comment("Room #" + std::to_string(vnum));
 		yaml.EmptyLine();
+		EmitRoomBody(yaml, out, room);
 
-		// Vnum
-		yaml.Key("vnum");
-		yaml.Value(room->vnum);
-
-		// Name
-		if (room->name)
-		{
-			yaml.Key("name");
-			yaml.Value(room->name);
-		}
-
-		// Description
-		std::string desc = GlobalObjects::descriptions().get(room->description_num);
-		if (!desc.empty())
-		{
-			yaml.Key("description");
-			yaml.Value(desc, true);  // literal=true
-		}
-
-		// Sector
-		yaml.Key("sector");
-		yaml.Value(ReverseLookupEnum("sectors", static_cast<int>(room->sector_type)));
-
-		// Flags
-		FlagData room_flags = room->read_flags();
-		auto flag_names = ConvertFlagsToNames(room_flags, "room_flags");
-		if (!flag_names.empty())
-		{
-			yaml.Key("flags");
-			yaml.BeginSequence();
-			yaml.IncreaseIndent();
-
-			for (const auto &flag : flag_names)
-			{
-				yaml.SequenceItem(flag);
-			}
-
-			yaml.DecreaseIndent();
-		}
-
-		// Exits (with to_room comments)
-		bool has_exits = false;
-		for (int dir = 0; dir < EDirection::kMaxDirNum; ++dir)
-		{
-			if (room->dir_option_proto[dir])
-			{
-				has_exits = true;
-				break;
-			}
-		}
-
-		if (has_exits)
-		{
-			yaml.Key("exits");
-			yaml.BeginSequence();
-			yaml.IncreaseIndent();
-
-			for (int dir = 0; dir < EDirection::kMaxDirNum; ++dir)
-			{
-				if (!room->dir_option_proto[dir])
-				{
-					continue;
-				}
-
-				out << yaml.GetIndent() << "- direction: ";
-				out << ReverseLookupEnum("directions", dir) << std::endl;
-
-				// to_room (with comment)
-				RoomRnum to_rnum = kNowhere;
-				int to_vnum = -1;
-				if (room->dir_option_proto[dir]->to_room() != kNowhere)
-				{
-					to_rnum = room->dir_option_proto[dir]->to_room();
-					if (to_rnum >= 0 && to_rnum <= top_of_world && world[to_rnum])
-					{
-						to_vnum = world[to_rnum]->vnum;
-					}
-				}
-
-				out << yaml.GetIndent() << "  to_room: " << to_vnum;
-				if (to_vnum != -1 && to_rnum != kNowhere)
-				{
-					std::string room_name = GetRoomNameComment(to_rnum);
-					if (!room_name.empty())
-					{
-						out << "  # " << room_name;
-					}
-				}
-				out << std::endl;
-
-				// Description (optional). Delegate to Koi8rYamlEmitter::Value
-				// for proper clip-vs-strip chomping based on trailing newline
-				// in the source string (otherwise round-trip silently appends
-				// a CR/LF that wasn't in memory).
-				if (!room->dir_option_proto[dir]->general_description.empty())
-				{
-					out << yaml.GetIndent() << "  description:";
-					yaml.IncreaseIndent();
-					yaml.Value(room->dir_option_proto[dir]->general_description, true);
-					yaml.DecreaseIndent();
-				}
-
-				// Keywords (optional). ExitData splits the load value on '|':
-				// keyword = nominative form, vkeyword = accusative. Recombine
-				// them on save with the same delimiter so the next load sees
-				// both forms (otherwise the accusative form is silently lost
-				// and "открыть решетку" no longer matches the door).
-				if (room->dir_option_proto[dir]->keyword)
-				{
-					std::string kws = room->dir_option_proto[dir]->keyword;
-					const char *vk = room->dir_option_proto[dir]->vkeyword;
-					if (vk && *vk && kws != vk)
-					{
-						kws += "|";
-						kws += vk;
-					}
-					out << yaml.GetIndent() << "  keywords:";
-					// IncreaseIndent so yaml.Value's literal-block branch emits
-					// content lines at parent_indent + 2 -- the indicator "2"
-					// matches actual column position. Without this content sits
-					// one indent shy of where "|+2"/"|2" promises it lives.
-					yaml.IncreaseIndent();
-					yaml.Value(kws);
-					yaml.DecreaseIndent();
-				}
-
-				// Exit flags (optional)
-				if (room->dir_option_proto[dir]->exit_info != 0)
-				{
-					out << yaml.GetIndent() << "  exit_flags: ";
-					out << static_cast<int>(room->dir_option_proto[dir]->exit_info) << std::endl;
-				}
-
-				// Key (optional)
-				if (room->dir_option_proto[dir]->key != -1)
-				{
-					out << yaml.GetIndent() << "  key: ";
-					out << room->dir_option_proto[dir]->key << std::endl;
-				}
-
-				// Lock complexity (optional)
-				if (room->dir_option_proto[dir]->lock_complexity != 0)
-				{
-					out << yaml.GetIndent() << "  lock_complexity: ";
-					out << static_cast<int>(room->dir_option_proto[dir]->lock_complexity) << std::endl;
-				}
-			}
-
-			yaml.DecreaseIndent();
-		}
-
-		// Extra descriptions
-		if (room->ex_description)
-		{
-			yaml.Key("extra_descriptions");
-			yaml.BeginSequence();
-			yaml.IncreaseIndent();
-
-			// LoadRoomExtraDescriptions prepends each yaml entry to the
-			// list, so the in-memory head->tail order is the reverse of the
-			// file order. To keep checksums stable through save->load, walk
-			// the list head->tail and write the entries in reverse: a fresh
-			// load will prepend them back to the same in-memory order.
-			std::vector<ExtraDescription *> exdescs;
-			for (auto exdesc = room->ex_description; exdesc; exdesc = exdesc->next)
-			{
-				exdescs.push_back(exdesc.get());
-			}
-			for (auto it = exdescs.rbegin(); it != exdescs.rend(); ++it)
-			{
-				const auto *exdesc = *it;
-				if (exdesc->keyword)
-				{
-					// keywords may start with '-' (legitimately a single dash);
-					// Koi8rYamlEmitter::Value handles leading-indicator quoting.
-					out << yaml.GetIndent() << "- keywords:";
-					// IncreaseIndent so yaml.Value's literal-block branch
-					// emits content lines at the correct column for indicator
-					// "2" (parent_indent + 2). The "  " before `-` already
-					// indented us; we need one more level so a multi-line
-					// keyword doesn't get content at the wrong column.
-					yaml.IncreaseIndent();
-					yaml.Value(std::string(exdesc->keyword));
-					yaml.DecreaseIndent();
-					if (exdesc->description)
-					{
-						out << yaml.GetIndent() << "  description:";
-						yaml.IncreaseIndent();
-						yaml.Value(std::string(exdesc->description), true);
-						yaml.DecreaseIndent();
-					}
-				}
-			}
-
-			yaml.DecreaseIndent();
-		}
-
-		// Triggers (with comments)
-		if (room->proto_script && !room->proto_script->empty())
-		{
-			yaml.Key("triggers");
-			yaml.BeginSequence();
-			yaml.IncreaseIndent();
-
-			for (auto trig_vnum : *room->proto_script)
-			{
-				std::string trig_comment = GetTriggerNameComment(trig_vnum);
-				yaml.SequenceItem(trig_vnum, trig_comment);
-			}
-
-			yaml.DecreaseIndent();
-		}
-
-		// Close file and rename atomically
 		out.close();
 		if (std::rename(temp_file.c_str(), room_file.c_str()) != 0)
 		{
 			log("SYSERR: Failed to rename %s to %s", temp_file.c_str(), room_file.c_str());
 			continue;
 		}
-
 		++saved_count;
 	}
 
 	log("Saved %d rooms for zone %d", saved_count, zone.vnum);
-
 	RebuildPerZoneIndex(zone.vnum, "rooms");
+	CleanupOtherLayout(zone.vnum, "rooms", YamlLayout::PerFile);
+}
+
+void YamlWorldDataSource::EmitMobBody(Koi8rYamlEmitter &yaml, std::ostream &out, CharData &mob)
+{
+	// Names
+	yaml.Key("names");
+	out << std::endl;
+	yaml.IncreaseIndent();
+
+	// GetCharAliases() returns the full keyword list (name_), matching
+	// what LoadMobs reads via SetCharAliases(GetText(names, "aliases"))
+	// at line 1557. get_npc_name() returns short_descr_ (== nominative),
+	// which would truncate "костяк скелет" -> "скелет" on round-trip.
+	const std::string &aliases = mob.GetCharAliases();
+	if (!aliases.empty())
+	{
+		yaml.Key("aliases");
+		yaml.Value(aliases);
+	}
+	yaml.Key("nominative");
+	yaml.Value(mob.player_data.PNames[grammar::ECase::kNom]);
+	yaml.Key("genitive");
+	yaml.Value(mob.player_data.PNames[grammar::ECase::kGen]);
+	yaml.Key("dative");
+	yaml.Value(mob.player_data.PNames[grammar::ECase::kDat]);
+	yaml.Key("accusative");
+	yaml.Value(mob.player_data.PNames[grammar::ECase::kAcc]);
+	yaml.Key("instrumental");
+	yaml.Value(mob.player_data.PNames[grammar::ECase::kIns]);
+	yaml.Key("prepositional");
+	yaml.Value(mob.player_data.PNames[grammar::ECase::kPre]);
+
+	yaml.DecreaseIndent();
+
+	// Descriptions
+	yaml.Key("descriptions");
+	out << std::endl;
+	yaml.IncreaseIndent();
+
+	yaml.Key("short_desc");
+	yaml.Value(mob.player_data.long_descr, true);  // literal=true
+
+	yaml.Key("long_desc");
+	yaml.Value(mob.player_data.description, true);  // literal=true
+
+	yaml.DecreaseIndent();
+
+	// Alignment
+	yaml.Key("alignment");
+	yaml.Value(alignment::GetAlignment(&mob));
+
+	// Stats
+	yaml.Key("stats");
+	out << std::endl;
+	yaml.IncreaseIndent();
+
+	yaml.Key("level");
+	yaml.Value(mob.GetLevel());
+
+	// Write in legacy file units to stay symmetric with LoadMob() and
+	// matching convert_to_yaml.py output -- otherwise yaml -> legacy
+	// -> yaml round-trip flips the on-disk hitroll value every pass.
+	yaml.Key("hitroll_penalty");
+	yaml.Value(20 - GET_HR(&mob));
+
+	yaml.Key("armor");
+	yaml.Value(GET_AC(&mob) / 10);
+
+	// HP
+	yaml.Key("hp");
+	out << std::endl;
+	yaml.IncreaseIndent();
+
+	yaml.Key("dice_count");
+	yaml.Value(static_cast<int>(mob.mem_queue.total));  // byte -> int
+
+	yaml.Key("dice_size");
+	yaml.Value(static_cast<int>(mob.mem_queue.stored));  // byte -> int
+
+	yaml.Key("bonus");
+	yaml.Value(mob.get_hit());
+
+	yaml.DecreaseIndent();
+
+	// Damage
+	yaml.Key("damage");
+	out << std::endl;
+	yaml.IncreaseIndent();
+
+	yaml.Key("dice_count");
+	yaml.Value(static_cast<int>(mob.mob_specials.damnodice));  // byte -> int
+
+	yaml.Key("dice_size");
+	yaml.Value(static_cast<int>(mob.mob_specials.damsizedice));  // byte -> int
+
+	yaml.Key("bonus");
+	yaml.Value(mob.real_abils.damroll);
+
+	yaml.DecreaseIndent();
+	yaml.DecreaseIndent();  // stats
+
+	// Gold
+	yaml.Key("gold");
+	out << std::endl;
+	yaml.IncreaseIndent();
+
+	yaml.Key("dice_count");
+	yaml.Value(static_cast<int>(mob.mob_specials.GoldNoDs));  // byte -> int
+
+	yaml.Key("dice_size");
+	yaml.Value(static_cast<int>(mob.mob_specials.GoldSiDs));  // byte -> int
+
+	yaml.Key("bonus");
+	yaml.Value(currencies::GetHand(mob, currencies::kGold));
+
+	yaml.DecreaseIndent();
+
+	// Experience
+	yaml.Key("experience");
+	yaml.Value(mob.get_exp());
+
+	// Position
+	yaml.Key("position");
+	out << std::endl;
+	yaml.IncreaseIndent();
+
+	yaml.Key("default");
+	yaml.Value(ReverseLookupEnum("positions", static_cast<int>(mob.mob_specials.default_pos)));
+
+	yaml.Key("start");
+	yaml.Value(ReverseLookupEnum("positions", static_cast<int>(mob.GetPosition())));
+
+	yaml.DecreaseIndent();
+
+	// Sex
+	yaml.Key("sex");
+	yaml.Value(ReverseLookupEnum("genders", static_cast<int>(mob.get_sex())));
+
+	// Size, height, weight
+	yaml.Key("size");
+	yaml.Value(GET_SIZE(&mob));
+
+	// NPC race, between `size` and `height` as the converter writes it.
+	yaml.Key("race");
+	yaml.Value(static_cast<int>(mob.player_data.Race));
+
+	yaml.Key("height");
+	yaml.Value(static_cast<int>(GET_HEIGHT(&mob)));  // ubyte -> int
+
+	yaml.Key("weight");
+	yaml.Value(static_cast<int>(GET_WEIGHT(&mob)));  // ubyte -> int
+
+	// Attributes (skip if all six are at default 11). LoadMobs sets every
+	// attribute to 11 unconditionally and then overrides from `attributes`
+	// if present; treating "all 11" as "not specified" matches the Python
+	// converter, which only emits this block when legacy data actually
+	// carried per-attribute values.
+	const bool attributes_set =
+		mob.get_str() != 11 || mob.get_dex() != 11 || mob.get_int() != 11 ||
+		mob.get_wis() != 11 || mob.get_con() != 11 || mob.get_cha() != 11;
+	if (attributes_set)
+	{
+		yaml.Key("attributes");
+		out << std::endl;
+		yaml.IncreaseIndent();
+
+		yaml.Key("strength");
+		yaml.Value(mob.get_str());
+
+		yaml.Key("dexterity");
+		yaml.Value(mob.get_dex());
+
+		yaml.Key("intelligence");
+		yaml.Value(mob.get_int());
+
+		yaml.Key("wisdom");
+		yaml.Value(mob.get_wis());
+
+		yaml.Key("constitution");
+		yaml.Value(mob.get_con());
+
+		yaml.Key("charisma");
+		yaml.Value(mob.get_cha());
+
+		yaml.DecreaseIndent();
+	}
+
+	// Action flags
+	auto act_flags = ConvertFlagsToNames(mob.char_specials.saved.act, "action_flags");
+	if (!act_flags.empty())
+	{
+		yaml.Key("action_flags");
+		yaml.BeginSequence();
+		yaml.IncreaseIndent();
+
+		for (const auto &flag : act_flags)
+		{
+			yaml.SequenceItem(flag);
+		}
+
+		yaml.DecreaseIndent();
+	}
+
+	// Affect flags
+	auto aff_flags = ConvertFlagsToNames(AFF_FLAGS(&mob), "affect_flags");
+	if (!aff_flags.empty())
+	{
+		yaml.Key("affect_flags");
+		yaml.BeginSequence();
+		yaml.IncreaseIndent();
+
+		for (const auto &flag : aff_flags)
+		{
+			yaml.SequenceItem(flag);
+		}
+
+		yaml.DecreaseIndent();
+	}
+
+	// Skills (with comments). Use the raw trained-skill map (skill_level),
+	// NOT GetSkill(): GetSkill() layers on instance context -- equipment,
+	// affects and a kDominationArena clamp keyed off in_room -- which is
+	// meaningless for a prototype (in_room is NOWHERE) and would zero mob
+	// skills on resave. Mirrors WorldChecksum::SerializeMob and the loader
+	// so skills survive the round-trip (issue #3391).
+	std::vector<std::pair<int, int>> mob_skills;
+	for (const auto &kv : mob.GetCharSkills())
+	{
+		if (kv.second.skill_level > 0)
+		{
+			mob_skills.emplace_back(static_cast<int>(kv.first), kv.second.skill_level);
+		}
+	}
+	std::sort(mob_skills.begin(), mob_skills.end());
+
+	if (!mob_skills.empty())
+	{
+		yaml.Key("skills");
+		yaml.BeginSequence();
+		yaml.IncreaseIndent();
+
+		for (const auto &kv : mob_skills)
+		{
+			out << yaml.GetIndent() << "- skill_id: " << kv.first;
+			out << "  # " << GetSkillNameComment(static_cast<ESkill>(kv.first)) << std::endl;
+			out << yaml.GetIndent() << "  value: " << kv.second << std::endl;
+		}
+
+		yaml.DecreaseIndent();
+	}
+
+	// Triggers (with comments)
+	if (mob.proto_script && !mob.proto_script->empty())
+	{
+		yaml.Key("triggers");
+		yaml.BeginSequence();
+		yaml.IncreaseIndent();
+
+		for (auto trig_vnum : *mob.proto_script)
+		{
+			std::string trig_comment = GetTriggerNameComment(trig_vnum);
+			yaml.SequenceItem(trig_vnum, trig_comment);
+		}
+
+		yaml.DecreaseIndent();
+	}
+
+	// Enhanced E-spec block. Always emitted because mob_type is always
+	// "E" in this code path and the Python converter writes the block
+	// unconditionally (carrying at least resistances/saves as zero-arrays).
+	// `tascii` appends into the buffer (uses strlen(ascii) + strncat) and
+	// does NOT clear it -- callers must zero-init or its output becomes
+	// the concatenation of whatever was in stack memory from prior mob
+	// iterations. That's the root cause of the "special_bitvector accretes
+	// across mobs" diff: 'f1 0' on mob 1, 'f1 0 0 0' on mob 2, etc.
+	char special_buf[kMaxStringLength];
+	special_buf[0] = '\0';
+	mob.mob_specials.npc_flags.tascii(FlagData::kPlanesNumber, special_buf, sizeof(special_buf));
+	std::string role_str = mob.get_role().to_string();
+	{
+		{
+			yaml.Key("enhanced");
+			out << std::endl;
+			yaml.IncreaseIndent();
+
+			if (mob.get_str_add() != 0)
+			{
+				yaml.Key("str_add");
+				yaml.Value(mob.get_str_add());
+			}
+			if (mob.add_abils.hitreg != 0)
+			{
+				yaml.Key("hp_regen");
+				yaml.Value(mob.add_abils.hitreg);
+			}
+			if (mob.add_abils.armour != 0)
+			{
+				yaml.Key("armour_bonus");
+				yaml.Value(mob.add_abils.armour);
+			}
+			if (mob.add_abils.manareg != 0)
+			{
+				yaml.Key("mana_regen");
+				yaml.Value(mob.add_abils.manareg);
+			}
+			if (mob.add_abils.cast_success != 0)
+			{
+				yaml.Key("cast_success");
+				yaml.Value(mob.add_abils.cast_success);
+			}
+			if (mob.add_abils.morale != 0)
+			{
+				yaml.Key("morale");
+				yaml.Value(mob.add_abils.morale);
+			}
+			if (mob.add_abils.initiative_add != 0)
+			{
+				yaml.Key("initiative_add");
+				yaml.Value(mob.add_abils.initiative_add);
+			}
+			if (mob.add_abils.absorb != 0)
+			{
+				yaml.Key("absorb");
+				yaml.Value(mob.add_abils.absorb);
+			}
+			if (mob.add_abils.aresist != 0)
+			{
+				yaml.Key("aresist");
+				yaml.Value(mob.add_abils.aresist);
+			}
+			if (mob.add_abils.mresist != 0)
+			{
+				yaml.Key("mresist");
+				yaml.Value(mob.add_abils.mresist);
+			}
+			if (mob.add_abils.presist != 0)
+			{
+				yaml.Key("presist");
+				yaml.Value(mob.add_abils.presist);
+			}
+			if (mob.mob_specials.attack_type != 0)
+			{
+				yaml.Key("bare_hand_attack");
+				yaml.Value(mob.mob_specials.attack_type);
+			}
+			if (mob.mob_specials.like_work != 0)
+			{
+				yaml.Key("like_work");
+				yaml.Value(mob.mob_specials.like_work);
+			}
+			if (mob.mob_specials.MaxFactor != 0)
+			{
+				yaml.Key("max_factor");
+				yaml.Value(mob.mob_specials.MaxFactor);
+			}
+			if (mob.mob_specials.extra_attack != 0)
+			{
+				yaml.Key("extra_attack");
+				yaml.Value(mob.mob_specials.extra_attack);
+			}
+			if (mob.get_remort() != 0)
+			{
+				yaml.Key("mob_remort");
+				yaml.Value(mob.get_remort());
+			}
+
+			// tascii leaves a trailing " " (or "0 " for empty) -- strip it
+			// to match the Python converter, which emits "f1" not "f1 ".
+			{
+				size_t len = std::strlen(special_buf);
+				while (len > 0 && special_buf[len - 1] == ' ')
+				{
+					special_buf[--len] = '\0';
+				}
+			}
+			if (special_buf[0] != '0' || special_buf[1] != '\0')
+			{
+				yaml.Key("special_bitvector");
+				yaml.Value(std::string(special_buf));
+			}
+
+			if (!role_str.empty() && role_str != "000000000")
+			{
+				yaml.Key("role");
+				yaml.Value(role_str);
+			}
+
+			// Resistances. The Python converter always emits this block
+			// (even all-zero), so we mirror that for round-trip parity --
+			// otherwise the diff shows `/enhanced/resistances: missing in
+			// v2` for every mob with default resistances.
+			yaml.Key("resistances");
+			yaml.BeginSequence();
+			yaml.IncreaseIndent();
+			for (const auto &val : mob.add_abils.apply_resistance)
+			{
+				yaml.SequenceItem(val);
+			}
+			yaml.DecreaseIndent();
+
+			// Saves -- same rationale as resistances.
+			yaml.Key("saves");
+			yaml.BeginSequence();
+			yaml.IncreaseIndent();
+			for (const auto &val : mob.add_abils.apply_saving_throw)
+			{
+				yaml.SequenceItem(val);
+			}
+			yaml.DecreaseIndent();
+
+			// Feats
+			bool has_feats = false;
+			for (size_t i = 0; i < mob.real_abils.Feats.size(); ++i)
+			{
+				if (mob.real_abils.Feats.test(i)) { has_feats = true; break; }
+			}
+			if (has_feats)
+			{
+				yaml.Key("feats");
+				yaml.BeginSequence();
+				yaml.IncreaseIndent();
+
+				for (size_t i = 0; i < mob.real_abils.Feats.size(); ++i)
+				{
+					if (mob.real_abils.Feats.test(i))
+					{
+						yaml.SequenceItem(static_cast<int>(i));
+					}
+				}
+
+				yaml.DecreaseIndent();
+			}
+
+			// Spells (memorized slot counts). Mirror legacy: a spell with
+			// SplMem[id] == N is serialised as N copies of `id`, matching
+			// the load path which increments SplMem on each occurrence.
+			bool has_spells = false;
+			for (size_t i = 0; i < mob.real_abils.SplMem.size(); ++i)
+			{
+				if (mob.real_abils.SplMem[i] > 0) { has_spells = true; break; }
+			}
+			if (has_spells)
+			{
+				yaml.Key("spells");
+				yaml.BeginSequence();
+				yaml.IncreaseIndent();
+
+				for (size_t i = 0; i < mob.real_abils.SplMem.size(); ++i)
+				{
+					int mem = mob.real_abils.SplMem[i];
+					for (int n = 0; n < mem; ++n)
+					{
+						yaml.SequenceItem(static_cast<int>(i));
+					}
+				}
+
+				yaml.DecreaseIndent();
+			}
+
+			// Helpers
+			if (!mob.summon_helpers.empty())
+			{
+				yaml.Key("helpers");
+				yaml.BeginSequence();
+				yaml.IncreaseIndent();
+
+				for (int helper_vnum : mob.summon_helpers)
+				{
+					yaml.SequenceItem(helper_vnum);
+				}
+
+				yaml.DecreaseIndent();
+			}
+
+			// Destinations: emit only the real route (dest[0..dest_count-1]),
+			// NOT the full kMaxDest array. dest_count is the count the
+			// legacy loader and the converter use; padding the sequence
+			// with the array's trailing zeros makes the loader read
+			// dest_count too large with bogus 0 destinations, breaking the
+			// round-trip for every patrolling mob (issue #3384/#3391).
+			if (mob.mob_specials.dest_count > 0)
+			{
+				yaml.Key("destinations");
+				yaml.BeginSequence();
+				yaml.IncreaseIndent();
+
+				for (int d = 0; d < mob.mob_specials.dest_count
+					&& d < static_cast<int>(mob.mob_specials.dest.size()); ++d)
+				{
+					yaml.SequenceItem(mob.mob_specials.dest[d]);
+				}
+
+				yaml.DecreaseIndent();
+			}
+
+			yaml.DecreaseIndent();  // enhanced
+		}
+	}
+
+	// Dead-load list (legacy L-lines, issue #3291). Top-level, after the
+	// enhanced block so the document layout matches the converter output.
+	// Emitted as raw "- key: value" sequence-of-maps because the
+	// Koi8rYamlEmitter has no Begin/EndMappingItem helpers (the same
+	// pattern is used by the skills block above).
+	if (!mob.dl_list.empty())
+	{
+		yaml.Key("dead_load");
+		yaml.BeginSequence();
+		yaml.IncreaseIndent();
+		for (const auto &dl : mob.dl_list)
+		{
+			out << yaml.GetIndent() << "- obj_vnum: " << dl.obj_vnum << std::endl;
+			out << yaml.GetIndent() << "  load_prob: " << dl.load_prob << std::endl;
+			out << yaml.GetIndent() << "  load_type: " << dl.load_type << std::endl;
+			out << yaml.GetIndent() << "  spec_param: " << dl.spec_param << std::endl;
+		}
+		yaml.DecreaseIndent();
+	}
+
 }
 
 void YamlWorldDataSource::SaveMobs(int zone_rnum, int specific_vnum)
@@ -3384,42 +3998,65 @@ void YamlWorldDataSource::SaveMobs(int zone_rnum, int specific_vnum)
 	}
 
 	const ZoneData &zone = zone_table[zone_rnum];
-	MobRnum first_mob = 0;
-	MobRnum last_mob = top_of_mobt;
+
+	// Collect this zone's mobs, sorted by vnum.
+	std::vector<std::pair<int, CharData *>> entries;
+	for (MobRnum mob_rnum = 0; mob_rnum <= top_of_mobt; ++mob_rnum)
+	{
+		if (!mob_index[mob_rnum].vnum) continue;
+		int mob_vnum = mob_index[mob_rnum].vnum;
+		if (mob_vnum < zone.vnum * 100 || mob_vnum > zone.top) continue;
+		entries.emplace_back(mob_vnum, &mob_proto[mob_rnum]);
+	}
+	std::sort(entries.begin(), entries.end(),
+		[](const auto &a, const auto &b) { return a.first < b.first; });
 
 	namespace fs = std::filesystem;
 
-	int saved_count = 0;
-	for (MobRnum mob_rnum = first_mob; mob_rnum <= last_mob && mob_rnum <= top_of_mobt; ++mob_rnum)
+	if (m_save_layout == YamlLayout::Flat)
 	{
-		if (!mob_index[mob_rnum].vnum)
+		const std::string flat_path = m_world_dir + "/zones/" + std::to_string(zone.vnum) + "/mobs.yaml";
+		const std::string temp_file = flat_path + ".tmp";
+		std::ofstream out(temp_file);
+		if (!out.is_open())
 		{
-			continue;
+			log("SYSERR: Failed to open %s for writing", temp_file.c_str());
+			return;
 		}
-
-		int mob_vnum = mob_index[mob_rnum].vnum;
-		if (mob_vnum < zone.vnum * 100 || mob_vnum > zone.top)
+		Koi8rYamlEmitter yaml(out);
+		yaml.Comment("Mobs for zone " + std::to_string(zone.vnum));
+		for (const auto &[vnum, mob] : entries)
 		{
-			continue;
+			yaml.EmptyLine();
+			yaml.Comment("Mob #" + std::to_string(vnum));
+			out << yaml.GetIndent() << (vnum % 100) << ":" << std::endl;
+			yaml.IncreaseIndent();
+			EmitMobBody(yaml, out, *mob);
+			yaml.DecreaseIndent();
 		}
-		CharData &mob = mob_proto[mob_rnum];
-
-		// If specific_vnum is set, save only that mob
-		if (specific_vnum != -1 && mob_vnum != specific_vnum)
+		out.close();
+		if (std::rename(temp_file.c_str(), flat_path.c_str()) != 0)
 		{
-			continue;
+			log("SYSERR: Failed to rename %s to %s", temp_file.c_str(), flat_path.c_str());
+			return;
 		}
+		log("Saved %zu mobs (flat) for zone %d", entries.size(), zone.vnum);
+		CleanupOtherLayout(zone.vnum, "mobs", YamlLayout::Flat);
+		return;
+	}
 
-		int zone_vnum = mob_vnum / 100;
-		int rel_num = mob_vnum % 100;
-		std::ostringstream mobs_dir_ss;
-		mobs_dir_ss << m_world_dir << "/zones/" << zone_vnum << "/mobs";
-		std::string mobs_dir = mobs_dir_ss.str();
-		if (!fs::exists(mobs_dir))
-		{
-			fs::create_directories(mobs_dir);
-		}
+	// Per-file layout: one file per mob.
+	const std::string mobs_dir = m_world_dir + "/zones/" + std::to_string(zone.vnum) + "/mobs";
+	if (!fs::exists(mobs_dir))
+	{
+		fs::create_directories(mobs_dir);
+	}
+	int saved_count = 0;
+	for (const auto &[vnum, mob] : entries)
+	{
+		if (specific_vnum != -1 && vnum != specific_vnum) continue;
 
+		int rel_num = vnum % 100;
 		std::ostringstream mob_file_ss;
 		mob_file_ss << mobs_dir << "/" << std::setfill('0') << std::setw(2) << rel_num << ".yaml";
 		std::string mob_file = mob_file_ss.str();
@@ -3432,545 +4069,413 @@ void YamlWorldDataSource::SaveMobs(int zone_rnum, int specific_vnum)
 		}
 
 		Koi8rYamlEmitter yaml(out);
-
-		// Header comment
-		yaml.Comment("Mob #" + std::to_string(mob_vnum));
+		yaml.Comment("Mob #" + std::to_string(vnum));
 		yaml.EmptyLine();
+		EmitMobBody(yaml, out, *mob);
 
-		// Vnum (matches Python converter output and SaveRooms convention).
-		yaml.Key("vnum");
-		yaml.Value(mob_vnum);
-
-		// Names
-		yaml.Key("names");
-		out << std::endl;
-		yaml.IncreaseIndent();
-
-		// GetCharAliases() returns the full keyword list (name_), matching
-		// what LoadMobs reads via SetCharAliases(GetText(names, "aliases"))
-		// at line 1557. get_npc_name() returns short_descr_ (== nominative),
-		// which would truncate "костяк скелет" -> "скелет" on round-trip.
-		const std::string &aliases = mob.GetCharAliases();
-		if (!aliases.empty())
-		{
-			yaml.Key("aliases");
-			yaml.Value(aliases);
-		}
-		yaml.Key("nominative");
-		yaml.Value(mob.player_data.PNames[grammar::ECase::kNom]);
-		yaml.Key("genitive");
-		yaml.Value(mob.player_data.PNames[grammar::ECase::kGen]);
-		yaml.Key("dative");
-		yaml.Value(mob.player_data.PNames[grammar::ECase::kDat]);
-		yaml.Key("accusative");
-		yaml.Value(mob.player_data.PNames[grammar::ECase::kAcc]);
-		yaml.Key("instrumental");
-		yaml.Value(mob.player_data.PNames[grammar::ECase::kIns]);
-		yaml.Key("prepositional");
-		yaml.Value(mob.player_data.PNames[grammar::ECase::kPre]);
-
-		yaml.DecreaseIndent();
-
-		// Descriptions
-		yaml.Key("descriptions");
-		out << std::endl;
-		yaml.IncreaseIndent();
-
-		yaml.Key("short_desc");
-		yaml.Value(mob.player_data.long_descr, true);  // literal=true
-
-		yaml.Key("long_desc");
-		yaml.Value(mob.player_data.description, true);  // literal=true
-
-		yaml.DecreaseIndent();
-
-		// Alignment
-		yaml.Key("alignment");
-		yaml.Value(alignment::GetAlignment(&mob));
-
-		// Stats
-		yaml.Key("stats");
-		out << std::endl;
-		yaml.IncreaseIndent();
-
-		yaml.Key("level");
-		yaml.Value(mob.GetLevel());
-
-		// Write in legacy file units to stay symmetric with LoadMob() and
-		// matching convert_to_yaml.py output -- otherwise yaml -> legacy
-		// -> yaml round-trip flips the on-disk hitroll value every pass.
-		yaml.Key("hitroll_penalty");
-		yaml.Value(20 - GET_HR(&mob));
-
-		yaml.Key("armor");
-		yaml.Value(GET_AC(&mob) / 10);
-
-		// HP
-		yaml.Key("hp");
-		out << std::endl;
-		yaml.IncreaseIndent();
-
-		yaml.Key("dice_count");
-		yaml.Value(static_cast<int>(mob.mem_queue.total));  // byte -> int
-
-		yaml.Key("dice_size");
-		yaml.Value(static_cast<int>(mob.mem_queue.stored));  // byte -> int
-
-		yaml.Key("bonus");
-		yaml.Value(mob.get_hit());
-
-		yaml.DecreaseIndent();
-
-		// Damage
-		yaml.Key("damage");
-		out << std::endl;
-		yaml.IncreaseIndent();
-
-		yaml.Key("dice_count");
-		yaml.Value(static_cast<int>(mob.mob_specials.damnodice));  // byte -> int
-
-		yaml.Key("dice_size");
-		yaml.Value(static_cast<int>(mob.mob_specials.damsizedice));  // byte -> int
-
-		yaml.Key("bonus");
-		yaml.Value(mob.real_abils.damroll);
-
-		yaml.DecreaseIndent();
-		yaml.DecreaseIndent();  // stats
-
-		// Gold
-		yaml.Key("gold");
-		out << std::endl;
-		yaml.IncreaseIndent();
-
-		yaml.Key("dice_count");
-		yaml.Value(static_cast<int>(mob.mob_specials.GoldNoDs));  // byte -> int
-
-		yaml.Key("dice_size");
-		yaml.Value(static_cast<int>(mob.mob_specials.GoldSiDs));  // byte -> int
-
-		yaml.Key("bonus");
-		yaml.Value(currencies::GetHand(mob, currencies::kGold));
-
-		yaml.DecreaseIndent();
-
-		// Experience
-		yaml.Key("experience");
-		yaml.Value(mob.get_exp());
-
-		// Position
-		yaml.Key("position");
-		out << std::endl;
-		yaml.IncreaseIndent();
-
-		yaml.Key("default");
-		yaml.Value(ReverseLookupEnum("positions", static_cast<int>(mob.mob_specials.default_pos)));
-
-		yaml.Key("start");
-		yaml.Value(ReverseLookupEnum("positions", static_cast<int>(mob.GetPosition())));
-
-		yaml.DecreaseIndent();
-
-		// Sex
-		yaml.Key("sex");
-		yaml.Value(ReverseLookupEnum("genders", static_cast<int>(mob.get_sex())));
-
-		// Size, height, weight
-		yaml.Key("size");
-		yaml.Value(GET_SIZE(&mob));
-
-		// NPC race, between `size` and `height` as the converter writes it.
-		yaml.Key("race");
-		yaml.Value(static_cast<int>(mob.player_data.Race));
-
-		yaml.Key("height");
-		yaml.Value(static_cast<int>(GET_HEIGHT(&mob)));  // ubyte -> int
-
-		yaml.Key("weight");
-		yaml.Value(static_cast<int>(GET_WEIGHT(&mob)));  // ubyte -> int
-
-		// Attributes (skip if all six are at default 11). LoadMobs sets every
-		// attribute to 11 unconditionally and then overrides from `attributes`
-		// if present; treating "all 11" as "not specified" matches the Python
-		// converter, which only emits this block when legacy data actually
-		// carried per-attribute values.
-		const bool attributes_set =
-			mob.get_str() != 11 || mob.get_dex() != 11 || mob.get_int() != 11 ||
-			mob.get_wis() != 11 || mob.get_con() != 11 || mob.get_cha() != 11;
-		if (attributes_set)
-		{
-			yaml.Key("attributes");
-			out << std::endl;
-			yaml.IncreaseIndent();
-
-			yaml.Key("strength");
-			yaml.Value(mob.get_str());
-
-			yaml.Key("dexterity");
-			yaml.Value(mob.get_dex());
-
-			yaml.Key("intelligence");
-			yaml.Value(mob.get_int());
-
-			yaml.Key("wisdom");
-			yaml.Value(mob.get_wis());
-
-			yaml.Key("constitution");
-			yaml.Value(mob.get_con());
-
-			yaml.Key("charisma");
-			yaml.Value(mob.get_cha());
-
-			yaml.DecreaseIndent();
-		}
-
-		// Action flags
-		auto act_flags = ConvertFlagsToNames(mob.char_specials.saved.act, "action_flags");
-		if (!act_flags.empty())
-		{
-			yaml.Key("action_flags");
-			yaml.BeginSequence();
-			yaml.IncreaseIndent();
-
-			for (const auto &flag : act_flags)
-			{
-				yaml.SequenceItem(flag);
-			}
-
-			yaml.DecreaseIndent();
-		}
-
-		// Affect flags
-		auto aff_flags = ConvertFlagsToNames(AFF_FLAGS(&mob), "affect_flags");
-		if (!aff_flags.empty())
-		{
-			yaml.Key("affect_flags");
-			yaml.BeginSequence();
-			yaml.IncreaseIndent();
-
-			for (const auto &flag : aff_flags)
-			{
-				yaml.SequenceItem(flag);
-			}
-
-			yaml.DecreaseIndent();
-		}
-
-		// Skills (with comments). Use the raw trained-skill map (skillLevel),
-		// NOT GetSkill(): GetSkill() layers on instance context -- equipment,
-		// affects and a kDominationArena clamp keyed off in_room -- which is
-		// meaningless for a prototype (in_room is NOWHERE) and would zero mob
-		// skills on resave. Mirrors WorldChecksum::SerializeMob and the loader
-		// so skills survive the round-trip (issue #3391).
-		std::vector<std::pair<int, int>> mob_skills;
-		for (const auto &kv : mob.GetCharSkills())
-		{
-			if (kv.second.skill_level > 0)
-			{
-				mob_skills.emplace_back(static_cast<int>(kv.first), kv.second.skill_level);
-			}
-		}
-		std::sort(mob_skills.begin(), mob_skills.end());
-
-		if (!mob_skills.empty())
-		{
-			yaml.Key("skills");
-			yaml.BeginSequence();
-			yaml.IncreaseIndent();
-
-			for (const auto &kv : mob_skills)
-			{
-				out << yaml.GetIndent() << "- skill_id: " << kv.first;
-				out << "  # " << GetSkillNameComment(static_cast<ESkill>(kv.first)) << std::endl;
-				out << yaml.GetIndent() << "  value: " << kv.second << std::endl;
-			}
-
-			yaml.DecreaseIndent();
-		}
-
-		// Triggers (with comments)
-		if (mob.proto_script && !mob.proto_script->empty())
-		{
-			yaml.Key("triggers");
-			yaml.BeginSequence();
-			yaml.IncreaseIndent();
-
-			for (auto trig_vnum : *mob.proto_script)
-			{
-				std::string trig_comment = GetTriggerNameComment(trig_vnum);
-				yaml.SequenceItem(trig_vnum, trig_comment);
-			}
-
-			yaml.DecreaseIndent();
-		}
-
-		// Enhanced E-spec block. Always emitted because mob_type is always
-		// "E" in this code path and the Python converter writes the block
-		// unconditionally (carrying at least resistances/saves as zero-arrays).
-		// `tascii` appends into the buffer (uses strlen(ascii) + strncat) and
-		// does NOT clear it -- callers must zero-init or its output becomes
-		// the concatenation of whatever was in stack memory from prior mob
-		// iterations. That's the root cause of the "special_bitvector accretes
-		// across mobs" diff: 'f1 0' on mob 1, 'f1 0 0 0' on mob 2, etc.
-		char special_buf[kMaxStringLength];
-		special_buf[0] = '\0';
-		mob.mob_specials.npc_flags.tascii(FlagData::kPlanesNumber, special_buf, sizeof(special_buf));
-		std::string role_str = mob.get_role().to_string();
-		{
-			{
-				yaml.Key("enhanced");
-				out << std::endl;
-				yaml.IncreaseIndent();
-
-				if (mob.get_str_add() != 0)
-				{
-					yaml.Key("str_add");
-					yaml.Value(mob.get_str_add());
-				}
-				if (mob.add_abils.hitreg != 0)
-				{
-					yaml.Key("hp_regen");
-					yaml.Value(mob.add_abils.hitreg);
-				}
-				if (mob.add_abils.armour != 0)
-				{
-					yaml.Key("armour_bonus");
-					yaml.Value(mob.add_abils.armour);
-				}
-				if (mob.add_abils.manareg != 0)
-				{
-					yaml.Key("mana_regen");
-					yaml.Value(mob.add_abils.manareg);
-				}
-				if (mob.add_abils.cast_success != 0)
-				{
-					yaml.Key("cast_success");
-					yaml.Value(mob.add_abils.cast_success);
-				}
-				if (mob.add_abils.morale != 0)
-				{
-					yaml.Key("morale");
-					yaml.Value(mob.add_abils.morale);
-				}
-				if (mob.add_abils.initiative_add != 0)
-				{
-					yaml.Key("initiative_add");
-					yaml.Value(mob.add_abils.initiative_add);
-				}
-				if (mob.add_abils.absorb != 0)
-				{
-					yaml.Key("absorb");
-					yaml.Value(mob.add_abils.absorb);
-				}
-				if (mob.add_abils.aresist != 0)
-				{
-					yaml.Key("aresist");
-					yaml.Value(mob.add_abils.aresist);
-				}
-				if (mob.add_abils.mresist != 0)
-				{
-					yaml.Key("mresist");
-					yaml.Value(mob.add_abils.mresist);
-				}
-				if (mob.add_abils.presist != 0)
-				{
-					yaml.Key("presist");
-					yaml.Value(mob.add_abils.presist);
-				}
-				if (mob.mob_specials.attack_type != 0)
-				{
-					yaml.Key("bare_hand_attack");
-					yaml.Value(mob.mob_specials.attack_type);
-				}
-				if (mob.mob_specials.like_work != 0)
-				{
-					yaml.Key("like_work");
-					yaml.Value(mob.mob_specials.like_work);
-				}
-				if (mob.mob_specials.MaxFactor != 0)
-				{
-					yaml.Key("max_factor");
-					yaml.Value(mob.mob_specials.MaxFactor);
-				}
-				if (mob.mob_specials.extra_attack != 0)
-				{
-					yaml.Key("extra_attack");
-					yaml.Value(mob.mob_specials.extra_attack);
-				}
-				if (mob.get_remort() != 0)
-				{
-					yaml.Key("mob_remort");
-					yaml.Value(mob.get_remort());
-				}
-
-				// tascii leaves a trailing " " (or "0 " for empty) -- strip it
-				// to match the Python converter, which emits "f1" not "f1 ".
-				{
-					size_t len = std::strlen(special_buf);
-					while (len > 0 && special_buf[len - 1] == ' ')
-					{
-						special_buf[--len] = '\0';
-					}
-				}
-				if (special_buf[0] != '0' || special_buf[1] != '\0')
-				{
-					yaml.Key("special_bitvector");
-					yaml.Value(std::string(special_buf));
-				}
-
-				if (!role_str.empty() && role_str != "000000000")
-				{
-					yaml.Key("role");
-					yaml.Value(role_str);
-				}
-
-				// Resistances. The Python converter always emits this block
-				// (even all-zero), so we mirror that for round-trip parity --
-				// otherwise the diff shows `/enhanced/resistances: missing in
-				// v2` for every mob with default resistances.
-				yaml.Key("resistances");
-				yaml.BeginSequence();
-				yaml.IncreaseIndent();
-				for (const auto &val : mob.add_abils.apply_resistance)
-				{
-					yaml.SequenceItem(val);
-				}
-				yaml.DecreaseIndent();
-
-				// Saves -- same rationale as resistances.
-				yaml.Key("saves");
-				yaml.BeginSequence();
-				yaml.IncreaseIndent();
-				for (const auto &val : mob.add_abils.apply_saving_throw)
-				{
-					yaml.SequenceItem(val);
-				}
-				yaml.DecreaseIndent();
-
-				// Feats
-				bool has_feats = false;
-				for (size_t i = 0; i < mob.real_abils.Feats.size(); ++i)
-				{
-					if (mob.real_abils.Feats.test(i)) { has_feats = true; break; }
-				}
-				if (has_feats)
-				{
-					yaml.Key("feats");
-					yaml.BeginSequence();
-					yaml.IncreaseIndent();
-
-					for (size_t i = 0; i < mob.real_abils.Feats.size(); ++i)
-					{
-						if (mob.real_abils.Feats.test(i))
-						{
-							yaml.SequenceItem(static_cast<int>(i));
-						}
-					}
-
-					yaml.DecreaseIndent();
-				}
-
-				// Spells (memorized slot counts). Mirror legacy: a spell with
-				// SplMem[id] == N is serialised as N copies of `id`, matching
-				// the load path which increments SplMem on each occurrence.
-				bool has_spells = false;
-				for (size_t i = 0; i < mob.real_abils.SplMem.size(); ++i)
-				{
-					if (mob.real_abils.SplMem[i] > 0) { has_spells = true; break; }
-				}
-				if (has_spells)
-				{
-					yaml.Key("spells");
-					yaml.BeginSequence();
-					yaml.IncreaseIndent();
-
-					for (size_t i = 0; i < mob.real_abils.SplMem.size(); ++i)
-					{
-						int mem = mob.real_abils.SplMem[i];
-						for (int n = 0; n < mem; ++n)
-						{
-							yaml.SequenceItem(static_cast<int>(i));
-						}
-					}
-
-					yaml.DecreaseIndent();
-				}
-
-				// Helpers
-				if (!mob.summon_helpers.empty())
-				{
-					yaml.Key("helpers");
-					yaml.BeginSequence();
-					yaml.IncreaseIndent();
-
-					for (int helper_vnum : mob.summon_helpers)
-					{
-						yaml.SequenceItem(helper_vnum);
-					}
-
-					yaml.DecreaseIndent();
-				}
-
-				// Destinations: emit only the real route (dest[0..dest_count-1]),
-				// NOT the full kMaxDest array. dest_count is the count the
-				// legacy loader and the converter use; padding the sequence
-				// with the array's trailing zeros makes the loader read
-				// dest_count too large with bogus 0 destinations, breaking the
-				// round-trip for every patrolling mob (issue #3384/#3391).
-				if (mob.mob_specials.dest_count > 0)
-				{
-					yaml.Key("destinations");
-					yaml.BeginSequence();
-					yaml.IncreaseIndent();
-
-					for (int d = 0; d < mob.mob_specials.dest_count
-						&& d < static_cast<int>(mob.mob_specials.dest.size()); ++d)
-					{
-						yaml.SequenceItem(mob.mob_specials.dest[d]);
-					}
-
-					yaml.DecreaseIndent();
-				}
-
-				yaml.DecreaseIndent();  // enhanced
-			}
-		}
-
-		// Dead-load list (legacy L-lines, issue #3291). Top-level, after the
-		// enhanced block so the document layout matches the converter output.
-		// Emitted as raw "- key: value" sequence-of-maps because the
-		// Koi8rYamlEmitter has no Begin/EndMappingItem helpers (the same
-		// pattern is used by the skills block above).
-		if (!mob.dl_list.empty())
-		{
-			yaml.Key("dead_load");
-			yaml.BeginSequence();
-			yaml.IncreaseIndent();
-			for (const auto &dl : mob.dl_list)
-			{
-				out << yaml.GetIndent() << "- obj_vnum: " << dl.obj_vnum << std::endl;
-				out << yaml.GetIndent() << "  load_prob: " << dl.load_prob << std::endl;
-				out << yaml.GetIndent() << "  load_type: " << dl.load_type << std::endl;
-				out << yaml.GetIndent() << "  spec_param: " << dl.spec_param << std::endl;
-			}
-			yaml.DecreaseIndent();
-		}
-
-		// Close file and rename atomically
 		out.close();
 		if (std::rename(temp_file.c_str(), mob_file.c_str()) != 0)
 		{
 			log("SYSERR: Failed to rename %s to %s", temp_file.c_str(), mob_file.c_str());
 			continue;
 		}
-
 		++saved_count;
 	}
 
 	log("Saved %d mobs for zone %d", saved_count, zone.vnum);
-
 	RebuildPerZoneIndex(zone.vnum, "mobs");
+	CleanupOtherLayout(zone.vnum, "mobs", YamlLayout::PerFile);
 }
+void YamlWorldDataSource::EmitObjectBody(Koi8rYamlEmitter &yaml, std::ostream &out, CObjectPrototype *obj)
+{
+	// Names
+	yaml.Key("names");
+	out << std::endl;
+	yaml.IncreaseIndent();
+
+	yaml.Key("aliases");
+	yaml.Value(obj->get_aliases());
+
+	yaml.Key("nominative");
+	yaml.Value(obj->get_PName(grammar::ECase::kNom));
+
+	yaml.Key("genitive");
+	yaml.Value(obj->get_PName(grammar::ECase::kGen));
+
+	yaml.Key("dative");
+	yaml.Value(obj->get_PName(grammar::ECase::kDat));
+
+	yaml.Key("accusative");
+	yaml.Value(obj->get_PName(grammar::ECase::kAcc));
+
+	yaml.Key("instrumental");
+	yaml.Value(obj->get_PName(grammar::ECase::kIns));
+
+	yaml.Key("prepositional");
+	yaml.Value(obj->get_PName(grammar::ECase::kPre));
+
+	yaml.DecreaseIndent();
+
+	// Long description ("when in room"). Yaml convention: stored under
+	// `short_desc:` to mirror the legacy file's 8th string, which is the
+	// long-form description. m_short_description is the inventory name
+	// (== nominative) and is already serialised via names/nominative.
+	yaml.Key("short_desc");
+	yaml.Value(obj->get_description(), true);  // literal=true
+
+	// Action description (optional)
+	if (!obj->get_action_description().empty())
+	{
+		yaml.Key("action_desc");
+		yaml.Value(obj->get_action_description(), true);  // literal=true
+	}
+
+	// Type
+	yaml.Key("type");
+	yaml.Value(ReverseLookupEnum("obj_types", static_cast<int>(obj->get_type())));
+
+	// Material (with comment)
+	int material_id = static_cast<int>(obj->get_material());
+	yaml.Key("material");
+	yaml.Value(material_id, GetMaterialNameComment(material_id));
+
+	// Values
+	yaml.Key("values");
+	yaml.BeginSequence();
+	yaml.IncreaseIndent();
+
+	yaml.SequenceItem(obj->get_val(0));
+	yaml.SequenceItem(obj->get_val(1));
+	yaml.SequenceItem(obj->get_val(2));
+	yaml.SequenceItem(obj->get_val(3));
+
+	yaml.DecreaseIndent();
+
+	// Weight, cost, rent
+	yaml.Key("weight");
+	yaml.Value(obj->get_weight());
+
+	yaml.Key("cost");
+	yaml.Value(obj->get_cost());
+
+	yaml.Key("rent_off");
+	yaml.Value(obj->get_rent_off());
+
+	yaml.Key("rent_on");
+	yaml.Value(obj->get_rent_on());
+
+	// Spec param (optional)
+	if (obj->get_spec_param() != 0)
+	{
+		yaml.Key("spec_param");
+		yaml.Value(obj->get_spec_param());
+	}
+
+	// Durability and timer
+	yaml.Key("max_durability");
+	yaml.Value(obj->get_maximum_durability());
+
+	yaml.Key("cur_durability");
+	yaml.Value(obj->get_current_durability());
+
+	yaml.Key("timer");
+	yaml.Value(obj->get_timer());
+
+	// Spell (with comment)
+	if (to_underlying(obj->get_spell()) >= 0)
+	{
+		int spell_id = to_underlying(obj->get_spell());
+		yaml.Key("spell");
+		yaml.Value(spell_id, GetSpellNameComment(static_cast<ESpell>(spell_id)));
+	}
+
+	// Level and sex
+	yaml.Key("level");
+	yaml.Value(obj->get_level());
+
+	yaml.Key("sex");
+	yaml.Value(ReverseLookupEnum("genders", static_cast<int>(obj->get_sex())));
+
+	// Max in world (optional)
+	if (obj->get_max_in_world() != -1)
+	{
+		yaml.Key("max_in_world");
+		yaml.Value(obj->get_max_in_world());
+	}
+
+	// Minimum remorts (optional)
+	if (obj->get_minimum_remorts() != 0)
+	{
+		yaml.Key("minimum_remorts");
+		yaml.Value(obj->get_minimum_remorts());
+	}
+
+	// Extra flags
+	auto extra_flags = ConvertFlagsToNames(obj->get_extra_flags(), "extra_flags");
+	if (!extra_flags.empty())
+	{
+		yaml.Key("extra_flags");
+		yaml.BeginSequence();
+		yaml.IncreaseIndent();
+
+		for (const auto &flag : extra_flags)
+		{
+			yaml.SequenceItem(flag);
+		}
+
+		yaml.DecreaseIndent();
+	}
+
+	// Wear flags
+	int wear_flags = obj->get_wear_flags();
+	if (wear_flags != 0)
+	{
+		yaml.Key("wear_flags");
+		yaml.BeginSequence();
+		yaml.IncreaseIndent();
+
+		for (int bit = 0; bit < 32; ++bit)
+		{
+			if (wear_flags & (1 << bit))
+			{
+				std::string flag_name = ReverseLookupEnum("wear_flags", bit);
+				if (!flag_name.empty() && flag_name != std::to_string(bit))
+				{
+					yaml.SequenceItem(flag_name);
+				}
+				else
+				{
+					yaml.SequenceItem("UNUSED_" + std::to_string(bit));
+				}
+			}
+		}
+
+		yaml.DecreaseIndent();
+	}
+
+	// No flags
+	auto no_flags = ConvertFlagsToNames(obj->get_no_flags(), "no_flags");
+	if (!no_flags.empty())
+	{
+		yaml.Key("no_flags");
+		yaml.BeginSequence();
+		yaml.IncreaseIndent();
+
+		for (const auto &flag : no_flags)
+		{
+			yaml.SequenceItem(flag);
+		}
+
+		yaml.DecreaseIndent();
+	}
+
+	// Anti flags
+	auto anti_flags = ConvertFlagsToNames(obj->get_anti_flags(), "anti_flags");
+	if (!anti_flags.empty())
+	{
+		yaml.Key("anti_flags");
+		yaml.BeginSequence();
+		yaml.IncreaseIndent();
+
+		for (const auto &flag : anti_flags)
+		{
+			yaml.SequenceItem(flag);
+		}
+
+		yaml.DecreaseIndent();
+	}
+
+	// Affect flags. m_waffect_flags хранит биты EWeaponAffect, имена
+	// берём из EWeaponAffect-таблицы (не EAffect), иначе round-trip
+	// конвертера сломает item-affects: загружено как kDetectPoison,
+	// сохранено как kHorse (бит 27 в EAffect-словаре). Идём по битам
+	// сами и берём имена через NAME_BY_ITEM<EWeaponAffect>.
+	std::vector<std::string> affect_flags;
+	{
+		const auto &fld = obj->get_affect_flags();
+		for (size_t plane = 0; plane < FlagData::kPlanesNumber; ++plane)
+		{
+			Bitvector plane_bits = fld.get_plane(plane);
+			if (plane_bits == 0) continue;
+			for (int bit = 0; bit < 30; ++bit)
+			{
+				if (!(plane_bits & (1u << bit))) continue;
+				const Bitvector v = (plane == 0) ? (1u << bit) :
+					((plane == 1) ? (kIntOne | (1u << bit)) :
+					(plane == 2) ? (kIntTwo | (1u << bit)) :
+					(kIntThree | (1u << bit)));
+				try
+				{
+					const auto &name = NAME_BY_ITEM<EWeaponAffect>(static_cast<EWeaponAffect>(v));
+					if (!name.empty()) affect_flags.push_back(name);
+				}
+				catch (const std::out_of_range &)
+				{
+					const int idx = static_cast<int>(plane) * 30 + bit;
+					affect_flags.push_back("UNUSED_" + std::to_string(idx));
+				}
+			}
+		}
+	}
+	if (!affect_flags.empty())
+	{
+		yaml.Key("affect_flags");
+		yaml.BeginSequence();
+		yaml.IncreaseIndent();
+
+		for (const auto &flag : affect_flags)
+		{
+			yaml.SequenceItem(flag);
+		}
+
+		yaml.DecreaseIndent();
+	}
+
+	// Applies (with location comments)
+	bool has_applies = false;
+	for (int i = 0; i < kMaxObjAffect; ++i)
+	{
+		if (obj->get_affected(i).location != EApply::kNone)
+		{
+			has_applies = true;
+			break;
+		}
+	}
+
+	if (has_applies)
+	{
+		yaml.Key("applies");
+		yaml.BeginSequence();
+		yaml.IncreaseIndent();
+
+		for (int i = 0; i < kMaxObjAffect; ++i)
+		{
+			if (obj->get_affected(i).location != EApply::kNone)
+			{
+				int location = static_cast<int>(obj->get_affected(i).location);
+				int modifier = obj->get_affected(i).modifier;
+
+				out << yaml.GetIndent() << "- location: " << location;
+				out << "  # " << GetApplyTypeNameComment(location) << std::endl;
+				out << yaml.GetIndent() << "  modifier: " << modifier << std::endl;
+			}
+		}
+
+		yaml.DecreaseIndent();
+	}
+
+	// Умения предмета (legacy S-строки), issue #3386.
+	if (obj->has_skills())
+	{
+		yaml.Key("skills");
+		yaml.BeginSequence();
+		yaml.IncreaseIndent();
+
+		for (const auto &[skill_id, value] : obj->get_skills())
+		{
+			out << yaml.GetIndent() << "- skill_id: " << static_cast<int>(skill_id);
+			out << "  # " << GetSkillNameComment(skill_id) << std::endl;
+			out << yaml.GetIndent() << "  value: " << value << std::endl;
+		}
+
+		yaml.DecreaseIndent();
+	}
+
+	// Extra descriptions
+	if (obj->get_ex_description())
+	{
+		yaml.Key("extra_descriptions");
+		yaml.BeginSequence();
+		yaml.IncreaseIndent();
+
+		// Load prepends each yaml entry, so the in-memory list is
+		// reversed relative to the file. Emit in reverse so a fresh load
+		// rebuilds the same in-memory order -- otherwise the order flips
+		// on every round-trip.
+		std::vector<ExtraDescription *> exdescs;
+		for (auto exdesc = obj->get_ex_description(); exdesc; exdesc = exdesc->next)
+		{
+			exdescs.push_back(exdesc.get());
+		}
+		for (auto it = exdescs.rbegin(); it != exdescs.rend(); ++it)
+		{
+			const auto *exdesc = *it;
+			if (exdesc->keyword)
+			{
+				// keywords may start with '-' (legitimately a single dash);
+				// Koi8rYamlEmitter::Value handles leading-indicator quoting.
+				out << yaml.GetIndent() << "- keywords:";
+				// IncreaseIndent so yaml.Value's literal-block branch
+				// emits content lines at the correct column for indicator
+				// "2" (parent_indent + 2). The "  " before `-` already
+				// indented us; we need one more level so a multi-line
+				// keyword doesn't get content at the wrong column.
+				yaml.IncreaseIndent();
+				yaml.Value(std::string(exdesc->keyword));
+				yaml.DecreaseIndent();
+				if (exdesc->description)
+				{
+					out << yaml.GetIndent() << "  description:";
+					yaml.IncreaseIndent();
+					yaml.Value(std::string(exdesc->description), true);
+					yaml.DecreaseIndent();
+				}
+			}
+		}
+
+		yaml.DecreaseIndent();
+	}
+
+	// Extra values (V-строки): данные зелий и прочих контейнеров с жидкостью.
+	// Без сохранения этой секции данные о заклинаниях зелий пропадут (issue #3218).
+	if (!obj->get_all_values().empty())
+	{
+		std::vector<std::pair<std::string, int>> sorted_vals;
+		for (const auto &kv : obj->get_all_values())
+		{
+			std::string key_str = text_id::ToStr(text_id::kObjVals, to_underlying(kv.first));
+			if (!key_str.empty())
+			{
+				sorted_vals.emplace_back(std::move(key_str), kv.second);
+			}
+		}
+
+		if (!sorted_vals.empty())
+		{
+			std::sort(sorted_vals.begin(), sorted_vals.end(),
+				[](const std::pair<std::string, int> &a, const std::pair<std::string, int> &b) {
+					return a.first < b.first;
+				});
+
+			yaml.Key("extra_values");
+			yaml.BeginBlock();
+			for (const auto &kv : sorted_vals)
+			{
+				yaml.Key(kv.first);
+				yaml.Value(kv.second);
+			}
+			yaml.EndBlock();
+		}
+	}
+
+	// Triggers (with comments)
+	if (obj->get_proto_script_ptr() && !obj->get_proto_script().empty())
+	{
+		yaml.Key("triggers");
+		yaml.BeginSequence();
+		yaml.IncreaseIndent();
+
+		for (auto trig_vnum : obj->get_proto_script())
+		{
+			std::string trig_comment = GetTriggerNameComment(trig_vnum);
+			yaml.SequenceItem(trig_vnum, trig_comment);
+		}
+
+		yaml.DecreaseIndent();
+	}
+
+}
+
 void YamlWorldDataSource::SaveObjects(int zone_rnum, int specific_vnum)
 {
 	if (zone_rnum < 0 || zone_rnum >= static_cast<int>(zone_table.size()))
@@ -3981,41 +4486,64 @@ void YamlWorldDataSource::SaveObjects(int zone_rnum, int specific_vnum)
 
 	const ZoneData &zone = zone_table[zone_rnum];
 
-	namespace fs = std::filesystem;
-
-	int saved_count = 0;
-	int start_vnum = zone.vnum * 100;
-	int end_vnum = zone.top;
-
+	// Collect this zone's objects, sorted by vnum.
+	std::vector<std::pair<int, CObjectPrototype *>> entries;
 	for (const auto &[obj_vnum, obj_rnum] : obj_proto.vnum2index())
 	{
-		if (obj_vnum < start_vnum || obj_vnum > end_vnum)
-		{
-			continue;
-		}
-
-		// If specific_vnum is set, save only that object
-		if (specific_vnum != -1 && obj_vnum != specific_vnum)
-		{
-			continue;
-		}
-
+		if (obj_vnum < zone.vnum * 100 || obj_vnum > zone.top) continue;
 		auto obj = obj_proto[obj_rnum];
-		if (!obj)
-		{
-			continue;
-		}
+		if (!obj) continue;
+		entries.emplace_back(obj_vnum, obj.get());
+	}
+	std::sort(entries.begin(), entries.end(),
+		[](const auto &a, const auto &b) { return a.first < b.first; });
 
-		int zone_vnum_for_obj = obj_vnum / 100;
-		int rel_num = obj_vnum % 100;
-		std::ostringstream objs_dir_ss;
-		objs_dir_ss << m_world_dir << "/zones/" << zone_vnum_for_obj << "/objects";
-		std::string objs_dir = objs_dir_ss.str();
-		if (!fs::exists(objs_dir))
-		{
-			fs::create_directories(objs_dir);
-		}
+	namespace fs = std::filesystem;
 
+	if (m_save_layout == YamlLayout::Flat)
+	{
+		const std::string flat_path = m_world_dir + "/zones/" + std::to_string(zone.vnum) + "/objects.yaml";
+		const std::string temp_file = flat_path + ".tmp";
+		std::ofstream out(temp_file);
+		if (!out.is_open())
+		{
+			log("SYSERR: Failed to open %s for writing", temp_file.c_str());
+			return;
+		}
+		Koi8rYamlEmitter yaml(out);
+		yaml.Comment("Objects for zone " + std::to_string(zone.vnum));
+		for (const auto &[vnum, obj] : entries)
+		{
+			yaml.EmptyLine();
+			yaml.Comment("Object #" + std::to_string(vnum));
+			out << yaml.GetIndent() << (vnum % 100) << ":" << std::endl;
+			yaml.IncreaseIndent();
+			EmitObjectBody(yaml, out, obj);
+			yaml.DecreaseIndent();
+		}
+		out.close();
+		if (std::rename(temp_file.c_str(), flat_path.c_str()) != 0)
+		{
+			log("SYSERR: Failed to rename %s to %s", temp_file.c_str(), flat_path.c_str());
+			return;
+		}
+		log("Saved %zu objects (flat) for zone %d", entries.size(), zone.vnum);
+		CleanupOtherLayout(zone.vnum, "objects", YamlLayout::Flat);
+		return;
+	}
+
+	// Per-file layout: one file per object.
+	const std::string objs_dir = m_world_dir + "/zones/" + std::to_string(zone.vnum) + "/objects";
+	if (!fs::exists(objs_dir))
+	{
+		fs::create_directories(objs_dir);
+	}
+	int saved_count = 0;
+	for (const auto &[vnum, obj] : entries)
+	{
+		if (specific_vnum != -1 && vnum != specific_vnum) continue;
+
+		int rel_num = vnum % 100;
 		std::ostringstream obj_file_ss;
 		obj_file_ss << objs_dir << "/" << std::setfill('0') << std::setw(2) << rel_num << ".yaml";
 		std::string obj_file = obj_file_ss.str();
@@ -4028,417 +4556,23 @@ void YamlWorldDataSource::SaveObjects(int zone_rnum, int specific_vnum)
 		}
 
 		Koi8rYamlEmitter yaml(out);
-
-		// Header comment
-		yaml.Comment("Object #" + std::to_string(obj_vnum));
+		yaml.Comment("Object #" + std::to_string(vnum));
 		yaml.EmptyLine();
+		EmitObjectBody(yaml, out, obj);
 
-		// Vnum (matches Python converter output and SaveRooms convention).
-		yaml.Key("vnum");
-		yaml.Value(obj_vnum);
-
-		// Names
-		yaml.Key("names");
-		out << std::endl;
-		yaml.IncreaseIndent();
-
-		yaml.Key("aliases");
-		yaml.Value(obj->get_aliases());
-
-		yaml.Key("nominative");
-		yaml.Value(obj->get_PName(grammar::ECase::kNom));
-
-		yaml.Key("genitive");
-		yaml.Value(obj->get_PName(grammar::ECase::kGen));
-
-		yaml.Key("dative");
-		yaml.Value(obj->get_PName(grammar::ECase::kDat));
-
-		yaml.Key("accusative");
-		yaml.Value(obj->get_PName(grammar::ECase::kAcc));
-
-		yaml.Key("instrumental");
-		yaml.Value(obj->get_PName(grammar::ECase::kIns));
-
-		yaml.Key("prepositional");
-		yaml.Value(obj->get_PName(grammar::ECase::kPre));
-
-		yaml.DecreaseIndent();
-
-		// Long description ("when in room"). Yaml convention: stored under
-		// `short_desc:` to mirror the legacy file's 8th string, which is the
-		// long-form description. m_short_description is the inventory name
-		// (== nominative) and is already serialised via names/nominative.
-		yaml.Key("short_desc");
-		yaml.Value(obj->get_description(), true);  // literal=true
-
-		// Action description (optional)
-		if (!obj->get_action_description().empty())
-		{
-			yaml.Key("action_desc");
-			yaml.Value(obj->get_action_description(), true);  // literal=true
-		}
-
-		// Type
-		yaml.Key("type");
-		yaml.Value(ReverseLookupEnum("obj_types", static_cast<int>(obj->get_type())));
-
-		// Material (with comment)
-		int material_id = static_cast<int>(obj->get_material());
-		yaml.Key("material");
-		yaml.Value(material_id, GetMaterialNameComment(material_id));
-
-		// Values
-		yaml.Key("values");
-		yaml.BeginSequence();
-		yaml.IncreaseIndent();
-
-		yaml.SequenceItem(obj->get_val(0));
-		yaml.SequenceItem(obj->get_val(1));
-		yaml.SequenceItem(obj->get_val(2));
-		yaml.SequenceItem(obj->get_val(3));
-
-		yaml.DecreaseIndent();
-
-		// Weight, cost, rent
-		yaml.Key("weight");
-		yaml.Value(obj->get_weight());
-
-		yaml.Key("cost");
-		yaml.Value(obj->get_cost());
-
-		yaml.Key("rent_off");
-		yaml.Value(obj->get_rent_off());
-
-		yaml.Key("rent_on");
-		yaml.Value(obj->get_rent_on());
-
-		// Spec param (optional)
-		if (obj->get_spec_param() != 0)
-		{
-			yaml.Key("spec_param");
-			yaml.Value(obj->get_spec_param());
-		}
-
-		// Durability and timer
-		yaml.Key("max_durability");
-		yaml.Value(obj->get_maximum_durability());
-
-		yaml.Key("cur_durability");
-		yaml.Value(obj->get_current_durability());
-
-		yaml.Key("timer");
-		yaml.Value(obj->get_timer());
-
-		// Spell (with comment)
-		if (to_underlying(obj->get_spell()) >= 0)
-		{
-			int spell_id = to_underlying(obj->get_spell());
-			yaml.Key("spell");
-			yaml.Value(spell_id, GetSpellNameComment(static_cast<ESpell>(spell_id)));
-		}
-
-		// Level and sex
-		yaml.Key("level");
-		yaml.Value(obj->get_level());
-
-		yaml.Key("sex");
-		yaml.Value(ReverseLookupEnum("genders", static_cast<int>(obj->get_sex())));
-
-		// Max in world (optional)
-		if (obj->get_max_in_world() != -1)
-		{
-			yaml.Key("max_in_world");
-			yaml.Value(obj->get_max_in_world());
-		}
-
-		// Minimum remorts (optional)
-		if (obj->get_minimum_remorts() != 0)
-		{
-			yaml.Key("minimum_remorts");
-			yaml.Value(obj->get_minimum_remorts());
-		}
-
-		// Extra flags
-		auto extra_flags = ConvertFlagsToNames(obj->get_extra_flags(), "extra_flags");
-		if (!extra_flags.empty())
-		{
-			yaml.Key("extra_flags");
-			yaml.BeginSequence();
-			yaml.IncreaseIndent();
-
-			for (const auto &flag : extra_flags)
-			{
-				yaml.SequenceItem(flag);
-			}
-
-			yaml.DecreaseIndent();
-		}
-
-		// Wear flags
-		int wear_flags = obj->get_wear_flags();
-		if (wear_flags != 0)
-		{
-			yaml.Key("wear_flags");
-			yaml.BeginSequence();
-			yaml.IncreaseIndent();
-
-			for (int bit = 0; bit < 32; ++bit)
-			{
-				if (wear_flags & (1 << bit))
-				{
-					std::string flag_name = ReverseLookupEnum("wear_flags", bit);
-					if (!flag_name.empty() && flag_name != std::to_string(bit))
-					{
-						yaml.SequenceItem(flag_name);
-					}
-					else
-					{
-						yaml.SequenceItem("UNUSED_" + std::to_string(bit));
-					}
-				}
-			}
-
-			yaml.DecreaseIndent();
-		}
-
-		// No flags
-		auto no_flags = ConvertFlagsToNames(obj->get_no_flags(), "no_flags");
-		if (!no_flags.empty())
-		{
-			yaml.Key("no_flags");
-			yaml.BeginSequence();
-			yaml.IncreaseIndent();
-
-			for (const auto &flag : no_flags)
-			{
-				yaml.SequenceItem(flag);
-			}
-
-			yaml.DecreaseIndent();
-		}
-
-		// Anti flags
-		auto anti_flags = ConvertFlagsToNames(obj->get_anti_flags(), "anti_flags");
-		if (!anti_flags.empty())
-		{
-			yaml.Key("anti_flags");
-			yaml.BeginSequence();
-			yaml.IncreaseIndent();
-
-			for (const auto &flag : anti_flags)
-			{
-				yaml.SequenceItem(flag);
-			}
-
-			yaml.DecreaseIndent();
-		}
-
-		// Affect flags. m_waffect_flags хранит биты EWeaponAffect, имена
-		// берём из EWeaponAffect-таблицы (не EAffect), иначе round-trip
-		// конвертера сломает item-affects: загружено как kDetectPoison,
-		// сохранено как kHorse (бит 27 в EAffect-словаре). Идём по битам
-		// сами и берём имена через NAME_BY_ITEM<EWeaponAffect>.
-		std::vector<std::string> affect_flags;
-		{
-			const auto &fld = obj->get_affect_flags();
-			for (size_t plane = 0; plane < FlagData::kPlanesNumber; ++plane)
-			{
-				Bitvector plane_bits = fld.get_plane(plane);
-				if (plane_bits == 0) continue;
-				for (int bit = 0; bit < 30; ++bit)
-				{
-					if (!(plane_bits & (1u << bit))) continue;
-					const Bitvector v = (plane == 0) ? (1u << bit) :
-						((plane == 1) ? (kIntOne | (1u << bit)) :
-						(plane == 2) ? (kIntTwo | (1u << bit)) :
-						(kIntThree | (1u << bit)));
-					try
-					{
-						const auto &name = NAME_BY_ITEM<EWeaponAffect>(static_cast<EWeaponAffect>(v));
-						if (!name.empty()) affect_flags.push_back(name);
-					}
-					catch (const std::out_of_range &)
-					{
-						const int idx = static_cast<int>(plane) * 30 + bit;
-						affect_flags.push_back("UNUSED_" + std::to_string(idx));
-					}
-				}
-			}
-		}
-		if (!affect_flags.empty())
-		{
-			yaml.Key("affect_flags");
-			yaml.BeginSequence();
-			yaml.IncreaseIndent();
-
-			for (const auto &flag : affect_flags)
-			{
-				yaml.SequenceItem(flag);
-			}
-
-			yaml.DecreaseIndent();
-		}
-
-		// Applies (with location comments)
-		bool has_applies = false;
-		for (int i = 0; i < kMaxObjAffect; ++i)
-		{
-			if (obj->get_affected(i).location != EApply::kNone)
-			{
-				has_applies = true;
-				break;
-			}
-		}
-
-		if (has_applies)
-		{
-			yaml.Key("applies");
-			yaml.BeginSequence();
-			yaml.IncreaseIndent();
-
-			for (int i = 0; i < kMaxObjAffect; ++i)
-			{
-				if (obj->get_affected(i).location != EApply::kNone)
-				{
-					int location = static_cast<int>(obj->get_affected(i).location);
-					int modifier = obj->get_affected(i).modifier;
-
-					out << yaml.GetIndent() << "- location: " << location;
-					out << "  # " << GetApplyTypeNameComment(location) << std::endl;
-					out << yaml.GetIndent() << "  modifier: " << modifier << std::endl;
-				}
-			}
-
-			yaml.DecreaseIndent();
-		}
-
-		// Умения предмета (legacy S-строки), issue #3386.
-		if (obj->has_skills())
-		{
-			yaml.Key("skills");
-			yaml.BeginSequence();
-			yaml.IncreaseIndent();
-
-			for (const auto &[skill_id, value] : obj->get_skills())
-			{
-				out << yaml.GetIndent() << "- skill_id: " << static_cast<int>(skill_id);
-				out << "  # " << GetSkillNameComment(skill_id) << std::endl;
-				out << yaml.GetIndent() << "  value: " << value << std::endl;
-			}
-
-			yaml.DecreaseIndent();
-		}
-
-		// Extra descriptions
-		if (obj->get_ex_description())
-		{
-			yaml.Key("extra_descriptions");
-			yaml.BeginSequence();
-			yaml.IncreaseIndent();
-
-			// Load prepends each yaml entry, so the in-memory list is
-			// reversed relative to the file. Emit in reverse so a fresh load
-			// rebuilds the same in-memory order -- otherwise the order flips
-			// on every round-trip.
-			std::vector<ExtraDescription *> exdescs;
-			for (auto exdesc = obj->get_ex_description(); exdesc; exdesc = exdesc->next)
-			{
-				exdescs.push_back(exdesc.get());
-			}
-			for (auto it = exdescs.rbegin(); it != exdescs.rend(); ++it)
-			{
-				const auto *exdesc = *it;
-				if (exdesc->keyword)
-				{
-					// keywords may start with '-' (legitimately a single dash);
-					// Koi8rYamlEmitter::Value handles leading-indicator quoting.
-					out << yaml.GetIndent() << "- keywords:";
-					// IncreaseIndent so yaml.Value's literal-block branch
-					// emits content lines at the correct column for indicator
-					// "2" (parent_indent + 2). The "  " before `-` already
-					// indented us; we need one more level so a multi-line
-					// keyword doesn't get content at the wrong column.
-					yaml.IncreaseIndent();
-					yaml.Value(std::string(exdesc->keyword));
-					yaml.DecreaseIndent();
-					if (exdesc->description)
-					{
-						out << yaml.GetIndent() << "  description:";
-						yaml.IncreaseIndent();
-						yaml.Value(std::string(exdesc->description), true);
-						yaml.DecreaseIndent();
-					}
-				}
-			}
-
-			yaml.DecreaseIndent();
-		}
-
-		// Extra values (V-строки): данные зелий и прочих контейнеров с жидкостью.
-		// Без сохранения этой секции данные о заклинаниях зелий пропадут (issue #3218).
-		if (!obj->get_all_values().empty())
-		{
-			std::vector<std::pair<std::string, int>> sorted_vals;
-			for (const auto &kv : obj->get_all_values())
-			{
-				std::string key_str = text_id::ToStr(text_id::kObjVals, to_underlying(kv.first));
-				if (!key_str.empty())
-				{
-					sorted_vals.emplace_back(std::move(key_str), kv.second);
-				}
-			}
-
-			if (!sorted_vals.empty())
-			{
-				std::sort(sorted_vals.begin(), sorted_vals.end(),
-					[](const std::pair<std::string, int> &a, const std::pair<std::string, int> &b) {
-						return a.first < b.first;
-					});
-
-				yaml.Key("extra_values");
-				yaml.BeginBlock();
-				for (const auto &kv : sorted_vals)
-				{
-					yaml.Key(kv.first);
-					yaml.Value(kv.second);
-				}
-				yaml.EndBlock();
-			}
-		}
-
-		// Triggers (with comments)
-		if (obj->get_proto_script_ptr() && !obj->get_proto_script().empty())
-		{
-			yaml.Key("triggers");
-			yaml.BeginSequence();
-			yaml.IncreaseIndent();
-
-			for (auto trig_vnum : obj->get_proto_script())
-			{
-				std::string trig_comment = GetTriggerNameComment(trig_vnum);
-				yaml.SequenceItem(trig_vnum, trig_comment);
-			}
-
-			yaml.DecreaseIndent();
-		}
-
-		// Close file and rename atomically
 		out.close();
 		if (std::rename(temp_file.c_str(), obj_file.c_str()) != 0)
 		{
 			log("SYSERR: Failed to rename %s to %s", temp_file.c_str(), obj_file.c_str());
 			continue;
 		}
-
 		++saved_count;
 	}
 
 	log("Saved %d objects for zone %d", saved_count, zone.vnum);
-
 	RebuildPerZoneIndex(zone.vnum, "objects");
+	CleanupOtherLayout(zone.vnum, "objects", YamlLayout::PerFile);
 }
-
 // ============================================================================
 // Factory function
 // ============================================================================

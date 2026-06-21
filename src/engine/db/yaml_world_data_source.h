@@ -17,12 +17,14 @@
 #include <map>
 #include <vector>
 #include <memory>
+#include <iosfwd>
 
 class ZoneData;
 class RoomData;
 class CharData;
 struct Trigger;
 class CObjectPrototype;
+class Koi8rYamlEmitter;
 
 namespace utils {
 	class ThreadPool;
@@ -30,6 +32,26 @@ namespace utils {
 
 namespace world_loader
 {
+
+// Physical layout of a zone's per-entity YAML files.
+//   PerFile -- one file per entity in a sub-directory (mobs/00.yaml, mobs/01.yaml, ...)
+//              plus a mobs/index.yaml listing the rel-numbers.
+//   Flat    -- all entities of a type in one file (mobs.yaml) as a map keyed by
+//              rel-number; the file is its own index, no index.yaml.
+// Loading auto-detects the layout per (zone, sub-type); this only selects the
+// layout used when WRITING.
+enum class YamlLayout { PerFile, Flat };
+
+// One unit of entity-load work: a single YAML file to parse, plus the vnums it
+// contains. Per-file layout -> exactly one vnum (the file IS the entity node).
+// Flat layout -> all vnums of that type in the zone (each entity is the node at
+// the rel-number map key). Distributed across worker threads; each task is
+// parsed entirely by one thread (so the loaded root node is never shared).
+struct EntityFileTask {
+	bool flat = false;
+	std::string path;
+	std::vector<int> vnums;  // sorted ascending
+};
 
 // Result of parsing rooms in a single thread
 struct ParsedRoomBatch {
@@ -64,6 +86,8 @@ public:
 	// Stateless aside from reading the global DictionaryManager singleton --
 	// callers are responsible for loading dictionaries beforehand.
 	CharData ParseMobFile(const std::string &file_path);
+	// Parses a mob from an already-loaded node (per-file and flat layouts).
+	CharData ParseMobNode(const YAML::Node &root);
 
 private:
 	// Initialize dictionaries
@@ -74,9 +98,12 @@ private:
 
 	// Get list of zone vnums from index.yaml
 	std::vector<int> GetZoneList();
-	std::vector<int> GetMobList();
-	std::vector<int> GetObjectList();
-	std::vector<int> GetTriggerList();
+
+	// Discover the entity files for one sub-type ("mobs"/"objects"/"rooms"/
+	// "triggers") across all zones, auto-detecting per (zone, sub) whether the
+	// data lives in a flat <sub>.yaml or a per-file <sub>/ directory. Runs
+	// sequentially in the main thread before tasks are distributed to workers.
+	std::vector<EntityFileTask> DiscoverEntityFiles(const std::string &sub);
 
 	// Zone loading helpers
 	void LoadZoneCommands(ZoneData &zone, const YAML::Node &commands_node);
@@ -122,6 +149,21 @@ private:
 	// writes the rel-numbers (vnum % 100) into <m_world_dir>/zones/<zone>/<sub>/index.yaml.
 	bool RebuildPerZoneIndex(int zone_vnum, const std::string &sub) const;
 
+	// Emit one entity's body (everything except the vnum, which is implied by
+	// the filename in per-file layout or the map key in flat layout) at the
+	// emitter's current indent. Shared by the per-file save loops and the flat
+	// save path, which calls them one indent level deeper under a rel-number key.
+	void EmitTriggerBody(Koi8rYamlEmitter &yaml, Trigger *trig);
+	void EmitRoomBody(Koi8rYamlEmitter &yaml, std::ostream &out, RoomData *room);
+	void EmitMobBody(Koi8rYamlEmitter &yaml, std::ostream &out, CharData &mob);
+	void EmitObjectBody(Koi8rYamlEmitter &yaml, std::ostream &out, CObjectPrototype *obj);
+
+	// Remove the artifacts of the layout we did NOT just write for a zone's
+	// sub-type, so a save fully migrates between layouts (no leftovers):
+	// after a flat save, drop the <sub>/ directory; after a per-file save,
+	// drop the <sub>.yaml file.
+	void CleanupOtherLayout(int zone_vnum, const std::string &sub, YamlLayout written) const;
+
 	// Parallel loading methods (only used when m_num_threads > 1)
 	void LoadZonesParallel();
 	void LoadTriggersParallel();
@@ -136,12 +178,19 @@ private:
 	// ParseMobFile lives in the public section above (exposed for tests).
 	CObjectPrototype* ParseObjectFile(const std::string &file_path, int vnum);
 
+	// Node-level parsers shared by per-file and flat layouts (the *File
+	// variants above are thin wrappers that LoadFile then delegate here).
+	Trigger* ParseTriggerNode(const YAML::Node &root);
+	RoomData* ParseRoomNode(const YAML::Node &root, int vnum, int zone_rnum, LocalDescriptionIndex &local_index, size_t &local_desc_idx);
+	CObjectPrototype* ParseObjectNode(const YAML::Node &root, int vnum);
+
 	// Helper: get configured thread count from runtime config
 	size_t GetConfiguredThreadCount() const;
 
 	std::string m_world_dir;
 	bool m_dictionaries_loaded = false;
 	bool m_convert_lf_to_crlf = false;  // Convert LF to CR+LF for DOS line endings
+	YamlLayout m_save_layout = YamlLayout::Flat;  // Layout used when writing zones (default: flat)
 
 	// Threading support
 	std::unique_ptr<utils::ThreadPool> m_thread_pool;
