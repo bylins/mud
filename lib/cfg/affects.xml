@@ -132,4 +132,6 @@
 	<affect id="kBattleLuck"/>
 	<affect id="kPhysdamageBonus"/>
 	<affect id="kSuspiciousness"/>
+	<affect id="kSevereWound"/>
+	<affect id="kWellFed"/>
 </affects>

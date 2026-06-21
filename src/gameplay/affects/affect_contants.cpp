@@ -163,6 +163,8 @@ void init_EAffectFlag_ITEM_NAMES() {
 	EAffectFlag_name_by_value[EAffect::kBattleLuck] = "kBattleLuck";
 	EAffectFlag_name_by_value[EAffect::kPhysdamageBonus] = "kPhysdamageBonus";
 	EAffectFlag_name_by_value[EAffect::kSuspiciousness] = "kSuspiciousness";
+	EAffectFlag_name_by_value[EAffect::kSevereWound] = "kSevereWound";
+	EAffectFlag_name_by_value[EAffect::kWellFed] = "kWellFed";
 	for (const auto &i : EAffectFlag_name_by_value) {
 		EAffectFlag_value_by_name[i.second] = i.first;
 	}

@@ -411,4 +411,10 @@
 	<msg_sheaf id="kSuspiciousness">
 		<message type="kShortDesc" val="подозрительность"/>
 	</msg_sheaf>
+	<msg_sheaf id="kSevereWound">
+		<message type="kShortDesc" val="тяжелая рана"/>
+	</msg_sheaf>
+	<msg_sheaf id="kWellFed">
+		<message type="kShortDesc" val="сытость"/>
+	</msg_sheaf>
 </msg_container>
