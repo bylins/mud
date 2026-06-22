@@ -6309,7 +6309,6 @@
 				<damage saving="kReflex">
 					<amount min="0" dices_weight="1.4" alpha="0.127932" beta="60" />
 				</damage>
-<<<<<<< HEAD
 				<affects type="kAcidArrow" saving="kStability" resist="kImmunity" prob="15">
 					<duration base="2" skill_divisor="20" min="3" max="0" />
 					<flags val="kAfBattledec|kAfDispellable|kAfCurable" />
@@ -6331,9 +6330,6 @@
 					<distribution type="kStepped" decay="0.05" free_targets="3" />
 				</area>
 				<alter_obj handler="AlterAcid" collateral="on_damage" />
-=======
-				<alter_obj handler="AlterAcid" />
->>>>>>> 97b8f908c (spells.xml)
 			</action>
 		</talent_actions>
 	</spell>
