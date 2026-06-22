@@ -142,7 +142,7 @@ return function(ctx)
   local mob = mud.load_mob(4020, room)
 
   if obj then
-    room:echo("Что-то появляется на полу.\r\n")
+    room:echo("Что-то появляется на полу.")
   end
 
   return not (mob == nil)
@@ -187,7 +187,7 @@ ctx.owner.context:delete("visits")
 ```lua
 return function(ctx)
   if mud.percent(25) then
-    mud.echo("В комнате что-то шуршит.\r\n")
+    mud.echo("В комнате что-то шуршит.")
   end
 
   return true
@@ -510,14 +510,14 @@ ctx.owner.context:delete("foo")
 `osend`/`wsend` в Lua обычно заменяются прямой отправкой известному персонажу:
 
 ```lua
-ctx.actor:send("Текст сообщения.\r\n")
+ctx.actor:send("Текст сообщения.")
 ```
 
 Lua не запускает DG `sub_write` для `$n`/`%actor.name%` внутри строки, поэтому подстановки собираются явно через Lua API:
 
 ```lua
 local n = ctx.actor.names
-ctx.actor:send(n.UPiname .. " кивает" .. n.g .. ".\r\n")
+ctx.actor:send(n.UPiname .. " кивает" .. n.g .. ".")
 ```
 
 `wat <room> <command>` в Lua чаще не нужен: берите комнату явно и вызывайте нужный метод:
