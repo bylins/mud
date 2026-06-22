@@ -125,7 +125,7 @@ enum class EAffect : Bitvector {
 	kCloudly = 85,
 	kConfused = 86,
 	kNoCharge = 87,
-	kInjured = 88,
+	kInjuredLimb = 88,
 	kFrenzy = 89,
 	// issue.affect-migration: per-spell affects (each spell gets its own flag).
 	kMagicArmor = 90,

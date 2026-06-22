@@ -93,7 +93,7 @@
 	<affect id="kCloudly"/>
 	<affect id="kConfused"/>
 	<affect id="kNoCharge"/>
-	<affect id="kInjured"/>
+	<affect id="kInjuredLimb"/>
 	<affect id="kFrenzy"/>
 	<affect id="kMagicArmor"/>
 	<affect id="kShivering"/>

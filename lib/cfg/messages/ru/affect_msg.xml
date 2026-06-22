@@ -441,7 +441,7 @@
 	</msg_sheaf>
 	<msg_sheaf id="kBandage">
 		<message type="kAffImposedToChar" val="Вы достали бинты и начали оказывать себе первую помощь..."/>
-		<message type="kAffImposedToRoom" val="$n начал$g перевязывать свои раны.&n"/>
+		<message type="kAffImposedToRoom" val="$n начал$g перевязывать свои раны.&amp;n"/>
 		<message type="kAffExpiredToChar" val="Вы аккуратно перевязали свои раны."/>
 		<message type="kShortDesc" val="перевязка"/>
 	</msg_sheaf>
@@ -492,14 +492,14 @@
 	<msg_sheaf id="kNoCharge">
 		<message type="kShortDesc" val="натиск"/>
 	</msg_sheaf>
-	<msg_sheaf id="kInjured">
+	<msg_sheaf id="kInjuredLimb">
 		<message type="kAffImposedToChar" val="$N ранил$G Вас в руку! Надо бы дать сдачи..."/>
 		<message type="kAffImposedToVict" val="Вы ранили $n3! Как же $e теперь будет Вас бить?..."/>
 		<message type="kAffImposedToRoom" val="$N ранил$G $n3. Кажется $n0 уже передумал$g драться..."/>
 		<message type="kShortDesc" val="ранен"/>
 	</msg_sheaf>
 	<msg_sheaf id="kFrenzy">
-		<message type="kAffImposedToChar" val="&RЖажда крови затмила ваш разум и Вы пришли в исступление!&n"/>
+		<message type="kAffImposedToChar" val="&amp;RЖажда крови затмила ваш разум и Вы пришли в исступление!&amp;n"/>
 		<message type="kAffImposedToRoom" val="$n выпучил$g глаза и издал$g бешеный вопль! Похоже разум окончательно покинул $s..."/>
 		<message type="kAffExpiredToChar" val="Жажда крови отступила и Вы пришли в себя."/>
 		<message type="kShortDesc" val="исступление"/>

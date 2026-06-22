@@ -124,7 +124,7 @@ void init_EAffectFlag_ITEM_NAMES() {
 	EAffectFlag_name_by_value[EAffect::kCloudly] = "kCloudly";
 	EAffectFlag_name_by_value[EAffect::kConfused] = "kConfused";
 	EAffectFlag_name_by_value[EAffect::kNoCharge] = "kNoCharge";
-	EAffectFlag_name_by_value[EAffect::kInjured] = "kInjured";
+	EAffectFlag_name_by_value[EAffect::kInjuredLimb] = "kInjuredLimb";
 	EAffectFlag_name_by_value[EAffect::kFrenzy] = "kFrenzy";
 	EAffectFlag_name_by_value[EAffect::kMagicArmor] = "kMagicArmor";
 	EAffectFlag_name_by_value[EAffect::kShivering] = "kShivering";
