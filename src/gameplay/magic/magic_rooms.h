@@ -4,6 +4,7 @@
 #include "gameplay/affects/affect_data.h"
 #include "spells.h"
 #include "magic.h"   // ECastResult / CastContext
+#include "engine/structs/meta_enum.h"   // NAME_BY_ITEM / ITEM_BY_NAME / NAMES_OF
 
 #include <list>
 
@@ -14,8 +15,23 @@ namespace room_spells {
 // Константа, определяющая скорость таймера аффектов
 const int kSecsPerRoomAffect = 2;
 
-enum ERoomAffect : Bitvector {
-	kNoPortalExit = 1 << 0		// портал без входа\выхода
+// Room-affect identity flags. Index-valued (BitsetFlags-ready, like EAffect): kUndefined=0 is the
+// "no flag" sentinel (== the old static_cast<ERoomAffect>(0)); real room affects are 1-based, one
+// enumerator per room-affecting spell, plus kNoPortalExit (a one-way sub-marker on a portal affect).
+// kCount is the terminal counter BitsetFlags<ERoomAffect> reads via flag_traits.
+enum class ERoomAffect : Bitvector {
+	kUndefined = 0,
+	kNoPortalExit = 1,			// портал без входа/выхода
+	kForbidden = 2,
+	kMeteorStorm = 3,
+	kRoomLight = 4,
+	kDeadlyFog = 5,
+	kThunderstorm = 6,
+	kRuneLabel = 7,
+	kHypnoticPattern = 8,
+	kBlackTentacles = 9,
+	kPortalTimer = 10,
+	kCount = 11,
 };
 
 
@@ -78,6 +94,15 @@ struct RoomAffectActor {
 RoomAffectActor ClassifyRoomAffectAccess(CharData *ch, long caster_id);
 
 } // namespace room_spells
+
+// Room-affect registry name maps (cfg/room_affects.xml validates these). Global scope, mirroring
+// the EAffect specializations in affect_contants.h.
+template<>
+const std::string &NAME_BY_ITEM<room_spells::ERoomAffect>(room_spells::ERoomAffect item);
+template<>
+room_spells::ERoomAffect ITEM_BY_NAME<room_spells::ERoomAffect>(const std::string &name);
+template<>
+const std::map<room_spells::ERoomAffect, std::string> &NAMES_OF<room_spells::ERoomAffect>();
 
 #endif // MAGIC_ROOMS_HPP_
 

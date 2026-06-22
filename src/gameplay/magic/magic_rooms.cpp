@@ -16,10 +16,83 @@
 #include "engine/db/player_index.h"
 #include "engine/db/db.h"           // chardata_by_uid
 #include "gameplay/fight/pk.h"          // pk_agro_action
+#include "room_affects_loader.h"   // RoomAffectsLoader
+#include <set>
 
 // Структуры и функции для работы с заклинаниями, обкастовывающими комнаты
 
+// --- issue.affect-migration: room-affect registry name maps (cfg/room_affects.xml) -----------------
+// Mirrors the EAffect name maps in affect_contants.cpp. kUndefined (sentinel) and kCount (terminal)
+// are excluded -- only real room affects get a row.
+namespace {
+std::map<room_spells::ERoomAffect, std::string> g_room_affect_name_by_value;
+std::map<std::string, room_spells::ERoomAffect> g_room_affect_value_by_name;
+void init_room_affect_names() {
+	using RA = room_spells::ERoomAffect;
+	g_room_affect_name_by_value = {
+		{RA::kNoPortalExit, "kNoPortalExit"},
+		{RA::kForbidden, "kForbidden"},
+		{RA::kMeteorStorm, "kMeteorStorm"},
+		{RA::kRoomLight, "kRoomLight"},
+		{RA::kDeadlyFog, "kDeadlyFog"},
+		{RA::kThunderstorm, "kThunderstorm"},
+		{RA::kRuneLabel, "kRuneLabel"},
+		{RA::kHypnoticPattern, "kHypnoticPattern"},
+		{RA::kBlackTentacles, "kBlackTentacles"},
+		{RA::kPortalTimer, "kPortalTimer"},
+	};
+	for (const auto &[value, token] : g_room_affect_name_by_value) {
+		g_room_affect_value_by_name.emplace(token, value);
+	}
+}
+}  // namespace
+
+template<>
+const std::string &NAME_BY_ITEM<room_spells::ERoomAffect>(room_spells::ERoomAffect item) {
+	if (g_room_affect_name_by_value.empty()) { init_room_affect_names(); }
+	return g_room_affect_name_by_value.at(item);
+}
+template<>
+room_spells::ERoomAffect ITEM_BY_NAME<room_spells::ERoomAffect>(const std::string &name) {
+	if (g_room_affect_value_by_name.empty()) { init_room_affect_names(); }
+	return g_room_affect_value_by_name.at(name);
+}
+template<>
+const std::map<room_spells::ERoomAffect, std::string> &NAMES_OF<room_spells::ERoomAffect>() {
+	if (g_room_affect_name_by_value.empty()) { init_room_affect_names(); }
+	return g_room_affect_name_by_value;
+}
+
 namespace room_spells {
+
+namespace {
+// room_affects.xml is the room-affect registry (id-only for now; grows per-affect data later).
+void ValidateRoomAffectRegistry(parser_wrapper::DataNode data) {
+	std::set<std::string> seen;
+	for (auto &node : data.Children("room_affect")) {
+		const char *id = node.GetValue("id");
+		if (!id || !*id) {
+			log("SYSERROR: room_affects.xml: <room_affect> without an id -- skipped.");
+			continue;
+		}
+		try {
+			(void) ITEM_BY_NAME<ERoomAffect>(id);
+		} catch (const std::out_of_range &) {
+			log("SYSERROR: room_affects.xml: unknown room-affect id '%s' -- skipped.", id);
+			continue;
+		}
+		seen.insert(id);
+	}
+	for (const auto &[affect, token] : NAMES_OF<ERoomAffect>()) {
+		if (seen.find(token) == seen.end()) {
+			log("SYSERROR: room_affects.xml: missing <room_affect id=\"%s\">.", token.c_str());
+		}
+	}
+}
+}  // namespace
+
+void RoomAffectsLoader::Load(parser_wrapper::DataNode data) { ValidateRoomAffectRegistry(data); }
+void RoomAffectsLoader::Reload(parser_wrapper::DataNode data) { ValidateRoomAffectRegistry(data); }
 
 const int kRuneLabelDuration = 300;
 

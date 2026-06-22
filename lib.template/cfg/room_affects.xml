@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<!--
+    issue.affect-migration: the room-affect registry. id = the room_spells::ERoomAffect enumerator
+    (the identity, kept in C++). Parallels cfg/affects.xml for character affects. Per-room-affect
+    display/lifecycle text lives in cfg/messages/ru/room_affect_msg.xml. This file is the scaffold for
+    future per-room-affect data (handlers/actions, so a room affect can self-process instead of
+    being identified only by its casting spell).
+-->
+<room_affects>
+	<room_affect id="kNoPortalExit"/>
+	<room_affect id="kForbidden"/>
+	<room_affect id="kMeteorStorm"/>
+	<room_affect id="kRoomLight"/>
+	<room_affect id="kDeadlyFog"/>
+	<room_affect id="kThunderstorm"/>
+	<room_affect id="kRuneLabel"/>
+	<room_affect id="kHypnoticPattern"/>
+	<room_affect id="kBlackTentacles"/>
+	<room_affect id="kPortalTimer"/>
+</room_affects>
