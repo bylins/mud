@@ -169,6 +169,7 @@
 	</tag>
 	<tag name="alter_obj" desc="Alter the target object via a handler">
 		<attr name="handler" type="enum" enum="AlterObjHandler" desc="Registered alter-object handler (e.g. AlterBless)"/>
+		<attr name="collateral" type="string" desc="On a char cast, splash onto a random carried item: on_damage (only if damage dealt, e.g. acid). Absent/none = never (cast directly on an object instead)."/>
 	</tag>
 	<tag name="area" desc="Area/mass target selection + distribution">
 		<child tag="targets"/>

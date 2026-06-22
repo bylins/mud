@@ -409,6 +409,10 @@ struct Creation : public IAction {
 // stage; only the per-spell transform is the handler. Inert until consumed.
 struct AlterObj : public IAction {
 	std::string handler;       // the per-spell transform (alter-obj handler registry)
+	// issue.spells-hotfix: on a CHAR cast (no explicit object target) also alter a random item the
+	// victim carries -- but ONLY when damage was dealt this cast (acid corroding gear). Default false
+	// = never splash onto a char's items; cast the spell directly on an object to affect one.
+	bool collateral_on_damage{false};
 	void Print(CharData *ch, std::ostringstream &buffer) const override;
 };
 
