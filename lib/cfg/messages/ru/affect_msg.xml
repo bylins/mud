@@ -212,6 +212,7 @@
 		<message type="kShortDesc" val="определение яда"/>
 	</msg_sheaf>
 	<msg_sheaf id="kDrunked">
+		<message type="kAffImposedToChar" val="Винные пары ударили вам в голову."/>
 		<message type="kAffExpiredToChar" val="Кураж прошел. Мама, лучше бы я умер$q вчера."/>
 		<message type="kShortDesc" val="под мухой"/>
 	</msg_sheaf>
@@ -438,6 +439,8 @@
 		<message type="kShortDesc" val="боевое везение"/>
 	</msg_sheaf>
 	<msg_sheaf id="kBandage">
+		<message type="kAffImposedToChar" val="Вы достали бинты и начали оказывать себе первую помощь..."/>
+		<message type="kAffImposedToRoom" val="$n начал$g перевязывать свои раны.&n"/>
 		<message type="kAffExpiredToChar" val="Вы аккуратно перевязали свои раны."/>
 		<message type="kShortDesc" val="перевязка"/>
 	</msg_sheaf>
