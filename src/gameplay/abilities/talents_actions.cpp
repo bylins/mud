@@ -519,7 +519,8 @@ void Creation::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 }
 
 void AlterObj::Print(CharData */*ch*/, std::ostringstream &buffer) const {
-	buffer << " AlterObj: handler=" << kColorGrn << (handler.empty() ? "-" : handler) << kColorNrm << "\r\n";
+	buffer << " AlterObj: handler=" << kColorGrn << (handler.empty() ? "-" : handler) << kColorNrm
+		   << (collateral_on_damage ? " collateral=on_damage" : "") << "\r\n";
 }
 
 // historical skill-scaled-dice count + an optional secondary-stat nudge.
@@ -1075,6 +1076,8 @@ void Actions::ParseAlterObj(Action &out, parser_wrapper::DataNode &node) {
 	auto ptr = std::make_shared<AlterObj>();
 	const char *h = node.GetValue("handler");
 	if (h && *h) { ptr->handler = h; }
+	const char *col = node.GetValue("collateral");
+	ptr->collateral_on_damage = (col && strcmp(col, "on_damage") == 0);
 	out.manifestations_.insert({EAction::kAlterObj, std::move(ptr)});
 }
 

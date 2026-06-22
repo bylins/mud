@@ -160,6 +160,13 @@ class DataNode {
 	bool SetValue(const std::string &key, const std::string &value);
 
 	/*
+	 * issue.spells-hotfix: remove an optional attribute from the current node entirely (not just
+	 * blank it, e.g. clearing any_of in an <unaffect>). Mutates the shared document. Returns false
+	 * if the attribute was absent.
+	 */
+	bool RemoveValue(const std::string &key);
+
+	/*
 	 * issue.vedun-editor: append an empty child element with the given tag name to the current
 	 * node (mutates the shared document). Returns the new child, sharing this node's document.
 	 */
