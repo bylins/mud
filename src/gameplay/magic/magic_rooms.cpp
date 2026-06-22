@@ -107,6 +107,17 @@ namespace room_spells {
 
 namespace {
 // room_affects.xml is the room-affect registry (id-only for now; grows per-affect data later).
+// Resolve a room-affecting spell to its identity flag. The ERoomAffect enumerators are named after
+// their spells, so the spell's enum token round-trips to the room-affect flag; spells with no matching
+// room-affect flag yield kUndefined (no identity).
+ERoomAffect RoomAffectBySpell(ESpell spell_id) {
+	try {
+		return ITEM_BY_NAME<ERoomAffect>(NAME_BY_ITEM<ESpell>(spell_id));
+	} catch (const std::out_of_range &) {
+		return ERoomAffect::kUndefined;
+	}
+}
+
 void ValidateRoomAffectRegistry(parser_wrapper::DataNode data) {
 	std::set<std::string> seen;
 	for (auto &node : data.Children("room_affect")) {
@@ -566,6 +577,7 @@ ECastResult CastRoomAffect(CastContext &ctx) {
 	if (ctx.action_or_default().Contains(talents_actions::EAction::kAffect)) {
 		const auto &talent = ctx.action_or_default().GetAffect();
 		af[0].type = spell_id;
+		af[0].affect_type = RoomAffectBySpell(spell_id);
 		af[0].caster_id = ch->get_uid();
 		af[0].battleflag = talent.GetFlags();
 		const ESkill dur_skill = MUD::Spell(spell_id).GetPotencyRoll().GetBaseSkill();
