@@ -9,6 +9,7 @@
 #include "engine/entities/obj_data.h"
 #include "gameplay/mechanics/condition.h"
 #include "engine/entities/char_data.h"
+#include "gameplay/magic/magic.h"
 #include "engine/core/target_resolver.h"
 #include "gameplay/abilities/timed_abilities.h"
 #include "gameplay/mechanics/liquid.h"
@@ -122,7 +123,6 @@ void do_drunkoff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (percent > prob) {
 		sprintf(buf, "Вы отхлебнули %s из $o1, но ваша голова стала еще тяжелее...", drinks[GET_OBJ_VAL(obj, 2)]);
 		act(buf, false, ch, obj, 0, kToChar);
-		act("$n попробовал$g похмелиться, но это не пошло $m на пользу.", false, ch, 0, 0, kToRoom);
 		duration = std::max(1, amount / 3);
 		Affect<EApply> af[3];
 		af[0].type = ESpell::kAbstinent;
@@ -160,6 +160,7 @@ void do_drunkoff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			ImposeAffect(ch, af[prob], true, false, true, false);
 		}
 		gain_condition(ch, condition::kDrunk, amount);
+		EmitAffectImpose(ch, nullptr, EAffect::kAbstinent, false);
 	} else {
 		sprintf(buf, "Вы отхлебнули %s из $o1 и почувствовали приятную легкость во всем теле...",
 				drinks[GET_OBJ_VAL(obj, 2)]);

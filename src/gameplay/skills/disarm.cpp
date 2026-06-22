@@ -4,6 +4,7 @@
 
 #include "skill_messages.h"
 #include "engine/db/global_objects.h"
+#include "gameplay/magic/magic.h"
 
 #include "gameplay/fight/pk.h"
 #include "gameplay/fight/common.h"
@@ -115,12 +116,7 @@ void go_injure(CharData *ch, CharData *vict) {
 		af.affect_type = EAffect::kInjured;
 		affect_to_char(vict, af);
 
-		act("Вы ранили $N3! Как же $E теперь будет Вас бить?...",
-			false, ch, nullptr, vict, kToChar);
-		act("$N ранил$G Вас в руку! Надо бы дать сдачи...",
-			false, vict, nullptr, ch, kToChar);
-		act("$N ранил$G $n3. Кажется $n0 уже передумал$g драться...",
-			false, vict, nullptr, ch, kToNotVict | kToArenaListen);
+		EmitAffectImpose(vict, ch, EAffect::kInjured, false);
 
 		int dam = number(ceil(GetSkill(ch, ESkill::kDisarm) / 1.25), ceil(GetSkill(ch, ESkill::kDisarm) * 1.25))
 			* GetRealLevel(ch) / 30;

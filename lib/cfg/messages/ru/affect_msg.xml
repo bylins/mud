@@ -217,6 +217,7 @@
 		<message type="kShortDesc" val="под мухой"/>
 	</msg_sheaf>
 	<msg_sheaf id="kAbstinent">
+		<message type="kAffImposedToRoom" val="$n попробовал$g похмелиться, но это не пошло $m на пользу."/>
 		<message type="kAffExpiredToChar" val="А головка ваша уже не болит."/>
 		<message type="kShortDesc" val="отходняк"/>
 	</msg_sheaf>
@@ -492,6 +493,9 @@
 		<message type="kShortDesc" val="натиск"/>
 	</msg_sheaf>
 	<msg_sheaf id="kInjured">
+		<message type="kAffImposedToChar" val="$N ранил$G Вас в руку! Надо бы дать сдачи..."/>
+		<message type="kAffImposedToVict" val="Вы ранили $n3! Как же $e теперь будет Вас бить?..."/>
+		<message type="kAffImposedToRoom" val="$N ранил$G $n3. Кажется $n0 уже передумал$g драться..."/>
 		<message type="kShortDesc" val="ранен"/>
 	</msg_sheaf>
 	<msg_sheaf id="kFrenzy">
