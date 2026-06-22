@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<!--
+    issue.affect-migration: room-affect messages, keyed by room_spells::ERoomAffect (one <msg_sheaf
+    id="<ERoomAffect>"> per room affect), parallel to cfg/messages/ru/affect_msg.xml for char affects.
+    Slots are room-only (see room_affect_messages.h: ERoomAffectMsgType): caster ("...ToChar"),
+    onlookers ("...ToRoom"), and the room-aura listing variants (kRoomAffect*). The shared kDefault
+    sheaf (ERoomAffect::kUndefined) holds generic fallbacks.
+
+    Phase 1b seeds the container infrastructure only. The actual per-affect text is moved here from
+    the spell message system (spell_msg.xml: kRoomAffect* / impose / expiry) in Phase 3, once the
+    spell apply -> ERoomAffect identity wiring (Phase 2) is in place.
+-->
+<msg_container>
+	<msg_sheaf id="kDefault">
+	</msg_sheaf>
+</msg_container>

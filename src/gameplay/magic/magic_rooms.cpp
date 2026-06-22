@@ -17,6 +17,8 @@
 #include "engine/db/db.h"           // chardata_by_uid
 #include "gameplay/fight/pk.h"          // pk_agro_action
 #include "room_affects_loader.h"   // RoomAffectsLoader
+#include "room_affect_messages.h"   // RoomAffectMessagesLoader
+#include "engine/structs/msg_container.h"
 #include <set>
 
 // Структуры и функции для работы с заклинаниями, обкастовывающими комнаты
@@ -63,6 +65,44 @@ const std::map<room_spells::ERoomAffect, std::string> &NAMES_OF<room_spells::ERo
 	return g_room_affect_name_by_value;
 }
 
+// --- ERoomAffectMsgType name map (mirrors kAffectMsgTypeNames) ------------------------------------
+namespace {
+const std::map<room_spells::ERoomAffectMsgType, std::string> kRoomAffectMsgTypeNames{
+		{room_spells::ERoomAffectMsgType::kUndefined, "kUndefined"},
+		{room_spells::ERoomAffectMsgType::kShortDesc, "kShortDesc"},
+		{room_spells::ERoomAffectMsgType::kAffImposedToChar, "kAffImposedToChar"},
+		{room_spells::ERoomAffectMsgType::kAffImposedToRoom, "kAffImposedToRoom"},
+		{room_spells::ERoomAffectMsgType::kAffDispelledToChar, "kAffDispelledToChar"},
+		{room_spells::ERoomAffectMsgType::kAffDispelledToRoom, "kAffDispelledToRoom"},
+		{room_spells::ERoomAffectMsgType::kAffExpiredToChar, "kAffExpiredToChar"},
+		{room_spells::ERoomAffectMsgType::kAffExpiredToRoom, "kAffExpiredToRoom"},
+		{room_spells::ERoomAffectMsgType::kRoomAffectVisible, "kRoomAffectVisible"},
+		{room_spells::ERoomAffectMsgType::kRoomAffectInvisible, "kRoomAffectInvisible"},
+		{room_spells::ERoomAffectMsgType::kRoomAffectSelfInvisible, "kRoomAffectSelfInvisible"},
+		{room_spells::ERoomAffectMsgType::kRoomAffectPkVisible, "kRoomAffectPkVisible"},
+		{room_spells::ERoomAffectMsgType::kRoomAffectPkInvisible, "kRoomAffectPkInvisible"},
+	};
+}  // namespace
+
+template<>
+const std::string &NAME_BY_ITEM<room_spells::ERoomAffectMsgType>(room_spells::ERoomAffectMsgType item) {
+	return kRoomAffectMsgTypeNames.at(item);
+}
+template<>
+const std::map<room_spells::ERoomAffectMsgType, std::string> &NAMES_OF<room_spells::ERoomAffectMsgType>() {
+	return kRoomAffectMsgTypeNames;
+}
+template<>
+room_spells::ERoomAffectMsgType ITEM_BY_NAME<room_spells::ERoomAffectMsgType>(const std::string &name) {
+	static std::map<std::string, room_spells::ERoomAffectMsgType> by_name;
+	if (by_name.empty()) {
+		for (const auto &[value, token] : kRoomAffectMsgTypeNames) {
+			by_name.emplace(token, value);
+		}
+	}
+	return by_name.at(name);
+}
+
 namespace room_spells {
 
 namespace {
@@ -93,6 +133,29 @@ void ValidateRoomAffectRegistry(parser_wrapper::DataNode data) {
 
 void RoomAffectsLoader::Load(parser_wrapper::DataNode data) { ValidateRoomAffectRegistry(data); }
 void RoomAffectsLoader::Reload(parser_wrapper::DataNode data) { ValidateRoomAffectRegistry(data); }
+
+// --- room-affect message container (cfg/messages/ru/room_affect_msg.xml) -------------------------
+namespace {
+msg_container::MsgContainer<ERoomAffect, ERoomAffectMsgType> &RoomAffectMsgContainer() {
+	static msg_container::MsgContainer<ERoomAffect, ERoomAffectMsgType> container;
+	return container;
+}
+}  // namespace
+
+const std::string &RoomAffectMsg(ERoomAffect affect, ERoomAffectMsgType slot) {
+	return RoomAffectMsgContainer().GetMessage(affect, slot);
+}
+const std::string &RoomAffectMsgRaw(ERoomAffect affect, ERoomAffectMsgType slot) {
+	static const std::string kEmpty;
+	auto &c = RoomAffectMsgContainer();
+	return c.IsKnown(affect) ? c[affect].GetMessage(slot) : kEmpty;
+}
+void RoomAffectMessagesLoader::Load(parser_wrapper::DataNode data) {
+	RoomAffectMsgContainer().Init(data.Children());
+}
+void RoomAffectMessagesLoader::Reload(parser_wrapper::DataNode data) {
+	RoomAffectMsgContainer().Reload(data.Children());
+}
 
 const int kRuneLabelDuration = 300;
 
