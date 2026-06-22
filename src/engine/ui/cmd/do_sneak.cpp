@@ -21,7 +21,7 @@ void do_sneak(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		act("Вам стоит подумать о мягкой обуви для $N1", false, ch, nullptr, mount::GetHorse(ch), kToChar);
 		return;
 	}
-	if (IsAffectedBySpell(ch, ESpell::kGlitterDust)) {
+	if (AFF_FLAGGED(ch, EAffect::kGlitterDust)) {
 		SendMsgToChar("Вы бесшумно крадетесь, отбрасывая тысячи солнечных зайчиков...\r\n", ch);
 		return;
 	}

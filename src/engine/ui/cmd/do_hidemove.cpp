@@ -46,7 +46,7 @@ void DoHidemove(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		ImposeAffect(ch, af, false, false, false, false);
 	}
 	PerformMove(ch, dir, 0, true, nullptr);
-	if (!sneaking || IsAffectedBySpell(ch, ESpell::kGlitterDust)) {
+	if (!sneaking || AFF_FLAGGED(ch, EAffect::kGlitterDust)) {
 		RemoveAffectFromChar(ch, ESpell::kSneak);
 		AFF_FLAGS(ch).unset(EAffect::kSneak);
 	}

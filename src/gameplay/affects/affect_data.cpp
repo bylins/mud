@@ -914,7 +914,7 @@ void affect_total(CharData *ch) {
 	}
 	if (!ch->IsNpc())
 		CheckDeathRage(ch);
-	if (ch->GetEnemy() || IsAffectedBySpell(ch, ESpell::kGlitterDust)) {
+	if (ch->GetEnemy() || AFF_FLAGGED(ch, EAffect::kGlitterDust)) {
 		AFF_FLAGS(ch).unset(EAffect::kHide);
 		AFF_FLAGS(ch).unset(EAffect::kSneak);
 		AFF_FLAGS(ch).unset(EAffect::kDisguise);

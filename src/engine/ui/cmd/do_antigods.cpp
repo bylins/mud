@@ -15,7 +15,7 @@ void do_antigods(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 	if (AFF_FLAGGED(ch, EAffect::kGodsShield)) {
-		if (IsAffectedBySpell(ch, ESpell::kGodsShield)) {
+		if (AFF_FLAGGED(ch, EAffect::kGodsShield)) {
 			RemoveAffectFromChar(ch, ESpell::kGodsShield);
 		}
 		AFF_FLAGS(ch).unset(EAffect::kGodsShield);
