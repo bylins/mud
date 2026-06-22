@@ -18,6 +18,7 @@
 #include "gameplay/mechanics/mount.h"
 #include "gameplay/mechanics/magic_item.h"
 #include "gameplay/affects/affect_messages.h"
+#include "gameplay/magic/room_affect_messages.h"
 
 #include <fmt/format.h>
 #include <fmt/ranges.h>   // fmt::join
@@ -795,30 +796,36 @@ void show_room_affects(CharData *ch) {
 		const bool is_caster = (af->caster_id == viewer_uid);
 		const bool is_pk = (af->pk_unique != 0);
 
+		// Prefer the room-affect message system (keyed by the affect's ERoomAffect identity);
+		// fall back to the spell sheaf for affects not yet migrated (e.g. portals).
+		auto pick = [&](room_spells::ERoomAffectMsgType room_slot, ESpellMsg spell_slot) -> const std::string * {
+			const std::string &r = room_spells::RoomAffectMsgRaw(af->affect_type, room_slot);
+			if (!r.empty()) {
+				return &r;
+			}
+			const std::string &sp = sheaf.GetMessage(spell_slot);
+			return sp.empty() ? nullptr : &sp;
+		};
+
 		const std::string *text = nullptr;
 		// Pk override chain (issue.affect-flags): tried before the regular keys.
 		if (is_pk) {
 			if (has_detect_magic) {
-				const auto &m = sheaf.GetMessage(ESpellMsg::kRoomAffectPkInvisible);
-				if (!m.empty()) text = &m;
+				text = pick(room_spells::ERoomAffectMsgType::kRoomAffectPkInvisible, ESpellMsg::kRoomAffectPkInvisible);
 			}
 			if (!text) {
-				const auto &m = sheaf.GetMessage(ESpellMsg::kRoomAffectPkVisible);
-				if (!m.empty()) text = &m;
+				text = pick(room_spells::ERoomAffectMsgType::kRoomAffectPkVisible, ESpellMsg::kRoomAffectPkVisible);
 			}
 		}
 		// Regular chain (fall-through when no Pk variant).
 		if (!text && has_detect_magic && is_caster) {
-			const auto &m = sheaf.GetMessage(ESpellMsg::kRoomAffectSelfInvisible);
-			if (!m.empty()) text = &m;
+			text = pick(room_spells::ERoomAffectMsgType::kRoomAffectSelfInvisible, ESpellMsg::kRoomAffectSelfInvisible);
 		}
 		if (!text && has_detect_magic) {
-			const auto &m = sheaf.GetMessage(ESpellMsg::kRoomAffectInvisible);
-			if (!m.empty()) text = &m;
+			text = pick(room_spells::ERoomAffectMsgType::kRoomAffectInvisible, ESpellMsg::kRoomAffectInvisible);
 		}
 		if (!text) {
-			const auto &m = sheaf.GetMessage(ESpellMsg::kRoomAffectVisible);
-			if (!m.empty()) text = &m;
+			text = pick(room_spells::ERoomAffectMsgType::kRoomAffectVisible, ESpellMsg::kRoomAffectVisible);
 		}
 		if (text) {
 			// Star-rating marker (seal strength) on the SAME line as the affect text,

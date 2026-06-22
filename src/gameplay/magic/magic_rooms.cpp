@@ -174,7 +174,7 @@ std::list<RoomData *> affected_rooms;
 
 void RemoveSingleRoomAffect(long caster_id, ESpell spell_id);
 void HandleRoomAffect(RoomData *room, CharData *ch, const Affect<ERoomApply>::shared_ptr &aff);
-void SendRemoveAffectMsgToRoom(ESpell affect_type, RoomRnum room);
+void SendRemoveAffectMsgToRoom(ESpell affect_type, ERoomAffect room_affect, RoomRnum room);
 void affect_to_room(RoomData *room, const Affect<ERoomApply> &af);
 
 namespace {
@@ -288,7 +288,7 @@ ESpell RemoveAffectFromRooms(ESpell spell_id, const F &filter) {
 	for (const auto room : affected_rooms) {
 		const auto &affect = std::find_if(room->affected.begin(), room->affected.end(), filter);
 		if (affect != room->affected.end()) {
-			SendRemoveAffectMsgToRoom((*affect)->type, GetRoomRnum(room->vnum));
+			SendRemoveAffectMsgToRoom((*affect)->type, (*affect)->affect_type, GetRoomRnum(room->vnum));
 			spell_id = (*affect)->type;
 			RoomRemoveAffect(room, affect);
 			return spell_id;
@@ -312,8 +312,14 @@ ESpell RemoveControlledRoomAffect(CharData *ch) {
 	return RemoveAffectFromRooms(ESpell::kUndefined, filter);
 }
 
-void SendRemoveAffectMsgToRoom(ESpell affect_type, RoomRnum room) {
-	const std::string &msg = GetAffExpiredText(static_cast<ESpell>(affect_type));
+void SendRemoveAffectMsgToRoom(ESpell affect_type, ERoomAffect room_affect, RoomRnum room) {
+	// Prefer the room-affect message system; fall back to the spell expiry text (portals etc).
+	const std::string &room_msg = RoomAffectMsgRaw(room_affect, ERoomAffectMsgType::kAffExpiredToRoom);
+	if (!room_msg.empty()) {
+		SendMsgToRoom(room_msg.c_str(), room, 0);
+		return;
+	}
+	const std::string &msg = GetAffExpiredText(affect_type);
 	if (affect_type >= ESpell::kFirst && affect_type <= ESpell::kLast && !msg.empty()) {
 /*		if (affect_type == ESpell::kPortalTimer){
 			mudlog("Пентаграмма медленно растаяла.");
@@ -480,7 +486,7 @@ void UpdateRoomsAffects() {
 					if (next_affect_i == affects.end()
 						|| (*next_affect_i)->type != affect->type
 						|| (*next_affect_i)->duration > 0) {
-						SendRemoveAffectMsgToRoom(affect->type, GetRoomRnum((*room)->vnum));
+						SendRemoveAffectMsgToRoom(affect->type, affect->affect_type, GetRoomRnum((*room)->vnum));
 					}
 				}
 				RoomRemoveAffect(*room, affect_i);
@@ -701,14 +707,21 @@ ECastResult CastRoomAffect(CastContext &ctx) {
 		// Imposition narration: pure spell_msg.xml lookup, sheaf-direct so a
 		// missing key stays silent (same convention as CastAffect's
 		// EmitImpositionEffects).
+		// Prefer the room-affect message system (keyed by the affect's ERoomAffect identity);
+		// fall back to the spell sheaf for anything not yet migrated.
+		const ERoomAffect ra = RoomAffectBySpell(spell_id);
 		const auto &sheaf = MUD::SpellMessages()[spell_id];
-		const auto &xml_to_room = sheaf.GetMessage(ESpellMsg::kAffImposedToRoom);
-		if (!xml_to_room.empty()) {
-			act(xml_to_room.c_str(), true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
+		const std::string &room_to_room = RoomAffectMsgRaw(ra, ERoomAffectMsgType::kAffImposedToRoom);
+		const std::string &to_room = !room_to_room.empty() ? room_to_room
+				: sheaf.GetMessage(ESpellMsg::kAffImposedToRoom);
+		if (!to_room.empty()) {
+			act(to_room.c_str(), true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 		}
-		const auto &xml_to_char = sheaf.GetMessage(ESpellMsg::kAffImposedToChar);
-		if (!xml_to_char.empty()) {
-			act(xml_to_char.c_str(), true, ch, nullptr, nullptr, kToChar);
+		const std::string &room_to_char = RoomAffectMsgRaw(ra, ERoomAffectMsgType::kAffImposedToChar);
+		const std::string &to_char = !room_to_char.empty() ? room_to_char
+				: sheaf.GetMessage(ESpellMsg::kAffImposedToChar);
+		if (!to_char.empty()) {
+			act(to_char.c_str(), true, ch, nullptr, nullptr, kToChar);
 		}
 		return ECastResult::kSuccess;
 	}
