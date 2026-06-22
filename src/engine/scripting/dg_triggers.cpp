@@ -694,7 +694,9 @@ int receive_mtrigger(CharData *ch, CharData *actor, ObjData *obj) {
 			ADD_UID_CHAR_VAR(buf, t, actor, "actor", 0);
 			ADD_UID_OBJ_VAR(buf, t, obj, "object", 0);
 
-			return script_driver(ch, t, MOB_TRIGGER, TRIG_NEW);
+			auto ctx = MakeMobLuaContext(t, ch, actor);
+			ctx.object = obj;
+			return DispatchTrigger(ch, t, MOB_TRIGGER, ctx);
 		}
 	}
 
