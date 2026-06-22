@@ -856,7 +856,12 @@ static bool TryApplyAffectTalent(CharData *ch, CharData *victim, ESpell spell_id
 	// here only the saving throw can still avert the affect (kNone saving -> CalcGeneralSaving
 	// returns false, so no save is taken).
 	if (ch != victim && CalcGeneralSaving(ch, victim, talent.GetSaving(), modi)) {
-		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
+		// issue.spells-hotfix: a reposition spell (knockdown/stun) shows its success via the
+		// "knocked down" line; on a saved cast the absence of that line already signals failure, so
+		// the redundant "no effect" is suppressed for reposition affects.
+		if (!talent.HasReposition()) {
+			SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
+		}
 		spell_trace::Line(ch, victim, "&CAffect %s on %s resisted by saving throw.&n\r\n",
 			MUD::Spell(spell_id).GetCName(), GET_NAME(victim));
 		return false;
@@ -2121,6 +2126,18 @@ EStageResult RunCastUnaffects(CharData *ch, TTarget *target, ESpell spell_id,
 	CollectRemovals(target, unaffect.GetRemoveAnyway(), to_remove, flags);
 	if (!blocking) {
 		CollectRemovals(target, unaffect.GetRemove(), to_remove, flags);
+	}
+	// issue.spells-hotfix: a type with several affects (e.g. kPoisoned on several locations) must be
+	// removed and announced ONCE. RemoveAffectAndAnnounce strips ALL affects of the type, so dedup the
+	// queue by spell type -- otherwise the 2nd+ entries re-announce an already-removed affect.
+	{
+		std::vector<RemovalCandidate> deduped;
+		for (const auto &c : to_remove) {
+			bool dup = false;
+			for (const auto &d : deduped) { if (d.spell == c.spell) { dup = true; break; } }
+			if (!dup) { deduped.push_back(c); }
+		}
+		to_remove.swap(deduped);
 	}
 
 	if (!to_remove.empty()) {

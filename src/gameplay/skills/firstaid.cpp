@@ -141,7 +141,7 @@ bool ParseFirstAidArgs(const char *argument, ESpell &spell_id, std::string &vict
 Affect<EApply>::shared_ptr PickCureTarget(CharData *vict, ESpell desired) {
 	if (desired != ESpell::kUndefined) {
 		for (const auto &aff : vict->affected) {
-			if (aff && aff->type == desired && IS_SET(aff->battleflag, kAfCurable)) {
+			if (aff && aff->type == desired && IS_SET(aff->battleflag, kAfCurable) && aff->debuff) {
 				return aff;
 			}
 		}
@@ -149,7 +149,9 @@ Affect<EApply>::shared_ptr PickCureTarget(CharData *vict, ESpell desired) {
 	}
 	Affect<EApply>::shared_ptr best;
 	for (const auto &aff : vict->affected) {
-		if (aff && IS_SET(aff->battleflag, kAfCurable)
+		// Only harmful affects (debuff) are cured -- never the target's own buffs (many buffs also
+		// carry kAfCurable). issue.spells-hotfix.
+		if (aff && IS_SET(aff->battleflag, kAfCurable) && aff->debuff
 				&& (!best || aff->potency < best->potency)) {
 			best = aff;
 		}
@@ -306,9 +308,9 @@ void DoFirstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 	}
 
-	if (failed_something) {
-		ApplyFirstAidCooldown(ch);
-	}
+	// issue.spells-hotfix: cooldown on any real use (success OR failure); was failure-only, which let
+	// a successful cure/heal be spammed.
+	ApplyFirstAidCooldown(ch);
 }
 
 #else  // BYLINS_FIRSTAID_NEW

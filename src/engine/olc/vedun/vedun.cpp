@@ -740,6 +740,19 @@ void ParseEditAttr(DescriptorData *d, char *arg) {
 	}
 	if (value.empty() || value == ".") {
 		SendMsgToChar("Cancelled.\r\n", ch);
+	} else if (value == "~") {
+		// issue.spells-hotfix: '~' removes the (optional) attribute entirely, e.g. clearing any_of in
+		// an <unaffect> tag. Read-only attributes are protected.
+		const TagDef *td = CurrentTagDef(s);
+		const AttrDef *ad = td ? td->FindAttr(s.edit_attr) : nullptr;
+		if (ad && ad->readonly) {
+			SendMsgToChar("&RThat attribute is read-only.&n\r\n", ch);
+		} else if (s.path.back().RemoveValue(s.edit_attr)) {
+			SendMsgToChar(fmt::format("Removed attribute &g{}&n.\r\n", s.edit_attr), ch);
+			s.dirty = true;
+		} else {
+			SendMsgToChar("(attribute was not present)\r\n", ch);
+		}
 	} else {
 		if (!s.edit_enum.empty()) {
 			const auto *members = EnumRegistry::Instance().Members(s.edit_enum);
@@ -1022,7 +1035,7 @@ void ParseBrowse(DescriptorData *d, char *arg) {
 			} else if (ad && ad->type == FieldType::kBool) {
 				SendMsgToChar("&c(boolean: true / false)&n\r\n", ch);
 			}
-			SendMsgToChar(fmt::format("New value for &g{}&n [{}] ('.' or blank cancels):\r\n",
+			SendMsgToChar(fmt::format("New value for &g{}&n [{}] ('.' or blank cancels; '~' removes):\r\n",
 				name, row.present ? row.value : "unset"), ch);
 			return;
 		}
@@ -1217,7 +1230,7 @@ void vedun_reprompt(DescriptorData *d) {
 				d->character.get());
 			return;
 		case Mode::kEditAttr:
-			SendMsgToChar(fmt::format("New value for &g{}&n ('&W?&n' lists values; '.' or blank cancels):\r\n",
+			SendMsgToChar(fmt::format("New value for &g{}&n ('&W?&n' lists values; '.' or blank cancels; '~' removes):\r\n",
 				s.edit_attr), d->character.get());
 			return;
 		case Mode::kBrowse:
