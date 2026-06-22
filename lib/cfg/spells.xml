@@ -1012,7 +1012,7 @@
 				</target_conditions>
 				<affects type="kPoison" saving="kCritical" resist="kDark">
 					<duration base="0" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfSameTime|kAfCurable" />
+					<flags val="kAfSameTime|kAfDispellable|kAfCurable" />
 					<apply id="kPoisoned" location="kStr">
 						<modifier min="2.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" stack="5" />
 					</apply>
@@ -1318,7 +1318,7 @@
 		<talent_actions>
 			<action>
 				<unaffect affect_flags="kAfCurable" decay="25">
-					<remove all_of="kPoison|kAconitumPoison|kScopolaPoison|kBelenaPoison|kDaturaPoison" />
+					<remove all_of="kPoison|kAconitumPoison|kScopolaPoison|kBelenaPoison|kDaturaPoison" any_of="kPoison" />
 				</unaffect>
 				<alter_obj handler="AlterRemovePoison" />
 			</action>
@@ -5087,28 +5087,14 @@
 					<targets max="-1" />
 					<distribution type="kUniform" />
 				</area>
+				<side_spell id="kAcidArrow" />
+			</action>
+			<action target="kTarFoes">
+				<area>
+					<targets max="-1" />
+					<distribution type="kUniform" />
+				</area>
 				<side_spell id="kPoison" />
-			</action>
-			<action target="kTarFoes">
-				<area>
-					<targets max="-1" />
-					<distribution type="kUniform" />
-				</area>
-				<side_spell id="kFever" />
-			</action>
-			<action target="kTarFoes">
-				<area>
-					<targets max="-1" />
-					<distribution type="kUniform" />
-				</area>
-				<side_spell id="kWeaknes" />
-			</action>
-			<action target="kTarFoes">
-				<area>
-					<targets max="-1" />
-					<distribution type="kUniform" />
-				</area>
-				<side_spell id="kPowerBlindness" />
 			</action>
 			<action target="kTarFoes">
 				<area>
@@ -5123,20 +5109,6 @@
 					<distribution type="kUniform" />
 				</area>
 				<side_spell id="kSacrifice" />
-			</action>
-			<action target="kTarFoes">
-				<area>
-					<targets max="-1" />
-					<distribution type="kUniform" />
-				</area>
-				<side_spell id="kAcidArrow" />
-			</action>
-			<action target="kTarFoes">
-				<area>
-					<targets max="-1" />
-					<distribution type="kUniform" />
-				</area>
-				<side_spell id="kMassCurse" />
 			</action>
 		</talent_actions>
 	</spell>
@@ -6322,7 +6294,7 @@
 		<misc pos="kFight" violent="Y" danger="2" />
 		<mana max="130" min="100" change="1" />
 		<targets val="kTarCharRoom|kTarFightVict" />
-		<flags val="kMagDamage|kMagAffects|kNpcDamagePc|kNpcDamagePcMinhp" />
+		<flags val="kMagDamage|kNpcDamagePc|kNpcDamagePcMinhp" />
 		<potency_roll>
 			<dices ndice="20" sdice="25" adice="75" />
 			<base_skill id="kWaterMagic" low_skill_bonus="2" hi_skill_bonus="1.75" />
@@ -6337,6 +6309,7 @@
 				<damage saving="kReflex">
 					<amount min="0" dices_weight="1.4" alpha="0.127932" beta="60" />
 				</damage>
+<<<<<<< HEAD
 				<affects type="kAcidArrow" saving="kStability" resist="kImmunity" prob="15">
 					<duration base="2" skill_divisor="20" min="3" max="0" />
 					<flags val="kAfBattledec|kAfDispellable|kAfCurable" />
@@ -6358,6 +6331,9 @@
 					<distribution type="kStepped" decay="0.05" free_targets="3" />
 				</area>
 				<alter_obj handler="AlterAcid" collateral="on_damage" />
+=======
+				<alter_obj handler="AlterAcid" />
+>>>>>>> 97b8f908c (spells.xml)
 			</action>
 		</talent_actions>
 	</spell>
