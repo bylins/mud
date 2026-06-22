@@ -84,7 +84,7 @@ void RemoveCharFromRoom(CharData *ch) {
 	ch->track_dirs = 0;
 }
 
-void PlaceCharToRoom(CharData *ch, RoomRnum room) {
+void PlaceCharToRoom(CharData *ch, RoomRnum room, bool process_entry_affects) {
 	if (ch == nullptr || room < kNowhere + 1 || room > top_of_world) {
 		debug::backtrace(runtime_config.logs(ERRLOG).handle());
 		log("SYSERR: Illegal value(s) passed to char_to_room. (Room: %d/%d Ch: %p", room, top_of_world, ch);
@@ -133,7 +133,7 @@ void PlaceCharToRoom(CharData *ch, RoomRnum room) {
 	if (!ch->IsNpc() && !GET_INVIS_LEV(ch)) {
 		zone_table[world[room]->zone_rn].used = true;
 		zone_table[world[room]->zone_rn].activity++;
-	} else {
+	} else if (process_entry_affects) {
 		//sventovit: здесь обрабатываются только неписи, чтобы игрок успел увидеть комнату
 		//как сделать красивей я не придумал, т.к. look_at_room вызывается в act.movement а не тут
 		room_spells::ProcessRoomAffectsOnEntry(ch, ch->in_room);

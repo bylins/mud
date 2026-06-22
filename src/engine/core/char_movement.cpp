@@ -495,7 +495,9 @@ bool PerformSimpleMove(CharData *ch, int dir, int following, CharData *leader, E
 	if (move_type == EMoveType::kFlee && !ch->IsNpc() && !CanUseFeat(ch, EFeat::kCalmness))
 		FleeToRoom(ch, go_to);
 	else
-		PlaceCharToRoom(ch, go_to);
+		// Defer on-entry room affects (e.g. kHypnoticPattern) until AFTER the arrival message
+		// below, so a walking NPC is announced before the room reacts to it.
+		PlaceCharToRoom(ch, go_to, false);
 	if (horse) {
 		GET_HORSESTATE(horse) -= 1;
 		RemoveCharFromRoom(horse);
@@ -563,8 +565,8 @@ bool PerformSimpleMove(CharData *ch, int dir, int following, CharData *leader, E
 	if (ch->desc != nullptr)
 		sight::look_at_room(ch, 0, move_type != EMoveType::kFlee);
 
-	if (!ch->IsNpc())
-		room_spells::ProcessRoomAffectsOnEntry(ch, ch->in_room);
+	// Both PC and NPC: process here, after the arrival message + look_at_room.
+	room_spells::ProcessRoomAffectsOnEntry(ch, ch->in_room);
 
 	if (deathtrap::check_death_trap(ch)) {
 		if (horse) {
