@@ -563,13 +563,14 @@ ObjData::shared_ptr read_one_object_new(char **data, int *error) {
 	ConvertDrinkconSkillField(object.get(), false);
 	object->remove_incorrect_values_keys(object->get_type());
 	object->set_extra_flag(EObjFlag::kTicktimer);
-	// ВРЕМЕННЫЙ КОСТЫЛЬ (2026-06-19, issue #3459): на части предметов игроков
-	// ошибочно оказался флаг kNodrop ("!бросить") вместе с kBless ("благословлен").
-	// Это невозможное сочетание -- благословление снимает kNodrop. Если в прототипе
-	// kNodrop нет, значит на экземпляре флаг навешан ошибочно -- снимаем при загрузке.
+	// ВРЕМЕННЫЙ КОСТЫЛЬ (2026-06-19, issue #3459/#3490): краш-баг крафта (#3486) вешал
+	// kNodrop ("!бросить") на предметы, у прототипа которых его нет. Снимаем флаг при
+	// загрузке, если в прототипе-оригинале kNodrop нет, чтобы почистить уже испорченный
+	// у игроков стаф. (Заклинание "проклясть" на таких предметах тоже снимется -- это
+	// осознанный компромисс ради очистки массовой порчи.)
 	// УДАЛИТЬ после 2026-07-19: к тому времени база игроков прочитается и очистится,
 	// отдельно конвертировать пфайлы не нужно.
-	if (rnum >= 0 && object->has_flag(EObjFlag::kNodrop) && object->has_flag(EObjFlag::kBless)
+	if (rnum >= 0 && object->has_flag(EObjFlag::kNodrop)
 		&& !obj_proto[rnum]->has_flag(EObjFlag::kNodrop)) {
 		// rnum -- прототип-оригинал по vnum (в obj-файле всегда оригиналы), посчитан выше
 		object->unset_extraflag(EObjFlag::kNodrop);
