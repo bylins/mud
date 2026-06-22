@@ -76,6 +76,10 @@ bool DataNode::SetValue(const std::string &key, const std::string &value) {
 	return attr.set_value(value.c_str());
 }
 
+bool DataNode::RemoveValue(const std::string &key) {
+	return impl_->curren_xml_node.remove_attribute(key.c_str());
+}
+
 bool DataNode::Save(const std::filesystem::path &file) const {
 	// pugixml's default parser does not retain the <?xml ...?> declaration, so a plain
 	// re-save (e.g. a Vedun edit) would re-emit a bare <?xml version="1.0"?> and drop

@@ -856,7 +856,12 @@ static bool TryApplyAffectTalent(CharData *ch, CharData *victim, ESpell spell_id
 	// here only the saving throw can still avert the affect (kNone saving -> CalcGeneralSaving
 	// returns false, so no save is taken).
 	if (ch != victim && CalcGeneralSaving(ch, victim, talent.GetSaving(), modi)) {
-		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
+		// issue.spells-hotfix: a reposition spell (knockdown/stun) shows its success via the
+		// "knocked down" line; on a saved cast the absence of that line already signals failure, so
+		// the redundant "no effect" is suppressed for reposition affects.
+		if (!talent.HasReposition()) {
+			SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
+		}
 		spell_trace::Line(ch, victim, "&CAffect %s on %s resisted by saving throw.&n\r\n",
 			MUD::Spell(spell_id).GetCName(), GET_NAME(victim));
 		return false;
@@ -2122,6 +2127,18 @@ EStageResult RunCastUnaffects(CharData *ch, TTarget *target, ESpell spell_id,
 	if (!blocking) {
 		CollectRemovals(target, unaffect.GetRemove(), to_remove, flags);
 	}
+	// issue.spells-hotfix: a type with several affects (e.g. kPoisoned on several locations) must be
+	// removed and announced ONCE. RemoveAffectAndAnnounce strips ALL affects of the type, so dedup the
+	// queue by spell type -- otherwise the 2nd+ entries re-announce an already-removed affect.
+	{
+		std::vector<RemovalCandidate> deduped;
+		for (const auto &c : to_remove) {
+			bool dup = false;
+			for (const auto &d : deduped) { if (d.spell == c.spell) { dup = true; break; } }
+			if (!dup) { deduped.push_back(c); }
+		}
+		to_remove.swap(deduped);
+	}
 
 	if (!to_remove.empty()) {
 		if constexpr (std::is_same_v<TTarget, CharData>) {
@@ -2265,13 +2282,15 @@ EStageResult CastToAlterObjs(CastContext &ctx) {
 		obj = nullptr;
 		ctx.ovict = nullptr;
 	}
-	// issue.unstable-hotfixes: the "collateral random item" fallback -- a cast with no explicit
-	// object target also striking a random item the victim carries -- is appropriate ONLY for a
-	// VIOLENT cast (e.g. acid corroding the victim's gear; kAcid/kAcidArrow cannot target an object
-	// directly and rely on this). A helpful/neutral spell (bless, fly, light, invisible, remove
-	// curse/poison, ...) aimed at a character must affect ONLY that character -- it must not also
-	// alter one of their items. IsViolentAgainst resolves ambiguous spells by the caster<->victim tie.
-	if (obj == nullptr && victim != nullptr && MUD::Spell(spell_id).IsViolentAgainst(ch, victim)) {
+	// issue.spells-hotfix: the "collateral random item" fallback -- a cast with no explicit object
+	// target also striking a random item the victim carries -- is now opt-in per spell via
+	// <alter_obj collateral="on_damage"> and fires ONLY when damage was actually dealt this cast
+	// (acid corroding gear; kAcid/kAcidArrow cannot target an object directly and rely on this).
+	// Every other alter_obj spell (curse, poison, bless, fly, ...) leaves this off, so a cast aimed
+	// at a character never alters their items -- cast the spell directly on an object to affect one.
+	if (obj == nullptr && victim != nullptr
+			&& ctx.action_or_default().GetAlterObj().collateral_on_damage
+			&& ctx.result.damage != 0) {
 		int rand = number(1, 50);
 		if (rand <= EEquipPos::kBoths) {
 			obj = GET_EQ(victim, rand);

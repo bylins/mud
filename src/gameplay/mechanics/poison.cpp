@@ -85,6 +85,7 @@ namespace {
 					i.duration *= 30;
 				}
 				i.battleflag = kAfSameTime | kAfCurable;
+				i.debuff = true;
 
 				if (!poison_affect_join(ch, vict, i)) {
 					was_poisoned = false;
@@ -125,6 +126,7 @@ namespace {
 				}
 				i.modifier = affect_modifier;
 				i.battleflag = kAfSameTime | kAfCurable;
+				i.debuff = true;
 
 				if (!poison_affect_join(ch, vict, i)) {
 					was_poisoned = false;
@@ -171,6 +173,7 @@ namespace {
 					i.duration *= 30;
 				}
 				i.battleflag = kAfSameTime | kAfCurable;
+				i.debuff = true;
 
 				if (!poison_affect_join(ch, vict, i)) {
 					was_poisoned = false;
@@ -217,6 +220,7 @@ namespace {
 				}
 				i.caster_id = ch->get_uid();
 				i.battleflag = kAfSameTime | kAfCurable;
+				i.debuff = true;
 
 				if (!poison_affect_join(ch, vict, i)) {
 					was_poisoned = false;
@@ -268,6 +272,7 @@ namespace {
 					af.modifier = -GetRealLevel(ch) / 6 * 2;
 					af.affect_type = EAffect::kPoisoned;
 					af.battleflag = kAfSameTime | kAfCurable;
+					af.debuff = true;
 
 					for (int i = EApply::kStr; i <= EApply::kCha; i++) {
 						af.location = static_cast<EApply>(i);
@@ -291,6 +296,7 @@ namespace {
 					af.modifier = -GetRealLevel(ch) / 6;
 					af.affect_type = EAffect::kPoisoned;
 					af.battleflag = kAfSameTime | kAfCurable;
+					af.debuff = true;
 					ImposeAffect(vict, af, false, false, false, false);
 					SendMsgToChar(ch, "%sОт действия вашего яда %s стал%s заметно медленнее двигаться!%s\r\n",
 								  kColorGrn, sight::PersonName(vict, ch, 0), grammar::VisSexEnding(sight::CanSee((ch), (vict)), (vict)->get_sex(), 1), kColorNrm);
@@ -329,6 +335,7 @@ void PerformToxicate(CharData *ch, CharData *vict, int modifier) {
 	af[0].modifier = -std::min(2, (modifier + 29) / 40);
 	af[0].affect_type = EAffect::kPoisoned;
 	af[0].battleflag = kAfSameTime | kAfCurable;
+	af[0].debuff = true;
 	// change damroll
 	af[1].type = ESpell::kPoison;
 	af[1].location = EApply::kDamroll;
@@ -336,6 +343,7 @@ void PerformToxicate(CharData *ch, CharData *vict, int modifier) {
 	af[1].modifier = -std::min(2, (modifier + 29) / 30);
 	af[1].affect_type = EAffect::kPoisoned;
 	af[1].battleflag = kAfSameTime | kAfCurable;
+	af[1].debuff = true;
 	// change hitroll
 	af[2].type = ESpell::kPoison;
 	af[2].location = EApply::kHitroll;
@@ -343,6 +351,7 @@ void PerformToxicate(CharData *ch, CharData *vict, int modifier) {
 	af[2].modifier = -std::min(2, (modifier + 19) / 20);
 	af[2].affect_type = EAffect::kPoisoned;
 	af[2].battleflag = kAfSameTime | kAfCurable;
+	af[2].debuff = true;
 	// change poison level
 	af[3].type = ESpell::kPoison;
 	af[3].location = EApply::kPoison;
@@ -350,6 +359,7 @@ void PerformToxicate(CharData *ch, CharData *vict, int modifier) {
 	af[3].modifier = GetRealLevel(ch);
 	af[3].affect_type = EAffect::kPoisoned;
 	af[3].battleflag = kAfSameTime | kAfCurable;
+	af[3].debuff = true;
 
 	for (auto & i : af) {
 		i.caster_id = ch->get_uid();   // автор отравления -- хранится в аффекте (для засчёта убийства)
@@ -504,12 +514,14 @@ void TryDrinkPoison(CharData *ch, ObjData *jar, int amount) {
 		af.location = EApply::kStr;
 		af.affect_type = EAffect::kPoisoned;
 		af.battleflag = kAfSameTime | kAfCurable;
+		af.debuff = true;
 		ImposeAffect(ch, af, false, false, false, false);
 		af.type = ESpell::kPoison;
 		af.modifier = amount == 0 ? GetRealLevel(ch) * 3 : amount * 3;
 		af.location = EApply::kPoison;
 		af.affect_type = EAffect::kPoisoned;
 		af.battleflag = kAfSameTime | kAfCurable;
+		af.debuff = true;
 		ImposeAffect(ch, af, false, false, false, false);
 		// самоотравление (выпил яд): автора нет -- caster_id аффектов остаётся 0
 	}
