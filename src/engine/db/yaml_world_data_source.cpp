@@ -1643,31 +1643,90 @@ CharData YamlWorldDataSource::ParseMobNode(const YAML::Node &root)
 			mob.set_role(role);
 		}
 
-		if (enhanced["resistances"] && enhanced["resistances"].IsSequence())
+		// Resistances. The current format is a named map (kFire: 10, kMind: 5,
+		// ...) so the meaning of each value is explicit and the file order is
+		// decoupled from the EResist enum order. A missing key means 0 (the
+		// loader's zero-initialized default), so only non-zero entries appear.
+		if (enhanced["resistances"])
 		{
-			int idx = 0;
-			for (const auto &val_node : enhanced["resistances"])
+			const auto &node = enhanced["resistances"];
+			if (node.IsMap())
 			{
-				int value = std::clamp(val_node.as<int>(), kMinResistance, kMaxNpcResist);
-				if (idx < static_cast<int>(mob.add_abils.apply_resistance.size()))
+				for (const auto &kv : node)
 				{
-					mob.add_abils.apply_resistance[idx] = value;
+					const std::string key = kv.first.as<std::string>();
+					try
+					{
+						const auto r = ITEM_BY_NAME<EResist>(key);
+						mob.add_abils.apply_resistance[r] =
+							std::clamp(kv.second.as<int>(), kMinResistance, kMaxNpcResist);
+					}
+					catch (const std::out_of_range &)
+					{
+						log("SYSERR: unknown EResist '%s' on mob '%s', skipped",
+							key.c_str(), mob.get_npc_name().c_str());
+					}
 				}
-				idx++;
+			}
+			else if (node.IsSequence())
+			{
+				// DEPRECATED: legacy positional list [v0, v1, ...]. Read for
+				// backward compatibility with worlds generated before the named
+				// map; remove once the new format has settled and no such worlds
+				// remain (re-saving any world rewrites it as a map).
+				int idx = 0;
+				for (const auto &val_node : node)
+				{
+					int value = std::clamp(val_node.as<int>(), kMinResistance, kMaxNpcResist);
+					if (idx < static_cast<int>(mob.add_abils.apply_resistance.size()))
+					{
+						mob.add_abils.apply_resistance[idx] = value;
+					}
+					idx++;
+				}
 			}
 		}
 
-		if (enhanced["saves"] && enhanced["saves"].IsSequence())
+		// Saves -- same named-map format and rationale as resistances.
+		if (enhanced["saves"])
 		{
-			int idx = 0;
-			for (const auto &val_node : enhanced["saves"])
+			const auto &node = enhanced["saves"];
+			if (node.IsMap())
 			{
-				int value = std::clamp(val_node.as<int>(), kMinSaving, kMaxSaving);
-				if (idx < static_cast<int>(mob.add_abils.apply_saving_throw.size()))
+				for (const auto &kv : node)
 				{
-					mob.add_abils.apply_saving_throw[idx] = value;
+					const std::string key = kv.first.as<std::string>();
+					try
+					{
+						const int s = to_underlying(ITEM_BY_NAME<ESaving>(key));
+						if (s >= 0 && s < static_cast<int>(mob.add_abils.apply_saving_throw.size()))
+						{
+							mob.add_abils.apply_saving_throw[s] =
+								std::clamp(kv.second.as<int>(), kMinSaving, kMaxSaving);
+						}
+					}
+					catch (const std::out_of_range &)
+					{
+						log("SYSERR: unknown ESaving '%s' on mob '%s', skipped",
+							key.c_str(), mob.get_npc_name().c_str());
+					}
 				}
-				idx++;
+			}
+			else if (node.IsSequence())
+			{
+				// DEPRECATED: legacy positional list -- see the resistances
+				// branch above. Kept for backward compatibility, remove once the
+				// named map format has settled.
+				int idx = 0;
+				for (const auto &val_node : node)
+				{
+					int value = std::clamp(val_node.as<int>(), kMinSaving, kMaxSaving);
+					if (idx < static_cast<int>(mob.add_abils.apply_saving_throw.size()))
+					{
+						mob.add_abils.apply_saving_throw[idx] = value;
+					}
+					idx++;
+				}
 			}
 		}
 
@@ -3854,28 +3913,61 @@ void YamlWorldDataSource::EmitMobBody(Koi8rYamlEmitter &yaml, std::ostream &out,
 				yaml.Value(role_str);
 			}
 
-			// Resistances. The Python converter always emits this block
-			// (even all-zero), so we mirror that for round-trip parity --
-			// otherwise the diff shows `/enhanced/resistances: missing in
-			// v2` for every mob with default resistances.
-			yaml.Key("resistances");
-			yaml.BeginSequence();
-			yaml.IncreaseIndent();
-			for (const auto &val : mob.add_abils.apply_resistance)
+			// Resistances. Emitted as a named map (kFire: 10, kMind: 5, ...)
+			// so each value is self-describing and the file order is
+			// independent of the EResist enum order. Only non-zero entries are
+			// written; a missing key -- or a missing block -- means 0, matching
+			// the loader's zero-initialized defaults.
+			bool has_resistances = false;
+			for (int i = EResist::kFirstResist; i <= EResist::kLastResist; ++i)
 			{
-				yaml.SequenceItem(val);
+				if (mob.add_abils.apply_resistance[i] != 0)
+				{
+					has_resistances = true;
+					break;
+				}
 			}
-			yaml.DecreaseIndent();
+			if (has_resistances)
+			{
+				yaml.Key("resistances");
+				yaml.BeginBlock();
+				for (int i = EResist::kFirstResist; i <= EResist::kLastResist; ++i)
+				{
+					const int value = mob.add_abils.apply_resistance[i];
+					if (value != 0)
+					{
+						yaml.Key(NAME_BY_ITEM<EResist>(static_cast<EResist>(i)));
+						yaml.Value(value);
+					}
+				}
+				yaml.EndBlock();
+			}
 
-			// Saves -- same rationale as resistances.
-			yaml.Key("saves");
-			yaml.BeginSequence();
-			yaml.IncreaseIndent();
-			for (const auto &val : mob.add_abils.apply_saving_throw)
+			// Saves -- same named-map format and rationale as resistances.
+			bool has_saves = false;
+			for (int i = to_underlying(ESaving::kFirst); i <= to_underlying(ESaving::kLast); ++i)
 			{
-				yaml.SequenceItem(val);
+				if (mob.add_abils.apply_saving_throw[i] != 0)
+				{
+					has_saves = true;
+					break;
+				}
 			}
-			yaml.DecreaseIndent();
+			if (has_saves)
+			{
+				yaml.Key("saves");
+				yaml.BeginBlock();
+				for (int i = to_underlying(ESaving::kFirst); i <= to_underlying(ESaving::kLast); ++i)
+				{
+					const int value = mob.add_abils.apply_saving_throw[i];
+					if (value != 0)
+					{
+						yaml.Key(NAME_BY_ITEM<ESaving>(static_cast<ESaving>(i)));
+						yaml.Value(value);
+					}
+				}
+				yaml.EndBlock();
+			}
 
 			// Feats
 			bool has_feats = false;
