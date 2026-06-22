@@ -98,6 +98,28 @@ def _init_yaml_libraries():
         _pyyaml = yaml
 
 
+# Names for the positional save/resistance arrays, kept in sync with the C++
+# enums ESaving / EResist (src/engine/entities/entities_constants.h). The YAML
+# emits these as named maps so each value is self-describing; the C++ loader
+# reads them back by name via ITEM_BY_NAME<>, so the file order is decoupled
+# from the enum order.
+ESAVING_NAMES = ('kWill', 'kCritical', 'kStability', 'kReflex')
+ERESIST_NAMES = ('kFire', 'kAir', 'kWater', 'kEarth',
+                 'kVitality', 'kMind', 'kImmunity', 'kDark')
+
+
+def _named_value_map(values, names):
+    """Build a CommentedMap {name: value} from a positional list, emitting only
+    non-zero entries -- a missing key means 0 on load. Returns None when every
+    value is zero so the caller can omit the block entirely."""
+    result = CommentedMap()
+    for i, name in enumerate(names):
+        value = int(values[i]) if i < len(values) else 0
+        if value != 0:
+            result[name] = value
+    return result if result else None
+
+
 def log_warning(message, vnum=None, filepath=None):
     """Log a warning message without stack trace (thread-safe)."""
     global _warnings_count
@@ -2614,9 +2636,13 @@ def mob_to_yaml(mob):
         
         # Array fields
         if enh.get('resistances'):
-            enhanced['resistances'] = CommentedSeq(enh['resistances'])
+            resist_map = _named_value_map(enh['resistances'], ERESIST_NAMES)
+            if resist_map is not None:
+                enhanced['resistances'] = resist_map
         if enh.get('saves'):
-            enhanced['saves'] = CommentedSeq(enh['saves'])
+            saves_map = _named_value_map(enh['saves'], ESAVING_NAMES)
+            if saves_map is not None:
+                enhanced['saves'] = saves_map
         if enh.get('feats'):
             enhanced['feats'] = CommentedSeq(enh['feats'])
         if enh.get('spells'):
