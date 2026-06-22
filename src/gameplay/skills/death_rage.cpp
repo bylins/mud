@@ -1,5 +1,6 @@
 #include "engine/entities/char_data.h"
 #include "gameplay/abilities/timed_abilities.h"
+#include "gameplay/magic/magic.h"
 
 void CheckDeathRage(CharData *ch) {
 	struct TimedFeat timed;
@@ -27,19 +28,12 @@ void CheckDeathRage(CharData *ch) {
 		af.battleflag = 0;
 
 		prob = ch->IsNpc() ? 601 : (751 - GetRealLevel(ch) * 5);
-		if (number(1, 1000) < prob) {
-			af.affect_type = EAffect::kBerserk;
-			act("Вас обуяла предсмертная ярость!", false, ch, nullptr, nullptr, kToChar);
-			act("$n0 исступленно взвыл$g и бросил$u на противника!", false, ch, nullptr, vict, kToNotVict);
-			act("$n0 исступленно взвыл$g и бросил$u на вас!", false, ch, nullptr, vict, kToVict);
-		} else {
-			af.affect_type = EAffect::kBerserk;
-			af.battleflag = kAfFailed;
-			act("Вы истошно завопили, пытаясь напугать противника. Без толку.", false, ch, nullptr, nullptr, kToChar);
-			act("$n0 истошно завопил$g, пытаясь напугать противника. Забавно...", false, ch, nullptr, vict, kToNotVict);
-			act("$n0 истошно завопил$g, пытаясь напугать вас. Забавно...", false, ch, nullptr, vict, kToVict);
-		}
+		const bool berserk_failed = !(number(1, 1000) < prob);
+		af.affect_type = EAffect::kBerserk;
+		af.battleflag = berserk_failed ? kAfFailed : 0;
 		ImposeAffect(ch, af, true, false, true, false);
+		// issue.affect-migration: success/fail narration on kBerserk; vict = the combat foe (external $N).
+		EmitAffectImpose(ch, vict, EAffect::kBerserk, berserk_failed);
 	}
 }
 

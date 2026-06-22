@@ -363,6 +363,12 @@
 		<message type="kShortDesc" val="маг параплегия"/>
 	</msg_sheaf>
 	<msg_sheaf id="kBerserk">
+		<message type="kAffImposedToChar" val="Вас обуяла предсмертная ярость!"/>
+		<message type="kAffImposedToVict" val="$n0 исступленно взвыл$g и бросил$u на вас!"/>
+		<message type="kAffImposedToRoom" val="$n0 исступленно взвыл$g и бросил$u на противника!"/>
+		<message type="kAffImposeFailToChar" val="Вы истошно завопили, пытаясь напугать противника. Без толку."/>
+		<message type="kAffImposeFailToVict" val="$n0 истошно завопил$g, пытаясь напугать вас. Забавно..."/>
+		<message type="kAffImposeFailToRoom" val="$n0 истошно завопил$g, пытаясь напугать противника. Забавно..."/>
 		<message type="kAffExpiredToChar" val="Неистовство оставило вас."/>
 		<message type="kShortDesc" val="предсмертная ярость"/>
 	</msg_sheaf>
@@ -486,6 +492,8 @@
 		<message type="kShortDesc" val="ранен"/>
 	</msg_sheaf>
 	<msg_sheaf id="kFrenzy">
+		<message type="kAffImposedToChar" val="&RЖажда крови затмила ваш разум и Вы пришли в исступление!&n"/>
+		<message type="kAffImposedToRoom" val="$n выпучил$g глаза и издал$g бешеный вопль! Похоже разум окончательно покинул $s..."/>
 		<message type="kAffExpiredToChar" val="Жажда крови отступила и Вы пришли в себя."/>
 		<message type="kShortDesc" val="исступление"/>
 	</msg_sheaf>

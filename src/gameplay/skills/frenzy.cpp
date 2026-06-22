@@ -3,6 +3,7 @@
 //
 
 #include "engine/entities/char_data.h"
+#include "gameplay/magic/magic.h"
 #include "administration/privilege.h"
 #include "gameplay/affects/affect_handler.h"
 #include "skill_messages.h"
@@ -80,12 +81,11 @@ void do_frenzy(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	if (!has_frenzy) {
-		SendMsgToChar("&RЖажда крови затмила ваш разум и Вы пришли в исступление!&n\r\n", ch);
-		act("$N выпучил$G глаза и издал$G бешеный вопль! Похоже разум окончательно покинул $S...",
-			false,nullptr, nullptr, ch, kToNotVict | kToArenaListen);
 		for (auto & i : af) {
 			ImposeAffect(ch, i, false, false, false, false);
 		}
+		// issue.affect-migration: imposition narration on the kFrenzy affect (self; no opponent).
+		EmitAffectImpose(ch, nullptr, EAffect::kFrenzy, false);
 	} else  {
 		if (can_be_angrier) {
 			SendMsgToChar("&RВы разъярились ещё сильнее!&n\r\n", ch);
