@@ -2247,7 +2247,7 @@
 					<targets skill_divisor="10" dice_size="3" min="5" max="20" />
 					<distribution type="kStepped" decay="0.05" free_targets="3" />
 				</area>
-				<alter_obj handler="AlterAcid" />
+				<alter_obj handler="AlterAcid" collateral="on_damage" />
 			</action>
 		</talent_actions>
 	</spell>
@@ -6357,7 +6357,7 @@
 					<targets skill_divisor="10" dice_size="3" min="5" max="20" />
 					<distribution type="kStepped" decay="0.05" free_targets="3" />
 				</area>
-				<alter_obj handler="AlterAcid" />
+				<alter_obj handler="AlterAcid" collateral="on_damage" />
 			</action>
 		</talent_actions>
 	</spell>

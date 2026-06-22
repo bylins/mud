@@ -2282,13 +2282,15 @@ EStageResult CastToAlterObjs(CastContext &ctx) {
 		obj = nullptr;
 		ctx.ovict = nullptr;
 	}
-	// issue.unstable-hotfixes: the "collateral random item" fallback -- a cast with no explicit
-	// object target also striking a random item the victim carries -- is appropriate ONLY for a
-	// VIOLENT cast (e.g. acid corroding the victim's gear; kAcid/kAcidArrow cannot target an object
-	// directly and rely on this). A helpful/neutral spell (bless, fly, light, invisible, remove
-	// curse/poison, ...) aimed at a character must affect ONLY that character -- it must not also
-	// alter one of their items. IsViolentAgainst resolves ambiguous spells by the caster<->victim tie.
-	if (obj == nullptr && victim != nullptr && MUD::Spell(spell_id).IsViolentAgainst(ch, victim)) {
+	// issue.spells-hotfix: the "collateral random item" fallback -- a cast with no explicit object
+	// target also striking a random item the victim carries -- is now opt-in per spell via
+	// <alter_obj collateral="on_damage"> and fires ONLY when damage was actually dealt this cast
+	// (acid corroding gear; kAcid/kAcidArrow cannot target an object directly and rely on this).
+	// Every other alter_obj spell (curse, poison, bless, fly, ...) leaves this off, so a cast aimed
+	// at a character never alters their items -- cast the spell directly on an object to affect one.
+	if (obj == nullptr && victim != nullptr
+			&& ctx.action_or_default().GetAlterObj().collateral_on_damage
+			&& ctx.result.damage != 0) {
 		int rand = number(1, 50);
 		if (rand <= EEquipPos::kBoths) {
 			obj = GET_EQ(victim, rand);
