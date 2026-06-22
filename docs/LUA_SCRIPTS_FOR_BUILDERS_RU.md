@@ -280,7 +280,7 @@ end
 | `mud.transfer(entity, room)` | bool | Перемещает Char или Obj в комнату. |
 | `mud.force(char, command)` | bool | Заставляет персонажа выполнить команду. Цель должна быть в комнате владельца триггера. |
 | `mud.echo(message)` | bool | Сообщение в комнату владельца триггера. |
-| `mud.echoaround(actor, message)` | bool | Lua-аналог DG `echoaround`/`mechoaround`/`oechoaround`/`wechoaround`: сообщение всем SENDOK в комнате `actor`, без отправки самому `actor` и без запуска ACT-триггеров. `actor` должен быть в комнате владельца триггера. |
+| `mud.echoaround(actor, message)` | bool | Lua-аналог DG `echoaround`/`mechoaround`/`oechoaround`/`wechoaround`: сообщение всем SENDOK в комнате `actor` (по текущему местоположению актора), без отправки самому `actor` и без запуска ACT-триггеров. |
 | `mud.wait(...)` | yield | Приостанавливает Lua-триггер. |
 
 `mud.force` запрещает внутренние mob script команды (`mload`, `mecho` и т.п.) и пропускает строку через обычный игровой command interpreter.

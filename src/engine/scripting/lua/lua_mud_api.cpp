@@ -774,11 +774,6 @@ bool MudEchoAround(LuaRuntimeContext runtime, const sol::object &actor, const so
 	{
 		return LogLuaApiError(runtime, "echoaround: invalid actor");
 	}
-	const auto owner_room = GetRuntimeOwnerRoom(runtime);
-	if (owner_room == kNowhere || ch->in_room != owner_room)
-	{
-		return LogLuaApiError(runtime, "echoaround: actor must be in trigger owner room");
-	}
 	if (!message.is<std::string>())
 	{
 		return LogLuaApiError(runtime, "echoaround: message must be a string");
