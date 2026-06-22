@@ -131,6 +131,8 @@
 		<message type="kShortDesc" val="подкрадывается"/>
 	</msg_sheaf>
 	<msg_sheaf id="kHide">
+		<message type="kAffDispelledToChar" val="Вы прекратили прятаться."/>
+		<message type="kAffDispelledToRoom" val="$n прекратил$g прятаться."/>
 		<message type="kAffExpiredToChar" val="Вы стали заметны окружающим."/>
 		<message type="kShortDesc" val="прячется"/>
 	</msg_sheaf>
@@ -235,6 +237,8 @@
 		<message type="kShortDesc" val="кровотечение"/>
 	</msg_sheaf>
 	<msg_sheaf id="kDisguise">
+		<message type="kAffDispelledToChar" val="Вы прекратили маскироваться."/>
+		<message type="kAffDispelledToRoom" val="$n прекратил$g маскироваться."/>
 		<message type="kAffExpiredToChar" val="Вы стали вновь похожи сами на себя."/>
 		<message type="kShortDesc" val="маскировка"/>
 	</msg_sheaf>

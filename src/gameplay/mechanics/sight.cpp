@@ -8,6 +8,7 @@
 #include "engine/core/char_movement.h"
 #include "engine/core/target_resolver.h"
 #include "sight.h"
+#include "gameplay/mechanics/hide.h"
 #include "gameplay/mechanics/minions.h"
 #include "administration/privilege.h"
 #include "gameplay/economics/currencies.h"
@@ -1225,9 +1226,7 @@ void skip_hide_on_look(CharData *ch) {
 			((number(1, 100) -
 				CalcCurrentSkill(ch, ESkill::kPry, nullptr) - 2 * (ch->get_wis() - 9)) > 0)))) {
 		RemoveAffectFromChar(ch, ESpell::kHide);
-		AFF_FLAGS(ch).unset(EAffect::kHide);
-		SendMsgToChar("Вы прекратили прятаться.\r\n", ch);
-		act("$n прекратил$g прятаться.", false, ch, nullptr, nullptr, kToRoom);
+		MakeVisible(ch, EAffect::kHide);
 	}
 }
 

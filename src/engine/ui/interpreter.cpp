@@ -14,6 +14,7 @@
 #define INTERPRETER_CPP_
 
 #include "interpreter.h"
+#include "gameplay/mechanics/hide.h"
 #include "gameplay/mechanics/condition.h"
 #include "utils/utils_encoding.h"
 
@@ -1020,9 +1021,7 @@ void check_hiding_cmd(CharData *ch, int percent) {
 		}
 		if (remove_hide) {
 			RemoveAffectFromChar(ch, ESpell::kHide);
-			AFF_FLAGS(ch).unset(EAffect::kHide);
-			SendMsgToChar("Вы прекратили прятаться.\r\n", ch);
-			act("$n прекратил$g прятаться.", false, ch, nullptr, nullptr, kToRoom);
+			MakeVisible(ch, EAffect::kHide);
 		}
 	}
 }

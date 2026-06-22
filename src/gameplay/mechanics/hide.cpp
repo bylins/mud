@@ -9,8 +9,9 @@
 #include "engine/entities/char_data.h"
 #include "awake.h"
 #include "gameplay/mechanics/sight.h"
+#include "gameplay/mechanics/hide.h"
+#include "gameplay/affects/affect_messages.h"
 
-void MakeVisible(CharData *ch, EAffect affect);
 
 // \TODO Слвбо понятно, зачем тут проверять скиллы. По идее, скилл должен наложить на чара аффект.
 // Дальше мы просто проверяем силу этого аффекта. Потрейнить скилл можно и отдельно.
@@ -120,27 +121,16 @@ int SkipSneaking(CharData *ch, CharData *vict) {
 }
 
 void MakeVisible(CharData *ch, const EAffect affect) {
-	char to_room[kMaxStringLength], to_char[kMaxStringLength];
-
-	*to_room = *to_char = 0;
-
-	switch (affect) {
-		case EAffect::kHide: strcpy(to_char, "Вы прекратили прятаться.\r\n");
-			strcpy(to_room, "$n прекратил$g прятаться.");
-			break;
-
-		case EAffect::kDisguise: strcpy(to_char, "Вы прекратили маскироваться.\r\n");
-			strcpy(to_room, "$n прекратил$g маскироваться.");
-			break;
-
-		default: break;
-	}
+	const std::string &to_char = affects::AffectMsgRaw(affect, affects::EAffectMsgType::kAffDispelledToChar);
+	const std::string &to_room = affects::AffectMsgRaw(affect, affects::EAffectMsgType::kAffDispelledToRoom);
 	AFF_FLAGS(ch).unset(affect);
 	ch->check_aggressive = true;
-	if (*to_char)
-		SendMsgToChar(to_char, ch);
-	if (*to_room)
-		act(to_room, false, ch, nullptr, nullptr, kToRoom);
+	if (!to_char.empty()) {
+		SendMsgToChar(to_char.c_str(), ch);
+	}
+	if (!to_room.empty()) {
+		act(to_room.c_str(), false, ch, nullptr, nullptr, kToRoom);
+	}
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
