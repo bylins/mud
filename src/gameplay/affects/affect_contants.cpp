@@ -589,6 +589,7 @@ const std::map<affects::EAffectMsgType, std::string> kAffectMsgTypeNames{
 		{affects::EAffectMsgType::kAffDispelledToChar, "kAffDispelledToChar"},
 		{affects::EAffectMsgType::kAffExpiredToChar, "kAffExpiredToChar"},
 		{affects::EAffectMsgType::kAffExpiredToRoom, "kAffExpiredToRoom"},
+		{affects::EAffectMsgType::kAffExpireSoon, "kAffExpireSoon"},
 	};
 
 msg_container::MsgContainer<EAffect, affects::EAffectMsgType> &AffectMsgContainer() {

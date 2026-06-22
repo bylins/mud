@@ -484,7 +484,7 @@ void mobile_affect_update() {
 	for (auto it = copy.begin(); it != copy.end(); ++it) {
 		utils::CExecutionTimer mob_timer;
 		const auto &ch = *it;
-		int was_charmed = false, charmed_msg = false;
+		int was_charmed = false;
 		bool was_purged = false;
 		bool need_recalc = false;
 		++profile.counters[static_cast<std::size_t>(Counter::kMobs)];
@@ -541,10 +541,12 @@ void mobile_affect_update() {
 						profile.sections[static_cast<std::size_t>(Section::kProcessPoison)] += poison_timer.delta().count();
 					}
 					affect->duration--;
-					if (affect->type == ESpell::kCharm && !charmed_msg && affect->duration <= 1) {
-						act("$n начал$g растерянно оглядываться по сторонам.",
-								false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-						charmed_msg = true;
+					if (affect->duration == 0) {
+						const std::string &expire_soon =
+								affects::AffectMsgRaw(affect->affect_type, affects::EAffectMsgType::kAffExpireSoon);
+						if (!expire_soon.empty()) {
+							act(expire_soon.c_str(), false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
+						}
 					}
 				}
 				++affect_i;

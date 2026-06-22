@@ -48,6 +48,7 @@ enum class EAffectMsgType {
 	kAffDispelledToChar,  // CastUnaffects: affect removed, to the cured char.
 	kAffExpiredToChar,    // affect wore off naturally, to the affected char.
 	kAffExpiredToRoom,    // affect wore off, to the room (only for affects whose expiry shows).
+	kAffExpireSoon,       // mob affect ~1 min from expiry, to the room (mobile_affect_update heads-up).
 };
 
 // affect = the affect whose sheaf to read (EAffect::kUndefined => the shared "kDefault" sheaf).

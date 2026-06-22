@@ -143,6 +143,7 @@
 	</msg_sheaf>
 	<msg_sheaf id="kCharmed">
 		<message type="kAffExpiredToChar" val="Вы подчиняетесь теперь только себе."/>
+		<message type="kAffExpireSoon" val="$n начал$g растерянно оглядываться по сторонам."/>
 		<message type="kShortDesc" val="зачарован"/>
 	</msg_sheaf>
 	<msg_sheaf id="kHold">
