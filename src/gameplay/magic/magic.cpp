@@ -969,6 +969,40 @@ static bool TryApplyAffectTalent(CharData *ch, CharData *victim, ESpell spell_id
 // On a successfully-landed affect, emit the side effects: battle lag, forced reposition, poison
 // owner tag, and the imposition messages. The lag/reposition pair is gated on the spell having an
 // <affects> talent (where they live); the poison tag and messages apply to any successful cast.
+// issue.affect-migration: shared affect-imposition narration. The affect (not the spell/skill) owns
+// these strings; success vs FAIL is chosen by `failed` (skills pass IS_SET(af.battleflag, kAfFailed)).
+// Perspectives: to the affected (kToChar; $n=affected, $N=applier), the room (same actors), and -- only
+// when applier != affected -- the applier ($n=applier, $N=affected). The wielded weapon is passed as
+// $o and the armed/unarmed split is handled by AffectMsgWeapon. Missing keys stay silent.
+void EmitAffectImpose(CharData *affected, CharData *other, EAffect affect_type, bool failed) {
+	if (affect_type == EAffect::kUndefined || !affected) {
+		return;
+	}
+	using EAMT = affects::EAffectMsgType;
+	const bool has_other = (other != nullptr && other != affected);
+	const EAMT t_char = failed ? EAMT::kAffImposeFailToChar : EAMT::kAffImposedToChar;
+	const EAMT t_vict = failed ? EAMT::kAffImposeFailToVict : EAMT::kAffImposedToVict;
+	const EAMT t_room = failed ? EAMT::kAffImposeFailToRoom : EAMT::kAffImposedToRoom;
+	ObjData *weapon = GET_EQ(affected, EEquipPos::kWield);
+	if (!weapon) { weapon = GET_EQ(affected, EEquipPos::kBoths); }
+	const bool armed = (weapon != nullptr);
+	// $n = affected, $N = other (target/opponent). ToChar -> affected.
+	const std::string &mc = affects::AffectMsgWeapon(affect_type, t_char, armed);
+	if (!mc.empty()) { act(mc.c_str(), false, affected, weapon, other, kToChar); }
+	// ToVict -> the external target/opponent (only when set and distinct).
+	bool vict_shown = false;
+	if (has_other) {
+		const std::string &mv = affects::AffectMsgWeapon(affect_type, t_vict, armed);
+		if (!mv.empty()) { act(mv.c_str(), false, affected, weapon, other, kToVict); vict_shown = true; }
+	}
+	// ToRoom -> onlookers; exclude `other` only when it already got the to-vict line (no double).
+	const std::string &mr = affects::AffectMsgWeapon(affect_type, t_room, armed);
+	if (!mr.empty()) {
+		const int room_flag = vict_shown ? kToNotVict : kToRoom;
+		act(mr.c_str(), true, affected, weapon, other, room_flag | kToArenaListen);
+	}
+}
+
 static void EmitImpositionEffects(CharData *ch, CharData *victim, ESpell spell_id,
 								  const RollResult &potency,
 								  const talents_actions::Action &action) {
@@ -1009,17 +1043,19 @@ static void EmitImpositionEffects(CharData *ch, CharData *victim, ESpell spell_i
 			if (ap.id != EAffect::kUndefined) { imposed_aff = ap.id; break; }
 		}
 	}
-	const auto &imposed = MUD::SpellMessages()[spell_id];
-	const std::string &to_vict = (imposed_aff != EAffect::kUndefined)
-		? affects::AffectMsgRaw(imposed_aff, affects::EAffectMsgType::kAffImposedToChar)
-		: imposed.GetMessage(ESpellMsg::kAffImposedToChar);
-	const std::string &to_room = (imposed_aff != EAffect::kUndefined)
-		? affects::AffectMsgRaw(imposed_aff, affects::EAffectMsgType::kAffImposedToRoom)
-		: imposed.GetMessage(ESpellMsg::kAffImposedToRoom);
-	if (!to_vict.empty())
-		act(to_vict.c_str(), false, victim, nullptr, ch, kToChar);
-	if (!to_room.empty())
-		act(to_room.c_str(), true, victim, nullptr, ch, kToRoom | kToArenaListen);
+	// issue.affect-migration: a flagged affect routes through the shared affect emitter (success path);
+	// an unflagged (kUndefined) affect keeps the transitional spell-message fallback.
+	if (imposed_aff != EAffect::kUndefined) {
+		EmitAffectImpose(victim, ch, imposed_aff, false);
+	} else {
+		const auto &imposed = MUD::SpellMessages()[spell_id];
+		const std::string &to_vict = imposed.GetMessage(ESpellMsg::kAffImposedToChar);
+		const std::string &to_room = imposed.GetMessage(ESpellMsg::kAffImposedToRoom);
+		if (!to_vict.empty())
+			act(to_vict.c_str(), false, victim, nullptr, ch, kToChar);
+		if (!to_room.empty())
+			act(to_room.c_str(), true, victim, nullptr, ch, kToRoom | kToArenaListen);
+	}
 }
 
 EStageResult CastAffect(CastContext &ctx) {

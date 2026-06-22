@@ -40,6 +40,10 @@ enum class EAffectMsgType {
 	// look these up by affect_type (with a transitional spell-message fallback for kUndefined affects).
 	kAffImposedToRoom,    // CastAffect: affect landed, to the room.
 	kAffImposedToChar,    // CastAffect: affect landed, to the affected char.
+	kAffImposedToVict,    // impose SUCCESS, to the external target/opponent ($N; only when set & != affected).
+	kAffImposeFailToChar,   // impose FAILURE (affect carries kAfFailed), to the affected char.
+	kAffImposeFailToVict,   // impose FAILURE, to the external target/opponent ($N).
+	kAffImposeFailToRoom,   // impose FAILURE, to the room.
 	kAffDispelledToRoom,  // CastUnaffects: affect removed, to the room.
 	kAffDispelledToChar,  // CastUnaffects: affect removed, to the cured char.
 	kAffExpiredToChar,    // affect wore off naturally, to the affected char.
@@ -51,6 +55,10 @@ enum class EAffectMsgType {
 // Sheaf-direct variant: returns the affect's own message or empty (NO kDefault/error fallback).
 // Use where a missing message must stay silent (affect imposition narration).
 [[nodiscard]] const std::string &AffectMsgRaw(EAffect affect, EAffectMsgType slot);
+// Like AffectMsgRaw but for the armed/unarmed split: among the affect's variants of `slot`, when
+// has_weapon prefer ones using $o (the weapon flourish), else fall back to non-$o; when unarmed
+// return only non-$o variants (so $o never renders without a weapon). Empty if none apply.
+[[nodiscard]] const std::string &AffectMsgWeapon(EAffect affect, EAffectMsgType slot, bool has_weapon);
 
 // Direct affect-system queries (replacing the legacy affected_bits[] projection):
 [[nodiscard]] EAffect AffectByIndex(std::size_t flat_index);   // set-bit index -> EAffect

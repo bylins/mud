@@ -198,6 +198,13 @@ bool IsRoomForbidden(RoomData *room);
 void mobile_affect_update();
 void player_affect_update();
 void ShowAffExpiredMsg(ESpell aff_type, EAffect affect_type, CharData *ch);
+// issue.affect-migration: emit an affect's imposition messages (data-driven, from affect_msg.xml).
+// Picks the success or FAIL set by `failed` (the skill derives it from the affect's kAfFailed flag),
+// across char/caster/room perspectives, with the armed/unarmed $o rule. Silent on missing keys.
+// ch = applier, victim = the affected (ch == victim for self-affects).
+// affected = the char the affect is on ($n); other = the externally-supplied target/opponent ($N,
+// nullptr for a pure self-affect). Perspectives: ToChar->affected, ToVict->other, ToRoom->others.
+void EmitAffectImpose(CharData *affected, CharData *other, EAffect affect_type, bool failed);
 // issue.npc-races: true if `ch` can speak/incant (players always; NPCs iff their race is <vocal/>).
 bool IsAbleToSay(CharData *ch);
 

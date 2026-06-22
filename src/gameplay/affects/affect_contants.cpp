@@ -581,6 +581,10 @@ const std::map<affects::EAffectMsgType, std::string> kAffectMsgTypeNames{
 		{affects::EAffectMsgType::kAuraNounMany, "kAuraNounMany"},
 		{affects::EAffectMsgType::kAffImposedToRoom, "kAffImposedToRoom"},
 		{affects::EAffectMsgType::kAffImposedToChar, "kAffImposedToChar"},
+		{affects::EAffectMsgType::kAffImposedToVict, "kAffImposedToVict"},
+		{affects::EAffectMsgType::kAffImposeFailToChar, "kAffImposeFailToChar"},
+		{affects::EAffectMsgType::kAffImposeFailToVict, "kAffImposeFailToVict"},
+		{affects::EAffectMsgType::kAffImposeFailToRoom, "kAffImposeFailToRoom"},
 		{affects::EAffectMsgType::kAffDispelledToRoom, "kAffDispelledToRoom"},
 		{affects::EAffectMsgType::kAffDispelledToChar, "kAffDispelledToChar"},
 		{affects::EAffectMsgType::kAffExpiredToChar, "kAffExpiredToChar"},
@@ -646,6 +650,23 @@ const std::string &AffectMsgRaw(EAffect affect, EAffectMsgType slot) {
 	static const std::string kEmpty;
 	auto &c = AffectMsgContainer();
 	return c.IsKnown(affect) ? c[affect].GetMessage(slot) : kEmpty;
+}
+
+const std::string &AffectMsgWeapon(EAffect affect, EAffectMsgType slot, bool has_weapon) {
+	static const std::string kEmpty;
+	auto &c = AffectMsgContainer();
+	if (!c.IsKnown(affect)) return kEmpty;
+	const auto &all = c[affect].GetMessages(slot);
+	if (all.empty()) return kEmpty;
+	std::vector<const std::string *> pool;
+	if (has_weapon) {
+		for (const auto &m : all) if (m.find("$o") != std::string::npos) pool.push_back(&m);
+		if (pool.empty()) for (const auto &m : all) pool.push_back(&m);
+	} else {
+		for (const auto &m : all) if (m.find("$o") == std::string::npos) pool.push_back(&m);
+	}
+	if (pool.empty()) return kEmpty;
+	return *pool[number(0, static_cast<int>(pool.size()) - 1)];
 }
 
 bool MessagesLoaded() { return g_affect_messages_loaded; }

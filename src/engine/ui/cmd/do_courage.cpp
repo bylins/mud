@@ -9,6 +9,7 @@
 #include "engine/entities/char_data.h"
 #include "engine/entities/obj_data.h"
 #include "gameplay/abilities/timed_abilities.h"
+#include "gameplay/magic/magic.h"
 
 void do_courage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	if (ch->IsNpc()) {
@@ -61,14 +62,8 @@ void do_courage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 		ImposeAffect(ch, i, false, false, false, false);
 	}
 
-	SendMsgToChar("Вы пришли в ярость.\r\n", ch);
-	ObjData *obj;
-	if ((obj = GET_EQ(ch, EEquipPos::kWield)) || (obj = GET_EQ(ch, EEquipPos::kBoths))) {
-		strcpy(buf, "Глаза $n1 налились кровью и $e яростно сжал$g в руках $o3.");
-	} else {
-		strcpy(buf, "Глаза $n1 налились кровью.");
-	}
-	act(buf, false, ch, obj, nullptr, kToRoom | kToArenaListen);
+	// issue.affect-migration: imposition narration lives on the kCourage affect (affect_msg.xml).
+	EmitAffectImpose(ch, nullptr, EAffect::kCourage, false);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
