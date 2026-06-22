@@ -579,6 +579,11 @@ const std::map<affects::EAffectMsgType, std::string> kAffectMsgTypeNames{
 		{affects::EAffectMsgType::kAuraFrame, "kAuraFrame"},
 		{affects::EAffectMsgType::kAuraNoun, "kAuraNoun"},
 		{affects::EAffectMsgType::kAuraNounMany, "kAuraNounMany"},
+		{affects::EAffectMsgType::kAffImposedToRoom, "kAffImposedToRoom"},
+		{affects::EAffectMsgType::kAffImposedToChar, "kAffImposedToChar"},
+		{affects::EAffectMsgType::kAffDispelledToRoom, "kAffDispelledToRoom"},
+		{affects::EAffectMsgType::kAffDispelledToChar, "kAffDispelledToChar"},
+		{affects::EAffectMsgType::kAffExpired, "kAffExpired"},
 	};
 
 msg_container::MsgContainer<EAffect, affects::EAffectMsgType> &AffectMsgContainer() {
@@ -634,6 +639,12 @@ affects::EAffectMsgType ITEM_BY_NAME<affects::EAffectMsgType>(const std::string 
 namespace affects {
 const std::string &AffectMsg(EAffect affect, EAffectMsgType slot) {
 	return AffectMsgContainer().GetMessage(affect, slot);
+}
+
+const std::string &AffectMsgRaw(EAffect affect, EAffectMsgType slot) {
+	static const std::string kEmpty;
+	auto &c = AffectMsgContainer();
+	return c.IsKnown(affect) ? c[affect].GetMessage(slot) : kEmpty;
 }
 
 bool MessagesLoaded() { return g_affect_messages_loaded; }

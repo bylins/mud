@@ -35,6 +35,7 @@
 #include "engine/core/target_resolver.h"
 
 #include "gameplay/affects/affect_data.h"
+#include "gameplay/affects/affect_messages.h"
 #include "engine/db/world_characters.h"
 #include "gameplay/mechanics/corpse.h"
 #include "gameplay/fight/fight.h"
@@ -135,12 +136,16 @@ bool IsAbleToSay(CharData *ch) {
 	return MUD::MobRaces()[GET_RACE(ch)].IsVocal();
 }
 
-void ShowAffExpiredMsg(ESpell aff_type, CharData *ch) {
+void ShowAffExpiredMsg(ESpell aff_type, EAffect affect_type, CharData *ch) {
 	if (!ch->IsNpc() && ch->IsFlagged(EPlrFlag::kWriting)) {
 		return;
 	}
 
-	const std::string &msg = GetAffExpiredText(aff_type);
+	// issue.affect-migration: expiry narration belongs to the AFFECT (kDefault generic fallback);
+	// unflagged (kUndefined) affects keep the spell-keyed text.
+	const std::string &msg = (affect_type != EAffect::kUndefined)
+		? affects::AffectMsg(affect_type, affects::EAffectMsgType::kAffExpired)
+		: GetAffExpiredText(aff_type);
 	if (!msg.empty()) {
 		act(msg.c_str(), false, ch, nullptr, nullptr, kToChar | kToSleep);
 		SendMsgToChar("\r\n", ch);
@@ -982,9 +987,22 @@ static void EmitImpositionEffects(CharData *ch, CharData *victim, ESpell spell_i
 	// который выставляется выше при наложении, отдельная запись в CharData больше не нужна.)
 	// Affect imposition messages: looked up by the cast spell and emitted sheaf-directly, so a
 	// spell with no such message shows nothing.
+	// issue.affect-migration: imposition narration belongs to the AFFECT, not the casting spell.
+	// Use the affect's sheaf for a flagged affect (sheaf-direct: silent if absent), falling back to
+	// the spell's sheaf for unflagged (kUndefined) affects still keyed by spell.
+	EAffect imposed_aff = EAffect::kUndefined;
+	if (action.Contains(talents_actions::EAction::kAffect)) {
+		for (const auto &ap : action.GetAffect().GetApplies()) {
+			if (ap.id != EAffect::kUndefined) { imposed_aff = ap.id; break; }
+		}
+	}
 	const auto &imposed = MUD::SpellMessages()[spell_id];
-	const auto &to_vict = imposed.GetMessage(ESpellMsg::kAffImposedToChar);
-	const auto &to_room = imposed.GetMessage(ESpellMsg::kAffImposedToRoom);
+	const std::string &to_vict = (imposed_aff != EAffect::kUndefined)
+		? affects::AffectMsgRaw(imposed_aff, affects::EAffectMsgType::kAffImposedToChar)
+		: imposed.GetMessage(ESpellMsg::kAffImposedToChar);
+	const std::string &to_room = (imposed_aff != EAffect::kUndefined)
+		? affects::AffectMsgRaw(imposed_aff, affects::EAffectMsgType::kAffImposedToRoom)
+		: imposed.GetMessage(ESpellMsg::kAffImposedToRoom);
 	if (!to_vict.empty())
 		act(to_vict.c_str(), false, victim, nullptr, ch, kToChar);
 	if (!to_room.empty())
@@ -1868,12 +1886,26 @@ void ReduceStackOrRemove(CharData *victim, ESpell spell) {
 // (kAffDispelledTo{Char,Room}) fires for every other affect -- no more silent stripping of
 // common buffs.
 void RemoveAffectAndAnnounce(CharData *ch, CharData *victim, ESpell removed) {
+	// issue.affect-migration: dispel narration belongs to the AFFECT. Capture the removed affect's
+	// flag before peeling; use the affect's sheaf (kDefault generic fallback) for flagged affects,
+	// the spell's sheaf for unflagged (kUndefined) ones.
+	EAffect aff_type = EAffect::kUndefined;
+	for (const auto &a : victim->affected) {
+		if (a->type == removed && a->affect_type != EAffect::kUndefined) {
+			aff_type = a->affect_type;
+			break;
+		}
+	}
 	ReduceStackOrRemove(victim, removed);
-	const auto &to_vict = MUD::SpellMessages().GetMessage(removed, ESpellMsg::kAffDispelledToChar);
+	const std::string &to_vict = (aff_type != EAffect::kUndefined)
+		? affects::AffectMsg(aff_type, affects::EAffectMsgType::kAffDispelledToChar)
+		: MUD::SpellMessages().GetMessage(removed, ESpellMsg::kAffDispelledToChar);
 	if (!to_vict.empty()) {
 		act(to_vict.c_str(), false, victim, nullptr, ch, kToChar);
 	}
-	const auto &to_room = MUD::SpellMessages().GetMessage(removed, ESpellMsg::kAffDispelledToRoom);
+	const std::string &to_room = (aff_type != EAffect::kUndefined)
+		? affects::AffectMsg(aff_type, affects::EAffectMsgType::kAffDispelledToRoom)
+		: MUD::SpellMessages().GetMessage(removed, ESpellMsg::kAffDispelledToRoom);
 	if (!to_room.empty()) {
 		act(to_room.c_str(), true, victim, nullptr, ch, kToRoom | kToArenaListen);
 	}

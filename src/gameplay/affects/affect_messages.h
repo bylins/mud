@@ -35,10 +35,21 @@ enum class EAffectMsgType {
 	kAuraFrame,        // kDefault: detect-magic aura line frame; fmt template with {list} and {noun}
 	kAuraNoun,         // kDefault: aura count-noun, singular
 	kAuraNounMany,     // kDefault: aura count-noun, plural
+	// Affect lifecycle messages (issue.affect-migration): moved here from ESpellMsg -- they belong
+	// to the AFFECT, not the casting spell. CastAffect impose / CastUnaffects dispel / natural expiry
+	// look these up by affect_type (with a transitional spell-message fallback for kUndefined affects).
+	kAffImposedToRoom,    // CastAffect: affect landed, to the room.
+	kAffImposedToChar,    // CastAffect: affect landed, to the affected char.
+	kAffDispelledToRoom,  // CastUnaffects: affect removed, to the room.
+	kAffDispelledToChar,  // CastUnaffects: affect removed, to the cured char.
+	kAffExpired,          // affect timed out / wore off naturally on the affected char.
 };
 
 // affect = the affect whose sheaf to read (EAffect::kUndefined => the shared "kDefault" sheaf).
 [[nodiscard]] const std::string &AffectMsg(EAffect affect, EAffectMsgType slot);
+// Sheaf-direct variant: returns the affect's own message or empty (NO kDefault/error fallback).
+// Use where a missing message must stay silent (affect imposition narration).
+[[nodiscard]] const std::string &AffectMsgRaw(EAffect affect, EAffectMsgType slot);
 
 // Direct affect-system queries (replacing the legacy affected_bits[] projection):
 [[nodiscard]] EAffect AffectByIndex(std::size_t flat_index);   // set-bit index -> EAffect

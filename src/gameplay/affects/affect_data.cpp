@@ -328,7 +328,7 @@ void player_affect_update() {
 								&& AFF_FLAGGED(i, EAffect::kStopFight))) {
 							if (!(affect->type == ESpell::kBattle
 									&& AFF_FLAGGED(i, EAffect::kMagicStopFight))) {
-								ShowAffExpiredMsg(affect->type, i.get());
+								ShowAffExpiredMsg(affect->type, affect->affect_type, i.get());
 							}
 						}
 					}
@@ -437,7 +437,7 @@ void battle_affect_update(CharData *ch) {
 				if (next_affect_i == ch->affected.end()
 						|| (*next_affect_i)->type != (*affect_i)->type
 						|| (*next_affect_i)->duration > 0) {
-					ShowAffExpiredMsg(affect->type, ch);
+					ShowAffExpiredMsg(affect->type, affect->affect_type, ch);
 				}
 			}
 			affect_i = RemoveAffect(ch, affect_i);
@@ -520,7 +520,7 @@ void mobile_affect_update() {
 					if (next_affect_i == ch->affected.end()
 							|| (*next_affect_i)->type != affect->type
 							|| (*next_affect_i)->duration > 0) {
-						ShowAffExpiredMsg(affect->type, ch);
+						ShowAffExpiredMsg(affect->type, affect->affect_type, ch);
 					}
 				}
 				affect_i = RemoveAffect(ch, affect_i);

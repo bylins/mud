@@ -15,6 +15,7 @@
 #define MAGIC_H_
 
 #include "spells_info.h"
+#include "gameplay/affects/affect_contants.h"
 
 #include <cstdlib>
 #include <optional>
@@ -196,7 +197,7 @@ const int kMaxSpellAffects = 16; // change it if you need more
 bool IsRoomForbidden(RoomData *room);
 void mobile_affect_update();
 void player_affect_update();
-void ShowAffExpiredMsg(ESpell aff_type, CharData *ch);
+void ShowAffExpiredMsg(ESpell aff_type, EAffect affect_type, CharData *ch);
 // issue.npc-races: true if `ch` can speak/incant (players always; NPCs iff their race is <vocal/>).
 bool IsAbleToSay(CharData *ch);
 
