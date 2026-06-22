@@ -141,14 +141,22 @@ void ShowAffExpiredMsg(ESpell aff_type, EAffect affect_type, CharData *ch) {
 		return;
 	}
 
-	// issue.affect-migration: expiry narration belongs to the AFFECT (kDefault generic fallback);
-	// unflagged (kUndefined) affects keep the spell-keyed text.
-	const std::string &msg = (affect_type != EAffect::kUndefined)
-		? affects::AffectMsg(affect_type, affects::EAffectMsgType::kAffExpired)
+	// issue.affect-migration: expiry narration belongs to the AFFECT. The char always learns the
+	// affect wore off (kDefault generic fallback); the room is told only for affects whose expiry is
+	// visible to others (sheaf-direct kAffExpiredToRoom, silent if unauthored). Unflagged (kUndefined)
+	// affects keep the spell-keyed text.
+	const std::string &to_char = (affect_type != EAffect::kUndefined)
+		? affects::AffectMsg(affect_type, affects::EAffectMsgType::kAffExpiredToChar)
 		: GetAffExpiredText(aff_type);
-	if (!msg.empty()) {
-		act(msg.c_str(), false, ch, nullptr, nullptr, kToChar | kToSleep);
+	const std::string &to_room = (affect_type != EAffect::kUndefined)
+		? affects::AffectMsgRaw(affect_type, affects::EAffectMsgType::kAffExpiredToRoom)
+		: MUD::SpellMessages()[aff_type].GetMessage(ESpellMsg::kAffExpiredToRoom);
+	if (!to_char.empty()) {
+		act(to_char.c_str(), false, ch, nullptr, nullptr, kToChar | kToSleep);
 		SendMsgToChar("\r\n", ch);
+	}
+	if (!to_room.empty()) {
+		act(to_room.c_str(), true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 	}
 }
 

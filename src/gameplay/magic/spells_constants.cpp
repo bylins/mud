@@ -13,11 +13,11 @@
 
 std::string GetAffExpiredText(ESpell spell_id) {
 	// The map of per-spell expiration messages used to live here. The texts moved to
-	// lib/cfg/spell_msg.xml under the kAffExpired key; a generic default lives in the
-	// kDefault sheaf, so a spell without its own kAffExpired falls back to it. The
+	// lib/cfg/spell_msg.xml under the kAffExpiredToChar key; a generic default lives in the
+	// kDefault sheaf, so a spell without its own kAffExpiredToChar falls back to it. The
 	// callers (ShowAffExpiredMsg, SendRemoveAffectMsgToRoom) still gate on !msg.empty()
 	// in case the lookup ever returns the fallback error string.
-	return MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kAffExpired);
+	return MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kAffExpiredToChar);
 }
 
 // GetCastPhrase удалён (issue #3304): фразы заклинаний перенесены в

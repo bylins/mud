@@ -42,7 +42,8 @@ enum class EAffectMsgType {
 	kAffImposedToChar,    // CastAffect: affect landed, to the affected char.
 	kAffDispelledToRoom,  // CastUnaffects: affect removed, to the room.
 	kAffDispelledToChar,  // CastUnaffects: affect removed, to the cured char.
-	kAffExpired,          // affect timed out / wore off naturally on the affected char.
+	kAffExpiredToChar,    // affect wore off naturally, to the affected char.
+	kAffExpiredToRoom,    // affect wore off, to the room (only for affects whose expiry shows).
 };
 
 // affect = the affect whose sheaf to read (EAffect::kUndefined => the shared "kDefault" sheaf).
