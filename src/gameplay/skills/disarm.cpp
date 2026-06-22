@@ -116,7 +116,7 @@ void go_injure(CharData *ch, CharData *vict) {
 		af.affect_type = EAffect::kInjuredLimb;
 		affect_to_char(vict, af);
 
-		EmitAffectImpose(vict, ch, EAffect::kInjuredLimb, false);
+		EmitAffectImpose(vict, ch, EAffect::kSuspiciousness, false);
 
 		int dam = number(ceil(GetSkill(ch, ESkill::kDisarm) / 1.25), ceil(GetSkill(ch, ESkill::kDisarm) * 1.25))
 			* GetRealLevel(ch) / 30;
@@ -128,12 +128,7 @@ void go_injure(CharData *ch, CharData *vict) {
 		dmg.flags.set(fight::kIgnoreBlink);
 		dmg.Process(ch, vict);
 
-		act("Вам не удалось ранить $N3 и $e продолжил$g весело бить Вас!",
-			false, ch, nullptr, vict, kToChar);
-		act("$N попытал$U поранить Вас, но у н$S не вышло! На радостях Вы принялись колотить $S еще веселей!",
-			false, vict, nullptr, ch, kToChar);
-		act("$N безуспешно попытал$U поранить $n3. Как нелепо...",
-			false, vict, nullptr, ch, kToNotVict | kToArenaListen);
+		EmitAffectImpose(vict, ch, EAffect::kSuspiciousness, true);
 	}
 	if (vict->GetPosition() != EPosition::kDead) {
 		int no_injure_duration = 4;

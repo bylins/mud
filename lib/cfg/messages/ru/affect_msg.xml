@@ -508,9 +508,6 @@
 		<message type="kShortDesc" val="натиск"/>
 	</msg_sheaf>
 	<msg_sheaf id="kInjuredLimb">
-		<message type="kAffImposedToChar" val="$N ранил$G Вас в руку! Надо бы дать сдачи..."/>
-		<message type="kAffImposedToVict" val="Вы ранили $n3! Как же $e теперь будет Вас бить?..."/>
-		<message type="kAffImposedToRoom" val="$N ранил$G $n3. Кажется $n0 уже передумал$g драться..."/>
 		<message type="kShortDesc" val="ранен"/>
 	</msg_sheaf>
 	<msg_sheaf id="kFrenzy">
@@ -711,10 +708,15 @@
 		<message type="kShortDesc" val="точность"/>
 	</msg_sheaf>
 	<msg_sheaf id="kSuspiciousness">
+		<message type="kAffImposedToChar" val="$N ранил$G Вас в руку! Надо бы дать сдачи..."/>
+		<message type="kAffImposedToVict" val="Вы ранили $n3! Как же $e теперь будет Вас бить?..."/>
+		<message type="kAffImposedToRoom" val="$N ранил$G $n3. Кажется $n0 уже передумал$g драться..."/>
+		<message type="kAffImposeFailToChar" val="$N попытал$U поранить Вас, но у н$S не вышло! На радостях Вы принялись колотить $S еще веселей!"/>
+		<message type="kAffImposeFailToVict" val="Вам не удалось ранить $n3 и $e продолжил$g весело бить Вас!"/>
+		<message type="kAffImposeFailToRoom" val="$N безуспешно попытал$U поранить $n3. Как нелепо..."/>
 		<message type="kShortDesc" val="подозрительность"/>
 	</msg_sheaf>
 	<msg_sheaf id="kSevereWound">
-		<message type="kAffExpiredToChar" val="Ваши тяжелые раны затянулись."/>
 		<message type="kShortDesc" val="тяжелая рана"/>
 	</msg_sheaf>
 	<msg_sheaf id="kWellFed">
