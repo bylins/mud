@@ -496,12 +496,18 @@ customization is a documented TODO in each handler body). It replaced the old `k
 ```
 
 Transforms a target object, running as a **per-target stage** (so an area corrode hits each target's
-item). The skeleton resolves the object (an explicit `ovict`, else — **only for a violent cast**
-(`IsViolentAgainst`) — a random equipped/carried item of the victim; issue.unstable-hotfixes), guards
+item). The skeleton resolves the object (an explicit `ovict`, else — **only when the `<alter_obj>`
+opts in with `collateral="on_damage"` and the cast dealt damage this stage** (`ctx.result.damage != 0`)
+— a random equipped/carried item of the victim; issue.spells-hotfix), guards
 the `kNoalter` flag, then dispatches the named handler from the
 `kAlterObjHandlers` registry (`magic.cpp`). The transform itself is irreducibly per-spell, so the
-only attribute is `handler` (mirroring `<manual_cast>`, but with the shared object-resolution +
-guard skeleton around it).
+attributes are `handler` and the optional `collateral` (mirroring `<manual_cast>`, but with the
+shared object-resolution + guard skeleton around it):
+
+| Attr | Default | Description |
+|---|---|---|
+| `handler` | required | The per-spell transform, resolved from the `kAlterObjHandlers` registry. |
+| `collateral` | `none` | On a **character** cast (no explicit object target), splash onto a random equipped/carried item: `on_damage` = only when the cast dealt damage this stage (acid corroding gear). Absent / `none` = never — cast the spell **directly on an object** to affect one. |
 
 The handler does its **own** messaging and returns `kSuccess` when it acted (or chose to stay
 silent), or **`kFail`** to ask the skeleton for the generic "no effect" line. Current handlers:
@@ -509,11 +515,18 @@ silent), or **`kFail`** to ask the skeleton for the generic "no effect" line. Cu
 `AlterEnchantWeapon` / `AlterRemovePoison` / `AlterFly` / `AlterAcid` (kAcid + kAcidArrow) /
 `AlterRepair` / `AlterTimerRestore` / `AlterRestoration` / `AlterLight` / `AlterDarkness`. A
 multi-purpose spell (e.g. `kBless`, which also affects a character) carries `<alter_obj>` alongside
-its `<affects>` in the same action. It replaced the old `kMagAlterObjs` flag. Because the
-random-item fallback now fires **only for violent casts**, casting such a spell on a *character*
-target applies only the `<affects>` (a helpful `kBless` no longer also blesses a random item the
-victim carries); the object branch runs only when an object was explicitly targeted, or when a
-violent spell (acid) collaterally strikes the victim's gear.
+its `<affects>` in the same action. It replaced the old `kMagAlterObjs` flag. The random-item splash
+is now **opt-in per spell** via `collateral="on_damage"` (issue.spells-hotfix): casting a spell on a
+*character* applies only its `<affects>` / `<damage>` unless the `<alter_obj>` opts in — so `kCurse` /
+`kPoison` / `kBless` cast on a character no longer touch their items (cast the spell **directly on an
+object** to affect one). Only `kAcid` / `kAcidArrow` opt in, corroding a random worn/carried item when
+the hit dealt damage. The object branch otherwise runs only when an object was explicitly targeted.
+
+> **Why "on damage" and not "violent"?** This replaced the earlier violent-only rule
+> (`IsViolentAgainst`), under which *every* violent cast splashed onto gear — so `kCurse`/`kPoison`
+> aimed at a character also cursed/poisoned a random worn item. The opt-in flag scopes the splash to
+> the spells that mean it (acid). `ctx.result.damage` is the computed damage of the stage; tying it to
+> actually-dealt damage is a separate `Damage::Process` matter.
 
 > **Object lifetime:** if the cast destroys the target object (the acid corrode, or a consumed
 > material component), it is **deferred-extracted** — flagged `ObjData::purged()` and freed at the
@@ -906,7 +919,7 @@ This is the workhorse for buffs and debuffs.
 | `kAfAccumulateDuration` | Re-casting adds to the existing duration. |
 | `kAfUpdateMod` | Re-casting overwrites the modifier. |
 | `kAfDispellable` | **Eligible for dispel** (e.g. `kDispellMagic`). |
-| `kAfCurable` | **Eligible for cure** (e.g. `kRemovePoison`). |
+| `kAfCurable` | **Eligible for cure** (e.g. `kRemovePoison`, first aid). Put it on **afflictions only** — not on buffs. First aid additionally requires the affect's runtime `debuff` flag, so a cure never strips the target's own buffs. |
 | `kAfMustBeHandled` | Room affects only: the affect ticks each pulse. `HandleRoomAffect` runs its `tick_spell` (§8.1, §11.5) if set, else its `tick_handler` (a named C++ handler, e.g. `kThunderstorm`'s weather). There is no per-spell switch. Char affects don't use this flag. |
 | `kAfUnique` | Room affects only: before imposing, remove any prior cast of this same spell by this same caster. Used by kRuneLabel ("one rune label in the world per caster"). |
 
@@ -1018,6 +1031,10 @@ Example design — a poison that stacks up to 3 times:
 
 Useful for sleep, stun, peaceful, knockdown — moves what used to be
 hard-coded post-cast nudges into data.
+
+When an affect carries a `<reposition>`, a **saved** cast shows nothing instead of the generic "no
+effect" line (issue.spells-hotfix): on success the victim sees the knockdown/stun message, so the
+*absence* of it on a save is signal enough — the redundant "no effect" would only be noise.
 
 ### 8.7 `<lag>` — battle-lag the victim
 
@@ -2111,9 +2128,20 @@ finds them empty.
   instant-death attempt above.
 - **`<unaffect decay="N">`** *(new, §9.1)* — a **failed** dispel shifts the surviving affect's potency
   by N% of **the dispel's** potency (positive weakens / negative strengthens, clamped `[0, 30000]`).
-- **`<alter_obj>` collateral item is now violent-only (§3.8.7)** — a helpful spell aimed at a
-  *character* no longer also alters a random item the victim carries; only a violent cast (acid)
-  strikes the victim's gear.
+- **`<alter_obj>` collateral item is now opt-in via `collateral="on_damage"` (§3.8.7, issue.spells-hotfix)**
+  — supersedes the earlier violent-only rule. A spell cast on a *character* alters a random carried item
+  only if its `<alter_obj>` sets `collateral="on_damage"` **and** the cast dealt damage this stage; only
+  `kAcid`/`kAcidArrow` opt in. So `kCurse`/`kPoison` aimed at a character no longer touch their gear
+  (cast directly on an object to affect one).
+- **First aid (`лечить`) cures only harmful affects (issue.spells-hotfix)** — `PickCureTarget` now also
+  requires the affect's runtime `debuff` flag, so a cure never strips the target's own buffs (many buffs
+  also carry `kAfCurable`). Cooldown now applies on success too (was failure-only). Paired data fix:
+  `kAfCurable` was removed from all buff affects in `spells.xml` — it now marks afflictions only.
+- **Dispel/cure of a multi-affect type announces once (issue.spells-hotfix)** — `RunCastUnaffects` dedups
+  the removal queue by spell type, so removing e.g. `kPoisoned` (several locations) strips all of it and
+  shows one message instead of one per affect.
+- **Reposition affects suppress the "no effect" line on a save (issue.spells-hotfix)** — a saved
+  knockdown/stun shows nothing rather than "no effect"; the absent knockdown line already signals failure.
 - **Benign / ally casts are not PK actions** — a non-violent (or ambiguous-resolved-helpful) spell on
   an ally no longer trips `pk_agro_action`; the clan-castle "protective magic" now evicts the caster
   only on a genuine hostile PK classification (not on a benign cast or a PvE action).
