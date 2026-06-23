@@ -37,7 +37,7 @@
         <spell id="kArmor"			level="4"	remort="0"	circle="2"	mem="0"		cast="0.0"/>
         <spell id="kCurse"			level="4"	remort="0"	circle="2"	mem="0"		cast="0.0"/>
         <spell id="kCloudly"			level="5"	remort="0"	circle="2"	mem="0"		cast="0.0"/>
-        <spell id="kWeb"			level="6"	remort="0"	circle="2"	mem="0"		cast="0.0"/>
+        <spell id="kEntangleEnemy"			level="6"	remort="0"	circle="2"	mem="0"		cast="0.0"/>
         <spell id="kResfresh"			level="7"	remort="0"	circle="3"	mem="0"		cast="0.0"/>
         <spell id="kChillTouch"			level="7"	remort="0"	circle="3"	mem="0"		cast="0.0"/>
         <spell id="kAnimateDead"		level="7"	remort="0"	circle="3"	mem="0"		cast="0.0"/>

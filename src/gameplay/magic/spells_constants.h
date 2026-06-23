@@ -94,7 +94,7 @@ enum class ESpell {
 	kEnlarge = 74,
 	kFear = 75,
 	kSacrifice = 76,
-	kWeb = 77,
+	kEntangleEnemy = 77,
 	kBlink = 78,
 	kRemoveHold = 79,
 	kCamouflage = 80,

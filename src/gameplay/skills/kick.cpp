@@ -44,7 +44,7 @@ void go_kick(CharData *ch, CharData *vict) {
 		if (GET_GOD_FLAG(ch, EGf::kGodscurse) || (!mount::IsOnHorse(ch) && mount::IsOnHorse(vict))) {
 			prob = 0;
 		}
-		if (IsAffectedBySpell(ch, ESpell::kWeb)) {
+		if (IsAffectedBySpell(ch, ESpell::kEntangleEnemy)) {
 			prob /= 3;
 		}
 		success = percent <= prob;

@@ -62,7 +62,7 @@
     <spell id="kAcid" level="16" runes="234|223|235"/>
     <spell id="kMadness" level="27" runes="216|240|203"/>
     <!-- <spell id="kNoflee" level="19" runes="214|201"/> -->
-    <spell id="kWeb" level="12" runes="210|201"/>
+    <spell id="kEntangleEnemy" level="12" runes="210|201"/>
     <spell id="kWorldOfRecall" level="19" runes="229|243|221"/>
     <spell id="kFireBlast" level="19" runes="224|243|208"/>
     <spell id="kEarthquake" level="27" runes="218|222"/>

@@ -51,7 +51,7 @@
         <spell id="kDispellMagic"		level="12"	remort="0"	circle="4"	mem="0"		cast="0.0"/>
         <spell id="kDarkness"			level="16"	remort="0"	circle="5"	mem="0"		cast="0.0"/>
         <spell id="kLight"				level="16"	remort="0"	circle="5"	mem="0"		cast="0.0"/>
-        <spell id="kWeb"				level="14"	remort="0"	circle="5"	mem="0"		cast="0.0"/>
+        <spell id="kEntangleEnemy"				level="14"	remort="0"	circle="5"	mem="0"		cast="0.0"/>
         <spell id="kAcid"				level="14"	remort="0"	circle="5"	mem="0"		cast="0.0"/>
         <spell id="kPowerSilence"		level="15"	remort="0"	circle="5"	mem="0"		cast="0.0"/>
         <spell id="kStoneHands"			level="20"	remort="0"	circle="5"	mem="0"		cast="0.0"/>
