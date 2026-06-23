@@ -3459,13 +3459,6 @@
 			</action>
 		</talent_actions>
 	</spell>
-	<spell id="kReligion" element="kUndefined" mode="kService">
-		<name val="!pray or donate!" />
-		<misc pos="kStand" violent="N" danger="0" />
-		<mana max="0" min="0" change="0" />
-		<targets val="kTarNone" />
-		<flags val="kMagManual" />
-	</spell>
 	<spell id="kAirShield" element="kAir" mode="kEnabled">
 		<name val="air shield" />
 		<components>

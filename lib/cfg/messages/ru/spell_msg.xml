@@ -1957,12 +1957,6 @@
 		<message type="kCastPhraseHeathen" val="око недреманно" />
 		<message type="kCastPhraseChristian" val="... не дам сна очам моим и веждам моим - дремания." />
 	</msg_sheaf>
-	<msg_sheaf id="kReligion">
-		<name val="!молитва или жертва!" />
-		<message type="kCastPhraseHeathen" val="" />
-		<message type="kCastPhraseChristian" val="" />
-		<message type="kAffExpiredToChar" val="Вы утратили расположение Богов." />
-	</msg_sheaf>
 	<msg_sheaf id="kAirShield">
 		<name val="воздушный щит" />
 		<message type="kCastPhraseHeathen" val="Стрибог, даруй прибежище" />

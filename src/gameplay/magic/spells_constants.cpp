@@ -149,7 +149,6 @@ void init_ESpell_ITEM_NAMES() {
 	ESpell_name_by_value[ESpell::kFever] = "kFever";
 	ESpell_name_by_value[ESpell::kCureFever] = "kCureFever";
 	ESpell_name_by_value[ESpell::kAwareness] = "kAwareness";
-	ESpell_name_by_value[ESpell::kReligion] = "kReligion";
 	ESpell_name_by_value[ESpell::kAirShield] = "kAirShield";
 	ESpell_name_by_value[ESpell::kPortal] = "kPortal";
 	ESpell_name_by_value[ESpell::kDispellMagic] = "kDispellMagic";

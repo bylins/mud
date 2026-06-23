@@ -134,4 +134,6 @@
 	<affect id="kSuspiciousness"/>
 	<affect id="kSevereWound"/>
 	<affect id="kWellFed"/>
+	<affect id="kPrayerful"/>
+	<affect id="kPietas"/>
 </affects>

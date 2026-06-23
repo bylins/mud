@@ -723,4 +723,12 @@
 		<message type="kAffExpiredToChar" val="Вам снова захотелось жареного, да с дымком."/>
 		<message type="kShortDesc" val="сытость"/>
 	</msg_sheaf>
+	<msg_sheaf id="kPrayerful">
+		<message type="kAffExpiredToChar" val="Вы утратили расположение Богов."/>
+		<message type="kShortDesc" val="вознесена молитва"/>
+	</msg_sheaf>
+	<msg_sheaf id="kPietas">
+		<message type="kAffExpiredToChar" val="Вы утратили расположение Богов."/>
+		<message type="kShortDesc" val="принесены жертвы"/>
+	</msg_sheaf>
 </msg_container>

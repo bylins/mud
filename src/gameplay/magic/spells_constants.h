@@ -134,7 +134,8 @@ enum class ESpell {
 	kFever = 114,
 	kCureFever = 115,
 	kAwareness = 116,
-	kReligion = 117,
+//	kReligion = 117,	// UNUSED (issue.affect-migration): the pray/donate utility "spell" was removed;
+//						// the prayer / sacrifice effects are now the affects kPrayerful / kPietas (value 117 retired).
 	kAirShield = 118,
 	kPortal = 119,
 	kDispellMagic = 120,

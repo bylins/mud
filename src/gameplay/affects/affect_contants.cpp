@@ -165,6 +165,8 @@ void init_EAffectFlag_ITEM_NAMES() {
 	EAffectFlag_name_by_value[EAffect::kSuspiciousness] = "kSuspiciousness";
 	EAffectFlag_name_by_value[EAffect::kSevereWound] = "kSevereWound";
 	EAffectFlag_name_by_value[EAffect::kWellFed] = "kWellFed";
+	EAffectFlag_name_by_value[EAffect::kPrayerful] = "kPrayerful";
+	EAffectFlag_name_by_value[EAffect::kPietas] = "kPietas";
 	for (const auto &i : EAffectFlag_name_by_value) {
 		EAffectFlag_value_by_name[i.second] = i.first;
 	}
