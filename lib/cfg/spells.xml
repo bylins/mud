@@ -1811,7 +1811,7 @@
 			</action>
 		</talent_actions>
 	</spell>
-	<spell id="kNoflee" element="kMind" mode="kEnabled">
+	<spell id="kEntangleEnemy" element="kMind" mode="kEnabled">
 		<name val="noflee" />
 		<components>
 			<verbal />
@@ -1837,7 +1837,7 @@
 						<affect_flags val="kBrokenChains" />
 					</blocking>
 				</target_conditions>
-				<affects type="kNoflee" saving="kWill" resist="kMind">
+				<affects type="kEntangleEnemy" saving="kWill" resist="kMind">
 					<duration base="3" skill_divisor="10" min="4" max="0" />
 					<flags val="kAfBattledec|kAfDispellable|kAfCurable" />
 					<apply id="kNoTeleport" location="kNone">

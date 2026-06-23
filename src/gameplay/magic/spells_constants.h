@@ -76,7 +76,7 @@ enum class ESpell {
 	kMassHold = 56,
 	kFly = 57,
 	kBrokenChains = 58,
-	kNoflee = 59,
+	kEntangleEnemy = 59,
 	kCreateLight = 60,
 	kDarkness = 61,
 	kStoneSkin = 62,

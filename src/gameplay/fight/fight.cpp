@@ -734,7 +734,7 @@ CharData *find_opp_affectee(CharData *caster, ESpell spell_id) {
 	else if (spellreal == ESpell::kMassFailure)
 		spellreal = ESpell::kFailure;
 	else if (spellreal == ESpell::kSnare)
-		spellreal = ESpell::kNoflee;
+		spellreal = ESpell::kEntangleEnemy;
 
 	if (GetRealInt(caster) > number(10, 20)) {
 		for (const auto vict : world[caster->in_room]->people) {

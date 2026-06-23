@@ -1786,7 +1786,7 @@
 		<message type="kCastPhraseHeathen" val="вериги и цепи железные изорву" />
 		<message type="kCastPhraseChristian" val="... и цепи упали с рук его." />
 	</msg_sheaf>
-	<msg_sheaf id="kNoflee">
+	<msg_sheaf id="kEntangleEnemy">
 		<name val="приковать противника" />
 		<message type="kCastPhraseHeathen" val="опуташа в путины железны" />
 		<message type="kCastPhraseChristian" val="... да поищешь уйти, да не возможешь." />

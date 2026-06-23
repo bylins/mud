@@ -91,7 +91,7 @@ void init_ESpell_ITEM_NAMES() {
 	ESpell_name_by_value[ESpell::kMassHold] = "kMassHold";
 	ESpell_name_by_value[ESpell::kFly] = "kFly";
 	ESpell_name_by_value[ESpell::kBrokenChains] = "kBrokenChains";
-	ESpell_name_by_value[ESpell::kNoflee] = "kNoflee";
+	ESpell_name_by_value[ESpell::kEntangleEnemy] = "kEntangleEnemy";
 	ESpell_name_by_value[ESpell::kCreateLight] = "kCreateLight";
 	ESpell_name_by_value[ESpell::kDarkness] = "kDarkness";
 	ESpell_name_by_value[ESpell::kStoneSkin] = "kStoneSkin";
