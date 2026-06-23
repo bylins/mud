@@ -784,6 +784,15 @@ inline bool AFF_FLAGGED(const CharData *ch, const EAffect flag) {
 	return AFF_FLAGS(ch).get(flag);
 }
 
+// issue.affect-migration / TEMPORARY: a flag-only stealth/utility check. Many MOBS apply skills
+// like hide/sneak/camouflage/light-walk as a bare EAffect flag, with NO full affect struct, so
+// these sites cannot yet use IsAffected (which needs the struct). Thin AFF_FLAGGED wrapper whose
+// distinct name marks every such site: once mobs carry real affect structs, grep IsAffectedFlagOnly
+// and replace each occurrence with IsAffected.
+inline bool IsAffectedFlagOnly(const CharData *ch, const EAffect flag) {
+	return AFF_FLAGGED(ch, flag);
+}
+
 inline bool AFF_FLAGGED(const CharData::shared_ptr &ch, const EAffect flag) {
 	return AFF_FLAGS(ch).get(flag);
 //		|| ch->isAffected(flag); //обойдемся без морфа

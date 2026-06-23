@@ -89,9 +89,9 @@ int CalcMoveCost(CharData *ch, int dir) {
 
 	if (privilege::IsImmortal(ch))
 		need_movement = 0;
-	else if (IsAffectedBySpell(ch, ESpell::kCamouflage))
+	else if (IsAffectedFlagOnly(ch, EAffect::kDisguise))
 		need_movement += kCamouflageMoves;
-	else if (IsAffectedBySpell(ch, ESpell::kSneak))
+	else if (IsAffectedFlagOnly(ch, EAffect::kSneak))
 		need_movement += kSneakMoves;
 
 	return need_movement;
@@ -396,7 +396,7 @@ bool PerformSimpleMove(CharData *ch, int dir, int following, CharData *leader, E
 		else if (awake_sneak(ch)) {
 			RemoveAffectFromChar(ch, ESpell::kSneak);
 			AFF_FLAGS(ch).unset(EAffect::kSneak);
-		} else if (!IsAffectedBySpell(ch, ESpell::kSneak) || CalcCurrentSkill(ch, ESkill::kSneak, nullptr) >= number(1, i))
+		} else if (!IsAffectedFlagOnly(ch, EAffect::kSneak) || CalcCurrentSkill(ch, ESkill::kSneak, nullptr) >= number(1, i))
 			invis = 1;
 	}
 
@@ -407,7 +407,7 @@ bool PerformSimpleMove(CharData *ch, int dir, int following, CharData *leader, E
 		else if (awake_camouflage(ch)) {
 			RemoveAffectFromChar(ch, ESpell::kCamouflage);
 			AFF_FLAGS(ch).unset(EAffect::kDisguise);
-		} else if (!IsAffectedBySpell(ch, ESpell::kCamouflage) ||
+		} else if (!IsAffectedFlagOnly(ch, EAffect::kDisguise) ||
 		CalcCurrentSkill(ch, ESkill::kDisguise, nullptr) >= number(1, i))
 			invis = 1;
 	}
@@ -607,9 +607,8 @@ bool PerformSimpleMove(CharData *ch, int dir, int following, CharData *leader, E
 
 		if (track) {
 			SET_BIT(track->time_income[Reverse[dir]], 1);
-			if (IsAffectedBySpell(ch, ESpell::kLightWalk) && !mount::IsOnHorse(ch))
-				if (AFF_FLAGGED(ch, EAffect::kLightWalk))
-					track->time_income[Reverse[dir]] <<= number(15, 30);
+			if (IsAffectedFlagOnly(ch, EAffect::kLightWalk) && !mount::IsOnHorse(ch))
+				track->time_income[Reverse[dir]] <<= number(15, 30);
 			REMOVE_BIT(track->track_info, TRACK_HIDE);
 		}
 
@@ -629,9 +628,8 @@ bool PerformSimpleMove(CharData *ch, int dir, int following, CharData *leader, E
 		}
 		if (track) {
 			SET_BIT(track->time_outgone[dir], 1);
-			if (IsAffectedBySpell(ch, ESpell::kLightWalk) && !mount::IsOnHorse(ch))
-				if (AFF_FLAGGED(ch, EAffect::kLightWalk))
-					track->time_outgone[dir] <<= number(15, 30);
+			if (IsAffectedFlagOnly(ch, EAffect::kLightWalk) && !mount::IsOnHorse(ch))
+				track->time_outgone[dir] <<= number(15, 30);
 			REMOVE_BIT(track->track_info, TRACK_HIDE);
 		}
 	}

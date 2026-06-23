@@ -32,7 +32,7 @@ void DoHidemove(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		act("Вам мешает $N.", false, ch, nullptr, mount::GetHorse(ch), kToChar);
 		return;
 	}
-	auto sneaking = IsAffectedBySpell(ch, ESpell::kSneak);
+	auto sneaking = IsAffectedFlagOnly(ch, EAffect::kSneak);
 	if (!sneaking) {
 		Affect<EApply> af;
 		af.type = ESpell::kSneak;

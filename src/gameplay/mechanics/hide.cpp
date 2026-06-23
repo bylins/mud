@@ -19,13 +19,13 @@
 int SkipHiding(CharData *ch, CharData *vict) {
 	int percent, prob;
 
-	if (sight::MaySee(ch, vict, ch) && IsAffectedBySpell(ch, ESpell::kHide)) {
+	if (sight::MaySee(ch, vict, ch) && IsAffectedFlagOnly(ch, EAffect::kHide)) {
 		if (awake_hide(ch)) {
 			SendMsgToChar("Вы попытались спрятаться, но ваша экипировка выдала вас.\r\n", ch);
 			RemoveAffectFromChar(ch, ESpell::kHide);
 			MakeVisible(ch, EAffect::kHide);
 			ch->Temporary.set(ECharExtraFlag::kFailHide);
-		} else if (IsAffectedBySpell(ch, ESpell::kHide)) {
+		} else if (IsAffectedFlagOnly(ch, EAffect::kHide)) {
 			if (AFF_FLAGGED(vict, EAffect::kDetectLife)) {
 				act("$N почувствовал$G ваше присутствие.", false, ch, nullptr, vict, kToChar);
 				return false;
@@ -49,13 +49,13 @@ int SkipHiding(CharData *ch, CharData *vict) {
 int SkipCamouflage(CharData *ch, CharData *vict) {
 	int percent, prob;
 
-	if (sight::MaySee(ch, vict, ch) && IsAffectedBySpell(ch, ESpell::kCamouflage)) {
+	if (sight::MaySee(ch, vict, ch) && IsAffectedFlagOnly(ch, EAffect::kDisguise)) {
 		if (awake_camouflage(ch)) {
 			SendMsgToChar("Вы попытались замаскироваться, но ваша экипировка выдала вас.\r\n", ch);
 			RemoveAffectFromChar(ch, ESpell::kCamouflage);
 			MakeVisible(ch, EAffect::kDisguise);
 			ch->Temporary.set(ECharExtraFlag::kFailCamouflage);
-		} else if (IsAffectedBySpell(ch, ESpell::kCamouflage)) {
+		} else if (IsAffectedFlagOnly(ch, EAffect::kDisguise)) {
 			if (AFF_FLAGGED(vict, EAffect::kDetectLife)) {
 				act("$N почувствовал$G ваше присутствие.", false, ch, nullptr, vict, kToChar);
 				return false;
@@ -81,7 +81,7 @@ int SkipSneaking(CharData *ch, CharData *vict) {
 	int percent, prob, absolute_fail;
 	bool try_fail;
 
-	if (sight::MaySee(ch, vict, ch) && IsAffectedBySpell(ch, ESpell::kSneak)) {
+	if (sight::MaySee(ch, vict, ch) && IsAffectedFlagOnly(ch, EAffect::kSneak)) {
 		if (awake_sneak(ch))    //if (affected_by_spell(ch,SPELL_SNEAK))
 		{
 			SendMsgToChar("Вы попытались подкрасться, но ваша экипировка выдала вас.\r\n", ch);
@@ -90,7 +90,7 @@ int SkipSneaking(CharData *ch, CharData *vict) {
 			RemoveAffectFromChar(ch, ESpell::kHide);
 			AFF_FLAGS(ch).unset(EAffect::kHide);
 			AFF_FLAGS(ch).unset(EAffect::kSneak);
-		} else if (IsAffectedBySpell(ch, ESpell::kSneak)) {
+		} else if (IsAffectedFlagOnly(ch, EAffect::kSneak)) {
 			percent = number(1, 112 + (GetRealInt(vict) * (vict->get_role(static_cast<unsigned>(EMobClass::kBoss)) ? 3 : 1)) +
 				(GetRealLevel(vict) > 30 ? GetRealLevel(vict) : 0));
 			prob = CalcCurrentSkill(ch, ESkill::kSneak, vict);
