@@ -39,7 +39,7 @@
         <spell id="kCreateLight"		level="8"	remort="0"	circle="1"	mem="0"		cast="0.4"/>
         <spell id="kBless"			level="5"	remort="0"	circle="1"	mem="0"		cast="0.4"/>
         <spell id="kCurse"			level="6"	remort="0"	circle="1"	mem="0"		cast="0.4"/>
-        <spell id="kEntangleEnemy"			level="18"	remort="0"	circle="1"	mem="0"		cast="0.4"/>
+        <spell id="kWeb"			level="18"	remort="0"	circle="1"	mem="0"		cast="0.4"/>
         <spell id="kFullFeed"			level="12"	remort="0"	circle="2"	mem="0"		cast="0.4"/>
         <spell id="kInfravision"		level="12"	remort="0"	circle="2"	mem="0"		cast="0.4"/>
         <spell id="kArmor"			level="15"	remort="0"	circle="2"	mem="0"		cast="0.4"/>

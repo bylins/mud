@@ -707,7 +707,7 @@
             <spell id="kCureCritic" type="kKnow" time="0" fail="0">
                 <price currency="kKuna" start="30" remort_percent="300"/>
             </spell>
-            <spell id="kEntangleEnemy" type="kKnow" time="60" fail="75">
+            <spell id="kWeb" type="kKnow" time="60" fail="75">
                 <price currency="kKuna" start="15" remort_percent="10"/>
             </spell>
             <spell id="kMassFailure" type="kTemp" time="1440" fail="0">

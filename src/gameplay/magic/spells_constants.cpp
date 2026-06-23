@@ -109,7 +109,7 @@ void init_ESpell_ITEM_NAMES() {
 	ESpell_name_by_value[ESpell::kEnlarge] = "kEnlarge";
 	ESpell_name_by_value[ESpell::kFear] = "kFear";
 	ESpell_name_by_value[ESpell::kSacrifice] = "kSacrifice";
-	ESpell_name_by_value[ESpell::kEntangleEnemy] = "kEntangleEnemy";
+	ESpell_name_by_value[ESpell::kWeb] = "kWeb";
 	ESpell_name_by_value[ESpell::kBlink] = "kBlink";
 	ESpell_name_by_value[ESpell::kRemoveHold] = "kRemoveHold";
 	ESpell_name_by_value[ESpell::kCamouflage] = "kCamouflage";

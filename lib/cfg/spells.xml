@@ -2376,7 +2376,7 @@
 			</action>
 		</talent_actions>
 	</spell>
-	<spell id="kEntangleEnemy" element="kMind" mode="kEnabled">
+	<spell id="kWeb" element="kMind" mode="kEnabled">
 		<name val="web" />
 		<components>
 			<verbal />
@@ -2402,7 +2402,7 @@
 						<affect_flags val="kBrokenChains" />
 					</blocking>
 				</target_conditions>
-				<affects type="kEntangleEnemy" saving="kReflex" resist="kMind">
+				<affects type="kWeb" saving="kReflex" resist="kMind">
 					<duration base="3" skill_divisor="15" min="0" max="0" />
 					<flags val="kAfBattledec|kAfDispellable|kAfCurable" />
 					<apply id="kNoFlee" location="kHitroll">

@@ -1836,7 +1836,7 @@
 		<message type="kCastPhraseHeathen" val="падоша в тернии" />
 		<message type="kCastPhraseChristian" val="... убойся того, кто по убиении ввергнет в геенну." />
 	</msg_sheaf>
-	<msg_sheaf id="kEntangleEnemy">
+	<msg_sheaf id="kWeb">
 		<name val="сеть" />
 		<message type="kCastPhraseHeathen" val="сети ловчи" />
 		<message type="kCastPhraseChristian" val="... терны и сети на пути коварного." />
