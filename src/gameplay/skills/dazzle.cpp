@@ -48,7 +48,7 @@ void DoDazzle(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kDazzle, ESkillMsg::kCantTargetSelf) + "\r\n", ch);
 		return;
 	}
-	if (!privilege::IsImmortal(ch) && IsAffectedBySpellWithCasterId(vict, ch, ESpell::kDazzle)) {
+	if (!privilege::IsImmortal(ch) && IsAffectedWithCasterId(vict, ch, EAffect::kSuspiciousness)) {
 		SendMsgToChar("Невозможно ослепить жертву повторно!\r\n", ch);
 		return;
 	}
@@ -109,7 +109,7 @@ void GoDazzle(CharData *ch, CharData *vict) {
 
 	target_resolver::FoesRosterType roster{ch};
 	for (const auto target: roster) {
-		if (!IsAffectedBySpellWithCasterId(ch, target, ESpell::kDazzle)) {
+		if (!IsAffectedWithCasterId(ch, target, EAffect::kSuspiciousness)) {
 			if (!privilege::IsImmortal(ch) && !target->IsNpc()) {
 				SendMsgToChar("Нельзя слепить человеков! Чтобы видали кому кланяться...\r\n", ch);
 				continue;

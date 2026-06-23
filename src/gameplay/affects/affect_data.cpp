@@ -1285,6 +1285,16 @@ bool IsAffectedBySpellWithCasterId(CharData *ch, CharData *vict, ESpell type) {
 	return false;
 }
 
+bool IsAffectedWithCasterId(CharData *ch, CharData *vict, EAffect affect_type) {
+	for (const auto &affect : vict->affected) {
+		if (affect->affect_type == affect_type && affect->caster_id == ch->get_uid()
+				&& !IS_SET(affect->battleflag, kAfFailed)) {
+			return true;
+		}
+	}
+	return false;
+}
+
 bool IsAffected(CharData *ch, EAffect affect_type) {
 	for (const auto &affect : ch->affected) {
 		if (affect->affect_type == affect_type && !IS_SET(affect->battleflag, kAfFailed)) {

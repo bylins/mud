@@ -278,7 +278,6 @@ void init_ESpell_ITEM_NAMES() {
 	ESpell_name_by_value[ESpell::kLowerEffectiveness] = "kLowerEffectiveness";
 	ESpell_name_by_value[ESpell::kConfuse] = "kConfuse";
 	ESpell_name_by_value[ESpell::kCloudOfArrowsBolt] = "kCloudOfArrowsBolt";
-	ESpell_name_by_value[ESpell::kNoInjure] = "kNoInjure";
 	ESpell_name_by_value[ESpell::kFireBreath] = "kFireBreath";
 	ESpell_name_by_value[ESpell::kGasBreath] = "kGasBreath";
 	ESpell_name_by_value[ESpell::kFrostBreath] = "kFrostBreath";

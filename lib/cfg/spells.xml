@@ -7263,13 +7263,6 @@
 		<targets val="kTarNone" />
 		<flags val="kMagManual" />
 	</spell>
-	<spell id="kNoInjure" element="kUndefined" mode="kService">
-		<name val="injured" />
-		<misc pos="kStand" violent="Y" danger="0" />
-		<mana max="0" min="0" change="0" />
-		<targets val="kTarNone" />
-		<flags val="kMagManual" />
-	</spell>
 	<spell id="kNoCharge" element="kUndefined" mode="kService">
 		<name val="injured" />
 		<misc pos="kStand" violent="Y" danger="0" />

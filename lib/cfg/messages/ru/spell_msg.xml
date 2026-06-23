@@ -2475,9 +2475,6 @@
 	<msg_sheaf id="kLowerEffectiveness">
 		<name val="снижение боеспособности" />
 	</msg_sheaf>
-	<msg_sheaf id="kNoInjure">
-		<name val="ранение" />
-	</msg_sheaf>
 	<msg_sheaf id="kNoCharge">
 		<name val="натиск" />
 	</msg_sheaf>

@@ -61,10 +61,10 @@ void do_disarm(CharData *ch, CharData *vict) {
 //	}
 
 	if (CanUseFeat(ch, EFeat::kInjure)) {
-		if (IsAffectedBySpellWithCasterId(ch, vict, ESpell::kNoInjure) && (!HasWeapon(vict))) {
+		if (IsAffectedWithCasterId(ch, vict, EAffect::kSuspiciousness) && (!HasWeapon(vict))) {
 			act("Не получится - $N уже понял$G, что от Вас можно ожидать всякого!",
 				false, ch, nullptr, vict, kToChar);
-		} else if (IsAffectedBySpellWithCasterId(ch, vict, ESpell::kNoInjure) && (HasWeapon(vict))) {
+		} else if (IsAffectedWithCasterId(ch, vict, EAffect::kSuspiciousness) && (HasWeapon(vict))) {
 			if (privilege::IsImpl(ch) || !ch->GetEnemy()) {
 				go_disarm(ch, vict);
 			} else if (IsHaveNoExtraAttack(ch)) {
@@ -138,7 +138,7 @@ void go_injure(CharData *ch, CharData *vict) {
 		}
 //Этот аффект ничего не дает, просто предотвращает повторное наложение дебаффа тем же персонажем.
 		Affect<EApply> af2;
-		af2.type = ESpell::kNoInjure;
+		af2.type = ESpell::kUndefined;
 		af2.duration = no_injure_duration;
 		af2.battleflag = kNone;
 		af2.caster_id = ch->get_uid();

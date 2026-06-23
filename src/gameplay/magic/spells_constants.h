@@ -268,7 +268,8 @@ enum class ESpell {
 	kLightingBreath = 247,
 	kExpedientFail = 248,
 	kLowerEffectiveness = 249,
-	kNoInjure = 250,
+//	kNoInjure = 250,	// UNUSED (issue.affect-migration): the disarm re-injure cooldown is now the
+//						// kSuspiciousness affect (checked via IsAffectedWithCasterId); value 250 retired.
 	kConfuse = 251,
 	// Internal proc spell: the per-hit bolt of the kCloudOfArrows affect. Cast via
 	// CallMagic from fight_hit.cpp (no verbal, weave-only) -- not player-castable.

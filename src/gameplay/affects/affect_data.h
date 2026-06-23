@@ -114,6 +114,9 @@ bool IsAffectedBySpell(CharData *ch, ESpell type);
 // returns true only when ch has a full-fledged, working affect of this spell type.
 bool AffSuccessFlagged(CharData *ch, ESpell type);
 bool IsAffectedBySpellWithCasterId(CharData *ch, CharData *vict, ESpell type);
+// Like IsAffectedBySpellWithCasterId but keyed by affect_type (the affect identity, decoupled from
+// the casting spell): true if `vict` carries a real (non-failed) affect of this affect_type cast by `ch`.
+bool IsAffectedWithCasterId(CharData *ch, CharData *vict, EAffect affect_type);
 // True if `ch` carries a real (non-failed) affect of this affect_type -- the affect STRUCTURE
 // itself, unlike AFF_FLAGGED which is ALSO set by worn equipment (EWeaponAffect) and a mob's
 // innate proto flags. EAffect-keyed (decoupled from the casting spell); the successor to
