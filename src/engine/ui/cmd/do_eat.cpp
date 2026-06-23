@@ -48,7 +48,7 @@ void feed_charmice(CharData *ch, char *local_arg) {
 	}
 	const int max_heal_hp = 3 * mob_level;
 	chance_to_eat = (100 - 2 * mob_level) / 2;
-	if (AFF_FLAGGED(ch->get_master(), EAffect::kFascination)) {
+	if (IsAffected(ch->get_master(), EAffect::kFascination)) {
 		chance_to_eat -= 30;
 	}
 	if (number(1, 100) < chance_to_eat) {

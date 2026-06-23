@@ -235,7 +235,7 @@ void group::print_one_line(CharData *ch, CharData *k, int leader, int header) {
 	  debuf += AFF_FLAGGED(k, EAffect::kDeafness) ? "&gГ" : " ";
 	  debuf += AFF_FLAGGED(k, EAffect::kBlind) ? "&YБ" : " ";
 	  debuf += AFF_FLAGGED(k, EAffect::kCurse) ? "&mП" : " ";
-	  debuf += AFF_FLAGGED(k, EAffect::kFever) ? "&cЛ" : " ";
+	  debuf += IsAffected(k, EAffect::kFever) ? "&cЛ" : " ";
 
 	  return debuf;
 	};

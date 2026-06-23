@@ -914,7 +914,7 @@ void affect_total(CharData *ch) {
 	}
 	if (!ch->IsNpc())
 		CheckDeathRage(ch);
-	if (ch->GetEnemy() || AFF_FLAGGED(ch, EAffect::kGlitterDust)) {
+	if (ch->GetEnemy() || IsAffected(ch, EAffect::kGlitterDust)) {
 		AFF_FLAGS(ch).unset(EAffect::kHide);
 		AFF_FLAGS(ch).unset(EAffect::kSneak);
 		AFF_FLAGS(ch).unset(EAffect::kDisguise);
@@ -1282,6 +1282,15 @@ bool IsAffectedBySpellWithCasterId(CharData *ch, CharData *vict, ESpell type) {
 		}
 	}
 
+	return false;
+}
+
+bool IsAffected(CharData *ch, EAffect affect_type) {
+	for (const auto &affect : ch->affected) {
+		if (affect->affect_type == affect_type && !IS_SET(affect->battleflag, kAfFailed)) {
+			return true;
+		}
+	}
 	return false;
 }
 

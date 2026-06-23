@@ -2057,7 +2057,7 @@ bool stuff_before_round(CharData *ch) {
 	round_num_mtrigger(ch, ch->GetEnemy());
 
 	ch->battle_affects.set(kEafStand);
-	if (AFF_FLAGGED(ch, EAffect::kSleep))
+	if (IsAffected(ch, EAffect::kSleep))
 		ch->battle_affects.set(kEafSleep);
 	if (ch->in_room == kNowhere)
 		return false;

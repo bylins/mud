@@ -27,7 +27,7 @@ void do_camouflage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, EAffect::kGlitterDust)) {
+	if (IsAffected(ch, EAffect::kGlitterDust)) {
 		SendMsgToChar("Вы замаскировались под золотую рыбку.\r\n", ch);
 		return;
 	}

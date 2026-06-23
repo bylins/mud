@@ -114,6 +114,11 @@ bool IsAffectedBySpell(CharData *ch, ESpell type);
 // returns true only when ch has a full-fledged, working affect of this spell type.
 bool AffSuccessFlagged(CharData *ch, ESpell type);
 bool IsAffectedBySpellWithCasterId(CharData *ch, CharData *vict, ESpell type);
+// True if `ch` carries a real (non-failed) affect of this affect_type -- the affect STRUCTURE
+// itself, unlike AFF_FLAGGED which is ALSO set by worn equipment (EWeaponAffect) and a mob's
+// innate proto flags. EAffect-keyed (decoupled from the casting spell); the successor to
+// IsAffectedBySpell for "does ch currently have this effect" queries.
+bool IsAffected(CharData *ch, EAffect affect_type);
 void ImposeAffect(CharData *ch, const Affect<EApply> &af);
 void ImposeAffect(CharData *ch, Affect<EApply> &af, bool add_dur, bool max_dur, bool add_mod, bool max_mod);
 void ImposeAffectNoRecalc(CharData *ch, const Affect<EApply> &af);

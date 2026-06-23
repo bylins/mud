@@ -37,7 +37,7 @@ void do_hide(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, EAffect::kGlitterDust)) {
+	if (IsAffected(ch, EAffect::kGlitterDust)) {
 		SendMsgToChar("Спрятаться?! Да вы сверкаете как корчма во время гулянки!.\r\n", ch);
 		return;
 	}
