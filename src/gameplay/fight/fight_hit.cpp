@@ -464,10 +464,8 @@ void HitData::CalcBaseHitroll(CharData *ch) {
 		calc_thaco += 4;
 	}
 
-	if (IsAffectedBySpell(ch, ESpell::kBerserk)) {
-		if (AFF_FLAGGED(ch, EAffect::kBerserk)) {
-			calc_thaco -= (12 * ((ch->get_real_max_hit() / 2) - ch->get_hit()) / ch->get_real_max_hit());
-		}
+	if (IsAffected(ch, EAffect::kBerserk)) {
+		calc_thaco -= (12 * ((ch->get_real_max_hit() / 2) - ch->get_hit()) / ch->get_real_max_hit());
 	}
 
 }
@@ -492,7 +490,7 @@ void HitData::CalcCircumstantialHitroll(CharData *ch, CharData *victim) {
 	}
 
 	// courage
-	if (IsAffectedBySpell(ch, ESpell::kCourage)) {
+	if (IsAffected(ch, EAffect::kCourage)) {
 		int range = number(1, MUD::Skill(ESkill::kCourage).difficulty + ch->get_real_max_hit() - ch->get_hit());
 		int prob = CalcCurrentSkill(ch, ESkill::kCourage, victim);
 		TrainSkill(ch, ESkill::kCourage, prob > range, victim);
@@ -567,7 +565,7 @@ void HitData::CalcStaticHitroll(CharData *ch) {
 	}
 
 	// courage
-	if (IsAffectedBySpell(ch, ESpell::kCourage)) {
+	if (IsAffected(ch, EAffect::kCourage)) {
 		dam += ((GetSkill(ch, ESkill::kCourage) + 19) / 20);
 		calc_thaco -= static_cast<int>(((GetSkill(ch, ESkill::kCourage) + 9.0) / 20.0) * p_hitroll);
 	}
@@ -720,7 +718,7 @@ int HitData::CalcDmg(CharData *ch, bool need_dice) {
 	if (ch->IsFlagged(EPrf::kExecutor))
 		SendMsgToChar(ch, "&YДамага с учетом перков мощная-улучш == %d&n\r\n", dam);
 	// courage
-	if (IsAffectedBySpell(ch, ESpell::kCourage)) {
+	if (IsAffected(ch, EAffect::kCourage)) {
 		int range = number(1, MUD::Skill(ESkill::kCourage).difficulty + ch->get_real_max_hit() - ch->get_hit());
 		int prob = CalcCurrentSkill(ch, ESkill::kCourage, ch);
 		if (prob > range) {
@@ -791,13 +789,11 @@ int HitData::CalcDmg(CharData *ch, bool need_dice) {
 			SendMsgToChar(ch, "&YДамага после расчета железного ветра == %d&n\r\n", dam);
 	}
 
-	if (IsAffectedBySpell(ch, ESpell::kBerserk)) {
-		if (AFF_FLAGGED(ch, EAffect::kBerserk)) {
-			dam = (dam*std::max(150, 150 + GetRealLevel(ch) +
-				RollDices(0, remort::GetRealRemort(ch)) * 2)) / 100;
-			if (ch->IsFlagged(EPrf::kExecutor))
-				SendMsgToChar(ch, "&YДамага с учетом берсерка== %d&n\r\n", dam);
-		}
+	if (IsAffected(ch, EAffect::kBerserk)) {
+		dam = (dam*std::max(150, 150 + GetRealLevel(ch) +
+			RollDices(0, remort::GetRealRemort(ch)) * 2)) / 100;
+		if (ch->IsFlagged(EPrf::kExecutor))
+			SendMsgToChar(ch, "&YДамага с учетом берсерка== %d&n\r\n", dam);
 	}
 	if (ch->IsNpc()) { // урон моба из олц
 		dam += RollDices(ch->mob_specials.damnodice, ch->mob_specials.damsizedice);
