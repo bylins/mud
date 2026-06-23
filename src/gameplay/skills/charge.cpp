@@ -83,7 +83,7 @@ void GoCharge(CharData *ch, int direction) {
 	}
 
 	Affect<EApply> af;
-	af.type = ESpell::kNoCharge;
+	af.type = ESpell::kUndefined;
 	af.duration = 4;
 	af.battleflag = kNone;
 	af.affect_type = EAffect::kNoCharge;
@@ -105,7 +105,7 @@ void GoCharge(CharData *ch, int direction) {
 		if (target->IsFlagged(EMobFlag::kProtect) || !may_kill_here(ch,target, arg) ||target == ch || !sight::CanSee(ch,target)) {
 			--victims_amount;
 		} else {
-			if (IsAffectedBySpellWithCasterId(ch, target, ESpell::kNoCharge)) {
+			if (IsAffectedWithCasterId(ch, target, EAffect::kNoCharge)) {
 				act("$N0 уже на страже - вы не сможете повторно испугать $S своим натиском!",
 					false, ch, nullptr,target, kToChar);
 				dmg.dam = 0;

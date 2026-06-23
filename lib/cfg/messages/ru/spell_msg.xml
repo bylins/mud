@@ -2137,12 +2137,6 @@
 		<message type="kCastPhraseHeathen" val="" />
 		<message type="kCastPhraseChristian" val="" />
 	</msg_sheaf>
-	<msg_sheaf id="kClanPray">
-		<name val="!клановые чары!" />
-		<message type="kCastPhraseHeathen" val="" />
-		<message type="kCastPhraseChristian" val="" />
-		<message type="kAffExpiredToChar" val="Магические чары ослабели со временем и покинули вас." />
-	</msg_sheaf>
 	<msg_sheaf id="kCatGrace">
 		<name val="кошачья ловкость" />
 		<message type="kCastPhraseHeathen" val="ристати споро" />
@@ -2274,12 +2268,6 @@
 		<name val="перевязка" />
 		<message type="kCastPhraseHeathen" val="" />
 		<message type="kCastPhraseChristian" val="" />
-	</msg_sheaf>
-	<msg_sheaf id="kNoBandage">
-		<name val="!нельзя перевязываться!" />
-		<message type="kCastPhraseHeathen" val="" />
-		<message type="kCastPhraseChristian" val="" />
-		<message type="kAffExpiredToChar" val="Вы снова можете перевязывать свои раны." />
 	</msg_sheaf>
 	<msg_sheaf id="kCapable">
 		<name val="!зачарован!" />
@@ -2444,16 +2432,6 @@
 		<message type="kCastPhraseHeathen" val="будет ловким" />
 		<message type="kCastPhraseChristian" val="... и человек разумный укрепляет ловкость свою." />
 	</msg_sheaf>
-	<msg_sheaf id="kExpedientFail">
-		<name val="!неудачный прием!" />
-		<message type="kCastPhraseHeathen" val="!Провалил боевой прием!" />
-		<message type="kCastPhraseChristian" val="!Провалил боевой прием!" />
-		<message type="kAffExpiredToChar" val="Вы восстановили равновесие." />
-	</msg_sheaf>
-	<msg_sheaf id="kQUest">
-		<name val="!чары!" />
-		<message type="kAffExpiredToChar" val="Наложенные на вас чары рассеялись." />
-	</msg_sheaf>
 	<msg_sheaf id="kFrenzy">
 		<name val="исступление" />
 	</msg_sheaf>
@@ -2471,12 +2449,6 @@
 	</msg_sheaf>
 	<msg_sheaf id="kDeadlyFogTick">
 		<name val="туман смерти (тик)" />
-	</msg_sheaf>
-	<msg_sheaf id="kLowerEffectiveness">
-		<name val="снижение боеспособности" />
-	</msg_sheaf>
-	<msg_sheaf id="kNoCharge">
-		<name val="натиск" />
 	</msg_sheaf>
 	<msg_sheaf id="kConfuse">
 		<name val="ошарашен" />

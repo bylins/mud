@@ -5196,13 +5196,6 @@
 			</action>
 		</talent_actions>
 	</spell>
-	<spell id="kClanPray" element="kUndefined" mode="kService">
-		<name val="!clan affect!" />
-		<misc pos="kStand" violent="N" danger="0" />
-		<mana max="0" min="0" change="0" />
-		<targets val="kTarNone" />
-		<flags val="kMagManual" />
-	</spell>
 	<spell id="kGlitterDust" element="kEarth" mode="kEnabled">
 		<name val="glitterdust" />
 		<components>
@@ -5966,13 +5959,6 @@
 		<flags val="kMagAffects" />
 	</spell>
 	<spell id="kBandage" element="kUndefined" mode="kService">
-		<name val="!set by programm!" />
-		<misc pos="kStand" violent="N" danger="0" />
-		<mana max="0" min="0" change="0" />
-		<targets val="kTarNone" />
-		<flags val="kMagManual" />
-	</spell>
-	<spell id="kNoBandage" element="kUndefined" mode="kService">
 		<name val="!set by programm!" />
 		<misc pos="kStand" violent="N" danger="0" />
 		<mana max="0" min="0" change="0" />
@@ -7249,27 +7235,6 @@
 			</action>
 		</talent_actions>
 	</spell>
-	<spell id="kExpedientFail" element="kUndefined" mode="kService">
-		<name val="!expediend fail!" />
-		<misc pos="kStand" violent="N" danger="0" />
-		<mana max="0" min="0" change="0" />
-		<targets val="kTarNone" />
-		<flags val="kMagManual" />
-	</spell>
-	<spell id="kLowerEffectiveness" element="kUndefined" mode="kService">
-		<name val="injured" />
-		<misc pos="kStand" violent="Y" danger="0" />
-		<mana max="0" min="0" change="0" />
-		<targets val="kTarNone" />
-		<flags val="kMagManual" />
-	</spell>
-	<spell id="kNoCharge" element="kUndefined" mode="kService">
-		<name val="injured" />
-		<misc pos="kStand" violent="Y" danger="0" />
-		<mana max="0" min="0" change="0" />
-		<targets val="kTarNone" />
-		<flags val="kMagManual" />
-	</spell>
 	<spell id="kConfuse" element="kUndefined" mode="kService">
 		<name val="injured" />
 		<misc pos="kStand" violent="Y" danger="0" />
@@ -7314,22 +7279,6 @@
 		<talent_actions>
 			<action>
 				<manual_cast handler="SpellFullIdentify" />
-			</action>
-		</talent_actions>
-	</spell>
-	<spell id="kQUest" element="kUndefined" mode="kService">
-		<name val="!quest spell!" />
-		<misc pos="kFight" violent="N" danger="1" />
-		<mana max="55" min="40" change="1" />
-		<targets val="kTarCharRoom|kTarNotSelf" />
-		<flags val="kMagManual" />
-		<talent_actions>
-			<action>
-				<target_conditions>
-					<blocking>
-						<room_flags val="kNoMagic" />
-					</blocking>
-				</target_conditions>
 			</action>
 		</talent_actions>
 	</spell>

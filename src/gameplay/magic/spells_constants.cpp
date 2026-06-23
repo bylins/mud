@@ -202,7 +202,6 @@ void init_ESpell_ITEM_NAMES() {
 	ESpell_name_by_value[ESpell::kThunderstorm] = "kThunderstorm";
 	ESpell_name_by_value[ESpell::kLightWalk] = "kLightWalk";
 	ESpell_name_by_value[ESpell::kFailure] = "kFailure";
-	ESpell_name_by_value[ESpell::kClanPray] = "kClanPray";
 	ESpell_name_by_value[ESpell::kGlitterDust] = "kGlitterDust";
 	ESpell_name_by_value[ESpell::kScream] = "kScream";
 	ESpell_name_by_value[ESpell::kCatGrace] = "kCatGrace";
@@ -230,7 +229,6 @@ void init_ESpell_ITEM_NAMES() {
 	ESpell_name_by_value[ESpell::kTimerRestore] = "kTimerRestore";
 	ESpell_name_by_value[ESpell::kCombatLuck] = "kCombatLuck";
 	ESpell_name_by_value[ESpell::kBandage] = "kBandage";
-	ESpell_name_by_value[ESpell::kNoBandage] = "kNoBandage";
 	ESpell_name_by_value[ESpell::kCapable] = "kCapable";
 	ESpell_name_by_value[ESpell::kStrangle] = "kStrangle";
 	ESpell_name_by_value[ESpell::kRecallSpells] = "kRecallSpells";
@@ -274,8 +272,6 @@ void init_ESpell_ITEM_NAMES() {
 	ESpell_name_by_value[ESpell::kGroupAwareness] = "kGroupAwareness";
 	ESpell_name_by_value[ESpell::kMassFailure] = "kMassFailure";
 	ESpell_name_by_value[ESpell::kSnare] = "kSnare";
-	ESpell_name_by_value[ESpell::kExpedientFail] = "kExpedientFail";
-	ESpell_name_by_value[ESpell::kLowerEffectiveness] = "kLowerEffectiveness";
 	ESpell_name_by_value[ESpell::kConfuse] = "kConfuse";
 	ESpell_name_by_value[ESpell::kCloudOfArrowsBolt] = "kCloudOfArrowsBolt";
 	ESpell_name_by_value[ESpell::kFireBreath] = "kFireBreath";
@@ -285,9 +281,7 @@ void init_ESpell_ITEM_NAMES() {
 	ESpell_name_by_value[ESpell::kLightingBreath] = "kLightingBreath";
 	ESpell_name_by_value[ESpell::kIdentify] = "kIdentify";
 	ESpell_name_by_value[ESpell::kFullIdentify] = "kFullIdentify";
-	ESpell_name_by_value[ESpell::kQUest] = "kQUest";
 	ESpell_name_by_value[ESpell::kPortalTimer] = "kPortalTimer";
-	ESpell_name_by_value[ESpell::kNoCharge] = "kNoCharge";
 	ESpell_name_by_value[ESpell::kDazzle] = "kDazzle";
 	ESpell_name_by_value[ESpell::kGreatHeal] = "kGreatHeal";
 	ESpell_name_by_value[ESpell::kFrenzy] = "kFrenzy";

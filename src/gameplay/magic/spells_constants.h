@@ -189,7 +189,7 @@ enum class ESpell {
 	kThunderstorm = 168,
 	kLightWalk = 169,
 	kFailure = 170,
-	kClanPray = 171,
+//	kClanPray = 171,	// UNUSED (issue.affect-migration): dead: no code references; value 171 retired.
 	kGlitterDust = 172,
 	kScream = 173,
 	kCatGrace = 174,
@@ -214,7 +214,7 @@ enum class ESpell {
 	kTimerRestore = 193,
 	kCombatLuck = 194,
 	kBandage = 195,
-	kNoBandage = 196,
+//	kNoBandage = 196,	// UNUSED (issue.affect-migration): re-bandage already gated on AFF_FLAGGED(kCannotBeBandaged); value 196 retired.
 	kCapable = 197,
 	kStrangle = 198,
 	kRecallSpells = 199,
@@ -266,8 +266,8 @@ enum class ESpell {
 	kFrostBreath = 245,
 	kAcidBreath = 246,
 	kLightingBreath = 247,
-	kExpedientFail = 248,
-	kLowerEffectiveness = 249,
+//	kExpedientFail = 248,	// UNUSED (issue.affect-migration): was only an af.type marker, never queried; value 248 retired.
+//	kLowerEffectiveness = 249,	// UNUSED (issue.affect-migration): disarm injure debuff identified by its kInjuredLimb affect; af.type was unused; value 249 retired.
 //	kNoInjure = 250,	// UNUSED (issue.affect-migration): the disarm re-injure cooldown is now the
 //						// kSuspiciousness affect (checked via IsAffectedWithCasterId); value 250 retired.
 	kConfuse = 251,
@@ -276,9 +276,9 @@ enum class ESpell {
 	kCloudOfArrowsBolt = 252,
 	kIdentify = 351,
 	kFullIdentify = 352,
-	kQUest = 353,
+//	kQUest = 353,	// UNUSED (issue.affect-migration): dead: no code references; value 353 retired.
 	kPortalTimer = 354,
-	kNoCharge = 355,
+//	kNoCharge = 355,	// UNUSED (issue.affect-migration): effect now checked via the kNoCharge affect (IsAffectedWithCasterId); value 355 retired.
 	kDazzle = 356,
 	kGreatHeal = 357,
 	kFrenzy = 358,

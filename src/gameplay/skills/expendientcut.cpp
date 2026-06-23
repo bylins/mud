@@ -14,7 +14,7 @@
 
 void ApplyNoFleeAffect(CharData *ch, int duration) {
 	Affect<EApply> noflee;
-	noflee.type = ESpell::kExpedientFail;
+	noflee.type = ESpell::kUndefined;
 	noflee.affect_type = EAffect::kNoFlee;
 	noflee.location = EApply::kNone;
 	noflee.modifier = 0;
