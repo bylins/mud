@@ -17,6 +17,9 @@
 #include "engine/db/db.h"           // chardata_by_uid
 #include "gameplay/fight/pk.h"          // pk_agro_action
 #include "room_affects_loader.h"   // RoomAffectsLoader
+#include "gameplay/affects/affect_contants.h"   // EAffFlag
+#include "utils/utils_parse.h"   // parse::ReadAsConstantsBitvector
+#include <array>
 #include "room_affect_messages.h"   // RoomAffectMessagesLoader
 #include "engine/structs/msg_container.h"
 #include <set>
@@ -118,6 +121,36 @@ ERoomAffect RoomAffectBySpell(ESpell spell_id) {
 	}
 }
 
+// issue.affect-migration: per-ERoomAffect behavior flags from room_affects.xml (mirrors the
+// char-affect g_affect_flags). Source of truth for room-affect cure/dispel/refresh/decrement/...;
+// the casting source only sets strength + duration. Indexed by to_underlying(ERoomAffect)
+// (1-based; index 0 = kUndefined = no flags).
+constexpr std::size_t kRoomAffectFlagTableSize = to_underlying(ERoomAffect::kCount);
+std::array<Bitvector, kRoomAffectFlagTableSize> g_room_affect_flags{};
+bool g_room_affect_flags_loaded = false;
+
+void BuildRoomAffectFlagTable(parser_wrapper::DataNode data) {
+	g_room_affect_flags.fill(0);
+	for (auto &node : data.Children("room_affect")) {
+		const char *id = node.GetValue("id");
+		const char *flags = node.GetValue("flags");
+		if (!id || !*id || !flags || !*flags) {
+			continue;
+		}
+		ERoomAffect affect;
+		try {
+			affect = ITEM_BY_NAME<ERoomAffect>(id);
+		} catch (const std::out_of_range &) {
+			continue;  // unknown id already reported by the validator
+		}
+		const auto idx = static_cast<std::size_t>(to_underlying(affect));
+		if (idx < kRoomAffectFlagTableSize) {
+			g_room_affect_flags[idx] = parse::ReadAsConstantsBitvector<EAffFlag>(flags);
+		}
+	}
+	g_room_affect_flags_loaded = true;
+}
+
 void ValidateRoomAffectRegistry(parser_wrapper::DataNode data) {
 	std::set<std::string> seen;
 	for (auto &node : data.Children("room_affect")) {
@@ -142,8 +175,16 @@ void ValidateRoomAffectRegistry(parser_wrapper::DataNode data) {
 }
 }  // namespace
 
-void RoomAffectsLoader::Load(parser_wrapper::DataNode data) { ValidateRoomAffectRegistry(data); }
-void RoomAffectsLoader::Reload(parser_wrapper::DataNode data) { ValidateRoomAffectRegistry(data); }
+// issue.affect-migration: a room affect's intrinsic behavior flags from room_affects.xml, keyed by
+// affect_type. 0 for room affects with no row/flags. Loaded? guards apply-time sourcing (Phase R2).
+Bitvector RoomAffectFlagsByType(ERoomAffect affect_type) {
+	const auto idx = static_cast<std::size_t>(to_underlying(affect_type));
+	return idx < kRoomAffectFlagTableSize ? g_room_affect_flags[idx] : Bitvector{0};
+}
+bool RoomAffectFlagsLoaded() { return g_room_affect_flags_loaded; }
+
+void RoomAffectsLoader::Load(parser_wrapper::DataNode data) { ValidateRoomAffectRegistry(data); BuildRoomAffectFlagTable(data); }
+void RoomAffectsLoader::Reload(parser_wrapper::DataNode data) { ValidateRoomAffectRegistry(data); BuildRoomAffectFlagTable(data); }
 
 // --- room-affect message container (cfg/messages/ru/room_affect_msg.xml) -------------------------
 namespace {

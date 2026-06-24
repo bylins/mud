@@ -93,6 +93,10 @@ struct RoomAffectActor {
 };
 RoomAffectActor ClassifyRoomAffectAccess(CharData *ch, long caster_id);
 
+// issue.affect-migration: per-ERoomAffect behavior flags from room_affects.xml (0 if none) + load gate.
+[[nodiscard]] Bitvector RoomAffectFlagsByType(ERoomAffect affect_type);
+[[nodiscard]] bool RoomAffectFlagsLoaded();
+
 } // namespace room_spells
 
 // Room-affect registry name maps (cfg/room_affects.xml validates these). Global scope, mirroring
