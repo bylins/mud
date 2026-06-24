@@ -26,7 +26,7 @@ void ApplyNoFleeAffect(CharData *ch, int duration) {
 
 void ApplyDebuffs(abilities_roll::TechniqueRoll &roll) {
 	Affect<EApply> cut;
-	cut.type = ESpell::kBattle;
+	cut.type = ESpell::kUndefined;
 	cut.duration = CalcDuration(roll.GetActor(), roll.GetActor(), ESkill::kUndefined, 3 * number(2, 4), 0, 0, 0);;
 	cut.battleflag = kAfBattledec;
 	if (roll.GetActor()->IsFlagged(EPrf::kPerformSerratedBlade)) {

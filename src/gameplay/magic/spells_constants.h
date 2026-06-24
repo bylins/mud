@@ -122,7 +122,7 @@ enum class ESpell {
 //	kAbstinent = 102,	// UNUSED (issue.affect-migration): the "hangover" state is identified by its EAffect::kAbstinent affect; af.type was redundant; value 102 retired.
 	kFullFeed = 103,
 	kColdWind = 104,
-	kBattle = 105,
+//	kBattle = 105,	// UNUSED (issue.affect-migration): the generic "battle-applied affect" marker is gone; battle effects are identified by their EAffect affect_type + flags from affects.xml; value 105 retired.
 //	kHaemorrhage = 106,	// UNUSED (issue.affect-migration): the bleeding state is identified by its EAffect::kHaemorrhage affect; af.type was redundant; value 106 retired.
 	kCourage = 107,
 	kWaterbreath = 108,

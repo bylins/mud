@@ -126,7 +126,7 @@ CharData *TryToFindProtector(CharData *victim, CharData *ch) {
 				vict->remove_protecting();
 				SetBattleLag(vict, 1);
 				Affect<EApply> af;
-				af.type = ESpell::kBattle;
+				af.type = ESpell::kUndefined;
 				af.affect_type = EAffect::kStopFight;
 				af.location = EApply::kNone;
 				af.modifier = 0;
