@@ -127,7 +127,7 @@
              percent= here is the absolute HP threshold; Resolve picks the largest threshold <= the hit.
              Calibrated weakest ~5 HP ... strongest 1000+ HP. -->
         <improve>
-            <grade percent="1050" text="СМЕРТЕЛЬНО "/>
+            <grade percent="32000" text="СМЕРТЕЛЬНО "/>
             <grade percent="950" text="УБИЙСТВЕННО "/>
             <grade percent="870" text="УЖАСНО "/>
             <grade percent="760" text="ЖЕСТОКО "/>
