@@ -117,9 +117,18 @@ const std::string &PointsIntensity::Resolve(ECategory category, int percent) con
 	// An input below the weakest threshold returns an empty string -- callers
 	// (CastToPoints) treat that as "no narration this category."
 	const auto &table = (percent >= 0) ? cat.improve : cat.degrade;
-	for (const auto &g : reverse(table)) {
-		if (percent <= g.percent) {
-			return g.text;
+
+	if (category == ECategory::kDamage) {  //тут  цифры относительны
+		for (const auto &g : reverse(table)) {
+			if (percent <= g.percent) {
+				return g.text;
+			}
+		}
+	} else {
+		for (const auto &g : table) {
+			if (g.percent <= percent) {
+				return g.text;
+			}
 		}
 	}
 	return kEmpty;

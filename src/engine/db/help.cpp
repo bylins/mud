@@ -883,7 +883,7 @@ void CharDamHelp() {
 	std::vector<std::pair<std::string, std::string>> dam_list = MUD::PointsIntensity().ShowHelpDamage();
 	std::ostringstream out;
 	table_wrapper::Table table;
-	table << table_wrapper::kHeader << "Для обычных ударов и пинка существуют следующие сообщения" << "урон" << table_wrapper::kEndRow;
+	table << table_wrapper::kHeader << "Для силы наносимых повреждений существуют следующие сообщения" << "урон" << table_wrapper::kEndRow;
 
 	for (auto &it : dam_list) {
 		table << it.first << it.second;
