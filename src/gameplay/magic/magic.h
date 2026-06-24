@@ -26,43 +26,9 @@ class CharData;
 class ObjData;
 struct RoomData;
 
-// The "first-aid removable" spell list (moved here from char_data.h, issue.affect-dispell-flags).
-// The order doubles as the cure-difficulty index used by do_first_aid (prob/10 > index). This list
-// is slated to be replaced by the kAfCurable flag + a potency-based cure mechanic.
-enum ERemovableSpell {
-	kRemAbstinent = 0,
-	kRemPoison,
-	kRemMadness,
-	kRemWeakness,
-	kRemSlowdown,
-	kRemMindless,
-	kRemColdWind,
-	kRemFever,
-	kRemCurse,
-	kRemDeafness,
-	kRemSilence,
-	kRemBlindness,
-	kRemSleep,
-	kRemHold,
-	kRemVacuum,
-	kRemHaemorrhage,
-	kRemBattle,
-	kMaxFirstaidRemove
-};
-
-inline ESpell GetRemovableSpellId(int num) {
-	static const ESpell spell[kMaxFirstaidRemove] = {
-		ESpell::kAbstinent, ESpell::kPoison, ESpell::kMadness,
-		ESpell::kWeaknes, ESpell::kSlowdown, ESpell::kMindless, ESpell::kColdWind,
-		ESpell::kFever, ESpell::kCurse, ESpell::kDeafness, ESpell::kSilence,
-		ESpell::kBlindness, ESpell::kSleep, ESpell::kHold, ESpell::kVacuum,
-		ESpell::kHaemorrhage, ESpell::kBattle
-	};
-	if (num < kMaxFirstaidRemove) {
-		return spell[num];
-	}
-	return ESpell::kUndefined;
-}
+// (issue.affect-migration) The old ESpell "first-aid removable" list + GetRemovableSpellId were
+// removed: curability is now the kAfCurable battleflag -- see Affect::removable(), DoFirstaid, and
+// the data-driven dispel/cure filter (AffectMatchesFlags).
 
 // One evaluation of a talents_actions::Roll for a specific caster (issue #3333).
 struct RollResult {

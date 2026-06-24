@@ -111,6 +111,7 @@ void RemoveAffectFromChar(CharData *ch, ESpell spell_id);
 void RemoveAffectFromCharAndRecalculate(CharData *ch, ESpell spell_id);
 void RemoveAffectFromChar(CharData *ch, EAffect affect_type);
 void RemoveAffectFromCharAndRecalculate(CharData *ch, EAffect affect_type);
+void RemoveCurableAffects(CharData *ch);
 bool IsAffectedBySpell(CharData *ch, ESpell type);
 // Like IsAffectedBySpell, but ignores failed-attempt markers (affects carrying kAfFailed):
 // returns true only when ch has a full-fledged, working affect of this spell type.

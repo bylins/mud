@@ -363,9 +363,9 @@ void arena_kill(CharData *ch, CharData *killer) {
 			PlaceCharToRoom(f, to_room);
 		}
 	}
-	for (int i=0; i < kMaxFirstaidRemove; i++) {
-		RemoveAffectFromChar(ch, GetRemovableSpellId(i));
-	}
+	// issue.affect-migration: strip every curable affect (kAfCurable); replaces the old
+	// GetRemovableSpellId sweep.
+	RemoveCurableAffects(ch);
 	// наемовские яды
 	RemoveAffectFromChar(ch, ESpell::kAconitumPoison);
 	RemoveAffectFromChar(ch, ESpell::kDaturaPoison);

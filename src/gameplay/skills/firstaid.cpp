@@ -20,12 +20,9 @@
 #include <vector>
 
 // =====================================================================================
-// First Aid: old vs new implementation toggle (issue.first-aid).
-//
-// The new version (BYLINS_FIRSTAID_NEW = 1) reworks affect removal around the same
-// potency-roll contest the data-driven spells use:
-//   - the `kAfCurable` flag is the only source of truth for "can be cured"
-//     (the hardcoded GetRemovableSpellId list is bypassed);
+// First Aid (issue.first-aid): affect removal uses the same potency-roll contest as the
+// data-driven spells:
+//   - the `kAfCurable` flag is the only source of truth for "can be cured";
 //   - the cure's potency is rolled from First Aid skill + Intelligence stat;
 //   - the potency contest mirrors DispelSucceeds (5% luck floor + weighted
 //     dice + skill + stat vs the affect's recorded potency);
@@ -33,16 +30,9 @@
 //   - argument syntax mirrors do_cast: 'spell name' [target], with bare-target
 //     legacy form preserved as auto-pick on the named character.
 //
-// The HP-heal half is preserved verbatim from the legacy version because low-
-// level fighters often have no other healing route.
-//
-// Flip to 1 once the new version is debugged; the legacy code stays under
-// `#else` so we can fall back instantly if something needs investigating.
-// Once the new version has stabilised in play, delete the legacy branch.
+// The HP-heal half is preserved from the legacy version because low-level fighters
+// often have no other healing route.
 // =====================================================================================
-#define BYLINS_FIRSTAID_NEW 1
-
-#if BYLINS_FIRSTAID_NEW
 
 namespace {
 
@@ -312,129 +302,5 @@ void DoFirstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	// a successful cure/heal be spammed.
 	ApplyFirstAidCooldown(ch);
 }
-
-#else  // BYLINS_FIRSTAID_NEW
-
-void DoFirstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	struct TimedSkill timed;
-
-	if (!GetSkill(ch, ESkill::kFirstAid)) {
-		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kFirstAid, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
-		return;
-	}
-	if (!privilege::IsGod(ch) && IsTimedBySkill(ch, ESkill::kFirstAid)) {
-		SendMsgToChar("Так много лечить нельзя - больных не останется.\r\n", ch);
-		return;
-	}
-
-	one_argument(argument, arg);
-
-	CharData *vict;
-	if (!*arg) {
-		vict = ch;
-	} else {
-		vict = target_resolver::FindCharInRoom(ch, arg);
-		if (!vict) {
-			SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kFirstAid, ESkillMsg::kNoTarget) + "\r\n", ch);
-			return;
-		}
-	}
-
-	if (vict->GetEnemy()) {
-		act("$N сражается, $M не до ваших телячьих нежностей.", false, ch, nullptr, vict, kToChar);
-		return;
-	}
-	if (vict->IsNpc() && !IsCharmice(vict)) {
-		SendMsgToChar("Вы не красный крест - лечить всех подряд.\r\n", ch);
-		return;
-	}
-	int percent = number(1, MUD::Skills()[ESkill::kFirstAid].difficulty);
-	int prob = CalcCurrentSkill(ch, ESkill::kFirstAid, vict);
-	if (privilege::IsImmortal(ch) || GET_GOD_FLAG(ch, EGf::kGodsLike) || GET_GOD_FLAG(vict, EGf::kGodsLike)) {
-		percent = 0;
-	}
-	if (GET_GOD_FLAG(ch, EGf::kGodscurse) || GET_GOD_FLAG(vict, EGf::kGodscurse)) {
-		prob = 0;
-	}
-	auto success = (prob >= percent);
-	bool need = false;
-	bool enough_skill = false;
-	if ((vict->get_real_max_hit() > 0 && (vict->get_hit() * 100 / vict->get_real_max_hit()) < 31) ||
-		(vict->get_real_max_hit() <= 0 && vict->get_hit() < vict->get_real_max_hit()) ||
-		(vict->get_hit() < vict->get_real_max_hit() && CanUseFeat(ch, EFeat::kHealer))) {
-		need = true;
-		enough_skill = true;
-		if (success) {
-			int dif = std::min(vict->get_real_max_hit(), vict->get_real_max_hit() - vict->get_hit());
-			int add = std::min(dif, (dif * (prob - percent) / 100) + 1);
-			vict->set_hit(vict->get_hit() + add);
-		}
-	}
-	auto spell_id{ESpell::kUndefined};
-	for (int count = kMaxFirstaidRemove - 1; count >= 0; count--) {
-		spell_id = GetRemovableSpellId(count);
-		if (IsAffectedBySpell(vict, spell_id)) {
-			need = true;
-			if (prob / 10  > count) {
-				enough_skill = true;
-				break;
-			}
-		}
-	}
-	if (!need) {
-		act("$N в лечении не нуждается.", false, ch, nullptr, vict, kToChar);
-	} else if (!enough_skill) {
-		act("У вас не хватило умения вылечить $N3.", false, ch, nullptr, vict, kToChar);
-	} else {
-		timed.skill = ESkill::kFirstAid;
-		int time = privilege::IsImmortal(ch) ? 1 : IS_PALADINE(ch) ? 4 : IS_SORCERER(ch) ? 2 : 6;
-		if (CanUseFeat(ch, EFeat::kPhysicians))
-			time /=2;
-		timed.time = time;
-		ImposeTimedSkill(ch, &timed);
-		ImproveSkill(ch, ESkill::kFirstAid, success, nullptr);
-		if (vict != ch) {
-			if (success) {
-				act("Вы оказали первую помощь $N2.", false, ch, nullptr, vict, kToChar);
-				act("$n оказал$g первую помощь $N2.",
-					true, ch, nullptr, vict, kToNotVict | kToArenaListen);
-				if (spell_id != ESpell::kUndefined) {
-					RemoveAffectFromCharAndRecalculate(vict, spell_id);
-				}
-				if (ch->get_sex() == EGender::kMale)
-					sprintf(buf, "%s оказал вам первую помощь.\r\n", ch->get_name().c_str());
-				else
-					sprintf(buf, "%s оказала вам первую помощь.\r\n", ch->get_name().c_str());
-				SendMsgToChar(buf, vict);
-				vict->zero_wait();
-				update_pos(vict);
-			} else {
-				act("Вы безрезультатно попытались оказать первую помощь $N2.",
-					false, ch, nullptr, vict, kToChar);
-				act("$N безрезультатно попытал$U оказать вам первую помощь.",
-					false, vict, nullptr, ch, kToChar);
-				act("$n безрезультатно попытал$u оказать первую помощь $N2.",
-					true, ch, nullptr, vict, kToNotVict | kToArenaListen);
-			}
-		} else {
-			if (success) {
-				act("Вы оказали себе первую помощь.",
-					false, ch, nullptr, nullptr, kToChar);
-				act("$n оказал$g себе первую помощь.",
-					false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-				if (spell_id != ESpell::kUndefined) {
-					RemoveAffectFromCharAndRecalculate(vict, spell_id);
-				}
-			} else {
-				act("Вы безрезультатно попытались оказать себе первую помощь.",
-					false, ch, nullptr, vict, kToChar);
-				act("$n безрезультатно попытал$u оказать себе первую помощь.",
-					false, ch, nullptr, vict, kToRoom | kToArenaListen);
-			}
-		}
-	}
-}
-
-#endif  // BYLINS_FIRSTAID_NEW
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

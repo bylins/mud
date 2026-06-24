@@ -58,7 +58,7 @@ void CharacterBuilder::add_poison()
 	poison->location = EApply::kStr;
 	poison->duration = CalcDuration(m_result.get(), m_result.get(), ESkill::kUndefined, 10 * 2, 0, 0, 0);
 	poison->affect_type = EAffect::kPoisoned;
-	poison->battleflag = kAfSameTime;
+	poison->battleflag = kAfSameTime | kAfCurable;
 	// Add directly to avoid affect_total() which requires global state
 	m_result->affected.push_front(poison);
 }
@@ -73,7 +73,7 @@ void CharacterBuilder::add_sleep()
 	sleep->location = EApply::kAc;
 	sleep->duration = CalcDuration(m_result.get(), m_result.get(), ESkill::kUndefined, 10 * 2, 0, 0, 0);
 	sleep->affect_type = EAffect::kSleep;
-	sleep->battleflag = kAfSameTime;
+	sleep->battleflag = kAfSameTime | kAfCurable;
 	// Add directly to avoid affect_total() which requires global state
 	m_result->affected.push_front(sleep);
 }

@@ -177,23 +177,10 @@ std::array<EAffect, 3> char_stealth_aff =
 
 template<>
 bool Affect<EApply>::removable() const {
-	return type == ESpell::kSleep
-		|| type == ESpell::kPoison
-		|| type == ESpell::kWeaknes
-		|| type == ESpell::kCurse
-		|| type == ESpell::kFever
-		|| type == ESpell::kSilence
-		|| type == ESpell::kPowerSilence
-		|| type == ESpell::kBlindness
-		|| type == ESpell::kPowerBlindness
-		|| type == ESpell::kHaemorrhage
-		|| type == ESpell::kHold
-		|| type == ESpell::kPowerHold
-		|| type == ESpell::kPeaceful
-		|| type == ESpell::kColdWind
-		|| type == ESpell::kDeafness
-		|| type == ESpell::kPowerDeafness
-		|| type == ESpell::kBattle;
+	// issue.affect-migration: curability is the kAfCurable battleflag (single source of truth),
+	// replacing the hardcoded ESpell list. kBattle affects aren't flag-tagged yet (no single
+	// affect_type), so they keep a transitional type check until the battle-marker rework.
+	return IS_SET(battleflag, kAfCurable) || type == ESpell::kBattle;
 }
 // 
 // для мобов раз в 10 пульсов
@@ -357,11 +344,8 @@ void player_affect_update() {
 					if (ROOM_FLAGGED(i->in_room, ERoomFlag::kDominationArena)) {
 						utils::CExecutionTimer domination_timer;
 						++profile.counters[static_cast<std::size_t>(Counter::kDominationAffects)];
-						for (int count = kMaxFirstaidRemove - 1; count >= 0; count--) {
-							if (affect->type == GetRemovableSpellId(count)) {
-								affect->duration -= 15;
-								break;
-							}
+						if (IS_SET(affect->battleflag, kAfCurable) || affect->type == ESpell::kBattle) {
+							affect->duration -= 15;
 						}
 						if (IS_SET(affect->battleflag, kAfPulsedec))
 							affect->duration -= MIN(affect->duration, kSecsPerPlayerAffect * kPassesPerSec);
@@ -670,6 +654,22 @@ void RemoveAffectFromChar(CharData *ch, EAffect affect_type) {
 void RemoveAffectFromCharAndRecalculate(CharData *ch, EAffect affect_type) {
 	RemoveAffectFromChar(ch, affect_type);
 	affect_total(ch);
+}
+
+// issue.affect-migration: remove every curable affect (kAfCurable). Replaces the old
+// GetRemovableSpellId sweep. kBattle affects aren't flag-tagged yet, so include them by type
+// transitionally until the battle-marker rework.
+void RemoveCurableAffects(CharData *ch) {
+	auto it = ch->affected.begin();
+	while (it != ch->affected.end()) {
+		const auto af = *it;
+		if (IS_SET(af->battleflag, kAfCurable) || af->type == ESpell::kBattle) {
+			EmitAffectEvent("affect_removed", ch, *af);
+			it = RemoveAffect(ch, it);
+		} else {
+			++it;
+		}
+	}
 }
 
 std::pair<EApply, int>  GetApplyByWeaponAffect(EWeaponAffect element, CharData *ch) {
