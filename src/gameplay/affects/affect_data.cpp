@@ -954,8 +954,12 @@ void affect_total(CharData *ch) {
 
 void ImposeAffect(CharData *ch, const Affect<EApply> &af) {
 	for (const auto &affect : ch->affected) {
+		// issue.affect-migration: re-application is keyed on affect_type (the effect identity); fall back
+		// to the legacy ESpell type only for affects that have no affect_type yet.
+		const bool same_id = (af.affect_type != EAffect::kUndefined)
+				? (affect->affect_type == af.affect_type) : (affect->type == af.type);
 		const bool same_affect = (af.location == EApply::kNone) && (affect->affect_type == af.affect_type);
-		const bool same_type = (af.location != EApply::kNone) && (affect->type == af.type) && (affect->location == af.location);
+		const bool same_type = (af.location != EApply::kNone) && same_id && (affect->location == af.location);
 		if (same_affect || same_type) {
 			if (affect->modifier < af.modifier) {
 				affect->modifier = af.modifier;
@@ -976,7 +980,10 @@ void ImposeAffect(CharData *ch, Affect<EApply> &af, bool add_dur, bool max_dur, 
 
 		while (it != ch->affected.end()) {
 			const auto &affect = *it;
-			if (affect->type == af.type
+			// issue.affect-migration: merge by affect_type (effect identity), type fallback if none yet.
+			const bool same_id = (af.affect_type != EAffect::kUndefined)
+					? (affect->affect_type == af.affect_type) : (affect->type == af.type);
+			if (same_id
 				&& affect->location == af.location) {
 				if (add_dur) {
 					af.duration += affect->duration;
@@ -1049,8 +1056,12 @@ void affect_to_char_no_recalc(CharData *ch, const Affect<EApply> &af) {
 // Caller MUST call affect_total(ch) after all affects are applied.
 void ImposeAffectNoRecalc(CharData *ch, const Affect<EApply> &af) {
 	for (const auto &affect : ch->affected) {
+		// issue.affect-migration: re-application is keyed on affect_type (the effect identity); fall back
+		// to the legacy ESpell type only for affects that have no affect_type yet.
+		const bool same_id = (af.affect_type != EAffect::kUndefined)
+				? (affect->affect_type == af.affect_type) : (affect->type == af.type);
 		const bool same_affect = (af.location == EApply::kNone) && (affect->affect_type == af.affect_type);
-		const bool same_type = (af.location != EApply::kNone) && (affect->type == af.type) && (affect->location == af.location);
+		const bool same_type = (af.location != EApply::kNone) && same_id && (affect->location == af.location);
 		if (same_affect || same_type) {
 			if (affect->modifier < af.modifier) {
 				affect->modifier = af.modifier;
@@ -1078,7 +1089,10 @@ void ImposeAffectNoRecalc(CharData *ch, Affect<EApply> &af, bool add_dur, bool m
 
 		while (it != ch->affected.end()) {
 			const auto &affect = *it;
-			if (affect->type == af.type
+			// issue.affect-migration: merge by affect_type (effect identity), type fallback if none yet.
+			const bool same_id = (af.affect_type != EAffect::kUndefined)
+					? (affect->affect_type == af.affect_type) : (affect->type == af.type);
+			if (same_id
 				&& affect->location == af.location) {
 				if (add_dur) {
 					af.duration += affect->duration;

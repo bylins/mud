@@ -818,7 +818,10 @@ static void ApplyTalentAffect(CharData *victim, Affect<EApply> &af, int max_stac
 	const bool update_mod = IS_SET(eff_flags, to_underlying(EAffFlag::kAfUpdateMod));
 	for (auto it = victim->affected.begin(); it != victim->affected.end(); ++it) {
 		const auto existing = *it;
-		if (existing->type == af.type && existing->location == af.location) {
+		// issue.affect-migration: stacking is keyed on affect_type (effect identity), type fallback if none.
+		const bool same_id = (af.affect_type != EAffect::kUndefined)
+				? (existing->affect_type == af.affect_type) : (existing->type == af.type);
+		if (same_id && existing->location == af.location) {
 			if (accum_dur) {
 				af.duration += existing->duration;
 			} else if (update_dur) {
