@@ -127,14 +127,20 @@ ERoomAffect RoomAffectBySpell(ESpell spell_id) {
 // (1-based; index 0 = kUndefined = no flags).
 constexpr std::size_t kRoomAffectFlagTableSize = to_underlying(ERoomAffect::kCount);
 std::array<Bitvector, kRoomAffectFlagTableSize> g_room_affect_flags{};
+// issue.affect-migration: active room affects own their per-tick action here (moved off the casting
+// spell) -- a data tick_spell or a code tick_handler. The first step toward a general affect <actions>
+// block + triggers; for now the implicit trigger is "every room-affect pulse".
+std::array<ESpell, kRoomAffectFlagTableSize> g_room_affect_tick_spell{};
+std::array<std::string, kRoomAffectFlagTableSize> g_room_affect_tick_handler{};
 bool g_room_affect_flags_loaded = false;
 
 void BuildRoomAffectFlagTable(parser_wrapper::DataNode data) {
 	g_room_affect_flags.fill(0);
+	g_room_affect_tick_spell.fill(ESpell::kUndefined);
+	for (auto &h : g_room_affect_tick_handler) { h.clear(); }
 	for (auto &node : data.Children("room_affect")) {
 		const char *id = node.GetValue("id");
-		const char *flags = node.GetValue("flags");
-		if (!id || !*id || !flags || !*flags) {
+		if (!id || !*id) {
 			continue;
 		}
 		ERoomAffect affect;
@@ -144,8 +150,17 @@ void BuildRoomAffectFlagTable(parser_wrapper::DataNode data) {
 			continue;  // unknown id already reported by the validator
 		}
 		const auto idx = static_cast<std::size_t>(to_underlying(affect));
-		if (idx < kRoomAffectFlagTableSize) {
+		if (idx >= kRoomAffectFlagTableSize) {
+			continue;
+		}
+		if (const char *flags = node.GetValue("flags"); flags && *flags) {
 			g_room_affect_flags[idx] = parse::ReadAsConstantsBitvector<EAffFlag>(flags);
+		}
+		if (const char *ts = node.GetValue("tick_spell"); ts && *ts) {
+			g_room_affect_tick_spell[idx] = parse::ReadAsConstant<ESpell>(ts);
+		}
+		if (const char *th = node.GetValue("tick_handler"); th && *th) {
+			g_room_affect_tick_handler[idx] = th;
 		}
 	}
 	g_room_affect_flags_loaded = true;
@@ -182,6 +197,16 @@ Bitvector RoomAffectFlagsByType(ERoomAffect affect_type) {
 	return idx < kRoomAffectFlagTableSize ? g_room_affect_flags[idx] : Bitvector{0};
 }
 bool RoomAffectFlagsLoaded() { return g_room_affect_flags_loaded; }
+
+ESpell RoomAffectTickSpell(ERoomAffect affect_type) {
+	const auto idx = static_cast<std::size_t>(to_underlying(affect_type));
+	return idx < kRoomAffectFlagTableSize ? g_room_affect_tick_spell[idx] : ESpell::kUndefined;
+}
+const std::string &RoomAffectTickHandler(ERoomAffect affect_type) {
+	static const std::string kEmpty;
+	const auto idx = static_cast<std::size_t>(to_underlying(affect_type));
+	return idx < kRoomAffectFlagTableSize ? g_room_affect_tick_handler[idx] : kEmpty;
+}
 
 void RoomAffectsLoader::Load(parser_wrapper::DataNode data) { ValidateRoomAffectRegistry(data); BuildRoomAffectFlagTable(data); }
 void RoomAffectsLoader::Reload(parser_wrapper::DataNode data) { ValidateRoomAffectRegistry(data); BuildRoomAffectFlagTable(data); }
@@ -422,13 +447,12 @@ static void EmitRoomTickMessage(CharData *ch, ESpell impose, int tick) {
 // kMagCasterAnywhere/kMagCasterInworldDelay when ch == nullptr (no caster to source the cast).
 static bool RunRoomTick(RoomData *room, CharData *ch, const Affect<ERoomApply>::shared_ptr &aff) {
 	const ESpell impose = aff->type;
-	if (!MUD::Spell(impose).actions.Contains(talents_actions::EAction::kAffect)) {
-		return false;
-	}
-	const auto &affect = MUD::Spell(impose).actions.GetAffect();
+	const ERoomAffect affect_type = aff->affect_type;
+	// issue.affect-migration: the per-tick action is owned by the AFFECT (room_affects.xml), not the
+	// casting spell -- read by affect_type. impose is kept only for the tick narration + error text.
 	// 1. Code tick handler named by string (manual-cast mechanism for room ticks): the handler
 	//    reads the affect directly (e.g. its duration). Used for ticks the data can't express.
-	const std::string &handler = affect.GetTickHandler();
+	const std::string &handler = RoomAffectTickHandler(affect_type);
 	if (!handler.empty()) {
 		const auto it = kRoomTickHandlers.find(handler);
 		if (it == kRoomTickHandlers.end()) {
@@ -442,7 +466,7 @@ static bool RunRoomTick(RoomData *room, CharData *ch, const Affect<ERoomApply>::
 		return true;
 	}
 	// 2. Data-driven tick_spell.
-	const ESpell tick = affect.GetTickSpell();
+	const ESpell tick = RoomAffectTickSpell(affect_type);
 	if (tick == ESpell::kUndefined) {
 		return false;
 	}

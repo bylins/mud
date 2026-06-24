@@ -96,6 +96,10 @@ RoomAffectActor ClassifyRoomAffectAccess(CharData *ch, long caster_id);
 // issue.affect-migration: per-ERoomAffect behavior flags from room_affects.xml (0 if none) + load gate.
 [[nodiscard]] Bitvector RoomAffectFlagsByType(ERoomAffect affect_type);
 [[nodiscard]] bool RoomAffectFlagsLoaded();
+// issue.affect-migration: the active room affect's per-tick action (data spell / code handler),
+// owned by room_affects.xml. kUndefined / empty when the affect has no tick action.
+[[nodiscard]] ESpell RoomAffectTickSpell(ERoomAffect affect_type);
+[[nodiscard]] const std::string &RoomAffectTickHandler(ERoomAffect affect_type);
 
 } // namespace room_spells
 

@@ -452,11 +452,6 @@ class TalentAffect : public IAction {
 	void Print(CharData *ch, std::ostringstream &buffer) const override;
 
 	[[nodiscard]] ESpell GetSpell() const { return spell_; }
-	// Room-affect per-tick spell (a kService spell whose actions run each tick); kUndefined = none.
-	[[nodiscard]] ESpell GetTickSpell() const { return tick_spell_; }
-	// Room-affect per-tick code handler named by string (the manual-cast mechanism for ticks the
-	// data can't express, e.g. weather); empty = none. Resolved via the room tick-handler registry.
-	[[nodiscard]] const std::string &GetTickHandler() const { return tick_handler_; }
 	[[nodiscard]] ESaving GetSaving() const { return saving_; }
 	[[nodiscard]] EResist GetResist() const { return resist_; }
 	[[nodiscard]] int GetProb() const { return prob_; }
@@ -486,8 +481,6 @@ class TalentAffect : public IAction {
 
  private:
 	ESpell spell_{static_cast<ESpell>(0)};
-	ESpell tick_spell_{ESpell::kUndefined};
-	std::string tick_handler_;
 	ESaving saving_{ESaving::kReflex};
 	EResist resist_{EResist::kFire};
 	int prob_{100};                         // percent chance the affect block fires (default always)

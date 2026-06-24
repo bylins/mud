@@ -3962,7 +3962,7 @@
 		<flags val="kMagNeedControl|kMagRoom|kMagCasterInroom" />
 		<talent_actions>
 			<action>
-				<affects type="kMeteorStorm" saving="kNone" resist="kVitality" tick_spell="kThunderStone">
+				<affects type="kMeteorStorm" saving="kNone" resist="kVitality">
 					<duration base="3" skill_divisor="0" min="0" max="0" />
 				</affects>
 			</action>
@@ -4959,7 +4959,7 @@
 		<flags val="kMagNeedControl|kMagRoom|kMagCasterInroom" />
 		<talent_actions>
 			<action>
-				<affects type="kDeadlyFog" saving="kNone" resist="kVitality" tick_spell="kDeadlyFogTick">
+				<affects type="kDeadlyFog" saving="kNone" resist="kVitality">
 					<duration base="8" skill_divisor="0" min="0" max="0" />
 				</affects>
 			</action>
@@ -5018,7 +5018,7 @@
 		<flags val="kMagNeedControl|kMagRoom|kMagCasterInroom" />
 		<talent_actions>
 			<action>
-				<affects type="kThunderstorm" saving="kNone" resist="kVitality" tick_handler="HandleThunderstormTick">
+				<affects type="kThunderstorm" saving="kNone" resist="kVitality">
 					<duration base="7" skill_divisor="0" min="0" max="0" />
 				</affects>
 			</action>
@@ -6060,7 +6060,7 @@
 						<room_flags val="kForMono|kForPoly" />
 					</blocking>
 				</target_conditions>
-				<affects type="kBlackTentacles" saving="kNone" resist="kVitality" tick_spell="kDamageSerious">
+				<affects type="kBlackTentacles" saving="kNone" resist="kVitality">
 					<duration base="1" skill_divisor="18" min="0" max="0" />
 				</affects>
 			</action>
