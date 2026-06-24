@@ -122,6 +122,11 @@ bool IsAffectedWithCasterId(CharData *ch, CharData *vict, EAffect affect_type);
 // innate proto flags. EAffect-keyed (decoupled from the casting spell); the successor to
 // IsAffectedBySpell for "does ch currently have this effect" queries.
 bool IsAffected(CharData *ch, EAffect affect_type);
+// Like IsAffected but ALSO counts failed-attempt markers (affects carrying kAfFailed): true if ch
+// has ANY affect of this affect_type -- a working effect OR a lingering failed attempt. Use for the
+// "already attempting" anti-spam checks (hide/camouflage): a failed try must still block a retry,
+// and the player must not be able to tell a real effect from a failed one.
+bool IsAffectedOrAttempting(CharData *ch, EAffect affect_type);
 void ImposeAffect(CharData *ch, const Affect<EApply> &af);
 void ImposeAffect(CharData *ch, Affect<EApply> &af, bool add_dur, bool max_dur, bool add_mod, bool max_mod);
 void ImposeAffectNoRecalc(CharData *ch, const Affect<EApply> &af);

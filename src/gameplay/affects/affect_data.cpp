@@ -1304,6 +1304,15 @@ bool IsAffected(CharData *ch, EAffect affect_type) {
 	return false;
 }
 
+bool IsAffectedOrAttempting(CharData *ch, EAffect affect_type) {
+	for (const auto &affect : ch->affected) {
+		if (affect->affect_type == affect_type) {
+			return true;
+		}
+	}
+	return false;
+}
+
 bool IsNegativeApply(EApply location) {
 	for (auto elem : apply_negative) {
 		if (location == elem.location)

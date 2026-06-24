@@ -25,9 +25,7 @@ void do_hide(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	RemoveAffectFromChar(ch, ESpell::kHide);
-
-	if (IsAffectedBySpell(ch, ESpell::kHide)) {
+	if (IsAffectedOrAttempting(ch, EAffect::kHide)) {
 		SendMsgToChar("Вы уже пытаетесь спрятаться.\r\n", ch);
 		return;
 	}

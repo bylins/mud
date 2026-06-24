@@ -41,7 +41,7 @@ void do_camouflage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*
 		RemoveAffectFromChar(ch, ESpell::kCamouflage);
 	}
 
-	if (IsAffectedBySpell(ch, ESpell::kCamouflage)) {
+	if (IsAffectedOrAttempting(ch, EAffect::kDisguise)) {
 		SendMsgToChar("Вы уже маскируетесь.\r\n", ch);
 		return;
 	}
