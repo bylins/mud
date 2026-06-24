@@ -626,10 +626,9 @@ ECastResult CastRoomAffect(CastContext &ctx) {
 		af[0].type = spell_id;
 		af[0].affect_type = RoomAffectBySpell(spell_id);
 		af[0].caster_id = ch->get_uid();
-		// issue.affect-migration R3: flags come from room_affects.xml by affect_type (so the update-gate
-		// below reads the right kAfUpdateDuration/kAfUpdateMod); fall back to the spell <flags> until loaded.
-		af[0].battleflag = (RoomAffectFlagsLoaded() && af[0].affect_type != ERoomAffect::kUndefined)
-				? RoomAffectFlagsByType(af[0].affect_type) : talent.GetFlags();
+		// issue.affect-migration: flags come from room_affects.xml by affect_type (so the update-gate
+		// below reads the right kAfUpdateDuration/kAfUpdateMod).
+		af[0].battleflag = RoomAffectFlagsByType(af[0].affect_type);
 		const ESkill dur_skill = MUD::Spell(spell_id).GetPotencyRoll().GetBaseSkill();
 		int skill_bonus = (talent.GetDurationSkillDivisor() > 0 && dur_skill != ESkill::kUndefined)
 			? CalcNoviceSkillBonus(ch, dur_skill, talent.GetDurationSkillDivisor()) : 0;
@@ -902,12 +901,8 @@ void affect_to_room(RoomData *room, const Affect<ERoomApply> &af) {
 	// affect_type; the caller contributes only the per-instance kAfFailed bit. Guarded on the table
 	// being loaded (pre-cfg boot keeps caller flags); kUndefined room affects (no row) keep theirs.
 	if (RoomAffectFlagsLoaded() && af.affect_type != ERoomAffect::kUndefined) {
-		const Bitvector sourced = RoomAffectFlagsByType(af.affect_type);
-		if (af.battleflag & ~sourced & ~static_cast<Bitvector>(kAfFailed)) {
-			log("SYSERR: issue.affect-migration: room affect_type %d battleflag 0x%lx has bits absent from room_affects.xml 0x%lx",
-				to_underlying(af.affect_type), (unsigned long) af.battleflag, (unsigned long) sourced);
-		}
-		new_affect->battleflag = sourced | (af.battleflag & static_cast<Bitvector>(kAfFailed));
+		new_affect->battleflag = RoomAffectFlagsByType(af.affect_type)
+				| (af.battleflag & static_cast<Bitvector>(kAfFailed));
 	}
 
 	room->affected.push_front(new_affect);

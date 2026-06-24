@@ -578,8 +578,6 @@ TalentAffect::TalentAffect(parser_wrapper::DataNode &node) {
 			dur_max_ = parse::ReadAsInt(child.GetValue("max"));
 			dur_base_ = parse::ReadAsInt(child.GetValue("base"));
 			dur_skill_divisor_ = parse::ReadAsInt(child.GetValue("skill_divisor"));
-		} else if (strcmp(name, "flags") == 0) {
-			flags_ = parse::ReadAsConstantsBitvector<EAffFlag>(child.GetValue("val"));
 		} else if (strcmp(name, "apply") == 0) {
 			Apply apply;
 			apply.id = parse::ReadAsConstant<EAffect>(child.GetValue("id"));
@@ -632,7 +630,6 @@ void TalentAffect::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 		   << " Saving: " << kColorGrn << NAME_BY_ITEM<ESaving>(saving_) << kColorNrm
 		   << " Resist: " << kColorGrn << NAME_BY_ITEM<EResist>(resist_) << kColorNrm
 		   << " Prob: " << kColorGrn << prob_ << kColorNrm
-		   << " Flags: " << kColorGrn << flags_ << kColorNrm
 		   << " potency_weight=" << kColorGrn << potency_weight_ << kColorNrm
 		   << (tick_spell_ != ESpell::kUndefined ? " tick_spell=" : "") << kColorGrn
 		   << (tick_spell_ != ESpell::kUndefined ? NAME_BY_ITEM<ESpell>(tick_spell_) : "") << kColorNrm

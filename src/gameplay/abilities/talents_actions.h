@@ -460,7 +460,6 @@ class TalentAffect : public IAction {
 	[[nodiscard]] ESaving GetSaving() const { return saving_; }
 	[[nodiscard]] EResist GetResist() const { return resist_; }
 	[[nodiscard]] int GetProb() const { return prob_; }
-	[[nodiscard]] Bitvector GetFlags() const { return flags_; }
 	// Duration parameters (issue.calc-duration): base (flat duration in hours, PC unit-converted to
 	// ticks) plus a skill-scaled bonus = min(skill, kNoviceSkillThreshold)/skill_divisor, optionally
 	// clamped to [dur_min_, dur_max_] (0 means no clamp on that side, OLD-style). The "skill" is
@@ -492,7 +491,6 @@ class TalentAffect : public IAction {
 	ESaving saving_{ESaving::kReflex};
 	EResist resist_{EResist::kFire};
 	int prob_{100};                         // percent chance the affect block fires (default always)
-	Bitvector flags_{0};
 	int dur_base_{0};
 	int dur_skill_divisor_{0};
 	int dur_min_{0};

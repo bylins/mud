@@ -810,11 +810,9 @@ EStageResult ProcessMatComponents(CharData *caster, CharData *victim, ESpell spe
 // affect's duration, kAfUpdateDuration refreshes it to the longer value, and
 // kAfUpdateMod replaces the modifier only when the new magnitude is larger. The
 // caller runs affect_total() afterwards.
-static void ApplyTalentAffect(CharData *victim, Affect<EApply> &af, Bitvector flags, int max_stacks) {
-	// issue.affect-migration Phase 2: stack/update behavior sourced from affects.xml by affect_type
-	// (consistent with affect_to_char); falls back to the spell's <flags> until the table is loaded.
-	const Bitvector eff_flags = (affects::AffectFlagsLoaded() && af.affect_type != EAffect::kUndefined)
-			? affects::AffectFlagsByType(af.affect_type) : flags;
+static void ApplyTalentAffect(CharData *victim, Affect<EApply> &af, int max_stacks) {
+	// issue.affect-migration: stack/update behavior comes from affects.xml by affect_type.
+	const Bitvector eff_flags = affects::AffectFlagsByType(af.affect_type);
 	const bool accum_dur = IS_SET(eff_flags, to_underlying(EAffFlag::kAfAccumulateDuration));
 	const bool update_dur = IS_SET(eff_flags, to_underlying(EAffFlag::kAfUpdateDuration));
 	const bool update_mod = IS_SET(eff_flags, to_underlying(EAffFlag::kAfUpdateMod));
@@ -888,17 +886,12 @@ static bool TryApplyAffectTalent(CharData *ch, CharData *victim, ESpell spell_id
 			MUD::Spell(spell_id).GetCName(), GET_NAME(victim));
 		return false;
 	}
-	const Bitvector flags = talent.GetFlags();
-	// issue.affect-migration Phase 3: the re-apply gate reads update/accumulate behavior from
-	// affects.xml (per affect_type), not the spell's <flags>. Falls back to the spell flags until the
-	// table is loaded (tests / pre-cfg boot). This was the last char-affect read of the spell flags.
-	Bitvector reapply_flags = flags;
-	if (affects::AffectFlagsLoaded()) {
-		reapply_flags = 0;
-		for (const auto &apply : talent.GetApplies()) {
-			if (apply.id != EAffect::kUndefined) {
-				reapply_flags |= affects::AffectFlagsByType(apply.id);
-			}
+	// issue.affect-migration: the re-apply gate reads update/accumulate behavior from affects.xml
+	// (per affect_type); the casting spell no longer carries affect flags.
+	Bitvector reapply_flags = 0;
+	for (const auto &apply : talent.GetApplies()) {
+		if (apply.id != EAffect::kUndefined) {
+			reapply_flags |= affects::AffectFlagsByType(apply.id);
 		}
 	}
 	const bool can_reapply = IS_SET(reapply_flags, to_underlying(EAffFlag::kAfAccumulateDuration))
@@ -941,7 +934,6 @@ static bool TryApplyAffectTalent(CharData *ch, CharData *victim, ESpell spell_id
 		// CallMagicToRoom computes the room-affect modifier the exact same way.
 		const int raw_mod = ComputeApplyModifier(apply, competence, potency);
 		taf.modifier = static_cast<int>(raw_mod * area_coeff);
-		taf.battleflag = flags;
 		taf.caster_id = ch->get_uid();
 		// Stored potency is the cast potency scaled by the <affects potency_weight=>
 		// attribute (default 1.0 = no change). Lets
@@ -951,7 +943,7 @@ static bool TryApplyAffectTalent(CharData *ch, CharData *victim, ESpell spell_id
 		taf.debuff = cast_debuff;
 		// apply.stack is the max stack count: re-applying up to the cap adds a stack and
 		// accumulates the modifier (see ApplyTalentAffect).
-		ApplyTalentAffect(victim, taf, flags, apply.stack);
+		ApplyTalentAffect(victim, taf, apply.stack);
 		if (tc) {
 			spell_trace::Line(ch, victim,
 				"&C  apply %s%s: min %.1f dw %.1f alpha %.1f beta %.1f dice %d C %.2f "
