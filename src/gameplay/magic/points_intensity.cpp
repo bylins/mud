@@ -87,6 +87,18 @@ void PointsIntensity::Reload(const parser_wrapper::DataNode &node_in) {
 		node.GoToParent();
 	}
 }
+const std::vector<std::pair<std::string, std::string>> PointsIntensity::ShowHelpDamage() const {
+	std::pair<std::string, std::string> dam;
+	std::vector<std::pair<std::string, std::string>>  out_damage;
+	int min_val = 1;
+	for (const auto &g : reverse(categories_[static_cast<size_t>(ECategory::kDamage)].improve)) {
+		dam.first = g.text;
+		dam.second = std::to_string(min_val) + ".." + std::to_string(g.percent);
+		out_damage.push_back(dam);
+		min_val = g.percent + 1;
+	}
+	return out_damage;
+}
 
 const std::string &PointsIntensity::Resolve(ECategory category, int percent) const {
 	static const std::string kEmpty;
@@ -105,8 +117,8 @@ const std::string &PointsIntensity::Resolve(ECategory category, int percent) con
 	// An input below the weakest threshold returns an empty string -- callers
 	// (CastToPoints) treat that as "no narration this category."
 	const auto &table = (percent >= 0) ? cat.improve : cat.degrade;
-	for (const auto &g : table) {
-		if (g.percent <= percent) {
+	for (const auto &g : reverse(table)) {
+		if (percent <= g.percent) {
 			return g.text;
 		}
 	}
