@@ -889,8 +889,20 @@ static bool TryApplyAffectTalent(CharData *ch, CharData *victim, ESpell spell_id
 		return false;
 	}
 	const Bitvector flags = talent.GetFlags();
-	const bool can_reapply = IS_SET(flags, to_underlying(EAffFlag::kAfAccumulateDuration))
-		|| IS_SET(flags, to_underlying(EAffFlag::kAfUpdateDuration));
+	// issue.affect-migration Phase 3: the re-apply gate reads update/accumulate behavior from
+	// affects.xml (per affect_type), not the spell's <flags>. Falls back to the spell flags until the
+	// table is loaded (tests / pre-cfg boot). This was the last char-affect read of the spell flags.
+	Bitvector reapply_flags = flags;
+	if (affects::AffectFlagsLoaded()) {
+		reapply_flags = 0;
+		for (const auto &apply : talent.GetApplies()) {
+			if (apply.id != EAffect::kUndefined) {
+				reapply_flags |= affects::AffectFlagsByType(apply.id);
+			}
+		}
+	}
+	const bool can_reapply = IS_SET(reapply_flags, to_underlying(EAffFlag::kAfAccumulateDuration))
+		|| IS_SET(reapply_flags, to_underlying(EAffFlag::kAfUpdateDuration));
 	if (ch != victim && IsAffectedBySpell(victim, talent.GetSpell()) && !can_reapply) {
 		if (ch->in_room == victim->in_room) {
 			SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
