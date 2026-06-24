@@ -613,6 +613,11 @@ void RemoveAffectFromCharAndRecalculate(CharData *ch, ESpell spell_id) {
 
 // Call affect_remove with every spell of spelltype "skill"
 void RemoveAffectFromChar(CharData *ch, ESpell spell_id) {
+	// issue.affect-migration safety: never remove "all kUndefined-type affects" -- migrated affects
+	// share af.type=kUndefined; identify them by affect_type via the EAffect overload instead.
+	if (spell_id == ESpell::kUndefined) {
+		return;
+	}
 	std::list<std::shared_ptr<Affect<EApply>>>::iterator it  = ch->affected.begin();
 
 	while (it != ch->affected.end()) {
