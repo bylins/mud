@@ -1004,6 +1004,17 @@ void ImposeAffect(CharData *ch, Affect<EApply> &af, bool add_dur, bool max_dur, 
    Automatically sets appropriate bits and apply's */
 void affect_to_char(CharData *ch, const Affect<EApply> &af) {
 	Affect<EApply>::shared_ptr affected_alloc(new Affect<EApply>(af));
+	// issue.affect-migration Phase 2: effect behavior flags are sourced from affects.xml by
+	// affect_type; the caller only contributes the per-instance kAfFailed bit. Guarded on the table
+	// being loaded (unit tests / pre-cfg boot keep caller flags); kUndefined affects have no row.
+	if (affects::AffectFlagsLoaded() && af.affect_type != EAffect::kUndefined) {
+		const Bitvector sourced = affects::AffectFlagsByType(af.affect_type);
+		if (af.battleflag & ~sourced & ~static_cast<Bitvector>(kAfFailed)) {
+			log("SYSERR: issue.affect-migration: affect_type %d battleflag 0x%lx has bits absent from affects.xml 0x%lx",
+				to_underlying(af.affect_type), (unsigned long) af.battleflag, (unsigned long) sourced);
+		}
+		affected_alloc->battleflag = sourced | (af.battleflag & static_cast<Bitvector>(kAfFailed));
+	}
 
 	if (ch->IsNpc()) {
 		affected_mobs.insert(ch);
@@ -1021,6 +1032,17 @@ void affect_to_char(CharData *ch, const Affect<EApply> &af) {
 // Caller MUST call affect_total(ch) after all affects are applied.
 void affect_to_char_no_recalc(CharData *ch, const Affect<EApply> &af) {
 	Affect<EApply>::shared_ptr affected_alloc(new Affect<EApply>(af));
+	// issue.affect-migration Phase 2: effect behavior flags are sourced from affects.xml by
+	// affect_type; the caller only contributes the per-instance kAfFailed bit. Guarded on the table
+	// being loaded (unit tests / pre-cfg boot keep caller flags); kUndefined affects have no row.
+	if (affects::AffectFlagsLoaded() && af.affect_type != EAffect::kUndefined) {
+		const Bitvector sourced = affects::AffectFlagsByType(af.affect_type);
+		if (af.battleflag & ~sourced & ~static_cast<Bitvector>(kAfFailed)) {
+			log("SYSERR: issue.affect-migration: affect_type %d battleflag 0x%lx has bits absent from affects.xml 0x%lx",
+				to_underlying(af.affect_type), (unsigned long) af.battleflag, (unsigned long) sourced);
+		}
+		affected_alloc->battleflag = sourced | (af.battleflag & static_cast<Bitvector>(kAfFailed));
+	}
 
 	if (ch->IsNpc()) {
 		affected_mobs.insert(ch);

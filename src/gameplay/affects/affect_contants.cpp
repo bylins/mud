@@ -606,6 +606,7 @@ msg_container::MsgContainer<EAffect, affects::EAffectMsgType> &AffectMsgContaine
 // (EAffect is 1-based; index 0 = kUndefined = no flags).
 constexpr std::size_t kAffectFlagTableSize = 131;  // EAffect max (kPietas=130) + 1
 std::array<Bitvector, kAffectFlagTableSize> g_affect_flags{};
+bool g_affect_flags_loaded = false;
 
 void BuildAffectFlagTable(parser_wrapper::DataNode data) {
 	g_affect_flags.fill(0);
@@ -626,6 +627,7 @@ void BuildAffectFlagTable(parser_wrapper::DataNode data) {
 			g_affect_flags[idx] = parse::ReadAsConstantsBitvector<EAffFlag>(flags);
 		}
 	}
+	g_affect_flags_loaded = true;
 }
 
 // affects.xml is the affect registry (id-only for now; grows per-affect handler/action data later).
@@ -724,6 +726,10 @@ Bitvector AffectFlagsByType(EAffect affect_type) {
 	const auto idx = static_cast<std::size_t>(to_underlying(affect_type));
 	return idx < kAffectFlagTableSize ? g_affect_flags[idx] : Bitvector{0};
 }
+
+// True once affects.xml flags have been loaded; before that (unit tests, early boot) callers keep
+// their own battleflag instead of sourcing from the (empty) table.
+bool AffectFlagsLoaded() { return g_affect_flags_loaded; }
 
 // The flat bit index of an active affect back to its EAffect (the inverse of the 1-based
 // flag_index_mapping<EAffect>: enum value = index + 1). kUndefined if it is not a known affect.

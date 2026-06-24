@@ -64,6 +64,7 @@ enum class EAffectMsgType {
 // Direct affect-system queries (replacing the legacy affected_bits[] projection):
 [[nodiscard]] EAffect AffectByIndex(std::size_t flat_index);   // set-bit index -> EAffect
 [[nodiscard]] Bitvector AffectFlagsByType(EAffect affect_type);   // issue.affect-migration: per-affect behavior flags from affects.xml (0 if none)
+[[nodiscard]] bool AffectFlagsLoaded();   // issue.affect-migration: affects.xml flags loaded yet?
 [[nodiscard]] std::string DescribeActive(const BitsetFlags<EAffect> &flags, const char *div);
 [[nodiscard]] bool FindByShortDesc(const std::string &name, EAffect &out);
 [[nodiscard]] bool MessagesLoaded();   // affect_messages cfg loaded? (boot guard)

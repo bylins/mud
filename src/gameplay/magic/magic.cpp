@@ -811,9 +811,13 @@ EStageResult ProcessMatComponents(CharData *caster, CharData *victim, ESpell spe
 // kAfUpdateMod replaces the modifier only when the new magnitude is larger. The
 // caller runs affect_total() afterwards.
 static void ApplyTalentAffect(CharData *victim, Affect<EApply> &af, Bitvector flags, int max_stacks) {
-	const bool accum_dur = IS_SET(flags, to_underlying(EAffFlag::kAfAccumulateDuration));
-	const bool update_dur = IS_SET(flags, to_underlying(EAffFlag::kAfUpdateDuration));
-	const bool update_mod = IS_SET(flags, to_underlying(EAffFlag::kAfUpdateMod));
+	// issue.affect-migration Phase 2: stack/update behavior sourced from affects.xml by affect_type
+	// (consistent with affect_to_char); falls back to the spell's <flags> until the table is loaded.
+	const Bitvector eff_flags = (affects::AffectFlagsLoaded() && af.affect_type != EAffect::kUndefined)
+			? affects::AffectFlagsByType(af.affect_type) : flags;
+	const bool accum_dur = IS_SET(eff_flags, to_underlying(EAffFlag::kAfAccumulateDuration));
+	const bool update_dur = IS_SET(eff_flags, to_underlying(EAffFlag::kAfUpdateDuration));
+	const bool update_mod = IS_SET(eff_flags, to_underlying(EAffFlag::kAfUpdateMod));
 	for (auto it = victim->affected.begin(); it != victim->affected.end(); ++it) {
 		const auto existing = *it;
 		if (existing->type == af.type && existing->location == af.location) {
