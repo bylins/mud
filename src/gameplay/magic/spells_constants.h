@@ -123,7 +123,7 @@ enum class ESpell {
 	kFullFeed = 103,
 	kColdWind = 104,
 	kBattle = 105,
-	kHaemorrhage = 106,
+//	kHaemorrhage = 106,	// UNUSED (issue.affect-migration): the bleeding state is identified by its EAffect::kHaemorrhage affect; af.type was redundant; value 106 retired.
 	kCourage = 107,
 	kWaterbreath = 108,
 	kSlowdown = 109,

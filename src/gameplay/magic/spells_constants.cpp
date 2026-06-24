@@ -136,7 +136,6 @@ void init_ESpell_ITEM_NAMES() {
 	ESpell_name_by_value[ESpell::kFullFeed] = "kFullFeed";
 	ESpell_name_by_value[ESpell::kColdWind] = "kColdWind";
 	ESpell_name_by_value[ESpell::kBattle] = "kBattle";
-	ESpell_name_by_value[ESpell::kHaemorrhage] = "kHaemorrhage";
 	ESpell_name_by_value[ESpell::kCourage] = "kCourage";
 	ESpell_name_by_value[ESpell::kWaterbreath] = "kWaterbreath";
 	ESpell_name_by_value[ESpell::kSlowdown] = "kSlowdown";
