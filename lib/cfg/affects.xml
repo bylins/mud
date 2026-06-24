@@ -41,9 +41,9 @@
 	<affect id="kDetectPoison" flags="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
 	<affect id="kDrunked"/>
 	<affect id="kAbstinent" flags="kAfCurable"/>
-	<affect id="kStopRight" flags="kAfBattledec|kAfPulsedec"/>
-	<affect id="kStopLeft" flags="kAfBattledec|kAfPulsedec"/>
-	<affect id="kStopFight" flags="kAfBattledec|kAfPulsedec"/>
+	<affect id="kStopRight" flags="kAfBattledec|kAfPulsedec|kAfCurable"/>
+	<affect id="kStopLeft" flags="kAfBattledec|kAfPulsedec|kAfCurable"/>
+	<affect id="kStopFight" flags="kAfBattledec|kAfPulsedec|kAfCurable"/>
 	<affect id="kHaemorrhage" flags="kAfCurable"/>
 	<affect id="kDisguise"/>
 	<affect id="kWaterBreath" flags="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
@@ -87,11 +87,11 @@
 	<affect id="kMemorizeSpells" flags="kAfDeadkeep|kAfPulsedec"/>
 	<affect id="kNoobRegen"/>
 	<affect id="kVampirism" flags="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
-	<affect id="kLacerations"/>
+	<affect id="kLacerations" flags="kAfBattledec|kAfCurable"/>
 	<affect id="kCommander"/>
 	<affect id="kEarthAura" flags="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
 	<affect id="kCloudly" flags="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
-	<affect id="kConfused"/>
+	<affect id="kConfused" flags="kAfSameTime"/>
 	<affect id="kNoCharge"/>
 	<affect id="kInjuredLimb" flags="kAfBattledec"/>
 	<affect id="kFrenzy" flags="kAfPulsedec"/>

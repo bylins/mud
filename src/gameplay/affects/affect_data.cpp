@@ -178,9 +178,8 @@ std::array<EAffect, 3> char_stealth_aff =
 template<>
 bool Affect<EApply>::removable() const {
 	// issue.affect-migration: curability is the kAfCurable battleflag (single source of truth),
-	// replacing the hardcoded ESpell list. kBattle affects aren't flag-tagged yet (no single
-	// affect_type), so they keep a transitional type check until the battle-marker rework.
-	return IS_SET(battleflag, kAfCurable) || type == ESpell::kBattle;
+	// replacing the hardcoded ESpell list.
+	return IS_SET(battleflag, kAfCurable);
 }
 // 
 // для мобов раз в 10 пульсов
@@ -311,9 +310,11 @@ void player_affect_update() {
 							|| (*next_affect_i)->duration > 0) {
 						//чтобы не выдавалось, "что теперь вы можете сражаться",
 						//хотя на самом деле не можете :)
-						if (!(affect->type == ESpell::kMagicBattle
+						// issue.affect-migration: suppress the "you can fight again" line while the OTHER stun
+						// still holds; keyed on the stun affect_type now (ability-to-act), not the kBattle marker.
+						if (!(affect->affect_type == EAffect::kMagicStopFight
 								&& AFF_FLAGGED(i, EAffect::kStopFight))) {
-							if (!(affect->type == ESpell::kBattle
+							if (!(affect->affect_type == EAffect::kStopFight
 									&& AFF_FLAGGED(i, EAffect::kMagicStopFight))) {
 								ShowAffExpiredMsg(affect->type, affect->affect_type, i.get());
 							}
@@ -344,7 +345,7 @@ void player_affect_update() {
 					if (ROOM_FLAGGED(i->in_room, ERoomFlag::kDominationArena)) {
 						utils::CExecutionTimer domination_timer;
 						++profile.counters[static_cast<std::size_t>(Counter::kDominationAffects)];
-						if (IS_SET(affect->battleflag, kAfCurable) || affect->type == ESpell::kBattle) {
+						if (IS_SET(affect->battleflag, kAfCurable)) {
 							affect->duration -= 15;
 						}
 						if (IS_SET(affect->battleflag, kAfPulsedec))
@@ -657,13 +658,12 @@ void RemoveAffectFromCharAndRecalculate(CharData *ch, EAffect affect_type) {
 }
 
 // issue.affect-migration: remove every curable affect (kAfCurable). Replaces the old
-// GetRemovableSpellId sweep. kBattle affects aren't flag-tagged yet, so include them by type
-// transitionally until the battle-marker rework.
+// GetRemovableSpellId sweep.
 void RemoveCurableAffects(CharData *ch) {
 	auto it = ch->affected.begin();
 	while (it != ch->affected.end()) {
 		const auto af = *it;
-		if (IS_SET(af->battleflag, kAfCurable) || af->type == ESpell::kBattle) {
+		if (IS_SET(af->battleflag, kAfCurable)) {
 			EmitAffectEvent("affect_removed", ch, *af);
 			it = RemoveAffect(ch, it);
 		} else {
