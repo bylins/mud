@@ -60,7 +60,7 @@ CharData::char_affects_list_t::iterator RemoveAffect(CharData *ch,
 		return ch->affected.end();
 	}
 	const auto af = *affect_i;
-	if (af->type == ESpell::kAbstinent) {
+	if (af->affect_type == EAffect::kAbstinent) {
 		if (ch->player_specials) {
 			GET_DRUNK_STATE(ch) = GET_COND(ch, condition::kDrunk) = std::min(GET_COND(ch, condition::kDrunk), kDrunked - 1);
 		} else {

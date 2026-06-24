@@ -48,7 +48,7 @@ void DoRestore(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		update_pos(vict);
 		RemoveAffectFromChar(vict, EAffect::kDrunked);
 		GET_DRUNK_STATE(vict) = GET_COND(vict, condition::kDrunk) = 0;
-		RemoveAffectFromChar(vict, ESpell::kAbstinent);
+		RemoveAffectFromChar(vict, EAffect::kAbstinent);
 
 		//сброс таймеров скиллов и фитов
 		ch->timed_skill.clear();

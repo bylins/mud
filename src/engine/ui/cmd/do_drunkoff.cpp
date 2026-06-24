@@ -125,19 +125,19 @@ void do_drunkoff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		act(buf, false, ch, obj, 0, kToChar);
 		duration = std::max(1, amount / 3);
 		Affect<EApply> af[3];
-		af[0].type = ESpell::kAbstinent;
+		af[0].type = ESpell::kUndefined;
 		af[0].duration = CalcDuration(ch, ch, ESkill::kHangovering, duration, 15, 0, 0);
 		af[0].modifier = 0;
 		af[0].location = EApply::kDamroll;
 		af[0].affect_type = EAffect::kAbstinent;
 		af[0].battleflag = kAfCurable;
-		af[1].type = ESpell::kAbstinent;
+		af[1].type = ESpell::kUndefined;
 		af[1].duration = CalcDuration(ch, ch, ESkill::kHangovering, duration, 15, 0, 0);
 		af[1].modifier = 0;
 		af[1].location = EApply::kHitroll;
 		af[1].affect_type = EAffect::kAbstinent;
 		af[1].battleflag = kAfCurable;
-		af[2].type = ESpell::kAbstinent;
+		af[2].type = ESpell::kUndefined;
 		af[2].duration = CalcDuration(ch, ch, ESkill::kHangovering, duration, 15, 0, 0);
 		af[2].modifier = 0;
 		af[2].location = EApply::kAc;
@@ -166,7 +166,7 @@ void do_drunkoff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				drinks[GET_OBJ_VAL(obj, 2)]);
 		act(buf, false, ch, obj, 0, kToChar);
 		act("$n похмелил$u и расцвел$g прям на глазах.", false, ch, nullptr, nullptr, kToRoom);
-		RemoveAffectFromCharAndRecalculate(ch, ESpell::kAbstinent);
+		RemoveAffectFromCharAndRecalculate(ch, EAffect::kAbstinent);
 	}
 }
 

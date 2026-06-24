@@ -119,7 +119,7 @@ enum class ESpell {
 	kHide = 99,
 	kSneak = 100,
 //	kDrunked = 101,	// UNUSED (issue.affect-migration): the "drunk" state is identified by its EAffect::kDrunked affect; af.type was redundant; value 101 retired.
-	kAbstinent = 102,
+//	kAbstinent = 102,	// UNUSED (issue.affect-migration): the "hangover" state is identified by its EAffect::kAbstinent affect; af.type was redundant; value 102 retired.
 	kFullFeed = 103,
 	kColdWind = 104,
 	kBattle = 105,
