@@ -181,7 +181,7 @@ enum class ESpell {
 	kBurdenOfTime = 160,
 	kGroupRefresh = 161,
 	kPeaceful = 162,
-	kMagicBattle = 163,
+//	kMagicBattle = 163,	// UNUSED (issue.affect-migration): the magic-stun marker is gone; the stun is identified by EAffect::kMagicStopFight; value 163 retired.
 	kBerserk = 164,
 	kStoneBones = 165,
 	kRoomLight = 166,

@@ -3793,7 +3793,7 @@
 					<targets skill_divisor="30" dice_size="2" min="5" max="20" />
 					<distribution type="kStepped" decay="0.05" free_targets="3" />
 				</area>
-				<affects type="kMagicBattle" saving="kNone" resist="kWater">
+				<affects type="kUndefined" saving="kNone" resist="kWater">
 					<lag base="2" bonus_divisor="-1" />
 					<duration base="2" skill_divisor="0" min="0" max="0" />
 					<flags val="kAfBattledec|kAfPulsedec|kAfDispellable|kAfCurable" />
@@ -4309,7 +4309,7 @@
 					<targets skill_divisor="35" dice_size="2" min="1" max="4" />
 					<distribution type="kStepped" decay="0.05" free_targets="2" />
 				</area>
-				<affects type="kMagicBattle" saving="kStability" resist="kVitality">
+				<affects type="kUndefined" saving="kStability" resist="kVitality">
 					<lag base="2" bonus_divisor="-1" />
 					<duration base="2" skill_divisor="0" min="0" max="0" />
 					<flags val="kAfBattledec|kAfPulsedec|kAfDispellable|kAfCurable" />
@@ -4603,7 +4603,7 @@
 					<targets skill_divisor="20" dice_size="2" min="1" max="3" />
 					<distribution type="kStepped" decay="0.05" free_targets="1" />
 				</area>
-				<affects type="kMagicBattle" saving="kNone" resist="kEarth">
+				<affects type="kUndefined" saving="kNone" resist="kEarth">
 					<lag base="2" bonus_divisor="-1" />
 					<duration base="2" skill_divisor="0" min="0" max="0" />
 					<flags val="kAfBattledec|kAfPulsedec|kAfDispellable|kAfCurable" />
@@ -4946,27 +4946,6 @@
 					<duration base="2" skill_divisor="0" min="0" max="0" />
 					<apply id="kPeaceful" location="kNone">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
-				</affects>
-			</action>
-		</talent_actions>
-	</spell>
-	<spell id="kMagicBattle" element="kUndefined" mode="kService">
-		<name val="!set by programm!" />
-		<misc pos="kStand" violent="N" danger="0" />
-		<mana max="0" min="0" change="0" />
-		<targets val="kTarNone" />
-		<flags val="kMagManual" />
-		<talent_actions>
-			<action>
-				<affects type="kMagicBattle" saving="kNone" resist="kVitality">
-					<flags val="kAfDispellable" />
-					<duration base="2" skill_divisor="20" min="0" max="0" />
-					<apply id="kContusion" location="kHitroll">
-						<modifier min="4.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
-					</apply>
-					<apply id="kContusion" location="kCastSuccess">
-						<modifier min="8.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
 					</apply>
 				</affects>
 			</action>

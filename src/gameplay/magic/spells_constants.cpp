@@ -190,7 +190,6 @@ void init_ESpell_ITEM_NAMES() {
 	ESpell_name_by_value[ESpell::kBurdenOfTime] = "kBurdenOfTime";
 	ESpell_name_by_value[ESpell::kGroupRefresh] = "kGroupRefresh";
 	ESpell_name_by_value[ESpell::kPeaceful] = "kPeaceful";
-	ESpell_name_by_value[ESpell::kMagicBattle] = "kMagicBattle";
 	ESpell_name_by_value[ESpell::kBerserk] = "kBerserk";
 	ESpell_name_by_value[ESpell::kStoneBones] = "kStoneBones";
 	ESpell_name_by_value[ESpell::kRoomLight] = "kRoomLight";
