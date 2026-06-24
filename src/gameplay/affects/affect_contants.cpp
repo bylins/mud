@@ -7,6 +7,7 @@
 #include "affect_contants.h"
 #include "affects_loader.h"
 #include "affect_messages.h"
+#include "utils/utils_parse.h"   // parse::ReadAsConstantsBitvector
 
 #include "gameplay/magic/spells.h"
 #include "engine/structs/structs.h"   // kIntOne/kIntTwo plane prefixes
@@ -599,6 +600,34 @@ msg_container::MsgContainer<EAffect, affects::EAffectMsgType> &AffectMsgContaine
 	return container;
 }
 
+// issue.affect-migration: per-affect_type behavior flags (kAfCurable/kAfDispellable/kAfBattledec/...)
+// loaded from affects.xml. affects.xml is the SOURCE OF TRUTH for what an effect does; the casting
+// source (spell/skill/item) only sets strength + duration. Indexed by to_underlying(EAffect)
+// (EAffect is 1-based; index 0 = kUndefined = no flags).
+constexpr std::size_t kAffectFlagTableSize = 131;  // EAffect max (kPietas=130) + 1
+std::array<Bitvector, kAffectFlagTableSize> g_affect_flags{};
+
+void BuildAffectFlagTable(parser_wrapper::DataNode data) {
+	g_affect_flags.fill(0);
+	for (auto &node : data.Children("affect")) {
+		const char *id = node.GetValue("id");
+		const char *flags = node.GetValue("flags");
+		if (!id || !*id || !flags || !*flags) {
+			continue;
+		}
+		EAffect affect;
+		try {
+			affect = ITEM_BY_NAME<EAffect>(id);
+		} catch (const std::out_of_range &) {
+			continue;  // unknown id already reported by ValidateAffectRegistry
+		}
+		const auto idx = static_cast<std::size_t>(to_underlying(affect));
+		if (idx < kAffectFlagTableSize) {
+			g_affect_flags[idx] = parse::ReadAsConstantsBitvector<EAffFlag>(flags);
+		}
+	}
+}
+
 // affects.xml is the affect registry (id-only for now; grows per-affect handler/action data later).
 // Validate every <affect id> is a known affect and every affect has a row.
 void ValidateAffectRegistry(parser_wrapper::DataNode data) {
@@ -688,6 +717,14 @@ const std::vector<EAffect> &MenuOrder() {
 	return order;
 }
 
+// issue.affect-migration: the affect's intrinsic behavior flags (cure/dispel/refresh/decrement/...)
+// from affects.xml, keyed by affect_type. 0 for affects with no row/flags. Not yet wired into the
+// apply path (Phase 1 -- table built, sourcing switched in Phase 2).
+Bitvector AffectFlagsByType(EAffect affect_type) {
+	const auto idx = static_cast<std::size_t>(to_underlying(affect_type));
+	return idx < kAffectFlagTableSize ? g_affect_flags[idx] : Bitvector{0};
+}
+
 // The flat bit index of an active affect back to its EAffect (the inverse of the 1-based
 // flag_index_mapping<EAffect>: enum value = index + 1). kUndefined if it is not a known affect.
 EAffect AffectByIndex(std::size_t flat_index) {
@@ -734,8 +771,8 @@ bool FindByShortDesc(const std::string &name, EAffect &out) {
 	}
 	return false;
 }
-void AffectsLoader::Load(parser_wrapper::DataNode data) { ValidateAffectRegistry(data); }
-void AffectsLoader::Reload(parser_wrapper::DataNode data) { ValidateAffectRegistry(data); }
+void AffectsLoader::Load(parser_wrapper::DataNode data) { ValidateAffectRegistry(data); BuildAffectFlagTable(data); }
+void AffectsLoader::Reload(parser_wrapper::DataNode data) { ValidateAffectRegistry(data); BuildAffectFlagTable(data); }
 void AffectMessagesLoader::Load(parser_wrapper::DataNode data) {
 	AffectMsgContainer().Init(data.Children());
 	g_affect_messages_loaded = true;
