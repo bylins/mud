@@ -731,4 +731,7 @@
 		<message type="kAffExpiredToChar" val="Вы утратили расположение Богов."/>
 		<message type="kShortDesc" val="принесены жертвы"/>
 	</msg_sheaf>
+	<msg_sheaf id="kEvade">
+		<message type="kShortDesc" val="уклонение"/>
+	</msg_sheaf>
 </msg_container>

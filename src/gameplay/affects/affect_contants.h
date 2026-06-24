@@ -169,6 +169,7 @@ enum class EAffect : Bitvector {
 	kWellFed = 128,
 	kPrayerful = 129,
 	kPietas = 130,
+	kEvade = 131,
 };
 
 // --- BitsetFlags integration for EAffect ----------------------------------------------------------
@@ -178,7 +179,7 @@ enum class EAffect : Bitvector {
 // BitsetFlags<EAffect> stays byte-identical to the old FlagData on disk. count = 89 distinct bits.
 template<>
 struct flag_traits<EAffect> {
-	static constexpr std::size_t count = 130;
+	static constexpr std::size_t count = 131;
 };
 template<>
 struct flag_index_mapping<EAffect> {

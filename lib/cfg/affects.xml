@@ -136,4 +136,5 @@
 	<affect id="kWellFed"/>
 	<affect id="kPrayerful"/>
 	<affect id="kPietas"/>
+	<affect id="kEvade" flags="kAfBattledec|kAfPulsedec"/>
 </affects>
