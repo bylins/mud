@@ -333,7 +333,7 @@ void player_affect_update() {
 						}
 					}
 				}
-				if (affect->type == ESpell::kDrunked) {
+				if (affect->affect_type == EAffect::kDrunked) {
 					set_abstinent = true;
 				}
 				affect_i = RemoveAffect(i.get(), affect_i);
@@ -646,6 +646,30 @@ void RemoveAffectFromChar(CharData *ch, ESpell spell_id) {
 			ch->mob_specials.hire_price = 0;// added by WorM (Видолюб) 2010.06.04 Сбрасываем цену найма
 		}
 	}
+}
+
+// Affect-keyed counterparts (issue.affect-migration): remove every affect with a given
+// affect_type. Removes affect *structs* only; innate flags (mob proto / innate abilities)
+// are reapplied by affect_total and are not touched here.
+void RemoveAffectFromChar(CharData *ch, EAffect affect_type) {
+	if (affect_type == EAffect::kUndefined) {
+		return;
+	}
+	auto it = ch->affected.begin();
+	while (it != ch->affected.end()) {
+		Affect<EApply>::shared_ptr affect = *it;
+		if (affect->affect_type == affect_type) {
+			EmitAffectEvent("affect_removed", ch, *affect);
+			it = RemoveAffect(ch, it);
+		} else {
+			++it;
+		}
+	}
+}
+
+void RemoveAffectFromCharAndRecalculate(CharData *ch, EAffect affect_type) {
+	RemoveAffectFromChar(ch, affect_type);
+	affect_total(ch);
 }
 
 std::pair<EApply, int>  GetApplyByWeaponAffect(EWeaponAffect element, CharData *ch) {

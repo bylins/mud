@@ -262,7 +262,7 @@ void TryDrinkAlcohol(CharData *ch, ObjData *jar, int amount) {
 			&& GET_DRUNK_STATE(ch) == GET_COND(ch, condition::kDrunk)) {
 			// **** Decrease AC ***** //
 			Affect<EApply> af;
-			af.type = ESpell::kDrunked;
+			af.type = ESpell::kUndefined;
 			af.duration = CalcDuration(ch, ch, ESkill::kUndefined, duration, 0, 0, 0);
 			af.modifier = -20;
 			af.location = EApply::kAc;
@@ -270,7 +270,7 @@ void TryDrinkAlcohol(CharData *ch, ObjData *jar, int amount) {
 			af.battleflag = 0;
 			ImposeAffect(ch, af, false, false, false, false);
 			// **** Decrease HR ***** //
-			af.type = ESpell::kDrunked;
+			af.type = ESpell::kUndefined;
 			af.duration = CalcDuration(ch, ch, ESkill::kUndefined, duration, 0, 0, 0);
 			af.modifier = -2;
 			af.location = EApply::kHitroll;
@@ -278,7 +278,7 @@ void TryDrinkAlcohol(CharData *ch, ObjData *jar, int amount) {
 			af.battleflag = 0;
 			ImposeAffect(ch, af, false, false, false, false);
 			// **** Increase DR ***** //
-			af.type = ESpell::kDrunked;
+			af.type = ESpell::kUndefined;
 			af.duration = CalcDuration(ch, ch, ESkill::kUndefined, duration, 0, 0, 0);
 			af.modifier = GetRealLevel(ch) / 5 + remort::GetRealRemort(ch) / 5;
 			af.location = EApply::kPhysicDamagePercent;
