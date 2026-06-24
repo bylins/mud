@@ -113,7 +113,7 @@
 	<affect id="kMadness" flags="kAfDispellable|kAfCurable"/>
 	<affect id="kMindless" flags="kAfDispellable|kAfCurable"/>
 	<affect id="kFascination" flags="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
-	<affect id="kContusion" flags="kAfDispellable"/>
+	<affect id="kContusion" flags="kAfDeadkeep"/>
 	<affect id="kStoneBones" flags="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
 	<affect id="kFailure" flags="kAfDispellable|kAfCurable"/>
 	<affect id="kCatGrace" flags="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
