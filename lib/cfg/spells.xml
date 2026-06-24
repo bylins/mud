@@ -2691,7 +2691,6 @@
 			<action>
 				<affects type="kForbidden" saving="kNone" resist="kVitality">
 					<duration base="60" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
 					<apply id="kForbidden" location="kNone">
 						<modifier min="0" dices_weight="0" alpha="0" beta="1" factor="1" cap="100" />
 					</apply>
@@ -4022,7 +4021,6 @@
 			<action>
 				<affects type="kMeteorStorm" saving="kNone" resist="kVitality" tick_spell="kThunderStone">
 					<duration base="3" skill_divisor="0" min="0" max="0" />
-					<flags val="kAfMustBeHandled|kAfDispellable" />
 				</affects>
 			</action>
 		</talent_actions>
@@ -5019,7 +5017,6 @@
 			<action>
 				<affects type="kRoomLight" saving="kNone" resist="kVitality">
 					<duration base="75" skill_divisor="1" min="0" max="0" />
-					<flags val="kAfAccumulateDuration|kAfUpdateDuration" />
 				</affects>
 			</action>
 		</talent_actions>
@@ -5042,7 +5039,6 @@
 			<action>
 				<affects type="kDeadlyFog" saving="kNone" resist="kVitality" tick_spell="kDeadlyFogTick">
 					<duration base="8" skill_divisor="0" min="0" max="0" />
-					<flags val="kAfMustBeHandled|kAfDispellable" />
 				</affects>
 			</action>
 		</talent_actions>
@@ -5102,7 +5098,6 @@
 			<action>
 				<affects type="kThunderstorm" saving="kNone" resist="kVitality" tick_handler="HandleThunderstormTick">
 					<duration base="7" skill_divisor="0" min="0" max="0" />
-					<flags val="kAfMustBeHandled|kAfDispellable" />
 				</affects>
 			</action>
 		</talent_actions>
@@ -5771,7 +5766,6 @@
 				</target_conditions>
 				<affects type="kRuneLabel" saving="kNone" resist="kVitality">
 					<duration base="1100" skill_divisor="10" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUnique" />
 				</affects>
 			</action>
 		</talent_actions>
@@ -5983,7 +5977,6 @@
 			<action>
 				<affects type="kHypnoticPattern" saving="kNone" resist="kVitality">
 					<duration base="114" skill_divisor="0" min="0" max="0" />
-					<flags val="kAfDispellable" />
 				</affects>
 			</action>
 		</talent_actions>
@@ -6167,7 +6160,6 @@
 				</target_conditions>
 				<affects type="kBlackTentacles" saving="kNone" resist="kVitality" tick_spell="kDamageSerious">
 					<duration base="1" skill_divisor="18" min="0" max="0" />
-					<flags val="kAfMustBeHandled|kAfDispellable" />
 				</affects>
 			</action>
 		</talent_actions>

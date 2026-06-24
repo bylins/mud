@@ -626,7 +626,10 @@ ECastResult CastRoomAffect(CastContext &ctx) {
 		af[0].type = spell_id;
 		af[0].affect_type = RoomAffectBySpell(spell_id);
 		af[0].caster_id = ch->get_uid();
-		af[0].battleflag = talent.GetFlags();
+		// issue.affect-migration R3: flags come from room_affects.xml by affect_type (so the update-gate
+		// below reads the right kAfUpdateDuration/kAfUpdateMod); fall back to the spell <flags> until loaded.
+		af[0].battleflag = (RoomAffectFlagsLoaded() && af[0].affect_type != ERoomAffect::kUndefined)
+				? RoomAffectFlagsByType(af[0].affect_type) : talent.GetFlags();
 		const ESkill dur_skill = MUD::Spell(spell_id).GetPotencyRoll().GetBaseSkill();
 		int skill_bonus = (talent.GetDurationSkillDivisor() > 0 && dur_skill != ESkill::kUndefined)
 			? CalcNoviceSkillBonus(ch, dur_skill, talent.GetDurationSkillDivisor()) : 0;
