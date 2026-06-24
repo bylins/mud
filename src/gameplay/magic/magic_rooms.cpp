@@ -895,6 +895,17 @@ void affect_room_join(RoomData *room, Affect<ERoomApply> &af,
 
 void affect_to_room(RoomData *room, const Affect<ERoomApply> &af) {
 	Affect<ERoomApply>::shared_ptr new_affect(new Affect<ERoomApply>(af));
+	// issue.affect-migration R2: room-affect behavior flags are sourced from room_affects.xml by
+	// affect_type; the caller contributes only the per-instance kAfFailed bit. Guarded on the table
+	// being loaded (pre-cfg boot keeps caller flags); kUndefined room affects (no row) keep theirs.
+	if (RoomAffectFlagsLoaded() && af.affect_type != ERoomAffect::kUndefined) {
+		const Bitvector sourced = RoomAffectFlagsByType(af.affect_type);
+		if (af.battleflag & ~sourced & ~static_cast<Bitvector>(kAfFailed)) {
+			log("SYSERR: issue.affect-migration: room affect_type %d battleflag 0x%lx has bits absent from room_affects.xml 0x%lx",
+				to_underlying(af.affect_type), (unsigned long) af.battleflag, (unsigned long) sourced);
+		}
+		new_affect->battleflag = sourced | (af.battleflag & static_cast<Bitvector>(kAfFailed));
+	}
 
 	room->affected.push_front(new_affect);
 }
