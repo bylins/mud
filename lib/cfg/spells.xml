@@ -4965,43 +4965,6 @@
 			</action>
 		</talent_actions>
 	</spell>
-	<spell id="kDeadlyFogTick" element="kDark" mode="kService">
-		<name val="deadly fog tick" />
-		<misc pos="kStand" violent="Y" danger="0" />
-		<mana max="0" min="0" change="0" />
-		<targets val="kTarRoomThis" />
-		<flags val="kMagDamage" />
-		<talent_actions>
-			<action target="kTarFoes">
-				<area>
-					<targets max="-1" />
-					<distribution type="kUniform" />
-				</area>
-				<side_spell id="kAcidArrow" />
-			</action>
-			<action target="kTarFoes">
-				<area>
-					<targets max="-1" />
-					<distribution type="kUniform" />
-				</area>
-				<side_spell id="kPoison" />
-			</action>
-			<action target="kTarFoes">
-				<area>
-					<targets max="-1" />
-					<distribution type="kUniform" />
-				</area>
-				<side_spell id="kDamageCritic" />
-			</action>
-			<action target="kTarFoes">
-				<area>
-					<targets max="-1" />
-					<distribution type="kUniform" />
-				</area>
-				<side_spell id="kSacrifice" />
-			</action>
-		</talent_actions>
-	</spell>
 	<spell id="kThunderstorm" element="kAir" mode="kEnabled">
 		<name val="storm of vengeance" />
 		<components>

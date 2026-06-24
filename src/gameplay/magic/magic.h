@@ -117,6 +117,9 @@ class CastContext {
 	// stages fire; those stages then read their block via the spell-id getters.
 	void RewindActions();
 	void NextAction();
+	// issue.affect-migration: run an external action list (an affect's own <actions>) through this
+	// context instead of the spell's. nullptr (the default) = use the spell's actions.
+	void UseExternalActions(const std::vector<talents_actions::Action> *list) { external_actions_ = list; }
 	[[nodiscard]] const talents_actions::Action *action() const;
 	[[nodiscard]] bool HasPendingActions() const;
 	// The action the current stage should read its block from: the cursor's
@@ -138,6 +141,8 @@ class CastContext {
 	RollResult potency_;        // from SpellInfo::GetPotencyRoll()
 	// Cursor state: the spell's action list + current index (set by RewindActions).
 	const std::vector<talents_actions::Action> *actions_{nullptr};
+	// issue.affect-migration: affect-owned actions; when set, override the spell's action list.
+	const std::vector<talents_actions::Action> *external_actions_{nullptr};
 	size_t action_idx_{0};
 };
 

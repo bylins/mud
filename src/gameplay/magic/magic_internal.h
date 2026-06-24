@@ -32,6 +32,9 @@ ECastResult CastSpell(CastContext &ctx, ECastTargets scope);
 ECastResult CastAreaInRoom(CharData *ch, ESpell spell_id, int level);
 // Run a single, cycled action (action[phase % N]) of a kService tick spell on the room.
 ECastResult CastRoomTickAction(CharData *ch, RoomData *room, ESpell tick_spell, int phase);
+// issue.affect-migration: run an affect's own actions on the room each tick (context from ctx_spell).
+ECastResult CastRoomTickActionFromActions(CharData *ch, RoomData *room, ESpell ctx_spell,
+										  const talents_actions::Actions &actions, int phase);
 
 // Build a CastContext for a cast: evaluates the success + potency rolls once. Module-internal
 // (CallMagic is the public entry; CastAreaInRoom uses it for the room-affect ticks).

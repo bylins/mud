@@ -100,6 +100,8 @@ RoomAffectActor ClassifyRoomAffectAccess(CharData *ch, long caster_id);
 // owned by room_affects.xml. kUndefined / empty when the affect has no tick action.
 [[nodiscard]] ESpell RoomAffectTickSpell(ERoomAffect affect_type);
 [[nodiscard]] const std::string &RoomAffectTickHandler(ERoomAffect affect_type);
+// issue.affect-migration: the affect's own <actions> (run each tick); empty when it has none.
+[[nodiscard]] const talents_actions::Actions &RoomAffectActions(ERoomAffect affect_type);
 
 } // namespace room_spells
 

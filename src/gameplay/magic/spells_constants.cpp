@@ -286,7 +286,6 @@ void init_ESpell_ITEM_NAMES() {
 	ESpell_name_by_value[ESpell::kTestThree] = "kTestThree";
 	ESpell_name_by_value[ESpell::kTestFour] = "kTestFour";
 	ESpell_name_by_value[ESpell::kTestFive] = "kTestFive";
-	ESpell_name_by_value[ESpell::kDeadlyFogTick] = "kDeadlyFogTick";
 	ESpell_name_by_value[ESpell::kCreateArmor] = "kCreateArmor";
 
 	for (const auto &i : ESpell_name_by_value) {

@@ -2751,7 +2751,13 @@ const talents_actions::Action &CastContext::action_or_default() const {
 	// Cursor active (loop driving) -> the current action; otherwise (bypass
 	// callers / rooms / area setup that never rewound) -> the spell's primary.
 	const talents_actions::Action *a = action();
-	return a ? *a : MUD::Spell(spell_id_).actions.primary();
+	if (a) {
+		return *a;
+	}
+	if (external_actions_ && !external_actions_->empty()) {
+		return (*external_actions_)[0];
+	}
+	return MUD::Spell(spell_id_).actions.primary();
 }
 
 // --- CastContext action cursor (multi-action) ---
@@ -2763,7 +2769,7 @@ const talents_actions::Action &CastContext::action_or_default() const {
 // to the spell-id getters (which return the empty-action default). So the loop runs
 // max(1, action_count) times.
 void CastContext::RewindActions() {
-	actions_ = &MUD::Spell(spell_id_).actions.list();
+	actions_ = external_actions_ ? external_actions_ : &MUD::Spell(spell_id_).actions.list();
 	action_idx_ = 0;
 }
 
@@ -3243,13 +3249,11 @@ ECastResult CastSpell(CastContext &ctx, ECastTargets scope) {
 // tick. `phase` selects the action: action[phase % N], so a multi-phase room effect (e.g. deadly
 // fog) advances one action per round. The action's own target marker drives whom it hits
 // (kTarRoomThis -> the room; kTarFoes/kTarGroup/... -> the room's occupants).
-ECastResult CastRoomTickAction(CharData *ch, RoomData *room, ESpell tick_spell, int phase) {
-	if (ch == nullptr) {
-		return ECastResult::kNotCast;
-	}
-	CastContext ctx = BuildCastContext(ch, tick_spell, GetRealLevel(ch));
+// Run one cycled action (action[phase % N]) of an action list on the room. Shared by the kService
+// tick-spell path and the affect-owned-actions path below.
+static ECastResult RunRoomCycledAction(CastContext &ctx, RoomData *room,
+									   const std::vector<talents_actions::Action> &list, int phase) {
 	ctx.rvict = room;
-	const auto &list = MUD::Spell(tick_spell).actions.list();
 	if (list.empty()) {
 		return ECastResult::kNotCast;
 	}
@@ -3265,6 +3269,28 @@ ECastResult CastRoomTickAction(CharData *ch, RoomData *room, ESpell tick_spell, 
 	const ECastTargets scope = ActionTargetScope(sel, ECastTargets::kFoes);
 	std::vector<CharData *> targets = ResolveActionTargets(ctx, sel, {});
 	return RunActionOverTargets(ctx, targets, scope, false);
+}
+
+ECastResult CastRoomTickAction(CharData *ch, RoomData *room, ESpell tick_spell, int phase) {
+	if (ch == nullptr) {
+		return ECastResult::kNotCast;
+	}
+	CastContext ctx = BuildCastContext(ch, tick_spell, GetRealLevel(ch));
+	return RunRoomCycledAction(ctx, room, MUD::Spell(tick_spell).actions.list(), phase);
+}
+
+// issue.affect-migration: run an AFFECT's own actions (room_affects.xml <actions>) on the room each
+// tick. The cast context comes from the imposing spell (ctx_spell = aff->type) for level/potency, but
+// the action list is the affect's, injected via UseExternalActions. Lets a room affect own what it
+// does each tick -- no dedicated kService tick-container spell needed.
+ECastResult CastRoomTickActionFromActions(CharData *ch, RoomData *room, ESpell ctx_spell,
+										  const talents_actions::Actions &actions, int phase) {
+	if (ch == nullptr) {
+		return ECastResult::kNotCast;
+	}
+	CastContext ctx = BuildCastContext(ch, ctx_spell, GetRealLevel(ch));
+	ctx.UseExternalActions(&actions.list());
+	return RunRoomCycledAction(ctx, room, actions.list(), phase);
 }
 
 // cast `spell_id` as an area attack on every foe in the caster's room,

@@ -132,12 +132,16 @@ std::array<Bitvector, kRoomAffectFlagTableSize> g_room_affect_flags{};
 // block + triggers; for now the implicit trigger is "every room-affect pulse".
 std::array<ESpell, kRoomAffectFlagTableSize> g_room_affect_tick_spell{};
 std::array<std::string, kRoomAffectFlagTableSize> g_room_affect_tick_handler{};
+// issue.affect-migration: an affect's own <actions> (same format as a spell's <talent_actions>) --
+// the room affect performs these directly each tick, replacing a dedicated kService tick spell.
+std::array<talents_actions::Actions, kRoomAffectFlagTableSize> g_room_affect_actions{};
 bool g_room_affect_flags_loaded = false;
 
 void BuildRoomAffectFlagTable(parser_wrapper::DataNode data) {
 	g_room_affect_flags.fill(0);
 	g_room_affect_tick_spell.fill(ESpell::kUndefined);
 	for (auto &h : g_room_affect_tick_handler) { h.clear(); }
+	for (auto &a : g_room_affect_actions) { a = talents_actions::Actions{}; }
 	for (auto &node : data.Children("room_affect")) {
 		const char *id = node.GetValue("id");
 		if (!id || !*id) {
@@ -161,6 +165,10 @@ void BuildRoomAffectFlagTable(parser_wrapper::DataNode data) {
 		}
 		if (const char *th = node.GetValue("tick_handler"); th && *th) {
 			g_room_affect_tick_handler[idx] = th;
+		}
+		if (node.GoToChild("actions")) {
+			g_room_affect_actions[idx].Build(node);
+			node.GoToParent();
 		}
 	}
 	g_room_affect_flags_loaded = true;
@@ -206,6 +214,12 @@ const std::string &RoomAffectTickHandler(ERoomAffect affect_type) {
 	static const std::string kEmpty;
 	const auto idx = static_cast<std::size_t>(to_underlying(affect_type));
 	return idx < kRoomAffectFlagTableSize ? g_room_affect_tick_handler[idx] : kEmpty;
+}
+
+const talents_actions::Actions &RoomAffectActions(ERoomAffect affect_type) {
+	static const talents_actions::Actions kEmpty;
+	const auto idx = static_cast<std::size_t>(to_underlying(affect_type));
+	return idx < kRoomAffectFlagTableSize ? g_room_affect_actions[idx] : kEmpty;
 }
 
 void RoomAffectsLoader::Load(parser_wrapper::DataNode data) { ValidateRoomAffectRegistry(data); BuildRoomAffectFlagTable(data); }
@@ -466,6 +480,19 @@ static bool RunRoomTick(RoomData *room, CharData *ch, const Affect<ERoomApply>::
 		return true;
 	}
 	// 2. Data-driven tick_spell.
+	// 2. Affect-owned actions (room_affects.xml <actions>): the affect performs its own per-tick
+	//    action -- no dedicated tick spell needed. Context (level/potency) comes from the imposing
+	//    spell (impose = aff->type); the action list is the affect's.
+	if (const auto &actions = RoomAffectActions(affect_type); !actions.list().empty()) {
+		if (ch == nullptr) {
+			return true;
+		}
+		const int phase = aff->apply_time > 0 ? aff->apply_time - 1 : 0;
+		EmitRoomTickMessage(ch, impose, phase);
+		CastRoomTickActionFromActions(ch, room, impose, actions, phase);
+		return true;
+	}
+	// 3. Data-driven tick_spell.
 	const ESpell tick = RoomAffectTickSpell(affect_type);
 	if (tick == ESpell::kUndefined) {
 		return false;

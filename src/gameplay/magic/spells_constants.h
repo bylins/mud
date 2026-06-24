@@ -290,7 +290,7 @@ enum class ESpell {
 	kTestThree = 361,
 	kTestFour = 362,
 	kTestFive = 363,
-	kDeadlyFogTick = 364,
+//	kDeadlyFogTick = 364,	// UNUSED (issue.affect-migration): the deadly-fog tick is now the kDeadlyFog room affect's own <actions> in room_affects.xml; value 364 retired.
 	kCreateArmor = 365,  // issue.obj-casting: new data-driven <obj_creation> spell (plumbing)
 	kFirst = kArmor,
 	kLast = 365	// Не забываем менять
