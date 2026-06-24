@@ -8,13 +8,32 @@
 -->
 <room_affects>
 	<room_affect id="kNoPortalExit"/>
-	<room_affect id="kForbidden"/>
-	<room_affect id="kMeteorStorm"/>
-	<room_affect id="kRoomLight"/>
-	<room_affect id="kDeadlyFog"/>
-	<room_affect id="kThunderstorm"/>
-	<room_affect id="kRuneLabel"/>
-	<room_affect id="kHypnoticPattern"/>
-	<room_affect id="kBlackTentacles"/>
+	<room_affect id="kForbidden" flags="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+	<room_affect id="kMeteorStorm" flags="kAfDispellable|kAfMustBeHandled" tick_spell="kThunderStone"/>
+	<room_affect id="kRoomLight" flags="kAfUpdateDuration|kAfAccumulateDuration"/>
+	<room_affect id="kDeadlyFog" flags="kAfDispellable|kAfMustBeHandled">
+		<actions>
+			<action target="kTarFoes">
+				<area><targets max="-1" /><distribution type="kUniform" /></area>
+				<side_spell id="kAcidArrow" />
+			</action>
+			<action target="kTarFoes">
+				<area><targets max="-1" /><distribution type="kUniform" /></area>
+				<side_spell id="kPoison" />
+			</action>
+			<action target="kTarFoes">
+				<area><targets max="-1" /><distribution type="kUniform" /></area>
+				<side_spell id="kDamageCritic" />
+			</action>
+			<action target="kTarFoes">
+				<area><targets max="-1" /><distribution type="kUniform" /></area>
+				<side_spell id="kSacrifice" />
+			</action>
+		</actions>
+	</room_affect>
+	<room_affect id="kThunderstorm" flags="kAfDispellable|kAfMustBeHandled" tick_handler="HandleThunderstormTick"/>
+	<room_affect id="kRuneLabel" flags="kAfUpdateDuration|kAfUnique"/>
+	<room_affect id="kHypnoticPattern" flags="kAfDispellable"/>
+	<room_affect id="kBlackTentacles" flags="kAfDispellable|kAfMustBeHandled" tick_spell="kDamageSerious"/>
 	<room_affect id="kPortalTimer"/>
 </room_affects>
