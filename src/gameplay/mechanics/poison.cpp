@@ -84,7 +84,11 @@ namespace {
 				if (!vict->IsNpc()) {
 					i.duration *= 30;
 				}
-				i.battleflag = kAfSameTime | kAfCurable;
+				// issue.affect-migration: aconitum has no dedicated poison affect_type (af[0] is
+				// kNoBattleSwitch, af[1]/af[2] are kUndefined), so it can't get the kAfPoison category
+				// flag from affects.xml like the other poisons. Set it here -- the affect_to_char funnel
+				// keeps caller flags on the kUndefined slots, so the victim carries kAfPoison.
+				i.battleflag = kAfSameTime | kAfCurable | kAfPoison;
 				i.debuff = true;
 
 				if (!poison_affect_join(ch, vict, i)) {

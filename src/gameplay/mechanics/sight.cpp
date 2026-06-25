@@ -1962,12 +1962,10 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 			strcat(buf, " ");
 		}
 	}
+	// issue.affect-migration: one affect-category test (kAfPoison) instead of enumerating every poison
+	// affect/spell -- every poison affect_type carries the kAfPoison flag (affects.xml; aconitum via poison.cpp).
 	if (AFF_FLAGGED(ch, EAffect::kDetectPoison))
-		if (AFF_FLAGGED(i, EAffect::kPoisoned)
-			|| IsAffectedBySpell(i, ESpell::kDaturaPoison)
-			|| IsAffectedBySpell(i, ESpell::kAconitumPoison)
-			|| IsAffectedBySpell(i, ESpell::kScopolaPoison)
-			|| IsAffectedBySpell(i, ESpell::kBelenaPoison))
+		if (IsAffectedWithFlag(i, kAfPoison))
 			sprintf(buf + strlen(buf), "(отравлен%s) ", grammar::SexEnding((i)->get_sex(), 6));
 
 	std::string line = buf;

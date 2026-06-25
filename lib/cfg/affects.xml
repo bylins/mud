@@ -38,7 +38,7 @@
 		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
 	</affect>
 	<affect id="kPoisoned">
-		<flags val="kAfSameTime|kAfDispellable|kAfCurable"/>
+		<flags val="kAfSameTime|kAfDispellable|kAfCurable|kAfPoison"/>
 	</affect>
 	<affect id="kProtectFromDark">
 		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
@@ -174,12 +174,16 @@
 		<flags val="kAfDispellable|kAfCurable"/>
 	</affect>
 	<affect id="kScopolaPoison">
-		<flags val="kAfSameTime|kAfCurable"/>
+		<flags val="kAfSameTime|kAfCurable|kAfPoison"/>
 	</affect>
-	<affect id="kDaturaPoison"/>
+	<affect id="kDaturaPoison">
+		<flags val="kAfPoison"/>
+	</affect>
 	<affect id="kSkillReduce"/>
 	<affect id="kNoBattleSwitch"/>
-	<affect id="kBelenaPoison"/>
+	<affect id="kBelenaPoison">
+		<flags val="kAfPoison"/>
+	</affect>
 	<affect id="kNoTeleport">
 		<flags val="kAfBattledec|kAfPulsedec|kAfDispellable|kAfCurable"/>
 	</affect>

@@ -27,7 +27,8 @@ enum EAffFlag : Bitvector {
   kAfCurable			= 1u << 8,	// аффект можно вылечить (первая помощь и будущая механика лечения)
   kAfMustBeHandled		= 1u << 9,	// у аффекта есть периодический обработчик в коде (room-affect tick, см. HandleRoomAffect) -- бывший Affect::must_handled
   kAfUnique				= 1u << 10,	// перед наложением снять предыдущий аффект этого же типа от того же кастера (room-affect "только один в мире") -- бывший локальный only_one в CallMagicToRoom
-  kAfFailed				= 1u << 11	// the affect is a failed-attempt marker: it carries the success affect_type but must NOT count as the real effect (the affect_total rebuild skips its flag bit; query via AffSuccessFlagged)
+  kAfFailed				= 1u << 11,	// the affect is a failed-attempt marker: it carries the success affect_type but must NOT count as the real effect (the affect_total rebuild skips its flag bit; query via AffSuccessFlagged)
+  kAfPoison				= 1u << 12	// affect CATEGORY: poison. Set in affects.xml on every poison affect_type so mechanics ("all poisons") test one flag instead of enumerating each poison. First of a planned set of category flags (curse/blessing/shield/...).
 };
 
 /**

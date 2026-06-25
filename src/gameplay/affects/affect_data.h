@@ -137,6 +137,10 @@ bool IsAffected(CharData *ch, EAffect affect_type);
 // "already attempting" anti-spam checks (hide/camouflage): a failed try must still block a retry,
 // and the player must not be able to tell a real effect from a failed one.
 bool IsAffectedOrAttempting(CharData *ch, EAffect affect_type);
+// issue.affect-migration: true if ch has any REAL affect (failed-attempt markers excluded) carrying the
+// given battleflag bit. For affect-CATEGORY queries -- e.g. IsAffectedWithFlag(ch, kAfPoison) tests "is
+// poisoned by anything" with one flag instead of enumerating every poison spell/affect.
+bool IsAffectedWithFlag(CharData *ch, EAffFlag flag);
 void ImposeAffect(CharData *ch, const Affect<EApply> &af);
 void ImposeAffect(CharData *ch, Affect<EApply> &af, bool add_dur, bool max_dur, bool add_mod, bool max_mod);
 void ImposeAffectNoRecalc(CharData *ch, const Affect<EApply> &af);

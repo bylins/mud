@@ -1386,6 +1386,15 @@ bool IsAffectedOrAttempting(CharData *ch, EAffect affect_type) {
 	return false;
 }
 
+bool IsAffectedWithFlag(CharData *ch, EAffFlag flag) {
+	for (const auto &affect : ch->affected) {
+		if (IS_SET(affect->battleflag, flag) && !IS_SET(affect->battleflag, kAfFailed)) {
+			return true;
+		}
+	}
+	return false;
+}
+
 bool IsNegativeApply(EApply location) {
 	for (auto elem : apply_negative) {
 		if (location == elem.location)
