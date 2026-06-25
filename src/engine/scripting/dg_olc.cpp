@@ -521,7 +521,6 @@ void trigedit_save(DescriptorData *d) {
 	}
 
 	SendMsgToChar("Триггер сохранен.\r\n", d->character.get());
-	trigedit_create_index(zone, "trg");
 }
 
 // Save all triggers for a zone to disk (without requiring DescriptorData)
