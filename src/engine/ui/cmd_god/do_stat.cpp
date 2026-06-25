@@ -608,7 +608,12 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 					aff->duration + 1,
 					(aff->battleflag & kAfPulsedec) || (aff->battleflag & kAfSameTime) ? "плс" : "мин",
 					(aff->battleflag & kAfBattledec) || (aff->battleflag & kAfSameTime) ? "рнд" : "мин",
-					kColorCyn, MUD::Spell(aff->type).GetCName(), kColorNrm);
+					kColorCyn,
+					// issue.affect-migration: affect name by its own identity (affect_type), spell fallback.
+					aff->affect_type != EAffect::kUndefined
+						? affects::AffectMsg(aff->affect_type, affects::EAffectMsgType::kShortDesc).c_str()
+						: MUD::Spell(aff->type).GetCName(),
+					kColorNrm);
 			bool has_modifier = aff->modifier != 0;
 			if (has_modifier) {
 				sline += fmt::sprintf("%+d to %s", aff->modifier, apply_types[(int) aff->location]);

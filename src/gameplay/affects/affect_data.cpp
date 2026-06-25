@@ -58,6 +58,20 @@ void EmitAffectEvent(const char *kind, const CharData *ch,
 	observability::EmitToAllSinks(ev);
 }
 
+// issue.affect-migration: an affect announces its natural expiry if it has an IDENTITY -- its affect_type
+// (preferred) or, transitionally, a valid legacy ESpell type (for affects not yet migrated off
+// Affect::type, e.g. kCharm/kPoison). Re-keys the old `type >= kFirst` gate onto affect_type so affects
+// whose ESpell was retired (affect_type set, type == kUndefined) announce again.
+[[nodiscard]] bool AffectHasIdentity(const Affect<EApply>::shared_ptr &af) {
+	return af->affect_type != EAffect::kUndefined
+		|| (af->type >= ESpell::kFirst && af->type <= ESpell::kLast);
+}
+// "Same affect" for the multi-slot dedup (one spell -> several slots announces once): same affect_type,
+// or same legacy type for affects that still lack an affect_type.
+[[nodiscard]] bool SameAffectIdentity(const Affect<EApply>::shared_ptr &a, const Affect<EApply>::shared_ptr &b) {
+	return a->affect_type != EAffect::kUndefined ? a->affect_type == b->affect_type : a->type == b->type;
+}
+
 }  // namespace
 
 int apply_ac(CharData *ch, int eq_pos);
@@ -301,12 +315,12 @@ void player_affect_update() {
 				continue;
 			}
 			if (affect->duration == 0) {
-				if (affect->type >= ESpell::kFirst && affect->type <= ESpell::kLast) {
+				if (AffectHasIdentity(affect)) {
 					auto next_affect_i = affect_i;
 
 					++next_affect_i;
 					if (next_affect_i == i->affected.end()	//костыль на спадение 1 закла накладывающего несколько аффектов
-							|| (*next_affect_i)->type != affect->type
+							|| !SameAffectIdentity(affect, *next_affect_i)
 							|| (*next_affect_i)->duration > 0) {
 						//чтобы не выдавалось, "что теперь вы можете сражаться",
 						//хотя на самом деле не можете :)
@@ -415,12 +429,12 @@ void battle_affect_update(CharData *ch) {
 			continue;
 		}
 		if (affect->duration == 0) {
-			if (affect->type >= ESpell::kFirst && affect->type <= ESpell::kLast) {
+			if (AffectHasIdentity(affect)) {
 				auto next_affect_i = affect_i;
 
 				++next_affect_i;
 				if (next_affect_i == ch->affected.end()
-						|| (*next_affect_i)->type != (*affect_i)->type
+						|| !SameAffectIdentity(affect, *next_affect_i)
 						|| (*next_affect_i)->duration > 0) {
 					ShowAffExpiredMsg(affect->type, affect->affect_type, ch);
 				}
@@ -496,14 +510,14 @@ void mobile_affect_update() {
 			const auto &affect = *affect_i;
 
 			if (affect->duration == 0) {
-				if (affect->type >= ESpell::kFirst && affect->type <= ESpell::kLast) {
+				if (AffectHasIdentity(affect)) {
 					if (affect->type == ESpell::kCharm || affect->affect_type == EAffect::kCharmed) {
 						was_charmed = true;
 					}
 					auto next_affect_i = affect_i;
 					++next_affect_i;
 					if (next_affect_i == ch->affected.end()
-							|| (*next_affect_i)->type != affect->type
+							|| !SameAffectIdentity(affect, *next_affect_i)
 							|| (*next_affect_i)->duration > 0) {
 						ShowAffExpiredMsg(affect->type, affect->affect_type, ch);
 					}

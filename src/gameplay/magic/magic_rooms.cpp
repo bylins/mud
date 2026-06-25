@@ -361,7 +361,10 @@ void ShowAffectedRooms(CharData *ch) {
 	int count = 1;
 	for (const auto r : affected_rooms) {
 		for (const auto &af : r->affected) {
-			table << count << r->vnum << MUD::Spell(af->type).GetName()
+			table << count << r->vnum
+				  // issue.affect-migration: room-affect name by ERoomAffect when its ESpell is retired.
+				  << (af->type != ESpell::kUndefined ? MUD::Spell(af->type).GetName()
+						: NAME_BY_ITEM<ERoomAffect>(af->affect_type))
 				  << GetNameById(af->caster_id) << af->duration * 2 << table_wrapper::kEndRow;
 			++count;
 		}

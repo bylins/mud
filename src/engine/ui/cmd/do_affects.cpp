@@ -10,6 +10,7 @@
 #include "engine/db/global_objects.h"
 #include "gameplay/mechanics/weather.h"
 #include "gameplay/mechanics/groups.h"
+#include "gameplay/affects/affect_messages.h"   // issue.affect-migration: affect display name by affect_type
 
 std::array<EAffect, 3> hiding = {EAffect::kSneak, EAffect::kHide, EAffect::kDisguise};
 
@@ -44,7 +45,12 @@ void do_affects(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 
 			*buf2 = '\0';
-			snprintf(sp_name, sizeof(sp_name), "%s", MUD::Spell(aff->type).GetCName());
+			// issue.affect-migration: name the affect by its own identity (affect_type kShortDesc);
+			// fall back to the casting spell's name for affects not yet migrated off Affect::type.
+			snprintf(sp_name, sizeof(sp_name), "%s",
+					aff->affect_type != EAffect::kUndefined
+						? affects::AffectMsg(aff->affect_type, affects::EAffectMsgType::kShortDesc).c_str()
+						: MUD::Spell(aff->type).GetCName());
 			int mod = 0;
 			if (aff->battleflag == kAfPulsedec) {
 				mod = aff->duration / 51; //если в пульсах приводим к тикам 25.5 в сек 2 минуты
