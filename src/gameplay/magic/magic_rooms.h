@@ -66,6 +66,12 @@ bool IsZoneRoomAffected(int zone_vnum, ESpell spell);
 ECastResult CallMagicToRoom(CharData *ch, RoomData *room, CastContext roll);
 int GetUniqueAffectDuration(long caster_id, ESpell spell_id);
 RoomAffectIt FindAffect(RoomData *room, ESpell type);
+// issue.affect-migration: the portal room affects (two-way kPortalTimer + one-way kNoPortalExit) keyed
+// by ERoomAffect identity (their ESpell was retired). IsPortalAffect matches either; RoomHasPortal =
+// any portal present; FindPortalAffect = first portal affect (or affected.end()).
+[[nodiscard]] bool IsPortalAffect(ERoomAffect affect_type);
+[[nodiscard]] bool RoomHasPortal(RoomData *room);
+[[nodiscard]] RoomAffectIt FindPortalAffect(RoomData *room);
 RoomData *FindAffectedRoomByCasterID(long caster_id, ESpell spell_id);
 void AddRoomToAffected(RoomData *room);
 void affect_room_join_fspell(RoomData *room, const Affect<ERoomApply> &af);

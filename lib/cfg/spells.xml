@@ -3436,17 +3436,6 @@
 			</action>
 		</talent_actions>
 	</spell>
-	<spell id="kPortalTimer" element="kLight" mode="kService">
-		<name val="portal" />
-		<components>
-			<verbal />
-			<weave />
-		</components>
-		<misc pos="kStand" violent="N" danger="0" />
-		<mana max="200" min="180" change="4" />
-		<targets val="kTarNone" />
-		<flags val="kMagManual" />
-	</spell>
 	<spell id="kDispellMagic" element="kLight" mode="kEnabled">
 		<name val="dispel magic" />
 		<components>

@@ -455,7 +455,7 @@ bool look_at_target(CharData *ch, char *arg, int subcmd) {
 		bool one_way = false;
 
 		for (const auto &aff : world[ch->in_room]->affected) {
-			if (aff->type == ESpell::kPortalTimer) {
+			if (room_spells::IsPortalAffect(aff->affect_type)) {
 				if (aff->affect_type == room_spells::ERoomAffect::kNoPortalExit) {
 					SendMsgToChar("Похоже, этого здесь нет!\r\n", ch);
 					return false;
@@ -464,7 +464,7 @@ bool look_at_target(CharData *ch, char *arg, int subcmd) {
 					to_room = aff->modifier;
 				}
 				for (const auto &aff : world[to_room]->affected) {
-					if (aff->type == ESpell::kPortalTimer) {
+					if (room_spells::IsPortalAffect(aff->affect_type)) {
 						if (aff->affect_type == room_spells::ERoomAffect::kNoPortalExit) {
 							one_way = true;
 						}
@@ -787,8 +787,7 @@ void show_room_affects(CharData *ch) {
 	for (const auto &af : world[ch->in_room]->affected) {
 		// One-way portal: side flagged kNoPortalExit shows nothing (mirrors
 		// the old look_at_room behaviour). kPortalTimer-only special case.
-		if (af->type == ESpell::kPortalTimer
-				&& af->affect_type == room_spells::ERoomAffect::kNoPortalExit) {
+		if (af->affect_type == room_spells::ERoomAffect::kNoPortalExit) {
 			continue;
 		}
 
@@ -853,7 +852,7 @@ void show_room_affects(CharData *ch) {
 			// kPortalTimer debug suffix: timer (room-tick pulses) + destination vnum.
 			// Replaces the immortals-only "(время: %d, куда: %d)" suffix that used to
 			// be inlined into the main description in look_at_room.
-			if (af->type == ESpell::kPortalTimer && is_immortal_or_tester) {
+			if (room_spells::IsPortalAffect(af->affect_type) && is_immortal_or_tester) {
 				char debug_buf[128];
 				snprintf(debug_buf, sizeof(debug_buf),
 						 "[timer: %d into: %d]\r\n",

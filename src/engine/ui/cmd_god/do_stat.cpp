@@ -1239,9 +1239,10 @@ void do_stat_room(CharData *ch, const int rnum = 0) {
 		for (const auto &aff : rm->affected) {
 			size_t buf1_len = strlen(buf1);
 			snprintf(buf1 + buf1_len, sizeof(buf1) - buf1_len, "       Заклинание \"%s\" (длит: %d, модиф: %d) - %s.\r\n",
-					MUD::Spell(aff->type).GetCName(),
+					(aff->type != ESpell::kUndefined ? MUD::Spell(aff->type).GetCName()
+						: NAME_BY_ITEM<room_spells::ERoomAffect>(aff->affect_type).c_str()),
 					aff->duration,
-					aff->type == ESpell::kPortalTimer ? world[aff->modifier]->vnum : aff->modifier,
+					room_spells::IsPortalAffect(aff->affect_type) ? world[aff->modifier]->vnum : aff->modifier,
 					(k = find_char(aff->caster_id)) ? GET_NAME(k) : "неизвестно");
 		}
 		SendMsgToChar(buf1, ch);

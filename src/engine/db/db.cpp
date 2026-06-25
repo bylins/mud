@@ -2797,7 +2797,7 @@ void ZoneReset::ResetZoneEssential() {
 			if (!(sect == ESector::kWaterSwim || sect == ESector::kWaterNoswim || sect == ESector::kOnlyFlying)) {
 				im_reset_room(room, zone_table[m_zone_rnum].level, zone_table[m_zone_rnum].type);
 			}
-			while (room_spells::IsRoomAffected(world[rnum], ESpell::kPortalTimer)) {
+			while (room_spells::RoomHasPortal(world[rnum])) {
 				RemovePortalGate(rnum);
 			}
 			paste_on_reset(room);

@@ -296,6 +296,29 @@ RoomAffectIt FindAffect(RoomData *room, ESpell type) {
 	return room->affected.end();
 }
 
+// issue.affect-migration: the two portal room affects -- two-way kPortalTimer and one-way kNoPortalExit
+// -- share one identity space (both were the now-retired kPortalTimer spell). These query by the
+// ERoomAffect identity instead of the legacy Affect::type (ESpell).
+bool IsPortalAffect(ERoomAffect affect_type) {
+	return affect_type == ERoomAffect::kPortalTimer || affect_type == ERoomAffect::kNoPortalExit;
+}
+bool RoomHasPortal(RoomData *room) {
+	for (const auto &af : room->affected) {
+		if (IsPortalAffect(af->affect_type)) {
+			return true;
+		}
+	}
+	return false;
+}
+RoomAffectIt FindPortalAffect(RoomData *room) {
+	for (auto it = room->affected.begin(); it != room->affected.end(); ++it) {
+		if (IsPortalAffect((*it)->affect_type)) {
+			return it;
+		}
+	}
+	return room->affected.end();
+}
+
 bool IsZoneRoomAffected(int zone_vnum, ESpell spell) {
 	for (auto & affected_room : affected_rooms) {
 		if (affected_room->zone_rn == zone_vnum && IsRoomAffected(affected_room, spell)) {
@@ -319,7 +342,7 @@ long FindRoomPkPortalUid(RoomData *room, long exclude_uid) {
 		return 0;
 	}
 	for (const auto &af : room->affected) {
-		if (af->type == ESpell::kPortalTimer
+		if (IsPortalAffect(af->affect_type)
 				&& af->pk_unique != 0
 				&& af->pk_unique != exclude_uid) {
 			return af->pk_unique;
@@ -408,10 +431,6 @@ void SendRemoveAffectMsgToRoom(ESpell affect_type, ERoomAffect room_affect, Room
 	}
 	const std::string &msg = GetAffExpiredText(affect_type);
 	if (affect_type >= ESpell::kFirst && affect_type <= ESpell::kLast && !msg.empty()) {
-/*		if (affect_type == ESpell::kPortalTimer){
-			mudlog("Пентаграмма медленно растаяла.");
-		}
-*/
 		SendMsgToRoom(msg.c_str(), room, 0);
 	};
 }
@@ -538,9 +557,12 @@ void UpdateRoomsAffects() {
 			} else if (affect->duration == -1) {
 				affect->duration = -1;
 			} else {
-				if (affect->type >= ESpell::kFirst && affect->type <= ESpell::kLast) {
+				// issue.affect-migration: expiry announcement keys on the room-affect identity
+				// (affect_type), not the legacy Affect::type (ESpell) -- so affects whose ESpell was
+				// retired (e.g. the portal pair) still announce. Dedup a multi-slot affect by affect_type.
+				if (affect->affect_type != ERoomAffect::kUndefined) {
 					if (next_affect_i == affects.end()
-						|| (*next_affect_i)->type != affect->type
+						|| (*next_affect_i)->affect_type != affect->affect_type
 						|| (*next_affect_i)->duration > 0) {
 						SendRemoveAffectMsgToRoom(affect->type, affect->affect_type, GetRoomRnum((*room)->vnum));
 					}

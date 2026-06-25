@@ -272,7 +272,6 @@ void init_ESpell_ITEM_NAMES() {
 	ESpell_name_by_value[ESpell::kLightingBreath] = "kLightingBreath";
 	ESpell_name_by_value[ESpell::kIdentify] = "kIdentify";
 	ESpell_name_by_value[ESpell::kFullIdentify] = "kFullIdentify";
-	ESpell_name_by_value[ESpell::kPortalTimer] = "kPortalTimer";
 	ESpell_name_by_value[ESpell::kDazzle] = "kDazzle";
 	ESpell_name_by_value[ESpell::kGreatHeal] = "kGreatHeal";
 	ESpell_name_by_value[ESpell::kFrenzy] = "kFrenzy";

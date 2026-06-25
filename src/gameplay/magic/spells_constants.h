@@ -277,7 +277,7 @@ enum class ESpell {
 	kIdentify = 351,
 	kFullIdentify = 352,
 //	kQUest = 353,	// UNUSED (issue.affect-migration): dead: no code references; value 353 retired.
-	kPortalTimer = 354,
+//	kPortalTimer = 354,	// UNUSED (issue.affect-migration): the portal pair is identified by its ERoomAffect (kPortalTimer two-way / kNoPortalExit one-way); the room af.type was migrated off ESpell; value 354 retired.
 //	kNoCharge = 355,	// UNUSED (issue.affect-migration): effect now checked via the kNoCharge affect (IsAffectedWithCasterId); value 355 retired.
 	kDazzle = 356,
 	kGreatHeal = 357,
