@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="koi8-r"?>
-<!-- "Jeweler" skill (kJewelry) configuration. -->
+<!-- "Jeweler" skill (kJewelry) configuration.
+     Generated from the production misc/skillvariables.lst (insgem_*) + misc/insert_wanted.lst.
+     Effect <id> attributes are enum tokens; the player picks an effect by its in-game name
+     (apply_types / affect message / extra_bits / skill name), resolved at load time.
+     NOTE: lag is set to 1 (the value do_insertgem actually used via the old hard-coded
+     SetBattleLag(ch, 1); the old insgem_lag=2 was loaded but never applied). Set it to 2 if a
+     longer lag is intended. -->
 <jewelry>
 	<lag val="1"/>
 	<skill_divisor val="1"/>
@@ -10,22 +16,82 @@
 	<desired_min_skill val="80"/>
 	<desired_foreign_min_skill val="130"/>
 	<desired_success_offset val="50"/>
-	<!-- Per-gem (by object vnum) lists of effects that a master jeweler can melt
-	     into an item. Effect kinds:
-	         <apply  id="EApply"  val="N"/>   - stat/apply modifier
-	         <affect id="EAffect"/>           - affect flag (invis, fly, ...)
-	         <flag   id="EObjFlag"/>          - object extra-flag (e.g. kNodisarm)
-	         <skill  id="ESkill" val="N"/>    - skill bonus
-	     The player selects an effect by its in-game name (apply_types / affect
-	     message / extra_bits / skill name), NOT the id token. Optional alias=""
-	     overrides that selection name. Example:
-	         <gem vnum="900">
-	             <apply id="kHpRegen" val="30"/>
-	             <affect id="kDetectInvisible"/>
-	             <flag id="kNodisarm"/>
-	             <skill id="kKick" val="5"/>
-	         </gem>
-	-->
 	<gems>
+		<gem vnum="900">
+			<affect id="kDetectAlign"/>
+			<affect id="kDetectInvisible"/>
+			<affect id="kDetectMagic"/>
+			<affect id="kWaterWalk"/>
+			<affect id="kBless"/>
+			<affect id="kSingleLight"/>
+			<apply id="kHpRegen" val="30"/>
+			<apply id="kMoveRegen" val="30"/>
+		</gem>
+		<gem vnum="901">
+			<affect id="kInfravision"/>
+			<affect id="kProtectFromDark"/>
+			<affect id="kProtectFromMind"/>
+			<affect id="kAwarness"/>
+		</gem>
+		<gem vnum="902">
+			<affect id="kFly"/>
+			<apply id="kSpelledBlinkPhys" val="4"/>
+			<affect id="kHolyLight"/>
+			<affect id="kHolyDark"/>
+			<affect id="kWaterBreath"/>
+			<affect id="kHaste"/>
+		</gem>
+		<gem vnum="903">
+			<apply id="kHp" val="10"/>
+			<apply id="kMove" val="30"/>
+			<apply id="kAc" val="-20"/>
+			<apply id="kHitroll" val="8"/>
+			<apply id="kDamroll" val="8"/>
+			<apply id="kInitiative" val="10"/>
+			<apply id="kAbsorbe" val="20"/>
+		</gem>
+		<gem vnum="904">
+			<apply id="kSavingWill" val="-20"/>
+			<apply id="kSavingCritical" val="-20"/>
+			<apply id="kSavingStability" val="-20"/>
+			<apply id="kSize" val="20"/>
+			<apply id="kArmour" val="20"/>
+			<apply id="kSavingReflex" val="-20"/>
+			<apply id="kMorale" val="10"/>
+		</gem>
+		<gem vnum="905">
+			<affect id="kSanctuary"/>
+			<affect id="kStoneHands"/>
+			<affect id="kPrismaticAura"/>
+			<affect id="kAirAura"/>
+			<affect id="kFireAura"/>
+			<affect id="kIceAura"/>
+		</gem>
+		<gem vnum="906">
+			<affect id="kInvisible"/>
+			<apply id="kResistWater" val="15"/>
+			<apply id="kResistEarth" val="15"/>
+			<apply id="kResistFire" val="15"/>
+			<apply id="kResistAir" val="15"/>
+			<apply id="kResistVitality" val="15"/>
+			<apply id="kResistMind" val="15"/>
+			<apply id="kResistImmunity" val="15"/>
+		</gem>
+		<gem vnum="907">
+			<apply id="kCastSuccess" val="15"/>
+			<apply id="kManaRegen" val="20"/>
+			<apply id="kPhysicDamagePercent" val="3"/>
+			<apply id="kMagicDamagePercent" val="5"/>
+			<apply id="kExpPercent" val="2"/>
+		</gem>
+		<gem vnum="908">
+			<apply id="kStr" val="2"/>
+			<apply id="kDex" val="2"/>
+			<apply id="kInt" val="2"/>
+			<apply id="kWis" val="2"/>
+			<apply id="kCon" val="2"/>
+			<apply id="kCha" val="2"/>
+			<skill id="kLeadership" val="5"/>
+		</gem>
 	</gems>
 </jewelry>
