@@ -443,6 +443,9 @@
 	<msg_sheaf id="kAconitumPoison">
 		<message type="kShortDesc" val="отравление аконитом"/>
 	</msg_sheaf>
+	<msg_sheaf id="kCapable">
+		<message type="kShortDesc" val="зачарован"/>
+	</msg_sheaf>
 	<msg_sheaf id="kNoTeleport">
 		<message type="kAffImposedToRoom" val="$n0 теперь прикован$a к $N2."/>
 		<message type="kAffImposedToChar" val="Вы не сможете покинуть $N3."/>

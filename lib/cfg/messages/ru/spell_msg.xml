@@ -2269,11 +2269,6 @@
 		<message type="kCastPhraseHeathen" val="" />
 		<message type="kCastPhraseChristian" val="" />
 	</msg_sheaf>
-	<msg_sheaf id="kCapable">
-		<name val="!зачарован!" />
-		<message type="kCastPhraseHeathen" val="" />
-		<message type="kCastPhraseChristian" val="" />
-	</msg_sheaf>
 	<msg_sheaf id="kStrangle">
 		<name val="!удушье!" />
 		<message type="kCastPhraseHeathen" val="" />

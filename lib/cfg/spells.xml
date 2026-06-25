@@ -5758,13 +5758,6 @@
 		<targets val="kTarCharRoom|kTarSelfOnly" />
 		<flags val="kMagAffects" />
 	</spell>
-	<spell id="kCapable" element="kUndefined" mode="kService">
-		<name val="!set by programm!" />
-		<misc pos="kStand" violent="N" danger="0" />
-		<mana max="0" min="0" change="0" />
-		<targets val="kTarNone" />
-		<flags val="kMagManual" />
-	</spell>
 	<spell id="kStrangle" element="kUndefined" mode="kService">
 		<name val="!set by programm!" />
 		<misc pos="kStand" violent="N" danger="0" />

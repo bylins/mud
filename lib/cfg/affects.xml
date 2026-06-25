@@ -191,6 +191,7 @@
 	<affect id="kAconitumPoison">
 		<flags val="kAfSameTime|kAfCurable|kAfPoison"/>
 	</affect>
+	<affect id="kCapable"/>
 	<affect id="kNoTeleport">
 		<flags val="kAfBattledec|kAfPulsedec|kAfDispellable|kAfCurable"/>
 	</affect>

@@ -1907,7 +1907,7 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 		else
 			strcat(buf,
 				   IsPoly(i) ? poly_positions[static_cast<int>(i->GetPosition())] : positions[static_cast<int>(i->GetPosition())]);
-		if (AFF_FLAGGED(ch, EAffect::kDetectMagic) && i->IsNpc() && IsAffectedBySpell(i, ESpell::kCapable))
+		if (AFF_FLAGGED(ch, EAffect::kDetectMagic) && i->IsNpc() && IsAffected(i, EAffect::kCapable))
 			sprintf(buf + strlen(buf), "(аура магии) ");
 	} else {
 		if (i->GetEnemy()) {

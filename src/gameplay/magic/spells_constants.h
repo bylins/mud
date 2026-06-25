@@ -215,7 +215,7 @@ enum class ESpell {
 	kCombatLuck = 194,
 //	kBandage = 195,	// UNUSED (issue.affect-migration): the bandage state is identified by its EAffect::kBandage affect; af.type was redundant; value 195 retired.
 //	kNoBandage = 196,	// UNUSED (issue.affect-migration): re-bandage already gated on AFF_FLAGGED(kCannotBeBandaged); value 196 retired.
-	kCapable = 197,
+//	kCapable = 197,	// UNUSED (issue.affect-migration): the "embedded spell" clone marker is the EAffect::kCapable affect; the kService spell was only an Affect::type marker; value 197 retired.
 	kStrangle = 198,
 //	kRecallSpells = 199,	// UNUSED (issue.affect-migration): the spell-recall buff is the EAffect::kMemorizeSpells affect; af.type was redundant; value 199 retired.
 	kHypnoticPattern = 200,

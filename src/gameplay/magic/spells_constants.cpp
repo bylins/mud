@@ -223,7 +223,6 @@ void init_ESpell_ITEM_NAMES() {
 	ESpell_name_by_value[ESpell::kDaturaPoison] = "kDaturaPoison";
 	ESpell_name_by_value[ESpell::kTimerRestore] = "kTimerRestore";
 	ESpell_name_by_value[ESpell::kCombatLuck] = "kCombatLuck";
-	ESpell_name_by_value[ESpell::kCapable] = "kCapable";
 	ESpell_name_by_value[ESpell::kStrangle] = "kStrangle";
 	ESpell_name_by_value[ESpell::kHypnoticPattern] = "kHypnoticPattern";
 	ESpell_name_by_value[ESpell::kVampirism] = "kVampirism";

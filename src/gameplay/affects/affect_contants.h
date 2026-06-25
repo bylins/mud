@@ -173,6 +173,7 @@ enum class EAffect : Bitvector {
 	kEvade = 131,
 	kWirchery = 132,   // issue.affect-migration: generic "чары" affect -- the dg_affect default source (ex-kSolobonus)
 	kAconitumPoison = 133,   // issue.affect-migration: aconite-poison identity (the 4th nemo-poison; the others had their own affect_type, aconitum had reused kNoBattleSwitch)
+	kCapable = 134,   // issue.affect-migration: "embedded spell" marker on a clone (ex-ESpell::kCapable kService spell)
 };
 
 // --- BitsetFlags integration for EAffect ----------------------------------------------------------
@@ -182,7 +183,7 @@ enum class EAffect : Bitvector {
 // BitsetFlags<EAffect> stays byte-identical to the old FlagData on disk. count = 89 distinct bits.
 template<>
 struct flag_traits<EAffect> {
-	static constexpr std::size_t count = 134;   // kAconitumPoison=133 + 1
+	static constexpr std::size_t count = 135;   // kCapable=134 + 1
 };
 template<>
 struct flag_index_mapping<EAffect> {
