@@ -882,11 +882,11 @@ void CharDamHelp() {
 	table_wrapper::Table table;
 	table << table_wrapper::kHeader << "Для силы наносимых повреждений существуют следующие сообщения" << "урон" << table_wrapper::kEndRow;
 
-	for (auto &it : dam_list) {
-		table << it.first << it.second;
-		table << table_wrapper::kEndRow;
+	for (size_t i = 0; i < dam_list.size(); ++i) {
+		table << dam_list[i].first << dam_list[i].second << table_wrapper::kEndRow;
 	}
-	table << table_wrapper::kSeparator;
+//	table << table_wrapper::kEndRow;
+//	table << table_wrapper::kSeparator;
 	table_wrapper::PrintTableToStream(out, table);
 	out << "\r\nСм. также: &CДМЕТР, ПЕРЕВЯЗАТЬ&n";
 	add_static("УРОН", out.str(), 0, true);
