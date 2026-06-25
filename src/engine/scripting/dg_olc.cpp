@@ -367,7 +367,6 @@ void trigedit_save(DescriptorData *d) {
 	Trigger *proto;
 	Trigger *trig = OLC_TRIG(d);
 	IndexData **new_index;
-	int zone;
 	DescriptorData *dsc;
 
 	// Recompile the command list from the new script
