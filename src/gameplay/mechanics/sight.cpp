@@ -1231,7 +1231,7 @@ void skip_hide_on_look(CharData *ch) {
 		((!GetSkill(ch, ESkill::kPry) ||
 			((number(1, 100) -
 				CalcCurrentSkill(ch, ESkill::kPry, nullptr) - 2 * (ch->get_wis() - 9)) > 0)))) {
-		RemoveAffectFromChar(ch, ESpell::kHide);
+		RemoveAffectFromChar(ch, EAffect::kHide);
 		MakeVisible(ch, EAffect::kHide);
 	}
 }
@@ -2171,9 +2171,9 @@ void Appear(CharData *ch) {
 		|| AFF_FLAGGED(ch, EAffect::kHide);
 
 	RemoveAffectFromChar(ch, ESpell::kInvisible);
-	RemoveAffectFromChar(ch, ESpell::kHide);
-	RemoveAffectFromChar(ch, ESpell::kSneak);
-	RemoveAffectFromChar(ch, ESpell::kCamouflage);
+	RemoveAffectFromChar(ch, EAffect::kHide);
+	RemoveAffectFromChar(ch, EAffect::kSneak);
+	RemoveAffectFromChar(ch, EAffect::kDisguise);
 
 	AFF_FLAGS(ch).unset(EAffect::kInvisible);
 	AFF_FLAGS(ch).unset(EAffect::kHide);

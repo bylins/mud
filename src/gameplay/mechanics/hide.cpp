@@ -22,7 +22,7 @@ int SkipHiding(CharData *ch, CharData *vict) {
 	if (sight::MaySee(ch, vict, ch) && IsAffectedFlagOnly(ch, EAffect::kHide)) {
 		if (awake_hide(ch)) {
 			SendMsgToChar("Вы попытались спрятаться, но ваша экипировка выдала вас.\r\n", ch);
-			RemoveAffectFromChar(ch, ESpell::kHide);
+			RemoveAffectFromChar(ch, EAffect::kHide);
 			MakeVisible(ch, EAffect::kHide);
 			ch->Temporary.set(ECharExtraFlag::kFailHide);
 		} else if (IsAffectedFlagOnly(ch, EAffect::kHide)) {
@@ -33,7 +33,7 @@ int SkipHiding(CharData *ch, CharData *vict) {
 			percent = number(1, 82 + GetRealInt(vict));
 			prob = CalcCurrentSkill(ch, ESkill::kHide, vict);
 			if (percent > prob) {
-				RemoveAffectFromChar(ch, ESpell::kHide);
+				RemoveAffectFromChar(ch, EAffect::kHide);
 				AFF_FLAGS(ch).unset(EAffect::kHide);
 				act("Вы не сумели остаться незаметным.", false, ch, nullptr, vict, kToChar);
 			} else {
@@ -52,7 +52,7 @@ int SkipCamouflage(CharData *ch, CharData *vict) {
 	if (sight::MaySee(ch, vict, ch) && IsAffectedFlagOnly(ch, EAffect::kDisguise)) {
 		if (awake_camouflage(ch)) {
 			SendMsgToChar("Вы попытались замаскироваться, но ваша экипировка выдала вас.\r\n", ch);
-			RemoveAffectFromChar(ch, ESpell::kCamouflage);
+			RemoveAffectFromChar(ch, EAffect::kDisguise);
 			MakeVisible(ch, EAffect::kDisguise);
 			ch->Temporary.set(ECharExtraFlag::kFailCamouflage);
 		} else if (IsAffectedFlagOnly(ch, EAffect::kDisguise)) {
@@ -63,7 +63,7 @@ int SkipCamouflage(CharData *ch, CharData *vict) {
 			percent = number(1, 82 + GetRealInt(vict));
 			prob = CalcCurrentSkill(ch, ESkill::kDisguise, vict);
 			if (percent > prob) {
-				RemoveAffectFromChar(ch, ESpell::kCamouflage);
+				RemoveAffectFromChar(ch, EAffect::kDisguise);
 				AFF_FLAGS(ch).unset(EAffect::kDisguise);
 				ImproveSkill(ch, ESkill::kDisguise, false, vict);
 				act("Вы не сумели правильно замаскироваться.", false, ch, nullptr, vict, kToChar);
@@ -85,9 +85,9 @@ int SkipSneaking(CharData *ch, CharData *vict) {
 		if (awake_sneak(ch))    //if (affected_by_spell(ch,SPELL_SNEAK))
 		{
 			SendMsgToChar("Вы попытались подкрасться, но ваша экипировка выдала вас.\r\n", ch);
-			RemoveAffectFromChar(ch, ESpell::kSneak);
+			RemoveAffectFromChar(ch, EAffect::kSneak);
 			MakeVisible(ch, EAffect::kSneak);
-			RemoveAffectFromChar(ch, ESpell::kHide);
+			RemoveAffectFromChar(ch, EAffect::kHide);
 			AFF_FLAGS(ch).unset(EAffect::kHide);
 			AFF_FLAGS(ch).unset(EAffect::kSneak);
 		} else if (IsAffectedFlagOnly(ch, EAffect::kSneak)) {
@@ -104,8 +104,8 @@ int SkipSneaking(CharData *ch, CharData *vict) {
 				try_fail = false;
 
 			if ((percent > prob) || try_fail) {
-				RemoveAffectFromChar(ch, ESpell::kSneak);
-				RemoveAffectFromChar(ch, ESpell::kHide);
+				RemoveAffectFromChar(ch, EAffect::kSneak);
+				RemoveAffectFromChar(ch, EAffect::kHide);
 				AFF_FLAGS(ch).unset(EAffect::kHide);
 				AFF_FLAGS(ch).unset(EAffect::kSneak);
 				ImproveSkill(ch, ESkill::kSneak, false, vict);

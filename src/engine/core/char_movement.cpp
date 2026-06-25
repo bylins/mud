@@ -316,9 +316,9 @@ void PerformDunkSong(CharData *ch) {
 		SendMsgToChar("\r\n", ch);
 		strcat(buf, drunk_voice[number(0, kMaxDrunkVoice - 1)]);
 		act(buf, false, ch, nullptr, nullptr, kToRoom | kToNotDeaf);
-		RemoveAffectFromChar(ch, ESpell::kHide);
-		RemoveAffectFromChar(ch, ESpell::kSneak);
-		RemoveAffectFromChar(ch, ESpell::kCamouflage);
+		RemoveAffectFromChar(ch, EAffect::kHide);
+		RemoveAffectFromChar(ch, EAffect::kSneak);
+		RemoveAffectFromChar(ch, EAffect::kDisguise);
 		AFF_FLAGS(ch).unset(EAffect::kHide);
 		AFF_FLAGS(ch).unset(EAffect::kSneak);
 		AFF_FLAGS(ch).unset(EAffect::kDisguise);
@@ -394,7 +394,7 @@ bool PerformSimpleMove(CharData *ch, int dir, int following, CharData *leader, E
 		if (ch->IsNpc())
 			invis = 1;
 		else if (awake_sneak(ch)) {
-			RemoveAffectFromChar(ch, ESpell::kSneak);
+			RemoveAffectFromChar(ch, EAffect::kSneak);
 			AFF_FLAGS(ch).unset(EAffect::kSneak);
 		} else if (!IsAffectedFlagOnly(ch, EAffect::kSneak) || CalcCurrentSkill(ch, ESkill::kSneak, nullptr) >= number(1, i))
 			invis = 1;
@@ -405,7 +405,7 @@ bool PerformSimpleMove(CharData *ch, int dir, int following, CharData *leader, E
 		if (ch->IsNpc())
 			invis = 1;
 		else if (awake_camouflage(ch)) {
-			RemoveAffectFromChar(ch, ESpell::kCamouflage);
+			RemoveAffectFromChar(ch, EAffect::kDisguise);
 			AFF_FLAGS(ch).unset(EAffect::kDisguise);
 		} else if (!IsAffectedFlagOnly(ch, EAffect::kDisguise) ||
 		CalcCurrentSkill(ch, ESkill::kDisguise, nullptr) >= number(1, i))

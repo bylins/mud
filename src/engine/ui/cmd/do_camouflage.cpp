@@ -38,7 +38,7 @@ void do_camouflage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*
 	}
 
 	if (privilege::IsImmortal(ch)) {
-		RemoveAffectFromChar(ch, ESpell::kCamouflage);
+		RemoveAffectFromChar(ch, EAffect::kDisguise);
 	}
 
 	if (IsAffectedOrAttempting(ch, EAffect::kDisguise)) {

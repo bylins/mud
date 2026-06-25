@@ -118,7 +118,7 @@ void go_steal(CharData *ch, CharData *vict, char *obj_name) {
 			if (percent > prob && !success) {
 				ohoh = true;
 				if (AFF_FLAGGED(ch, EAffect::kHide)) {
-					RemoveAffectFromChar(ch, ESpell::kHide);
+					RemoveAffectFromChar(ch, EAffect::kHide);
 					MakeVisible(ch, EAffect::kHide);
 				};
 				SendMsgToChar("Атас.. Дружина на конях!\r\n", ch);
@@ -150,7 +150,7 @@ void go_steal(CharData *ch, CharData *vict, char *obj_name) {
 		if (percent > prob && !success) {
 			ohoh = true;
 			if (AFF_FLAGGED(ch, EAffect::kHide)) {
-				RemoveAffectFromChar(ch, ESpell::kHide);
+				RemoveAffectFromChar(ch, EAffect::kHide);
 				MakeVisible(ch, EAffect::kHide);
 			};
 			SendMsgToChar("Вы влипли... Вас посодют... А вы не воруйте..\r\n", ch);

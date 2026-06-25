@@ -1020,7 +1020,7 @@ void check_hiding_cmd(CharData *ch, int percent) {
 			remove_hide = number(1, percent) > GetSkill(ch, ESkill::kHide);
 		}
 		if (remove_hide) {
-			RemoveAffectFromChar(ch, ESpell::kHide);
+			RemoveAffectFromChar(ch, EAffect::kHide);
 			MakeVisible(ch, EAffect::kHide);
 		}
 	}
