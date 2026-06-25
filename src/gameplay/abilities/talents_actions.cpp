@@ -948,6 +948,17 @@ void Actions::ParseAction(Action &out, parser_wrapper::DataNode node) {
 			// <side_spell id="kHold"/>.
 			const char *idv = manifestation.GetValue("id");
 			if (idv && *idv) { out.side_spells_.push_back(parse::ReadAsConstant<ESpell>(idv)); }
+		} else if (strcmp(manifestation.GetName(), "trigger") == 0) {
+			// issue.affect-migration: <trigger val="kPulse|kBattlePulse"/> -- the event(s) that fire
+			// this action. No trigger => the action runs inline in the normal cast.
+			const char *tv = manifestation.GetValue("val");
+			if (tv && *tv) {
+				for (const auto &name : utils::Split(tv, '|')) {
+					if (name == "kPulse") { out.trigger_.set(EActionTrigger::kPulse); }
+					else if (name == "kBattlePulse") { out.trigger_.set(EActionTrigger::kBattlePulse); }
+					else { err_log("Actions: unknown <trigger val='%s'>.", name.c_str()); }
+				}
+			}
 		}
 	}
 	node.GoToParent();

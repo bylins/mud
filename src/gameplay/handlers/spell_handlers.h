@@ -56,9 +56,10 @@ void SetupFirekeeperStats(CharData *ch, CharData *mob, const CastContext &ctx, i
 void CloneCascade(CharData *ch, CharData *mob, const CastContext &ctx, int duration);
 
 // --- Room-affect tick handler (issue.spellhandlers) ---------------------------------------------
-// kThunderstorm per-tick cascade, dispatched by magic_rooms.cpp's kRoomTickHandlers. (Its
-// Affect<ERoomApply>::shared_ptr signature is why this header includes magic_rooms.h.)
-void HandleThunderstormTick(CharData *ch, const Affect<room_spells::ERoomApply>::shared_ptr &aff);
+// issue.affect-migration: kThunderstorm per-tick cascade -- now a manual_cast handler in the shared
+// kManualHandlers registry (was the room_affects tick_handler). Phase = the affect's duration, passed
+// via CastContext (SetTickDuration/GetTickDuration).
+EStageResult HandleThunderstormTick(CastContext &ctx);
 
 // --- Manual spell-cast handlers (issue.spellhandlers, extracted from spells.cpp) ------------
 EStageResult SpellCreateWater(CastContext &ctx);

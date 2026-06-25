@@ -120,6 +120,12 @@ class CastContext {
 	// issue.affect-migration: run an external action list (an affect's own <actions>) through this
 	// context instead of the spell's. nullptr (the default) = use the spell's actions.
 	void UseExternalActions(const std::vector<talents_actions::Action> *list) { external_actions_ = list; }
+	// issue.affect-migration: per-tick channel for room-affect manual_cast handlers -- the tick runner
+	// seeds the ticking affect's current duration here and reads it back, so a manual handler (e.g.
+	// HandleThunderstormTick) can branch on / modify it via this CastContext (no room-affect type in
+	// magic.h). -1 = not a tick cast.
+	void SetTickDuration(int d) { tick_duration_ = d; }
+	[[nodiscard]] int GetTickDuration() const { return tick_duration_; }
 	[[nodiscard]] const talents_actions::Action *action() const;
 	[[nodiscard]] bool HasPendingActions() const;
 	// The action the current stage should read its block from: the cursor's
@@ -144,6 +150,7 @@ class CastContext {
 	// issue.affect-migration: affect-owned actions; when set, override the spell's action list.
 	const std::vector<talents_actions::Action> *external_actions_{nullptr};
 	size_t action_idx_{0};
+	int tick_duration_{-1};   // issue.affect-migration: see SetTickDuration (-1 = not a tick cast)
 };
 
 // VNUM'ы мобов для заклинаний, создающих мобов

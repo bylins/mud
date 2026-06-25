@@ -2522,6 +2522,8 @@ static const std::map<std::string, std::function<EStageResult(CastContext &)>> k
 	{"SpellMentalShadow",   handlers::SpellMentalShadow},
 	{"SpellAnimateDead",    SpellAnimateDead},
 	{"SpellResurrection",   SpellResurrection},
+	// issue.affect-migration: room-affect per-tick manual handler (was the room_affects tick_handler).
+	{"HandleThunderstormTick", handlers::HandleThunderstormTick},
 };
 
 // load-time validation hook (called from SpellInfoBuilder).
@@ -3262,6 +3264,13 @@ static ECastResult RunRoomCycledAction(CastContext &ctx, RoomData *room,
 	for (size_t i = 0; i < idx; ++i) {
 		ctx.NextAction();
 	}
+	// issue.affect-migration: a manual_cast action runs its hand-coded handler (the same kManualHandlers
+	// registry spells use), not the per-target / room-impose path. The handler reads its context (e.g.
+	// the tick duration) off ctx. Replaces the old room-affect tick_handler attribute.
+	if (ctx.action_or_default().Contains(talents_actions::EAction::kManual)) {
+		CastManual(ctx);
+		return ECastResult::kSuccess;
+	}
 	const talents_actions::EActionTarget sel = ctx.action_or_default().GetTarget();
 	if (sel == talents_actions::EActionTarget::kTarRoomThis) {
 		return RunActionOnRoom(ctx);
@@ -3271,26 +3280,26 @@ static ECastResult RunRoomCycledAction(CastContext &ctx, RoomData *room,
 	return RunActionOverTargets(ctx, targets, scope, false);
 }
 
-ECastResult CastRoomTickAction(CharData *ch, RoomData *room, ESpell tick_spell, int phase) {
-	if (ch == nullptr) {
-		return ECastResult::kNotCast;
-	}
-	CastContext ctx = BuildCastContext(ch, tick_spell, GetRealLevel(ch));
-	return RunRoomCycledAction(ctx, room, MUD::Spell(tick_spell).actions.list(), phase);
-}
-
 // issue.affect-migration: run an AFFECT's own actions (room_affects.xml <actions>) on the room each
-// tick. The cast context comes from the imposing spell (ctx_spell = aff->type) for level/potency, but
-// the action list is the affect's, injected via UseExternalActions. Lets a room affect own what it
-// does each tick -- no dedicated kService tick-container spell needed.
+// tick. Context (level/potency) comes from the imposing spell (ctx_spell = aff->type); the action list
+// is the affect's, injected via UseExternalActions. `tick_duration` (when non-null) carries the ticking
+// affect's current duration in and back out, so a manual_cast handler can branch on / modify it.
 ECastResult CastRoomTickActionFromActions(CharData *ch, RoomData *room, ESpell ctx_spell,
-										  const talents_actions::Actions &actions, int phase) {
+										  const std::vector<talents_actions::Action> &actions, int phase,
+										  int *tick_duration) {
 	if (ch == nullptr) {
 		return ECastResult::kNotCast;
 	}
 	CastContext ctx = BuildCastContext(ch, ctx_spell, GetRealLevel(ch));
-	ctx.UseExternalActions(&actions.list());
-	return RunRoomCycledAction(ctx, room, actions.list(), phase);
+	ctx.UseExternalActions(&actions);
+	if (tick_duration) {
+		ctx.SetTickDuration(*tick_duration);
+	}
+	const ECastResult result = RunRoomCycledAction(ctx, room, actions, phase);
+	if (tick_duration) {
+		*tick_duration = ctx.GetTickDuration();
+	}
+	return result;
 }
 
 // cast `spell_id` as an area attack on every foe in the caster's room,

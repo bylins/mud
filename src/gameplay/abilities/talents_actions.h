@@ -50,6 +50,17 @@ enum class EActionTarget {
 	                 // (the per-tick effect lives in the linked kService spell)
 };
 
+// issue.affect-migration: which game event fires this <action>. An action with no <trigger> runs
+// inline in the normal cast pipeline (when the spell is cast); actions WITH a trigger fire only on
+// that event (e.g. a room affect's per-pulse tick). A single effect can carry several actions on
+// different triggers (e.g. a per-pulse action plus an on-dispel action). Dense integers + terminal
+// kCount so BitsetFlags<EActionTrigger> can hold the set.
+enum class EActionTrigger {
+	kPulse = 0,    // every affect pulse (room/char affect update), regardless of combat
+	kBattlePulse,  // an affect pulse, but only while combat is happening in the room
+	kCount
+};
+
 // issue.cast-chain: what a NON-FIRST <action> uses as the "base" of its formula instead of the
 // caster's competence (skill+stat). kCompetence (default) keeps competence; the others substitute
 // the matching per-cast accumulator (damage dealt / points restored / affects applied / removed).
@@ -594,6 +605,9 @@ class Action {
 	// issue.side-spell: spells to cast (full nested pipeline) on this action's target(s), in order.
 	// Parsed from <side_spell id="kHold"/> (several allowed). Empty = no side-spell stage.
 	std::vector<ESpell> side_spells_;
+	// issue.affect-migration: the event(s) that fire this action (empty = inline in the normal cast).
+	// Parsed from <trigger val="kPulse|kBattlePulse">. See EActionTrigger.
+	BitsetFlags<EActionTrigger> trigger_;
 
 	friend class Actions;   // Actions builds these via the Parse* helpers.
 
@@ -617,6 +631,7 @@ class Action {
 	[[nodiscard]] bool GetReset() const { return reset_; }
 	[[nodiscard]] const std::string &GetManualHandler() const { return manual_handler_; }
 	[[nodiscard]] const std::vector<ESpell> &GetSideSpells() const { return side_spells_; }
+	[[nodiscard]] const BitsetFlags<EActionTrigger> &GetTrigger() const { return trigger_; }
 };
 
 // Spell-level caster gate (issue.spell-unification): a spell is castable by the caster

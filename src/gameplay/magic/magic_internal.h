@@ -30,11 +30,12 @@ ECastResult CastSpell(CastContext &ctx, ECastTargets scope);
 
 // Forced area-fanout of a spell over the caster's room (room-affect ticks); see magic.cpp.
 ECastResult CastAreaInRoom(CharData *ch, ESpell spell_id, int level);
-// Run a single, cycled action (action[phase % N]) of a kService tick spell on the room.
-ECastResult CastRoomTickAction(CharData *ch, RoomData *room, ESpell tick_spell, int phase);
-// issue.affect-migration: run an affect's own actions on the room each tick (context from ctx_spell).
+// issue.affect-migration: run an affect's own (trigger-filtered) actions on the room each tick, cycled
+// by phase. Context from ctx_spell; tick_duration (when non-null) carries the affect's current duration
+// in/out so a manual_cast handler can branch on / modify it.
 ECastResult CastRoomTickActionFromActions(CharData *ch, RoomData *room, ESpell ctx_spell,
-										  const talents_actions::Actions &actions, int phase);
+										  const std::vector<talents_actions::Action> &actions, int phase,
+										  int *tick_duration = nullptr);
 
 // Build a CastContext for a cast: evaluates the success + potency rolls once. Module-internal
 // (CallMagic is the public entry; CastAreaInRoom uses it for the room-affect ticks).

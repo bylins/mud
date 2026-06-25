@@ -18,7 +18,6 @@
 #include "gameplay/fight/pk.h"          // pk_agro_action
 #include "room_affects_loader.h"   // RoomAffectsLoader
 #include "gameplay/affects/affect_contants.h"   // EAffFlag
-#include "engine/structs/bitset_flags.h"   // BitsetFlags<RoomAffectTrigger>
 #include "utils/utils_parse.h"   // parse::ReadAsConstantsBitvector
 #include <array>
 #include "room_affect_messages.h"   // RoomAffectMessagesLoader
@@ -128,47 +127,14 @@ ERoomAffect RoomAffectBySpell(ESpell spell_id) {
 // (1-based; index 0 = kUndefined = no flags).
 constexpr std::size_t kRoomAffectFlagTableSize = to_underlying(ERoomAffect::kCount);
 std::array<Bitvector, kRoomAffectFlagTableSize> g_room_affect_flags{};
-// issue.affect-migration: active room affects own their per-tick action here (moved off the casting
-// spell) -- a data tick_spell or a code tick_handler. When the action runs is governed by the affect's
-// <trigger> set (g_room_affect_triggers); see RoomAffectTrigger.
-std::array<ESpell, kRoomAffectFlagTableSize> g_room_affect_tick_spell{};
-std::array<std::string, kRoomAffectFlagTableSize> g_room_affect_tick_handler{};
-// issue.affect-migration: an affect's own <actions> (same format as a spell's <talent_actions>) --
-// the room affect performs these directly each tick, replacing a dedicated kService tick spell.
+// issue.affect-migration: an affect's own <actions> (same format as a spell's <talent_actions>). Each
+// <action> carries its own <trigger> (EActionTrigger) deciding when it fires; the room affect performs
+// the matching actions directly each tick -- no dedicated tick_spell / tick_handler. A side_spell action
+// replaces the old tick_spell; a manual_cast action replaces the old tick_handler.
 std::array<talents_actions::Actions, kRoomAffectFlagTableSize> g_room_affect_actions{};
-// issue.affect-migration: which events fire the affect's actions/tick (room_affects.xml <trigger>).
-// An empty set = no trigger = the affect never runs its actions.
-std::array<BitsetFlags<RoomAffectTrigger>, kRoomAffectFlagTableSize> g_room_affect_triggers{};
 bool g_room_affect_flags_loaded = false;
 
-// issue.affect-migration: parse a room_affects.xml <trigger val="kPulse|kBattlePulse"> token list
-// into a RoomAffectTrigger set. Unknown tokens are reported and skipped.
-BitsetFlags<RoomAffectTrigger> ParseRoomAffectTriggers(const char *val, const char *id) {
-	static const std::map<std::string, RoomAffectTrigger> kNames = {
-		{"kPulse", RoomAffectTrigger::kPulse},
-		{"kBattlePulse", RoomAffectTrigger::kBattlePulse},
-	};
-	BitsetFlags<RoomAffectTrigger> triggers;
-	std::string token;
-	for (const char *p = val;; ++p) {
-		if (*p == '|' || *p == '\0') {
-			if (!token.empty()) {
-				if (const auto it = kNames.find(token); it != kNames.end()) {
-					triggers.set(it->second);
-				} else {
-					log("SYSERROR: room_affects.xml: unknown trigger '%s' for %s.", token.c_str(), id);
-				}
-				token.clear();
-			}
-			if (*p == '\0') { break; }
-		} else if (*p != ' ' && *p != '\t') {
-			token.push_back(*p);
-		}
-	}
-	return triggers;
-}
-
-// issue.affect-migration: is a fight underway in this room? (gates kBattlePulse triggers.)
+// issue.affect-migration: is a fight underway in this room? (gates kBattlePulse-triggered actions.)
 bool RoomHasCombat(RoomData *room) {
 	for (const auto tch : room->people) {
 		if (tch->GetEnemy()) {
@@ -178,12 +144,17 @@ bool RoomHasCombat(RoomData *room) {
 	return false;
 }
 
+// issue.affect-migration: does this action fire on the current room-affect pulse? kPulse fires every
+// pulse; kBattlePulse fires only while combat is underway in the room.
+bool ActionFiresOnPulse(const talents_actions::Action &action, bool combat) {
+	const auto &t = action.GetTrigger();
+	return t.test(talents_actions::EActionTrigger::kPulse)
+		|| (t.test(talents_actions::EActionTrigger::kBattlePulse) && combat);
+}
+
 void BuildRoomAffectFlagTable(parser_wrapper::DataNode data) {
 	g_room_affect_flags.fill(0);
-	g_room_affect_tick_spell.fill(ESpell::kUndefined);
-	for (auto &h : g_room_affect_tick_handler) { h.clear(); }
 	for (auto &a : g_room_affect_actions) { a = talents_actions::Actions{}; }
-	g_room_affect_triggers.fill(BitsetFlags<RoomAffectTrigger>{});
 	for (auto &node : data.Children("room_affect")) {
 		const char *id = node.GetValue("id");
 		if (!id || !*id) {
@@ -199,22 +170,14 @@ void BuildRoomAffectFlagTable(parser_wrapper::DataNode data) {
 		if (idx >= kRoomAffectFlagTableSize) {
 			continue;
 		}
-		if (const char *flags = node.GetValue("flags"); flags && *flags) {
-			g_room_affect_flags[idx] = parse::ReadAsConstantsBitvector<EAffFlag>(flags);
-		}
-		if (const char *ts = node.GetValue("tick_spell"); ts && *ts) {
-			g_room_affect_tick_spell[idx] = parse::ReadAsConstant<ESpell>(ts);
-		}
-		if (const char *th = node.GetValue("tick_handler"); th && *th) {
-			g_room_affect_tick_handler[idx] = th;
-		}
-		// issue.affect-migration: read child elements off a COPY of the iteration node (the obj_sets
-		// pattern); mutating the range's own node with GoToChild/GoToParent does not round-trip.
+		// issue.affect-migration: effect flags + actions live in child tags (unified with spells.xml),
+		// read off a COPY of the iteration node (the obj_sets pattern). Each <action> carries its own
+		// <trigger>, parsed by Actions::Build/ParseAction.
 		{
-			auto trig_node = node;
-			if (trig_node.GoToChild("trigger")) {
-				if (const char *tv = trig_node.GetValue("val"); tv && *tv) {
-					g_room_affect_triggers[idx] = ParseRoomAffectTriggers(tv, id);
+			auto fnode = node;
+			if (fnode.GoToChild("flags")) {
+				if (const char *flags = fnode.GetValue("val"); flags && *flags) {
+					g_room_affect_flags[idx] = parse::ReadAsConstantsBitvector<EAffFlag>(flags);
 				}
 			}
 		}
@@ -260,25 +223,10 @@ Bitvector RoomAffectFlagsByType(ERoomAffect affect_type) {
 }
 bool RoomAffectFlagsLoaded() { return g_room_affect_flags_loaded; }
 
-ESpell RoomAffectTickSpell(ERoomAffect affect_type) {
-	const auto idx = static_cast<std::size_t>(to_underlying(affect_type));
-	return idx < kRoomAffectFlagTableSize ? g_room_affect_tick_spell[idx] : ESpell::kUndefined;
-}
-const std::string &RoomAffectTickHandler(ERoomAffect affect_type) {
-	static const std::string kEmpty;
-	const auto idx = static_cast<std::size_t>(to_underlying(affect_type));
-	return idx < kRoomAffectFlagTableSize ? g_room_affect_tick_handler[idx] : kEmpty;
-}
-
 const talents_actions::Actions &RoomAffectActions(ERoomAffect affect_type) {
 	static const talents_actions::Actions kEmpty;
 	const auto idx = static_cast<std::size_t>(to_underlying(affect_type));
 	return idx < kRoomAffectFlagTableSize ? g_room_affect_actions[idx] : kEmpty;
-}
-
-bool HasRoomAffectTrigger(ERoomAffect affect_type, RoomAffectTrigger trigger) {
-	const auto idx = static_cast<std::size_t>(to_underlying(affect_type));
-	return idx < kRoomAffectFlagTableSize && g_room_affect_triggers[idx].test(trigger);
 }
 
 void RoomAffectsLoader::Load(parser_wrapper::DataNode data) { ValidateRoomAffectRegistry(data); BuildRoomAffectFlagTable(data); }
@@ -482,14 +430,6 @@ void AddRoomToAffected(RoomData *room) {
 // duration phase) to the whole room. Replaces the hardcoded SendMsgToChar/act pairs.
 
 
-// Раз в 2 секунды идет вызов обработчиков аффектов//
-// String-named code tick handlers for room affects -- the manual-cast mechanism for per-tick
-// room logic the data can't express. A room affect names one via <affects tick_handler="...">.
-static const std::map<std::string, std::function<void(CharData *, const Affect<ERoomApply>::shared_ptr &)>>
-		kRoomTickHandlers = {
-	{"HandleThunderstormTick", handlers::HandleThunderstormTick},
-};
-
 // Per-tick room narration: cycle the impose spell's defined kCustomMsg slots by the affect's
 // tick counter (apply_time), so a multi-phase room effect can show a different line each round.
 static void EmitRoomTickMessage(CharData *ch, ESpell impose, int tick) {
@@ -509,80 +449,45 @@ static void EmitRoomTickMessage(CharData *ch, ESpell impose, int tick) {
 	}
 }
 
-// Generic data-driven room-affect tick: if the impose spell carries <affects tick_spell="B">,
-// cast B on the affected room each tick (with B's own actions/targets) and emit the cycled
-// per-tick message. Returns true if it handled the tick (so HandleRoomAffect skips the hardcoded
-// switch); false to fall through to the in-code handlers. The 4 legacy room handlers move onto
-// this path in Stage D.
-// NOTE: B is cast fresh via CastAreaInRoom (the legacy per-tick re-cast onto the room's foes).
-// Two refinements are deferred until a spell needs them: (1) stored-potency-scaled ticks (use
-// the affect's saved potency instead of B's fresh roll); (2) caster-independent ticks under
-// kMagCasterAnywhere/kMagCasterInworldDelay when ch == nullptr (no caster to source the cast).
+// issue.affect-migration: per-tick room-affect handler. The affect owns its work as <actions>, each
+// gated by its own <trigger> (a side_spell action replaces the old tick_spell; a manual_cast action
+// replaces the old tick_handler). Collect the actions whose trigger fires on this pulse (kPulse always;
+// kBattlePulse only in combat) and run ONE per tick, cycled by the affect's tick counter. Returns false
+// if the affect has no pulse-triggered action (a passive affect -- nothing to do this tick).
 static bool RunRoomTick(RoomData *room, CharData *ch, const Affect<ERoomApply>::shared_ptr &aff) {
 	const ESpell impose = aff->type;
 	const ERoomAffect affect_type = aff->affect_type;
-	// issue.affect-migration: the per-tick action is owned by the AFFECT (room_affects.xml), not the
-	// casting spell -- read by affect_type. impose is kept only for the tick narration + error text.
-	// 1. Code tick handler named by string (manual-cast mechanism for room ticks): the handler
-	//    reads the affect directly (e.g. its duration). Used for ticks the data can't express.
-	const std::string &handler = RoomAffectTickHandler(affect_type);
-	if (!handler.empty()) {
-		const auto it = kRoomTickHandlers.find(handler);
-		if (it == kRoomTickHandlers.end()) {
-			err_log("RunRoomTick: unknown tick_handler '%s' for spell %s.",
-					handler.c_str(), NAME_BY_ITEM<ESpell>(impose).c_str());
-			return true;
+	const bool combat = RoomHasCombat(room);
+	std::vector<talents_actions::Action> pulse;
+	for (const auto &action : RoomAffectActions(affect_type).list()) {
+		if (ActionFiresOnPulse(action, combat)) {
+			pulse.push_back(action);
 		}
-		if (ch != nullptr) {
-			it->second(ch, aff);
-		}
-		return true;
 	}
-	// 2. Data-driven tick_spell.
-	// 2. Affect-owned actions (room_affects.xml <actions>): the affect performs its own per-tick
-	//    action -- no dedicated tick spell needed. Context (level/potency) comes from the imposing
-	//    spell (impose = aff->type); the action list is the affect's.
-	if (const auto &actions = RoomAffectActions(affect_type); !actions.list().empty()) {
-		if (ch == nullptr) {
-			return true;
-		}
-		const int phase = aff->apply_time > 0 ? aff->apply_time - 1 : 0;
-		EmitRoomTickMessage(ch, impose, phase);
-		CastRoomTickActionFromActions(ch, room, impose, actions, phase);
-		return true;
-	}
-	// 3. Data-driven tick_spell.
-	const ESpell tick = RoomAffectTickSpell(affect_type);
-	if (tick == ESpell::kUndefined) {
+	if (pulse.empty()) {
 		return false;
 	}
 	if (ch == nullptr) {
-		return true;  // tick-driven affect, but no caster to source the cast this tick
+		return true;  // triggered affect, but no caster to source the cast this tick
 	}
-	// apply_time is incremented before the handler runs, so the first tick is apply_time==1.
-	// phase counts from 0 so action[phase % N] / kCustomMsg slot [phase % K] start at the first.
+	// apply_time is incremented before the handler runs, so the first tick is apply_time==1; phase
+	// counts from 0 so action[phase % N] / kCustomMsg slot [phase % K] start at the first.
 	const int phase = aff->apply_time > 0 ? aff->apply_time - 1 : 0;
 	EmitRoomTickMessage(ch, impose, phase);
-	if (MUD::Spell(tick).GetMode() == EItemMode::kService) {
-		// multi-phase: run the tick spell's cycled action (action[phase % N]) on the room.
-		CastRoomTickAction(ch, room, tick, phase);
-	} else {
-		// single-phase: area-cast the whole tick spell on the room's foes (legacy re-cast).
-		CastAreaInRoom(ch, tick, GetRealLevel(ch));
-	}
+	// Thread the affect's current duration in/out so a manual_cast handler (e.g. thunderstorm) can
+	// branch on it -- and end the effect early by zeroing it.
+	int dur = aff->duration;
+	CastRoomTickActionFromActions(ch, room, impose, pulse, phase, &dur);
+	aff->duration = dur;
 	return true;
 }
 
 void HandleRoomAffect(RoomData *room, CharData *ch, const Affect<ERoomApply>::shared_ptr &aff) {
 	assert(aff);
 	assert(room);
-	// Fully data-driven dispatch (no per-spell switch): the affect owns its per-tick work via
-	// <actions>, a tick_spell (data) or a tick_handler (code, by string). A triggered affect that
-	// resolves to none of these is a misconfiguration -- fail loudly.
-	if (!RunRoomTick(room, ch, aff)) {
-		err_log("HandleRoomAffect: triggered room affect %s has no <actions>/tick_spell/tick_handler.",
-				NAME_BY_ITEM<ESpell>(aff->type).c_str());
-	}
+	// issue.affect-migration: run the affect's pulse-triggered <actions> (if any). A passive affect
+	// with no pulse-triggered action simply does nothing this tick.
+	RunRoomTick(room, ch, aff);
 }
 
 // раз в 2 секунды
@@ -646,14 +551,10 @@ void UpdateRoomsAffects() {
 
 			// Учитываем что время выдается в пульсах а не в секундах  т.е. надо умножать на 2
 			affect->apply_time++;
-			// issue.affect-migration: the affect's <trigger> set decides when its actions/tick run.
-			// kPulse fires every room-affect pulse (the old kAfMustBeHandled behavior); kBattlePulse
-			// fires only while combat is happening in the room. An affect with no trigger never fires.
-			const auto affect_type = affect->affect_type;
-			if (HasRoomAffectTrigger(affect_type, RoomAffectTrigger::kPulse)
-				|| (HasRoomAffectTrigger(affect_type, RoomAffectTrigger::kBattlePulse) && RoomHasCombat(*room))) {
-				HandleRoomAffect(*room, ch, affect);
-			}
+			// issue.affect-migration: run the affect's pulse-triggered <actions>. HandleRoomAffect ->
+			// RunRoomTick filters by each action's own <trigger> (kPulse / kBattlePulse) and no-ops for
+			// passive affects, so this is safe to call for every room affect.
+			HandleRoomAffect(*room, ch, affect);
 		}
 
 		//если больше аффектов нет, удаляем комнату из списка обкастованных

@@ -2,47 +2,82 @@
 <!--
     issue.affect-migration: the room-affect registry. id = the room_spells::ERoomAffect enumerator
     (the identity, kept in C++). Parallels cfg/affects.xml for character affects. Per-room-affect
-    display/lifecycle text lives in cfg/messages/ru/room_affect_msg.xml. Each affect owns its behavior
-    flags, its per-tick work (tick_spell, tick_handler or an actions block), and a trigger set that
-    decides when that work runs, so a room affect self-processes instead of being identified only by
-    its casting spell. trigger val tokens (RoomAffectTrigger): kPulse = every room-affect pulse (the
-    former kAfMustBeHandled behavior); kBattlePulse = only while combat is happening in the room.
+    display/lifecycle text lives in cfg/messages/ru/room_affect_msg.xml.
+
+    Format (unified with spells.xml): effect flags live in a <flags val="..."/> child tag; per-tick
+    work lives in an <actions> block. Each <action> carries its own <trigger val="..."/> (an ACTION
+    flag, not an effect flag) deciding when it fires, so one effect can run different actions on
+    different events. trigger tokens: kPulse = every room-affect pulse; kBattlePulse = only while
+    combat is underway in the room. A side_spell action area-casts a spell on the room's foes; a
+    manual_cast action runs a hand-coded handler (the same kManualHandlers registry spells use).
 -->
 <room_affects>
 	<room_affect id="kNoPortalExit"/>
-	<room_affect id="kForbidden" flags="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
-	<room_affect id="kMeteorStorm" flags="kAfDispellable" tick_spell="kThunderStone">
-		<trigger val="kPulse"/>
+	<room_affect id="kForbidden">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
 	</room_affect>
-	<room_affect id="kRoomLight" flags="kAfUpdateDuration|kAfAccumulateDuration"/>
-	<room_affect id="kDeadlyFog" flags="kAfDispellable">
-		<trigger val="kPulse"/>
+	<room_affect id="kMeteorStorm">
+		<flags val="kAfDispellable"/>
 		<actions>
 			<action target="kTarFoes">
+				<trigger val="kPulse"/>
+				<area><targets max="-1" /><distribution type="kUniform" /></area>
+				<side_spell id="kThunderStone" />
+			</action>
+		</actions>
+	</room_affect>
+	<room_affect id="kRoomLight">
+		<flags val="kAfUpdateDuration|kAfAccumulateDuration"/>
+	</room_affect>
+	<room_affect id="kDeadlyFog">
+		<flags val="kAfDispellable"/>
+		<actions>
+			<action target="kTarFoes">
+				<trigger val="kPulse"/>
 				<area><targets max="-1" /><distribution type="kUniform" /></area>
 				<side_spell id="kAcidArrow" />
 			</action>
 			<action target="kTarFoes">
+				<trigger val="kPulse"/>
 				<area><targets max="-1" /><distribution type="kUniform" /></area>
 				<side_spell id="kPoison" />
 			</action>
 			<action target="kTarFoes">
+				<trigger val="kPulse"/>
 				<area><targets max="-1" /><distribution type="kUniform" /></area>
 				<side_spell id="kDamageCritic" />
 			</action>
 			<action target="kTarFoes">
+				<trigger val="kPulse"/>
 				<area><targets max="-1" /><distribution type="kUniform" /></area>
 				<side_spell id="kSacrifice" />
 			</action>
 		</actions>
 	</room_affect>
-	<room_affect id="kThunderstorm" flags="kAfDispellable" tick_handler="HandleThunderstormTick">
-		<trigger val="kPulse"/>
+	<room_affect id="kThunderstorm">
+		<flags val="kAfDispellable"/>
+		<actions>
+			<action>
+				<trigger val="kPulse"/>
+				<manual_cast handler="HandleThunderstormTick" />
+			</action>
+		</actions>
 	</room_affect>
-	<room_affect id="kRuneLabel" flags="kAfUpdateDuration|kAfUnique"/>
-	<room_affect id="kHypnoticPattern" flags="kAfDispellable"/>
-	<room_affect id="kBlackTentacles" flags="kAfDispellable" tick_spell="kDamageSerious">
-		<trigger val="kPulse"/>
+	<room_affect id="kRuneLabel">
+		<flags val="kAfUpdateDuration|kAfUnique"/>
+	</room_affect>
+	<room_affect id="kHypnoticPattern">
+		<flags val="kAfDispellable"/>
+	</room_affect>
+	<room_affect id="kBlackTentacles">
+		<flags val="kAfDispellable"/>
+		<actions>
+			<action target="kTarFoes">
+				<trigger val="kPulse"/>
+				<area><targets max="-1" /><distribution type="kUniform" /></area>
+				<side_spell id="kDamageSerious" />
+			</action>
+		</actions>
 	</room_affect>
 	<room_affect id="kPortalTimer"/>
 </room_affects>
