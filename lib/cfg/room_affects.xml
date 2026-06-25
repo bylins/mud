@@ -3,10 +3,10 @@
     issue.affect-migration: the room-affect registry. id = the room_spells::ERoomAffect enumerator
     (the identity, kept in C++). Parallels cfg/affects.xml for character affects. Per-room-affect
     display/lifecycle text lives in cfg/messages/ru/room_affect_msg.xml. Each affect owns its behavior
-    flags, its per-tick work (tick_spell / tick_handler / <actions>), and a <trigger> set that decides
-    when that work runs -- so a room affect self-processes instead of being identified only by its
-    casting spell. trigger val tokens (RoomAffectTrigger): kPulse = every room-affect pulse (the former
-    kAfMustBeHandled behavior); kBattlePulse = only while combat is happening in the room.
+    flags, its per-tick work (tick_spell, tick_handler or an actions block), and a trigger set that
+    decides when that work runs, so a room affect self-processes instead of being identified only by
+    its casting spell. trigger val tokens (RoomAffectTrigger): kPulse = every room-affect pulse (the
+    former kAfMustBeHandled behavior); kBattlePulse = only while combat is happening in the room.
 -->
 <room_affects>
 	<room_affect id="kNoPortalExit"/>

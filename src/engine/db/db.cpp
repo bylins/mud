@@ -671,6 +671,13 @@ void BootMudDataBase() {
 	log("Loading spells cfg.");
 	MUD::CfgManager().LoadCfg("spells");
 
+	// issue.affect-migration: room-affect registry + messages (flags/triggers/actions and the
+	// per-room-affect display/lifecycle text). After spells, since room affects reference spell ids.
+	boot_profiler.next_step("Loading room affects cfg.");
+	log("Loading room affects cfg.");
+	MUD::CfgManager().LoadCfg("room_affect_msg");
+	MUD::CfgManager().LoadCfg("room_affects");
+
 	boot_profiler.next_step("Linting editor schemes.");
 	vedun::LintSchemes();
 

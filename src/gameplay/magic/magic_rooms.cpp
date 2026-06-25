@@ -208,15 +208,21 @@ void BuildRoomAffectFlagTable(parser_wrapper::DataNode data) {
 		if (const char *th = node.GetValue("tick_handler"); th && *th) {
 			g_room_affect_tick_handler[idx] = th;
 		}
-		if (node.GoToChild("trigger")) {
-			if (const char *tv = node.GetValue("val"); tv && *tv) {
-				g_room_affect_triggers[idx] = ParseRoomAffectTriggers(tv, id);
+		// issue.affect-migration: read child elements off a COPY of the iteration node (the obj_sets
+		// pattern); mutating the range's own node with GoToChild/GoToParent does not round-trip.
+		{
+			auto trig_node = node;
+			if (trig_node.GoToChild("trigger")) {
+				if (const char *tv = trig_node.GetValue("val"); tv && *tv) {
+					g_room_affect_triggers[idx] = ParseRoomAffectTriggers(tv, id);
+				}
 			}
-			node.GoToParent();
 		}
-		if (node.GoToChild("actions")) {
-			g_room_affect_actions[idx].Build(node);
-			node.GoToParent();
+		{
+			auto act_node = node;
+			if (act_node.GoToChild("actions")) {
+				g_room_affect_actions[idx].Build(act_node);
+			}
 		}
 	}
 	g_room_affect_flags_loaded = true;
