@@ -23,7 +23,7 @@ constexpr std::array<const char *, static_cast<size_t>(ECategory::kCount)>
 bool ParseGrade(parser_wrapper::DataNode &node, Grade &out) {
 	const char *percent = node.GetValue("percent");
 	const char *text = node.GetValue("text");
-	if (!text || !*text) {
+	if (!percent || !*percent) {
 		return false;
 	}
 	out.percent = (percent && *percent) ? parse::ReadAsInt(percent) : 0;
@@ -87,6 +87,25 @@ void PointsIntensity::Reload(const parser_wrapper::DataNode &node_in) {
 		node.GoToParent();
 	}
 }
+const std::vector<std::pair<std::string, std::string>> PointsIntensity::ShowHelpDamage() const {
+	std::pair<std::string, std::string> dam;
+	std::vector<std::pair<std::string, std::string>>  out_damage;
+	size_t sz = categories_[static_cast<size_t>(ECategory::kDamage)].improve.size();
+	const auto &cat = categories_[static_cast<size_t>(ECategory::kDamage)].improve;
+
+	for (auto i = sz - 1;  i > 0; i--) {
+		if (!cat[i].text.empty())
+			dam.first = cat[i].text;
+		else
+			dam.first = "(нет дополнительного сообщения)";
+		dam.second = std::to_string(cat[i].percent) + ".." + std::to_string(cat[i - 1].percent - 1);
+		out_damage.push_back(dam);
+	}
+	dam.first = cat[0].text;
+	dam.second = std::to_string(cat[0].percent) + "+";
+	out_damage.push_back(dam);
+	return out_damage;
+}
 
 const std::string &PointsIntensity::Resolve(ECategory category, int percent) const {
 	static const std::string kEmpty;
@@ -105,6 +124,7 @@ const std::string &PointsIntensity::Resolve(ECategory category, int percent) con
 	// An input below the weakest threshold returns an empty string -- callers
 	// (CastToPoints) treat that as "no narration this category."
 	const auto &table = (percent >= 0) ? cat.improve : cat.degrade;
+
 	for (const auto &g : table) {
 		if (g.percent <= percent) {
 			return g.text;

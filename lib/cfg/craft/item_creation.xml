@@ -1,13 +1,436 @@
 <?xml version="1.0" encoding="koi8-r"?>
-<!-- "Make item" recipes (я│п╪п╟я│я┌п╣я─п╦я┌я▄/п╡я▀п╨п╬п╡п╟я┌я▄/я│я┬п╦я┌я▄ ...).
-     Each recipe: a crafting skill (ESkill token), the crafted item vnum, and up to
-     3 ingredient parts. An ingredient: vnum + min_weight + min_power (the minimums
-     the supplied component must meet). Add locked="true" to disable a recipe.
-     Each recipe also has a unique vnum (its identity, used by the Vedun editor).
-     The full production recipe set lives outside the repo; this is a sample. -->
+<!-- "Make item" recipes - full production set, generated from misc/makeitems.lst.
+     recipe: unique vnum + skill (ESkill) + crafted item vnum + up to 3 ingredients
+     (vnum, min_weight, min_power). locked="true" disables a recipe. vnum is the Vedun key. -->
 <item_creation>
-	<recipe vnum="1" skill="kMakeBow" result="1500">
+	<recipe vnum="1" skill="kMakeWear" result="1682">
+		<ingredient vnum="1661" min_weight="4" min_power="0"/>
+		<ingredient vnum="1600" min_weight="4" min_power="0"/>
+		<ingredient vnum="1612" min_weight="4" min_power="0"/>
+	</recipe>
+	<recipe vnum="2" skill="kMakeWear" result="1685">
+		<ingredient vnum="1661" min_weight="4" min_power="0"/>
+		<ingredient vnum="1600" min_weight="4" min_power="0"/>
+		<ingredient vnum="1612" min_weight="4" min_power="0"/>
+	</recipe>
+	<recipe vnum="3" skill="kMakeWear" result="1684">
+		<ingredient vnum="1661" min_weight="4" min_power="0"/>
+		<ingredient vnum="1600" min_weight="4" min_power="0"/>
+		<ingredient vnum="1612" min_weight="4" min_power="0"/>
+	</recipe>
+	<recipe vnum="4" skill="kMakeWear" result="1683">
+		<ingredient vnum="1661" min_weight="4" min_power="0"/>
+		<ingredient vnum="1600" min_weight="4" min_power="0"/>
+		<ingredient vnum="1612" min_weight="4" min_power="0"/>
+	</recipe>
+	<recipe vnum="5" skill="kMakeWear" result="1686">
+		<ingredient vnum="1661" min_weight="4" min_power="0"/>
+		<ingredient vnum="1600" min_weight="4" min_power="0"/>
+		<ingredient vnum="1612" min_weight="4" min_power="0"/>
+	</recipe>
+	<recipe vnum="6" skill="kMakeWear" result="1687">
+		<ingredient vnum="1661" min_weight="4" min_power="0"/>
+		<ingredient vnum="1600" min_weight="4" min_power="0"/>
+		<ingredient vnum="1612" min_weight="4" min_power="0"/>
+	</recipe>
+	<recipe vnum="7" skill="kMakeWear" result="1688">
+		<ingredient vnum="1661" min_weight="4" min_power="0"/>
+		<ingredient vnum="1678" min_weight="4" min_power="0"/>
+		<ingredient vnum="1677" min_weight="4" min_power="0"/>
+	</recipe>
+	<recipe vnum="8" skill="kMakeWear" result="1689">
+		<ingredient vnum="1661" min_weight="4" min_power="0"/>
+		<ingredient vnum="1600" min_weight="4" min_power="0"/>
+		<ingredient vnum="1674" min_weight="4" min_power="0"/>
+	</recipe>
+	<recipe vnum="9" skill="kMakeWear" result="1690">
+		<ingredient vnum="1661" min_weight="4" min_power="0"/>
+		<ingredient vnum="1674" min_weight="4" min_power="0"/>
+		<ingredient vnum="1681" min_weight="4" min_power="0"/>
+	</recipe>
+	<recipe vnum="10" skill="kMakeWear" result="1691">
+		<ingredient vnum="1661" min_weight="4" min_power="0"/>
+		<ingredient vnum="1674" min_weight="4" min_power="0"/>
+		<ingredient vnum="1679" min_weight="4" min_power="0"/>
+	</recipe>
+	<recipe vnum="11" skill="kMakeBow" result="1500">
 		<ingredient vnum="1400" min_weight="10" min_power="5"/>
 		<ingredient vnum="1428" min_weight="1" min_power="5"/>
+	</recipe>
+	<recipe vnum="12" skill="kMakeBow" result="1500">
+		<ingredient vnum="1400" min_weight="6" min_power="5"/>
+		<ingredient vnum="1429" min_weight="2" min_power="6"/>
+	</recipe>
+	<recipe vnum="13" skill="kMakeBow" result="1501">
+		<ingredient vnum="1401" min_weight="5" min_power="5"/>
+		<ingredient vnum="1428" min_weight="2" min_power="5"/>
+	</recipe>
+	<recipe vnum="14" skill="kMakeBow" result="1501">
+		<ingredient vnum="1400" min_weight="8" min_power="5"/>
+		<ingredient vnum="1430" min_weight="3" min_power="9"/>
+	</recipe>
+	<recipe vnum="15" skill="kMakeBow" result="1502">
+		<ingredient vnum="1499" min_weight="3" min_power="10"/>
+		<ingredient vnum="1400" min_weight="11" min_power="5"/>
+		<ingredient vnum="1428" min_weight="2" min_power="5"/>
+	</recipe>
+	<recipe vnum="16" skill="kMakeBow" result="1502">
+		<ingredient vnum="1494" min_weight="4" min_power="13"/>
+		<ingredient vnum="1401" min_weight="5" min_power="5"/>
+		<ingredient vnum="1429" min_weight="4" min_power="6"/>
+	</recipe>
+	<recipe vnum="17" skill="kMakeBow" result="1403">
+		<ingredient vnum="1400" min_weight="5" min_power="5"/>
+		<ingredient vnum="1402" min_weight="5" min_power="8"/>
+		<ingredient vnum="1496" min_weight="2" min_power="5"/>
+	</recipe>
+	<recipe vnum="18" skill="kMakeBow" result="1425">
+		<ingredient vnum="1404" min_weight="5" min_power="8"/>
+		<ingredient vnum="1406" min_weight="8" min_power="12"/>
+		<ingredient vnum="1496" min_weight="1" min_power="5"/>
+	</recipe>
+	<recipe vnum="19" skill="kMakeBow" result="1403">
+		<ingredient vnum="1496" min_weight="2" min_power="5"/>
+		<ingredient vnum="1400" min_weight="4" min_power="5"/>
+		<ingredient vnum="1407" min_weight="3" min_power="6"/>
+	</recipe>
+	<recipe vnum="20" skill="kMakeBow" result="1403">
+		<ingredient vnum="1496" min_weight="2" min_power="5"/>
+		<ingredient vnum="1400" min_weight="4" min_power="5"/>
+		<ingredient vnum="1401" min_weight="3" min_power="6"/>
+	</recipe>
+	<recipe vnum="21" skill="kMakeBow" result="1425">
+		<ingredient vnum="1496" min_weight="2" min_power="5"/>
+		<ingredient vnum="1401" min_weight="3" min_power="5"/>
+		<ingredient vnum="1402" min_weight="3" min_power="6"/>
+	</recipe>
+	<recipe vnum="22" skill="kMakeBow" result="1425">
+		<ingredient vnum="1496" min_weight="2" min_power="5"/>
+		<ingredient vnum="1404" min_weight="4" min_power="5"/>
+		<ingredient vnum="1401" min_weight="3" min_power="6"/>
+	</recipe>
+	<recipe vnum="23" skill="kMakeBow" result="1426">
+		<ingredient vnum="1496" min_weight="2" min_power="5"/>
+		<ingredient vnum="1405" min_weight="4" min_power="7"/>
+		<ingredient vnum="1409" min_weight="3" min_power="6"/>
+	</recipe>
+	<recipe vnum="24" skill="kMakeBow" result="1426">
+		<ingredient vnum="1496" min_weight="2" min_power="5"/>
+		<ingredient vnum="1405" min_weight="3" min_power="6"/>
+		<ingredient vnum="1406" min_weight="3" min_power="6"/>
+	</recipe>
+	<recipe vnum="25" skill="kMakeBow" result="1426">
+		<ingredient vnum="1496" min_weight="2" min_power="5"/>
+		<ingredient vnum="1407" min_weight="3" min_power="6"/>
+		<ingredient vnum="1408" min_weight="4" min_power="7"/>
+	</recipe>
+	<recipe vnum="26" skill="kMakeBow" result="1427">
+		<ingredient vnum="1496" min_weight="2" min_power="5"/>
+		<ingredient vnum="1408" min_weight="4" min_power="6"/>
+		<ingredient vnum="1410" min_weight="3" min_power="8"/>
+	</recipe>
+	<recipe vnum="27" skill="kMakeBow" result="1427">
+		<ingredient vnum="1496" min_weight="2" min_power="5"/>
+		<ingredient vnum="1407" min_weight="3" min_power="6"/>
+		<ingredient vnum="1409" min_weight="4" min_power="9"/>
+	</recipe>
+	<recipe vnum="28" skill="kMakeBow" result="1427">
+		<ingredient vnum="1496" min_weight="2" min_power="5"/>
+		<ingredient vnum="1409" min_weight="3" min_power="7"/>
+		<ingredient vnum="1410" min_weight="4" min_power="8"/>
+	</recipe>
+	<recipe vnum="29" skill="kMakeBow" result="1503">
+		<ingredient vnum="1403" min_weight="4" min_power="6"/>
+		<ingredient vnum="1429" min_weight="3" min_power="6"/>
+	</recipe>
+	<recipe vnum="30" skill="kMakeBow" result="1503">
+		<ingredient vnum="1403" min_weight="4" min_power="6"/>
+		<ingredient vnum="1430" min_weight="3" min_power="6"/>
+	</recipe>
+	<recipe vnum="31" skill="kMakeBow" result="1503">
+		<ingredient vnum="1425" min_weight="4" min_power="6"/>
+		<ingredient vnum="1429" min_weight="2" min_power="6"/>
+	</recipe>
+	<recipe vnum="32" skill="kMakeBow" result="1503">
+		<ingredient vnum="1425" min_weight="4" min_power="6"/>
+		<ingredient vnum="1430" min_weight="3" min_power="6"/>
+	</recipe>
+	<recipe vnum="33" skill="kMakeBow" result="1504">
+		<ingredient vnum="1403" min_weight="5" min_power="6"/>
+		<ingredient vnum="1431" min_weight="2" min_power="5"/>
+	</recipe>
+	<recipe vnum="34" skill="kMakeBow" result="1504">
+		<ingredient vnum="1425" min_weight="4" min_power="6"/>
+		<ingredient vnum="1432" min_weight="3" min_power="12"/>
+	</recipe>
+	<recipe vnum="35" skill="kMakeBow" result="1504">
+		<ingredient vnum="1426" min_weight="5" min_power="6"/>
+		<ingredient vnum="1430" min_weight="2" min_power="6"/>
+	</recipe>
+	<recipe vnum="36" skill="kMakeBow" result="1504">
+		<ingredient vnum="1426" min_weight="4" min_power="7"/>
+		<ingredient vnum="1434" min_weight="2" min_power="7"/>
+		<ingredient vnum="1497" min_weight="2" min_power="10"/>
+	</recipe>
+	<recipe vnum="37" skill="kMakeBow" result="1504">
+		<ingredient vnum="1426" min_weight="4" min_power="7"/>
+		<ingredient vnum="1473" min_weight="2" min_power="7"/>
+		<ingredient vnum="1433" min_weight="2" min_power="8"/>
+	</recipe>
+	<recipe vnum="38" skill="kMakeBow" result="1497">
+		<ingredient vnum="1493" min_weight="2" min_power="7"/>
+		<ingredient vnum="1473" min_weight="2" min_power="6"/>
+	</recipe>
+	<recipe vnum="39" skill="kMakeBow" result="1505">
+		<ingredient vnum="1427" min_weight="4" min_power="12"/>
+		<ingredient vnum="1435" min_weight="2" min_power="8"/>
+	</recipe>
+	<recipe vnum="40" skill="kMakeBow" result="1505">
+		<ingredient vnum="1427" min_weight="4" min_power="8"/>
+		<ingredient vnum="1434" min_weight="2" min_power="8"/>
+	</recipe>
+	<recipe vnum="41" skill="kMakeBow" result="1505">
+		<ingredient vnum="1426" min_weight="4" min_power="8"/>
+		<ingredient vnum="1431" min_weight="2" min_power="6"/>
+	</recipe>
+	<recipe vnum="42" skill="kMakeBow" result="1506">
+		<ingredient vnum="1426" min_weight="5" min_power="8"/>
+		<ingredient vnum="1433" min_weight="2" min_power="6"/>
+		<ingredient vnum="1490" min_weight="2" min_power="8"/>
+	</recipe>
+	<recipe vnum="43" skill="kMakeBow" result="1507">
+		<ingredient vnum="1426" min_weight="4" min_power="7"/>
+		<ingredient vnum="1430" min_weight="2" min_power="7"/>
+		<ingredient vnum="1494" min_weight="3" min_power="8"/>
+	</recipe>
+	<recipe vnum="44" skill="kMakeBow" result="1507">
+		<ingredient vnum="1427" min_weight="4" min_power="8"/>
+		<ingredient vnum="1498" min_weight="3" min_power="5"/>
+		<ingredient vnum="1495" min_weight="3" min_power="7"/>
+	</recipe>
+	<recipe vnum="45" skill="kMakeBow" result="1509">
+		<ingredient vnum="1427" min_weight="7" min_power="6"/>
+		<ingredient vnum="1439" min_weight="3" min_power="7"/>
+		<ingredient vnum="1499" min_weight="2" min_power="7"/>
+	</recipe>
+	<recipe vnum="46" skill="kMakeBow" result="1509">
+		<ingredient vnum="1427" min_weight="6" min_power="8"/>
+		<ingredient vnum="1435" min_weight="3" min_power="8"/>
+		<ingredient vnum="1494" min_weight="4" min_power="7"/>
+	</recipe>
+	<recipe vnum="47" skill="kMakeBow" result="1509">
+		<ingredient vnum="1426" min_weight="4" min_power="6"/>
+		<ingredient vnum="1431" min_weight="2" min_power="6"/>
+		<ingredient vnum="1495" min_weight="2" min_power="6"/>
+	</recipe>
+	<recipe vnum="48" skill="kMakeBow" result="1510">
+		<ingredient vnum="1425" min_weight="7" min_power="8"/>
+		<ingredient vnum="1432" min_weight="2" min_power="7"/>
+		<ingredient vnum="1491" min_weight="2" min_power="8"/>
+	</recipe>
+	<recipe vnum="49" skill="kMakeBow" result="1511">
+		<ingredient vnum="1427" min_weight="8" min_power="7"/>
+		<ingredient vnum="1415" min_weight="4" min_power="15"/>
+		<ingredient vnum="1439" min_weight="4" min_power="9"/>
+	</recipe>
+	<recipe vnum="50" skill="kMakeBow" result="1512">
+		<ingredient vnum="1416" min_weight="3" min_power="16"/>
+		<ingredient vnum="1427" min_weight="7" min_power="8"/>
+		<ingredient vnum="1437" min_weight="3" min_power="12"/>
+	</recipe>
+	<recipe vnum="51" skill="kMakeBow" result="1513">
+		<ingredient vnum="1427" min_weight="6" min_power="8"/>
+		<ingredient vnum="1437" min_weight="3" min_power="7"/>
+		<ingredient vnum="1447" min_weight="4" min_power="16"/>
+	</recipe>
+	<recipe vnum="52" skill="kMakeBow" result="1514">
+		<ingredient vnum="1427" min_weight="8" min_power="8"/>
+		<ingredient vnum="1415" min_weight="4" min_power="7"/>
+		<ingredient vnum="1416" min_weight="4" min_power="7"/>
+	</recipe>
+	<recipe vnum="53" skill="kMakeBow" result="1515">
+		<ingredient vnum="1427" min_weight="7" min_power="7"/>
+		<ingredient vnum="1447" min_weight="6" min_power="18"/>
+		<ingredient vnum="1415" min_weight="4" min_power="10"/>
+	</recipe>
+	<recipe vnum="54" skill="kMakeBow" result="1516">
+		<ingredient vnum="1413" min_weight="6" min_power="20"/>
+		<ingredient vnum="1437" min_weight="3" min_power="8"/>
+		<ingredient vnum="1488" min_weight="2" min_power="7"/>
+	</recipe>
+	<recipe vnum="55" skill="kMakeBow" result="1517">
+		<ingredient vnum="1414" min_weight="6" min_power="16"/>
+		<ingredient vnum="1437" min_weight="3" min_power="10"/>
+	</recipe>
+	<recipe vnum="56" skill="kMakeBow" result="1517">
+		<ingredient vnum="1437" min_weight="5" min_power="12"/>
+		<ingredient vnum="1414" min_weight="4" min_power="23"/>
+		<ingredient vnum="1490" min_weight="3" min_power="7"/>
+	</recipe>
+	<recipe vnum="57" skill="kMakeBow" result="1518">
+		<ingredient vnum="1411" min_weight="6" min_power="22"/>
+		<ingredient vnum="1440" min_weight="3" min_power="18"/>
+		<ingredient vnum="1481" min_weight="2" min_power="15"/>
+	</recipe>
+	<recipe vnum="58" skill="kMakeBow" result="1518">
+		<ingredient vnum="1411" min_weight="6" min_power="18"/>
+		<ingredient vnum="1442" min_weight="3" min_power="25"/>
+		<ingredient vnum="1481" min_weight="2" min_power="15"/>
+	</recipe>
+	<recipe vnum="59" skill="kMakeBow" result="1519">
+		<ingredient vnum="1479" min_weight="5" min_power="15"/>
+		<ingredient vnum="1414" min_weight="5" min_power="16"/>
+		<ingredient vnum="1437" min_weight="3" min_power="5"/>
+	</recipe>
+	<recipe vnum="60" skill="kMakeBow" result="1519">
+		<ingredient vnum="1479" min_weight="5" min_power="23"/>
+		<ingredient vnum="1411" min_weight="4" min_power="20"/>
+		<ingredient vnum="1434" min_weight="3" min_power="6"/>
+	</recipe>
+	<recipe vnum="61" skill="kMakeBow" result="1437">
+		<ingredient vnum="1493" min_weight="4" min_power="10"/>
+		<ingredient vnum="1430" min_weight="3" min_power="8"/>
+	</recipe>
+	<recipe vnum="62" skill="kMakeBow" result="1437">
+		<ingredient vnum="1493" min_weight="4" min_power="10"/>
+		<ingredient vnum="1439" min_weight="3" min_power="8"/>
+	</recipe>
+	<recipe vnum="63" skill="kMakeBow" result="1520">
+		<ingredient vnum="1419" min_weight="6" min_power="60"/>
+		<ingredient vnum="1440" min_weight="2" min_power="40"/>
+		<ingredient vnum="1489" min_weight="2" min_power="20"/>
+	</recipe>
+	<recipe vnum="64" skill="kMakeBow" result="1520">
+		<ingredient vnum="1419" min_weight="6" min_power="60"/>
+		<ingredient vnum="1441" min_weight="2" min_power="40"/>
+		<ingredient vnum="1489" min_weight="2" min_power="20"/>
+	</recipe>
+	<recipe vnum="65" skill="kMakeBow" result="1520">
+		<ingredient vnum="1419" min_weight="6" min_power="60"/>
+		<ingredient vnum="1442" min_weight="2" min_power="40"/>
+		<ingredient vnum="1489" min_weight="2" min_power="20"/>
+	</recipe>
+	<recipe vnum="66" skill="kMakeBow" result="1521">
+		<ingredient vnum="1418" min_weight="6" min_power="25"/>
+		<ingredient vnum="1440" min_weight="2" min_power="40"/>
+	</recipe>
+	<recipe vnum="67" skill="kMakeBow" result="1521">
+		<ingredient vnum="1418" min_weight="6" min_power="25"/>
+		<ingredient vnum="1440" min_weight="2" min_power="40"/>
+		<ingredient vnum="1472" min_weight="2" min_power="20"/>
+	</recipe>
+	<recipe vnum="68" skill="kMakeBow" result="1522">
+		<ingredient vnum="1421" min_weight="5" min_power="25"/>
+		<ingredient vnum="1442" min_weight="3" min_power="20"/>
+	</recipe>
+	<recipe vnum="69" skill="kMakeBow" result="1522">
+		<ingredient vnum="1421" min_weight="5" min_power="25"/>
+		<ingredient vnum="1442" min_weight="3" min_power="20"/>
+		<ingredient vnum="1471" min_weight="4" min_power="20"/>
+	</recipe>
+	<recipe vnum="70" skill="kMakeBow" result="1523">
+		<ingredient vnum="1412" min_weight="4" min_power="50"/>
+		<ingredient vnum="1441" min_weight="3" min_power="20"/>
+	</recipe>
+	<recipe vnum="71" skill="kMakeBow" result="1523">
+		<ingredient vnum="1412" min_weight="4" min_power="50"/>
+		<ingredient vnum="1441" min_weight="3" min_power="20"/>
+		<ingredient vnum="1475" min_weight="6" min_power="20"/>
+	</recipe>
+	<recipe vnum="72" skill="kMakeBow" result="1524">
+		<ingredient vnum="1417" min_weight="5" min_power="30"/>
+		<ingredient vnum="1444" min_weight="2" min_power="20"/>
+		<ingredient vnum="1482" min_weight="3" min_power="20"/>
+	</recipe>
+	<recipe vnum="73" skill="kMakeBow" result="1524">
+		<ingredient vnum="1417" min_weight="5" min_power="30"/>
+		<ingredient vnum="1444" min_weight="2" min_power="20"/>
+		<ingredient vnum="1478" min_weight="6" min_power="20"/>
+	</recipe>
+	<recipe vnum="74" skill="kMakeBow" result="1525">
+		<ingredient vnum="1478" min_weight="4" min_power="50"/>
+		<ingredient vnum="1450" min_weight="3" min_power="30"/>
+		<ingredient vnum="1477" min_weight="3" min_power="20"/>
+	</recipe>
+	<recipe vnum="75" skill="kMakeBow" result="1525">
+		<ingredient vnum="1478" min_weight="4" min_power="50"/>
+		<ingredient vnum="1483" min_weight="3" min_power="20"/>
+		<ingredient vnum="1477" min_weight="3" min_power="20"/>
+	</recipe>
+	<recipe vnum="76" skill="kMakeBow" result="1550">
+		<ingredient vnum="1405" min_weight="4" min_power="8"/>
+		<ingredient vnum="1430" min_weight="2" min_power="10"/>
+	</recipe>
+	<recipe vnum="77" skill="kMakeBow" result="1550">
+		<ingredient vnum="1406" min_weight="4" min_power="8"/>
+		<ingredient vnum="1430" min_weight="2" min_power="10"/>
+		<ingredient vnum="1494" min_weight="3" min_power="10"/>
+	</recipe>
+	<recipe vnum="78" skill="kMakeBow" result="1550">
+		<ingredient vnum="1407" min_weight="4" min_power="8"/>
+		<ingredient vnum="1429" min_weight="2" min_power="10"/>
+	</recipe>
+	<recipe vnum="79" skill="kMakeBow" result="1550">
+		<ingredient vnum="1408" min_weight="4" min_power="8"/>
+		<ingredient vnum="1429" min_weight="2" min_power="10"/>
+		<ingredient vnum="1494" min_weight="3" min_power="10"/>
+	</recipe>
+	<recipe vnum="80" skill="kMakeBow" result="1552">
+		<ingredient vnum="1425" min_weight="6" min_power="20"/>
+		<ingredient vnum="1436" min_weight="2" min_power="30"/>
+	</recipe>
+	<recipe vnum="81" skill="kMakeBow" result="1552">
+		<ingredient vnum="1425" min_weight="6" min_power="20"/>
+		<ingredient vnum="1436" min_weight="2" min_power="30"/>
+		<ingredient vnum="1498" min_weight="4" min_power="20"/>
+	</recipe>
+	<recipe vnum="82" skill="kMakeBow" result="1553">
+		<ingredient vnum="1424" min_weight="5" min_power="20"/>
+		<ingredient vnum="1446" min_weight="2" min_power="20"/>
+	</recipe>
+	<recipe vnum="83" skill="kMakeBow" result="1553">
+		<ingredient vnum="1424" min_weight="5" min_power="20"/>
+		<ingredient vnum="1446" min_weight="2" min_power="20"/>
+		<ingredient vnum="1495" min_weight="3" min_power="20"/>
+	</recipe>
+	<recipe vnum="84" skill="kMakeBow" result="1557">
+		<ingredient vnum="1482" min_weight="3" min_power="20"/>
+		<ingredient vnum="1483" min_weight="2" min_power="20"/>
+		<ingredient vnum="1486" min_weight="2" min_power="20"/>
+	</recipe>
+	<recipe vnum="85" skill="kMakeBow" result="1558">
+		<ingredient vnum="1422" min_weight="5" min_power="20"/>
+		<ingredient vnum="1445" min_weight="2" min_power="20"/>
+		<ingredient vnum="1475" min_weight="4" min_power="20"/>
+	</recipe>
+	<recipe vnum="86" skill="kMakeBow" result="1558">
+		<ingredient vnum="1423" min_weight="5" min_power="30"/>
+		<ingredient vnum="1445" min_weight="2" min_power="20"/>
+		<ingredient vnum="1475" min_weight="4" min_power="20"/>
+	</recipe>
+	<recipe vnum="87" skill="kMakeBow" result="1559">
+		<ingredient vnum="1419" min_weight="8" min_power="30"/>
+		<ingredient vnum="1450" min_weight="3" min_power="20"/>
+		<ingredient vnum="1480" min_weight="3" min_power="20"/>
+	</recipe>
+	<recipe vnum="88" skill="kMakeBow" result="1560">
+		<ingredient vnum="1429" min_weight="5" min_power="7"/>
+	</recipe>
+	<recipe vnum="89" skill="kMakeBow" result="1569">
+		<ingredient vnum="1448" min_weight="5" min_power="20"/>
+	</recipe>
+	<recipe vnum="90" skill="kMakeBow" result="1505">
+		<ingredient vnum="1427" min_weight="4" min_power="8"/>
+		<ingredient vnum="1434" min_weight="2" min_power="8"/>
+		<ingredient vnum="1497" min_weight="3" min_power="4"/>
+	</recipe>
+	<recipe vnum="91" skill="kMakeBow" result="1526">
+		<ingredient vnum="1484" min_weight="5" min_power="10"/>
+		<ingredient vnum="1485" min_weight="5" min_power="10"/>
+		<ingredient vnum="1420" min_weight="5" min_power="5"/>
+	</recipe>
+	<recipe vnum="92" skill="kMakeBow" result="1580">
+		<ingredient vnum="1925" min_weight="5" min_power="0"/>
+		<ingredient vnum="1926" min_weight="5" min_power="0"/>
 	</recipe>
 </item_creation>

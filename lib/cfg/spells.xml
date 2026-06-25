@@ -398,7 +398,7 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<unaffect decay="25">
+				<unaffect decay="50">
 					<remove any_of="kBlindness" />
 				</unaffect>
 			</action>
@@ -4425,7 +4425,7 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<unaffect decay="25">
+				<unaffect decay="50">
 					<remove any_of="kDeafness" />
 				</unaffect>
 			</action>

@@ -9,6 +9,240 @@
 		<case id="kPre" name="одуванчике"/>
 		<alias name="одуванчик"/>
 	</sort>
+	<sort type="HealingHerbs" power="2" gender="kFemale">
+		<case id="kNom" name="ромашка"/>
+		<case id="kGen" name="ромашки"/>
+		<case id="kDat" name="ромашке"/>
+		<case id="kAcc" name="ромашку"/>
+		<case id="kIns" name="ромашкой"/>
+		<case id="kPre" name="ромашке"/>
+		<alias name="ромашка"/>
+	</sort>
+	<sort type="HealingHerbs" power="3" gender="kMale">
+		<case id="kNom" name="подорожник"/>
+		<case id="kGen" name="подорожника"/>
+		<case id="kDat" name="подорожнику"/>
+		<case id="kAcc" name="подорожник"/>
+		<case id="kIns" name="подорожником"/>
+		<case id="kPre" name="подорожнике"/>
+		<alias name="подорожник"/>
+	</sort>
+	<sort type="HealingHerbs" power="4" gender="kMale">
+		<case id="kNom" name="пустырник"/>
+		<case id="kGen" name="пустырника"/>
+		<case id="kDat" name="пустырнику"/>
+		<case id="kAcc" name="пустырник"/>
+		<case id="kIns" name="пустырником"/>
+		<case id="kPre" name="пустырнике"/>
+		<alias name="пустырник"/>
+	</sort>
+	<sort type="HealingHerbs" power="5" gender="kFemale">
+		<case id="kNom" name="кровохлебка"/>
+		<case id="kGen" name="кровохлебки"/>
+		<case id="kDat" name="кровохлебке"/>
+		<case id="kAcc" name="кровохлебку"/>
+		<case id="kIns" name="кровохлебкой"/>
+		<case id="kPre" name="кровохлебке"/>
+		<alias name="кровохлебка"/>
+	</sort>
+	<sort type="HealingHerbs" power="6" gender="kFemale">
+		<case id="kNom" name="календула"/>
+		<case id="kGen" name="календулы"/>
+		<case id="kDat" name="календуле"/>
+		<case id="kAcc" name="календулу"/>
+		<case id="kIns" name="календулой"/>
+		<case id="kPre" name="календуле"/>
+		<alias name="календула"/>
+	</sort>
+	<sort type="HealingHerbs" power="7" gender="kFemale">
+		<case id="kNom" name="мать-и-мачеха"/>
+		<case id="kGen" name="мать-и-мачехи"/>
+		<case id="kDat" name="мать-и-мачехе"/>
+		<case id="kAcc" name="мать-и-мачеху"/>
+		<case id="kIns" name="мать-и-мачехой"/>
+		<case id="kPre" name="мать-и-мачехе"/>
+		<alias name="мать_мачеха"/>
+	</sort>
+	<sort type="HealingHerbs" power="8" gender="kFemale">
+		<case id="kNom" name="мята"/>
+		<case id="kGen" name="мяты"/>
+		<case id="kDat" name="мяте"/>
+		<case id="kAcc" name="мяту"/>
+		<case id="kIns" name="мятой"/>
+		<case id="kPre" name="мяте"/>
+		<alias name="мята"/>
+	</sort>
+	<sort type="HealingHerbs" power="9" gender="kMale">
+		<case id="kNom" name="столетник"/>
+		<case id="kGen" name="столетника"/>
+		<case id="kDat" name="столетнику"/>
+		<case id="kAcc" name="столетник"/>
+		<case id="kIns" name="столетником"/>
+		<case id="kPre" name="столетнике"/>
+		<alias name="столетник"/>
+	</sort>
+	<sort type="HealingHerbs" power="10" gender="kFemale">
+		<case id="kNom" name="чага"/>
+		<case id="kGen" name="чаги"/>
+		<case id="kDat" name="чаге"/>
+		<case id="kAcc" name="чагу"/>
+		<case id="kIns" name="чагой"/>
+		<case id="kPre" name="чаге"/>
+		<alias name="чага"/>
+	</sort>
+	<sort type="HealingHerbs" power="11" gender="kFemale">
+		<case id="kNom" name="череда"/>
+		<case id="kGen" name="череды"/>
+		<case id="kDat" name="череде"/>
+		<case id="kAcc" name="череду"/>
+		<case id="kIns" name="чередой"/>
+		<case id="kPre" name="череде"/>
+		<alias name="череда"/>
+	</sort>
+	<sort type="HealingHerbs" power="12" gender="kMale">
+		<case id="kNom" name="шалфей"/>
+		<case id="kGen" name="шалфея"/>
+		<case id="kDat" name="шалфею"/>
+		<case id="kAcc" name="шалфей"/>
+		<case id="kIns" name="шалфеем"/>
+		<case id="kPre" name="шалфее"/>
+		<alias name="шалфей"/>
+	</sort>
+	<sort type="HealingHerbs" power="14" gender="kFemale">
+		<case id="kNom" name="солодка"/>
+		<case id="kGen" name="солодки"/>
+		<case id="kDat" name="солодке"/>
+		<case id="kAcc" name="солодку"/>
+		<case id="kIns" name="солодкой"/>
+		<case id="kPre" name="солодке"/>
+		<alias name="солодка"/>
+	</sort>
+	<sort type="HealingHerbs" power="15" gender="kMale">
+		<case id="kNom" name="девясил"/>
+		<case id="kGen" name="девясила"/>
+		<case id="kDat" name="девясилу"/>
+		<case id="kAcc" name="девясил"/>
+		<case id="kIns" name="девясилом"/>
+		<case id="kPre" name="девясиле"/>
+		<alias name="девясил"/>
+	</sort>
+	<sort type="HealingHerbs" power="16" gender="kFemale">
+		<case id="kNom" name="крапива"/>
+		<case id="kGen" name="крапивы"/>
+		<case id="kDat" name="крапиве"/>
+		<case id="kAcc" name="крапиву"/>
+		<case id="kIns" name="крапивой"/>
+		<case id="kPre" name="крапиве"/>
+		<alias name="крапива"/>
+	</sort>
+	<sort type="HealingHerbs" power="17" gender="kMale">
+		<case id="kNom" name="тысячелистник"/>
+		<case id="kGen" name="тысячелистника"/>
+		<case id="kDat" name="тысячелистнику"/>
+		<case id="kAcc" name="тысячелистник"/>
+		<case id="kIns" name="тысячелистником"/>
+		<case id="kPre" name="тысячелистнике"/>
+		<alias name="тысячелистник"/>
+	</sort>
+	<sort type="HealingHerbs" power="18" gender="kMale">
+		<case id="kNom" name="борец"/>
+		<case id="kGen" name="бореца"/>
+		<case id="kDat" name="борецу"/>
+		<case id="kAcc" name="борец"/>
+		<case id="kIns" name="борецом"/>
+		<case id="kPre" name="бореце"/>
+		<alias name="борец"/>
+	</sort>
+	<sort type="HealingHerbs" power="19" gender="kFemale">
+		<case id="kNom" name="валериана"/>
+		<case id="kGen" name="валерианы"/>
+		<case id="kDat" name="валериане"/>
+		<case id="kAcc" name="валериану"/>
+		<case id="kIns" name="валерианой"/>
+		<case id="kPre" name="валериане"/>
+		<alias name="валериана"/>
+	</sort>
+	<sort type="HealingHerbs" power="20" gender="kFemale">
+		<case id="kNom" name="толокнянка"/>
+		<case id="kGen" name="толокнянки"/>
+		<case id="kDat" name="толокнянке"/>
+		<case id="kAcc" name="толокнянку"/>
+		<case id="kIns" name="толокнянкой"/>
+		<case id="kPre" name="толокнянке"/>
+		<alias name="толокнянка"/>
+	</sort>
+	<sort type="HealingHerbs" power="22" gender="kMale">
+		<case id="kNom" name="чистотел"/>
+		<case id="kGen" name="чистотела"/>
+		<case id="kDat" name="чистотелу"/>
+		<case id="kAcc" name="чистотел"/>
+		<case id="kIns" name="чистотелом"/>
+		<case id="kPre" name="чистотеле"/>
+		<alias name="чистотел"/>
+	</sort>
+	<sort type="HealingHerbs" power="23" gender="kFemale">
+		<case id="kNom" name="душица"/>
+		<case id="kGen" name="душицы"/>
+		<case id="kDat" name="душице"/>
+		<case id="kAcc" name="душицу"/>
+		<case id="kIns" name="душицей"/>
+		<case id="kPre" name="душице"/>
+		<alias name="душица"/>
+	</sort>
+	<sort type="HealingHerbs" power="24" gender="kFemale">
+		<case id="kNom" name="крушина"/>
+		<case id="kGen" name="крушины"/>
+		<case id="kDat" name="крушине"/>
+		<case id="kAcc" name="крушину"/>
+		<case id="kIns" name="крушиной"/>
+		<case id="kPre" name="крушине"/>
+		<alias name="крушина"/>
+	</sort>
+	<sort type="HealingHerbs" power="25" gender="kMale">
+		<case id="kNom" name="зверобой"/>
+		<case id="kGen" name="зверобоя"/>
+		<case id="kDat" name="зверобою"/>
+		<case id="kAcc" name="зверобой"/>
+		<case id="kIns" name="зверобоем"/>
+		<case id="kPre" name="зверобое"/>
+		<alias name="зверобой"/>
+	</sort>
+	<sort type="HealingHerbs" power="26" gender="kMale">
+		<case id="kNom" name="горец_перечный"/>
+		<case id="kGen" name="гореца_перечного"/>
+		<case id="kDat" name="горецу_перечному"/>
+		<case id="kAcc" name="горец_перечный"/>
+		<case id="kIns" name="горецем_перечным"/>
+		<case id="kPre" name="гореце_перечном"/>
+		<alias name="горец_перечный"/>
+	</sort>
+	<sort type="HealingHerbs" power="27" gender="kMale">
+		<case id="kNom" name="чабрец"/>
+		<case id="kGen" name="чабреца"/>
+		<case id="kDat" name="чабрецу"/>
+		<case id="kAcc" name="чабрец"/>
+		<case id="kIns" name="чабрецом"/>
+		<case id="kPre" name="чабреце"/>
+		<alias name="чабрец"/>
+	</sort>
+	<sort type="HealingHerbs" power="28" gender="kMale">
+		<case id="kNom" name="бессмертник"/>
+		<case id="kGen" name="бессмертника"/>
+		<case id="kDat" name="бессмертнику"/>
+		<case id="kAcc" name="бессмертник"/>
+		<case id="kIns" name="бессмертником"/>
+		<case id="kPre" name="бессмертнике"/>
+		<alias name="бессмертник"/>
+	</sort>
+	<sort type="HealingHerbs" power="30" gender="kMale">
+		<case id="kNom" name="аир"/>
+		<case id="kGen" name="аира"/>
+		<case id="kDat" name="аиру"/>
+		<case id="kAcc" name="аир"/>
+		<case id="kIns" name="аиром"/>
+		<case id="kPre" name="аире"/>
+		<alias name="аир"/>
+	</sort>
 	<sort type="PoisonousHerbs" power="1" gender="kMale">
 		<case id="kNom" name="барбарис"/>
 		<case id="kGen" name="барбариса"/>
@@ -17,6 +251,240 @@
 		<case id="kIns" name="барбарисом"/>
 		<case id="kPre" name="барбарисе"/>
 		<alias name="барбарис"/>
+	</sort>
+	<sort type="PoisonousHerbs" power="2" gender="kMale">
+		<case id="kNom" name="авран"/>
+		<case id="kGen" name="аврана"/>
+		<case id="kDat" name="аврану"/>
+		<case id="kAcc" name="авран"/>
+		<case id="kIns" name="авраном"/>
+		<case id="kPre" name="авране"/>
+		<alias name="авран"/>
+	</sort>
+	<sort type="PoisonousHerbs" power="3" gender="kMale">
+		<case id="kNom" name="желтушник"/>
+		<case id="kGen" name="желтушника"/>
+		<case id="kDat" name="желтушнику"/>
+		<case id="kAcc" name="желтушник"/>
+		<case id="kIns" name="желтушником"/>
+		<case id="kPre" name="желтушнике"/>
+		<alias name="желтушник"/>
+	</sort>
+	<sort type="PoisonousHerbs" power="4" gender="kMale">
+		<case id="kNom" name="мордовник"/>
+		<case id="kGen" name="мордовника"/>
+		<case id="kDat" name="мордовнику"/>
+		<case id="kAcc" name="мордовник"/>
+		<case id="kIns" name="мордовником"/>
+		<case id="kPre" name="мордовнике"/>
+		<alias name="мордовник"/>
+	</sort>
+	<sort type="PoisonousHerbs" power="5" gender="kFemale">
+		<case id="kNom" name="мыльнянка"/>
+		<case id="kGen" name="мыльнянки"/>
+		<case id="kDat" name="мыльнянке"/>
+		<case id="kAcc" name="мыльнянку"/>
+		<case id="kIns" name="мыльнянкой"/>
+		<case id="kPre" name="мыльнянке"/>
+		<alias name="мыльнянка"/>
+	</sort>
+	<sort type="PoisonousHerbs" power="6" gender="kMale">
+		<case id="kNom" name="хмель"/>
+		<case id="kGen" name="хмеля"/>
+		<case id="kDat" name="хмелю"/>
+		<case id="kAcc" name="хмель"/>
+		<case id="kIns" name="хмелем"/>
+		<case id="kPre" name="хмеле"/>
+		<alias name="хмель"/>
+	</sort>
+	<sort type="PoisonousHerbs" power="7" gender="kMale">
+		<case id="kNom" name="ясменник"/>
+		<case id="kGen" name="ясменника"/>
+		<case id="kDat" name="ясменнику"/>
+		<case id="kAcc" name="ясменник"/>
+		<case id="kIns" name="ясменником"/>
+		<case id="kPre" name="ясменнике"/>
+		<alias name="ясменник"/>
+	</sort>
+	<sort type="PoisonousHerbs" power="8" gender="kFemale">
+		<case id="kNom" name="льнянка"/>
+		<case id="kGen" name="льнянки"/>
+		<case id="kDat" name="льнянке"/>
+		<case id="kAcc" name="льнянку"/>
+		<case id="kIns" name="льнянкой"/>
+		<case id="kPre" name="льнянке"/>
+		<alias name="льнянка"/>
+	</sort>
+	<sort type="PoisonousHerbs" power="9" gender="kFemale">
+		<case id="kNom" name="кубышка"/>
+		<case id="kGen" name="кубышки"/>
+		<case id="kDat" name="кубышке"/>
+		<case id="kAcc" name="кубышку"/>
+		<case id="kIns" name="кубышкой"/>
+		<case id="kPre" name="кубышке"/>
+		<alias name="кубышка"/>
+	</sort>
+	<sort type="PoisonousHerbs" power="10" gender="kMale">
+		<case id="kNom" name="дрок"/>
+		<case id="kGen" name="дрока"/>
+		<case id="kDat" name="дроку"/>
+		<case id="kAcc" name="дрок"/>
+		<case id="kIns" name="дроком"/>
+		<case id="kPre" name="дроке"/>
+		<alias name="дрок"/>
+	</sort>
+	<sort type="PoisonousHerbs" power="11" gender="kMale">
+		<case id="kNom" name="донник"/>
+		<case id="kGen" name="донника"/>
+		<case id="kDat" name="доннику"/>
+		<case id="kAcc" name="донник"/>
+		<case id="kIns" name="донником"/>
+		<case id="kPre" name="доннике"/>
+		<alias name="донник"/>
+	</sort>
+	<sort type="PoisonousHerbs" power="12" gender="kMale">
+		<case id="kNom" name="грыжник"/>
+		<case id="kGen" name="грыжника"/>
+		<case id="kDat" name="грыжнику"/>
+		<case id="kAcc" name="грыжник"/>
+		<case id="kIns" name="грыжником"/>
+		<case id="kPre" name="грыжнике"/>
+		<alias name="грыжник"/>
+	</sort>
+	<sort type="PoisonousHerbs" power="14" gender="kMale">
+		<case id="kNom" name="барвинок"/>
+		<case id="kGen" name="барвинка"/>
+		<case id="kDat" name="барвинку"/>
+		<case id="kAcc" name="барвинок"/>
+		<case id="kIns" name="барвинком"/>
+		<case id="kPre" name="барвинке"/>
+		<alias name="барвинок"/>
+	</sort>
+	<sort type="PoisonousHerbs" power="15" gender="kFemale">
+		<case id="kNom" name="купальница"/>
+		<case id="kGen" name="купальницы"/>
+		<case id="kDat" name="купальнице"/>
+		<case id="kAcc" name="купальницу"/>
+		<case id="kIns" name="купальницей"/>
+		<case id="kPre" name="купальнице"/>
+		<alias name="купальница"/>
+	</sort>
+	<sort type="PoisonousHerbs" power="16" gender="kMale">
+		<case id="kNom" name="прострел"/>
+		<case id="kGen" name="прострела"/>
+		<case id="kDat" name="прострелу"/>
+		<case id="kAcc" name="прострел"/>
+		<case id="kIns" name="прострелом"/>
+		<case id="kPre" name="простреле"/>
+		<alias name="прострел"/>
+	</sort>
+	<sort type="PoisonousHerbs" power="17" gender="kMale">
+		<case id="kNom" name="чистец"/>
+		<case id="kGen" name="чистеца"/>
+		<case id="kDat" name="чистецу"/>
+		<case id="kAcc" name="чистец"/>
+		<case id="kIns" name="чистецом"/>
+		<case id="kPre" name="чистеце"/>
+		<alias name="чистец"/>
+	</sort>
+	<sort type="PoisonousHerbs" power="18" gender="kFemale">
+		<case id="kNom" name="арника"/>
+		<case id="kGen" name="арники"/>
+		<case id="kDat" name="арнике"/>
+		<case id="kAcc" name="арнику"/>
+		<case id="kIns" name="арникой"/>
+		<case id="kPre" name="арнике"/>
+		<alias name="арника"/>
+	</sort>
+	<sort type="PoisonousHerbs" power="19" gender="kMale">
+		<case id="kNom" name="багульник"/>
+		<case id="kGen" name="багульника"/>
+		<case id="kDat" name="багульнику"/>
+		<case id="kAcc" name="багульник"/>
+		<case id="kIns" name="багульником"/>
+		<case id="kPre" name="багульнике"/>
+		<alias name="багульник"/>
+	</sort>
+	<sort type="PoisonousHerbs" power="21" gender="kMale">
+		<case id="kNom" name="молочай"/>
+		<case id="kGen" name="молочая"/>
+		<case id="kDat" name="молочаю"/>
+		<case id="kAcc" name="молочай"/>
+		<case id="kIns" name="молочаем"/>
+		<case id="kPre" name="молочае"/>
+		<alias name="молочай"/>
+	</sort>
+	<sort type="PoisonousHerbs" power="22" gender="kFemale">
+		<case id="kNom" name="белена"/>
+		<case id="kGen" name="белены"/>
+		<case id="kDat" name="белене"/>
+		<case id="kAcc" name="белену"/>
+		<case id="kIns" name="беленой"/>
+		<case id="kPre" name="белене"/>
+		<alias name="белена"/>
+	</sort>
+	<sort type="PoisonousHerbs" power="23" gender="kMale">
+		<case id="kNom" name="василистник"/>
+		<case id="kGen" name="василистника"/>
+		<case id="kDat" name="василистнику"/>
+		<case id="kAcc" name="василистник"/>
+		<case id="kIns" name="василистником"/>
+		<case id="kPre" name="василистнике"/>
+		<alias name="василистник"/>
+	</sort>
+	<sort type="PoisonousHerbs" power="24" gender="kMale">
+		<case id="kNom" name="обвойник"/>
+		<case id="kGen" name="обвойника"/>
+		<case id="kDat" name="обвойнику"/>
+		<case id="kAcc" name="обвойник"/>
+		<case id="kIns" name="обвойником"/>
+		<case id="kPre" name="обвойнике"/>
+		<alias name="обвойник"/>
+	</sort>
+	<sort type="PoisonousHerbs" power="25" gender="kMale">
+		<case id="kNom" name="плаун"/>
+		<case id="kGen" name="плауна"/>
+		<case id="kDat" name="плауну"/>
+		<case id="kAcc" name="плаун"/>
+		<case id="kIns" name="плауном"/>
+		<case id="kPre" name="плауне"/>
+		<alias name="плаун"/>
+	</sort>
+	<sort type="PoisonousHerbs" power="26" gender="kMale">
+		<case id="kNom" name="ясенец"/>
+		<case id="kGen" name="ясенца"/>
+		<case id="kDat" name="ясенцу"/>
+		<case id="kAcc" name="ясенец"/>
+		<case id="kIns" name="ясенцем"/>
+		<case id="kPre" name="ясенце"/>
+		<alias name="ясенец"/>
+	</sort>
+	<sort type="PoisonousHerbs" power="27" gender="kFemale">
+		<case id="kNom" name="черемица"/>
+		<case id="kGen" name="черемицы"/>
+		<case id="kDat" name="черемице"/>
+		<case id="kAcc" name="черемицу"/>
+		<case id="kIns" name="черемицей"/>
+		<case id="kPre" name="черемице"/>
+		<alias name="черемица"/>
+	</sort>
+	<sort type="PoisonousHerbs" power="28" gender="kFemale">
+		<case id="kNom" name="спорынья"/>
+		<case id="kGen" name="спорыньи"/>
+		<case id="kDat" name="спорынье"/>
+		<case id="kAcc" name="спорынью"/>
+		<case id="kIns" name="спорыньей"/>
+		<case id="kPre" name="спорынье"/>
+		<alias name="спорынья"/>
+	</sort>
+	<sort type="PoisonousHerbs" power="30" gender="kMale">
+		<case id="kNom" name="вех_ядовитый"/>
+		<case id="kGen" name="веха_ядовитого"/>
+		<case id="kDat" name="веху_ядовитому"/>
+		<case id="kAcc" name="вех_ядовитый"/>
+		<case id="kIns" name="вехом_ядовитым"/>
+		<case id="kPre" name="вехе_ядовитом"/>
+		<alias name="вех_ядовитый"/>
 	</sort>
 	<sort type="EdibleBerries" power="1" gender="kFemale">
 		<case id="kNom" name="рябина"/>
@@ -27,6 +495,240 @@
 		<case id="kPre" name="рябине"/>
 		<alias name="рябина"/>
 	</sort>
+	<sort type="EdibleBerries" power="3" gender="kMale">
+		<case id="kNom" name="шиповник"/>
+		<case id="kGen" name="шиповника"/>
+		<case id="kDat" name="шиповнику"/>
+		<case id="kAcc" name="шиповник"/>
+		<case id="kIns" name="шиповником"/>
+		<case id="kPre" name="шиповнике"/>
+		<alias name="шиповник"/>
+	</sort>
+	<sort type="EdibleBerries" power="5" gender="kFemale">
+		<case id="kNom" name="брусника"/>
+		<case id="kGen" name="брусники"/>
+		<case id="kDat" name="бруснике"/>
+		<case id="kAcc" name="бруснику"/>
+		<case id="kIns" name="брусникой"/>
+		<case id="kPre" name="бруснике"/>
+		<alias name="брусника"/>
+	</sort>
+	<sort type="EdibleBerries" power="7" gender="kFemale">
+		<case id="kNom" name="клюква"/>
+		<case id="kGen" name="клюквы"/>
+		<case id="kDat" name="клюкве"/>
+		<case id="kAcc" name="клюкву"/>
+		<case id="kIns" name="клюквой"/>
+		<case id="kPre" name="клюкве"/>
+		<alias name="клюква"/>
+	</sort>
+	<sort type="EdibleBerries" power="8" gender="kFemale">
+		<case id="kNom" name="вишня"/>
+		<case id="kGen" name="вишни"/>
+		<case id="kDat" name="вишне"/>
+		<case id="kAcc" name="вишню"/>
+		<case id="kIns" name="вишней"/>
+		<case id="kPre" name="вишне"/>
+		<alias name="вишня"/>
+	</sort>
+	<sort type="EdibleBerries" power="9" gender="kFemale">
+		<case id="kNom" name="облепиха"/>
+		<case id="kGen" name="облепихи"/>
+		<case id="kDat" name="облепихе"/>
+		<case id="kAcc" name="облепиху"/>
+		<case id="kIns" name="облепихой"/>
+		<case id="kPre" name="облепихе"/>
+		<alias name="облепиха"/>
+	</sort>
+	<sort type="EdibleBerries" power="10" gender="kFemale">
+		<case id="kNom" name="голубика"/>
+		<case id="kGen" name="голубики"/>
+		<case id="kDat" name="голубике"/>
+		<case id="kAcc" name="голубику"/>
+		<case id="kIns" name="голубикой"/>
+		<case id="kPre" name="голубике"/>
+		<alias name="голубика"/>
+	</sort>
+	<sort type="EdibleBerries" power="11" gender="kMale">
+		<case id="kNom" name="терн"/>
+		<case id="kGen" name="терна"/>
+		<case id="kDat" name="терну"/>
+		<case id="kAcc" name="терн"/>
+		<case id="kIns" name="терном"/>
+		<case id="kPre" name="терне"/>
+		<alias name="терн"/>
+	</sort>
+	<sort type="EdibleBerries" power="12" gender="kFemale">
+		<case id="kNom" name="черная_смородина"/>
+		<case id="kGen" name="черной_смородины"/>
+		<case id="kDat" name="черной_смородине"/>
+		<case id="kAcc" name="черную_смородину"/>
+		<case id="kIns" name="черной_смородиной"/>
+		<case id="kPre" name="черной_смородине"/>
+		<alias name="черная_смородина"/>
+	</sort>
+	<sort type="EdibleBerries" power="13" gender="kFemale">
+		<case id="kNom" name="калина"/>
+		<case id="kGen" name="калины"/>
+		<case id="kDat" name="калине"/>
+		<case id="kAcc" name="калину"/>
+		<case id="kIns" name="калиной"/>
+		<case id="kPre" name="калине"/>
+		<alias name="калина"/>
+	</sort>
+	<sort type="EdibleBerries" power="14" gender="kMale">
+		<case id="kNom" name="барбарис"/>
+		<case id="kGen" name="барбариса"/>
+		<case id="kDat" name="барбарису"/>
+		<case id="kAcc" name="барбарис"/>
+		<case id="kIns" name="барбарисом"/>
+		<case id="kPre" name="барбарисе"/>
+		<alias name="барбарис"/>
+	</sort>
+	<sort type="EdibleBerries" power="15" gender="kFemale">
+		<case id="kNom" name="малина"/>
+		<case id="kGen" name="малины"/>
+		<case id="kDat" name="малине"/>
+		<case id="kAcc" name="малину"/>
+		<case id="kIns" name="малиной"/>
+		<case id="kPre" name="малине"/>
+		<alias name="малина"/>
+	</sort>
+	<sort type="EdibleBerries" power="16" gender="kFemale">
+		<case id="kNom" name="ежевика"/>
+		<case id="kGen" name="ежевики"/>
+		<case id="kDat" name="ежевике"/>
+		<case id="kAcc" name="ежевику"/>
+		<case id="kIns" name="ежевикой"/>
+		<case id="kPre" name="ежевике"/>
+		<alias name="ежевика"/>
+	</sort>
+	<sort type="EdibleBerries" power="17" gender="kMale">
+		<case id="kNom" name="боярышник"/>
+		<case id="kGen" name="боярышника"/>
+		<case id="kDat" name="боярышнику"/>
+		<case id="kAcc" name="боярышник"/>
+		<case id="kIns" name="боярышником"/>
+		<case id="kPre" name="боярышнике"/>
+		<alias name="боярышник"/>
+	</sort>
+	<sort type="EdibleBerries" power="18" gender="kFemale">
+		<case id="kNom" name="клубника"/>
+		<case id="kGen" name="клубники"/>
+		<case id="kDat" name="клубнике"/>
+		<case id="kAcc" name="клубнику"/>
+		<case id="kIns" name="клубникой"/>
+		<case id="kPre" name="клубнике"/>
+		<alias name="клубника"/>
+	</sort>
+	<sort type="EdibleBerries" power="19" gender="kFemale">
+		<case id="kNom" name="жимолость"/>
+		<case id="kGen" name="жимолости"/>
+		<case id="kDat" name="жимолости"/>
+		<case id="kAcc" name="жимолость"/>
+		<case id="kIns" name="жимолостью"/>
+		<case id="kPre" name="жимолости"/>
+		<alias name="жимолость"/>
+	</sort>
+	<sort type="EdibleBerries" power="20" gender="kFemale">
+		<case id="kNom" name="черника"/>
+		<case id="kGen" name="черники"/>
+		<case id="kDat" name="чернике"/>
+		<case id="kAcc" name="чернику"/>
+		<case id="kIns" name="черникой"/>
+		<case id="kPre" name="чернике"/>
+		<alias name="черника"/>
+	</sort>
+	<sort type="EdibleBerries" power="21" gender="kFemale">
+		<case id="kNom" name="красная_смородина"/>
+		<case id="kGen" name="красной_смородины"/>
+		<case id="kDat" name="красной_смородине"/>
+		<case id="kAcc" name="красную_смородину"/>
+		<case id="kIns" name="красной_смородиной"/>
+		<case id="kPre" name="красной_смородине"/>
+		<alias name="красная_смородина"/>
+	</sort>
+	<sort type="EdibleBerries" power="22" gender="kFemale">
+		<case id="kNom" name="ирга"/>
+		<case id="kGen" name="ирги"/>
+		<case id="kDat" name="ирге"/>
+		<case id="kAcc" name="иргу"/>
+		<case id="kIns" name="иргой"/>
+		<case id="kPre" name="ирге"/>
+		<alias name="ирга"/>
+	</sort>
+	<sort type="EdibleBerries" power="23" gender="kFemale">
+		<case id="kNom" name="сизая_ежевика"/>
+		<case id="kGen" name="сизой_ежевики"/>
+		<case id="kDat" name="сизой_ежевике"/>
+		<case id="kAcc" name="сизую_ежевику"/>
+		<case id="kIns" name="сизой_ежевикой"/>
+		<case id="kPre" name="сизой_ежевике"/>
+		<alias name="сизая_ежевика"/>
+	</sort>
+	<sort type="EdibleBerries" power="24" gender="kFemale">
+		<case id="kNom" name="белая_смородина"/>
+		<case id="kGen" name="белой_смородины"/>
+		<case id="kDat" name="белой_смородине"/>
+		<case id="kAcc" name="белую_смородину"/>
+		<case id="kIns" name="белой_смородиной"/>
+		<case id="kPre" name="белой_смородине"/>
+		<alias name="белая_смородина"/>
+	</sort>
+	<sort type="EdibleBerries" power="25" gender="kFemale">
+		<case id="kNom" name="земляника"/>
+		<case id="kGen" name="земляники"/>
+		<case id="kDat" name="землянике"/>
+		<case id="kAcc" name="землянику"/>
+		<case id="kIns" name="земляникой"/>
+		<case id="kPre" name="землянике"/>
+		<alias name="земляника"/>
+	</sort>
+	<sort type="EdibleBerries" power="26" gender="kFemale">
+		<case id="kNom" name="костяника"/>
+		<case id="kGen" name="костяники"/>
+		<case id="kDat" name="костянике"/>
+		<case id="kAcc" name="костянику"/>
+		<case id="kIns" name="костяникой"/>
+		<case id="kPre" name="костянике"/>
+		<alias name="костяника"/>
+	</sort>
+	<sort type="EdibleBerries" power="27" gender="kFemale">
+		<case id="kNom" name="белая_малина"/>
+		<case id="kGen" name="белой_малины"/>
+		<case id="kDat" name="белой_малине"/>
+		<case id="kAcc" name="белую_малину"/>
+		<case id="kIns" name="белой_малиной"/>
+		<case id="kPre" name="белой_малине"/>
+		<alias name="белая_малина"/>
+	</sort>
+	<sort type="EdibleBerries" power="28" gender="kFemale">
+		<case id="kNom" name="черноплодная_рябина"/>
+		<case id="kGen" name="черноплодной_рябины"/>
+		<case id="kDat" name="черноплодной_рябине"/>
+		<case id="kAcc" name="черноплодную_рябину"/>
+		<case id="kIns" name="черноплодной_рябиной"/>
+		<case id="kPre" name="черноплодной_рябине"/>
+		<alias name="черноплодная_рябина"/>
+	</sort>
+	<sort type="EdibleBerries" power="29" gender="kMale">
+		<case id="kNom" name="крыжовник"/>
+		<case id="kGen" name="крыжовника"/>
+		<case id="kDat" name="крыжовнику"/>
+		<case id="kAcc" name="крыжовник"/>
+		<case id="kIns" name="крыжовником"/>
+		<case id="kPre" name="крыжовнике"/>
+		<alias name="крыжовник"/>
+	</sort>
+	<sort type="EdibleBerries" power="30" gender="kMale">
+		<case id="kNom" name="кизил"/>
+		<case id="kGen" name="кизила"/>
+		<case id="kDat" name="кизилу"/>
+		<case id="kAcc" name="кизил"/>
+		<case id="kIns" name="кизилом"/>
+		<case id="kPre" name="кизиле"/>
+		<alias name="кизил"/>
+	</sort>
 	<sort type="PoisonousBerries" power="1" gender="kMale">
 		<case id="kNom" name="дикий_виноград"/>
 		<case id="kGen" name="дикого_винограда"/>
@@ -35,6 +737,204 @@
 		<case id="kIns" name="диким_виноградом"/>
 		<case id="kPre" name="диком_винограде"/>
 		<alias name="дикий_виноград"/>
+	</sort>
+	<sort type="PoisonousBerries" power="3" gender="kFemale">
+		<case id="kNom" name="бирючина"/>
+		<case id="kGen" name="бирючины"/>
+		<case id="kDat" name="бирючине"/>
+		<case id="kAcc" name="бирючину"/>
+		<case id="kIns" name="бирючиной"/>
+		<case id="kPre" name="бирючине"/>
+		<alias name="бирючина"/>
+	</sort>
+	<sort type="PoisonousBerries" power="5" gender="kMale">
+		<case id="kNom" name="бычий_язык"/>
+		<case id="kGen" name="бычьего_языка"/>
+		<case id="kDat" name="бычьему_языку"/>
+		<case id="kAcc" name="бычий_язык"/>
+		<case id="kIns" name="бычьим_языком"/>
+		<case id="kPre" name="бычьем_языке"/>
+		<alias name="бычий_язык"/>
+	</sort>
+	<sort type="PoisonousBerries" power="7" gender="kMale">
+		<case id="kNom" name="тис"/>
+		<case id="kGen" name="тиса"/>
+		<case id="kDat" name="тису"/>
+		<case id="kAcc" name="тис"/>
+		<case id="kIns" name="тисом"/>
+		<case id="kPre" name="тисе"/>
+		<alias name="тис"/>
+	</sort>
+	<sort type="PoisonousBerries" power="8" gender="kMale">
+		<case id="kNom" name="метельник"/>
+		<case id="kGen" name="метельника"/>
+		<case id="kDat" name="метельнику"/>
+		<case id="kAcc" name="метельник"/>
+		<case id="kIns" name="метельником"/>
+		<case id="kPre" name="метельнике"/>
+		<alias name="метельник"/>
+	</sort>
+	<sort type="PoisonousBerries" power="9" gender="kMale">
+		<case id="kNom" name="вороний_глаз"/>
+		<case id="kGen" name="вороньего_глаза"/>
+		<case id="kDat" name="вороньему_глазу"/>
+		<case id="kAcc" name="вороний_глаз"/>
+		<case id="kIns" name="вороньим_глазом"/>
+		<case id="kPre" name="вороньем_глазе"/>
+		<alias name="вороний_глаз"/>
+	</sort>
+	<sort type="PoisonousBerries" power="10" gender="kFemale">
+		<case id="kNom" name="клещевина"/>
+		<case id="kGen" name="клещевины"/>
+		<case id="kDat" name="клещевине"/>
+		<case id="kAcc" name="клещевину"/>
+		<case id="kIns" name="клещевиной"/>
+		<case id="kPre" name="клещевине"/>
+		<alias name="клещевина"/>
+	</sort>
+	<sort type="PoisonousBerries" power="13" gender="kMale">
+		<case id="kNom" name="остролист"/>
+		<case id="kGen" name="остролиста"/>
+		<case id="kDat" name="остролисту"/>
+		<case id="kAcc" name="остролист"/>
+		<case id="kIns" name="остролистом"/>
+		<case id="kPre" name="остролисте"/>
+		<alias name="остролист"/>
+	</sort>
+	<sort type="PoisonousBerries" power="15" gender="kMale">
+		<case id="kNom" name="бересклет"/>
+		<case id="kGen" name="бересклета"/>
+		<case id="kDat" name="бересклету"/>
+		<case id="kAcc" name="бересклет"/>
+		<case id="kIns" name="бересклетом"/>
+		<case id="kPre" name="бересклете"/>
+		<alias name="бересклет"/>
+	</sort>
+	<sort type="PoisonousBerries" power="17" gender="kFemale">
+		<case id="kNom" name="красная_жимолость"/>
+		<case id="kGen" name="красной_жимолости"/>
+		<case id="kDat" name="красной_жимолости"/>
+		<case id="kAcc" name="красную_жимолость"/>
+		<case id="kIns" name="красной_жимолостью"/>
+		<case id="kPre" name="красной_жимолости"/>
+		<alias name="красная_жимолость"/>
+	</sort>
+	<sort type="PoisonousBerries" power="18" gender="kMale">
+		<case id="kNom" name="паслен"/>
+		<case id="kGen" name="паслена"/>
+		<case id="kDat" name="паслену"/>
+		<case id="kAcc" name="паслен"/>
+		<case id="kIns" name="пасленом"/>
+		<case id="kPre" name="паслене"/>
+		<alias name="паслен"/>
+	</sort>
+	<sort type="PoisonousBerries" power="19" gender="kMale">
+		<case id="kNom" name="можжевельник"/>
+		<case id="kGen" name="можжевельника"/>
+		<case id="kDat" name="можжевельнику"/>
+		<case id="kAcc" name="можжевельник"/>
+		<case id="kIns" name="можжевельником"/>
+		<case id="kPre" name="можжевельнике"/>
+		<alias name="можжевельник"/>
+	</sort>
+	<sort type="PoisonousBerries" power="20" gender="kFemale">
+		<case id="kNom" name="белладонна"/>
+		<case id="kGen" name="белладонны"/>
+		<case id="kDat" name="белладонне"/>
+		<case id="kAcc" name="белладонну"/>
+		<case id="kIns" name="белладонной"/>
+		<case id="kPre" name="белладонне"/>
+		<alias name="белладонна"/>
+	</sort>
+	<sort type="PoisonousBerries" power="21" gender="kFemale">
+		<case id="kNom" name="бузина"/>
+		<case id="kGen" name="бузины"/>
+		<case id="kDat" name="бузине"/>
+		<case id="kAcc" name="бузину"/>
+		<case id="kIns" name="бузиной"/>
+		<case id="kPre" name="бузине"/>
+		<alias name="бузина"/>
+	</sort>
+	<sort type="PoisonousBerries" power="22" gender="kMale">
+		<case id="kNom" name="дурман"/>
+		<case id="kGen" name="дурмана"/>
+		<case id="kDat" name="дурману"/>
+		<case id="kAcc" name="дурман"/>
+		<case id="kIns" name="дурманом"/>
+		<case id="kPre" name="дурмане"/>
+		<alias name="дурман"/>
+	</sort>
+	<sort type="PoisonousBerries" power="23" gender="kMale">
+		<case id="kNom" name="дрок"/>
+		<case id="kGen" name="дрока"/>
+		<case id="kDat" name="дроку"/>
+		<case id="kAcc" name="дрок"/>
+		<case id="kIns" name="дроком"/>
+		<case id="kPre" name="дроке"/>
+		<alias name="дрок"/>
+	</sort>
+	<sort type="PoisonousBerries" power="24" gender="kNeutral">
+		<case id="kNom" name="волчье_лыко"/>
+		<case id="kGen" name="волчьего_лыка"/>
+		<case id="kDat" name="волчьему_лыку"/>
+		<case id="kAcc" name="волчье_лыко"/>
+		<case id="kIns" name="волчьим_лыком"/>
+		<case id="kPre" name="волчьем_лыке"/>
+		<alias name="волчье_лыко"/>
+	</sort>
+	<sort type="PoisonousBerries" power="25" gender="kMale">
+		<case id="kNom" name="ландыш"/>
+		<case id="kGen" name="ландыша"/>
+		<case id="kDat" name="ландышу"/>
+		<case id="kAcc" name="ландыш"/>
+		<case id="kIns" name="ландышем"/>
+		<case id="kPre" name="ландыше"/>
+		<alias name="ягода_ландыша"/>
+	</sort>
+	<sort type="PoisonousBerries" power="26" gender="kFemale">
+		<case id="kNom" name="бриония"/>
+		<case id="kGen" name="брионии"/>
+		<case id="kDat" name="брионии"/>
+		<case id="kAcc" name="брионию"/>
+		<case id="kIns" name="брионией"/>
+		<case id="kPre" name="брионии"/>
+		<alias name="бриония"/>
+	</sort>
+	<sort type="PoisonousBerries" power="27" gender="kFemale">
+		<case id="kNom" name="лавровишня"/>
+		<case id="kGen" name="лавровишни"/>
+		<case id="kDat" name="лавровишне"/>
+		<case id="kAcc" name="лавровишню"/>
+		<case id="kIns" name="лавровишней"/>
+		<case id="kPre" name="лавровишне"/>
+		<alias name="лавровишня"/>
+	</sort>
+	<sort type="PoisonousBerries" power="28" gender="kFemale">
+		<case id="kNom" name="омела"/>
+		<case id="kGen" name="омелы"/>
+		<case id="kDat" name="омеле"/>
+		<case id="kAcc" name="омелу"/>
+		<case id="kIns" name="омелой"/>
+		<case id="kPre" name="омеле"/>
+		<alias name="омела"/>
+	</sort>
+	<sort type="PoisonousBerries" power="29" gender="kMale">
+		<case id="kNom" name="падуб"/>
+		<case id="kGen" name="падуба"/>
+		<case id="kDat" name="падубу"/>
+		<case id="kAcc" name="падуб"/>
+		<case id="kIns" name="падубом"/>
+		<case id="kPre" name="падубе"/>
+		<alias name="ягода_падуба"/>
+	</sort>
+	<sort type="PoisonousBerries" power="30" gender="kFemale">
+		<case id="kNom" name="золотая_акация"/>
+		<case id="kGen" name="золотой_акации"/>
+		<case id="kDat" name="золотой_акации"/>
+		<case id="kAcc" name="золотую_акацию"/>
+		<case id="kIns" name="золотой_акацией"/>
+		<case id="kPre" name="золотой_акации"/>
+		<alias name="ягода_золотой_акации"/>
 	</sort>
 	<sort type="Grains" power="1" gender="kPoly">
 		<case id="kNom" name="отруби"/>
@@ -45,6 +945,114 @@
 		<case id="kPre" name="отрубях"/>
 		<alias name="отруби"/>
 	</sort>
+	<sort type="Grains" power="3" gender="kFemale">
+		<case id="kNom" name="чечевица"/>
+		<case id="kGen" name="чечевицы"/>
+		<case id="kDat" name="чечевице"/>
+		<case id="kAcc" name="чечевицу"/>
+		<case id="kIns" name="чечевицей"/>
+		<case id="kPre" name="чечевице"/>
+		<alias name="чечевица"/>
+	</sort>
+	<sort type="Grains" power="4" gender="kFemale">
+		<case id="kNom" name="манка"/>
+		<case id="kGen" name="манки"/>
+		<case id="kDat" name="манке"/>
+		<case id="kAcc" name="манку"/>
+		<case id="kIns" name="манкой"/>
+		<case id="kPre" name="манке"/>
+		<alias name="манка"/>
+	</sort>
+	<sort type="Grains" power="7" gender="kNeutral">
+		<case id="kNom" name="пшено"/>
+		<case id="kGen" name="пшена"/>
+		<case id="kDat" name="пшену"/>
+		<case id="kAcc" name="пшено"/>
+		<case id="kIns" name="пшеном"/>
+		<case id="kPre" name="пшене"/>
+		<alias name="пшено"/>
+	</sort>
+	<sort type="Grains" power="10" gender="kMale">
+		<case id="kNom" name="рис"/>
+		<case id="kGen" name="риса"/>
+		<case id="kDat" name="рису"/>
+		<case id="kAcc" name="рис"/>
+		<case id="kIns" name="рисом"/>
+		<case id="kPre" name="рисе"/>
+		<alias name="рис"/>
+	</sort>
+	<sort type="Grains" power="13" gender="kMale">
+		<case id="kNom" name="ячмень"/>
+		<case id="kGen" name="ячменя"/>
+		<case id="kDat" name="ячменю"/>
+		<case id="kAcc" name="ячмень"/>
+		<case id="kIns" name="ячменем"/>
+		<case id="kPre" name="ячмене"/>
+		<alias name="ячмень"/>
+	</sort>
+	<sort type="Grains" power="15" gender="kMale">
+		<case id="kNom" name="овес"/>
+		<case id="kGen" name="овса"/>
+		<case id="kDat" name="овсу"/>
+		<case id="kAcc" name="овес"/>
+		<case id="kIns" name="овсом"/>
+		<case id="kPre" name="овсе"/>
+		<alias name="овес"/>
+	</sort>
+	<sort type="Grains" power="18" gender="kFemale">
+		<case id="kNom" name="гороховая_крупа"/>
+		<case id="kGen" name="гороховой_крупы"/>
+		<case id="kDat" name="гороховой_крупе"/>
+		<case id="kAcc" name="гороховую_крупу"/>
+		<case id="kIns" name="гороховой_крупой"/>
+		<case id="kPre" name="гороховой_крупе"/>
+		<alias name="гороховая_крупа"/>
+	</sort>
+	<sort type="Grains" power="20" gender="kFemale">
+		<case id="kNom" name="гречневая_ядрица"/>
+		<case id="kGen" name="гречневой_ядрицы"/>
+		<case id="kDat" name="гречневой_ядрице"/>
+		<case id="kAcc" name="гречневую_ядрицу"/>
+		<case id="kIns" name="гречневой_ядрицей"/>
+		<case id="kPre" name="гречневой_ядрице"/>
+		<alias name="гречневая_ядрица"/>
+	</sort>
+	<sort type="Grains" power="22" gender="kNeutral">
+		<case id="kNom" name="толокно"/>
+		<case id="kGen" name="толокна"/>
+		<case id="kDat" name="толокну"/>
+		<case id="kAcc" name="толокно"/>
+		<case id="kIns" name="толокном"/>
+		<case id="kPre" name="толокне"/>
+		<alias name="толокно"/>
+	</sort>
+	<sort type="Grains" power="24" gender="kNeutral">
+		<case id="kNom" name="просо"/>
+		<case id="kGen" name="проса"/>
+		<case id="kDat" name="просу"/>
+		<case id="kAcc" name="просо"/>
+		<case id="kIns" name="просом"/>
+		<case id="kPre" name="просе"/>
+		<alias name="просо"/>
+	</sort>
+	<sort type="Grains" power="26" gender="kFemale">
+		<case id="kNom" name="ячневая_крупа"/>
+		<case id="kGen" name="ячневой_крупы"/>
+		<case id="kDat" name="ячневой_крупе"/>
+		<case id="kAcc" name="ячневую_крупу"/>
+		<case id="kIns" name="ячневой_крупой"/>
+		<case id="kPre" name="ячневой_крупе"/>
+		<alias name="ячневая_крупа"/>
+	</sort>
+	<sort type="Grains" power="28" gender="kFemale">
+		<case id="kNom" name="гречка"/>
+		<case id="kGen" name="гречки"/>
+		<case id="kDat" name="гречке"/>
+		<case id="kAcc" name="гречку"/>
+		<case id="kIns" name="гречкой"/>
+		<case id="kPre" name="гречке"/>
+		<alias name="гречка"/>
+	</sort>
 	<sort type="Minerals" power="1" gender="kMale">
 		<case id="kNom" name="кремень"/>
 		<case id="kGen" name="кремня"/>
@@ -53,6 +1061,249 @@
 		<case id="kIns" name="кремнем"/>
 		<case id="kPre" name="кремне"/>
 		<alias name="осколок_кремня"/>
+	</sort>
+	<sort type="Minerals" power="2" gender="kMale">
+		<case id="kNom" name="торф"/>
+		<case id="kGen" name="торфа"/>
+		<case id="kDat" name="торфу"/>
+		<case id="kAcc" name="торф"/>
+		<case id="kIns" name="торфом"/>
+		<case id="kPre" name="торфе"/>
+		<alias name="кусочек_торфа"/>
+	</sort>
+	<sort type="Minerals" power="3" gender="kFemale">
+		<case id="kNom" name="слюда"/>
+		<case id="kGen" name="слюды"/>
+		<case id="kDat" name="слюде"/>
+		<case id="kAcc" name="слюду"/>
+		<case id="kIns" name="слюдой"/>
+		<case id="kPre" name="слюде"/>
+		<alias name="кусочек_слюды"/>
+	</sort>
+	<sort type="Minerals" power="4" gender="kMale">
+		<case id="kNom" name="песчанник"/>
+		<case id="kGen" name="песчанника"/>
+		<case id="kDat" name="песчаннику"/>
+		<case id="kAcc" name="песчанник"/>
+		<case id="kIns" name="песчанником"/>
+		<case id="kPre" name="песчаннике"/>
+		<alias name="крупный_кусок_песчанника"/>
+	</sort>
+	<sort type="Minerals" power="5" gender="kMale">
+		<case id="kNom" name="уголь"/>
+		<case id="kGen" name="угля"/>
+		<case id="kDat" name="углю"/>
+		<case id="kAcc" name="уголь"/>
+		<case id="kIns" name="углем"/>
+		<case id="kPre" name="угле"/>
+		<alias name="крупный_кусок_угля"/>
+	</sort>
+	<sort type="Minerals" power="6" gender="kMale">
+		<case id="kNom" name="кварцит"/>
+		<case id="kGen" name="кварцита"/>
+		<case id="kDat" name="кварциту"/>
+		<case id="kAcc" name="кварцит"/>
+		<case id="kIns" name="кварцитом"/>
+		<case id="kPre" name="кварците"/>
+		<alias name="осколок_кварцита"/>
+	</sort>
+	<sort type="Minerals" power="7" gender="kMale">
+		<case id="kNom" name="гранит"/>
+		<case id="kGen" name="гранита"/>
+		<case id="kDat" name="граните"/>
+		<case id="kAcc" name="гранит"/>
+		<case id="kIns" name="гранитом"/>
+		<case id="kPre" name="граните"/>
+		<alias name="осколок_гранита"/>
+	</sort>
+	<sort type="Minerals" power="8" gender="kMale">
+		<case id="kNom" name="мергель"/>
+		<case id="kGen" name="мергеля"/>
+		<case id="kDat" name="мергелю"/>
+		<case id="kAcc" name="мергель"/>
+		<case id="kIns" name="мергелем"/>
+		<case id="kPre" name="мергеле"/>
+		<alias name="осколок_мергеля"/>
+	</sort>
+	<sort type="Minerals" power="9" gender="kMale">
+		<case id="kNom" name="гипс"/>
+		<case id="kGen" name="гипса"/>
+		<case id="kDat" name="гипсу"/>
+		<case id="kAcc" name="гипс"/>
+		<case id="kIns" name="гипсом"/>
+		<case id="kPre" name="гипсе"/>
+		<alias name="кусочек_гипса"/>
+	</sort>
+	<sort type="Minerals" power="10" gender="kMale">
+		<case id="kNom" name="трепел"/>
+		<case id="kGen" name="трепела"/>
+		<case id="kDat" name="трепелу"/>
+		<case id="kAcc" name="трепел"/>
+		<case id="kIns" name="трепелом"/>
+		<case id="kPre" name="трепеле"/>
+		<alias name="осколок_трепела"/>
+	</sort>
+	<sort type="Minerals" power="11" gender="kFemale">
+		<case id="kNom" name="каменная_соль"/>
+		<case id="kGen" name="каменной_соли"/>
+		<case id="kDat" name="каменной_соли"/>
+		<case id="kAcc" name="каменную_соль"/>
+		<case id="kIns" name="каменной_солью"/>
+		<case id="kPre" name="каменной_соли"/>
+		<alias name="немного_каменной_соли"/>
+	</sort>
+	<sort type="Minerals" power="12" gender="kMale">
+		<case id="kNom" name="известняк"/>
+		<case id="kGen" name="известняка"/>
+		<case id="kDat" name="известняку"/>
+		<case id="kAcc" name="известняк"/>
+		<case id="kIns" name="известняком"/>
+		<case id="kPre" name="известняке"/>
+		<alias name="кусочек_известняка"/>
+	</sort>
+	<sort type="Minerals" power="13" gender="kMale">
+		<case id="kNom" name="сердолик"/>
+		<case id="kGen" name="сердолика"/>
+		<case id="kDat" name="сердолику"/>
+		<case id="kAcc" name="сердолик"/>
+		<case id="kIns" name="сердоликом"/>
+		<case id="kPre" name="сердолике"/>
+		<alias name="кусочек_сердолика"/>
+	</sort>
+	<sort type="Minerals" power="14" gender="kMale">
+		<case id="kNom" name="туф"/>
+		<case id="kGen" name="туфа"/>
+		<case id="kDat" name="туфу"/>
+		<case id="kAcc" name="туф"/>
+		<case id="kIns" name="туфом"/>
+		<case id="kPre" name="туфе"/>
+		<alias name="кусочек_туфа"/>
+	</sort>
+	<sort type="Minerals" power="15" gender="kMale">
+		<case id="kNom" name="базальт"/>
+		<case id="kGen" name="базальта"/>
+		<case id="kDat" name="базальту"/>
+		<case id="kAcc" name="базальт"/>
+		<case id="kIns" name="базальтом"/>
+		<case id="kPre" name="базальте"/>
+		<alias name="осколок_базальта"/>
+	</sort>
+	<sort type="Minerals" power="16" gender="kMale">
+		<case id="kNom" name="лазурит"/>
+		<case id="kGen" name="лазурита"/>
+		<case id="kDat" name="лазуриту"/>
+		<case id="kAcc" name="лазурит"/>
+		<case id="kIns" name="лазуритом"/>
+		<case id="kPre" name="лазурите"/>
+		<alias name="осколок_лазурита"/>
+	</sort>
+	<sort type="Minerals" power="17" gender="kMale">
+		<case id="kNom" name="халцедон"/>
+		<case id="kGen" name="халцедона"/>
+		<case id="kDat" name="халцедону"/>
+		<case id="kAcc" name="халцедон"/>
+		<case id="kIns" name="халцедоном"/>
+		<case id="kPre" name="халцедоне"/>
+		<alias name="халцедон"/>
+	</sort>
+	<sort type="Minerals" power="18" gender="kMale">
+		<case id="kNom" name="хризопраз"/>
+		<case id="kGen" name="хризопраза"/>
+		<case id="kDat" name="хризопразу"/>
+		<case id="kAcc" name="хризопраз"/>
+		<case id="kIns" name="хризопразом"/>
+		<case id="kPre" name="хризопразе"/>
+		<alias name="кусочек_хризопраза"/>
+	</sort>
+	<sort type="Minerals" power="19" gender="kMale">
+		<case id="kNom" name="обсидиан"/>
+		<case id="kGen" name="обсидиана"/>
+		<case id="kDat" name="обсидиану"/>
+		<case id="kAcc" name="обсидиан"/>
+		<case id="kIns" name="обсидианом"/>
+		<case id="kPre" name="обсидиане"/>
+		<alias name="кусочек_обсидиана"/>
+	</sort>
+	<sort type="Minerals" power="20" gender="kMale">
+		<case id="kNom" name="мрамор"/>
+		<case id="kGen" name="мрамора"/>
+		<case id="kDat" name="мрамору"/>
+		<case id="kAcc" name="мрамор"/>
+		<case id="kIns" name="мрамором"/>
+		<case id="kPre" name="мраморе"/>
+		<alias name="крупный_кусок_мрамора"/>
+	</sort>
+	<sort type="Minerals" power="21" gender="kMale">
+		<case id="kNom" name="малахит"/>
+		<case id="kGen" name="малахита"/>
+		<case id="kDat" name="малахиту"/>
+		<case id="kAcc" name="малахит"/>
+		<case id="kIns" name="малахитом"/>
+		<case id="kPre" name="малахите"/>
+		<alias name="крупный_кусок_малахита"/>
+	</sort>
+	<sort type="Minerals" power="22" gender="kMale">
+		<case id="kNom" name="опал"/>
+		<case id="kGen" name="опала"/>
+		<case id="kDat" name="опалу"/>
+		<case id="kAcc" name="опал"/>
+		<case id="kIns" name="опалом"/>
+		<case id="kPre" name="опале"/>
+		<alias name="опал"/>
+	</sort>
+	<sort type="Minerals" power="23" gender="kMale">
+		<case id="kNom" name="нефрит"/>
+		<case id="kGen" name="нефрита"/>
+		<case id="kDat" name="нефриту"/>
+		<case id="kAcc" name="нефрит"/>
+		<case id="kIns" name="нефритом"/>
+		<case id="kPre" name="нефрите"/>
+		<alias name="большой_кусок_нефрита"/>
+	</sort>
+	<sort type="Minerals" power="24" gender="kMale">
+		<case id="kNom" name="аметист"/>
+		<case id="kGen" name="аметиста"/>
+		<case id="kDat" name="аметисту"/>
+		<case id="kAcc" name="аметист"/>
+		<case id="kIns" name="аметистом"/>
+		<case id="kPre" name="аметисте"/>
+		<alias name="осколок_аметиста"/>
+	</sort>
+	<sort type="Minerals" power="27" gender="kMale">
+		<case id="kNom" name="гранат"/>
+		<case id="kGen" name="граната"/>
+		<case id="kDat" name="гранату"/>
+		<case id="kAcc" name="гранат"/>
+		<case id="kIns" name="гранатом"/>
+		<case id="kPre" name="гранате"/>
+		<alias name="огромный_гранат"/>
+	</sort>
+	<sort type="Minerals" power="28" gender="kMale">
+		<case id="kNom" name="рубин"/>
+		<case id="kGen" name="рубина"/>
+		<case id="kDat" name="рубине"/>
+		<case id="kAcc" name="рубин"/>
+		<case id="kIns" name="рубином"/>
+		<case id="kPre" name="рубине"/>
+		<alias name="средних_размеров_рубин"/>
+	</sort>
+	<sort type="Minerals" power="29" gender="kMale">
+		<case id="kNom" name="изумруд"/>
+		<case id="kGen" name="изумруда"/>
+		<case id="kDat" name="изумруду"/>
+		<case id="kAcc" name="изумруд"/>
+		<case id="kIns" name="изумрудом"/>
+		<case id="kPre" name="изумруде"/>
+		<alias name="большой_изумруд"/>
+	</sort>
+	<sort type="Minerals" power="30" gender="kMale">
+		<case id="kNom" name="алмаз"/>
+		<case id="kGen" name="алмаза"/>
+		<case id="kDat" name="алмазу"/>
+		<case id="kAcc" name="алмаз"/>
+		<case id="kIns" name="алмазом"/>
+		<case id="kPre" name="алмазе"/>
+		<alias name="большой_алмаз"/>
 	</sort>
 	<sort type="Metals" power="2" gender="kNeutral">
 		<case id="kNom" name="олово"/>
@@ -63,6 +1314,115 @@
 		<case id="kPre" name="олове"/>
 		<alias name="кусочек_олова"/>
 	</sort>
+	<sort type="Metals" power="5" gender="kFemale">
+		<case id="kNom" name="медь"/>
+		<case id="kGen" name="меди"/>
+		<case id="kDat" name="меди"/>
+		<case id="kAcc" name="медь"/>
+		<case id="kIns" name="медью"/>
+		<case id="kPre" name="меди"/>
+		<alias name="кусочек_меди"/>
+	</sort>
+	<sort type="Metals" power="7" gender="kNeutral">
+		<case id="kNom" name="железо"/>
+		<case id="kGen" name="железа"/>
+		<case id="kDat" name="железу"/>
+		<case id="kAcc" name="железо"/>
+		<case id="kIns" name="железом"/>
+		<case id="kPre" name="железе"/>
+		<alias name="самородок_железа"/>
+	</sort>
+	<sort type="Metals" power="10" gender="kMale">
+		<case id="kNom" name="никель"/>
+		<case id="kGen" name="никеля"/>
+		<case id="kDat" name="никелю"/>
+		<case id="kAcc" name="никель"/>
+		<case id="kIns" name="никелем"/>
+		<case id="kPre" name="никеле"/>
+		<alias name="кусочек_никеля"/>
+	</sort>
+	<sort type="Metals" power="13" gender="kFemale">
+		<case id="kNom" name="бронза"/>
+		<case id="kGen" name="бронзы"/>
+		<case id="kDat" name="бронзе"/>
+		<case id="kAcc" name="бронзу"/>
+		<case id="kIns" name="бронзой"/>
+		<case id="kPre" name="бронзе"/>
+		<alias name="кусочек_бронзы"/>
+	</sort>
+	<sort type="Metals" power="16" gender="kFemale">
+		<case id="kNom" name="латунь"/>
+		<case id="kGen" name="латуни"/>
+		<case id="kDat" name="латуни"/>
+		<case id="kAcc" name="латунь"/>
+		<case id="kIns" name="латунью"/>
+		<case id="kPre" name="латуни"/>
+		<alias name="кусочек_латуни"/>
+	</sort>
+	<sort type="Metals" power="19" gender="kMale">
+		<case id="kNom" name="свинец"/>
+		<case id="kGen" name="свинца"/>
+		<case id="kDat" name="свинцу"/>
+		<case id="kAcc" name="свинец"/>
+		<case id="kIns" name="свинцом"/>
+		<case id="kPre" name="свинеце"/>
+		<alias name="кусочек_свинца"/>
+	</sort>
+	<sort type="Metals" power="21" gender="kMale">
+		<case id="kNom" name="чугун"/>
+		<case id="kGen" name="чугуна"/>
+		<case id="kDat" name="чугуну"/>
+		<case id="kAcc" name="чугун"/>
+		<case id="kIns" name="чугуном"/>
+		<case id="kPre" name="чугуне"/>
+		<alias name="кусочек_чугуна"/>
+	</sort>
+	<sort type="Metals" power="23" gender="kMale">
+		<case id="kNom" name="мышьяк"/>
+		<case id="kGen" name="мышьяка"/>
+		<case id="kDat" name="мышьяку"/>
+		<case id="kAcc" name="мышьяк"/>
+		<case id="kIns" name="мышьяком"/>
+		<case id="kPre" name="мышьяке"/>
+		<alias name="мышьяк"/>
+	</sort>
+	<sort type="Metals" power="24" gender="kMale">
+		<case id="kNom" name="цинк"/>
+		<case id="kGen" name="цинка"/>
+		<case id="kDat" name="цинку"/>
+		<case id="kAcc" name="цинк"/>
+		<case id="kIns" name="цинком"/>
+		<case id="kPre" name="цинке"/>
+		<alias name="цинк"/>
+	</sort>
+	<sort type="Metals" power="25" gender="kNeutral">
+		<case id="kNom" name="серебро"/>
+		<case id="kGen" name="серебра"/>
+		<case id="kDat" name="серебру"/>
+		<case id="kAcc" name="серебро"/>
+		<case id="kIns" name="серебром"/>
+		<case id="kPre" name="серебре"/>
+		<alias name="серебро"/>
+	</sort>
+	<sort type="Metals" power="27" gender="kNeutral">
+		<case id="kNom" name="золото"/>
+		<case id="kGen" name="золота"/>
+		<case id="kDat" name="золоту"/>
+		<case id="kAcc" name="золото"/>
+		<case id="kIns" name="золотом"/>
+		<case id="kPre" name="золоте"/>
+		<alias name="золотой_самородок"/>
+		<room_desc name="Золотой_самородок_еле_заметен_в_грязи."/>
+	</sort>
+	<sort type="Metals" power="28" gender="kFemale">
+		<case id="kNom" name="платина"/>
+		<case id="kGen" name="платины"/>
+		<case id="kDat" name="платине"/>
+		<case id="kAcc" name="платину"/>
+		<case id="kIns" name="платиной"/>
+		<case id="kPre" name="платине"/>
+		<alias name="платина"/>
+	</sort>
 	<sort type="Utensils" power="1" gender="kFemale">
 		<case id="kNom" name="глиняная_плошка"/>
 		<case id="kGen" name="глиняной_плошки"/>
@@ -71,6 +1431,195 @@
 		<case id="kIns" name="глиняной_плошкой"/>
 		<case id="kPre" name="глиняной_плошке"/>
 		<alias name="глиняная_плошка"/>
+	</sort>
+	<sort type="Utensils" power="2" gender="kFemale">
+		<case id="kNom" name="треснутая_миска"/>
+		<case id="kGen" name="треснутой_миски"/>
+		<case id="kDat" name="треснутой_миске"/>
+		<case id="kAcc" name="треснутую_миску"/>
+		<case id="kIns" name="треснутой_миской"/>
+		<case id="kPre" name="треснутой_миске"/>
+		<alias name="треснутая_миска"/>
+	</sort>
+	<sort type="Utensils" power="3" gender="kFemale">
+		<case id="kNom" name="глиняная_кружка"/>
+		<case id="kGen" name="глиняной_кружки"/>
+		<case id="kDat" name="глиняной_кружке"/>
+		<case id="kAcc" name="глиняную_кружку"/>
+		<case id="kIns" name="глиняной_кружкой"/>
+		<case id="kPre" name="глиняной_кружке"/>
+		<alias name="глиняная_кружка"/>
+	</sort>
+	<sort type="Utensils" power="4" gender="kFemale">
+		<case id="kNom" name="жестяная_чашка"/>
+		<case id="kGen" name="жестяной_чашки"/>
+		<case id="kDat" name="жестяной_чашке"/>
+		<case id="kAcc" name="жестяную_чашку"/>
+		<case id="kIns" name="жестяной_чашкой"/>
+		<case id="kPre" name="жестяной_чашке"/>
+		<alias name="жестяная_чашка"/>
+	</sort>
+	<sort type="Utensils" power="5" gender="kFemale">
+		<case id="kNom" name="оловянная_чашка"/>
+		<case id="kGen" name="оловянной_чашки"/>
+		<case id="kDat" name="оловянной_чашке"/>
+		<case id="kAcc" name="оловянную_чашку"/>
+		<case id="kIns" name="оловянной_чашкой"/>
+		<case id="kPre" name="оловянной_чашке"/>
+		<alias name="оловянная_чашка"/>
+	</sort>
+	<sort type="Utensils" power="6" gender="kFemale">
+		<case id="kNom" name="медная_чашка"/>
+		<case id="kGen" name="медной_чашки"/>
+		<case id="kDat" name="медной_чашке"/>
+		<case id="kAcc" name="медную_чашку"/>
+		<case id="kIns" name="медной_чашкой"/>
+		<case id="kPre" name="медной_чашке"/>
+		<alias name="медная_чашка"/>
+	</sort>
+	<sort type="Utensils" power="8" gender="kFemale">
+		<case id="kNom" name="кастрюля"/>
+		<case id="kGen" name="кастрюли"/>
+		<case id="kDat" name="кастрюле"/>
+		<case id="kAcc" name="кастрюлю"/>
+		<case id="kIns" name="кастрюлей"/>
+		<case id="kPre" name="кастрюле"/>
+		<alias name="кастрюля"/>
+	</sort>
+	<sort type="Utensils" power="10" gender="kMale">
+		<case id="kNom" name="закопченый_чугунок"/>
+		<case id="kGen" name="закопченого_чугунка"/>
+		<case id="kDat" name="закопченому_чугунку"/>
+		<case id="kAcc" name="закопченый_чугунок"/>
+		<case id="kIns" name="закопченым_чугунком"/>
+		<case id="kPre" name="закопченом_чугунке"/>
+		<alias name="закопченый_чугунок"/>
+	</sort>
+	<sort type="Utensils" power="12" gender="kFemale">
+		<case id="kNom" name="железная_ступка"/>
+		<case id="kGen" name="железной_ступки"/>
+		<case id="kDat" name="железной_ступке"/>
+		<case id="kAcc" name="железную_ступку"/>
+		<case id="kIns" name="железной_ступкой"/>
+		<case id="kPre" name="железной_ступке"/>
+		<alias name="железная_ступка"/>
+	</sort>
+	<sort type="Utensils" power="14" gender="kMale">
+		<case id="kNom" name="большой_горшок"/>
+		<case id="kGen" name="большого_горшка"/>
+		<case id="kDat" name="большому_горшку"/>
+		<case id="kAcc" name="большой_горшок"/>
+		<case id="kIns" name="большим_горшком"/>
+		<case id="kPre" name="большом_горшке"/>
+		<alias name="большой_горшок"/>
+	</sort>
+	<sort type="Utensils" power="16" gender="kMale">
+		<case id="kNom" name="маленький_котелок"/>
+		<case id="kGen" name="маленького_котелка"/>
+		<case id="kDat" name="маленькому_котелку"/>
+		<case id="kAcc" name="маленький_котелок"/>
+		<case id="kIns" name="маленьким_котелком"/>
+		<case id="kPre" name="маленьком_котелке"/>
+		<alias name="маленький_котелок"/>
+	</sort>
+	<sort type="Utensils" power="18" gender="kMale">
+		<case id="kNom" name="железный_котел"/>
+		<case id="kGen" name="железного_котла"/>
+		<case id="kDat" name="железному_котлу"/>
+		<case id="kAcc" name="железный_котел"/>
+		<case id="kIns" name="железным_котлом"/>
+		<case id="kPre" name="железном_котле"/>
+		<alias name="железный_котел"/>
+	</sort>
+	<sort type="Utensils" power="21" gender="kMale">
+		<case id="kNom" name="оловянный_котел"/>
+		<case id="kGen" name="оловянного_котла"/>
+		<case id="kDat" name="оловянному_котлу"/>
+		<case id="kAcc" name="оловянный_котел"/>
+		<case id="kIns" name="оловянным_котлом"/>
+		<case id="kPre" name="оловянном_котле"/>
+		<alias name="оловянный_котел"/>
+	</sort>
+	<sort type="Utensils" power="22" gender="kMale">
+		<case id="kNom" name="медный_котел"/>
+		<case id="kGen" name="медного_котла"/>
+		<case id="kDat" name="медному_котлу"/>
+		<case id="kAcc" name="медный_котел"/>
+		<case id="kIns" name="медным_котлом"/>
+		<case id="kPre" name="медном_котле"/>
+		<alias name="медный_котел"/>
+	</sort>
+	<sort type="Utensils" power="23" gender="kMale">
+		<case id="kNom" name="бронзовый_котел"/>
+		<case id="kGen" name="бронзового_котла"/>
+		<case id="kDat" name="бронзовому_котлу"/>
+		<case id="kAcc" name="бронзовый_котел"/>
+		<case id="kIns" name="бронзовым_котлом"/>
+		<case id="kPre" name="бронзовом_котле"/>
+		<alias name="бронзовый_котел"/>
+	</sort>
+	<sort type="Utensils" power="24" gender="kMale">
+		<case id="kNom" name="железный_чан"/>
+		<case id="kGen" name="железного_чана"/>
+		<case id="kDat" name="железному_чану"/>
+		<case id="kAcc" name="железный_чан"/>
+		<case id="kIns" name="железным_чаном"/>
+		<case id="kPre" name="железном_чане"/>
+		<alias name="железный_чан"/>
+	</sort>
+	<sort type="Utensils" power="25" gender="kMale">
+		<case id="kNom" name="медный_чан"/>
+		<case id="kGen" name="медного_чана"/>
+		<case id="kDat" name="медному_чану"/>
+		<case id="kAcc" name="медный_чан"/>
+		<case id="kIns" name="медным_чаном"/>
+		<case id="kPre" name="медном_чане"/>
+		<alias name="медный_чан"/>
+	</sort>
+	<sort type="Utensils" power="26" gender="kMale">
+		<case id="kNom" name="серебряный_тигель"/>
+		<case id="kGen" name="серебряного_тигля"/>
+		<case id="kDat" name="серебряному_тиглю"/>
+		<case id="kAcc" name="серебряный_тигель"/>
+		<case id="kIns" name="серебряным_тиглем"/>
+		<case id="kPre" name="серебрянои_тигле"/>
+		<alias name="серебряный_тигель"/>
+	</sort>
+	<sort type="Utensils" power="27" gender="kMale">
+		<case id="kNom" name="огромный_медный_котел"/>
+		<case id="kGen" name="огромного_медного_котла"/>
+		<case id="kDat" name="огромному_медному_котлу"/>
+		<case id="kAcc" name="огромный_медный_котел"/>
+		<case id="kIns" name="огромным_медным_котлом"/>
+		<case id="kPre" name="огромном_медном_котле"/>
+		<alias name="огромный_медный_котел"/>
+	</sort>
+	<sort type="Utensils" power="28" gender="kMale">
+		<case id="kNom" name="огромный_оловянный_котел"/>
+		<case id="kGen" name="огромного_оловянного_котла"/>
+		<case id="kDat" name="огромному_оловянному_котлу"/>
+		<case id="kAcc" name="огромный_оловянный_котел"/>
+		<case id="kIns" name="огромным_оловянным_котлом"/>
+		<case id="kPre" name="огромном_оловянном_котле"/>
+		<alias name="огромный_оловянный_котел"/>
+	</sort>
+	<sort type="Utensils" power="29" gender="kMale">
+		<case id="kNom" name="огромный_бронзовый_котел"/>
+		<case id="kGen" name="огромного_бронзового_котла"/>
+		<case id="kDat" name="огромному_бронзовму_котлу"/>
+		<case id="kAcc" name="огромный_бронзовый_котел"/>
+		<case id="kIns" name="огромным_бронзовым_котлом"/>
+		<case id="kPre" name="огромном_бронзовом_котле"/>
+		<alias name="огромный_бронзовый_котел"/>
+	</sort>
+	<sort type="Utensils" power="30" gender="kMale">
+		<case id="kNom" name="огромный_серебряный_котел"/>
+		<case id="kGen" name="огромного_серебряного_котла"/>
+		<case id="kDat" name="огромному_серебряному_котлу"/>
+		<case id="kAcc" name="огромный_серебряный_котел"/>
+		<case id="kIns" name="огромным_серебряным_котлом"/>
+		<case id="kPre" name="огромном_серебряном_котле"/>
+		<alias name="огромный_серебряный_котел"/>
 	</sort>
 	<sort type="Liquids" power="1" gender="kFemale">
 		<case id="kNom" name="дождевая_вода"/>
@@ -81,6 +1630,204 @@
 		<case id="kPre" name="дождевой_воде"/>
 		<alias name="склянка_с_водой_из_лужи"/>
 	</sort>
+	<sort type="Liquids" power="2" gender="kFemale">
+		<case id="kNom" name="вода_из_болота"/>
+		<case id="kGen" name="воды_из_болота"/>
+		<case id="kDat" name="воде_из_болота"/>
+		<case id="kAcc" name="воду_из_болота"/>
+		<case id="kIns" name="водой_из_болота"/>
+		<case id="kPre" name="воде_из_болота"/>
+		<alias name="склянка_с_водой_из_болота"/>
+	</sort>
+	<sort type="Liquids" power="3" gender="kFemale">
+		<case id="kNom" name="гнилая_вода"/>
+		<case id="kGen" name="гнилой_воды"/>
+		<case id="kDat" name="гнилой_воде"/>
+		<case id="kAcc" name="гнилую_воду"/>
+		<case id="kIns" name="гнилой_водой"/>
+		<case id="kPre" name="гнилой_воде"/>
+		<alias name="склянка_с_гнилой_водой"/>
+	</sort>
+	<sort type="Liquids" power="4" gender="kNeutral">
+		<case id="kNom" name="прокисшее_пиво"/>
+		<case id="kGen" name="прокисшего_пива"/>
+		<case id="kDat" name="прокисшему_пиву"/>
+		<case id="kAcc" name="прокисшее_пиво"/>
+		<case id="kIns" name="прокисшим_пивом"/>
+		<case id="kPre" name="прокисшем_пиве"/>
+		<alias name="кружка_прокисшего_пива"/>
+	</sort>
+	<sort type="Liquids" power="5" gender="kMale">
+		<case id="kNom" name="ржаной_квас"/>
+		<case id="kGen" name="ржаного_кваса"/>
+		<case id="kDat" name="ржаному_квасу"/>
+		<case id="kAcc" name="ржаной_квас"/>
+		<case id="kIns" name="ржаным_квасом"/>
+		<case id="kPre" name="ржаном_квасе"/>
+		<alias name="кружка_ржаного_кваса"/>
+	</sort>
+	<sort type="Liquids" power="6" gender="kFemale">
+		<case id="kNom" name="ключевая_вода"/>
+		<case id="kGen" name="ключевой_воды"/>
+		<case id="kDat" name="ключевой_воде"/>
+		<case id="kAcc" name="ключевую_воду"/>
+		<case id="kIns" name="ключевой_водой"/>
+		<case id="kPre" name="ключевой_воде"/>
+		<alias name="бурдюк_с_ключевой_водой"/>
+	</sort>
+	<sort type="Liquids" power="7" gender="kNeutral">
+		<case id="kNom" name="пиво"/>
+		<case id="kGen" name="пива"/>
+		<case id="kDat" name="пиву"/>
+		<case id="kAcc" name="пиво"/>
+		<case id="kIns" name="пивом"/>
+		<case id="kPre" name="пиве"/>
+		<alias name="кружка_пива"/>
+	</sort>
+	<sort type="Liquids" power="8" gender="kNeutral">
+		<case id="kNom" name="вино"/>
+		<case id="kGen" name="вина"/>
+		<case id="kDat" name="вину"/>
+		<case id="kAcc" name="вино"/>
+		<case id="kIns" name="вином"/>
+		<case id="kPre" name="вине"/>
+		<alias name="бутыль_вина"/>
+	</sort>
+	<sort type="Liquids" power="9" gender="kFemale">
+		<case id="kNom" name="водка"/>
+		<case id="kGen" name="водки"/>
+		<case id="kDat" name="водке"/>
+		<case id="kAcc" name="водку"/>
+		<case id="kIns" name="водкой"/>
+		<case id="kPre" name="водке"/>
+		<alias name="бутылка_водки"/>
+	</sort>
+	<sort type="Liquids" power="10" gender="kFemale">
+		<case id="kNom" name="сметана"/>
+		<case id="kGen" name="сметаны"/>
+		<case id="kDat" name="сметане"/>
+		<case id="kAcc" name="сметану"/>
+		<case id="kIns" name="сметаной"/>
+		<case id="kPre" name="сметане"/>
+		<alias name="миска_сметаны"/>
+	</sort>
+	<sort type="Liquids" power="11" gender="kMale">
+		<case id="kNom" name="самогон"/>
+		<case id="kGen" name="самогона"/>
+		<case id="kDat" name="самогону"/>
+		<case id="kAcc" name="самогон"/>
+		<case id="kIns" name="самогоном"/>
+		<case id="kPre" name="самогоне"/>
+		<alias name="штоф_самогона"/>
+	</sort>
+	<sort type="Liquids" power="12" gender="kFemale">
+		<case id="kNom" name="простокваша"/>
+		<case id="kGen" name="простокваши"/>
+		<case id="kDat" name="простокваше"/>
+		<case id="kAcc" name="простоквашу"/>
+		<case id="kIns" name="простоквашей"/>
+		<case id="kPre" name="простокваше"/>
+		<alias name="миска_простокваши"/>
+	</sort>
+	<sort type="Liquids" power="13" gender="kFemale">
+		<case id="kNom" name="брага"/>
+		<case id="kGen" name="браги"/>
+		<case id="kDat" name="браге"/>
+		<case id="kAcc" name="брагу"/>
+		<case id="kIns" name="брагой"/>
+		<case id="kPre" name="браге"/>
+		<alias name="бутыль_с_брагой"/>
+	</sort>
+	<sort type="Liquids" power="15" gender="kFemale">
+		<case id="kNom" name="медовуха"/>
+		<case id="kGen" name="медовухи"/>
+		<case id="kDat" name="медовухе"/>
+		<case id="kAcc" name="медовуху"/>
+		<case id="kIns" name="медовухой"/>
+		<case id="kPre" name="медовухе"/>
+		<alias name="бутыль_с_медовухой"/>
+	</sort>
+	<sort type="Liquids" power="17" gender="kNeutral">
+		<case id="kNom" name="кислое_молоко"/>
+		<case id="kGen" name="кислого_молока"/>
+		<case id="kDat" name="кислому_молоку"/>
+		<case id="kAcc" name="кислое_молоко"/>
+		<case id="kIns" name="кислым_молоком"/>
+		<case id="kPre" name="кислом_молоке"/>
+		<alias name="крынка_кислого_молока"/>
+	</sort>
+	<sort type="Liquids" power="18" gender="kMale">
+		<case id="kNom" name="клюквеный_кисель"/>
+		<case id="kGen" name="клюквеного_киселя"/>
+		<case id="kDat" name="клюквеному_киселю"/>
+		<case id="kAcc" name="клюквеный_кисель"/>
+		<case id="kIns" name="клюквеным_киселем"/>
+		<case id="kPre" name="клюквеном_киселе"/>
+		<alias name="горшок_клюквеного_киселя"/>
+	</sort>
+	<sort type="Liquids" power="20" gender="kMale">
+		<case id="kNom" name="сбитень"/>
+		<case id="kGen" name="сбитня"/>
+		<case id="kDat" name="сбитню"/>
+		<case id="kAcc" name="сбитень"/>
+		<case id="kIns" name="сбитнем"/>
+		<case id="kPre" name="сбитне"/>
+		<alias name="бутыль_сбитня"/>
+	</sort>
+	<sort type="Liquids" power="22" gender="kMale">
+		<case id="kNom" name="мед"/>
+		<case id="kGen" name="меда"/>
+		<case id="kDat" name="меду"/>
+		<case id="kAcc" name="мед"/>
+		<case id="kIns" name="медом"/>
+		<case id="kPre" name="меде"/>
+		<alias name="горшок_меда"/>
+	</sort>
+	<sort type="Liquids" power="24" gender="kNeutral">
+		<case id="kNom" name="масло"/>
+		<case id="kGen" name="масла"/>
+		<case id="kDat" name="маслу"/>
+		<case id="kAcc" name="масло"/>
+		<case id="kIns" name="маслом"/>
+		<case id="kPre" name="масле"/>
+		<alias name="бутыль_масла"/>
+	</sort>
+	<sort type="Liquids" power="26" gender="kNeutral">
+		<case id="kNom" name="конопляное_масло"/>
+		<case id="kGen" name="конопляного_масла"/>
+		<case id="kDat" name="конопляному_маслу"/>
+		<case id="kAcc" name="конопляное_масло"/>
+		<case id="kIns" name="конопляным_маслом"/>
+		<case id="kPre" name="конопляном_масле"/>
+		<alias name="бутыль_конопляного_масла"/>
+	</sort>
+	<sort type="Liquids" power="27" gender="kMale">
+		<case id="kNom" name="деготь"/>
+		<case id="kGen" name="дегтя"/>
+		<case id="kDat" name="дегтю"/>
+		<case id="kAcc" name="деготь"/>
+		<case id="kIns" name="дегтем"/>
+		<case id="kPre" name="дегте"/>
+		<alias name="плошка_с_дегтем"/>
+	</sort>
+	<sort type="Liquids" power="28" gender="kFemale">
+		<case id="kNom" name="кровь"/>
+		<case id="kGen" name="крови"/>
+		<case id="kDat" name="крови"/>
+		<case id="kAcc" name="кровь"/>
+		<case id="kIns" name="кровью"/>
+		<case id="kPre" name="крови"/>
+		<alias name="пузырек_с_кровью"/>
+	</sort>
+	<sort type="Liquids" power="30" gender="kFemale">
+		<case id="kNom" name="ртуть"/>
+		<case id="kGen" name="ртути"/>
+		<case id="kDat" name="ртути"/>
+		<case id="kAcc" name="ртуть"/>
+		<case id="kIns" name="ртутью"/>
+		<case id="kPre" name="ртути"/>
+		<alias name="пузырек_с_ртутью"/>
+	</sort>
 	<sort type="Wood" power="1" gender="kMale">
 		<case id="kNom" name="орех"/>
 		<case id="kGen" name="ореха"/>
@@ -89,6 +1836,240 @@
 		<case id="kIns" name="орехом"/>
 		<case id="kPre" name="орехе"/>
 		<alias name="ветка_ореха"/>
+	</sort>
+	<sort type="Wood" power="2" gender="kFemale">
+		<case id="kNom" name="ива"/>
+		<case id="kGen" name="ивы"/>
+		<case id="kDat" name="иве"/>
+		<case id="kAcc" name="иву"/>
+		<case id="kIns" name="ивой"/>
+		<case id="kPre" name="иве"/>
+		<alias name="ветка_ивы"/>
+	</sort>
+	<sort type="Wood" power="3" gender="kFemale">
+		<case id="kNom" name="сосна"/>
+		<case id="kGen" name="сосны"/>
+		<case id="kDat" name="сосне"/>
+		<case id="kAcc" name="сосну"/>
+		<case id="kIns" name="сосной"/>
+		<case id="kPre" name="сосне"/>
+		<alias name="ветка_сосны"/>
+	</sort>
+	<sort type="Wood" power="4" gender="kFemale">
+		<case id="kNom" name="осина"/>
+		<case id="kGen" name="осины"/>
+		<case id="kDat" name="осине"/>
+		<case id="kAcc" name="осину"/>
+		<case id="kIns" name="осиной"/>
+		<case id="kPre" name="осине"/>
+		<alias name="ветка_осины"/>
+	</sort>
+	<sort type="Wood" power="5" gender="kFemale">
+		<case id="kNom" name="ольха"/>
+		<case id="kGen" name="ольхи"/>
+		<case id="kDat" name="ольхе"/>
+		<case id="kAcc" name="ольху"/>
+		<case id="kIns" name="ольхой"/>
+		<case id="kPre" name="ольхе"/>
+		<alias name="ветка_ольхи"/>
+	</sort>
+	<sort type="Wood" power="6" gender="kFemale">
+		<case id="kNom" name="ель"/>
+		<case id="kGen" name="ели"/>
+		<case id="kDat" name="ели"/>
+		<case id="kAcc" name="ель"/>
+		<case id="kIns" name="елью"/>
+		<case id="kPre" name="ели"/>
+		<alias name="ветка_ели"/>
+	</sort>
+	<sort type="Wood" power="7" gender="kFemale">
+		<case id="kNom" name="береза"/>
+		<case id="kGen" name="березы"/>
+		<case id="kDat" name="березе"/>
+		<case id="kAcc" name="березу"/>
+		<case id="kIns" name="березой"/>
+		<case id="kPre" name="березе"/>
+		<alias name="ветка_березы"/>
+	</sort>
+	<sort type="Wood" power="8" gender="kMale">
+		<case id="kNom" name="тополь"/>
+		<case id="kGen" name="тополя"/>
+		<case id="kDat" name="тополю"/>
+		<case id="kAcc" name="тополь"/>
+		<case id="kIns" name="тополем"/>
+		<case id="kPre" name="тополе"/>
+		<alias name="ветка_тополя"/>
+	</sort>
+	<sort type="Wood" power="10" gender="kMale">
+		<case id="kNom" name="клен"/>
+		<case id="kGen" name="клена"/>
+		<case id="kDat" name="клену"/>
+		<case id="kAcc" name="клен"/>
+		<case id="kIns" name="кленом"/>
+		<case id="kPre" name="клене"/>
+		<alias name="ветка_клена"/>
+	</sort>
+	<sort type="Wood" power="12" gender="kFemale">
+		<case id="kNom" name="липа"/>
+		<case id="kGen" name="липы"/>
+		<case id="kDat" name="липе"/>
+		<case id="kAcc" name="липу"/>
+		<case id="kIns" name="липой"/>
+		<case id="kPre" name="липе"/>
+		<alias name="ветка_липы"/>
+	</sort>
+	<sort type="Wood" power="13" gender="kFemale">
+		<case id="kNom" name="лиственница"/>
+		<case id="kGen" name="лиственницы"/>
+		<case id="kDat" name="лиственнице"/>
+		<case id="kAcc" name="лиственницу"/>
+		<case id="kIns" name="лиственнице"/>
+		<case id="kPre" name="лиственнице"/>
+		<alias name="ветка_лиственницы"/>
+	</sort>
+	<sort type="Wood" power="14" gender="kFemale">
+		<case id="kNom" name="пихта"/>
+		<case id="kGen" name="пихты"/>
+		<case id="kDat" name="пихте"/>
+		<case id="kAcc" name="пихту"/>
+		<case id="kIns" name="пихтой"/>
+		<case id="kPre" name="пихте"/>
+		<alias name="ветка_пихты"/>
+	</sort>
+	<sort type="Wood" power="15" gender="kFemale">
+		<case id="kNom" name="черемуха"/>
+		<case id="kGen" name="черемухи"/>
+		<case id="kDat" name="черемухе"/>
+		<case id="kAcc" name="черемуху"/>
+		<case id="kIns" name="черемухой"/>
+		<case id="kPre" name="черемухе"/>
+		<alias name="ветка_черемухи"/>
+	</sort>
+	<sort type="Wood" power="16" gender="kFemale">
+		<case id="kNom" name="яблоня"/>
+		<case id="kGen" name="яблони"/>
+		<case id="kDat" name="яблоне"/>
+		<case id="kAcc" name="яблоню"/>
+		<case id="kIns" name="яблоней"/>
+		<case id="kPre" name="яблоне"/>
+		<alias name="ветка_яблони"/>
+	</sort>
+	<sort type="Wood" power="17" gender="kFemale">
+		<case id="kNom" name="груша"/>
+		<case id="kGen" name="груши"/>
+		<case id="kDat" name="груше"/>
+		<case id="kAcc" name="грушу"/>
+		<case id="kIns" name="грушей"/>
+		<case id="kPre" name="груше"/>
+		<alias name="ветка_груши"/>
+	</sort>
+	<sort type="Wood" power="18" gender="kMale">
+		<case id="kNom" name="вяз"/>
+		<case id="kGen" name="вяза"/>
+		<case id="kDat" name="вязу"/>
+		<case id="kAcc" name="вяз"/>
+		<case id="kIns" name="вязом"/>
+		<case id="kPre" name="вязе"/>
+		<alias name="ветка_вяза"/>
+	</sort>
+	<sort type="Wood" power="19" gender="kMale">
+		<case id="kNom" name="бук"/>
+		<case id="kGen" name="бука"/>
+		<case id="kDat" name="буку"/>
+		<case id="kAcc" name="бук"/>
+		<case id="kIns" name="буком"/>
+		<case id="kPre" name="буке"/>
+		<alias name="ветка_бука"/>
+	</sort>
+	<sort type="Wood" power="20" gender="kMale">
+		<case id="kNom" name="ясень"/>
+		<case id="kGen" name="ясеня"/>
+		<case id="kDat" name="ясеню"/>
+		<case id="kAcc" name="ясень"/>
+		<case id="kIns" name="ясенем"/>
+		<case id="kPre" name="ясене"/>
+		<alias name="ветка_ясеня"/>
+	</sort>
+	<sort type="Wood" power="21" gender="kMale">
+		<case id="kNom" name="дуб"/>
+		<case id="kGen" name="дуба"/>
+		<case id="kDat" name="дубу"/>
+		<case id="kAcc" name="дуб"/>
+		<case id="kIns" name="дубом"/>
+		<case id="kPre" name="дубе"/>
+		<alias name="ветка_дуба"/>
+	</sort>
+	<sort type="Wood" power="22" gender="kMale">
+		<case id="kNom" name="карагач"/>
+		<case id="kGen" name="карагача"/>
+		<case id="kDat" name="карагачу"/>
+		<case id="kAcc" name="карагач"/>
+		<case id="kIns" name="карагачем"/>
+		<case id="kPre" name="карагаче"/>
+		<alias name="ветка_карагача"/>
+	</sort>
+	<sort type="Wood" power="23" gender="kMale">
+		<case id="kNom" name="тис"/>
+		<case id="kGen" name="тиса"/>
+		<case id="kDat" name="тису"/>
+		<case id="kAcc" name="тис"/>
+		<case id="kIns" name="тисом"/>
+		<case id="kPre" name="тисе"/>
+		<alias name="ветка_тиса"/>
+	</sort>
+	<sort type="Wood" power="24" gender="kMale">
+		<case id="kNom" name="кипарис"/>
+		<case id="kGen" name="кипариса"/>
+		<case id="kDat" name="кипарису"/>
+		<case id="kAcc" name="кипарис"/>
+		<case id="kIns" name="кипарисом"/>
+		<case id="kPre" name="кипарисе"/>
+		<alias name="ветка_кипариса"/>
+	</sort>
+	<sort type="Wood" power="25" gender="kMale">
+		<case id="kNom" name="кедр"/>
+		<case id="kGen" name="кедра"/>
+		<case id="kDat" name="кедру"/>
+		<case id="kAcc" name="кедр"/>
+		<case id="kIns" name="кедром"/>
+		<case id="kPre" name="кедре"/>
+		<alias name="ветка_кедра"/>
+	</sort>
+	<sort type="Wood" power="26" gender="kMale">
+		<case id="kNom" name="каштан"/>
+		<case id="kGen" name="каштана"/>
+		<case id="kDat" name="каштану"/>
+		<case id="kAcc" name="каштан"/>
+		<case id="kIns" name="каштаном"/>
+		<case id="kPre" name="каштане"/>
+		<alias name="ветка_каштана"/>
+	</sort>
+	<sort type="Wood" power="27" gender="kMale">
+		<case id="kNom" name="платан"/>
+		<case id="kGen" name="платана"/>
+		<case id="kDat" name="платану"/>
+		<case id="kAcc" name="платан"/>
+		<case id="kIns" name="платаном"/>
+		<case id="kPre" name="платане"/>
+		<alias name="ветка_платана"/>
+	</sort>
+	<sort type="Wood" power="28" gender="kMale">
+		<case id="kNom" name="ильм"/>
+		<case id="kGen" name="ильма"/>
+		<case id="kDat" name="ильму"/>
+		<case id="kAcc" name="ильм"/>
+		<case id="kIns" name="ильмом"/>
+		<case id="kPre" name="ильме"/>
+		<alias name="ветка_ильма"/>
+	</sort>
+	<sort type="Wood" power="29" gender="kMale">
+		<case id="kNom" name="самшит"/>
+		<case id="kGen" name="самшита"/>
+		<case id="kDat" name="самшиту"/>
+		<case id="kAcc" name="самшит"/>
+		<case id="kIns" name="самшитом"/>
+		<case id="kPre" name="самшите"/>
+		<alias name="ветка_самшита"/>
 	</sort>
 	<sort type="EdibleMushrooms" power="1" gender="kFemale">
 		<case id="kNom" name="горькушка"/>
@@ -100,6 +2081,269 @@
 		<alias name="горькушка"/>
 		<room_desc name="Грибок_странного_вида_растет_тут."/>
 	</sort>
+	<sort type="EdibleMushrooms" power="2" gender="kMale">
+		<case id="kNom" name="опенок"/>
+		<case id="kGen" name="опенка"/>
+		<case id="kDat" name="опенку"/>
+		<case id="kAcc" name="опенок"/>
+		<case id="kIns" name="опенком"/>
+		<case id="kPre" name="опенке"/>
+		<alias name="опенок"/>
+		<room_desc name="Опята_растут_на_пеньке."/>
+	</sort>
+	<sort type="EdibleMushrooms" power="3" gender="kMale">
+		<case id="kNom" name="сморчок"/>
+		<case id="kGen" name="сморчка"/>
+		<case id="kDat" name="сморчку"/>
+		<case id="kAcc" name="сморчок"/>
+		<case id="kIns" name="сморчком"/>
+		<case id="kPre" name="сморчке"/>
+		<alias name="сморчок"/>
+	</sort>
+	<sort type="EdibleMushrooms" power="4" gender="kMale">
+		<case id="kNom" name="строчок"/>
+		<case id="kGen" name="строчка"/>
+		<case id="kDat" name="строчку"/>
+		<case id="kAcc" name="строчок"/>
+		<case id="kIns" name="строчком"/>
+		<case id="kPre" name="строчке"/>
+		<alias name="строчок"/>
+	</sort>
+	<sort type="EdibleMushrooms" power="5" gender="kFemale">
+		<case id="kNom" name="волнушка"/>
+		<case id="kGen" name="волнушки"/>
+		<case id="kDat" name="волнушке"/>
+		<case id="kAcc" name="волнушку"/>
+		<case id="kIns" name="волнушкой"/>
+		<case id="kPre" name="волнушке"/>
+		<alias name="волнушка"/>
+	</sort>
+	<sort type="EdibleMushrooms" power="6" gender="kMale">
+		<case id="kNom" name="рыжик"/>
+		<case id="kGen" name="рыжика"/>
+		<case id="kDat" name="рыжику"/>
+		<case id="kAcc" name="рыжик"/>
+		<case id="kIns" name="рыжиком"/>
+		<case id="kPre" name="рыжике"/>
+		<alias name="рыжик"/>
+	</sort>
+	<sort type="EdibleMushrooms" power="7" gender="kFemale">
+		<case id="kNom" name="лисичка"/>
+		<case id="kGen" name="лисички"/>
+		<case id="kDat" name="лисичке"/>
+		<case id="kAcc" name="лисичку"/>
+		<case id="kIns" name="лисичкой"/>
+		<case id="kPre" name="лисичке"/>
+		<alias name="лисичка"/>
+	</sort>
+	<sort type="EdibleMushrooms" power="8" gender="kFemale">
+		<case id="kNom" name="сыроежка"/>
+		<case id="kGen" name="сыроежки"/>
+		<case id="kDat" name="сыроежке"/>
+		<case id="kAcc" name="сыроежку"/>
+		<case id="kIns" name="сыроежкой"/>
+		<case id="kPre" name="сыроежке"/>
+		<alias name="сыроежка"/>
+	</sort>
+	<sort type="EdibleMushrooms" power="9" gender="kFemale">
+		<case id="kNom" name="свинушка"/>
+		<case id="kGen" name="свинушки"/>
+		<case id="kDat" name="свинушке"/>
+		<case id="kAcc" name="свинушку"/>
+		<case id="kIns" name="свинушкой"/>
+		<case id="kPre" name="свинушке"/>
+		<alias name="свинушка"/>
+	</sort>
+	<sort type="EdibleMushrooms" power="10" gender="kMale">
+		<case id="kNom" name="масленок"/>
+		<case id="kGen" name="масленка"/>
+		<case id="kDat" name="масленку"/>
+		<case id="kAcc" name="масленок"/>
+		<case id="kIns" name="масленком"/>
+		<case id="kPre" name="масленке"/>
+		<alias name="масленок"/>
+	</sort>
+	<sort type="EdibleMushrooms" power="11" gender="kFemale">
+		<case id="kNom" name="вешенка"/>
+		<case id="kGen" name="вешенки"/>
+		<case id="kDat" name="вешенке"/>
+		<case id="kAcc" name="вешенку"/>
+		<case id="kIns" name="вешенкой"/>
+		<case id="kPre" name="вешенке"/>
+		<alias name="вешенка"/>
+	</sort>
+	<sort type="EdibleMushrooms" power="12" gender="kMale">
+		<case id="kNom" name="дождевик"/>
+		<case id="kGen" name="дождевика"/>
+		<case id="kDat" name="дождевику"/>
+		<case id="kAcc" name="дождевик"/>
+		<case id="kIns" name="дождевиком"/>
+		<case id="kPre" name="дождевике"/>
+		<alias name="дождевик"/>
+	</sort>
+	<sort type="EdibleMushrooms" power="13" gender="kMale">
+		<case id="kNom" name="моховик"/>
+		<case id="kGen" name="моховика"/>
+		<case id="kDat" name="моховику"/>
+		<case id="kAcc" name="моховик"/>
+		<case id="kIns" name="моховиком"/>
+		<case id="kPre" name="моховике"/>
+		<alias name="моховик"/>
+	</sort>
+	<sort type="EdibleMushrooms" power="14" gender="kMale">
+		<case id="kNom" name="валуй"/>
+		<case id="kGen" name="валуя"/>
+		<case id="kDat" name="валую"/>
+		<case id="kAcc" name="валуй"/>
+		<case id="kIns" name="валуем"/>
+		<case id="kPre" name="валуе"/>
+		<alias name="валуй"/>
+	</sort>
+	<sort type="EdibleMushrooms" power="15" gender="kFemale">
+		<case id="kNom" name="печерица"/>
+		<case id="kGen" name="печерицы"/>
+		<case id="kDat" name="печерице"/>
+		<case id="kAcc" name="печерицу"/>
+		<case id="kIns" name="печерицей"/>
+		<case id="kPre" name="печерице"/>
+		<alias name="печерица"/>
+	</sort>
+	<sort type="EdibleMushrooms" power="16" gender="kMale">
+		<case id="kNom" name="белый_груздь"/>
+		<case id="kGen" name="белого_груздя"/>
+		<case id="kDat" name="белому_груздю"/>
+		<case id="kAcc" name="белый_груздь"/>
+		<case id="kIns" name="белым_груздем"/>
+		<case id="kPre" name="белом_грузде"/>
+		<alias name="белый_груздь"/>
+	</sort>
+	<sort type="EdibleMushrooms" power="17" gender="kMale">
+		<case id="kNom" name="дубовик"/>
+		<case id="kGen" name="дубовика"/>
+		<case id="kDat" name="дубовику"/>
+		<case id="kAcc" name="дубовик"/>
+		<case id="kIns" name="дубовиком"/>
+		<case id="kPre" name="дубовике"/>
+		<alias name="дубовик"/>
+	</sort>
+	<sort type="EdibleMushrooms" power="18" gender="kMale">
+		<case id="kNom" name="черный_груздь"/>
+		<case id="kGen" name="черного_груздя"/>
+		<case id="kDat" name="черному_груздю"/>
+		<case id="kAcc" name="черный_груздь"/>
+		<case id="kIns" name="черным_груздем"/>
+		<case id="kPre" name="черном_грузде"/>
+		<alias name="черный_груздь"/>
+	</sort>
+	<sort type="EdibleMushrooms" power="19" gender="kFemale">
+		<case id="kNom" name="чернушка"/>
+		<case id="kGen" name="чернушки"/>
+		<case id="kDat" name="чернушке"/>
+		<case id="kAcc" name="чернушку"/>
+		<case id="kIns" name="чернушкой"/>
+		<case id="kPre" name="чернушке"/>
+		<alias name="чернушка"/>
+	</sort>
+	<sort type="EdibleMushrooms" power="20" gender="kMale">
+		<case id="kNom" name="подосиновик"/>
+		<case id="kGen" name="подосиновика"/>
+		<case id="kDat" name="подосиновику"/>
+		<case id="kAcc" name="подосиновик"/>
+		<case id="kIns" name="подосиновиком"/>
+		<case id="kPre" name="подосиновике"/>
+		<alias name="подосиновик"/>
+	</sort>
+	<sort type="EdibleMushrooms" power="21" gender="kMale">
+		<case id="kNom" name="паутинник"/>
+		<case id="kGen" name="паутинника"/>
+		<case id="kDat" name="паутиннику"/>
+		<case id="kAcc" name="паутинник"/>
+		<case id="kIns" name="паутинником"/>
+		<case id="kPre" name="паутиннике"/>
+		<alias name="паутинник"/>
+	</sort>
+	<sort type="EdibleMushrooms" power="22" gender="kMale">
+		<case id="kNom" name="подберезовик"/>
+		<case id="kGen" name="подберезовика"/>
+		<case id="kDat" name="подберезовику"/>
+		<case id="kAcc" name="подберезовик"/>
+		<case id="kIns" name="подберезовиком"/>
+		<case id="kPre" name="подберезовике"/>
+		<alias name="подберезовик"/>
+	</sort>
+	<sort type="EdibleMushrooms" power="23" gender="kMale">
+		<case id="kNom" name="белый_гриб"/>
+		<case id="kGen" name="белого_гриба"/>
+		<case id="kDat" name="белому_грибу"/>
+		<case id="kAcc" name="белый_гриб"/>
+		<case id="kIns" name="белым_грибом"/>
+		<case id="kPre" name="белом_грибе"/>
+		<alias name="белый_гриб"/>
+		<room_desc name="Большой_белый_гриб_прикрыт_листвой."/>
+	</sort>
+	<sort type="EdibleMushrooms" power="24" gender="kMale">
+		<case id="kNom" name="подвишенник"/>
+		<case id="kGen" name="подвишенника"/>
+		<case id="kDat" name="подвишеннику"/>
+		<case id="kAcc" name="подвишенник"/>
+		<case id="kIns" name="подвишенником"/>
+		<case id="kPre" name="подвишеннике"/>
+		<alias name="подвишенник"/>
+	</sort>
+	<sort type="EdibleMushrooms" power="25" gender="kMale">
+		<case id="kNom" name="боровик"/>
+		<case id="kGen" name="боровика"/>
+		<case id="kDat" name="боровику"/>
+		<case id="kAcc" name="боровик"/>
+		<case id="kIns" name="боровиком"/>
+		<case id="kPre" name="боровике"/>
+		<alias name="боровик"/>
+	</sort>
+	<sort type="EdibleMushrooms" power="26" gender="kMale">
+		<case id="kNom" name="желтый_ежевик"/>
+		<case id="kGen" name="желтого_ежевика"/>
+		<case id="kDat" name="желтому_ежевику"/>
+		<case id="kAcc" name="желтый_ежевик"/>
+		<case id="kIns" name="желтым_ежевиком"/>
+		<case id="kPre" name="желтом_ежевике"/>
+		<alias name="желтый_ежевик"/>
+	</sort>
+	<sort type="EdibleMushrooms" power="27" gender="kFemale">
+		<case id="kNom" name="зеленая_сыроежка"/>
+		<case id="kGen" name="зеленой_сыроежки"/>
+		<case id="kDat" name="зеленой_сыроежке"/>
+		<case id="kAcc" name="зеленую_сыроежку"/>
+		<case id="kIns" name="зеленой_сыроежкой"/>
+		<case id="kPre" name="зеленой_сыроежке"/>
+		<alias name="зеленая_сыроежка"/>
+	</sort>
+	<sort type="EdibleMushrooms" power="28" gender="kFemale">
+		<case id="kNom" name="розовая_мокруха"/>
+		<case id="kGen" name="розовой_мокрухи"/>
+		<case id="kDat" name="розовой_мокрухе"/>
+		<case id="kAcc" name="розовую_мокруху"/>
+		<case id="kIns" name="розовой_мокрухой"/>
+		<case id="kPre" name="розовой_мокрухе"/>
+		<alias name="розовая_мокруха"/>
+	</sort>
+	<sort type="EdibleMushrooms" power="29" gender="kFemale">
+		<case id="kNom" name="скрипица"/>
+		<case id="kGen" name="скрипицы"/>
+		<case id="kDat" name="скрипице"/>
+		<case id="kAcc" name="скрипицу"/>
+		<case id="kIns" name="скрипицей"/>
+		<case id="kPre" name="скрипице"/>
+		<alias name="скрипица"/>
+	</sort>
+	<sort type="EdibleMushrooms" power="30" gender="kMale">
+		<case id="kNom" name="навозник"/>
+		<case id="kGen" name="навозника"/>
+		<case id="kDat" name="навознику"/>
+		<case id="kAcc" name="навозник"/>
+		<case id="kIns" name="навозником"/>
+		<case id="kPre" name="навознике"/>
+		<alias name="навозник"/>
+	</sort>
 	<sort type="PoisonousMushrooms" power="1" gender="kFemale">
 		<case id="kNom" name="говорушка"/>
 		<case id="kGen" name="говорушки"/>
@@ -108,6 +2352,96 @@
 		<case id="kIns" name="говорушкой"/>
 		<case id="kPre" name="говорушке"/>
 		<alias name="говорушка"/>
+	</sort>
+	<sort type="PoisonousMushrooms" power="5" gender="kFemale">
+		<case id="kNom" name="рядовка"/>
+		<case id="kGen" name="рядовки"/>
+		<case id="kDat" name="рядовке"/>
+		<case id="kAcc" name="рядовку"/>
+		<case id="kIns" name="рядовкой"/>
+		<case id="kPre" name="рядовке"/>
+		<alias name="рядовка"/>
+	</sort>
+	<sort type="PoisonousMushrooms" power="10" gender="kFemale">
+		<case id="kNom" name="тонкая_свинушка"/>
+		<case id="kGen" name="тонкой_свинушки"/>
+		<case id="kDat" name="тонкой_свинушке"/>
+		<case id="kAcc" name="тонкую_свинушку"/>
+		<case id="kIns" name="тонкой_свинушкой"/>
+		<case id="kPre" name="тонкой_свинушке"/>
+		<alias name="тонкая_свинушка"/>
+	</sort>
+	<sort type="PoisonousMushrooms" power="13" gender="kFemale">
+		<case id="kNom" name="ложная_лисичка"/>
+		<case id="kGen" name="ложной_лисички"/>
+		<case id="kDat" name="ложной_лисичке"/>
+		<case id="kAcc" name="ложную_лисичку"/>
+		<case id="kIns" name="ложной_лисичкой"/>
+		<case id="kPre" name="ложной_лисичке"/>
+		<alias name="ложная_лисичка"/>
+	</sort>
+	<sort type="PoisonousMushrooms" power="15" gender="kFemale">
+		<case id="kNom" name="едкая_сыроежка"/>
+		<case id="kGen" name="едкой_сыроежки"/>
+		<case id="kDat" name="едкой_сыроежке"/>
+		<case id="kAcc" name="едкую_сыроежку"/>
+		<case id="kIns" name="едкой_сыроежкой"/>
+		<case id="kPre" name="едкой_сыроежке"/>
+		<alias name="едкая_сыроежка"/>
+	</sort>
+	<sort type="PoisonousMushrooms" power="18" gender="kMale">
+		<case id="kNom" name="красный_опенок"/>
+		<case id="kGen" name="красного_опенка"/>
+		<case id="kDat" name="красному_опенку"/>
+		<case id="kAcc" name="красный_опенок"/>
+		<case id="kIns" name="красным_опенком"/>
+		<case id="kPre" name="красном_опенке"/>
+		<alias name="красный_опенок"/>
+	</sort>
+	<sort type="PoisonousMushrooms" power="20" gender="kMale">
+		<case id="kNom" name="красный_мухомор"/>
+		<case id="kGen" name="красного_мухомора"/>
+		<case id="kDat" name="красному_мухомору"/>
+		<case id="kAcc" name="красный_мухомор"/>
+		<case id="kIns" name="красным_мухомором"/>
+		<case id="kPre" name="красном_мухоморе"/>
+		<alias name="красный_мухомор"/>
+	</sort>
+	<sort type="PoisonousMushrooms" power="23" gender="kFemale">
+		<case id="kNom" name="жгучая_сыроежка"/>
+		<case id="kGen" name="жгучей_сыроежки"/>
+		<case id="kDat" name="жгучей_сыроежке"/>
+		<case id="kAcc" name="жгучую_сыроежку"/>
+		<case id="kIns" name="жгучей_сыроежкой"/>
+		<case id="kPre" name="жгучей_сыроежке"/>
+		<alias name="жгучая_сыроежка"/>
+	</sort>
+	<sort type="PoisonousMushrooms" power="25" gender="kFemale">
+		<case id="kNom" name="бледная_поганка"/>
+		<case id="kGen" name="бледной_поганки"/>
+		<case id="kDat" name="бледной_поганке"/>
+		<case id="kAcc" name="бледную_поганку"/>
+		<case id="kIns" name="бледной_поганкой"/>
+		<case id="kPre" name="бледной_поганке"/>
+		<alias name="бледная_поганка"/>
+	</sort>
+	<sort type="PoisonousMushrooms" power="27" gender="kMale">
+		<case id="kNom" name="пятнистый_мухомор"/>
+		<case id="kGen" name="пятнистого_мухомора"/>
+		<case id="kDat" name="пятнистому_мухомору"/>
+		<case id="kAcc" name="пятнистый_мухомор"/>
+		<case id="kIns" name="пятнистым_мухомором"/>
+		<case id="kPre" name="пятнистом_мухоморе"/>
+		<alias name="пятнистый_мухомор"/>
+	</sort>
+	<sort type="PoisonousMushrooms" power="30" gender="kMale">
+		<case id="kNom" name="белый_мухомор"/>
+		<case id="kGen" name="белого_мухомора"/>
+		<case id="kDat" name="белому_мухомору"/>
+		<case id="kAcc" name="белый_мухомор"/>
+		<case id="kIns" name="белым_мухомором"/>
+		<case id="kPre" name="белом_мухоморе"/>
+		<alias name="белый_мухомор"/>
 	</sort>
 	<sort type="Vegetables" power="1" gender="kFemale">
 		<case id="kNom" name="морковь"/>
@@ -118,6 +2452,232 @@
 		<case id="kPre" name="моркови"/>
 		<alias name="морковь"/>
 	</sort>
+	<sort type="Vegetables" power="3" gender="kFemale">
+		<case id="kNom" name="капуста"/>
+		<case id="kGen" name="капусты"/>
+		<case id="kDat" name="капусте"/>
+		<case id="kAcc" name="капусту"/>
+		<case id="kIns" name="капустой"/>
+		<case id="kPre" name="капусте"/>
+		<alias name="капуста"/>
+	</sort>
+	<sort type="Vegetables" power="5" gender="kMale">
+		<case id="kNom" name="редис"/>
+		<case id="kGen" name="редиса"/>
+		<case id="kDat" name="редису"/>
+		<case id="kAcc" name="редис"/>
+		<case id="kIns" name="редисом"/>
+		<case id="kPre" name="редисе"/>
+		<alias name="редис"/>
+	</sort>
+	<sort type="Vegetables" power="6" gender="kMale">
+		<case id="kNom" name="лук"/>
+		<case id="kGen" name="лука"/>
+		<case id="kDat" name="луку"/>
+		<case id="kAcc" name="лук"/>
+		<case id="kIns" name="луком"/>
+		<case id="kPre" name="луке"/>
+		<alias name="лук"/>
+	</sort>
+	<sort type="Vegetables" power="7" gender="kMale">
+		<case id="kNom" name="чеснок"/>
+		<case id="kGen" name="чеснока"/>
+		<case id="kDat" name="чесноку"/>
+		<case id="kAcc" name="чеснок"/>
+		<case id="kIns" name="чесноком"/>
+		<case id="kPre" name="чесноке"/>
+		<alias name="чеснок"/>
+	</sort>
+	<sort type="Vegetables" power="9" gender="kFemale">
+		<case id="kNom" name="свекла"/>
+		<case id="kGen" name="свеклы"/>
+		<case id="kDat" name="свекле"/>
+		<case id="kAcc" name="свеклу"/>
+		<case id="kIns" name="свеклой"/>
+		<case id="kPre" name="свекле"/>
+		<alias name="свекла"/>
+	</sort>
+	<sort type="Vegetables" power="10" gender="kFemale">
+		<case id="kNom" name="редька"/>
+		<case id="kGen" name="редьки"/>
+		<case id="kDat" name="редьке"/>
+		<case id="kAcc" name="редьку"/>
+		<case id="kIns" name="редькой"/>
+		<case id="kPre" name="редьке"/>
+		<alias name="редька"/>
+	</sort>
+	<sort type="Vegetables" power="11" gender="kMale">
+		<case id="kNom" name="горох"/>
+		<case id="kGen" name="гороха"/>
+		<case id="kDat" name="гороху"/>
+		<case id="kAcc" name="горох"/>
+		<case id="kIns" name="горохом"/>
+		<case id="kPre" name="горохе"/>
+		<alias name="горох"/>
+	</sort>
+	<sort type="Vegetables" power="13" gender="kFemale">
+		<case id="kNom" name="фасоль"/>
+		<case id="kGen" name="фасоли"/>
+		<case id="kDat" name="фасоли"/>
+		<case id="kAcc" name="фасоль"/>
+		<case id="kIns" name="фасолью"/>
+		<case id="kPre" name="фасоли"/>
+		<alias name="фасоль"/>
+	</sort>
+	<sort type="Vegetables" power="14" gender="kMale">
+		<case id="kNom" name="кабачок"/>
+		<case id="kGen" name="кабачка"/>
+		<case id="kDat" name="кабачку"/>
+		<case id="kAcc" name="кабачок"/>
+		<case id="kIns" name="кабачком"/>
+		<case id="kPre" name="кабачке"/>
+		<alias name="кабачок"/>
+	</sort>
+	<sort type="Vegetables" power="15" gender="kFemale">
+		<case id="kNom" name="репа"/>
+		<case id="kGen" name="репы"/>
+		<case id="kDat" name="репе"/>
+		<case id="kAcc" name="репу"/>
+		<case id="kIns" name="репой"/>
+		<case id="kPre" name="репе"/>
+		<alias name="репа"/>
+	</sort>
+	<sort type="Vegetables" power="16" gender="kPoly">
+		<case id="kNom" name="бобы"/>
+		<case id="kGen" name="бобов"/>
+		<case id="kDat" name="бобам"/>
+		<case id="kAcc" name="бобы"/>
+		<case id="kIns" name="бобами"/>
+		<case id="kPre" name="бобах"/>
+		<alias name="бобы"/>
+		<room_desc name="Горстка_бобов_рассыпана_здесь."/>
+	</sort>
+	<sort type="Vegetables" power="17" gender="kMale">
+		<case id="kNom" name="укроп"/>
+		<case id="kGen" name="укропа"/>
+		<case id="kDat" name="укропу"/>
+		<case id="kAcc" name="укроп"/>
+		<case id="kIns" name="укропом"/>
+		<case id="kPre" name="укропе"/>
+		<alias name="укроп"/>
+	</sort>
+	<sort type="Vegetables" power="18" gender="kFemale">
+		<case id="kNom" name="брюква"/>
+		<case id="kGen" name="брюквы"/>
+		<case id="kDat" name="брюкве"/>
+		<case id="kAcc" name="брюкву"/>
+		<case id="kIns" name="брюквой"/>
+		<case id="kPre" name="брюкве"/>
+		<alias name="брюква"/>
+	</sort>
+	<sort type="Vegetables" power="19" gender="kFemale">
+		<case id="kNom" name="петрушка"/>
+		<case id="kGen" name="петрушки"/>
+		<case id="kDat" name="петрушке"/>
+		<case id="kAcc" name="петрушку"/>
+		<case id="kIns" name="петрушкой"/>
+		<case id="kPre" name="петрушке"/>
+		<alias name="петрушка"/>
+	</sort>
+	<sort type="Vegetables" power="20" gender="kMale">
+		<case id="kNom" name="сладкий_перец"/>
+		<case id="kGen" name="сладкого_перца"/>
+		<case id="kDat" name="сладкому_перцу"/>
+		<case id="kAcc" name="сладкий_перец"/>
+		<case id="kIns" name="сладким_перцем"/>
+		<case id="kPre" name="сладком_перце"/>
+		<alias name="сладкий_перец"/>
+	</sort>
+	<sort type="Vegetables" power="21" gender="kMale">
+		<case id="kNom" name="сельдерей"/>
+		<case id="kGen" name="сельдерея"/>
+		<case id="kDat" name="сельдерею"/>
+		<case id="kAcc" name="сельдерей"/>
+		<case id="kIns" name="сельдереем"/>
+		<case id="kPre" name="сельдерее"/>
+		<alias name="сельдерей"/>
+	</sort>
+	<sort type="Vegetables" power="22" gender="kMale">
+		<case id="kNom" name="щавель"/>
+		<case id="kGen" name="щавеля"/>
+		<case id="kDat" name="щавелю"/>
+		<case id="kAcc" name="щавель"/>
+		<case id="kIns" name="щавелем"/>
+		<case id="kPre" name="щавеле"/>
+		<alias name="щавель"/>
+	</sort>
+	<sort type="Vegetables" power="23" gender="kFemale">
+		<case id="kNom" name="цветная_капуста"/>
+		<case id="kGen" name="цветной_капусты"/>
+		<case id="kDat" name="цветной_капусте"/>
+		<case id="kAcc" name="цветную_капусту"/>
+		<case id="kIns" name="цветной_капустой"/>
+		<case id="kPre" name="цветной_капусте"/>
+		<alias name="цветная_капуста"/>
+	</sort>
+	<sort type="Vegetables" power="24" gender="kMale">
+		<case id="kNom" name="красный_перец"/>
+		<case id="kGen" name="красного_перца"/>
+		<case id="kDat" name="красному_перцу"/>
+		<case id="kAcc" name="красный_перец"/>
+		<case id="kIns" name="красным_перцем"/>
+		<case id="kPre" name="красном_перце"/>
+		<alias name="красный_перец"/>
+	</sort>
+	<sort type="Vegetables" power="25" gender="kMale">
+		<case id="kNom" name="баклажан"/>
+		<case id="kGen" name="баклажана"/>
+		<case id="kDat" name="баклажану"/>
+		<case id="kAcc" name="баклажан"/>
+		<case id="kIns" name="баклажаном"/>
+		<case id="kPre" name="баклажане"/>
+		<alias name="баклажан"/>
+	</sort>
+	<sort type="Vegetables" power="26" gender="kMale">
+		<case id="kNom" name="ревень"/>
+		<case id="kGen" name="ревеня"/>
+		<case id="kDat" name="ревеню"/>
+		<case id="kAcc" name="ревень"/>
+		<case id="kIns" name="ревенем"/>
+		<case id="kPre" name="ревене"/>
+		<alias name="ревень"/>
+	</sort>
+	<sort type="Vegetables" power="27" gender="kMale">
+		<case id="kNom" name="хрен"/>
+		<case id="kGen" name="хрена"/>
+		<case id="kDat" name="хрену"/>
+		<case id="kAcc" name="хрен"/>
+		<case id="kIns" name="хреном"/>
+		<case id="kPre" name="хрене"/>
+		<alias name="хрен"/>
+	</sort>
+	<sort type="Vegetables" power="28" gender="kMale">
+		<case id="kNom" name="лук-порей"/>
+		<case id="kGen" name="лука-порея"/>
+		<case id="kDat" name="луку-порею"/>
+		<case id="kAcc" name="лук-порей"/>
+		<case id="kIns" name="луком-пореем"/>
+		<case id="kPre" name="луке-порее"/>
+		<alias name="лук-порей"/>
+	</sort>
+	<sort type="Vegetables" power="29" gender="kMale">
+		<case id="kNom" name="шпинат"/>
+		<case id="kGen" name="шпината"/>
+		<case id="kDat" name="шпинату"/>
+		<case id="kAcc" name="шпинат"/>
+		<case id="kIns" name="шпинатом"/>
+		<case id="kPre" name="шпинате"/>
+		<alias name="шпинат"/>
+	</sort>
+	<sort type="Vegetables" power="30" gender="kFemale">
+		<case id="kNom" name="тыква"/>
+		<case id="kGen" name="тыквы"/>
+		<case id="kDat" name="тыкве"/>
+		<case id="kAcc" name="тыкву"/>
+		<case id="kIns" name="тыквой"/>
+		<case id="kPre" name="тыкве"/>
+		<alias name="тыква"/>
+	</sort>
 	<sort type="SmallCreatures" power="1" gender="kMale">
 		<case id="kNom" name="таракашка"/>
 		<case id="kGen" name="таракашки"/>
@@ -126,5 +2686,270 @@
 		<case id="kIns" name="таракашкой"/>
 		<case id="kPre" name="таракашке"/>
 		<alias name="крошечный_таракашка"/>
+	</sort>
+	<sort type="SmallCreatures" power="2" gender="kMale">
+		<case id="kNom" name="комаришка"/>
+		<case id="kGen" name="комаришки"/>
+		<case id="kDat" name="комаришке"/>
+		<case id="kAcc" name="комаришку"/>
+		<case id="kIns" name="комаришкой"/>
+		<case id="kPre" name="комаришке"/>
+		<alias name="комаришка"/>
+		<room_desc name="Назойливый_комаришка_зудит_над_ухом."/>
+	</sort>
+	<sort type="SmallCreatures" power="3" gender="kMale">
+		<case id="kNom" name="крошечный_паучок"/>
+		<case id="kGen" name="крошечного_паучка"/>
+		<case id="kDat" name="крошечному_паучку"/>
+		<case id="kAcc" name="крошечного_паучка"/>
+		<case id="kIns" name="крошечным_паучком"/>
+		<case id="kPre" name="крошечном_паучке"/>
+		<alias name="крошечный_паучок"/>
+	</sort>
+	<sort type="SmallCreatures" power="4" gender="kMale">
+		<case id="kNom" name="маленький_мышонок"/>
+		<case id="kGen" name="маленького_мышонка"/>
+		<case id="kDat" name="маленькому_мышонку"/>
+		<case id="kAcc" name="маленького_мышонка"/>
+		<case id="kIns" name="маленьким_мышонком"/>
+		<case id="kPre" name="маленьком_мышонке"/>
+		<alias name="маленький_мышонок"/>
+	</sort>
+	<sort type="SmallCreatures" power="5" gender="kMale">
+		<case id="kNom" name="птенец_воробушка"/>
+		<case id="kGen" name="птенца_воробушка"/>
+		<case id="kDat" name="птенцу_воробушка"/>
+		<case id="kAcc" name="птенца_воробушка"/>
+		<case id="kIns" name="птенцом_воробушка"/>
+		<case id="kPre" name="птенце_воробушка"/>
+		<alias name="птенец_воробушка"/>
+	</sort>
+	<sort type="SmallCreatures" power="6" gender="kMale">
+		<case id="kNom" name="ручейник"/>
+		<case id="kGen" name="ручейника"/>
+		<case id="kDat" name="ручейнику"/>
+		<case id="kAcc" name="ручейника"/>
+		<case id="kIns" name="ручейником"/>
+		<case id="kPre" name="ручейнике"/>
+		<alias name="ручейник"/>
+	</sort>
+	<sort type="SmallCreatures" power="7" gender="kFemale">
+		<case id="kNom" name="маленькая_ящерка"/>
+		<case id="kGen" name="маленькой_ящерки"/>
+		<case id="kDat" name="маленькой_ящерке"/>
+		<case id="kAcc" name="маленькую_ящерку"/>
+		<case id="kIns" name="маленькой_ящеркой"/>
+		<case id="kPre" name="маленькой_ящерке"/>
+		<alias name="маленькая_ящерка"/>
+	</sort>
+	<sort type="SmallCreatures" power="8" gender="kMale">
+		<case id="kNom" name="клоп-вонючка"/>
+		<case id="kGen" name="клопа-вонючки"/>
+		<case id="kDat" name="клопу-вонючке"/>
+		<case id="kAcc" name="клопа-вонючку"/>
+		<case id="kIns" name="клопом-вонючкой"/>
+		<case id="kPre" name="клопе-вонючке"/>
+		<alias name="клоп-вонючка"/>
+	</sort>
+	<sort type="SmallCreatures" power="9" gender="kFemale">
+		<case id="kNom" name="личинка_жука"/>
+		<case id="kGen" name="личинки_жука"/>
+		<case id="kDat" name="личинке_жука"/>
+		<case id="kAcc" name="личинку_жука"/>
+		<case id="kIns" name="личинкой_жука"/>
+		<case id="kPre" name="личинке_жука"/>
+		<alias name="личинка_жука"/>
+	</sort>
+	<sort type="SmallCreatures" power="10" gender="kFemale">
+		<case id="kNom" name="крошечная_змейка"/>
+		<case id="kGen" name="крошечной_змейки"/>
+		<case id="kDat" name="крошечной_змейке"/>
+		<case id="kAcc" name="крошечную_змейку"/>
+		<case id="kIns" name="крошечной_змейкой"/>
+		<case id="kPre" name="крошечной_змейке"/>
+		<alias name="крошечная_змейка"/>
+	</sort>
+	<sort type="SmallCreatures" power="11" gender="kFemale">
+		<case id="kNom" name="божья_коровка"/>
+		<case id="kGen" name="божьей_коровки"/>
+		<case id="kDat" name="божьей_коровке"/>
+		<case id="kAcc" name="божью_коровку"/>
+		<case id="kIns" name="божьей_коровкой"/>
+		<case id="kPre" name="божьей_коровке"/>
+		<alias name="божья_коровка"/>
+	</sort>
+	<sort type="SmallCreatures" power="12" gender="kMale">
+		<case id="kNom" name="муравьишка"/>
+		<case id="kGen" name="муравьишки"/>
+		<case id="kDat" name="муравьишке"/>
+		<case id="kAcc" name="муравьишку"/>
+		<case id="kIns" name="муравьишкой"/>
+		<case id="kPre" name="муравьишке"/>
+		<alias name="муравьишка"/>
+	</sort>
+	<sort type="SmallCreatures" power="13" gender="kMale">
+		<case id="kNom" name="кузнечик"/>
+		<case id="kGen" name="кузнечика"/>
+		<case id="kDat" name="кузнечику"/>
+		<case id="kAcc" name="кузнечика"/>
+		<case id="kIns" name="кузнечиком"/>
+		<case id="kPre" name="кузнечике"/>
+		<alias name="кузнечик"/>
+	</sort>
+	<sort type="SmallCreatures" power="14" gender="kMale">
+		<case id="kNom" name="светлячок"/>
+		<case id="kGen" name="светлячка"/>
+		<case id="kDat" name="светлячку"/>
+		<case id="kAcc" name="светлячка"/>
+		<case id="kIns" name="светлячком"/>
+		<case id="kPre" name="светлячке"/>
+		<alias name="светлячок"/>
+	</sort>
+	<sort type="SmallCreatures" power="15" gender="kMale">
+		<case id="kNom" name="клоп-гладыш"/>
+		<case id="kGen" name="клопа-гладыша"/>
+		<case id="kDat" name="клопу-гладышу"/>
+		<case id="kAcc" name="клопа-гладыша"/>
+		<case id="kIns" name="клопом-гладышом"/>
+		<case id="kPre" name="клопе-гладыше"/>
+		<alias name="клоп-гладыш"/>
+	</sort>
+	<sort type="SmallCreatures" power="16" gender="kMale">
+		<case id="kNom" name="желтый_жучок"/>
+		<case id="kGen" name="желтого_жучка"/>
+		<case id="kDat" name="желтому_жучку"/>
+		<case id="kAcc" name="желтого_жучка"/>
+		<case id="kIns" name="желтым_жучком"/>
+		<case id="kPre" name="желтом_жучке"/>
+		<alias name="желтый_жучок"/>
+	</sort>
+	<sort type="SmallCreatures" power="17" gender="kFemale">
+		<case id="kNom" name="жужелица"/>
+		<case id="kGen" name="жужелицы"/>
+		<case id="kDat" name="жужелице"/>
+		<case id="kAcc" name="жужелицу"/>
+		<case id="kIns" name="жужелицей"/>
+		<case id="kPre" name="жужелице"/>
+		<alias name="жужелица"/>
+	</sort>
+	<sort type="SmallCreatures" power="18" gender="kMale">
+		<case id="kNom" name="длинный_червяк"/>
+		<case id="kGen" name="длинного_червяка"/>
+		<case id="kDat" name="длинному_червяку"/>
+		<case id="kAcc" name="длинного_червяка"/>
+		<case id="kIns" name="длинным_червяком"/>
+		<case id="kPre" name="длинном_червяке"/>
+		<alias name="длинный_червяк"/>
+		<room_desc name="Длинный_червяк_извивается_здесь."/>
+	</sort>
+	<sort type="SmallCreatures" power="19" gender="kFemale">
+		<case id="kNom" name="уховертка"/>
+		<case id="kGen" name="уховертки"/>
+		<case id="kDat" name="уховертке"/>
+		<case id="kAcc" name="уховертку"/>
+		<case id="kIns" name="уховерткой"/>
+		<case id="kPre" name="уховерткае"/>
+		<alias name="уховертка"/>
+	</sort>
+	<sort type="SmallCreatures" power="20" gender="kMale">
+		<case id="kNom" name="лягушонок"/>
+		<case id="kGen" name="лягушонка"/>
+		<case id="kDat" name="лягушонку"/>
+		<case id="kAcc" name="лягушонка"/>
+		<case id="kIns" name="лягушонком"/>
+		<case id="kPre" name="лягушонке"/>
+		<alias name="лягушонок"/>
+	</sort>
+	<sort type="SmallCreatures" power="21" gender="kMale">
+		<case id="kNom" name="синий_жучок"/>
+		<case id="kGen" name="синего_жучка"/>
+		<case id="kDat" name="синему_жучку"/>
+		<case id="kAcc" name="синего_жучка"/>
+		<case id="kIns" name="синим_жучком"/>
+		<case id="kPre" name="синем_жучке"/>
+		<alias name="синий_жучок"/>
+	</sort>
+	<sort type="SmallCreatures" power="22" gender="kMale">
+		<case id="kNom" name="слепень"/>
+		<case id="kGen" name="слепня"/>
+		<case id="kDat" name="слепню"/>
+		<case id="kAcc" name="слепня"/>
+		<case id="kIns" name="слепнем"/>
+		<case id="kPre" name="слепне"/>
+		<alias name="слепень"/>
+	</sort>
+	<sort type="SmallCreatures" power="23" gender="kMale">
+		<case id="kNom" name="рыжий_усатый_таракан"/>
+		<case id="kGen" name="рыжего_усатого_таракана"/>
+		<case id="kDat" name="рыжему_усатому_таракану"/>
+		<case id="kAcc" name="рыжего_усатого_таракана"/>
+		<case id="kIns" name="рыжим_усатым_тараканом"/>
+		<case id="kPre" name="рыжем_усатом_таракане"/>
+		<alias name="рыжий_усатый_таракан"/>
+		<room_desc name="Рыжий_таракан_шевелит_длинными_усами."/>
+	</sort>
+	<sort type="SmallCreatures" power="24" gender="kFemale">
+		<case id="kNom" name="дохлая_водомерка"/>
+		<case id="kGen" name="дохлой_водомерки"/>
+		<case id="kDat" name="дохлой_водомерке"/>
+		<case id="kAcc" name="дохлую_водомерку"/>
+		<case id="kIns" name="дохлой_водомеркой"/>
+		<case id="kPre" name="дохлой_водомерке"/>
+		<alias name="дохлая_водомерка"/>
+	</sort>
+	<sort type="SmallCreatures" power="25" gender="kFemale">
+		<case id="kNom" name="медведка"/>
+		<case id="kGen" name="медведки"/>
+		<case id="kDat" name="медведке"/>
+		<case id="kAcc" name="медведку"/>
+		<case id="kIns" name="медведкой"/>
+		<case id="kPre" name="медведке"/>
+		<alias name="медведка"/>
+	</sort>
+	<sort type="SmallCreatures" power="26" gender="kFemale">
+		<case id="kNom" name="сороконожка"/>
+		<case id="kGen" name="сороконожки"/>
+		<case id="kDat" name="сороконожке"/>
+		<case id="kAcc" name="сороконожку"/>
+		<case id="kIns" name="сороконожкой"/>
+		<case id="kPre" name="сороконожке"/>
+		<alias name="сороконожка"/>
+	</sort>
+	<sort type="SmallCreatures" power="27" gender="kMale">
+		<case id="kNom" name="красный_жучок"/>
+		<case id="kGen" name="красного_жучка"/>
+		<case id="kDat" name="красному_жучку"/>
+		<case id="kAcc" name="красного_жучка"/>
+		<case id="kIns" name="красным_жучоком"/>
+		<case id="kPre" name="красном_жучке"/>
+		<alias name="красный_жучок"/>
+	</sort>
+	<sort type="SmallCreatures" power="28" gender="kFemale">
+		<case id="kNom" name="землеройка"/>
+		<case id="kGen" name="землеройки"/>
+		<case id="kDat" name="землеройке"/>
+		<case id="kAcc" name="землеройку"/>
+		<case id="kIns" name="землеройкой"/>
+		<case id="kPre" name="землеройке"/>
+		<alias name="землеройка"/>
+	</sort>
+	<sort type="SmallCreatures" power="29" gender="kFemale">
+		<case id="kNom" name="мокрица"/>
+		<case id="kGen" name="мокрицы"/>
+		<case id="kDat" name="мокрице"/>
+		<case id="kAcc" name="мокрицу"/>
+		<case id="kIns" name="мокрицей"/>
+		<case id="kPre" name="мокрице"/>
+		<alias name="мокрица"/>
+	</sort>
+	<sort type="SmallCreatures" power="30" gender="kMale">
+		<case id="kNom" name="навозный_жук"/>
+		<case id="kGen" name="навозного_жука"/>
+		<case id="kDat" name="навозному_жуку"/>
+		<case id="kAcc" name="навозного_жука"/>
+		<case id="kIns" name="навозным_жуком"/>
+		<case id="kPre" name="навозном_жуке"/>
+		<alias name="навозный_жук"/>
+		<room_desc name="Навозный_жук_катит_свой_шар_мимо."/>
 	</sort>
 </ingredient_sorts>

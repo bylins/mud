@@ -879,11 +879,27 @@ std::string OutCasterSpellsHelp(ECharClass ch_class) {
 	return out;
 }
 
+void CharDamHelp() {
+	std::vector<std::pair<std::string, std::string>> dam_list = MUD::PointsIntensity().ShowHelpDamage();
+	std::ostringstream out;
+	table_wrapper::Table table;
+	table << table_wrapper::kHeader << "Для силы наносимых повреждений существуют следующие сообщения" << "урон" << table_wrapper::kEndRow;
+
+	for (size_t i = 0; i < dam_list.size(); ++i) {
+		table << dam_list[i].first << dam_list[i].second << table_wrapper::kEndRow;
+	}
+//	table << table_wrapper::kEndRow;
+//	table << table_wrapper::kSeparator;
+	table_wrapper::PrintTableToStream(out, table);
+	out << "\r\nСм. также: &CДМЕТР, ПЕРЕВЯЗАТЬ&n";
+	add_static("УРОН", out.str(), 0, true);
+}
+
 void CasterSpellslHelp() {
 	std::string out;
 
 	out = OutCasterSpellsHelp(ECharClass::kSorcerer);
-	out += "\r\nСм. также: &CЛЕКАРЬ, УМЕНИЯЛЕКАРЯ, СПОСОБНОСТИЛЕКАРЯ, ОТВАРЫЛЕКАРЯ";
+	out += "\r\nСм. также: &CЛЕКАРЬ, УМЕНИЯЛЕКАРЯ, СПОСОБНОСТИЛЕКАРЯ, ОТВАРЫЛЕКАРЯ&n";
 	add_static("ЗАКЛИНАНИЯЛЕКАРЯ", out, 0, true);
 
 	out = OutCasterSpellsHelp(ECharClass::kConjurer);
@@ -1310,6 +1326,7 @@ void reload(Flags flag) {
 			CasterSpellslHelp();
 			SetsHelp();
 			AllHelp();
+			CharDamHelp();
 			PrintActivators::process();
 			obj_sets::init_xhelp();
 			// итоговая сортировка массива через дефолтное < для строковых ключей 
