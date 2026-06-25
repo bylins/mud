@@ -118,7 +118,7 @@ void handle_recall_spells(CharData *ch) {
 	Affect<EApply>::shared_ptr aff;
 
 	for (const auto &af : ch->affected) {
-		if (af->type == ESpell::kRecallSpells) {
+		if (af->affect_type == EAffect::kMemorizeSpells) {
 			aff = af;
 			break;
 		}

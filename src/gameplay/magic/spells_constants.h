@@ -217,7 +217,7 @@ enum class ESpell {
 //	kNoBandage = 196,	// UNUSED (issue.affect-migration): re-bandage already gated on AFF_FLAGGED(kCannotBeBandaged); value 196 retired.
 	kCapable = 197,
 	kStrangle = 198,
-	kRecallSpells = 199,
+//	kRecallSpells = 199,	// UNUSED (issue.affect-migration): the spell-recall buff is the EAffect::kMemorizeSpells affect; af.type was redundant; value 199 retired.
 	kHypnoticPattern = 200,
 	kSolobonus = 201,
 	kVampirism = 202,
@@ -233,7 +233,7 @@ enum class ESpell {
 	kAcidArrow = 212,
 	kThunderStone = 213,
 	kClod = 214,
-	kExpedient = 215,
+//	kExpedient = 215,	// UNUSED (issue.affect-migration): the chopoff Evasion buff is the EAffect::kEvade affect; af.type was redundant; value 215 retired.
 	kSightOfDarkness = 216,
 	kGroupSincerity = 217,
 	kMagicalGaze = 218,
@@ -270,7 +270,7 @@ enum class ESpell {
 //	kLowerEffectiveness = 249,	// UNUSED (issue.affect-migration): disarm injure debuff identified by its kInjuredLimb affect; af.type was unused; value 249 retired.
 //	kNoInjure = 250,	// UNUSED (issue.affect-migration): the disarm re-injure cooldown is now the
 //						// kSuspiciousness affect (checked via IsAffectedWithCasterId); value 250 retired.
-	kConfuse = 251,
+//	kConfuse = 251,	// UNUSED (issue.affect-migration): the shield-bash stun is the EAffect::kConfused affect; af.type was redundant; value 251 retired.
 	// Internal proc spell: the per-hit bolt of the kCloudOfArrows affect. Cast via
 	// CallMagic from fight_hit.cpp (no verbal, weave-only) -- not player-castable.
 	kCloudOfArrowsBolt = 252,

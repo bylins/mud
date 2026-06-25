@@ -225,7 +225,6 @@ void init_ESpell_ITEM_NAMES() {
 	ESpell_name_by_value[ESpell::kCombatLuck] = "kCombatLuck";
 	ESpell_name_by_value[ESpell::kCapable] = "kCapable";
 	ESpell_name_by_value[ESpell::kStrangle] = "kStrangle";
-	ESpell_name_by_value[ESpell::kRecallSpells] = "kRecallSpells";
 	ESpell_name_by_value[ESpell::kHypnoticPattern] = "kHypnoticPattern";
 	ESpell_name_by_value[ESpell::kSolobonus] = "kSolobonus";
 	ESpell_name_by_value[ESpell::kVampirism] = "kVampirism";
@@ -241,7 +240,6 @@ void init_ESpell_ITEM_NAMES() {
 	ESpell_name_by_value[ESpell::kAcidArrow] = "kAcidArrow";
 	ESpell_name_by_value[ESpell::kThunderStone] = "kThunderStone";
 	ESpell_name_by_value[ESpell::kClod] = "kClod";
-	ESpell_name_by_value[ESpell::kExpedient] = "kExpedient";
 	ESpell_name_by_value[ESpell::kSightOfDarkness] = "kSightOfDarkness";
 	ESpell_name_by_value[ESpell::kGroupSincerity] = "kGroupSincerity";
 	ESpell_name_by_value[ESpell::kMagicalGaze] = "kMagicalGaze";
@@ -266,7 +264,6 @@ void init_ESpell_ITEM_NAMES() {
 	ESpell_name_by_value[ESpell::kGroupAwareness] = "kGroupAwareness";
 	ESpell_name_by_value[ESpell::kMassFailure] = "kMassFailure";
 	ESpell_name_by_value[ESpell::kSnare] = "kSnare";
-	ESpell_name_by_value[ESpell::kConfuse] = "kConfuse";
 	ESpell_name_by_value[ESpell::kCloudOfArrowsBolt] = "kCloudOfArrowsBolt";
 	ESpell_name_by_value[ESpell::kFireBreath] = "kFireBreath";
 	ESpell_name_by_value[ESpell::kGasBreath] = "kGasBreath";

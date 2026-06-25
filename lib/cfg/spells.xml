@@ -5783,13 +5783,6 @@
 		<targets val="kTarNone" />
 		<flags val="kMagManual" />
 	</spell>
-	<spell id="kRecallSpells" element="kUndefined" mode="kService">
-		<name val="!set by programm!" />
-		<misc pos="kStand" violent="N" danger="0" />
-		<mana max="0" min="0" change="0" />
-		<targets val="kTarNone" />
-		<flags val="kMagManual" />
-	</spell>
 	<spell id="kHypnoticPattern" element="kMind" mode="kEnabled">
 		<name val="hypnotic pattern" />
 		<components>
@@ -6172,13 +6165,6 @@
 				</affects>
 			</action>
 		</talent_actions>
-	</spell>
-	<spell id="kExpedient" element="kUndefined" mode="kService">
-		<name val="!set by programm!" />
-		<misc pos="kStand" violent="N" danger="0" />
-		<mana max="0" min="0" change="0" />
-		<targets val="kTarNone" />
-		<flags val="kMagManual" />
 	</spell>
 	<spell id="kSightOfDarkness" element="kLight" mode="kEnabled">
 		<name val="sight darkness" />
@@ -7017,13 +7003,6 @@
 				</affects>
 			</action>
 		</talent_actions>
-	</spell>
-	<spell id="kConfuse" element="kUndefined" mode="kService">
-		<name val="injured" />
-		<misc pos="kStand" violent="Y" danger="0" />
-		<mana max="0" min="0" change="0" />
-		<targets val="kTarNone" />
-		<flags val="kMagManual" />
 	</spell>
 	<spell id="kIdentify" element="kMind" mode="kEnabled">
 		<name val="identify" />

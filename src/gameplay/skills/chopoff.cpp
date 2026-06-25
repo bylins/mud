@@ -80,7 +80,6 @@ void go_chopoff(CharData *ch, CharData *vict) {
 		prob = 3;
 		if (CanUseFeat(ch, EFeat::kEvasion)) {
 			Affect<EApply> af;
-			af.type = ESpell::kExpedient;
 			af.affect_type = EAffect::kEvade;
 			af.location = EApply::kPhysicResist;
 			af.modifier = 50;

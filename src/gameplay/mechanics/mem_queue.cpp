@@ -387,7 +387,6 @@ void forget_all_spells(CharData *ch) {
 	}
 	if (max_slot) {
 		Affect<EApply> af;
-		af.type = ESpell::kRecallSpells;
 		af.location = EApply::kNone;
 		af.modifier = 1; // номер круга, который восстанавливаем
 		//добавим 1 проход про запас, иначе неуспевает отмемиться последний круг -- аффект спадает раньше

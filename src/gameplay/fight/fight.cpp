@@ -213,7 +213,7 @@ void SetFighting(CharData *ch, CharData *vict) {
 	}
 	if (AFF_FLAGGED(ch, EAffect::kMemorizeSpells)) {
 		SendMsgToChar("Вы забыли о концентрации и ринулись в бой!\r\n", ch);
-		RemoveAffectFromChar(ch, ESpell::kRecallSpells);
+		RemoveAffectFromChar(ch, EAffect::kMemorizeSpells);
 	}
 	combat_list_element attaker;
 
