@@ -259,24 +259,24 @@ void do_dg_affect(void * /*go*/, Script * /*sc*/, Trigger *trig, int/* script_ty
 	int index = 0, type = 0;
 	EAffect dg_affect_type = EAffect::kUndefined;
 
-	// parse: "dgaffect <target> <property> <spell> <value> <duration> [battlepos]"
+	// issue.affect-migration: the <spell> argument was dropped -- affects carry their own description now,
+	// so an APPLY-type dgaffect falls back to the generic "чары" (kWirchery) identity instead of naming a spell.
+	// parse: "dgaffect <target> <property> <value> <duration> [battlepos]"
 	std::string remains = cmd;
 	std::string junk = utils::ExtractFirstArgument(remains, remains);       // "dgaffect"
 	std::string charname = utils::ExtractFirstArgument(remains, remains);   // target
 	std::string property = utils::ExtractFirstArgument(remains, remains);   // property
-	std::string spell_name = utils::ExtractFirstArgument(remains, remains); // spell
 	std::string value_p = utils::ExtractFirstArgument(remains, remains);    // value
 	std::string duration_p = utils::ExtractFirstArgument(remains, remains); // duration
 	std::string battle_p = remains;                                          // battlepos (optional)
 	utils::Trim(battle_p);
 
 	// make sure all parameters are present
-	if (charname.empty() || property.empty() || spell_name.empty() || value_p.empty() || duration_p.empty()) {
-		trig_log(trig, "dg affect usage: <target> <property> <spell> <value> <duration> *<battleposition>");
+	if (charname.empty() || property.empty() || value_p.empty() || duration_p.empty()) {
+		trig_log(trig, "dg affect usage: <target> <property> <value> <duration> *<battleposition>");
 		return;
 	}
 
-	std::replace(spell_name.begin(), spell_name.end(), '_', ' ');
 	std::replace(property.begin(), property.end(), '_', ' ');
 
 	value = atoi(value_p.c_str());
@@ -302,15 +302,6 @@ void do_dg_affect(void * /*go*/, Script * /*sc*/, Trigger *trig, int/* script_ty
 		return;
 	}
 
-	auto index_s = FixNameAndFindSpellId(spell_name.data());
-	// issue.affect-migration: an unknown/placeholder spell falls back to the generic "чары" (kWirchery)
-	// affect (the ex-kSolobonus default) instead of aborting -- a builder need not name a real spell.
-	const bool generic_affect = (index_s == ESpell::kUndefined);
-	if (generic_affect) {
-		sprintf(buf2, "dg_affect: spell '%s' не найдено -- ставим 'чары'.", spell_name.c_str());
-		trig_log(trig, buf2);
-	}
-
 	// locate the target
 	ch = get_char(charname.c_str());
 	if (!ch) {
@@ -322,7 +313,7 @@ void do_dg_affect(void * /*go*/, Script * /*sc*/, Trigger *trig, int/* script_ty
 	if (duration > 0) {
 		// add the affect
 		Affect<EApply> af;
-		af.type = index_s;
+		af.type = ESpell::kUndefined; // dg_affect no longer carries a spell identity
 
 		af.battleflag = battle;
 		if (battle == kAfPulsedec) {
@@ -337,18 +328,14 @@ void do_dg_affect(void * /*go*/, Script * /*sc*/, Trigger *trig, int/* script_ty
 		} else {
 			af.location = static_cast<EApply>(index);
 			af.modifier = value;
-			// generic (no real spell) APPLY affect -> the "чары" identity so it displays + expires sensibly.
-			af.affect_type = generic_affect ? EAffect::kWirchery : EAffect::kDefault;
+			// APPLY affect -> the generic "чары" identity so it displays + expires sensibly.
+			af.affect_type = EAffect::kWirchery;
 		}
 		ImposeAffect(ch, af); // перекастим аффект
 	} else {
-		// remove affect -- by spell id, or by the affect identity for the generic (no-spell) case
-		if (!generic_affect) {
-			RemoveAffectFromCharAndRecalculate(ch, index_s);
-		} else {
-			RemoveAffectFromCharAndRecalculate(ch,
-					type == AFFECT_TYPE ? dg_affect_type : EAffect::kWirchery);
-		}
+		// remove affect -- by the affect identity (kWirchery for APPLY, the property's affect for AFFECT)
+		RemoveAffectFromCharAndRecalculate(ch,
+				type == AFFECT_TYPE ? dg_affect_type : EAffect::kWirchery);
 	}
 }
 
