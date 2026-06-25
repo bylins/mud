@@ -34,6 +34,16 @@ enum class ERoomAffect : Bitvector {
 	kCount = 11,
 };
 
+// issue.affect-migration: when a room affect runs its <actions>/tick. A room affect with no <trigger>
+// never fires. Parsed from room_affects.xml <trigger val="kPulse|kBattlePulse"/> and stored per affect
+// as BitsetFlags<RoomAffectTrigger> (the project's typed flag container -- no raw bitmasks). Dense
+// integer enumerators + a terminal kCount, as BitsetFlags/flag_traits require.
+enum class RoomAffectTrigger {
+	kPulse = 0,		// every room-affect pulse (~2s), regardless of combat -- replaces kAfMustBeHandled
+	kBattlePulse,	// a room-affect pulse, but only while combat is happening in the room
+	kCount
+};
+
 
 // Эффекты для комнат //
 enum ERoomApply {
@@ -102,6 +112,8 @@ RoomAffectActor ClassifyRoomAffectAccess(CharData *ch, long caster_id);
 [[nodiscard]] const std::string &RoomAffectTickHandler(ERoomAffect affect_type);
 // issue.affect-migration: the affect's own <actions> (run each tick); empty when it has none.
 [[nodiscard]] const talents_actions::Actions &RoomAffectActions(ERoomAffect affect_type);
+// issue.affect-migration: does this room affect subscribe to the given trigger? (room_affects.xml)
+[[nodiscard]] bool HasRoomAffectTrigger(ERoomAffect affect_type, RoomAffectTrigger trigger);
 
 } // namespace room_spells
 

@@ -2,16 +2,21 @@
 <!--
     issue.affect-migration: the room-affect registry. id = the room_spells::ERoomAffect enumerator
     (the identity, kept in C++). Parallels cfg/affects.xml for character affects. Per-room-affect
-    display/lifecycle text lives in cfg/messages/ru/room_affect_msg.xml. This file is the scaffold for
-    future per-room-affect data (handlers/actions, so a room affect can self-process instead of
-    being identified only by its casting spell).
+    display/lifecycle text lives in cfg/messages/ru/room_affect_msg.xml. Each affect owns its behavior
+    flags, its per-tick work (tick_spell / tick_handler / <actions>), and a <trigger> set that decides
+    when that work runs -- so a room affect self-processes instead of being identified only by its
+    casting spell. trigger val tokens (RoomAffectTrigger): kPulse = every room-affect pulse (the former
+    kAfMustBeHandled behavior); kBattlePulse = only while combat is happening in the room.
 -->
 <room_affects>
 	<room_affect id="kNoPortalExit"/>
 	<room_affect id="kForbidden" flags="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
-	<room_affect id="kMeteorStorm" flags="kAfDispellable|kAfMustBeHandled" tick_spell="kThunderStone"/>
+	<room_affect id="kMeteorStorm" flags="kAfDispellable" tick_spell="kThunderStone">
+		<trigger val="kPulse"/>
+	</room_affect>
 	<room_affect id="kRoomLight" flags="kAfUpdateDuration|kAfAccumulateDuration"/>
-	<room_affect id="kDeadlyFog" flags="kAfDispellable|kAfMustBeHandled">
+	<room_affect id="kDeadlyFog" flags="kAfDispellable">
+		<trigger val="kPulse"/>
 		<actions>
 			<action target="kTarFoes">
 				<area><targets max="-1" /><distribution type="kUniform" /></area>
@@ -31,9 +36,13 @@
 			</action>
 		</actions>
 	</room_affect>
-	<room_affect id="kThunderstorm" flags="kAfDispellable|kAfMustBeHandled" tick_handler="HandleThunderstormTick"/>
+	<room_affect id="kThunderstorm" flags="kAfDispellable" tick_handler="HandleThunderstormTick">
+		<trigger val="kPulse"/>
+	</room_affect>
 	<room_affect id="kRuneLabel" flags="kAfUpdateDuration|kAfUnique"/>
 	<room_affect id="kHypnoticPattern" flags="kAfDispellable"/>
-	<room_affect id="kBlackTentacles" flags="kAfDispellable|kAfMustBeHandled" tick_spell="kDamageSerious"/>
+	<room_affect id="kBlackTentacles" flags="kAfDispellable" tick_spell="kDamageSerious">
+		<trigger val="kPulse"/>
+	</room_affect>
 	<room_affect id="kPortalTimer"/>
 </room_affects>

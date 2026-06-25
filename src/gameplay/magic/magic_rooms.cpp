@@ -18,6 +18,7 @@
 #include "gameplay/fight/pk.h"          // pk_agro_action
 #include "room_affects_loader.h"   // RoomAffectsLoader
 #include "gameplay/affects/affect_contants.h"   // EAffFlag
+#include "engine/structs/bitset_flags.h"   // BitsetFlags<RoomAffectTrigger>
 #include "utils/utils_parse.h"   // parse::ReadAsConstantsBitvector
 #include <array>
 #include "room_affect_messages.h"   // RoomAffectMessagesLoader
@@ -128,20 +129,61 @@ ERoomAffect RoomAffectBySpell(ESpell spell_id) {
 constexpr std::size_t kRoomAffectFlagTableSize = to_underlying(ERoomAffect::kCount);
 std::array<Bitvector, kRoomAffectFlagTableSize> g_room_affect_flags{};
 // issue.affect-migration: active room affects own their per-tick action here (moved off the casting
-// spell) -- a data tick_spell or a code tick_handler. The first step toward a general affect <actions>
-// block + triggers; for now the implicit trigger is "every room-affect pulse".
+// spell) -- a data tick_spell or a code tick_handler. When the action runs is governed by the affect's
+// <trigger> set (g_room_affect_triggers); see RoomAffectTrigger.
 std::array<ESpell, kRoomAffectFlagTableSize> g_room_affect_tick_spell{};
 std::array<std::string, kRoomAffectFlagTableSize> g_room_affect_tick_handler{};
 // issue.affect-migration: an affect's own <actions> (same format as a spell's <talent_actions>) --
 // the room affect performs these directly each tick, replacing a dedicated kService tick spell.
 std::array<talents_actions::Actions, kRoomAffectFlagTableSize> g_room_affect_actions{};
+// issue.affect-migration: which events fire the affect's actions/tick (room_affects.xml <trigger>).
+// An empty set = no trigger = the affect never runs its actions.
+std::array<BitsetFlags<RoomAffectTrigger>, kRoomAffectFlagTableSize> g_room_affect_triggers{};
 bool g_room_affect_flags_loaded = false;
+
+// issue.affect-migration: parse a room_affects.xml <trigger val="kPulse|kBattlePulse"> token list
+// into a RoomAffectTrigger set. Unknown tokens are reported and skipped.
+BitsetFlags<RoomAffectTrigger> ParseRoomAffectTriggers(const char *val, const char *id) {
+	static const std::map<std::string, RoomAffectTrigger> kNames = {
+		{"kPulse", RoomAffectTrigger::kPulse},
+		{"kBattlePulse", RoomAffectTrigger::kBattlePulse},
+	};
+	BitsetFlags<RoomAffectTrigger> triggers;
+	std::string token;
+	for (const char *p = val;; ++p) {
+		if (*p == '|' || *p == '\0') {
+			if (!token.empty()) {
+				if (const auto it = kNames.find(token); it != kNames.end()) {
+					triggers.set(it->second);
+				} else {
+					log("SYSERROR: room_affects.xml: unknown trigger '%s' for %s.", token.c_str(), id);
+				}
+				token.clear();
+			}
+			if (*p == '\0') { break; }
+		} else if (*p != ' ' && *p != '\t') {
+			token.push_back(*p);
+		}
+	}
+	return triggers;
+}
+
+// issue.affect-migration: is a fight underway in this room? (gates kBattlePulse triggers.)
+bool RoomHasCombat(RoomData *room) {
+	for (const auto tch : room->people) {
+		if (tch->GetEnemy()) {
+			return true;
+		}
+	}
+	return false;
+}
 
 void BuildRoomAffectFlagTable(parser_wrapper::DataNode data) {
 	g_room_affect_flags.fill(0);
 	g_room_affect_tick_spell.fill(ESpell::kUndefined);
 	for (auto &h : g_room_affect_tick_handler) { h.clear(); }
 	for (auto &a : g_room_affect_actions) { a = talents_actions::Actions{}; }
+	g_room_affect_triggers.fill(BitsetFlags<RoomAffectTrigger>{});
 	for (auto &node : data.Children("room_affect")) {
 		const char *id = node.GetValue("id");
 		if (!id || !*id) {
@@ -165,6 +207,12 @@ void BuildRoomAffectFlagTable(parser_wrapper::DataNode data) {
 		}
 		if (const char *th = node.GetValue("tick_handler"); th && *th) {
 			g_room_affect_tick_handler[idx] = th;
+		}
+		if (node.GoToChild("trigger")) {
+			if (const char *tv = node.GetValue("val"); tv && *tv) {
+				g_room_affect_triggers[idx] = ParseRoomAffectTriggers(tv, id);
+			}
+			node.GoToParent();
 		}
 		if (node.GoToChild("actions")) {
 			g_room_affect_actions[idx].Build(node);
@@ -220,6 +268,11 @@ const talents_actions::Actions &RoomAffectActions(ERoomAffect affect_type) {
 	static const talents_actions::Actions kEmpty;
 	const auto idx = static_cast<std::size_t>(to_underlying(affect_type));
 	return idx < kRoomAffectFlagTableSize ? g_room_affect_actions[idx] : kEmpty;
+}
+
+bool HasRoomAffectTrigger(ERoomAffect affect_type, RoomAffectTrigger trigger) {
+	const auto idx = static_cast<std::size_t>(to_underlying(affect_type));
+	return idx < kRoomAffectFlagTableSize && g_room_affect_triggers[idx].test(trigger);
 }
 
 void RoomAffectsLoader::Load(parser_wrapper::DataNode data) { ValidateRoomAffectRegistry(data); BuildRoomAffectFlagTable(data); }
@@ -517,11 +570,11 @@ static bool RunRoomTick(RoomData *room, CharData *ch, const Affect<ERoomApply>::
 void HandleRoomAffect(RoomData *room, CharData *ch, const Affect<ERoomApply>::shared_ptr &aff) {
 	assert(aff);
 	assert(room);
-	// Fully data-driven dispatch (no per-spell switch): the affect's <affects> names either a
-	// tick_spell (data) or a tick_handler (code, by string). A kAfMustBeHandled affect that
-	// resolves to neither is a misconfiguration -- fail loudly.
+	// Fully data-driven dispatch (no per-spell switch): the affect owns its per-tick work via
+	// <actions>, a tick_spell (data) or a tick_handler (code, by string). A triggered affect that
+	// resolves to none of these is a misconfiguration -- fail loudly.
 	if (!RunRoomTick(room, ch, aff)) {
-		err_log("HandleRoomAffect: spell %s is kAfMustBeHandled but has no tick_spell/tick_handler.",
+		err_log("HandleRoomAffect: triggered room affect %s has no <actions>/tick_spell/tick_handler.",
 				NAME_BY_ITEM<ESpell>(aff->type).c_str());
 	}
 }
@@ -587,7 +640,12 @@ void UpdateRoomsAffects() {
 
 			// Учитываем что время выдается в пульсах а не в секундах  т.е. надо умножать на 2
 			affect->apply_time++;
-			if (IS_SET(affect->battleflag, kAfMustBeHandled)) {
+			// issue.affect-migration: the affect's <trigger> set decides when its actions/tick run.
+			// kPulse fires every room-affect pulse (the old kAfMustBeHandled behavior); kBattlePulse
+			// fires only while combat is happening in the room. An affect with no trigger never fires.
+			const auto affect_type = affect->affect_type;
+			if (HasRoomAffectTrigger(affect_type, RoomAffectTrigger::kPulse)
+				|| (HasRoomAffectTrigger(affect_type, RoomAffectTrigger::kBattlePulse) && RoomHasCombat(*room))) {
 				HandleRoomAffect(*room, ch, affect);
 			}
 		}
@@ -779,13 +837,11 @@ ECastResult CastRoomAffect(CastContext &ctx) {
 	// Impose loop. Each affect's battleflag drives the join policy: kAfUpdate
 	// Duration -> affect_room_join_fspell (replace by spell id); otherwise
 	// affect_room_join with kAfAccumulateDuration deciding whether durations
-	// stack. Empty slots (no duration, no location, no kAfMustBeHandled flag)
-	// are skipped.
+	// stack. Empty slots (no duration, no location) are skipped.
 	for (int i = 0; !handled_update && success && i < kMaxSpellAffects; i++) {
 		af[i].type = spell_id;
 		if (af[i].duration
-			|| af[i].location != kNone
-			|| IS_SET(af[i].battleflag, kAfMustBeHandled)) {
+			|| af[i].location != kNone) {
 			af[i].duration = CalcComplexSpellMod(ch, spell_id, GAPPLY_SPELL_EFFECT, af[i].duration);
 			if (IS_SET(af[i].battleflag, kAfUpdateDuration)) {
 				affect_room_join_fspell(room, af[i]);
