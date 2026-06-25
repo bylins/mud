@@ -66,13 +66,15 @@ void EmitAffectEvent(const char *kind, const CharData *ch,
 	return af->affect_type != EAffect::kUndefined
 		|| (af->type >= ESpell::kFirst && af->type <= ESpell::kLast);
 }
+}  // namespace
+
 // "Same affect" for the multi-slot dedup (one spell -> several slots announces once): same affect_type,
-// or same legacy type for affects that still lack an affect_type.
-[[nodiscard]] bool SameAffectIdentity(const Affect<EApply>::shared_ptr &a, const Affect<EApply>::shared_ptr &b) {
+// or same legacy type for affects that still lack an affect_type. Exposed (declared in affect_data.h)
+// for callers that dedup or look up affects by their identity rather than by the casting spell
+// (remove_random_affects, the do_affects display).
+bool SameAffectIdentity(const Affect<EApply>::shared_ptr &a, const Affect<EApply>::shared_ptr &b) {
 	return a->affect_type != EAffect::kUndefined ? a->affect_type == b->affect_type : a->type == b->type;
 }
-
-}  // namespace
 
 int apply_ac(CharData *ch, int eq_pos);
 int apply_armour(CharData *ch, int eq_pos);

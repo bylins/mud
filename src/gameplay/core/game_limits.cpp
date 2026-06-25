@@ -738,7 +738,8 @@ void beat_points_update(int pulse) {
 		}
 		if (AFF_FLAGGED(d->character.get(), EAffect::kFrenzy)) {
 			for (const auto &aff : d->character->affected) {
-				if (aff->type == ESpell::kFrenzy && aff->location == EApply::kHpRegen) {
+				// issue.affect-migration: identify the frenzy affect by its EAffect, not the casting spell.
+				if (aff->affect_type == EAffect::kFrenzy && aff->location == EApply::kHpRegen) {
 					restore += aff->modifier;
 					break;
 				}

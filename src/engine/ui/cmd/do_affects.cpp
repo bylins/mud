@@ -10,7 +10,7 @@
 #include "engine/db/global_objects.h"
 #include "gameplay/mechanics/weather.h"
 #include "gameplay/mechanics/groups.h"
-#include "gameplay/affects/affect_messages.h"   // issue.affect-migration: affect display name by affect_type
+#include "gameplay/affects/affect_data.h"   // issue.affect-migration: SameAffectIdentity dedup by affect_type
 
 std::array<EAffect, 3> hiding = {EAffect::kSneak, EAffect::kHide, EAffect::kDisguise};
 
@@ -72,7 +72,10 @@ void do_affects(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				++next_affect_i;
 				if (next_affect_i != ch->affected.end()) {
 					const auto &next_affect = *next_affect_i;
-					if (aff->type == next_affect->type) {
+					// issue.affect-migration: collapse adjacent slots of the SAME affect (one effect
+					// shown once) by identity, not by casting spell -- migrated affects share
+					// Affect::type == kUndefined and must stay distinct here.
+					if (SameAffectIdentity(aff, next_affect)) {
 						continue;
 					}
 				}

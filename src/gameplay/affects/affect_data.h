@@ -99,6 +99,11 @@ struct obj_affected_type {
 	}
 };
 
+// issue.affect-migration: "same affect" by IDENTITY (affect_type, legacy ESpell type fallback) rather
+// than by casting spell -- for callers that dedup or look up affects (do_affects display,
+// remove_random_affects). Re-keying off Affect::type keeps migrated kUndefined-type affects distinct.
+[[nodiscard]] bool SameAffectIdentity(const Affect<EApply>::shared_ptr &a, const Affect<EApply>::shared_ptr &b);
+
 void UpdateAffectOnPulse(CharData *ch, int count);
 void player_timed_update();
 void player_affect_update();
