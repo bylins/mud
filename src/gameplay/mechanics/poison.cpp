@@ -65,12 +65,17 @@ namespace {
 		if (spell_id == ESpell::kAconitumPoison) {
 			// урон 5 + левел/2, от 5 до 20 за стак
 			Affect<EApply> af[3];
+			// af[0] is the aconite DoT (ProcessPoisonDmg keys on EApply::kAconitumPoison) -> it carries
+			// the poison identity kAconitumPoison ("отравление аконитом"); affects.xml gives it
+			// kAfSameTime|kAfCurable|kAfPoison. (Was kNoBattleSwitch, which sourced empty flags, so the
+			// DoT lost kAfSameTime and dealt no damage.) The no-switch effect moves to af[1].
 			af[0].location = EApply::kAconitumPoison;
 			af[0].modifier = GetSkill(ch, ESkill::kPoisoning);
-			af[0].affect_type = EAffect::kNoBattleSwitch;
+			af[0].affect_type = EAffect::kAconitumPoison;
 
 			af[1].location = EApply::kPhysicResist;
 			af[1].modifier = -4;
+			af[1].affect_type = EAffect::kNoBattleSwitch;
 
 			af[2].location = EApply::kMagicResist;
 			af[2].modifier = -4;
@@ -84,11 +89,7 @@ namespace {
 				if (!vict->IsNpc()) {
 					i.duration *= 30;
 				}
-				// issue.affect-migration: aconitum has no dedicated poison affect_type (af[0] is
-				// kNoBattleSwitch, af[1]/af[2] are kUndefined), so it can't get the kAfPoison category
-				// flag from affects.xml like the other poisons. Set it here -- the affect_to_char funnel
-				// keeps caller flags on the kUndefined slots, so the victim carries kAfPoison.
-				i.battleflag = kAfSameTime | kAfCurable | kAfPoison;
+				i.battleflag = kAfSameTime | kAfCurable;
 				i.debuff = true;
 
 				if (!poison_affect_join(ch, vict, i)) {

@@ -177,12 +177,19 @@
 		<flags val="kAfSameTime|kAfCurable|kAfPoison"/>
 	</affect>
 	<affect id="kDaturaPoison">
-		<flags val="kAfPoison"/>
+		<flags val="kAfSameTime|kAfCurable|kAfPoison"/>
 	</affect>
-	<affect id="kSkillReduce"/>
-	<affect id="kNoBattleSwitch"/>
+	<affect id="kSkillReduce">
+		<flags val="kAfSameTime|kAfCurable"/>
+	</affect>
+	<affect id="kNoBattleSwitch">
+		<flags val="kAfSameTime|kAfCurable"/>
+	</affect>
 	<affect id="kBelenaPoison">
-		<flags val="kAfPoison"/>
+		<flags val="kAfSameTime|kAfCurable|kAfPoison"/>
+	</affect>
+	<affect id="kAconitumPoison">
+		<flags val="kAfSameTime|kAfCurable|kAfPoison"/>
 	</affect>
 	<affect id="kNoTeleport">
 		<flags val="kAfBattledec|kAfPulsedec|kAfDispellable|kAfCurable"/>

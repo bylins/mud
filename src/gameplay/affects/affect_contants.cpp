@@ -170,6 +170,7 @@ void init_EAffectFlag_ITEM_NAMES() {
 	EAffectFlag_name_by_value[EAffect::kPietas] = "kPietas";
 	EAffectFlag_name_by_value[EAffect::kEvade] = "kEvade";
 	EAffectFlag_name_by_value[EAffect::kWirchery] = "kWirchery";
+	EAffectFlag_name_by_value[EAffect::kAconitumPoison] = "kAconitumPoison";
 	for (const auto &i : EAffectFlag_name_by_value) {
 		EAffectFlag_value_by_name[i.second] = i.first;
 	}
@@ -607,7 +608,7 @@ msg_container::MsgContainer<EAffect, affects::EAffectMsgType> &AffectMsgContaine
 // loaded from affects.xml. affects.xml is the SOURCE OF TRUTH for what an effect does; the casting
 // source (spell/skill/item) only sets strength + duration. Indexed by to_underlying(EAffect)
 // (EAffect is 1-based; index 0 = kUndefined = no flags).
-constexpr std::size_t kAffectFlagTableSize = 133;  // EAffect max (kWirchery=132) + 1
+constexpr std::size_t kAffectFlagTableSize = 134;  // EAffect max (kAconitumPoison=133) + 1
 std::array<Bitvector, kAffectFlagTableSize> g_affect_flags{};
 bool g_affect_flags_loaded = false;
 
