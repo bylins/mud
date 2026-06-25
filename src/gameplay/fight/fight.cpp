@@ -30,7 +30,9 @@
 #include "engine/db/world_characters.h"
 #include "fight_hit.h"
 #include "gameplay/ai/mobact.h"
-#include "engine/core/handler.h"
+#include "engine/core/char_handler.h"
+#include "engine/entities/char_data.h"
+#include "gameplay/mechanics/inventory.h"
 #include "engine/ui/color.h"
 #include "utils/random.h"
 #include "engine/entities/char_player.h"
@@ -1383,7 +1385,7 @@ void set_mob_skills_flags(CharData *ch) {
 }
 
 int calc_initiative(CharData *ch, bool mode) {
-	int initiative = size_app[GET_POS_SIZE(ch)].initiative;
+	int initiative = SizeApp(GET_POS_SIZE(ch)).initiative;
 	if (mode) //Добавим булевую переменную, чтобы счет все выдавал постоянное значение, а не каждый раз рандом
 	{
 		int i = number(1, 10);

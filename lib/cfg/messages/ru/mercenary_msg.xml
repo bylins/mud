@@ -4,7 +4,7 @@
     SendMsgToChar lines. List headers stored as full short/full x role sentences. {amount}/{currency}
     /{boss}/{mob} are fmt args; kSummon* keep $n act-codes. The dash rule lines stay in code.
 -->
-<msg_container>
+<mercenary_msg>
 	<msg_sheaf id="kDefault">
 		<message type="kNoAccess" val="Эти знания тебе недоступны, ступай с миром"/>
 		<message type="kUnknownCmd" val="Доступные команды: список (полный), привести &lt;номер&gt; (банк), фаворит &lt;номер&gt;"/>
@@ -31,4 +31,4 @@
 		<message type="kFavAdded" val="Персонаж {mob} добавлен в список любимчиков."/>
 		<message type="kFavRemoved" val="Персонаж {mob} попал в опалу."/>
 	</msg_sheaf>
-</msg_container>
+</mercenary_msg>

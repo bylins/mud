@@ -21,7 +21,14 @@
 #include "engine/db/global_objects.h"
 #include "engine/db/obj_prototypes.h"
 #include "engine/db/utils_find_obj_id_by_vnum.h"
-#include "engine/core/handler.h"
+#include "engine/core/char_equip_flags.h"
+#include "engine/core/char_handler.h"
+#include "engine/core/obj_handler.h"
+#include "engine/entities/char_data.h"
+#include "gameplay/mechanics/equipment.h"
+#include "gameplay/mechanics/illumination.h"
+#include "gameplay/mechanics/inventory.h"
+#include "utils/utils_parse.h"
 #include "dg_event.h"
 #include "engine/ui/color.h"
 #include "gameplay/clans/house.h"
@@ -98,7 +105,6 @@ extern bool CanTakeObj(CharData *ch, ObjData *obj);
 extern void split_or_clan_tax(CharData *ch, long amount);
 
 // external functions
-RoomRnum FindRoomRnum(CharData *ch, char *rawroomstr, int trig);
 void free_varlist(struct TriggerVar *vd);
 int obj_room(ObjData *obj);
 Trigger *read_trigger(int nr);
@@ -2468,7 +2474,7 @@ void find_replacement(void *go,
 				snprintf(str, str_size, "%d", mob->mem_queue.stored);
 			}
 		} else if (!str_cmp(field, "maxmana")) {
-			snprintf(str, str_size, "%d", mana[MIN(50, GetRealWis(mob))]);
+			snprintf(str, str_size, "%d", Mana(GetRealWis(mob)));
 		} else if (!str_cmp(field, "getstat")) {
 			if (*subfield)  {
 				snprintf(str, str_size, "%lld", mob->GetStatistic(static_cast<CharStat::ECategory>(atoi(subfield))));

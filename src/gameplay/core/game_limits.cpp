@@ -20,9 +20,16 @@
 #include "gameplay/mechanics/minions.h"
 #include "gameplay/mechanics/mount.h"
 
-#include "engine/core/handler.h"
+#include "engine/core/char_equip_flags.h"
+#include "engine/core/char_handler.h"
+#include "engine/core/char_movement.h"
+#include "engine/core/obj_handler.h"
+#include "engine/db/obj_save.h"
+#include "engine/entities/char_data.h"
+#include "gameplay/mechanics/equipment.h"
+#include "gameplay/mechanics/inventory.h"
 #include "engine/ui/color.h"
-#include "engine/ui/interpreter_utils.h"
+#include "administration/dupe_check.h"
 #include "gameplay/clans/house.h"
 #include "gameplay/economics/exchange.h"
 #include "gameplay/mechanics/deathtrap.h"
@@ -175,11 +182,11 @@ int CalcManaGain(const CharData *ch) {
 		}
 
 		if (!IS_MANA_CASTER(ch)) {
-			auto restore = int_app[GetRealInt(ch)].mana_per_tic;
+			auto restore = IntApp(GetRealInt(ch)).mana_per_tic;
 			gain = graf(CalcCharAge(ch)->year, restore - 8, restore - 4, restore,
 						restore + 5, restore, restore - 4, restore - 8);
 		} else {
-			gain = mana_gain_cs[GetRealInt(ch)];
+			gain = IntApp(GetRealInt(ch)).mana_gain;
 		}
 
 		if (LIKE_ROOM(ch)) {
@@ -776,16 +783,16 @@ void beat_points_update(int pulse) {
 		}
 
 		// Гейн маны у волхвов
-		if (IS_MANA_CASTER(d->character.get()) && d->character->mem_queue.stored < mana[MIN(50, GetRealWis(d->character.get()))]) {
+		if (IS_MANA_CASTER(d->character.get()) && d->character->mem_queue.stored < Mana(GetRealWis(d->character.get()))) {
 			d->character->mem_queue.stored += CalcManaGain(d->character.get());
-			if (d->character->mem_queue.stored >= mana[MIN(50, GetRealWis(d->character.get()))]) {
-				d->character->mem_queue.stored = mana[MIN(50, GetRealWis(d->character.get()))];
+			if (d->character->mem_queue.stored >= Mana(GetRealWis(d->character.get()))) {
+				d->character->mem_queue.stored = Mana(GetRealWis(d->character.get()));
 				SendMsgToChar("Ваша магическая энергия полностью восстановилась\r\n", d->character.get());
 			}
 		}
 
-		if (IS_MANA_CASTER(d->character.get()) && d->character->mem_queue.stored > mana[MIN(50, GetRealWis(d->character.get()))]) {
-			d->character->mem_queue.stored = mana[MIN(50, GetRealWis(d->character.get()))];
+		if (IS_MANA_CASTER(d->character.get()) && d->character->mem_queue.stored > Mana(GetRealWis(d->character.get()))) {
+			d->character->mem_queue.stored = Mana(GetRealWis(d->character.get()));
 		}
 
 		// Restore moves

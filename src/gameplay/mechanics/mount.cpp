@@ -8,7 +8,8 @@
 
 #include "engine/entities/char_data.h"
 #include "engine/entities/entities_constants.h"
-#include "engine/core/handler.h"
+#include "engine/core/char_handler.h"
+#include "engine/core/char_movement.h"
 #include "engine/core/target_resolver.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/skills/skills.h"
@@ -452,7 +453,7 @@ void do_stophorse(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 		return;
 	act("Вы отпустили $N3.", false, ch, 0, horse, kToChar);
 	act("$n отпустил$g $N3.", false, ch, 0, horse, kToRoom | kToArenaListen);
-	if (GET_MOB_VNUM(horse) == kHorseVnum) {
+	if (GET_MOB_VNUM(horse) == mount::kHorseVnum) {
 		act("$n убежал$g в свою конюшню.\r\n", false, horse, 0, 0, kToRoom | kToArenaListen);
 		ExtractCharFromWorld(horse, false);
 	}

@@ -1,17 +1,27 @@
 //#include "celebrates.h"
 
 #include <fmt/format.h>
-#include "third_party_libs/pugixml/pugixml.h"
 
+#include "utils/parser_wrapper.h"   // issue.celebrates: ParserWrapper вместо прямого pugixml
+#include "utils/utils_parse.h"
 #include "engine/db/global_objects.h"
 #include "engine/db/obj_prototypes.h"
-#include "engine/core/handler.h"
+#include "engine/core/char_handler.h"
+#include "engine/core/obj_handler.h"
+#include "engine/entities/char_data.h"
+#include "gameplay/mechanics/inventory.h"
 #include "utils/backtrace.h"
 #include "weather.h"
 
 extern void ExtractTrigger(Trigger *trig);
 
 namespace celebrates {
+
+using parser_wrapper::DataNode;
+
+// issue.celebrates: чтение целочисленного атрибута через ParserWrapper (parse::ReadAsInt
+// бросает на пустой строке), с дефолтом при отсутствии/ошибке.
+using parse::AttrInt;
 
 const int kCleanPeriod{10};
 
@@ -100,11 +110,11 @@ std::string GetNameReal(int day) {
 	return result;
 }
 
-void ParseTrigList(pugi::xml_node node, TrigList *triggers) {
-	for (pugi::xml_node trig = node.child("trig"); trig; trig = trig.next_sibling("trig")) {
-		int vnum = trig.attribute("vnum").as_int();
+void ParseTrigList(DataNode node, TrigList *triggers) {
+	for (auto &trig : node.Children("trig")) {
+		int vnum = AttrInt(trig, "vnum");
 		if (!vnum) {
-			snprintf(buf, kMaxStringLength, "...celebrates - bad trig (node = %s)", node.name());
+			snprintf(buf, kMaxStringLength, "...celebrates - bad trig (node = %s)", node.GetName());
 			mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 			return;
 		}
@@ -112,11 +122,11 @@ void ParseTrigList(pugi::xml_node node, TrigList *triggers) {
 	}
 }
 
-void ParseLoadData(pugi::xml_node node, const LoadPtr &node_data) {
-	int vnum = node.attribute("vnum").as_int();
-	int max = node.attribute("max").as_int();
+void ParseLoadData(const DataNode &node, const LoadPtr &node_data) {
+	int vnum = AttrInt(node, "vnum");
+	int max = AttrInt(node, "max");
 	if (!vnum || !max) {
-		snprintf(buf, kMaxStringLength, "...celebrates - bad data (node = %s)", node.name());
+		snprintf(buf, kMaxStringLength, "...celebrates - bad data (node = %s)", node.GetName());
 		mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 		return;
 	}
@@ -124,25 +134,25 @@ void ParseLoadData(pugi::xml_node node, const LoadPtr &node_data) {
 	node_data->max = max;
 }
 
-void ParseLoadSection(pugi::xml_node node, const CelebrateDataPtr &holiday) {
-	for (pugi::xml_node room = node.child("room"); room; room = room.next_sibling("room")) {
-		int vnum = room.attribute("vnum").as_int();
+void ParseLoadSection(DataNode node, const CelebrateDataPtr &holiday) {
+	for (auto &room : node.Children("room")) {
+		int vnum = AttrInt(room, "vnum");
 		if (!vnum) {
 			snprintf(buf,
 					 kMaxStringLength,
 					 "...celebrates - bad room (celebrate = %s)",
-					 node.attribute("name").value());
+					 node.GetValue("name"));
 			mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 			return;
 		}
 		CelebrateRoomPtr tmp_room(new CelebrateRoom);
 		tmp_room->vnum = vnum;
 		ParseTrigList(room, &tmp_room->triggers);
-		for (pugi::xml_node mob = room.child("mob"); mob; mob = mob.next_sibling("mob")) {
+		for (auto &mob : room.Children("mob")) {
 			LoadPtr tmp_mob(new ToLoad);
 			ParseLoadData(mob, tmp_mob);
 			ParseTrigList(mob, &tmp_mob->triggers);
-			for (pugi::xml_node obj_in = mob.child("obj"); obj_in; obj_in = obj_in.next_sibling("obj")) {
+			for (auto &obj_in : mob.Children("obj")) {
 				LoadPtr tmp_obj_in(new ToLoad);
 				ParseLoadData(obj_in, tmp_obj_in);
 				ParseTrigList(obj_in, &tmp_obj_in->triggers);
@@ -150,11 +160,11 @@ void ParseLoadSection(pugi::xml_node node, const CelebrateDataPtr &holiday) {
 			}
 			tmp_room->mobs.push_back(tmp_mob);
 		}
-		for (pugi::xml_node obj = room.child("obj"); obj; obj = obj.next_sibling("obj")) {
+		for (auto &obj : room.Children("obj")) {
 			LoadPtr tmp_obj(new ToLoad);
 			ParseLoadData(obj, tmp_obj);
 			ParseTrigList(obj, &tmp_obj->triggers);
-			for (pugi::xml_node obj_in = obj.child("obj"); obj_in; obj_in = obj_in.next_sibling("obj")) {
+			for (auto &obj_in : obj.Children("obj")) {
 				LoadPtr tmp_obj_in(new ToLoad);
 				ParseLoadData(obj_in, tmp_obj_in);
 				ParseTrigList(obj_in, &tmp_obj_in->triggers);
@@ -165,22 +175,24 @@ void ParseLoadSection(pugi::xml_node node, const CelebrateDataPtr &holiday) {
 		holiday->rooms[tmp_room->vnum / 100].push_back(tmp_room);
 	}
 }
-void ParseAttachSection(pugi::xml_node node, const CelebrateDataPtr &holiday) {
-	pugi::xml_node attaches = node.child("attaches");
+void ParseAttachSection(DataNode node, const CelebrateDataPtr &holiday) {
+	if (!node.GoToChild("attaches")) {
+		return;
+	}
 	int vnum;
-	for (pugi::xml_node mob = attaches.child("mob"); mob; mob = mob.next_sibling("mob")) {
-		vnum = mob.attribute("vnum").as_int();
+	for (auto &mob : node.Children("mob")) {
+		vnum = AttrInt(mob, "vnum");
 		if (!vnum) {
-			snprintf(buf, kMaxStringLength, "...celebrates - bad attach data (node = %s)", node.name());
+			snprintf(buf, kMaxStringLength, "...celebrates - bad attach data (node = %s)", node.GetName());
 			mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 			return;
 		}
 		ParseTrigList(mob, &holiday->mobsToAttach[vnum / 100][vnum]);
 	}
-	for (pugi::xml_node obj = attaches.child("obj"); obj; obj = obj.next_sibling("obj")) {
-		vnum = obj.attribute("vnum").as_int();
+	for (auto &obj : node.Children("obj")) {
+		vnum = AttrInt(obj, "vnum");
 		if (!vnum) {
-			snprintf(buf, kMaxStringLength, "...celebrates - bad attach data (node = %s)", node.name());
+			snprintf(buf, kMaxStringLength, "...celebrates - bad attach data (node = %s)", node.GetName());
 			mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 			return;
 		}
@@ -209,13 +221,14 @@ int GetNextDay(int day, bool is_real) {
 		return day + 1;
 }
 
-void LoadCelebrates(pugi::xml_node node_list, CelebrateList &celebrates, bool is_real) {
-	for (pugi::xml_node node = node_list.child("celebrate"); node; node = node.next_sibling("celebrate")) {
-		int day = node.attribute("day").as_int();
-		int month = node.attribute("month").as_int();
-		int start = node.attribute("start").as_int();
-		int end = node.attribute("end").as_int();
-		std::string name = node.attribute("name").value();
+void LoadCelebrates(DataNode node_list, CelebrateList &celebrates, bool is_real) {
+	for (auto &node : node_list.Children("celebrate")) {
+		int day = AttrInt(node, "day");
+		int month = AttrInt(node, "month");
+		int start = AttrInt(node, "start");
+		int end = AttrInt(node, "end");
+		const char *name_attr = node.GetValue("name");
+		std::string name = name_attr ? name_attr : "";
 		int baseDay;
 		if (!day || !month || name.empty()) {
 			snprintf(buf, kMaxStringLength, "...celebrates - bad node struct");
@@ -265,26 +278,25 @@ void LoadCelebrates(pugi::xml_node node_list, CelebrateList &celebrates, bool is
 	}
 }
 
-void Load() {
-	pugi::xml_document doc;
-	pugi::xml_parse_result result = doc.load_file(LIB_MISC"celebrates.xml");
-	if (!result) {
-		snprintf(buf, kMaxStringLength, "...%s", result.description());
-		mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
-		return;
+// issue.celebrates: data = корневой элемент <celebrates> (его передаёт CfgManager через
+// ParserWrapper). Формат не менялся: три секции праздников - mono/poly/real.
+void CelebratesLoader::Load(DataNode data) {
+	auto mono = data;
+	if (mono.GoToChild("celebratesMono")) {   // православные праздники
+		LoadCelebrates(mono, mono_celebrates, false);
 	}
-	pugi::xml_node node_list = doc.child("celebrates");
-	if (!node_list) {
-		snprintf(buf, kMaxStringLength, "...celebrates read fail");
-		mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
-		return;
+	auto poly = data;
+	if (poly.GoToChild("celebratesPoly")) {   // языческие праздники
+		LoadCelebrates(poly, poly_celebrates, false);
 	}
-	pugi::xml_node mono_node_list = node_list.child("celebratesMono");//православные праздники
-	LoadCelebrates(mono_node_list, mono_celebrates, false);
-	pugi::xml_node poly_node_list = node_list.child("celebratesPoly");//языческие праздники
-	LoadCelebrates(poly_node_list, poly_celebrates, false);
-	pugi::xml_node real_node_list = node_list.child("celebratesReal");//Российские праздники
-	LoadCelebrates(real_node_list, real_celebrates, true);
+	auto real = data;
+	if (real.GoToChild("celebratesReal")) {   // Российские праздники
+		LoadCelebrates(real, real_celebrates, true);
+	}
+}
+
+void CelebratesLoader::Reload(DataNode data) {
+	Load(std::move(data));
 }
 
 int GetMudDay() {

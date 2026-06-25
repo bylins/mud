@@ -4,7 +4,7 @@
 	Keyed by currency text_id. Loaded (currency_messages) BEFORE currencies.xml.
 	<name gender=".." search="имя для поиска"> + per-number <case id="kNom" val=".."/> declensions.
 -->
-<msg_container>
+<currency_msg>
 	<msg_sheaf id="kKuna">
 		<name gender="kFemale" search="куны">
 			<singular>
@@ -225,4 +225,4 @@
 			<obj_name id="kImmenseAmountDesc" from="1000001" val="огромн{adjective_ending} гор{noun_ending_hard} {currency_name}"/>
 		</obj_names>
 	</msg_sheaf>
-</msg_container>
+</currency_msg>

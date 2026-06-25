@@ -7,47 +7,57 @@
 #ifndef BYLINS_SRC_CRAFTS_MINING_H_
 #define BYLINS_SRC_CRAFTS_MINING_H_
 
+#include "engine/boot/cfg_manager.h"
+
+#include <vector>
+
 class CharData;
-
-// Значения по умолчанию могут быть изменены при чтении файла
-struct skillvariables_dig {
-	int hole_max_deep = 10;
-	int instr_crash_chance = 2;
-	int treasure_chance = 30000;
-	int pandora_chance = 80000;
-	int mob_chance = 300;
-	int trash_chance = 100;
-	int lag = 4;
-	int prob_divide = 3;
-	int glass_chance = 3;
-	int need_moves = 15;
-
-	int stone1_skill = 15;
-	int stone2_skill = 25;
-	int stone3_skill = 35;
-	int stone4_skill = 50;
-	int stone5_skill = 70;
-	int stone6_skill = 80;
-	int stone7_skill = 90;
-	int stone8_skill = 95;
-	int stone9_skill = 99;
-
-	int stone1_vnum = 900;
-	int last_stone_vnum = 917;
-	int trash_vnum_start = 920;
-	int trash_vnum_end = 922;
-	int mob_vnum_start = 100;
-	int mob_vnum_end = 103;
-	int pandora_vnum = 919;
-	int glass_vnum = 1919;
-};
 
 const int kHolesTime = 1;
 
-// Перенести в глобальные объекты
-extern skillvariables_dig dig_vars;
+namespace mining {
 
-void InitMiningVars();
+// Один ранг камня: настоящий самоцвет (stone_vnum), его стеклянная подделка
+// (glass_vnum) и минимальный навык, при котором камень начинает выпадать
+// (он же шанс выпадения). Ранги хранятся по возрастанию навыка.
+struct DigStone {
+	int rank = 0;
+	int stone_vnum = 0;
+	int glass_vnum = 0;
+	int skill = 0;
+};
+
+// Конфиг умения "горное дело" (cfg/mechanics/digging.xml). Значения по умолчанию
+// могут быть изменены при чтении файла.
+struct DiggingCfg {
+	int hole_max_deep = 10;       // максимальная глубина ямки
+	int tool_crash_chance = 2;    // шанс инструменту сломаться
+	int treasure_chance = 30000;  // шанс выкопать клад
+	int jackpot_vnum = 99958;     // шкатулка Пандоры
+	int jackpot_chance = 180000;  // шанс выкопать шкатулку Пандоры
+	int mob_chance = 300;         // шанс выкопать моба
+	int trash_chance = 200;       // шанс выкопать всякую фигню
+	int lag = 2;                  // лаг (в коде умножается на PULSE_VIOLENCE)
+	int skill_divisor = 3;        // на столько делится скилл, чтобы сложнее копалось
+	int glass_chance = 3;         // шанс выкопать драг.камень, иначе стекло
+	int moves_expense = 10;       // мувов на один копок
+
+	std::vector<DigStone> stones; // ранги камней (по возрастанию навыка)
+	std::vector<int> mob_vnums;   // мобы, которых можно выкопать
+	std::vector<int> trash_vnums; // мусор, который можно выкопать
+};
+
+extern DiggingCfg dig_cfg;
+
+// Загрузка cfg/mechanics/digging.xml через cfg_manager (boot + reload digging).
+class DiggingLoader : public cfg_manager::ICfgLoader {
+ public:
+	void Load(parser_wrapper::DataNode data) final;
+	void Reload(parser_wrapper::DataNode data) final;
+};
+
+} // namespace mining
+
 void do_dig(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/);
 
 #endif //BYLINS_SRC_CRAFTS_MINING_H_

@@ -24,7 +24,6 @@
 
 #include "third_party_libs/pugixml/pugixml.h"
 
-#include "gameplay/mechanics/birthplaces.h"
 #include "gameplay/core/remort.h"
 #include "gameplay/communication/boards/boards_changelog_loaders.h"
 #include "gameplay/communication/boards/boards_constants.h"
@@ -268,42 +267,13 @@ int siteok_everyone = true;
 
 int nameserver_is_slow = YES;
 
-const char *MENU = "\r\n"
-				   "0) Отсоединиться.\r\n"
-				   "1) Начать игру.\r\n"
-				   "2) Ввести описание вашего персонажа.\r\n"
-				   "3) Узнать историю.\r\n"
-				   "4) Изменить пароль.\r\n"
-				   "5) Удалить персонажа.\r\n"
-				   "6) Изменить параметры персонажа.\r\n"
-				   "7) Включить/выключить режим слепого игрока.\r\n"
-				   "8) Посмотреть всех персонажей на данном email'e.\r\n"
-				   "\r\n"
-				   "   Чего ваша душа желает? ";
-
-const char *WELC_MESSG =
-	"\r\n"
-	"  Добро пожаловать на землю Киевскую, богатую историей и самыми невероятными\r\n"
-	"приключениями. Возможно, вам они понравятся, и вы станете в один ряд с героями\r\n" "давно минувших дней.\r\n\r\n";
-
-const char *START_MESSG =
-	" Буде здравы, странник.\r\n"
-	" Вот и ты стал на тропу увлекательных приключений, которые, надеемся, ждут\r\n"
-	"тебя в нашем мире.\r\n"
-	" Твоя задача непроста, но надеемся, что ты сумеешь достойно решить ее.\r\n"
-	" В добрый час, путник, и да будет скатертью тебе дорога...\r\n" "\r\n";
 
 
-int calc_loadroom(const CharData *ch, int bplace_mode /*= BIRTH_PLACE_UNDEFINED*/) {
+int calc_loadroom(const CharData *ch) {
 	if (privilege::IsImmortal(ch)) {
 		return (immort_start_room);
 	} else if (ch->IsFlagged(EPlrFlag::kFrozen)) {
 		return (frozen_start_room);
-	} else {
-		const int loadroom = Birthplaces::GetLoadRoom(bplace_mode);
-		if (loadroom != kBirthplaceUndefined) {
-			return loadroom;
-		}
 	}
 
 	return (mortal_start_room);
@@ -976,6 +946,16 @@ const std::map<ECommonMsg, std::string> kCommonMsgNames{
 		{ECommonMsg::kNoPerson, "kNoPerson"},
 		{ECommonMsg::kNothing, "kNothing"},
 		{ECommonMsg::kBrokenScales, "kBrokenScales"},
+		{ECommonMsg::kMenuExit, "kMenuExit"},
+		{ECommonMsg::kMenuEnterGame, "kMenuEnterGame"},
+		{ECommonMsg::kMenuDescription, "kMenuDescription"},
+		{ECommonMsg::kMenuHistory, "kMenuHistory"},
+		{ECommonMsg::kMenuChangePassword, "kMenuChangePassword"},
+		{ECommonMsg::kMenuDelete, "kMenuDelete"},
+		{ECommonMsg::kMenuResetStats, "kMenuResetStats"},
+		{ECommonMsg::kMenuBlind, "kMenuBlind"},
+		{ECommonMsg::kMenuEmailList, "kMenuEmailList"},
+		{ECommonMsg::kMenuPrompt, "kMenuPrompt"},
 	};
 
 msg_container::MsgContainer<int, ECommonMsg> &CommonMsgContainer() {

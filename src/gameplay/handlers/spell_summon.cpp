@@ -15,7 +15,7 @@
 #include "gameplay/mechanics/groups.h"
 #include "gameplay/clans/house.h"
 #include "gameplay/mechanics/sight.h"
-#include "engine/core/handler.h"
+#include "engine/core/char_handler.h"
 
 // SummonFollowingCharmices: single-use helper for SpellSummon (kept file-local).
 static void SummonFollowingCharmices(CharData *ch, CharData *victim, RoomRnum vic_room, RoomRnum ch_room) {

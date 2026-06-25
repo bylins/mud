@@ -6,6 +6,7 @@
 \detail Detail description.
 */
 
+#include "engine/core/target_resolver.h"
 #include "engine/entities/char_data.h"
 #include "gameplay/mechanics/sight.h"
 #include "engine/entities/obj_data.h"

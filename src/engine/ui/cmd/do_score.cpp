@@ -116,7 +116,7 @@ void PrintBonusStateInfo(CharData *ch, std::ostringstream &out);
 
 // \todo Переписать на вывод в поток с использованием общих со "счет все" функций
 void PrintScoreList(CharData *ch) {
-	sprintf(buf, "%s", PlayerRace::GetKinNameByNum(GET_KIN(ch), ch->get_sex()).c_str());
+	sprintf(buf, "%s", MUD::RaceMessages().GetMessage(GET_RACE(ch), ch->get_sex()).c_str());
 	buf[0] = LOWER(buf[0]);
 	sprintf(buf1, "%s", religion_name[GET_RELIGION(ch)][static_cast<int>(ch->get_sex())]);
 	buf1[0] = LOWER(buf1[0]);
@@ -136,7 +136,7 @@ void PrintScoreList(CharData *ch) {
 				  ch->get_move(), ch->get_real_max_move(), grammar::GetDeclensionInNumber(ch->get_move(), grammar::EWhat::kMoveU));
 	if (IS_MANA_CASTER(ch)) {
 		SendMsgToChar(ch, "Ваша магическая энергия %d(%d) и вы восстанавливаете %d в сек.\r\n",
-					  ch->mem_queue.stored, mana[MIN(50, GetRealWis(ch))], CalcManaGain(ch));
+					  ch->mem_queue.stored, Mana(GetRealWis(ch)), CalcManaGain(ch));
 	}
 	SendMsgToChar(ch, "Ваша сила: %d(%d), ловкость: %d(%d), телосложение: %d(%d), ум: %d(%d), мудрость: %d(%d), обаяние: %d(%d).\r\n",
 				  ch->get_str(), GetRealStr(ch),
@@ -504,7 +504,7 @@ void PrintPunishmentsInfo(CharData *ch, std::ostringstream &out) {
  */
 int PrintBaseInfoToTable(CharData *ch, table_wrapper::Table &table, std::size_t col) {
 	std::size_t row{0};
-	table[row][col] = std::string("Племя: ") + PlayerRace::GetRaceNameByNum(GET_KIN(ch), GET_RACE(ch), ch->get_sex());
+	table[row][col] = std::string("Племя: ") + MUD::RaceMessages().GetMessage(GET_RACE(ch), ch->get_sex());
 	table[++row][col] = std::string("Вера: ") + religion_name[GET_RELIGION(ch)][static_cast<int>(ch->get_sex())];
 	table[++row][col] = std::string("Уровень: ") + std::to_string(GetRealLevel(ch));
 	table[++row][col] = std::string("Перевоплощений: ") + std::to_string(remort::GetRealRemort(ch));
@@ -552,7 +552,7 @@ int PrintBaseStatsToTable(CharData *ch, table_wrapper::Table &table, std::size_t
 	table[++row][col] = "Выносливость";	table[row][col + 1] = std::to_string(ch->get_move()) + "(" + std::to_string(ch->get_real_max_move()) + ")";
 	table[++row][col] = "Восст. сил";	table[row][col + 1] = "+" + std::to_string(ch->get_movereg()) + "% (" + std::to_string(move_gain(ch)) + ")";
 	if (IS_MANA_CASTER(ch)) {
-		table[++row][col] = "Мана"; 		table[row][col + 1] = std::to_string(ch->mem_queue.stored) + "(" + std::to_string(mana[MIN(50, GetRealWis(ch))]) + ")";
+		table[++row][col] = "Мана"; 		table[row][col + 1] = std::to_string(ch->mem_queue.stored) + "(" + std::to_string(Mana(GetRealWis(ch))) + ")";
 		table[++row][col] = "Восст. маны";	table[row][col + 1] = "+" + std::to_string(CalcManaGain(ch)) + " сек.";
 	}
 
@@ -705,8 +705,7 @@ void PrintScoreBase(CharData *ch) {
 	std::ostringstream out;
 
 	out << "Вы " << ch->GetTitleAndName() << " ("
-		<< PlayerRace::GetKinNameByNum(GET_KIN(ch), ch->get_sex()) << ", "
-		<< PlayerRace::GetRaceNameByNum(GET_KIN(ch), GET_RACE(ch), ch->get_sex()) << ", "
+		<< MUD::RaceMessages().GetMessage(GET_RACE(ch), ch->get_sex()) << ", "
 		<< religion_name[GET_RELIGION(ch)][static_cast<int>(ch->get_sex())] << ", "
 		<< MUD::Class(ch->GetClass()).GetCName() << " "
 		<< GetRealLevel(ch) << " уровня)." << "\r\n";
@@ -731,7 +730,7 @@ void PrintScoreBase(CharData *ch) {
 	if (IS_MANA_CASTER(ch)) {
 		sprintf(buf + strlen(buf),
 				"Ваша магическая энергия %d(%d) и вы восстанавливаете %d в сек.\r\n",
-				ch->mem_queue.stored, mana[MIN(50, GetRealWis(ch))], CalcManaGain(ch));
+				ch->mem_queue.stored, Mana(GetRealWis(ch)), CalcManaGain(ch));
 	}
 
 	sprintf(buf + strlen(buf),

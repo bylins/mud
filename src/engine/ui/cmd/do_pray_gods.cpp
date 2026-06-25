@@ -11,7 +11,6 @@
 #include "utils/grammar/gender.h"
 #include "engine/network/descriptor_data.h"
 #include "gameplay/communication/remember.h"
-#include "engine/core/handler.h"
 #include "engine/core/target_resolver.h"
 #include "gameplay/fight/common.h"
 #include "utils/utils_string.h"

@@ -9,6 +9,8 @@
 
 // * AutoEQ by Burkhard Knopf <burkhard.knopf@informatik.tu-clausthal.de>
 
+#include "engine/core/char_handler.h"
+#include "gameplay/mechanics/equipment.h"
 #include "obj_save.h"
 #include "gameplay/mechanics/groups.h"
 #include "administration/privilege.h"

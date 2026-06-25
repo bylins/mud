@@ -1,7 +1,8 @@
 #include "do_skills.h"
 
 #include "engine/ui/color.h"
-#include "engine/core/handler.h"
+#include "engine/entities/char_data.h"
+#include "gameplay/abilities/timed_abilities.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/mechanics/weather.h"
 

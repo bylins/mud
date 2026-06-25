@@ -140,6 +140,7 @@ int CalcComplexSpellMod(CharData *ch, ESpell spell_id, int type, int value);
 TimeInfoData *CalcRealTimePassed(time_t time_to, time_t time_from);
 TimeInfoData *CalcMudTimePassed(time_t time_to, time_t time_from);
 TimeInfoData *CalcCharAge(const CharData *ch);
+int get_room_sky(int rnum);   // issue.handler-cleaning: moved from handler.h
 
 #endif // WEATHER_HPP_
 

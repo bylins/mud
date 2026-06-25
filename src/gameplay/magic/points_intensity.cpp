@@ -5,7 +5,7 @@
 
 #include "engine/db/global_objects.h"
 #include "utils/logger.h"
-#include "utils/parse.h"
+#include "utils/utils_parse.h"
 
 #include <algorithm>
 
@@ -23,7 +23,7 @@ constexpr std::array<const char *, static_cast<size_t>(ECategory::kCount)>
 bool ParseGrade(parser_wrapper::DataNode &node, Grade &out) {
 	const char *percent = node.GetValue("percent");
 	const char *text = node.GetValue("text");
-	if (!text || !*text) {
+	if (!percent || !*percent) {
 		return false;
 	}
 	out.percent = (percent && *percent) ? parse::ReadAsInt(percent) : 0;
@@ -90,13 +90,20 @@ void PointsIntensity::Reload(const parser_wrapper::DataNode &node_in) {
 const std::vector<std::pair<std::string, std::string>> PointsIntensity::ShowHelpDamage() const {
 	std::pair<std::string, std::string> dam;
 	std::vector<std::pair<std::string, std::string>>  out_damage;
-	int min_val = 1;
-	for (const auto &g : reverse(categories_[static_cast<size_t>(ECategory::kDamage)].improve)) {
-		dam.first = g.text;
-		dam.second = std::to_string(min_val) + ".." + std::to_string(g.percent);
+	size_t sz = categories_[static_cast<size_t>(ECategory::kDamage)].improve.size();
+	const auto &cat = categories_[static_cast<size_t>(ECategory::kDamage)].improve;
+
+	for (auto i = sz - 1;  i > 0; i--) {
+		if (!cat[i].text.empty())
+			dam.first = cat[i].text;
+		else
+			dam.first = "(нет дополнительного сообщения)";
+		dam.second = std::to_string(cat[i].percent) + ".." + std::to_string(cat[i - 1].percent - 1);
 		out_damage.push_back(dam);
-		min_val = g.percent + 1;
 	}
+	dam.first = cat[0].text;
+	dam.second = std::to_string(cat[0].percent) + "+";
+	out_damage.push_back(dam);
 	return out_damage;
 }
 
@@ -118,17 +125,9 @@ const std::string &PointsIntensity::Resolve(ECategory category, int percent) con
 	// (CastToPoints) treat that as "no narration this category."
 	const auto &table = (percent >= 0) ? cat.improve : cat.degrade;
 
-	if (category == ECategory::kDamage) {  //тут  цифры относительны
-		for (const auto &g : reverse(table)) {
-			if (percent <= g.percent) {
-				return g.text;
-			}
-		}
-	} else {
-		for (const auto &g : table) {
-			if (g.percent <= percent) {
-				return g.text;
-			}
+	for (const auto &g : table) {
+		if (g.percent <= percent) {
+			return g.text;
 		}
 	}
 	return kEmpty;

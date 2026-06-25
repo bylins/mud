@@ -114,28 +114,14 @@ enum SetStuffMode {
 #define PLAYER_U_PREFIX LIB_PLRS "" LIB_U
 #define PLAYER_Z_PREFIX LIB_PLRS "" LIB_Z
 
-#define CREDITS_FILE    LIB_TEXT "credits"    // for the 'credits' command
-#define MOTD_FILE       LIB_TEXT "motd"    // messages of the day / mortal
-#define RULES_FILE      LIB_TEXT "rules"    // rules for immort
-#define GREETINGS_FILE    LIB_TEXT "greetings"    // The opening screen.
 #define HELP_PAGE_FILE    LIB_TEXT_HELP "screen"    // for HELP <CR>
-#define INFO_FILE       LIB_TEXT "info"    // for INFO
-#define IMMLIST_FILE    LIB_TEXT "immlist"    // for IMMLIST
-#define BACKGROUND_FILE    LIB_TEXT "background"    // for the background story
-#define POLICIES_FILE    LIB_TEXT "policies"    // player policies/rules
-#define HANDBOOK_FILE    LIB_TEXT "handbook"    // handbook for new immorts
-#define NAME_RULES_FILE LIB_TEXT "namerules" // rules of character's names
 
 #define PROXY_FILE        LIB_MISC "proxy"    // register proxy list
-#define IDEA_FILE        LIB_MISC "ideas"    // for the 'idea'-command
-#define TYPO_FILE        LIB_MISC "typos"    //         'typo'
-#define BUG_FILE        LIB_MISC "bugs"    //         'bug'
-#define SOCMESS_FILE    LIB_MISC "socials"    // messgs for social acts
 #define XNAME_FILE      LIB_MISC "xnames"    // invalid name substrings
 #define ANAME_FILE      LIB_MISC "apr_name" // одобренные имена
 #define DNAME_FILE      LIB_MISC "dis_name" // запрещенные имена
 #define NNAME_FILE      LIB_MISC "new_name" // ждущие одобрения
-#define DQ_FILE         LIB_MISC "daily_quest.xml"
+// issue.daily-quest: daily_quest.xml перенесён в cfg/quests и грузится через CfgManager.
 
 #define MAIL_FILE        LIB_ETC "plrmail"    // for the mudmail system
 #define BAN_FILE        LIB_ETC "badsites"    // for the siteban system

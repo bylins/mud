@@ -242,7 +242,7 @@ struct activators_obj {
 void activators_obj::fill_class(set_info::const_iterator k) {
 	for (const auto & m : k->second) {
 		for (const auto & q : m.second) {
-			for (int i = 0; i <= kNumPlayerClasses * kNumKins; ++i) {
+			for (int i = 0; i <= kNumPlayerClasses; ++i) {
 				if (check_num_in_unique_bit_flag_data(q.first, i)) {
 					struct clss_activ_node tmp_node;
 					clss_list[i] = tmp_node;
@@ -570,11 +570,14 @@ std::string OutRecipiesHelp(ECharClass ch_class) {
 
 	out << "Список доступных рецептов:\r\n";
 	out2 << "\r\n&GРецепты, доступные после одного или нескольких перевоплощений:&n\r\n";
+	// issue.class-recipes: набор рецептов класса спрашиваем у самого класса.
+	const auto &recipe_class = MUD::Class(ch_class);
 	for (int sortpos = 0; sortpos <= top_imrecipes; sortpos++) {
-		if (!imrecipes[sortpos].classknow[to_underlying(ch_class)]) {
+		const auto *req = recipe_class.FindIngredientRecipe(imrecipes[sortpos].str_id);
+		if (!req) {
 				continue;
 		}
-		if (imrecipes[sortpos].remort > 0) {
+		if (req->remort > 0) {
 			skills_list2.push_back(imrecipes[sortpos].name);
 			continue;
 		}
@@ -882,11 +885,11 @@ void CharDamHelp() {
 	table_wrapper::Table table;
 	table << table_wrapper::kHeader << "Для силы наносимых повреждений существуют следующие сообщения" << "урон" << table_wrapper::kEndRow;
 
-	for (auto &it : dam_list) {
-		table << it.first << it.second;
-		table << table_wrapper::kEndRow;
+	for (size_t i = 0; i < dam_list.size(); ++i) {
+		table << dam_list[i].first << dam_list[i].second << table_wrapper::kEndRow;
 	}
-	table << table_wrapper::kSeparator;
+//	table << table_wrapper::kEndRow;
+//	table << table_wrapper::kSeparator;
 	table_wrapper::PrintTableToStream(out, table);
 	out << "\r\nСм. также: &CДМЕТР, ПЕРЕВЯЗАТЬ&n";
 	add_static("УРОН", out.str(), 0, true);

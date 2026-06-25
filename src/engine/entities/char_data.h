@@ -52,7 +52,6 @@ struct char_player_data {
 
 	std::array<std::string, 6> PNames;
 	ubyte Religion;
-	ubyte Kin;
 	ubyte Race;        // PC / NPC's race
 };
 
@@ -407,8 +406,6 @@ class CharData : public ProtectedCharData {
 	void set_height(ubyte);
 	ubyte get_religion() const;
 	void set_religion(ubyte);
-	ubyte get_kin() const;
-	void set_kin(ubyte);
 	ubyte get_race() const;
 	void set_race(ubyte);
 	int get_hit() const;

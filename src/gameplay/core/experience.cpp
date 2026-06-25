@@ -20,7 +20,7 @@
 #include "engine/db/db.h"
 #include "engine/db/global_objects.h"
 #include "engine/core/config.h"
-#include "utils/parse.h"
+#include "utils/utils_parse.h"
 #include "engine/entities/zone.h"
 #include "gameplay/mechanics/mount.h"
 #include "gameplay/core/remort.h"

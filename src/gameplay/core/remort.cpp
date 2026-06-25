@@ -10,9 +10,11 @@
 #include "engine/entities/char_data.h"
 #include "gameplay/fight/fight.h"
 #include "gameplay/mechanics/follow.h"
-#include "gameplay/mechanics/birthplaces.h"
 #include "gameplay/mechanics/player_races.h"
-#include "engine/core/handler.h"
+#include "engine/core/char_equip_flags.h"
+#include "engine/core/char_handler.h"
+#include "gameplay/mechanics/equipment.h"
+#include "gameplay/mechanics/inventory.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/mechanics/sight.h"
 #include "gameplay/classes/pc_classes.h"
@@ -56,17 +58,15 @@ void ProcessRemort(CharData *ch, char *argument, int subcmd) {
 	int place_of_destination;
 	if (!*arg) {
 		const auto msg = fmt::format("Укажите, где вы хотите заново начать свой путь:\r\n{}",
-									 Birthplaces::ShowMenu(PlayerRace::GetRaceBirthPlaces(GET_KIN(ch), GET_RACE(ch))));
+									 player_races::FormatStartRegionsMenu(GET_RACE(ch)));
 		SendMsgToChar(msg, ch);
 		return;
 	} else {
-		place_of_destination = Birthplaces::ParseSelect(arg);
-		if (place_of_destination == kBirthplaceUndefined) {
-			place_of_destination = PlayerRace::CheckBirthPlace(GET_KIN(ch), GET_RACE(ch), arg);
-			if (!Birthplaces::CheckId(place_of_destination)) {
-				SendMsgToChar("Багдад далече, выберите себе местечко среди родных осин.\r\n", ch);
-				return;
-			}
+		const int region = player_races::StartRegionByMenuChoice(GET_RACE(ch), arg);
+		place_of_destination = player_races::StartRoomForRaceRegion(GET_RACE(ch), region);
+		if (region == player_races::kRaceUndefined || place_of_destination == kNowhere) {
+			SendMsgToChar("Багдад далече, выберите себе местечко среди родных осин.\r\n", ch);
+			return;
 		}
 	}
 
@@ -125,7 +125,7 @@ void ProcessRemort(CharData *ch, char *argument, int subcmd) {
 	ch->set_level(0);
 	GET_WIMP_LEV(ch) = 0;
 	GET_AC(ch) = 100;
-	GET_LOADROOM(ch) = calc_loadroom(ch, place_of_destination);
+	GET_LOADROOM(ch) = place_of_destination;
 	ch->UnsetFlag(EPrf::KSummonable);
 	ch->UnsetFlag(EPrf::kAwake);
 	ch->UnsetFlag(EPrf::kPunctual);

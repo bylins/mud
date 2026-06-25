@@ -1,3 +1,4 @@
+#include "gameplay/mechanics/equipment.h"
 #include "do_stat.h"
 #include "utils/utils_string.h"
 #include "gameplay/core/experience.h"
@@ -238,9 +239,8 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 
 	if (!k->IsNpc()) {
 		snprintf(smallBuf, sizeof(smallBuf), "%s", MUD::Class(k->GetClass()).GetCName());
-		snprintf(buf, sizeof(buf), "Племя: %s, Род: %s, Профессия: %s",
-				PlayerRace::GetKinNameByNum(GET_KIN(k), k->get_sex()).c_str(),
-				PlayerRace::GetRaceNameByNum(GET_KIN(k), GET_RACE(k), k->get_sex()).c_str(),
+		snprintf(buf, sizeof(buf), "Род: %s, Профессия: %s",
+				MUD::RaceMessages().GetMessage(GET_RACE(k), k->get_sex()).c_str(),
 				smallBuf);
 		SendMsgToChar(buf, ch);
 	} else {
@@ -331,7 +331,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 	SendMsgToChar(buf, ch);
 	if (IS_MANA_CASTER(k)) {
 		snprintf(buf, sizeof(buf), " Мана :[%s%d/%d+%d%s]\r\n",
-				kColorGrn, k->mem_queue.stored, mana[MIN(50, GetRealWis(k))], CalcManaGain(k), kColorNrm);
+				kColorGrn, k->mem_queue.stored, Mana(GetRealWis(k)), CalcManaGain(k), kColorNrm);
 	} else {
 		snprintf(buf, sizeof(buf), "\r\n");
 	}
@@ -900,16 +900,20 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 				case EBook::kReceipt: {
 					const auto recipe = im_get_recipe(GET_OBJ_VAL(j, 1));
 					if (recipe >= 0) {
-						const auto recipelevel = std::max(GET_OBJ_VAL(j, 2), imrecipes[recipe].level);
-						const auto recipemort = imrecipes[recipe].remort;
-						if ((recipelevel >= 0) && (recipemort >= 0)) {
+						// issue.class-recipes: требования теперь per-class; класса тут нет, поэтому
+						// показываем минимальные уровень/реморт среди владеющих классов.
+						const auto [minlevel, minremort] = classes::GetRecipeMinRequirements(imrecipes[recipe].str_id);
+						if ((minlevel >= 0) && (minremort >= 0)) {
+							const auto recipelevel = std::max(GET_OBJ_VAL(j, 2), minlevel);
 							snprintf(buf, sizeof(buf),
-									"содержит рецепт отвара     : \"%s\", уровень изучения: %d, количество ремортов: %d",
+									"содержит рецепт отвара     : \"%s\", мин. уровень изучения: %d, мин. количество ремортов: %d",
 									imrecipes[recipe].name,
 									recipelevel,
-									recipemort);
+									minremort);
 						} else {
-							snprintf(buf, sizeof(buf), "Некорректная запись рецепта (нет уровня или реморта)");
+							snprintf(buf, sizeof(buf),
+									"содержит рецепт отвара     : \"%s\" (не доступен ни одному классу)",
+									imrecipes[recipe].name);
 						}
 					} else
 						snprintf(buf, sizeof(buf), "Некорректная запись рецепта");

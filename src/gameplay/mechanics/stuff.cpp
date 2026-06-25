@@ -14,7 +14,10 @@
 
 #include "engine/db/world_objects.h"
 #include "engine/db/obj_prototypes.h"
-#include "engine/core/handler.h"
+#include "engine/core/char_equip_flags.h"
+#include "engine/core/obj_handler.h"
+#include "engine/entities/char_data.h"
+#include "gameplay/mechanics/equipment.h"
 #include "corpse.h"
 #include "engine/ui/color.h"
 #include "sets_drop.h"

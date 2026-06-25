@@ -16,6 +16,7 @@ test_sources = files(
     'vedun.scheme.cpp',
     'vedun.datanode_mutation.cpp',
     'vedun.element_find.cpp',
+    'msg_container.cdata.cpp',
     'guilds.loader.cpp',
     'socials.loader.cpp',
     'subcmd_resolver.cpp',
@@ -90,7 +91,7 @@ endif
 fs = import('fs')
 
 files_to_copy = [
-    ['../lib.template/misc/grouping', 'misc/grouping'],
+    ['../lib/cfg/mechanics/group_exp_handicap.xml', 'cfg/mechanics/group_exp_handicap.xml'],
     ['data/boards/changelog.sample',  'data/boards/changelog.sample'],
     ['data/boards/news.sample',       'data/boards/news.sample'],
     ['data/mob_classes/test_initial.xml', 'data/mob_classes/test_initial.xml'],

@@ -12,7 +12,8 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
-#include "engine/core/handler.h"
+#include "engine/core/char_movement.h"
+#include "engine/entities/char_data.h"
 #include "utils/logger.h"
 #include "engine/core/target_resolver.h"
 #include "utils/random.h"

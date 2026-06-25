@@ -1,7 +1,7 @@
 #include "talents_actions.h"
 
 #include "engine/ui/color.h"
-#include "engine/core/handler.h"  // EFind
+#include "engine/core/target_resolver.h"
 #include "engine/entities/char_data.h"
 #include "gameplay/magic/spells_constants.h"
 #include "gameplay/skills/skills.h"  // NAME_BY_ITEM<ESkill>

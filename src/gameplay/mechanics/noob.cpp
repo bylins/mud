@@ -4,10 +4,14 @@
 #include "noob.h"
 
 #include "engine/entities/char_data.h"
-#include "gameplay/mechanics/birthplaces.h"
-#include "third_party_libs/pugixml/pugixml.h"
-#include "utils/parse.h"
-#include "engine/core/handler.h"
+#include "engine/db/global_objects.h"
+#include "gameplay/mechanics/cities.h"
+#include "utils/parser_wrapper.h"
+#include "utils/utils_parse.h"
+#include "engine/core/char_equip_flags.h"
+#include "engine/core/char_handler.h"
+#include "gameplay/mechanics/equipment.h"
+#include "gameplay/mechanics/inventory.h"
 #include "gameplay/communication/talk.h"
 #include "gameplay/ai/spec_procs.h"
 #include "gameplay/core/remort.h"
@@ -16,66 +20,58 @@ int find_eq_pos(CharData *ch, ObjData *obj, char *local_arg);
 
 namespace Noob {
 
-const char *CONFIG_FILE = LIB_MISC"noob_help.xml";
-// макс уровень чара, который считается нубом (is_noob в коде и тригах, из CONFIG_FILE)
+// макс уровень чара, который считается нубом (is_noob в коде и тригах, из конфига)
 int MAX_LEVEL = 0;
-// список классов (по id) со списками шмоток (vnum) в каждом (из CONFIG_FILE)
+// список классов (по id) со списками шмоток (vnum) в каждом (из конфига)
 std::array<std::vector<int>, kNumPlayerClasses> class_list;
 
+// Целочисленный атрибут DataNode; def при отсутствии/некорректном значении.
+using parse::AttrInt;
+
 ///
-/// чтение конфига из misc/noob_help.xml (CONFIG_FILE)
+/// Чтение конфига cfg/mechanics/noob.xml через cfg_manager (boot + reload noobhelp).
 ///
-void init() {
-	// для релоада на случай ошибок при чтении
+void NoobLoader::Load(parser_wrapper::DataNode data) {
+	// собираем во временный список, чтобы при ошибке не повредить рабочий
 	std::array<std::vector<int>, kNumPlayerClasses> tmp_class_list;
+	int tmp_max_level = MAX_LEVEL;
 
-	pugi::xml_document doc;
-	pugi::xml_parse_result result = doc.load_file(CONFIG_FILE);
-	if (!result) {
-		snprintf(buf, kMaxStringLength, "...%s", result.description());
-		mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
-		return;
+	// <noob max_lvl="" />
+	{
+		auto node = data;
+		if (node.GoToChild("noob")) {
+			tmp_max_level = AttrInt(node, "max_lvl", 0);
+		}
 	}
 
-	const pugi::xml_node root_node = parse::GetChild(doc, "noob_help");
-	if (!root_node) return;
-
-	// <noob max_lvl="" max_money="" wait_period="" />
-	pugi::xml_node cur_node = parse::GetChild(root_node, "noob");
-	if (cur_node) {
-		MAX_LEVEL = parse::ReadAttrAsInt(cur_node, "max_lvl");
-	}
-
-	// <all_classes>
-	cur_node = parse::GetChild(root_node, "all_classes");
-	if (!cur_node) return;
-
-	for (pugi::xml_node obj_node = cur_node.child("obj");
-		 obj_node; obj_node = obj_node.next_sibling("obj")) {
-		int vnum = parse::ReadAttrAsInt(obj_node, "vnum");
-		if (parse::IsValidObjVnum(vnum)) {
-			for (auto & i : tmp_class_list) {
-				i.push_back(vnum);
+	// <all_classes> -- стаф для всех профессий
+	{
+		auto node = data;
+		if (node.GoToChild("all_classes")) {
+			for (auto &obj_node : node.Children("obj")) {
+				const int vnum = AttrInt(obj_node, "vnum", 0);
+				if (parse::IsValidObjVnum(vnum)) {
+					for (auto &i : tmp_class_list) {
+						i.push_back(vnum);
+					}
+				}
 			}
 		}
 	}
 
-	// <class id="">
-	for (cur_node = root_node.child("class");
-		 cur_node; cur_node = cur_node.next_sibling("class")) {
-		auto id{ECharClass::kUndefined};
-		std::string id_str = parse::ReadAattrAsStr(cur_node, "id");
+	// <class id=""> -- стаф конкретной профессии
+	for (auto &class_node : data.Children("class")) {
+		const char *id_str = class_node.GetValue("id");
+		ECharClass id;
 		try {
-			id = parse::ReadAsConstant<ECharClass>(id_str.c_str());
-		} catch (std::exception &) {
-			snprintf(buf, kMaxStringLength, "...<class id='%s'> convert fail", id_str.c_str());
+			id = parse::ReadAsConstant<ECharClass>(id_str);
+		} catch (const std::exception &) {
+			snprintf(buf, kMaxStringLength, "...<class id='%s'> convert fail", id_str ? id_str : "");
 			mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
-			return;
+			return;   // откат: рабочий class_list/MAX_LEVEL не трогаем
 		}
-
-		for (pugi::xml_node obj_node = cur_node.child("obj");
-			 obj_node; obj_node = obj_node.next_sibling("obj")) {
-			int vnum = parse::ReadAttrAsInt(obj_node, "vnum");
+		for (auto &obj_node : class_node.Children("obj")) {
+			const int vnum = AttrInt(obj_node, "vnum", 0);
 			if (parse::IsValidObjVnum(vnum)) {
 				tmp_class_list[to_underlying(id)].push_back(vnum);
 			}
@@ -83,6 +79,11 @@ void init() {
 	}
 
 	class_list = tmp_class_list;
+	MAX_LEVEL = tmp_max_level;
+}
+
+void NoobLoader::Reload(parser_wrapper::DataNode data) {
+	Load(std::move(data));
 }
 
 ///
@@ -116,8 +117,9 @@ std::string print_start_outfit(CharData *ch) {
 }
 
 ///
-/// \return список внумов стартовых шмоток из noob_help.xml
-/// + шмоток, завясящих от местонахождения чара из birthplaces.xml
+/// \return список внумов стартовых шмоток из noob_help.xml (зависит только от класса).
+/// Городской стартовый стаф выдается отдельно в give_city_start_outfit() уже ПОСЛЕ того,
+/// как чар помещен в комнату (иначе город еще не известен).
 ///
 std::vector<int> get_start_outfit(CharData *ch) {
 	// стаф из noob_help.xml
@@ -127,13 +129,26 @@ std::vector<int> get_start_outfit(CharData *ch) {
 		out_list.insert(out_list.end(),
 						class_list.at(ch_class).begin(), class_list.at(ch_class).end());
 	}
-	// стаф из birthplaces.xml (карты родовых)
-	int birth_id = Birthplaces::GetIdByRoom(GET_ROOM_VNUM(ch->in_room));
-	if (birth_id >= 0) {
-		std::vector<int> tmp = Birthplaces::GetItemList(birth_id);
-		out_list.insert(out_list.end(), tmp.begin(), tmp.end());
-	}
 	return out_list;
+}
+
+/// Выдает (и надевает) стартовый стаф города из cities.xml (<start_item>), исходя из города,
+/// в котором РЕАЛЬНО появился чар. Вызывать только после char_to_room() -- до помещения в
+/// комнату ch->in_room еще не указывает на стартовый город.
+void give_city_start_outfit(CharData *ch) {
+	for (const int vnum : cities::StartItemsForRoom(GET_ROOM_VNUM(ch->in_room))) {
+		const ObjData::shared_ptr obj = world_objects.create_from_prototype_by_vnum(vnum);
+		if (!obj) {
+			continue;
+		}
+		obj->set_extra_flag(EObjFlag::kNosell);
+		obj->set_extra_flag(EObjFlag::kDecay);
+		obj->set_cost(0);
+		obj->set_rent_off(0);
+		obj->set_rent_on(0);
+		PlaceObjToInventory(obj.get(), ch);
+		equip_start_outfit(ch, obj.get());
+	}
 }
 
 ///
@@ -152,22 +167,20 @@ CharData *find_renter(int room_rnum) {
 ///
 /// Проверка при входе в игру чара на ренте, при необходимости выдача
 /// сообщения о возможности получить стартовую экипу у кладовщика.
-/// Сообщение берется из birthplaces.xml или дефолтное из birthplaces::GetRentHelp
+/// Сообщение выдается мобом-рентером (кладовщиком) нубу в стартовом городе.
 ///
 void check_help_message(CharData *ch) {
+	static const char *kRentHelp = "Попроси нашего кладовщика помочь тебе с экипировкой и припасами.";
 	if (Noob::is_noob(ch)
 		&& ch->get_hit() <= 1
 		&& ch->GetCarryingQuantity() <= 0
-		&& ch->GetCarryingWeight() <= 0) {
-		int birth_id = Birthplaces::GetIdByRoom(GET_ROOM_VNUM(ch->in_room));
-		if (birth_id >= 0) {
-			CharData *renter = find_renter(ch->in_room);
-			std::string text = Birthplaces::GetRentHelp(birth_id);
-			if (renter && !text.empty()) {
-				act("\n\\u$n оглядел$g вас с головы до пят.", true, renter, nullptr, ch, kToVict);
-				act("$n посмотрел$g на $N3.", true, renter, nullptr, ch, kToNotVict);
-				tell_to_char(renter, ch, text.c_str());
-			}
+		&& ch->GetCarryingWeight() <= 0
+		&& cities::IsCharInCity(ch)) {
+		CharData *renter = find_renter(ch->in_room);
+		if (renter) {
+			act("\n\\u$n оглядел$g вас с головы до пят.", true, renter, nullptr, ch, kToVict);
+			act("$n посмотрел$g на $N3.", true, renter, nullptr, ch, kToNotVict);
+			tell_to_char(renter, ch, kRentHelp);
 		}
 	}
 }

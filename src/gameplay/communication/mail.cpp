@@ -20,7 +20,8 @@
 #include "utils/utils_string.h"
 
 #include "engine/db/world_objects.h"
-#include "engine/core/handler.h"
+#include "engine/entities/char_data.h"
+#include "gameplay/mechanics/inventory.h"
 #include "parcel.h"
 #include "engine/entities/char_player.h"
 #include "gameplay/mechanics/named_stuff.h"

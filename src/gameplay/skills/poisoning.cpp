@@ -1,7 +1,7 @@
 #include "engine/entities/char_data.h"
 #include "skill_messages.h"
 #include "engine/db/global_objects.h"
-#include "engine/core/handler.h"
+#include "engine/core/target_resolver.h"
 #include "gameplay/mechanics/liquid.h"
 #include "gameplay/mechanics/poison.h"
 #include "engine/core/utils_char_obj.inl"

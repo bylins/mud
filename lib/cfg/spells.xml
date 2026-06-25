@@ -402,7 +402,7 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<unaffect decay="25">
+				<unaffect decay="50">
 					<remove any_of="kBlindness" />
 				</unaffect>
 			</action>
@@ -1318,7 +1318,7 @@
 		<talent_actions>
 			<action>
 				<unaffect affect_flags="kAfCurable" decay="25">
-					<remove all_of="kPoison|kAconitumPoison|kScopolaPoison|kBelenaPoison|kDaturaPoison" any_of="kPoison" />
+					<remove all_of="kPoison|kAconitumPoison|kScopolaPoison|kBelenaPoison|kDaturaPoison" />
 				</unaffect>
 				<alter_obj handler="AlterRemovePoison" />
 			</action>
@@ -4502,7 +4502,7 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<unaffect decay="25">
+				<unaffect decay="50">
 					<remove any_of="kDeafness" />
 				</unaffect>
 			</action>

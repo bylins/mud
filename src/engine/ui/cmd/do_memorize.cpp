@@ -4,7 +4,7 @@
 #include <string>
 
 #include "gameplay/magic/spells_info.h"
-#include "engine/core/handler.h"
+#include "engine/entities/char_data.h"
 #include "engine/ui/color.h"
 #include "gameplay/classes/classes_spell_slots.h"
 #include "gameplay/magic/magic_utils.h"

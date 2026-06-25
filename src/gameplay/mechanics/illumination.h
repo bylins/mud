@@ -11,6 +11,16 @@
 
 #include "engine/structs/structs.h"
 
+class CharData;
+
+// issue.handler-cleaning: light-state constants (moved from handler.h).
+const int kLightNo = 0;
+const int kLightYes = 1;
+const int kLightUndef = 2;
+
+bool IsWearingLight(CharData *ch);
+void CheckLight(CharData *ch, int was_equip, int was_single, int was_holylight, int was_holydark, int koef);
+
 bool is_dark(RoomRnum room);
 bool IsDefaultDark(RoomRnum room_rnum);
 

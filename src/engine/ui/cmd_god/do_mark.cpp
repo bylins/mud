@@ -1,6 +1,6 @@
 #include "engine/entities/char_data.h"
 #include "gameplay/mechanics/sight.h"
-#include "engine/core/handler.h"
+#include "engine/core/target_resolver.h"
 #include "engine/core/utils_char_obj.inl"
 
 void do_mark(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {

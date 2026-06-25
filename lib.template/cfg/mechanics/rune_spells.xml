@@ -10,8 +10,8 @@
     a fixed 4-slot ceiling, the new schema accepts arbitrary length.
     level= is clamped to [1, 34] at load time (the legacy invariant).
 
-    Commented <!-- <spell .../> --> entries preserve lines that started with
-    ";" in runes.lst -- the data is kept for archaeology / future re-enabling.
+    Disabled spells are kept below as ordinary XML comments (lines that started
+    with ";" in runes.lst); the data is preserved for future re-enabling.
 
     Reload at runtime via `reload runes` (issue.runes-migrate retired the legacy
     `reload rune_levels` path through the standard cfg_manager).

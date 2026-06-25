@@ -38,7 +38,7 @@ int CalcBaseAc(CharData *ch) {
 		armorclass += GetSkill(ch, ESkill::kIronwind) / 2;
 	}
 
-	armorclass += (size_app[GET_POS_SIZE(ch)].ac * 10);
+	armorclass += (SizeApp(GET_POS_SIZE(ch)).ac * 10);
 
 	if (ch->battle_affects.get(kEafPunctual)) {
 		if (GET_EQ(ch, EEquipPos::kWield)) {

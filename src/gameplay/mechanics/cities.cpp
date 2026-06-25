@@ -1,89 +1,186 @@
 //
-// Created by Sventovit on 07.09.2024.
+// Created by Sventovit on 07.09.2024. Reworked for issue.cities (InfoContainer + cfg_manager).
 //
 
 #include "cities.h"
+
+#include "cities_messages.h"
 #include "administration/privilege.h"
+#include "engine/db/global_objects.h"
 #include "engine/entities/char_data.h"
 #include "engine/entities/zone.h"
+#include "utils/utils_parse.h"
+#include "utils/utils.h"
 
-#include <vector>
-
-#include <third_party_libs/pugixml/pugixml.h>
-
-
-extern pugi::xml_node XmlLoad(const char *PathToFile,
-							  const char *MainTag,
-							  const char *ErrorStr,
-							  pugi::xml_document &Doc);
+using parser_wrapper::DataNode;
 
 namespace cities {
 
-#define CITIES_FILE "cities.xml"
+CityInfoBuilder::ItemPtr CityInfoBuilder::Build(DataNode &node) {
+	try {
+		return ParseCity(node);
+	} catch (std::exception &e) {
+		err_log("City parsing error (incorrect value '%s').", e.what());
+		return nullptr;
+	}
+}
 
-struct City {
-  std::string name; // имя города
-  std::vector<int> vnums; // номера зон, которые принадлежат городу
-  int rent_vnum{kNowhere}; // внум ренты города
-};
+CityInfoBuilder::ItemPtr CityInfoBuilder::ParseCity(DataNode node) {
+	const int vnum = parse::ReadAsInt(node.GetValue("vnum"));
+	auto mode = CityInfoBuilder::ParseItemMode(node, EItemMode::kEnabled);
+	std::string text_id = parse::ReadAsStr(node.GetValue("id"));
+	std::string name = MUD::CityMessages().GetName(vnum);
 
-std::vector<City> cities_roster;
-std::string default_str_cities;
+	auto city = std::make_shared<CityInfo>(vnum, text_id, name, mode);
+	if (node.GoToChild("rent")) {
+		parse::ReadAsIntSet(city->rent_vnums_, node.GetValue("vnums"));
+		node.GoToParent();
+	}
 
-std::size_t CountCities() {
-	return cities_roster.size();
+	if (node.GoToChild("zones")) {
+		for (auto &zone : node.Children("zone")) {
+			CityZone cz;
+			cz.vnum = parse::ReadAsInt(zone.GetValue("vnum"));
+			const char *suburb = zone.GetValue("suburb");
+			cz.suburb = suburb && (std::string(suburb) == "true" || std::string(suburb) == "1");
+			city->zones_.push_back(cz);
+		}
+		node.GoToParent();
+	}
+
+	for (auto &item : node.Children("start_item")) {
+		city->start_items_.push_back(parse::ReadAsInt(item.GetValue("vnum")));
+	}
+	return city;
+}
+
+void CitiesLoader::Load(DataNode data) {
+	MUD::Cities().Init(data.Children());
+}
+
+void CitiesLoader::Reload(DataNode data) {
+	MUD::Cities().Reload(data.Children());
+}
+
+std::string CitiesLoader::EditableWhat() const {
+	return "city";
+}
+
+std::vector<cfg_manager::EditableElement> CitiesLoader::ListElements() const {
+	std::vector<cfg_manager::EditableElement> out;
+	for (const auto &city : MUD::Cities()) {
+		if (city.GetId() < 0) {   // skip the kUndefined sentinel
+			continue;
+		}
+		out.push_back({std::to_string(city.GetId()), city.GetTextId() + " " + city.GetName()});
+	}
+	return out;
+}
+
+cfg_manager::ValidationResult CitiesLoader::Validate(DataNode &doc) const {
+	if (MUD::Cities().Validate(doc.Children())) {
+		return {true, ""};
+	}
+	return {false, "City data failed to parse (see syslog for the offending city)."};
+}
+
+parser_wrapper::DataNode CitiesLoader::FindElementNode(DataNode root, const std::string &id) const {
+	// A <city> is keyed by its integer vnum; iterate all children with a name check (a node copied
+	// out of a keyed range would otherwise carry that range's filter -- see GuildsLoader).
+	for (auto &child : root.Children()) {
+		if (std::string(child.GetName()) == "city" && id == child.GetValue("vnum")) {
+			return child;
+		}
+	}
+	return parser_wrapper::DataNode{};
+}
+
+std::string CitiesLoader::CanonicalElementId(const std::string &id) const {
+	if (id.empty()) {
+		return "";
+	}
+	for (const char c : id) {
+		if (c < '0' || c > '9') {
+			return "";
+		}
+	}
+	return id;
+}
+
+parser_wrapper::DataNode CitiesLoader::CreateElementNode(DataNode root, const std::string &id) const {
+	auto node = root.AddChild("city");
+	node.SetValue("vnum", id);
+	node.SetValue("id", "Undefined");
+	node.AddChild("rent");
+	node.AddChild("zones");
+	return node;
 }
 
 void CheckCityVisit(CharData *ch, RoomRnum room_rnum) {
-	for (std::size_t i = 0; i < cities_roster.size(); i++) {
-		if (GET_ROOM_VNUM(room_rnum) == cities_roster[i].rent_vnum) {
-			ch->mark_city(i);
+	for (const auto &city : MUD::Cities()) {
+		if (city.GetId() < 0) {
+			continue;
+		}
+		if (city.HasRentVnum(GET_ROOM_VNUM(room_rnum))) {
+			ch->mark_city(city.GetTextId());
 			return;
 		}
 	}
 }
 
-void LoadCities() {
-	default_str_cities = "";
-	pugi::xml_document doc_cities;
-	pugi::xml_node child_, object_, file_;
-	file_ = XmlLoad(LIB_MISC CITIES_FILE, "cities", "Error loading cases file: cities.xml", doc_cities);
-	for (child_ = file_.child("city"); child_; child_ = child_.next_sibling("city")) {
-		City city;
-		city.name = child_.child("name").attribute("value").as_string();
-		city.rent_vnum = child_.child("rent_vnum").attribute("value").as_int();
-		for (object_ = child_.child("ZoneVnum"); object_; object_ = object_.next_sibling("ZoneVnum")) {
-			city.vnums.push_back(object_.attribute("value").as_int());
-		}
-		cities_roster.push_back(city);
-		default_str_cities += "0";
-	}
-}
-
-void DoCities(CharData *ch, char *, int, int) {
-	SendMsgToChar("Города на Руси:\r\n", ch);
-	for (unsigned int i = 0; i < cities_roster.size(); i++) {
-		sprintf(buf, "%3d.", i + 1);
-		if (privilege::IsImmortal(ch)) {
-			sprintf(buf1, " [VNUM: %d]", cities_roster[i].rent_vnum);
-			strcat(buf, buf1);
-		}
-		sprintf(buf1,
-				" %s: %s\r\n",
-				cities_roster[i].name.c_str(),
-				(ch->check_city(i) ? "&gВы были там.&n" : "&rВы еще не были там.&n"));
-		strcat(buf, buf1);
-		SendMsgToChar(buf, ch);
-	}
-}
-
 bool IsCharInCity(CharData *ch) {
-	for (auto & city : cities_roster) {
-		if (GetZoneVnumByCharPlace(ch) == city.rent_vnum / 100) {
+	const int zone_vnum = GetZoneVnumByCharPlace(ch);
+	for (const auto &city : MUD::Cities()) {
+		if (city.GetId() < 0) {
+			continue;
+		}
+		if (city.HasZone(zone_vnum)) {
 			return true;
 		}
 	}
 	return false;
+}
+
+std::vector<int> StartItemsForRoom(int room_vnum) {
+	const int zone_vnum = room_vnum / 100;   // зона = внум комнаты / 100 (как в старых birthplaces)
+	for (const auto &city : MUD::Cities()) {
+		if (city.GetId() < 0) {
+			continue;
+		}
+		if (city.HasZone(zone_vnum)) {
+			return city.GetStartItems();
+		}
+	}
+	return {};
+}
+
+void DoCities(CharData *ch, char *, int, int) {
+	SendMsgToChar("Города на Руси:\r\n", ch);
+	int n = 0;
+	for (const auto &city : MUD::Cities()) {
+		if (city.GetId() < 0) {
+			continue;
+		}
+		++n;
+		sprintf(buf, "%3d.", n);
+		if (privilege::IsImmortal(ch)) {
+			std::string rents;
+			for (const int rent_vnum : city.GetRentVnums()) {
+				if (!rents.empty()) {
+					rents += "|";
+				}
+				rents += std::to_string(rent_vnum);
+			}
+			sprintf(buf1, " [vnum: %d, rent: %s]", city.GetId(), rents.c_str());
+			strcat(buf, buf1);
+		}
+		sprintf(buf1,
+				" %s: %s\r\n",
+				city.GetName().c_str(),
+				(ch->check_city(city.GetTextId()) ? "&gВы были там.&n" : "&rВы еще не были там.&n"));
+		strcat(buf, buf1);
+		SendMsgToChar(buf, ch);
+	}
 }
 
 } // namespace cities

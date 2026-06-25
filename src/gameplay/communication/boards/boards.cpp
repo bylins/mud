@@ -3,6 +3,7 @@
 
 //#include "boards.h"
 
+#include "engine/core/target_resolver.h"
 #include "boards_changelog_loaders.h"
 #include "boards_constants.h"
 #include "boards_formatters.h"

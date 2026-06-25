@@ -104,10 +104,10 @@ int CalcCharmPoint(CharData *ch, ESpell spell_id) {
 	}
 
 	if (eff_cha < stat_cap) {
-		r_hp = (1 - eff_cha + (int) eff_cha) * cha_app[(int) eff_cha].charms +
-			(eff_cha - (int) eff_cha) * cha_app[(int) eff_cha + 1].charms;
+		r_hp = (1 - eff_cha + (int) eff_cha) * ChaApp((int) eff_cha).charms +
+			(eff_cha - (int) eff_cha) * ChaApp((int) eff_cha + 1).charms;
 	} else {
-		r_hp = (1 - eff_cha + (int) eff_cha) * cha_app[(int) eff_cha].charms;
+		r_hp = (1 - eff_cha + (int) eff_cha) * ChaApp((int) eff_cha).charms;
 	}
 	float remort_coeff = 1.0 + (((float) remort::GetRealRemort(ch) - 9.0) * 1.2) / 100.0;
 	if (remort_coeff > 1.0f) {
@@ -169,11 +169,11 @@ int GetReformedCharmiceHp(CharData *ch, CharData *victim, ESpell spell_id) {
 	// Интерполяция между значениями для целых значений обаяния
 	if (eff_cha < stat_cap) {
 		r_hp = victim->get_max_hit() + CalcDamagePerRound(victim) *
-			((1 - eff_cha + (int) eff_cha) * cha_app[(int) eff_cha].dam_to_hit_rate +
-				(eff_cha - (int) eff_cha) * cha_app[(int) eff_cha + 1].dam_to_hit_rate);
+			((1 - eff_cha + (int) eff_cha) * ChaApp((int) eff_cha).dam_to_hit_rate +
+				(eff_cha - (int) eff_cha) * ChaApp((int) eff_cha + 1).dam_to_hit_rate);
 	} else {
 		r_hp = victim->get_max_hit() + CalcDamagePerRound(victim) *
-			((1 - eff_cha + (int) eff_cha) * cha_app[(int) eff_cha].dam_to_hit_rate);
+			((1 - eff_cha + (int) eff_cha) * ChaApp((int) eff_cha).dam_to_hit_rate);
 	}
 
 	if (ch->IsFlagged(EPrf::kTester))

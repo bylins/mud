@@ -1,7 +1,6 @@
 #include "assist.h"
 
 #include "engine/entities/char_data.h"
-#include "engine/core/handler.h"
 #include "engine/core/target_resolver.h"
 #include "pk.h"
 #include "fight.h"

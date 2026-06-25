@@ -7,7 +7,6 @@
 #include "engine/entities/char_data.h"
 #include "gameplay/affects/affect_handler.h"
 #include "gameplay/mechanics/alignment.h"
-#include "administration/privilege.h"
 #include "utils/grammar/declensions.h"
 #include "gameplay/mechanics/minions.h"
 #include "gameplay/mechanics/mount.h"
@@ -29,7 +28,9 @@
 #include "gameplay/clans/house_exp.h"        // change_rep
 #include "fight_penalties.h"
 #include "fight_hit.h"
-#include "engine/core/handler.h"
+#include "engine/core/char_handler.h"
+#include "engine/core/target_resolver.h"
+#include "utils/utils_parse.h"
 #include "gameplay/mechanics/corpse.h"
 #include "gameplay/clans/house.h"
 #include "pk.h"

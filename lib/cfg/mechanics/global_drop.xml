@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<!--    
+    obj_vnum; // внум шмотки, если меньше -1 есть список внумов
+    mob_lvl;  // мин левел моба
+    max_mob_lvl; // макс. левел моба (0 - не учитывается)
+    count_mob;  // шансы дропа (каждые Х мобов)
+    // список внумов с общим дропом (дропается первый возможный)
+    // для внумов из списка учитывается поле максимума в мире
+    // необязательные параметры:
+    day_start; // начиная с какого дня (игрового) шмотка может выпасть с моба и ... 
+    day_end; // ... кончая тем днем, после которого, шмотка перестанет выпадать из моба
+    race_mob; // тип моба, с которого падает данная шмотка (-1 все)
+    drop_chance //  вероятность дропа, 1..1000 т.е. в десятых долях%
+номера рас:
+ 100 Обычный
+ 101 Человек
+ 102 Человеко-зверь
+ 103 Птица
+ 104 Животное
+ 105 Пресмыкающееся
+ 106 Рыба
+ 107 Насекомое
+ 108 Растение
+ 109 Предмет
+ 110 Живой труп
+ 111 Призрак
+ 112 Нечисть
+ 113 Нематериальный дух
+ 114 Магическое создание
+ 200 Босс (те которые используются для групповых  сетов)
+ 201 Уникальный моб (те которые используются для солосетов)
+// дроп по списку. перестройка  списка каждые 2 часа
+// count_mobs - случайные мобы из спика в данном количестве
+// drop_chance - вероятность дропа ObjVnum 1..1000
+<tdrop drop_chance="500" count_mobs="2" ObjVnum="100">
+        <mobs vnum="4000" /> 
+        <mobs vnum="4001" />
+        <mobs vnum="4002" />
+        <mobs vnum="4003" />
+<tdrop>
+-->
+<global_drop>
+    <!-- свитки с наградами -->
+  <drop ObjVnum = "-2" mob_lvl="5" max_mob_lvl="20" count_mob="3405">
+	<obj vnum="2603" />
+	<obj vnum="2606" />
+	<obj vnum="2609" />
+	<obj vnum="2612" />
+   </drop>
+  <drop ObjVnum = "-3" mob_lvl="21" max_mob_lvl="35" count_mob="5010">
+	<obj vnum="2604" />
+	<obj vnum="2607" />
+	<obj vnum="2610" />
+	<obj vnum="2613" />
+   </drop>
+  <drop ObjVnum = "-4" mob_lvl="35" max_mob_lvl="0" count_mob="450">
+	<obj vnum="2605" />
+	<obj vnum="2608" />
+	<obj vnum="2611" />
+	<obj vnum="2614" />
+   </drop>
+<!--    свиток магического восстановления -->
+    <drop ObjVnum="2620" mob_lvl="1" max_mob_lvl="100" count_mob="11009" />
+
+<!--    малый свиток божественного щита -->
+    <drop ObjVnum="2621" mob_lvl="1" max_mob_lvl="100" count_mob="5050" drop_chance="500"/>
+
+<!--    свиток божественного щита -->
+    <drop ObjVnum="2622" mob_lvl="1" max_mob_lvl="100" count_mob="10001" drop_chance="500"/>
+
+<!--    дроп снежинок 
+    <drop ObjVnum="82980" mob_lvl="1"  max_mob_lvl="16"  race_mob="201" count_mob="5" drop_chance="20"/>
+    <drop ObjVnum="82981" mob_lvl="15" max_mob_lvl="29"  race_mob="201" count_mob="5" drop_chance="20"/>
+    <drop ObjVnum="82982" mob_lvl="25" max_mob_lvl="39"  race_mob="201" count_mob="5" drop_chance="20"/>
+    <drop ObjVnum="82983" mob_lvl="40" max_mob_lvl="50"  race_mob="201" count_mob="3" drop_chance="500"/>
+    <drop ObjVnum="82984" mob_lvl="40" max_mob_lvl="50"  race_mob="200" count_mob="1" drop_chance="100"/>  
+    <drop ObjVnum="82984" mob_lvl="1" max_mob_lvl="100"  count_mob="20000" drop_chance="1000"/>  
+-->
+<!--   подарки снеговика 
+    <drop ObjVnum="202100" mob_lvl="6"  max_mob_lvl="19"  count_mob="10" drop_chance="20"/>
+    <drop ObjVnum="202104" mob_lvl="20"  max_mob_lvl="29"  count_mob="10" drop_chance="20"/>
+    <drop ObjVnum="202111" mob_lvl="30"  max_mob_lvl="35"  count_mob="10" drop_chance="20"/>
+    <drop ObjVnum="202119" mob_lvl="36"  max_mob_lvl="100"  count_mob="5" drop_chance="50"/>
+-->
+<!-- старый дроп снежинок
+    <drop ObjVnum="10670" mob_lvl="1" max_mob_lvl="50" day_start="0" day_end="360" count_mob="100" drop_chance="10"/>
+    <drop ObjVnum="10671" mob_lvl="1" max_mob_lvl="50" day_start="0" day_end="360" count_mob="100" drop_chance="20"/>
+    <drop ObjVnum="82966" mob_lvl="20" max_mob_lvl="50" day_start="0" day_end="360" count_mob="5" drop_chance="1"/>
+	<drop ObjVnum="82967" mob_lvl="20" max_mob_lvl="50" day_start="0" day_end="360" count_mob="5" drop_chance="1"/>
+	<drop ObjVnum="82968" mob_lvl="20" max_mob_lvl="50" day_start="0" day_end="360" count_mob="5" drop_chance="1"/>
+-->
+<!--    <drop ObjVnum="82966" mob_lvl="26" max_mob_lvl="30" day_start="0" day_end="360" count_mob="1" drop_chance="10"/>
+    <drop ObjVnum="82966" mob_lvl="31" max_mob_lvl="50" day_start="0" day_end="360" count_mob="1" drop_chance="50"/>
+-->
+<!-- папоротник на ивана купалу 7.7.2020 
+    <drop ObjVnum="97099" mob_lvl="5" max_mob_lvl="50" count_mob="360" />
+-->
+    <!-- знаки зачарований -->
+    <drop ObjVnum="1930" mob_lvl="6" max_mob_lvl="20" count_mob="3450" />
+    <drop ObjVnum="1931" mob_lvl="21" max_mob_lvl="35" count_mob="7021" />
+    <drop ObjVnum="1932" mob_lvl="36" max_mob_lvl="0" count_mob="405" />
+    <!-- книжка умений -->
+    <drop ObjVnum="1920" mob_lvl="5" max_mob_lvl="0" count_mob="10000" />
+    <!-- Энчанты для батыров -->
+    <drop ObjVnum="1921" mob_lvl="6" max_mob_lvl="20" count_mob="3500" />
+    <drop ObjVnum="1922" mob_lvl="21" max_mob_lvl="35" count_mob="7000" />
+    <drop ObjVnum="1923" mob_lvl="36" max_mob_lvl="0" count_mob="400" />
+    <!-- свиток с реконструкцией -->
+    <drop ObjVnum="1929" mob_lvl="1" max_mob_lvl="0" count_mob="2500" />
+    <!-- Ингредиенты для спеллов -->
+    <drop ObjVnum="3006" mob_lvl="33" max_mob_lvl="0" count_mob="1000" />
+    <!-- нитки и пуговки и другие ингры для шитья -->
+    <!-- рарные пуговки -->
+    <drop ObjVnum="1672" mob_lvl="37" max_mob_lvl="0" count_mob="800" />
+    <!-- рарные нитки -->
+    <drop ObjVnum="1607" mob_lvl="37" max_mob_lvl="0" count_mob="750" />
+    <drop ObjVnum="1604" mob_lvl="25" max_mob_lvl="35" count_mob="4000" />
+    <!-- перо -->
+    <drop ObjVnum="1681" mob_lvl="36" max_mob_lvl="0" count_mob="725" />
+    <!-- нефритовая пуговка -->
+    <drop ObjVnum="1673" mob_lvl="40" max_mob_lvl="0" count_mob="600" />
+    <!-- золотая заклепка -->
+    <drop ObjVnum="1679" mob_lvl="40" max_mob_lvl="0" count_mob="604" />
+    <!-- плюшевые нитки пуговки -->
+    <drop ObjVnum = "-5" mob_lvl="5" max_mob_lvl="20" count_mob="1405">
+	<obj vnum="1602" />
+	<obj vnum="1610" />
+	<obj vnum="1611" />
+     </drop>
+    <!--  подкова -->
+    <drop ObjVnum = "-6" mob_lvl="40" max_mob_lvl="0" count_mob="351">
+	<obj vnum="1678" /> 
+	<obj vnum="1642" /> 
+	<obj vnum="1643" /> 
+    </drop>
+    <!-- шпора -->
+    <drop ObjVnum = "-7" mob_lvl="35" max_mob_lvl="0" count_mob="352">
+	<obj vnum="1677" /> 
+	<obj vnum="1640" /> 
+	<obj vnum="1641" /> 
+    </drop>
+    <!-- серебрянная цепочка -->
+    <drop ObjVnum = "-700" mob_lvl="36" max_mob_lvl="0" count_mob="454">
+	<obj vnum="1674" /> 
+	<obj vnum="1644" /> 
+    </drop>
+    <!-- золотая цепочка -->
+    <drop ObjVnum = "-8" mob_lvl="38" max_mob_lvl="0" count_mob="520">
+	<obj vnum="1675" /> 
+	<obj vnum="1645" /> 
+    </drop>
+    <!-- шкатулка -->
+    <drop ObjVnum = "4096" mob_lvl="5" max_mob_lvl="20" count_mob="2000" drop_chance="200"/>
+    <drop ObjVnum = "4096" mob_lvl="21" max_mob_lvl="39" count_mob="1000" drop_chance="200"/>
+    <drop ObjVnum = "4096" mob_lvl="40" max_mob_lvl="100" count_mob="100" drop_chance="150"/>
+<!-- сет ВН 
+    <drop ObjVnum = "-9" mob_lvl="1" max_mob_lvl="0" count_mob="2002" drop_chance="200">
+	<obj vnum="1001268" />
+	<obj vnum="1001269" />
+	<obj vnum="1001270" />
+	<obj vnum="1001271" />
+    </drop>
+-->
+    <!-- полководец -->
+    <drop ObjVnum = "99958" mob_lvl="1" max_mob_lvl="0" count_mob="9750" drop_chance="200"/>
+	<!-- сет тр -->
+    <drop ObjVnum = "-9" mob_lvl="1" max_mob_lvl="0" count_mob="2002" drop_chance="200">
+	<obj vnum="1002336" />
+	<obj vnum="1002337" />
+	<obj vnum="1002338" />
+	<obj vnum="1002339" />
+	<obj vnum="1002340" />
+    </drop>
+	<!-- сет кн -->
+    <drop ObjVnum = "-10" mob_lvl="1" max_mob_lvl="0" count_mob="2047" drop_chance="199">
+	<obj vnum="1002310" />
+	<obj vnum="1002311" />
+	<obj vnum="1002312" />
+	<obj vnum="1002313" />
+	<obj vnum="1002314" />
+    </drop>
+	<!-- сет сокрушительной силы стихий -->
+    <drop ObjVnum = "-11" mob_lvl="1" max_mob_lvl="0" count_mob="1531" drop_chance="180">
+	<obj vnum="1002321" />
+	<obj vnum="1002322" />
+	<obj vnum="1002323" />
+	<obj vnum="1002324" />
+	<obj vnum="1002325" />
+    </drop>
+    <!-- сет мл - -->
+    <drop ObjVnum = "-12" mob_lvl="1" max_mob_lvl="0" count_mob="1950" drop_chance="200">
+	<obj vnum="1001276" />
+	<obj vnum="1001277" />
+	<obj vnum="1001278" />
+	<obj vnum="1001279" />
+	<obj vnum="1002342" />
+    </drop>
+    <!-- сет сч - -->
+    <drop ObjVnum = "-13" mob_lvl="1" max_mob_lvl="0" count_mob="1831" drop_chance="195">
+	<obj vnum="1001280" />
+	<obj vnum="1001281" />
+	<obj vnum="1001282" />
+	<obj vnum="1001283" />
+	<obj vnum="1002341" />
+    </drop>
+	<!-- сет святого слова -->
+    <drop ObjVnum = "-14" mob_lvl="1" max_mob_lvl="0" count_mob="2241" drop_chance="210">
+	<obj vnum="1002326" />
+	<obj vnum="1002327" />
+	<obj vnum="1002328" />
+	<obj vnum="1002329" />
+	<obj vnum="1002330" />
+    </drop>
+	<!-- сет железного ветра -->
+    <drop ObjVnum = "-15" mob_lvl="1" max_mob_lvl="0" count_mob="2031" drop_chance="200">
+	<obj vnum="1002331" />
+	<obj vnum="1002332" />
+	<obj vnum="1002333" />
+	<obj vnum="1002334" />
+	<obj vnum="1002335" />
+    </drop>
+	<!-- сет НД -->
+    <drop ObjVnum = "-16" mob_lvl="1" max_mob_lvl="0" count_mob="2050" drop_chance="200">
+	<obj vnum="1001288" />
+	<obj vnum="1001289" />
+	<obj vnum="1001290" />
+	<obj vnum="1001291" />
+	<obj vnum="1001292" />
+    </drop>
+	<!-- сет КК -->
+    <drop ObjVnum = "-17" mob_lvl="1" max_mob_lvl="0" count_mob="1901" drop_chance="210">
+	<obj vnum="1001293" />
+	<obj vnum="1001294" />
+	<obj vnum="1001295" />
+	<obj vnum="1001296" />
+	<obj vnum="1001297" />
+    </drop>
+	<!-- сет ТТ -->
+    <drop ObjVnum = "-18" mob_lvl="1" max_mob_lvl="0" count_mob="2131" drop_chance="198">
+	<obj vnum="1001284" />
+	<obj vnum="1001285" />
+	<obj vnum="1001286" />
+	<obj vnum="1001287" />
+	<obj vnum="1001298" />
+    </drop>
+	<!-- сет ВЦ -->
+    <drop ObjVnum = "-19" mob_lvl="1" max_mob_lvl="0" count_mob="1951" drop_chance="205">
+	<obj vnum="1002300" />
+	<obj vnum="1002301" />
+	<obj vnum="1002302" />
+	<obj vnum="1002303" />
+	<obj vnum="1002304" />
+    </drop>
+	<!-- сет НС -->
+    <drop ObjVnum = "-20" mob_lvl="1" max_mob_lvl="0" count_mob="2011" drop_chance="199">
+	<obj vnum="1002316" />
+	<obj vnum="1002317" />
+	<obj vnum="1002318" />
+	<obj vnum="1002319" />
+	<obj vnum="1002320" />
+    </drop>
+	<!-- сет ТМ -->
+    <drop ObjVnum = "-21" mob_lvl="1" max_mob_lvl="0" count_mob="2411" drop_chance="259">
+	<obj vnum="1002343" />
+	<obj vnum="1002344" />
+	<obj vnum="1002345" />
+	<obj vnum="1002346" />
+	<obj vnum="1002347" />
+    </drop>
+	<!-- сет АП -->
+    <drop ObjVnum = "-22" mob_lvl="1" max_mob_lvl="0" count_mob="2311" drop_chance="230">
+	<obj vnum="1002305" />
+	<obj vnum="1002306" />
+	<obj vnum="1002307" />
+	<obj vnum="1002308" />
+	<obj vnum="1002309" />
+    </drop>
+<!--    <drop ObjVnum = "2343" mob_lvl="34" max_mob_lvl="0" count_mob="251" drop_chance="280"/>
+    <drop ObjVnum = "2345" mob_lvl="35" max_mob_lvl="0" count_mob="253" drop_chance="400"/>
+    <drop ObjVnum = "2346" mob_lvl="36" max_mob_lvl="0" count_mob="155" drop_chance="340"/>
+    <drop ObjVnum = "2347" mob_lvl="35" max_mob_lvl="0" count_mob="452" drop_chance="600"/>
+    <drop ObjVnum = "2344" mob_lvl="33" max_mob_lvl="0" count_mob="54" drop_chance="50"/>
+-->
+</global_drop>

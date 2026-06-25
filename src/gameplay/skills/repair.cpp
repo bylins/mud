@@ -1,7 +1,10 @@
 #include "engine/db/global_objects.h"
 #include "utils/grammar/gender.h"
 #include "skill_messages.h"
-#include "engine/core/handler.h"
+#include "engine/core/obj_handler.h"
+#include "engine/core/target_resolver.h"
+#include "engine/entities/char_data.h"
+#include "gameplay/abilities/timed_abilities.h"
 
 void DoRepair(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!GetSkill(ch, ESkill::kRepair)) {

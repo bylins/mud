@@ -193,7 +193,9 @@ extern MobRnum top_of_mobt;
 inline ObjVnum GET_OBJ_VNUM(const CObjectPrototype *obj) { return obj->get_vnum(); }
 
 extern CharData *mob_proto;
-extern const char *MENU;
+struct DescriptorData;
+// issue.exit-menu: render the auto-numbered main connection menu to a descriptor.
+void ShowMainMenu(DescriptorData *d);
 
 extern TimeInfoData time_info;
 

@@ -6,7 +6,7 @@
 
     Authoring rules / restrictions:
       * <remort_coefficients>: one <coefficient> per remort. The multiplier is
-        numerator / denominator. denominator MUST be > 0 -- a zero or negative value
+        numerator / denominator. denominator MUST be > 0 - a zero or negative value
         rejects the WHOLE table (no one gains exp) and logs an error. Keep denominators
         from getting too small: the multiplier scales exp, and a tiny denominator can
         push exp past the 32-bit range. A character with more remorts than listed here
@@ -16,8 +16,8 @@
         old code did). Provide levels 0..31; level 31 is the immortal/overflow tier (it
         was the switch "default:"). Values should be non-decreasing as level rises.
       * Each table "id" must match an <experience_table id="..."/> in a class file
-        (cfg/classes/pc_*.xml). A class whose table id is missing/empty -- or the whole
-        file being missing/empty -- means characters of that class cannot gain exp:
+        (cfg/classes/pc_*.xml). A class whose table id is missing/empty - or the whole
+        file being missing/empty - means characters of that class cannot gain exp:
         they get a "scales are broken" message and an error is logged.
 -->
 <experience_table>

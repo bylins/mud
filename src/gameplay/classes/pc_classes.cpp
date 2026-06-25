@@ -26,7 +26,8 @@
 #include "gameplay/mechanics/minions.h"
 
 #include "gameplay/magic/magic_utils.h"
-#include "engine/core/handler.h"
+#include "engine/entities/char_data.h"
+#include "gameplay/mechanics/inventory.h"
 #include "gameplay/fight/pk.h"
 #include "gameplay/statistics/top.h"
 #include "gameplay/communication/offtop.h"
@@ -38,6 +39,10 @@
 #include "gameplay/magic/spells_info.h"
 #include "gameplay/core/remort.h"
 #include "engine/db/global_objects.h"
+#include "utils/utils_parse.h"
+#include "utils/parser_wrapper.h"
+
+#include <algorithm>
 
 
 extern int siteok_everyone;
@@ -1270,145 +1275,77 @@ int invalid_no_class_proto(CharData *ch, const CObjectPrototype *obj) {
 // The boot call moved to MUD::CfgManager().LoadCfg("rune_spells") at the
 // same boot-step position; `reload runes` goes through ReloadCfg.
 
-void InitBasicValues() {
-	FILE *magic;
-	char line[256], name[kMaxInputLength];
-	int i[10], c, j, mode = 0, *pointer;
-	if (!(magic = fopen(LIB_MISC "basic.lst", "r"))) {
-		log("Can't open basic values list file...");
-		return;
+namespace {
+// Целочисленный атрибут DataNode; def при отсутствии/некорректном значении.
+int HandicapAttrInt(parser_wrapper::DataNode &node, const char *key, int def) {
+	const char *v = node.GetValue(key);
+	if (!v || !*v) {
+		return def;
 	}
-	while (get_line(magic, name)) {
-		if (!name[0] || name[0] == ';')
-			continue;
-		i[0] = i[1] = i[2] = i[3] = i[4] = i[5] = 100000;
-		if (sscanf(name, "%s %d %d %d %d %d %d", line, i, i + 1, i + 2, i + 3, i + 4, i + 5) < 1)
-			continue;
-		if (!str_cmp(line, "int"))
-			mode = 1;
-		else if (!str_cmp(line, "cha"))
-			mode = 2;
-		else if (!str_cmp(line, "size"))
-			mode = 3;
-		else if (!str_cmp(line, "weapon"))
-			mode = 4;
-		else if ((c = atoi(line)) > 0 && c <= 100 && mode > 0 && mode < 10) {
-			int fields = 0;
-			switch (mode) {
-				case 1: pointer = (int *) &(int_app[c].spell_aknowlege);
-					fields = sizeof(int_app[c]) / sizeof(int);
-					break;
-
-				case 2: pointer = (int *) &(cha_app[c].leadership);
-					fields = sizeof(cha_app[c]) / sizeof(int);
-					break;
-
-				case 3: pointer = (int *) &(size_app[c].ac);
-					fields = sizeof(size_app[c]) / sizeof(int);
-					break;
-
-				case 4: pointer = (int *) &(weapon_app[c].shocking);
-					fields = sizeof(weapon_app[c]) / sizeof(int);
-					break;
-
-				default: pointer = nullptr;
-			}
-
-			if (pointer)    //log("Mode %d - %d = %d %d %d %d %d %d",mode,c,
-			{
-				//    *i, *(i+1), *(i+2), *(i+3), *(i+4), *(i+5));
-				for (j = 0; j < fields; j++) {
-					if (i[j] != 100000)    //log("[%d] %d <-> %d",j,*(pointer+j),*(i+j));
-					{
-						*(pointer + j) = *(i + j);
-					}
-				}
-				//getchar();
-			}
-		}
+	try {
+		return parse::ReadAsInt(v);
+	} catch (const std::exception &) {
+		return def;
 	}
-	fclose(magic);
 }
+} // namespace
 
 /*
-	Берет misc/grouping, первый столбик цифр считает номерами мортов,
-	остальные столбики - значение макс. разрыва в уровнях для конкретного
-	класса. На момент написания этого в конфиге присутствует 26 строк, макс.
-	морт равен 50 - строки с мортами с 26 по 50 копируются с 25-мортовой строки.
+	Заполняет таблицу гандикапа группового опыта из <group_exp_handicap>:
+	<remort val="N"> с детьми <class id="ECharClass" level_greater="L"/>.
+	Реморты, для которых строк нет, копируются с максимального заданного реморта
+	(в конфиге обычно ~75 строк, kMaxRemort больше).
 */
-int GroupPenalties::init() {
-	char buf[kMaxInputLength];
-	int remorts = 0, rows_assigned = 0, levels = 0, pos = 0, max_rows = kMaxRemort + 1;
-
-	// пре-инициализация
-	//Строк в массиве должно быть на 1 больше, чем макс. морт
-	//Столбцов в массиве должно быть ровно столько же, сколько есть классов
+void GroupPenalties::Load(parser_wrapper::DataNode data) {
+	// пре-инициализация всех классов всеми мортами в -1
 	for (auto clss = ECharClass::kFirst; clss <= ECharClass::kLast; ++clss) {
-		for (remorts = 0; remorts < max_rows; remorts++) {
-			grouping_[clss][remorts] = -1;
-		}
+		grouping_[clss].fill(-1);
 	}
 
-	FILE *f = fopen(LIB_MISC "grouping", "r");
-	if (!f) {
-		log("Невозможно открыть файл %s", LIB_MISC "grouping");
-		return 1;
-	}
-
-	while (get_line(f, buf)) {
-		//Строка пустая или строка-коммент
-		if (!buf[0] || buf[0] == ';' || buf[0] == '\n') {
+	int max_remort = -1;
+	for (auto &remort_node : data.Children("remort")) {
+		const int remort = HandicapAttrInt(remort_node, "val", -1);
+		if (remort < 0 || remort > kMaxRemort) {
+			log("group_exp_handicap: неверное число ремортов: %d (0..%d)", remort, kMaxRemort);
 			continue;
 		}
-		auto clss{ECharClass::kUndefined};
-		pos = 0;
-		while (sscanf(&buf[pos], "%d", &levels) == 1) {
-			while (buf[pos] == ' ' || buf[pos] == '\t') {
-				++pos;
+		for (auto &class_node : remort_node.Children("class")) {
+			const char *id = class_node.GetValue("id");
+			ECharClass clss;
+			try {
+				clss = parse::ReadAsConstant<ECharClass>(id);
+			} catch (const std::exception &) {
+				log("group_exp_handicap: неизвестный класс '%s' (реморт %d)", id ? id : "", remort);
+				continue;
 			}
-			//Первый проход цикла по строке
-			if (clss == ECharClass::kUndefined) {
-				remorts = levels; //Номера строк
-				if (grouping_[ECharClass::kFirst][remorts] != -1) {
-					log("Ошибка при чтении файла %s: дублирование параметров для %d ремортов",
-						LIB_MISC "grouping", remorts);
-					return 2;
-				}
-				if (remorts > kMaxRemort || remorts < 0) {
-					log("Ошибка при чтении файла %s: неверное значение количества ремортов: %d, "
-						"должно быть в промежутке от 0 до %d",
-						LIB_MISC "grouping", remorts, kMaxRemort);
-					return 3;
-				}
-			} else {
-				grouping_[clss][remorts] = levels;
-			}
-			++clss;
-			while (buf[pos] != ' ' && buf[pos] != '\t' && buf[pos] != 0) {
-				++pos;
-			}
+			grouping_[clss][remort] = HandicapAttrInt(class_node, "level_greater", -1);
 		}
-
-		if (clss < ECharClass::kLast) {
-			log("Ошибка при чтении файла %s: неверный формат строки '%s', должно быть %d "
-				"целых чисел, прочитали %d",
-				LIB_MISC "grouping", buf, to_underlying(ECharClass::kLast) + 2, to_underlying(clss) + 1);
-			return 4;
-		}
-		++rows_assigned;
+		max_remort = std::max(max_remort, remort);
 	}
 
-	if (rows_assigned < max_rows) {
-		//Берем свободную переменную
-		//Копируем последнюю строку на все морты, для которых нет строк
-		for (levels = remorts; levels < max_rows; levels++) {
-			for (auto clss = ECharClass::kFirst; clss <= ECharClass::kLast; ++clss) {
-				grouping_[clss][levels] = grouping_[clss][remorts];
+	// копируем последний заданный реморт на все большие морты, для которых строк нет
+	if (max_remort >= 0 && max_remort < kMaxRemort) {
+		for (auto clss = ECharClass::kFirst; clss <= ECharClass::kLast; ++clss) {
+			for (int r = max_remort + 1; r <= kMaxRemort; ++r) {
+				grouping_[clss][r] = grouping_[clss][max_remort];
 			}
 		}
 	}
-	fclose(f);
-	return 0;
+	loaded_ = (max_remort >= 0);
+}
+
+// Прямая загрузка из файла (для тестов и автономного использования). 0 при успехе.
+int GroupPenalties::init() {
+	Load(parser_wrapper::DataNode(LIB_CFG "mechanics/group_exp_handicap.xml"));
+	return loaded_ ? 0 : 1;
+}
+
+void GroupPenaltiesLoader::Load(parser_wrapper::DataNode data) {
+	grouping.Load(std::move(data));
+}
+
+void GroupPenaltiesLoader::Reload(parser_wrapper::DataNode data) {
+	grouping.Load(std::move(data));
 }
 
 /*

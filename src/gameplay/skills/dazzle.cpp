@@ -8,7 +8,7 @@
 #include "engine/db/global_objects.h"
 #include "dazzle.h"
 #include "engine/core/target_resolver.h"
-#include "engine/core/handler.h"
+#include "engine/entities/char_data.h"
 
 //
 // Created by Svetodar on 04.01.2024.

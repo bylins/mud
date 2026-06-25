@@ -2,7 +2,8 @@
 #include "administration/privilege.h"
 #include "skill_messages.h"
 
-#include "engine/core/handler.h"
+#include "engine/entities/char_data.h"
+#include "gameplay/abilities/timed_abilities.h"
 #include "engine/ui/color.h"
 #include "gameplay/magic/magic_utils.h"
 #include "gameplay/magic/spells_info.h"

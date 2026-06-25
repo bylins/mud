@@ -5,6 +5,7 @@
 ******************************************************************************/
 
 #include "house.h"
+#include "engine/db/player_index.h"
 #include "gameplay/economics/currencies.h"
 #include "utils/utils_encoding.h"
 #include "utils/grammar/gender.h"
@@ -32,7 +33,10 @@
 #include "utils/utils.h"
 #include "engine/entities/obj_data.h"
 #include "engine/core/comm.h"
-#include "engine/core/handler.h"
+#include "engine/core/char_handler.h"
+#include "engine/core/obj_handler.h"
+#include "engine/core/target_resolver.h"
+#include "gameplay/mechanics/inventory.h"
 #include "gameplay/fight/pk.h"
 #include "engine/ui/color.h"
 #include "gameplay/communication/boards/boards.h"
@@ -44,7 +48,6 @@
 #include "engine/ui/modify.h"
 #include "engine/entities/room_data.h"
 #include "engine/db/obj_save.h"
-#include "engine/core/handler.h"
 #include "gameplay/mechanics/named_stuff.h"
 #include "engine/db/help.h"
 #include "engine/core/conf.h"
@@ -1175,11 +1178,6 @@ void Clan::HouseAdd(CharData *ch, std::string &buffer) {
 			SendMsgToChar("Он уже приглашен в другую дружину, дождитесь его ответа и пригласите снова.\r\n", ch);
 			return;
 		}
-	}
-
-	if (GET_KIN(d->character) != GET_KIN(ch)) {
-		SendMsgToChar("Вы не можете сражаться в одном строю с иноплеменником.\r\n", ch);
-		return;
 	}
 
 	GetOneParam(buffer, buffer2);

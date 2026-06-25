@@ -10,7 +10,7 @@
 #include "gameplay/ai/spec_procs.h"
 #include "engine/entities/char_data.h"
 #include "engine/core/comm.h"
-#include "engine/core/handler.h"
+#include "engine/core/char_handler.h"
 #include "engine/db/db.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/magic/spell_messages.h"

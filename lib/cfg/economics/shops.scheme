@@ -4,7 +4,7 @@
   shop_item_sets.xml. Optional sidecar; undeclared nodes degrade to plain strings.
 -->
 <scheme>
-	<tag name="shop_list" desc="Shop definitions">
+	<tag name="shops" desc="Shop definitions">
 		<child tag="shop" multiple="Y"/>
 	</tag>
 	<tag name="shop" desc="One shop, keyed by id; served by its keeper mobs">

@@ -12,7 +12,7 @@
 #include "gameplay/magic/spell_messages.h"
 #include "gameplay/clans/house.h"
 #include "gameplay/mechanics/sight.h"
-#include "engine/core/handler.h"
+#include "engine/core/char_handler.h"
 
 namespace handlers {
 

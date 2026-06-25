@@ -6,7 +6,7 @@
 #include "gameplay/handlers/spell_handlers.h"
 #include "gameplay/economics/currencies.h"
 #include "engine/entities/char_data.h"
-#include "engine/core/handler.h"
+#include "engine/core/char_handler.h"
 #include "engine/db/db.h"
 #include "gameplay/mechanics/summon.h"
 #include "gameplay/mechanics/minions.h"

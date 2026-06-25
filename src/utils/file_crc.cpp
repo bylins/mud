@@ -3,6 +3,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "file_crc.h"
+#include "engine/db/player_index.h"
 
 #include "engine/db/db.h"
 #include "logger.h"

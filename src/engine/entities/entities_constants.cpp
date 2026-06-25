@@ -8,7 +8,9 @@
 #include "entities_constants.h"
 #include "utils/utils.h"
 
+#include <algorithm>
 #include <map>
+#include <sstream>
 
 std::unordered_map<int, std::string> SECTOR_TYPE_BY_VALUE = {
 	{ESector::kInside, "inside"},
@@ -725,6 +727,52 @@ ENpcFlag ITEM_BY_NAME<ENpcFlag>(const std::string &name) {
 		init_ENpcFlag_ITEM_NAMES();
 	}
 	return ENpcFlag_value_by_name.at(name);
+}
+
+// ---- equipment positions ------------------------------------------------------------------------
+// TODO: move into the equipment mechanic module (gameplay/mechanics/equipment) when it owns the
+//       equipment-position constants. They describe equipment, not objects per se.
+
+EWearFlag WearFlagByEquipPos(const std::string &equip_pos) {
+	// Equipment-position token (EEquipPos member name) -> the wear-flag slot it occupies. Paired
+	// slots collapse: kFingerR/kFingerL -> kFinger, kWristR/kWristL -> kWrist. kBoths -> kBoth.
+	static const std::map<std::string, EWearFlag> kWearByEquipPos = {
+		{"kFingerR", EWearFlag::kFinger}, {"kFingerL", EWearFlag::kFinger},
+		{"kNeck", EWearFlag::kNeck},
+		{"kBody", EWearFlag::kBody},
+		{"kHead", EWearFlag::kHead},
+		{"kLegs", EWearFlag::kLegs},
+		{"kFeet", EWearFlag::kFeet},
+		{"kHands", EWearFlag::kHands},
+		{"kArms", EWearFlag::kArms},
+		{"kShield", EWearFlag::kShield},
+		{"kShoulders", EWearFlag::kShoulders},
+		{"kWaist", EWearFlag::kWaist},
+		{"kQuiver", EWearFlag::kQuiver},
+		{"kWristR", EWearFlag::kWrist}, {"kWristL", EWearFlag::kWrist},
+		{"kWield", EWearFlag::kWield},
+		{"kHold", EWearFlag::kHold},
+		{"kBoths", EWearFlag::kBoth},
+	};
+	const auto it = kWearByEquipPos.find(equip_pos);
+	return it != kWearByEquipPos.end() ? it->second : EWearFlag::kUndefined;
+}
+
+std::vector<EWearFlag> ParseWearPositions(const std::string &val) {
+	std::vector<EWearFlag> out;
+	std::stringstream ss(val);
+	std::string token;
+	while (std::getline(ss, token, '|')) {
+		const EWearFlag wear = WearFlagByEquipPos(token);
+		if (wear == EWearFlag::kUndefined) {
+			err_log("equipment positions: unknown position token '%s'", token.c_str());
+			continue;
+		}
+		if (std::find(out.begin(), out.end(), wear) == out.end()) {
+			out.push_back(wear);
+		}
+	}
+	return out;
 }
 
 

@@ -1,0 +1,186 @@
+// Copyright (c) 2013 Krodo
+// Part of Bylins http://www.mud.ru
+
+#ifndef UTILS_PARSE_HPP_INCLUDED
+#define UTILS_PARSE_HPP_INCLUDED
+
+#include <string>
+#include <set>
+
+#include "engine/core/conf.h"
+#include "engine/core/sysdep.h"
+#include "engine/structs/structs.h"
+#include "engine/core/comm.h"
+#include "utils/logger.h"
+
+namespace pugi {
+class xml_node;
+class xml_document;
+}
+
+namespace parser_wrapper {
+class DataNode;
+}
+
+namespace text_id {
+
+enum EIdType {
+	kObjVals,
+	kTextIdCount
+};
+
+void Init();
+
+int ToNum(EIdType type, const std::string &str);
+std::string ToStr(EIdType type, int num);
+
+} // namespace TextId
+
+namespace parse {
+
+bool IsValidObjVnum(int vnum);
+
+int ReadAttrAsInt(const pugi::xml_node &node, const char *text);
+int ReadAttrAsIntT(const pugi::xml_node &node, const char *text);
+int ReadChildValueAsInt(const pugi::xml_node &node, const char *text);
+
+std::string ReadAattrAsStr(const pugi::xml_node &node, const char *text);
+std::string ReadChildValueAsStr(const pugi::xml_node &node, const char *text);
+
+pugi::xml_node GetChild(const pugi::xml_document &node, const char *name);
+pugi::xml_node GetChild(const pugi::xml_node &node, const char *name);
+
+
+const char *ReadAsStr(const char *value);
+int ReadAsInt(const char *value);
+void ReadAsIntSet(std::unordered_set<int> &num_set, const char *value);
+float ReadAsFloat(const char *value);
+double ReadAsDouble(const char *value);
+bool ReadAsBool(const char *value);
+
+// issue.xml-parse-cleaning: толерантное чтение атрибута узла DataNode со значением по
+// умолчанию (было продублировано как локальная AttrInt в ~десятке загрузчиков):
+// отсутствующий/пустой/неразобранный атрибут -> def, без исключений.
+int AttrInt(const parser_wrapper::DataNode &node, const char *key, int def = 0);
+std::string AttrStr(const parser_wrapper::DataNode &node, const char *key, const char *def = "");
+
+template<typename T>
+T ReadAsConstant(const char *value) {
+	try {
+		return ITEM_BY_NAME<T>(value);
+	} catch (const std::out_of_range &) {
+		throw std::runtime_error(value);
+	}
+}
+
+template<typename T>
+void ReadAsConstantsSet(std::unordered_set<T> &roster, const char *value) {
+	if (strcmp(value, "") == 0) {
+		throw std::runtime_error("string is empty");
+	}
+	for (const auto &str : utils::Split(value, '|')) {
+		try {
+			roster.emplace(ITEM_BY_NAME<T>(str));
+		} catch (...) {
+			err_log("value '%s' is incorrcect constant in this context.", str.c_str());
+		}
+	}
+}
+
+template<typename T>
+Bitvector ReadAsConstantsBitvector(const char *value) {
+	if (strcmp(value, "") == 0) {
+		throw std::runtime_error("string is empty");
+	}
+	Bitvector result{0};
+	for (const auto &str : utils::Split(value, '|')) {
+		try {
+			result |= ITEM_BY_NAME<T>(str);
+		} catch (...) {
+			err_log("value '%s' is incorrcect constant in this context.", str.c_str());
+		}
+	}
+
+	return result;
+}
+
+	/*
+ * Конвертирует битвектор в набор строковых констант, разделенных символом "|".
+ * ВНИМАНИЕ! Не используйте эту функцию для наборов констант, длиннее 29.
+ * Из-за особенности хранения флаговв битвекторах обратная конвертация для
+ * констант с номерами выше 29 (т.е. имеющими первые три бита, отличные от нуля)
+ * работает некорректно.
+ * Если нужно хранить набор таких констант, используйте std::set.
+ */
+	template<typename T>
+	std::string BitvectorToString(Bitvector bits) {
+	if (bits == 0u) {
+		try {
+			return NAME_BY_ITEM<T>(static_cast<T>(bits));
+		} catch (...) {
+			return "None";
+		}
+	}
+
+	Bitvector flag;
+	Bitvector bit_number = 0u;
+	std::ostringstream buffer;
+	while (bits != 0u) {
+		auto bit = bits & 1u;
+		if (bit) {
+			flag = (1u << bit_number);
+			try {
+				buffer << NAME_BY_ITEM<T>(static_cast<T>(flag));
+			} catch (...) {
+				err_log("value '%dl' is incorrcect constant in this context.", flag);
+			}
+		}
+		bits >>= 1;
+		if (bit && bits != 0u) {
+			buffer << "|";
+		}
+		++bit_number;
+	}
+	return buffer.str();
+}
+
+	template<typename T>
+	std::string ConstantsSetToString(const std::unordered_set<T> &constants) {
+	if (constants.empty()) {
+		try {
+			return NAME_BY_ITEM<T>(static_cast<T>(0u));
+		} catch (...) {
+			return "None";
+		}
+	}
+
+	std::ostringstream buffer;
+	for (const auto constant: constants) {
+		try {
+			buffer << NAME_BY_ITEM<T>(static_cast<T>(constant)) << "|";
+		} catch (...) {
+			err_log("value '%ud' is incorrcect constant in this context.", to_underlying(constant));
+		}
+	}
+	auto out = buffer.str();
+	out.pop_back();
+	return out;
+}
+
+} // namespace Parse
+
+// issue.handler-cleaning: parse the leading "N." index of an argument (moved from handler).
+int get_number(char **name);
+char *fname(const char *namelist);   // first keyword of a name list
+int get_number(std::string &name);
+
+// issue.interpreter-cleaning: generic argument/token parsing helpers moved from interpreter.
+int search_block(const char *target_string, const char **list, int exact);
+int search_block(const std::string &block, const char **list, int exact);
+void GetOneParam(std::string &buffer, std::string &buffer2);
+bool CompareParam(const std::string &buffer, const char *str, bool full = false);
+bool CompareParam(const std::string &buffer, const std::string &buffer2, bool full = false);
+
+#endif // UTILS_PARSE_HPP_INCLUDED
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

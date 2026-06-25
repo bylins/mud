@@ -1,0 +1,1222 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<!-- issue.grouping: per-remort group exp-handicap thresholds. For a player of the given remort
+     count and class, joining a group is penalty-free while (max_group_level - player_level) does
+     not exceed level_greater; beyond it the exp handicap kicks in. class id = ECharClass token. -->
+<group_exp_handicap>
+	<remort val="0">
+		<class id="kSorcerer" level_greater="5"/>
+		<class id="kConjurer" level_greater="5"/>
+		<class id="kThief" level_greater="5"/>
+		<class id="kWarrior" level_greater="5"/>
+		<class id="kAssasine" level_greater="5"/>
+		<class id="kGuard" level_greater="5"/>
+		<class id="kCharmer" level_greater="5"/>
+		<class id="kWizard" level_greater="5"/>
+		<class id="kNecromancer" level_greater="5"/>
+		<class id="kPaladine" level_greater="5"/>
+		<class id="kRanger" level_greater="5"/>
+		<class id="kVigilant" level_greater="5"/>
+		<class id="kMerchant" level_greater="5"/>
+		<class id="kMagus" level_greater="5"/>
+	</remort>
+	<remort val="1">
+		<class id="kSorcerer" level_greater="5"/>
+		<class id="kConjurer" level_greater="5"/>
+		<class id="kThief" level_greater="5"/>
+		<class id="kWarrior" level_greater="5"/>
+		<class id="kAssasine" level_greater="5"/>
+		<class id="kGuard" level_greater="5"/>
+		<class id="kCharmer" level_greater="5"/>
+		<class id="kWizard" level_greater="5"/>
+		<class id="kNecromancer" level_greater="5"/>
+		<class id="kPaladine" level_greater="5"/>
+		<class id="kRanger" level_greater="5"/>
+		<class id="kVigilant" level_greater="5"/>
+		<class id="kMerchant" level_greater="5"/>
+		<class id="kMagus" level_greater="5"/>
+	</remort>
+	<remort val="2">
+		<class id="kSorcerer" level_greater="5"/>
+		<class id="kConjurer" level_greater="5"/>
+		<class id="kThief" level_greater="5"/>
+		<class id="kWarrior" level_greater="5"/>
+		<class id="kAssasine" level_greater="5"/>
+		<class id="kGuard" level_greater="6"/>
+		<class id="kCharmer" level_greater="5"/>
+		<class id="kWizard" level_greater="5"/>
+		<class id="kNecromancer" level_greater="5"/>
+		<class id="kPaladine" level_greater="5"/>
+		<class id="kRanger" level_greater="5"/>
+		<class id="kVigilant" level_greater="5"/>
+		<class id="kMerchant" level_greater="5"/>
+		<class id="kMagus" level_greater="5"/>
+	</remort>
+	<remort val="3">
+		<class id="kSorcerer" level_greater="5"/>
+		<class id="kConjurer" level_greater="5"/>
+		<class id="kThief" level_greater="5"/>
+		<class id="kWarrior" level_greater="5"/>
+		<class id="kAssasine" level_greater="5"/>
+		<class id="kGuard" level_greater="6"/>
+		<class id="kCharmer" level_greater="5"/>
+		<class id="kWizard" level_greater="5"/>
+		<class id="kNecromancer" level_greater="5"/>
+		<class id="kPaladine" level_greater="5"/>
+		<class id="kRanger" level_greater="5"/>
+		<class id="kVigilant" level_greater="5"/>
+		<class id="kMerchant" level_greater="5"/>
+		<class id="kMagus" level_greater="5"/>
+	</remort>
+	<remort val="4">
+		<class id="kSorcerer" level_greater="5"/>
+		<class id="kConjurer" level_greater="5"/>
+		<class id="kThief" level_greater="5"/>
+		<class id="kWarrior" level_greater="5"/>
+		<class id="kAssasine" level_greater="5"/>
+		<class id="kGuard" level_greater="7"/>
+		<class id="kCharmer" level_greater="5"/>
+		<class id="kWizard" level_greater="5"/>
+		<class id="kNecromancer" level_greater="5"/>
+		<class id="kPaladine" level_greater="5"/>
+		<class id="kRanger" level_greater="5"/>
+		<class id="kVigilant" level_greater="5"/>
+		<class id="kMerchant" level_greater="5"/>
+		<class id="kMagus" level_greater="5"/>
+	</remort>
+	<remort val="5">
+		<class id="kSorcerer" level_greater="6"/>
+		<class id="kConjurer" level_greater="6"/>
+		<class id="kThief" level_greater="5"/>
+		<class id="kWarrior" level_greater="5"/>
+		<class id="kAssasine" level_greater="5"/>
+		<class id="kGuard" level_greater="7"/>
+		<class id="kCharmer" level_greater="5"/>
+		<class id="kWizard" level_greater="5"/>
+		<class id="kNecromancer" level_greater="5"/>
+		<class id="kPaladine" level_greater="5"/>
+		<class id="kRanger" level_greater="5"/>
+		<class id="kVigilant" level_greater="5"/>
+		<class id="kMerchant" level_greater="5"/>
+		<class id="kMagus" level_greater="5"/>
+	</remort>
+	<remort val="6">
+		<class id="kSorcerer" level_greater="6"/>
+		<class id="kConjurer" level_greater="6"/>
+		<class id="kThief" level_greater="5"/>
+		<class id="kWarrior" level_greater="5"/>
+		<class id="kAssasine" level_greater="5"/>
+		<class id="kGuard" level_greater="8"/>
+		<class id="kCharmer" level_greater="6"/>
+		<class id="kWizard" level_greater="6"/>
+		<class id="kNecromancer" level_greater="6"/>
+		<class id="kPaladine" level_greater="5"/>
+		<class id="kRanger" level_greater="5"/>
+		<class id="kVigilant" level_greater="5"/>
+		<class id="kMerchant" level_greater="5"/>
+		<class id="kMagus" level_greater="6"/>
+	</remort>
+	<remort val="7">
+		<class id="kSorcerer" level_greater="7"/>
+		<class id="kConjurer" level_greater="6"/>
+		<class id="kThief" level_greater="5"/>
+		<class id="kWarrior" level_greater="5"/>
+		<class id="kAssasine" level_greater="6"/>
+		<class id="kGuard" level_greater="8"/>
+		<class id="kCharmer" level_greater="6"/>
+		<class id="kWizard" level_greater="6"/>
+		<class id="kNecromancer" level_greater="6"/>
+		<class id="kPaladine" level_greater="5"/>
+		<class id="kRanger" level_greater="5"/>
+		<class id="kVigilant" level_greater="5"/>
+		<class id="kMerchant" level_greater="5"/>
+		<class id="kMagus" level_greater="6"/>
+	</remort>
+	<remort val="8">
+		<class id="kSorcerer" level_greater="7"/>
+		<class id="kConjurer" level_greater="7"/>
+		<class id="kThief" level_greater="5"/>
+		<class id="kWarrior" level_greater="6"/>
+		<class id="kAssasine" level_greater="6"/>
+		<class id="kGuard" level_greater="8"/>
+		<class id="kCharmer" level_greater="6"/>
+		<class id="kWizard" level_greater="6"/>
+		<class id="kNecromancer" level_greater="6"/>
+		<class id="kPaladine" level_greater="5"/>
+		<class id="kRanger" level_greater="5"/>
+		<class id="kVigilant" level_greater="5"/>
+		<class id="kMerchant" level_greater="6"/>
+		<class id="kMagus" level_greater="7"/>
+	</remort>
+	<remort val="9">
+		<class id="kSorcerer" level_greater="8"/>
+		<class id="kConjurer" level_greater="7"/>
+		<class id="kThief" level_greater="5"/>
+		<class id="kWarrior" level_greater="7"/>
+		<class id="kAssasine" level_greater="6"/>
+		<class id="kGuard" level_greater="9"/>
+		<class id="kCharmer" level_greater="7"/>
+		<class id="kWizard" level_greater="7"/>
+		<class id="kNecromancer" level_greater="7"/>
+		<class id="kPaladine" level_greater="6"/>
+		<class id="kRanger" level_greater="6"/>
+		<class id="kVigilant" level_greater="6"/>
+		<class id="kMerchant" level_greater="6"/>
+		<class id="kMagus" level_greater="7"/>
+	</remort>
+	<remort val="10">
+		<class id="kSorcerer" level_greater="8"/>
+		<class id="kConjurer" level_greater="7"/>
+		<class id="kThief" level_greater="5"/>
+		<class id="kWarrior" level_greater="7"/>
+		<class id="kAssasine" level_greater="7"/>
+		<class id="kGuard" level_greater="9"/>
+		<class id="kCharmer" level_greater="7"/>
+		<class id="kWizard" level_greater="7"/>
+		<class id="kNecromancer" level_greater="7"/>
+		<class id="kPaladine" level_greater="6"/>
+		<class id="kRanger" level_greater="6"/>
+		<class id="kVigilant" level_greater="6"/>
+		<class id="kMerchant" level_greater="7"/>
+		<class id="kMagus" level_greater="8"/>
+	</remort>
+	<remort val="11">
+		<class id="kSorcerer" level_greater="9"/>
+		<class id="kConjurer" level_greater="8"/>
+		<class id="kThief" level_greater="5"/>
+		<class id="kWarrior" level_greater="8"/>
+		<class id="kAssasine" level_greater="7"/>
+		<class id="kGuard" level_greater="9"/>
+		<class id="kCharmer" level_greater="8"/>
+		<class id="kWizard" level_greater="8"/>
+		<class id="kNecromancer" level_greater="8"/>
+		<class id="kPaladine" level_greater="7"/>
+		<class id="kRanger" level_greater="7"/>
+		<class id="kVigilant" level_greater="7"/>
+		<class id="kMerchant" level_greater="7"/>
+		<class id="kMagus" level_greater="8"/>
+	</remort>
+	<remort val="12">
+		<class id="kSorcerer" level_greater="9"/>
+		<class id="kConjurer" level_greater="8"/>
+		<class id="kThief" level_greater="6"/>
+		<class id="kWarrior" level_greater="8"/>
+		<class id="kAssasine" level_greater="8"/>
+		<class id="kGuard" level_greater="10"/>
+		<class id="kCharmer" level_greater="8"/>
+		<class id="kWizard" level_greater="8"/>
+		<class id="kNecromancer" level_greater="8"/>
+		<class id="kPaladine" level_greater="7"/>
+		<class id="kRanger" level_greater="7"/>
+		<class id="kVigilant" level_greater="7"/>
+		<class id="kMerchant" level_greater="8"/>
+		<class id="kMagus" level_greater="9"/>
+	</remort>
+	<remort val="13">
+		<class id="kSorcerer" level_greater="9"/>
+		<class id="kConjurer" level_greater="8"/>
+		<class id="kThief" level_greater="6"/>
+		<class id="kWarrior" level_greater="9"/>
+		<class id="kAssasine" level_greater="8"/>
+		<class id="kGuard" level_greater="10"/>
+		<class id="kCharmer" level_greater="8"/>
+		<class id="kWizard" level_greater="9"/>
+		<class id="kNecromancer" level_greater="9"/>
+		<class id="kPaladine" level_greater="8"/>
+		<class id="kRanger" level_greater="8"/>
+		<class id="kVigilant" level_greater="8"/>
+		<class id="kMerchant" level_greater="8"/>
+		<class id="kMagus" level_greater="9"/>
+	</remort>
+	<remort val="14">
+		<class id="kSorcerer" level_greater="10"/>
+		<class id="kConjurer" level_greater="9"/>
+		<class id="kThief" level_greater="7"/>
+		<class id="kWarrior" level_greater="9"/>
+		<class id="kAssasine" level_greater="9"/>
+		<class id="kGuard" level_greater="10"/>
+		<class id="kCharmer" level_greater="9"/>
+		<class id="kWizard" level_greater="9"/>
+		<class id="kNecromancer" level_greater="9"/>
+		<class id="kPaladine" level_greater="8"/>
+		<class id="kRanger" level_greater="8"/>
+		<class id="kVigilant" level_greater="8"/>
+		<class id="kMerchant" level_greater="8"/>
+		<class id="kMagus" level_greater="9"/>
+	</remort>
+	<remort val="15">
+		<class id="kSorcerer" level_greater="10"/>
+		<class id="kConjurer" level_greater="9"/>
+		<class id="kThief" level_greater="7"/>
+		<class id="kWarrior" level_greater="9"/>
+		<class id="kAssasine" level_greater="9"/>
+		<class id="kGuard" level_greater="11"/>
+		<class id="kCharmer" level_greater="9"/>
+		<class id="kWizard" level_greater="9"/>
+		<class id="kNecromancer" level_greater="9"/>
+		<class id="kPaladine" level_greater="8"/>
+		<class id="kRanger" level_greater="8"/>
+		<class id="kVigilant" level_greater="8"/>
+		<class id="kMerchant" level_greater="9"/>
+		<class id="kMagus" level_greater="10"/>
+	</remort>
+	<remort val="16">
+		<class id="kSorcerer" level_greater="10"/>
+		<class id="kConjurer" level_greater="9"/>
+		<class id="kThief" level_greater="7"/>
+		<class id="kWarrior" level_greater="9"/>
+		<class id="kAssasine" level_greater="9"/>
+		<class id="kGuard" level_greater="11"/>
+		<class id="kCharmer" level_greater="9"/>
+		<class id="kWizard" level_greater="9"/>
+		<class id="kNecromancer" level_greater="9"/>
+		<class id="kPaladine" level_greater="9"/>
+		<class id="kRanger" level_greater="9"/>
+		<class id="kVigilant" level_greater="9"/>
+		<class id="kMerchant" level_greater="9"/>
+		<class id="kMagus" level_greater="10"/>
+	</remort>
+	<remort val="17">
+		<class id="kSorcerer" level_greater="10"/>
+		<class id="kConjurer" level_greater="10"/>
+		<class id="kThief" level_greater="8"/>
+		<class id="kWarrior" level_greater="10"/>
+		<class id="kAssasine" level_greater="9"/>
+		<class id="kGuard" level_greater="11"/>
+		<class id="kCharmer" level_greater="9"/>
+		<class id="kWizard" level_greater="9"/>
+		<class id="kNecromancer" level_greater="9"/>
+		<class id="kPaladine" level_greater="9"/>
+		<class id="kRanger" level_greater="9"/>
+		<class id="kVigilant" level_greater="9"/>
+		<class id="kMerchant" level_greater="9"/>
+		<class id="kMagus" level_greater="10"/>
+	</remort>
+	<remort val="18">
+		<class id="kSorcerer" level_greater="11"/>
+		<class id="kConjurer" level_greater="10"/>
+		<class id="kThief" level_greater="8"/>
+		<class id="kWarrior" level_greater="10"/>
+		<class id="kAssasine" level_greater="10"/>
+		<class id="kGuard" level_greater="12"/>
+		<class id="kCharmer" level_greater="10"/>
+		<class id="kWizard" level_greater="10"/>
+		<class id="kNecromancer" level_greater="10"/>
+		<class id="kPaladine" level_greater="9"/>
+		<class id="kRanger" level_greater="9"/>
+		<class id="kVigilant" level_greater="9"/>
+		<class id="kMerchant" level_greater="9"/>
+		<class id="kMagus" level_greater="10"/>
+	</remort>
+	<remort val="19">
+		<class id="kSorcerer" level_greater="11"/>
+		<class id="kConjurer" level_greater="10"/>
+		<class id="kThief" level_greater="8"/>
+		<class id="kWarrior" level_greater="10"/>
+		<class id="kAssasine" level_greater="10"/>
+		<class id="kGuard" level_greater="12"/>
+		<class id="kCharmer" level_greater="10"/>
+		<class id="kWizard" level_greater="10"/>
+		<class id="kNecromancer" level_greater="10"/>
+		<class id="kPaladine" level_greater="9"/>
+		<class id="kRanger" level_greater="9"/>
+		<class id="kVigilant" level_greater="9"/>
+		<class id="kMerchant" level_greater="10"/>
+		<class id="kMagus" level_greater="10"/>
+	</remort>
+	<remort val="20">
+		<class id="kSorcerer" level_greater="11"/>
+		<class id="kConjurer" level_greater="10"/>
+		<class id="kThief" level_greater="9"/>
+		<class id="kWarrior" level_greater="10"/>
+		<class id="kAssasine" level_greater="10"/>
+		<class id="kGuard" level_greater="12"/>
+		<class id="kCharmer" level_greater="10"/>
+		<class id="kWizard" level_greater="10"/>
+		<class id="kNecromancer" level_greater="10"/>
+		<class id="kPaladine" level_greater="10"/>
+		<class id="kRanger" level_greater="10"/>
+		<class id="kVigilant" level_greater="10"/>
+		<class id="kMerchant" level_greater="10"/>
+		<class id="kMagus" level_greater="11"/>
+	</remort>
+	<remort val="21">
+		<class id="kSorcerer" level_greater="11"/>
+		<class id="kConjurer" level_greater="11"/>
+		<class id="kThief" level_greater="9"/>
+		<class id="kWarrior" level_greater="11"/>
+		<class id="kAssasine" level_greater="10"/>
+		<class id="kGuard" level_greater="13"/>
+		<class id="kCharmer" level_greater="10"/>
+		<class id="kWizard" level_greater="10"/>
+		<class id="kNecromancer" level_greater="10"/>
+		<class id="kPaladine" level_greater="10"/>
+		<class id="kRanger" level_greater="10"/>
+		<class id="kVigilant" level_greater="10"/>
+		<class id="kMerchant" level_greater="10"/>
+		<class id="kMagus" level_greater="11"/>
+	</remort>
+	<remort val="22">
+		<class id="kSorcerer" level_greater="11"/>
+		<class id="kConjurer" level_greater="11"/>
+		<class id="kThief" level_greater="9"/>
+		<class id="kWarrior" level_greater="11"/>
+		<class id="kAssasine" level_greater="11"/>
+		<class id="kGuard" level_greater="13"/>
+		<class id="kCharmer" level_greater="11"/>
+		<class id="kWizard" level_greater="11"/>
+		<class id="kNecromancer" level_greater="11"/>
+		<class id="kPaladine" level_greater="10"/>
+		<class id="kRanger" level_greater="10"/>
+		<class id="kVigilant" level_greater="10"/>
+		<class id="kMerchant" level_greater="11"/>
+		<class id="kMagus" level_greater="11"/>
+	</remort>
+	<remort val="23">
+		<class id="kSorcerer" level_greater="12"/>
+		<class id="kConjurer" level_greater="11"/>
+		<class id="kThief" level_greater="10"/>
+		<class id="kWarrior" level_greater="11"/>
+		<class id="kAssasine" level_greater="11"/>
+		<class id="kGuard" level_greater="13"/>
+		<class id="kCharmer" level_greater="11"/>
+		<class id="kWizard" level_greater="11"/>
+		<class id="kNecromancer" level_greater="11"/>
+		<class id="kPaladine" level_greater="10"/>
+		<class id="kRanger" level_greater="10"/>
+		<class id="kVigilant" level_greater="10"/>
+		<class id="kMerchant" level_greater="11"/>
+		<class id="kMagus" level_greater="11"/>
+	</remort>
+	<remort val="24">
+		<class id="kSorcerer" level_greater="12"/>
+		<class id="kConjurer" level_greater="11"/>
+		<class id="kThief" level_greater="10"/>
+		<class id="kWarrior" level_greater="11"/>
+		<class id="kAssasine" level_greater="11"/>
+		<class id="kGuard" level_greater="14"/>
+		<class id="kCharmer" level_greater="11"/>
+		<class id="kWizard" level_greater="11"/>
+		<class id="kNecromancer" level_greater="11"/>
+		<class id="kPaladine" level_greater="10"/>
+		<class id="kRanger" level_greater="10"/>
+		<class id="kVigilant" level_greater="10"/>
+		<class id="kMerchant" level_greater="11"/>
+		<class id="kMagus" level_greater="11"/>
+	</remort>
+	<remort val="25">
+		<class id="kSorcerer" level_greater="12"/>
+		<class id="kConjurer" level_greater="12"/>
+		<class id="kThief" level_greater="11"/>
+		<class id="kWarrior" level_greater="11"/>
+		<class id="kAssasine" level_greater="11"/>
+		<class id="kGuard" level_greater="14"/>
+		<class id="kCharmer" level_greater="12"/>
+		<class id="kWizard" level_greater="12"/>
+		<class id="kNecromancer" level_greater="12"/>
+		<class id="kPaladine" level_greater="11"/>
+		<class id="kRanger" level_greater="11"/>
+		<class id="kVigilant" level_greater="11"/>
+		<class id="kMerchant" level_greater="11"/>
+		<class id="kMagus" level_greater="12"/>
+	</remort>
+	<remort val="26">
+		<class id="kSorcerer" level_greater="12"/>
+		<class id="kConjurer" level_greater="12"/>
+		<class id="kThief" level_greater="11"/>
+		<class id="kWarrior" level_greater="11"/>
+		<class id="kAssasine" level_greater="11"/>
+		<class id="kGuard" level_greater="14"/>
+		<class id="kCharmer" level_greater="12"/>
+		<class id="kWizard" level_greater="12"/>
+		<class id="kNecromancer" level_greater="12"/>
+		<class id="kPaladine" level_greater="11"/>
+		<class id="kRanger" level_greater="11"/>
+		<class id="kVigilant" level_greater="11"/>
+		<class id="kMerchant" level_greater="11"/>
+		<class id="kMagus" level_greater="12"/>
+	</remort>
+	<remort val="27">
+		<class id="kSorcerer" level_greater="12"/>
+		<class id="kConjurer" level_greater="12"/>
+		<class id="kThief" level_greater="11"/>
+		<class id="kWarrior" level_greater="11"/>
+		<class id="kAssasine" level_greater="11"/>
+		<class id="kGuard" level_greater="14"/>
+		<class id="kCharmer" level_greater="12"/>
+		<class id="kWizard" level_greater="12"/>
+		<class id="kNecromancer" level_greater="12"/>
+		<class id="kPaladine" level_greater="11"/>
+		<class id="kRanger" level_greater="11"/>
+		<class id="kVigilant" level_greater="11"/>
+		<class id="kMerchant" level_greater="11"/>
+		<class id="kMagus" level_greater="12"/>
+	</remort>
+	<remort val="28">
+		<class id="kSorcerer" level_greater="12"/>
+		<class id="kConjurer" level_greater="12"/>
+		<class id="kThief" level_greater="11"/>
+		<class id="kWarrior" level_greater="11"/>
+		<class id="kAssasine" level_greater="11"/>
+		<class id="kGuard" level_greater="14"/>
+		<class id="kCharmer" level_greater="12"/>
+		<class id="kWizard" level_greater="12"/>
+		<class id="kNecromancer" level_greater="12"/>
+		<class id="kPaladine" level_greater="11"/>
+		<class id="kRanger" level_greater="11"/>
+		<class id="kVigilant" level_greater="11"/>
+		<class id="kMerchant" level_greater="11"/>
+		<class id="kMagus" level_greater="12"/>
+	</remort>
+	<remort val="29">
+		<class id="kSorcerer" level_greater="12"/>
+		<class id="kConjurer" level_greater="12"/>
+		<class id="kThief" level_greater="11"/>
+		<class id="kWarrior" level_greater="11"/>
+		<class id="kAssasine" level_greater="11"/>
+		<class id="kGuard" level_greater="14"/>
+		<class id="kCharmer" level_greater="12"/>
+		<class id="kWizard" level_greater="12"/>
+		<class id="kNecromancer" level_greater="12"/>
+		<class id="kPaladine" level_greater="11"/>
+		<class id="kRanger" level_greater="11"/>
+		<class id="kVigilant" level_greater="11"/>
+		<class id="kMerchant" level_greater="11"/>
+		<class id="kMagus" level_greater="12"/>
+	</remort>
+	<remort val="30">
+		<class id="kSorcerer" level_greater="12"/>
+		<class id="kConjurer" level_greater="12"/>
+		<class id="kThief" level_greater="11"/>
+		<class id="kWarrior" level_greater="11"/>
+		<class id="kAssasine" level_greater="11"/>
+		<class id="kGuard" level_greater="14"/>
+		<class id="kCharmer" level_greater="12"/>
+		<class id="kWizard" level_greater="12"/>
+		<class id="kNecromancer" level_greater="12"/>
+		<class id="kPaladine" level_greater="11"/>
+		<class id="kRanger" level_greater="11"/>
+		<class id="kVigilant" level_greater="11"/>
+		<class id="kMerchant" level_greater="11"/>
+		<class id="kMagus" level_greater="12"/>
+	</remort>
+	<remort val="31">
+		<class id="kSorcerer" level_greater="13"/>
+		<class id="kConjurer" level_greater="13"/>
+		<class id="kThief" level_greater="11"/>
+		<class id="kWarrior" level_greater="11"/>
+		<class id="kAssasine" level_greater="11"/>
+		<class id="kGuard" level_greater="14"/>
+		<class id="kCharmer" level_greater="12"/>
+		<class id="kWizard" level_greater="13"/>
+		<class id="kNecromancer" level_greater="13"/>
+		<class id="kPaladine" level_greater="11"/>
+		<class id="kRanger" level_greater="11"/>
+		<class id="kVigilant" level_greater="11"/>
+		<class id="kMerchant" level_greater="11"/>
+		<class id="kMagus" level_greater="12"/>
+	</remort>
+	<remort val="32">
+		<class id="kSorcerer" level_greater="13"/>
+		<class id="kConjurer" level_greater="13"/>
+		<class id="kThief" level_greater="12"/>
+		<class id="kWarrior" level_greater="12"/>
+		<class id="kAssasine" level_greater="12"/>
+		<class id="kGuard" level_greater="14"/>
+		<class id="kCharmer" level_greater="12"/>
+		<class id="kWizard" level_greater="13"/>
+		<class id="kNecromancer" level_greater="13"/>
+		<class id="kPaladine" level_greater="12"/>
+		<class id="kRanger" level_greater="12"/>
+		<class id="kVigilant" level_greater="12"/>
+		<class id="kMerchant" level_greater="11"/>
+		<class id="kMagus" level_greater="12"/>
+	</remort>
+	<remort val="33">
+		<class id="kSorcerer" level_greater="13"/>
+		<class id="kConjurer" level_greater="13"/>
+		<class id="kThief" level_greater="12"/>
+		<class id="kWarrior" level_greater="12"/>
+		<class id="kAssasine" level_greater="12"/>
+		<class id="kGuard" level_greater="14"/>
+		<class id="kCharmer" level_greater="12"/>
+		<class id="kWizard" level_greater="13"/>
+		<class id="kNecromancer" level_greater="13"/>
+		<class id="kPaladine" level_greater="12"/>
+		<class id="kRanger" level_greater="12"/>
+		<class id="kVigilant" level_greater="12"/>
+		<class id="kMerchant" level_greater="11"/>
+		<class id="kMagus" level_greater="12"/>
+	</remort>
+	<remort val="34">
+		<class id="kSorcerer" level_greater="13"/>
+		<class id="kConjurer" level_greater="13"/>
+		<class id="kThief" level_greater="12"/>
+		<class id="kWarrior" level_greater="12"/>
+		<class id="kAssasine" level_greater="12"/>
+		<class id="kGuard" level_greater="14"/>
+		<class id="kCharmer" level_greater="12"/>
+		<class id="kWizard" level_greater="13"/>
+		<class id="kNecromancer" level_greater="13"/>
+		<class id="kPaladine" level_greater="12"/>
+		<class id="kRanger" level_greater="12"/>
+		<class id="kVigilant" level_greater="12"/>
+		<class id="kMerchant" level_greater="11"/>
+		<class id="kMagus" level_greater="12"/>
+	</remort>
+	<remort val="35">
+		<class id="kSorcerer" level_greater="14"/>
+		<class id="kConjurer" level_greater="14"/>
+		<class id="kThief" level_greater="12"/>
+		<class id="kWarrior" level_greater="12"/>
+		<class id="kAssasine" level_greater="12"/>
+		<class id="kGuard" level_greater="14"/>
+		<class id="kCharmer" level_greater="12"/>
+		<class id="kWizard" level_greater="14"/>
+		<class id="kNecromancer" level_greater="14"/>
+		<class id="kPaladine" level_greater="12"/>
+		<class id="kRanger" level_greater="12"/>
+		<class id="kVigilant" level_greater="12"/>
+		<class id="kMerchant" level_greater="12"/>
+		<class id="kMagus" level_greater="12"/>
+	</remort>
+	<remort val="36">
+		<class id="kSorcerer" level_greater="14"/>
+		<class id="kConjurer" level_greater="14"/>
+		<class id="kThief" level_greater="13"/>
+		<class id="kWarrior" level_greater="13"/>
+		<class id="kAssasine" level_greater="13"/>
+		<class id="kGuard" level_greater="14"/>
+		<class id="kCharmer" level_greater="12"/>
+		<class id="kWizard" level_greater="14"/>
+		<class id="kNecromancer" level_greater="14"/>
+		<class id="kPaladine" level_greater="13"/>
+		<class id="kRanger" level_greater="13"/>
+		<class id="kVigilant" level_greater="13"/>
+		<class id="kMerchant" level_greater="12"/>
+		<class id="kMagus" level_greater="13"/>
+	</remort>
+	<remort val="37">
+		<class id="kSorcerer" level_greater="14"/>
+		<class id="kConjurer" level_greater="14"/>
+		<class id="kThief" level_greater="13"/>
+		<class id="kWarrior" level_greater="13"/>
+		<class id="kAssasine" level_greater="13"/>
+		<class id="kGuard" level_greater="14"/>
+		<class id="kCharmer" level_greater="12"/>
+		<class id="kWizard" level_greater="14"/>
+		<class id="kNecromancer" level_greater="14"/>
+		<class id="kPaladine" level_greater="13"/>
+		<class id="kRanger" level_greater="13"/>
+		<class id="kVigilant" level_greater="13"/>
+		<class id="kMerchant" level_greater="13"/>
+		<class id="kMagus" level_greater="13"/>
+	</remort>
+	<remort val="38">
+		<class id="kSorcerer" level_greater="14"/>
+		<class id="kConjurer" level_greater="14"/>
+		<class id="kThief" level_greater="13"/>
+		<class id="kWarrior" level_greater="13"/>
+		<class id="kAssasine" level_greater="13"/>
+		<class id="kGuard" level_greater="14"/>
+		<class id="kCharmer" level_greater="12"/>
+		<class id="kWizard" level_greater="14"/>
+		<class id="kNecromancer" level_greater="14"/>
+		<class id="kPaladine" level_greater="13"/>
+		<class id="kRanger" level_greater="13"/>
+		<class id="kVigilant" level_greater="13"/>
+		<class id="kMerchant" level_greater="13"/>
+		<class id="kMagus" level_greater="13"/>
+	</remort>
+	<remort val="39">
+		<class id="kSorcerer" level_greater="14"/>
+		<class id="kConjurer" level_greater="14"/>
+		<class id="kThief" level_greater="13"/>
+		<class id="kWarrior" level_greater="13"/>
+		<class id="kAssasine" level_greater="13"/>
+		<class id="kGuard" level_greater="14"/>
+		<class id="kCharmer" level_greater="12"/>
+		<class id="kWizard" level_greater="14"/>
+		<class id="kNecromancer" level_greater="14"/>
+		<class id="kPaladine" level_greater="13"/>
+		<class id="kRanger" level_greater="13"/>
+		<class id="kVigilant" level_greater="13"/>
+		<class id="kMerchant" level_greater="13"/>
+		<class id="kMagus" level_greater="13"/>
+	</remort>
+	<remort val="40">
+		<class id="kSorcerer" level_greater="14"/>
+		<class id="kConjurer" level_greater="14"/>
+		<class id="kThief" level_greater="14"/>
+		<class id="kWarrior" level_greater="14"/>
+		<class id="kAssasine" level_greater="14"/>
+		<class id="kGuard" level_greater="14"/>
+		<class id="kCharmer" level_greater="13"/>
+		<class id="kWizard" level_greater="14"/>
+		<class id="kNecromancer" level_greater="14"/>
+		<class id="kPaladine" level_greater="14"/>
+		<class id="kRanger" level_greater="14"/>
+		<class id="kVigilant" level_greater="14"/>
+		<class id="kMerchant" level_greater="14"/>
+		<class id="kMagus" level_greater="14"/>
+	</remort>
+	<remort val="41">
+		<class id="kSorcerer" level_greater="14"/>
+		<class id="kConjurer" level_greater="14"/>
+		<class id="kThief" level_greater="14"/>
+		<class id="kWarrior" level_greater="14"/>
+		<class id="kAssasine" level_greater="14"/>
+		<class id="kGuard" level_greater="14"/>
+		<class id="kCharmer" level_greater="13"/>
+		<class id="kWizard" level_greater="14"/>
+		<class id="kNecromancer" level_greater="14"/>
+		<class id="kPaladine" level_greater="14"/>
+		<class id="kRanger" level_greater="14"/>
+		<class id="kVigilant" level_greater="14"/>
+		<class id="kMerchant" level_greater="14"/>
+		<class id="kMagus" level_greater="14"/>
+	</remort>
+	<remort val="42">
+		<class id="kSorcerer" level_greater="14"/>
+		<class id="kConjurer" level_greater="14"/>
+		<class id="kThief" level_greater="14"/>
+		<class id="kWarrior" level_greater="14"/>
+		<class id="kAssasine" level_greater="14"/>
+		<class id="kGuard" level_greater="14"/>
+		<class id="kCharmer" level_greater="13"/>
+		<class id="kWizard" level_greater="14"/>
+		<class id="kNecromancer" level_greater="14"/>
+		<class id="kPaladine" level_greater="14"/>
+		<class id="kRanger" level_greater="14"/>
+		<class id="kVigilant" level_greater="14"/>
+		<class id="kMerchant" level_greater="14"/>
+		<class id="kMagus" level_greater="14"/>
+	</remort>
+	<remort val="43">
+		<class id="kSorcerer" level_greater="14"/>
+		<class id="kConjurer" level_greater="14"/>
+		<class id="kThief" level_greater="14"/>
+		<class id="kWarrior" level_greater="14"/>
+		<class id="kAssasine" level_greater="14"/>
+		<class id="kGuard" level_greater="14"/>
+		<class id="kCharmer" level_greater="13"/>
+		<class id="kWizard" level_greater="14"/>
+		<class id="kNecromancer" level_greater="14"/>
+		<class id="kPaladine" level_greater="14"/>
+		<class id="kRanger" level_greater="14"/>
+		<class id="kVigilant" level_greater="14"/>
+		<class id="kMerchant" level_greater="14"/>
+		<class id="kMagus" level_greater="14"/>
+	</remort>
+	<remort val="44">
+		<class id="kSorcerer" level_greater="14"/>
+		<class id="kConjurer" level_greater="14"/>
+		<class id="kThief" level_greater="14"/>
+		<class id="kWarrior" level_greater="14"/>
+		<class id="kAssasine" level_greater="14"/>
+		<class id="kGuard" level_greater="14"/>
+		<class id="kCharmer" level_greater="14"/>
+		<class id="kWizard" level_greater="14"/>
+		<class id="kNecromancer" level_greater="14"/>
+		<class id="kPaladine" level_greater="14"/>
+		<class id="kRanger" level_greater="14"/>
+		<class id="kVigilant" level_greater="14"/>
+		<class id="kMerchant" level_greater="14"/>
+		<class id="kMagus" level_greater="14"/>
+	</remort>
+	<remort val="45">
+		<class id="kSorcerer" level_greater="14"/>
+		<class id="kConjurer" level_greater="14"/>
+		<class id="kThief" level_greater="14"/>
+		<class id="kWarrior" level_greater="14"/>
+		<class id="kAssasine" level_greater="14"/>
+		<class id="kGuard" level_greater="14"/>
+		<class id="kCharmer" level_greater="14"/>
+		<class id="kWizard" level_greater="14"/>
+		<class id="kNecromancer" level_greater="14"/>
+		<class id="kPaladine" level_greater="14"/>
+		<class id="kRanger" level_greater="14"/>
+		<class id="kVigilant" level_greater="14"/>
+		<class id="kMerchant" level_greater="14"/>
+		<class id="kMagus" level_greater="14"/>
+	</remort>
+	<remort val="46">
+		<class id="kSorcerer" level_greater="14"/>
+		<class id="kConjurer" level_greater="14"/>
+		<class id="kThief" level_greater="14"/>
+		<class id="kWarrior" level_greater="14"/>
+		<class id="kAssasine" level_greater="14"/>
+		<class id="kGuard" level_greater="14"/>
+		<class id="kCharmer" level_greater="14"/>
+		<class id="kWizard" level_greater="14"/>
+		<class id="kNecromancer" level_greater="14"/>
+		<class id="kPaladine" level_greater="14"/>
+		<class id="kRanger" level_greater="14"/>
+		<class id="kVigilant" level_greater="14"/>
+		<class id="kMerchant" level_greater="14"/>
+		<class id="kMagus" level_greater="14"/>
+	</remort>
+	<remort val="47">
+		<class id="kSorcerer" level_greater="14"/>
+		<class id="kConjurer" level_greater="14"/>
+		<class id="kThief" level_greater="14"/>
+		<class id="kWarrior" level_greater="14"/>
+		<class id="kAssasine" level_greater="14"/>
+		<class id="kGuard" level_greater="14"/>
+		<class id="kCharmer" level_greater="14"/>
+		<class id="kWizard" level_greater="14"/>
+		<class id="kNecromancer" level_greater="14"/>
+		<class id="kPaladine" level_greater="14"/>
+		<class id="kRanger" level_greater="14"/>
+		<class id="kVigilant" level_greater="14"/>
+		<class id="kMerchant" level_greater="14"/>
+		<class id="kMagus" level_greater="14"/>
+	</remort>
+	<remort val="48">
+		<class id="kSorcerer" level_greater="14"/>
+		<class id="kConjurer" level_greater="14"/>
+		<class id="kThief" level_greater="14"/>
+		<class id="kWarrior" level_greater="14"/>
+		<class id="kAssasine" level_greater="14"/>
+		<class id="kGuard" level_greater="14"/>
+		<class id="kCharmer" level_greater="14"/>
+		<class id="kWizard" level_greater="14"/>
+		<class id="kNecromancer" level_greater="14"/>
+		<class id="kPaladine" level_greater="14"/>
+		<class id="kRanger" level_greater="14"/>
+		<class id="kVigilant" level_greater="14"/>
+		<class id="kMerchant" level_greater="14"/>
+		<class id="kMagus" level_greater="14"/>
+	</remort>
+	<remort val="49">
+		<class id="kSorcerer" level_greater="14"/>
+		<class id="kConjurer" level_greater="14"/>
+		<class id="kThief" level_greater="14"/>
+		<class id="kWarrior" level_greater="14"/>
+		<class id="kAssasine" level_greater="14"/>
+		<class id="kGuard" level_greater="14"/>
+		<class id="kCharmer" level_greater="14"/>
+		<class id="kWizard" level_greater="14"/>
+		<class id="kNecromancer" level_greater="14"/>
+		<class id="kPaladine" level_greater="14"/>
+		<class id="kRanger" level_greater="14"/>
+		<class id="kVigilant" level_greater="14"/>
+		<class id="kMerchant" level_greater="14"/>
+		<class id="kMagus" level_greater="14"/>
+	</remort>
+	<remort val="50">
+		<class id="kSorcerer" level_greater="14"/>
+		<class id="kConjurer" level_greater="14"/>
+		<class id="kThief" level_greater="14"/>
+		<class id="kWarrior" level_greater="14"/>
+		<class id="kAssasine" level_greater="14"/>
+		<class id="kGuard" level_greater="14"/>
+		<class id="kCharmer" level_greater="14"/>
+		<class id="kWizard" level_greater="14"/>
+		<class id="kNecromancer" level_greater="14"/>
+		<class id="kPaladine" level_greater="14"/>
+		<class id="kRanger" level_greater="14"/>
+		<class id="kVigilant" level_greater="14"/>
+		<class id="kMerchant" level_greater="14"/>
+		<class id="kMagus" level_greater="14"/>
+	</remort>
+	<remort val="51">
+		<class id="kSorcerer" level_greater="14"/>
+		<class id="kConjurer" level_greater="14"/>
+		<class id="kThief" level_greater="14"/>
+		<class id="kWarrior" level_greater="14"/>
+		<class id="kAssasine" level_greater="14"/>
+		<class id="kGuard" level_greater="14"/>
+		<class id="kCharmer" level_greater="14"/>
+		<class id="kWizard" level_greater="14"/>
+		<class id="kNecromancer" level_greater="14"/>
+		<class id="kPaladine" level_greater="14"/>
+		<class id="kRanger" level_greater="14"/>
+		<class id="kVigilant" level_greater="14"/>
+		<class id="kMerchant" level_greater="14"/>
+		<class id="kMagus" level_greater="14"/>
+	</remort>
+	<remort val="52">
+		<class id="kSorcerer" level_greater="14"/>
+		<class id="kConjurer" level_greater="14"/>
+		<class id="kThief" level_greater="14"/>
+		<class id="kWarrior" level_greater="14"/>
+		<class id="kAssasine" level_greater="14"/>
+		<class id="kGuard" level_greater="14"/>
+		<class id="kCharmer" level_greater="14"/>
+		<class id="kWizard" level_greater="14"/>
+		<class id="kNecromancer" level_greater="14"/>
+		<class id="kPaladine" level_greater="14"/>
+		<class id="kRanger" level_greater="14"/>
+		<class id="kVigilant" level_greater="14"/>
+		<class id="kMerchant" level_greater="14"/>
+		<class id="kMagus" level_greater="14"/>
+	</remort>
+	<remort val="53">
+		<class id="kSorcerer" level_greater="14"/>
+		<class id="kConjurer" level_greater="14"/>
+		<class id="kThief" level_greater="14"/>
+		<class id="kWarrior" level_greater="14"/>
+		<class id="kAssasine" level_greater="14"/>
+		<class id="kGuard" level_greater="14"/>
+		<class id="kCharmer" level_greater="14"/>
+		<class id="kWizard" level_greater="14"/>
+		<class id="kNecromancer" level_greater="14"/>
+		<class id="kPaladine" level_greater="14"/>
+		<class id="kRanger" level_greater="14"/>
+		<class id="kVigilant" level_greater="14"/>
+		<class id="kMerchant" level_greater="14"/>
+		<class id="kMagus" level_greater="14"/>
+	</remort>
+	<remort val="54">
+		<class id="kSorcerer" level_greater="14"/>
+		<class id="kConjurer" level_greater="14"/>
+		<class id="kThief" level_greater="14"/>
+		<class id="kWarrior" level_greater="14"/>
+		<class id="kAssasine" level_greater="14"/>
+		<class id="kGuard" level_greater="14"/>
+		<class id="kCharmer" level_greater="14"/>
+		<class id="kWizard" level_greater="14"/>
+		<class id="kNecromancer" level_greater="14"/>
+		<class id="kPaladine" level_greater="14"/>
+		<class id="kRanger" level_greater="14"/>
+		<class id="kVigilant" level_greater="14"/>
+		<class id="kMerchant" level_greater="14"/>
+		<class id="kMagus" level_greater="14"/>
+	</remort>
+	<remort val="55">
+		<class id="kSorcerer" level_greater="14"/>
+		<class id="kConjurer" level_greater="14"/>
+		<class id="kThief" level_greater="14"/>
+		<class id="kWarrior" level_greater="14"/>
+		<class id="kAssasine" level_greater="14"/>
+		<class id="kGuard" level_greater="14"/>
+		<class id="kCharmer" level_greater="14"/>
+		<class id="kWizard" level_greater="14"/>
+		<class id="kNecromancer" level_greater="14"/>
+		<class id="kPaladine" level_greater="14"/>
+		<class id="kRanger" level_greater="14"/>
+		<class id="kVigilant" level_greater="14"/>
+		<class id="kMerchant" level_greater="14"/>
+		<class id="kMagus" level_greater="14"/>
+	</remort>
+	<remort val="56">
+		<class id="kSorcerer" level_greater="14"/>
+		<class id="kConjurer" level_greater="14"/>
+		<class id="kThief" level_greater="14"/>
+		<class id="kWarrior" level_greater="14"/>
+		<class id="kAssasine" level_greater="14"/>
+		<class id="kGuard" level_greater="14"/>
+		<class id="kCharmer" level_greater="14"/>
+		<class id="kWizard" level_greater="14"/>
+		<class id="kNecromancer" level_greater="14"/>
+		<class id="kPaladine" level_greater="14"/>
+		<class id="kRanger" level_greater="14"/>
+		<class id="kVigilant" level_greater="14"/>
+		<class id="kMerchant" level_greater="14"/>
+		<class id="kMagus" level_greater="14"/>
+	</remort>
+	<remort val="57">
+		<class id="kSorcerer" level_greater="14"/>
+		<class id="kConjurer" level_greater="14"/>
+		<class id="kThief" level_greater="14"/>
+		<class id="kWarrior" level_greater="14"/>
+		<class id="kAssasine" level_greater="14"/>
+		<class id="kGuard" level_greater="14"/>
+		<class id="kCharmer" level_greater="14"/>
+		<class id="kWizard" level_greater="14"/>
+		<class id="kNecromancer" level_greater="14"/>
+		<class id="kPaladine" level_greater="14"/>
+		<class id="kRanger" level_greater="14"/>
+		<class id="kVigilant" level_greater="14"/>
+		<class id="kMerchant" level_greater="14"/>
+		<class id="kMagus" level_greater="14"/>
+	</remort>
+	<remort val="58">
+		<class id="kSorcerer" level_greater="14"/>
+		<class id="kConjurer" level_greater="14"/>
+		<class id="kThief" level_greater="14"/>
+		<class id="kWarrior" level_greater="14"/>
+		<class id="kAssasine" level_greater="14"/>
+		<class id="kGuard" level_greater="14"/>
+		<class id="kCharmer" level_greater="14"/>
+		<class id="kWizard" level_greater="14"/>
+		<class id="kNecromancer" level_greater="14"/>
+		<class id="kPaladine" level_greater="14"/>
+		<class id="kRanger" level_greater="14"/>
+		<class id="kVigilant" level_greater="14"/>
+		<class id="kMerchant" level_greater="14"/>
+		<class id="kMagus" level_greater="14"/>
+	</remort>
+	<remort val="59">
+		<class id="kSorcerer" level_greater="14"/>
+		<class id="kConjurer" level_greater="14"/>
+		<class id="kThief" level_greater="14"/>
+		<class id="kWarrior" level_greater="14"/>
+		<class id="kAssasine" level_greater="14"/>
+		<class id="kGuard" level_greater="14"/>
+		<class id="kCharmer" level_greater="14"/>
+		<class id="kWizard" level_greater="14"/>
+		<class id="kNecromancer" level_greater="14"/>
+		<class id="kPaladine" level_greater="14"/>
+		<class id="kRanger" level_greater="14"/>
+		<class id="kVigilant" level_greater="14"/>
+		<class id="kMerchant" level_greater="14"/>
+		<class id="kMagus" level_greater="14"/>
+	</remort>
+	<remort val="60">
+		<class id="kSorcerer" level_greater="14"/>
+		<class id="kConjurer" level_greater="14"/>
+		<class id="kThief" level_greater="14"/>
+		<class id="kWarrior" level_greater="14"/>
+		<class id="kAssasine" level_greater="14"/>
+		<class id="kGuard" level_greater="14"/>
+		<class id="kCharmer" level_greater="14"/>
+		<class id="kWizard" level_greater="14"/>
+		<class id="kNecromancer" level_greater="14"/>
+		<class id="kPaladine" level_greater="14"/>
+		<class id="kRanger" level_greater="14"/>
+		<class id="kVigilant" level_greater="14"/>
+		<class id="kMerchant" level_greater="14"/>
+		<class id="kMagus" level_greater="14"/>
+	</remort>
+	<remort val="61">
+		<class id="kSorcerer" level_greater="14"/>
+		<class id="kConjurer" level_greater="14"/>
+		<class id="kThief" level_greater="14"/>
+		<class id="kWarrior" level_greater="14"/>
+		<class id="kAssasine" level_greater="14"/>
+		<class id="kGuard" level_greater="14"/>
+		<class id="kCharmer" level_greater="14"/>
+		<class id="kWizard" level_greater="14"/>
+		<class id="kNecromancer" level_greater="14"/>
+		<class id="kPaladine" level_greater="14"/>
+		<class id="kRanger" level_greater="14"/>
+		<class id="kVigilant" level_greater="14"/>
+		<class id="kMerchant" level_greater="14"/>
+		<class id="kMagus" level_greater="14"/>
+	</remort>
+	<remort val="62">
+		<class id="kSorcerer" level_greater="14"/>
+		<class id="kConjurer" level_greater="14"/>
+		<class id="kThief" level_greater="14"/>
+		<class id="kWarrior" level_greater="14"/>
+		<class id="kAssasine" level_greater="14"/>
+		<class id="kGuard" level_greater="14"/>
+		<class id="kCharmer" level_greater="14"/>
+		<class id="kWizard" level_greater="14"/>
+		<class id="kNecromancer" level_greater="14"/>
+		<class id="kPaladine" level_greater="14"/>
+		<class id="kRanger" level_greater="14"/>
+		<class id="kVigilant" level_greater="14"/>
+		<class id="kMerchant" level_greater="14"/>
+		<class id="kMagus" level_greater="14"/>
+	</remort>
+	<remort val="63">
+		<class id="kSorcerer" level_greater="14"/>
+		<class id="kConjurer" level_greater="14"/>
+		<class id="kThief" level_greater="14"/>
+		<class id="kWarrior" level_greater="14"/>
+		<class id="kAssasine" level_greater="14"/>
+		<class id="kGuard" level_greater="14"/>
+		<class id="kCharmer" level_greater="14"/>
+		<class id="kWizard" level_greater="14"/>
+		<class id="kNecromancer" level_greater="14"/>
+		<class id="kPaladine" level_greater="14"/>
+		<class id="kRanger" level_greater="14"/>
+		<class id="kVigilant" level_greater="14"/>
+		<class id="kMerchant" level_greater="14"/>
+		<class id="kMagus" level_greater="14"/>
+	</remort>
+	<remort val="64">
+		<class id="kSorcerer" level_greater="14"/>
+		<class id="kConjurer" level_greater="14"/>
+		<class id="kThief" level_greater="14"/>
+		<class id="kWarrior" level_greater="14"/>
+		<class id="kAssasine" level_greater="14"/>
+		<class id="kGuard" level_greater="14"/>
+		<class id="kCharmer" level_greater="14"/>
+		<class id="kWizard" level_greater="14"/>
+		<class id="kNecromancer" level_greater="14"/>
+		<class id="kPaladine" level_greater="14"/>
+		<class id="kRanger" level_greater="14"/>
+		<class id="kVigilant" level_greater="14"/>
+		<class id="kMerchant" level_greater="14"/>
+		<class id="kMagus" level_greater="14"/>
+	</remort>
+	<remort val="65">
+		<class id="kSorcerer" level_greater="14"/>
+		<class id="kConjurer" level_greater="14"/>
+		<class id="kThief" level_greater="14"/>
+		<class id="kWarrior" level_greater="14"/>
+		<class id="kAssasine" level_greater="14"/>
+		<class id="kGuard" level_greater="14"/>
+		<class id="kCharmer" level_greater="14"/>
+		<class id="kWizard" level_greater="14"/>
+		<class id="kNecromancer" level_greater="14"/>
+		<class id="kPaladine" level_greater="14"/>
+		<class id="kRanger" level_greater="14"/>
+		<class id="kVigilant" level_greater="14"/>
+		<class id="kMerchant" level_greater="14"/>
+		<class id="kMagus" level_greater="14"/>
+	</remort>
+	<remort val="66">
+		<class id="kSorcerer" level_greater="14"/>
+		<class id="kConjurer" level_greater="14"/>
+		<class id="kThief" level_greater="14"/>
+		<class id="kWarrior" level_greater="14"/>
+		<class id="kAssasine" level_greater="14"/>
+		<class id="kGuard" level_greater="14"/>
+		<class id="kCharmer" level_greater="14"/>
+		<class id="kWizard" level_greater="14"/>
+		<class id="kNecromancer" level_greater="14"/>
+		<class id="kPaladine" level_greater="14"/>
+		<class id="kRanger" level_greater="14"/>
+		<class id="kVigilant" level_greater="14"/>
+		<class id="kMerchant" level_greater="14"/>
+		<class id="kMagus" level_greater="14"/>
+	</remort>
+	<remort val="67">
+		<class id="kSorcerer" level_greater="14"/>
+		<class id="kConjurer" level_greater="14"/>
+		<class id="kThief" level_greater="14"/>
+		<class id="kWarrior" level_greater="14"/>
+		<class id="kAssasine" level_greater="14"/>
+		<class id="kGuard" level_greater="14"/>
+		<class id="kCharmer" level_greater="14"/>
+		<class id="kWizard" level_greater="14"/>
+		<class id="kNecromancer" level_greater="14"/>
+		<class id="kPaladine" level_greater="14"/>
+		<class id="kRanger" level_greater="14"/>
+		<class id="kVigilant" level_greater="14"/>
+		<class id="kMerchant" level_greater="14"/>
+		<class id="kMagus" level_greater="14"/>
+	</remort>
+	<remort val="68">
+		<class id="kSorcerer" level_greater="14"/>
+		<class id="kConjurer" level_greater="14"/>
+		<class id="kThief" level_greater="14"/>
+		<class id="kWarrior" level_greater="14"/>
+		<class id="kAssasine" level_greater="14"/>
+		<class id="kGuard" level_greater="14"/>
+		<class id="kCharmer" level_greater="14"/>
+		<class id="kWizard" level_greater="14"/>
+		<class id="kNecromancer" level_greater="14"/>
+		<class id="kPaladine" level_greater="14"/>
+		<class id="kRanger" level_greater="14"/>
+		<class id="kVigilant" level_greater="14"/>
+		<class id="kMerchant" level_greater="14"/>
+		<class id="kMagus" level_greater="14"/>
+	</remort>
+	<remort val="69">
+		<class id="kSorcerer" level_greater="14"/>
+		<class id="kConjurer" level_greater="14"/>
+		<class id="kThief" level_greater="14"/>
+		<class id="kWarrior" level_greater="14"/>
+		<class id="kAssasine" level_greater="14"/>
+		<class id="kGuard" level_greater="14"/>
+		<class id="kCharmer" level_greater="14"/>
+		<class id="kWizard" level_greater="14"/>
+		<class id="kNecromancer" level_greater="14"/>
+		<class id="kPaladine" level_greater="14"/>
+		<class id="kRanger" level_greater="14"/>
+		<class id="kVigilant" level_greater="14"/>
+		<class id="kMerchant" level_greater="14"/>
+		<class id="kMagus" level_greater="14"/>
+	</remort>
+	<remort val="70">
+		<class id="kSorcerer" level_greater="14"/>
+		<class id="kConjurer" level_greater="14"/>
+		<class id="kThief" level_greater="14"/>
+		<class id="kWarrior" level_greater="14"/>
+		<class id="kAssasine" level_greater="14"/>
+		<class id="kGuard" level_greater="14"/>
+		<class id="kCharmer" level_greater="14"/>
+		<class id="kWizard" level_greater="14"/>
+		<class id="kNecromancer" level_greater="14"/>
+		<class id="kPaladine" level_greater="14"/>
+		<class id="kRanger" level_greater="14"/>
+		<class id="kVigilant" level_greater="14"/>
+		<class id="kMerchant" level_greater="14"/>
+		<class id="kMagus" level_greater="14"/>
+	</remort>
+	<remort val="71">
+		<class id="kSorcerer" level_greater="14"/>
+		<class id="kConjurer" level_greater="14"/>
+		<class id="kThief" level_greater="14"/>
+		<class id="kWarrior" level_greater="14"/>
+		<class id="kAssasine" level_greater="14"/>
+		<class id="kGuard" level_greater="14"/>
+		<class id="kCharmer" level_greater="14"/>
+		<class id="kWizard" level_greater="14"/>
+		<class id="kNecromancer" level_greater="14"/>
+		<class id="kPaladine" level_greater="14"/>
+		<class id="kRanger" level_greater="14"/>
+		<class id="kVigilant" level_greater="14"/>
+		<class id="kMerchant" level_greater="14"/>
+		<class id="kMagus" level_greater="14"/>
+	</remort>
+	<remort val="72">
+		<class id="kSorcerer" level_greater="14"/>
+		<class id="kConjurer" level_greater="14"/>
+		<class id="kThief" level_greater="14"/>
+		<class id="kWarrior" level_greater="14"/>
+		<class id="kAssasine" level_greater="14"/>
+		<class id="kGuard" level_greater="14"/>
+		<class id="kCharmer" level_greater="14"/>
+		<class id="kWizard" level_greater="14"/>
+		<class id="kNecromancer" level_greater="14"/>
+		<class id="kPaladine" level_greater="14"/>
+		<class id="kRanger" level_greater="14"/>
+		<class id="kVigilant" level_greater="14"/>
+		<class id="kMerchant" level_greater="14"/>
+		<class id="kMagus" level_greater="14"/>
+	</remort>
+	<remort val="73">
+		<class id="kSorcerer" level_greater="14"/>
+		<class id="kConjurer" level_greater="14"/>
+		<class id="kThief" level_greater="14"/>
+		<class id="kWarrior" level_greater="14"/>
+		<class id="kAssasine" level_greater="14"/>
+		<class id="kGuard" level_greater="14"/>
+		<class id="kCharmer" level_greater="14"/>
+		<class id="kWizard" level_greater="14"/>
+		<class id="kNecromancer" level_greater="14"/>
+		<class id="kPaladine" level_greater="14"/>
+		<class id="kRanger" level_greater="14"/>
+		<class id="kVigilant" level_greater="14"/>
+		<class id="kMerchant" level_greater="14"/>
+		<class id="kMagus" level_greater="14"/>
+	</remort>
+	<remort val="74">
+		<class id="kSorcerer" level_greater="14"/>
+		<class id="kConjurer" level_greater="14"/>
+		<class id="kThief" level_greater="14"/>
+		<class id="kWarrior" level_greater="14"/>
+		<class id="kAssasine" level_greater="14"/>
+		<class id="kGuard" level_greater="14"/>
+		<class id="kCharmer" level_greater="14"/>
+		<class id="kWizard" level_greater="14"/>
+		<class id="kNecromancer" level_greater="14"/>
+		<class id="kPaladine" level_greater="14"/>
+		<class id="kRanger" level_greater="14"/>
+		<class id="kVigilant" level_greater="14"/>
+		<class id="kMerchant" level_greater="14"/>
+		<class id="kMagus" level_greater="14"/>
+	</remort>
+	<remort val="75">
+		<class id="kSorcerer" level_greater="14"/>
+		<class id="kConjurer" level_greater="14"/>
+		<class id="kThief" level_greater="14"/>
+		<class id="kWarrior" level_greater="14"/>
+		<class id="kAssasine" level_greater="14"/>
+		<class id="kGuard" level_greater="14"/>
+		<class id="kCharmer" level_greater="14"/>
+		<class id="kWizard" level_greater="14"/>
+		<class id="kNecromancer" level_greater="14"/>
+		<class id="kPaladine" level_greater="14"/>
+		<class id="kRanger" level_greater="14"/>
+		<class id="kVigilant" level_greater="14"/>
+		<class id="kMerchant" level_greater="14"/>
+		<class id="kMagus" level_greater="14"/>
+	</remort>
+</group_exp_handicap>

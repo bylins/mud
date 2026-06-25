@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<!-- Дейлики (ежедневные задания). Формат не менялся, файл перенесён в cfg/quests.
+     <quest id="N" reward="K" desk="описание"/> - id квеста, награда (грив), описание зоны.
+     trigger-внумы в комментариях - только справка, кодом не читаются.
+     В репозитории - только пример; полный боевой файл живёт отдельно (cfg/quests/daily_quest.xml на проде).
+-->
+<daily_quest>
+ <!-- trigger: 4301 -->
+ <quest id="1" reward="1" desk="Болото"/>
+ <!-- trigger: 4704 -->
+ <quest id="2" reward="5" desk="Холмы у реки"/>
+ <!-- trigger: 5010 -->
+ <quest id="3" reward="8" desk="Вторая родовая"/>
+</daily_quest>
