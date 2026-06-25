@@ -89,8 +89,8 @@ int group::perform_group(CharData *ch, CharData *vict) {
 	if (AFF_FLAGGED(vict, EAffect::kGroup)
 		|| vict->IsFlagged(EMobFlag::kCompanion)
 		|| mount::IsHorse(vict)
-		|| IsAffectedBySpell(ch, ESpell::kFrenzy)
-		|| IsAffectedBySpell(vict, ESpell::kFrenzy)) {
+		|| IsAffected(ch, EAffect::kFrenzy)
+		|| IsAffected(vict, EAffect::kFrenzy)) {
 		return (false);
 	}
 
@@ -443,7 +443,7 @@ void group::GoGroup(CharData *ch, char *argument) {
 				SendMsgToChar("Вы больше никого не можете принять в группу.\r\n", ch);
 				break;
 			}
-			if (IsAffectedBySpell(f, ESpell::kFrenzy)) {
+			if (IsAffected(f, EAffect::kFrenzy)) {
 				continue;
 			}
 			found += group::perform_group(ch, f);
@@ -492,7 +492,7 @@ void group::GoGroup(CharData *ch, char *argument) {
 		SendMsgToChar(CommonMsg(ECommonMsg::kNoPerson) + "\r\n", ch);
 	} else if ((vict->get_master() != ch) && (vict != ch)) {
 		act("$N2 нужно следовать за вами, чтобы стать членом вашей группы.", false, ch, nullptr, vict, kToChar);
-	} else if (IsAffectedBySpell(vict, ESpell::kFrenzy)) {
+	} else if (IsAffected(vict, EAffect::kFrenzy)) {
 		act("$N слишком агрессивн$W и непредсказуем$W! Нельзя брать $s!", false, ch, nullptr, vict, kToChar);
 	} else {
 		if (!AFF_FLAGGED(vict, EAffect::kGroup)) {

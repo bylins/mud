@@ -16,7 +16,7 @@ void do_antigods(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/)
 	}
 	if (AFF_FLAGGED(ch, EAffect::kGodsShield)) {
 		if (IsAffected(ch, EAffect::kGodsShield)) {
-			RemoveAffectFromChar(ch, ESpell::kGodsShield);
+			RemoveAffectFromChar(ch, EAffect::kGodsShield);
 		}
 		AFF_FLAGS(ch).unset(EAffect::kGodsShield);
 		SendMsgToChar("Голубой кокон вокруг вашего тела угас.\r\n", ch);

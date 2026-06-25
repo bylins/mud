@@ -8,7 +8,7 @@ void CheckDeathRage(CharData *ch) {
 
 	if (AffSuccessFlagged(ch, ESpell::kBerserk) &&
 		(ch->get_hit() > ch->get_real_max_hit() / 2)) {
-		RemoveAffectFromChar(ch, ESpell::kBerserk);
+		RemoveAffectFromChar(ch, EAffect::kBerserk);
 		SendMsgToChar("Предсмертное исступление оставило вас.\r\n", ch);
 	}
 

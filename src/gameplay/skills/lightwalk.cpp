@@ -25,7 +25,7 @@ void DoLightwalk(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	RemoveAffectFromChar(ch, ESpell::kLightWalk);
+	RemoveAffectFromChar(ch, EAffect::kLightWalk);
 
 	timed.feat = EFeat::kLightWalk;
 	timed.time = 24;

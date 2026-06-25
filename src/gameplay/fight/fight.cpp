@@ -222,7 +222,7 @@ void SetFighting(CharData *ch, CharData *vict) {
 	combat_list.push_front(attaker);
 
 	if (AFF_FLAGGED(ch, EAffect::kSleep)) {
-		RemoveAffectFromChar(ch, ESpell::kSleep);
+		RemoveAffectFromChar(ch, EAffect::kSleep);
 		AFF_FLAGS(ch).unset(EAffect::kSleep);
 	}
 	ch->SetEnemy(vict);
@@ -1776,7 +1776,7 @@ void update_round_affs() {
 			it.ch->set_touching(0);
 
 		if (it.ch->battle_affects.get(kEafSleep)) {
-			RemoveAffectFromChar(it.ch, ESpell::kSleep);
+			RemoveAffectFromChar(it.ch, EAffect::kSleep);
 			AFF_FLAGS(it.ch).unset(EAffect::kSleep);
 		}
 		if (it.ch->battle_affects.get(kEafBlock)) {

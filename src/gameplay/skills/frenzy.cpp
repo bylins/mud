@@ -18,9 +18,9 @@ void do_frenzy(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	}
 	if (ch->GetPosition() != EPosition::kFight
 		&& !privilege::IsImmortal(ch)
-		&& (!IsAffectedBySpell(ch, ESpell::kCourage)
-			|| !IsAffectedBySpell(ch, ESpell::kFrenzy)
-			|| !IsAffectedBySpell(ch, ESpell::kBerserk))) {
+		&& (!IsAffected(ch, EAffect::kCourage)
+			|| !IsAffected(ch, EAffect::kFrenzy)
+			|| !IsAffectedOrAttempting(ch, EAffect::kBerserk))) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kFrenzy, ESkillMsg::kPeacefulRoom) + "\r\n", ch);
 		return;
 	}
