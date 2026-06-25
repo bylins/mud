@@ -613,8 +613,7 @@ void BuildAffectFlagTable(parser_wrapper::DataNode data) {
 	g_affect_flags.fill(0);
 	for (auto &node : data.Children("affect")) {
 		const char *id = node.GetValue("id");
-		const char *flags = node.GetValue("flags");
-		if (!id || !*id || !flags || !*flags) {
+		if (!id || !*id) {
 			continue;
 		}
 		EAffect affect;
@@ -624,8 +623,16 @@ void BuildAffectFlagTable(parser_wrapper::DataNode data) {
 			continue;  // unknown id already reported by ValidateAffectRegistry
 		}
 		const auto idx = static_cast<std::size_t>(to_underlying(affect));
-		if (idx < kAffectFlagTableSize) {
-			g_affect_flags[idx] = parse::ReadAsConstantsBitvector<EAffFlag>(flags);
+		if (idx >= kAffectFlagTableSize) {
+			continue;
+		}
+		// issue.affect-migration: effect flags live in a <flags val="..."> child tag (unified with the
+		// spells.xml format); read off a COPY of the node (the obj_sets pattern).
+		auto fnode = node;
+		if (fnode.GoToChild("flags")) {
+			if (const char *flags = fnode.GetValue("val"); flags && *flags) {
+				g_affect_flags[idx] = parse::ReadAsConstantsBitvector<EAffFlag>(flags);
+			}
 		}
 	}
 	g_affect_flags_loaded = true;
