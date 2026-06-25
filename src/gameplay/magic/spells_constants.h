@@ -219,7 +219,7 @@ enum class ESpell {
 	kStrangle = 198,
 //	kRecallSpells = 199,	// UNUSED (issue.affect-migration): the spell-recall buff is the EAffect::kMemorizeSpells affect; af.type was redundant; value 199 retired.
 	kHypnoticPattern = 200,
-	kSolobonus = 201,
+//	kSolobonus = 201,	// UNUSED (issue.affect-migration): dead -- no apply site anywhere; the only consumers were two do_affects display checks for an affect nothing created; value 201 retired.
 	kVampirism = 202,
 	kRestoration = 203,
 	kDeathAura = 204,

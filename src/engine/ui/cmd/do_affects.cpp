@@ -42,9 +42,6 @@ void do_affects(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		for (auto affect_i = ch->affected.begin(); affect_i != ch->affected.end(); ++affect_i) {
 			const auto aff = *affect_i;
 
-			if (aff->type == ESpell::kSolobonus) {
-				continue;
-			}
 
 			*buf2 = '\0';
 			snprintf(sp_name, sizeof(sp_name), "%s", MUD::Spell(aff->type).GetCName());
@@ -104,38 +101,6 @@ void do_affects(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				snprintf(buf + strlen(buf), sizeof(buf) - strlen(buf), " [p: %.1f]", aff->potency);
 			}
 			SendMsgToChar(strcat(buf, "\r\n"), ch);
-		}
-// отображение наград
-		for (const auto &aff : ch->affected) {
-			if (aff->type == ESpell::kSolobonus) {
-				int mod;
-				if (aff->battleflag == kAfPulsedec) {
-					mod = aff->duration / 51; //если в пульсах приводим к тикам	25.5 в сек 2 минуты
-				} else {
-					mod = aff->duration;
-				}
-				(mod + 1) / kSecsPerMudHour
-				? sprintf(buf2,
-						  "(%d %s)",
-						  (mod + 1) / kSecsPerMudHour + 1,
-						  grammar::GetDeclensionInNumber((mod + 1) / kSecsPerMudHour + 1, grammar::EWhat::kHour))
-				: sprintf(buf2, "(менее часа)");
-				snprintf(buf,
-						 kMaxStringLength,
-						 "Заклинание : %s%-21s %-12s%s ",
-						 kColorBoldCyn,
-						 "награда",
-						 buf2,
-						 kColorNrm);
-				*buf2 = '\0';
-				if (aff->modifier) {
-					sprintf(buf2, "%s%-3d к параметру: %s%s%s", (aff->modifier > 0) ? "+" : "",
-							aff->modifier, kColorBoldRed, apply_types[(int) aff->location], kColorNrm);
-					snprintf(buf + strlen(buf), sizeof(buf) - strlen(buf), "%s", buf2);
-				}
-				strncat(buf, "\r\n", sizeof(buf) - strlen(buf) - 1);
-				SendMsgToChar(buf, ch);
-			}
 		}
 	}
 }

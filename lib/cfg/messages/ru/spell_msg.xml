@@ -2295,12 +2295,6 @@
 		<message type="kComponentMissing" val="Вы начали суматошно искать свои благовония, но тщетно." />
 		<message type="kComponentExhausted" val="$o дотлели и рассыпались пеплом." />
 	</msg_sheaf>
-	<msg_sheaf id="kSolobonus">
-		<name val="награда" />
-		<message type="kCastPhraseHeathen" val="" />
-		<message type="kCastPhraseChristian" val="" />
-		<message type="kAffExpiredToChar" val="Одна из наград прекратила действовать." />
-	</msg_sheaf>
 	<msg_sheaf id="kVampirism">
 		<name val="вампиризм" />
 		<message type="kCastPhraseHeathen" val="" />
