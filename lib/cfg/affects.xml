@@ -57,7 +57,7 @@
 	<affect id="kCourage"/>
 	<affect id="kCharmed"/>
 	<affect id="kHold">
-		<flags val="kAfBattledec|kAfDispellable|kAfCurable"/>
+		<flags val="kAfBattledec|kAfDispellable|kAfCurable|kAfEntanglement"/>
 	</affect>
 	<affect id="kFly">
 		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
@@ -73,7 +73,7 @@
 	</affect>
 	<affect id="kHorse"/>
 	<affect id="kNoFlee">
-		<flags val="kAfBattledec|kAfPulsedec|kAfDispellable|kAfCurable"/>
+		<flags val="kAfBattledec|kAfPulsedec|kAfDispellable|kAfCurable|kAfEntanglement"/>
 	</affect>
 	<affect id="kSingleLight"/>
 	<affect id="kHolyLight">
@@ -106,7 +106,7 @@
 		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
 	</affect>
 	<affect id="kSlow">
-		<flags val="kAfBattledec|kAfDispellable|kAfCurable"/>
+		<flags val="kAfBattledec|kAfDispellable|kAfCurable|kAfEntanglement"/>
 	</affect>
 	<affect id="kHaste">
 		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
@@ -193,7 +193,7 @@
 	</affect>
 	<affect id="kCapable"/>
 	<affect id="kNoTeleport">
-		<flags val="kAfBattledec|kAfPulsedec|kAfDispellable|kAfCurable"/>
+		<flags val="kAfBattledec|kAfPulsedec|kAfDispellable|kAfCurable|kAfEntanglement"/>
 	</affect>
 	<affect id="kCombatLuck"/>
 	<affect id="kBandage">

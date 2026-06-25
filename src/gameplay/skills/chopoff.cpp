@@ -54,7 +54,7 @@ void go_chopoff(CharData *ch, CharData *vict) {
 	int percent = number(1, MUD::Skill(ESkill::kChopoff).difficulty);
 	int prob = CalcCurrentSkill(ch, ESkill::kChopoff, vict);
 
-	if (IsAffectedBySpell(ch, ESpell::kWeb)) {
+	if (IsAffectedWithFlag(ch, kAfEntanglement)) {
 		prob /= 3;
 	}
 	if (GET_GOD_FLAG(ch, EGf::kGodsLike)

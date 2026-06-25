@@ -524,6 +524,7 @@ void init_EAffFlag_ITEM_NAMES() {
 	EAffFlag_name_by_value[EAffFlag::kAfUnique] = "kAfUnique";
 	EAffFlag_name_by_value[EAffFlag::kAfFailed] = "kAfFailed";
 	EAffFlag_name_by_value[EAffFlag::kAfPoison] = "kAfPoison";
+	EAffFlag_name_by_value[EAffFlag::kAfEntanglement] = "kAfEntanglement";
 
 	for (const auto &i : EAffFlag_name_by_value) {
 		EAffFlag_value_by_name[i.second] = i.first;
