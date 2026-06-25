@@ -335,4 +335,7 @@
 	<affect id="kEvade">
 		<flags val="kAfBattledec|kAfPulsedec"/>
 	</affect>
+	<affect id="kWirchery">
+		<flags val="kAfDispellable"/>
+	</affect>
 </affects>

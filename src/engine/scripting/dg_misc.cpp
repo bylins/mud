@@ -303,10 +303,12 @@ void do_dg_affect(void * /*go*/, Script * /*sc*/, Trigger *trig, int/* script_ty
 	}
 
 	auto index_s = FixNameAndFindSpellId(spell_name.data());
-	if (index_s == ESpell::kUndefined) {
-		sprintf(buf2, "dg_affect: unknown spell '%s' ставим 'чары'!", spell_name.c_str());
+	// issue.affect-migration: an unknown/placeholder spell falls back to the generic "чары" (kWirchery)
+	// affect (the ex-kSolobonus default) instead of aborting -- a builder need not name a real spell.
+	const bool generic_affect = (index_s == ESpell::kUndefined);
+	if (generic_affect) {
+		sprintf(buf2, "dg_affect: spell '%s' не найдено -- ставим 'чары'.", spell_name.c_str());
 		trig_log(trig, buf2);
-		return;
 	}
 
 	// locate the target
@@ -335,12 +337,18 @@ void do_dg_affect(void * /*go*/, Script * /*sc*/, Trigger *trig, int/* script_ty
 		} else {
 			af.location = static_cast<EApply>(index);
 			af.modifier = value;
-			af.affect_type = EAffect::kDefault;
+			// generic (no real spell) APPLY affect -> the "чары" identity so it displays + expires sensibly.
+			af.affect_type = generic_affect ? EAffect::kWirchery : EAffect::kDefault;
 		}
 		ImposeAffect(ch, af); // перекастим аффект
 	} else {
-		// remove affect
-		RemoveAffectFromCharAndRecalculate(ch, index_s);
+		// remove affect -- by spell id, or by the affect identity for the generic (no-spell) case
+		if (!generic_affect) {
+			RemoveAffectFromCharAndRecalculate(ch, index_s);
+		} else {
+			RemoveAffectFromCharAndRecalculate(ch,
+					type == AFFECT_TYPE ? dg_affect_type : EAffect::kWirchery);
+		}
 	}
 }
 
