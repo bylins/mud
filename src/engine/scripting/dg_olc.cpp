@@ -510,7 +510,6 @@ void trigedit_save(DescriptorData *d) {
 	
 	// Save trigger to disk using data source abstraction (YAML/SQLite/Legacy)
 	TriggerDistribution(d);
-	zone = zone_table[OLC_ZNUM(d)].vnum;
 	int notify_level = MAX(kLvlBuilder, GET_INVIS_LEV(d->character));
 
 	auto* data_source = world_loader::WorldDataSourceManager::Instance().GetDataSource();
