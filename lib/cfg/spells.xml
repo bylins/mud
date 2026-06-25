@@ -2994,20 +2994,6 @@
 		<targets val="kTarNone" />
 		<flags val="kMagManual" />
 	</spell>
-	<spell id="kDrunked" element="kUndefined" mode="kService">
-		<name val="!set by programm!" />
-		<misc pos="kStand" violent="N" danger="0" />
-		<mana max="0" min="0" change="0" />
-		<targets val="kTarNone" />
-		<flags val="kMagManual" />
-	</spell>
-	<spell id="kAbstinent" element="kUndefined" mode="kService">
-		<name val="!set by programm!" />
-		<misc pos="kStand" violent="N" danger="0" />
-		<mana max="0" min="0" change="0" />
-		<targets val="kTarNone" />
-		<flags val="kMagManual" />
-	</spell>
 	<spell id="kFullFeed" element="kLife" mode="kEnabled">
 		<name val="full" />
 		<components>
@@ -3067,20 +3053,6 @@
 				</affects>
 			</action>
 		</talent_actions>
-	</spell>
-	<spell id="kBattle" element="kUndefined" mode="kService">
-		<name val="!set by programm!" />
-		<misc pos="kStand" violent="N" danger="0" />
-		<mana max="0" min="0" change="0" />
-		<targets val="kTarNone" />
-		<flags val="kMagManual" />
-	</spell>
-	<spell id="kHaemorrhage" element="kUndefined" mode="kService">
-		<name val="!set by programm!" />
-		<misc pos="kStand" violent="N" danger="0" />
-		<mana max="0" min="0" change="0" />
-		<targets val="kTarNone" />
-		<flags val="kMagManual" />
 	</spell>
 	<spell id="kCourage" element="kUndefined" mode="kService">
 		<name val="!set by programm!" />
@@ -5796,13 +5768,6 @@
 		<mana max="100" min="90" change="1" />
 		<targets val="kTarCharRoom|kTarSelfOnly" />
 		<flags val="kMagAffects" />
-	</spell>
-	<spell id="kBandage" element="kUndefined" mode="kService">
-		<name val="!set by programm!" />
-		<misc pos="kStand" violent="N" danger="0" />
-		<mana max="0" min="0" change="0" />
-		<targets val="kTarNone" />
-		<flags val="kMagManual" />
 	</spell>
 	<spell id="kCapable" element="kUndefined" mode="kService">
 		<name val="!set by programm!" />

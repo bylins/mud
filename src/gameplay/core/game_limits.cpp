@@ -730,7 +730,7 @@ void beat_points_update(int pulse) {
 
 		if (AFF_FLAGGED(d->character.get(), EAffect::kBandage)) {
 			for (const auto &aff : d->character->affected) {
-				if (aff->type == ESpell::kBandage) {
+				if (aff->affect_type == EAffect::kBandage) {
 					restore += std::min(d->character.get()->get_real_max_hit() / 10, aff->modifier);
 					break;
 				}

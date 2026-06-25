@@ -208,7 +208,7 @@ void SetFighting(CharData *ch, CharData *vict) {
 
 	if (AFF_FLAGGED(ch, EAffect::kBandage)) {
 		SendMsgToChar("Перевязка была прервана!\r\n", ch);
-		RemoveAffectFromChar(ch, ESpell::kBandage);
+		RemoveAffectFromChar(ch, EAffect::kBandage);
 		AFF_FLAGS(ch).unset(EAffect::kBandage);
 	}
 	if (AFF_FLAGGED(ch, EAffect::kMemorizeSpells)) {

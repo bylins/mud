@@ -45,7 +45,6 @@ void DoBandage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 
 
 	Affect<EApply> af;
-	af.type = ESpell::kBandage;
 	af.location = EApply::kNone;
 	af.modifier = GET_OBJ_VAL(bandage, 0);
 	af.duration = CalcDuration(ch, ch, ESkill::kUndefined, 10, 0, 0, 0);

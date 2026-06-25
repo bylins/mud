@@ -684,7 +684,7 @@ bool PerformSimpleMove(CharData *ch, int dir, int following, CharData *leader, E
 bool PerformMove(CharData *ch, int dir, int need_specials_check, int checkmob, CharData *master) {
 	if (AFF_FLAGGED(ch, EAffect::kBandage)) {
 		SendMsgToChar("Перевязка была прервана!\r\n", ch);
-		RemoveAffectFromChar(ch, ESpell::kBandage);
+		RemoveAffectFromChar(ch, EAffect::kBandage);
 		AFF_FLAGS(ch).unset(EAffect::kBandage);
 	}
 	ch->set_motion(true);

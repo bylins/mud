@@ -213,7 +213,7 @@ enum class ESpell {
 	kDaturaPoison = 192,
 	kTimerRestore = 193,
 	kCombatLuck = 194,
-	kBandage = 195,
+//	kBandage = 195,	// UNUSED (issue.affect-migration): the bandage state is identified by its EAffect::kBandage affect; af.type was redundant; value 195 retired.
 //	kNoBandage = 196,	// UNUSED (issue.affect-migration): re-bandage already gated on AFF_FLAGGED(kCannotBeBandaged); value 196 retired.
 	kCapable = 197,
 	kStrangle = 198,
