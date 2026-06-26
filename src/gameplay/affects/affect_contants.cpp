@@ -617,10 +617,21 @@ msg_container::MsgContainer<EAffect, affects::EAffectMsgType> &AffectMsgContaine
 // (EAffect is 1-based; index 0 = kUndefined = no flags).
 constexpr std::size_t kAffectFlagTableSize = 135;  // EAffect max (kCapable=134) + 1
 std::array<Bitvector, kAffectFlagTableSize> g_affect_flags{};
+std::array<affects::EBuff, kAffectFlagTableSize> g_affect_buff{};
 bool g_affect_flags_loaded = false;
+
+// Parse an <affect buff="Y|N|A"> attribute into EBuff (the affect-side analog of ParseViolent). Absent
+// or unrecognised -> kAmbiguous (classification undetermined).
+static affects::EBuff ParseAffectBuff(const char *raw) {
+	if (!raw || !*raw) return affects::EBuff::kAmbiguous;
+	if (*raw == 'Y' || *raw == 'y' || *raw == '1') return affects::EBuff::kYes;
+	if (*raw == 'N' || *raw == 'n' || *raw == '0') return affects::EBuff::kNo;
+	return affects::EBuff::kAmbiguous;
+}
 
 void BuildAffectFlagTable(parser_wrapper::DataNode data) {
 	g_affect_flags.fill(0);
+	g_affect_buff.fill(affects::EBuff::kAmbiguous);
 	for (auto &node : data.Children("affect")) {
 		const char *id = node.GetValue("id");
 		if (!id || !*id) {
@@ -644,6 +655,8 @@ void BuildAffectFlagTable(parser_wrapper::DataNode data) {
 				g_affect_flags[idx] = parse::ReadAsConstantsBitvector<EAffFlag>(flags);
 			}
 		}
+		// issue.affect-migration: the affect's own buff/debuff/ambiguous classification.
+		g_affect_buff[idx] = ParseAffectBuff(node.GetValue("buff"));
 	}
 	g_affect_flags_loaded = true;
 }
@@ -743,6 +756,12 @@ const std::vector<EAffect> &MenuOrder() {
 Bitvector AffectFlagsByType(EAffect affect_type) {
 	const auto idx = static_cast<std::size_t>(to_underlying(affect_type));
 	return idx < kAffectFlagTableSize ? g_affect_flags[idx] : Bitvector{0};
+}
+
+// issue.affect-migration: the affect's buff/debuff/ambiguous classification from affects.xml.
+EBuff AffectBuffKind(EAffect affect_type) {
+	const auto idx = static_cast<std::size_t>(to_underlying(affect_type));
+	return idx < kAffectFlagTableSize ? g_affect_buff[idx] : EBuff::kAmbiguous;
 }
 
 // True once affects.xml flags have been loaded; before that (unit tests, early boot) callers keep

@@ -2245,23 +2245,17 @@ EStageResult RunCastUnaffects(CharData *ch, TTarget *target, ESpell spell_id,
 			// it, group prismatic aura stripping an ally's sanctuary tripped pk_agro_action and
 			// evicted the caster from the clan castle. Violent dispels still aggro.
 			if (ch != target && MUD::Spell(spell_id).IsViolentAgainst(ch, target)) {
-				// issue.affect-migration: classify the dispelled affect by its OWN debuff flag instead
-				// of its source spell's kNpcAffectNpc/kNpcAffectPc. Stripping a buff (debuff=false) is
-				// aggression against the target itself; stripping a debuff (debuff=true) undoes the work
-				// of whoever the target is fighting, so it aggros that enemy. The affect is still on the
-				// target here (removal runs below).
-				bool dispelled_debuff = false;
-				for (const auto &aff : target->affected) {
-					if (aff && aff->affect_type == to_remove.front().affect_type) {
-						dispelled_debuff = aff->debuff;
-						break;
-					}
-				}
-				if (!dispelled_debuff) {
+				// issue.affect-migration: classify the dispelled affect by its OWN buff flag (the
+				// affect-side analog of a spell's <misc violent>), not by the source spell. Stripping a
+				// buff is aggression against the target itself; stripping a debuff undoes the work of
+				// whoever the target is fighting, so it aggros that enemy; an ambiguous affect triggers
+				// no automatic PK action (direction undetermined).
+				const auto buff = affects::AffectBuffKind(to_remove.front().affect_type);
+				if (buff == affects::EBuff::kYes) {
 					if (!pk_agro_action(ch, target)) {
 						return EStageResult::kSuccess;
 					}
-				} else if (target->GetEnemy()) {
+				} else if (buff == affects::EBuff::kNo && target->GetEnemy()) {
 					if (!pk_agro_action(ch, target->GetEnemy())) {
 						return EStageResult::kSuccess;
 					}

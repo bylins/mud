@@ -65,6 +65,13 @@ enum class EAffectMsgType {
 [[nodiscard]] EAffect AffectByIndex(std::size_t flat_index);   // set-bit index -> EAffect
 [[nodiscard]] Bitvector AffectFlagsByType(EAffect affect_type);   // issue.affect-migration: per-affect behavior flags from affects.xml (0 if none)
 [[nodiscard]] bool AffectFlagsLoaded();   // issue.affect-migration: affects.xml flags loaded yet?
+
+// issue.affect-migration: an affect's intrinsic buff classification -- the affect-side analog of a
+// spell's <misc violent>. kYes = a buff (helpful), kNo = a debuff (harmful), kAmbiguous = depends on
+// context. Declared per affect via <affect buff="Y|N|A"> in affects.xml; kAmbiguous when absent.
+enum class EBuff { kNo, kYes, kAmbiguous };
+[[nodiscard]] EBuff AffectBuffKind(EAffect affect_type);
+
 [[nodiscard]] std::string DescribeActive(const BitsetFlags<EAffect> &flags, const char *div);
 [[nodiscard]] bool FindByShortDesc(const std::string &name, EAffect &out);
 [[nodiscard]] bool MessagesLoaded();   // affect_messages cfg loaded? (boot guard)
