@@ -423,11 +423,12 @@ void RemoveSingleRoomAffect(long caster_id, ESpell spell_id) {
 
 ESpell RemoveControlledRoomAffect(CharData *ch) {
 	long casterID = ch->get_uid();
-	// issue.affect-migration: kBlackTentacles is the only room affect with kMagNeedControl, so the
-	// "controlled" affect is identified by its ERoomAffect rather than the imposing spell's flag.
+	// issue.affect-migration: "controlled" is the kAfNeedControl flag on the room affect (set in
+	// room_affects.xml -- the room-affect counterpart of the spell's EMagic kMagNeedControl). General
+	// flag check, not a specific affect.
 	auto filter =
 		[&casterID](auto &af) {
-			return (af->caster_id == casterID && af->affect_type == ERoomAffect::kBlackTentacles);
+			return (af->caster_id == casterID && IS_SET(af->battleflag, kAfNeedControl));
 		};
 	return RemoveAffectFromRooms(ESpell::kUndefined, filter);
 }
@@ -530,21 +531,33 @@ void UpdateRoomsAffects() {
 		for (auto affect_i = next_affect_i; affect_i != affects.end(); affect_i = next_affect_i) {
 			++next_affect_i;
 			const auto &affect = *affect_i;
-			// issue.affect-migration: caster dependency keyed on the room-affect identity (ERoomAffect),
-			// not the imposing spell's kMagCaster* flags. Only two room affects depend on the caster:
-			//   kBlackTentacles (was kMagCasterInroom)       -- caster must be in the room, else it ends;
-			//   kRuneLabel      (was kMagCasterInworldDelay) -- caster may be anywhere in the world; while
-			//                    absent the label just ticks down (its duration is not zeroed).
-			// No room affect uses kMagCasterInworld. ch (the resolved caster) flows to HandleRoomAffect.
+			// issue.affect-migration: caster dependency read from the room affect's OWN flags (set in
+			// room_affects.xml -- the room-affect counterparts of the spell EMagic kMagCaster* flags), so
+			// the behavior lives on the affect, not MUD::Spell(af->type). General mechanism: any room affect
+			// carrying these flags gets the treatment. ch (the resolved caster) flows to HandleRoomAffect.
 			ch = nullptr;
-			if (affect->affect_type == ERoomAffect::kBlackTentacles) {
+			if (IS_SET(affect->battleflag, kAfCasterInRoom) || IS_SET(affect->battleflag, kAfCasterInWorld)) {
 				ch = find_char_in_room(affect->caster_id, *room);
 				if (!ch) {
 					affect->duration = 0;
 				}
-			} else if (affect->affect_type == ERoomAffect::kRuneLabel) {
+			} else if (IS_SET(affect->battleflag, kAfCasterInWorldDelay)) {
+				// задержка таймера: не обнуляем, даже если кастера нет, просто тикаем как обычно
+				ch = find_char_in_room(affect->caster_id, *room);
+			}
+
+			if ((!ch) && IS_SET(affect->battleflag, kAfCasterInWorld)) {
 				ch = find_char(affect->caster_id);
 				if (!ch) {
+					affect->duration = 0;
+				}
+			} else if (IS_SET(affect->battleflag, kAfCasterInWorldDelay)) {
+				ch = find_char(affect->caster_id);
+			}
+
+			if (!(ch && IS_SET(affect->battleflag, kAfCasterInWorldDelay))) {
+				// the rune label specifically decays while its caster is away (the original per-spell case)
+				if (affect->affect_type == ERoomAffect::kRuneLabel) {
 					affect->duration--;
 				}
 			}

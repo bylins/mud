@@ -30,7 +30,14 @@ enum EAffFlag : Bitvector {
   kAfFailed				= 1u << 11,	// the affect is a failed-attempt marker: it carries the success affect_type but must NOT count as the real effect (the affect_total rebuild skips its flag bit; query via AffSuccessFlagged)
   kAfPoison				= 1u << 12,	// affect CATEGORY: poison. Set in affects.xml on every poison affect_type so mechanics ("all poisons") test one flag instead of enumerating each poison. First of a planned set of category flags (curse/blessing/shield/...).
   kAfEntanglement		= 1u << 13,	// affect CATEGORY: movement restriction (web/slow/hold/no-teleport). Set in affects.xml on kNoFlee/kSlow/kNoTeleport/kHold; "is entangled" tests this flag instead of a specific spell.
-  kAfCharmBond			= 1u << 14	// PER-INSTANCE (not a category, never in affects.xml): marks the charm "package" affects (bond + the companion buffs that share it). Caller-set, preserved by the affect_to_char funnel (like kAfFailed). Replaces the af.type==kCharm group marker; see RemoveCharmBond.
+  kAfCharmBond			= 1u << 14,	// PER-INSTANCE (not a category, never in affects.xml): marks the charm "package" affects (bond + the companion buffs that share it). Caller-set, preserved by the affect_to_char funnel (like kAfFailed). Replaces the af.type==kCharm group marker; see RemoveCharmBond.
+  // ROOM-affect behavior flags (set in room_affects.xml; the room-affect counterparts of the spell
+  // EMagic kMagNeedControl/kMagCaster* flags, so UpdateRoomsAffects/RemoveControlledRoomAffect read the
+  // behavior off the affect instead of MUD::Spell(af->type)). Char affects never set these.
+  kAfNeedControl		= 1u << 15,	// only one controlled room affect per caster (replaced on re-cast)
+  kAfCasterInRoom		= 1u << 16,	// affect ends if its caster leaves the room
+  kAfCasterInWorld		= 1u << 17,	// affect ends if its caster leaves the world
+  kAfCasterInWorldDelay	= 1u << 18	// caster looked up world-wide, but the affect just ticks down while absent (not zeroed)
 };
 
 /**

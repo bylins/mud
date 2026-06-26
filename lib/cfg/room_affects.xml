@@ -64,13 +64,13 @@
 		</actions>
 	</room_affect>
 	<room_affect id="kRuneLabel">
-		<flags val="kAfUpdateDuration|kAfUnique"/>
+		<flags val="kAfUpdateDuration|kAfUnique|kAfCasterInWorldDelay"/>
 	</room_affect>
 	<room_affect id="kHypnoticPattern">
 		<flags val="kAfDispellable"/>
 	</room_affect>
 	<room_affect id="kBlackTentacles">
-		<flags val="kAfDispellable"/>
+		<flags val="kAfDispellable|kAfNeedControl|kAfCasterInRoom"/>
 		<actions>
 			<action target="kTarFoes">
 				<trigger val="kPulse"/>

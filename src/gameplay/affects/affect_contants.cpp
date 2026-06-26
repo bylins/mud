@@ -526,6 +526,10 @@ void init_EAffFlag_ITEM_NAMES() {
 	EAffFlag_name_by_value[EAffFlag::kAfPoison] = "kAfPoison";
 	EAffFlag_name_by_value[EAffFlag::kAfEntanglement] = "kAfEntanglement";
 	EAffFlag_name_by_value[EAffFlag::kAfCharmBond] = "kAfCharmBond";
+	EAffFlag_name_by_value[EAffFlag::kAfNeedControl] = "kAfNeedControl";
+	EAffFlag_name_by_value[EAffFlag::kAfCasterInRoom] = "kAfCasterInRoom";
+	EAffFlag_name_by_value[EAffFlag::kAfCasterInWorld] = "kAfCasterInWorld";
+	EAffFlag_name_by_value[EAffFlag::kAfCasterInWorldDelay] = "kAfCasterInWorldDelay";
 
 	for (const auto &i : EAffFlag_name_by_value) {
 		EAffFlag_value_by_name[i.second] = i.first;
