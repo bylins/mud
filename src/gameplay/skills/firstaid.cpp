@@ -11,6 +11,7 @@
 #include "engine/db/global_objects.h"
 #include "gameplay/abilities/abilities_constants.h"
 #include "gameplay/affects/affect_data.h"
+#include "gameplay/affects/affect_messages.h"
 #include "gameplay/fight/fight.h"
 #include "utils/random.h"
 #include "utils/utils_string.h"
@@ -81,9 +82,9 @@ float ComputeFirstAidPotency(CharData *ch) {
 //   `firstaid <target>`         -> spell=kUndefined, vict=<target> (auto-pick on target, legacy)
 //   `firstaid 'spell'`          -> spell=<spell>, vict=empty (named affect on self)
 //   `firstaid 'spell' <target>` -> spell=<spell>, vict=<target> (named affect on target)
-// Quote chars match do_cast: ', *, !. Returns false on a malformed spell name.
-bool ParseFirstAidArgs(const char *argument, ESpell &spell_id, std::string &vict_arg) {
-	spell_id = ESpell::kUndefined;
+// Quote chars match do_cast: ', *, !. Returns false on an unknown affect name.
+bool ParseFirstAidArgs(const char *argument, EAffect &affect_id, std::string &vict_arg) {
+	affect_id = EAffect::kUndefined;
 	vict_arg.clear();
 	if (!argument || !*argument) {
 		return true;
@@ -105,11 +106,10 @@ bool ParseFirstAidArgs(const char *argument, ESpell &spell_id, std::string &vict
 	}
 
 	const auto quote2 = arg_str.find_first_of("'*!", quote1 + 1);
-	std::string spell_name_str = (quote2 != std::string::npos)
+	std::string affect_name_str = (quote2 != std::string::npos)
 			? arg_str.substr(quote1 + 1, quote2 - quote1 - 1)
 			: arg_str.substr(quote1 + 1);
-	spell_id = FixNameAndFindSpellId(spell_name_str);
-	if (spell_id == ESpell::kUndefined) {
+	if (!GetAffectNumByName(affect_name_str, affect_id)) {
 		return false;
 	}
 
@@ -127,11 +127,11 @@ bool ParseFirstAidArgs(const char *argument, ESpell &spell_id, std::string &vict
 //   desired == kUndefined -> the kAfCurable affect on vict with the LOWEST potency.
 //                            "Triage easy stuff first" -- if even the cheapest fails,
 //                            stronger affects need a real dispel spell anyway.
-//   desired != kUndefined -> the matching kAfCurable affect of that spell, or nullptr.
-Affect<EApply>::shared_ptr PickCureTarget(CharData *vict, ESpell desired) {
-	if (desired != ESpell::kUndefined) {
+//   desired != kUndefined -> the matching kAfCurable affect of that type, or nullptr.
+Affect<EApply>::shared_ptr PickCureTarget(CharData *vict, EAffect desired) {
+	if (desired != EAffect::kUndefined) {
 		for (const auto &aff : vict->affected) {
-			if (aff && aff->type == desired && IS_SET(aff->battleflag, kAfCurable) && aff->debuff) {
+			if (aff && aff->affect_type == desired && IS_SET(aff->battleflag, kAfCurable) && aff->debuff) {
 				return aff;
 			}
 		}
@@ -174,10 +174,10 @@ void DoFirstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	ESpell desired_spell = ESpell::kUndefined;
+	EAffect desired_affect = EAffect::kUndefined;
 	std::string vict_arg;
-	if (!ParseFirstAidArgs(argument, desired_spell, vict_arg)) {
-		SendMsgToChar("Использование: firstaid ['название заклинания' [цель]] | [цель]\r\n", ch);
+	if (!ParseFirstAidArgs(argument, desired_affect, vict_arg)) {
+		SendMsgToChar("Использование: firstaid ['название эффекта' [цель]] | [цель]\r\n", ch);
 		return;
 	}
 
@@ -224,7 +224,7 @@ void DoFirstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	// --- Affect removal phase (new: potency contest gated by kAfCurable) ---
-	const auto target_aff = PickCureTarget(vict, desired_spell);
+	const auto target_aff = PickCureTarget(vict, desired_affect);
 	bool affect_cleared = false;
 	bool affect_contest_failed = false;
 	if (target_aff) {
@@ -237,12 +237,12 @@ void DoFirstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			snprintf(dbuf, sizeof(dbuf),
 					 "First Aid: %.1f%s vs %s [p: %.1f]. %s.\r\n",
 					 potency, luck ? " (luck)" : "",
-					 MUD::Spell(target_aff->type).GetCName(), aff_potency,
+					 affects::AffectMsg(target_aff->affect_type, affects::EAffectMsgType::kShortDesc).c_str(), aff_potency,
 					 ok ? "Success" : "Fail");
 			SendMsgToChar(dbuf, ch);
 		}
 		if (ok) {
-			RemoveAffectFromCharAndRecalculate(vict, target_aff->type);
+			RemoveAffectFromCharAndRecalculate(vict, target_aff->affect_type);
 			affect_cleared = true;
 		} else {
 			affect_contest_failed = true;
