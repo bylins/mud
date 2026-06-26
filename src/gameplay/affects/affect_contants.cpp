@@ -7,25 +7,25 @@
 #include "affect_contants.h"
 #include "affects_loader.h"
 #include "affect_messages.h"
+#include "utils/utils_parse.h"   // parse::ReadAsConstantsBitvector
 
 #include "gameplay/magic/spells.h"
 #include "engine/structs/structs.h"   // kIntOne/kIntTwo plane prefixes
 #include "engine/structs/msg_container.h"
 #include "engine/structs/info_container.h"   // kUndefinedVnum
 #include "utils/logger.h"
+#include "engine/core/config.h"   // CommonMsg / ECommonMsg
 
 #include <array>
 #include <bit>
 #include <set>
 
-// issue.ext-affects: the affect short display names are data now (cfg/affects.xml). affected_bits is
-// rebuilt at boot into the same flat, bit-positional, '\n'-plane-terminated layout sprintbits expects
-// (see affects_loader.h / AffectsLoader below). Owned by g_affected_bits_*; null until the cfg loads.
+// issue.affect-migration: affect short names are queried straight from the affect system
+// (affects::DescribeActive / AffectMsg) -- no affected_bits[] projection. This flag only tracks
+// whether the affect_messages cfg has loaded yet (the boot guard in db.cpp uses it).
 namespace {
-std::vector<std::string> g_affected_bits_storage;   // owns the strings + '\n' plane markers
-std::vector<const char *> g_affected_bits_ptrs;     // stable c_str() view handed to sprintbits
+bool g_affect_messages_loaded = false;
 }  // namespace
-const char **affected_bits = nullptr;
 
 typedef std::map<EAffect, std::string> EAffectFlag_name_by_value_t;
 typedef std::map<const std::string, EAffect> EAffectFlag_value_by_name_t;
@@ -125,8 +125,53 @@ void init_EAffectFlag_ITEM_NAMES() {
 	EAffectFlag_name_by_value[EAffect::kCloudly] = "kCloudly";
 	EAffectFlag_name_by_value[EAffect::kConfused] = "kConfused";
 	EAffectFlag_name_by_value[EAffect::kNoCharge] = "kNoCharge";
-	EAffectFlag_name_by_value[EAffect::kInjured] = "kInjured";
+	EAffectFlag_name_by_value[EAffect::kInjuredLimb] = "kInjuredLimb";
 	EAffectFlag_name_by_value[EAffect::kFrenzy] = "kFrenzy";
+	EAffectFlag_name_by_value[EAffect::kMagicArmor] = "kMagicArmor";
+	EAffectFlag_name_by_value[EAffect::kShivering] = "kShivering";
+	EAffectFlag_name_by_value[EAffect::kDespodency] = "kDespodency";
+	EAffectFlag_name_by_value[EAffect::kMagicStrength] = "kMagicStrength";
+	EAffectFlag_name_by_value[EAffect::kPatronage] = "kPatronage";
+	EAffectFlag_name_by_value[EAffect::kStoneSkin] = "kStoneSkin";
+	EAffectFlag_name_by_value[EAffect::kMagicWeaknes] = "kMagicWeaknes";
+	EAffectFlag_name_by_value[EAffect::kEnlarge] = "kEnlarge";
+	EAffectFlag_name_by_value[EAffect::kMagicShield] = "kMagicShield";
+	EAffectFlag_name_by_value[EAffect::kForbidden] = "kForbidden";
+	EAffectFlag_name_by_value[EAffect::kFrostbite] = "kFrostbite";
+	EAffectFlag_name_by_value[EAffect::kSlowdown] = "kSlowdown";
+	EAffectFlag_name_by_value[EAffect::kFever] = "kFever";
+	EAffectFlag_name_by_value[EAffect::kFastRegeneration] = "kFastRegeneration";
+	EAffectFlag_name_by_value[EAffect::kLessening] = "kLessening";
+	EAffectFlag_name_by_value[EAffect::kMadness] = "kMadness";
+	EAffectFlag_name_by_value[EAffect::kMindless] = "kMindless";
+	EAffectFlag_name_by_value[EAffect::kFascination] = "kFascination";
+	EAffectFlag_name_by_value[EAffect::kContusion] = "kContusion";
+	EAffectFlag_name_by_value[EAffect::kStoneBones] = "kStoneBones";
+	EAffectFlag_name_by_value[EAffect::kFailure] = "kFailure";
+	EAffectFlag_name_by_value[EAffect::kCatGrace] = "kCatGrace";
+	EAffectFlag_name_by_value[EAffect::kBullBody] = "kBullBody";
+	EAffectFlag_name_by_value[EAffect::kSnakeWisdom] = "kSnakeWisdom";
+	EAffectFlag_name_by_value[EAffect::kGimmicry] = "kGimmicry";
+	EAffectFlag_name_by_value[EAffect::kIndecision] = "kIndecision";
+	EAffectFlag_name_by_value[EAffect::kInsanity] = "kInsanity";
+	EAffectFlag_name_by_value[EAffect::kRousing] = "kRousing";
+	EAffectFlag_name_by_value[EAffect::kPassion] = "kPassion";
+	EAffectFlag_name_by_value[EAffect::kSurgeOfPower] = "kSurgeOfPower";
+	EAffectFlag_name_by_value[EAffect::kSurgeOfValour] = "kSurgeOfValour";
+	EAffectFlag_name_by_value[EAffect::kBattleCourage] = "kBattleCourage";
+	EAffectFlag_name_by_value[EAffect::kInspiration] = "kInspiration";
+	EAffectFlag_name_by_value[EAffect::kConcentration] = "kConcentration";
+	EAffectFlag_name_by_value[EAffect::kBattleLuck] = "kBattleLuck";
+	EAffectFlag_name_by_value[EAffect::kPhysdamageBonus] = "kPhysdamageBonus";
+	EAffectFlag_name_by_value[EAffect::kSuspiciousness] = "kSuspiciousness";
+	EAffectFlag_name_by_value[EAffect::kSevereWound] = "kSevereWound";
+	EAffectFlag_name_by_value[EAffect::kWellFed] = "kWellFed";
+	EAffectFlag_name_by_value[EAffect::kPrayerful] = "kPrayerful";
+	EAffectFlag_name_by_value[EAffect::kPietas] = "kPietas";
+	EAffectFlag_name_by_value[EAffect::kEvade] = "kEvade";
+	EAffectFlag_name_by_value[EAffect::kWirchery] = "kWirchery";
+	EAffectFlag_name_by_value[EAffect::kAconitumPoison] = "kAconitumPoison";
+	EAffectFlag_name_by_value[EAffect::kCapable] = "kCapable";
 	for (const auto &i : EAffectFlag_name_by_value) {
 		EAffectFlag_value_by_name[i.second] = i.first;
 	}
@@ -477,6 +522,14 @@ void init_EAffFlag_ITEM_NAMES() {
 	EAffFlag_name_by_value[EAffFlag::kAfCurable] = "kAfCurable";
 	EAffFlag_name_by_value[EAffFlag::kAfMustBeHandled] = "kAfMustBeHandled";
 	EAffFlag_name_by_value[EAffFlag::kAfUnique] = "kAfUnique";
+	EAffFlag_name_by_value[EAffFlag::kAfFailed] = "kAfFailed";
+	EAffFlag_name_by_value[EAffFlag::kAfPoison] = "kAfPoison";
+	EAffFlag_name_by_value[EAffFlag::kAfEntanglement] = "kAfEntanglement";
+	EAffFlag_name_by_value[EAffFlag::kAfCharmBond] = "kAfCharmBond";
+	EAffFlag_name_by_value[EAffFlag::kAfNeedControl] = "kAfNeedControl";
+	EAffFlag_name_by_value[EAffFlag::kAfCasterInRoom] = "kAfCasterInRoom";
+	EAffFlag_name_by_value[EAffFlag::kAfCasterInWorld] = "kAfCasterInWorld";
+	EAffFlag_name_by_value[EAffFlag::kAfCasterInWorldDelay] = "kAfCasterInWorldDelay";
 
 	for (const auto &i : EAffFlag_name_by_value) {
 		EAffFlag_value_by_name[i.second] = i.first;
@@ -540,6 +593,17 @@ const std::map<affects::EAffectMsgType, std::string> kAffectMsgTypeNames{
 		{affects::EAffectMsgType::kAuraFrame, "kAuraFrame"},
 		{affects::EAffectMsgType::kAuraNoun, "kAuraNoun"},
 		{affects::EAffectMsgType::kAuraNounMany, "kAuraNounMany"},
+		{affects::EAffectMsgType::kAffImposedToRoom, "kAffImposedToRoom"},
+		{affects::EAffectMsgType::kAffImposedToChar, "kAffImposedToChar"},
+		{affects::EAffectMsgType::kAffImposedToVict, "kAffImposedToVict"},
+		{affects::EAffectMsgType::kAffImposeFailToChar, "kAffImposeFailToChar"},
+		{affects::EAffectMsgType::kAffImposeFailToVict, "kAffImposeFailToVict"},
+		{affects::EAffectMsgType::kAffImposeFailToRoom, "kAffImposeFailToRoom"},
+		{affects::EAffectMsgType::kAffDispelledToRoom, "kAffDispelledToRoom"},
+		{affects::EAffectMsgType::kAffDispelledToChar, "kAffDispelledToChar"},
+		{affects::EAffectMsgType::kAffExpiredToChar, "kAffExpiredToChar"},
+		{affects::EAffectMsgType::kAffExpiredToRoom, "kAffExpiredToRoom"},
+		{affects::EAffectMsgType::kAffExpireSoon, "kAffExpireSoon"},
 	};
 
 msg_container::MsgContainer<EAffect, affects::EAffectMsgType> &AffectMsgContainer() {
@@ -547,47 +611,54 @@ msg_container::MsgContainer<EAffect, affects::EAffectMsgType> &AffectMsgContaine
 	return container;
 }
 
-// Rebuild affected_bits from each affect's kShortDesc. The EAffect bit (kept in C++) gives each name
-// its plane (value>>30) and bit (ctz of the low 30) -> the same flat, '\n'-plane-terminated array
-// sprintbits walks. An affect with no kShortDesc becomes an "UNUSED" placeholder (positions aligned).
-void RebuildAffectedBits() {
-	constexpr int kPlanes = 3;
-	std::array<std::map<int, std::string>, kPlanes> planes;
-	for (const auto &[affect, token] : NAMES_OF<EAffect>()) {
-		if (affect == EAffect::kUndefined) {
+// issue.affect-migration: per-affect_type behavior flags (kAfCurable/kAfDispellable/kAfBattledec/...)
+// loaded from affects.xml. affects.xml is the SOURCE OF TRUTH for what an effect does; the casting
+// source (spell/skill/item) only sets strength + duration. Indexed by to_underlying(EAffect)
+// (EAffect is 1-based; index 0 = kUndefined = no flags).
+constexpr std::size_t kAffectFlagTableSize = 135;  // EAffect max (kCapable=134) + 1
+std::array<Bitvector, kAffectFlagTableSize> g_affect_flags{};
+std::array<affects::EBuff, kAffectFlagTableSize> g_affect_buff{};
+bool g_affect_flags_loaded = false;
+
+// Parse an <affect buff="Y|N|A"> attribute into EBuff (the affect-side analog of ParseViolent). Absent
+// or unrecognised -> kAmbiguous (classification undetermined).
+static affects::EBuff ParseAffectBuff(const char *raw) {
+	if (!raw || !*raw) return affects::EBuff::kAmbiguous;
+	if (*raw == 'Y' || *raw == 'y' || *raw == '1') return affects::EBuff::kYes;
+	if (*raw == 'N' || *raw == 'n' || *raw == '0') return affects::EBuff::kNo;
+	return affects::EBuff::kAmbiguous;
+}
+
+void BuildAffectFlagTable(parser_wrapper::DataNode data) {
+	g_affect_flags.fill(0);
+	g_affect_buff.fill(affects::EBuff::kAmbiguous);
+	for (auto &node : data.Children("affect")) {
+		const char *id = node.GetValue("id");
+		if (!id || !*id) {
 			continue;
 		}
-		const Bitvector value = to_underlying(affect);
-		const int plane = static_cast<int>(value >> 30);
-		const Bitvector low = value & 0x3FFFFFFFu;
-		if (plane >= kPlanes || low == 0) {
+		EAffect affect;
+		try {
+			affect = ITEM_BY_NAME<EAffect>(id);
+		} catch (const std::out_of_range &) {
+			continue;  // unknown id already reported by ValidateAffectRegistry
+		}
+		const auto idx = static_cast<std::size_t>(to_underlying(affect));
+		if (idx >= kAffectFlagTableSize) {
 			continue;
 		}
-		const std::string &short_name =
-			AffectMsgContainer().GetMessage(affect, affects::EAffectMsgType::kShortDesc);
-		if (short_name.empty()) {
-			log("SYSERROR: affect_msg.xml: affect '%s' has no kShortDesc message.", token.c_str());
+		// issue.affect-migration: effect flags live in a <flags val="..."> child tag (unified with the
+		// spells.xml format); read off a COPY of the node (the obj_sets pattern).
+		auto fnode = node;
+		if (fnode.GoToChild("flags")) {
+			if (const char *flags = fnode.GetValue("val"); flags && *flags) {
+				g_affect_flags[idx] = parse::ReadAsConstantsBitvector<EAffFlag>(flags);
+			}
 		}
-		planes[plane][std::countr_zero(low)] = short_name.empty() ? "UNUSED" : short_name;
+		// issue.affect-migration: the affect's own buff/debuff/ambiguous classification.
+		g_affect_buff[idx] = ParseAffectBuff(node.GetValue("buff"));
 	}
-
-	g_affected_bits_storage.clear();
-	for (int plane = 0; plane < kPlanes; ++plane) {
-		const int max_bit = planes[plane].empty() ? -1 : planes[plane].rbegin()->first;
-		for (int bit = 0; bit <= max_bit; ++bit) {
-			const auto it = planes[plane].find(bit);
-			g_affected_bits_storage.push_back(it != planes[plane].end() ? it->second : "UNUSED");
-		}
-		g_affected_bits_storage.push_back("\n");   // plane separator sprintbits counts
-	}
-	g_affected_bits_storage.push_back("\n");        // trailing terminator (empty plane 3)
-
-	g_affected_bits_ptrs.clear();
-	g_affected_bits_ptrs.reserve(g_affected_bits_storage.size());
-	for (const auto &entry : g_affected_bits_storage) {
-		g_affected_bits_ptrs.push_back(entry.c_str());
-	}
-	affected_bits = g_affected_bits_ptrs.data();
+	g_affect_flags_loaded = true;
 }
 
 // affects.xml is the affect registry (id-only for now; grows per-affect handler/action data later).
@@ -639,15 +710,119 @@ namespace affects {
 const std::string &AffectMsg(EAffect affect, EAffectMsgType slot) {
 	return AffectMsgContainer().GetMessage(affect, slot);
 }
-void AffectsLoader::Load(parser_wrapper::DataNode data) { ValidateAffectRegistry(data); }
-void AffectsLoader::Reload(parser_wrapper::DataNode data) { ValidateAffectRegistry(data); }
+
+const std::string &AffectMsgRaw(EAffect affect, EAffectMsgType slot) {
+	static const std::string kEmpty;
+	auto &c = AffectMsgContainer();
+	return c.IsKnown(affect) ? c[affect].GetMessage(slot) : kEmpty;
+}
+
+const std::string &AffectMsgWeapon(EAffect affect, EAffectMsgType slot, bool has_weapon) {
+	static const std::string kEmpty;
+	auto &c = AffectMsgContainer();
+	if (!c.IsKnown(affect)) return kEmpty;
+	const auto &all = c[affect].GetMessages(slot);
+	if (all.empty()) return kEmpty;
+	std::vector<const std::string *> pool;
+	if (has_weapon) {
+		for (const auto &m : all) if (m.find("$o") != std::string::npos) pool.push_back(&m);
+		if (pool.empty()) for (const auto &m : all) pool.push_back(&m);
+	} else {
+		for (const auto &m : all) if (m.find("$o") == std::string::npos) pool.push_back(&m);
+	}
+	if (pool.empty()) return kEmpty;
+	return *pool[number(0, static_cast<int>(pool.size()) - 1)];
+}
+
+bool MessagesLoaded() { return g_affect_messages_loaded; }
+
+// Affects in NAMES_OF order (kUndefined excluded) -- the ordered list the OLC affect editor
+// numbers and toggles by index.
+const std::vector<EAffect> &MenuOrder() {
+	static std::vector<EAffect> order;
+	if (order.empty()) {
+		for (const auto &[affect, token] : NAMES_OF<EAffect>()) {
+			if (affect != EAffect::kUndefined) {
+				order.push_back(affect);
+			}
+		}
+	}
+	return order;
+}
+
+// issue.affect-migration: the affect's intrinsic behavior flags (cure/dispel/refresh/decrement/...)
+// from affects.xml, keyed by affect_type. 0 for affects with no row/flags. Not yet wired into the
+// apply path (Phase 1 -- table built, sourcing switched in Phase 2).
+Bitvector AffectFlagsByType(EAffect affect_type) {
+	const auto idx = static_cast<std::size_t>(to_underlying(affect_type));
+	return idx < kAffectFlagTableSize ? g_affect_flags[idx] : Bitvector{0};
+}
+
+// issue.affect-migration: the affect's buff/debuff/ambiguous classification from affects.xml.
+EBuff AffectBuffKind(EAffect affect_type) {
+	const auto idx = static_cast<std::size_t>(to_underlying(affect_type));
+	return idx < kAffectFlagTableSize ? g_affect_buff[idx] : EBuff::kAmbiguous;
+}
+
+// True once affects.xml flags have been loaded; before that (unit tests, early boot) callers keep
+// their own battleflag instead of sourcing from the (empty) table.
+bool AffectFlagsLoaded() { return g_affect_flags_loaded; }
+
+// The flat bit index of an active affect back to its EAffect (the inverse of the 1-based
+// flag_index_mapping<EAffect>: enum value = index + 1). kUndefined if it is not a known affect.
+EAffect AffectByIndex(std::size_t flat_index) {
+	const EAffect affect = static_cast<EAffect>(flat_index + 1);
+	return NAMES_OF<EAffect>().count(affect) ? affect : EAffect::kUndefined;
+}
+
+// Joined short descriptions of all active affects, queried straight from the affect system (no
+// affected_bits[] projection). Returns CommonMsg(kNothing) when none are set.
+std::string DescribeActive(const BitsetFlags<EAffect> &flags, const char *div) {
+	std::string result;
+	flags.for_each_set([&](std::size_t i) {
+		const EAffect affect = AffectByIndex(i);
+		if (affect == EAffect::kUndefined) {
+			return;
+		}
+		const std::string &name = AffectMsg(affect, EAffectMsgType::kShortDesc);
+		if (name.empty()) {
+			return;
+		}
+		if (!result.empty()) {
+			result += div;
+		}
+		result += name;
+	});
+	return result.empty() ? CommonMsg(ECommonMsg::kNothing) : result;
+}
+
+// Resolve an affect by its short description (prefix match, mirroring the old ext_search_block on
+// affected_bits). Iterates in EAffect order for deterministic first-match.
+bool FindByShortDesc(const std::string &name, EAffect &out) {
+	if (name.empty()) {
+		return false;
+	}
+	for (const auto &[affect, token] : NAMES_OF<EAffect>()) {
+		if (affect == EAffect::kUndefined) {
+			continue;
+		}
+		const std::string &sd = AffectMsg(affect, EAffectMsgType::kShortDesc);
+		if (!sd.empty() && sd.size() >= name.size() && sd.compare(0, name.size(), name) == 0) {
+			out = affect;
+			return true;
+		}
+	}
+	return false;
+}
+void AffectsLoader::Load(parser_wrapper::DataNode data) { ValidateAffectRegistry(data); BuildAffectFlagTable(data); }
+void AffectsLoader::Reload(parser_wrapper::DataNode data) { ValidateAffectRegistry(data); BuildAffectFlagTable(data); }
 void AffectMessagesLoader::Load(parser_wrapper::DataNode data) {
 	AffectMsgContainer().Init(data.Children());
-	RebuildAffectedBits();
+	g_affect_messages_loaded = true;
 }
 void AffectMessagesLoader::Reload(parser_wrapper::DataNode data) {
 	AffectMsgContainer().Reload(data.Children());
-	RebuildAffectedBits();
+	g_affect_messages_loaded = true;
 }
 }  // namespace affects
 

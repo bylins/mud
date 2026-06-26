@@ -178,14 +178,17 @@ bool CharData::has_any_affect(const affects_list_t &affects) {
 }
 
 size_t CharData::remove_random_affects(const size_t count) {
-	auto last_type{ESpell::kUndefined};
+	// issue.affect-migration: dedup adjacent same-affect slots by IDENTITY (affect_type), not by the
+	// casting spell -- migrated affects share Affect::type == kUndefined, so keying on type collapsed
+	// them all into one "type" and listed only a single one as removable.
+	Affect<EApply>::shared_ptr last_pushed;
 	std::deque<char_affects_list_t::iterator> removable_affects;
 	for (auto affect_i = affected.begin(); affect_i != affected.end(); ++affect_i) {
 		const auto &affect = *affect_i;
 
-		if (affect->type != last_type && affect->removable()) {
+		if ((!last_pushed || !SameAffectIdentity(affect, last_pushed)) && affect->removable()) {
 			removable_affects.push_back(affect_i);
-			last_type = affect->type;
+			last_pushed = affect;
 		}
 	}
 

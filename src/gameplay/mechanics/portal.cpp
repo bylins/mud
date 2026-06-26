@@ -17,7 +17,6 @@ void AddPortalTimer(CharData *ch, RoomData *from_room, RoomRnum to_room, int tim
 					room_spells::ERoomAffect affect_type) {
 
 	Affect<room_spells::ERoomApply> af;
-	af.type = ESpell::kPortalTimer;
 	af.affect_type = affect_type;
 	af.duration = time; //раз в 2 секунды
 	af.modifier = to_room;
@@ -31,7 +30,7 @@ void AddPortalTimer(CharData *ch, RoomData *from_room, RoomRnum to_room, int tim
 }
 
 void RemovePortalGate(RoomRnum rnum) {
-	auto aff = room_spells::FindAffect(world[rnum], ESpell::kPortalTimer);
+	auto aff = room_spells::FindPortalAffect(world[rnum]);
 	const RoomRnum to_room = (*aff)->modifier;
 	// kPortal sheaf kCustomMsgThree holds "Пентаграмма была
 	// разрушена." -- emitted to both char and room of each affected portal endpoint.
@@ -43,7 +42,7 @@ void RemovePortalGate(RoomRnum rnum) {
 		act(broken_msg.c_str(), false, world[rnum]->first_character(), 0, 0, kToRoom);
 		act(broken_msg.c_str(), false, world[rnum]->first_character(), 0, 0, kToChar);
 	}
-	aff = room_spells::FindAffect(world[to_room], ESpell::kPortalTimer);
+	aff = room_spells::FindPortalAffect(world[to_room]);
 	if (aff != world[to_room]->affected.end()) {
 		room_spells::RoomRemoveAffect(world[to_room], aff);
 		act(broken_msg.c_str(), false, world[to_room]->first_character(), 0, 0, kToRoom);

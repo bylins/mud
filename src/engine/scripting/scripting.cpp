@@ -10,6 +10,7 @@ str.cpp - PyUnicode_FromString на PyUnicode_DecodeLocale, PyUnicode_FromString
 Т.е. делаем все так же, как и здесь http://habrahabr.ru/post/161931/
 */
 #include "scripting.h"
+#include "gameplay/affects/affect_messages.h"
 #include "administration/privilege.h"
 #include "gameplay/mechanics/sight.h"
 #include "gameplay/mechanics/mount.h"
@@ -683,7 +684,9 @@ void character_set_master(CharacterData *ch, CharacterData *master) {
 }
 
 std::string get_spell_type_str(const AFFECT_DATA<EApplyLocation> &af) {
-	return MUD::Spell(af.type).GetName();
+	// issue.affect-migration: report the affect's own type (its text-id), not the spell that caused it --
+	// once applied, an affect is disconnected from its cause. (affect.bitvector_str gives the localized name.)
+	return NAME_BY_ITEM<EAffect>(af.affect_type);
 }
 
 std::string get_location_str(const AFFECT_DATA<EApplyLocation> &af) {
@@ -693,9 +696,7 @@ std::string get_location_str(const AFFECT_DATA<EApplyLocation> &af) {
 }
 
 std::string get_bitvector_str(const AFFECT_DATA<EApplyLocation> &af) {
-	char buf[MAX_STRING_LENGTH];
-	sprintbitwd(to_underlying(af.affect_type), affected_bits, buf, sizeof(buf), ", ");
-	return buf;
+	return std::string(affects::AffectMsg(af.affect_type, affects::EAffectMsgType::kShortDesc));
 }
 
 typedef std::array<obj_affected_type, MAX_OBJ_AFFECT> affected_t;
@@ -2405,10 +2406,10 @@ BOOST_PYTHON_MODULE (constants) {
 	DEFINE_CONSTANT(SKY_CLOUDY);
 	DEFINE_CONSTANT(SKY_RAINING);
 	DEFINE_CONSTANT(SKY_LIGHTNING);
-	DEFINE_CONSTANT(EXTRA_FAILHIDE);
-	DEFINE_CONSTANT(EXTRA_FAILSNEAK);
-	DEFINE_CONSTANT(EXTRA_FAILCAMOUFLAGE);
-	DEFINE_CONSTANT(EXTRA_GRP_KILL_COUNT);
+	scope().attr("EXTRA_FAILHIDE") = static_cast<int>(ECharExtraFlag::kFailHide);
+	scope().attr("EXTRA_FAILSNEAK") = static_cast<int>(ECharExtraFlag::kFailSneak);
+	scope().attr("EXTRA_FAILCAMOUFLAGE") = static_cast<int>(ECharExtraFlag::kFailCamouflage);
+	scope().attr("EXTRA_GRP_KILL_COUNT") = static_cast<int>(ECharExtraFlag::kGrpKillCount);
 	DEFINE_CONSTANT(LVL_FREEZE);
 	DEFINE_CONSTANT(NUM_OF_DIRS);
 	DEFINE_CONSTANT(MAGIC_NUMBER);

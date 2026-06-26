@@ -19,6 +19,7 @@
 
 class CharData;
 enum class ESpell;
+namespace room_spells { enum class ERoomAffect : Bitvector; }
 
 namespace talents_actions {
 
@@ -48,6 +49,17 @@ enum class EActionTarget {
 	kTarMinions,     // the caster's charmed NPC followers in the room (minions)
 	kTarRoomThis     // the room itself -- this action imposes its effect on the room
 	                 // (the per-tick effect lives in the linked kService spell)
+};
+
+// issue.affect-migration: which game event fires this <action>. An action with no <trigger> runs
+// inline in the normal cast pipeline (when the spell is cast); actions WITH a trigger fire only on
+// that event (e.g. a room affect's per-pulse tick). A single effect can carry several actions on
+// different triggers (e.g. a per-pulse action plus an on-dispel action). Dense integers + terminal
+// kCount so BitsetFlags<EActionTrigger> can hold the set.
+enum class EActionTrigger {
+	kPulse = 0,    // every affect pulse (room/char affect update), regardless of combat
+	kBattlePulse,  // an affect pulse, but only while combat is happening in the room
+	kCount
 };
 
 // issue.cast-chain: what a NON-FIRST <action> uses as the "base" of its formula instead of the
@@ -451,16 +463,9 @@ class TalentAffect : public IAction {
 	explicit TalentAffect(parser_wrapper::DataNode &node);
 	void Print(CharData *ch, std::ostringstream &buffer) const override;
 
-	[[nodiscard]] ESpell GetSpell() const { return spell_; }
-	// Room-affect per-tick spell (a kService spell whose actions run each tick); kUndefined = none.
-	[[nodiscard]] ESpell GetTickSpell() const { return tick_spell_; }
-	// Room-affect per-tick code handler named by string (the manual-cast mechanism for ticks the
-	// data can't express, e.g. weather); empty = none. Resolved via the room tick-handler registry.
-	[[nodiscard]] const std::string &GetTickHandler() const { return tick_handler_; }
 	[[nodiscard]] ESaving GetSaving() const { return saving_; }
 	[[nodiscard]] EResist GetResist() const { return resist_; }
 	[[nodiscard]] int GetProb() const { return prob_; }
-	[[nodiscard]] Bitvector GetFlags() const { return flags_; }
 	// Duration parameters (issue.calc-duration): base (flat duration in hours, PC unit-converted to
 	// ticks) plus a skill-scaled bonus = min(skill, kNoviceSkillThreshold)/skill_divisor, optionally
 	// clamped to [dur_min_, dur_max_] (0 means no clamp on that side, OLD-style). The "skill" is
@@ -486,13 +491,9 @@ class TalentAffect : public IAction {
 	[[nodiscard]] float GetPotencyWeight() const { return potency_weight_; }
 
  private:
-	ESpell spell_{static_cast<ESpell>(0)};
-	ESpell tick_spell_{ESpell::kUndefined};
-	std::string tick_handler_;
 	ESaving saving_{ESaving::kReflex};
 	EResist resist_{EResist::kFire};
 	int prob_{100};                         // percent chance the affect block fires (default always)
-	Bitvector flags_{0};
 	int dur_base_{0};
 	int dur_skill_divisor_{0};
 	int dur_min_{0};
@@ -523,15 +524,24 @@ class TalentAffect : public IAction {
 // wildcard_all, every eligible affect is queued for removal.
 class TalentUnaffect : public IAction {
  public:
-	// One <blocking>/<breaking>/<remove_anyway>/<remove> entry: its any_of/all_of lists.
+	// issue.affect-migration: the any_of/all_of tags name AFFECTS, not the casting spell. A name
+	// resolves to a char affect (EAffect) OR a room affect (ERoomAffect) -- the namespaces are
+	// disjoint -- so AffectRefs carries one list per domain and the char/room dispel paths each read
+	// the list for their target type.
+	struct AffectRefs {
+		std::vector<EAffect> chars;
+		std::vector<room_spells::ERoomAffect> rooms;
+		[[nodiscard]] bool empty() const { return chars.empty() && rooms.empty(); }
+	};
+	// One <blocking>/<breaking>/<remove_anyway>/<remove> entry: its any_of/all_of affect lists.
 	// breaking_by_failure (remove/remove_anyway only): if a dispel of any affect in this block
 	// fails the potency check, the cast chain breaks (CastUnaffects returns kBreak).
 	// wildcard_any/wildcard_all (set by any_of="*"/all_of="*"): match the unaffect's
-	// affect_flags filter rather than a fixed spell list. Mutually exclusive with their
-	// respective list; "*|kPoison" is rejected at parse time.
+	// affect_flags filter rather than a fixed list. Mutually exclusive with their
+	// respective list; "*|kCurse" is rejected at parse time.
 	struct Set {
-		std::vector<ESpell> any_of;
-		std::vector<ESpell> all_of;
+		AffectRefs any_of;
+		AffectRefs all_of;
 		bool wildcard_any{false};
 		bool wildcard_all{false};
 		bool breaking_by_failure{false};
@@ -603,6 +613,9 @@ class Action {
 	// issue.side-spell: spells to cast (full nested pipeline) on this action's target(s), in order.
 	// Parsed from <side_spell id="kHold"/> (several allowed). Empty = no side-spell stage.
 	std::vector<ESpell> side_spells_;
+	// issue.affect-migration: the event(s) that fire this action (empty = inline in the normal cast).
+	// Parsed from <trigger val="kPulse|kBattlePulse">. See EActionTrigger.
+	BitsetFlags<EActionTrigger> trigger_;
 
 	friend class Actions;   // Actions builds these via the Parse* helpers.
 
@@ -626,6 +639,7 @@ class Action {
 	[[nodiscard]] bool GetReset() const { return reset_; }
 	[[nodiscard]] const std::string &GetManualHandler() const { return manual_handler_; }
 	[[nodiscard]] const std::vector<ESpell> &GetSideSpells() const { return side_spells_; }
+	[[nodiscard]] const BitsetFlags<EActionTrigger> &GetTrigger() const { return trigger_; }
 };
 
 // Spell-level caster gate (issue.spell-unification): a spell is castable by the caster

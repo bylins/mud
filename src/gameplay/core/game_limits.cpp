@@ -118,7 +118,7 @@ void handle_recall_spells(CharData *ch) {
 	Affect<EApply>::shared_ptr aff;
 
 	for (const auto &af : ch->affected) {
-		if (af->type == ESpell::kRecallSpells) {
+		if (af->affect_type == EAffect::kMemorizeSpells) {
 			aff = af;
 			break;
 		}
@@ -730,7 +730,7 @@ void beat_points_update(int pulse) {
 
 		if (AFF_FLAGGED(d->character.get(), EAffect::kBandage)) {
 			for (const auto &aff : d->character->affected) {
-				if (aff->type == ESpell::kBandage) {
+				if (aff->affect_type == EAffect::kBandage) {
 					restore += std::min(d->character.get()->get_real_max_hit() / 10, aff->modifier);
 					break;
 				}
@@ -738,7 +738,8 @@ void beat_points_update(int pulse) {
 		}
 		if (AFF_FLAGGED(d->character.get(), EAffect::kFrenzy)) {
 			for (const auto &aff : d->character->affected) {
-				if (aff->type == ESpell::kFrenzy && aff->location == EApply::kHpRegen) {
+				// issue.affect-migration: identify the frenzy affect by its EAffect, not the casting spell.
+				if (aff->affect_type == EAffect::kFrenzy && aff->location == EApply::kHpRegen) {
 					restore += aff->modifier;
 					break;
 				}

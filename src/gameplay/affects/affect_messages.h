@@ -16,6 +16,7 @@
 #include "affect_contants.h"   // EAffect
 
 #include <map>
+#include <vector>
 #include <string>
 
 namespace affects {
@@ -34,10 +35,47 @@ enum class EAffectMsgType {
 	kAuraFrame,        // kDefault: detect-magic aura line frame; fmt template with {list} and {noun}
 	kAuraNoun,         // kDefault: aura count-noun, singular
 	kAuraNounMany,     // kDefault: aura count-noun, plural
+	// Affect lifecycle messages (issue.affect-migration): moved here from ESpellMsg -- they belong
+	// to the AFFECT, not the casting spell. CastAffect impose / CastUnaffects dispel / natural expiry
+	// look these up by affect_type (with a transitional spell-message fallback for kUndefined affects).
+	kAffImposedToRoom,    // CastAffect: affect landed, to the room.
+	kAffImposedToChar,    // CastAffect: affect landed, to the affected char.
+	kAffImposedToVict,    // impose SUCCESS, to the external target/opponent ($N; only when set & != affected).
+	kAffImposeFailToChar,   // impose FAILURE (affect carries kAfFailed), to the affected char.
+	kAffImposeFailToVict,   // impose FAILURE, to the external target/opponent ($N).
+	kAffImposeFailToRoom,   // impose FAILURE, to the room.
+	kAffDispelledToRoom,  // CastUnaffects: affect removed, to the room.
+	kAffDispelledToChar,  // CastUnaffects: affect removed, to the cured char.
+	kAffExpiredToChar,    // affect wore off naturally, to the affected char.
+	kAffExpiredToRoom,    // affect wore off, to the room (only for affects whose expiry shows).
+	kAffExpireSoon,       // mob affect ~1 min from expiry, to the room (mobile_affect_update heads-up).
 };
 
 // affect = the affect whose sheaf to read (EAffect::kUndefined => the shared "kDefault" sheaf).
 [[nodiscard]] const std::string &AffectMsg(EAffect affect, EAffectMsgType slot);
+// Sheaf-direct variant: returns the affect's own message or empty (NO kDefault/error fallback).
+// Use where a missing message must stay silent (affect imposition narration).
+[[nodiscard]] const std::string &AffectMsgRaw(EAffect affect, EAffectMsgType slot);
+// Like AffectMsgRaw but for the armed/unarmed split: among the affect's variants of `slot`, when
+// has_weapon prefer ones using $o (the weapon flourish), else fall back to non-$o; when unarmed
+// return only non-$o variants (so $o never renders without a weapon). Empty if none apply.
+[[nodiscard]] const std::string &AffectMsgWeapon(EAffect affect, EAffectMsgType slot, bool has_weapon);
+
+// Direct affect-system queries (replacing the legacy affected_bits[] projection):
+[[nodiscard]] EAffect AffectByIndex(std::size_t flat_index);   // set-bit index -> EAffect
+[[nodiscard]] Bitvector AffectFlagsByType(EAffect affect_type);   // issue.affect-migration: per-affect behavior flags from affects.xml (0 if none)
+[[nodiscard]] bool AffectFlagsLoaded();   // issue.affect-migration: affects.xml flags loaded yet?
+
+// issue.affect-migration: an affect's intrinsic buff classification -- the affect-side analog of a
+// spell's <misc violent>. kYes = a buff (helpful), kNo = a debuff (harmful), kAmbiguous = depends on
+// context. Declared per affect via <affect buff="Y|N|A"> in affects.xml; kAmbiguous when absent.
+enum class EBuff { kNo, kYes, kAmbiguous };
+[[nodiscard]] EBuff AffectBuffKind(EAffect affect_type);
+
+[[nodiscard]] std::string DescribeActive(const BitsetFlags<EAffect> &flags, const char *div);
+[[nodiscard]] bool FindByShortDesc(const std::string &name, EAffect &out);
+[[nodiscard]] bool MessagesLoaded();   // affect_messages cfg loaded? (boot guard)
+[[nodiscard]] const std::vector<EAffect> &MenuOrder();   // ordered affects for the OLC editor
 
 class AffectMessagesLoader : public cfg_manager::ICfgLoader {  // cfg id "affect_messages"
  public:

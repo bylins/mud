@@ -15,6 +15,7 @@
 #define MAGIC_H_
 
 #include "spells_info.h"
+#include "gameplay/affects/affect_contants.h"
 
 #include <cstdlib>
 #include <optional>
@@ -25,43 +26,9 @@ class CharData;
 class ObjData;
 struct RoomData;
 
-// The "first-aid removable" spell list (moved here from char_data.h, issue.affect-dispell-flags).
-// The order doubles as the cure-difficulty index used by do_first_aid (prob/10 > index). This list
-// is slated to be replaced by the kAfCurable flag + a potency-based cure mechanic.
-enum ERemovableSpell {
-	kRemAbstinent = 0,
-	kRemPoison,
-	kRemMadness,
-	kRemWeakness,
-	kRemSlowdown,
-	kRemMindless,
-	kRemColdWind,
-	kRemFever,
-	kRemCurse,
-	kRemDeafness,
-	kRemSilence,
-	kRemBlindness,
-	kRemSleep,
-	kRemHold,
-	kRemVacuum,
-	kRemHaemorrhage,
-	kRemBattle,
-	kMaxFirstaidRemove
-};
-
-inline ESpell GetRemovableSpellId(int num) {
-	static const ESpell spell[kMaxFirstaidRemove] = {
-		ESpell::kAbstinent, ESpell::kPoison, ESpell::kMadness,
-		ESpell::kWeaknes, ESpell::kSlowdown, ESpell::kMindless, ESpell::kColdWind,
-		ESpell::kFever, ESpell::kCurse, ESpell::kDeafness, ESpell::kSilence,
-		ESpell::kBlindness, ESpell::kSleep, ESpell::kHold, ESpell::kVacuum,
-		ESpell::kHaemorrhage, ESpell::kBattle
-	};
-	if (num < kMaxFirstaidRemove) {
-		return spell[num];
-	}
-	return ESpell::kUndefined;
-}
+// (issue.affect-migration) The old ESpell "first-aid removable" list + GetRemovableSpellId were
+// removed: curability is now the kAfCurable battleflag -- see Affect::removable(), DoFirstaid, and
+// the data-driven dispel/cure filter (AffectMatchesFlags).
 
 // One evaluation of a talents_actions::Roll for a specific caster (issue #3333).
 struct RollResult {
@@ -150,6 +117,15 @@ class CastContext {
 	// stages fire; those stages then read their block via the spell-id getters.
 	void RewindActions();
 	void NextAction();
+	// issue.affect-migration: run an external action list (an affect's own <actions>) through this
+	// context instead of the spell's. nullptr (the default) = use the spell's actions.
+	void UseExternalActions(const std::vector<talents_actions::Action> *list) { external_actions_ = list; }
+	// issue.affect-migration: per-tick channel for room-affect manual_cast handlers -- the tick runner
+	// seeds the ticking affect's current duration here and reads it back, so a manual handler (e.g.
+	// HandleThunderstormTick) can branch on / modify it via this CastContext (no room-affect type in
+	// magic.h). -1 = not a tick cast.
+	void SetTickDuration(int d) { tick_duration_ = d; }
+	[[nodiscard]] int GetTickDuration() const { return tick_duration_; }
 	[[nodiscard]] const talents_actions::Action *action() const;
 	[[nodiscard]] bool HasPendingActions() const;
 	// The action the current stage should read its block from: the cursor's
@@ -171,7 +147,10 @@ class CastContext {
 	RollResult potency_;        // from SpellInfo::GetPotencyRoll()
 	// Cursor state: the spell's action list + current index (set by RewindActions).
 	const std::vector<talents_actions::Action> *actions_{nullptr};
+	// issue.affect-migration: affect-owned actions; when set, override the spell's action list.
+	const std::vector<talents_actions::Action> *external_actions_{nullptr};
 	size_t action_idx_{0};
+	int tick_duration_{-1};   // issue.affect-migration: see SetTickDuration (-1 = not a tick cast)
 };
 
 // VNUM'ы мобов для заклинаний, создающих мобов
@@ -196,7 +175,14 @@ const int kMaxSpellAffects = 16; // change it if you need more
 bool IsRoomForbidden(RoomData *room);
 void mobile_affect_update();
 void player_affect_update();
-void ShowAffExpiredMsg(ESpell aff_type, CharData *ch);
+void ShowAffExpiredMsg(EAffect affect_type, CharData *ch);
+// issue.affect-migration: emit an affect's imposition messages (data-driven, from affect_msg.xml).
+// Picks the success or FAIL set by `failed` (the skill derives it from the affect's kAfFailed flag),
+// across char/caster/room perspectives, with the armed/unarmed $o rule. Silent on missing keys.
+// ch = applier, victim = the affected (ch == victim for self-affects).
+// affected = the char the affect is on ($n); other = the externally-supplied target/opponent ($N,
+// nullptr for a pure self-affect). Perspectives: ToChar->affected, ToVict->other, ToRoom->others.
+void EmitAffectImpose(CharData *affected, CharData *other, EAffect affect_type, bool failed);
 // issue.npc-races: true if `ch` can speak/incant (players always; NPCs iff their race is <vocal/>).
 bool IsAbleToSay(CharData *ch);
 

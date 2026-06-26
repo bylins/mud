@@ -32,6 +32,8 @@
 #include "gameplay/ai/mobact.h"
 #include "engine/core/char_handler.h"
 #include "engine/entities/char_data.h"
+#include "gameplay/affects/affect_messages.h"  // affects::AffectBuffKind
+#include "gameplay/abilities/talents_actions.h"  // primary-affect lookup for the buff/debuff AI
 #include "gameplay/mechanics/inventory.h"
 #include "engine/ui/color.h"
 #include "utils/random.h"
@@ -208,12 +210,12 @@ void SetFighting(CharData *ch, CharData *vict) {
 
 	if (AFF_FLAGGED(ch, EAffect::kBandage)) {
 		SendMsgToChar("Перевязка была прервана!\r\n", ch);
-		RemoveAffectFromChar(ch, ESpell::kBandage);
+		RemoveAffectFromChar(ch, EAffect::kBandage);
 		AFF_FLAGS(ch).unset(EAffect::kBandage);
 	}
 	if (AFF_FLAGGED(ch, EAffect::kMemorizeSpells)) {
 		SendMsgToChar("Вы забыли о концентрации и ринулись в бой!\r\n", ch);
-		RemoveAffectFromChar(ch, ESpell::kRecallSpells);
+		RemoveAffectFromChar(ch, EAffect::kMemorizeSpells);
 	}
 	combat_list_element attaker;
 
@@ -222,7 +224,7 @@ void SetFighting(CharData *ch, CharData *vict) {
 	combat_list.push_front(attaker);
 
 	if (AFF_FLAGGED(ch, EAffect::kSleep)) {
-		RemoveAffectFromChar(ch, ESpell::kSleep);
+		RemoveAffectFromChar(ch, EAffect::kSleep);
 		AFF_FLAGS(ch).unset(EAffect::kSleep);
 	}
 	ch->SetEnemy(vict);
@@ -488,7 +490,6 @@ CharData *find_friend(CharData *caster, ESpell spell_id) {
 	CharData *victim = nullptr;
 	int vict_val = 0;
 	affects_list_t AFF_USED;
-	auto spellreal{ESpell::kUndefined};
 	switch (spell_id) {
 		case ESpell::kCureBlind: AFF_USED.push_back(EAffect::kBlind);
 			break;
@@ -505,20 +506,18 @@ CharData *find_friend(CharData *caster, ESpell spell_id) {
 			break;
 		case ESpell::kRemoveDeafness: AFF_USED.push_back(EAffect::kDeafness);
 			break;
-		case ESpell::kCureFever: spellreal = ESpell::kFever;
+		case ESpell::kCureFever: AFF_USED.push_back(EAffect::kFever);
 			break;
 		default: break;
 	}
 	if (AFF_FLAGGED(caster, EAffect::kHelper)
 		&& caster->IsFlagged(EMobFlag::kCompanion)) { //()
-		if (caster->has_any_affect(AFF_USED)
-			|| IsAffectedBySpell(caster, spellreal)) {
+		if (caster->has_any_affect(AFF_USED)) {
 			return caster;
 		} else if (caster->has_master()
 			&& sight::CanSee(caster, caster->get_master())
 			&& caster->get_master()->in_room == caster->in_room
-			&& (caster->get_master()->has_any_affect(AFF_USED)
-				|| IsAffectedBySpell(caster->get_master(), spellreal))) {
+			&& caster->get_master()->has_any_affect(AFF_USED)) {
 			return caster->get_master();
 		}
 
@@ -562,7 +561,6 @@ CharData *find_caster(CharData *caster, ESpell spell_id) {
 	CharData *victim = nullptr;
 	int vict_val = 0;
 	affects_list_t AFF_USED;
-	auto spellreal{ESpell::kUndefined};
 	switch (spell_id) {
 		case ESpell::kCureBlind: AFF_USED.push_back(EAffect::kBlind);
 			break;
@@ -579,21 +577,19 @@ CharData *find_caster(CharData *caster, ESpell spell_id) {
 			break;
 		case ESpell::kRemoveDeafness: AFF_USED.push_back(EAffect::kDeafness);
 			break;
-		case ESpell::kCureFever: spellreal = ESpell::kFever;
+		case ESpell::kCureFever: AFF_USED.push_back(EAffect::kFever);
 			break;
 		default: break;
 	}
 
 	if (AFF_FLAGGED(caster, EAffect::kHelper)
 		&& caster->IsFlagged(EMobFlag::kCompanion)) { // ()
-		if (caster->has_any_affect(AFF_USED)
-			|| IsAffectedBySpell(caster, spellreal)) {
+		if (caster->has_any_affect(AFF_USED)) {
 			return caster;
 		} else if (caster->has_master()
 			&& sight::CanSee(caster, caster->get_master())
 			&& caster->get_master()->in_room == caster->in_room
-			&& (caster->get_master()->has_any_affect(AFF_USED)
-				|| IsAffectedBySpell(caster->get_master(), spellreal))) {
+			&& caster->get_master()->has_any_affect(AFF_USED)) {
 			return caster->get_master();
 		}
 
@@ -631,6 +627,21 @@ CharData *find_caster(CharData *caster, ESpell spell_id) {
 	}
 
 	return victim;
+}
+
+// issue.affect-migration: the primary affect a single-target spell imposes. The mob buff/debuff AI
+// uses it to ask "is the target already under this spell's effect?" via IsAffected (affect identity),
+// instead of the retired IsAffectedBySpell (which keyed on the casting spell). kUndefined when the
+// spell imposes no affect -- callers treat that as "can't tell -> not affected".
+static EAffect PrimaryAffectOf(ESpell spell) {
+	const auto &info = MUD::Spell(spell);
+	if (info.actions.Contains(talents_actions::EAction::kAffect)) {
+		const auto &applies = info.actions.GetAffect().GetApplies();
+		if (!applies.empty()) {
+			return applies.front().id;
+		}
+	}
+	return EAffect::kUndefined;
 }
 
 CharData *find_affectee(CharData *caster, ESpell spell_id) {
@@ -671,14 +682,17 @@ CharData *find_affectee(CharData *caster, ESpell spell_id) {
 	else if (spellreal == ESpell::kSnakeEyes)
 		spellreal = ESpell::kDetectPoison;
 
+	const EAffect want = PrimaryAffectOf(spellreal);
+
 	if (caster->IsFlagged(EMobFlag::kCompanion) &&
 		AFF_FLAGGED(caster, EAffect::kHelper)) {
-		if (!IsAffectedBySpell(caster, spellreal)) {
+		if (want == EAffect::kUndefined || !IsAffected(caster, want)) {
 			return caster;
 		} else if (caster->has_master()
 			&& sight::CanSee(caster, caster->get_master())
 			&& caster->get_master()->in_room == caster->in_room
-			&& caster->get_master()->GetEnemy() && !IsAffectedBySpell(caster->get_master(), spellreal)) {
+			&& caster->get_master()->GetEnemy()
+			&& (want == EAffect::kUndefined || !IsAffected(caster->get_master(), want))) {
 			return caster->get_master();
 		}
 
@@ -698,7 +712,7 @@ CharData *find_affectee(CharData *caster, ESpell spell_id) {
 
 			if (!vict->GetEnemy()
 				|| AFF_FLAGGED(vict, EAffect::kHold)
-				|| IsAffectedBySpell(vict, spellreal)) {
+				|| (want != EAffect::kUndefined && IsAffected(vict, want))) {
 				continue;
 			}
 
@@ -709,7 +723,7 @@ CharData *find_affectee(CharData *caster, ESpell spell_id) {
 		}
 	}
 
-	if (!victim && !IsAffectedBySpell(caster, spellreal)) {
+	if (!victim && (want == EAffect::kUndefined || !IsAffected(caster, want))) {
 		victim = caster;
 	}
 
@@ -734,7 +748,9 @@ CharData *find_opp_affectee(CharData *caster, ESpell spell_id) {
 	else if (spellreal == ESpell::kMassFailure)
 		spellreal = ESpell::kFailure;
 	else if (spellreal == ESpell::kSnare)
-		spellreal = ESpell::kNoflee;
+		spellreal = ESpell::kEntangleEnemy;
+
+	const EAffect want = PrimaryAffectOf(spellreal);
 
 	if (GetRealInt(caster) > number(10, 20)) {
 		for (const auto vict : world[caster->in_room]->people) {
@@ -750,7 +766,7 @@ CharData *find_opp_affectee(CharData *caster, ESpell spell_id) {
 				&& (GetRealInt(caster) < number(20, 27)
 					|| !in_same_battle(caster, vict, true)))
 				|| AFF_FLAGGED(vict, EAffect::kHold)
-				|| IsAffectedBySpell(vict, spellreal)) {
+				|| (want != EAffect::kUndefined && IsAffected(vict, want))) {
 				continue;
 			}
 			if (!victim || vict_val < GET_MAXDAMAGE(vict)) {
@@ -762,7 +778,7 @@ CharData *find_opp_affectee(CharData *caster, ESpell spell_id) {
 
 	if (!victim
 		&& caster->GetEnemy()
-		&& !IsAffectedBySpell(caster->GetEnemy(), spellreal)) {
+		&& (want == EAffect::kUndefined || !IsAffected(caster->GetEnemy(), want))) {
 		victim = caster->GetEnemy();
 	}
 
@@ -785,12 +801,13 @@ bool HasHostileRoomWard(CharData *ch) {
 	return false;
 }
 
-// issue.mob-ai-improve: does `vict` carry a dispellable BUFF -- a kAfDispellable affect that
-// is NOT a debuff? Debuff affects were imposed violently; stripping them would help the
-// target, so an offensive dispel ignores them.
+// issue.mob-ai-improve: does `vict` carry a dispellable BUFF -- a kAfDispellable affect declared a
+// buff by its own buff flag? Debuffs (and ambiguous affects) were imposed violently / are not clean
+// buffs; stripping them would help the target, so an offensive dispel ignores them.
 bool HasDispellableBuff(const CharData *vict) {
 	for (const auto &aff : vict->affected) {
-		if (aff && !aff->debuff && IS_SET(aff->battleflag, kAfDispellable)) {
+		if (aff && affects::AffectBuffKind(aff->affect_type) == affects::EBuff::kYes
+				&& IS_SET(aff->battleflag, kAfDispellable)) {
 			return true;
 		}
 	}
@@ -1776,7 +1793,7 @@ void update_round_affs() {
 			it.ch->set_touching(0);
 
 		if (it.ch->battle_affects.get(kEafSleep)) {
-			RemoveAffectFromChar(it.ch, ESpell::kSleep);
+			RemoveAffectFromChar(it.ch, EAffect::kSleep);
 			AFF_FLAGS(it.ch).unset(EAffect::kSleep);
 		}
 		if (it.ch->battle_affects.get(kEafBlock)) {
@@ -2057,7 +2074,7 @@ bool stuff_before_round(CharData *ch) {
 	round_num_mtrigger(ch, ch->GetEnemy());
 
 	ch->battle_affects.set(kEafStand);
-	if (IsAffectedBySpell(ch, ESpell::kSleep))
+	if (IsAffected(ch, EAffect::kSleep))
 		ch->battle_affects.set(kEafSleep);
 	if (ch->in_room == kNowhere)
 		return false;

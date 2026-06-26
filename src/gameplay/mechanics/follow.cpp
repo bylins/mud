@@ -218,8 +218,8 @@ bool StopFollower(CharData *ch, int mode) {
 	if (AFF_FLAGGED(ch, EAffect::kCharmed)
 		|| AFF_FLAGGED(ch, EAffect::kHelper)
 		|| IS_SET(mode, kSfCharmlost)) {
-		if (IsAffectedBySpell(ch, ESpell::kCharm)) {
-			RemoveAffectFromChar(ch, ESpell::kCharm);
+		if (IsAffectedWithFlag(ch, kAfCharmBond)) {
+			RemoveCharmBond(ch);
 		}
 		ch->extract_timer = 5;
 		AFF_FLAGS(ch).unset(EAffect::kCharmed);

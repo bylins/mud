@@ -27,7 +27,7 @@ void do_camouflage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*
 		return;
 	}
 
-	if (IsAffectedBySpell(ch, ESpell::kGlitterDust)) {
+	if (IsAffected(ch, EAffect::kGlitterDust)) {
 		SendMsgToChar("Вы замаскировались под золотую рыбку.\r\n", ch);
 		return;
 	}
@@ -38,28 +38,28 @@ void do_camouflage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*
 	}
 
 	if (privilege::IsImmortal(ch)) {
-		RemoveAffectFromChar(ch, ESpell::kCamouflage);
+		RemoveAffectFromChar(ch, EAffect::kDisguise);
 	}
 
-	if (IsAffectedBySpell(ch, ESpell::kCamouflage)) {
+	if (IsAffectedOrAttempting(ch, EAffect::kDisguise)) {
 		SendMsgToChar("Вы уже маскируетесь.\r\n", ch);
 		return;
 	}
 
 	SendMsgToChar("Вы начали усиленно маскироваться.\r\n", ch);
-	ch->Temporary.unset(EXTRA_FAILCAMOUFLAGE);
+	ch->Temporary.unset(ECharExtraFlag::kFailCamouflage);
 	percent = number(1, MUD::Skill(ESkill::kDisguise).difficulty);
 	prob = CalcCurrentSkill(ch, ESkill::kDisguise, nullptr);
 
 	Affect<EApply> af;
-	af.type = ESpell::kCamouflage;
 	af.duration = CalcDuration(ch, ch, ESkill::kDisguise, 0, 15, 0, 2);
 	af.modifier = world[ch->in_room]->zone_rn;
 	af.location = EApply::kNone;
 	af.battleflag = 0;
 
 	if (percent > prob) {
-		af.affect_type = EAffect::kUndefined;
+		af.affect_type = EAffect::kDisguise;
+		af.battleflag = kAfFailed;
 	} else {
 		af.affect_type = EAffect::kDisguise;
 	}

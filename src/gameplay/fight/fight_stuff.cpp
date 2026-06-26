@@ -363,14 +363,11 @@ void arena_kill(CharData *ch, CharData *killer) {
 			PlaceCharToRoom(f, to_room);
 		}
 	}
-	for (int i=0; i < kMaxFirstaidRemove; i++) {
-		RemoveAffectFromChar(ch, GetRemovableSpellId(i));
-	}
-	// наемовские яды
-	RemoveAffectFromChar(ch, ESpell::kAconitumPoison);
-	RemoveAffectFromChar(ch, ESpell::kDaturaPoison);
-	RemoveAffectFromChar(ch, ESpell::kScopolaPoison);
-	RemoveAffectFromChar(ch, ESpell::kBelenaPoison);
+	// issue.affect-migration: strip every curable affect (kAfCurable); replaces the old
+	// GetRemovableSpellId sweep. This already removes the nemo-poison clusters (every poison slot
+	// carries kAfCurable), so the explicit per-poison RemoveAffectFromChar(ESpell::k*Poison) calls
+	// that used to follow are redundant and were dropped.
+	RemoveCurableAffects(ch);
 	affect_total(ch);
 	RemoveCharFromRoom(ch);
 	PlaceCharToRoom(ch, to_room);

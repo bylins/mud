@@ -47,6 +47,7 @@ test_sources = files(
     'thread_pool.cpp',
     'world_data_source_manager.cpp',
     'flag_data.cpp',
+    'bitset_flags.cpp',
     'extra_description.cpp',
     'trigger_indenter.cpp',
     'trigger_script_parser.cpp',

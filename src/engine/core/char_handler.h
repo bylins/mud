@@ -10,7 +10,7 @@
 
 void RemoveCharFromRoom(CharData *ch);
 inline void char_from_room(const CharData::shared_ptr &ch) { RemoveCharFromRoom(ch.get()); }
-void PlaceCharToRoom(CharData *ch, RoomRnum room);
+void PlaceCharToRoom(CharData *ch, RoomRnum room, bool process_entry_affects = true);
 inline void char_to_room(const CharData::shared_ptr &ch, RoomRnum room) { PlaceCharToRoom(ch.get(), room); }
 void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset = false);
 void DropEquipment(CharData *ch, bool zone_reset);

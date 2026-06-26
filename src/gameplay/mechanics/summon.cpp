@@ -43,12 +43,11 @@ int FinalizeSummonedMob(CharData *ch, CharData *mob, ESpell spell_id, bool keepe
 	const int duration = CalcDuration(ch, mob, ESkill::kUndefined,
 		GetRealWis(ch) + number(0, days_from_full_moon), 0, 0, 0);
 	Affect<EApply> af;
-	af.type = ESpell::kCharm;
 	af.duration = duration;
 	af.modifier = 0;
 	af.location = EApply::kNone;
 	af.affect_type = EAffect::kCharmed;
-	af.battleflag = 0;
+	af.battleflag = kAfCharmBond;
 	affect_to_char(mob, af);
 	if (keeper) {
 		af.affect_type = EAffect::kHelper;

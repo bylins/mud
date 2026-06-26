@@ -3,6 +3,7 @@
 //
 
 #include "engine/entities/char_data.h"
+#include "gameplay/magic/magic.h"
 #include "administration/privilege.h"
 #include "gameplay/affects/affect_handler.h"
 #include "skill_messages.h"
@@ -17,9 +18,9 @@ void do_frenzy(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	}
 	if (ch->GetPosition() != EPosition::kFight
 		&& !privilege::IsImmortal(ch)
-		&& (!IsAffectedBySpell(ch, ESpell::kCourage)
-			|| !IsAffectedBySpell(ch, ESpell::kFrenzy)
-			|| !IsAffectedBySpell(ch, ESpell::kBerserk))) {
+		&& (!IsAffected(ch, EAffect::kCourage)
+			|| !IsAffected(ch, EAffect::kFrenzy)
+			|| !IsAffectedOrAttempting(ch, EAffect::kBerserk))) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kFrenzy, ESkillMsg::kPeacefulRoom) + "\r\n", ch);
 		return;
 	}
@@ -41,13 +42,11 @@ void do_frenzy(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	const int dmg_multiplier = GetSkill(ch, ESkill::kFrenzy) / 12.5;
 
 	Affect<EApply> af[2];
-	af[0].type = ESpell::kFrenzy;
 	af[0].duration = duration;
 	af[0].modifier = hp_regen;
 	af[0].location = EApply::kHpRegen;
 	af[0].affect_type = EAffect::kFrenzy;
 	af[0].battleflag = kAfPulsedec;
-	af[1].type = ESpell::kFrenzy;
 	af[1].duration = duration;
 	af[1].modifier = dmg_multiplier;
 	af[1].location = EApply::kPhysicDamagePercent;
@@ -59,7 +58,7 @@ void do_frenzy(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	for (auto it = ch->affected.begin(); it != ch->affected.end();) {
 		auto a = *(*it);  // копия данных эффекта (НЕ ссылка!)
 
-		if (a.type == ESpell::kFrenzy) {
+		if (a.affect_type == EAffect::kFrenzy) {
 			has_frenzy = true;
 
 			if (a.location == EApply::kHpRegen && a.modifier < af[0].modifier * 5) {
@@ -80,12 +79,11 @@ void do_frenzy(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	if (!has_frenzy) {
-		SendMsgToChar("&RЖажда крови затмила ваш разум и Вы пришли в исступление!&n\r\n", ch);
-		act("$N выпучил$G глаза и издал$G бешеный вопль! Похоже разум окончательно покинул $S...",
-			false,nullptr, nullptr, ch, kToNotVict | kToArenaListen);
 		for (auto & i : af) {
 			ImposeAffect(ch, i, false, false, false, false);
 		}
+		// issue.affect-migration: imposition narration on the kFrenzy affect (self; no opponent).
+		EmitAffectImpose(ch, nullptr, EAffect::kFrenzy, false);
 	} else  {
 		if (can_be_angrier) {
 			SendMsgToChar("&RВы разъярились ещё сильнее!&n\r\n", ch);

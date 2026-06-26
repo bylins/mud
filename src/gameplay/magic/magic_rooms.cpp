@@ -16,10 +16,256 @@
 #include "engine/db/player_index.h"
 #include "engine/db/db.h"           // chardata_by_uid
 #include "gameplay/fight/pk.h"          // pk_agro_action
+#include "room_affects_loader.h"   // RoomAffectsLoader
+#include "gameplay/affects/affect_contants.h"   // EAffFlag
+#include "utils/utils_parse.h"   // parse::ReadAsConstantsBitvector
+#include <array>
+#include "room_affect_messages.h"   // RoomAffectMessagesLoader
+#include "engine/structs/msg_container.h"
+#include <set>
 
 // Структуры и функции для работы с заклинаниями, обкастовывающими комнаты
 
+// --- issue.affect-migration: room-affect registry name maps (cfg/room_affects.xml) -----------------
+// Mirrors the EAffect name maps in affect_contants.cpp. kUndefined (sentinel) and kCount (terminal)
+// are excluded -- only real room affects get a row.
+namespace {
+std::map<room_spells::ERoomAffect, std::string> g_room_affect_name_by_value;
+std::map<std::string, room_spells::ERoomAffect> g_room_affect_value_by_name;
+void init_room_affect_names() {
+	using RA = room_spells::ERoomAffect;
+	g_room_affect_name_by_value = {
+		{RA::kNoPortalExit, "kNoPortalExit"},
+		{RA::kForbidden, "kForbidden"},
+		{RA::kMeteorStorm, "kMeteorStorm"},
+		{RA::kRoomLight, "kRoomLight"},
+		{RA::kDeadlyFog, "kDeadlyFog"},
+		{RA::kThunderstorm, "kThunderstorm"},
+		{RA::kRuneLabel, "kRuneLabel"},
+		{RA::kHypnoticPattern, "kHypnoticPattern"},
+		{RA::kBlackTentacles, "kBlackTentacles"},
+		{RA::kPortalTimer, "kPortalTimer"},
+	};
+	for (const auto &[value, token] : g_room_affect_name_by_value) {
+		g_room_affect_value_by_name.emplace(token, value);
+	}
+}
+}  // namespace
+
+template<>
+const std::string &NAME_BY_ITEM<room_spells::ERoomAffect>(room_spells::ERoomAffect item) {
+	if (g_room_affect_name_by_value.empty()) { init_room_affect_names(); }
+	return g_room_affect_name_by_value.at(item);
+}
+template<>
+room_spells::ERoomAffect ITEM_BY_NAME<room_spells::ERoomAffect>(const std::string &name) {
+	if (g_room_affect_value_by_name.empty()) { init_room_affect_names(); }
+	return g_room_affect_value_by_name.at(name);
+}
+template<>
+const std::map<room_spells::ERoomAffect, std::string> &NAMES_OF<room_spells::ERoomAffect>() {
+	if (g_room_affect_name_by_value.empty()) { init_room_affect_names(); }
+	return g_room_affect_name_by_value;
+}
+
+// --- ERoomAffectMsgType name map (mirrors kAffectMsgTypeNames) ------------------------------------
+namespace {
+const std::map<room_spells::ERoomAffectMsgType, std::string> kRoomAffectMsgTypeNames{
+		{room_spells::ERoomAffectMsgType::kUndefined, "kUndefined"},
+		{room_spells::ERoomAffectMsgType::kShortDesc, "kShortDesc"},
+		{room_spells::ERoomAffectMsgType::kAffImposedToChar, "kAffImposedToChar"},
+		{room_spells::ERoomAffectMsgType::kAffImposedToRoom, "kAffImposedToRoom"},
+		{room_spells::ERoomAffectMsgType::kAffDispelledToChar, "kAffDispelledToChar"},
+		{room_spells::ERoomAffectMsgType::kAffDispelledToRoom, "kAffDispelledToRoom"},
+		{room_spells::ERoomAffectMsgType::kAffExpiredToChar, "kAffExpiredToChar"},
+		{room_spells::ERoomAffectMsgType::kAffExpiredToRoom, "kAffExpiredToRoom"},
+		{room_spells::ERoomAffectMsgType::kRoomAffectVisible, "kRoomAffectVisible"},
+		{room_spells::ERoomAffectMsgType::kRoomAffectInvisible, "kRoomAffectInvisible"},
+		{room_spells::ERoomAffectMsgType::kRoomAffectSelfInvisible, "kRoomAffectSelfInvisible"},
+		{room_spells::ERoomAffectMsgType::kRoomAffectPkVisible, "kRoomAffectPkVisible"},
+		{room_spells::ERoomAffectMsgType::kRoomAffectPkInvisible, "kRoomAffectPkInvisible"},
+	};
+}  // namespace
+
+template<>
+const std::string &NAME_BY_ITEM<room_spells::ERoomAffectMsgType>(room_spells::ERoomAffectMsgType item) {
+	return kRoomAffectMsgTypeNames.at(item);
+}
+template<>
+const std::map<room_spells::ERoomAffectMsgType, std::string> &NAMES_OF<room_spells::ERoomAffectMsgType>() {
+	return kRoomAffectMsgTypeNames;
+}
+template<>
+room_spells::ERoomAffectMsgType ITEM_BY_NAME<room_spells::ERoomAffectMsgType>(const std::string &name) {
+	static std::map<std::string, room_spells::ERoomAffectMsgType> by_name;
+	if (by_name.empty()) {
+		for (const auto &[value, token] : kRoomAffectMsgTypeNames) {
+			by_name.emplace(token, value);
+		}
+	}
+	return by_name.at(name);
+}
+
 namespace room_spells {
+
+namespace {
+// room_affects.xml is the room-affect registry (id-only for now; grows per-affect data later).
+// Resolve a room-affecting spell to its identity flag. The ERoomAffect enumerators are named after
+// their spells, so the spell's enum token round-trips to the room-affect flag; spells with no matching
+// room-affect flag yield kUndefined (no identity).
+ERoomAffect RoomAffectBySpell(ESpell spell_id) {
+	try {
+		return ITEM_BY_NAME<ERoomAffect>(NAME_BY_ITEM<ESpell>(spell_id));
+	} catch (const std::out_of_range &) {
+		return ERoomAffect::kUndefined;
+	}
+}
+
+// issue.affect-migration: per-ERoomAffect behavior flags from room_affects.xml (mirrors the
+// char-affect g_affect_flags). Source of truth for room-affect cure/dispel/refresh/decrement/...;
+// the casting source only sets strength + duration. Indexed by to_underlying(ERoomAffect)
+// (1-based; index 0 = kUndefined = no flags).
+constexpr std::size_t kRoomAffectFlagTableSize = to_underlying(ERoomAffect::kCount);
+std::array<Bitvector, kRoomAffectFlagTableSize> g_room_affect_flags{};
+// issue.affect-migration: an affect's own <actions> (same format as a spell's <talent_actions>). Each
+// <action> carries its own <trigger> (EActionTrigger) deciding when it fires; the room affect performs
+// the matching actions directly each tick -- no dedicated tick_spell / tick_handler. A side_spell action
+// replaces the old tick_spell; a manual_cast action replaces the old tick_handler.
+std::array<talents_actions::Actions, kRoomAffectFlagTableSize> g_room_affect_actions{};
+bool g_room_affect_flags_loaded = false;
+
+// issue.affect-migration: is a fight underway in this room? (gates kBattlePulse-triggered actions.)
+bool RoomHasCombat(RoomData *room) {
+	for (const auto tch : room->people) {
+		if (tch->GetEnemy()) {
+			return true;
+		}
+	}
+	return false;
+}
+
+// issue.affect-migration: does this action fire on the current room-affect pulse? kPulse fires every
+// pulse; kBattlePulse fires only while combat is underway in the room.
+bool ActionFiresOnPulse(const talents_actions::Action &action, bool combat) {
+	const auto &t = action.GetTrigger();
+	return t.test(talents_actions::EActionTrigger::kPulse)
+		|| (t.test(talents_actions::EActionTrigger::kBattlePulse) && combat);
+}
+
+void BuildRoomAffectFlagTable(parser_wrapper::DataNode data) {
+	g_room_affect_flags.fill(0);
+	for (auto &a : g_room_affect_actions) { a = talents_actions::Actions{}; }
+	for (auto &node : data.Children("room_affect")) {
+		const char *id = node.GetValue("id");
+		if (!id || !*id) {
+			continue;
+		}
+		ERoomAffect affect;
+		try {
+			affect = ITEM_BY_NAME<ERoomAffect>(id);
+		} catch (const std::out_of_range &) {
+			continue;  // unknown id already reported by the validator
+		}
+		const auto idx = static_cast<std::size_t>(to_underlying(affect));
+		if (idx >= kRoomAffectFlagTableSize) {
+			continue;
+		}
+		// issue.affect-migration: effect flags + actions live in child tags (unified with spells.xml),
+		// read off a COPY of the iteration node (the obj_sets pattern). Each <action> carries its own
+		// <trigger>, parsed by Actions::Build/ParseAction.
+		{
+			auto fnode = node;
+			if (fnode.GoToChild("flags")) {
+				if (const char *flags = fnode.GetValue("val"); flags && *flags) {
+					g_room_affect_flags[idx] = parse::ReadAsConstantsBitvector<EAffFlag>(flags);
+				}
+			}
+		}
+		{
+			auto act_node = node;
+			if (act_node.GoToChild("actions")) {
+				g_room_affect_actions[idx].Build(act_node);
+			}
+		}
+	}
+	g_room_affect_flags_loaded = true;
+}
+
+void ValidateRoomAffectRegistry(parser_wrapper::DataNode data) {
+	std::set<std::string> seen;
+	for (auto &node : data.Children("room_affect")) {
+		const char *id = node.GetValue("id");
+		if (!id || !*id) {
+			log("SYSERROR: room_affects.xml: <room_affect> without an id -- skipped.");
+			continue;
+		}
+		try {
+			(void) ITEM_BY_NAME<ERoomAffect>(id);
+		} catch (const std::out_of_range &) {
+			log("SYSERROR: room_affects.xml: unknown room-affect id '%s' -- skipped.", id);
+			continue;
+		}
+		seen.insert(id);
+	}
+	for (const auto &[affect, token] : NAMES_OF<ERoomAffect>()) {
+		if (seen.find(token) == seen.end()) {
+			log("SYSERROR: room_affects.xml: missing <room_affect id=\"%s\">.", token.c_str());
+		}
+	}
+}
+}  // namespace
+
+// issue.affect-migration: the inverse of RoomAffectBySpell -- the spell whose enum token matches a room
+// affect. A room affect no longer stores its imposing ESpell, so paths that still need one (the cast
+// context for an affect's tick actions, the apply-cap for the seal-strength display) source it by
+// identity. kUndefined when no same-named spell exists. Public (sight.cpp uses it).
+ESpell SpellByRoomAffect(ERoomAffect affect_type) {
+	try {
+		return ITEM_BY_NAME<ESpell>(NAME_BY_ITEM<ERoomAffect>(affect_type));
+	} catch (const std::out_of_range &) {
+		return ESpell::kUndefined;
+	}
+}
+
+// issue.affect-migration: a room affect's intrinsic behavior flags from room_affects.xml, keyed by
+// affect_type. 0 for room affects with no row/flags. Loaded? guards apply-time sourcing (Phase R2).
+Bitvector RoomAffectFlagsByType(ERoomAffect affect_type) {
+	const auto idx = static_cast<std::size_t>(to_underlying(affect_type));
+	return idx < kRoomAffectFlagTableSize ? g_room_affect_flags[idx] : Bitvector{0};
+}
+bool RoomAffectFlagsLoaded() { return g_room_affect_flags_loaded; }
+
+const talents_actions::Actions &RoomAffectActions(ERoomAffect affect_type) {
+	static const talents_actions::Actions kEmpty;
+	const auto idx = static_cast<std::size_t>(to_underlying(affect_type));
+	return idx < kRoomAffectFlagTableSize ? g_room_affect_actions[idx] : kEmpty;
+}
+
+void RoomAffectsLoader::Load(parser_wrapper::DataNode data) { ValidateRoomAffectRegistry(data); BuildRoomAffectFlagTable(data); }
+void RoomAffectsLoader::Reload(parser_wrapper::DataNode data) { ValidateRoomAffectRegistry(data); BuildRoomAffectFlagTable(data); }
+
+// --- room-affect message container (cfg/messages/ru/room_affect_msg.xml) -------------------------
+namespace {
+msg_container::MsgContainer<ERoomAffect, ERoomAffectMsgType> &RoomAffectMsgContainer() {
+	static msg_container::MsgContainer<ERoomAffect, ERoomAffectMsgType> container;
+	return container;
+}
+}  // namespace
+
+const std::string &RoomAffectMsg(ERoomAffect affect, ERoomAffectMsgType slot) {
+	return RoomAffectMsgContainer().GetMessage(affect, slot);
+}
+const std::string &RoomAffectMsgRaw(ERoomAffect affect, ERoomAffectMsgType slot) {
+	static const std::string kEmpty;
+	auto &c = RoomAffectMsgContainer();
+	return c.IsKnown(affect) ? c[affect].GetMessage(slot) : kEmpty;
+}
+void RoomAffectMessagesLoader::Load(parser_wrapper::DataNode data) {
+	RoomAffectMsgContainer().Init(data.Children());
+}
+void RoomAffectMessagesLoader::Reload(parser_wrapper::DataNode data) {
+	RoomAffectMsgContainer().Reload(data.Children());
+}
 
 const int kRuneLabelDuration = 300;
 
@@ -27,7 +273,7 @@ std::list<RoomData *> affected_rooms;
 
 void RemoveSingleRoomAffect(long caster_id, ESpell spell_id);
 void HandleRoomAffect(RoomData *room, CharData *ch, const Affect<ERoomApply>::shared_ptr &aff);
-void SendRemoveAffectMsgToRoom(ESpell affect_type, RoomRnum room);
+void SendRemoveAffectMsgToRoom(ESpell affect_type, ERoomAffect room_affect, RoomRnum room);
 void affect_to_room(RoomData *room, const Affect<ERoomApply> &af);
 
 namespace {
@@ -53,10 +299,35 @@ void RoomRemoveAffect(RoomData *room, const RoomAffectIt &affect) {
 }
 
 RoomAffectIt FindAffect(RoomData *room, ESpell type) {
+	// issue.affect-migration: match by room-affect identity (ERoomAffect), not Affect::type.
+	const ERoomAffect want = RoomAffectBySpell(type);
 	for (auto affect_i = room->affected.begin(); affect_i != room->affected.end(); ++affect_i) {
 		const auto affect = *affect_i;
-		if (affect->type == type) {
+		if (affect->affect_type == want) {
 			return affect_i;
+		}
+	}
+	return room->affected.end();
+}
+
+// issue.affect-migration: the two portal room affects -- two-way kPortalTimer and one-way kNoPortalExit
+// -- share one identity space (both were the now-retired kPortalTimer spell). These query by the
+// ERoomAffect identity instead of the legacy Affect::type (ESpell).
+bool IsPortalAffect(ERoomAffect affect_type) {
+	return affect_type == ERoomAffect::kPortalTimer || affect_type == ERoomAffect::kNoPortalExit;
+}
+bool RoomHasPortal(RoomData *room) {
+	for (const auto &af : room->affected) {
+		if (IsPortalAffect(af->affect_type)) {
+			return true;
+		}
+	}
+	return false;
+}
+RoomAffectIt FindPortalAffect(RoomData *room) {
+	for (auto it = room->affected.begin(); it != room->affected.end(); ++it) {
+		if (IsPortalAffect((*it)->affect_type)) {
+			return it;
 		}
 	}
 	return room->affected.end();
@@ -72,8 +343,9 @@ bool IsZoneRoomAffected(int zone_vnum, ESpell spell) {
 }
 
 bool IsRoomAffected(RoomData *room, ESpell spell) {
+	const ERoomAffect want = RoomAffectBySpell(spell);   // issue.affect-migration: by affect_type
 	for (const auto &af : room->affected) {
-		if (af->type == spell) {
+		if (af->affect_type == want) {
 			return true;
 		}
 	}
@@ -85,7 +357,7 @@ long FindRoomPkPortalUid(RoomData *room, long exclude_uid) {
 		return 0;
 	}
 	for (const auto &af : room->affected) {
-		if (af->type == ESpell::kPortalTimer
+		if (IsPortalAffect(af->affect_type)
 				&& af->pk_unique != 0
 				&& af->pk_unique != exclude_uid) {
 			return af->pk_unique;
@@ -104,7 +376,9 @@ void ShowAffectedRooms(CharData *ch) {
 	int count = 1;
 	for (const auto r : affected_rooms) {
 		for (const auto &af : r->affected) {
-			table << count << r->vnum << MUD::Spell(af->type).GetName()
+			table << count << r->vnum
+				  // issue.affect-migration: room-affect name by its ERoomAffect identity.
+				  << NAME_BY_ITEM<ERoomAffect>(af->affect_type)
 				  << GetNameById(af->caster_id) << af->duration * 2 << table_wrapper::kEndRow;
 			++count;
 		}
@@ -126,9 +400,10 @@ CharData *find_char_in_room(long char_id, RoomData *room) {
 }
 
 RoomData *FindAffectedRoomByCasterID(long caster_id, ESpell spell_id) {
+	const ERoomAffect want = RoomAffectBySpell(spell_id);   // issue.affect-migration: by affect_type
 	for (const auto room : affected_rooms) {
 		for (const auto &af : room->affected) {
-			if (af->type == spell_id && af->caster_id == caster_id) {
+			if (af->affect_type == want && af->caster_id == caster_id) {
 				return room;
 			}
 		}
@@ -141,8 +416,8 @@ ESpell RemoveAffectFromRooms(ESpell spell_id, const F &filter) {
 	for (const auto room : affected_rooms) {
 		const auto &affect = std::find_if(room->affected.begin(), room->affected.end(), filter);
 		if (affect != room->affected.end()) {
-			SendRemoveAffectMsgToRoom((*affect)->type, GetRoomRnum(room->vnum));
-			spell_id = (*affect)->type;
+			SendRemoveAffectMsgToRoom(SpellByRoomAffect((*affect)->affect_type), (*affect)->affect_type, GetRoomRnum(room->vnum));
+			spell_id = SpellByRoomAffect((*affect)->affect_type);
 			RoomRemoveAffect(room, affect);
 			return spell_id;
 		}
@@ -151,27 +426,33 @@ ESpell RemoveAffectFromRooms(ESpell spell_id, const F &filter) {
 }
 
 void RemoveSingleRoomAffect(long caster_id, ESpell spell_id) {
+	const ERoomAffect want = RoomAffectBySpell(spell_id);   // issue.affect-migration: by affect_type
 	auto filter =
-		[&caster_id, &spell_id](auto &af) { return (af->caster_id == caster_id && af->type == spell_id); };
+		[&caster_id, want](auto &af) { return (af->caster_id == caster_id && af->affect_type == want); };
 	RemoveAffectFromRooms(spell_id, filter);
 }
 
 ESpell RemoveControlledRoomAffect(CharData *ch) {
 	long casterID = ch->get_uid();
+	// issue.affect-migration: "controlled" is the kAfNeedControl flag on the room affect (set in
+	// room_affects.xml -- the room-affect counterpart of the spell's EMagic kMagNeedControl). General
+	// flag check, not a specific affect.
 	auto filter =
 		[&casterID](auto &af) {
-			return (af->caster_id == casterID && MUD::Spell(af->type).IsFlagged(kMagNeedControl));
+			return (af->caster_id == casterID && IS_SET(af->battleflag, kAfNeedControl));
 		};
 	return RemoveAffectFromRooms(ESpell::kUndefined, filter);
 }
 
-void SendRemoveAffectMsgToRoom(ESpell affect_type, RoomRnum room) {
-	const std::string &msg = GetAffExpiredText(static_cast<ESpell>(affect_type));
+void SendRemoveAffectMsgToRoom(ESpell affect_type, ERoomAffect room_affect, RoomRnum room) {
+	// Prefer the room-affect message system; fall back to the spell expiry text (portals etc).
+	const std::string &room_msg = RoomAffectMsgRaw(room_affect, ERoomAffectMsgType::kAffExpiredToRoom);
+	if (!room_msg.empty()) {
+		SendMsgToRoom(room_msg.c_str(), room, 0);
+		return;
+	}
+	const std::string &msg = GetAffExpiredText(affect_type);
 	if (affect_type >= ESpell::kFirst && affect_type <= ESpell::kLast && !msg.empty()) {
-/*		if (affect_type == ESpell::kPortalTimer){
-			mudlog("Пентаграмма медленно растаяла.");
-		}
-*/
 		SendMsgToRoom(msg.c_str(), room, 0);
 	};
 }
@@ -189,14 +470,6 @@ void AddRoomToAffected(RoomData *room) {
 // Emit a kThunderstorm per-tick line from the kThunderstorm sheaf (kCustomMsgOne..Eight, one per
 // duration phase) to the whole room. Replaces the hardcoded SendMsgToChar/act pairs.
 
-
-// Раз в 2 секунды идет вызов обработчиков аффектов//
-// String-named code tick handlers for room affects -- the manual-cast mechanism for per-tick
-// room logic the data can't express. A room affect names one via <affects tick_handler="...">.
-static const std::map<std::string, std::function<void(CharData *, const Affect<ERoomApply>::shared_ptr &)>>
-		kRoomTickHandlers = {
-	{"HandleThunderstormTick", handlers::HandleThunderstormTick},
-};
 
 // Per-tick room narration: cycle the impose spell's defined kCustomMsg slots by the affect's
 // tick counter (apply_time), so a multi-phase room effect can show a different line each round.
@@ -217,68 +490,45 @@ static void EmitRoomTickMessage(CharData *ch, ESpell impose, int tick) {
 	}
 }
 
-// Generic data-driven room-affect tick: if the impose spell carries <affects tick_spell="B">,
-// cast B on the affected room each tick (with B's own actions/targets) and emit the cycled
-// per-tick message. Returns true if it handled the tick (so HandleRoomAffect skips the hardcoded
-// switch); false to fall through to the in-code handlers. The 4 legacy room handlers move onto
-// this path in Stage D.
-// NOTE: B is cast fresh via CastAreaInRoom (the legacy per-tick re-cast onto the room's foes).
-// Two refinements are deferred until a spell needs them: (1) stored-potency-scaled ticks (use
-// the affect's saved potency instead of B's fresh roll); (2) caster-independent ticks under
-// kMagCasterAnywhere/kMagCasterInworldDelay when ch == nullptr (no caster to source the cast).
+// issue.affect-migration: per-tick room-affect handler. The affect owns its work as <actions>, each
+// gated by its own <trigger> (a side_spell action replaces the old tick_spell; a manual_cast action
+// replaces the old tick_handler). Collect the actions whose trigger fires on this pulse (kPulse always;
+// kBattlePulse only in combat) and run ONE per tick, cycled by the affect's tick counter. Returns false
+// if the affect has no pulse-triggered action (a passive affect -- nothing to do this tick).
 static bool RunRoomTick(RoomData *room, CharData *ch, const Affect<ERoomApply>::shared_ptr &aff) {
-	const ESpell impose = aff->type;
-	if (!MUD::Spell(impose).actions.Contains(talents_actions::EAction::kAffect)) {
-		return false;
-	}
-	const auto &affect = MUD::Spell(impose).actions.GetAffect();
-	// 1. Code tick handler named by string (manual-cast mechanism for room ticks): the handler
-	//    reads the affect directly (e.g. its duration). Used for ticks the data can't express.
-	const std::string &handler = affect.GetTickHandler();
-	if (!handler.empty()) {
-		const auto it = kRoomTickHandlers.find(handler);
-		if (it == kRoomTickHandlers.end()) {
-			err_log("RunRoomTick: unknown tick_handler '%s' for spell %s.",
-					handler.c_str(), NAME_BY_ITEM<ESpell>(impose).c_str());
-			return true;
+	const ESpell impose = SpellByRoomAffect(aff->affect_type);
+	const ERoomAffect affect_type = aff->affect_type;
+	const bool combat = RoomHasCombat(room);
+	std::vector<talents_actions::Action> pulse;
+	for (const auto &action : RoomAffectActions(affect_type).list()) {
+		if (ActionFiresOnPulse(action, combat)) {
+			pulse.push_back(action);
 		}
-		if (ch != nullptr) {
-			it->second(ch, aff);
-		}
-		return true;
 	}
-	// 2. Data-driven tick_spell.
-	const ESpell tick = affect.GetTickSpell();
-	if (tick == ESpell::kUndefined) {
+	if (pulse.empty()) {
 		return false;
 	}
 	if (ch == nullptr) {
-		return true;  // tick-driven affect, but no caster to source the cast this tick
+		return true;  // triggered affect, but no caster to source the cast this tick
 	}
-	// apply_time is incremented before the handler runs, so the first tick is apply_time==1.
-	// phase counts from 0 so action[phase % N] / kCustomMsg slot [phase % K] start at the first.
+	// apply_time is incremented before the handler runs, so the first tick is apply_time==1; phase
+	// counts from 0 so action[phase % N] / kCustomMsg slot [phase % K] start at the first.
 	const int phase = aff->apply_time > 0 ? aff->apply_time - 1 : 0;
 	EmitRoomTickMessage(ch, impose, phase);
-	if (MUD::Spell(tick).GetMode() == EItemMode::kService) {
-		// multi-phase: run the tick spell's cycled action (action[phase % N]) on the room.
-		CastRoomTickAction(ch, room, tick, phase);
-	} else {
-		// single-phase: area-cast the whole tick spell on the room's foes (legacy re-cast).
-		CastAreaInRoom(ch, tick, GetRealLevel(ch));
-	}
+	// Thread the affect's current duration in/out so a manual_cast handler (e.g. thunderstorm) can
+	// branch on it -- and end the effect early by zeroing it.
+	int dur = aff->duration;
+	CastRoomTickActionFromActions(ch, room, impose, pulse, phase, &dur);
+	aff->duration = dur;
 	return true;
 }
 
 void HandleRoomAffect(RoomData *room, CharData *ch, const Affect<ERoomApply>::shared_ptr &aff) {
 	assert(aff);
 	assert(room);
-	// Fully data-driven dispatch (no per-spell switch): the affect's <affects> names either a
-	// tick_spell (data) or a tick_handler (code, by string). A kAfMustBeHandled affect that
-	// resolves to neither is a misconfiguration -- fail loudly.
-	if (!RunRoomTick(room, ch, aff)) {
-		err_log("HandleRoomAffect: spell %s is kAfMustBeHandled but has no tick_spell/tick_handler.",
-				NAME_BY_ITEM<ESpell>(aff->type).c_str());
-	}
+	// issue.affect-migration: run the affect's pulse-triggered <actions> (if any). A passive affect
+	// with no pulse-triggered action simply does nothing this tick.
+	RunRoomTick(room, ch, aff);
 }
 
 // раз в 2 секунды
@@ -292,35 +542,34 @@ void UpdateRoomsAffects() {
 		for (auto affect_i = next_affect_i; affect_i != affects.end(); affect_i = next_affect_i) {
 			++next_affect_i;
 			const auto &affect = *affect_i;
-			auto spell_id = affect->type;
+			// issue.affect-migration: caster dependency read from the room affect's OWN flags (set in
+			// room_affects.xml -- the room-affect counterparts of the spell EMagic kMagCaster* flags), so
+			// the behavior lives on the affect, not MUD::Spell(af->type). General mechanism: any room affect
+			// carrying these flags gets the treatment. ch (the resolved caster) flows to HandleRoomAffect.
 			ch = nullptr;
-
-			if (MUD::Spell(spell_id).IsFlagged(kMagCasterInroom) ||
-				MUD::Spell(spell_id).IsFlagged(kMagCasterInworld)) {
+			if (IS_SET(affect->battleflag, kAfCasterInRoom) || IS_SET(affect->battleflag, kAfCasterInWorld)) {
 				ch = find_char_in_room(affect->caster_id, *room);
 				if (!ch) {
 					affect->duration = 0;
 				}
-			} else if (MUD::Spell(spell_id).IsFlagged(kMagCasterInworldDelay)) {
-				//Если спелл с задержкой таймера - то обнулять не надо, даже если чара нет, просто тикаем таймером как обычно
+			} else if (IS_SET(affect->battleflag, kAfCasterInWorldDelay)) {
+				// задержка таймера: не обнуляем, даже если кастера нет, просто тикаем как обычно
 				ch = find_char_in_room(affect->caster_id, *room);
 			}
 
-			if ((!ch) && MUD::Spell(spell_id).IsFlagged(kMagCasterInworld)) {
+			if ((!ch) && IS_SET(affect->battleflag, kAfCasterInWorld)) {
 				ch = find_char(affect->caster_id);
 				if (!ch) {
 					affect->duration = 0;
 				}
-			} else if (MUD::Spell(spell_id).IsFlagged(kMagCasterInworldDelay)) {
+			} else if (IS_SET(affect->battleflag, kAfCasterInWorldDelay)) {
 				ch = find_char(affect->caster_id);
 			}
 
-			if (!(ch && MUD::Spell(spell_id).IsFlagged(kMagCasterInworldDelay))) {
-				switch (spell_id) {
-					case ESpell::kRuneLabel: 
-					affect->duration--;
-					default: break;
-				}
+			// kAfCasterInWorldDelay affects decay while their caster is away (general -- the old code
+			// special-cased kRuneLabel, the only such affect).
+			if (IS_SET(affect->battleflag, kAfCasterInWorldDelay) && !ch) {
+				affect->duration--;
 			}
 
 			if (affect->duration >= 1) {
@@ -329,11 +578,14 @@ void UpdateRoomsAffects() {
 			} else if (affect->duration == -1) {
 				affect->duration = -1;
 			} else {
-				if (affect->type >= ESpell::kFirst && affect->type <= ESpell::kLast) {
+				// issue.affect-migration: expiry announcement keys on the room-affect identity
+				// (affect_type), not the legacy Affect::type (ESpell) -- so affects whose ESpell was
+				// retired (e.g. the portal pair) still announce. Dedup a multi-slot affect by affect_type.
+				if (affect->affect_type != ERoomAffect::kUndefined) {
 					if (next_affect_i == affects.end()
-						|| (*next_affect_i)->type != affect->type
+						|| (*next_affect_i)->affect_type != affect->affect_type
 						|| (*next_affect_i)->duration > 0) {
-						SendRemoveAffectMsgToRoom(affect->type, GetRoomRnum((*room)->vnum));
+						SendRemoveAffectMsgToRoom(SpellByRoomAffect(affect->affect_type), affect->affect_type, GetRoomRnum((*room)->vnum));
 					}
 				}
 				RoomRemoveAffect(*room, affect_i);
@@ -342,9 +594,10 @@ void UpdateRoomsAffects() {
 
 			// Учитываем что время выдается в пульсах а не в секундах  т.е. надо умножать на 2
 			affect->apply_time++;
-			if (IS_SET(affect->battleflag, kAfMustBeHandled)) {
-				HandleRoomAffect(*room, ch, affect);
-			}
+			// issue.affect-migration: run the affect's pulse-triggered <actions>. HandleRoomAffect ->
+			// RunRoomTick filters by each action's own <trigger> (kPulse / kBattlePulse) and no-ops for
+			// passive affects, so this is safe to call for every room affect.
+			HandleRoomAffect(*room, ch, affect);
 		}
 
 		//если больше аффектов нет, удаляем комнату из списка обкастованных
@@ -412,7 +665,6 @@ ECastResult CastRoomAffect(CastContext &ctx) {
 	// so multi-apply room spells stay forward-compatible.
 	Affect<ERoomApply> af[kMaxSpellAffects];
 	for (int i = 0; i < kMaxSpellAffects; i++) {
-		af[i].type = spell_id;
 		af[i].affect_type = static_cast<ERoomAffect>(0);
 		af[i].modifier = 0;
 		af[i].battleflag = 0;
@@ -429,9 +681,11 @@ ECastResult CastRoomAffect(CastContext &ctx) {
 	// apply_one path so both record the same values for the same cast roll).
 	if (ctx.action_or_default().Contains(talents_actions::EAction::kAffect)) {
 		const auto &talent = ctx.action_or_default().GetAffect();
-		af[0].type = spell_id;
+		af[0].affect_type = RoomAffectBySpell(spell_id);
 		af[0].caster_id = ch->get_uid();
-		af[0].battleflag = talent.GetFlags();
+		// issue.affect-migration: flags come from room_affects.xml by affect_type (so the update-gate
+		// below reads the right kAfUpdateDuration/kAfUpdateMod).
+		af[0].battleflag = RoomAffectFlagsByType(af[0].affect_type);
 		const ESkill dur_skill = MUD::Spell(spell_id).GetPotencyRoll().GetBaseSkill();
 		int skill_bonus = (talent.GetDurationSkillDivisor() > 0 && dur_skill != ESkill::kUndefined)
 			? CalcNoviceSkillBonus(ch, dur_skill, talent.GetDurationSkillDivisor()) : 0;
@@ -441,7 +695,6 @@ ECastResult CastRoomAffect(CastContext &ctx) {
 		// Stored potency scaled by <affects potency_weight=> (default 1.0).
 		// Symmetric with the char-affect path in TryApplyAffectTalent.
 		af[0].potency = CalcCastPotency(ctx.potency()) * talent.GetPotencyWeight();
-		af[0].debuff = MUD::Spell(spell_id).IsViolent();
 		if (!talent.GetApplies().empty()) {
 			af[0].modifier = ComputeApplyModifier(talent.GetApplies()[0], ctx.CompetenceBase(), ctx.potency());
 		}
@@ -531,13 +784,10 @@ ECastResult CastRoomAffect(CastContext &ctx) {
 	// Impose loop. Each affect's battleflag drives the join policy: kAfUpdate
 	// Duration -> affect_room_join_fspell (replace by spell id); otherwise
 	// affect_room_join with kAfAccumulateDuration deciding whether durations
-	// stack. Empty slots (no duration, no location, no kAfMustBeHandled flag)
-	// are skipped.
+	// stack. Empty slots (no duration, no location) are skipped.
 	for (int i = 0; !handled_update && success && i < kMaxSpellAffects; i++) {
-		af[i].type = spell_id;
 		if (af[i].duration
-			|| af[i].location != kNone
-			|| IS_SET(af[i].battleflag, kAfMustBeHandled)) {
+			|| af[i].location != kNone) {
 			af[i].duration = CalcComplexSpellMod(ch, spell_id, GAPPLY_SPELL_EFFECT, af[i].duration);
 			if (IS_SET(af[i].battleflag, kAfUpdateDuration)) {
 				affect_room_join_fspell(room, af[i]);
@@ -553,14 +803,21 @@ ECastResult CastRoomAffect(CastContext &ctx) {
 		// Imposition narration: pure spell_msg.xml lookup, sheaf-direct so a
 		// missing key stays silent (same convention as CastAffect's
 		// EmitImpositionEffects).
+		// Prefer the room-affect message system (keyed by the affect's ERoomAffect identity);
+		// fall back to the spell sheaf for anything not yet migrated.
+		const ERoomAffect ra = RoomAffectBySpell(spell_id);
 		const auto &sheaf = MUD::SpellMessages()[spell_id];
-		const auto &xml_to_room = sheaf.GetMessage(ESpellMsg::kAffImposedToRoom);
-		if (!xml_to_room.empty()) {
-			act(xml_to_room.c_str(), true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
+		const std::string &room_to_room = RoomAffectMsgRaw(ra, ERoomAffectMsgType::kAffImposedToRoom);
+		const std::string &to_room = !room_to_room.empty() ? room_to_room
+				: sheaf.GetMessage(ESpellMsg::kAffImposedToRoom);
+		if (!to_room.empty()) {
+			act(to_room.c_str(), true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 		}
-		const auto &xml_to_char = sheaf.GetMessage(ESpellMsg::kAffImposedToChar);
-		if (!xml_to_char.empty()) {
-			act(xml_to_char.c_str(), true, ch, nullptr, nullptr, kToChar);
+		const std::string &room_to_char = RoomAffectMsgRaw(ra, ERoomAffectMsgType::kAffImposedToChar);
+		const std::string &to_char = !room_to_char.empty() ? room_to_char
+				: sheaf.GetMessage(ESpellMsg::kAffImposedToChar);
+		if (!to_char.empty()) {
+			act(to_char.c_str(), true, ch, nullptr, nullptr, kToChar);
 		}
 		return ECastResult::kSuccess;
 	}
@@ -611,9 +868,10 @@ ECastResult CallMagicToRoom(CharData *ch, RoomData *room, CastContext roll) {
 }
 
 int GetUniqueAffectDuration(long caster_id, ESpell spell_id) {
+	const ERoomAffect want = RoomAffectBySpell(spell_id);   // issue.affect-migration: by affect_type
 	for (const auto &room : affected_rooms) {
 		for (const auto &af : room->affected) {
-			if (af->type == spell_id && af->caster_id == caster_id) {
+			if (af->affect_type == want && af->caster_id == caster_id) {
 				return af->duration;
 			}
 		}
@@ -625,7 +883,7 @@ void affect_room_join_fspell(RoomData *room, const Affect<ERoomApply> &af) {
 	bool found = false;
 
 	for (const auto &hjp : room->affected) {
-		if (hjp->type == af.type && hjp->location == af.location) {
+		if (hjp->affect_type == af.affect_type && hjp->location == af.location) {
 			if (hjp->modifier < af.modifier) {
 				hjp->modifier = af.modifier;
 			}
@@ -646,7 +904,7 @@ void AffectRoomJoinReplace(RoomData *room, const Affect<ERoomApply> &af) {
 	bool found = false;
 
 	for (auto &affect_i : room->affected) {
-		if (affect_i->type == af.type && affect_i->location == af.location) {
+		if (affect_i->affect_type == af.affect_type && affect_i->location == af.location) {
 			affect_i->duration = af.duration;
 			affect_i->modifier = af.modifier;
 			found = true;
@@ -664,7 +922,7 @@ void affect_room_join(RoomData *room, Affect<ERoomApply> &af,
 	if (af.location) {
 		for (auto affect_i = room->affected.begin(); affect_i != room->affected.end(); ++affect_i) {
 			const auto &affect = *affect_i;
-			if (affect->type == af.type
+			if (affect->affect_type == af.affect_type
 				&& affect->location == af.location) {
 				if (add_dur) {
 					af.duration += affect->duration;
@@ -693,6 +951,13 @@ void affect_room_join(RoomData *room, Affect<ERoomApply> &af,
 
 void affect_to_room(RoomData *room, const Affect<ERoomApply> &af) {
 	Affect<ERoomApply>::shared_ptr new_affect(new Affect<ERoomApply>(af));
+	// issue.affect-migration R2: room-affect behavior flags are sourced from room_affects.xml by
+	// affect_type; the caller contributes only the per-instance kAfFailed bit. Guarded on the table
+	// being loaded (pre-cfg boot keeps caller flags); kUndefined room affects (no row) keep theirs.
+	if (RoomAffectFlagsLoaded() && af.affect_type != ERoomAffect::kUndefined) {
+		new_affect->battleflag = RoomAffectFlagsByType(af.affect_type)
+				| (af.battleflag & static_cast<Bitvector>(kAfFailed));
+	}
 
 	room->affected.push_front(new_affect);
 }

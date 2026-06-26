@@ -64,7 +64,7 @@ void ProcessDeviate(CharData *ch, CharData *victim, HitData &hit_data) {
 		prob = 0;
 	}
 	prob = prob * 100 / range;
-	if (IsAffectedBySpell(victim, ESpell::kWeb)) {
+	if (IsAffectedWithFlag(victim, kAfEntanglement)) {
 		prob /= 3;
 	}
 	TrainSkill(victim, ESkill::kDodge, prob < 100, ch);

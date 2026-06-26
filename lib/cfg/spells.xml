@@ -28,16 +28,15 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kArmor" saving="kNone" resist="kVitality">
+				<affects saving="kNone" resist="kVitality">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kUndefinded" location="kAc">
+					<apply id="kMagicArmor" location="kAc">
 						<modifier min="20.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
 					</apply>
-					<apply id="kUndefinded" location="kSavingReflex">
+					<apply id="kMagicArmor" location="kSavingReflex">
 						<modifier min="5.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
 					</apply>
-					<apply id="kUndefinded" location="kSavingStability">
+					<apply id="kMagicArmor" location="kSavingStability">
 						<modifier min="5.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
 					</apply>
 				</affects>
@@ -90,9 +89,8 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kBless" saving="kNone" resist="kVitality">
+				<affects saving="kNone" resist="kVitality">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
 					<apply id="kBless" location="kSavingStability">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="2.8" factor="-1" />
 					</apply>
@@ -130,9 +128,8 @@
 						<mob_flags val="kNoBlind" />
 					</blocking>
 				</target_conditions>
-				<affects type="kBlindness" saving="kStability" resist="kDark">
+				<affects saving="kStability" resist="kDark">
 					<duration base="2" skill_divisor="20" min="0" max="0" />
-					<flags val="kAfBattledec|kAfDispellable|kAfCurable" />
 					<apply id="kBlind" location="kNone">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
@@ -252,10 +249,9 @@
 				<damage saving="kReflex">
 					<amount min="0" dices_weight="1.0" alpha="0.5" beta="33.75" />
 				</damage>
-				<affects type="kChillTouch" saving="kStability" resist="kWater">
+				<affects saving="kStability" resist="kWater">
 					<duration base="2" skill_divisor="10" min="6" max="0" />
-					<flags val="kAfBattledec|kAfAccumulateDuration|kAfDispellable|kAfCurable" />
-					<apply id="kUndefinded" location="kStr">
+					<apply id="kShivering" location="kStr">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="1.4" factor="-1" />
 					</apply>
 				</affects>
@@ -403,7 +399,7 @@
 		<talent_actions>
 			<action>
 				<unaffect decay="50">
-					<remove any_of="kBlindness" />
+					<remove any_of="kBlind" />
 				</unaffect>
 			</action>
 		</talent_actions>
@@ -483,9 +479,8 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kCurse" saving="kWill" resist="kDark">
+				<affects saving="kWill" resist="kDark">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable" />
 					<apply id="kCurse" location="kHitroll">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0.4" factor="-1" />
 					</apply>
@@ -521,9 +516,8 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kDetectAlign" saving="kNone" resist="kMind">
+				<affects saving="kNone" resist="kMind">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
 					<apply id="kDetectAlign" location="kNone">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
@@ -552,9 +546,8 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kDetectInvis" saving="kNone" resist="kMind">
+				<affects saving="kNone" resist="kMind">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
 					<apply id="kDetectInvisible" location="kNone">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
@@ -583,9 +576,8 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kDetectMagic" saving="kNone" resist="kMind">
+				<affects saving="kNone" resist="kMind">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
 					<apply id="kDetectMagic" location="kNone">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
@@ -614,9 +606,8 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kDetectPoison" saving="kNone" resist="kMind">
+				<affects saving="kNone" resist="kMind">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
 					<apply id="kDetectPoison" location="kNone">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
@@ -689,8 +680,7 @@
 					<targets skill_divisor="25" dice_size="2" min="5" max="20" />
 					<distribution type="kStepped" decay="0.05" free_targets="5" />
 				</area>
-				<affects type="kEarthquake" saving="kReflex" resist="kEarth">
-					<flags val="kAfDispellable|kAfCurable" />
+				<affects saving="kReflex" resist="kEarth">
 					<reposition pos="kSit" />
 					<lag base="2" bonus_divisor="-1" />
 				</affects>
@@ -741,16 +731,15 @@
 				<damage saving="kReflex">
 					<amount min="0" dices_weight="1.0" alpha="0.5" beta="3.5" />
 				</damage>
-				<affects type="kWeaknes" saving="kWill" resist="kImmunity" potency_weight="1">
+				<affects saving="kWill" resist="kImmunity" potency_weight="1">
 					<duration base="4" skill_divisor="13" min="4" max="0" />
-					<flags val="kAfBattledec|kAfDispellable|kAfCurable" />
-					<apply id="kUndefinded" location="kStr">
+					<apply id="kDespodency" location="kStr">
 						<modifier min="0.0" dices_weight="0.2" alpha="0.2" beta="0" factor="-1" />
 					</apply>
 				</affects>
 				<unaffect decay="25">
-					<breaking any_of="kStrength|kDexterity" />
-					<remove any_of="kStrength|kDexterity" />
+					<breaking any_of="kMagicStrength|kCatGrace" />
+					<remove any_of="kMagicStrength|kCatGrace" />
 				</unaffect>
 				<manual_cast handler="SpellEnergydrain" />
 			</action>
@@ -863,9 +852,8 @@
 						<affect_flags val="kGlitterDust" />
 					</blocking>
 				</target_conditions>
-				<affects type="kInvisible" saving="kNone" resist="kMind">
+				<affects saving="kNone" resist="kMind">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
 					<apply id="kInvisible" location="kAc">
 						<modifier min="40.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
 					</apply>
@@ -1010,9 +998,8 @@
 						<affect_flags val="kGodsShield" />
 					</blocking>
 				</target_conditions>
-				<affects type="kPoison" saving="kCritical" resist="kDark">
+				<affects saving="kCritical" resist="kDark">
 					<duration base="0" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfSameTime|kAfDispellable|kAfCurable" />
 					<apply id="kPoisoned" location="kStr">
 						<modifier min="2.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" stack="5" />
 					</apply>
@@ -1045,9 +1032,8 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kProtectFromEvil" saving="kNone" resist="kVitality">
+				<affects saving="kNone" resist="kVitality">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
 					<apply id="kProtectFromDark" location="kResistDark">
 						<modifier min="5.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
@@ -1104,9 +1090,8 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kSanctuary" saving="kNone" resist="kVitality">
+				<affects saving="kNone" resist="kVitality">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
 					<apply id="kSanctuary" location="kNone">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
@@ -1171,10 +1156,9 @@
 						<affect_flags val="kHold" />
 					</blocking>
 				</target_conditions>
-				<affects type="kSleep" saving="kWill" resist="kMind">
+				<affects saving="kWill" resist="kMind">
 					<reposition pos="kSleep" />
 					<duration base="1" skill_divisor="15" min="1" max="6" />
-					<flags val="kAfBattledec|kAfDispellable|kAfCurable" />
 					<apply id="kSleep" location="kNone">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
@@ -1203,16 +1187,15 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kStrength" saving="kNone" resist="kImmunity">
+				<affects saving="kNone" resist="kImmunity">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kUndefinded" location="kStr">
+					<apply id="kMagicStrength" location="kStr">
 						<modifier min="5.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
 				</affects>
 				<unaffect decay="25">
-					<breaking any_of="kWeaknes" />
-					<remove any_of="kWeaknes" />
+					<breaking any_of="kMagicWeaknes" />
+					<remove any_of="kMagicWeaknes" />
 				</unaffect>
 			</action>
 		</talent_actions>
@@ -1261,10 +1244,9 @@
 				<points>
 					<heal npc_coeff="3" min="1" dices_weight="1.0" alpha="1" beta="1" />
 				</points>
-				<affects type="kPatronage" saving="kNone" resist="kVitality">
+				<affects saving="kNone" resist="kVitality">
 					<duration base="3" skill_divisor="25" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod" />
-					<apply id="kUndefinded" location="kHp">
+					<apply id="kPatronage" location="kHp">
 						<modifier min="72.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
 				</affects>
@@ -1318,7 +1300,7 @@
 		<talent_actions>
 			<action>
 				<unaffect affect_flags="kAfCurable" decay="25">
-					<remove all_of="kPoison|kAconitumPoison|kScopolaPoison|kBelenaPoison|kDaturaPoison" />
+					<remove all_of="kPoisoned|kAconitumPoison|kScopolaPoison|kBelenaPoison|kDaturaPoison" />
 				</unaffect>
 				<alter_obj handler="AlterRemovePoison" />
 			</action>
@@ -1345,9 +1327,8 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kSenseLife" saving="kNone" resist="kImmunity">
+				<affects saving="kNone" resist="kImmunity">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
 					<apply id="kDetectLife" location="kNone">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
@@ -1548,9 +1529,8 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kInfravision" saving="kNone" resist="kVitality">
+				<affects saving="kNone" resist="kVitality">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
 					<apply id="kInfravision" location="kNone">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
@@ -1579,9 +1559,8 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kWaterwalk" saving="kNone" resist="kWater">
+				<affects saving="kNone" resist="kWater">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
 					<apply id="kWaterWalk" location="kNone">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
@@ -1672,9 +1651,8 @@
 						<affect_flags val="kBrokenChains|kSleep" />
 					</blocking>
 				</target_conditions>
-				<affects type="kHold" saving="kWill" resist="kMind">
+				<affects saving="kWill" resist="kMind">
 					<duration base="1" skill_divisor="25" min="1" max="3" />
-					<flags val="kAfBattledec|kAfDispellable|kAfCurable" />
 					<apply id="kHold" location="kNone">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
@@ -1709,9 +1687,8 @@
 						<affect_flags val="kBrokenChains|kSleep" />
 					</blocking>
 				</target_conditions>
-				<affects type="kHold" saving="kWill" resist="kMind">
+				<affects saving="kWill" resist="kMind">
 					<duration base="2" skill_divisor="20" min="2" max="5" />
-					<flags val="kAfBattledec|kAfDispellable|kAfCurable" />
 					<apply id="kHold" location="kNone">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
@@ -1769,9 +1746,8 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kFly" saving="kNone" resist="kAir">
+				<affects saving="kNone" resist="kAir">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
 					<apply id="kFly" location="kNone">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
@@ -1801,9 +1777,8 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kBrokenChains" saving="kNone" resist="kMind">
+				<affects saving="kNone" resist="kMind">
 					<duration base="10" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfBattledec|kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
 					<apply id="kBrokenChains" location="kNone">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
@@ -1811,7 +1786,7 @@
 			</action>
 		</talent_actions>
 	</spell>
-	<spell id="kNoflee" element="kMind" mode="kEnabled">
+	<spell id="kEntangleEnemy" element="kMind" mode="kEnabled">
 		<name val="noflee" />
 		<components>
 			<verbal />
@@ -1837,9 +1812,8 @@
 						<affect_flags val="kBrokenChains" />
 					</blocking>
 				</target_conditions>
-				<affects type="kNoflee" saving="kWill" resist="kMind">
+				<affects saving="kWill" resist="kMind">
 					<duration base="3" skill_divisor="10" min="4" max="0" />
-					<flags val="kAfBattledec|kAfDispellable|kAfCurable" />
 					<apply id="kNoTeleport" location="kNone">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
@@ -1887,9 +1861,8 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kDarkness" saving="kNone" resist="kDark">
+				<affects saving="kNone" resist="kDark">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
 					<apply id="kHolyDark" location="kNone">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
@@ -1919,10 +1892,9 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kStoneSkin" saving="kNone" resist="kEarth">
+				<affects saving="kNone" resist="kEarth">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kUndefinded" location="kAbsorbe">
+					<apply id="kStoneSkin" location="kAbsorbe">
 						<modifier min="20.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
 				</affects>
@@ -1950,13 +1922,12 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kCloudly" saving="kNone" resist="kWater">
+				<affects saving="kNone" resist="kWater">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kUndefinded" location="kSpelledBlinkMag">
+					<apply id="kCloudly" location="kSpelledBlinkMag">
 						<modifier min="10.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
-					<apply id="kUndefinded" location="kAc">
+					<apply id="kCloudly" location="kAc">
 						<modifier min="20.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
 					</apply>
 				</affects>
@@ -1989,9 +1960,8 @@
 						<mob_flags val="kNoSilence" />
 					</blocking>
 				</target_conditions>
-				<affects type="kSilence" saving="kWill" resist="kMind">
+				<affects saving="kWill" resist="kMind">
 					<duration base="2" skill_divisor="20" min="3" max="0" />
-					<flags val="kAfBattledec|kAfDispellable|kAfCurable" />
 					<apply id="kSilence" location="kNone">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
@@ -2020,9 +1990,8 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kLight" saving="kNone" resist="kVitality">
+				<affects saving="kNone" resist="kVitality">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
 					<apply id="kHolyLight" location="kNone">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
@@ -2145,16 +2114,15 @@
 					<targets skill_divisor="20" dice_size="2" min="5" max="20" />
 					<distribution type="kStepped" decay="0.05" free_targets="3" />
 				</area>
-				<affects type="kWeaknes" saving="kWill" resist="kImmunity">
+				<affects saving="kWill" resist="kImmunity">
 					<duration base="4" skill_divisor="13" min="4" max="0" />
-					<flags val="kAfBattledec|kAfDispellable|kAfCurable" />
-					<apply id="kUndefinded" location="kStr">
+					<apply id="kMagicWeaknes" location="kStr">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="3.5" factor="-1" />
 					</apply>
 				</affects>
 				<unaffect decay="25">
-					<breaking any_of="kStrength|kDexterity" />
-					<remove any_of="kStrength|kDexterity" />
+					<breaking any_of="kMagicStrength|kCatGrace" />
+					<remove any_of="kMagicStrength|kCatGrace" />
 				</unaffect>
 			</action>
 		</talent_actions>
@@ -2209,9 +2177,8 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kShadowCloak" saving="kNone" resist="kDark">
+				<affects saving="kNone" resist="kDark">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
 					<apply id="kShadowCloak" location="kSavingStability">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="1.6" factor="-1" />
 					</apply>
@@ -2291,10 +2258,9 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kEnlarge" saving="kNone" resist="kImmunity">
+				<affects saving="kNone" resist="kImmunity">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable" />
-					<apply id="kUndefinded" location="kSize">
+					<apply id="kEnlarge" location="kSize">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="7.6" factor="1" />
 					</apply>
 				</affects>
@@ -2402,9 +2368,8 @@
 						<affect_flags val="kBrokenChains" />
 					</blocking>
 				</target_conditions>
-				<affects type="kWeb" saving="kReflex" resist="kMind">
+				<affects saving="kReflex" resist="kMind">
 					<duration base="3" skill_divisor="15" min="0" max="0" />
-					<flags val="kAfBattledec|kAfDispellable|kAfCurable" />
 					<apply id="kNoFlee" location="kHitroll">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="1.2" factor="-1" />
 					</apply>
@@ -2436,10 +2401,9 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kBlink" saving="kNone" resist="kVitality">
+				<affects saving="kNone" resist="kVitality">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kUndefinded" location="kSpelledBlinkPhys">
+					<apply id="kBlink" location="kSpelledBlinkPhys">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="7" factor="1" />
 					</apply>
 				</affects>
@@ -2510,9 +2474,8 @@
 						<mob_flags val="kNoBlind" />
 					</blocking>
 				</target_conditions>
-				<affects type="kBlindness" saving="kStability" resist="kDark">
+				<affects saving="kStability" resist="kDark">
 					<duration base="3" skill_divisor="15" min="0" max="0" />
-					<flags val="kAfBattledec|kAfDispellable|kAfCurable" />
 					<apply id="kBlind" location="kNone">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
@@ -2575,9 +2538,8 @@
 						<mob_flags val="kNoSilence" />
 					</blocking>
 				</target_conditions>
-				<affects type="kSilence" saving="kWill" resist="kMind">
+				<affects saving="kWill" resist="kMind">
 					<duration base="2" skill_divisor="10" min="6" max="0" />
-					<flags val="kAfBattledec|kAfDispellable|kAfCurable" />
 					<apply id="kSilence" location="kNone">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
@@ -2653,16 +2615,15 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kMagicShield" saving="kNone" resist="kVitality">
+				<affects saving="kNone" resist="kVitality">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kUndefinded" location="kAc">
+					<apply id="kMagicShield" location="kAc">
 						<modifier min="50.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
 					</apply>
-					<apply id="kUndefinded" location="kSavingReflex">
+					<apply id="kMagicShield" location="kSavingReflex">
 						<modifier min="6.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
 					</apply>
-					<apply id="kUndefinded" location="kSavingStability">
+					<apply id="kMagicShield" location="kSavingStability">
 						<modifier min="6.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
 					</apply>
 				</affects>
@@ -2689,10 +2650,9 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kForbidden" saving="kNone" resist="kVitality">
+				<affects saving="kNone" resist="kVitality">
 					<duration base="60" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kUndefinded" location="kNone">
+					<apply id="kForbidden" location="kNone">
 						<modifier min="0" dices_weight="0" alpha="0" beta="1" factor="1" cap="100" />
 					</apply>
 				</affects>
@@ -3013,8 +2973,7 @@
 				<damage saving="kStability">
 					<amount min="0" dices_weight="1.0" alpha="0.5" beta="417.5" />
 				</damage>
-				<affects type="kStunning" saving="kCritical" resist="kEarth">
-					<flags val="kAfDispellable|kAfCurable" />
+				<affects saving="kCritical" resist="kEarth">
 					<reposition pos="kStun" />
 					<lag base="6" bonus_divisor="-1" />
 				</affects>
@@ -3030,20 +2989,6 @@
 	</spell>
 	<spell id="kSneak" element="kUndefined" mode="kService">
 		<name val="!set by skill!" />
-		<misc pos="kStand" violent="N" danger="0" />
-		<mana max="0" min="0" change="0" />
-		<targets val="kTarNone" />
-		<flags val="kMagManual" />
-	</spell>
-	<spell id="kDrunked" element="kUndefined" mode="kService">
-		<name val="!set by programm!" />
-		<misc pos="kStand" violent="N" danger="0" />
-		<mana max="0" min="0" change="0" />
-		<targets val="kTarNone" />
-		<flags val="kMagManual" />
-	</spell>
-	<spell id="kAbstinent" element="kUndefined" mode="kService">
-		<name val="!set by programm!" />
 		<misc pos="kStand" violent="N" danger="0" />
 		<mana max="0" min="0" change="0" />
 		<targets val="kTarNone" />
@@ -3100,29 +3045,14 @@
 					<targets skill_divisor="40" dice_size="2" min="2" max="5" />
 					<distribution type="kStepped" decay="0.05" free_targets="5" />
 				</area>
-				<affects type="kColdWind" saving="kStability" resist="kAir">
-					<flags val="kAfDispellable|kAfCurable" />
+				<affects saving="kStability" resist="kAir">
 					<duration base="9" skill_divisor="0" min="0" max="0" />
-					<apply id="kUndefinded" location="kDex">
+					<apply id="kFrostbite" location="kDex">
 						<modifier min="4.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
 					</apply>
 				</affects>
 			</action>
 		</talent_actions>
-	</spell>
-	<spell id="kBattle" element="kUndefined" mode="kService">
-		<name val="!set by programm!" />
-		<misc pos="kStand" violent="N" danger="0" />
-		<mana max="0" min="0" change="0" />
-		<targets val="kTarNone" />
-		<flags val="kMagManual" />
-	</spell>
-	<spell id="kHaemorrhage" element="kUndefined" mode="kService">
-		<name val="!set by programm!" />
-		<misc pos="kStand" violent="N" danger="0" />
-		<mana max="0" min="0" change="0" />
-		<targets val="kTarNone" />
-		<flags val="kMagManual" />
 	</spell>
 	<spell id="kCourage" element="kUndefined" mode="kService">
 		<name val="!set by programm!" />
@@ -3159,9 +3089,8 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kWaterbreath" saving="kNone" resist="kWater">
+				<affects saving="kNone" resist="kWater">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
 					<apply id="kWaterBreath" location="kNone">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
@@ -3195,13 +3124,12 @@
 						<affect_flags val="kBrokenChains|kHaste" />
 					</blocking>
 				</target_conditions>
-				<affects type="kSlowdown" saving="kStability" resist="kMind">
-					<flags val="kAfDispellable|kAfCurable" />
+				<affects saving="kStability" resist="kMind">
 					<duration base="9" skill_divisor="0" min="0" max="0" />
 					<apply id="kSlow" location="kNone">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
-					<apply id="kUndefinded" location="kDex">
+					<apply id="kSlowdown" location="kDex">
 						<modifier min="2.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
 					</apply>
 				</affects>
@@ -3233,16 +3161,15 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kHaste" saving="kNone" resist="kMind">
+				<affects saving="kNone" resist="kMind">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
 					<apply id="kHaste" location="kSavingReflex">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0.9" factor="-1" />
 					</apply>
 				</affects>
 				<unaffect decay="25">
-					<breaking any_of="kSlowdown" />
-					<remove any_of="kSlowdown" />
+					<breaking any_of="kSlow" />
+					<remove any_of="kSlow" />
 				</unaffect>
 			</action>
 		</talent_actions>
@@ -3326,9 +3253,8 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kGodsShield" saving="kNone" resist="kVitality">
+				<affects saving="kNone" resist="kVitality">
 					<duration base="4" skill_divisor="0" min="0" max="0" />
-					<flags val="kAfBattledec|kAfUpdateDuration|kAfUpdateMod" />
 					<apply id="kGodsShield" location="kSavingStability">
 						<modifier min="10.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
 					</apply>
@@ -3367,31 +3293,30 @@
 					<targets skill_divisor="20" dice_size="2" min="5" max="20" />
 					<distribution type="kStepped" decay="0.05" free_targets="3" />
 				</area>
-				<affects type="kFever" saving="kStability" resist="kImmunity">
-					<flags val="kAfCurable" />
+				<affects saving="kStability" resist="kImmunity">
 					<duration base="0" skill_divisor="5" min="0" max="0" />
-					<apply id="kUndefinded" location="kHpRegen">
+					<apply id="kFever" location="kHpRegen">
 						<modifier min="95.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
 					</apply>
-					<apply id="kUndefinded" location="kManaRegen">
+					<apply id="kFever" location="kManaRegen">
 						<modifier min="95.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
 					</apply>
-					<apply id="kUndefinded" location="kMoveRegen">
+					<apply id="kFever" location="kMoveRegen">
 						<modifier min="95.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
 					</apply>
-					<apply id="kUndefinded" location="kPlague">
+					<apply id="kFever" location="kPlague">
 						<modifier min="30.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
-					<apply id="kUndefinded" location="kWis">
+					<apply id="kFever" location="kWis">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0.6" factor="-1" />
 					</apply>
-					<apply id="kUndefinded" location="kInt">
+					<apply id="kFever" location="kInt">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0.6" factor="-1" />
 					</apply>
-					<apply id="kUndefinded" location="kDex">
+					<apply id="kFever" location="kDex">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0.6" factor="-1" />
 					</apply>
-					<apply id="kUndefinded" location="kStr">
+					<apply id="kFever" location="kStr">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0.6" factor="-1" />
 					</apply>
 				</affects>
@@ -3446,9 +3371,8 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kAwareness" saving="kNone" resist="kMind">
+				<affects saving="kNone" resist="kMind">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
 					<apply id="kAwarness" location="kNone">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
@@ -3458,13 +3382,6 @@
 				</affects>
 			</action>
 		</talent_actions>
-	</spell>
-	<spell id="kReligion" element="kUndefined" mode="kService">
-		<name val="!pray or donate!" />
-		<misc pos="kStand" violent="N" danger="0" />
-		<mana max="0" min="0" change="0" />
-		<targets val="kTarNone" />
-		<flags val="kMagManual" />
 	</spell>
 	<spell id="kAirShield" element="kAir" mode="kEnabled">
 		<name val="air shield" />
@@ -3487,9 +3404,8 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kAirShield" saving="kNone" resist="kAir">
+				<affects saving="kNone" resist="kAir">
 					<duration base="10" skill_divisor="0" min="0" max="0" />
-					<flags val="kAfBattledec|kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
 					<apply id="kAirShield" location="kNone">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
@@ -3519,17 +3435,6 @@
 				<manual_cast handler="SpellPortal" />
 			</action>
 		</talent_actions>
-	</spell>
-	<spell id="kPortalTimer" element="kLight" mode="kService">
-		<name val="portal" />
-		<components>
-			<verbal />
-			<weave />
-		</components>
-		<misc pos="kStand" violent="N" danger="0" />
-		<mana max="200" min="180" change="4" />
-		<targets val="kTarNone" />
-		<flags val="kMagManual" />
 	</spell>
 	<spell id="kDispellMagic" element="kLight" mode="kEnabled">
 		<name val="dispel magic" />
@@ -3605,13 +3510,12 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kFastRegeneration" saving="kNone" resist="kImmunity">
+				<affects saving="kNone" resist="kImmunity">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kUndefinded" location="kHpRegen">
+					<apply id="kFastRegeneration" location="kHpRegen">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="19.8" factor="1" />
 					</apply>
-					<apply id="kUndefinded" location="kMoveRegen">
+					<apply id="kFastRegeneration" location="kMoveRegen">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="19.8" factor="1" />
 					</apply>
 				</affects>
@@ -3677,9 +3581,8 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kFireShield" saving="kNone" resist="kFire">
+				<affects saving="kNone" resist="kFire">
 					<duration base="10" skill_divisor="0" min="0" max="0" />
-					<flags val="kAfBattledec|kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
 					<apply id="kFireShield" location="kNone">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
@@ -3759,9 +3662,8 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kIceShield" saving="kNone" resist="kWater">
+				<affects saving="kNone" resist="kWater">
 					<duration base="10" skill_divisor="0" min="0" max="0" />
-					<flags val="kAfBattledec|kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
 					<apply id="kIceShield" location="kNone">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
@@ -3800,10 +3702,9 @@
 					<targets skill_divisor="30" dice_size="2" min="5" max="20" />
 					<distribution type="kStepped" decay="0.05" free_targets="3" />
 				</area>
-				<affects type="kMagicBattle" saving="kNone" resist="kWater">
+				<affects saving="kNone" resist="kWater">
 					<lag base="2" bonus_divisor="-1" />
 					<duration base="2" skill_divisor="0" min="0" max="0" />
-					<flags val="kAfBattledec|kAfPulsedec|kAfDispellable|kAfCurable" />
 					<apply id="kMagicStopFight" location="kNone">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
@@ -3832,10 +3733,9 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kLessening" saving="kNone" resist="kImmunity">
+				<affects saving="kNone" resist="kImmunity">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable" />
-					<apply id="kUndefinded" location="kSize">
+					<apply id="kLessening" location="kSize">
 						<modifier min="15.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
 					</apply>
 				</affects>
@@ -3875,9 +3775,8 @@
 						<mob_flags val="kNoBlind" />
 					</blocking>
 				</target_conditions>
-				<affects type="kBlindness" saving="kStability" resist="kFire">
+				<affects saving="kStability" resist="kFire">
 					<duration base="2" skill_divisor="20" min="0" max="0" />
-					<flags val="kAfBattledec|kAfDispellable|kAfCurable" />
 					<apply id="kBlind" location="kNone">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
@@ -3906,13 +3805,12 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kMadness" saving="kWill" resist="kMind">
-					<flags val="kAfDispellable|kAfCurable" />
+				<affects saving="kWill" resist="kMind">
 					<duration base="3" skill_divisor="0" min="0" max="0" />
 					<apply id="kNoFlee" location="kNone">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
-					<apply id="kUndefinded" location="kMadness">
+					<apply id="kMadness" location="kMadness">
 						<modifier min="30.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
 				</affects>
@@ -3969,9 +3867,8 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kCloudOfArrows" saving="kNone" resist="kFire">
+				<affects saving="kNone" resist="kFire">
 					<duration base="10" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
 					<apply id="kCloudOfArrows" location="kHitroll">
 						<modifier min="5.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
@@ -4003,8 +3900,7 @@
 				<damage saving="kStability">
 					<amount min="0" dices_weight="1.0" alpha="0.5" beta="291" />
 				</damage>
-				<affects type="kVacuum" saving="kCritical" resist="kDark">
-					<flags val="kAfDispellable|kAfCurable" />
+				<affects saving="kCritical" resist="kDark">
 					<reposition pos="kStun" />
 					<lag base="2" bonus_divisor="15" />
 				</affects>
@@ -4027,9 +3923,8 @@
 		<flags val="kMagNeedControl|kMagRoom|kMagCasterInroom" />
 		<talent_actions>
 			<action>
-				<affects type="kMeteorStorm" saving="kNone" resist="kVitality" tick_spell="kThunderStone">
+				<affects saving="kNone" resist="kVitality">
 					<duration base="3" skill_divisor="0" min="0" max="0" />
-					<flags val="kAfMustBeHandled|kAfDispellable" />
 				</affects>
 			</action>
 		</talent_actions>
@@ -4055,9 +3950,8 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kStoneHands" saving="kNone" resist="kEarth">
+				<affects saving="kNone" resist="kEarth">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
 					<apply id="kStoneHands" location="kNone">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
@@ -4086,16 +3980,15 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kMindless" saving="kStability" resist="kMind">
-					<flags val="kAfDispellable|kAfCurable" />
+				<affects saving="kStability" resist="kMind">
 					<duration base="0" skill_divisor="25" min="0" max="0" />
-					<apply id="kUndefinded" location="kManaRegen">
+					<apply id="kMindless" location="kManaRegen">
 						<modifier min="50.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
 					</apply>
-					<apply id="kUndefinded" location="kCastSuccess">
+					<apply id="kMindless" location="kCastSuccess">
 						<modifier min="50.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
 					</apply>
-					<apply id="kUndefinded" location="kHitroll">
+					<apply id="kMindless" location="kHitroll">
 						<modifier min="5.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
 					</apply>
 				</affects>
@@ -4123,9 +4016,8 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kPrismaticAura" saving="kNone" resist="kVitality">
+				<affects saving="kNone" resist="kVitality">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
 					<apply id="kPrismaticAura" location="kNone">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
@@ -4170,9 +4062,8 @@
 					<targets skill_divisor="20" dice_size="2" min="1" max="-1" />
 					<distribution type="kUniform" />
 				</area>
-				<affects type="kEviless" saving="kNone" resist="kDark">
+				<affects saving="kNone" resist="kDark">
 					<duration base="10" skill_divisor="0" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod" />
 					<apply id="kForcesOfEvil" location="kDamroll">
 						<modifier min="19.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
@@ -4208,9 +4099,8 @@
 					<targets skill_divisor="20" dice_size="2" min="5" max="-1" />
 					<distribution type="kUniform" />
 				</area>
-				<affects type="kAirAura" saving="kNone" resist="kAir">
+				<affects saving="kNone" resist="kAir">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
 					<apply id="kAirAura" location="kResistAir">
 						<modifier min="1" dices_weight="0" alpha="0" beta="9" factor="1" cap="30" />
 					</apply>
@@ -4243,9 +4133,8 @@
 					<targets skill_divisor="20" dice_size="2" min="5" max="-1" />
 					<distribution type="kUniform" />
 				</area>
-				<affects type="kFireAura" saving="kNone" resist="kFire">
+				<affects saving="kNone" resist="kFire">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
 					<apply id="kFireAura" location="kResistWater">
 						<modifier min="1" dices_weight="0" alpha="0" beta="9" factor="1" cap="30" />
 					</apply>
@@ -4278,9 +4167,8 @@
 					<targets skill_divisor="20" dice_size="2" min="5" max="-1" />
 					<distribution type="kUniform" />
 				</area>
-				<affects type="kIceAura" saving="kNone" resist="kWater">
+				<affects saving="kNone" resist="kWater">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
 					<apply id="kIceAura" location="kResistFire">
 						<modifier min="1" dices_weight="0" alpha="0" beta="9" factor="1" cap="30" />
 					</apply>
@@ -4316,10 +4204,9 @@
 					<targets skill_divisor="35" dice_size="2" min="1" max="4" />
 					<distribution type="kStepped" decay="0.05" free_targets="2" />
 				</area>
-				<affects type="kMagicBattle" saving="kStability" resist="kVitality">
+				<affects saving="kStability" resist="kVitality">
 					<lag base="2" bonus_divisor="-1" />
 					<duration base="2" skill_divisor="0" min="0" max="0" />
-					<flags val="kAfBattledec|kAfPulsedec|kAfDispellable|kAfCurable" />
 					<apply id="kMagicStopFight" location="kNone">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
@@ -4351,9 +4238,8 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kMagicGlass" saving="kNone" resist="kVitality">
+				<affects saving="kNone" resist="kVitality">
 					<duration base="10" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
 					<apply id="kMagicGlass" location="kNone">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
@@ -4440,9 +4326,8 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kDeafness" saving="kStability" resist="kMind">
+				<affects saving="kStability" resist="kMind">
 					<duration base="2" skill_divisor="20" min="3" max="0" />
-					<flags val="kAfBattledec|kAfDispellable|kAfCurable" />
 					<apply id="kDeafness" location="kNone">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
@@ -4471,9 +4356,8 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kDeafness" saving="kStability" resist="kMind">
+				<affects saving="kStability" resist="kMind">
 					<duration base="4" skill_divisor="10" min="3" max="0" />
-					<flags val="kAfBattledec|kAfDispellable|kAfCurable" />
 					<apply id="kDeafness" location="kNone">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
@@ -4570,11 +4454,10 @@
 						<mob_flags val="kNoBlind" />
 					</blocking>
 				</target_conditions>
-				<affects type="kBlindness" saving="kStability" resist="kEarth">
+				<affects saving="kStability" resist="kEarth">
 					<reposition pos="kSit" />
 					<lag base="2" bonus_divisor="-1" />
 					<duration base="3" skill_divisor="15" min="0" max="0" />
-					<flags val="kAfBattledec|kAfDispellable|kAfCurable" />
 					<apply id="kBlind" location="kNone">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
@@ -4610,10 +4493,9 @@
 					<targets skill_divisor="20" dice_size="2" min="1" max="3" />
 					<distribution type="kStepped" decay="0.05" free_targets="1" />
 				</area>
-				<affects type="kMagicBattle" saving="kNone" resist="kEarth">
+				<affects saving="kNone" resist="kEarth">
 					<lag base="2" bonus_divisor="-1" />
 					<duration base="2" skill_divisor="0" min="0" max="0" />
-					<flags val="kAfBattledec|kAfPulsedec|kAfDispellable|kAfCurable" />
 					<apply id="kMagicStopFight" location="kNone">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
@@ -4648,11 +4530,10 @@
 					<targets skill_divisor="20" dice_size="2" min="5" max="20" />
 					<distribution type="kStepped" decay="0.05" free_targets="3" />
 				</area>
-				<affects type="kDeafness" saving="kCritical" resist="kAir">
+				<affects saving="kCritical" resist="kAir">
 					<reposition pos="kSit" />
 					<lag base="2" bonus_divisor="-1" />
 					<duration base="2" skill_divisor="10" min="6" max="0" />
-					<flags val="kAfBattledec|kAfDispellable|kAfCurable" />
 					<apply id="kDeafness" location="kNone">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
@@ -4685,8 +4566,8 @@
 					<amount min="0" dices_weight="1.0" alpha="1.282051" beta="250" />
 				</damage>
 				<unaffect decay="25">
-					<breaking any_of="kEviless" />
-					<remove any_of="kEviless" />
+					<breaking any_of="kForcesOfEvil" />
+					<remove any_of="kForcesOfEvil" />
 				</unaffect>
 				<target_conditions>
 					<blocking>
@@ -4694,9 +4575,8 @@
 						<affect_flags val="kForcesOfEvil|kBrokenChains|kSleep" />
 					</blocking>
 				</target_conditions>
-				<affects type="kHold" saving="kWill" resist="kVitality">
+				<affects saving="kWill" resist="kVitality">
 					<duration base="1" skill_divisor="25" min="1" max="3" />
-					<flags val="kAfBattledec|kAfDispellable|kAfCurable" />
 					<apply id="kHold" location="kNone">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
@@ -4772,10 +4652,9 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kFascination" saving="kNone" resist="kMind">
+				<affects saving="kNone" resist="kMind">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kUndefinded" location="kCha">
+					<apply id="kFascination" location="kCha">
 						<modifier min="3.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
 				</affects>
@@ -4806,8 +4685,7 @@
 						<affect_flags val="kCrying" />
 					</blocking>
 				</target_conditions>
-				<affects type="kCrying" saving="kStability" resist="kMind">
-					<flags val="kAfDispellable|kAfCurable" />
+				<affects saving="kStability" resist="kMind">
 					<duration base="5" skill_divisor="0" min="0" max="0" />
 					<apply id="kCrying" location="kHp">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="1" factor="-1" />
@@ -4846,10 +4724,9 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kOblivion" saving="kWill" resist="kDark">
+				<affects saving="kWill" resist="kDark">
 					<lag base="3" bonus_divisor="-1" />
 					<duration base="3" skill_divisor="0" min="0" max="0" />
-					<flags val="kAfBattledec|kAfDispellable|kAfCurable" />
 					<apply id="kSlow" location="kNone">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
@@ -4882,10 +4759,9 @@
 					<targets skill_divisor="20" dice_size="2" min="5" max="20" />
 					<distribution type="kStepped" decay="0.05" free_targets="3" />
 				</area>
-				<affects type="kOblivion" saving="kCritical" resist="kDark">
+				<affects saving="kCritical" resist="kDark">
 					<lag base="3" bonus_divisor="-1" />
 					<duration base="3" skill_divisor="0" min="0" max="0" />
-					<flags val="kAfBattledec|kAfDispellable|kAfCurable" />
 					<apply id="kSlow" location="kNone">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
@@ -4946,34 +4822,12 @@
 						<affect_flags val="kPeaceful" />
 					</blocking>
 				</target_conditions>
-				<affects type="kPeaceful" saving="kNone" resist="kMind">
-					<flags val="kAfDispellable|kAfCurable" />
+				<affects saving="kNone" resist="kMind">
 					<reposition stop_fight="true" />
 					<lag base="2" bonus_divisor="-1" />
 					<duration base="2" skill_divisor="0" min="0" max="0" />
 					<apply id="kPeaceful" location="kNone">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
-				</affects>
-			</action>
-		</talent_actions>
-	</spell>
-	<spell id="kMagicBattle" element="kUndefined" mode="kService">
-		<name val="!set by programm!" />
-		<misc pos="kStand" violent="N" danger="0" />
-		<mana max="0" min="0" change="0" />
-		<targets val="kTarNone" />
-		<flags val="kMagManual" />
-		<talent_actions>
-			<action>
-				<affects type="kMagicBattle" saving="kNone" resist="kVitality">
-					<flags val="kAfDispellable" />
-					<duration base="2" skill_divisor="20" min="0" max="0" />
-					<apply id="kUndefinded" location="kHitroll">
-						<modifier min="4.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
-					</apply>
-					<apply id="kUndefinded" location="kCastSuccess">
-						<modifier min="8.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
 					</apply>
 				</affects>
 			</action>
@@ -5015,13 +4869,12 @@
 						<mob_flags val="kCorpse" />
 					</required>
 				</target_conditions>
-				<affects type="kStoneBones" saving="kNone" resist="kEarth">
+				<affects saving="kNone" resist="kEarth">
 					<duration base="100" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kUndefinded" location="kArmour">
+					<apply id="kStoneBones" location="kArmour">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="14.7" factor="1" />
 					</apply>
-					<apply id="kUndefinded" location="kSavingStability">
+					<apply id="kStoneBones" location="kSavingStability">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="14.7" factor="1" />
 					</apply>
 				</affects>
@@ -5045,9 +4898,8 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kRoomLight" saving="kNone" resist="kVitality">
+				<affects saving="kNone" resist="kVitality">
 					<duration base="75" skill_divisor="1" min="0" max="0" />
-					<flags val="kAfAccumulateDuration|kAfUpdateDuration" />
 				</affects>
 			</action>
 		</talent_actions>
@@ -5068,47 +4920,9 @@
 		<flags val="kMagNeedControl|kMagRoom|kMagCasterInroom" />
 		<talent_actions>
 			<action>
-				<affects type="kDeadlyFog" saving="kNone" resist="kVitality" tick_spell="kDeadlyFogTick">
+				<affects saving="kNone" resist="kVitality">
 					<duration base="8" skill_divisor="0" min="0" max="0" />
-					<flags val="kAfMustBeHandled|kAfDispellable" />
 				</affects>
-			</action>
-		</talent_actions>
-	</spell>
-	<spell id="kDeadlyFogTick" element="kDark" mode="kService">
-		<name val="deadly fog tick" />
-		<misc pos="kStand" violent="Y" danger="0" />
-		<mana max="0" min="0" change="0" />
-		<targets val="kTarRoomThis" />
-		<flags val="kMagDamage" />
-		<talent_actions>
-			<action target="kTarFoes">
-				<area>
-					<targets max="-1" />
-					<distribution type="kUniform" />
-				</area>
-				<side_spell id="kAcidArrow" />
-			</action>
-			<action target="kTarFoes">
-				<area>
-					<targets max="-1" />
-					<distribution type="kUniform" />
-				</area>
-				<side_spell id="kPoison" />
-			</action>
-			<action target="kTarFoes">
-				<area>
-					<targets max="-1" />
-					<distribution type="kUniform" />
-				</area>
-				<side_spell id="kDamageCritic" />
-			</action>
-			<action target="kTarFoes">
-				<area>
-					<targets max="-1" />
-					<distribution type="kUniform" />
-				</area>
-				<side_spell id="kSacrifice" />
 			</action>
 		</talent_actions>
 	</spell>
@@ -5128,9 +4942,8 @@
 		<flags val="kMagNeedControl|kMagRoom|kMagCasterInroom" />
 		<talent_actions>
 			<action>
-				<affects type="kThunderstorm" saving="kNone" resist="kVitality" tick_handler="HandleThunderstormTick">
+				<affects saving="kNone" resist="kVitality">
 					<duration base="7" skill_divisor="0" min="0" max="0" />
-					<flags val="kAfMustBeHandled|kAfDispellable" />
 				</affects>
 			</action>
 		</talent_actions>
@@ -5175,40 +4988,32 @@
 					<targets skill_divisor="15" dice_size="2" min="1" max="5" />
 					<distribution type="kStepped" decay="0.05" free_targets="3" />
 				</area>
-				<affects type="kFailure" saving="kWill" resist="kDark">
-					<flags val="kAfDispellable|kAfCurable" />
+				<affects saving="kWill" resist="kDark">
 					<duration base="2" skill_divisor="5" min="0" max="0" />
-					<apply id="kUndefinded" location="kMorale">
+					<apply id="kFailure" location="kMorale">
 						<modifier min="1.0" dices_weight="0.0" alpha="0" beta="1.6" factor="-1" />
 					</apply>
-					<apply id="kUndefinded" location="kStr" random="true">
+					<apply id="kFailure" location="kStr" random="true">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0.11" factor="-1" />
 					</apply>
-					<apply id="kUndefinded" location="kDex" random="true">
+					<apply id="kFailure" location="kDex" random="true">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0.11" factor="-1" />
 					</apply>
-					<apply id="kUndefinded" location="kInt" random="true">
+					<apply id="kFailure" location="kInt" random="true">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0.11" factor="-1" />
 					</apply>
-					<apply id="kUndefinded" location="kWis" random="true">
+					<apply id="kFailure" location="kWis" random="true">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0.11" factor="-1" />
 					</apply>
-					<apply id="kUndefinded" location="kCon" random="true">
+					<apply id="kFailure" location="kCon" random="true">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0.11" factor="-1" />
 					</apply>
-					<apply id="kUndefinded" location="kCha" random="true">
+					<apply id="kFailure" location="kCha" random="true">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0.11" factor="-1" />
 					</apply>
 				</affects>
 			</action>
 		</talent_actions>
-	</spell>
-	<spell id="kClanPray" element="kUndefined" mode="kService">
-		<name val="!clan affect!" />
-		<misc pos="kStand" violent="N" danger="0" />
-		<mana max="0" min="0" change="0" />
-		<targets val="kTarNone" />
-		<flags val="kMagManual" />
 	</spell>
 	<spell id="kGlitterDust" element="kEarth" mode="kEnabled">
 		<name val="glitterdust" />
@@ -5235,9 +5040,9 @@
 					<distribution type="kStepped" decay="0.05" free_targets="5" />
 				</area>
 				<unaffect decay="25">
-					<remove all_of="kInvisible|kCamouflage|kHide" breaking_by_failure="true" />
+					<remove all_of="kInvisible|kDisguise|kHide" breaking_by_failure="true" />
 				</unaffect>
-				<affects type="kGlitterDust" saving="kReflex" resist="kEarth">
+				<affects saving="kReflex" resist="kEarth">
 					<duration base="4" skill_divisor="0" min="0" max="0" />
 					<apply id="kGlitterDust" location="kSavingReflex">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="4.4" factor="1" />
@@ -5274,8 +5079,7 @@
 					<targets skill_divisor="40" dice_size="3" min="1" max="8" />
 					<distribution type="kStepped" decay="0.05" free_targets="3" />
 				</area>
-				<affects type="kScream" saving="kStability" resist="kAir">
-					<flags val="kAfDispellable|kAfCurable" />
+				<affects saving="kStability" resist="kAir">
 					<duration base="2" skill_divisor="5" min="0" max="0" />
 					<apply id="kAffright" location="kSavingWill">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="7.3" factor="1" />
@@ -5308,10 +5112,9 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kCatGrace" saving="kNone" resist="kImmunity">
+				<affects saving="kNone" resist="kImmunity">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kUndefinded" location="kDex">
+					<apply id="kCatGrace" location="kDex">
 						<modifier min="3.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
 				</affects>
@@ -5339,10 +5142,9 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kBullBody" saving="kNone" resist="kImmunity">
+				<affects saving="kNone" resist="kImmunity">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kUndefinded" location="kCon">
+					<apply id="kBullBody" location="kCon">
 						<modifier min="3.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
 				</affects>
@@ -5370,10 +5172,9 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kSnakeWisdom" saving="kNone" resist="kImmunity">
+				<affects saving="kNone" resist="kImmunity">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kUndefinded" location="kWis">
+					<apply id="kSnakeWisdom" location="kWis">
 						<modifier min="2.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
 				</affects>
@@ -5401,10 +5202,9 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kGimmicry" saving="kNone" resist="kImmunity">
+				<affects saving="kNone" resist="kImmunity">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kUndefinded" location="kInt">
+					<apply id="kGimmicry" location="kInt">
 						<modifier min="2.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
 				</affects>
@@ -5458,10 +5258,9 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kWarcryOfMenace" saving="kWill" resist="kMind">
+				<affects saving="kWill" resist="kMind">
 					<duration base="2" skill_divisor="10" min="6" max="0" />
-					<flags val="kAfBattledec|kAfDispellable|kAfCurable" />
-					<apply id="kUndefinded" location="kMorale">
+					<apply id="kIndecision" location="kMorale">
 						<modifier min="8.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
 					</apply>
 				</affects>
@@ -5499,9 +5298,8 @@
 					<targets skill_divisor="20" dice_size="2" min="5" max="20" />
 					<distribution type="kStepped" decay="0.01" free_targets="3" />
 				</area>
-				<affects type="kDeafness" saving="kWill" resist="kMind">
+				<affects saving="kWill" resist="kMind">
 					<duration base="2" skill_divisor="10" min="6" max="0" />
-					<flags val="kAfBattledec|kAfDispellable|kAfCurable" />
 					<apply id="kDeafness" location="kNone">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
@@ -5533,16 +5331,15 @@
 					<targets skill_divisor="20" dice_size="2" min="5" max="20" />
 					<distribution type="kStepped" decay="0.01" free_targets="3" />
 				</area>
-				<affects type="kWarcryOfMadness" saving="kStability" resist="kMind">
+				<affects saving="kStability" resist="kMind">
 					<duration base="2" skill_divisor="10" min="6" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable" />
-					<apply id="kUndefinded" location="kInt" random="true">
+					<apply id="kInsanity" location="kInt" random="true">
 						<modifier min="0.0" dices_weight="0.6" alpha="0.011111" beta="0.05" factor="-1" />
 					</apply>
-					<apply id="kUndefinded" location="kCastSuccess" random="true">
+					<apply id="kInsanity" location="kCastSuccess" random="true">
 						<modifier min="0.0" dices_weight="2.0" alpha="0.05" beta="0.75" factor="-1" />
 					</apply>
-					<apply id="kUndefinded" location="kManaRegen" random="true">
+					<apply id="kInsanity" location="kManaRegen" random="true">
 						<modifier min="0.0" dices_weight="2.0" alpha="0.05" beta="0.75" factor="-1" />
 					</apply>
 				</affects>
@@ -5581,11 +5378,10 @@
 						<affect_flags val="kDeafness" />
 					</blocking>
 				</target_conditions>
-				<affects type="kWarcryOfThunder" saving="kStability" resist="kVitality">
+				<affects saving="kStability" resist="kVitality">
 					<reposition pos="kSit" />
 					<lag base="2" bonus_divisor="-1" />
 					<duration base="2" skill_divisor="10" min="0" max="6" />
-					<flags val="kAfBattledec|kAfDispellable|kAfCurable" />
 					<apply id="kDeafness" location="kSavingCritical">
 						<modifier min="20.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
 					</apply>
@@ -5617,19 +5413,18 @@
 					<targets skill_divisor="20" dice_size="2" min="5" max="-1" />
 					<distribution type="kUniform" />
 				</area>
-				<affects type="kWarcryOfDefence" saving="kNone" resist="kMind">
+				<affects saving="kNone" resist="kMind">
 					<duration base="2" skill_divisor="50" min="10" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kUndefinded" location="kSavingCritical">
+					<apply id="kRousing" location="kSavingCritical">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="4.4" factor="-1" />
 					</apply>
-					<apply id="kUndefinded" location="kSavingReflex">
+					<apply id="kRousing" location="kSavingReflex">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="4.4" factor="-1" />
 					</apply>
-					<apply id="kUndefinded" location="kSavingStability">
+					<apply id="kRousing" location="kSavingStability">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="4.4" factor="-1" />
 					</apply>
-					<apply id="kUndefinded" location="kSavingWill">
+					<apply id="kRousing" location="kSavingWill">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="4.4" factor="-1" />
 					</apply>
 				</affects>
@@ -5660,10 +5455,9 @@
 					<targets skill_divisor="20" dice_size="2" min="5" max="-1" />
 					<distribution type="kUniform" />
 				</area>
-				<affects type="kWarcryOfBattle" saving="kNone" resist="kMind">
+				<affects saving="kNone" resist="kMind">
 					<duration base="2" skill_divisor="50" min="10" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kUndefinded" location="kAc">
+					<apply id="kPassion" location="kAc">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="9.6" factor="-1" />
 					</apply>
 				</affects>
@@ -5697,10 +5491,9 @@
 					<targets skill_divisor="20" dice_size="2" min="5" max="-1" />
 					<distribution type="kUniform" />
 				</area>
-				<affects type="kWarcryOfPower" saving="kNone" resist="kMind">
+				<affects saving="kNone" resist="kMind">
 					<duration base="2" skill_divisor="50" min="10" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kUndefinded" location="kHp">
+					<apply id="kSurgeOfPower" location="kHp">
 						<modifier min="100.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
 				</affects>
@@ -5731,13 +5524,12 @@
 					<targets skill_divisor="20" dice_size="2" min="5" max="-1" />
 					<distribution type="kUniform" />
 				</area>
-				<affects type="kWarcryOfBless" saving="kNone" resist="kMind">
+				<affects saving="kNone" resist="kMind">
 					<duration base="2" skill_divisor="50" min="10" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kUndefinded" location="kSavingStability">
+					<apply id="kSurgeOfValour" location="kSavingStability">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="2.5" factor="-1" />
 					</apply>
-					<apply id="kUndefinded" location="kSavingWill">
+					<apply id="kSurgeOfValour" location="kSavingWill">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="2.5" factor="-1" />
 					</apply>
 				</affects>
@@ -5768,13 +5560,12 @@
 					<targets skill_divisor="20" dice_size="2" min="5" max="-1" />
 					<distribution type="kUniform" />
 				</area>
-				<affects type="kWarcryOfCourage" saving="kNone" resist="kMind">
+				<affects saving="kNone" resist="kMind">
 					<duration base="2" skill_divisor="50" min="10" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kUndefinded" location="kHitroll">
+					<apply id="kBattleCourage" location="kHitroll">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="1.2" factor="1" />
 					</apply>
-					<apply id="kUndefinded" location="kDamroll">
+					<apply id="kBattleCourage" location="kDamroll">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="1.9" factor="1" />
 					</apply>
 				</affects>
@@ -5804,9 +5595,8 @@
 						<room_flags val="kPeaceful|kTunnel|kNoTeleportIn" />
 					</blocking>
 				</target_conditions>
-				<affects type="kRuneLabel" saving="kNone" resist="kVitality">
+				<affects saving="kNone" resist="kVitality">
 					<duration base="1100" skill_divisor="10" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUnique" />
 				</affects>
 			</action>
 		</talent_actions>
@@ -5833,9 +5623,8 @@
 						<affect_flags val="kGodsShield" />
 					</blocking>
 				</target_conditions>
-				<affects type="kAconitumPoison" saving="kNone" resist="kImmunity">
+				<affects saving="kNone" resist="kImmunity">
 					<duration base="7" skill_divisor="0" min="0" max="0" />
-					<flags val="kAfSameTime|kAfCurable" />
 					<apply id="kPoisoned" location="kAconitumPoison">
 						<modifier min="30.0" dices_weight="0.0" alpha="0" beta="0" factor="1" stack="3" />
 					</apply>
@@ -5865,9 +5654,8 @@
 						<affect_flags val="kGodsShield" />
 					</blocking>
 				</target_conditions>
-				<affects type="kScopolaPoison" saving="kNone" resist="kImmunity">
+				<affects saving="kNone" resist="kImmunity">
 					<duration base="7" skill_divisor="0" min="0" max="0" />
-					<flags val="kAfSameTime|kAfCurable" />
 					<apply id="kPoisoned" location="kScopolaPoison">
 						<modifier min="5.0" dices_weight="0.0" alpha="0" beta="0" factor="1" stack="3" />
 					</apply>
@@ -5900,9 +5688,8 @@
 						<affect_flags val="kGodsShield" />
 					</blocking>
 				</target_conditions>
-				<affects type="kBelenaPoison" saving="kNone" resist="kImmunity">
+				<affects saving="kNone" resist="kImmunity">
 					<duration base="7" skill_divisor="0" min="0" max="0" />
-					<flags val="kAfSameTime|kAfCurable" />
 					<apply id="kPoisoned" location="kBelenaPoison">
 						<modifier min="5.0" dices_weight="0.0" alpha="0" beta="0" factor="1" stack="3" />
 					</apply>
@@ -5932,9 +5719,8 @@
 						<affect_flags val="kGodsShield" />
 					</blocking>
 				</target_conditions>
-				<affects type="kDaturaPoison" saving="kNone" resist="kImmunity">
+				<affects saving="kNone" resist="kImmunity">
 					<duration base="7" skill_divisor="0" min="0" max="0" />
-					<flags val="kAfSameTime|kAfCurable" />
 					<apply id="kPoisoned" location="kDaturaPoison">
 						<modifier min="5.0" dices_weight="0.0" alpha="0" beta="0" factor="1" stack="3" />
 					</apply>
@@ -5972,35 +5758,7 @@
 		<targets val="kTarCharRoom|kTarSelfOnly" />
 		<flags val="kMagAffects" />
 	</spell>
-	<spell id="kBandage" element="kUndefined" mode="kService">
-		<name val="!set by programm!" />
-		<misc pos="kStand" violent="N" danger="0" />
-		<mana max="0" min="0" change="0" />
-		<targets val="kTarNone" />
-		<flags val="kMagManual" />
-	</spell>
-	<spell id="kNoBandage" element="kUndefined" mode="kService">
-		<name val="!set by programm!" />
-		<misc pos="kStand" violent="N" danger="0" />
-		<mana max="0" min="0" change="0" />
-		<targets val="kTarNone" />
-		<flags val="kMagManual" />
-	</spell>
-	<spell id="kCapable" element="kUndefined" mode="kService">
-		<name val="!set by programm!" />
-		<misc pos="kStand" violent="N" danger="0" />
-		<mana max="0" min="0" change="0" />
-		<targets val="kTarNone" />
-		<flags val="kMagManual" />
-	</spell>
 	<spell id="kStrangle" element="kUndefined" mode="kService">
-		<name val="!set by programm!" />
-		<misc pos="kStand" violent="N" danger="0" />
-		<mana max="0" min="0" change="0" />
-		<targets val="kTarNone" />
-		<flags val="kMagManual" />
-	</spell>
-	<spell id="kRecallSpells" element="kUndefined" mode="kService">
 		<name val="!set by programm!" />
 		<misc pos="kStand" violent="N" danger="0" />
 		<mana max="0" min="0" change="0" />
@@ -6023,19 +5781,11 @@
 		<flags val="kMagRoom|kMagCasterInroom" />
 		<talent_actions>
 			<action>
-				<affects type="kHypnoticPattern" saving="kNone" resist="kVitality">
+				<affects saving="kNone" resist="kVitality">
 					<duration base="114" skill_divisor="0" min="0" max="0" />
-					<flags val="kAfDispellable" />
 				</affects>
 			</action>
 		</talent_actions>
-	</spell>
-	<spell id="kSolobonus" element="kUndefined" mode="kService">
-		<name val="bonus" />
-		<misc pos="kFight" violent="N" danger="1" />
-		<mana max="55" min="40" change="1" />
-		<targets val="kTarCharRoom|kTarNotSelf" />
-		<flags val="kMagManual" />
 	</spell>
 	<spell id="kVampirism" element="kDark" mode="kDisabled">
 		<name val="vampire" />
@@ -6058,9 +5808,8 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kVampirism" saving="kNone" resist="kDark">
+				<affects saving="kNone" resist="kDark">
 					<duration base="10" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
 					<apply id="kVampirism" location="kDamroll">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
@@ -6207,9 +5956,8 @@
 						<room_flags val="kForMono|kForPoly" />
 					</blocking>
 				</target_conditions>
-				<affects type="kBlackTentacles" saving="kNone" resist="kVitality" tick_spell="kDamageSerious">
+				<affects saving="kNone" resist="kVitality">
 					<duration base="1" skill_divisor="18" min="0" max="0" />
-					<flags val="kAfMustBeHandled|kAfDispellable" />
 				</affects>
 			</action>
 		</talent_actions>
@@ -6275,9 +6023,8 @@
 						<affect_flags val="kBrokenChains" />
 					</blocking>
 				</target_conditions>
-				<affects type="kIndriksTeeth" saving="kWill" resist="kEarth">
+				<affects saving="kWill" resist="kEarth">
 					<duration base="3" skill_divisor="10" min="4" max="0" />
-					<flags val="kAfBattledec|kAfDispellable|kAfCurable" />
 					<apply id="kNoTeleport" location="kNone">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
@@ -6309,9 +6056,8 @@
 				<damage saving="kReflex">
 					<amount min="0" dices_weight="1.4" alpha="0.127932" beta="60" />
 				</damage>
-				<affects type="kAcidArrow" saving="kStability" resist="kImmunity" prob="15">
+				<affects saving="kStability" resist="kImmunity" prob="15">
 					<duration base="2" skill_divisor="20" min="3" max="0" />
-					<flags val="kAfBattledec|kAfDispellable|kAfCurable" />
 					<apply random="true" id="kSilence" location="kNone">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
@@ -6388,20 +6134,12 @@
 				<damage saving="kReflex">
 					<amount min="0" dices_weight="1.0" alpha="0.5" beta="72.25" />
 				</damage>
-				<affects type="kClod" saving="kReflex" resist="kEarth">
-					<flags val="kAfDispellable|kAfCurable" />
+				<affects saving="kReflex" resist="kEarth">
 					<reposition pos="kSit" />
 					<lag base="2" bonus_divisor="-1" />
 				</affects>
 			</action>
 		</talent_actions>
-	</spell>
-	<spell id="kExpedient" element="kUndefined" mode="kService">
-		<name val="!set by programm!" />
-		<misc pos="kStand" violent="N" danger="0" />
-		<mana max="0" min="0" change="0" />
-		<targets val="kTarNone" />
-		<flags val="kMagManual" />
 	</spell>
 	<spell id="kSightOfDarkness" element="kLight" mode="kEnabled">
 		<name val="sight darkness" />
@@ -6428,9 +6166,8 @@
 					<targets skill_divisor="20" dice_size="2" min="5" max="-1" />
 					<distribution type="kUniform" />
 				</area>
-				<affects type="kInfravision" saving="kNone" resist="kVitality">
+				<affects saving="kNone" resist="kVitality">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
 					<apply id="kInfravision" location="kNone">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
@@ -6492,9 +6229,8 @@
 					<targets skill_divisor="20" dice_size="2" min="5" max="-1" />
 					<distribution type="kUniform" />
 				</area>
-				<affects type="kDetectMagic" saving="kNone" resist="kMind">
+				<affects saving="kNone" resist="kMind">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
 					<apply id="kDetectMagic" location="kNone">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
@@ -6527,9 +6263,8 @@
 					<targets skill_divisor="20" dice_size="2" min="5" max="-1" />
 					<distribution type="kUniform" />
 				</area>
-				<affects type="kDetectInvis" saving="kNone" resist="kMind">
+				<affects saving="kNone" resist="kMind">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
 					<apply id="kDetectInvisible" location="kNone">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
@@ -6562,9 +6297,8 @@
 					<targets skill_divisor="20" dice_size="2" min="5" max="-1" />
 					<distribution type="kUniform" />
 				</area>
-				<affects type="kSenseLife" saving="kNone" resist="kImmunity">
+				<affects saving="kNone" resist="kImmunity">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
 					<apply id="kDetectLife" location="kNone">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
@@ -6597,9 +6331,8 @@
 					<targets skill_divisor="20" dice_size="2" min="5" max="-1" />
 					<distribution type="kUniform" />
 				</area>
-				<affects type="kWaterbreath" saving="kNone" resist="kWater">
+				<affects saving="kNone" resist="kWater">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
 					<apply id="kWaterBreath" location="kNone">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
@@ -6632,13 +6365,12 @@
 					<targets skill_divisor="20" dice_size="2" min="5" max="-1" />
 					<distribution type="kUniform" />
 				</area>
-				<affects type="kFastRegeneration" saving="kNone" resist="kImmunity">
+				<affects saving="kNone" resist="kImmunity">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kUndefinded" location="kHpRegen">
+					<apply id="kFastRegeneration" location="kHpRegen">
 						<modifier min="50.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
-					<apply id="kUndefinded" location="kMoveRegen">
+					<apply id="kFastRegeneration" location="kMoveRegen">
 						<modifier min="50.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
 				</affects>
@@ -6697,10 +6429,9 @@
 					<targets skill_divisor="20" dice_size="2" min="5" max="-1" />
 					<distribution type="kUniform" />
 				</area>
-				<affects type="kStoneSkin" saving="kNone" resist="kEarth">
+				<affects saving="kNone" resist="kEarth">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kUndefinded" location="kAbsorbe">
+					<apply id="kStoneSkin" location="kAbsorbe">
 						<modifier min="20.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
 				</affects>
@@ -6732,9 +6463,8 @@
 					<targets skill_divisor="20" dice_size="2" min="5" max="-1" />
 					<distribution type="kUniform" />
 				</area>
-				<affects type="kDetectPoison" saving="kNone" resist="kMind">
+				<affects saving="kNone" resist="kMind">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
 					<apply id="kDetectPoison" location="kNone">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
@@ -6767,9 +6497,8 @@
 					<targets skill_divisor="20" dice_size="2" min="5" max="-1" />
 					<distribution type="kUniform" />
 				</area>
-				<affects type="kEarthAura" saving="kNone" resist="kEarth">
+				<affects saving="kNone" resist="kEarth">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
 					<apply id="kEarthAura" location="kResistEarth">
 						<modifier min="1" dices_weight="0" alpha="0" beta="9" factor="1" cap="30" />
 					</apply>
@@ -6945,19 +6674,18 @@
 				<points prob="15">
 					<heal npc_coeff="3" min="0" dices_weight="1.0" alpha="0.5" beta="45" />
 				</points>
-				<affects type="kPaladineInspiration" saving="kNone" resist="kImmunity">
+				<affects saving="kNone" resist="kImmunity">
 					<duration base="5" skill_divisor="0" min="0" max="0" />
-					<flags val="kAfBattledec|kAfPulsedec|kAfDispellable" />
-					<apply id="kUndefinded" location="kPhysicDamagePercent" random="true">
+					<apply id="kInspiration" location="kPhysicDamagePercent" random="true">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="2" factor="1" />
 					</apply>
-					<apply id="kUndefinded" location="kCastSuccess" random="true">
+					<apply id="kInspiration" location="kCastSuccess" random="true">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="2" factor="1" />
 					</apply>
-					<apply id="kUndefinded" location="kManaRegen" random="true">
+					<apply id="kInspiration" location="kManaRegen" random="true">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="7" factor="1" />
 					</apply>
-					<apply id="kUndefinded" location="kMagicDamagePercent" random="true">
+					<apply id="kInspiration" location="kMagicDamagePercent" random="true">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="2" factor="1" />
 					</apply>
 				</affects>
@@ -6985,16 +6713,15 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects type="kDexterity" saving="kNone" resist="kImmunity">
+				<affects saving="kNone" resist="kImmunity">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kUndefinded" location="kDex">
+					<apply id="kCatGrace" location="kDex">
 						<modifier min="5.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
 				</affects>
 				<unaffect decay="25">
-					<breaking any_of="kWeaknes" />
-					<remove any_of="kWeaknes" />
+					<breaking any_of="kMagicWeaknes" />
+					<remove any_of="kMagicWeaknes" />
 				</unaffect>
 			</action>
 		</talent_actions>
@@ -7110,10 +6837,9 @@
 					<targets skill_divisor="20" dice_size="2" min="5" max="-1" />
 					<distribution type="kUniform" />
 				</area>
-				<affects type="kWarcryOfExperience" saving="kNone" resist="kMind">
+				<affects saving="kNone" resist="kMind">
 					<duration base="2" skill_divisor="50" min="10" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kUndefinded" location="kExpPercent">
+					<apply id="kConcentration" location="kExpPercent">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="2.2" factor="1" />
 					</apply>
 				</affects>
@@ -7144,10 +6870,9 @@
 					<targets skill_divisor="20" dice_size="2" min="5" max="-1" />
 					<distribution type="kUniform" />
 				</area>
-				<affects type="kWarcryOfLuck" saving="kNone" resist="kMind">
+				<affects saving="kNone" resist="kMind">
 					<duration base="2" skill_divisor="50" min="10" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kUndefinded" location="kMorale">
+					<apply id="kBattleLuck" location="kMorale">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="2.2" factor="1" />
 					</apply>
 				</affects>
@@ -7178,10 +6903,9 @@
 					<targets skill_divisor="20" dice_size="2" min="5" max="-1" />
 					<distribution type="kUniform" />
 				</area>
-				<affects type="kWarcryOfPhysdamage" saving="kNone" resist="kMind">
+				<affects saving="kNone" resist="kMind">
 					<duration base="2" skill_divisor="50" min="10" max="0" />
-					<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable" />
-					<apply id="kUndefinded" location="kPhysicDamagePercent">
+					<apply id="kPhysdamageBonus" location="kPhysicDamagePercent">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="2.2" factor="1" />
 					</apply>
 				</affects>
@@ -7246,50 +6970,14 @@
 						<affect_flags val="kBrokenChains" />
 					</blocking>
 				</target_conditions>
-				<affects type="kSnare" saving="kWill" resist="kMind">
+				<affects saving="kWill" resist="kMind">
 					<duration base="3" skill_divisor="10" min="4" max="0" />
-					<flags val="kAfBattledec|kAfDispellable|kAfCurable" />
 					<apply id="kNoTeleport" location="kNone">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
 				</affects>
 			</action>
 		</talent_actions>
-	</spell>
-	<spell id="kExpedientFail" element="kUndefined" mode="kService">
-		<name val="!expediend fail!" />
-		<misc pos="kStand" violent="N" danger="0" />
-		<mana max="0" min="0" change="0" />
-		<targets val="kTarNone" />
-		<flags val="kMagManual" />
-	</spell>
-	<spell id="kLowerEffectiveness" element="kUndefined" mode="kService">
-		<name val="injured" />
-		<misc pos="kStand" violent="Y" danger="0" />
-		<mana max="0" min="0" change="0" />
-		<targets val="kTarNone" />
-		<flags val="kMagManual" />
-	</spell>
-	<spell id="kNoInjure" element="kUndefined" mode="kService">
-		<name val="injured" />
-		<misc pos="kStand" violent="Y" danger="0" />
-		<mana max="0" min="0" change="0" />
-		<targets val="kTarNone" />
-		<flags val="kMagManual" />
-	</spell>
-	<spell id="kNoCharge" element="kUndefined" mode="kService">
-		<name val="injured" />
-		<misc pos="kStand" violent="Y" danger="0" />
-		<mana max="0" min="0" change="0" />
-		<targets val="kTarNone" />
-		<flags val="kMagManual" />
-	</spell>
-	<spell id="kConfuse" element="kUndefined" mode="kService">
-		<name val="injured" />
-		<misc pos="kStand" violent="Y" danger="0" />
-		<mana max="0" min="0" change="0" />
-		<targets val="kTarNone" />
-		<flags val="kMagManual" />
 	</spell>
 	<spell id="kIdentify" element="kMind" mode="kEnabled">
 		<name val="identify" />
@@ -7328,22 +7016,6 @@
 		<talent_actions>
 			<action>
 				<manual_cast handler="SpellFullIdentify" />
-			</action>
-		</talent_actions>
-	</spell>
-	<spell id="kQUest" element="kUndefined" mode="kService">
-		<name val="!quest spell!" />
-		<misc pos="kFight" violent="N" danger="1" />
-		<mana max="55" min="40" change="1" />
-		<targets val="kTarCharRoom|kTarNotSelf" />
-		<flags val="kMagManual" />
-		<talent_actions>
-			<action>
-				<target_conditions>
-					<blocking>
-						<room_flags val="kNoMagic" />
-					</blocking>
-				</target_conditions>
 			</action>
 		</talent_actions>
 	</spell>

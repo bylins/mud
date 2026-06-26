@@ -130,7 +130,6 @@ void go_bash(CharData *ch, CharData *vict) {
 		if (shield_bash_success) {
 			//Описание аффекта "ошарашен" для умения "удар щитом":
 			Affect<EApply> af;
-			af.type = ESpell::kConfuse;
 			af.duration = 2;
 			af.battleflag = kAfSameTime;
 			af.affect_type = EAffect::kConfused;

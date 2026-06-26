@@ -23,23 +23,28 @@ void PerformToxicate(CharData *ch, CharData *vict, int modifier);
 namespace {
 
 // * Наложение ядов с пушек, аффект стакается до трех раз.
+	// issue.affect-migration: keyed on the kAfPoison flag (every poison-cluster slot carries it), not on
+	// Affect::type. A poison occupies a fixed set of stat slots (EApply locations) that are DISJOINT across
+	// the five poisons, so "an existing kAfPoison affect at the same location" means the same poison on the
+	// same slot: same caster -> stack it, different caster -> "борода" (refuse). Non-poison affects lack
+	// kAfPoison, so they are never matched.
 	bool poison_affect_join(CharData *ch, CharData *vict, Affect<EApply> &af) {
 		bool is_poisoned_by_me = false;
 
 		for (auto affect_i = vict->affected.begin(); affect_i != vict->affected.end() && af.location; ++affect_i) {
 			const auto affect = *affect_i;
 
-			if ((affect->type == ESpell::kAconitumPoison
-				 || affect->type == ESpell::kScopolaPoison
-				 || affect->type == ESpell::kBelenaPoison
-				 || affect->type == ESpell::kDaturaPoison)
-				 && af.type == affect->type
-				 && affect->caster_id != ch->get_uid()) {
-				// если уже есть другой яд - борода
+			if (!IS_SET(affect->battleflag, kAfPoison) || affect->location != af.location) {
+				continue;
+			}
+
+			if (affect->caster_id != ch->get_uid()) {
+				// тот же слот яда от другого кастера - борода
 				return false;
 			}
 
-			if ((affect->type == af.type) && (affect->caster_id == ch->get_uid()) && (affect->location == af.location)) {
+			// свой яд на этом слоте - стакаем
+			{
 				if (abs(affect->modifier / 3) < abs(af.modifier)) {
 					affect->modifier += af.modifier;
 				}
@@ -65,27 +70,31 @@ namespace {
 		if (spell_id == ESpell::kAconitumPoison) {
 			// урон 5 + левел/2, от 5 до 20 за стак
 			Affect<EApply> af[3];
+			// af[0] is the aconite DoT (ProcessPoisonDmg keys on EApply::kAconitumPoison) -> it carries
+			// the poison identity kAconitumPoison ("отравление аконитом"); affects.xml gives it
+			// kAfSameTime|kAfCurable|kAfPoison. (Was kNoBattleSwitch, which sourced empty flags, so the
+			// DoT lost kAfSameTime and dealt no damage.) The no-switch effect moves to af[1].
 			af[0].location = EApply::kAconitumPoison;
 			af[0].modifier = GetSkill(ch, ESkill::kPoisoning);
-			af[0].affect_type = EAffect::kNoBattleSwitch;
+			af[0].affect_type = EAffect::kAconitumPoison;
 
 			af[1].location = EApply::kPhysicResist;
 			af[1].modifier = -4;
+			af[1].affect_type = EAffect::kNoBattleSwitch;
 
 			af[2].location = EApply::kMagicResist;
 			af[2].modifier = -4;
+			af[2].affect_type = EAffect::kAconitumPoison;   // issue.affect-migration: cluster identity (was kUndefined)
 
 			bool was_poisoned = true;
 
 			for (auto & i : af) {
-				i.type = ESpell::kAconitumPoison;
 				i.caster_id = ch->get_uid();
 				i.duration = 7;
 				if (!vict->IsNpc()) {
 					i.duration *= 30;
 				}
 				i.battleflag = kAfSameTime | kAfCurable;
-				i.debuff = true;
 
 				if (!poison_affect_join(ch, vict, i)) {
 					was_poisoned = false;
@@ -107,6 +116,8 @@ namespace {
 			// victim ends up with the same flags, applied and removed together.
 			af[3].affect_type = EAffect::kScopolaPoison;
 			af[0].affect_type = EAffect::kNoBattleSwitch;
+			af[1].affect_type = EAffect::kScopolaPoison;   // issue.affect-migration: cluster identity (was kUndefined)
+			af[2].affect_type = EAffect::kScopolaPoison;   // issue.affect-migration: cluster identity (was kUndefined)
 			int affect_modifier = 10;
 
 			if (vict->IsNpc()) {
@@ -118,7 +129,6 @@ namespace {
 			bool was_poisoned = true;
 
 			for (auto & i : af) {
-				i.type = ESpell::kScopolaPoison;
 				i.caster_id = ch->get_uid();
 				i.duration = 7;
 				if (!vict->IsNpc()) {
@@ -126,7 +136,6 @@ namespace {
 				}
 				i.modifier = affect_modifier;
 				i.battleflag = kAfSameTime | kAfCurable;
-				i.debuff = true;
 
 				if (!poison_affect_join(ch, vict, i)) {
 					was_poisoned = false;
@@ -163,17 +172,16 @@ namespace {
 			int remove_hp = (vict->get_hitreg() * percent) * 0.01;
 			af[3].location = EApply::kHpRegen;
 			af[3].modifier = -remove_hp;
+			af[3].affect_type = EAffect::kBelenaPoison;   // issue.affect-migration: cluster identity (was kUndefined)
 
 			bool was_poisoned = true;
 			for (auto & i : af) {
-				i.type = ESpell::kBelenaPoison;
 				i.caster_id = ch->get_uid();
 				i.duration = 7;
 				if (!vict->IsNpc()) {
 					i.duration *= 30;
 				}
 				i.battleflag = kAfSameTime | kAfCurable;
-				i.debuff = true;
 
 				if (!poison_affect_join(ch, vict, i)) {
 					was_poisoned = false;
@@ -213,14 +221,12 @@ namespace {
 
 			bool was_poisoned = true;
 			for (auto & i : af) {
-				i.type = ESpell::kDaturaPoison;
 				i.duration = 7;
 				if (!ch->IsNpc()) {
 					i.duration *= 30;
 				}
 				i.caster_id = ch->get_uid();
 				i.battleflag = kAfSameTime | kAfCurable;
-				i.debuff = true;
 
 				if (!poison_affect_join(ch, vict, i)) {
 					was_poisoned = false;
@@ -264,7 +270,6 @@ namespace {
 					break;
 				case 2: {
 					// минус статы (1..10)
-					af.type = ESpell::kPoison;
 					af.duration = 30;
 					if (!vict->IsNpc()) {
 						af.duration *= 30;
@@ -272,7 +277,6 @@ namespace {
 					af.modifier = -GetRealLevel(ch) / 6 * 2;
 					af.affect_type = EAffect::kPoisoned;
 					af.battleflag = kAfSameTime | kAfCurable;
-					af.debuff = true;
 
 					for (int i = EApply::kStr; i <= EApply::kCha; i++) {
 						af.location = static_cast<EApply>(i);
@@ -287,7 +291,6 @@ namespace {
 				} // case 2
 				case 3: {
 					// минус инициатива (1..5)
-					af.type = ESpell::kPoison;
 					af.duration = 30;
 					if (!vict->IsNpc()) {
 						af.duration *= 30;
@@ -296,7 +299,6 @@ namespace {
 					af.modifier = -GetRealLevel(ch) / 6;
 					af.affect_type = EAffect::kPoisoned;
 					af.battleflag = kAfSameTime | kAfCurable;
-					af.debuff = true;
 					ImposeAffect(vict, af, false, false, false, false);
 					SendMsgToChar(ch, "%sОт действия вашего яда %s стал%s заметно медленнее двигаться!%s\r\n",
 								  kColorGrn, sight::PersonName(vict, ch, 0), grammar::VisSexEnding(sight::CanSee((ch), (vict)), (vict)->get_sex(), 1), kColorNrm);
@@ -329,37 +331,29 @@ void PerformToxicate(CharData *ch, CharData *vict, int modifier) {
 	Affect<EApply> af[4];
 
 	// change strength
-	af[0].type = ESpell::kPoison;
 	af[0].location = EApply::kStr;
 	af[0].duration = CalcDuration(ch, vict, ESkill::kUndefined, 1, 0, 0, 0);
 	af[0].modifier = -std::min(2, (modifier + 29) / 40);
 	af[0].affect_type = EAffect::kPoisoned;
 	af[0].battleflag = kAfSameTime | kAfCurable;
-	af[0].debuff = true;
 	// change damroll
-	af[1].type = ESpell::kPoison;
 	af[1].location = EApply::kDamroll;
 	af[1].duration = af[0].duration;
 	af[1].modifier = -std::min(2, (modifier + 29) / 30);
 	af[1].affect_type = EAffect::kPoisoned;
 	af[1].battleflag = kAfSameTime | kAfCurable;
-	af[1].debuff = true;
 	// change hitroll
-	af[2].type = ESpell::kPoison;
 	af[2].location = EApply::kHitroll;
 	af[2].duration = af[0].duration;
 	af[2].modifier = -std::min(2, (modifier + 19) / 20);
 	af[2].affect_type = EAffect::kPoisoned;
 	af[2].battleflag = kAfSameTime | kAfCurable;
-	af[2].debuff = true;
 	// change poison level
-	af[3].type = ESpell::kPoison;
 	af[3].location = EApply::kPoison;
 	af[3].duration = af[0].duration;
 	af[3].modifier = GetRealLevel(ch);
 	af[3].affect_type = EAffect::kPoisoned;
 	af[3].battleflag = kAfSameTime | kAfCurable;
-	af[3].debuff = true;
 
 	for (auto & i : af) {
 		i.caster_id = ch->get_uid();   // автор отравления -- хранится в аффекте (для засчёта убийства)
@@ -507,21 +501,17 @@ void TryDrinkPoison(CharData *ch, ObjData *jar, int amount) {
 		SendMsgToChar("Что-то вкус какой-то странный!\r\n", ch);
 		act("$n поперхнул$u и закашлял$g.", true, ch, 0, 0, kToRoom);
 		Affect<EApply> af;
-		af.type = ESpell::kPoison;
 		//если объем 0 -
 		af.duration = CalcDuration(ch, ch, ESkill::kUndefined, amount == 0 ? 3 : amount == 1 ? amount : amount * 3, 0, 0, 0);
 		af.modifier = -2;
 		af.location = EApply::kStr;
 		af.affect_type = EAffect::kPoisoned;
 		af.battleflag = kAfSameTime | kAfCurable;
-		af.debuff = true;
 		ImposeAffect(ch, af, false, false, false, false);
-		af.type = ESpell::kPoison;
 		af.modifier = amount == 0 ? GetRealLevel(ch) * 3 : amount * 3;
 		af.location = EApply::kPoison;
 		af.affect_type = EAffect::kPoisoned;
 		af.battleflag = kAfSameTime | kAfCurable;
-		af.debuff = true;
 		ImposeAffect(ch, af, false, false, false, false);
 		// самоотравление (выпил яд): автора нет -- caster_id аффектов остаётся 0
 	}

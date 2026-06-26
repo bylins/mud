@@ -9,6 +9,7 @@
 **************************************************************************/
 
 #include "dg_scripts.h"
+#include "gameplay/affects/affect_messages.h"
 #include "gameplay/core/experience.h"
 #include "gameplay/mechanics/groups.h"
 #include "gameplay/economics/currencies.h"
@@ -3098,33 +3099,48 @@ void find_replacement(void *go,
 				}
 				snprintf(str, str_size, "%d", sum);
 			} else if (!str_cmp(field, "affect")) {
-				mob->char_specials.saved.affected_by.gm_flag(subfield, affected_bits, str);
+				EAffect aff_id = EAffect::kUndefined;
+				const char *aff_name = subfield;
+				const bool aff_rem = (*aff_name == '-');
+				const bool aff_add = (*aff_name == '+');
+				if (aff_rem || aff_add) { ++aff_name; }
+				if (*aff_name && affects::FindByShortDesc(aff_name, aff_id)) {
+					auto &aff_flags = mob->char_specials.saved.affected_by;
+					if (aff_rem) { aff_flags.unset(aff_id); *str = '\0'; }
+					else if (aff_add) { aff_flags.set(aff_id); *str = '\0'; }
+					else { strcpy(str, aff_flags.get(aff_id) ? "1" : "0"); }
+				}
 				//подозреваю что никто из билдеров даже не вкурсе насчет всего функционала этого affect
 				//к тому же аффекты в том списке не все кличи например никак там не отображаются
 			} else if (!str_cmp(field, "affectedby")) {
 				char *p = strchr(subfield, ',');
+				// issue.affect-migration: an applied affect is disconnected from the cause that triggered
+				// it, so "affectedby" tests for a specific AFFECT TYPE (by its text-id), not the casting
+				// spell. Builders pass the affect's text-id (e.g. kPoisoned), optionally with an apply type.
 				if (!p) {
-					auto spell_id = FixNameAndFindSpellId(subfield);
-					if (spell_id == ESpell::kUndefined) {
-						snprintf(buf, sizeof(buf), "Не найден спелл %s в списке AffectedBy", subfield);
+					EAffect aff_id;
+					try {
+						aff_id = ITEM_BY_NAME<EAffect>(subfield);
+					} catch (const std::out_of_range &) {
+						snprintf(buf, sizeof(buf), "Не найден аффект %s в списке AffectedBy", subfield);
 						trig_log(trig, buf);
 						return;
 					}
-					if (spell_id >= ESpell::kFirst && spell_id < ESpell::kLast) {
-						for (const auto &affect : mob->affected) {
-							if (affect->type == spell_id) {
-								snprintf(str, str_size, "1");
-								return;
-							}
+					for (const auto &affect : mob->affected) {
+						if (affect->affect_type == aff_id) {
+							snprintf(str, str_size, "1");
+							return;
 						}
-						snprintf(str, str_size, "0");
 					}
+					snprintf(str, str_size, "0");
 				} else {
 					int num;
 					*(p++) = '\0';
-					auto spell_id = FixNameAndFindSpellId(subfield);
-					if (spell_id == ESpell::kUndefined) {
-						snprintf(buf, sizeof(buf), "Не найден спелл %s в списке AffecteBby", p);
+					EAffect aff_id;
+					try {
+						aff_id = ITEM_BY_NAME<EAffect>(subfield);
+					} catch (const std::out_of_range &) {
+						snprintf(buf, sizeof(buf), "Не найден аффект %s в списке AffectedBy", subfield);
 						trig_log(trig, buf);
 						return;
 					}
@@ -3138,11 +3154,9 @@ void find_replacement(void *go,
 						return;
 					}
 					for (const auto &affect : mob->affected) {
-						if (affect->type == spell_id) {
-							if (affect->location == num) {
-								snprintf(str, str_size, "%d", affect->modifier);
-								return;
-							}
+						if (affect->affect_type == aff_id && affect->location == num) {
+							snprintf(str, str_size, "%d", affect->modifier);
+							return;
 						}
 					}
 					snprintf(str, str_size, "0");

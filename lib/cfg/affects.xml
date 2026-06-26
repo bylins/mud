@@ -6,93 +6,348 @@
     self-process instead of needing a marker-spell).
 -->
 <affects>
-	<affect id="kBlind"/>
-	<affect id="kInvisible"/>
-	<affect id="kDetectAlign"/>
-	<affect id="kDetectInvisible"/>
-	<affect id="kDetectMagic"/>
-	<affect id="kDetectLife"/>
-	<affect id="kWaterWalk"/>
-	<affect id="kSanctuary"/>
+	<affect id="kBlind" buff="N">
+		<flags val="kAfBattledec|kAfDispellable|kAfCurable"/>
+	</affect>
+	<affect id="kInvisible" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+	</affect>
+	<affect id="kDetectAlign" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+	</affect>
+	<affect id="kDetectInvisible" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+	</affect>
+	<affect id="kDetectMagic" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+	</affect>
+	<affect id="kDetectLife" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+	</affect>
+	<affect id="kWaterWalk" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+	</affect>
+	<affect id="kSanctuary" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+	</affect>
 	<affect id="kGroup"/>
-	<affect id="kCurse"/>
-	<affect id="kInfravision"/>
-	<affect id="kPoisoned"/>
-	<affect id="kProtectFromDark"/>
+	<affect id="kCurse" buff="N">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable"/>
+	</affect>
+	<affect id="kInfravision" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+	</affect>
+	<affect id="kPoisoned" buff="N">
+		<flags val="kAfSameTime|kAfDispellable|kAfCurable|kAfPoison"/>
+	</affect>
+	<affect id="kProtectFromDark" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+	</affect>
 	<affect id="kProtectFromMind"/>
-	<affect id="kSleep"/>
+	<affect id="kSleep" buff="N">
+		<flags val="kAfBattledec|kAfDispellable|kAfCurable"/>
+	</affect>
 	<affect id="kNoTrack"/>
 	<affect id="kTethered"/>
-	<affect id="kBless"/>
+	<affect id="kBless" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+	</affect>
 	<affect id="kSneak"/>
 	<affect id="kHide"/>
 	<affect id="kCourage"/>
 	<affect id="kCharmed"/>
-	<affect id="kHold"/>
-	<affect id="kFly"/>
-	<affect id="kSilence"/>
-	<affect id="kAwarness"/>
-	<affect id="kBlink"/>
+	<affect id="kHold" buff="N">
+		<flags val="kAfBattledec|kAfDispellable|kAfCurable|kAfEntanglement"/>
+	</affect>
+	<affect id="kFly" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+	</affect>
+	<affect id="kSilence" buff="N">
+		<flags val="kAfBattledec|kAfPulsedec|kAfDispellable|kAfCurable"/>
+	</affect>
+	<affect id="kAwarness" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+	</affect>
+	<affect id="kBlink" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+	</affect>
 	<affect id="kHorse"/>
-	<affect id="kNoFlee"/>
+	<affect id="kNoFlee" buff="N">
+		<flags val="kAfBattledec|kAfPulsedec|kAfDispellable|kAfCurable|kAfEntanglement"/>
+	</affect>
 	<affect id="kSingleLight"/>
-	<affect id="kHolyLight"/>
-	<affect id="kHolyDark"/>
-	<affect id="kDetectPoison"/>
+	<affect id="kHolyLight" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+	</affect>
+	<affect id="kHolyDark" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+	</affect>
+	<affect id="kDetectPoison" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+	</affect>
 	<affect id="kDrunked"/>
-	<affect id="kAbstinent"/>
-	<affect id="kStopRight"/>
-	<affect id="kStopLeft"/>
-	<affect id="kStopFight"/>
-	<affect id="kHaemorrhage"/>
+	<affect id="kAbstinent">
+		<flags val="kAfCurable"/>
+	</affect>
+	<affect id="kStopRight">
+		<flags val="kAfBattledec|kAfPulsedec|kAfCurable"/>
+	</affect>
+	<affect id="kStopLeft">
+		<flags val="kAfBattledec|kAfPulsedec|kAfCurable"/>
+	</affect>
+	<affect id="kStopFight">
+		<flags val="kAfBattledec|kAfPulsedec|kAfCurable"/>
+	</affect>
+	<affect id="kHaemorrhage">
+		<flags val="kAfCurable"/>
+	</affect>
 	<affect id="kDisguise"/>
-	<affect id="kWaterBreath"/>
-	<affect id="kSlow"/>
-	<affect id="kHaste"/>
-	<affect id="kGodsShield"/>
-	<affect id="kAirShield"/>
-	<affect id="kFireShield"/>
-	<affect id="kIceShield"/>
-	<affect id="kMagicGlass"/>
+	<affect id="kWaterBreath" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+	</affect>
+	<affect id="kSlow" buff="N">
+		<flags val="kAfBattledec|kAfDispellable|kAfCurable|kAfEntanglement"/>
+	</affect>
+	<affect id="kHaste" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+	</affect>
+	<affect id="kGodsShield" buff="Y">
+		<flags val="kAfBattledec|kAfUpdateDuration|kAfUpdateMod"/>
+	</affect>
+	<affect id="kAirShield" buff="Y">
+		<flags val="kAfBattledec|kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+	</affect>
+	<affect id="kFireShield" buff="Y">
+		<flags val="kAfBattledec|kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+	</affect>
+	<affect id="kIceShield" buff="Y">
+		<flags val="kAfBattledec|kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+	</affect>
+	<affect id="kMagicGlass" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+	</affect>
 	<affect id="kStairs"/>
-	<affect id="kStoneHands"/>
-	<affect id="kPrismaticAura"/>
+	<affect id="kStoneHands" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+	</affect>
+	<affect id="kPrismaticAura" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+	</affect>
 	<affect id="kHelper"/>
-	<affect id="kForcesOfEvil"/>
-	<affect id="kAirAura"/>
-	<affect id="kFireAura"/>
-	<affect id="kIceAura"/>
-	<affect id="kDeafness"/>
-	<affect id="kCrying"/>
-	<affect id="kPeaceful"/>
-	<affect id="kMagicStopFight"/>
+	<affect id="kForcesOfEvil" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod"/>
+	</affect>
+	<affect id="kAirAura" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+	</affect>
+	<affect id="kFireAura" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+	</affect>
+	<affect id="kIceAura" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+	</affect>
+	<affect id="kDeafness" buff="N">
+		<flags val="kAfBattledec|kAfDispellable|kAfCurable"/>
+	</affect>
+	<affect id="kCrying" buff="N">
+		<flags val="kAfDispellable|kAfCurable"/>
+	</affect>
+	<affect id="kPeaceful" buff="N">
+		<flags val="kAfDispellable|kAfCurable"/>
+	</affect>
+	<affect id="kMagicStopFight" buff="N">
+		<flags val="kAfBattledec|kAfPulsedec|kAfDispellable|kAfCurable"/>
+	</affect>
 	<affect id="kBerserk"/>
 	<affect id="kLightWalk"/>
-	<affect id="kBrokenChains"/>
-	<affect id="kCloudOfArrows"/>
-	<affect id="kShadowCloak"/>
-	<affect id="kGlitterDust"/>
-	<affect id="kAffright"/>
-	<affect id="kScopolaPoison"/>
-	<affect id="kDaturaPoison"/>
-	<affect id="kSkillReduce"/>
-	<affect id="kNoBattleSwitch"/>
-	<affect id="kBelenaPoison"/>
-	<affect id="kNoTeleport"/>
+	<affect id="kBrokenChains" buff="Y">
+		<flags val="kAfBattledec|kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+	</affect>
+	<affect id="kCloudOfArrows" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+	</affect>
+	<affect id="kShadowCloak" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+	</affect>
+	<affect id="kGlitterDust" buff="N"/>
+	<affect id="kAffright" buff="N">
+		<flags val="kAfDispellable|kAfCurable"/>
+	</affect>
+	<affect id="kScopolaPoison" buff="N">
+		<flags val="kAfSameTime|kAfCurable|kAfPoison"/>
+	</affect>
+	<affect id="kDaturaPoison" buff="N">
+		<flags val="kAfSameTime|kAfCurable|kAfPoison"/>
+	</affect>
+	<affect id="kSkillReduce" buff="N">
+		<flags val="kAfSameTime|kAfCurable|kAfPoison"/>
+	</affect>
+	<affect id="kNoBattleSwitch" buff="N">
+		<flags val="kAfSameTime|kAfCurable|kAfPoison"/>
+	</affect>
+	<affect id="kBelenaPoison" buff="N">
+		<flags val="kAfSameTime|kAfCurable|kAfPoison"/>
+	</affect>
+	<affect id="kAconitumPoison" buff="N">
+		<flags val="kAfSameTime|kAfCurable|kAfPoison"/>
+	</affect>
+	<affect id="kCapable"/>
+	<affect id="kNoTeleport" buff="N">
+		<flags val="kAfBattledec|kAfPulsedec|kAfDispellable|kAfCurable|kAfEntanglement"/>
+	</affect>
 	<affect id="kCombatLuck"/>
-	<affect id="kBandage"/>
-	<affect id="kCannotBeBandaged"/>
+	<affect id="kBandage">
+		<flags val="kAfPulsedec"/>
+	</affect>
+	<affect id="kCannotBeBandaged">
+		<flags val="kAfPulsedec"/>
+	</affect>
 	<affect id="kMorphing"/>
 	<affect id="kStrangled"/>
-	<affect id="kMemorizeSpells"/>
+	<affect id="kMemorizeSpells">
+		<flags val="kAfDeadkeep|kAfPulsedec"/>
+	</affect>
 	<affect id="kNoobRegen"/>
-	<affect id="kVampirism"/>
-	<affect id="kLacerations"/>
+	<affect id="kVampirism" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+	</affect>
+	<affect id="kLacerations">
+		<flags val="kAfBattledec|kAfCurable"/>
+	</affect>
 	<affect id="kCommander"/>
-	<affect id="kEarthAura"/>
-	<affect id="kCloudly"/>
-	<affect id="kConfused"/>
+	<affect id="kEarthAura" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+	</affect>
+	<affect id="kCloudly" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+	</affect>
+	<affect id="kConfused">
+		<flags val="kAfSameTime"/>
+	</affect>
 	<affect id="kNoCharge"/>
-	<affect id="kInjured"/>
-	<affect id="kFrenzy"/>
+	<affect id="kInjuredLimb">
+		<flags val="kAfBattledec"/>
+	</affect>
+	<affect id="kFrenzy">
+		<flags val="kAfPulsedec"/>
+	</affect>
+	<affect id="kMagicArmor" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+	</affect>
+	<affect id="kShivering" buff="N">
+		<flags val="kAfBattledec|kAfAccumulateDuration|kAfDispellable|kAfCurable"/>
+	</affect>
+	<affect id="kDespodency" buff="N">
+		<flags val="kAfBattledec|kAfDispellable|kAfCurable"/>
+	</affect>
+	<affect id="kMagicStrength" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+	</affect>
+	<affect id="kPatronage" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod"/>
+	</affect>
+	<affect id="kStoneSkin" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+	</affect>
+	<affect id="kMagicWeaknes" buff="N">
+		<flags val="kAfBattledec|kAfDispellable|kAfCurable"/>
+	</affect>
+	<affect id="kEnlarge">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable"/>
+	</affect>
+	<affect id="kMagicShield" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+	</affect>
+	<affect id="kForbidden" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+	</affect>
+	<affect id="kFrostbite" buff="N">
+		<flags val="kAfDispellable|kAfCurable"/>
+	</affect>
+	<affect id="kSlowdown" buff="N">
+		<flags val="kAfDispellable|kAfCurable"/>
+	</affect>
+	<affect id="kFever" buff="N">
+		<flags val="kAfCurable"/>
+	</affect>
+	<affect id="kFastRegeneration" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+	</affect>
+	<affect id="kLessening">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable"/>
+	</affect>
+	<affect id="kMadness" buff="N">
+		<flags val="kAfDispellable|kAfCurable"/>
+	</affect>
+	<affect id="kMindless" buff="N">
+		<flags val="kAfDispellable|kAfCurable"/>
+	</affect>
+	<affect id="kFascination" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+	</affect>
+	<affect id="kContusion">
+		<flags val="kAfDeadkeep"/>
+	</affect>
+	<affect id="kStoneBones" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+	</affect>
+	<affect id="kFailure" buff="N">
+		<flags val="kAfDispellable|kAfCurable"/>
+	</affect>
+	<affect id="kCatGrace" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+	</affect>
+	<affect id="kBullBody" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+	</affect>
+	<affect id="kSnakeWisdom" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+	</affect>
+	<affect id="kGimmicry" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+	</affect>
+	<affect id="kIndecision" buff="N">
+		<flags val="kAfBattledec|kAfDispellable|kAfCurable"/>
+	</affect>
+	<affect id="kInsanity" buff="N">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable"/>
+	</affect>
+	<affect id="kRousing" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+	</affect>
+	<affect id="kPassion" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+	</affect>
+	<affect id="kSurgeOfPower" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+	</affect>
+	<affect id="kSurgeOfValour" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+	</affect>
+	<affect id="kBattleCourage" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+	</affect>
+	<affect id="kInspiration" buff="Y">
+		<flags val="kAfBattledec|kAfPulsedec|kAfDispellable"/>
+	</affect>
+	<affect id="kConcentration" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+	</affect>
+	<affect id="kBattleLuck" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+	</affect>
+	<affect id="kPhysdamageBonus" buff="Y">
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+	</affect>
+	<affect id="kSuspiciousness"/>
+	<affect id="kSevereWound"/>
+	<affect id="kWellFed"/>
+	<affect id="kPrayerful"/>
+	<affect id="kPietas"/>
+	<affect id="kEvade">
+		<flags val="kAfBattledec|kAfPulsedec"/>
+	</affect>
+	<affect id="kWirchery">
+		<flags val="kAfDispellable"/>
+	</affect>
 </affects>

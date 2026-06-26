@@ -48,7 +48,7 @@ void feed_charmice(CharData *ch, char *local_arg) {
 	}
 	const int max_heal_hp = 3 * mob_level;
 	chance_to_eat = (100 - 2 * mob_level) / 2;
-	if (IsAffectedBySpell(ch->get_master(), ESpell::kFascination)) {
+	if (IsAffected(ch->get_master(), EAffect::kFascination)) {
 		chance_to_eat -= 30;
 	}
 	if (number(1, 100) < chance_to_eat) {
@@ -71,12 +71,11 @@ void feed_charmice(CharData *ch, char *local_arg) {
 	}
 
 	Affect<EApply> af;
-	af.type = ESpell::kCharm;
 	af.duration = std::min(max_charm_duration, (int) (mob_level * max_charm_duration / 30));
 	af.modifier = 0;
 	af.location = EApply::kNone;
 	af.affect_type = EAffect::kCharmed;
-	af.battleflag = 0;
+	af.battleflag = kAfCharmBond;
 
 	ImposeAffect(ch, af);
 	if (ch->IsNpc()) { ch->SetFlag(EMobFlag::kCompanion); }	// any NPC ally
@@ -188,8 +187,7 @@ void do_eat(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			Affect<EApply> af;
 			af.location = food->get_affected(i).location;
 			af.modifier = food->get_affected(i).modifier;
-			af.affect_type = EAffect::kUndefined;
-			af.type = ESpell::kFullFeed;
+			af.affect_type = EAffect::kWellFed;
 //			af.battleflag = 0;
 			af.duration = CalcDuration(ch, ch, ESkill::kUndefined, 10 * 2, 0, 0, 0);
 			ImposeAffect(ch, af);
@@ -204,14 +202,12 @@ void do_eat(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 
 		Affect<EApply> af;
-		af.type = ESpell::kPoison;
 		af.duration = CalcDuration(ch, ch, ESkill::kUndefined, amount == 1 ? amount : amount * 2, 0, 0, 0);
 		af.modifier = 0;
 		af.location = EApply::kStr;
 		af.affect_type = EAffect::kPoisoned;
 		af.battleflag = kAfSameTime;
 		ImposeAffect(ch, af, false, false, false, false);
-		af.type = ESpell::kPoison;
 		af.duration = CalcDuration(ch, ch, ESkill::kUndefined, amount == 1 ? amount : amount * 2, 0, 0, 0);
 		af.modifier = amount * 3;
 		af.location = EApply::kPoison;

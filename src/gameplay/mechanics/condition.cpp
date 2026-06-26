@@ -65,8 +65,8 @@ void SetAbstinent(CharData *ch) {
 	}
 
 	Affect<EApply> af;
-	af.type = ESpell::kAbstinent;
 	af.affect_type = EAffect::kAbstinent;
+	af.battleflag = kAfCurable;
 	af.duration = duration;
 
 	af.location = EApply::kAc;

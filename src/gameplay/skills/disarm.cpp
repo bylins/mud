@@ -4,6 +4,7 @@
 
 #include "skill_messages.h"
 #include "engine/db/global_objects.h"
+#include "gameplay/magic/magic.h"
 
 #include "gameplay/fight/pk.h"
 #include "gameplay/fight/common.h"
@@ -60,10 +61,10 @@ void do_disarm(CharData *ch, CharData *vict) {
 //	}
 
 	if (CanUseFeat(ch, EFeat::kInjure)) {
-		if (IsAffectedBySpellWithCasterId(ch, vict, ESpell::kNoInjure) && (!HasWeapon(vict))) {
+		if (IsAffectedWithCasterId(ch, vict, EAffect::kSuspiciousness) && (!HasWeapon(vict))) {
 			act("Не получится - $N уже понял$G, что от Вас можно ожидать всякого!",
 				false, ch, nullptr, vict, kToChar);
-		} else if (IsAffectedBySpellWithCasterId(ch, vict, ESpell::kNoInjure) && (HasWeapon(vict))) {
+		} else if (IsAffectedWithCasterId(ch, vict, EAffect::kSuspiciousness) && (HasWeapon(vict))) {
 			if (privilege::IsImpl(ch) || !ch->GetEnemy()) {
 				go_disarm(ch, vict);
 			} else if (IsHaveNoExtraAttack(ch)) {
@@ -105,22 +106,16 @@ void go_injure(CharData *ch, CharData *vict) {
 		}
 
 //Ввожу ДВА аффекта: 1. Короткий - собственно сам дебафф. 2. Долгий, для запрета повторного наложения.
-//af.affect_type = EAffect::kInjured; - этот битвектор нафиг не нужен. Ввел его только для того чтобы не показывало !UNDEF! при выводе аффектов
+//af.affect_type = EAffect::kInjuredLimb; - этот битвектор нафиг не нужен. Ввел его только для того чтобы не показывало !UNDEF! при выводе аффектов
 		Affect<EApply> af;
-		af.type = ESpell::kLowerEffectiveness;
 		af.duration = injure_duration;
 		af.modifier = -(10 + std::min((GetSkill(ch, ESkill::kDisarm) / 10), 20));
 		af.location = EApply::kPhysicDamagePercent;
 		af.battleflag = kAfBattledec;
-		af.affect_type = EAffect::kInjured;
+		af.affect_type = EAffect::kInjuredLimb;
 		affect_to_char(vict, af);
 
-		act("Вы ранили $N3! Как же $E теперь будет Вас бить?...",
-			false, ch, nullptr, vict, kToChar);
-		act("$N ранил$G Вас в руку! Надо бы дать сдачи...",
-			false, vict, nullptr, ch, kToChar);
-		act("$N ранил$G $n3. Кажется $n0 уже передумал$g драться...",
-			false, vict, nullptr, ch, kToNotVict | kToArenaListen);
+		EmitAffectImpose(vict, ch, EAffect::kSuspiciousness, false);
 
 		int dam = number(ceil(GetSkill(ch, ESkill::kDisarm) / 1.25), ceil(GetSkill(ch, ESkill::kDisarm) * 1.25))
 			* GetRealLevel(ch) / 30;
@@ -132,12 +127,7 @@ void go_injure(CharData *ch, CharData *vict) {
 		dmg.flags.set(fight::kIgnoreBlink);
 		dmg.Process(ch, vict);
 
-		act("Вам не удалось ранить $N3 и $e продолжил$g весело бить Вас!",
-			false, ch, nullptr, vict, kToChar);
-		act("$N попытал$U поранить Вас, но у н$S не вышло! На радостях Вы принялись колотить $S еще веселей!",
-			false, vict, nullptr, ch, kToChar);
-		act("$N безуспешно попытал$U поранить $n3. Как нелепо...",
-			false, vict, nullptr, ch, kToNotVict | kToArenaListen);
+		EmitAffectImpose(vict, ch, EAffect::kSuspiciousness, true);
 	}
 	if (vict->GetPosition() != EPosition::kDead) {
 		int no_injure_duration = 4;
@@ -147,10 +137,10 @@ void go_injure(CharData *ch, CharData *vict) {
 		}
 //Этот аффект ничего не дает, просто предотвращает повторное наложение дебаффа тем же персонажем.
 		Affect<EApply> af2;
-		af2.type = ESpell::kNoInjure;
 		af2.duration = no_injure_duration;
 		af2.battleflag = kNone;
 		af2.caster_id = ch->get_uid();
+		af2.affect_type = EAffect::kSuspiciousness;
 		affect_to_char(vict, af2);
 
 		if (!HasWeapon(vict)) {

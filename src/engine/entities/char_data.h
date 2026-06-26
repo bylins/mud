@@ -13,6 +13,7 @@
 #include "gameplay/mechanics/dead_load.h"
 #include "engine/db/db.h"
 #include "entities_constants.h"
+#include "engine/structs/bitset_flags.h"
 #include "room_data.h"
 #include "obj_data.h"
 #include "engine/scripting/dg_scripts.h"
@@ -131,7 +132,7 @@ struct char_point_data {
 struct char_special_data_saved {
 	int alignment;        // +-1000 for alignments
 	FlagData act;        // act flag for NPC's; player flag for PC's
-	FlagData affected_by;
+	BitsetFlags<EAffect> affected_by;
 	// Bitvector for spells/skills affected by
 };
 
@@ -698,7 +699,7 @@ class CharData : public ProtectedCharData {
 	bool check_aggressive;
 	int extract_timer;
 
-	FlagData Temporary;
+	BitsetFlags<ECharExtraFlag> Temporary;
 
 	int initiative;
 	int battle_counter;
@@ -765,9 +766,9 @@ inline void SetBattleLag(CharData *ch, const unsigned lag) {
 	SetWaitState(ch, lag * kBattleRound);
 }
 
-inline FlagData &AFF_FLAGS(CharData *ch) { return ch->char_specials.saved.affected_by; }
-inline const FlagData &AFF_FLAGS(const CharData *ch) { return ch->char_specials.saved.affected_by; }
-inline const FlagData &AFF_FLAGS(const CharData::shared_ptr &ch) { return ch->char_specials.saved.affected_by; }
+inline BitsetFlags<EAffect> &AFF_FLAGS(CharData *ch) { return ch->char_specials.saved.affected_by; }
+inline const BitsetFlags<EAffect> &AFF_FLAGS(const CharData *ch) { return ch->char_specials.saved.affected_by; }
+inline const BitsetFlags<EAffect> &AFF_FLAGS(const CharData::shared_ptr &ch) { return ch->char_specials.saved.affected_by; }
 
 // Бывшие макросы GET_SPELL_MEM / GET_SPELL_TYPE из utils.h. Возвращают ссылку,
 // т.к. используются и как lvalue (GET_SPELL_MEM(ch, sp)++ и т.п.).
@@ -781,6 +782,15 @@ inline ubyte &GET_SPELL_TYPE(const CharData::shared_ptr &ch, ESpell spell) { ret
 
 inline bool AFF_FLAGGED(const CharData *ch, const EAffect flag) {
 	return AFF_FLAGS(ch).get(flag);
+}
+
+// issue.affect-migration / TEMPORARY: a flag-only stealth/utility check. Many MOBS apply skills
+// like hide/sneak/camouflage/light-walk as a bare EAffect flag, with NO full affect struct, so
+// these sites cannot yet use IsAffected (which needs the struct). Thin AFF_FLAGGED wrapper whose
+// distinct name marks every such site: once mobs carry real affect structs, grep IsAffectedFlagOnly
+// and replace each occurrence with IsAffected.
+inline bool IsAffectedFlagOnly(const CharData *ch, const EAffect flag) {
+	return AFF_FLAGGED(ch, flag);
 }
 
 inline bool AFF_FLAGGED(const CharData::shared_ptr &ch, const EAffect flag) {

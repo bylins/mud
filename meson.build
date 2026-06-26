@@ -626,6 +626,7 @@ main_sources = files(
   'src/engine/ui/cmd/do_employ.cpp',
   'src/engine/ui/cmd/do_follow.cpp',
   'src/engine/structs/flag_data.cpp',
+  'src/engine/structs/bitset_flags.cpp',
   'src/gameplay/crafting/jewelry.cpp',
   'src/gameplay/crafting/mining.cpp',
   'src/gameplay/classes/classes_constants.cpp',

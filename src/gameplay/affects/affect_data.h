@@ -36,12 +36,11 @@ class Affect {
  public:
 	using shared_ptr = std::shared_ptr<Affect<TLocation>>;
 
-	Affect() : type(ESpell::kUndefined), duration(0), modifier(0), location(static_cast<TLocation>(0)),
+	Affect() : duration(0), modifier(0), location(static_cast<TLocation>(0)),
 			   battleflag(0), caster_id(0),
 			   apply_time(0) {};
 	[[nodiscard]] bool removable() const;
 
-	ESpell type;        // The type of spell that caused this      //
 	int duration;    // For how long its effects will last      //
 	int modifier;        // This is added to appropriate ability     //
 	TLocation location;        // Tells which ability to change(APPLY_XXX) //
@@ -50,19 +49,19 @@ class Affect {
 	// follows the affect's location kind via AffectFlagType (EAffect for chars,
 	// ERoomAffect for rooms). kUndefined/0 means the affect sets no flag.
 	typename AffectFlagType<TLocation>::type affect_type{};
-	FlagData aff;
 	long caster_id; //Unique caster ID //
 	// (Бывшее поле `must_handled` мигрировало в `battleflag & kAfMustBeHandled`; занимало
 	// одно и то же место в семантике и теперь не дублирует battleflag. См. EAffFlag.)
 	sh_int apply_time; // Указывает сколько аффект висит (пока используется только в комнатах) //
 	std::shared_ptr<IAffectHandler> handler; //обработчик аффектов
-	// Сила наложенного заклинания (потенция) на момент наложения: dice + skill_coeff +
-	// stat_coeff из potency_roll. Сравнивается с потенцией снимающего заклинания при
-	// развеивании (CastUnaffects). 0 для аффектов не от заклинаний (вещи, врождённые,
-	// загруженные из файла) -- такие снимаются легко.
+	// Сила наложенного эффекта (потенция) на момент наложения: для заклинаний это dice +
+	// skill_coeff + stat_coeff из potency_roll. Сравнивается с потенцией снимающего
+	// заклинания при развеивании (CastUnaffects). У аффектов НЕ от заклинаний (умения,
+	// вещи, врождённые, загруженные из файла) потенция пока 0 -- не потому, что у них нет
+	// силы, а потому, что общего механизма расчёта потенции для не-заклинаний ещё нет
+	// (появится в будущем); до тех пор такие аффекты снимаются легко.
 	float potency{0.0f};
 	// true, если аффект наложен "злым" (violent) заклинанием, т.е. это дебафф; false -- бафф.
-	bool debuff{false};
 	// Число стаков этого аффекта (issue.affect-stacks). 1 по умолчанию. Повторное наложение
 	// до предела <modifier stack=N> увеличивает счётчик и суммирует модификатор; успешное
 	// снятие при stacks > 1 уменьшает счётчик (и модификатор пропорционально) вместо удаления.
@@ -98,6 +97,10 @@ struct obj_affected_type {
 	}
 };
 
+// issue.affect-migration: "same affect" by IDENTITY (affect_type) rather than by casting spell -- for
+// callers that dedup or look up affects (do_affects display, remove_random_affects).
+[[nodiscard]] bool SameAffectIdentity(const Affect<EApply>::shared_ptr &a, const Affect<EApply>::shared_ptr &b);
+
 void UpdateAffectOnPulse(CharData *ch, int count);
 void player_timed_update();
 void player_affect_update();
@@ -108,10 +111,28 @@ void affect_total(CharData *ch);
 void affect_modify(CharData *ch, EApply loc, int mod, EAffect bitv, bool add);
 std::pair<EApply, int> GetApplyByWeaponAffect(EWeaponAffect element, CharData *ch);
 void affect_to_char(CharData *ch, const Affect<EApply> &af);
-void RemoveAffectFromChar(CharData *ch, ESpell spell_id);
-void RemoveAffectFromCharAndRecalculate(CharData *ch, ESpell spell_id);
-bool IsAffectedBySpell(CharData *ch, ESpell type);
-bool IsAffectedBySpellWithCasterId(CharData *ch, CharData *vict, ESpell type);
+void RemoveAffectFromChar(CharData *ch, EAffect affect_type);
+void RemoveAffectFromCharAndRecalculate(CharData *ch, EAffect affect_type);
+// issue.affect-migration: un-charm -- remove the whole charm package (affects flagged kAfCharmBond) and,
+// for an NPC, schedule extraction + clear hire price. Replaces RemoveAffectFromChar(ESpell::kCharm).
+void RemoveCharmBond(CharData *ch, bool recalculate = false);
+void RemoveCurableAffects(CharData *ch);
+// True if `vict` carries a real (non-failed) affect of this affect_type cast by `ch`.
+bool IsAffectedWithCasterId(CharData *ch, CharData *vict, EAffect affect_type);
+// True if `ch` carries a real (non-failed) affect of this affect_type -- the affect STRUCTURE
+// itself, unlike AFF_FLAGGED which is ALSO set by worn equipment (EWeaponAffect) and a mob's
+// innate proto flags. EAffect-keyed (decoupled from the casting spell); the successor to
+// IsAffectedBySpell for "does ch currently have this effect" queries.
+bool IsAffected(CharData *ch, EAffect affect_type);
+// Like IsAffected but ALSO counts failed-attempt markers (affects carrying kAfFailed): true if ch
+// has ANY affect of this affect_type -- a working effect OR a lingering failed attempt. Use for the
+// "already attempting" anti-spam checks (hide/camouflage): a failed try must still block a retry,
+// and the player must not be able to tell a real effect from a failed one.
+bool IsAffectedOrAttempting(CharData *ch, EAffect affect_type);
+// issue.affect-migration: true if ch has any REAL affect (failed-attempt markers excluded) carrying the
+// given battleflag bit. For affect-CATEGORY queries -- e.g. IsAffectedWithFlag(ch, kAfPoison) tests "is
+// poisoned by anything" with one flag instead of enumerating every poison spell/affect.
+bool IsAffectedWithFlag(CharData *ch, EAffFlag flag);
 void ImposeAffect(CharData *ch, const Affect<EApply> &af);
 void ImposeAffect(CharData *ch, Affect<EApply> &af, bool add_dur, bool max_dur, bool add_mod, bool max_mod);
 void ImposeAffectNoRecalc(CharData *ch, const Affect<EApply> &af);

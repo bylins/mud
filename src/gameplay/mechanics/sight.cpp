@@ -8,6 +8,7 @@
 #include "engine/core/char_movement.h"
 #include "engine/core/target_resolver.h"
 #include "sight.h"
+#include "gameplay/mechanics/hide.h"
 #include "gameplay/mechanics/minions.h"
 #include "administration/privilege.h"
 #include "gameplay/economics/currencies.h"
@@ -17,6 +18,7 @@
 #include "gameplay/mechanics/mount.h"
 #include "gameplay/mechanics/magic_item.h"
 #include "gameplay/affects/affect_messages.h"
+#include "gameplay/magic/room_affect_messages.h"
 
 #include <fmt/format.h>
 #include <fmt/ranges.h>   // fmt::join
@@ -453,7 +455,7 @@ bool look_at_target(CharData *ch, char *arg, int subcmd) {
 		bool one_way = false;
 
 		for (const auto &aff : world[ch->in_room]->affected) {
-			if (aff->type == ESpell::kPortalTimer) {
+			if (room_spells::IsPortalAffect(aff->affect_type)) {
 				if (aff->affect_type == room_spells::ERoomAffect::kNoPortalExit) {
 					SendMsgToChar("Похоже, этого здесь нет!\r\n", ch);
 					return false;
@@ -462,7 +464,7 @@ bool look_at_target(CharData *ch, char *arg, int subcmd) {
 					to_room = aff->modifier;
 				}
 				for (const auto &aff : world[to_room]->affected) {
-					if (aff->type == ESpell::kPortalTimer) {
+					if (room_spells::IsPortalAffect(aff->affect_type)) {
 						if (aff->affect_type == room_spells::ERoomAffect::kNoPortalExit) {
 							one_way = true;
 						}
@@ -646,7 +648,7 @@ void look_at_char(CharData *i, CharData *ch) {
 			act("$n скоро перестанет следовать за вами.", false, i, nullptr, ch, kToVict);
 		} else {
 			for (const auto &aff : i->affected) {
-				if (aff->type == ESpell::kCharm) {
+				if (IS_SET(aff->battleflag, kAfCharmBond)) {
 					sprintf(buf,
 							IsPoly(i) ? "$n будут слушаться вас еще %d %s." : "$n будет слушаться вас еще %d %s.",
 							aff->duration/2,
@@ -785,47 +787,51 @@ void show_room_affects(CharData *ch) {
 	for (const auto &af : world[ch->in_room]->affected) {
 		// One-way portal: side flagged kNoPortalExit shows nothing (mirrors
 		// the old look_at_room behaviour). kPortalTimer-only special case.
-		if (af->type == ESpell::kPortalTimer
-				&& af->affect_type == room_spells::ERoomAffect::kNoPortalExit) {
+		if (af->affect_type == room_spells::ERoomAffect::kNoPortalExit) {
 			continue;
 		}
 
-		const auto &sheaf = MUD::SpellMessages()[af->type];
 		const bool is_caster = (af->caster_id == viewer_uid);
 		const bool is_pk = (af->pk_unique != 0);
+
+		// issue.affect-migration: room-affect display text comes from the room-affect message system,
+		// keyed by the affect's ERoomAffect identity. (The spell-side room messages were removed in the
+		// room-affect message migration's Phase 4, so the old spell-sheaf fallback is dead.)
+		auto pick = [&](room_spells::ERoomAffectMsgType room_slot) -> const std::string * {
+			const std::string &r = room_spells::RoomAffectMsgRaw(af->affect_type, room_slot);
+			return r.empty() ? nullptr : &r;
+		};
 
 		const std::string *text = nullptr;
 		// Pk override chain (issue.affect-flags): tried before the regular keys.
 		if (is_pk) {
 			if (has_detect_magic) {
-				const auto &m = sheaf.GetMessage(ESpellMsg::kRoomAffectPkInvisible);
-				if (!m.empty()) text = &m;
+				text = pick(room_spells::ERoomAffectMsgType::kRoomAffectPkInvisible);
 			}
 			if (!text) {
-				const auto &m = sheaf.GetMessage(ESpellMsg::kRoomAffectPkVisible);
-				if (!m.empty()) text = &m;
+				text = pick(room_spells::ERoomAffectMsgType::kRoomAffectPkVisible);
 			}
 		}
 		// Regular chain (fall-through when no Pk variant).
 		if (!text && has_detect_magic && is_caster) {
-			const auto &m = sheaf.GetMessage(ESpellMsg::kRoomAffectSelfInvisible);
-			if (!m.empty()) text = &m;
+			text = pick(room_spells::ERoomAffectMsgType::kRoomAffectSelfInvisible);
 		}
 		if (!text && has_detect_magic) {
-			const auto &m = sheaf.GetMessage(ESpellMsg::kRoomAffectInvisible);
-			if (!m.empty()) text = &m;
+			text = pick(room_spells::ERoomAffectMsgType::kRoomAffectInvisible);
 		}
 		if (!text) {
-			const auto &m = sheaf.GetMessage(ESpellMsg::kRoomAffectVisible);
-			if (!m.empty()) text = &m;
+			text = pick(room_spells::ERoomAffectMsgType::kRoomAffectVisible);
 		}
 		if (text) {
 			// Star-rating marker (seal strength) on the SAME line as the affect text,
 			// detect-magic / immortal only (issue.dispellbug).
 			const char *stars = nullptr;
+			// issue.affect-migration: the seal-strength cap is the imposing spell's apply cap, sourced
+			// by identity (SpellByRoomAffect) since the room affect no longer stores its ESpell.
+			const ESpell src = room_spells::SpellByRoomAffect(af->affect_type);
 			if (has_detect_magic
-					&& MUD::Spell(af->type).actions.Contains(talents_actions::EAction::kAffect)) {
-				const auto &applies = MUD::Spell(af->type).actions.GetAffect().GetApplies();
+					&& MUD::Spell(src).actions.Contains(talents_actions::EAction::kAffect)) {
+				const auto &applies = MUD::Spell(src).actions.GetAffect().GetApplies();
 				if (!applies.empty() && applies[0].cap > 0) {
 					const int pct = (af->modifier * 100) / applies[0].cap;
 					stars =
@@ -845,7 +851,7 @@ void show_room_affects(CharData *ch) {
 			// kPortalTimer debug suffix: timer (room-tick pulses) + destination vnum.
 			// Replaces the immortals-only "(время: %d, куда: %d)" suffix that used to
 			// be inlined into the main description in look_at_room.
-			if (af->type == ESpell::kPortalTimer && is_immortal_or_tester) {
+			if (room_spells::IsPortalAffect(af->affect_type) && is_immortal_or_tester) {
 				char debug_buf[128];
 				snprintf(debug_buf, sizeof(debug_buf),
 						 "[timer: %d into: %d]\r\n",
@@ -1224,10 +1230,8 @@ void skip_hide_on_look(CharData *ch) {
 		((!GetSkill(ch, ESkill::kPry) ||
 			((number(1, 100) -
 				CalcCurrentSkill(ch, ESkill::kPry, nullptr) - 2 * (ch->get_wis() - 9)) > 0)))) {
-		RemoveAffectFromChar(ch, ESpell::kHide);
-		AFF_FLAGS(ch).unset(EAffect::kHide);
-		SendMsgToChar("Вы прекратили прятаться.\r\n", ch);
-		act("$n прекратил$g прятаться.", false, ch, nullptr, nullptr, kToRoom);
+		RemoveAffectFromChar(ch, EAffect::kHide);
+		MakeVisible(ch, EAffect::kHide);
 	}
 }
 
@@ -1902,7 +1906,7 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 		else
 			strcat(buf,
 				   IsPoly(i) ? poly_positions[static_cast<int>(i->GetPosition())] : positions[static_cast<int>(i->GetPosition())]);
-		if (AFF_FLAGGED(ch, EAffect::kDetectMagic) && i->IsNpc() && IsAffectedBySpell(i, ESpell::kCapable))
+		if (AFF_FLAGGED(ch, EAffect::kDetectMagic) && i->IsNpc() && IsAffected(i, EAffect::kCapable))
 			sprintf(buf + strlen(buf), "(аура магии) ");
 	} else {
 		if (i->GetEnemy()) {
@@ -1957,12 +1961,10 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 			strcat(buf, " ");
 		}
 	}
+	// issue.affect-migration: one affect-category test (kAfPoison) instead of enumerating every poison
+	// affect/spell -- every poison affect_type carries the kAfPoison flag (affects.xml; aconitum via poison.cpp).
 	if (AFF_FLAGGED(ch, EAffect::kDetectPoison))
-		if (AFF_FLAGGED(i, EAffect::kPoisoned)
-			|| IsAffectedBySpell(i, ESpell::kDaturaPoison)
-			|| IsAffectedBySpell(i, ESpell::kAconitumPoison)
-			|| IsAffectedBySpell(i, ESpell::kScopolaPoison)
-			|| IsAffectedBySpell(i, ESpell::kBelenaPoison))
+		if (IsAffectedWithFlag(i, kAfPoison))
 			sprintf(buf + strlen(buf), "(отравлен%s) ", grammar::SexEnding((i)->get_sex(), 6));
 
 	std::string line = buf;
@@ -2167,10 +2169,10 @@ void Appear(CharData *ch) {
 		|| AFF_FLAGGED(ch, EAffect::kDisguise)
 		|| AFF_FLAGGED(ch, EAffect::kHide);
 
-	RemoveAffectFromChar(ch, ESpell::kInvisible);
-	RemoveAffectFromChar(ch, ESpell::kHide);
-	RemoveAffectFromChar(ch, ESpell::kSneak);
-	RemoveAffectFromChar(ch, ESpell::kCamouflage);
+	RemoveAffectFromChar(ch, EAffect::kInvisible);
+	RemoveAffectFromChar(ch, EAffect::kHide);
+	RemoveAffectFromChar(ch, EAffect::kSneak);
+	RemoveAffectFromChar(ch, EAffect::kDisguise);
 
 	AFF_FLAGS(ch).unset(EAffect::kInvisible);
 	AFF_FLAGS(ch).unset(EAffect::kHide);

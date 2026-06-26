@@ -655,14 +655,14 @@ void perform_group_gain(CharData *ch, CharData *victim, int members, int koef) {
 	if (!InTestZone(ch)) {
 		experience::EndowExpToChar(ch, exp);
 		alignment::ChangeAlignment(ch, victim);
-		if (!(victim)->Temporary.get(EXTRA_GRP_KILL_COUNT)
+		if (!(victim)->Temporary.get(ECharExtraFlag::kGrpKillCount)
 				&& !ch->IsNpc()
 				&& !privilege::IsImmortal(ch)
 				&& victim->IsNpc()
 				&& !IsCharmice(victim)
 				&& !ROOM_FLAGGED(victim->in_room, ERoomFlag::kArena)) {
 				mob_stat::AddMob(victim, members);
-				victim->Temporary.set(EXTRA_GRP_KILL_COUNT);
+				victim->Temporary.set(ECharExtraFlag::kGrpKillCount);
 		} else if (ch->IsNpc() && !victim->IsNpc()
 			&& !ROOM_FLAGGED(victim->in_room, ERoomFlag::kArena)) {
 			mob_stat::AddMob(ch, 0);

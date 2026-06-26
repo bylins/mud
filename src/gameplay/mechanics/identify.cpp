@@ -4,6 +4,7 @@
 */
 
 #include "gameplay/mechanics/identify.h"
+#include "gameplay/affects/affect_messages.h"
 #include "administration/privilege.h"
 
 #include "gameplay/mechanics/magic_item.h"
@@ -553,7 +554,7 @@ void MortShowCharValues(CharData *victim, CharData *ch, int fullness) {
 
 	SendMsgToChar("Аффекты :\r\n", ch);
 	SendMsgToChar(kColorBoldCyn, ch);
-	victim->char_specials.saved.affected_by.sprintbits(affected_bits, buf2, sizeof(buf2), "\r\n", privilege::IsImmortal(ch) ? 4 : 0);
+	snprintf(buf2, sizeof(buf2), "%s", affects::DescribeActive(victim->char_specials.saved.affected_by, "\r\n").c_str());
 	snprintf(buf, kMaxStringLength, "%s\r\n", buf2);
 	SendMsgToChar(buf, ch);
 	SendMsgToChar(kColorNrm, ch);

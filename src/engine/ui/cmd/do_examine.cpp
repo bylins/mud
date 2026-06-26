@@ -46,7 +46,7 @@ void do_examine(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 	if (isname(arg, "пентаграмма") && IS_SET(where_bits, EFind::kObjRoom)) {
 		for (const auto &aff : world[ch->in_room]->affected) {
-			if (aff->type == ESpell::kPortalTimer && aff->affect_type == room_spells::ERoomAffect::kNoPortalExit) {
+			if (aff->affect_type == room_spells::ERoomAffect::kNoPortalExit) {
 				return;
 			}
 		}

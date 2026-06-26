@@ -7,6 +7,7 @@
  */
 
 #include "engine/ui/color.h"
+#include "gameplay/affects/affect_messages.h"
 #include "utils/utils_string.h"
 #include "gameplay/core/experience.h"
 #include "gameplay/mechanics/condition.h"
@@ -520,7 +521,7 @@ int PrintBaseInfoToTable(CharData *ch, table_wrapper::Table &table, std::size_t 
 	table[++row][col] = std::string("Голоден: ") + (GET_COND(ch, condition::kFull) > kNormCondition ? "Угу :(" : "Нет");
 	table[++row][col] = std::string("Жажда: ") + (condition::GetCondAboveNorm(ch, condition::kThirst) ? "Наливай!" : "Нет");
 	if (GET_COND(ch, condition::kDrunk) >= kDrunked) {
-		table[++row][col] = (IsAffectedBySpell(ch, ESpell::kAbstinent) ? "Похмелье." : "Вы пьяны.");
+		table[++row][col] = (IsAffected(ch, EAffect::kAbstinent) ? "Похмелье." : "Вы пьяны.");
 	}
 	if (PlayerSystem::weight_dex_penalty(ch)) {
 		table[++row][col] = "Вы перегружены!";
@@ -854,7 +855,7 @@ void PrintScoreBase(CharData *ch) {
 	snprintf(buf, sizeof(buf), "%s", kColorBoldGrn);
 	const auto value_drunked = GET_COND(ch, condition::kDrunk);
 	if (value_drunked >= kDrunked) {
-		if (IsAffectedBySpell(ch, ESpell::kAbstinent))
+		if (IsAffected(ch, EAffect::kAbstinent))
 			strncat(buf, "Привет с большого бодуна!\r\n", sizeof(buf) - strlen(buf) - 1);
 		else {
 			if (value_drunked >= kMortallyDrunked)
@@ -875,7 +876,7 @@ void PrintScoreBase(CharData *ch) {
 	/*
 	   strcat(buf, KICYN);
 	   strcat(buf,"Аффекты :\r\n");
-	   (ch)->char_specials.saved.affected_by.sprintbits(affected_bits, buf2, sizeof(buf2), "\r\n");
+	   snprintf(buf2, sizeof(buf2), "%s", affects::DescribeActive((ch)->char_specials.saved.affected_by, "\r\n").c_str());
 	   strcat(buf,buf2);
 	 */
 	if (ch->IsFlagged(EPrf::KSummonable))

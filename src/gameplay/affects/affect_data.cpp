@@ -1,4 +1,5 @@
 #include "affect_data.h"
+#include "gameplay/affects/affect_messages.h"
 #include "administration/privilege.h"
 #include "gameplay/affects/affect_handler.h"
 #include "gameplay/mechanics/condition.h"
@@ -49,7 +50,6 @@ void EmitAffectEvent(const char *kind, const CharData *ch,
 		std::chrono::system_clock::now().time_since_epoch()).count();
 	ev.attrs["target_name"] = observability::EngineStringToUtf8(
 		GET_NAME(ch) ? GET_NAME(ch) : "");
-	ev.attrs["spell_id"] = static_cast<std::int64_t>(af.type);
 	ev.attrs["duration"] = static_cast<std::int64_t>(af.duration);
 	ev.attrs["modifier"] = static_cast<std::int64_t>(af.modifier);
 	ev.attrs["location"] = static_cast<std::int64_t>(af.location);
@@ -57,7 +57,20 @@ void EmitAffectEvent(const char *kind, const CharData *ch,
 	observability::EmitToAllSinks(ev);
 }
 
+// issue.affect-migration: an affect announces its natural expiry if it has an IDENTITY -- its
+// affect_type. (Affect::type is gone; affect_type is the sole identity.)
+[[nodiscard]] bool AffectHasIdentity(const Affect<EApply>::shared_ptr &af) {
+	return af->affect_type != EAffect::kUndefined;
+}
 }  // namespace
+
+// "Same affect" for the multi-slot dedup (one spell -> several slots announces once): same affect_type,
+// or same legacy type for affects that still lack an affect_type. Exposed (declared in affect_data.h)
+// for callers that dedup or look up affects by their identity rather than by the casting spell
+// (remove_random_affects, the do_affects display).
+bool SameAffectIdentity(const Affect<EApply>::shared_ptr &a, const Affect<EApply>::shared_ptr &b) {
+	return a->affect_type == b->affect_type;
+}
 
 int apply_ac(CharData *ch, int eq_pos);
 int apply_armour(CharData *ch, int eq_pos);
@@ -176,23 +189,9 @@ std::array<EAffect, 3> char_stealth_aff =
 
 template<>
 bool Affect<EApply>::removable() const {
-	return type == ESpell::kSleep
-		|| type == ESpell::kPoison
-		|| type == ESpell::kWeaknes
-		|| type == ESpell::kCurse
-		|| type == ESpell::kFever
-		|| type == ESpell::kSilence
-		|| type == ESpell::kPowerSilence
-		|| type == ESpell::kBlindness
-		|| type == ESpell::kPowerBlindness
-		|| type == ESpell::kHaemorrhage
-		|| type == ESpell::kHold
-		|| type == ESpell::kPowerHold
-		|| type == ESpell::kPeaceful
-		|| type == ESpell::kColdWind
-		|| type == ESpell::kDeafness
-		|| type == ESpell::kPowerDeafness
-		|| type == ESpell::kBattle;
+	// issue.affect-migration: curability is the kAfCurable battleflag (single source of truth),
+	// replacing the hardcoded ESpell list.
+	return IS_SET(battleflag, kAfCurable);
 }
 // 
 // для мобов раз в 10 пульсов
@@ -314,25 +313,27 @@ void player_affect_update() {
 				continue;
 			}
 			if (affect->duration == 0) {
-				if (affect->type >= ESpell::kFirst && affect->type <= ESpell::kLast) {
+				if (AffectHasIdentity(affect)) {
 					auto next_affect_i = affect_i;
 
 					++next_affect_i;
 					if (next_affect_i == i->affected.end()	//костыль на спадение 1 закла накладывающего несколько аффектов
-							|| (*next_affect_i)->type != affect->type
+							|| !SameAffectIdentity(affect, *next_affect_i)
 							|| (*next_affect_i)->duration > 0) {
 						//чтобы не выдавалось, "что теперь вы можете сражаться",
 						//хотя на самом деле не можете :)
-						if (!(affect->type == ESpell::kMagicBattle
+						// issue.affect-migration: suppress the "you can fight again" line while the OTHER stun
+						// still holds; keyed on the stun affect_type now (ability-to-act), not the kBattle marker.
+						if (!(affect->affect_type == EAffect::kMagicStopFight
 								&& AFF_FLAGGED(i, EAffect::kStopFight))) {
-							if (!(affect->type == ESpell::kBattle
+							if (!(affect->affect_type == EAffect::kStopFight
 									&& AFF_FLAGGED(i, EAffect::kMagicStopFight))) {
-								ShowAffExpiredMsg(affect->type, i.get());
+								ShowAffExpiredMsg(affect->affect_type, i.get());
 							}
 						}
 					}
 				}
-				if (affect->type == ESpell::kDrunked) {
+				if (affect->affect_type == EAffect::kDrunked) {
 					set_abstinent = true;
 				}
 				affect_i = RemoveAffect(i.get(), affect_i);
@@ -356,11 +357,8 @@ void player_affect_update() {
 					if (ROOM_FLAGGED(i->in_room, ERoomFlag::kDominationArena)) {
 						utils::CExecutionTimer domination_timer;
 						++profile.counters[static_cast<std::size_t>(Counter::kDominationAffects)];
-						for (int count = kMaxFirstaidRemove - 1; count >= 0; count--) {
-							if (affect->type == GetRemovableSpellId(count)) {
-								affect->duration -= 15;
-								break;
-							}
+						if (IS_SET(affect->battleflag, kAfCurable)) {
+							affect->duration -= 15;
 						}
 						if (IS_SET(affect->battleflag, kAfPulsedec))
 							affect->duration -= MIN(affect->duration, kSecsPerPlayerAffect * kPassesPerSec);
@@ -429,14 +427,14 @@ void battle_affect_update(CharData *ch) {
 			continue;
 		}
 		if (affect->duration == 0) {
-			if (affect->type >= ESpell::kFirst && affect->type <= ESpell::kLast) {
+			if (AffectHasIdentity(affect)) {
 				auto next_affect_i = affect_i;
 
 				++next_affect_i;
 				if (next_affect_i == ch->affected.end()
-						|| (*next_affect_i)->type != (*affect_i)->type
+						|| !SameAffectIdentity(affect, *next_affect_i)
 						|| (*next_affect_i)->duration > 0) {
-					ShowAffExpiredMsg(affect->type, ch);
+					ShowAffExpiredMsg(affect->affect_type, ch);
 				}
 			}
 			affect_i = RemoveAffect(ch, affect_i);
@@ -483,7 +481,7 @@ void mobile_affect_update() {
 	for (auto it = copy.begin(); it != copy.end(); ++it) {
 		utils::CExecutionTimer mob_timer;
 		const auto &ch = *it;
-		int was_charmed = false, charmed_msg = false;
+		int was_charmed = false;
 		bool was_purged = false;
 		bool need_recalc = false;
 		++profile.counters[static_cast<std::size_t>(Counter::kMobs)];
@@ -510,16 +508,16 @@ void mobile_affect_update() {
 			const auto &affect = *affect_i;
 
 			if (affect->duration == 0) {
-				if (affect->type >= ESpell::kFirst && affect->type <= ESpell::kLast) {
-					if (affect->type == ESpell::kCharm || affect->affect_type == EAffect::kCharmed) {
+				if (AffectHasIdentity(affect)) {
+					if (IS_SET(affect->battleflag, kAfCharmBond)) {
 						was_charmed = true;
 					}
 					auto next_affect_i = affect_i;
 					++next_affect_i;
 					if (next_affect_i == ch->affected.end()
-							|| (*next_affect_i)->type != affect->type
+							|| !SameAffectIdentity(affect, *next_affect_i)
 							|| (*next_affect_i)->duration > 0) {
-						ShowAffExpiredMsg(affect->type, ch);
+						ShowAffExpiredMsg(affect->affect_type, ch);
 					}
 				}
 				affect_i = RemoveAffect(ch, affect_i);
@@ -540,10 +538,12 @@ void mobile_affect_update() {
 						profile.sections[static_cast<std::size_t>(Section::kProcessPoison)] += poison_timer.delta().count();
 					}
 					affect->duration--;
-					if (affect->type == ESpell::kCharm && !charmed_msg && affect->duration <= 1) {
-						act("$n начал$g растерянно оглядываться по сторонам.",
-								false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-						charmed_msg = true;
+					if (affect->duration == 0) {
+						const std::string &expire_soon =
+								affects::AffectMsgRaw(affect->affect_type, affects::EAffectMsgType::kAffExpireSoon);
+						if (!expire_soon.empty()) {
+							act(expire_soon.c_str(), false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
+						}
 					}
 				}
 				++affect_i;
@@ -618,29 +618,64 @@ void mobile_affect_update() {
 	mobile_affect_update_profiler::record_run(profile);
 }
 
-void RemoveAffectFromCharAndRecalculate(CharData *ch, ESpell spell_id) {
-	RemoveAffectFromChar(ch, spell_id);
+// Affect-keyed counterparts (issue.affect-migration): remove every affect with a given
+// affect_type. Removes affect *structs* only; innate flags (mob proto / innate abilities)
+// are reapplied by affect_total and are not touched here.
+void RemoveAffectFromChar(CharData *ch, EAffect affect_type) {
+	if (affect_type == EAffect::kUndefined) {
+		return;
+	}
+	auto it = ch->affected.begin();
+	while (it != ch->affected.end()) {
+		Affect<EApply>::shared_ptr affect = *it;
+		if (affect->affect_type == affect_type) {
+			EmitAffectEvent("affect_removed", ch, *affect);
+			it = RemoveAffect(ch, it);
+		} else {
+			++it;
+		}
+	}
+}
+
+void RemoveAffectFromCharAndRecalculate(CharData *ch, EAffect affect_type) {
+	RemoveAffectFromChar(ch, affect_type);
 	affect_total(ch);
 }
 
-// Call affect_remove with every spell of spelltype "skill"
-void RemoveAffectFromChar(CharData *ch, ESpell spell_id) {
-	std::list<std::shared_ptr<Affect<EApply>>>::iterator it  = ch->affected.begin();
-
+// issue.affect-migration: break the charm "package". Removes every affect of the package (bond + the
+// companion buffs that share the per-instance kAfCharmBond flag) and, for an NPC, schedules its
+// extraction and clears the hire price -- the behavior the old RemoveAffectFromChar(ESpell::kCharm)
+// carried. Replaces that call for un-charming.
+void RemoveCharmBond(CharData *ch, bool recalculate) {
+	auto it = ch->affected.begin();
 	while (it != ch->affected.end()) {
-		Affect<EApply>::shared_ptr affect = *it;
-		if (affect->type == spell_id) {
-			EmitAffectEvent("affect_removed", ch, *affect);
+		if (IS_SET((*it)->battleflag, kAfCharmBond)) {
+			EmitAffectEvent("affect_removed", ch, **it);
 			it = RemoveAffect(ch, it);
-		}
-		else {
+		} else {
 			++it;
 		}
 	}
 	if (ch->IsNpc()) {
-		if (spell_id == ESpell::kCharm) {
-			ch->extract_timer = 5;
-			ch->mob_specials.hire_price = 0;// added by WorM (Видолюб) 2010.06.04 Сбрасываем цену найма
+		ch->extract_timer = 5;
+		ch->mob_specials.hire_price = 0;
+	}
+	if (recalculate) {
+		affect_total(ch);
+	}
+}
+
+// issue.affect-migration: remove every curable affect (kAfCurable). Replaces the old
+// GetRemovableSpellId sweep.
+void RemoveCurableAffects(CharData *ch) {
+	auto it = ch->affected.begin();
+	while (it != ch->affected.end()) {
+		const auto af = *it;
+		if (IS_SET(af->battleflag, kAfCurable)) {
+			EmitAffectEvent("affect_removed", ch, *af);
+			it = RemoveAffect(ch, it);
+		} else {
+			++it;
 		}
 	}
 }
@@ -697,7 +732,7 @@ void affect_total(CharData *ch) {
 	}
 	ObjData *obj;
 
-	FlagData saved;
+	BitsetFlags<EAffect> saved;
 
 	// Init struct
 	saved.clear();
@@ -708,7 +743,7 @@ void affect_total(CharData *ch) {
 		if (ch->IsNpc()) {
 			ch->char_specials.saved.affected_by = mob_proto[ch->get_rnum()].char_specials.saved.affected_by;
 		} else {
-			ch->char_specials.saved.affected_by = clear_flags;
+			ch->char_specials.saved.affected_by.clear();
 		}
 		for (const auto &i : char_saved_aff) {
 			if (saved.get(i)) {
@@ -775,7 +810,12 @@ void affect_total(CharData *ch) {
 
 	// move affect modifiers
 	for (const auto &af : ch->affected) {
-		affect_modify(ch, af->location, af->modifier, af->affect_type, true);
+		// Failed-attempt markers (kAfFailed) keep the success affect_type for identity/display,
+		// but must NOT raise the affected_by flag bit -- otherwise a botched hide/berserk would
+		// read as the real effect everywhere AFF_FLAGGED is checked. Apply the modifier (a no-op
+		// for these markers: location kNone) without the flag.
+		const EAffect bitv = IS_SET(af->battleflag, kAfFailed) ? EAffect::kUndefined : af->affect_type;
+		affect_modify(ch, af->location, af->modifier, bitv, true);
 	}
 
 	// move race and class modifiers
@@ -906,7 +946,7 @@ void affect_total(CharData *ch) {
 	}
 	if (!ch->IsNpc())
 		CheckDeathRage(ch);
-	if (ch->GetEnemy() || IsAffectedBySpell(ch, ESpell::kGlitterDust)) {
+	if (ch->GetEnemy() || IsAffected(ch, EAffect::kGlitterDust)) {
 		AFF_FLAGS(ch).unset(EAffect::kHide);
 		AFF_FLAGS(ch).unset(EAffect::kSneak);
 		AFF_FLAGS(ch).unset(EAffect::kDisguise);
@@ -922,8 +962,11 @@ void affect_total(CharData *ch) {
 
 void ImposeAffect(CharData *ch, const Affect<EApply> &af) {
 	for (const auto &affect : ch->affected) {
+		// issue.affect-migration: re-application is keyed on affect_type (the effect identity); fall back
+		// to the legacy ESpell type only for affects that have no affect_type yet.
+		const bool same_id = affect->affect_type == af.affect_type;
 		const bool same_affect = (af.location == EApply::kNone) && (affect->affect_type == af.affect_type);
-		const bool same_type = (af.location != EApply::kNone) && (affect->type == af.type) && (affect->location == af.location);
+		const bool same_type = (af.location != EApply::kNone) && same_id && (affect->location == af.location);
 		if (same_affect || same_type) {
 			if (affect->modifier < af.modifier) {
 				affect->modifier = af.modifier;
@@ -944,7 +987,9 @@ void ImposeAffect(CharData *ch, Affect<EApply> &af, bool add_dur, bool max_dur, 
 
 		while (it != ch->affected.end()) {
 			const auto &affect = *it;
-			if (affect->type == af.type
+			// issue.affect-migration: merge by affect_type (effect identity), type fallback if none yet.
+			const bool same_id = affect->affect_type == af.affect_type;
+			if (same_id
 				&& affect->location == af.location) {
 				if (add_dur) {
 					af.duration += affect->duration;
@@ -967,17 +1012,24 @@ void ImposeAffect(CharData *ch, Affect<EApply> &af, bool add_dur, bool max_dur, 
 	affect_to_char(ch, af);
 }
 
+
 /* Insert an affect_type in a char_data structure
    Automatically sets appropriate bits and apply's */
 void affect_to_char(CharData *ch, const Affect<EApply> &af) {
 	Affect<EApply>::shared_ptr affected_alloc(new Affect<EApply>(af));
+	// issue.affect-migration Phase 2: effect behavior flags are sourced from affects.xml by
+	// affect_type; the caller only contributes the per-instance kAfFailed bit. Guarded on the table
+	// being loaded (unit tests / pre-cfg boot keep caller flags); kUndefined affects have no row.
+	if (affects::AffectFlagsLoaded() && af.affect_type != EAffect::kUndefined) {
+		affected_alloc->battleflag = affects::AffectFlagsByType(af.affect_type)
+				| (af.battleflag & static_cast<Bitvector>(kAfFailed | kAfCharmBond));
+	}
 
 	if (ch->IsNpc()) {
 		affected_mobs.insert(ch);
 	}
 	ch->affected.push_front(affected_alloc);
 
-	AFF_FLAGS(ch) += af.aff;
 	if (af.affect_type != EAffect::kUndefined)
 		affect_modify(ch, af.location, af.modifier, af.affect_type, true);
 	//log("[AFFECT_TO_CHAR->AFFECT_TOTAL] Start");
@@ -989,13 +1041,19 @@ void affect_to_char(CharData *ch, const Affect<EApply> &af) {
 // Caller MUST call affect_total(ch) after all affects are applied.
 void affect_to_char_no_recalc(CharData *ch, const Affect<EApply> &af) {
 	Affect<EApply>::shared_ptr affected_alloc(new Affect<EApply>(af));
+	// issue.affect-migration Phase 2: effect behavior flags are sourced from affects.xml by
+	// affect_type; the caller only contributes the per-instance kAfFailed bit. Guarded on the table
+	// being loaded (unit tests / pre-cfg boot keep caller flags); kUndefined affects have no row.
+	if (affects::AffectFlagsLoaded() && af.affect_type != EAffect::kUndefined) {
+		affected_alloc->battleflag = affects::AffectFlagsByType(af.affect_type)
+				| (af.battleflag & static_cast<Bitvector>(kAfFailed | kAfCharmBond));
+	}
 
 	if (ch->IsNpc()) {
 		affected_mobs.insert(ch);
 	}
 	ch->affected.push_front(affected_alloc);
 
-	AFF_FLAGS(ch) += af.aff;
 	if (af.affect_type != EAffect::kUndefined)
 		affect_modify(ch, af.location, af.modifier, af.affect_type, true);
 }
@@ -1004,8 +1062,11 @@ void affect_to_char_no_recalc(CharData *ch, const Affect<EApply> &af) {
 // Caller MUST call affect_total(ch) after all affects are applied.
 void ImposeAffectNoRecalc(CharData *ch, const Affect<EApply> &af) {
 	for (const auto &affect : ch->affected) {
+		// issue.affect-migration: re-application is keyed on affect_type (the effect identity); fall back
+		// to the legacy ESpell type only for affects that have no affect_type yet.
+		const bool same_id = affect->affect_type == af.affect_type;
 		const bool same_affect = (af.location == EApply::kNone) && (affect->affect_type == af.affect_type);
-		const bool same_type = (af.location != EApply::kNone) && (affect->type == af.type) && (affect->location == af.location);
+		const bool same_type = (af.location != EApply::kNone) && same_id && (affect->location == af.location);
 		if (same_affect || same_type) {
 			if (affect->modifier < af.modifier) {
 				affect->modifier = af.modifier;
@@ -1018,7 +1079,6 @@ void ImposeAffectNoRecalc(CharData *ch, const Affect<EApply> &af) {
 			if (affect->potency < af.potency) {
 				affect->potency = af.potency;
 			}
-			affect->debuff = af.debuff;
 			return;
 		}
 	}
@@ -1033,7 +1093,9 @@ void ImposeAffectNoRecalc(CharData *ch, Affect<EApply> &af, bool add_dur, bool m
 
 		while (it != ch->affected.end()) {
 			const auto &affect = *it;
-			if (affect->type == af.type
+			// issue.affect-migration: merge by affect_type (effect identity), type fallback if none yet.
+			const bool same_id = affect->affect_type == af.affect_type;
+			if (same_id
 				&& affect->location == af.location) {
 				if (add_dur) {
 					af.duration += affect->duration;
@@ -1224,39 +1286,40 @@ void reset_affects_no_recalc(CharData *ch) {
 	}
 	GET_COND(ch, condition::kDrunk) = 0;
 }
-bool IsAffectedBySpell(CharData *ch, ESpell type) {
-	if (type == ESpell::kPowerHold) {
-		type = ESpell::kHold;
-	} else if (type == ESpell::kPowerSilence) {
-		type = ESpell::kSilence;
-	} else if (type == ESpell::kPowerBlindness) {
-		type = ESpell::kBlindness;
-	}
-
-	for (const auto &affect : ch->affected) {
-		if (affect->type == type) {
+bool IsAffectedWithCasterId(CharData *ch, CharData *vict, EAffect affect_type) {
+	for (const auto &affect : vict->affected) {
+		if (affect->affect_type == affect_type && affect->caster_id == ch->get_uid()
+				&& !IS_SET(affect->battleflag, kAfFailed)) {
 			return true;
 		}
 	}
-
 	return false;
 }
 
-bool IsAffectedBySpellWithCasterId(CharData *ch, CharData *vict, ESpell type) {
-	if (type == ESpell::kPowerHold) {
-		type = ESpell::kHold;
-	} else if (type == ESpell::kPowerSilence) {
-		type = ESpell::kSilence;
-	} else if (type == ESpell::kPowerBlindness) {
-		type = ESpell::kBlindness;
-	}
-
-	for (const auto &affect : vict->affected) {
-		if (affect->type == type && affect->caster_id == ch->get_uid()) {
+bool IsAffected(CharData *ch, EAffect affect_type) {
+	for (const auto &affect : ch->affected) {
+		if (affect->affect_type == affect_type && !IS_SET(affect->battleflag, kAfFailed)) {
 			return true;
 		}
 	}
+	return false;
+}
 
+bool IsAffectedOrAttempting(CharData *ch, EAffect affect_type) {
+	for (const auto &affect : ch->affected) {
+		if (affect->affect_type == affect_type) {
+			return true;
+		}
+	}
+	return false;
+}
+
+bool IsAffectedWithFlag(CharData *ch, EAffFlag flag) {
+	for (const auto &affect : ch->affected) {
+		if (IS_SET(affect->battleflag, flag) && !IS_SET(affect->battleflag, kAfFailed)) {
+			return true;
+		}
+	}
 	return false;
 }
 
@@ -1269,23 +1332,7 @@ bool IsNegativeApply(EApply location) {
 }
 
 bool GetAffectNumByName(const std::string &affName, EAffect &result) {
-	int base = 0, offset = 0, counter = 0;
-	bool endOfArray = false;
-	while (!endOfArray) {
-		if (affName == std::string(affected_bits[counter])) {
-			result = static_cast<EAffect>((base << 30) | (1 << offset));
-			return true;
-		}
-		offset++;
-		if (*affected_bits[counter] == '\n') {
-			base++;
-			offset = 0;
-			if (*affected_bits[counter + 1] == '\n')
-				endOfArray = true;
-		}
-		counter++;
-	}
-	return false;
+	return affects::FindByShortDesc(affName, result);
 }
 
 // issue.calc-duration: skill-based duration. `caster` provides the skill (bounded by
