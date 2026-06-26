@@ -488,7 +488,6 @@ CharData *find_friend(CharData *caster, ESpell spell_id) {
 	CharData *victim = nullptr;
 	int vict_val = 0;
 	affects_list_t AFF_USED;
-	auto spellreal{ESpell::kUndefined};
 	switch (spell_id) {
 		case ESpell::kCureBlind: AFF_USED.push_back(EAffect::kBlind);
 			break;
@@ -505,20 +504,18 @@ CharData *find_friend(CharData *caster, ESpell spell_id) {
 			break;
 		case ESpell::kRemoveDeafness: AFF_USED.push_back(EAffect::kDeafness);
 			break;
-		case ESpell::kCureFever: spellreal = ESpell::kFever;
+		case ESpell::kCureFever: AFF_USED.push_back(EAffect::kFever);
 			break;
 		default: break;
 	}
 	if (AFF_FLAGGED(caster, EAffect::kHelper)
 		&& caster->IsFlagged(EMobFlag::kCompanion)) { //()
-		if (caster->has_any_affect(AFF_USED)
-			|| IsAffectedBySpell(caster, spellreal)) {
+		if (caster->has_any_affect(AFF_USED)) {
 			return caster;
 		} else if (caster->has_master()
 			&& sight::CanSee(caster, caster->get_master())
 			&& caster->get_master()->in_room == caster->in_room
-			&& (caster->get_master()->has_any_affect(AFF_USED)
-				|| IsAffectedBySpell(caster->get_master(), spellreal))) {
+			&& caster->get_master()->has_any_affect(AFF_USED)) {
 			return caster->get_master();
 		}
 
@@ -562,7 +559,6 @@ CharData *find_caster(CharData *caster, ESpell spell_id) {
 	CharData *victim = nullptr;
 	int vict_val = 0;
 	affects_list_t AFF_USED;
-	auto spellreal{ESpell::kUndefined};
 	switch (spell_id) {
 		case ESpell::kCureBlind: AFF_USED.push_back(EAffect::kBlind);
 			break;
@@ -579,21 +575,19 @@ CharData *find_caster(CharData *caster, ESpell spell_id) {
 			break;
 		case ESpell::kRemoveDeafness: AFF_USED.push_back(EAffect::kDeafness);
 			break;
-		case ESpell::kCureFever: spellreal = ESpell::kFever;
+		case ESpell::kCureFever: AFF_USED.push_back(EAffect::kFever);
 			break;
 		default: break;
 	}
 
 	if (AFF_FLAGGED(caster, EAffect::kHelper)
 		&& caster->IsFlagged(EMobFlag::kCompanion)) { // ()
-		if (caster->has_any_affect(AFF_USED)
-			|| IsAffectedBySpell(caster, spellreal)) {
+		if (caster->has_any_affect(AFF_USED)) {
 			return caster;
 		} else if (caster->has_master()
 			&& sight::CanSee(caster, caster->get_master())
 			&& caster->get_master()->in_room == caster->in_room
-			&& (caster->get_master()->has_any_affect(AFF_USED)
-				|| IsAffectedBySpell(caster->get_master(), spellreal))) {
+			&& caster->get_master()->has_any_affect(AFF_USED)) {
 			return caster->get_master();
 		}
 
