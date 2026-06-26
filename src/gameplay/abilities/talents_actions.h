@@ -463,7 +463,6 @@ class TalentAffect : public IAction {
 	explicit TalentAffect(parser_wrapper::DataNode &node);
 	void Print(CharData *ch, std::ostringstream &buffer) const override;
 
-	[[nodiscard]] ESpell GetSpell() const { return spell_; }
 	[[nodiscard]] ESaving GetSaving() const { return saving_; }
 	[[nodiscard]] EResist GetResist() const { return resist_; }
 	[[nodiscard]] int GetProb() const { return prob_; }
@@ -492,7 +491,6 @@ class TalentAffect : public IAction {
 	[[nodiscard]] float GetPotencyWeight() const { return potency_weight_; }
 
  private:
-	ESpell spell_{static_cast<ESpell>(0)};
 	ESaving saving_{ESaving::kReflex};
 	EResist resist_{EResist::kFire};
 	int prob_{100};                         // percent chance the affect block fires (default always)

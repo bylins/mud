@@ -555,7 +555,6 @@ double Area::DistributionCoeff(const int j, const int n, const double decay_eff)
 }
 
 TalentAffect::TalentAffect(parser_wrapper::DataNode &node) {
-	spell_ = parse::ReadAsConstant<ESpell>(node.GetValue("type"));
 	saving_ = parse::ReadAsConstant<ESaving>(node.GetValue("saving"));
 	resist_ = parse::ReadAsConstant<EResist>(node.GetValue("resist"));
 	const char *prob = node.GetValue("prob");
@@ -625,7 +624,6 @@ TalentAffect::TalentAffect(parser_wrapper::DataNode &node) {
 
 void TalentAffect::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 	buffer << " Affect:" << "\r\n"
-		   << "  Spell: " << kColorGrn << NAME_BY_ITEM<ESpell>(spell_) << kColorNrm
 		   << " Saving: " << kColorGrn << NAME_BY_ITEM<ESaving>(saving_) << kColorNrm
 		   << " Resist: " << kColorGrn << NAME_BY_ITEM<EResist>(resist_) << kColorNrm
 		   << " Prob: " << kColorGrn << prob_ << kColorNrm
