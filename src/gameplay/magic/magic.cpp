@@ -29,6 +29,7 @@
 #include <functional>
 #include <map>
 #include "magic_rooms.h"  // room-affect helpers reused by CastUnaffects' room branch
+#include "room_affect_messages.h"  // RoomAffectMsgRaw for room dispel narration
 
 #include "gameplay/core/game_limits.h"  // gain_condition
 #include "gameplay/mechanics/liquid.h"   // kMaxCondition
@@ -1822,27 +1823,27 @@ bool AffectMatchesFlags(const Affect<EApply>::shared_ptr &affect, Bitvector flag
 }
 
 // True if the victim carries a removable affect of the given spell type (one matching `flags`).
-bool HasDispellableAffect(CharData *victim, ESpell spell, Bitvector flags) {
+bool HasDispellableAffect(CharData *victim, EAffect affect_type, Bitvector flags) {
 	for (const auto &aff : victim->affected) {
-		if (aff && aff->type == spell && AffectMatchesFlags(aff, flags)) {
+		if (aff && aff->affect_type == affect_type && AffectMatchesFlags(aff, flags)) {
 			return true;
 		}
 	}
 	return false;
 }
 
-// Evaluate a <blocking>/<breaking> condition set (IsAffectedBySpell only):
+// Evaluate a <blocking>/<breaking> condition set by affect identity:
 // true if any any_of affect is present, or every all_of affect is present.
 bool UnaffectConditionMet(CharData *victim, const talents_actions::TalentUnaffect::Set &set) {
-	for (const auto spell : set.any_of) {
-		if (IsAffectedBySpell(victim, spell)) {
+	for (const auto affect_type : set.any_of.chars) {
+		if (IsAffected(victim, affect_type)) {
 			return true;
 		}
 	}
-	if (!set.all_of.empty()) {
+	if (!set.all_of.chars.empty()) {
 		bool all = true;
-		for (const auto spell : set.all_of) {
-			if (!IsAffectedBySpell(victim, spell)) {
+		for (const auto affect_type : set.all_of.chars) {
+			if (!IsAffected(victim, affect_type)) {
 				all = false;
 				break;
 			}
@@ -1857,9 +1858,10 @@ bool UnaffectConditionMet(CharData *victim, const talents_actions::TalentUnaffec
 // One affect queued for dispel, tagged with its source block's breaking_by_failure flag: if the
 // dispel of a candidate with break_on_fail set is resisted, the whole cast chain breaks.
 struct RemovalCandidate {
-	ESpell spell;                              // af.type: room identity + PK/debug; kUndefined for migrated char affects
-	bool break_on_fail;
-	EAffect affect_type{EAffect::kUndefined};  // issue.affect-migration: char identity (the effect); kUndefined for room
+	bool break_on_fail{false};
+	EAffect affect_type{EAffect::kUndefined};                          // char target: the affect to remove
+	room_spells::ERoomAffect room_affect_type{room_spells::ERoomAffect::kUndefined};  // room target: the affect to remove
+	ESpell spell{ESpell::kUndefined};          // char only: removed affect's source spell, for the PK aggro flag check (spell-DATA tail)
 };
 
 // Build the list of affects to dispel for a <remove>/<remove_anyway> set:
@@ -1872,34 +1874,34 @@ struct RemovalCandidate {
 // future sphere-specific dispels added by tagging affects with kAfXSphere flags).
 void CollectRemovals(CharData *victim, const talents_actions::TalentUnaffect::Set &set,
 					 std::vector<RemovalCandidate> &out, Bitvector flags) {
-	// issue.affect-migration: char affects are identified by affect_type (af.type may be kUndefined
-	// for migrated states), so each candidate records the affect's affect_type for removal.
-	auto affect_type_of = [&](ESpell sp) -> EAffect {
+	// issue.affect-migration: candidates are keyed by affect_type. spell_of records the matched
+	// affect's source spell (af.type) for the downstream PK aggro flag check only (spell-DATA tail).
+	auto spell_of = [&](EAffect at) -> ESpell {
 		for (const auto &aff : victim->affected) {
-			if (aff && aff->type == sp && AffectMatchesFlags(aff, flags)) {
-				return aff->affect_type;
+			if (aff && aff->affect_type == at && AffectMatchesFlags(aff, flags)) {
+				return aff->type;
 			}
 		}
-		return EAffect::kUndefined;
+		return ESpell::kUndefined;
 	};
 	if (set.wildcard_any) {
 		// Reservoir sample one eligible affect uniformly.
-		ESpell pick = ESpell::kUndefined;
 		EAffect pick_at = EAffect::kUndefined;
+		ESpell pick_sp = ESpell::kUndefined;
 		int seen = 0;
 		for (const auto &aff : victim->affected) {
 			if (AffectMatchesFlags(aff, flags) && number(1, ++seen) == 1) {
-				pick = aff->type;
 				pick_at = aff->affect_type;
+				pick_sp = aff->type;
 			}
 		}
-		if (pick_at != EAffect::kUndefined || pick != ESpell::kUndefined) {
-			out.push_back({pick, set.breaking_by_failure, pick_at});
+		if (pick_at != EAffect::kUndefined || pick_sp != ESpell::kUndefined) {
+			out.push_back({.break_on_fail = set.breaking_by_failure, .affect_type = pick_at, .spell = pick_sp});
 		}
 	} else {
-		for (const auto spell : set.any_of) {
-			if (HasDispellableAffect(victim, spell, flags)) {
-				out.push_back({spell, set.breaking_by_failure, affect_type_of(spell)});
+		for (const auto affect_type : set.any_of.chars) {
+			if (HasDispellableAffect(victim, affect_type, flags)) {
+				out.push_back({.break_on_fail = set.breaking_by_failure, .affect_type = affect_type, .spell = spell_of(affect_type)});
 				break;
 			}
 		}
@@ -1907,13 +1909,13 @@ void CollectRemovals(CharData *victim, const talents_actions::TalentUnaffect::Se
 	if (set.wildcard_all) {
 		for (const auto &aff : victim->affected) {
 			if (AffectMatchesFlags(aff, flags)) {
-				out.push_back({aff->type, set.breaking_by_failure, aff->affect_type});
+				out.push_back({.break_on_fail = set.breaking_by_failure, .affect_type = aff->affect_type, .spell = aff->type});
 			}
 		}
 	} else {
-		for (const auto spell : set.all_of) {
-			if (HasDispellableAffect(victim, spell, flags)) {
-				out.push_back({spell, set.breaking_by_failure, affect_type_of(spell)});
+		for (const auto affect_type : set.all_of.chars) {
+			if (HasDispellableAffect(victim, affect_type, flags)) {
+				out.push_back({.break_on_fail = set.breaking_by_failure, .affect_type = affect_type, .spell = spell_of(affect_type)});
 			}
 		}
 	}
@@ -2059,9 +2061,9 @@ bool AffectMatchesFlags(const Affect<room_spells::ERoomApply>::shared_ptr &affec
 	return affect && IS_SET(affect->battleflag, flags);
 }
 
-bool HasDispellableAffect(RoomData *room, ESpell spell, Bitvector flags) {
+bool HasDispellableAffect(RoomData *room, room_spells::ERoomAffect affect_type, Bitvector flags) {
 	for (const auto &aff : room->affected) {
-		if (aff && aff->type == spell && AffectMatchesFlags(aff, flags)) {
+		if (aff && aff->affect_type == affect_type && AffectMatchesFlags(aff, flags)) {
 			return true;
 		}
 	}
@@ -2069,15 +2071,23 @@ bool HasDispellableAffect(RoomData *room, ESpell spell, Bitvector flags) {
 }
 
 bool UnaffectConditionMet(RoomData *room, const talents_actions::TalentUnaffect::Set &set) {
-	for (const auto spell : set.any_of) {
-		if (room_spells::IsRoomAffected(room, spell)) {
+	auto room_has = [room](room_spells::ERoomAffect ra) {
+		for (const auto &aff : room->affected) {
+			if (aff && aff->affect_type == ra) {
+				return true;
+			}
+		}
+		return false;
+	};
+	for (const auto ra : set.any_of.rooms) {
+		if (room_has(ra)) {
 			return true;
 		}
 	}
-	if (!set.all_of.empty()) {
+	if (!set.all_of.rooms.empty()) {
 		bool all = true;
-		for (const auto spell : set.all_of) {
-			if (!room_spells::IsRoomAffected(room, spell)) {
+		for (const auto ra : set.all_of.rooms) {
+			if (!room_has(ra)) {
 				all = false;
 				break;
 			}
@@ -2092,20 +2102,20 @@ bool UnaffectConditionMet(RoomData *room, const talents_actions::TalentUnaffect:
 void CollectRemovals(RoomData *room, const talents_actions::TalentUnaffect::Set &set,
 					 std::vector<RemovalCandidate> &out, Bitvector flags) {
 	if (set.wildcard_any) {
-		ESpell pick = ESpell::kUndefined;
+		room_spells::ERoomAffect pick = room_spells::ERoomAffect::kUndefined;
 		int seen = 0;
 		for (const auto &aff : room->affected) {
 			if (AffectMatchesFlags(aff, flags) && number(1, ++seen) == 1) {
-				pick = aff->type;
+				pick = aff->affect_type;
 			}
 		}
-		if (pick != ESpell::kUndefined) {
-			out.push_back({pick, set.breaking_by_failure});
+		if (pick != room_spells::ERoomAffect::kUndefined) {
+			out.push_back({.break_on_fail = set.breaking_by_failure, .room_affect_type = pick});
 		}
 	} else {
-		for (const auto spell : set.any_of) {
-			if (HasDispellableAffect(room, spell, flags)) {
-				out.push_back({spell, set.breaking_by_failure});
+		for (const auto ra : set.any_of.rooms) {
+			if (HasDispellableAffect(room, ra, flags)) {
+				out.push_back({.break_on_fail = set.breaking_by_failure, .room_affect_type = ra});
 				break;
 			}
 		}
@@ -2113,28 +2123,28 @@ void CollectRemovals(RoomData *room, const talents_actions::TalentUnaffect::Set 
 	if (set.wildcard_all) {
 		for (const auto &aff : room->affected) {
 			if (AffectMatchesFlags(aff, flags)) {
-				out.push_back({aff->type, set.breaking_by_failure});
+				out.push_back({.break_on_fail = set.breaking_by_failure, .room_affect_type = aff->affect_type});
 			}
 		}
 	} else {
-		for (const auto spell : set.all_of) {
-			if (HasDispellableAffect(room, spell, flags)) {
-				out.push_back({spell, set.breaking_by_failure});
+		for (const auto ra : set.all_of.rooms) {
+			if (HasDispellableAffect(room, ra, flags)) {
+				out.push_back({.break_on_fail = set.breaking_by_failure, .room_affect_type = ra});
 			}
 		}
 	}
 }
 
 // Strip every affect of `removed` from the room (room affects don't stack the way char affects do,
-// so peeling has no meaning here) and emit the dispel narration. Narration reuses
-// kAffDispelledTo{Char,Room} sheaves with the caster as the sole act() actor ($n = ch). Existing
-// keys were authored for char dispel and may read awkwardly until designers adapt them.
-void RemoveAffectAndAnnounce(CharData *ch, RoomData *room, ESpell removed) {
+// so peeling has no meaning here) and emit the dispel narration. issue.affect-migration: keyed by
+// the room affect's identity (ERoomAffect); narration comes from the room-affect message system
+// (RoomAffectMsgRaw), the affect's own kAffDispelledTo{Char,Room} sheaf.
+void RemoveAffectAndAnnounce(CharData *ch, RoomData *room, room_spells::ERoomAffect removed) {
 	// Canonical "erase while iterating" over std::list -- list::erase invalidates only the erased
 	// iterator and returns the next one. Bypasses room_spells::RoomRemoveAffect (a thin
 	// empty-list-guarded wrapper) because the guard is redundant inside a live iteration.
 	for (auto it = room->affected.begin(); it != room->affected.end(); ) {
-		if (*it && (*it)->type == removed) {
+		if (*it && (*it)->affect_type == removed) {
 			it = room->affected.erase(it);
 		} else {
 			++it;
@@ -2142,24 +2152,23 @@ void RemoveAffectAndAnnounce(CharData *ch, RoomData *room, ESpell removed) {
 	}
 	// Sheaf-direct (no kDefault fallback): a room dispel shows only the affect's OWN
 	// dispel message, never the char-centric kDefault (issue.dispellbug).
-	const auto &sheaf = MUD::SpellMessages()[removed];
-	const auto &to_char = sheaf.GetMessage(ESpellMsg::kAffDispelledToChar);
+	const auto &to_char = room_spells::RoomAffectMsgRaw(removed, room_spells::ERoomAffectMsgType::kAffDispelledToChar);
 	if (!to_char.empty()) {
 		act(to_char.c_str(), false, ch, nullptr, nullptr, kToChar);
 	}
-	const auto &to_room = sheaf.GetMessage(ESpellMsg::kAffDispelledToRoom);
+	const auto &to_room = room_spells::RoomAffectMsgRaw(removed, room_spells::ERoomAffectMsgType::kAffDispelledToRoom);
 	if (!to_room.empty()) {
 		act(to_room.c_str(), true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 	}
 }
 
-bool DispelSucceeds(CharData *ch, RoomData *room, ESpell dispel_spell, ESpell affect_spell,
+bool DispelSucceeds(CharData *ch, RoomData *room, ESpell dispel_spell, room_spells::ERoomAffect affect_type,
 					float potency_weight, double competence, double area_coeff = 1.0, int decay = 0) {
 	float affect_potency = 0.0f;
 	long author_uid = 0;
 	float *matched_potency = nullptr;
 	for (const auto &aff : room->affected) {
-		if (aff && aff->type == affect_spell) {
+		if (aff && aff->affect_type == affect_type) {
 			affect_potency = aff->potency;
 			author_uid = aff->caster_id;
 			matched_potency = &aff->potency;
@@ -2170,7 +2179,7 @@ bool DispelSucceeds(CharData *ch, RoomData *room, ESpell dispel_spell, ESpell af
 		spell_trace::Line(ch, nullptr,
 				 "Unaffect: %s [p: %.1f]. Target room: %s [p: %.1f]. %s (%s).\r\n",
 				 MUD::Spell(dispel_spell).GetCName(), spell_pot,
-				 MUD::Spell(affect_spell).GetCName(), affect_potency,
+				 NAME_BY_ITEM<room_spells::ERoomAffect>(affect_type).c_str(), affect_potency,
 				 ok ? "Success" : "Fail", kind);
 	};
 	// issue.dispellbug: author/ally-aware room dispel. The affect's author or a live
@@ -2220,16 +2229,16 @@ EStageResult RunCastUnaffects(CharData *ch, TTarget *target, ESpell spell_id,
 	if (!blocking) {
 		CollectRemovals(target, unaffect.GetRemove(), to_remove, flags);
 	}
-	// issue.spells-hotfix: a type with several affects (e.g. kPoisoned on several locations) must be
-	// removed and announced ONCE. RemoveAffectAndAnnounce strips ALL affects of the type, so dedup the
-	// queue by spell type -- otherwise the 2nd+ entries re-announce an already-removed affect.
+	// issue.spells-hotfix: an affect with several instances (e.g. kPoisoned on several locations) must
+	// be removed and announced ONCE. RemoveAffectAndAnnounce strips ALL instances, so dedup the queue
+	// by affect identity -- otherwise the 2nd+ entries re-announce an already-removed affect.
 	{
 		std::vector<RemovalCandidate> deduped;
 		for (const auto &c : to_remove) {
 			bool dup = false;
 			for (const auto &e : deduped) {
 				const bool same = std::is_same_v<TTarget, CharData> ? (e.affect_type == c.affect_type)
-																	: (e.spell == c.spell);
+																	: (e.room_affect_type == c.room_affect_type);
 				if (same) { dup = true; break; }
 			}
 			if (!dup) { deduped.push_back(c); }
@@ -2262,8 +2271,8 @@ EStageResult RunCastUnaffects(CharData *ch, TTarget *target, ESpell spell_id,
 		bool removed_any = false;
 		bool resisted_any = false;
 		for (const auto &cand : to_remove) {
-			// issue.affect-migration: char dispel is keyed on the affect's affect_type (af.type may be
-			// kUndefined for migrated affects); room dispel still keys on the (valid) spell af.type.
+			// issue.affect-migration: dispel is keyed on the affect's identity -- affect_type (EAffect)
+			// for a char target, room_affect_type (ERoomAffect) for a room target.
 			bool ok;
 			double removed_pot = 0.0;
 			if constexpr (std::is_same_v<TTarget, CharData>) {
@@ -2275,11 +2284,11 @@ EStageResult RunCastUnaffects(CharData *ch, TTarget *target, ESpell spell_id,
 					}
 				}
 			} else {
-				ok = DispelSucceeds(ch, target, spell_id, cand.spell, unaffect.GetPotencyWeight(),
+				ok = DispelSucceeds(ch, target, spell_id, cand.room_affect_type, unaffect.GetPotencyWeight(),
 								  competence, area_coeff, unaffect.GetDecay());
 				if (ok) {
 					for (const auto &aff : target->affected) {
-						if (aff && aff->type == cand.spell) { removed_pot = aff->potency; break; }
+						if (aff && aff->affect_type == cand.room_affect_type) { removed_pot = aff->potency; break; }
 					}
 				}
 			}
@@ -2287,7 +2296,7 @@ EStageResult RunCastUnaffects(CharData *ch, TTarget *target, ESpell spell_id,
 				if constexpr (std::is_same_v<TTarget, CharData>) {
 					RemoveAffectAndAnnounce(ch, target, cand.affect_type);
 				} else {
-					RemoveAffectAndAnnounce(ch, target, cand.spell);
+					RemoveAffectAndAnnounce(ch, target, cand.room_affect_type);
 				}
 				removed_any = true;
 				removed_out += removed_pot;

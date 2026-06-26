@@ -4,6 +4,7 @@
 #include "engine/core/target_resolver.h"
 #include "engine/entities/char_data.h"
 #include "gameplay/magic/spells_constants.h"
+#include "gameplay/magic/magic_rooms.h"  // ERoomAffect, ITEM_BY_NAME/NAME_BY_ITEM<ERoomAffect>
 #include "gameplay/skills/skills.h"  // NAME_BY_ITEM<ESkill>
 #include "fmt/format.h"
 #include "utils/random.h"
@@ -11,6 +12,7 @@
 #include <algorithm>
 #include <cmath>
 #include <map>
+#include <stdexcept>
 
 namespace talents_actions {
 
@@ -88,29 +90,33 @@ const std::map<std::string, ERoomFlag> kBlockingRoomFlagByName{
 	{"kForPoly", ERoomFlag::kForPoly},
 };
 
-// Parse a `|`-separated list of ESpell names (an any_of/all_of attribute of an
-// <unaffect> sub-tag, issue #3342). Empty/absent attribute -> empty list. The
-// single-token "*" is the wildcard (handled by the caller, not this helper).
-std::vector<ESpell> ParseSpellList(const char *value) {
-	std::vector<ESpell> out;
+// Resolve a `|`-separated list of AFFECT names (an any_of/all_of attribute of an <unaffect>
+// sub-tag) into char-affect (EAffect) and room-affect (ERoomAffect) ids. issue.affect-migration:
+// the tags name the AFFECT, not the casting spell; a name resolves in exactly one domain (the
+// EAffect / ERoomAffect namespaces are disjoint), so each token lands in either out.chars or
+// out.rooms. Empty/absent attribute -> empty refs. "*" is the wildcard (handled by the caller).
+void ParseAffectRefs(const char *value, TalentUnaffect::AffectRefs &out) {
 	if (!value || !*value) {
-		return out;
+		return;
 	}
 	for (const auto &name : utils::Split(value, '|')) {
 		try {
-			out.push_back(parse::ReadAsConstant<ESpell>(name.c_str()));
-		} catch (...) {
-			err_log("TalentUnaffect: unknown ESpell '%s' in <unaffect>.", name.c_str());
+			out.chars.push_back(ITEM_BY_NAME<EAffect>(name));
+			continue;
+		} catch (const std::out_of_range &) {}
+		try {
+			out.rooms.push_back(ITEM_BY_NAME<room_spells::ERoomAffect>(name));
+		} catch (const std::out_of_range &) {
+			err_log("TalentUnaffect: unknown affect '%s' in <unaffect>.", name.c_str());
 		}
 	}
-	return out;
 }
 
 // Parse one any_of/all_of attribute, recognising the "*" wildcard token. On a wildcard,
-// out_wildcard is set true and the explicit list stays empty. Mixing wildcard with explicit
-// names (e.g. "*|kPoison") is rejected with an error: the semantic is ambiguous and the
+// out_wildcard is set true and the explicit refs stay empty. Mixing wildcard with explicit
+// names (e.g. "*|kCurse") is rejected with an error: the semantic is ambiguous and the
 // explicit names are redundant if "*" is present.
-void ParseRemovalAttr(const char *value, std::vector<ESpell> &out_list, bool &out_wildcard,
+void ParseRemovalAttr(const char *value, TalentUnaffect::AffectRefs &out_refs, bool &out_wildcard,
 					  const char *tag_name, const char *attr_name) {
 	if (!value || !*value) {
 		return;
@@ -126,7 +132,7 @@ void ParseRemovalAttr(const char *value, std::vector<ESpell> &out_list, bool &ou
 		out_wildcard = true;
 		return;
 	}
-	out_list = ParseSpellList(value);
+	ParseAffectRefs(value, out_refs);
 }
 }  // namespace
 
@@ -688,14 +694,16 @@ void TalentUnaffect::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 			buffer << " any_of=" << kColorGrn << "*" << kColorNrm;
 		} else if (!set.any_of.empty()) {
 			buffer << " any_of=" << kColorGrn;
-			for (const auto s: set.any_of) buffer << NAME_BY_ITEM<ESpell>(s) << " ";
+			for (const auto a: set.any_of.chars) buffer << NAME_BY_ITEM<EAffect>(a) << " ";
+			for (const auto r: set.any_of.rooms) buffer << NAME_BY_ITEM<room_spells::ERoomAffect>(r) << " ";
 			buffer << kColorNrm;
 		}
 		if (set.wildcard_all) {
 			buffer << " all_of=" << kColorGrn << "*" << kColorNrm;
 		} else if (!set.all_of.empty()) {
 			buffer << " all_of=" << kColorGrn;
-			for (const auto s: set.all_of) buffer << NAME_BY_ITEM<ESpell>(s) << " ";
+			for (const auto a: set.all_of.chars) buffer << NAME_BY_ITEM<EAffect>(a) << " ";
+			for (const auto r: set.all_of.rooms) buffer << NAME_BY_ITEM<room_spells::ERoomAffect>(r) << " ";
 			buffer << kColorNrm;
 		}
 		if (set.breaking_by_failure) {

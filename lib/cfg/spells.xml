@@ -399,7 +399,7 @@
 		<talent_actions>
 			<action>
 				<unaffect decay="50">
-					<remove any_of="kBlindness" />
+					<remove any_of="kBlind" />
 				</unaffect>
 			</action>
 		</talent_actions>
@@ -738,8 +738,8 @@
 					</apply>
 				</affects>
 				<unaffect decay="25">
-					<breaking any_of="kStrength|kDexterity" />
-					<remove any_of="kStrength|kDexterity" />
+					<breaking any_of="kMagicStrength|kCatGrace" />
+					<remove any_of="kMagicStrength|kCatGrace" />
 				</unaffect>
 				<manual_cast handler="SpellEnergydrain" />
 			</action>
@@ -1194,8 +1194,8 @@
 					</apply>
 				</affects>
 				<unaffect decay="25">
-					<breaking any_of="kWeaknes" />
-					<remove any_of="kWeaknes" />
+					<breaking any_of="kMagicWeaknes" />
+					<remove any_of="kMagicWeaknes" />
 				</unaffect>
 			</action>
 		</talent_actions>
@@ -1300,7 +1300,7 @@
 		<talent_actions>
 			<action>
 				<unaffect affect_flags="kAfCurable" decay="25">
-					<remove all_of="kPoison|kAconitumPoison|kScopolaPoison|kBelenaPoison|kDaturaPoison" />
+					<remove all_of="kPoisoned|kAconitumPoison|kScopolaPoison|kBelenaPoison|kDaturaPoison" />
 				</unaffect>
 				<alter_obj handler="AlterRemovePoison" />
 			</action>
@@ -2121,8 +2121,8 @@
 					</apply>
 				</affects>
 				<unaffect decay="25">
-					<breaking any_of="kStrength|kDexterity" />
-					<remove any_of="kStrength|kDexterity" />
+					<breaking any_of="kMagicStrength|kCatGrace" />
+					<remove any_of="kMagicStrength|kCatGrace" />
 				</unaffect>
 			</action>
 		</talent_actions>
@@ -3168,8 +3168,8 @@
 					</apply>
 				</affects>
 				<unaffect decay="25">
-					<breaking any_of="kSlowdown" />
-					<remove any_of="kSlowdown" />
+					<breaking any_of="kSlow" />
+					<remove any_of="kSlow" />
 				</unaffect>
 			</action>
 		</talent_actions>
@@ -4566,8 +4566,8 @@
 					<amount min="0" dices_weight="1.0" alpha="1.282051" beta="250" />
 				</damage>
 				<unaffect decay="25">
-					<breaking any_of="kEviless" />
-					<remove any_of="kEviless" />
+					<breaking any_of="kForcesOfEvil" />
+					<remove any_of="kForcesOfEvil" />
 				</unaffect>
 				<target_conditions>
 					<blocking>
@@ -5040,7 +5040,7 @@
 					<distribution type="kStepped" decay="0.05" free_targets="5" />
 				</area>
 				<unaffect decay="25">
-					<remove all_of="kInvisible|kCamouflage|kHide" breaking_by_failure="true" />
+					<remove all_of="kInvisible|kDisguise|kHide" breaking_by_failure="true" />
 				</unaffect>
 				<affects type="kGlitterDust" saving="kReflex" resist="kEarth">
 					<duration base="4" skill_divisor="0" min="0" max="0" />
@@ -6720,8 +6720,8 @@
 					</apply>
 				</affects>
 				<unaffect decay="25">
-					<breaking any_of="kWeaknes" />
-					<remove any_of="kWeaknes" />
+					<breaking any_of="kMagicWeaknes" />
+					<remove any_of="kMagicWeaknes" />
 				</unaffect>
 			</action>
 		</talent_actions>

@@ -19,6 +19,7 @@
 
 class CharData;
 enum class ESpell;
+namespace room_spells { enum class ERoomAffect : Bitvector; }
 
 namespace talents_actions {
 
@@ -525,15 +526,24 @@ class TalentAffect : public IAction {
 // wildcard_all, every eligible affect is queued for removal.
 class TalentUnaffect : public IAction {
  public:
-	// One <blocking>/<breaking>/<remove_anyway>/<remove> entry: its any_of/all_of lists.
+	// issue.affect-migration: the any_of/all_of tags name AFFECTS, not the casting spell. A name
+	// resolves to a char affect (EAffect) OR a room affect (ERoomAffect) -- the namespaces are
+	// disjoint -- so AffectRefs carries one list per domain and the char/room dispel paths each read
+	// the list for their target type.
+	struct AffectRefs {
+		std::vector<EAffect> chars;
+		std::vector<room_spells::ERoomAffect> rooms;
+		[[nodiscard]] bool empty() const { return chars.empty() && rooms.empty(); }
+	};
+	// One <blocking>/<breaking>/<remove_anyway>/<remove> entry: its any_of/all_of affect lists.
 	// breaking_by_failure (remove/remove_anyway only): if a dispel of any affect in this block
 	// fails the potency check, the cast chain breaks (CastUnaffects returns kBreak).
 	// wildcard_any/wildcard_all (set by any_of="*"/all_of="*"): match the unaffect's
-	// affect_flags filter rather than a fixed spell list. Mutually exclusive with their
-	// respective list; "*|kPoison" is rejected at parse time.
+	// affect_flags filter rather than a fixed list. Mutually exclusive with their
+	// respective list; "*|kCurse" is rejected at parse time.
 	struct Set {
-		std::vector<ESpell> any_of;
-		std::vector<ESpell> all_of;
+		AffectRefs any_of;
+		AffectRefs all_of;
 		bool wildcard_any{false};
 		bool wildcard_all{false};
 		bool breaking_by_failure{false};
