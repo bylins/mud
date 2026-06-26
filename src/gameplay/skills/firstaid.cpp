@@ -131,7 +131,8 @@ bool ParseFirstAidArgs(const char *argument, EAffect &affect_id, std::string &vi
 Affect<EApply>::shared_ptr PickCureTarget(CharData *vict, EAffect desired) {
 	if (desired != EAffect::kUndefined) {
 		for (const auto &aff : vict->affected) {
-			if (aff && aff->affect_type == desired && IS_SET(aff->battleflag, kAfCurable) && aff->debuff) {
+			if (aff && aff->affect_type == desired && IS_SET(aff->battleflag, kAfCurable)
+					&& affects::AffectBuffKind(aff->affect_type) != affects::EBuff::kYes) {
 				return aff;
 			}
 		}
@@ -139,9 +140,11 @@ Affect<EApply>::shared_ptr PickCureTarget(CharData *vict, EAffect desired) {
 	}
 	Affect<EApply>::shared_ptr best;
 	for (const auto &aff : vict->affected) {
-		// Only harmful affects (debuff) are cured -- never the target's own buffs (many buffs also
-		// carry kAfCurable). issue.spells-hotfix.
-		if (aff && IS_SET(aff->battleflag, kAfCurable) && aff->debuff
+		// Only harmful affects are cured -- never the target's own buffs (many buffs also carry
+		// kAfCurable). The affect's own buff flag is the source of truth: cure anything that is NOT a
+		// declared buff (debuff or ambiguous). issue.spells-hotfix / issue.affect-migration.
+		if (aff && IS_SET(aff->battleflag, kAfCurable)
+				&& affects::AffectBuffKind(aff->affect_type) != affects::EBuff::kYes
 				&& (!best || aff->potency < best->potency)) {
 			best = aff;
 		}

@@ -1991,12 +1991,10 @@ void ApplyDispelDecay(float &affect_potency, float spell_potency, int decay) {
 bool DispelSucceeds(CharData *ch, CharData *victim, ESpell dispel_spell, EAffect affect_type,
 					float potency_weight, double competence, double area_coeff = 1.0, int decay = 0) {
 	float affect_potency = 0.0f;
-	bool affect_is_debuff = false;
 	float *matched_potency = nullptr;
 	for (const auto &aff : victim->affected) {
 		if (aff && aff->affect_type == affect_type) {
 			affect_potency = aff->potency;
-			affect_is_debuff = aff->debuff;
 			matched_potency = &aff->potency;
 			break;
 		}
@@ -2023,7 +2021,8 @@ bool DispelSucceeds(CharData *ch, CharData *victim, ESpell dispel_spell, EAffect
 	const float spell_potency = static_cast<float>(
 			roll.RollSkillDices() + competence)  // competence base override
 			* potency_weight * static_cast<float>(area_coeff);
-	if (!MUD::Spell(dispel_spell).IsViolentAgainst(ch, victim) && !affect_is_debuff) {
+	if (!MUD::Spell(dispel_spell).IsViolentAgainst(ch, victim)
+			&& affects::AffectBuffKind(affect_type) == affects::EBuff::kYes) {
 		emit_debug(spell_potency, "buff", true);
 		return true;
 	}

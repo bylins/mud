@@ -32,6 +32,7 @@
 #include "gameplay/ai/mobact.h"
 #include "engine/core/char_handler.h"
 #include "engine/entities/char_data.h"
+#include "gameplay/affects/affect_messages.h"  // affects::AffectBuffKind
 #include "gameplay/mechanics/inventory.h"
 #include "engine/ui/color.h"
 #include "utils/random.h"
@@ -779,12 +780,13 @@ bool HasHostileRoomWard(CharData *ch) {
 	return false;
 }
 
-// issue.mob-ai-improve: does `vict` carry a dispellable BUFF -- a kAfDispellable affect that
-// is NOT a debuff? Debuff affects were imposed violently; stripping them would help the
-// target, so an offensive dispel ignores them.
+// issue.mob-ai-improve: does `vict` carry a dispellable BUFF -- a kAfDispellable affect declared a
+// buff by its own buff flag? Debuffs (and ambiguous affects) were imposed violently / are not clean
+// buffs; stripping them would help the target, so an offensive dispel ignores them.
 bool HasDispellableBuff(const CharData *vict) {
 	for (const auto &aff : vict->affected) {
-		if (aff && !aff->debuff && IS_SET(aff->battleflag, kAfDispellable)) {
+		if (aff && affects::AffectBuffKind(aff->affect_type) == affects::EBuff::kYes
+				&& IS_SET(aff->battleflag, kAfDispellable)) {
 			return true;
 		}
 	}

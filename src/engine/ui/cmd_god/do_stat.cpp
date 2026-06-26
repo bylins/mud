@@ -624,7 +624,10 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 				sline += buf2;
 			}
 			if (aff->potency != 0.0f) {
-				sline += fmt::sprintf(" [p: %.1f %s]", aff->potency, aff->debuff ? "debuff" : "buff");
+				const auto bk = affects::AffectBuffKind(aff->affect_type);
+				const char *kind = bk == affects::EBuff::kYes ? "buff"
+						: bk == affects::EBuff::kNo ? "debuff" : "ambiguous";
+				sline += fmt::sprintf(" [p: %.1f %s]", aff->potency, kind);
 			}
 			sline += "\r\n";
 			SendMsgToChar(sline, ch);
