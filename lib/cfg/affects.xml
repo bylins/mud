@@ -180,10 +180,10 @@
 		<flags val="kAfSameTime|kAfCurable|kAfPoison"/>
 	</affect>
 	<affect id="kSkillReduce">
-		<flags val="kAfSameTime|kAfCurable"/>
+		<flags val="kAfSameTime|kAfCurable|kAfPoison"/>
 	</affect>
 	<affect id="kNoBattleSwitch">
-		<flags val="kAfSameTime|kAfCurable"/>
+		<flags val="kAfSameTime|kAfCurable|kAfPoison"/>
 	</affect>
 	<affect id="kBelenaPoison">
 		<flags val="kAfSameTime|kAfCurable|kAfPoison"/>

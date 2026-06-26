@@ -23,23 +23,28 @@ void PerformToxicate(CharData *ch, CharData *vict, int modifier);
 namespace {
 
 // * Наложение ядов с пушек, аффект стакается до трех раз.
+	// issue.affect-migration: keyed on the kAfPoison flag (every poison-cluster slot carries it), not on
+	// Affect::type. A poison occupies a fixed set of stat slots (EApply locations) that are DISJOINT across
+	// the five poisons, so "an existing kAfPoison affect at the same location" means the same poison on the
+	// same slot: same caster -> stack it, different caster -> "борода" (refuse). Non-poison affects lack
+	// kAfPoison, so they are never matched.
 	bool poison_affect_join(CharData *ch, CharData *vict, Affect<EApply> &af) {
 		bool is_poisoned_by_me = false;
 
 		for (auto affect_i = vict->affected.begin(); affect_i != vict->affected.end() && af.location; ++affect_i) {
 			const auto affect = *affect_i;
 
-			if ((affect->type == ESpell::kAconitumPoison
-				 || affect->type == ESpell::kScopolaPoison
-				 || affect->type == ESpell::kBelenaPoison
-				 || affect->type == ESpell::kDaturaPoison)
-				 && af.type == affect->type
-				 && affect->caster_id != ch->get_uid()) {
-				// если уже есть другой яд - борода
+			if (!IS_SET(affect->battleflag, kAfPoison) || affect->location != af.location) {
+				continue;
+			}
+
+			if (affect->caster_id != ch->get_uid()) {
+				// тот же слот яда от другого кастера - борода
 				return false;
 			}
 
-			if ((affect->type == af.type) && (affect->caster_id == ch->get_uid()) && (affect->location == af.location)) {
+			// свой яд на этом слоте - стакаем
+			{
 				if (abs(affect->modifier / 3) < abs(af.modifier)) {
 					affect->modifier += af.modifier;
 				}
@@ -79,6 +84,7 @@ namespace {
 
 			af[2].location = EApply::kMagicResist;
 			af[2].modifier = -4;
+			af[2].affect_type = EAffect::kAconitumPoison;   // issue.affect-migration: cluster identity (was kUndefined)
 
 			bool was_poisoned = true;
 
@@ -112,6 +118,8 @@ namespace {
 			// victim ends up with the same flags, applied and removed together.
 			af[3].affect_type = EAffect::kScopolaPoison;
 			af[0].affect_type = EAffect::kNoBattleSwitch;
+			af[1].affect_type = EAffect::kScopolaPoison;   // issue.affect-migration: cluster identity (was kUndefined)
+			af[2].affect_type = EAffect::kScopolaPoison;   // issue.affect-migration: cluster identity (was kUndefined)
 			int affect_modifier = 10;
 
 			if (vict->IsNpc()) {
@@ -168,6 +176,7 @@ namespace {
 			int remove_hp = (vict->get_hitreg() * percent) * 0.01;
 			af[3].location = EApply::kHpRegen;
 			af[3].modifier = -remove_hp;
+			af[3].affect_type = EAffect::kBelenaPoison;   // issue.affect-migration: cluster identity (was kUndefined)
 
 			bool was_poisoned = true;
 			for (auto & i : af) {
