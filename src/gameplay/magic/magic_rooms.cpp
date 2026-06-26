@@ -423,9 +423,11 @@ void RemoveSingleRoomAffect(long caster_id, ESpell spell_id) {
 
 ESpell RemoveControlledRoomAffect(CharData *ch) {
 	long casterID = ch->get_uid();
+	// issue.affect-migration: kBlackTentacles is the only room affect with kMagNeedControl, so the
+	// "controlled" affect is identified by its ERoomAffect rather than the imposing spell's flag.
 	auto filter =
 		[&casterID](auto &af) {
-			return (af->caster_id == casterID && MUD::Spell(af->type).IsFlagged(kMagNeedControl));
+			return (af->caster_id == casterID && af->affect_type == ERoomAffect::kBlackTentacles);
 		};
 	return RemoveAffectFromRooms(ESpell::kUndefined, filter);
 }
@@ -528,34 +530,22 @@ void UpdateRoomsAffects() {
 		for (auto affect_i = next_affect_i; affect_i != affects.end(); affect_i = next_affect_i) {
 			++next_affect_i;
 			const auto &affect = *affect_i;
-			auto spell_id = affect->type;
+			// issue.affect-migration: caster dependency keyed on the room-affect identity (ERoomAffect),
+			// not the imposing spell's kMagCaster* flags. Only two room affects depend on the caster:
+			//   kBlackTentacles (was kMagCasterInroom)       -- caster must be in the room, else it ends;
+			//   kRuneLabel      (was kMagCasterInworldDelay) -- caster may be anywhere in the world; while
+			//                    absent the label just ticks down (its duration is not zeroed).
+			// No room affect uses kMagCasterInworld. ch (the resolved caster) flows to HandleRoomAffect.
 			ch = nullptr;
-
-			if (MUD::Spell(spell_id).IsFlagged(kMagCasterInroom) ||
-				MUD::Spell(spell_id).IsFlagged(kMagCasterInworld)) {
+			if (affect->affect_type == ERoomAffect::kBlackTentacles) {
 				ch = find_char_in_room(affect->caster_id, *room);
 				if (!ch) {
 					affect->duration = 0;
 				}
-			} else if (MUD::Spell(spell_id).IsFlagged(kMagCasterInworldDelay)) {
-				//Если спелл с задержкой таймера - то обнулять не надо, даже если чара нет, просто тикаем таймером как обычно
-				ch = find_char_in_room(affect->caster_id, *room);
-			}
-
-			if ((!ch) && MUD::Spell(spell_id).IsFlagged(kMagCasterInworld)) {
+			} else if (affect->affect_type == ERoomAffect::kRuneLabel) {
 				ch = find_char(affect->caster_id);
 				if (!ch) {
-					affect->duration = 0;
-				}
-			} else if (MUD::Spell(spell_id).IsFlagged(kMagCasterInworldDelay)) {
-				ch = find_char(affect->caster_id);
-			}
-
-			if (!(ch && MUD::Spell(spell_id).IsFlagged(kMagCasterInworldDelay))) {
-				switch (spell_id) {
-					case ESpell::kRuneLabel: 
 					affect->duration--;
-					default: break;
 				}
 			}
 
