@@ -2170,7 +2170,7 @@ void Appear(CharData *ch) {
 		|| AFF_FLAGGED(ch, EAffect::kDisguise)
 		|| AFF_FLAGGED(ch, EAffect::kHide);
 
-	RemoveAffectFromChar(ch, ESpell::kInvisible);
+	RemoveAffectFromChar(ch, EAffect::kInvisible);
 	RemoveAffectFromChar(ch, EAffect::kHide);
 	RemoveAffectFromChar(ch, EAffect::kSneak);
 	RemoveAffectFromChar(ch, EAffect::kDisguise);

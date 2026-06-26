@@ -17,9 +17,10 @@ void CombatLuckAffectHandler::Handle(DamageVictimParameters &params) {
 	}
 }
 
-Affect<EApply>::shared_ptr find_affect(CharData *ch, ESpell aff_type) {
+// issue.affect-migration: find by affect identity (EAffect), not the casting spell.
+Affect<EApply>::shared_ptr find_affect(CharData *ch, EAffect affect_type) {
 	for (const auto &aff : ch->affected) {
-		if (aff->type == aff_type) {
+		if (aff->affect_type == affect_type) {
 			return aff;
 		}
 	}
@@ -28,7 +29,7 @@ Affect<EApply>::shared_ptr find_affect(CharData *ch, ESpell aff_type) {
 }
 
 void CombatLuckAffectHandler::Handle(BattleRoundParameters &params) {
-	auto af = find_affect(params.ch, ESpell::kCombatLuck);
+	auto af = find_affect(params.ch, EAffect::kCombatLuck);
 	if (damFromMe_ && !damToMe_) {
 		if (round_ < 5) {
 			++round_;
@@ -44,7 +45,7 @@ void CombatLuckAffectHandler::Handle(BattleRoundParameters &params) {
 }
 // тест
 void CombatLuckAffectHandler::Handle(StopFightParameters &params) {
-	auto af = find_affect(params.ch, ESpell::kCombatLuck);
+	auto af = find_affect(params.ch, EAffect::kCombatLuck);
 	if (af) {
 		af->modifier = 0;
 	}
