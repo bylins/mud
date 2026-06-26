@@ -20,12 +20,15 @@
 #include "gameplay/mechanics/sight.h"
 #include "gameplay/classes/pc_classes.h"
 #include "gameplay/skills/skills.h"
+#include "gameplay/economics/currencies.h"
+#include "engine/db/db.h"                  // world[] for ROOM_FLAGGED
 
 #include "utils/utils_parse.h"               // parse::AttrInt / parse::ReadAsBool
 #include "engine/entities/char_player.h"      // START_STATS_TOTAL
 
 #include <fmt/format.h>
 #include <algorithm>
+#include <cmath>
 
 extern RoomRnum r_frozen_start_room;
 
@@ -35,6 +38,11 @@ namespace remort {
 namespace {
 // Defaults match the legacy hardcoded constants, so behaviour is identical until the file overrides
 // them (and stays sane if the file/tag is missing).
+struct PriceEntry {
+	int remort;           // result remort number this applies to (a 0->1 remort is number 1)
+	std::string currency; // currency text-id as written in remort.xml (resolved when charged)
+	long amount;          // sacrifice amount, >= 0 (0 == free, no sacrifice message)
+};
 struct RemortCfg {
 	bool points_buy = false;
 	int abil_reset_stop = 9;
@@ -43,8 +51,53 @@ struct RemortCfg {
 	int skill_cap_increment = 5;
 	int hp = 10;
 	int moves = 82;
+	// <prices>: cost to perform each remort. Empty table or disabled="Y" => every remort is free.
+	bool prices_disabled = false;
+	int price_increment_percent = 0;
+	std::vector<PriceEntry> prices;  // ascending by remort; gaps filled from the nearest lower entry.
 };
 RemortCfg g_cfg;
+
+// issue.remort-system: resolved sacrifice for performing a given remort number.
+struct ResolvedPrice {
+	bool free;            // true => charge nothing and show no sacrifice message
+	std::string currency; // currency text-id (empty when free)
+	long amount;          // amount to charge (0 when free)
+};
+
+// Cost of performing the `target_remort`-th remort. Exact <price> entries are used verbatim; a target
+// that falls in a gap (or past the last entry) inherits the nearest PRECEDING entry's currency, with
+// the amount raised by price_increment_percent for every step of distance:
+//   amount = round(base.amount * (1 + increment_percent/100 * (target - base.remort))).
+// A target below the first entry, an empty table, disabled="Y", or a computed/explicit 0 => free.
+ResolvedPrice ResolveRemortPrice(int target_remort) {
+	if (g_cfg.prices_disabled || g_cfg.prices.empty()) {
+		return {true, "", 0};
+	}
+	const PriceEntry *exact = nullptr;
+	const PriceEntry *base = nullptr;  // nearest defined entry with remort < target
+	for (const auto &e : g_cfg.prices) {  // ascending
+		if (e.remort == target_remort) { exact = &e; break; }
+		if (e.remort < target_remort) { base = &e; } else { break; }
+	}
+	std::string currency;
+	long amount = 0;
+	if (exact) {
+		currency = exact->currency;
+		amount = exact->amount;
+	} else if (base) {
+		const int gap = target_remort - base->remort;  // >= 1
+		const double mult = 1.0 + (g_cfg.price_increment_percent / 100.0) * gap;
+		currency = base->currency;
+		amount = std::lround(static_cast<double>(base->amount) * mult);
+	} else {
+		return {true, "", 0};  // below the first defined entry
+	}
+	if (amount <= 0) {
+		return {true, "", 0};  // zero cost
+	}
+	return {false, currency, amount};
+}
 } // namespace
 
 bool IsPointsBuy() { return g_cfg.points_buy; }
@@ -117,6 +170,26 @@ void RemortLoader::Load(parser_wrapper::DataNode data) {
 		auto n = data;
 		if (n.GoToChild("moves")) { cfg.moves = parse::AttrInt(n, "val", cfg.moves); }
 	}
+	{
+		auto n = data;
+		if (n.GoToChild("prices")) {
+			cfg.price_increment_percent = parse::AttrInt(n, "increment_percent", 0);
+			const char *dis = n.GetValue("disabled");
+			cfg.prices_disabled = dis && *dis && parse::ReadAsBool(dis);
+			for (auto &pr : n.Children("price")) {
+				PriceEntry e;
+				e.remort = parse::AttrInt(pr, "remort", -1);
+				const char *cur = pr.GetValue("currency");
+				e.currency = cur ? cur : "";
+				e.amount = parse::AttrInt(pr, "amount", 0);
+				if (e.remort >= 0) {
+					cfg.prices.push_back(e);
+				}
+			}
+			std::sort(cfg.prices.begin(), cfg.prices.end(),
+				[](const PriceEntry &a, const PriceEntry &b) { return a.remort < b.remort; });
+		}
+	}
 	g_cfg = cfg;
 }
 
@@ -169,6 +242,39 @@ void ProcessRemort(CharData *ch, char *argument, int subcmd) {
 		}
 	}
 
+	// issue.remort-system: a remort is a sacrifice -- it must be performed in a shrine of one's own
+	// faith and paid in the configured currency. Immortals returned far above, so no faith check is
+	// needed here. Both gates run after every other precondition (and the chosen destination) is
+	// validated and before anything is mutated, so a failure leaves the character untouched.
+	{
+		const bool in_shrine = (GET_RELIGION(ch) == kReligionMono)
+			? ROOM_FLAGGED(ch->in_room, ERoomFlag::kForMono)
+			: ROOM_FLAGGED(ch->in_room, ERoomFlag::kForPoly);
+		if (!in_shrine) {
+			SendMsgToChar("Подобное таинство свершается лишь в святилище вашей веры.\r\n", ch);
+			return;
+		}
+	}
+	{
+		const ResolvedPrice price = ResolveRemortPrice(ch->get_remort() + 1);
+		if (!price.free) {
+			const auto &cur = currencies::FindByTextIdNoCase(price.currency);
+			if (cur.GetId() < 0) {
+				SendMsgToChar("Вы не можете понять, какую жертву для этого требуется принести...\r\n", ch);
+				err_log("remort system: invalid currency identifier '%s' for remort %d",
+						price.currency.c_str(), ch->get_remort() + 1);
+				return;
+			}
+			if (currencies::GetTotal(*ch, cur.GetTextId()) < price.amount) {
+				SendMsgToChar(fmt::format("Вам следует сперва принести достойную жертву - {} {}.\r\n",
+						price.amount, cur.GetNameWithAmount(price.amount, grammar::ECase::kAcc)), ch);
+				return;
+			}
+			currencies::RemoveTotal(*ch, cur.GetTextId(), price.amount);
+			SendMsgToChar(fmt::format("Вы принесли {} {} в жертву.\r\n",
+					price.amount, cur.GetNameWithAmount(price.amount, grammar::ECase::kAcc)), ch);
+		}
+	}
 	log("Remort %s", GET_NAME(ch));
 	ch->remort();
 	act(remort_msg2, false, ch, nullptr, nullptr, kToRoom);
