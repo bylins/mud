@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<!--
+    issue.remort-system: parameters of the remort (reincarnation) system.
+
+    system points_buy:
+        false - legacy system: +1 to every base stat per remort.
+        true  - proportional system: the highest start stat gains +1 per remort, the
+                others scale to keep their original ratio to it (floored).
+    abilities_reset stop_obligatory_reset / period:
+        a full skill/spell wipe is forced when remort >= stop_obligatory_reset and
+        remort % period == 0 (remort.cpp).
+    skill_cap start_cap / increment:
+        the per-character skill cap is start_cap + remort * increment.
+    hp / moves val:
+        base max hp / max moves a character is reset to on remort (remort.cpp).
+-->
+<remort>
+	<system points_buy="false"/>
+	<abilities_reset stop_obligatory_reset="9" period="3"/>
+	<skill_cap start_cap="80" increment="5"/>
+	<hp val="10"/>
+	<moves val="82"/>
+</remort>

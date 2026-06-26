@@ -1120,7 +1120,7 @@ void im_improve_recipe(CharData *ch, im_rskill *rs, int success) {
 			SendMsgToChar(buf, ch);
 			rs->perc += number(1, 2);
 			if (!privilege::IsImmortal(ch))
-				rs->perc = MIN(kZeroRemortSkillCap + remort::GetRealRemort(ch) * 5, rs->perc);
+				rs->perc = MIN(CalcSkillRemortCap(ch), rs->perc);
 		}
 	}
 }

@@ -33,8 +33,6 @@
 #include <fmt/format.h>
 #include "gameplay/mechanics/sight.h"
 
-const int kZeroRemortSkillCap = 80;
-const int kSkillCapBonusPerRemort = 5;;
 
 //const int kNoviceSkillThreshold = 75;
 const int kNoviceSkillThreshold = 0;
@@ -1976,7 +1974,7 @@ void ImproveSkill(CharData *ch, const ESkill skill, int success, CharData *victi
 		SendMsgToChar(buf, ch);
 		SetSkill(ch, skill, (trained_skill + number(1, 2)));
 		if (!privilege::IsImmortal(ch)) {
-			SetSkill(ch, skill, (std::min(kZeroRemortSkillCap + remort::GetRealRemort(ch) * 5, GetSkillBonus(ch, skill))));
+			SetSkill(ch, skill, (std::min(CalcSkillRemortCap(ch), GetSkillBonus(ch, skill))));
 		}
 		if (victim && victim->IsNpc()) {
 			victim->SetFlag(EMobFlag::kNoSkillTrain);
@@ -2067,7 +2065,7 @@ bool CanGetSkill(CharData *ch, ESkill skill) {
 }
 
 int CalcSkillRemortCap(const CharData *ch) {
-	return kZeroRemortSkillCap + remort::GetRealRemort(ch) * kSkillCapBonusPerRemort;
+	return remort::CalcSkillCap(remort::GetRealRemort(ch));
 }
 
 int CalcSkillWisdomCap(const CharData *ch) {

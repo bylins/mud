@@ -20,11 +20,109 @@
 #include "gameplay/classes/pc_classes.h"
 #include "gameplay/skills/skills.h"
 
+#include "utils/utils_parse.h"               // parse::AttrInt / parse::ReadAsBool
+#include "engine/entities/char_player.h"      // START_STATS_TOTAL
+
 #include <fmt/format.h>
+#include <algorithm>
 
 extern RoomRnum r_frozen_start_room;
 
 namespace remort {
+
+// --- issue.remort-system: cfg/remort.xml ------------------------------------------------------------
+namespace {
+// Defaults match the legacy hardcoded constants, so behaviour is identical until the file overrides
+// them (and stays sane if the file/tag is missing).
+struct RemortCfg {
+	bool points_buy = false;
+	int abil_reset_stop = 9;
+	int abil_reset_period = 3;
+	int skill_cap_start = 80;
+	int skill_cap_increment = 5;
+	int hp = 10;
+	int moves = 82;
+};
+RemortCfg g_cfg;
+} // namespace
+
+bool IsPointsBuy() { return g_cfg.points_buy; }
+int SkillCapStart() { return g_cfg.skill_cap_start; }
+int SkillCapIncrement() { return g_cfg.skill_cap_increment; }
+int CalcSkillCap(int remort_count) { return g_cfg.skill_cap_start + remort_count * g_cfg.skill_cap_increment; }
+int RemortHp() { return g_cfg.hp; }
+int RemortMoves() { return g_cfg.moves; }
+
+bool IsObligatoryResetDue(int remort_count) {
+	return g_cfg.abil_reset_period > 0
+		&& remort_count >= g_cfg.abil_reset_stop
+		&& remort_count % g_cfg.abil_reset_period == 0;
+}
+
+void ApplyRemortStatGains(const int *start, int *out, int remort_count) {
+	if (!g_cfg.points_buy) {
+		// legacy: +1 to every base stat per remort.
+		for (int i = 0; i < START_STATS_TOTAL; ++i) {
+			out[i] = start[i] + remort_count;
+		}
+		return;
+	}
+	// proportional: the highest start stat gains +1/remort; the rest scale to keep their original
+	// ratio to it: out[i] = floor((max_start + remort) * start[i] / max_start).
+	int max_start = 0;
+	for (int i = 0; i < START_STATS_TOTAL; ++i) {
+		max_start = std::max(max_start, start[i]);
+	}
+	if (max_start <= 0) {  // degenerate (shouldn't happen for valid chars) -- fall back to legacy.
+		for (int i = 0; i < START_STATS_TOTAL; ++i) {
+			out[i] = start[i] + remort_count;
+		}
+		return;
+	}
+	for (int i = 0; i < START_STATS_TOTAL; ++i) {
+		out[i] = static_cast<int>(
+			static_cast<long long>(max_start + remort_count) * start[i] / max_start);
+	}
+}
+
+void RemortLoader::Load(parser_wrapper::DataNode data) {
+	RemortCfg cfg;  // start from legacy defaults; only present tags/attrs override.
+	{
+		auto n = data;
+		if (n.GoToChild("system")) {
+			const char *pb = n.GetValue("points_buy");
+			cfg.points_buy = pb && *pb && parse::ReadAsBool(pb);
+		}
+	}
+	{
+		auto n = data;
+		if (n.GoToChild("abilities_reset")) {
+			cfg.abil_reset_stop = parse::AttrInt(n, "stop_obligatory_reset", cfg.abil_reset_stop);
+			cfg.abil_reset_period = parse::AttrInt(n, "period", cfg.abil_reset_period);
+		}
+	}
+	{
+		auto n = data;
+		if (n.GoToChild("skill_cap")) {
+			cfg.skill_cap_start = parse::AttrInt(n, "start_cap", cfg.skill_cap_start);
+			cfg.skill_cap_increment = parse::AttrInt(n, "increment", cfg.skill_cap_increment);
+		}
+	}
+	{
+		auto n = data;
+		if (n.GoToChild("hp")) { cfg.hp = parse::AttrInt(n, "val", cfg.hp); }
+	}
+	{
+		auto n = data;
+		if (n.GoToChild("moves")) { cfg.moves = parse::AttrInt(n, "val", cfg.moves); }
+	}
+	g_cfg = cfg;
+}
+
+void RemortLoader::Reload(parser_wrapper::DataNode data) {
+	Load(std::move(data));
+}
+// --- end issue.remort-system config ----------------------------------------------------------------
 
 const char *remort_msg =
 	"  Если вы так настойчивы в желании начать все заново -\r\n" "наберите <перевоплотиться> полностью.\r\n";
@@ -99,7 +197,7 @@ void ProcessRemort(CharData *ch, char *argument, int subcmd) {
 		ch->UnsetFeat(feat.GetId());
 	}
 
-	if (ch->get_remort() >= 9 && ch->get_remort() % 3 == 0) {
+	if (IsObligatoryResetDue(ch->get_remort())) {
 		ch->clear_skills();
 		for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
 			GET_SPELL_TYPE(ch, spell_id) = (IS_MANA_CASTER(ch) ? ESpellType::kRunes : 0);
@@ -117,10 +215,10 @@ void ProcessRemort(CharData *ch, char *argument, int subcmd) {
 		}
 	}
 
-	ch->set_max_hit(10);
-	ch->set_hit(10);
-	ch->set_max_move(82);
-	ch->set_move(82);
+	ch->set_max_hit(RemortHp());
+	ch->set_hit(RemortHp());
+	ch->set_max_move(RemortMoves());
+	ch->set_move(RemortMoves());
 	ch->mem_queue.total = ch->mem_queue.stored = 0;
 	ch->set_level(0);
 	GET_WIMP_LEV(ch) = 0;

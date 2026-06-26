@@ -21,8 +21,6 @@
 #include "gameplay/fight/fight_constants.h"
 #include "engine/structs/structs.h"
 
-extern const int kZeroRemortSkillCap;
-extern const int kSkillCapBonusPerRemort;
 extern const int kMinTalentLevelDecrement;
 extern const long kMinImprove;
 
