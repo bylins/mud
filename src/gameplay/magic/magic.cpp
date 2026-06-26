@@ -893,14 +893,16 @@ static bool TryApplyAffectTalent(CharData *ch, CharData *victim, ESpell spell_id
 	// issue.affect-migration: the re-apply gate reads update/accumulate behavior from affects.xml
 	// (per affect_type); the casting spell no longer carries affect flags.
 	Bitvector reapply_flags = 0;
+	bool already_affected = false;
 	for (const auto &apply : talent.GetApplies()) {
 		if (apply.id != EAffect::kUndefined) {
 			reapply_flags |= affects::AffectFlagsByType(apply.id);
+			already_affected = already_affected || IsAffected(victim, apply.id);
 		}
 	}
 	const bool can_reapply = IS_SET(reapply_flags, to_underlying(EAffFlag::kAfAccumulateDuration))
 		|| IS_SET(reapply_flags, to_underlying(EAffFlag::kAfUpdateDuration));
-	if (ch != victim && IsAffectedBySpell(victim, talent.GetSpell()) && !can_reapply) {
+	if (ch != victim && already_affected && !can_reapply) {
 		if (ch->in_room == victim->in_room) {
 			SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 		}
