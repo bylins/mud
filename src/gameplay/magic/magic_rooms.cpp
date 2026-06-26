@@ -416,8 +416,8 @@ ESpell RemoveAffectFromRooms(ESpell spell_id, const F &filter) {
 	for (const auto room : affected_rooms) {
 		const auto &affect = std::find_if(room->affected.begin(), room->affected.end(), filter);
 		if (affect != room->affected.end()) {
-			SendRemoveAffectMsgToRoom((*affect)->type, (*affect)->affect_type, GetRoomRnum(room->vnum));
-			spell_id = (*affect)->type;
+			SendRemoveAffectMsgToRoom(SpellByRoomAffect((*affect)->affect_type), (*affect)->affect_type, GetRoomRnum(room->vnum));
+			spell_id = SpellByRoomAffect((*affect)->affect_type);
 			RoomRemoveAffect(room, affect);
 			return spell_id;
 		}
@@ -585,7 +585,7 @@ void UpdateRoomsAffects() {
 					if (next_affect_i == affects.end()
 						|| (*next_affect_i)->affect_type != affect->affect_type
 						|| (*next_affect_i)->duration > 0) {
-						SendRemoveAffectMsgToRoom(affect->type, affect->affect_type, GetRoomRnum((*room)->vnum));
+						SendRemoveAffectMsgToRoom(SpellByRoomAffect(affect->affect_type), affect->affect_type, GetRoomRnum((*room)->vnum));
 					}
 				}
 				RoomRemoveAffect(*room, affect_i);
@@ -665,7 +665,6 @@ ECastResult CastRoomAffect(CastContext &ctx) {
 	// so multi-apply room spells stay forward-compatible.
 	Affect<ERoomApply> af[kMaxSpellAffects];
 	for (int i = 0; i < kMaxSpellAffects; i++) {
-		af[i].type = spell_id;
 		af[i].affect_type = static_cast<ERoomAffect>(0);
 		af[i].modifier = 0;
 		af[i].battleflag = 0;
@@ -682,7 +681,6 @@ ECastResult CastRoomAffect(CastContext &ctx) {
 	// apply_one path so both record the same values for the same cast roll).
 	if (ctx.action_or_default().Contains(talents_actions::EAction::kAffect)) {
 		const auto &talent = ctx.action_or_default().GetAffect();
-		af[0].type = spell_id;
 		af[0].affect_type = RoomAffectBySpell(spell_id);
 		af[0].caster_id = ch->get_uid();
 		// issue.affect-migration: flags come from room_affects.xml by affect_type (so the update-gate
@@ -788,7 +786,6 @@ ECastResult CastRoomAffect(CastContext &ctx) {
 	// affect_room_join with kAfAccumulateDuration deciding whether durations
 	// stack. Empty slots (no duration, no location) are skipped.
 	for (int i = 0; !handled_update && success && i < kMaxSpellAffects; i++) {
-		af[i].type = spell_id;
 		if (af[i].duration
 			|| af[i].location != kNone) {
 			af[i].duration = CalcComplexSpellMod(ch, spell_id, GAPPLY_SPELL_EFFECT, af[i].duration);

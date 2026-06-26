@@ -33,7 +33,6 @@ void DoLightwalk(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/)
 
 	SendMsgToChar("Хорошо, вы попытаетесь идти, не оставляя лишних следов.\r\n", ch);
 	Affect<EApply> af;
-	af.type = ESpell::kLightWalk;
 	af.duration = CalcDuration(ch, ch, ESkill::kHide, 2, 13, 2, 8);
 	af.modifier = 0;
 	af.location = EApply::kNone;

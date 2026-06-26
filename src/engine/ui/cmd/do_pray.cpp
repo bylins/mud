@@ -109,7 +109,6 @@ void do_pray(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	// The "blessed" marker effect checked above (separate from the stat blessings below, which keep
 	// their own affect_type -- e.g. Yarilo grants kInfravision). kPrayerful for prayer, kPietas for sacrifice.
 	Affect<EApply> blessing;
-	blessing.type = ESpell::kUndefined;
 	blessing.duration = CalcDuration(ch, ch, ESkill::kUndefined, 12, 0, 0, 0);
 	blessing.modifier = 0;
 	blessing.location = EApply::kNone;
@@ -120,7 +119,6 @@ void do_pray(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	for (const auto &i : pray_affect) {
 		if (i.metter == metter) {
 			Affect<EApply> af;
-			af.type = ESpell::kUndefined;
 			af.duration = CalcDuration(ch, ch, ESkill::kUndefined, 12, 0, 0, 0);
 			af.modifier = i.modifier;
 			af.location = i.location;

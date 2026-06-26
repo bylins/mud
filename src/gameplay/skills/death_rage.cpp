@@ -21,7 +21,6 @@ void CheckDeathRage(CharData *ch) {
 		ImposeTimedFeat(ch, &timed);
 
 		Affect<EApply> af;
-		af.type = ESpell::kBerserk;
 		af.duration = CalcDuration(ch, ch, ESkill::kUndefined, 3, 0, 0, 0);
 		af.modifier = 0;
 		af.location = EApply::kNone;

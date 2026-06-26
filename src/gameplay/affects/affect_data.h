@@ -36,12 +36,11 @@ class Affect {
  public:
 	using shared_ptr = std::shared_ptr<Affect<TLocation>>;
 
-	Affect() : type(ESpell::kUndefined), duration(0), modifier(0), location(static_cast<TLocation>(0)),
+	Affect() : duration(0), modifier(0), location(static_cast<TLocation>(0)),
 			   battleflag(0), caster_id(0),
 			   apply_time(0) {};
 	[[nodiscard]] bool removable() const;
 
-	ESpell type;        // The type of spell that caused this      //
 	int duration;    // For how long its effects will last      //
 	int modifier;        // This is added to appropriate ability     //
 	TLocation location;        // Tells which ability to change(APPLY_XXX) //
@@ -98,9 +97,8 @@ struct obj_affected_type {
 	}
 };
 
-// issue.affect-migration: "same affect" by IDENTITY (affect_type, legacy ESpell type fallback) rather
-// than by casting spell -- for callers that dedup or look up affects (do_affects display,
-// remove_random_affects). Re-keying off Affect::type keeps migrated kUndefined-type affects distinct.
+// issue.affect-migration: "same affect" by IDENTITY (affect_type) rather than by casting spell -- for
+// callers that dedup or look up affects (do_affects display, remove_random_affects).
 [[nodiscard]] bool SameAffectIdentity(const Affect<EApply>::shared_ptr &a, const Affect<EApply>::shared_ptr &b);
 
 void UpdateAffectOnPulse(CharData *ch, int count);

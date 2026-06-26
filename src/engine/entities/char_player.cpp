@@ -1211,7 +1211,6 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 								&num, &num2, &num3, &num4, &num6, &af_potency, &af_stacks);
 						if (num > 0) {
 							Affect<EApply> af;
-							af.type = ESpell::kUndefined;
 							af.affect_type = static_cast<EAffect>(num);
 							af.duration = num2;
 							af.modifier = num3;

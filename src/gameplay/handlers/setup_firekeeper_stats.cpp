@@ -13,7 +13,6 @@ namespace handlers {
 
 void SetupFirekeeperStats(CharData *ch, CharData *mob, const CastContext &ctx, int charm_duration) {
 	Affect<EApply> af;
-	af.type = ESpell::kCharm;
 	af.duration = charm_duration;
 	af.modifier = 0;
 	af.location = EApply::kNone;

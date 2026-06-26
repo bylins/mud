@@ -144,7 +144,6 @@ void DoSpellCapable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	GET_CAST_SUCCESS(follower) = remort::GetRealRemort(ch) * 4;
 	Affect<EApply> af;
-	af.type = ESpell::kUndefined;   // issue.affect-migration: identity is affect_type=kCapable now
 	af.duration = 48;
 	if (remort::GetRealRemort(ch) > 0) {
 		af.modifier = remort::GetRealRemort(ch) * 4;//вешаецо аффект который дает +морт*4 касту

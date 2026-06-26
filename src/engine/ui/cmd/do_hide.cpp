@@ -46,7 +46,6 @@ void do_hide(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	prob = CalcCurrentSkill(ch, ESkill::kHide, nullptr);
 
 	Affect<EApply> af;
-	af.type = ESpell::kHide;
 	af.duration = CalcDuration(ch, ch, ESkill::kHide, 0, 20, 0, 1);
 	af.modifier = 0;
 	af.location = EApply::kNone;

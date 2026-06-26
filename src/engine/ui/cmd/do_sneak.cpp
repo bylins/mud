@@ -32,7 +32,6 @@ void do_sneak(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	prob = CalcCurrentSkill(ch, ESkill::kSneak, nullptr);
 
 	Affect<EApply> af;
-	af.type = ESpell::kSneak;
 	af.duration = CalcDuration(ch, ch, ESkill::kSneak, 0, 20, 0, 1);
 	af.modifier = 0;
 	af.location = EApply::kNone;

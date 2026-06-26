@@ -89,7 +89,6 @@ namespace {
 			bool was_poisoned = true;
 
 			for (auto & i : af) {
-				i.type = ESpell::kAconitumPoison;
 				i.caster_id = ch->get_uid();
 				i.duration = 7;
 				if (!vict->IsNpc()) {
@@ -130,7 +129,6 @@ namespace {
 			bool was_poisoned = true;
 
 			for (auto & i : af) {
-				i.type = ESpell::kScopolaPoison;
 				i.caster_id = ch->get_uid();
 				i.duration = 7;
 				if (!vict->IsNpc()) {
@@ -178,7 +176,6 @@ namespace {
 
 			bool was_poisoned = true;
 			for (auto & i : af) {
-				i.type = ESpell::kBelenaPoison;
 				i.caster_id = ch->get_uid();
 				i.duration = 7;
 				if (!vict->IsNpc()) {
@@ -224,7 +221,6 @@ namespace {
 
 			bool was_poisoned = true;
 			for (auto & i : af) {
-				i.type = ESpell::kDaturaPoison;
 				i.duration = 7;
 				if (!ch->IsNpc()) {
 					i.duration *= 30;
@@ -274,7 +270,6 @@ namespace {
 					break;
 				case 2: {
 					// минус статы (1..10)
-					af.type = ESpell::kPoison;
 					af.duration = 30;
 					if (!vict->IsNpc()) {
 						af.duration *= 30;
@@ -296,7 +291,6 @@ namespace {
 				} // case 2
 				case 3: {
 					// минус инициатива (1..5)
-					af.type = ESpell::kPoison;
 					af.duration = 30;
 					if (!vict->IsNpc()) {
 						af.duration *= 30;
@@ -337,28 +331,24 @@ void PerformToxicate(CharData *ch, CharData *vict, int modifier) {
 	Affect<EApply> af[4];
 
 	// change strength
-	af[0].type = ESpell::kPoison;
 	af[0].location = EApply::kStr;
 	af[0].duration = CalcDuration(ch, vict, ESkill::kUndefined, 1, 0, 0, 0);
 	af[0].modifier = -std::min(2, (modifier + 29) / 40);
 	af[0].affect_type = EAffect::kPoisoned;
 	af[0].battleflag = kAfSameTime | kAfCurable;
 	// change damroll
-	af[1].type = ESpell::kPoison;
 	af[1].location = EApply::kDamroll;
 	af[1].duration = af[0].duration;
 	af[1].modifier = -std::min(2, (modifier + 29) / 30);
 	af[1].affect_type = EAffect::kPoisoned;
 	af[1].battleflag = kAfSameTime | kAfCurable;
 	// change hitroll
-	af[2].type = ESpell::kPoison;
 	af[2].location = EApply::kHitroll;
 	af[2].duration = af[0].duration;
 	af[2].modifier = -std::min(2, (modifier + 19) / 20);
 	af[2].affect_type = EAffect::kPoisoned;
 	af[2].battleflag = kAfSameTime | kAfCurable;
 	// change poison level
-	af[3].type = ESpell::kPoison;
 	af[3].location = EApply::kPoison;
 	af[3].duration = af[0].duration;
 	af[3].modifier = GetRealLevel(ch);
@@ -511,7 +501,6 @@ void TryDrinkPoison(CharData *ch, ObjData *jar, int amount) {
 		SendMsgToChar("Что-то вкус какой-то странный!\r\n", ch);
 		act("$n поперхнул$u и закашлял$g.", true, ch, 0, 0, kToRoom);
 		Affect<EApply> af;
-		af.type = ESpell::kPoison;
 		//если объем 0 -
 		af.duration = CalcDuration(ch, ch, ESkill::kUndefined, amount == 0 ? 3 : amount == 1 ? amount : amount * 3, 0, 0, 0);
 		af.modifier = -2;
@@ -519,7 +508,6 @@ void TryDrinkPoison(CharData *ch, ObjData *jar, int amount) {
 		af.affect_type = EAffect::kPoisoned;
 		af.battleflag = kAfSameTime | kAfCurable;
 		ImposeAffect(ch, af, false, false, false, false);
-		af.type = ESpell::kPoison;
 		af.modifier = amount == 0 ? GetRealLevel(ch) * 3 : amount * 3;
 		af.location = EApply::kPoison;
 		af.affect_type = EAffect::kPoisoned;

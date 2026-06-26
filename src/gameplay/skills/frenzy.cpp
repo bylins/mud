@@ -42,13 +42,11 @@ void do_frenzy(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	const int dmg_multiplier = GetSkill(ch, ESkill::kFrenzy) / 12.5;
 
 	Affect<EApply> af[2];
-	af[0].type = ESpell::kFrenzy;
 	af[0].duration = duration;
 	af[0].modifier = hp_regen;
 	af[0].location = EApply::kHpRegen;
 	af[0].affect_type = EAffect::kFrenzy;
 	af[0].battleflag = kAfPulsedec;
-	af[1].type = ESpell::kFrenzy;
 	af[1].duration = duration;
 	af[1].modifier = dmg_multiplier;
 	af[1].location = EApply::kPhysicDamagePercent;

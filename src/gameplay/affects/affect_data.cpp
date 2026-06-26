@@ -69,7 +69,7 @@ void EmitAffectEvent(const char *kind, const CharData *ch,
 // for callers that dedup or look up affects by their identity rather than by the casting spell
 // (remove_random_affects, the do_affects display).
 bool SameAffectIdentity(const Affect<EApply>::shared_ptr &a, const Affect<EApply>::shared_ptr &b) {
-	return a->affect_type != EAffect::kUndefined ? a->affect_type == b->affect_type : a->type == b->type;
+	return a->affect_type == b->affect_type;
 }
 
 int apply_ac(CharData *ch, int eq_pos);
@@ -328,7 +328,7 @@ void player_affect_update() {
 								&& AFF_FLAGGED(i, EAffect::kStopFight))) {
 							if (!(affect->affect_type == EAffect::kStopFight
 									&& AFF_FLAGGED(i, EAffect::kMagicStopFight))) {
-								ShowAffExpiredMsg(affect->type, affect->affect_type, i.get());
+								ShowAffExpiredMsg(affect->affect_type, i.get());
 							}
 						}
 					}
@@ -434,7 +434,7 @@ void battle_affect_update(CharData *ch) {
 				if (next_affect_i == ch->affected.end()
 						|| !SameAffectIdentity(affect, *next_affect_i)
 						|| (*next_affect_i)->duration > 0) {
-					ShowAffExpiredMsg(affect->type, affect->affect_type, ch);
+					ShowAffExpiredMsg(affect->affect_type, ch);
 				}
 			}
 			affect_i = RemoveAffect(ch, affect_i);
@@ -517,7 +517,7 @@ void mobile_affect_update() {
 					if (next_affect_i == ch->affected.end()
 							|| !SameAffectIdentity(affect, *next_affect_i)
 							|| (*next_affect_i)->duration > 0) {
-						ShowAffExpiredMsg(affect->type, affect->affect_type, ch);
+						ShowAffExpiredMsg(affect->affect_type, ch);
 					}
 				}
 				affect_i = RemoveAffect(ch, affect_i);
@@ -964,8 +964,7 @@ void ImposeAffect(CharData *ch, const Affect<EApply> &af) {
 	for (const auto &affect : ch->affected) {
 		// issue.affect-migration: re-application is keyed on affect_type (the effect identity); fall back
 		// to the legacy ESpell type only for affects that have no affect_type yet.
-		const bool same_id = (af.affect_type != EAffect::kUndefined)
-				? (affect->affect_type == af.affect_type) : (affect->type == af.type);
+		const bool same_id = affect->affect_type == af.affect_type;
 		const bool same_affect = (af.location == EApply::kNone) && (affect->affect_type == af.affect_type);
 		const bool same_type = (af.location != EApply::kNone) && same_id && (affect->location == af.location);
 		if (same_affect || same_type) {
@@ -989,8 +988,7 @@ void ImposeAffect(CharData *ch, Affect<EApply> &af, bool add_dur, bool max_dur, 
 		while (it != ch->affected.end()) {
 			const auto &affect = *it;
 			// issue.affect-migration: merge by affect_type (effect identity), type fallback if none yet.
-			const bool same_id = (af.affect_type != EAffect::kUndefined)
-					? (affect->affect_type == af.affect_type) : (affect->type == af.type);
+			const bool same_id = affect->affect_type == af.affect_type;
 			if (same_id
 				&& affect->location == af.location) {
 				if (add_dur) {
@@ -1066,8 +1064,7 @@ void ImposeAffectNoRecalc(CharData *ch, const Affect<EApply> &af) {
 	for (const auto &affect : ch->affected) {
 		// issue.affect-migration: re-application is keyed on affect_type (the effect identity); fall back
 		// to the legacy ESpell type only for affects that have no affect_type yet.
-		const bool same_id = (af.affect_type != EAffect::kUndefined)
-				? (affect->affect_type == af.affect_type) : (affect->type == af.type);
+		const bool same_id = affect->affect_type == af.affect_type;
 		const bool same_affect = (af.location == EApply::kNone) && (affect->affect_type == af.affect_type);
 		const bool same_type = (af.location != EApply::kNone) && same_id && (affect->location == af.location);
 		if (same_affect || same_type) {
@@ -1097,8 +1094,7 @@ void ImposeAffectNoRecalc(CharData *ch, Affect<EApply> &af, bool add_dur, bool m
 		while (it != ch->affected.end()) {
 			const auto &affect = *it;
 			// issue.affect-migration: merge by affect_type (effect identity), type fallback if none yet.
-			const bool same_id = (af.affect_type != EAffect::kUndefined)
-					? (affect->affect_type == af.affect_type) : (affect->type == af.type);
+			const bool same_id = affect->affect_type == af.affect_type;
 			if (same_id
 				&& affect->location == af.location) {
 				if (add_dur) {

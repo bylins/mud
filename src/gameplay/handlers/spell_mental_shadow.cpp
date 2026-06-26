@@ -53,7 +53,6 @@ EStageResult SpellMentalShadow(CastContext &ctx) {
 		return EStageResult::kSuccess;
 	}
 	Affect<EApply> af;
-	af.type = ESpell::kCharm;
 	af.duration = CalcDuration(mob, mob, ESkill::kUndefined, 5 + (int) VPOSI<float>((get_effective_int(ch) - 16.0) / 2, 0, 50), 0, 0, 0);
 	af.modifier = 0;
 	af.location = EApply::kNone;

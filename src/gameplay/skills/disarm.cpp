@@ -108,7 +108,6 @@ void go_injure(CharData *ch, CharData *vict) {
 //Ввожу ДВА аффекта: 1. Короткий - собственно сам дебафф. 2. Долгий, для запрета повторного наложения.
 //af.affect_type = EAffect::kInjuredLimb; - этот битвектор нафиг не нужен. Ввел его только для того чтобы не показывало !UNDEF! при выводе аффектов
 		Affect<EApply> af;
-		af.type = ESpell::kUndefined;
 		af.duration = injure_duration;
 		af.modifier = -(10 + std::min((GetSkill(ch, ESkill::kDisarm) / 10), 20));
 		af.location = EApply::kPhysicDamagePercent;
@@ -138,7 +137,6 @@ void go_injure(CharData *ch, CharData *vict) {
 		}
 //Этот аффект ничего не дает, просто предотвращает повторное наложение дебаффа тем же персонажем.
 		Affect<EApply> af2;
-		af2.type = ESpell::kUndefined;
 		af2.duration = no_injure_duration;
 		af2.battleflag = kNone;
 		af2.caster_id = ch->get_uid();

@@ -107,7 +107,6 @@ void go_strangle(CharData *ch, CharData *vict) {
 	}
 
 	Affect<EApply> af;
-	af.type = ESpell::kStrangle;
 	af.duration = strangle_duration;
 	af.battleflag = kNone;
 	af.affect_type = EAffect::kStrangled;
@@ -129,7 +128,6 @@ void go_strangle(CharData *ch, CharData *vict) {
 		}
 
 		Affect<EApply> af2;
-		af2.type = ESpell::kSilence;
 		af2.duration = silence_duration;
 		af2.modifier = -skill_strangle/3;
 		af2.location = EApply::kMagicDamagePercent;

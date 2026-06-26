@@ -138,21 +138,17 @@ bool IsAbleToSay(CharData *ch) {
 	return MUD::MobRaces()[GET_RACE(ch)].IsVocal();
 }
 
-void ShowAffExpiredMsg(ESpell aff_type, EAffect affect_type, CharData *ch) {
+void ShowAffExpiredMsg(EAffect affect_type, CharData *ch) {
 	if (!ch->IsNpc() && ch->IsFlagged(EPlrFlag::kWriting)) {
 		return;
 	}
 
-	// issue.affect-migration: expiry narration belongs to the AFFECT. The char always learns the
-	// affect wore off (kDefault generic fallback); the room is told only for affects whose expiry is
-	// visible to others (sheaf-direct kAffExpiredToRoom, silent if unauthored). Unflagged (kUndefined)
-	// affects keep the spell-keyed text.
-	const std::string &to_char = (affect_type != EAffect::kUndefined)
-		? affects::AffectMsg(affect_type, affects::EAffectMsgType::kAffExpiredToChar)
-		: GetAffExpiredText(aff_type);
-	const std::string &to_room = (affect_type != EAffect::kUndefined)
-		? affects::AffectMsgRaw(affect_type, affects::EAffectMsgType::kAffExpiredToRoom)
-		: MUD::SpellMessages()[aff_type].GetMessage(ESpellMsg::kAffExpiredToRoom);
+	// issue.affect-migration: expiry narration belongs to the AFFECT, keyed by its identity. The char
+	// always learns the affect wore off (kDefault generic fallback for affect_type == kUndefined); the
+	// room is told only for affects whose expiry is visible to others (sheaf-direct kAffExpiredToRoom,
+	// silent if unauthored).
+	const std::string &to_char = affects::AffectMsg(affect_type, affects::EAffectMsgType::kAffExpiredToChar);
+	const std::string &to_room = affects::AffectMsgRaw(affect_type, affects::EAffectMsgType::kAffExpiredToRoom);
 	if (!to_char.empty()) {
 		act(to_char.c_str(), false, ch, nullptr, nullptr, kToChar | kToSleep);
 		SendMsgToChar("\r\n", ch);
@@ -932,7 +928,6 @@ static bool TryApplyAffectTalent(CharData *ch, CharData *victim, ESpell spell_id
 	}
 	auto apply_one = [&](const talents_actions::TalentAffect::Apply &apply) {
 		Affect<EApply> taf;
-		taf.type = talent.GetSpell();
 		taf.affect_type = apply.id;
 		taf.location = apply.location;
 		taf.duration = duration;
@@ -1340,7 +1335,6 @@ static void EnhanceAnimateDead(CharData *ch, CharData *mob, MobVnum mob_num,
 	}
 	if (eff_wis >= 75) {
 		Affect<EApply> af;
-		af.type = ESpell::kUndefined;
 		af.duration = charm_duration * (1 + remort::GetRealRemort(ch));
 		af.modifier = 0;
 		af.location = EApply::kNone;

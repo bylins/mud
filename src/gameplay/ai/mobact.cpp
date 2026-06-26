@@ -42,6 +42,7 @@
 #include "engine/core/char_equip_flags.h"
 #include "engine/core/obj_handler.h"
 #include "engine/entities/char_data.h"
+#include "gameplay/magic/magic_rooms.h"  // room_spells::ERoomAffect
 #include "gameplay/abilities/timed_abilities.h"
 #include "gameplay/mechanics/equipment.h"
 #include "gameplay/mechanics/inventory.h"
@@ -816,7 +817,7 @@ void do_aggressive_mob(CharData *ch, int check_sneak, bool skip_hide_camouflage_
 	if (extra_aggressive(ch, nullptr)) {
 		const auto &room = world[ch->in_room];
 		for (auto affect_it = room->affected.begin(); affect_it != room->affected.end(); ++affect_it) {
-			if (affect_it->get()->type == ESpell::kRuneLabel && (affect_it != room->affected.end())) {
+			if (affect_it->get()->affect_type == room_spells::ERoomAffect::kRuneLabel && (affect_it != room->affected.end())) {
 				act("$n шаркнул$g несколько раз по светящимся рунам, полностью их уничтожив.",
 					false,
 					ch,

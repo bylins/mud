@@ -52,7 +52,6 @@ void DoBandage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	af.battleflag = kAfPulsedec;
 	ImposeAffect(ch, af, false, false, false, false);
 
-	af.type = ESpell::kUndefined;
 	af.location = EApply::kNone;
 	af.duration = CalcDuration(ch, ch, ESkill::kUndefined, 60, 0, 0, 0);
 	af.affect_type = EAffect::kCannotBeBandaged;

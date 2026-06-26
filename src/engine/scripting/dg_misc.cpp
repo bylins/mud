@@ -313,8 +313,6 @@ void do_dg_affect(void * /*go*/, Script * /*sc*/, Trigger *trig, int/* script_ty
 	if (duration > 0) {
 		// add the affect
 		Affect<EApply> af;
-		af.type = ESpell::kUndefined; // dg_affect no longer carries a spell identity
-
 		af.battleflag = battle;
 		if (battle == kAfPulsedec) {
 			af.duration = duration;

@@ -271,7 +271,6 @@ void DoFindhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 		}
 
-		af.type = ESpell::kCharm;
 		af.modifier = 0;
 		af.location = EApply::kNone;
 		af.affect_type = EAffect::kCharmed;
@@ -279,7 +278,6 @@ void DoFindhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		affect_to_char(helpee, af);
 		helpee->SetFlag(EMobFlag::kCompanion);	// any NPC ally
 
-		af.type = ESpell::kCharm;
 		af.modifier = 0;
 		af.location = EApply::kNone;
 		af.affect_type = EAffect::kHelper;

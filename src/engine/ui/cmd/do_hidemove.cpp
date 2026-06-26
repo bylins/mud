@@ -35,7 +35,6 @@ void DoHidemove(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	auto sneaking = IsAffectedFlagOnly(ch, EAffect::kSneak);
 	if (!sneaking) {
 		Affect<EApply> af;
-		af.type = ESpell::kSneak;
 		af.location = EApply::kNone;
 		af.modifier = 0;
 		af.duration = 1;

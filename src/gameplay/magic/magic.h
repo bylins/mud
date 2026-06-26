@@ -175,7 +175,7 @@ const int kMaxSpellAffects = 16; // change it if you need more
 bool IsRoomForbidden(RoomData *room);
 void mobile_affect_update();
 void player_affect_update();
-void ShowAffExpiredMsg(ESpell aff_type, EAffect affect_type, CharData *ch);
+void ShowAffExpiredMsg(EAffect affect_type, CharData *ch);
 // issue.affect-migration: emit an affect's imposition messages (data-driven, from affect_msg.xml).
 // Picks the success or FAIL set by `failed` (the skill derives it from the affect's kAfFailed flag),
 // across char/caster/room perspectives, with the armed/unarmed $o rule. Silent on missing keys.
