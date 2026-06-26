@@ -1861,7 +1861,6 @@ struct RemovalCandidate {
 	bool break_on_fail{false};
 	EAffect affect_type{EAffect::kUndefined};                          // char target: the affect to remove
 	room_spells::ERoomAffect room_affect_type{room_spells::ERoomAffect::kUndefined};  // room target: the affect to remove
-	ESpell spell{ESpell::kUndefined};          // char only: removed affect's source spell, for the PK aggro flag check (spell-DATA tail)
 };
 
 // Build the list of affects to dispel for a <remove>/<remove_anyway> set:
@@ -1874,34 +1873,24 @@ struct RemovalCandidate {
 // future sphere-specific dispels added by tagging affects with kAfXSphere flags).
 void CollectRemovals(CharData *victim, const talents_actions::TalentUnaffect::Set &set,
 					 std::vector<RemovalCandidate> &out, Bitvector flags) {
-	// issue.affect-migration: candidates are keyed by affect_type. spell_of records the matched
-	// affect's source spell (af.type) for the downstream PK aggro flag check only (spell-DATA tail).
-	auto spell_of = [&](EAffect at) -> ESpell {
-		for (const auto &aff : victim->affected) {
-			if (aff && aff->affect_type == at && AffectMatchesFlags(aff, flags)) {
-				return aff->type;
-			}
-		}
-		return ESpell::kUndefined;
-	};
+	// issue.affect-migration: candidates are keyed by affect_type (no spell read at all -- the dispel
+	// downstream and the PK classification both work off the affect's own identity/flags).
 	if (set.wildcard_any) {
 		// Reservoir sample one eligible affect uniformly.
 		EAffect pick_at = EAffect::kUndefined;
-		ESpell pick_sp = ESpell::kUndefined;
 		int seen = 0;
 		for (const auto &aff : victim->affected) {
 			if (AffectMatchesFlags(aff, flags) && number(1, ++seen) == 1) {
 				pick_at = aff->affect_type;
-				pick_sp = aff->type;
 			}
 		}
-		if (pick_at != EAffect::kUndefined || pick_sp != ESpell::kUndefined) {
-			out.push_back({.break_on_fail = set.breaking_by_failure, .affect_type = pick_at, .spell = pick_sp});
+		if (pick_at != EAffect::kUndefined) {
+			out.push_back({.break_on_fail = set.breaking_by_failure, .affect_type = pick_at});
 		}
 	} else {
 		for (const auto affect_type : set.any_of.chars) {
 			if (HasDispellableAffect(victim, affect_type, flags)) {
-				out.push_back({.break_on_fail = set.breaking_by_failure, .affect_type = affect_type, .spell = spell_of(affect_type)});
+				out.push_back({.break_on_fail = set.breaking_by_failure, .affect_type = affect_type});
 				break;
 			}
 		}
@@ -1909,13 +1898,13 @@ void CollectRemovals(CharData *victim, const talents_actions::TalentUnaffect::Se
 	if (set.wildcard_all) {
 		for (const auto &aff : victim->affected) {
 			if (AffectMatchesFlags(aff, flags)) {
-				out.push_back({.break_on_fail = set.breaking_by_failure, .affect_type = aff->affect_type, .spell = aff->type});
+				out.push_back({.break_on_fail = set.breaking_by_failure, .affect_type = aff->affect_type});
 			}
 		}
 	} else {
 		for (const auto affect_type : set.all_of.chars) {
 			if (HasDispellableAffect(victim, affect_type, flags)) {
-				out.push_back({.break_on_fail = set.breaking_by_failure, .affect_type = affect_type, .spell = spell_of(affect_type)});
+				out.push_back({.break_on_fail = set.breaking_by_failure, .affect_type = affect_type});
 			}
 		}
 	}
@@ -2248,20 +2237,31 @@ EStageResult RunCastUnaffects(CharData *ch, TTarget *target, ESpell spell_id,
 
 	if (!to_remove.empty()) {
 		if constexpr (std::is_same_v<TTarget, CharData>) {
-			// PK-action check: keyed on the first dispelled affect's spell flags; a
-			// disallowed action aborts the removal entirely. Char target only.
+			// PK-action check: keyed on the first dispelled affect; a disallowed action aborts the
+			// removal entirely. Char target only.
 			// issue.spell-ally-aggression (#3455): a benign cast (violent="N") that only
 			// incidentally strips a buff is not an aggressive act. Gate the PK check on the
 			// cast spell's per-target violence verdict, exactly like CastAffect does -- without
 			// it, group prismatic aura stripping an ally's sanctuary tripped pk_agro_action and
 			// evicted the caster from the clan castle. Violent dispels still aggro.
 			if (ch != target && MUD::Spell(spell_id).IsViolentAgainst(ch, target)) {
-				const auto primary = to_remove.front().spell;
-				if (MUD::Spell(primary).IsFlagged(kNpcAffectNpc)) {
+				// issue.affect-migration: classify the dispelled affect by its OWN debuff flag instead
+				// of its source spell's kNpcAffectNpc/kNpcAffectPc. Stripping a buff (debuff=false) is
+				// aggression against the target itself; stripping a debuff (debuff=true) undoes the work
+				// of whoever the target is fighting, so it aggros that enemy. The affect is still on the
+				// target here (removal runs below).
+				bool dispelled_debuff = false;
+				for (const auto &aff : target->affected) {
+					if (aff && aff->affect_type == to_remove.front().affect_type) {
+						dispelled_debuff = aff->debuff;
+						break;
+					}
+				}
+				if (!dispelled_debuff) {
 					if (!pk_agro_action(ch, target)) {
 						return EStageResult::kSuccess;
 					}
-				} else if (MUD::Spell(primary).IsFlagged(kNpcAffectPc) && target->GetEnemy()) {
+				} else if (target->GetEnemy()) {
 					if (!pk_agro_action(ch, target->GetEnemy())) {
 						return EStageResult::kSuccess;
 					}
