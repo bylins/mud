@@ -287,9 +287,11 @@ void RoomRemoveAffect(RoomData *room, const RoomAffectIt &affect) {
 }
 
 RoomAffectIt FindAffect(RoomData *room, ESpell type) {
+	// issue.affect-migration: match by room-affect identity (ERoomAffect), not Affect::type.
+	const ERoomAffect want = RoomAffectBySpell(type);
 	for (auto affect_i = room->affected.begin(); affect_i != room->affected.end(); ++affect_i) {
 		const auto affect = *affect_i;
-		if (affect->type == type) {
+		if (affect->affect_type == want) {
 			return affect_i;
 		}
 	}
@@ -329,8 +331,9 @@ bool IsZoneRoomAffected(int zone_vnum, ESpell spell) {
 }
 
 bool IsRoomAffected(RoomData *room, ESpell spell) {
+	const ERoomAffect want = RoomAffectBySpell(spell);   // issue.affect-migration: by affect_type
 	for (const auto &af : room->affected) {
-		if (af->type == spell) {
+		if (af->affect_type == want) {
 			return true;
 		}
 	}
@@ -386,9 +389,10 @@ CharData *find_char_in_room(long char_id, RoomData *room) {
 }
 
 RoomData *FindAffectedRoomByCasterID(long caster_id, ESpell spell_id) {
+	const ERoomAffect want = RoomAffectBySpell(spell_id);   // issue.affect-migration: by affect_type
 	for (const auto room : affected_rooms) {
 		for (const auto &af : room->affected) {
-			if (af->type == spell_id && af->caster_id == caster_id) {
+			if (af->affect_type == want && af->caster_id == caster_id) {
 				return room;
 			}
 		}
@@ -411,8 +415,9 @@ ESpell RemoveAffectFromRooms(ESpell spell_id, const F &filter) {
 }
 
 void RemoveSingleRoomAffect(long caster_id, ESpell spell_id) {
+	const ERoomAffect want = RoomAffectBySpell(spell_id);   // issue.affect-migration: by affect_type
 	auto filter =
-		[&caster_id, &spell_id](auto &af) { return (af->caster_id == caster_id && af->type == spell_id); };
+		[&caster_id, want](auto &af) { return (af->caster_id == caster_id && af->affect_type == want); };
 	RemoveAffectFromRooms(spell_id, filter);
 }
 
@@ -854,9 +859,10 @@ ECastResult CallMagicToRoom(CharData *ch, RoomData *room, CastContext roll) {
 }
 
 int GetUniqueAffectDuration(long caster_id, ESpell spell_id) {
+	const ERoomAffect want = RoomAffectBySpell(spell_id);   // issue.affect-migration: by affect_type
 	for (const auto &room : affected_rooms) {
 		for (const auto &af : room->affected) {
-			if (af->type == spell_id && af->caster_id == caster_id) {
+			if (af->affect_type == want && af->caster_id == caster_id) {
 				return af->duration;
 			}
 		}
@@ -868,7 +874,7 @@ void affect_room_join_fspell(RoomData *room, const Affect<ERoomApply> &af) {
 	bool found = false;
 
 	for (const auto &hjp : room->affected) {
-		if (hjp->type == af.type && hjp->location == af.location) {
+		if (hjp->affect_type == af.affect_type && hjp->location == af.location) {
 			if (hjp->modifier < af.modifier) {
 				hjp->modifier = af.modifier;
 			}
@@ -889,7 +895,7 @@ void AffectRoomJoinReplace(RoomData *room, const Affect<ERoomApply> &af) {
 	bool found = false;
 
 	for (auto &affect_i : room->affected) {
-		if (affect_i->type == af.type && affect_i->location == af.location) {
+		if (affect_i->affect_type == af.affect_type && affect_i->location == af.location) {
 			affect_i->duration = af.duration;
 			affect_i->modifier = af.modifier;
 			found = true;
@@ -907,7 +913,7 @@ void affect_room_join(RoomData *room, Affect<ERoomApply> &af,
 	if (af.location) {
 		for (auto affect_i = room->affected.begin(); affect_i != room->affected.end(); ++affect_i) {
 			const auto &affect = *affect_i;
-			if (affect->type == af.type
+			if (affect->affect_type == af.affect_type
 				&& affect->location == af.location) {
 				if (add_dur) {
 					af.duration += affect->duration;
