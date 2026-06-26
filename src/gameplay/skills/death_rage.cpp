@@ -6,7 +6,7 @@ void CheckDeathRage(CharData *ch) {
 	struct TimedFeat timed;
 	int prob;
 
-	if (AffSuccessFlagged(ch, ESpell::kBerserk) &&
+	if (IsAffected(ch, EAffect::kBerserk) &&
 		(ch->get_hit() > ch->get_real_max_hit() / 2)) {
 		RemoveAffectFromChar(ch, EAffect::kBerserk);
 		SendMsgToChar("Предсмертное исступление оставило вас.\r\n", ch);

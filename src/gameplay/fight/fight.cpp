@@ -33,6 +33,7 @@
 #include "engine/core/char_handler.h"
 #include "engine/entities/char_data.h"
 #include "gameplay/affects/affect_messages.h"  // affects::AffectBuffKind
+#include "gameplay/abilities/talents_actions.h"  // primary-affect lookup for the buff/debuff AI
 #include "gameplay/mechanics/inventory.h"
 #include "engine/ui/color.h"
 #include "utils/random.h"
@@ -628,6 +629,21 @@ CharData *find_caster(CharData *caster, ESpell spell_id) {
 	return victim;
 }
 
+// issue.affect-migration: the primary affect a single-target spell imposes. The mob buff/debuff AI
+// uses it to ask "is the target already under this spell's effect?" via IsAffected (affect identity),
+// instead of the retired IsAffectedBySpell (which keyed on the casting spell). kUndefined when the
+// spell imposes no affect -- callers treat that as "can't tell -> not affected".
+static EAffect PrimaryAffectOf(ESpell spell) {
+	const auto &info = MUD::Spell(spell);
+	if (info.actions.Contains(talents_actions::EAction::kAffect)) {
+		const auto &applies = info.actions.GetAffect().GetApplies();
+		if (!applies.empty()) {
+			return applies.front().id;
+		}
+	}
+	return EAffect::kUndefined;
+}
+
 CharData *find_affectee(CharData *caster, ESpell spell_id) {
 	CharData *victim = nullptr;
 	int vict_val = 0;
@@ -666,14 +682,17 @@ CharData *find_affectee(CharData *caster, ESpell spell_id) {
 	else if (spellreal == ESpell::kSnakeEyes)
 		spellreal = ESpell::kDetectPoison;
 
+	const EAffect want = PrimaryAffectOf(spellreal);
+
 	if (caster->IsFlagged(EMobFlag::kCompanion) &&
 		AFF_FLAGGED(caster, EAffect::kHelper)) {
-		if (!IsAffectedBySpell(caster, spellreal)) {
+		if (want == EAffect::kUndefined || !IsAffected(caster, want)) {
 			return caster;
 		} else if (caster->has_master()
 			&& sight::CanSee(caster, caster->get_master())
 			&& caster->get_master()->in_room == caster->in_room
-			&& caster->get_master()->GetEnemy() && !IsAffectedBySpell(caster->get_master(), spellreal)) {
+			&& caster->get_master()->GetEnemy()
+			&& (want == EAffect::kUndefined || !IsAffected(caster->get_master(), want))) {
 			return caster->get_master();
 		}
 
@@ -693,7 +712,7 @@ CharData *find_affectee(CharData *caster, ESpell spell_id) {
 
 			if (!vict->GetEnemy()
 				|| AFF_FLAGGED(vict, EAffect::kHold)
-				|| IsAffectedBySpell(vict, spellreal)) {
+				|| (want != EAffect::kUndefined && IsAffected(vict, want))) {
 				continue;
 			}
 
@@ -704,7 +723,7 @@ CharData *find_affectee(CharData *caster, ESpell spell_id) {
 		}
 	}
 
-	if (!victim && !IsAffectedBySpell(caster, spellreal)) {
+	if (!victim && (want == EAffect::kUndefined || !IsAffected(caster, want))) {
 		victim = caster;
 	}
 
@@ -731,6 +750,8 @@ CharData *find_opp_affectee(CharData *caster, ESpell spell_id) {
 	else if (spellreal == ESpell::kSnare)
 		spellreal = ESpell::kEntangleEnemy;
 
+	const EAffect want = PrimaryAffectOf(spellreal);
+
 	if (GetRealInt(caster) > number(10, 20)) {
 		for (const auto vict : world[caster->in_room]->people) {
 			if ((vict->IsNpc()
@@ -745,7 +766,7 @@ CharData *find_opp_affectee(CharData *caster, ESpell spell_id) {
 				&& (GetRealInt(caster) < number(20, 27)
 					|| !in_same_battle(caster, vict, true)))
 				|| AFF_FLAGGED(vict, EAffect::kHold)
-				|| IsAffectedBySpell(vict, spellreal)) {
+				|| (want != EAffect::kUndefined && IsAffected(vict, want))) {
 				continue;
 			}
 			if (!victim || vict_val < GET_MAXDAMAGE(vict)) {
@@ -757,7 +778,7 @@ CharData *find_opp_affectee(CharData *caster, ESpell spell_id) {
 
 	if (!victim
 		&& caster->GetEnemy()
-		&& !IsAffectedBySpell(caster->GetEnemy(), spellreal)) {
+		&& (want == EAffect::kUndefined || !IsAffected(caster->GetEnemy(), want))) {
 		victim = caster->GetEnemy();
 	}
 

@@ -16,7 +16,7 @@ void DoLightwalk(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if (AffSuccessFlagged(ch, ESpell::kLightWalk)) {
+	if (IsAffected(ch, EAffect::kLightWalk)) {
 		SendMsgToChar("Вы уже двигаетесь легким шагом.\r\n", ch);
 		return;
 	}

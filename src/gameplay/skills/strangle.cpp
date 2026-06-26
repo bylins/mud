@@ -63,7 +63,7 @@ void do_strangle(CharData *ch, CharData *vict) {
 		return;
 	}
 
-	if (IsAffectedBySpellWithCasterId(ch, vict, ESpell::kStrangle)) {
+	if (IsAffectedWithCasterId(ch, vict, EAffect::kStrangled)) {
 		act("Не получится - $N уже понял$G, что от Вас можно ожидать всякого!",
 			false, ch, nullptr, vict, kToChar);
 		return;
