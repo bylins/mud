@@ -179,10 +179,10 @@
 	<affect id="kDaturaPoison" buff="N">
 		<flags val="kAfSameTime|kAfCurable|kAfPoison"/>
 	</affect>
-	<affect id="kSkillReduce">
+	<affect id="kSkillReduce" buff="N">
 		<flags val="kAfSameTime|kAfCurable|kAfPoison"/>
 	</affect>
-	<affect id="kNoBattleSwitch">
+	<affect id="kNoBattleSwitch" buff="N">
 		<flags val="kAfSameTime|kAfCurable|kAfPoison"/>
 	</affect>
 	<affect id="kBelenaPoison" buff="N">

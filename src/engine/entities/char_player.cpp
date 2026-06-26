@@ -677,15 +677,15 @@ void Player::save_char() {
 	// affected_type
 	if (!tmp_aff.empty()) {
 		// issue.affect-migration: affects are persisted by their OWN identity (affect_type), not by
-		// the casting spell. Fields: affect_type duration modifier location battleflag potency debuff
+		// the casting spell. Fields: affect_type duration modifier location battleflag potency
 		// stacks, then the affect's name as a readable comment (ignored on load). The Aff3 tag replaces
 		// the spell-keyed Aff2 block; old Aff2 blocks are dropped on load -- active buffs recast in game.
 		saved.printf("Aff3:\n");
 		for (auto &aff : tmp_aff) {
 			if (aff->affect_type != EAffect::kUndefined) {
-				saved.printf("%d %d %d %d %d %f %d %d %s\n", static_cast<int>(aff->affect_type),
+				saved.printf("%d %d %d %d %d %f %d %s\n", static_cast<int>(aff->affect_type),
 						aff->duration, aff->modifier, aff->location, static_cast<int>(aff->battleflag),
-						aff->potency, static_cast<int>(aff->debuff), aff->stacks,
+						aff->potency, aff->stacks,
 						NAME_BY_ITEM<EAffect>(aff->affect_type).c_str());
 			}
 		}
@@ -1201,15 +1201,14 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 					i = 0;
 					do {
 						fbgetline(fl, line);
-						// Fields: affect_type duration modifier location battleflag potency debuff stacks.
+						// Fields: affect_type duration modifier location battleflag potency stacks.
 						// The trailing affect name is a readable comment, ignored here. af.type is gone --
 						// the affect is identified by affect_type; the funnel re-sources battleflag from it
 						// (preserving the per-instance kAfFailed / kAfCharmBond bits from the saved value).
 						float af_potency = 0.0f;
-						int af_debuff = 0;
 						int af_stacks = 1;
-						const int parsed = sscanf(line, "%d %d %d %d %d %f %d %d",
-								&num, &num2, &num3, &num4, &num6, &af_potency, &af_debuff, &af_stacks);
+						const int parsed = sscanf(line, "%d %d %d %d %d %f %d",
+								&num, &num2, &num3, &num4, &num6, &af_potency, &af_stacks);
 						if (num > 0) {
 							Affect<EApply> af;
 							af.type = ESpell::kUndefined;
@@ -1222,9 +1221,6 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 								af.potency = af_potency;
 							}
 							if (parsed >= 7) {
-								af.debuff = (af_debuff != 0);
-							}
-							if (parsed >= 8) {
 								af.stacks = std::max(1, af_stacks);
 							}
 							affect_to_char(this, af);

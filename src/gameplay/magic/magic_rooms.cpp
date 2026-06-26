@@ -686,7 +686,6 @@ ECastResult CastRoomAffect(CastContext &ctx) {
 		// Stored potency scaled by <affects potency_weight=> (default 1.0).
 		// Symmetric with the char-affect path in TryApplyAffectTalent.
 		af[0].potency = CalcCastPotency(ctx.potency()) * talent.GetPotencyWeight();
-		af[0].debuff = MUD::Spell(spell_id).IsViolent();
 		if (!talent.GetApplies().empty()) {
 			af[0].modifier = ComputeApplyModifier(talent.GetApplies()[0], ctx.CompetenceBase(), ctx.potency());
 		}

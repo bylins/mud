@@ -1118,7 +1118,6 @@ void ImposeAffectNoRecalc(CharData *ch, const Affect<EApply> &af) {
 			if (affect->potency < af.potency) {
 				affect->potency = af.potency;
 			}
-			affect->debuff = af.debuff;
 			return;
 		}
 	}

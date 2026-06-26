@@ -865,7 +865,7 @@ static void ApplyTalentAffect(CharData *victim, Affect<EApply> &af, int max_stac
 // applies, then each apply's modifier is derived from the cast's potency roll. Every imposed
 // affect records the cast's potency and debuff nature so a later dispel can be strength-gated.
 static bool TryApplyAffectTalent(CharData *ch, CharData *victim, ESpell spell_id, int modi,
-						 const RollResult &potency, float cast_potency, bool cast_debuff,
+						 const RollResult &potency, float cast_potency,
 						 const talents_actions::Action &action, double area_coeff, double competence) {
 	const auto &talent = action.GetAffect();
 	// prob: percent chance the <affects> block fires at all (default 100, silent miss on fail).
@@ -947,7 +947,6 @@ static bool TryApplyAffectTalent(CharData *ch, CharData *victim, ESpell spell_id
 		// big-modifier spells stay dispellable by recording a deliberately weaker
 		// potency than the raw roll would suggest.
 		taf.potency = cast_potency * talent.GetPotencyWeight() * static_cast<float>(area_coeff);
-		taf.debuff = cast_debuff;
 		// apply.stack is the max stack count: re-applying up to the cap adds a stack and
 		// accumulates the modifier (see ApplyTalentAffect).
 		ApplyTalentAffect(victim, taf, apply.stack);
@@ -1159,19 +1158,17 @@ EStageResult CastAffect(CastContext &ctx) {
 	// talent-affect block below; the <blocking>/<required> immunity checks moved up to
 	// CastToSingleTarget (action-level, gating the whole cast).
 	const bool has_affect_talent = ctx.action_or_default().Contains(talents_actions::EAction::kAffect);
-	// Every affect this cast lands records the cast's potency (strength) and whether it is a
-	// debuff, so a later dispel can be gated by strength (see CastUnaffects/DispelSucceeds).
-	// CalcCastPotency lives in magic_utils so CallMagicToRoom records the same scalar for its
-	// room affects; the debuff flag follows the per-target relationship for ambiguous spells
-	// since the dispel rules read this bit later.
+	// Every affect this cast lands records the cast's potency (strength) so a later dispel can be
+	// gated by strength (see CastUnaffects/DispelSucceeds). CalcCastPotency lives in magic_utils so
+	// CallMagicToRoom records the same scalar for its room affects. (Buff/debuff classification is
+	// the affect's own affects.xml buff flag now, not a per-cast bit -- see affects::AffectBuffKind.)
 	const float cast_potency = CalcCastPotency(potency);
-	const bool cast_debuff = MUD::Spell(spell_id).IsViolentAgainst(ch, victim);
 
 	// A spell without an <affects> block has no affect to apply -- `success` stays true so the
 	// poison/message side-effects still fire for any non-affect-talent path.
 	bool success = true;
 	if (has_affect_talent) {
-		success = TryApplyAffectTalent(ch, victim, spell_id, modi, potency, cast_potency, cast_debuff,
+		success = TryApplyAffectTalent(ch, victim, spell_id, modi, potency, cast_potency,
 									   ctx.action_or_default(), ctx.area_coeff, ctx.CompetenceBase());
 	}
 
