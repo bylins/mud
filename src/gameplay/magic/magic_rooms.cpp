@@ -555,11 +555,10 @@ void UpdateRoomsAffects() {
 				ch = find_char(affect->caster_id);
 			}
 
-			if (!(ch && IS_SET(affect->battleflag, kAfCasterInWorldDelay))) {
-				// the rune label specifically decays while its caster is away (the original per-spell case)
-				if (affect->affect_type == ERoomAffect::kRuneLabel) {
-					affect->duration--;
-				}
+			// kAfCasterInWorldDelay affects decay while their caster is away (general -- the old code
+			// special-cased kRuneLabel, the only such affect).
+			if (IS_SET(affect->battleflag, kAfCasterInWorldDelay) && !ch) {
+				affect->duration--;
 			}
 
 			if (affect->duration >= 1) {
