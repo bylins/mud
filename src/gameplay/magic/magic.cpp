@@ -69,7 +69,8 @@ void ReactToCast(CharData *victim, CharData *caster, ESpell spell_id);
 
 bool IsRoomForbidden(RoomData *room) {
 	for (const auto &af: room->affected) {
-		if (af->type == ESpell::kForbidden && (number(1, 100) <= af->modifier)) {
+		// issue.affect-migration: identify the ward by its room-affect identity, not the casting spell.
+		if (af->affect_type == room_spells::ERoomAffect::kForbidden && (number(1, 100) <= af->modifier)) {
 			return true;
 		}
 	}
