@@ -610,9 +610,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 					(aff->battleflag & kAfBattledec) || (aff->battleflag & kAfSameTime) ? "рнд" : "мин",
 					kColorCyn,
 					// issue.affect-migration: affect name by its own identity (affect_type), spell fallback.
-					aff->affect_type != EAffect::kUndefined
-						? affects::AffectMsg(aff->affect_type, affects::EAffectMsgType::kShortDesc).c_str()
-						: MUD::Spell(aff->type).GetCName(),
+					affects::AffectMsg(aff->affect_type, affects::EAffectMsgType::kShortDesc).c_str(),
 					kColorNrm);
 			bool has_modifier = aff->modifier != 0;
 			if (has_modifier) {
@@ -1247,8 +1245,7 @@ void do_stat_room(CharData *ch, const int rnum = 0) {
 		for (const auto &aff : rm->affected) {
 			size_t buf1_len = strlen(buf1);
 			snprintf(buf1 + buf1_len, sizeof(buf1) - buf1_len, "       Заклинание \"%s\" (длит: %d, модиф: %d) - %s.\r\n",
-					(aff->type != ESpell::kUndefined ? MUD::Spell(aff->type).GetCName()
-						: NAME_BY_ITEM<room_spells::ERoomAffect>(aff->affect_type).c_str()),
+					NAME_BY_ITEM<room_spells::ERoomAffect>(aff->affect_type).c_str(),
 					aff->duration,
 					room_spells::IsPortalAffect(aff->affect_type) ? world[aff->modifier]->vnum : aff->modifier,
 					(k = find_char(aff->caster_id)) ? GET_NAME(k) : "неизвестно");

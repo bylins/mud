@@ -113,21 +113,13 @@ void affect_total(CharData *ch);
 void affect_modify(CharData *ch, EApply loc, int mod, EAffect bitv, bool add);
 std::pair<EApply, int> GetApplyByWeaponAffect(EWeaponAffect element, CharData *ch);
 void affect_to_char(CharData *ch, const Affect<EApply> &af);
-void RemoveAffectFromChar(CharData *ch, ESpell spell_id);
-void RemoveAffectFromCharAndRecalculate(CharData *ch, ESpell spell_id);
 void RemoveAffectFromChar(CharData *ch, EAffect affect_type);
 void RemoveAffectFromCharAndRecalculate(CharData *ch, EAffect affect_type);
 // issue.affect-migration: un-charm -- remove the whole charm package (affects flagged kAfCharmBond) and,
 // for an NPC, schedule extraction + clear hire price. Replaces RemoveAffectFromChar(ESpell::kCharm).
 void RemoveCharmBond(CharData *ch, bool recalculate = false);
 void RemoveCurableAffects(CharData *ch);
-bool IsAffectedBySpell(CharData *ch, ESpell type);
-// Like IsAffectedBySpell, but ignores failed-attempt markers (affects carrying kAfFailed):
-// returns true only when ch has a full-fledged, working affect of this spell type.
-bool AffSuccessFlagged(CharData *ch, ESpell type);
-bool IsAffectedBySpellWithCasterId(CharData *ch, CharData *vict, ESpell type);
-// Like IsAffectedBySpellWithCasterId but keyed by affect_type (the affect identity, decoupled from
-// the casting spell): true if `vict` carries a real (non-failed) affect of this affect_type cast by `ch`.
+// True if `vict` carries a real (non-failed) affect of this affect_type cast by `ch`.
 bool IsAffectedWithCasterId(CharData *ch, CharData *vict, EAffect affect_type);
 // True if `ch` carries a real (non-failed) affect of this affect_type -- the affect STRUCTURE
 // itself, unlike AFF_FLAGGED which is ALSO set by worn equipment (EWeaponAffect) and a mob's

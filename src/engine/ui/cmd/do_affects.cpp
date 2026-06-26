@@ -48,9 +48,7 @@ void do_affects(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			// issue.affect-migration: name the affect by its own identity (affect_type kShortDesc);
 			// fall back to the casting spell's name for affects not yet migrated off Affect::type.
 			snprintf(sp_name, sizeof(sp_name), "%s",
-					aff->affect_type != EAffect::kUndefined
-						? affects::AffectMsg(aff->affect_type, affects::EAffectMsgType::kShortDesc).c_str()
-						: MUD::Spell(aff->type).GetCName());
+					affects::AffectMsg(aff->affect_type, affects::EAffectMsgType::kShortDesc).c_str());
 			int mod = 0;
 			if (aff->battleflag == kAfPulsedec) {
 				mod = aff->duration / 51; //если в пульсах приводим к тикам 25.5 в сек 2 минуты

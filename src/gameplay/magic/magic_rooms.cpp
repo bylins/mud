@@ -215,6 +215,18 @@ void ValidateRoomAffectRegistry(parser_wrapper::DataNode data) {
 }
 }  // namespace
 
+// issue.affect-migration: the inverse of RoomAffectBySpell -- the spell whose enum token matches a room
+// affect. A room affect no longer stores its imposing ESpell, so paths that still need one (the cast
+// context for an affect's tick actions, the apply-cap for the seal-strength display) source it by
+// identity. kUndefined when no same-named spell exists. Public (sight.cpp uses it).
+ESpell SpellByRoomAffect(ERoomAffect affect_type) {
+	try {
+		return ITEM_BY_NAME<ESpell>(NAME_BY_ITEM<ERoomAffect>(affect_type));
+	} catch (const std::out_of_range &) {
+		return ESpell::kUndefined;
+	}
+}
+
 // issue.affect-migration: a room affect's intrinsic behavior flags from room_affects.xml, keyed by
 // affect_type. 0 for room affects with no row/flags. Loaded? guards apply-time sourcing (Phase R2).
 Bitvector RoomAffectFlagsByType(ERoomAffect affect_type) {
@@ -365,9 +377,8 @@ void ShowAffectedRooms(CharData *ch) {
 	for (const auto r : affected_rooms) {
 		for (const auto &af : r->affected) {
 			table << count << r->vnum
-				  // issue.affect-migration: room-affect name by ERoomAffect when its ESpell is retired.
-				  << (af->type != ESpell::kUndefined ? MUD::Spell(af->type).GetName()
-						: NAME_BY_ITEM<ERoomAffect>(af->affect_type))
+				  // issue.affect-migration: room-affect name by its ERoomAffect identity.
+				  << NAME_BY_ITEM<ERoomAffect>(af->affect_type)
 				  << GetNameById(af->caster_id) << af->duration * 2 << table_wrapper::kEndRow;
 			++count;
 		}
@@ -485,7 +496,7 @@ static void EmitRoomTickMessage(CharData *ch, ESpell impose, int tick) {
 // kBattlePulse only in combat) and run ONE per tick, cycled by the affect's tick counter. Returns false
 // if the affect has no pulse-triggered action (a passive affect -- nothing to do this tick).
 static bool RunRoomTick(RoomData *room, CharData *ch, const Affect<ERoomApply>::shared_ptr &aff) {
-	const ESpell impose = aff->type;
+	const ESpell impose = SpellByRoomAffect(aff->affect_type);
 	const ERoomAffect affect_type = aff->affect_type;
 	const bool combat = RoomHasCombat(room);
 	std::vector<talents_actions::Action> pulse;

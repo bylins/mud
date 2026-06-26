@@ -476,7 +476,7 @@ void EmitCharState(const char* role,
 	for (const auto& a : ch->affected) {
 		++aff_count;
 		if (!aff_list.empty()) aff_list += "|";
-		aff_list += MUD::Spell(a->type).GetCName();
+		aff_list += NAME_BY_ITEM<EAffect>(a->affect_type);
 		aff_list += fmt::format(" ({}t)", a->duration);
 	}
 	e.attrs["affects_count"] = static_cast<std::int64_t>(aff_count);

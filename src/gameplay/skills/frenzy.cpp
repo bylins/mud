@@ -60,7 +60,7 @@ void do_frenzy(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	for (auto it = ch->affected.begin(); it != ch->affected.end();) {
 		auto a = *(*it);  // копия данных эффекта (НЕ ссылка!)
 
-		if (a.type == ESpell::kFrenzy) {
+		if (a.affect_type == EAffect::kFrenzy) {
 			has_frenzy = true;
 
 			if (a.location == EApply::kHpRegen && a.modifier < af[0].modifier * 5) {

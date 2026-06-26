@@ -102,6 +102,10 @@ struct RoomAffectActor {
 };
 RoomAffectActor ClassifyRoomAffectAccess(CharData *ch, long caster_id);
 
+// issue.affect-migration: the spell whose enum token matches a room affect (inverse of
+// RoomAffectBySpell); kUndefined if none. For paths that still need an ESpell from a room affect.
+[[nodiscard]] ESpell SpellByRoomAffect(ERoomAffect affect_type);
+
 // issue.affect-migration: per-ERoomAffect behavior flags from room_affects.xml (0 if none) + load gate.
 [[nodiscard]] Bitvector RoomAffectFlagsByType(ERoomAffect affect_type);
 [[nodiscard]] bool RoomAffectFlagsLoaded();

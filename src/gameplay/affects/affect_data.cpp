@@ -50,7 +50,6 @@ void EmitAffectEvent(const char *kind, const CharData *ch,
 		std::chrono::system_clock::now().time_since_epoch()).count();
 	ev.attrs["target_name"] = observability::EngineStringToUtf8(
 		GET_NAME(ch) ? GET_NAME(ch) : "");
-	ev.attrs["spell_id"] = static_cast<std::int64_t>(af.type);
 	ev.attrs["duration"] = static_cast<std::int64_t>(af.duration);
 	ev.attrs["modifier"] = static_cast<std::int64_t>(af.modifier);
 	ev.attrs["location"] = static_cast<std::int64_t>(af.location);
@@ -58,13 +57,10 @@ void EmitAffectEvent(const char *kind, const CharData *ch,
 	observability::EmitToAllSinks(ev);
 }
 
-// issue.affect-migration: an affect announces its natural expiry if it has an IDENTITY -- its affect_type
-// (preferred) or, transitionally, a valid legacy ESpell type (for affects not yet migrated off
-// Affect::type, e.g. kCharm/kPoison). Re-keys the old `type >= kFirst` gate onto affect_type so affects
-// whose ESpell was retired (affect_type set, type == kUndefined) announce again.
+// issue.affect-migration: an affect announces its natural expiry if it has an IDENTITY -- its
+// affect_type. (Affect::type is gone; affect_type is the sole identity.)
 [[nodiscard]] bool AffectHasIdentity(const Affect<EApply>::shared_ptr &af) {
-	return af->affect_type != EAffect::kUndefined
-		|| (af->type >= ESpell::kFirst && af->type <= ESpell::kLast);
+	return af->affect_type != EAffect::kUndefined;
 }
 }  // namespace
 
@@ -620,38 +616,6 @@ void mobile_affect_update() {
 
 	profile.sections[static_cast<std::size_t>(Section::kTotal)] = total_timer.delta().count();
 	mobile_affect_update_profiler::record_run(profile);
-}
-
-void RemoveAffectFromCharAndRecalculate(CharData *ch, ESpell spell_id) {
-	RemoveAffectFromChar(ch, spell_id);
-	affect_total(ch);
-}
-
-// Call affect_remove with every spell of spelltype "skill"
-void RemoveAffectFromChar(CharData *ch, ESpell spell_id) {
-	// issue.affect-migration safety: never remove "all kUndefined-type affects" -- migrated affects
-	// share af.type=kUndefined; identify them by affect_type via the EAffect overload instead.
-	if (spell_id == ESpell::kUndefined) {
-		return;
-	}
-	std::list<std::shared_ptr<Affect<EApply>>>::iterator it  = ch->affected.begin();
-
-	while (it != ch->affected.end()) {
-		Affect<EApply>::shared_ptr affect = *it;
-		if (affect->type == spell_id) {
-			EmitAffectEvent("affect_removed", ch, *affect);
-			it = RemoveAffect(ch, it);
-		}
-		else {
-			++it;
-		}
-	}
-	if (ch->IsNpc()) {
-		if (spell_id == ESpell::kCharm) {
-			ch->extract_timer = 5;
-			ch->mob_specials.hire_price = 0;// added by WorM (Видолюб) 2010.06.04 Сбрасываем цену найма
-		}
-	}
 }
 
 // Affect-keyed counterparts (issue.affect-migration): remove every affect with a given
@@ -1326,60 +1290,6 @@ void reset_affects_no_recalc(CharData *ch) {
 	}
 	GET_COND(ch, condition::kDrunk) = 0;
 }
-bool IsAffectedBySpell(CharData *ch, ESpell type) {
-	if (type == ESpell::kPowerHold) {
-		type = ESpell::kHold;
-	} else if (type == ESpell::kPowerSilence) {
-		type = ESpell::kSilence;
-	} else if (type == ESpell::kPowerBlindness) {
-		type = ESpell::kBlindness;
-	}
-
-	for (const auto &affect : ch->affected) {
-		if (affect->type == type) {
-			return true;
-		}
-	}
-
-	return false;
-}
-
-bool AffSuccessFlagged(CharData *ch, ESpell type) {
-	if (type == ESpell::kPowerHold) {
-		type = ESpell::kHold;
-	} else if (type == ESpell::kPowerSilence) {
-		type = ESpell::kSilence;
-	} else if (type == ESpell::kPowerBlindness) {
-		type = ESpell::kBlindness;
-	}
-
-	for (const auto &affect : ch->affected) {
-		if (affect->type == type && !IS_SET(affect->battleflag, kAfFailed)) {
-			return true;
-		}
-	}
-
-	return false;
-}
-
-bool IsAffectedBySpellWithCasterId(CharData *ch, CharData *vict, ESpell type) {
-	if (type == ESpell::kPowerHold) {
-		type = ESpell::kHold;
-	} else if (type == ESpell::kPowerSilence) {
-		type = ESpell::kSilence;
-	} else if (type == ESpell::kPowerBlindness) {
-		type = ESpell::kBlindness;
-	}
-
-	for (const auto &affect : vict->affected) {
-		if (affect->type == type && affect->caster_id == ch->get_uid()) {
-			return true;
-		}
-	}
-
-	return false;
-}
-
 bool IsAffectedWithCasterId(CharData *ch, CharData *vict, EAffect affect_type) {
 	for (const auto &affect : vict->affected) {
 		if (affect->affect_type == affect_type && affect->caster_id == ch->get_uid()
