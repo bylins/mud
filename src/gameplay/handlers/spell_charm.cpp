@@ -98,7 +98,7 @@ EStageResult SpellCharm(CastContext &ctx) {
 
 		if (victim->IsFlagged(EMobFlag::kNoGroup))
 			victim->UnsetFlag(EMobFlag::kNoGroup);
-		RemoveAffectFromChar(victim, ESpell::kCharm);
+		RemoveCharmBond(victim);
 		if (GetRealInt(victim) > GetRealInt(ch)) {
 			af.duration = CalcDuration(victim, victim, ESkill::kUndefined, GetRealCha(ch), 0, 0, 0);
 		} else {
@@ -106,7 +106,7 @@ EStageResult SpellCharm(CastContext &ctx) {
 		}
 		af.modifier = 0;
 		af.location = EApply::kNone;
-		af.battleflag = 0;
+		af.battleflag = kAfCharmBond;
 		af.type = ESpell::kCharm;
 
 		// резервируем место под фит ()
@@ -155,7 +155,7 @@ EStageResult SpellCharm(CastContext &ctx) {
 		}
 		af.modifier = 0;
 		af.location = EApply::kNone;
-		af.battleflag = 0;
+		af.battleflag = kAfCharmBond;
 		af.type = ESpell::kCharm;
 		af.affect_type = EAffect::kCharmed;
 		affect_to_char(victim, af);

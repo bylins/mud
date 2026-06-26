@@ -118,6 +118,9 @@ void RemoveAffectFromChar(CharData *ch, ESpell spell_id);
 void RemoveAffectFromCharAndRecalculate(CharData *ch, ESpell spell_id);
 void RemoveAffectFromChar(CharData *ch, EAffect affect_type);
 void RemoveAffectFromCharAndRecalculate(CharData *ch, EAffect affect_type);
+// issue.affect-migration: un-charm -- remove the whole charm package (affects flagged kAfCharmBond) and,
+// for an NPC, schedule extraction + clear hire price. Replaces RemoveAffectFromChar(ESpell::kCharm).
+void RemoveCharmBond(CharData *ch, bool recalculate = false);
 void RemoveCurableAffects(CharData *ch);
 bool IsAffectedBySpell(CharData *ch, ESpell type);
 // Like IsAffectedBySpell, but ignores failed-attempt markers (affects carrying kAfFailed):

@@ -17,7 +17,7 @@ void SetupFirekeeperStats(CharData *ch, CharData *mob, const CastContext &ctx, i
 	af.duration = charm_duration;
 	af.modifier = 0;
 	af.location = EApply::kNone;
-	af.battleflag = 0;
+	af.battleflag = kAfCharmBond;
 	af.affect_type = (get_effective_cha(ch) >= 30) ? EAffect::kFireShield : EAffect::kFireAura;
 	affect_to_char(mob, af);
 	mob->SetFlag(EMobFlag::kSummoned);	// true conjuration (banishable)

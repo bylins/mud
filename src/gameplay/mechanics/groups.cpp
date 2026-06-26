@@ -574,7 +574,7 @@ void do_report(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			int loyalty = 0;
 
 			for (const auto &aff : ch->affected) {
-				if (aff->type == ESpell::kCharm) {
+				if (IS_SET(aff->battleflag, kAfCharmBond)) {
 					loyalty = aff->duration / 2;
 					break;
 				}

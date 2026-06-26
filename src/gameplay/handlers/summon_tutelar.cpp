@@ -72,7 +72,7 @@ EStageResult SummonTutelar(CastContext &ctx) {
 	af.duration = CalcDuration(mob, mob, ESkill::kUndefined, floorf(base_ttl + additional_ttl_for_charisma * eff_cha), 0, 0, 0);
 	af.modifier = 0;
 	af.location = EApply::kNone;
-	af.battleflag = 0;
+	af.battleflag = kAfCharmBond;
 	af.affect_type = EAffect::kHelper;
 	affect_to_char(mob, af);
 

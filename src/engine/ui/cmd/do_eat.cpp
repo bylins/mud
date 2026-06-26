@@ -76,7 +76,7 @@ void feed_charmice(CharData *ch, char *local_arg) {
 	af.modifier = 0;
 	af.location = EApply::kNone;
 	af.affect_type = EAffect::kCharmed;
-	af.battleflag = 0;
+	af.battleflag = kAfCharmBond;
 
 	ImposeAffect(ch, af);
 	if (ch->IsNpc()) { ch->SetFlag(EMobFlag::kCompanion); }	// any NPC ally

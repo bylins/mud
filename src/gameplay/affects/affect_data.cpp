@@ -513,7 +513,7 @@ void mobile_affect_update() {
 
 			if (affect->duration == 0) {
 				if (AffectHasIdentity(affect)) {
-					if (affect->type == ESpell::kCharm || affect->affect_type == EAffect::kCharmed) {
+					if (IS_SET(affect->battleflag, kAfCharmBond)) {
 						was_charmed = true;
 					}
 					auto next_affect_i = affect_i;
@@ -676,6 +676,29 @@ void RemoveAffectFromChar(CharData *ch, EAffect affect_type) {
 void RemoveAffectFromCharAndRecalculate(CharData *ch, EAffect affect_type) {
 	RemoveAffectFromChar(ch, affect_type);
 	affect_total(ch);
+}
+
+// issue.affect-migration: break the charm "package". Removes every affect of the package (bond + the
+// companion buffs that share the per-instance kAfCharmBond flag) and, for an NPC, schedules its
+// extraction and clears the hire price -- the behavior the old RemoveAffectFromChar(ESpell::kCharm)
+// carried. Replaces that call for un-charming.
+void RemoveCharmBond(CharData *ch, bool recalculate) {
+	auto it = ch->affected.begin();
+	while (it != ch->affected.end()) {
+		if (IS_SET((*it)->battleflag, kAfCharmBond)) {
+			EmitAffectEvent("affect_removed", ch, **it);
+			it = RemoveAffect(ch, it);
+		} else {
+			++it;
+		}
+	}
+	if (ch->IsNpc()) {
+		ch->extract_timer = 5;
+		ch->mob_specials.hire_price = 0;
+	}
+	if (recalculate) {
+		affect_total(ch);
+	}
 }
 
 // issue.affect-migration: remove every curable affect (kAfCurable). Replaces the old
@@ -1037,7 +1060,7 @@ void affect_to_char(CharData *ch, const Affect<EApply> &af) {
 	// being loaded (unit tests / pre-cfg boot keep caller flags); kUndefined affects have no row.
 	if (affects::AffectFlagsLoaded() && af.affect_type != EAffect::kUndefined) {
 		affected_alloc->battleflag = affects::AffectFlagsByType(af.affect_type)
-				| (af.battleflag & static_cast<Bitvector>(kAfFailed));
+				| (af.battleflag & static_cast<Bitvector>(kAfFailed | kAfCharmBond));
 	}
 
 	if (ch->IsNpc()) {
@@ -1061,7 +1084,7 @@ void affect_to_char_no_recalc(CharData *ch, const Affect<EApply> &af) {
 	// being loaded (unit tests / pre-cfg boot keep caller flags); kUndefined affects have no row.
 	if (affects::AffectFlagsLoaded() && af.affect_type != EAffect::kUndefined) {
 		affected_alloc->battleflag = affects::AffectFlagsByType(af.affect_type)
-				| (af.battleflag & static_cast<Bitvector>(kAfFailed));
+				| (af.battleflag & static_cast<Bitvector>(kAfFailed | kAfCharmBond));
 	}
 
 	if (ch->IsNpc()) {

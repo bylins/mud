@@ -648,7 +648,7 @@ void look_at_char(CharData *i, CharData *ch) {
 			act("$n скоро перестанет следовать за вами.", false, i, nullptr, ch, kToVict);
 		} else {
 			for (const auto &aff : i->affected) {
-				if (aff->type == ESpell::kCharm) {
+				if (IS_SET(aff->battleflag, kAfCharmBond)) {
 					sprintf(buf,
 							IsPoly(i) ? "$n будут слушаться вас еще %d %s." : "$n будет слушаться вас еще %d %s.",
 							aff->duration/2,

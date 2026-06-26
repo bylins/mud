@@ -29,7 +29,8 @@ enum EAffFlag : Bitvector {
   kAfUnique				= 1u << 10,	// перед наложением снять предыдущий аффект этого же типа от того же кастера (room-affect "только один в мире") -- бывший локальный only_one в CallMagicToRoom
   kAfFailed				= 1u << 11,	// the affect is a failed-attempt marker: it carries the success affect_type but must NOT count as the real effect (the affect_total rebuild skips its flag bit; query via AffSuccessFlagged)
   kAfPoison				= 1u << 12,	// affect CATEGORY: poison. Set in affects.xml on every poison affect_type so mechanics ("all poisons") test one flag instead of enumerating each poison. First of a planned set of category flags (curse/blessing/shield/...).
-  kAfEntanglement		= 1u << 13	// affect CATEGORY: movement restriction (web/slow/hold/no-teleport). Set in affects.xml on kNoFlee/kSlow/kNoTeleport/kHold; "is entangled" tests this flag instead of a specific spell.
+  kAfEntanglement		= 1u << 13,	// affect CATEGORY: movement restriction (web/slow/hold/no-teleport). Set in affects.xml on kNoFlee/kSlow/kNoTeleport/kHold; "is entangled" tests this flag instead of a specific spell.
+  kAfCharmBond			= 1u << 14	// PER-INSTANCE (not a category, never in affects.xml): marks the charm "package" affects (bond + the companion buffs that share it). Caller-set, preserved by the affect_to_char funnel (like kAfFailed). Replaces the af.type==kCharm group marker; see RemoveCharmBond.
 };
 
 /**

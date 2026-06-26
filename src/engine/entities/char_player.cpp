@@ -767,7 +767,7 @@ void Player::save_char() {
 		if (found_follower
 			&& !found_follower->affected.empty()) {
 			for (const auto &aff : found_follower->affected) {
-				if (aff->type == ESpell::kCharm) {
+				if (IS_SET(aff->battleflag, kAfCharmBond)) {
 					if (found_follower->mob_specials.hire_price == 0) {
 						break;
 					}
