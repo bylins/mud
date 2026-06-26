@@ -11,6 +11,7 @@
 #include "gameplay/fight/fight.h"
 #include "gameplay/mechanics/follow.h"
 #include "gameplay/mechanics/player_races.h"
+#include "gameplay/mechanics/glory_misc.h"
 #include "engine/core/char_equip_flags.h"
 #include "engine/core/char_handler.h"
 #include "gameplay/mechanics/equipment.h"
@@ -173,12 +174,10 @@ void ProcessRemort(CharData *ch, char *argument, int subcmd) {
 	act(remort_msg2, false, ch, nullptr, nullptr, kToRoom);
 	ch->set_remort(ch->get_remort() + 1);
 	REMOVE_BIT(ch->player_specials->saved.GodsLike, EGf::kRemort);
-	ch->inc_str(1);
-	ch->inc_dex(1);
-	ch->inc_con(1);
-	ch->inc_wis(1);
-	ch->inc_int(1);
-	ch->inc_cha(1);
+	// issue.remort-system: rebuild base stats from the start (creation) stats under the active
+	// system (legacy +1-each or proportional) plus glory -- the SAME path the login parameter
+	// check uses, so a remort and a re-login agree. Replaces the old hardcoded +1 to every stat.
+	GloryMisc::recalculate_stats(ch);
 	if (ch->GetEnemy()) {
 		stop_fighting(ch, true);
 	}
