@@ -3114,28 +3114,33 @@ void find_replacement(void *go,
 				//к тому же аффекты в том списке не все кличи например никак там не отображаются
 			} else if (!str_cmp(field, "affectedby")) {
 				char *p = strchr(subfield, ',');
+				// issue.affect-migration: an applied affect is disconnected from the cause that triggered
+				// it, so "affectedby" tests for a specific AFFECT TYPE (by its text-id), not the casting
+				// spell. Builders pass the affect's text-id (e.g. kPoisoned), optionally with an apply type.
 				if (!p) {
-					auto spell_id = FixNameAndFindSpellId(subfield);
-					if (spell_id == ESpell::kUndefined) {
-						snprintf(buf, sizeof(buf), "Не найден спелл %s в списке AffectedBy", subfield);
+					EAffect aff_id;
+					try {
+						aff_id = ITEM_BY_NAME<EAffect>(subfield);
+					} catch (const std::out_of_range &) {
+						snprintf(buf, sizeof(buf), "Не найден аффект %s в списке AffectedBy", subfield);
 						trig_log(trig, buf);
 						return;
 					}
-					if (spell_id >= ESpell::kFirst && spell_id < ESpell::kLast) {
-						for (const auto &affect : mob->affected) {
-							if (affect->type == spell_id) {
-								snprintf(str, str_size, "1");
-								return;
-							}
+					for (const auto &affect : mob->affected) {
+						if (affect->affect_type == aff_id) {
+							snprintf(str, str_size, "1");
+							return;
 						}
-						snprintf(str, str_size, "0");
 					}
+					snprintf(str, str_size, "0");
 				} else {
 					int num;
 					*(p++) = '\0';
-					auto spell_id = FixNameAndFindSpellId(subfield);
-					if (spell_id == ESpell::kUndefined) {
-						snprintf(buf, sizeof(buf), "Не найден спелл %s в списке AffecteBby", p);
+					EAffect aff_id;
+					try {
+						aff_id = ITEM_BY_NAME<EAffect>(subfield);
+					} catch (const std::out_of_range &) {
+						snprintf(buf, sizeof(buf), "Не найден аффект %s в списке AffectedBy", subfield);
 						trig_log(trig, buf);
 						return;
 					}
@@ -3149,11 +3154,9 @@ void find_replacement(void *go,
 						return;
 					}
 					for (const auto &affect : mob->affected) {
-						if (affect->type == spell_id) {
-							if (affect->location == num) {
-								snprintf(str, str_size, "%d", affect->modifier);
-								return;
-							}
+						if (affect->affect_type == aff_id && affect->location == num) {
+							snprintf(str, str_size, "%d", affect->modifier);
+							return;
 						}
 					}
 					snprintf(str, str_size, "0");

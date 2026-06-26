@@ -684,7 +684,9 @@ void character_set_master(CharacterData *ch, CharacterData *master) {
 }
 
 std::string get_spell_type_str(const AFFECT_DATA<EApplyLocation> &af) {
-	return MUD::Spell(af.type).GetName();
+	// issue.affect-migration: report the affect's own type (its text-id), not the spell that caused it --
+	// once applied, an affect is disconnected from its cause. (affect.bitvector_str gives the localized name.)
+	return NAME_BY_ITEM<EAffect>(af.affect_type);
 }
 
 std::string get_location_str(const AFFECT_DATA<EApplyLocation> &af) {
