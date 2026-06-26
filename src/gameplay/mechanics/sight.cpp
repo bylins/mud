@@ -791,40 +791,36 @@ void show_room_affects(CharData *ch) {
 			continue;
 		}
 
-		const auto &sheaf = MUD::SpellMessages()[af->type];
 		const bool is_caster = (af->caster_id == viewer_uid);
 		const bool is_pk = (af->pk_unique != 0);
 
-		// Prefer the room-affect message system (keyed by the affect's ERoomAffect identity);
-		// fall back to the spell sheaf for affects not yet migrated (e.g. portals).
-		auto pick = [&](room_spells::ERoomAffectMsgType room_slot, ESpellMsg spell_slot) -> const std::string * {
+		// issue.affect-migration: room-affect display text comes from the room-affect message system,
+		// keyed by the affect's ERoomAffect identity. (The spell-side room messages were removed in the
+		// room-affect message migration's Phase 4, so the old spell-sheaf fallback is dead.)
+		auto pick = [&](room_spells::ERoomAffectMsgType room_slot) -> const std::string * {
 			const std::string &r = room_spells::RoomAffectMsgRaw(af->affect_type, room_slot);
-			if (!r.empty()) {
-				return &r;
-			}
-			const std::string &sp = sheaf.GetMessage(spell_slot);
-			return sp.empty() ? nullptr : &sp;
+			return r.empty() ? nullptr : &r;
 		};
 
 		const std::string *text = nullptr;
 		// Pk override chain (issue.affect-flags): tried before the regular keys.
 		if (is_pk) {
 			if (has_detect_magic) {
-				text = pick(room_spells::ERoomAffectMsgType::kRoomAffectPkInvisible, ESpellMsg::kRoomAffectPkInvisible);
+				text = pick(room_spells::ERoomAffectMsgType::kRoomAffectPkInvisible);
 			}
 			if (!text) {
-				text = pick(room_spells::ERoomAffectMsgType::kRoomAffectPkVisible, ESpellMsg::kRoomAffectPkVisible);
+				text = pick(room_spells::ERoomAffectMsgType::kRoomAffectPkVisible);
 			}
 		}
 		// Regular chain (fall-through when no Pk variant).
 		if (!text && has_detect_magic && is_caster) {
-			text = pick(room_spells::ERoomAffectMsgType::kRoomAffectSelfInvisible, ESpellMsg::kRoomAffectSelfInvisible);
+			text = pick(room_spells::ERoomAffectMsgType::kRoomAffectSelfInvisible);
 		}
 		if (!text && has_detect_magic) {
-			text = pick(room_spells::ERoomAffectMsgType::kRoomAffectInvisible, ESpellMsg::kRoomAffectInvisible);
+			text = pick(room_spells::ERoomAffectMsgType::kRoomAffectInvisible);
 		}
 		if (!text) {
-			text = pick(room_spells::ERoomAffectMsgType::kRoomAffectVisible, ESpellMsg::kRoomAffectVisible);
+			text = pick(room_spells::ERoomAffectMsgType::kRoomAffectVisible);
 		}
 		if (text) {
 			// Star-rating marker (seal strength) on the SAME line as the affect text,
