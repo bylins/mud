@@ -75,6 +75,7 @@
 #ifdef HAVE_SQLITE
 #include "engine/db/sqlite_world_data_source.h"
 #endif
+#include "engine/db/world_data_source_manager.h"
 #include "utils/utils.h"
 #include <cstring>
 #include <cerrno>
@@ -967,14 +968,15 @@ void stop_game(ush_int port) {
 				sprintf(buf, "OLC: Reboot saving %s for zone %d.",
 						save_info_msg[(int) entry->type], zone_table[rznum].vnum);
 				log("%s", buf);
+				auto* data_source = world_loader::WorldDataSourceManager::Instance().GetDataSource();
 				switch (entry->type) {
-					case OLC_SAVE_ROOM: redit_save_to_disk(rznum);
+					case OLC_SAVE_ROOM: data_source->SaveRooms(rznum);
 						break;
-					case OLC_SAVE_OBJ: oedit_save_to_disk(rznum);
+					case OLC_SAVE_OBJ: data_source->SaveObjects(rznum);
 						break;
-					case OLC_SAVE_MOB: medit_save_to_disk(rznum);
+					case OLC_SAVE_MOB: data_source->SaveMobs(rznum);
 						break;
-					case OLC_SAVE_ZONE: zedit_save_to_disk(rznum);
+					case OLC_SAVE_ZONE: data_source->SaveZone(rznum);
 						break;
 					default: log("Unexpected olc_save_list->type");
 						break;
