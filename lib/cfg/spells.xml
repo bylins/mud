@@ -2650,7 +2650,7 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects saving="kNone" resist="kVitality">
+				<affects id="kForbidden" saving="kNone" resist="kVitality">
 					<duration base="60" skill_divisor="3" min="0" max="0" />
 					<apply id="kForbidden" location="kNone">
 						<modifier min="0" dices_weight="0" alpha="0" beta="1" factor="1" cap="100" />
@@ -3923,7 +3923,7 @@
 		<flags val="kMagNeedControl|kMagRoom|kMagCasterInroom" />
 		<talent_actions>
 			<action>
-				<affects saving="kNone" resist="kVitality">
+				<affects id="kMeteorStorm" saving="kNone" resist="kVitality">
 					<duration base="3" skill_divisor="0" min="0" max="0" />
 				</affects>
 			</action>
@@ -4898,7 +4898,7 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects saving="kNone" resist="kVitality">
+				<affects id="kRoomLight" saving="kNone" resist="kVitality">
 					<duration base="75" skill_divisor="1" min="0" max="0" />
 				</affects>
 			</action>
@@ -4920,7 +4920,7 @@
 		<flags val="kMagNeedControl|kMagRoom|kMagCasterInroom" />
 		<talent_actions>
 			<action>
-				<affects saving="kNone" resist="kVitality">
+				<affects id="kDeadlyFog" saving="kNone" resist="kVitality">
 					<duration base="8" skill_divisor="0" min="0" max="0" />
 				</affects>
 			</action>
@@ -4942,7 +4942,7 @@
 		<flags val="kMagNeedControl|kMagRoom|kMagCasterInroom" />
 		<talent_actions>
 			<action>
-				<affects saving="kNone" resist="kVitality">
+				<affects id="kThunderstorm" saving="kNone" resist="kVitality">
 					<duration base="7" skill_divisor="0" min="0" max="0" />
 				</affects>
 			</action>
@@ -5595,7 +5595,7 @@
 						<room_flags val="kPeaceful|kTunnel|kNoTeleportIn" />
 					</blocking>
 				</target_conditions>
-				<affects saving="kNone" resist="kVitality">
+				<affects id="kRuneLabel" saving="kNone" resist="kVitality">
 					<duration base="1100" skill_divisor="10" min="0" max="0" />
 				</affects>
 			</action>
@@ -5781,7 +5781,7 @@
 		<flags val="kMagRoom|kMagCasterInroom" />
 		<talent_actions>
 			<action>
-				<affects saving="kNone" resist="kVitality">
+				<affects id="kHypnoticPattern" saving="kNone" resist="kVitality">
 					<duration base="114" skill_divisor="0" min="0" max="0" />
 				</affects>
 			</action>
@@ -5956,7 +5956,7 @@
 						<room_flags val="kForMono|kForPoly" />
 					</blocking>
 				</target_conditions>
-				<affects saving="kNone" resist="kVitality">
+				<affects id="kBlackTentacles" saving="kNone" resist="kVitality">
 					<duration base="1" skill_divisor="18" min="0" max="0" />
 				</affects>
 			</action>

@@ -573,6 +573,17 @@ TalentAffect::TalentAffect(parser_wrapper::DataNode &node) {
 	// in the opposite direction.
 	const char *pw = node.GetValue("potency_weight");
 	potency_weight_ = (pw && *pw) ? static_cast<float>(parse::ReadAsDouble(pw)) : 1.0f;
+	// issue.affects-improve: explicit room-affect identity. A room-target spell's <affects> block
+	// names the ERoomAffect it imposes via id="..." -- the affect id need NOT equal the spell id.
+	// (Char-affect spells name their affects per-<apply> as EAffect instead and leave this unset.)
+	const char *room_id = node.GetValue("id");
+	if (room_id && *room_id) {
+		try {
+			room_affect_ = ITEM_BY_NAME<room_spells::ERoomAffect>(room_id);
+		} catch (const std::out_of_range &) {
+			err_log("talent_actions <affects id='%s'>: unknown room affect id.", room_id);
+		}
+	}
 
 	for (auto &child: node.Children()) {
 		const auto name = child.GetName();

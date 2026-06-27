@@ -466,6 +466,10 @@ class TalentAffect : public IAction {
 
 	[[nodiscard]] ESaving GetSaving() const { return saving_; }
 	[[nodiscard]] EResist GetResist() const { return resist_; }
+	// issue.affects-improve: the room affect this block imposes (room-target spells only),
+	// declared by <affects id=...>; kUndefined for char-affect spells. The room cast path uses
+	// this instead of deriving the affect from the spell id.
+	[[nodiscard]] room_spells::ERoomAffect GetRoomAffect() const { return room_affect_; }
 	[[nodiscard]] int GetProb() const { return prob_; }
 	// Duration parameters (issue.calc-duration): base (flat duration in hours, PC unit-converted to
 	// ticks) plus a skill-scaled bonus = min(skill, kNoviceSkillThreshold)/skill_divisor, optionally
@@ -494,6 +498,7 @@ class TalentAffect : public IAction {
  private:
 	ESaving saving_{ESaving::kReflex};
 	EResist resist_{EResist::kFire};
+	room_spells::ERoomAffect room_affect_{};  // issue.affects-improve: see GetRoomAffect()
 	int prob_{100};                         // percent chance the affect block fires (default always)
 	int dur_base_{0};
 	int dur_skill_divisor_{0};
