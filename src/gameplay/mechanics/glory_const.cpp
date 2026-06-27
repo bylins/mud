@@ -327,7 +327,7 @@ std::string olc_print_stat(CharData *ch, int stat) {
 		stat_add = fmt::format("+{}", ch->desc->glory_const->stat_add[stat]);
 	}
 
-	return fmt::format("  {:<16} :  {}(+{:<5}){}  ({}{}{}) %4d ({}{}{})  {}(-{:<5})  | {:+}{}\r\n",
+	return fmt::format("  {:<17} :  {}(+{:<5}){}  ({}{}{}) {:4} ({}{}{})  {}(-{:<5})  | {}{}\r\n",
 					   olc_stat_name[stat],
 					   kColorBoldBlk, remove_stat_cost(stat, ch->desc->glory_const), kColorNrm,
 					   kColorBoldGrn, olc_del_name[stat], kColorNrm,
@@ -341,7 +341,7 @@ std::string olc_print_stat(CharData *ch, int stat) {
 // * Распечатка олц меню.
 void spend_glory_menu(CharData *ch) {
 	std::ostringstream out;
-	out << "\r\n                         -      +\r\n";
+	out << "\r\n                                  -        +\r\n";
 
 	out << olc_print_stat(ch, GLORY_STR)
 		<< olc_print_stat(ch, GLORY_DEX)
