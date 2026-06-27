@@ -522,11 +522,14 @@ void MobShowValues(CharData *ch, CharData *victim, int skill) {
 				-CalcSaving(victim, victim, ESaving::kReflex, false));
 	}
 	if (skill > 249) {
-		victim->char_specials.saved.affected_by.sprintbits(affected_bits, buf2, sizeof(buf2), " ", 4);
-		// "Аффекты: " передаём префиксом: учитывается в ширине строки, но не
-		// склеивается через ", " (иначе после метки была бы лишняя запятая).
+		// Разделитель ", " (не " "!): имена аффектов сами содержат пробелы
+		// ("воздушный щит"), и при " " их рвал бы OutWordsList по пробелам.
+		// Split по запятой собирает их обратно целиком (имена с пробелами сохраняются).
+		victim->char_specials.saved.affected_by.sprintbits(affected_bits, buf2, sizeof(buf2), ", ");
+		std::vector<std::string> aff_list = utils::Split(buf2, ',');
+		// "Аффекты: " префиксом: учитывается в ширине строки, но без лишней запятой после метки.
 		ss << fmt::format("&G{}&n\r\n",
-				utils::OutWordsList(buf2, ch->player_specials->saved.stringLength, ", ", "Аффекты: "));
+				utils::OutWordsList(aff_list, ch->player_specials->saved.stringLength, ", ", "Аффекты: "));
 	}
 	SendMsgToChar(ch, "%s", ss.str().c_str());
 }
