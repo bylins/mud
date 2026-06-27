@@ -22,6 +22,7 @@
 #include "gameplay/mechanics/minions.h"
 #include "gameplay/mechanics/mount.h"
 #include "gameplay/mechanics/sight.h"
+#include "gameplay/magic/magic_utils.h"
 #include "gameplay/magic/spells.h"
 #include "gameplay/skills/skills.h"
 #include "utils/grammar/gender.h"
@@ -146,6 +147,16 @@ void RegisterObjView(sol::state &, sol::table view, ObjData *obj)
 
 bool GetLuaSkillId(const sol::object &value, ESkill &skill_id)
 {
+	if (value.is<std::string>())
+	{
+		auto skill_name = value.as<std::string>();
+		if (skill_name.empty())
+		{
+			return false;
+		}
+		skill_id = FixNameAndFindSkillId(skill_name.data());
+		return MUD::Skills().IsValid(skill_id);
+	}
 	if (!value.is<int>())
 	{
 		return false;
@@ -163,6 +174,16 @@ bool GetLuaSkillId(const sol::object &value, ESkill &skill_id)
 
 bool GetLuaSpellId(const sol::object &value, ESpell &spell_id)
 {
+	if (value.is<std::string>())
+	{
+		auto spell_name = value.as<std::string>();
+		if (spell_name.empty())
+		{
+			return false;
+		}
+		spell_id = FixNameAndFindSpellId(spell_name);
+		return spell_id != ESpell::kUndefined;
+	}
 	if (!value.is<int>())
 	{
 		return false;

@@ -381,10 +381,10 @@ Char - это Lua-view персонажа или моба. Все поля read-
 | `ch:lag(10, "p")` | bool | Ставит wait state в пульсах, эквивалент DG `%actor.lag(10p)%`. |
 | `ch:skill(skill_id)` | number | Возвращает значение skill. |
 | `ch:skill(skill_id, value)` | number | Устанавливает skill и возвращает значение. |
-| `ch:skill_turn(skill_id, true/false)` | bool | Включает или снимает умение по аналогии с DG `skillturn`: при включении ставит 5, при снятии ставит 0. Также принимает `"set"`/`"clear"`. |
-| `ch:spell_turn(spell_id, true/false)` | bool | Включает или снимает знание заклинания по аналогии с DG `spellturn`. Также принимает `"set"`/`"clear"`. |
-| `ch:can_get_skill(skill_id)` | bool | Проверяет, может ли персонаж получить skill с учетом класса, уровня и ремортов. |
-| `ch:can_get_spell(spell_id)` | bool | Проверяет, может ли персонаж получить spell с учетом класса, уровня и ремортов. |
+| `ch:skill_turn(skill_id_or_name, true/false)` | bool | Включает или снимает умение по аналогии с DG `skillturn`: при включении ставит 5, при снятии ставит 0. Также принимает `"set"`/`"clear"`. |
+| `ch:spell_turn(spell_id_or_name, true/false)` | bool | Включает или снимает знание заклинания по аналогии с DG `spellturn`. Также принимает `"set"`/`"clear"`. |
+| `ch:can_get_skill(skill_id_or_name)` | bool | Проверяет, может ли персонаж получить skill с учетом класса, уровня и ремортов. |
+| `ch:can_get_spell(spell_id_or_name)` | bool | Проверяет, может ли персонаж получить spell с учетом класса, уровня и ремортов. |
 | `ch:feat(feat_id)` | bool | Проверяет feat. |
 | `ch:feat(feat_id, true/false)` | bool | Устанавливает или снимает feat. |
 | `ch:attach_trigger(vnum)` | bool | Прикрепляет mob trigger; работает только для NPC. |
