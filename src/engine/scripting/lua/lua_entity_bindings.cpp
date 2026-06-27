@@ -23,6 +23,7 @@
 #include "gameplay/mechanics/mount.h"
 #include "gameplay/mechanics/sight.h"
 #include "gameplay/magic/spells.h"
+#include "gameplay/skills/skills.h"
 #include "utils/grammar/gender.h"
 #include "utils/random.h"
 #include "utils/utils.h"
@@ -158,6 +159,49 @@ bool GetLuaSkillId(const sol::object &value, ESkill &skill_id)
 
 	skill_id = static_cast<ESkill>(raw_id);
 	return true;
+}
+
+bool GetLuaSpellId(const sol::object &value, ESpell &spell_id)
+{
+	if (!value.is<int>())
+	{
+		return false;
+	}
+
+	const auto raw_id = value.as<int>();
+	if (raw_id < to_underlying(ESpell::kFirst) || raw_id > to_underlying(ESpell::kLast))
+	{
+		return false;
+	}
+
+	spell_id = static_cast<ESpell>(raw_id);
+	return true;
+}
+
+bool GetLuaTurnValue(const sol::object &value, bool &enabled)
+{
+	if (value.is<bool>())
+	{
+		enabled = value.as<bool>();
+		return true;
+	}
+	if (!value.is<std::string>())
+	{
+		return false;
+	}
+
+	const auto text = value.as<std::string>();
+	if (text == "set")
+	{
+		enabled = true;
+		return true;
+	}
+	if (text == "clear")
+	{
+		enabled = false;
+		return true;
+	}
+	return false;
 }
 
 bool GetLuaFeatId(const sol::object &value, EFeat &feat_id)
@@ -735,6 +779,76 @@ int CharSkill(const LuaEntityHandle &handle, const sol::object &skill, const sol
 		ch->set_skill(skill_id, value.as<int>());
 	}
 	return ch->GetSkill(skill_id);
+}
+
+bool CharSkillTurn(const LuaEntityHandle &handle, const sol::object &skill, const sol::object &value)
+{
+	auto *ch = ResolveChar(handle);
+	ESkill skill_id = ESkill::kUndefined;
+	bool enabled = false;
+	if (!ch || !GetLuaSkillId(skill, skill_id) || !GetLuaTurnValue(value, enabled))
+	{
+		return false;
+	}
+	if (MUD::Class(ch->GetClass()).skills[skill_id].IsUnavailable())
+	{
+		return false;
+	}
+
+	if (ch->GetSkillBonus(skill_id))
+	{
+		if (!enabled)
+		{
+			ch->set_skill(skill_id, 0);
+		}
+	}
+	else if (enabled)
+	{
+		ch->set_skill(skill_id, 5);
+	}
+	return true;
+}
+
+bool CharSpellTurn(const LuaEntityHandle &handle, const sol::object &spell, const sol::object &value)
+{
+	auto *ch = ResolveChar(handle);
+	ESpell spell_id = ESpell::kUndefined;
+	bool enabled = false;
+	if (!ch || !GetLuaSpellId(spell, spell_id) || !GetLuaTurnValue(value, enabled) || !CanGetSpell(ch, spell_id))
+	{
+		return false;
+	}
+
+	if (IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kKnow))
+	{
+		if (!enabled)
+		{
+			REMOVE_BIT(GET_SPELL_TYPE(ch, spell_id), ESpellType::kKnow);
+			if (!IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kTemp))
+			{
+				GET_SPELL_MEM(ch, spell_id) = 0;
+			}
+		}
+	}
+	else if (enabled)
+	{
+		SET_BIT(GET_SPELL_TYPE(ch, spell_id), ESpellType::kKnow);
+	}
+	return true;
+}
+
+bool CharCanGetSkill(const LuaEntityHandle &handle, const sol::object &skill)
+{
+	auto *ch = ResolveChar(handle);
+	ESkill skill_id = ESkill::kUndefined;
+	return ch && GetLuaSkillId(skill, skill_id) && CanGetSkill(ch, skill_id);
+}
+
+bool CharCanGetSpell(const LuaEntityHandle &handle, const sol::object &spell)
+{
+	auto *ch = ResolveChar(handle);
+	ESpell spell_id = ESpell::kUndefined;
+	return ch && GetLuaSpellId(spell, spell_id) && CanGetSpell(ch, spell_id);
 }
 
 bool CharFeat(const LuaEntityHandle &handle, const sol::object &feat, const sol::object &value)
@@ -1964,6 +2078,30 @@ sol::object BuildCharView(sol::state &lua, CharData *ch, LuaRuntimeContext runti
 					? static_cast<sol::object>(args[0])
 					: sol::make_object(lua, sol::lua_nil);
 				return CharSkill(handle, skill, value);
+			}));
+		}
+		if (key == "skill_turn")
+		{
+			return sol::make_object(lua, sol::as_function([handle](sol::object, sol::object skill, sol::object value) {
+				return CharSkillTurn(handle, skill, value);
+			}));
+		}
+		if (key == "spell_turn")
+		{
+			return sol::make_object(lua, sol::as_function([handle](sol::object, sol::object spell, sol::object value) {
+				return CharSpellTurn(handle, spell, value);
+			}));
+		}
+		if (key == "can_get_skill")
+		{
+			return sol::make_object(lua, sol::as_function([handle](sol::object, sol::object skill) {
+				return CharCanGetSkill(handle, skill);
+			}));
+		}
+		if (key == "can_get_spell")
+		{
+			return sol::make_object(lua, sol::as_function([handle](sol::object, sol::object spell) {
+				return CharCanGetSpell(handle, spell);
 			}));
 		}
 		if (key == "feat")

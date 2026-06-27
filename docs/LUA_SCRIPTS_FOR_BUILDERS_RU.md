@@ -380,6 +380,10 @@ Char - это Lua-view персонажа или моба. Все поля read-
 | `ch:lag(10, "p")` | bool | Ставит wait state в пульсах, эквивалент DG `%actor.lag(10p)%`. |
 | `ch:skill(skill_id)` | number | Возвращает значение skill. |
 | `ch:skill(skill_id, value)` | number | Устанавливает skill и возвращает значение. |
+| `ch:skill_turn(skill_id, true/false)` | bool | Включает или снимает умение по аналогии с DG `skillturn`: при включении ставит 5, при снятии ставит 0. Также принимает `"set"`/`"clear"`. |
+| `ch:spell_turn(spell_id, true/false)` | bool | Включает или снимает знание заклинания по аналогии с DG `spellturn`. Также принимает `"set"`/`"clear"`. |
+| `ch:can_get_skill(skill_id)` | bool | Проверяет, может ли персонаж получить skill с учетом класса, уровня и ремортов. |
+| `ch:can_get_spell(spell_id)` | bool | Проверяет, может ли персонаж получить spell с учетом класса, уровня и ремортов. |
 | `ch:feat(feat_id)` | bool | Проверяет feat. |
 | `ch:feat(feat_id, true/false)` | bool | Устанавливает или снимает feat. |
 | `ch:attach_trigger(vnum)` | bool | Прикрепляет mob trigger; работает только для NPC. |
@@ -393,6 +397,8 @@ Char - это Lua-view персонажа или моба. Все поля read-
 | `ch:unset_quest(id)` | bool | Lua-аналог DG `%actor.unsetquest(id)%`: удаляет quested-запись. |
 | `ch:act(message, options)` | bool | Вызывает игровой `act`. |
 | `ch:purge()` | bool | Удаляет NPC. PC удалить нельзя. Самопурж владельца триггера (текущий `ctx.owner`, если это NPC) разрешён — работает как в DG-триггерах (скрипт останавливается). |
+
+`ch:skill_turn(...)` и `ch:spell_turn(...)` меняют состояние тихо: они не отправляют персонажу сообщения и не пишут DG-style лог. Если нужно видимое сообщение, делайте его явно через `ch:send(...)` или `ch:act(...)`.
 
 Пример `act`:
 
