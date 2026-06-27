@@ -896,9 +896,7 @@ bool allow_enter(RoomData *room, CharData *ch) {
 
 void mobile_activity(int activity_level, int missed_pulses) {
 	auto activity_span = tracing::TraceManager::Instance().StartSpan("mob.activity");
-	observability::ScopedMetric activity_metric("mob.activity.duration", {
-		{"activity_level", std::to_string(activity_level)}
-	});
+	observability::ScopedMetric activity_metric("mob.activity.duration");
 
 	utils::CExecutionTimer mobact_timer;
 	int processed_mobs = 0;

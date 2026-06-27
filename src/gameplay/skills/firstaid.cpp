@@ -261,7 +261,11 @@ void DoFirstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (!did_something && !failed_something) {
 		// Nothing to do: HP fine, no curable affect (or named one isn't present).
-		act("$N в лечении не нуждается.", false, ch, nullptr, vict, kToChar);
+		if (vict == ch) {
+			act("Вы в лечении не нуждаетесь.", false, ch, nullptr, vict, kToChar);
+		} else {
+			act("$N в лечении не нуждается.", false, ch, nullptr, vict, kToChar);
+		}
 		return;
 	}
 

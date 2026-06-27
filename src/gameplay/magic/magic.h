@@ -200,7 +200,8 @@ enum class ECastResult {
 [[nodiscard]] inline bool CastTookEffect(ECastResult r) { return r != ECastResult::kNotCast; }
 [[nodiscard]] inline bool CastTargetDied(ECastResult r) { return r == ECastResult::kTargetDied; }
 
-ECastResult CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict, ESpell spell_id, int level);
+ECastResult CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict, ESpell spell_id, int level,
+		float fixed_potency = -1.0f);  // fixed_potency>=0 (item/potion): use it as the whole cast potency, skip caster roll
 ECastResult CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, ESpell spell_id, ESpell spell_subst);
 
 // Result of one cast stage (CastAffect/CastUnaffects/...). With the per-action loop

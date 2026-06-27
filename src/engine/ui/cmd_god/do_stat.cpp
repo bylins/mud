@@ -526,12 +526,12 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 	} else {
 		k->char_specials.saved.act.sprintbits(player_bits, smallBuf, sizeof(smallBuf), ", ", 4);
 		std::vector<std::string> out_str = utils::Split(smallBuf, ',');
-		snprintf(buf, sizeof(buf), "PLR: %s%s%s\r\n", kColorCyn, utils::OutWordsList(out_str, ch->player_specials->saved.stringLength - 10).c_str(), kColorNrm);
+		snprintf(buf, sizeof(buf), "%s%s%s\r\n", kColorCyn, utils::OutWordsList(out_str, ch->player_specials->saved.stringLength, ", ", "PLR: ").c_str(), kColorNrm);
 		SendMsgToChar(buf, ch);
 
 		k->player_specials->saved.pref.sprintbits(preference_bits, smallBuf, sizeof(smallBuf), ", ", 4);
 		out_str = utils::Split(smallBuf, ',');
-		snprintf(buf, sizeof(buf), "PRF: %s%s%s\r\n", kColorGrn, utils::OutWordsList(out_str, ch->player_specials->saved.stringLength - 10).c_str(), kColorNrm);
+		snprintf(buf, sizeof(buf), "%s%s%s\r\n", kColorGrn, utils::OutWordsList(out_str, ch->player_specials->saved.stringLength, ", ", "PRF: ").c_str(), kColorNrm);
 		SendMsgToChar(buf, ch);
 
 		if (privilege::IsImpl(ch)) {
@@ -540,7 +540,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 				strcpy(smallBuf, "nothing");  // immortal-only command, so a plain English literal is fine
 			}
 			out_str = utils::Split(smallBuf, ',');
-			snprintf(buf, sizeof(buf), "GFL: %s%s%s\r\n", kColorCyn, utils::OutWordsList(out_str, ch->player_specials->saved.stringLength - 10).c_str(), kColorNrm);
+			snprintf(buf, sizeof(buf), "%s%s%s\r\n", kColorCyn, utils::OutWordsList(out_str, ch->player_specials->saved.stringLength, ", ", "GFL: ").c_str(), kColorNrm);
 			SendMsgToChar(buf, ch);
 		}
 	}
@@ -574,24 +574,24 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 	if (god_level >= kLvlGreatGod) {
 		std::string fl_str;
 
-		SendMsgToChar(ch, "Ведущий: %s, Ведомые: ", (k->has_master() ? GET_NAME(k->get_master()) : "<нет>"));
+		// "Ведущий: X, Ведомые: " передаём префиксом -- его длина (с именем
+		// ведущего) учитывается в ширине строки автоматически, без магического -30.
+		const std::string lead_prefix =
+			fmt::format("Ведущий: {}, Ведомые: ", (k->has_master() ? GET_NAME(k->get_master()) : "<нет>"));
 		for (auto &it : k->followers) {
-			if (!it->IsNpc()) { 
+			if (!it->IsNpc()) {
 				fl_str += " " + it->get_name();
 			} else {
-				fl_str += " " + it->get_name() + "_#" + std::to_string(GET_MOB_VNUM(it)); 
+				fl_str += " " + it->get_name() + "_#" + std::to_string(GET_MOB_VNUM(it));
 			}
 		}
-		SendMsgToChar(ch, "%s\r\n", utils::OutWordsList(fl_str, ch->player_specials->saved.stringLength - 30).c_str());
+		SendMsgToChar(ch, "%s\r\n", utils::OutWordsList(fl_str, ch->player_specials->saved.stringLength, ", ", lead_prefix).c_str());
 		if (ch->IsNpc()) {
-			SendMsgToChar(ch, "Помогают: ");
-			if (!k->summon_helpers.empty()) {
-				fl_str.clear();
-				for (auto &helper : k->summon_helpers) {
-					fl_str += " " +  std::to_string(helper);
-				}
-				SendMsgToChar(ch, "%s\r\n", utils::OutWordsList(fl_str, ch->player_specials->saved.stringLength - 30).c_str());
+			fl_str.clear();
+			for (auto &helper : k->summon_helpers) {
+				fl_str += " " +  std::to_string(helper);
 			}
+			SendMsgToChar(ch, "%s\r\n", utils::OutWordsList(fl_str, ch->player_specials->saved.stringLength, ", ", "Помогают: ").c_str());
 		}
 	}
 	// Showing the bitvector

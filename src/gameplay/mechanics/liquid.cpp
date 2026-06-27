@@ -239,12 +239,19 @@ using namespace drinkcon;
 
 ECastResult cast_potion_spell(CharData *ch, ObjData *obj, int num) {
 	const auto spell_id = static_cast<ESpell>(obj->GetPotionValueKey(init_spell_num(num)));
-	const int level = -obj->GetPotionValueKey(init_spell_lvl(num));
-
-	if (spell_id > ESpell::kUndefined) {
-		return CallMagic(ch, ch, nullptr, world[ch->in_room], spell_id, level);
+	if (spell_id <= ESpell::kUndefined) {
+		return ECastResult::kSuccess;
 	}
-	return ECastResult::kSuccess;
+	// issue.potion-potency: the 3rd spell slot (val3 -> POTION_SPELL3_NUM) now carries the brewed-in
+	// fixed potency, not a third spell. If present (>0), cast with that potency instead of the legacy
+	// negative-level item hack -- a potion's strength is brewed in, not taken from the drinker's stats.
+	const int potency = obj->GetPotionValueKey(ObjVal::EValueKey::POTION_SPELL3_NUM);
+	if (potency > 0) {
+		return CallMagic(ch, ch, nullptr, world[ch->in_room], spell_id, 0, static_cast<float>(potency));
+	}
+	// legacy potion without a brewed potency: keep the old level-based item-cast path
+	const int level = -obj->GetPotionValueKey(init_spell_lvl(num));
+	return CallMagic(ch, ch, nullptr, world[ch->in_room], spell_id, level);
 }
 
 int TryCastSpellsFromLiquid(CharData *ch, ObjData *jar) {
@@ -253,7 +260,8 @@ int TryCastSpellsFromLiquid(CharData *ch, ObjData *jar) {
 		SendMsgToChar(ch, "Вы выпили зелья из %s.\r\n", OBJN(jar, ch, grammar::ECase::kGen));
 
 		//не очень понятно, но так было
-		for (int i = 1; i <= 3; ++i)
+		// slots 1-2 are spells; slot 3 (val3) now holds the brewed potency (issue.potion-potency)
+		for (int i = 1; i <= 2; ++i)
 			if (cast_potion_spell(ch, jar, i) != ECastResult::kSuccess)
 				break;
 

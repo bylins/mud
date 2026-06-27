@@ -49,6 +49,7 @@
 #include "gameplay/mechanics/corpse.h"
 #include "gameplay/classes/pc_classes.h"
 #include "gameplay/core/reset_stats.h"
+#include "gameplay/core/remort.h"
 #include "gameplay/mechanics/noob.h"
 #include "gameplay/mechanics/celebrates.h"
 #include "gameplay/mechanics/city_guards.h"
@@ -161,6 +162,7 @@ CfgManager::CfgManager() {
 		{"global_drop", CfgDir::kMechanics, [] { return MakeLoader<GlobalDrop::GlobalDropLoader>(); }},
 		{"group_exp_handicap", CfgDir::kMechanics, [] { return MakeLoader<GroupPenaltiesLoader>(); }},
 		{"reset_stats", CfgDir::kMechanics, [] { return MakeLoader<stats_reset::ResetStatsLoader>(); }},
+		{"remort", CfgDir::kRoot, [] { return MakeLoader<remort::RemortLoader>(); }},
 		{"noob", CfgDir::kMechanics, [] { return MakeLoader<Noob::NoobLoader>(); }},
 		{"digging", CfgDir::kMechanics, [] { return MakeLoader<mining::DiggingLoader>(); }},
 		{"celebrates", CfgDir::kMechanics, [] { return MakeLoader<celebrates::CelebratesLoader>(); }},

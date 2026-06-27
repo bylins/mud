@@ -869,9 +869,17 @@ void oedit_disp_val4_menu(DescriptorData *d) {
 	OLC_MODE(d) = OEDIT_VALUE_4;
 	switch (OLC_OBJ(d)->get_type()) {
 		case EObjType::kScroll:
-		case EObjType::kPotion:
 		case EObjType::kWand:
 		case EObjType::kStaff: oedit_disp_spells_menu(d);
+			break;
+
+		// issue.potion-potency: для зелья последнее значение (val3) -- это зашитая
+		// сила заклинания (potency), а не третье заклинание. Дизайнер задаёт либо число,
+		// либо "roll" -- бросок силы по формуле первого заклинания зелья.
+		case EObjType::kPotion:
+			SendMsgToChar("Сила зелья (potency) -- ей зелье кастует заклинания, не завися от статов выпившего.\r\n"
+						 "Введите число, либо \"roll\" -- бросить силу по формуле 1-го заклинания зелья (0 - без силы): ",
+						 d->character.get());
 			break;
 
 		case EObjType::kWeapon: oedit_disp_weapon_menu(d);
@@ -1927,12 +1935,31 @@ void oedit_parse(DescriptorData *d, char *arg) {
 			max_val = 999999;
 			switch (OLC_OBJ(d)->get_type()) {
 				case EObjType::kScroll:
-				case EObjType::kPotion:
 					if (number == 0) {
 						break;
 					}
 					min_val = 1;
 					max_val = to_underlying(ESpell::kLast);
+					break;
+				case EObjType::kPotion:
+					// issue.potion-potency: val3 -- это зашитая сила каста зелья, а не третье
+					// заклинание. Принимаем число, либо "roll" -- бросок силы по формуле первого
+					// заклинания зелья (значение 2). 0 -- сила не задана (старый level-каст).
+					if (!str_cmp(arg, "roll") || !str_cmp(arg, "ролл")) {
+						const auto potion_spell = static_cast<ESpell>(GET_OBJ_VAL(OLC_OBJ(d), 1));
+						if (potion_spell < ESpell::kFirst
+							|| potion_spell > ESpell::kLast
+							|| MUD::Spell(potion_spell).IsInvalid()) {
+							SendMsgToChar("Сначала задайте первое заклинание зелья (значение 2), "
+										 "затем бросайте силу.\r\n", d->character.get());
+							oedit_disp_val4_menu(d);
+							return;
+						}
+						number = MUD::Spell(potion_spell).GetPotencyRoll().RollSkillDices();
+						SendMsgToChar(d->character.get(), "Брошена сила: %d.\r\n", number);
+					}
+					min_val = 0;
+					max_val = 1000;
 					break;
 				case EObjType::kWand:
 				case EObjType::kStaff: 

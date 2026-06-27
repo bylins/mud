@@ -35,7 +35,11 @@ void do_affects(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	snprintf(buf2, sizeof(buf2), "%s", affects::DescribeActive(aff_copy, ", ").c_str());
 	std::vector<std::string> out_str = utils::Split(buf2, ',');
-	snprintf(buf, kMaxStringLength, "Аффекты: %s%s%s\r\n", kColorYel, utils::OutWordsList(out_str, ch->player_specials->saved.stringLength - 10).c_str(), kColorNrm);
+	// "Аффекты: " передаём префиксом: учитывается в ширине строки, но не
+	// склеивается через ", " (иначе после метки была бы лишняя запятая).
+	snprintf(buf, kMaxStringLength, "%s%s%s\r\n", kColorYel,
+			 utils::OutWordsList(out_str, ch->player_specials->saved.stringLength, ", ", "Аффекты: ").c_str(),
+			 kColorNrm);
 	SendMsgToChar(buf, ch);
 
 	// Routine to show what spells a char is affected by
