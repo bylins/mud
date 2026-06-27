@@ -126,6 +126,7 @@ class Roll {
 
 	[[nodiscard]] int RollSkillDices() const;
 	[[nodiscard]] double CalcSkillCoeff(const CharData *ch) const;
+	[[nodiscard]] double CalcSkillCoeffForValue(int skill) const;  // CalcSkillCoeff with an explicit skill value (item brewing)
 	// The low-skill part of the skill coefficient only (no hi-skill term, no /100): used
 	// as the skill bonus for the battle-lag formula (issue.cast-spell-lag).
 	[[nodiscard]] double CalcLowSkillCoeff(const CharData *ch) const;

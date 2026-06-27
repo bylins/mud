@@ -20,6 +20,8 @@
 #include "gameplay/fight/fight_constants.h"
 #include "utils/random.h"
 #include "administration/privilege.h"
+#include "gameplay/magic/magic.h"
+#include "gameplay/abilities/talents_actions.h"
 
 #include <string>
 
@@ -1441,6 +1443,18 @@ void do_cook(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					}
 					if (val[2] > 0) {
 						result->set_timer(val[2]);
+					}
+					// issue.potion-potency: store the brewed potency in val3, from the potion's first
+					// spell's <potency_roll> but with the recipe (brewing) skill (rs->perc) as base skill.
+					if (result->get_type() == EObjType::kPotion) {
+						const auto potion_spell = static_cast<ESpell>(result->get_val(1));
+						if (potion_spell > ESpell::kUndefined) {
+							const auto &proll = MUD::Spell(potion_spell).GetPotencyRoll();
+							const double pot = proll.RollSkillDices()
+								+ proll.CalcSkillCoeffForValue(rs->perc)
+								+ proll.CalcBaseStatCoeff(ch);
+							result->set_val(3, std::max(1, static_cast<int>(pot + 0.5)));
+						}
 					}
 					break;
 

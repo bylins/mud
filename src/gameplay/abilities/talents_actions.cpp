@@ -161,6 +161,14 @@ double Roll::CalcSkillCoeff(const CharData *const ch) const {
 	return (low_skill * low_skill_bonus_ + hi_skill * hi_skill_bonus_) / 100.0;
 }
 
+// As CalcSkillCoeff, but with an explicit skill value instead of the caster's GetSkill(base_skill_).
+// Used by ingredient-magic brewing to compute a potion's potency from the recipe (brewing) skill.
+double Roll::CalcSkillCoeffForValue(int skill) const {
+	auto low_skill = std::min(skill, abilities::kNoviceSkillThreshold);
+	auto hi_skill = std::max(0, skill - abilities::kNoviceSkillThreshold);
+	return (low_skill * low_skill_bonus_ + hi_skill * hi_skill_bonus_) / 100.0;
+}
+
 double Roll::CalcLowSkillCoeff(const CharData *const ch) const {
 	auto low_skill = std::min(GetSkill(ch, base_skill_), abilities::kNoviceSkillThreshold);
 	return low_skill * low_skill_bonus_;
