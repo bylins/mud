@@ -721,7 +721,9 @@ int HitData::CalcDmg(CharData *ch, bool need_dice) {
 		SendMsgToChar(ch, "&YДамага с учетом перков мощная-улучш == %d&n\r\n", dam);
 	// courage
 	if (IsAffectedBySpell(ch, ESpell::kCourage)) {
-		int range = number(1, MUD::Skill(ESkill::kCourage).difficulty + ch->get_real_max_hit() - ch->get_hit());
+		const int courage_range = MUD::Skill(ESkill::kCourage).difficulty + ch->get_real_max_hit() - ch->get_hit();
+		// при показе (need_dice == false) берём среднее, чтобы урон в опознании не "плавал"
+		int range = need_dice ? number(1, courage_range) : (1 + courage_range) / 2;
 		int prob = CalcCurrentSkill(ch, ESkill::kCourage, ch);
 		if (prob > range) {
 			dam += ((GetSkill(ch, ESkill::kCourage) + 19) / 20);
@@ -800,7 +802,10 @@ int HitData::CalcDmg(CharData *ch, bool need_dice) {
 		}
 	}
 	if (ch->IsNpc()) { // урон моба из олц
-		dam += RollDices(ch->mob_specials.damnodice, ch->mob_specials.damsizedice);
+		// при показе (need_dice == false) берём среднее кубиков, иначе урон в опознании "плавает"
+		dam += need_dice
+			? RollDices(ch->mob_specials.damnodice, ch->mob_specials.damsizedice)
+			: ch->mob_specials.damnodice * (ch->mob_specials.damsizedice + 1) / 2;
 	}
 
 	mount::ApplyRiderDamageMult(ch, dam);
