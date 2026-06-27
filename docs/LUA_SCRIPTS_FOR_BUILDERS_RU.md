@@ -354,6 +354,7 @@ Char - это Lua-view персонажа или моба. Все поля read-
 | `ch.names` | table | Read-only таблица имен, местоимений и окончаний для текстов. |
 | `ch.is_npc` | bool | `true` для NPC. Это поле, не функция. |
 | `ch.class` | number | Числовой ID класса, как DG `%actor.class%`. |
+| `ch.sex` | number | Пол персонажа как в DG `%actor.sex%`: `0` - нейтральный, `1` - мужской, `2` - женский. |
 | `ch.context` | Context или nil | Переменные DG-контекста владельца. |
 
 Поля `ch.names`: `name`, `iname`, `rname`, `dname`, `vname`, `tname`, `pname`, `UPname`, `UPiname`, `UPrname`, `UPdname`, `UPvname`, `UPtname`, `UPpname`, `m`, `s`, `e`, `g`, `u`, `w`, `q`, `y`, `a`, `r`, `x`, `h`. Они соответствуют одноименным DG-подстановкам персонажа, например `%actor.iname%` -> `actor.names.iname`, `%actor.UPiname%` -> `actor.names.UPiname`, `%actor.u%` -> `actor.names.u`.
@@ -421,6 +422,8 @@ Obj - Lua-view объекта. Все поля read-only.
 | Поле | Тип | Описание |
 | --- | --- | --- |
 | `obj.name` | string | Short description объекта. |
+| `obj.names` | table | Read-only таблица имен объекта: `name` - aliases как DG `%object.name%`; `iname`, `rname`, `dname`, `vname`, `tname`, `pname` - падежные имена. |
+| `obj.iname`, `obj.rname`, `obj.dname`, `obj.vname`, `obj.tname`, `obj.pname` | string | Прямые алиасы к `obj.names.*`, например Lua-аналог DG `%object.iname%` - `object.iname`. |
 | `obj.id` | number | Runtime id объекта. |
 | `obj.vnum` | number | VNUM объекта. |
 | `obj.room_vnum` | number | VNUM комнаты, если объект лежит в комнате; иначе 0. |
@@ -440,6 +443,7 @@ Obj - Lua-view объекта. Все поля read-only.
 | `obj:val(index, value)` | number | Устанавливает старый object value по индексу 0..3 и возвращает итоговое значение, как DG `%obj.valN(value)%`. |
 | `obj:move_to_room(room)` | bool | Перемещает объект в комнату. |
 | `obj:give_to(char)` | bool | Тихо кладет объект в инвентарь персонажа. Не показывает `give`-сообщения. |
+| `obj:contains(vnum_or_name)` | Obj или nil | Ищет предмет только в непосредственном содержимом объекта. Число ищется как VNUM, строка - по aliases. |
 | `obj:attach_trigger(vnum)` | bool | Прикрепляет object trigger. |
 | `obj:detach_trigger(vnum)` | bool | Снимает object trigger. |
 

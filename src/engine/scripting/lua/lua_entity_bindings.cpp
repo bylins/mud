@@ -465,6 +465,12 @@ int GetCharClass(const LuaEntityHandle &handle)
 	return ch ? to_underlying(ch->GetClass()) : 0;
 }
 
+int GetCharSex(const LuaEntityHandle &handle)
+{
+	auto *ch = ResolveChar(handle);
+	return ch ? to_underlying(ch->get_sex()) : 0;
+}
+
 ObjData *GetCharEquipment(const LuaEntityHandle &handle, const sol::object &position)
 {
 	auto *ch = ResolveChar(handle);
@@ -1532,6 +1538,65 @@ std::string GetObjName(const LuaEntityHandle &handle)
 	return obj ? obj->get_short_description() : "";
 }
 
+std::optional<std::string> GetObjNamesField(const LuaEntityHandle &handle, const std::string &field_name)
+{
+	auto *obj = ResolveObj(handle);
+	if (!obj)
+	{
+		return std::nullopt;
+	}
+
+	const auto get_pname_or_aliases = [obj](grammar::ECase name_case) -> std::string {
+		const auto &pname = obj->get_PName(name_case);
+		return pname.empty() ? obj->get_aliases() : pname;
+	};
+
+	if (field_name == "name")
+	{
+		return obj->get_aliases();
+	}
+	if (field_name == "iname")
+	{
+		return get_pname_or_aliases(grammar::ECase::kNom);
+	}
+	if (field_name == "rname")
+	{
+		return get_pname_or_aliases(grammar::ECase::kGen);
+	}
+	if (field_name == "dname")
+	{
+		return get_pname_or_aliases(grammar::ECase::kDat);
+	}
+	if (field_name == "vname")
+	{
+		return get_pname_or_aliases(grammar::ECase::kAcc);
+	}
+	if (field_name == "tname")
+	{
+		return get_pname_or_aliases(grammar::ECase::kIns);
+	}
+	if (field_name == "pname")
+	{
+		return get_pname_or_aliases(grammar::ECase::kPre);
+	}
+	return std::nullopt;
+}
+
+sol::object BuildObjNamesView(sol::state &lua, const LuaEntityHandle &handle)
+{
+	sol::table view = lua.create_table();
+	sol::table metatable = lua.create_table();
+	metatable[sol::meta_function::index] = [&lua, handle](sol::object, const std::string &key) -> sol::object {
+		const auto value = GetObjNamesField(handle, key);
+		return value ? sol::make_object(lua, *value) : sol::make_object(lua, sol::lua_nil);
+	};
+	metatable[sol::meta_function::new_index] = [](sol::this_state state) {
+		return luaL_error(state, "ObjData names Lua view is read-only");
+	};
+	view[sol::metatable_key] = metatable;
+	return sol::make_object(lua, view);
+}
+
 int GetObjRoomVnum(const LuaEntityHandle &handle)
 {
 	auto *obj = ResolveObj(handle);
@@ -1568,6 +1633,45 @@ int ObjVal(const LuaEntityHandle &handle, const sol::object &index, const sol::o
 		obj->set_val(static_cast<size_t>(val_index), value.as<int>());
 	}
 	return GET_OBJ_VAL(obj, static_cast<size_t>(val_index));
+}
+
+ObjData *ObjContains(const LuaEntityHandle &handle, const sol::object &target)
+{
+	auto *obj = ResolveObj(handle);
+	if (!obj)
+	{
+		return nullptr;
+	}
+
+	if (target.is<int>())
+	{
+		const auto vnum = target.as<int>();
+		for (auto *item = obj->get_contains(); item; item = item->get_next_content())
+		{
+			if (GET_OBJ_VNUM(item) == vnum)
+			{
+				return item;
+			}
+		}
+		return nullptr;
+	}
+
+	if (target.is<std::string>())
+	{
+		const auto name = target.as<std::string>();
+		if (name.empty())
+		{
+			return nullptr;
+		}
+		for (auto *item = obj->get_contains(); item; item = item->get_next_content())
+		{
+			if (isname(name.c_str(), item->get_aliases()))
+			{
+				return item;
+			}
+		}
+	}
+	return nullptr;
 }
 
 bool PurgeCharEntity(const LuaEntityHandle &handle, LuaRuntimeContext runtime)
@@ -2010,6 +2114,10 @@ sol::object BuildCharView(sol::state &lua, CharData *ch, LuaRuntimeContext runti
 		{
 			return sol::make_object(lua, GetCharClass(handle));
 		}
+		if (key == "sex")
+		{
+			return sol::make_object(lua, GetCharSex(handle));
+		}
 		if (key == "names")
 		{
 			return BuildCharNamesView(lua, handle);
@@ -2224,6 +2332,15 @@ sol::object BuildObjView(sol::state &lua, ObjData *obj, LuaRuntimeContext runtim
 		{
 			return sol::make_object(lua, GetObjName(handle));
 		}
+		if (key == "names")
+		{
+			return BuildObjNamesView(lua, handle);
+		}
+		if (key == "iname" || key == "rname" || key == "dname" || key == "vname" || key == "tname" || key == "pname")
+		{
+			const auto value = GetObjNamesField(handle, key);
+			return value ? sol::make_object(lua, *value) : sol::make_object(lua, sol::lua_nil);
+		}
 		if (key == "id")
 		{
 			return sol::make_object(lua, GetObjId(handle));
@@ -2294,6 +2411,12 @@ sol::object BuildObjView(sol::state &lua, ObjData *obj, LuaRuntimeContext runtim
 		{
 			return sol::make_object(lua, sol::as_function([runtime, handle](sol::object, sol::object ch) {
 				return GiveObjToChar(runtime, handle, ch);
+			}));
+		}
+		if (key == "contains")
+		{
+			return sol::make_object(lua, sol::as_function([&lua, runtime, handle](sol::object, sol::object target) {
+				return BuildObjView(lua, ObjContains(handle, target), runtime);
 			}));
 		}
 		if (key == "attach_trigger")
