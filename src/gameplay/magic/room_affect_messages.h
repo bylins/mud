@@ -28,6 +28,7 @@ enum class ERoomAffectMsgType {
 	kAffDispelledToRoom,        // removed (dispel): to onlookers
 	kAffExpiredToChar,          // wore off: to the (former) caster if present
 	kAffExpiredToRoom,          // wore off: to onlookers
+	kAffInterruptedToChar,      // controlled effect replaced by a recast: to the (re)caster
 	kRoomAffectVisible,         // room-aura listing: viewer lacks kDetectMagic (the "physical" trace)
 	kRoomAffectInvisible,       // viewer has kDetectMagic and is NOT the caster
 	kRoomAffectSelfInvisible,   // viewer has kDetectMagic and IS the caster

@@ -826,22 +826,18 @@ void show_room_affects(CharData *ch) {
 			// Star-rating marker (seal strength) on the SAME line as the affect text,
 			// detect-magic / immortal only (issue.dispellbug).
 			const char *stars = nullptr;
-			// issue.affect-migration: the seal-strength cap is the imposing spell's apply cap, sourced
-			// by identity (SpellByRoomAffect) since the room affect no longer stores its ESpell.
-			const ESpell src = room_spells::SpellByRoomAffect(af->affect_type);
-			if (has_detect_magic
-					&& MUD::Spell(src).actions.Contains(talents_actions::EAction::kAffect)) {
-				const auto &applies = MUD::Spell(src).actions.GetAffect().GetApplies();
-				if (!applies.empty() && applies[0].cap > 0) {
-					const int pct = (af->modifier * 100) / applies[0].cap;
-					stars =
-							pct > 99 ? "*****"
-							: pct > 80 ? "****"
-							: pct > 60 ? "***"
-							: pct > 40 ? "**"
-							: pct > 20 ? "*"
-							: nullptr;
-				}
+			// issue.affects-improve: the seal-strength cap is the affect's own modifier ceiling
+			// (room_affects.xml <seal_strength cap=...>), read by affect identity -- no spell lookup.
+			const int cap = room_spells::RoomAffectSealCap(af->affect_type);
+			if (has_detect_magic && cap > 0) {
+				const int pct = (af->modifier * 100) / cap;
+				stars =
+						pct > 99 ? "*****"
+						: pct > 80 ? "****"
+						: pct > 60 ? "***"
+						: pct > 40 ? "**"
+						: pct > 20 ? "*"
+						: nullptr;
 			}
 			buffer << *text;
 			if (stars) {

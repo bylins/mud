@@ -15,6 +15,7 @@
 	<room_affect id="kNoPortalExit"/>
 	<room_affect id="kForbidden">
 		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+		<seal_strength cap="100"/>
 	</room_affect>
 	<room_affect id="kMeteorStorm">
 		<flags val="kAfDispellable|kAfNeedControl|kAfCasterInRoom"/>

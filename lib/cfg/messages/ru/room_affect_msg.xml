@@ -15,6 +15,7 @@
 <msg_container>
 	<msg_sheaf id="kDefault">
 		<message type="kAffDispelledToChar" val="Ваша магия была развеяна."/>
+		<message type="kAffInterruptedToChar" val="Вы прервали прежние чары."/>
 	</msg_sheaf>
 	<msg_sheaf id="kForbidden">
 		<message type="kRoomAffectInvisible" val="&amp;c... магическая печать закрывает все входы ...&amp;n"/>
