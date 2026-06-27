@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<!--
+    issue.remort-system: parameters of the remort (reincarnation) system.
+
+    system points_buy:
+        false - legacy system: +1 to every base stat per remort.
+        true  - proportional system: the highest start stat gains +1 per remort, the
+                others scale to keep their original ratio to it (floored).
+    abilities_reset stop_obligatory_reset / period:
+        a full skill/spell wipe is forced when remort >= stop_obligatory_reset and
+        remort % period == 0 (remort.cpp).
+    skill_cap start_cap / increment:
+        the per-character skill cap is start_cap + remort * increment.
+    hp / moves val:
+        base max hp / max moves a character is reset to on remort (remort.cpp).
+    prices:
+        cost (in in-game currency) of performing each remort, paid as a sacrifice in a
+        shrine of the character's faith. <price remort=N currency=text-id amount=A/>
+        gives the cost to reach remort N (a char with N-1 remorts pays price N to gain one).
+        amount must be >= 0; amount 0 means free (no sacrifice, no message).
+        Gaps between/after defined entries inherit the nearest LOWER entry's currency,
+        with the amount raised by increment_percent for each missing step, e.g. with
+        increment_percent=30 and prices at 3 (=6000) and 6, remort 4 costs 6000+30%=7800
+        and remort 5 costs 6000+60%=9600.
+        disabled="Y" makes every remort free. An unknown currency id (with amount>0)
+        blocks that remort and logs an error.
+-->
+<remort>
+	<system points_buy="false"/>
+	<abilities_reset stop_obligatory_reset="9" period="3"/>
+	<skill_cap start_cap="80" increment="5"/>
+	<hp val="10"/>
+	<moves val="82"/>
+	<prices increment_percent="30" disabled="Y">
+		<price remort="1" currency="kBronzeGrivna" amount="1000"/>
+		<price remort="2" currency="kBronzeGrivna" amount="3000"/>
+		<price remort="3" currency="kBronzeGrivna" amount="6000"/>
+		<price remort="6" currency="kBronzeGrivna" amount="8000"/>
+		<price remort="11" currency="kRotteFish" amount="1"/>
+		<price remort="12" currency="kKuna" amount="0"/>
+	</prices>
+</remort>

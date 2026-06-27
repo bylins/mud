@@ -989,6 +989,10 @@ void BootMudDataBase() {
 	log("Load reset_stats.xml");
 	MUD::CfgManager().LoadCfg("reset_stats");
 
+	boot_profiler.next_step("Loading remort.xml");
+	log("Load remort.xml");
+	MUD::CfgManager().LoadCfg("remort");
+
 	boot_profiler.next_step("Loading mail.xml");
 	log("Load mail.xml");
 	mail::load();
