@@ -1,5 +1,6 @@
 #include "world_characters.h"
-#include "engine/core/handler.h"
+#include "engine/core/char_handler.h"
+#include "engine/entities/char_data.h"
 #include "engine/scripting/lua/lua_script_engine.h"
 #include "gameplay/ai/mobact.h"
 #include "global_objects.h"
@@ -165,7 +166,7 @@ void Characters::remove(CharData *character) {
 	}
 	auto clist = chardata_cooldown_list.find(character);
 	if (clist != chardata_cooldown_list.end()) {
-		character->ZeroCooldowns();
+		character->Skills().ZeroCooldowns();
 		chardata_cooldown_list.erase(clist);
 	}
 	m_list.erase(index_i->second);

@@ -3,10 +3,13 @@
 #include "utils/grammar/declensions.h"
 #include "engine/entities/char_data.h"
 #include "gameplay/fight/pk.h"
-#include "engine/core/handler.h"
+#include "engine/core/obj_handler.h"
+#include "engine/core/target_resolver.h"
+#include "gameplay/mechanics/inventory.h"
 #include "gameplay/clans/house.h"
 #include "engine/core/utils_char_obj.inl"
 #include "gameplay/economics/currencies.h"
+#include "engine/db/global_objects.h"
 #include "gameplay/mechanics/groups.h"
 #include "engine/db/world_objects.h"
 
@@ -37,7 +40,7 @@ void split_or_clan_tax(CharData *ch, long amount) {
 		group::do_split(ch, buf_, 0, 0);
 	} else {
 		long tax = ClanSystem::do_gold_tax(ch, amount);
-		ch->remove_gold(tax);
+		currencies::RemoveHand(*ch, currencies::kGold, tax);
 	}
 }
 
@@ -55,12 +58,13 @@ void get_check_money(CharData *ch, ObjData *obj, ObjData *cont) {
 		return;
 	}
 
-	if (curr_type == currency::ICE) {
-		sprintf(buf, "Это составило %d %s.\r\n", value, grammar::GetDeclensionInNumber(value, grammar::EWhat::kIceU));
+	const auto &money_cur = MUD::Currency(curr_type);
+	if (money_cur.GetId() >= 0 && money_cur.GetTextId() != currencies::kGold) {
+		// Не-золотая валюта (напр. событийная): зачисляем; force_split - делим всегда.
+		sprintf(buf, "Это составило %d %s.\r\n", value, money_cur.GetNameWithAmount(value, grammar::ECase::kAcc).c_str());
 		SendMsgToChar(buf, ch);
-		ch->add_ice_currency(value);
-		//Делить лед ВСЕГДА!
-		if (AFF_FLAGGED(ch, EAffect::kGroup) && other_pc_in_group(ch) > 0) {
+		currencies::AddHand(*ch, curr_type, value);
+		if (money_cur.ForceSplit() && AFF_FLAGGED(ch, EAffect::kGroup) && other_pc_in_group(ch) > 0) {
 			char local_buf[256];
 			sprintf(local_buf, "%d", value);
 			group::do_split(ch, local_buf, 0, 0, curr_type);
@@ -69,13 +73,7 @@ void get_check_money(CharData *ch, ObjData *obj, ObjData *cont) {
 		return;
 	}
 
-// Все что неизвестно - куны (для совместимости)
-/*	if (curr_type != currency::GOLD) {
-		//Вот тут неопознанная валюта
-		return;
-	}
-*/
-	sprintf(buf, "Это составило %d %s.\r\n", value, grammar::GetDeclensionInNumber(value, grammar::EWhat::kMoneyU));
+	sprintf(buf, "Это составило %d %s.\r\n", value, MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(value, grammar::ECase::kAcc).c_str());
 	SendMsgToChar(buf, ch);
 	if (InTestZone(ch)) {
 		ExtractObjFromWorld(obj);
@@ -86,13 +84,13 @@ void get_check_money(CharData *ch, ObjData *obj, ObjData *cont) {
 		ch->IsFlagged(EPrf::kAutosplit) && (!cont || !system_obj::is_purse(cont))) {
 		// добавляем бабло, пишем в лог, клан-налог снимаем
 		// только по факту деления на группу в do_split()
-		ch->add_gold(value);
+		currencies::AddHand(*ch, currencies::kGold, value);
 		sprintf(buf,
 				"<%s> {%d} заработал %d %s в группе.",
 				ch->get_name().c_str(),
 				GET_ROOM_VNUM(ch->in_room),
 				value,
-				grammar::GetDeclensionInNumber(value, grammar::EWhat::kMoneyU));
+				MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(value, grammar::ECase::kNom).c_str());
 		mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
 		char local_buf[256];
 		sprintf(local_buf, "%d", value);
@@ -102,25 +100,25 @@ void get_check_money(CharData *ch, ObjData *obj, ObjData *cont) {
 		// налогом не облагается, т.к. уже все уплочено
 		// на данном этапе cont уже не содержит владельца
 		sprintf(buf, "%s взял деньги из кошелька: %d  %s.", ch->get_name().c_str(), value,
-				grammar::GetDeclensionInNumber(value, grammar::EWhat::kMoneyU));
+				MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(value, grammar::ECase::kNom).c_str());
 		mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
-		ch->add_gold(value);
+		currencies::AddHand(*ch, currencies::kGold, value);
 	} else if ((cont && IS_MOB_CORPSE(cont)) || GET_OBJ_VNUM(obj) != -1) {
 		// лут из трупа моба или из предметов-денег с внумом
 		// (предметы-награды в зонах) - снимаем клан-налог
 		sprintf(buf, "%s заработал %d  %s.", ch->get_name().c_str(), value,
-				grammar::GetDeclensionInNumber(value, grammar::EWhat::kMoneyU));
+				MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(value, grammar::ECase::kNom).c_str());
 		mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
-		ch->add_gold(value, true, true);
+		currencies::AddHand(*ch, currencies::kGold, value - ClanSystem::do_gold_tax(ch, value), false, true);
 	} else {
 		sprintf(buf,
 				"<%s> {%d} как-то получил %d  %s.",
 				ch->get_name().c_str(),
 				GET_ROOM_VNUM(ch->in_room),
 				value,
-				grammar::GetDeclensionInNumber(value, grammar::EWhat::kMoneyU));
+				MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(value, grammar::ECase::kNom).c_str());
 		mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
-		ch->add_gold(value);
+		currencies::AddHand(*ch, currencies::kGold, value);
 	}
 	RemoveObjFromChar(obj);
 	ExtractObjFromWorld(obj);

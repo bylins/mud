@@ -6,6 +6,7 @@
 */
 
 #include "mem_queue.h"
+#include "utils/logger.h"
 #include "administration/privilege.h"
 #include "gameplay/mechanics/magic_item.h"
 
@@ -147,9 +148,9 @@ int CalcSpellManacost(CharData *ch, ESpell spell_id) {
 			int tmp =  std::max(MUD::Spell(spell_id).GetMaxMana() 
 					- (MUD::Spell(spell_id).GetManaChange() * (GetRealLevel(ch) - CalcMinRuneSpellLvl(ch, spell_id))),  
 				MUD::Spell(spell_id).GetMinMana());
-		ch->send_to_TC(false, true, true, "&MМакс манна %d, маначенж %d minrunespelllevel %d&n\r\n", MUD::Spell(spell_id).GetMaxMana(),
+		SendToTC(ch, false, true, true, "&MМакс манна %d, маначенж %d minrunespelllevel %d&n\r\n", MUD::Spell(spell_id).GetMaxMana(),
 				MUD::Spell(spell_id).GetManaChange(), CalcMinRuneSpellLvl(ch, spell_id));
-		ch->send_to_TC(false, true, true, "&MПотрачено манны множитель %f  затраты %d всего = %d&n\r\n", druid_manacost_modifier[GetRealInt(ch)], tmp, result );
+		SendToTC(ch, false, true, true, "&MПотрачено манны множитель %f  затраты %d всего = %d&n\r\n", druid_manacost_modifier[GetRealInt(ch)], tmp, result );
 //		log("manacost Макс манна %d, маначенж %d minrunespelllevel %d\r\n", MUD::Spell(spell_id).GetMaxMana(),
 //				MUD::Spell(spell_id).GetManaChange(), CalcMinRuneSpellLvl(ch, spell_id));
 //		log("manacost Потрачено манны множитель %f  затраты %d всего = %d\r\n", druid_manacost_modifier[GetRealInt(ch)], tmp, result );
@@ -175,7 +176,7 @@ int CalcSpellManacost(CharData *ch, ESpell spell_id) {
 		}
 	}
 	if (result > 0)
-		return result * koef_skill_magic(ch->GetSkill(MUD::Spell(spell_id).GetSuccessRoll().GetBaseSkill())) / 100;
+		return result * koef_skill_magic(GetSkill(ch, MUD::Spell(spell_id).GetSuccessRoll().GetBaseSkill())) / 100;
 		// при скилле 200 + 25%, чем меньше тем лучше
 	else
 		return 99999;

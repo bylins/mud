@@ -16,6 +16,7 @@ test_sources = files(
     'vedun.scheme.cpp',
     'vedun.datanode_mutation.cpp',
     'vedun.element_find.cpp',
+    'msg_container.cdata.cpp',
     'guilds.loader.cpp',
     'socials.loader.cpp',
     'subcmd_resolver.cpp',
@@ -50,6 +51,7 @@ test_sources = files(
     'trigger_indenter.cpp',
     'trigger_script_parser.cpp',
     'yaml_loader_flag_packing.cpp',
+    'yaml_mob_saves_resistances.cpp',
     'world_checksum_serialization.cpp',
     'dg_string_matching.cpp',
     'dg_var_context.cpp',
@@ -89,7 +91,7 @@ endif
 fs = import('fs')
 
 files_to_copy = [
-    ['../lib.template/misc/grouping', 'misc/grouping'],
+    ['../lib/cfg/mechanics/group_exp_handicap.xml', 'cfg/mechanics/group_exp_handicap.xml'],
     ['data/boards/changelog.sample',  'data/boards/changelog.sample'],
     ['data/boards/news.sample',       'data/boards/news.sample'],
     ['data/mob_classes/test_initial.xml', 'data/mob_classes/test_initial.xml'],

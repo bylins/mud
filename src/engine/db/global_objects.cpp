@@ -46,6 +46,13 @@ struct GlobalObjectsStorage {
 	guilds::GuildsInfo guilds_info;
 	communication::social::SocialsInfo socials_info;
 	guilds::GuildMessages guild_messages;
+	cities::CitiesInfo cities_info;
+	regions::RegionsInfo regions_info;
+	regions::RegionMessages region_messages;
+	system_messages::SystemMessages system_messages;
+	cities::CityMessages city_messages;
+	player_races::PcRacesInfo pc_races_info;
+	player_races::RaceMessages race_messages;
 	specials::SpecialMessages special_messages;
 	specials::BankMessages bank_messages;
 	specials::MailMessages mail_messages;
@@ -174,6 +181,34 @@ communication::social::SocialsInfo &GlobalObjects::Socials() {
 
 guilds::GuildMessages &GlobalObjects::GuildMessages() {
 	return global_objects().guild_messages;
+}
+
+cities::CitiesInfo &GlobalObjects::Cities() {
+	return global_objects().cities_info;
+}
+
+regions::RegionsInfo &GlobalObjects::Regions() {
+	return global_objects().regions_info;
+}
+
+regions::RegionMessages &GlobalObjects::RegionMessages() {
+	return global_objects().region_messages;
+}
+
+system_messages::SystemMessages &GlobalObjects::SystemMessages() {
+	return global_objects().system_messages;
+}
+
+cities::CityMessages &GlobalObjects::CityMessages() {
+	return global_objects().city_messages;
+}
+
+player_races::PcRacesInfo &GlobalObjects::PcRaces() {
+	return global_objects().pc_races_info;
+}
+
+player_races::RaceMessages &GlobalObjects::RaceMessages() {
+	return global_objects().race_messages;
 }
 
 specials::SpecialMessages &GlobalObjects::SpecialMessages() {

@@ -1,59 +1,44 @@
 <?xml version="1.0" encoding="koi8-r"?>
-<!--
-Формат:
-    <currency text_id="kKuna" vnum="0" mode="kEnabled">
-        <permits give="1" obj="1" bank="1" transfer="1" transfer_other="1" transfer_tax="5" drop="100" clan_tax="25"/>
-        <flags account_shared="N"  locked="Y"/>
-    </currency>
-
-  Имя (строка для поиска + склонения по падежам) теперь хранится отдельно, в
-  messages/ru/currency_msg.xml (контейнер сообщений валют, грузится до currencies.xml),
-  по ключу text_id. Падежи задаются в новом формате <case id="kNom" val="..."/>.
-
-text_id="id для указаня в других конфигах" name="имя для поиска по имени" vnum="виртуальный номер" mode="режим"
-gender - Грамматиеский род, Имена в единственном и множественном числе для всех падежей.
-permits - флаги допустимых операций
-    give- можно передать
-    obj - может выпасть в качестве предмета и лежать на земле
-    bank - можно вложить в банк
-    transfer - можно переводить в пределах аккаунта (не имеет смысла для общей на аккаунт валюты)
-    transfer_others - можно переводить на другие аккаунты
-    transfer_tax - налог на перевод
-    drop - сколько процентов из находящейся на руках валюты будет потеряно при смерти (если obj разрешен - останется в трупе или на земле)
-    clan_tax - максимально допустимый клановый налог
-flags - флаги
-    account_shared - валюта общая для всех персонажей аккаунта
-    locked - запрещено изменять через OLC (снять или поставить можно только вручную в файле)
-
--->
 <currencies>
-    <currency text_id="kKuna" vnum="0" mode="kEnabled">
-        <permits give="1" obj="1" bank="1" transfer="1" transfer_other="1" transfer_tax="5" drop="100" clan_tax="25"/>
-        <flags account_shared="N"  locked="Y"/>
-    </currency>
-    <currency text_id="kGlory" vnum="1" mode="kEnabled">
-        <permits give="0" obj="0" bank="0" transfer="0" transfer_other="0" transfer_tax="5" drop="100" clan_tax="25"/>
-        <flags account_shared="Y"  locked="Y"/>
-    </currency>
-    <currency text_id="kGrivna" vnum="2" mode="kEnabled">
-        <permits give="0" obj="0" bank="0" transfer="0" transfer_other="0" transfer_tax="5" drop="100" clan_tax="25"/>
-        <flags account_shared="N"  locked="N"/>
-    </currency>
-    <currency text_id="kMagicIce" vnum="3" mode="kEnabled">
-        <permits give="0" obj="0" bank="0" transfer="0" transfer_other="0" transfer_tax="5" drop="100" clan_tax="25"/>
-        <flags account_shared="N"  locked="N"/>
-    </currency>
-    <currency text_id="kNogata" vnum="4" mode="kEnabled">
-        <permits give="0" obj="0" bank="0" transfer="0" transfer_other="0" transfer_tax="5" drop="100" clan_tax="25"/>
-        <flags account_shared="N"  locked="N"/>
-    </currency>
-    <!--
-    <currency text_id="kZlatnik" name="златник" vnum="5" account_shared="N" locked="0" mode="kEnabled">
-        <name>
-            <singular nom="златник" gen="златника" dat="златнику" acc="златник" ins="златником" pre="златнике"/>
-            <plural nom="златники" gen="златников" dat="златникам" acc="златники" ins="златниками" pre="златниках"/>
-        </name>
-        <permits give="0" obj="0" bank="0" transfer="0" transfer_other="0" transfer_tax="5" drop="100" clan_tax="25"/>
-    </currency>
-    -->
+	<currency text_id="kKuna" vnum="0" mode="kEnabled">
+		<permits give="1" obj="1" bank="1" transfer="1" transfer_other="1" transfer_tax="5" drop="100" clan_tax="25" />
+		<flags account_shared="N" locked="Y" logged="Y" msdp="Y" money_stat="Y" />
+	</currency>
+	<currency text_id="kGlory" vnum="1" mode="kEnabled">
+		<permits give="0" obj="0" bank="0" transfer="0" transfer_other="0" transfer_tax="5" drop="100" clan_tax="25" />
+		<flags account_shared="N" locked="Y" />
+	</currency>
+	<currency text_id="kCopperGrivna" vnum="2" mode="kEnabled">
+		<permits give="0" obj="0" bank="0" transfer="0" transfer_other="0" transfer_tax="5" drop="100" clan_tax="25" />
+		<limits max="1500" />
+		<flags account_shared="N" locked="N" merchant_payout="N" />
+	</currency>
+	<currency text_id="kBronzeGrivna" vnum="3" mode="kEnabled">
+		<permits give="0" obj="0" bank="0" transfer="0" transfer_other="0" transfer_tax="5" drop="100" clan_tax="25" />
+		<flags account_shared="N" locked="N" />
+	</currency>
+	<currency text_id="kSilverGrivna" vnum="4" mode="kEnabled">
+		<permits give="0" obj="0" bank="0" transfer="0" transfer_other="0" transfer_tax="5" drop="100" clan_tax="25" />
+		<flags account_shared="N" locked="N" />
+	</currency>
+	<currency text_id="kGoldGrivna" vnum="5" mode="kEnabled">
+		<permits give="0" obj="0" bank="0" transfer="0" transfer_other="0" transfer_tax="5" drop="100" clan_tax="25" />
+		<flags account_shared="N" locked="N" />
+	</currency>
+	<currency text_id="kMagicIce" vnum="6" mode="kEnabled">
+		<permits give="0" obj="0" bank="0" transfer="0" transfer_other="0" transfer_tax="5" drop="100" clan_tax="25" />
+		<flags account_shared="N" locked="N" />
+	</currency>
+	<currency text_id="kNogata" vnum="7" mode="kEnabled">
+		<permits give="1" obj="0" bank="0" transfer="0" transfer_other="0" transfer_tax="5" drop="100" clan_tax="25" />
+		<flags account_shared="N" locked="N" merchant_payout="N" />
+	</currency>
+	<currency text_id="kZlatnik" vnum="8" mode="kEnabled">
+		<permits give="1" obj="1" bank="0" transfer="0" transfer_other="0" transfer_tax="5" drop="100" clan_tax="25" />
+		<flags account_shared="N" locked="N" />
+	</currency>
+	<currency text_id="kSnowflake" vnum="9" mode="kEnabled">
+		<permits give="0" obj="0" bank="0" transfer="0" transfer_other="0" transfer_tax="5" drop="100" clan_tax="25" />
+		<flags account_shared="N" locked="N" />
+	</currency>
 </currencies>

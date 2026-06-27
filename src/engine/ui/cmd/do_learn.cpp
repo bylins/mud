@@ -1,6 +1,8 @@
 #include "do_learn.h"
 
-#include "engine/core/handler.h"
+#include "engine/core/obj_handler.h"
+#include "engine/core/target_resolver.h"
+#include "engine/entities/char_data.h"
 #include "gameplay/classes/classes_spell_slots.h"
 #include "gameplay/classes/pc_classes.h"
 #include "gameplay/magic/spells_info.h"
@@ -25,7 +27,7 @@ bool IsLearningFailed(CharData *ch, ObjData *obj) {
 	addchance += (GET_OBJ_VAL(obj, 0) == EBook::kSpell) ? 0 : 10;
 
 	if (!obj->has_flag(EObjFlag::kNofail)
-		&& number(1, 100) > int_app[Posi(GetRealInt(ch))].spell_aknowlege + addchance) {
+		&& number(1, 100) > IntApp(Posi(GetRealInt(ch))).spell_aknowlege + addchance) {
 		return true;
 	}
 	return false;
@@ -94,7 +96,7 @@ void LearnSkillBook(CharData *ch, ObjData *obj) {
 	}
 
 	auto skill_name = MUD::Skill(skill_id).GetName();
-	if (ch->GetSkill(skill_id)) {
+	if (GetSkill(ch, skill_id)) {
 		throw AlreadyKnown(skill_name);
 	}
 	if (!CanGetSkill(ch, skill_id, GET_OBJ_VAL(obj, 2))) {
@@ -104,7 +106,7 @@ void LearnSkillBook(CharData *ch, ObjData *obj) {
 		throw LearningFail();
 	}
 
-	ch->set_skill(skill_id, 5);
+	SetSkill(ch, skill_id, 5);
 	SendSuccessLearningMessage(ch, obj, skill_name);
 }
 
@@ -117,8 +119,8 @@ void LearnSkillUpgradeBook(CharData *ch, ObjData *obj) {
 
 	const auto book_skill_cap = GET_OBJ_VAL(obj, 3);
 	auto skill_name = MUD::Skill(skill_id).GetName();
-	if ((book_skill_cap > 0 && ch->GetSkillBonus(skill_id) >= book_skill_cap) ||
-		(book_skill_cap <= 0 && ch->GetSkillBonus(skill_id) >= CalcSkillRemortCap(ch))) {
+	if ((book_skill_cap > 0 && GetSkillBonus(ch, skill_id) >= book_skill_cap) ||
+		(book_skill_cap <= 0 && GetSkillBonus(ch, skill_id) >= CalcSkillRemortCap(ch))) {
 		throw AlreadyKnown(skill_name);
 	}
 	if (!CanGetSkill(ch, skill_id, GET_OBJ_VAL(obj, 2))) {
@@ -129,11 +131,11 @@ void LearnSkillUpgradeBook(CharData *ch, ObjData *obj) {
 	}
 
 	SendSuccessLearningMessage(ch, obj, skill_name);
-	const auto left_skill_level = ch->GetSkillBonus(skill_id) + GET_OBJ_VAL(obj, 2);
+	const auto left_skill_level = GetSkillBonus(ch, skill_id) + GET_OBJ_VAL(obj, 2);
 	if (book_skill_cap > 0) {
-		ch->set_skill(skill_id, std::min(left_skill_level, GET_OBJ_VAL(obj, 3)));
+		SetSkill(ch, skill_id, std::min(left_skill_level, GET_OBJ_VAL(obj, 3)));
 	} else {
-		ch->set_skill(skill_id, std::min(left_skill_level, CalcSkillRemortCap(ch)));
+		SetSkill(ch, skill_id, std::min(left_skill_level, CalcSkillRemortCap(ch)));
 	}
 }
 
@@ -146,20 +148,16 @@ void LearnReceiptBook(CharData *ch, ObjData *obj) {
 		SendMsgToChar("РЕЦЕПТ НЕ ОПРЕДЕЛЕН - сообщите Богам!\r\n", ch);
 		throw LearningError();
 	}
-	if (imrecipes[receipt_id].classknow[(int) ch->GetClass()] != kKnownRecipe) {
+	// issue.class-recipes: доступность рецепта - свойство класса (cfg/classes/pc_*.xml).
+	if (!MUD::Class(ch->GetClass()).FindIngredientRecipe(imrecipes[receipt_id].str_id)) {
 		throw NotAvailable();
 	}
 	im_rskill *receipt_skill = im_get_char_rskill(ch, receipt_id);
 	if (receipt_skill) {
 		throw AlreadyKnown(receipt_name);
 	}
-	if (MAX(GET_OBJ_VAL(obj, 2), imrecipes[receipt_id].level) <= GetRealLevel(ch) &&
-		imrecipes[receipt_id].remort <= remort::GetRealRemort(ch)) {
-		if (imrecipes[receipt_id].level == -1 || imrecipes[receipt_id].remort == -1) {
-			SendMsgToChar("Некорректная запись рецепта для вашего класса - сообщите Богам.\r\n", ch);
-			throw LowRemortOrLvl();
-		}
-	}
+	// Класс владеет рецептом => уровень/реморт всегда корректны (прежняя проверка на "-1",
+	// сигнализировавшая о битой записи class.recipes.lst, больше не нужна).
 	if (IsLearningFailed(ch, obj)) {
 		throw LearningFail();
 	}

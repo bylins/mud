@@ -11,7 +11,6 @@
 #include "utils/grammar/gender.h"
 #include "engine/network/descriptor_data.h"
 #include "gameplay/communication/remember.h"
-#include "engine/core/handler.h"
 #include "engine/core/target_resolver.h"
 #include "gameplay/fight/common.h"
 #include "utils/utils_string.h"
@@ -94,7 +93,11 @@ void do_pray_gods(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				// Переносим всю собранную строку, чтобы в расчёт ширины попал и
 				// префикс ("[комната] имя воззвал к богам ..."), и таймстамп.
 				// Цветокоды OutWordsList уже не считает за ширину.
-				std::string line = Remember::time_format() + buf;
+				// движковый префикс с датой и временем (клиентскую дату игроки убирают)
+				char ts[32];
+				const time_t now = time(nullptr);
+				strftime(ts, sizeof(ts), "[%d-%m-%Y %H:%M] ", localtime(&now));
+				std::string line = std::string(ts) + buf;
 				if (!god->IsNpc() && god->player_specials->saved.stringLength > 0) {
 					// WrapText съедает хвостовой \r\n -- возвращаем его обратно
 					line = utils::WrapText(line, god->player_specials->saved.stringLength) + "\r\n";

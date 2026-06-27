@@ -29,6 +29,7 @@ namespace vedun {
 // saving validates then atomically rewrites the file and reloads the container.
 enum class Mode { kBrowse, kEditAttr, kEditFlagset, kAddChild, kDeleteChild, kMoveChild, kConfirmQuit };
 struct Session {
+	std::string id;                                // issue.cfg-manager: registry id (CfgManager::Save)
 	std::string what;                              // e.g. "spell"
 	std::filesystem::path file;                    // the cfg source file
 	cfg_manager::IEditableCfgLoader *loader{nullptr};

@@ -11,7 +11,7 @@
 #include "engine/db/global_objects.h"
 #include "gameplay/magic/spell_messages.h"
 #include "gameplay/mechanics/minions.h"
-#include "engine/core/handler.h"
+#include "engine/core/char_handler.h"
 
 namespace handlers {
 
@@ -86,7 +86,7 @@ EStageResult SpellMentalShadow(CastContext &ctx) {
 		affect_to_char(mob, af);
 		mob->mob_specials.have_spell = true;
 	}
-	if (mob->GetSkill(ESkill::kAwake)) {
+	if (GetSkill(mob, ESkill::kAwake)) {
 		mob->SetFlag(EPrf::kAwake);
 	}
 	mob->set_level(GetRealLevel(ch));

@@ -5,13 +5,14 @@
     padded {recipient}/{sender}. kFinancialOp is an act() line ($n act-codes). Several core bank slots
     (kDepositHowMuch/kCantAfford/kDeposited/kWithdrawHowMuch/kWithdrawn/kFinancialOp) are reused by казна.
 -->
-<msg_container>
+<bank_msg>
 	<msg_sheaf id="kDefault">
 		<message type="kGreeting" val="Да-да, тут банк, чего изволите?"/>
 		<message type="kBalance" val="У вас на счету {amount} {currency}."/>
 		<message type="kNoMoney" val="У вас нет денег."/>
 		<message type="kDepositHowMuch" val="Сколько вы хотите вложить?"/>
 		<message type="kCantAfford" val="О такой сумме вы можете только мечтать!"/>
+		<message type="kCantBank" val="Эту валюту нельзя хранить в банке."/>
 		<message type="kDeposited" val="Вы вложили {amount} {currency}."/>
 		<message type="kWithdrawHowMuch" val="Уточните количество денег, которые вы хотите получить?"/>
 		<message type="kNeverHadThatMuch" val="Да вы отродясь столько денег не видели!"/>
@@ -32,4 +33,4 @@
 		<message type="kClanWithdrawPartial" val="Вам удалось снять только {amount} {currency}."/>
 		<message type="kClanFormat" val="Формат команды: казна вложить|получить|баланс сумма."/>
 	</msg_sheaf>
-</msg_container>
+</bank_msg>

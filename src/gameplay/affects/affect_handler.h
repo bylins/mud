@@ -2,6 +2,12 @@
 #define _AFFECTHANDLER_HPP_
 #include "engine/entities/char_data.h"
 
+// Remove the affect at `affect_i` from `ch`'s affect list and return the iterator after it
+// (the removal counterpart of ImposeAffect). Was CharData::AffectRemove. The kAbstinent case
+// clamps drunkenness back below the "drunk" threshold so the hangover does not re-trigger.
+CharData::char_affects_list_t::iterator RemoveAffect(CharData *ch,
+		const CharData::char_affects_list_t::iterator &affect_i);
+
 // класс новых аффектов
 class AffectParent {
 	// чар, который кастанул цель

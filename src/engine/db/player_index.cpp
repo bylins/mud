@@ -13,6 +13,13 @@
 #include "utils/backtrace.h"
 #include "engine/entities/char_player.h"
 #include "gameplay/statistics/top.h"
+#include "engine/network/descriptor_data.h"
+#include "engine/core/comm.h"
+#include "gameplay/clans/house.h"
+#include "administration/names.h"
+#include "engine/db/db.h"
+#include "engine/structs/structs.h"
+#include "utils/utils_parse.h"
 
 PlayersIndex &player_table = GlobalObjects::player_table();
 
@@ -398,6 +405,98 @@ bool MustBeDeleted(CharData *short_ch) {
 	}
 
 	return false;
+}
+
+
+// ---- Identity lookups moved from interpreter.cpp (issue.interpreter-cleaning Bucket 3) ----
+
+// ищет дескриптор игрока(онлайн состояние) по его УИДу
+DescriptorData *DescriptorByUid(long uid) {
+	DescriptorData *d = nullptr;
+
+	for (d = descriptor_list; d; d = d->next) {
+		if (d->character && d->character->get_uid() == uid) {
+			break;
+		}
+	}
+	return (d);
+}
+
+int GetUniqueByName(std::string name, bool god) {
+	for (auto &i : player_table) {
+		if (i.uid() != -1 && CompareParam(name, i.name(), true)) {
+			if (!god) {
+				return i.uid();
+			} else {
+				if (i.level < kLvlImmortal) {
+					return i.uid();
+				} else {
+					return -1;
+				}
+			}
+		}
+	}
+	return 0;
+}
+
+bool IsActiveUser(long unique) {
+	time_t currTime = time(nullptr);
+	time_t charLogon;
+	int inactivityDelay = /* day*/ (3600 * 24) * /*days count*/ 60;
+	for (auto &i : player_table) {
+		if (i.uid() == unique) {
+			charLogon = i.last_logon;
+			return currTime - charLogon < inactivityDelay;
+		}
+	}
+	return false;
+}
+
+// ищет имя игрока по его УИДу, второй необязательный параметр - учитывать или нет БОГОВ
+std::string GetNameByUnique(long unique, bool god) {
+	std::string empty;
+
+	for (auto &i : player_table) {
+		if (i.uid() == unique) {
+			if (!god) {
+				return i.name();
+			} else {
+				if (i.level < kLvlImmortal) {
+					return i.name();
+				} else {
+					return empty;
+				}
+			}
+		}
+	}
+
+	return empty;
+}
+
+// * Добровольное удаление персонажа через игровое меню.
+void DeletePcByHimself(const char *name) {
+	Player t_st;
+	Player *st = &t_st;
+	int id = LoadPlayerCharacter(name, st, ELoadCharFlags::kFindId);
+
+	if (id >= 0) {
+		st->SetFlag(EPlrFlag::kDeleted);
+		NewNames::remove(st);
+		if (NAME_FINE(st)) {
+			player_table.GetNameAdviser().add(GET_NAME(st));
+		}
+		Clan::remove_from_clan(st->get_uid());
+		st->save_char();
+
+		ClearCrashSavedObjects(id);
+		player_table[id].set_uid(0);
+		player_table[id].level = -1;
+		player_table[id].remorts = -1;
+		player_table[id].last_logon = -1;
+		player_table[id].activity = -1;
+		player_table[id].mail.clear();
+		player_table[id].last_ip.clear();
+	}
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

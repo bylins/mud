@@ -8,7 +8,7 @@
 
 #include "engine/entities/char_data.h"
 #include "gameplay/mechanics/mount.h"
-#include "engine/core/handler.h"
+#include "engine/core/char_handler.h"
 #include "engine/core/target_resolver.h"
 #include "gameplay/mechanics/sight.h"
 

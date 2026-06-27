@@ -1,0 +1,817 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<recipes>
+	<recipe id="AxePorridge" vnum="0" name="каша из топора" result_vnum="750" k_improve="1000" damage="2d10" damage_enabled="true">
+		<energy k0="3" k1="0" k2="0.0001" kp="2"/>
+		<require type="EdibleMushrooms" power="3"/>
+		<require type="EdibleMushrooms" power="10"/>
+		<require type="Living" power="2"/>
+		<addon count="3" type="EdibleMushrooms" k0="1" k1="0" k2="0"/>
+		<addon count="1" type="Wool" k0="1" k1="0" k2="3"/>
+		<messages>
+			<success char="Вы_сварили_вкуснейшую_кашу." room="$n0_сварил$g_ароматную_кашу."/>
+			<fail char="Вы_передержали_кашу_на_огне,_всё_сгорело!" room="Густой_черный_дым_повалил_от_каши_$n1!"/>
+			<damage char="Пузырь_воздуха_лопнул_на_поверхности_каши,_обжигая_Вас_каплями!" room="Пузырь_воздуха_лопнул_на_поверхности_каши,_обжигая_$n3_каплями!"/>
+		</messages>
+	</recipe>
+	<recipe id="SoaringBrew" vnum="1" name="воспаряющий отвар" result_vnum="801" k_improve="1000" damage="4d10" damage_enabled="true">
+		<energy k0="3" k1="1" k2="0.0001" kp="2"/>
+		<require type="Utensils" power="1"/>
+		<require type="Liquids" power="1"/>
+		<require type="Wood" power="1"/>
+		<require type="Wings" power="18"/>
+		<addon count="1" type="EdibleMushrooms" k0="1" k1="0" k2="0"/>
+		<addon count="1" type="EdibleBerries" k0="0" k1="1" k2="0"/>
+		<addon count="1" type="HealingHerbs" k0="1" k1="0" k2="1"/>
+		<messages>
+			<success char="Вы_сварили_воспаряющий_отвар." room="Приплясывая_и_притоптывая,_$n0_что-то_сварил$g_в_огромном_котле."/>
+			<fail char="И_ничего_не_вышло..." room="$n0_начал$g_плясать_вокруг_огромного_котла._Вот_глуп$w."/>
+			<damage char="Камень_взлетел_со_дна_котла_и_больно_ударил_Вам_в_лоб!!!" room="Камень_взлетел_со_дна_котла_и_с_огромной_силой_ударил_в_голову_$n3!"/>
+		</messages>
+	</recipe>
+	<recipe id="BedbugInfusion" vnum="2" name="настой на клопах" result_vnum="802" k_improve="1000" damage="1d10" damage_enabled="true">
+		<energy k0="1" k1="0" k2="0.0001" kp="2"/>
+		<require type="Utensils" power="1"/>
+		<require type="Liquids" power="5"/>
+		<require type="HealingHerbs" power="22"/>
+		<require type="PoisonousHerbs" power="15"/>
+		<require type="SmallCreatures" power="8"/>
+		<addon count="1" type="Teeth" k0="1" k1="1" k2="1"/>
+		<messages>
+			<success char="Кажется,_Вы_превратили_неплохой_напиток_в_какую-то_гадость!!" room="$n0_начал$g_запихивать_отчаянно_сопротивляющуюся_живность_в_бутыль_с_чем-то!!!"/>
+			<fail char="От_отвращения_Вы_случайно_разжали_руки_и_все_упало_на_землю..." room="С_исказившимся_от_отвращения_лицом_$n0_разжал$g_руки_и_все_упало_на_землю."/>
+			<damage char="Существо,_которое_Вы_так_отчаянно_пытались_запихнуть_в_бутыль,_ловко_извернулось_и_укусило_Вас_в_палец!!!" room="Существо,_которое_$n0_так_отчаянно_пытал$u_запихнуть_в_бутыль_ловко_извернулось_и_укусило_$s_в_палец!!!"/>
+		</messages>
+	</recipe>
+	<recipe id="WardingPotion" vnum="3" name="зелье бережения" result_vnum="803" k_improve="1000" damage="2d2" damage_enabled="true">
+		<energy k0="1" k1="0" k2="0.0001" kp="2"/>
+		<require type="Utensils" power="1"/>
+		<require type="Liquids" power="1"/>
+		<require type="EdibleBerries" power="12"/>
+		<messages>
+			<success char="Вы_сварили_зелье_бережения." room="$n0_сварил$g_зелье_бережения."/>
+			<fail char="Ваша_попытка_сварить_зелье_бережения_окончилась_полным_провалом." room="У_$n1_ничего_не_вышло_с_приготовлением_зелья_бережения."/>
+			<damage char="Вы_ошпарили_руки_своим_варевом!" room="$n0_грубо_выругал$u,_когда_ошпарил$g_руки_своим_варевом!"/>
+		</messages>
+	</recipe>
+	<recipe id="YarrowDecoction" vnum="4" name="отвар тысячелистника" result_vnum="804" k_improve="1000" damage="2d4" damage_enabled="true">
+		<energy k0="1" k1="0" k2="0.0001" kp="2"/>
+		<require type="Utensils" power="1"/>
+		<require type="Liquids" power="1"/>
+		<require type="PoisonousMushrooms" power="7"/>
+		<require type="HealingHerbs" power="17"/>
+		<messages>
+			<success char="Вы_приготовили_отвар_тысячелистника." room="$n0_приготовил$g_отвар_тысячелистника."/>
+			<fail char="Кажется_не_получилось..." room="$n2_не_удался_отвар_тысячелистника."/>
+			<damage char="Вы_еще_и_ногу_подвернули..." room="$n0_неудачно_подвернул$g_левую_ногу_и_заскрипел$g_зубами_от_боли."/>
+		</messages>
+	</recipe>
+	<recipe id="StrongLiqueur" vnum="5" name="крепкая наливка" result_vnum="805" k_improve="1000" damage="10d10" damage_enabled="true">
+		<energy k0="1" k1="0" k2="0.0001" kp="2"/>
+		<require type="Utensils" power="5"/>
+		<require type="Liquids" power="25"/>
+		<require type="Claws" power="26"/>
+		<require type="Liver" power="38"/>
+		<require type="Teeth" power="14"/>
+		<require type="Eyes" power="10"/>
+		<require type="Hair" power="10"/>
+		<addon count="1" type="Wood" k0="2" k1="0" k2="0"/>
+		<addon count="1" type="Minerals" k0="0" k1="0" k2="2"/>
+		<messages>
+			<success char="Ваши_старания_увенчались_успехом!_Что_очень_странно..." room="Старания_$n1_увенчались_успехом!"/>
+			<fail char="Не_надо_расстариваться..._В_следующий_раз_получится." room="$n0_огорчен$g_своей_неудачей."/>
+			<damage char="Нечто,_отдаленно_похожее_на_Вас_,истошно_завизжало_среди_пара_и_огня,_и_Вы_почувствовали_его_БОЛЬ!!!" room="$n0_скорчил$u_от_боли,_услышав_вопли_результата_своих_стараний."/>
+		</messages>
+	</recipe>
+	<recipe id="AloeInfusion" vnum="6" name="настой столетника" result_vnum="807" k_improve="1000" damage="3d10" damage_enabled="true">
+		<energy k0="1" k1="0" k2="0.0001" kp="2"/>
+		<require type="Utensils" power="2"/>
+		<require type="Liquids" power="2"/>
+		<require type="HealingHerbs" power="5"/>
+		<require type="Eyes" power="18"/>
+		<messages>
+			<success char="Ваши_губы_тронула_улыбка._Кажется,_получилось_неплохо." room="$n0_довольно_улыбнул$u._Кажется_получилось."/>
+			<fail char="Вы_огорченно_вздохнули._Этим_только_клопов_морить..." room="$n0_огорченно_вздохнул$g._Результат_явно_не_соответствует_$s_ожиданиям."/>
+			<damage char="Пытаясь_выплеснуть_зелье_в_помойку,_Вы_выпустили_бутыль_из_рук,_и_она_упала_Вам_на_ногу._Довольно_чувствительно..." room="$n0_пытал$u_вылить_неудавшееся_зелье,_но_уронил$g_бутыль_себе_на_ногу_и_вскрикнул$g_от_боли."/>
+		</messages>
+	</recipe>
+	<recipe id="AconiteDecoction" vnum="7" name="отвар бореца" result_vnum="806" k_improve="1000" damage="5d10" damage_enabled="true">
+		<energy k0="1" k1="0" k2="0.0001" kp="2"/>
+		<require type="Utensils" power="5"/>
+		<require type="Liquids" power="5"/>
+		<require type="EdibleMushrooms" power="10"/>
+		<require type="Heart" power="18"/>
+		<require type="HealingHerbs" power="18"/>
+		<addon count="1" type="Vegetables" k0="3" k1="0" k2="0"/>
+		<addon count="1" type="Liver" k0="0" k1="0" k2="3"/>
+		<messages>
+			<success char="Вы_приготовили_отличный_отвар_бореца." room="$n0_приготовил$g_отличный_отвар_бореца."/>
+			<fail char="Не_получилось._Видимо_передержали_на_огне." room="Явное_недовольство_собой_отразилось_на_лице_$n1."/>
+			<damage char="Не_поверив_в_свою_ошибку,_Вы_сделали_глоток..._Какая_гадость!" room="Глоток_своего_творения_явно_не_пошел_на_пользу_$n2."/>
+		</messages>
+	</recipe>
+	<recipe id="PlantainDecoction" vnum="8" name="отвар подорожника" result_vnum="808" k_improve="1000" damage="3d7" damage_enabled="true">
+		<energy k0="1" k1="0" k2="0.0001" kp="2"/>
+		<require type="Utensils" power="1"/>
+		<require type="Liquids" power="1"/>
+		<require type="HealingHerbs" power="5"/>
+		<messages>
+			<success char="Вы_преуспели_в_приготовлении_отвара_подорожника." room="$n0,_очевидно,_преуспел$g_в_своих_стараниях."/>
+			<fail char="Надо_же!_Такой_простой_рецепт_-_а_ничего_не_вышло..." room="$n2_не_удался_этот_простой_отвар._Бывает..."/>
+			<damage char="С_досады_Вы_шарахнули_кулаком_по_столу!_Ай!_Больно_же!" room="С_досады_$n0_шарахнул$g_кулаком_по_столу_и_сильно_ударил$g_руку._Поосторожнее_надо..."/>
+		</messages>
+	</recipe>
+	<recipe id="ChagaInfusion" vnum="9" name="чаговый настой" result_vnum="809" k_improve="1000" damage="3d6" damage_enabled="true">
+		<energy k0="1" k1="0" k2="0.0001" kp="2"/>
+		<require type="Utensils" power="1"/>
+		<require type="Liquids" power="1"/>
+		<require type="Wood" power="1"/>
+		<messages>
+			<success char="Вы_сварили_чаговый_настой." room="$n0_сварил$g_чаговый_настой."/>
+			<fail char="Ничего_не_вышло..." room="У_$n1_ничего_не_вышло."/>
+			<damage char="Вы_занозили_палец!_Довольно_неприятно..." room="$n0_занозил$g_палец!"/>
+		</messages>
+	</recipe>
+	<recipe id="MurkyBrew" vnum="10" name="мутная брага" result_vnum="810" k_improve="1000" damage="4d8" damage_enabled="true">
+		<energy k0="1" k1="0" k2="0.0001" kp="2"/>
+		<require type="Utensils" power="1"/>
+		<require type="Liquids" power="1"/>
+		<require type="EdibleBerries" power="1"/>
+		<require type="PoisonousBerries" power="12"/>
+		<messages>
+			<success char="Вы_приготовили_мутную_брагу." room="$n0_сварил$g_мутную_брагу."/>
+			<fail char="Не_получилось...Попробуйте_еще_раз." room="У_$n1_ничего_не_получилось."/>
+			<damage char="Сок_ядовитых_ягод_попал_Вам_на_руки!_Ох_как_жжет!" room="$n0_брызнул$g_себе_на_руки_ягодным_соком_и_вскрикнул$g_от_боли."/>
+		</messages>
+	</recipe>
+	<recipe id="RavensEyeInfusion" vnum="11" name="настой вороньего глаза" result_vnum="811" k_improve="1000" damage="3d8" damage_enabled="true">
+		<energy k0="1" k1="0" k2="0.0001" kp="2"/>
+		<require type="Utensils" power="1"/>
+		<require type="Liquids" power="1"/>
+		<require type="PoisonousHerbs" power="12"/>
+		<messages>
+			<success char="У_Вас_получился_отличный_настой_вороньего_глаза." room="$n0_получил$g_настой_вороньего_глаза."/>
+			<fail char="Все_усилия_пропали_даром." room="$n0_напрасно_потратил$g_столько_усилий."/>
+			<damage char="Уголек_отскочил_от_полена_и_попал_прямо_в_Вас!" room="Уголек_отскочил_от_полена_и_попал_прямо_в_$n3!"/>
+		</messages>
+	</recipe>
+	<recipe id="BurnetRootDecoction" vnum="12" name="отвар корней кровохлебки" result_vnum="812" k_improve="1000" damage="2d8" damage_enabled="true">
+		<energy k0="1" k1="0" k2="0.0001" kp="2"/>
+		<require type="Utensils" power="1"/>
+		<require type="Liquids" power="1"/>
+		<require type="PoisonousMushrooms" power="1"/>
+		<require type="HealingHerbs" power="5"/>
+		<messages>
+			<success char="Вы_приготовили_отвар_корней_кровохлебки." room="$n0_приготовил$g_отвар_корней_кровохлебки."/>
+			<fail char="Все_усилия_были_напрасны." room="$n0_напрасно_прикладывал$g_столько_усилий."/>
+			<damage char="Капля_кипящего_зелья_попала_Вам_на_руки!" room="Капля_кипящего_зелья_попала_на_руки_$n1!"/>
+		</messages>
+	</recipe>
+	<recipe id="SuryaDrink" vnum="13" name="напиток сурья" result_vnum="813" k_improve="1000" damage="5d10" damage_enabled="true">
+		<energy k0="1" k1="0" k2="0.0001" kp="2"/>
+		<require type="Utensils" power="20"/>
+		<require type="Liquids" power="15"/>
+		<require type="EdibleMushrooms" power="18"/>
+		<require type="EdibleBerries" power="18"/>
+		<require type="HealingHerbs" power="26"/>
+		<require type="Hair" power="30"/>
+		<addon count="2" type="PoisonousHerbs" k0="1" k1="0" k2="0"/>
+		<addon count="2" type="PoisonousMushrooms" k0="0" k1="1" k2="0"/>
+		<addon count="2" type="PoisonousHerbs" k0="0" k1="0" k2="1"/>
+		<messages>
+			<success char="Вы_приготовили_напиток_сурья." room="$n0_приготовил$g_напиток_сурья."/>
+			<fail char="Вам_не_удалось_приготовить_напиток_сурья." room="$n2_не_удалось_приготовить_напиток_сурья."/>
+			<damage char="Неожиданно_из_емкости_с_отваром_повалил_едкий_черный_дым!_Вы_не_можете_дышать!" room="Неожиданно_из_емкости_с_отваром_повалил_едкий_черный_дым!_С_$n4_случился_приступ_удушья!"/>
+		</messages>
+	</recipe>
+	<recipe id="OldTestamentRotgut" vnum="14" name="ветхозаветная сивуха" result_vnum="814" k_improve="1000" damage="3d10" damage_enabled="true">
+		<energy k0="1" k1="0" k2="0.0001" kp="2"/>
+		<require type="Utensils" power="2"/>
+		<require type="Liquids" power="2"/>
+		<require type="Eyes" power="14"/>
+		<require type="PoisonousHerbs" power="16"/>
+		<addon count="1" type="Minerals" k0="1" k1="0" k2="0"/>
+		<addon count="1" type="Metals" k0="0" k1="1" k2="0"/>
+		<messages>
+			<success char="Вы_приготовили_ветхозаветную_сивуху." room="$n0_приготовил$g_ветхозаветную_сивуху."/>
+			<fail char="Вам_не_удалось_приготовить_ветхозаветную_сивуху." room="$n2_не_удалось_приготовить_ветхозаветную_сивуху."/>
+			<damage char="Сделав_неловкое_движение,_Вы_оступились_и_подвернули_ногу!" room="Сделав_неловкое_движение,_$n0_подвернул$g_ногу!"/>
+		</messages>
+	</recipe>
+	<recipe id="FearlessnessDecoction" vnum="15" name="отвар бесстрашия" result_vnum="815" k_improve="1000" damage="3d7" damage_enabled="true">
+		<energy k0="1" k1="0" k2="0.0001" kp="2"/>
+		<require type="Utensils" power="1"/>
+		<require type="Liquids" power="15"/>
+		<require type="Heart" power="5"/>
+		<messages>
+			<success char="Вы_успешно_завершили_приготовление_отвара_бесстрашия." room="$n0_успешно_завершил$g_приготовление_отвара_бесстрашия."/>
+			<fail char="Нет,_в_этот_раз_ничего_не_получилось." room="Нет,_в_этот_раз_у_$n1_ничего_не_получилось."/>
+			<damage char="Вы_ошпарили_руку_этим_идиотским_варевом!" room="Каким-то_образом_$n0_ошпарил$g_руку_своим_варевом."/>
+		</messages>
+	</recipe>
+	<recipe id="ClearInfusion" vnum="16" name="прозрачный настой" result_vnum="816" k_improve="1000" damage="3d8" damage_enabled="true">
+		<energy k0="1" k1="0" k2="0.0001" kp="2"/>
+		<require type="Utensils" power="1"/>
+		<require type="Liquids" power="1"/>
+		<require type="Teeth" power="10"/>
+		<messages>
+			<success char="У_Вас_получился_классический_прозрачный_настой." room="У_$n1_получился_прозрачный_настой."/>
+			<fail char="Обидно,_ничего_не_получилось." room="У_$n1_ничего_не_получилось."/>
+			<damage char="Внезапно_зубы_непостижимым_образом_сомкнулись_и_впились_Вам_в_руку!." room="Внезапно_зубы_непостижимым_образом_сомкнулись_и_впились_в_руку_$n1!."/>
+		</messages>
+	</recipe>
+	<recipe id="ShiningBrew" vnum="17" name="сияющий отвар" result_vnum="817" k_improve="1000" damage="5d10" damage_enabled="true">
+		<energy k0="1" k1="0" k2="0.0001" kp="2"/>
+		<require type="Utensils" power="2"/>
+		<require type="Liquids" power="2"/>
+		<require type="Minerals" power="2"/>
+		<require type="Vegetables" power="15"/>
+		<require type="EdibleMushrooms" power="18"/>
+		<addon count="1" type="Liver" k0="1" k1="0" k2="1"/>
+		<addon count="1" type="EdibleBerries" k0="0" k1="1" k2="1"/>
+		<messages>
+			<success char="Яркое_сияние,_вспыхнувшее_над_отваром,_говорит_о_его_превосходном_качестве!" room="Яркое_сияние,_вспыхнувшее_над_отваром,_говорит_о_его_превосходном_качестве!"/>
+			<fail char="Сияние,_появившееся_было_над_сосудом,_вдруг_потускнело_и_погасло..." room="Сияние,_появившееся_было_над_сосудом,_вдруг_потускнело_и_погасло..."/>
+			<damage char="Ваши_глаза,_ослепленные_вспышкой,_ужасно_болят_и_слезятся...." room="Глаза_$n1,_ослепленные_вспышкой,_должно_быть,_ужасно_болят_и_слезятся...."/>
+		</messages>
+	</recipe>
+	<recipe id="BearBloodInfusion" vnum="18" name="настой на медвежьей крови" result_vnum="818" k_improve="1000" damage="5d10" damage_enabled="true">
+		<energy k0="1" k1="0" k2="0.0001" kp="2"/>
+		<require type="Utensils" power="1"/>
+		<require type="Liquids" power="1"/>
+		<require type="SmallCreatures" power="12"/>
+		<require type="Grains" power="1"/>
+		<addon count="1" type="Metals" k0="1" k1="0" k2="0"/>
+		<addon count="1" type="Minerals" k0="0" k1="0" k2="1"/>
+		<addon count="1" type="Wood" k0="0" k1="1" k2="0"/>
+		<messages>
+			<success char="Да,_на_сей_раз_настой_Вам_удался!" room="Да,_на_сей_раз_настой_$n2_удался!"/>
+			<fail char="Получившуюся_жидкость_явно_нельзя_пить..." room="Получившуюся_жидкость_явно_нельзя_пить..."/>
+			<damage char="Зря_Вы_все-таки_решили_попробовать!_Боже,_какой_ужасный_вкус!_Как_жжет_все_внутри!!!" room="Зря_$n0_все-таки_решил$g_попробовать!_Кажется,_на_пользу_это_не_пошло..."/>
+		</messages>
+	</recipe>
+	<recipe id="DandelionWine" vnum="19" name="вино из одуванчиков" result_vnum="819" k_improve="1000" damage="4d10" damage_enabled="true">
+		<energy k0="1" k1="0" k2="0.0001" kp="2"/>
+		<require type="Utensils" power="4"/>
+		<require type="Liquids" power="12"/>
+		<require type="Wood" power="5"/>
+		<require type="HealingHerbs" power="19"/>
+		<messages>
+			<success char="Вы_сварили_изумительное_вино!" room="$n0_сварил$g_изумительное_вино!"/>
+			<fail char="Фу,_какая_гадость_получилась!" room="Фу,_какая_гадость_получилась!"/>
+			<damage char="Да_еще_и_огромная_заноза_впилась_Вам_в_палец!" room="Огромная_заноза_впилась_$n2_в_палец!"/>
+		</messages>
+	</recipe>
+	<recipe id="CockroachWhiskerDecoction" vnum="20" name="отвар из тараканьих усов" result_vnum="820" k_improve="1000" damage="4d6" damage_enabled="true">
+		<energy k0="1" k1="0" k2="0.0001" kp="2"/>
+		<require type="Utensils" power="12"/>
+		<require type="Liquids" power="12"/>
+		<require type="SmallCreatures" power="23"/>
+		<require type="EdibleMushrooms" power="16"/>
+		<require type="Wool" power="24"/>
+		<addon count="1" type="Heart" k0="1" k1="0" k2="0"/>
+		<addon count="1" type="Wool" k0="0" k1="1" k2="0"/>
+		<addon count="1" type="Claws" k0="0" k1="0" k2="1"/>
+		<messages>
+			<success char="Вы_сварили_отвар_из_усов_тараканов." room="$n0_сварил$g_отвар_из_усов_тараканов."/>
+			<fail char="Увы,_ничего_не_вышло..." room="Увы,_у_$n1_ничего_не_вышло..."/>
+			<damage char="Огромный_черный_таракан_решил_отомстить_за_сородичей_и_укусил_Вас_за_ногу!" room="Огромный_черный_таракан_решил_отомстить_за_сородичей_и_укусил_$n3_за_ногу!"/>
+		</messages>
+	</recipe>
+	<recipe id="OwlSightInfusion" vnum="21" name="настой совиного зрения" result_vnum="821" k_improve="1000" damage="5d7" damage_enabled="true">
+		<energy k0="1" k1="0" k2="0.0001" kp="2"/>
+		<require type="Utensils" power="1"/>
+		<require type="Liquids" power="1"/>
+		<require type="Hair" power="2"/>
+		<require type="Vegetables" power="8"/>
+		<messages>
+			<success char="Вы_сварили_настой_совиного_зрения." room="$n0_сварил$g_настой_совиного_зрения."/>
+			<fail char="Попытка_оказалась_неудачной..." room="Попытка_оказалась_неудачной..."/>
+			<damage char="Внезапно_варево_сильно_забурлило_и_выплеснулось_на_Вас!" room="Внезапно_варево_сильно_забурлило_и_выплеснулось_на_$n3!"/>
+		</messages>
+	</recipe>
+	<recipe id="WaterStriderInfusion" vnum="22" name="настой на водомерках" result_vnum="822" k_improve="1000" damage="3d5" damage_enabled="true">
+		<energy k0="1" k1="0" k2="0.0001" kp="2"/>
+		<require type="Utensils" power="1"/>
+		<require type="Liquids" power="1"/>
+		<require type="Scales" power="10"/>
+		<messages>
+			<success char="Вы_сварили_настой_на_водомерках." room="$n0_сварил$g_настой_на_водомерках."/>
+			<fail char="Попытка_оказалась_неудачной..." room="Попытка_оказалась_неудачной..."/>
+			<damage char="Внезапно_варево_сильно_забурлило_и_выплеснулось_на_Вас!" room="Внезапно_варево_сильно_забурлило_и_выплеснулось_на_$n3!"/>
+		</messages>
+	</recipe>
+	<recipe id="OnionInfusion" vnum="23" name="луковый настой" result_vnum="823" k_improve="1000" damage="3d5" damage_enabled="true">
+		<energy k0="1" k1="0" k2="0.0001" kp="2"/>
+		<require type="Utensils" power="1"/>
+		<require type="Liquids" power="1"/>
+		<require type="HealingHerbs" power="11"/>
+		<require type="Vegetables" power="9"/>
+		<messages>
+			<success char="Вы_сварили_луковый_настой." room="$n0_сварил$g_луковый_настой."/>
+			<fail char="Вам_не_удалось_сварить_луковый_настой..." room="$n2_не_удалось_сварить_луковый_настой..."/>
+			<damage char="Запах_получившегося_варева_оказался_воистину_ужасен!_Вы_сильно_закашлялись!" room="Запах_получившегося_варева_оказался_воистину_ужасен!_$n0_сильно_закашлял$u!"/>
+		</messages>
+	</recipe>
+	<recipe id="BlackTincture" vnum="24" name="черная настойка" result_vnum="824" k_improve="1000" damage="6d12" damage_enabled="true">
+		<energy k0="1" k1="0" k2="0.0001" kp="2"/>
+		<require type="Utensils" power="1"/>
+		<require type="Liquids" power="1"/>
+		<require type="Eyes" power="20"/>
+		<require type="PoisonousMushrooms" power="18"/>
+		<addon count="1" type="PoisonousHerbs" k0="1" k1="0" k2="1"/>
+		<addon count="1" type="PoisonousBerries" k0="0" k1="1" k2="1"/>
+		<messages>
+			<success char="Вы_сварили_черную_настойку." room="$n0_сварил$g_черную_настойку."/>
+			<fail char="Вам_не_удалось_сварить_черную_настойку..." room="$n2_не_удалось_сварить_черную_настойку..."/>
+			<damage char="Так_много_яда_вокруг!_Вы_почувствовали_себя_значительно_хуже!" room="Так_много_яда_вокруг!_$n0_почувствовал$g_себя_значительно_хуже!"/>
+		</messages>
+	</recipe>
+	<recipe id="OakBarkDecoction" vnum="25" name="отвар дубовой коры" result_vnum="825" k_improve="1000" damage="4d7" damage_enabled="true">
+		<energy k0="1" k1="0" k2="0.0001" kp="2"/>
+		<require type="Utensils" power="1"/>
+		<require type="Liquids" power="1"/>
+		<require type="Wood" power="15"/>
+		<require type="Minerals" power="15"/>
+		<messages>
+			<success char="Вы_приготовили_отвар_дубовой_коры." room="$n0_приготовил$g_отвар_дубовой_коры."/>
+			<fail char="Вам_не_удалось_приготовить_отвар_дубовой_коры..." room="$n2_не_удалось_приготовить_отвар_дубовой_коры..."/>
+			<damage char="Из_бурлящего_отвара_вылетел_камень_и_попал_Вам_в_НОС!" room="Из_бурлящего_отвара_вылетел_камень_и_попал_$n2_в_НОС!"/>
+		</messages>
+	</recipe>
+	<recipe id="GreenFroglingTincture" vnum="26" name="настойка на зеленых лягушатах" result_vnum="826" k_improve="1000" damage="4d6" damage_enabled="true">
+		<energy k0="1" k1="0" k2="0.0001" kp="2"/>
+		<require type="Utensils" power="1"/>
+		<require type="Liquids" power="1"/>
+		<require type="Liver" power="6"/>
+		<messages>
+			<success char="Вы_приготовили_настойку_на_зеленых_лягушатах." room="$n0_приготовил$g_настойку_на_зеленых_лягушатах."/>
+			<fail char="Вам_не_удалось_приготовить_настойку_на_зеленых_лягушатах..." room="$n2_не_удалось_приготовить_настойку_на_зеленых_лягушатах..."/>
+			<damage char="Вы_решили_попробовать_вареного_лягушоночка_и_подавились_костью!" room="$n0_решил$g_попробовать_вареного_лягушоночка_и_подавил$u_костью!"/>
+		</messages>
+	</recipe>
+	<recipe id="ChamomileTincture" vnum="27" name="ромашковая настойка" result_vnum="827" k_improve="1000" damage="5d9" damage_enabled="true">
+		<energy k0="1" k1="0" k2="0.0001" kp="2"/>
+		<require type="Utensils" power="1"/>
+		<require type="Liquids" power="1"/>
+		<require type="Minerals" power="2"/>
+		<require type="HealingHerbs" power="12"/>
+		<addon count="1" type="Liver" k0="1" k1="0" k2="0"/>
+		<addon count="1" type="Wool" k0="0" k1="0" k2="1"/>
+		<messages>
+			<success char="Вы_приготовили_ромашковую_настойку." room="$n0_приготовил$g_ромашковую_настойку."/>
+			<fail char="Вам_не_удалось_приготовить_ромашковую_настойку." room="$n2_не_удалось_приготовить_ромашковую_настойку."/>
+			<damage char="Казалось_бы,_как_можно_пораниться_настаивая_ромашку?_Но_Вам_и_ЭТО_удалось!!!" room="Казалось_бы,_как_можно_пораниться_настаивая_ромашку?_Но_$n2_и_ЭТО_удалось!!!"/>
+		</messages>
+	</recipe>
+	<recipe id="SwellingInfusion" vnum="28" name="разбухающий настой" result_vnum="828" k_improve="1000" damage="3d9" damage_enabled="true">
+		<energy k0="1" k1="0" k2="0.0001" kp="2"/>
+		<require type="Utensils" power="1"/>
+		<require type="Liquids" power="1"/>
+		<require type="Grains" power="18"/>
+		<require type="Metals" power="2"/>
+		<messages>
+			<success char="Вы_приготовили_разбухающий_настой." room="$n0_приготовил$g_разбухающий_настой."/>
+			<fail char="Вам_не_удалось_приготовить_разбухающий_настой." room="$n2_не_удалось_приготовить_разбухающий_настой."/>
+			<damage char="Добавляя_металлическую_стружку,_Вы_поранили_палец." room="Добавляя_металлическую_стружку,_$n0_поранил$g_палец."/>
+		</messages>
+	</recipe>
+	<recipe id="ElecampaneDecoction" vnum="30" name="отвар девясила" result_vnum="830" k_improve="1000" damage="4d10" damage_enabled="true">
+		<energy k0="1" k1="0" k2="0.0001" kp="2"/>
+		<require type="Utensils" power="1"/>
+		<require type="Liquids" power="1"/>
+		<require type="Vegetables" power="2"/>
+		<require type="HealingHerbs" power="2"/>
+		<messages>
+			<success char="У_Вас_получился_прекрасный_отвар_девясила." room="У_$n1_получился_прекрасный_отвар_девясила."/>
+			<fail char="Кажется,_Вы_недоварили_овощи..." room="Кажется,_$n0_недоварил$g_овощи..."/>
+			<damage char="Пытаясь_заглянуть_под_крышку,_Вы_ошпарили_руку_паром!!!" room="Пытаясь_заглянуть_под_крышку,_$n0_ошпарил$g_руку_паром!!!"/>
+		</messages>
+	</recipe>
+	<recipe id="MeatBroth" vnum="31" name="мясной отвар" result_vnum="831" k_improve="1000" damage="3d10" damage_enabled="true">
+		<energy k0="1" k1="0" k2="0.0001" kp="2"/>
+		<require type="Utensils" power="1"/>
+		<require type="Liquids" power="1"/>
+		<require type="Grains" power="2"/>
+		<require type="Liver" power="2"/>
+		<addon count="1" type="Vegetables" k0="1" k1="1" k2="1"/>
+		<messages>
+			<success char="Вы_приготовили_густой_мясной_отвар." room="$n0_приготовил$g_густой_мясной_отвар."/>
+			<fail char="Кажется,_Вы_недоварили_крупу..." room="Кажется,_$n0_недоварил$g_крупу..."/>
+			<damage char="Пытаясь_заглянуть_под_крышку,_Вы_ошпарили_руку_паром!!!" room="Пытаясь_заглянуть_под_крышку,_$n0_ошпарил$g_руку_паром!!!"/>
+		</messages>
+	</recipe>
+	<recipe id="FishHeadInfusion" vnum="32" name="настой на рыбьих головах" result_vnum="832" k_improve="1000" damage="3d7" damage_enabled="true">
+		<energy k0="1" k1="0" k2="0.0001" kp="2"/>
+		<require type="Utensils" power="1"/>
+		<require type="Liquids" power="1"/>
+		<require type="Scales" power="6"/>
+		<require type="Minerals" power="2"/>
+		<messages>
+			<success char="Вы_приготовили_настой_на_рыбьих_головах." room="$n0_приготовил$g_настой_на_рыбьих_головах."/>
+			<fail char="Настой_покрылся_толстым_слоем_плесени,_фу_гадость_какая..." room="Настой_покрылся_толстым_слоем_плесени,_фу_гадость_какая..."/>
+			<damage char="От_мерзкого_вида_результата_всех_усилий_Вас_стошнило..." room="От_мерзкого_вида_результата_всех_усилий_$n3_стошнило..."/>
+		</messages>
+	</recipe>
+	<recipe id="SnakeAgilityPotion" vnum="33" name="зелье змеиного проворства" result_vnum="833" k_improve="1000" damage="4d7" damage_enabled="true">
+		<energy k0="1" k1="0" k2="0.0001" kp="2"/>
+		<require type="Utensils" power="1"/>
+		<require type="Liquids" power="12"/>
+		<require type="Wool" power="14"/>
+		<require type="Metals" power="2"/>
+		<messages>
+			<success char="Вы_сварили_зелье_змеиного_проворства." room="$n0_сварил$g_зелье_змеиного_проворства."/>
+			<fail char="Зелье_загустело_и_потемнело._Что-то_пошло_не_так..." room="Зелье_загустело_и_потемнело._Что-то_пошло_не_так..."/>
+			<damage char="Да_еще_и_вонь_от_него_такая_пошла,_что_хоть_бегством_спасайся!" room="Да_еще_и_вонь_от_него_такая_пошла,_что_хоть_бегством_спасайся!"/>
+		</messages>
+	</recipe>
+	<recipe id="HeavenlyBlessingPotion" vnum="34" name="зелье небесного благословления" result_vnum="834" k_improve="1000" damage="10d12" damage_enabled="true">
+		<energy k0="1" k1="0" k2="0.0001" kp="2"/>
+		<require type="Utensils" power="27"/>
+		<require type="Liquids" power="29"/>
+		<require type="SmallCreatures" power="23"/>
+		<require type="Scales" power="33"/>
+		<require type="Claws" power="18"/>
+		<require type="Wings" power="33"/>
+		<require type="HealingHerbs" power="29"/>
+		<require type="Metals" power="29"/>
+		<addon count="1" type="Wood" k0="0" k1="0" k2="1"/>
+		<addon count="1" type="Vegetables" k0="0" k1="1" k2="0"/>
+		<addon count="1" type="Grains" k0="1" k1="0" k2="0"/>
+		<messages>
+			<success char="Невероятно,_но_Вы_сотворили_это_чудо!" room="Невероятно,_но_$n0_сотворил$g_это_чудо!"/>
+			<fail char="Да,_может_быть_Вам_и_не_стоило_браться_за_это..." room="Да,_может_быть_$n2_и_не_стоило_браться_за_это..."/>
+			<damage char="Внезапно_то,_что_у_Вас_получилось,_зашевелилось_и_НАБРОСИЛОСЬ_на_Вас!_Вот_и_верь_после_этого_древним_рецептам..." room="Внезапно_то,_что_получилось_у_$n1,_зашевелилось_и_НАБРОСИЛОСЬ_на_бедолагу!_Вот_и_верь_после_этого_древним_рецептам..."/>
+		</messages>
+	</recipe>
+	<recipe id="WolfHearingPotion" vnum="35" name="зелье волчьего слуха" result_vnum="835" k_improve="1000" damage="4d8" damage_enabled="true">
+		<energy k0="1" k1="0" k2="0.0001" kp="2"/>
+		<require type="Utensils" power="1"/>
+		<require type="Liquids" power="1"/>
+		<require type="Wool" power="12"/>
+		<messages>
+			<success char="Вы_сварили_зелье_волчьего_слуха." room="$n0_сварил$g_зелье_волчьего_слуха."/>
+			<fail char="Вам_не_удалось_сварить_зелье_волчьего_слуха." room="$n2_не_удалось_сварить_зелье_волчьего_слуха."/>
+			<damage char="Зелье_сильно_забурлило_и_капли_кипятка_попали_Вам_на_ногу!" room="Зелье_сильно_забурлило_и_капли_кипятка_попали_$n2_на_ногу!"/>
+		</messages>
+	</recipe>
+	<recipe id="ColdWindPotion" vnum="36" name="зелье холодного ветра" result_vnum="836" k_improve="1000" damage="9d12" damage_enabled="true">
+		<energy k0="1" k1="0" k2="0.0001" kp="2"/>
+		<require type="Utensils" power="24"/>
+		<require type="Liquids" power="6"/>
+		<require type="Metals" power="5"/>
+		<require type="Minerals" power="5"/>
+		<require type="Hair" power="24"/>
+		<require type="Liver" power="35"/>
+		<addon count="1" type="Heart" k0="0" k1="0" k2="1"/>
+		<addon count="1" type="Teeth" k0="1" k1="0" k2="0"/>
+		<addon count="1" type="Claws" k0="0" k1="1" k2="0"/>
+		<messages>
+			<success char="Вам_удалось_приготовить_зелье_холодного_ветра." room="$n2_удалось_приготовить_зелье_холодного_ветра."/>
+			<fail char="Все,_что_Вы_положили_в_котел,_исчезло..._Осталось_только_облачко_пара..." room="Все,_что_$n0_положил$g_в_котел,_исчезло..._Осталось_только_облачко_пара..."/>
+			<damage char="Проведя_рукой_над_этим_странным_облачком,_Вы_обнаружили_что_и_рука_Ваша_тоже_исчезает..._Очень_неприятное_ощущение!" room="Проведя_рукой_над_этим_странным_облачком,_$n0_чуть_не_лишил$u_руки..."/>
+		</messages>
+	</recipe>
+	<recipe id="DissolutionPotion" vnum="37" name="зелье расторжения" result_vnum="837" k_improve="1000" damage="6d10" damage_enabled="true">
+		<energy k0="1" k1="0" k2="0.0001" kp="2"/>
+		<require type="Utensils" power="1"/>
+		<require type="Liquids" power="1"/>
+		<require type="EdibleBerries" power="2"/>
+		<require type="PoisonousMushrooms" power="17"/>
+		<messages>
+			<success char="Вы_сварили_зелье_расторжения." room="$n0_сварил$g_зелье_расторжения."/>
+			<fail char="Вам_не_удалось_сварить_зелье_расторжения." room="$n2_не_удалось_сварить_зелье_расторжения."/>
+			<damage char="Непостижимым_образом_варево_разорвало_сосуд,_его_содержавший,_на_мелкие_кусочки!_Один_из_них_впился_Вам_в_щеку!" room="Непостижимым_образом_варево_разорвало_сосуд,_его_содержавший,_на_мелкие_кусочки!_Один_из_них_впился_$n2_в_щеку!"/>
+		</messages>
+	</recipe>
+	<recipe id="LongRoadPotion" vnum="38" name="зелье дальней дороги" result_vnum="838" k_improve="1000" damage="3d8" damage_enabled="true">
+		<energy k0="1" k1="0" k2="0.0001" kp="2"/>
+		<require type="Utensils" power="1"/>
+		<require type="Liquids" power="1"/>
+		<require type="EdibleMushrooms" power="1"/>
+		<require type="PoisonousBerries" power="6"/>
+		<messages>
+			<success char="Вы_сварили_зелье_дальней_дороги." room="$n0_сварил$g_зелье_дальней_дороги."/>
+			<fail char="Вам_не_удалось_сварить_зелье_дальней_дороги." room="$n2_не_удалось_сварить_зелье_дальней_дороги."/>
+			<damage char="Вы_случайно_задели_рукой_котел_и_сильно_обожглись!" room="$n0_случайно_задел$g_рукой_котел_и_сильно_обожгл$u!"/>
+		</messages>
+	</recipe>
+	<recipe id="NettleInfusion" vnum="39" name="крапивный настой" result_vnum="839" k_improve="1000" damage="9d12" damage_enabled="true">
+		<energy k0="1" k1="0" k2="0.0001" kp="2"/>
+		<require type="Utensils" power="23"/>
+		<require type="Liquids" power="4"/>
+		<require type="Metals" power="5"/>
+		<require type="Minerals" power="5"/>
+		<require type="HealingHerbs" power="10"/>
+		<require type="Wings" power="24"/>
+		<addon count="1" type="Liver" k0="0" k1="0" k2="1"/>
+		<addon count="1" type="Wool" k0="1" k1="0" k2="0"/>
+		<addon count="1" type="Scales" k0="0" k1="1" k2="0"/>
+		<messages>
+			<success char="Вам_удалось_приготовить_крапивный_настой." room="$n2_удалось_приготовить_крапивный_настой."/>
+			<fail char="Все,_что_Вы_положили_в_котел,_вдруг_вспыхнуло_и_пропало..._Осталась_лишь_горстка_пепла..." room="Все,_что_$n0_положил$g_в_котел,_вдруг_вспыхнуло_и_пропало..._Осталась_лишь_горстка_пепла..."/>
+			<damage char="Вспышкой_Вам_опалило_волосы_и_брови!" room="Вспышкой_$n2_опалило_волосы_и_брови!"/>
+		</messages>
+	</recipe>
+	<recipe id="IcyInfusion" vnum="40" name="ледяной настой" result_vnum="840" k_improve="1000" damage="9d12" damage_enabled="true">
+		<energy k0="1" k1="0" k2="0.0001" kp="2"/>
+		<require type="Utensils" power="24"/>
+		<require type="Liquids" power="4"/>
+		<require type="Metals" power="5"/>
+		<require type="Minerals" power="5"/>
+		<require type="Eyes" power="10"/>
+		<require type="Scales" power="24"/>
+		<require type="Liver" power="35"/>
+		<addon count="1" type="Wings" k0="0" k1="0" k2="1"/>
+		<addon count="1" type="Liver" k0="1" k1="0" k2="0"/>
+		<addon count="1" type="Heart" k0="0" k1="1" k2="0"/>
+		<messages>
+			<success char="Вам_удалось_приготовить_ледяной_настой." room="$n2_удалось_приготовить_ледяной_настой."/>
+			<fail char="Все,_что_Вы_положили_в_котел,_вдруг_превратилось_в_кусок_льда..." room="Все,_что_$n0_положил$g_в_котел,_вдруг_превратилось_в_кусок_льда..."/>
+			<damage char="Прикоснувшись_к_ледяным_стенкам_котла,_Вы_сильно_обморозили_пальцы!" room="Прикоснувшись_к_ледяным_стенкам_котла,_$n0_сильно_обморозил$g_пальцы!"/>
+		</messages>
+	</recipe>
+	<recipe id="SmallBugInfusion" vnum="41" name="настой на мелких букашках" result_vnum="841" k_improve="1000" damage="3d8" damage_enabled="true">
+		<energy k0="1" k1="0" k2="0.0001" kp="2"/>
+		<require type="Utensils" power="1"/>
+		<require type="Liquids" power="1"/>
+		<require type="SmallCreatures" power="16"/>
+		<require type="PoisonousHerbs" power="1"/>
+		<messages>
+			<success char="Вы_приготовили_настой_на_мелких_букашках." room="$n0_приготовил$g_настой_на_мелких_букашках."/>
+			<fail char="Вам_не_удалось_приготовить_настой_на_мелких_букашках." room="$n2_не_удалось_приготовить_настой_на_мелких_букашках."/>
+			<damage char="Вы_случайно_задели_рукой_полуобгоревшее_полено_и_сильно_обожглись!" room="$n0_случайно_задел$g_рукой_полуобгоревшее_полено_и_сильно_обожг$u!"/>
+		</messages>
+	</recipe>
+	<recipe id="SilveryBrew" vnum="42" name="серебристый отвар" result_vnum="842" k_improve="1000" damage="10d12" damage_enabled="true">
+		<energy k0="1" k1="0" k2="0.0001" kp="2"/>
+		<require type="Utensils" power="5"/>
+		<require type="Liquids" power="25"/>
+		<require type="PoisonousHerbs" power="20"/>
+		<require type="Heart" power="32"/>
+		<require type="SmallCreatures" power="15"/>
+		<require type="Scales" power="25"/>
+		<addon count="1" type="Metals" k0="0" k1="0" k2="1"/>
+		<addon count="1" type="Minerals" k0="1" k1="0" k2="0"/>
+		<messages>
+			<success char="Результат_Ваших_трудов_превзошел_все_ожидания!" room="Результат_трудов_$n1_превзошел_все_ожидания!"/>
+			<fail char="К_сожалению,_Вам_не_удастся_похвастаться_результатом..." room="К_сожалению,_$n2_не_удастся_похвастаться_результатом..."/>
+			<damage char="Зря_Вы_выплеснули_то,_что_осталось,_в_огонь!_Яркая_вспышка_ослепила_Вас!" room="Зря_$n0_выплеснул$g_то,_что_осталось,_в_огонь!_Яркая_вспышка_ослепила_$s!"/>
+		</messages>
+	</recipe>
+	<recipe id="FlintDecoction" vnum="43" name="отвар кремня" result_vnum="843" k_improve="1000" damage="3d8" damage_enabled="true">
+		<energy k0="1" k1="0" k2="0.0001" kp="2"/>
+		<require type="Utensils" power="2"/>
+		<require type="Liquids" power="2"/>
+		<require type="Minerals" power="18"/>
+		<require type="Wood" power="5"/>
+		<messages>
+			<success char="Вы_приготовили_отвар_кремня." room="$n0_приготовил$g_отвар_кремня."/>
+			<fail char="Вам_не_удалось_приготовить_отвар_кремня." room="$n2_не_удалось_приготовить_отвар_кремня."/>
+			<damage char="Вы_случайно_задели_ногой_полуобгоревшее_полено_и_сильно_обожглись!" room="$n0_случайно_задел$g_ногой_полуобгоревшее_полено_и_сильно_обожгл$u!"/>
+		</messages>
+	</recipe>
+	<recipe id="RainbowPotion" vnum="44" name="радужное зелье" result_vnum="844" k_improve="1000" damage="8d10" damage_enabled="true">
+		<energy k0="1" k1="0" k2="0.0001" kp="2"/>
+		<require type="Utensils" power="2"/>
+		<require type="Liquids" power="12"/>
+		<require type="Wool" power="5"/>
+		<require type="Metals" power="5"/>
+		<addon count="1" type="PoisonousMushrooms" k0="1" k1="1" k2="1"/>
+		<messages>
+			<success char="Радужное_сияние_получившегося_зелья_говорит_о_его_хорошем_качестве." room="Радужное_сияние_получившегося_зелья_говорит_о_его_хорошем_качестве."/>
+			<fail char="Появившееся_было_радужное_сияние_постепенно_потускнело_и_угасло..." room="Появившееся_было_радужное_сияние_постепенно_потускнело_и_угасло..."/>
+			<damage char="Неосторожно_повернувшись,_Вы_потеряли_равновесие_и_упали!" room="Неосторожно_повернувшись,_$n0_потерял$g_равновесие_и_упал$g!"/>
+		</messages>
+	</recipe>
+	<recipe id="ClearPotion" vnum="45" name="прозрачное зелье" result_vnum="845" k_improve="1000" damage="8d10" damage_enabled="true">
+		<energy k0="1" k1="0" k2="0.0001" kp="2"/>
+		<require type="Utensils" power="2"/>
+		<require type="Liquids" power="2"/>
+		<require type="Minerals" power="5"/>
+		<require type="Wings" power="14"/>
+		<addon count="1" type="EdibleBerries" k0="1" k1="1" k2="1"/>
+		<messages>
+			<success char="Абсолютная_прозрачность_получившегося_зелья_говорит_о_его_хорошем_качестве." room="Абсолютная_прозрачность_получившегося_зелья_говорит_о_его_хорошем_качестве."/>
+			<fail char="Зелье_помутнело_и_выпал_странный_осадок..." room="Зелье_помутнело_и_выпал_странный_осадок..."/>
+			<damage char="Вы_бросились_спасать_ситуацию_и_неловко_перевернули_котел_на_себя!_Оох!" room="$n0_бросил$u_спасать_ситуацию_и_неловко_перевернул$g_котел_на_себя!_Оох!"/>
+		</messages>
+	</recipe>
+	<recipe id="BurningPotion" vnum="46" name="горящее зелье" result_vnum="846" k_improve="1000" damage="8d10" damage_enabled="true">
+		<energy k0="1" k1="0" k2="0.0001" kp="2"/>
+		<require type="Utensils" power="2"/>
+		<require type="Liquids" power="2"/>
+		<require type="Minerals" power="5"/>
+		<require type="Teeth" power="14"/>
+		<addon count="1" type="EdibleMushrooms" k0="1" k1="1" k2="1"/>
+		<messages>
+			<success char="Вспыхнувший_над_котлом_огонек_свидетельствует_о_хорошем_качестве_зелья." room="Вспыхнувший_над_котлом_огонек_свидетельствует_о_хорошем_качестве_зелья."/>
+			<fail char="Огонек_чуть_затеплился_и_погас..." room="Огонек_чуть_затеплился_и_погас..."/>
+			<damage char="Вы_бросились_спасать_ситуацию_и_неловко_перевернули_котел_на_себя!_Оох!" room="$n0_бросил$u_спасать_ситуацию_и_неловко_перевернул$g_котел_на_себя!_Оох!"/>
+		</messages>
+	</recipe>
+	<recipe id="ColdTincture" vnum="47" name="холодная настойка" result_vnum="847" k_improve="1000" damage="8d10" damage_enabled="true">
+		<energy k0="1" k1="0" k2="0.0001" kp="2"/>
+		<require type="Utensils" power="2"/>
+		<require type="Liquids" power="2"/>
+		<require type="Minerals" power="5"/>
+		<require type="Claws" power="14"/>
+		<addon count="1" type="HealingHerbs" k0="1" k1="1" k2="1"/>
+		<messages>
+			<success char="Появившаяся_на_стенках_котла_изморозь_свидетельствует_о_хорошем_качестве_настойки." room="Появившаяся_на_стенках_котла_изморозь_свидетельствует_о_хорошем_качестве_настойки."/>
+			<fail char="Появившийся_иней_вдруг_начал_неумолимо_таять..." room="Появившийся_иней_вдруг_начал_неумолимо_таять..."/>
+			<damage char="Вы_бросились_спасать_ситуацию_и_неловко_перевернули_котел_на_себя!_Оох!" room="$n0_бросил$u_спасать_ситуацию_и_неловко_перевернул$g_котел_на_себя!_Оох!"/>
+		</messages>
+	</recipe>
+	<recipe id="MouseInfusion" vnum="48" name="мышиный настой" result_vnum="848" k_improve="1000" damage="4d8" damage_enabled="true">
+		<energy k0="1" k1="0" k2="0.0001" kp="2"/>
+		<require type="Utensils" power="2"/>
+		<require type="Liquids" power="2"/>
+		<require type="EdibleBerries" power="12"/>
+		<require type="EdibleMushrooms" power="5"/>
+		<messages>
+			<success char="Вы_приготовили_мышиный_настой." room="$n0_приготовил$g_мышиный_настой."/>
+			<fail char="Вам_не_удалось_приготовить_мышиный_настой." room="$n2_не_удалось_приготовить_мышиный_настой."/>
+			<damage char="Непонятно_откуда_появившаяся_мышь_укусила_Вас_за_палец_ноги!" room="Непонятно_откуда_появившаяся_мышь_укусила_$n3_за_палец_ноги!"/>
+		</messages>
+	</recipe>
+	<recipe id="TalkativenessDecoction" vnum="49" name="отвар болтливости" result_vnum="849" k_improve="1000" damage="4d8" damage_enabled="true">
+		<energy k0="1" k1="0" k2="0.0001" kp="2"/>
+		<require type="Utensils" power="2"/>
+		<require type="Liquids" power="2"/>
+		<require type="Vegetables" power="18"/>
+		<require type="EdibleBerries" power="2"/>
+		<messages>
+			<success char="Вы_приготовили_отвар_болтливости." room="$n0_приготовил$g_отвар_болтливости."/>
+			<fail char="Вам_не_удалось_приготовить_отвар_болтливости." room="$n2_не_удалось_приготовить_отвар_болтливости."/>
+			<damage char="Впопыхах,_пытаясь_добавить_к_испорченному_уже_зелью_еще_чуть-чуть_овощей,_Вы_порезали_палец!" room="Впопыхах,_пытаясь_добавить_к_испорченному_уже_зелью_еще_чуть-чуть_овощей,_$n0_порезал$g_палец!"/>
+		</messages>
+	</recipe>
+	<recipe id="SmokyPotion" vnum="50" name="дымчатое зелье" result_vnum="850" k_improve="1000" damage="6d12" damage_enabled="true">
+		<energy k0="1" k1="0" k2="0.0001" kp="2"/>
+		<require type="Utensils" power="1"/>
+		<require type="Liquids" power="1"/>
+		<require type="Eyes" power="20"/>
+		<require type="PoisonousHerbs" power="22"/>
+		<require type="Scales" power="25"/>
+		<addon count="1" type="SmallCreatures" k0="1" k1="0" k2="1"/>
+		<addon count="1" type="PoisonousBerries" k0="0" k1="1" k2="1"/>
+		<messages>
+			<success char="Вы_приготовили_дымчатое_зелье." room="$n0_приготовил$g_дымчатое_зелье."/>
+			<fail char="Вам_не_удалось_сварить_дымчатое_зелье..." room="$n2_не_удалось_сварить_дымчатое_зелье..."/>
+			<damage char="Ядовитые_испарения_разъедают_Вам_горло!" room="$n0_захрипел$g,_хватаясь_за_горло!"/>
+		</messages>
+	</recipe>
+	<recipe id="ImmobilityPotion" vnum="51" name="зелье неподвижности" result_vnum="851" k_improve="1000" damage="7d10" damage_enabled="true">
+		<energy k0="1" k1="0" k2="0.0001" kp="2"/>
+		<require type="Utensils" power="10"/>
+		<require type="Liquids" power="2"/>
+		<require type="Wood" power="5"/>
+		<require type="Metals" power="5"/>
+		<require type="PoisonousHerbs" power="20"/>
+		<addon count="1" type="Minerals" k0="1" k1="0" k2="0"/>
+		<addon count="1" type="PoisonousMushrooms" k0="0" k1="1" k2="0"/>
+		<addon count="1" type="PoisonousBerries" k0="0" k1="0" k2="1"/>
+		<messages>
+			<success char="Вы_приготовили_зелье_неподвижности." room="$n0_приготовил$g_зелье_неподвижности."/>
+			<fail char="Вам_не_удалось_приготовить_зелье_неподвижности." room="$n2_не_удалось_приготовить_зелье_неподвижности."/>
+			<damage char="Вдобавок_ко_всему,_Вы_уронили_котел_себе_на_ногу!" room="Вдобавок_ко_всему,_$n0_уронил$g_котел_себе_на_ногу!"/>
+		</messages>
+	</recipe>
+	<recipe id="StupefyingBrew" vnum="52" name="дурманящий отвар" result_vnum="852" k_improve="1000" damage="7d10" damage_enabled="true">
+		<energy k0="1" k1="0" k2="0.0001" kp="2"/>
+		<require type="Utensils" power="2"/>
+		<require type="Liquids" power="2"/>
+		<require type="PoisonousHerbs" power="15"/>
+		<require type="Teeth" power="5"/>
+		<require type="Claws" power="5"/>
+		<addon count="1" type="Liver" k0="1" k1="0" k2="0"/>
+		<addon count="1" type="PoisonousMushrooms" k0="0" k1="1" k2="0"/>
+		<addon count="1" type="Wool" k0="0" k1="0" k2="1"/>
+		<messages>
+			<success char="Вы_приготовили_дурманящий_отвар." room="$n0_приготовил$g_дурманящий_отвар."/>
+			<fail char="Вам_не_удалось_приготовить_дурманящий_отвар." room="$n2_не_удалось_приготовить_дурманящий_отвар."/>
+			<damage char="Надышавшись_испарений,_идущих_от_бурлящей_жидкости,_Вы_потеряли_сознание_и_больно_ударились_головой!" room="Надышавшись_испарений,_идущих_от_бурлящей_жидкости,_$n0_потерял$g_сознание_и_больно_ударил$u_головой!"/>
+		</messages>
+	</recipe>
+	<recipe id="CausticTincture" vnum="53" name="едкая настойка" result_vnum="853" k_improve="1000" damage="7d10" damage_enabled="true">
+		<energy k0="1" k1="0" k2="0.0001" kp="2"/>
+		<require type="Utensils" power="2"/>
+		<require type="Liquids" power="2"/>
+		<require type="PoisonousMushrooms" power="5"/>
+		<require type="Eyes" power="5"/>
+		<require type="Minerals" power="15"/>
+		<addon count="1" type="PoisonousHerbs" k0="1" k1="0" k2="0"/>
+		<addon count="1" type="Claws" k0="0" k1="1" k2="0"/>
+		<addon count="1" type="Minerals" k0="0" k1="0" k2="1"/>
+		<messages>
+			<success char="Вы_приготовили_едкую_настойку." room="$n0_приготовил$g_едкую_настойку."/>
+			<fail char="Вам_не_удалось_приготовить_едкую_настойку." room="$n2_не_удалось_приготовить_едкую_настойку."/>
+			<damage char="Идущие_от_варева_испарения_заставляют_слезиться_и_болеть_Ваши_глаза!" room="Идущие_от_варева_испарения_заставляют_слезиться_и_болеть_глаза_$n1!"/>
+		</messages>
+	</recipe>
+	<recipe id="StaleInfusion" vnum="54" name="затхлый настой" result_vnum="854" k_improve="1000" damage="6d10" damage_enabled="true">
+		<energy k0="1" k1="0" k2="0.0001" kp="2"/>
+		<require type="Utensils" power="2"/>
+		<require type="Liquids" power="2"/>
+		<require type="PoisonousBerries" power="15"/>
+		<require type="Heart" power="5"/>
+		<require type="Grains" power="5"/>
+		<messages>
+			<success char="Вы_приготовили_затхлый_настой." room="$n0_приготовил$g_затхлый_настой."/>
+			<fail char="Вам_не_удалось_приготовить_затхлый_настой." room="$n2_не_удалось_приготовить_затхлый_настой."/>
+			<damage char="Сок_ядовитых_ягод_жжет_Ваши_пальцы!" room="Как_видно_сок_ядовитых_ягод_жжет_пальцы_$n1!"/>
+		</messages>
+	</recipe>
+	<recipe id="StickyPotion" vnum="55" name="клейкое зелье" result_vnum="855" k_improve="1000" damage="7d10" damage_enabled="true">
+		<energy k0="1" k1="0" k2="0.0001" kp="2"/>
+		<require type="Utensils" power="2"/>
+		<require type="Liquids" power="2"/>
+		<require type="SmallCreatures" power="15"/>
+		<require type="EdibleBerries" power="5"/>
+		<require type="Wood" power="17"/>
+		<addon count="1" type="PoisonousBerries" k0="1" k1="0" k2="0"/>
+		<addon count="1" type="PoisonousMushrooms" k0="0" k1="1" k2="1"/>
+		<messages>
+			<success char="Вы_приготовили_клейкое_зелье." room="$n0_приготовил$g_клейкое_зелье."/>
+			<fail char="Вам_не_удалось_приготовить_клейкое_зелье." room="$n2_не_удалось_приготовить_клейкое_зелье."/>
+			<damage char="Пытаясь_выскрести_остатки_неудачных_опытов_из_котла,_Вы_ободрали_руку!" room="Пытаясь_выскрести_остатки_неудачных_опытов_из_котла,_$n0_ободрал$g_руку!"/>
+		</messages>
+	</recipe>
+	<recipe id="HeadyTincture" vnum="56" name="хмельная настойка" result_vnum="856" k_improve="1000" damage="6d4" damage_enabled="true">
+		<energy k0="1" k1="0" k2="0.0001" kp="2"/>
+		<require type="Utensils" power="2"/>
+		<require type="Liquids" power="2"/>
+		<require type="PoisonousMushrooms" power="10"/>
+		<require type="EdibleBerries" power="5"/>
+		<require type="Hair" power="4"/>
+		<addon count="1" type="PoisonousBerries" k0="1" k1="0" k2="0"/>
+		<addon count="1" type="Eyes" k0="0" k1="1" k2="1"/>
+		<messages>
+			<success char="Вы_приготовили_отличную_хмельную_настойку." room="$n0_приготовил$g_отличную_хмельную_настойку."/>
+			<fail char="Вам_не_удалось_приготовить_хмельную_настойку." room="$n2_не_удалось_приготовить_хмельную_настойку."/>
+			<damage char="Пар_от_Вашего_варева_обжег_Вам_гортань!" room="$n0_вдохнул$g_пар_от_своего_варева_и_закашлял$g,_хватаясь_за_горло!"/>
+		</messages>
+	</recipe>
+	<recipe id="CatFurInfusion" vnum="57" name="настой на кошачьей шерсти" result_vnum="857" k_improve="1000" damage="7d6" damage_enabled="true">
+		<energy k0="1" k1="0" k2="0.0001" kp="2"/>
+		<require type="Utensils" power="2"/>
+		<require type="Liquids" power="2"/>
+		<require type="Wool" power="20"/>
+		<require type="Hair" power="20"/>
+		<require type="Wood" power="24"/>
+		<addon count="1" type="PoisonousBerries" k0="1" k1="0" k2="0"/>
+		<addon count="1" type="Eyes" k0="0" k1="1" k2="1"/>
+		<messages>
+			<success char="Вы_приготовили_настой_на_кошачьей_шерсти." room="$n0_приготовил$g_настой_на_кошачьей_шерсти."/>
+			<fail char="Ваши_попытки_изготовить_настой_на_кошачьей_шерсти_не_увенчались_успехом." room="$n0_не_сумел$g_приготовить_настой_на_кошачьей_шерсти."/>
+			<damage char="Внезапно_пробежавшая_у_Вас_под_ногами_черная_кошка_БОЛЬНО_укусила_вас_за_икру!" room="Внезапно_взявшаяся_откуда-то_черная_кошка_цапнула_$n3_за_ногу!"/>
+		</messages>
+	</recipe>
+	<recipe id="BoilingPotion" vnum="58" name="кипящее зелье" result_vnum="858" k_improve="1000" damage="7d6" damage_enabled="true">
+		<energy k0="1" k1="0" k2="0.0001" kp="2"/>
+		<require type="Utensils" power="2"/>
+		<require type="Liquids" power="2"/>
+		<require type="Liver" power="26"/>
+		<require type="Heart" power="22"/>
+		<require type="HealingHerbs" power="25"/>
+		<addon count="1" type="Teeth" k0="1" k1="0" k2="0"/>
+		<addon count="1" type="Claws" k0="0" k1="1" k2="0"/>
+		<messages>
+			<success char="Вы_приготовили_кипящее_зелье." room="$n0_искусно_приготовил$g_кипящее_зелье."/>
+			<fail char="Вы_не_сумели_изготовить_кипящее_зелье._Учитесь." room="$n0_не_сумел$g_приготовить_кипящее_зелье."/>
+			<damage char="Ваше_неловкое_движение_выплеснуло_кипящее_зелье_прямо_на_руку!" room="$n0_опрокинул$g_кипящее_зелье_прямо_себе_на_руки!"/>
+		</messages>
+	</recipe>
+	<recipe id="BitterTincture" vnum="59" name="горькая настойка" result_vnum="859" k_improve="1000" damage="10d6" damage_enabled="true">
+		<energy k0="1" k1="0" k2="0.0001" kp="2"/>
+		<require type="Utensils" power="2"/>
+		<require type="Liquids" power="2"/>
+		<require type="Scales" power="24"/>
+		<require type="Wood" power="18"/>
+		<require type="PoisonousMushrooms" power="18"/>
+		<require type="PoisonousHerbs" power="24"/>
+		<addon count="1" type="Wings" k0="1" k1="0" k2="0"/>
+		<addon count="1" type="Liver" k0="1" k1="1" k2="0"/>
+		<messages>
+			<success char="Вы_приготовили_горькую_настойку." room="$n0_приготовил$g_горькую_настойку._Ее_запах_просто_валит_с_ног."/>
+			<fail char="Вы_не_сумели_приготовить_горькую_настойку." room="$n0_не_сумел$g_приготовить_горькую_настойку."/>
+			<damage char="Вы_решили_понюхать_не_вполне_готовое_зелье._Какая_грубая_ошибка!" room="$n0_понюхал$g_котелок_с_настойкой_и,_побледнев,_схватил$u_за_горло!"/>
+		</messages>
+	</recipe>
+	<recipe id="RatTailTincture" vnum="60" name="настойка на крысиных хвостах" result_vnum="860" k_improve="1000" damage="10d6" damage_enabled="true">
+		<energy k0="1" k1="0" k2="0.0001" kp="2"/>
+		<require type="Utensils" power="2"/>
+		<require type="Liquids" power="2"/>
+		<require type="Claws" power="22"/>
+		<require type="PoisonousHerbs" power="20"/>
+		<require type="Minerals" power="12"/>
+		<require type="Hair" power="25"/>
+		<addon count="1" type="Eyes" k0="1" k1="1" k2="0"/>
+		<addon count="1" type="SmallCreatures" k0="1" k1="0" k2="1"/>
+		<messages>
+			<success char="Вы_приготовили_настойку_на_крысиных_хвостах." room="$n0_приготовил$g_настойку_на_крысиных_хвостах."/>
+			<fail char="Увы,_вы_лишь_зря_погубили_десяток_крысок..._Настойка_не_удалась." room="$n0_не_сумел$g_приготовить_настойку_на_крысиных_хвостах."/>
+			<damage char="Внезапно_из_котелка_выскочила_крыса_и_вцепилась_в_Ваш_нос!" room="Внезапно_из_котелка_выскочила_огромная_крыса_и_вцепилась_в_нос_$n1!"/>
+		</messages>
+	</recipe>
+</recipes>

@@ -19,12 +19,15 @@
  * the appropriate new special cases for your new class.
  */
 #include "pc_classes.h"
+#include "gameplay/core/experience.h"
 #include "administration/privilege.h"
+#include "gameplay/core/remort.h"
 #include "gameplay/mechanics/condition.h"
 #include "gameplay/mechanics/minions.h"
 
 #include "gameplay/magic/magic_utils.h"
-#include "engine/core/handler.h"
+#include "engine/entities/char_data.h"
+#include "gameplay/mechanics/inventory.h"
 #include "gameplay/fight/pk.h"
 #include "gameplay/statistics/top.h"
 #include "gameplay/communication/offtop.h"
@@ -36,11 +39,13 @@
 #include "gameplay/magic/spells_info.h"
 #include "gameplay/core/remort.h"
 #include "engine/db/global_objects.h"
+#include "utils/utils_parse.h"
+#include "utils/parser_wrapper.h"
 
-const int kExpImpl = 2000000000;
+#include <algorithm>
+
 
 extern int siteok_everyone;
-extern double exp_coefficients[];
 
 // local functions
 byte saving_throws(int class_num, int type, int level);
@@ -988,7 +993,7 @@ void DoPcInit(CharData *ch, bool is_newbie) {
 	ch->set_exp(1);
 	ch->set_max_hit(10);
 	if (is_newbie || (remort::GetRealRemort(ch) >= 9 && remort::GetRealRemort(ch) % 3 == 0)) {
-		ch->set_skill(ESkill::kHangovering, 10);
+		SetSkill(ch, ESkill::kHangovering, 10);
 	}
 
 	if (is_newbie && IS_MANA_CASTER(ch)) {
@@ -1019,29 +1024,29 @@ void DoPcInit(CharData *ch, bool is_newbie) {
 		case ECharClass::kWizard:
 		case ECharClass::kCharmer:
 		case ECharClass::kNecromancer:
-		case ECharClass::kMagus: ch->set_skill(ESkill::kSideAttack, 10);
+		case ECharClass::kMagus: SetSkill(ch, ESkill::kSideAttack, 10);
 			break;
-		case ECharClass::kSorcerer: ch->set_skill(ESkill::kSideAttack, 50);
+		case ECharClass::kSorcerer: SetSkill(ch, ESkill::kSideAttack, 50);
 			break;
 		case ECharClass::kThief:
-		case ECharClass::kAssasine: ch->set_skill(ESkill::kSideAttack, 75);
+		case ECharClass::kAssasine: SetSkill(ch, ESkill::kSideAttack, 75);
 			break;
-		case ECharClass::kMerchant: ch->set_skill(ESkill::kSideAttack, 85);
+		case ECharClass::kMerchant: SetSkill(ch, ESkill::kSideAttack, 85);
 			break;
 		case ECharClass::kGuard:
 		case ECharClass::kPaladine:
 		case ECharClass::kWarrior:
 		case ECharClass::kRanger:
-			if (ch->GetSkill(ESkill::kRiding) == 0)
-				ch->set_skill(ESkill::kRiding, 10);
-			ch->set_skill(ESkill::kSideAttack, 95);
+			if (GetSkill(ch, ESkill::kRiding) == 0)
+				SetSkill(ch, ESkill::kRiding, 10);
+			SetSkill(ch, ESkill::kSideAttack, 95);
 			break;
-		case ECharClass::kVigilant: ch->set_skill(ESkill::kSideAttack, 95);
+		case ECharClass::kVigilant: SetSkill(ch, ESkill::kSideAttack, 95);
 			break;
 		default: break;
 	}
 
-	advance_level(ch);
+	experience::advance_level(ch);
 	sprintf(buf, "%s advanced to level %d", GET_NAME(ch), GetRealLevel(ch));
 	mudlog(buf, BRF, kLvlImplementator, SYSLOG, true);
 
@@ -1065,103 +1070,6 @@ void check_max_hp(CharData *ch) {
 }
 
 // * Обработка событий при левел-апе.
-void levelup_events(CharData *ch) {
-	if (offtop_system::kMinOfftopLvl == GetRealLevel(ch)
-		&& !ch->get_disposable_flag(DIS_OFFTOP_MESSAGE)) {
-		ch->SetFlag(EPrf::kOfftopMode);
-		ch->set_disposable_flag(DIS_OFFTOP_MESSAGE);
-		SendMsgToChar(ch,
-					  "%sТеперь вы можете пользоваться каналом оффтоп ('справка оффтоп').%s\r\n",
-					  kColorBoldGrn, kColorNrm);
-	}
-	if (EXCHANGE_MIN_CHAR_LEV == GetRealLevel(ch)
-		&& !ch->get_disposable_flag(DIS_EXCHANGE_MESSAGE)) {
-		// по умолчанию базар у всех включен, поэтому не спамим даже однократно
-		if (remort::GetRealRemort(ch) <= 0) {
-			SendMsgToChar(ch,
-						  "%sТеперь вы можете покупать и продавать вещи на базаре ('справка базар!').%s\r\n",
-						  kColorBoldGrn, kColorNrm);
-		}
-		ch->set_disposable_flag(DIS_EXCHANGE_MESSAGE);
-	}
-}
-
-void advance_level(CharData *ch) {
-	int add_move = 0, i;
-
-	switch (ch->GetClass()) {
-		case ECharClass::kConjurer:
-		case ECharClass::kWizard:
-		case ECharClass::kCharmer:
-		case ECharClass::kNecromancer:
-		case ECharClass::kSorcerer: [[fallthrough]];
-		case ECharClass::kMagus: add_move = 2;
-			break;
-
-		case ECharClass::kThief:
-		case ECharClass::kAssasine:
-		case ECharClass::kMerchant:
-		case ECharClass::kWarrior:
-		case ECharClass::kGuard:
-		case ECharClass::kRanger:
-		case ECharClass::kPaladine: [[fallthrough]];
-		case ECharClass::kVigilant: add_move = number(ch->GetInbornDex()/6 + 1, ch->GetInbornDex()/5 + 1);
-			break;
-		default: break;
-	}
-
-	check_max_hp(ch);
-	ch->set_max_move(ch->get_max_move() + std::max(1, add_move));
-
-	SetInbornAndRaceFeats(ch);
-
-	if (privilege::IsImmortal(ch)) {
-		for (i = 0; i < 3; i++) {
-			GET_COND(ch, i) = (char) -1;
-		}
-		ch->SetFlag(EPrf::kHolylight);
-	}
-
-	TopPlayer::Refresh(ch);
-	levelup_events(ch);
-	ch->save_char();
-}
-
-void decrease_level(CharData *ch) {
-	int add_move = 0;
-
-	switch (ch->GetClass()) {
-		case ECharClass::kConjurer:
-		case ECharClass::kWizard:
-		case ECharClass::kCharmer:
-		case ECharClass::kNecromancer:
-		case ECharClass::kSorcerer: [[fallthrough]];
-		case ECharClass::kMagus: add_move = 2;
-			break;
-
-		case ECharClass::kThief:
-		case ECharClass::kAssasine:
-		case ECharClass::kMerchant:
-		case ECharClass::kWarrior:
-		case ECharClass::kGuard:
-		case ECharClass::kPaladine:
-		case ECharClass::kRanger: [[fallthrough]];
-		case ECharClass::kVigilant: add_move = ch->GetInbornDex() / 5 + 1;
-			break;
-		default: break;
-	}
-
-	check_max_hp(ch);
-	ch->set_max_move(ch->get_max_move() - std::clamp(add_move, 1, ch->get_max_move()));
-
-	GET_WIMP_LEV(ch) = std::clamp(GET_WIMP_LEV(ch), 0, ch->get_real_max_hit()/2);
-	if (!privilege::IsImmortal(ch)) {
-		ch->UnsetFlag(EPrf::kHolylight);
-	}
-
-	TopPlayer::Refresh(ch);
-	ch->save_char();
-}
 
 /*
  * invalid_class is used by handler.cpp to determine if a piece of equipment is
@@ -1216,8 +1124,8 @@ int invalid_anti_class(CharData *ch, const ObjData *obj) {
 		|| (obj->has_anti_flag(EAntiFlag::kWizard) && IS_WIZARD(ch))
 		|| (obj->has_anti_flag(EAntiFlag::kNecromancer) && IS_NECROMANCER(ch))
 		|| (obj->has_anti_flag(EAntiFlag::kFighter) && IsFighter(ch))
-		|| (obj->has_anti_flag(EAntiFlag::kMale) && IS_MALE(ch))
-		|| (obj->has_anti_flag(EAntiFlag::kFemale) && IS_FEMALE(ch))
+		|| (obj->has_anti_flag(EAntiFlag::kMale) && IsMale(ch))
+		|| (obj->has_anti_flag(EAntiFlag::kFemale) && IsFemale(ch))
 		|| (obj->has_anti_flag(EAntiFlag::kSorcerer) && IS_SORCERER(ch))
 		|| (obj->has_anti_flag(EAntiFlag::kWarrior) && IS_WARRIOR(ch))
 		|| (obj->has_anti_flag(EAntiFlag::kGuard) && IS_GUARD(ch))
@@ -1256,8 +1164,8 @@ int invalid_no_class(CharData *ch, const ObjData *obj) {
 		|| (obj->has_no_flag(ENoFlag::kWizard) && IS_WIZARD(ch))
 		|| (obj->has_no_flag(ENoFlag::kNecromancer) && IS_NECROMANCER(ch))
 		|| (obj->has_no_flag(ENoFlag::kFighter) && IsFighter(ch))
-		|| (obj->has_no_flag(ENoFlag::kMale) && IS_MALE(ch))
-		|| (obj->has_no_flag(ENoFlag::kFemale) && IS_FEMALE(ch))
+		|| (obj->has_no_flag(ENoFlag::kMale) && IsMale(ch))
+		|| (obj->has_no_flag(ENoFlag::kFemale) && IsFemale(ch))
 		|| (obj->has_no_flag(ENoFlag::kSorcerer) && IS_SORCERER(ch))
 		|| (obj->has_no_flag(ENoFlag::kWarrior) && IS_WARRIOR(ch))
 		|| (obj->has_no_flag(ENoFlag::kGuard) && IS_GUARD(ch))
@@ -1297,8 +1205,8 @@ int invalid_anti_class_proto(CharData *ch, const CObjectPrototype *obj) {
 		|| (obj->has_anti_flag(EAntiFlag::kWizard) && IS_WIZARD(ch))
 		|| (obj->has_anti_flag(EAntiFlag::kNecromancer) && IS_NECROMANCER(ch))
 		|| (obj->has_anti_flag(EAntiFlag::kFighter) && IsFighter(ch))
-		|| (obj->has_anti_flag(EAntiFlag::kMale) && IS_MALE(ch))
-		|| (obj->has_anti_flag(EAntiFlag::kFemale) && IS_FEMALE(ch))
+		|| (obj->has_anti_flag(EAntiFlag::kMale) && IsMale(ch))
+		|| (obj->has_anti_flag(EAntiFlag::kFemale) && IsFemale(ch))
 		|| (obj->has_anti_flag(EAntiFlag::kSorcerer) && IS_SORCERER(ch))
 		|| (obj->has_anti_flag(EAntiFlag::kWarrior) && IS_WARRIOR(ch))
 		|| (obj->has_anti_flag(EAntiFlag::kGuard) && IS_GUARD(ch))
@@ -1335,8 +1243,8 @@ int invalid_no_class_proto(CharData *ch, const CObjectPrototype *obj) {
 		|| (obj->has_no_flag(ENoFlag::kWizard) && IS_WIZARD(ch))
 		|| (obj->has_no_flag(ENoFlag::kNecromancer) && IS_NECROMANCER(ch))
 		|| (obj->has_no_flag(ENoFlag::kFighter) && IsFighter(ch))
-		|| (obj->has_no_flag(ENoFlag::kMale) && IS_MALE(ch))
-		|| (obj->has_no_flag(ENoFlag::kFemale) && IS_FEMALE(ch))
+		|| (obj->has_no_flag(ENoFlag::kMale) && IsMale(ch))
+		|| (obj->has_no_flag(ENoFlag::kFemale) && IsFemale(ch))
 		|| (obj->has_no_flag(ENoFlag::kSorcerer) && IS_SORCERER(ch))
 		|| (obj->has_no_flag(ENoFlag::kWarrior) && IS_WARRIOR(ch))
 		|| (obj->has_no_flag(ENoFlag::kGuard) && IS_GUARD(ch))
@@ -1367,145 +1275,77 @@ int invalid_no_class_proto(CharData *ch, const CObjectPrototype *obj) {
 // The boot call moved to MUD::CfgManager().LoadCfg("rune_spells") at the
 // same boot-step position; `reload runes` goes through ReloadCfg.
 
-void InitBasicValues() {
-	FILE *magic;
-	char line[256], name[kMaxInputLength];
-	int i[10], c, j, mode = 0, *pointer;
-	if (!(magic = fopen(LIB_MISC "basic.lst", "r"))) {
-		log("Can't open basic values list file...");
-		return;
+namespace {
+// Целочисленный атрибут DataNode; def при отсутствии/некорректном значении.
+int HandicapAttrInt(parser_wrapper::DataNode &node, const char *key, int def) {
+	const char *v = node.GetValue(key);
+	if (!v || !*v) {
+		return def;
 	}
-	while (get_line(magic, name)) {
-		if (!name[0] || name[0] == ';')
-			continue;
-		i[0] = i[1] = i[2] = i[3] = i[4] = i[5] = 100000;
-		if (sscanf(name, "%s %d %d %d %d %d %d", line, i, i + 1, i + 2, i + 3, i + 4, i + 5) < 1)
-			continue;
-		if (!str_cmp(line, "int"))
-			mode = 1;
-		else if (!str_cmp(line, "cha"))
-			mode = 2;
-		else if (!str_cmp(line, "size"))
-			mode = 3;
-		else if (!str_cmp(line, "weapon"))
-			mode = 4;
-		else if ((c = atoi(line)) > 0 && c <= 100 && mode > 0 && mode < 10) {
-			int fields = 0;
-			switch (mode) {
-				case 1: pointer = (int *) &(int_app[c].spell_aknowlege);
-					fields = sizeof(int_app[c]) / sizeof(int);
-					break;
-
-				case 2: pointer = (int *) &(cha_app[c].leadership);
-					fields = sizeof(cha_app[c]) / sizeof(int);
-					break;
-
-				case 3: pointer = (int *) &(size_app[c].ac);
-					fields = sizeof(size_app[c]) / sizeof(int);
-					break;
-
-				case 4: pointer = (int *) &(weapon_app[c].shocking);
-					fields = sizeof(weapon_app[c]) / sizeof(int);
-					break;
-
-				default: pointer = nullptr;
-			}
-
-			if (pointer)    //log("Mode %d - %d = %d %d %d %d %d %d",mode,c,
-			{
-				//    *i, *(i+1), *(i+2), *(i+3), *(i+4), *(i+5));
-				for (j = 0; j < fields; j++) {
-					if (i[j] != 100000)    //log("[%d] %d <-> %d",j,*(pointer+j),*(i+j));
-					{
-						*(pointer + j) = *(i + j);
-					}
-				}
-				//getchar();
-			}
-		}
+	try {
+		return parse::ReadAsInt(v);
+	} catch (const std::exception &) {
+		return def;
 	}
-	fclose(magic);
 }
+} // namespace
 
 /*
-	Берет misc/grouping, первый столбик цифр считает номерами мортов,
-	остальные столбики - значение макс. разрыва в уровнях для конкретного
-	класса. На момент написания этого в конфиге присутствует 26 строк, макс.
-	морт равен 50 - строки с мортами с 26 по 50 копируются с 25-мортовой строки.
+	Заполняет таблицу гандикапа группового опыта из <group_exp_handicap>:
+	<remort val="N"> с детьми <class id="ECharClass" level_greater="L"/>.
+	Реморты, для которых строк нет, копируются с максимального заданного реморта
+	(в конфиге обычно ~75 строк, kMaxRemort больше).
 */
-int GroupPenalties::init() {
-	char buf[kMaxInputLength];
-	int remorts = 0, rows_assigned = 0, levels = 0, pos = 0, max_rows = kMaxRemort + 1;
-
-	// пре-инициализация
-	//Строк в массиве должно быть на 1 больше, чем макс. морт
-	//Столбцов в массиве должно быть ровно столько же, сколько есть классов
+void GroupPenalties::Load(parser_wrapper::DataNode data) {
+	// пре-инициализация всех классов всеми мортами в -1
 	for (auto clss = ECharClass::kFirst; clss <= ECharClass::kLast; ++clss) {
-		for (remorts = 0; remorts < max_rows; remorts++) {
-			grouping_[clss][remorts] = -1;
-		}
+		grouping_[clss].fill(-1);
 	}
 
-	FILE *f = fopen(LIB_MISC "grouping", "r");
-	if (!f) {
-		log("Невозможно открыть файл %s", LIB_MISC "grouping");
-		return 1;
-	}
-
-	while (get_line(f, buf)) {
-		//Строка пустая или строка-коммент
-		if (!buf[0] || buf[0] == ';' || buf[0] == '\n') {
+	int max_remort = -1;
+	for (auto &remort_node : data.Children("remort")) {
+		const int remort = HandicapAttrInt(remort_node, "val", -1);
+		if (remort < 0 || remort > kMaxRemort) {
+			log("group_exp_handicap: неверное число ремортов: %d (0..%d)", remort, kMaxRemort);
 			continue;
 		}
-		auto clss{ECharClass::kUndefined};
-		pos = 0;
-		while (sscanf(&buf[pos], "%d", &levels) == 1) {
-			while (buf[pos] == ' ' || buf[pos] == '\t') {
-				++pos;
+		for (auto &class_node : remort_node.Children("class")) {
+			const char *id = class_node.GetValue("id");
+			ECharClass clss;
+			try {
+				clss = parse::ReadAsConstant<ECharClass>(id);
+			} catch (const std::exception &) {
+				log("group_exp_handicap: неизвестный класс '%s' (реморт %d)", id ? id : "", remort);
+				continue;
 			}
-			//Первый проход цикла по строке
-			if (clss == ECharClass::kUndefined) {
-				remorts = levels; //Номера строк
-				if (grouping_[ECharClass::kFirst][remorts] != -1) {
-					log("Ошибка при чтении файла %s: дублирование параметров для %d ремортов",
-						LIB_MISC "grouping", remorts);
-					return 2;
-				}
-				if (remorts > kMaxRemort || remorts < 0) {
-					log("Ошибка при чтении файла %s: неверное значение количества ремортов: %d, "
-						"должно быть в промежутке от 0 до %d",
-						LIB_MISC "grouping", remorts, kMaxRemort);
-					return 3;
-				}
-			} else {
-				grouping_[clss][remorts] = levels;
-			}
-			++clss;
-			while (buf[pos] != ' ' && buf[pos] != '\t' && buf[pos] != 0) {
-				++pos;
-			}
+			grouping_[clss][remort] = HandicapAttrInt(class_node, "level_greater", -1);
 		}
-
-		if (clss < ECharClass::kLast) {
-			log("Ошибка при чтении файла %s: неверный формат строки '%s', должно быть %d "
-				"целых чисел, прочитали %d",
-				LIB_MISC "grouping", buf, to_underlying(ECharClass::kLast) + 2, to_underlying(clss) + 1);
-			return 4;
-		}
-		++rows_assigned;
+		max_remort = std::max(max_remort, remort);
 	}
 
-	if (rows_assigned < max_rows) {
-		//Берем свободную переменную
-		//Копируем последнюю строку на все морты, для которых нет строк
-		for (levels = remorts; levels < max_rows; levels++) {
-			for (auto clss = ECharClass::kFirst; clss <= ECharClass::kLast; ++clss) {
-				grouping_[clss][levels] = grouping_[clss][remorts];
+	// копируем последний заданный реморт на все большие морты, для которых строк нет
+	if (max_remort >= 0 && max_remort < kMaxRemort) {
+		for (auto clss = ECharClass::kFirst; clss <= ECharClass::kLast; ++clss) {
+			for (int r = max_remort + 1; r <= kMaxRemort; ++r) {
+				grouping_[clss][r] = grouping_[clss][max_remort];
 			}
 		}
 	}
-	fclose(f);
-	return 0;
+	loaded_ = (max_remort >= 0);
+}
+
+// Прямая загрузка из файла (для тестов и автономного использования). 0 при успехе.
+int GroupPenalties::init() {
+	Load(parser_wrapper::DataNode(LIB_CFG "mechanics/group_exp_handicap.xml"));
+	return loaded_ ? 0 : 1;
+}
+
+void GroupPenaltiesLoader::Load(parser_wrapper::DataNode data) {
+	grouping.Load(std::move(data));
+}
+
+void GroupPenaltiesLoader::Reload(parser_wrapper::DataNode data) {
+	grouping.Load(std::move(data));
 }
 
 /*
@@ -1514,239 +1354,6 @@ int GroupPenalties::init() {
  */
 
 // Function to return the exp required for each class/level
-long GetExpUntilNextLvl(CharData *ch, int level) {
-	if (level > kLvlImplementator || level < 0) {
-		log("SYSERR: Requesting exp for invalid level %d!", level);
-		return 0;
-	}
-
-	/*
-	 * Gods have exp close to EXP_MAX.  This statement should never have to
-	 * changed, regardless of how many mortal or immortal levels exist.
-	 */
-	if (level > kLvlImmortal) {
-		return kExpImpl - ((kLvlImplementator - level) * 1000);
-	}
-
-	// Exp required for normal mortals is below
-	float exp_modifier;
-	if (remort::GetRealRemort(ch) < kMaxExpCoefficientsUsed) {
-		exp_modifier = static_cast<float>(exp_coefficients[remort::GetRealRemort(ch)]);
-	} else {
-		exp_modifier = static_cast<float>(exp_coefficients[kMaxExpCoefficientsUsed]);
-	}
-
-	switch (ch->GetClass()) {
-
-		case ECharClass::kConjurer:
-		case ECharClass::kWizard:
-		case ECharClass::kCharmer:
-		case ECharClass::kNecromancer:
-			switch (level) {
-				case 0: return 0;
-				case 1: return 1;
-				case 2: return int(exp_modifier * 2500);
-				case 3: return int(exp_modifier * 5000);
-				case 4: return int(exp_modifier * 9000);
-				case 5: return int(exp_modifier * 17000);
-				case 6: return int(exp_modifier * 27000);
-				case 7: return int(exp_modifier * 47000);
-				case 8: return int(exp_modifier * 77000);
-				case 9: return int(exp_modifier * 127000);
-				case 10: return int(exp_modifier * 197000);
-				case 11: return int(exp_modifier * 297000);
-				case 12: return int(exp_modifier * 427000);
-				case 13: return int(exp_modifier * 587000);
-				case 14: return int(exp_modifier * 817000);
-				case 15: return int(exp_modifier * 1107000);
-				case 16: return int(exp_modifier * 1447000);
-				case 17: return int(exp_modifier * 1847000);
-				case 18: return int(exp_modifier * 2310000);
-				case 19: return int(exp_modifier * 2830000);
-				case 20: return int(exp_modifier * 3580000);
-				case 21: return int(exp_modifier * 4580000);
-				case 22: return int(exp_modifier * 5830000);
-				case 23: return int(exp_modifier * 7330000);
-				case 24: return int(exp_modifier * 9080000);
-				case 25: return int(exp_modifier * 11080000);
-				case 26: return int(exp_modifier * 15000000);
-				case 27: return int(exp_modifier * 22000000);
-				case 28: return int(exp_modifier * 33000000);
-				case 29: return int(exp_modifier * 47000000);
-				case 30: return int(exp_modifier * 64000000);
-					// add new levels here
-				default: return int(exp_modifier * 94000000);
-			}
-			break;
-
-		case ECharClass::kSorcerer:
-		case ECharClass::kMagus:
-			switch (level) {
-				case 0: return 0;
-				case 1: return 1;
-				case 2: return int(exp_modifier * 2500);
-				case 3: return int(exp_modifier * 5000);
-				case 4: return int(exp_modifier * 9000);
-				case 5: return int(exp_modifier * 17000);
-				case 6: return int(exp_modifier * 27000);
-				case 7: return int(exp_modifier * 47000);
-				case 8: return int(exp_modifier * 77000);
-				case 9: return int(exp_modifier * 127000);
-				case 10: return int(exp_modifier * 197000);
-				case 11: return int(exp_modifier * 297000);
-				case 12: return int(exp_modifier * 427000);
-				case 13: return int(exp_modifier * 587000);
-				case 14: return int(exp_modifier * 817000);
-				case 15: return int(exp_modifier * 1107000);
-				case 16: return int(exp_modifier * 1447000);
-				case 17: return int(exp_modifier * 1847000);
-				case 18: return int(exp_modifier * 2310000);
-				case 19: return int(exp_modifier * 2830000);
-				case 20: return int(exp_modifier * 3580000);
-				case 21: return int(exp_modifier * 4580000);
-				case 22: return int(exp_modifier * 5830000);
-				case 23: return int(exp_modifier * 7330000);
-				case 24: return int(exp_modifier * 9080000);
-				case 25: return int(exp_modifier * 11080000);
-				case 26: return int(exp_modifier * 15000000);
-				case 27: return int(exp_modifier * 22000000);
-				case 28: return int(exp_modifier * 33000000);
-				case 29: return int(exp_modifier * 47000000);
-				case 30: return int(exp_modifier * 64000000);
-					// add new levels here
-				default: return int(exp_modifier * 87000000);
-			}
-			break;
-
-		case ECharClass::kThief:
-			switch (level) {
-				case 0: return 0;
-				case 1: return 1;
-				case 2: return int(exp_modifier * 1000);
-				case 3: return int(exp_modifier * 2000);
-				case 4: return int(exp_modifier * 4000);
-				case 5: return int(exp_modifier * 8000);
-				case 6: return int(exp_modifier * 15000);
-				case 7: return int(exp_modifier * 28000);
-				case 8: return int(exp_modifier * 52000);
-				case 9: return int(exp_modifier * 85000);
-				case 10: return int(exp_modifier * 131000);
-				case 11: return int(exp_modifier * 192000);
-				case 12: return int(exp_modifier * 271000);
-				case 13: return int(exp_modifier * 372000);
-				case 14: return int(exp_modifier * 512000);
-				case 15: return int(exp_modifier * 672000);
-				case 16: return int(exp_modifier * 854000);
-				case 17: return int(exp_modifier * 1047000);
-				case 18: return int(exp_modifier * 1274000);
-				case 19: return int(exp_modifier * 1534000);
-				case 20: return int(exp_modifier * 1860000);
-				case 21: return int(exp_modifier * 2520000);
-				case 22: return int(exp_modifier * 3380000);
-				case 23: return int(exp_modifier * 4374000);
-				case 24: return int(exp_modifier * 5500000);
-				case 25: return int(exp_modifier * 6827000);
-				case 26: return int(exp_modifier * 8667000);
-				case 27: return int(exp_modifier * 13334000);
-				case 28: return int(exp_modifier * 20000000);
-				case 29: return int(exp_modifier * 28667000);
-				case 30: return int(exp_modifier * 40000000);
-					// add new levels here
-				default: return int(exp_modifier * 53000000);
-			}
-			break;
-
-		case ECharClass::kAssasine:
-		case ECharClass::kMerchant:
-			switch (level) {
-				case 0: return 0;
-				case 1: return 1;
-				case 2: return int(exp_modifier * 1500);
-				case 3: return int(exp_modifier * 3000);
-				case 4: return int(exp_modifier * 6000);
-				case 5: return int(exp_modifier * 12000);
-				case 6: return int(exp_modifier * 22000);
-				case 7: return int(exp_modifier * 42000);
-				case 8: return int(exp_modifier * 77000);
-				case 9: return int(exp_modifier * 127000);
-				case 10: return int(exp_modifier * 197000);
-				case 11: return int(exp_modifier * 287000);
-				case 12: return int(exp_modifier * 407000);
-				case 13: return int(exp_modifier * 557000);
-				case 14: return int(exp_modifier * 767000);
-				case 15: return int(exp_modifier * 1007000);
-				case 16: return int(exp_modifier * 1280000);
-				case 17: return int(exp_modifier * 1570000);
-				case 18: return int(exp_modifier * 1910000);
-				case 19: return int(exp_modifier * 2300000);
-				case 20: return int(exp_modifier * 2790000);
-				case 21: return int(exp_modifier * 3780000);
-				case 22: return int(exp_modifier * 5070000);
-				case 23: return int(exp_modifier * 6560000);
-				case 24: return int(exp_modifier * 8250000);
-				case 25: return int(exp_modifier * 10240000);
-				case 26: return int(exp_modifier * 13000000);
-				case 27: return int(exp_modifier * 20000000);
-				case 28: return int(exp_modifier * 30000000);
-				case 29: return int(exp_modifier * 43000000);
-				case 30: return int(exp_modifier * 59000000);
-					// add new levels here
-				default: return int(exp_modifier * 79000000);
-			}
-			break;
-
-		case ECharClass::kWarrior:
-		case ECharClass::kGuard:
-		case ECharClass::kPaladine:
-		case ECharClass::kRanger:
-		case ECharClass::kVigilant:
-			switch (level) {
-				case 0: return 0;
-				case 1: return 1;
-				case 2: return int(exp_modifier * 2000);
-				case 3: return int(exp_modifier * 4000);
-				case 4: return int(exp_modifier * 8000);
-				case 5: return int(exp_modifier * 14000);
-				case 6: return int(exp_modifier * 24000);
-				case 7: return int(exp_modifier * 39000);
-				case 8: return int(exp_modifier * 69000);
-				case 9: return int(exp_modifier * 119000);
-				case 10: return int(exp_modifier * 189000);
-				case 11: return int(exp_modifier * 289000);
-				case 12: return int(exp_modifier * 419000);
-				case 13: return int(exp_modifier * 579000);
-				case 14: return int(exp_modifier * 800000);
-				case 15: return int(exp_modifier * 1070000);
-				case 16: return int(exp_modifier * 1340000);
-				case 17: return int(exp_modifier * 1660000);
-				case 18: return int(exp_modifier * 2030000);
-				case 19: return int(exp_modifier * 2450000);
-				case 20: return int(exp_modifier * 2950000);
-				case 21: return int(exp_modifier * 3950000);
-				case 22: return int(exp_modifier * 5250000);
-				case 23: return int(exp_modifier * 6750000);
-				case 24: return int(exp_modifier * 8450000);
-				case 25: return int(exp_modifier * 10350000);
-				case 26: return int(exp_modifier * 14000000);
-				case 27: return int(exp_modifier * 21000000);
-				case 28: return int(exp_modifier * 31000000);
-				case 29: return int(exp_modifier * 44000000);
-				case 30: return int(exp_modifier * 64000000);
-					// add new levels here
-				default: return int(exp_modifier * 79000000);
-			}
-			break;
-		default: break;
-	}
-
-	/*
-	 * This statement should never be reached if the exp tables in this function
-	 * are set up properly.  If you see exp of 123456 then the tables above are
-	 * incomplete -- so, complete them!
-	 */
-	log("SYSERR: XP tables not set up correctly in class.c!");
-	return 123456;
-}
 
 GroupPenalties grouping;    ///< TODO: get rid of this global variable.
 

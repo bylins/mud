@@ -42,6 +42,10 @@ extern std::pair<int, int> TotalMemUse();
 
 const char *ACTNULL = "<NULL>";
 
+// <sys/param.h> (pulled in via password.cpp/accounts.cpp/sysdep.h) defines MIN/MAX as macros.
+// In unity builds that leaks into this TU and breaks the definitions below, so drop the macros first.
+#undef MIN
+#undef MAX
 int MIN(int a, int b) {
 	return (a < b ? a : b);
 }

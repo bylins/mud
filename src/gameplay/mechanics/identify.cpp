@@ -23,11 +23,14 @@
 #include "gameplay/mechanics/dungeons.h"
 #include "engine/entities/obj_data.h"
 #include "gameplay/core/remort.h"
+#include "gameplay/fight/fight_hit.h"
+#include "utils/grammar/declensions.h"
 
 #include <cmath>
 
 // Defined in sight.cpp / spells.cpp (no header); forward-declared as the trading code does.
 int CalcBaseAc(CharData *ch);
+int CalcHitroll(CharData *ch);
 
 /* It's not used yet, so I commented it out.
 static void ShowWeapon(CharData *ch, ObjData *obj) {
@@ -155,22 +158,19 @@ switch (obj->get_type()) {
 
 			case EBook::kReceipt: drndice = im_get_recipe(GET_OBJ_VAL(obj, 1));
 				if (drndice >= 0) {
-					drsdice = std::max(GET_OBJ_VAL(obj, 2), imrecipes[drndice].level);
-					int count = imrecipes[drndice].remort;
-					if (imrecipes[drndice].classknow[to_underlying(ch->GetClass())] != kKnownRecipe)
-						drsdice = kLvlImplementator;
-					sprintf(buf, "содержит рецепт отвара     : \"%s\"\r\n", imrecipes[drndice].name);
-					SendMsgToChar(buf, ch);
-					if (drsdice == -1 || count == -1) {
-						SendMsgToChar(kColorBoldRed, ch);
-						SendMsgToChar("Некорректная запись рецепта для вашего класса - сообщите Богам.\r\n", ch);
-						SendMsgToChar(kColorNrm, ch);
-					} else if (drsdice == kLvlImplementator) {
-						sprintf(buf, "уровень изучения (количество ремортов) : %d (--)\r\n", drsdice);
+					// issue.class-recipes: требования к рецепту берём у класса игрока.
+					{
+						const auto *req = MUD::Class(ch->GetClass()).FindIngredientRecipe(imrecipes[drndice].str_id);
+						sprintf(buf, "содержит рецепт отвара     : \"%s\"\r\n", imrecipes[drndice].name);
 						SendMsgToChar(buf, ch);
-					} else {
-						sprintf(buf, "уровень изучения (количество ремортов) : %d (%d)\r\n", drsdice, count);
-						SendMsgToChar(buf, ch);
+						if (!req) {
+							sprintf(buf, "уровень изучения (количество ремортов) : %d (--)\r\n", kLvlImplementator);
+							SendMsgToChar(buf, ch);
+						} else {
+							drsdice = std::max(GET_OBJ_VAL(obj, 2), req->level);
+							sprintf(buf, "уровень изучения (количество ремортов) : %d (%d)\r\n", drsdice, req->remort);
+							SendMsgToChar(buf, ch);
+						}
 					}
 				}
 				break;
@@ -465,9 +465,82 @@ void MortShowObjValues(const ObjData *obj, CharData *ch, int fullness) {
 	obj_sets::print_identify(ch, obj);
 }
 
+void MobShowValues(CharData *ch, CharData *victim, int skill) {
+	std::stringstream ss;
+
+	if (skill > 1) {
+		ss << fmt::format("Имя: {}\r\n", utils::CAP(victim->get_name()));
+	}
+	if (skill > 29) {
+		ss << fmt::format("Размер: {}({}), вес {}({})\r\n", GET_SIZE(victim), GET_REAL_SIZE(victim), GET_WEIGHT(victim), GET_REAL_WEIGHT(victim));
+	}
+	if (skill > 49) {
+		ss << fmt::format("Уровень {}, перевоплощений {}, может выдержать {}({}) {} повреждений\r\n", GetRealLevel(victim), remort::GetRealRemort(victim), victim->get_hit(), victim->get_real_max_hit(),
+			grammar::GetDeclensionInNumber(victim->get_hit(), grammar::EWhat::kOneU));
+	}
+	if (skill > 59) {
+		int ac = CalcBaseAc(victim) / 10;
+		if (ac < 5) {
+			const int mod = (1 - condition::GetCondPenalty(victim, condition::kAc)) * 40;
+			ac = ac + mod > 5 ? 5 : ac + mod;
+		}
+		ss << fmt::format("Броня: {}, защита: {}, поглощение {}\r\n", GET_ARMOUR(victim), ac, GET_ABSORBE(victim));
+	}
+	if (skill > 79) {
+		HitData hit_params;
+		hit_params.weapon = fight::kMainHand;
+		hit_params.skill_num = ESkill::kAny; 
+		hit_params.Init(victim, victim);
+		ss << fmt::format("Попадание: {}, повреждение: {}, успех колдовства: {}, удача: {}, инициатива: {}\r\n",
+				GET_REAL_HR(victim) + str_bonus(GetRealStr(victim), STR_TO_HIT), hit_params.CalcDmg(victim, false), CalcAntiSavings(victim), victim->calc_morale(), calc_initiative(victim, false));
+	}
+	if (skill > 99) {
+	ss << fmt::format("Cила: {}({}), ловкость: {}({}), телосложение: {}({}), ум: {}({}), мудрость: {}({}), обаяние: {}({})\r\n",
+			victim->get_str(), GetRealStr(victim), victim->get_dex(), GetRealDex(victim), victim->get_con(), GetRealCon(victim),  victim->get_int(), GetRealInt(victim),
+			victim->get_wis(), GetRealWis(victim), victim->get_cha(), GetRealCha(victim));
+	}
+	if (skill > 119) {
+		ss << fmt::format("Бонусы: маг.урон: {}, физ. урон: {}\r\n",
+				victim->add_abils.percent_spellpower_add, victim->add_abils.percent_physdam_add);
+	}
+	if (skill > 149) {
+		ss << fmt::format("Защита от чар : {}, Защита от магических повреждений : {}, Защита от физических повреждений : {}\r\n",
+				std::min(GET_AR(victim), 100), std::min(GET_MR(victim), 100), std::min(GET_PR(victim), 100));
+	}
+	if (skill > 179) {
+	ss << fmt::format("Сопротивление: огню: {}, воздуху: {}, воде: {}, земле: {}, тьме: {}, тяжелым ранам: {}, разум: {}, ядам и болезням: {}\r\n",
+			std::min(GET_RESIST(victim, EResist::kFire), 75), std::min(GET_RESIST(victim, EResist::kAir), 75),
+			std::min(GET_RESIST(victim, EResist::kWater), 75), std::min(GET_RESIST(victim, EResist::kEarth), 75),
+			std::min(GET_RESIST(victim, EResist::kDark), 75), std::min(GET_RESIST(victim, EResist::kVitality), 75),
+			std::min(GET_RESIST(victim, EResist::kMind), 75), std::min(GET_RESIST(victim, EResist::kImmunity), 75));
+	}
+	if (skill > 199) {
+		ss << fmt::format("Спас броски: воля: {}, здоровье: {}, стойкость: {}, реакция: {}\r\n",
+				-CalcSaving(victim, victim, ESaving::kWill, false),
+				-CalcSaving(victim, victim, ESaving::kCritical, false),
+				-CalcSaving(victim, victim, ESaving::kStability, false),
+				-CalcSaving(victim, victim, ESaving::kReflex, false));
+	}
+	if (skill > 249) {
+		// Разделитель ", " (не " "!): имена аффектов сами содержат пробелы
+		// ("воздушный щит"), и при " " их рвал бы OutWordsList по пробелам.
+		// Split по запятой собирает их обратно целиком (имена с пробелами сохраняются).
+		victim->char_specials.saved.affected_by.sprintbits(affected_bits, buf2, sizeof(buf2), ", ");
+		std::vector<std::string> aff_list = utils::Split(buf2, ',');
+		// "Аффекты: " префиксом: учитывается в ширине строки, но без лишней запятой после метки.
+		ss << fmt::format("&G{}&n\r\n",
+				utils::OutWordsList(aff_list, ch->player_specials->saved.stringLength, ", ", "Аффекты: "));
+	}
+	SendMsgToChar(ch, "%s", ss.str().c_str());
+}
+
 void MortShowCharValues(CharData *victim, CharData *ch, int fullness) {
 	int val0, val1, val2;
 
+	if (victim->IsNpc()) {
+		MobShowValues(ch, victim, fullness);
+		return;
+	}
 	sprintf(buf, "Имя: %s\r\n", GET_NAME(victim));
 	SendMsgToChar(buf, ch);
 	if (!victim->IsNpc() && victim == ch) {
@@ -501,9 +574,9 @@ void MortShowCharValues(CharData *victim, CharData *ch, int fullness) {
 	sprintf(buf, "Уровень : %d, может выдержать повреждений : %d(%d), ", val0, val1, val2);
 	SendMsgToChar(buf, ch);
 	SendMsgToChar(ch, "Перевоплощений : %d\r\n", remort::GetRealRemort(victim));
-	val0 = MIN(GET_AR(victim), 100);
-	val1 = MIN(GET_MR(victim), 100);
-	val2 = MIN(GET_PR(victim), 100);
+	val0 = std::min(GET_AR(victim), 100);
+	val1 = std::min(GET_MR(victim), 100);
+	val2 = std::min(GET_PR(victim), 100);
 	sprintf(buf,
 			"Защита от чар : %d, Защита от магических повреждений : %d, Защита от физических повреждений : %d\r\n",
 			val0,

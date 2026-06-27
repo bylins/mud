@@ -111,6 +111,11 @@ ItemPtr CharClassInfoBuilder::ParseClass(DataNode &node) {
 	// issue.thing-names: the name now comes from class_msg.xml (registry), not the <name> child.
 	ParseName(info);
 
+	if (node.GoToChild("experience_table")) {
+		info->exp_table_id = parse::ReadAsStr(node.GetValue("id"));
+		node.GoToParent();
+	}
+
 	if (node.GoToChild("stats")) {
 		ParseStats(info, node);
 		node.GoToParent();
@@ -128,6 +133,11 @@ ItemPtr CharClassInfoBuilder::ParseClass(DataNode &node) {
 
 	if (node.GoToChild("feats")) {
 		ParseFeats(info, node);
+		node.GoToParent();
+	}
+
+	if (node.GoToChild("ingredient_magic")) {
+		ParseIngredientMagic(info, node);
 		node.GoToParent();
 	}
 
@@ -221,6 +231,65 @@ void CharClassInfoBuilder::ParseFeats(ItemPtr &info, DataNode &node) {
 		info->remorts_for_feat_slot_ = kMaxRemort;
 	}
 	info->feats.Reload(node.Children());
+}
+
+// issue.class-recipes: разбор секции <ingredient_magic> класса. Толерантный режим:
+// рецепт с пустым id или неразобранными числами просто пропускается, класс при этом
+// грузится нормально (в отличие от талантов, где используется строгий Reload). Сам str_id
+// против списка загруженных рецептов здесь не проверяется (рецепты ингредиентной магии -
+// отдельная подсистема); несуществующий рецепт просто не найдётся через FindIngredientRecipe.
+void CharClassInfoBuilder::ParseIngredientMagic(ItemPtr &info, DataNode &node) {
+	for (const auto &recipe_node : node.Children("recipe")) {
+		const char *id = recipe_node.GetValue("id");
+		if (!id || !*id) {
+			err_log("class '%s': <ingredient_magic> recipe without id, skipped.",
+					NAME_BY_ITEM<ECharClass>(info->GetId()).c_str());
+			continue;
+		}
+		CharClassInfo::RecipeRequirement req;
+		req.str_id = id;
+		try {
+			req.level = std::clamp(parse::ReadAsInt(recipe_node.GetValue("level")), kMinCharLevel, kMaxPlayerLevel);
+		} catch (std::exception &e) {
+			req.level = kMinCharLevel;
+		}
+		try {
+			req.remort = std::clamp(parse::ReadAsInt(recipe_node.GetValue("remort")), kMinRemort, kMaxRemort);
+		} catch (std::exception &e) {
+			req.remort = kMinRemort;
+		}
+		info->ingredient_recipes.push_back(std::move(req));
+	}
+}
+
+const CharClassInfo::RecipeRequirement *CharClassInfo::FindIngredientRecipe(std::string_view str_id) const {
+	if (str_id.empty()) {
+		return nullptr;
+	}
+	for (const auto &req : ingredient_recipes) {
+		if (req.str_id == str_id) {
+			return &req;
+		}
+	}
+	return nullptr;
+}
+
+std::pair<int, int> GetRecipeMinRequirements(std::string_view str_id) {
+	int level = -1;
+	int remort = -1;
+	for (const auto &char_class : MUD::Classes()) {
+		const auto *req = char_class.FindIngredientRecipe(str_id);
+		if (!req) {
+			continue;
+		}
+		if (level < 0 || req->level < level) {
+			level = req->level;
+		}
+		if (remort < 0 || req->remort < remort) {
+			remort = req->remort;
+		}
+	}
+	return {level, remort};
 }
 
 void CharClassInfo::PrintHeader(std::ostringstream &buffer) const {

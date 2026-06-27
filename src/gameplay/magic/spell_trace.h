@@ -3,7 +3,7 @@
  \brief issue.spell-tc-info: one place to emit a tester/coder diagnostic line for a spell effect.
  \details Effect functions (damage / saving / affect / points / dispel) call spell_trace::Line()
           to report inputs -> modifiers -> result, so a tester can see why a spell produced a given
-          number. Line() routes through CharData::send_to_TC(false, true, true, ...), which already
+          number. Line() routes through SendToTC(false, true, true, ...), which already
           gates on EPrf::kTester / kCoderinfo (charmice -> master, NPCs skipped), so a non-tester
           pays nothing. Active() is the same cheap predicate, exposed so callers can guard an
           expensive multi-line / per-element breakdown before building it.

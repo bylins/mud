@@ -1,7 +1,7 @@
 #include "do_order.h"
 #include "administration/privilege.h"
 
-#include "engine/core/handler.h"
+#include "engine/entities/char_data.h"
 #include "engine/core/target_resolver.h"
 
 // ****************** CHARM ORDERS PROCEDURES
@@ -52,7 +52,7 @@ void do_order(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			if (vict->get_master() != ch
 				|| !(AFF_FLAGGED(vict, EAffect::kCharmed) || AFF_FLAGGED(vict, EAffect::kHelper))
 				|| AFF_FLAGGED(vict, EAffect::kDeafness)) {
-				if (!IS_POLY(vict)) {
+				if (!IsPoly(vict)) {
 					act("$n безразлично смотрит по сторонам.", false, vict, 0, 0, kToRoom);
 				} else {
 					act("$n безразлично смотрят по сторонам.", false, vict, 0, 0, kToRoom);

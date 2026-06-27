@@ -4,14 +4,16 @@
 
 #include "engine/entities/char_data.h"
 #include "administration/privilege.h"
+#include "gameplay/affects/affect_handler.h"
 #include "skill_messages.h"
 #include "engine/entities/obj_data.h"
-#include "engine/core/handler.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/fight/common.h"
 
+#include <vector>
+
 void do_frenzy(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	if (!ch->GetSkill(ESkill::kFrenzy)) {
+	if (!GetSkill(ch, ESkill::kFrenzy)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kFrenzy, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
@@ -23,7 +25,7 @@ void do_frenzy(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kFrenzy, ESkillMsg::kPeacefulRoom) + "\r\n", ch);
 		return;
 	}
-	if (ch->HasCooldown(ESkill::kFrenzy) && !privilege::IsImmortal(ch)) {
+	if (ch->Skills().HasActiveCooldown(ESkill::kFrenzy) && !privilege::IsImmortal(ch)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kFrenzy, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	}
@@ -37,8 +39,8 @@ void do_frenzy(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	const int duration = CalcDuration(ch, ch, ESkill::kUndefined, 23, 0, 0, 0);;
-	const int hp_regen = ch->GetSkill(ESkill::kFrenzy) / 12.5;
-	const int dmg_multiplier = ch->GetSkill(ESkill::kFrenzy) / 12.5;
+	const int hp_regen = GetSkill(ch, ESkill::kFrenzy) / 12.5;
+	const int dmg_multiplier = GetSkill(ch, ESkill::kFrenzy) / 12.5;
 
 	Affect<EApply> af[2];
 	af[0].type = ESpell::kFrenzy;
@@ -55,28 +57,34 @@ void do_frenzy(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	af[1].battleflag = kAfPulsedec;
 	bool has_frenzy = false;
 	bool can_be_angrier = false;
+	// В цикле только СНИМАЕМ старые frenzy-аффекты и СОБИРАЕМ обновлённые копии.
+	// affect_to_char нельзя звать внутри: он меняет ch->affected и зовёт
+	// affect_total()/EmitAffectEvent, что инвалидирует итератор it (краш).
+	std::vector<Affect<EApply>> readd;
 
 	for (auto it = ch->affected.begin(); it != ch->affected.end();) {
-		auto a = *(*it);  // копия данных эффекта (НЕ ссылка!)
-
-		if (a.type == ESpell::kFrenzy) {
-			has_frenzy = true;
-
-			if (a.location == EApply::kHpRegen && a.modifier < af[0].modifier * 5) {
-				a.modifier += af[0].modifier;
-				can_be_angrier = true;
-			}
-			if (a.location == EApply::kPhysicDamagePercent && a.modifier < af[1].modifier * 5) {
-				a.modifier += af[1].modifier;
-				can_be_angrier = true;
-			}
-			a.duration = duration;
-			it = ch->AffectRemove(it);
-			affect_to_char(ch, a);
-			// continue не обязателен: it уже установлен на следующий
-		} else {
+		if ((*it)->type != ESpell::kFrenzy) {
 			++it;
+			continue;
 		}
+		auto a = *(*it);  // копия данных эффекта (НЕ ссылка!)
+		has_frenzy = true;
+
+		if (a.location == EApply::kHpRegen && a.modifier < af[0].modifier * 5) {
+			a.modifier += af[0].modifier;
+			can_be_angrier = true;
+		}
+		if (a.location == EApply::kPhysicDamagePercent && a.modifier < af[1].modifier * 5) {
+			a.modifier += af[1].modifier;
+			can_be_angrier = true;
+		}
+		a.duration = duration;
+		readd.push_back(a);
+		it = RemoveAffect(ch, it);  // только erase, возвращает валидный следующий
+	}
+	// Применяем собранные аффекты уже вне итерации по списку.
+	for (const auto &a : readd) {
+		affect_to_char(ch, a);
 	}
 
 	if (!has_frenzy) {

@@ -1,0 +1,42 @@
+<!--
+  Vedun editor scheme for cfg/economics/currencies.xml. Currencies are keyed by an integer vnum
+  (identity, immutable) plus a text_id used to reference them from code/config. Locked currencies
+  (kuna vnum 0, glory vnum 1) are not editable: the loader hides them and refuses their vnums.
+  Optional sidecar; undeclared nodes degrade to plain strings and are still validated on save.
+-->
+<scheme>
+	<tag name="currencies" desc="Currency definitions">
+		<child tag="currency" multiple="Y"/>
+	</tag>
+	<tag name="currency" desc="One currency, keyed by integer vnum">
+		<attr name="vnum" type="int" readonly="Y" desc="Unique currency vnum (identity; immutable)"/>
+		<attr name="text_id" type="string" desc="Text id for code/config references (e.g. kMagicIce)"/>
+		<attr name="mode" type="enum" enum="EItemMode" desc="kEnabled / kDisabled"/>
+		<child tag="permits"/>
+		<child tag="limits"/>
+		<child tag="flags"/>
+	</tag>
+	<tag name="permits" desc="What players may do with this currency">
+		<attr name="give" type="bool" desc="Players may give it to others"/>
+		<attr name="obj" type="bool" desc="May exist as a dropped money object"/>
+		<attr name="bank" type="bool" desc="May be stored in a bank"/>
+		<attr name="transfer" type="bool" desc="May be transferred"/>
+		<attr name="transfer_other" type="bool" desc="May be transferred to another account"/>
+		<attr name="transfer_tax" type="int" min="0" max="100" desc="Transfer tax, percent"/>
+		<attr name="drop" type="int" min="0" max="100" desc="Percent kept on death"/>
+		<attr name="clan_tax" type="int" min="0" max="100" desc="Max clan tax, percent"/>
+	</tag>
+	<tag name="limits" desc="Numeric limits">
+		<attr name="max" type="int" min="0" max="2000000000" desc="Maximum amount a character may hold"/>
+	</tag>
+	<tag name="flags" desc="Currency behaviour flags (Y/N)">
+		<attr name="account_shared" type="bool" desc="Bank shared across the whole account"/>
+		<attr name="locked" type="bool" desc="Parameters locked (currency not editable in Vedun)"/>
+		<attr name="logged" type="bool" desc="Audit-log balance changes"/>
+		<attr name="msdp" type="bool" desc="Report to the client via MSDP"/>
+		<attr name="money_stat" type="bool" desc="Feed the zone money-flow statistics"/>
+		<attr name="force_split" type="bool" desc="Group loot is always split among members"/>
+		<attr name="arena_only" type="bool" desc="Relevant only in arena context"/>
+		<attr name="merchant_payout" type="bool" desc="A shop may pay this currency when buying goods (else gold)"/>
+	</tag>
+</scheme>

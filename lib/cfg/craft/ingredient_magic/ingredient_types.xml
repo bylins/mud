@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<ingredient_magic>
+	<types>
+		<type id="EdibleMushrooms" num="0" name="съедобные_грибы" proto_vnum="700"/>
+		<type id="PoisonousMushrooms" num="6" name="ядовитые_грибы" proto_vnum="700"/>
+		<type id="EdibleBerries" num="11" name="съедобные_ягоды" proto_vnum="705"/>
+		<type id="PoisonousBerries" num="12" name="ядовитые_ягоды" proto_vnum="705"/>
+		<type id="Vegetables" num="15" name="овощи" proto_vnum="711"/>
+		<type id="Grains" num="16" name="крупы" proto_vnum="712"/>
+		<type id="Wood" num="17" name="дерево" proto_vnum="713"/>
+		<type id="HealingHerbs" num="51" name="целебные_травы" proto_vnum="730"/>
+		<type id="PoisonousHerbs" num="52" name="ядовитые_травы" proto_vnum="730"/>
+		<type id="Minerals" num="101" name="минералы" proto_vnum="721"/>
+		<type id="Metals" num="102" name="металлы" proto_vnum="722"/>
+		<type id="Utensils" num="103" name="посуда" proto_vnum="723"/>
+		<type id="Liquids" num="104" name="жидкости" proto_vnum="724"/>
+		<type id="Wool" num="1" name="шерсть" proto_vnum="701"/>
+		<type id="SmallCreatures" num="2" name="мелкие_твари" proto_vnum="702"/>
+		<type id="Teeth" num="201" name="зубы" proto_vnum="751"/>
+		<type id="Claws" num="202" name="когти" proto_vnum="752"/>
+		<type id="Eyes" num="203" name="глаза" proto_vnum="753"/>
+		<type id="Liver" num="204" name="печень" proto_vnum="754"/>
+		<type id="Hair" num="205" name="волосы" proto_vnum="755"/>
+		<type id="Heart" num="206" name="сердце" proto_vnum="756"/>
+		<type id="Scales" num="207" name="чешуя" proto_vnum="757"/>
+		<type id="Wings" num="208" name="крылья" proto_vnum="758"/>
+	</types>
+	<metatypes>
+		<metatype id="Living" num="301" name="живь">
+			<member id="SmallCreatures"/>
+			<member id="Wool"/>
+			<member id="Teeth"/>
+			<member id="Claws"/>
+			<member id="Eyes"/>
+			<member id="Liver"/>
+			<member id="Hair"/>
+			<member id="Heart"/>
+			<member id="Scales"/>
+			<member id="Wings"/>
+		</metatype>
+		<metatype id="Berries" num="302" name="ягоды">
+			<member id="EdibleBerries"/>
+			<member id="PoisonousBerries"/>
+		</metatype>
+		<metatype id="Mushrooms" num="303" name="грибы">
+			<member id="EdibleMushrooms"/>
+			<member id="PoisonousMushrooms"/>
+		</metatype>
+		<metatype id="Herbs" num="304" name="травы">
+			<member id="HealingHerbs"/>
+			<member id="PoisonousHerbs"/>
+		</metatype>
+	</metatypes>
+</ingredient_magic>

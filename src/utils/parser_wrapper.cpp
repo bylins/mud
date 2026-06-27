@@ -28,6 +28,13 @@ DataNode::DataNode(const std::filesystem::path &file_name) :
 	impl_->curren_xml_node = impl_->xml_doc->document_element();
 }
 
+DataNode DataNode::NewDocument() {
+	DataNode d;
+	// Курсор на сам документ (pugi::xml_document : xml_node), чтобы первый AddChild создал корень.
+	d.impl_->curren_xml_node = *d.impl_->xml_doc;
+	return d;
+}
+
 DataNode::DataNode(const DataNode &d) :
 	impl_{std::make_unique<Impl>(*d.impl_)} {}
 
@@ -69,11 +76,22 @@ std::vector<std::pair<std::string, std::string>> DataNode::Attributes() const {
 
 bool DataNode::SetValue(const std::string &key, const std::string &value) {
 	auto node = impl_->curren_xml_node;
+	// Пустой ключ = текст самого узла (симметрично GetValue("")): пишем inner-text.
+	// pugi::xml_node::text().set() создаёт/обновляет PCDATA-потомка, не трогая атрибуты
+	// и прочих потомков. Существующие файлы пишутся с непустым ключом (имя атрибута),
+	// так что их запись не меняется.
+	if (key.empty()) {
+		return node.text().set(value.c_str());
+	}
 	auto attr = node.attribute(key.c_str());
 	if (!attr) {
 		attr = node.append_attribute(key.c_str());
 	}
 	return attr.set_value(value.c_str());
+}
+
+bool DataNode::RemoveValue(const std::string &key) {
+	return impl_->curren_xml_node.remove_attribute(key.c_str());
 }
 
 bool DataNode::Save(const std::filesystem::path &file) const {

@@ -6,7 +6,7 @@
     {author} {color} {nocolor}. The board-stats table (DoBoardList) + per-message formatters stay in
     code as layout; board names/descriptions + server-posted message bodies stay in code as content.
 -->
-<msg_container>
+<board_msg>
 	<msg_sheaf id="kDefault">
 		<message type="kNoWriteLevel" val="Вам нужно достигнуть {level} уровня, чтобы писать в этот раздел."/>
 		<message type="kNoWriteAccess" val="У вас нет возможности писать в этот раздел."/>
@@ -42,4 +42,4 @@
 		<message type="kReportSaved2" val="Записали. Заранее благодарны."/>
 		<message type="kReportSaved3" val="                        Боги."/>
 	</msg_sheaf>
-</msg_container>
+</board_msg>

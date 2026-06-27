@@ -15,13 +15,18 @@
 
 #include "dg_scripts.h"
 #include "dg_triggers.h"
-#include "engine/core/handler.h"
+#include "engine/entities/char_data.h"
 #include "gameplay/magic/spells_info.h"
 #include "engine/olc/olc.h"
 #include "engine/db/global_objects.h"
 #include "engine/scripting/lua/lua_script_engine.h"
 #include "utils/backtrace.h"
 #include "gameplay/mechanics/sight.h"
+
+// issue.chardata-cleaning: was an inline in char_data.h, used only here.
+static bool CAN_START_MTRIG(const CharData *ch) {
+	return !AFF_FLAGGED(ch, EAffect::kCharmed);
+}
 
 extern const char *dirs[];
 

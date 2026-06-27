@@ -4,7 +4,7 @@
     stateful menu. Parse responses + menu pieces. {amount}/{from}/{to}/{rate} are fmt args; kRow is the
     menu-line template with named args (incl. {from:<17}/{to:<17} alignment, written &lt;17 in XML).
 -->
-<msg_container>
+<torc_msg>
 	<msg_sheaf id="kDefault">
 		<message type="kNotEnough" val="Нет необходимого количества гривен!"/>
 		<message type="kReducedTo" val="Количество меняемых гривен уменьшено до {amount}."/>
@@ -28,4 +28,4 @@
 		<message type="kOptConfirm" val="Подтвердить обмен и выйти"/>
 		<message type="kPrompt" val="Ваш выбор:"/>
 	</msg_sheaf>
-</msg_container>
+</torc_msg>

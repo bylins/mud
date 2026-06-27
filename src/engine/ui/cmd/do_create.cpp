@@ -6,7 +6,7 @@
 
 #include "gameplay/crafting/im.h"
 #include "gameplay/magic/magic_utils.h"
-#include "engine/core/handler.h"
+#include "engine/entities/char_data.h"
 
 void do_create(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	if (ch->IsNpc())

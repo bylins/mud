@@ -7,7 +7,8 @@
 */
 
 #include "engine/entities/char_data.h"
-#include "engine/core/handler.h"
+#include "engine/core/char_handler.h"
+#include "engine/core/obj_handler.h"
 #include "administration/privilege.h"
 #include "engine/olc/olc.h"
 #include "do_stat.h"

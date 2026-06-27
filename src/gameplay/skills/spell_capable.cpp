@@ -2,9 +2,11 @@
 #include "administration/privilege.h"
 
 #include "gameplay/classes/classes_spell_slots.h"
-#include "engine/core/handler.h"
+#include "gameplay/abilities/timed_abilities.h"
 #include "gameplay/magic/spells_info.h"
 #include "gameplay/magic/magic_utils.h"
+#include "gameplay/magic/magic.h"          // CallMagic / IsAffectedBySpell / RemoveAffectFromCharAndRecalculate
+#include "engine/entities/char_data.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/core/remort.h"
 
@@ -155,6 +157,23 @@ void DoSpellCapable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	af.affect_type = EAffect::kUndefined;
 	affect_to_char(follower, af);
 	follower->mob_specials.capable_spell = spell_id;
+}
+
+void check_spell_capable(CharData *ch, CharData *killer) {
+	if (ch->IsNpc()
+		&& killer
+		&& killer != ch
+		&& ch->IsFlagged(EMobFlag::kClone)
+		&& ch->has_master()
+		&& IsAffectedBySpell(ch, ESpell::kCapable)) {
+		RemoveAffectFromCharAndRecalculate(ch, ESpell::kCapable);
+		act("Чары, наложенные на $n3, тускло засветились и стали превращаться в нечто опасное.",
+			false, ch, nullptr, killer, kToRoom | kToArenaListen);
+		auto pos = ch->GetPosition();
+		ch->SetPosition(EPosition::kStand);
+		CallMagic(ch, killer, nullptr, world[ch->in_room], ch->mob_specials.capable_spell, GetRealLevel(ch));
+		ch->SetPosition(pos);
+	}
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

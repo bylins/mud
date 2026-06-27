@@ -6,7 +6,7 @@
 #include "gameplay/magic/magic.h"
 #include "gameplay/magic/magic_utils.h"
 #include "skill_messages.h"
-#include "engine/core/handler.h"
+#include "gameplay/abilities/timed_abilities.h"
 #include "engine/core/target_resolver.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/abilities/abilities_constants.h"
@@ -73,7 +73,7 @@ float ComputeFirstAidPotency(CharData *ch) {
 	}
 	dice += kFirstAidDiceAdd;
 
-	const int skill = ch->GetSkill(ESkill::kFirstAid);
+	const int skill = GetSkill(ch, ESkill::kFirstAid);
 	const int low_skill = std::min(skill, abilities::kNoviceSkillThreshold);
 	const int hi_skill = std::max(0, skill - abilities::kNoviceSkillThreshold);
 	const double skill_coeff = (low_skill * kFirstAidLowSkillBonus
@@ -141,7 +141,7 @@ bool ParseFirstAidArgs(const char *argument, ESpell &spell_id, std::string &vict
 Affect<EApply>::shared_ptr PickCureTarget(CharData *vict, ESpell desired) {
 	if (desired != ESpell::kUndefined) {
 		for (const auto &aff : vict->affected) {
-			if (aff && aff->type == desired && IS_SET(aff->battleflag, kAfCurable)) {
+			if (aff && aff->type == desired && IS_SET(aff->battleflag, kAfCurable) && aff->debuff) {
 				return aff;
 			}
 		}
@@ -149,7 +149,9 @@ Affect<EApply>::shared_ptr PickCureTarget(CharData *vict, ESpell desired) {
 	}
 	Affect<EApply>::shared_ptr best;
 	for (const auto &aff : vict->affected) {
-		if (aff && IS_SET(aff->battleflag, kAfCurable)
+		// Only harmful affects (debuff) are cured -- never the target's own buffs (many buffs also
+		// carry kAfCurable). issue.spells-hotfix.
+		if (aff && IS_SET(aff->battleflag, kAfCurable) && aff->debuff
 				&& (!best || aff->potency < best->potency)) {
 			best = aff;
 		}
@@ -173,7 +175,7 @@ void ApplyFirstAidCooldown(CharData *ch) {
 }  // namespace
 
 void DoFirstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (!ch->GetSkill(ESkill::kFirstAid)) {
+	if (!GetSkill(ch, ESkill::kFirstAid)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kFirstAid, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
@@ -266,7 +268,11 @@ void DoFirstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (!did_something && !failed_something) {
 		// Nothing to do: HP fine, no curable affect (or named one isn't present).
-		act("$N в лечении не нуждается.", false, ch, nullptr, vict, kToChar);
+		if (vict == ch) {
+			act("Вы в лечении не нуждаетесь.", false, ch, nullptr, vict, kToChar);
+		} else {
+			act("$N в лечении не нуждается.", false, ch, nullptr, vict, kToChar);
+		}
 		return;
 	}
 
@@ -306,9 +312,9 @@ void DoFirstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 	}
 
-	if (failed_something) {
-		ApplyFirstAidCooldown(ch);
-	}
+	// issue.spells-hotfix: cooldown on any real use (success OR failure); was failure-only, which let
+	// a successful cure/heal be spammed.
+	ApplyFirstAidCooldown(ch);
 }
 
 #else  // BYLINS_FIRSTAID_NEW
@@ -316,7 +322,7 @@ void DoFirstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 void DoFirstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	struct TimedSkill timed;
 
-	if (!ch->GetSkill(ESkill::kFirstAid)) {
+	if (!GetSkill(ch, ESkill::kFirstAid)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kFirstAid, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
@@ -380,9 +386,17 @@ void DoFirstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 	}
 	if (!need) {
-		act("$N в лечении не нуждается.", false, ch, nullptr, vict, kToChar);
+		if (vict == ch) {
+			act("Вы в лечении не нуждаетесь.", false, ch, nullptr, vict, kToChar);
+		} else {
+			act("$N в лечении не нуждается.", false, ch, nullptr, vict, kToChar);
+		}
 	} else if (!enough_skill) {
-		act("У вас не хватило умения вылечить $N3.", false, ch, nullptr, vict, kToChar);
+		if (vict == ch) {
+			act("У вас не хватило умения вылечить себя.", false, ch, nullptr, vict, kToChar);
+		} else {
+			act("У вас не хватило умения вылечить $N3.", false, ch, nullptr, vict, kToChar);
+		}
 	} else {
 		timed.skill = ESkill::kFirstAid;
 		int time = privilege::IsImmortal(ch) ? 1 : IS_PALADINE(ch) ? 4 : IS_SORCERER(ch) ? 2 : 6;

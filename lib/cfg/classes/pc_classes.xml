@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="koi8-r"?>
-<classes>
+<pc_classes>
     <!-- Лекарь -->
     <class file="cfg/classes/pc_sorcerer.xml" id="kSorcerer">
     </class>
@@ -73,4 +73,4 @@
         <feats remorts_for_slot="4">
         </feats>
     </class>
-</classes>
+</pc_classes>

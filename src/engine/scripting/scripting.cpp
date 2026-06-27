@@ -26,7 +26,7 @@ str.cpp - PyUnicode_FromString на PyUnicode_DecodeLocale, PyUnicode_FromString
 #include "utils/cache.h"
 #include "gameplay/magic/magic_utils.h"
 #include "gameplay/magic/spells.h"
-#include "engine/core/handler.h"
+#include "engine/core/char_handler.h"
 #include "engine/core/target_resolver.h"
 #include "gameplay/core/constants.h"
 #include "engine/ui/modify.h"
@@ -253,22 +253,22 @@ class CharacterWrapper : public Wrapper<CharacterData> {
 
 	long get_gold() const {
 		Ensurer ch(*this);
-		return ch->get_gold();
+		return currencies::GetHand(*ch, currencies::kGold);
 	}
 
 	void set_gold(const long v) {
 		Ensurer ch(*this);
-		ch->set_gold(v);
+		currencies::SetHand(*ch, currencies::kGold, v);
 	}
 
 	long get_bank() const {
 		Ensurer ch(*this);
-		return ch->get_bank();
+		return currencies::GetBank(*ch, currencies::kGold);
 	}
 
 	void set_bank(const long v) {
 		Ensurer ch(*this);
-		ch->set_bank(v);
+		currencies::SetBank(*ch, currencies::kGold, v);
 	}
 
 	int get_str() const {
@@ -371,16 +371,6 @@ class CharacterWrapper : public Wrapper<CharacterData> {
 		ch->set_religion(v);
 	}
 
-	ubyte get_kin() const {
-		Ensurer ch(*this);
-		return ch->get_kin();
-	}
-
-	void set_kin(const ubyte v) {
-		Ensurer ch(*this);
-		ch->set_kin(v);
-	}
-
 	ubyte get_race() const {
 		Ensurer ch(*this);
 		return ch->get_race();
@@ -452,32 +442,32 @@ class CharacterWrapper : public Wrapper<CharacterData> {
 
 	void remove_gold(const long num, const bool log = true) {
 		Ensurer ch(*this);
-		ch->remove_gold(num, log);
+		currencies::RemoveHand(*ch, currencies::kGold, num, log);
 	}
 
 	void remove_bank(const long num, const bool log = true) {
 		Ensurer ch(*this);
-		ch->remove_bank(num, log);
+		currencies::RemoveBank(*ch, currencies::kGold, num, log);
 	}
 
 	void remove_both_gold(const long num, const bool log = true) {
 		Ensurer ch(*this);
-		ch->remove_both_gold(num, log);
+		currencies::RemoveTotal(*ch, currencies::kGold, num);
 	}
 
 	void add_gold(const long num, const bool log = true) {
 		Ensurer ch(*this);
-		ch->add_gold(num, log);
+		currencies::AddHand(*ch, currencies::kGold, num, false, log);
 	}
 
 	void add_bank(const long num, const bool log = true) {
 		Ensurer ch(*this);
-		ch->add_bank(num, log);
+		currencies::AddBank(*ch, currencies::kGold, num, false, log);
 	}
 
 	long get_total_gold() const {
 		Ensurer ch(*this);
-		return ch->get_total_gold();
+		return currencies::GetTotal(*ch, currencies::kGold);
 	}
 
 	int get_uid() const {
@@ -492,12 +482,12 @@ class CharacterWrapper : public Wrapper<CharacterData> {
 
 	int get_skill(int skill_num) const {
 		Ensurer ch(*this);
-		return ch->GetSkill(static_cast<ESkill>(skill_num));
+		return GetSkill(ch, static_cast<ESkill>(skill_num));
 	}
 
 	void set_skill(int skill_num, int percent) {
 		Ensurer ch(*this);
-		ch->set_skill(static_cast<ESkill>(skill_num), percent);
+		SetSkill(ch, static_cast<ESkill>(skill_num), percent);
 	}
 
 	void clear_skills() {
@@ -587,7 +577,7 @@ class CharacterWrapper : public Wrapper<CharacterData> {
 		vict->set_hit(vict->get_real_max_hit());
 		vict->set_move(vict->get_real_max_move());
 		if (IS_MANA_CASTER(vict)) {
-			vict->mem_queue.stored = mana[MIN(50, GetRealWis(vict))];
+			vict->mem_queue.stored = Mana(GetRealWis(vict));
 		} else {
 			vict->mem_queue.stored = vict->mem_queue.total;
 		}
@@ -940,7 +930,7 @@ class ObjWrapper : private std::shared_ptr<ObjectData>, public Wrapper<ObjectDat
 
 	void set_skill(const int v) {
 		Ensurer obj(*this);
-		obj->set_skill(v);
+		SetSkill(obj, v);
 	}
 	int get_max() const {
 		Ensurer obj(*this);
@@ -1321,7 +1311,6 @@ BOOST_PYTHON_MODULE (mud) {
 					  &CharacterWrapper::get_religion,
 					  &CharacterWrapper::set_religion,
 					  "п═п╣п╩п╦пЁп╦п╬п╥п╫п╟я▐ п╫п╟п©я─п╟п╡п╩п╣п╫п╫п╬я│я┌я▄. 0 - п©п╬п╩п╦я┌п╣п╦п╥п╪, 1 - п╪п╬п╫п╬я┌п╣п╦п╥п╪.")
-		.add_property("kin", &CharacterWrapper::get_kin, &CharacterWrapper::set_kin, "п©п╩п╣п╪я▐")
 		.add_property("race", &CharacterWrapper::get_race, &CharacterWrapper::set_race, "я─п╬п╢")
 		.add_property("hit",
 					  &CharacterWrapper::get_hit,

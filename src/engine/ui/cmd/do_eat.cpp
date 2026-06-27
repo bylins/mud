@@ -1,8 +1,11 @@
 #include "do_eat.h"
+#include "gameplay/mechanics/condition.h"
 #include "administration/privilege.h"
 
 #include "engine/entities/char_data.h"
-#include "engine/core/handler.h"
+#include "engine/core/char_handler.h"
+#include "engine/core/obj_handler.h"
+#include "engine/core/target_resolver.h"
 #include "do_hire.h"
 #include "gameplay/mechanics/liquid.h"
 #include "gameplay/fight/fight.h"
@@ -103,7 +106,9 @@ void do_eat(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	one_argument(argument, arg);
 
 	if (subcmd == kScmdDevour) {
-		if (ch->IsFlagged(EMobFlag::kResurrected)
+		// kUndead покрывает и умертвий (animate dead), и оживлённых (kResurrection):
+		// раньше тут было kResurrected, но animate dead его больше не ставит (issue #3482)
+		if (ch->IsFlagged(EMobFlag::kUndead)
 			&& CanUseFeat(ch->get_master(), EFeat::kZombieDrover)) {
 			feed_charmice(ch, arg);
 			return;

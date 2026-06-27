@@ -10,7 +10,7 @@
 #include "engine/ui/color.h"
 #include "gameplay/mechanics/sight.h"
 #include "engine/db/global_objects.h"
-#include "engine/core/handler.h"
+#include "engine/core/char_movement.h"
 
 void hear_in_direction(CharData *ch, int dir, int info_is);
 
@@ -29,7 +29,7 @@ void DoListen(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Вам начали слышаться голоса предков, зовущие вас к себе.\r\n", ch);
 	if (ch->GetPosition() == EPosition::kSleep)
 		SendMsgToChar("Морфей медленно задумчиво провел рукой по струнам и заиграл колыбельную.\r\n", ch);
-	else if (ch->GetSkill(ESkill::kHearing)) {
+	else if (GetSkill(ch, ESkill::kHearing)) {
 		if (check_moves(ch, kHearingMoves)) {
 			SendMsgToChar("Вы начали сосредоточенно прислушиваться.\r\n", ch);
 			for (i = 0; i < EDirection::kMaxDirNum; i++)

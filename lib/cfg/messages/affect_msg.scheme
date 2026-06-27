@@ -3,7 +3,7 @@
   the shared "kDefault" sheaf; <message type="<EAffectMsgType>" val="text"/>.
 -->
 <scheme>
-	<tag name="msg_container" desc="Affect message container (short names + aura look text)">
+	<tag name="affect_msg" desc="Affect message container (short names + aura look text)">
 		<child tag="msg_sheaf" multiple="Y"/>
 	</tag>
 	<tag name="msg_sheaf" desc="One affect's messages (id = EAffect), or kDefault (shared scaffolding)">

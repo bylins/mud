@@ -11,10 +11,15 @@ enum EMoveType : int {
 };
 
 class CharData;
+class RoomData;
 bool PerformMove(CharData *ch, int dir, int need_specials_check, int checkmob, CharData *master);
 bool PerformSimpleMove(CharData *ch, int dir, int following, CharData *leader, EMoveType move_type);
 bool IsCorrectDirection(CharData *ch, int dir, bool check_specials, bool show_msg);
 EDirection SelectRndDirection(CharData *ch, int fail_chance);
+
+int num_pc_in_room(RoomData *room);
+int check_moves(CharData *ch, int how_moves);
+int real_sector(int room);
 
 #endif // ACT_MOVEMENT_HPP_
 

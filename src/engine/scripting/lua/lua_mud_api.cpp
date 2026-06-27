@@ -2,7 +2,8 @@
 
 #if defined(WITH_LUAJIT_PROTOTYPE)
 
-#include "engine/core/handler.h"
+#include "engine/core/char_handler.h"
+#include "engine/core/obj_handler.h"
 #include "engine/core/comm.h"
 #include "engine/db/global_objects.h"
 #include "engine/db/obj_prototypes.h"
@@ -11,6 +12,7 @@
 #include "engine/entities/char_data.h"
 #include "engine/scripting/dg_scripts.h"
 #include "gameplay/core/constants.h"
+#include "gameplay/mechanics/inventory.h"
 #include "gameplay/fight/pk.h"
 #include "gameplay/magic/magic_utils.h"
 #include "gameplay/mechanics/sight.h"

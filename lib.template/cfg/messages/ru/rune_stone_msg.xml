@@ -4,7 +4,7 @@
     sheaf mirrors the production file; the per-stone kName sheaves carry the test codewords
     for the 9 zone-40 stones in the sibling rune_stones.xml override.
 -->
-<msg_container>
+<rune_stone_msg>
 	<msg_sheaf id="kDefault">
 		<message type="kAliases" val="рунный камень"/>
 		<name search="рунный камень">
@@ -50,4 +50,4 @@
 	<msg_sheaf id="6"> <message type="kName" val="шкворчало"/> </msg_sheaf>
 	<msg_sheaf id="7"> <message type="kName" val="кончало"/>   </msg_sheaf>
 	<msg_sheaf id="8"> <message type="kName" val="фырчало"/>   </msg_sheaf>
-</msg_container>
+</rune_stone_msg>

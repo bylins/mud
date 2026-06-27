@@ -1,8 +1,10 @@
 #include "manadrain.h"
+#include "utils/logger.h"
 #include "administration/privilege.h"
 #include "skill_messages.h"
 
-#include "engine/core/handler.h"
+#include "engine/entities/char_data.h"
+#include "gameplay/abilities/timed_abilities.h"
 #include "gameplay/fight/pk.h"
 #include "gameplay/fight/common.h"
 #include "gameplay/fight/fight_hit.h"
@@ -18,12 +20,12 @@ void do_manadrain(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	one_argument(argument, arg);
 
-	if (ch->IsNpc() || !ch->GetSkill(ESkill::kJinx)) {
+	if (ch->IsNpc() || !GetSkill(ch, ESkill::kJinx)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kJinx, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
 
-	if (IsTimedBySkill(ch, ESkill::kJinx) || ch->HasCooldown(ESkill::kJinx)) {
+	if (IsTimedBySkill(ch, ESkill::kJinx) || ch->Skills().HasActiveCooldown(ESkill::kJinx)) {
 		SendMsgToChar("Так часто не получится.\r\n", ch);
 		return;
 	}
@@ -60,22 +62,22 @@ void do_manadrain(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	skill = ch->GetSkill(ESkill::kJinx);
+	skill = GetSkill(ch, ESkill::kJinx);
 
 	percent = number(1, MUD::Skill(ESkill::kJinx).difficulty);
 	prob = std::max(20, 90 - 5 * std::max(0, GetRealLevel(vict) - GetRealLevel(ch) - std::max(0, (skill - 80) / 6)));
 	auto tmp1 = std::max(0, (skill - 80) / 6);
 	auto tmp2 = 5 * std::max(0, GetRealLevel(vict) - GetRealLevel(ch) - std::max(0, (skill - 80) / 6));
 
-	ch->send_to_TC(true, true, true, "&gСГЛАЗ: percent %d prob %d skillbonus %d difflevel %d&n\r\n", percent, prob, tmp1, tmp2);
+	SendToTC(ch, true, true, true, "&gСГЛАЗ: percent %d prob %d skillbonus %d difflevel %d&n\r\n", percent, prob, tmp1, tmp2);
 	TrainSkill(ch, ESkill::kJinx, percent > prob, vict);
 	Damage manadrainDamage(SkillDmg(ESkill::kJinx), fight::kZeroDmg, fight::kMagicDmg, nullptr);
 	manadrainDamage.element = EElement::kDark;
 	bool success = percent <= prob;
 	if (success) {
 		skill = std::max(10, skill - 10 * std::max(0, GetRealLevel(ch) - GetRealLevel(vict)));
-		drained_mana = (mana[MIN(50, GetRealWis(ch))] - ch->mem_queue.stored) * skill / 100;
-		ch->mem_queue.stored = std::min(mana[MIN(50, GetRealWis(ch))], ch->mem_queue.stored + drained_mana);
+		drained_mana = (Mana(GetRealWis(ch)) - ch->mem_queue.stored) * skill / 100;
+		ch->mem_queue.stored = std::min(Mana(GetRealWis(ch)), ch->mem_queue.stored + drained_mana);
 		manadrainDamage.dam = 10;
 	}
 	manadrainDamage.flags.set(fight::kIgnoreBlink);
@@ -86,7 +88,7 @@ void do_manadrain(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (CritLuckTest(ch, vict) || !success)
 			timed.time = 1;
 		else
-			timed.time = 6 - std::min(4, (ch->GetSkill(ESkill::kJinx) + 30) / 50);
+			timed.time = 6 - std::min(4, (GetSkill(ch, ESkill::kJinx) + 30) / 50);
 		ImposeTimedSkill(ch, &timed);
 	}
 }

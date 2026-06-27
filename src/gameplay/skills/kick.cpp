@@ -21,7 +21,7 @@ void go_kick(CharData *ch, CharData *vict) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kKick, ESkillMsg::kCantFightNow) + "\r\n", ch);
 		return;
 	}
-	if (ch->HasCooldown(ESkill::kKick)) {
+	if (ch->Skills().HasActiveCooldown(ESkill::kKick)) {
 		SendMsgToChar("Вы уже все ноги себе отбили, отдохните слегка.\r\n", ch);
 		return;
 	};
@@ -59,7 +59,7 @@ void go_kick(CharData *ch, CharData *vict) {
 		cooldown = 2;
 	} else {
 	int dam =str_bonus(GetRealStr(ch), STR_TO_DAM) + GetRealDamroll(ch) + GetRealLevel(ch);
-	int skill_modi =std::max(0, ch->GetSkill(ESkill::kKick) * 2 / 5);
+	int skill_modi =std::max(0, GetSkill(ch, ESkill::kKick) * 2 / 5);
 	int nice = number(1, 200) <= number(0, number(0, ch->calc_morale()));
 	int bottom = (nice? skill_modi / 4 : 0);
 	skill_modi = number(bottom, skill_modi);
@@ -67,16 +67,16 @@ void go_kick(CharData *ch, CharData *vict) {
 	int weight_modi = 5 * (20 + (GET_EQ(ch, EEquipPos::kFeet) ? GET_EQ(ch, EEquipPos::kFeet)->get_weight() : 0));
 	dam = dam * weight_modi / 100;
 	dam = number(dam * 2  /5, dam);
-		if (mount::IsOnHorse(ch) && (ch->GetSkill(ESkill::kRiding) >= 150) && (ch->GetSkill(ESkill::kKick) >= 150)) {
+		if (mount::IsOnHorse(ch) && (GetSkill(ch, ESkill::kRiding) >= 150) && (GetSkill(ch, ESkill::kKick) >= 150)) {
 			Affect<EApply> af;
 			af.location = EApply::kNone;
 			af.type = ESpell::kBattle;
 			af.modifier = 0;
 			af.battleflag = 0;
-			float modi = ((ch->GetSkill(ESkill::kKick) + GetRealStr(ch) * 5)
+			float modi = ((GetSkill(ch, ESkill::kKick) + GetRealStr(ch) * 5)
 				+ (GET_EQ(ch, EEquipPos::kFeet) ? GET_EQ(ch, EEquipPos::kFeet)->get_weight() : 0) * 3) / float(GET_SIZE(vict));
 			if (number(1, 1000) < modi * 10) {
-				switch (number(0, (ch->GetSkill(ESkill::kKick) - 150) / 10)) {
+				switch (number(0, (GetSkill(ch, ESkill::kKick) - 150) / 10)) {
 					case 0:
 					case 1:
 						if (!AFF_FLAGGED(vict, EAffect::kStopRight)) {
@@ -128,7 +128,7 @@ void go_kick(CharData *ch, CharData *vict) {
 						dam *= 3;
 						break;
 				}
-			} else if (number(1, 1000) < (ch->GetSkill(ESkill::kRiding) / 2)) {
+			} else if (number(1, 1000) < (GetSkill(ch, ESkill::kRiding) / 2)) {
 				dam *= 2;
 				if (!ch->IsNpc())
 					SendMsgToChar("Вы привстали на стременах.\r\n", ch);
@@ -187,7 +187,7 @@ void go_kick(CharData *ch, CharData *vict) {
 }
 
 void do_kick(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (ch->GetSkill(ESkill::kKick) < 1) {
+	if (GetSkill(ch, ESkill::kKick) < 1) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kKick, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
@@ -207,12 +207,12 @@ void do_kick(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 void do_kick(CharData *ch, CharData *vict) {
-	if (ch->GetSkill(ESkill::kKick) < 1) {
+	if (GetSkill(ch, ESkill::kKick) < 1) {
 		log("ERROR: вызов пинка для персонажа %s (%d) без проверки умения", ch->get_name().c_str(), GET_MOB_VNUM(ch));
 		return;
 	}
 
-	if (ch->HasCooldown(ESkill::kKick)) {
+	if (ch->Skills().HasActiveCooldown(ESkill::kKick)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kKick, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	};

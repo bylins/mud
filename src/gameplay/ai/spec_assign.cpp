@@ -23,7 +23,7 @@
 #include "gameplay/ai/special_messages.h"
 #include "gameplay/ai/spec_assign.h"
 #include "engine/ui/interpreter.h"
-#include "utils/parse.h"
+#include "utils/utils_parse.h"
 #include "utils/utils_string.h"
 #include "utils/logger.h"
 

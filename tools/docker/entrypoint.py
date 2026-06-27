@@ -7,9 +7,14 @@ Entrypoint для образа циркуля (combined-стек circle + web-ad
   - admin_api: enabled=true, socket_path в выделенном каталоге (run/admin_api.sock);
   - telemetry: enabled=true, logs mode=otel-only.
 
-OTLP-endpoint НЕ трогаем — он берётся из конфига мира как есть. Циркуль запущен
-с network_mode=host, поэтому localhost:<порт> из конфига бьёт прямо в коллектор
-этого сервера (4319 у gateway, 4318 у agent), и переопределять ничего не нужно.
+OTLP-endpoint по умолчанию НЕ трогаем — он берётся из конфига мира как есть.
+Циркуль запущен с network_mode=host, поэтому localhost:<порт> из конфига бьёт
+прямо в локальный приёмник этого сервера. На agent-хостах локальный приём сидит
+на стандартном порту (4318), и конфиг мира уже верен. Исключение — gateway-хост:
+там стандартный 4318 занят ВНЕШНИМ TLS-приёмником, а локальный plaintext-приём —
+на 4319. Чтобы один и тот же образ работал на обоих, на gateway-хосте задают
+OTEL_LOCAL_PORT (=4319), и entrypoint переписывает порт OTLP-endpoint'ов под него.
+Без этой переменной поведение прежнее.
 
 Форсирование отключается переменной FORCE_CONFIG=0 (тогда берётся конфиг мира как есть).
 
@@ -80,8 +85,7 @@ def force_config(cfg_path, socket_rel):
     if not found:
         text = force_block(text, "admin_api", admin_block)
 
-    # --- telemetry: enabled + otel-only. Endpoint НЕ трогаем (берётся из конфига
-    # мира; localhost-порт бьёт в коллектор этого сервера через network_mode=host).
+    # --- telemetry: enabled + otel-only (порт endpoint'а — см. OTEL_LOCAL_PORT ниже).
     text, found = edit_within(
         text,
         "telemetry",
@@ -94,6 +98,26 @@ def force_config(cfg_path, socket_rel):
         log("ВНИМАНИЕ: <telemetry> в конфиге мира нет — телеметрия не настроена, "
             "форсирую только admin_api")
 
+    # Опционально переписать порт OTLP-endpoint'ов под локальный приёмник хоста.
+    # По умолчанию (OTEL_LOCAL_PORT не задан) порт берётся из конфига мира — на
+    # agent-хостах стандартный 4318 уже верен. На gateway-хосте 4318 занят внешним
+    # TLS-приёмником, а локальный plaintext — на 4319; там задают OTEL_LOCAL_PORT,
+    # и тот же образ работает прозрачно на любом сервере.
+    local_port = os.environ.get("OTEL_LOCAL_PORT", "").strip()
+    if local_port and not local_port.isdigit():
+        log(f"ВНИМАНИЕ: OTEL_LOCAL_PORT={local_port!r} не число — порт не изменён")
+        local_port = ""
+    if local_port:
+        text, port_found = edit_within(
+            text,
+            "telemetry",
+            [(r"((?:localhost|127\.0\.0\.1):)\d+", rf"\g<1>{local_port}")],
+        )
+        if port_found:
+            log(f"telemetry: OTLP-порт переписан на {local_port} (OTEL_LOCAL_PORT)")
+        else:
+            log("ВНИМАНИЕ: <telemetry> нет — OTEL_LOCAL_PORT не применён")
+
     if text == original:
         log("конфиг уже соответствует — изменений нет")
         return
@@ -103,8 +127,8 @@ def force_config(cfg_path, socket_rel):
         open(orig_backup, "wb").write(raw)
         log(f"оригинал сохранён в {orig_backup}")
     open(cfg_path, "wb").write(text.encode("latin-1"))
-    log(f"конфиг обновлён: admin_api=on socket={socket_rel} telemetry logs=otel-only "
-        "(endpoint оставлен из конфига мира)")
+    log(f"конфиг обновлён: admin_api=on socket={socket_rel} telemetry logs=otel-only"
+        + (f" otlp-port={local_port}" if local_port else " (endpoint из конфига мира)"))
 
 
 def main():
@@ -118,7 +142,7 @@ def main():
 
     if env_bool("FORCE_CONFIG", True):
         log("FORCE_CONFIG=on — гарантирую admin_api + otel-only")
-        force_config(os.path.join(world_dir, "misc", "configuration.xml"), socket_rel)
+        force_config(os.path.join(world_dir, "cfg", "configuration.xml"), socket_rel)
     else:
         log("FORCE_CONFIG=off — использую configuration.xml мира как есть")
 

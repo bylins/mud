@@ -4,7 +4,7 @@
 #include "utils/utils.h"
 #include "engine/entities/char_data.h"
 #include "engine/structs/structs.h"
-#include "engine/core/handler.h"
+#include "engine/core/char_handler.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/affects/affect_data.h"
 #include "gameplay/affects/affect_contants.h"
@@ -209,7 +209,7 @@ void CharacterBuilder::grant_class_skills_and_feats()
 	// докачал.
 	for (const auto &skill : class_info.skills) {
 		if (level >= skill.GetMinLevel() && remort >= skill.GetMinRemort()) {
-			m_result->set_skill(skill.GetId(), 200);
+			SetSkill(m_result.get(), skill.GetId(), 200);
 		}
 	}
 
@@ -229,7 +229,7 @@ void CharacterBuilder::grant_class_skills_and_feats()
 	for (const auto &spell : class_info.spells) {
 		if (level >= spell.GetMinLevel() && remort >= spell.GetMinRemort()) {
 			SET_BIT(GET_SPELL_TYPE(m_result, spell.GetId()), ESpellType::kKnow);
-			SET_SPELL_MEM(m_result, spell.GetId(), 1000);
+			SET_SPELL_MEM(m_result, spell.GetId(), 255);
 		}
 	}
 }

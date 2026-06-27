@@ -8,7 +8,7 @@
       kYouGiveMoney      -> {money}
       kSomeoneGivesMoney -> {money}
 -->
-<msg_container>
+<guild_msg>
 	<msg_sheaf id="kDefault">
 		<message type="kGreeting" val="$N сказал$G: 'Я могу научить тебя следующему:'"/>
 		<message type="kDischarge" val="$N сказал$G : 'Извини, $n, я уже в отставке.'"/>
@@ -33,4 +33,4 @@
 		<message type="kFailToRoom" val="...но, судя по осовелому взгляду $n1, наука $N1 не пошла $m впрок."/>
 		<message type="kError" val="У кодера какие-то проблемы."/>
 	</msg_sheaf>
-</msg_container>
+</guild_msg>

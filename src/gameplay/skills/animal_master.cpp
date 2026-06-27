@@ -7,11 +7,11 @@
 // replaced by ENpcRace::kAnimal in the caller.
 
 #include "animal_master.h"
+#include "utils/logger.h"
 #include "gameplay/mechanics/minions.h"
 
 #include "engine/entities/char_data.h"
 #include "engine/entities/entities_constants.h"
-#include "engine/core/handler.h"
 #include "engine/ui/color.h"
 #include "gameplay/abilities/feats.h"
 #include "gameplay/magic/spells_info.h"   // MUD::Spell(...).GetSuccessRoll().GetBaseSkill()
@@ -51,13 +51,13 @@ void ApplyAnimalMaster(CharData *ch, CharData *victim, Affect<EApply> &af,
 	// начинаем модификации victim
 	// создаем переменные модификаторов
 	int r_cha = GetRealCha(ch);
-	int perc = ch->GetSkill(MUD::Spell(ESpell::kCharm).GetSuccessRoll().GetBaseSkill());
-	ch->send_to_TC(false, true, false, "Значение хари:  %d.\r\n", r_cha);
-	ch->send_to_TC(false, true, false, "Значение скила магии: %d.\r\n", perc);
+	int perc = GetSkill(ch, MUD::Spell(ESpell::kCharm).GetSuccessRoll().GetBaseSkill());
+	SendToTC(ch, false, true, false, "Значение хари:  %d.\r\n", r_cha);
+	SendToTC(ch, false, true, false, "Значение скила магии: %d.\r\n", perc);
 	
 	// вычисляем % владения умений у victim
 	k_skills = floorf(0.8*r_cha + 0.5*perc);
-	ch->send_to_TC(false, true, false, "Владение скилом: %d.\r\n", k_skills);
+	SendToTC(ch, false, true, false, "Владение скилом: %d.\r\n", k_skills);
 	// === Формируем новые статы ===
 	// the mag-zver is identified by its non-zero type_charmice (set above);
 	// the kCompanion ally flag is set by the charm spell itself, not here.
@@ -234,11 +234,11 @@ void ApplyAnimalMaster(CharData *ch, CharData *victim, Affect<EApply> &af,
 			false, ch, nullptr, victim, kToChar); // тут потом заменим на валидные фразы
 		act("Лапы $N1 увеличились в размерах и обрели огромную, дикую мощь.\nТуловище $N1 стало огромным.",
 			false, ch, nullptr, victim, kToRoom | kToArenaListen);
-		victim->set_skill(ESkill::kHammer, k_skills);
-		victim->set_skill(ESkill::kRescue, k_skills*0.8);
-		victim->set_skill(ESkill::kPunch, k_skills*0.9);
-		victim->set_skill(ESkill::kNoParryHit, k_skills*0.4);
-		victim->set_skill(ESkill::kIntercept, k_skills*0.75);
+		SetSkill(victim, ESkill::kHammer, k_skills);
+		SetSkill(victim, ESkill::kRescue, k_skills*0.8);
+		SetSkill(victim, ESkill::kPunch, k_skills*0.9);
+		SetSkill(victim, ESkill::kNoParryHit, k_skills*0.4);
+		SetSkill(victim, ESkill::kIntercept, k_skills*0.75);
 		victim->SetFeat(EFeat::kPunchMaster);
 			if (floorf(r_cha*0.9 + perc/5.0) > number(1, 150)) {
 			victim->SetFeat(EFeat::kPunchFocus);
@@ -254,17 +254,17 @@ void ApplyAnimalMaster(CharData *ch, CharData *victim, Affect<EApply> &af,
 			false, ch, nullptr, victim, kToChar);
 		act("Лапы $N1 удлинились и на них выросли гигантские острые когти.\nТуловище $N1 стало более мускулистым.",
 			false, ch, nullptr, victim, kToRoom | kToArenaListen);
-		victim->set_skill(ESkill::kOverwhelm, k_skills);
-		victim->set_skill(ESkill::kRescue, k_skills*0.8);
-		victim->set_skill(ESkill::kTwohands, k_skills*0.95);
-		victim->set_skill(ESkill::kNoParryHit, k_skills*0.4);
+		SetSkill(victim, ESkill::kOverwhelm, k_skills);
+		SetSkill(victim, ESkill::kRescue, k_skills*0.8);
+		SetSkill(victim, ESkill::kTwohands, k_skills*0.95);
+		SetSkill(victim, ESkill::kNoParryHit, k_skills*0.4);
 		victim->SetFeat(EFeat::kTwohandsMaster);
 		victim->SetFeat(EFeat::kTwohandsFocus);
 		if (floorf(r_cha + perc/5.0) > number(1, 150)) {
 			act("&G$N0 стал$G намного более опасным хищником.&n\n",
 				false, ch, nullptr, victim, kToChar);
-			victim->set_skill(ESkill::kFirstAid, k_skills*0.4);
-			victim->set_skill(ESkill::kParry, k_skills*0.7);
+			SetSkill(victim, ESkill::kFirstAid, k_skills*0.4);
+			SetSkill(victim, ESkill::kParry, k_skills*0.7);
 		}
 		victim->set_str(floorf(GetRealStr(victim)*1.2));
 		skill_id = ESkill::kTwohands;
@@ -274,10 +274,10 @@ void ApplyAnimalMaster(CharData *ch, CharData *victim, Affect<EApply> &af,
 			false, ch, nullptr, victim, kToChar);
 		act("Когти на лапах $N1 удлинились и приобрели зеленоватый оттенок.\nДвижения $N1 стали более размытыми.",
 			false, ch, nullptr, victim, kToRoom | kToArenaListen);
-		victim->set_skill(ESkill::kBackstab, k_skills);
-		victim->set_skill(ESkill::kRescue, k_skills*0.6);
-		victim->set_skill(ESkill::kPicks, k_skills*0.75);
-		victim->set_skill(ESkill::kNoParryHit, k_skills*0.75);
+		SetSkill(victim, ESkill::kBackstab, k_skills);
+		SetSkill(victim, ESkill::kRescue, k_skills*0.6);
+		SetSkill(victim, ESkill::kPicks, k_skills*0.75);
+		SetSkill(victim, ESkill::kNoParryHit, k_skills*0.75);
 		victim->SetFeat(EFeat::kPicksMaster);
 		victim->SetFeat(EFeat::kThieveStrike);
 		if (floorf(r_cha*0.8 + perc/5.0) > number(1, 150)) {
@@ -292,13 +292,13 @@ void ApplyAnimalMaster(CharData *ch, CharData *victim, Affect<EApply> &af,
 			false, ch, nullptr, victim, kToChar);
 		act("Рефлексы $N1 обострились, и туловище раздалось в ширь.\nНа огромных лапах засияли мелкие острые коготки.",
 			false, ch, nullptr, victim, kToRoom | kToArenaListen);
-		victim->set_skill(ESkill::kAwake, k_skills);
-		victim->set_skill(ESkill::kRescue, k_skills*0.85);
-		victim->set_skill(ESkill::kShieldBlock, k_skills*0.75);
-		victim->set_skill(ESkill::kAxes, k_skills*0.85);
-		victim->set_skill(ESkill::kNoParryHit, k_skills*0.65);
+		SetSkill(victim, ESkill::kAwake, k_skills);
+		SetSkill(victim, ESkill::kRescue, k_skills*0.85);
+		SetSkill(victim, ESkill::kShieldBlock, k_skills*0.75);
+		SetSkill(victim, ESkill::kAxes, k_skills*0.85);
+		SetSkill(victim, ESkill::kNoParryHit, k_skills*0.65);
 		if (floorf(r_cha*0.9 + perc/5.0) > number(1, 140)) {
-			victim->set_skill(ESkill::kProtect, k_skills*0.75);
+			SetSkill(victim, ESkill::kProtect, k_skills*0.75);
 			act("&WЧуткий взгляд $N1 остановился на вас, и вы ощутили себя под защитой.&n\n",
 				false, ch, nullptr, victim, kToChar);
 			victim->set_protecting(ch);
@@ -316,12 +316,12 @@ void ApplyAnimalMaster(CharData *ch, CharData *victim, Affect<EApply> &af,
 			false, ch, nullptr, victim, kToChar);
 		act("Движения $N1 сильно ускорились.\nИз туловища выросло несколько новых лап, которые покрылись длинными когтями.",
 			false, ch, nullptr, victim, kToRoom | kToArenaListen);
-		victim->set_skill(ESkill::kChopoff, k_skills);
-		victim->set_skill(ESkill::kDodge, k_skills*0.7);
-		victim->set_skill(ESkill::kAddshot, k_skills*0.7);
-		victim->set_skill(ESkill::kBows, k_skills*0.85);
-		victim->set_skill(ESkill::kRescue, k_skills*0.65);
-		victim->set_skill(ESkill::kNoParryHit, k_skills*0.5);
+		SetSkill(victim, ESkill::kChopoff, k_skills);
+		SetSkill(victim, ESkill::kDodge, k_skills*0.7);
+		SetSkill(victim, ESkill::kAddshot, k_skills*0.7);
+		SetSkill(victim, ESkill::kBows, k_skills*0.85);
+		SetSkill(victim, ESkill::kRescue, k_skills*0.65);
+		SetSkill(victim, ESkill::kNoParryHit, k_skills*0.5);
 		victim->SetFeat(EFeat::kThieveStrike);
 		victim->SetFeat(EFeat::kBowsMaster);
 		if (floorf(r_cha*0.8 + perc/5.0) > number(1, 150)) {
@@ -340,11 +340,11 @@ void ApplyAnimalMaster(CharData *ch, CharData *victim, Affect<EApply> &af,
 			false, ch, nullptr, victim, kToChar);
 		act("Туловище $N1 увеличилось, лапы сильно удлинились.\nНа них выросли острые когти-шипы.",
 			false, ch, nullptr, victim, kToRoom | kToArenaListen);
-		victim->set_skill(ESkill::kClubs, k_skills);
-		victim->set_skill(ESkill::kThrow, k_skills*0.85);
-		victim->set_skill(ESkill::kDodge, k_skills*0.7);
-		victim->set_skill(ESkill::kRescue, k_skills*0.6);
-		victim->set_skill(ESkill::kNoParryHit, k_skills*0.6);
+		SetSkill(victim, ESkill::kClubs, k_skills);
+		SetSkill(victim, ESkill::kThrow, k_skills*0.85);
+		SetSkill(victim, ESkill::kDodge, k_skills*0.7);
+		SetSkill(victim, ESkill::kRescue, k_skills*0.6);
+		SetSkill(victim, ESkill::kNoParryHit, k_skills*0.6);
 		victim->SetFeat(EFeat::kClubsMaster);
 		victim->SetFeat(EFeat::kDoubleThrower);
 		victim->SetFeat(EFeat::kTripleThrower);
@@ -353,7 +353,7 @@ void ApplyAnimalMaster(CharData *ch, CharData *victim, Affect<EApply> &af,
 		if (floorf(r_cha*0.8 + perc/5.0) > number(1, 140)) {
 			victim->SetFeat(EFeat::kShadowThrower);
 			victim->SetFeat(EFeat::kShadowClub);
-			victim->set_skill(ESkill::kDarkMagic, k_skills*0.7);
+			SetSkill(victim, ESkill::kDarkMagic, k_skills*0.7);
 			act("&cКогти $N1 преобрели &Kчерный цвет&c, будто смерть коснулась их.&n\n",
 				false, ch, nullptr, victim, kToChar);
 			victim->mob_specials.extra_attack = floorf((r_cha*1.2 + perc) / 100.0);
@@ -366,13 +366,13 @@ void ApplyAnimalMaster(CharData *ch, CharData *victim, Affect<EApply> &af,
 			false, ch, nullptr, victim, kToChar);
 		act("Туловище $N1 увеличилось, мышцы налились дикой силой.\nА когти на лапах удлинились и заострились.",
 			false, ch, nullptr, victim, kToRoom | kToArenaListen);
-		victim->set_skill(ESkill::kLongBlades, k_skills);
-		victim->set_skill(ESkill::kKick, k_skills*0.95);
-		victim->set_skill(ESkill::kNoParryHit, k_skills*0.7);
-		victim->set_skill(ESkill::kRescue, k_skills*0.4);
+		SetSkill(victim, ESkill::kLongBlades, k_skills);
+		SetSkill(victim, ESkill::kKick, k_skills*0.95);
+		SetSkill(victim, ESkill::kNoParryHit, k_skills*0.7);
+		SetSkill(victim, ESkill::kRescue, k_skills*0.4);
 		victim->SetFeat(EFeat::kLongsMaster);
 		if (floorf(r_cha*0.8 + perc/5.0) > number(1, 150)) {
-			victim->set_skill(ESkill::kIronwind, k_skills*0.8);
+			SetSkill(victim, ESkill::kIronwind, k_skills*0.8);
 			victim->SetFeat(EFeat::kBerserker);
 			act("&mДвижения $N1 сильно ускорились, и в глазах появились &Rогоньки&m безумия.&n\n",
 				false, ch, nullptr, victim, kToChar);
@@ -386,17 +386,17 @@ void ApplyAnimalMaster(CharData *ch, CharData *victim, Affect<EApply> &af,
 			false, ch, nullptr, victim, kToChar);
 		act("Рефлексы $N1 обострились, а передние лапы сильно удлинились.\nНа них выросли острые когти.",
 			false, ch, nullptr, victim, kToRoom | kToArenaListen);
-		victim->set_skill(ESkill::kParry, k_skills);
-		victim->set_skill(ESkill::kRescue, k_skills*0.75);
-		victim->set_skill(ESkill::kThrow, k_skills*0.95);
-		victim->set_skill(ESkill::kSpades, k_skills*0.9);
-		victim->set_skill(ESkill::kNoParryHit, k_skills*0.6);
+		SetSkill(victim, ESkill::kParry, k_skills);
+		SetSkill(victim, ESkill::kRescue, k_skills*0.75);
+		SetSkill(victim, ESkill::kThrow, k_skills*0.95);
+		SetSkill(victim, ESkill::kSpades, k_skills*0.9);
+		SetSkill(victim, ESkill::kNoParryHit, k_skills*0.6);
 		victim->SetFeat(EFeat::kLiveShield);
 		victim->SetFeat(EFeat::kSpadesMaster);
 		if (floorf(r_cha*0.9 + perc/4.0) > number(1, 140)) {
 			victim->SetFeat(EFeat::kShadowThrower);
 			victim->SetFeat(EFeat::kShadowSpear);
-			victim->set_skill(ESkill::kDarkMagic, k_skills*0.8);
+			SetSkill(victim, ESkill::kDarkMagic, k_skills*0.8);
 			act("&KКогти $N1 преобрели темный оттенок, будто сама тьма коснулась их.&n\n",
 				false, ch, nullptr, victim, kToChar);
 		}

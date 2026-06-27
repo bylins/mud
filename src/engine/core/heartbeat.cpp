@@ -22,7 +22,7 @@
 #include "gameplay/statistics/mob_stat.h"
 #include "gameplay/magic/magic.h"
 #include "gameplay/core/game_limits.h"
-#include "engine/core/handler.h"
+#include "gameplay/abilities/timed_abilities.h"
 #include "gameplay/ai/mobact.h"
 #include "engine/scripting/dg_event.h"
 #include "engine/scripting/lua/lua_script_engine.h"

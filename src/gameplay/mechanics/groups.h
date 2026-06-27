@@ -14,6 +14,7 @@ namespace group {
 bool same_group(CharData *ch, CharData *tch);
 int perform_group(CharData *ch, CharData *vict);
 int max_group_size(CharData *ch);
+void RemoveGroupFlags(CharData *ch);
 void GoGroup(CharData *ch, char *argument);
 void GoUngroup(CharData *ch, char *argument);
 void print_list_group(CharData *ch);
@@ -21,7 +22,7 @@ void print_group(CharData *ch);
 void print_one_line(CharData *ch, CharData *k, int leader, int header);
 void do_report(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/);
 void do_split(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
-void do_split(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, int currency);
+void do_split(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, int currency_vnum);
 }  // namespace group
 #endif //BYLINS_SRC_GAMEPLAY_MECHANICS_GROUPS_H_
 

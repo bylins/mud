@@ -8,7 +8,8 @@
 #include "gameplay/fight/common.h"
 #include "engine/core/target_resolver.h"
 #include "gameplay/abilities/abilities_rollsystem.h"
-#include "engine/core/handler.h"
+#include "engine/entities/char_data.h"
+#include "gameplay/abilities/timed_abilities.h"
 #include "engine/ui/cmd/do_flee.h"
 #include "gameplay/magic/magic.h"
 #include "gameplay/mechanics/weather.h"
@@ -18,16 +19,16 @@
 
 void do_turn_undead(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 
-	if (!ch->GetSkill(ESkill::kTurnUndead)) {
+	if (!GetSkill(ch, ESkill::kTurnUndead)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kTurnUndead, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
-	if (ch->HasCooldown(ESkill::kTurnUndead)) {
+	if (ch->Skills().HasActiveCooldown(ESkill::kTurnUndead)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kTurnUndead, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	};
 
-	int skill = ch->GetSkill(ESkill::kTurnUndead);
+	int skill = GetSkill(ch, ESkill::kTurnUndead);
 	TimedSkill timed;
 	timed.skill = ESkill::kTurnUndead;
 	if (CanUseFeat(ch, EFeat::kExorcist)) {

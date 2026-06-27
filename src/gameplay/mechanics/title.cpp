@@ -3,13 +3,16 @@
 // Part of Bylins http://www.bylins.su
 
 #include "title.h"
+#include "gameplay/economics/currencies.h"
+#include "engine/db/player_index.h"
 #include "engine/entities/char_player.h"
 #include "gameplay/fight/pk.h"
-#include "engine/core/handler.h"
+#include "engine/entities/char_data.h"
 #include "engine/core/target_resolver.h"
 #include "administration/privilege.h"
 #include "engine/ui/color.h"
 #include "gameplay/core/remort.h"
+#include "gameplay/economics/currencies.h"
 
 extern void SendMsgToGods(char *text, bool demigod);
 
@@ -164,11 +167,11 @@ void TitleSystem::do_title(CharData *ch, char *argument, int/* cmd*/, int/* subc
 	} else if (CompareParam(buffer2, "согласен")) {
 		auto it = temp_title_list.find(GET_NAME(ch));
 		if (it != temp_title_list.end()) {
-			if (ch->get_bank() < SET_TITLE_COST) {
+			if (currencies::GetBank(*ch, currencies::kGold) < SET_TITLE_COST) {
 				SendMsgToChar("На вашем счету не хватает денег для оплаты этой услуги.\r\n", ch);
 				return;
 			}
-			ch->remove_bank(SET_TITLE_COST);
+			currencies::RemoveBank(*ch, currencies::kGold, SET_TITLE_COST);
 			title_list[it->first] = it->second;
 			temp_title_list.erase(it);
 			SendMsgToChar("Ваша заявка отправлена Богам и будет рассмотрена в ближайшее время.\r\n", ch);
@@ -179,7 +182,7 @@ void TitleSystem::do_title(CharData *ch, char *argument, int/* cmd*/, int/* subc
 		auto it = title_list.find(GET_NAME(ch));
 		if (it != title_list.end()) {
 			title_list.erase(it);
-			ch->add_bank(SET_TITLE_COST);
+			currencies::AddBank(*ch, currencies::kGold, SET_TITLE_COST);
 			SendMsgToChar("Ваша заявка на титул отменена.\r\n", ch);
 		} else
 			SendMsgToChar("В данный момент вам нечего отменять.\r\n", ch);

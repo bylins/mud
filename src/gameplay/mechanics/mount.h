@@ -1,6 +1,8 @@
 #ifndef BYLINS_MOUNT_H
 #define BYLINS_MOUNT_H
 
+#include "engine/structs/structs.h"   // MobVnum
+
 #include <memory>
 
 class CharData;
@@ -11,6 +13,11 @@ enum class ESaving : int;
 // (command-table convention). The "horse" special proc (buy/sell) is a separate mechanic that
 // merely calls into here.
 namespace mount {
+
+// issue.horse-consts: the "base horse" the horse special proc (spec_procs.cpp) buys/sells,
+// also recognised by do_stophorse (it runs back to its stable). Used by mount.cpp + the spec proc.
+constexpr MobVnum kHorseVnum = 4014;   // base-horse mob vnum
+constexpr int kHorseCost = 100;        // purchase price in gold (sell-back = half)
 
 // ch's horse: the NPC follower carrying the kHorse affect, or nullptr.
 [[nodiscard]] CharData *GetHorse(CharData *ch);

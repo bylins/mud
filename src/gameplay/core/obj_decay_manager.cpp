@@ -1,7 +1,9 @@
 #include "obj_decay_manager.h"
 
 #include "engine/entities/obj_data.h"
-#include "engine/core/handler.h"
+#include "engine/core/obj_handler.h"
+#include "engine/entities/char_data.h"
+#include "gameplay/mechanics/inventory.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/core/game_limits.h"
 #include "gameplay/mechanics/stable_objs.h"

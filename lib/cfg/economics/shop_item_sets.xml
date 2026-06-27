@@ -1,0 +1,1637 @@
+<?xml version="1.0" encoding="koi8-r"?>
+
+<shop_item_sets>
+	<shop_item_set id="AssasineShop" comment="всякая хрень">
+		<item vnum="1992" price="0" />
+	</shop_item_set>
+	<shop_item_set id="DilapidatedSet" comment="ветхие сеты">
+		<item vnum="201400" price="370" />
+		<item vnum="201401" price="370" />
+		<item vnum="201402" price="370" />
+		<item vnum="201403" price="370" />
+		<item vnum="201404" price="370" />
+		<item vnum="201405" price="370" />
+		<item vnum="201406" price="370" />
+		<item vnum="201407" price="370" />
+		<item vnum="201408" price="370" />
+		<item vnum="201409" price="370" />
+		<item vnum="201410" price="370" />
+		<item vnum="201411" price="370" />
+		<item vnum="201412" price="370" />
+		<item vnum="201413" price="370" />
+		<item vnum="201414" price="370" />
+		<item vnum="201415" price="370" />
+		<item vnum="201416" price="370" />
+		<item vnum="201417" price="370" />
+		<item vnum="201418" price="370" />
+		<item vnum="201419" price="370" />
+		<item vnum="201420" price="370" />
+		<item vnum="201421" price="370" />
+		<item vnum="201422" price="370" />
+		<item vnum="201423" price="370" />
+		<item vnum="201424" price="370" />
+		<item vnum="201425" price="370" />
+		<item vnum="201426" price="370" />
+		<item vnum="201427" price="370" />
+		<item vnum="201428" price="370" />
+		<item vnum="201429" price="370" />
+		<item vnum="201430" price="370" />
+		<item vnum="201431" price="370" />
+		<item vnum="201432" price="370" />
+		<item vnum="201433" price="370" />
+		<item vnum="201434" price="370" />
+		<item vnum="201435" price="370" />
+		<item vnum="201436" price="370" />
+		<item vnum="201437" price="370" />
+		<item vnum="201438" price="370" />
+		<item vnum="201439" price="370" />
+		<item vnum="201440" price="370" />
+		<item vnum="201441" price="370" />
+		<item vnum="201442" price="370" />
+		<item vnum="201443" price="370" />
+		<item vnum="201444" price="370" />
+		<item vnum="201445" price="370" />
+		<item vnum="201446" price="370" />
+		<item vnum="201447" price="370" />
+		<item vnum="201448" price="370" />
+		<item vnum="201449" price="370" />
+		<item vnum="201450" price="370" />
+		<item vnum="201451" price="370" />
+		<item vnum="201452" price="370" />
+		<item vnum="201453" price="370" />
+		<item vnum="201454" price="370" />
+		<item vnum="201455" price="370" />
+		<item vnum="201456" price="370" />
+		<item vnum="201457" price="370" />
+		<item vnum="201458" price="370" />
+		<item vnum="201459" price="370" />
+		<item vnum="201460" price="370" />
+		<item vnum="201461" price="370" />
+		<item vnum="201462" price="370" />
+		<item vnum="201463" price="370" />
+		<item vnum="201464" price="370" />
+		<item vnum="201465" price="370" />
+		<item vnum="201466" price="370" />
+		<item vnum="201467" price="370" />
+		<item vnum="201468" price="370" />
+		<item vnum="201469" price="370" />
+		<item vnum="201470" price="370" />
+		<item vnum="201471" price="370" />
+		<item vnum="201472" price="370" />
+		<item vnum="201473" price="370" />
+		<item vnum="201474" price="200" />
+		<item vnum="201475" price="200" />
+		<item vnum="201476" price="200" />
+		<item vnum="201477" price="200" />
+		<item vnum="201478" price="200" />
+		<item vnum="201479" price="200" />
+		<item vnum="201480" price="200" />
+		<item vnum="201481" price="200" />
+		<item vnum="201482" price="200" />
+		<item vnum="201483" price="200" />
+		<item vnum="201484" price="200" />
+		<item vnum="201485" price="200" />
+		<item vnum="201486" price="200" />
+		<item vnum="201487" price="200" />
+		<item vnum="201488" price="200" />
+		<item vnum="201489" price="200" />
+		<item vnum="201490" price="200" />
+		<item vnum="201491" price="200" />
+	</shop_item_set>
+	<shop_item_set id="DilapidatedItems" comment="Ветхий шмот">
+		<item vnum="201500" price="850000" />
+		<item vnum="201501" price="850000" />
+		<item vnum="201502" price="850000" />
+		<item vnum="201503" price="850000" />
+		<item vnum="201504" price="850000" />
+		<item vnum="201505" price="850000" />
+		<item vnum="201506" price="850000" />
+		<item vnum="201507" price="850000" />
+		<item vnum="201508" price="850000" />
+		<item vnum="201509" price="850000" />
+		<item vnum="201510" price="850000" />
+		<item vnum="201511" price="850000" />
+		<item vnum="201512" price="850000" />
+		<item vnum="201513" price="850000" />
+		<item vnum="201514" price="5000000" />
+		<item vnum="201515" price="850000" />
+		<item vnum="201516" price="2800000" />
+		<item vnum="201517" price="850000" />
+		<item vnum="201518" price="850000" />
+		<item vnum="201519" price="850000" />
+		<item vnum="201520" price="850000" />
+		<item vnum="201521" price="850000" />
+		<item vnum="201522" price="850000" />
+		<item vnum="201523" price="850000" />
+		<item vnum="201524" price="850000" />
+		<item vnum="201525" price="850000" />
+		<item vnum="201526" price="850000" />
+		<item vnum="201527" price="850000" />
+		<item vnum="201528" price="850000" />
+		<item vnum="201529" price="850000" />
+		<item vnum="201530" price="850000" />
+		<item vnum="201531" price="850000" />
+		<item vnum="201532" price="850000" />
+		<item vnum="201533" price="850000" />
+		<item vnum="201534" price="850000" />
+		<item vnum="201535" price="850000" />
+		<item vnum="201536" price="850000" />
+	</shop_item_set>
+	<shop_item_set id="SpellsBooksHryv" comment="Книги за гривны">
+		<item vnum="400" price="150" />
+		<item vnum="403" price="200" />
+		<item vnum="404" price="150" />
+		<item vnum="405" price="150" />
+		<item vnum="406" price="150" />
+		<item vnum="407" price="150" />
+		<item vnum="408" price="200" />
+		<item vnum="412" price="150" />
+		<item vnum="413" price="150" />
+		<item vnum="414" price="100" />
+		<item vnum="416" price="500" />
+		<item vnum="417" price="400" />
+		<item vnum="418" price="200" />
+		<item vnum="419" price="150" />
+		<item vnum="420" price="100" />
+		<item vnum="421" price="150" />
+		<item vnum="422" price="150" />
+		<item vnum="423" price="250" />
+		<item vnum="426" price="200" />
+		<item vnum="502" price="100" />
+		<item vnum="506" price="150" />
+		<item vnum="507" price="300" />
+		<item vnum="508" price="500" />
+		<item vnum="510" price="500" />
+		<item vnum="515" price="150" />
+		<item vnum="519" price="150" />
+		<item vnum="529" price="150" />
+		<item vnum="530" price="200" />
+		<item vnum="531" price="200" />
+		<item vnum="532" price="300" />
+		<item vnum="534" price="200" />
+		<item vnum="537" price="100" />
+		<item vnum="540" price="250" />
+		<item vnum="544" price="150" />
+		<item vnum="545" price="150" />
+		<item vnum="546" price="150" />
+		<item vnum="548" price="200" />
+		<item vnum="550" price="150" />
+		<item vnum="552" price="200" />
+		<item vnum="555" price="150" />
+		<item vnum="557" price="150" />
+		<item vnum="558" price="150" />
+		<item vnum="559" price="200" />
+		<item vnum="560" price="150" />
+		<item vnum="561" price="100" />
+		<item vnum="562" price="100" />
+		<item vnum="563" price="250" />
+		<item vnum="564" price="150" />
+		<item vnum="565" price="200" />
+		<item vnum="566" price="200" />
+		<item vnum="567" price="200" />
+		<item vnum="569" price="200" />
+		<item vnum="571" price="150" />
+		<item vnum="575" price="150" />
+		<item vnum="577" price="250" />
+		<item vnum="578" price="200" />
+		<item vnum="579" price="300" />
+		<item vnum="580" price="300" />
+		<item vnum="581" price="250" />
+		<item vnum="582" price="250" />
+		<item vnum="583" price="200" />
+		<item vnum="588" price="400" />
+		<item vnum="589" price="400" />
+		<item vnum="590" price="400" />
+		<item vnum="591" price="300" />
+		<item vnum="595" price="250" />
+		<item vnum="596" price="250" />
+		<item vnum="1764" price="200" />
+		<item vnum="1766" price="250" />
+		<item vnum="1768" price="250" />
+		<item vnum="1769" price="200" />
+		<item vnum="1770" price="200" />
+		<item vnum="1771" price="400" />
+		<item vnum="1772" price="200" />
+		<item vnum="1773" price="150" />
+		<item vnum="1775" price="500" />
+		<item vnum="1776" price="350" />
+		<item vnum="1777" price="250" />
+	</shop_item_set>
+	<shop_item_set id="HryvNminiset" comment="">
+		<item vnum="201331" price="370" />
+		<item vnum="201332" price="370" />
+		<item vnum="201333" price="370" />
+		<item vnum="201334" price="370" />
+		<item vnum="201335" price="370" />
+		<item vnum="201293" price="370" />
+		<item vnum="201294" price="370" />
+		<item vnum="201295" price="370" />
+		<item vnum="201296" price="370" />
+		<item vnum="201297" price="370" />
+		<item vnum="201276" price="370" />
+		<item vnum="201277" price="370" />
+		<item vnum="201278" price="370" />
+		<item vnum="201279" price="370" />
+		<item vnum="201342" price="370" />
+		<item vnum="201280" price="370" />
+		<item vnum="201281" price="370" />
+		<item vnum="201282" price="370" />
+		<item vnum="201283" price="370" />
+		<item vnum="201341" price="370" />
+		<item vnum="201284" price="370" />
+		<item vnum="201285" price="370" />
+		<item vnum="201286" price="370" />
+		<item vnum="201287" price="370" />
+		<item vnum="201298" price="370" />
+		<item vnum="201268" price="250" />
+		<item vnum="201269" price="250" />
+		<item vnum="201270" price="250" />
+		<item vnum="201271" price="250" />
+	</shop_item_set>
+	<shop_item_set id="HryvNminiset2" comment="Шмот за гривны">
+		<item vnum="201305" price="370" />
+		<item vnum="201306" price="370" />
+		<item vnum="201307" price="370" />
+		<item vnum="201308" price="370" />
+		<item vnum="201309" price="370" />
+		<item vnum="201288" price="370" />
+		<item vnum="201289" price="370" />
+		<item vnum="201290" price="370" />
+		<item vnum="201291" price="370" />
+		<item vnum="201292" price="370" />
+		<item vnum="201300" price="370" />
+		<item vnum="201301" price="370" />
+		<item vnum="201302" price="370" />
+		<item vnum="201303" price="370" />
+		<item vnum="201304" price="370" />
+		<item vnum="201310" price="370" />
+		<item vnum="201311" price="370" />
+		<item vnum="201312" price="370" />
+		<item vnum="201313" price="370" />
+		<item vnum="201314" price="370" />
+		<item vnum="201343" price="370" />
+		<item vnum="201344" price="370" />
+		<item vnum="201345" price="370" />
+		<item vnum="201346" price="370" />
+		<item vnum="201347" price="370" />
+		<item vnum="201213" price="200" />
+		<item vnum="201214" price="200" />
+		<item vnum="201215" price="200" />
+		<item vnum="201272" price="200" />
+		<item vnum="201273" price="200" />
+		<item vnum="201274" price="200" />
+	</shop_item_set>
+	<shop_item_set id="HryvNminiset3" comment="Шмот за гривны">
+		<item vnum="201200" price="370" />
+		<item vnum="201201" price="370" />
+		<item vnum="201202" price="370" />
+		<item vnum="201316" price="370" />
+		<item vnum="201317" price="370" />
+		<item vnum="201318" price="370" />
+		<item vnum="201319" price="370" />
+		<item vnum="201320" price="370" />
+		<item vnum="201321" price="370" />
+		<item vnum="201322" price="370" />
+		<item vnum="201323" price="370" />
+		<item vnum="201324" price="370" />
+		<item vnum="201325" price="370" />
+		<item vnum="201326" price="370" />
+		<item vnum="201327" price="370" />
+		<item vnum="201328" price="370" />
+		<item vnum="201329" price="370" />
+		<item vnum="201330" price="370" />
+		<item vnum="201336" price="370" />
+		<item vnum="201337" price="370" />
+		<item vnum="201338" price="370" />
+		<item vnum="201339" price="370" />
+		<item vnum="201340" price="370" />
+		<item vnum="201203" price="200" />
+		<item vnum="201204" price="200" />
+		<item vnum="201205" price="200" />
+		<item vnum="201206" price="200" />
+		<item vnum="201207" price="200" />
+		<item vnum="201208" price="200" />
+		<item vnum="201209" price="200" />
+		<item vnum="201210" price="200" />
+		<item vnum="201211" price="200" />
+	</shop_item_set>
+	<shop_item_set id="Gems" comment="Стекло для вплавки">
+		<item vnum="909" price="100" />
+		<item vnum="910" price="100" />
+		<item vnum="911" price="100" />
+		<item vnum="912" price="100" />
+		<item vnum="913" price="100" />
+		<item vnum="914" price="100" />
+		<item vnum="915" price="100" />
+		<item vnum="916" price="100" />
+		<item vnum="917" price="100" />
+	</shop_item_set>
+	<shop_item_set id="HardScroll" comment="ценные свитки">
+		<item vnum="1869" price="0" />
+		<item vnum="2620" price="70000" />
+		<item vnum="2621" price="35000" />
+		<item vnum="2622" price="70000" />
+	</shop_item_set>
+	<shop_item_set id="Domination" comment="">
+		<item vnum="15220" price="0" />
+		<item vnum="15221" price="0" />
+		<item vnum="15222" price="0" />
+		<item vnum="15223" price="0" />
+		<item vnum="15224" price="0" />
+		<item vnum="15225" price="0" />
+		<item vnum="15250" price="0" />
+		<item vnum="15251" price="0" />
+		<item vnum="15252" price="0" />
+		<item vnum="15253" price="0" />
+		<item vnum="15254" price="0" />
+		<item vnum="15255" price="0" />
+		<item vnum="15210" price="0" />
+		<item vnum="15211" price="0" />
+		<item vnum="15212" price="0" />
+		<item vnum="15213" price="0" />
+		<item vnum="15214" price="0" />
+		<item vnum="15215" price="0" />
+		<item vnum="15216" price="0" />
+		<item vnum="15217" price="0" />
+		<item vnum="15218" price="0" />
+		<item vnum="15219" price="0" />
+		<item vnum="15226" price="0" />
+		<item vnum="15240" price="0" />
+		<item vnum="15241" price="0" />
+		<item vnum="15242" price="0" />
+		<item vnum="15243" price="0" />
+		<item vnum="15244" price="0" />
+		<item vnum="15245" price="0" />
+		<item vnum="15246" price="0" />
+		<item vnum="15247" price="0" />
+		<item vnum="15248" price="0" />
+		<item vnum="15249" price="0" />
+		<item vnum="15227" price="0" />
+		<item vnum="15270" price="0" />
+		<item vnum="15271" price="0" />
+		<item vnum="15272" price="0" />
+		<item vnum="15273" price="0" />
+		<item vnum="15274" price="0" />
+		<item vnum="15275" price="0" />
+		<item vnum="15276" price="0" />
+		<item vnum="15277" price="0" />
+		<item vnum="15278" price="0" />
+		<item vnum="15279" price="0" />
+		<item vnum="15228" price="0" />
+		<item vnum="15150" price="0" />
+		<item vnum="15151" price="0" />
+		<item vnum="15152" price="0" />
+		<item vnum="15153" price="0" />
+		<item vnum="15154" price="0" />
+		<item vnum="15155" price="0" />
+		<item vnum="15193" price="0" />
+		<item vnum="15191" price="0" />
+		<item vnum="15190" price="0" />
+		<item vnum="15194" price="0" />
+		<item vnum="15192" price="0" />
+		<item vnum="15198" price="0" />
+		<item vnum="15195" price="0" />
+		<item vnum="15196" price="0" />
+		<item vnum="15162" price="00" />
+		<item vnum="15157" price="0" />
+		<item vnum="15158" price="0" />
+		<item vnum="15159" price="0" />
+		<item vnum="15156" price="00" />
+		<item vnum="15197" price="0" />
+	</shop_item_set>
+	<shop_item_set id="Bandage" comment="Бинты">
+		<item vnum="1913" price="500" />
+		<item vnum="1914" price="1000" />
+		<item vnum="1915" price="4000" />
+		<item vnum="1916" price="8000" />
+		<item vnum="1917" price="16000" />
+		<item vnum="1918" price="50000" />
+	</shop_item_set>
+	<shop_item_set id="BaseBowMaterials" comment="Базовые ингры для смастерить лук">
+		<item vnum="1400" price="0" />
+		<item vnum="1428" price="0" />
+		<item vnum="1496" price="0" />
+		<item vnum="4094" price="0" />
+	</shop_item_set>
+	<shop_item_set id="BaseJewelryTools" comment="Базовые предметы для ювелирного дела">
+		<item vnum="996" price="0" />
+		<item vnum="997" price="0" />
+		<item vnum="998" price="0" />
+		<item vnum="999" price="0" />
+	</shop_item_set>
+	<shop_item_set id="BaseMiningTools" comment="Базовые предметы для горного дела">
+		<item vnum="918" price="0" />
+		<item vnum="921" price="0" />
+	</shop_item_set>
+	<shop_item_set id="BaseBlacksmithingTools" comment="Металл взят из Искоростеня и Турова. Это все как обычно временно. ж) 16.04.12">
+		<item vnum="311" price="0" />
+		<item vnum="13539" price="0" />
+		<item vnum="13540" price="0" />
+		<item vnum="13541" price="0" />
+		<item vnum="13542" price="0" />
+		<item vnum="13543" price="0" />
+		<item vnum="13544" price="0" />
+		<item vnum="13545" price="0" />
+		<item vnum="13546" price="0" />
+		<item vnum="13547" price="0" />
+		<item vnum="13548" price="0" />
+		<item vnum="32400" price="0" />
+		<item vnum="32401" price="0" />
+		<item vnum="32402" price="0" />
+		<item vnum="32403" price="0" />
+	</shop_item_set>
+	<shop_item_set id="BaseSpellingrs" comment="Ингры для спеллов">
+		<item vnum="3000" price="0" />
+		<item vnum="3006" price="50000" />
+	</shop_item_set>
+	<shop_item_set id="BasePotions" comment="Стандартные зелья - детект, всевидение, фреш и т.п.">
+		<item vnum="140" price="0" />
+		<item vnum="141" price="0" />
+		<item vnum="142" price="0" />
+		<item vnum="144" price="0" />
+		<item vnum="145" price="0" />
+		<item vnum="147" price="0" />
+	</shop_item_set>
+	<shop_item_set id="AdditionalPotions" comment="Добавочыные зелья - пока только полет">
+		<item vnum="177" price="5000" />
+	</shop_item_set>
+	<shop_item_set id="BaseScrolls" comment="Базовые свитки - возврат, починка и опознание">
+		<item vnum="1865" price="110" />
+		<item vnum="1341" price="25" />
+		<item vnum="1372" price="4500" />
+	</shop_item_set>
+	<shop_item_set id="AdditionalScrolls" comment="Добавочные свитки - снятия прокляти, слепоты и т.п.">
+		<item vnum="1334" price="2000" />
+		<item vnum="1313" price="2000" />
+		<item vnum="1378" price="15000" />
+		<item vnum="1839" price="12000" />
+		<item vnum="2615" price="70000" />
+		<item vnum="2616" price="0" />
+		<item vnum="2617" price="0" />
+		<item vnum="2618" price="0" />
+		<item vnum="2628" price="0" />
+		<item vnum="1868" price="0" />
+		<item vnum="99958" price="99999999" />
+		<item vnum="99959" price="30000000" />
+	</shop_item_set>
+	<shop_item_set id="BaseRunes" comment="Стартовые руны - огня, воды, воздуха и земли">
+		<item vnum="222" price="0" />
+		<item vnum="223" price="0" />
+		<item vnum="224" price="0" />
+		<item vnum="225" price="0" />
+	</shop_item_set>
+	<shop_item_set id="UpRunes" comment="Ап волхвов, нужные руны">
+		<item vnum="200310" price="120000" />
+		<item vnum="200311" price="1000" />
+		<item vnum="200312" price="2000" />
+		<item vnum="200313" price="30000" />
+		<item vnum="200314" price="30000" />
+		<item vnum="200315" price="45000" />
+		<item vnum="200316" price="50000" />
+		<item vnum="200317" price="50000" />
+		<item vnum="200318" price="50000" />
+		<item vnum="200319" price="60000" />
+		<item vnum="200320" price="20000" />
+		<item vnum="200321" price="15000" />
+		<item vnum="200322" price="10000" />
+		<item vnum="200323" price="10000" />
+		<item vnum="200324" price="3000" />
+		<item vnum="200327" price="15000" />
+		<item vnum="200328" price="50000" />
+		<item vnum="200330" price="2000" />
+	</shop_item_set>
+	<shop_item_set id="BasePoisons" comment="Яды для наемников">
+		<item vnum="1901" price="370" />
+		<item vnum="1904" price="370" />
+		<item vnum="1907" price="370" />
+		<item vnum="1910" price="370" />
+	</shop_item_set>
+	<shop_item_set id="BasePotionBottles" comment="Емкости со стандартными зельями">
+		<item vnum="153" price="0" />
+		<item vnum="151" price="0" />
+		<item vnum="154" price="0" />
+		<item vnum="2742" price="70000" />
+	</shop_item_set>
+	<shop_item_set id="EliteItems1" comment="заморский стаф">
+		<item vnum="76052" price="75000" />
+		<item vnum="76053" price="125000" />
+		<item vnum="76054" price="87000" />
+		<item vnum="76055" price="92000" />
+		<item vnum="76056" price="96000" />
+		<item vnum="76057" price="90000" />
+		<item vnum="76058" price="110000" />
+		<item vnum="76067" price="82000" />
+	</shop_item_set>
+	<shop_item_set id="StandartFoodBread" comment="=======  СТАНДАРТНАЯ ЕДА В МАГАЗИНАХ ========">
+		<item vnum="2001" price="0" />
+		<item vnum="2002" price="0" />
+		<item vnum="2003" price="0" />
+		<item vnum="2004" price="0" />
+		<item vnum="2005" price="0" />
+	</shop_item_set>
+	<shop_item_set id="StandartFoodPone" comment="">
+		<item vnum="2006" price="0" />
+		<item vnum="2007" price="0" />
+		<item vnum="2008" price="0" />
+		<item vnum="2009" price="0" />
+		<item vnum="2010" price="0" />
+		<item vnum="2011" price="0" />
+		<item vnum="2012" price="0" />
+	</shop_item_set>
+	<shop_item_set id="StandartFoodConfectionery" comment="">
+		<item vnum="2013" price="0" />
+		<item vnum="2014" price="0" />
+		<item vnum="2015" price="0" />
+		<item vnum="2016" price="0" />
+	</shop_item_set>
+	<shop_item_set id="StandartFoodPies" comment="">
+		<item vnum="2017" price="0" />
+		<item vnum="2018" price="0" />
+		<item vnum="2019" price="0" />
+		<item vnum="2020" price="0" />
+		<item vnum="2021" price="0" />
+		<item vnum="2022" price="0" />
+		<item vnum="2023" price="0" />
+		<item vnum="2024" price="0" />
+		<item vnum="2025" price="0" />
+	</shop_item_set>
+	<shop_item_set id="StandartFoodPancakes" comment="">
+		<item vnum="2026" price="0" />
+		<item vnum="2027" price="0" />
+		<item vnum="2028" price="0" />
+		<item vnum="2029" price="0" />
+		<item vnum="2030" price="0" />
+	</shop_item_set>
+	<shop_item_set id="StandartFoodMeat" comment="">
+		<item vnum="2031" price="0" />
+		<item vnum="2032" price="0" />
+		<item vnum="2033" price="0" />
+		<item vnum="2034" price="0" />
+		<item vnum="2035" price="0" />
+	</shop_item_set>
+	<shop_item_set id="StandartFoodFish" comment="">
+		<item vnum="2036" price="0" />
+		<item vnum="2037" price="0" />
+		<item vnum="2038" price="0" />
+		<item vnum="2039" price="0" />
+	</shop_item_set>
+	<shop_item_set id="StandartFoodBerries" comment="">
+		<item vnum="2040" price="0" />
+		<item vnum="2041" price="0" />
+		<item vnum="2042" price="0" />
+		<item vnum="2043" price="0" />
+		<item vnum="2044" price="0" />
+		<item vnum="2045" price="0" />
+		<item vnum="2046" price="0" />
+		<item vnum="2047" price="0" />
+		<item vnum="2048" price="0" />
+	</shop_item_set>
+	<shop_item_set id="StandartFoodVegetables" comment="">
+		<item vnum="2049" price="0" />
+		<item vnum="2050" price="0" />
+		<item vnum="2051" price="0" />
+	</shop_item_set>
+	<shop_item_set id="StandartFoodFruits" comment="">
+		<item vnum="2052" price="0" />
+		<item vnum="2053" price="0" />
+		<item vnum="2054" price="0" />
+	</shop_item_set>
+	<shop_item_set id="StandartFoodMushrooms" comment="">
+		<item vnum="2055" price="0" />
+		<item vnum="2056" price="0" />
+		<item vnum="2057" price="0" />
+	</shop_item_set>
+	<shop_item_set id="StandartFoodCheapMeals" comment="">
+		<item vnum="2058" price="0" />
+		<item vnum="2059" price="0" />
+		<item vnum="2060" price="0" />
+		<item vnum="2061" price="0" />
+	</shop_item_set>
+	<shop_item_set id="StandartFoodCereals" comment="">
+		<item vnum="2062" price="0" />
+		<item vnum="2063" price="0" />
+		<item vnum="2064" price="0" />
+		<item vnum="2065" price="0" />
+	</shop_item_set>
+	<shop_item_set id="StandartFoodMeals1" comment="">
+		<item vnum="2030" price="0" />
+		<item vnum="2066" price="0" />
+		<item vnum="2068" price="0" />
+		<item vnum="2069" price="0" />
+		<item vnum="2070" price="0" />
+		<item vnum="2075" price="0" />
+	</shop_item_set>
+	<shop_item_set id="StandartFoodMeals2" comment="">
+		<item vnum="2067" price="0" />
+		<item vnum="2071" price="0" />
+		<item vnum="2072" price="0" />
+		<item vnum="2073" price="0" />
+		<item vnum="2074" price="0" />
+		<item vnum="2076" price="0" />
+	</shop_item_set>
+	<shop_item_set id="StandartFoodEliteMeals" comment="">
+		<item vnum="2077" price="0" />
+		<item vnum="2078" price="0" />
+		<item vnum="2079" price="0" />
+		<item vnum="2080" price="0" />
+		<item vnum="2081" price="0" />
+		<item vnum="2082" price="0" />
+	</shop_item_set>
+	<shop_item_set id="StandartFoodBeverages" comment="">
+		<item vnum="2083" price="0" />
+		<item vnum="2085" price="0" />
+		<item vnum="2086" price="0" />
+		<item vnum="2088" price="0" />
+	</shop_item_set>
+	<shop_item_set id="StandartFoodAlcoholicBeverages" comment="">
+		<item vnum="2084" price="0" />
+		<item vnum="2087" price="0" />
+		<item vnum="2089" price="0" />
+	</shop_item_set>
+	<shop_item_set id="StandartFoodSpirits" comment="">
+		<item vnum="2094" price="0" />
+		<item vnum="2090" price="0" />
+		<item vnum="2091" price="0" />
+		<item vnum="2092" price="0" />
+		<item vnum="2093" price="0" />
+	</shop_item_set>
+	<shop_item_set id="StandartFoodSnacks" comment="">
+		<item vnum="2001" price="0" />
+		<item vnum="2034" price="0" />
+		<item vnum="2036" price="0" />
+		<item vnum="2038" price="0" />
+		<item vnum="2055" price="0" />
+	</shop_item_set>
+	<shop_item_set id="StandartFoodSmoked" comment="">
+		<item vnum="2033" price="0" />
+		<item vnum="2035" price="0" />
+		<item vnum="2036" price="0" />
+		<item vnum="2037" price="0" />
+		<item vnum="2095" price="0" />
+	</shop_item_set>
+	<shop_item_set id="StandartItemsLowLevel" comment="Источник света, контейнер, емкость, бумага перо - низкий уровень">
+		<item vnum="2182" price="0" />
+		<item vnum="2183" price="0" />
+		<item vnum="2186" price="0" />
+		<item vnum="2189" price="0" />
+		<item vnum="2193" price="0" />
+		<item vnum="2194" price="0" />
+		<item vnum="2195" price="0" />
+	</shop_item_set>
+	<shop_item_set id="StandartItemsMiddleLevel" comment="Источник света, контейнер, емкость, бумага перо - средний уровень">
+		<item vnum="2182" price="0" />
+		<item vnum="2183" price="0" />
+		<item vnum="2184" price="0" />
+		<item vnum="2187" price="0" />
+		<item vnum="2190" price="0" />
+		<item vnum="2191" price="0" />
+		<item vnum="2193" price="0" />
+		<item vnum="2194" price="0" />
+		<item vnum="2195" price="0" />
+	</shop_item_set>
+	<shop_item_set id="StandartItemsHighLevel" comment="Источник света, контейнер, емкость, бумага перо - высокий уровень">
+		<item vnum="2182" price="0" />
+		<item vnum="2183" price="0" />
+		<item vnum="2184" price="0" />
+		<item vnum="2185" price="0" />
+		<item vnum="2197" price="0" />
+		<item vnum="2188" price="0" />
+		<item vnum="2191" price="0" />
+		<item vnum="2192" price="0" />
+		<item vnum="2196" price="0" />
+		<item vnum="2193" price="0" />
+		<item vnum="2194" price="0" />
+		<item vnum="2195" price="0" />
+	</shop_item_set>
+	<shop_item_set id="StandartClothingLowLevel" comment="Тканевая одежда на низкий уровень">
+		<item vnum="2108" price="0" />
+		<item vnum="2109" price="0" />
+		<item vnum="2110" price="0" />
+		<item vnum="2111" price="0" />
+		<item vnum="2112" price="0" />
+		<item vnum="2113" price="0" />
+		<item vnum="2114" price="0" />
+		<item vnum="2115" price="0" />
+		<item vnum="1600" price="0" />
+		<item vnum="1612" price="0" />
+	</shop_item_set>
+	<shop_item_set id="StandartClothingMiddleLevel" comment="Тканевая одежда на средний уровень">
+		<item vnum="2132" price="0" />
+		<item vnum="2133" price="0" />
+		<item vnum="2134" price="0" />
+		<item vnum="2135" price="0" />
+		<item vnum="2136" price="0" />
+		<item vnum="2137" price="0" />
+		<item vnum="2138" price="0" />
+		<item vnum="2139" price="0" />
+		<item vnum="2148" price="0" />
+		<item vnum="2149" price="0" />
+		<item vnum="2150" price="0" />
+	</shop_item_set>
+	<shop_item_set id="StandartClothingHighLevel" comment="Тканевая одежда на высокий уровень">
+		<item vnum="2160" price="0" />
+		<item vnum="2161" price="0" />
+		<item vnum="2162" price="0" />
+		<item vnum="2163" price="0" />
+		<item vnum="2164" price="0" />
+		<item vnum="2165" price="0" />
+		<item vnum="2166" price="0" />
+		<item vnum="2167" price="0" />
+		<item vnum="2176" price="0" />
+		<item vnum="2177" price="0" />
+		<item vnum="2178" price="0" />
+	</shop_item_set>
+	<shop_item_set id="StandartLeatherLowLevel" comment="Кожаная броня на низкий уровень">
+		<item vnum="2100" price="0" />
+		<item vnum="2101" price="0" />
+		<item vnum="2102" price="0" />
+		<item vnum="2103" price="0" />
+		<item vnum="2104" price="0" />
+		<item vnum="2105" price="0" />
+		<item vnum="2106" price="0" />
+		<item vnum="2107" price="0" />
+		<item vnum="2181" price="0" />
+	</shop_item_set>
+	<shop_item_set id="StandartLeatherMiddleLevel" comment="Кожаная броня на средний уровень">
+		<item vnum="2124" price="0" />
+		<item vnum="2125" price="0" />
+		<item vnum="2126" price="0" />
+		<item vnum="2127" price="0" />
+		<item vnum="2128" price="0" />
+		<item vnum="2129" price="0" />
+		<item vnum="2130" price="0" />
+		<item vnum="2131" price="0" />
+		<item vnum="2151" price="0" />
+	</shop_item_set>
+	<shop_item_set id="StandartLeatherHighLevel" comment="Кожаная броня на высокий уровень">
+		<item vnum="2152" price="0" />
+		<item vnum="2153" price="0" />
+		<item vnum="2154" price="0" />
+		<item vnum="2155" price="0" />
+		<item vnum="2156" price="0" />
+		<item vnum="2157" price="0" />
+		<item vnum="2158" price="0" />
+		<item vnum="2159" price="0" />
+		<item vnum="2179" price="0" />
+	</shop_item_set>
+	<shop_item_set id="StandartArmorLowLevel" comment="Металлическая броня на низкий уровень">
+		<item vnum="2116" price="0" />
+		<item vnum="2117" price="0" />
+		<item vnum="2118" price="0" />
+		<item vnum="2119" price="0" />
+		<item vnum="2120" price="0" />
+		<item vnum="2121" price="0" />
+		<item vnum="2122" price="0" />
+		<item vnum="2123" price="0" />
+	</shop_item_set>
+	<shop_item_set id="StandartArmorMiddleLevel" comment="Металлическая броня на средний уровень">
+		<item vnum="2140" price="0" />
+		<item vnum="2141" price="0" />
+		<item vnum="2142" price="0" />
+		<item vnum="2143" price="0" />
+		<item vnum="2144" price="0" />
+		<item vnum="2145" price="0" />
+		<item vnum="2146" price="0" />
+		<item vnum="2147" price="0" />
+	</shop_item_set>
+	<shop_item_set id="StandartArmorHighLevel" comment="Металлическая броня на высокий уровень">
+		<item vnum="2168" price="0" />
+		<item vnum="2169" price="0" />
+		<item vnum="2170" price="0" />
+		<item vnum="2171" price="0" />
+		<item vnum="2172" price="0" />
+		<item vnum="2173" price="0" />
+		<item vnum="2174" price="0" />
+		<item vnum="2175" price="0" />
+		<item vnum="2180" price="0" />
+	</shop_item_set>
+	<shop_item_set id="StandartWeaponLowLevel" comment="Оружие - низкий уровень">
+		<item vnum="2200" price="0" />
+		<item vnum="2201" price="0" />
+		<item vnum="2202" price="0" />
+		<item vnum="2203" price="0" />
+		<item vnum="2204" price="0" />
+		<item vnum="2205" price="0" />
+		<item vnum="2206" price="0" />
+		<item vnum="2207" price="0" />
+		<item vnum="2208" price="0" />
+		<item vnum="2209" price="0" />
+		<item vnum="2210" price="0" />
+		<item vnum="2211" price="0" />
+		<item vnum="2212" price="0" />
+		<item vnum="2213" price="0" />
+		<item vnum="2214" price="0" />
+		<item vnum="2215" price="0" />
+		<item vnum="2216" price="0" />
+		<item vnum="2217" price="0" />
+	</shop_item_set>
+	<shop_item_set id="StandartWeaponMiddleLevel" comment="Оружие - средний уровень">
+		<item vnum="2218" price="0" />
+		<item vnum="2219" price="0" />
+		<item vnum="2220" price="0" />
+		<item vnum="2221" price="0" />
+		<item vnum="2222" price="0" />
+		<item vnum="2223" price="0" />
+		<item vnum="2224" price="0" />
+		<item vnum="2225" price="0" />
+		<item vnum="2226" price="0" />
+		<item vnum="2227" price="0" />
+		<item vnum="2228" price="0" />
+		<item vnum="2229" price="0" />
+		<item vnum="2230" price="0" />
+		<item vnum="2231" price="0" />
+		<item vnum="2232" price="0" />
+		<item vnum="2233" price="0" />
+		<item vnum="2234" price="0" />
+		<item vnum="2235" price="0" />
+	</shop_item_set>
+	<shop_item_set id="StandartWeaponHighLevel" comment="Оружие - высокий уровень">
+		<item vnum="2236" price="0" />
+		<item vnum="2237" price="0" />
+		<item vnum="2238" price="0" />
+		<item vnum="2239" price="0" />
+		<item vnum="2240" price="0" />
+		<item vnum="2241" price="0" />
+		<item vnum="2242" price="0" />
+		<item vnum="2243" price="0" />
+		<item vnum="2244" price="0" />
+		<item vnum="2245" price="0" />
+		<item vnum="2246" price="0" />
+		<item vnum="2247" price="0" />
+		<item vnum="2248" price="0" />
+		<item vnum="2249" price="0" />
+		<item vnum="2250" price="0" />
+		<item vnum="2251" price="0" />
+		<item vnum="2252" price="0" />
+		<item vnum="2253" price="0" />
+	</shop_item_set>
+	<shop_item_set id="EliteItemsDarkLeather" comment="темная кожа">
+		<item vnum="3900" price="850000" />
+		<item vnum="3901" price="850000" />
+		<item vnum="3902" price="850000" />
+		<item vnum="3903" price="850000" />
+		<item vnum="3904" price="850000" />
+		<item vnum="3905" price="850000" />
+		<item vnum="3906" price="850000" />
+		<item vnum="3907" price="850000" />
+	</shop_item_set>
+	<shop_item_set id="EliteItemsLightLeather" comment="светлая кожа">
+		<item vnum="3908" price="850000" />
+		<item vnum="3909" price="850000" />
+		<item vnum="3910" price="850000" />
+		<item vnum="3911" price="850000" />
+		<item vnum="3912" price="850000" />
+		<item vnum="3913" price="850000" />
+		<item vnum="3914" price="850000" />
+		<item vnum="3915" price="850000" />
+	</shop_item_set>
+	<shop_item_set id="EliteItemsWolfSkin" comment="волчий мех">
+		<item vnum="3916" price="850000" />
+		<item vnum="3917" price="2800000" />
+		<item vnum="3918" price="850000" />
+		<item vnum="3919" price="850000" />
+		<item vnum="3920" price="850000" />
+		<item vnum="3921" price="850000" />
+		<item vnum="3922" price="850000" />
+		<item vnum="3923" price="850000" />
+	</shop_item_set>
+	<shop_item_set id="EliteItemsLightStrong" comment="легкий прочный">
+		<item vnum="3924" price="850000" />
+		<item vnum="3925" price="850000" />
+		<item vnum="3926" price="850000" />
+		<item vnum="3927" price="850000" />
+		<item vnum="3928" price="850000" />
+		<item vnum="3929" price="850000" />
+		<item vnum="3930" price="850000" />
+		<item vnum="3931" price="850000" />
+	</shop_item_set>
+	<shop_item_set id="EliteItemsTigerSkin" comment="тигровой шкуры">
+		<item vnum="3932" price="850000" />
+		<item vnum="3933" price="2800000" />
+		<item vnum="3934" price="850000" />
+		<item vnum="3935" price="850000" />
+		<item vnum="3936" price="850000" />
+		<item vnum="3937" price="850000" />
+		<item vnum="3938" price="850000" />
+		<item vnum="3939" price="850000" />
+	</shop_item_set>
+	<shop_item_set id="EliteItemsBoarSkin" comment="кожи вепря">
+		<item vnum="3940" price="850000" />
+		<item vnum="3941" price="850000" />
+		<item vnum="3942" price="850000" />
+		<item vnum="3943" price="850000" />
+		<item vnum="3944" price="850000" />
+		<item vnum="3945" price="850000" />
+		<item vnum="3946" price="850000" />
+		<item vnum="3947" price="850000" />
+	</shop_item_set>
+	<shop_item_set id="EliteItemsThornLeather" comment="кожаный с шипами">
+		<item vnum="3948" price="850000" />
+		<item vnum="3949" price="850000" />
+		<item vnum="3950" price="850000" />
+		<item vnum="3951" price="850000" />
+		<item vnum="3952" price="850000" />
+		<item vnum="3953" price="850000" />
+		<item vnum="3954" price="850000" />
+		<item vnum="3955" price="850000" />
+	</shop_item_set>
+	<shop_item_set id="EliteItemsDamaskSteel" comment="дамасской стали">
+		<item vnum="3976" price="850000" />
+		<item vnum="3977" price="850000" />
+		<item vnum="3978" price="850000" />
+		<item vnum="3979" price="850000" />
+		<item vnum="3980" price="850000" />
+		<item vnum="3981" price="850000" />
+		<item vnum="3982" price="850000" />
+		<item vnum="3983" price="850000" />
+		<item vnum="3818" price="950000" />
+	</shop_item_set>
+	<shop_item_set id="EliteItemsRareSteel" comment="благородной стали">
+		<item vnum="3984" price="50000" />
+		<item vnum="3985" price="40000" />
+		<item vnum="3986" price="22000" />
+		<item vnum="3987" price="23000" />
+		<item vnum="3988" price="23000" />
+		<item vnum="3989" price="37000" />
+		<item vnum="3990" price="30000" />
+		<item vnum="3991" price="30000" />
+		<item vnum="3992" price="25000" />
+		<item vnum="3993" price="50000" />
+		<item vnum="3994" price="56000" />
+		<item vnum="3995" price="40000" />
+		<item vnum="3996" price="25000" />
+		<item vnum="3997" price="35000" />
+		<item vnum="3998" price="35000" />
+	</shop_item_set>
+	<shop_item_set id="EliteItemsMisc" comment="россыпью">
+		<item vnum="3956" price="850000" />
+		<item vnum="3957" price="850000" />
+		<item vnum="3958" price="800000" />
+		<item vnum="3959" price="850000" />
+		<item vnum="3960" price="850000" />
+		<item vnum="3961" price="850000" />
+		<item vnum="3962" price="850000" />
+		<item vnum="3963" price="850000" />
+		<item vnum="3964" price="850000" />
+		<item vnum="3965" price="650000" />
+		<item vnum="3967" price="850000" />
+		<item vnum="3968" price="850000" />
+		<item vnum="3969" price="850000" />
+		<item vnum="3970" price="850000" />
+		<item vnum="3971" price="850000" />
+		<item vnum="3972" price="850000" />
+		<item vnum="3973" price="850000" />
+		<item vnum="3974" price="850000" />
+		<item vnum="3975" price="5000000" />
+	</shop_item_set>
+	<shop_item_set id="EliteItemsRoughPlates" comment="грубых кожаных пластин">
+		<item vnum="3802" price="26000" />
+		<item vnum="3803" price="26000" />
+		<item vnum="3804" price="26000" />
+		<item vnum="3805" price="26000" />
+		<item vnum="3806" price="26000" />
+		<item vnum="3807" price="26000" />
+		<item vnum="3808" price="26000" />
+		<item vnum="3809" price="26000" />
+		<item vnum="3810" price="26000" />
+	</shop_item_set>
+	<shop_item_set id="EliteItemsBluedSteel" comment="вороненой стали">
+		<item vnum="3811" price="140000" />
+		<item vnum="3812" price="50000" />
+		<item vnum="3813" price="50000" />
+		<item vnum="3814" price="70000" />
+		<item vnum="3815" price="80000" />
+		<item vnum="3816" price="100000" />
+		<item vnum="3817" price="50000" />
+	</shop_item_set>
+	<shop_item_set id="EliteItemsOverseas" comment="заморский">
+		<item vnum="3825" price="150000" />
+		<item vnum="3826" price="250000" />
+		<item vnum="3827" price="150000" />
+		<item vnum="3828" price="200000" />
+		<item vnum="3829" price="200000" />
+		<item vnum="3830" price="200000" />
+		<item vnum="3831" price="250000" />
+	</shop_item_set>
+	<shop_item_set id="EliteItemsBright" comment="яркий">
+		<item vnum="3832" price="850000" />
+		<item vnum="3833" price="850000" />
+		<item vnum="3834" price="850000" />
+	</shop_item_set>
+	<shop_item_set id="EliteItemsKhoroloog" comment="харалужный">
+		<item vnum="3836" price="400000" />
+		<item vnum="3837" price="120000" />
+		<item vnum="3838" price="500000" />
+		<item vnum="3839" price="360000" />
+		<item vnum="3840" price="250000" />
+		<item vnum="3841" price="130000" />
+		<item vnum="3842" price="200000" />
+		<item vnum="3843" price="100000" />
+		<item vnum="3844" price="90000" />
+		<item vnum="3845" price="180000" />
+		<item vnum="3846" price="100000" />
+		<item vnum="3847" price="140000" />
+		<item vnum="3849" price="160000" />
+		<item vnum="3850" price="160000" />
+	</shop_item_set>
+	<shop_item_set id="EliteItemsStrongUft" comment="проченой юфти">
+		<item vnum="3851" price="450000" />
+		<item vnum="3852" price="700000" />
+		<item vnum="3853" price="700000" />
+		<item vnum="3854" price="700000" />
+		<item vnum="3855" price="700000" />
+		<item vnum="3856" price="700000" />
+	</shop_item_set>
+	<shop_item_set id="EliteItemsMisc2" comment="россыпь 2">
+		<item vnum="3800" price="850000" />
+		<item vnum="3870" price="850000" />
+		<item vnum="3801" price="850000" />
+		<item vnum="3819" price="850000" />
+		<item vnum="3820" price="850000" />
+		<item vnum="3821" price="850000" />
+		<item vnum="3822" price="850000" />
+		<item vnum="3823" price="850000" />
+		<item vnum="3824" price="850000" />
+		<item vnum="3835" price="850000" />
+		<item vnum="3848" price="850000" />
+		<item vnum="3857" price="850000" />
+	</shop_item_set>
+	<shop_item_set id="JapaneseGoods" comment="чашка японского резчика">
+		<item vnum="15723" price="0" />
+	</shop_item_set>
+	<shop_item_set id="Fish1" comment="магазин рыбы в ершовой слободе">
+		<item vnum="35302" price="0" />
+		<item vnum="35301" price="0" />
+		<item vnum="35300" price="0" />
+	</shop_item_set>
+	<shop_item_set id="TotmaKeys" comment="ключи в магазине в Тотьме">
+		<item vnum="62045" price="0" />
+		<item vnum="62032" price="0" />
+		<item vnum="62030" price="0" />
+		<item vnum="62029" price="0" />
+		<item vnum="62024" price="0" />
+		<item vnum="62026" price="0" />
+		<item vnum="62025" price="0" />
+		<item vnum="62034" price="0" />
+		<item vnum="62033" price="0" />
+		<item vnum="62023" price="0" />
+		<item vnum="62027" price="0" />
+		<item vnum="62031" price="0" />
+		<item vnum="62036" price="0" />
+		<item vnum="62028" price="0" />
+		<item vnum="62022" price="0" />
+		<item vnum="62035" price="0" />
+	</shop_item_set>
+	<shop_item_set id="MarynCastlePotions" comment="отвары в марьином чертге">
+		<item vnum="826" price="1000" />
+		<item vnum="69314" price="0" />
+		<item vnum="807" price="1000" />
+		<item vnum="69312" price="0" />
+		<item vnum="69311" price="0" />
+	</shop_item_set>
+	<shop_item_set id="KhersonesItems1" comment="лавка в херсонесе">
+		<item vnum="189023" price="0" />
+		<item vnum="189018" price="0" />
+		<item vnum="189015" price="0" />
+		<item vnum="189014" price="0" />
+		<item vnum="189013" price="0" />
+		<item vnum="189012" price="0" />
+		<item vnum="189011" price="0" />
+		<item vnum="189010" price="0" />
+		<item vnum="189009" price="0" />
+		<item vnum="189008" price="0" />
+		<item vnum="189007" price="0" />
+		<item vnum="189006" price="0" />
+		<item vnum="189005" price="0" />
+	</shop_item_set>
+	<shop_item_set id="KhersonesFood1" comment="магазин еды в херсонесе">
+		<item vnum="189053" price="0" />
+		<item vnum="189052" price="0" />
+		<item vnum="189051" price="0" />
+		<item vnum="189049" price="0" />
+	</shop_item_set>
+	<shop_item_set id="KhersonesWeapons1" comment="магазин оружия в херсонесе">
+		<item vnum="189032" price="0" />
+		<item vnum="189031" price="0" />
+		<item vnum="189030" price="0" />
+		<item vnum="189029" price="0" />
+		<item vnum="189028" price="0" />
+		<item vnum="189027" price="0" />
+		<item vnum="189026" price="0" />
+		<item vnum="189025" price="0" />
+		<item vnum="189024" price="0" />
+		<item vnum="189023" price="0" />
+		<item vnum="189022" price="0" />
+		<item vnum="189021" price="0" />
+		<item vnum="189020" price="0" />
+	</shop_item_set>
+	<shop_item_set id="RostovItems1" comment="Ростовские магазины... Есень чуть погуманней Ладона. чуть.">
+		<item vnum="85117" price="0" />
+		<item vnum="85116" price="0" />
+		<item vnum="85115" price="0" />
+		<item vnum="85110" price="0" />
+		<item vnum="85109" price="0" />
+		<item vnum="85113" price="0" />
+	</shop_item_set>
+	<shop_item_set id="RostovItems2" comment="">
+		<item vnum="85103" price="0" />
+		<item vnum="85104" price="0" />
+		<item vnum="85105" price="0" />
+		<item vnum="85106" price="0" />
+		<item vnum="85111" price="0" />
+	</shop_item_set>
+	<shop_item_set id="RostovItems3" comment="">
+		<item vnum="85107" price="0" />
+		<item vnum="85108" price="0" />
+		<item vnum="85112" price="0" />
+		<item vnum="85111" price="0" />
+		<item vnum="85103" price="0" />
+	</shop_item_set>
+	<shop_item_set id="RostovItems4" comment="">
+		<item vnum="85137" price="0" />
+		<item vnum="85130" price="0" />
+		<item vnum="85131" price="0" />
+		<item vnum="85132" price="0" />
+		<item vnum="85133" price="0" />
+		<item vnum="85121" price="0" />
+		<item vnum="85122" price="0" />
+		<item vnum="85123" price="0" />
+		<item vnum="85124" price="0" />
+		<item vnum="85129" price="0" />
+	</shop_item_set>
+	<shop_item_set id="RostovItems5" comment="">
+		<item vnum="85125" price="0" />
+		<item vnum="85126" price="0" />
+		<item vnum="85127" price="0" />
+		<item vnum="85128" price="0" />
+		<item vnum="85137" price="0" />
+	</shop_item_set>
+	<shop_item_set id="RostovItems6" comment="">
+		<item vnum="85137" price="0" />
+	</shop_item_set>
+	<shop_item_set id="ChinaItems1" comment="китайские магазины... идите нафик, не буду я выяснять, какой что продает">
+		<item vnum="333305" price="0" />
+		<item vnum="333300" price="0" />
+		<item vnum="333301" price="0" />
+		<item vnum="333302" price="0" />
+		<item vnum="333331" price="0" />
+	</shop_item_set>
+	<shop_item_set id="ChinaItems2" comment="">
+		<item vnum="333325" price="0" />
+		<item vnum="333326" price="0" />
+		<item vnum="333327" price="0" />
+		<item vnum="333328" price="0" />
+	</shop_item_set>
+	<shop_item_set id="ChinaItems3" comment="">
+		<item vnum="333329" price="0" />
+		<item vnum="333330" price="0" />
+		<item vnum="333332" price="0" />
+		<item vnum="333333" price="0" />
+		<item vnum="333334" price="0" />
+		<item vnum="333335" price="0" />
+		<item vnum="333336" price="0" />
+		<item vnum="333337" price="0" />
+		<item vnum="333338" price="0" />
+	</shop_item_set>
+	<shop_item_set id="ChinaItems4" comment="">
+		<item vnum="333339" price="0" />
+		<item vnum="333340" price="0" />
+		<item vnum="333341" price="0" />
+	</shop_item_set>
+	<shop_item_set id="ChinaItems5" comment="">
+		<item vnum="333342" price="0" />
+		<item vnum="333343" price="0" />
+	</shop_item_set>
+	<shop_item_set id="ChinaItems6" comment="">
+		<item vnum="333344" price="0" />
+		<item vnum="333345" price="0" />
+		<item vnum="333346" price="0" />
+	</shop_item_set>
+	<shop_item_set id="ChinaItems7" comment="">
+		<item vnum="333347" price="0" />
+		<item vnum="333348" price="0" />
+		<item vnum="333349" price="0" />
+		<item vnum="333350" price="0" />
+	</shop_item_set>
+	<shop_item_set id="ChinaItems8" comment="">
+		<item vnum="333351" price="0" />
+		<item vnum="333352" price="0" />
+		<item vnum="333353" price="0" />
+	</shop_item_set>
+	<shop_item_set id="ChinaItems9" comment="">
+		<item vnum="333354" price="0" />
+		<item vnum="333355" price="0" />
+		<item vnum="333356" price="0" />
+	</shop_item_set>
+	<shop_item_set id="ChinaItems10" comment="">
+		<item vnum="333357" price="0" />
+		<item vnum="333358" price="0" />
+		<item vnum="333359" price="0" />
+		<item vnum="333360" price="0" />
+	</shop_item_set>
+	<shop_item_set id="ChinaItems11" comment="">
+		<item vnum="333361" price="0" />
+		<item vnum="333362" price="0" />
+	</shop_item_set>
+	<shop_item_set id="ChinaItems12" comment="">
+		<item vnum="333363" price="0" />
+		<item vnum="333364" price="0" />
+	</shop_item_set>
+	<shop_item_set id="ChinaItems13" comment="">
+		<item vnum="333365" price="0" />
+		<item vnum="333366" price="0" />
+	</shop_item_set>
+	<shop_item_set id="ChinaItems14" comment="">
+		<item vnum="333367" price="0" />
+		<item vnum="333368" price="0" />
+	</shop_item_set>
+	<shop_item_set id="ChinaItems15" comment="">
+		<item vnum="333369" price="0" />
+		<item vnum="333370" price="0" />
+		<item vnum="333371" price="0" />
+	</shop_item_set>
+	<shop_item_set id="ChinaItems16" comment="">
+		<item vnum="333372" price="0" />
+		<item vnum="333373" price="0" />
+		<item vnum="333374" price="0" />
+	</shop_item_set>
+	<shop_item_set id="ChinaItems17" comment="">
+		<item vnum="333375" price="0" />
+		<item vnum="333376" price="0" />
+	</shop_item_set>
+	<shop_item_set id="ChinaItems18" comment="">
+		<item vnum="333377" price="0" />
+		<item vnum="333378" price="0" />
+		<item vnum="333379" price="0" />
+	</shop_item_set>
+	<shop_item_set id="ChinaItems19" comment="">
+		<item vnum="333380" price="0" />
+		<item vnum="333381" price="0" />
+		<item vnum="333382" price="0" />
+	</shop_item_set>
+	<shop_item_set id="ChinaItems20" comment="">
+		<item vnum="333383" price="0" />
+		<item vnum="333384" price="0" />
+		<item vnum="333385" price="0" />
+	</shop_item_set>
+	<shop_item_set id="ChinaItems21" comment="">
+		<item vnum="333386" price="0" />
+		<item vnum="333387" price="0" />
+		<item vnum="333388" price="0" />
+	</shop_item_set>
+	<shop_item_set id="ChinaItems22" comment="">
+		<item vnum="333390" price="0" />
+		<item vnum="333391" price="0" />
+		<item vnum="333392" price="0" />
+	</shop_item_set>
+	<shop_item_set id="ChinaItems23" comment="">
+		<item vnum="333319" price="0" />
+		<item vnum="333320" price="0" />
+		<item vnum="333321" price="0" />
+		<item vnum="333322" price="0" />
+		<item vnum="333323" price="0" />
+		<item vnum="333324" price="0" />
+	</shop_item_set>
+	<shop_item_set id="Horse" comment="Лошадки">
+		<item vnum="2198" price="5000" />
+	</shop_item_set>
+	<shop_item_set id="PradubPrize1" comment="Наградной магазин на Прадубе у Дитриха.">
+		<item vnum="2600" price="300000" />
+		<item vnum="2601" price="500000" />
+		<item vnum="96519" price="20000" />
+		<item vnum="96501" price="2500000" />
+		<item vnum="96502" price="2500000" />
+		<item vnum="96503" price="2500000" />
+		<item vnum="96504" price="2500000" />
+	</shop_item_set>
+	<shop_item_set id="PradubPrize2" comment="">
+		<item vnum="2601" price="1000000" />
+		<item vnum="96519" price="20000" />
+		<item vnum="96503" price="2500000" />
+		<item vnum="96504" price="2500000" />
+		<item vnum="96505" price="2500000" />
+		<item vnum="96506" price="2500000" />
+	</shop_item_set>
+	<shop_item_set id="PradubPrize3" comment="">
+		<item vnum="2601" price="1000000" />
+		<item vnum="96519" price="20000" />
+		<item vnum="96505" price="2500000" />
+		<item vnum="96506" price="2500000" />
+		<item vnum="96507" price="2500000" />
+		<item vnum="96508" price="2500000" />
+	</shop_item_set>
+	<shop_item_set id="PradubPrize4" comment="">
+		<item vnum="2601" price="1000000" />
+		<item vnum="96519" price="20000" />
+		<item vnum="96507" price="2500000" />
+		<item vnum="96508" price="2500000" />
+		<item vnum="96509" price="2500000" />
+		<item vnum="96510" price="2500000" />
+	</shop_item_set>
+	<shop_item_set id="PradubPrize5" comment="">
+		<item vnum="2601" price="1000000" />
+		<item vnum="96519" price="20000" />
+		<item vnum="96509" price="2500000" />
+		<item vnum="96510" price="2500000" />
+		<item vnum="96511" price="2500000" />
+		<item vnum="96512" price="2500000" />
+	</shop_item_set>
+	<shop_item_set id="PradubPrize6" comment="">
+		<item vnum="2601" price="1000000" />
+		<item vnum="96519" price="20000" />
+		<item vnum="96511" price="2500000" />
+		<item vnum="96512" price="2500000" />
+		<item vnum="96513" price="2500000" />
+		<item vnum="96514" price="2500000" />
+	</shop_item_set>
+	<shop_item_set id="MudScoolStepan" comment="Магазины в Новой Мад-школе">
+		<item vnum="75909" price="0" />
+		<item vnum="75910" price="0" />
+		<item vnum="75911" price="0" />
+		<item vnum="75912" price="0" />
+		<item vnum="75913" price="0" />
+		<item vnum="75914" price="0" />
+		<item vnum="75921" price="0" />
+		<item vnum="75922" price="0" />
+		<item vnum="75923" price="0" />
+		<item vnum="75924" price="0" />
+		<item vnum="75925" price="0" />
+		<item vnum="75926" price="0" />
+		<item vnum="75927" price="0" />
+		<item vnum="75930" price="0" />
+		<item vnum="75931" price="0" />
+		<item vnum="75932" price="0" />
+		<item vnum="75933" price="0" />
+		<item vnum="75934" price="0" />
+	</shop_item_set>
+	<shop_item_set id="MudScoolZhir" comment="">
+		<item vnum="75936" price="0" />
+		<item vnum="75937" price="0" />
+	</shop_item_set>
+	<shop_item_set id="MudScoolKarma" comment="">
+		<item vnum="75966" price="0" />
+		<item vnum="75967" price="0" />
+		<item vnum="75968" price="0" />
+		<item vnum="75969" price="0" />
+		<item vnum="75970" price="0" />
+		<item vnum="75971" price="0" />
+		<item vnum="75972" price="0" />
+		<item vnum="75973" price="0" />
+		<item vnum="75974" price="0" />
+		<item vnum="75975" price="0" />
+		<item vnum="75976" price="0" />
+		<item vnum="75977" price="0" />
+		<item vnum="75978" price="0" />
+		<item vnum="75979" price="0" />
+		<item vnum="75980" price="0" />
+		<item vnum="75981" price="0" />
+		<item vnum="75982" price="0" />
+		<item vnum="75983" price="0" />
+		<item vnum="75984" price="0" />
+		<item vnum="75985" price="0" />
+		<item vnum="75986" price="0" />
+		<item vnum="75987" price="0" />
+		<item vnum="75939" price="0" />
+		<item vnum="75940" price="0" />
+		<item vnum="75941" price="0" />
+	</shop_item_set>
+	<shop_item_set id="RunesNyShop" comment="руны">
+		<item vnum="40100" price="11" />
+		<item vnum="40101" price="11" />
+		<item vnum="40102" price="11" />
+		<item vnum="40107" price="11" />
+		<item vnum="40108" price="11" />
+		<item vnum="40110" price="11" />
+		<item vnum="40111" price="11" />
+		<item vnum="40113" price="11" />
+		<item vnum="40114" price="11" />
+		<item vnum="40117" price="11" />
+		<item vnum="40118" price="11" />
+		<item vnum="40119" price="11" />
+		<item vnum="40128" price="11" />
+		<item vnum="40129" price="11" />
+		<item vnum="40130" price="11" />
+		<item vnum="40131" price="11" />
+		<item vnum="40132" price="11" />
+		<item vnum="40134" price="11" />
+		<item vnum="40135" price="11" />
+		<item vnum="40136" price="11" />
+		<item vnum="40143" price="11" />
+		<item vnum="40145" price="11" />
+		<item vnum="40121" price="12" />
+		<item vnum="40104" price="15" />
+		<item vnum="40106" price="15" />
+		<item vnum="40126" price="15" />
+		<item vnum="40138" price="15" />
+		<item vnum="40139" price="15" />
+	</shop_item_set>
+	<shop_item_set id="NySets" comment="нг сеты">
+		<item vnum="2550" price="70" />
+		<item vnum="2551" price="70" />
+		<item vnum="2552" price="70" />
+		<item vnum="2553" price="70" />
+		<item vnum="2554" price="70" />
+		<item vnum="2555" price="70" />
+		<item vnum="2556" price="70" />
+		<item vnum="2557" price="70" />
+		<item vnum="2558" price="125" />
+		<item vnum="2559" price="125" />
+		<item vnum="2560" price="125" />
+		<item vnum="2561" price="125" />
+		<item vnum="2562" price="125" />
+		<item vnum="2563" price="125" />
+		<item vnum="2564" price="125" />
+		<item vnum="2565" price="125" />
+		<item vnum="2566" price="195" />
+		<item vnum="2567" price="195" />
+		<item vnum="2568" price="195" />
+		<item vnum="2569" price="195" />
+		<item vnum="2570" price="195" />
+		<item vnum="2571" price="195" />
+		<item vnum="2572" price="195" />
+		<item vnum="2573" price="195" />
+		<item vnum="2600" price="325" />
+		<item vnum="2601" price="470" />
+		<item vnum="2602" price="650" />
+		<item vnum="2603" price="20" />
+		<item vnum="2604" price="30" />
+		<item vnum="2605" price="40" />
+		<item vnum="2606" price="20" />
+		<item vnum="2607" price="30" />
+		<item vnum="2608" price="40" />
+		<item vnum="2609" price="20" />
+		<item vnum="2610" price="30" />
+		<item vnum="2611" price="40" />
+		<item vnum="2612" price="20" />
+		<item vnum="2613" price="30" />
+		<item vnum="2614" price="40" />
+	</shop_item_set>
+	<shop_item_set id="SpellsBookNy" comment="книги">
+		<item vnum="40201" price="2" />
+		<item vnum="40203" price="10" />
+		<item vnum="40213" price="10" />
+		<item vnum="40215" price="10" />
+		<item vnum="40219" price="10" />
+		<item vnum="40220" price="10" />
+		<item vnum="40301" price="10" />
+		<item vnum="40302" price="10" />
+		<item vnum="40305" price="10" />
+		<item vnum="40309" price="10" />
+		<item vnum="40312" price="10" />
+		<item vnum="40314" price="10" />
+		<item vnum="40316" price="10" />
+		<item vnum="40317" price="10" />
+		<item vnum="40318" price="10" />
+		<item vnum="40322" price="10" />
+		<item vnum="40323" price="10" />
+		<item vnum="40324" price="10" />
+		<item vnum="40327" price="10" />
+		<item vnum="40328" price="10" />
+		<item vnum="40335" price="10" />
+		<item vnum="40336" price="10" />
+		<item vnum="40337" price="10" />
+		<item vnum="40338" price="10" />
+		<item vnum="40339" price="10" />
+		<item vnum="40341" price="10" />
+		<item vnum="40342" price="10" />
+		<item vnum="40343" price="10" />
+		<item vnum="40347" price="10" />
+		<item vnum="40351" price="10" />
+		<item vnum="40353" price="10" />
+		<item vnum="40354" price="10" />
+		<item vnum="40356" price="10" />
+		<item vnum="40357" price="10" />
+		<item vnum="40360" price="10" />
+		<item vnum="40362" price="10" />
+		<item vnum="40363" price="10" />
+		<item vnum="40368" price="10" />
+		<item vnum="40370" price="10" />
+		<item vnum="40373" price="10" />
+		<item vnum="40374" price="10" />
+		<item vnum="40376" price="10" />
+		<item vnum="40384" price="10" />
+		<item vnum="40385" price="10" />
+		<item vnum="40392" price="10" />
+		<item vnum="40398" price="10" />
+		<item vnum="40401" price="10" />
+		<item vnum="40403" price="10" />
+		<item vnum="40404" price="10" />
+		<item vnum="40406" price="10" />
+		<item vnum="40408" price="10" />
+		<item vnum="40410" price="10" />
+		<item vnum="40411" price="10" />
+		<item vnum="40412" price="10" />
+		<item vnum="40414" price="10" />
+		<item vnum="40416" price="10" />
+		<item vnum="40417" price="10" />
+		<item vnum="40418" price="10" />
+		<item vnum="40419" price="10" />
+		<item vnum="40421" price="10" />
+		<item vnum="40429" price="10" />
+		<item vnum="40430" price="10" />
+		<item vnum="40432" price="10" />
+		<item vnum="40435" price="10" />
+		<item vnum="40437" price="10" />
+		<item vnum="40438" price="10" />
+		<item vnum="40439" price="10" />
+		<item vnum="40441" price="10" />
+		<item vnum="40443" price="10" />
+		<item vnum="40445" price="10" />
+		<item vnum="40446" price="10" />
+		<item vnum="40451" price="10" />
+		<item vnum="40452" price="10" />
+		<item vnum="40457" price="10" />
+		<item vnum="40460" price="10" />
+		<item vnum="40461" price="10" />
+		<item vnum="40202" price="10" />
+		<item vnum="40300" price="10" />
+		<item vnum="40311" price="10" />
+		<item vnum="40320" price="10" />
+		<item vnum="40204" price="30" />
+		<item vnum="40207" price="30" />
+		<item vnum="40304" price="30" />
+		<item vnum="40303" price="30" />
+		<item vnum="40321" price="30" />
+		<item vnum="40325" price="30" />
+		<item vnum="40326" price="30" />
+		<item vnum="40331" price="30" />
+		<item vnum="40333" price="30" />
+		<item vnum="40349" price="30" />
+		<item vnum="40359" price="30" />
+		<item vnum="40361" price="30" />
+		<item vnum="40372" price="30" />
+		<item vnum="40378" price="30" />
+		<item vnum="40386" price="30" />
+		<item vnum="40387" price="30" />
+		<item vnum="40407" price="30" />
+		<item vnum="40415" price="30" />
+		<item vnum="40427" price="30" />
+		<item vnum="40433" price="30" />
+		<item vnum="40454" price="30" />
+		<item vnum="40313" price="30" />
+		<item vnum="40200" price="35" />
+		<item vnum="40212" price="35" />
+		<item vnum="40221" price="35" />
+		<item vnum="40215" price="35" />
+		<item vnum="40315" price="35" />
+		<item vnum="40319" price="35" />
+		<item vnum="40344" price="35" />
+		<item vnum="40345" price="35" />
+		<item vnum="40346" price="37" />
+		<item vnum="40348" price="37" />
+		<item vnum="40350" price="37" />
+		<item vnum="40352" price="37" />
+		<item vnum="40358" price="37" />
+		<item vnum="40364" price="37" />
+		<item vnum="40365" price="37" />
+		<item vnum="40366" price="37" />
+		<item vnum="40371" price="37" />
+		<item vnum="40394" price="37" />
+		<item vnum="40397" price="37" />
+		<item vnum="40409" price="37" />
+		<item vnum="40422" price="37" />
+		<item vnum="40423" price="37" />
+		<item vnum="40425" price="37" />
+		<item vnum="40426" price="37" />
+		<item vnum="40447" price="37" />
+		<item vnum="40449" price="37" />
+		<item vnum="40453" price="37" />
+		<item vnum="40455" price="37" />
+		<item vnum="40459" price="37" />
+		<item vnum="40206" price="39" />
+		<item vnum="40329" price="39" />
+		<item vnum="40334" price="39" />
+		<item vnum="40355" price="39" />
+		<item vnum="40367" price="39" />
+		<item vnum="40369" price="39" />
+		<item vnum="40375" price="39" />
+		<item vnum="40428" price="39" />
+		<item vnum="40205" price="45" />
+		<item vnum="40330" price="45" />
+		<item vnum="40332" price="45" />
+		<item vnum="40340" price="45" />
+		<item vnum="40381" price="45" />
+		<item vnum="40357" price="45" />
+		<item vnum="40396" price="45" />
+		<item vnum="40402" price="45" />
+		<item vnum="40431" price="45" />
+		<item vnum="40448" price="45" />
+		<item vnum="40462" price="45" />
+		<item vnum="40218" price="45" />
+		<item vnum="40306" price="45" />
+		<item vnum="40395" price="45" />
+		<item vnum="1740" price="200" />
+	</shop_item_set>
+	<shop_item_set id="KorsaGlory" comment="магазин славы в корсе">
+		<item vnum="1912" price="100" />
+		<item vnum="2600" price="20" />
+		<item vnum="2601" price="40" />
+		<item vnum="2602" price="60" />
+		<item vnum="27045" price="100" />
+		<item vnum="2623" price="20" />
+		<item vnum="2624" price="200" />
+		<item vnum="2625" price="250" />
+		<item vnum="2626" price="250" />
+		<item vnum="2627" price="250" />
+	</shop_item_set>
+</shop_item_sets>

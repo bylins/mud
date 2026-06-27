@@ -17,7 +17,7 @@
 #include "utils/utils_string.h"               // str_cmp (case-insensitive)
 #include "utils/logger.h"                      // log (boot-time scheme lint)
 #include "gameplay/magic/spells_info.h"        // SpellInfo::Print -- the `l` spellinfo view
-#include "utils/parse.h"                        // parse::ReadAsConstant<ESpell>
+#include "utils/utils_parse.h"                        // parse::ReadAsConstant<ESpell>
 
 #include <fmt/format.h>
 
@@ -652,17 +652,9 @@ void SaveSession(DescriptorData *d) {
 			result.error), ch);
 		return;
 	}
-	std::filesystem::path tmp = s.file;
-	tmp += ".new";
-	if (!s.doc.Save(tmp)) {
+	// issue.cfg-manager: атомарную запись в нужный файл делает CfgManager (по id).
+	if (!MUD::CfgManager().Save(s.id, s.doc)) {
 		SendMsgToChar("&RVedun: save failed (could not write the file).&n\r\n", ch);
-		return;
-	}
-	std::error_code ec;
-	std::filesystem::rename(tmp, s.file, ec);
-	if (ec) {
-		std::filesystem::remove(tmp, ec);
-		SendMsgToChar("&RVedun: save failed (rename).&n\r\n", ch);
 		return;
 	}
 	s.loader->Reload(parser_wrapper::DataNode(s.file));
@@ -740,6 +732,19 @@ void ParseEditAttr(DescriptorData *d, char *arg) {
 	}
 	if (value.empty() || value == ".") {
 		SendMsgToChar("Cancelled.\r\n", ch);
+	} else if (value == "~") {
+		// issue.spells-hotfix: '~' removes the (optional) attribute entirely, e.g. clearing any_of in
+		// an <unaffect> tag. Read-only attributes are protected.
+		const TagDef *td = CurrentTagDef(s);
+		const AttrDef *ad = td ? td->FindAttr(s.edit_attr) : nullptr;
+		if (ad && ad->readonly) {
+			SendMsgToChar("&RThat attribute is read-only.&n\r\n", ch);
+		} else if (s.path.back().RemoveValue(s.edit_attr)) {
+			SendMsgToChar(fmt::format("Removed attribute &g{}&n.\r\n", s.edit_attr), ch);
+			s.dirty = true;
+		} else {
+			SendMsgToChar("(attribute was not present)\r\n", ch);
+		}
 	} else {
 		if (!s.edit_enum.empty()) {
 			const auto *members = EnumRegistry::Instance().Members(s.edit_enum);
@@ -1022,7 +1027,7 @@ void ParseBrowse(DescriptorData *d, char *arg) {
 			} else if (ad && ad->type == FieldType::kBool) {
 				SendMsgToChar("&c(boolean: true / false)&n\r\n", ch);
 			}
-			SendMsgToChar(fmt::format("New value for &g{}&n [{}] ('.' or blank cancels):\r\n",
+			SendMsgToChar(fmt::format("New value for &g{}&n [{}] ('.' or blank cancels; '~' removes):\r\n",
 				name, row.present ? row.value : "unset"), ch);
 			return;
 		}
@@ -1161,6 +1166,17 @@ void do_vedun(CharData *ch, char *argument, int /*cmd*/, int /*subcmd*/) {
 	// Locate the element's DOM node via the loader (it owns its file layout / id-attribute). The
 	// returned node shares `doc`'s document, so edits through the session are persisted with the file.
 	parser_wrapper::DataNode doc(entry->file);
+	// issue.sml-cdata-msg: a config whose root carries vedun="false" holds multi-line preformatted
+	// text (element inner text / <![CDATA[...]]>). Vedun saves whole files through DataNode, which
+	// rewrites inner text as escaped PCDATA and would flatten that formatting -- so refuse to open
+	// such a file for editing; it is maintained directly on the server.
+	if (std::string(doc.GetValue("vedun")) == "false") {
+		SendMsgToChar(fmt::format("Vedun: '{}' is stored in a file marked vedun=\"false\" because it "
+			"holds multi-line preformatted text (CDATA). The editor saves whole files and would "
+			"flatten that formatting, so it cannot be edited here -- edit the file directly on the "
+			"server.\r\n", entry->what), ch);
+		return;
+	}
 	parser_wrapper::DataNode found = entry->loader->FindElementNode(doc, resolved_id);
 	if (found.IsEmpty()) {
 		// Valid id but no element on disk yet: create a minimal one and open it for editing.
@@ -1180,6 +1196,7 @@ void do_vedun(CharData *ch, char *argument, int /*cmd*/, int /*subcmd*/) {
 		return;
 	}
 	auto session = std::make_shared<Session>();
+	session->id = entry->id;
 	session->what = entry->what;
 	session->lock_key = lock_key;
 	session->file = entry->file;
@@ -1217,7 +1234,7 @@ void vedun_reprompt(DescriptorData *d) {
 				d->character.get());
 			return;
 		case Mode::kEditAttr:
-			SendMsgToChar(fmt::format("New value for &g{}&n ('&W?&n' lists values; '.' or blank cancels):\r\n",
+			SendMsgToChar(fmt::format("New value for &g{}&n ('&W?&n' lists values; '.' or blank cancels; '~' removes):\r\n",
 				s.edit_attr), d->character.get());
 			return;
 		case Mode::kBrowse:

@@ -9,7 +9,7 @@
 #include "engine/entities/char_data.h"
 #include "administration/privilege.h"
 #include "gameplay/mechanics/mount.h"
-#include "engine/core/handler.h"
+#include "gameplay/abilities/timed_abilities.h"
 #include "gameplay/skills/skills.h"
 #include "engine/db/global_objects.h"
 
@@ -17,7 +17,7 @@ void do_camouflage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*
 	struct TimedSkill timed;
 	int prob, percent;
 
-	if (ch->IsNpc() || !ch->GetSkill(ESkill::kDisguise)) {
+	if (ch->IsNpc() || !GetSkill(ch, ESkill::kDisguise)) {
 		SendMsgToChar("Но вы не знаете как.\r\n", ch);
 		return;
 	}

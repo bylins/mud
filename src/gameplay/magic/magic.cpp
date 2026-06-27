@@ -14,6 +14,7 @@
 
 #include "magic.h"
 #include "administration/privilege.h"
+#include "gameplay/affects/affect_handler.h"
 #include "gameplay/mechanics/condition.h"
 #include "gameplay/fight/fight_stuff.h"
 #include "gameplay/mechanics/mount.h"
@@ -40,7 +41,12 @@
 #include "gameplay/fight/fight_hit.h"
 #include "gameplay/ai/mobact.h"
 #include "gameplay/fight/pk.h"
-#include "engine/core/handler.h"
+#include "engine/core/char_equip_flags.h"
+#include "engine/core/char_handler.h"
+#include "engine/core/obj_handler.h"
+#include "engine/entities/char_data.h"
+#include "gameplay/mechanics/equipment.h"
+#include "gameplay/mechanics/inventory.h"
 #include "magic_utils.h"
 #include "engine/db/obj_prototypes.h"
 #include "engine/entities/char_player.h"
@@ -112,7 +118,7 @@ int CalcAntiSavings(CharData *ch) {
 
 int CalcClassAntiSavingsMod(CharData *ch, ESpell spell_id) {
 	auto mod = MUD::Class(ch->GetClass()).spells[spell_id].GetCastMod();
-	auto skill = ch->GetSkill(MUD::Spell(spell_id).GetSuccessRoll().GetBaseSkill());
+	auto skill = GetSkill(ch, MUD::Spell(spell_id).GetSuccessRoll().GetBaseSkill());
 	return static_cast<int>(mod*skill);
 }
 
@@ -388,10 +394,10 @@ bool TryBlockByMagicalShield(CharData *ch, CharData *victim, ESpell spell_id) {
 	if (MUD::Spell(spell_id).IsFlagged(kMagWarcry)) return false;
 	if (MUD::Spell(spell_id).IsFlagged(kMagMasses)) return false;
 	if (MUD::Spell(spell_id).IsFlagged(kMagAreas)) return false;
-	if (victim->GetSkill(ESkill::kShieldBlock) <= 100) return false;
+	if (GetSkill(victim, ESkill::kShieldBlock) <= 100) return false;
 	if (!GET_EQ(victim, EEquipPos::kShield)) return false;
 	if (!CanUseFeat(victim, EFeat::kMagicalShield)) return false;
-	const int chance = victim->GetSkill(ESkill::kShieldBlock) / 20
+	const int chance = GetSkill(victim, ESkill::kShieldBlock) / 20
 		+ GET_EQ(victim, EEquipPos::kShield)->get_weight() / 2;
 	if (number(1, 100) >= chance) return false;
 	act("Ваши чары повисли на щите $N1, и затем развеялись.", false, ch, nullptr, victim, kToChar);
@@ -822,7 +828,7 @@ static void ApplyTalentAffect(CharData *victim, Affect<EApply> &af, Bitvector fl
 					af.modifier = existing->modifier;
 				}
 			}
-			victim->AffectRemove(it);
+			RemoveAffect(victim, it);
 			break;
 		}
 	}
@@ -855,7 +861,12 @@ static bool TryApplyAffectTalent(CharData *ch, CharData *victim, ESpell spell_id
 	// here only the saving throw can still avert the affect (kNone saving -> CalcGeneralSaving
 	// returns false, so no save is taken).
 	if (ch != victim && CalcGeneralSaving(ch, victim, talent.GetSaving(), modi)) {
-		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
+		// issue.spells-hotfix: a reposition spell (knockdown/stun) shows its success via the
+		// "knocked down" line; on a saved cast the absence of that line already signals failure, so
+		// the redundant "no effect" is suppressed for reposition affects.
+		if (!talent.HasReposition()) {
+			SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
+		}
 		spell_trace::Line(ch, victim, "&CAffect %s on %s resisted by saving throw.&n\r\n",
 			MUD::Spell(spell_id).GetCName(), GET_NAME(victim));
 		return false;
@@ -1241,10 +1252,10 @@ static void EnhanceAnimateDead(CharData *ch, CharData *mob, MobVnum mob_num,
 	// summons are fresh necro mobs: undead, but not "resurrected".
 	mob->SetFlag(EMobFlag::kUndead);
 	if (mob_num == kMobSkeleton && CanUseFeat(ch, EFeat::kLoyalAssist)) {
-		mob->set_skill(ESkill::kRescue, 100);
+		SetSkill(mob, ESkill::kRescue, 100);
 	}
 	if (mob_num == kMobBonespirit && CanUseFeat(ch, EFeat::kHauntingSpirit)) {
-		mob->set_skill(ESkill::kRescue, 120);
+		SetSkill(mob, ESkill::kRescue, 120);
 	}
 
 	// даем всем поднятым, ну наверное не будет чернок 75+ мудры вызывать зомби в щите.
@@ -2121,6 +2132,18 @@ EStageResult RunCastUnaffects(CharData *ch, TTarget *target, ESpell spell_id,
 	if (!blocking) {
 		CollectRemovals(target, unaffect.GetRemove(), to_remove, flags);
 	}
+	// issue.spells-hotfix: a type with several affects (e.g. kPoisoned on several locations) must be
+	// removed and announced ONCE. RemoveAffectAndAnnounce strips ALL affects of the type, so dedup the
+	// queue by spell type -- otherwise the 2nd+ entries re-announce an already-removed affect.
+	{
+		std::vector<RemovalCandidate> deduped;
+		for (const auto &c : to_remove) {
+			bool dup = false;
+			for (const auto &d : deduped) { if (d.spell == c.spell) { dup = true; break; } }
+			if (!dup) { deduped.push_back(c); }
+		}
+		to_remove.swap(deduped);
+	}
 
 	if (!to_remove.empty()) {
 		if constexpr (std::is_same_v<TTarget, CharData>) {
@@ -2264,13 +2287,15 @@ EStageResult CastToAlterObjs(CastContext &ctx) {
 		obj = nullptr;
 		ctx.ovict = nullptr;
 	}
-	// issue.unstable-hotfixes: the "collateral random item" fallback -- a cast with no explicit
-	// object target also striking a random item the victim carries -- is appropriate ONLY for a
-	// VIOLENT cast (e.g. acid corroding the victim's gear; kAcid/kAcidArrow cannot target an object
-	// directly and rely on this). A helpful/neutral spell (bless, fly, light, invisible, remove
-	// curse/poison, ...) aimed at a character must affect ONLY that character -- it must not also
-	// alter one of their items. IsViolentAgainst resolves ambiguous spells by the caster<->victim tie.
-	if (obj == nullptr && victim != nullptr && MUD::Spell(spell_id).IsViolentAgainst(ch, victim)) {
+	// issue.spells-hotfix: the "collateral random item" fallback -- a cast with no explicit object
+	// target also striking a random item the victim carries -- is now opt-in per spell via
+	// <alter_obj collateral="on_damage"> and fires ONLY when damage was actually dealt this cast
+	// (acid corroding gear; kAcid/kAcidArrow cannot target an object directly and rely on this).
+	// Every other alter_obj spell (curse, poison, bless, fly, ...) leaves this off, so a cast aimed
+	// at a character never alters their items -- cast the spell directly on an object to affect one.
+	if (obj == nullptr && victim != nullptr
+			&& ctx.action_or_default().GetAlterObj().collateral_on_damage
+			&& ctx.result.damage != 0) {
 		int rand = number(1, 50);
 		if (rand <= EEquipPos::kBoths) {
 			obj = GET_EQ(victim, rand);
@@ -2862,7 +2887,7 @@ static ECastResult RunActionOverTargets(CastContext &ctx, const std::vector<Char
 	// everyone in the roster; else the historical count, capped at the roster size.
 	const int n = (area == nullptr || area->max_targets <= 0)
 			? static_cast<int>(targets.size())
-			: std::min(area->CalcTargetsQuantity(caster->GetSkill(MUD::Spell(spell_id).GetSuccessRoll().GetBaseSkill()),
+			: std::min(area->CalcTargetsQuantity(GetSkill(caster, MUD::Spell(spell_id).GetSuccessRoll().GetBaseSkill()),
 													  ctx.potency().stat_coeff),
 					   static_cast<int>(targets.size()));
 	const double decay_eff = (area == nullptr) ? 0.0

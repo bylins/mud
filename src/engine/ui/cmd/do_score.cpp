@@ -7,7 +7,12 @@
  */
 
 #include "engine/ui/color.h"
+#include "utils/utils_string.h"
+#include "gameplay/core/experience.h"
+#include "gameplay/mechanics/condition.h"
 #include "administration/privilege.h"
+#include "gameplay/economics/currencies.h"
+#include "engine/db/global_objects.h"
 #include "utils/grammar/declensions.h"
 #include "gameplay/mechanics/mount.h"
 #include "gameplay/communication/mail.h"
@@ -111,7 +116,7 @@ void PrintBonusStateInfo(CharData *ch, std::ostringstream &out);
 
 // \todo Переписать на вывод в поток с использованием общих со "счет все" функций
 void PrintScoreList(CharData *ch) {
-	sprintf(buf, "%s", PlayerRace::GetKinNameByNum(GET_KIN(ch), ch->get_sex()).c_str());
+	sprintf(buf, "%s", MUD::RaceMessages().GetMessage(GET_RACE(ch), ch->get_sex()).c_str());
 	buf[0] = LOWER(buf[0]);
 	sprintf(buf1, "%s", religion_name[GET_RELIGION(ch)][static_cast<int>(ch->get_sex())]);
 	buf1[0] = LOWER(buf1[0]);
@@ -131,7 +136,7 @@ void PrintScoreList(CharData *ch) {
 				  ch->get_move(), ch->get_real_max_move(), grammar::GetDeclensionInNumber(ch->get_move(), grammar::EWhat::kMoveU));
 	if (IS_MANA_CASTER(ch)) {
 		SendMsgToChar(ch, "Ваша магическая энергия %d(%d) и вы восстанавливаете %d в сек.\r\n",
-					  ch->mem_queue.stored, mana[MIN(50, GetRealWis(ch))], CalcManaGain(ch));
+					  ch->mem_queue.stored, Mana(GetRealWis(ch)), CalcManaGain(ch));
 	}
 	SendMsgToChar(ch, "Ваша сила: %d(%d), ловкость: %d(%d), телосложение: %d(%d), ум: %d(%d), мудрость: %d(%d), обаяние: %d(%d).\r\n",
 				  ch->get_str(), GetRealStr(ch),
@@ -190,12 +195,13 @@ void PrintScoreList(CharData *ch) {
 				  GET_ARMOUR(ch),
 				  ac,
 				  GET_ABSORBE(ch));
-	SendMsgToChar(ch, "Вы имеете кун: на руках: %ld, на счету %ld. Гривны: %d, опыт: %ld, ДСУ: %ld.\r\n",
-				  ch->get_gold(),
-				  ch->get_bank(),
-				  ch->get_hryvn(),
+	SendMsgToChar(ch, "Вы имеете на руках: %ld %s, на счету %ld %s, опыт: %ld, ДСУ: %ld.\r\n",
+				  currencies::GetHand(*ch, currencies::kGold),
+				  MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(currencies::GetHand(*ch, currencies::kGold)).c_str(),
+				  currencies::GetBank(*ch, currencies::kGold),
+				  MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(currencies::GetBank(*ch, currencies::kGold)).c_str(),
 				  ch->get_exp(),
-				  privilege::IsImmortal(ch) ? 1 : GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1) - ch->get_exp());
+				  privilege::IsImmortal(ch) ? 1 : experience::GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1) - ch->get_exp());
 	if (!mount::IsOnHorse(ch))
 		SendMsgToChar(ch, "Ваша позиция: %s", GetPositionStr(ch));
 	else
@@ -284,10 +290,10 @@ void PrintRuneLabelInfo(CharData *ch, std::ostringstream &out) {
 }
 
 void PrintGloryInfo(CharData *ch, std::ostringstream &out) {
-	auto glory = GloryConst::get_glory(ch->get_uid());
+	auto glory = currencies::GetHand(*ch, currencies::kGlory);
 	if (glory > 0) {
 		out << InfoStrPrefix(ch) << "Вы заслужили "
-			<< glory << " " << grammar::GetDeclensionInNumber(glory, grammar::EWhat::kPoint) << " постоянной славы." << "\r\n";
+			<< glory << " " << MUD::Currency(currencies::kGloryVnum).GetNameWithAmount(glory, grammar::ECase::kGen) << "." << "\r\n";
 	}
 }
 
@@ -360,9 +366,9 @@ void PrintRentableInfo(CharData *ch, std::ostringstream &out) {
 // \todo Сделать авторазмещение в комнате-кузнице горна и убрать эту функцию.
 void PrinForgeInfo(CharData *ch, std::ostringstream &out) {
 	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kForge)
-		&& (ch->GetSkill(ESkill::kJewelry)
-		|| ch->GetSkill(ESkill::kRepair)
-		|| ch->GetSkill(ESkill::kReforging))) {
+		&& (GetSkill(ch, ESkill::kJewelry)
+		|| GetSkill(ch, ESkill::kRepair)
+		|| GetSkill(ch, ESkill::kReforging))) {
 		out << InfoStrPrefix(ch) << kColorBoldYel << "Это место отлично подходит для занятий кузнечным делом."
 			<< kColorNrm << "\r\n";
 	}
@@ -418,8 +424,8 @@ void PrintSinglePunishmentInfo(const ScorePunishmentInfo &info, std::ostringstre
 		<< hrs << " " << grammar::GetDeclensionInNumber(hrs, grammar::EWhat::kHour) << " "
 		<< mins << " " << grammar::GetDeclensionInNumber(mins, grammar::EWhat::kMinU);
 
-	if (info.punish->reason != nullptr) {
-		if (info.punish->reason[0] != '\0' && str_cmp(info.punish->reason, "(null)") != 0) {
+	if (!info.punish->reason.empty()) {
+		if (info.punish->reason[0] != '\0' && str_cmp(info.punish->reason.c_str(), "(null)") != 0) {
 			out << " [" << info.punish->reason << "]";
 		}
 	}
@@ -498,7 +504,7 @@ void PrintPunishmentsInfo(CharData *ch, std::ostringstream &out) {
  */
 int PrintBaseInfoToTable(CharData *ch, table_wrapper::Table &table, std::size_t col) {
 	std::size_t row{0};
-	table[row][col] = std::string("Племя: ") + PlayerRace::GetRaceNameByNum(GET_KIN(ch), GET_RACE(ch), ch->get_sex());
+	table[row][col] = std::string("Племя: ") + MUD::RaceMessages().GetMessage(GET_RACE(ch), ch->get_sex());
 	table[++row][col] = std::string("Вера: ") + religion_name[GET_RELIGION(ch)][static_cast<int>(ch->get_sex())];
 	table[++row][col] = std::string("Уровень: ") + std::to_string(GetRealLevel(ch));
 	table[++row][col] = std::string("Перевоплощений: ") + std::to_string(remort::GetRealRemort(ch));
@@ -506,10 +512,10 @@ int PrintBaseInfoToTable(CharData *ch, table_wrapper::Table &table, std::size_t 
 	if (ch->GetLevel() < kLvlImmortal) {
 		table[++row][col] = std::string("Опыт: ") + PrintNumberByDigits(ch->get_exp());
 		table[++row][col] = std::string("ДСУ: ") + PrintNumberByDigits(
-			GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1) - ch->get_exp());
+			experience::GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1) - ch->get_exp());
 	}
-	table[++row][col] = std::string("Кун: ") + PrintNumberByDigits(ch->get_gold());
-	table[++row][col] = std::string("На счету: ") + PrintNumberByDigits(ch->get_bank());
+	table[++row][col] = MUD::Currency(currencies::kGoldVnum).GetPluralName(grammar::ECase::kGen) + ": " + PrintNumberByDigits(currencies::GetHand(*ch, currencies::kGold));
+	table[++row][col] = std::string("На счету: ") + PrintNumberByDigits(currencies::GetBank(*ch, currencies::kGold));
 	table[++row][col] = GetShortPositionStr(ch);
 	table[++row][col] = std::string("Голоден: ") + (GET_COND(ch, condition::kFull) > kNormCondition ? "Угу :(" : "Нет");
 	table[++row][col] = std::string("Жажда: ") + (condition::GetCondAboveNorm(ch, condition::kThirst) ? "Наливай!" : "Нет");
@@ -546,7 +552,7 @@ int PrintBaseStatsToTable(CharData *ch, table_wrapper::Table &table, std::size_t
 	table[++row][col] = "Выносливость";	table[row][col + 1] = std::to_string(ch->get_move()) + "(" + std::to_string(ch->get_real_max_move()) + ")";
 	table[++row][col] = "Восст. сил";	table[row][col + 1] = "+" + std::to_string(ch->get_movereg()) + "% (" + std::to_string(move_gain(ch)) + ")";
 	if (IS_MANA_CASTER(ch)) {
-		table[++row][col] = "Мана"; 		table[row][col + 1] = std::to_string(ch->mem_queue.stored) + "(" + std::to_string(mana[MIN(50, GetRealWis(ch))]) + ")";
+		table[++row][col] = "Мана"; 		table[row][col + 1] = std::to_string(ch->mem_queue.stored) + "(" + std::to_string(Mana(GetRealWis(ch))) + ")";
 		table[++row][col] = "Восст. маны";	table[row][col + 1] = "+" + std::to_string(CalcManaGain(ch)) + " сек.";
 	}
 
@@ -699,8 +705,7 @@ void PrintScoreBase(CharData *ch) {
 	std::ostringstream out;
 
 	out << "Вы " << ch->GetTitleAndName() << " ("
-		<< PlayerRace::GetKinNameByNum(GET_KIN(ch), ch->get_sex()) << ", "
-		<< PlayerRace::GetRaceNameByNum(GET_KIN(ch), GET_RACE(ch), ch->get_sex()) << ", "
+		<< MUD::RaceMessages().GetMessage(GET_RACE(ch), ch->get_sex()) << ", "
 		<< religion_name[GET_RELIGION(ch)][static_cast<int>(ch->get_sex())] << ", "
 		<< MUD::Class(ch->GetClass()).GetCName() << " "
 		<< GetRealLevel(ch) << " уровня)." << "\r\n";
@@ -725,7 +730,7 @@ void PrintScoreBase(CharData *ch) {
 	if (IS_MANA_CASTER(ch)) {
 		sprintf(buf + strlen(buf),
 				"Ваша магическая энергия %d(%d) и вы восстанавливаете %d в сек.\r\n",
-				ch->mem_queue.stored, mana[MIN(50, GetRealWis(ch))], CalcManaGain(ch));
+				ch->mem_queue.stored, Mana(GetRealWis(ch)), CalcManaGain(ch));
 	}
 
 	sprintf(buf + strlen(buf),
@@ -777,22 +782,43 @@ void PrintScoreBase(CharData *ch) {
 		}
 		sprintf(buf + strlen(buf),
 				"Вам осталось набрать %ld %s до следующего уровня.\r\n",
-				GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1) - ch->get_exp(),
-				grammar::GetDeclensionInNumber(GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1) - ch->get_exp(), grammar::EWhat::kPoint));
+				experience::GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1) - ch->get_exp(),
+				grammar::GetDeclensionInNumber(experience::GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1) - ch->get_exp(), grammar::EWhat::kPoint));
 	} else
 		sprintf(buf + strlen(buf), "\r\n");
 
 	sprintf(buf + strlen(buf),
-			"У вас на руках %ld %s и %d %s",
-			ch->get_gold(),
-			grammar::GetDeclensionInNumber(ch->get_gold(), grammar::EWhat::kMoneyA),
-			ch->get_hryvn(),
-			grammar::GetDeclensionInNumber(ch->get_hryvn(), grammar::EWhat::kTorc));
-	if (ch->get_bank() > 0)
+			"У вас на руках %ld %s",
+			currencies::GetHand(*ch, currencies::kGold),
+			MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(currencies::GetHand(*ch, currencies::kGold)).c_str());
+	if (currencies::GetBank(*ch, currencies::kGold) > 0)
 		sprintf(buf + strlen(buf), " (и еще %ld %s припрятано в лежне).\r\n",
-				ch->get_bank(), grammar::GetDeclensionInNumber(ch->get_bank(), grammar::EWhat::kMoneyA));
+				currencies::GetBank(*ch, currencies::kGold),
+				MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(currencies::GetBank(*ch, currencies::kGold)).c_str());
 	else
 		strncat(buf, ".\r\n", sizeof(buf) - strlen(buf) - 1);
+
+	// Прочие валюты (гривны, ногаты и т.п.), кроме кун и славы (они выводятся отдельно):
+	// одной строкой с переносом по ширине, запятые ставит разделитель OutWordsList.
+	std::vector<std::string> money_parts;
+	for (const auto &cur : MUD::Currencies()) {
+		if (cur.GetId() < 0
+			|| cur.GetTextId() == currencies::kGold
+			|| cur.GetTextId() == currencies::kGlory) {
+			continue;
+		}
+		const long cur_total = currencies::GetTotal(*ch, cur.GetTextId());
+		if (cur_total > 0) {
+			money_parts.push_back(std::to_string(cur_total) + " " + cur.GetNameWithAmount(cur_total));
+		}
+	}
+	if (!money_parts.empty()) {
+		const size_t width = ch->player_specials->saved.stringLength > 0
+				? ch->player_specials->saved.stringLength : 80;
+		const std::string money_line =
+				"Также у вас: " + utils::OutWordsList(money_parts, width, ", ") + ".\r\n";
+		strncat(buf, money_line.c_str(), sizeof(buf) - strlen(buf) - 1);
+	}
 
 	if (GetRealLevel(ch) < kLvlImmortal) {
 		sprintf(buf + strlen(buf),
@@ -810,14 +836,10 @@ void PrintScoreBase(CharData *ch) {
 				std::string(label_room->name).c_str());
 	}
 
-	int glory = Glory::get_glory(ch->get_uid());
+	int glory = currencies::GetHand(*ch, currencies::kGlory);
 	if (glory) {
-	//	sprintf(buf + strlen(buf), "Вы заслужили %d %s славы.\r\n", glory, GetDeclensionInNumber(glory, EWhat::kPoint));
-	}
-	glory = GloryConst::get_glory(ch->get_uid());
-	if (glory) {
-		sprintf(buf + strlen(buf), "Вы заслужили %d %s постоянной славы.\r\n",
-				glory, grammar::GetDeclensionInNumber(glory, grammar::EWhat::kPoint));
+		sprintf(buf + strlen(buf), "Вы заслужили %d %s.\r\n",
+				glory, MUD::Currency(currencies::kGloryVnum).GetNameWithAmount(glory, grammar::ECase::kGen).c_str());
 	}
 
 	TimeInfoData playing_time = *CalcRealTimePassed((time(nullptr) - ch->player_data.time.logon) + ch->player_data.time.played, 0);
@@ -879,7 +901,7 @@ void PrintScoreBase(CharData *ch) {
 	}
 
 	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kForge)
-		&& (ch->GetSkill(ESkill::kJewelry) || ch->GetSkill(ESkill::kRepair) || ch->GetSkill(ESkill::kReforging))) {
+		&& (GetSkill(ch, ESkill::kJewelry) || GetSkill(ch, ESkill::kRepair) || GetSkill(ch, ESkill::kReforging))) {
 		snprintf(buf, sizeof(buf),
 				"%sЭто место отлично подходит для занятий кузнечным делом.%s\r\n",
 				kColorBoldGrn,
@@ -904,7 +926,7 @@ void PrintScoreBase(CharData *ch) {
 				"Вам предстоит провести в темнице еще %d %s %d %s [%s].\r\n",
 				hrs, grammar::GetDeclensionInNumber(hrs, grammar::EWhat::kHour), mins, grammar::GetDeclensionInNumber(mins,
 																						   grammar::EWhat::kMinU),
-				punishments::Get(ch, punishments::EType::kHell).reason ? punishments::Get(ch, punishments::EType::kHell).reason : "-");
+				punishments::Get(ch, punishments::EType::kHell).reason.empty() ? "-" : punishments::Get(ch, punishments::EType::kHell).reason.c_str());
 		SendMsgToChar(buf, ch);
 	}
 	if (ch->IsFlagged(EPlrFlag::kMuted) && punishments::Get(ch, punishments::EType::kMute).duration != 0 && punishments::Get(ch, punishments::EType::kMute).duration > time(nullptr)) {
@@ -912,7 +934,7 @@ void PrintScoreBase(CharData *ch) {
 		const int mins = ((punishments::Get(ch, punishments::EType::kMute).duration - time(nullptr)) % 3600 + 59) / 60;
 		snprintf(buf, sizeof(buf), "Вы не сможете кричать еще %d %s %d %s [%s].\r\n",
 				hrs, grammar::GetDeclensionInNumber(hrs, grammar::EWhat::kHour),
-				mins, grammar::GetDeclensionInNumber(mins, grammar::EWhat::kMinU), punishments::Get(ch, punishments::EType::kMute).reason ? punishments::Get(ch, punishments::EType::kMute).reason : "-");
+				mins, grammar::GetDeclensionInNumber(mins, grammar::EWhat::kMinU), punishments::Get(ch, punishments::EType::kMute).reason.empty() ? "-" : punishments::Get(ch, punishments::EType::kMute).reason.c_str());
 		SendMsgToChar(buf, ch);
 	}
 	if (ch->IsFlagged(EPlrFlag::kDumbed) && punishments::Get(ch, punishments::EType::kDumb).duration != 0 && punishments::Get(ch, punishments::EType::kDumb).duration > time(nullptr)) {
@@ -920,7 +942,7 @@ void PrintScoreBase(CharData *ch) {
 		const int mins = ((punishments::Get(ch, punishments::EType::kDumb).duration - time(nullptr)) % 3600 + 59) / 60;
 		snprintf(buf, sizeof(buf), "Вы будете молчать еще %d %s %d %s [%s].\r\n",
 				hrs, grammar::GetDeclensionInNumber(hrs, grammar::EWhat::kHour),
-				mins, grammar::GetDeclensionInNumber(mins, grammar::EWhat::kMinU), punishments::Get(ch, punishments::EType::kDumb).reason ? punishments::Get(ch, punishments::EType::kDumb).reason : "-");
+				mins, grammar::GetDeclensionInNumber(mins, grammar::EWhat::kMinU), punishments::Get(ch, punishments::EType::kDumb).reason.empty() ? "-" : punishments::Get(ch, punishments::EType::kDumb).reason.c_str());
 		SendMsgToChar(buf, ch);
 	}
 	if (ch->IsFlagged(EPlrFlag::kFrozen) && punishments::Get(ch, punishments::EType::kFreeze).duration != 0 && punishments::Get(ch, punishments::EType::kFreeze).duration > time(nullptr)) {
@@ -928,7 +950,7 @@ void PrintScoreBase(CharData *ch) {
 		const int mins = ((punishments::Get(ch, punishments::EType::kFreeze).duration - time(nullptr)) % 3600 + 59) / 60;
 		snprintf(buf, sizeof(buf), "Вы будете заморожены еще %d %s %d %s [%s].\r\n",
 				hrs, grammar::GetDeclensionInNumber(hrs, grammar::EWhat::kHour),
-				mins, grammar::GetDeclensionInNumber(mins, grammar::EWhat::kMinU), punishments::Get(ch, punishments::EType::kFreeze).reason ? punishments::Get(ch, punishments::EType::kFreeze).reason : "-");
+				mins, grammar::GetDeclensionInNumber(mins, grammar::EWhat::kMinU), punishments::Get(ch, punishments::EType::kFreeze).reason.empty() ? "-" : punishments::Get(ch, punishments::EType::kFreeze).reason.c_str());
 		SendMsgToChar(buf, ch);
 	}
 
@@ -937,7 +959,7 @@ void PrintScoreBase(CharData *ch) {
 		const int mins = ((punishments::Get(ch, punishments::EType::kUnreg).duration - time(nullptr)) % 3600 + 59) / 60;
 		snprintf(buf, sizeof(buf), "Вы не сможете заходить с одного IP еще %d %s %d %s [%s].\r\n",
 				hrs, grammar::GetDeclensionInNumber(hrs, grammar::EWhat::kHour),
-				mins, grammar::GetDeclensionInNumber(mins, grammar::EWhat::kMinU), punishments::Get(ch, punishments::EType::kUnreg).reason ? punishments::Get(ch, punishments::EType::kUnreg).reason : "-");
+				mins, grammar::GetDeclensionInNumber(mins, grammar::EWhat::kMinU), punishments::Get(ch, punishments::EType::kUnreg).reason.empty() ? "-" : punishments::Get(ch, punishments::EType::kUnreg).reason.c_str());
 		SendMsgToChar(buf, ch);
 	}
 
@@ -969,28 +991,6 @@ void PrintScoreBase(CharData *ch) {
 			}
 		}
 	}
-	if (ch->get_ice_currency() > 0) {
-		if (ch->get_ice_currency() == 1) {
-			snprintf(buf, sizeof(buf), "У вас в наличии есть одна жалкая искристая снежинка.\r\n");
-			SendMsgToChar(buf, ch);
-		} else if (ch->get_ice_currency() < 5) {
-			snprintf(buf, sizeof(buf), "У вас в наличии есть жалкие %d искристые снежинки.\r\n", ch->get_ice_currency());
-			SendMsgToChar(buf, ch);
-		} else {
-			snprintf(buf, sizeof(buf), "У вас в наличии есть %d искристых снежинок.\r\n", ch->get_ice_currency());
-			SendMsgToChar(buf, ch);
-		}
-	}
-	if (ch->get_nogata() > 0 && ROOM_FLAGGED(ch->in_room, ERoomFlag::kDominationArena)) {
-		int value = ch->get_nogata();
-		if (ch->get_nogata() == 1) {
-			snprintf(buf, sizeof(buf), "У вас в наличии есть одна жалкая ногата.\r\n");
-		}
-		else {
-			snprintf(buf, sizeof(buf), "У вас в наличии есть %d %s.\r\n", value, grammar::GetDeclensionInNumber(value, grammar::EWhat::kNogataU));
-		}
-		SendMsgToChar(buf, ch);
-	}
 }
 
 int CalcHitroll(CharData *ch) {
@@ -1001,7 +1001,7 @@ int CalcHitroll(CharData *ch) {
 	if (weapon) {
 		if (weapon->get_type() == EObjType::kWeapon) {
 			skill = static_cast<ESkill>(weapon->get_spec_param());
-			if (ch->GetSkill(skill) == 0) {
+			if (GetSkill(ch, skill) == 0) {
 				hr -= (50 - std::min(50, GetRealInt(ch))) / 3;
 			} else {
 				GetClassWeaponMod(ch->GetClass(), skill, &max_dam, &hr);
@@ -1012,7 +1012,7 @@ int CalcHitroll(CharData *ch) {
 		if (weapon) {
 			if (weapon->get_type() == EObjType::kWeapon) {
 				skill = static_cast<ESkill>(weapon->get_spec_param());
-				if (ch->GetSkill(skill) == 0) {
+				if (GetSkill(ch, skill) == 0) {
 					hr -= (50 - std::min(50, GetRealInt(ch))) / 3;
 				} else {
 					GetClassWeaponMod(ch->GetClass(), skill, &max_dam, &hr);
@@ -1023,7 +1023,7 @@ int CalcHitroll(CharData *ch) {
 		if (weapon) {
 			if (weapon->get_type() == EObjType::kWeapon) {
 				skill = static_cast<ESkill>(weapon->get_spec_param());
-				if (ch->GetSkill(skill) == 0) {
+				if (GetSkill(ch, skill) == 0) {
 					hr -= (50 - std::min(50, GetRealInt(ch))) / 3;
 				} else {
 					GetClassWeaponMod(ch->GetClass(), skill, &max_dam, &hr);
@@ -1056,7 +1056,7 @@ int CalcHitroll(CharData *ch) {
 	if (ch->IsFlagged(EPrf::kPerformGreatAimingAttack)) {
 		hr += 4;
 	}
-	hr -= (mount::IsOnHorse(ch) ? (10 - ch->GetSkill(ESkill::kRiding) / 20) : 0);
+	hr -= (mount::IsOnHorse(ch) ? (10 - GetSkill(ch, ESkill::kRiding) / 20) : 0);
 	hr *= condition::GetCondPenalty(ch, condition::kHitroll);
 	return hr;
 }

@@ -1,4 +1,8 @@
+#include "gameplay/mechanics/equipment.h"
 #include "do_stat.h"
+#include "utils/utils_string.h"
+#include "gameplay/core/experience.h"
+#include "gameplay/economics/currencies.h"
 #include "gameplay/mechanics/condition.h"
 #include "gameplay/mechanics/magic_item.h"
 #include "gameplay/fight/fight_messages.h"
@@ -21,6 +25,7 @@
 #include "gameplay/statistics/mob_stat.h"
 #include "engine/ui/modify.h"
 #include "engine/db/global_objects.h"
+#include "utils/grammar/declensions.h"
 #include "gameplay/mechanics/depot.h"
 #include "gameplay/magic/magic.h"
 #include "gameplay/mechanics/noob.h"
@@ -176,13 +181,13 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 		if (k->IsFlagged(EPlrFlag::kFrozen) && punishments::Get(k, punishments::EType::kFreeze).duration) {
 			snprintf(buf, sizeof(buf), "Заморожен : %ld час [%s].\r\n",
 					static_cast<long>((punishments::Get(k, punishments::EType::kFreeze).duration - time(nullptr)) / 3600),
-					punishments::Get(k, punishments::EType::kFreeze).reason ? punishments::Get(k, punishments::EType::kFreeze).reason : "-");
+					punishments::Get(k, punishments::EType::kFreeze).reason.empty() ? "-" : punishments::Get(k, punishments::EType::kFreeze).reason.c_str());
 			SendMsgToChar(buf, ch);
 		}
 		if (k->IsFlagged(EPlrFlag::kHelled) && punishments::Get(k, punishments::EType::kHell).duration) {
 			snprintf(buf, sizeof(buf), "Находится в темнице : %ld час [%s].\r\n",
 					static_cast<long>((punishments::Get(k, punishments::EType::kHell).duration - time(nullptr)) / 3600),
-					punishments::Get(k, punishments::EType::kHell).reason ? punishments::Get(k, punishments::EType::kHell).reason : "-");
+					punishments::Get(k, punishments::EType::kHell).reason.empty() ? "-" : punishments::Get(k, punishments::EType::kHell).reason.c_str());
 			SendMsgToChar(buf, ch);
 		}
 		if (k->IsFlagged(EPlrFlag::kNameDenied) && punishments::Get(k, punishments::EType::kName).duration) {
@@ -193,19 +198,19 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 		if (k->IsFlagged(EPlrFlag::kMuted) && punishments::Get(k, punishments::EType::kMute).duration) {
 			snprintf(buf, sizeof(buf), "Будет молчать : %ld час [%s].\r\n",
 					static_cast<long>((punishments::Get(k, punishments::EType::kMute).duration - time(nullptr)) / 3600),
-					punishments::Get(k, punishments::EType::kMute).reason ? punishments::Get(k, punishments::EType::kMute).reason : "-");
+					punishments::Get(k, punishments::EType::kMute).reason.empty() ? "-" : punishments::Get(k, punishments::EType::kMute).reason.c_str());
 			SendMsgToChar(buf, ch);
 		}
 		if (k->IsFlagged(EPlrFlag::kDumbed) && punishments::Get(k, punishments::EType::kDumb).duration) {
 			snprintf(buf, sizeof(buf), "Будет нем : %ld мин [%s].\r\n",
 					static_cast<long>((punishments::Get(k, punishments::EType::kDumb).duration - time(nullptr)) / 60),
-					punishments::Get(k, punishments::EType::kDumb).reason ? punishments::Get(k, punishments::EType::kDumb).reason : "-");
+					punishments::Get(k, punishments::EType::kDumb).reason.empty() ? "-" : punishments::Get(k, punishments::EType::kDumb).reason.c_str());
 			SendMsgToChar(buf, ch);
 		}
 		if (!k->IsFlagged(EPlrFlag::kRegistred) && punishments::Get(k, punishments::EType::kUnreg).duration) {
 			snprintf(buf, sizeof(buf), "Не будет зарегистрирован : %ld час [%s].\r\n",
 					static_cast<long>((punishments::Get(k, punishments::EType::kUnreg).duration - time(nullptr)) / 3600),
-					punishments::Get(k, punishments::EType::kUnreg).reason ? punishments::Get(k, punishments::EType::kUnreg).reason : "-");
+					punishments::Get(k, punishments::EType::kUnreg).reason.empty() ? "-" : punishments::Get(k, punishments::EType::kUnreg).reason.c_str());
 			SendMsgToChar(buf, ch);
 		}
 
@@ -234,9 +239,8 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 
 	if (!k->IsNpc()) {
 		snprintf(smallBuf, sizeof(smallBuf), "%s", MUD::Class(k->GetClass()).GetCName());
-		snprintf(buf, sizeof(buf), "Племя: %s, Род: %s, Профессия: %s",
-				PlayerRace::GetKinNameByNum(GET_KIN(k), k->get_sex()).c_str(),
-				k->get_race_name().c_str(),
+		snprintf(buf, sizeof(buf), "Род: %s, Профессия: %s",
+				MUD::RaceMessages().GetMessage(GET_RACE(k), k->get_sex()).c_str(),
 				smallBuf);
 		SendMsgToChar(buf, ch);
 	} else {
@@ -250,9 +254,9 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 	}
 
 	char tmp_buf[256];
-	if (k->get_zone_group() > 1) {
+	if (experience::GetZoneGroup(k) > 1) {
 		snprintf(tmp_buf, sizeof(tmp_buf), " : групповой %ldx%d",
-				 k->get_exp() / k->get_zone_group(), k->get_zone_group());
+				 k->get_exp() / experience::GetZoneGroup(k), experience::GetZoneGroup(k));
 	} else {
 		tmp_buf[0] = '\0';
 	}
@@ -282,14 +286,23 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 		SendMsgToChar(buf, ch);
 
 		{
-			std::string sline = fmt::sprintf("Рента: [%d], Денег: [%9ld], В банке: [%9ld] (Всего: %ld), Гривны: %d, Ногат: %d",
-					GET_LOADROOM(k), k->get_gold(), k->get_bank(), k->get_total_gold(),
-					k->get_hryvn(), k->get_nogata());
-			if (GetRealLevel(ch) >= kLvlImmortal) {
-				sline += fmt::sprintf(", %sOLC[%d]%s", kColorGrn, GET_OLC_ZONE(k), kColorNrm);
+			// сегменты без запятых -- разделитель ", " и перенос по ширине добавит OutWordsList
+			std::vector<std::string> parts;
+			parts.push_back(fmt::sprintf("Рента: [%d], Денег: [%9ld], В банке: [%9ld] (Всего: %ld)",
+					GET_LOADROOM(k), currencies::GetHand(*k, currencies::kGold), currencies::GetBank(*k, currencies::kGold), currencies::GetTotal(*k, currencies::kGold)));
+			for (const auto &cur : MUD::Currencies()) {
+				if (cur.GetId() < 0 || cur.GetTextId() == currencies::kGold) { continue; }
+				const long cur_total = currencies::GetTotal(*k, cur.GetTextId());
+				if (cur_total != 0) {
+					parts.push_back(fmt::sprintf("%s: %ld", cur.GetName(grammar::ECase::kNom).c_str(), cur_total));
+				}
 			}
-			sline += "\r\n";
-			SendMsgToChar(sline, ch);
+			if (GetRealLevel(ch) >= kLvlImmortal) {
+				parts.push_back(fmt::sprintf("%sOLC[%d]%s", kColorGrn, GET_OLC_ZONE(k), kColorNrm));
+			}
+			const size_t width = (!ch->IsNpc() && ch->player_specials->saved.stringLength > 0)
+					? ch->player_specials->saved.stringLength : 120;
+			SendMsgToChar(utils::OutWordsList(parts, width, ", ") + "\r\n", ch);
 		}
 	} else {
 		int mob_online = mob_index[k->get_rnum()].total_online - (virt ? 1 : 0);
@@ -318,16 +331,16 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 	SendMsgToChar(buf, ch);
 	if (IS_MANA_CASTER(k)) {
 		snprintf(buf, sizeof(buf), " Мана :[%s%d/%d+%d%s]\r\n",
-				kColorGrn, k->mem_queue.stored, mana[MIN(50, GetRealWis(k))], CalcManaGain(k), kColorNrm);
+				kColorGrn, k->mem_queue.stored, Mana(GetRealWis(k)), CalcManaGain(k), kColorNrm);
 	} else {
 		snprintf(buf, sizeof(buf), "\r\n");
 	}
 	SendMsgToChar(buf, ch);
 
 	snprintf(buf, sizeof(buf),
-			"Glory: [%d], ConstGlory: [%d], AC: [%d/%d(%d)], Броня: [%d], Попадания: [%2d/%2d/%d], Повреждения: [%2d/%2d/%d]\r\n",
+			"Glory: [%d], ConstGlory: [%ld], AC: [%d/%d(%d)], Броня: [%d], Попадания: [%2d/%2d/%d], Повреждения: [%2d/%2d/%d]\r\n",
 			Glory::get_glory(k->get_uid()),
-			GloryConst::get_glory(k->get_uid()),
+			currencies::GetHand(*k, currencies::kGlory),
 			GET_AC(k),
 			GetRealAc(k),
 			CalcBaseAc(k),
@@ -427,8 +440,8 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 					  kColorNrm);
 		SendMsgToChar(ch, "&GУмения:&c");
 		for (const auto &skill : MUD::Skills()) {
-			if (skill.IsValid() && k->GetSkill(skill.GetId())) {
-				SendMsgToChar(ch, " %s:[%d]", skill.GetName(), k->GetSkill(skill.GetId()));
+			if (skill.IsValid() && GetSkill(k, skill.GetId())) {
+				SendMsgToChar(ch, " %s:[%d]", skill.GetName(), GetSkill(k, skill.GetId()));
 			}
 		}
 		SendMsgToChar(ch, "\r\n");
@@ -512,12 +525,12 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 	} else {
 		k->char_specials.saved.act.sprintbits(player_bits, smallBuf, sizeof(smallBuf), ", ", 4);
 		std::vector<std::string> out_str = utils::Split(smallBuf, ',');
-		snprintf(buf, sizeof(buf), "PLR: %s%s%s\r\n", kColorCyn, utils::OutWordsList(out_str, ch->player_specials->saved.stringLength - 10).c_str(), kColorNrm);
+		snprintf(buf, sizeof(buf), "%s%s%s\r\n", kColorCyn, utils::OutWordsList(out_str, ch->player_specials->saved.stringLength, ", ", "PLR: ").c_str(), kColorNrm);
 		SendMsgToChar(buf, ch);
 
 		k->player_specials->saved.pref.sprintbits(preference_bits, smallBuf, sizeof(smallBuf), ", ", 4);
 		out_str = utils::Split(smallBuf, ',');
-		snprintf(buf, sizeof(buf), "PRF: %s%s%s\r\n", kColorGrn, utils::OutWordsList(out_str, ch->player_specials->saved.stringLength - 10).c_str(), kColorNrm);
+		snprintf(buf, sizeof(buf), "%s%s%s\r\n", kColorGrn, utils::OutWordsList(out_str, ch->player_specials->saved.stringLength, ", ", "PRF: ").c_str(), kColorNrm);
 		SendMsgToChar(buf, ch);
 
 		if (privilege::IsImpl(ch)) {
@@ -526,7 +539,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 				strcpy(smallBuf, "nothing");  // immortal-only command, so a plain English literal is fine
 			}
 			out_str = utils::Split(smallBuf, ',');
-			snprintf(buf, sizeof(buf), "GFL: %s%s%s\r\n", kColorCyn, utils::OutWordsList(out_str, ch->player_specials->saved.stringLength - 10).c_str(), kColorNrm);
+			snprintf(buf, sizeof(buf), "%s%s%s\r\n", kColorCyn, utils::OutWordsList(out_str, ch->player_specials->saved.stringLength, ", ", "GFL: ").c_str(), kColorNrm);
 			SendMsgToChar(buf, ch);
 		}
 	}
@@ -560,24 +573,24 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 	if (god_level >= kLvlGreatGod) {
 		std::string fl_str;
 
-		SendMsgToChar(ch, "Ведущий: %s, Ведомые: ", (k->has_master() ? GET_NAME(k->get_master()) : "<нет>"));
+		// "Ведущий: X, Ведомые: " передаём префиксом -- его длина (с именем
+		// ведущего) учитывается в ширине строки автоматически, без магического -30.
+		const std::string lead_prefix =
+			fmt::format("Ведущий: {}, Ведомые: ", (k->has_master() ? GET_NAME(k->get_master()) : "<нет>"));
 		for (auto &it : k->followers) {
-			if (!it->IsNpc()) { 
+			if (!it->IsNpc()) {
 				fl_str += " " + it->get_name();
 			} else {
-				fl_str += " " + it->get_name() + "_#" + std::to_string(GET_MOB_VNUM(it)); 
+				fl_str += " " + it->get_name() + "_#" + std::to_string(GET_MOB_VNUM(it));
 			}
 		}
-		SendMsgToChar(ch, "%s\r\n", utils::OutWordsList(fl_str, ch->player_specials->saved.stringLength - 30).c_str());
+		SendMsgToChar(ch, "%s\r\n", utils::OutWordsList(fl_str, ch->player_specials->saved.stringLength, ", ", lead_prefix).c_str());
 		if (ch->IsNpc()) {
-			SendMsgToChar(ch, "Помогают: ");
-			if (!k->summon_helpers.empty()) {
-				fl_str.clear();
-				for (auto &helper : k->summon_helpers) {
-					fl_str += " " +  std::to_string(helper);
-				}
-				SendMsgToChar(ch, "%s\r\n", utils::OutWordsList(fl_str, ch->player_specials->saved.stringLength - 30).c_str());
+			fl_str.clear();
+			for (auto &helper : k->summon_helpers) {
+				fl_str += " " +  std::to_string(helper);
 			}
+			SendMsgToChar(ch, "%s\r\n", utils::OutWordsList(fl_str, ch->player_specials->saved.stringLength, ", ", "Помогают: ").c_str());
 		}
 	}
 	// Showing the bitvector
@@ -887,16 +900,20 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 				case EBook::kReceipt: {
 					const auto recipe = im_get_recipe(GET_OBJ_VAL(j, 1));
 					if (recipe >= 0) {
-						const auto recipelevel = std::max(GET_OBJ_VAL(j, 2), imrecipes[recipe].level);
-						const auto recipemort = imrecipes[recipe].remort;
-						if ((recipelevel >= 0) && (recipemort >= 0)) {
+						// issue.class-recipes: требования теперь per-class; класса тут нет, поэтому
+						// показываем минимальные уровень/реморт среди владеющих классов.
+						const auto [minlevel, minremort] = classes::GetRecipeMinRequirements(imrecipes[recipe].str_id);
+						if ((minlevel >= 0) && (minremort >= 0)) {
+							const auto recipelevel = std::max(GET_OBJ_VAL(j, 2), minlevel);
 							snprintf(buf, sizeof(buf),
-									"содержит рецепт отвара     : \"%s\", уровень изучения: %d, количество ремортов: %d",
+									"содержит рецепт отвара     : \"%s\", мин. уровень изучения: %d, мин. количество ремортов: %d",
 									imrecipes[recipe].name,
 									recipelevel,
-									recipemort);
+									minremort);
 						} else {
-							snprintf(buf, sizeof(buf), "Некорректная запись рецепта (нет уровня или реморта)");
+							snprintf(buf, sizeof(buf),
+									"содержит рецепт отвара     : \"%s\" (не доступен ни одному классу)",
+									imrecipes[recipe].name);
 						}
 					} else
 						snprintf(buf, sizeof(buf), "Некорректная запись рецепта");
@@ -992,10 +1009,7 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 
 		case EObjType::kMoney:
 			snprintf(buf, sizeof(buf), "Сумма: %d\r\nВалюта: %s", GET_OBJ_VAL(j, 0),
-					GET_OBJ_VAL(j, 1) == currency::GOLD ? "куны" :
-					GET_OBJ_VAL(j, 1) == currency::ICE ? "искристые снежинки" :
-					"что-то другое"
-			);
+					MUD::Currency(GET_OBJ_VAL(j, 1)).GetCName(grammar::ECase::kNom));
 			break;
 
 		case EObjType::kMagicIngredient:sprintbit(j->get_spec_param(), ingradient_bits, smallBuf, sizeof(smallBuf));

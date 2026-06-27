@@ -14,7 +14,7 @@
 ************************************************************************ */
 
 #include "dg_scripts.h"
-#include "engine/core/handler.h"
+#include "engine/entities/char_data.h"
 #include "engine/scripting/lua/lua_script_engine.h"
 #include "gameplay/magic/magic_utils.h"
 #include "dg_event.h"
@@ -64,7 +64,7 @@ const char *skill_percent(Trigger *trig, CharData *ch, char *skill) {
 
 	const ESkill skill_id = FixNameAndFindSkillId(skill);
 	if (MUD::Skills().IsValid(skill_id)) {
-		sprintf(retval, "%d", ch->GetSkillBonus(skill_id));
+		sprintf(retval, "%d", GetSkillBonus(ch, skill_id));
 		return retval;
 	}
 	rid = im_get_recipe_by_name(skill);

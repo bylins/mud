@@ -21,7 +21,11 @@
 #include "engine/db/global_objects.h"
 #include "engine/ui/color.h"
 #include "gameplay/clans/house.h"
-#include "engine/core/handler.h"
+#include "engine/core/char_equip_flags.h"
+#include "engine/core/char_handler.h"
+#include "engine/entities/char_data.h"
+#include "gameplay/mechanics/equipment.h"
+#include "gameplay/mechanics/inventory.h"
 #include "fight.h"
 #include "gameplay/classes/pc_classes.h"
 #include "gameplay/mechanics/sight.h"
@@ -381,7 +385,7 @@ bool pk_agro_action(CharData *agressor, CharData *victim) {
 			stop_fighting(agressor, false);
 		act("$n был$g выдворен$a за пределы замка!", true, agressor, 0, 0, kToRoom);
 		RemoveCharFromRoom(agressor);
-		if (IS_FEMALE(agressor)) {
+		if (IsFemale(agressor)) {
 			SendMsgToChar("Охолонись малая, на своих бросаться не дело!\r\n", agressor);
 		} else {
 			SendMsgToChar("Охолонись малец, на своих бросаться не дело!\r\n", agressor);

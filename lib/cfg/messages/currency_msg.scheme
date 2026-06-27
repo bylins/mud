@@ -1,0 +1,40 @@
+<!--
+  Vedun editor scheme for cfg/messages/<lang>/currency_msg.xml (currency display names).
+  Sheaves are keyed by the currency text_id (matching currencies.xml), so a newly created
+  currency can get its name/declensions here. Locale-shared (lives one level up from the
+  per-language data dir). Undeclared nodes degrade to plain strings.
+-->
+<scheme>
+	<tag name="currency_msg" desc="Currency display names, keyed by currency text_id">
+		<child tag="msg_sheaf" multiple="Y"/>
+	</tag>
+	<tag name="msg_sheaf" desc="Names for one currency (id = its text_id)">
+		<attr name="id" type="string" readonly="Y" desc="Currency text_id (matches currencies.xml)"/>
+		<child tag="name"/>
+		<child tag="obj_names"/>
+	</tag>
+	<tag name="name" desc="Display name + declensions">
+		<attr name="gender" type="enum" enum="EGender" desc="kMale / kFemale / kNeutral / kPoly"/>
+		<attr name="search" type="string" desc="Keyword to find/give this currency"/>
+		<child tag="singular"/>
+		<child tag="plural"/>
+	</tag>
+	<tag name="singular" desc="Singular declensions">
+		<child tag="case" multiple="Y"/>
+	</tag>
+	<tag name="plural" desc="Plural declensions">
+		<child tag="case" multiple="Y"/>
+	</tag>
+	<tag name="case" desc="One declension form">
+		<attr name="id" type="enum" enum="ECase" desc="kNom/kGen/kDat/kAcc/kIns/kPre"/>
+		<attr name="val" type="string" desc="The declined form"/>
+	</tag>
+	<tag name="obj_names" desc="Money-object size-tier templates (defaults in the kDefault sheaf; a currency may override)">
+		<child tag="obj_name" multiple="Y"/>
+	</tag>
+	<tag name="obj_name" desc="One size tier">
+		<attr name="id" type="string" desc="Tier id, e.g. kTinyAmountDesc"/>
+		<attr name="from" type="int" min="0" desc="Lower amount bound for this tier"/>
+		<attr name="val" type="string" desc="Template: {adjective_ending}/{noun_ending}/{currency_name}"/>
+	</tag>
+</scheme>

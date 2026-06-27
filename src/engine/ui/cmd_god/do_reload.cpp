@@ -3,6 +3,7 @@
 //
 
 #include "administration/ban.h"
+#include "engine/db/player_index.h"
 #include <map>
 #include "engine/entities/char_data.h"
 #include "gameplay/clans/house.h"
@@ -30,17 +31,7 @@
 #include <fmt/format.h>
 #include "administration/proxy.h"
 
-extern char *credits;
-extern char *info;
-extern char *motd;
-extern char *rules;
-extern char *immlist;
-extern char *policies;
-extern char *handbook;
-extern char *name_rules;
-extern char *background;
 extern char *help;
-extern char *greetings;
 
 void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	argument = one_argument(argument, arg);
@@ -55,72 +46,77 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			"  cfg data : abilities skills spells feats classes mobclasses guilds currencies\r\n"
 			"             ztypes runes mobraces objsets\r\n"
 			"  messages : spellmsg skillmsg hitmsg\r\n"
-			"  systems  : portals imagic oloadtable setstuff specials schedule clan proxy boards\r\n"
+			"  systems  : portals imagic oloadtable specials schedule clan proxy boards\r\n"
 			"             globaldrop offtop shop named celebrates setsdrop remort daily resetstats\r\n"
-			"  text     : immlist credits motd rules help info policy handbook background namerules\r\n"
-			"             greetings xhelp socials noobhelp titles emails privilege\r\n"
+			"             digging guards jewelry makeitems basic cases\r\n"
+			"  text     : systemmsg help xhelp socials noobhelp titles emails privilege\r\n"
 			"  depot <char-name>\r\n", ch);
 		return;
 	}
 
 	if (!str_cmp(arg, "all") || *arg == '*') {
-		if (AllocateBufferForFile(GREETINGS_FILE, &greetings) == 0) {
-			PruneCrlf(greetings);
-		}
-		AllocateBufferForFile(IMMLIST_FILE, &immlist);
-		AllocateBufferForFile(CREDITS_FILE, &credits);
-		AllocateBufferForFile(MOTD_FILE, &motd);
-		AllocateBufferForFile(RULES_FILE, &rules);
 		AllocateBufferForFile(HELP_PAGE_FILE, &help);
-		AllocateBufferForFile(INFO_FILE, &info);
-		AllocateBufferForFile(POLICIES_FILE, &policies);
-		AllocateBufferForFile(HANDBOOK_FILE, &handbook);
-		AllocateBufferForFile(BACKGROUND_FILE, &background);
-		AllocateBufferForFile(NAME_RULES_FILE, &name_rules);
-		MUD::CfgManager().ReloadCfg("socials");
+		MUD::CfgManager().ReloadCfg("system_msg");
+		MUD::CfgManager().ReloadCfg("social_msg");
 		initIngredientsMagic();
 		MUD::CfgManager().ReloadCfg("zone_types");
 		MUD::CfgManager().ReloadCfg("rune_spells");
 		ReloadSpecProcs();
-		MUD::CfgManager().ReloadCfg("rune_stone_messages");
+		MUD::CfgManager().ReloadCfg("rune_stone_msg");
 		MUD::CfgManager().ReloadCfg("rune_stones");
 		MUD::Runestones().SpawnStones();   // phase 3: (re)place physical stones for any new rooms
 		LoadSheduledReboot();
 		oload_table.init();
-		ObjData::InitSetTable();
 		MUD::CfgManager().ReloadCfg("mob_races");
+		MUD::CfgManager().ReloadCfg("stable_objs");
+		MUD::CfgManager().ReloadCfg("group_exp_handicap");
 		GlobalDrop::init();
 		offtop_system::Init();
-		celebrates::Load();
+		MUD::CfgManager().ReloadCfg("celebrates");   // issue.celebrates
 		HelpSystem::reload_all();
-		Noob::init();
-		stats_reset::init();
+		MUD::CfgManager().ReloadCfg("noob");
+		MUD::CfgManager().ReloadCfg("reset_stats");
+		MUD::CfgManager().ReloadCfg("digging");
+		MUD::CfgManager().ReloadCfg("jewelry");
+		MUD::CfgManager().ReloadCfg("item_creation");
+		MUD::CfgManager().ReloadCfg("basic");
 		Bonus::bonus_log_load();
-		DailyQuest::LoadFromFile();
+		MUD::CfgManager().ReloadCfg("daily_quest");   // issue.daily-quest
 	} else if (!str_cmp(arg, "portals")) {
-		MUD::CfgManager().ReloadCfg("rune_stone_messages");
+		MUD::CfgManager().ReloadCfg("rune_stone_msg");
 		MUD::CfgManager().ReloadCfg("rune_stones");
 		MUD::Runestones().SpawnStones();   // phase 3: (re)place physical stones for any new rooms
 	} else if (!str_cmp(arg, "abilities")) {
 		MUD::CfgManager().ReloadCfg("abilities");
+	} else if (!str_cmp(arg, "stableobjs")) {
+		MUD::CfgManager().ReloadCfg("stable_objs");
 	} else if (!str_cmp(arg, "skills")) {
 		MUD::CfgManager().ReloadCfg("skills");
 	} else if (!str_cmp(arg, "spells")) {
 		MUD::CfgManager().ReloadCfg("spells");
 	} else if (!str_cmp(arg, "spellmsg")) {
-		MUD::CfgManager().ReloadCfg("spell_messages");
+		MUD::CfgManager().ReloadCfg("spell_msg");
 	} else if (!str_cmp(arg, "skillmsg")) {
-		MUD::CfgManager().ReloadCfg("skill_messages");
+		MUD::CfgManager().ReloadCfg("skill_msg");
     } else if (!str_cmp(arg, "hitmsg")) {
-        MUD::CfgManager().ReloadCfg("fight_messages");
+        MUD::CfgManager().ReloadCfg("hit_msg");
 	} else if (!str_cmp(arg, "feats")) {
 		MUD::CfgManager().ReloadCfg("feats");
 	} else if (!str_cmp(arg, "classes")) {
-		MUD::CfgManager().ReloadCfg("classes");
+		MUD::CfgManager().ReloadCfg("pc_classes");
 	} else if (!str_cmp(arg, "mobclasses")) {
 		MUD::CfgManager().ReloadCfg("mob_classes");
 	} else if (!str_cmp(arg, "guilds")) {
 		MUD::CfgManager().ReloadCfg("guilds");
+	} else if (!str_cmp(arg, "cities")) {
+		MUD::CfgManager().ReloadCfg("cities_msg");
+		MUD::CfgManager().ReloadCfg("cities");
+	} else if (!str_cmp(arg, "regions")) {
+		MUD::CfgManager().ReloadCfg("region_msg");
+		MUD::CfgManager().ReloadCfg("regions");
+	} else if (!str_cmp(arg, "pcraces")) {
+		MUD::CfgManager().ReloadCfg("pc_race_msg");
+		MUD::CfgManager().ReloadCfg("pc_races");
 	} else if (!str_cmp(arg, "currencies")) {
 		MUD::CfgManager().ReloadCfg("currencies");
 	} else if (!str_cmp(arg, "imagic"))
@@ -131,36 +127,14 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		MUD::CfgManager().ReloadCfg("rune_spells");
 	else if (!str_cmp(arg, "oloadtable"))
 		oload_table.init();
-	else if (!str_cmp(arg, "setstuff")) {
-		ObjData::InitSetTable();
-		HelpSystem::reload(HelpSystem::STATIC);
-	} else if (!str_cmp(arg, "immlist"))
-		AllocateBufferForFile(IMMLIST_FILE, &immlist);
-	else if (!str_cmp(arg, "credits"))
-		AllocateBufferForFile(CREDITS_FILE, &credits);
-	else if (!str_cmp(arg, "motd"))
-		AllocateBufferForFile(MOTD_FILE, &motd);
-	else if (!str_cmp(arg, "rules"))
-		AllocateBufferForFile(RULES_FILE, &rules);
+	else if (!str_cmp(arg, "systemmsg"))
+		MUD::CfgManager().ReloadCfg("system_msg");
 	else if (!str_cmp(arg, "help"))
 		AllocateBufferForFile(HELP_PAGE_FILE, &help);
-	else if (!str_cmp(arg, "info"))
-		AllocateBufferForFile(INFO_FILE, &info);
-	else if (!str_cmp(arg, "policy"))
-		AllocateBufferForFile(POLICIES_FILE, &policies);
-	else if (!str_cmp(arg, "handbook"))
-		AllocateBufferForFile(HANDBOOK_FILE, &handbook);
-	else if (!str_cmp(arg, "background"))
-		AllocateBufferForFile(BACKGROUND_FILE, &background);
-	else if (!str_cmp(arg, "namerules"))
-		AllocateBufferForFile(NAME_RULES_FILE, &name_rules);
-	else if (!str_cmp(arg, "greetings")) {
-		if (AllocateBufferForFile(GREETINGS_FILE, &greetings) == 0)
-			PruneCrlf(greetings);
-	} else if (!str_cmp(arg, "xhelp")) {
+	else if (!str_cmp(arg, "xhelp")) {
 		HelpSystem::reload_all();
 	} else if (!str_cmp(arg, "socials"))
-		MUD::CfgManager().ReloadCfg("socials");
+		MUD::CfgManager().ReloadCfg("social_msg");
 	else if (!str_cmp(arg, "specials"))
 		ReloadSpecProcs();
 	else if (!str_cmp(arg, "schedule"))
@@ -210,6 +184,8 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 	} else if (!str_cmp(arg, "globaldrop")) {
 		GlobalDrop::init();
+	} else if (!str_cmp(arg, "grouping")) {
+		MUD::CfgManager().ReloadCfg("group_exp_handicap");
 	} else if (!str_cmp(arg, "offtop")) {
 		offtop_system::Init();
 	} else if (!str_cmp(arg, "shop")) {
@@ -217,7 +193,7 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	} else if (!str_cmp(arg, "named")) {
 		NamedStuff::load();
 	} else if (!str_cmp(arg, "celebrates")) {
-		celebrates::Load();
+		MUD::CfgManager().ReloadCfg("celebrates");
 	} else if (!str_cmp(arg, "setsdrop") && ch->IsFlagged(EPrf::kCoderinfo)) {
 		skip_spaces(&argument);
 		if (*argument && is_number(argument)) {
@@ -226,13 +202,29 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			SetsDrop::reload();
 		}
 	} else if (!str_cmp(arg, "noobhelp")) {
-		Noob::init();
+		MUD::CfgManager().ReloadCfg("noob");
 	} else if (!str_cmp(arg, "resetstats")) {
-		stats_reset::init();
+		MUD::CfgManager().ReloadCfg("reset_stats");
+	} else if (!str_cmp(arg, "remort")) {
+		MUD::CfgManager().ReloadCfg("remort");
+	} else if (!str_cmp(arg, "digging")) {
+		MUD::CfgManager().ReloadCfg("digging");
+	} else if (!str_cmp(arg, "guards")) {
+		MUD::CfgManager().ReloadCfg("guards");
+	} else if (!str_cmp(arg, "jewelry")) {
+		MUD::CfgManager().ReloadCfg("jewelry");
+	} else if (!str_cmp(arg, "makeitems")) {
+		MUD::CfgManager().ReloadCfg("item_creation");
+	} else if (!str_cmp(arg, "basic")) {
+		MUD::CfgManager().ReloadCfg("basic");
 	} else if (!str_cmp(arg, "objsets")) {
-		obj_sets::load();
+		MUD::CfgManager().ReloadCfg("obj_sets");
+	} else if (!str_cmp(arg, "cases")) {
+		MUD::CfgManager().ReloadCfg("cases");
 	} else if (!str_cmp(arg, "daily")) {
-		DailyQuest::LoadFromFile(ch);
+		MUD::CfgManager().ReloadCfg("daily_quest");
+		SendMsgToChar(DailyQuest::GetLastLoadMessage(), ch);
+		SendMsgToChar("\r\n", ch);
 	} else {
 		SendMsgToChar("Неверный параметр для перезагрузки файлов.\r\n", ch);
 		return;

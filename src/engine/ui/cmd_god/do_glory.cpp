@@ -11,7 +11,6 @@
 #include "gameplay/mechanics/glory.h"
 #include "gameplay/mechanics/glory_misc.h"
 #include "engine/entities/char_player.h"
-#include "engine/core/handler.h"
 #include "engine/core/target_resolver.h"
 #include "administration/karma.h"
 
@@ -90,15 +89,10 @@ void DoGlory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	switch (mode) {
 		case kAddGlory: {
-			int amount = atoi((num + 1));
-			Glory::add_glory(vict->get_uid(), amount);
-			SendMsgToChar(ch, "%s добавлено %d у.е. славы (Всего: %d у.е.).\r\n",
-						  GET_PAD(vict, 2), amount, Glory::get_glory(vict->get_uid()));
-			imm_log("(GC) %s sets +%d glory to %s.", GET_NAME(ch), amount, GET_NAME(vict));
-			// запись в карму
-			sprintf(buf, "Change glory +%d by %s", amount, GET_NAME(ch));
-			AddKarma(vict, buf, reason);
-			GloryMisc::add_log(mode, amount, std::string(buf), std::string(reason), vict);
+			// issue.currency-storage P3: regular glory deferred; accrual disabled.
+			// Начисление обычной славы временно отключено (валюта не перенесена в новую систему).
+			SendMsgToChar("Начисление обычной славы временно отключено. "
+						  "Если эта валюта понадобится, ее нужно перенести в новую систему валют.\r\n", ch);
 			break;
 		}
 		case kSubGlory: {

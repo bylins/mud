@@ -10,63 +10,123 @@
 #include "gameplay/mechanics/mount.h"
 
 #include "engine/entities/char_data.h"
-#include "engine/core/handler.h"
+#include "engine/core/char_handler.h"
+#include "engine/core/char_movement.h"
+#include "engine/core/obj_handler.h"
+#include "gameplay/mechanics/inventory.h"
 #include "engine/db/obj_prototypes.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/core/base_stats.h"
 #include "gameplay/mechanics/illumination.h"
+#include "utils/utils_parse.h"
+#include "utils/utils_string.h"
 
-skillvariables_dig dig_vars;
+#include <algorithm>
+
 extern void split_or_clan_tax(CharData *ch, long amount);
 
-void InitMiningVars() {
-	char line[256];
-	FILE *cfg_file;
+namespace mining {
 
-	if (!(cfg_file = fopen(LIB_MISC "skillvariables.lst", "r"))) {
-		log("Cann't open skillvariables list file...");
-		graceful_exit(1);
+DiggingCfg dig_cfg;
+
+namespace {
+
+// Целочисленный атрибут DataNode; def при отсутствии/некорректном значении.
+using parse::AttrInt;
+
+// Разбор списка vnum'ов вида "900|901|902" в вектор.
+std::vector<int> ParseVnumList(const char *value) {
+	std::vector<int> result;
+	if (!value || !*value) {
+		return result;
 	}
-
-	while (get_line(cfg_file, line)) {
-		if (!line[0] || line[0] == ';')
-			continue;
-
-		sscanf(line, "dig_hole_max_deep %d", &dig_vars.hole_max_deep);
-		sscanf(line, "dig_instr_crash_chance %d", &dig_vars.instr_crash_chance);
-		sscanf(line, "dig_treasure_chance %d", &dig_vars.treasure_chance);
-		sscanf(line, "dig_pandora_chance %d", &dig_vars.pandora_chance);
-		sscanf(line, "dig_mob_chance %d", &dig_vars.mob_chance);
-		sscanf(line, "dig_trash_chance %d", &dig_vars.trash_chance);
-		sscanf(line, "dig_lag %d", &dig_vars.lag);
-		sscanf(line, "dig_prob_divide %d", &dig_vars.prob_divide);
-		sscanf(line, "dig_glass_chance %d", &dig_vars.glass_chance);
-		sscanf(line, "dig_need_moves %d", &dig_vars.need_moves);
-
-		sscanf(line, "dig_stone1_skill %d", &dig_vars.stone1_skill);
-		sscanf(line, "dig_stone2_skill %d", &dig_vars.stone2_skill);
-		sscanf(line, "dig_stone3_skill %d", &dig_vars.stone3_skill);
-		sscanf(line, "dig_stone4_skill %d", &dig_vars.stone4_skill);
-		sscanf(line, "dig_stone5_skill %d", &dig_vars.stone5_skill);
-		sscanf(line, "dig_stone6_skill %d", &dig_vars.stone6_skill);
-		sscanf(line, "dig_stone7_skill %d", &dig_vars.stone7_skill);
-		sscanf(line, "dig_stone8_skill %d", &dig_vars.stone8_skill);
-		sscanf(line, "dig_stone9_skill %d", &dig_vars.stone9_skill);
-
-		sscanf(line, "dig_stone1_vnum %d", &dig_vars.stone1_vnum);
-		sscanf(line, "dig_trash_vnum_start %d", &dig_vars.trash_vnum_start);
-		sscanf(line, "dig_trash_vnum_end %d", &dig_vars.trash_vnum_end);
-		sscanf(line, "dig_mob_vnum_start %d", &dig_vars.mob_vnum_start);
-		sscanf(line, "dig_mob_vnum_end %d", &dig_vars.mob_vnum_end);
-		sscanf(line, "dig_pandora_vnum %d", &dig_vars.pandora_vnum);
-
-		line[0] = '\0';
+	for (const auto &token : utils::Split(value, '|')) {
+		try {
+			result.push_back(std::stoi(token));
+		} catch (...) {
+			err_log("digging: vnum '%s' cannot be converted into num.", token.c_str());
+		}
 	}
-	fclose(cfg_file);
+	return result;
 }
 
+} // namespace
+
+void DiggingLoader::Load(parser_wrapper::DataNode data) {
+	DiggingCfg tmp;   // собираем во временный, чтобы при ошибке не повредить рабочий
+
+	// <stones><stone rank stone_vnum glass_vnum skill/></stones>
+	{
+		auto node = data;
+		if (node.GoToChild("stones")) {
+			for (auto &stone_node : node.Children("stone")) {
+				DigStone s;
+				s.rank = AttrInt(stone_node, "rank", 0);
+				s.stone_vnum = AttrInt(stone_node, "stone_vnum", 0);
+				s.glass_vnum = AttrInt(stone_node, "glass_vnum", 0);
+				s.skill = AttrInt(stone_node, "skill", 0);
+				tmp.stones.push_back(s);
+			}
+		}
+	}
+	// упорядочиваем по возрастанию навыка (на случай произвольного порядка в файле)
+	std::sort(tmp.stones.begin(), tmp.stones.end(),
+			  [](const DigStone &a, const DigStone &b) { return a.skill < b.skill; });
+
+	auto scalar = [&](const char *tag, int def) -> int {
+		auto node = data;
+		if (node.GoToChild(tag)) {
+			return AttrInt(node, "val", def);
+		}
+		return def;
+	};
+
+	tmp.hole_max_deep = scalar("hole_max_deep", tmp.hole_max_deep);
+	tmp.tool_crash_chance = scalar("tool_crash_chance", tmp.tool_crash_chance);
+	tmp.treasure_chance = scalar("treasure_chance", tmp.treasure_chance);
+	tmp.lag = scalar("lag", tmp.lag);
+	tmp.skill_divisor = scalar("skill_divisor", tmp.skill_divisor);
+	tmp.glass_chance = scalar("glass_chance", tmp.glass_chance);
+	tmp.moves_expense = scalar("moves_expense", tmp.moves_expense);
+
+	// <jackpot vnum chance/>
+	{
+		auto node = data;
+		if (node.GoToChild("jackpot")) {
+			tmp.jackpot_vnum = AttrInt(node, "vnum", tmp.jackpot_vnum);
+			tmp.jackpot_chance = AttrInt(node, "chance", tmp.jackpot_chance);
+		}
+	}
+	// <mob vnum="a|b|..." chance/>
+	{
+		auto node = data;
+		if (node.GoToChild("mob")) {
+			tmp.mob_vnums = ParseVnumList(node.GetValue("vnum"));
+			tmp.mob_chance = AttrInt(node, "chance", tmp.mob_chance);
+		}
+	}
+	// <trash vnum="a|b|..." chance/>
+	{
+		auto node = data;
+		if (node.GoToChild("trash")) {
+			tmp.trash_vnums = ParseVnumList(node.GetValue("vnum"));
+			tmp.trash_chance = AttrInt(node, "chance", tmp.trash_chance);
+		}
+	}
+
+	dig_cfg = std::move(tmp);
+}
+
+void DiggingLoader::Reload(parser_wrapper::DataNode data) {
+	Load(std::move(data));
+}
+
+} // namespace mining
+
+using mining::dig_cfg;
+
 int make_hole(CharData *ch) {
-	if (round_up(world[ch->in_room]->holes / kHolesTime) >= dig_vars.hole_max_deep) {
+	if (round_up(world[ch->in_room]->holes / kHolesTime) >= dig_cfg.hole_max_deep) {
 		SendMsgToChar("Тут и так все перекопано.\r\n", ch);
 		return 0;
 	}
@@ -83,7 +143,7 @@ void break_inst(CharData *ch) {
 			&& (strstr(GET_EQ(ch, i)->get_aliases().c_str(), "лопата")
 				|| strstr(GET_EQ(ch, i)->get_aliases().c_str(), "кирка"))) {
 			if (GET_EQ(ch, i)->get_current_durability() > 1) {
-				if (number(1, dig_vars.instr_crash_chance) == 1) {
+				if (number(1, dig_cfg.tool_crash_chance) == 1) {
 					const auto current = GET_EQ(ch, i)->get_current_durability();
 					GET_EQ(ch, i)->set_current_durability(current - 1);
 				}
@@ -137,11 +197,11 @@ void do_dig(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	CharData *mob;
 	char textbuf[300];
 	int percent, prob;
-	int stone_num, random_stone;
+	int random_stone;
 	int vnum;
 	int old_int;
 
-	if (ch->IsNpc() || !ch->GetSkill(ESkill::kDigging)) {
+	if (ch->IsNpc() || !GetSkill(ch, ESkill::kDigging)) {
 		SendMsgToChar("Но вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -175,7 +235,7 @@ void do_dig(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	if (!make_hole(ch) && !privilege::IsImmortal(ch))
 		return;
 
-	if (!check_moves(ch, dig_vars.need_moves))
+	if (!check_moves(ch, dig_cfg.moves_expense))
 		return;
 
 	world[ch->in_room]->holes += kHolesTime;
@@ -186,21 +246,21 @@ void do_dig(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	break_inst(ch);
 
 	// копнули клад
-	if (number(1, dig_vars.treasure_chance) == 1) {
+	if (number(1, dig_cfg.treasure_chance) == 1) {
 		int gold = number(40000, 60000);
 		SendMsgToChar("Вы нашли клад!\r\n", ch);
 		act("$n выкопал$g клад!", false, ch, nullptr, nullptr, kToRoom);
 		sprintf(textbuf, "Вы насчитали %i монет.\r\n", gold);
 		SendMsgToChar(textbuf, ch);
-		ch->add_gold(gold);
+		currencies::AddHand(*ch, currencies::kGold, gold);
 		sprintf(buf, "<%s> {%d} нарыл %d кун.", ch->get_name().c_str(), GET_ROOM_VNUM(ch->in_room), gold);
 		mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
 		split_or_clan_tax(ch, gold);
 		return;
 	}
 	// копнули мертвяка
-	if (number(1, dig_vars.mob_chance) == 1) {
-		vnum = number(dig_vars.mob_vnum_start, dig_vars.mob_vnum_end);
+	if (number(1, dig_cfg.mob_chance) == 1 && !dig_cfg.mob_vnums.empty()) {
+		vnum = dig_cfg.mob_vnums[number(0, static_cast<int>(dig_cfg.mob_vnums.size()) - 1)];
 		mob = ReadMobile(GetMobRnum(vnum), kReal);
 		if (mob) {
 			if (GetRealLevel(mob) <= GetRealLevel(ch)) {
@@ -217,8 +277,8 @@ void do_dig(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	}
 	// копнули шкатулку пандоры
 	ObjData::shared_ptr obj;
-	if (number(1, dig_vars.pandora_chance) == 1) {
-		vnum = dig_vars.pandora_vnum;
+	if (number(1, dig_cfg.jackpot_chance) == 1) {
+		vnum = dig_cfg.jackpot_vnum;
 
 		obj = world_objects.create_from_prototype_by_vnum(vnum);
 		if (obj) {
@@ -230,8 +290,8 @@ void do_dig(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 	// копнули мусор
-	if (number(1, dig_vars.trash_chance) == 1){
-		vnum = number(dig_vars.trash_vnum_start, dig_vars.trash_vnum_end);
+	if (number(1, dig_cfg.trash_chance) == 1 && !dig_cfg.trash_vnums.empty()) {
+		vnum = dig_cfg.trash_vnums[number(0, static_cast<int>(dig_cfg.trash_vnums.size()) - 1)];
 		obj = world_objects.create_from_prototype_by_vnum(vnum);
 
 		if (obj) {
@@ -244,51 +304,38 @@ void do_dig(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	percent = number(1, MUD::Skill(ESkill::kDigging).difficulty);
-	prob = ch->GetSkill(ESkill::kDigging);
+	prob = GetSkill(ch, ESkill::kDigging);
 	old_int = ch->get_int();
 	ch->set_int(13);
 	ch->set_int_add(0);
 	ImproveSkill(ch, ESkill::kDigging, 0, nullptr);
 	ch->set_int(old_int);
-	SetBattleLag(ch, dig_vars.lag);
-	if (percent > prob / dig_vars.prob_divide) {
+	SetBattleLag(ch, dig_cfg.lag);
+	if (percent > prob / dig_cfg.skill_divisor) {
 		SendMsgToChar("Вы только зря расковыряли землю и раскидали камни.\r\n", ch);
 		act("$n отрыл$g смешную ямку.", false, ch, nullptr, nullptr, kToRoom);
 		return;
 	}
-	// возможность копать мощные камни зависит от навыка
+	// возможность копать мощные камни зависит от навыка: берется рандом от 1 до
+	// уровня скилла, и среди подходящих по навыку камней выбирается самый "крутой"
 	random_stone = number(1, MIN(prob, 100));
-	if (random_stone >= dig_vars.stone9_skill)
-		stone_num = 9;
-	else if (random_stone >= dig_vars.stone8_skill)
-		stone_num = 8;
-	else if (random_stone >= dig_vars.stone7_skill)
-		stone_num = 7;
-	else if (random_stone >= dig_vars.stone6_skill)
-		stone_num = 6;
-	else if (random_stone >= dig_vars.stone5_skill)
-		stone_num = 5;
-	else if (random_stone >= dig_vars.stone4_skill)
-		stone_num = 4;
-	else if (random_stone >= dig_vars.stone3_skill)
-		stone_num = 3;
-	else if (random_stone >= dig_vars.stone2_skill)
-		stone_num = 2;
-	else if (random_stone >= dig_vars.stone1_skill)
-		stone_num = 1;
-	else
-		stone_num = 0;
+	const mining::DigStone *chosen = nullptr;
+	for (const auto &stone : dig_cfg.stones) {   // камни идут по возрастанию навыка
+		if (random_stone >= stone.skill) {
+			chosen = &stone;
+		}
+	}
 
-	if (stone_num == 0) {
+	if (!chosen) {
 		SendMsgToChar("Вы долго копали, но так и не нашли ничего полезного.\r\n", ch);
 		act("$n долго копал$g землю, но все без толку.", false, ch, nullptr, nullptr, kToRoom);
 		return;
 	}
 
-	vnum = dig_vars.stone1_vnum - 1 + stone_num;
+	vnum = chosen->stone_vnum;
 	obj = world_objects.create_from_prototype_by_vnum(vnum);
 	if (obj) {
-		if (number(1, dig_vars.glass_chance) != 1) {
+		if (number(1, dig_cfg.glass_chance) != 1) {
 			obj->set_material(EObjMaterial::kGlass);
 		} else {
 			obj->set_material(EObjMaterial::kDiamond);

@@ -16,6 +16,8 @@
 class CharData;
 
 void update_clan_exp();
+// Clan reputation transfer on a cross-clan PK (issue.fight-stuff; currently disabled).
+bool change_rep(CharData *ch, CharData *killer);
 void save_clan_exp();
 
 // период обновления и сохранения экспы (в минутах)

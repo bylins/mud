@@ -7,13 +7,14 @@
 */
 
 #include "engine/core/iosystem.h"
+#include "gameplay/core/experience.h"
 #include "administration/privilege.h"
 #include "utils/utils_encoding.h"
 #include "utils/grammar/gender.h"
 #include "gameplay/mechanics/sight.h"
 
 #include "engine/entities/char_data.h"
-#include "engine/core/handler.h"
+#include "gameplay/abilities/timed_abilities.h"
 #include "engine/network/descriptor_data.h"
 #include "engine/network/msdp/msdp.h"
 #include "engine/ui/color.h"
@@ -1122,7 +1123,7 @@ std::string MakePrompt(DescriptorData *d) {
 		if (ch->IsFlagged(EPrf::kDispMana) && IS_MANA_CASTER(ch)) {
 			int current_mana = 100 * ch->mem_queue.stored;
 			fmt::format_to(std::back_inserter(out), "{}э{}{} ",
-					  GetColdValueColor(current_mana, mana[MIN(50, GetRealWis((ch).get()))]), ch->mem_queue.stored, kColorNrm);
+					  GetColdValueColor(current_mana, Mana(GetRealWis((ch).get()))), ch->mem_queue.stored, kColorNrm);
 		}
 
 		if (ch->IsFlagged(EPrf::kDispExp)) {
@@ -1130,7 +1131,7 @@ std::string MakePrompt(DescriptorData *d) {
 				fmt::format_to(std::back_inserter(out), "??? ");
 			} else {
 				fmt::format_to(std::back_inserter(out), "{}o ",
-						  GetExpUntilNextLvl(ch.get(), GetRealLevel(ch) + 1) - ch->get_exp());
+						  experience::GetExpUntilNextLvl(ch.get(), GetRealLevel(ch) + 1) - ch->get_exp());
 			}
 		}
 
@@ -1154,11 +1155,11 @@ std::string MakePrompt(DescriptorData *d) {
 		if (ch->IsFlagged(EPrf::kDispCooldowns)) {
 			fmt::format_to(std::back_inserter(out), "{}:{} ",
 					  MUD::Skill(ESkill::kGlobalCooldown).GetAbbr(),
-					  ch->getSkillCooldownInPulses(ESkill::kGlobalCooldown));
+					  ch->Skills().GetCooldownInPulses(ESkill::kGlobalCooldown));
 
 			for (const auto &skill : MUD::Skills()) {
 				if (skill.IsAvailable()) {
-					int cooldown = ch->getSkillCooldownInPulses(skill.GetId());
+					int cooldown = ch->Skills().GetCooldownInPulses(skill.GetId());
 					if (cooldown > 0) {
 						fmt::format_to(std::back_inserter(out), "{}:{} ", skill.GetAbbr(), cooldown);
 					}
@@ -1176,12 +1177,12 @@ std::string MakePrompt(DescriptorData *d) {
 							  MUD::Skill(timed.first).GetAbbr(), +display_time);
 				}
 			}
-			if (ch->GetSkill(ESkill::kWarcry)) {
+			if (GetSkill(ch.get(), ESkill::kWarcry)) {
 				int wc_count = (kHoursPerDay - IsTimedBySkill(ch.get(), ESkill::kWarcry)) / kHoursPerWarcry;
 				fmt::format_to(std::back_inserter(out), "{}:{} ",
 						  MUD::Skill(ESkill::kWarcry).GetAbbr(), wc_count);
 			}
-			if (ch->GetSkill(ESkill::kTurnUndead)) {
+			if (GetSkill(ch.get(), ESkill::kTurnUndead)) {
 				auto bonus =
 					std::max(1, kHoursPerTurnUndead + (CanUseFeat(ch.get(), EFeat::kExorcist) ? -2 : 0));
 				fmt::format_to(std::back_inserter(out), "{}:{} ",
@@ -1196,7 +1197,7 @@ std::string MakePrompt(DescriptorData *d) {
 			}
 
 			if (ch->IsFlagged(EPrf::kDispMoney)) {
-				fmt::format_to(std::back_inserter(out), "{}G ", ch->get_gold());
+				fmt::format_to(std::back_inserter(out), "{}G ", currencies::GetHand(*ch, currencies::kGold));
 			}
 
 			if (ch->IsFlagged(EPrf::kDispExits)) {

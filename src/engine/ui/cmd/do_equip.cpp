@@ -12,7 +12,9 @@
 #include "utils/grammar/declensions.h"
 
 #include "engine/entities/char_data.h"
-#include "engine/core/handler.h"
+#include "engine/core/char_equip_flags.h"
+#include "engine/core/target_resolver.h"
+#include "gameplay/mechanics/equipment.h"
 #include "engine/core/utils_char_obj.inl"
 
 bool unique_stuff(const CharData *ch, const ObjData *obj) {
@@ -240,7 +242,7 @@ void perform_wear(CharData *ch, ObjData *obj, int equip_pos, bool skip_total = f
 		SendMsgToChar("Вы не можете использовать более одной такой вещи.\r\n", ch);
 		return;
 	}
-	if (ch->HasCooldown(ESkill::kGlobalCooldown)) {
+	if (ch->Skills().HasActiveCooldown(ESkill::kGlobalCooldown)) {
 		if (ch->GetEnemy() && (equip_pos == EEquipPos::kShield || obj->get_type() == EObjType::kWeapon)) {
 			SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
 			return;

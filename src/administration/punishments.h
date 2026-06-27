@@ -12,6 +12,8 @@
 #include <memory>
 
 class CharData;
+#include <string>
+
 namespace punishments {
 
 // Which kind of punishment. Used to index a character's records universally.
@@ -19,7 +21,7 @@ enum class EType { kMute, kDumb, kHell, kName, kFreeze, kGcurse, kUnreg, kCount 
 
 struct Punish {
   long duration = 0;
-  char *reason = nullptr;
+  std::string reason;
   int level = 0;
   long godid = 0;
 };

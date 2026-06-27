@@ -8,7 +8,6 @@
 
 #include "engine/entities/char_data.h"
 #include "gameplay/communication/talk.h"
-#include "engine/core/handler.h"
 #include "engine/core/target_resolver.h"
 
 void do_tell(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {

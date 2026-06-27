@@ -9,6 +9,7 @@
 #include "engine/structs/structs.h"
 #include "engine/entities/char_data.h"
 #include "engine/network/descriptor_data.h"
+#include "gameplay/economics/currency_storage.h"
 
 #include <string>
 #include <vector>
@@ -43,6 +44,8 @@ class Account {
 	time_t last_login;
 	// История логинов, ключ - айпи, в структуре количество раз, с которых был произведен заход с данного айпи-адреса + дата, когда последний раз выходили с данного айпишника
 	std::unordered_map<std::string, login_index> history_logins;
+	// issue.currency-storage: shared balances for currencies flagged account_shared.
+	currencies::CurrencyStorage account_currencies_;
 
  public:
 	void purge_erased();
@@ -64,6 +67,7 @@ class Account {
 	bool compare_password(const std::string &password);
 	void show_history_logins(CharData *ch);
 	void add_login(const std::string &ip_addr);
+	[[nodiscard]] currencies::CurrencyStorage &currency_storage() { return account_currencies_; }
 };
 
 extern std::unordered_map<std::string, std::shared_ptr<Account>> accounts;

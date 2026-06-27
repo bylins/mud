@@ -16,11 +16,11 @@
 #include "gameplay/fight/fight_hit.h"
 
 void DoThrowout(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (ch->GetSkill(ESkill::kThrowout) < 1) {
+	if (GetSkill(ch, ESkill::kThrowout) < 1) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kThrowout, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
-	if (ch->HasCooldown(ESkill::kThrowout)) {
+	if (ch->Skills().HasActiveCooldown(ESkill::kThrowout)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kThrowout, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	}
@@ -49,7 +49,7 @@ void DoThrowout(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			false, ch, nullptr,vict, kToChar);
 		return;
 	}
-	if (!privilege::IsImmortal(ch) && ch->HasCooldown(ESkill::kThrowout)) {
+	if (!privilege::IsImmortal(ch) && ch->Skills().HasActiveCooldown(ESkill::kThrowout)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kThrowout, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	}
@@ -105,7 +105,7 @@ void GoThrowout(CharData *ch, CharData *vict) {
 				return;
 			}
 		}
-		int cooldown_if_success = std::max(10, 20 - (ch->GetSkill(ESkill::kThrowout) / 25));
+		int cooldown_if_success = std::max(10, 20 - (GetSkill(ch, ESkill::kThrowout) / 25));
 		EDirection direction = SelectRndDirection(vict, 0);
 	    if (IsCorrectDirection(vict, direction, false, false)) {
     		act("&YВы сгребли $N3 в охапку и вышвырнули отсюда прочь!&Y&n",

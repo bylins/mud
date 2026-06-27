@@ -21,8 +21,6 @@
 #include "gameplay/fight/fight_constants.h"
 #include "engine/structs/structs.h"
 
-extern const int kZeroRemortSkillCap;
-extern const int kSkillCapBonusPerRemort;
 extern const int kMinTalentLevelDecrement;
 extern const long kMinImprove;
 
@@ -194,6 +192,15 @@ int CalculateSkillAwakeModifier(CharData *killer, CharData *victim);
 bool CritLuckTest(CharData *ch, CharData *vict);
 int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict);
 int CalcNoviceSkillBonus(CharData *ch, ESkill skill_id, unsigned skill_divisor);
+// issue.chardata-cleaning: the skill-value accessors moved off CharData. They read the trained
+// level (CharacterSkills) plus equipment/talent/arena bonuses.
+[[nodiscard]] int GetSkillBonus(const CharData *ch, ESkill skill_id);
+[[nodiscard]] int GetSkill(const CharData *ch, ESkill skill_id);
+[[nodiscard]] int GetSkillWithoutEquip(const CharData *ch, ESkill skill_id);
+[[nodiscard]] int GetEquippedSkill(const CharData *ch, ESkill skill_id);
+[[nodiscard]] int GetTrainedSkill(const CharData *ch, ESkill skill_id);
+void SetSkill(CharData *ch, ESkill skill_id, int percent);
+
 #endif // SKILLS_H_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

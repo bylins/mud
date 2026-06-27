@@ -1,5 +1,6 @@
 #include "world_objects.h"
-#include "engine/core/handler.h"
+#include "engine/core/obj_handler.h"
+#include "engine/entities/char_data.h"
 #include "obj_prototypes.h"
 #include "db.h"
 #include "gameplay/mechanics/liquid.h"

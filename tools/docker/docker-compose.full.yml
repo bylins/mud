@@ -1,14 +1,16 @@
 # Combined-стек: игровой сервер (circle с admin_api+otel+yaml) + web-админка.
 #
-# Телеметрия: циркуль запускается с host-сетью, поэтому OTLP-endpoint берётся
-# из configuration.xml мира как есть — localhost:<порт> бьёт в коллектор ЭТОГО
-# сервера (4319 у gateway, 4318 у agent). Один и тот же compose работает на
-# любом сервере без переопределения портов.
+# Телеметрия: циркуль запускается с host-сетью, поэтому localhost:<порт> из
+# configuration.xml мира бьёт в локальный приёмник ЭТОГО сервера. На agent-хостах
+# это стандартный 4318 (конфиг мира уже верен). На gateway-хосте 4318 занят
+# внешним TLS-приёмником, а локальный plaintext — на 4319: там задайте
+# OTEL_LOCAL_PORT=4319, и entrypoint перепишет порт. Один и тот же compose
+# работает на любом сервере; порт-исключение задаётся одной переменной хоста.
 #
 # Подготовка:
-#   - распакуйте мир в каталог (внутри misc/, world/, text/ ...). В его
-#     configuration.xml уже должен быть рабочий telemetry-endpoint этого сервера;
-#   - задайте MUD_WORLD_DIR (обязательно).
+#   - распакуйте мир в каталог (внутри cfg/, world/, text/ ...);
+#   - задайте MUD_WORLD_DIR (обязательно);
+#   - на gateway-хосте задайте OTEL_LOCAL_PORT=4319 (см. про телеметрию выше).
 #
 # Запуск (контекст сборки circle — корень репозитория):
 #   MUD_WORLD_DIR=/home/you/worlds/w/lib \
@@ -44,6 +46,11 @@ services:
       WORLD_DIR: /world
       MUD_PORT: "${MUD_PORT:-4000}"
       FORCE_CONFIG: "${FORCE_CONFIG:-1}"
+      # Порт локального OTLP-приёмника на ЭТОМ хосте. Пусто (по умолчанию) — порт
+      # берётся из конфига мира (на agent-хостах это стандартный 4318). На
+      # gateway-хосте задайте OTEL_LOCAL_PORT=4319 (там 4318 занят внешним
+      # TLS-приёмником, локальный plaintext — на 4319), entrypoint перепишет порт.
+      OTEL_LOCAL_PORT: "${OTEL_LOCAL_PORT:-}"
     restart: unless-stopped
 
   web-admin:

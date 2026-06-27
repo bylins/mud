@@ -403,4 +403,28 @@ void ClanChestLog::load(const std::string &abbrev) {
 }
 ////////////////////////////////////////////////////////////////////////////////
 
+
+bool change_rep(CharData *ch, CharData *killer) {
+	return false;
+	// проверяем, в кланах ли оба игрока
+	if ((!CLAN(ch)) || (!CLAN(killer)))
+		return false;
+	// кланы должны быть разные
+	if (CLAN(ch) == CLAN(killer))
+		return false;
+
+	// 1/10 репутации замка уходит замку киллера
+	int rep_ch = CLAN(ch)->get_rep() * 0.1 + 1;
+	CLAN(ch)->set_rep(CLAN(ch)->get_rep() - rep_ch);
+	CLAN(killer)->set_rep(CLAN(killer)->get_rep() + rep_ch);
+	SendMsgToChar("Вы потеряли очко репутации своего клана! Стыд и позор вам.\r\n", ch);
+	SendMsgToChar("Вы заработали очко репутации для своего клана! Честь и похвала вам.\r\n", killer);
+	// проверяем репу клана у убитого
+	if (CLAN(ch)->get_rep() < 1) {
+		// сам распустится
+		//CLAN(ch)->bank = 0;
+	}
+	return true;
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

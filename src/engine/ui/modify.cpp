@@ -13,12 +13,12 @@
 ************************************************************************ */
 
 #include <fmt/format.h>
+#include "engine/db/player_index.h"
 #include <string>
 
 #include "modify.h"
 #include "engine/olc/vedun/vedun.h"
 #include "interpreter.h"
-#include "engine/core/handler.h"
 #include "engine/core/target_resolver.h"
 #include "engine/db/db.h"
 #include "engine/core/comm.h"
@@ -819,7 +819,7 @@ void string_add(DescriptorData *d, char *str) {
 			if (terminator != 1) {
 				iosystem::write_to_output("Создание описания прервано.\r\n", d);
 			}
-			iosystem::write_to_output(MENU, d);
+			ShowMainMenu(d);
 			d->state = EConState::kMenu;
 			//log("[SA] 7f");
 		} else if (d->state == EConState::kPlaying && d->character && !d->character->IsNpc()) {
@@ -1082,7 +1082,7 @@ void do_skillset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 		GET_SPELL_TYPE(vict, spell_id) = value;
 	} else if (ESkill::kUndefined != skill_id && skill_id <= ESkill::kLast) {
-		vict->set_skill(skill_id, value);
+		SetSkill(vict, skill_id, value);
 	}
 	sprintf(buf2, "Вы изменили для %s '%s' на %d.\r\n", GET_PAD(vict, 1),
 			spell_id > ESpell::kUndefined ? MUD::Spell(spell_id).GetCName() : MUD::Skill(skill_id).GetName(), value);

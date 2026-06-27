@@ -127,28 +127,28 @@
              percent= here is the absolute HP threshold; Resolve picks the largest threshold <= the hit.
              Calibrated weakest ~5 HP ... strongest 1000+ HP. -->
         <improve>
-            <grade percent="1050" text="СМЕРТЕЛЬНО "/>
-            <grade percent="950" text="УБИЙСТВЕННО "/>
-            <grade percent="870" text="УЖАСНО "/>
-            <grade percent="760" text="ЖЕСТОКО "/>
-            <grade percent="640" text="НЕВЫНОСИМО БОЛЬНО "/>
-            <grade percent="530" text="ЧРЕЗВВЧАЙНО БОЛЬНО "/>
-            <grade percent="435" text="ОЧЕНЬ БОЛЬНО "/>
-            <grade percent="355" text="БОЛЬНО "/>
-            <grade percent="285" text="чрезвычайно сильно "/>
-            <grade percent="225" text="очень сильно "/>
-            <grade percent="175" text="сильно "/>
-            <grade percent="135" text="основательно "/>
-            <grade percent="105" text="очень крепко "/>
-            <grade percent="80" text="крепко "/>
-            <grade percent="60" text=""/>
-            <grade percent="45" text="незначительно "/>
-            <grade percent="33" text="слабо "/>
-            <grade percent="24" text="очень слабо "/>
-            <grade percent="17" text="слегка "/>
-            <grade percent="12" text="легонько "/>
-            <grade percent="8" text="слабенько "/>
-            <grade percent="5" text="едва-едва "/>
+            <grade percent="1245" text="СМЕРТЕЛЬНО "/>
+            <grade percent="1015" text="УБИЙСТВЕННО "/>
+            <grade percent="825" text="УЖАСНО "/>
+            <grade percent="665" text="ЖЕСТОКО "/>
+            <grade percent="535" text="НЕВЫНОСИМО БОЛЬНО "/>
+            <grade percent="435" text="ЧРЕЗВЫЧАЙНО БОЛЬНО "/>
+            <grade percent="355" text="ОЧЕНЬ БОЛЬНО "/>
+            <grade percent="285" text="БОЛЬНО "/>
+            <grade percent="225" text="чрезвычайно сильно "/>
+            <grade percent="175" text="очень сильно "/>
+            <grade percent="135" text="сильно "/>
+            <grade percent="105" text="основательно "/>
+            <grade percent="80" text="очень крепко "/>
+            <grade percent="60" text="крепко "/>
+            <grade percent="45" text=""/>
+            <grade percent="33" text="незначительно "/>
+            <grade percent="24" text="слабо "/>
+            <grade percent="17" text="очень слабо "/>
+            <grade percent="12" text="слегка "/>
+            <grade percent="8" text="легонько "/>
+            <grade percent="5" text="слабенько "/>
+            <grade percent="1" text="едва-едва "/>
         </improve>
         <degrade>
             <!-- damage doesn't go negative; left empty for symmetry -->

@@ -3,7 +3,8 @@
 #include "skill_messages.h"
 
 #include "engine/entities/char_data.h"
-#include "engine/core/handler.h"
+#include "engine/core/target_resolver.h"
+#include "gameplay/abilities/timed_abilities.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/mechanics/identify.h"
 #include "gameplay/skills/skills.h"
@@ -28,7 +29,7 @@ void do_identify(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	struct TimedSkill timed;
 	int k, level = 0;
 
-	if (ch->IsNpc() || ch->GetSkill(ESkill::kIdentify) <= 0) {
+	if (ch->IsNpc() || GetSkill(ch, ESkill::kIdentify) <= 0) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kIdentify, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
@@ -49,7 +50,7 @@ void do_identify(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		timed.skill = ESkill::kIdentify;
 		auto time = 12;
 		time = std::max(1, time);
-		timed.time = std::max(time - ((ch->GetSkill(ESkill::kIdentify) - 25) / 25), 1); //12..5 or 8..1
+		timed.time = std::max(time - ((GetSkill(ch, ESkill::kIdentify) - 25) / 25), 1); //12..5 or 8..1
 		ImposeTimedSkill(ch, &timed);
 	}
 	SkillIdentify(level, caster, cvict, ovict);

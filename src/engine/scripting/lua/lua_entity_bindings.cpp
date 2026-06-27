@@ -4,7 +4,8 @@
 
 #include "administration/privilege.h"
 #include "engine/core/comm.h"
-#include "engine/core/handler.h"
+#include "engine/core/char_handler.h"
+#include "engine/core/obj_handler.h"
 #include "engine/db/obj_prototypes.h"
 #include "engine/db/world_characters.h"
 #include "engine/db/world_objects.h"
@@ -14,11 +15,15 @@
 #include "engine/structs/flag_data.h"
 #include "engine/ui/cmd/do_follow.h"
 #include "engine/ui/interpreter.h"
+#include "engine/core/target_resolver.h"
 #include "gameplay/core/constants.h"
+#include "gameplay/economics/currencies.h"
 #include "gameplay/fight/fight_constants.h"
 #include "gameplay/fight/fight.h"
 #include "gameplay/mechanics/damage.h"
+#include "gameplay/mechanics/equipment.h"
 #include "gameplay/mechanics/follow.h"
+#include "gameplay/mechanics/inventory.h"
 #include "gameplay/mechanics/minions.h"
 #include "gameplay/mechanics/mount.h"
 #include "gameplay/mechanics/sight.h"
@@ -753,11 +758,11 @@ long CharGold(const LuaEntityHandle &handle, const sol::object &delta)
 		const auto amount = delta.as<long>();
 		if (amount > 0)
 		{
-			ch->add_gold(amount);
+			currencies::AddHand(*ch, currencies::kGold, amount);
 		}
 		else if (amount < 0)
 		{
-			ch->remove_gold(-amount);
+			currencies::RemoveHand(*ch, currencies::kGold, -amount);
 		}
 	}
 	else if (delta.is<int>())
@@ -765,15 +770,15 @@ long CharGold(const LuaEntityHandle &handle, const sol::object &delta)
 		const auto amount = static_cast<long>(delta.as<int>());
 		if (amount > 0)
 		{
-			ch->add_gold(amount);
+			currencies::AddHand(*ch, currencies::kGold, amount);
 		}
 		else if (amount < 0)
 		{
-			ch->remove_gold(-amount);
+			currencies::RemoveHand(*ch, currencies::kGold, -amount);
 		}
 	}
 
-	return ch->get_gold();
+	return currencies::GetHand(*ch, currencies::kGold);
 }
 
 bool TeleportChar(const LuaEntityHandle &handle, const sol::object &room)
@@ -803,9 +808,9 @@ int CharSkill(const LuaEntityHandle &handle, const sol::object &skill, const sol
 	}
 	if (value.is<int>())
 	{
-		ch->set_skill(skill_id, value.as<int>());
+		SetSkill(ch, skill_id, value.as<int>());
 	}
-	return ch->GetSkill(skill_id);
+	return GetSkill(ch, skill_id);
 }
 
 bool CharSkillTurn(const LuaEntityHandle &handle, const sol::object &skill, const sol::object &value)
@@ -822,16 +827,16 @@ bool CharSkillTurn(const LuaEntityHandle &handle, const sol::object &skill, cons
 		return false;
 	}
 
-	if (ch->GetSkillBonus(skill_id))
+	if (GetSkillBonus(ch, skill_id))
 	{
 		if (!enabled)
 		{
-			ch->set_skill(skill_id, 0);
+			SetSkill(ch, skill_id, 0);
 		}
 	}
 	else if (enabled)
 	{
-		ch->set_skill(skill_id, 5);
+		SetSkill(ch, skill_id, 5);
 	}
 	return true;
 }

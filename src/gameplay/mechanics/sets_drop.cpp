@@ -16,7 +16,7 @@
 
 namespace SetsDrop {
 // список сетин на дроп
-const char *CONFIG_FILE = LIB_MISC"full_set_drop.xml";
+const char *CONFIG_FILE = LIB_CFG"mechanics/sets_drop.xml";
 // список уникальных мобов
 const char *UNIQUE_MOBS = LIB_PLRSTUFF"unique_mobs.xml";
 // минимальный уровень моба для участия в груп-списке дропа
@@ -231,17 +231,13 @@ void init_obj_list() {
 			continue;
 		}
 
-		std::string type = parse::ReadAattrAsStr(set_node, "type");
-		if (type.empty() || (type != "auto" && type != "manual")) {
-			snprintf(buf, sizeof(buf),
-					 "...bad set attributes (type=%s)", type.c_str());
-			mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
-			continue;
-		}
+		// manual_mode=true: для каждой сетины руками задан group="true|false".
+		// false (по умолчанию): сет делится на solo/group автоматом по активаторам.
+		const bool manual_mode = set_node.attribute("manual_mode").as_bool();
 
 		std::set<int> tmp_solo_list;
 
-		if (type == "manual") {
+		if (manual_mode) {
 			for (pugi::xml_node obj_node = set_node.child("obj");
 				 obj_node; obj_node = obj_node.next_sibling("obj")) {
 				const int obj_vnum = parse::ReadAttrAsInt(obj_node, "vnum");
@@ -253,17 +249,9 @@ void init_obj_list() {
 					continue;
 				}
 
-				std::string list_type = parse::ReadAattrAsStr(obj_node, "list");
-				if (list_type.empty()
-					|| (list_type != "solo" && list_type != "group")) {
-					snprintf(buf, sizeof(buf),
-							 "...bad manual obj attributes (list=%s, ObjVnum=%d)",
-							 list_type.c_str(), obj_vnum);
-					mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
-					continue;
-				}
-
-				if (list_type == "solo") {
+				// group="true" -- груп-список, false/без атрибута -- соло-список
+				const bool group = obj_node.attribute("group").as_bool();
+				if (!group) {
 					solo_obj_list.push_back(obj_vnum);
 					// предварительный соло список, который
 					// дальше может быть поделен еще на два

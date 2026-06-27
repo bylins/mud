@@ -39,6 +39,10 @@ const char *VisInstrEnding(bool visible, EGender sex);
 // on grammatical gender (kPoly -> plural).
 const char *PluralVerbEnding(bool is_poly);
 const char *ObjPluralVerbEnding(EGender sex);
+// Pick the singular or plural (poly) form of a NUMBER-only word/ending. Russian present/
+// future verbs and many nouns vary by number, not gender, so a gender $-code cannot select
+// them; e.g. NumberForm(IsPoly(ch), "<sing>", "<plur>"). Complements the gender selectors.
+const char *NumberForm(bool is_poly, const char *one, const char *many);
 
 // Pronouns. SHR/SSH/MHR are identical for characters and objects; possessive "your" differs only
 // in the neuter form, so it has a separate object variant.

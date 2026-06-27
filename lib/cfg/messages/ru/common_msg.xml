@@ -5,12 +5,23 @@
     attributes cannot hold newlines); the line messages get "\r\n" appended at the call site,
     kNothing is an inline fragment (no newline).
 -->
-<msg_container>
+<common_msg>
 	<msg_sheaf id="kDefault">
 		<message type="kSilenced" val="Вы немы, как рыба об лед."/>
 		<message type="kSoundproof" val="Стены заглушили ваши слова."/>
 		<message type="kOk" val="Ладушки."/>
 		<message type="kNoPerson" val="Нет такого создания в этом мире."/>
 		<message type="kNothing" val="ничего"/>
+		<message type="kBrokenScales" val="Весы богов сломаны и ваши заслуги не могут быть оценены."/>
+		<message type="kMenuExit" val="Отсоединиться."/>
+		<message type="kMenuEnterGame" val="Начать игру."/>
+		<message type="kMenuDescription" val="Ввести описание вашего персонажа."/>
+		<message type="kMenuHistory" val="Узнать историю."/>
+		<message type="kMenuChangePassword" val="Изменить пароль."/>
+		<message type="kMenuDelete" val="Удалить персонажа."/>
+		<message type="kMenuResetStats" val="Изменить параметры персонажа."/>
+		<message type="kMenuBlind" val="Включить/выключить режим слепого игрока."/>
+		<message type="kMenuEmailList" val="Посмотреть всех персонажей на данном email'e."/>
+		<message type="kMenuPrompt" val="Чего ваша душа желает?"/>
 	</msg_sheaf>
-</msg_container>
+</common_msg>

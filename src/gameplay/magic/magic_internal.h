@@ -35,7 +35,7 @@ ECastResult CastRoomTickAction(CharData *ch, RoomData *room, ESpell tick_spell, 
 
 // Build a CastContext for a cast: evaluates the success + potency rolls once. Module-internal
 // (CallMagic is the public entry; CastAreaInRoom uses it for the room-affect ticks).
-CastContext BuildCastContext(CharData *caster, ESpell spell_id, int level);
+CastContext BuildCastContext(CharData *caster, ESpell spell_id, int level, float fixed_potency = -1.0f);
 
 // Spell-level caster gate (issue.spell-unification): true if the caster fails the
 // spell's <caster_conditions> -- carries a <blocking> flag/affect/align, or lacks a

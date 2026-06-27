@@ -15,7 +15,7 @@
 
 namespace offtop_system {
 
-const char *BLOCK_FILE{LIB_MISC"offtop.lst"};
+const char *BLOCK_FILE{LIB_MISC"stop_offtop"};
 std::vector<std::string> block_list;
 
 /// Проверка на наличие чара в стоп-списке и сет флага
