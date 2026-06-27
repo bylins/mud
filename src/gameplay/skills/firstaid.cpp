@@ -268,7 +268,11 @@ void DoFirstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (!did_something && !failed_something) {
 		// Nothing to do: HP fine, no curable affect (or named one isn't present).
-		act("$N в лечении не нуждается.", false, ch, nullptr, vict, kToChar);
+		if (vict == ch) {
+			act("Вы в лечении не нуждаетесь.", false, ch, nullptr, vict, kToChar);
+		} else {
+			act("$N в лечении не нуждается.", false, ch, nullptr, vict, kToChar);
+		}
 		return;
 	}
 
@@ -382,9 +386,17 @@ void DoFirstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 	}
 	if (!need) {
-		act("$N в лечении не нуждается.", false, ch, nullptr, vict, kToChar);
+		if (vict == ch) {
+			act("Вы в лечении не нуждаетесь.", false, ch, nullptr, vict, kToChar);
+		} else {
+			act("$N в лечении не нуждается.", false, ch, nullptr, vict, kToChar);
+		}
 	} else if (!enough_skill) {
-		act("У вас не хватило умения вылечить $N3.", false, ch, nullptr, vict, kToChar);
+		if (vict == ch) {
+			act("У вас не хватило умения вылечить себя.", false, ch, nullptr, vict, kToChar);
+		} else {
+			act("У вас не хватило умения вылечить $N3.", false, ch, nullptr, vict, kToChar);
+		}
 	} else {
 		timed.skill = ESkill::kFirstAid;
 		int time = privilege::IsImmortal(ch) ? 1 : IS_PALADINE(ch) ? 4 : IS_SORCERER(ch) ? 2 : 6;
