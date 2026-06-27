@@ -80,6 +80,14 @@ const std::map<room_spells::ERoomAffectMsgType, std::string> kRoomAffectMsgTypeN
 		{room_spells::ERoomAffectMsgType::kAffExpiredToChar, "kAffExpiredToChar"},
 		{room_spells::ERoomAffectMsgType::kAffExpiredToRoom, "kAffExpiredToRoom"},
 		{room_spells::ERoomAffectMsgType::kAffInterruptedToChar, "kAffInterruptedToChar"},
+		{room_spells::ERoomAffectMsgType::kTickMsgOne, "kTickMsgOne"},
+		{room_spells::ERoomAffectMsgType::kTickMsgTwo, "kTickMsgTwo"},
+		{room_spells::ERoomAffectMsgType::kTickMsgThree, "kTickMsgThree"},
+		{room_spells::ERoomAffectMsgType::kTickMsgFour, "kTickMsgFour"},
+		{room_spells::ERoomAffectMsgType::kTickMsgFive, "kTickMsgFive"},
+		{room_spells::ERoomAffectMsgType::kTickMsgSix, "kTickMsgSix"},
+		{room_spells::ERoomAffectMsgType::kTickMsgSeven, "kTickMsgSeven"},
+		{room_spells::ERoomAffectMsgType::kTickMsgEight, "kTickMsgEight"},
 		{room_spells::ERoomAffectMsgType::kRoomAffectVisible, "kRoomAffectVisible"},
 		{room_spells::ERoomAffectMsgType::kRoomAffectInvisible, "kRoomAffectInvisible"},
 		{room_spells::ERoomAffectMsgType::kRoomAffectSelfInvisible, "kRoomAffectSelfInvisible"},
@@ -220,18 +228,6 @@ void ValidateRoomAffectRegistry(parser_wrapper::DataNode data) {
 	}
 }
 }  // namespace
-
-// issue.affect-migration: the inverse of RoomAffectBySpell -- the spell whose enum token matches a room
-// affect. A room affect no longer stores its imposing ESpell, so paths that still need one (the cast
-// context for an affect's tick actions, the apply-cap for the seal-strength display) source it by
-// identity. kUndefined when no same-named spell exists. Public (sight.cpp uses it).
-ESpell SpellByRoomAffect(ERoomAffect affect_type) {
-	try {
-		return ITEM_BY_NAME<ESpell>(NAME_BY_ITEM<ERoomAffect>(affect_type));
-	} catch (const std::out_of_range &) {
-		return ESpell::kUndefined;
-	}
-}
 
 // issue.affect-migration: a room affect's intrinsic behavior flags from room_affects.xml, keyed by
 // affect_type. 0 for room affects with no row/flags. Loaded? guards apply-time sourcing (Phase R2).
@@ -439,6 +435,21 @@ void RemoveSingleRoomAffect(long caster_id, ERoomAffect want) {
 	RemoveAffectFromRooms(filter);
 }
 
+// issue.affects-improve: find the caster's controlled room affect (kAfNeedControl) WITHOUT removing
+// it, so the "you interrupted" notice can be shown before RemoveControlledRoomAffect emits the
+// affect's expiry line -- giving the natural order (you interrupt, then the effect ceases).
+ERoomAffect FindControlledRoomAffect(CharData *ch) {
+	const long uid = ch->get_uid();
+	for (const auto room : affected_rooms) {
+		for (const auto &af : room->affected) {
+			if (af->caster_id == uid && IS_SET(af->battleflag, kAfNeedControl)) {
+				return af->affect_type;
+			}
+		}
+	}
+	return ERoomAffect::kUndefined;
+}
+
 ERoomAffect RemoveControlledRoomAffect(CharData *ch) {
 	long casterID = ch->get_uid();
 	// issue.affect-migration: "controlled" is the kAfNeedControl flag on the room affect (set in
@@ -476,21 +487,21 @@ void AddRoomToAffected(RoomData *room) {
 
 // Per-tick room narration: cycle the impose spell's defined kCustomMsg slots by the affect's
 // tick counter (apply_time), so a multi-phase room effect can show a different line each round.
-static void EmitRoomTickMessage(CharData *ch, ESpell impose, int tick) {
-	const auto &sheaf = MUD::SpellMessages()[impose];
-	static const ESpellMsg slots[] = {ESpellMsg::kCustomMsgOne, ESpellMsg::kCustomMsgTwo,
-		ESpellMsg::kCustomMsgThree, ESpellMsg::kCustomMsgFour, ESpellMsg::kCustomMsgFive,
-		ESpellMsg::kCustomMsgSix, ESpellMsg::kCustomMsgSeven, ESpellMsg::kCustomMsgEight,
-		ESpellMsg::kCustomMsgNine, ESpellMsg::kCustomMsgTen};
-	std::vector<ESpellMsg> present;
+// issue.affects-improve (Phase B): per-pulse flavor line for a room affect, rotated by tick count.
+// Affect-native -- reads the affect's own kTickMsg* sheaf, no imposing spell needed.
+static void EmitRoomTickMessage(CharData *ch, ERoomAffect affect, int tick) {
+	static const ERoomAffectMsgType slots[] = {
+		ERoomAffectMsgType::kTickMsgOne, ERoomAffectMsgType::kTickMsgTwo,
+		ERoomAffectMsgType::kTickMsgThree, ERoomAffectMsgType::kTickMsgFour,
+		ERoomAffectMsgType::kTickMsgFive, ERoomAffectMsgType::kTickMsgSix,
+		ERoomAffectMsgType::kTickMsgSeven, ERoomAffectMsgType::kTickMsgEight};
+	std::vector<const std::string *> present;
 	for (const auto k : slots) {
-		if (sheaf.HasMessage(k)) present.push_back(k);
+		const std::string &m = RoomAffectMsgRaw(affect, k);
+		if (!m.empty()) present.push_back(&m);
 	}
 	if (present.empty()) return;
-	const auto &msg = sheaf.GetMessage(present[tick % present.size()]);
-	if (!msg.empty()) {
-		act(msg.c_str(), false, ch, nullptr, nullptr, kToRoom | kToChar | kToArenaListen);
-	}
+	act(present[tick % present.size()]->c_str(), false, ch, nullptr, nullptr, kToRoom | kToChar | kToArenaListen);
 }
 
 // issue.affect-migration: per-tick room-affect handler. The affect owns its work as <actions>, each
@@ -499,7 +510,6 @@ static void EmitRoomTickMessage(CharData *ch, ESpell impose, int tick) {
 // kBattlePulse only in combat) and run ONE per tick, cycled by the affect's tick counter. Returns false
 // if the affect has no pulse-triggered action (a passive affect -- nothing to do this tick).
 static bool RunRoomTick(RoomData *room, CharData *ch, const Affect<ERoomApply>::shared_ptr &aff) {
-	const ESpell impose = SpellByRoomAffect(aff->affect_type);
 	const ERoomAffect affect_type = aff->affect_type;
 	const bool combat = RoomHasCombat(room);
 	std::vector<talents_actions::Action> pulse;
@@ -517,11 +527,13 @@ static bool RunRoomTick(RoomData *room, CharData *ch, const Affect<ERoomApply>::
 	// apply_time is incremented before the handler runs, so the first tick is apply_time==1; phase
 	// counts from 0 so action[phase % N] / kCustomMsg slot [phase % K] start at the first.
 	const int phase = aff->apply_time > 0 ? aff->apply_time - 1 : 0;
-	EmitRoomTickMessage(ch, impose, phase);
+	EmitRoomTickMessage(ch, affect_type, phase);
 	// Thread the affect's current duration in/out so a manual_cast handler (e.g. thunderstorm) can
 	// branch on it -- and end the effect early by zeroing it.
 	int dur = aff->duration;
-	CastRoomTickActionFromActions(ch, room, impose, pulse, phase, &dur);
+	// issue.affects-improve (Phase B): the tick cast runs spell-free on the affect's stored
+	// potency (fixed_potency); ctx_spell is kUndefined -- side_spell actions cast their own spells.
+	CastRoomTickActionFromActions(ch, room, ESpell::kUndefined, pulse, phase, &dur, aff->potency);
 	aff->duration = dur;
 	return true;
 }
@@ -729,14 +741,16 @@ ECastResult CastRoomAffect(CastContext &ctx) {
 	bool success = true;
 	bool handled_update = false;   // existing room affect updated in place -> skip impose loop
 	if (MUD::Spell(spell_id).IsFlagged(kMagNeedControl)) {
-		const ERoomAffect interrupted = RemoveControlledRoomAffect(ch);
-		if (interrupted != ERoomAffect::kUndefined) {
-			// issue.affects-improve: the interrupt line is keyed on the OLD affect (room-affect msg
-			// system, kAffInterruptedToChar); the prepare line is the NEW spell announcing itself.
-			const auto &imsg = RoomAffectMsg(interrupted, ERoomAffectMsgType::kAffInterruptedToChar);
+		// issue.affects-improve: show the caster's interrupt notice FIRST (keyed on the OLD affect),
+		// THEN remove it (which narrates the effect ceasing), THEN the new spell announces itself.
+		const ERoomAffect controlled = FindControlledRoomAffect(ch);
+		if (controlled != ERoomAffect::kUndefined) {
+			const auto &imsg = RoomAffectMsg(controlled, ERoomAffectMsgType::kAffInterruptedToChar);
 			if (!imsg.empty()) {
 				act(imsg.c_str(), false, ch, nullptr, nullptr, kToChar);
 			}
+		}
+		if (RemoveControlledRoomAffect(ch) != ERoomAffect::kUndefined) {
 			SendSpellNameMsg(ch, spell_id, ESpellMsg::kCastPreparedToChar);
 		}
 	} else {

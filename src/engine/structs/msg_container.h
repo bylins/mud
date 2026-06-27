@@ -119,7 +119,10 @@ class MsgSheafBuilder : public info_container::IItemBuilder<MsgSheaf<IdEnum, Msg
 		} else {
 			IdEnum id;
 			try {
-				id = parse::ReadAsConstant<IdEnum>(id_str);
+				// "kDefault" => the kUndefined default sheaf (mirrors the vnum branch + the
+				// container's default_id fallback), for enums that lack a kDefault alias (e.g. ERoomAffect).
+				id = (id_str && std::string(id_str) == "kDefault")
+						 ? IdEnum::kUndefined : parse::ReadAsConstant<IdEnum>(id_str);
 			} catch (const std::exception &) {
 				err_log("MsgSheafBuilder: msg_sheaf has unknown or missing 'id' attribute ('%s').", id_str);
 				return nullptr;

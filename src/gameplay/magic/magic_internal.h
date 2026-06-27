@@ -35,7 +35,7 @@ ECastResult CastAreaInRoom(CharData *ch, ESpell spell_id, int level);
 // in/out so a manual_cast handler can branch on / modify it.
 ECastResult CastRoomTickActionFromActions(CharData *ch, RoomData *room, ESpell ctx_spell,
 										  const std::vector<talents_actions::Action> &actions, int phase,
-										  int *tick_duration = nullptr);
+										  int *tick_duration = nullptr, float fixed_potency = -1.0f);
 
 // Build a CastContext for a cast: evaluates the success + potency rolls once. Module-internal
 // (CallMagic is the public entry; CastAreaInRoom uses it for the room-affect ticks).

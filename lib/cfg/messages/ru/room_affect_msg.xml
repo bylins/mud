@@ -30,6 +30,7 @@
 		<message type="kAffImposedToRoom" val="$n воздел$g руки и с небес посыпался град раскаленных громовых камней."/>
 		<message type="kAffImposedToChar" val="Повинуясь вашей воле, несшиеся в неизмеримой дали громовые камни обрушились на землю."/>
 		<message type="kAffExpiredToRoom" val="Последний громовой камень грянул в землю и все стихло."/>
+		<message type="kTickMsgOne" val="Раскаленные громовые камни рушатся с небес!"/>
 	</msg_sheaf>
 	<msg_sheaf id="kRoomLight">
 		<message type="kRoomAffectVisible" val="&amp;W... земля освещена колдовством ...&amp;n"/>
@@ -43,6 +44,14 @@
 		<message type="kAffImposedToRoom" val="Пробормотав злобные проклятия, $n вызвал$g смертельный ядовитый туман, покрывший все вокруг тёмным саваном."/>
 		<message type="kAffImposedToChar" val="Пробормотав злобные проклятия, вы вызвали смертельный ядовитый туман, покрывший все вокруг тёмным саваном."/>
 		<message type="kAffExpiredToRoom" val="Порыв ветра развеял туман смерти."/>
+		<message type="kTickMsgOne" val="Повинуясь вашему желанию отравить всех, туман начал густеть..."/>
+		<message type="kTickMsgTwo" val="Вы осознали, что хотите вызвать ужасные мучения у врагов..."/>
+		<message type="kTickMsgThree" val="Что может быть лучше, чем слабый враг?!"/>
+		<message type="kTickMsgFour" val="Вам захотелось лишить всех глаз!"/>
+		<message type="kTickMsgFive" val="Сильно навредить врагам?!"/>
+		<message type="kTickMsgSix" val="Вам невтерпеж испить жизненной силы врагов!"/>
+		<message type="kTickMsgSeven" val="Вы осознали что кислоты мало не бывает!"/>
+		<message type="kTickMsgEight" val="Вы решили проклясть всех напоследок!"/>
 	</msg_sheaf>
 	<msg_sheaf id="kThunderstorm">
 		<message type="kRoomAffectVisible" val="&amp;W... чудовищная буря кружится над вашей головой ...&amp;n"/>
@@ -69,6 +78,7 @@
 		<message type="kAffImposedToRoom" val="$n выкрикнул$g несколько мерзко звучащих слов и притопнул$g. Из земли полезли скрюченные мертвые руки."/>
 		<message type="kAffImposedToChar" val="Вы выкрикнули несколько мерзко звучащих слов и притопнули. Из земли полезли скрюченные мертвые руки."/>
 		<message type="kAffExpiredToRoom" val="Жуткие черные руки побледнели и расплылись зловонной дымкой."/>
+		<message type="kTickMsgOne" val="Мертвые руки навей шарят в поисках добычи!"/>
 	</msg_sheaf>
 	<msg_sheaf id="kPortalTimer">
 		<message type="kRoomAffectVisible" val="&amp;BЛазурная пентаграмма ярко сверкает здесь.&amp;n"/>

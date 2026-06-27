@@ -3281,11 +3281,11 @@ static ECastResult RunRoomCycledAction(CastContext &ctx, RoomData *room,
 // affect's current duration in and back out, so a manual_cast handler can branch on / modify it.
 ECastResult CastRoomTickActionFromActions(CharData *ch, RoomData *room, ESpell ctx_spell,
 										  const std::vector<talents_actions::Action> &actions, int phase,
-										  int *tick_duration) {
+										  int *tick_duration, float fixed_potency) {
 	if (ch == nullptr) {
 		return ECastResult::kNotCast;
 	}
-	CastContext ctx = BuildCastContext(ch, ctx_spell, GetRealLevel(ch));
+	CastContext ctx = BuildCastContext(ch, ctx_spell, GetRealLevel(ch), fixed_potency);
 	ctx.UseExternalActions(&actions);
 	if (tick_duration) {
 		ctx.SetTickDuration(*tick_duration);
