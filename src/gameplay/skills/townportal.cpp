@@ -77,7 +77,7 @@ void TryOpenTownportal(CharData *ch, const Runestone &stone) {
 		return;
 	}
 
-	if (room_spells::IsRoomAffected(world[ch->in_room], ESpell::kRuneLabel)) {
+	if (room_spells::IsRoomAffected(world[ch->in_room], room_spells::ERoomAffect::kRuneLabel)) {
 		SendMsgToChar("Начертанные на земле магические руны подавляют вашу магию!\r\n", ch);
 		return;
 	}
@@ -113,7 +113,7 @@ void TryOpenLabelPortal(CharData *ch, char *argument) {
 }
 
 Runestone GetLabelPortal(CharData *ch) {
-	auto label_room = room_spells::FindAffectedRoomByCasterID(ch->get_uid(), ESpell::kRuneLabel);
+	auto label_room = room_spells::FindAffectedRoomByCasterID(ch->get_uid(), room_spells::ERoomAffect::kRuneLabel);
 	if (label_room) {
 		return {ch->get_name(), label_room->vnum, ESkill::kTownportal, 1};
 	} else {

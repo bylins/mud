@@ -61,18 +61,18 @@ extern std::list<RoomData *> affected_rooms;
 void UpdateRoomsAffects();
 void ShowAffectedRooms(CharData *ch);
 void RoomRemoveAffect(RoomData *room, const RoomAffectIt &affect);
-bool IsRoomAffected(RoomData *room, ESpell spell);
-bool IsZoneRoomAffected(int zone_vnum, ESpell spell);
+bool IsRoomAffected(RoomData *room, ERoomAffect affect);
+bool IsZoneRoomAffected(int zone_vnum, ERoomAffect affect);
 ECastResult CallMagicToRoom(CharData *ch, RoomData *room, CastContext roll);
-int GetUniqueAffectDuration(long caster_id, ESpell spell_id);
-RoomAffectIt FindAffect(RoomData *room, ESpell type);
+int GetUniqueAffectDuration(long caster_id, ERoomAffect affect);
+RoomAffectIt FindAffect(RoomData *room, ERoomAffect affect);
 // issue.affect-migration: the portal room affects (two-way kPortalTimer + one-way kNoPortalExit) keyed
 // by ERoomAffect identity (their ESpell was retired). IsPortalAffect matches either; RoomHasPortal =
 // any portal present; FindPortalAffect = first portal affect (or affected.end()).
 [[nodiscard]] bool IsPortalAffect(ERoomAffect affect_type);
 [[nodiscard]] bool RoomHasPortal(RoomData *room);
 [[nodiscard]] RoomAffectIt FindPortalAffect(RoomData *room);
-RoomData *FindAffectedRoomByCasterID(long caster_id, ESpell spell_id);
+RoomData *FindAffectedRoomByCasterID(long caster_id, ERoomAffect affect);
 void AddRoomToAffected(RoomData *room);
 void affect_room_join_fspell(RoomData *room, const Affect<ERoomApply> &af);
 void affect_room_join(RoomData *room, Affect<ERoomApply> &af, bool add_dur, bool avg_dur, bool add_mod, bool avg_mod);
@@ -80,7 +80,7 @@ void AffectRoomJoinReplace(RoomData *room, const Affect<ERoomApply> &af);
 void affect_to_room(RoomData *room, const Affect<ERoomApply> &af);
 // Impose the spell's room affect from the current action; callable from the per-action loop.
 ECastResult CastRoomAffect(CastContext &ctx);
-void RemoveSingleAffectFromWorld(CharData *ch, ESpell spell_id);
+void RemoveSingleAffectFromWorld(CharData *ch, ERoomAffect affect);
 void ProcessRoomAffectsOnEntry(CharData *ch, RoomRnum room);
 
 // Walks room->affected for a kPortalTimer affect with pk_unique != 0 and

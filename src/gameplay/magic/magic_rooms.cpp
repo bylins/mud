@@ -110,16 +110,9 @@ namespace room_spells {
 
 namespace {
 // room_affects.xml is the room-affect registry (id-only for now; grows per-affect data later).
-// Resolve a room-affecting spell to its identity flag. The ERoomAffect enumerators are named after
-// their spells, so the spell's enum token round-trips to the room-affect flag; spells with no matching
-// room-affect flag yield kUndefined (no identity).
-ERoomAffect RoomAffectBySpell(ESpell spell_id) {
-	try {
-		return ITEM_BY_NAME<ERoomAffect>(NAME_BY_ITEM<ESpell>(spell_id));
-	} catch (const std::out_of_range &) {
-		return ERoomAffect::kUndefined;
-	}
-}
+// issue.affects-improve: a room affect is identified solely by its own ERoomAffect id. There is no
+// spell<->affect name mapping; the imposing spell declares its affect via <affects id=...> and that
+// id is what flows through impose/find/remove. Nothing maps an affect back to a spell.
 
 // issue.affect-migration: per-ERoomAffect behavior flags from room_affects.xml (mirrors the
 // char-affect g_affect_flags). Source of truth for room-affect cure/dispel/refresh/decrement/...;
@@ -271,7 +264,7 @@ const int kRuneLabelDuration = 300;
 
 std::list<RoomData *> affected_rooms;
 
-void RemoveSingleRoomAffect(long caster_id, ESpell spell_id);
+void RemoveSingleRoomAffect(long caster_id, ERoomAffect want);
 void HandleRoomAffect(RoomData *room, CharData *ch, const Affect<ERoomApply>::shared_ptr &aff);
 void SendRemoveAffectMsgToRoom(ESpell affect_type, ERoomAffect room_affect, RoomRnum room);
 void affect_to_room(RoomData *room, const Affect<ERoomApply> &af);
@@ -298,9 +291,7 @@ void RoomRemoveAffect(RoomData *room, const RoomAffectIt &affect) {
 	room->affected.erase(affect);
 }
 
-RoomAffectIt FindAffect(RoomData *room, ESpell type) {
-	// issue.affect-migration: match by room-affect identity (ERoomAffect), not Affect::type.
-	const ERoomAffect want = RoomAffectBySpell(type);
+RoomAffectIt FindAffect(RoomData *room, ERoomAffect want) {
 	for (auto affect_i = room->affected.begin(); affect_i != room->affected.end(); ++affect_i) {
 		const auto affect = *affect_i;
 		if (affect->affect_type == want) {
@@ -333,17 +324,16 @@ RoomAffectIt FindPortalAffect(RoomData *room) {
 	return room->affected.end();
 }
 
-bool IsZoneRoomAffected(int zone_vnum, ESpell spell) {
+bool IsZoneRoomAffected(int zone_vnum, ERoomAffect affect) {
 	for (auto & affected_room : affected_rooms) {
-		if (affected_room->zone_rn == zone_vnum && IsRoomAffected(affected_room, spell)) {
+		if (affected_room->zone_rn == zone_vnum && IsRoomAffected(affected_room, affect)) {
 			return true;
 		}
 	}
 	return false;
 }
 
-bool IsRoomAffected(RoomData *room, ESpell spell) {
-	const ERoomAffect want = RoomAffectBySpell(spell);   // issue.affect-migration: by affect_type
+bool IsRoomAffected(RoomData *room, ERoomAffect want) {
 	for (const auto &af : room->affected) {
 		if (af->affect_type == want) {
 			return true;
@@ -399,8 +389,7 @@ CharData *find_char_in_room(long char_id, RoomData *room) {
 	return nullptr;
 }
 
-RoomData *FindAffectedRoomByCasterID(long caster_id, ESpell spell_id) {
-	const ERoomAffect want = RoomAffectBySpell(spell_id);   // issue.affect-migration: by affect_type
+RoomData *FindAffectedRoomByCasterID(long caster_id, ERoomAffect want) {
 	for (const auto room : affected_rooms) {
 		for (const auto &af : room->affected) {
 			if (af->affect_type == want && af->caster_id == caster_id) {
@@ -425,11 +414,11 @@ ESpell RemoveAffectFromRooms(ESpell spell_id, const F &filter) {
 	return ESpell::kUndefined;
 }
 
-void RemoveSingleRoomAffect(long caster_id, ESpell spell_id) {
-	const ERoomAffect want = RoomAffectBySpell(spell_id);   // issue.affect-migration: by affect_type
+void RemoveSingleRoomAffect(long caster_id, ERoomAffect want) {
 	auto filter =
 		[&caster_id, want](auto &af) { return (af->caster_id == caster_id && af->affect_type == want); };
-	RemoveAffectFromRooms(spell_id, filter);
+	// RemoveAffectFromRooms ignores its first arg (it derives the message from the affect itself).
+	RemoveAffectFromRooms(ESpell::kUndefined, filter);
 }
 
 ESpell RemoveControlledRoomAffect(CharData *ch) {
@@ -660,6 +649,9 @@ ECastResult CastRoomAffect(CastContext &ctx) {
 	if (ch == nullptr || room == nullptr) {
 		return ECastResult::kNotCast;
 	}
+	// issue.affects-improve: the affect this spell imposes is exactly what its <affects id=...> declares.
+	const ERoomAffect room_affect = ctx.action_or_default().Contains(talents_actions::EAction::kAffect)
+		? ctx.action_or_default().GetAffect().GetRoomAffect() : ERoomAffect::kUndefined;
 	// Default-init the affect array. kMaxSpellAffects slots; only slot 0 is
 	// populated from the XML today, but the impose loop still walks them all
 	// so multi-apply room spells stay forward-compatible.
@@ -681,7 +673,7 @@ ECastResult CastRoomAffect(CastContext &ctx) {
 	// apply_one path so both record the same values for the same cast roll).
 	if (ctx.action_or_default().Contains(talents_actions::EAction::kAffect)) {
 		const auto &talent = ctx.action_or_default().GetAffect();
-		af[0].affect_type = RoomAffectBySpell(spell_id);
+		af[0].affect_type = room_affect;
 		af[0].caster_id = ch->get_uid();
 		// issue.affect-migration: flags come from room_affects.xml by affect_type (so the update-gate
 		// below reads the right kAfUpdateDuration/kAfUpdateMod).
@@ -733,7 +725,7 @@ ECastResult CastRoomAffect(CastContext &ctx) {
 			SendSpellNameMsg(ch, spell_id, ESpellMsg::kCastPreparedToChar);
 		}
 	} else {
-		auto RoomAffect_i = FindAffect(room, spell_id);
+		auto RoomAffect_i = FindAffect(room, room_affect);
 		if (RoomAffect_i != room->affected.end() && !IS_SET(af[0].battleflag, kAfUnique)) {
 			// issue.dispellbug: re-cast over an existing (non per-caster-unique) room affect.
 			// Per-field gating: kAfUpdateDuration -> duration, kAfUpdateMod -> modifier;
@@ -777,7 +769,7 @@ ECastResult CastRoomAffect(CastContext &ctx) {
 				}
 			}
 		} else if (IS_SET(af[0].battleflag, kAfUnique)) {
-			RemoveSingleRoomAffect(ch->get_uid(), spell_id);
+			RemoveSingleRoomAffect(ch->get_uid(), room_affect);
 		}
 	}
 
@@ -805,7 +797,7 @@ ECastResult CastRoomAffect(CastContext &ctx) {
 		// EmitImpositionEffects).
 		// Prefer the room-affect message system (keyed by the affect's ERoomAffect identity);
 		// fall back to the spell sheaf for anything not yet migrated.
-		const ERoomAffect ra = RoomAffectBySpell(spell_id);
+		const ERoomAffect ra = room_affect;
 		const auto &sheaf = MUD::SpellMessages()[spell_id];
 		const std::string &room_to_room = RoomAffectMsgRaw(ra, ERoomAffectMsgType::kAffImposedToRoom);
 		const std::string &to_room = !room_to_room.empty() ? room_to_room
@@ -867,8 +859,7 @@ ECastResult CallMagicToRoom(CharData *ch, RoomData *room, CastContext roll) {
 	return CastRoomAffect(roll);
 }
 
-int GetUniqueAffectDuration(long caster_id, ESpell spell_id) {
-	const ERoomAffect want = RoomAffectBySpell(spell_id);   // issue.affect-migration: by affect_type
+int GetUniqueAffectDuration(long caster_id, ERoomAffect want) {
 	for (const auto &room : affected_rooms) {
 		for (const auto &af : room->affected) {
 			if (af->affect_type == want && af->caster_id == caster_id) {
@@ -965,19 +956,21 @@ void affect_to_room(RoomData *room, const Affect<ERoomApply> &af) {
 /**
  * Removing room affect from first affected room.
  * @param ch - affect caster.
- * @param spell_id - removing spell affect.
+ * @param affect - the room affect to remove.
  */
-void RemoveSingleAffectFromWorld(CharData *ch, ESpell spell_id) {
-	auto affected_room = room_spells::FindAffectedRoomByCasterID(ch->get_uid(), spell_id);
+void RemoveSingleAffectFromWorld(CharData *ch, ERoomAffect affect) {
+	auto affected_room = room_spells::FindAffectedRoomByCasterID(ch->get_uid(), affect);
 	if (affected_room) {
-		const auto aff = room_spells::FindAffect(affected_room, spell_id);
+		const auto aff = room_spells::FindAffect(affected_room, affect);
 		if (aff != affected_room->affected.end()) {
 			room_spells::RoomRemoveAffect(affected_room, aff);
-			// kAfDispelledToOwner sheaf lookup: the kDefault
-			// fallback is "Ваша магия была развеяна."; kRuneLabel overrides with
-			// "Ваша рунная метка удалена.". Other spells using this path inherit the
-			// default until a designer authors a per-spell line.
-			SendSpellNameMsg(ch, spell_id, ESpellMsg::kAfDispelledToOwner);
+			// issue.affects-improve: owner notice from the room-affect message system, keyed by the
+			// affect itself (no spell lookup). kDefault = "Ваша магия была развеяна."; kRuneLabel
+			// overrides with "Ваша рунная метка удалена.".
+			const auto &msg = RoomAffectMsg(affect, ERoomAffectMsgType::kAffDispelledToChar);
+			if (!msg.empty()) {
+				act(msg.c_str(), false, ch, nullptr, nullptr, kToChar);
+			}
 		}
 	}
 }
@@ -987,7 +980,7 @@ void ProcessRoomAffectsOnEntry(CharData *ch, RoomRnum room) {
 		return;
 	}
 
-	const auto affect_on_room = room_spells::FindAffect(world[room], ESpell::kHypnoticPattern);
+	const auto affect_on_room = room_spells::FindAffect(world[room], room_spells::ERoomAffect::kHypnoticPattern);
 	if (affect_on_room != world[room]->affected.end()) {
 		CharData *caster = find_char((*affect_on_room)->caster_id);
 		// если не в гопе, и не слепой

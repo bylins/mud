@@ -14,6 +14,7 @@
 -->
 <msg_container>
 	<msg_sheaf id="kDefault">
+		<message type="kAffDispelledToChar" val="Ваша магия была развеяна."/>
 	</msg_sheaf>
 	<msg_sheaf id="kForbidden">
 		<message type="kRoomAffectInvisible" val="&amp;c... магическая печать закрывает все входы ...&amp;n"/>
@@ -54,6 +55,7 @@
 		<message type="kAffImposedToRoom" val="$n начертил$g на земле несколько рун и произнес$q заклинание."/>
 		<message type="kAffImposedToChar" val="Вы начертали свое имя рунами на земле и произнесли заклинание."/>
 		<message type="kAffExpiredToRoom" val="Магические письмена на земле угасли."/>
+		<message type="kAffDispelledToChar" val="Ваша рунная метка удалена."/>
 	</msg_sheaf>
 	<msg_sheaf id="kHypnoticPattern">
 		<message type="kRoomAffectVisible" val="&amp;Y... чарующий огненный узор плывет в воздухе ...&amp;n"/>

@@ -213,9 +213,9 @@ void PrintScoreList(CharData *ch) {
 		SendMsgToChar(ch, "Вы защищены от призыва.\r\n");
 	SendMsgToChar(ch, "Голоден: %s, жажда: %s.\r\n", (GET_COND(ch, condition::kFull) > kNormCondition)? "да" : "нет", condition::GetCondAboveNorm(ch, condition::kThirst)? "да" : "нет");
 	//Напоминаем о метке, если она есть.
-	RoomData *label_room = room_spells::FindAffectedRoomByCasterID(ch->get_uid(), ESpell::kRuneLabel);
+	RoomData *label_room = room_spells::FindAffectedRoomByCasterID(ch->get_uid(), room_spells::ERoomAffect::kRuneLabel);
 	if (label_room) {
-		const int timer_room_label = room_spells::GetUniqueAffectDuration(ch->get_uid(), ESpell::kRuneLabel);
+		const int timer_room_label = room_spells::GetUniqueAffectDuration(ch->get_uid(), room_spells::ERoomAffect::kRuneLabel);
 		if (timer_room_label > 0) {
 			*buf2 = '\0';
 			(timer_room_label + 1) / kSecsPerMudHour ? sprintf(buf2, "%d %s.", (timer_room_label + 1) / kSecsPerMudHour + 1,
@@ -272,9 +272,9 @@ void PrintHorseInfo(CharData *ch, std::ostringstream &out) {
 }
 
 void PrintRuneLabelInfo(CharData *ch, std::ostringstream &out) {
-	RoomData *label_room = room_spells::FindAffectedRoomByCasterID(ch->get_uid(), ESpell::kRuneLabel);
+	RoomData *label_room = room_spells::FindAffectedRoomByCasterID(ch->get_uid(), room_spells::ERoomAffect::kRuneLabel);
 	if (label_room) {
-		int timer_room_label = room_spells::GetUniqueAffectDuration(ch->get_uid(), ESpell::kRuneLabel);
+		int timer_room_label = room_spells::GetUniqueAffectDuration(ch->get_uid(), room_spells::ERoomAffect::kRuneLabel);
 		out << InfoStrPrefix(ch) << kColorBoldGrn << "Вы поставили рунную метку в комнате \'"
 			<< label_room->name << "\' ";
 		if (timer_room_label > 0) {
@@ -830,7 +830,7 @@ void PrintScoreBase(CharData *ch) {
 	}
 
 	//Напоминаем о метке, если она есть.
-	RoomData *label_room = room_spells::FindAffectedRoomByCasterID(ch->get_uid(), ESpell::kRuneLabel);
+	RoomData *label_room = room_spells::FindAffectedRoomByCasterID(ch->get_uid(), room_spells::ERoomAffect::kRuneLabel);
 	if (label_room) {
 		sprintf(buf + strlen(buf),
 				"&G&qВы поставили рунную метку в комнате '%s'.&Q&n\r\n",

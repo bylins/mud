@@ -2879,7 +2879,7 @@ bool IsZoneEmpty(ZoneRnum zone_nr, bool debug) {
 		return false;
 	}
 
-	if (room_spells::IsZoneRoomAffected(zone_nr, ESpell::kRuneLabel)) {
+	if (room_spells::IsZoneRoomAffected(zone_nr, room_spells::ERoomAffect::kRuneLabel)) {
 		return false;
 	}
 	if (debug) {
