@@ -9,7 +9,7 @@
 #include "administration/privilege.h"
 
 #include "gameplay/magic/spells.h"
-#include "engine/core/handler.h"
+#include "engine/entities/char_data.h"
 #include "engine/ui/color.h"
 #include "utils/random.h"
 #include "celebrates.h"

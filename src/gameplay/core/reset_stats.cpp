@@ -2,21 +2,22 @@
 // Part of Bylins http://www.mud.ru
 
 #include "administration/karma.h"
+#include "engine/db/global_objects.h"
+#include "gameplay/economics/currencies.h"
 #include "utils/grammar/declensions.h"
 #include "genchar.h"
 #include "engine/ui/color.h"
 #include "engine/entities/char_data.h"
 
 #include <fmt/format.h>
-#include "third_party_libs/pugixml/pugixml.h"
+#include "utils/utils_parse.h"
+#include "utils/parser_wrapper.h"
 
 extern bool ValidateStats(DescriptorData *d);
-extern int check_dupes_email(DescriptorData *d);
+#include "administration/dupe_check.h"
 extern void do_entergame(DescriptorData *d);
 
 namespace stats_reset {
-
-const char *CONFIG_FILE = LIB_MISC"reset_stats.xml";
 
 // для списка reset_prices
 struct price_node {
@@ -36,46 +37,33 @@ std::array<price_node, Type::TOTAL_NUM> reset_prices =
 		 {400000, 200000, 1000000, "religion"}
 	 }};
 
+// Целочисленный атрибут DataNode; 0 при отсутствии/некорректном значении (как старый ReadAttrAsInt).
+using parse::AttrInt;
+
 ///
-/// Парс отдельной записи в CONFIG_FILE из init()
+/// Парс отдельной секции <reset_stats> (<main_stats>/<race>/<feats>/<religion>).
 ///
-void parse_prices(const pugi::xml_node &cur_node, Type type) {
-	if (cur_node) {
-		reset_prices.at(type).base_price = parse::ReadAttrAsInt(cur_node, "price");
-		reset_prices.at(type).add_price = parse::ReadAttrAsInt(cur_node, "price_add");
-		reset_prices.at(type).max_price = parse::ReadAttrAsInt(cur_node, "max_price");
+static void parse_section(parser_wrapper::DataNode main_node, const char *tag, Type type) {
+	if (!main_node.GoToChild(tag)) {
+		return;
 	}
+	reset_prices.at(type).base_price = AttrInt(main_node, "price");
+	reset_prices.at(type).add_price = AttrInt(main_node, "price_add");
+	reset_prices.at(type).max_price = AttrInt(main_node, "max_price");
 }
 
 ///
-/// Лоад/релоад CONFIG_FILE, релоадится через 'reload <имя файла>'
+/// Лоад/релоад cfg/mechanics/reset_stats.xml через cfg_manager (boot + reload resetstats).
 ///
-void init() {
-	pugi::xml_document doc;
-	pugi::xml_parse_result result = doc.load_file(CONFIG_FILE);
-	if (!result) {
-		snprintf(buf, kMaxStringLength, "...%s", result.description());
-		mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
-		return;
-	}
+void ResetStatsLoader::Load(parser_wrapper::DataNode data) {
+	parse_section(data, "main_stats", Type::MAIN_STATS);
+	parse_section(data, "race", Type::RACE);
+	parse_section(data, "feats", Type::FEATS);
+	parse_section(data, "religion", Type::RELIGION);
+}
 
-	pugi::xml_node main_node = doc.child("reset_stats");
-	if (!main_node) {
-		snprintf(buf, kMaxStringLength, "...<reset_stats> read fail");
-		mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
-		return;
-	}
-
-	pugi::xml_node cur_node = parse::GetChild(main_node, "main_stats");
-	parse_prices(cur_node, Type::MAIN_STATS);
-
-	cur_node = parse::GetChild(main_node, "race");
-	parse_prices(cur_node, Type::RACE);
-
-	cur_node = parse::GetChild(main_node, "feats");
-	parse_prices(cur_node, Type::FEATS);
-	cur_node = parse::GetChild(main_node, "religion");
-	parse_prices(cur_node, Type::RELIGION);
+void ResetStatsLoader::Reload(parser_wrapper::DataNode data) {
+	Load(std::move(data));
 }
 
 ///
@@ -130,10 +118,10 @@ void print_menu(DescriptorData *d) {
 		"5) отменить и вернуться в главное меню\r\n"
 		"\r\nВаш выбор:",
 		kColorBoldGrn, kColorNrm,
-		stats_price, grammar::GetDeclensionInNumber(stats_price, grammar::EWhat::kMoneyA),
-		race_price, grammar::GetDeclensionInNumber(race_price, grammar::EWhat::kMoneyA),
-		feats_price, grammar::GetDeclensionInNumber(feats_price, grammar::EWhat::kMoneyA),
-		religion_price, grammar::GetDeclensionInNumber(religion_price, grammar::EWhat::kMoneyA));
+		stats_price, MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(stats_price, grammar::ECase::kNom).c_str(),
+		race_price, MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(race_price, grammar::ECase::kNom).c_str(),
+		feats_price, MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(feats_price, grammar::ECase::kNom).c_str(),
+		religion_price, MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(religion_price, grammar::ECase::kNom).c_str());
 iosystem::write_to_output(str.c_str(), d);
 }
 
@@ -144,9 +132,9 @@ void process(DescriptorData *d, Type type) {
 	const auto &ch = d->character;
 	const int price = calc_price(ch.get(), type);
 
-	if (ch->get_total_gold() < price) {
+	if (currencies::GetTotal(*ch, currencies::kGold) < price) {
 	iosystem::write_to_output("\r\nУ вас нет такой суммы!\r\n", d);
-	iosystem::write_to_output(MENU, d);
+	ShowMainMenu(d);
 		d->state = EConState::kMenu;
 	} else {
 		char buf_[kMaxInputLength];
@@ -157,7 +145,7 @@ void process(DescriptorData *d, Type type) {
 			// если мы попали сюда, значит чара не вывело на переброс статов
 			// после проверки в ValidateStats()
 		iosystem::write_to_output("Произошла какая-то ошибка, сообщите богам!\r\n", d);
-		iosystem::write_to_output(MENU, d);
+		ShowMainMenu(d);
 			d->state = EConState::kMenu;
 			snprintf(buf_, sizeof(buf_), "%s failed to change %s",
 					 d->character->get_name().c_str(), reset_prices.at(type).log_text.c_str());
@@ -168,7 +156,7 @@ void process(DescriptorData *d, Type type) {
 					 reset_prices.at(type).log_text.c_str(), price);
 			AddKarma(ch.get(), buf_, "auto");
 
-			ch->remove_both_gold(price);
+			currencies::RemoveTotal(*ch, currencies::kGold, price);
 			ch->save_char();
 
 			snprintf(buf_, sizeof(buf_), "%s changed %s, price=%d",
@@ -217,7 +205,7 @@ void parse_menu(DescriptorData *d, const char *arg) {
 
 	if (!result) {
 	iosystem::write_to_output("Изменение параметров персонажа было отменено.\r\n", d);
-	iosystem::write_to_output(MENU, d);
+	ShowMainMenu(d);
 		d->state = EConState::kMenu;
 	}
 }

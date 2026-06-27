@@ -1,7 +1,11 @@
 #include "scenario_runner.h"
+#include "engine/core/target_resolver.h"
 #include "gameplay/mechanics/follow.h"
 
-#include "engine/core/handler.h"
+#include "engine/core/char_equip_flags.h"
+#include "engine/core/char_handler.h"
+#include "gameplay/mechanics/equipment.h"
+#include "gameplay/mechanics/inventory.h"
 #include "engine/core/iosystem.h"
 #include "engine/db/db.h"
 #include "engine/db/global_objects.h"
@@ -673,7 +677,7 @@ void RunScenario(const Scenario& scenario) {
 			// can't hang the run.
 			constexpr long long kMaxWaitPulses = kBattleRound * 4;
 			long long waited = 0;
-			while ((attacker->HasCooldown(ESkill::kGlobalCooldown) ||
+			while ((attacker->Skills().HasActiveCooldown(ESkill::kGlobalCooldown) ||
 					attacker->get_wait() > 0) &&
 					waited < kMaxWaitPulses) {
 				MUD::heartbeat()(0);

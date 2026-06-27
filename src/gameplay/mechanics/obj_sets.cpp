@@ -5,7 +5,8 @@
 #include "utils/grammar/declensions.h"
 #include "gameplay/mechanics/minions.h"
 #include "obj_sets_stuff.h"
-#include "third_party_libs/pugixml/pugixml.h"
+#include "utils/parser_wrapper.h"   // issue.obj-sets: загрузка через ParserWrapper
+#include "utils/utils_parse.h"
 #include "engine/ui/color.h"
 #include "engine/ui/modify.h"
 #include "engine/db/help.h"
@@ -13,6 +14,12 @@
 #include "engine/db/global_objects.h"
 
 #include <fmt/format.h>
+#include <cstring>
+#include "gameplay/affects/affect_data.h"
+#include "gameplay/magic/magic_utils.h"
+#include "engine/entities/char_data.h"
+#include "utils/utils.h"
+#include "engine/structs/flag_data.h"
 
 namespace obj_sets {
 
@@ -20,7 +27,13 @@ int SetNode::uid_cnt = 0;
 
 std::set<int> list_vnum;
 
-const char *OBJ_SETS_FILE = LIB_MISC"obj_sets.xml";
+// issue.cfg-manager: путь к файлу знает CfgManager (id "obj_sets"); загрузчик его не знает.
+
+namespace {
+// issue.obj-sets: чтение атрибутов через ParserWrapper.
+using parse::AttrInt;
+using parse::AttrStr;
+} // namespace
 /// мин/макс кол-во активаторов для валидного сета
 const unsigned MIN_ACTIVE_SIZE = 2;
 /// вобщем-то равняется кол-ву допустимых для сетов слотов
@@ -316,252 +329,230 @@ void init_global_msg() {
 
 /// инит структуры сообщений из конфига
 /// отсутствие какой-то из строк (всех) не является ошибкой
-void InitMsgNode(SetMsgNode &node, const pugi::xml_node &xml_msg) {
-	node.char_on_msg = xml_msg.child_value("char_on_msg");
-	node.char_off_msg = xml_msg.child_value("char_off_msg");
-	node.room_on_msg = xml_msg.child_value("room_on_msg");
-	node.room_off_msg = xml_msg.child_value("room_off_msg");
+void InitMsgNode(SetMsgNode &node, const parser_wrapper::DataNode &xml_msg) {
+	// issue.obj-sets: сообщения теперь атрибуты <messages char_on=.. char_off=.. room_on=.. room_off=../>
+	node.char_on_msg = AttrStr(xml_msg, "char_on");
+	node.char_off_msg = AttrStr(xml_msg, "char_off");
+	node.room_on_msg = AttrStr(xml_msg, "room_on");
+	node.room_off_msg = AttrStr(xml_msg, "room_off");
 }
 
-/// лоад при старте мада, релоад через 'reload obj_sets.xml'
-void load() {
-	log("Loadind %s: start", OBJ_SETS_FILE);
+/// лоад при старте мада, релоад через 'reload objsets'. data = корень <obj_sets>
+/// (его строит CfgManager через ParserWrapper). В конце нормализуем файл через save().
+void ObjSetsLoader::Load(parser_wrapper::DataNode data) {
+	log("Loadind obj_sets: start");
 	sets_list.clear();
 	init_global_msg();
 
-	pugi::xml_document doc;
-	pugi::xml_parse_result result = doc.load_file(OBJ_SETS_FILE);
-	if (!result) {
-		err_log("%s", result.description());
-		return;
-	}
-	pugi::xml_node xml_obj_sets = doc.child("obj_sets");
-	if (xml_obj_sets.empty()) {
-		err_log("<obj_sets> read fail");
-		return;
-	}
-	// <messages>
-	pugi::xml_node xml_msg = xml_obj_sets.child("messages");
-	if (!xml_msg.empty()) {
-		InitMsgNode(global_msg, xml_msg);
+	// <messages> - глобальные
+	{
+		auto xml_msg = data;
+		if (xml_msg.GoToChild("messages")) {
+			InitMsgNode(global_msg, xml_msg);
+		}
 	}
 	// <set>
-	for (const auto & set_node : xml_obj_sets.children("set")) {
+	for (auto &set_node : data.Children("set")) {
 		std::shared_ptr<SetNode> tmp_set = std::make_shared<SetNode>();
 		// имя, алиас и камент не обязательны
-		tmp_set->name = set_node.attribute("name").value();
-		tmp_set->alias = set_node.attribute("alias").value();
-		tmp_set->comment = set_node.attribute("comment").value();
+		tmp_set->name = AttrStr(set_node, "name");
+		tmp_set->alias = AttrStr(set_node, "alias");
+		tmp_set->comment = AttrStr(set_node, "comment");
 		// enabled не обязателен, по дефолту сет включен
-		tmp_set->enabled = (set_node.attribute("enabled").as_int(1) == 1 ? true : false);
+		tmp_set->enabled = (AttrInt(set_node, "enabled", 1) == 1);
 
-		for (auto & obj_node : set_node.children("obj")) {
+		for (auto &obj_node : set_node.Children("obj")) {
 			struct SetMsgNode tmp_msg;
-			pugi::xml_node xml_msg = obj_node.child("messages");
-			if (!xml_msg.empty()) {
+			auto xml_msg = obj_node;
+			if (xml_msg.GoToChild("messages")) {
 				InitMsgNode(tmp_msg, xml_msg);
 			}
-			// GCC 4.4
-			tmp_set->obj_list.emplace(parse::ReadAttrAsInt(obj_node, "vnum"), tmp_msg);
-			//tmp_set->obj_list.insert(std::make_pair(Parse::attr_int(obj_node, "vnum"), tmp_msg));
+			tmp_set->obj_list.emplace(AttrInt(obj_node, "vnum"), tmp_msg);
 		}
 
-		for (const auto & activ_node : set_node.children("activ")) {
+		for (auto &activ_node : set_node.Children("activ")) {
 			ActivNode tmp_activ;
-			tmp_activ.affects.from_string(activ_node.child_value("affects"));
-			for (const auto & apply_node : activ_node.children("apply")) {
+			tmp_activ.affects.from_string(AttrStr(activ_node, "affects").c_str());
+			for (auto &apply_node : activ_node.Children("apply")) {
 				// заполняются только первые kMaxObjAffect
-				for (auto & i : tmp_activ.apply) {
+				for (auto &i : tmp_activ.apply) {
 					if (i.location <= 0) {
-						i.location = static_cast<EApply>(parse::ReadAttrAsInt(apply_node, "loc"));
-						i.modifier = parse::ReadAttrAsInt(apply_node, "mod");
+						i.location = static_cast<EApply>(AttrInt(apply_node, "loc"));
+						i.modifier = AttrInt(apply_node, "mod");
 						break;
 					}
 				}
 			}
 
-			pugi::xml_node xml_cur = activ_node.child("skill");
-			if (!xml_cur.empty()) {
-				tmp_activ.skill.first = static_cast<ESkill>(parse::ReadAttrAsInt(xml_cur, "num"));
-				tmp_activ.skill.second = parse::ReadAttrAsInt(xml_cur, "val");
+			{
+				auto xml_cur = activ_node;
+				if (xml_cur.GoToChild("skill")) {
+					tmp_activ.skill.first = static_cast<ESkill>(AttrInt(xml_cur, "num"));
+					tmp_activ.skill.second = AttrInt(xml_cur, "val");
+				}
 			}
-
-			xml_cur = activ_node.child("enchant");
-			if (!xml_cur.empty()) {
-				tmp_activ.enchant.first = parse::ReadAttrAsInt(xml_cur, "vnum");
-				tmp_activ.enchant.second.weight =
-					xml_cur.attribute("weight").as_int(0);
-				tmp_activ.enchant.second.ndice =
-					xml_cur.attribute("ndice").as_int(0);
-				tmp_activ.enchant.second.sdice =
-					xml_cur.attribute("sdice").as_int(0);
+			{
+				auto xml_cur = activ_node;
+				if (xml_cur.GoToChild("enchant")) {
+					tmp_activ.enchant.first = AttrInt(xml_cur, "vnum");
+					tmp_activ.enchant.second.weight = AttrInt(xml_cur, "weight", 0);
+					tmp_activ.enchant.second.ndice = AttrInt(xml_cur, "ndice", 0);
+					tmp_activ.enchant.second.sdice = AttrInt(xml_cur, "sdice", 0);
+				}
 			}
-			// <phys_dmg>
-			xml_cur = activ_node.child("phys_dmg");
-			if (!xml_cur.empty()) {
-				tmp_activ.bonus.phys_dmg = parse::ReadAttrAsInt(xml_cur, "pct");
+			{
+				auto xml_cur = activ_node;
+				if (xml_cur.GoToChild("phys_dmg")) {
+					tmp_activ.bonus.phys_dmg = AttrInt(xml_cur, "pct");
+				}
 			}
-			// <mage_dmg>
-			xml_cur = activ_node.child("mage_dmg");
-			if (!xml_cur.empty()) {
-				tmp_activ.bonus.mage_dmg = parse::ReadAttrAsInt(xml_cur, "pct");
+			{
+				auto xml_cur = activ_node;
+				if (xml_cur.GoToChild("mage_dmg")) {
+					tmp_activ.bonus.mage_dmg = AttrInt(xml_cur, "pct");
+				}
 			}
 			// если нет атрибута prof - значит актив на все профы
-			pugi::xml_attribute xml_prof = activ_node.attribute("prof");
-			if (!xml_prof.empty()) {
-				std::bitset<kNumPlayerClasses> tmp_p(std::string(xml_prof.value()));
-				tmp_activ.prof = tmp_p;
+			const std::string prof = AttrStr(activ_node, "prof");
+			if (!prof.empty()) {
+				tmp_activ.prof = std::bitset<kNumPlayerClasses>(prof);
 			}
-			// активится ли сет на мобах
-			pugi::xml_attribute xml_npc = activ_node.attribute("npc");
-			if (!xml_npc.empty()) {
-				tmp_activ.npc = xml_npc.as_bool();
+			// активится ли сет на мобах (атрибут пишется pugixml как "true"/"false")
+			const std::string npc = AttrStr(activ_node, "npc");
+			if (!npc.empty()) {
+				tmp_activ.npc = (npc == "true" || npc == "1");
 			}
-			tmp_set->activ_list[parse::ReadAttrAsInt(activ_node, "size")] = tmp_activ;
+			tmp_set->activ_list[AttrInt(activ_node, "size")] = tmp_activ;
 		}
-		// <messages>
-		pugi::xml_node xml_msg = set_node.child("messages");
-		if (xml_msg) {
-			InitMsgNode(tmp_set->messages, xml_msg);
+		// <messages> - на сет
+		{
+			auto xml_msg = set_node;
+			if (xml_msg.GoToChild("messages")) {
+				InitMsgNode(tmp_set->messages, xml_msg);
+			}
 		}
 		sets_list.push_back(tmp_set);
 		VerifySet(*tmp_set);
 	}
 
 	init_obj_index();
-	log("Loadind %s: done", OBJ_SETS_FILE);
+	log("Loadind obj_sets: done");
 	save();
 }
 
+void ObjSetsLoader::Reload(parser_wrapper::DataNode data) {
+	Load(std::move(data));
+}
+
 /// сохранения структуры сообщений в конфиг
-void save_messages(pugi::xml_node &xml, SetMsgNode &msg) {
-	if (!msg.char_on_msg.empty()
-		|| !msg.char_off_msg.empty()
-		|| !msg.room_on_msg.empty()
-		|| !msg.room_off_msg.empty()) {
-		xml.append_child("messages");
-	} else {
+void save_messages(parser_wrapper::DataNode &parent, const SetMsgNode &msg) {
+	// issue.obj-sets: сообщения - атрибуты <messages char_on=.. char_off=.. room_on=.. room_off=../>
+	if (msg.char_on_msg.empty()
+		&& msg.char_off_msg.empty()
+		&& msg.room_on_msg.empty()
+		&& msg.room_off_msg.empty()) {
 		return;
 	}
-
-	pugi::xml_node xml_messages = xml.last_child();
+	auto m = parent.AddChild("messages");
 	if (!msg.char_on_msg.empty()) {
-		pugi::xml_node xml_msg = xml_messages.append_child("char_on_msg");
-		xml_msg.append_child(pugi::node_pcdata).set_value(msg.char_on_msg.c_str());
+		m.SetValue("char_on", msg.char_on_msg);
 	}
 	if (!msg.char_off_msg.empty()) {
-		pugi::xml_node xml_msg = xml_messages.append_child("char_off_msg");
-		xml_msg.append_child(pugi::node_pcdata).set_value(msg.char_off_msg.c_str());
+		m.SetValue("char_off", msg.char_off_msg);
 	}
 	if (!msg.room_on_msg.empty()) {
-		pugi::xml_node xml_msg = xml_messages.append_child("room_on_msg");
-		xml_msg.append_child(pugi::node_pcdata).set_value(msg.room_on_msg.c_str());
+		m.SetValue("room_on", msg.room_on_msg);
 	}
 	if (!msg.room_off_msg.empty()) {
-		pugi::xml_node xml_msg = xml_messages.append_child("room_off_msg");
-		xml_msg.append_child(pugi::node_pcdata).set_value(msg.room_off_msg.c_str());
+		m.SetValue("room_off", msg.room_off_msg);
 	}
 }
 
-/// сохранение конфига, пишутся и выключенные, и пустые сеты
-void save() {
-	log("Saving %s: start", OBJ_SETS_FILE);
+/// issue.cfg-manager: пересборка всех сетов (включая выключенные и пустые) в DOM из памяти.
+/// Какой файл и куда писать - решает CfgManager (id "obj_sets"); загрузчик пути не знает.
+void ObjSetsLoader::Save(parser_wrapper::DataNode &doc) const {
 	char buf_[256];
-	pugi::xml_document doc;
-	pugi::xml_node xml_obj_sets = doc.append_child("obj_sets");
-	// obj_sets/messages
-	save_messages(xml_obj_sets, global_msg);
+	auto root = doc.AddChild("obj_sets");
+	save_messages(root, global_msg);
 
-	for (auto & i : sets_list) {
-		// obj_sets/set
-		pugi::xml_node xml_set = xml_obj_sets.append_child("set");
+	for (auto &i : sets_list) {
+		auto xset = root.AddChild("set");
 		if (!i->name.empty()) {
-			xml_set.append_attribute("name") = i->name.c_str();
+			xset.SetValue("name", i->name);
 		}
 		if (!i->alias.empty()) {
-			xml_set.append_attribute("alias") = i->alias.c_str();
+			xset.SetValue("alias", i->alias);
 		}
 		if (!i->comment.empty()) {
-			xml_set.append_attribute("comment") = i->comment.c_str();
+			xset.SetValue("comment", i->comment);
 		}
 		if (!i->enabled) {
-			xml_set.append_attribute("enabled") = 0;
+			xset.SetValue("enabled", "0");
 		}
-		// set/messages
-		save_messages(xml_set, i->messages);
-		// set/obj
-		for (auto & o : i->obj_list) {
-			pugi::xml_node xml_obj = xml_set.append_child("obj");
-			xml_obj.append_attribute("vnum") = o.first;
-			save_messages(xml_obj, o.second);
+		save_messages(xset, i->messages);
+		for (auto &o : i->obj_list) {
+			auto xobj = xset.AddChild("obj");
+			xobj.SetValue("vnum", std::to_string(o.first));
+			save_messages(xobj, o.second);
 		}
-		// set/activ
-		for (auto & k : i->activ_list) {
-			pugi::xml_node xml_activ = xml_set.append_child("activ");
-			xml_activ.append_attribute("size") = k.first;
+		for (auto &k : i->activ_list) {
+			auto xa = xset.AddChild("activ");
+			xa.SetValue("size", std::to_string(k.first));
 			if (!k.second.prof.all()) {
-				xml_activ.append_attribute("prof")
-					= k.second.prof.to_string().c_str();
+				xa.SetValue("prof", k.second.prof.to_string());
 			}
 			if (k.second.npc) {
-				xml_activ.append_attribute("npc") = k.second.npc;
+				xa.SetValue("npc", "true");
 			}
-			// set/activ/affects
+			// issue.obj-sets: аффекты - атрибут (tascii добавляет хвостовой пробел - срезаем)
 			if (!k.second.affects.empty()) {
-				pugi::xml_node xml_affects = xml_activ.append_child("affects");
 				*buf_ = '\0';
 				k.second.affects.tascii(FlagData::kPlanesNumber, buf_, sizeof(buf_));
-				xml_affects.append_child(pugi::node_pcdata).set_value(buf_);
+				for (char *p = buf_ + strlen(buf_); p > buf_ && *(p - 1) == ' '; --p) {
+					*(p - 1) = '\0';
+				}
+				xa.SetValue("affects", buf_);
 			}
-			// set/activ/apply
-			for (auto & m : k.second.apply) {
+			for (auto &m : k.second.apply) {
 				if (m.location > 0 && m.location < EApply::kNumberApplies && m.modifier) {
-					pugi::xml_node xml_apply = xml_activ.append_child("apply");
-					xml_apply.append_attribute("loc") = m.location;
-					xml_apply.append_attribute("mod") = m.modifier;
+					auto xap = xa.AddChild("apply");
+					xap.SetValue("loc", std::to_string(to_underlying(m.location)));
+					xap.SetValue("mod", std::to_string(m.modifier));
 				}
 			}
-			// set/activ/skill
 			if (MUD::Skills().IsValid(k.second.skill.first)) {
-				pugi::xml_node xml_skill = xml_activ.append_child("skill");
-				xml_skill.append_attribute("num") = to_underlying(k.second.skill.first);
-				xml_skill.append_attribute("val") = k.second.skill.second;
+				auto xs = xa.AddChild("skill");
+				xs.SetValue("num", std::to_string(to_underlying(k.second.skill.first)));
+				xs.SetValue("val", std::to_string(k.second.skill.second));
 			}
-			// set/activ/enchant
 			if (k.second.enchant.first > 0) {
-				pugi::xml_node xml_enchant = xml_activ.append_child("enchant");
-				xml_enchant.append_attribute("vnum") = k.second.enchant.first;
+				auto xe = xa.AddChild("enchant");
+				xe.SetValue("vnum", std::to_string(k.second.enchant.first));
 				if (k.second.enchant.second.weight > 0) {
-					xml_enchant.append_attribute("weight") =
-						k.second.enchant.second.weight;
+					xe.SetValue("weight", std::to_string(k.second.enchant.second.weight));
 				}
 				if (k.second.enchant.second.ndice > 0) {
-					xml_enchant.append_attribute("ndice") =
-						k.second.enchant.second.ndice;
+					xe.SetValue("ndice", std::to_string(k.second.enchant.second.ndice));
 				}
 				if (k.second.enchant.second.sdice) {
-					xml_enchant.append_attribute("sdice") =
-						k.second.enchant.second.sdice;
+					xe.SetValue("sdice", std::to_string(k.second.enchant.second.sdice));
 				}
 			}
-			// set/activ/phys_dmg
 			if (k.second.bonus.phys_dmg > 0) {
-				pugi::xml_node xml_bonus = xml_activ.append_child("phys_dmg");
-				xml_bonus.append_attribute("pct") = k.second.bonus.phys_dmg;
+				auto x = xa.AddChild("phys_dmg");
+				x.SetValue("pct", std::to_string(k.second.bonus.phys_dmg));
 			}
-			// set/activ/mage_dmg
 			if (k.second.bonus.mage_dmg > 0) {
-				pugi::xml_node xml_bonus = xml_activ.append_child("mage_dmg");
-				xml_bonus.append_attribute("pct") = k.second.bonus.mage_dmg;
+				auto x = xa.AddChild("mage_dmg");
+				x.SetValue("pct", std::to_string(k.second.bonus.mage_dmg));
 			}
 		}
 	}
+}
 
-	pugi::xml_node decl = doc.prepend_child(pugi::node_declaration);
-	decl.append_attribute("version") = "1.0";
-	decl.append_attribute("encoding") = "koi8-r";
-	doc.save_file(OBJ_SETS_FILE);
-	log("Saving %s: done", OBJ_SETS_FILE);
+/// сохранение по запросу: CfgManager сам выбирает файл по id "obj_sets" и пишет атомарно.
+void save() {
+	MUD::CfgManager().SaveCfg("obj_sets");
 }
 ///Создание и заполнение списка сетового набора по 1 вещи из набора
 std::set<int> vnum_list_add(int vnum) {
@@ -1256,6 +1247,314 @@ bool is_set_item(ObjData *obj) {
 		return true;
 	}
 	return false;
+}
+
+
+// issue.handler-cleaning (Bucket 3): set activation moved from equipment/handler.
+
+int GetFlagDataByCharClass(const CharData *ch) {
+	if (ch == nullptr) {
+		return 0;
+	}
+
+	return flag_data_by_num(ch->IsNpc() ? kNumPlayerClasses : to_underlying(ch->GetClass()));
+}
+
+unsigned int ActivateStuff(CharData *ch, ObjData *obj, id_to_set_info_map::const_iterator it,
+						   int pos, const CharEquipFlags& equip_flags, unsigned int set_obj_qty) {
+	const bool no_cast = equip_flags.test(CharEquipFlag::no_cast);
+	const bool show_msg = equip_flags.test(CharEquipFlag::show_msg);
+	std::string::size_type delim;
+
+	if (pos < EEquipPos::kNumEquipPos) {
+		set_info::const_iterator set_obj_info;
+
+		if (GET_EQ(ch, pos) && GET_EQ(ch, pos)->has_flag(EObjFlag::kSetItem) &&
+			(set_obj_info = it->second.find(GET_OBJ_VNUM(GET_EQ(ch, pos)))) != it->second.end()) {
+			unsigned int oqty = ActivateStuff(ch, obj, it, pos + 1,
+											  (show_msg ? CharEquipFlag::show_msg : CharEquipFlags())
+												  | (no_cast ? CharEquipFlag::no_cast : CharEquipFlags()),
+											  set_obj_qty + 1);
+			qty_to_camap_map::const_iterator qty_info = set_obj_info->second.upper_bound(oqty);
+			qty_to_camap_map::const_iterator old_qty_info = GET_EQ(ch, pos) == obj ?
+															set_obj_info->second.begin() :
+															set_obj_info->second.upper_bound(oqty - 1);
+
+			while (qty_info != old_qty_info) {
+				class_to_act_map::const_iterator class_info;
+
+				qty_info--;
+				unique_bit_flag_data item;
+				const auto flags = GetFlagDataByCharClass(ch);
+				item.set(flags);
+				if ((class_info = qty_info->second.find(item)) != qty_info->second.end()) {
+					if (GET_EQ(ch, pos) != obj) {
+						for (int i = 0; i < kMaxObjAffect; i++) {
+							affect_modify(ch,
+										  GET_EQ(ch, pos)->get_affected(i).location,
+										  GET_EQ(ch, pos)->get_affected(i).modifier,
+										  static_cast<EAffect>(0),
+										  false);
+						}
+
+						if (ch->in_room != kNowhere) {
+							for (const auto &i : weapon_affect) {
+								if (i.aff_bitvector == 0
+									|| !GET_EQ(ch, pos)->GetEWeaponAffect(i.aff_pos)) {
+									continue;
+								}
+								affect_modify(ch, EApply::kNone, 0, static_cast<EAffect>(i.aff_bitvector), false);
+							}
+						}
+					}
+
+					std::string act_msg = GET_EQ(ch, pos)->activate_obj(class_info->second);
+					delim = act_msg.find('\n');
+
+					if (show_msg) {
+						act(act_msg.substr(0, delim).c_str(), false, ch, GET_EQ(ch, pos), nullptr, kToChar);
+						act(act_msg.erase(0, delim + 1).c_str(),
+							ch->IsNpc() && !AFF_FLAGGED(ch, EAffect::kCharmed) ? false : true,
+							ch, GET_EQ(ch, pos), nullptr, kToRoom);
+					}
+
+					for (int i = 0; i < kMaxObjAffect; i++) {
+						affect_modify(ch, GET_EQ(ch, pos)->get_affected(i).location,
+									  GET_EQ(ch, pos)->get_affected(i).modifier, static_cast<EAffect>(0), true);
+					}
+
+					if (ch->in_room != kNowhere) {
+						for (const auto &i : weapon_affect) {
+							if (i.aff_spell == ESpell::kUndefined || !GET_EQ(ch, pos)->GetEWeaponAffect(i.aff_pos)) {
+								continue;
+							}
+							if (!no_cast) {
+								if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoMagic)) {
+									act("Магия $o1 потерпела неудачу и развеялась по воздуху.",
+										false, ch, GET_EQ(ch, pos), nullptr, kToRoom);
+									act("Магия $o1 потерпела неудачу и развеялась по воздуху.",
+										false, ch, GET_EQ(ch, pos), nullptr, kToChar);
+								} else {
+									CastWeaponAffect(ch, i.aff_spell);
+								}
+							} else {
+								affect_modify(ch, GetApplyByWeaponAffect(i.aff_pos, ch).first,
+											  GetApplyByWeaponAffect(i.aff_pos, ch).second,
+											  static_cast<EAffect>(i.aff_bitvector), true);
+							}
+						}
+					}
+
+					return oqty;
+				}
+			}
+
+			if (GET_EQ(ch, pos) == obj) {
+				for (int i = 0; i < kMaxObjAffect; i++) {
+					affect_modify(ch,
+								  obj->get_affected(i).location,
+								  obj->get_affected(i).modifier,
+								  static_cast<EAffect>(0),
+								  true);
+				}
+
+				if (ch->in_room != kNowhere) {
+					for (const auto &i : weapon_affect) {
+						if (i.aff_spell == ESpell::kUndefined || !obj->GetEWeaponAffect(i.aff_pos)) {
+							continue;
+						}
+						if (!no_cast) {
+							if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoMagic)) {
+								act("Магия $o1 потерпела неудачу и развеялась по воздуху.",
+									false, ch, obj, nullptr, kToRoom);
+								act("Магия $o1 потерпела неудачу и развеялась по воздуху.",
+									false, ch, obj, nullptr, kToChar);
+							} else {
+								CastWeaponAffect(ch, i.aff_spell);
+							}
+						} else {
+							affect_modify(ch, GetApplyByWeaponAffect(i.aff_pos, ch).first,
+										  GetApplyByWeaponAffect(i.aff_pos, ch).second,
+										  static_cast<EAffect>(i.aff_bitvector), true);
+						}
+					}
+				}
+			}
+
+			return oqty;
+		} else
+			return ActivateStuff(ch, obj, it, pos + 1,
+								 (show_msg ? CharEquipFlag::show_msg : CharEquipFlags())
+									 | (no_cast ? CharEquipFlag::no_cast : CharEquipFlags()),
+								 set_obj_qty);
+	} else
+		return set_obj_qty;
+}
+
+unsigned int DeactivateStuff(CharData *ch, ObjData *obj, id_to_set_info_map::const_iterator it,
+							 int pos, const CharEquipFlags& equip_flags, unsigned int set_obj_qty) {
+	const bool show_msg = equip_flags.test(CharEquipFlag::show_msg);
+	std::string::size_type delim;
+
+	if (pos < EEquipPos::kNumEquipPos) {
+		set_info::const_iterator set_obj_info;
+
+		if (GET_EQ(ch, pos)
+			&& GET_EQ(ch, pos)->has_flag(EObjFlag::kSetItem)
+			&& (set_obj_info = it->second.find(GET_OBJ_VNUM(GET_EQ(ch, pos)))) != it->second.end()) {
+			unsigned int oqty =
+				DeactivateStuff(ch, obj, it, pos + 1, (show_msg ? CharEquipFlag::show_msg : CharEquipFlags()),
+								set_obj_qty + 1);
+			qty_to_camap_map::const_iterator old_qty_info = set_obj_info->second.upper_bound(oqty);
+			qty_to_camap_map::const_iterator qty_info = GET_EQ(ch, pos) == obj ?
+														set_obj_info->second.begin() :
+														set_obj_info->second.upper_bound(oqty - 1);
+
+			while (old_qty_info != qty_info) {
+				old_qty_info--;
+				unique_bit_flag_data flags1;
+				flags1.set(GetFlagDataByCharClass(ch));
+				class_to_act_map::const_iterator class_info = old_qty_info->second.find(flags1);
+				if (class_info != old_qty_info->second.end()) {
+					while (qty_info != set_obj_info->second.begin()) {
+						qty_info--;
+						unique_bit_flag_data flags2;
+						flags2.set(GetFlagDataByCharClass(ch));
+						class_to_act_map::const_iterator class_info2 = qty_info->second.find(flags2);
+						if (class_info2 != qty_info->second.end()) {
+							for (int i = 0; i < kMaxObjAffect; i++) {
+								affect_modify(ch,
+											  GET_EQ(ch, pos)->get_affected(i).location,
+											  GET_EQ(ch, pos)->get_affected(i).modifier,
+											  static_cast<EAffect>(0),
+											  false);
+							}
+
+							if (ch->in_room != kNowhere) {
+								for (const auto &i : weapon_affect) {
+									if (i.aff_bitvector == 0
+										|| !GET_EQ(ch, pos)->GetEWeaponAffect(i.aff_pos)) {
+										continue;
+									}
+									affect_modify(ch, EApply::kNone, 0, static_cast<EAffect>(i.aff_bitvector), false);
+								}
+							}
+
+							std::string act_msg = GET_EQ(ch, pos)->activate_obj(class_info2->second);
+							delim = act_msg.find('\n');
+
+							if (show_msg) {
+								act(act_msg.substr(0, delim).c_str(), false, ch, GET_EQ(ch, pos), nullptr, kToChar);
+								act(act_msg.erase(0, delim + 1).c_str(),
+									ch->IsNpc() && !AFF_FLAGGED(ch, EAffect::kCharmed) ? false : true,
+									ch, GET_EQ(ch, pos), nullptr, kToRoom);
+							}
+
+							for (int i = 0; i < kMaxObjAffect; i++) {
+								affect_modify(ch,
+											  GET_EQ(ch, pos)->get_affected(i).location,
+											  GET_EQ(ch, pos)->get_affected(i).modifier,
+											  static_cast<EAffect>(0),
+											  true);
+							}
+
+							if (ch->in_room != kNowhere) {
+								for (const auto &i : weapon_affect) {
+									if (i.aff_bitvector == 0
+										|| !GET_EQ(ch, pos)->GetEWeaponAffect(i.aff_pos)) {
+										continue;
+									}
+									affect_modify(ch, EApply::kNone, 0, static_cast<EAffect>(i.aff_bitvector), true);
+								}
+							}
+
+							return oqty;
+						}
+					}
+
+					for (int i = 0; i < kMaxObjAffect; i++) {
+						affect_modify(ch, GET_EQ(ch, pos)->get_affected(i).location,
+									  GET_EQ(ch, pos)->get_affected(i).modifier, static_cast<EAffect>(0), false);
+					}
+
+					if (ch->in_room != kNowhere) {
+						for (const auto &i : weapon_affect) {
+							if (i.aff_bitvector == 0
+								|| !GET_EQ(ch, pos)->GetEWeaponAffect(i.aff_pos)) {
+								continue;
+							}
+							affect_modify(ch, EApply::kNone, 0, static_cast<EAffect>(i.aff_bitvector), false);
+						}
+					}
+
+					std::string deact_msg = GET_EQ(ch, pos)->deactivate_obj(class_info->second);
+					delim = deact_msg.find('\n');
+
+					if (show_msg) {
+						act(deact_msg.substr(0, delim).c_str(), false, ch, GET_EQ(ch, pos), nullptr, kToChar);
+						act(deact_msg.erase(0, delim + 1).c_str(),
+							ch->IsNpc() && !AFF_FLAGGED(ch, EAffect::kCharmed) ? false : true,
+							ch, GET_EQ(ch, pos), nullptr, kToRoom);
+					}
+
+					if (GET_EQ(ch, pos) != obj) {
+						for (int i = 0; i < kMaxObjAffect; i++) {
+							affect_modify(ch,
+										  GET_EQ(ch, pos)->get_affected(i).location,
+										  GET_EQ(ch, pos)->get_affected(i).modifier,
+										  static_cast<EAffect>(0),
+										  true);
+						}
+
+						if (ch->in_room != kNowhere) {
+							for (const auto &i : weapon_affect) {
+								if (i.aff_bitvector == 0 ||
+									!GET_EQ(ch, pos)->GetEWeaponAffect(i.aff_pos)) {
+									continue;
+								}
+								affect_modify(ch, EApply::kNone, 0, static_cast<EAffect>(i.aff_bitvector), true);
+							}
+						}
+					}
+
+					return oqty;
+				}
+			}
+
+			if (GET_EQ(ch, pos) == obj) {
+				for (int i = 0; i < kMaxObjAffect; i++) {
+					affect_modify(ch,
+								  obj->get_affected(i).location,
+								  obj->get_affected(i).modifier,
+								  static_cast<EAffect>(0),
+								  false);
+				}
+
+				if (ch->in_room != kNowhere) {
+					for (const auto &i : weapon_affect) {
+						if (i.aff_bitvector == 0
+							|| !obj->GetEWeaponAffect(i.aff_pos)) {
+							continue;
+						}
+						affect_modify(ch, EApply::kNone, 0, static_cast<EAffect>(i.aff_bitvector), false);
+					}
+				}
+
+				obj->deactivate_obj(activation());
+			}
+
+			return oqty;
+		} else {
+			return DeactivateStuff(ch,
+								   obj,
+								   it,
+								   pos + 1,
+								   (show_msg ? CharEquipFlag::show_msg : CharEquipFlags()),
+								   set_obj_qty);
+		}
+	} else {
+		return set_obj_qty;
+	}
 }
 
 } // namespace obj_sets

@@ -13,15 +13,23 @@
 ************************************************************************ */
 
 #include "gameplay/core/game_limits.h"
+#include "gameplay/core/experience.h"
 #include "administration/privilege.h"
 #include "gameplay/mechanics/condition.h"
 #include "utils/grammar/gender.h"
 #include "gameplay/mechanics/minions.h"
 #include "gameplay/mechanics/mount.h"
 
-#include "engine/core/handler.h"
+#include "engine/core/char_equip_flags.h"
+#include "engine/core/char_handler.h"
+#include "engine/core/char_movement.h"
+#include "engine/core/obj_handler.h"
+#include "engine/db/obj_save.h"
+#include "engine/entities/char_data.h"
+#include "gameplay/mechanics/equipment.h"
+#include "gameplay/mechanics/inventory.h"
 #include "engine/ui/color.h"
-#include "engine/ui/interpreter_utils.h"
+#include "administration/dupe_check.h"
 #include "gameplay/clans/house.h"
 #include "gameplay/economics/exchange.h"
 #include "gameplay/mechanics/deathtrap.h"
@@ -59,9 +67,6 @@ const int kRecallSpellsInterval = 28;
 extern int idle_rent_time;
 extern int idle_max_level;
 extern int idle_void;
-void decrease_level(CharData *ch);
-int max_exp_gain_pc(CharData *ch);
-int max_exp_loss_pc(CharData *ch);
 int average_day_temp();
 
 namespace {
@@ -177,11 +182,11 @@ int CalcManaGain(const CharData *ch) {
 		}
 
 		if (!IS_MANA_CASTER(ch)) {
-			auto restore = int_app[GetRealInt(ch)].mana_per_tic;
+			auto restore = IntApp(GetRealInt(ch)).mana_per_tic;
 			gain = graf(CalcCharAge(ch)->year, restore - 8, restore - 4, restore,
 						restore + 5, restore, restore - 4, restore - 8);
 		} else {
-			gain = mana_gain_cs[GetRealInt(ch)];
+			gain = IntApp(GetRealInt(ch)).mana_gain;
 		}
 
 		if (LIKE_ROOM(ch)) {
@@ -405,9 +410,7 @@ void beat_punish(const CharData::shared_ptr &i) {
 	// Проверяем на выпуск чара из кутузки
 	if (i->IsFlagged(EPlrFlag::kHelled) && punishments::Get(i, punishments::EType::kHell).duration && punishments::Get(i, punishments::EType::kHell).duration <= time(nullptr)) {
 		i->UnsetFlag(EPlrFlag::kHelled);
-		if (punishments::Get(i, punishments::EType::kHell).reason)
-			free(punishments::Get(i, punishments::EType::kHell).reason);
-		punishments::Get(i, punishments::EType::kHell).reason = nullptr;
+		punishments::Get(i, punishments::EType::kHell).reason.clear();
 		punishments::Get(i, punishments::EType::kHell).level = 0;
 		punishments::Get(i, punishments::EType::kHell).godid = 0;
 		punishments::Get(i, punishments::EType::kHell).duration = 0;
@@ -432,10 +435,7 @@ void beat_punish(const CharData::shared_ptr &i) {
 		&& punishments::Get(i, punishments::EType::kName).duration
 		&& punishments::Get(i, punishments::EType::kName).duration <= time(nullptr)) {
 		i->UnsetFlag(EPlrFlag::kNameDenied);
-		if (punishments::Get(i, punishments::EType::kName).reason) {
-			free(punishments::Get(i, punishments::EType::kName).reason);
-		}
-		punishments::Get(i, punishments::EType::kName).reason = nullptr;
+		punishments::Get(i, punishments::EType::kName).reason.clear();
 		punishments::Get(i, punishments::EType::kName).level = 0;
 		punishments::Get(i, punishments::EType::kName).godid = 0;
 		punishments::Get(i, punishments::EType::kName).duration = 0;
@@ -466,9 +466,7 @@ void beat_punish(const CharData::shared_ptr &i) {
 		&& punishments::Get(i, punishments::EType::kMute).duration != 0
 		&& punishments::Get(i, punishments::EType::kMute).duration <= time(nullptr)) {
 		i->UnsetFlag(EPlrFlag::kMuted);
-		if (punishments::Get(i, punishments::EType::kMute).reason)
-			free(punishments::Get(i, punishments::EType::kMute).reason);
-		punishments::Get(i, punishments::EType::kMute).reason = nullptr;
+		punishments::Get(i, punishments::EType::kMute).reason.clear();
 		punishments::Get(i, punishments::EType::kMute).level = 0;
 		punishments::Get(i, punishments::EType::kMute).godid = 0;
 		punishments::Get(i, punishments::EType::kMute).duration = 0;
@@ -479,9 +477,7 @@ void beat_punish(const CharData::shared_ptr &i) {
 		&& punishments::Get(i, punishments::EType::kDumb).duration != 0
 		&& punishments::Get(i, punishments::EType::kDumb).duration <= time(nullptr)) {
 		i->UnsetFlag(EPlrFlag::kDumbed);
-		if (punishments::Get(i, punishments::EType::kDumb).reason)
-			free(punishments::Get(i, punishments::EType::kDumb).reason);
-		punishments::Get(i, punishments::EType::kDumb).reason = nullptr;
+		punishments::Get(i, punishments::EType::kDumb).reason.clear();
 		punishments::Get(i, punishments::EType::kDumb).level = 0;
 		punishments::Get(i, punishments::EType::kDumb).godid = 0;
 		punishments::Get(i, punishments::EType::kDumb).duration = 0;
@@ -492,9 +488,7 @@ void beat_punish(const CharData::shared_ptr &i) {
 		&& punishments::Get(i, punishments::EType::kUnreg).duration != 0
 		&& punishments::Get(i, punishments::EType::kUnreg).duration <= time(nullptr)) {
 		i->UnsetFlag(EPlrFlag::kRegistred);
-		if (punishments::Get(i, punishments::EType::kUnreg).reason)
-			free(punishments::Get(i, punishments::EType::kUnreg).reason);
-		punishments::Get(i, punishments::EType::kUnreg).reason = nullptr;
+		punishments::Get(i, punishments::EType::kUnreg).reason.clear();
 		punishments::Get(i, punishments::EType::kUnreg).level = 0;
 		punishments::Get(i, punishments::EType::kUnreg).godid = 0;
 		punishments::Get(i, punishments::EType::kUnreg).duration = 0;
@@ -543,10 +537,7 @@ void beat_punish(const CharData::shared_ptr &i) {
 		&& punishments::Get(i, punishments::EType::kFreeze).duration != 0
 		&& punishments::Get(i, punishments::EType::kFreeze).duration <= time(nullptr)) {
 		i->UnsetFlag(EPlrFlag::kFrozen);
-		if (punishments::Get(i, punishments::EType::kFreeze).reason) {
-			free(punishments::Get(i, punishments::EType::kFreeze).reason);
-		}
-		punishments::Get(i, punishments::EType::kFreeze).reason = nullptr;
+		punishments::Get(i, punishments::EType::kFreeze).reason.clear();
 		punishments::Get(i, punishments::EType::kFreeze).level = 0;
 		punishments::Get(i, punishments::EType::kFreeze).godid = 0;
 		punishments::Get(i, punishments::EType::kFreeze).duration = 0;
@@ -792,16 +783,16 @@ void beat_points_update(int pulse) {
 		}
 
 		// Гейн маны у волхвов
-		if (IS_MANA_CASTER(d->character.get()) && d->character->mem_queue.stored < mana[MIN(50, GetRealWis(d->character.get()))]) {
+		if (IS_MANA_CASTER(d->character.get()) && d->character->mem_queue.stored < Mana(GetRealWis(d->character.get()))) {
 			d->character->mem_queue.stored += CalcManaGain(d->character.get());
-			if (d->character->mem_queue.stored >= mana[MIN(50, GetRealWis(d->character.get()))]) {
-				d->character->mem_queue.stored = mana[MIN(50, GetRealWis(d->character.get()))];
+			if (d->character->mem_queue.stored >= Mana(GetRealWis(d->character.get()))) {
+				d->character->mem_queue.stored = Mana(GetRealWis(d->character.get()));
 				SendMsgToChar("Ваша магическая энергия полностью восстановилась\r\n", d->character.get());
 			}
 		}
 
-		if (IS_MANA_CASTER(d->character.get()) && d->character->mem_queue.stored > mana[MIN(50, GetRealWis(d->character.get()))]) {
-			d->character->mem_queue.stored = mana[MIN(50, GetRealWis(d->character.get()))];
+		if (IS_MANA_CASTER(d->character.get()) && d->character->mem_queue.stored > Mana(GetRealWis(d->character.get()))) {
+			d->character->mem_queue.stored = Mana(GetRealWis(d->character.get()));
 		}
 
 		// Restore moves
@@ -818,156 +809,6 @@ void beat_points_update(int pulse) {
 	metrics.send();
 }
 
-void update_clan_exp(CharData *ch, int gain) {
-	if (CLAN(ch) && gain != 0) {
-		// экспа для уровня клана (+ только на праве, - любой, но /5)
-		if (gain < 0 || GET_GOD_FLAG(ch, EGf::kRemort)) {
-			int tmp = gain > 0 ? gain : gain / 5;
-			CLAN(ch)->SetClanExp(ch, tmp);
-		}
-		// экспа для топа кланов за месяц (учитываются все + и -)
-		CLAN(ch)->last_exp.add_temp(gain);
-		// экспа для топа кланов за все время (учитываются все + и -)
-		CLAN(ch)->AddTopExp(ch, gain);
-		// экспа для авто-очистки кланов (учитываются только +)
-		if (gain > 0) {
-			CLAN(ch)->exp_history.add_exp(gain);
-		}
-	}
-}
-
-void EndowExpToChar(CharData *ch, int gain) {
-	int is_altered = false;
-	int num_levels = 0;
-	char local_buf[128];
-
-	if (ch->IsNpc()) {
-		ch->set_exp(ch->get_exp() + gain);
-		return;
-	} else {
-		ch->dps_add_exp(gain);
-		ZoneExpStat::add(GetZoneVnumByCharPlace(ch), gain);
-	}
-
-	if (!ch->IsNpc() && ((GetRealLevel(ch) < 1 || GetRealLevel(ch) >= kLvlImmortal))) {
-		return;
-	}
-
-	if (gain > 0 && GetRealLevel(ch) < kLvlImmortal) {
-		gain = std::min(max_exp_gain_pc(ch), gain);    // put a cap on the max gain per kill
-		ch->set_exp(ch->get_exp() + gain);
-		if (ch->get_exp() >= GetExpUntilNextLvl(ch, kLvlImmortal)) {
-			if (!GET_GOD_FLAG(ch, EGf::kRemort) && remort::GetRealRemort(ch) < kMaxRemort) {
-					SendMsgToChar(ch, "%sПоздравляем, вы получили право на перевоплощение!%s\r\n",
-								  kColorBoldGrn, kColorNrm);
-				SET_BIT(ch->player_specials->saved.GodsLike, EGf::kRemort);
-			}
-		}
-		ch->set_exp(std::min(ch->get_exp(), GetExpUntilNextLvl(ch, kLvlImmortal) - 1));
-		// defense-in-depth: also bound on GetLevel() (the value actually mutated) so the loop
-		// terminates even if GetRealLevel() ever diverges from GetLevel() (issue.advance-crash-bug).
-		while (GetRealLevel(ch) < kLvlImmortal && ch->GetLevel() < kLvlImmortal
-			   && ch->get_exp() >= GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1)) {
-			ch->set_level(ch->GetLevel() + 1);
-			num_levels++;
-			sprintf(local_buf, "%sВы достигли следующего уровня!%s\r\n", kColorWht, kColorNrm);
-			SendMsgToChar(local_buf, ch);
-			advance_level(ch);
-			is_altered = true;
-		}
-
-		if (is_altered) {
-			sprintf(local_buf, "%s advanced %d level%s to level %d.",
-					GET_NAME(ch), num_levels, num_levels == 1 ? "" : "s", GetRealLevel(ch));
-			mudlog(local_buf, BRF, kLvlImplementator, SYSLOG, true);
-		}
-	} else if (gain < 0 && GetRealLevel(ch) < kLvlImmortal) {
-		gain = std::max(-max_exp_loss_pc(ch), gain);    // Cap max exp lost per death
-		ch->set_exp(ch->get_exp() + gain);
-		while (GetRealLevel(ch) > 1 && ch->GetLevel() > 1
-			   && ch->get_exp() < GetExpUntilNextLvl(ch, GetRealLevel(ch))) {
-			ch->set_level(ch->GetLevel() - 1);
-			num_levels++;
-			sprintf(local_buf,
-					"%sВы потеряли уровень. Вам должно быть стыдно!%s\r\n",
-					kColorBoldRed, kColorNrm);
-			SendMsgToChar(local_buf, ch);
-			decrease_level(ch);
-			is_altered = true;
-		}
-		if (is_altered) {
-			sprintf(local_buf, "%s decreases %d level%s to level %d.",
-					GET_NAME(ch), num_levels, num_levels == 1 ? "" : "s", GetRealLevel(ch));
-			mudlog(local_buf, BRF, kLvlImplementator, SYSLOG, true);
-		}
-	}
-	if ((ch->get_exp() < GetExpUntilNextLvl(ch, kLvlImmortal) - 1)
-		&& GET_GOD_FLAG(ch, EGf::kRemort)
-		&& gain
-		&& (GetRealLevel(ch) < kLvlImmortal)) {
-			SendMsgToChar(ch, "%sВы потеряли право на перевоплощение!%s\r\n",
-						  kColorBoldRed, kColorNrm);
-		REMOVE_BIT(ch->player_specials->saved.GodsLike, EGf::kRemort);
-	}
-
-	char_stat::AddClassExp(ch->GetClass(), gain);
-	update_clan_exp(ch, gain);
-}
-
-// юзается исключительно в act.wizards.cpp в имм командах "advance" и "set exp".
-// \todo Сделать файл с механикой опыта и все по опыту собрать туда. Вероятно, в core.
-void gain_exp_regardless(CharData *ch, int gain) {
-	int is_altered = false;
-	int num_levels = 0;
-
-	ch->set_exp(ch->get_exp() + gain);
-	if (!ch->IsNpc()) {
-		if (gain > 0) {
-			// defense-in-depth: also bound on GetLevel() (the value actually mutated) so the loop
-			// terminates even if GetRealLevel() ever diverges from GetLevel() (issue.advance-crash-bug).
-			while (GetRealLevel(ch) < kLvlImplementator && ch->GetLevel() < kLvlImplementator
-				   && ch->get_exp() >= GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1)) {
-				ch->set_level(ch->GetLevel() + 1);
-				num_levels++;
-				sprintf(buf, "%sВы достигли следующего уровня!%s\r\n",
-						kColorWht, kColorNrm);
-				SendMsgToChar(buf, ch);
-
-				advance_level(ch);
-				is_altered = true;
-			}
-
-			if (is_altered) {
-				sprintf(buf, "%s advanced %d level%s to level %d.",
-						GET_NAME(ch), num_levels, num_levels == 1 ? "" : "s", GetRealLevel(ch));
-				mudlog(buf, BRF, kLvlImplementator, SYSLOG, true);
-			}
-		} else if (gain < 0) {
-			// Pereplut: глупый участок кода.
-			//			gain = std::max(-max_exp_loss_pc(ch), gain);	// Cap max exp lost per death
-			//			ch->get_exp() += gain;
-			//			if (ch->get_exp() < 0)
-			//				ch->get_exp() = 0;
-			while (GetRealLevel(ch) > 1 && ch->GetLevel() > 1
-				   && ch->get_exp() < GetExpUntilNextLvl(ch, GetRealLevel(ch))) {
-				ch->set_level(ch->GetLevel() - 1);
-				num_levels++;
-				sprintf(buf,
-						"%sВы потеряли уровень!%s\r\n",
-						kColorBoldRed, kColorNrm);
-				SendMsgToChar(buf, ch);
-				decrease_level(ch);
-				is_altered = true;
-			}
-			if (is_altered) {
-				sprintf(buf, "%s decreases %d level%s to level %d.",
-						GET_NAME(ch), num_levels, num_levels == 1 ? "" : "s", GetRealLevel(ch));
-				mudlog(buf, BRF, kLvlImplementator, SYSLOG, true);
-			}
-		}
-
-	}
-}
 
 void gain_condition(CharData *ch, unsigned condition, int value) {
 	int cond_state = GET_COND(ch, condition);
@@ -1749,51 +1590,5 @@ void DecayObjectsOnRepop(UniqueList<ZoneRnum> &zone_list) {
 	}
 }
 
-void gain_battle_exp(CharData *ch, CharData *victim, int dam) {
-	// не даем получать батлу с себя по зеркалу?
-	if (ch == victim) {
-		return;
-	}
-	if (!victim->IsNpc()) { return; }
-	// не даем получать экспу с !эксп мобов
-	if (victim->IsFlagged(EMobFlag::kNoBattleExp)) {
-		return;
-	}
-	// если цель не нпс то тоже не даем экспы
-	// если цель под чармом не даем экспу
-	if (AFF_FLAGGED(victim, EAffect::kCharmed)) {
-		return;
-	}
-	// получение игроками экспы
-	if (!ch->IsNpc() && OK_GAIN_EXP(ch, victim)) {
-		int max_exp = std::min(max_exp_gain_pc(ch), (GetRealLevel(victim) * victim->get_max_hit() + 4) /
-			(5 * std::max(1, remort::GetRealRemort(ch) - kMaxExpCoefficientsUsed - 1)));
-		double coeff = std::min(dam, victim->get_hit()) / static_cast<double>(victim->get_max_hit());
-		int battle_exp = std::max(1, static_cast<int>(max_exp * coeff));
-		if (Bonus::is_bonus_active(Bonus::EBonusType::BONUS_WEAPON_EXP) && Bonus::can_get_bonus_exp(ch)) {
-			battle_exp *= Bonus::get_mult_bonus();
-		}
-		EndowExpToChar(ch, battle_exp);
-		ch->dps_add_exp(battle_exp, true);
-	}
-
-	// перенаправляем батлэкспу чармиса в хозяина, цифры те же что и у файтеров.
-	if (ch->IsNpc() && AFF_FLAGGED(ch, EAffect::kCharmed)) {
-		CharData *master = ch->get_master();
-		// проверяем что есть мастер и он может получать экспу с данной цели
-		if (master && OK_GAIN_EXP(master, victim)) {
-			int max_exp = std::min(max_exp_gain_pc(master), (GetRealLevel(victim) * victim->get_max_hit() + 4) /
-				(5 * std::max(1, remort::GetRealRemort(master) - kMaxExpCoefficientsUsed - 1)));
-
-			double coeff = std::min(dam, victim->get_hit()) / static_cast<double>(victim->get_max_hit());
-			int battle_exp = std::max(1, static_cast<int>(max_exp * coeff));
-			if (Bonus::is_bonus_active(Bonus::EBonusType::BONUS_WEAPON_EXP) && Bonus::can_get_bonus_exp(master)) {
-				battle_exp *= Bonus::get_mult_bonus();
-			}
-			EndowExpToChar(master, battle_exp);
-			master->dps_add_exp(battle_exp, true);
-		}
-	}
-}
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

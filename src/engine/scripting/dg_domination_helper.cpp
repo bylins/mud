@@ -3,7 +3,8 @@
 
 #include "engine/ui/interpreter.h"
 #include "engine/db/db.h"
-#include "engine/core/handler.h"
+#include "engine/core/char_handler.h"
+#include "engine/entities/char_data.h"
 #include "engine/structs/structs.h"
 #include "utils/utils.h"
 

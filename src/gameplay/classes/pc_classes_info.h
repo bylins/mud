@@ -17,6 +17,10 @@
 #include "utils/grammar/cases.h"
 
 #include <optional>
+#include <string>
+#include <string_view>
+#include <utility>
+#include <vector>
 
 namespace grammar {
 class ItemName;
@@ -143,6 +147,8 @@ class CharClassInfo : public info_container::BaseItem<ECharClass> {
 	/* Имена */
 	std::unique_ptr<grammar::ItemName> names;
 	std::string abbr;
+	std::string exp_table_id;   // issue.experience-table: id into cfg/experience_table.xml
+	[[nodiscard]] const std::string &GetExpTableId() const { return exp_table_id; }
 	[[nodiscard]] const std::string &GetName(grammar::ECase name_case = grammar::ECase::kNom) const;
 	[[nodiscard]] const std::string &GetPluralName(grammar::ECase name_case = grammar::ECase::kNom) const;
 	[[nodiscard]] const std::string &GetAbbr() const;
@@ -173,6 +179,22 @@ class CharClassInfo : public info_container::BaseItem<ECharClass> {
 	int remorts_for_feat_slot_{kMaxRemort};
 	[[nodiscard]] int GetRemortsNumForFeatSlot() const { return remorts_for_feat_slot_; };
 	void PrintFeatsTable(CharData *ch, std::ostringstream &buffer) const;
+
+	/* issue.class-recipes: рецепты ингредиентной магии, доступные классу.
+	 * Перенесено из misc/class.recipes.lst. Принадлежность рецепта классу - свойство
+	 * КЛАССА, а не рецепта: потребители (im, do_learn, identify, help, ...) спрашивают
+	 * её здесь. Рецепт адресуется строковым id (CamelCase, см.
+	 * cfg/craft/ingredient_magic/recipes.xml). Уровень/реморт хранятся отдельно для
+	 * каждого класса (раньше были общими для рецепта). */
+	struct RecipeRequirement {
+		std::string str_id;
+		int level{kMinCharLevel};
+		int remort{kMinRemort};
+	};
+	std::vector<RecipeRequirement> ingredient_recipes;
+	[[nodiscard]] const std::vector<RecipeRequirement> &GetIngredientRecipes() const { return ingredient_recipes; }
+	// Требования к рецепту str_id для этого класса; nullptr, если класс им не владеет.
+	[[nodiscard]] const RecipeRequirement *FindIngredientRecipe(std::string_view str_id) const;
 
 	/* базовые параметры */
 	struct BaseStatLimits {
@@ -228,11 +250,17 @@ class CharClassInfoBuilder : public info_container::IItemBuilder<CharClassInfo> 
 	static void ParseSkills(ItemPtr &info, parser_wrapper::DataNode &node);
 	static void ParseSpells(ItemPtr &info, parser_wrapper::DataNode &node);
 	static void ParseFeats(ItemPtr &info, parser_wrapper::DataNode &node);
+	static void ParseIngredientMagic(ItemPtr &info, parser_wrapper::DataNode &node);
 	// временная функция
 	static void TemporarySetStat(ItemPtr &info);
 };
 
 using ClassesInfo = info_container::InfoContainer<ECharClass, CharClassInfo, CharClassInfoBuilder>;
+
+// issue.class-recipes: представительные требования рецепта str_id для контекста БЕЗ класса
+// (например, стат предмета-книги богом) - минимальные уровень/реморт среди всех классов,
+// владеющих рецептом. Возвращает {-1, -1}, если рецептом не владеет ни один класс.
+[[nodiscard]] std::pair<int, int> GetRecipeMinRequirements(std::string_view str_id);
 
 } // namespace classes
 

@@ -1,12 +1,18 @@
 #include "do_hire.h"
+#include "utils/logger.h"
 #include "gameplay/core/remort.h"
 #include "administration/privilege.h"
+#include "gameplay/economics/currencies.h"
 #include "utils/grammar/declensions.h"
 #include "gameplay/mechanics/follow.h"
 #include "gameplay/mechanics/mount.h"
 
 #include "do_follow.h"
-#include "engine/core/handler.h"
+#include "engine/core/char_equip_flags.h"
+#include "engine/db/obj_save.h"
+#include "engine/entities/char_data.h"
+#include "gameplay/mechanics/equipment.h"
+#include "gameplay/mechanics/inventory.h"
 #include "engine/core/target_resolver.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/core/base_stats.h"
@@ -28,12 +34,12 @@ float CalcChaForHire(CharData *victim) {
 	int i;
 	float reformed_hp = 0.0, needed_cha = 0.0;
 	for (i = 0; i < 50; i++) {
-		reformed_hp = victim->get_max_hit() + CalcDamagePerRound(victim) * cha_app[i].dam_to_hit_rate;
-		if (cha_app[i].charms >= reformed_hp)
+		reformed_hp = victim->get_max_hit() + CalcDamagePerRound(victim) * ChaApp(i).dam_to_hit_rate;
+		if (ChaApp(i).charms >= reformed_hp)
 			break;
 	}
 	i = Posi(i);
-	needed_cha = i - 1 + (reformed_hp - cha_app[i - 1].charms) / (cha_app[i].charms - cha_app[i - 1].charms);
+	needed_cha = i - 1 + (reformed_hp - ChaApp(i - 1).charms) / (ChaApp(i).charms - ChaApp(i - 1).charms);
 	return VPOSI<float>(needed_cha, 1.0, 50.0);
 }
 
@@ -45,7 +51,7 @@ long CalcHirePrice(CharData *ch, CharData *victim) {
 	int m_dex = victim->get_dex() * 20;
 	int m_con = victim->get_con() * 20;
 	int m_cha = victim->get_cha() * 10;
-	ch->send_to_TC(true, true, true, "Базовые статы найма: Str:%d Int:%d Wis:%d Dex:%d Con:%d Cha:%d\r\n",
+	SendToTC(ch, true, true, true, "Базовые статы найма: Str:%d Int:%d Wis:%d Dex:%d Con:%d Cha:%d\r\n",
 				   m_str, m_int, m_wis, m_dex, m_con, m_cha);
 	price += m_str + m_int + m_wis + m_dex + m_con + m_cha;
 
@@ -55,7 +61,7 @@ long CalcHirePrice(CharData *ch, CharData *victim) {
 	float m_hr = GET_HR(victim) * 50;
 	float m_armor = GET_ARMOUR(victim) * 25;
 	float m_absorb = GET_ABSORBE(victim) * 4;
-	ch->send_to_TC(true,
+	SendToTC(ch, true,
 				   true,
 				   true,
 				   "Статы живучести: HP:%.4lf LVL:%.4lf AC:%.4lf HR:%.4lf ARMOR:%.4lf ABSORB:%.4lf\r\n",
@@ -72,7 +78,7 @@ long CalcHirePrice(CharData *ch, CharData *victim) {
 	int m_ref = GetSave(victim, ESaving::kReflex) * (-4);
 	int m_crit = GetSave(victim, ESaving::kCritical) * (-4);
 	int m_wil = GetSave(victim, ESaving::kWill) * (-4);
-	ch->send_to_TC(true, true, true, "Сейвы: STAB:%d REF:%d CRIT:%d WILL:%d\r\n",
+	SendToTC(ch, true, true, true, "Сейвы: STAB:%d REF:%d CRIT:%d WILL:%d\r\n",
 				   m_stab, m_ref, m_crit, m_wil);
 	price += m_stab + m_ref + m_crit + m_wil;
 	// магические резисты
@@ -84,7 +90,7 @@ long CalcHirePrice(CharData *ch, CharData *victim) {
 	int m_mind = GET_RESIST(victim, EResist::kMind) * 4;
 	int m_immu = GET_RESIST(victim, EResist::kImmunity) * 4;
 	int m_dark = GET_RESIST(victim, EResist::kDark) * 4;
-	ch->send_to_TC(true, true, true,
+	SendToTC(ch, true, true, true,
 				   "Маг.резисты: Fire:%d Air:%d Water:%d Earth:%d Vita:%d Mind:%d Immu:%d Dark:%d\r\n",
 				   m_fire, m_air, m_water, m_earth, m_vita, m_mind, m_immu, m_dark);
 	price += m_fire + m_air + m_water + m_earth + m_vita + m_mind + m_immu + m_dark;
@@ -100,7 +106,7 @@ long CalcHirePrice(CharData *ch, CharData *victim) {
 		+ GET_DR(victim)) * 10;
 	float extraAttack = victim->mob_specials.extra_attack * m_dr;
 
-	ch->send_to_TC(true, true, true, "Остальные статы: Luck:%d Ini:%d AR:%d MR:%d PR:%d DR:%d ExAttack:%.4lf\r\n",
+	SendToTC(ch, true, true, true, "Остальные статы: Luck:%d Ini:%d AR:%d MR:%d PR:%d DR:%d ExAttack:%.4lf\r\n",
 				   m_luck, m_ini, m_ar, m_mr, m_pr, m_dr, extraAttack);
 
 	price += m_luck + m_ini + m_ar + m_mr + m_pr + m_dr + extraAttack;
@@ -113,11 +119,11 @@ long CalcHirePrice(CharData *ch, CharData *victim) {
 	hirePoints = hirePoints * 5 * GetRealLevel(ch);
 
 	int min_price = MAX((m_dr / 300 * GetRealLevel(victim)), (GetRealLevel(victim) * 5));
-	min_price = MAX(min_price, mob_proto[victim->get_rnum()].get_gold());
+	min_price = MAX(min_price, currencies::GetHand(mob_proto[victim->get_rnum()], currencies::kGold));
 	long finalPrice = MAX(min_price, (int) ceil(price - hirePoints));
 
-	ch->send_to_TC(true, true, true,
-				   "Параметры персонажа: RMRT: %.4lf, CHA: %.4lf, INT: %.4lf, TOTAL: %.4lf. Цена чармиса:  %.4lf. Итоговая цена: %d \r\n",
+	SendToTC(ch, true, true, true,
+				   "Параметры персонажа: RMRT: %.4lf, CHA: %.4lf, INT: %.4lf, TOTAL: %.4lf. Цена чармиса:  %.4lf. Итоговая цена: %ld \r\n",
 				   rem_hirePoints, cha_hirePoints, int_hirePoints, hirePoints, price, finalPrice);
 	return std::min(finalPrice, kMaxHirePrice);
 }
@@ -193,7 +199,7 @@ void DoFindhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (!*arg || times == 0) {
 			const auto cost = CalcHirePrice(ch, helpee);
 			sprintf(buf, "$n сказал$g вам : \"Один час моих услуг стоит %ld %s\".\r\n",
-					cost, grammar::GetDeclensionInNumber(cost, grammar::EWhat::kMoneyU));
+					cost, MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(cost, grammar::ECase::kNom).c_str());
 			act(buf, false, helpee, 0, ch, kToVict | kToNotDeaf);
 			return;
 		}
@@ -211,12 +217,12 @@ void DoFindhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		auto hire_price = CalcHirePrice(ch, helpee);
 		long cost = times * hire_price;
 
-		if ((!isname(isbank, "банк bank") && cost > ch->get_gold()) ||
-			(isname(isbank, "банк bank") && cost > ch->get_bank())) {
+		if ((!isname(isbank, "банк bank") && cost > currencies::GetHand(*ch, currencies::kGold)) ||
+			(isname(isbank, "банк bank") && cost > currencies::GetBank(*ch, currencies::kGold))) {
 			sprintf(buf,
 					"$n сказал$g вам : \" Мои услуги за %d %s стоят %ld %s - это тебе не по карману.\"",
 					times,
-					grammar::GetDeclensionInNumber(times, grammar::EWhat::kHour), cost, grammar::GetDeclensionInNumber(cost, grammar::EWhat::kMoneyU));
+					grammar::GetDeclensionInNumber(times, grammar::EWhat::kHour), cost, MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(cost, grammar::ECase::kNom).c_str());
 			act(buf, false, helpee, 0, ch, kToVict | kToNotDeaf);
 			return;
 		}
@@ -244,12 +250,12 @@ void DoFindhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				long oldcost = MAX(0, (int) (((*aff)->duration - 1) / 2) * (int) abs(hired->mob_specials.hire_price));
 				if (oldcost > 0) {
 					if (hired->mob_specials.hire_price < 0) {
-						ch->add_bank(oldcost);
+						currencies::AddBank(*ch, currencies::kGold, oldcost);
 					} else {
-						ch->add_gold(oldcost);
+						currencies::AddHand(*ch, currencies::kGold, oldcost);
 					}
 					SendMsgToChar(ch, "Вам вернули нерастраченный задаток в %ld %s.\r\n",
-								  oldcost, grammar::GetDeclensionInNumber(cost, grammar::EWhat::kMoneyA));
+								  oldcost, MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(cost, grammar::ECase::kNom).c_str());
 				}
 				af.duration = CalcDuration(helpee, helpee, ESkill::kUndefined, times * kTimeKoeff, 0, 0, 0);
 			}
@@ -257,10 +263,10 @@ void DoFindhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		RemoveAffectFromChar(helpee, ESpell::kCharm);
 		if (!privilege::IsImmortal(ch)) {
 			if (isname(isbank, "банк bank")) {
-				ch->remove_bank(cost);
+				currencies::RemoveBank(*ch, currencies::kGold, cost);
 				helpee->mob_specials.hire_price = -hire_price;
 			} else {
-				ch->remove_gold(cost);
+				currencies::RemoveHand(*ch, currencies::kGold, cost);
 				helpee->mob_specials.hire_price = hire_price;
 			}
 		}
@@ -280,7 +286,7 @@ void DoFindhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		af.battleflag = 0;
 		affect_to_char(helpee, af);
 
-		sprintf(buf, "$n сказал$g вам : \"Приказывай, %s!\"", IS_FEMALE(ch) ? "хозяйка" : "хозяин");
+		sprintf(buf, "$n сказал$g вам : \"Приказывай, %s!\"", IsFemale(ch) ? "хозяйка" : "хозяин");
 		act(buf, false, helpee, 0, ch, kToVict | kToNotDeaf);
 
 		if (helpee->IsNpc()) {
@@ -299,7 +305,7 @@ void DoFindhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			helpee->UnsetFlag(EMobFlag::kSpec);
 			helpee->UnsetFlag(EPrf::kPunctual);
 			helpee->SetFlag(EMobFlag::kNoSkillTrain);
-			helpee->set_skill(ESkill::kPunctual, 0);
+			SetSkill(helpee, ESkill::kPunctual, 0);
 			if (!NPC_FLAGGED(helpee, ENpcFlag::kNoMercList)) {
 				MobVnum mvn = GET_MOB_VNUM(helpee);
 
@@ -351,11 +357,11 @@ void DoFreehelpee(CharData *ch, char * /* argument*/, int/* cmd*/, int/* subcmd*
 				long cost = MAX(0, (int) ((aff->duration - 1) / 2) * (int) abs(hired->mob_specials.hire_price));
 				if (cost > 0) {
 					if (hired->mob_specials.hire_price < 0) {
-						ch->add_bank(cost);
+						currencies::AddBank(*ch, currencies::kGold, cost);
 					} else {
-						ch->add_gold(cost);
+						currencies::AddHand(*ch, currencies::kGold, cost);
 					}
-					SendMsgToChar(ch, "Вам вернули нерастраченный задаток в %ld %s.\r\n", cost, grammar::GetDeclensionInNumber(cost, grammar::EWhat::kMoneyA));
+					SendMsgToChar(ch, "Вам вернули нерастраченный задаток в %ld %s.\r\n", cost, MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(cost, grammar::ECase::kNom).c_str());
 				}
 				break;
 			}

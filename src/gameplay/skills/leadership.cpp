@@ -31,7 +31,7 @@ int CalcLeadership(CharData *ch) {
 		leader = ch;
 	}
 
-	if (!leader->GetSkill(ESkill::kLeadership)) {
+	if (!GetSkill(leader, ESkill::kLeadership)) {
 		return (false);
 	}
 
@@ -54,8 +54,8 @@ int CalcLeadershipGroupExpKoeff(CharData *leader, int inroom_members, int koeff)
 int CalcLeadershipGroupSizeBonus(CharData *leader) {
 //	if (AFF_FLAGGED(ch, EAffectFlag::AFF_COMMANDER))
 //		bonus_commander = VPOSI((ch->get_skill(ESkill::kLeadership) - 120) / 10, 0, 8);
-	auto bonus_commander = VPOSI((leader->GetSkill(ESkill::kLeadership) - 200) / 8, 0, 8);
-	return static_cast<int>(VPOSI((leader->GetSkill(ESkill::kLeadership) - 80) / 5, 0, 4) + bonus_commander);
+	auto bonus_commander = VPOSI((GetSkill(leader, ESkill::kLeadership) - 200) / 8, 0, 8);
+	return static_cast<int>(VPOSI((GetSkill(leader, ESkill::kLeadership) - 80) / 5, 0, 4) + bonus_commander);
 }
 
 void UpdateLeadership(CharData *ch, CharData *killer) {
@@ -64,7 +64,7 @@ void UpdateLeadership(CharData *ch, CharData *killer) {
 		if (!killer->IsNpc() // Убил загрупленный чар
 			&& AFF_FLAGGED(killer, EAffect::kGroup)
 			&& killer->has_master()
-			&& killer->get_master()->GetSkill(ESkill::kLeadership) > 0
+			&& GetSkill(killer->get_master(), ESkill::kLeadership) > 0
 			&& killer->in_room == killer->get_master()->in_room) {
 			ImproveSkill(killer->get_master(), ESkill::kLeadership, number(0, 1), ch);
 		} else if (killer->IsNpc() // Убил чармис загрупленного чара
@@ -72,7 +72,7 @@ void UpdateLeadership(CharData *ch, CharData *killer) {
 			&& killer->has_master()
 			&& AFF_FLAGGED(killer->get_master(), EAffect::kGroup)) {
 			if (killer->get_master()->has_master() // Владелец чармиса НЕ лидер
-				&& killer->get_master()->get_master()->GetSkill(ESkill::kLeadership) > 0
+				&& GetSkill(killer->get_master()->get_master(), ESkill::kLeadership) > 0
 				&& killer->in_room == killer->get_master()->in_room
 				&& killer->in_room == killer->get_master()->get_master()->in_room) {
 				ImproveSkill(killer->get_master()->get_master(), ESkill::kLeadership, number(0, 1), ch);
@@ -87,9 +87,9 @@ void UpdateLeadership(CharData *ch, CharData *killer) {
 		&& AFF_FLAGGED(ch, EAffect::kGroup)
 		&& ch->has_master()
 		&& ch->in_room == ch->get_master()->in_room
-		&& ch->get_master()->GetTrainedSkill(ESkill::kLeadership) > 1) {
-		const auto current_skill = ch->get_master()->GetSkillBonus(ESkill::kLeadership);
-		ch->get_master()->set_skill(ESkill::kLeadership, current_skill - 1);
+		&& GetTrainedSkill(ch->get_master(), ESkill::kLeadership) > 1) {
+		const auto current_skill = GetSkillBonus(ch->get_master(), ESkill::kLeadership);
+		SetSkill(ch->get_master(), ESkill::kLeadership, current_skill - 1);
 	}
 }
 

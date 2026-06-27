@@ -45,7 +45,10 @@
 #include "engine/observability/provider.h"
 #include "utils/timestamp.h"
 #include "external_trigger.h"
-#include "handler.h"
+#include "engine/core/char_handler.h"
+#include "engine/core/obj_handler.h"
+#include "engine/entities/char_data.h"
+#include "gameplay/mechanics/illumination.h"
 #include "gameplay/clans/house.h"
 #include "engine/olc/olc.h"
 #include "engine/olc/vedun/vedun.h"
@@ -72,6 +75,7 @@
 #ifdef HAVE_SQLITE
 #include "engine/db/sqlite_world_data_source.h"
 #endif
+#include "engine/db/world_data_source_manager.h"
 #include "utils/utils.h"
 #include <cstring>
 #include <cerrno>
@@ -80,6 +84,7 @@
 #endif
 #include "engine/core/conf.h"
 #include "engine/ui/modify.h"
+#include "engine/ui/login.h"
 #include "gameplay/statistics/money_drop.h"
 #include "gameplay/statistics/zone_exp.h"
 #include "engine/core/iosystem.h"
@@ -383,7 +388,6 @@ extern const char *DFLT_IP;
 extern const char *LOGNAME;
 extern int max_playing;
 extern int nameserver_is_slow;    // see config.cpp
-extern int mana[];
 extern const char *save_info_msg[];    // In olc.cpp
 extern void tact_auction();
 extern void LogBuildInfo();
@@ -567,7 +571,6 @@ void medit_save_to_disk(int zone_num);
 void zedit_save_to_disk(int zone_num);
 void Crash_ldsave(CharData *ch);
 void Crash_save_all_rent();
-long GetExpUntilNextLvl(CharData *ch, int level);
 unsigned long TxtToIp(const char *text);
 
 #ifdef __CXREF__
@@ -756,7 +759,7 @@ int main_function(int argc, char **argv) {
 	if (getcwd(cwd, sizeof(cwd))) {};
 	printf("[%s] Current directory '%s' using '%s' as data directory.\r\n", utils::NowTs().c_str(), cwd, dir);
 	{
-		std::string config_path = std::string(dir) + "/misc/configuration.xml";
+		std::string config_path = std::string(dir) + "/cfg/configuration.xml";
 		runtime_config.load(config_path.c_str());
 	}
 	if (runtime_config.msdp_debug()) {
@@ -965,14 +968,15 @@ void stop_game(ush_int port) {
 				sprintf(buf, "OLC: Reboot saving %s for zone %d.",
 						save_info_msg[(int) entry->type], zone_table[rznum].vnum);
 				log("%s", buf);
+				auto* data_source = world_loader::WorldDataSourceManager::Instance().GetDataSource();
 				switch (entry->type) {
-					case OLC_SAVE_ROOM: redit_save_to_disk(rznum);
+					case OLC_SAVE_ROOM: data_source->SaveRooms(rznum);
 						break;
-					case OLC_SAVE_OBJ: oedit_save_to_disk(rznum);
+					case OLC_SAVE_OBJ: data_source->SaveObjects(rznum);
 						break;
-					case OLC_SAVE_MOB: medit_save_to_disk(rznum);
+					case OLC_SAVE_MOB: data_source->SaveMobs(rznum);
 						break;
-					case OLC_SAVE_ZONE: zedit_save_to_disk(rznum);
+					case OLC_SAVE_ZONE: data_source->SaveZone(rznum);
 						break;
 					default: log("Unexpected olc_save_list->type");
 						break;
@@ -1398,7 +1402,7 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 			string_add(d, comm);
 		} else if (d->state != EConState::kPlaying)    // In menus, etc.
 		{
-			nanny(d, comm);
+			ProcessLoginInput(d, comm);
 		} else    // else: we're playing normally.
 		{
 			if (aliased)    // To prevent recursive aliases.
@@ -1948,7 +1952,7 @@ int new_descriptor(socket_t s)
 
 	// let interpreter to set the ball rolling
 	char dummyArg[] = {""};
-	nanny(newd, dummyArg);
+	ProcessLoginInput(newd, dummyArg);
 
 	// trying to turn on MSDP
 	iosystem::write_to_descriptor(newd->descriptor, will_msdp, sizeof(will_msdp));
@@ -2325,7 +2329,7 @@ void signal_setup(void) {
 void send_stat_char(const CharData *ch) {
 	char fline[256];
 	sprintf(fline, "%d[%d]HP %d[%d]Mv %ldG %dL ",
-			ch->get_hit(), ch->get_real_max_hit(), ch->get_move(), ch->get_real_max_move(), ch->get_gold(), GetRealLevel(ch));
+			ch->get_hit(), ch->get_real_max_hit(), ch->get_move(), ch->get_real_max_move(), currencies::GetHand(*ch, currencies::kGold), GetRealLevel(ch));
 	iosystem::write_to_output(fline, ch->desc);
 }
 
@@ -2850,7 +2854,7 @@ void act(const char *str,
 				continue;
 			if (type == kToRoomSensors && to->IsFlagged(EPrf::kHolylight)) {
 				std::string buffer = str;
-				if (!IS_MALE(ch)) {
+				if (!IsMale(ch)) {
 					utils::ReplaceFirst(buffer, "ся", grammar::SexEnding((ch)->get_sex(), 2));
 				}
 				utils::ReplaceFirst(buffer, "Кто-то", ch->get_name());

@@ -11,7 +11,7 @@
 	Сообщения скопированы из lib/misc/messages (раздел Weapon Attacks),
 	вывод из этого хранилища пока не реализован (issue #3311).
 -->
-<msg_container>
+<hit_msg>
 	<!-- Сообщения по умолчанию (kUndefined): общий удар, описание атаки "ударил". -->
 	<msg_sheaf id="kDefault">
 		<message type="kDescription" val="ударил" />
@@ -544,4 +544,4 @@
 		<message type="kFightGodToVict" val="$n попытался ослепить вас своим дыханием." />
 		<message type="kFightGodToRoom" val="$n попытался ослепить $N3 своим дыханием." />
 	</msg_sheaf>
-</msg_container>
+</hit_msg>

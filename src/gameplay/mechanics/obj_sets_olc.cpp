@@ -17,7 +17,7 @@
 #include "engine/entities/obj_data.h"
 #include "engine/db/db.h"
 #include "gameplay/core/constants.h"
-#include "engine/core/handler.h"
+#include "engine/entities/char_data.h"
 #include "engine/entities/char_player.h"
 #include "gameplay/skills/skills.h"
 #include "engine/ui/color.h"

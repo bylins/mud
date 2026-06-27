@@ -310,7 +310,7 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 		if (id == ESkill::kUndefined) {
 			continue;
 		}
-		if (ch->GetSkill(id) > 0) {
+		if (GetSkill(ch, id) > 0) {
 			old_skills.push_back(id);
 		}
 	}
@@ -351,7 +351,7 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 	GET_INITIATIVE(ch) = 0;
 
 	// Если есть стаб - проставляем роль разбойника
-	if (ch->GetSkill(ESkill::kBackstab) > 0) {
+	if (GetSkill(ch, ESkill::kBackstab) > 0) {
 		ch->set_role(static_cast<unsigned>(EMobClass::kRogue) -1, true);
 	}
 
@@ -899,7 +899,7 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 
 	// Проставляем умения из конфига класса
 	for (const auto &key_value : planned_skills) {
-		ch->set_skill(key_value.first, key_value.second);
+		SetSkill(ch, key_value.first, key_value.second);
 	}
 
 	// Применяем значения по умолчанию для умений, которые есть у моба, но не прописаны в классе
@@ -908,10 +908,10 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 			if (planned_skills.find(id) != planned_skills.end()) {
 				continue;
 			}
-			ch->set_skill(id, best_default_skill);
+			SetSkill(ch, id, best_default_skill);
 	//Лимитируем точку, ибо овер
 			if (id == ESkill::kPunctual) {
-				ch->set_skill(ESkill::kPunctual, 10);
+				SetSkill(ch, ESkill::kPunctual, 10);
 			}
 		}
 	}
@@ -937,10 +937,10 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 	//Если есть у моба холд - отключаем остальные стан-умения, ибо слишком жирно
 			if (GET_SPELL_MEM(ch, ESpell::kHold) ||
 				GET_SPELL_MEM(ch, ESpell::kMassHold) >= 1) {
-				ch->set_skill(ESkill::kHammer, 0);
-				ch->set_skill(ESkill::kOverwhelm, 0);
-				ch->set_skill(ESkill::kChopoff, 0);
-				ch->set_skill(ESkill::kBash, 0);
+				SetSkill(ch, ESkill::kHammer, 0);
+				SetSkill(ch, ESkill::kOverwhelm, 0);
+				SetSkill(ch, ESkill::kChopoff, 0);
+				SetSkill(ch, ESkill::kBash, 0);
 				}
 	//Если есть у моба группхил - убираем остальные хилы, ибо слишком жирно
 			if (GET_SPELL_MEM(ch, ESpell::kGroupHeal)) {

@@ -7,7 +7,6 @@
 */
 
 #include "engine/entities/char_data.h"
-#include "engine/core/handler.h"
 #include "engine/core/target_resolver.h"
 
 // \todo Аналогично - распилить на отдельные команды, механику посыла сообщения убрать в communication

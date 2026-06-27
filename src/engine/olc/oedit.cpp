@@ -15,7 +15,6 @@
 #include "engine/core/sysdep.h"
 #include "engine/structs/structs.h"
 #include "engine/core/comm.h"
-#include "engine/core/handler.h"
 #include "gameplay/magic/spells.h"
 #include "utils/logger.h"
 #include "utils/utils.h"

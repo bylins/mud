@@ -1,7 +1,8 @@
 #include "do_skills.h"
 
 #include "engine/ui/color.h"
-#include "engine/core/handler.h"
+#include "engine/entities/char_data.h"
+#include "gameplay/abilities/timed_abilities.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/mechanics/weather.h"
 
@@ -40,7 +41,7 @@ void DisplaySkills(CharData *ch, CharData *vict, const char *filter/* = nullptr*
 	std::list<std::string> skills_names;
 
 	for (const auto &skill : MUD::Skills()) {
-		if (ch->GetSkill(skill.GetId())) {
+		if (GetSkill(ch, skill.GetId())) {
 			if (skill.IsInvalid()) {
 				continue;
 			}
@@ -78,9 +79,9 @@ void DisplaySkills(CharData *ch, CharData *vict, const char *filter/* = nullptr*
 
 			sprintf(buf + strlen(buf), "%-23s %s (%d)%s \r\n",
 					skill.GetName(),
-					how_good(ch->GetSkill(skill_id), CalcSkillHardCap(ch, skill_id)),
-					ch->GetTrainedSkill(skill_id) == 0 ? ch->GetEquippedSkill(skill_id) : 
-					std::min(CalcSkillMinCap(ch, skill_id) + ch->GetEquippedSkill(skill_id), MUD::Skill(skill_id).cap),
+					how_good(GetSkill(ch, skill_id), CalcSkillHardCap(ch, skill_id)),
+					GetTrainedSkill(ch, skill_id) == 0 ? GetEquippedSkill(ch, skill_id) : 
+					std::min(CalcSkillMinCap(ch, skill_id) + GetEquippedSkill(ch, skill_id), MUD::Skill(skill_id).cap),
 					kColorNrm);
 			skills_names.emplace_back(buf);
 			i++;

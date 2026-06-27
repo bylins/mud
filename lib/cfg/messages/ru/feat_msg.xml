@@ -5,7 +5,7 @@
     container (not the shared simple-name file) because they will gain activation/deactivation/
     ambience messages later; for now only <name val=".."/> is stored.
 -->
-<msg_container>
+<feat_msg>
 	<msg_sheaf id="kDefault">
 		<name val="!undefined!" />
 	</msg_sheaf>
@@ -462,4 +462,4 @@
 	<msg_sheaf id="kPhysicians">
 		<name val="врачеватель" />
 	</msg_sheaf>
-</msg_container>
+</feat_msg>

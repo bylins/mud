@@ -8,7 +8,8 @@
 
 #include "engine/entities/char_data.h"
 #include "engine/entities/entities_constants.h"
-#include "engine/core/handler.h"
+#include "engine/core/char_handler.h"
+#include "engine/core/char_movement.h"
 #include "engine/core/target_resolver.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/skills/skills.h"
@@ -96,11 +97,11 @@ bool IsBlockedByHorse(CharData *ch) {
 
 void ApplyRiderToHit(CharData *ch, CharData *victim, int &calc_thaco) {
 	TrainSkill(ch, ESkill::kRiding, true, victim);
-	calc_thaco += 10 - ch->GetSkill(ESkill::kRiding) / 20;
+	calc_thaco += 10 - GetSkill(ch, ESkill::kRiding) / 20;
 }
 
 void ApplyRiderHitAndDamage(CharData *ch, int &dam, int &calc_thaco) {
-	const int prob = ch->GetSkill(ESkill::kRiding);
+	const int prob = GetSkill(ch, ESkill::kRiding);
 	const int range = MUD::Skill(ESkill::kRiding).difficulty / 2;
 	dam += (prob + 19) / 10;
 	if (range > prob) {
@@ -111,8 +112,8 @@ void ApplyRiderHitAndDamage(CharData *ch, int &dam, int &calc_thaco) {
 }
 
 void ApplyRiderDamageMult(CharData *ch, int &dam) {
-	if (IsOnHorse(ch) && ch->GetSkill(ESkill::kRiding) > 100) {
-		dam *= 1.0 + (ch->GetSkill(ESkill::kRiding) - 100) / 500.0;
+	if (IsOnHorse(ch) && GetSkill(ch, ESkill::kRiding) > 100) {
+		dam *= 1.0 + (GetSkill(ch, ESkill::kRiding) - 100) / 500.0;
 		if (ch->IsFlagged(EPrf::kExecutor))
 			SendMsgToChar(ch, "&YДамага с учетом лошади (при скилле 200 +20 процентов)== %d&n\r\n", dam);
 	}
@@ -124,7 +125,7 @@ int SavingModifier(const CharData *ch, ESaving saving) {
 	}
 	switch (saving) {
 		case ESaving::kReflex: return 20;
-		case ESaving::kStability: return -20 - ch->GetSkill(ESkill::kRiding) / 25;
+		case ESaving::kStability: return -20 - GetSkill(ch, ESkill::kRiding) / 25;
 		default: return 0;
 	}
 }
@@ -452,7 +453,7 @@ void do_stophorse(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 		return;
 	act("Вы отпустили $N3.", false, ch, 0, horse, kToChar);
 	act("$n отпустил$g $N3.", false, ch, 0, horse, kToRoom | kToArenaListen);
-	if (GET_MOB_VNUM(horse) == kHorseVnum) {
+	if (GET_MOB_VNUM(horse) == mount::kHorseVnum) {
 		act("$n убежал$g в свою конюшню.\r\n", false, horse, 0, 0, kToRoom | kToArenaListen);
 		ExtractCharFromWorld(horse, false);
 	}

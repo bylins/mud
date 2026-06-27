@@ -1,7 +1,7 @@
 #include "talents_actions.h"
 
 #include "engine/ui/color.h"
-#include "engine/core/handler.h"  // EFind
+#include "engine/core/target_resolver.h"
 #include "engine/entities/char_data.h"
 #include "gameplay/magic/spells_constants.h"
 #include "gameplay/skills/skills.h"  // NAME_BY_ITEM<ESkill>
@@ -155,7 +155,7 @@ int Roll::RollSkillDices() const {
 }
 
 double Roll::CalcSkillCoeff(const CharData *const ch) const {
-	auto skill = ch->GetSkill(base_skill_);
+	auto skill = GetSkill(ch, base_skill_);
 	auto low_skill = std::min(skill, abilities::kNoviceSkillThreshold);
 	auto hi_skill = std::max(0, skill - abilities::kNoviceSkillThreshold);
 	return (low_skill * low_skill_bonus_ + hi_skill * hi_skill_bonus_) / 100.0;
@@ -170,7 +170,7 @@ double Roll::CalcSkillCoeffForValue(int skill) const {
 }
 
 double Roll::CalcLowSkillCoeff(const CharData *const ch) const {
-	auto low_skill = std::min(ch->GetSkill(base_skill_), abilities::kNoviceSkillThreshold);
+	auto low_skill = std::min(GetSkill(ch, base_skill_), abilities::kNoviceSkillThreshold);
 	return low_skill * low_skill_bonus_;
 }
 
@@ -527,7 +527,8 @@ void Creation::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 }
 
 void AlterObj::Print(CharData */*ch*/, std::ostringstream &buffer) const {
-	buffer << " AlterObj: handler=" << kColorGrn << (handler.empty() ? "-" : handler) << kColorNrm << "\r\n";
+	buffer << " AlterObj: handler=" << kColorGrn << (handler.empty() ? "-" : handler) << kColorNrm
+		   << (collateral_on_damage ? " collateral=on_damage" : "") << "\r\n";
 }
 
 // historical skill-scaled-dice count + an optional secondary-stat nudge.
@@ -1083,6 +1084,8 @@ void Actions::ParseAlterObj(Action &out, parser_wrapper::DataNode &node) {
 	auto ptr = std::make_shared<AlterObj>();
 	const char *h = node.GetValue("handler");
 	if (h && *h) { ptr->handler = h; }
+	const char *col = node.GetValue("collateral");
+	ptr->collateral_on_damage = (col && strcmp(col, "on_damage") == 0);
 	out.manifestations_.insert({EAction::kAlterObj, std::move(ptr)});
 }
 

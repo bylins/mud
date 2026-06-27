@@ -1,7 +1,7 @@
 #include "magic_items.h"
 
 #include "engine/entities/char_data.h"
-#include "engine/core/handler.h"
+#include "engine/core/obj_handler.h"
 #include "engine/db/obj_prototypes.h"
 #include "spells_info.h"
 #include "magic_utils.h"

@@ -1,9 +1,10 @@
 #include "do_follow.h"
+#include "gameplay/mechanics/groups.h"
 #include "gameplay/mechanics/mount.h"
 #include "gameplay/mechanics/follow.h"
 
 #include "gameplay/fight/fight.h"
-#include "engine/core/handler.h"
+#include "engine/entities/char_data.h"
 #include "engine/core/target_resolver.h"
 #include "engine/db/global_objects.h"
 #include "utils/backtrace.h"
@@ -64,10 +65,10 @@ void do_follow(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				follow::StopFollower(ch, follow::kSfEmpty);
 			}
 			//AFF_FLAGS(ch).unset(EAffectFlag::AFF_GROUP);
-			ch->removeGroupFlags();
+			group::RemoveGroupFlags(ch);
 			for (auto *f : ch->followers) {
 				//AFF_FLAGS(f->ch).unset(EAffectFlag::AFF_GROUP);
-				f->removeGroupFlags();
+				group::RemoveGroupFlags(f);
 			}
 
 			follow::AddFollower(leader, ch);

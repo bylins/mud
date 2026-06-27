@@ -8,7 +8,7 @@
 #include "engine/entities/obj_data.h"
 #include "utils/grammar/cases.h"            // grammar::ItemName / ECase
 #include "engine/core/comm.h"
-#include "engine/core/handler.h"             // PlaceObjToRoom
+#include "engine/core/obj_handler.h"
 #include "engine/ui/modify.h"
 #include "engine/ui/interpreter.h"           // CMD_IS / cmd_info
 #include "engine/olc/vedun/vedun.h"          // vedun::IsBeingEdited (don't clobber a live edit)
@@ -17,7 +17,7 @@
 #include "gameplay/skills/skills_info.h"    // MUD::Skills()[..].GetName() for {skill_name}
 #include "engine/structs/msg_container.h"
 #include "engine/structs/info_container.h"
-#include "utils/parse.h"
+#include "utils/utils_parse.h"
 #include "utils/parser_wrapper.h"
 #include "utils/utils_string.h"              // isname
 #include "utils/mud_string.h"                // one_argument
@@ -295,7 +295,7 @@ bool RunestoneRoster::ViewRunestone(CharData *ch) {
 	if (!stone.IsAllowed()) {
 		return false;
 	}
-	const bool can_read = ch->GetSkill(stone.GetSkill()) >= stone.GetSkillLevel();
+	const bool can_read = GetSkill(ch, stone.GetSkill()) >= stone.GetSkillLevel();
 	if (stone.IsDisabled()) {
 		SendMsgToChar(RuneStoneMsg(can_read ? ERuneStoneMsg::kInspectDamaged
 											: ERuneStoneMsg::kLackSkillDamaged) + "\r\n", ch);
@@ -444,17 +444,9 @@ void RunestoneRoster::SaveState() {
 			node.SetValue("damaged", "false");
 		}
 	}
-	std::filesystem::path tmp = path;
-	tmp += ".new";
-	if (!doc.Save(tmp)) {
-		log("SYSERROR: Runestones: could not write %s -- damaged state not persisted.", tmp.string().c_str());
-		return;
-	}
-	std::error_code ec;
-	std::filesystem::rename(tmp, path, ec);
-	if (ec) {
-		std::filesystem::remove(tmp, ec);
-		log("SYSERROR: Runestones: could not replace %s (%s).", path.string().c_str(), ec.message().c_str());
+	// issue.cfg-manager: запись делает CfgManager (атомарно, по id) - путь знает он, не мы.
+	if (!MUD::CfgManager().Save(entry->id, doc)) {
+		log("SYSERROR: Runestones: damaged state not persisted.");
 	}
 }
 
@@ -648,7 +640,7 @@ void CharacterRunestoneRoster::ShrinkToLimit(CharData *ch) {
 }
 
 std::size_t CharacterRunestoneRoster::CalcLimit(CharData *ch) {
-	const auto skill = ch->GetSkill(ESkill::kTownportal);
+	const auto skill = GetSkill(ch, ESkill::kTownportal);
 	auto low_skill = std::min(skill, abilities::kNoviceSkillThreshold);
 	auto hi_skill = std::max(0, skill - abilities::kNoviceSkillThreshold);
 	return (1 + low_skill/9 + hi_skill/5);

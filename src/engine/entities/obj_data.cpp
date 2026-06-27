@@ -8,8 +8,10 @@
 
 #include "engine/db/obj_save.h"
 #include "engine/db/world_objects.h"
-#include "utils/parse.h"
-#include "engine/core/handler.h"
+#include "utils/utils_parse.h"
+#include "engine/core/obj_handler.h"
+#include "engine/core/target_resolver.h"
+#include "engine/entities/char_data.h"
 #include "engine/ui/color.h"
 #include "gameplay/mechanics/celebrates.h"
 #include "gameplay/fight/pk.h"

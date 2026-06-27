@@ -19,11 +19,11 @@ void go_block(CharData *ch) {
 }
 
 void do_block(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	if (ch->IsNpc() || !ch->GetSkill(ESkill::kShieldBlock)) {
+	if (ch->IsNpc() || !GetSkill(ch, ESkill::kShieldBlock)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kShieldBlock, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
-	if (ch->HasCooldown(ESkill::kShieldBlock)) {
+	if (ch->Skills().HasActiveCooldown(ESkill::kShieldBlock)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kShieldBlock, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	};

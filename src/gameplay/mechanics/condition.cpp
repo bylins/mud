@@ -7,6 +7,8 @@
 
 #include "engine/entities/char_data.h"
 #include "utils/utils.h"   // GET_COND
+#include "gameplay/affects/affect_data.h"   // CalcDuration, ImposeAffect
+#include "gameplay/abilities/feats.h"        // CanUseFeat, EFeat
 
 #include <algorithm>
 
@@ -53,6 +55,31 @@ float GetCondPenalty(const CharData *ch, EPenalty type) {
 	penalty = 100.0 - std::clamp(penalty, 0.0, 100.0);
 	penalty /= 100.0;
 	return penalty;
+}
+
+void SetAbstinent(CharData *ch) {
+	int duration = CalcDuration(ch, ch, ESkill::kHangovering, 2, 10, 2, 5);
+
+	if (CanUseFeat(ch, EFeat::kDrunkard)) {
+		duration /= 2;
+	}
+
+	Affect<EApply> af;
+	af.type = ESpell::kAbstinent;
+	af.affect_type = EAffect::kAbstinent;
+	af.duration = duration;
+
+	af.location = EApply::kAc;
+	af.modifier = 20;
+	ImposeAffect(ch, af, false, false, false, false);
+
+	af.location = EApply::kHitroll;
+	af.modifier = -2;
+	ImposeAffect(ch, af, false, false, false, false);
+
+	af.location = EApply::kDamroll;
+	af.modifier = -2;
+	ImposeAffect(ch, af, false, false, false, false);
 }
 
 }  // namespace condition

@@ -11,7 +11,7 @@
 #include "craft_logger.h"
 #include "craft_static.h"
 #include "utils/xml_loading_helper.h"
-#include "utils/parse.h"
+#include "utils/utils_parse.h"
 #include "engine/db/db.h"
 #include "third_party_libs/pugixml/pugixml.h"
 #include "utils/utils_time.h"

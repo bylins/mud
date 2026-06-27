@@ -14,8 +14,8 @@ void SetupKeeperStats(CharData *ch, CharData *mob, const CastContext &ctx) {
 	const int hp = SummonScaledStat(ctx, 50, 1.0, 164.4);   // + the 10d10 potency dice (old RollDices(10,10))
 	mob->set_hit(hp);
 	mob->set_max_hit(hp);
-	mob->set_skill(ESkill::kPunch,  SummonScaledStat(ctx, 10, 0.0, 41.1));
-	mob->set_skill(ESkill::kRescue, SummonScaledStat(ctx, 50, 0.0, 27.4));
+	SetSkill(mob, ESkill::kPunch,  SummonScaledStat(ctx, 10, 0.0, 41.1));
+	SetSkill(mob, ESkill::kRescue, SummonScaledStat(ctx, 50, 0.0, 27.4));
 	mob->set_str(SummonScaledStat(ctx, 3,  0.0, 5.5));
 	mob->set_dex(SummonScaledStat(ctx, 10, 0.0, 5.5));
 	mob->set_con(SummonScaledStat(ctx, 10, 0.0, 5.5));

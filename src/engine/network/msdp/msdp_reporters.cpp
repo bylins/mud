@@ -1,4 +1,6 @@
 #include "msdp_reporters.h"
+#include "gameplay/mechanics/minions.h"
+#include "gameplay/economics/currencies.h"
 #include "gameplay/mechanics/sight.h"
 #include "gameplay/mechanics/mount.h"
 
@@ -114,11 +116,11 @@ bool RoomReporter::blockReport() const {
 void GoldReporter::get(Variable::shared_ptr &response) {
 	const auto gold = std::make_shared<TableValue>();
 
-	const auto pocket_money = std::to_string(descriptor()->character->get_gold());
+	const auto pocket_money = std::to_string(currencies::GetHand(*descriptor()->character, currencies::kGold));
 	gold->add(std::make_shared<Variable>("POCKET",
 			std::make_shared<StringValue>(pocket_money)));
 
-	const auto bank_money = std::to_string(descriptor()->character->get_bank());
+	const auto bank_money = std::to_string(currencies::GetBank(*descriptor()->character, currencies::kGold));
 	gold->add(std::make_shared<Variable>("BANK",
 										 std::make_shared<StringValue>(bank_money)));
 
@@ -138,7 +140,7 @@ void MaxMoveReporter::get(Variable::shared_ptr &response) {
 }
 
 void MaxManaReporter::get(Variable::shared_ptr &response) {
-	const auto max_mana = std::to_string(mana[MIN(50, GetRealWis((descriptor()->character).get()))]);
+	const auto max_mana = std::to_string(Mana(GetRealWis((descriptor()->character).get())));
 	response = std::make_shared<Variable>("MAX_MANA",
 										  std::make_shared<StringValue>(max_mana));
 }
@@ -232,7 +234,7 @@ void GroupReporter::append_char(const std::shared_ptr<ArrayValue> &group,
 	}
 
 	if (character->IsNpc()
-		&& character->low_charm()) {
+		&& IsCharmExpiring(character)) {
 		affects += "Т";
 	}
 
@@ -254,14 +256,14 @@ int GroupReporter::get_mem(const CharData *character) const {
 	int result = 0;
 	if (!character->IsNpc()
 		&& ((!IS_MANA_CASTER(character) && !character->mem_queue.Empty())
-			|| (IS_MANA_CASTER(character) && character->mem_queue.stored < mana[MIN(50, GetRealWis(character))]))) {
+			|| (IS_MANA_CASTER(character) && character->mem_queue.stored < Mana(GetRealWis(character))))) {
 		auto div = CalcManaGain(character);
 		if (div > 0) {
 			if (!IS_MANA_CASTER(character)) {
 				result = std::max(0, 1 + character->mem_queue.total - character->mem_queue.stored);
 				result = result * 60 / div;
 			} else {
-				result = std::max(0, 1 + mana[MIN(50, GetRealWis(character))] - character->mem_queue.stored);
+				result = std::max(0, 1 + Mana(GetRealWis(character)) - character->mem_queue.stored);
 				result = result / div;
 			}
 		} else {

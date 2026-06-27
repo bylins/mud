@@ -9,9 +9,9 @@
 #include "engine/ui/cmd/do_generic_page.h"
 #include "engine/entities/char_data.h"
 #include "engine/ui/modify.h"
+#include "engine/ui/system_messages.h"
 
 const int kScmdInfo{0};
-const int kScmdHandbook{1};
 const int kScmdCredits{2};
 const int kScmdPolicies{3};
 const int kScmdVersion{4};
@@ -20,31 +20,24 @@ const int kScmdMotd{6};
 const int kScmdRules{7};
 const int kScmdClear{8};
 
-extern char *credits;
-extern char *info;
-extern char *motd;
-extern char *rules;
-extern char *immlist;
-extern char *policies;
-extern char *handbook;
+// credits/info/motd/immlist/policies and immortal rules moved to the system-message
+// container (system_messages::GetText); the dead "handbook" command was removed.
 
 extern void ShowBuildInfo(CharData *ch);
 
 void DoGenericPage(CharData *ch, char * /*argument*/, int/* cmd*/, int subcmd) {
 	switch (subcmd) {
-		case kScmdCredits: page_string(ch->desc, credits, 0);
+		case kScmdCredits: page_string(ch->desc, system_messages::GetText(system_messages::ESystemMsg::kCredits));
 			break;
-		case kScmdInfo: page_string(ch->desc, info, 0);
+		case kScmdInfo: page_string(ch->desc, system_messages::GetText(system_messages::ESystemMsg::kInfo));
 			break;
-		case kScmdImmlist: page_string(ch->desc, immlist, 0);
+		case kScmdImmlist: page_string(ch->desc, system_messages::GetText(system_messages::ESystemMsg::kImmList));
 			break;
-		case kScmdHandbook: page_string(ch->desc, handbook, 0);
+		case kScmdPolicies: page_string(ch->desc, system_messages::GetText(system_messages::ESystemMsg::kPolicies));
 			break;
-		case kScmdPolicies: page_string(ch->desc, policies, 0);
+		case kScmdMotd: page_string(ch->desc, system_messages::GetText(system_messages::ESystemMsg::kMotd));
 			break;
-		case kScmdMotd: page_string(ch->desc, motd, 0);
-			break;
-		case kScmdRules: page_string(ch->desc, rules, 0);
+		case kScmdRules: page_string(ch->desc, system_messages::GetText(system_messages::ESystemMsg::kImmRules));
 			break;
 		case kScmdClear: SendMsgToChar("\033[H\033[J", ch);
 			break;

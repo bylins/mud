@@ -4,6 +4,8 @@
 
 #include "utils/levenshtein.h"
 #include "engine/structs/compact_trie.h"
+#include "utils/utils.h"
+#include "engine/core/comm.h"
 
 #include <iomanip>
 

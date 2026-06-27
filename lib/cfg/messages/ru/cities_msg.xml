@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<!-- issue.cities: city display names, keyed by city vnum (matches cfg/mechanics/cities.xml).
+     Loaded (city_messages) BEFORE cities. id="kDefault" is the shared fallback sheaf. -->
+<cities_msg>
+	<msg_sheaf id="kDefault">
+		<name val="Неизвестный город"/>
+	</msg_sheaf>
+	<msg_sheaf id="1">
+		<name val="Лесная деревня"/>
+	</msg_sheaf>
+	<msg_sheaf id="2">
+		<name val="Деревня у реки"/>
+	</msg_sheaf>
+	<msg_sheaf id="3">
+		<name val="Степная деревня"/>
+	</msg_sheaf>
+	<msg_sheaf id="4">
+		<name val="Деревня Беличья Падь"/>
+	</msg_sheaf>
+	<msg_sheaf id="5">
+		<name val="Погост Холуй"/>
+	</msg_sheaf>
+	<msg_sheaf id="6">
+		<name val="Деревушка Медвежья гора"/>
+	</msg_sheaf>
+	<msg_sheaf id="7">
+		<name val="Торжок"/>
+	</msg_sheaf>
+	<msg_sheaf id="8">
+		<name val="Русса"/>
+	</msg_sheaf>
+	<msg_sheaf id="9">
+		<name val="Корсунь"/>
+	</msg_sheaf>
+	<msg_sheaf id="10">
+		<name val="Переяславль"/>
+	</msg_sheaf>
+	<msg_sheaf id="11">
+		<name val="Галич"/>
+	</msg_sheaf>
+	<msg_sheaf id="12">
+		<name val="Киев"/>
+	</msg_sheaf>
+	<msg_sheaf id="13">
+		<name val="Вышгород"/>
+	</msg_sheaf>
+	<msg_sheaf id="14">
+		<name val="Чернигов"/>
+	</msg_sheaf>
+	<msg_sheaf id="15">
+		<name val="Любеч"/>
+	</msg_sheaf>
+	<msg_sheaf id="16">
+		<name val="Путивль"/>
+	</msg_sheaf>
+	<msg_sheaf id="17">
+		<name val="Брянск"/>
+	</msg_sheaf>
+	<msg_sheaf id="18">
+		<name val="Курск"/>
+	</msg_sheaf>
+	<msg_sheaf id="19">
+		<name val="Искоростень"/>
+	</msg_sheaf>
+	<msg_sheaf id="20">
+		<name val="Туров"/>
+	</msg_sheaf>
+	<msg_sheaf id="21">
+		<name val="Меньск"/>
+	</msg_sheaf>
+	<msg_sheaf id="22">
+		<name val="Полоцк"/>
+	</msg_sheaf>
+	<msg_sheaf id="23">
+		<name val="Псков"/>
+	</msg_sheaf>
+	<msg_sheaf id="24">
+		<name val="Великий Новгород"/>
+	</msg_sheaf>
+	<msg_sheaf id="25">
+		<name val="Ладога"/>
+	</msg_sheaf>
+	<msg_sheaf id="26">
+		<name val="Тотьма"/>
+	</msg_sheaf>
+	<msg_sheaf id="27">
+		<name val="Рязань"/>
+	</msg_sheaf>
+	<msg_sheaf id="28">
+		<name val="Муром"/>
+	</msg_sheaf>
+	<msg_sheaf id="29">
+		<name val="Владимир"/>
+	</msg_sheaf>
+	<msg_sheaf id="30">
+		<name val="Ростов Великий"/>
+	</msg_sheaf>
+	<msg_sheaf id="31">
+		<name val="Тверь"/>
+	</msg_sheaf>
+</cities_msg>

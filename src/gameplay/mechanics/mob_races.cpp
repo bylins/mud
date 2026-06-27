@@ -8,7 +8,7 @@
 #include "engine/db/global_objects.h"
 #include "engine/entities/char_data.h"             // CharData::IsNpc
 #include "engine/entities/entities_constants.h"   // EMobFlag, ENpcFlag
-#include "utils/parse.h"
+#include "utils/utils_parse.h"
 #include "utils/utils.h"                           // GET_RACE
 #include "utils/utils_string.h"                    // utils::Split, str_cmp
 #include "gameplay/core/entity_names.h"

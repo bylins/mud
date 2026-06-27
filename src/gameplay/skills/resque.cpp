@@ -75,11 +75,11 @@ void go_rescue(CharData *ch, CharData *vict, CharData *tmp_ch) {
 }
 
 void do_rescue(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (!ch->GetSkill(ESkill::kRescue)) {
+	if (!GetSkill(ch, ESkill::kRescue)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kRescue, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
-	if (ch->HasCooldown(ESkill::kRescue)) {
+	if (ch->Skills().HasActiveCooldown(ESkill::kRescue)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kRescue, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	};

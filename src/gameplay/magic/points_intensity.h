@@ -67,6 +67,7 @@ class PointsIntensity {
 	// with no grades configured). The returned string is owned by this
 	// container -- callers must not mutate it; copying is fine.
 	[[nodiscard]] const std::string &Resolve(ECategory category, int percent) const;
+	[[nodiscard]] const std::vector<std::pair<std::string, std::string>> ShowHelpDamage() const;
 
 	// True when the table holds at least one grade for the given category /
 	// direction. Useful for the CastToPoints "should I bother substituting"

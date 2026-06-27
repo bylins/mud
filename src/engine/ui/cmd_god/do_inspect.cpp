@@ -146,7 +146,7 @@ void ExtractedCharacterInfo::ExtractPunishmentInfo(std::string_view punish_text,
 		punishments_ << fmt::format(" {}{}{} until {:%R %e-%b-%Y} [{}].\r\n",
 									kColorBoldRed, punish_text, kColorNrm,
 									std::chrono::system_clock::from_time_t(punish.duration),
-									(punish.reason ? punish.reason : "-"));
+									(punish.reason.empty() ? "-" : punish.reason.c_str()));
 	}
 }
 

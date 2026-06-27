@@ -16,6 +16,7 @@
 #include "engine/db/help.h"
 #include "engine/entities/zone.h"
 #include "engine/db/global_objects.h"
+#include "engine/db/world_data_source_manager.h"
 #include "utils/logger.h"
 #include "utils/utils.h"
 #include "engine/structs/structs.h"
@@ -417,7 +418,8 @@ void zedit_save_internally(DescriptorData *d) {
 		zone_table[OLC_ZNUM(d)].entrance = OLC_ZONE(d)->entrance;
 	}
 //	olc_add_to_save_list(zone_table[OLC_ZNUM(d)].vnum, OLC_SAVE_ZONE);
-	zedit_save_to_disk(OLC_ZNUM(d));
+	auto* data_source = world_loader::WorldDataSourceManager::Instance().GetDataSource();
+	data_source->SaveZone(OLC_ZNUM(d));
 }
 
 //------------------------------------------------------------------------

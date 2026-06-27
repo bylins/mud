@@ -8,14 +8,14 @@
 
 #include "engine/entities/char_data.h"
 #include "engine/entities/obj_data.h"
-#include "engine/core/handler.h"
+#include "gameplay/abilities/timed_abilities.h"
 
 void do_courage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	if (ch->IsNpc()) {
 		return;
 	}
 
-	if (!ch->GetSkill(ESkill::kCourage)) {
+	if (!GetSkill(ch, ESkill::kCourage)) {
 		SendMsgToChar("Вам это не по силам.\r\n", ch);
 		return;
 	}
@@ -30,7 +30,7 @@ void do_courage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 	timed.time = 6;
 	ImposeTimedSkill(ch, &timed);
 	auto prob = CalcCurrentSkill(ch, ESkill::kCourage, nullptr) / 20;
-	auto dur = 1 + std::min(5, ch->GetSkill(ESkill::kCourage) / 40);
+	auto dur = 1 + std::min(5, GetSkill(ch, ESkill::kCourage) / 40);
 	Affect<EApply> af[4];
 	af[0].type = ESpell::kCourage;
 	af[0].duration = CalcDuration(ch, ch, ESkill::kUndefined, dur, 0, 0, 0);

@@ -6,7 +6,7 @@
 #include "gameplay/magic/spells.h"
 #include "utils/utils_string.h"
 #include "gameplay/magic/magic_utils.h"
-#include "engine/core/handler.h"
+#include "engine/entities/char_data.h"
 #include "administration/privilege.h"
 #include "gameplay/magic/spells_info.h"
 #include "gameplay/mechanics/mem_queue.h"

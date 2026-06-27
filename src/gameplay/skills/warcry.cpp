@@ -2,7 +2,8 @@
 #include "administration/privilege.h"
 #include "skill_messages.h"
 
-#include "engine/core/handler.h"
+#include "engine/entities/char_data.h"
+#include "gameplay/abilities/timed_abilities.h"
 #include "engine/ui/color.h"
 #include "gameplay/magic/magic_utils.h"
 #include "gameplay/magic/spells_info.h"
@@ -13,7 +14,7 @@ void do_warcry(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->IsNpc() && AFF_FLAGGED(ch, EAffect::kCharmed))
 		return;
 
-	if (!ch->GetSkill(ESkill::kWarcry)) {
+	if (!GetSkill(ch, ESkill::kWarcry)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kWarcry, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
@@ -36,7 +37,7 @@ void do_warcry(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 			if (realname
 				&& MUD::Spell(spell_id).IsFlagged(kMagWarcry)
-				&& ch->GetSkill(ESkill::kWarcry) >= MUD::Spell(spell_id).GetManaChange()) {
+				&& GetSkill(ch, ESkill::kWarcry) >= MUD::Spell(spell_id).GetManaChange()) {
 				if (!IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kKnow | ESpellType::kTemp))
 					continue;
 				// (issue.ambiguous-spells) Catalog row has no concrete target, so colour
@@ -64,7 +65,7 @@ void do_warcry(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	auto spell_id = FixNameAndFindSpellId(wc_name);
 
 	if (spell_id == ESpell::kUndefined
-		|| (ch->GetSkill(ESkill::kWarcry) < MUD::Spell(spell_id).GetManaChange())
+		|| (GetSkill(ch, ESkill::kWarcry) < MUD::Spell(spell_id).GetManaChange())
 		|| !IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kKnow | ESpellType::kTemp)) {
 		SendMsgToChar("И откуда вы набрались таких выражений?\r\n", ch);
 		return;

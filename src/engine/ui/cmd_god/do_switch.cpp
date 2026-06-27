@@ -11,7 +11,6 @@
 #include "engine/ui/cmd/do_recall.h"
 #include "engine/db/world_characters.h"
 #include "gameplay/clans/house.h"
-#include "engine/core/handler.h"
 #include "engine/core/target_resolver.h"
 
 void DoSwitch(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {

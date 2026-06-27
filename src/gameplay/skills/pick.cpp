@@ -1,4 +1,5 @@
 #include "pick.h"
+#include "utils/logger.h"
 
 #include "engine/entities/char_data.h"
 #include "engine/db/global_objects.h"
@@ -6,20 +7,20 @@
 PickProbabilityInformation get_pick_probability(CharData *ch, int lock_complexity) {
 	// для прокачки умения скилл должен быть в промежутке от -10 сложности замка, до сложности замка
 	const int allowed_difference = 10;
-	const bool skill_train_allowed = (lock_complexity > ch->GetSkill(ESkill::kPickLock)) &&
-		(ch->GetSkill(ESkill::kPickLock) + allowed_difference >= lock_complexity);
+	const bool skill_train_allowed = (lock_complexity > GetSkill(ch, ESkill::kPickLock)) &&
+		(GetSkill(ch, ESkill::kPickLock) + allowed_difference >= lock_complexity);
 
 	// используем сложность скила для дополнительного ограничения шанса прокачки
 	const int prob = CalcCurrentSkill(ch, ESkill::kPickLock, nullptr);
 	const int percent = number(1, MUD::Skill(ESkill::kPickLock).difficulty);
-	const int skill = ch->GetSkill(ESkill::kPickLock);
+	const int skill = GetSkill(ch, ESkill::kPickLock);
 	// высчитываем дополнительный шанс ограничения прокачки (от сложности скила)
 	const int min_chance = 50;
 	const int restriction_percent = std::clamp(prob - percent, min_chance, 100);
 	const bool complexity_restriction = number(1, 100) > restriction_percent ? true : false;
 
 	// разница между скилом и сложностью замка
-	const int skill_difference = static_cast<int>(ch->GetSkill(ESkill::kPickLock)) - static_cast<int>(lock_complexity);
+	const int skill_difference = static_cast<int>(GetSkill(ch, ESkill::kPickLock)) - static_cast<int>(lock_complexity);
 
 	// считаем шанс взлома
 	int pick_probability_percent = 0;
@@ -82,7 +83,7 @@ PickProbabilityInformation get_pick_probability(CharData *ch, int lock_complexit
 		text_info << std::boolalpha << "Шанс взлома: " << pbi.unlock_probability << "%, шанс сломать замок: " << pbi.brake_lock_probability << "%, возможность прокачки скила: " << pbi.skill_train_allowed << "\r\n";
 		text_info << std::boolalpha << "Сложность замка: " << lock_complexity << ", разница между скилом и сложностью замка: " << skill_difference << "\r\n";
 		text_info << std::boolalpha << "Возможность прокачки скила (от сложности скила): " << skill_train_allowed << ", ограничение прокачки по сложности скила: "  << complexity_restriction << "\r\n";
-		ch->send_to_TC(true, true, true, text_info.str().c_str());
+		SendToTC(ch, true, true, true, "%s", text_info.str().c_str());
 	}
 
 	return pbi;

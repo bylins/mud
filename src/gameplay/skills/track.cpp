@@ -7,7 +7,9 @@
 #include "skill_messages.h"
 
 #include "gameplay/ai/graph.h"
-#include "engine/core/handler.h"
+#include "engine/core/char_movement.h"
+#include "engine/entities/char_data.h"
+#include "gameplay/abilities/timed_abilities.h"
 #include "engine/core/target_resolver.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/core/remort.h"
@@ -82,7 +84,7 @@ void do_track(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char name[kMaxInputLength];
 
 	// The character must have the track skill.
-	if (ch->IsNpc() || !ch->GetSkill(ESkill::kTrack)) {
+	if (ch->IsNpc() || !GetSkill(ch, ESkill::kTrack)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kHideTrack, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
@@ -201,7 +203,7 @@ void do_hidetrack(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 	struct TrackData *track[EDirection::kMaxDirNum + 1], *temp;
 	int percent, prob, i, croom, found = false, dir, rdir;
 
-	if (ch->IsNpc() || !ch->GetSkill(ESkill::kHideTrack)) {
+	if (ch->IsNpc() || !GetSkill(ch, ESkill::kHideTrack)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kHideTrack, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}

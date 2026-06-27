@@ -189,22 +189,12 @@ bool bad_start_stats(CharData *ch) {
 }
 
 /**
-* Считаем реальные статы с учетом мортов и влитой славы.
-* \return 0 - все ок, любое другое число - все плохо
-*/
-int bad_real_stats(CharData *ch, int check) {
-	check -= kBaseStatsSum; // стартовые статы у всех по 95
-	check -= 6 * remort::GetRealRemort(ch); // реморты
-	// влитая слава
-	check -= Glory::get_spend_glory(ch);
-	check -= GloryConst::main_stats_count(ch);
-	return check;
-}
-
-/**
 * Проверка стартовых и итоговых статов.
-* Если невалидные стартовые статы - чар отправляется на реролл.
-* Если невалидные только итоговые статы - идет перезапись со стартовых с учетом мортов и славы.
+* Невалидные стартовые статы (вне границ ролла) - чар отправляется на реролл.
+* issue.remort-system: иначе пересчитываем итоговые статы по ТЕКУЩЕЙ системе перевоплощения
+* (recalculate_stats) и, если они изменились (сменились правила перевоплощения или истекла слава),
+* сообщаем игроку и сохраняем чара, чтобы сообщение показалось один раз. Реролл стартовых статов в
+* этом случае НЕ требуется.
 */
 bool check_stats(CharData *ch) {
 	// иммов травмировать не стоит
@@ -212,21 +202,18 @@ bool check_stats(CharData *ch) {
 		return 1;
 	}
 
-	int have_stats = ch->GetInbornStr() + ch->GetInbornDex() + ch->GetInbornInt() + ch->GetInbornWis()
-		+ ch->GetInbornCon() + ch->GetInbornCha();
-
 	// чар со старым роллом статов или после попыток поправить статы в файле
 	if (bad_start_stats(ch)) {
-		snprintf(buf, kMaxStringLength, "\r\n%sВаши параметры за вычетом перевоплощений:\r\n"
+		snprintf(buf, kMaxStringLength, "\r\n%sВаши стартовые параметры:\r\n"
 										 "Сила: %d, Ловкость: %d, Ум: %d, Мудрость: %d, Телосложение: %d, Обаяние: %d\r\n"
 										 "Просим вас заново распределить основные параметры персонажа.%s\r\n",
 				 kColorBoldGrn,
-				 ch->GetInbornStr() - remort::GetRealRemort(ch),
-				 ch->GetInbornDex() - remort::GetRealRemort(ch),
-				 ch->GetInbornInt() - remort::GetRealRemort(ch),
-				 ch->GetInbornWis() - remort::GetRealRemort(ch),
-				 ch->GetInbornCon() - remort::GetRealRemort(ch),
-				 ch->GetInbornCha() - remort::GetRealRemort(ch),
+				 ch->get_start_stat(G_STR),
+				 ch->get_start_stat(G_DEX),
+				 ch->get_start_stat(G_INT),
+				 ch->get_start_stat(G_WIS),
+				 ch->get_start_stat(G_CON),
+				 ch->get_start_stat(G_CHA),
 				 kColorNrm);
 	iosystem::write_to_output(buf, ch->desc);
 
@@ -244,31 +231,43 @@ bool check_stats(CharData *ch) {
 		ch->desc->state = EConState::kResetStats;
 		return false;
 	}
-	// стартовые статы в поряде, но слава не сходится (снялась по времени или иммом)
-	if (bad_real_stats(ch, have_stats)) {
-		recalculate_stats(ch);
+
+	// issue.remort-system: стартовые статы валидны -- пересчитываем итоговые по текущей системе
+	// перевоплощения + текущей славе. Если что-то поменялось -- уведомляем и сохраняем (один раз).
+	const int before_str = ch->GetInbornStr();
+	const int before_dex = ch->GetInbornDex();
+	const int before_int = ch->GetInbornInt();
+	const int before_wis = ch->GetInbornWis();
+	const int before_con = ch->GetInbornCon();
+	const int before_cha = ch->GetInbornCha();
+	recalculate_stats(ch);
+	if (before_str != ch->GetInbornStr() || before_dex != ch->GetInbornDex()
+		|| before_int != ch->GetInbornInt() || before_wis != ch->GetInbornWis()
+		|| before_con != ch->GetInbornCon() || before_cha != ch->GetInbornCha()) {
+		SendMsgToChar(ch,
+			"%sПараметры персонажа были изменены в связи с изменением правил перевоплощения.%s\r\n",
+			kColorBoldGrn, kColorNrm);
+		ch->save_char();
 	}
 	return true;
 }
 
 // * Пересчет статов чара на основании стартовых статов, ремортов и славы.
 void recalculate_stats(CharData *ch) {
-	// стартовые статы
-	ch->set_str(ch->get_start_stat(G_STR));
-	ch->set_dex(ch->get_start_stat(G_DEX));
-	ch->set_con(ch->get_start_stat(G_CON));
-	ch->set_int(ch->get_start_stat(G_INT));
-	ch->set_wis(ch->get_start_stat(G_WIS));
-	ch->set_cha(ch->get_start_stat(G_CHA));
-	// морты
-	if (remort::GetRealRemort(ch)) {
-		ch->inc_str(remort::GetRealRemort(ch));
-		ch->inc_dex(remort::GetRealRemort(ch));
-		ch->inc_con(remort::GetRealRemort(ch));
-		ch->inc_wis(remort::GetRealRemort(ch));
-		ch->inc_int(remort::GetRealRemort(ch));
-		ch->inc_cha(remort::GetRealRemort(ch));
+	// issue.remort-system: стартовые статы + реморты по текущей системе перевоплощения
+	// (старая: +1 ко всем; points_buy: пропорционально -- см. remort::ApplyRemortStatGains).
+	int start[START_STATS_TOTAL];
+	int base[START_STATS_TOTAL];
+	for (int i = 0; i < START_STATS_TOTAL; ++i) {
+		start[i] = ch->get_start_stat(i);
 	}
+	remort::ApplyRemortStatGains(start, base, remort::GetRealRemort(ch));
+	ch->set_str(base[G_STR]);
+	ch->set_dex(base[G_DEX]);
+	ch->set_int(base[G_INT]);
+	ch->set_wis(base[G_WIS]);
+	ch->set_con(base[G_CON]);
+	ch->set_cha(base[G_CHA]);
 	// влитая слава
 	Glory::set_stats(ch);
 	GloryConst::set_stats(ch);

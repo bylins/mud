@@ -6,7 +6,9 @@
 \detail Detail description.
 */
 
+#include "engine/core/target_resolver.h"
 #include "do_drink.h"
+#include "gameplay/mechanics/condition.h"
 #include "administration/privilege.h"
 
 #include "engine/entities/obj_data.h"
@@ -203,7 +205,7 @@ int IsAbleToDrink(CharData *ch, ObjData *jar, int amount) {
 
 	if (drink_aff[GET_OBJ_VAL(jar, 2)][condition::kDrunk] > 0) {
 		if (AFF_FLAGGED(ch, EAffect::kAbstinent)) {
-			if (ch->GetSkill(ESkill::kHangovering) > 0) {//если опохмел есть
+			if (GetSkill(ch, ESkill::kHangovering) > 0) {//если опохмел есть
 				SendMsgToChar(
 					"Вас передернуло от одной мысли о выпивке.\r\nПохоже, вам стоит опохмелиться.\r\n",
 					ch);

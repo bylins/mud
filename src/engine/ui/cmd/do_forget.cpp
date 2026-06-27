@@ -7,7 +7,7 @@
 #include "gameplay/magic/magic_utils.h"
 #include "utils/utils_string.h"
 #include "gameplay/mechanics/mem_queue.h"
-#include "engine/core/handler.h"
+#include "engine/entities/char_data.h"
 #include "engine/ui/color.h"
 #include "engine/db/global_objects.h"
 

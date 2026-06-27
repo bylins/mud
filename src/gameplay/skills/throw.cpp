@@ -8,7 +8,11 @@
 #include "gameplay/abilities/abilities_rollsystem.h"
 #include "gameplay/fight/pk.h"
 #include "gameplay/fight/fight_hit.h"
-#include "engine/core/handler.h"
+#include "engine/core/char_equip_flags.h"
+#include "engine/entities/char_data.h"
+#include "gameplay/abilities/timed_abilities.h"
+#include "gameplay/mechanics/equipment.h"
+#include "gameplay/mechanics/inventory.h"
 #include "protect.h"
 #include "gameplay/fight/common.h"
 #include "gameplay/mechanics/damage.h"
@@ -186,7 +190,7 @@ void GoThrow(CharData *ch, CharData *victim) {
 
 void DoThrow(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	//Svent TODO: Не забыть убрать заглушку после дописывания навыков
-	if (!ch->GetSkill(ESkill::kThrow)) {
+	if (!GetSkill(ch, ESkill::kThrow)) {
 		SendMsgToChar("Вы принялись метать икру. Это единственное, что вы умеете метать.\r\n", ch);
 		return;
 	}
@@ -221,12 +225,12 @@ void DoThrow(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 }
 
 void DoThrow(CharData *ch, CharData *victim) {
-	if (!ch->GetSkill(ESkill::kThrow)) {
+	if (!GetSkill(ch, ESkill::kThrow)) {
 		log("ERROR: вызов метнуть для персонажа %s (%d) без проверки умения", ch->get_name().c_str(), GET_MOB_VNUM(ch));
 		return;
 	}
 
-	if (ch->HasCooldown(ESkill::kThrow)) {
+	if (ch->Skills().HasActiveCooldown(ESkill::kThrow)) {
 		SendMsgToChar("Так и рука отвалится, нужно передохнуть.\r\n", ch);
 		return;
 	};

@@ -15,7 +15,6 @@
 #include "gameplay/communication/social.h"
 #include "gameplay/crafting/jewelry.h"
 #include "gameplay/crafting/mining.h"
-#include "gameplay/mechanics/birthplaces.h"
 #include "gameplay/mechanics/player_races.h"
 #include "gameplay/mechanics/corpse.h"
 #include "gameplay/mechanics/celebrates.h"
@@ -31,7 +30,13 @@
 #include "gameplay/mechanics/glory.h"
 #include "gameplay/mechanics/glory_const.h"
 #include "gameplay/mechanics/glory_misc.h"
-#include "engine/core/handler.h"
+#include "engine/core/char_equip_flags.h"
+#include "engine/core/char_handler.h"
+#include "engine/core/char_movement.h"
+#include "engine/core/obj_handler.h"
+#include "engine/entities/char_data.h"
+#include "gameplay/mechanics/equipment.h"
+#include "gameplay/mechanics/inventory.h"
 #include "engine/core/target_resolver.h"
 #include "help.h"
 #include "gameplay/clans/house.h"
@@ -140,18 +145,8 @@ RoomRnum r_helled_start_room;
 RoomRnum r_named_start_room;
 RoomRnum r_unreg_start_room;
 
-char *credits{nullptr};        // game credits
-char *info{nullptr};        // info page
-char *motd{nullptr};        // message of the day - mortals
-char *rules{nullptr};        // rules for immorts
-char *immlist{nullptr};        // list of peon gods
-char *policies{nullptr};        // policies page
-char *handbook{nullptr};        // handbook for new immortals
 
-char *greetings{nullptr};        // opening credits screen
 char *help{nullptr};        // help screen
-char *background{nullptr};    // background story
-char *name_rules{nullptr};        // rules of character's names
 
 TimeInfoData time_info;
 ResetQueue reset_q;
@@ -181,7 +176,6 @@ int CountMobsInRoom(int m_num, int r_num);
 void SetZoneRnumForObjects();
 void SetZoneRnumForMobiles();
 void SetZoneRnumForTriggers();
-void InitBasicValues();
 int ReadCrashTimerFile(std::size_t index, int temp);
 int LoadExchange();
 void SetPrecipitations(int *wtype, int startvalue, int chance1, int chance2, int chance3);
@@ -292,27 +286,6 @@ void LoadSheduledReboot() {
 	log("Setting up reboot_uptime: %i", shutdown_parameters.get_reboot_uptime());
 }
 
-// Базовая функция загрузки XML конфигов
-pugi::xml_node XmlLoad(const char *PathToFile, const char *MainTag, const char *ErrorStr, pugi::xml_document &Doc) {
-	std::ostringstream buffer;
-	pugi::xml_parse_result Result;
-	pugi::xml_node NodeList;
-
-	Result = Doc.load_file(PathToFile);
-	if (!Result) {
-		buffer << "..." << Result.description() << "(file: " << PathToFile << ")";
-		mudlog(std::string(buffer.str()).c_str(), CMP, kLvlImmortal, SYSLOG, true);
-		return NodeList;
-	}
-
-	NodeList = Doc.child(MainTag);
-	if (!NodeList) {
-		mudlog(ErrorStr, CMP, kLvlImmortal, SYSLOG, true);
-	}
-
-	return NodeList;
-}
-
 /// конверт поля GET_OBJ_SKILL в емкостях TODO: 12.2013
 int ConvertDrinkconSkillField(CObjectPrototype *obj, bool proto) {
 	if (obj->get_spec_param() > 0
@@ -379,10 +352,10 @@ void GameLoader::BootWorld(std::unique_ptr<world_loader::IWorldDataSource> data_
 	// Guarded like the skills load just below; the normal running-server boot reaches here too.
 	if (!affected_bits) {
 		MUD::CfgManager().LoadCfg("affects");
-		MUD::CfgManager().LoadCfg("affect_messages");
+		MUD::CfgManager().LoadCfg("affect_msg");
 		// issue.common-msg: nothing_string (CommonMsg(kNothing)) is used by sprintbits during the
 		// object/mob load below, so common_messages must be ready before the world parses.
-		MUD::CfgManager().LoadCfg("common_messages");
+		MUD::CfgManager().LoadCfg("common_msg");
 	}
 
 	// CharData::set_skill() / CObjectPrototype::set_skill() drop any skill
@@ -395,7 +368,7 @@ void GameLoader::BootWorld(std::unique_ptr<world_loader::IWorldDataSource> data_
 	// loaded the config, does not reload it.
 	if (!MUD::Skills().IsInitizalized())
 	{
-		MUD::CfgManager().LoadCfg("skill_messages");   // issue.thing-names: names/abbr before skills
+		MUD::CfgManager().LoadCfg("skill_msg");   // issue.thing-names: names/abbr before skills
 		MUD::CfgManager().LoadCfg("skills");
 	}
 
@@ -663,30 +636,20 @@ void BootMudDataBase() {
 
 	boot_profiler.next_step("Reading credits, help, bground, info & motds.");
 	log("Reading credits, help, bground, info & motds.");
-	AllocateBufferForFile(CREDITS_FILE, &credits);
-	AllocateBufferForFile(MOTD_FILE, &motd);
-	AllocateBufferForFile(RULES_FILE, &rules);
 	AllocateBufferForFile(HELP_PAGE_FILE, &help);
-	AllocateBufferForFile(INFO_FILE, &info);
-	AllocateBufferForFile(IMMLIST_FILE, &immlist);
-	AllocateBufferForFile(POLICIES_FILE, &policies);
-	AllocateBufferForFile(HANDBOOK_FILE, &handbook);
-	AllocateBufferForFile(BACKGROUND_FILE, &background);
-	AllocateBufferForFile(NAME_RULES_FILE, &name_rules);
-	if (AllocateBufferForFile(GREETINGS_FILE, &greetings) == 0)
-		PruneCrlf(greetings);
+	MUD::CfgManager().LoadCfg("system_msg");
 
 	boot_profiler.next_step("Loading currencies cfg.");
 	log("Loading currencies cfg.");
 	// issue.thing-names: currency names (currency_msg.xml) load before currencies.xml so the builder
 	// can read each currency's display name from the message file.
-	MUD::CfgManager().LoadCfg("currency_messages");
+	MUD::CfgManager().LoadCfg("currency_msg");
 	MUD::CfgManager().LoadCfg("currencies");
 
 	// issue.thing-names: skill messages (which now hold skill names + abbreviations) load before skills.
 	boot_profiler.next_step("Loading skill messages cfg.");
 	log("Loading skill messages cfg.");
-	MUD::CfgManager().LoadCfg("skill_messages");
+	MUD::CfgManager().LoadCfg("skill_msg");
 
 	boot_profiler.next_step("Loading skills cfg.");
 	log("Loading skills cfg.");
@@ -694,14 +657,14 @@ void BootMudDataBase() {
 
 	boot_profiler.next_step("Loading feats cfg.");
 	log("Loading feats cfg.");
-	MUD::CfgManager().LoadCfg("feat_messages");   // issue.thing-names: names before feats
+	MUD::CfgManager().LoadCfg("feat_msg");   // issue.thing-names: names before feats
 	MUD::CfgManager().LoadCfg("feats");
 
 	// issue.thing-names: spell messages (which now hold the Russian display names) load BEFORE
 	// spells, so SpellInfoBuilder::ParseName can read each spell's name from the message container.
 	boot_profiler.next_step("Loading spell messages cfg.");
 	log("Loading spell messages cfg.");
-	MUD::CfgManager().LoadCfg("spell_messages");
+	MUD::CfgManager().LoadCfg("spell_msg");
 
 	boot_profiler.next_step("Loading spells cfg.");
 	log("Loading spells cfg.");
@@ -717,7 +680,7 @@ void BootMudDataBase() {
 
     boot_profiler.next_step("Loading hit type messages cfg.");
     log("Loading hit type messages cfg.");
-    MUD::CfgManager().LoadCfg("fight_messages");
+    MUD::CfgManager().LoadCfg("hit_msg");
 
 	boot_profiler.next_step("Loading abilities definitions");
 	log("Loading abilities.");
@@ -725,20 +688,11 @@ void BootMudDataBase() {
 
 	boot_profiler.next_step("Loading daily quests");
 	log("Loading daily quests.");
-	DailyQuest::LoadFromFile();
+	MUD::CfgManager().LoadCfg("daily_quest");   // issue.daily-quest: cfg/quests/daily_quest.xml
 
-	pugi::xml_document doc;
 	boot_profiler.next_step("Loading undecayable object criterions");
 	log("Loading undecayable object criterions.");
-	stable_objs::LoadCriterionsCfg();
-
-	boot_profiler.next_step("Loading birthplaces definitions");
-	log("Loading birthplaces definitions.");
-	Birthplaces::Load(XmlLoad(LIB_MISC BIRTH_PLACES_FILE, BIRTH_PLACE_MAIN_TAG, BIRTH_PLACE_ERROR_STR, doc));
-
-	boot_profiler.next_step("Loading player races definitions");
-	log("Loading player races definitions.");
-	PlayerRace::Load(XmlLoad(LIB_MISC PLAYER_RACE_FILE, RACE_MAIN_TAG, PLAYER_RACE_ERROR_STR, doc));
+	MUD::CfgManager().LoadCfg("stable_objs");
 
 	boot_profiler.next_step("Loading ingredients magic");
 	log("Booting IM");
@@ -746,8 +700,9 @@ void BootMudDataBase() {
 
 	boot_profiler.next_step("Assigning character classs info.");
 	log("Assigning character classs info.");
-	MUD::CfgManager().LoadCfg("class_messages");   // issue.thing-names: names/abbr before classes
-	MUD::CfgManager().LoadCfg("classes");
+	MUD::CfgManager().LoadCfg("class_msg");   // issue.thing-names: names/abbr before classes
+	MUD::CfgManager().LoadCfg("pc_classes");
+	MUD::CfgManager().LoadCfg("experience_table");   // issue.experience-table
 
 	boot_profiler.next_step("Loading rune spells cfg");
 	log("Loading rune spells cfg.");
@@ -758,13 +713,9 @@ void BootMudDataBase() {
 	MUD::CfgManager().LoadCfg("entity_names");   // issue.thing-names: names before mob_classes/races/zone_types
 	MUD::CfgManager().LoadCfg("zone_types");
 
-	boot_profiler.next_step("Loading insert_wanted.lst");
-	log("Booting insert_wanted.lst.");
-	iwg.init();
-
 	boot_profiler.next_step("Loading gurdians");
 	log("Load guardians.");
-	city_guards::LoadGuardians();
+	MUD::CfgManager().LoadCfg("guards");   // issue.guards: cfg/mechanics/guards.xml
 
 	boot_profiler.next_step("Loading world");
 	GameLoader::BootWorld();
@@ -772,10 +723,6 @@ void BootMudDataBase() {
 	boot_profiler.next_step("Loading stuff load table");
 	log("Booting stuff load table.");
 	oload_table.init();
-
-	boot_profiler.next_step("Loading setstuff table");
-	log("Booting setstuff table.");
-	ObjData::InitSetTable();
 
 	boot_profiler.next_step("Loading item levels");
 	log("Init item levels.");
@@ -787,7 +734,7 @@ void BootMudDataBase() {
 
 	boot_profiler.next_step("Loading socials");
 	log("Loading socials.");
-	MUD::CfgManager().LoadCfg("socials");
+	MUD::CfgManager().LoadCfg("social_msg");
 
 	boot_profiler.next_step("Loading players index");
 	log("Generating player index.");
@@ -811,8 +758,8 @@ void BootMudDataBase() {
 
 	boot_profiler.next_step("Reading skills variables.");
 	log("Reading skills variables.");
-	InitMiningVars();
-	InitJewelryVars();
+	MUD::CfgManager().LoadCfg("digging");
+	MUD::CfgManager().LoadCfg("jewelry");
 
 	boot_profiler.next_step("Sorting command list");
 	log("Sorting command list.");
@@ -846,33 +793,34 @@ void BootMudDataBase() {
 
 	boot_profiler.next_step("Loading basic values");
 	log("Booting basic values");
-	InitBasicValues();
+	MUD::CfgManager().LoadCfg("basic");
 
 	boot_profiler.next_step("Loading grouping parameters");
 	log("Booting grouping parameters");
-	if (grouping.init()) {
+	MUD::CfgManager().LoadCfg("group_exp_handicap");
+	if (!grouping.loaded()) {
 		fatal_log("Failed to load grouping parameters");
 	}
 
 	boot_profiler.next_step("Loading special assignments");
 	log("Booting special assignment");
 	MUD::CfgManager().LoadCfg("specials");
-	MUD::CfgManager().LoadCfg("special_messages");   // issue.specials Phase 2: spec-proc messages
-	MUD::CfgManager().LoadCfg("bank_messages");
-	MUD::CfgManager().LoadCfg("mail_messages");
-	MUD::CfgManager().LoadCfg("horse_messages");
-	MUD::CfgManager().LoadCfg("torc_messages");
-	MUD::CfgManager().LoadCfg("mercenary_messages");
-	MUD::CfgManager().LoadCfg("exchange_messages");
-	MUD::CfgManager().LoadCfg("rent_messages");
-	MUD::CfgManager().LoadCfg("shop_messages");
-	MUD::CfgManager().LoadCfg("board_messages");
+	MUD::CfgManager().LoadCfg("special_msg");   // issue.specials Phase 2: spec-proc messages
+	MUD::CfgManager().LoadCfg("bank_msg");
+	MUD::CfgManager().LoadCfg("mail_msg");
+	MUD::CfgManager().LoadCfg("horse_msg");
+	MUD::CfgManager().LoadCfg("torc_msg");
+	MUD::CfgManager().LoadCfg("mercenary_msg");
+	MUD::CfgManager().LoadCfg("exchange_msg");
+	MUD::CfgManager().LoadCfg("rent_msg");
+	MUD::CfgManager().LoadCfg("shop_msg");
+	MUD::CfgManager().LoadCfg("board_msg");
 	// "affects" + "affect_messages" load earlier, at the top of BootWorld (affected_bits must exist
 	// before the world's objects/mobs are parsed) -- see GameLoader::BootWorld.
 
 	boot_profiler.next_step("Assigning guilds info.");
 	log("Assigning guilds info.");
-	MUD::CfgManager().LoadCfg("guild_messages");   // issue.thing-names: messages before guilds
+	MUD::CfgManager().LoadCfg("guild_msg");   // issue.thing-names: messages before guilds
 	MUD::CfgManager().LoadCfg("guilds");
 
 	boot_profiler.next_step("Assigning mob classes info.");
@@ -882,16 +830,22 @@ void BootMudDataBase() {
 	boot_profiler.next_step("Loading mob races");
 	log("Load mob races.");
 	MUD::CfgManager().LoadCfg("mob_races");
+	MUD::CfgManager().LoadCfg("cities_msg");   // issue.cities: names before cities
+	MUD::CfgManager().LoadCfg("cities");
+	MUD::CfgManager().LoadCfg("region_msg");   // issue.regions: messages before regions
+	MUD::CfgManager().LoadCfg("regions");
+	MUD::CfgManager().LoadCfg("pc_race_msg");   // issue.player-races-rework: names before races
+	MUD::CfgManager().LoadCfg("pc_races");
 
 	boot_profiler.next_step("Loading runestones for 'town portal' spell");
 	log("Booting runestones for 'town portal' spell");
-	MUD::CfgManager().LoadCfg("rune_stone_messages");   // issue.runestones: names before the registry
+	MUD::CfgManager().LoadCfg("rune_stone_msg");   // issue.runestones: names before the registry
 	MUD::CfgManager().LoadCfg("rune_stones");
 	MUD::Runestones().SpawnStones();   // phase 3: place the physical stone object into each room
 
 	boot_profiler.next_step("Loading made items");
 	log("Booting maked items");
-	init_make_items();
+	MUD::CfgManager().LoadCfg("item_creation");
 
 	boot_profiler.next_step("Loading exchange");
 	log("Booting exchange");
@@ -941,7 +895,7 @@ void BootMudDataBase() {
 
 	boot_profiler.next_step("Loading celebrates");
 	log("Load Celebrates.");
-	celebrates::Load();
+	MUD::CfgManager().LoadCfg("celebrates");   // issue.celebrates: cfg/mechanics/celebrates.xml
 
 	// Триггера комнат должны быть подключены ДО первого ResetZone, иначе
 	// reset_wtrigger / random_wtrigger не найдут их в SCRIPT(room) и не
@@ -990,6 +944,7 @@ void BootMudDataBase() {
 
 	boot_profiler.next_step("Loading shop_ext list");
 	log("load shop_ext list start.");
+	MUD::CfgManager().LoadCfg("shop_item_sets");   // issue.shops-ext: catalog before shops
 	ShopExt::load(false);
 	log("load shop_ext list stop.");
 
@@ -1020,19 +975,23 @@ void BootMudDataBase() {
 
 	// сначала сеты, стата мобов, потом дроп сетов
 	boot_profiler.next_step("Loading object sets/mob_stat/drop_sets lists");
-	obj_sets::load();
+	MUD::CfgManager().LoadCfg("obj_sets");   // issue.obj-sets: cfg/mechanics/obj_sets.xml
 	log("Load mob_stat.xml");
 	mob_stat::Load();
 	log("Init SetsDrop lists.");
 	SetsDrop::init();
 
-	boot_profiler.next_step("Loading noob_help.xml");
-	log("Load noob_help.xml");
-	Noob::init();
+	boot_profiler.next_step("Loading noob.xml");
+	log("Load noob.xml");
+	MUD::CfgManager().LoadCfg("noob");
 
 	boot_profiler.next_step("Loading reset_stats.xml");
 	log("Load reset_stats.xml");
-	stats_reset::init();
+	MUD::CfgManager().LoadCfg("reset_stats");
+
+	boot_profiler.next_step("Loading remort.xml");
+	log("Load remort.xml");
+	MUD::CfgManager().LoadCfg("remort");
 
 	boot_profiler.next_step("Loading mail.xml");
 	log("Load mail.xml");
@@ -1041,7 +1000,7 @@ void BootMudDataBase() {
 	// загрузка кейсов
 	boot_profiler.next_step("Loading treasure cases");
 	log("Loading treasure cases.");
-	treasure_cases::LoadTreasureCases();
+	MUD::CfgManager().LoadCfg("cases");   // issue.lib-template: cfg/mechanics/cases.xml
 
 	// справка должна иниться после всего того, что может в нее что-то добавить
 	boot_profiler.next_step("Reloading help system");
@@ -1054,7 +1013,6 @@ void BootMudDataBase() {
 
 	boot_profiler.next_step("Loading cities cfg");
 	log("Loading cities cfg.");
-	cities::LoadCities();
 
 	shutdown_parameters.mark_boot_time();
 	log("Boot db -- DONE.");
@@ -1848,7 +1806,7 @@ CharData *ReadMobile(MobVnum nr, int type) {                // and MobRnum
 		GET_ACTIVITY(mob) = number(0, mob->mob_specials.speed);
 	mob->extract_timer = 0;
 	mob->points.move = mob->points.max_move;
-	mob->add_gold(RollDices(GET_GOLD_NoDs(mob), GET_GOLD_SiDs(mob)));
+	currencies::AddHand(*mob, currencies::kGold, RollDices(GET_GOLD_NoDs(mob), GET_GOLD_SiDs(mob)));
 
 	mob->player_data.time.birth = time(nullptr);
 	mob->player_data.time.played = 0;
@@ -2942,7 +2900,7 @@ int CountMobsInRoom(int m_num, int r_num) {
 void SetGodSkills(CharData *ch) {
 	for (auto i = ESkill::kFirst; i <= ESkill::kLast; ++i) {
 		if (MUD::Skills().IsValid(i)) {
-			ch->set_skill(i, 200);
+			SetSkill(ch, i, 200);
 		}
 	}
 }
@@ -3276,7 +3234,7 @@ void CharTimerUpdate() {
 	std::list<CharData *> cooldown_list;
 
 	for (auto it : chardata_cooldown_list) {
-		if (!it->HaveDecreaseCooldowns()) {
+		if (!it->Skills().DecreaseCooldownsAndCheck()) {
 			cooldown_list.push_back(it);
 		}
 	}

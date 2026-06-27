@@ -1,6 +1,8 @@
 #include "engine/entities/char_data.h"
 #include "engine/db/world_objects.h"
-#include "engine/core/handler.h"
+#include "engine/core/obj_handler.h"
+#include "engine/core/target_resolver.h"
+#include "gameplay/mechanics/inventory.h"
 #include "gameplay/mechanics/meat_maker.h"
 #include "engine/core/utils_char_obj.inl"
 

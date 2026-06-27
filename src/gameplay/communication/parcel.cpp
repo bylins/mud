@@ -3,14 +3,19 @@
 // Part of Bylins http://www.mud.ru
 
 #include "parcel.h"
+#include "engine/db/player_index.h"
 #include "administration/privilege.h"
+#include "gameplay/economics/currencies.h"
 #include "gameplay/mechanics/sight.h"
 #include "utils/grammar/gender.h"
 #include "utils/grammar/declensions.h"
 
 #include "engine/db/world_objects.h"
 #include "engine/core/utils_char_obj.inl"
-#include "engine/core/handler.h"
+#include "engine/core/obj_handler.h"
+#include "engine/core/target_resolver.h"
+#include "engine/entities/char_data.h"
+#include "gameplay/mechanics/inventory.h"
 #include "gameplay/economics/auction.h"
 #include "engine/ui/color.h"
 #include "engine/entities/char_player.h"
@@ -220,7 +225,7 @@ void send_object(CharData *ch, CharData *mailman, long vict_uid, ObjData *obj) {
 	const int reserved_cost = get_object_low_rent(obj) * RESERVED_COST_COEFF;
 	const int total_cost = reserved_cost + SEND_COST;
 
-	if (ch->get_total_gold() < total_cost) {
+	if (currencies::GetTotal(*ch, currencies::kGold) < total_cost) {
 		act("$n сказал$g вам : 'Да у тебя ведь нет столько денег!'", false, mailman, 0, ch, kToVict);
 		return;
 	}
@@ -256,7 +261,7 @@ void send_object(CharData *ch, CharData *mailman, long vict_uid, ObjData *obj) {
 	send_reserved_buffer += reserved_cost;
 	send_cost_buffer += SEND_COST;
 
-	ch->remove_both_gold(total_cost);
+	currencies::RemoveTotal(*ch, currencies::kGold, total_cost);
 	RemoveObjFromChar(obj);
 	ObjSaveSync::add(ch->get_uid(), ch->get_uid(), ObjSaveSync::PARCEL_SAVE);
 
@@ -347,8 +352,8 @@ void send(CharData *ch, CharData *mailman, long vict_uid, char *arg) {
 
 	if (!send_buffer.empty()) {
 		snprintf(buf, sizeof(buf), "с вас удержано %d %s и еще %d %s зарезервировано на 3 дня хранения.\r\n",
-				 send_cost_buffer, grammar::GetDeclensionInNumber(send_cost_buffer, grammar::EWhat::kMoneyA),
-				 send_reserved_buffer, grammar::GetDeclensionInNumber(send_reserved_buffer, grammar::EWhat::kMoneyA));
+				 send_cost_buffer, MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(send_cost_buffer, grammar::ECase::kNom).c_str(),
+				 send_reserved_buffer, MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(send_reserved_buffer, grammar::ECase::kNom).c_str());
 		send_buffer += buf;
 		SendMsgToChar(send_buffer.c_str(), ch);
 
@@ -377,7 +382,7 @@ void print_sending_stuff(CharData *ch) {
 				money += it3->money_;
 			}
 			out << kColorNrm
-				<< money << " " << grammar::GetDeclensionInNumber(money, grammar::EWhat::kMoneyA) << " зарезервировано на 3 дня хранения.\r\n";
+				<< money << " " << MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(money, grammar::ECase::kNom).c_str() << " зарезервировано на 3 дня хранения.\r\n";
 		}
 	}
 	if (print)
@@ -425,9 +430,9 @@ void return_money(std::string const &name, int money, bool add) {
 	CharData *vict = 0;
 	if ((vict = get_player_of_name(name.c_str()))) {
 		if (add) {
-			vict->add_bank(money);
+			currencies::AddBank(*vict, currencies::kGold, money);
 			SendMsgToChar(vict, "%sВы получили %d %s банковским переводом от почтовой службы%s.\r\n",
-						  kColorWht, money, grammar::GetDeclensionInNumber(money, grammar::EWhat::kMoneyU), kColorNrm);
+						  kColorWht, money, MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(money, grammar::ECase::kNom).c_str(), kColorNrm);
 		}
 	} else {
 		vict = new Player; // TODO: переделать на стек
@@ -435,7 +440,7 @@ void return_money(std::string const &name, int money, bool add) {
 			delete vict;
 			return;
 		}
-		vict->add_bank(money);
+		currencies::AddBank(*vict, currencies::kGold, money);
 		vict->save_char();
 		delete vict;
 	}

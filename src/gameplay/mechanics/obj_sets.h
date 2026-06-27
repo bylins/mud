@@ -10,10 +10,12 @@
 #include "engine/structs/structs.h"
 #include "engine/core/sysdep.h"
 #include "engine/core/conf.h"
+#include "engine/boot/cfg_manager.h"   // issue.obj-sets: загрузка через CfgManager
 
 #include <array>
 #include <vector>
 #include <set>
+#include "engine/core/char_equip_flags.h"   // CharEquipFlag(s) for set-activation API
 
 /// версия сетовых наборов по принципу навешивания аффектов на чара, а не на
 /// конкретные предметы, подменяя их родные статы + как бонус полноценное олц
@@ -102,7 +104,18 @@ struct activ_sum {
 	std::map<int, ench_type> enchants;
 };
 
-void load();
+// issue.obj-sets: конфиг (cfg/mechanics/obj_sets.xml) грузится через CfgManager
+// (ParserWrapper). Запись файла (save) по-прежнему делает pugixml внутри obj_sets.cpp -
+// её зовёт OLC-редактор и сам loader в конце загрузки (нормализация). Формат сообщений и
+// аффектов переведён с текста тегов на атрибуты (DataNode не читает текст тегов).
+class ObjSetsLoader : public cfg_manager::ICfgLoader {
+ public:
+	void Load(parser_wrapper::DataNode data) final;
+	void Reload(parser_wrapper::DataNode data) final;
+	// issue.cfg-manager: пересборка сетов в DOM из памяти; путь к файлу выбирает CfgManager.
+	void Save(parser_wrapper::DataNode &doc) const final;
+};
+
 void save();
 void print_off_msg(CharData *ch, ObjData *obj);
 void print_identify(CharData *ch, const ObjData *obj);
@@ -111,6 +124,11 @@ std::set<int> vnum_list_add(int vnum);
 std::string get_name(size_t idx);
 bool is_set_item(ObjData *obj);
 void PrinSetClasses(const std::bitset<kNumPlayerClasses> &bits, std::string &str, bool print_num = false);
+
+unsigned int ActivateStuff(CharData *ch, ObjData *obj, id_to_set_info_map::const_iterator it,
+                           int pos, const CharEquipFlags &equip_flags, unsigned int set_obj_qty);
+unsigned int DeactivateStuff(CharData *ch, ObjData *obj, id_to_set_info_map::const_iterator it,
+                             int pos, const CharEquipFlags &equip_flags, unsigned int set_obj_qty);
 
 } // namespace obj_sets
 

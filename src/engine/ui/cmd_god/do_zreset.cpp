@@ -26,24 +26,52 @@ void DoZreset(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 		SendMsgToChar("Укажите зону.\r\n", ch);
 		return;
 	}
+	// zreset *<номер> -- сброс всего комплекса: головная зона и её зоны typeA
+	// (зоны, которые сбрасываются одновременно с головной).
+	if (*arg == '*') {
+		if (!*(arg + 1)) {
+			SendMsgToChar("Укажите головную зону комплекса: zreset *<номер>.\r\n", ch);
+			return;
+		}
+		const int zone_vnum = atoi(arg + 1);
+		if (!privilege::IsImmortal(ch) && GET_OLC_ZONE(ch) != zone_vnum) {
+			SendMsgToChar("Доступ к данной зоне запрещен!\r\n", ch);
+			return;
+		}
+		const ZoneRnum head = GetZoneRnum(zone_vnum);
+		if (head < 0) {
+			SendMsgToChar("Нет такой зоны.\r\n", ch);
+			return;
+		}
+		if (zone_table[head].typeA_count <= 0) {
+			SendMsgToChar("Это не головная зона комплекса, обратитесь к Богу.\r\n", ch);
+			return;
+		}
+		utils::CExecutionTimer timer;
+		zone_repop_list.push_back(head);
+		for (int a = 0; a < zone_table[head].typeA_count; a++) {
+			const ZoneRnum rn = GetZoneRnum(zone_table[head].typeA_list[a]);
+			if (rn >= 0) {
+				zone_repop_list.push_back(rn);
+			}
+		}
+		sprintf(buf, "Перегружаю комплекс зоны #%d: %s\r\n", zone_table[head].vnum, zone_table[head].name.c_str());
+		SendMsgToChar(buf, ch);
+		DecayObjectsOnRepop(zone_repop_list);
+		for (const auto rn : zone_repop_list) {
+			ResetZone(rn);
+		}
+		sprintf(buf, "(GC) %s reset complex %d (%s), delta %f",
+				GET_NAME(ch), zone_table[head].vnum, zone_table[head].name.c_str(), timer.delta().count());
+		mudlog(buf, NRM, MAX(kLvlGreatGod, GET_INVIS_LEV(ch)), SYSLOG, true);
+		imm_log("%s reset complex %d (%s)", GET_NAME(ch), zone_table[head].vnum, zone_table[head].name.c_str());
+		return;
+	}
 	if (!privilege::IsImmortal(ch) && GET_OLC_ZONE(ch) != atoi(arg)) {
 		SendMsgToChar("Доступ к данной зоне запрещен!\r\n", ch);
 		return;
 	}
-	if (*arg == '*') {
-		for (i = 0; i < static_cast<ZoneRnum>(zone_table.size()); i++) {
-			zone_repop_list.push_back(i);
-		}
-		DecayObjectsOnRepop(zone_repop_list);
-		for (i = 0; i < static_cast<ZoneRnum>(zone_table.size()); i++) {
-			ResetZone(i);
-		}
-		SendMsgToChar("Перезагружаю мир.\r\n", ch);
-		sprintf(buf, "(GC) %s reset entire world.", GET_NAME(ch));
-		mudlog(buf, NRM, MAX(kLvlGreatGod, GET_INVIS_LEV(ch)), SYSLOG, true);
-		imm_log("%s reset entire world.", GET_NAME(ch));
-		return;
-	} else if (*arg == '.') {
+	if (*arg == '.') {
 		i = world[ch->in_room]->zone_rn;
 	} else {
 		i = GetZoneRnum(atoi(arg));

@@ -18,6 +18,12 @@ static bool ClearMind(const CharData *ch) {
 	return !ch->battle_affects.get(kEafOverwhelm) && !ch->battle_affects.get(kEafHammer);
 }
 
+// issue.chardata-cleaning: was CharData::have_mind (only used here): an autonomous NPC,
+// not a charmed pet or a ridden horse, retaliates against a missed chopoff.
+static bool IsAutonomous(const CharData *ch) {
+	return !AFF_FLAGGED(ch, EAffect::kCharmed) && !mount::IsHorse(ch);
+}
+
 
 // ************************* CHOPOFF PROCEDURES
 void go_chopoff(CharData *ch, CharData *vict) {
@@ -35,7 +41,7 @@ void go_chopoff(CharData *ch, CharData *vict) {
 		return;
 
 	if ((vict->GetPosition() < EPosition::kFight)) {
-		if (number(1, 100) < ch->GetSkill(ESkill::kChopoff)) {
+		if (number(1, 100) < GetSkill(ch, ESkill::kChopoff)) {
 			SendMsgToChar("Вы приготовились провести подсечку, но вовремя остановились.\r\n", ch);
 			ch->setSkillCooldown(ESkill::kChopoff, kBattleRound / 6);
 			return;
@@ -95,7 +101,7 @@ void go_chopoff(CharData *ch, CharData *vict) {
 			SendMsgToChar(ch, "%sВы провели подсечку, заставив %s споткнуться.%s\r\n",
 						  kColorBoldBlu, GET_PAD(vict, 3), kColorNrm);
 			percent = number(1, MUD::Skill(ESkill::kRiding).difficulty);
-			prob = tch->GetSkill(ESkill::kRiding);
+			prob = GetSkill(tch, ESkill::kRiding);
 			if (percent < prob) {
 				SendMsgToChar(tch, "Вы смогли удержаться на спине своего скакуна.\r\n");
 			} else {
@@ -118,7 +124,7 @@ void go_chopoff(CharData *ch, CharData *vict) {
 	sight::Appear(ch);
 	if (!success) {
 		SetWait(ch, prob, false);
-		if (vict->IsNpc() && sight::CanSee(vict, ch) && vict->have_mind() && ClearMind(vict) && !vict->GetEnemy()) {
+		if (vict->IsNpc() && sight::CanSee(vict, ch) && IsAutonomous(vict) && ClearMind(vict) && !vict->GetEnemy()) {
 			hit(vict, ch, ESkill::kUndefined, AFF_FLAGGED(vict, EAffect::kStopRight) ? fight::kOffHand : fight::kMainHand);
 		}
 	} else {
@@ -128,7 +134,7 @@ void go_chopoff(CharData *ch, CharData *vict) {
 }
 
 void do_chopoff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (ch->GetSkill(ESkill::kChopoff) < 1) {
+	if (GetSkill(ch, ESkill::kChopoff) < 1) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kChopoff, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
@@ -148,12 +154,12 @@ void do_chopoff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 void do_chopoff(CharData *ch, CharData *vict) {
-	if (ch->GetSkill(ESkill::kChopoff) < 1) {
+	if (GetSkill(ch, ESkill::kChopoff) < 1) {
 		log("ERROR: вызов подножки для персонажа %s (%d) без проверки умения", ch->get_name().c_str(), GET_MOB_VNUM(ch));
 		return;
 	}
 
-	if (ch->HasCooldown(ESkill::kChopoff)) {
+	if (ch->Skills().HasActiveCooldown(ESkill::kChopoff)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kChopoff, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	};

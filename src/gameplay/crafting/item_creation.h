@@ -15,6 +15,7 @@
 #include "engine/entities/entities_constants.h"
 #include "engine/ui/interpreter.h"
 #include "gameplay/skills/skills.h"
+#include "engine/boot/cfg_manager.h"
 
 #include <string>
 #include <list>
@@ -28,17 +29,6 @@ const int MAX_PROTO = 3;
 const int COAL_PROTO = 311;
 const int WOOD_PROTO = 313;
 const int TETIVA_PROTO = 314;
-
-const int MREDIT_MAIN_MENU = 0;
-const int MREDIT_OBJ_PROTO = 1;
-const int MREDIT_SKILL = 2;
-const int MREDIT_LOCK = 3;
-const int MREDIT_INGR_MENU = 4;
-const int MREDIT_INGR_PROTO = 5;
-const int MREDIT_INGR_WEIGHT = 6;
-const int MREDIT_INGR_POWER = 7;
-const int MREDIT_DEL = 8;
-const int MREDIT_CONFIRM_SAVE = 9;
 
 const int MAKE_ANY = 0;
 const int MAKE_POTION = 1;
@@ -59,15 +49,9 @@ using std::ofstream;
 using std::list;
 using std::endl;
 
-void mredit_parse(struct DescriptorData *d, char *arg);
-void mredit_disp_menu(struct DescriptorData *d);
-void mredit_disp_ingr_menu(struct DescriptorData *d);
-
 void do_list_make(CharData *ch, char *argument, int cmd, int subcmd);
-void do_edit_make(CharData *ch, char *argument, int cmd, int subcmd);
 void do_make_item(CharData *ch, char *argument, int cmd, int subcmd);
 
-void init_make_items();
 // Старая структура мы ее используем в перековке.
 struct create_item_type {
 	int obj_vnum;
@@ -104,12 +88,6 @@ class MakeReceptList {
 	// Вывод списка рецептов по всем компонентам у персонажа
 	int can_make_list(CharData *ch);
 
-	// загрузить рецепты .
-	int load();
-
-	// сохранить рецепты.
-	int save();
-
 	// сделать рецепт по названию его прототипа из листа.
 	MakeRecept *get_by_name(string &rname);
 
@@ -136,6 +114,9 @@ class MakeRecept {
 	int stat_modify(CharData *ch, int value, float devider);
 
 	int add_flags(CharData *ch, FlagData *base_flag, const FlagData *add_flag, int delta);
+	// Перенос extra-флагов ингредиента на предмет, но без служебных/привязочных/распадных
+	// (kNodrop и т.п.) -- иначе крафт плодит "!бросить" и прочий некорректный стаф (issue #3459).
+	void merge_extra_flags(CharData *ch, ObjData *obj, ObjData *ingr, int pow);
 
 	int add_affects(CharData *ch,
 					std::array<obj_affected_type, kMaxObjAffect> &base,
@@ -159,6 +140,7 @@ class MakeRecept {
  public:
 	bool locked;
 
+	int vnum;        // уникальный идентификатор рецепта (для Vedun)
 	ESkill skill;
 	int obj_proto;
 	std::array<ingr_part_type, MAX_PARTS> parts;
@@ -170,10 +152,23 @@ class MakeRecept {
 	int can_make(CharData *ch);
 	// создать предмет по рецепту
 	int make(CharData *ch);
-	// вытащить рецепт из строки.
-	int load_from_str(string &rstr);
-	// сохранить рецепт в строку.
-	int save_to_str(string &rstr);
+};
+
+// Загрузка cfg/craft/item_creation.xml через cfg_manager (boot + reload makeitems).
+class ItemCreationLoader : public cfg_manager::IEditableCfgLoader {
+ public:
+	void Load(parser_wrapper::DataNode data) final;
+	void Reload(parser_wrapper::DataNode data) final;
+	// issue.makeitems: Vedun editor support. A <recipe> is keyed by its integer `vnum`, so the
+	// vnum-attribute lookup / create methods are overridden (like the runestone registry).
+	[[nodiscard]] std::string EditableWhat() const final;
+	[[nodiscard]] std::vector<cfg_manager::EditableElement> ListElements() const final;
+	[[nodiscard]] cfg_manager::ValidationResult Validate(parser_wrapper::DataNode &doc) const final;
+	[[nodiscard]] parser_wrapper::DataNode FindElementNode(
+			parser_wrapper::DataNode root, const std::string &id) const final;
+	[[nodiscard]] std::string CanonicalElementId(const std::string &id) const final;
+	[[nodiscard]] parser_wrapper::DataNode CreateElementNode(
+			parser_wrapper::DataNode root, const std::string &id) const final;
 };
 
 #endif // ITEM_CREATION_HPP_

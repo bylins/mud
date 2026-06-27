@@ -304,7 +304,6 @@ inline T VPOSI(const T val, const T min, const T max) {
 	return ((val < max) ? ((val > min) ? val : min) : max);
 }
 
-#define GET_KIN(ch)     ((ch)->player_data.Kin)
 #define GET_HEIGHT(ch)  ((ch)->player_data.height)
 #define GET_HEIGHT_ADD(ch) ((ch)->add_abils.height_add)
 #define GET_REAL_HEIGHT(ch) (GET_HEIGHT(ch) + GET_HEIGHT_ADD(ch))

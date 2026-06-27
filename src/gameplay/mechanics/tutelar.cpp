@@ -12,7 +12,7 @@
 #include "gameplay/mechanics/minions.h"
 #include "engine/db/db.h"
 #include "engine/entities/char_data.h"
-#include "engine/core/handler.h"
+#include "engine/core/char_handler.h"
 #include "gameplay/fight/pk.h"
 #include "gameplay/fight/common.h"
 #include "gameplay/skills/resque.h"
@@ -73,7 +73,7 @@ void TryToRescueWithTutelar(CharData *ch) {
 				if (vict->GetEnemy() == ch
 					&& vict != ch
 					&& vict != k) {
-					if (k->GetSkill(ESkill::kRescue)) {
+					if (GetSkill(k, ESkill::kRescue)) {
 						go_rescue(k, ch, vict);
 					}
 					break;

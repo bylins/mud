@@ -2,7 +2,6 @@
 #define __CONFIG_HPP__
 
 #include "engine/structs/blocking_queue.h"
-#include "gameplay/mechanics/birthplaces_constants.h"
 #include "engine/structs/structs.h"
 #include "engine/structs/meta_enum.h"
 
@@ -261,7 +260,7 @@ class RuntimeConfiguration {
 
 extern RuntimeConfiguration runtime_config;
 
-int calc_loadroom(const CharData *ch, int bplace_mode = kBirthplaceUndefined);
+int calc_loadroom(const CharData *ch);
 
 // issue.common-msg: shared one-off engine strings, moved into cfg/messages/ru/common_msg.xml. The enum
 // + accessor live here (config.h is widely included, so call sites need no extra include); the cfg
@@ -273,6 +272,18 @@ enum class ECommonMsg {
 	kOk,           // was OK
 	kNoPerson,     // was NOPERSON
 	kNothing,      // was nothing_string (inline fragment; no newline)
+	kBrokenScales, // exp table missing/broken; experience cannot be granted
+	// issue.exit-menu: main connection-menu lines (display order, not enum value, sets the number)
+	kMenuExit,
+	kMenuEnterGame,
+	kMenuDescription,
+	kMenuHistory,
+	kMenuChangePassword,
+	kMenuDelete,
+	kMenuResetStats,
+	kMenuBlind,
+	kMenuEmailList,
+	kMenuPrompt,
 };
 
 [[nodiscard]] const std::string &CommonMsg(ECommonMsg id);

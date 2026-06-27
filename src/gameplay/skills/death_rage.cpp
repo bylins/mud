@@ -1,5 +1,5 @@
 #include "engine/entities/char_data.h"
-#include "engine/core/handler.h"
+#include "gameplay/abilities/timed_abilities.h"
 
 void CheckDeathRage(CharData *ch) {
 	struct TimedFeat timed;

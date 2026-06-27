@@ -10,6 +10,7 @@
 **************************************************************************/
 
 #include "engine/entities/char_data.h"
+#include "gameplay/core/experience.h"
 #include "administration/privilege.h"
 #include "gameplay/mechanics/minions.h"
 #include "gameplay/mechanics/follow.h"
@@ -17,7 +18,10 @@
 #include "engine/ui/cmd/do_follow.h"
 #include "gameplay/fight/fight.h"
 #include "gameplay/fight/pk.h"
-#include "engine/core/handler.h"
+#include "engine/core/char_equip_flags.h"
+#include "engine/core/char_handler.h"
+#include "engine/core/obj_handler.h"
+#include "gameplay/mechanics/equipment.h"
 #include "engine/db/obj_prototypes.h"
 #include "gameplay/magic/magic_utils.h"
 #include "gameplay/skills/townportal.h"
@@ -274,7 +278,7 @@ void do_oexp(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Trigger 
 	}
 
 	if ((ch = get_char_by_obj(obj, name))) {
-		EndowExpToChar(ch, atoi(amount));
+		experience::EndowExpToChar(ch, atoi(amount));
 		sprintf(buf, "oexp: victim (%s) получил опыт %d", GET_NAME(ch), atoi(amount));
 		obj_log(obj, trig, buf);
 	} else {

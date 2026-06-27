@@ -2,7 +2,10 @@
 #include "gameplay/mechanics/sight.h"
 
 #include "engine/entities/char_data.h"
-#include "engine/core/handler.h"
+#include "engine/core/char_equip_flags.h"
+#include "engine/core/target_resolver.h"
+#include "gameplay/mechanics/equipment.h"
+#include "gameplay/mechanics/inventory.h"
 #include "gameplay/clans/house.h"
 #include "engine/core/utils_char_obj.inl"
 

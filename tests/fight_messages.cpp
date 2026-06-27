@@ -6,7 +6,7 @@
 
 #include "gameplay/fight/fight_messages.h"
 #include "gameplay/fight/fight_constants.h"
-#include "utils/parse.h"
+#include "utils/utils_parse.h"
 
 #include <gtest/gtest.h>
 #include <stdexcept>

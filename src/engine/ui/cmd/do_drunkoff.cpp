@@ -7,8 +7,10 @@
 */
 
 #include "engine/entities/obj_data.h"
+#include "gameplay/mechanics/condition.h"
 #include "engine/entities/char_data.h"
-#include "engine/core/handler.h"
+#include "engine/core/target_resolver.h"
+#include "gameplay/abilities/timed_abilities.h"
 #include "gameplay/mechanics/liquid.h"
 #include "engine/db/global_objects.h"
 #include "engine/core/utils_char_obj.inl"
@@ -141,7 +143,7 @@ void do_drunkoff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		af[2].location = EApply::kAc;
 		af[2].affect_type = EAffect::kAbstinent;
 		af[2].battleflag = 0;
-		switch (number(0, ch->GetSkill(ESkill::kHangovering) / 20)) {
+		switch (number(0, GetSkill(ch, ESkill::kHangovering) / 20)) {
 			case 0:
 			case 1: af[0].modifier = -2;
 				break;

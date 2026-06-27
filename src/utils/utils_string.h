@@ -299,12 +299,15 @@ std::string CAP(const std::string txt);
 // формирует строку из списка слов, разделенных separator (то, что стоит
 // между словами на строке: ", " для списка, " " для переноса по словам)
 // при превышении max_length переносит на новую строку, срезая хвостовой
-// пробел разделителя перед \r\n. separator по умолчанию ", " -- прежнее поведение
+// пробел разделителя перед \r\n. separator по умолчанию ", " -- прежнее поведение.
+// prefix печатается один раз в начале первой строки и учитывается в её длине
+// (по видимой длине, без цветокодов), но НЕ участвует в склейке через separator
+// (т.е. после него не ставится ", "). На строках-продолжениях префикса нет.
 std::string OutWordsList(const std::vector<std::string> &words, size_t max_length,
-		const std::string &separator = ", ");
+		const std::string &separator = ", ", const std::string &prefix = "");
 // то же, но на вход строка со словами через пробелы
 std::string OutWordsList(const std::string &words_str, size_t max_length,
-		const std::string &separator = ", ");
+		const std::string &separator = ", ", const std::string &prefix = "");
 // переносит многострочный текст по словам на ширину max_length, сохраняя
 // авторские переносы строк и пустые строки (абзацы): каждая исходная строка
 // переносится независимо через OutWordsList(line, max_length, " ").
@@ -419,6 +422,15 @@ inline bool isname(const std::string &str, const std::string &namelist) {
 /// Поддерживает кавычки для слов с пробелами.
 /// Дубль: utils::ExtractFirstArgument - похожий функционал через std::string.
 const char *one_word(const char *argument, char *first_arg);
+
+/// Replace Russian letters in name with lowercase Latin (for file names).
+void CreateFileName(std::string &name);
+
+/// Lowercase a name with the first letter uppercased (uniform container lookup).
+void name_convert(std::string &text);
+
+/// Compact experience formatting (e.g. 1234567 -> "1 тыс"): thousands/millions/billions suffix.
+std::string ExpFormat(long long exp);
 
 #endif // UTILS_STRING_HPP_
 

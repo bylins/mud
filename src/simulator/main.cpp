@@ -99,7 +99,7 @@ int main(int argc, char** argv) {
 		return 1;
 	}
 
-	const std::string config_path = opts.data_dir + "/misc/configuration.xml";
+	const std::string config_path = opts.data_dir + "/cfg/configuration.xml";
 	runtime_config.load(config_path.c_str());
 	runtime_config.setup_logs();
 	logfile = runtime_config.logs(SYSLOG).handle();

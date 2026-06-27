@@ -17,11 +17,11 @@
 bool CanPerformDeviate(CharData *victim, const HitData &hit_data);
 
 void DoDeviate(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	if (ch->IsNpc() || !ch->GetSkill(ESkill::kDodge)) {
+	if (ch->IsNpc() || !GetSkill(ch, ESkill::kDodge)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kDodge, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
-	if (ch->HasCooldown(ESkill::kDodge)) {
+	if (ch->Skills().HasActiveCooldown(ESkill::kDodge)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kDodge, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	};

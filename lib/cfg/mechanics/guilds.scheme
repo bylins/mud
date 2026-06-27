@@ -1,0 +1,68 @@
+<!--
+  issue.thing-names: Vedun editor scheme for guilds.xml. Guilds are keyed by an integer vnum
+  (uniqueness maintained by the author) plus an optional text_id and a display name. Optional
+  sidecar; undeclared nodes degrade to plain strings and are still validated on save by the loader.
+  enum= is used only for enums registered in the Vedun enum registry (ESkill/ESpell/ESpellType/
+  EFeat/EItemMode); class lists and currency ids stay plain strings for now.
+-->
+<scheme>
+	<tag name="guilds" desc="Guild (trainer) definitions">
+		<child tag="guild" multiple="Y"/>
+	</tag>
+	<tag name="guild" desc="One guild / trainer set, keyed by integer vnum">
+		<attr name="vnum" type="int" readonly="Y" desc="Unique guild vnum (identity; immutable)"/>
+		<attr name="text_id" type="string" desc="Optional text id for cross-references from other files"/>
+		<attr name="name" type="string" desc="Display name"/>
+		<attr name="mode" type="enum" enum="EItemMode" desc="kEnabled / kDisabled / ..."/>
+		<child tag="currency"/>
+		<child tag="trainers"/>
+		<child tag="talents"/>
+	</tag>
+	<tag name="currency" desc="Guild-wide default training currency (talents inherit it)">
+		<attr name="val" type="enum" enum="ECurrencyId" desc="Default currency text_id, e.g. kKuna"/>
+	</tag>
+	<tag name="trainers" desc="Trainer mob vnums (pipe-separated)">
+		<attr name="vnums" type="intlist" min="0" desc="Mob vnums, pipe-separated, e.g. 4008|5008"/>
+	</tag>
+	<tag name="talents" desc="Talents this guild teaches">
+		<child tag="skill" multiple="Y"/>
+		<child tag="spell" multiple="Y"/>
+		<child tag="feat" multiple="Y"/>
+	</tag>
+	<tag name="skill" desc="A teachable skill">
+		<attr name="id" type="enum" enum="ESkill" desc="Skill id"/>
+		<attr name="fail" type="int" min="0" max="100" desc="Learn fail chance (0-100)"/>
+		<child tag="class"/>
+		<child tag="price"/>
+		<child tag="upgrade"/>
+	</tag>
+	<tag name="spell" desc="A teachable spell">
+		<attr name="id" type="enum" enum="ESpell" desc="Spell id"/>
+		<attr name="type" type="enum" enum="ESpellType" desc="kKnow or kTemp"/>
+		<attr name="time" type="int" min="0" desc="Lifetime in minutes (for kTemp)"/>
+		<attr name="fail" type="int" min="0" max="100" desc="Learn fail chance (0-100)"/>
+		<child tag="class"/>
+		<child tag="price"/>
+	</tag>
+	<tag name="feat" desc="A teachable feat">
+		<attr name="id" type="enum" enum="EFeat" desc="Feat id"/>
+		<attr name="type" type="enum" enum="ESpellType" desc="kKnow or kTemp"/>
+		<attr name="time" type="int" min="0" desc="Lifetime in minutes (for kTemp)"/>
+		<attr name="fail" type="int" min="0" max="100" desc="Learn fail chance (0-100)"/>
+		<child tag="class"/>
+		<child tag="price"/>
+	</tag>
+	<tag name="class" desc="Classes allowed to learn this talent">
+		<attr name="val" type="flagset" enum="ECharClass" desc="Pipe-separated class tokens, e.g. kWarrior|kGuard"/>
+	</tag>
+	<tag name="price" desc="Training price">
+		<attr name="currency" type="enum" enum="ECurrencyId" desc="Currency text_id, e.g. kKuna"/>
+		<attr name="start" type="int" min="0" desc="Base price"/>
+		<attr name="remort_percent" type="int" min="0" desc="Percent added per remort"/>
+	</tag>
+	<tag name="upgrade" desc="Skill improvement per training (skills only)">
+		<attr name="practices" type="int" min="0" desc="Percent of skill gained per training"/>
+		<attr name="min" type="int" min="0" max="1000" desc="Min skill value to start teaching"/>
+		<attr name="max" type="int" min="0" max="1000" desc="Max skill value taught up to"/>
+	</tag>
+</scheme>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<!-- "Mining" skill (kDigging) configuration. All chances are rolled as number(1, chance) == 1. -->
+<digging>
+	<!-- Stone ranks. Each rank: the real gem (stone_vnum), its glass fake (glass_vnum) and
+	     the minimum skill at which it starts dropping (skill, which is also the drop chance).
+	     Ranks may be listed in any order; more ranks can be added without code changes. -->
+	<stones>
+		<stone rank="1" stone_vnum="900" glass_vnum="909" skill="15"/>
+		<stone rank="2" stone_vnum="901" glass_vnum="910" skill="25"/>
+		<stone rank="3" stone_vnum="902" glass_vnum="911" skill="35"/>
+		<stone rank="4" stone_vnum="903" glass_vnum="912" skill="50"/>
+		<stone rank="5" stone_vnum="904" glass_vnum="913" skill="70"/>
+		<stone rank="6" stone_vnum="905" glass_vnum="914" skill="80"/>
+		<stone rank="7" stone_vnum="906" glass_vnum="915" skill="90"/>
+		<stone rank="8" stone_vnum="907" glass_vnum="916" skill="95"/>
+		<stone rank="9" stone_vnum="908" glass_vnum="917" skill="99"/>
+	</stones>
+	<hole_max_deep val="10"/>
+	<tool_crash_chance val="2"/>
+	<treasure_chance val="30000"/>
+	<jackpot vnum="99958" chance="180000"/>
+	<mob vnum="900|901|902|903|904|905|906|907|908|909|910|911" chance="300"/>
+	<trash vnum="960|961|962|963|964|965|966|967|968|969|970|971|972|973|974|975|976|977|978|979|980|981|982|983|984|985|986|987|988|989" chance="200"/>
+	<lag val="2"/>
+	<skill_divisor val="3"/>
+	<glass_chance val="3"/>
+	<moves_expense val="10"/>
+</digging>

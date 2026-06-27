@@ -4,7 +4,7 @@
     char/room). {amount} {currency} = horse price; {horse} = padded horse name (case 3); {pronoun} =
     HSHR. kSellTaken is used for both the to-char and to-room delivery lines (identical text).
 -->
-<msg_container>
+<horse_msg>
 	<msg_sheaf id="kDefault">
 		<message type="kGreeting" val="Что вам угодно?"/>
 		<message type="kAlreadyHave" val="$N поинтересовал$U : &quot;$n, зачем тебе второй скакун? У тебя ведь одно седалище.&quot;"/>
@@ -20,4 +20,4 @@
 		<message type="kSellHorseAway" val="&quot;Извини, твой скакун где-то бродит.&quot;- заявил$G $N"/>
 		<message type="kSellTaken" val="$N расседлал$G {horse} и отвел$G {pronoun} в стойло."/>
 	</msg_sheaf>
-</msg_container>
+</horse_msg>

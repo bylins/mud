@@ -11,6 +11,14 @@
 // Реализация ингредиентной магии
 
 #include "im.h"
+#include "utils/parser_wrapper.h"
+#include "utils/utils_parse.h"
+#include <unordered_map>
+#include <vector>
+#include <cstdlib>
+#include "gameplay/mechanics/damage.h"
+#include "gameplay/fight/fight_constants.h"
+#include "utils/random.h"
 #include "administration/privilege.h"
 #include "gameplay/magic/magic.h"
 #include "gameplay/abilities/talents_actions.h"
@@ -22,7 +30,9 @@
 #include "engine/db/world_objects.h"
 #include "gameplay/mechanics/mob_races.h"
 #include "engine/db/obj_prototypes.h"
-#include "engine/core/handler.h"
+#include "engine/core/obj_handler.h"
+#include "engine/entities/char_data.h"
+#include "gameplay/mechanics/inventory.h"
 #include "engine/core/target_resolver.h"
 #include "engine/ui/color.h"
 #include "engine/ui/modify.h"
@@ -30,6 +40,7 @@
 #include "engine/db/global_objects.h"
 #include "gameplay/core/base_stats.h"
 #include "gameplay/core/remort.h"
+#include "gameplay/classes/pc_classes_info.h"   // issue.class-recipes: MUD::Class().FindIngredientRecipe()
 
 #define        VAR_CHAR    '@'
 #define imlog(lvl, str)    mudlog(str, lvl, kLvlBuilder, IMLOG, true)
@@ -107,6 +118,19 @@ int im_get_recipe_by_name(char *name) {
 			break;
 	}
 	return rid;
+}
+
+// Поиск rid по строковому идентификатору рецепта (англ. CamelCase)
+int im_get_recipe_by_str_id(const char *str_id) {
+	if (!str_id || !*str_id) {
+		return -1;
+	}
+	for (int rid = top_imrecipes; rid >= 0; --rid) {
+		if (imrecipes[rid].str_id && !str_cmp(imrecipes[rid].str_id, str_id)) {
+			return rid;
+		}
+	}
+	return -1;
 }
 
 im_rskill *im_get_char_rskill(CharData *ch, int rid) {
@@ -415,6 +439,7 @@ void im_cleanup_type(im_type *t) {
 void im_cleanup_recipe(im_recipe *r) {
 	im_addon *a;
 	free(r->name);
+	free(r->str_id);
 	free(r->require);
 	free(r->msg_char[0]);
 	free(r->msg_char[1]);
@@ -430,19 +455,10 @@ void im_cleanup_recipe(im_recipe *r) {
 
 // Инициализация подсистемы ингредиентной магии
 void initIngredientsMagic(void) {
-	FILE *im_file;
-	char tmp[1024], tlist[1024], line1[256], line2[256], name[256];
-	im_memb *mbs, *mptr;
-	int i, j, rcpt;
-	int k[5];
+	char text[1024];
+	int i, j;
 
-	im_file = fopen(LIB_MISC "im.lst", "r");
-	if (!im_file) {
-		imlog(BRF, "Can not open im.lst");
-		return;
-	}
-	// Очистка всего, что есть, на случай reset
-	// Преобразование rid у игроков
+	// Очистка всего, что есть, на случай reset (преобразование rid у игроков)
 	im_translate_rskill_to_id();
 	for (i = 0; i <= top_imtypes; ++i)
 		im_cleanup_type(imtypes + i);
@@ -457,272 +473,236 @@ void initIngredientsMagic(void) {
 	imrecipes = nullptr;
 	top_imrecipes = -1;
 
-	mbs = mptr = nullptr;
-
-	// ПРОХОД 1
-	// Определение количества ТИПОВ/МЕТАТИПОВ
-	// Получение описателей
-	while (get_line(im_file, tmp)) {
-		if (!strn_cmp(tmp, "ТИП", 3) || !strn_cmp(tmp, "МЕТАТИП", 7))
-			++top_imtypes;
-		if (!strn_cmp(tmp, "РЕЦЕПТ", 6))
-			++top_imrecipes;
-		if (!strn_cmp(tmp, "ВИД", 3)) {
-			if (mbs == nullptr) {
-				CREATE(mbs, 1);
-				mptr = mbs;
-			} else {
-				CREATE(mptr->next, 1);
-				mptr = mptr->next;
-			}
-			// Количество пар alias
-			mptr->power = 0;
-			while (get_line(im_file, tmp)) {
-				if (*tmp == '~')
-					break;
-				mptr->power++;
-			}
-		}
+	// issue.ingradient-magic: данные теперь в cfg/craft/ingredient_magic/*.xml (был misc/im.lst)
+	parser_wrapper::DataNode types_doc, sorts_doc, recipes_doc;
+	try {
+		types_doc = parser_wrapper::DataNode(LIB_CFG "craft/ingredient_magic/ingredient_types.xml");
+		sorts_doc = parser_wrapper::DataNode(LIB_CFG "craft/ingredient_magic/ingredient_sorts.xml");
+		recipes_doc = parser_wrapper::DataNode(LIB_CFG "craft/ingredient_magic/recipes.xml");
+	} catch (const std::exception &) {
+		imlog(BRF, "Can not open cfg/craft/ingredient_magic/*.xml");
+		return;
 	}
 
-	// Выделение памяти для imtypes и заполнение массива
-	CREATE(imtypes, top_imtypes + 1);
+	auto AttrInt = [](parser_wrapper::DataNode &n, const char *key, int def) -> int {
+		const char *v = n.GetValue(key);
+		if (!v || !*v) {
+			return def;
+		}
+		try {
+			return parse::ReadAsInt(v);
+		} catch (const std::exception &) {
+			return def;
+		}
+	};
+
+	// id (английский) -> индекс в imtypes
+	std::unordered_map<std::string, int> id2idx;
+
+	// --- ТИПЫ и МЕТАТИПЫ (ingredient_types.xml) ---
+	std::vector<parser_wrapper::DataNode> type_nodes, meta_nodes;
+	{
+		auto sec = types_doc;
+		if (sec.GoToChild("types")) {
+			for (auto &t : sec.Children("type"))
+				type_nodes.push_back(t);
+		}
+	}
+	{
+		auto sec = types_doc;
+		if (sec.GoToChild("metatypes")) {
+			for (auto &m : sec.Children("metatype"))
+				meta_nodes.push_back(m);
+		}
+	}
+	CREATE(imtypes, static_cast<int>(type_nodes.size() + meta_nodes.size()));
 	top_imtypes = -1;
 
-	// Выделение пямяти для imrecipes и заполнение массива
-	CREATE(imrecipes, top_imrecipes + 1);
-	top_imrecipes = -1;
-
-	// ПРОХОД 2
-	rewind(im_file);
-	while (get_line(im_file, tmp)) {
-		int id, vnum;
-		char dummy[128], name[128], text[1024];
-
-		if (!strn_cmp(tmp, "ТИП", 3))    // Описание типа
-		{
-			if (sscanf(tmp, "%s %d %s %d", dummy, &id, name, &vnum) == 4) {
-				++top_imtypes;
-				imtypes[top_imtypes].id = id;
-				imtypes[top_imtypes].name = str_dup(name);
-				imtypes[top_imtypes].proto_vnum = vnum;
-				imtypes[top_imtypes].head = nullptr;
-				imtypes[top_imtypes].tlst.size = 0;
-				TypeListSetSingle(&imtypes[top_imtypes].tlst, top_imtypes);
+	for (auto &t : type_nodes) {
+		++top_imtypes;
+		imtypes[top_imtypes].id = AttrInt(t, "num", 0);
+		imtypes[top_imtypes].name = str_dup(t.GetValue("name"));
+		imtypes[top_imtypes].proto_vnum = AttrInt(t, "proto_vnum", -1);
+		imtypes[top_imtypes].head = nullptr;
+		imtypes[top_imtypes].tlst.size = 0;
+		imtypes[top_imtypes].tlst.types = nullptr;
+		TypeListSetSingle(&imtypes[top_imtypes].tlst, top_imtypes);
+		id2idx[t.GetValue("id")] = top_imtypes;
+	}
+	for (auto &m : meta_nodes) {
+		++top_imtypes;
+		imtypes[top_imtypes].id = AttrInt(m, "num", 0);
+		imtypes[top_imtypes].name = str_dup(m.GetValue("name"));
+		imtypes[top_imtypes].proto_vnum = -1;
+		imtypes[top_imtypes].head = nullptr;
+		imtypes[top_imtypes].tlst.size = 0;
+		imtypes[top_imtypes].tlst.types = nullptr;
+		for (auto &mem : m.Children("member")) {
+			const char *mid = mem.GetValue("id");
+			auto it = id2idx.find(mid ? mid : "");
+			if (it == id2idx.end()) {
+				snprintf(text, sizeof(text), "[IM] metatype '%s': unknown member '%s'",
+						 m.GetValue("name"), mid ? mid : "");
+				imlog(NRM, text);
 				continue;
 			}
-			snprintf(text, sizeof(text), "[IM] Invalid type : '%s'", tmp);
-			imlog(NRM, text);
-		} else if (!strn_cmp(tmp, "МЕТАТИП", 7)) {
-			if (sscanf(tmp, "%s %d %s %s", dummy, &id, name, tlist) == 4) {
-				++top_imtypes;
-				imtypes[top_imtypes].id = id;
-				imtypes[top_imtypes].name = str_dup(name);
-				imtypes[top_imtypes].proto_vnum = -1;
-				imtypes[top_imtypes].head = nullptr;
-				imtypes[top_imtypes].tlst.size = 0;
-				auto parts = utils::Split(std::string(tlist), ',');
-				for (const auto &part : parts) {
-					int i = im_get_type_by_name(const_cast<char *>(part.c_str()), 1);    // поиск любого типа
-					if (i == -1) {
-						snprintf(text, sizeof(text), "[IM] Invalid type name : '%s'", part.c_str());
-						imlog(NRM, text);
-						continue;
-					}
-					TypeListSet(&imtypes[top_imtypes].tlst, &imtypes[i].tlst);
-				}
+			TypeListSet(&imtypes[top_imtypes].tlst, &imtypes[it->second].tlst);
+		}
+		id2idx[m.GetValue("id")] = top_imtypes;
+	}
+
+	// --- ВИДЫ / описатели (ingredient_sorts.xml). Ключи алиасов в рантайме: n0..n5, a, s ---
+	static const std::unordered_map<std::string, std::string> kCaseKey = {
+		{"kNom", "n0"}, {"kGen", "n1"}, {"kDat", "n2"},
+		{"kAcc", "n3"}, {"kIns", "n4"}, {"kPre", "n5"}};
+	static const std::unordered_map<std::string, EGender> kGenderById = {
+		{"kNeutral", EGender::kNeutral}, {"kMale", EGender::kMale},
+		{"kFemale", EGender::kFemale}, {"kPoly", EGender::kPoly}};
+	{
+		auto sec = sorts_doc;
+		for (auto &s : sec.Children("sort")) {
+			const char *stype = s.GetValue("type");
+			auto it = id2idx.find(stype ? stype : "");
+			if (it == id2idx.end()) {
+				snprintf(text, sizeof(text), "[IM] sort: unknown type '%s'", stype ? stype : "");
+				imlog(NRM, text);
 				continue;
 			}
-			snprintf(text, sizeof(text), "[IM] Invalid metatype : %s", tmp);
-			imlog(NRM, text);
-		} else if (!strn_cmp(tmp, "ВИД", 3)) {
-			int power, sex;
-			mptr = mbs;
-			mbs = mbs->next;
-			if (sscanf(tmp, "%s %s %d %d", dummy, name, &power, &sex) == 4) {
-				int i = im_get_type_by_name(name, 0);    // поиск элементарного типа
-				if (i != -1) {
-					char **p;
-					im_memb *ins_after, *ins_before;
-					CREATE(mptr->aliases, 2 * (mptr->power + 1));
-					mptr->power = power;
-					mptr->sex = static_cast<EGender>(sex);
-					p = mptr->aliases;
-					while (get_line(im_file, tmp)) {
-						if (*tmp == '~')
-							break;
-						sscanf(tmp, "%s %s", name, text);
-						*p++ = str_dup(name);
-						*p++ = str_dup(text);
-					}
-					p[0] = p[1] = nullptr;
-					// Добавляю в структуру типа согласно силе
-					ins_after = nullptr;
-					ins_before = imtypes[i].head;
-					while (ins_before && ins_before->power < mptr->power) {
-						ins_after = ins_before;
-						ins_before = ins_before->next;
-					}
-					if (ins_after == nullptr)
-						imtypes[i].head = mptr;
-					else
-						ins_after->next = mptr;
-					mptr->next = ins_before;
-					continue;
+			std::vector<std::pair<std::string, std::string>> pairs;
+			for (auto &c : s.Children()) {
+				const std::string tag = c.GetName();
+				const char *nm = c.GetValue("name");
+				if (tag == "case") {
+					auto ck = kCaseKey.find(c.GetValue("id") ? c.GetValue("id") : "");
+					if (ck != kCaseKey.end())
+						pairs.emplace_back(ck->second, nm ? nm : "");
+				} else if (tag == "alias") {
+					pairs.emplace_back("a", nm ? nm : "");
+				} else if (tag == "room_desc") {
+					pairs.emplace_back("s", nm ? nm : "");
 				}
-				sprintf(text, "[IM] Can not find type : '%s'", name);
-				imlog(NRM, text);
 			}
-			free(mptr);
-			while (get_line(im_file, tmp))
-				if (*tmp == '~')
-					break;
-			if (*tmp != '~') {
-				snprintf(text, sizeof(text), "[IM] Invalid inrgedient : '%s'", tmp);
-				imlog(NRM, text);
+			im_memb *mb;
+			CREATE(mb, 1);
+			mb->power = AttrInt(s, "power", 1);
+			const char *g = s.GetValue("gender");
+			auto gi = kGenderById.find(g ? g : "");
+			mb->sex = (gi != kGenderById.end()) ? gi->second : EGender::kNeutral;
+			CREATE(mb->aliases, 2 * (static_cast<int>(pairs.size()) + 1));
+			char **p = mb->aliases;
+			for (auto &kv : pairs) {
+				*p++ = str_dup(kv.first.c_str());
+				*p++ = str_dup(kv.second.c_str());
 			}
-		} else if (!strn_cmp(tmp, "РЕЦЕПТ", 6)) {
-			char *p;
-			// Описание рецепта
-			if (sscanf(tmp, "%s %d %s", dummy, &id, name) == 3) {
-				for (p = name; *p; ++p)
-					if (*p == '_')
-						*p = ' ';
-				++top_imrecipes;
-				imrecipes[top_imrecipes].id = id;
-				imrecipes[top_imrecipes].name = str_dup(name);
-				imrecipes[top_imrecipes].k_improve = 1000;
-				while (get_line(im_file, tmp)) {
-					if (*tmp == '~')
-						break;
-					if (!strn_cmp(tmp, "OBJ", 3)) {
-						if (sscanf(tmp, "%s %d", dummy, &imrecipes[top_imrecipes].result) != 2) {
-							log("[IM] Invalid OBJ recipe string (%2d) '%s'!\n"
-								"Format : OBJ <vnum (%%d)>",
-								imrecipes[top_imrecipes].id, imrecipes[top_imrecipes].name);
-							sprintf(text, "[IM] Invalid OBJ recipe string (%2d) '%s' !",
-									imrecipes[top_imrecipes].id, imrecipes[top_imrecipes].name);
-							imlog(NRM, text);
-							break;
-						}
-					} else if (!strn_cmp(tmp, "IMP", 3)) {
-						if (sscanf
-							(tmp, "%s %d", dummy, &imrecipes[top_imrecipes].k_improve) != 2) {
-							log("[IM] Invalid IMP recipe string (%2d) '%s'!\n",
-								imrecipes[top_imrecipes].id, imrecipes[top_imrecipes].name);
-							sprintf(text, "[IM] Invalid IMP recipe string (%2d) '%s' !",
-									imrecipes[top_imrecipes].id, imrecipes[top_imrecipes].name);
-							imlog(NRM, text);
-							break;
-						}
-					} else if (!strn_cmp(tmp, "CON", 3)) {
-						if (sscanf(tmp, "%s %f %f %f %f",
-								   dummy,
-								   &imrecipes[top_imrecipes].k[0],
-								   &imrecipes[top_imrecipes].k[1],
-								   &imrecipes[top_imrecipes].k[2],
-								   &imrecipes[top_imrecipes].kp) != 5) {
-							log("[IM] Invalid CON recipe string (%2d) '%s'!\n"
-								"Format : CON <k1 (%%d)> <k2 (%%f)> <k3 (%%d)> <kp (%%d)>",
-								imrecipes[top_imrecipes].id, imrecipes[top_imrecipes].name);
-							sprintf(text, "[IM] Invalid CON recipe string (%2d) '%s' !",
-									imrecipes[top_imrecipes].id, imrecipes[top_imrecipes].name);
-							imlog(NRM, text);
-							break;
-						}
-					} else if (!strn_cmp(tmp, "MC1", 3)) {
-						p = tmp + 3;
-						skip_spaces(&p);
-						if (imrecipes[top_imrecipes].msg_char[0])
-							free(imrecipes[top_imrecipes].msg_char[0]);
-						imrecipes[top_imrecipes].msg_char[0] = str_dup(p);
-					} else if (!strn_cmp(tmp, "MR1", 3)) {
-						p = tmp + 3;
-						skip_spaces(&p);
-						if (imrecipes[top_imrecipes].msg_room[0])
-							free(imrecipes[top_imrecipes].msg_room[0]);
-						imrecipes[top_imrecipes].msg_room[0] = str_dup(p);
-					} else if (!strn_cmp(tmp, "MC2", 3)) {
-						p = tmp + 3;
-						skip_spaces(&p);
-						if (imrecipes[top_imrecipes].msg_char[1])
-							free(imrecipes[top_imrecipes].msg_char[1]);
-						imrecipes[top_imrecipes].msg_char[1] = str_dup(p);
-					} else if (!strn_cmp(tmp, "MR2", 3)) {
-						p = tmp + 3;
-						skip_spaces(&p);
-						if (imrecipes[top_imrecipes].msg_room[1])
-							free(imrecipes[top_imrecipes].msg_room[1]);
-						imrecipes[top_imrecipes].msg_room[1] = str_dup(p);
-					} else if (!strn_cmp(tmp, "MC3", 3)) {
-						p = tmp + 3;
-						skip_spaces(&p);
-						if (imrecipes[top_imrecipes].msg_char[2])
-							free(imrecipes[top_imrecipes].msg_char[2]);
-						imrecipes[top_imrecipes].msg_char[2] = str_dup(p);
-					} else if (!strn_cmp(tmp, "MR3", 3)) {
-						p = tmp + 3;
-						skip_spaces(&p);
-						if (imrecipes[top_imrecipes].msg_room[2])
-							free(imrecipes[top_imrecipes].msg_room[2]);
-						imrecipes[top_imrecipes].msg_room[2] = str_dup(p);
-					} else if (!strn_cmp(tmp, "DAM", 3)) {
-						if (sscanf(tmp, "%s %dd%d",
-								   dummy,
-								   &imrecipes[top_imrecipes].x,
-								   &imrecipes[top_imrecipes].y) != 3) {
-							log("[IM] Invalid DAM recipe string (%2d) '%s'!\n"
-								"Format : DAM <x (%%d)>d<y (%%d)>",
-								imrecipes[top_imrecipes].id, imrecipes[top_imrecipes].name);
-							sprintf(text, "[IM] Invalid DAM recipe string (%2d) '%s' !",
-									imrecipes[top_imrecipes].id, imrecipes[top_imrecipes].name);
-							imlog(NRM, text);
-							break;
-						}
-					} else if (!strn_cmp(tmp, "REQ", 3)) {
-						im_parse(&imrecipes[top_imrecipes].require, tmp + 3);
-					} else if (!strn_cmp(tmp, "ADD", 3)) {
-						im_addon *adi;
-						int n, k0, k1, k2, id;
-						if (sscanf(tmp, "%s %d %s %d %d %d",
-								   dummy, &n, name, &k0, &k1, &k2) != 6) {
-							log("[IM] Invalid ADD recipe string (%2d) '%s'!\n"
-								"Format : ADD <Nmax (%%d)> <type (%%s)> <n1 (%%d)> <n2 (%%d)> <n3 (%%d)>",
-								imrecipes[top_imrecipes].id, imrecipes[top_imrecipes].name);
-							sprintf(text, "[IM] Invalid ADD recipe string (%2d) '%s' !",
-									imrecipes[top_imrecipes].id, imrecipes[top_imrecipes].name);
-							imlog(NRM, text);
-							break;
-						}
-						id = im_get_type_by_name(name, 1);
-						if (id < 0)
-							break;
-						while (n--) {
-							CREATE(adi, 1);
-							adi->id = id;
-							adi->k0 = k0;
-							adi->k1 = k1;
-							adi->k2 = k2;
-							adi->obj = nullptr;
-							adi->link = imrecipes[top_imrecipes].addon;
-							imrecipes[top_imrecipes].addon = adi;
-						}
-					}
-				}
-				if (*tmp == '~')
-					continue;
+			p[0] = p[1] = nullptr;
+			// вставка в список описателей типа по возрастанию силы (как в старом парсере)
+			int idx = it->second;
+			im_memb *ins_after = nullptr, *ins_before = imtypes[idx].head;
+			while (ins_before && ins_before->power < mb->power) {
+				ins_after = ins_before;
+				ins_before = ins_before->next;
 			}
-			snprintf(text, sizeof(text), "[IM] Invalid recipe : '%s'", tmp);
-			imlog(NRM, text);
-		} else {
-			if (*tmp) {
-				snprintf(text, sizeof(text), "[IM] Unrecognized command : '%s'", tmp);
-				imlog(NRM, text);
-			}
+			if (ins_after == nullptr)
+				imtypes[idx].head = mb;
+			else
+				ins_after->next = mb;
+			mb->next = ins_before;
 		}
 	}
 
-	fclose(im_file);
+	// --- РЕЦЕПТЫ (recipes.xml) ---
+	std::vector<parser_wrapper::DataNode> recipe_nodes;
+	for (auto &r : recipes_doc.Children("recipe"))
+		recipe_nodes.push_back(r);
+	CREATE(imrecipes, static_cast<int>(recipe_nodes.size()));
+	top_imrecipes = -1;
+	for (auto &r : recipe_nodes) {
+		++top_imrecipes;
+		im_recipe &rec = imrecipes[top_imrecipes];
+		rec.id = AttrInt(r, "vnum", 0);
+		rec.name = str_dup(r.GetValue("name"));
+		rec.str_id = str_dup(r.GetValue("id") ? r.GetValue("id") : "");
+		rec.k_improve = AttrInt(r, "k_improve", 1000);
+		rec.result = AttrInt(r, "result_vnum", 0);
+		{
+			auto en = r;
+			if (en.GoToChild("energy")) {
+				const char *a0 = en.GetValue("k0"), *a1 = en.GetValue("k1");
+				const char *a2 = en.GetValue("k2"), *ap = en.GetValue("kp");
+				rec.k[0] = a0 ? atof(a0) : 0;
+				rec.k[1] = a1 ? atof(a1) : 0;
+				rec.k[2] = a2 ? atof(a2) : 0;
+				rec.kp = ap ? atof(ap) : 0;
+			}
+		}
+		{
+			const char *d = r.GetValue("damage");
+			if (d && *d)
+				sscanf(d, "%dd%d", &rec.x, &rec.y);
+		}
+		{
+			const char *de = r.GetValue("damage_enabled");
+			rec.damage_enabled = de && (!strcmp(de, "true") || !strcmp(de, "1"));
+		}
+		{
+			std::vector<int> req;
+			for (auto &q : r.Children("require")) {
+				const char *qt = q.GetValue("type");
+				auto it = id2idx.find(qt ? qt : "");
+				if (it == id2idx.end()) {
+					snprintf(text, sizeof(text), "[IM] recipe %d: unknown require type '%s'", rec.id, qt ? qt : "");
+					imlog(NRM, text);
+					continue;
+				}
+				const int power = AttrInt(q, "power", 0);
+				const int limit = AttrInt(q, "limit", 0xFFFF);
+				req.push_back(it->second);
+				req.push_back((limit << 16) | power);
+			}
+			CREATE(rec.require, static_cast<int>(req.size()) + 1);
+			for (size_t n = 0; n < req.size(); ++n)
+				rec.require[n] = req[n];
+			rec.require[req.size()] = -1;
+		}
+		for (auto &a : r.Children("addon")) {
+			const char *at = a.GetValue("type");
+			auto it = id2idx.find(at ? at : "");
+			if (it == id2idx.end()) {
+				snprintf(text, sizeof(text), "[IM] recipe %d: unknown addon type '%s'", rec.id, at ? at : "");
+				imlog(NRM, text);
+				continue;
+			}
+			int n = AttrInt(a, "count", 1);
+			const int a0 = AttrInt(a, "k0", 0), a1 = AttrInt(a, "k1", 0), a2 = AttrInt(a, "k2", 0);
+			while (n-- > 0) {
+				im_addon *adi;
+				CREATE(adi, 1);
+				adi->id = it->second;
+				adi->k0 = a0;
+				adi->k1 = a1;
+				adi->k2 = a2;
+				adi->obj = nullptr;
+				adi->link = rec.addon;
+				rec.addon = adi;
+			}
+		}
+		{
+			auto msgs = r;
+			if (msgs.GoToChild("messages")) {
+				const char *tags[3] = {"success", "fail", "damage"};
+				for (int slot = 0; slot < 3; ++slot) {
+					auto node = msgs;
+					if (node.GoToChild(tags[slot])) {
+						const char *mc = node.GetValue("char"), *mr = node.GetValue("room");
+						if (mc)
+							rec.msg_char[slot] = str_dup(mc);
+						if (mr)
+							rec.msg_room[slot] = str_dup(mr);
+					}
+				}
+			}
+		}
+	}
 
 	// Перестройка принадлежности элементарных типов
 	for (i = 0; i <= top_imtypes; ++i) {
@@ -740,66 +720,9 @@ void initIngredientsMagic(void) {
 		free(imtypes[i].tlst.types);
 	}
 
-	// Прописываем для зарегестрированных рецептов всем классам kKnowSkill,
-	// но уровни и реморты равные -1, т.о. если файл classrecipe.lst поврежден,
-	// рецепты не будут обнулятся, просто станут недоступны для изучения
-	for (i = 0; i <= top_imrecipes; i++) {
-		for (j = 0; j < kNumPlayerClasses; j++)
-			imrecipes[i].classknow[j] = kKnownRecipe;
-		imrecipes[i].level = -1;
-		imrecipes[i].remort = -1;
-	}
-
-	im_file = fopen(LIB_MISC "class.recipes.lst", "r");
-	if (!im_file) {
-		imlog(BRF, "Can not open classrecipe.lst. All recipes unavailable now");
-		return;
-	}
-	while (get_line(im_file, name)) {
-		if (!name[0] || name[0] == ';')
-			continue;
-		if (sscanf(name, "%d %s %s %d %d", k, line1, line2, k + 1, k + 2) != 5) {
-			log("Bad format for recipe string, recipe unavailable now!\r\n"
-				"Format : <recipe number (%%d)> <races (%%s)> <classes (%%s)> <level (%%d)> <remort (%%d)>");
-			continue;
-		}
-		rcpt = im_get_recipe(k[0]);
-
-		if (rcpt < 0) {
-			log("Invalid recipe (%d)", k[0]);
-			continue;
-		}
-
-		if (k[1] < 0 || k[1] >= 31) {
-			log("Bad level type for recipe (%d '%s'), set level to -1 (unavailable)", k[0], imrecipes[rcpt].name);
-			imrecipes[rcpt].level = 0;
-			continue;
-		}
-
-		if (k[2] < 0 || k[2] >= kMaxRemort) {
-			log("Bad remort type for recipe (%d '%s'), set remort to -1 (unavailable)", k[0], imrecipes[rcpt].name);
-			imrecipes[rcpt].remort = 0;
-			continue;
-		}
-
-		imrecipes[rcpt].level = k[1];
-		log("Set recipe (%d '%s') remort %d", k[0], imrecipes[rcpt].name, k[1]);
-
-		imrecipes[rcpt].remort = k[2];
-		log("Set recipe (%d '%s') remort %d", k[0], imrecipes[rcpt].name, k[2]);
-
-// line1 - ограничения для рас еще не реализованы
-
-		for (j = 0; line2[j] && j < kNumPlayerClasses; j++) {
-			if (!strchr("1xX!", line2[j])) {
-				imrecipes[rcpt].classknow[j] = 0;
-			} else {
-				imrecipes[rcpt].classknow[j] = kKnownRecipe;
-				log("Set recipe (%d '%s') classes %d is Know", k[0], imrecipes[rcpt].name, j);
-			}
-		}
-	}
-	fclose(im_file);
+	// issue.class-recipes: принадлежность рецептов классам (владение/уровень/реморт)
+	// перенесена из misc/class.recipes.lst в cfg/classes/pc_*.xml (секция <ingredient_magic>).
+	// Здесь рецепты больше ничего не знают о классах - это свойство класса.
 
 	im_translate_rskill_to_rid();
 
@@ -1004,8 +927,11 @@ void list_recipes(CharData *ch, bool all_recipes) {
 						 "------------------------------------------------\r\n");
 		}
 		strcpy(buf1, buf);
+		// issue.class-recipes: доступность рецепта классу спрашиваем у самого класса.
+		const auto &char_class = MUD::Class(ch->GetClass());
 		for (sortpos = 0, i = 0; sortpos <= top_imrecipes; sortpos++) {
-			if (!imrecipes[sortpos].classknow[to_underlying(ch->GetClass())]) {
+			const auto *req = char_class.FindIngredientRecipe(imrecipes[sortpos].str_id);
+			if (!req) {
 				continue;
 			}
 
@@ -1014,18 +940,16 @@ void list_recipes(CharData *ch, bool all_recipes) {
 				break;
 			}
 			rs = im_get_char_rskill(ch, sortpos);
+			const bool unavailable = req->level > GetRealLevel(ch) || req->remort > remort::GetRealRemort(ch);
 			if (!ch->IsFlagged(EPrf::kBlindMode)) {
 				sprintf(buf, "     %s%-30s%s %2d (%2d)%s\r\n",
-						(imrecipes[sortpos].level<0 || imrecipes[sortpos].level>GetRealLevel(ch) ||
-							imrecipes[sortpos].remort<0 || imrecipes[sortpos].remort>remort::GetRealRemort(ch)) ?
-						kColorRed : rs ? kColorGrn : kColorNrm, imrecipes[sortpos].name, kColorCyn,
-						imrecipes[sortpos].level, imrecipes[sortpos].remort, kColorNrm);
+						unavailable ? kColorRed : rs ? kColorGrn : kColorNrm,
+						imrecipes[sortpos].name, kColorCyn,
+						req->level, req->remort, kColorNrm);
 			} else {
 				sprintf(buf, " %s %-30s %2d (%2d)\r\n",
-						(imrecipes[sortpos].level < 0 || imrecipes[sortpos].level > GetRealLevel(ch) ||
-							imrecipes[sortpos].remort < 0 || imrecipes[sortpos].remort > remort::GetRealRemort(ch)) ?
-						"[Н]" : rs ? "[И]" : "[Д]", imrecipes[sortpos].name,
-						imrecipes[sortpos].level, imrecipes[sortpos].remort);
+						unavailable ? "[Н]" : rs ? "[И]" : "[Д]", imrecipes[sortpos].name,
+						req->level, req->remort);
 			}
 			strcat(buf1, buf);
 			++i;
@@ -1177,7 +1101,7 @@ void im_improve_recipe(CharData *ch, im_rskill *rs, int success) {
 		n = (n + 1) >> 1;
 		n += im_get_char_rskill_count(ch);
 		prob = success ? 20000 : 15000;
-		div = int_app[GetRealInt(ch)].improve;
+		div = IntApp(GetRealInt(ch)).improve;
 		div += imrecipes[rs->rid].k_improve / 100;
 		prob /= std::max(1, div);
 		diff = n - wis_bonus(GetRealWis(ch), WIS_MAX_SKILLS);
@@ -1198,7 +1122,7 @@ void im_improve_recipe(CharData *ch, im_rskill *rs, int success) {
 			SendMsgToChar(buf, ch);
 			rs->perc += number(1, 2);
 			if (!privilege::IsImmortal(ch))
-				rs->perc = MIN(kZeroRemortSkillCap + remort::GetRealRemort(ch) * 5, rs->perc);
+				rs->perc = MIN(CalcSkillRemortCap(ch), rs->perc);
 		}
 	}
 }
@@ -1497,6 +1421,16 @@ void do_cook(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	act(imrecipes[rs->rid].msg_char[mres], true, ch, 0, 0, kToChar);
 	act(imrecipes[rs->rid].msg_room[mres], true, ch, 0, 0, kToRoom);
 
+	// issue.ingradient-magic: урон при критическом провале (DAM XdY), если рецепт его разрешает.
+	// kTriggerDeath: своё сообщение уже выдано (msg_char/room[2]), система урона не дублирует.
+	if (mres == kImMsgDam && imrecipes[rs->rid].damage_enabled && imrecipes[rs->rid].x > 0) {
+		Damage potion_dmg(SimpleDmg(fight::EDamageSource::kTriggerDeath),
+						  RollDices(imrecipes[rs->rid].x, imrecipes[rs->rid].y), fight::kUndefDmg);
+		potion_dmg.flags.set(fight::kNoFleeDmg);
+		potion_dmg.Process(ch, ch);
+		return;
+	}
+
 	if (mres == IM_MSG_OK) {
 		imlog(CMP, "Создание результата");
 		const auto result = world_objects.create_from_prototype_by_rnum(tgt);
@@ -1721,7 +1655,7 @@ void trg_recipeturn(CharData *ch, int rid, int recipediff) {
 	} else {
 		if (!recipediff)
 			return;
-		if (imrecipes[rid].classknow[to_underlying(ch->GetClass())] == kKnownRecipe) {
+		if (MUD::Class(ch->GetClass()).FindIngredientRecipe(imrecipes[rid].str_id)) {
 			CREATE(rs, 1);
 			rs->rid = rid;
 			rs->link = GET_RSKILL(ch);

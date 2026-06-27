@@ -1,6 +1,6 @@
 #include "engine/entities/char_data.h"
 #include "gameplay/mechanics/mount.h"
-#include "engine/core/handler.h"
+#include "gameplay/abilities/timed_abilities.h"
 
 void DoLightwalk(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	struct TimedFeat timed;

@@ -6,7 +6,7 @@
 
 #include "gameplay/magic/spell_messages.h"
 #include "gameplay/magic/spells_constants.h"
-#include "utils/parse.h"
+#include "utils/utils_parse.h"
 
 #include <gtest/gtest.h>
 #include <stdexcept>

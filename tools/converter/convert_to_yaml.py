@@ -98,6 +98,28 @@ def _init_yaml_libraries():
         _pyyaml = yaml
 
 
+# Names for the positional save/resistance arrays, kept in sync with the C++
+# enums ESaving / EResist (src/engine/entities/entities_constants.h). The YAML
+# emits these as named maps so each value is self-describing; the C++ loader
+# reads them back by name via ITEM_BY_NAME<>, so the file order is decoupled
+# from the enum order.
+ESAVING_NAMES = ('kWill', 'kCritical', 'kStability', 'kReflex')
+ERESIST_NAMES = ('kFire', 'kAir', 'kWater', 'kEarth',
+                 'kVitality', 'kMind', 'kImmunity', 'kDark')
+
+
+def _named_value_map(values, names):
+    """Build a CommentedMap {name: value} from a positional list, emitting only
+    non-zero entries -- a missing key means 0 on load. Returns None when every
+    value is zero so the caller can omit the block entirely."""
+    result = CommentedMap()
+    for i, name in enumerate(names):
+        value = int(values[i]) if i < len(values) else 0
+        if value != 0:
+            result[name] = value
+    return result if result else None
+
+
 def log_warning(message, vnum=None, filepath=None):
     """Log a warning message without stack trace (thread-safe)."""
     global _warnings_count
@@ -963,13 +985,33 @@ class YamlSaver(BaseSaver):
         world/zones/{zone_vnum}/triggers/index.yaml - List of triggers per zone
     """
 
-    def __init__(self, output_dir):
+    def __init__(self, output_dir, layout='flat'):
         self.output_dir = Path(output_dir) / 'world'
+        # 'per_file': one file per entity + per-dir index.yaml (legacy default).
+        # 'flat': all entities of a type in one <sub>.yaml as a rel_num -> body
+        # map (the file is its own index). Loader auto-detects either way.
+        self.layout = layout
         self._zone_vnums = set()
         self._mob_zone_rel_nums = {}    # zone_vnum -> set of rel_nums
         self._obj_zone_rel_nums = {}    # zone_vnum -> set of rel_nums
         self._trigger_zone_rel_nums = {}  # zone_vnum -> set of rel_nums
         self._room_zone_rel_nums = {}   # zone_vnum -> set of rel_nums
+        # flat accumulation: (zone_vnum, sub) -> {rel_num: yaml_body_str}
+        self._flat = {}
+
+    def _accumulate_flat(self, zone_vnum, sub, rel_num, yaml_content):
+        self._flat.setdefault((zone_vnum, sub), {})[rel_num] = yaml_content
+        self._zone_vnums.add(zone_vnum)
+
+    @staticmethod
+    def _nest_under_rel(rel_num, yaml_content):
+        # Nest one entity's YAML body under a bare-int rel_num key, indented two
+        # spaces. Indenting every content line uniformly keeps literal-block
+        # indicators valid (they are relative to the parent key), matching the
+        # C++ flat emitter.
+        body = yaml_content.rstrip('\n')
+        indented = '\n'.join((('  ' + ln) if ln else ln) for ln in body.split('\n'))
+        return f"{rel_num}:\n{indented}\n"
 
     def __enter__(self):
         self._generate_dictionaries()
@@ -1068,6 +1110,10 @@ class YamlSaver(BaseSaver):
         vnum = mob['vnum']
         zone_vnum = vnum // 100
         rel_num = vnum % 100
+        if self.layout == 'flat':
+            if mob.get('enabled', 1):
+                self._accumulate_flat(zone_vnum, 'mobs', rel_num, yaml_content)
+            return
         out_dir = self._ensure_zone_dir(zone_vnum, 'mobs')
         out_file = out_dir / f"{rel_num:02d}.yaml"
         with open(out_file, 'w', encoding='koi8-r') as f:
@@ -1081,6 +1127,10 @@ class YamlSaver(BaseSaver):
         vnum = obj['vnum']
         zone_vnum = vnum // 100
         rel_num = vnum % 100
+        if self.layout == 'flat':
+            if obj.get('enabled', 1):
+                self._accumulate_flat(zone_vnum, 'objects', rel_num, yaml_content)
+            return
         out_dir = self._ensure_zone_dir(zone_vnum, 'objects')
         out_file = out_dir / f"{rel_num:02d}.yaml"
         with open(out_file, 'w', encoding='koi8-r') as f:
@@ -1093,6 +1143,10 @@ class YamlSaver(BaseSaver):
         yaml_content = room_to_yaml(room)
         zone_vnum = room['vnum'] // 100
         rel_num = room['vnum'] % 100
+        if self.layout == 'flat':
+            if room.get('enabled', 1):
+                self._accumulate_flat(zone_vnum, 'rooms', rel_num, yaml_content)
+            return
         if room.get('enabled', 1):
             self._zone_vnums.add(zone_vnum)
             self._room_zone_rel_nums.setdefault(zone_vnum, set()).add(rel_num)
@@ -1117,6 +1171,10 @@ class YamlSaver(BaseSaver):
         vnum = trigger['vnum']
         zone_vnum = vnum // 100
         rel_num = vnum % 100
+        if self.layout == 'flat':
+            if trigger.get('enabled', 1):
+                self._accumulate_flat(zone_vnum, 'triggers', rel_num, yaml_content)
+            return
         out_dir = self._ensure_zone_dir(zone_vnum, 'triggers')
         out_file = out_dir / f"{rel_num:02d}.yaml"
         with open(out_file, 'w', encoding='koi8-r') as f:
@@ -1124,6 +1182,22 @@ class YamlSaver(BaseSaver):
         if trigger.get('enabled', 1):
             self._trigger_zone_rel_nums.setdefault(zone_vnum, set()).add(rel_num)
             self._zone_vnums.add(zone_vnum)
+
+    def _finalize_flat(self):
+        """Write one flat <sub>.yaml per (zone, type) as a rel_num -> body map.
+        No per-dir index.yaml -- the flat file is its own index."""
+        labels = {'mobs': 'Mobs', 'objects': 'Objects', 'rooms': 'Rooms', 'triggers': 'Triggers'}
+        counts = {s: 0 for s in labels}
+        for (zone_vnum, sub), entries in sorted(self._flat.items()):
+            zone_dir = self.output_dir / 'zones' / str(zone_vnum)
+            zone_dir.mkdir(parents=True, exist_ok=True)
+            with open(zone_dir / f"{sub}.yaml", 'w', encoding='koi8-r') as f:
+                f.write(f"# {labels.get(sub, sub)} for zone {zone_vnum}\n")
+                for rel_num in sorted(entries):
+                    f.write("\n")
+                    f.write(self._nest_under_rel(rel_num, entries[rel_num]))
+            counts[sub] = counts.get(sub, 0) + len(entries)
+        print("Wrote flat layout: " + ", ".join(f"{counts[s]} {s}" for s in labels))
 
     def finalize(self):
         """Create index files for all entity types."""
@@ -1136,6 +1210,10 @@ class YamlSaver(BaseSaver):
             with open(zones_dir / 'index.yaml', 'w', encoding='koi8-r') as f:
                 get_main_yaml().dump(index_data, f)
             print(f"Created zones/index.yaml with {len(self._zone_vnums)} zones")
+
+        if self.layout == 'flat':
+            self._finalize_flat()
+            return
 
         # Create per-zone index files for all entity types.
         # Every zone must have all four index files (rooms/mobs/objects/triggers),
@@ -2374,7 +2452,6 @@ def mob_to_yaml(mob):
     data = CommentedMap()
 
     vnum = mob['vnum']
-    data['vnum'] = vnum
     data.yaml_set_start_comment(f"Mob #{vnum}")
 
     # Names
@@ -2559,9 +2636,13 @@ def mob_to_yaml(mob):
         
         # Array fields
         if enh.get('resistances'):
-            enhanced['resistances'] = CommentedSeq(enh['resistances'])
+            resist_map = _named_value_map(enh['resistances'], ERESIST_NAMES)
+            if resist_map is not None:
+                enhanced['resistances'] = resist_map
         if enh.get('saves'):
-            enhanced['saves'] = CommentedSeq(enh['saves'])
+            saves_map = _named_value_map(enh['saves'], ESAVING_NAMES)
+            if saves_map is not None:
+                enhanced['saves'] = saves_map
         if enh.get('feats'):
             enhanced['feats'] = CommentedSeq(enh['feats'])
         if enh.get('spells'):
@@ -2840,7 +2921,6 @@ def obj_to_yaml(obj):
     data = CommentedMap()
 
     vnum = obj['vnum']
-    data['vnum'] = vnum
     data.yaml_set_start_comment(f"Object #{vnum}")
 
     # Names
@@ -3163,7 +3243,6 @@ def room_to_yaml(room):
     data = CommentedMap()
 
     vnum = room['vnum']
-    data['vnum'] = vnum
     data.yaml_set_start_comment(f"Room #{vnum}")
 
     if 'zone' in room:
@@ -3384,7 +3463,6 @@ def trg_to_yaml(trigger):
     data = CommentedMap()
 
     vnum = trigger['vnum']
-    data['vnum'] = vnum
     data.yaml_set_start_comment(f"Trigger #{vnum}")
 
     if 'name' in trigger:
@@ -3729,7 +3807,6 @@ def zon_to_yaml(zone):
     data = CommentedMap()
 
     vnum = zone['vnum']
-    data['vnum'] = vnum
     data.yaml_set_start_comment(f"Zone #{vnum}")
 
     if 'name' in zone:
@@ -4067,11 +4144,13 @@ def parse_file(input_path, file_type):
         return []
 
 
-def create_world_config(output_dir):
+def create_world_config(output_dir, layout='flat'):
     """Create world_config.yaml for YAML loader.
 
     Args:
         output_dir: Output directory (should contain world/)
+        layout: 'per_file' or 'flat' -- the layout zones are written in (the
+            loader auto-detects either way; this only sets the save default).
     """
     output_path = Path(output_dir)
 
@@ -4098,6 +4177,11 @@ def create_world_config(output_dir):
 # - dos: CR+LF (\\r\\n) - convert LF to CR+LF (for literal blocks)
 # - unix: LF (\\n) - no conversion (for quoted strings)
 line_endings: {line_endings}  # {comment}
+
+# Per-entity file layout written by the converter / `circle -S`.
+# - per_file: one file per entity in <sub>/ + index.yaml
+# - flat: all entities of a type in one <sub>.yaml (rel_num -> body map)
+layout: {layout}
 """
 
     with open(config_path, 'w') as f:
@@ -4107,7 +4191,7 @@ line_endings: {line_endings}  # {comment}
 
 
 def convert_directory(input_dir, output_dir, delete_source=False, max_workers=None,
-                     output_format='yaml', db_path=None):
+                     output_format='yaml', db_path=None, layout='flat'):
     """Convert all files in a world directory.
 
     Architecture:
@@ -4135,7 +4219,7 @@ def convert_directory(input_dir, output_dir, delete_source=False, max_workers=No
             db_path = output_path / 'world.db'
         saver = SqliteSaver(db_path)
     else:
-        saver = YamlSaver(output_path)
+        saver = YamlSaver(output_path, layout=layout)
 
     # Track source files for deletion
     source_files_to_delete = []
@@ -4219,7 +4303,7 @@ def convert_directory(input_dir, output_dir, delete_source=False, max_workers=No
 
     # Create world config for YAML format
     if output_format == 'yaml':
-        create_world_config(output_dir)
+        create_world_config(output_dir, layout=layout)
 
     # Delete source files if requested
     if delete_source and source_files_to_delete:
@@ -4258,6 +4342,9 @@ def main():
                        help=f'Number of parallel workers (default: {default_workers})')
     parser.add_argument('--yaml-lib', choices=['ruamel', 'pyyaml'], default='ruamel',
                        help='YAML library: ruamel (with comments, default) or pyyaml (fast, no literal blocks)')
+    parser.add_argument('--layout', choices=['per_file', 'flat'], default='flat',
+                       help='YAML entity layout: flat (all entities of a type in one <sub>.yaml, '
+                            'default) or per_file (one file per entity + index). Loader auto-detects either.')
 
     args = parser.parse_args()
 
@@ -4312,7 +4399,7 @@ def main():
 
         convert_directory(world_dir, output_path, delete_source=args.delete_source,
                          max_workers=args.workers, output_format=args.format,
-                         db_path=args.db)
+                         db_path=args.db, layout=args.layout)
     else:
         # Convert single file (only YAML supported for single file mode)
         if args.format == 'sqlite':

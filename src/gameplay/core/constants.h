@@ -29,6 +29,7 @@ struct IntApplies {
 	int spell_success;        //  max count of spell on 1s level    //
 	int improve;        // drop_chance to improve skill           //
 	int observation;        // drop_chance to use kAwake/CRITICAL //
+	int mana_gain;          // bonus to mana gain (бывшая таблица mana_gain_cs[]) //
 };
 
 struct ChaApplies {
@@ -99,22 +100,30 @@ extern const char *pray_whom[];
 // live in lib/cfg/spell_msg.xml under the kRoomAffect{Visible,Invisible,
 // SelfInvisible} keys per spell. See show_room_affects in sight.cpp.
 extern const char *equipment_types[];
+// Размер таблиц базовых модификаторов: индексы 0..kBaseStatTableSize-1.
+constexpr int kBaseStatTableSize = 101;
 extern struct IntApplies int_app[];
 extern const size_t INT_APP_SIZE;
 extern struct ChaApplies cha_app[];
 extern struct SizeApplies size_app[];
 extern struct WeaponApplies weapon_app[];
+
+// Безопасный доступ к таблицам базовых параметров: индекс за пределами таблицы
+// возвращает последнюю (максимальную) заполненную строку, а не читает за границей
+// массива. Используйте ЭТИ функции, а не прямое индексирование *_app[]/mana[].
+const IntApplies &IntApp(int index);
+const ChaApplies &ChaApp(int index);
+const SizeApplies &SizeApp(int index);
+const WeaponApplies &WeaponApp(int index);
+int Mana(int wis);
 extern std::vector<PrayAffect> pray_affect;
 extern int rev_dir[];
 extern int movement_loss[];
 extern int mana[];
-extern int mana_gain_cs[];
 extern const char *material_name[];
 extern const char *godslike_bits[];
 extern const int material_value[];
 
-//The number of changing coefficients (the others are unchanged)
-const int kMaxExpCoefficientsUsed = 15;
 // unless you change this, Puff casts all your dg spells
 const int kDgCasterProxy = 113;
 
@@ -134,11 +143,6 @@ const int kMobArmourMult = 5;
 const int kMobAcMult = 5;
 const int kMobDamageMult = 3;
 const int kMaxGroupedFollowers = 7;
-
-extern const MobVnum kHorseVnum;
-extern const ObjVnum kStartBread;
-extern const ObjVnum kCreateLight;
-extern const int kHorseCost;
 
 // issue.common-msg: SIELENCE / SOUNDPROOF moved to cfg/messages/ru/common_msg.xml (ECommonMsg).
 
