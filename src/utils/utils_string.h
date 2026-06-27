@@ -299,12 +299,15 @@ std::string CAP(const std::string txt);
 // формирует строку из списка слов, разделенных separator (то, что стоит
 // между словами на строке: ", " для списка, " " для переноса по словам)
 // при превышении max_length переносит на новую строку, срезая хвостовой
-// пробел разделителя перед \r\n. separator по умолчанию ", " -- прежнее поведение
+// пробел разделителя перед \r\n. separator по умолчанию ", " -- прежнее поведение.
+// prefix печатается один раз в начале первой строки и учитывается в её длине
+// (по видимой длине, без цветокодов), но НЕ участвует в склейке через separator
+// (т.е. после него не ставится ", "). На строках-продолжениях префикса нет.
 std::string OutWordsList(const std::vector<std::string> &words, size_t max_length,
-		const std::string &separator = ", ");
+		const std::string &separator = ", ", const std::string &prefix = "");
 // то же, но на вход строка со словами через пробелы
 std::string OutWordsList(const std::string &words_str, size_t max_length,
-		const std::string &separator = ", ");
+		const std::string &separator = ", ", const std::string &prefix = "");
 // переносит многострочный текст по словам на ширину max_length, сохраняя
 // авторские переносы строк и пустые строки (абзацы): каждая исходная строка
 // переносится независимо через OutWordsList(line, max_length, " ").

@@ -1047,9 +1047,12 @@ void kill_ems(std::string &str) {
 }
 
 std::string utils::OutWordsList(const std::vector<std::string> &words, size_t max_length,
-		const std::string &separator) {
-	std::string result;
-	size_t line_length = 0;
+		const std::string &separator, const std::string &prefix) {
+	// prefix печатается один раз и занимает место на первой строке, но не
+	// склеивается через separator (first остаётся true -- первое слово идёт
+	// сразу за префиксом без ", "). Видимую длину считаем без цветокодов.
+	std::string result = prefix;
+	size_t line_length = GetStringWithoutColors(prefix).size();
 	bool first = true;
 	// separator -- это и есть то, что стоит между словами на одной строке
 	// (", " для списка, " " для обычного переноса по словам). На переносе
@@ -1081,14 +1084,14 @@ std::string utils::OutWordsList(const std::vector<std::string> &words, size_t ma
 }
 
 std::string utils::OutWordsList(const std::string &words_str, size_t max_length,
-		const std::string &separator) {
+		const std::string &separator, const std::string &prefix) {
 	std::vector<std::string> words;
 	std::istringstream stream(words_str);
 	std::string word;
 	while (stream >> word) {
 		words.push_back(word);
 	}
-	return OutWordsList(words, max_length, separator);
+	return OutWordsList(words, max_length, separator, prefix);
 }
 
 std::string utils::WrapText(const std::string &text, size_t max_length) {

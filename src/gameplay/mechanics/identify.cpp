@@ -523,9 +523,10 @@ void MobShowValues(CharData *ch, CharData *victim, int skill) {
 	}
 	if (skill > 249) {
 		victim->char_specials.saved.affected_by.sprintbits(affected_bits, buf2, sizeof(buf2), " ", 4);
-		std::string line = std::string("Аффекты: ") + buf2;
-
-		ss << fmt::format("&G{}&n\r\n", utils::OutWordsList(line, ch->player_specials->saved.stringLength, ", "));
+		// "Аффекты: " передаём префиксом: учитывается в ширине строки, но не
+		// склеивается через ", " (иначе после метки была бы лишняя запятая).
+		ss << fmt::format("&G{}&n\r\n",
+				utils::OutWordsList(buf2, ch->player_specials->saved.stringLength, ", ", "Аффекты: "));
 	}
 	SendMsgToChar(ch, "%s", ss.str().c_str());
 }

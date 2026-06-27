@@ -6,6 +6,7 @@
 #include "gameplay/mechanics/minions.h"
 #include "engine/entities/char_data.h"
 #include "utils/utils_encoding.h"
+#include "utils/utils_string.h"
 #include "engine/ui/color.h"
 #include "backtrace.h"
 
@@ -379,7 +380,8 @@ void mudlog(const char *str, LogMode type, int level, EOutputStream channel, boo
 	char time_buf[20];
 	time_t ct = time(0);
 	strftime(time_buf, sizeof(time_buf), "%d-%m-%y %H:%M:%S", localtime(&ct));
-	snprintf(tmpbuf, sizeof(tmpbuf), "[%s][ %s ]\r\n", time_buf, str);
+	// \r\n добавляем после переноса по ширине; в файл строка уже ушла сырой выше
+	snprintf(tmpbuf, sizeof(tmpbuf), "[%s][ %s ]", time_buf, str);
 	for (i = descriptor_list; i; i = i->next) {
 		if  (i->state != EConState::kPlaying || i->character->IsNpc())    // switch
 			continue;
@@ -393,7 +395,9 @@ void mudlog(const char *str, LogMode type, int level, EOutputStream channel, boo
 			continue;
 
 		SendMsgToChar(kColorGrn, i->character.get());
-		SendMsgToChar(tmpbuf, i->character.get());
+		// переносим строку лога по ширине вывода бога (stringLength == 0 -- без переноса)
+		SendMsgToChar(utils::WrapText(tmpbuf, i->character->player_specials->saved.stringLength) + "\r\n",
+				i->character.get());
 		SendMsgToChar(kColorNrm, i->character.get());
 	}
 }
