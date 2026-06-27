@@ -205,6 +205,8 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		MUD::CfgManager().ReloadCfg("noob");
 	} else if (!str_cmp(arg, "resetstats")) {
 		MUD::CfgManager().ReloadCfg("reset_stats");
+	} else if (!str_cmp(arg, "remort")) {
+		MUD::CfgManager().ReloadCfg("remort");
 	} else if (!str_cmp(arg, "digging")) {
 		MUD::CfgManager().ReloadCfg("digging");
 	} else if (!str_cmp(arg, "guards")) {
