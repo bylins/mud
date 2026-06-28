@@ -543,47 +543,33 @@ void RuntimeConfiguration::load_statistics_configuration(const pugi::xml_node *r
 	m_statistics = StatisticsConfiguration(host, port);
 }
 
-void RuntimeConfiguration::load_world_loader_configuration(const pugi::xml_node *root) {
-	// Read YAML_THREADS environment variable (takes precedence)
-	const char* env_threads = std::getenv("YAML_THREADS");
-	if (env_threads) {
-		size_t threads = static_cast<size_t>(std::strtoul(env_threads, nullptr, 10));
-		if (threads > 0 && threads <= 64) {  // Sanity check
-			m_yaml_threads = threads;
-			return;
+void RuntimeConfiguration::load_thread_pools_configuration(const pugi::xml_node *root) {
+	// Single section governs every worker pool:
+	//   <thread_pools>
+	//     <loader>N</loader>   -- world YAML parsing at boot (0 = all cores)
+	//     <savers>N</savers>   -- background clan-chest saving  (0 = half the cores)
+	//   </thread_pools>
+	const auto node = root->child("thread_pools");
+	if (node) {
+		const char *loader = node.child_value("loader");
+		if (loader && *loader) {
+			m_thread_pools_loader = static_cast<size_t>(std::strtoul(loader, nullptr, 10));
+		}
+		const char *savers = node.child_value("savers");
+		if (savers && *savers) {
+			m_thread_pools_savers = static_cast<size_t>(std::strtoul(savers, nullptr, 10));
 		}
 	}
 
-	// Fall back to XML configuration if available
-	const auto world_loader = root->child("world_loader");
-	if (!world_loader) {
-		return;
-	}
-
-	const auto yaml_config = world_loader.child("yaml");
-	if (yaml_config) {
-		m_yaml_threads = static_cast<size_t>(std::strtoul(yaml_config.child_value("threads"), nullptr, 10));
-	}
-}
-
-void RuntimeConfiguration::load_thread_pools_configuration(const pugi::xml_node *root) {
+	// MUD_WORKERS environment variable overrides every pool at once (handy for
+	// quick experiments without editing the config file).
 	const char *env = std::getenv("MUD_WORKERS");
 	if (env) {
 		const size_t n = static_cast<size_t>(std::strtoul(env, nullptr, 10));
 		if (n > 0 && n <= 256) {
-			m_thread_pools_workers = n;
-			return;
+			m_thread_pools_loader = n;
+			m_thread_pools_savers = n;
 		}
-	}
-
-	const auto node = root->child("thread_pools");
-	if (!node) {
-		return;
-	}
-
-	const char *val = node.child_value("workers");
-	if (val && *val) {
-		m_thread_pools_workers = static_cast<size_t>(std::strtoul(val, nullptr, 10));
 	}
 }
 
@@ -719,8 +705,8 @@ RuntimeConfiguration::RuntimeConfiguration() :
 	m_telemetry_service_name("bylins-mud"),
 	m_telemetry_service_version("1.0.0"),
 	m_telemetry_log_mode(ETelemetryLogMode::kFileOnly),
-	m_yaml_threads(0),
-	m_thread_pools_workers(0) {
+	m_thread_pools_loader(0),
+	m_thread_pools_savers(0) {
 }
 
 void RuntimeConfiguration::load_from_file(const char *filename) {
@@ -742,7 +728,6 @@ void RuntimeConfiguration::load_from_file(const char *filename) {
 		load_statistics_configuration(&root);
 		load_telemetry_configuration_impl(&root);
 		load_telemetry_configuration(&root);
-		load_world_loader_configuration(&root);
 		load_thread_pools_configuration(&root);
 #ifdef ENABLE_ADMIN_API
 		load_admin_api_configuration(&root);
@@ -750,7 +735,7 @@ void RuntimeConfiguration::load_from_file(const char *filename) {
 	}
 	catch (const std::exception &e) {
 		std::cerr << "ERROR: Failed to load configuration file " << filename << ": " << e.what() << "\r\n";
-		std::cerr << "WARNING: Running with default configuration settings. YAML_THREADS will use hardware_concurrency().\r\n";
+		std::cerr << "WARNING: Running with default configuration settings. Thread pools will use hardware_concurrency().\r\n";
 	}
 	catch (...) {
 		std::cerr << "ERROR: Unexpected error when loading configuration file " << filename << "\r\n";

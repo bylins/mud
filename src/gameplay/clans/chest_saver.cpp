@@ -62,7 +62,7 @@ bool save_one_clan_chest(ObjData *chest, const std::string &filename) {
 class ChestSaver::Impl {
  public:
 	Impl() {
-		const size_t cfg = runtime_config.thread_pools_workers();
+		const size_t cfg = runtime_config.thread_pools_savers();
 		const size_t n = cfg > 0 ? cfg : std::max<std::size_t>(1, std::thread::hardware_concurrency() / 2);
 		pool = std::make_unique<utils::ThreadPool>(n);
 	}
