@@ -156,9 +156,15 @@
 		<!-- <max_connections>5</max_connections> -->
 	</admin_api>
 	<!--
-	Default thread pool size for background I/O tasks (saving chests, etc.).
-	0 (default) = hardware_concurrency() / 2 (physical cores with HT).
-	Override at runtime: MUD_WORKERS=N environment variable.
+	Thread pool sizes for parallel work. One section, two pools:
+	  loader - parsing the YAML world at boot (0/absent = all cores).
+	  savers - background clan-chest saving   (0/absent = half the cores).
+	MUD_WORKERS=N environment variable overrides both pools at once.
 	-->
-	<!-- <thread_pools><workers>4</workers></thread_pools> -->
+	<!--
+	<thread_pools>
+		<loader>0</loader>
+		<savers>0</savers>
+	</thread_pools>
+	-->
 </configuration>

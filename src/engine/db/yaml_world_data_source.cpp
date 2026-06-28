@@ -198,7 +198,7 @@ YamlWorldDataSource::YamlWorldDataSource(const std::string &world_dir)
 // Helper: get configured thread count from runtime config
 size_t YamlWorldDataSource::GetConfiguredThreadCount() const
 {
-	size_t configured = runtime_config.yaml_threads();
+	size_t configured = runtime_config.thread_pools_loader();
 	if (configured == 0)
 	{
 		size_t hw_threads = std::thread::hardware_concurrency();
