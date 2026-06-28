@@ -926,9 +926,12 @@ static bool TryApplyAffectTalent(CharData *ch, CharData *victim, ESpell spell_id
 			duration, talent.GetDurationBase(), talent.GetDurationSkillDivisor(),
 			talent.GetDurationMin(), talent.GetDurationMax(), to_underlying(duration_skill));
 	}
-	auto apply_one = [&](const talents_actions::TalentAffect::Apply &apply) {
+	// issue.affects-improve (P3b): generic over the apply type -- the affect-owned apply
+	// (affects::AffectApply) or, for not-yet-migrated affects, the spell's TalentAffect::Apply.
+	// The affect id is passed explicitly (AffectApply has no id; the affect IS the id).
+	auto apply_one = [&](EAffect aff_id, const auto &apply) {
 		Affect<EApply> taf;
-		taf.affect_type = apply.id;
+		taf.affect_type = aff_id;
 		taf.location = apply.location;
 		taf.duration = duration;
 		// Modifier formula (cap-clamped, factor-applied) lives in magic_utils so
@@ -955,21 +958,60 @@ static bool TryApplyAffectTalent(CharData *ch, CharData *victim, ESpell spell_id
 				raw_mod, area_coeff, taf.modifier, apply.stack);
 		}
 	};
-	// Apply every ordinary apply; among the random-flagged ones (the "random" attribute) impose
-	// a single uniformly-chosen winner (reservoir sampling).
-	const talents_actions::TalentAffect::Apply *random_choice = nullptr;
-	int random_seen = 0;
-	for (const auto &apply: talent.GetApplies()) {
-		if (apply.random) {
-			if (number(1, ++random_seen) == 1) {
-				random_choice = &apply;
-			}
-		} else {
-			apply_one(apply);
+	// issue.affects-improve (P3b): a spell that random-picks among SEVERAL affects (e.g. kAcidArrow
+	// -> one of blind/poison/silence) keeps its own per-apply content + the global random pool;
+	// affect-sourcing would impose each affect's (non-random) applies unconditionally. Single-id
+	// random (pick one of an affect's own applies, e.g. kFailure) flows through the affect path.
+	std::vector<EAffect> rnd_ids;
+	for (const auto &a : talent.GetApplies()) {
+		if (a.random && a.id != EAffect::kUndefined
+				&& std::find(rnd_ids.begin(), rnd_ids.end(), a.id) == rnd_ids.end()) {
+			rnd_ids.push_back(a.id);
 		}
 	}
-	if (random_choice) {
-		apply_one(*random_choice);
+	if (rnd_ids.size() > 1) {
+		std::vector<std::function<void()>> pool;
+		for (const auto &ap : talent.GetApplies()) {
+			if (ap.id == EAffect::kUndefined) { continue; }
+			if (ap.random) { pool.push_back([&apply_one, &ap]() { apply_one(ap.id, ap); }); }
+			else { apply_one(ap.id, ap); }
+		}
+		if (!pool.empty()) {
+			pool[static_cast<std::size_t>(number(1, static_cast<int>(pool.size())) - 1)]();
+		}
+		return true;
+	}
+	// issue.affects-improve (P3b): impose each DISTINCT affect the spell references using the
+	// affect's OWN applies (affects.xml). Affects with no applies yet (kPoisoned, P3d) fall back to
+	// the spell's per-apply data. Non-random applies impose immediately; random-flagged ones form
+	// ONE global pool (a single uniformly-chosen winner), preserving the prior cross-apply semantics.
+	std::vector<EAffect> aff_ids;
+	for (const auto &a : talent.GetApplies()) {
+		if (a.id != EAffect::kUndefined
+				&& std::find(aff_ids.begin(), aff_ids.end(), a.id) == aff_ids.end()) {
+			aff_ids.push_back(a.id);
+		}
+	}
+	std::vector<std::function<void()>> random_pool;
+	auto consider = [&](EAffect id, const auto &ap) {
+		if (ap.random) {
+			random_pool.push_back([&apply_one, id, &ap]() { apply_one(id, ap); });
+		} else {
+			apply_one(id, ap);
+		}
+	};
+	for (const EAffect aff_id : aff_ids) {
+		const auto &aff_applies = affects::AffectApplies(aff_id);
+		if (!aff_applies.empty()) {
+			for (const auto &ap : aff_applies) { consider(aff_id, ap); }
+		} else {
+			for (const auto &ap : talent.GetApplies()) {
+				if (ap.id == aff_id) { consider(aff_id, ap); }
+			}
+		}
+	}
+	if (!random_pool.empty()) {
+		random_pool[static_cast<std::size_t>(number(1, static_cast<int>(random_pool.size())) - 1)]();
 	}
 	return true;
 }

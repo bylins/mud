@@ -8,6 +8,8 @@
 #include "gameplay/abilities/talents_actions.h"
 
 #include "magic.h"  // RollResult -- used by CalcCastPotency / ComputeApplyModifier
+#include <cmath>
+#include <algorithm>
 
 class CharData;
 struct RoomData;
@@ -62,8 +64,19 @@ float CalcCastPotency(const RollResult &potency);
 // Shared by CastAffect's per-target apply_one lambda and CallMagicToRoom's
 // first-apply default. cap == 0 disables the clamp; factor is allowed to be
 // negative (debuffs), with the clamp acting on the pre-factor magnitude.
-int ComputeApplyModifier(const talents_actions::TalentAffect::Apply &apply, double competence,
-						 const RollResult &potency);
+// issue.affects-improve: templated so it serves a spell apply (TalentAffect::Apply) AND an
+// affect-owned apply (affects::AffectApply) -- both carry min/dices_weight/alpha/beta/factor/cap.
+template<class ApplyT>
+int ComputeApplyModifier(const ApplyT &apply, double competence, const RollResult &potency) {
+	const double competencies = competence;
+	double raw = apply.min + std::ceil(
+			potency.dices * apply.dices_weight * (1.0 + apply.alpha * competencies)
+			+ apply.beta * competencies);
+	if (apply.cap > 0) {
+		raw = std::min(raw, static_cast<double>(apply.cap));
+	}
+	return static_cast<int>(apply.factor * raw);
+}
 
 int CalcCastSuccess(CharData *ch, CharData *victim, ESaving saving, ESpell spell_id);
 
