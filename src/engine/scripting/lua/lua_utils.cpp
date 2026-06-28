@@ -191,7 +191,6 @@ void HardenLuaState(sol::state &lua)
 	lua["loadfile"] = sol::lua_nil;
 	lua["loadstring"] = sol::lua_nil;
 	lua["collectgarbage"] = sol::lua_nil;
-	lua["_G"] = sol::lua_nil;
 	lua["setfenv"] = sol::lua_nil;
 	lua["getfenv"] = sol::lua_nil;
 	lua["newproxy"] = sol::lua_nil;
