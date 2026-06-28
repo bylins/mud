@@ -82,6 +82,25 @@ def force_config(cfg_path, socket_rel):
         log("ВНИМАНИЕ: <telemetry> в конфиге мира нет — телеметрия не настроена, "
             "форсирую только admin_api")
 
+    # Опционально переписать порт OTLP-endpoint'ов под локальный приёмник хоста.
+    # agent-хост: стандартный 4318 в конфиге уже верен. gateway-хост: 4318 занят
+    # внешним TLS-приёмником, локальный plaintext — на 4319; там задают
+    # OTEL_LOCAL_PORT, и тот же образ работает прозрачно на любом сервере.
+    local_port = os.environ.get("OTEL_LOCAL_PORT", "").strip()
+    if local_port and not local_port.isdigit():
+        log(f"ВНИМАНИЕ: OTEL_LOCAL_PORT={local_port!r} не число — порт не изменён")
+        local_port = ""
+    if local_port:
+        text, port_found = edit_within(
+            text,
+            "telemetry",
+            [(r"((?:localhost|127\.0\.0\.1):)\d+", rf"\g<1>{local_port}")],
+        )
+        if port_found:
+            log(f"telemetry: OTLP-порт переписан на {local_port} (OTEL_LOCAL_PORT)")
+        else:
+            log("ВНИМАНИЕ: <telemetry> нет — OTEL_LOCAL_PORT не применён")
+
     if text == original:
         log("конфиг уже соответствует — изменений нет")
         return
@@ -91,14 +110,14 @@ def force_config(cfg_path, socket_rel):
         open(orig_backup, "wb").write(raw)
         log(f"оригинал сохранён в {orig_backup}")
     open(cfg_path, "wb").write(text.encode("latin-1"))
-    log(f"конфиг обновлён: admin_api=on socket={socket_rel} telemetry logs=otel-only "
-        "(endpoint оставлен из конфига мира)")
+    log(f"конфиг обновлён: admin_api=on socket={socket_rel} telemetry logs=otel-only"
+        + (f" otlp-port={local_port}" if local_port else " (endpoint из конфига мира)"))
 
 
 def main():
     world_dir = sys.argv[1] if len(sys.argv) > 1 else os.environ.get("WORLD_DIR", "/world")
     socket_rel = sys.argv[2] if len(sys.argv) > 2 else os.environ.get("ADMIN_SOCKET_REL", "run/admin_api.sock")
-    force_config(os.path.join(world_dir, "misc", "configuration.xml"), socket_rel)
+    force_config(os.path.join(world_dir, "cfg", "configuration.xml"), socket_rel)
 
 
 if __name__ == "__main__":
