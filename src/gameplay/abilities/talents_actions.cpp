@@ -573,18 +573,6 @@ TalentAffect::TalentAffect(parser_wrapper::DataNode &node) {
 	// in the opposite direction.
 	const char *pw = node.GetValue("potency_weight");
 	potency_weight_ = (pw && *pw) ? static_cast<float>(parse::ReadAsDouble(pw)) : 1.0f;
-	// issue.affects-improve: explicit room-affect identity. A room-target spell's <affects> block
-	// names the ERoomAffect it imposes via id="..." -- the affect id need NOT equal the spell id.
-	// (Char-affect spells name their affects per-<apply> as EAffect instead and leave this unset.)
-	const char *room_id = node.GetValue("id");
-	if (room_id && *room_id) {
-		try {
-			room_affect_ = ITEM_BY_NAME<room_spells::ERoomAffect>(room_id);
-		} catch (const std::out_of_range &) {
-			err_log("talent_actions <affects id='%s'>: unknown room affect id.", room_id);
-		}
-	}
-
 	for (auto &child: node.Children()) {
 		const auto name = child.GetName();
 		if (strcmp(name, "duration") == 0) {
@@ -595,7 +583,40 @@ TalentAffect::TalentAffect(parser_wrapper::DataNode &node) {
 			dur_max_ = parse::ReadAsInt(child.GetValue("max"));
 			dur_base_ = parse::ReadAsInt(child.GetValue("base"));
 			dur_skill_divisor_ = parse::ReadAsInt(child.GetValue("skill_divisor"));
+		} else if (strcmp(name, "affect") == 0) {
+			// issue.affects-improve (P3e): a bare affect reference -- the canonical grammar. The affect
+			// OWNS its applies (affects.xml); the spell only names which affect(s) to impose, plus an
+			// optional `random` flag marking it a member of the spell's random-one-of pool. The id may
+			// resolve as an EAffect (char affect -> applies_) and/or an ERoomAffect (room affect ->
+			// room_affect_); kForbidden is intentionally BOTH, so we try both enums and let each cast
+			// path (magic.cpp / magic_rooms.cpp) consume the kind it understands.
+			const char *idv = child.GetValue("id");
+			if (!idv || !*idv) {
+				err_log("talent_actions <affect>: missing id attribute.");
+			} else {
+				bool resolved = false;
+				try {
+					Apply apply;
+					apply.id = ITEM_BY_NAME<EAffect>(idv);
+					apply.location = EApply::kNone;  // the affect owns its location(s)/modifier(s)
+					const char *r = child.GetValue("random");
+					apply.random = (r && *r) && parse::ReadAsBool(r);
+					applies_.push_back(apply);
+					resolved = true;
+				} catch (const std::out_of_range &) {}
+				try {
+					room_affect_ = ITEM_BY_NAME<room_spells::ERoomAffect>(idv);
+					resolved = true;
+				} catch (const std::out_of_range &) {}
+				if (!resolved) {
+					err_log("talent_actions <affect id='%s'>: unknown affect (not an EAffect or ERoomAffect).",
+							idv);
+				}
+			}
 		} else if (strcmp(name, "apply") == 0) {
+			// issue.affects-improve: LEGACY spell-owned apply (location + <modifier>). Retained only for
+			// affects whose data has not yet moved into affects.xml (the kPoisoned poison family). New
+			// data uses the bare <affect id=...> form above; this branch retires once poison migrates.
 			Apply apply;
 			apply.id = parse::ReadAsConstant<EAffect>(child.GetValue("id"));
 			// issue.affects-improve (P3c): location is optional now that affects.xml owns it; a bare

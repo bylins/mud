@@ -749,6 +749,8 @@
 		<message type="kShortDesc" val="опутан"/>
 	</msg_sheaf>
 	<msg_sheaf id="kInsidiousWound">
+		<message type="kAffExpiredToChar" val="Ваши раны затянулись."/>
+		<message type="kAffExpiredToRoom" val="Раны $n1 затянулись."/>
 		<message type="kShortDesc" val="коварная рана"/>
 	</msg_sheaf>
 </msg_container>

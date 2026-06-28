@@ -30,9 +30,7 @@
 			<action>
 				<affects saving="kNone" resist="kVitality">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kMagicArmor"/>
-					<apply id="kMagicArmor"/>
-					<apply id="kMagicArmor"/>
+					<affect id="kMagicArmor"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -85,8 +83,7 @@
 			<action>
 				<affects saving="kNone" resist="kVitality">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kBless"/>
-					<apply id="kBless"/>
+					<affect id="kBless"/>
 				</affects>
 				<alter_obj handler="AlterBless" />
 			</action>
@@ -120,7 +117,7 @@
 				</target_conditions>
 				<affects saving="kStability" resist="kDark">
 					<duration base="2" skill_divisor="20" min="0" max="0" />
-					<apply id="kBlind"/>
+					<affect id="kBlind"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -239,7 +236,7 @@
 				</damage>
 				<affects saving="kStability" resist="kWater">
 					<duration base="2" skill_divisor="10" min="6" max="0" />
-					<apply id="kShivering"/>
+					<affect id="kShivering"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -467,9 +464,7 @@
 			<action>
 				<affects saving="kWill" resist="kDark">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kCurse"/>
-					<apply id="kCurse"/>
-					<apply id="kCurse"/>
+					<affect id="kCurse"/>
 				</affects>
 				<alter_obj handler="AlterCurse" />
 			</action>
@@ -498,7 +493,7 @@
 			<action>
 				<affects saving="kNone" resist="kMind">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kDetectAlign"/>
+					<affect id="kDetectAlign"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -526,7 +521,7 @@
 			<action>
 				<affects saving="kNone" resist="kMind">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kDetectInvisible"/>
+					<affect id="kDetectInvisible"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -554,7 +549,7 @@
 			<action>
 				<affects saving="kNone" resist="kMind">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kDetectMagic"/>
+					<affect id="kDetectMagic"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -582,7 +577,7 @@
 			<action>
 				<affects saving="kNone" resist="kMind">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kDetectPoison"/>
+					<affect id="kDetectPoison"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -705,7 +700,7 @@
 				</damage>
 				<affects saving="kWill" resist="kImmunity" potency_weight="1">
 					<duration base="4" skill_divisor="13" min="4" max="0" />
-					<apply id="kDespodency"/>
+					<affect id="kDespodency"/>
 				</affects>
 				<unaffect decay="25">
 					<breaking any_of="kMagicStrength|kCatGrace" />
@@ -824,7 +819,7 @@
 				</target_conditions>
 				<affects saving="kNone" resist="kMind">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kInvisible"/>
+					<affect id="kInvisible"/>
 				</affects>
 				<alter_obj handler="AlterInvisible" />
 			</action>
@@ -1002,7 +997,7 @@
 			<action>
 				<affects saving="kNone" resist="kVitality">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kProtectFromDark"/>
+					<affect id="kProtectFromDark"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -1058,7 +1053,7 @@
 			<action>
 				<affects saving="kNone" resist="kVitality">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kSanctuary"/>
+					<affect id="kSanctuary"/>
 				</affects>
 				<unaffect prob="100" potency_weight="1" decay="25">
 					<breaking any_of="kPrismaticAura" />
@@ -1123,7 +1118,7 @@
 				<affects saving="kWill" resist="kMind">
 					<reposition pos="kSleep" />
 					<duration base="1" skill_divisor="15" min="1" max="6" />
-					<apply id="kSleep"/>
+					<affect id="kSleep"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -1151,7 +1146,7 @@
 			<action>
 				<affects saving="kNone" resist="kImmunity">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kMagicStrength"/>
+					<affect id="kMagicStrength"/>
 				</affects>
 				<unaffect decay="25">
 					<breaking any_of="kMagicWeaknes" />
@@ -1206,7 +1201,7 @@
 				</points>
 				<affects saving="kNone" resist="kVitality">
 					<duration base="3" skill_divisor="25" min="0" max="0" />
-					<apply id="kPatronage"/>
+					<affect id="kPatronage"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -1287,7 +1282,7 @@
 			<action>
 				<affects saving="kNone" resist="kImmunity">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kDetectLife"/>
+					<affect id="kDetectLife"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -1487,7 +1482,7 @@
 			<action>
 				<affects saving="kNone" resist="kVitality">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kInfravision"/>
+					<affect id="kInfravision"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -1515,7 +1510,7 @@
 			<action>
 				<affects saving="kNone" resist="kWater">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kWaterWalk"/>
+					<affect id="kWaterWalk"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -1605,7 +1600,7 @@
 				</target_conditions>
 				<affects saving="kWill" resist="kMind">
 					<duration base="1" skill_divisor="25" min="1" max="3" />
-					<apply id="kHold"/>
+					<affect id="kHold"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -1639,7 +1634,7 @@
 				</target_conditions>
 				<affects saving="kWill" resist="kMind">
 					<duration base="2" skill_divisor="20" min="2" max="5" />
-					<apply id="kHold"/>
+					<affect id="kHold"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -1696,7 +1691,7 @@
 			<action>
 				<affects saving="kNone" resist="kAir">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kFly"/>
+					<affect id="kFly"/>
 				</affects>
 				<alter_obj handler="AlterFly" />
 			</action>
@@ -1725,7 +1720,7 @@
 			<action>
 				<affects saving="kNone" resist="kMind">
 					<duration base="10" skill_divisor="3" min="0" max="0" />
-					<apply id="kBrokenChains"/>
+					<affect id="kBrokenChains"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -1758,7 +1753,7 @@
 				</target_conditions>
 				<affects saving="kWill" resist="kMind">
 					<duration base="3" skill_divisor="10" min="4" max="0" />
-					<apply id="kNoTeleport"/>
+					<affect id="kNoTeleport"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -1805,7 +1800,7 @@
 			<action>
 				<affects saving="kNone" resist="kDark">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kHolyDark"/>
+					<affect id="kHolyDark"/>
 				</affects>
 				<alter_obj handler="AlterDarkness" />
 			</action>
@@ -1834,7 +1829,7 @@
 			<action>
 				<affects saving="kNone" resist="kEarth">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kStoneSkin"/>
+					<affect id="kStoneSkin"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -1862,8 +1857,7 @@
 			<action>
 				<affects saving="kNone" resist="kWater">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kCloudly"/>
-					<apply id="kCloudly"/>
+					<affect id="kCloudly"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -1896,7 +1890,7 @@
 				</target_conditions>
 				<affects saving="kWill" resist="kMind">
 					<duration base="2" skill_divisor="20" min="3" max="0" />
-					<apply id="kSilence"/>
+					<affect id="kSilence"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -1924,7 +1918,7 @@
 			<action>
 				<affects saving="kNone" resist="kVitality">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kHolyLight"/>
+					<affect id="kHolyLight"/>
 				</affects>
 				<alter_obj handler="AlterLight" />
 			</action>
@@ -2046,7 +2040,7 @@
 				</area>
 				<affects saving="kWill" resist="kImmunity">
 					<duration base="4" skill_divisor="13" min="4" max="0" />
-					<apply id="kMagicWeaknes"/>
+					<affect id="kMagicWeaknes"/>
 				</affects>
 				<unaffect decay="25">
 					<breaking any_of="kMagicStrength|kCatGrace" />
@@ -2107,7 +2101,7 @@
 			<action>
 				<affects saving="kNone" resist="kDark">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kShadowCloak"/>
+					<affect id="kShadowCloak"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -2186,7 +2180,7 @@
 			<action>
 				<affects saving="kNone" resist="kImmunity">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kEnlarge"/>
+					<affect id="kEnlarge"/>
 				</affects>
 				<unaffect decay="25">
 					<breaking any_of="kLessening" />
@@ -2294,9 +2288,7 @@
 				</target_conditions>
 				<affects saving="kReflex" resist="kMind">
 					<duration base="3" skill_divisor="15" min="0" max="0" />
-					<apply id="kWebbed"/>
-					<apply id="kWebbed"/>
-					<apply id="kWebbed"/>
+					<affect id="kWebbed"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -2324,7 +2316,7 @@
 			<action>
 				<affects saving="kNone" resist="kVitality">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kBlink"/>
+					<affect id="kBlink"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -2395,7 +2387,7 @@
 				</target_conditions>
 				<affects saving="kStability" resist="kDark">
 					<duration base="3" skill_divisor="15" min="0" max="0" />
-					<apply id="kBlind"/>
+					<affect id="kBlind"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -2457,7 +2449,7 @@
 				</target_conditions>
 				<affects saving="kWill" resist="kMind">
 					<duration base="2" skill_divisor="10" min="6" max="0" />
-					<apply id="kSilence"/>
+					<affect id="kSilence"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -2532,9 +2524,7 @@
 			<action>
 				<affects saving="kNone" resist="kVitality">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kMagicShield"/>
-					<apply id="kMagicShield"/>
-					<apply id="kMagicShield"/>
+					<affect id="kMagicShield"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -2559,9 +2549,9 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects id="kForbidden" saving="kNone" resist="kVitality">
+				<affects saving="kNone" resist="kVitality">
 					<duration base="60" skill_divisor="3" min="0" max="0" />
-					<apply id="kForbidden"/>
+					<affect id="kForbidden"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -2954,7 +2944,7 @@
 				</area>
 				<affects saving="kStability" resist="kAir">
 					<duration base="9" skill_divisor="0" min="0" max="0" />
-					<apply id="kFrostbite"/>
+					<affect id="kFrostbite"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -2996,7 +2986,7 @@
 			<action>
 				<affects saving="kNone" resist="kWater">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kWaterBreath"/>
+					<affect id="kWaterBreath"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -3029,8 +3019,8 @@
 				</target_conditions>
 				<affects saving="kStability" resist="kMind">
 					<duration base="9" skill_divisor="0" min="0" max="0" />
-					<apply id="kSlow"/>
-					<apply id="kSlowdown"/>
+					<affect id="kSlow"/>
+					<affect id="kSlowdown"/>
 				</affects>
 				<unaffect decay="25">
 					<breaking any_of="kHaste" />
@@ -3062,7 +3052,7 @@
 			<action>
 				<affects saving="kNone" resist="kMind">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kHaste"/>
+					<affect id="kHaste"/>
 				</affects>
 				<unaffect decay="25">
 					<breaking any_of="kSlow" />
@@ -3152,9 +3142,7 @@
 			<action>
 				<affects saving="kNone" resist="kVitality">
 					<duration base="4" skill_divisor="0" min="0" max="0" />
-					<apply id="kGodsShield"/>
-					<apply id="kGodsShield"/>
-					<apply id="kGodsShield"/>
+					<affect id="kGodsShield"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -3186,14 +3174,7 @@
 				</area>
 				<affects saving="kStability" resist="kImmunity">
 					<duration base="0" skill_divisor="5" min="0" max="0" />
-					<apply id="kFever"/>
-					<apply id="kFever"/>
-					<apply id="kFever"/>
-					<apply id="kFever"/>
-					<apply id="kFever"/>
-					<apply id="kFever"/>
-					<apply id="kFever"/>
-					<apply id="kFever"/>
+					<affect id="kFever"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -3248,8 +3229,7 @@
 			<action>
 				<affects saving="kNone" resist="kMind">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kAwarness"/>
-					<apply id="kAwarness"/>
+					<affect id="kAwarness"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -3277,7 +3257,7 @@
 			<action>
 				<affects saving="kNone" resist="kAir">
 					<duration base="10" skill_divisor="0" min="0" max="0" />
-					<apply id="kAirShield"/>
+					<affect id="kAirShield"/>
 				</affects>
 				<unaffect decay="25">
 					<remove all_of="kIceShield|kFireShield" />
@@ -3381,8 +3361,7 @@
 			<action>
 				<affects saving="kNone" resist="kImmunity">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kFastRegeneration"/>
-					<apply id="kFastRegeneration"/>
+					<affect id="kFastRegeneration"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -3448,7 +3427,7 @@
 			<action>
 				<affects saving="kNone" resist="kFire">
 					<duration base="10" skill_divisor="0" min="0" max="0" />
-					<apply id="kFireShield"/>
+					<affect id="kFireShield"/>
 				</affects>
 				<unaffect decay="25">
 					<remove all_of="kIceShield|kAirShield" />
@@ -3527,7 +3506,7 @@
 			<action>
 				<affects saving="kNone" resist="kWater">
 					<duration base="10" skill_divisor="0" min="0" max="0" />
-					<apply id="kIceShield"/>
+					<affect id="kIceShield"/>
 				</affects>
 				<unaffect decay="25">
 					<remove all_of="kFireShield|kAirShield" />
@@ -3566,7 +3545,7 @@
 				<affects saving="kNone" resist="kWater">
 					<lag base="2" bonus_divisor="-1" />
 					<duration base="2" skill_divisor="0" min="0" max="0" />
-					<apply id="kMagicStopFight"/>
+					<affect id="kMagicStopFight"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -3594,7 +3573,7 @@
 			<action>
 				<affects saving="kNone" resist="kImmunity">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kLessening"/>
+					<affect id="kLessening"/>
 				</affects>
 				<unaffect decay="25">
 					<breaking any_of="kEnlarge" />
@@ -3634,7 +3613,7 @@
 				</target_conditions>
 				<affects saving="kStability" resist="kFire">
 					<duration base="2" skill_divisor="20" min="0" max="0" />
-					<apply id="kBlind"/>
+					<affect id="kBlind"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -3662,8 +3641,7 @@
 			<action>
 				<affects saving="kWill" resist="kMind">
 					<duration base="3" skill_divisor="0" min="0" max="0" />
-					<apply id="kMadness"/>
-					<apply id="kMadness"/>
+					<affect id="kMadness"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -3720,7 +3698,7 @@
 			<action>
 				<affects saving="kNone" resist="kFire">
 					<duration base="10" skill_divisor="3" min="0" max="0" />
-					<apply id="kCloudOfArrows"/>
+					<affect id="kCloudOfArrows"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -3772,8 +3750,9 @@
 		<flags val="kMagNeedControl|kMagRoom|kMagCasterInroom" />
 		<talent_actions>
 			<action>
-				<affects id="kMeteorStorm" saving="kNone" resist="kVitality">
+				<affects saving="kNone" resist="kVitality">
 					<duration base="3" skill_divisor="0" min="0" max="0" />
+					<affect id="kMeteorStorm"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -3801,7 +3780,7 @@
 			<action>
 				<affects saving="kNone" resist="kEarth">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kStoneHands"/>
+					<affect id="kStoneHands"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -3829,9 +3808,7 @@
 			<action>
 				<affects saving="kStability" resist="kMind">
 					<duration base="0" skill_divisor="25" min="0" max="0" />
-					<apply id="kMindless"/>
-					<apply id="kMindless"/>
-					<apply id="kMindless"/>
+					<affect id="kMindless"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -3859,7 +3836,7 @@
 			<action>
 				<affects saving="kNone" resist="kVitality">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kPrismaticAura"/>
+					<affect id="kPrismaticAura"/>
 				</affects>
 				<unaffect prob="100" potency_weight="1" decay="25">
 					<breaking any_of="kSanctuary" />
@@ -3903,8 +3880,7 @@
 				</area>
 				<affects saving="kNone" resist="kDark">
 					<duration base="10" skill_divisor="0" min="0" max="0" />
-					<apply id="kForcesOfEvil"/>
-					<apply id="kForcesOfEvil"/>
+					<affect id="kForcesOfEvil"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -3936,7 +3912,7 @@
 				</area>
 				<affects saving="kNone" resist="kAir">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kAirAura"/>
+					<affect id="kAirAura"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -3968,7 +3944,7 @@
 				</area>
 				<affects saving="kNone" resist="kFire">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kFireAura"/>
+					<affect id="kFireAura"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -4000,7 +3976,7 @@
 				</area>
 				<affects saving="kNone" resist="kWater">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kIceAura"/>
+					<affect id="kIceAura"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -4036,8 +4012,8 @@
 				<affects saving="kStability" resist="kVitality">
 					<lag base="2" bonus_divisor="-1" />
 					<duration base="2" skill_divisor="0" min="0" max="0" />
-					<apply id="kMagicStopFight"/>
-					<apply id="kBlind"/>
+					<affect id="kMagicStopFight"/>
+					<affect id="kBlind"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -4065,7 +4041,7 @@
 			<action>
 				<affects saving="kNone" resist="kVitality">
 					<duration base="10" skill_divisor="3" min="0" max="0" />
-					<apply id="kMagicGlass"/>
+					<affect id="kMagicGlass"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -4151,7 +4127,7 @@
 			<action>
 				<affects saving="kStability" resist="kMind">
 					<duration base="2" skill_divisor="20" min="3" max="0" />
-					<apply id="kDeafness"/>
+					<affect id="kDeafness"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -4179,7 +4155,7 @@
 			<action>
 				<affects saving="kStability" resist="kMind">
 					<duration base="4" skill_divisor="10" min="3" max="0" />
-					<apply id="kDeafness"/>
+					<affect id="kDeafness"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -4277,7 +4253,7 @@
 					<reposition pos="kSit" />
 					<lag base="2" bonus_divisor="-1" />
 					<duration base="3" skill_divisor="15" min="0" max="0" />
-					<apply id="kBlind"/>
+					<affect id="kBlind"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -4313,7 +4289,7 @@
 				<affects saving="kNone" resist="kEarth">
 					<lag base="2" bonus_divisor="-1" />
 					<duration base="2" skill_divisor="0" min="0" max="0" />
-					<apply id="kMagicStopFight"/>
+					<affect id="kMagicStopFight"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -4349,7 +4325,7 @@
 					<reposition pos="kSit" />
 					<lag base="2" bonus_divisor="-1" />
 					<duration base="2" skill_divisor="10" min="6" max="0" />
-					<apply id="kDeafness"/>
+					<affect id="kDeafness"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -4390,7 +4366,7 @@
 				</target_conditions>
 				<affects saving="kWill" resist="kVitality">
 					<duration base="1" skill_divisor="25" min="1" max="3" />
-					<apply id="kHold"/>
+					<affect id="kHold"/>
 				</affects>
 				<manual_cast handler="SpellHolystrike" />
 			</action>
@@ -4465,7 +4441,7 @@
 			<action>
 				<affects saving="kNone" resist="kMind">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kFascination"/>
+					<affect id="kFascination"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -4496,10 +4472,7 @@
 				</target_conditions>
 				<affects saving="kStability" resist="kMind">
 					<duration base="5" skill_divisor="0" min="0" max="0" />
-					<apply id="kCrying"/>
-					<apply id="kCrying"/>
-					<apply id="kCrying"/>
-					<apply id="kCrying"/>
+					<affect id="kCrying"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -4528,7 +4501,7 @@
 				<affects saving="kWill" resist="kDark">
 					<lag base="3" bonus_divisor="-1" />
 					<duration base="3" skill_divisor="0" min="0" max="0" />
-					<apply id="kSlow"/>
+					<affect id="kSlow"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -4561,7 +4534,7 @@
 				<affects saving="kCritical" resist="kDark">
 					<lag base="3" bonus_divisor="-1" />
 					<duration base="3" skill_divisor="0" min="0" max="0" />
-					<apply id="kSlow"/>
+					<affect id="kSlow"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -4623,7 +4596,7 @@
 					<reposition stop_fight="true" />
 					<lag base="2" bonus_divisor="-1" />
 					<duration base="2" skill_divisor="0" min="0" max="0" />
-					<apply id="kPeaceful"/>
+					<affect id="kPeaceful"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -4666,8 +4639,7 @@
 				</target_conditions>
 				<affects saving="kNone" resist="kEarth">
 					<duration base="100" skill_divisor="3" min="0" max="0" />
-					<apply id="kStoneBones"/>
-					<apply id="kStoneBones"/>
+					<affect id="kStoneBones"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -4689,8 +4661,9 @@
 		</success_roll>
 		<talent_actions>
 			<action>
-				<affects id="kRoomLight" saving="kNone" resist="kVitality">
+				<affects saving="kNone" resist="kVitality">
 					<duration base="75" skill_divisor="1" min="0" max="0" />
+					<affect id="kRoomLight"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -4711,8 +4684,9 @@
 		<flags val="kMagNeedControl|kMagRoom|kMagCasterInroom" />
 		<talent_actions>
 			<action>
-				<affects id="kDeadlyFog" saving="kNone" resist="kVitality">
+				<affects saving="kNone" resist="kVitality">
 					<duration base="8" skill_divisor="0" min="0" max="0" />
+					<affect id="kDeadlyFog"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -4733,8 +4707,9 @@
 		<flags val="kMagNeedControl|kMagRoom|kMagCasterInroom" />
 		<talent_actions>
 			<action>
-				<affects id="kThunderstorm" saving="kNone" resist="kVitality">
+				<affects saving="kNone" resist="kVitality">
 					<duration base="7" skill_divisor="0" min="0" max="0" />
+					<affect id="kThunderstorm"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -4781,13 +4756,7 @@
 				</area>
 				<affects saving="kWill" resist="kDark">
 					<duration base="2" skill_divisor="5" min="0" max="0" />
-					<apply id="kFailure"/>
-					<apply id="kFailure" random="true"/>
-					<apply id="kFailure" random="true"/>
-					<apply id="kFailure" random="true"/>
-					<apply id="kFailure" random="true"/>
-					<apply id="kFailure" random="true"/>
-					<apply id="kFailure" random="true"/>
+					<affect id="kFailure"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -4821,7 +4790,7 @@
 				</unaffect>
 				<affects saving="kReflex" resist="kEarth">
 					<duration base="4" skill_divisor="0" min="0" max="0" />
-					<apply id="kGlitterDust"/>
+					<affect id="kGlitterDust"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -4856,8 +4825,7 @@
 				</area>
 				<affects saving="kStability" resist="kAir">
 					<duration base="2" skill_divisor="5" min="0" max="0" />
-					<apply id="kAffright"/>
-					<apply id="kAffright"/>
+					<affect id="kAffright"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -4885,7 +4853,7 @@
 			<action>
 				<affects saving="kNone" resist="kImmunity">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kCatGrace"/>
+					<affect id="kCatGrace"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -4913,7 +4881,7 @@
 			<action>
 				<affects saving="kNone" resist="kImmunity">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kBullBody"/>
+					<affect id="kBullBody"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -4941,7 +4909,7 @@
 			<action>
 				<affects saving="kNone" resist="kImmunity">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kSnakeWisdom"/>
+					<affect id="kSnakeWisdom"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -4969,7 +4937,7 @@
 			<action>
 				<affects saving="kNone" resist="kImmunity">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kGimmicry"/>
+					<affect id="kGimmicry"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -5023,7 +4991,7 @@
 			<action>
 				<affects saving="kWill" resist="kMind">
 					<duration base="2" skill_divisor="10" min="6" max="0" />
-					<apply id="kIndecision"/>
+					<affect id="kIndecision"/>
 				</affects>
 				<area>
 					<targets skill_divisor="20" dice_size="2" min="5" max="20" />
@@ -5061,7 +5029,7 @@
 				</area>
 				<affects saving="kWill" resist="kMind">
 					<duration base="2" skill_divisor="10" min="6" max="0" />
-					<apply id="kDeafness"/>
+					<affect id="kDeafness"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -5092,9 +5060,7 @@
 				</area>
 				<affects saving="kStability" resist="kMind">
 					<duration base="2" skill_divisor="10" min="6" max="0" />
-					<apply id="kInsanity" random="true"/>
-					<apply id="kInsanity" random="true"/>
-					<apply id="kInsanity" random="true"/>
+					<affect id="kInsanity"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -5135,7 +5101,7 @@
 					<reposition pos="kSit" />
 					<lag base="2" bonus_divisor="-1" />
 					<duration base="2" skill_divisor="10" min="0" max="6" />
-					<apply id="kDeafness"/>
+					<affect id="kDeafness"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -5166,10 +5132,7 @@
 				</area>
 				<affects saving="kNone" resist="kMind">
 					<duration base="2" skill_divisor="50" min="10" max="0" />
-					<apply id="kRousing"/>
-					<apply id="kRousing"/>
-					<apply id="kRousing"/>
-					<apply id="kRousing"/>
+					<affect id="kRousing"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -5200,7 +5163,7 @@
 				</area>
 				<affects saving="kNone" resist="kMind">
 					<duration base="2" skill_divisor="50" min="10" max="0" />
-					<apply id="kPassion"/>
+					<affect id="kPassion"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -5234,7 +5197,7 @@
 				</area>
 				<affects saving="kNone" resist="kMind">
 					<duration base="2" skill_divisor="50" min="10" max="0" />
-					<apply id="kSurgeOfPower"/>
+					<affect id="kSurgeOfPower"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -5265,8 +5228,7 @@
 				</area>
 				<affects saving="kNone" resist="kMind">
 					<duration base="2" skill_divisor="50" min="10" max="0" />
-					<apply id="kSurgeOfValour"/>
-					<apply id="kSurgeOfValour"/>
+					<affect id="kSurgeOfValour"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -5297,8 +5259,7 @@
 				</area>
 				<affects saving="kNone" resist="kMind">
 					<duration base="2" skill_divisor="50" min="10" max="0" />
-					<apply id="kBattleCourage"/>
-					<apply id="kBattleCourage"/>
+					<affect id="kBattleCourage"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -5326,8 +5287,9 @@
 						<room_flags val="kPeaceful|kTunnel|kNoTeleportIn" />
 					</blocking>
 				</target_conditions>
-				<affects id="kRuneLabel" saving="kNone" resist="kVitality">
+				<affects saving="kNone" resist="kVitality">
 					<duration base="1100" skill_divisor="10" min="0" max="0" />
+					<affect id="kRuneLabel"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -5387,8 +5349,8 @@
 				</target_conditions>
 				<affects saving="kNone" resist="kImmunity">
 					<duration base="7" skill_divisor="0" min="0" max="0" />
-					<apply id="kPoisoned"/>
-					<apply id="kScopolaPoison"/>
+					<affect id="kPoisoned"/>
+					<affect id="kScopolaPoison"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -5508,8 +5470,9 @@
 		<flags val="kMagRoom|kMagCasterInroom" />
 		<talent_actions>
 			<action>
-				<affects id="kHypnoticPattern" saving="kNone" resist="kVitality">
+				<affects saving="kNone" resist="kVitality">
 					<duration base="114" skill_divisor="0" min="0" max="0" />
+					<affect id="kHypnoticPattern"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -5537,7 +5500,7 @@
 			<action>
 				<affects saving="kNone" resist="kDark">
 					<duration base="10" skill_divisor="3" min="0" max="0" />
-					<apply id="kVampirism"/>
+					<affect id="kVampirism"/>
 				</affects>
 				<manual_cast handler="SpellVampirism" />
 			</action>
@@ -5681,8 +5644,9 @@
 						<room_flags val="kForMono|kForPoly" />
 					</blocking>
 				</target_conditions>
-				<affects id="kBlackTentacles" saving="kNone" resist="kVitality">
+				<affects saving="kNone" resist="kVitality">
 					<duration base="1" skill_divisor="18" min="0" max="0" />
+					<affect id="kBlackTentacles"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -5750,7 +5714,7 @@
 				</target_conditions>
 				<affects saving="kWill" resist="kEarth">
 					<duration base="3" skill_divisor="10" min="4" max="0" />
-					<apply id="kNoTeleport"/>
+					<affect id="kNoTeleport"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -5891,7 +5855,7 @@
 				</area>
 				<affects saving="kNone" resist="kVitality">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kInfravision"/>
+					<affect id="kInfravision"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -5952,7 +5916,7 @@
 				</area>
 				<affects saving="kNone" resist="kMind">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kDetectMagic"/>
+					<affect id="kDetectMagic"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -5984,7 +5948,7 @@
 				</area>
 				<affects saving="kNone" resist="kMind">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kDetectInvisible"/>
+					<affect id="kDetectInvisible"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -6016,7 +5980,7 @@
 				</area>
 				<affects saving="kNone" resist="kImmunity">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kDetectLife"/>
+					<affect id="kDetectLife"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -6048,7 +6012,7 @@
 				</area>
 				<affects saving="kNone" resist="kWater">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kWaterBreath"/>
+					<affect id="kWaterBreath"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -6080,8 +6044,7 @@
 				</area>
 				<affects saving="kNone" resist="kImmunity">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kFastRegeneration"/>
-					<apply id="kFastRegeneration"/>
+					<affect id="kFastRegeneration"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -6140,7 +6103,7 @@
 				</area>
 				<affects saving="kNone" resist="kEarth">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kStoneSkin"/>
+					<affect id="kStoneSkin"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -6172,7 +6135,7 @@
 				</area>
 				<affects saving="kNone" resist="kMind">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kDetectPoison"/>
+					<affect id="kDetectPoison"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -6204,7 +6167,7 @@
 				</area>
 				<affects saving="kNone" resist="kEarth">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kEarthAura"/>
+					<affect id="kEarthAura"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -6379,10 +6342,7 @@
 				</points>
 				<affects saving="kNone" resist="kImmunity">
 					<duration base="5" skill_divisor="0" min="0" max="0" />
-					<apply id="kInspiration" random="true"/>
-					<apply id="kInspiration" random="true"/>
-					<apply id="kInspiration" random="true"/>
-					<apply id="kInspiration" random="true"/>
+					<affect id="kInspiration"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -6410,7 +6370,7 @@
 			<action>
 				<affects saving="kNone" resist="kImmunity">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kCatGrace"/>
+					<affect id="kCatGrace"/>
 				</affects>
 				<unaffect decay="25">
 					<breaking any_of="kMagicWeaknes" />
@@ -6532,7 +6492,7 @@
 				</area>
 				<affects saving="kNone" resist="kMind">
 					<duration base="2" skill_divisor="50" min="10" max="0" />
-					<apply id="kConcentration"/>
+					<affect id="kConcentration"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -6563,7 +6523,7 @@
 				</area>
 				<affects saving="kNone" resist="kMind">
 					<duration base="2" skill_divisor="50" min="10" max="0" />
-					<apply id="kBattleLuck"/>
+					<affect id="kBattleLuck"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -6594,7 +6554,7 @@
 				</area>
 				<affects saving="kNone" resist="kMind">
 					<duration base="2" skill_divisor="50" min="10" max="0" />
-					<apply id="kPhysdamageBonus"/>
+					<affect id="kPhysdamageBonus"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -6659,7 +6619,7 @@
 				</target_conditions>
 				<affects saving="kWill" resist="kMind">
 					<duration base="3" skill_divisor="10" min="4" max="0" />
-					<apply id="kNoTeleport"/>
+					<affect id="kNoTeleport"/>
 				</affects>
 			</action>
 		</talent_actions>
