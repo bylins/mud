@@ -257,11 +257,11 @@ build_binary() {
 
 # Function to setup the small world (uses lib.template).
 #
-# The small world is YAML-only: lib.template/world already ships the checked-in
+# The small world is YAML-only: lib.template/world ships only the checked-in
 # flat YAML (zones/, dictionaries/, world_config.yaml), so the YAML build boots
-# it directly -- there's no legacy->YAML conversion step here anymore. Legacy
-# shop files (world/shp) are still carried along, since the converter doesn't
-# handle shops and the loader reads them as-is.
+# it directly -- there's no legacy->YAML conversion step here anymore. The
+# legacy mob/obj/wld/zon/trg/shp files are gone; shops load from
+# cfg/economics/shops.xml (copied in from lib/), not from world/shp.
 setup_small_world() {
     local loader="$1"   # always "yaml"; small world is YAML-only
 
