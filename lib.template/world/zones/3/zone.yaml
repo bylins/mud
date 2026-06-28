@@ -1,0 +1,8 @@
+# Zone #3
+name: Системная зона 3 (прототипы для кузнецов)
+top_room: 399
+mode: 1  # level
+zone_type: 0 # Ингридиентов нет
+lifespan: 0
+reset_mode: 0
+reset_idle: 0

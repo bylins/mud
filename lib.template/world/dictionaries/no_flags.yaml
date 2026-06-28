@@ -1,0 +1,121 @@
+# Dictionary: no_flags
+kMono: 0  # !христиане
+kPoly: 1  # !язычники
+kNeutral: 2  # !NEUTRAL
+kMage: 3  # !маги
+kSorcerer: 4  # !лекари
+kThief: 5  # !тати
+kWarrior: 6  # !богатыри
+kAssasine: 7  # !наемники
+kGuard: 8  # !дружинники
+kPaladine: 9  # !витязи
+kRanger: 10  # !охотники
+kVigilant: 11  # !кузнецы
+kMerchant: 12  # !купцы
+kMagus: 13  # !волхвы
+kConjurer: 14  # !колдуны
+kCharmer: 15  # !кудесники
+kWizard: 16  # !волшебники
+kNecromancer: 17  # !чернокнижники
+kFighter: 18  # !воины
+UNUSED_19: 19
+UNUSED_20: 20
+UNUSED_21: 21
+UNUSED_22: 22
+UNUSED_23: 23
+UNUSED_24: 24
+UNUSED_25: 25
+UNUSED_26: 26
+UNUSED_27: 27
+UNUSED_28: 28
+UNUSED_29: 29
+kKiller: 30  # !убийцы
+kColored: 31  # !цветные
+kBattle: 32  # !боевыедействия
+UNUSED_33: 33
+UNUSED_34: 34
+UNUSED_35: 35
+UNUSED_36: 36
+UNUSED_37: 37
+UNUSED_38: 38
+UNUSED_39: 39
+UNUSED_40: 40
+UNUSED_41: 41
+UNUSED_42: 42
+UNUSED_43: 43
+UNUSED_44: 44
+UNUSED_45: 45
+UNUSED_46: 46
+UNUSED_47: 47
+UNUSED_48: 48
+UNUSED_49: 49
+UNUSED_50: 50
+UNUSED_51: 51
+UNUSED_52: 52
+UNUSED_53: 53
+UNUSED_54: 54
+UNUSED_55: 55
+UNUSED_56: 56
+UNUSED_57: 57
+UNUSED_58: 58
+UNUSED_59: 59
+UNUSED_60: 60  # !свободно
+UNUSED_61: 61  # !свободно
+UNUSED_62: 62  # !свободно
+UNUSED_63: 63  # !свободно
+UNUSED_64: 64  # !свободно
+UNUSED_65: 65  # !свободно
+kMale: 66  # !мужчины
+kFemale: 67  # !женщины
+kCharmice: 68  # !чармисы
+kFree1: 69  # !свободно
+kFree2: 70  # !свободно
+kFree3: 71  # !свободно
+kFree4: 72  # !свободно
+kFree5: 73  # !свободно
+kFree6: 74  # !свободно
+kFree7: 75  # !свободно
+kFree8: 76  # !свободно
+kFree9: 77  # !свободно
+kFree10: 78  # !свободно
+kFree11: 79  # !свободно
+kFree12: 80  # !свободно
+UNUSED_81: 81
+UNUSED_82: 82
+UNUSED_83: 83
+UNUSED_84: 84
+UNUSED_85: 85
+UNUSED_86: 86
+UNUSED_87: 87
+UNUSED_88: 88
+UNUSED_89: 89
+kFree13: 90  # !свободно
+kFree14: 91  # !свободно
+kFree15: 92  # !свободно
+kNoPkClan: 93  # !пккланы
+UNUSED_94: 94
+UNUSED_95: 95
+UNUSED_96: 96
+UNUSED_97: 97
+UNUSED_98: 98
+UNUSED_99: 99
+UNUSED_100: 100
+UNUSED_101: 101
+UNUSED_102: 102
+UNUSED_103: 103
+UNUSED_104: 104
+UNUSED_105: 105
+UNUSED_106: 106
+UNUSED_107: 107
+UNUSED_108: 108
+UNUSED_109: 109
+UNUSED_110: 110
+UNUSED_111: 111
+UNUSED_112: 112
+UNUSED_113: 113
+UNUSED_114: 114
+UNUSED_115: 115
+UNUSED_116: 116
+UNUSED_117: 117
+UNUSED_118: 118
+UNUSED_119: 119

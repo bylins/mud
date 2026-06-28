@@ -1,0 +1,121 @@
+# Dictionary: affect_flags
+kBlind: 0  # слепота
+kInvisible: 1  # невидимость
+kDetectAlign: 2  # определение наклонностей
+kDetectInvisible: 3  # определение невидимости
+kDetectMagic: 4  # определение магии
+kDetectLife: 5  # чувствовать жизнь
+kWaterWalk: 6  # хождение по воде
+kSanctuary: 7  # освящение
+kGroup: 8  # состоит в группе
+kCurse: 9  # проклятие
+kInfravision: 10  # инфравидение
+kPoisoned: 11  # яд
+kProtectFromDark: 12  # защита от тьмы
+kProtectFromMind: 13  # защита от света
+kSleep: 14  # магический сон
+kNoTrack: 15  # нельзя выследить
+kTethered: 16  # привязан
+kBless: 17  # доблесть
+kSneak: 18  # подкрадывается
+kHide: 19  # прячется
+kCourage: 20  # ярость
+kCharmed: 21  # зачарован
+kHold: 22  # оцепенение
+kFly: 23  # летит
+kSilence: 24  # молчание
+kAwarness: 25  # настороженность
+kBlink: 26  # мигание
+kHorse: 27  # верхом или под седлом
+kNoFlee: 28  # не сбежать
+kSingleLight: 29  # свет
+kHolyLight: 30  # освещение
+kHolyDark: 31  # затемнение
+kDetectPoison: 32  # определение яда
+kDrunked: 33  # под мухой
+kAbstinent: 34  # отходняк
+kStopRight: 35  # декстраплегия
+kStopLeft: 36  # синистроплегия
+kStopFight: 37  # параплегия
+kHaemorrhage: 38  # кровотечение
+kDisguise: 39  # маскировка
+kWaterBreath: 40  # дышать водой
+kSlow: 41  # медлительность
+kHaste: 42  # ускорение
+kGodsShield: 43  # защита богов
+kAirShield: 44  # воздушный щит
+kFireShield: 45  # огненный щит
+kIceShield: 46  # ледяной щит
+kMagicGlass: 47  # зеркало магии
+kStairs: 48  # звезды
+kStoneHands: 49  # каменная рука
+kPrismaticAura: 50  # призматическая.аура
+kHelper: 51  # нанят
+kForcesOfEvil: 52  # силы зла
+kAirAura: 53  # воздушная аура
+kFireAura: 54  # огненная аура
+kIceAura: 55  # ледяная аура
+kDeafness: 56  # глухота
+kCrying: 57  # плач
+kPeaceful: 58  # смирение
+kMagicStopFight: 59  # маг параплегия
+kBerserk: 60  # предсмертная ярость
+kLightWalk: 61  # легкая поступь
+kBrokenChains: 62  # разбитые оковы
+kCloudOfArrows: 63  # облако стрел
+kShadowCloak: 64  # мантия теней
+kGlitterDust: 65  # блестящая пыль
+kAffright: 66  # испуг
+kScopolaPoison: 67  # яд скополии
+kDaturaPoison: 68  # яд дурмана
+kSkillReduce: 69  # понижение умений
+kNoBattleSwitch: 70  # не переключается
+kBelenaPoison: 71  # яд белены
+kNoTeleport: 72  # прикован
+kCombatLuck: 73  # боевое везение
+kBandage: 74  # перевязка
+kCannotBeBandaged: 75  # не может перевязываться
+kMorphing: 76  # превращен
+kStrangled: 77  # удушье
+kMemorizeSpells: 78  # вспоминает заклинания
+kNoobRegen: 79  # регенерация новичка
+kVampirism: 80  # вампиризм
+kLacerations: 81  # рваные раны
+kCommander: 82  # полководец
+kEarthAura: 83  # земной поклон
+kCloudly: 84  # затуманивание
+kConfused: 85  # ошарашен
+kNoCharge: 86  # натиск
+kInjured: 87  # ранен
+kFrenzy: 88  # исступление
+UNUSED_89: 89
+UNUSED_90: 90
+UNUSED_91: 91
+UNUSED_92: 92
+UNUSED_93: 93
+UNUSED_94: 94
+UNUSED_95: 95
+UNUSED_96: 96
+UNUSED_97: 97
+UNUSED_98: 98
+UNUSED_99: 99
+UNUSED_100: 100
+UNUSED_101: 101
+UNUSED_102: 102
+UNUSED_103: 103
+UNUSED_104: 104
+UNUSED_105: 105
+UNUSED_106: 106
+UNUSED_107: 107
+UNUSED_108: 108
+UNUSED_109: 109
+UNUSED_110: 110
+UNUSED_111: 111
+UNUSED_112: 112
+UNUSED_113: 113
+UNUSED_114: 114
+UNUSED_115: 115
+UNUSED_116: 116
+UNUSED_117: 117
+UNUSED_118: 118
+UNUSED_119: 119

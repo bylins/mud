@@ -1,0 +1,31 @@
+# Dictionary: wear_flags
+kTake: 0  # ВЗЯТЬ
+kFinger: 1  # ПАЛЬЦЫ
+kNeck: 2  # ШЕЯ/ГРУДЬ
+kBody: 3  # ТЕЛО
+kHead: 4  # ГОЛОВА
+kLegs: 5  # НОГИ
+kFeet: 6  # СТУПНИ
+kHands: 7  # КИСТИ
+kArms: 8  # РУКИ
+kShield: 9  # ЩИТ
+kShoulders: 10  # ПЛЕЧИ
+kWaist: 11  # ПОЯС
+kWrist: 12  # ЗАПЯСТЬЕ
+kWield: 13  # ПРАВАЯ.РУКА
+kHold: 14  # ЛЕВАЯ.РУКА
+kBoth: 15  # ОБЕ.РУКИ
+kQuiver: 16  # КОЛЧАН
+UNUSED_17: 17
+UNUSED_18: 18
+UNUSED_19: 19
+UNUSED_20: 20
+UNUSED_21: 21
+UNUSED_22: 22
+UNUSED_23: 23
+UNUSED_24: 24
+UNUSED_25: 25
+UNUSED_26: 26
+UNUSED_27: 27
+UNUSED_28: 28
+UNUSED_29: 29
