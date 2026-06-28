@@ -24,6 +24,8 @@
 		<message type="kAffExpiredToRoom" val="Магия, запечатывающая входы, пропала."/>
 		<message type="kAffDispelledToChar" val="Вы развеяли магию, запечатывающую входы."/>
 		<message type="kAffDispelledToRoom" val="$n развеял$g магию, запечатывающую входы."/>
+		<message type="kTriggerOnEntryToChar" val="Незримая магическая преграда не пускает вас внутрь."/>
+		<message type="kTriggerOnEntryToRoom" val="Незримая магическая преграда не пускает $n3 внутрь."/>
 	</msg_sheaf>
 	<msg_sheaf id="kMeteorStorm">
 		<message type="kRoomAffectVisible" val="&amp;R... раскаленные громовые камни рушатся на землю!&amp;n"/>

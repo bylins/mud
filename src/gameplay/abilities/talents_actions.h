@@ -64,6 +64,7 @@ enum class EActionTrigger {
 	kBattlePulse,  // an affect pulse, but only while combat is happening in the room
 	kEnter,        // issue.room-affect-trigger-improve: a character enters the room (any actor)
 	kEnterPC,      // ... only when a PC enters (mirrors DGScript WTRIG_ENTER / WTRIG_ENTER_PC)
+	kEnterNPC,     // ... only when an NPC enters (e.g. kForbidden seals a room against mobs, not players)
 	kCount
 };
 
@@ -633,6 +634,11 @@ class Action {
 	// treats it as "allow". A manual_cast handler can override this at runtime (out-param on the
 	// context). Only meaningful for blocking-capable event triggers (kEnter/kEnterPC); ignored by pulse.
 	std::optional<int> trigger_return_;
+	// issue.room-affect-trigger-improve: <trigger prob="N"/> -- the percent chance the trigger fires
+	// when its event occurs (a (100-N)% miss lets the event proceed untouched). std::nullopt = always
+	// fires. For a room affect that carries a <seal_strength> formula the per-cast strength
+	// (Affect::modifier) is used as the chance instead, so the seal's strength IS its block chance.
+	std::optional<int> trigger_prob_;
 
 	friend class Actions;   // Actions builds these via the Parse* helpers.
 
@@ -658,6 +664,7 @@ class Action {
 	[[nodiscard]] const std::vector<ESpell> &GetSideSpells() const { return side_spells_; }
 	[[nodiscard]] const BitsetFlags<EActionTrigger> &GetTrigger() const { return trigger_; }
 	[[nodiscard]] std::optional<int> GetTriggerReturn() const { return trigger_return_; }
+	[[nodiscard]] std::optional<int> GetTriggerProb() const { return trigger_prob_; }
 };
 
 // Spell-level caster gate (issue.spell-unification): a spell is castable by the caster

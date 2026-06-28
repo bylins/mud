@@ -3358,9 +3358,20 @@ constexpr int kEntryTriggerBlock = 0;
 // action's <target_conditions> (so a filtered-out actor neither gets the effect nor blocks).
 static int CastRoomEntryAction(CharData *caster, RoomData *room, CharData *actor,
 							   room_spells::ERoomAffect affect_type,
-							   const talents_actions::Action &action, float potency) {
+							   const talents_actions::Action &action, float potency, int seal_strength) {
 	if (TargetIsBlocked(actor, action.GetBlocking())
 			|| !TargetMeetsRequired(actor, action.GetRequired())) {
+		return kEntryTriggerAllow;
+	}
+	// issue.room-affect-trigger-improve: prob gate -- the trigger fires only `prob` percent of the time;
+	// a (100-prob)% miss leaves the event untouched (no effect, no block). The chance is the affect's
+	// own seal strength (the per-cast Affect::modifier, e.g. kForbidden) when it carries a seal_strength
+	// formula, else the static <trigger prob=N>, else always (no roll). So a seal's strength IS its
+	// block chance, exactly as the old IsRoomForbidden roll did.
+	const std::optional<int> prob = room_spells::RoomAffectHasSeal(affect_type)
+			? std::optional<int>(seal_strength)
+			: action.GetTriggerProb();
+	if (prob && number(1, 100) > *prob) {
 		return kEntryTriggerAllow;
 	}
 	// issue.room-affect-trigger-improve: the affect's own "why this happened" flavor, shown to the actor
@@ -3388,19 +3399,21 @@ bool room_spells::RunRoomEntryTriggers(CharData *actor, RoomData *room,
 		return true;   // affect triggers never fire on (or block) immortals
 	}
 	const bool actor_is_pc = !actor->IsNpc();
-	// Snapshot {affect, caster, potency} so running an action (which could alter room->affected) cannot
-	// invalidate the iteration.
-	struct Pending { room_spells::ERoomAffect type; long caster_id; float potency; };
+	// Snapshot {affect, caster, potency, strength} so running an action (which could alter
+	// room->affected) cannot invalidate the iteration. `strength` is the affect's seal strength
+	// (Affect::modifier) -- the block chance for seal-strength affects (kForbidden).
+	struct Pending { room_spells::ERoomAffect type; long caster_id; float potency; int strength; };
 	std::vector<Pending> pending;
 	for (const auto &aff : room->affected) {
-		if (aff) { pending.push_back({aff->affect_type, aff->caster_id, aff->potency}); }
+		if (aff) { pending.push_back({aff->affect_type, aff->caster_id, aff->potency, aff->modifier}); }
 	}
 	bool allowed = true;
 	for (const auto &p : pending) {
 		for (const auto &action : room_spells::RoomAffectActions(p.type).list()) {
 			const auto &trig = action.GetTrigger();
 			const bool fires = trig.test(talents_actions::EActionTrigger::kEnter)
-					|| (actor_is_pc && trig.test(talents_actions::EActionTrigger::kEnterPC));
+					|| (actor_is_pc && trig.test(talents_actions::EActionTrigger::kEnterPC))
+					|| (!actor_is_pc && trig.test(talents_actions::EActionTrigger::kEnterNPC));
 			if (!fires) { continue; }
 			// An action "can block" iff it yields a non-default return: a <trigger return=> tag or a
 			// manual_cast handler that may set one. Such actions run in the BEFORE-placement kBlockCheck
@@ -3411,7 +3424,7 @@ bool room_spells::RunRoomEntryTriggers(CharData *actor, RoomData *room,
 			if (phase == EEntryTriggerPhase::kEffectsNonBlocking && can_block) { continue; }
 			CharData *caster = find_char(p.caster_id);
 			if (!caster) { continue; }   // no owner to source the cast this entry
-			const int ret = CastRoomEntryAction(caster, room, actor, p.type, action, p.potency);
+			const int ret = CastRoomEntryAction(caster, room, actor, p.type, action, p.potency, p.strength);
 			// Only the block-check pass enforces the verdict; the effect passes ignore it.
 			if (phase == EEntryTriggerPhase::kBlockCheck && ret == kEntryTriggerBlock) {
 				allowed = false;   // block, but keep running the rest (so all blocking actions still fire)

@@ -16,6 +16,16 @@
 	<room_affect id="kForbidden">
 		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
 		<seal_strength min="0" dices_weight="0" alpha="0" beta="1" factor="1" cap="100"/>
+		<actions>
+			<action target="kTarActor">
+				<trigger val="kEnterNPC" return="0"/>
+				<target_conditions>
+					<blocking>
+						<mob_flags val="kIgnoreForbidden"/>
+					</blocking>
+				</target_conditions>
+			</action>
+		</actions>
 	</room_affect>
 	<room_affect id="kMeteorStorm">
 		<flags val="kAfDispellable|kAfNeedControl|kAfCasterInRoom"/>

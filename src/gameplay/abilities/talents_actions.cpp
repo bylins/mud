@@ -73,6 +73,7 @@ const std::map<std::string, EMobFlag> kBlockingFlagByName{
 	{"kMounting", EMobFlag::kMounting},
 	{"kHelper", EMobFlag::kHelper},
 	{"kClone", EMobFlag::kClone},
+	{"kIgnoreForbidden", EMobFlag::kIgnoreForbidden},   // issue.room-affect-trigger-improve: kForbidden seal exempts these
 };
 
 // Room flags (ERoomFlag) addressable from the <blocking>/<required>/<caster_blocking>
@@ -1011,11 +1012,15 @@ void Actions::ParseAction(Action &out, parser_wrapper::DataNode node) {
 					else if (name == "kBattlePulse") { out.trigger_.set(EActionTrigger::kBattlePulse); }
 					else if (name == "kEnter") { out.trigger_.set(EActionTrigger::kEnter); }
 					else if (name == "kEnterPC") { out.trigger_.set(EActionTrigger::kEnterPC); }
+					else if (name == "kEnterNPC") { out.trigger_.set(EActionTrigger::kEnterNPC); }
 					else { err_log("Actions: unknown <trigger val='%s'>.", name.c_str()); }
 				}
 			}
 			if (const char *rv = manifestation.GetValue("return"); rv && *rv) {
 				out.trigger_return_ = parse::ReadAsInt(rv);
+			}
+			if (const char *pv = manifestation.GetValue("prob"); pv && *pv) {
+				out.trigger_prob_ = parse::ReadAsInt(pv);
 			}
 		}
 	}
