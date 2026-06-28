@@ -469,7 +469,9 @@ void init_EApplyLocation_ITEM_NAMES() {
 	EApplyLocation_name_by_value[EApply::kAffectResist] = "kAffectResist";
 	EApplyLocation_name_by_value[EApply::kMagicResist] = "kMagicResist";
 	EApplyLocation_name_by_value[EApply::kAconitumPoison] = "kAconitumPoison";
-	EApplyLocation_name_by_value[EApply::kScopolaPoison] = "kScopolaPoison";
+	// issue.affects-improve (P3d): EApply::kScopolaPoison RETIRED (dead -- no affect_modify case);
+	// enum value 54 kept reserved (objects persist EApply by value, never renumber), but not
+	// name-mapped so it can no longer be referenced from XML.
 	EApplyLocation_name_by_value[EApply::kBelenaPoison] = "kBelenaPoison";
 	EApplyLocation_name_by_value[EApply::kDaturaPoison] = "kDaturaPoison";
 	EApplyLocation_name_by_value[EApply::kFreeForUse1] = "kFreeForUse1";
@@ -537,6 +539,7 @@ void init_EAffFlag_ITEM_NAMES() {
 	EAffFlag_name_by_value[EAffFlag::kAfCasterInRoom] = "kAfCasterInRoom";
 	EAffFlag_name_by_value[EAffFlag::kAfCasterInWorld] = "kAfCasterInWorld";
 	EAffFlag_name_by_value[EAffFlag::kAfCasterInWorldDelay] = "kAfCasterInWorldDelay";
+	EAffFlag_name_by_value[EAffFlag::kAfIgnoreBlink] = "kAfIgnoreBlink";
 
 	for (const auto &i : EAffFlag_name_by_value) {
 		EAffFlag_value_by_name[i.second] = i.first;

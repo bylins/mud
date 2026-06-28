@@ -5387,9 +5387,7 @@
 				</target_conditions>
 				<affects saving="kNone" resist="kImmunity">
 					<duration base="7" skill_divisor="0" min="0" max="0" />
-					<apply id="kPoisoned" location="kScopolaPoison">
-						<modifier min="5.0" dices_weight="0.0" alpha="0" beta="0" factor="1" stack="3" />
-					</apply>
+					<apply id="kPoisoned"/>
 					<apply id="kScopolaPoison"/>
 				</affects>
 			</action>

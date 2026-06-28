@@ -37,7 +37,11 @@ enum EAffFlag : Bitvector {
   kAfNeedControl		= 1u << 15,	// only one controlled room affect per caster (replaced on re-cast)
   kAfCasterInRoom		= 1u << 16,	// affect ends if its caster leaves the room
   kAfCasterInWorld		= 1u << 17,	// affect ends if its caster leaves the world
-  kAfCasterInWorldDelay	= 1u << 18	// caster looked up world-wide, but the affect just ticks down while absent (not zeroed)
+  kAfCasterInWorldDelay	= 1u << 18,	// caster looked up world-wide, but the affect just ticks down while absent (not zeroed)
+  // issue.affects-improve (P3d): affect CATEGORY -- this affect's DoT pierces blink/dodge. Groundwork
+  // for aconite; the future data-driven DoT tick reads this flag instead of ProcessPoisonDmg keying
+  // on EApply::kAconitumPoison. Not read yet.
+  kAfIgnoreBlink		= 1u << 19
 };
 
 /**
