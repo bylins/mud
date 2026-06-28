@@ -289,6 +289,49 @@ const talents_actions::Actions &RoomAffectActions(ERoomAffect affect_type) {
 void RoomAffectsLoader::Load(parser_wrapper::DataNode data) { ValidateRoomAffectRegistry(data); BuildRoomAffectFlagTable(data); }
 void RoomAffectsLoader::Reload(parser_wrapper::DataNode data) { ValidateRoomAffectRegistry(data); BuildRoomAffectFlagTable(data); }
 
+// issue.vedun-editor: in-game editing of cfg/room_affects.xml.
+std::string RoomAffectsLoader::EditableWhat() const { return "room_affects"; }
+
+std::vector<cfg_manager::EditableElement> RoomAffectsLoader::ListElements() const {
+	std::vector<cfg_manager::EditableElement> out;
+	for (const auto &[ra, token] : NAMES_OF<ERoomAffect>()) {
+		if (ra == ERoomAffect::kUndefined) {
+			continue;
+		}
+		const std::string &label = RoomAffectMsgRaw(ra, ERoomAffectMsgType::kShortDesc);
+		out.push_back({token, label.empty() ? token : label});
+	}
+	return out;
+}
+
+// Dry-run on save: the .scheme already constrains the editor's pick-lists (ERoomAffect / EAffFlag /
+// the action enums); this re-checks the room-affect identity + flag set against the enum maps so a
+// bad value never reaches the file. Deeper action-tree values are typed by the scheme + caught by the
+// action parser on reload.
+cfg_manager::ValidationResult RoomAffectsLoader::Validate(parser_wrapper::DataNode &doc) const {
+	for (auto &ra : doc.Children("room_affect")) {
+		const char *id = ra.GetValue("id");
+		if (!id || !*id) {
+			return {false, "<room_affect> without an id."};
+		}
+		try {
+			(void) ITEM_BY_NAME<ERoomAffect>(id);
+		} catch (const std::out_of_range &) {
+			return {false, std::string("unknown room affect id '") + id + "'."};
+		}
+		if (auto fnode = ra; fnode.GoToChild("flags")) {
+			if (const char *fv = fnode.GetValue("val"); fv && *fv) {
+				try {
+					(void) parse::ReadAsConstantsBitvector<EAffFlag>(fv);
+				} catch (const std::exception &) {
+					return {false, std::string("room affect '") + id + "': unknown flag in '" + fv + "'."};
+				}
+			}
+		}
+	}
+	return {true, ""};
+}
+
 // --- room-affect message container (cfg/messages/ru/room_affect_msg.xml) -------------------------
 namespace {
 msg_container::MsgContainer<ERoomAffect, ERoomAffectMsgType> &RoomAffectMsgContainer() {

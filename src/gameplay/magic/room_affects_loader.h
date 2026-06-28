@@ -13,10 +13,15 @@
 
 namespace room_spells {
 
-class RoomAffectsLoader : public cfg_manager::ICfgLoader {  // cfg id "room_affects" -> cfg/room_affects.xml
+class RoomAffectsLoader : public cfg_manager::IEditableCfgLoader {  // cfg id "room_affects" -> cfg/room_affects.xml
  public:
 	void Load(parser_wrapper::DataNode data) final;
 	void Reload(parser_wrapper::DataNode data) final;
+	// issue.vedun-editor: in-game editing of cfg/room_affects.xml (`vedun room_affects`). Keyed by the
+	// <room_affect id=> (ERoomAffect token) -> default FindElementNode (child-by-id) is reused.
+	[[nodiscard]] std::string EditableWhat() const final;
+	[[nodiscard]] std::vector<cfg_manager::EditableElement> ListElements() const final;
+	[[nodiscard]] cfg_manager::ValidationResult Validate(parser_wrapper::DataNode &doc) const final;
 };
 
 }  // namespace room_spells
