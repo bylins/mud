@@ -13,10 +13,15 @@
 
 namespace affects {
 
-class AffectsLoader : public cfg_manager::ICfgLoader {  // cfg id "affects" -> cfg/affects.xml
+class AffectsLoader : public cfg_manager::IEditableCfgLoader {  // cfg id "affects" -> cfg/affects.xml
  public:
 	void Load(parser_wrapper::DataNode data) final;
 	void Reload(parser_wrapper::DataNode data) final;
+	// issue.vedun-editor: in-game editing of cfg/affects.xml (`vedun affects`). Elements are keyed by
+	// the <affect id=> (EAffect token), so the default FindElementNode (child-by-id) is reused.
+	[[nodiscard]] std::string EditableWhat() const final;
+	[[nodiscard]] std::vector<cfg_manager::EditableElement> ListElements() const final;
+	[[nodiscard]] cfg_manager::ValidationResult Validate(parser_wrapper::DataNode &doc) const final;
 };
 
 }  // namespace affects

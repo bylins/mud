@@ -858,6 +858,60 @@ bool FindByShortDesc(const std::string &name, EAffect &out) {
 }
 void AffectsLoader::Load(parser_wrapper::DataNode data) { ValidateAffectRegistry(data); BuildAffectFlagTable(data); }
 void AffectsLoader::Reload(parser_wrapper::DataNode data) { ValidateAffectRegistry(data); BuildAffectFlagTable(data); }
+
+// issue.vedun-editor: in-game editing of cfg/affects.xml.
+std::string AffectsLoader::EditableWhat() const { return "affects"; }
+
+std::vector<cfg_manager::EditableElement> AffectsLoader::ListElements() const {
+	std::vector<cfg_manager::EditableElement> out;
+	for (const auto &[affect, token] : NAMES_OF<EAffect>()) {
+		if (affect == EAffect::kUndefined) {
+			continue;
+		}
+		const std::string &label = affects::AffectMsg(affect, affects::EAffectMsgType::kShortDesc);
+		out.push_back({token, label.empty() ? token : label});
+	}
+	return out;
+}
+
+// Dry-run: re-check every <affect> the editor is about to save against the same enum/range rules the
+// loader applies, so an invalid id / location / flag / buff / modifier is rejected BEFORE the file is
+// written (the .scheme already constrains the editor's pick-lists; this is the on-save safety net).
+cfg_manager::ValidationResult AffectsLoader::Validate(parser_wrapper::DataNode &doc) const {
+	for (auto &affect : doc.Children("affect")) {
+		const char *id = affect.GetValue("id");
+		if (!id || !*id) {
+			return {false, "<affect> without an id."};
+		}
+		try {
+			(void) ITEM_BY_NAME<EAffect>(id);
+		} catch (const std::out_of_range &) {
+			return {false, std::string("unknown affect id '") + id + "'."};
+		}
+		if (const char *b = affect.GetValue("buff"); b && *b && strcmp(b, "Y") != 0 && strcmp(b, "N") != 0) {
+			return {false, std::string("affect '") + id + "': buff must be Y or N."};
+		}
+		if (auto fnode = affect; fnode.GoToChild("flags")) {
+			if (const char *fv = fnode.GetValue("val"); fv && *fv) {
+				try {
+					(void) parse::ReadAsConstantsBitvector<EAffFlag>(fv);
+				} catch (const std::exception &) {
+					return {false, std::string("affect '") + id + "': unknown flag in '" + fv + "'."};
+				}
+			}
+		}
+		for (auto &ap : affect.Children("apply")) {
+			if (const char *loc = ap.GetValue("location"); loc && *loc) {
+				try {
+					(void) ITEM_BY_NAME<EApply>(loc);
+				} catch (const std::out_of_range &) {
+					return {false, std::string("affect '") + id + "': unknown apply location '" + loc + "'."};
+				}
+			}
+		}
+	}
+	return {true, ""};
+}
 void AffectMessagesLoader::Load(parser_wrapper::DataNode data) {
 	AffectMsgContainer().Init(data.Children());
 	g_affect_messages_loaded = true;
