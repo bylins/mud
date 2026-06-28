@@ -29,6 +29,10 @@ enum class ERoomAffectMsgType {
 	kAffExpiredToChar,          // wore off: to the (former) caster if present
 	kAffExpiredToRoom,          // wore off: to onlookers
 	kAffInterruptedToChar,      // controlled effect replaced by a recast: to the (re)caster
+	// issue.room-affect-trigger-improve: flavor shown when an EVENT trigger (kEnter/kEnterPC) engages a
+	// character -- the affect's own "why this happened" line, emitted before the action's effect runs.
+	kTriggerOnEntryToChar,      // to the entering character (the actor)
+	kTriggerOnEntryToRoom,      // to onlookers ($n0 = the actor)
 	// issue.affects-improve (Phase B): per-pulse flavor lines, rotated by the affect's tick count.
 	// Affect-native replacement for the spell sheaf's kCustomMsgOne..N that EmitRoomTickMessage read.
 	kTickMsgOne,

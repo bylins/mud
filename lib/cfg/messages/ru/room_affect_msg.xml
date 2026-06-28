@@ -72,6 +72,8 @@
 		<message type="kAffImposedToRoom" val="$n воскурил$g благовония и пропел$g заклинание. В воздухе поплыл чарующий глаз огненный узор."/>
 		<message type="kAffImposedToChar" val="Вы воскурили благовония и пропели заклинание. В воздухе поплыл чарующий глаз огненный узор."/>
 		<message type="kAffExpiredToRoom" val="Плывший в воздухе огненный узор потускнел и растаял струйками дыма."/>
+		<message type="kTriggerOnEntryToChar" val="Вы уставились на огненный узор, как баран на новые ворота."/>
+		<message type="kTriggerOnEntryToRoom" val="$n0 уставил$u на огненный узор, как баран на новые ворота."/>
 	</msg_sheaf>
 	<msg_sheaf id="kBlackTentacles">
 		<message type="kRoomAffectVisible" val="&amp;K... множество черных сухих рук высовывается из земли и шарит в воздухе!&amp;n"/>

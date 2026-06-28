@@ -80,6 +80,8 @@ const std::map<room_spells::ERoomAffectMsgType, std::string> kRoomAffectMsgTypeN
 		{room_spells::ERoomAffectMsgType::kAffExpiredToChar, "kAffExpiredToChar"},
 		{room_spells::ERoomAffectMsgType::kAffExpiredToRoom, "kAffExpiredToRoom"},
 		{room_spells::ERoomAffectMsgType::kAffInterruptedToChar, "kAffInterruptedToChar"},
+		{room_spells::ERoomAffectMsgType::kTriggerOnEntryToChar, "kTriggerOnEntryToChar"},
+		{room_spells::ERoomAffectMsgType::kTriggerOnEntryToRoom, "kTriggerOnEntryToRoom"},
 		{room_spells::ERoomAffectMsgType::kTickMsgOne, "kTickMsgOne"},
 		{room_spells::ERoomAffectMsgType::kTickMsgTwo, "kTickMsgTwo"},
 		{room_spells::ERoomAffectMsgType::kTickMsgThree, "kTickMsgThree"},
@@ -1047,35 +1049,12 @@ void RemoveSingleAffectFromWorld(CharData *ch, ERoomAffect affect) {
 }
 
 void ProcessRoomAffectsOnEntry(CharData *ch, RoomRnum room) {
-	if (privilege::IsImmortal(ch)) {
-		return;
-	}
-
-	const auto affect_on_room = room_spells::FindAffect(world[room], room_spells::ERoomAffect::kHypnoticPattern);
-	if (affect_on_room != world[room]->affected.end()) {
-		CharData *caster = find_char((*affect_on_room)->caster_id);
-		// если не в гопе, и не слепой
-		if (!group::same_group(ch, caster)
-			&& !AFF_FLAGGED(ch, EAffect::kBlind)){
-			// отсекаем всяких непонятных личностей типо двойников и проч
-			// \todo Пальцы себе отсеки за такой код. Переделать на константы, а еще лучше - сделать где-то enum или вообще конфиг с внумами мобов для спеллов
-			// Клон вообще по флагу клона проверяется
-			if  ((GET_MOB_VNUM(ch) >= 3000 && GET_MOB_VNUM(ch) < 4000) || GET_MOB_VNUM(ch) == 108 ) return;
-			if (ch->has_master() && !ch->get_master()->IsNpc() && ch->IsNpc()) {
-				return;
-			}
-			// если вошел игрок - ПвП - делаем проверку на шанс в зависимости от % магии кастующего
-			// без магии и ниже 80%: шанс 25%, на 100% - 27%, на 200% - 37% ,при 300% - 47%
-			// иначе пве, и просто кастим сон на входящего
-			if (!ch->IsNpc() && (number (1, 100) > (25))) {
-				return;
-			}
-			SendMsgToChar("Вы уставились на огненный узор, как баран на новые ворота.", ch);
-			act("$n0 уставил$u на огненный узор, как баран на новые ворота.",
-				true, ch, nullptr, ch, kToRoom | kToArenaListen);
-			CallMagic(caster, ch, nullptr, nullptr, ESpell::kSleep, GetRealLevel(caster));
-		}
-	}
+	// issue.room-affect-trigger-improve: on-entry room affects are data-driven now -- delegate to the
+	// generic dispatcher, which runs each room affect's kEnter/kEnterPC actions (e.g. kHypnoticPattern's
+	// side_spell kSleep) against the entering char, with immortal-skip + <target_conditions> filtering.
+	// This after-placement call cannot block the move; the interruptible walk path gets a
+	// before-placement call for return=0 blocking in a later step, so the verdict is ignored here.
+	(void) RunRoomEntryTriggers(ch, world[room]);
 }
 
 } // namespace room_spells

@@ -3126,6 +3126,10 @@ static std::vector<CharData *> ResolveActionTargets(CastContext &ctx,
 			// The room itself is not a CharData target -- it is applied to ctx.rvict by the
 			// room-impose path, not through the char roster. No char targets here.
 			return {};
+		case talents_actions::EActionTarget::kTarActor:
+			// issue.room-affect-trigger-improve: the char that triggered an event trigger (the room
+			// enterer), carried on ctx.cvict by the entry dispatcher.
+			return ctx.cvict ? std::vector<CharData *>{ctx.cvict} : std::vector<CharData *>{};
 		case talents_actions::EActionTarget::kTarRandomFoe: {
 			target_resolver::FoesRosterType roster{caster, nullptr,
 					[](CharData *, CharData *t) { return !mount::IsHorse(t); }};
@@ -3337,6 +3341,73 @@ ECastResult CastRoomTickActionFromActions(CharData *ch, RoomData *room, ESpell c
 		*tick_duration = ctx.GetTickDuration();
 	}
 	return result;
+}
+
+// issue.room-affect-trigger-improve: on-entry trigger return values. 0 = block the action that fired
+// the trigger (refuse the room entry); any non-zero = allow. The dispatcher treats "no value set" as
+// allow, so non-blocking affects (e.g. kHypnoticPattern, which only casts sleep) need no return attr.
+namespace {
+constexpr int kEntryTriggerAllow = 1;
+constexpr int kEntryTriggerBlock = 0;
+}
+
+// Run ONE event-triggered (kEnter/kEnterPC) action on the actor. `caster` (the affect's owner) sources
+// the cast; `actor` is the target -- carried on ctx.cvict and resolved by EActionTarget::kTarActor.
+// Returns the trigger's return value: a manual_cast handler's override (set on ctx) wins, else the
+// action's <trigger return=> tag, else "allow". Returns allow without acting if the actor fails the
+// action's <target_conditions> (so a filtered-out actor neither gets the effect nor blocks).
+static int CastRoomEntryAction(CharData *caster, RoomData *room, CharData *actor,
+							   room_spells::ERoomAffect affect_type,
+							   const talents_actions::Action &action, float potency) {
+	if (TargetIsBlocked(actor, action.GetBlocking())
+			|| !TargetMeetsRequired(actor, action.GetRequired())) {
+		return kEntryTriggerAllow;
+	}
+	// issue.room-affect-trigger-improve: the affect's own "why this happened" flavor, shown to the actor
+	// and the room BEFORE the action's effect runs (e.g. before kHypnoticPattern's sleep lands), keyed
+	// by the room affect's sheaf (sheaf-direct -> silent for affects that author no such line).
+	using room_spells::ERoomAffectMsgType;
+	const std::string &to_char = room_spells::RoomAffectMsgRaw(affect_type, ERoomAffectMsgType::kTriggerOnEntryToChar);
+	if (!to_char.empty()) { act(to_char.c_str(), false, actor, nullptr, nullptr, kToChar); }
+	const std::string &to_room = room_spells::RoomAffectMsgRaw(affect_type, ERoomAffectMsgType::kTriggerOnEntryToRoom);
+	if (!to_room.empty()) { act(to_room.c_str(), true, actor, nullptr, actor, kToRoom | kToArenaListen); }
+	const std::vector<talents_actions::Action> single{action};
+	CastContext ctx = BuildCastContext(caster, ESpell::kUndefined, GetRealLevel(caster), potency);
+	ctx.cvict = actor;
+	ctx.UseExternalActions(&single);
+	RunRoomCycledAction(ctx, room, single, 0);
+	if (const auto h = ctx.GetTriggerReturn()) { return *h; }       // handler override wins
+	if (const auto t = action.GetTriggerReturn()) { return *t; }    // else the <trigger return=> tag
+	return kEntryTriggerAllow;                                       // else allow
+}
+
+bool RunRoomEntryTriggers(CharData *actor, RoomData *room) {
+	if (!actor || !room || privilege::IsImmortal(actor)) {
+		return true;   // affect triggers never fire on (or block) immortals
+	}
+	const bool actor_is_pc = !actor->IsNpc();
+	// Snapshot {affect, caster, potency} so running an action (which could alter room->affected) cannot
+	// invalidate the iteration.
+	struct Pending { room_spells::ERoomAffect type; long caster_id; float potency; };
+	std::vector<Pending> pending;
+	for (const auto &aff : room->affected) {
+		if (aff) { pending.push_back({aff->affect_type, aff->caster_id, aff->potency}); }
+	}
+	bool allowed = true;
+	for (const auto &p : pending) {
+		for (const auto &action : room_spells::RoomAffectActions(p.type).list()) {
+			const auto &trig = action.GetTrigger();
+			const bool fires = trig.test(talents_actions::EActionTrigger::kEnter)
+					|| (actor_is_pc && trig.test(talents_actions::EActionTrigger::kEnterPC));
+			if (!fires) { continue; }
+			CharData *caster = find_char(p.caster_id);
+			if (!caster) { continue; }   // no owner to source the cast this entry
+			if (CastRoomEntryAction(caster, room, actor, p.type, action, p.potency) == kEntryTriggerBlock) {
+				allowed = false;   // block, but keep running the rest (so all effects still fire)
+			}
+		}
+	}
+	return allowed;
 }
 
 // cast `spell_id` as an area attack on every foe in the caster's room,

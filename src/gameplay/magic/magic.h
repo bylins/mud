@@ -126,6 +126,11 @@ class CastContext {
 	// magic.h). -1 = not a tick cast.
 	void SetTickDuration(int d) { tick_duration_ = d; }
 	[[nodiscard]] int GetTickDuration() const { return tick_duration_; }
+	// issue.room-affect-trigger-improve: a manual_cast handler's override of an event trigger's
+	// return value. The <trigger return="N"/> tag is the default; a handler that calls this wins.
+	// std::nullopt = handler set nothing -> the tag/default applies. Threaded like tick_duration_.
+	void SetTriggerReturn(int v) { trigger_return_ = v; }
+	[[nodiscard]] std::optional<int> GetTriggerReturn() const { return trigger_return_; }
 	[[nodiscard]] const talents_actions::Action *action() const;
 	[[nodiscard]] bool HasPendingActions() const;
 	// The action the current stage should read its block from: the cursor's
@@ -151,6 +156,7 @@ class CastContext {
 	const std::vector<talents_actions::Action> *external_actions_{nullptr};
 	size_t action_idx_{0};
 	int tick_duration_{-1};   // issue.affect-migration: see SetTickDuration (-1 = not a tick cast)
+	std::optional<int> trigger_return_;   // issue.room-affect-trigger-improve: see SetTriggerReturn
 };
 
 // VNUM'ы мобов для заклинаний, создающих мобов

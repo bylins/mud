@@ -69,6 +69,18 @@
 	</room_affect>
 	<room_affect id="kHypnoticPattern">
 		<flags val="kAfDispellable|kAfCasterInRoom"/>
+		<actions>
+			<action target="kTarActor">
+				<trigger val="kEnter"/>
+				<target_conditions>
+					<blocking>
+						<affect_flags val="kBlind"/>
+						<mob_flags val="kNoSleep|kClone"/>
+					</blocking>
+				</target_conditions>
+				<side_spell id="kSleep"/>
+			</action>
+		</actions>
 	</room_affect>
 	<room_affect id="kBlackTentacles">
 		<flags val="kAfDispellable|kAfNeedControl|kAfCasterInRoom"/>
