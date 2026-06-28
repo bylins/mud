@@ -3381,7 +3381,9 @@ static int CastRoomEntryAction(CharData *caster, RoomData *room, CharData *actor
 	return kEntryTriggerAllow;                                       // else allow
 }
 
-bool RunRoomEntryTriggers(CharData *actor, RoomData *room) {
+bool room_spells::RunRoomEntryTriggers(CharData *actor, RoomData *room,
+									   room_spells::EEntryTriggerPhase phase) {
+	using room_spells::EEntryTriggerPhase;
 	if (!actor || !room || privilege::IsImmortal(actor)) {
 		return true;   // affect triggers never fire on (or block) immortals
 	}
@@ -3400,10 +3402,19 @@ bool RunRoomEntryTriggers(CharData *actor, RoomData *room) {
 			const bool fires = trig.test(talents_actions::EActionTrigger::kEnter)
 					|| (actor_is_pc && trig.test(talents_actions::EActionTrigger::kEnterPC));
 			if (!fires) { continue; }
+			// An action "can block" iff it yields a non-default return: a <trigger return=> tag or a
+			// manual_cast handler that may set one. Such actions run in the BEFORE-placement kBlockCheck
+			// pass (where return=0 refuses the move); pure-effect actions (the common case) run in the
+			// AFTER-placement effect passes so their effect/messages keep destination-room context.
+			const bool can_block = action.GetTriggerReturn().has_value() || !action.GetManualHandler().empty();
+			if (phase == EEntryTriggerPhase::kBlockCheck && !can_block) { continue; }
+			if (phase == EEntryTriggerPhase::kEffectsNonBlocking && can_block) { continue; }
 			CharData *caster = find_char(p.caster_id);
 			if (!caster) { continue; }   // no owner to source the cast this entry
-			if (CastRoomEntryAction(caster, room, actor, p.type, action, p.potency) == kEntryTriggerBlock) {
-				allowed = false;   // block, but keep running the rest (so all effects still fire)
+			const int ret = CastRoomEntryAction(caster, room, actor, p.type, action, p.potency);
+			// Only the block-check pass enforces the verdict; the effect passes ignore it.
+			if (phase == EEntryTriggerPhase::kBlockCheck && ret == kEntryTriggerBlock) {
+				allowed = false;   // block, but keep running the rest (so all blocking actions still fire)
 			}
 		}
 	}

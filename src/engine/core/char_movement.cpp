@@ -384,6 +384,14 @@ bool PerformSimpleMove(CharData *ch, int dir, int following, CharData *leader, E
 	if (!enter_wtrigger(world[EXIT(ch, dir)->to_room()], ch, dir)) {
 		return false;
 	}
+	// issue.room-affect-trigger-improve: a blocking on-entry room affect (a kEnter/kEnterPC action with
+	// return=0) can refuse this voluntary move, like a DGScript ENTER trigger. Only blocking-capable
+	// actions run here (before placement); the rest fire after arrival (kEffectsNonBlocking, below) so
+	// non-blocking effects keep their destination-room context.
+	if (!room_spells::RunRoomEntryTriggers(ch, world[EXIT(ch, dir)->to_room()],
+			room_spells::EEntryTriggerPhase::kBlockCheck)) {
+		return false;
+	}
 
 	// Now we know we're allowed to go into the room.
 	if (!privilege::IsImmortal(ch) && !ch->IsNpc())
@@ -565,8 +573,11 @@ bool PerformSimpleMove(CharData *ch, int dir, int following, CharData *leader, E
 	if (ch->desc != nullptr)
 		sight::look_at_room(ch, 0, move_type != EMoveType::kFlee);
 
-	// Both PC and NPC: process here, after the arrival message + look_at_room.
-	room_spells::ProcessRoomAffectsOnEntry(ch, ch->in_room);
+	// issue.room-affect-trigger-improve: AFTER placement on the walk path -- run the non-blocking
+	// on-entry effects (e.g. kHypnoticPattern's sleep) in the destination room. The blocking-capable
+	// actions already ran (and possibly refused the move) before placement, above.
+	room_spells::RunRoomEntryTriggers(ch, world[ch->in_room],
+			room_spells::EEntryTriggerPhase::kEffectsNonBlocking);
 
 	if (deathtrap::check_death_trap(ch)) {
 		if (horse) {

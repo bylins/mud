@@ -1049,12 +1049,11 @@ void RemoveSingleAffectFromWorld(CharData *ch, ERoomAffect affect) {
 }
 
 void ProcessRoomAffectsOnEntry(CharData *ch, RoomRnum room) {
-	// issue.room-affect-trigger-improve: on-entry room affects are data-driven now -- delegate to the
-	// generic dispatcher, which runs each room affect's kEnter/kEnterPC actions (e.g. kHypnoticPattern's
-	// side_spell kSleep) against the entering char, with immortal-skip + <target_conditions> filtering.
-	// This after-placement call cannot block the move; the interruptible walk path gets a
-	// before-placement call for return=0 blocking in a later step, so the verdict is ignored here.
-	(void) RunRoomEntryTriggers(ch, world[room]);
+	// issue.room-affect-trigger-improve: a FORCED / after-placement entry (teleport, summon, flee, or a
+	// non-walk placement). Run every on-entry action for its EFFECT; the block verdict is ignored, since
+	// a forced entry can't be refused. The interruptible walk path does NOT use this -- it calls the
+	// dispatcher directly with kBlockCheck (before placement) + kEffectsNonBlocking (after).
+	(void) RunRoomEntryTriggers(ch, world[room], EEntryTriggerPhase::kEffectsAll);
 }
 
 } // namespace room_spells

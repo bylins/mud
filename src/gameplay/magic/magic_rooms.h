@@ -84,6 +84,19 @@ ECastResult CastRoomAffect(CastContext &ctx);
 void RemoveSingleAffectFromWorld(CharData *ch, ERoomAffect affect);
 void ProcessRoomAffectsOnEntry(CharData *ch, RoomRnum room);
 
+// issue.room-affect-trigger-improve: the generic on-entry trigger dispatcher runs in one of three
+// phases so a blocking trigger can refuse a voluntary move (DGScript ENTER-style) WITHOUT moving a
+// non-blocking affect's effect out of its destination-room context:
+//   kBlockCheck         -- BEFORE placement on the walk path: run only blocking-capable actions
+//                          (those with a <trigger return=> tag or a manual_cast handler) and honour
+//                          return=0; returns false to refuse the move.
+//   kEffectsNonBlocking -- AFTER placement on the walk path: run the remaining (pure-effect) actions
+//                          in the destination room; the return is ignored.
+//   kEffectsAll         -- AFTER placement on a FORCED entry (teleport/summon/flee): run every action
+//                          (the block verdict is ignored -- forced entries can't be blocked).
+enum class EEntryTriggerPhase { kBlockCheck, kEffectsNonBlocking, kEffectsAll };
+[[nodiscard]] bool RunRoomEntryTriggers(CharData *actor, RoomData *room, EEntryTriggerPhase phase);
+
 // Walks room->affected for a kPortalTimer affect with pk_unique != 0 and
 // pk_unique != exclude_uid; returns the matching pk_unique, or 0 if none.
 // Replaces the per-room RoomData::pkPenterUnique field. exclude_uid = 0

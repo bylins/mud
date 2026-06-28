@@ -37,11 +37,9 @@ ECastResult CastRoomTickActionFromActions(CharData *ch, RoomData *room, ESpell c
 										  const std::vector<talents_actions::Action> &actions, int phase,
 										  int *tick_duration = nullptr, float fixed_potency = -1.0f);
 
-// issue.room-affect-trigger-improve: generic on-entry room-affect dispatcher. For a character entering
-// `room`, run every room affect's kEnter (any actor) / kEnterPC (PC only) action against the actor.
-// Returns whether the entry is ALLOWED (false iff some action returned 0/block). Immortals are skipped.
-// The block verdict is enforced only by the interruptible walk path; forced-entry callers ignore it.
-bool RunRoomEntryTriggers(CharData *actor, RoomData *room);
+// issue.room-affect-trigger-improve: RunRoomEntryTriggers (the on-entry dispatcher) is declared in
+// magic_rooms.h (room_spells), since the movement code calls it. It is defined in magic.cpp because it
+// needs that TU's static action helpers.
 
 // Build a CastContext for a cast: evaluates the success + potency rolls once. Module-internal
 // (CallMagic is the public entry; CastAreaInRoom uses it for the room-affect ticks).
