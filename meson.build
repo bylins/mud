@@ -330,6 +330,9 @@ endif
 if sqlite_opt != 'disabled'
     feature_flags += 'sqlite'
 endif
+if luajit_opt != 'disabled'
+    feature_flags += 'luajit'
+endif
 if telegram_opt != 'disabled'
     feature_flags += 'telegram'
 endif
