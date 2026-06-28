@@ -11,6 +11,7 @@
 #include "global_objects.h"
 #include "utils/logger.h"
 #include "utils/utils.h"
+#include "utils/utils_time.h"
 #include "utils/utils_string.h"
 #include "utils/utils_parse.h"
 #include "engine/entities/zone.h"
@@ -313,6 +314,13 @@ std::vector<EntityFileTask> YamlWorldDataSource::DiscoverEntityFiles(const std::
 	namespace fs = std::filesystem;
 	std::vector<EntityFileTask> tasks;
 
+	// [yaml-timing] this whole discovery runs SERIALLY on the main thread
+	// before any worker starts. In flat layout it fully parses every zone file
+	// just to enumerate keys -- the workers then parse the same files again.
+	utils::CExecutionTimer disc_timer;
+	size_t flat_files_parsed = 0;
+	size_t perfile_indexes_parsed = 0;
+
 	for (int zone_vnum : GetZoneList())
 	{
 		const std::string zone_dir = m_world_dir + "/zones/" + std::to_string(zone_vnum);
@@ -349,6 +357,7 @@ std::vector<EntityFileTask> YamlWorldDataSource::DiscoverEntityFiles(const std::
 			try
 			{
 				YAML::Node root = YAML::LoadFile(flat_path);
+				++flat_files_parsed;
 				for (auto it = root.begin(); it != root.end(); ++it)
 				{
 					int rel_num = it->first.as<int>();
@@ -377,6 +386,7 @@ std::vector<EntityFileTask> YamlWorldDataSource::DiscoverEntityFiles(const std::
 		try
 		{
 			YAML::Node root = YAML::LoadFile(index_path);
+			++perfile_indexes_parsed;
 			if (root[sub] && root[sub].IsSequence())
 			{
 				for (const auto &rel_node : root[sub])
@@ -400,6 +410,10 @@ std::vector<EntityFileTask> YamlWorldDataSource::DiscoverEntityFiles(const std::
 		}
 	}
 
+	log("   [yaml-timing] discover '%s': %.1f ms serial (flat files fully parsed: %zu, "
+		"per-file indexes: %zu, tasks: %zu)",
+		sub.c_str(), disc_timer.delta().count() * 1000.0,
+		flat_files_parsed, perfile_indexes_parsed, tasks.size());
 	return tasks;
 }
 
@@ -622,6 +636,7 @@ ZoneData YamlWorldDataSource::ParseZoneFile(const std::string &file_path)
 // Parallel zone loading
 void YamlWorldDataSource::LoadZonesParallel()
 {
+	utils::CExecutionTimer t_total;
 	std::vector<int> zone_vnums = GetZoneList();
 	if (zone_vnums.empty())
 	{
@@ -647,6 +662,9 @@ void YamlWorldDataSource::LoadZonesParallel()
 	// Distribute zones into batches
 	auto batches = utils::DistributeBatches(zone_vnums, m_num_threads);
 	std::atomic<int> error_count{0};
+
+	const double disc_ms = t_total.delta().count() * 1000.0;
+	utils::CExecutionTimer t_par;
 
 	// Launch parallel loading
 	std::vector<std::future<void>> futures;
@@ -688,6 +706,11 @@ void YamlWorldDataSource::LoadZonesParallel()
 		fatal_log("FATAL: %d zone(s) failed to load. Aborting.", error_count.load());
 	}
 
+	const double par_ms = t_par.delta().count() * 1000.0;
+	const double total_ms = t_total.delta().count() * 1000.0;
+	log("   [yaml-timing] zones (threads=%zu): total=%.1f ms | discovery=%.1f | "
+		"parallel-parse=%.1f | merge/post=%.1f",
+		m_num_threads, total_ms, disc_ms, par_ms, total_ms - disc_ms - par_ms);
 	log("Loaded %d zones from YAML (parallel).", zone_count);
 }
 
@@ -970,6 +993,7 @@ Trigger* YamlWorldDataSource::ParseTriggerNode(const YAML::Node &root)
 // Parallel trigger loading
 void YamlWorldDataSource::LoadTriggersParallel()
 {
+	utils::CExecutionTimer t_total;
 	std::vector<EntityFileTask> tasks = DiscoverEntityFiles("triggers");
 	std::vector<int> trigger_vnums;
 	for (const auto &t : tasks)
@@ -991,6 +1015,9 @@ void YamlWorldDataSource::LoadTriggersParallel()
 	// Thread-local results (each thread collects its triggers)
 	std::vector<std::vector<std::pair<int, Trigger*>>> thread_results(batches.size());
 	std::atomic<int> error_count{0};
+
+	const double disc_ms = t_total.delta().count() * 1000.0;
+	utils::CExecutionTimer t_par;
 
 	// Launch parallel loading
 	std::vector<std::future<void>> futures;
@@ -1041,6 +1068,8 @@ void YamlWorldDataSource::LoadTriggersParallel()
 		fatal_log("FATAL: %d trigger(s) failed to load. Aborting.", error_count.load());
 	}
 
+	const double par_ms = t_par.delta().count() * 1000.0;
+
 	// Merge results into trig_index (sequential, sorted by vnum)
 	// Collect all triggers into single vector and sort by vnum
 	std::vector<std::pair<int, Trigger*>> all_triggers;
@@ -1068,6 +1097,10 @@ void YamlWorldDataSource::LoadTriggersParallel()
 		CreateTriggerIndex(vnum, trig);
 	}
 
+	const double total_ms = t_total.delta().count() * 1000.0;
+	log("   [yaml-timing] triggers (threads=%zu): total=%.1f ms | discovery=%.1f | "
+		"parallel-parse=%.1f | merge/post=%.1f",
+		m_num_threads, total_ms, disc_ms, par_ms, total_ms - disc_ms - par_ms);
 	log("Loaded %d triggers from YAML (parallel).", top_of_trigt);
 }
 
@@ -1166,6 +1199,7 @@ RoomData* YamlWorldDataSource::ParseRoomNode(const YAML::Node &root, int vnum, i
 // Parallel room loading
 void YamlWorldDataSource::LoadRoomsParallel()
 {
+	utils::CExecutionTimer t_total;
 	// Creating empty world with kNowhere room (dummy room 0) - same as Legacy loader
 	world.push_back(new RoomData);
 	top_of_world = kNowhere;
@@ -1189,6 +1223,9 @@ void YamlWorldDataSource::LoadRoomsParallel()
 	// Distribute room files into batches (flat task = many vnums, per-file = one)
 	auto batches = utils::DistributeBatches(tasks, m_num_threads);
 	std::atomic<int> error_count{0};
+
+	const double disc_ms = t_total.delta().count() * 1000.0;
+	utils::CExecutionTimer t_par;
 
 	// Launch parallel loading with thread-local description indices
 	std::vector<std::future<ParsedRoomBatch>> futures;
@@ -1271,6 +1308,8 @@ void YamlWorldDataSource::LoadRoomsParallel()
 		fatal_log("FATAL: %d room(s) failed to load. Aborting.", error_count.load());
 	}
 
+	const double par_ms = t_par.delta().count() * 1000.0;
+
 	// Merge descriptions from all batches
 	auto &global_descriptions = GlobalObjects::descriptions();
 	std::vector<std::vector<size_t>> local_to_global(parsed_batches.size());
@@ -1351,6 +1390,11 @@ void YamlWorldDataSource::LoadRoomsParallel()
 			}
 		}
 	}
+
+	const double total_ms = t_total.delta().count() * 1000.0;
+	log("   [yaml-timing] rooms (threads=%zu): total=%.1f ms | discovery=%.1f | "
+		"parallel-parse=%.1f | merge/post=%.1f",
+		m_num_threads, total_ms, disc_ms, par_ms, total_ms - disc_ms - par_ms);
 }
 void YamlWorldDataSource::LoadRooms()
 {
@@ -1821,6 +1865,7 @@ CharData YamlWorldDataSource::ParseMobNode(const YAML::Node &root)
 // Parallel mob loading
 void YamlWorldDataSource::LoadMobsParallel()
 {
+	utils::CExecutionTimer t_total;
 	std::vector<EntityFileTask> tasks = DiscoverEntityFiles("mobs");
 	std::vector<int> mob_vnums;
 	for (const auto &t : tasks)
@@ -1873,6 +1918,9 @@ void YamlWorldDataSource::LoadMobsParallel()
 	// CharData::operator= side-effects across threads.
 	std::vector<std::vector<std::pair<int, std::unique_ptr<CharData>>>> thread_results(batches.size());
 	std::vector<std::map<int, std::vector<int>>> thread_triggers(batches.size());
+
+	const double disc_ms = t_total.delta().count() * 1000.0;
+	utils::CExecutionTimer t_par;
 
 	// Launch parallel parsing only -- no global writes from workers
 	std::vector<std::future<void>> futures;
@@ -1937,6 +1985,8 @@ void YamlWorldDataSource::LoadMobsParallel()
 		fatal_log("FATAL: %d mob(s) failed to load. Aborting.", error_count.load());
 	}
 
+	const double par_ms = t_par.delta().count() * 1000.0;
+
 	// Merge phase (single-threaded): place parsed mobs into mob_proto[] by
 	// pre-computed index, then attach triggers.
 	for (auto &results : thread_results)
@@ -2000,6 +2050,10 @@ void YamlWorldDataSource::LoadMobsParallel()
 		}
 	}
 
+	const double total_ms = t_total.delta().count() * 1000.0;
+	log("   [yaml-timing] mobs (threads=%zu): total=%.1f ms | discovery=%.1f | "
+		"parallel-parse=%.1f | merge/post=%.1f",
+		m_num_threads, total_ms, disc_ms, par_ms, total_ms - disc_ms - par_ms);
 	log("Loaded %d mobs from YAML (parallel).", top_of_mobt);
 }
 
@@ -2305,6 +2359,7 @@ CObjectPrototype* YamlWorldDataSource::ParseObjectNode(const YAML::Node &root, i
 // Parallel object loading
 void YamlWorldDataSource::LoadObjectsParallel()
 {
+	utils::CExecutionTimer t_total;
 	std::vector<EntityFileTask> tasks = DiscoverEntityFiles("objects");
 	std::vector<int> obj_vnums;
 	for (const auto &t : tasks)
@@ -2327,6 +2382,9 @@ void YamlWorldDataSource::LoadObjectsParallel()
 	std::vector<std::vector<std::pair<int, CObjectPrototype*>>> thread_results(batches.size());
 	std::vector<std::map<int, std::vector<int>>> thread_triggers(batches.size());
 	std::atomic<int> error_count{0};
+
+	const double disc_ms = t_total.delta().count() * 1000.0;
+	utils::CExecutionTimer t_par;
 
 	// Launch parallel loading
 	std::vector<std::future<void>> futures;
@@ -2390,6 +2448,8 @@ void YamlWorldDataSource::LoadObjectsParallel()
 		fatal_log("FATAL: %d object(s) failed to load. Aborting.", error_count.load());
 	}
 
+	const double par_ms = t_par.delta().count() * 1000.0;
+
 	// Merge results into obj_proto (sequential, sorted by vnum)
 	// Collect all objects into single vector and sort by vnum
 	std::vector<std::pair<int, CObjectPrototype*>> all_objects;
@@ -2436,6 +2496,10 @@ void YamlWorldDataSource::LoadObjectsParallel()
 		}
 	}
 
+	const double total_ms = t_total.delta().count() * 1000.0;
+	log("   [yaml-timing] objects (threads=%zu): total=%.1f ms | discovery=%.1f | "
+		"parallel-parse=%.1f | merge/post=%.1f",
+		m_num_threads, total_ms, disc_ms, par_ms, total_ms - disc_ms - par_ms);
 	log("Loaded %d objects from YAML (parallel).", loaded_count);
 }
 
