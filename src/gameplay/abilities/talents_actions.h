@@ -16,6 +16,7 @@
 
 #include <string>
 #include <vector>
+#include <optional>
 
 class CharData;
 enum class ESpell;
@@ -47,6 +48,8 @@ enum class EActionTarget {
 	kTarRandomFoe,   // one random foe in the room
 	kTarRandomAlly,  // one random ally in the room
 	kTarMinions,     // the caster's charmed NPC followers in the room (minions)
+	kTarActor,       // issue.room-affect-trigger-improve: the char that triggered an event trigger
+	                 // (e.g. the character entering the room for kEnter/kEnterPC)
 	kTarRoomThis     // the room itself -- this action imposes its effect on the room
 	                 // (the per-tick effect lives in the linked kService spell)
 };
@@ -59,6 +62,8 @@ enum class EActionTarget {
 enum class EActionTrigger {
 	kPulse = 0,    // every affect pulse (room/char affect update), regardless of combat
 	kBattlePulse,  // an affect pulse, but only while combat is happening in the room
+	kEnter,        // issue.room-affect-trigger-improve: a character enters the room (any actor)
+	kEnterPC,      // ... only when a PC enters (mirrors DGScript WTRIG_ENTER / WTRIG_ENTER_PC)
 	kCount
 };
 
@@ -622,6 +627,12 @@ class Action {
 	// issue.affect-migration: the event(s) that fire this action (empty = inline in the normal cast).
 	// Parsed from <trigger val="kPulse|kBattlePulse">. See EActionTrigger.
 	BitsetFlags<EActionTrigger> trigger_;
+	// issue.room-affect-trigger-improve: the value an EVENT trigger yields back to the firing game
+	// event, parsed from <trigger return="N"/> (int). 0 = block the action that fired it (e.g. refuse
+	// the room entry); non-zero = allow. std::nullopt = the action set no value -> the dispatcher
+	// treats it as "allow". A manual_cast handler can override this at runtime (out-param on the
+	// context). Only meaningful for blocking-capable event triggers (kEnter/kEnterPC); ignored by pulse.
+	std::optional<int> trigger_return_;
 
 	friend class Actions;   // Actions builds these via the Parse* helpers.
 
@@ -646,6 +657,7 @@ class Action {
 	[[nodiscard]] const std::string &GetManualHandler() const { return manual_handler_; }
 	[[nodiscard]] const std::vector<ESpell> &GetSideSpells() const { return side_spells_; }
 	[[nodiscard]] const BitsetFlags<EActionTrigger> &GetTrigger() const { return trigger_; }
+	[[nodiscard]] std::optional<int> GetTriggerReturn() const { return trigger_return_; }
 };
 
 // Spell-level caster gate (issue.spell-unification): a spell is castable by the caster

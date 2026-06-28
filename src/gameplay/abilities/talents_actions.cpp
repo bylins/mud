@@ -29,6 +29,7 @@ const char *ActionTargetName(EActionTarget t) {
 		case EActionTarget::kTarRandomFoe: return "kTarRandomFoe";
 		case EActionTarget::kTarRandomAlly: return "kTarRandomAlly";
 		case EActionTarget::kTarMinions: return "kTarMinions";
+		case EActionTarget::kTarActor: return "kTarActor";
 		case EActionTarget::kTarRoomThis: return "kTarRoomThis";
 	}
 	return "?";
@@ -952,6 +953,7 @@ void Actions::ParseAction(Action &out, parser_wrapper::DataNode node) {
 		else if (strcmp(tgt, "kTarRandomFoe") == 0) { out.target_ = EActionTarget::kTarRandomFoe; }
 		else if (strcmp(tgt, "kTarRandomAlly") == 0) { out.target_ = EActionTarget::kTarRandomAlly; }
 		else if (strcmp(tgt, "kTarMinions") == 0) { out.target_ = EActionTarget::kTarMinions; }
+		else if (strcmp(tgt, "kTarActor") == 0) { out.target_ = EActionTarget::kTarActor; }
 		else if (strcmp(tgt, "kTarSame") == 0) { out.target_ = EActionTarget::kTarSame; }
 		else if (strcmp(tgt, "kTarRoomThis") == 0) { out.target_ = EActionTarget::kTarRoomThis; }
 		else { err_log("Actions: unknown <action target='%s'>.", tgt); }
@@ -1000,13 +1002,20 @@ void Actions::ParseAction(Action &out, parser_wrapper::DataNode node) {
 		} else if (strcmp(manifestation.GetName(), "trigger") == 0) {
 			// issue.affect-migration: <trigger val="kPulse|kBattlePulse"/> -- the event(s) that fire
 			// this action. No trigger => the action runs inline in the normal cast.
+			// issue.room-affect-trigger-improve: kEnter/kEnterPC fire on a character entering the room;
+			// the optional return="N" int is the value the trigger yields the firing event (0 = block).
 			const char *tv = manifestation.GetValue("val");
 			if (tv && *tv) {
 				for (const auto &name : utils::Split(tv, '|')) {
 					if (name == "kPulse") { out.trigger_.set(EActionTrigger::kPulse); }
 					else if (name == "kBattlePulse") { out.trigger_.set(EActionTrigger::kBattlePulse); }
+					else if (name == "kEnter") { out.trigger_.set(EActionTrigger::kEnter); }
+					else if (name == "kEnterPC") { out.trigger_.set(EActionTrigger::kEnterPC); }
 					else { err_log("Actions: unknown <trigger val='%s'>.", name.c_str()); }
 				}
+			}
+			if (const char *rv = manifestation.GetValue("return"); rv && *rv) {
+				out.trigger_return_ = parse::ReadAsInt(rv);
 			}
 		}
 	}
