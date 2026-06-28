@@ -197,6 +197,7 @@ if luajit_opt != 'disabled'
     else
         luajit_dep = dependency('luajit', required: true, fallback: ['luajit'], default_options: ['default_library=static', 'luajit=false'])
     endif
+    meson.override_dependency('lua', luajit_dep)
     sol2_root = get_option('sol2_root')
     if sol2_root != ''
         sol2_header = sol2_root / 'include' / 'sol' / 'sol.hpp'
