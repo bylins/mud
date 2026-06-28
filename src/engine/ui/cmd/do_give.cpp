@@ -107,9 +107,9 @@ void perform_give_gold(CharData *ch, CharData *vict, int amount) {
 			false, ch, nullptr, nullptr, kToChar);
 		return;
 	}
-	sprintf(buf, "Вы дали %d %s $N2.", amount, MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(amount, grammar::ECase::kNom).c_str());
+	sprintf(buf, "Вы дали %d %s $N2.", amount, MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(amount, grammar::ECase::kAcc).c_str());
 	act(buf, false, ch, nullptr, vict, kToChar);
-	sprintf(buf, "$n дал$g вам %d %s.", amount, MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(amount, grammar::ECase::kNom).c_str());
+	sprintf(buf, "$n дал$g вам %d %s.", amount, MUD::Currency(currencies::kGoldVnum).GetNameWithAmount(amount, grammar::ECase::kAcc).c_str());
 	act(buf, false, ch, nullptr, vict, kToVict);
 	sprintf(buf, "$n дал$g %s $N2.",
 			MUD::Currency(currencies::kGoldVnum).GetObjCName(amount, grammar::ECase::kAcc));

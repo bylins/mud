@@ -829,7 +829,7 @@ EVENT(trig_wait_event) {
 	go = wait_event_obj->go;
 	type = wait_event_obj->type;
 	GET_TRIG_WAIT(trig).time_remaining = 0;
-	script_driver(go, trig, type, TRIG_CONTINUE);
+	script_driver(go, trig, type, wait_event_obj->from_current ? TRIG_FROM_LINE : TRIG_CONTINUE);
 	free(wait_event_obj);
 }
 
@@ -4601,9 +4601,26 @@ cmdlist_element::shared_ptr find_case(Trigger *trig,
 }
 
 // processes any 'wait' commands in a trigger
-void process_wait(void *go, Trigger *trig, int type, char *cmd, const cmdlist_element::shared_ptr &cl) {
-	char *arg;
+// issue #3523: единая точка постановки wait на триггер через штатный
+// trig_wait_event. from_current=true -> возобновление с текущей строки.
+void hang_trig_wait(void *go, Trigger *trig, int type, long time, bool from_current) {
+	if (time <= 0) {
+		return;
+	}
 	struct wait_event_data *wait_event_obj;
+	CREATE(wait_event_obj, 1);
+	wait_event_obj->trigger = trig;
+	wait_event_obj->go = go;
+	wait_event_obj->type = type;
+	wait_event_obj->from_current = from_current;
+	if (GET_TRIG_WAIT(trig).time_remaining > 0) {
+		trig_log(trig, "Wait structure already allocated for trigger");
+	}
+	GET_TRIG_WAIT(trig) = add_event(time, trig_wait_event, wait_event_obj);
+}
+
+void process_wait(void *go, Trigger *trig, int type, char *cmd, const cmdlist_element::shared_ptr &cl, bool from_current = false) {
+	char *arg;
 	long time = 0, hr, min, ntime;
 	char c;
 
@@ -4652,16 +4669,7 @@ void process_wait(void *go, Trigger *trig, int type, char *cmd, const cmdlist_el
 		trig_log(trig, "попытка запустить Wait 0");
 		return;
 	}
-	CREATE(wait_event_obj, 1);
-	wait_event_obj->trigger = trig;
-	wait_event_obj->go = go;
-	wait_event_obj->type = type;
-
-	if (GET_TRIG_WAIT(trig).time_remaining > 0) {
-		trig_log(trig, "Wait structure already allocated for trigger");
-	}
-
-	GET_TRIG_WAIT(trig) = add_event(time, trig_wait_event, wait_event_obj);
+	hang_trig_wait(go, trig, type, time, from_current);
 	trig->wait_line = cl;
 }
 
@@ -6087,6 +6095,14 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 						wld_command_interpreter((RoomData *) go, cmd, trig);
 						break;
 				}
+			}
+			// issue #3523: если команда повесила на триггер wait (моб в стане),
+			// выходим из script_driver -- событие позже повторит ту же строку
+			// (TRIG_FROM_LINE). Без этого остаток триггера отработал бы вхолостую.
+			if (trig && GET_TRIG_WAIT(trig).time_remaining > 0) {
+				depth--;
+				cur_trig = prev_trig;
+				return ret_val;
 			}
 			if (trig && trig->is_halted())
 				break;

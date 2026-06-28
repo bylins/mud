@@ -524,10 +524,13 @@ void MobShowValues(CharData *ch, CharData *victim, int skill) {
 	}
 	if (skill > 249) {
 		// issue.affect-migration: affect short names come from affects::DescribeActive (the affected_bits[]
-		// projection was removed in the merge from unstable). Join with ", " directly -- OutWordsList can't
-		// be used here: affect short descriptions may contain spaces and it splits the list on whitespace.
-		ss << fmt::format("&GАффекты: {}&n\r\n",
-				affects::DescribeActive(victim->char_specials.saved.affected_by, ", "));
+		// projection was removed). Join with "," then Split back into a list so master's OutWordsList wraps
+		// to line width WITHOUT splitting multi-word names ("воздушный щит") -- the separator is a comma,
+		// which never appears inside an affect name (the names contain spaces, not commas).
+		std::vector<std::string> aff_list =
+				utils::Split(affects::DescribeActive(victim->char_specials.saved.affected_by, ","), ',');
+		ss << fmt::format("&G{}&n\r\n",
+				utils::OutWordsList(aff_list, ch->player_specials->saved.stringLength, ", ", "Аффекты: "));
 	}
 	SendMsgToChar(ch, "%s", ss.str().c_str());
 }

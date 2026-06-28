@@ -1548,10 +1548,9 @@ bool mob_script_command_interpreter(CharData *ch, char *argument, Trigger *trig)
 						|| AFF_FLAGGED(ch, EAffect::kStopFight)
 						|| AFF_FLAGGED(ch, EAffect::kMagicStopFight))
 				&& !trig->add_flag) {
-			if (!strcmp(mob_cmd_info[cmd].command, "mload") || (!strcmp(mob_cmd_info[cmd].command, "load"))) {
-				sprintf(buf, "command_interpreter: моб в стане, mload пропущен, команда: %s", argument);
-				mob_log(ch, trig, buf);
-			}
+			// issue #3523: моб в стане -> команду не теряем: вешаем триггеру wait
+			// 1 RL-сек, после стана script_driver повторит её (TRIG_FROM_LINE).
+			hang_trig_wait(ch, trig, MOB_TRIGGER, kPassesPerSec, true);
 			return false;
 		}
 	}
