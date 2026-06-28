@@ -6664,8 +6664,32 @@
 			</action>
 		</talent_actions>
 	</spell>
-	<spell id="kTestOne" mode="kTesting">
-		<name val="test 1" />
+	<spell id="kFireTrap" element="kMind" mode="kTesting">
+		<name val="fire trap" />
+		<components>
+			<verbal />
+			<weave />
+		</components>
+		<misc pos="kStand" violent="N" danger="0" />
+		<mana max="50" min="40" change="2" />
+		<targets val="kTarDirection" />
+		<flags val="kMagRoom" />
+		<potency_roll>
+			<base_skill id="kMindMagic" low_skill_bonus="0" hi_skill_bonus="40" />
+			<base_stat id="kInt" threshold="0" weight="100" />
+		</potency_roll>
+		<success_roll>
+			<base_skill id="kMindMagic" low_skill_bonus="0" hi_skill_bonus="40" />
+			<base_stat id="kInt" threshold="0" weight="100" />
+		</success_roll>
+		<talent_actions>
+			<action>
+				<affects saving="kNone" resist="kVitality">
+					<duration base="100" skill_divisor="3" min="0" max="0" />
+					<affect id="kFireTrap"/>
+				</affects>
+			</action>
+		</talent_actions>
 	</spell>
 	<spell id="kTestTwo" mode="kTesting">
 		<name val="test 2" />

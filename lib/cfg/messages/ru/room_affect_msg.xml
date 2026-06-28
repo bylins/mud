@@ -92,4 +92,11 @@
 	<msg_sheaf id="kNoPortalExit">
 		<message type="kAffExpiredToRoom" val="Пентаграмма медленно растаяла."/>
 	</msg_sheaf>
+	<msg_sheaf id="kFireTrap">
+		<message type="kAffImposedToChar" val="Вы заколдовали проход огненной ловушкой."/>
+		<message type="kAffImposedToRoom" val="$n заколдовал$g проход огненной ловушкой."/>
+		<message type="kAffExpiredToRoom" val="Огненная ловушка на проходе погасла."/>
+		<message type="kTriggerOnEntryToChar" val="Открывая дверь, вы задели огненную ловушку!"/>
+		<message type="kTriggerOnEntryToRoom" val="$n0 задел$g огненную ловушку, открывая дверь!"/>
+	</msg_sheaf>
 </msg_container>

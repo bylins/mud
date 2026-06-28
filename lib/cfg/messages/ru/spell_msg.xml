@@ -2444,8 +2444,8 @@
 	<msg_sheaf id="kConfuse">
 		<name val="ошарашен" />
 	</msg_sheaf>
-	<msg_sheaf id="kTestOne">
-		<name val="тест 1" />
+	<msg_sheaf id="kFireTrap">
+		<name val="огненная ловушка" />
 	</msg_sheaf>
 	<msg_sheaf id="kTestTwo">
 		<name val="тест 2" />

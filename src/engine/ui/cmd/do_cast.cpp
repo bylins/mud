@@ -132,7 +132,8 @@ void DoCast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	CharData *tch;
 	ObjData *tobj;
 	RoomData *troom;
-	auto target = FindCastTarget(spell_id, arg, ch, &tch, &tobj, &troom);
+	int dir = -1;   // issue.room-affect-trigger-improve: kTarDirection casts carry the parsed direction
+	auto target = FindCastTarget(spell_id, arg, ch, &tch, &tobj, &troom, &dir);
 	if (target && (tch == ch) && MUD::Spell(spell_id).IsViolent()) {
 		SendMsgToChar("Лекари не рекомендуют использовать ЭТО на себя!\r\n", ch);
 		return;
@@ -168,7 +169,7 @@ void DoCast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 					kColorCyn, MUD::Spell(spell_id).GetCName(), kColorNrm,
 					tch == ch ? " на себя" : tch ? " на $N3" : tobj ? " на $o3" : troom ? " на всех" : "");
 			act(buf, false, ch, tobj, tch, kToChar);
-		} else if (CastSpell(ch, tch, tobj, troom, spell_id, substitute_spell_id) != ECastResult::kTargetDied) {
+		} else if (CastSpell(ch, tch, tobj, troom, spell_id, substitute_spell_id, dir) != ECastResult::kTargetDied) {
 			if (!(privilege::IsImmortal(ch) || ch->get_wait() > 0))
 				SetBattleLag(ch, 1);
 		} else if (ch->get_wait() == 0)

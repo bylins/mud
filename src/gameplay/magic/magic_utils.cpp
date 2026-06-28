@@ -414,7 +414,7 @@ CastContext BuildCastContext(CharData *caster, ESpell spell_id, int level, float
 	return ctx;
 }
 
-ECastResult CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict, ESpell spell_id, int level, float fixed_potency) {
+ECastResult CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict, ESpell spell_id, int level, float fixed_potency, int dir) {
 	SpellCastMetrics metrics(spell_id, caster, level, cvict, ovict, rvict);
 	utils::CSteppedProfiler profiler("Spell Cast", 0.030);
 
@@ -512,6 +512,11 @@ ECastResult CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomDat
 		profiler.next_step("room");
 		CastContext room_ctx = ctx;
 		room_ctx.level = abs(level);
+		// issue.room-affect-trigger-improve: a kTarDirection cast (dir>=0) hosts the affect on the
+		// exit/door in that direction instead of the room.
+		if (dir >= 0) {
+			return room_spells::CallMagicToExit(caster, dir, room_ctx);
+		}
 		return room_spells::CallMagicToRoom(caster, rvict, room_ctx);
 	}
 
@@ -589,7 +594,8 @@ static void SendNoTargetMsg(ESpell spell_id, CharData *ch) {
 	SendMsgToChar(msg + "\r\n", ch);
 }
 
-int FindCastTarget(ESpell spell_id, const char *t, CharData *ch, CharData **tch, ObjData **tobj, RoomData **troom) {
+int FindCastTarget(ESpell spell_id, const char *t, CharData *ch, CharData **tch, ObjData **tobj, RoomData **troom,
+		int *dir) {
 	*tch = nullptr;
 	*tobj = nullptr;
 	*troom = world[ch->in_room];
@@ -598,6 +604,18 @@ int FindCastTarget(ESpell spell_id, const char *t, CharData *ch, CharData **tch,
 	// that moved into the respective handlers (issue.spell-pipeline-cleaning #2/#3), so the generic
 	// resolver no longer special-cases spell ids.
 	strcpy(cast_argument, t);
+	// issue.room-affect-trigger-improve: a kTarDirection spell targets a direction/exit. Parse the arg
+	// as a RU or EN direction name; *troom stays the caster's room and *dir carries the direction.
+	if (MUD::Spell(spell_id).AllowTarget(kTarDirection)) {
+		int d = (*t) ? search_block(t, dirs_rus, false) : -1;
+		if (d < 0 && *t) { d = search_block(t, dirs, false); }
+		if (d < 0) {
+			SendMsgToChar("В какую сторону вы хотите колдовать?\r\n", ch);
+			return false;
+		}
+		if (dir) { *dir = d; }
+		return true;
+	}
 	if (MUD::Spell(spell_id).AllowTarget(kTarRoomThis))
 		return true;
 	if (MUD::Spell(spell_id).AllowTarget(kTarIgnore))
@@ -702,7 +720,7 @@ int FindCastTarget(ESpell spell_id, const char *t, CharData *ch, CharData **tch,
  * Entry point for NPC casts.  Recommended entry point for spells cast
  * by NPCs via specprocs.
  */
-ECastResult CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, ESpell spell_id, ESpell spell_subst) {
+ECastResult CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, ESpell spell_id, ESpell spell_subst, int dir) {
 	if (spell_id == ESpell::kUndefined) {
 		log("SYSERR: CastSpell trying to call spell id %d.\n", to_underlying(spell_id));
 		return ECastResult::kNotCast;
@@ -830,7 +848,7 @@ ECastResult CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troo
 		affect_total(ch);
 	}
 
-	return (CallMagic(ch, tch, tobj, troom, spell_id, GetRealLevel(ch)));
+	return (CallMagic(ch, tch, tobj, troom, spell_id, GetRealLevel(ch), -1.0f, dir));
 }
 
 int CalcCastSuccess(CharData *ch, CharData *victim, ESaving saving, ESpell spell_id) {

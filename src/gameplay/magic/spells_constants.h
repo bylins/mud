@@ -285,7 +285,7 @@ enum class ESpell {
 	// Placeholder slots for spell prototyping in test mode (mode="kTesting"
 	// in spells.xml). Pick the next free slot, write the config under that
 	// id, and rename here when the spell graduates to its real name.
-	kTestOne = 359,
+	kFireTrap = 359,	// issue.room-affect-trigger-improve: door-affect test spell (kTarDirection; was kTestOne)
 	kTestTwo = 360,
 	kTestThree = 361,
 	kTestFour = 362,

@@ -66,6 +66,8 @@ void RoomRemoveAffect(RoomData *room, const RoomAffectIt &affect);
 bool IsRoomAffected(RoomData *room, ERoomAffect affect);
 bool IsZoneRoomAffected(int zone_vnum, ERoomAffect affect);
 ECastResult CallMagicToRoom(CharData *ch, RoomData *room, CastContext roll);
+// issue.room-affect-trigger-improve (door affects): cast a kMagRoom spell onto the exit in `dir`.
+ECastResult CallMagicToExit(CharData *ch, int dir, CastContext roll);
 int GetUniqueAffectDuration(long caster_id, ERoomAffect affect);
 RoomAffectIt FindAffect(RoomData *room, ERoomAffect affect);
 // issue.affect-migration: the portal room affects (two-way kPortalTimer + one-way kNoPortalExit) keyed
@@ -97,6 +99,10 @@ void ProcessRoomAffectsOnEntry(CharData *ch, RoomRnum room);
 //                          (the block verdict is ignored -- forced entries can't be blocked).
 enum class EEntryTriggerPhase { kBlockCheck, kEffectsNonBlocking, kEffectsAll };
 [[nodiscard]] bool RunRoomEntryTriggers(CharData *actor, RoomData *room, EEntryTriggerPhase phase);
+// issue.room-affect-trigger-improve (door affects): fire a door affect's pick/unlock/open triggers
+// (`ev`) for `actor` on the exit `dir` of `room`. Returns false if a trigger returns 0 (refuse the
+// door action), true otherwise.
+[[nodiscard]] bool RunDoorTriggers(CharData *actor, RoomData *room, int dir, talents_actions::EActionTrigger ev);
 
 // Walks room->affected for a kPortalTimer affect with pk_unique != 0 and
 // pk_unique != exclude_uid; returns the matching pk_unique, or 0 if none.

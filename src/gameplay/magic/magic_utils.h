@@ -35,7 +35,8 @@ abilities::EAbility FixNameAndFindAbilityId(const std::string &name);
 
 ESpell FindSpellIdWithName(const std::string &name);
 
-int FindCastTarget(ESpell spell_id, const char *t, CharData *ch, CharData **tch, ObjData **tobj, RoomData **troom);
+int FindCastTarget(ESpell spell_id, const char *t, CharData *ch, CharData **tch, ObjData **tobj, RoomData **troom,
+		int *dir = nullptr);  // issue.room-affect-trigger-improve: kTarDirection -> *dir = parsed direction
 void SaySpell(CharData *ch, ESpell spell_id, CharData *tch, ObjData *tobj);
 
 // True if `caster` bypasses the spell's room-level <blocking> (kNoMagic etc.).

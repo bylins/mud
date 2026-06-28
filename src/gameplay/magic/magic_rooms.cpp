@@ -976,6 +976,64 @@ ECastResult CallMagicToRoom(CharData *ch, RoomData *room, CastContext roll) {
 	return CastRoomAffect(roll);
 }
 
+// issue.room-affect-trigger-improve (door affects): host a room affect on an EXIT instead of the room.
+// Same Affect<ERoomApply> type, same impose -- only the host list differs. Behaviour flags come from
+// room_affects.xml by affect_type, exactly like affect_to_room.
+void affect_to_exit(const RoomData::exit_data_ptr &exit, const Affect<ERoomApply> &af) {
+	Affect<ERoomApply>::shared_ptr new_affect(new Affect<ERoomApply>(af));
+	if (RoomAffectFlagsLoaded() && af.affect_type != ERoomAffect::kUndefined) {
+		new_affect->battleflag = RoomAffectFlagsByType(af.affect_type)
+				| (af.battleflag & static_cast<Bitvector>(kAfFailed));
+	}
+	exit->affected.push_front(new_affect);
+}
+
+// Cast a kMagRoom spell onto the exit in direction `dir` from the caster's room (a kTarDirection cast).
+// Mirrors CallMagicToRoom's affect build but imposes on the exit/door. NOTE (first cut): no dedup/PK
+// contest and no expiry tick yet -- a door affect persists until dispelled; both are follow-ups.
+ECastResult CallMagicToExit(CharData *ch, int dir, CastContext roll) {
+	const ESpell spell_id = roll.spell_id();
+	roll.cvict = nullptr;
+	if (ch == nullptr || ch->in_room == kNowhere || dir < 0 || dir >= EDirection::kMaxDirNum) {
+		return ECastResult::kNotCast;
+	}
+	const auto exit = world[ch->in_room]->dir_option[dir];
+	if (!exit || exit->to_room() == kNowhere) {
+		SendMsgToChar("В этом направлении нет прохода.\r\n", ch);
+		return ECastResult::kNotCast;
+	}
+	if (ProcessMatComponents(ch, ch, spell_id) == EStageResult::kBreak) {
+		return ECastResult::kNotCast;
+	}
+	if (!roll.action_or_default().Contains(talents_actions::EAction::kAffect)) {
+		return ECastResult::kNotCast;
+	}
+	// Build the affect from the spell's <affects> block (same fields CastRoomAffect fills on af[0]).
+	const auto &talent = roll.action_or_default().GetAffect();
+	Affect<ERoomApply> af;
+	af.affect_type = talent.GetRoomAffect();
+	af.caster_id = ch->get_uid();
+	af.location = kNone;
+	af.battleflag = RoomAffectFlagsByType(af.affect_type);
+	const ESkill dur_skill = MUD::Spell(spell_id).GetPotencyRoll().GetBaseSkill();
+	int skill_bonus = (talent.GetDurationSkillDivisor() > 0 && dur_skill != ESkill::kUndefined)
+		? CalcNoviceSkillBonus(ch, dur_skill, talent.GetDurationSkillDivisor()) : 0;
+	if (talent.GetDurationMin() > 0) skill_bonus = std::max(skill_bonus, talent.GetDurationMin());
+	if (talent.GetDurationMax() > 0) skill_bonus = std::min(skill_bonus, talent.GetDurationMax());
+	af.duration = talent.GetDurationBase() + static_cast<unsigned>(skill_bonus);
+	af.potency = CalcCastPotency(roll.potency()) * talent.GetPotencyWeight();
+	if (RoomAffectHasSeal(af.affect_type)) {
+		af.modifier = ComputeApplyModifier(RoomAffectSeal(af.affect_type), roll.CompetenceBase(), roll.potency());
+	}
+	affect_to_exit(exit, af);
+	// Impose narration from the affect's own sheaf (kAffImposedTo{Char,Room}).
+	const auto &to_char = RoomAffectMsg(af.affect_type, ERoomAffectMsgType::kAffImposedToChar);
+	if (!to_char.empty()) { act(to_char.c_str(), false, ch, nullptr, nullptr, kToChar); }
+	const auto &to_room = RoomAffectMsg(af.affect_type, ERoomAffectMsgType::kAffImposedToRoom);
+	if (!to_room.empty()) { act(to_room.c_str(), false, ch, nullptr, nullptr, kToRoom | kToArenaListen); }
+	return ECastResult::kSuccess;
+}
+
 int GetUniqueAffectDuration(long caster_id, ERoomAffect want) {
 	for (const auto &room : affected_rooms) {
 		for (const auto &af : room->affected) {

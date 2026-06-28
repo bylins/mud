@@ -3434,6 +3434,39 @@ bool room_spells::RunRoomEntryTriggers(CharData *actor, RoomData *room,
 	return allowed;
 }
 
+// issue.room-affect-trigger-improve (door affects): fire a door affect's triggers when someone
+// pick/unlock/opens the door in direction `dir` from `room`. Mirrors RunRoomEntryTriggers but the
+// host is the EXIT's affect list, and there is a single dispatch point (the door command) so no
+// before/after phase split -- the action runs and a return of 0 refuses the door action. Returns
+// true to allow the door action, false to refuse it.
+bool room_spells::RunDoorTriggers(CharData *actor, RoomData *room, int dir, talents_actions::EActionTrigger ev) {
+	if (!actor || !room || dir < 0 || dir >= EDirection::kMaxDirNum || privilege::IsImmortal(actor)) {
+		return true;   // affect triggers never fire on (or block) immortals
+	}
+	const auto exit = room->dir_option[dir];
+	if (!exit) { return true; }
+	// Snapshot {affect, caster, potency, strength} so running an action (which could alter the exit's
+	// affect list) cannot invalidate the iteration.
+	struct Pending { room_spells::ERoomAffect type; long caster_id; float potency; int strength; };
+	std::vector<Pending> pending;
+	for (const auto &aff : exit->affected) {
+		if (aff) { pending.push_back({aff->affect_type, aff->caster_id, aff->potency, aff->modifier}); }
+	}
+	bool allowed = true;
+	for (const auto &p : pending) {
+		for (const auto &action : room_spells::RoomAffectActions(p.type).list()) {
+			if (!action.GetTrigger().test(ev)) { continue; }
+			CharData *caster = find_char(p.caster_id);
+			if (!caster) { continue; }   // no owner to source the cast
+			const int ret = CastRoomEntryAction(caster, room, actor, p.type, action, p.potency, p.strength);
+			if (ret == kEntryTriggerBlock) {
+				allowed = false;   // refuse the door action, but keep firing the rest
+			}
+		}
+	}
+	return allowed;
+}
+
 // cast `spell_id` as an area attack on every foe in the caster's room,
 // regardless of the spell's own targeting flags. Used by the room-affect ticks (deadly fog /
 // thunderstorm). Replaces the old direct CallMagicToArea callers.

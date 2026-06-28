@@ -103,4 +103,13 @@
 		</actions>
 	</room_affect>
 	<room_affect id="kPortalTimer"/>
+	<room_affect id="kFireTrap">
+		<flags val="kAfUpdateDuration|kAfDispellable"/>
+		<actions>
+			<action target="kTarActor">
+				<trigger val="kOpen" return="0"/>
+				<side_spell id="kFireball"/>
+			</action>
+		</actions>
+	</room_affect>
 </room_affects>

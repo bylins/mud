@@ -207,8 +207,10 @@ enum class ECastResult {
 [[nodiscard]] inline bool CastTargetDied(ECastResult r) { return r == ECastResult::kTargetDied; }
 
 ECastResult CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict, ESpell spell_id, int level,
-		float fixed_potency = -1.0f);  // fixed_potency>=0 (item/potion): use it as the whole cast potency, skip caster roll
-ECastResult CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, ESpell spell_id, ESpell spell_subst);
+		float fixed_potency = -1.0f,  // fixed_potency>=0 (item/potion): use it as the whole cast potency, skip caster roll
+		int dir = -1);  // issue.room-affect-trigger-improve: dir>=0 + kMagRoom -> cast on EXIT(caster,dir) (door affect)
+ECastResult CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, ESpell spell_id, ESpell spell_subst,
+		int dir = -1);  // dir>=0: kTarDirection cast on the exit in that direction
 
 // Result of one cast stage (CastAffect/CastUnaffects/...). With the per-action loop
 // (issue.spell-pipeline) the dispatcher walks each spell action and runs its stages:
