@@ -2415,52 +2415,106 @@ void SqliteWorldDataSource::SaveZoneCommands(int zone_vnum, const struct reset_c
 	std::string delete_sql = "DELETE FROM zone_commands WHERE zone_vnum = " + std::to_string(zone_vnum);
 	ExecuteStatement(delete_sql, "delete zone commands");
 
-	// Insert commands
+	// The zone_commands schema is SEMANTIC (cmd_type + typed arg_* columns), and
+	// LoadZoneCommands reads it back per command type. This writer is the exact
+	// inverse of that loader. ResolveZoneCmdVnumArgsToRnums (db.cpp) also rewrote
+	// cmd.argN from on-disk vnums into in-memory rnums at boot, so the entity
+	// args are converted rnum->vnum here (like YamlWorldDataSource::SaveZone).
 	sqlite3_stmt *stmt = nullptr;
-	const char *insert_sql = 
-		"INSERT INTO zone_commands (zone_vnum, command_order, command, if_flag, "
-		"arg1, arg2, arg3, arg4, sarg1, sarg2) "
-		"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+	const char *insert_sql =
+		"INSERT INTO zone_commands (zone_vnum, cmd_order, cmd_type, if_flag, "
+		"arg_mob_vnum, arg_obj_vnum, arg_room_vnum, arg_trigger_vnum, arg_container_vnum, "
+		"arg_max, arg_max_world, arg_max_room, arg_load_prob, arg_wear_pos_id, "
+		"arg_direction_id, arg_state, arg_trigger_type, arg_context, "
+		"arg_var_name, arg_var_value, arg_leader_mob_vnum, arg_follower_mob_vnum) "
+		"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+	auto mob_v = [](int rnum) -> int {
+		if (rnum < 0 || rnum >= top_of_mobt) return rnum;
+		return mob_index[rnum].vnum;
+	};
+	auto obj_v = [](int rnum) -> int {
+		if (rnum < 0) return rnum;
+		auto obj = obj_proto[rnum];
+		return obj ? obj->get_vnum() : rnum;
+	};
+	auto room_v = [](int rnum) -> int {
+		if (rnum < 0 || rnum > top_of_world || !world[rnum]) return rnum;
+		return world[rnum]->vnum;
+	};
+	auto trig_v = [](int rnum) -> int {
+		if (rnum < 0 || rnum >= top_of_trigt || !trig_index[rnum]) return rnum;
+		return trig_index[rnum]->vnum;
+	};
 
 	int order = 0;
 	for (int i = 0; commands[i].command != 'S'; ++i)
 	{
-		// Skip A and B commands - they're in zone_groups
-		if (commands[i].command == 'A' || commands[i].command == 'B')
+		const struct reset_com &c = commands[i];
+		// A/B are zone_groups; '*' (disabled) and unknown types are skipped, as
+		// in YamlWorldDataSource::SaveZone, so they don't round-trip as garbage.
+		if (c.command == 'A' || c.command == 'B')
 		{
 			continue;
+		}
+
+		const char *cmd_type = nullptr;
+		int mobv = 0, objv = 0, roomv = 0, trigv = 0, contv = 0;
+		int amax = 0, amaxw = 0, amaxr = 0, prob = 0, wear = 0, dir = 0, state = 0, ctx = 0;
+		const char *trig_type = nullptr, *vname = nullptr, *vval = nullptr;
+		int leadv = 0, follv = 0;
+		char trig_type_buf[16];
+
+		switch (c.command)
+		{
+		case 'M': cmd_type = "LOAD_MOB"; mobv = mob_v(c.arg1); amaxw = c.arg2;
+			roomv = room_v(c.arg3); amaxr = c.arg4; break;
+		case 'O': cmd_type = "LOAD_OBJ"; objv = obj_v(c.arg1); amax = c.arg2;
+			roomv = (c.arg3 == kNowhere) ? c.arg3 : room_v(c.arg3); prob = c.arg4; break;
+		case 'G': cmd_type = "GIVE_OBJ"; objv = obj_v(c.arg1); amax = c.arg2; prob = c.arg4; break;
+		case 'E': cmd_type = "EQUIP_MOB"; objv = obj_v(c.arg1); amax = c.arg2; wear = c.arg3;
+			prob = c.arg4; break;
+		case 'P': cmd_type = "PUT_OBJ"; objv = obj_v(c.arg1); amax = c.arg2; contv = obj_v(c.arg3);
+			prob = c.arg4; break;
+		case 'D': cmd_type = "DOOR"; roomv = room_v(c.arg1); dir = c.arg2; state = c.arg3; break;
+		case 'R': cmd_type = "REMOVE_OBJ"; roomv = room_v(c.arg1); objv = obj_v(c.arg2); break;
+		case 'T': cmd_type = "TRIGGER"; trigv = trig_v(c.arg2);
+			roomv = (c.arg1 == WLD_TRIGGER && c.arg3 != -1) ? room_v(c.arg3) : c.arg3;
+			snprintf(trig_type_buf, sizeof(trig_type_buf), "%d", c.arg1); trig_type = trig_type_buf;
+			break;
+		case 'V': cmd_type = "VARIABLE"; ctx = c.arg2; roomv = c.arg3; vname = c.sarg1; vval = c.sarg2;
+			snprintf(trig_type_buf, sizeof(trig_type_buf), "%d", c.arg1); trig_type = trig_type_buf;
+			break;
+		case 'Q': cmd_type = "EXTRACT_MOB"; mobv = mob_v(c.arg1); break;
+		case 'F': cmd_type = "FOLLOW"; roomv = room_v(c.arg1); leadv = mob_v(c.arg2);
+			follv = mob_v(c.arg3); break;
+		default: continue;
 		}
 
 		if (sqlite3_prepare_v2(m_db, insert_sql, -1, &stmt, nullptr) == SQLITE_OK)
 		{
 			sqlite3_bind_int(stmt, 1, zone_vnum);
 			sqlite3_bind_int(stmt, 2, order++);
-			
-			char cmd_str[2] = {commands[i].command, '\0'};
-			BindTextKoi(stmt, 3, cmd_str);
-			sqlite3_bind_int(stmt, 4, commands[i].if_flag);
-			sqlite3_bind_int(stmt, 5, commands[i].arg1);
-			sqlite3_bind_int(stmt, 6, commands[i].arg2);
-			sqlite3_bind_int(stmt, 7, commands[i].arg3);
-			sqlite3_bind_int(stmt, 8, commands[i].arg4);
-			
-			if (commands[i].sarg1)
-			{
-				BindTextKoi(stmt, 9, commands[i].sarg1);
-			}
-			else
-			{
-				sqlite3_bind_null(stmt, 9);
-			}
-			
-			if (commands[i].sarg2)
-			{
-				BindTextKoi(stmt, 10, commands[i].sarg2);
-			}
-			else
-			{
-				sqlite3_bind_null(stmt, 10);
-			}
+			BindTextKoi(stmt, 3, cmd_type);
+			sqlite3_bind_int(stmt, 4, c.if_flag);
+			sqlite3_bind_int(stmt, 5, mobv);
+			sqlite3_bind_int(stmt, 6, objv);
+			sqlite3_bind_int(stmt, 7, roomv);
+			sqlite3_bind_int(stmt, 8, trigv);
+			sqlite3_bind_int(stmt, 9, contv);
+			sqlite3_bind_int(stmt, 10, amax);
+			sqlite3_bind_int(stmt, 11, amaxw);
+			sqlite3_bind_int(stmt, 12, amaxr);
+			sqlite3_bind_int(stmt, 13, prob);
+			sqlite3_bind_int(stmt, 14, wear);
+			sqlite3_bind_int(stmt, 15, dir);
+			sqlite3_bind_int(stmt, 16, state);
+			BindTextKoi(stmt, 17, trig_type);
+			sqlite3_bind_int(stmt, 18, ctx);
+			BindTextKoi(stmt, 19, vname);
+			BindTextKoi(stmt, 20, vval);
+			sqlite3_bind_int(stmt, 21, leadv);
+			sqlite3_bind_int(stmt, 22, follv);
 
 			sqlite3_step(stmt);
 			sqlite3_finalize(stmt);
