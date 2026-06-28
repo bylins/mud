@@ -372,11 +372,11 @@ long FindRoomPkPortalUid(RoomData *room, long exclude_uid) {
 
 void ShowAffectedRooms(CharData *ch) {
 	std::stringstream out;
-	out << " Список комнат под аффектами:" << "\r\n";
+	out << " Rooms with active affects:" << "\r\n";
 
 	table_wrapper::Table table;
 	table << table_wrapper::kHeader <<
-		"#" << "Vnum" << "Spell" << "Caster name" << "Time (s)" << table_wrapper::kEndRow;
+		"#" << "Vnum" << "affect" << "Caster name" << "Time (s)" << table_wrapper::kEndRow;
 	int count = 1;
 	for (const auto r : affected_rooms) {
 		for (const auto &af : r->affected) {
