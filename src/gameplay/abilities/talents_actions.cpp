@@ -76,6 +76,33 @@ const std::map<std::string, EMobFlag> kBlockingFlagByName{
 	{"kIgnoreForbidden", EMobFlag::kIgnoreForbidden},   // issue.room-affect-trigger-improve: kForbidden seal exempts these
 };
 
+// issue.room-affect-trigger-improve: <trigger val=...> token -> event flag. Single source of truth for
+// the trigger names (replaces a hand-rolled if/else chain). A `|`-separated val sets several flags --
+// an action may fire on more than one event (e.g. "kPulse|kEnter").
+const std::map<std::string, EActionTrigger> kActionTriggerByName{
+	{"kPulse", EActionTrigger::kPulse},
+	{"kBattlePulse", EActionTrigger::kBattlePulse},
+	{"kEnter", EActionTrigger::kEnter},
+	{"kEnterPC", EActionTrigger::kEnterPC},
+	{"kEnterNPC", EActionTrigger::kEnterNPC},
+};
+
+// issue.room-affect-trigger-improve: <action target=...> token -> EActionTarget, replacing a
+// hand-rolled if/else chain. (The reverse, EActionTarget -> token, stays in ActionTargetName's
+// switch so a new enumerator trips -Wswitch.)
+const std::map<std::string, EActionTarget> kActionTargetByName{
+	{"kTarSame", EActionTarget::kTarSame},
+	{"kTarFightSelf", EActionTarget::kTarFightSelf},
+	{"kTarFightVict", EActionTarget::kTarFightVict},
+	{"kTarGroup", EActionTarget::kTarGroup},
+	{"kTarFoes", EActionTarget::kTarFoes},
+	{"kTarRandomFoe", EActionTarget::kTarRandomFoe},
+	{"kTarRandomAlly", EActionTarget::kTarRandomAlly},
+	{"kTarMinions", EActionTarget::kTarMinions},
+	{"kTarActor", EActionTarget::kTarActor},
+	{"kTarRoomThis", EActionTarget::kTarRoomThis},
+};
+
 // Room flags (ERoomFlag) addressable from the <blocking>/<required>/<caster_blocking>
 // <room_flags val=...> child tag. A focused table -- only flags meaningful as a cast gate
 // live here (kNoMagic is the universal "magic doesn't work here" gate for all non-warcry
@@ -945,19 +972,13 @@ void Actions::ParseCasterConditions(CasterConditions &out, parser_wrapper::DataN
 
 void Actions::ParseAction(Action &out, parser_wrapper::DataNode node) {
 	// optional per-action target selector (non-first actions). Default kTarSame.
-	const char *tgt = node.GetValue("target");
-	if (tgt && *tgt) {
-		if (strcmp(tgt, "kTarFightSelf") == 0) { out.target_ = EActionTarget::kTarFightSelf; }
-		else if (strcmp(tgt, "kTarFightVict") == 0) { out.target_ = EActionTarget::kTarFightVict; }
-		else if (strcmp(tgt, "kTarGroup") == 0) { out.target_ = EActionTarget::kTarGroup; }
-		else if (strcmp(tgt, "kTarFoes") == 0) { out.target_ = EActionTarget::kTarFoes; }
-		else if (strcmp(tgt, "kTarRandomFoe") == 0) { out.target_ = EActionTarget::kTarRandomFoe; }
-		else if (strcmp(tgt, "kTarRandomAlly") == 0) { out.target_ = EActionTarget::kTarRandomAlly; }
-		else if (strcmp(tgt, "kTarMinions") == 0) { out.target_ = EActionTarget::kTarMinions; }
-		else if (strcmp(tgt, "kTarActor") == 0) { out.target_ = EActionTarget::kTarActor; }
-		else if (strcmp(tgt, "kTarSame") == 0) { out.target_ = EActionTarget::kTarSame; }
-		else if (strcmp(tgt, "kTarRoomThis") == 0) { out.target_ = EActionTarget::kTarRoomThis; }
-		else { err_log("Actions: unknown <action target='%s'>.", tgt); }
+	if (const char *tgt = node.GetValue("target"); tgt && *tgt) {
+		const auto it = kActionTargetByName.find(tgt);
+		if (it != kActionTargetByName.end()) {
+			out.target_ = it->second;
+		} else {
+			err_log("Actions: unknown <action target='%s'>.", tgt);
+		}
 	}
 	// optional formula base + reset (non-first actions). Default kCompetence/false.
 	const char *bs = node.GetValue("base");
@@ -1007,13 +1028,14 @@ void Actions::ParseAction(Action &out, parser_wrapper::DataNode node) {
 			// the optional return="N" int is the value the trigger yields the firing event (0 = block).
 			const char *tv = manifestation.GetValue("val");
 			if (tv && *tv) {
+				// `|`-separated -> several flags; an action can fire on more than one event.
 				for (const auto &name : utils::Split(tv, '|')) {
-					if (name == "kPulse") { out.trigger_.set(EActionTrigger::kPulse); }
-					else if (name == "kBattlePulse") { out.trigger_.set(EActionTrigger::kBattlePulse); }
-					else if (name == "kEnter") { out.trigger_.set(EActionTrigger::kEnter); }
-					else if (name == "kEnterPC") { out.trigger_.set(EActionTrigger::kEnterPC); }
-					else if (name == "kEnterNPC") { out.trigger_.set(EActionTrigger::kEnterNPC); }
-					else { err_log("Actions: unknown <trigger val='%s'>.", name.c_str()); }
+					const auto it = kActionTriggerByName.find(name);
+					if (it != kActionTriggerByName.end()) {
+						out.trigger_.set(it->second);
+					} else {
+						err_log("Actions: unknown <trigger val='%s'>.", name.c_str());
+					}
 				}
 			}
 			if (const char *rv = manifestation.GetValue("return"); rv && *rv) {
