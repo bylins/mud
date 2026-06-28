@@ -12,16 +12,20 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - name: "Base"
-            meson_flags: "-Dbuild_profile=release"
+          # YAML is the default format now, so this "base" build pins
+          # -Dyaml=disabled to keep a pure-legacy configuration in the matrix.
+          - name: "Base (legacy)"
+            meson_flags: "-Dbuild_profile=release -Dyaml=disabled"
             packages: ""
 
           - name: "YAML"
             meson_flags: "-Dbuild_profile=release -Dyaml=system"
             packages: "libyaml-cpp-dev"
 
+          # -Dyaml=disabled so SQLite is the active world format (HAVE_YAML
+          # would otherwise take precedence at runtime).
           - name: "SQLite"
-            meson_flags: "-Dbuild_profile=release -Dsqlite=system"
+            meson_flags: "-Dbuild_profile=release -Dsqlite=system -Dyaml=disabled"
             packages: "libsqlite3-dev"
 
           - name: "Base + Admin API + OTEL"

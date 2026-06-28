@@ -449,15 +449,19 @@ fi
 # Build binaries if needed (with Admin API enabled for testing)
 if [ $NEED_LEGACY -eq 1 ]; then
 
-    build_binary "$MUD_DIR/build_test" "-Dadmin_api=true -Dbuild_profile=debug" "legacy" || exit 1
+    # yaml=disabled is explicit: YAML is the default now, and HAVE_YAML would
+    # otherwise win the runtime format pick (#ifdef HAVE_YAML first), so this
+    # build would boot YAML instead of legacy.
+    build_binary "$MUD_DIR/build_test" "-Dadmin_api=true -Dbuild_profile=debug -Dyaml=disabled" "legacy" || exit 1
 fi
 
 if [ $NEED_SQLITE -eq 1 ]; then
 
     # sqlite=auto: prefer system libsqlite3, fall back to the meson subproject
     # (which requires a checked-in subprojects/sqlite3.wrap that we currently
-    # don't ship).
-    build_binary "$MUD_DIR/build_sqlite" "-Dadmin_api=true -Dsqlite=auto -Dbuild_profile=debug" "sqlite" || exit 1
+    # don't ship). yaml=disabled so SQLite is the active format (HAVE_YAML
+    # would otherwise take precedence at runtime).
+    build_binary "$MUD_DIR/build_sqlite" "-Dadmin_api=true -Dsqlite=auto -Dbuild_profile=debug -Dyaml=disabled" "sqlite" || exit 1
 fi
 if [ $NEED_YAML -eq 1 ]; then
 

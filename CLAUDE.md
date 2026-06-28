@@ -41,6 +41,8 @@ ninja -C build -j$(($(nproc)/2))
 
 **Important:** Always use `-Dbuild_profile=release` for development builds. The `dev` and `fasttest` profiles are legacy — do not use them. Never build without tests first and then rebuild with tests — pass `-Dbuild_tests=true` to `meson setup` from the start to avoid double compilation.
 
+**Important:** YAML is the **default world format** now (`yaml=builtin`), so a plain build expects a YAML world (`world/world_config.yaml` + `zones/`). To boot a legacy-format world, configure with `-Dyaml=disabled` (and `-Dsqlite=disabled`). See "World Data Formats and Testing" below.
+
 ### Build Profiles (`-Dbuild_profile=`)
 - **release** - Optimized production build (-Og with debug symbols, ggdb3, -Wall)
 - **debug** - Debug build (-O0, ggdb3); add `-Dwith_asan=true` for AddressSanitizer
@@ -62,7 +64,7 @@ meson configure build_yaml                  # list current options
 
 **CRITICAL**: With `-Dsmall_world=true` meson copies test world data into `small/` inside the build directory (see `tools/meson/setup_world.py`). All world data and configs live in `small/` itself, NOT in `small/lib/`. The `lib/` subdirectory DOES NOT EXIST in meson-generated worlds. All paths in configuration.xml are relative to the `small/` directory.
 
-**CRITICAL**: The `small/` world is **YAML-only** (`lib.template` ships flat YAML, no legacy files). It boots **only with a YAML build** — configure that build dir with `-Dyaml=builtin` (or `-Dyaml=system`). A plain Legacy/SQLite build cannot load `-d small`.
+**CRITICAL**: The `small/` world is **YAML-only** (`lib.template` ships flat YAML, no legacy files). YAML is the default build format, so a plain build boots it; a Legacy/SQLite build (`-Dyaml=disabled`) cannot load `-d small`.
 
 **Correct usage**:
 ```bash
@@ -443,16 +445,18 @@ Example: "Switching to build_sqlite/ directory for SQLite-enabled build."
 
 ### World Data Formats and Testing
 
-The project supports three world data formats:
-1. **Legacy** - Original CircleMUD text format (full-world archives only; no longer shipped in `lib.template/`)
-2. **SQLite** - World data in SQLite database (requires `-Dsqlite=builtin` or `-Dsqlite=system`)
-3. **YAML** - Human-readable YAML format (requires `-Dyaml=builtin` or `-Dyaml=system`); this is what `lib.template/` ships
+The project supports three world data formats. The runtime picks one at
+compile time by priority: **YAML > SQLite > Legacy** (`#ifdef HAVE_YAML` first,
+see `src/engine/db/db.cpp`).
+1. **YAML** - Human-readable YAML format. **This is the default build format** (`yaml=builtin`); it's what `lib.template/` ships.
+2. **SQLite** - World data in SQLite database (requires `-Dsqlite=builtin` or `-Dsqlite=system`, plus `-Dyaml=disabled` so it wins the format pick)
+3. **Legacy** - Original CircleMUD text format (full-world archives only; no longer shipped in `lib.template/`). Requires `-Dyaml=disabled -Dsqlite=disabled`.
 
 **The template/small world is YAML-only.** `lib.template/world` contains flat YAML
 (`zones/`, `dictionaries/`, `world_config.yaml`); the legacy `mob/obj/wld/zon/trg/shp`
-files were removed. It therefore boots **only with a YAML build** (`-Dyaml=...`) — legacy
-and SQLite builds can no longer load the small/template world. Shops come from
-`cfg/economics/shops.xml`, not `world/shp`.
+files were removed. Since YAML is the default build format, a plain build boots it;
+a Legacy/SQLite build (`-Dyaml=disabled`) can **no longer** load the small/template
+world. Shops come from `cfg/economics/shops.xml`, not `world/shp`.
 
 **CRITICAL: Never use lib/ from repository directly!**
 - `lib/` contains base configuration files only (NOT complete world data)
