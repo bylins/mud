@@ -8,9 +8,6 @@
 <affects>
 	<affect id="kBlind" buff="N">
 		<flags val="kAfBattledec|kAfDispellable|kAfCurable"/>
-		<apply location="kNone">
-			<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-		</apply>
 	</affect>
 	<affect id="kInvisible" buff="Y">
 		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
@@ -20,39 +17,21 @@
 	</affect>
 	<affect id="kDetectAlign" buff="Y">
 		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
-		<apply location="kNone">
-			<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-		</apply>
 	</affect>
 	<affect id="kDetectInvisible" buff="Y">
 		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
-		<apply location="kNone">
-			<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-		</apply>
 	</affect>
 	<affect id="kDetectMagic" buff="Y">
 		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
-		<apply location="kNone">
-			<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-		</apply>
 	</affect>
 	<affect id="kDetectLife" buff="Y">
 		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
-		<apply location="kNone">
-			<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-		</apply>
 	</affect>
 	<affect id="kWaterWalk" buff="Y">
 		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
-		<apply location="kNone">
-			<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-		</apply>
 	</affect>
 	<affect id="kSanctuary" buff="Y">
 		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
-		<apply location="kNone">
-			<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-		</apply>
 	</affect>
 	<affect id="kGroup"/>
 	<affect id="kCurse" buff="N">
@@ -69,9 +48,6 @@
 	</affect>
 	<affect id="kInfravision" buff="Y">
 		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
-		<apply location="kNone">
-			<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-		</apply>
 	</affect>
 	<affect id="kPoisoned" buff="N">
 		<flags val="kAfSameTime|kAfDispellable|kAfCurable|kAfPoison"/>
@@ -85,9 +61,6 @@
 	<affect id="kProtectFromMind"/>
 	<affect id="kSleep" buff="N">
 		<flags val="kAfBattledec|kAfDispellable|kAfCurable"/>
-		<apply location="kNone">
-			<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-		</apply>
 	</affect>
 	<affect id="kNoTrack"/>
 	<affect id="kTethered"/>
@@ -106,27 +79,15 @@
 	<affect id="kCharmed"/>
 	<affect id="kHold" buff="N">
 		<flags val="kAfBattledec|kAfDispellable|kAfCurable|kAfEntanglement"/>
-		<apply location="kNone">
-			<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-		</apply>
 	</affect>
 	<affect id="kFly" buff="Y">
 		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
-		<apply location="kNone">
-			<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-		</apply>
 	</affect>
 	<affect id="kSilence" buff="N">
 		<flags val="kAfBattledec|kAfPulsedec|kAfDispellable|kAfCurable"/>
-		<apply location="kNone">
-			<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-		</apply>
 	</affect>
 	<affect id="kAwarness" buff="Y">
 		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
-		<apply location="kNone">
-			<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-		</apply>
 		<apply location="kSavingReflex">
 			<modifier min="0.0" dices_weight="0.0" alpha="0" beta="1.2" factor="-1" />
 		</apply>
@@ -144,21 +105,12 @@
 	<affect id="kSingleLight"/>
 	<affect id="kHolyLight" buff="Y">
 		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
-		<apply location="kNone">
-			<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-		</apply>
 	</affect>
 	<affect id="kHolyDark" buff="Y">
 		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
-		<apply location="kNone">
-			<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-		</apply>
 	</affect>
 	<affect id="kDetectPoison" buff="Y">
 		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
-		<apply location="kNone">
-			<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-		</apply>
 	</affect>
 	<affect id="kDrunked"/>
 	<affect id="kAbstinent">
@@ -179,15 +131,9 @@
 	<affect id="kDisguise"/>
 	<affect id="kWaterBreath" buff="Y">
 		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
-		<apply location="kNone">
-			<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-		</apply>
 	</affect>
 	<affect id="kSlow" buff="N">
 		<flags val="kAfBattledec|kAfDispellable|kAfCurable|kAfEntanglement"/>
-		<apply location="kNone">
-			<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-		</apply>
 	</affect>
 	<affect id="kHaste" buff="Y">
 		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
@@ -209,40 +155,22 @@
 	</affect>
 	<affect id="kAirShield" buff="Y">
 		<flags val="kAfBattledec|kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
-		<apply location="kNone">
-			<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-		</apply>
 	</affect>
 	<affect id="kFireShield" buff="Y">
 		<flags val="kAfBattledec|kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
-		<apply location="kNone">
-			<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-		</apply>
 	</affect>
 	<affect id="kIceShield" buff="Y">
 		<flags val="kAfBattledec|kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
-		<apply location="kNone">
-			<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-		</apply>
 	</affect>
 	<affect id="kMagicGlass" buff="Y">
 		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
-		<apply location="kNone">
-			<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-		</apply>
 	</affect>
 	<affect id="kStairs"/>
 	<affect id="kStoneHands" buff="Y">
 		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
-		<apply location="kNone">
-			<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-		</apply>
 	</affect>
 	<affect id="kPrismaticAura" buff="Y">
 		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
-		<apply location="kNone">
-			<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-		</apply>
 	</affect>
 	<affect id="kHelper"/>
 	<affect id="kForcesOfEvil" buff="Y">
@@ -274,9 +202,6 @@
 	</affect>
 	<affect id="kDeafness" buff="N">
 		<flags val="kAfBattledec|kAfDispellable|kAfCurable"/>
-		<apply location="kNone">
-			<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-		</apply>
 	</affect>
 	<affect id="kCrying" buff="N">
 		<flags val="kAfDispellable|kAfCurable"/>
@@ -295,23 +220,14 @@
 	</affect>
 	<affect id="kPeaceful" buff="N">
 		<flags val="kAfDispellable|kAfCurable"/>
-		<apply location="kNone">
-			<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-		</apply>
 	</affect>
 	<affect id="kMagicStopFight" buff="N">
 		<flags val="kAfBattledec|kAfPulsedec|kAfDispellable|kAfCurable"/>
-		<apply location="kNone">
-			<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-		</apply>
 	</affect>
 	<affect id="kBerserk"/>
 	<affect id="kLightWalk"/>
 	<affect id="kBrokenChains" buff="Y">
 		<flags val="kAfBattledec|kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
-		<apply location="kNone">
-			<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-		</apply>
 	</affect>
 	<affect id="kCloudOfArrows" buff="Y">
 		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
@@ -341,9 +257,6 @@
 	</affect>
 	<affect id="kScopolaPoison" buff="N">
 		<flags val="kAfSameTime|kAfCurable|kAfPoison"/>
-		<apply location="kNone">
-			<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" stack="3" />
-		</apply>
 	</affect>
 	<affect id="kDaturaPoison" buff="N">
 		<flags val="kAfSameTime|kAfCurable|kAfPoison"/>
@@ -363,9 +276,6 @@
 	<affect id="kCapable"/>
 	<affect id="kNoTeleport" buff="N">
 		<flags val="kAfBattledec|kAfPulsedec|kAfDispellable|kAfCurable|kAfEntanglement"/>
-		<apply location="kNone">
-			<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-		</apply>
 	</affect>
 	<affect id="kCombatLuck"/>
 	<affect id="kBandage">
