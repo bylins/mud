@@ -2370,11 +2370,14 @@
 				</target_conditions>
 				<affects saving="kReflex" resist="kMind">
 					<duration base="3" skill_divisor="15" min="0" max="0" />
-					<apply id="kNoFlee" location="kHitroll">
+					<apply id="kWebbed" location="kHitroll">
 						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="1.2" factor="-1" />
 					</apply>
-					<apply id="kNoFlee" location="kAc">
+					<apply id="kWebbed" location="kAc">
 						<modifier min="20.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
+					</apply>
+					<apply id="kWebbed" location="kBind">
+						<modifier min="1.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
 				</affects>
 			</action>
@@ -3807,11 +3810,11 @@
 			<action>
 				<affects saving="kWill" resist="kMind">
 					<duration base="3" skill_divisor="0" min="0" max="0" />
-					<apply id="kNoFlee" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
 					<apply id="kMadness" location="kMadness">
 						<modifier min="30.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
+					</apply>
+					<apply id="kMadness" location="kBind">
+						<modifier min="1.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
 				</affects>
 			</action>
@@ -5382,8 +5385,8 @@
 					<reposition pos="kSit" />
 					<lag base="2" bonus_divisor="-1" />
 					<duration base="2" skill_divisor="10" min="0" max="6" />
-					<apply id="kDeafness" location="kSavingCritical">
-						<modifier min="20.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
+					<apply id="kDeafness" location="kNone">
+						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 					</apply>
 				</affects>
 			</action>

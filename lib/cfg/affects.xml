@@ -350,4 +350,10 @@
 	<affect id="kWirchery">
 		<flags val="kAfDispellable"/>
 	</affect>
+	<affect id="kWebbed" buff="N">
+		<flags val="kAfBattledec|kAfPulsedec|kAfDispellable|kAfCurable|kAfEntanglement"/>
+	</affect>
+	<affect id="kInsidiousWound" buff="N">
+		<flags val="kAfDeadkeep"/>
+	</affect>
 </affects>

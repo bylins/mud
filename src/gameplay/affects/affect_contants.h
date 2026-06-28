@@ -183,6 +183,8 @@ enum class EAffect : Bitvector {
 	kWirchery = 132,   // issue.affect-migration: generic "чары" affect -- the dg_affect default source (ex-kSolobonus)
 	kAconitumPoison = 133,   // issue.affect-migration: aconite-poison identity (the 4th nemo-poison; the others had their own affect_type, aconitum had reused kNoBattleSwitch)
 	kCapable = 134,   // issue.affect-migration: "embedded spell" marker on a clone (ex-ESpell::kCapable kService spell)
+	kWebbed = 135,          // issue.affects-improve: kWeb's own affect (AC/hitroll penalty + kBind)
+	kInsidiousWound = 136,  // issue.affects-improve: punctual-style wound debuff
 };
 
 // --- BitsetFlags integration for EAffect ----------------------------------------------------------
@@ -192,7 +194,7 @@ enum class EAffect : Bitvector {
 // BitsetFlags<EAffect> stays byte-identical to the old FlagData on disk. count = 89 distinct bits.
 template<>
 struct flag_traits<EAffect> {
-	static constexpr std::size_t count = 135;   // kCapable=134 + 1
+	static constexpr std::size_t count = 137;   // kInsidiousWound=136 + 1
 };
 template<>
 struct flag_index_mapping<EAffect> {
@@ -353,6 +355,8 @@ enum EApply {
 	kSpelledBlinkPhys = 67, // мигание от физурона
 	kMagicDamagePercent = 68, //бонус + маг повреждение
 	kSpelledBlinkMag = 69, //мигание от магурона
+	kBind = 70,        // issue.affects-improve: bind / no-flee accumulator (queried as > 0)
+	kPoisoned = 71,    // issue.affects-improve: unified poison level (-> GET_POISON), summed across poisons
 	kNumberApplies
 };
 

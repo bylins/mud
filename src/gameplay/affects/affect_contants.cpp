@@ -172,6 +172,8 @@ void init_EAffectFlag_ITEM_NAMES() {
 	EAffectFlag_name_by_value[EAffect::kWirchery] = "kWirchery";
 	EAffectFlag_name_by_value[EAffect::kAconitumPoison] = "kAconitumPoison";
 	EAffectFlag_name_by_value[EAffect::kCapable] = "kCapable";
+	EAffectFlag_name_by_value[EAffect::kWebbed] = "kWebbed";
+	EAffectFlag_name_by_value[EAffect::kInsidiousWound] = "kInsidiousWound";
 	for (const auto &i : EAffectFlag_name_by_value) {
 		EAffectFlag_value_by_name[i.second] = i.first;
 	}
@@ -397,6 +399,8 @@ const char *apply_types[] = {"ничего",
 							 "волшебное.уклонение.от.физ.урона",
 							 "сила.заклинаний.%",
 							 "волшебное.уклонение.от.маг.урона",
+							 "путы",
+							 "отравление",
 							 "\n"
 };
 
@@ -480,6 +484,8 @@ void init_EApplyLocation_ITEM_NAMES() {
 	EApplyLocation_name_by_value[EApply::kSpelledBlinkPhys] =  "kSpelledBlinkPhys";
 	EApplyLocation_name_by_value[EApply::kMagicDamagePercent] = "kMagicDamagePercent";
 	EApplyLocation_name_by_value[EApply::kSpelledBlinkMag] =  "kSpelledBlinkMag";
+	EApplyLocation_name_by_value[EApply::kBind] = "kBind";
+	EApplyLocation_name_by_value[EApply::kPoisoned] = "kPoisoned";
 	EApplyLocation_name_by_value[EApply::kNumberApplies] = "kNumberApplies";
 	for (const auto &i : EApplyLocation_name_by_value) {
 		EApplyLocation_value_by_name[i.second] = i.first;

@@ -745,4 +745,10 @@
 		<message type="kAffExpiredToChar" val="Чары, наложенные на вас, развеялись."/>
 		<message type="kAffDispelledToChar" val="Чары, наложенные на вас, развеялись."/>
 	</msg_sheaf>
+	<msg_sheaf id="kWebbed">
+		<message type="kShortDesc" val="опутан"/>
+	</msg_sheaf>
+	<msg_sheaf id="kInsidiousWound">
+		<message type="kShortDesc" val="коварная рана"/>
+	</msg_sheaf>
 </msg_container>

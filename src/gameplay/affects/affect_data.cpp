@@ -1245,6 +1245,10 @@ void affect_modify(CharData *ch, EApply loc, int mod, const EAffect bitv, bool a
 			break;
 			case EApply::kSpelledBlinkMag: ch->add_abils.percent_spell_blink_mag += mod;
 				break;
+		case EApply::kPoisoned: GET_POISON(ch) += mod;
+			break;
+		case EApply::kBind: GET_BIND(ch) += mod;
+			break;
 		case EApply::kSkillsBonus: {
 			ch->set_skill_bonus(ch->get_skill_bonus() + mod);
 		}

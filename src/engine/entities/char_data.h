@@ -86,6 +86,7 @@ struct char_played_ability_data {
 	int cast_success;
 	int initiative_add;
 	int poison_add;
+	int bind_add;        // issue.affects-improve: EApply::kBind accumulator (no-flee); not persisted
 	int skill_reduce_add;
 	int pray_add;
 	int percent_exp_add;
