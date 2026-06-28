@@ -38,6 +38,10 @@ class ExitData {
 	byte exit_info;    // Exit info             //
 	ubyte lock_complexity;
 	ObjVnum key;        // Key's number (-1 for no key) //
+	// issue.room-affect-trigger-improve (door affects): a room affect (Affect<ERoomApply>) may be hosted
+	// on the EXIT/door itself, not just the room -- so a door enchantment is reachable from either side
+	// via the reverse exit (see ForEachDoorAffect). Same type as RoomData::affected; runtime-only.
+	room_spells::RoomAffects affected;
 
  private:
 	RoomRnum to_room_;    // Where direction leads (kNowhere) //

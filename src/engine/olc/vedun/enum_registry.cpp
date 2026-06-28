@@ -98,7 +98,8 @@ void RegisterEditorEnums() {
 	// the parser in talents_actions.cpp (Actions::ParseAction / the align reader).
 	registry.RegisterNames("EActionTarget", {"kTarFightSelf", "kTarFightVict", "kTarGroup", "kTarFoes",
 		"kTarRandomFoe", "kTarRandomAlly", "kTarMinions", "kTarActor", "kTarSame", "kTarRoomThis"});
-	registry.RegisterNames("EActionTrigger", {"kPulse", "kBattlePulse", "kEnter", "kEnterPC", "kEnterNPC"});
+	registry.RegisterNames("EActionTrigger",
+		{"kPulse", "kBattlePulse", "kEnter", "kEnterPC", "kEnterNPC", "kPick", "kUnlock", "kOpen"});
 	registry.RegisterNames("EActionBase", {"kDamage", "kPoints", "kAffects", "kDispelled", "kCompetence"});
 	registry.RegisterNames("EAlign", {"kGood", "kEvil", "kNeutral"});
 	// <misc violent> is stored as the literal Y/N/A the spell loader parses into EViolent.

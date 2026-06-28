@@ -45,6 +45,7 @@ void init_room_affect_names() {
 		{RA::kHypnoticPattern, "kHypnoticPattern"},
 		{RA::kBlackTentacles, "kBlackTentacles"},
 		{RA::kPortalTimer, "kPortalTimer"},
+		{RA::kFireTrap, "kFireTrap"},
 	};
 	for (const auto &[value, token] : g_room_affect_name_by_value) {
 		g_room_affect_value_by_name.emplace(token, value);

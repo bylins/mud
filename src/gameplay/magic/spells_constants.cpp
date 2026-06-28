@@ -502,6 +502,7 @@ void init_ETarget_ITEM_NAMES() {
 	ETarget_name_by_value[ETarget::kTarRoomWorld] = "kTarRoomWorld";
 	ETarget_name_by_value[ETarget::kTarAllyOnly] = "kTarAllyOnly";
 	ETarget_name_by_value[ETarget::kTarMinionsOnly] = "kTarMinionsOnly";
+	ETarget_name_by_value[ETarget::kTarDirection] = "kTarDirection";
 
 	for (const auto &i : ETarget_name_by_value) {
 		ETarget_value_by_name[i.second] = i.first;

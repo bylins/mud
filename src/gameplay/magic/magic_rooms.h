@@ -32,7 +32,8 @@ enum class ERoomAffect : Bitvector {
 	kHypnoticPattern = 8,
 	kBlackTentacles = 9,
 	kPortalTimer = 10,
-	kCount = 11,
+	kFireTrap = 11,			// issue.room-affect-trigger-improve: door affect -- kOpen trigger fireballs the opener
+	kCount = 12,
 };
 
 // issue.affect-migration: when a room affect runs each of its <actions> is now decided per-action by
