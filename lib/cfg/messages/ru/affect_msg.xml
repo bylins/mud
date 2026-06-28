@@ -586,6 +586,10 @@
 		<message type="kShortDesc" val="обморожение"/>
 	</msg_sheaf>
 	<msg_sheaf id="kSlowdown">
+		<message type="kAffImposedToRoom" val="Движения $n1 стали медленными и неуклюжими."/>
+		<message type="kAffImposedToChar" val="Ваши движения стали медленными и неуклюжими."/>
+		<message type="kAffExpiredToRoom" val="К $n2 вернулась былая подвижность."/>
+		<message type="kAffExpiredToChar" val="К вам вернулась былая подвижность."/>
 		<message type="kShortDesc" val="колдовское замедление"/>
 	</msg_sheaf>
 	<msg_sheaf id="kFever">
@@ -609,6 +613,10 @@
 		<message type="kShortDesc" val="уменьшение"/>
 	</msg_sheaf>
 	<msg_sheaf id="kMadness">
+		<message type="kAffImposedToRoom" val="$n0 обезумел$g!"/>
+		<message type="kAffImposedToChar" val="Рассудок покинул вас, и вами овладело безумие!"/>
+		<message type="kAffExpiredToRoom" val="Рассудок вернулся к $n2."/>
+		<message type="kAffExpiredToChar" val="Рассудок вернулся к вам."/>
 		<message type="kShortDesc" val="безумие"/>
 	</msg_sheaf>
 	<msg_sheaf id="kMindless">
@@ -746,6 +754,10 @@
 		<message type="kAffDispelledToChar" val="Чары, наложенные на вас, развеялись."/>
 	</msg_sheaf>
 	<msg_sheaf id="kWebbed">
+		<message type="kAffImposedToRoom" val="$n0 запутал$u в липкой паутине!"/>
+		<message type="kAffImposedToChar" val="Вы запутались в липкой паутине!"/>
+		<message type="kAffExpiredToRoom" val="$n0 выпутал$u из паутины."/>
+		<message type="kAffExpiredToChar" val="Вы выпутались из паутины."/>
 		<message type="kShortDesc" val="опутан"/>
 	</msg_sheaf>
 	<msg_sheaf id="kInsidiousWound">

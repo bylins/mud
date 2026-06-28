@@ -1976,6 +1976,8 @@
 	</msg_sheaf>
 	<msg_sheaf id="kDispellMagic">
 		<name val="развеять магию" />
+		<!-- kCustomMsgOne: no-target развеять магию dispels the ROOM, not the caster (magic_utils.cpp). -->
+		<message type="kCustomMsgOne" val="Вы попытались развеять магию, наложенную на это место." />
 		<message type="kCastPhraseHeathen" val="изыде ворожба" />
 		<message type="kCastPhraseChristian" val="... выйди, дух нечистый." />
 	</msg_sheaf>

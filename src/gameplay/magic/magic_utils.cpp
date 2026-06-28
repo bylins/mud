@@ -521,6 +521,13 @@ ECastResult CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomDat
 	// cannot block its own removal.
 	if (spell_id == ESpell::kDispellMagic && !cvict && !ovict) {
 		profiler.next_step("room-dispel");
+		// issue.affects-improve (P2): a no-target dispel goes to the ROOM, not the caster -- tell the
+		// caster so the empty "no effect" result on their own buffs is not mistaken for a bug. To strip
+		// your own affects, target yourself by name. The clarifier is kDispellMagic's kCustomMsgOne.
+		if (const std::string &m = MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCustomMsgOne);
+				!m.empty()) {
+			SendMsgToChar(m + "\r\n", caster);
+		}
 		CastContext room_ctx = ctx;
 		room_ctx.cvict = nullptr;
 		room_ctx.rvict = world[caster->in_room];

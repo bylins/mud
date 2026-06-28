@@ -4,6 +4,7 @@
 #include "gameplay/affects/affect_data.h"
 #include "spells.h"
 #include "magic.h"   // ECastResult / CastContext
+#include "gameplay/abilities/talents_actions.h"  // TalentAffect::Apply (RoomAffectSeal return type)
 #include "engine/structs/meta_enum.h"   // NAME_BY_ITEM / ITEM_BY_NAME / NAMES_OF
 
 #include <list>
@@ -107,6 +108,11 @@ RoomAffectActor ClassifyRoomAffectAccess(CharData *ch, long caster_id);
 [[nodiscard]] bool RoomAffectFlagsLoaded();
 // issue.affects-improve: per-affect seal-strength cap from room_affects.xml (0 if none).
 [[nodiscard]] int RoomAffectSealCap(ERoomAffect affect_type);
+// issue.affects-improve (P1 fix): the room affect's seal-strength FORMULA (room_affects.xml
+// <seal_strength>). RoomAffectHasSeal marks rows that carry one; CallMagicToRoom evaluates it via
+// ComputeApplyModifier so the affect's strength is its own property, not the casting spell's apply.
+[[nodiscard]] bool RoomAffectHasSeal(ERoomAffect affect_type);
+[[nodiscard]] const talents_actions::TalentAffect::Apply &RoomAffectSeal(ERoomAffect affect_type);
 // issue.affect-migration: the affect's own <actions> (each gated by its <trigger>); empty when none.
 [[nodiscard]] const talents_actions::Actions &RoomAffectActions(ERoomAffect affect_type);
 

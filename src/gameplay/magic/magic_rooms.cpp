@@ -137,6 +137,13 @@ std::array<talents_actions::Actions, kRoomAffectFlagTableSize> g_room_affect_act
 // issue.affects-improve (Phase B): per-affect seal-strength cap (the modifier ceiling the
 // star rating scales against), affect-native so the display never needs the imposing spell.
 std::array<int, kRoomAffectFlagTableSize> g_room_affect_cap{};
+// issue.affects-improve (P1 fix): per-affect seal-strength FORMULA. The room affect's strength
+// (af.modifier -- the seal level that gates the ward in CallMagicToRoom and the star rating in
+// sight.cpp) is the affect's OWN property now, not the casting spell's apply (which is a bare
+// <affect id=> ref carrying no coefficients). g_room_affect_has_seal[idx] marks the rows that
+// carry a <seal_strength> formula; the rest compute no modifier (flag-only wards like kRuneLabel).
+std::array<talents_actions::TalentAffect::Apply, kRoomAffectFlagTableSize> g_room_affect_seal{};
+std::array<bool, kRoomAffectFlagTableSize> g_room_affect_has_seal{};
 bool g_room_affect_flags_loaded = false;
 
 // issue.affect-migration: is a fight underway in this room? (gates kBattlePulse-triggered actions.)
@@ -160,6 +167,8 @@ bool ActionFiresOnPulse(const talents_actions::Action &action, bool combat) {
 void BuildRoomAffectFlagTable(parser_wrapper::DataNode data) {
 	g_room_affect_flags.fill(0);
 	g_room_affect_cap.fill(0);
+	g_room_affect_has_seal.fill(false);
+	for (auto &s : g_room_affect_seal) { s = talents_actions::TalentAffect::Apply{}; }
 	for (auto &a : g_room_affect_actions) { a = talents_actions::Actions{}; }
 	for (auto &node : data.Children("room_affect")) {
 		const char *id = node.GetValue("id");
@@ -196,9 +205,25 @@ void BuildRoomAffectFlagTable(parser_wrapper::DataNode data) {
 		{
 			auto cnode = node;
 			if (cnode.GoToChild("seal_strength")) {
+				// issue.affects-improve (P1 fix): the seal strength is a modifier FORMULA (the same
+				// min/dices_weight/alpha/beta/factor/cap set spells.xml applies use), evaluated per cast
+				// via ComputeApplyModifier. The bare attribute = the legacy cap-only form (formula stays
+				// at defaults: min=0 beta=0 -> modifier 0). kForbidden carries beta=1 cap=100 = MIN(100, C).
+				auto &seal = g_room_affect_seal[idx];
+				const auto dbl = [&](const char *attr, double def) {
+					const char *v = cnode.GetValue(attr);
+					return (v && *v) ? parse::ReadAsDouble(v) : def;
+				};
+				seal.min = dbl("min", 0.0);
+				seal.dices_weight = dbl("dices_weight", 0.0);
+				seal.alpha = dbl("alpha", 0.0);
+				seal.beta = dbl("beta", 0.0);
+				if (const char *f = cnode.GetValue("factor"); f && *f) { seal.factor = parse::ReadAsInt(f); }
 				if (const char *cap = cnode.GetValue("cap"); cap && *cap) {
-					g_room_affect_cap[idx] = parse::ReadAsInt(cap);
+					seal.cap = parse::ReadAsInt(cap);
+					g_room_affect_cap[idx] = seal.cap;  // kept for sight.cpp's star-rating denominator
 				}
+				g_room_affect_has_seal[idx] = true;
 			}
 		}
 	}
@@ -240,6 +265,17 @@ bool RoomAffectFlagsLoaded() { return g_room_affect_flags_loaded; }
 int RoomAffectSealCap(ERoomAffect affect_type) {
 	const auto idx = static_cast<std::size_t>(to_underlying(affect_type));
 	return idx < kRoomAffectFlagTableSize ? g_room_affect_cap[idx] : 0;
+}
+
+bool RoomAffectHasSeal(ERoomAffect affect_type) {
+	const auto idx = static_cast<std::size_t>(to_underlying(affect_type));
+	return idx < kRoomAffectFlagTableSize && g_room_affect_has_seal[idx];
+}
+
+const talents_actions::TalentAffect::Apply &RoomAffectSeal(ERoomAffect affect_type) {
+	static const talents_actions::TalentAffect::Apply kEmpty;
+	const auto idx = static_cast<std::size_t>(to_underlying(affect_type));
+	return idx < kRoomAffectFlagTableSize ? g_room_affect_seal[idx] : kEmpty;
 }
 
 const talents_actions::Actions &RoomAffectActions(ERoomAffect affect_type) {
@@ -713,8 +749,14 @@ ECastResult CastRoomAffect(CastContext &ctx) {
 		// Stored potency scaled by <affects potency_weight=> (default 1.0).
 		// Symmetric with the char-affect path in TryApplyAffectTalent.
 		af[0].potency = CalcCastPotency(ctx.potency()) * talent.GetPotencyWeight();
-		if (!talent.GetApplies().empty()) {
-			af[0].modifier = ComputeApplyModifier(talent.GetApplies()[0], ctx.CompetenceBase(), ctx.potency());
+		// issue.affects-improve (P1 fix): the seal strength (modifier) is the ROOM AFFECT's own
+		// property (room_affects.xml <seal_strength>), not the casting spell's apply. The spell now
+		// names the affect via a bare <affect id=> ref carrying no coefficients, so reading
+		// talent.GetApplies()[0] here yielded modifier 0 -- which silently disabled the kForbidden
+		// ward (gated on number(1,100) <= af->modifier) and zeroed the sight.cpp star rating.
+		if (RoomAffectHasSeal(af[0].affect_type)) {
+			af[0].modifier = ComputeApplyModifier(RoomAffectSeal(af[0].affect_type),
+												  ctx.CompetenceBase(), ctx.potency());
 		}
 	}
 
