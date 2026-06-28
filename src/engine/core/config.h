@@ -189,8 +189,8 @@ class RuntimeConfiguration {
 	ETelemetryLogMode telemetry_log_mode() const { return m_telemetry_log_mode; }
 	
 	void load_telemetry_configuration(const pugi::xml_node *root);
-	size_t yaml_threads() const { return m_yaml_threads; }
-	size_t thread_pools_workers() const { return m_thread_pools_workers; }
+	size_t thread_pools_loader() const { return m_thread_pools_loader; }
+	size_t thread_pools_savers() const { return m_thread_pools_savers; }
 
 
 #ifdef ENABLE_ADMIN_API
@@ -218,7 +218,6 @@ class RuntimeConfiguration {
 	void load_external_triggers(const pugi::xml_node *root);
 	void load_statistics_configuration(const pugi::xml_node *root);
 	void load_telemetry_configuration_impl(const pugi::xml_node *root);
-	void load_world_loader_configuration(const pugi::xml_node *root);
 	void load_thread_pools_configuration(const pugi::xml_node *root);
 
 #ifdef ENABLE_ADMIN_API
@@ -248,8 +247,8 @@ class RuntimeConfiguration {
 	std::string m_telemetry_service_version;
 	ETelemetryLogMode m_telemetry_log_mode;
 
-	size_t m_yaml_threads;
-	size_t m_thread_pools_workers;
+	size_t m_thread_pools_loader;
+	size_t m_thread_pools_savers;
 #ifdef ENABLE_ADMIN_API
 	std::string m_admin_socket_path{"admin_api.sock"};
 	bool m_admin_api_enabled{false};

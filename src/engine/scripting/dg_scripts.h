@@ -137,7 +137,12 @@ struct wait_event_data {
 	Trigger *trigger;
 	void *go;
 	int type;
+	bool from_current = false;  // возобновить с текущей строки (TRIG_FROM_LINE), а не со следующей
 };
+
+// Повесить на триггер wait через штатный trig_wait_event (issue #3523).
+// from_current=true -> по таймеру продолжить с текущей строки (TRIG_FROM_LINE).
+void hang_trig_wait(void *go, Trigger *trig, int type, long time, bool from_current = false);
 
 // one line of the trigger //
 class cmdlist_element {
