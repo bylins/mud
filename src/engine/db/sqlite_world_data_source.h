@@ -120,6 +120,13 @@ private:
 	sqlite3 *m_db;
 };
 
+// Bind a runtime KOI8-R string as UTF-8 (the on-disk text encoding, matching
+// the converter and the utf8->koi8 read path). Binds NULL for a null pointer;
+// ASCII passes through unchanged. Used by every Save*Record (and the flag/enum
+// table writers) so engine writes round-trip identically to converter output.
+// Free function so both member and helper-function call sites can use it.
+void BindTextKoi(sqlite3_stmt *stmt, int col, const char *koi8);
+
 // Factory function for creating SQLite data source
 std::unique_ptr<IWorldDataSource> CreateSqliteDataSource(const std::string &db_path);
 

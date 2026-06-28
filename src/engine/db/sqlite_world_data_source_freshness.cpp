@@ -9,6 +9,7 @@
 
 #include "engine/entities/zone.h"
 #include "utils/logger.h"
+#include "utils/utils_encoding.h"
 
 #include <ctime>
 #include <string>
@@ -16,6 +17,20 @@
 
 namespace world_loader
 {
+
+void BindTextKoi(sqlite3_stmt *stmt, int col, const char *koi8)
+{
+	if (!koi8)
+	{
+		sqlite3_bind_null(stmt, col);
+		return;
+	}
+	const std::string in(koi8);
+	// koi_to_utf8 can roughly double the byte count; size generously.
+	std::vector<char> out(in.size() * 2 + 4, '\0');
+	codepages::koi_to_utf8(const_cast<char *>(in.c_str()), out.data());
+	sqlite3_bind_text(stmt, col, out.data(), -1, SQLITE_TRANSIENT);
+}
 
 void SqliteWorldDataSource::EnsureSyncTables()
 {

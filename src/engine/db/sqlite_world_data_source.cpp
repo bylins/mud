@@ -508,9 +508,9 @@ void SaveFlagsToTable(sqlite3 *db, const std::string &table_name, const std::str
 						sqlite3_bind_int(stmt, col++, vnum);
 						if (!category.empty())
 						{
-							sqlite3_bind_text(stmt, col++, category.c_str(), -1, SQLITE_TRANSIENT);
+							BindTextKoi(stmt, col++, category.c_str());
 						}
-						sqlite3_bind_text(stmt, col++, flag_name.c_str(), -1, SQLITE_TRANSIENT);
+						BindTextKoi(stmt, col++, flag_name.c_str());
 						sqlite3_step(stmt);
 						sqlite3_finalize(stmt);
 					}
@@ -2343,11 +2343,11 @@ void SqliteWorldDataSource::SaveZoneRecord(const ZoneData &zone)
 
 	// Bind values
 	sqlite3_bind_int(stmt, 1, zone.vnum);
-	sqlite3_bind_text(stmt, 2, zone.name.c_str(), -1, SQLITE_TRANSIENT);
-	sqlite3_bind_text(stmt, 3, zone.comment.c_str(), -1, SQLITE_TRANSIENT);
-	sqlite3_bind_text(stmt, 4, zone.location.c_str(), -1, SQLITE_TRANSIENT);
-	sqlite3_bind_text(stmt, 5, zone.author.c_str(), -1, SQLITE_TRANSIENT);
-	sqlite3_bind_text(stmt, 6, zone.description.c_str(), -1, SQLITE_TRANSIENT);
+	BindTextKoi(stmt, 2, zone.name.c_str());
+	BindTextKoi(stmt, 3, zone.comment.c_str());
+	BindTextKoi(stmt, 4, zone.location.c_str());
+	BindTextKoi(stmt, 5, zone.author.c_str());
+	BindTextKoi(stmt, 6, zone.description.c_str());
 	sqlite3_bind_int(stmt, 7, zone.vnum * 100);  // first_room
 	sqlite3_bind_int(stmt, 8, zone.top);  // top_room
 	sqlite3_bind_int(stmt, 9, zone.level);  // mode
@@ -2384,7 +2384,7 @@ void SqliteWorldDataSource::SaveZoneGroups(int zone_vnum, const ZoneData &zone)
 		{
 			sqlite3_bind_int(stmt, 1, zone_vnum);
 			sqlite3_bind_int(stmt, 2, zone.typeA_list[i]);
-			sqlite3_bind_text(stmt, 3, "A", -1, SQLITE_STATIC);
+			BindTextKoi(stmt, 3, "A");
 			sqlite3_step(stmt);
 			sqlite3_finalize(stmt);
 		}
@@ -2397,7 +2397,7 @@ void SqliteWorldDataSource::SaveZoneGroups(int zone_vnum, const ZoneData &zone)
 		{
 			sqlite3_bind_int(stmt, 1, zone_vnum);
 			sqlite3_bind_int(stmt, 2, zone.typeB_list[i]);
-			sqlite3_bind_text(stmt, 3, "B", -1, SQLITE_STATIC);
+			BindTextKoi(stmt, 3, "B");
 			sqlite3_step(stmt);
 			sqlite3_finalize(stmt);
 		}
@@ -2437,7 +2437,7 @@ void SqliteWorldDataSource::SaveZoneCommands(int zone_vnum, const struct reset_c
 			sqlite3_bind_int(stmt, 2, order++);
 			
 			char cmd_str[2] = {commands[i].command, '\0'};
-			sqlite3_bind_text(stmt, 3, cmd_str, -1, SQLITE_TRANSIENT);
+			BindTextKoi(stmt, 3, cmd_str);
 			sqlite3_bind_int(stmt, 4, commands[i].if_flag);
 			sqlite3_bind_int(stmt, 5, commands[i].arg1);
 			sqlite3_bind_int(stmt, 6, commands[i].arg2);
@@ -2446,7 +2446,7 @@ void SqliteWorldDataSource::SaveZoneCommands(int zone_vnum, const struct reset_c
 			
 			if (commands[i].sarg1)
 			{
-				sqlite3_bind_text(stmt, 9, commands[i].sarg1, -1, SQLITE_TRANSIENT);
+				BindTextKoi(stmt, 9, commands[i].sarg1);
 			}
 			else
 			{
@@ -2455,7 +2455,7 @@ void SqliteWorldDataSource::SaveZoneCommands(int zone_vnum, const struct reset_c
 			
 			if (commands[i].sarg2)
 			{
-				sqlite3_bind_text(stmt, 10, commands[i].sarg2, -1, SQLITE_TRANSIENT);
+				BindTextKoi(stmt, 10, commands[i].sarg2);
 			}
 			else
 			{
@@ -2542,11 +2542,11 @@ void SqliteWorldDataSource::SaveTriggerRecord(int trig_vnum, const Trigger *trig
 	}
 
 	sqlite3_bind_int(stmt, 1, trig_vnum);
-	sqlite3_bind_text(stmt, 2, trig->get_name().c_str(), -1, SQLITE_TRANSIENT);
+	BindTextKoi(stmt, 2, trig->get_name().c_str());
 	sqlite3_bind_int(stmt, 3, trig->get_attach_type());
 	sqlite3_bind_int(stmt, 4, GET_TRIG_NARG(trig));
-	sqlite3_bind_text(stmt, 5, trig->arglist.c_str(), -1, SQLITE_TRANSIENT);
-	sqlite3_bind_text(stmt, 6, script_text.c_str(), -1, SQLITE_TRANSIENT);
+	BindTextKoi(stmt, 5, trig->arglist.c_str());
+	BindTextKoi(stmt, 6, script_text.c_str());
 
 	int rc = sqlite3_step(stmt);
 	if (rc != SQLITE_DONE)
@@ -2569,7 +2569,7 @@ void SqliteWorldDataSource::SaveTriggerRecord(int trig_vnum, const Trigger *trig
 			{
 				sqlite3_bind_int(stmt, 1, trig_vnum);
 				char ch_str[2] = {type_ch, '\0'};
-				sqlite3_bind_text(stmt, 2, ch_str, -1, SQLITE_TRANSIENT);
+				BindTextKoi(stmt, 2, ch_str);
 				sqlite3_step(stmt);
 				sqlite3_finalize(stmt);
 			}
@@ -2670,10 +2670,10 @@ void SqliteWorldDataSource::SaveRoomRecord(RoomData *room)
 
 	sqlite3_bind_int(stmt, 1, room_vnum);
 	sqlite3_bind_int(stmt, 2, zone_vnum);
-	sqlite3_bind_text(stmt, 3, room->name, -1, SQLITE_TRANSIENT);
+	BindTextKoi(stmt, 3, room->name);
 	
 	std::string description = GlobalObjects::descriptions().get(room->description_num);
-	sqlite3_bind_text(stmt, 4, description.c_str(), -1, SQLITE_TRANSIENT);
+	BindTextKoi(stmt, 4, description.c_str());
 	sqlite3_bind_int(stmt, 5, static_cast<int>(room->sector_type));
 
 	int rc = sqlite3_step(stmt);
@@ -2706,7 +2706,7 @@ void SqliteWorldDataSource::SaveRoomRecord(RoomData *room)
 			
 			if (!room->dir_option[dir]->general_description.empty())
 			{
-				sqlite3_bind_text(stmt, 3, room->dir_option[dir]->general_description.c_str(), -1, SQLITE_TRANSIENT);
+				BindTextKoi(stmt, 3, room->dir_option[dir]->general_description.c_str());
 			}
 			else
 			{
@@ -2715,7 +2715,7 @@ void SqliteWorldDataSource::SaveRoomRecord(RoomData *room)
 
 			if (room->dir_option[dir]->keyword)
 			{
-				sqlite3_bind_text(stmt, 4, room->dir_option[dir]->keyword, -1, SQLITE_TRANSIENT);
+				BindTextKoi(stmt, 4, room->dir_option[dir]->keyword);
 			}
 			else
 			{
@@ -2726,7 +2726,7 @@ void SqliteWorldDataSource::SaveRoomRecord(RoomData *room)
 			std::string exit_flags_str = std::to_string(room->dir_option[dir]->exit_info);
 			if (!exit_flags_str.empty() && exit_flags_str != "0")
 			{
-				sqlite3_bind_text(stmt, 5, exit_flags_str.c_str(), -1, SQLITE_TRANSIENT);
+				BindTextKoi(stmt, 5, exit_flags_str.c_str());
 			}
 			else
 			{
@@ -2752,8 +2752,8 @@ void SqliteWorldDataSource::SaveRoomRecord(RoomData *room)
 		if (sqlite3_prepare_v2(m_db, extra_sql, -1, &stmt, nullptr) == SQLITE_OK)
 		{
 			sqlite3_bind_int(stmt, 1, room_vnum);
-			sqlite3_bind_text(stmt, 2, exdesc->keyword, -1, SQLITE_TRANSIENT);
-			sqlite3_bind_text(stmt, 3, exdesc->description, -1, SQLITE_TRANSIENT);
+			BindTextKoi(stmt, 2, exdesc->keyword);
+			BindTextKoi(stmt, 3, exdesc->description);
 			sqlite3_step(stmt);
 			sqlite3_finalize(stmt);
 		}
@@ -2867,24 +2867,24 @@ void SqliteWorldDataSource::SaveMobRecord(int mob_vnum, CharData &mob)
 	sqlite3_bind_int(stmt, col++, mob_vnum);
 	
 	// Names
-	sqlite3_bind_text(stmt, col++, GET_PC_NAME(&mob), -1, SQLITE_TRANSIENT);
-	sqlite3_bind_text(stmt, col++, mob.player_data.PNames[grammar::ECase::kNom].c_str(), -1, SQLITE_TRANSIENT);
-	sqlite3_bind_text(stmt, col++, mob.player_data.PNames[grammar::ECase::kGen].c_str(), -1, SQLITE_TRANSIENT);
-	sqlite3_bind_text(stmt, col++, mob.player_data.PNames[grammar::ECase::kDat].c_str(), -1, SQLITE_TRANSIENT);
-	sqlite3_bind_text(stmt, col++, mob.player_data.PNames[grammar::ECase::kAcc].c_str(), -1, SQLITE_TRANSIENT);
-	sqlite3_bind_text(stmt, col++, mob.player_data.PNames[grammar::ECase::kIns].c_str(), -1, SQLITE_TRANSIENT);
-	sqlite3_bind_text(stmt, col++, mob.player_data.PNames[grammar::ECase::kPre].c_str(), -1, SQLITE_TRANSIENT);
+	BindTextKoi(stmt, col++, GET_PC_NAME(&mob));
+	BindTextKoi(stmt, col++, mob.player_data.PNames[grammar::ECase::kNom].c_str());
+	BindTextKoi(stmt, col++, mob.player_data.PNames[grammar::ECase::kGen].c_str());
+	BindTextKoi(stmt, col++, mob.player_data.PNames[grammar::ECase::kDat].c_str());
+	BindTextKoi(stmt, col++, mob.player_data.PNames[grammar::ECase::kAcc].c_str());
+	BindTextKoi(stmt, col++, mob.player_data.PNames[grammar::ECase::kIns].c_str());
+	BindTextKoi(stmt, col++, mob.player_data.PNames[grammar::ECase::kPre].c_str());
 	
 	// Descriptions
-	sqlite3_bind_text(stmt, col++, mob.player_data.long_descr.c_str(), -1, SQLITE_TRANSIENT);
-	sqlite3_bind_text(stmt, col++, mob.player_data.description.c_str(), -1, SQLITE_TRANSIENT);
+	BindTextKoi(stmt, col++, mob.player_data.long_descr.c_str());
+	BindTextKoi(stmt, col++, mob.player_data.description.c_str());
 	
 	// Base parameters
 	sqlite3_bind_int(stmt, col++, alignment::GetAlignment(&mob));
 	
 	// Mob type (E or S)
 	std::string mob_type = (mob.get_str() > 0) ? "E" : "S";
-	sqlite3_bind_text(stmt, col++, mob_type.c_str(), -1, SQLITE_TRANSIENT);
+	BindTextKoi(stmt, col++, mob_type.c_str());
 	
 	// Stats
 	sqlite3_bind_int(stmt, col++, mob.GetLevel());
@@ -2957,7 +2957,7 @@ void SqliteWorldDataSource::SaveMobRecord(int mob_vnum, CharData &mob)
 	mob.mob_specials.npc_flags.tascii(FlagData::kPlanesNumber, special_buf, sizeof(special_buf));
 	if (special_buf[0] != '0' || special_buf[1] != 'a')
 	{
-		sqlite3_bind_text(stmt, col++, special_buf, -1, SQLITE_TRANSIENT);
+		BindTextKoi(stmt, col++, special_buf);
 	}
 	else
 	{
@@ -2969,7 +2969,7 @@ void SqliteWorldDataSource::SaveMobRecord(int mob_vnum, CharData &mob)
 	std::string role_str = mob.get_role().to_string();
 	if (!role_str.empty() && role_str != "000000000")
 	{
-		sqlite3_bind_text(stmt, col++, role_str.c_str(), -1, SQLITE_TRANSIENT);
+		BindTextKoi(stmt, col++, role_str.c_str());
 	}
 	else
 	{
@@ -3224,17 +3224,17 @@ void SqliteWorldDataSource::SaveObjectRecord(int obj_vnum, CObjectPrototype *obj
 	sqlite3_bind_int(stmt, col++, obj_vnum);
 	
 	// Names
-	sqlite3_bind_text(stmt, col++, obj->get_aliases().c_str(), -1, SQLITE_TRANSIENT);
-	sqlite3_bind_text(stmt, col++, obj->get_PName(grammar::ECase::kNom).c_str(), -1, SQLITE_TRANSIENT);
-	sqlite3_bind_text(stmt, col++, obj->get_PName(grammar::ECase::kGen).c_str(), -1, SQLITE_TRANSIENT);
-	sqlite3_bind_text(stmt, col++, obj->get_PName(grammar::ECase::kDat).c_str(), -1, SQLITE_TRANSIENT);
-	sqlite3_bind_text(stmt, col++, obj->get_PName(grammar::ECase::kAcc).c_str(), -1, SQLITE_TRANSIENT);
-	sqlite3_bind_text(stmt, col++, obj->get_PName(grammar::ECase::kIns).c_str(), -1, SQLITE_TRANSIENT);
-	sqlite3_bind_text(stmt, col++, obj->get_PName(grammar::ECase::kPre).c_str(), -1, SQLITE_TRANSIENT);
+	BindTextKoi(stmt, col++, obj->get_aliases().c_str());
+	BindTextKoi(stmt, col++, obj->get_PName(grammar::ECase::kNom).c_str());
+	BindTextKoi(stmt, col++, obj->get_PName(grammar::ECase::kGen).c_str());
+	BindTextKoi(stmt, col++, obj->get_PName(grammar::ECase::kDat).c_str());
+	BindTextKoi(stmt, col++, obj->get_PName(grammar::ECase::kAcc).c_str());
+	BindTextKoi(stmt, col++, obj->get_PName(grammar::ECase::kIns).c_str());
+	BindTextKoi(stmt, col++, obj->get_PName(grammar::ECase::kPre).c_str());
 	
 	// Descriptions
-	sqlite3_bind_text(stmt, col++, obj->get_description().c_str(), -1, SQLITE_TRANSIENT);
-	sqlite3_bind_text(stmt, col++, obj->get_action_description().c_str(), -1, SQLITE_TRANSIENT);
+	BindTextKoi(stmt, col++, obj->get_description().c_str());
+	BindTextKoi(stmt, col++, obj->get_action_description().c_str());
 	
 	// Type and material
 	sqlite3_bind_int(stmt, col++, to_underlying(obj->get_type()));
@@ -3245,10 +3245,10 @@ void SqliteWorldDataSource::SaveObjectRecord(int obj_vnum, CObjectPrototype *obj
 	std::string val1 = std::to_string(obj->get_val(1));
 	std::string val2 = std::to_string(obj->get_val(2));
 	std::string val3 = std::to_string(obj->get_val(3));
-	sqlite3_bind_text(stmt, col++, val0.c_str(), -1, SQLITE_TRANSIENT);
-	sqlite3_bind_text(stmt, col++, val1.c_str(), -1, SQLITE_TRANSIENT);
-	sqlite3_bind_text(stmt, col++, val2.c_str(), -1, SQLITE_TRANSIENT);
-	sqlite3_bind_text(stmt, col++, val3.c_str(), -1, SQLITE_TRANSIENT);
+	BindTextKoi(stmt, col++, val0.c_str());
+	BindTextKoi(stmt, col++, val1.c_str());
+	BindTextKoi(stmt, col++, val2.c_str());
+	BindTextKoi(stmt, col++, val3.c_str());
 	
 	// Physical properties
 	sqlite3_bind_int(stmt, col++, obj->get_weight());
@@ -3291,7 +3291,7 @@ void SqliteWorldDataSource::SaveObjectRecord(int obj_vnum, CObjectPrototype *obj
 				if (sqlite3_prepare_v2(m_db, wear_sql, -1, &wear_stmt, nullptr) == SQLITE_OK)
 				{
 					sqlite3_bind_int(wear_stmt, 1, obj_vnum);
-					sqlite3_bind_text(wear_stmt, 2, flag_name.c_str(), -1, SQLITE_TRANSIENT);
+					BindTextKoi(wear_stmt, 2, flag_name.c_str());
 					sqlite3_step(wear_stmt);
 					sqlite3_finalize(wear_stmt);
 				}
@@ -3341,8 +3341,8 @@ void SqliteWorldDataSource::SaveObjectRecord(int obj_vnum, CObjectPrototype *obj
 		if (sqlite3_prepare_v2(m_db, extra_sql, -1, &stmt, nullptr) == SQLITE_OK)
 		{
 			sqlite3_bind_int(stmt, 1, obj_vnum);
-			sqlite3_bind_text(stmt, 2, exdesc->keyword, -1, SQLITE_TRANSIENT);
-			sqlite3_bind_text(stmt, 3, exdesc->description, -1, SQLITE_TRANSIENT);
+			BindTextKoi(stmt, 2, exdesc->keyword);
+			BindTextKoi(stmt, 3, exdesc->description);
 			sqlite3_step(stmt);
 			sqlite3_finalize(stmt);
 		}
