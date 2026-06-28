@@ -598,7 +598,10 @@ TalentAffect::TalentAffect(parser_wrapper::DataNode &node) {
 		} else if (strcmp(name, "apply") == 0) {
 			Apply apply;
 			apply.id = parse::ReadAsConstant<EAffect>(child.GetValue("id"));
-			apply.location = parse::ReadAsConstant<EApply>(child.GetValue("location"));
+			// issue.affects-improve (P3c): location is optional now that affects.xml owns it; a bare
+			// <apply id=".."/> ref (no location/modifier) parses as kNone (content comes from the affect).
+			const char *loc = child.GetValue("location");
+			apply.location = (loc && *loc) ? parse::ReadAsConstant<EApply>(loc) : EApply::kNone;
 			// random is optional (default false). parse::ReadAsBool throws on empty input, so
 			// guard with the (p && *p) pattern that the other optional attrs use. Without this
 			// guard, ANY <apply> tag missing the random= attribute aborts parsing of the whole

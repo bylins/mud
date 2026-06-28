@@ -30,15 +30,9 @@
 			<action>
 				<affects saving="kNone" resist="kVitality">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kMagicArmor" location="kAc">
-						<modifier min="20.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
-					</apply>
-					<apply id="kMagicArmor" location="kSavingReflex">
-						<modifier min="5.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
-					</apply>
-					<apply id="kMagicArmor" location="kSavingStability">
-						<modifier min="5.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
-					</apply>
+					<apply id="kMagicArmor"/>
+					<apply id="kMagicArmor"/>
+					<apply id="kMagicArmor"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -91,12 +85,8 @@
 			<action>
 				<affects saving="kNone" resist="kVitality">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kBless" location="kSavingStability">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="2.8" factor="-1" />
-					</apply>
-					<apply id="kBless" location="kSavingWill">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="2.5" factor="-1" />
-					</apply>
+					<apply id="kBless"/>
+					<apply id="kBless"/>
 				</affects>
 				<alter_obj handler="AlterBless" />
 			</action>
@@ -130,9 +120,7 @@
 				</target_conditions>
 				<affects saving="kStability" resist="kDark">
 					<duration base="2" skill_divisor="20" min="0" max="0" />
-					<apply id="kBlind" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<apply id="kBlind"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -251,9 +239,7 @@
 				</damage>
 				<affects saving="kStability" resist="kWater">
 					<duration base="2" skill_divisor="10" min="6" max="0" />
-					<apply id="kShivering" location="kStr">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="1.4" factor="-1" />
-					</apply>
+					<apply id="kShivering"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -481,15 +467,9 @@
 			<action>
 				<affects saving="kWill" resist="kDark">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kCurse" location="kHitroll">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0.4" factor="-1" />
-					</apply>
-					<apply id="kCurse" location="kInitiative">
-						<modifier min="5.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
-					</apply>
-					<apply id="kCurse" location="kCastSuccess">
-						<modifier min="22.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
-					</apply>
+					<apply id="kCurse"/>
+					<apply id="kCurse"/>
+					<apply id="kCurse"/>
 				</affects>
 				<alter_obj handler="AlterCurse" />
 			</action>
@@ -518,9 +498,7 @@
 			<action>
 				<affects saving="kNone" resist="kMind">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kDetectAlign" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<apply id="kDetectAlign"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -548,9 +526,7 @@
 			<action>
 				<affects saving="kNone" resist="kMind">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kDetectInvisible" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<apply id="kDetectInvisible"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -578,9 +554,7 @@
 			<action>
 				<affects saving="kNone" resist="kMind">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kDetectMagic" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<apply id="kDetectMagic"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -608,9 +582,7 @@
 			<action>
 				<affects saving="kNone" resist="kMind">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kDetectPoison" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<apply id="kDetectPoison"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -733,9 +705,7 @@
 				</damage>
 				<affects saving="kWill" resist="kImmunity" potency_weight="1">
 					<duration base="4" skill_divisor="13" min="4" max="0" />
-					<apply id="kDespodency" location="kStr">
-						<modifier min="0.0" dices_weight="0.2" alpha="0.2" beta="0" factor="-1" />
-					</apply>
+					<apply id="kDespodency"/>
 				</affects>
 				<unaffect decay="25">
 					<breaking any_of="kMagicStrength|kCatGrace" />
@@ -854,9 +824,7 @@
 				</target_conditions>
 				<affects saving="kNone" resist="kMind">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kInvisible" location="kAc">
-						<modifier min="40.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
-					</apply>
+					<apply id="kInvisible"/>
 				</affects>
 				<alter_obj handler="AlterInvisible" />
 			</action>
@@ -1034,9 +1002,7 @@
 			<action>
 				<affects saving="kNone" resist="kVitality">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kProtectFromDark" location="kResistDark">
-						<modifier min="5.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<apply id="kProtectFromDark"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -1092,9 +1058,7 @@
 			<action>
 				<affects saving="kNone" resist="kVitality">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kSanctuary" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<apply id="kSanctuary"/>
 				</affects>
 				<unaffect prob="100" potency_weight="1" decay="25">
 					<breaking any_of="kPrismaticAura" />
@@ -1159,9 +1123,7 @@
 				<affects saving="kWill" resist="kMind">
 					<reposition pos="kSleep" />
 					<duration base="1" skill_divisor="15" min="1" max="6" />
-					<apply id="kSleep" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<apply id="kSleep"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -1189,9 +1151,7 @@
 			<action>
 				<affects saving="kNone" resist="kImmunity">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kMagicStrength" location="kStr">
-						<modifier min="5.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<apply id="kMagicStrength"/>
 				</affects>
 				<unaffect decay="25">
 					<breaking any_of="kMagicWeaknes" />
@@ -1246,9 +1206,7 @@
 				</points>
 				<affects saving="kNone" resist="kVitality">
 					<duration base="3" skill_divisor="25" min="0" max="0" />
-					<apply id="kPatronage" location="kHp">
-						<modifier min="72.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<apply id="kPatronage"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -1329,9 +1287,7 @@
 			<action>
 				<affects saving="kNone" resist="kImmunity">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kDetectLife" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<apply id="kDetectLife"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -1531,9 +1487,7 @@
 			<action>
 				<affects saving="kNone" resist="kVitality">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kInfravision" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<apply id="kInfravision"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -1561,9 +1515,7 @@
 			<action>
 				<affects saving="kNone" resist="kWater">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kWaterWalk" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<apply id="kWaterWalk"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -1653,9 +1605,7 @@
 				</target_conditions>
 				<affects saving="kWill" resist="kMind">
 					<duration base="1" skill_divisor="25" min="1" max="3" />
-					<apply id="kHold" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<apply id="kHold"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -1689,9 +1639,7 @@
 				</target_conditions>
 				<affects saving="kWill" resist="kMind">
 					<duration base="2" skill_divisor="20" min="2" max="5" />
-					<apply id="kHold" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<apply id="kHold"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -1748,9 +1696,7 @@
 			<action>
 				<affects saving="kNone" resist="kAir">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kFly" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<apply id="kFly"/>
 				</affects>
 				<alter_obj handler="AlterFly" />
 			</action>
@@ -1779,9 +1725,7 @@
 			<action>
 				<affects saving="kNone" resist="kMind">
 					<duration base="10" skill_divisor="3" min="0" max="0" />
-					<apply id="kBrokenChains" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<apply id="kBrokenChains"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -1814,9 +1758,7 @@
 				</target_conditions>
 				<affects saving="kWill" resist="kMind">
 					<duration base="3" skill_divisor="10" min="4" max="0" />
-					<apply id="kNoTeleport" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<apply id="kNoTeleport"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -1863,9 +1805,7 @@
 			<action>
 				<affects saving="kNone" resist="kDark">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kHolyDark" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<apply id="kHolyDark"/>
 				</affects>
 				<alter_obj handler="AlterDarkness" />
 			</action>
@@ -1894,9 +1834,7 @@
 			<action>
 				<affects saving="kNone" resist="kEarth">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kStoneSkin" location="kAbsorbe">
-						<modifier min="20.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<apply id="kStoneSkin"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -1924,12 +1862,8 @@
 			<action>
 				<affects saving="kNone" resist="kWater">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kCloudly" location="kSpelledBlinkMag">
-						<modifier min="10.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
-					<apply id="kCloudly" location="kAc">
-						<modifier min="20.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
-					</apply>
+					<apply id="kCloudly"/>
+					<apply id="kCloudly"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -1962,9 +1896,7 @@
 				</target_conditions>
 				<affects saving="kWill" resist="kMind">
 					<duration base="2" skill_divisor="20" min="3" max="0" />
-					<apply id="kSilence" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<apply id="kSilence"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -1992,9 +1924,7 @@
 			<action>
 				<affects saving="kNone" resist="kVitality">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kHolyLight" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<apply id="kHolyLight"/>
 				</affects>
 				<alter_obj handler="AlterLight" />
 			</action>
@@ -2116,9 +2046,7 @@
 				</area>
 				<affects saving="kWill" resist="kImmunity">
 					<duration base="4" skill_divisor="13" min="4" max="0" />
-					<apply id="kMagicWeaknes" location="kStr">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="3.5" factor="-1" />
-					</apply>
+					<apply id="kMagicWeaknes"/>
 				</affects>
 				<unaffect decay="25">
 					<breaking any_of="kMagicStrength|kCatGrace" />
@@ -2179,9 +2107,7 @@
 			<action>
 				<affects saving="kNone" resist="kDark">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kShadowCloak" location="kSavingStability">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="1.6" factor="-1" />
-					</apply>
+					<apply id="kShadowCloak"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -2260,9 +2186,7 @@
 			<action>
 				<affects saving="kNone" resist="kImmunity">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kEnlarge" location="kSize">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="7.6" factor="1" />
-					</apply>
+					<apply id="kEnlarge"/>
 				</affects>
 				<unaffect decay="25">
 					<breaking any_of="kLessening" />
@@ -2370,15 +2294,9 @@
 				</target_conditions>
 				<affects saving="kReflex" resist="kMind">
 					<duration base="3" skill_divisor="15" min="0" max="0" />
-					<apply id="kWebbed" location="kHitroll">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="1.2" factor="-1" />
-					</apply>
-					<apply id="kWebbed" location="kAc">
-						<modifier min="20.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
-					<apply id="kWebbed" location="kBind">
-						<modifier min="1.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<apply id="kWebbed"/>
+					<apply id="kWebbed"/>
+					<apply id="kWebbed"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -2406,9 +2324,7 @@
 			<action>
 				<affects saving="kNone" resist="kVitality">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kBlink" location="kSpelledBlinkPhys">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="7" factor="1" />
-					</apply>
+					<apply id="kBlink"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -2479,9 +2395,7 @@
 				</target_conditions>
 				<affects saving="kStability" resist="kDark">
 					<duration base="3" skill_divisor="15" min="0" max="0" />
-					<apply id="kBlind" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<apply id="kBlind"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -2543,9 +2457,7 @@
 				</target_conditions>
 				<affects saving="kWill" resist="kMind">
 					<duration base="2" skill_divisor="10" min="6" max="0" />
-					<apply id="kSilence" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<apply id="kSilence"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -2620,15 +2532,9 @@
 			<action>
 				<affects saving="kNone" resist="kVitality">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kMagicShield" location="kAc">
-						<modifier min="50.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
-					</apply>
-					<apply id="kMagicShield" location="kSavingReflex">
-						<modifier min="6.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
-					</apply>
-					<apply id="kMagicShield" location="kSavingStability">
-						<modifier min="6.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
-					</apply>
+					<apply id="kMagicShield"/>
+					<apply id="kMagicShield"/>
+					<apply id="kMagicShield"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -2655,9 +2561,7 @@
 			<action>
 				<affects id="kForbidden" saving="kNone" resist="kVitality">
 					<duration base="60" skill_divisor="3" min="0" max="0" />
-					<apply id="kForbidden" location="kNone">
-						<modifier min="0" dices_weight="0" alpha="0" beta="1" factor="1" cap="100" />
-					</apply>
+					<apply id="kForbidden"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -3050,9 +2954,7 @@
 				</area>
 				<affects saving="kStability" resist="kAir">
 					<duration base="9" skill_divisor="0" min="0" max="0" />
-					<apply id="kFrostbite" location="kDex">
-						<modifier min="4.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
-					</apply>
+					<apply id="kFrostbite"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -3094,9 +2996,7 @@
 			<action>
 				<affects saving="kNone" resist="kWater">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kWaterBreath" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<apply id="kWaterBreath"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -3129,12 +3029,8 @@
 				</target_conditions>
 				<affects saving="kStability" resist="kMind">
 					<duration base="9" skill_divisor="0" min="0" max="0" />
-					<apply id="kSlow" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
-					<apply id="kSlowdown" location="kDex">
-						<modifier min="2.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
-					</apply>
+					<apply id="kSlow"/>
+					<apply id="kSlowdown"/>
 				</affects>
 				<unaffect decay="25">
 					<breaking any_of="kHaste" />
@@ -3166,9 +3062,7 @@
 			<action>
 				<affects saving="kNone" resist="kMind">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kHaste" location="kSavingReflex">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0.9" factor="-1" />
-					</apply>
+					<apply id="kHaste"/>
 				</affects>
 				<unaffect decay="25">
 					<breaking any_of="kSlow" />
@@ -3258,15 +3152,9 @@
 			<action>
 				<affects saving="kNone" resist="kVitality">
 					<duration base="4" skill_divisor="0" min="0" max="0" />
-					<apply id="kGodsShield" location="kSavingStability">
-						<modifier min="10.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
-					</apply>
-					<apply id="kGodsShield" location="kSavingWill">
-						<modifier min="10.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
-					</apply>
-					<apply id="kGodsShield" location="kSavingReflex">
-						<modifier min="10.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
-					</apply>
+					<apply id="kGodsShield"/>
+					<apply id="kGodsShield"/>
+					<apply id="kGodsShield"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -3298,30 +3186,14 @@
 				</area>
 				<affects saving="kStability" resist="kImmunity">
 					<duration base="0" skill_divisor="5" min="0" max="0" />
-					<apply id="kFever" location="kHpRegen">
-						<modifier min="95.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
-					</apply>
-					<apply id="kFever" location="kManaRegen">
-						<modifier min="95.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
-					</apply>
-					<apply id="kFever" location="kMoveRegen">
-						<modifier min="95.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
-					</apply>
-					<apply id="kFever" location="kPlague">
-						<modifier min="30.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
-					<apply id="kFever" location="kWis">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0.6" factor="-1" />
-					</apply>
-					<apply id="kFever" location="kInt">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0.6" factor="-1" />
-					</apply>
-					<apply id="kFever" location="kDex">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0.6" factor="-1" />
-					</apply>
-					<apply id="kFever" location="kStr">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0.6" factor="-1" />
-					</apply>
+					<apply id="kFever"/>
+					<apply id="kFever"/>
+					<apply id="kFever"/>
+					<apply id="kFever"/>
+					<apply id="kFever"/>
+					<apply id="kFever"/>
+					<apply id="kFever"/>
+					<apply id="kFever"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -3376,12 +3248,8 @@
 			<action>
 				<affects saving="kNone" resist="kMind">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kAwarness" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
-					<apply id="kAwarness" location="kSavingReflex">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="1.2" factor="-1" />
-					</apply>
+					<apply id="kAwarness"/>
+					<apply id="kAwarness"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -3409,9 +3277,7 @@
 			<action>
 				<affects saving="kNone" resist="kAir">
 					<duration base="10" skill_divisor="0" min="0" max="0" />
-					<apply id="kAirShield" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<apply id="kAirShield"/>
 				</affects>
 				<unaffect decay="25">
 					<remove all_of="kIceShield|kFireShield" />
@@ -3515,12 +3381,8 @@
 			<action>
 				<affects saving="kNone" resist="kImmunity">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kFastRegeneration" location="kHpRegen">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="19.8" factor="1" />
-					</apply>
-					<apply id="kFastRegeneration" location="kMoveRegen">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="19.8" factor="1" />
-					</apply>
+					<apply id="kFastRegeneration"/>
+					<apply id="kFastRegeneration"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -3586,9 +3448,7 @@
 			<action>
 				<affects saving="kNone" resist="kFire">
 					<duration base="10" skill_divisor="0" min="0" max="0" />
-					<apply id="kFireShield" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<apply id="kFireShield"/>
 				</affects>
 				<unaffect decay="25">
 					<remove all_of="kIceShield|kAirShield" />
@@ -3667,9 +3527,7 @@
 			<action>
 				<affects saving="kNone" resist="kWater">
 					<duration base="10" skill_divisor="0" min="0" max="0" />
-					<apply id="kIceShield" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<apply id="kIceShield"/>
 				</affects>
 				<unaffect decay="25">
 					<remove all_of="kFireShield|kAirShield" />
@@ -3708,9 +3566,7 @@
 				<affects saving="kNone" resist="kWater">
 					<lag base="2" bonus_divisor="-1" />
 					<duration base="2" skill_divisor="0" min="0" max="0" />
-					<apply id="kMagicStopFight" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<apply id="kMagicStopFight"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -3738,9 +3594,7 @@
 			<action>
 				<affects saving="kNone" resist="kImmunity">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kLessening" location="kSize">
-						<modifier min="15.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
-					</apply>
+					<apply id="kLessening"/>
 				</affects>
 				<unaffect decay="25">
 					<breaking any_of="kEnlarge" />
@@ -3780,9 +3634,7 @@
 				</target_conditions>
 				<affects saving="kStability" resist="kFire">
 					<duration base="2" skill_divisor="20" min="0" max="0" />
-					<apply id="kBlind" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<apply id="kBlind"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -3810,12 +3662,8 @@
 			<action>
 				<affects saving="kWill" resist="kMind">
 					<duration base="3" skill_divisor="0" min="0" max="0" />
-					<apply id="kMadness" location="kMadness">
-						<modifier min="30.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
-					<apply id="kMadness" location="kBind">
-						<modifier min="1.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<apply id="kMadness"/>
+					<apply id="kMadness"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -3872,9 +3720,7 @@
 			<action>
 				<affects saving="kNone" resist="kFire">
 					<duration base="10" skill_divisor="3" min="0" max="0" />
-					<apply id="kCloudOfArrows" location="kHitroll">
-						<modifier min="5.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<apply id="kCloudOfArrows"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -3955,9 +3801,7 @@
 			<action>
 				<affects saving="kNone" resist="kEarth">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kStoneHands" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<apply id="kStoneHands"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -3985,15 +3829,9 @@
 			<action>
 				<affects saving="kStability" resist="kMind">
 					<duration base="0" skill_divisor="25" min="0" max="0" />
-					<apply id="kMindless" location="kManaRegen">
-						<modifier min="50.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
-					</apply>
-					<apply id="kMindless" location="kCastSuccess">
-						<modifier min="50.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
-					</apply>
-					<apply id="kMindless" location="kHitroll">
-						<modifier min="5.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
-					</apply>
+					<apply id="kMindless"/>
+					<apply id="kMindless"/>
+					<apply id="kMindless"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -4021,9 +3859,7 @@
 			<action>
 				<affects saving="kNone" resist="kVitality">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kPrismaticAura" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<apply id="kPrismaticAura"/>
 				</affects>
 				<unaffect prob="100" potency_weight="1" decay="25">
 					<breaking any_of="kSanctuary" />
@@ -4067,12 +3903,8 @@
 				</area>
 				<affects saving="kNone" resist="kDark">
 					<duration base="10" skill_divisor="0" min="0" max="0" />
-					<apply id="kForcesOfEvil" location="kDamroll">
-						<modifier min="19.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
-					<apply id="kForcesOfEvil" location="kHitroll">
-						<modifier min="11.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<apply id="kForcesOfEvil"/>
+					<apply id="kForcesOfEvil"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -4104,9 +3936,7 @@
 				</area>
 				<affects saving="kNone" resist="kAir">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kAirAura" location="kResistAir">
-						<modifier min="1" dices_weight="0" alpha="0" beta="9" factor="1" cap="30" />
-					</apply>
+					<apply id="kAirAura"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -4138,9 +3968,7 @@
 				</area>
 				<affects saving="kNone" resist="kFire">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kFireAura" location="kResistWater">
-						<modifier min="1" dices_weight="0" alpha="0" beta="9" factor="1" cap="30" />
-					</apply>
+					<apply id="kFireAura"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -4172,9 +4000,7 @@
 				</area>
 				<affects saving="kNone" resist="kWater">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kIceAura" location="kResistFire">
-						<modifier min="1" dices_weight="0" alpha="0" beta="9" factor="1" cap="30" />
-					</apply>
+					<apply id="kIceAura"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -4210,12 +4036,8 @@
 				<affects saving="kStability" resist="kVitality">
 					<lag base="2" bonus_divisor="-1" />
 					<duration base="2" skill_divisor="0" min="0" max="0" />
-					<apply id="kMagicStopFight" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
-					<apply id="kBlind" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<apply id="kMagicStopFight"/>
+					<apply id="kBlind"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -4243,9 +4065,7 @@
 			<action>
 				<affects saving="kNone" resist="kVitality">
 					<duration base="10" skill_divisor="3" min="0" max="0" />
-					<apply id="kMagicGlass" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<apply id="kMagicGlass"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -4331,9 +4151,7 @@
 			<action>
 				<affects saving="kStability" resist="kMind">
 					<duration base="2" skill_divisor="20" min="3" max="0" />
-					<apply id="kDeafness" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<apply id="kDeafness"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -4361,9 +4179,7 @@
 			<action>
 				<affects saving="kStability" resist="kMind">
 					<duration base="4" skill_divisor="10" min="3" max="0" />
-					<apply id="kDeafness" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<apply id="kDeafness"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -4461,9 +4277,7 @@
 					<reposition pos="kSit" />
 					<lag base="2" bonus_divisor="-1" />
 					<duration base="3" skill_divisor="15" min="0" max="0" />
-					<apply id="kBlind" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<apply id="kBlind"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -4499,9 +4313,7 @@
 				<affects saving="kNone" resist="kEarth">
 					<lag base="2" bonus_divisor="-1" />
 					<duration base="2" skill_divisor="0" min="0" max="0" />
-					<apply id="kMagicStopFight" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<apply id="kMagicStopFight"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -4537,9 +4349,7 @@
 					<reposition pos="kSit" />
 					<lag base="2" bonus_divisor="-1" />
 					<duration base="2" skill_divisor="10" min="6" max="0" />
-					<apply id="kDeafness" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<apply id="kDeafness"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -4580,9 +4390,7 @@
 				</target_conditions>
 				<affects saving="kWill" resist="kVitality">
 					<duration base="1" skill_divisor="25" min="1" max="3" />
-					<apply id="kHold" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<apply id="kHold"/>
 				</affects>
 				<manual_cast handler="SpellHolystrike" />
 			</action>
@@ -4657,9 +4465,7 @@
 			<action>
 				<affects saving="kNone" resist="kMind">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kFascination" location="kCha">
-						<modifier min="3.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<apply id="kFascination"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -4690,18 +4496,10 @@
 				</target_conditions>
 				<affects saving="kStability" resist="kMind">
 					<duration base="5" skill_divisor="0" min="0" max="0" />
-					<apply id="kCrying" location="kHp">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="1" factor="-1" />
-					</apply>
-					<apply id="kCrying" location="kLikes">
-						<modifier min="3.0" dices_weight="0.0" alpha="0" beta="0.05" factor="-1" />
-					</apply>
-					<apply id="kCrying" location="kCastSuccess">
-						<modifier min="3.0" dices_weight="0.0" alpha="0" beta="0.02" factor="-1" />
-					</apply>
-					<apply id="kCrying" location="kMorale">
-						<modifier min="2.0" dices_weight="0.0" alpha="0" beta="0.01" factor="-1" />
-					</apply>
+					<apply id="kCrying"/>
+					<apply id="kCrying"/>
+					<apply id="kCrying"/>
+					<apply id="kCrying"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -4730,9 +4528,7 @@
 				<affects saving="kWill" resist="kDark">
 					<lag base="3" bonus_divisor="-1" />
 					<duration base="3" skill_divisor="0" min="0" max="0" />
-					<apply id="kSlow" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<apply id="kSlow"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -4765,9 +4561,7 @@
 				<affects saving="kCritical" resist="kDark">
 					<lag base="3" bonus_divisor="-1" />
 					<duration base="3" skill_divisor="0" min="0" max="0" />
-					<apply id="kSlow" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<apply id="kSlow"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -4829,9 +4623,7 @@
 					<reposition stop_fight="true" />
 					<lag base="2" bonus_divisor="-1" />
 					<duration base="2" skill_divisor="0" min="0" max="0" />
-					<apply id="kPeaceful" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<apply id="kPeaceful"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -4874,12 +4666,8 @@
 				</target_conditions>
 				<affects saving="kNone" resist="kEarth">
 					<duration base="100" skill_divisor="3" min="0" max="0" />
-					<apply id="kStoneBones" location="kArmour">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="14.7" factor="1" />
-					</apply>
-					<apply id="kStoneBones" location="kSavingStability">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="14.7" factor="1" />
-					</apply>
+					<apply id="kStoneBones"/>
+					<apply id="kStoneBones"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -4993,27 +4781,13 @@
 				</area>
 				<affects saving="kWill" resist="kDark">
 					<duration base="2" skill_divisor="5" min="0" max="0" />
-					<apply id="kFailure" location="kMorale">
-						<modifier min="1.0" dices_weight="0.0" alpha="0" beta="1.6" factor="-1" />
-					</apply>
-					<apply id="kFailure" location="kStr" random="true">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0.11" factor="-1" />
-					</apply>
-					<apply id="kFailure" location="kDex" random="true">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0.11" factor="-1" />
-					</apply>
-					<apply id="kFailure" location="kInt" random="true">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0.11" factor="-1" />
-					</apply>
-					<apply id="kFailure" location="kWis" random="true">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0.11" factor="-1" />
-					</apply>
-					<apply id="kFailure" location="kCon" random="true">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0.11" factor="-1" />
-					</apply>
-					<apply id="kFailure" location="kCha" random="true">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0.11" factor="-1" />
-					</apply>
+					<apply id="kFailure"/>
+					<apply id="kFailure" random="true"/>
+					<apply id="kFailure" random="true"/>
+					<apply id="kFailure" random="true"/>
+					<apply id="kFailure" random="true"/>
+					<apply id="kFailure" random="true"/>
+					<apply id="kFailure" random="true"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -5047,9 +4821,7 @@
 				</unaffect>
 				<affects saving="kReflex" resist="kEarth">
 					<duration base="4" skill_divisor="0" min="0" max="0" />
-					<apply id="kGlitterDust" location="kSavingReflex">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="4.4" factor="1" />
-					</apply>
+					<apply id="kGlitterDust"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -5084,12 +4856,8 @@
 				</area>
 				<affects saving="kStability" resist="kAir">
 					<duration base="2" skill_divisor="5" min="0" max="0" />
-					<apply id="kAffright" location="kSavingWill">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="7.3" factor="1" />
-					</apply>
-					<apply id="kAffright" location="kMorale">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="2.8" factor="-1" />
-					</apply>
+					<apply id="kAffright"/>
+					<apply id="kAffright"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -5117,9 +4885,7 @@
 			<action>
 				<affects saving="kNone" resist="kImmunity">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kCatGrace" location="kDex">
-						<modifier min="3.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<apply id="kCatGrace"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -5147,9 +4913,7 @@
 			<action>
 				<affects saving="kNone" resist="kImmunity">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kBullBody" location="kCon">
-						<modifier min="3.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<apply id="kBullBody"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -5177,9 +4941,7 @@
 			<action>
 				<affects saving="kNone" resist="kImmunity">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kSnakeWisdom" location="kWis">
-						<modifier min="2.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<apply id="kSnakeWisdom"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -5207,9 +4969,7 @@
 			<action>
 				<affects saving="kNone" resist="kImmunity">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kGimmicry" location="kInt">
-						<modifier min="2.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<apply id="kGimmicry"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -5263,9 +5023,7 @@
 			<action>
 				<affects saving="kWill" resist="kMind">
 					<duration base="2" skill_divisor="10" min="6" max="0" />
-					<apply id="kIndecision" location="kMorale">
-						<modifier min="8.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
-					</apply>
+					<apply id="kIndecision"/>
 				</affects>
 				<area>
 					<targets skill_divisor="20" dice_size="2" min="5" max="20" />
@@ -5303,9 +5061,7 @@
 				</area>
 				<affects saving="kWill" resist="kMind">
 					<duration base="2" skill_divisor="10" min="6" max="0" />
-					<apply id="kDeafness" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<apply id="kDeafness"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -5336,15 +5092,9 @@
 				</area>
 				<affects saving="kStability" resist="kMind">
 					<duration base="2" skill_divisor="10" min="6" max="0" />
-					<apply id="kInsanity" location="kInt" random="true">
-						<modifier min="0.0" dices_weight="0.6" alpha="0.011111" beta="0.05" factor="-1" />
-					</apply>
-					<apply id="kInsanity" location="kCastSuccess" random="true">
-						<modifier min="0.0" dices_weight="2.0" alpha="0.05" beta="0.75" factor="-1" />
-					</apply>
-					<apply id="kInsanity" location="kManaRegen" random="true">
-						<modifier min="0.0" dices_weight="2.0" alpha="0.05" beta="0.75" factor="-1" />
-					</apply>
+					<apply id="kInsanity" random="true"/>
+					<apply id="kInsanity" random="true"/>
+					<apply id="kInsanity" random="true"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -5385,9 +5135,7 @@
 					<reposition pos="kSit" />
 					<lag base="2" bonus_divisor="-1" />
 					<duration base="2" skill_divisor="10" min="0" max="6" />
-					<apply id="kDeafness" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<apply id="kDeafness"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -5418,18 +5166,10 @@
 				</area>
 				<affects saving="kNone" resist="kMind">
 					<duration base="2" skill_divisor="50" min="10" max="0" />
-					<apply id="kRousing" location="kSavingCritical">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="4.4" factor="-1" />
-					</apply>
-					<apply id="kRousing" location="kSavingReflex">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="4.4" factor="-1" />
-					</apply>
-					<apply id="kRousing" location="kSavingStability">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="4.4" factor="-1" />
-					</apply>
-					<apply id="kRousing" location="kSavingWill">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="4.4" factor="-1" />
-					</apply>
+					<apply id="kRousing"/>
+					<apply id="kRousing"/>
+					<apply id="kRousing"/>
+					<apply id="kRousing"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -5460,9 +5200,7 @@
 				</area>
 				<affects saving="kNone" resist="kMind">
 					<duration base="2" skill_divisor="50" min="10" max="0" />
-					<apply id="kPassion" location="kAc">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="9.6" factor="-1" />
-					</apply>
+					<apply id="kPassion"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -5496,9 +5234,7 @@
 				</area>
 				<affects saving="kNone" resist="kMind">
 					<duration base="2" skill_divisor="50" min="10" max="0" />
-					<apply id="kSurgeOfPower" location="kHp">
-						<modifier min="100.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<apply id="kSurgeOfPower"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -5529,12 +5265,8 @@
 				</area>
 				<affects saving="kNone" resist="kMind">
 					<duration base="2" skill_divisor="50" min="10" max="0" />
-					<apply id="kSurgeOfValour" location="kSavingStability">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="2.5" factor="-1" />
-					</apply>
-					<apply id="kSurgeOfValour" location="kSavingWill">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="2.5" factor="-1" />
-					</apply>
+					<apply id="kSurgeOfValour"/>
+					<apply id="kSurgeOfValour"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -5565,12 +5297,8 @@
 				</area>
 				<affects saving="kNone" resist="kMind">
 					<duration base="2" skill_divisor="50" min="10" max="0" />
-					<apply id="kBattleCourage" location="kHitroll">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="1.2" factor="1" />
-					</apply>
-					<apply id="kBattleCourage" location="kDamroll">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="1.9" factor="1" />
-					</apply>
+					<apply id="kBattleCourage"/>
+					<apply id="kBattleCourage"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -5662,9 +5390,7 @@
 					<apply id="kPoisoned" location="kScopolaPoison">
 						<modifier min="5.0" dices_weight="0.0" alpha="0" beta="0" factor="1" stack="3" />
 					</apply>
-					<apply id="kScopolaPoison" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" stack="3" />
-					</apply>
+					<apply id="kScopolaPoison"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -5813,9 +5539,7 @@
 			<action>
 				<affects saving="kNone" resist="kDark">
 					<duration base="10" skill_divisor="3" min="0" max="0" />
-					<apply id="kVampirism" location="kDamroll">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<apply id="kVampirism"/>
 				</affects>
 				<manual_cast handler="SpellVampirism" />
 			</action>
@@ -6028,9 +5752,7 @@
 				</target_conditions>
 				<affects saving="kWill" resist="kEarth">
 					<duration base="3" skill_divisor="10" min="4" max="0" />
-					<apply id="kNoTeleport" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<apply id="kNoTeleport"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -6171,9 +5893,7 @@
 				</area>
 				<affects saving="kNone" resist="kVitality">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kInfravision" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<apply id="kInfravision"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -6234,9 +5954,7 @@
 				</area>
 				<affects saving="kNone" resist="kMind">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kDetectMagic" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<apply id="kDetectMagic"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -6268,9 +5986,7 @@
 				</area>
 				<affects saving="kNone" resist="kMind">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kDetectInvisible" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<apply id="kDetectInvisible"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -6302,9 +6018,7 @@
 				</area>
 				<affects saving="kNone" resist="kImmunity">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kDetectLife" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<apply id="kDetectLife"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -6336,9 +6050,7 @@
 				</area>
 				<affects saving="kNone" resist="kWater">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kWaterBreath" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<apply id="kWaterBreath"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -6370,12 +6082,8 @@
 				</area>
 				<affects saving="kNone" resist="kImmunity">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kFastRegeneration" location="kHpRegen">
-						<modifier min="50.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
-					<apply id="kFastRegeneration" location="kMoveRegen">
-						<modifier min="50.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<apply id="kFastRegeneration"/>
+					<apply id="kFastRegeneration"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -6434,9 +6142,7 @@
 				</area>
 				<affects saving="kNone" resist="kEarth">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kStoneSkin" location="kAbsorbe">
-						<modifier min="20.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<apply id="kStoneSkin"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -6468,9 +6174,7 @@
 				</area>
 				<affects saving="kNone" resist="kMind">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kDetectPoison" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<apply id="kDetectPoison"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -6502,9 +6206,7 @@
 				</area>
 				<affects saving="kNone" resist="kEarth">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kEarthAura" location="kResistEarth">
-						<modifier min="1" dices_weight="0" alpha="0" beta="9" factor="1" cap="30" />
-					</apply>
+					<apply id="kEarthAura"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -6679,23 +6381,15 @@
 				</points>
 				<affects saving="kNone" resist="kImmunity">
 					<duration base="5" skill_divisor="0" min="0" max="0" />
-					<apply id="kInspiration" location="kPhysicDamagePercent" random="true">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="2" factor="1" />
-					</apply>
-					<apply id="kInspiration" location="kCastSuccess" random="true">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="2" factor="1" />
-					</apply>
-					<apply id="kInspiration" location="kManaRegen" random="true">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="7" factor="1" />
-					</apply>
-					<apply id="kInspiration" location="kMagicDamagePercent" random="true">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="2" factor="1" />
-					</apply>
+					<apply id="kInspiration" random="true"/>
+					<apply id="kInspiration" random="true"/>
+					<apply id="kInspiration" random="true"/>
+					<apply id="kInspiration" random="true"/>
 				</affects>
 			</action>
 		</talent_actions>
 	</spell>
-	<spell id="kDexterity" element="kLife" mode="kEnabled">
+	<spell id="kDexterity" element="kLife" mode="kDisabled">
 		<name val="dexterity" />
 		<components>
 			<verbal />
@@ -6718,9 +6412,7 @@
 			<action>
 				<affects saving="kNone" resist="kImmunity">
 					<duration base="20" skill_divisor="3" min="0" max="0" />
-					<apply id="kCatGrace" location="kDex">
-						<modifier min="5.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<apply id="kCatGrace"/>
 				</affects>
 				<unaffect decay="25">
 					<breaking any_of="kMagicWeaknes" />
@@ -6842,9 +6534,7 @@
 				</area>
 				<affects saving="kNone" resist="kMind">
 					<duration base="2" skill_divisor="50" min="10" max="0" />
-					<apply id="kConcentration" location="kExpPercent">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="2.2" factor="1" />
-					</apply>
+					<apply id="kConcentration"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -6875,9 +6565,7 @@
 				</area>
 				<affects saving="kNone" resist="kMind">
 					<duration base="2" skill_divisor="50" min="10" max="0" />
-					<apply id="kBattleLuck" location="kMorale">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="2.2" factor="1" />
-					</apply>
+					<apply id="kBattleLuck"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -6908,9 +6596,7 @@
 				</area>
 				<affects saving="kNone" resist="kMind">
 					<duration base="2" skill_divisor="50" min="10" max="0" />
-					<apply id="kPhysdamageBonus" location="kPhysicDamagePercent">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="2.2" factor="1" />
-					</apply>
+					<apply id="kPhysdamageBonus"/>
 				</affects>
 			</action>
 		</talent_actions>
@@ -6975,9 +6661,7 @@
 				</target_conditions>
 				<affects saving="kWill" resist="kMind">
 					<duration base="3" skill_divisor="10" min="4" max="0" />
-					<apply id="kNoTeleport" location="kNone">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<apply id="kNoTeleport"/>
 				</affects>
 			</action>
 		</talent_actions>
