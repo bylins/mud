@@ -201,8 +201,12 @@ size_t YamlWorldDataSource::GetConfiguredThreadCount() const
 	size_t configured = runtime_config.thread_pools_loader();
 	if (configured == 0)
 	{
+		// Default to physical cores (hw/2): world parsing is CPU- and
+		// allocator-bound, so SMT siblings add little and can even hurt via
+		// allocator contention. Matches the savers pool default. Set
+		// <thread_pools><loader>N</loader> to override.
 		size_t hw_threads = std::thread::hardware_concurrency();
-		return (hw_threads > 0) ? hw_threads : 1;
+		return std::max<size_t>(1, hw_threads / 2);
 	}
 	return configured;
 }
