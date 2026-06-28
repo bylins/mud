@@ -604,10 +604,10 @@ sol::object BuildZoneView(sol::state &lua, const sol::object &vnum)
 	zone["top"] = zone_table[rnum].top;
 	zone["age"] = zone_table[rnum].age;
 	zone["lifespan"] = zone_table[rnum].lifespan;
-	zone["reset_mode"] = zone_table[rnum].reset_mode;
+	zone["resetMode"] = zone_table[rnum].reset_mode;
 	zone["used"] = zone_table[rnum].used;
 	zone["locked"] = zone_table[rnum].locked;
-	zone["under_construction"] = zone_table[rnum].under_construction;
+	zone["underConstruction"] = zone_table[rnum].under_construction;
 	return sol::make_object(lua, zone);
 }
 
@@ -629,9 +629,9 @@ sol::table BuildWeatherInfo(sol::state &lua)
 	weather["change"] = weather_info.change;
 	weather["sky"] = weather_info.sky;
 	weather["sunlight"] = weather_info.sunlight;
-	weather["moon_day"] = weather_info.moon_day;
+	weather["moonDay"] = weather_info.moon_day;
 	weather["season"] = static_cast<int>(weather_info.season);
-	weather["weather_type"] = weather_info.weather_type;
+	weather["weatherType"] = weather_info.weather_type;
 	weather["rainlevel"] = weather_info.rainlevel;
 	weather["snowlevel"] = weather_info.snowlevel;
 	weather["icelevel"] = weather_info.icelevel;
@@ -837,7 +837,7 @@ bool MudTransfer(LuaRuntimeContext runtime, const sol::object &entity, const sol
 	{
 		return true;
 	}
-	return CallEntityMethod(runtime, entity, "move_to_room", room);
+	return CallEntityMethod(runtime, entity, "moveToRoom", room);
 }
 
 bool MudForce(LuaRuntimeContext runtime, const sol::object &entity, const sol::object &command)
@@ -849,7 +849,7 @@ bool MudForce(LuaRuntimeContext runtime, const sol::object &entity, const sol::o
 	}
 
 	sol::table entity_table = entity;
-	const sol::object room_vnum = entity_table["room_vnum"];
+	const sol::object room_vnum = entity_table["roomVnum"];
 	if (!room_vnum.is<int>() || room_vnum.as<int>() != world[owner_room]->vnum)
 	{
 		return LogLuaApiError(runtime, "force: target must be in trigger owner room");
@@ -1011,22 +1011,22 @@ sol::table BuildMudNamespace(sol::state &lua, LuaRuntimeContext *runtime)
 	mud["percent"] = [](const sol::object &chance) {
 		return MudPercent(chance);
 	};
-	mud["char_by_uid"] = [&lua, runtime](const sol::object &uid) {
+	mud["charByUid"] = [&lua, runtime](const sol::object &uid) {
 		return BuildCharView(lua, FindCharByUid(uid), CurrentRuntime(runtime));
 	};
-	mud["obj_by_id"] = [&lua, runtime](const sol::object &id) {
+	mud["objById"] = [&lua, runtime](const sol::object &id) {
 		return BuildObjView(lua, FindObjById(id), CurrentRuntime(runtime));
 	};
-	mud["find_obj"] = [&lua, runtime](const sol::object &vnum) {
+	mud["findObj"] = [&lua, runtime](const sol::object &vnum) {
 		return BuildObjView(lua, FindObjByVnum(vnum), CurrentRuntime(runtime));
 	};
-	mud["find_mob"] = [&lua, runtime](const sol::object &vnum) {
+	mud["findMob"] = [&lua, runtime](const sol::object &vnum) {
 		return BuildCharView(lua, FindMobByVnum(vnum), CurrentRuntime(runtime));
 	};
-	mud["mob_count"] = [](const sol::object &vnum) {
+	mud["mobCount"] = [](const sol::object &vnum) {
 		return GetCurrentMobCount(vnum);
 	};
-	mud["obj_count"] = [](const sol::object &vnum) {
+	mud["objCount"] = [](const sol::object &vnum) {
 		return GetCurrentObjectCount(vnum);
 	};
 	mud["room"] = [&lua, runtime](const sol::object &vnum) {
@@ -1046,13 +1046,13 @@ sol::table BuildMudNamespace(sol::state &lua, LuaRuntimeContext *runtime)
 		sol::object ts = (args.size() > 1 ? args[1].get<sol::object>() : sol::lua_nil);
 		return BuildRealDate(lua, fmt, ts);
 	};
-	mud["load_obj"] = [&lua, runtime](const sol::object &vnum, const sol::object &room) {
+	mud["loadObj"] = [&lua, runtime](const sol::object &vnum, const sol::object &room) {
 		return BuildObjView(lua, LoadObjToRoom(vnum, room), CurrentRuntime(runtime));
 	};
-	mud["load_obj_to_char"] = [&lua, runtime](const sol::object &vnum, const sol::object &character) {
+	mud["loadObjToChar"] = [&lua, runtime](const sol::object &vnum, const sol::object &character) {
 		return BuildObjView(lua, LoadObjToChar(vnum, character), CurrentRuntime(runtime));
 	};
-	mud["load_mob"] = [&lua, runtime](const sol::object &vnum, const sol::object &room) {
+	mud["loadMob"] = [&lua, runtime](const sol::object &vnum, const sol::object &room) {
 		return BuildCharView(lua, LoadMobToRoom(vnum, room), CurrentRuntime(runtime));
 	};
 	mud["purge"] = [](const sol::object &entity) {
@@ -1061,7 +1061,7 @@ sol::table BuildMudNamespace(sol::state &lua, LuaRuntimeContext *runtime)
 	mud["damage"] = [runtime](const sol::object &victim, const sol::object &amount, const sol::object &type) {
 		return MudDamage(CurrentRuntime(runtime), victim, amount, type);
 	};
-	mud["cast_spell"] = [runtime](const sol::object &spell_name, const sol::object &target) {
+	mud["castSpell"] = [runtime](const sol::object &spell_name, const sol::object &target) {
 		return MudCastSpell(CurrentRuntime(runtime), spell_name, target);
 	};
 	mud["transfer"] = [runtime](const sol::object &entity, const sol::object &room) {
@@ -1081,13 +1081,13 @@ sol::table BuildMudNamespace(sol::state &lua, LuaRuntimeContext *runtime)
 	});
 
 	sol::table world_table = lua.create_table();
-	world_table["cur_obj_count"] = [](const sol::object &vnum) {
+	world_table["curObjCount"] = [](const sol::object &vnum) {
 		return GetWorldCurrentObjectCount(vnum);
 	};
-	world_table["game_obj_count"] = [](const sol::object &vnum) {
+	world_table["gameObjCount"] = [](const sol::object &vnum) {
 		return GetWorldGameObjectCount(vnum);
 	};
-	world_table["max_obj_count"] = [](const sol::object &vnum) {
+	world_table["maxObjCount"] = [](const sol::object &vnum) {
 		return GetWorldMaxObjectCount(vnum);
 	};
 	mud["world"] = world_table;

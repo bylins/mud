@@ -60,8 +60,8 @@ void RefreshLuaContext(sol::state &lua, sol::table ctx, const LuaTriggerContext 
 	trigger_table["vnum"] = GetTriggerVnum(runtime.trigger);
 	trigger_table["rnum"] = runtime.trigger ? runtime.trigger->get_rnum() : -1;
 	trigger_table["name"] = runtime.trigger ? runtime.trigger->get_name() : "";
-	trigger_table["attach_type"] = runtime.trigger ? static_cast<int>(runtime.trigger->get_attach_type()) : 0;
-	trigger_table["trigger_type"] = runtime.trigger ? runtime.trigger->get_trigger_type() : 0;
+	trigger_table["attachType"] = runtime.trigger ? static_cast<int>(runtime.trigger->get_attach_type()) : 0;
+	trigger_table["triggerType"] = runtime.trigger ? runtime.trigger->get_trigger_type() : 0;
 	ctx["trigger"] = trigger_table;
 	if (source.owner)
 	{
@@ -86,11 +86,11 @@ void RefreshLuaContext(sol::state &lua, sol::table ctx, const LuaTriggerContext 
 	ctx["argument"] = source.argument;
 	ctx["speech"] = source.speech;
 	ctx["direction"] = source.direction;
-	ctx["damage_amount"] = source.damage_amount;
-	ctx["damage_type"] = source.damage_type;
+	ctx["damageAmount"] = source.damage_amount;
+	ctx["damageType"] = source.damage_type;
 	ctx["where"] = source.where;
 	ctx["time"] = source.time;
-	ctx["time_day"] = source.time_day;
+	ctx["timeDay"] = source.time_day;
 	if (source.owner)
 	{
 		ctx["room"] = BuildRoomView(lua, source.owner, runtime);

@@ -79,11 +79,11 @@ end
 
 ```lua
 return function(ctx)
-  if ctx.owner == nil or not ctx.owner:is_valid() then
+  if ctx.owner == nil or not ctx.owner:isValid() then
     return false
   end
 
-  if ctx.actor == nil or not ctx.actor:is_valid() then
+  if ctx.actor == nil or not ctx.actor:isValid() then
     return false
   end
 
@@ -92,7 +92,7 @@ return function(ctx)
 end
 ```
 
-После `mud.wait(...)` всегда заново проверяйте персонажей и объекты через `:is_valid()`: за время ожидания игрок мог уйти, моб мог умереть, объект могли удалить.
+После `mud.wait(...)` всегда заново проверяйте персонажей и объекты через `:isValid()`: за время ожидания игрок мог уйти, моб мог умереть, объект могли удалить.
 
 ## Примеры
 
@@ -102,7 +102,7 @@ end
 
 ```lua
 return function(ctx)
-  if ctx.owner == nil or not ctx.owner:is_valid() then
+  if ctx.owner == nil or not ctx.owner:isValid() then
     return false
   end
 
@@ -124,15 +124,15 @@ end
 
 ```lua
 return function(ctx)
-  if ctx.owner == nil or not ctx.owner:is_valid() then
+  if ctx.owner == nil or not ctx.owner:isValid() then
     return false
   end
 
-  if ctx.actor == nil or not ctx.actor:is_valid() then
+  if ctx.actor == nil or not ctx.actor:isValid() then
     return false
   end
 
-  local obj = mud.load_obj_to_char(2210, ctx.owner)
+  local obj = mud.loadObjToChar(2210, ctx.owner)
   if obj then
     mud.force(ctx.owner, "give all " .. ctx.actor.name)
   end
@@ -158,8 +158,8 @@ return function(ctx)
     return false
   end
 
-  local obj = mud.load_obj(2210, room)
-  local mob = mud.load_mob(4020, room)
+  local obj = mud.loadObj(2210, room)
+  local mob = mud.loadMob(4020, room)
 
   if obj then
     room:echo("Что-то появляется на полу.")
@@ -172,8 +172,8 @@ end
 То же самое можно писать через методы комнаты:
 
 ```lua
-local obj = ctx.room:load_obj(2210)
-local mob = ctx.room:load_mob(4020)
+local obj = ctx.room:loadObj(2210)
+local mob = ctx.room:loadMob(4020)
 ```
 
 ### Счетчик на владельце
@@ -224,8 +224,8 @@ end
 | `ctx.trigger.vnum` | number | VNUM триггера. |
 | `ctx.trigger.rnum` | number | RNUM триггера. |
 | `ctx.trigger.name` | string | Название триггера. |
-| `ctx.trigger.attach_type` | number | Тип привязки: mob/object/room в числовом виде. |
-| `ctx.trigger.trigger_type` | number | Битовая маска типа события. |
+| `ctx.trigger.attachType` | number | Тип привязки: mob/object/room в числовом виде. |
+| `ctx.trigger.triggerType` | number | Битовая маска типа события. |
 | `ctx.owner` | Char, Obj, Room или nil | Владелец триггера. |
 | `ctx.actor` | Char или nil | Персонаж, вызвавший событие. |
 | `ctx.victim` | Char или nil | Жертва события, если есть. |
@@ -235,11 +235,11 @@ end
 | `ctx.argument` | string | Аргументы команды. |
 | `ctx.speech` | string | Текст речи для speech-триггеров. |
 | `ctx.direction` | string | Направление для move/door-событий. |
-| `ctx.damage_amount` | number | Величина урона для damage-событий. |
-| `ctx.damage_type` | string | Тип урона строкой. |
+| `ctx.damageAmount` | number | Величина урона для damage-событий. |
+| `ctx.damageType` | string | Тип урона строкой. |
 | `ctx.where` | number | Дополнительное числовое поле события. |
 | `ctx.time` | number | Дополнительное поле времени. |
-| `ctx.time_day` | number | Дополнительное поле времени суток. |
+| `ctx.timeDay` | number | Дополнительное поле времени суток. |
 
 Не все поля заполнены во всех типах триггеров. Всегда проверяйте `nil`.
 
@@ -258,15 +258,15 @@ end
 
 | Вызов | Возврат | Описание |
 | --- | --- | --- |
-| `mud.char_by_uid(uid)` | Char или nil | Находит персонажа по UID. |
-| `mud.obj_by_id(id)` | Obj или nil | Находит объект по runtime id. |
-| `mud.find_mob(vnum)` | Char или nil | Находит первого live-моба по VNUM. Lua-замена `calcuid ... mob`. |
-| `mud.find_obj(vnum)` | Obj или nil | Находит первый live-объект по VNUM. Lua-замена `calcuid ... obj`. |
-| `mud.mob_count(vnum)` | number | Сколько мобов данного VNUM сейчас в мире. |
-| `mud.obj_count(vnum)` | number | Сколько объектов данного VNUM сейчас в мире. |
-| `mud.world.cur_obj_count(vnum)` | number | DG-семантика `%world.curobjs%`: текущий count объекта, но для stable/unlimited timer объектов возвращает 0. |
-| `mud.world.game_obj_count(vnum)` | number | DG-семантика `%world.gameobs%`/`%world.gameobjs%`: считает игровые экземпляры, для обычных takeable не-quest предметов учитывает parent-прототип. |
-| `mud.world.max_obj_count(vnum)` | number | DG-семантика `%world.maxobj%`: MIW объекта, для unlimited возвращает `9999999`. |
+| `mud.charByUid(uid)` | Char или nil | Находит персонажа по UID. |
+| `mud.objById(id)` | Obj или nil | Находит объект по runtime id. |
+| `mud.findMob(vnum)` | Char или nil | Находит первого live-моба по VNUM. Lua-замена `calcuid ... mob`. |
+| `mud.findObj(vnum)` | Obj или nil | Находит первый live-объект по VNUM. Lua-замена `calcuid ... obj`. |
+| `mud.mobCount(vnum)` | number | Сколько мобов данного VNUM сейчас в мире. |
+| `mud.objCount(vnum)` | number | Сколько объектов данного VNUM сейчас в мире. |
+| `mud.world.curobjCount(vnum)` | number | DG-семантика `%world.curobjs%`: текущий count объекта, но для stable/unlimited timer объектов возвращает 0. |
+| `mud.world.gameobjCount(vnum)` | number | DG-семантика `%world.gameobs%`/`%world.gameobjs%`: считает игровые экземпляры, для обычных takeable не-quest предметов учитывает parent-прототип. |
+| `mud.world.maxobjCount(vnum)` | number | DG-семантика `%world.maxobj%`: MIW объекта, для unlimited возвращает `9999999`. |
 
 ### Комнаты, зоны, время и погода
 
@@ -278,17 +278,17 @@ end
 | `mud.date(fmt [, ts])` | string или table | Реальное календарное время (безопасный аналог os.date). `mud.date("%j")` — день года строкой, `mud.date("*t")` — таблица {year,month,day,...,yday}. |
 | `mud.weather()` | table | Данные погоды. |
 
-Поля `mud.zone(vnum)`: `vnum`, `name`, `top`, `age`, `lifespan`, `reset_mode`, `used`, `locked`, `under_construction`.
+Поля `mud.zone(vnum)`: `vnum`, `name`, `top`, `age`, `lifespan`, `resetMode`, `used`, `locked`, `underConstruction`.
 
-Поля `mud.weather()`: `temperature`, `pressure`, `change`, `sky`, `sunlight`, `moon_day`, `season`, `weather_type`, `rainlevel`, `snowlevel`, `icelevel`.
+Поля `mud.weather()`: `temperature`, `pressure`, `change`, `sky`, `sunlight`, `moonDay`, `season`, `weatherType`, `rainlevel`, `snowlevel`, `icelevel`.
 
 ### Загрузка сущностей
 
 | Вызов | Возврат | Описание |
 | --- | --- | --- |
-| `mud.load_obj(vnum, room)` | Obj или nil | Создает предмет и кладет его в комнату. `room` может быть VNUM комнаты или Room-объектом. |
-| `mud.load_obj_to_char(vnum, char)` | Obj или nil | Создает предмет и кладет его в инвентарь персонажа. Запускает load object trigger. |
-| `mud.load_mob(vnum, room)` | Char или nil | Создает моба в комнате. `room` может быть VNUM комнаты или Room-объектом. |
+| `mud.loadObj(vnum, room)` | Obj или nil | Создает предмет и кладет его в комнату. `room` может быть VNUM комнаты или Room-объектом. |
+| `mud.loadObjToChar(vnum, char)` | Obj или nil | Создает предмет и кладет его в инвентарь персонажа. Запускает load object trigger. |
+| `mud.loadMob(vnum, room)` | Char или nil | Создает моба в комнате. `room` может быть VNUM комнаты или Room-объектом. |
 
 ### Действия
 
@@ -296,7 +296,7 @@ end
 | --- | --- | --- |
 | `mud.purge(entity)` | bool | Удаляет сущность через ее метод `purge`. PC удалить нельзя. Самопурж владельца триггера (mob/object) разрешён (аналогично DG). |
 | `mud.damage(victim, amount, type)` | bool | Наносит урон. `type`: `nil`, `"physic"`, `"magic"`, `"poisonous"`. |
-| `mud.cast_spell(spell_name, target)` | bool | Скриптовый каст заклинания от имени владельца триггера; ближайший DG-аналог - `dgcast`. `target`: `nil`, строка поиска, Char, Obj или Room. |
+| `mud.castSpell(spell_name, target)` | bool | Скриптовый каст заклинания от имени владельца триггера; ближайший DG-аналог - `dgcast`. `target`: `nil`, строка поиска, Char, Obj или Room. |
 | `mud.transfer(entity, room)` | bool | Перемещает Char или Obj в комнату. |
 | `mud.force(char, command)` | bool | Заставляет персонажа выполнить команду. Цель должна быть в комнате владельца триггера. |
 | `mud.echo(message)` | bool | Сообщение в комнату владельца триггера. |
@@ -312,7 +312,7 @@ mud.damage(ctx.actor, mud.random(50), nil)       -- без боя, DG-style mdam
 mud.damage(ctx.actor, 20, "magic")              -- typed damage через Damage::Process
 ```
 
-`mud.cast_spell(spell_name, target)` возвращает `true`, если игровая `CallMagic`-логика дала эффект. Ближайший DG-аналог - `dgcast`, но это самостоятельный Lua API, а не точная обертка: строковая цель ищется как в обычном cast-поиске, а direct-цели Char/Obj/Room проверяются по target-флагам заклинания и расположению цели. Direct Obj-цель должна быть в инвентаре, экипировке или комнате кастера; для `locate object` передавайте строковую цель. Для room/object-триггеров без персонажа-кастера Lua создает временного системного кастера в комнате владельца.
+`mud.castSpell(spell_name, target)` возвращает `true`, если игровая `CallMagic`-логика дала эффект. Ближайший DG-аналог - `dgcast`, но это самостоятельный Lua API, а не точная обертка: строковая цель ищется как в обычном cast-поиске, а direct-цели Char/Obj/Room проверяются по target-флагам заклинания и расположению цели. Direct Obj-цель должна быть в инвентаре, экипировке или комнате кастера; для `locate object` передавайте строковую цель. Для room/object-триггеров без персонажа-кастера Lua создает временного системного кастера в комнате владельца.
 
 `mud.echoaround(actor, message)` подходит для переноса DG `echoaround`/`mechoaround`/`oechoaround`/`wechoaround`, когда нужно показать текст вокруг персонажа без отдельного сообщения самому `actor`. Это простая рассылка сообщения, а не игровой `act`, поэтому `$n`/`$N` act-подстановки не раскрываются; для имени и окончаний собирайте строку явно через `actor.names.*`:
 
@@ -365,14 +365,14 @@ Char - это Lua-view персонажа или моба. Все поля read-
 | `ch.uid` | number | UID персонажа. |
 | `ch.vnum` | number | VNUM моба; для PC возвращает 0. |
 | `ch.hp` | number | Текущие хиты. |
-| `ch.max_hp` | number | Максимальные хиты. |
+| `ch.maxHp` | number | Максимальные хиты. |
 | `ch.mana` | number | Текущее значение mana/mem queue. |
 | `ch.move` | number | Очки движения. |
 | `ch.room` | Room или nil | Текущая комната. |
-| `ch.room_vnum` | number | VNUM текущей комнаты или 0. |
+| `ch.roomVnum` | number | VNUM текущей комнаты или 0. |
 | `ch.leader` | Char или nil | Lua-аналог DG `%actor.leader%`: текущий лидер/master, если персонаж за кем-то следует. |
 | `ch.names` | table | Read-only таблица имен, местоимений и окончаний для текстов. |
-| `ch.is_npc` | bool | `true` для NPC. Это поле, не функция. |
+| `ch.isNpc` | bool | `true` для NPC. Это поле, не функция. |
 | `ch.class` | number | Числовой ID класса, как DG `%actor.class%`. |
 | `ch.sex` | number | Пол персонажа как в DG `%actor.sex%`: `0` - нейтральный, `1` - мужской, `2` - женский. |
 | `ch.context` | Context или nil | Переменные DG-контекста владельца. |
@@ -383,43 +383,43 @@ Char - это Lua-view персонажа или моба. Все поля read-
 
 | Метод | Возврат | Описание |
 | --- | --- | --- |
-| `ch:is_valid()` | bool | Проверяет, что персонаж еще существует и не purged. |
-| `ch:is_pc()` | bool | `true` для игрока. |
-| `ch:is_immortal()` | bool | `true` для имма. |
+| `ch:isValid()` | bool | Проверяет, что персонаж еще существует и не purged. |
+| `ch:isPc()` | bool | `true` для игрока. |
+| `ch:isImmortal()` | bool | `true` для имма. |
 | `ch:level()` | number | Реальный уровень. |
 | `ch:position()` | number | Текущая позиция числом. |
-| `ch:has_affect(name)` | bool | Проверяет affect по строковому имени enum. |
-| `ch:can_see(target)` | bool | Видит ли `ch` другого персонажа. |
+| `ch:hasAffect(name)` | bool | Проверяет affect по строковому имени enum. |
+| `ch:canSee(target)` | bool | Видит ли `ch` другого персонажа. |
 | `ch:enemy()` | Char или nil | Текущий противник. |
 | `ch:gold()` | number | Возвращает наличные деньги персонажа. |
 | `ch:gold(delta)` | number | Изменяет наличные на `delta` и возвращает итоговое значение. Положительное значение добавляет, отрицательное снимает. Заменяет DG `mgold` и `%actor.gold(+amount)%`. |
 | `ch:teleport(room)` | bool | Перемещает персонажа в комнату. |
 | `ch:equipment(pos)` | Obj или nil | Предмет в слоте экипировки `pos`, как DG `%actor.eq(pos)%`. |
 | `ch:eq(pos)` | Obj или nil | Короткий алиас для `ch:equipment(pos)`. |
-| `ch:have_obj(vnum_or_name)` / `ch:haveobj(...)` | Obj или nil | Lua-аналог DG `%self.haveobj(...)%`: ищет предмет только в инвентаре. Число ищется как VNUM, строка - как видимое имя. |
+| `ch:haveObj(vnum_or_name)` / `ch:haveobj(...)` | Obj или nil | Lua-аналог DG `%self.haveobj(...)%`: ищет предмет только в инвентаре. Число ищется как VNUM, строка - как видимое имя. |
 | `ch:lag(value)` | bool | Ставит battle lag, как DG `%actor.lag(value)%`. |
 | `ch:lag(10, "p")` | bool | Ставит wait state в пульсах, эквивалент DG `%actor.lag(10p)%`. |
 | `ch:skill(skill_id)` | number | Возвращает значение skill. |
 | `ch:skill(skill_id, value)` | number | Устанавливает skill и возвращает значение. |
-| `ch:skill_turn(skill_id_or_name, true/false)` | bool | Включает или снимает умение по аналогии с DG `skillturn`: при включении ставит 5, при снятии ставит 0. Также принимает `"set"`/`"clear"`. |
-| `ch:spell_turn(spell_id_or_name, true/false)` | bool | Включает или снимает знание заклинания по аналогии с DG `spellturn`. Также принимает `"set"`/`"clear"`. |
-| `ch:can_get_skill(skill_id_or_name)` | bool | Проверяет, может ли персонаж получить skill с учетом класса, уровня и ремортов. |
-| `ch:can_get_spell(spell_id_or_name)` | bool | Проверяет, может ли персонаж получить spell с учетом класса, уровня и ремортов. |
+| `ch:skillTurn(skill_id_or_name, true/false)` | bool | Включает или снимает умение по аналогии с DG `skillturn`: при включении ставит 5, при снятии ставит 0. Также принимает `"set"`/`"clear"`. |
+| `ch:spellTurn(spell_id_or_name, true/false)` | bool | Включает или снимает знание заклинания по аналогии с DG `spellturn`. Также принимает `"set"`/`"clear"`. |
+| `ch:canGetSkill(skill_id_or_name)` | bool | Проверяет, может ли персонаж получить skill с учетом класса, уровня и ремортов. |
+| `ch:canGetSpell(spell_id_or_name)` | bool | Проверяет, может ли персонаж получить spell с учетом класса, уровня и ремортов. |
 | `ch:feat(feat_id)` | bool | Проверяет feat. |
 | `ch:feat(feat_id, true/false)` | bool | Устанавливает или снимает feat. |
-| `ch:attach_trigger(vnum)` | bool | Прикрепляет mob trigger; работает только для NPC. |
-| `ch:detach_trigger(vnum)` | bool | Снимает trigger; работает только для NPC. |
+| `ch:attachTrigger(vnum)` | bool | Прикрепляет mob trigger; работает только для NPC. |
+| `ch:detachTrigger(vnum)` | bool | Снимает trigger; работает только для NPC. |
 | `ch:send(message)` | bool | Отправляет сообщение персонажу с descriptor. |
 | `ch:force(command)` | bool | Заставляет персонажа выполнить команду. |
-| `ch:reward_daily_quest(id)` | bool | Запускает выдачу награды daily quest по id; Lua-аналог DG `%actor.questbodrich(id)%`. Если `ch` - charmice, награда оформляется на его мастера. |
-| `ch:has_quest(id)` | bool | Lua-аналог DG `%actor.quested(id)%`: проверяет наличие quested-записи. |
-| `ch:get_quest(id)` | string | Lua-аналог DG `%actor.getquest(id)%`: возвращает текст quested-записи или пустую строку. |
-| `ch:set_quest(id, text)` | bool | Lua-аналог DG `%actor.setquest(id text)%`: сохраняет quested-запись. Работает по тем же правилам, что DG: только для игроков, не для иммов. |
-| `ch:unset_quest(id)` | bool | Lua-аналог DG `%actor.unsetquest(id)%`: удаляет quested-запись. |
+| `ch:rewardDailyQuest(id)` | bool | Запускает выдачу награды daily quest по id; Lua-аналог DG `%actor.questbodrich(id)%`. Если `ch` - charmice, награда оформляется на его мастера. |
+| `ch:hasQuest(id)` | bool | Lua-аналог DG `%actor.quested(id)%`: проверяет наличие quested-записи. |
+| `ch:getQuest(id)` | string | Lua-аналог DG `%actor.getquest(id)%`: возвращает текст quested-записи или пустую строку. |
+| `ch:setQuest(id, text)` | bool | Lua-аналог DG `%actor.setquest(id text)%`: сохраняет quested-запись. Работает по тем же правилам, что DG: только для игроков, не для иммов. |
+| `ch:unsetQuest(id)` | bool | Lua-аналог DG `%actor.unsetquest(id)%`: удаляет quested-запись. |
 | `ch:act(message, options)` | bool | Вызывает игровой `act`. |
 | `ch:purge()` | bool | Удаляет NPC. PC удалить нельзя. Самопурж владельца триггера (текущий `ctx.owner`, если это NPC) разрешён — работает как в DG-триггерах (скрипт останавливается). |
 
-`ch:skill_turn(...)` и `ch:spell_turn(...)` меняют состояние тихо: они не отправляют персонажу сообщения и не пишут DG-style лог. Если нужно видимое сообщение, делайте его явно через `ch:send(...)` или `ch:act(...)`.
+`ch:skillTurn(...)` и `ch:spellTurn(...)` меняют состояние тихо: они не отправляют персонажу сообщения и не пишут DG-style лог. Если нужно видимое сообщение, делайте его явно через `ch:send(...)` или `ch:act(...)`.
 
 Пример `act`:
 
@@ -427,7 +427,7 @@ Char - это Lua-view персонажа или моба. Все поля read-
 ctx.owner:act("$n смотрит на $N3.", {
   victim = ctx.actor,
   to = "room",
-  hide_invisible = true
+  hideInvisible = true
 })
 ```
 
@@ -446,10 +446,10 @@ Obj - Lua-view объекта. Все поля read-only.
 | `obj.iname`, `obj.rname`, `obj.dname`, `obj.vname`, `obj.tname`, `obj.pname` | string | Прямые алиасы к `obj.names.*`, например Lua-аналог DG `%object.iname%` - `object.iname`. |
 | `obj.id` | number | Runtime id объекта. |
 | `obj.vnum` | number | VNUM объекта. |
-| `obj.room_vnum` | number | VNUM комнаты, если объект лежит в комнате; иначе 0. |
+| `obj.roomVnum` | number | VNUM комнаты, если объект лежит в комнате; иначе 0. |
 | `obj.room` | Room или nil | Комната объекта, если он лежит в комнате. |
-| `obj.carried_by` | Char или nil | Кто несет объект. |
-| `obj.worn_by` | Char или nil | На ком надет объект. |
+| `obj.carriedBy` | Char или nil | Кто несет объект. |
+| `obj.wornBy` | Char или nil | На ком надет объект. |
 | `obj.container` | Obj или nil | Контейнер, в котором лежит объект. |
 | `obj.timer` | number | Таймер объекта. |
 
@@ -457,22 +457,22 @@ Obj - Lua-view объекта. Все поля read-only.
 
 | Метод | Возврат | Описание |
 | --- | --- | --- |
-| `obj:is_valid()` | bool | Проверяет, что объект еще существует и не extracted. |
+| `obj:isValid()` | bool | Проверяет, что объект еще существует и не extracted. |
 | `obj:purge()` | bool | Удаляет объект из мира. Самопурж владельца триггера (если `ctx.owner` — объект) разрешён. |
 | `obj:val(index)` | number | Читает старый object value по индексу 0..3, как DG `%obj.val0%`..`%obj.val3%`. |
 | `obj:val(index, value)` | number | Устанавливает старый object value по индексу 0..3 и возвращает итоговое значение, как DG `%obj.valN(value)%`. |
-| `obj:move_to_room(room)` | bool | Перемещает объект в комнату. |
-| `obj:give_to(char)` | bool | Тихо кладет объект в инвентарь персонажа. Не показывает `give`-сообщения. |
+| `obj:movetoRoom(room)` | bool | Перемещает объект в комнату. |
+| `obj:giveTo(char)` | bool | Тихо кладет объект в инвентарь персонажа. Не показывает `give`-сообщения. |
 | `obj:contains(vnum_or_name)` | Obj или nil | Ищет предмет только в непосредственном содержимом объекта. Число ищется как VNUM, строка - по aliases. |
-| `obj:attach_trigger(vnum)` | bool | Прикрепляет object trigger. |
-| `obj:detach_trigger(vnum)` | bool | Снимает object trigger. |
+| `obj:attachTrigger(vnum)` | bool | Прикрепляет object trigger. |
+| `obj:detachTrigger(vnum)` | bool | Снимает object trigger. |
 
-Важно: `obj:give_to(char)` не равен игровой команде `give`. Если нужны обычные сообщения и give/receive-триггеры, загрузите объект в инвентарь моба и используйте `mud.force(mob, "give ...")`.
+Важно: `obj:giveTo(char)` не равен игровой команде `give`. Если нужны обычные сообщения и give/receive-триггеры, загрузите объект в инвентарь моба и используйте `mud.force(mob, "give ...")`.
 
-DG-паттерн `%LoadedUid.valN(...)%` после `oload` переносится через объект, который вернул `load_obj`:
+DG-паттерн `%LoadedUid.valN(...)%` после `oload` переносится через объект, который вернул `loadObj`:
 
 ```lua
-local scroll = ctx.room:load_obj(11026)
+local scroll = ctx.room:loadObj(11026)
 if scroll then
   scroll:val(0, skill_id)
   scroll:val(1, 1)
@@ -499,12 +499,12 @@ Room - Lua-view комнаты. Все поля read-only.
 | `room:objects()` | live-view | Текущий список Obj в комнате, индексация с 1, поддерживает `ipairs`. |
 | `room:wteleport(target, room)` | bool | Lua-аналог DG `wteleport`: переносит `target` из этой комнаты в указанную комнату с DG-обвязкой для charmice/лошадей, look и greet-триггеров. `target`: Char, `"all"` или `"allchar"`. |
 | `room:exit(direction)` | Room или nil | Комната по направлению. `direction` может быть числом или строкой. |
-| `room:set_exit(direction, options)` | bool | Создает или изменяет выход. `options`: `flags`, `to_room`, `description`, `key`, `name`, `lock`. `flags` задаются как в DG `wdoor ... flags`. `to_room` можно передать числом-VNUM или Lua-объектом `Room`; если целевая комната не существует, метод вернет `false`. |
-| `room:purge_exit(direction)` | bool | Удаляет выход в направлении, как DG `wdoor ... purge`. |
-| `room:load_obj(vnum)` | Obj или nil | Создает объект в комнате. |
-| `room:load_mob(vnum)` | Char или nil | Создает моба в комнате. |
-| `room:attach_trigger(vnum)` | bool | Прикрепляет room trigger. |
-| `room:detach_trigger(vnum)` | bool | Снимает room trigger. |
+| `room:setExit(direction, options)` | bool | Создает или изменяет выход. `options`: `flags`, `toRoom`, `description`, `key`, `name`, `lock`. `flags` задаются как в DG `wdoor ... flags`. `toRoom` можно передать числом-VNUM или Lua-объектом `Room`; если целевая комната не существует, метод вернет `false`. |
+| `room:purgeExit(direction)` | bool | Удаляет выход в направлении, как DG `wdoor ... purge`. |
+| `room:loadObj(vnum)` | Obj или nil | Создает объект в комнате. |
+| `room:loadMob(vnum)` | Char или nil | Создает моба в комнате. |
+| `room:attachTrigger(vnum)` | bool | Прикрепляет room trigger. |
+| `room:detachTrigger(vnum)` | bool | Снимает room trigger. |
 
 ## Context
 
@@ -524,15 +524,15 @@ ctx.owner.context:delete("foo")
 
 ## Практические замечания
 
-- Проверяйте `nil` и `:is_valid()` перед использованием `ctx.actor`, `ctx.victim`, `ctx.object`.
+- Проверяйте `nil` и `:isValid()` перед использованием `ctx.actor`, `ctx.victim`, `ctx.object`.
 - После `mud.wait` проверки нужно повторить.
 - Самопурж владельца триггера (`ctx.owner:purge()` или `mud.purge(ctx.owner)`) разрешён для NPC и объектов — триггер останавливается (как в DG). После пуржа не выполняйте код, который обращается к `ctx.owner`.
 - Для команд через `force` предпочитайте ASCII-команды (`give`, `say`, `look`) и ASCII-служебные слова (`all`), если нет явной необходимости в русском alias.
 - Lua `force` передает строку только в обычный игровой command interpreter и не исполняет DG-команды. Для бывших DG-команд используйте Lua API: например `mgold actor 2000` переносится как `ctx.actor:gold(2000)`.
-- `mud.load_obj_to_char` кладет объект в инвентарь без видимых сообщений. Чтобы игроки увидели передачу, используйте затем обычную команду через `force`.
+- `mud.loadObjToChar` кладет объект в инвентарь без видимых сообщений. Чтобы игроки увидели передачу, используйте затем обычную команду через `force`.
 - `mud.damage(victim, amount, nil)` повторяет DG `mdamage` без типа и не начинает бой.
 - `mud.damage(victim, amount, "physic"|"magic"|"poisonous")` атакует от имени владельца триггера, если он валиден; иначе от имени самой жертвы. Атакующий и жертва должны быть в одной комнате; такой урон может начать бой.
-- `mud.transfer` вызывает `teleport` для Char и `move_to_room` для Obj.
+- `mud.transfer` вызывает `teleport` для Char и `moveToRoom` для Obj.
 - Lua-view read-only: нельзя писать `ctx.actor.hp = 10` или `obj.timer = 0`.
 
 ### Перенос некоторых DG-команд
@@ -555,8 +555,8 @@ ctx.actor:send(n.UPiname .. " кивает" .. n.g .. ".")
 ```lua
 local room = mud.room(3001)
 if room then
-  room:load_mob(30010)
-  room:set_exit("north", { to_room = 3002 })
+  room:loadMob(30010)
+  room:setExit("north", { toRoom = 3002 })
 end
 ```
 

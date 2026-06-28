@@ -1089,7 +1089,7 @@ bool ActFromChar(
 		sol::table table = options;
 		const sol::object victim_object = table["victim"];
 		victim = GetLuaCharFromObject(victim_object, runtime);
-		const sol::object hide_invisible_object = table["hide_invisible"];
+		const sol::object hide_invisible_object = table["hideInvisible"];
 		if (hide_invisible_object.is<bool>())
 		{
 			hide_invisible = hide_invisible_object.as<bool>();
@@ -1476,7 +1476,7 @@ bool SetRoomExit(const LuaRoomView &view, const sol::object &direction, const so
 		asciiflag_conv(value.c_str(), &exit->exit_info);
 	}
 
-	const sol::object to_room = table["to_room"];
+	const sol::object to_room = table["toRoom"];
 	if (to_room.valid() && to_room != sol::lua_nil)
 	{
 		const auto room_rnum = GetRoomFromLua(to_room);
@@ -2083,7 +2083,7 @@ sol::object BuildCharView(sol::state &lua, CharData *ch, LuaRuntimeContext runti
 		{
 			return sol::make_object(lua, GetCharHp(handle));
 		}
-		if (key == "max_hp")
+		if (key == "maxHp")
 		{
 			return sol::make_object(lua, GetCharMaxHp(handle));
 		}
@@ -2100,7 +2100,7 @@ sol::object BuildCharView(sol::state &lua, CharData *ch, LuaRuntimeContext runti
 			auto *ch = ResolveChar(handle);
 			return BuildRoomView(lua, ch ? LuaRoomView{ch->in_room} : LuaRoomView{}, true, runtime);
 		}
-		if (key == "room_vnum")
+		if (key == "roomVnum")
 		{
 			return sol::make_object(lua, GetCharRoomVnum(handle));
 		}
@@ -2108,17 +2108,17 @@ sol::object BuildCharView(sol::state &lua, CharData *ch, LuaRuntimeContext runti
 		{
 			return BuildCharView(lua, GetCharLeader(handle), runtime);
 		}
-		if (key == "is_npc")
+		if (key == "isNpc")
 		{
 			return sol::make_object(lua, IsCharNpc(handle));
 		}
-		if (key == "is_pc")
+		if (key == "isPc")
 		{
 			return sol::make_object(lua, sol::as_function([handle](sol::object) {
 				return IsCharPc(handle);
 			}));
 		}
-		if (key == "is_immortal")
+		if (key == "isImmortal")
 		{
 			return sol::make_object(lua, sol::as_function([handle](sol::object) {
 				return IsCharImmortal(handle);
@@ -2148,13 +2148,13 @@ sol::object BuildCharView(sol::state &lua, CharData *ch, LuaRuntimeContext runti
 		{
 			return BuildCharNamesView(lua, handle);
 		}
-		if (key == "has_affect")
+		if (key == "hasAffect")
 		{
 			return sol::make_object(lua, sol::as_function([handle](sol::object, sol::object affect) {
 				return CharHasAffect(handle, affect);
 			}));
 		}
-		if (key == "can_see")
+		if (key == "canSee")
 		{
 			return sol::make_object(lua, sol::as_function([runtime, handle](sol::object, sol::object target) {
 				return CharCanSee(runtime, handle, target);
@@ -2187,7 +2187,7 @@ sol::object BuildCharView(sol::state &lua, CharData *ch, LuaRuntimeContext runti
 				return BuildObjView(lua, GetCharEquipment(handle, position), runtime);
 			}));
 		}
-		if (key == "have_obj" || key == "haveobj")
+		if (key == "haveObj" || key == "haveobj")
 		{
 			return sol::make_object(lua, sol::as_function([&lua, runtime, handle](sol::object, sol::object target) {
 				return BuildObjView(lua, GetCharInventoryObject(handle, target), runtime);
@@ -2214,25 +2214,25 @@ sol::object BuildCharView(sol::state &lua, CharData *ch, LuaRuntimeContext runti
 				return CharSkill(handle, skill, value);
 			}));
 		}
-		if (key == "skill_turn")
+		if (key == "skillTurn")
 		{
 			return sol::make_object(lua, sol::as_function([handle](sol::object, sol::object skill, sol::object value) {
 				return CharSkillTurn(handle, skill, value);
 			}));
 		}
-		if (key == "spell_turn")
+		if (key == "spellTurn")
 		{
 			return sol::make_object(lua, sol::as_function([handle](sol::object, sol::object spell, sol::object value) {
 				return CharSpellTurn(handle, spell, value);
 			}));
 		}
-		if (key == "can_get_skill")
+		if (key == "canGetSkill")
 		{
 			return sol::make_object(lua, sol::as_function([handle](sol::object, sol::object skill) {
 				return CharCanGetSkill(handle, skill);
 			}));
 		}
-		if (key == "can_get_spell")
+		if (key == "canGetSpell")
 		{
 			return sol::make_object(lua, sol::as_function([handle](sol::object, sol::object spell) {
 				return CharCanGetSpell(handle, spell);
@@ -2247,13 +2247,13 @@ sol::object BuildCharView(sol::state &lua, CharData *ch, LuaRuntimeContext runti
 				return CharFeat(handle, feat, value);
 			}));
 		}
-		if (key == "attach_trigger")
+		if (key == "attachTrigger")
 		{
 			return sol::make_object(lua, sol::as_function([handle](sol::object, sol::object vnum) {
 				return AttachTriggerToChar(handle, vnum);
 			}));
 		}
-		if (key == "detach_trigger")
+		if (key == "detachTrigger")
 		{
 			return sol::make_object(lua, sol::as_function([handle](sol::object, sol::object vnum) {
 				return DetachTriggerFromChar(handle, vnum);
@@ -2265,7 +2265,7 @@ sol::object BuildCharView(sol::state &lua, CharData *ch, LuaRuntimeContext runti
 			const auto context = runtime.trigger ? runtime.trigger->context : 0;
 			return BuildScriptContextView(lua, ch ? SCRIPT(ch).get() : nullptr, context);
 		}
-		if (key == "is_valid")
+		if (key == "isValid")
 		{
 			return sol::make_object(lua, sol::as_function([handle](sol::object) {
 				return IsValidEntity(handle);
@@ -2283,31 +2283,31 @@ sol::object BuildCharView(sol::state &lua, CharData *ch, LuaRuntimeContext runti
 				return ForceCharCommand(runtime, handle, command);
 			}));
 		}
-		if (key == "reward_daily_quest")
+		if (key == "rewardDailyQuest")
 		{
 			return sol::make_object(lua, sol::as_function([handle](sol::object, sol::object id) {
 				return RewardDailyQuest(handle, id);
 			}));
 		}
-		if (key == "has_quest")
+		if (key == "hasQuest")
 		{
 			return sol::make_object(lua, sol::as_function([handle](sol::object, sol::object id) {
 				return HasQuest(handle, id);
 			}));
 		}
-		if (key == "get_quest")
+		if (key == "getQuest")
 		{
 			return sol::make_object(lua, sol::as_function([handle](sol::object, sol::object id) {
 				return GetQuest(handle, id);
 			}));
 		}
-		if (key == "set_quest")
+		if (key == "setQuest")
 		{
 			return sol::make_object(lua, sol::as_function([handle](sol::object, sol::object id, sol::object text) {
 				return SetQuest(handle, id, text);
 			}));
 		}
-		if (key == "unset_quest")
+		if (key == "unsetQuest")
 		{
 			return sol::make_object(lua, sol::as_function([handle](sol::object, sol::object id) {
 				return UnsetQuest(handle, id);
@@ -2375,7 +2375,7 @@ sol::object BuildObjView(sol::state &lua, ObjData *obj, LuaRuntimeContext runtim
 		{
 			return sol::make_object(lua, GetObjVnum(handle));
 		}
-		if (key == "room_vnum")
+		if (key == "roomVnum")
 		{
 			return sol::make_object(lua, GetObjRoomVnum(handle));
 		}
@@ -2384,12 +2384,12 @@ sol::object BuildObjView(sol::state &lua, ObjData *obj, LuaRuntimeContext runtim
 			auto *obj = ResolveObj(handle);
 			return BuildRoomView(lua, obj ? LuaRoomView{obj->get_in_room()} : LuaRoomView{}, true, runtime);
 		}
-		if (key == "carried_by")
+		if (key == "carriedBy")
 		{
 			auto *obj = ResolveObj(handle);
 			return BuildCharView(lua, obj ? obj->get_carried_by() : nullptr, runtime);
 		}
-		if (key == "worn_by")
+		if (key == "wornBy")
 		{
 			auto *obj = ResolveObj(handle);
 			return BuildCharView(lua, obj ? obj->get_worn_by() : nullptr, runtime);
@@ -2415,7 +2415,7 @@ sol::object BuildObjView(sol::state &lua, ObjData *obj, LuaRuntimeContext runtim
 				return ObjVal(handle, index, value);
 			}));
 		}
-		if (key == "is_valid")
+		if (key == "isValid")
 		{
 			return sol::make_object(lua, sol::as_function([handle](sol::object) {
 				return IsValidEntity(handle);
@@ -2427,13 +2427,13 @@ sol::object BuildObjView(sol::state &lua, ObjData *obj, LuaRuntimeContext runtim
 				return PurgeObjEntity(handle);
 			}));
 		}
-		if (key == "move_to_room")
+		if (key == "moveToRoom")
 		{
 			return sol::make_object(lua, sol::as_function([handle](sol::object, sol::object room) {
 				return MoveObjToRoom(handle, room);
 			}));
 		}
-		if (key == "give_to")
+		if (key == "giveTo")
 		{
 			return sol::make_object(lua, sol::as_function([runtime, handle](sol::object, sol::object ch) {
 				return GiveObjToChar(runtime, handle, ch);
@@ -2445,13 +2445,13 @@ sol::object BuildObjView(sol::state &lua, ObjData *obj, LuaRuntimeContext runtim
 				return BuildObjView(lua, ObjContains(handle, target), runtime);
 			}));
 		}
-		if (key == "attach_trigger")
+		if (key == "attachTrigger")
 		{
 			return sol::make_object(lua, sol::as_function([handle](sol::object, sol::object vnum) {
 				return AttachTriggerToObj(handle, vnum);
 			}));
 		}
-		if (key == "detach_trigger")
+		if (key == "detachTrigger")
 		{
 			return sol::make_object(lua, sol::as_function([handle](sol::object, sol::object vnum) {
 				return DetachTriggerFromObj(handle, vnum);
@@ -2519,19 +2519,19 @@ sol::object BuildRoomView(sol::state &lua, const LuaRoomView &room, bool allow_e
 				return BuildRoomView(lua, LuaRoomView{GetRoomExit(room, direction)}, false, runtime);
 			}));
 		}
-		if (key == "set_exit")
+		if (key == "setExit")
 		{
 			return sol::make_object(lua, sol::as_function([room](sol::object, sol::object direction, sol::object options) {
 				return SetRoomExit(room, direction, options);
 			}));
 		}
-		if (key == "purge_exit")
+		if (key == "purgeExit")
 		{
 			return sol::make_object(lua, sol::as_function([room](sol::object, sol::object direction) {
 				return PurgeRoomExit(room, direction);
 			}));
 		}
-		if (key == "load_obj")
+		if (key == "loadObj")
 		{
 			return sol::make_object(lua, sol::as_function([&lua, room, runtime](sol::object, sol::object vnum) {
 				return vnum.is<int>()
@@ -2539,7 +2539,7 @@ sol::object BuildRoomView(sol::state &lua, const LuaRoomView &room, bool allow_e
 					: sol::make_object(lua, sol::lua_nil);
 			}));
 		}
-		if (key == "load_mob")
+		if (key == "loadMob")
 		{
 			return sol::make_object(lua, sol::as_function([&lua, room, runtime](sol::object, sol::object vnum) {
 				return vnum.is<int>()
@@ -2547,13 +2547,13 @@ sol::object BuildRoomView(sol::state &lua, const LuaRoomView &room, bool allow_e
 					: sol::make_object(lua, sol::lua_nil);
 			}));
 		}
-		if (key == "attach_trigger")
+		if (key == "attachTrigger")
 		{
 			return sol::make_object(lua, sol::as_function([room](sol::object, sol::object vnum) {
 				return AttachTriggerToRoom(room, vnum);
 			}));
 		}
-		if (key == "detach_trigger")
+		if (key == "detachTrigger")
 		{
 			return sol::make_object(lua, sol::as_function([room](sol::object, sol::object vnum) {
 				return DetachTriggerFromRoom(room, vnum);
