@@ -3,6 +3,7 @@
 
 #include "composite_world_data_source.h"
 
+#include "engine/entities/zone.h"
 #include "utils/logger.h"
 
 #include <algorithm>
@@ -99,12 +100,31 @@ void CompositeWorldDataSource::LoadRooms() { m_read_source->LoadRooms(); }
 void CompositeWorldDataSource::LoadMobs() { m_read_source->LoadMobs(); }
 void CompositeWorldDataSource::LoadObjects() { m_read_source->LoadObjects(); }
 
+Freshness CompositeWorldDataSource::CanonicalZoneVersion(int zone_rnum) const
+{
+	if (zone_rnum < 0 || zone_rnum >= static_cast<int>(zone_table.size()))
+	{
+		return 0;
+	}
+	const int vnum = zone_table[zone_rnum].vnum;
+	Freshness version = 0;
+	for (const auto &src : m_sources)
+	{
+		version = std::max(version, src->GetZoneFreshness(vnum));
+	}
+	return version;
+}
+
 void CompositeWorldDataSource::SaveZone(int zone_rnum)
 {
 	for (auto &src : m_sources)
 	{
 		src->SaveZone(zone_rnum);
-		src->MarkZoneSynced(zone_rnum);
+	}
+	const Freshness version = CanonicalZoneVersion(zone_rnum);
+	for (auto &src : m_sources)
+	{
+		src->MarkZoneSynced(zone_rnum, version);
 	}
 }
 
@@ -114,7 +134,11 @@ bool CompositeWorldDataSource::SaveTriggers(int zone_rnum, int specific_vnum, in
 	for (auto &src : m_sources)
 	{
 		ok = src->SaveTriggers(zone_rnum, specific_vnum, notify_level) && ok;
-		src->MarkZoneSynced(zone_rnum);
+	}
+	const Freshness version = CanonicalZoneVersion(zone_rnum);
+	for (auto &src : m_sources)
+	{
+		src->MarkZoneSynced(zone_rnum, version);
 	}
 	return ok;
 }
@@ -124,7 +148,11 @@ void CompositeWorldDataSource::SaveRooms(int zone_rnum, int specific_vnum)
 	for (auto &src : m_sources)
 	{
 		src->SaveRooms(zone_rnum, specific_vnum);
-		src->MarkZoneSynced(zone_rnum);
+	}
+	const Freshness version = CanonicalZoneVersion(zone_rnum);
+	for (auto &src : m_sources)
+	{
+		src->MarkZoneSynced(zone_rnum, version);
 	}
 }
 
@@ -133,7 +161,11 @@ void CompositeWorldDataSource::SaveMobs(int zone_rnum, int specific_vnum)
 	for (auto &src : m_sources)
 	{
 		src->SaveMobs(zone_rnum, specific_vnum);
-		src->MarkZoneSynced(zone_rnum);
+	}
+	const Freshness version = CanonicalZoneVersion(zone_rnum);
+	for (auto &src : m_sources)
+	{
+		src->MarkZoneSynced(zone_rnum, version);
 	}
 }
 
@@ -142,7 +174,11 @@ void CompositeWorldDataSource::SaveObjects(int zone_rnum, int specific_vnum)
 	for (auto &src : m_sources)
 	{
 		src->SaveObjects(zone_rnum, specific_vnum);
-		src->MarkZoneSynced(zone_rnum);
+	}
+	const Freshness version = CanonicalZoneVersion(zone_rnum);
+	for (auto &src : m_sources)
+	{
+		src->MarkZoneSynced(zone_rnum, version);
 	}
 }
 

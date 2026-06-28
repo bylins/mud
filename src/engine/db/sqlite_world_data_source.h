@@ -53,7 +53,8 @@ public:
 	std::vector<int> ListZoneVnums() const override;
 	Freshness GetZoneFreshness(int zone_vnum) const override;
 	Freshness GetIndexFreshness() const override;
-	void MarkZoneSynced(int zone_rnum) override;
+	void MarkZoneSynced(int zone_rnum, Freshness version) override;
+	void MarkIndexSynced(Freshness version) override;
 	bool IsWritable() const override;
 
 private:
@@ -61,9 +62,10 @@ private:
 	// older world.db produced before this feature still works (it just reports
 	// freshness 0 until the first sync repopulates it).
 	void EnsureSyncTables();
-	// Stamp a zone's sync time to "now" and bump the index stamp. Called from
-	// SaveZone so dual-writes keep the freshness bookkeeping current.
-	void TouchZoneSync(int zone_vnum);
+	// Record a zone's content version (a Freshness/mtime) and, for a
+	// first-seen zone, bump the membership stamp. Called from MarkZoneSynced so
+	// dual-writes/resyncs keep the freshness bookkeeping current.
+	void TouchZoneSync(int zone_vnum, Freshness version);
 	Freshness GetMetaFreshness(const char *key) const;
 
 	bool OpenDatabase();

@@ -79,12 +79,19 @@ public:
 	virtual void LoadZoneMobs(int /*zone_vnum*/) {}
 	virtual void LoadZoneObjects(int /*zone_vnum*/) {}
 
-	// Record that a zone has just been written to this source ("synced now"),
-	// updating its freshness bookkeeping. Called by the composite after a
-	// dual-write so a backend that wins by recency keeps its advantage. Takes a
-	// runtime zone rnum (same as Save*). Default: no-op (file backends derive
-	// freshness from on-disk mtimes, which the write already updated).
-	virtual void MarkZoneSynced(int /*zone_rnum*/) {}
+	// Record that a zone now holds content as of `version` (a Freshness/mtime),
+	// updating this source's freshness bookkeeping. The composite stamps every
+	// source with the SAME canonical version after a write/resync, so a freshly
+	// synced backend ends up EQUAL to (not newer than) the one it copied from --
+	// otherwise the two would trade "stale" roles every boot. Takes a runtime
+	// zone rnum (same as Save*). Default: no-op (file backends derive freshness
+	// from on-disk mtimes, which the write already updated).
+	virtual void MarkZoneSynced(int /*zone_rnum*/, Freshness /*version*/) {}
+
+	// Record that this source's zone *index* (membership) is current as of
+	// `version`. Stamped after a resync so the index freshness matches the
+	// source it was rebuilt from. Default: no-op.
+	virtual void MarkIndexSynced(Freshness /*version*/) {}
 
 	// Whether this source can be written to right now. A SQLite backend returns
 	// false when world.db has no world schema yet (it must be created once by

@@ -65,6 +65,10 @@ private:
 	void SelectReadSource();
 	// max(index freshness, freshest zone) for a single source.
 	Freshness OverallFreshness(const IWorldDataSource &src) const;
+	// Canonical content version of a zone after a write: the freshest the zone
+	// looks across all sources (i.e. the just-written file mtime). Every source
+	// is stamped with this so none ends up spuriously newer than the others.
+	Freshness CanonicalZoneVersion(int zone_rnum) const;
 
 	std::vector<std::unique_ptr<IWorldDataSource>> m_sources;  // [0] = highest priority
 	IWorldDataSource *m_read_source = nullptr;                 // winner, lazily chosen

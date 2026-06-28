@@ -368,7 +368,12 @@ std::unique_ptr<world_loader::IWorldDataSource> CreateWorldSourceByName(const st
 
 // Write the fully-loaded in-memory world into one data source. Used to resync a
 // stale backend after boot; mirrors GameLoader::ResaveWorld's per-zone loop.
-int SaveLoadedWorldTo(world_loader::IWorldDataSource &saver) {
+// Write the in-memory world into `saver`, stamping each zone (and the index)
+// with the content version reported by `version_src` -- the source we read
+// from -- so the rewritten backend ends up EQUAL in freshness to it, not newer.
+// That equality is what stops the two backends trading "stale" roles each boot.
+int SaveLoadedWorldTo(world_loader::IWorldDataSource &saver,
+					  const world_loader::IWorldDataSource *version_src) {
 	int errors = 0;
 	for (size_t z = 0; z < zone_table.size(); ++z) {
 		if (zone_table[z].vnum >= dungeons::kZoneStartDungeons) {
@@ -380,12 +385,17 @@ int SaveLoadedWorldTo(world_loader::IWorldDataSource &saver) {
 			saver.SaveObjects(static_cast<int>(z));
 			saver.SaveMobs(static_cast<int>(z));
 			saver.SaveTriggers(static_cast<int>(z), -1, 0);
-			saver.MarkZoneSynced(static_cast<int>(z));
+			const world_loader::Freshness ver =
+				version_src ? version_src->GetZoneFreshness(zone_table[z].vnum) : 0;
+			saver.MarkZoneSynced(static_cast<int>(z), ver);
 		} catch (const std::exception &e) {
 			log("SYSERR: resync failed on zone %d (vnum=%d): %s",
 				static_cast<int>(z), zone_table[z].vnum, e.what());
 			++errors;
 		}
+	}
+	if (version_src) {
+		saver.MarkIndexSynced(version_src->GetIndexFreshness());
 	}
 	try {
 		saver.FinalizeResave();
@@ -584,7 +594,7 @@ void GameLoader::BootWorld(std::unique_ptr<world_loader::IWorldDataSource> data_
 			}
 			boot_profiler.next_step("Resyncing stale world source");
 			log("Resyncing stale world source '%s' from loaded world...", src->GetName().c_str());
-			const int errs = SaveLoadedWorldTo(*src);
+			const int errs = SaveLoadedWorldTo(*src, composite->ReadSource());
 			log("Resync of '%s' done, errors=%d", src->GetName().c_str(), errs);
 		}
 	}

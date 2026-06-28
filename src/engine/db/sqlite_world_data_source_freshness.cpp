@@ -115,17 +115,16 @@ Freshness SqliteWorldDataSource::GetIndexFreshness() const
 	return GetMetaFreshness("zone_index_mtime");
 }
 
-void SqliteWorldDataSource::TouchZoneSync(int zone_vnum)
+void SqliteWorldDataSource::TouchZoneSync(int zone_vnum, Freshness version)
 {
 	EnsureSyncTables();
 	if (!m_db)
 	{
 		return;
 	}
-	const Freshness now = static_cast<Freshness>(std::time(nullptr));
 
 	// Is this zone already tracked? A first-time insert is a membership change
-	// and bumps the index stamp too.
+	// and bumps the index stamp too (to the same content version).
 	bool existed = false;
 	{
 		sqlite3_stmt *q = nullptr;
@@ -145,7 +144,7 @@ void SqliteWorldDataSource::TouchZoneSync(int zone_vnum)
 			== SQLITE_OK)
 		{
 			sqlite3_bind_int(up, 1, zone_vnum);
-			sqlite3_bind_int64(up, 2, static_cast<sqlite3_int64>(now));
+			sqlite3_bind_int64(up, 2, static_cast<sqlite3_int64>(version));
 			sqlite3_step(up);
 			sqlite3_finalize(up);
 		}
@@ -153,15 +152,7 @@ void SqliteWorldDataSource::TouchZoneSync(int zone_vnum)
 
 	if (!existed)
 	{
-		sqlite3_stmt *mi = nullptr;
-		if (sqlite3_prepare_v2(m_db,
-				"REPLACE INTO world_meta (key, value) VALUES ('zone_index_mtime', ?)", -1, &mi,
-				nullptr) == SQLITE_OK)
-		{
-			sqlite3_bind_int64(mi, 1, static_cast<sqlite3_int64>(now));
-			sqlite3_step(mi);
-			sqlite3_finalize(mi);
-		}
+		MarkIndexSynced(version);
 	}
 }
 
@@ -184,13 +175,31 @@ bool SqliteWorldDataSource::IsWritable() const
 	return has_schema;
 }
 
-void SqliteWorldDataSource::MarkZoneSynced(int zone_rnum)
+void SqliteWorldDataSource::MarkZoneSynced(int zone_rnum, Freshness version)
 {
 	if (zone_rnum < 0 || zone_rnum >= static_cast<int>(zone_table.size()))
 	{
 		return;
 	}
-	TouchZoneSync(zone_table[zone_rnum].vnum);
+	TouchZoneSync(zone_table[zone_rnum].vnum, version);
+}
+
+void SqliteWorldDataSource::MarkIndexSynced(Freshness version)
+{
+	EnsureSyncTables();
+	if (!m_db)
+	{
+		return;
+	}
+	sqlite3_stmt *mi = nullptr;
+	if (sqlite3_prepare_v2(m_db,
+			"REPLACE INTO world_meta (key, value) VALUES ('zone_index_mtime', ?)", -1, &mi, nullptr)
+		== SQLITE_OK)
+	{
+		sqlite3_bind_int64(mi, 1, static_cast<sqlite3_int64>(version));
+		sqlite3_step(mi);
+		sqlite3_finalize(mi);
+	}
 }
 
 } // namespace world_loader
