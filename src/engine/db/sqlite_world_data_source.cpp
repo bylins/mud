@@ -542,7 +542,11 @@ bool SqliteWorldDataSource::OpenDatabase()
 		return true;
 	}
 
-	int rc = sqlite3_open_v2(m_db_path.c_str(), &m_db, SQLITE_OPEN_READONLY, nullptr);
+	// READWRITE|CREATE (not READONLY): the engine now writes the world back to
+	// SQLite (composite dual-write and stale-source resync), and CREATE lets the
+	// first boot build world.db from another source when it does not exist yet.
+	int rc = sqlite3_open_v2(m_db_path.c_str(), &m_db,
+		SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, nullptr);
 	if (rc != SQLITE_OK)
 	{
 		log("SYSERR: Cannot open SQLite database '%s': %s", m_db_path.c_str(), sqlite3_errmsg(m_db));

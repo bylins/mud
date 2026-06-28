@@ -82,6 +82,13 @@ public:
 	void SaveMobs(int zone_rnum, int specific_vnum = -1) override;
 	void SaveObjects(int zone_rnum, int specific_vnum = -1) override;
 
+	// Freshness / membership (for CompositeWorldDataSource). Freshness is the
+	// newest file mtime (unix seconds) under the zone directory; the index
+	// freshness is the mtime of zones/index.yaml (changes on zone add/remove).
+	std::vector<int> ListZoneVnums() const override;
+	Freshness GetZoneFreshness(int zone_vnum) const override;
+	Freshness GetIndexFreshness() const override;
+
 	// Exposed for unit tests: parses a single mob YAML file into a CharData.
 	// Stateless aside from reading the global DictionaryManager singleton --
 	// callers are responsible for loading dictionaries beforehand.

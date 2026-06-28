@@ -85,6 +85,8 @@
 #include "yaml_world_data_source.h"
 #endif
 #include "world_data_source_manager.h"
+#include "composite_world_data_source.h"
+#include "engine/core/config.h"
 
 
 #include <fmt/format.h>
@@ -335,6 +337,67 @@ void ConvertObjValues() {
 	}
 }
 
+namespace {
+
+// Build a single world data source from a backend name used in
+// <world_loader><sources>. Returns nullptr (with a logged error) for an
+// unknown name or a backend not compiled in.
+std::unique_ptr<world_loader::IWorldDataSource> CreateWorldSourceByName(const std::string &name) {
+	if (name == "yaml") {
+#ifdef HAVE_YAML
+		return world_loader::CreateYamlDataSource("world");
+#else
+		log("SYSERR: world source 'yaml' configured but YAML backend is not compiled in");
+		return nullptr;
+#endif
+	}
+	if (name == "sqlite") {
+#ifdef HAVE_SQLITE
+		return world_loader::CreateSqliteDataSource("world.db");
+#else
+		log("SYSERR: world source 'sqlite' configured but SQLite backend is not compiled in");
+		return nullptr;
+#endif
+	}
+	if (name == "legacy") {
+		return world_loader::CreateLegacyDataSource();
+	}
+	log("SYSERR: unknown world source '%s' in <world_loader><sources>", name.c_str());
+	return nullptr;
+}
+
+// Write the fully-loaded in-memory world into one data source. Used to resync a
+// stale backend after boot; mirrors GameLoader::ResaveWorld's per-zone loop.
+int SaveLoadedWorldTo(world_loader::IWorldDataSource &saver) {
+	int errors = 0;
+	for (size_t z = 0; z < zone_table.size(); ++z) {
+		if (zone_table[z].vnum >= dungeons::kZoneStartDungeons) {
+			continue;
+		}
+		try {
+			saver.SaveZone(static_cast<int>(z));
+			saver.SaveRooms(static_cast<int>(z));
+			saver.SaveObjects(static_cast<int>(z));
+			saver.SaveMobs(static_cast<int>(z));
+			saver.SaveTriggers(static_cast<int>(z), -1, 0);
+			saver.MarkZoneSynced(static_cast<int>(z));
+		} catch (const std::exception &e) {
+			log("SYSERR: resync failed on zone %d (vnum=%d): %s",
+				static_cast<int>(z), zone_table[z].vnum, e.what());
+			++errors;
+		}
+	}
+	try {
+		saver.FinalizeResave();
+	} catch (const std::exception &e) {
+		log("SYSERR: resync finalize failed: %s", e.what());
+		++errors;
+	}
+	return errors;
+}
+
+} // namespace
+
 void GameLoader::BootWorld(std::unique_ptr<world_loader::IWorldDataSource> data_source) {
 	utils::CSteppedProfiler boot_profiler("World booting", 1.1);
 
@@ -372,7 +435,34 @@ void GameLoader::BootWorld(std::unique_ptr<world_loader::IWorldDataSource> data_
 		MUD::CfgManager().LoadCfg("skills");
 	}
 
-	// Create default data source if none provided
+	// Create data source if none provided. Runtime selection comes from
+	// <world_loader><sources> (ordered = priority); several sources combine into
+	// a CompositeWorldDataSource. An empty/absent block falls back to the
+	// compile-time default single source, so existing setups are unaffected.
+	if (!data_source)
+	{
+		const auto &source_names = runtime_config.world_sources();
+		if (!source_names.empty())
+		{
+			std::vector<std::unique_ptr<world_loader::IWorldDataSource>> sources;
+			for (const auto &name : source_names)
+			{
+				auto src = CreateWorldSourceByName(name);
+				if (src)
+				{
+					sources.push_back(std::move(src));
+				}
+			}
+			if (sources.size() == 1)
+			{
+				data_source = std::move(sources.front());
+			}
+			else if (sources.size() > 1)
+			{
+				data_source = world_loader::CreateCompositeDataSource(std::move(sources));
+			}
+		}
+	}
 	if (!data_source)
 	{
 #ifdef HAVE_YAML
@@ -478,6 +568,26 @@ void GameLoader::BootWorld(std::unique_ptr<world_loader::IWorldDataSource> data_
 	system_obj::init();
 
 	log("Init global_drop_obj.");
+
+	// Self-heal: after loading from the freshest source, rewrite any backend that
+	// lost the freshness comparison so all sources converge to the loaded world.
+	if (auto *composite = dynamic_cast<world_loader::CompositeWorldDataSource *>(ds_ptr))
+	{
+		for (auto *src : composite->StaleSources())
+		{
+			if (!src->IsWritable())
+			{
+				log("World source '%s' is stale but not writable (no schema yet); "
+					"skipping resync -- create it once with the converter to enable it",
+					src->GetName().c_str());
+				continue;
+			}
+			boot_profiler.next_step("Resyncing stale world source");
+			log("Resyncing stale world source '%s' from loaded world...", src->GetName().c_str());
+			const int errs = SaveLoadedWorldTo(*src);
+			log("Resync of '%s' done, errors=%d", src->GetName().c_str(), errs);
+		}
+	}
 
 	if (enable_world_checksum)
 	{

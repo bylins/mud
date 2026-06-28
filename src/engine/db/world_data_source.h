@@ -4,11 +4,18 @@
 #ifndef WORLD_DATA_SOURCE_H_
 #define WORLD_DATA_SOURCE_H_
 
+#include <cstdint>
 #include <memory>
 #include <string>
+#include <vector>
 
 namespace world_loader
 {
+
+// Freshness token for a zone (or the zone index) within a data source.
+// Encoded as a unix mtime in seconds; larger == more recently changed.
+// 0 means "unknown" or "this source does not hold the entity".
+using Freshness = std::uint64_t;
 
 // Abstract interface for world data sources
 // Allows different implementations (legacy files, YAML, database, etc.)
@@ -39,6 +46,51 @@ public:
 	virtual void SaveRooms(int zone_rnum, int specific_vnum = -1) = 0;
 	virtual void SaveMobs(int zone_rnum, int specific_vnum = -1) = 0;
 	virtual void SaveObjects(int zone_rnum, int specific_vnum = -1) = 0;
+
+	// --- Freshness / membership (used by CompositeWorldDataSource) ---
+	//
+	// These let a composite source decide, per zone, which backend holds the
+	// most recently changed data ("actuality"), and reconcile zone membership
+	// (additions/deletions). Sources that do not track freshness (legacy,
+	// null) keep the defaults and never win a comparison, so single-source
+	// setups are unaffected.
+
+	// Vnums of all zones this source currently holds. Default: empty.
+	virtual std::vector<int> ListZoneVnums() const { return {}; }
+
+	// Freshness of a single zone's *content* (rooms/mobs/objects/triggers/
+	// resets). For file backends this is the newest mtime under the zone's
+	// directory; for SQLite it is the sync timestamp recorded on last write.
+	// 0 if the zone is absent from this source. Default: 0.
+	virtual Freshness GetZoneFreshness(int /*zone_vnum*/) const { return 0; }
+
+	// Freshness of the zone *index* (the set of zones). Changes when a zone is
+	// added or removed, so it arbitrates membership differences between
+	// sources. 0 if unknown. Default: 0.
+	virtual Freshness GetIndexFreshness() const { return 0; }
+
+	// Load a single zone's entities of one kind into the global tables. Used by
+	// the composite to assemble a world per-zone from the freshest source.
+	// Default: not supported -- callers must check SupportsPerZoneLoad().
+	virtual bool SupportsPerZoneLoad() const { return false; }
+	virtual void LoadZone(int /*zone_vnum*/) {}
+	virtual void LoadZoneTriggers(int /*zone_vnum*/) {}
+	virtual void LoadZoneRooms(int /*zone_vnum*/) {}
+	virtual void LoadZoneMobs(int /*zone_vnum*/) {}
+	virtual void LoadZoneObjects(int /*zone_vnum*/) {}
+
+	// Record that a zone has just been written to this source ("synced now"),
+	// updating its freshness bookkeeping. Called by the composite after a
+	// dual-write so a backend that wins by recency keeps its advantage. Takes a
+	// runtime zone rnum (same as Save*). Default: no-op (file backends derive
+	// freshness from on-disk mtimes, which the write already updated).
+	virtual void MarkZoneSynced(int /*zone_rnum*/) {}
+
+	// Whether this source can be written to right now. A SQLite backend returns
+	// false when world.db has no world schema yet (it must be created once by
+	// the converter). The composite's post-boot resync skips non-writable
+	// targets instead of flooding the log with per-zone failures. Default: true.
+	virtual bool IsWritable() const { return true; }
 
 	// Called once after a full-world resave (GameLoader::ResaveWorld) so a
 	// backend can finalize global structures that aren't maintained

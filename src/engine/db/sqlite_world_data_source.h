@@ -45,7 +45,27 @@ public:
 	void SaveMobs(int zone_rnum, int specific_vnum = -1) override;
 	void SaveObjects(int zone_rnum, int specific_vnum = -1) override;
 
+	// Freshness / membership (for CompositeWorldDataSource). Freshness is the
+	// wall-clock time (unix seconds) at which each zone was last written to the
+	// database -- recorded in the zone_sync table. Because a freshly synced
+	// zone gets "now" (>= the source mtime it was built from), SQLite naturally
+	// wins the freshness comparison until the YAML source is edited again.
+	std::vector<int> ListZoneVnums() const override;
+	Freshness GetZoneFreshness(int zone_vnum) const override;
+	Freshness GetIndexFreshness() const override;
+	void MarkZoneSynced(int zone_rnum) override;
+	bool IsWritable() const override;
+
 private:
+	// Create the zone_sync / world_meta bookkeeping tables if absent, so an
+	// older world.db produced before this feature still works (it just reports
+	// freshness 0 until the first sync repopulates it).
+	void EnsureSyncTables();
+	// Stamp a zone's sync time to "now" and bump the index stamp. Called from
+	// SaveZone so dual-writes keep the freshness bookkeeping current.
+	void TouchZoneSync(int zone_vnum);
+	Freshness GetMetaFreshness(const char *key) const;
+
 	bool OpenDatabase();
 	void CloseDatabase();
 	int GetCount(const char *table);
