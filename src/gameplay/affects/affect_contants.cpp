@@ -17,6 +17,7 @@
 #include "engine/core/config.h"   // CommonMsg / ECommonMsg
 
 #include <array>
+#include <algorithm>
 #include <bit>
 #include <set>
 
@@ -621,9 +622,12 @@ msg_container::MsgContainer<EAffect, affects::EAffectMsgType> &AffectMsgContaine
 // loaded from affects.xml. affects.xml is the SOURCE OF TRUTH for what an effect does; the casting
 // source (spell/skill/item) only sets strength + duration. Indexed by to_underlying(EAffect)
 // (EAffect is 1-based; index 0 = kUndefined = no flags).
-constexpr std::size_t kAffectFlagTableSize = 135;  // EAffect max (kCapable=134) + 1
+constexpr std::size_t kAffectFlagTableSize = 137;  // EAffect max (kInsidiousWound=136) + 1
 std::array<Bitvector, kAffectFlagTableSize> g_affect_flags{};
 std::array<affects::EBuff, kAffectFlagTableSize> g_affect_buff{};
+// issue.affects-improve (P2): per-affect stat-change applies (location + modifier formula) from
+// affects.xml. Built here but NOT yet read by the impose path (that switch is P3).
+std::array<std::vector<affects::AffectApply>, kAffectFlagTableSize> g_affect_applies{};
 bool g_affect_flags_loaded = false;
 
 // Parse an <affect buff="Y|N|A"> attribute into EBuff (the affect-side analog of ParseViolent). Absent
@@ -638,6 +642,7 @@ static affects::EBuff ParseAffectBuff(const char *raw) {
 void BuildAffectFlagTable(parser_wrapper::DataNode data) {
 	g_affect_flags.fill(0);
 	g_affect_buff.fill(affects::EBuff::kAmbiguous);
+	for (auto &v : g_affect_applies) { v.clear(); }
 	for (auto &node : data.Children("affect")) {
 		const char *id = node.GetValue("id");
 		if (!id || !*id) {
@@ -663,6 +668,27 @@ void BuildAffectFlagTable(parser_wrapper::DataNode data) {
 		}
 		// issue.affect-migration: the affect's own buff/debuff/ambiguous classification.
 		g_affect_buff[idx] = ParseAffectBuff(node.GetValue("buff"));
+		// issue.affects-improve (P2): the affect's stat-change applies (location + <modifier>), same
+		// shape as a spell's <apply>. The affect IS the id, so applies carry only location + formula.
+		for (auto &ap : node.Children("apply")) {
+			affects::AffectApply a;
+			a.location = parse::ReadAsConstant<EApply>(ap.GetValue("location"));
+			const char *r = ap.GetValue("random");
+			a.random = (r && *r) && parse::ReadAsBool(r);
+			auto mn = ap;
+			if (mn.GoToChild("modifier")) {
+				a.min = parse::ReadAsDouble(mn.GetValue("min"));
+				a.dices_weight = parse::ReadAsDouble(mn.GetValue("dices_weight"));
+				a.alpha = parse::ReadAsDouble(mn.GetValue("alpha"));
+				a.beta = parse::ReadAsDouble(mn.GetValue("beta"));
+				a.factor = parse::ReadAsInt(mn.GetValue("factor"));
+				const char *st = mn.GetValue("stack");
+				a.stack = (st && *st) ? std::max(1, parse::ReadAsInt(st)) : 1;
+				const char *cp = mn.GetValue("cap");
+				a.cap = (cp && *cp) ? std::max(0, parse::ReadAsInt(cp)) : 0;
+			}
+			g_affect_applies[idx].push_back(a);
+		}
 	}
 	g_affect_flags_loaded = true;
 }
@@ -768,6 +794,13 @@ Bitvector AffectFlagsByType(EAffect affect_type) {
 EBuff AffectBuffKind(EAffect affect_type) {
 	const auto idx = static_cast<std::size_t>(to_underlying(affect_type));
 	return idx < kAffectFlagTableSize ? g_affect_buff[idx] : EBuff::kAmbiguous;
+}
+
+// issue.affects-improve (P2): the affect's stat-change applies from affects.xml (empty if none).
+const std::vector<AffectApply> &AffectApplies(EAffect affect_type) {
+	static const std::vector<AffectApply> kEmpty;
+	const auto idx = static_cast<std::size_t>(to_underlying(affect_type));
+	return idx < kAffectFlagTableSize ? g_affect_applies[idx] : kEmpty;
 }
 
 // True once affects.xml flags have been loaded; before that (unit tests, early boot) callers keep

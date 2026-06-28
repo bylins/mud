@@ -72,6 +72,23 @@ enum class EAffectMsgType {
 enum class EBuff { kNo, kYes, kAmbiguous };
 [[nodiscard]] EBuff AffectBuffKind(EAffect affect_type);
 
+// issue.affects-improve (P2): one stat-change an affect imposes -- its location (EApply) plus the
+// modifier-formula coefficients (same shape as a spell's <apply><modifier>). The affect, not the
+// spell, owns these; the spell/skill supplies competence/dice/duration. Parsed from affects.xml
+// <apply> children. (Built in P2; the impose path starts reading it in P3.)
+struct AffectApply {
+	EApply location{EApply::kNone};
+	double min{0.0};
+	double dices_weight{0.0};
+	double alpha{0.0};
+	double beta{0.0};
+	int factor{1};
+	int cap{0};
+	int stack{1};
+	bool random{false};
+};
+[[nodiscard]] const std::vector<AffectApply> &AffectApplies(EAffect affect_type);
+
 [[nodiscard]] std::string DescribeActive(const BitsetFlags<EAffect> &flags, const char *div);
 [[nodiscard]] bool FindByShortDesc(const std::string &name, EAffect &out);
 [[nodiscard]] bool MessagesLoaded();   // affect_messages cfg loaded? (boot guard)
