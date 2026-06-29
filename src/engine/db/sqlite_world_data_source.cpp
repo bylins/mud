@@ -2710,6 +2710,7 @@ void SqliteWorldDataSource::SaveRoomRecord(RoomData *room)
 	const std::string rvd = std::to_string(room_vnum);
 	ExecuteStatement("DELETE FROM rooms WHERE vnum = " + rvd, "delete room");
 	ExecuteStatement("DELETE FROM room_exits WHERE room_vnum = " + rvd, "del room_exits");
+	ExecuteStatement("DELETE FROM entity_triggers WHERE entity_type = 'room' AND entity_vnum = " + rvd, "del room trigs");
 
 	// Insert room record
 	sqlite3_stmt *stmt = nullptr;
@@ -2820,14 +2821,21 @@ void SqliteWorldDataSource::SaveRoomRecord(RoomData *room)
 		"VALUES ('room', ?, ?, ?)";
 
 	int trig_order = 0;
-	if (room->script && !room->script->script_trig_list.empty())
+	// Use proto_script (the world-file trigger list), not the runtime
+	// script_trig_list which is empty until zone resets attach the triggers --
+	// the resync/dual-write runs before any reset. Matches the YAML backend.
+	if (room->proto_script && !room->proto_script->empty())
 	{
-		for (auto trig : room->script->script_trig_list)
+		for (auto trig_vnum : *room->proto_script)
 		{
+			if (trig_vnum <= 0)
+			{
+				continue;
+			}
 			if (sqlite3_prepare_v2(m_db, trig_sql, -1, &stmt, nullptr) == SQLITE_OK)
 			{
 				sqlite3_bind_int(stmt, 1, room_vnum);
-				sqlite3_bind_int(stmt, 2, GET_TRIG_VNUM(trig));
+				sqlite3_bind_int(stmt, 2, trig_vnum);
 				sqlite3_bind_int(stmt, 3, trig_order++);
 				sqlite3_step(stmt);
 				sqlite3_finalize(stmt);
@@ -2895,8 +2903,9 @@ void SqliteWorldDataSource::SaveRooms(int zone_rnum, int specific_vnum)
 void SqliteWorldDataSource::SaveMobRecord(int mob_vnum, CharData &mob)
 {
 	// Delete existing mob data (CASCADE will handle related tables)
-	std::string delete_sql = "DELETE FROM mobs WHERE vnum = " + std::to_string(mob_vnum);
-	ExecuteStatement(delete_sql, "delete mob");
+	const std::string mvd = std::to_string(mob_vnum);
+	ExecuteStatement("DELETE FROM mobs WHERE vnum = " + mvd, "delete mob");
+	ExecuteStatement("DELETE FROM entity_triggers WHERE entity_type = 'mob' AND entity_vnum = " + mvd, "del mob trigs");
 
 	// Insert mob main record
 	sqlite3_stmt *stmt = nullptr;
@@ -3175,14 +3184,19 @@ void SqliteWorldDataSource::SaveMobRecord(int mob_vnum, CharData &mob)
 		"VALUES ('mob', ?, ?, ?)";
 
 	int trig_order = 0;
-	if (mob.script && !mob.script->script_trig_list.empty())
+	// proto_script, not the runtime script_trig_list (empty before resets).
+	if (mob.proto_script && !mob.proto_script->empty())
 	{
-		for (auto trig : mob.script->script_trig_list)
+		for (auto trig_vnum : *mob.proto_script)
 		{
+			if (trig_vnum <= 0)
+			{
+				continue;
+			}
 			if (sqlite3_prepare_v2(m_db, trig_sql, -1, &stmt, nullptr) == SQLITE_OK)
 			{
 				sqlite3_bind_int(stmt, 1, mob_vnum);
-				sqlite3_bind_int(stmt, 2, GET_TRIG_VNUM(trig));
+				sqlite3_bind_int(stmt, 2, trig_vnum);
 				sqlite3_bind_int(stmt, 3, trig_order++);
 				sqlite3_step(stmt);
 				sqlite3_finalize(stmt);
@@ -3260,6 +3274,7 @@ void SqliteWorldDataSource::SaveObjectRecord(int obj_vnum, CObjectPrototype *obj
 	const std::string ov = std::to_string(obj_vnum);
 	ExecuteStatement("DELETE FROM objects WHERE vnum = " + ov, "delete object");
 	ExecuteStatement("DELETE FROM obj_applies WHERE obj_vnum = " + ov, "del obj_applies");
+	ExecuteStatement("DELETE FROM entity_triggers WHERE entity_type = 'obj' AND entity_vnum = " + ov, "del obj trigs");
 
 	// Insert object main record
 	sqlite3_stmt *stmt = nullptr;
