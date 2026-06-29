@@ -3257,8 +3257,9 @@ void SqliteWorldDataSource::SaveObjectRecord(int obj_vnum, CObjectPrototype *obj
 	}
 
 	// Delete existing object data (CASCADE will handle related tables)
-	std::string delete_sql = "DELETE FROM objects WHERE vnum = " + std::to_string(obj_vnum);
-	ExecuteStatement(delete_sql, "delete object");
+	const std::string ov = std::to_string(obj_vnum);
+	ExecuteStatement("DELETE FROM objects WHERE vnum = " + ov, "delete object");
+	ExecuteStatement("DELETE FROM obj_applies WHERE obj_vnum = " + ov, "del obj_applies");
 
 	// Insert object main record
 	sqlite3_stmt *stmt = nullptr;
