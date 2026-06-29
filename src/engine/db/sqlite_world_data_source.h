@@ -93,6 +93,7 @@ private:
 	void LoadMobSpells();
 	void LoadMobHelpers();
 	void LoadMobDestinations();
+	void LoadMobDeathLoad();
 
 	// Object loading helpers
 	void LoadObjectFlags();

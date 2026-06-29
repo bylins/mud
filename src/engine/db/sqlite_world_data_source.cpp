@@ -19,6 +19,7 @@
 #include "global_objects.h"
 #include "engine/structs/extra_description.h"
 #include "gameplay/mechanics/dungeons.h"
+#include "gameplay/mechanics/dead_load.h"
 #include "engine/scripting/dg_olc.h"
 #include "gameplay/affects/affect_contants.h"
 #include "gameplay/skills/skills.h"
@@ -1536,6 +1537,7 @@ void SqliteWorldDataSource::LoadMobs()
 	LoadMobSpells();
 	LoadMobHelpers();
 	LoadMobDestinations();
+	LoadMobDeathLoad();
 
 	log("Loaded %d mobs from SQLite.", top_of_mobt + 1);
 }
@@ -1915,6 +1917,48 @@ void SqliteWorldDataSource::LoadMobDestinations()
 	if (destinations_set > 0)
 	{
 		log("   Set %d mob destinations.", destinations_set);
+	}
+}
+
+void SqliteWorldDataSource::LoadMobDeathLoad()
+{
+	// Table is created lazily on save; an old world.db may not have it yet, in
+	// which case prepare fails and we simply load no death-load entries.
+	const char *sql = "SELECT mob_vnum, obj_vnum, load_prob, load_type, spec_param "
+		"FROM mob_death_load ORDER BY mob_vnum, load_order";
+
+	sqlite3_stmt *stmt;
+	if (sqlite3_prepare_v2(m_db, sql, -1, &stmt, nullptr) != SQLITE_OK)
+	{
+		return;
+	}
+
+	std::map<int, int> vnum_to_rnum;
+	for (MobRnum i = 0; i <= top_of_mobt; i++)
+	{
+		vnum_to_rnum[mob_index[i].vnum] = i;
+	}
+
+	int dl_set = 0;
+	while (sqlite3_step(stmt) == SQLITE_ROW)
+	{
+		int mob_vnum = sqlite3_column_int(stmt, 0);
+		auto it = vnum_to_rnum.find(mob_vnum);
+		if (it == vnum_to_rnum.end()) continue;
+
+		dead_load::LoadingItem item;
+		item.obj_vnum = sqlite3_column_int(stmt, 1);
+		item.load_prob = sqlite3_column_int(stmt, 2);
+		item.load_type = sqlite3_column_int(stmt, 3);
+		item.spec_param = sqlite3_column_int(stmt, 4);
+		mob_proto[it->second].dl_list.push_back(item);
+		dl_set++;
+	}
+	sqlite3_finalize(stmt);
+
+	if (dl_set > 0)
+	{
+		log("   Set %d mob death-load entries.", dl_set);
 	}
 }
 
@@ -2960,6 +3004,7 @@ void SqliteWorldDataSource::SaveMobRecord(int mob_vnum, CharData &mob)
 	ExecuteStatement("DELETE FROM mobs WHERE vnum = " + mvd, "delete mob");
 	ExecuteStatement("DELETE FROM mob_flags WHERE mob_vnum = " + mvd, "del mob_flags");
 	ExecuteStatement("DELETE FROM mob_spells WHERE mob_vnum = " + mvd, "del mob_spells");
+	ExecuteStatement("DELETE FROM mob_death_load WHERE mob_vnum = " + mvd, "del mob_death_load");
 	ExecuteStatement("DELETE FROM entity_triggers WHERE entity_type = 'mob' AND entity_vnum = " + mvd, "del mob trigs");
 
 	// Insert mob main record
@@ -3244,6 +3289,26 @@ void SqliteWorldDataSource::SaveMobRecord(int mob_vnum, CharData &mob)
 		}
 	}
 
+	// Save mob death-load (loot dropped into the corpse). Ordered, so the load
+	// preserves the original sequence via load_order.
+	const char *dl_sql = "INSERT INTO mob_death_load "
+		"(mob_vnum, load_order, obj_vnum, load_prob, load_type, spec_param) VALUES (?, ?, ?, ?, ?, ?)";
+	int dl_order = 0;
+	for (const auto &dl : mob.dl_list)
+	{
+		if (sqlite3_prepare_v2(m_db, dl_sql, -1, &stmt, nullptr) == SQLITE_OK)
+		{
+			sqlite3_bind_int(stmt, 1, mob_vnum);
+			sqlite3_bind_int(stmt, 2, dl_order++);
+			sqlite3_bind_int(stmt, 3, dl.obj_vnum);
+			sqlite3_bind_int(stmt, 4, dl.load_prob);
+			sqlite3_bind_int(stmt, 5, dl.load_type);
+			sqlite3_bind_int(stmt, 6, dl.spec_param);
+			sqlite3_step(stmt);
+			sqlite3_finalize(stmt);
+		}
+	}
+
 	// Save mob triggers
 	const char *trig_sql = 
 		"INSERT INTO entity_triggers (entity_type, entity_vnum, trigger_vnum, trigger_order) "
@@ -3285,6 +3350,19 @@ void SqliteWorldDataSource::SaveMobs(int zone_rnum, int specific_vnum)
 		log("SYSERR: Database not open for SaveMobs");
 		return;
 	}
+
+	// The Python converter never emitted a death-load table, so create it on
+	// demand (older world.db files simply gain it on first resync).
+	ExecuteStatement(
+		"CREATE TABLE IF NOT EXISTS mob_death_load ("
+		" mob_vnum INTEGER NOT NULL,"
+		" load_order INTEGER NOT NULL,"
+		" obj_vnum INTEGER NOT NULL,"
+		" load_prob INTEGER NOT NULL DEFAULT 0,"
+		" load_type INTEGER NOT NULL DEFAULT 0,"
+		" spec_param INTEGER NOT NULL DEFAULT 0,"
+		" PRIMARY KEY (mob_vnum, load_order))",
+		"create mob_death_load");
 
 	const ZoneData &zone = zone_table[zone_rnum];
 	
