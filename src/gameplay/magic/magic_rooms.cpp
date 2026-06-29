@@ -360,6 +360,19 @@ const int kRuneLabelDuration = 300;
 
 std::list<RoomData *> affected_rooms;
 
+// issue.room-affect-trigger-improve (door affects): registry of enchanted exits so the affect pulse
+// can tick/expire door affects without scanning every room's six exits. Keyed by (room, dir) -- the
+// cast-side host. File-local: only this TU's tick + impose touch it.
+namespace { struct ExitAffectHost { RoomData *room; int dir; }; }
+std::list<ExitAffectHost> affected_exits;
+
+void AddExitToAffected(RoomData *room, int dir) {
+	for (const auto &e : affected_exits) {
+		if (e.room == room && e.dir == dir) { return; }
+	}
+	affected_exits.push_back({room, dir});
+}
+
 void RemoveSingleRoomAffect(long caster_id, ERoomAffect want);
 void HandleRoomAffect(RoomData *room, CharData *ch, const Affect<ERoomApply>::shared_ptr &aff);
 void SendRemoveAffectMsgToRoom(ERoomAffect room_affect, RoomRnum room);
@@ -628,6 +641,42 @@ void HandleRoomAffect(RoomData *room, CharData *ch, const Affect<ERoomApply>::sh
 	RunRoomTick(room, ch, aff);
 }
 
+// issue.room-affect-trigger-improve (door affects): tick the timer on enchanted exits. Mirrors the
+// room loop: duration>=1 decrements, duration==-1 is PERMANENT (stays until removed -- a trap that
+// "remains in place"), 0/expired removes the affect (and announces via the host room's sheaf). Walks
+// the affected_exits registry, dropping exits whose affect list empties.
+static void UpdateExitsAffects() {
+	for (auto it = affected_exits.begin(); it != affected_exits.end();) {
+		RoomData *const room = it->room;
+		const int dir = it->dir;
+		const auto exit = (room && dir >= 0 && dir < EDirection::kMaxDirNum) ? room->dir_option[dir] : nullptr;
+		if (!exit || exit->affected.empty()) {
+			it = affected_exits.erase(it);
+			continue;
+		}
+		auto &affects = exit->affected;
+		for (auto ai = affects.begin(); ai != affects.end();) {
+			const auto &af = *ai;
+			if (af->duration >= 1) {
+				af->duration--;
+				++ai;
+			} else if (af->duration == -1) {
+				++ai;   // permanent: never decays
+			} else {
+				if (af->affect_type != ERoomAffect::kUndefined) {
+					SendRemoveAffectMsgToRoom(af->affect_type, GetRoomRnum(room->vnum));
+				}
+				ai = affects.erase(ai);
+			}
+		}
+		if (exit->affected.empty()) {
+			it = affected_exits.erase(it);
+		} else {
+			++it;
+		}
+	}
+}
+
 // раз в 2 секунды
 void UpdateRoomsAffects() {
 	CharData *ch;
@@ -705,6 +754,8 @@ void UpdateRoomsAffects() {
 			++room;
 		}
 	}
+	// issue.room-affect-trigger-improve: tick door affects on the same 2s cadence.
+	UpdateExitsAffects();
 }
 
 // =============================================================== //
@@ -1026,6 +1077,7 @@ ECastResult CallMagicToExit(CharData *ch, int dir, CastContext roll) {
 		af.modifier = ComputeApplyModifier(RoomAffectSeal(af.affect_type), roll.CompetenceBase(), roll.potency());
 	}
 	affect_to_exit(exit, af);
+	AddExitToAffected(world[ch->in_room], dir);   // register for the timer tick (UpdateExitsAffects)
 	// Impose narration from the affect's own sheaf (kAffImposedTo{Char,Room}).
 	const auto &to_char = RoomAffectMsg(af.affect_type, ERoomAffectMsgType::kAffImposedToChar);
 	if (!to_char.empty()) { act(to_char.c_str(), false, ch, nullptr, nullptr, kToChar); }

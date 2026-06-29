@@ -3443,14 +3443,29 @@ bool room_spells::RunDoorTriggers(CharData *actor, RoomData *room, int dir, tale
 	if (!actor || !room || dir < 0 || dir >= EDirection::kMaxDirNum || privilege::IsImmortal(actor)) {
 		return true;   // affect triggers never fire on (or block) immortals
 	}
-	const auto exit = room->dir_option[dir];
-	if (!exit) { return true; }
+	const auto near_exit = room->dir_option[dir];
+	if (!near_exit) { return true; }
 	// Snapshot {affect, caster, potency, strength} so running an action (which could alter the exit's
 	// affect list) cannot invalidate the iteration.
 	struct Pending { room_spells::ERoomAffect type; long caster_id; float potency; int strength; };
 	std::vector<Pending> pending;
-	for (const auto &aff : exit->affected) {
-		if (aff) { pending.push_back({aff->affect_type, aff->caster_id, aff->potency, aff->modifier}); }
+	auto collect = [&pending](const RoomData::exit_data_ptr &ex) {
+		if (!ex) { return; }
+		for (const auto &aff : ex->affected) {
+			if (aff) { pending.push_back({aff->affect_type, aff->caster_id, aff->potency, aff->modifier}); }
+		}
+	};
+	collect(near_exit);
+	// issue.room-affect-trigger-improve (reverse-exit resolve): a door affect cast from the FAR room
+	// lives on the reverse exit, so resolve the door's other side (one validated hop, like do_doorcmd's
+	// `back`) and fire its affects too -- the trap reacts no matter which side opens the door.
+	if (near_exit->to_room() != kNowhere) {
+		static const int rev_dir[] = {EDirection::kSouth, EDirection::kWest, EDirection::kNorth,
+									   EDirection::kEast, EDirection::kDown, EDirection::kUp};
+		const auto rev_exit = world[near_exit->to_room()]->dir_option[rev_dir[dir]];
+		if (rev_exit && rev_exit->to_room() == actor->in_room) {
+			collect(rev_exit);
+		}
 	}
 	bool allowed = true;
 	for (const auto &p : pending) {
