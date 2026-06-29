@@ -90,6 +90,93 @@ sol::state &LuaVm()
 	return *lua;
 }
 
+int LuaTriggerDispatcherRef(sol::state &lua, std::string &failure_message)
+{
+	static int ref = LUA_NOREF;
+	static bool initialized = false;
+	static std::string failure;
+	if (ref != LUA_NOREF)
+	{
+		return ref;
+	}
+	if (initialized)
+	{
+		failure_message = failure;
+		return LUA_NOREF;
+	}
+
+	initialized = true;
+
+	const sol::load_result load_result = lua.load(R"(
+		return function(chunk, ctx)
+			local result = chunk()
+			if type(result) == "function" then
+				return result(ctx)
+			end
+			return result
+		end
+	)");
+	if (!load_result.valid())
+	{
+		const sol::error err = load_result;
+		failure = err.what();
+		failure_message = failure;
+		return LUA_NOREF;
+	}
+
+	sol::protected_function chunk = load_result;
+	const sol::protected_function_result result = chunk();
+	if (!result.valid())
+	{
+		const sol::error err = result;
+		failure = err.what();
+		failure_message = failure;
+		return LUA_NOREF;
+	}
+	if (result.return_count() == 0)
+	{
+		failure = "Lua trigger dispatcher returned no value";
+		failure_message = failure;
+		return LUA_NOREF;
+	}
+
+	const sol::object first = result.get<sol::object>(0);
+	if (first.get_type() != sol::type::function)
+	{
+		failure = "Lua trigger dispatcher did not return a function";
+		failure_message = failure;
+		return LUA_NOREF;
+	}
+
+	first.push();
+	ref = luaL_ref(lua.lua_state(), LUA_REGISTRYINDEX);
+	return ref;
+}
+
+bool PushLuaTriggerDispatcher(sol::state &lua, LuaRuntimeContext runtime)
+{
+	static bool bootstrap_error_logged = false;
+	std::string failure_message;
+	const auto ref = LuaTriggerDispatcherRef(lua, failure_message);
+	if (ref == LUA_NOREF)
+	{
+		if (!bootstrap_error_logged)
+		{
+			bootstrap_error_logged = true;
+			if (failure_message.empty())
+			{
+				failure_message = "Lua trigger dispatcher is unavailable";
+			}
+			sol::error err(failure_message);
+			LogLuaError(runtime, "dispatcher", err);
+		}
+		return false;
+	}
+
+	lua_rawgeti(lua.lua_state(), LUA_REGISTRYINDEX, ref);
+	return true;
+}
+
 std::shared_ptr<LuaWaitState> MakeLuaState()
 {
 	return std::make_shared<LuaWaitState>();
@@ -457,6 +544,11 @@ int StartCoroutine(const std::shared_ptr<LuaWaitState> &state)
 	lua_State *main_state = lua.lua_state();
 	state->thread = lua_newthread(main_state);
 	state->thread_ref = luaL_ref(main_state, LUA_REGISTRYINDEX);
+	if (!PushLuaTriggerDispatcher(lua, state->runtime))
+	{
+		return 1;
+	}
+	lua_xmove(main_state, state->thread, 1);
 	lua_rawgeti(main_state, LUA_REGISTRYINDEX, state->entrypoint_ref);
 	lua_xmove(main_state, state->thread, 1);
 	lua_rawgeti(main_state, LUA_REGISTRYINDEX, state->ctx_ref);
@@ -464,7 +556,7 @@ int StartCoroutine(const std::shared_ptr<LuaWaitState> &state)
 
 	LuaExecutionBudget budget;
 	InstallLuaRuntimeLimits(state->thread, budget);
-	const auto status = (lua_resume)(state->thread, 1);
+	const auto status = (lua_resume)(state->thread, 2);
 	ClearLuaRuntimeLimits(state->thread);
 	if (status == LUA_YIELD)
 	{
@@ -539,6 +631,7 @@ int LuaScriptEngine::RunTrigger(Trigger *trigger, const LuaTriggerContext &ctx)
 	sol::table lua_ctx = BuildLuaContext(lua, ctx, state->runtime);
 	sol::environment environment(lua, sol::create, lua.globals());
 	InstallLuaContextGlobals(lua, environment, lua_ctx);
+	environment["ctx"] = lua_ctx;
 	environment["mud"] = BuildMudNamespace(lua, &state->runtime);
 	LuaExecutionBudget budget;
 	InstallLuaRuntimeLimits(lua, budget);
@@ -554,38 +647,26 @@ int LuaScriptEngine::RunTrigger(Trigger *trigger, const LuaTriggerContext &ctx)
 	}
 	sol::protected_function chunk = load_result;
 	sol::set_environment(environment, chunk);
-	const auto chunk_result = chunk();
-	ClearLuaRuntimeLimits(lua);
-	if (!chunk_result.valid())
-	{
-		const sol::error err = chunk_result;
-		LogLuaError(state->runtime, "script", err);
-		MarkLuaTriggerFinished(trigger);
-		RetireLuaState(state);
-		return 1;
-	}
-	if (chunk_result.return_count() == 0)
-	{
-		MarkLuaTriggerFinished(trigger);
-		RetireLuaState(state);
-		return 1;
-	}
-	const sol::object first = chunk_result.get<sol::object>(0);
-	if (first.get_type() != sol::type::function)
-	{
-		const auto result = ConvertLuaResult(chunk_result, state->runtime, lua_ctx, true);
-		MarkLuaTriggerFinished(trigger);
-		RetireLuaState(state);
-		return result;
-	}
 	if (!ShouldRunFunctionInCoroutine(trigger))
 	{
-		const auto result = ConvertLuaResult(chunk_result, state->runtime, lua_ctx, true);
+		if (!PushLuaTriggerDispatcher(lua, state->runtime))
+		{
+			ClearLuaRuntimeLimits(lua);
+			MarkLuaTriggerFinished(trigger);
+			RetireLuaState(state);
+			return 1;
+		}
+		sol::protected_function dispatcher(sol::stack_object(lua.lua_state(), -1));
+		const auto chunk_result = dispatcher(chunk, lua_ctx);
+		lua_pop(lua.lua_state(), 1);
+		ClearLuaRuntimeLimits(lua);
+		const auto result = ConvertLuaResult(chunk_result, state->runtime, lua_ctx, false);
 		MarkLuaTriggerFinished(trigger);
 		RetireLuaState(state);
 		return result;
 	}
-	first.push();
+	ClearLuaRuntimeLimits(lua);
+	chunk.push();
 	state->entrypoint_ref = luaL_ref(lua.lua_state(), LUA_REGISTRYINDEX);
 	lua_ctx.push();
 	state->ctx_ref = luaL_ref(lua.lua_state(), LUA_REGISTRYINDEX);

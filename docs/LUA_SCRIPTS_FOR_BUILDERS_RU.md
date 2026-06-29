@@ -15,10 +15,8 @@ Lua-триггер отличается от DG-триггера пятым сл
 lua greet wait test~
 0 q 100 0 lua
 ~
-return function(ctx)
-  -- Lua-код
-  return true
-end
+-- Lua-код
+return true
 ~
 ```
 
@@ -34,15 +32,13 @@ narg: 100
 trigger_types:
   - greet
 script: |
-  return function(ctx)
-    -- Lua-код
-    return true
-  end
+  -- Lua-код
+  return true
 ```
 
 Если `language` не указано, триггер считается обычным DG-триггером. Для совместимости загрузчик также понимает `script_language: lua`.
 
-Lua-триггер должен вернуть функцию `function(ctx) ... end`. Движок вызывает эту функцию и передает в нее `ctx` - контекст с владельцем триггера, актером, объектом и другими данными события.
+Lua-триггер можно писать как обычное тело функции: движок выполняет такой chunk с доступным `ctx` - контекстом владельца триггера, актера, объекта и других данных события. Старый явный формат `return function(ctx) ... end` продолжает работать.
 
 Поля контекста также доступны как короткие глобальные имена с префиксом `tg`: `tgOwner`, `tgActor`, `tgVictim`, `tgObject`, `tgRoom` и т.п. Это те же live-view значения, что и в `ctx`, поэтому после `mud.wait(...)` они смотрят на обновленный контекст.
 
@@ -50,6 +46,8 @@ Lua-триггер должен вернуть функцию `function(ctx) ...
 
 - `true`, `1` или отсутствие явного результата - триггер считается сработавшим.
 - `false` или `0` - триггер возвращает отрицательный результат, аналогично DG-логике для проверок.
+
+Финальный `return true` можно не писать: если Lua-код дошел до конца без явного `return`, результат будет успешным. `return false` нельзя опускать в ветках, где нужно отменить или не подтвердить событие.
 
 ## Кодировка
 
@@ -80,35 +78,37 @@ end
 ## Базовый шаблон
 
 ```lua
+if ctx.owner == nil or not ctx.owner:isValid() then
+  return false
+end
+
+if ctx.actor == nil or not ctx.actor:isValid() then
+  return false
+end
+
+-- полезная работа
+```
+
+Старый явный вариант остается допустимым:
+
+```lua
 return function(ctx)
-  if ctx.owner == nil or not ctx.owner:isValid() then
-    return false
-  end
-
-  if ctx.actor == nil or not ctx.actor:isValid() then
-    return false
-  end
-
-  -- полезная работа
-  return true
+  -- Lua-код
 end
 ```
 
-Тот же шаблон можно писать короче:
+Через короткие глобальные имена тот же шаблон можно писать так:
 
 ```lua
-return function()
-  if tgOwner == nil or not tgOwner:isValid() then
-    return false
-  end
-
-  if tgActor == nil or not tgActor:isValid() then
-    return false
-  end
-
-  -- полезная работа
-  return true
+if tgOwner == nil or not tgOwner:isValid() then
+  return false
 end
+
+if tgActor == nil or not tgActor:isValid() then
+  return false
+end
+
+-- полезная работа
 ```
 
 После `mud.wait(...)` всегда заново проверяйте персонажей и объекты через `:isValid()`: за время ожидания игрок мог уйти, моб мог умереть, объект могли удалить.
@@ -120,19 +120,15 @@ end
 Пример моб-триггера с несколькими репликами и паузами:
 
 ```lua
-return function(ctx)
-  if ctx.owner == nil or not ctx.owner:isValid() then
-    return false
-  end
-
-  mud.wait(10)
-  ctx.owner:force("say привет")
-
-  mud.wait(2, "s")
-  ctx.owner:force("say пока")
-
-  return true
+if ctx.owner == nil or not ctx.owner:isValid() then
+  return false
 end
+
+mud.wait(10)
+ctx.owner:force("say привет")
+
+mud.wait(2, "s")
+ctx.owner:force("say пока")
 ```
 
 `mud.wait(10)` ждет 10 игровых pulses. `mud.wait(2, "s")` ждет 2 реальных секунды.
