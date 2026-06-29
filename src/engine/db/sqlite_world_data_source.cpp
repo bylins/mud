@@ -2736,15 +2736,19 @@ void SqliteWorldDataSource::SaveTriggerRecord(int trig_vnum, const Trigger *trig
 		return;
 	}
 
-	// Build script text from cmdlist
+	// Build script text from cmdlist. Mirror YamlWorldDataSource: an empty
+	// command line is written as a single space (on reload ParseTriggerScript
+	// sees a non-empty line and trims it back to "", preserving the node count)
+	// and newlines join lines without a trailing one. Skipping empty lines here
+	// dropped blank script lines and changed the command count on reload.
 	std::string script_text;
 	if (trig->cmdlist)
 	{
 		for (auto cmd = *trig->cmdlist; cmd; cmd = cmd->next)
 		{
-			if (!cmd->cmd.empty())
+			script_text += cmd->cmd.empty() ? std::string(" ") : cmd->cmd;
+			if (cmd->next)
 			{
-				script_text += cmd->cmd;
 				script_text += "\n";
 			}
 		}
