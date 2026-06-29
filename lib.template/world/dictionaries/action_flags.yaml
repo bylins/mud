@@ -1,0 +1,121 @@
+# Dictionary: action_flags
+kSpec: 0  # *спец
+kSentinel: 1  # !ходит
+kScavenger: 2  # подбирает
+kNpc: 3  # моб
+kAware: 4  # !заколоть
+kAgressive: 5  # агрессивен
+kStayZone: 6  # зона
+kWimpy: 7  # трус
+kAgressiveDay: 8  # агр.днем
+kAggressiveNight: 9  # агр.ночью
+kAgressiveFullmoon: 10  # агр.полнолуние
+kMemory: 11  # помнит
+kHelper: 12  # помогает
+kNoCharm: 13  # !очар
+kNoSummon: 14  # !призывать
+kNoSleep: 15  # !усыпить
+kNoBash: 16  # !сбить
+kNoBlind: 17  # !ослепить
+kMounting: 18  # скакун
+kNoHold: 19  # !оцепенить
+kNoSilence: 20  # !умолчать
+kAgressiveMono: 21  # агр.христиане
+kAgressivePoly: 22  # агр.язычники
+kNoFear: 23  # !страх
+kNoGroup: 24  # !групится
+kCorpse: 25  # поднят
+kLooter: 26  # лутер
+kProtect: 27  # !убить
+kMobDeleted: 28  # *удален
+kMobFreed: 29  # *очищен
+kSwimming: 30  # плавает
+kFlying: 31  # летает
+kOnlySwimming: 32  # только в воде
+kAgressiveWinter: 33  # агр.зимой
+kAgressiveSpring: 34  # агр.весной
+kAgressiveSummer: 35  # агр.летом
+kAgressiveAutumn: 36  # агр.осенью
+kAppearsDay: 37  # появл.днем
+kAppearsNight: 38  # появл.ночью
+kAppearsFullmoon: 39  # появл.полнолуние
+kAppearsWinter: 40  # появл.зимой
+kAppearsSpring: 41  # появл.весной
+kAppearsSummer: 42  # появл.летом
+kAppearsAutumn: 43  # появл.осенью
+kNoFight: 44  # !сражается
+kDecreaseAttack: 45  # снижение экстраатак
+kHorde: 46  # орда
+kClone: 47  # клон
+kNotKillPunctual: 48  # !убить.точным.стилем
+kNoUndercut: 49  # !подсечь
+kTutelar: 50  # *ангел-защитник
+kCityGuardian: 51  # *моб-стражник
+kIgnoreForbidden: 52  # игн.печать
+kNoBattleExp: 53  # нет.опыта.за.удары
+kNoHammer: 54  # !богатыр.молот
+kMentalShadow: 55  # *порождение разума
+kSummoned: 56  # *призванный
+UNUSED_57: 57
+UNUSED_58: 58
+UNUSED_59: 59
+kFireBreath: 60  # огненное дыхание
+kGasBreath: 61  # зловонное дыхание
+kFrostBreath: 62  # ледяное дыхание
+kAcidBreath: 63  # кислотное дыхание
+kLightingBreath: 64  # ослепляющее дыхание
+kNoSkillTrain: 65  # !тренируются умения
+kNoRest: 66  # !отдыхает
+kAreaAttack: 67  # массовая атака
+kNoOverwhelm: 68  # !оглушить
+kNoHelp: 69  # !помогают
+kOpensDoor: 70  # открывает двери
+kIgnoresNoMob: 71  # игнорирует !моб
+kIgnoresPeaceRoom: 72  # игнорирует мирные
+kResurrected: 73  # *оживлен
+UNUSED_74: 74  # !оживить
+UNUSED_75: 75  # осторожный стиль
+UNUSED_76: 76  # игн.строй
+UNUSED_77: 77
+UNUSED_78: 78
+UNUSED_79: 79
+kNoResurrection: 80
+kMobAwake: 81
+kIgnoresFormation: 82
+UNUSED_83: 83
+UNUSED_84: 84
+UNUSED_85: 85
+UNUSED_86: 86
+UNUSED_87: 87
+UNUSED_88: 88
+UNUSED_89: 89
+UNUSED_90: 90
+UNUSED_91: 91
+UNUSED_92: 92
+UNUSED_93: 93
+UNUSED_94: 94
+UNUSED_95: 95
+UNUSED_96: 96
+UNUSED_97: 97
+UNUSED_98: 98
+UNUSED_99: 99
+UNUSED_100: 100
+UNUSED_101: 101
+UNUSED_102: 102
+UNUSED_103: 103
+UNUSED_104: 104
+UNUSED_105: 105
+UNUSED_106: 106
+UNUSED_107: 107
+UNUSED_108: 108
+UNUSED_109: 109
+UNUSED_110: 110
+UNUSED_111: 111
+UNUSED_112: 112
+UNUSED_113: 113
+UNUSED_114: 114
+UNUSED_115: 115
+UNUSED_116: 116
+UNUSED_117: 117
+UNUSED_118: 118
+UNUSED_119: 119

@@ -1,0 +1,25 @@
+# Dictionary: sectors
+kInside: 0  # Гладкий пол
+kCity: 1  # Улица
+kField: 2  # Поле
+kForest: 3  # Лес
+kHills: 4  # Холмы
+kMountain: 5  # Горы
+kWaterSwim: 6  # Плават. вода
+kWaterNoswim: 7  # Неплав. вода
+kOnlyFlying: 8  # В воздухе
+kUnderwater: 9  # Под водой
+kSecret: 10  # Скрытая
+kStoneroad: 11  # Мощеная дорога
+kRoad: 12  # Утоптанная дорога
+kWildroad: 13  # Разбитая дорога
+kFieldSnow: 20
+kFieldRain: 21
+kForestSnow: 22
+kForestRain: 23
+kHillsSnow: 24
+kHillsRain: 25
+kMountainSnow: 26
+kThinIce: 27
+kNormalIce: 28
+kThickIce: 29

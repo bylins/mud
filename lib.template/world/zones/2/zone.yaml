@@ -1,0 +1,8 @@
+# Zone #2
+name: Тронный чертог
+top_room: 299
+mode: 1  # level
+zone_type: 0 # Ингридиентов нет
+lifespan: 10
+reset_mode: 0
+reset_idle: 0

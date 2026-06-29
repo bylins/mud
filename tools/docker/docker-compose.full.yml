@@ -35,6 +35,9 @@ services:
         WITH_SQLITE: "${WITH_SQLITE:-false}"
     image: mud-circle
     container_name: mud-circle
+    # circle бежит под владельцем смонтированного мира (не root, см. entrypoint).
+    # init/tini — чистый проброс SIGTERM и reaping (иначе circle как PID 1).
+    init: true
     # Host-сеть: игровой порт сразу на интерфейсах хоста (наружу, в Интернет), а
     # localhost:<порт> из конфига достаёт локальный OTEL-коллектор напрямую.
     network_mode: host
@@ -52,6 +55,11 @@ services:
       # TLS-приёмником, локальный plaintext — на 4319), entrypoint перепишет порт.
       OTEL_LOCAL_PORT: "${OTEL_LOCAL_PORT:-}"
     restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
 
   web-admin:
     build:
@@ -61,9 +69,8 @@ services:
     container_name: mud-web-admin
     depends_on:
       - circle
-    # Сокет циркуля принадлежит root (0600), и сам циркуль в контейнере работает
-    # от root — поэтому админку тоже запускаем от root, иначе connect к сокету
-    # упрётся в права.
+    # circle теперь бежит под владельцем мира (не root), но root всё равно достучится
+    # до сокета независимо от его владельца — поэтому админку держим под root.
     user: "0:0"
     ports:
       # admin API по умолчанию только на localhost; WEB_ADMIN_BIND=0.0.0.0 откроет

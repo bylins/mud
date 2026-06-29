@@ -1,0 +1,2011 @@
+# Objects for zone 2
+
+0:
+  # Object #200
+  names:
+    aliases: руна твердыня
+    nominative: руна твердыни
+    genitive: руны твердыни
+    dative: руне твердыни
+    accusative: руну твердыни
+    instrumental: руной твердыни
+    prepositional: руне твердыни
+  short_desc: Магическая руна лежит тут на земле.
+  type: kMagicIngredient
+  wear_flags:
+  - kTake
+  material: 12  # драгоценный камень
+  values:
+  - '0'
+  - '200'
+  - '1000'
+  - '0'
+  weight: 1
+  cost: 100
+  rent_off: 50
+  rent_on: 50
+  spec_param: 19
+  max_durability: 100
+  cur_durability: 90
+  timer: 43200
+  spell: -1
+  level: 1
+  sex: kFemale
+
+1:
+  # Object #201
+  names:
+    aliases: руна хлябь
+    nominative: руна хляби
+    genitive: руны хляби
+    dative: руне хляби
+    accusative: руну хляби
+    instrumental: руной хляби
+    prepositional: руне хляби
+  short_desc: Магическая руна лежит тут на земле.
+  type: kMagicIngredient
+  wear_flags:
+  - kTake
+  material: 12  # драгоценный камень
+  values:
+  - '0'
+  - '201'
+  - '1000'
+  - '0'
+  weight: 1
+  cost: 100
+  rent_off: 50
+  rent_on: 50
+  spec_param: 19
+  max_durability: 100
+  cur_durability: 90
+  timer: 43200
+  spell: -1
+  level: 1
+  sex: kFemale
+
+2:
+  # Object #202
+  names:
+    aliases: руна заполнение
+    nominative: Руна заполнения
+    genitive: руны заполнения
+    dative: руне заполнения
+    accusative: руну заполнения
+    instrumental: руной заполнения
+    prepositional: руне заполнения
+  short_desc: Магическая руна лежит тут на земле.
+  type: kMagicIngredient
+  wear_flags:
+  - kTake
+  material: 12  # драгоценный камень
+  values:
+  - '0'
+  - '202'
+  - '1000'
+  - '0'
+  weight: 1
+  cost: 200
+  rent_off: 20
+  rent_on: 0
+  spec_param: 19
+  max_durability: 100
+  cur_durability: 90
+  timer: 43200
+  spell: -1
+  level: 1
+  sex: kFemale
+
+3:
+  # Object #203
+  names:
+    aliases: руна опустошение
+    nominative: Руна опустошения
+    genitive: руны опустошения
+    dative: руне опустошения
+    accusative: руну опустошения
+    instrumental: руной опустошения
+    prepositional: руне опустошения
+  short_desc: Магическая руна лежит тут на земле.
+  type: kMagicIngredient
+  wear_flags:
+  - kTake
+  material: 12  # драгоценный камень
+  values:
+  - '0'
+  - '203'
+  - '1000'
+  - '0'
+  weight: 1
+  cost: 100
+  rent_off: 50
+  rent_on: 50
+  spec_param: 19
+  max_durability: 100
+  cur_durability: 90
+  timer: 43200
+  spell: -1
+  level: 1
+  sex: kFemale
+
+4:
+  # Object #204
+  names:
+    aliases: руна восхожденчество
+    nominative: Руна восхожденчества
+    genitive: руны восхожденчества
+    dative: руне восхожденчества
+    accusative: руну восхожденчества
+    instrumental: руной восхожденчества
+    prepositional: руне восхожденчества
+  short_desc: Магическая руна лежит тут на земле.
+  type: kMagicIngredient
+  wear_flags:
+  - kTake
+  material: 12  # драгоценный камень
+  values:
+  - '0'
+  - '204'
+  - '1000'
+  - '0'
+  weight: 1
+  cost: 10
+  rent_off: 10
+  rent_on: 10
+  spec_param: 19
+  max_durability: 100
+  cur_durability: 90
+  timer: 43200
+  spell: -1
+  level: 1
+  sex: kFemale
+
+5:
+  # Object #205
+  names:
+    aliases: руна низложения
+    nominative: руна низложения
+    genitive: руны низложения
+    dative: руне низложения
+    accusative: руну низложения
+    instrumental: руной низложения
+    prepositional: руне низложения
+  short_desc: Магическая руна лежит тут на земле.
+  type: kMagicIngredient
+  wear_flags:
+  - kTake
+  material: 12  # драгоценный камень
+  values:
+  - '0'
+  - '205'
+  - '500'
+  - '0'
+  weight: 1
+  cost: 100
+  rent_off: 50
+  rent_on: 50
+  spec_param: 19
+  max_durability: 100
+  cur_durability: 90
+  timer: 43200
+  spell: -1
+  level: 1
+  sex: kFemale
+
+6:
+  # Object #206
+  names:
+    aliases: руна свет
+    nominative: руна света
+    genitive: руны света
+    dative: руне света
+    accusative: руну света
+    instrumental: руной света
+    prepositional: руне света
+  short_desc: Магическая руна лежит тут на земле.
+  type: kMagicIngredient
+  wear_flags:
+  - kTake
+  material: 12  # драгоценный камень
+  values:
+  - '0'
+  - '206'
+  - '1000'
+  - '0'
+  weight: 1
+  cost: 100
+  rent_off: 50
+  rent_on: 50
+  spec_param: 19
+  max_durability: 100
+  cur_durability: 90
+  timer: 43200
+  spell: -1
+  level: 1
+  sex: kFemale
+
+7:
+  # Object #207
+  names:
+    aliases: руна тьмы
+    nominative: руна тьмы
+    genitive: руны тьмы
+    dative: руне тьмы
+    accusative: руну тьмы
+    instrumental: руной тьмы
+    prepositional: руне тьмы
+  short_desc: Магическая руна лежит тут на земле.
+  type: kMagicIngredient
+  wear_flags:
+  - kTake
+  material: 12  # драгоценный камень
+  values:
+  - '0'
+  - '207'
+  - '1000'
+  - '0'
+  weight: 1
+  cost: 100
+  rent_off: 50
+  rent_on: 50
+  spec_param: 19
+  max_durability: 100
+  cur_durability: 90
+  timer: 43200
+  spell: -1
+  level: 1
+  sex: kFemale
+
+8:
+  # Object #208
+  names:
+    aliases: руна разрушение
+    nominative: Руна разрушения
+    genitive: руны разрушения
+    dative: руне разрушения
+    accusative: руну разрушения
+    instrumental: руной разрушения
+    prepositional: руне разрушения
+  short_desc: Магическая руна лежит тут на земле.
+  type: kMagicIngredient
+  wear_flags:
+  - kTake
+  material: 12  # драгоценный камень
+  values:
+  - '0'
+  - '208'
+  - '1000'
+  - '0'
+  weight: 1
+  cost: 100
+  rent_off: 50
+  rent_on: 50
+  spec_param: 19
+  max_durability: 100
+  cur_durability: 90
+  timer: 43200
+  spell: -1
+  level: 1
+  sex: kFemale
+
+9:
+  # Object #209
+  names:
+    aliases: руна созидание
+    nominative: руна созидания
+    genitive: руны созидания
+    dative: руне созидания
+    accusative: руну созидания
+    instrumental: руной созидания
+    prepositional: руне созидания
+  short_desc: Магическая руна лежит тут на земле.
+  type: kMagicIngredient
+  wear_flags:
+  - kTake
+  material: 12  # драгоценный камень
+  values:
+  - '0'
+  - '209'
+  - '1000'
+  - '0'
+  weight: 1
+  cost: 100
+  rent_off: 50
+  rent_on: 50
+  spec_param: 19
+  max_durability: 100
+  cur_durability: 90
+  timer: 43200
+  spell: -1
+  level: 1
+  sex: kFemale
+
+10:
+  # Object #210
+  names:
+    aliases: руна движение
+    nominative: руна движения
+    genitive: руны движения
+    dative: руне движения
+    accusative: руну движения
+    instrumental: руной движения
+    prepositional: руне движения
+  short_desc: Магическая руна лежит тут на земле.
+  type: kMagicIngredient
+  wear_flags:
+  - kTake
+  material: 12  # драгоценный камень
+  values:
+  - '0'
+  - '210'
+  - '1000'
+  - '0'
+  weight: 1
+  cost: 100
+  rent_off: 50
+  rent_on: 50
+  spec_param: 19
+  max_durability: 100
+  cur_durability: 90
+  timer: 43200
+  spell: -1
+  level: 1
+  sex: kFemale
+
+11:
+  # Object #211
+  names:
+    aliases: руна покой
+    nominative: руна покоя
+    genitive: руны покоя
+    dative: руне покоя
+    accusative: руну покоя
+    instrumental: руной покоя
+    prepositional: руне покоя
+  short_desc: Магическая руна лежит тут на земле.
+  type: kMagicIngredient
+  wear_flags:
+  - kTake
+  material: 12  # драгоценный камень
+  values:
+  - '0'
+  - '211'
+  - '1000'
+  - '0'
+  weight: 1
+  cost: 100
+  rent_off: 50
+  rent_on: 50
+  spec_param: 19
+  max_durability: 100
+  cur_durability: 90
+  timer: 43200
+  spell: -1
+  level: 1
+  sex: kFemale
+
+12:
+  # Object #212
+  names:
+    aliases: руна истина
+    nominative: руна истины
+    genitive: руны истины
+    dative: руне истины
+    accusative: руну истины
+    instrumental: руной истины
+    prepositional: руне истины
+  short_desc: Магическая руна лежит тут на земле.
+  type: kMagicIngredient
+  wear_flags:
+  - kTake
+  material: 12  # драгоценный камень
+  values:
+  - '0'
+  - '212'
+  - '1000'
+  - '0'
+  weight: 1
+  cost: 100
+  rent_off: 50
+  rent_on: 50
+  spec_param: 19
+  max_durability: 100
+  cur_durability: 90
+  timer: 43200
+  spell: -1
+  level: 1
+  sex: kFemale
+
+13:
+  # Object #213
+  names:
+    aliases: руна лжи
+    nominative: Руна лжи
+    genitive: руны лжи
+    dative: руне лжи
+    accusative: руну лжи
+    instrumental: руной лжи
+    prepositional: руне лжи
+  short_desc: Магическая руна лежит тут на земле.
+  type: kMagicIngredient
+  wear_flags:
+  - kTake
+  material: 12  # драгоценный камень
+  values:
+  - '0'
+  - '213'
+  - '1000'
+  - '0'
+  weight: 1
+  cost: 100
+  rent_off: 50
+  rent_on: 50
+  spec_param: 19
+  max_durability: 100
+  cur_durability: 90
+  timer: 43200
+  spell: -1
+  level: 1
+  sex: kFemale
+  max_in_world: 50
+
+14:
+  # Object #214
+  names:
+    aliases: руна души
+    nominative: Руна души
+    genitive: руны души
+    dative: руне души
+    accusative: руну души
+    instrumental: руной души
+    prepositional: руне души
+  short_desc: Магическая руна лежит тут на земле.
+  type: kMagicIngredient
+  wear_flags:
+  - kTake
+  material: 12  # драгоценный камень
+  values:
+  - '0'
+  - '214'
+  - '1000'
+  - '0'
+  weight: 1
+  cost: 100
+  rent_off: 50
+  rent_on: 50
+  spec_param: 19
+  max_durability: 100
+  cur_durability: 90
+  timer: 43200
+  spell: -1
+  level: 1
+  sex: kFemale
+
+15:
+  # Object #215
+  names:
+    aliases: руна тела
+    nominative: руна тела
+    genitive: руны тела
+    dative: руне тела
+    accusative: руну тела
+    instrumental: руной тела
+    prepositional: руне тела
+  short_desc: Магическая руна лежит тут на земле.
+  type: kMagicIngredient
+  wear_flags:
+  - kTake
+  material: 12  # драгоценный камень
+  values:
+  - '0'
+  - '215'
+  - '1000'
+  - '0'
+  weight: 1
+  cost: 100
+  rent_off: 50
+  rent_on: 50
+  spec_param: 19
+  max_durability: 100
+  cur_durability: 90
+  timer: 43200
+  spell: -1
+  level: 1
+  sex: kFemale
+
+16:
+  # Object #216
+  names:
+    aliases: руна указующий перст
+    nominative: руна указующего перста
+    genitive: руны указующего перста
+    dative: руне указующего перста
+    accusative: руну указующего перста
+    instrumental: руной указующего перста
+    prepositional: руне указующего перста
+  short_desc: Магическая руна лежит тут на земле.
+  type: kMagicIngredient
+  wear_flags:
+  - kTake
+  material: 12  # драгоценный камень
+  values:
+  - '0'
+  - '216'
+  - '1000'
+  - '0'
+  weight: 1
+  cost: 100
+  rent_off: 50
+  rent_on: 50
+  spec_param: 19
+  max_durability: 100
+  cur_durability: 90
+  timer: 43200
+  spell: -1
+  level: 1
+  sex: kFemale
+
+17:
+  # Object #217
+  names:
+    aliases: руна единение
+    nominative: Руна единения
+    genitive: руны единения
+    dative: руне единения
+    accusative: руну единения
+    instrumental: руной единения
+    prepositional: руне единения
+  short_desc: Магическая руна лежит тут на земле.
+  type: kMagicIngredient
+  wear_flags:
+  - kTake
+  material: 12  # драгоценный камень
+  values:
+  - '0'
+  - '217'
+  - '1000'
+  - '0'
+  weight: 1
+  cost: 100
+  rent_off: 50
+  rent_on: 50
+  spec_param: 19
+  max_durability: 100
+  cur_durability: 90
+  timer: 43200
+  spell: -1
+  level: 1
+  sex: kFemale
+
+18:
+  # Object #218
+  names:
+    aliases: руна разобщение
+    nominative: Руна разобщения
+    genitive: руны разобщения
+    dative: руне разобщения
+    accusative: руну разобщения
+    instrumental: руной разобщения
+    prepositional: руне разобщения
+  short_desc: Магическая руна лежит тут на земле.
+  type: kMagicIngredient
+  wear_flags:
+  - kTake
+  material: 12  # драгоценный камень
+  values:
+  - '0'
+  - '218'
+  - '1000'
+  - '0'
+  weight: 1
+  cost: 100
+  rent_off: 50
+  rent_on: 50
+  spec_param: 19
+  max_durability: 100
+  cur_durability: 90
+  timer: 43200
+  spell: -1
+  level: 1
+  sex: kFemale
+
+19:
+  # Object #219
+  names:
+    aliases: руна трансформация
+    nominative: руна трансформации
+    genitive: руны трансформации
+    dative: руне трансформации
+    accusative: руну трансформации
+    instrumental: руной трансформации
+    prepositional: руне трансформации
+  short_desc: Магическая руна лежит тут на земле.
+  type: kMagicIngredient
+  wear_flags:
+  - kTake
+  material: 12  # драгоценный камень
+  values:
+  - '0'
+  - '219'
+  - '1000'
+  - '0'
+  weight: 1
+  cost: 100
+  rent_off: 50
+  rent_on: 50
+  spec_param: 19
+  max_durability: 100
+  cur_durability: 90
+  timer: 43200
+  spell: -1
+  level: 1
+  sex: kFemale
+
+20:
+  # Object #220
+  names:
+    aliases: руна власти
+    nominative: руна власти
+    genitive: руны власти
+    dative: руне власти
+    accusative: руну власти
+    instrumental: руной власти
+    prepositional: руне власти
+  short_desc: Магическая руна лежит тут на земле.
+  type: kMagicIngredient
+  wear_flags:
+  - kTake
+  material: 12  # драгоценный камень
+  values:
+  - '0'
+  - '220'
+  - '1000'
+  - '0'
+  weight: 1
+  cost: 100
+  rent_off: 50
+  rent_on: 50
+  spec_param: 19
+  max_durability: 100
+  cur_durability: 90
+  timer: 43200
+  spell: -1
+  level: 1
+  sex: kFemale
+
+21:
+  # Object #221
+  names:
+    aliases: руна небес
+    nominative: Руна небес
+    genitive: руны небес
+    dative: руне небес
+    accusative: руну небес
+    instrumental: руной небес
+    prepositional: руне небес
+  short_desc: Магическая руна лежит тут на земле.
+  type: kMagicIngredient
+  wear_flags:
+  - kTake
+  material: 12  # драгоценный камень
+  values:
+  - '0'
+  - '221'
+  - '1000'
+  - '0'
+  weight: 1
+  cost: 100
+  rent_off: 50
+  rent_on: 50
+  spec_param: 19
+  max_durability: 100
+  cur_durability: 90
+  timer: 43200
+  spell: -1
+  level: 1
+  sex: kFemale
+
+22:
+  # Object #222
+  names:
+    aliases: руна земли
+    nominative: руна земли
+    genitive: руны земли
+    dative: руне земли
+    accusative: руну земли
+    instrumental: руной земли
+    prepositional: руне земли
+  short_desc: Магическая руна лежит тут на земле.
+  type: kMagicIngredient
+  wear_flags:
+  - kTake
+  material: 12  # драгоценный камень
+  values:
+  - '0'
+  - '222'
+  - '1000'
+  - '0'
+  weight: 1
+  cost: 10
+  rent_off: 10
+  rent_on: 10
+  spec_param: 19
+  max_durability: 100
+  cur_durability: 90
+  timer: 43200
+  spell: -1
+  level: 1
+  sex: kFemale
+  max_in_world: 100000
+
+23:
+  # Object #223
+  names:
+    aliases: руна воды
+    nominative: руна воды
+    genitive: руны воды
+    dative: руне воды
+    accusative: руну воды
+    instrumental: руной воды
+    prepositional: руне воды
+  short_desc: Магическая руна лежит тут на земле.
+  type: kMagicIngredient
+  wear_flags:
+  - kTake
+  material: 12  # драгоценный камень
+  values:
+  - '0'
+  - '223'
+  - '1000'
+  - '0'
+  weight: 1
+  cost: 10
+  rent_off: 10
+  rent_on: 10
+  spec_param: 19
+  max_durability: 100
+  cur_durability: 90
+  timer: 43200
+  spell: -1
+  level: 1
+  sex: kFemale
+  max_in_world: 100000
+
+24:
+  # Object #224
+  names:
+    aliases: руна огня
+    nominative: руна огня
+    genitive: руны огня
+    dative: руне огня
+    accusative: руну огня
+    instrumental: руной огня
+    prepositional: руне огня
+  short_desc: Магическая руна лежит тут на земле.
+  type: kMagicIngredient
+  wear_flags:
+  - kTake
+  material: 12  # драгоценный камень
+  values:
+  - '0'
+  - '224'
+  - '1000'
+  - '0'
+  weight: 1
+  cost: 10
+  rent_off: 10
+  rent_on: 10
+  spec_param: 19
+  max_durability: 100
+  cur_durability: 90
+  timer: 43200
+  spell: -1
+  level: 1
+  sex: kFemale
+  max_in_world: 100000
+
+25:
+  # Object #225
+  names:
+    aliases: руна воздуха
+    nominative: руна воздуха
+    genitive: руны воздуха
+    dative: руне воздуха
+    accusative: руну воздуха
+    instrumental: руной воздуха
+    prepositional: руне воздуха
+  short_desc: Магическая руна лежит тут на земле.
+  type: kMagicIngredient
+  wear_flags:
+  - kTake
+  material: 12  # драгоценный камень
+  values:
+  - '0'
+  - '225'
+  - '1000'
+  - '0'
+  weight: 1
+  cost: 10
+  rent_off: 10
+  rent_on: 10
+  spec_param: 19
+  max_durability: 100
+  cur_durability: 90
+  timer: 43200
+  spell: -1
+  level: 1
+  sex: kFemale
+  max_in_world: 100000
+
+26:
+  # Object #226
+  names:
+    aliases: руна богов
+    nominative: Руна богов
+    genitive: руны богов
+    dative: руне богов
+    accusative: руну богов
+    instrumental: руной богов
+    prepositional: руне богов
+  short_desc: Магическая руна лежит тут на земле.
+  type: kMagicIngredient
+  wear_flags:
+  - kTake
+  material: 12  # драгоценный камень
+  values:
+  - '0'
+  - '226'
+  - '1000'
+  - '0'
+  weight: 1
+  cost: 100
+  rent_off: 50
+  rent_on: 50
+  spec_param: 19
+  max_durability: 100
+  cur_durability: 90
+  timer: 43200
+  spell: -1
+  level: 1
+  sex: kFemale
+
+27:
+  # Object #227
+  names:
+    aliases: руна смерти
+    nominative: руна смерти
+    genitive: руны смерти
+    dative: руне смерти
+    accusative: руну смерти
+    instrumental: руной смерти
+    prepositional: руное смерти
+  short_desc: Магическая руна лежит тут на земле.
+  type: kMagicIngredient
+  wear_flags:
+  - kTake
+  material: 12  # драгоценный камень
+  values:
+  - '0'
+  - '227'
+  - '1000'
+  - '0'
+  weight: 1
+  cost: 100
+  rent_off: 50
+  rent_on: 50
+  spec_param: 19
+  max_durability: 100
+  cur_durability: 90
+  timer: 43200
+  spell: -1
+  level: 1
+  sex: kFemale
+
+28:
+  # Object #228
+  names:
+    aliases: руна движения
+    nominative: руна движения
+    genitive: руны движения
+    dative: руне движения
+    accusative: руну движения
+    instrumental: руной движения
+    prepositional: руне движения
+  short_desc: Магическая руна лежит тут на земле.
+  type: kMagicIngredient
+  extra_flags:
+  - kTicktimer
+  wear_flags:
+  - kTake
+  material: 12  # драгоценный камень
+  values:
+  - '0'
+  - '228'
+  - '1000'
+  - '0'
+  weight: 1
+  cost: 100
+  rent_off: 50
+  rent_on: 50
+  spec_param: 19
+  max_durability: 100
+  cur_durability: 90
+  timer: 43200
+  spell: -1
+  level: 1
+  sex: kFemale
+
+29:
+  # Object #229
+  names:
+    aliases: руна сознания
+    nominative: руна сознания
+    genitive: руны сознания
+    dative: руне сознания
+    accusative: руну сознания
+    instrumental: руной сознания
+    prepositional: руне сознания
+  short_desc: Магическая руна лежит тут на земле.
+  type: kMagicIngredient
+  wear_flags:
+  - kTake
+  material: 12  # драгоценный камень
+  values:
+  - '0'
+  - '229'
+  - '1000'
+  - '0'
+  weight: 1
+  cost: 100
+  rent_off: 50
+  rent_on: 50
+  spec_param: 19
+  max_durability: 100
+  cur_durability: 90
+  timer: 43200
+  spell: -1
+  level: 1
+  sex: kFemale
+
+30:
+  # Object #230
+  names:
+    aliases: руна отражения
+    nominative: Руна отражения
+    genitive: руны отражения
+    dative: руне отражения
+    accusative: руну отражения
+    instrumental: руной отражения
+    prepositional: руне отражения
+  short_desc: Магическая руна лежит тут на земле.
+  type: kMagicIngredient
+  wear_flags:
+  - kTake
+  material: 12  # драгоценный камень
+  values:
+  - '0'
+  - '230'
+  - '1000'
+  - '0'
+  weight: 1
+  cost: 100
+  rent_off: 50
+  rent_on: 50
+  spec_param: 19
+  max_durability: 100
+  cur_durability: 90
+  timer: 43200
+  spell: -1
+  level: 1
+  sex: kFemale
+
+31:
+  # Object #231
+  names:
+    aliases: руна грома
+    nominative: руна грома
+    genitive: руны грома
+    dative: руне грома
+    accusative: руну грома
+    instrumental: руной грома
+    prepositional: руне грома
+  short_desc: Магическая руна лежит тут на земле.
+  type: kMagicIngredient
+  wear_flags:
+  - kTake
+  material: 12  # драгоценный камень
+  values:
+  - '0'
+  - '231'
+  - '1000'
+  - '0'
+  weight: 1
+  cost: 100
+  rent_off: 50
+  rent_on: 50
+  spec_param: 19
+  max_durability: 100
+  cur_durability: 90
+  timer: 43200
+  spell: -1
+  level: 1
+  sex: kFemale
+
+32:
+  # Object #232
+  names:
+    aliases: руна благости
+    nominative: Руна благости
+    genitive: руны благости
+    dative: руне благости
+    accusative: руну благости
+    instrumental: руной благости
+    prepositional: руне благости
+  short_desc: Магическая руна лежит тут на земле.
+  type: kMagicIngredient
+  wear_flags:
+  - kTake
+  material: 12  # драгоценный камень
+  values:
+  - '0'
+  - '232'
+  - '1000'
+  - '0'
+  weight: 1
+  cost: 100
+  rent_off: 50
+  rent_on: 50
+  spec_param: 19
+  max_durability: 100
+  cur_durability: 90
+  timer: 43200
+  spell: -1
+  level: 1
+  sex: kFemale
+  max_in_world: 50
+
+34:
+  # Object #234
+  names:
+    aliases: руна ярости
+    nominative: Руна ярости
+    genitive: руны ярости
+    dative: руне ярости
+    accusative: руну ярости
+    instrumental: руной ярости
+    prepositional: руне ярости
+  short_desc: Магическая руна лежит тут на земле.
+  type: kMagicIngredient
+  wear_flags:
+  - kTake
+  material: 12  # драгоценный камень
+  values:
+  - '0'
+  - '234'
+  - '1000'
+  - '0'
+  weight: 1
+  cost: 100
+  rent_off: 50
+  rent_on: 50
+  spec_param: 19
+  max_durability: 100
+  cur_durability: 90
+  timer: 43200
+  spell: -1
+  level: 1
+  sex: kFemale
+
+35:
+  # Object #235
+  names:
+    aliases: руна вражды
+    nominative: Руна вражды
+    genitive: руны вражды
+    dative: руне вражды
+    accusative: руну вражды
+    instrumental: руной вражды
+    prepositional: руне вражды
+  short_desc: Магическая руна лежит тут на земле.
+  type: kMagicIngredient
+  wear_flags:
+  - kTake
+  material: 12  # драгоценный камень
+  values:
+  - '0'
+  - '235'
+  - '1000'
+  - '0'
+  weight: 1
+  cost: 100
+  rent_off: 50
+  rent_on: 50
+  spec_param: 19
+  max_durability: 100
+  cur_durability: 90
+  timer: 43200
+  spell: -1
+  level: 1
+  sex: kFemale
+
+36:
+  # Object #236
+  names:
+    aliases: руна разума
+    nominative: руна разума
+    genitive: руны разума
+    dative: руне разума
+    accusative: руну разума
+    instrumental: руной разума
+    prepositional: руне разума
+  short_desc: Магическая руна лежит тут на земле.
+  type: kMagicIngredient
+  wear_flags:
+  - kTake
+  material: 12  # драгоценный камень
+  values:
+  - '0'
+  - '236'
+  - '1000'
+  - '0'
+  weight: 1
+  cost: 100
+  rent_off: 50
+  rent_on: 50
+  spec_param: 19
+  max_durability: 100
+  cur_durability: 90
+  timer: 43200
+  spell: -1
+  level: 1
+  sex: kFemale
+
+38:
+  # Object #238
+  names:
+    aliases: руна живота
+    nominative: руна живота
+    genitive: руны живота
+    dative: руне живота
+    accusative: руну живота
+    instrumental: руной живота
+    prepositional: руне живота
+  short_desc: Магическая руна лежит тут на земле.
+  type: kMagicIngredient
+  wear_flags:
+  - kTake
+  material: 12  # драгоценный камень
+  values:
+  - '0'
+  - '238'
+  - '1000'
+  - '0'
+  weight: 1
+  cost: 100
+  rent_off: 50
+  rent_on: 50
+  spec_param: 19
+  max_durability: 100
+  cur_durability: 90
+  timer: 43200
+  spell: -1
+  level: 1
+  sex: kFemale
+  max_in_world: 50
+
+39:
+  # Object #239
+  names:
+    aliases: руна подобия
+    nominative: Руна подобия
+    genitive: руны подобия
+    dative: руне подобия
+    accusative: руну подобия
+    instrumental: руной подобия
+    prepositional: руне подобия
+  short_desc: Магическая руна лежит тут на земле.
+  type: kMagicIngredient
+  wear_flags:
+  - kTake
+  material: 12  # драгоценный камень
+  values:
+  - '0'
+  - '239'
+  - '1000'
+  - '0'
+  weight: 1
+  cost: 100
+  rent_off: 50
+  rent_on: 50
+  spec_param: 19
+  max_durability: 100
+  cur_durability: 90
+  timer: 43200
+  spell: -1
+  level: 1
+  sex: kFemale
+
+40:
+  # Object #240
+  names:
+    aliases: руна погибели
+    nominative: руна погибели
+    genitive: руны погибели
+    dative: руне погибели
+    accusative: руну погибели
+    instrumental: руной погибели
+    prepositional: руне погибели
+  short_desc: Магическая руна лежит тут на земле.
+  type: kMagicIngredient
+  wear_flags:
+  - kTake
+  material: 12  # драгоценный камень
+  values:
+  - '0'
+  - '240'
+  - '1000'
+  - '0'
+  weight: 1
+  cost: 100
+  rent_off: 50
+  rent_on: 50
+  spec_param: 19
+  max_durability: 100
+  cur_durability: 90
+  timer: 43200
+  spell: -1
+  level: 1
+  sex: kFemale
+  max_in_world: -1
+
+41:
+  # Object #241
+  names:
+    aliases: руна скорби
+    nominative: Руна скорби
+    genitive: руны скорби
+    dative: руне скорби
+    accusative: руну скорби
+    instrumental: руной скорби
+    prepositional: руне скорби
+  short_desc: Магическая руна лежит тут на земле.
+  type: kMagicIngredient
+  wear_flags:
+  - kTake
+  material: 12  # драгоценный камень
+  values:
+  - '0'
+  - '241'
+  - '1000'
+  - '0'
+  weight: 1
+  cost: 100
+  rent_off: 50
+  rent_on: 50
+  spec_param: 19
+  max_durability: 100
+  cur_durability: 90
+  timer: 43200
+  spell: -1
+  level: 1
+  sex: kFemale
+  max_in_world: 50
+
+42:
+  # Object #242
+  names:
+    aliases: руна порядка
+    nominative: руна порядка
+    genitive: руны порядка
+    dative: руне порядка
+    accusative: руну порядка
+    instrumental: руной порядка
+    prepositional: руне порядка
+  short_desc: Магическая руна лежит тут на земле.
+  type: kMagicIngredient
+  wear_flags:
+  - kTake
+  material: 12  # драгоценный камень
+  values:
+  - '0'
+  - '242'
+  - '1000'
+  - '0'
+  weight: 1
+  cost: 100
+  rent_off: 50
+  rent_on: 50
+  spec_param: 19
+  max_durability: 100
+  cur_durability: 90
+  timer: 43200
+  spell: -1
+  level: 1
+  sex: kFemale
+
+43:
+  # Object #243
+  names:
+    aliases: руна хаоса
+    nominative: Руна хаоса
+    genitive: руны хаоса
+    dative: руне хаоса
+    accusative: руну хаоса
+    instrumental: руной хаоса
+    prepositional: руне хаоса
+  short_desc: Магическая руна лежит тут на земле.
+  type: kMagicIngredient
+  wear_flags:
+  - kTake
+  material: 12  # драгоценный камень
+  values:
+  - '0'
+  - '243'
+  - '1000'
+  - '0'
+  weight: 1
+  cost: 100
+  rent_off: 50
+  rent_on: 50
+  spec_param: 19
+  max_durability: 100
+  cur_durability: 90
+  timer: 43200
+  spell: -1
+  level: 1
+  sex: kFemale
+
+44:
+  # Object #244
+  names:
+    aliases: бочка
+    nominative: бочка
+    genitive: бочки
+    dative: бочке
+    accusative: бочку
+    instrumental: бочкой
+    prepositional: бочке
+  short_desc: Бочка с характерным запахом стоит здесь.
+  type: kFountain
+  extra_flags:
+  - kNodecay
+  material: 9  # кожа
+  values:
+  - '999'
+  - '999'
+  - '3'
+  - '0'
+  weight: 1004
+  cost: 10000
+  rent_off: 10000
+  rent_on: 10000
+  spec_param: 0
+  max_durability: 400
+  cur_durability: 400
+  timer: 43200
+  spell: -1
+  level: 0
+  sex: kFemale
+
+45:
+  # Object #245
+  names:
+    aliases: руна грозы
+    nominative: Руна грозы
+    genitive: руны грозы
+    dative: руне грозы
+    accusative: руну грозы
+    instrumental: руной грозы
+    prepositional: руне грозы
+  short_desc: Магическая руна лежит на земле.
+  type: kMagicIngredient
+  wear_flags:
+  - kTake
+  material: 3  # булат
+  values:
+  - '0'
+  - '245'
+  - '1000'
+  - '0'
+  weight: 2
+  cost: 100
+  rent_off: 20
+  rent_on: 20
+  spec_param: 19
+  max_durability: 100
+  cur_durability: 100
+  timer: 44640
+  spell: 0
+  level: 0
+  sex: kFemale
+  max_in_world: 50
+
+50:
+  # Object #250
+  names:
+    aliases: доска объявлений для богов
+    nominative: доска для сообщений богов
+    genitive: доски объявлений
+    dative: доске объявлений
+    accusative: доску объявлений
+    instrumental: доской объявлений
+    prepositional: доске объявлений
+  short_desc: Доска для сообщений богов летает тут
+  type: kNote
+  extra_flags:
+  - kGlow
+  - kMagic
+  - kNodecay
+  material: 9  # кожа
+  values:
+  - '0'
+  - '0'
+  - '0'
+  - '0'
+  weight: 0
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  spec_param: 0
+  max_durability: 150
+  cur_durability: 150
+  timer: 43200
+  spell: -1
+  level: 0
+  sex: kFemale
+  max_in_world: 10000
+
+51:
+  # Object #251
+  names:
+    aliases: доска объявлений
+    nominative: доска заявок и предложений
+    genitive: доски заявок и предложений
+    dative: доске заявок и предложений
+    accusative: доску заявок и предложений
+    instrumental: доской заявок и предложений
+    prepositional: доске заявок и предложений
+  short_desc: Доска для различных заметок и объявлений прибита тут
+  type: kNote
+  extra_flags:
+  - kGlow
+  - kNoinvis
+  - kMagic
+  - kNodecay
+  material: 9  # кожа
+  values:
+  - '0'
+  - '0'
+  - '0'
+  - '0'
+  weight: 0
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  spec_param: 0
+  max_durability: 150
+  cur_durability: 150
+  timer: 43200
+  spell: -1
+  level: 0
+  sex: kFemale
+  max_in_world: 10000
+
+52:
+  # Object #252
+  names:
+    aliases: доска объявлений
+    nominative: доска объявлений
+    genitive: доски объявлений
+    dative: доске объявлений
+    accusative: доску объявлений
+    instrumental: доской объявлений
+    prepositional: доске объявлений
+  short_desc: Доска для различных заметок и объявлений прибита тут
+  type: kNote
+  extra_flags:
+  - kGlow
+  - kMagic
+  - kNodecay
+  material: 9  # кожа
+  values:
+  - '0'
+  - '0'
+  - '0'
+  - '0'
+  weight: 0
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  spec_param: 0
+  max_durability: 150
+  cur_durability: 150
+  timer: 43200
+  spell: -1
+  level: 0
+  sex: kFemale
+  max_in_world: 2
+
+53:
+  # Object #253
+  names:
+    aliases: доска объявлений
+    nominative: доска объявлений
+    genitive: доски объявлений
+    dative: доске объявлений
+    accusative: доску объявлений
+    instrumental: доской объявлений
+    prepositional: доске объявлений
+  short_desc: На этой доске пишем известные баги
+  type: kNote
+  extra_flags:
+  - kGlow
+  - kMagic
+  - kNodecay
+  material: 9  # кожа
+  values:
+  - '0'
+  - '0'
+  - '0'
+  - '0'
+  weight: 0
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  spec_param: 0
+  max_durability: 150
+  cur_durability: 150
+  timer: 43200
+  spell: -1
+  level: 0
+  sex: kFemale
+  max_in_world: 100
+
+54:
+  # Object #254
+  names:
+    aliases: доска объявлений
+    nominative: доска объявлений
+    genitive: доски объявлений
+    dative: доске объявлений
+    accusative: доску объявлений
+    instrumental: доской объявлений
+    prepositional: доске объявлений
+  short_desc: Доска для различных заметок и объявлений прибита тут
+  type: kNote
+  extra_flags:
+  - kGlow
+  - kNoinvis
+  - kMagic
+  - kNodecay
+  material: 9  # кожа
+  values:
+  - '0'
+  - '0'
+  - '0'
+  - '0'
+  weight: 0
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  spec_param: 0
+  max_durability: 150
+  cur_durability: 150
+  timer: 43200
+  spell: -1
+  level: 0
+  sex: kFemale
+
+55:
+  # Object #255
+  names:
+    aliases: мортальный доска
+    nominative: мортальная доска
+    genitive: мортальной доски
+    dative: мортальной доске
+    accusative: мортальную доску
+    instrumental: мортальной доской
+    prepositional: мортальной доске
+  short_desc: Сияющая доска для мортальных сообщений парит в воздухе
+  type: kNote
+  extra_flags:
+  - kGlow
+  - kMagic
+  - kNodecay
+  material: 9  # кожа
+  values:
+  - '0'
+  - '0'
+  - '0'
+  - '0'
+  weight: 0
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  spec_param: 0
+  max_durability: 150
+  cur_durability: 150
+  timer: 43200
+  spell: -1
+  level: 0
+  sex: kFemale
+
+56:
+  # Object #256
+  names:
+    aliases: доска объявлений
+    nominative: доска объявлений
+    genitive: доски объявлений
+    dative: доске объявлений
+    accusative: доску объявлений
+    instrumental: доской объявлений
+    prepositional: доске объявлений
+  short_desc: Доска для различных заметок и объявлений прибита тут
+  type: kNote
+  extra_flags:
+  - kGlow
+  - kMagic
+  - kNodecay
+  material: 9  # кожа
+  values:
+  - '0'
+  - '0'
+  - '0'
+  - '0'
+  weight: 0
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  spec_param: 0
+  max_durability: 150
+  cur_durability: 150
+  timer: 43200
+  spell: -1
+  level: 0
+  sex: kFemale
+
+57:
+  # Object #257
+  names:
+    aliases: доска сообщений наказания
+    nominative: доска
+    genitive: доски
+    dative: доске
+    accusative: доску
+    instrumental: доской
+    prepositional: доске
+  short_desc: Доска для сообщений об наказаниях вырезанна тут
+  type: kNote
+  extra_flags:
+  - kHum
+  - kMagic
+  - kNodecay
+  material: 9  # кожа
+  values:
+  - '0'
+  - '0'
+  - '0'
+  - '0'
+  weight: 0
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  spec_param: 0
+  max_durability: 150
+  cur_durability: 150
+  timer: 43200
+  spell: -1
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+
+58:
+  # Object #258
+  names:
+    aliases: доска объявлений
+    nominative: доска объявлений
+    genitive: доски объявлений
+    dative: доске объявлений
+    accusative: доску объявлений
+    instrumental: доской объявлений
+    prepositional: доске объявлений
+  short_desc: Доска для различных заметок и объявлений прибита тут
+  type: kNote
+  extra_flags:
+  - kGlow
+  - kMagic
+  - kNodecay
+  material: 9  # кожа
+  values:
+  - '0'
+  - '0'
+  - '0'
+  - '0'
+  weight: 0
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  spec_param: 0
+  max_durability: 150
+  cur_durability: 150
+  timer: 43200
+  spell: -1
+  level: 0
+  sex: kFemale
+
+59:
+  # Object #259
+  names:
+    aliases: доска объявлений
+    nominative: доска объявлений
+    genitive: доски объявлений
+    dative: доске объявлений
+    accusative: доску объявлений
+    instrumental: доской объявлений
+    prepositional: доске объявлений
+  short_desc: Доска для написания сообщений билдеров прибита тут
+  type: kNote
+  extra_flags:
+  - kGlow
+  - kMagic
+  - kNodecay
+  material: 9  # кожа
+  values:
+  - '0'
+  - '0'
+  - '0'
+  - '0'
+  weight: 0
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  spec_param: 0
+  max_durability: 150
+  cur_durability: 150
+  timer: 43200
+  spell: -1
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+
+60:
+  # Object #260
+  names:
+    aliases: доска наказаний
+    nominative: доска наказаний
+    genitive: доски наказаний
+    dative: доске наказаний
+    accusative: доску наказаний
+    instrumental: доской наказаний
+    prepositional: доске наказаний
+  short_desc: Доска наказаний стоит тут
+  type: kNote
+  extra_flags:
+  - kGlow
+  material: 16  # платина
+  values:
+  - '0'
+  - '0'
+  - '0'
+  - '0'
+  weight: 0
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  spec_param: 0
+  max_durability: 150
+  cur_durability: 150
+  timer: 200000
+  spell: 0
+  level: 0
+  sex: kFemale
+
+61:
+  # Object #261
+  names:
+    aliases: колечко янтарное
+    nominative: янтарное колечко
+    genitive: янтарного колечка
+    dative: янтарному колечку
+    accusative: янтарное колечко
+    instrumental: янтарным колечком
+    prepositional: янтарном колечке
+  short_desc: Красивое янтарное колечко сверкает на земле.
+  type: kWorm
+  extra_flags:
+  - kNodecay
+  wear_flags:
+  - kTake
+  - kFinger
+  affect_flags:
+  - kDetectAlign
+  material: 18  # алмаз
+  values:
+  - '0'
+  - '0'
+  - '0'
+  - '0'
+  weight: 1
+  cost: 100
+  rent_off: 10
+  rent_on: 5
+  spec_param: 0
+  max_durability: 25
+  cur_durability: 25
+  timer: 86400
+  spell: 0
+  level: 0
+  sex: kNeutral
+
+62:
+  # Object #262
+  names:
+    aliases: рубль
+    nominative: рубль
+    genitive: рубля
+    dative: рублю
+    accusative: рубль
+    instrumental: рублем
+    prepositional: рубле
+  short_desc: Грязная бумажка валяется в пыли.
+  action_desc: |2+
+
+  type: kTrash
+  wear_flags:
+  - kTake
+  - kWield
+  material: 17  # митрил
+  values:
+  - '0'
+  - '0'
+  - '0'
+  - '0'
+  weight: 0
+  cost: 1
+  rent_off: 0
+  rent_on: 0
+  spec_param: 0
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0
+  level: 0
+  sex: kMale
+
+66:
+  # Object #266
+  names:
+    aliases: красна цепь
+    nominative: красна цепь
+    genitive: красна цепь
+    dative: красна цепь
+    accusative: красна цепь
+    instrumental: красна цепь
+    prepositional: красна цепь
+  short_desc: Длинное описание
+  type: kWorm
+  wear_flags:
+  - kTake
+  - kNeck
+  material: 4  # кристалл
+  values:
+  - '0'
+  - '0'
+  - '0'
+  - '0'
+  weight: 1
+  cost: 10
+  rent_off: 100
+  rent_on: 10
+  spec_param: 0
+  max_durability: 1000
+  cur_durability: 0
+  timer: 90000
+  spell: 0
+  level: 0
+  sex: kNeutral
+  applies:
+  - location: 6  # kCha
+    modifier: 10
+
+67:
+  # Object #267
+  names:
+    aliases: доска объявлений
+    nominative: доска объявлений
+    genitive: доски объявлений
+    dative: доске объявлений
+    accusative: тоску объявлений
+    instrumental: доской объявлений
+    prepositional: доске объявлений
+  short_desc: Доска для записей покачивается в пространстве между колоннами.
+  type: kNote
+  extra_flags:
+  - kGlow
+  - kMagic
+  - kNodecay
+  material: 9  # кожа
+  values:
+  - '0'
+  - '0'
+  - '0'
+  - '0'
+  weight: 0
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  spec_param: 0
+  max_durability: 150
+  cur_durability: 150
+  timer: 9999
+  spell: 0
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+
+68:
+  # Object #268
+  names:
+    aliases: доска объявлений
+    nominative: доска объявлений
+    genitive: доски объявлений
+    dative: доске объявлений
+    accusative: доску объявлений
+    instrumental: доской объявлений
+    prepositional: доске объявлений
+  short_desc: Доска объявлений от Бессмертных стоит здесь.
+  type: kNote
+  extra_flags:
+  - kGlow
+  - kNodecay
+  - kFlying
+  - kNolocate
+  material: 13  # камень
+  values:
+  - '0'
+  - '0'
+  - '0'
+  - '0'
+  weight: 1
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  spec_param: 0
+  max_durability: 9999
+  cur_durability: 9999
+  timer: 999999
+  spell: 0
+  level: 0
+  sex: kFemale
+
+91:
+  # Object #291
+  names:
+    aliases: новый предмет
+    nominative: это что
+    genitive: нету чего
+    dative: привязать к чему
+    accusative: взять что
+    instrumental: вооружиться чем
+    prepositional: говорить о чем
+  short_desc: Что-то новое лежит здесь
+  type: kItemUndefined
+  wear_flags:
+  - kTake
+  material: 0  # бронза
+  values:
+  - '0'
+  - '0'
+  - '0'
+  - '0'
+  weight: 0
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  spec_param: 0
+  max_durability: 0
+  cur_durability: 0
+  timer: 43200
+  spell: 0
+  level: 0
+  sex: kNeutral

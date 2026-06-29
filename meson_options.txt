@@ -27,5 +27,5 @@ option('iconv', type: 'combo', choices: ['auto', 'system', 'builtin', 'disabled'
 option('telegram', type: 'combo', choices: ['auto', 'system', 'builtin', 'disabled'], value: 'disabled', description: 'Enable Telegram integration (requires CURL + OpenSSL)')
 option('boost', type: 'combo', choices: ['auto', 'system', 'builtin', 'disabled'], value: 'disabled', description: 'Enable Boost usage')
 option('sqlite', type: 'combo', choices: ['auto', 'system', 'builtin', 'disabled'], value: 'disabled', description: 'Enable SQLite world data source')
-option('yaml', type: 'combo', choices: ['auto', 'system', 'builtin', 'disabled'], value: 'disabled', description: 'Enable YAML world data source and dictionary loader')
+option('yaml', type: 'combo', choices: ['auto', 'system', 'builtin', 'disabled'], value: 'builtin', description: 'Enable YAML world data source and dictionary loader (default format; lib.template ships YAML)')
 option('otel', type: 'combo', choices: ['auto', 'system', 'builtin', 'disabled'], value: 'disabled', description: 'Enable OpenTelemetry support for tracing and metrics')
