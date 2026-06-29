@@ -85,6 +85,7 @@ bool PushLuaLiveCollectionIpairs(lua_State *state);
 sol::table BuildMudNamespace(sol::state &lua, LuaRuntimeContext *runtime);
 sol::table BuildLuaContext(sol::state &lua, const LuaTriggerContext &source, LuaRuntimeContext runtime);
 void RefreshLuaContext(sol::state &lua, sol::table ctx, const LuaTriggerContext &source, LuaRuntimeContext runtime);
+void InstallLuaContextGlobals(sol::state &lua, sol::environment environment, sol::table ctx);
 int ConvertLuaResult(const sol::protected_function_result &result, LuaRuntimeContext runtime, sol::table ctx, bool call_function);
 
 } // namespace lua_scripting

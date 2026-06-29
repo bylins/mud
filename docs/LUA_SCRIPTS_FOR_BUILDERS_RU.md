@@ -44,6 +44,8 @@ script: |
 
 Lua-триггер должен вернуть функцию `function(ctx) ... end`. Движок вызывает эту функцию и передает в нее `ctx` - контекст с владельцем триггера, актером, объектом и другими данными события.
 
+Поля контекста также доступны как короткие глобальные имена с префиксом `tg`: `tgOwner`, `tgActor`, `tgVictim`, `tgObject`, `tgRoom` и т.п. Это те же live-view значения, что и в `ctx`, поэтому после `mud.wait(...)` они смотрят на обновленный контекст.
+
 Возвращаемое значение:
 
 - `true`, `1` или отсутствие явного результата - триггер считается сработавшим.
@@ -84,6 +86,23 @@ return function(ctx)
   end
 
   if ctx.actor == nil or not ctx.actor:isValid() then
+    return false
+  end
+
+  -- полезная работа
+  return true
+end
+```
+
+Тот же шаблон можно писать короче:
+
+```lua
+return function()
+  if tgOwner == nil or not tgOwner:isValid() then
+    return false
+  end
+
+  if tgActor == nil or not tgActor:isValid() then
     return false
   end
 
@@ -242,6 +261,26 @@ end
 | `ctx.timeDay` | number | Дополнительное поле времени суток. |
 
 Не все поля заполнены во всех типах триггеров. Всегда проверяйте `nil`.
+
+Те же поля можно читать через короткие глобальные имена:
+
+| Имя | Эквивалент |
+| --- | --- |
+| `tgTrigger` | `ctx.trigger` |
+| `tgOwner` | `ctx.owner` |
+| `tgActor` | `ctx.actor` |
+| `tgVictim` | `ctx.victim` |
+| `tgObject` | `ctx.object` |
+| `tgRoom` | `ctx.room` |
+| `tgCommand` | `ctx.command` |
+| `tgArgument` | `ctx.argument` |
+| `tgSpeech` | `ctx.speech` |
+| `tgDirection` | `ctx.direction` |
+| `tgDamageAmount` | `ctx.damageAmount` |
+| `tgDamageType` | `ctx.damageType` |
+| `tgWhere` | `ctx.where` |
+| `tgTime` | `ctx.time` |
+| `tgTimeDay` | `ctx.timeDay` |
 
 ## Глобальный объект `mud`
 

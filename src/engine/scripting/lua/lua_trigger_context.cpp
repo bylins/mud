@@ -43,6 +43,71 @@ int ConvertLuaValue(LuaRuntimeContext runtime, const sol::object &first)
 	return 1;
 }
 
+const char *GetLuaContextGlobalField(const std::string &key)
+{
+	if (key == "tgTrigger")
+	{
+		return "trigger";
+	}
+	if (key == "tgOwner")
+	{
+		return "owner";
+	}
+	if (key == "tgActor")
+	{
+		return "actor";
+	}
+	if (key == "tgVictim")
+	{
+		return "victim";
+	}
+	if (key == "tgObject")
+	{
+		return "object";
+	}
+	if (key == "tgRoom")
+	{
+		return "room";
+	}
+	if (key == "tgCommand")
+	{
+		return "command";
+	}
+	if (key == "tgArgument")
+	{
+		return "argument";
+	}
+	if (key == "tgSpeech")
+	{
+		return "speech";
+	}
+	if (key == "tgDirection")
+	{
+		return "direction";
+	}
+	if (key == "tgDamageAmount")
+	{
+		return "damageAmount";
+	}
+	if (key == "tgDamageType")
+	{
+		return "damageType";
+	}
+	if (key == "tgWhere")
+	{
+		return "where";
+	}
+	if (key == "tgTime")
+	{
+		return "time";
+	}
+	if (key == "tgTimeDay")
+	{
+		return "timeDay";
+	}
+	return nullptr;
+}
+
 } // namespace
 
 sol::table BuildLuaContext(sol::state &lua, const LuaTriggerContext &source, LuaRuntimeContext runtime)
@@ -107,6 +172,20 @@ void RefreshLuaContext(sol::state &lua, sol::table ctx, const LuaTriggerContext 
 	{
 		ctx["room"] = sol::lua_nil;
 	}
+}
+
+void InstallLuaContextGlobals(sol::state &lua, sol::environment environment, sol::table ctx)
+{
+	sol::table metatable = lua.create_table();
+	metatable[sol::meta_function::index] = [&lua, ctx](sol::object, const std::string &key) -> sol::object {
+		const char *field = GetLuaContextGlobalField(key);
+		if (field)
+		{
+			return ctx[field];
+		}
+		return lua.globals()[key];
+	};
+	environment[sol::metatable_key] = metatable;
 }
 
 int ConvertLuaResult(const sol::protected_function_result &result, LuaRuntimeContext runtime, sol::table ctx, bool call_function)

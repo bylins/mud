@@ -454,10 +454,7 @@ void LuaWaitTriggerObserver::notify(Trigger *)
 int StartCoroutine(const std::shared_ptr<LuaWaitState> &state)
 {
 	auto &lua = LuaVm();
-	sol::table lua_ctx = BuildLuaContext(lua, state->ctx, state->runtime);
 	lua_State *main_state = lua.lua_state();
-	lua_ctx.push();
-	state->ctx_ref = luaL_ref(main_state, LUA_REGISTRYINDEX);
 	state->thread = lua_newthread(main_state);
 	state->thread_ref = luaL_ref(main_state, LUA_REGISTRYINDEX);
 	lua_rawgeti(main_state, LUA_REGISTRYINDEX, state->entrypoint_ref);
@@ -539,9 +536,10 @@ int LuaScriptEngine::RunTrigger(Trigger *trigger, const LuaTriggerContext &ctx)
 	state->runtime.wait_state = state.get();
 	GET_TRIG_DEPTH(trigger) = 1;
 
-	sol::environment environment(lua, sol::create, lua.globals());
-	environment["mud"] = BuildMudNamespace(lua, &state->runtime);
 	sol::table lua_ctx = BuildLuaContext(lua, ctx, state->runtime);
+	sol::environment environment(lua, sol::create, lua.globals());
+	InstallLuaContextGlobals(lua, environment, lua_ctx);
+	environment["mud"] = BuildMudNamespace(lua, &state->runtime);
 	LuaExecutionBudget budget;
 	InstallLuaRuntimeLimits(lua, budget);
 	const sol::load_result load_result = lua.load(trigger->get_lua_script_source());
@@ -589,6 +587,8 @@ int LuaScriptEngine::RunTrigger(Trigger *trigger, const LuaTriggerContext &ctx)
 	}
 	first.push();
 	state->entrypoint_ref = luaL_ref(lua.lua_state(), LUA_REGISTRYINDEX);
+	lua_ctx.push();
+	state->ctx_ref = luaL_ref(lua.lua_state(), LUA_REGISTRYINDEX);
 
 	LuaWaitRegistry::Instance().Add(state);
 	const auto result = StartCoroutine(state);
