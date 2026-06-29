@@ -106,6 +106,10 @@
 		<message type="kTriggerOnPickToRoom" val="$n0 задел$g огненную ловушку, вскрывая замок!"/>
 		<message type="kTriggerOnUnlockToChar" val="Отпирая замок, вы задели огненную ловушку!"/>
 		<message type="kTriggerOnUnlockToRoom" val="$n0 задел$g огненную ловушку, отпирая замок!"/>
+		<message type="kTriggerOnCloseToChar" val="Закрывая дверь, вы задели огненную ловушку!"/>
+		<message type="kTriggerOnCloseToRoom" val="$n0 задел$g огненную ловушку, закрывая дверь!"/>
+		<message type="kTriggerOnLockToChar" val="Запирая замок, вы задели огненную ловушку!"/>
+		<message type="kTriggerOnLockToRoom" val="$n0 задел$g огненную ловушку, запирая замок!"/>
 		<message type="kTriggerNoEffect" val="Яркая вспышка на мгновение озарила комнату и тут же погасла."/>
 		<message type="kRoomAffectInvisible" val="Проход тускло мерцает багровым - кто-то заговорил его огненной ловушкой."/>
 		<message type="kRoomAffectSelfInvisible" val="Ваша огненная ловушка тускло мерцает на проходе багровым светом."/>

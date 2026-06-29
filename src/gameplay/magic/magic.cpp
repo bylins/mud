@@ -3413,6 +3413,14 @@ static int CastRoomEntryAction(CharData *caster, RoomData *room, CharData *actor
 			char_key = ERoomAffectMsgType::kTriggerOnUnlockToChar;
 			room_key = ERoomAffectMsgType::kTriggerOnUnlockToRoom;
 			break;
+		case talents_actions::EActionTrigger::kClose:
+			char_key = ERoomAffectMsgType::kTriggerOnCloseToChar;
+			room_key = ERoomAffectMsgType::kTriggerOnCloseToRoom;
+			break;
+		case talents_actions::EActionTrigger::kLock:
+			char_key = ERoomAffectMsgType::kTriggerOnLockToChar;
+			room_key = ERoomAffectMsgType::kTriggerOnLockToRoom;
+			break;
 		default:  // kEnter family (move-through) and pulse
 			break;
 	}

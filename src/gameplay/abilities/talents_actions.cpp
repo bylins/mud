@@ -88,6 +88,8 @@ const std::map<std::string, EActionTrigger> kActionTriggerByName{
 	{"kPick", EActionTrigger::kPick},
 	{"kUnlock", EActionTrigger::kUnlock},
 	{"kOpen", EActionTrigger::kOpen},
+	{"kClose", EActionTrigger::kClose},
+	{"kLock", EActionTrigger::kLock},
 };
 
 // issue.room-affect-trigger-improve: <action target=...> token -> EActionTarget, replacing a

@@ -307,6 +307,11 @@ void do_doorcmd(CharData *ch, ObjData *obj, int door, EDoorScmd scmd) {
 				return;
 			if (scmd == kScmdClose && !obj && back && !close_wtrigger(world[other_room], ch, rev_dir[door], false))
 				return;
+			// issue.room-affect-trigger-improve (door affects): an affect may react to closing the door
+			// and refuse it via <trigger val="kClose" return="0">.
+			if (scmd == kScmdClose && !obj
+				&& !room_spells::RunDoorTriggers(ch, world[ch->in_room], door, talents_actions::EActionTrigger::kClose))
+				return;
 			OPEN_DOOR(ch->in_room, obj, door);
 			if (back) {
 				OPEN_DOOR(other_room, obj, rev_dir[door]);
@@ -344,6 +349,10 @@ void do_doorcmd(CharData *ch, ObjData *obj, int door, EDoorScmd scmd) {
 			// refuse it via <trigger val="kUnlock" return="0">.
 			if (scmd == kScmdUnlock && !obj
 				&& !room_spells::RunDoorTriggers(ch, world[ch->in_room], door, talents_actions::EActionTrigger::kUnlock))
+				return;
+			// ... and likewise to locking it, via <trigger val="kLock" return="0">.
+			if (scmd == kScmdLock && !obj
+				&& !room_spells::RunDoorTriggers(ch, world[ch->in_room], door, talents_actions::EActionTrigger::kLock))
 				return;
 			LOCK_DOOR(ch->in_room, obj, door);
 			if (back)

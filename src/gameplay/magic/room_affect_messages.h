@@ -41,6 +41,10 @@ enum class ERoomAffectMsgType {
 	kTriggerOnPickToRoom,       // ... to onlookers
 	kTriggerOnUnlockToChar,     // kUnlock (unlocked the door): to the actor
 	kTriggerOnUnlockToRoom,     // ... to onlookers
+	kTriggerOnCloseToChar,      // kClose (closed the door): to the actor
+	kTriggerOnCloseToRoom,      // ... to onlookers
+	kTriggerOnLockToChar,       // kLock (locked the door): to the actor
+	kTriggerOnLockToRoom,       // ... to onlookers
 	// issue.room-affect-trigger-improve: shown room-wide when a trigger fired but its effect produced no
 	// visible result (e.g. a violent side_spell suppressed by a peaceful room, or a refused cast) -- so a
 	// triggered trap never reads as a silent no-op. Impersonal (no $-codes); sent to the whole room.

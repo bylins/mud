@@ -66,10 +66,12 @@ enum class EActionTrigger {
 	kEnterPC,      // ... only when a PC enters (mirrors DGScript WTRIG_ENTER / WTRIG_ENTER_PC)
 	kEnterNPC,     // ... only when an NPC enters (e.g. kForbidden seals a room against mobs, not players)
 	// issue.room-affect-trigger-improve (door affects): fired by the door commands on the room/exit
-	// affect when someone picks / unlocks / opens a door. return=0 refuses the action (door stays shut).
+	// affect when someone picks / unlocks / opens / closes / locks a door. return=0 refuses the action.
 	kPick,
 	kUnlock,
 	kOpen,
+	kClose,
+	kLock,
 	kCount
 };
 
