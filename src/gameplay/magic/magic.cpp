@@ -37,6 +37,7 @@
 
 #include "gameplay/affects/affect_data.h"
 #include "gameplay/affects/affect_messages.h"
+#include "gameplay/mechanics/poison.h"   // issue.character-affect-triggers: PoisonDot reuses ProcessPoisonDmg
 #include "engine/db/world_characters.h"
 #include "gameplay/mechanics/corpse.h"
 #include "gameplay/fight/fight.h"
@@ -2536,6 +2537,25 @@ EStageResult CastCreationAction(CastContext &ctx) {
 
 // Dispatch for spells whose effect is a hand-coded handler in spells.cpp (the kMagManual flag).
 // Some handlers take only (caster, cvict) and ignore the unused `level` / `ovict` arguments.
+// issue.character-affect-triggers: the poison DoT as a data-driven tick action. Reuses ProcessPoisonDmg
+// for EXACT parity (its location-gate + GET_POISON formula + author + death handling). GET_POISON is the
+// bearer's total, so one call per tick suffices regardless of how many poison applies are stacked.
+static EStageResult PoisonDot(CastContext &ctx) {
+	CharData *ch = ctx.caster();
+	if (!ch) {
+		return EStageResult::kSuccess;
+	}
+	for (const auto &af : ch->affected) {
+		if (af && af->location == EApply::kPoison) {
+			if (ProcessPoisonDmg(ch, af) == -1) {
+				return EStageResult::kBreak;   // bearer died/purged
+			}
+			break;
+		}
+	}
+	return EStageResult::kSuccess;
+}
+
 // name -> hand-coded handler. The <manual_cast><handler val="..."/> on an
 // action selects one by name (which matches the function name), replacing the old spell_id
 // switch. std::function so future Lua/closure handlers can register the same way.
@@ -2561,6 +2581,8 @@ static const std::map<std::string, std::function<EStageResult(CastContext &)>> k
 	{"SpellResurrection",   SpellResurrection},
 	// issue.affect-migration: room-affect per-tick manual handler (was the room_affects tick_handler).
 	{"HandleThunderstormTick", handlers::HandleThunderstormTick},
+	// issue.character-affect-triggers: char-affect poison DoT (the kPoisoned pulse action).
+	{"PoisonDot", PoisonDot},
 };
 
 // load-time validation hook (called from SpellInfoBuilder).

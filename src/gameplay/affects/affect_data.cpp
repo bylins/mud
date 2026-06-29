@@ -1,5 +1,6 @@
 #include "affect_data.h"
 #include "gameplay/affects/affect_messages.h"
+#include <set>   // issue.character-affect-triggers: per-round dedup of multi-instance affects
 #include "administration/privilege.h"
 #include "gameplay/affects/affect_handler.h"
 #include "gameplay/mechanics/condition.h"
@@ -405,6 +406,10 @@ void player_affect_update() {
 // This file update battle affects only
 void battle_affect_update(CharData *ch) {
 	bool need_recalc = false;
+	// issue.character-affect-triggers: a data-driven combat-DoT affect ticks once per affect TYPE per
+	// round, even if it has several stacked applies (e.g. poison's kPoison + kStr) -- mirrors how the
+	// hardcoded ProcessPoisonDmg damages once (its location gate).
+	std::set<EAffect> ticked_types;
 	if (ch->purged()) {
 		char tmpbuf[256];
 		sprintf(tmpbuf,"WARNING: battle_affect_update ch purged. Name %s vnum %d", GET_NAME(ch), GET_MOB_VNUM(ch));
@@ -422,7 +427,11 @@ void battle_affect_update(CharData *ch) {
 			++affect_i;
 			continue;
 		}
-		if (ch->IsNpc() && (*affect_i)->location == EApply::kPoison) {
+		// issue.character-affect-triggers: legacy NPC poison is still deferred to the slow mob loop, BUT a
+		// poison affect migrated to the data-driven <actions> mechanism is NOT skipped here -- it ticks per
+		// combat round like a player's (fixing the "mob combat DoT is too slow" problem).
+		if (ch->IsNpc() && (*affect_i)->location == EApply::kPoison
+				&& affects::AffectActions((*affect_i)->affect_type).list().empty()) {
 			++affect_i;
 			continue;
 		}
@@ -442,7 +451,13 @@ void battle_affect_update(CharData *ch) {
 		} else {
 			if (affect->duration > 0) {
 				if (IS_SET(affect->battleflag, kAfSameTime)) {
-					if (ProcessPoisonDmg(ch, affect) == -1) {// жертва умерла
+					if (!affects::AffectActions(affect->affect_type).list().empty()) {
+						// issue.character-affect-triggers: data-driven combat DoT -- run the affect's
+						// pulse/battle-pulse <actions> on the bearer (once per type this round).
+						if (ticked_types.insert(affect->affect_type).second) {
+							RunCharAffectTick(ch, affect);
+						}
+					} else if (ProcessPoisonDmg(ch, affect) == -1) {// жертва умерла
 						return;
 					}
 					if (ch->purged()) {
@@ -524,8 +539,14 @@ void mobile_affect_update() {
 				need_recalc = true;
 			} else {
 				if (affect->duration > 0) {
+					// issue.character-affect-triggers: a poison MIGRATED to the data-driven mechanism (has
+					// <actions>) ticks per combat round in battle_affect_update, so the slow mob loop no
+					// longer DoTs it while it's fighting (avoids double). Legacy poison (no actions) keeps
+					// its old behaviour -- slow-ticked even in combat.
 					if (IS_SET(affect->battleflag, kAfSameTime)
-						&& (!ch->GetEnemy() || affect->location == EApply::kPoison)) {
+						&& (!ch->GetEnemy()
+							|| (affect->location == EApply::kPoison
+								&& affects::AffectActions(affect->affect_type).list().empty()))) {
 						utils::CExecutionTimer poison_timer;
 						++profile.counters[static_cast<std::size_t>(Counter::kPoisonCalls)];
 						// здесь плеера могут спуржить

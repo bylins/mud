@@ -51,6 +51,12 @@
 	</affect>
 	<affect id="kPoisoned" buff="N">
 		<flags val="kAfSameTime|kAfDispellable|kAfCurable|kAfPoison"/>
+		<actions>
+			<action>
+				<trigger val="kBattlePulse"/>
+				<manual_cast handler="PoisonDot"/>
+			</action>
+		</actions>
 	</affect>
 	<affect id="kProtectFromDark" buff="Y">
 		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
