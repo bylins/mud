@@ -1789,34 +1789,37 @@ void SqliteWorldDataSource::LoadMobFeats()
 
 void SqliteWorldDataSource::LoadMobSpells()
 {
-	const char *sql = "SELECT mob_vnum, spell_id FROM mob_spells";
-	
+	const char *sql = "SELECT mob_vnum, spell_id, count FROM mob_spells";
+
 	sqlite3_stmt *stmt;
 	if (sqlite3_prepare_v2(m_db, sql, -1, &stmt, nullptr) != SQLITE_OK)
 	{
 		return;
 	}
-	
+
 	// Build vnum to rnum map
 	std::map<int, int> vnum_to_rnum;
 	for (MobRnum i = 0; i <= top_of_mobt; i++)
 	{
 		vnum_to_rnum[mob_index[i].vnum] = i;
 	}
-	
+
 	int spells_set = 0;
 	while (sqlite3_step(stmt) == SQLITE_ROW)
 	{
 		int mob_vnum = sqlite3_column_int(stmt, 0);
 		int spell_id = sqlite3_column_int(stmt, 1);
-		
+		int count = sqlite3_column_int(stmt, 2);
+
 		auto it = vnum_to_rnum.find(mob_vnum);
 		if (it == vnum_to_rnum.end()) continue;
-		
+
 		CharData &mob = mob_proto[it->second];
-		if (spell_id >= 0 && spell_id < static_cast<int>(mob.real_abils.SplKnw.size()))
+		if (spell_id >= 0 && spell_id < static_cast<int>(mob.real_abils.SplMem.size()))
 		{
-			mob.real_abils.SplKnw[spell_id] = 1;  // Mark spell as known
+			// SplMem holds the memorised count; a known spell implies SplKnw too.
+			mob.real_abils.SplMem[spell_id] = count > 0 ? count : 1;
+			mob.real_abils.SplKnw[spell_id] = 1;
 			spells_set++;
 		}
 	}
@@ -2946,6 +2949,7 @@ void SqliteWorldDataSource::SaveMobRecord(int mob_vnum, CharData &mob)
 	const std::string mvd = std::to_string(mob_vnum);
 	ExecuteStatement("DELETE FROM mobs WHERE vnum = " + mvd, "delete mob");
 	ExecuteStatement("DELETE FROM mob_flags WHERE mob_vnum = " + mvd, "del mob_flags");
+	ExecuteStatement("DELETE FROM mob_spells WHERE mob_vnum = " + mvd, "del mob_spells");
 	ExecuteStatement("DELETE FROM entity_triggers WHERE entity_type = 'mob' AND entity_vnum = " + mvd, "del mob trigs");
 
 	// Insert mob main record
@@ -3179,16 +3183,20 @@ void SqliteWorldDataSource::SaveMobRecord(int mob_vnum, CharData &mob)
 		}
 	}
 
-	// Save mob spells
-	const char *spell_sql = "INSERT INTO mob_spells (mob_vnum, spell_id) VALUES (?, ?)";
-	for (size_t spell_id = 0; spell_id < mob.real_abils.SplKnw.size(); ++spell_id)
+	// Save mob spells. The canonical per-mob spell data is the memorised-count
+	// array SplMem (this is what the checksum and the YAML backend serialise);
+	// the previous code wrote presence from SplKnw and dropped the count.
+	const char *spell_sql = "INSERT INTO mob_spells (mob_vnum, spell_id, count) VALUES (?, ?, ?)";
+	for (size_t spell_id = 0; spell_id < mob.real_abils.SplMem.size(); ++spell_id)
 	{
-		if (mob.real_abils.SplKnw[spell_id] > 0)
+		int mem = mob.real_abils.SplMem[spell_id];
+		if (mem > 0)
 		{
 			if (sqlite3_prepare_v2(m_db, spell_sql, -1, &stmt, nullptr) == SQLITE_OK)
 			{
 				sqlite3_bind_int(stmt, 1, mob_vnum);
 				sqlite3_bind_int(stmt, 2, spell_id);
+				sqlite3_bind_int(stmt, 3, mem);
 				sqlite3_step(stmt);
 				sqlite3_finalize(stmt);
 			}
