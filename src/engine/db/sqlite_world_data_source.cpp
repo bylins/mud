@@ -2707,8 +2707,9 @@ void SqliteWorldDataSource::SaveRoomRecord(RoomData *room)
 	int zone_vnum = room->vnum / 100;  // Integer division gives zone vnum
 
 	// Delete existing room data (CASCADE will handle related tables)
-	std::string delete_sql = "DELETE FROM rooms WHERE vnum = " + std::to_string(room_vnum);
-	ExecuteStatement(delete_sql, "delete room");
+	const std::string rvd = std::to_string(room_vnum);
+	ExecuteStatement("DELETE FROM rooms WHERE vnum = " + rvd, "delete room");
+	ExecuteStatement("DELETE FROM room_exits WHERE room_vnum = " + rvd, "del room_exits");
 
 	// Insert room record
 	sqlite3_stmt *stmt = nullptr;
@@ -2748,7 +2749,7 @@ void SqliteWorldDataSource::SaveRoomRecord(RoomData *room)
 
 	for (int dir = 0; dir < EDirection::kMaxDirNum; ++dir)
 	{
-		if (!room->dir_option[dir])
+		if (!room->dir_option_proto[dir])
 		{
 			continue;
 		}
@@ -2758,18 +2759,18 @@ void SqliteWorldDataSource::SaveRoomRecord(RoomData *room)
 			sqlite3_bind_int(stmt, 1, room_vnum);
 			sqlite3_bind_int(stmt, 2, dir);
 			
-			if (!room->dir_option[dir]->general_description.empty())
+			if (!room->dir_option_proto[dir]->general_description.empty())
 			{
-				BindTextKoi(stmt, 3, room->dir_option[dir]->general_description.c_str());
+				BindTextKoi(stmt, 3, room->dir_option_proto[dir]->general_description.c_str());
 			}
 			else
 			{
 				sqlite3_bind_null(stmt, 3);
 			}
 
-			if (room->dir_option[dir]->keyword)
+			if (room->dir_option_proto[dir]->keyword)
 			{
-				BindTextKoi(stmt, 4, room->dir_option[dir]->keyword);
+				BindTextKoi(stmt, 4, room->dir_option_proto[dir]->keyword);
 			}
 			else
 			{
@@ -2777,7 +2778,7 @@ void SqliteWorldDataSource::SaveRoomRecord(RoomData *room)
 			}
 
 			// Save exit flags as string (numeric value)
-			std::string exit_flags_str = std::to_string(room->dir_option[dir]->exit_info);
+			std::string exit_flags_str = std::to_string(room->dir_option_proto[dir]->exit_info);
 			if (!exit_flags_str.empty() && exit_flags_str != "0")
 			{
 				BindTextKoi(stmt, 5, exit_flags_str.c_str());
@@ -2787,9 +2788,9 @@ void SqliteWorldDataSource::SaveRoomRecord(RoomData *room)
 				sqlite3_bind_null(stmt, 5);
 			}
 
-			sqlite3_bind_int(stmt, 6, room->dir_option[dir]->key);
-			sqlite3_bind_int(stmt, 7, room->dir_option[dir]->to_room() != kNowhere ? world[room->dir_option[dir]->to_room()]->vnum : -1);
-			sqlite3_bind_int(stmt, 8, room->dir_option[dir]->lock_complexity);
+			sqlite3_bind_int(stmt, 6, room->dir_option_proto[dir]->key);
+			sqlite3_bind_int(stmt, 7, room->dir_option_proto[dir]->to_room() != kNowhere ? world[room->dir_option_proto[dir]->to_room()]->vnum : -1);
+			sqlite3_bind_int(stmt, 8, room->dir_option_proto[dir]->lock_complexity);
 
 			sqlite3_step(stmt);
 			sqlite3_finalize(stmt);
