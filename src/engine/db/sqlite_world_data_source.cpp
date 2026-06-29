@@ -3016,8 +3016,12 @@ void SqliteWorldDataSource::SaveMobRecord(int mob_vnum, CharData &mob)
 	sqlite3_bind_int(stmt, col++, mob.mob_specials.extra_attack);
 	sqlite3_bind_int(stmt, col++, mob.get_remort());
 	
-	// special_bitvector (FlagData as TEXT)
+	// special_bitvector (FlagData as TEXT). FlagData::tascii APPENDS (it does
+	// strlen(buf) first), so the buffer MUST start as an empty string -- otherwise
+	// it serialises uninitialised stack garbage ahead of the flags. The YAML
+	// backend does the same init.
 	char special_buf[kMaxStringLength];
+	special_buf[0] = '\0';
 	mob.mob_specials.npc_flags.tascii(FlagData::kPlanesNumber, special_buf, sizeof(special_buf));
 	if (special_buf[0] != '0' || special_buf[1] != 'a')
 	{
