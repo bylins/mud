@@ -3555,14 +3555,15 @@ bool room_spells::RunDoorTriggers(CharData *actor, RoomData *room, int dir, tale
 // from `caster` (`развеять магию <dir>`). Reverse-resolved -- a trap cast from either side is reachable.
 // Mirrors the room dispel's access model: the affect's author or a live ally strips it for free; an
 // outsider must out-potency it (5% lucky override); a player vs a live author commits a PK act.
-ECastResult room_spells::DispelExitAffects(CharData *caster, int dir, ESpell spell_id) {
+// Returns true if any affect was dispelled. Validation + the overall no-effect line belong to the
+// caller (CallMagicToExit); this just runs the contest over the passage's (reverse-resolved) affects.
+bool room_spells::DispelExitAffects(CharData *caster, int dir, ESpell spell_id) {
 	if (!caster || caster->in_room == kNowhere || dir < 0 || dir >= EDirection::kMaxDirNum) {
-		return ECastResult::kNotCast;
+		return false;
 	}
 	const auto near_exit = world[caster->in_room]->dir_option[dir];
 	if (!near_exit) {
-		SendMsgToChar("В этом направлении нет прохода.\r\n", caster);
-		return ECastResult::kNotCast;
+		return false;
 	}
 	std::vector<RoomData::exit_data_ptr> hosts{near_exit};
 	if (near_exit->to_room() != kNowhere) {
@@ -3604,12 +3605,7 @@ ECastResult room_spells::DispelExitAffects(CharData *caster, int dir, ESpell spe
 			any = true;
 		}
 	}
-	if (!any) {
-		// Nothing dispellable here (or every contest lost) -- the spell's own "no effect" line.
-		const auto &m = MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect);
-		SendMsgToChar((m.empty() ? "Ничего не произошло." : m) + "\r\n", caster);
-	}
-	return any ? ECastResult::kSuccess : ECastResult::kNotCast;
+	return any;
 }
 
 // cast `spell_id` as an area attack on every foe in the caster's room,

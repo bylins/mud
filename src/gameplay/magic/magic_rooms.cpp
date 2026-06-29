@@ -1110,34 +1110,55 @@ ECastResult CallMagicToExit(CharData *ch, int dir, CastContext roll) {
 	if (ProcessMatComponents(ch, ch, spell_id) == EStageResult::kBreak) {
 		return ECastResult::kNotCast;
 	}
-	if (!roll.action_or_default().Contains(talents_actions::EAction::kAffect)) {
+	// A direction cast runs ONLY the passage-meaningful stages of the spell -- impose an affect on the
+	// door and/or dispel affects already on it. Char-targeted stages (damage / points / summon / ...) are
+	// intentionally skipped: they are pointless on a passage. This is the general mechanism -- the spell
+	// just declares <targets ...kTarDirection> and carries <affects>/<unaffect>; no per-spell id check.
+	const auto &action = roll.action_or_default();
+	bool did = false;
+
+	// Dispel stage: strip dispellable affects on the passage. This is how `развеять магию <dir>` works
+	// (kDispellMagic's <unaffect> block) -- it is no longer a kDispellMagic special-case in CallMagic.
+	if (action.Contains(talents_actions::EAction::kUnaffect)) {
+		if (DispelExitAffects(ch, dir, spell_id)) { did = true; }
+	}
+
+	// Affect-impose stage: build the affect from the spell's <affects> block (same fields CastRoomAffect
+	// fills on af[0]) and host it on the exit.
+	if (action.Contains(talents_actions::EAction::kAffect)) {
+		const auto &talent = action.GetAffect();
+		Affect<ERoomApply> af;
+		af.affect_type = talent.GetRoomAffect();
+		af.caster_id = ch->get_uid();
+		af.location = kNone;
+		af.battleflag = RoomAffectFlagsByType(af.affect_type);
+		const ESkill dur_skill = MUD::Spell(spell_id).GetPotencyRoll().GetBaseSkill();
+		int skill_bonus = (talent.GetDurationSkillDivisor() > 0 && dur_skill != ESkill::kUndefined)
+			? CalcNoviceSkillBonus(ch, dur_skill, talent.GetDurationSkillDivisor()) : 0;
+		if (talent.GetDurationMin() > 0) skill_bonus = std::max(skill_bonus, talent.GetDurationMin());
+		if (talent.GetDurationMax() > 0) skill_bonus = std::min(skill_bonus, talent.GetDurationMax());
+		af.duration = talent.GetDurationBase() + static_cast<unsigned>(skill_bonus);
+		af.potency = CalcCastPotency(roll.potency()) * talent.GetPotencyWeight();
+		af.charges = talent.GetChargesMax();   // trigger charges (-1 = unlimited)
+		if (RoomAffectHasSeal(af.affect_type)) {
+			af.modifier = ComputeApplyModifier(RoomAffectSeal(af.affect_type), roll.CompetenceBase(), roll.potency());
+		}
+		affect_to_exit(exit, af);
+		AddExitToAffected(world[ch->in_room], dir);   // register for the timer tick (UpdateExitsAffects)
+		const auto &to_char = RoomAffectMsg(af.affect_type, ERoomAffectMsgType::kAffImposedToChar);
+		if (!to_char.empty()) { act(to_char.c_str(), false, ch, nullptr, nullptr, kToChar); }
+		const auto &to_room = RoomAffectMsg(af.affect_type, ERoomAffectMsgType::kAffImposedToRoom);
+		if (!to_room.empty()) { act(to_room.c_str(), false, ch, nullptr, nullptr, kToRoom | kToArenaListen); }
+		did = true;
+	}
+
+	if (!did) {
+		// No passage-meaningful stage (a pure damage / heal / summon spell) -- nothing happens on a
+		// doorway. The spell's own no-effect line says so.
+		const auto &m = MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect);
+		SendMsgToChar((m.empty() ? "Это бессмысленно проделывать с проходом." : m) + "\r\n", ch);
 		return ECastResult::kNotCast;
 	}
-	// Build the affect from the spell's <affects> block (same fields CastRoomAffect fills on af[0]).
-	const auto &talent = roll.action_or_default().GetAffect();
-	Affect<ERoomApply> af;
-	af.affect_type = talent.GetRoomAffect();
-	af.caster_id = ch->get_uid();
-	af.location = kNone;
-	af.battleflag = RoomAffectFlagsByType(af.affect_type);
-	const ESkill dur_skill = MUD::Spell(spell_id).GetPotencyRoll().GetBaseSkill();
-	int skill_bonus = (talent.GetDurationSkillDivisor() > 0 && dur_skill != ESkill::kUndefined)
-		? CalcNoviceSkillBonus(ch, dur_skill, talent.GetDurationSkillDivisor()) : 0;
-	if (talent.GetDurationMin() > 0) skill_bonus = std::max(skill_bonus, talent.GetDurationMin());
-	if (talent.GetDurationMax() > 0) skill_bonus = std::min(skill_bonus, talent.GetDurationMax());
-	af.duration = talent.GetDurationBase() + static_cast<unsigned>(skill_bonus);
-	af.potency = CalcCastPotency(roll.potency()) * talent.GetPotencyWeight();
-	af.charges = talent.GetChargesMax();   // issue.room-affect-trigger-improve: trigger charges (-1 = unlimited)
-	if (RoomAffectHasSeal(af.affect_type)) {
-		af.modifier = ComputeApplyModifier(RoomAffectSeal(af.affect_type), roll.CompetenceBase(), roll.potency());
-	}
-	affect_to_exit(exit, af);
-	AddExitToAffected(world[ch->in_room], dir);   // register for the timer tick (UpdateExitsAffects)
-	// Impose narration from the affect's own sheaf (kAffImposedTo{Char,Room}).
-	const auto &to_char = RoomAffectMsg(af.affect_type, ERoomAffectMsgType::kAffImposedToChar);
-	if (!to_char.empty()) { act(to_char.c_str(), false, ch, nullptr, nullptr, kToChar); }
-	const auto &to_room = RoomAffectMsg(af.affect_type, ERoomAffectMsgType::kAffImposedToRoom);
-	if (!to_room.empty()) { act(to_room.c_str(), false, ch, nullptr, nullptr, kToRoom | kToArenaListen); }
 	return ECastResult::kSuccess;
 }
 

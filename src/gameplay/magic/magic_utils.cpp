@@ -497,6 +497,18 @@ ECastResult CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomDat
 	ctx.ovict = ovict;
 	ctx.rvict = rvict;
 
+	// issue.room-affect-trigger-improve: a cast aimed at a DIRECTION targets that passage/exit -- general,
+	// not tied to any spell id. CallMagicToExit runs only the passage-meaningful stages of the spell
+	// (impose an affect on the door, dispel affects already there); char-targeted stages (damage / heal /
+	// summon / ...) are pointless on a doorway and are silently skipped. So `развеять магию <dir>`,
+	// `огненная ловушка <dir>`, etc. all flow through here without per-spell branching.
+	if (dir >= 0) {
+		profiler.next_step("exit");
+		CastContext exit_ctx = ctx;
+		exit_ctx.level = abs(level);
+		return room_spells::CallMagicToExit(caster, dir, exit_ctx);
+	}
+
 	if (MUD::Spell(spell_id).IsFlagged(kMagAreas) || MUD::Spell(spell_id).IsFlagged(kMagMasses)) {
 		profiler.next_step("area");
 		ctx.level = abs(level);
@@ -512,21 +524,9 @@ ECastResult CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomDat
 		profiler.next_step("room");
 		CastContext room_ctx = ctx;
 		room_ctx.level = abs(level);
-		// issue.room-affect-trigger-improve: a kTarDirection cast (dir>=0) hosts the affect on the
-		// exit/door in that direction instead of the room.
-		if (dir >= 0) {
-			return room_spells::CallMagicToExit(caster, dir, room_ctx);
-		}
 		return room_spells::CallMagicToRoom(caster, rvict, room_ctx);
 	}
 
-	// issue.room-affect-trigger-improve (door affects): dispel magic cast in a direction strips affects
-	// on that passage (reverse-resolved). Checked before the no-target room dispel since a direction cast
-	// also has no char/obj target.
-	if (spell_id == ESpell::kDispellMagic && dir >= 0) {
-		profiler.next_step("dir-dispel");
-		return room_spells::DispelExitAffects(caster, dir, spell_id);
-	}
 	// issue.dispellbug: dispel magic cast with no character/object target dispels the
 	// caster's current room (room wards like kForbidden) via CastUnaffects' room branch
 	// (author/ally + strength contest). Bypasses CallMagicToRoom so the ward itself

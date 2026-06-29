@@ -107,8 +107,9 @@ enum class EEntryTriggerPhase { kBlockCheck, kEffectsNonBlocking, kEffectsAll };
 // registry entry. Call when an exit is rebuilt/torn down (redit, dungeon reuse, DGScript wexit).
 void ClearExitAffects(RoomData *room, int dir);
 // issue.room-affect-trigger-improve (door affects): dispel dispellable affects on exit `dir` from
-// `caster` (развеять магию <dir>). Reverse-resolved + author/ally/strength-contest like the room dispel.
-ECastResult DispelExitAffects(CharData *caster, int dir, ESpell spell_id);
+// `caster` (the <unaffect> stage of a kTarDirection cast). Reverse-resolved + author/ally/strength
+// contest like the room dispel. Returns true if anything was dispelled (caller owns messaging).
+bool DispelExitAffects(CharData *caster, int dir, ESpell spell_id);
 
 // Walks room->affected for a kPortalTimer affect with pk_unique != 0 and
 // pk_unique != exclude_uid; returns the matching pk_unique, or 0 if none.
