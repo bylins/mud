@@ -1,25 +1,18 @@
 #!/usr/bin/env python3
 """
-Entrypoint для образа циркуля (combined-стек circle + web-admin).
+Форсирование configuration.xml смонтированного мира под combined-стек
+(circle + web-admin): admin_api=on (сокет в run/), telemetry=on (otel-only).
 
-По умолчанию форсирует в configuration.xml смонтированного мира то, что нужно
-для турнкей-запуска:
-  - admin_api: enabled=true, socket_path в выделенном каталоге (run/admin_api.sock);
-  - telemetry: enabled=true, logs mode=otel-only.
+Вызывается из docker-entrypoint.sh ТОЛЬКО при FORCE_CONFIG=on. Сам циркуль
+здесь не запускается — этим занимается entrypoint после дропа привилегий.
 
-OTLP-endpoint по умолчанию НЕ трогаем — он берётся из конфига мира как есть.
-Циркуль запущен с network_mode=host, поэтому localhost:<порт> из конфига бьёт
-прямо в локальный приёмник этого сервера. На agent-хостах локальный приём сидит
-на стандартном порту (4318), и конфиг мира уже верен. Исключение — gateway-хост:
-там стандартный 4318 занят ВНЕШНИМ TLS-приёмником, а локальный plaintext-приём —
-на 4319. Чтобы один и тот же образ работал на обоих, на gateway-хосте задают
-OTEL_LOCAL_PORT (=4319), и entrypoint переписывает порт OTLP-endpoint'ов под него.
-Без этой переменной поведение прежнее.
+OTLP-endpoint НЕ трогаем — берётся из конфига мира как есть (при network_mode=host
+localhost:<порт> бьёт в коллектор этого сервера).
 
-Форсирование отключается переменной FORCE_CONFIG=0 (тогда берётся конфиг мира как есть).
-
-Правки делаются на уровне байт (latin-1), чтобы не трогать KOI8-R и сохранить
+Правки делаются побайтово (latin-1), чтобы не трогать KOI8-R и сохранить
 комментарии. Оригинал один раз сохраняется в configuration.xml.orig.
+
+Usage: configure_world.py <world_dir> [socket_rel]
 """
 import os
 import re
@@ -27,18 +20,11 @@ import sys
 
 
 def log(msg):
-    print(f"[entrypoint] {msg}", flush=True)
-
-
-def env_bool(name, default):
-    val = os.environ.get(name)
-    if val is None:
-        return default
-    return val.strip().lower() in ("1", "true", "yes", "on")
+    print(f"[configure-world] {msg}", flush=True)
 
 
 def force_block(text, tag, body):
-    """Заменяет содержимое <tag>...</tag>; если блока нет — вставляет body перед </configuration>."""
+    """Заменяет содержимое <tag>...</tag>; если блока нет — вставляет перед </configuration>."""
     pattern = re.compile(rf"<{tag}>.*?</{tag}>", re.DOTALL)
     if pattern.search(text):
         return pattern.sub(body, text, count=1)
@@ -67,7 +53,6 @@ def force_config(cfg_path, socket_rel):
     text = raw.decode("latin-1")  # byte-preserving
     original = text
 
-    # --- admin_api: enabled + выделенный каталог сокета ---
     admin_block = (
         "\t<admin_api>\n"
         "\t\t<enabled>true</enabled>\n"
@@ -85,7 +70,6 @@ def force_config(cfg_path, socket_rel):
     if not found:
         text = force_block(text, "admin_api", admin_block)
 
-    # --- telemetry: enabled + otel-only (порт endpoint'а — см. OTEL_LOCAL_PORT ниже).
     text, found = edit_within(
         text,
         "telemetry",
@@ -99,10 +83,9 @@ def force_config(cfg_path, socket_rel):
             "форсирую только admin_api")
 
     # Опционально переписать порт OTLP-endpoint'ов под локальный приёмник хоста.
-    # По умолчанию (OTEL_LOCAL_PORT не задан) порт берётся из конфига мира — на
-    # agent-хостах стандартный 4318 уже верен. На gateway-хосте 4318 занят внешним
-    # TLS-приёмником, а локальный plaintext — на 4319; там задают OTEL_LOCAL_PORT,
-    # и тот же образ работает прозрачно на любом сервере.
+    # agent-хост: стандартный 4318 в конфиге уже верен. gateway-хост: 4318 занят
+    # внешним TLS-приёмником, локальный plaintext — на 4319; там задают
+    # OTEL_LOCAL_PORT, и тот же образ работает прозрачно на любом сервере.
     local_port = os.environ.get("OTEL_LOCAL_PORT", "").strip()
     if local_port and not local_port.isdigit():
         log(f"ВНИМАНИЕ: OTEL_LOCAL_PORT={local_port!r} не число — порт не изменён")
@@ -132,23 +115,9 @@ def force_config(cfg_path, socket_rel):
 
 
 def main():
-    world_dir = os.environ.get("WORLD_DIR", "/world")
-    port = os.environ.get("MUD_PORT", "4000")
-    socket_rel = os.environ.get("ADMIN_SOCKET_REL", "run/admin_api.sock")
-
-    if not os.path.isdir(world_dir):
-        log(f"FATAL: каталог мира не найден: {world_dir} (смонтируйте его и задайте WORLD_DIR)")
-        sys.exit(1)
-
-    if env_bool("FORCE_CONFIG", True):
-        log("FORCE_CONFIG=on — гарантирую admin_api + otel-only")
-        force_config(os.path.join(world_dir, "cfg", "configuration.xml"), socket_rel)
-    else:
-        log("FORCE_CONFIG=off — использую configuration.xml мира как есть")
-
-    cmd = ["circle", "-d", world_dir, port]
-    log("exec: " + " ".join(cmd))
-    os.execvp(cmd[0], cmd)
+    world_dir = sys.argv[1] if len(sys.argv) > 1 else os.environ.get("WORLD_DIR", "/world")
+    socket_rel = sys.argv[2] if len(sys.argv) > 2 else os.environ.get("ADMIN_SOCKET_REL", "run/admin_api.sock")
+    force_config(os.path.join(world_dir, "cfg", "configuration.xml"), socket_rel)
 
 
 if __name__ == "__main__":
