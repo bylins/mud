@@ -1081,13 +1081,13 @@ sol::table BuildMudNamespace(sol::state &lua, LuaRuntimeContext *runtime)
 	});
 
 	sol::table world_table = lua.create_table();
-	world_table["curObjCount"] = [](const sol::object &vnum) {
+	world_table["curobjCount"] = [](const sol::object &vnum) {
 		return GetWorldCurrentObjectCount(vnum);
 	};
-	world_table["gameObjCount"] = [](const sol::object &vnum) {
+	world_table["gameobjCount"] = [](const sol::object &vnum) {
 		return GetWorldGameObjectCount(vnum);
 	};
-	world_table["maxObjCount"] = [](const sol::object &vnum) {
+	world_table["maxobjCount"] = [](const sol::object &vnum) {
 		return GetWorldMaxObjectCount(vnum);
 	};
 	mud["world"] = world_table;
