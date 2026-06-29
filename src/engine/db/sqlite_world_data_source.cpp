@@ -2812,9 +2812,19 @@ void SqliteWorldDataSource::SaveRoomRecord(RoomData *room)
 				sqlite3_bind_null(stmt, 3);
 			}
 
+			// keyword and vkeyword (the accusative form used for open/close) are
+			// stored joined by '|' -- ExitData::set_keywords splits them back on
+			// load. Writing only the keyword lost the accusative form.
 			if (room->dir_option_proto[dir]->keyword)
 			{
-				BindTextKoi(stmt, 4, room->dir_option_proto[dir]->keyword);
+				std::string kw(room->dir_option_proto[dir]->keyword);
+				const char *vk = room->dir_option_proto[dir]->vkeyword;
+				if (vk && strcmp(room->dir_option_proto[dir]->keyword, vk) != 0)
+				{
+					kw += '|';
+					kw += vk;
+				}
+				BindTextKoi(stmt, 4, kw.c_str());
 			}
 			else
 			{
