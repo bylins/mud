@@ -19,6 +19,10 @@
 #include <vector>
 #include <string>
 
+// issue.character-affect-triggers: forward-decl so AffectActions can return it without pulling in the
+// (heavy) talents_actions.h here.
+namespace talents_actions { class Actions; }
+
 namespace affects {
 
 // Slots within an affect's sheaf. $a in any value is the act gender suffix of the looked-at character.
@@ -64,6 +68,7 @@ enum class EAffectMsgType {
 // Direct affect-system queries (replacing the legacy affected_bits[] projection):
 [[nodiscard]] EAffect AffectByIndex(std::size_t flat_index);   // set-bit index -> EAffect
 [[nodiscard]] Bitvector AffectFlagsByType(EAffect affect_type);   // issue.affect-migration: per-affect behavior flags from affects.xml (0 if none)
+[[nodiscard]] const talents_actions::Actions &AffectActions(EAffect affect_type);   // issue.character-affect-triggers: per-affect pulse <actions>
 [[nodiscard]] bool AffectFlagsLoaded();   // issue.affect-migration: affects.xml flags loaded yet?
 
 // issue.affect-migration: an affect's intrinsic buff classification -- the affect-side analog of a

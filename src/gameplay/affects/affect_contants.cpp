@@ -15,6 +15,7 @@
 #include "engine/structs/info_container.h"   // kUndefinedVnum
 #include "utils/logger.h"
 #include "engine/core/config.h"   // CommonMsg / ECommonMsg
+#include "gameplay/abilities/talents_actions.h"   // issue.character-affect-triggers: per-affect <actions>
 
 #include <array>
 #include <algorithm>
@@ -631,6 +632,10 @@ std::array<affects::EBuff, kAffectFlagTableSize> g_affect_buff{};
 // issue.affects-improve (P2): per-affect stat-change applies (location + modifier formula) from
 // affects.xml. Built here but NOT yet read by the impose path (that switch is P3).
 std::array<std::vector<affects::AffectApply>, kAffectFlagTableSize> g_affect_applies{};
+// issue.character-affect-triggers: per-affect pulse/battle-pulse <actions> (same talents_actions grammar
+// as room_affects), so a char affect can carry data-driven periodic effects (DoT). Mirrors
+// g_room_affect_actions. Indexed by to_underlying(EAffect).
+std::array<talents_actions::Actions, kAffectFlagTableSize> g_affect_actions{};
 bool g_affect_flags_loaded = false;
 
 // Parse an <affect buff="Y|N|A"> attribute into EBuff (the affect-side analog of ParseViolent). Absent
@@ -646,6 +651,7 @@ void BuildAffectFlagTable(parser_wrapper::DataNode data) {
 	g_affect_flags.fill(0);
 	g_affect_buff.fill(affects::EBuff::kAmbiguous);
 	for (auto &v : g_affect_applies) { v.clear(); }
+	for (auto &a : g_affect_actions) { a = talents_actions::Actions{}; }
 	for (auto &node : data.Children("affect")) {
 		const char *id = node.GetValue("id");
 		if (!id || !*id) {
@@ -691,6 +697,14 @@ void BuildAffectFlagTable(parser_wrapper::DataNode data) {
 				a.cap = (cp && *cp) ? std::max(0, parse::ReadAsInt(cp)) : 0;
 			}
 			g_affect_applies[idx].push_back(a);
+		}
+		// issue.character-affect-triggers: the affect's own pulse/battle-pulse <actions> (same grammar as
+		// a spell's <talent_actions> / room_affects). Read off a COPY of the node (the obj_sets pattern).
+		{
+			auto act_node = node;
+			if (act_node.GoToChild("actions")) {
+				g_affect_actions[idx].Build(act_node);
+			}
 		}
 	}
 	g_affect_flags_loaded = true;
@@ -791,6 +805,13 @@ const std::vector<EAffect> &MenuOrder() {
 Bitvector AffectFlagsByType(EAffect affect_type) {
 	const auto idx = static_cast<std::size_t>(to_underlying(affect_type));
 	return idx < kAffectFlagTableSize ? g_affect_flags[idx] : Bitvector{0};
+}
+
+// issue.character-affect-triggers: the affect's own pulse/battle-pulse <actions> from affects.xml.
+const talents_actions::Actions &AffectActions(EAffect affect_type) {
+	static const talents_actions::Actions kEmpty;
+	const auto idx = static_cast<std::size_t>(to_underlying(affect_type));
+	return idx < kAffectFlagTableSize ? g_affect_actions[idx] : kEmpty;
 }
 
 // issue.affect-migration: the affect's buff/debuff/ambiguous classification from affects.xml.
