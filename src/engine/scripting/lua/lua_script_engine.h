@@ -7,6 +7,7 @@ class ObjData;
 struct RoomData;
 
 #include <string>
+#include <optional>
 
 namespace lua_scripting {
 
@@ -38,6 +39,8 @@ class LuaScriptEngine {
 	static void CancelWaitsForTrigger(Trigger *trigger);
 	static void HeartbeatCleanup();
 };
+
+void PrintLuaWorldVars(CharData *ch, std::optional<long> context);
 
 } // namespace lua_scripting
 

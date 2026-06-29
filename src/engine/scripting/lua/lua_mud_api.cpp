@@ -1,10 +1,10 @@
 #include "engine/scripting/lua/lua_internal.h"
+#include "engine/core/comm.h"
 
 #if defined(WITH_LUAJIT_PROTOTYPE)
 
 #include "engine/core/char_handler.h"
 #include "engine/core/obj_handler.h"
-#include "engine/core/comm.h"
 #include "engine/db/global_objects.h"
 #include "engine/db/obj_prototypes.h"
 #include "engine/db/world_characters.h"
@@ -28,6 +28,7 @@
 #include <limits>
 #include <list>
 #include <map>
+#include <optional>
 #include <sstream>
 
 namespace lua_scripting {
@@ -1261,6 +1262,36 @@ sol::table BuildMudNamespace(sol::state &lua, LuaRuntimeContext *runtime)
 	mud["world"] = world_table;
 
 	return mud;
+}
+
+void PrintLuaWorldVars(CharData *ch, std::optional<long> context)
+{
+	SendMsgToChar("Список Lua world-переменных:\r\n", ch);
+	for (const auto &current : LuaWorldVars())
+	{
+		if (context && context.value() != current.first.first)
+		{
+			continue;
+		}
+
+		std::stringstream str_out;
+		str_out << "Context: " << current.first.first;
+		str_out << ", Name: " << (!current.first.second.empty() ? current.first.second : "[not set]");
+		str_out << ", Value: " << (!current.second.empty() ? current.second : "[not set]");
+		str_out << "\r\n";
+		SendMsgToChar(str_out.str(), ch);
+	}
+}
+
+} // namespace lua_scripting
+
+#else
+
+namespace lua_scripting {
+
+void PrintLuaWorldVars(CharData *ch, std::optional<long> /*context*/)
+{
+	SendMsgToChar("LuaJIT-прототип не собран.\r\n", ch);
 }
 
 } // namespace lua_scripting
