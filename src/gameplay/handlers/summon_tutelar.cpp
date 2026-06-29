@@ -16,7 +16,7 @@
 
 namespace handlers {
 
-EStageResult SummonTutelar(CastContext &ctx) {
+EStageResult SummonTutelar(ActionContext &ctx) {
 	CharData *ch = ctx.caster();
 	if (ch == nullptr) {
 		return EStageResult::kSuccess;

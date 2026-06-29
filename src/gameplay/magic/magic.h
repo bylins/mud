@@ -40,7 +40,7 @@ struct RollResult {
 	                              // low-skill bonus only, fed to SetBattleLag as skill_bonus.
 };
 
-// CastContext (issue.spell-pipeline): the single object threaded through the whole
+// ActionContext (issue.spell-pipeline): the single object threaded through the whole
 // cast handler chain (CallMagic -> CastToSingleTarget -> the per-stage Cast* fns).
 // It carries the cast parameters, the targets, and the accumulating results so that
 // later <action>s can see what earlier ones did.
@@ -50,7 +50,7 @@ struct RollResult {
 // Mutable parts (public fields): the current targets, the working `level` (which
 // decays across area targets, starting from base_level()), and the action results.
 // issue.character-affect-triggers: the "why this action ran" payload for a trigger-launched action chain.
-// Built at the trigger's fire-site and threaded through the context (see CastContext::Event) so a
+// Built at the trigger's fire-site and threaded through the context (see ActionContext::Event) so a
 // manual_cast handler can read rich per-event data that has no XML grammar. trigger == kCount means "no
 // event" (an ordinary cast, not trigger-launched). Members are filled per trigger kind at the fire-site:
 //   kHit         -> weapon, skill                          (pre-damage swing)
@@ -64,9 +64,9 @@ struct EventContext {
 	[[nodiscard]] bool valid() const { return trigger != talents_actions::EActionTrigger::kCount; }
 };
 
-class CastContext {
+class ActionContext {
  public:
-	CastContext(CharData *caster, ESpell spell_id, int level, const RollResult &potency)
+	ActionContext(CharData *caster, ESpell spell_id, int level, const RollResult &potency)
 		: level{level},
 		  caster_{caster}, spell_id_{spell_id}, base_level_{level},
 		  potency_{potency} {}
@@ -90,11 +90,11 @@ class CastContext {
 	std::vector<CharData *> reactions;
 	// issue.side-spell: the spells currently in this cast chain (this spell + ancestors).
 	// A side-spell stage refuses to cast a spell already here (cycle -> stack overflow).
-	// Initialised to {spell_id} in BuildCastContext; a side cast inherits this set + itself.
+	// Initialised to {spell_id} in BuildActionContext; a side cast inherits this set + itself.
 	std::set<ESpell> casting;
 	// issue.cast-chain: per-cast accumulators of what the actions have done so far, summed across
 	// each action's targets. A later action can scale off one of these (its base= attribute)
-	// instead of the caster's competence. Reset to 0 at cast start (fresh CastContext per cast).
+	// instead of the caster's competence. Reset to 0 at cast start (fresh ActionContext per cast).
 	double damage_count{0.0};     // total (computed) HP damage dealt
 	double points_count{0.0};     // total (computed) points restored, all categories
 	double affects_potency{0.0};    // total potency of affects applied
@@ -138,7 +138,7 @@ class CastContext {
 	void UseExternalActions(const std::vector<talents_actions::Action> *list) { external_actions_ = list; }
 	// issue.affect-migration: per-tick channel for room-affect manual_cast handlers -- the tick runner
 	// seeds the ticking affect's current duration here and reads it back, so a manual handler (e.g.
-	// HandleThunderstormTick) can branch on / modify it via this CastContext (no room-affect type in
+	// HandleThunderstormTick) can branch on / modify it via this ActionContext (no room-affect type in
 	// magic.h). -1 = not a tick cast.
 	void SetTickDuration(int d) { tick_duration_ = d; }
 	[[nodiscard]] int GetTickDuration() const { return tick_duration_; }
@@ -261,11 +261,11 @@ enum class EStageResult {
 // which is rarely what callers want. The two kept here have real external callers:
 // fight_hit.cpp / spells.cpp run a per-target loop (CastDamage), and handler.cpp re-applies
 // gear-borne effects (CastAffect). Everything else that used to live here -- CastUnaffects,
-// CallMagicToArea/Group, BuildCastContext, ProcessMatComponents, CalcClassAntiSavingsMod, and
+// CallMagicToArea/Group, BuildActionContext, ProcessMatComponents, CalcClassAntiSavingsMod, and
 // the CastToPoints/CastToAlterObjs/CastCreation/CastSummon/CastManual/CastToSingleTarget
 // dispatchers -- is module-internal and now lives in magic_internal.h.
-EStageResult CastDamage(CastContext &ctx);
-EStageResult CastAffect(CastContext &ctx);
+EStageResult CastDamage(ActionContext &ctx);
+EStageResult CastAffect(ActionContext &ctx);
 
 // issue.vedun-hotfix #5: registered handler-name lists, for the Vedun editor's handler pick-lists.
 std::vector<std::string> SummonHandlerNames();

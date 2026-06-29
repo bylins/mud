@@ -45,7 +45,7 @@ for (auto *k : victim->followers) {
 
 namespace handlers {
 
-EStageResult SpellSummon(CastContext &ctx) {
+EStageResult SpellSummon(ActionContext &ctx) {
 	CharData *ch = ctx.caster();
 	CharData *victim = ctx.cvict;
 	RoomRnum ch_room, vic_room;

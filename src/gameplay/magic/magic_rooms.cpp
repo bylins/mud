@@ -7,7 +7,7 @@
 #include "engine/entities/char_data.h"
 #include "magic.h" //Включено ради material_component_processing
 #include "magic_utils.h" // IsRoomBlocked / MayCastInForbiddenRoom
-#include "magic_internal.h" // BuildCastContext / CastUnaffects / ProcessMatComponents
+#include "magic_internal.h" // BuildActionContext / CastUnaffects / ProcessMatComponents
 #include "engine/ui/table_wrapper.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/skills/townportal.h"
@@ -858,7 +858,7 @@ RoomAffectActor ClassifyRoomAffectAccess(CharData *ch, long caster_id) {
 	return {false, author};
 }
 
-ECastResult CastRoomAffect(CastContext &ctx) {
+ECastResult CastRoomAffect(ActionContext &ctx) {
 	CharData *const ch = ctx.caster();
 	RoomData *const room = ctx.rvict;
 	const ESpell spell_id = ctx.spell_id();
@@ -1044,7 +1044,7 @@ ECastResult CastRoomAffect(CastContext &ctx) {
 	return ECastResult::kNotCast;
 }
 
-ECastResult CallMagicToRoom(CharData *ch, RoomData *room, CastContext roll) {
+ECastResult CallMagicToRoom(CharData *ch, RoomData *room, ActionContext roll) {
 	const ESpell spell_id = roll.spell_id();   // roll.level is unused for room casts
 	roll.cvict = nullptr;
 	roll.rvict = room;
@@ -1100,7 +1100,7 @@ void affect_to_exit(const RoomData::exit_data_ptr &exit, const Affect<ERoomApply
 // Cast a kMagRoom spell onto the exit in direction `dir` from the caster's room (a kTarDirection cast).
 // Mirrors CallMagicToRoom's affect build but imposes on the exit/door. NOTE (first cut): no dedup/PK
 // contest and no expiry tick yet -- a door affect persists until dispelled; both are follow-ups.
-ECastResult CallMagicToExit(CharData *ch, int dir, CastContext roll) {
+ECastResult CallMagicToExit(CharData *ch, int dir, ActionContext roll) {
 	const ESpell spell_id = roll.spell_id();
 	roll.cvict = nullptr;
 	if (ch == nullptr || ch->in_room == kNowhere || dir < 0 || dir >= EDirection::kMaxDirNum) {

@@ -17,7 +17,7 @@
 
 namespace handlers {
 
-EStageResult SpellPortal(CastContext &ctx) {
+EStageResult SpellPortal(ActionContext &ctx) {
 	CharData *ch = ctx.caster();
 	CharData *victim = ctx.cvict;
 	RoomRnum fnd_room;

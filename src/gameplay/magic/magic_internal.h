@@ -12,7 +12,7 @@
 #ifndef MAGIC_INTERNAL_H_
 #define MAGIC_INTERNAL_H_
 
-#include "magic.h"          // for EStageResult / ECastResult / CastContext / forward decls
+#include "magic.h"          // for EStageResult / ECastResult / ActionContext / forward decls
 
 // issue.area-cast: target scope for a cast. kSingle -> ctx.cvict only; kFoes -> every foe in
 // the caster's room (area/mass); kFriends -> the caster's group, caster placed last.
@@ -21,12 +21,12 @@ enum class ECastTargets { kSingle, kFoes, kFriends };
 // Per-(action, target) pipeline: cast gates + the cursor action's data-driven stages on
 // ctx.cvict. is_entry (the spell's first action) also runs the whole-cast steps (reflection,
 // mtrigger, one-shots, ReactToCast). The caster_conditions gate lives in CallMagic.
-ECastResult CastOnTarget(CastContext &ctx, bool is_entry);
+ECastResult CastOnTarget(ActionContext &ctx, bool is_entry);
 
 // Main cast entry: walks the spell's <action> list, resolving and running each action over its
 // own target list (action[0] = the spell scope). Unifies the former CallMagicToArea/Group and
 // the single-target path. Per-action target resolving (issue.area-cast).
-ECastResult CastSpell(CastContext &ctx, ECastTargets scope);
+ECastResult CastSpell(ActionContext &ctx, ECastTargets scope);
 
 // Forced area-fanout of a spell over the caster's room (room-affect ticks); see magic.cpp.
 ECastResult CastAreaInRoom(CharData *ch, ESpell spell_id, int level);
@@ -41,9 +41,9 @@ ECastResult CastRoomTickActionFromActions(CharData *ch, RoomData *room, ESpell c
 // magic_rooms.h (room_spells), since the movement code calls it. It is defined in magic.cpp because it
 // needs that TU's static action helpers.
 
-// Build a CastContext for a cast: evaluates the success + potency rolls once. Module-internal
+// Build a ActionContext for a cast: evaluates the success + potency rolls once. Module-internal
 // (CallMagic is the public entry; CastAreaInRoom uses it for the room-affect ticks).
-CastContext BuildCastContext(CharData *caster, ESpell spell_id, int level, float fixed_potency = -1.0f);
+ActionContext BuildActionContext(CharData *caster, ESpell spell_id, int level, float fixed_potency = -1.0f);
 
 // Spell-level caster gate (issue.spell-unification): true if the caster fails the
 // spell's <caster_conditions> -- carries a <blocking> flag/affect/align, or lacks a
@@ -51,10 +51,10 @@ CastContext BuildCastContext(CharData *caster, ESpell spell_id, int level, float
 bool CasterBlocked(CharData *caster, const talents_actions::CasterConditions &cc);
 
 // Per-stage dispatchers reached from CastToSingleTarget via the kMag* flag table.
-EStageResult CastUnaffects(CastContext &ctx);
-EStageResult CastToPoints(CastContext &ctx);
-EStageResult CastToAlterObjs(CastContext &ctx);
-EStageResult CastManual(CastContext &ctx);
+EStageResult CastUnaffects(ActionContext &ctx);
+EStageResult CastToPoints(ActionContext &ctx);
+EStageResult CastToAlterObjs(ActionContext &ctx);
+EStageResult CastManual(ActionContext &ctx);
 
 // Material-component check + class anti-saving modifier: only used inside the module.
 EStageResult ProcessMatComponents(CharData *caster, CharData *victim, ESpell spell_id);

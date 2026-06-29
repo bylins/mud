@@ -420,7 +420,7 @@ bool TryBlockByMagicalShield(CharData *ch, CharData *victim, ESpell spell_id) {
 
 }  // namespace
 
-EStageResult CastDamage(CastContext &ctx) {
+EStageResult CastDamage(ActionContext &ctx) {
 	CharData *const ch = ctx.caster();
 	CharData *const victim = ctx.cvict;
 	const ESpell spell_id = ctx.spell_id();
@@ -1109,7 +1109,7 @@ static void EmitImpositionEffects(CharData *ch, CharData *victim, ESpell spell_i
 	}
 }
 
-EStageResult CastAffect(CastContext &ctx) {
+EStageResult CastAffect(ActionContext &ctx) {
 	CharData *const ch = ctx.caster();
 	CharData *const victim = ctx.cvict;
 	const ESpell spell_id = ctx.spell_id();
@@ -1438,12 +1438,12 @@ static void SpillCorpseContents(CharData *ch, ObjData *obj) {
 // issue.summon-pipeline: string-named post-spawn handlers (the spell-specific 20%). Signature
 // (ch, spawned mob, ctx). Registered here; named by <summon handler="...">. The keeper's
 // post-spawn customization is SetupKeeperStats.
-static const std::map<std::string, std::function<void(CharData *, CharData *, const CastContext &, int)>>
+static const std::map<std::string, std::function<void(CharData *, CharData *, const ActionContext &, int)>>
 		kSummonHandlers = {
 	{"SetupKeeperStats",
-		[](CharData *ch, CharData *mob, const CastContext &ctx, int) { handlers::SetupKeeperStats(ch, mob, ctx); }},
+		[](CharData *ch, CharData *mob, const ActionContext &ctx, int) { handlers::SetupKeeperStats(ch, mob, ctx); }},
 	{"SetupFirekeeperStats",
-		[](CharData *ch, CharData *mob, const CastContext &ctx, int dur) { handlers::SetupFirekeeperStats(ch, mob, ctx, dur); }},
+		[](CharData *ch, CharData *mob, const ActionContext &ctx, int dur) { handlers::SetupFirekeeperStats(ch, mob, ctx, dur); }},
 	{"CloneCascade", handlers::CloneCascade},
 };
 
@@ -1452,7 +1452,7 @@ static const std::map<std::string, std::function<void(CharData *, CharData *, co
 // for the spell-specific 20%. Fail is the unified base_fail - C*competence_weight (floored at
 // min_fail); C = ctx.CompetenceBase() (incl. cast-chain base=). need_fail/GetEnemy/GET_CAST_SUCCESS
 // from the old per-spell fail are intentionally retired here.
-EStageResult CastSummonAction(CastContext &ctx) {
+EStageResult CastSummonAction(ActionContext &ctx) {
 	CharData *const ch = ctx.caster();
 	const ESpell spell_id = ctx.spell_id();
 	if (ch == nullptr) {
@@ -1508,7 +1508,7 @@ EStageResult CastSummonAction(CastContext &ctx) {
 // the source corpse and the failure chance is the legacy con/level/cast-success/remort roll (not
 // the C-based <summon> fail), so it does not fit the data-driven skeleton. Reuses the shared
 // FinalizeSummonedMob tail + IsSummonTargetProtected / CheckCharmices / SpillCorpseContents.
-static EStageResult CorpseSummon(CastContext &ctx, bool resurrection) {
+static EStageResult CorpseSummon(ActionContext &ctx, bool resurrection) {
 	CharData *const ch = ctx.caster();
 	ObjData *const obj = ctx.ovict;
 	const ESpell spell_id = ctx.spell_id();
@@ -1581,8 +1581,8 @@ static EStageResult CorpseSummon(CastContext &ctx, bool resurrection) {
 	return EStageResult::kSuccess;
 }
 
-static EStageResult SpellAnimateDead(CastContext &ctx) { return CorpseSummon(ctx, false); }
-static EStageResult SpellResurrection(CastContext &ctx) { return CorpseSummon(ctx, true); }
+static EStageResult SpellAnimateDead(ActionContext &ctx) { return CorpseSummon(ctx, false); }
+static EStageResult SpellResurrection(ActionContext &ctx) { return CorpseSummon(ctx, true); }
 
 
 // Helpers driving the per-category CastToPoints refactor.
@@ -1715,7 +1715,7 @@ void ApplyHeal(CharData *victim, int hit, int extra_percent) {
 
 }  // namespace
 
-EStageResult CastToPoints(CastContext &ctx) {
+EStageResult CastToPoints(ActionContext &ctx) {
 	CharData *const ch = ctx.caster();
 	CharData *const victim = ctx.cvict;
 	const ESpell spell_id = ctx.spell_id();
@@ -2354,7 +2354,7 @@ EStageResult RunCastUnaffects(CharData *ch, TTarget *target, ESpell spell_id,
 // used to gate their kStrength/kDexterity removal behind a save in CastAffect; until
 // that check is added here the buff is stripped regardless of the save. See their
 // commented stub case in CastAffect.
-EStageResult CastUnaffects(CastContext &ctx) {
+EStageResult CastUnaffects(ActionContext &ctx) {
 	CharData *const ch = ctx.caster();
 	CharData *const victim = ctx.cvict;
 	RoomData *const room = ctx.rvict;
@@ -2395,14 +2395,14 @@ EStageResult CastUnaffects(CastContext &ctx) {
 // does its OWN messaging, and returns kSuccess when it acted (or chose to stay silent) / kFail to
 // ask the skeleton for the generic "no effect" line.
 namespace handlers {
-EStageResult AlterMsg(CastContext &ctx, ESpellMsg key) {
+EStageResult AlterMsg(ActionContext &ctx, ESpellMsg key) {
 	act(MUD::SpellMessages().GetMessage(ctx.spell_id(), key).c_str(), true, ctx.caster(), ctx.ovict, nullptr, kToChar);
 	return EStageResult::kSuccess;
 }
 }  // namespace handlers
 
 
-static const std::map<std::string, std::function<EStageResult(CastContext &)>> kAlterObjHandlers = {
+static const std::map<std::string, std::function<EStageResult(ActionContext &)>> kAlterObjHandlers = {
 	{"AlterBless", handlers::AlterBless},
 	{"AlterCurse", handlers::AlterCurse},
 	{"AlterInvisible", handlers::AlterInvisible},
@@ -2422,7 +2422,7 @@ static const std::map<std::string, std::function<EStageResult(CastContext &)>> k
 // Data-driven object transform (issue.obj-casting): resolve the target object (an explicit ovict,
 // else a random equipped/carried item of the victim), guard kNoalter, then dispatch the per-spell
 // transform handler (kAlterObjHandlers); kFail from the handler => the generic "no effect" line.
-EStageResult CastToAlterObjs(CastContext &ctx) {
+EStageResult CastToAlterObjs(ActionContext &ctx) {
 	CharData *const ch = ctx.caster();
 	CharData *const victim = ctx.cvict;
 	ObjData *obj = ctx.ovict;
@@ -2475,7 +2475,7 @@ EStageResult CastToAlterObjs(CastContext &ctx) {
 // e.g. shaping a created weapon/armor base). Signature (ch, created obj, ctx). The plain food/light
 // spells need no handler. CreateWeapon/CreateArmor are PLUMBING STUBS: the base vnum is loaded by
 // the skeleton; the stat/type customization (TODO) goes in these bodies.
-static const std::map<std::string, std::function<void(CharData *, ObjData *, const CastContext &)>>
+static const std::map<std::string, std::function<void(CharData *, ObjData *, const ActionContext &)>>
 		kCreationHandlers = {
 	{"CreateWeapon", handlers::CreateWeapon},
 	{"CreateArmor",  handlers::CreateArmor},
@@ -2483,7 +2483,7 @@ static const std::map<std::string, std::function<void(CharData *, ObjData *, con
 
 // Data-driven object creation (issue.obj-casting): load <obj_creation vnum>, run the optional
 // post-load handler, narrate, then place in inventory (or drop to the room when over-encumbered).
-EStageResult CastCreationAction(CastContext &ctx) {
+EStageResult CastCreationAction(ActionContext &ctx) {
 	CharData *const ch = ctx.caster();
 	const ESpell spell_id = ctx.spell_id();
 	if (ch == nullptr) {
@@ -2540,7 +2540,7 @@ EStageResult CastCreationAction(CastContext &ctx) {
 // issue.character-affect-triggers: the poison DoT as a data-driven tick action. Reuses ProcessPoisonDmg
 // for EXACT parity (its location-gate + GET_POISON formula + author + death handling). GET_POISON is the
 // bearer's total, so one call per tick suffices regardless of how many poison applies are stacked.
-static EStageResult PoisonDot(CastContext &ctx) {
+static EStageResult PoisonDot(ActionContext &ctx) {
 	CharData *ch = ctx.caster();
 	if (!ch) {
 		return EStageResult::kSuccess;
@@ -2559,7 +2559,7 @@ static EStageResult PoisonDot(CastContext &ctx) {
 // name -> hand-coded handler. The <manual_cast><handler val="..."/> on an
 // action selects one by name (which matches the function name), replacing the old spell_id
 // switch. std::function so future Lua/closure handlers can register the same way.
-static const std::map<std::string, std::function<EStageResult(CastContext &)>> kManualHandlers = {
+static const std::map<std::string, std::function<EStageResult(ActionContext &)>> kManualHandlers = {
 	{"SpellControlWeather", handlers::SpellControlWeather},
 	{"SpellCreateWater",    handlers::SpellCreateWater},
 	{"SpellLocateObject",   handlers::SpellLocateObject},
@@ -2606,7 +2606,7 @@ std::vector<std::string> ManualHandlerNames() {
 	std::vector<std::string> v; for (const auto &p : kManualHandlers) v.push_back(p.first); return v;
 }
 
-EStageResult CastManual(CastContext &ctx) {
+EStageResult CastManual(ActionContext &ctx) {
 	const std::string &name = ctx.action_or_default().GetManualHandler();
 	if (name.empty()) {
 		return EStageResult::kSuccess;
@@ -2793,7 +2793,7 @@ static CharData *MaybeReflectToCaster(CharData *caster, CharData *cvict, ESpell 
 	return caster;
 }
 
-double CastContext::CompetenceBase() const {
+double ActionContext::CompetenceBase() const {
 	const double real = potency_.skill_coeff + potency_.stat_coeff;
 	if (is_entry_action) {
 		return real;
@@ -2808,7 +2808,7 @@ double CastContext::CompetenceBase() const {
 	}
 }
 
-const talents_actions::Action &CastContext::action_or_default() const {
+const talents_actions::Action &ActionContext::action_or_default() const {
 	// Cursor active (loop driving) -> the current action; otherwise (bypass
 	// callers / rooms / area setup that never rewound) -> the spell's primary.
 	const talents_actions::Action *a = action();
@@ -2821,7 +2821,7 @@ const talents_actions::Action &CastContext::action_or_default() const {
 	return MUD::Spell(spell_id_).actions.primary();
 }
 
-// --- CastContext action cursor (multi-action) ---
+// --- ActionContext action cursor (multi-action) ---
 // Defined here (not the header) so it can reach MUD::Spell for the action list.
 // A spell with NO <action> blocks (flag-only spells: kDazzle/kCombatLuck/...,
 // plus the summon/creation/manual stages) still has flagged stages that run their
@@ -2829,23 +2829,23 @@ const talents_actions::Action &CastContext::action_or_default() const {
 // loop iteration with action() == nullptr; the data-reading stages then fall back
 // to the spell-id getters (which return the empty-action default). So the loop runs
 // max(1, action_count) times.
-void CastContext::RewindActions() {
+void ActionContext::RewindActions() {
 	actions_ = external_actions_ ? external_actions_ : &MUD::Spell(spell_id_).actions.list();
 	action_idx_ = 0;
 }
 
-void CastContext::NextAction() {
+void ActionContext::NextAction() {
 	++action_idx_;
 }
 
-const talents_actions::Action *CastContext::action() const {
+const talents_actions::Action *ActionContext::action() const {
 	if (!actions_ || action_idx_ >= actions_->size()) {
 		return nullptr;
 	}
 	return &(*actions_)[action_idx_];
 }
 
-bool CastContext::HasPendingActions() const {
+bool ActionContext::HasPendingActions() const {
 	const size_t count = actions_ ? actions_->size() : 0;
 	return action_idx_ < std::max<size_t>(1, count);
 }
@@ -2854,7 +2854,7 @@ bool CastContext::HasPendingActions() const {
 // the current target. Each side cast gets its OWN rolls (its potency/success, possibly a
 // different base_skill) and a fresh context, so its damage/affect accumulators and reactions
 // are isolated. Loop guard (option 5): a spell already in ctx.casting (this chain) is refused.
-EStageResult CastSideSpell(CastContext &ctx) {
+EStageResult CastSideSpell(ActionContext &ctx) {
 	const auto &sides = ctx.action_or_default().GetSideSpells();
 	if (sides.empty()) {
 		return EStageResult::kSuccess;
@@ -2867,7 +2867,7 @@ EStageResult CastSideSpell(CastContext &ctx) {
 			result = EStageResult::kFail;
 			continue;
 		}
-		CastContext sub = BuildCastContext(ctx.caster(), side, ctx.level);
+		ActionContext sub = BuildActionContext(ctx.caster(), side, ctx.level);
 		sub.casting = ctx.casting;   // inherit the ancestry ...
 		sub.casting.insert(side);    // ... plus this side spell (so its own side casts see the chain)
 		sub.cvict = ctx.cvict;       // cast on the current target (this is a per-target stage)
@@ -2885,7 +2885,7 @@ EStageResult CastSideSpell(CastContext &ctx) {
 // additionally runs the whole-cast steps -- reflection, god guard, mtrigger, the one-shot
 // stages (alter-objs / summon / creation / manual) and ReactToCast -- which belong to the
 // cast as a whole, not to a per-action target list.
-ECastResult CastOnTarget(CastContext &ctx, bool is_entry) {
+ECastResult CastOnTarget(ActionContext &ctx, bool is_entry) {
 	CharData *caster = ctx.caster();
 	CharData *cvict = ctx.cvict;
 	const ESpell spell_id = ctx.spell_id();
@@ -3043,7 +3043,7 @@ static std::vector<CharData *> BuildCastRoster(CharData *caster, CharData *victi
 // Run the cursor's current action over its target list, applying the <area> distribution
 // coefficient and the matching cast_success scaling per target. A single-target cast keeps
 // the old path: no roster, no distribution, no cast_success scaling.
-static ECastResult RunActionOverTargets(CastContext &ctx, const std::vector<CharData *> &targets,
+static ECastResult RunActionOverTargets(ActionContext &ctx, const std::vector<CharData *> &targets,
 										ECastTargets scope, bool is_entry) {
 	CharData *caster = ctx.caster();
 	const ESpell spell_id = ctx.spell_id();
@@ -3118,7 +3118,7 @@ static ECastTargets ActionTargetScope(talents_actions::EActionTarget sel, ECastT
 }
 
 // resolve a NON-first action's target list from its <action target=...> selector.
-static std::vector<CharData *> ResolveActionTargets(CastContext &ctx,
+static std::vector<CharData *> ResolveActionTargets(ActionContext &ctx,
 		talents_actions::EActionTarget sel, const std::vector<CharData *> &prev) {
 	CharData *caster = ctx.caster();
 	switch (sel) {
@@ -3171,7 +3171,7 @@ static std::vector<CharData *> ResolveActionTargets(CastContext &ctx,
 // Run a kTarRoomThis action on the room (ctx.rvict, defaulting to the caster's room): the
 // room-capable stages -- dispel (<unaffect>) then impose (<affects> via CastRoomAffect). Lets a
 // later action apply/scale a room affect off a prior action's result (ctx.CompetenceBase()).
-static ECastResult RunActionOnRoom(CastContext &ctx) {
+static ECastResult RunActionOnRoom(ActionContext &ctx) {
 	CharData *caster = ctx.caster();
 	if (ctx.rvict == nullptr) {
 		if (caster->in_room == kNowhere) {
@@ -3193,7 +3193,7 @@ static ECastResult RunActionOnRoom(CastContext &ctx) {
 // previous list (the kTarSame default until per-action <target> resolving lands). Entry-only
 // gates (reflection / mtrigger / one-shots) fire on action[0] -- see CastOnTarget's is_entry.
 // A flag-only spell (no <action>) still gets one entry iteration so its in-code stages fire.
-ECastResult CastSpell(CastContext &ctx, ECastTargets scope) {
+ECastResult CastSpell(ActionContext &ctx, ECastTargets scope) {
 	CharData *caster = ctx.caster();
 	const ESpell spell_id = ctx.spell_id();
 	if (caster == nullptr || caster->in_room == kNowhere) {
@@ -3317,7 +3317,7 @@ ECastResult CastSpell(CastContext &ctx, ECastTargets scope) {
 // (kTarRoomThis -> the room; kTarFoes/kTarGroup/... -> the room's occupants).
 // Run one cycled action (action[phase % N]) of an action list on the room. Shared by the kService
 // tick-spell path and the affect-owned-actions path below.
-static ECastResult RunRoomCycledAction(CastContext &ctx, RoomData *room,
+static ECastResult RunRoomCycledAction(ActionContext &ctx, RoomData *room,
 									   const std::vector<talents_actions::Action> &list, int phase) {
 	ctx.rvict = room;
 	if (list.empty()) {
@@ -3354,7 +3354,7 @@ ECastResult CastRoomTickActionFromActions(CharData *ch, RoomData *room, ESpell c
 	if (ch == nullptr) {
 		return ECastResult::kNotCast;
 	}
-	CastContext ctx = BuildCastContext(ch, ctx_spell, GetRealLevel(ch), fixed_potency);
+	ActionContext ctx = BuildActionContext(ch, ctx_spell, GetRealLevel(ch), fixed_potency);
 	ctx.UseExternalActions(&actions);
 	if (tick_duration) {
 		ctx.SetTickDuration(*tick_duration);
@@ -3429,7 +3429,7 @@ bool RunCharEventTriggers(CharData *ch, const EventContext &event) {
 				fired.push_back(a);
 			}
 		}
-		CastContext ctx = BuildCastContext(ch, ESpell::kUndefined, level);
+		ActionContext ctx = BuildActionContext(ch, ESpell::kUndefined, level);
 		ctx.UseExternalActions(&fired);   // inject the action list (RunRoomCycledAction reads it off ctx)
 		ctx.SetEvent(event);              // handlers (and propagated side-spell sub-ctxs) read this
 		RunRoomCycledAction(ctx, world[ch->in_room], fired, 0);
@@ -3526,7 +3526,7 @@ static int CastRoomEntryAction(CharData *caster, RoomData *room, CharData *actor
 	const std::string &to_room = room_spells::RoomAffectMsgRaw(affect_type, room_key);
 	if (!to_room.empty()) { act(to_room.c_str(), true, actor, nullptr, actor, kToRoom | kToArenaListen); }
 	const std::vector<talents_actions::Action> single{action};
-	CastContext ctx = BuildCastContext(caster, ESpell::kUndefined, GetRealLevel(caster), potency);
+	ActionContext ctx = BuildActionContext(caster, ESpell::kUndefined, GetRealLevel(caster), potency);
 	ctx.cvict = actor;
 	ctx.UseExternalActions(&single);
 	const ECastResult eff = RunRoomCycledAction(ctx, room, single, 0);
@@ -3677,7 +3677,7 @@ bool room_spells::DispelExitAffects(CharData *caster, int dir, ESpell spell_id) 
 		const auto rev = world[near_exit->to_room()]->dir_option[rev_dir[dir]];
 		if (rev && rev->to_room() == caster->in_room) { hosts.push_back(rev); }
 	}
-	CastContext ctx = BuildCastContext(caster, spell_id, GetRealLevel(caster));
+	ActionContext ctx = BuildActionContext(caster, spell_id, GetRealLevel(caster));
 	const auto &roll = MUD::Spell(spell_id).GetPotencyRoll();
 	bool any = false;
 	for (const auto &ex : hosts) {
@@ -3717,7 +3717,7 @@ bool room_spells::DispelExitAffects(CharData *caster, int dir, ESpell spell_id) 
 // regardless of the spell's own targeting flags. Used by the room-affect ticks (deadly fog /
 // thunderstorm). Replaces the old direct CallMagicToArea callers.
 ECastResult CastAreaInRoom(CharData *ch, ESpell spell_id, int level) {
-	auto ctx = BuildCastContext(ch, spell_id, level);
+	auto ctx = BuildActionContext(ch, spell_id, level);
 	return CastSpell(ctx, ECastTargets::kFoes);
 }
 

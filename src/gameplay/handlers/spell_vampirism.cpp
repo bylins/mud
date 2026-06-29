@@ -10,7 +10,7 @@
 
 namespace handlers {
 
-EStageResult SpellVampirism(CastContext &) {
+EStageResult SpellVampirism(ActionContext &) {
 	return EStageResult::kSuccess;
 }
 

@@ -31,8 +31,8 @@ namespace handlers {
 // issue.affect-migration: a room-affect manual_cast handler. It runs as an <action><manual_cast
 // handler="HandleThunderstormTick"/></action> on the kThunderstorm affect, dispatched via the same
 // kManualHandlers registry spells use. The per-tick phase is the affect's current duration, threaded
-// in via CastContext (SetTickDuration); writing it back (SetTickDuration) ends the storm early.
-EStageResult HandleThunderstormTick(CastContext &ctx) {
+// in via ActionContext (SetTickDuration); writing it back (SetTickDuration) ends the storm early.
+EStageResult HandleThunderstormTick(ActionContext &ctx) {
 	CharData *ch = ctx.caster();
 	if (ch == nullptr) {
 		return EStageResult::kSuccess;

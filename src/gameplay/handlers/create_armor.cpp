@@ -9,7 +9,7 @@
 
 namespace handlers {
 
-void CreateArmor(CharData *ch, ObjData *obj, const CastContext &ctx) {
+void CreateArmor(CharData *ch, ObjData *obj, const ActionContext &ctx) {
 	(void) ch; (void) obj; (void) ctx;   // TODO: shape the loaded base object into armor
 }
 

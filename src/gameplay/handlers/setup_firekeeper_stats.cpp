@@ -11,7 +11,7 @@
 
 namespace handlers {
 
-void SetupFirekeeperStats(CharData *ch, CharData *mob, const CastContext &ctx, int charm_duration) {
+void SetupFirekeeperStats(CharData *ch, CharData *mob, const ActionContext &ctx, int charm_duration) {
 	Affect<EApply> af;
 	af.duration = charm_duration;
 	af.modifier = 0;

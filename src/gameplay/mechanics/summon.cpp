@@ -20,7 +20,7 @@
 #include "gameplay/mechanics/weather.h"
 #include "utils/random.h"
 
-int SummonScaledStat(const CastContext &ctx, double min, double dices_weight, double beta, int cap) {
+int SummonScaledStat(const ActionContext &ctx, double min, double dices_weight, double beta, int cap) {
 	talents_actions::TalentAffect::Apply a;
 	a.min = min;
 	a.dices_weight = dices_weight;

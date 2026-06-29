@@ -12,7 +12,7 @@
 
 namespace handlers {
 
-EStageResult AlterBless(CastContext &ctx) {
+EStageResult AlterBless(ActionContext &ctx) {
 	CharData *ch = ctx.caster();
 	ObjData *obj = ctx.ovict;
 	if (!obj->has_flag(EObjFlag::kBless) && (obj->get_weight() <= 5 * GetRealLevel(ch))) {

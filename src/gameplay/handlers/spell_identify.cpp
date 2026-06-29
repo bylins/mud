@@ -14,7 +14,7 @@
 
 namespace handlers {
 
-EStageResult SpellIdentify(CastContext &ctx) {
+EStageResult SpellIdentify(ActionContext &ctx) {
 	CharData *ch = ctx.caster();
 	CharData *victim = ctx.cvict;
 	ObjData *obj = ctx.ovict;

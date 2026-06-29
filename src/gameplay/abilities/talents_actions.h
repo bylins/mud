@@ -732,7 +732,7 @@ class Actions {
 
 	// The action a single-action (or bypass / room) caller should use: the first
 	// action, or a static empty one when the spell has none. Underpins the
-	// back-compat getters and CastContext::action_or_default().
+	// back-compat getters and ActionContext::action_or_default().
 	[[nodiscard]] const Action &primary() const {
 		return list_.empty() ? EmptyAction() : list_.front();
 	}

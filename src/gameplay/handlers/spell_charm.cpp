@@ -25,7 +25,7 @@
 
 namespace handlers {
 
-EStageResult SpellCharm(CastContext &ctx) {
+EStageResult SpellCharm(ActionContext &ctx) {
 	CharData *ch = ctx.caster();
 	CharData *victim = ctx.cvict;
 	int k_skills = 0;

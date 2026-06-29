@@ -12,7 +12,7 @@
 
 namespace handlers {
 
-EStageResult SpellFullIdentify(CastContext &ctx) {
+EStageResult SpellFullIdentify(ActionContext &ctx) {
 	CharData *ch = ctx.caster();
 	CharData *victim = ctx.cvict;
 	ObjData *obj = ctx.ovict;

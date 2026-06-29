@@ -397,7 +397,7 @@ private:
 // Evaluates the spell's potency roll against the caster once, so the result can be
 // threaded to the cast-dispatch functions. The roll values do not depend on level;
 // level is carried only to replace that parameter.
-CastContext BuildCastContext(CharData *caster, ESpell spell_id, int level, float fixed_potency) {
+ActionContext BuildActionContext(CharData *caster, ESpell spell_id, int level, float fixed_potency) {
 	const auto &spell = MUD::Spell(spell_id);
 	auto eval = [caster](const talents_actions::Roll &roll) {
 		return RollResult{roll.RollSkillDices(), roll.CalcSkillCoeff(caster),
@@ -409,7 +409,7 @@ CastContext BuildCastContext(CharData *caster, ESpell spell_id, int level, float
 	const RollResult bcc_roll = (fixed_potency >= 0.0f)
 		? RollResult{static_cast<int>(fixed_potency + 0.5f), 0.0, 0.0, 0.0}
 		: eval(spell.GetPotencyRoll());
-	CastContext ctx(caster, spell_id, level, bcc_roll);
+	ActionContext ctx(caster, spell_id, level, bcc_roll);
 	ctx.casting.insert(spell_id);  // seed the cast-chain loop guard
 	return ctx;
 }
@@ -492,7 +492,7 @@ ECastResult CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomDat
 	metrics.send();
 
 	// Compute both rolls once, now that we know the spell is actually being cast.
-	CastContext ctx = BuildCastContext(caster, spell_id, level, fixed_potency);
+	ActionContext ctx = BuildActionContext(caster, spell_id, level, fixed_potency);
 	ctx.cvict = cvict;
 	ctx.ovict = ovict;
 	ctx.rvict = rvict;
@@ -504,7 +504,7 @@ ECastResult CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomDat
 	// `огненная ловушка <dir>`, etc. all flow through here without per-spell branching.
 	if (dir >= 0) {
 		profiler.next_step("exit");
-		CastContext exit_ctx = ctx;
+		ActionContext exit_ctx = ctx;
 		exit_ctx.level = abs(level);
 		return room_spells::CallMagicToExit(caster, dir, exit_ctx);
 	}
@@ -522,7 +522,7 @@ ECastResult CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomDat
 
 	if (MUD::Spell(spell_id).IsFlagged(kMagRoom)) {
 		profiler.next_step("room");
-		CastContext room_ctx = ctx;
+		ActionContext room_ctx = ctx;
 		room_ctx.level = abs(level);
 		return room_spells::CallMagicToRoom(caster, rvict, room_ctx);
 	}
@@ -540,7 +540,7 @@ ECastResult CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomDat
 				!m.empty()) {
 			SendMsgToChar(m + "\r\n", caster);
 		}
-		CastContext room_ctx = ctx;
+		ActionContext room_ctx = ctx;
 		room_ctx.cvict = nullptr;
 		room_ctx.rvict = world[caster->in_room];
 		return (CastUnaffects(room_ctx) == EStageResult::kBreak)
@@ -915,7 +915,7 @@ int CalcCastSuccess(CharData *ch, CharData *victim, ESaving saving, ESpell spell
 
 // issue.handler-cleaning (Bucket 3): weapon cast-affect helper (was file-local in handler).
 void CastWeaponAffect(CharData *ch, ESpell spell_id) {
-	CastContext ctx(ch, spell_id, GetRealLevel(ch), {});
+	ActionContext ctx(ch, spell_id, GetRealLevel(ch), {});
 	ctx.cvict = ch;
 	CastAffect(ctx);
 }

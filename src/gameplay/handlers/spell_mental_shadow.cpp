@@ -15,7 +15,7 @@
 
 namespace handlers {
 
-EStageResult SpellMentalShadow(CastContext &ctx) {
+EStageResult SpellMentalShadow(ActionContext &ctx) {
 	CharData *ch = ctx.caster();
 	if (ch == nullptr) {
 		return EStageResult::kSuccess;
