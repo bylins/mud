@@ -302,6 +302,24 @@ end
 | `mud.world.curobjCount(vnum)` | number | DG-семантика `%world.curobjs%`: текущий count объекта, но для stable/unlimited timer объектов возвращает 0. |
 | `mud.world.gameobjCount(vnum)` | number | DG-семантика `%world.gameobs%`/`%world.gameobjs%`: считает игровые экземпляры, для обычных takeable не-quest предметов учитывает parent-прототип. |
 | `mud.world.maxobjCount(vnum)` | number | DG-семантика `%world.maxobj%`: MIW объекта, для unlimited возвращает `9999999`. |
+| `mud.world.set(context, name, value)` | bool | Lua-only world-переменная в явном целочисленном context. Значения: string, number, boolean; string-значения приводятся к нижнему регистру. |
+| `mud.world.get(context, name [, default])` | string или default/nil | Читает Lua-only world-переменную. При невалидном context/name возвращает nil. |
+| `mud.world.delete(context, name)` | bool | Удаляет Lua-only world-переменную. |
+| `mud.world.clearContext(context)` | bool | Удаляет все Lua-only world-переменные указанного ненулевого context. Context `0` отклоняется. |
+
+Lua-only world-переменные не используют DG `worlds_vars` и не видны из DG-триггеров. Context передается явно, `Trigger::context` не меняется:
+
+```lua
+local CTX = 2005
+
+mud.world.set(CTX, "maze_ready", 1)
+
+if mud.world.get(CTX, "maze_ready") == "1" then
+  -- ...
+end
+
+mud.world.delete(CTX, "maze_ready")
+```
 
 ### Комнаты, зоны, время и погода
 

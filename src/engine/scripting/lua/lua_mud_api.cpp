@@ -24,8 +24,11 @@
 
 #include <chrono>
 #include <ctime>
+#include <cmath>
 #include <limits>
 #include <list>
+#include <map>
+#include <sstream>
 
 namespace lua_scripting {
 namespace {
@@ -34,6 +37,14 @@ constexpr long kLuaPulsesPerMudHour = kSecsPerMudHour * kPassesPerSec;
 constexpr long kLuaMaxWaitPulses = std::numeric_limits<int>::max();
 constexpr int kLuaMaxRollDice = 1000;
 constexpr int kLuaMaxRollSides = 1000000;
+
+using LuaWorldVarKey = std::pair<long, std::string>;
+
+std::map<LuaWorldVarKey, std::string> &LuaWorldVars()
+{
+	static std::map<LuaWorldVarKey, std::string> vars;
+	return vars;
+}
 
 bool IsValidWaitTime(long hr, long min)
 {
@@ -57,7 +68,132 @@ bool GetLuaLong(const sol::object &value, long &result)
 		result = value.as<int>();
 		return true;
 	}
+	if (value.get_type() == sol::type::number)
+	{
+		const auto numeric_value = value.as<double>();
+		if (!std::isfinite(numeric_value)
+			|| std::floor(numeric_value) != numeric_value
+			|| numeric_value < static_cast<double>(std::numeric_limits<long>::min())
+			|| numeric_value > static_cast<double>(std::numeric_limits<long>::max()))
+		{
+			return false;
+		}
+		result = static_cast<long>(numeric_value);
+		return true;
+	}
 	return false;
+}
+
+std::string NormalizeLuaWorldVarName(std::string name)
+{
+	utils::ConvertToLow(name);
+	return name;
+}
+
+bool GetLuaWorldVarKey(const sol::object &context, const sol::object &name, LuaWorldVarKey &key)
+{
+	long context_id = 0;
+	if (!GetLuaLong(context, context_id) || !name.is<std::string>())
+	{
+		return false;
+	}
+
+	auto var_name = NormalizeLuaWorldVarName(name.as<std::string>());
+	if (var_name.empty())
+	{
+		return false;
+	}
+
+	key = {context_id, std::move(var_name)};
+	return true;
+}
+
+std::string LuaWorldVarValueToString(const sol::object &value)
+{
+	if (value.is<bool>())
+	{
+		return value.as<bool>() ? "1" : "0";
+	}
+	if (value.is<int>())
+	{
+		return std::to_string(value.as<int>());
+	}
+	if (value.get_type() == sol::type::number)
+	{
+		std::ostringstream out;
+		out << value.as<double>();
+		return out.str();
+	}
+	if (value.is<std::string>())
+	{
+		auto result = value.as<std::string>();
+		utils::ConvertToLow(result);
+		return result;
+	}
+
+	return "";
+}
+
+bool SetLuaWorldVar(const sol::object &context, const sol::object &name, const sol::object &value)
+{
+	if (!value.is<bool>() && !value.is<int>() && value.get_type() != sol::type::number && !value.is<std::string>())
+	{
+		return false;
+	}
+
+	LuaWorldVarKey key;
+	if (!GetLuaWorldVarKey(context, name, key))
+	{
+		return false;
+	}
+
+	LuaWorldVars()[key] = LuaWorldVarValueToString(value);
+	return true;
+}
+
+sol::object GetLuaWorldVar(
+	sol::state &lua,
+	const sol::object &context,
+	const sol::object &name,
+	const sol::object &default_value)
+{
+	LuaWorldVarKey key;
+	if (!GetLuaWorldVarKey(context, name, key))
+	{
+		return sol::make_object(lua, sol::lua_nil);
+	}
+
+	auto &vars = LuaWorldVars();
+	const auto it = vars.find(key);
+	if (it == vars.end())
+	{
+		return default_value.get_type() == sol::type::none
+			? sol::make_object(lua, sol::lua_nil)
+			: default_value;
+	}
+
+	return sol::make_object(lua, it->second);
+}
+
+bool DeleteLuaWorldVar(const sol::object &context, const sol::object &name)
+{
+	LuaWorldVarKey key;
+	return GetLuaWorldVarKey(context, name, key) && LuaWorldVars().erase(key) > 0;
+}
+
+bool ClearLuaWorldContext(const sol::object &context)
+{
+	long context_id = 0;
+	if (!GetLuaLong(context, context_id) || context_id == 0)
+	{
+		return false;
+	}
+
+	auto &vars = LuaWorldVars();
+	std::erase_if(vars, [context_id](const auto &entry) {
+		return entry.first.first == context_id;
+	});
+	return true;
 }
 
 CharData *FindCharByUid(const sol::object &uid)
@@ -1106,6 +1242,21 @@ sol::table BuildMudNamespace(sol::state &lua, LuaRuntimeContext *runtime)
 	};
 	world_table["maxobjCount"] = [](const sol::object &vnum) {
 		return GetWorldMaxObjectCount(vnum);
+	};
+	world_table["set"] = [](const sol::object &context, const sol::object &name, const sol::object &value) {
+		return SetLuaWorldVar(context, name, value);
+	};
+	world_table["get"] = [&lua](const sol::object &context, const sol::object &name, sol::variadic_args args) {
+		const sol::object default_value = args.size() > 0
+			? static_cast<sol::object>(args[0])
+			: sol::make_object(lua, sol::lua_nil);
+		return GetLuaWorldVar(lua, context, name, default_value);
+	};
+	world_table["delete"] = [](const sol::object &context, const sol::object &name) {
+		return DeleteLuaWorldVar(context, name);
+	};
+	world_table["clearContext"] = [](const sol::object &context) {
+		return ClearLuaWorldContext(context);
 	};
 	mud["world"] = world_table;
 
