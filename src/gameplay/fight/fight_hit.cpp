@@ -968,7 +968,14 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 		&& (ch->GetEnemy()
 		|| (!ch->battle_affects.get(kEafHammer) && !ch->battle_affects.get(kEafOverwhelm)))) {
 		// здесь можно получить спурженного victim, но ch не умрет от зеркала
-		RunCharHitTriggers(ch);
+		// issue.character-affect-triggers: kHit event = pre-damage swing (weapon + weapon-skill known;
+		// the physical amount is computed below, so it rides on kDamageDealt, not here).
+		EventContext hit_event;
+		hit_event.trigger = talents_actions::EActionTrigger::kHit;
+		hit_event.weapon = hit_params.wielded;
+		hit_event.skill = hit_params.weap_skill;
+		hit_event.actor = victim;
+		RunCharEventTriggers(ch, hit_event);
 		if (ch->purged() || victim->purged()) { // вдруг помер
 			return;
 		}
@@ -1090,6 +1097,23 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 	SendToTC(ch, false, true, true, "&CНанёс: Регуляр дамаг = %d&n\r\n", hit_params.dam);
 	SendToTC(victim, false, true, true, "&CПолучил: Регуляр дамаг = %d&n\r\n", hit_params.dam);
 	int made_dam = hit_params.ProcessExtradamage(ch, victim);
+
+	// issue.character-affect-triggers: kDamageDealt event = a landed melee hit resolved. Fires only when
+	// the hit dealt damage AND the victim survived (made_dam == -1 means the victim died this hit -> no
+	// post-hit trigger on a corpse). Event carries the actual amount, the weapon, the weapon-skill and
+	// the victim, for handlers (no XML grammar for these).
+	if (made_dam != -1 && hit_params.dam > 0) {
+		EventContext dmg_event;
+		dmg_event.trigger = talents_actions::EActionTrigger::kDamageDealt;
+		dmg_event.amount = hit_params.dam;
+		dmg_event.weapon = hit_params.wielded;
+		dmg_event.skill = hit_params.weap_skill;
+		dmg_event.actor = victim;
+		RunCharEventTriggers(ch, dmg_event);
+		if (ch->purged() || victim->purged()) {
+			return;
+		}
+	}
 
 	//Обнуление лага, когда виктим убит с применением
 	//оглушить или молотить. Чтобы все это было похоже на

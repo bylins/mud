@@ -2872,6 +2872,7 @@ EStageResult CastSideSpell(CastContext &ctx) {
 		sub.casting.insert(side);    // ... plus this side spell (so its own side casts see the chain)
 		sub.cvict = ctx.cvict;       // cast on the current target (this is a per-target stage)
 		sub.area_coeff = ctx.area_coeff;  // inherit the outer per-target falloff (mass spells)
+		sub.SetEvent(ctx.Event());   // issue.character-affect-triggers: a side-spell's handlers see the event too
 		if (CastSpell(sub, ECastTargets::kSingle) == ECastResult::kNotCast) {
 			result = EStageResult::kFail;
 		}
@@ -3394,22 +3395,24 @@ bool RunCharAffectTick(CharData *ch, const Affect<EApply>::shared_ptr &aff) {
 	return true;
 }
 
-// issue.character-affect-triggers: run every kHit action carried by the bearer's affects -- fired once
-// per basic melee hit from fight_hit.cpp. Each action targets via its own <target> (e.g. kTarFightVict =
-// the current opponent) and its <side_spell> lands on that target at the proc level (NPCs proc at their
-// real level, matching the old hand-coded kCloudOfArrows bolt; PCs at level 1). Snapshots the affect
-// TYPES first because a fired side-spell may mutate ch->affected. Returns true if any action ran.
-bool RunCharHitTriggers(CharData *ch) {
-	if (!ch || ch->in_room == kNowhere || ch->affected.empty()) {
+// issue.character-affect-triggers: run every action on the bearer's affects whose trigger matches
+// event.trigger (e.g. kHit / kDamageDealt), threading `event` onto the context so manual_cast handlers
+// can read its rich data (amount/weapon/skill/actor). Each action targets via its own <target> (e.g.
+// kTarFightVict = the current opponent) and its <side_spell> lands on that target at the proc level (NPCs
+// proc at their real level, matching the old hand-coded kCloudOfArrows bolt; PCs at level 1). Snapshots
+// the affect TYPES first because a fired side-spell may mutate ch->affected. Returns true if any ran.
+bool RunCharEventTriggers(CharData *ch, const EventContext &event) {
+	if (!ch || ch->in_room == kNowhere || ch->affected.empty() || !event.valid()) {
 		return false;
 	}
-	std::vector<EAffect> types;   // unique affect types carrying a kHit action (few affects -> linear dedup)
+	const talents_actions::EActionTrigger trig = event.trigger;
+	std::vector<EAffect> types;   // unique affect types carrying a matching action (few affects -> linear dedup)
 	for (const auto &aff : ch->affected) {
 		if (!aff || std::find(types.begin(), types.end(), aff->affect_type) != types.end()) {
 			continue;
 		}
 		for (const auto &a : affects::AffectActions(aff->affect_type).list()) {
-			if (a.GetTrigger().test(talents_actions::EActionTrigger::kHit)) {
+			if (a.GetTrigger().test(trig)) {
 				types.push_back(aff->affect_type);
 				break;
 			}
@@ -3422,12 +3425,13 @@ bool RunCharHitTriggers(CharData *ch) {
 	for (const EAffect t : types) {
 		std::vector<talents_actions::Action> fired;
 		for (const auto &a : affects::AffectActions(t).list()) {
-			if (a.GetTrigger().test(talents_actions::EActionTrigger::kHit)) {
+			if (a.GetTrigger().test(trig)) {
 				fired.push_back(a);
 			}
 		}
 		CastContext ctx = BuildCastContext(ch, ESpell::kUndefined, level);
 		ctx.UseExternalActions(&fired);   // inject the action list (RunRoomCycledAction reads it off ctx)
+		ctx.SetEvent(event);              // handlers (and propagated side-spell sub-ctxs) read this
 		RunRoomCycledAction(ctx, world[ch->in_room], fired, 0);
 		if (ch->purged()) {
 			return true;

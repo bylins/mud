@@ -73,6 +73,9 @@ enum class EActionTrigger {
 	kClose,
 	kLock,
 	kHit,          // issue.character-affect-triggers: the bearer lands a (basic melee) hit on a victim
+	               // (pre-damage swing; event carries weapon, skill)
+	kDamageDealt,  // issue.character-affect-triggers: a landed hit resolved (post-damage; event carries
+	               // amount, weapon, skill, actor=victim)
 	kCount
 };
 

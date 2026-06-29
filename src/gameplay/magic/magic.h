@@ -16,6 +16,7 @@
 
 #include "spells_info.h"
 #include "gameplay/affects/affect_contants.h"
+#include "gameplay/abilities/talents_actions.h"   // issue.character-affect-triggers: EActionTrigger (EventContext)
 
 #include <cstdlib>
 #include <optional>
@@ -48,6 +49,21 @@ struct RollResult {
 // the spell, the base level and the two rolls -- these never change during a cast.
 // Mutable parts (public fields): the current targets, the working `level` (which
 // decays across area targets, starting from base_level()), and the action results.
+// issue.character-affect-triggers: the "why this action ran" payload for a trigger-launched action chain.
+// Built at the trigger's fire-site and threaded through the context (see CastContext::Event) so a
+// manual_cast handler can read rich per-event data that has no XML grammar. trigger == kCount means "no
+// event" (an ordinary cast, not trigger-launched). Members are filled per trigger kind at the fire-site:
+//   kHit         -> weapon, skill                          (pre-damage swing)
+//   kDamageDealt -> amount, weapon, skill, actor (= victim) (post-damage, on a landed hit)
+struct EventContext {
+	talents_actions::EActionTrigger trigger{talents_actions::EActionTrigger::kCount};
+	int amount{0};                       // damage dealt (kDamageDealt)
+	ObjData *weapon{nullptr};            // weapon used for the hit
+	ESkill skill{ESkill::kUndefined};    // skill used for the hit
+	CharData *actor{nullptr};            // the other party in the event (e.g. the hit victim)
+	[[nodiscard]] bool valid() const { return trigger != talents_actions::EActionTrigger::kCount; }
+};
+
 class CastContext {
  public:
 	CastContext(CharData *caster, ESpell spell_id, int level, const RollResult &potency)
@@ -131,6 +147,11 @@ class CastContext {
 	// std::nullopt = handler set nothing -> the tag/default applies. Threaded like tick_duration_.
 	void SetTriggerReturn(int v) { trigger_return_ = v; }
 	[[nodiscard]] std::optional<int> GetTriggerReturn() const { return trigger_return_; }
+	// issue.character-affect-triggers: the trigger event that launched this action chain (default = an
+	// invalid/kCount event = ordinary cast). Threaded so manual_cast handlers can read the event's rich
+	// data (damage amount, weapon, skill, the other party). Copied into side_spell sub-contexts.
+	void SetEvent(const EventContext &e) { event_ = e; }
+	[[nodiscard]] const EventContext &Event() const { return event_; }
 	[[nodiscard]] const talents_actions::Action *action() const;
 	[[nodiscard]] bool HasPendingActions() const;
 	// The action the current stage should read its block from: the cursor's
@@ -157,6 +178,7 @@ class CastContext {
 	size_t action_idx_{0};
 	int tick_duration_{-1};   // issue.affect-migration: see SetTickDuration (-1 = not a tick cast)
 	std::optional<int> trigger_return_;   // issue.room-affect-trigger-improve: see SetTriggerReturn
+	EventContext event_;   // issue.character-affect-triggers: see SetEvent/Event
 };
 
 // VNUM'ы мобов для заклинаний, создающих мобов
@@ -211,9 +233,10 @@ ECastResult CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomDat
 		int dir = -1);  // issue.room-affect-trigger-improve: dir>=0 + kMagRoom -> cast on EXIT(caster,dir) (door affect)
 ECastResult CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, ESpell spell_id, ESpell spell_subst,
 		int dir = -1);  // dir>=0: kTarDirection cast on the exit in that direction
-// issue.character-affect-triggers: run the bearer's per-hit (kHit) affect actions -- called once per
-// basic melee hit from fight_hit.cpp. Returns true if any kHit action ran.
-bool RunCharHitTriggers(CharData *ch);
+// issue.character-affect-triggers: run the bearer's affect actions whose trigger matches event.trigger,
+// threading `event` onto the context so manual_cast handlers can read its rich data. Called from trigger
+// fire-sites (the per-hit kHit / post-damage kDamageDealt points in fight_hit.cpp). True if any ran.
+bool RunCharEventTriggers(CharData *ch, const EventContext &event);
 
 // Result of one cast stage (CastAffect/CastUnaffects/...). With the per-action loop
 // (issue.spell-pipeline) the dispatcher walks each spell action and runs its stages:
