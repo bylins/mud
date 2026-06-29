@@ -72,9 +72,9 @@ enum class EActionTrigger {
 	kOpen,
 	kClose,
 	kLock,
-	kHit,          // issue.character-affect-triggers: the bearer lands a (basic melee) hit on a victim
+	kPreHit,          // issue.character-affect-triggers: the bearer lands a (basic melee) hit on a victim
 	               // (pre-damage swing; event carries weapon, skill)
-	kDamageDealt,  // issue.character-affect-triggers: a landed hit resolved (post-damage; event carries
+	kPostHit,  // issue.character-affect-triggers: a landed hit resolved (post-damage; event carries
 	               // amount, weapon, skill, actor=victim)
 	kCount
 };
@@ -83,7 +83,9 @@ enum class EActionTrigger {
 // caster's competence (skill+stat). kCompetence (default) keeps competence; the others substitute
 // the matching per-cast accumulator (damage dealt / points restored / affects applied / removed).
 // The first action ignores this -- it always uses competence. Set via <action base="...">.
-enum class EActionBase { kCompetence, kDamage, kPoints, kAffects, kDispelled };
+// issue.character-affect-triggers: kTag = the formula base comes from an event tag (e.g. base="tag"
+// tag="amount"), read off the ActionContext's EventContext and cast to a number.
+enum class EActionBase { kCompetence, kDamage, kPoints, kAffects, kDispelled, kTag };
 
 // (EAlign moved to engine/entities/entities_constants.h, issue.cast-dmg-migration: it's a
 //  general alignment concept, not a talents-specific one. Used by <blocking>/<required>/<reflection>.)
@@ -633,6 +635,7 @@ class Action {
 	// otherwise the matching accumulator. Ignored for the first action. reset_ zeroes the base
 	// accumulator after this action runs (no-op for the first action / kCompetence).
 	EActionBase base_{EActionBase::kCompetence};
+	std::string tag_name_;   // issue.character-affect-triggers: <action base="tag" tag="NAME"> -- the event tag
 	bool reset_{false};
 	// issue.manual-cast: name of the hand-coded handler (<manual_cast><handler val=>) this action
 	// runs as its manual stage; resolved against the registry in magic.cpp. Empty = no manual stage.
@@ -674,6 +677,7 @@ class Action {
 	[[nodiscard]] const Reflection &GetReflection() const { return reflection_; }
 	[[nodiscard]] EActionTarget GetTarget() const { return target_; }
 	[[nodiscard]] EActionBase GetBase() const { return base_; }
+	[[nodiscard]] const std::string &GetTagName() const { return tag_name_; }
 	[[nodiscard]] bool GetReset() const { return reset_; }
 	[[nodiscard]] const std::string &GetManualHandler() const { return manual_handler_; }
 	[[nodiscard]] const std::vector<ESpell> &GetSideSpells() const { return side_spells_; }

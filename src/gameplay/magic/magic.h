@@ -21,6 +21,7 @@
 #include <cstdlib>
 #include <optional>
 #include <set>
+#include <string_view>   // issue.character-affect-triggers: EventContext::GetTag
 #include <vector>
 
 class CharData;
@@ -53,15 +54,22 @@ struct RollResult {
 // Built at the trigger's fire-site and threaded through the context (see ActionContext::Event) so a
 // manual_cast handler can read rich per-event data that has no XML grammar. trigger == kCount means "no
 // event" (an ordinary cast, not trigger-launched). Members are filled per trigger kind at the fire-site:
-//   kHit         -> weapon, skill                          (pre-damage swing)
-//   kDamageDealt -> amount, weapon, skill, actor (= victim) (post-damage, on a landed hit)
+//   kPreHit         -> weapon, skill                          (pre-damage swing)
+//   kPostHit -> amount, weapon, skill, actor (= victim) (post-damage, on a landed hit)
 struct EventContext {
 	talents_actions::EActionTrigger trigger{talents_actions::EActionTrigger::kCount};
-	int amount{0};                       // damage dealt (kDamageDealt)
+	int amount{0};                       // damage dealt (kPostHit)
 	ObjData *weapon{nullptr};            // weapon used for the hit
 	ESkill skill{ESkill::kUndefined};    // skill used for the hit
 	CharData *actor{nullptr};            // the other party in the event (e.g. the hit victim)
 	[[nodiscard]] bool valid() const { return trigger != talents_actions::EActionTrigger::kCount; }
+	// issue.character-affect-triggers: numeric value of a well-known event tag, for <action base="tag"
+	// tag="NAME">. Known tags are backed by the typed fields above; unknown -> 0. (A general variant
+	// tag-bag for arbitrary tags is deferred until a custom event needs one.)
+	[[nodiscard]] long GetTag(std::string_view name) const {
+		if (name == "amount") { return amount; }
+		return 0;
+	}
 };
 
 class ActionContext {
@@ -235,7 +243,7 @@ ECastResult CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troo
 		int dir = -1);  // dir>=0: kTarDirection cast on the exit in that direction
 // issue.character-affect-triggers: run the bearer's affect actions whose trigger matches event.trigger,
 // threading `event` onto the context so manual_cast handlers can read its rich data. Called from trigger
-// fire-sites (the per-hit kHit / post-damage kDamageDealt points in fight_hit.cpp). True if any ran.
+// fire-sites (the per-hit kPreHit / post-damage kPostHit points in fight_hit.cpp). True if any ran.
 bool RunCharEventTriggers(CharData *ch, const EventContext &event);
 
 // Result of one cast stage (CastAffect/CastUnaffects/...). With the per-action loop

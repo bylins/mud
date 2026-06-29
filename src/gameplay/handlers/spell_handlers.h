@@ -76,7 +76,6 @@ EStageResult SpellControlWeather(ActionContext &ctx);
 EStageResult SpellFear(ActionContext &ctx);
 EStageResult SpellEnergydrain(ActionContext &ctx);
 EStageResult SpellHolystrike(ActionContext &ctx);
-EStageResult SpellVampirism(ActionContext &ctx);
 EStageResult SpellMentalShadow(ActionContext &ctx);
 
 // Shared messaging helper for the alter-obj handlers: act() the cast spell's `key` message on

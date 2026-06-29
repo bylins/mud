@@ -2294,8 +2294,8 @@
 	</msg_sheaf>
 	<msg_sheaf id="kVampirism">
 		<name val="вампиризм" />
-		<message type="kCastPhraseHeathen" val="" />
-		<message type="kCastPhraseChristian" val="" />
+		<message type="kCastPhraseHeathen" val="крови вражьей испити" />
+		<message type="kCastPhraseChristian" val="... да напитает тебя кровь врага твоего." />
 	</msg_sheaf>
 	<msg_sheaf id="kDeathAura">
 		<name val="аура смерти" />

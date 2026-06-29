@@ -2569,7 +2569,6 @@ static const std::map<std::string, std::function<EStageResult(ActionContext &)>>
 	{"SpellIdentify",       handlers::SpellIdentify},
 	{"SpellFullIdentify",   handlers::SpellFullIdentify},
 	{"SpellHolystrike",     handlers::SpellHolystrike},
-	{"SpellVampirism",      handlers::SpellVampirism},
 	{"SpellRecall",         handlers::SpellRecall},
 	{"SpellTeleport",       handlers::SpellTeleport},
 	{"SpellSummon",         handlers::SpellSummon},
@@ -2803,6 +2802,9 @@ double ActionContext::CompetenceBase() const {
 		case talents_actions::EActionBase::kPoints:    return points_count;
 		case talents_actions::EActionBase::kAffects:   return affects_potency;
 		case talents_actions::EActionBase::kDispelled: return dispelled_potency;
+		// issue.character-affect-triggers: base="tag" -- the event tag's numeric value (e.g. damage amount).
+		case talents_actions::EActionBase::kTag:
+			return static_cast<double>(event_.GetTag(action_or_default().GetTagName()));
 		case talents_actions::EActionBase::kCompetence:
 		default:                                       return real;
 	}
@@ -3396,7 +3398,7 @@ bool RunCharAffectTick(CharData *ch, const Affect<EApply>::shared_ptr &aff) {
 }
 
 // issue.character-affect-triggers: run every action on the bearer's affects whose trigger matches
-// event.trigger (e.g. kHit / kDamageDealt), threading `event` onto the context so manual_cast handlers
+// event.trigger (e.g. kPreHit / kPostHit), threading `event` onto the context so manual_cast handlers
 // can read its rich data (amount/weapon/skill/actor). Each action targets via its own <target> (e.g.
 // kTarFightVict = the current opponent) and its <side_spell> lands on that target at the proc level (NPCs
 // proc at their real level, matching the old hand-coded kCloudOfArrows bolt; PCs at level 1). Snapshots

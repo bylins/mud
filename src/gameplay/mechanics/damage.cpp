@@ -712,21 +712,9 @@ int Damage::Process(CharData *ch, CharData *victim) {
 	if (dmg_type == fight::kPhysDmg && GET_GOD_FLAG(ch, EGf::kSkillTester) && skill_id != ESkill::kUndefined) {
 		log("SKILLTEST:;%s;skill;%s;damage;%d;Luck;%s", GET_NAME(ch), MUD::Skill(skill_id).GetName(), dam, flags[fight::kCritLuck] ? "yes" : "no");
 	}
-	// если на чармисе вампир
-	if (AFF_FLAGGED(ch, EAffect::kVampirism)) {
-		ch->set_hit(std::clamp(ch->get_hit() + std::max(1, dam / 10),
-							   ch->get_hit(), ch->get_real_max_hit() + ch->get_real_max_hit() * GetRealLevel(ch) / 10));
-		// если есть родство душ, то чару отходит по 5% от дамаги к хп
-		if (ch->has_master()) {
-			if (CanUseFeat(ch->get_master(), EFeat::kSoulLink)) {
-				ch->get_master()->set_hit(std::max(ch->get_master()->get_hit(),
-												   std::min(ch->get_master()->get_hit() + std::max(1, dam / 20 ),
-															ch->get_master()->get_real_max_hit() +
-																ch->get_master()->get_real_max_hit() *
-																	GetRealLevel(ch->get_master()) / 10)));
-			}
-		}
-	}
+	// issue.character-affect-triggers: the kVampirism HP-leech moved OUT of the damage pipeline to the
+	// affect's data-driven kPostHit <points> heal (affects.xml). (SoulLink master-share dropped for now --
+	// re-add as a second action / handler if needed.)
 	// запись в дметр фактического и овер дамага
 	DpsSystem::UpdateDpsStatistics(ch, real_dam, over_dam);
 	// запись дамага в список атакеров

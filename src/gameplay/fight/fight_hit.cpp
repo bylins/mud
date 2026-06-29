@@ -959,19 +959,19 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 	hit_params.weapon = weapon;
 	hit_params.Init(ch, victim);
 	//  дополнительный маг. дамаг независимо от попадания физ. атаки
-	// issue.character-affect-triggers: per-hit (kHit) affect triggers, fired once per basic melee hit
+	// issue.character-affect-triggers: per-hit (kPreHit) affect triggers, fired once per basic melee hit
 	// (skill_num kUndefined; not an overwhelm/hammer setup) -- the same gate the hand-coded kCloudOfArrows
-	// proc used. kCloudOfArrows is now data-driven: <actions><trigger kHit><target kTarFightVict>
-	// <side_spell kCloudOfArrowsBolt>; RunCharHitTriggers casts each bearer's kHit action on the current
+	// proc used. kCloudOfArrows is now data-driven: <actions><trigger kPreHit><target kTarFightVict>
+	// <side_spell kCloudOfArrowsBolt>; RunCharHitTriggers casts each bearer's kPreHit action on the current
 	// opponent at the proc level (NPC -> real level, как раньше для болта облака стрел).
 	if (hit_params.skill_num == ESkill::kUndefined
 		&& (ch->GetEnemy()
 		|| (!ch->battle_affects.get(kEafHammer) && !ch->battle_affects.get(kEafOverwhelm)))) {
 		// здесь можно получить спурженного victim, но ch не умрет от зеркала
-		// issue.character-affect-triggers: kHit event = pre-damage swing (weapon + weapon-skill known;
-		// the physical amount is computed below, so it rides on kDamageDealt, not here).
+		// issue.character-affect-triggers: kPreHit event = pre-damage swing (weapon + weapon-skill known;
+		// the physical amount is computed below, so it rides on kPostHit, not here).
 		EventContext hit_event;
-		hit_event.trigger = talents_actions::EActionTrigger::kHit;
+		hit_event.trigger = talents_actions::EActionTrigger::kPreHit;
 		hit_event.weapon = hit_params.wielded;
 		hit_event.skill = hit_params.weap_skill;
 		hit_event.actor = victim;
@@ -1098,13 +1098,13 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 	SendToTC(victim, false, true, true, "&CПолучил: Регуляр дамаг = %d&n\r\n", hit_params.dam);
 	int made_dam = hit_params.ProcessExtradamage(ch, victim);
 
-	// issue.character-affect-triggers: kDamageDealt event = a landed melee hit resolved. Fires only when
+	// issue.character-affect-triggers: kPostHit event = a landed melee hit resolved. Fires only when
 	// the hit dealt damage AND the victim survived (made_dam == -1 means the victim died this hit -> no
 	// post-hit trigger on a corpse). Event carries the actual amount, the weapon, the weapon-skill and
 	// the victim, for handlers (no XML grammar for these).
 	if (made_dam != -1 && hit_params.dam > 0) {
 		EventContext dmg_event;
-		dmg_event.trigger = talents_actions::EActionTrigger::kDamageDealt;
+		dmg_event.trigger = talents_actions::EActionTrigger::kPostHit;
 		dmg_event.amount = hit_params.dam;
 		dmg_event.weapon = hit_params.wielded;
 		dmg_event.skill = hit_params.weap_skill;

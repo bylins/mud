@@ -5477,7 +5477,7 @@
 			</action>
 		</talent_actions>
 	</spell>
-	<spell id="kVampirism" element="kDark" mode="kDisabled">
+	<spell id="kVampirism" element="kDark" mode="kEnabled">
 		<name val="vampire" />
 		<components>
 			<verbal />
@@ -5485,8 +5485,8 @@
 		</components>
 		<misc pos="kStand" violent="N" danger="3" />
 		<mana max="150" min="130" change="5" />
-		<targets val="kTarIgnore" />
-		<flags val="kMagManual" />
+		<targets val="kTarCharRoom|kTarFightSelf" />
+		<flags val="kMagAffects" />
 		<potency_roll>
 			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kDarkMagic" low_skill_bonus="3" hi_skill_bonus="1.25" />
@@ -5502,7 +5502,6 @@
 					<duration base="10" skill_divisor="3" min="0" max="0" />
 					<affect id="kVampirism"/>
 				</affects>
-				<manual_cast handler="SpellVampirism" />
 			</action>
 		</talent_actions>
 	</spell>

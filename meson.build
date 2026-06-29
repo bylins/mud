@@ -485,7 +485,6 @@ main_sources = files(
   'src/gameplay/handlers/spell_fear.cpp',
   'src/gameplay/handlers/spell_energydrain.cpp',
   'src/gameplay/handlers/spell_holystrike.cpp',
-  'src/gameplay/handlers/spell_vampirism.cpp',
   'src/gameplay/handlers/spell_mental_shadow.cpp',
   'src/gameplay/core/remort.cpp',
   'src/gameplay/mechanics/summon.cpp',

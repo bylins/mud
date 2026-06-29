@@ -242,7 +242,7 @@
 		</apply>
 		<actions>
 			<action target="kTarFightVict">
-				<trigger val="kHit"/>
+				<trigger val="kPreHit"/>
 				<side_spell id="kCloudOfArrowsBolt"/>
 			</action>
 		</actions>
@@ -303,10 +303,15 @@
 	</affect>
 	<affect id="kNoobRegen"/>
 	<affect id="kVampirism" buff="Y">
-		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
-		<apply location="kDamroll">
-			<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
-		</apply>
+		<flags val="kAfUpdateDuration|kAfDispellable"/>
+		<actions>
+			<action target="kTarFightSelf" base="tag" tag="amount">
+				<trigger val="kPostHit"/>
+				<points extra="100">
+					<heal min="1" dices_weight="0" alpha="0" beta="0.10" npc_coeff="0"/>
+				</points>
+			</action>
+		</actions>
 	</affect>
 	<affect id="kLacerations">
 		<flags val="kAfBattledec|kAfCurable"/>

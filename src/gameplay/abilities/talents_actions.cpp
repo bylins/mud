@@ -42,6 +42,7 @@ const char *ActionBaseName(EActionBase b) {
 		case EActionBase::kPoints: return "kPoints";
 		case EActionBase::kAffects: return "kAffects";
 		case EActionBase::kDispelled: return "kDispelled";
+		case EActionBase::kTag: return "tag";
 	}
 	return "?";
 }
@@ -90,8 +91,8 @@ const std::map<std::string, EActionTrigger> kActionTriggerByName{
 	{"kOpen", EActionTrigger::kOpen},
 	{"kClose", EActionTrigger::kClose},
 	{"kLock", EActionTrigger::kLock},
-	{"kHit", EActionTrigger::kHit},
-	{"kDamageDealt", EActionTrigger::kDamageDealt},
+	{"kPreHit", EActionTrigger::kPreHit},
+	{"kPostHit", EActionTrigger::kPostHit},
 };
 
 // issue.room-affect-trigger-improve: <action target=...> token -> EActionTarget, replacing a
@@ -1001,6 +1002,14 @@ void Actions::ParseAction(Action &out, parser_wrapper::DataNode node) {
 		else if (strcmp(bs, "kAffects") == 0) { out.base_ = EActionBase::kAffects; }
 		else if (strcmp(bs, "kDispelled") == 0) { out.base_ = EActionBase::kDispelled; }
 		else if (strcmp(bs, "kCompetence") == 0) { out.base_ = EActionBase::kCompetence; }
+		// issue.character-affect-triggers: base="tag" tag="NAME" -- the formula base is the event tag NAME
+		// (read off the ActionContext's EventContext, cast to a number).
+		else if (strcmp(bs, "tag") == 0) {
+			out.base_ = EActionBase::kTag;
+			const char *tn = node.GetValue("tag");
+			if (tn && *tn) { out.tag_name_ = tn; }
+			else { err_log("Actions: <action base='tag'> without a tag='NAME'."); }
+		}
 		else { err_log("Actions: unknown <action base='%s'>.", bs); }
 	}
 	const char *rs = node.GetValue("reset");
