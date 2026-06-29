@@ -4,7 +4,7 @@
 
 Lua-поддержка сейчас является прототипом и работает только в сборке с `-Dluajit_prototype=true`. Обычная сборка без LuaJIT должна продолжать читать DG-триггеры как раньше.
 
-**Безопасность:** глобалы `os`, `io`, `debug`, `package` и `require` намеренно отключены. Для реального календарного времени используйте `mud.date("%j")`, `mud.date("*t")` и т.п. (не os.date).
+**Безопасность:** глобалы `os`, `io`, `debug`, `package` и `require` намеренно отключены. Для реального календарного времени используйте `mud.date("%j")`, `mud.date("*t")`, `mud.date("exact")` и т.п. (не os.date).
 
 ## Формат триггера в legacy world-файлах
 
@@ -310,10 +310,19 @@ end
 | `mud.room(vnum)` | Room или nil | Комната по VNUM. |
 | `mud.zone(vnum)` | table или nil | Зона по VNUM. |
 | `mud.time()` | table | `{ hour, day, month, year }` (игровое время). |
-| `mud.date(fmt [, ts])` | string или table | Реальное календарное время (безопасный аналог os.date). `mud.date("%j")` — день года строкой, `mud.date("*t")` — таблица {year,month,day,...,yday}. |
+| `mud.date(fmt [, ts])` | string или table | Реальное календарное время (безопасный аналог os.date). `mud.date("%j")` — день года строкой, `mud.date("*t")` — таблица {year,month,day,...,yday}, `mud.date("exact")` — DG-аналог `%date.exact%`, миллисекунды Unix epoch строкой. |
 | `mud.weather()` | table | Данные погоды. |
 
 Поля `mud.zone(vnum)`: `vnum`, `name`, `top`, `age`, `lifespan`, `resetMode`, `used`, `locked`, `underConstruction`.
+
+Для арифметики времени преобразуйте `mud.date("exact")` в число:
+
+```lua
+local t1 = tonumber(mud.date("exact"))
+-- код
+local elapsed = tonumber(mud.date("exact")) - t1
+mud.log("время выполнения " .. elapsed .. " миллисекунд")
+```
 
 Поля `mud.weather()`: `temperature`, `pressure`, `change`, `sky`, `sunlight`, `moonDay`, `season`, `weatherType`, `rainlevel`, `snowlevel`, `icelevel`.
 

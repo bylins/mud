@@ -22,6 +22,7 @@
 #include "utils/logger.h"
 #include "utils/random.h"
 
+#include <chrono>
 #include <ctime>
 #include <limits>
 #include <list>
@@ -641,16 +642,32 @@ sol::table BuildWeatherInfo(sol::state &lua)
 sol::object BuildRealDate(sol::state &lua, const sol::object &format, const sol::object &ts)
 {
 	std::time_t t = std::time(nullptr);
+	bool has_ts = false;
+	long double exact_ts_seconds = 0.0L;
 	if (ts.is<long>()) {
 		t = ts.as<long>();
+		exact_ts_seconds = static_cast<long double>(t);
+		has_ts = true;
 	} else if (ts.is<int>()) {
 		t = static_cast<std::time_t>(ts.as<int>());
+		exact_ts_seconds = static_cast<long double>(t);
+		has_ts = true;
 	} else if (ts.is<double>()) {
 		t = static_cast<std::time_t>(ts.as<double>());
+		exact_ts_seconds = static_cast<long double>(ts.as<double>());
+		has_ts = true;
 	}
 
 	if (format.is<std::string>()) {
 		const std::string fmt = format.as<std::string>();
+		if (fmt == "exact") {
+			if (has_ts) {
+				return sol::make_object(lua, std::to_string(static_cast<long long>(exact_ts_seconds * 1000.0L)));
+			}
+			const auto now = std::chrono::system_clock::now();
+			const auto now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
+			return sol::make_object(lua, std::to_string(now_ms.time_since_epoch().count()));
+		}
 		if (fmt == "*t" || fmt == "!*t") {
 			const bool utc = (fmt[0] == '!');
 			struct tm *tm = utc ? std::gmtime(&t) : std::localtime(&t);
