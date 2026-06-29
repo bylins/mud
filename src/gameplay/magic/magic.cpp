@@ -3504,10 +3504,20 @@ bool room_spells::RunDoorTriggers(CharData *actor, RoomData *room, int dir, tale
 			collect(rev_exit);
 		}
 	}
+	const bool actor_is_pc = !actor->IsNpc();
 	bool allowed = true;
 	for (const auto &p : pending) {
 		for (const auto &action : room_spells::RoomAffectActions(p.type).list()) {
-			if (!action.GetTrigger().test(ev)) { continue; }
+			const auto &trig = action.GetTrigger();
+			// issue.room-affect-trigger-improve: kEnter passed here = the ENTER FAMILY (passage move-through),
+			// expanding by actor kind exactly like RunRoomEntryTriggers; the door verbs (kOpen/kPick/kUnlock)
+			// are matched verbatim.
+			bool fires = trig.test(ev);
+			if (ev == talents_actions::EActionTrigger::kEnter) {
+				fires = fires || (actor_is_pc && trig.test(talents_actions::EActionTrigger::kEnterPC))
+						|| (!actor_is_pc && trig.test(talents_actions::EActionTrigger::kEnterNPC));
+			}
+			if (!fires) { continue; }
 			CharData *caster = find_char(p.caster_id);
 			if (!caster) { continue; }   // no owner to source the cast
 			const int ret = CastRoomEntryAction(caster, room, actor, p.type, action, p.potency, p.strength);

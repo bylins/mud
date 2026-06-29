@@ -392,6 +392,13 @@ bool PerformSimpleMove(CharData *ch, int dir, int following, CharData *leader, E
 			room_spells::EEntryTriggerPhase::kBlockCheck)) {
 		return false;
 	}
+	// issue.room-affect-trigger-improve (door affects): a PASSAGE affect can also react to simply moving
+	// through this exit -- its kEnter/kEnterPC/kEnterNPC action fires now (actor still in the source room,
+	// so the effect plays out in the doorway), and return=0 refuses the move. Reverse-resolved, so a trap
+	// on either side of the passage triggers.
+	if (!room_spells::RunDoorTriggers(ch, world[ch->in_room], dir, talents_actions::EActionTrigger::kEnter)) {
+		return false;
+	}
 
 	// Now we know we're allowed to go into the room.
 	if (!privilege::IsImmortal(ch) && !ch->IsNpc())

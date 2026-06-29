@@ -107,7 +107,7 @@
 		<flags val="kAfUpdateDuration|kAfDispellable"/>
 		<actions>
 			<action target="kTarActor">
-				<trigger val="kOpen" return="0"/>
+				<trigger val="kOpen|kEnter" return="0"/>
 				<side_spell id="kFireball"/>
 			</action>
 		</actions>
