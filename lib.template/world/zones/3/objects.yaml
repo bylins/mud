@@ -1,0 +1,766 @@
+# Objects for zone 3
+
+0:
+  # Object #300
+  names:
+    aliases: шелепуга
+    nominative: шелепуга
+    genitive: шелепуги
+    dative: шелепуге
+    accusative: шелепугу
+    instrumental: шелепугой
+    prepositional: шелепуге
+  short_desc: Шелепуга лежит здесь.
+  type: kWeapon
+  wear_flags:
+  - kTake
+  material: 0  # бронза
+  values:
+  - '0'
+  - '0'
+  - '0'
+  - '6'
+  weight: 0
+  cost: 150
+  rent_off: 100
+  rent_on: 75
+  spec_param: 141
+  max_durability: -1
+  cur_durability: 0
+  timer: 30000
+  spell: -1
+  level: 0
+  sex: kFemale
+
+1:
+  # Object #301
+  names:
+    aliases: меч
+    nominative: меч
+    genitive: меча
+    dative: мечу
+    accusative: меч
+    instrumental: мечом
+    prepositional: мече
+  short_desc: Меч валяется здесь.
+  type: kWeapon
+  wear_flags:
+  - kTake
+  - kWield
+  - kBoth
+  material: 3  # булат
+  values:
+  - '0'
+  - '0'
+  - '0'
+  - '7'
+  weight: 20
+  cost: 100
+  rent_off: 100
+  rent_on: 75
+  spec_param: 143
+  max_durability: 100
+  cur_durability: 100
+  timer: 30000
+  spell: -1
+  level: 0
+  sex: kMale
+
+2:
+  # Object #302
+  names:
+    aliases: сабля
+    nominative: сабля
+    genitive: сабли
+    dative: сабле
+    accusative: саблю
+    instrumental: саблей
+    prepositional: сабле
+  short_desc: Сабля лежит здесь.
+  type: kWeapon
+  wear_flags:
+  - kTake
+  - kHold
+  material: 0  # бронза
+  values:
+  - '0'
+  - '0'
+  - '0'
+  - '7'
+  weight: 0
+  cost: 1
+  rent_off: 80
+  rent_on: 60
+  spec_param: 144
+  max_durability: -1
+  cur_durability: 0
+  timer: 30000
+  spell: -1
+  level: 0
+  sex: kFemale
+
+3:
+  # Object #303
+  names:
+    aliases: нож
+    nominative: нож
+    genitive: ножа
+    dative: ножу
+    accusative: нож
+    instrumental: ножом
+    prepositional: ноже
+  short_desc: Нож брошен здесь за ненадобностью.
+  type: kWeapon
+  wear_flags:
+  - kTake
+  - kWield
+  - kHold
+  material: 3  # булат
+  values:
+  - '0'
+  - '0'
+  - '0'
+  - '7'
+  weight: 1
+  cost: 100
+  rent_off: 75
+  rent_on: 25
+  spec_param: 147
+  max_durability: 65000
+  cur_durability: 0
+  timer: 30000
+  spell: -1
+  level: 0
+  sex: kMale
+
+4:
+  # Object #304
+  names:
+    aliases: топор
+    nominative: топор
+    genitive: топора
+    dative: топору
+    accusative: топор
+    instrumental: топором
+    prepositional: топоре
+  short_desc: Брошенный топор ржавеет тут.
+  type: kWeapon
+  wear_flags:
+  - kTake
+  - kWield
+  material: 0  # бронза
+  values:
+  - '0'
+  - '0'
+  - '0'
+  - '3'
+  weight: 0
+  cost: 150
+  rent_off: 120
+  rent_on: 100
+  spec_param: 142
+  max_durability: -1
+  cur_durability: 0
+  timer: 30000
+  spell: -1
+  level: 0
+  sex: kMale
+
+5:
+  # Object #305
+  names:
+    aliases: плеть
+    nominative: плеть
+    genitive: плети
+    dative: плети
+    accusative: плеть
+    instrumental: плетью
+    prepositional: плети
+  short_desc: Плеть валяется на земле.
+  type: kWeapon
+  wear_flags:
+  - kTake
+  - kWield
+  - kBoth
+  material: 16  # платина
+  values:
+  - '0'
+  - '0'
+  - '0'
+  - '2'
+  weight: 0
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  spec_param: 145
+  max_durability: -1
+  cur_durability: 0
+  timer: 30000
+  spell: -1
+  level: 0
+  sex: kFemale
+
+6:
+  # Object #306
+  names:
+    aliases: дубина
+    nominative: дубина
+    genitive: дубины
+    dative: дубине
+    accusative: дубину
+    instrumental: дубиной
+    prepositional: дубине
+  short_desc: Дубина валяется на земле.
+  type: kWeapon
+  wear_flags:
+  - kTake
+  - kWield
+  - kBoth
+  material: 9  # кожа
+  values:
+  - '0'
+  - '0'
+  - '0'
+  - '5'
+  weight: 0
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  spec_param: 141
+  max_durability: -1
+  cur_durability: 0
+  timer: 30000
+  spell: -1
+  level: 0
+  sex: kFemale
+
+7:
+  # Object #307
+  names:
+    aliases: кольчуга
+    nominative: кольчуга
+    genitive: кольчуги
+    dative: кольчуге
+    accusative: кольчугу
+    instrumental: кольчугой
+    prepositional: кольчуге
+  short_desc: Кольчуга валяется тут.
+  type: kArmor
+  wear_flags:
+  - kTake
+  - kBody
+  material: 3  # булат
+  values:
+  - '10'
+  - '10'
+  - '0'
+  - '0'
+  weight: 0
+  cost: 150
+  rent_off: 120
+  rent_on: 100
+  spec_param: 0
+  max_durability: -1
+  cur_durability: 0
+  timer: 30000
+  spell: -1
+  level: 0
+  sex: kFemale
+
+8:
+  # Object #308
+  names:
+    aliases: наручи
+    nominative: наручи
+    genitive: наручей
+    dative: наручам
+    accusative: наручи
+    instrumental: наручами
+    prepositional: наручах
+  short_desc: Наручи лежат здесь.
+  type: kArmor
+  wear_flags:
+  - kTake
+  - kArms
+  material: 0  # бронза
+  values:
+  - '0'
+  - '0'
+  - '0'
+  - '0'
+  weight: 0
+  cost: 100
+  rent_off: 75
+  rent_on: 40
+  spec_param: 0
+  max_durability: -1
+  cur_durability: 0
+  timer: 30000
+  spell: -1
+  level: 0
+  sex: kPoly
+
+9:
+  # Object #309
+  names:
+    aliases: поножи
+    nominative: поножи
+    genitive: поножей
+    dative: поножам
+    accusative: поножи
+    instrumental: поножами
+    prepositional: поножах
+  short_desc: Поножи лежат здесь.
+  type: kArmor
+  wear_flags:
+  - kTake
+  - kLegs
+  material: 0  # бронза
+  values:
+  - '0'
+  - '0'
+  - '0'
+  - '0'
+  weight: 0
+  cost: 100
+  rent_off: 75
+  rent_on: 40
+  spec_param: 0
+  max_durability: -1
+  cur_durability: 0
+  timer: 30000
+  spell: -1
+  level: 0
+  sex: kPoly
+
+10:
+  # Object #310
+  names:
+    aliases: шлем
+    nominative: шлем
+    genitive: шлема
+    dative: шлему
+    accusative: шлем
+    instrumental: шлемом
+    prepositional: шлеме
+  short_desc: Шлем лежит здесь.
+  type: kArmor
+  wear_flags:
+  - kTake
+  - kHead
+  material: 0  # бронза
+  values:
+  - '0'
+  - '0'
+  - '0'
+  - '0'
+  weight: 0
+  cost: 150
+  rent_off: 100
+  rent_on: 50
+  spec_param: 0
+  max_durability: -1
+  cur_durability: 0
+  timer: 30000
+  spell: -1
+  level: 0
+  sex: kMale
+
+11:
+  # Object #311
+  names:
+    aliases: каменный уголь
+    nominative: уголь
+    genitive: угля
+    dative: углю
+    accusative: уголь
+    instrumental: углем
+    prepositional: угле
+  short_desc: Кусок каменного угля лежит здесь.
+  type: kMagicIngredient
+  wear_flags:
+  - kTake
+  material: 12  # драгоценный камень
+  values:
+  - '0'
+  - '311'
+  - '0'
+  - '0'
+  weight: 5
+  cost: 10
+  rent_off: 5
+  rent_on: 5
+  spec_param: 0
+  max_durability: 10
+  cur_durability: 10
+  timer: 10080
+  spell: -1
+  level: 0
+  sex: kMale
+  max_in_world: 10000
+
+12:
+  # Object #312
+  names:
+    aliases: составной лук
+    nominative: составной лук
+    genitive: составного лука
+    dative: составному луку
+    accusative: составной лук
+    instrumental: составным луком
+    prepositional: составном луке
+  short_desc: Составной лук лежит здесь.
+  type: kWeapon
+  wear_flags:
+  - kTake
+  material: 0  # бронза
+  values:
+  - '0'
+  - '0'
+  - '0'
+  - '9'
+  weight: 0
+  cost: 150
+  rent_off: 100
+  rent_on: 75
+  spec_param: 154
+  max_durability: -1
+  cur_durability: 0
+  timer: 43200
+  spell: -1
+  level: 0
+  sex: kMale
+
+13:
+  # Object #313
+  names:
+    aliases: гибкая палка
+    nominative: гибкая палка
+    genitive: гибкой палки
+    dative: гибкой палке
+    accusative: гибкую палку
+    instrumental: гибкой палкой
+    prepositional: гибкой палке
+  short_desc: Гибкая палка лежит здесь.
+  type: kMagicIngredient
+  wear_flags:
+  - kTake
+  material: 9  # кожа
+  values:
+  - '0'
+  - '313'
+  - '0'
+  - '0'
+  weight: 15
+  cost: 10
+  rent_off: 5
+  rent_on: 5
+  spec_param: 0
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: -1
+  level: 0
+  sex: kFemale
+
+14:
+  # Object #314
+  names:
+    aliases: тетива
+    nominative: тетива
+    genitive: тетивы
+    dative: тетиве
+    accusative: тетиву
+    instrumental: тетивой
+    prepositional: тетиве
+  short_desc: Тетива валяется здесь.
+  type: kMagicIngredient
+  wear_flags:
+  - kTake
+  material: 9  # кожа
+  values:
+  - '0'
+  - '314'
+  - '0'
+  - '0'
+  weight: 5
+  cost: 10
+  rent_off: 5
+  rent_on: 5
+  spec_param: 0
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: -1
+  level: 0
+  sex: kFemale
+
+20:
+  # Object #320
+  names:
+    aliases: маленький кусок мяса
+    nominative: маленький кусок мяса
+    genitive: маленького куска мяса
+    dative: маленькому куску мяса
+    accusative: маленький кусок мяса
+    instrumental: маленьким куском мяса
+    prepositional: маленьком куске мяса
+  short_desc: Маленький кусок мяса лежит здесь.
+  type: kFood
+  wear_flags:
+  - kTake
+  material: 16  # платина
+  values:
+  - '4'
+  - '0'
+  - '0'
+  - '0'
+  weight: 1
+  cost: 2
+  rent_off: 0
+  rent_on: 0
+  spec_param: 0
+  max_durability: 10
+  cur_durability: 10
+  timer: 1800
+  spell: -1
+  level: 0
+  sex: kMale
+
+21:
+  # Object #321
+  names:
+    aliases: небольшой кусок мяса
+    nominative: небольшой кусок мяса
+    genitive: небольшого куска мяса
+    dative: небольшому куску мяса
+    accusative: небольшой кусок мяса
+    instrumental: небольшим куском мяса
+    prepositional: небольшом куске мяса
+  short_desc: Небольшой кусок мяса лежит здесь.
+  type: kFood
+  wear_flags:
+  - kTake
+  material: 16  # платина
+  values:
+  - '8'
+  - '0'
+  - '0'
+  - '0'
+  weight: 1
+  cost: 2
+  rent_off: 0
+  rent_on: 0
+  spec_param: 0
+  max_durability: 10
+  cur_durability: 10
+  timer: 1800
+  spell: -1
+  level: 0
+  sex: kMale
+
+22:
+  # Object #322
+  names:
+    aliases: кусок мяса
+    nominative: кусок мяса
+    genitive: куска мяса
+    dative: куску мяса
+    accusative: кусок мяса
+    instrumental: куском мяса
+    prepositional: куске мяса
+  short_desc: Кусок мяса лежит здесь.
+  type: kFood
+  wear_flags:
+  - kTake
+  material: 16  # платина
+  values:
+  - '12'
+  - '0'
+  - '0'
+  - '0'
+  weight: 2
+  cost: 4
+  rent_off: 0
+  rent_on: 0
+  spec_param: 0
+  max_durability: 10
+  cur_durability: 10
+  timer: 1800
+  spell: -1
+  level: 0
+  sex: kMale
+
+23:
+  # Object #323
+  names:
+    aliases: большой кусок мяса
+    nominative: большой кусок мяса
+    genitive: большого куска мяса
+    dative: большому куску мяса
+    accusative: большой кусок мяса
+    instrumental: большим куском мяса
+    prepositional: большом куске мяса
+  short_desc: Большой кусок мяса лежит здесь.
+  type: kFood
+  wear_flags:
+  - kTake
+  material: 16  # платина
+  values:
+  - '16'
+  - '0'
+  - '0'
+  - '0'
+  weight: 1
+  cost: 6
+  rent_off: 0
+  rent_on: 0
+  spec_param: 0
+  max_durability: 10
+  cur_durability: 10
+  timer: 1800
+  spell: -1
+  level: 0
+  sex: kMale
+
+30:
+  # Object #330
+  names:
+    aliases: волшебный сундук
+    nominative: волшебный сундук
+    genitive: волшебного сундука
+    dative: волшебному сундуку
+    accusative: волшебный сундук
+    instrumental: волшебным сундуком
+    prepositional: волшебном сундуке
+  short_desc: Волшебный сундук так и манит к себе...
+  type: kContainer
+  extra_flags:
+  - kNoinvis
+  - kNodecay
+  - kNolocate
+  material: 0  # бронза
+  values:
+  - '0'
+  - '0'
+  - '0'
+  - '0'
+  weight: 0
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  spec_param: 0
+  max_durability: 0
+  cur_durability: 0
+  timer: 10080
+  spell: 0
+  level: 0
+  sex: kNeutral
+
+31:
+  # Object #331
+  names:
+    aliases: Ваш походный сундучок
+    nominative: ваш походный сундучок
+    genitive: вашего походного сундучка
+    dative: вашему походному сундучку
+    accusative: ваш походный сундучок
+    instrumental: вашим походным сундучком
+    prepositional: вашем походном сундучке
+  short_desc: Ваш походный сундучок стоит здесь.
+  type: kContainer
+  extra_flags:
+  - kNorent
+  - kNodonate
+  - kNoinvis
+  - kNosell
+  - kNodecay
+  - kNolocate
+  material: 0  # бронза
+  values:
+  - '0'
+  - '0'
+  - '0'
+  - '0'
+  weight: 0
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  spec_param: 0
+  max_durability: 0
+  cur_durability: 0
+  timer: 10000
+  spell: 0
+  level: 0
+  sex: kNeutral
+
+32:
+  # Object #332
+  names:
+    aliases: короб склад снаряжения ватаги
+    nominative: склад снаряжения вашей ватаги
+    genitive: склад снаряжения вашей ватагий
+    dative: склад снаряжения вашей ватаги
+    accusative: склад снаряжения вашей ватаги
+    instrumental: склад снаряжения вашей ватаги
+    prepositional: склад снаряжения вашей ватаги
+  short_desc: Короб для хранения снаряжения вашей ватаги пристроен в углу.
+  type: kContainer
+  extra_flags:
+  - kNorent
+  - kNodonate
+  - kNoinvis
+  - kNosell
+  - kNodecay
+  - kNolocate
+  material: 0  # бронза
+  values:
+  - '0'
+  - '0'
+  - '0'
+  - '0'
+  weight: 0
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  spec_param: 0
+  max_durability: 0
+  cur_durability: 0
+  timer: 10000
+  spell: 0
+  level: 0
+  sex: kNeutral
+
+33:
+  # Object #333
+  names:
+    aliases: короб хранения ингредиентов
+    nominative: короб для хранения ингредиентов
+    genitive: короба для хранения ингредиентов
+    dative: коробу для хранения ингредиентов
+    accusative: короб для хранения ингредиентов
+    instrumental: коробом для хранения ингредиентов
+    prepositional: коробе для хранения ингредиентов
+  short_desc: Короб для хранения ингредиентов пристроен в углу.
+  type: kContainer
+  extra_flags:
+  - kNoinvis
+  - kNodecay
+  - kNolocate
+  material: 0  # бронза
+  values:
+  - '0'
+  - '0'
+  - '0'
+  - '0'
+  weight: 0
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  spec_param: 0
+  max_durability: 0
+  cur_durability: 0
+  timer: 10080
+  spell: 0
+  level: 0
+  sex: kNeutral

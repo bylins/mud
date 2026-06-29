@@ -1,0 +1,121 @@
+# Dictionary: room_flags
+kDarked: 0  # темная
+kDeathTrap: 1  # ДТ
+kNoEntryMob: 2  # не для мобов
+kIndoors: 3  # внутри
+kPeaceful: 4  # мирная
+kSoundproof: 5  # глухая
+kNoTrack: 6  # не выследить
+kNoMagic: 7  # нет магии
+kTunnel: 8  # однопроходная
+kNoTeleportIn: 9  # телепортация в комнату запрещена
+kGodsRoom: 10  # БОГИ
+kHouse: 11  # замок
+kHouseCrash: 12  # *HCRSH
+kHouseEntry: 13  # вход в замок
+UNUSED_14: 14  # *в ОЛС
+kBfsMark: 15  # *
+kForMages: 16  # для магов
+kForSorcerers: 17  # для лекарей
+kForThieves: 18  # для воров
+kForWarriors: 19  # для богатырей
+kForAssasines: 20  # для наемников
+kForGuards: 21  # для дружинников
+kForPaladines: 22  # для витязей
+kForRangers: 23  # для охотников
+kForPoly: 24  # жертвенник
+kForMono: 25  # молельня
+kForge: 26  # кузница
+kForMerchants: 27  # для купцов
+kForMaguses: 28  # для волхвов
+kArena: 29  # арена
+kNoSummonOut: 30  # не призвать
+kNoTeleportOut: 31  # телепортация из комнаты запрещена
+kNohorse: 32  # нельзя верхом
+kNoWeather: 33  # внепогодная
+kSlowDeathTrap: 34  # медленный ДТ
+kIceTrap: 35  # *провалился под лед
+kNoRelocateIn: 36  # не переместиться
+kTribune: 37  # слышно арену
+kArenaSend: 38  # транслируем арену
+kNoBattle: 39  # нельзя атаковать
+UNUSED_40: 40  # квестовая
+kAlwaysLit: 41  # всегда светло
+kMoMapper: 42  # нет внумов
+UNUSED_43: 43
+UNUSED_44: 44
+UNUSED_45: 45
+UNUSED_46: 46
+UNUSED_47: 47
+UNUSED_48: 48
+UNUSED_49: 49
+UNUSED_50: 50
+UNUSED_51: 51
+UNUSED_52: 52
+UNUSED_53: 53
+UNUSED_54: 54
+UNUSED_55: 55
+UNUSED_56: 56
+UNUSED_57: 57
+UNUSED_58: 58
+UNUSED_59: 59
+kNoItem: 60  # передача вещей запрещена
+kDominationArena: 61  # арена Доминирования
+UNUSED_62: 62
+UNUSED_63: 63
+UNUSED_64: 64
+UNUSED_65: 65
+UNUSED_66: 66
+UNUSED_67: 67
+UNUSED_68: 68
+UNUSED_69: 69
+UNUSED_70: 70
+UNUSED_71: 71
+UNUSED_72: 72
+UNUSED_73: 73
+UNUSED_74: 74
+UNUSED_75: 75
+UNUSED_76: 76
+UNUSED_77: 77
+UNUSED_78: 78
+UNUSED_79: 79
+UNUSED_80: 80
+UNUSED_81: 81
+UNUSED_82: 82
+UNUSED_83: 83
+UNUSED_84: 84
+UNUSED_85: 85
+UNUSED_86: 86
+UNUSED_87: 87
+UNUSED_88: 88
+UNUSED_89: 89
+UNUSED_90: 90
+UNUSED_91: 91
+UNUSED_92: 92
+UNUSED_93: 93
+UNUSED_94: 94
+UNUSED_95: 95
+UNUSED_96: 96
+UNUSED_97: 97
+UNUSED_98: 98
+UNUSED_99: 99
+UNUSED_100: 100
+UNUSED_101: 101
+UNUSED_102: 102
+UNUSED_103: 103
+UNUSED_104: 104
+UNUSED_105: 105
+UNUSED_106: 106
+UNUSED_107: 107
+UNUSED_108: 108
+UNUSED_109: 109
+UNUSED_110: 110
+UNUSED_111: 111
+UNUSED_112: 112
+UNUSED_113: 113
+UNUSED_114: 114
+UNUSED_115: 115
+UNUSED_116: 116
+UNUSED_117: 117
+UNUSED_118: 118
+UNUSED_119: 119

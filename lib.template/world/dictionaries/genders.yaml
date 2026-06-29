@@ -1,0 +1,6 @@
+# Dictionary: genders
+kNeutral: 0  # бесполое
+kMale: 1  # мужчина
+kFemale: 2  # женщина
+kPoly: 3  # многоголовый
+kLast: 4

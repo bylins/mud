@@ -1,0 +1,38 @@
+# Dictionary: obj_types
+kItemUndefined: 0  # UNDEFINED
+kLightSource: 1  # СВЕТ
+kScroll: 2  # СВИТОК
+kWand: 3  # ПАЛОЧКА
+kStaff: 4  # ПОСОХ
+kWeapon: 5  # ОРУЖИЕ
+kElementWeapon: 6  # ОГНЕВОЕ ОРУЖИЕ
+kMissile: 7  # РАКЕТА
+kTreasure: 8  # ДРАГОЦЕННОСТЬ
+kArmor: 9  # БРОНЯ
+kPotion: 10  # ВОЛШЕБНОЕ ЗЕЛЬЕ
+kWorm: 11  # ОДЕЖДА
+kOther: 12  # ДРУГОЕ
+kTrash: 13  # TRASH
+kTrap: 14  # МУСОР
+kContainer: 15  # КОНТЕЙНЕР
+kNote: 16  # БУМАГА
+kLiquidContainer: 17  # ЕМКОСТЬ
+kKey: 18  # КЛЮЧ
+kFood: 19  # ЕДА
+kMoney: 20  # ДЕНЬГИ
+kPen: 21  # ПЕРО
+kBoat: 22  # ЛОДКА
+kFountain: 23  # ИСТОЧНИК
+kBook: 24  # МАГИЧЕСКАЯ КНИГА
+kMagicIngredient: 25  # МАГИЧЕСКИЙ ИНГРЕДИЕНТ
+kMagicComponent: 26  # МАГИЧЕСКИЙ КОМПОНЕНТ
+kCraftMaterial: 27  # МАТЕРИАЛ
+kBandage: 28  # БИНТ
+kLightArmor: 29  # ЛЕГКИЕ ДОСПЕХИ
+kMediumArmor: 30  # СРЕДНИЕ ДОСПЕХИ
+kHeavyArmor: 31  # ТЯЖЕЛЫЕ ДОСПЕХИ
+kEnchant: 32  # ЗАЧАРОВАНИЕ ПРЕДМЕТА
+kMagicMaterial: 33  # МАГИЧЕСКИЙ МАТЕРИАЛ
+kMagicArrow: 34  # МАГИЧЕСКАЯ СТРЕЛА
+kMagicContaner: 35  # МАГИЧЕСКИЙ КОНТЕЙНЕР
+kCraftMaterial2: 36
