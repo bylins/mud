@@ -211,6 +211,9 @@ ECastResult CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomDat
 		int dir = -1);  // issue.room-affect-trigger-improve: dir>=0 + kMagRoom -> cast on EXIT(caster,dir) (door affect)
 ECastResult CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, ESpell spell_id, ESpell spell_subst,
 		int dir = -1);  // dir>=0: kTarDirection cast on the exit in that direction
+// issue.character-affect-triggers: run the bearer's per-hit (kHit) affect actions -- called once per
+// basic melee hit from fight_hit.cpp. Returns true if any kHit action ran.
+bool RunCharHitTriggers(CharData *ch);
 
 // Result of one cast stage (CastAffect/CastUnaffects/...). With the per-action loop
 // (issue.spell-pipeline) the dispatcher walks each spell action and runs its stages:

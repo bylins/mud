@@ -72,6 +72,7 @@ enum class EActionTrigger {
 	kOpen,
 	kClose,
 	kLock,
+	kHit,          // issue.character-affect-triggers: the bearer lands a (basic melee) hit on a victim
 	kCount
 };
 

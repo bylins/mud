@@ -240,6 +240,12 @@
 		<apply location="kHitroll">
 			<modifier min="5.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 		</apply>
+		<actions>
+			<action target="kTarFightVict">
+				<trigger val="kHit"/>
+				<side_spell id="kCloudOfArrowsBolt"/>
+			</action>
+		</actions>
 	</affect>
 	<affect id="kShadowCloak" buff="Y">
 		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>

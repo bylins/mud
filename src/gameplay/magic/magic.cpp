@@ -3394,6 +3394,48 @@ bool RunCharAffectTick(CharData *ch, const Affect<EApply>::shared_ptr &aff) {
 	return true;
 }
 
+// issue.character-affect-triggers: run every kHit action carried by the bearer's affects -- fired once
+// per basic melee hit from fight_hit.cpp. Each action targets via its own <target> (e.g. kTarFightVict =
+// the current opponent) and its <side_spell> lands on that target at the proc level (NPCs proc at their
+// real level, matching the old hand-coded kCloudOfArrows bolt; PCs at level 1). Snapshots the affect
+// TYPES first because a fired side-spell may mutate ch->affected. Returns true if any action ran.
+bool RunCharHitTriggers(CharData *ch) {
+	if (!ch || ch->in_room == kNowhere || ch->affected.empty()) {
+		return false;
+	}
+	std::vector<EAffect> types;   // unique affect types carrying a kHit action (few affects -> linear dedup)
+	for (const auto &aff : ch->affected) {
+		if (!aff || std::find(types.begin(), types.end(), aff->affect_type) != types.end()) {
+			continue;
+		}
+		for (const auto &a : affects::AffectActions(aff->affect_type).list()) {
+			if (a.GetTrigger().test(talents_actions::EActionTrigger::kHit)) {
+				types.push_back(aff->affect_type);
+				break;
+			}
+		}
+	}
+	if (types.empty()) {
+		return false;
+	}
+	const int level = ch->IsNpc() ? GetRealLevel(ch) : 1;
+	for (const EAffect t : types) {
+		std::vector<talents_actions::Action> fired;
+		for (const auto &a : affects::AffectActions(t).list()) {
+			if (a.GetTrigger().test(talents_actions::EActionTrigger::kHit)) {
+				fired.push_back(a);
+			}
+		}
+		CastContext ctx = BuildCastContext(ch, ESpell::kUndefined, level);
+		ctx.UseExternalActions(&fired);   // inject the action list (RunRoomCycledAction reads it off ctx)
+		RunRoomCycledAction(ctx, world[ch->in_room], fired, 0);
+		if (ch->purged()) {
+			return true;
+		}
+	}
+	return true;
+}
+
 // issue.room-affect-trigger-improve: on-entry trigger return values. 0 = block the action that fired
 // the trigger (refuse the room entry); any non-zero = allow. The dispatcher treats "no value set" as
 // allow, so non-blocking affects (e.g. kHypnoticPattern, which only casts sleep) need no return attr.
