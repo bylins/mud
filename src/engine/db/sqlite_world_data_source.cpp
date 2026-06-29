@@ -3114,6 +3114,7 @@ void SqliteWorldDataSource::SaveMobRecord(int mob_vnum, CharData &mob)
 	ExecuteStatement("DELETE FROM mob_spells WHERE mob_vnum = " + mvd, "del mob_spells");
 	ExecuteStatement("DELETE FROM mob_skills WHERE mob_vnum = " + mvd, "del mob_skills");
 	ExecuteStatement("DELETE FROM mob_resistances WHERE mob_vnum = " + mvd, "del mob_resistances");
+	ExecuteStatement("DELETE FROM mob_saves WHERE mob_vnum = " + mvd, "del mob_saves");
 	ExecuteStatement("DELETE FROM mob_death_load WHERE mob_vnum = " + mvd, "del mob_death_load");
 	ExecuteStatement("DELETE FROM entity_triggers WHERE entity_type = 'mob' AND entity_vnum = " + mvd, "del mob trigs");
 
