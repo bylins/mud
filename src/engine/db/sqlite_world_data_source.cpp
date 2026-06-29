@@ -3488,6 +3488,7 @@ void SqliteWorldDataSource::SaveObjectRecord(int obj_vnum, CObjectPrototype *obj
 	ExecuteStatement("DELETE FROM objects WHERE vnum = " + ov, "delete object");
 	ExecuteStatement("DELETE FROM obj_applies WHERE obj_vnum = " + ov, "del obj_applies");
 	ExecuteStatement("DELETE FROM obj_skills WHERE obj_vnum = " + ov, "del obj_skills");
+	ExecuteStatement("DELETE FROM obj_flags WHERE obj_vnum = " + ov, "del obj_flags");
 	ExecuteStatement("DELETE FROM obj_extra_values WHERE obj_vnum = " + ov, "del obj_extra_values");
 	ExecuteStatement("DELETE FROM entity_triggers WHERE entity_type = 'obj' AND entity_vnum = " + ov, "del obj trigs");
 
@@ -3559,10 +3560,16 @@ void SqliteWorldDataSource::SaveObjectRecord(int obj_vnum, CObjectPrototype *obj
 	sqlite3_finalize(stmt);
 
 
-	// Save object extra flags
-	FlagData obj_flags = obj->get_extra_flags();
-	SaveFlagsToTable(m_db, "obj_flags", "obj_vnum", obj_vnum, obj_flags, obj_extra_flag_map);
-	// Save object wear flags
+	// Save object flags by category. Only extra (with an empty category!) and
+	// wear used to be written -- anti/no/affect were dropped entirely, so those
+	// flags survived a round-trip only by accident via stale converter rows.
+	// SaveFlagsToTable now emits UNUSED_<bit> for unnamed bits, making each
+	// category lossless.
+	SaveFlagsToTable(m_db, "obj_flags", "obj_vnum", obj_vnum, obj->get_extra_flags(), obj_extra_flag_map, "extra");
+	SaveFlagsToTable(m_db, "obj_flags", "obj_vnum", obj_vnum, obj->get_anti_flags(), obj_anti_flag_map, "anti");
+	SaveFlagsToTable(m_db, "obj_flags", "obj_vnum", obj_vnum, obj->get_no_flags(), obj_no_flag_map, "no");
+	SaveFlagsToTable(m_db, "obj_flags", "obj_vnum", obj_vnum, obj->get_affect_flags(), obj_affect_flag_map, "affect");
+	// Save object wear flags (a flat 32-bit field, not FlagData planes)
 	int wear_flags = obj->get_wear_flags();
 	sqlite3_stmt *wear_stmt = nullptr;
 	const char *wear_sql = "INSERT INTO obj_flags (obj_vnum, flag_category, flag_name) VALUES (?, 'wear', ?)";
@@ -3572,15 +3579,16 @@ void SqliteWorldDataSource::SaveObjectRecord(int obj_vnum, CObjectPrototype *obj
 		{
 			Bitvector bit_value = (1 << bit);
 			std::string flag_name = ReverseLookupFlag(obj_wear_flag_map, bit_value);
-			if (!flag_name.empty())
+			if (flag_name.empty())
 			{
-				if (sqlite3_prepare_v2(m_db, wear_sql, -1, &wear_stmt, nullptr) == SQLITE_OK)
-				{
-					sqlite3_bind_int(wear_stmt, 1, obj_vnum);
-					BindTextKoi(wear_stmt, 2, flag_name.c_str());
-					sqlite3_step(wear_stmt);
-					sqlite3_finalize(wear_stmt);
-				}
+				flag_name = "UNUSED_" + std::to_string(bit);
+			}
+			if (sqlite3_prepare_v2(m_db, wear_sql, -1, &wear_stmt, nullptr) == SQLITE_OK)
+			{
+				sqlite3_bind_int(wear_stmt, 1, obj_vnum);
+				BindTextKoi(wear_stmt, 2, flag_name.c_str());
+				sqlite3_step(wear_stmt);
+				sqlite3_finalize(wear_stmt);
 			}
 		}
 	}
