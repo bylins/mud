@@ -3073,6 +3073,7 @@ void SqliteWorldDataSource::SaveMobRecord(int mob_vnum, CharData &mob)
 	ExecuteStatement("DELETE FROM mobs WHERE vnum = " + mvd, "delete mob");
 	ExecuteStatement("DELETE FROM mob_flags WHERE mob_vnum = " + mvd, "del mob_flags");
 	ExecuteStatement("DELETE FROM mob_spells WHERE mob_vnum = " + mvd, "del mob_spells");
+	ExecuteStatement("DELETE FROM mob_skills WHERE mob_vnum = " + mvd, "del mob_skills");
 	ExecuteStatement("DELETE FROM mob_death_load WHERE mob_vnum = " + mvd, "del mob_death_load");
 	ExecuteStatement("DELETE FROM entity_triggers WHERE entity_type = 'mob' AND entity_vnum = " + mvd, "del mob trigs");
 
@@ -3273,18 +3274,19 @@ void SqliteWorldDataSource::SaveMobRecord(int mob_vnum, CharData &mob)
 
 
 
-	// Save mob skills
+	// Save mob skills. Use the raw trained-skill map (skill_level), NOT
+	// GetSkill(): GetSkill() layers on instance context (equipment, affects,
+	// room) and would persist a modified value. Mirrors SerializeMob/YAML.
 	const char *skill_sql = "INSERT INTO mob_skills (mob_vnum, skill_id, value) VALUES (?, ?, ?)";
-	for (ESkill skill = ESkill::kFirst; skill <= ESkill::kLast; ++skill)
+	for (const auto &kv : mob.GetCharSkills())
 	{
-		int value = GetSkill(&mob, skill);
-		if (value > 0)
+		if (kv.second.skill_level > 0)
 		{
 			if (sqlite3_prepare_v2(m_db, skill_sql, -1, &stmt, nullptr) == SQLITE_OK)
 			{
 				sqlite3_bind_int(stmt, 1, mob_vnum);
-				sqlite3_bind_int(stmt, 2, to_underlying(skill));
-				sqlite3_bind_int(stmt, 3, value);
+				sqlite3_bind_int(stmt, 2, to_underlying(kv.first));
+				sqlite3_bind_int(stmt, 3, kv.second.skill_level);
 				sqlite3_step(stmt);
 				sqlite3_finalize(stmt);
 			}
