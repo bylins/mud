@@ -485,6 +485,28 @@ void ShowAffectedRooms(CharData *ch) {
 	table_wrapper::DecorateServiceTable(ch, table);
 	out << table.to_string() << "\r\n";
 
+	// issue.room-affect-trigger-improve (door affects): exits carrying active affects.
+	out << " Exits with active affects:" << "\r\n";
+	table_wrapper::Table etable;
+	etable << table_wrapper::kHeader <<
+		"#" << "From" << "To" << "affect" << "Caster name" << "Time (s)" << table_wrapper::kEndRow;
+	int ecount = 1;
+	for (const auto &e : affected_exits) {
+		const auto ex = (e.room && e.dir >= 0 && e.dir < EDirection::kMaxDirNum) ? e.room->dir_option[e.dir] : nullptr;
+		if (!ex) { continue; }
+		const int to_vnum = (ex->to_room() != kNowhere) ? world[ex->to_room()]->vnum : -1;
+		for (const auto &af : ex->affected) {
+			etable << ecount << e.room->vnum << to_vnum
+				   << NAME_BY_ITEM<ERoomAffect>(af->affect_type)
+				   << GetNameById(af->caster_id)
+				   << (af->duration == -1 ? std::string("перм") : std::to_string(af->duration * 2))
+				   << table_wrapper::kEndRow;
+			++ecount;
+		}
+	}
+	table_wrapper::DecorateServiceTable(ch, etable);
+	out << etable.to_string() << "\r\n";
+
 	page_string(ch->desc, out.str());
 }
 

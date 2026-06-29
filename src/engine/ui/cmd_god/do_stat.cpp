@@ -1252,6 +1252,25 @@ void do_stat_room(CharData *ch, const int rnum = 0) {
 		}
 		SendMsgToChar(buf1, ch);
 	}
+
+	// issue.room-affect-trigger-improve (door affects): affects hosted on this room's exits/doors.
+	for (int d = 0; d < EDirection::kMaxDirNum; ++d) {
+		const auto ex = rm->dir_option[d];
+		if (!ex || ex->affected.empty()) {
+			continue;
+		}
+		snprintf(buf1, sizeof(buf1), "&GАффекты на выходе (%s):\r\n&n", dirs_rus[d]);
+		for (const auto &aff : ex->affected) {
+			const size_t len = strlen(buf1);
+			snprintf(buf1 + len, sizeof(buf1) - len,
+					"       Заклинание \"%s\" (длит: %d, модиф: %d) - %s.\r\n",
+					NAME_BY_ITEM<room_spells::ERoomAffect>(aff->affect_type).c_str(),
+					aff->duration, aff->modifier,
+					(k = find_char(aff->caster_id)) ? GET_NAME(k) : "неизвестно");
+		}
+		SendMsgToChar(buf1, ch);
+	}
+
 	// check the room for a script
 	do_sstat_room(rm, ch);
 }
