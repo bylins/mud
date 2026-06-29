@@ -540,21 +540,27 @@ void SaveFlagsToTable(sqlite3 *db, const std::string &table_name, const std::str
 			{
 				Bitvector bit_value = (plane << 30) | (1 << bit);
 				std::string flag_name = ReverseLookupFlag(flag_map, bit_value);
-				
-				if (!flag_name.empty())
+
+				if (flag_name.empty())
 				{
-					if (sqlite3_prepare_v2(db, sql.c_str(), -1, &stmt, nullptr) == SQLITE_OK)
+					// A set bit the enum has no name for (e.g. legacy data bits in
+					// the 14-19 gap of the mob act plane). Persist it via the
+					// UNUSED_<absolute-bit> convention the loaders understand, so a
+					// round-trip is bit-exact instead of silently dropping it.
+					flag_name = "UNUSED_" + std::to_string(plane * 30 + bit);
+				}
+
+				if (sqlite3_prepare_v2(db, sql.c_str(), -1, &stmt, nullptr) == SQLITE_OK)
+				{
+					int col = 1;
+					sqlite3_bind_int(stmt, col++, vnum);
+					if (!category.empty())
 					{
-						int col = 1;
-						sqlite3_bind_int(stmt, col++, vnum);
-						if (!category.empty())
-						{
-							BindTextKoi(stmt, col++, category.c_str());
-						}
-						BindTextKoi(stmt, col++, flag_name.c_str());
-						sqlite3_step(stmt);
-						sqlite3_finalize(stmt);
+						BindTextKoi(stmt, col++, category.c_str());
 					}
+					BindTextKoi(stmt, col++, flag_name.c_str());
+					sqlite3_step(stmt);
+					sqlite3_finalize(stmt);
 				}
 			}
 		}
@@ -1179,6 +1185,13 @@ void SqliteWorldDataSource::LoadRoomFlags(const std::map<int, int> &vnum_to_rnum
 			world[room_it->second]->set_flag(flag_it->second);
 			flags_set++;
 		}
+		else if (flag_name.rfind("UNUSED_", 0) == 0)
+		{
+			int absbit = std::stoi(flag_name.substr(7));
+			Bitvector v = (static_cast<Bitvector>(absbit / 30) << 30) | (static_cast<Bitvector>(1) << (absbit % 30));
+			world[room_it->second]->set_flag(static_cast<ERoomFlag>(v));
+			flags_set++;
+		}
 	}
 	sqlite3_finalize(stmt);
 
@@ -1579,6 +1592,13 @@ void SqliteWorldDataSource::LoadMobFlags()
 				mob.SetFlag(static_cast<EMobFlag>(flag_it->second));
 				flags_set++;
 			}
+			else if (flag_name.rfind("UNUSED_", 0) == 0)
+			{
+				int absbit = std::stoi(flag_name.substr(7));
+				Bitvector v = (static_cast<Bitvector>(absbit / 30) << 30) | (static_cast<Bitvector>(1) << (absbit % 30));
+				mob.SetFlag(static_cast<EMobFlag>(v));
+				flags_set++;
+			}
 		}
 		else if (strcmp(category.c_str(), "affect") == 0)
 		{
@@ -1586,6 +1606,13 @@ void SqliteWorldDataSource::LoadMobFlags()
 			if (flag_it != mob_affect_flag_map.end() && flag_it->second != 0)
 			{
 				AFF_FLAGS(&mob).set(static_cast<Bitvector>(flag_it->second));
+				flags_set++;
+			}
+			else if (flag_name.rfind("UNUSED_", 0) == 0)
+			{
+				int absbit = std::stoi(flag_name.substr(7));
+				Bitvector v = (static_cast<Bitvector>(absbit / 30) << 30) | (static_cast<Bitvector>(1) << (absbit % 30));
+				AFF_FLAGS(&mob).set(v);
 				flags_set++;
 			}
 		}
@@ -2797,6 +2824,7 @@ void SqliteWorldDataSource::SaveRoomRecord(RoomData *room)
 	const std::string rvd = std::to_string(room_vnum);
 	ExecuteStatement("DELETE FROM rooms WHERE vnum = " + rvd, "delete room");
 	ExecuteStatement("DELETE FROM room_exits WHERE room_vnum = " + rvd, "del room_exits");
+	ExecuteStatement("DELETE FROM room_flags WHERE room_vnum = " + rvd, "del room_flags");
 	ExecuteStatement("DELETE FROM entity_triggers WHERE entity_type = 'room' AND entity_vnum = " + rvd, "del room trigs");
 
 	// Insert room record
