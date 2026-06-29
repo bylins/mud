@@ -848,7 +848,16 @@ void SqliteWorldDataSource::LoadZoneCommands(ZoneData &zone)
 		cmd.line = 0;
 
 		// Map command type
-		if (strcmp(cmd_type.c_str(), "LOAD_MOB") == 0)
+		if (strcmp(cmd_type.c_str(), "DISABLED") == 0)
+		{
+			// A resolver-invalidated '*' command preserved verbatim.
+			cmd.command = '*';
+			cmd.arg1 = sqlite3_column_int(stmt, 2);   // arg_mob_vnum
+			cmd.arg2 = sqlite3_column_int(stmt, 3);   // arg_obj_vnum
+			cmd.arg3 = sqlite3_column_int(stmt, 4);   // arg_room_vnum
+			cmd.arg4 = sqlite3_column_int(stmt, 12);  // arg_trigger_vnum
+		}
+		else if (strcmp(cmd_type.c_str(), "LOAD_MOB") == 0)
 		{
 			cmd.command = 'M';
 			cmd.arg1 = sqlite3_column_int(stmt, 2);  // mob_vnum
@@ -2667,6 +2676,11 @@ void SqliteWorldDataSource::SaveZoneCommands(int zone_vnum, const struct reset_c
 		case 'Q': cmd_type = "EXTRACT_MOB"; mobv = mob_v(c.arg1); break;
 		case 'F': cmd_type = "FOLLOW"; roomv = room_v(c.arg1); leadv = mob_v(c.arg2);
 			follv = mob_v(c.arg3); break;
+		case '*': // A command the resolver invalidated (unresolved target). Keep
+			// it verbatim so the dead reset line round-trips like it does in YAML;
+			// args are stored raw (no rnum->vnum conversion -- they never resolved).
+			cmd_type = "DISABLED"; mobv = c.arg1; objv = c.arg2; roomv = c.arg3;
+			trigv = c.arg4; break;
 		default: continue;
 		}
 
