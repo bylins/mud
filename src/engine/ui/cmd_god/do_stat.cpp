@@ -1244,10 +1244,11 @@ void do_stat_room(CharData *ch, const int rnum = 0) {
 		snprintf(buf1, sizeof(buf1), "&GАффекты на комнате:\r\n&n");
 		for (const auto &aff : rm->affected) {
 			size_t buf1_len = strlen(buf1);
-			snprintf(buf1 + buf1_len, sizeof(buf1) - buf1_len, "       Заклинание \"%s\" (длит: %d, модиф: %d) - %s.\r\n",
+			snprintf(buf1 + buf1_len, sizeof(buf1) - buf1_len, "       Заклинание \"%s\" (длит: %d, модиф: %d, сила: %.1f) - %s.\r\n",
 					NAME_BY_ITEM<room_spells::ERoomAffect>(aff->affect_type).c_str(),
 					aff->duration,
 					room_spells::IsPortalAffect(aff->affect_type) ? world[aff->modifier]->vnum : aff->modifier,
+					aff->potency,
 					(k = find_char(aff->caster_id)) ? GET_NAME(k) : "неизвестно");
 		}
 		SendMsgToChar(buf1, ch);
@@ -1263,9 +1264,10 @@ void do_stat_room(CharData *ch, const int rnum = 0) {
 		for (const auto &aff : ex->affected) {
 			const size_t len = strlen(buf1);
 			snprintf(buf1 + len, sizeof(buf1) - len,
-					"       Заклинание \"%s\" (длит: %d, модиф: %d) - %s.\r\n",
+					"       Заклинание \"%s\" (длит: %d, модиф: %d, сила: %.1f, заряды: %s) - %s.\r\n",
 					NAME_BY_ITEM<room_spells::ERoomAffect>(aff->affect_type).c_str(),
-					aff->duration, aff->modifier,
+					aff->duration, aff->modifier, aff->potency,
+					(aff->charges == -1 ? "беск" : std::to_string(aff->charges).c_str()),
 					(k = find_char(aff->caster_id)) ? GET_NAME(k) : "неизвестно");
 		}
 		SendMsgToChar(buf1, ch);

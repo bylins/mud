@@ -466,20 +466,28 @@ long FindRoomPkPortalUid(RoomData *room, long exclude_uid) {
 	return 0;
 }
 
+// issue.room-affect-trigger-improve: one-decimal potency for the affect tables.
+static std::string FmtPotency(float p) {
+	char b[16];
+	snprintf(b, sizeof(b), "%.1f", p);
+	return b;
+}
+
 void ShowAffectedRooms(CharData *ch) {
 	std::stringstream out;
 	out << " Rooms with active affects:" << "\r\n";
 
 	table_wrapper::Table table;
 	table << table_wrapper::kHeader <<
-		"#" << "Vnum" << "affect" << "Caster name" << "Time (s)" << table_wrapper::kEndRow;
+		"#" << "Vnum" << "affect" << "Caster name" << "Time (s)" << "Potency" << table_wrapper::kEndRow;
 	int count = 1;
 	for (const auto r : affected_rooms) {
 		for (const auto &af : r->affected) {
 			table << count << r->vnum
 				  // issue.affect-migration: room-affect name by its ERoomAffect identity.
 				  << NAME_BY_ITEM<ERoomAffect>(af->affect_type)
-				  << GetNameById(af->caster_id) << af->duration * 2 << table_wrapper::kEndRow;
+				  << GetNameById(af->caster_id) << af->duration * 2
+				  << FmtPotency(af->potency) << table_wrapper::kEndRow;
 			++count;
 		}
 	}
@@ -490,7 +498,8 @@ void ShowAffectedRooms(CharData *ch) {
 	out << " Exits with active affects:" << "\r\n";
 	table_wrapper::Table etable;
 	etable << table_wrapper::kHeader <<
-		"#" << "From" << "To" << "affect" << "Caster name" << "Time (s)" << "Charges" << table_wrapper::kEndRow;
+		"#" << "From" << "To" << "affect" << "Caster name" << "Time (s)" << "Potency" << "Charges"
+		<< table_wrapper::kEndRow;
 	int ecount = 1;
 	for (const auto &e : affected_exits) {
 		const auto ex = (e.room && e.dir >= 0 && e.dir < EDirection::kMaxDirNum) ? e.room->dir_option[e.dir] : nullptr;
@@ -501,6 +510,7 @@ void ShowAffectedRooms(CharData *ch) {
 				   << NAME_BY_ITEM<ERoomAffect>(af->affect_type)
 				   << GetNameById(af->caster_id)
 				   << (af->duration == -1 ? std::string("перм") : std::to_string(af->duration * 2))
+				   << FmtPotency(af->potency)
 				   << (af->charges == -1 ? std::string("беск") : std::to_string(af->charges))
 				   << table_wrapper::kEndRow;
 			++ecount;
