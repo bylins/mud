@@ -520,6 +520,13 @@ ECastResult CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomDat
 		return room_spells::CallMagicToRoom(caster, rvict, room_ctx);
 	}
 
+	// issue.room-affect-trigger-improve (door affects): dispel magic cast in a direction strips affects
+	// on that passage (reverse-resolved). Checked before the no-target room dispel since a direction cast
+	// also has no char/obj target.
+	if (spell_id == ESpell::kDispellMagic && dir >= 0) {
+		profiler.next_step("dir-dispel");
+		return room_spells::DispelExitAffects(caster, dir, spell_id);
+	}
 	// issue.dispellbug: dispel magic cast with no character/object target dispels the
 	// caster's current room (room wards like kForbidden) via CastUnaffects' room branch
 	// (author/ally + strength contest). Bypasses CallMagicToRoom so the ward itself
@@ -606,15 +613,16 @@ int FindCastTarget(ESpell spell_id, const char *t, CharData *ch, CharData **tch,
 	strcpy(cast_argument, t);
 	// issue.room-affect-trigger-improve: a kTarDirection spell targets a direction/exit. Parse the arg
 	// as a RU or EN direction name; *troom stays the caster's room and *dir carries the direction.
-	if (MUD::Spell(spell_id).AllowTarget(kTarDirection)) {
-		int d = (*t) ? search_block(t, dirs_rus, false) : -1;
-		if (d < 0 && *t) { d = search_block(t, dirs, false); }
-		if (d < 0) {
-			SendMsgToChar("В какую сторону вы хотите колдовать?\r\n", ch);
-			return false;
+	// issue.room-affect-trigger-improve: a kTarDirection spell whose argument is a RU/EN direction targets
+	// that exit. If the arg is NOT a direction we fall through so a spell that ALSO allows other targets
+	// (e.g. kDispellMagic on a char, or its no-arg room form) still resolves normally.
+	if (MUD::Spell(spell_id).AllowTarget(kTarDirection) && *t) {
+		int d = search_block(t, dirs_rus, false);
+		if (d < 0) { d = search_block(t, dirs, false); }
+		if (d >= 0) {
+			if (dir) { *dir = d; }
+			return true;
 		}
-		if (dir) { *dir = d; }
-		return true;
 	}
 	if (MUD::Spell(spell_id).AllowTarget(kTarRoomThis))
 		return true;

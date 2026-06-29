@@ -3293,7 +3293,7 @@
 		</components>
 		<misc pos="kFight" violent="A" danger="0" />
 		<mana max="85" min="70" change="1" />
-		<targets val="kTarCharRoom|kTarFightSelf" />
+		<targets val="kTarCharRoom|kTarFightSelf|kTarDirection" />
 		<flags val="kMagUnaffects|kNpcUnaffectPc" />
 		<potency_roll>
 			<dices ndice="5" sdice="9" adice="12" />

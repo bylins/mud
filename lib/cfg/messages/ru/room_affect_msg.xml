@@ -96,6 +96,8 @@
 		<message type="kAffImposedToChar" val="Вы заколдовали проход огненной ловушкой."/>
 		<message type="kAffImposedToRoom" val="$n заколдовал$g проход огненной ловушкой."/>
 		<message type="kAffExpiredToRoom" val="Огненная ловушка на проходе погасла."/>
+		<message type="kAffDispelledToChar" val="Вы развеяли огненную ловушку, наложенную на проход."/>
+		<message type="kAffDispelledToRoom" val="$n0 развеял$g огненную ловушку, наложенную на проход."/>
 		<message type="kTriggerOnEntryToChar" val="Шагнув через проход, вы задели огненную ловушку!"/>
 		<message type="kTriggerOnEntryToRoom" val="$n0 задел$g огненную ловушку, шагнув через проход!"/>
 		<message type="kTriggerOnOpenToChar" val="Открывая дверь, вы задели огненную ловушку!"/>

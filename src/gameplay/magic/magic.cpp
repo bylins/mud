@@ -3551,6 +3551,67 @@ bool room_spells::RunDoorTriggers(CharData *actor, RoomData *room, int dir, tale
 	return allowed;
 }
 
+// issue.room-affect-trigger-improve (door affects): dispel dispellable affects on the passage `dir`
+// from `caster` (`развеять магию <dir>`). Reverse-resolved -- a trap cast from either side is reachable.
+// Mirrors the room dispel's access model: the affect's author or a live ally strips it for free; an
+// outsider must out-potency it (5% lucky override); a player vs a live author commits a PK act.
+ECastResult room_spells::DispelExitAffects(CharData *caster, int dir, ESpell spell_id) {
+	if (!caster || caster->in_room == kNowhere || dir < 0 || dir >= EDirection::kMaxDirNum) {
+		return ECastResult::kNotCast;
+	}
+	const auto near_exit = world[caster->in_room]->dir_option[dir];
+	if (!near_exit) {
+		SendMsgToChar("В этом направлении нет прохода.\r\n", caster);
+		return ECastResult::kNotCast;
+	}
+	std::vector<RoomData::exit_data_ptr> hosts{near_exit};
+	if (near_exit->to_room() != kNowhere) {
+		static const int rev_dir[] = {EDirection::kSouth, EDirection::kWest, EDirection::kNorth,
+									   EDirection::kEast, EDirection::kDown, EDirection::kUp};
+		const auto rev = world[near_exit->to_room()]->dir_option[rev_dir[dir]];
+		if (rev && rev->to_room() == caster->in_room) { hosts.push_back(rev); }
+	}
+	CastContext ctx = BuildCastContext(caster, spell_id, GetRealLevel(caster));
+	const auto &roll = MUD::Spell(spell_id).GetPotencyRoll();
+	bool any = false;
+	for (const auto &ex : hosts) {
+		for (auto it = ex->affected.begin(); it != ex->affected.end();) {
+			const auto af = *it;
+			if (!af || !IS_SET(af->battleflag, kAfDispellable)) {
+				++it;
+				continue;
+			}
+			const float spell_potency = static_cast<float>(roll.RollSkillDices() + ctx.CompetenceBase());
+			const auto access = room_spells::ClassifyRoomAffectAccess(caster, af->caster_id);
+			bool ok;
+			if (access.free) {
+				ok = true;
+			} else if (!caster->IsNpc() && access.author && !pk_agro_action(caster, access.author)) {
+				ok = false;   // player attacking a live author's ward = a PK act they declined
+			} else {
+				ok = (number(1, 100) <= 5) || (spell_potency > af->potency);
+			}
+			if (!ok) {
+				++it;
+				continue;
+			}
+			const auto type = af->affect_type;
+			const auto &to_char = room_spells::RoomAffectMsgRaw(type, room_spells::ERoomAffectMsgType::kAffDispelledToChar);
+			if (!to_char.empty()) { act(to_char.c_str(), false, caster, nullptr, nullptr, kToChar); }
+			const auto &to_room = room_spells::RoomAffectMsgRaw(type, room_spells::ERoomAffectMsgType::kAffDispelledToRoom);
+			if (!to_room.empty()) { act(to_room.c_str(), true, caster, nullptr, nullptr, kToRoom | kToArenaListen); }
+			it = ex->affected.erase(it);
+			any = true;
+		}
+	}
+	if (!any) {
+		// Nothing dispellable here (or every contest lost) -- the spell's own "no effect" line.
+		const auto &m = MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect);
+		SendMsgToChar((m.empty() ? "Ничего не произошло." : m) + "\r\n", caster);
+	}
+	return any ? ECastResult::kSuccess : ECastResult::kNotCast;
+}
+
 // cast `spell_id` as an area attack on every foe in the caster's room,
 // regardless of the spell's own targeting flags. Used by the room-affect ticks (deadly fog /
 // thunderstorm). Replaces the old direct CallMagicToArea callers.
