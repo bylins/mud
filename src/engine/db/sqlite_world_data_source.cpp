@@ -3014,13 +3014,16 @@ void SqliteWorldDataSource::SaveMobRecord(int mob_vnum, CharData &mob)
 	// Experience
 	sqlite3_bind_int(stmt, col++, mob.get_exp());
 	
-	// Position (need to convert enum to string)
-	// For now use numeric values, TODO: add lookup
-	sqlite3_bind_int(stmt, col++, static_cast<int>(mob.mob_specials.default_pos));
-	sqlite3_bind_int(stmt, col++, static_cast<int>(mob.GetPosition()));
-	
-	// Sex (need to convert enum to string)
-	sqlite3_bind_int(stmt, col++, static_cast<int>(mob.get_sex()));
+	// Positions and sex are stored as enum NAMES (the loader looks them up in
+	// position_map/gender_map); writing the raw int made every reload fall back
+	// to the default position/kMale.
+	BindTextKoi(stmt, col++,
+		ReverseLookupFlag(position_map, static_cast<int>(mob.mob_specials.default_pos)).c_str());
+	BindTextKoi(stmt, col++,
+		ReverseLookupFlag(position_map, static_cast<int>(mob.GetPosition())).c_str());
+
+	BindTextKoi(stmt, col++,
+		ReverseLookupFlag(gender_map, static_cast<int>(mob.get_sex())).c_str());
 	
 	// Physical attributes
 	sqlite3_bind_int(stmt, col++, GET_SIZE(&mob));
