@@ -340,6 +340,11 @@ void do_doorcmd(CharData *ch, ObjData *obj, int door, EDoorScmd scmd) {
 				return;
 			if (scmd == kScmdLock && !obj && back && !close_wtrigger(world[other_room], ch, rev_dir[door], true))
 				return;
+			// issue.room-affect-trigger-improve (door affects): an affect may react to the unlock and
+			// refuse it via <trigger val="kUnlock" return="0">.
+			if (scmd == kScmdUnlock && !obj
+				&& !room_spells::RunDoorTriggers(ch, world[ch->in_room], door, talents_actions::EActionTrigger::kUnlock))
+				return;
 			LOCK_DOOR(ch->in_room, obj, door);
 			if (back)
 				LOCK_DOOR(other_room, obj, rev_dir[door]);
@@ -356,6 +361,10 @@ void do_doorcmd(CharData *ch, ObjData *obj, int door, EDoorScmd scmd) {
 			if (!obj && !pick_wtrigger(world[ch->in_room], ch, door))
 				return;
 			if (!obj && back && !pick_wtrigger(world[other_room], ch, rev_dir[door]))
+				return;
+			// issue.room-affect-trigger-improve (door affects): an affect may react to the pick and
+			// refuse it via <trigger val="kPick" return="0">.
+			if (!obj && !room_spells::RunDoorTriggers(ch, world[ch->in_room], door, talents_actions::EActionTrigger::kPick))
 				return;
 			LOCK_DOOR(ch->in_room, obj, door);
 			if (back)

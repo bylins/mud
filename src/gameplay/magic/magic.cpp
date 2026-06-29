@@ -3376,7 +3376,8 @@ static void ConsumeAffectCharge(const Affect<room_spells::ERoomApply>::shared_pt
 // action's <target_conditions> (so a filtered-out actor neither gets the effect nor blocks).
 static int CastRoomEntryAction(CharData *caster, RoomData *room, CharData *actor,
 							   room_spells::ERoomAffect affect_type,
-							   const talents_actions::Action &action, float potency, int seal_strength) {
+							   const talents_actions::Action &action, float potency, int seal_strength,
+							   talents_actions::EActionTrigger ev) {
 	if (TargetIsBlocked(actor, action.GetBlocking())
 			|| !TargetMeetsRequired(actor, action.GetRequired())) {
 		return kEntryTriggerAllow;
@@ -3393,12 +3394,31 @@ static int CastRoomEntryAction(CharData *caster, RoomData *room, CharData *actor
 		return kEntryTriggerAllow;
 	}
 	// issue.room-affect-trigger-improve: the affect's own "why this happened" flavor, shown to the actor
-	// and the room BEFORE the action's effect runs (e.g. before kHypnoticPattern's sleep lands), keyed
-	// by the room affect's sheaf (sheaf-direct -> silent for affects that author no such line).
+	// and the room BEFORE the action's effect runs, keyed by the room affect's sheaf AND by which trigger
+	// fired -- so "walked through" / "opened" / "picked" / "unlocked" read distinctly (sheaf-direct ->
+	// silent for affects that author no such line).
 	using room_spells::ERoomAffectMsgType;
-	const std::string &to_char = room_spells::RoomAffectMsgRaw(affect_type, ERoomAffectMsgType::kTriggerOnEntryToChar);
+	ERoomAffectMsgType char_key = ERoomAffectMsgType::kTriggerOnEntryToChar;
+	ERoomAffectMsgType room_key = ERoomAffectMsgType::kTriggerOnEntryToRoom;
+	switch (ev) {
+		case talents_actions::EActionTrigger::kOpen:
+			char_key = ERoomAffectMsgType::kTriggerOnOpenToChar;
+			room_key = ERoomAffectMsgType::kTriggerOnOpenToRoom;
+			break;
+		case talents_actions::EActionTrigger::kPick:
+			char_key = ERoomAffectMsgType::kTriggerOnPickToChar;
+			room_key = ERoomAffectMsgType::kTriggerOnPickToRoom;
+			break;
+		case talents_actions::EActionTrigger::kUnlock:
+			char_key = ERoomAffectMsgType::kTriggerOnUnlockToChar;
+			room_key = ERoomAffectMsgType::kTriggerOnUnlockToRoom;
+			break;
+		default:  // kEnter family (move-through) and pulse
+			break;
+	}
+	const std::string &to_char = room_spells::RoomAffectMsgRaw(affect_type, char_key);
 	if (!to_char.empty()) { act(to_char.c_str(), false, actor, nullptr, nullptr, kToChar); }
-	const std::string &to_room = room_spells::RoomAffectMsgRaw(affect_type, ERoomAffectMsgType::kTriggerOnEntryToRoom);
+	const std::string &to_room = room_spells::RoomAffectMsgRaw(affect_type, room_key);
 	if (!to_room.empty()) { act(to_room.c_str(), true, actor, nullptr, actor, kToRoom | kToArenaListen); }
 	const std::vector<talents_actions::Action> single{action};
 	CastContext ctx = BuildCastContext(caster, ESpell::kUndefined, GetRealLevel(caster), potency);
@@ -3459,7 +3479,8 @@ bool room_spells::RunRoomEntryTriggers(CharData *actor, RoomData *room,
 			if (phase == EEntryTriggerPhase::kEffectsNonBlocking && can_block) { continue; }
 			CharData *caster = find_char(p.caster_id);
 			if (!caster) { continue; }   // no owner to source the cast this entry
-			const int ret = CastRoomEntryAction(caster, room, actor, p.type, action, p.potency, p.strength);
+			const int ret = CastRoomEntryAction(caster, room, actor, p.type, action, p.potency, p.strength,
+					talents_actions::EActionTrigger::kEnter);   // room entry -> the "entry" message pair
 			ConsumeAffectCharge(p.aff, room->affected, actor);   // spend a trigger charge (no-op if unlimited)
 			// Only the block-check pass enforces the verdict; the effect passes ignore it.
 			if (phase == EEntryTriggerPhase::kBlockCheck && ret == kEntryTriggerBlock) {
@@ -3520,7 +3541,7 @@ bool room_spells::RunDoorTriggers(CharData *actor, RoomData *room, int dir, tale
 			if (!fires) { continue; }
 			CharData *caster = find_char(p.caster_id);
 			if (!caster) { continue; }   // no owner to source the cast
-			const int ret = CastRoomEntryAction(caster, room, actor, p.type, action, p.potency, p.strength);
+			const int ret = CastRoomEntryAction(caster, room, actor, p.type, action, p.potency, p.strength, ev);
 			ConsumeAffectCharge(p.aff, p.host->affected, actor);   // spend a trigger charge (no-op if unlimited)
 			if (ret == kEntryTriggerBlock) {
 				allowed = false;   // refuse the door action, but keep firing the rest

@@ -29,10 +29,18 @@ enum class ERoomAffectMsgType {
 	kAffExpiredToChar,          // wore off: to the (former) caster if present
 	kAffExpiredToRoom,          // wore off: to onlookers
 	kAffInterruptedToChar,      // controlled effect replaced by a recast: to the (re)caster
-	// issue.room-affect-trigger-improve: flavor shown when an EVENT trigger (kEnter/kEnterPC) engages a
-	// character -- the affect's own "why this happened" line, emitted before the action's effect runs.
-	kTriggerOnEntryToChar,      // to the entering character (the actor)
-	kTriggerOnEntryToRoom,      // to onlookers ($n0 = the actor)
+	// issue.room-affect-trigger-improve: flavor shown when an EVENT trigger engages a character -- the
+	// affect's own "why this happened" line, emitted before the action's effect runs. There is one
+	// pair per trigger kind so a passage affect can word "walked through" / "opened" / "picked" /
+	// "unlocked" distinctly; CastRoomEntryAction picks the pair from the firing trigger.
+	kTriggerOnEntryToChar,      // kEnter family (moved through the passage): to the actor
+	kTriggerOnEntryToRoom,      // ... to onlookers ($n0 = the actor)
+	kTriggerOnOpenToChar,       // kOpen (opened the door): to the actor
+	kTriggerOnOpenToRoom,       // ... to onlookers
+	kTriggerOnPickToChar,       // kPick (picked the lock): to the actor
+	kTriggerOnPickToRoom,       // ... to onlookers
+	kTriggerOnUnlockToChar,     // kUnlock (unlocked the door): to the actor
+	kTriggerOnUnlockToRoom,     // ... to onlookers
 	// issue.room-affect-trigger-improve: shown room-wide when a trigger fired but its effect produced no
 	// visible result (e.g. a violent side_spell suppressed by a peaceful room, or a refused cast) -- so a
 	// triggered trap never reads as a silent no-op. Impersonal (no $-codes); sent to the whole room.
