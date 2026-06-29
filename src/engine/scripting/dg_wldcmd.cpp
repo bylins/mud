@@ -12,6 +12,7 @@
 #include "engine/entities/char_data.h"
 #include "gameplay/core/experience.h"
 #include "administration/privilege.h"
+#include "gameplay/magic/magic_rooms.h"   // issue.room-affect-trigger-improve: ClearExitAffects on wexit purge
 #include "gameplay/mechanics/minions.h"
 #include "gameplay/mechanics/follow.h"
 #include "gameplay/mechanics/mount.h"
@@ -219,6 +220,9 @@ void do_wdoor(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Trigg
 	// purge exit
 	if (fd == 0) {
 		if (exit) {
+			// issue.room-affect-trigger-improve (door affects): drop any door affect + registry entry
+			// before the exit is purged.
+			room_spells::ClearExitAffects(rm, dir);
 			rm->dir_option[dir].reset();
 		}
 	} else {

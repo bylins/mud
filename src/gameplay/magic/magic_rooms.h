@@ -103,6 +103,9 @@ enum class EEntryTriggerPhase { kBlockCheck, kEffectsNonBlocking, kEffectsAll };
 // (`ev`) for `actor` on the exit `dir` of `room`. Returns false if a trigger returns 0 (refuse the
 // door action), true otherwise.
 [[nodiscard]] bool RunDoorTriggers(CharData *actor, RoomData *room, int dir, talents_actions::EActionTrigger ev);
+// issue.room-affect-trigger-improve (door affects): clear affects on exit `dir` of `room` + drop its
+// registry entry. Call when an exit is rebuilt/torn down (redit, dungeon reuse, DGScript wexit).
+void ClearExitAffects(RoomData *room, int dir);
 
 // Walks room->affected for a kPortalTimer affect with pk_unique != 0 and
 // pk_unique != exclude_uid; returns the matching pk_unique, or 0 if none.

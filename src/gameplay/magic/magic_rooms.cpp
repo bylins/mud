@@ -380,6 +380,19 @@ void AddExitToAffected(RoomData *room, int dir) {
 	affected_exits.push_back({room, dir});
 }
 
+// issue.room-affect-trigger-improve (door affects): clear affects on the exit `dir` of `room` and drop
+// its enchanted-exit registry entry. Called when an exit is rebuilt/torn down (redit save, dungeon
+// reuse, DGScript wexit purge) so a stale affect or registry row never outlives its ExitData. The tick
+// also self-heals empty/missing exits; this just makes it proactive (and explicit "the door changed").
+void ClearExitAffects(RoomData *room, int dir) {
+	if (room && dir >= 0 && dir < EDirection::kMaxDirNum) {
+		if (const auto ex = room->dir_option[dir]) {
+			ex->affected.clear();
+		}
+	}
+	affected_exits.remove_if([&](const ExitAffectHost &e) { return e.room == room && e.dir == dir; });
+}
+
 void RemoveSingleRoomAffect(long caster_id, ERoomAffect want);
 void HandleRoomAffect(RoomData *room, CharData *ch, const Affect<ERoomApply>::shared_ptr &aff);
 void SendRemoveAffectMsgToRoom(ERoomAffect room_affect, RoomRnum room);
