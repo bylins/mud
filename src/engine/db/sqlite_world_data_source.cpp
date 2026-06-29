@@ -3330,6 +3330,7 @@ void SqliteWorldDataSource::SaveObjectRecord(int obj_vnum, CObjectPrototype *obj
 	const std::string ov = std::to_string(obj_vnum);
 	ExecuteStatement("DELETE FROM objects WHERE vnum = " + ov, "delete object");
 	ExecuteStatement("DELETE FROM obj_applies WHERE obj_vnum = " + ov, "del obj_applies");
+	ExecuteStatement("DELETE FROM obj_skills WHERE obj_vnum = " + ov, "del obj_skills");
 	ExecuteStatement("DELETE FROM entity_triggers WHERE entity_type = 'obj' AND entity_vnum = " + ov, "del obj trigs");
 
 	// Insert object main record
