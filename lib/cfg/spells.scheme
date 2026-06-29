@@ -275,6 +275,7 @@
 	</tag>
 
 	<tag name="affects" desc="Impose an affect on the target">
+		<child tag="charges"/>
 		<attr name="type" type="enum" enum="ESpell" desc="Affect identity (the spell whose affect is imposed)"/>
 		<attr name="saving" type="enum" enum="ESaving" desc="Saving throw that resists the affect"/>
 		<attr name="resist" type="enum" enum="EResist" desc="Resistance type that mitigates it"/>
@@ -378,5 +379,9 @@
 	     EAlign get value->name maps (a separate task; the boot lint tracks them). -->
 	<tag name="affect_flags" desc="AFF bits gating the cast">
 		<attr name="val" type="flagset" enum="EAffect" desc="EAffect (AFF) flag set"/>
+	</tag>
+
+	<tag name="charges" desc="Trigger charges: how many times a TRIGGERED affect fires before removal">
+		<attr name="max" type="int" min="-1" desc="Firings before the affect is removed; -1 = unlimited"/>
 	</tag>
 </scheme>

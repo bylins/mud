@@ -490,6 +490,9 @@ class TalentAffect : public IAction {
 	[[nodiscard]] int GetDurationSkillDivisor() const { return dur_skill_divisor_; }
 	[[nodiscard]] int GetDurationMin() const { return dur_min_; }
 	[[nodiscard]] int GetDurationMax() const { return dur_max_; }
+	// issue.room-affect-trigger-improve: <charges max="N"/> -- trigger firings before the affect is
+	// removed. -1 = unlimited (default). Only meaningful for triggered (room/door) affects.
+	[[nodiscard]] int GetChargesMax() const { return charges_max_; }
 	[[nodiscard]] const std::vector<Apply> &GetApplies() const { return applies_; }
 	[[nodiscard]] bool HasLag() const { return has_lag_; }
 	[[nodiscard]] unsigned GetLagBase() const { return lag_base_; }
@@ -515,6 +518,7 @@ class TalentAffect : public IAction {
 	int dur_skill_divisor_{0};
 	int dur_min_{0};
 	int dur_max_{0};
+	int charges_max_{-1};   // issue.room-affect-trigger-improve: trigger charges; -1 = unlimited
 	std::vector<Apply> applies_;
 	// Battle lag applied to the victim when the affect lands (the <lag> tag,
 	// issue.cast-spell-lag): lag = base + skill_bonus/bonus_divisor battle rounds, or just

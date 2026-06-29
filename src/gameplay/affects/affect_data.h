@@ -73,6 +73,11 @@ class Affect {
 	// Для char-аффектов и room-аффектов не-пента типа всегда 0; в save-файлы не пишется
 	// (room-аффекты не персистентны, char-аффекты этим полем не пользуются).
 	long pk_unique{0};
+	// issue.room-affect-trigger-improve: remaining trigger CHARGES for a triggered (room/door) affect.
+	// -1 = unlimited (the default -- char affects and untriggered affects never touch this). Set on
+	// impose from the spell's <affects><charges max=N>; each time a trigger executes the affect's action
+	// the dispatcher decrements it, and at 0 the affect is removed. Runtime-only (not persisted).
+	int charges{-1};
 };
 
 template<>

@@ -6686,6 +6686,7 @@
 			<action>
 				<affects saving="kNone" resist="kVitality">
 					<duration base="20" skill_divisor="0" min="0" max="0" />
+					<charges max="3"/>
 					<affect id="kFireTrap"/>
 				</affects>
 			</action>

@@ -615,6 +615,12 @@ TalentAffect::TalentAffect(parser_wrapper::DataNode &node) {
 			dur_max_ = parse::ReadAsInt(child.GetValue("max"));
 			dur_base_ = parse::ReadAsInt(child.GetValue("base"));
 			dur_skill_divisor_ = parse::ReadAsInt(child.GetValue("skill_divisor"));
+		} else if (strcmp(name, "charges") == 0) {
+			// issue.room-affect-trigger-improve: <charges max="N"/> -- how many times a TRIGGERED affect
+			// may fire before it is removed. -1 (or absent) = unlimited. Modelled on <hits max=>; the
+			// count is deterministic (decremented by one per trigger execution), so no prob attr.
+			const char *mx = child.GetValue("max");
+			charges_max_ = (mx && *mx) ? parse::ReadAsInt(mx) : -1;
 		} else if (strcmp(name, "affect") == 0) {
 			// issue.affects-improve (P3e): a bare affect reference -- the canonical grammar. The affect
 			// OWNS its applies (affects.xml); the spell only names which affect(s) to impose, plus an

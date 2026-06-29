@@ -869,6 +869,7 @@ ECastResult CastRoomAffect(CastContext &ctx) {
 		// Stored potency scaled by <affects potency_weight=> (default 1.0).
 		// Symmetric with the char-affect path in TryApplyAffectTalent.
 		af[0].potency = CalcCastPotency(ctx.potency()) * talent.GetPotencyWeight();
+		af[0].charges = talent.GetChargesMax();   // issue.room-affect-trigger-improve: trigger charges (-1 = unlimited)
 		// issue.affects-improve (P1 fix): the seal strength (modifier) is the ROOM AFFECT's own
 		// property (room_affects.xml <seal_strength>), not the casting spell's apply. The spell now
 		// names the affect via a bare <affect id=> ref carrying no coefficients, so reading
@@ -1096,6 +1097,7 @@ ECastResult CallMagicToExit(CharData *ch, int dir, CastContext roll) {
 	if (talent.GetDurationMax() > 0) skill_bonus = std::min(skill_bonus, talent.GetDurationMax());
 	af.duration = talent.GetDurationBase() + static_cast<unsigned>(skill_bonus);
 	af.potency = CalcCastPotency(roll.potency()) * talent.GetPotencyWeight();
+	af.charges = talent.GetChargesMax();   // issue.room-affect-trigger-improve: trigger charges (-1 = unlimited)
 	if (RoomAffectHasSeal(af.affect_type)) {
 		af.modifier = ComputeApplyModifier(RoomAffectSeal(af.affect_type), roll.CompetenceBase(), roll.potency());
 	}

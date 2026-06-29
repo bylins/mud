@@ -3351,6 +3351,24 @@ constexpr int kEntryTriggerAllow = 1;
 constexpr int kEntryTriggerBlock = 0;
 }
 
+// issue.room-affect-trigger-improve: spend one trigger charge after a triggered affect's action runs.
+// charges == -1 means unlimited (the default -- no-op). At 0 the affect is consumed: removed from its
+// host list (the room's or the exit's `affected`) with its kAffExpired line sent to the actor's room.
+static void ConsumeAffectCharge(const Affect<room_spells::ERoomApply>::shared_ptr &aff, room_spells::RoomAffects &host,
+								CharData *actor) {
+	if (!aff || aff->charges == -1) {
+		return;
+	}
+	if (--aff->charges <= 0) {
+		const std::string &msg =
+				room_spells::RoomAffectMsgRaw(aff->affect_type, room_spells::ERoomAffectMsgType::kAffExpiredToRoom);
+		if (!msg.empty() && actor && actor->in_room != kNowhere) {
+			SendMsgToRoom(msg.c_str(), actor->in_room, 0);
+		}
+		host.remove(aff);
+	}
+}
+
 // Run ONE event-triggered (kEnter/kEnterPC) action on the actor. `caster` (the affect's owner) sources
 // the cast; `actor` is the target -- carried on ctx.cvict and resolved by EActionTarget::kTarActor.
 // Returns the trigger's return value: a manual_cast handler's override (set on ctx) wins, else the
@@ -3418,10 +3436,11 @@ bool room_spells::RunRoomEntryTriggers(CharData *actor, RoomData *room,
 	// Snapshot {affect, caster, potency, strength} so running an action (which could alter
 	// room->affected) cannot invalidate the iteration. `strength` is the affect's seal strength
 	// (Affect::modifier) -- the block chance for seal-strength affects (kForbidden).
-	struct Pending { room_spells::ERoomAffect type; long caster_id; float potency; int strength; };
+	struct Pending { room_spells::ERoomAffect type; long caster_id; float potency; int strength;
+					 Affect<room_spells::ERoomApply>::shared_ptr aff; };
 	std::vector<Pending> pending;
 	for (const auto &aff : room->affected) {
-		if (aff) { pending.push_back({aff->affect_type, aff->caster_id, aff->potency, aff->modifier}); }
+		if (aff) { pending.push_back({aff->affect_type, aff->caster_id, aff->potency, aff->modifier, aff}); }
 	}
 	bool allowed = true;
 	for (const auto &p : pending) {
@@ -3441,6 +3460,7 @@ bool room_spells::RunRoomEntryTriggers(CharData *actor, RoomData *room,
 			CharData *caster = find_char(p.caster_id);
 			if (!caster) { continue; }   // no owner to source the cast this entry
 			const int ret = CastRoomEntryAction(caster, room, actor, p.type, action, p.potency, p.strength);
+			ConsumeAffectCharge(p.aff, room->affected, actor);   // spend a trigger charge (no-op if unlimited)
 			// Only the block-check pass enforces the verdict; the effect passes ignore it.
 			if (phase == EEntryTriggerPhase::kBlockCheck && ret == kEntryTriggerBlock) {
 				allowed = false;   // block, but keep running the rest (so all blocking actions still fire)
@@ -3463,12 +3483,13 @@ bool room_spells::RunDoorTriggers(CharData *actor, RoomData *room, int dir, tale
 	if (!near_exit) { return true; }
 	// Snapshot {affect, caster, potency, strength} so running an action (which could alter the exit's
 	// affect list) cannot invalidate the iteration.
-	struct Pending { room_spells::ERoomAffect type; long caster_id; float potency; int strength; };
+	struct Pending { room_spells::ERoomAffect type; long caster_id; float potency; int strength;
+					 Affect<room_spells::ERoomApply>::shared_ptr aff; RoomData::exit_data_ptr host; };
 	std::vector<Pending> pending;
 	auto collect = [&pending](const RoomData::exit_data_ptr &ex) {
 		if (!ex) { return; }
 		for (const auto &aff : ex->affected) {
-			if (aff) { pending.push_back({aff->affect_type, aff->caster_id, aff->potency, aff->modifier}); }
+			if (aff) { pending.push_back({aff->affect_type, aff->caster_id, aff->potency, aff->modifier, aff, ex}); }
 		}
 	};
 	collect(near_exit);
@@ -3490,6 +3511,7 @@ bool room_spells::RunDoorTriggers(CharData *actor, RoomData *room, int dir, tale
 			CharData *caster = find_char(p.caster_id);
 			if (!caster) { continue; }   // no owner to source the cast
 			const int ret = CastRoomEntryAction(caster, room, actor, p.type, action, p.potency, p.strength);
+			ConsumeAffectCharge(p.aff, p.host->affected, actor);   // spend a trigger charge (no-op if unlimited)
 			if (ret == kEntryTriggerBlock) {
 				allowed = false;   // refuse the door action, but keep firing the rest
 			}
