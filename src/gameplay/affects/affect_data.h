@@ -111,6 +111,9 @@ void player_timed_update();
 void player_affect_update();
 void battle_affect_update(CharData *ch);
 void mobile_affect_update();
+// issue.character-affect-triggers: run one char affect's pulse/battle-pulse <actions> on its bearer
+// (kPulse always, kBattlePulse only while fighting). Defined in magic.cpp. Returns true if any fired.
+bool RunCharAffectTick(CharData *ch, const Affect<EApply>::shared_ptr &aff);
 
 void affect_total(CharData *ch);
 void affect_modify(CharData *ch, EApply loc, int mod, EAffect bitv, bool add);

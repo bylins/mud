@@ -3343,6 +3343,35 @@ ECastResult CastRoomTickActionFromActions(CharData *ch, RoomData *room, ESpell c
 	return result;
 }
 
+// issue.character-affect-triggers: run one CHARACTER affect's pulse/battle-pulse <actions> on its bearer
+// (the char-affect analog of RunRoomTick). kPulse fires every tick; kBattlePulse only while the bearer is
+// fighting. The action's effect targets the bearer via kTarSame (caster == bearer here). Threads the
+// affect's duration through so a manual_cast action can end it early. Returns true if any action fired.
+bool RunCharAffectTick(CharData *ch, const Affect<EApply>::shared_ptr &aff) {
+	if (!ch || !aff || ch->in_room == kNowhere) {
+		return false;
+	}
+	const bool combat = (ch->GetEnemy() != nullptr);
+	std::vector<talents_actions::Action> pulse;
+	for (const auto &action : affects::AffectActions(aff->affect_type).list()) {
+		const auto &t = action.GetTrigger();
+		if (t.test(talents_actions::EActionTrigger::kPulse)
+				|| (combat && t.test(talents_actions::EActionTrigger::kBattlePulse))) {
+			pulse.push_back(action);
+		}
+	}
+	if (pulse.empty()) {
+		return false;
+	}
+	const int phase = aff->apply_time > 0 ? aff->apply_time - 1 : 0;
+	int dur = aff->duration;
+	// Spell-free tick on the affect's stored potency (ctx_spell kUndefined); the bearer is the caster, so
+	// a kTarSame <damage> action damages the bearer. World room = the bearer's room (cast context only).
+	CastRoomTickActionFromActions(ch, world[ch->in_room], ESpell::kUndefined, pulse, phase, &dur, aff->potency);
+	aff->duration = dur;
+	return true;
+}
+
 // issue.room-affect-trigger-improve: on-entry trigger return values. 0 = block the action that fired
 // the trigger (refuse the room entry); any non-zero = allow. The dispatcher treats "no value set" as
 // allow, so non-blocking affects (e.g. kHypnoticPattern, which only casts sleep) need no return attr.
