@@ -490,7 +490,7 @@ void ShowAffectedRooms(CharData *ch) {
 	out << " Exits with active affects:" << "\r\n";
 	table_wrapper::Table etable;
 	etable << table_wrapper::kHeader <<
-		"#" << "From" << "To" << "affect" << "Caster name" << "Time (s)" << table_wrapper::kEndRow;
+		"#" << "From" << "To" << "affect" << "Caster name" << "Time (s)" << "Charges" << table_wrapper::kEndRow;
 	int ecount = 1;
 	for (const auto &e : affected_exits) {
 		const auto ex = (e.room && e.dir >= 0 && e.dir < EDirection::kMaxDirNum) ? e.room->dir_option[e.dir] : nullptr;
@@ -501,6 +501,7 @@ void ShowAffectedRooms(CharData *ch) {
 				   << NAME_BY_ITEM<ERoomAffect>(af->affect_type)
 				   << GetNameById(af->caster_id)
 				   << (af->duration == -1 ? std::string("перм") : std::to_string(af->duration * 2))
+				   << (af->charges == -1 ? std::string("беск") : std::to_string(af->charges))
 				   << table_wrapper::kEndRow;
 			++ecount;
 		}

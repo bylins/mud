@@ -99,5 +99,7 @@
 		<message type="kTriggerOnEntryToChar" val="Открывая дверь, вы задели огненную ловушку!"/>
 		<message type="kTriggerOnEntryToRoom" val="$n0 задел$g огненную ловушку, открывая дверь!"/>
 		<message type="kTriggerNoEffect" val="Яркая вспышка на мгновение озарила комнату и тут же погасла."/>
+		<message type="kRoomAffectInvisible" val="Проход тускло мерцает багровым - кто-то заговорил его огненной ловушкой."/>
+		<message type="kRoomAffectSelfInvisible" val="Ваша огненная ловушка тускло мерцает на проходе багровым светом."/>
 	</msg_sheaf>
 </msg_container>

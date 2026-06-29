@@ -1045,6 +1045,49 @@ void list_char_to_char(const RoomData::people_t &list, CharData *ch) {
 	}
 }
 
+// issue.room-affect-trigger-improve (door affects): the description(s) of any affect on `exit` as seen
+// by `viewer` when looking that way. An affect is shown if it has a non-empty kRoomAffectVisible line
+// (the open trace -- anyone sees it); otherwise, only to a viewer with detect magic AND only when the
+// affect's potency does not exceed the viewer's detect-magic potency (a stronger ward hides from weak
+// detection), using its kRoomAffect(Self)Invisible line. Immortals see everything. Empty if nothing shows.
+static std::string DoorAffectLook(CharData *viewer, const RoomData::exit_data_ptr &exit) {
+	std::string out;
+	if (!exit) {
+		return out;
+	}
+	const bool imm = privilege::IsImmortal(viewer);
+	bool has_detect = imm;
+	float detect_potency = 0.0f;
+	if (!imm) {
+		for (const auto &a : viewer->affected) {
+			if (a->affect_type == EAffect::kDetectMagic) {
+				has_detect = true;
+				detect_potency = a->potency;
+				break;
+			}
+		}
+	}
+	using room_spells::ERoomAffectMsgType;
+	for (const auto &af : exit->affected) {
+		const std::string &vis = room_spells::RoomAffectMsgRaw(af->affect_type, ERoomAffectMsgType::kRoomAffectVisible);
+		if (!vis.empty()) {
+			out += vis;
+			out += "\r\n";
+			continue;
+		}
+		if (has_detect && (imm || af->potency <= detect_potency)) {
+			const bool is_caster = (af->caster_id == viewer->get_uid());
+			const std::string &inv = room_spells::RoomAffectMsgRaw(af->affect_type,
+					is_caster ? ERoomAffectMsgType::kRoomAffectSelfInvisible : ERoomAffectMsgType::kRoomAffectInvisible);
+			if (!inv.empty()) {
+				out += inv;
+				out += "\r\n";
+			}
+		}
+	}
+	return out;
+}
+
 void look_in_direction(CharData *ch, int dir, int info_is) {
 	int count = 0, probe, percent;
 	RoomData::exit_data_ptr rdata;
@@ -1077,6 +1120,8 @@ void look_in_direction(CharData *ch, int dir, int info_is) {
 			}
 
 			SendMsgToChar(buf, ch);
+			// issue.room-affect-trigger-improve (door affects): show any visible enchantment on the door.
+			if (const std::string da = DoorAffectLook(ch, rdata); !da.empty()) { SendMsgToChar(da.c_str(), ch); }
 			return;
 		}
 
@@ -1112,6 +1157,8 @@ void look_in_direction(CharData *ch, int dir, int info_is) {
 				count += sprintf(buf + count, "%s\r\n", world[rdata->to_room()]->name);
 			}
 			SendMsgToChar(buf, ch);
+			// issue.room-affect-trigger-improve (door affects): show any visible enchantment on the exit.
+			if (const std::string da = DoorAffectLook(ch, rdata); !da.empty()) { SendMsgToChar(da.c_str(), ch); }
 			SendMsgToChar("&R&q", ch);
 			list_char_to_char(world[rdata->to_room()]->people, ch);
 			SendMsgToChar("&Q&n", ch);
