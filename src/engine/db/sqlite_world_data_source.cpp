@@ -511,6 +511,33 @@ std::string ReverseLookupFlag(const std::unordered_map<std::string, T> &flag_map
 	return "";  // Not found
 }
 
+// Enum value <-> text helpers for single-valued enum columns (position, sex).
+// An out-of-range value with no symbolic name (e.g. a corrupt default_pos of 15)
+// is stored as its raw integer and parsed back verbatim, matching the YAML
+// backend's ParseEnum so such values round-trip instead of snapping to a default.
+template<typename T>
+std::string EnumNameOrInt(const std::unordered_map<std::string, T> &m, int value)
+{
+	std::string name = ReverseLookupFlag(m, static_cast<Bitvector>(value));
+	return name.empty() ? std::to_string(value) : name;
+}
+
+inline int EnumIntFromText(const std::unordered_map<std::string, int> &m, const std::string &s, int def)
+{
+	auto it = m.find(s);
+	if (it != m.end())
+	{
+		return it->second;
+	}
+	char *end = nullptr;
+	const long v = std::strtol(s.c_str(), &end, 10);
+	if (!s.empty() && *end == '\0')
+	{
+		return static_cast<int>(v);
+	}
+	return def;
+}
+
 // Save flags helper (template version)
 template<typename T>
 void SaveFlagsToTable(sqlite3 *db, const std::string &table_name, const std::string &vnum_col,
@@ -1422,21 +1449,18 @@ void SqliteWorldDataSource::LoadMobs()
 		// Experience
 		mob.set_exp(sqlite3_column_int(stmt, 24));
 
-		// Position
+		// Position (name, or a raw int for out-of-range values like 15)
 		std::string default_pos = GetText(stmt, 25);
 		std::string start_pos = GetText(stmt, 26);
-		auto pos_it = position_map.find(default_pos);
-		mob.mob_specials.default_pos = pos_it != position_map.end() ?
-			static_cast<EPosition>(pos_it->second) : EPosition::kStand;
-		pos_it = position_map.find(start_pos);
-		mob.SetPosition(pos_it != position_map.end() ?
-			static_cast<EPosition>(pos_it->second) : EPosition::kStand);
+		mob.mob_specials.default_pos = static_cast<EPosition>(
+			EnumIntFromText(position_map, default_pos, static_cast<int>(EPosition::kStand)));
+		mob.SetPosition(static_cast<EPosition>(
+			EnumIntFromText(position_map, start_pos, static_cast<int>(EPosition::kStand))));
 
 		// Sex
 		std::string sex_str = GetText(stmt, 27);
-		auto gender_it = gender_map.find(sex_str);
-		mob.set_sex(gender_it != gender_map.end() ?
-			static_cast<EGender>(gender_it->second) : EGender::kMale);
+		mob.set_sex(static_cast<EGender>(
+			EnumIntFromText(gender_map, sex_str, static_cast<int>(EGender::kMale))));
 
 		// Physical attributes -- bounds mirror MobileFile::interpret_espec
 		// (boot_data_files.cpp). Без них старые данные расходятся с легаси.
@@ -3089,6 +3113,7 @@ void SqliteWorldDataSource::SaveMobRecord(int mob_vnum, CharData &mob)
 	ExecuteStatement("DELETE FROM mob_flags WHERE mob_vnum = " + mvd, "del mob_flags");
 	ExecuteStatement("DELETE FROM mob_spells WHERE mob_vnum = " + mvd, "del mob_spells");
 	ExecuteStatement("DELETE FROM mob_skills WHERE mob_vnum = " + mvd, "del mob_skills");
+	ExecuteStatement("DELETE FROM mob_resistances WHERE mob_vnum = " + mvd, "del mob_resistances");
 	ExecuteStatement("DELETE FROM mob_death_load WHERE mob_vnum = " + mvd, "del mob_death_load");
 	ExecuteStatement("DELETE FROM entity_triggers WHERE entity_type = 'mob' AND entity_vnum = " + mvd, "del mob trigs");
 
@@ -3162,12 +3187,12 @@ void SqliteWorldDataSource::SaveMobRecord(int mob_vnum, CharData &mob)
 	// position_map/gender_map); writing the raw int made every reload fall back
 	// to the default position/kMale.
 	BindTextKoi(stmt, col++,
-		ReverseLookupFlag(position_map, static_cast<int>(mob.mob_specials.default_pos)).c_str());
+		EnumNameOrInt(position_map, static_cast<int>(mob.mob_specials.default_pos)).c_str());
 	BindTextKoi(stmt, col++,
-		ReverseLookupFlag(position_map, static_cast<int>(mob.GetPosition())).c_str());
+		EnumNameOrInt(position_map, static_cast<int>(mob.GetPosition())).c_str());
 
 	BindTextKoi(stmt, col++,
-		ReverseLookupFlag(gender_map, static_cast<int>(mob.get_sex())).c_str());
+		EnumNameOrInt(gender_map, static_cast<int>(mob.get_sex())).c_str());
 	
 	// Physical attributes
 	sqlite3_bind_int(stmt, col++, GET_SIZE(&mob));
