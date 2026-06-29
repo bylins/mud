@@ -2106,6 +2106,9 @@ void SqliteWorldDataSource::LoadObjects()
 	// Load object skills (legacy `S` lines, issue #3386)
 	LoadObjectSkills();
 
+	// Load object extra (V-line) values
+	LoadObjectExtraValues();
+
 	// Load object triggers
 	LoadObjectTriggers();
 
@@ -2298,6 +2301,44 @@ void SqliteWorldDataSource::LoadObjectSkills()
 	sqlite3_finalize(stmt);
 
 	log("   Loaded %d object skills.", skills_loaded);
+}
+
+void SqliteWorldDataSource::LoadObjectExtraValues()
+{
+	// Lazily-created table (see SaveObjects); an old world.db simply has none.
+	const char *sql = "SELECT obj_vnum, vals FROM obj_extra_values";
+	sqlite3_stmt *stmt;
+	if (sqlite3_prepare_v2(m_db, sql, -1, &stmt, nullptr) != SQLITE_OK)
+	{
+		return;
+	}
+
+	int loaded = 0;
+	while (sqlite3_step(stmt) == SQLITE_ROW)
+	{
+		int obj_vnum = sqlite3_column_int(stmt, 0);
+		std::string vals = GetText(stmt, 1);
+		int rnum = obj_proto.get_rnum(obj_vnum);
+		if (rnum < 0 || vals.empty()) continue;
+
+		// ObjVal::print_to_file prefixes a "Vals:" header line, but init_from_file
+		// reads bare "key val" pairs and a leading non-numeric token aborts the
+		// whole parse -- strip the header before handing it over.
+		const char *body = vals.c_str();
+		if (vals.compare(0, 5, "Vals:") == 0)
+		{
+			auto nl = vals.find('\n');
+			if (nl != std::string::npos)
+			{
+				body += nl + 1;
+			}
+		}
+		obj_proto[rnum]->init_values_from_file(body);
+		loaded++;
+	}
+	sqlite3_finalize(stmt);
+
+	log("   Loaded %d object extra-value sets.", loaded);
 }
 
 void SqliteWorldDataSource::LoadObjectTriggers()
@@ -3447,6 +3488,7 @@ void SqliteWorldDataSource::SaveObjectRecord(int obj_vnum, CObjectPrototype *obj
 	ExecuteStatement("DELETE FROM objects WHERE vnum = " + ov, "delete object");
 	ExecuteStatement("DELETE FROM obj_applies WHERE obj_vnum = " + ov, "del obj_applies");
 	ExecuteStatement("DELETE FROM obj_skills WHERE obj_vnum = " + ov, "del obj_skills");
+	ExecuteStatement("DELETE FROM obj_extra_values WHERE obj_vnum = " + ov, "del obj_extra_values");
 	ExecuteStatement("DELETE FROM entity_triggers WHERE entity_type = 'obj' AND entity_vnum = " + ov, "del obj trigs");
 
 	// Insert object main record
@@ -3575,6 +3617,21 @@ void SqliteWorldDataSource::SaveObjectRecord(int obj_vnum, CObjectPrototype *obj
 		}
 	}
 
+	// Save object extra (V-line) values -- the ObjVal map, separate from the four
+	// positional value0..3 columns. Stored as the same text the legacy/YAML
+	// serialiser produces so init_values_from_file can reload it verbatim.
+	{
+		std::string vals = obj->serialize_values();
+		const char *ev_sql = "INSERT OR REPLACE INTO obj_extra_values (obj_vnum, vals) VALUES (?, ?)";
+		if (!vals.empty() && sqlite3_prepare_v2(m_db, ev_sql, -1, &stmt, nullptr) == SQLITE_OK)
+		{
+			sqlite3_bind_int(stmt, 1, obj_vnum);
+			BindTextKoi(stmt, 2, vals.c_str());
+			sqlite3_step(stmt);
+			sqlite3_finalize(stmt);
+		}
+	}
+
 	// Save object extra descriptions
 	const char *extra_sql = 
 		"INSERT INTO extra_descriptions (entity_type, entity_vnum, keyword, description) "
@@ -3628,6 +3685,13 @@ void SqliteWorldDataSource::SaveObjects(int zone_rnum, int specific_vnum)
 		log("SYSERR: Database not open for SaveObjects");
 		return;
 	}
+
+	// Extra (V-line) object values had no home in the converter schema.
+	ExecuteStatement(
+		"CREATE TABLE IF NOT EXISTS obj_extra_values ("
+		" obj_vnum INTEGER PRIMARY KEY,"
+		" vals TEXT NOT NULL)",
+		"create obj_extra_values");
 
 	const ZoneData &zone = zone_table[zone_rnum];
 	int zone_vnum = zone.vnum;

@@ -99,6 +99,7 @@ private:
 	void LoadObjectFlags();
 	void LoadObjectApplies();
 	void LoadObjectSkills();
+	void LoadObjectExtraValues();
 	void LoadObjectTriggers();
 	void LoadObjectExtraDescriptions();
 
