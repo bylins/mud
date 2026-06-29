@@ -2803,20 +2803,31 @@ bool SqliteWorldDataSource::SaveTriggers(int zone_rnum, int specific_vnum, int n
 	}
 
 	const ZoneData &zone = zone_table[zone_rnum];
-	
+
+	if (!BeginTransaction())
+	{
+		return false;
+	}
+
+	// Triggers belong to a zone by vnum/100 (see db.cpp boot). Clear the whole
+	// block first so a trigger that exists in the db but not in the source (e.g.
+	// a legacy trigger dropped from YAML) is removed -- otherwise the stale row
+	// shifts every later trigger rnum and corrupts zone-reset 'T'/'V' command
+	// args on reload. The loop below re-inserts the triggers that still exist.
+	const int trig_base = zone.vnum * 100;
+	ExecuteStatement("DELETE FROM triggers WHERE vnum >= " + std::to_string(trig_base) +
+		" AND vnum <= " + std::to_string(trig_base + 99), "del zone triggers");
+
 	// Get trigger range for this zone
 	TrgRnum first_trig = zone.RnumTrigsLocation.first;
 	TrgRnum last_trig = zone.RnumTrigsLocation.second;
 
 	if (first_trig == -1 || last_trig == -1)
 	{
-		log("Zone %d has no triggers to save", zone.vnum);
+		// No triggers in the source; the block delete above already removed any
+		// stale rows, so just commit that.
+		CommitTransaction();
 		return true;
-	}
-
-	if (!BeginTransaction())
-	{
-		return false;
 	}
 
 	int saved_count = 0;
