@@ -33,6 +33,10 @@ enum class ERoomAffectMsgType {
 	// character -- the affect's own "why this happened" line, emitted before the action's effect runs.
 	kTriggerOnEntryToChar,      // to the entering character (the actor)
 	kTriggerOnEntryToRoom,      // to onlookers ($n0 = the actor)
+	// issue.room-affect-trigger-improve: shown room-wide when a trigger fired but its effect produced no
+	// visible result (e.g. a violent side_spell suppressed by a peaceful room, or a refused cast) -- so a
+	// triggered trap never reads as a silent no-op. Impersonal (no $-codes); sent to the whole room.
+	kTriggerNoEffect,
 	// issue.affects-improve (Phase B): per-pulse flavor lines, rotated by the affect's tick count.
 	// Affect-native replacement for the spell sheaf's kCustomMsgOne..N that EmitRoomTickMessage read.
 	kTickMsgOne,

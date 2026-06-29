@@ -83,6 +83,7 @@ const std::map<room_spells::ERoomAffectMsgType, std::string> kRoomAffectMsgTypeN
 		{room_spells::ERoomAffectMsgType::kAffInterruptedToChar, "kAffInterruptedToChar"},
 		{room_spells::ERoomAffectMsgType::kTriggerOnEntryToChar, "kTriggerOnEntryToChar"},
 		{room_spells::ERoomAffectMsgType::kTriggerOnEntryToRoom, "kTriggerOnEntryToRoom"},
+		{room_spells::ERoomAffectMsgType::kTriggerNoEffect, "kTriggerNoEffect"},
 		{room_spells::ERoomAffectMsgType::kTickMsgOne, "kTickMsgOne"},
 		{room_spells::ERoomAffectMsgType::kTickMsgTwo, "kTickMsgTwo"},
 		{room_spells::ERoomAffectMsgType::kTickMsgThree, "kTickMsgThree"},

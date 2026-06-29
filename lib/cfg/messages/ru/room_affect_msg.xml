@@ -98,5 +98,6 @@
 		<message type="kAffExpiredToRoom" val="Огненная ловушка на проходе погасла."/>
 		<message type="kTriggerOnEntryToChar" val="Открывая дверь, вы задели огненную ловушку!"/>
 		<message type="kTriggerOnEntryToRoom" val="$n0 задел$g огненную ловушку, открывая дверь!"/>
+		<message type="kTriggerNoEffect" val="Яркая вспышка на мгновение озарила комнату и тут же погасла."/>
 	</msg_sheaf>
 </msg_container>

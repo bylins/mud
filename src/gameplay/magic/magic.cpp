@@ -3386,7 +3386,23 @@ static int CastRoomEntryAction(CharData *caster, RoomData *room, CharData *actor
 	CastContext ctx = BuildCastContext(caster, ESpell::kUndefined, GetRealLevel(caster), potency);
 	ctx.cvict = actor;
 	ctx.UseExternalActions(&single);
-	RunRoomCycledAction(ctx, room, single, 0);
+	const ECastResult eff = RunRoomCycledAction(ctx, room, single, 0);
+	// issue.room-affect-trigger-improve: a trigger that fired but whose side_spell produced no visible
+	// effect would read as a silent no-op. That happens when the cast is refused (kNotCast) OR when a
+	// violent side_spell is suppressed by a peaceful room (a god-sourced trap still "casts" but lands no
+	// damage). In either case emit the affect's room-wide kTriggerNoEffect flash so the trap is felt.
+	if (action.Contains(talents_actions::EAction::kSideSpell)) {
+		bool no_effect = (eff == ECastResult::kNotCast);
+		if (!no_effect && ROOM_FLAGGED(actor->in_room, ERoomFlag::kPeaceful)) {
+			for (const auto s : action.GetSideSpells()) {
+				if (MUD::Spell(s).IsViolent()) { no_effect = true; break; }
+			}
+		}
+		if (no_effect) {
+			const std::string &flash = room_spells::RoomAffectMsgRaw(affect_type, ERoomAffectMsgType::kTriggerNoEffect);
+			if (!flash.empty()) { SendMsgToRoom(flash.c_str(), actor->in_room, 0); }
+		}
+	}
 	if (const auto h = ctx.GetTriggerReturn()) { return *h; }       // handler override wins
 	if (const auto t = action.GetTriggerReturn()) { return *t; }    // else the <trigger return=> tag
 	return kEntryTriggerAllow;                                       // else allow
