@@ -840,15 +840,26 @@ sol::object BuildRealDate(sol::state &lua, const sol::object &format, const sol:
 	return sol::make_object(lua, std::string(""));
 }
 
-int MudRandom(const sol::object &limit)
+int MudRandom(const sol::object &first, const sol::object &second)
 {
-	if (!limit.is<int>())
+	if (!first.is<int>())
 	{
 		return 0;
 	}
 
-	const auto n = limit.as<int>();
-	return n > 0 ? number(1, n) : 0;
+	const auto m = first.as<int>();
+	if (second == sol::lua_nil || second.get_type() == sol::type::none)
+	{
+		return m > 0 ? number(1, m) : 0;
+	}
+
+	if (!second.is<int>())
+	{
+		return 0;
+	}
+
+	const auto n = second.as<int>();
+	return number(m, n);
 }
 
 int MudRoll(const sol::object &count, const sol::object &sides)
@@ -1156,8 +1167,8 @@ sol::table BuildMudNamespace(sol::state &lua, LuaRuntimeContext *runtime)
 	mud["log"] = [runtime](const sol::object &message) {
 		return MudLog(CurrentRuntime(runtime), message);
 	};
-	mud["random"] = [](const sol::object &limit) {
-		return MudRandom(limit);
+	mud["random"] = [](const sol::object &first, sol::optional<sol::object> second) {
+		return MudRandom(first, second.value_or(sol::lua_nil));
 	};
 	mud["roll"] = [](const sol::object &count, const sol::object &sides) {
 		return MudRoll(count, sides);

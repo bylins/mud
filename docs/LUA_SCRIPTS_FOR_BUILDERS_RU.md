@@ -285,7 +285,8 @@ end
 | Вызов | Возврат | Описание |
 | --- | --- | --- |
 | `mud.log(message)` | bool | Пишет сообщение в script log с данными Lua-триггера. |
-| `mud.random(limit)` | number | Случайное число от 1 до `limit`; при ошибке возвращает 0. |
+| `mud.random(limit)` | number | Случайное число от 1 до `limit`; при ошибке возвращает 0. Аналог DG `%random.N%`. |
+| `mud.random(m, n)` | number | Случайное число от `m` до `n` включительно; при ошибке возвращает 0. Аналог DG `%number.range(m,n)%`. |
 | `mud.roll(count, sides)` | number | Бросок `count` кубиков по `sides` граней. Ограничения: до 1000 кубиков и до 1000000 граней. |
 | `mud.percent(chance)` | bool | Проверка процента от 1 до 100. |
 
