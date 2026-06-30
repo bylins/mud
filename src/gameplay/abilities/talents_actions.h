@@ -76,6 +76,8 @@ enum class EActionTrigger {
 	               // (pre-damage swing; event carries weapon, skill)
 	kPostHit,  // issue.character-affect-triggers: a landed hit resolved (post-damage; event carries
 	               // amount, weapon, skill, actor=victim)
+	kWardAttack,   // issue.attack-ward: the bearer is the TARGET of an incoming (magic) attack -- the
+	               // defender's affect may reflect/absorb it. Fired once per cast at the is_entry gate.
 	kCount
 };
 
@@ -114,10 +116,28 @@ struct FlagCondition {
 // CastToSingleTarget so it runs once for the whole cast, not per stage. Reflection can't fire on
 // self-casts. Potency/strength comparisons aren't checked here: mob/object affects are bare flags
 // without a potency value, so a simple flag match + prob is the most we can do today.
+// issue.attack-ward: what a defender ward does to an incoming attack.
+enum class EWardOutcome {
+	kReflect,   // bounce the whole cast back at the caster (cvict -> caster)
+	kAbsorb     // negate the cast for the target (per `scope`)
+};
+// issue.attack-ward: which stages an kAbsorb ward swallows (reflect is always whole-cast).
+enum class EWardScope {
+	kAll,       // every stage
+	kDamage,    // damage stages only (e.g. Shadow Cloak)
+	kAffect     // affect stages only
+};
+
 struct Reflection {
 	std::vector<EAffect> affect_flags;
 	EAlign align{EAlign::kAny};
 	int prob{20};
+	// issue.attack-ward: defender-ward fields (ignored by the spell-side MaybeReflectToCaster matcher).
+	// `present` is set when an <reflection>/<ward> element was actually parsed, so the ward dispatcher
+	// can tell "this action has a ward" from a default-constructed Reflection.
+	bool present{false};
+	EWardOutcome outcome{EWardOutcome::kReflect};
+	EWardScope scope{EWardScope::kAll};
 	[[nodiscard]] bool empty() const {
 		return affect_flags.empty() && align == EAlign::kAny;
 	}

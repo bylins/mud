@@ -93,6 +93,7 @@ const std::map<std::string, EActionTrigger> kActionTriggerByName{
 	{"kLock", EActionTrigger::kLock},
 	{"kPreHit", EActionTrigger::kPreHit},
 	{"kPostHit", EActionTrigger::kPostHit},
+	{"kWardAttack", EActionTrigger::kWardAttack},
 };
 
 // issue.room-affect-trigger-improve: <action target=...> token -> EActionTarget, replacing a
@@ -1095,6 +1096,22 @@ void Actions::ParseReflection(Reflection &refl, parser_wrapper::DataNode &node) 
 	const char *prob = node.GetValue("prob");
 	if (prob && *prob) {
 		refl.prob = parse::ReadAsInt(prob);
+	}
+	// issue.attack-ward: defender-side outcome/scope (default reflect/all preserves the legacy spell-side
+	// <reflection> = bounce-the-whole-cast-back behaviour).
+	refl.present = true;
+	const char *out = node.GetValue("outcome");
+	if (out && *out) {
+		if (strcmp(out, "reflect") == 0) { refl.outcome = EWardOutcome::kReflect; }
+		else if (strcmp(out, "absorb") == 0) { refl.outcome = EWardOutcome::kAbsorb; }
+		else { err_log("Actions: unknown <reflection outcome='%s'> (reflect|absorb).", out); }
+	}
+	const char *scope = node.GetValue("scope");
+	if (scope && *scope) {
+		if (strcmp(scope, "all") == 0) { refl.scope = EWardScope::kAll; }
+		else if (strcmp(scope, "damage") == 0) { refl.scope = EWardScope::kDamage; }
+		else if (strcmp(scope, "affect") == 0) { refl.scope = EWardScope::kAffect; }
+		else { err_log("Actions: unknown <reflection scope='%s'> (all|damage|affect).", scope); }
 	}
 }
 
