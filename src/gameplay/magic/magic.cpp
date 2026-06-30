@@ -372,19 +372,8 @@ int LandOneDamageHit(CharData *ch, CharData *victim, ESpell spell_id, int total_
 	return dmg.Process(ch, victim);
 }
 
-bool TryReflectByMagicGlass(CharData *ch, CharData *victim, ESpell spell_id) {
-	if (ch == victim) return false;
-	if (MUD::Spell(spell_id).IsFlagged(kMagWarcry)) return false;
-	if (!MUD::Spell(spell_id).IsViolentAgainst(ch, victim)) return false;
-	if (privilege::IsGod(ch)) return false;
-	if (ch->in_room != victim->in_room) return false;
-	if (!AFF_FLAGGED(victim, EAffect::kMagicGlass)) return false;
-	if (number(1, 100) >= (GetRealLevel(victim) / 3)) return false;
-	act("Магическое зеркало $N1 отразило вашу магию!", false, ch, nullptr, victim, kToChar);
-	act("Магическое зеркало $N1 отразило магию $n1!", false, ch, nullptr, victim, kToNotVict);
-	act("Ваше магическое зеркало отразило поражение $n1!", false, ch, nullptr, victim, kToVict);
-	return true;
-}
+// issue.attack-ward: TryReflectByMagicGlass removed -- the Magic Mirror (kMagicGlass) is now a
+// data-driven kWardAttack/reflect affect (its messages live in the affect msg cfg, see RunAttackWards).
 
 bool TryReflectBySonicBarrier(CharData *ch, CharData *victim, ESpell spell_id) {
 	if (ch == victim) return false;
@@ -418,6 +407,71 @@ bool TryBlockByMagicalShield(CharData *ch, CharData *victim, ESpell spell_id) {
 	return true;
 }
 
+// issue.attack-ward: defender-side ward dispatcher. Run ONCE per cast at the is_entry gate, before the
+// stages. A violent, non-warcry MAGIC attack on `victim` may be REFLECTED (the whole cast bounces to the
+// caster: ctx.cvict = caster) or ABSORBED (per scope, recorded on ctx for the stages to honour) by the
+// victim's data-driven affects (kWardAttack actions: Magic Mirror reflect, Shadow Cloak absorb/damage)
+// or by the code-only defenses (sonic barrier reflect, magical shield absorb-all). `is_magic` gates the
+// whole thing -- true for every cast today; later sourced from the <weave> component so non-magic skills
+// (once they share this pipeline) don't trip wards. First firing ward wins (mirrors the old chain).
+// Returns true if a ward fired.
+bool RunAttackWards(ActionContext &ctx, bool is_magic) {
+	CharData *caster = ctx.caster();
+	CharData *victim = ctx.cvict;
+	const ESpell spell_id = ctx.spell_id();
+	if (!is_magic || !caster || !victim || caster == victim || caster->in_room != victim->in_room) {
+		return false;
+	}
+	// Data-driven affect wards: only a violent, non-warcry cast by a non-god triggers them
+	// (the warcry case is handled by the sonic barrier below).
+	if (!privilege::IsGod(caster) && !MUD::Spell(spell_id).IsFlagged(kMagWarcry)
+			&& MUD::Spell(spell_id).IsViolentAgainst(caster, victim)) {
+		std::vector<EAffect> seen;
+		for (const auto &aff : victim->affected) {
+			if (!aff || std::find(seen.begin(), seen.end(), aff->affect_type) != seen.end()) {
+				continue;
+			}
+			seen.push_back(aff->affect_type);
+			for (const auto &action : affects::AffectActions(aff->affect_type).list()) {
+				if (!action.GetTrigger().test(talents_actions::EActionTrigger::kWardAttack)) {
+					continue;
+				}
+				const auto &refl = action.GetReflection();
+				if (!refl.present || number(1, 100) > refl.prob) {
+					continue;
+				}
+				const EAffect at = aff->affect_type;
+				const std::string &mc = affects::AffectMsgRaw(at, affects::EAffectMsgType::kWardToChar);
+				const std::string &mv = affects::AffectMsgRaw(at, affects::EAffectMsgType::kWardToVict);
+				const std::string &mr = affects::AffectMsgRaw(at, affects::EAffectMsgType::kWardToRoom);
+				if (!mc.empty()) { act(mc.c_str(), false, caster, nullptr, victim, kToChar); }
+				if (!mv.empty()) { act(mv.c_str(), false, caster, nullptr, victim, kToVict); }
+				if (!mr.empty()) { act(mr.c_str(), false, caster, nullptr, victim, kToNotVict); }
+				if (refl.outcome == talents_actions::EWardOutcome::kReflect) {
+					ctx.cvict = caster;   // whole cast bounces back at the attacker
+				} else {
+					switch (refl.scope) {
+						case talents_actions::EWardScope::kAll:    ctx.SetWardStop(); break;
+						case talents_actions::EWardScope::kDamage: ctx.SetWardAbsorbDamage(); break;
+						case talents_actions::EWardScope::kAffect: ctx.SetWardAbsorbAffect(); break;
+					}
+				}
+				return true;
+			}
+		}
+	}
+	// Code-only defenses (not migrated): sonic barrier (warcry reflect), magical shield (absorb-all).
+	if (TryReflectBySonicBarrier(caster, victim, spell_id)) {
+		ctx.cvict = caster;
+		return true;
+	}
+	if (TryBlockByMagicalShield(caster, victim, spell_id)) {
+		ctx.SetWardStop();
+		return true;
+	}
+	return false;
+}
+
 }  // namespace
 
 EStageResult CastDamage(ActionContext &ctx) {
@@ -432,33 +486,10 @@ EStageResult CastDamage(ActionContext &ctx) {
 	if (!pk_agro_action(ch, victim))
 		return EStageResult::kSuccess;
 	log("[MAG DAMAGE] %s damage %s (%d)", GET_NAME(ch), GET_NAME(victim), to_underlying(spell_id));
-	// Defensive layer: magic mirror / sonic barrier / shadow cloak. (Breath no longer
-	// reaches this path -- it is dealt as magic-melee damage in fight_hit.cpp.)
-	{
-		if (TryReflectByMagicGlass(ch, victim, spell_id)) {
-			log("[MAG DAMAGE] Зеркало - полное отражение: %s damage %s (%d)",
-				GET_NAME(ch), GET_NAME(victim), to_underlying(spell_id));
-			ctx.cvict = ch;
-			return CastDamage(ctx);
-		}
-		if (TryReflectBySonicBarrier(ch, victim, spell_id)) {
-			ctx.cvict = ch;
-			return CastDamage(ctx);
-		}
-		// kShadowCloak absorption: 21% chance for the victim's cloak to swallow the cast outright.
-		// Only damage spells get this defense (no parallel in CastAffect), so it stays inline.
-		if (!MUD::Spell(spell_id).IsFlagged(kMagWarcry) && AFF_FLAGGED(victim, EAffect::kShadowCloak)
-			&& number(1, 100) < 21) {
-			act("Густая тень вокруг $N1 жадно поглотила вашу магию.", false, ch, nullptr, victim, kToChar);
-			act("Густая тень вокруг $N1 жадно поглотила магию $n1.", false, ch, nullptr, victim, kToNotVict);
-			act("Густая тень вокруг вас поглотила магию $n1.", false, ch, nullptr, victim, kToVict);
-			log("[MAG DAMAGE] Мантия  - поглощение урона: %s damage %s (%d)",
-				GET_NAME(ch), GET_NAME(victim), to_underlying(spell_id));
-			return EStageResult::kSuccess;
-		}
-		if (TryBlockByMagicalShield(ch, victim, spell_id)) {
-			return EStageResult::kSuccess;
-		}
+	// issue.attack-ward: magic-mirror/sonic-barrier/shadow-cloak/shield defenses now run once at the
+	// is_entry gate (RunAttackWards). A scoped damage-absorb (e.g. Shadow Cloak) skips just this stage.
+	if (ctx.WardAbsorbsDamage()) {
+		return EStageResult::kSuccess;
 	}
 
 	auto ch_start_pos = ch->GetPosition();
@@ -1134,19 +1165,9 @@ EStageResult CastAffect(ActionContext &ctx) {
 				return EStageResult::kSuccess;
 		}
 	}
-	// Shared defensive layer with CastDamage: magic mirror, sonic barrier, magical shield. The
-	// kShadowCloak absorption is damage-only and stays in CastDamage.
-	if (TryReflectByMagicGlass(ch, victim, spell_id)) {
-		ctx.cvict = ch;
-		CastAffect(ctx);
-		return EStageResult::kSuccess;
-	}
-	if (TryReflectBySonicBarrier(ch, victim, spell_id)) {
-		ctx.cvict = ch;
-		CastAffect(ctx);
-		return EStageResult::kSuccess;
-	}
-	if (TryBlockByMagicalShield(ch, victim, spell_id)) {
+	// issue.attack-ward: defenses now run once at the is_entry gate (RunAttackWards). A scoped
+	// affect-absorb (or whole-cast absorb via ward_stop_) skips just this stage.
+	if (ctx.WardAbsorbsAffect()) {
 		return EStageResult::kSuccess;
 	}
 
@@ -2922,6 +2943,14 @@ ECastResult CastOnTarget(ActionContext &ctx, bool is_entry) {
 	if (is_entry) {
 		cvict = MaybeReflectToCaster(caster, cvict, spell_id);
 		ctx.cvict = cvict;
+		// issue.attack-ward: defender wards (Magic Mirror reflect / Shadow Cloak absorb / sonic / shield),
+		// once for the whole cast. Reflect redirects ctx.cvict to the caster; a whole-cast absorb stops
+		// here; a scoped absorb is read later by CastDamage/CastAffect.
+		RunAttackWards(ctx, /*is_magic=*/true);
+		if (ctx.WardStop()) {
+			return ECastResult::kNotCast;
+		}
+		cvict = ctx.cvict;
 		if (cvict && (caster != cvict))
 			// The level-difference half of this guard is commented out: after
 			// proper balancing it should be moot -- a low-level mage can't land a strong buff,

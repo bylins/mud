@@ -53,6 +53,11 @@ enum class EAffectMsgType {
 	kAffExpiredToChar,    // affect wore off naturally, to the affected char.
 	kAffExpiredToRoom,    // affect wore off, to the room (only for affects whose expiry shows).
 	kAffExpireSoon,       // mob affect ~1 min from expiry, to the room (mobile_affect_update heads-up).
+	// issue.attack-ward: flavor shown when this affect reflects/absorbs an incoming attack (RunAttackWards).
+	// $n = the attacker, $N = the warded (affect-bearing) char.
+	kWardToChar,          // to the attacker (their cast was reflected/absorbed)
+	kWardToVict,          // to the warded char (their affect reacted)
+	kWardToRoom,          // to onlookers
 };
 
 // affect = the affect whose sheaf to read (EAffect::kUndefined => the shared "kDefault" sheaf).

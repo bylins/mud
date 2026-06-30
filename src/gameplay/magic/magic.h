@@ -160,6 +160,16 @@ class ActionContext {
 	// data (damage amount, weapon, skill, the other party). Copied into side_spell sub-contexts.
 	void SetEvent(const EventContext &e) { event_ = e; }
 	[[nodiscard]] const EventContext &Event() const { return event_; }
+	// issue.attack-ward: defender-ward outcome, decided ONCE at the is_entry gate by RunAttackWards and
+	// read back by the stages. `reflect` is applied directly as cvict = caster (no flag). ward_stop_ =
+	// the whole cast was absorbed (caller returns kNotCast); the per-stage flags let a scoped absorb
+	// (e.g. Shadow Cloak = damage-only) skip just its stage.
+	void SetWardStop() { ward_stop_ = true; }
+	[[nodiscard]] bool WardStop() const { return ward_stop_; }
+	void SetWardAbsorbDamage() { ward_absorb_damage_ = true; }
+	[[nodiscard]] bool WardAbsorbsDamage() const { return ward_absorb_damage_; }
+	void SetWardAbsorbAffect() { ward_absorb_affect_ = true; }
+	[[nodiscard]] bool WardAbsorbsAffect() const { return ward_absorb_affect_; }
 	[[nodiscard]] const talents_actions::Action *action() const;
 	[[nodiscard]] bool HasPendingActions() const;
 	// The action the current stage should read its block from: the cursor's
@@ -187,6 +197,9 @@ class ActionContext {
 	int tick_duration_{-1};   // issue.affect-migration: see SetTickDuration (-1 = not a tick cast)
 	std::optional<int> trigger_return_;   // issue.room-affect-trigger-improve: see SetTriggerReturn
 	EventContext event_;   // issue.character-affect-triggers: see SetEvent/Event
+	bool ward_stop_{false};            // issue.attack-ward: whole cast absorbed
+	bool ward_absorb_damage_{false};   // issue.attack-ward: damage stage absorbed (scoped)
+	bool ward_absorb_affect_{false};   // issue.attack-ward: affect stage absorbed (scoped)
 };
 
 // VNUM'ы мобов для заклинаний, создающих мобов

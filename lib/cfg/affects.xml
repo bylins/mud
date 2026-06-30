@@ -170,6 +170,12 @@
 	</affect>
 	<affect id="kMagicGlass" buff="Y">
 		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+		<actions>
+			<action>
+				<trigger val="kWardAttack"/>
+				<reflection outcome="reflect" scope="all" prob="10"/>
+			</action>
+		</actions>
 	</affect>
 	<affect id="kStairs"/>
 	<affect id="kStoneHands" buff="Y">
@@ -252,6 +258,12 @@
 		<apply location="kSavingStability">
 			<modifier min="0.0" dices_weight="0.0" alpha="0" beta="1.6" factor="-1" />
 		</apply>
+		<actions>
+			<action>
+				<trigger val="kWardAttack"/>
+				<reflection outcome="absorb" scope="damage" prob="21"/>
+			</action>
+		</actions>
 	</affect>
 	<affect id="kGlitterDust" buff="N">
 		<apply location="kSavingReflex">

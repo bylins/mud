@@ -299,6 +299,9 @@
 		<message type="kAffExpiredToRoom" val="Зеркальная пелена вокруг $n1 растаяла."/>
 		<message type="kShortDesc" val="зеркало магии"/>
 		<message type="kLook" val="серебристая"/>
+		<message type="kWardToChar" val="Магическое зеркало $N1 отразило вашу магию!"/>
+		<message type="kWardToVict" val="Ваше магическое зеркало отразило поражение $n1!"/>
+		<message type="kWardToRoom" val="Магическое зеркало $N1 отразило магию $n1!"/>
 	</msg_sheaf>
 	<msg_sheaf id="kStairs">
 		<message type="kShortDesc" val="звезды"/>
@@ -411,6 +414,9 @@
 		<message type="kAffExpiredToChar" val="Ваша теневая мантия замерцала и растаяла."/>
 		<message type="kAffExpiredToRoom" val="Теневая мантия $n1 замерцала и растаяла."/>
 		<message type="kShortDesc" val="мантия теней"/>
+		<message type="kWardToChar" val="Густая тень вокруг $N1 жадно поглотила вашу магию."/>
+		<message type="kWardToVict" val="Густая тень вокруг вас поглотила магию $n1."/>
+		<message type="kWardToRoom" val="Густая тень вокруг $N1 жадно поглотила магию $n1."/>
 	</msg_sheaf>
 	<msg_sheaf id="kGlitterDust">
 		<message type="kAffImposedToRoom" val="Облако ярко блестящей пыли накрыло $n3."/>
