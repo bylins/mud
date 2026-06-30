@@ -127,9 +127,14 @@ struct Reflection {
 	std::vector<EAffect> affect_flags;
 	EAlign align{EAlign::kAny};
 	int prob{20};
-	// issue.attack-ward: `present` is set when a <reflection> element was actually parsed, so the ward
-	// dispatcher can tell a defender Magic-Mirror ward (no affect_flags/align, just prob) from a
-	// default-constructed Reflection. The spell-side MaybeReflectToCaster uses empty() (affect_flags/align).
+	// issue.attack-ward: potency-contest bounds for a defender reflect ward. max > 0 switches the chance
+	// from the fixed `prob` to clamp(aff->potency - incoming spell potency, min, max) -- a stronger mirror
+	// vs a weaker spell reflects more (toward max), balanced/out-powered presses toward min.
+	int min{0};
+	int max{0};
+	// `present` is set when a <reflection> element was actually parsed, so the ward dispatcher can tell a
+	// defender Magic-Mirror ward (no affect_flags/align) from a default-constructed Reflection. The
+	// spell-side MaybeReflectToCaster uses empty() (affect_flags/align).
 	bool present{false};
 	[[nodiscard]] bool empty() const {
 		return affect_flags.empty() && align == EAlign::kAny;

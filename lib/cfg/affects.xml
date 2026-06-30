@@ -173,7 +173,7 @@
 		<actions>
 			<action>
 				<trigger val="kWardAttack"/>
-				<reflection prob="10"/>
+				<reflection min="10" max="20"/>
 			</action>
 		</actions>
 	</affect>

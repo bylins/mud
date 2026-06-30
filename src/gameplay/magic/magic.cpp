@@ -452,7 +452,12 @@ bool RunAttackWards(ActionContext &ctx, bool is_magic) {
 				const bool is_reflect = refl.present;
 				int chance;
 				if (is_reflect) {
-					chance = refl.prob;
+					// potency contest (max>0): clamp(mirror potency - incoming spell potency, min, max);
+					// otherwise the fixed prob (spell-side <reflection> / flat-prob reflect).
+					chance = (refl.max > 0)
+						? std::clamp(static_cast<int>(aff->potency - CalcCastPotency(ctx.potency())),
+									 refl.min, refl.max)
+						: refl.prob;
 				} else if (absb.present) {
 					if (absb.chance != EApply::kNone) {
 						// stat-driven: capped GET_<apply>(victim), same clamp as the elemental-resist path.

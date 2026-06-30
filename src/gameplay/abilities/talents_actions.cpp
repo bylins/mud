@@ -1099,6 +1099,11 @@ void Actions::ParseReflection(Reflection &refl, parser_wrapper::DataNode &node) 
 	if (prob && *prob) {
 		refl.prob = parse::ReadAsInt(prob);
 	}
+	// issue.attack-ward: potency-contest bounds (max>0 => contest mode in RunAttackWards, else fixed prob).
+	const char *mn = node.GetValue("min");
+	if (mn && *mn) { refl.min = parse::ReadAsInt(mn); }
+	const char *mx = node.GetValue("max");
+	if (mx && *mx) { refl.max = parse::ReadAsInt(mx); }
 	refl.present = true;   // issue.attack-ward: marks a defender Magic-Mirror ward (vs a default Reflection)
 }
 
