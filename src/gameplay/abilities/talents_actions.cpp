@@ -1036,6 +1036,8 @@ void Actions::ParseAction(Action &out, parser_wrapper::DataNode node) {
 			ParseTargetConditions(out, manifestation);
 		} else if (strcmp(manifestation.GetName(), "reflection") == 0) {
 			ParseReflection(out.reflection_, manifestation);
+		} else if (strcmp(manifestation.GetName(), "absorption") == 0) {
+			ParseAbsorption(out.absorption_, manifestation);
 		} else if (strcmp(manifestation.GetName(), "manual_cast") == 0) {
 			// <manual_cast handler="SpellX"/>.
 			const char *hv = manifestation.GetValue("handler");
@@ -1097,21 +1099,30 @@ void Actions::ParseReflection(Reflection &refl, parser_wrapper::DataNode &node) 
 	if (prob && *prob) {
 		refl.prob = parse::ReadAsInt(prob);
 	}
-	// issue.attack-ward: defender-side outcome/scope (default reflect/all preserves the legacy spell-side
-	// <reflection> = bounce-the-whole-cast-back behaviour).
-	refl.present = true;
-	const char *out = node.GetValue("outcome");
-	if (out && *out) {
-		if (strcmp(out, "reflect") == 0) { refl.outcome = EWardOutcome::kReflect; }
-		else if (strcmp(out, "absorb") == 0) { refl.outcome = EWardOutcome::kAbsorb; }
-		else { err_log("Actions: unknown <reflection outcome='%s'> (reflect|absorb).", out); }
+	refl.present = true;   // issue.attack-ward: marks a defender Magic-Mirror ward (vs a default Reflection)
+}
+
+// issue.attack-ward: <absorption scope="all|damage|affect" [chance="kMagicResist"] [prob="N"]/>.
+// chance names a resist apply whose capped GET_<apply>(target) is the absorb % (scales with the stat);
+// when absent, the fixed prob is used. scope defaults to all; prob to 0.
+static EWardScope ParseWardScope(const char *scope, const char *ctx) {
+	if (!scope || !*scope || strcmp(scope, "all") == 0) { return EWardScope::kAll; }
+	if (strcmp(scope, "damage") == 0) { return EWardScope::kDamage; }
+	if (strcmp(scope, "affect") == 0) { return EWardScope::kAffect; }
+	err_log("Actions: unknown <%s scope='%s'> (all|damage|affect).", ctx, scope);
+	return EWardScope::kAll;
+}
+
+void Actions::ParseAbsorption(Absorption &absorb, parser_wrapper::DataNode &node) {
+	absorb.present = true;
+	absorb.scope = ParseWardScope(node.GetValue("scope"), "absorption");
+	const char *chance = node.GetValue("chance");
+	if (chance && *chance) {
+		absorb.chance = parse::ReadAsConstant<EApply>(chance);
 	}
-	const char *scope = node.GetValue("scope");
-	if (scope && *scope) {
-		if (strcmp(scope, "all") == 0) { refl.scope = EWardScope::kAll; }
-		else if (strcmp(scope, "damage") == 0) { refl.scope = EWardScope::kDamage; }
-		else if (strcmp(scope, "affect") == 0) { refl.scope = EWardScope::kAffect; }
-		else { err_log("Actions: unknown <reflection scope='%s'> (all|damage|affect).", scope); }
+	const char *prob = node.GetValue("prob");
+	if (prob && *prob) {
+		absorb.prob = parse::ReadAsInt(prob);
 	}
 }
 

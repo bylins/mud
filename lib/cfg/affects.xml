@@ -173,7 +173,7 @@
 		<actions>
 			<action>
 				<trigger val="kWardAttack"/>
-				<reflection outcome="reflect" scope="all" prob="10"/>
+				<reflection prob="10"/>
 			</action>
 		</actions>
 	</affect>
@@ -258,10 +258,13 @@
 		<apply location="kSavingStability">
 			<modifier min="0.0" dices_weight="0.0" alpha="0" beta="1.6" factor="-1" />
 		</apply>
+		<apply location="kMagicResist">
+			<modifier min="21.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
+		</apply>
 		<actions>
 			<action>
 				<trigger val="kWardAttack"/>
-				<reflection outcome="absorb" scope="damage" prob="21"/>
+				<absorption scope="damage" chance="kMagicResist"/>
 			</action>
 		</actions>
 	</affect>

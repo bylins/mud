@@ -116,14 +116,9 @@ struct FlagCondition {
 // CastToSingleTarget so it runs once for the whole cast, not per stage. Reflection can't fire on
 // self-casts. Potency/strength comparisons aren't checked here: mob/object affects are bare flags
 // without a potency value, so a simple flag match + prob is the most we can do today.
-// issue.attack-ward: what a defender ward does to an incoming attack.
-enum class EWardOutcome {
-	kReflect,   // bounce the whole cast back at the caster (cvict -> caster)
-	kAbsorb     // negate the cast for the target (per `scope`)
-};
-// issue.attack-ward: which stages an kAbsorb ward swallows (reflect is always whole-cast).
+// issue.attack-ward: which stages an <absorption> swallows (reflect is always whole-cast).
 enum class EWardScope {
-	kAll,       // every stage
+	kAll,       // every stage (whole cast negated)
 	kDamage,    // damage stages only (e.g. Shadow Cloak)
 	kAffect     // affect stages only
 };
@@ -132,15 +127,23 @@ struct Reflection {
 	std::vector<EAffect> affect_flags;
 	EAlign align{EAlign::kAny};
 	int prob{20};
-	// issue.attack-ward: defender-ward fields (ignored by the spell-side MaybeReflectToCaster matcher).
-	// `present` is set when an <reflection>/<ward> element was actually parsed, so the ward dispatcher
-	// can tell "this action has a ward" from a default-constructed Reflection.
+	// issue.attack-ward: `present` is set when a <reflection> element was actually parsed, so the ward
+	// dispatcher can tell a defender Magic-Mirror ward (no affect_flags/align, just prob) from a
+	// default-constructed Reflection. The spell-side MaybeReflectToCaster uses empty() (affect_flags/align).
 	bool present{false};
-	EWardOutcome outcome{EWardOutcome::kReflect};
-	EWardScope scope{EWardScope::kAll};
 	[[nodiscard]] bool empty() const {
 		return affect_flags.empty() && align == EAlign::kAny;
 	}
+};
+
+// issue.attack-ward: a defender ABSORPTION ward (e.g. Shadow Cloak) -- swallows an incoming attack per
+// `scope`. The chance is either a fixed `prob`%, or, when `chance` names a resist apply (e.g.
+// kMagicResist), the target's capped GET_<that>(victim) so the absorb scales with a real, stackable stat.
+struct Absorption {
+	EWardScope scope{EWardScope::kAll};
+	EApply chance{EApply::kNone};   // kNone => use `prob`; else roll vs the target's capped GET_<apply>
+	int prob{0};
+	bool present{false};
 };
 
 class IAction {
@@ -648,6 +651,7 @@ class Action {
 	// Reflection (issue.cast-dmg-migration): checked in CastToSingleTarget; redirects the cast
 	// back at the caster on a successful prob roll.
 	Reflection reflection_;
+	Absorption absorption_;   // issue.attack-ward: defender absorb ward (<absorption>)
 	// Per-action target selector (issue.area-cast): how a non-first action picks its targets.
 	// Ignored for the first action (uses the spell's targeting flags). Default kTarSame.
 	EActionTarget target_{EActionTarget::kTarSame};
@@ -695,6 +699,7 @@ class Action {
 	[[nodiscard]] const FlagCondition &GetBlocking() const { return blocking_; }
 	[[nodiscard]] const FlagCondition &GetRequired() const { return required_; }
 	[[nodiscard]] const Reflection &GetReflection() const { return reflection_; }
+	[[nodiscard]] const Absorption &GetAbsorption() const { return absorption_; }
 	[[nodiscard]] EActionTarget GetTarget() const { return target_; }
 	[[nodiscard]] EActionBase GetBase() const { return base_; }
 	[[nodiscard]] const std::string &GetTagName() const { return tag_name_; }
@@ -736,6 +741,7 @@ class Actions {
 	// <required> children fill the action's blocking_/required_ via ParseFlagCondition.
 	static void ParseTargetConditions(Action &out, parser_wrapper::DataNode &node);
 	static void ParseReflection(Reflection &refl, parser_wrapper::DataNode &node);
+	static void ParseAbsorption(Absorption &absorb, parser_wrapper::DataNode &node);   // issue.attack-ward
 
 	// Empty fallback for the back-compat delegating getters when list_ is empty
 	// (a spell with no <action>): preserves the old "default-constructed gates"

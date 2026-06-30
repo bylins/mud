@@ -415,6 +415,16 @@ bool TryBlockByMagicalShield(CharData *ch, CharData *victim, ESpell spell_id) {
 // whole thing -- true for every cast today; later sourced from the <weave> component so non-magic skills
 // (once they share this pipeline) don't trip wards. First firing ward wins (mirrors the old chain).
 // Returns true if a ward fired.
+// issue.attack-ward: the target's current value of the resist apply an <absorption chance=> names.
+// Only kMagicResist is used today (Shadow Cloak); easily extended to the other resist applies.
+int WardResistStat(CharData *victim, EApply ap) {
+	switch (ap) {
+		case EApply::kMagicResist:  return GET_MR(victim);
+		case EApply::kPhysicResist: return GET_PR(victim);
+		default:                    return 0;
+	}
+}
+
 bool RunAttackWards(ActionContext &ctx, bool is_magic) {
 	CharData *caster = ctx.caster();
 	CharData *victim = ctx.cvict;
@@ -436,8 +446,25 @@ bool RunAttackWards(ActionContext &ctx, bool is_magic) {
 				if (!action.GetTrigger().test(talents_actions::EActionTrigger::kWardAttack)) {
 					continue;
 				}
+				// A kWardAttack action is either a <reflection> (bounce) or an <absorption> (swallow).
 				const auto &refl = action.GetReflection();
-				if (!refl.present || number(1, 100) > refl.prob) {
+				const auto &absb = action.GetAbsorption();
+				const bool is_reflect = refl.present;
+				int chance;
+				if (is_reflect) {
+					chance = refl.prob;
+				} else if (absb.present) {
+					if (absb.chance != EApply::kNone) {
+						// stat-driven: capped GET_<apply>(victim), same clamp as the elemental-resist path.
+						const int cap = caster->IsNpc() ? kMaxNpcResist : kMaxPcResist;
+						chance = std::min(cap, WardResistStat(victim, absb.chance));
+					} else {
+						chance = absb.prob;
+					}
+				} else {
+					continue;   // kWardAttack action with neither <reflection> nor <absorption>
+				}
+				if (number(1, 100) > chance) {
 					continue;
 				}
 				const EAffect at = aff->affect_type;
@@ -447,10 +474,10 @@ bool RunAttackWards(ActionContext &ctx, bool is_magic) {
 				if (!mc.empty()) { act(mc.c_str(), false, caster, nullptr, victim, kToChar); }
 				if (!mv.empty()) { act(mv.c_str(), false, caster, nullptr, victim, kToVict); }
 				if (!mr.empty()) { act(mr.c_str(), false, caster, nullptr, victim, kToNotVict); }
-				if (refl.outcome == talents_actions::EWardOutcome::kReflect) {
+				if (is_reflect) {
 					ctx.cvict = caster;   // whole cast bounces back at the attacker
 				} else {
-					switch (refl.scope) {
+					switch (absb.scope) {
 						case talents_actions::EWardScope::kAll:    ctx.SetWardStop(); break;
 						case talents_actions::EWardScope::kDamage: ctx.SetWardAbsorbDamage(); break;
 						case talents_actions::EWardScope::kAffect: ctx.SetWardAbsorbAffect(); break;
