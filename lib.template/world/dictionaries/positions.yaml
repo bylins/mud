@@ -1,0 +1,11 @@
+# Dictionary: positions
+kDead: 0  # Мертв
+kPerish: 1  # При смерти
+kIncap: 2  # Без сознания
+kStun: 3  # В обмороке
+kSleep: 4  # Спит
+kRest: 5  # Отдыхает
+kSit: 6  # Сидит
+kFight: 7  # Сражается
+kStand: 8  # Стоит
+kLast: 9

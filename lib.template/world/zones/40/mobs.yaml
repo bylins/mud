@@ -1,0 +1,2473 @@
+# Mobs for zone 40
+
+0:
+  # Mob #4000
+  names:
+    aliases: седой крепкий старейшина
+    nominative: старейшина
+    genitive: старейшины
+    dative: старейшине
+    accusative: старейшину
+    instrumental: старейшиной
+    prepositional: старейшине
+  descriptions:
+    short_desc: |
+      Седой крепкий мужичонка с цепким взглядом стоит здесь.
+    long_desc: |
+      Пожилой седовласый старец.
+      Уважаемый человек в деревне.
+  action_flags:
+  - kSentinel
+  - kNpc
+  - kNoCharm
+  - kNoSummon
+  - kNoSleep
+  - kProtect
+  affect_flags:
+  - kDetectAlign
+  - kDetectInvisible
+  - kDetectMagic
+  - kDetectLife
+  - kSanctuary
+  - kProtectFromDark
+  alignment: 600
+  mob_type: E
+  stats:
+    level: 15
+    hitroll_penalty: 10
+    armor: 0
+    hp:
+      dice_count: 10
+      dice_size: 10
+      bonus: 400
+    damage:
+      dice_count: 2
+      dice_size: 3
+      bonus: 10
+  gold:
+    dice_count: 10
+    dice_size: 10
+    bonus: 200
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  attributes:
+    strength: 20
+    dexterity: 20
+    intelligence: 20
+    wisdom: 20
+    constitution: 20
+    charisma: 20
+  size: 30
+  mob_class: 100
+  race: 101
+  height: 180
+  weight: 150
+  skills:
+  - skill_id: 136  # kPunch
+    value: 45
+  enhanced:
+    like_work: 90
+    extra_attack: 1
+    special_bitvector: '0'
+
+1:
+  # Mob #4001
+  names:
+    aliases: жена старейшина дородная женщина
+    nominative: жена старейшины
+    genitive: жены старейшины
+    dative: жене старейшины
+    accusative: жену старейшины
+    instrumental: женой старейшины
+    prepositional: жене старейшины
+  descriptions:
+    short_desc: |
+      Дородная румяная женщина стоит здесь.
+    long_desc: |
+      Почтенная хозяйка дома.
+  action_flags:
+  - kSentinel
+  - kNpc
+  - kNoCharm
+  - kNoSummon
+  - kNoSleep
+  - kProtect
+  affect_flags:
+  - kProtectFromDark
+  alignment: 600
+  mob_type: E
+  stats:
+    level: 13
+    hitroll_penalty: 12
+    armor: 5
+    hp:
+      dice_count: 10
+      dice_size: 10
+      bonus: 250
+    damage:
+      dice_count: 2
+      dice_size: 3
+      bonus: 5
+  gold:
+    dice_count: 10
+    dice_size: 10
+    bonus: 100
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  attributes:
+    strength: 16
+    dexterity: 16
+    intelligence: 20
+    wisdom: 20
+    constitution: 20
+    charisma: 20
+  size: 30
+  mob_class: 100
+  race: 101
+  height: 180
+  weight: 150
+  skills:
+  - skill_id: 136  # kPunch
+    value: 39
+  enhanced:
+    bare_hand_attack: 2
+    special_bitvector: '0'
+
+2:
+  # Mob #4002
+  names:
+    aliases: сын старейшины
+    nominative: сын старейшины
+    genitive: сына старейшины
+    dative: сыну старейшины
+    accusative: сына старейшины
+    instrumental: сыном старейшины
+    prepositional: сыне старейшины
+  descriptions:
+    short_desc: |
+      Сын старейшины стоит здесь.
+    long_desc: |
+      Стройный молодой парень.
+  action_flags:
+  - kNpc
+  - kStayZone
+  - kNoCharm
+  - kNoSummon
+  - kNoSleep
+  - kProtect
+  alignment: 600
+  mob_type: E
+  stats:
+    level: 12
+    hitroll_penalty: 17
+    armor: 5
+    hp:
+      dice_count: 5
+      dice_size: 10
+      bonus: 200
+    damage:
+      dice_count: 2
+      dice_size: 2
+      bonus: 10
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  attributes:
+    strength: 20
+    dexterity: 20
+    intelligence: 16
+    wisdom: 16
+    constitution: 18
+    charisma: 15
+  size: 30
+  mob_class: 102
+  race: 101
+  height: 180
+  weight: 150
+  skills:
+  - skill_id: 136  # kPunch
+    value: 36
+  triggers:
+  - 4003
+  enhanced:
+    like_work: 50
+    max_factor: 10
+    special_bitvector: '0'
+
+3:
+  # Mob #4003
+  names:
+    aliases: кузнец
+    nominative: кузнец
+    genitive: кузнеца
+    dative: кузнецу
+    accusative: кузнеца
+    instrumental: кузнецом
+    prepositional: кузнеце
+  descriptions:
+    short_desc: |
+      Крепкий мужчина стоит возле горна.
+    long_desc: |
+      Крепкий мужчина в кожаном халате.
+      От постоянной тяжелой работы тело
+      его окрепло и огрубело.
+  action_flags:
+  - kSentinel
+  - kNpc
+  - kNoCharm
+  - kNoSummon
+  - kNoSleep
+  - kProtect
+  - kNoResurrection
+  alignment: 600
+  mob_type: E
+  stats:
+    level: 20
+    hitroll_penalty: 8
+    armor: 0
+    hp:
+      dice_count: 10
+      dice_size: 10
+      bonus: 400
+    damage:
+      dice_count: 3
+      dice_size: 3
+      bonus: 10
+  gold:
+    dice_count: 10
+    dice_size: 10
+    bonus: 100
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  attributes:
+    strength: 25
+    dexterity: 20
+    intelligence: 20
+    wisdom: 20
+    constitution: 25
+    charisma: 20
+  size: 30
+  mob_class: 100
+  race: 101
+  height: 180
+  weight: 150
+  skills:
+  - skill_id: 136  # kPunch
+    value: 60
+  enhanced:
+    bare_hand_attack: 5
+    like_work: 70
+    max_factor: 10
+    special_bitvector: '0'
+
+4:
+  # Mob #4004
+  names:
+    aliases: подмастерье помощник подручный
+    nominative: подмастерье
+    genitive: подмастерья
+    dative: подмастерью
+    accusative: подмастерья
+    instrumental: подмастерьем
+    prepositional: подмастерье
+  descriptions:
+    short_desc: |
+      Подручный кузнеца стоит здесь.
+    long_desc: |
+      Молодой проворный юноша.
+  action_flags:
+  - kNpc
+  - kStayZone
+  - kNoCharm
+  - kNoSummon
+  - kNoSleep
+  - kProtect
+  alignment: 600
+  mob_type: E
+  stats:
+    level: 12
+    hitroll_penalty: 15
+    armor: 5
+    hp:
+      dice_count: 10
+      dice_size: 10
+      bonus: 200
+    damage:
+      dice_count: 2
+      dice_size: 2
+      bonus: 8
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  attributes:
+    strength: 18
+    dexterity: 20
+    intelligence: 15
+    wisdom: 15
+    constitution: 15
+    charisma: 15
+  size: 30
+  mob_class: 100
+  race: 101
+  height: 180
+  weight: 150
+  skills:
+  - skill_id: 136  # kPunch
+    value: 36
+  triggers:
+  - 4003
+  enhanced:
+    max_factor: 10
+    special_bitvector: '0'
+
+5:
+  # Mob #4005
+  names:
+    aliases: седой отшельник
+    nominative: отшельник
+    genitive: отшельника
+    dative: отшельнику
+    accusative: отшельника
+    instrumental: отшельником
+    prepositional: отшельнике
+  descriptions:
+    short_desc: |
+      Седой отшельник сидит у окна.
+    long_desc: |
+      Седой старик.
+  action_flags:
+  - kSentinel
+  - kNpc
+  - kNoCharm
+  - kNoSummon
+  - kNoSleep
+  - kProtect
+  alignment: 600
+  mob_type: E
+  stats:
+    level: 20
+    hitroll_penalty: 5
+    armor: -10
+    hp:
+      dice_count: 10
+      dice_size: 10
+      bonus: 250
+    damage:
+      dice_count: 3
+      dice_size: 3
+      bonus: 6
+  gold:
+    dice_count: 10
+    dice_size: 10
+    bonus: 100
+  experience: 0
+  position:
+    default: kSit
+    start: kSit
+  sex: kMale
+  attributes:
+    strength: 15
+    dexterity: 15
+    intelligence: 25
+    wisdom: 25
+    constitution: 15
+    charisma: 20
+  size: 30
+  mob_class: 100
+  race: 101
+  height: 180
+  weight: 150
+  skills:
+  - skill_id: 136  # kPunch
+    value: 60
+  enhanced:
+    like_work: 70
+    max_factor: 10
+    special_bitvector: '0'
+
+6:
+  # Mob #4006
+  names:
+    aliases: ведунья колдунья старуха
+    nominative: ведунья
+    genitive: ведуньи
+    dative: ведунье
+    accusative: ведуньи
+    instrumental: ведуньей
+    prepositional: ведунье
+  descriptions:
+    short_desc: |
+      Косматая старуха с ожерельем на шее стоит здесь.
+    long_desc: |
+      Седая косматая старуха.
+  action_flags:
+  - kSentinel
+  - kNpc
+  - kNoCharm
+  - kNoSummon
+  - kNoSleep
+  - kProtect
+  alignment: 600
+  mob_type: E
+  stats:
+    level: 15
+    hitroll_penalty: 10
+    armor: 5
+    hp:
+      dice_count: 10
+      dice_size: 10
+      bonus: 200
+    damage:
+      dice_count: 3
+      dice_size: 2
+      bonus: 6
+  gold:
+    dice_count: 10
+    dice_size: 10
+    bonus: 100
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  attributes:
+    strength: 12
+    dexterity: 15
+    intelligence: 25
+    wisdom: 25
+    constitution: 15
+    charisma: 20
+  size: 30
+  mob_class: 100
+  race: 101
+  height: 180
+  weight: 150
+  skills:
+  - skill_id: 136  # kPunch
+    value: 45
+  enhanced:
+    max_factor: 10
+    special_bitvector: '0'
+
+7:
+  # Mob #4007
+  names:
+    aliases: травник лекарь старик
+    nominative: травник
+    genitive: травника
+    dative: травнику
+    accusative: травника
+    instrumental: травником
+    prepositional: травнике
+  descriptions:
+    short_desc: |
+      Невысокий мужчина с окладистой бородой стоит здесь.
+    long_desc: |
+      Немолодой крепкий мужчина.
+  action_flags:
+  - kSentinel
+  - kNpc
+  - kNoCharm
+  - kNoSummon
+  - kNoSleep
+  - kProtect
+  alignment: 600
+  mob_type: E
+  stats:
+    level: 20
+    hitroll_penalty: 5
+    armor: 5
+    hp:
+      dice_count: 10
+      dice_size: 10
+      bonus: 300
+    damage:
+      dice_count: 3
+      dice_size: 3
+      bonus: 6
+  gold:
+    dice_count: 10
+    dice_size: 10
+    bonus: 100
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  attributes:
+    strength: 18
+    dexterity: 18
+    intelligence: 22
+    wisdom: 25
+    constitution: 15
+    charisma: 20
+  size: 30
+  mob_class: 100
+  race: 101
+  height: 180
+  weight: 150
+  skills:
+  - skill_id: 136  # kPunch
+    value: 60
+  enhanced:
+    max_factor: 10
+    special_bitvector: '0'
+
+8:
+  # Mob #4008
+  names:
+    aliases: старец седой
+    nominative: седой старец
+    genitive: седого старца
+    dative: седому старцу
+    accusative: седого старца
+    instrumental: седым старцем
+    prepositional: седом старце
+  descriptions:
+    short_desc: |
+      Седой, как лунь, старец стоит здесь.
+    long_desc: |
+      Седоволосый старец в белых одеждах.
+  action_flags:
+  - kSentinel
+  - kNpc
+  - kNoCharm
+  - kNoSummon
+  - kNoSleep
+  - kProtect
+  alignment: 600
+  mob_type: E
+  stats:
+    level: 20
+    hitroll_penalty: 0
+    armor: 5
+    hp:
+      dice_count: 10
+      dice_size: 10
+      bonus: 250
+    damage:
+      dice_count: 3
+      dice_size: 3
+      bonus: 6
+  gold:
+    dice_count: 10
+    dice_size: 10
+    bonus: 100
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  attributes:
+    strength: 15
+    dexterity: 15
+    intelligence: 30
+    wisdom: 30
+    constitution: 15
+    charisma: 25
+  size: 30
+  mob_class: 100
+  race: 101
+  height: 180
+  weight: 150
+  skills:
+  - skill_id: 136  # kPunch
+    value: 60
+  enhanced:
+    max_factor: 10
+    special_bitvector: '0'
+
+9:
+  # Mob #4009
+  names:
+    aliases: трактирщик
+    nominative: трактирщик
+    genitive: трактирщика
+    dative: трактирщику
+    accusative: трактирщика
+    instrumental: трактирщиком
+    prepositional: трактирщике
+  descriptions:
+    short_desc: |
+      Огромный, с сизым носом, трактирщик отдыхает за стойкой.
+    long_desc: |
+      Крепкий мужик, не дурак выпить.
+      С удовольствием за хорошие деньги угостит любого.
+  action_flags:
+  - kSentinel
+  - kNpc
+  - kNoCharm
+  - kNoSummon
+  - kNoSleep
+  - kProtect
+  - kNoResurrection
+  alignment: 600
+  mob_type: E
+  stats:
+    level: 15
+    hitroll_penalty: 5
+    armor: 5
+    hp:
+      dice_count: 10
+      dice_size: 10
+      bonus: 500
+    damage:
+      dice_count: 3
+      dice_size: 3
+      bonus: 10
+  gold:
+    dice_count: 10
+    dice_size: 10
+    bonus: 200
+  experience: 0
+  position:
+    default: kSit
+    start: kSit
+  sex: kMale
+  attributes:
+    strength: 20
+    dexterity: 15
+    intelligence: 15
+    wisdom: 15
+    constitution: 22
+    charisma: 20
+  size: 30
+  mob_class: 100
+  race: 101
+  height: 180
+  weight: 150
+  skills:
+  - skill_id: 136  # kPunch
+    value: 45
+  enhanced:
+    max_factor: 10
+    special_bitvector: '0'
+
+10:
+  # Mob #4010
+  names:
+    aliases: пьяный мужчина
+    nominative: пьяница
+    genitive: пьяницы
+    dative: пьянице
+    accusative: пьяницу
+    instrumental: пьяницей
+    prepositional: пьянице
+  descriptions:
+    short_desc: |
+      Пьяный мужчина бредет потихоньку домой.
+    long_desc: |
+      Оборванный и грязный, с бутылками, торчащими из кармана, прется немолодой
+      уже человек, не разбирая дороги.
+  action_flags:
+  - kNpc
+  - kStayZone
+  - kNoCharm
+  - kNoSummon
+  - kNoSleep
+  - kNoSkillTrain
+  alignment: 0
+  mob_type: E
+  stats:
+    level: 3
+    hitroll_penalty: 20
+    armor: 10
+    hp:
+      dice_count: 5
+      dice_size: 5
+      bonus: 100
+    damage:
+      dice_count: 1
+      dice_size: 3
+      bonus: 3
+  gold:
+    dice_count: 1
+    dice_size: 2
+    bonus: 0
+  experience: 350
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  attributes:
+    strength: 15
+    dexterity: 7
+    intelligence: 6
+    wisdom: 3
+    constitution: 20
+    charisma: 3
+  size: 30
+  mob_class: 102
+  race: 101
+  height: 170
+  weight: 120
+  skills:
+  - skill_id: 136  # kPunch
+    value: 15
+  enhanced:
+    max_factor: 10
+    special_bitvector: y0
+
+11:
+  # Mob #4011
+  names:
+    aliases: скорняк продавец
+    nominative: скорняк
+    genitive: скорняка
+    dative: скорняку
+    accusative: скорняка
+    instrumental: скорняком
+    prepositional: скорняке
+  descriptions:
+    short_desc: |
+      Скорняк кроит шапку из шкуры бобра.
+    long_desc: |
+      Плотный мужчина с задубевшей от растворов кожей.
+  action_flags:
+  - kSentinel
+  - kNpc
+  - kNoCharm
+  - kNoSummon
+  - kNoSleep
+  - kProtect
+  affect_flags:
+  - kDetectInvisible
+  - kDetectLife
+  - kInfravision
+  - kMagicGlass
+  alignment: 600
+  mob_type: E
+  stats:
+    level: 30
+    hitroll_penalty: 10
+    armor: 5
+    hp:
+      dice_count: 10
+      dice_size: 10
+      bonus: 400
+    damage:
+      dice_count: 3
+      dice_size: 3
+      bonus: 6
+  gold:
+    dice_count: 10
+    dice_size: 10
+    bonus: 99999
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  attributes:
+    strength: 30
+    dexterity: 30
+    intelligence: 15
+    wisdom: 15
+    constitution: 30
+    charisma: 15
+  size: 50
+  mob_class: 100
+  race: 101
+  height: 198
+  weight: 100
+  skills:
+  - skill_id: 136  # kPunch
+    value: 90
+  triggers:
+  - 4000
+  enhanced:
+    max_factor: 10
+    special_bitvector: '0'
+
+12:
+  # Mob #4012
+  names:
+    aliases: охотник следопыт
+    nominative: охотник
+    genitive: охотника
+    dative: охотнику
+    accusative: охотника
+    instrumental: охотником
+    prepositional: охотнике
+  descriptions:
+    short_desc: |
+      Стройный молодой охотник-следопыт проходит здесь.
+    long_desc: |
+      Стройный мужчина.
+  action_flags:
+  - kNpc
+  - kStayZone
+  - kNoCharm
+  - kNoSummon
+  - kNoSleep
+  - kProtect
+  alignment: 600
+  mob_type: E
+  stats:
+    level: 10
+    hitroll_penalty: 13
+    armor: 0
+    hp:
+      dice_count: 10
+      dice_size: 10
+      bonus: 100
+    damage:
+      dice_count: 1
+      dice_size: 5
+      bonus: 3
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  attributes:
+    strength: 20
+    dexterity: 18
+    intelligence: 15
+    wisdom: 15
+    constitution: 20
+    charisma: 20
+  size: 30
+  mob_class: 100
+  race: 101
+  height: 180
+  weight: 150
+  skills:
+  - skill_id: 136  # kPunch
+    value: 30
+  triggers:
+  - 4003
+  enhanced:
+    max_factor: 10
+    special_bitvector: '0'
+
+13:
+  # Mob #4013
+  names:
+    aliases: лихой человек убивец
+    nominative: лихой человек
+    genitive: лихого человека
+    dative: лихому человеку
+    accusative: лихого человека
+    instrumental: лихим человеком
+    prepositional: лихом человеке
+  descriptions:
+    short_desc: |
+      Лихой человек сидит на стуле.
+    long_desc: |
+      Неприметный человек с вороватым взглядом.
+  action_flags:
+  - kSentinel
+  - kNpc
+  - kNoCharm
+  - kNoSummon
+  - kNoSleep
+  - kProtect
+  affect_flags:
+  - kDetectLife
+  alignment: 600
+  mob_type: E
+  stats:
+    level: 15
+    hitroll_penalty: 10
+    armor: 0
+    hp:
+      dice_count: 10
+      dice_size: 10
+      bonus: 100
+    damage:
+      dice_count: 30
+      dice_size: 50
+      bonus: 50
+  gold:
+    dice_count: 10
+    dice_size: 10
+    bonus: 100
+  experience: 0
+  position:
+    default: kSit
+    start: kSit
+  sex: kMale
+  attributes:
+    strength: 16
+    dexterity: 25
+    intelligence: 20
+    wisdom: 20
+    constitution: 16
+    charisma: 12
+  size: 30
+  mob_class: 100
+  race: 101
+  height: 180
+  weight: 150
+  skills:
+  - skill_id: 136  # kPunch
+    value: 45
+  enhanced:
+    like_work: 80
+    max_factor: 10
+    special_bitvector: '0'
+
+14:
+  # Mob #4014
+  names:
+    aliases: конь
+    nominative: конь
+    genitive: коня
+    dative: коню
+    accusative: коня
+    instrumental: конем
+    prepositional: коне
+  descriptions:
+    short_desc: |
+      Конь стоит здесь.
+    long_desc: |
+      Просто конь.
+  action_flags:
+  - kSentinel
+  - kNpc
+  - kNoCharm
+  - kNoSummon
+  - kNoSleep
+  - kNoHold
+  - kNoSkillTrain
+  alignment: 0
+  mob_type: E
+  stats:
+    level: 6
+    hitroll_penalty: 10
+    armor: 8
+    hp:
+      dice_count: 5
+      dice_size: 10
+      bonus: 80
+    damage:
+      dice_count: 2
+      dice_size: 2
+      bonus: 2
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 2000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  attributes:
+    strength: 12
+    dexterity: 12
+    intelligence: 10
+    wisdom: 10
+    constitution: 12
+    charisma: 10
+  size: 30
+  mob_class: 100
+  race: 104
+  height: 180
+  weight: 150
+  skills:
+  - skill_id: 136  # kPunch
+    value: 18
+  enhanced:
+    bare_hand_attack: 13
+    like_work: 100
+    max_factor: 10
+    special_bitvector: '0'
+
+15:
+  # Mob #4015
+  names:
+    aliases: дурачок юродивый
+    nominative: дурачок
+    genitive: дурачка
+    dative: дурачку
+    accusative: дурачка
+    instrumental: дурачком
+    prepositional: дурачке
+  descriptions:
+    short_desc: |
+      Местный дурачок, кривляясь и корчась, проходит мимо.
+    long_desc: |
+      Местный придурок, который толи таким уродился,
+      толи стал таким. В деревне его никто не любит
+      и не уважает.
+  action_flags:
+  - kNpc
+  - kStayZone
+  - kHelper
+  - kLooter
+  alignment: 600
+  mob_type: E
+  stats:
+    level: 10
+    hitroll_penalty: 15
+    armor: 5
+    hp:
+      dice_count: 10
+      dice_size: 10
+      bonus: 120
+    damage:
+      dice_count: 2
+      dice_size: 2
+      bonus: 4
+  gold:
+    dice_count: 5
+    dice_size: 5
+    bonus: 10
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  attributes:
+    strength: 15
+    dexterity: 15
+    intelligence: 15
+    wisdom: 15
+    constitution: 15
+    charisma: 15
+  size: 30
+  mob_class: 100
+  race: 101
+  height: 180
+  weight: 150
+  skills:
+  - skill_id: 136  # kPunch
+    value: 30
+  enhanced:
+    max_factor: 10
+    special_bitvector: '0'
+
+16:
+  # Mob #4016
+  names:
+    aliases: коза белый
+    nominative: коза
+    genitive: козы
+    dative: козе
+    accusative: козу
+    instrumental: козой
+    prepositional: козе
+  descriptions:
+    short_desc: |
+      Белая коза щиплет тут травку.
+    long_desc: |
+      Кто-то явно решил, что и на этом пустыре растет хорошая трава, нечего козу 
+      выводить на пастбище.
+  action_flags:
+  - kSentinel
+  - kNpc
+  - kNoCharm
+  - kNoSummon
+  - kProtect
+  alignment: 0
+  mob_type: E
+  stats:
+    level: 2
+    hitroll_penalty: 20
+    armor: 10
+    hp:
+      dice_count: 5
+      dice_size: 5
+      bonus: 20
+    damage:
+      dice_count: 1
+      dice_size: 2
+      bonus: 1
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 200
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  attributes:
+    strength: 10
+    dexterity: 10
+    intelligence: 10
+    wisdom: 10
+    constitution: 10
+    charisma: 10
+  size: 15
+  mob_class: 100
+  race: 104
+  height: 110
+  weight: 50
+  skills:
+  - skill_id: 136  # kPunch
+    value: 3
+  enhanced:
+    max_factor: 10
+    special_bitvector: '0'
+
+17:
+  # Mob #4017
+  names:
+    aliases: пес дворняжка
+    nominative: пес
+    genitive: пса
+    dative: псу
+    accusative: пса
+    instrumental: псом
+    prepositional: псе
+  descriptions:
+    short_desc: |
+      Дворовый пес пробегает мимо Вас.
+    long_desc: |
+      Рыжеватый ободранный пес.
+  action_flags:
+  - kNpc
+  - kHelper
+  - kNoCharm
+  - kNoSummon
+  affect_flags:
+  - kSilence
+  alignment: 0
+  mob_type: E
+  stats:
+    level: 21
+    hitroll_penalty: 18
+    armor: 10
+    hp:
+      dice_count: 5
+      dice_size: 5
+      bonus: 40
+    damage:
+      dice_count: 1
+      dice_size: 3
+      bonus: 2
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 50000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  attributes:
+    strength: 10
+    dexterity: 15
+    intelligence: 10
+    wisdom: 10
+    constitution: 7
+    charisma: 10
+  size: 15
+  mob_class: 101
+  race: 110
+  height: 80
+  weight: 25
+  skills:
+  - skill_id: 136  # kPunch
+    value: 15
+  enhanced:
+    bare_hand_attack: 4
+    max_factor: 10
+    special_bitvector: '0'
+
+18:
+  # Mob #4018
+  names:
+    aliases: крестьянин
+    nominative: крестьянин
+    genitive: крестьянина
+    dative: крестьянину
+    accusative: крестьянина
+    instrumental: крестьянином
+    prepositional: крестьянине
+  descriptions:
+    short_desc: |
+      Крестьянин идет по своим делам.
+    long_desc: |
+      Работник полей явно сейчас свободен от пахоты, 
+      наверняка он занимается домашними делами.
+  action_flags:
+  - kNpc
+  - kStayZone
+  - kNoCharm
+  - kNoSummon
+  - kNoSleep
+  alignment: 600
+  mob_type: E
+  stats:
+    level: 10
+    hitroll_penalty: 10
+    armor: 5
+    hp:
+      dice_count: 10
+      dice_size: 10
+      bonus: 550
+    damage:
+      dice_count: 1
+      dice_size: 1
+      bonus: 1
+  gold:
+    dice_count: 1
+    dice_size: 2
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  attributes:
+    strength: 15
+    dexterity: 15
+    intelligence: 3
+    wisdom: 3
+    constitution: 17
+    charisma: 15
+  size: 30
+  mob_class: 102
+  race: 101
+  height: 180
+  weight: 150
+  skills:
+  - skill_id: 136  # kPunch
+    value: 30
+  triggers:
+  - 4003
+  enhanced:
+    max_factor: 10
+    special_bitvector: '0'
+
+19:
+  # Mob #4019
+  names:
+    aliases: крестьянка
+    nominative: крестьянка
+    genitive: крестьянки
+    dative: крестьянке
+    accusative: крестьянку
+    instrumental: крестьянкой
+    prepositional: крестьянке
+  descriptions:
+    short_desc: |
+      Крестьянка с корзинкой проходит мимо.
+    long_desc: |
+      Крестьянская женщина неспешно проходит здесь.
+  action_flags:
+  - kNpc
+  - kStayZone
+  - kNoCharm
+  - kNoSummon
+  - kNoSleep
+  alignment: 600
+  mob_type: E
+  stats:
+    level: 8
+    hitroll_penalty: 15
+    armor: 5
+    hp:
+      dice_count: 10
+      dice_size: 10
+      bonus: 550
+    damage:
+      dice_count: 1
+      dice_size: 1
+      bonus: 1
+  gold:
+    dice_count: 1
+    dice_size: 3
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  attributes:
+    strength: 14
+    dexterity: 15
+    intelligence: 13
+    wisdom: 13
+    constitution: 15
+    charisma: 15
+  size: 30
+  mob_class: 102
+  race: 101
+  height: 180
+  weight: 150
+  skills:
+  - skill_id: 136  # kPunch
+    value: 24
+  triggers:
+  - 4003
+  enhanced:
+    max_factor: 10
+    special_bitvector: '0'
+
+20:
+  # Mob #4020
+  names:
+    aliases: паук
+    nominative: паук
+    genitive: паука
+    dative: пауку
+    accusative: паука
+    instrumental: пауком
+    prepositional: пауке
+  descriptions:
+    short_desc: |
+      Паук плетет здесь свою паутину.
+    long_desc: |
+      Обычный домашний паук.
+  action_flags:
+  - kSentinel
+  - kNpc
+  - kStayZone
+  - kNoCharm
+  affect_flags:
+  - kSlow
+  alignment: 0
+  mob_type: E
+  stats:
+    level: 1
+    hitroll_penalty: 18
+    armor: 10
+    hp:
+      dice_count: 5
+      dice_size: 2
+      bonus: 15
+    damage:
+      dice_count: 1
+      dice_size: 3
+      bonus: 0
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 30
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  attributes:
+    strength: 5
+    dexterity: 5
+    intelligence: 5
+    wisdom: 5
+    constitution: 5
+    charisma: 5
+  size: 1
+  mob_class: 103
+  race: 107
+  height: 1
+  weight: 1
+  skills:
+  - skill_id: 136  # kPunch
+    value: 3
+  enhanced:
+    bare_hand_attack: 4
+    max_factor: 10
+    special_bitvector: g0
+
+21:
+  # Mob #4021
+  names:
+    aliases: мышь
+    nominative: мышь
+    genitive: мыши
+    dative: мыши
+    accusative: мышь
+    instrumental: мышью
+    prepositional: мыше
+  descriptions:
+    short_desc: |
+      Серая мышь пытается юркнуть в подходящую норку.
+    long_desc: |
+      Обычная домовая мышь.
+  action_flags:
+  - kNpc
+  - kStayZone
+  - kNoCharm
+  - kNoSleep
+  - kAppearsNight
+  - kNoSkillTrain
+  affect_flags:
+  - kHaste
+  alignment: 0
+  mob_type: E
+  stats:
+    level: 1
+    hitroll_penalty: 18
+    armor: 9
+    hp:
+      dice_count: 5
+      dice_size: 3
+      bonus: 20
+    damage:
+      dice_count: 1
+      dice_size: 3
+      bonus: 1
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 100
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  attributes:
+    strength: 3
+    dexterity: 7
+    intelligence: 3
+    wisdom: 7
+    constitution: 5
+    charisma: 7
+  size: 3
+  mob_class: 103
+  race: 104
+  height: 4
+  weight: 1
+  skills:
+  - skill_id: 136  # kPunch
+    value: 9
+  enhanced:
+    bare_hand_attack: 4
+    max_factor: 10
+    special_bitvector: i0
+
+22:
+  # Mob #4022
+  names:
+    aliases: хозяин постоялый двор родовая
+    nominative: хозяин
+    genitive: хозяина
+    dative: хозяину
+    accusative: хозяина
+    instrumental: хозяином
+    prepositional: хозяине
+  descriptions:
+    short_desc: |
+      Хозяин постоялого двора с интересом рассматривает Вас.
+    long_desc: |
+      Крепкий мужчина с добродушным лицом.
+  action_flags:
+  - kSentinel
+  - kNpc
+  - kNoCharm
+  - kNoSummon
+  - kNoSleep
+  - kProtect
+  - kNoResurrection
+  affect_flags:
+  - kDetectInvisible
+  - kDetectMagic
+  - kDetectLife
+  - kInfravision
+  - kSingleLight
+  alignment: 600
+  mob_type: E
+  stats:
+    level: 15
+    hitroll_penalty: 5
+    armor: 5
+    hp:
+      dice_count: 10
+      dice_size: 10
+      bonus: 500
+    damage:
+      dice_count: 3
+      dice_size: 3
+      bonus: 10
+  gold:
+    dice_count: 10
+    dice_size: 10
+    bonus: 200
+  experience: 0
+  position:
+    default: kSit
+    start: kSit
+  sex: kMale
+  attributes:
+    strength: 20
+    dexterity: 15
+    intelligence: 15
+    wisdom: 15
+    constitution: 22
+    charisma: 20
+  size: 30
+  mob_class: 100
+  race: 101
+  height: 180
+  weight: 150
+  skills:
+  - skill_id: 136  # kPunch
+    value: 45
+  enhanced:
+    max_factor: 10
+    special_bitvector: b1c1
+
+23:
+  # Mob #4023
+  names:
+    aliases: конюх
+    nominative: конюх
+    genitive: конюха
+    dative: конюху
+    accusative: конюха
+    instrumental: конюхом
+    prepositional: конюхе
+  descriptions:
+    short_desc: |
+      Конюх стоит здесь, с интересом поглядывая по сторонам.
+    long_desc: |
+      Молодой парень с простодушным лицом.
+  action_flags:
+  - kSentinel
+  - kNpc
+  - kStayZone
+  - kNoCharm
+  - kNoSummon
+  - kNoSleep
+  - kProtect
+  alignment: 600
+  mob_type: E
+  stats:
+    level: 12
+    hitroll_penalty: 5
+    armor: 5
+    hp:
+      dice_count: 10
+      dice_size: 10
+      bonus: 200
+    damage:
+      dice_count: 3
+      dice_size: 3
+      bonus: 6
+  gold:
+    dice_count: 10
+    dice_size: 10
+    bonus: 100
+  experience: 0
+  position:
+    default: kSit
+    start: kSit
+  sex: kMale
+  attributes:
+    strength: 18
+    dexterity: 15
+    intelligence: 15
+    wisdom: 15
+    constitution: 18
+    charisma: 20
+  size: 30
+  mob_class: 100
+  race: 101
+  height: 180
+  weight: 150
+  skills:
+  - skill_id: 136  # kPunch
+    value: 36
+  enhanced:
+    max_factor: 10
+    special_bitvector: '0'
+
+24:
+  # Mob #4024
+  names:
+    aliases: трактирщик хитрый
+    nominative: трактирщик
+    genitive: трактирщика
+    dative: трактирщику
+    accusative: трактирщика
+    instrumental: трактирщиком
+    prepositional: трактирщике
+  descriptions:
+    short_desc: |
+      Подвыпивший трактирщик с хитрым взглядом стоит за стойкой.
+    long_desc: |
+      Крепкий мужик, не дурак выпить.
+  action_flags:
+  - kSentinel
+  - kNpc
+  - kNoCharm
+  - kNoSummon
+  - kNoSleep
+  - kProtect
+  - kNoResurrection
+  alignment: 600
+  mob_type: E
+  stats:
+    level: 15
+    hitroll_penalty: 5
+    armor: 5
+    hp:
+      dice_count: 10
+      dice_size: 10
+      bonus: 500
+    damage:
+      dice_count: 3
+      dice_size: 3
+      bonus: 10
+  gold:
+    dice_count: 10
+    dice_size: 10
+    bonus: 200
+  experience: 0
+  position:
+    default: kSit
+    start: kSit
+  sex: kMale
+  attributes:
+    strength: 20
+    dexterity: 15
+    intelligence: 15
+    wisdom: 15
+    constitution: 22
+    charisma: 20
+  size: 30
+  mob_class: 100
+  race: 101
+  height: 180
+  weight: 150
+  skills:
+  - skill_id: 136  # kPunch
+    value: 45
+  enhanced:
+    max_factor: 10
+    special_bitvector: '0'
+
+25:
+  # Mob #4025
+  names:
+    aliases: ремесленник умелец
+    nominative: умелец
+    genitive: умельца
+    dative: умельцу
+    accusative: умельца
+    instrumental: умельцем
+    prepositional: умельце
+  descriptions:
+    short_desc: |
+      Деревенский умелец простодушно смотрит на Вас.
+    long_desc: |
+      Местный самородок.
+  action_flags:
+  - kSentinel
+  - kNpc
+  - kNoCharm
+  - kNoSummon
+  - kNoSleep
+  - kProtect
+  - kNoResurrection
+  alignment: 600
+  mob_type: E
+  stats:
+    level: 15
+    hitroll_penalty: 5
+    armor: 5
+    hp:
+      dice_count: 10
+      dice_size: 10
+      bonus: 500
+    damage:
+      dice_count: 3
+      dice_size: 3
+      bonus: 10
+  gold:
+    dice_count: 10
+    dice_size: 10
+    bonus: 200
+  experience: 0
+  position:
+    default: kSit
+    start: kSit
+  sex: kMale
+  attributes:
+    strength: 20
+    dexterity: 15
+    intelligence: 15
+    wisdom: 15
+    constitution: 22
+    charisma: 20
+  size: 30
+  mob_class: 100
+  race: 101
+  height: 180
+  weight: 150
+  skills:
+  - skill_id: 136  # kPunch
+    value: 45
+  enhanced:
+    max_factor: 10
+    special_bitvector: '0'
+
+26:
+  # Mob #4026
+  names:
+    aliases: дочка ведуньи
+    nominative: дочка ведуньи
+    genitive: дочки ведуньи
+    dative: дочке ведуньи
+    accusative: дочку ведуньи
+    instrumental: дочкой ведуньи
+    prepositional: дочке ведуньи
+  descriptions:
+    short_desc: |
+      Уже взрослая дочка ведуньи стоит тут, торгуя магическими вещами.
+    long_desc: |
+      Придет время и она, вместо своей матери начнет помогать людям в своих
+      проблемах.
+  action_flags:
+  - kSentinel
+  - kNpc
+  - kStayZone
+  - kNoCharm
+  - kNoResurrection
+  alignment: 0
+  mob_type: E
+  stats:
+    level: 9
+    hitroll_penalty: 15
+    armor: 0
+    hp:
+      dice_count: 30
+      dice_size: 30
+      bonus: 50
+    damage:
+      dice_count: 5
+      dice_size: 5
+      bonus: 0
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 4000
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  attributes:
+    strength: 3
+    dexterity: 3
+    intelligence: 3
+    wisdom: 3
+    constitution: 3
+    charisma: 3
+  size: 50
+  mob_class: 102
+  race: 101
+  height: 198
+  weight: 200
+  skills:
+  - skill_id: 136  # kPunch
+    value: 3
+  enhanced:
+    like_work: 50
+    special_bitvector: '0'
+
+27:
+  # Mob #4027
+  names:
+    aliases: вдова мельника немолодая женщина
+    nominative: вдова мельника
+    genitive: вдовы мельника
+    dative: вдове мельника
+    accusative: вдову мельника
+    instrumental: вдовой мельника
+    prepositional: вдове мельника
+  descriptions:
+    short_desc: |
+      Немолодая женщина с открытым лицом с грустью смотрит на Вас.
+    long_desc: |2
+         Немолодая уже женщина, тяжелая судьба которой наложила свой отпечаток
+      на ее лицо.
+  action_flags:
+  - kSentinel
+  - kNpc
+  - kNoCharm
+  - kNoSummon
+  - kNoSleep
+  - kProtect
+  affect_flags:
+  - kProtectFromDark
+  alignment: 600
+  mob_type: E
+  stats:
+    level: 13
+    hitroll_penalty: 12
+    armor: 5
+    hp:
+      dice_count: 10
+      dice_size: 10
+      bonus: 250
+    damage:
+      dice_count: 2
+      dice_size: 6
+      bonus: 5
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  attributes:
+    strength: 16
+    dexterity: 16
+    intelligence: 20
+    wisdom: 20
+    constitution: 20
+    charisma: 20
+  size: 30
+  mob_class: 102
+  race: 101
+  height: 150
+  weight: 60
+  skills:
+  - skill_id: 136  # kPunch
+    value: 39
+  triggers:
+  - 4001
+  - 4003
+  enhanced:
+    bare_hand_attack: 2
+    special_bitvector: '0'
+
+52:
+  # Mob #4052
+  names:
+    aliases: мышь
+    nominative: мышь
+    genitive: мышь
+    dative: мышь
+    accusative: мышь
+    instrumental: мышь
+    prepositional: мышь
+  descriptions:
+    short_desc: |
+      МЫШЬ бегает тут.
+    long_desc: |
+      Выглядит достаточно незавершенно.
+  action_flags:
+  - kNpc
+  alignment: 0
+  mob_type: E
+  stats:
+    level: 48
+    hitroll_penalty: 20
+    armor: 0
+    hp:
+      dice_count: 1
+      dice_size: 1
+      bonus: 1
+    damage:
+      dice_count: 2
+      dice_size: 1
+      bonus: 2
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 10000000
+  position:
+    default: kStand
+    start: kStand
+  sex: kNeutral
+  size: 30
+  mob_class: 100
+  race: 100
+  height: 198
+  weight: 200
+  enhanced:
+    special_bitvector: '0'
+    saves:
+      kWill: -78
+      kCritical: -78
+      kStability: -78
+      kReflex: -78
+
+53:
+  # Mob #4053
+  names:
+    aliases: Делан моб
+    nominative: Делан
+    genitive: Делана
+    dative: Делану
+    accusative: Делана
+    instrumental: Деланом
+    prepositional: Делане
+  descriptions:
+    short_desc: |
+      Дух восставшего из делета Опытного Кайсяку Делана (бывшего боярина НД) летает здесь.
+    long_desc: |
+      Над Ленгом, где скалистые вершины
+      Штурмуют неприступный небосвод,
+      С приходом ночи зарево встает,
+      Вселяя ужас в жителей долины.
+      Легенда намекает на маяк,
+      Где в скорбном одиночестве тоскует
+      И с Хаосом о вечности толкует
+      Последний из Древнейших, миру враг.
+      Лицо его закрыто желтой маской,
+      Чьи шелковые складки выдают
+      Черты столь фантастичные, что люд
+      Издревле говорит о них с опаской.
+      _
+      Делан одет :
+      <в правой руке>             призрачный кинжал
+      <в левой руке>              заточка
+  action_flags:
+  - kSentinel
+  - kNpc
+  - kNoCharm
+  - kNoSkillTrain
+  - kNoHelp
+  - kIgnoresNoMob
+  - kIgnoresPeaceRoom
+  - kNoResurrection
+  alignment: -800
+  mob_type: E
+  stats:
+    level: 3
+    hitroll_penalty: 20
+    armor: 1
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 1
+    damage:
+      dice_count: 1
+      dice_size: 1
+      bonus: 1
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  attributes:
+    strength: 50
+    dexterity: 3
+    intelligence: 20
+    wisdom: 20
+    constitution: 25
+    charisma: 25
+  size: 30
+  mob_class: 102
+  race: 101
+  height: 198
+  weight: 200
+  skills:
+  - skill_id: 3  # kLeftHit
+    value: 140
+  - skill_id: 5  # kOverwhelm
+    value: 200
+  - skill_id: 22  # kAwake
+    value: 200
+  - skill_id: 133  # kHide
+    value: 125
+  - skill_id: 136  # kPunch
+    value: 90
+  - skill_id: 138  # kSneak
+    value: 125
+  - skill_id: 140  # kTrack
+    value: 120
+  - skill_id: 141  # kClubs
+    value: 120
+  - skill_id: 142  # kAxes
+    value: 120
+  - skill_id: 143  # kLongBlades
+    value: 120
+  - skill_id: 144  # kShortBlades
+    value: 120
+  - skill_id: 145  # kNonstandart
+    value: 120
+  - skill_id: 146  # kTwohands
+    value: 120
+  - skill_id: 147  # kPicks
+    value: 120
+  - skill_id: 148  # kSpades
+    value: 120
+  - skill_id: 149  # kSideAttack
+    value: 90
+  - skill_id: 157  # kDodge
+    value: 125
+  dead_load:
+  - obj_vnum: 1720
+    load_prob: 100
+    load_type: 0
+    spec_param: 0
+  triggers:
+  - 4005
+  enhanced:
+    hp_regen: 175
+    armour_bonus: 100
+    morale: 30
+    initiative_add: 20
+    absorb: 60
+    bare_hand_attack: 11
+    like_work: 100
+    extra_attack: 1
+    special_bitvector: '0'
+    resistances:
+      kWater: 200
+      kEarth: 200
+      kVitality: 150
+      kMind: 150
+    saves:
+      kWill: 60
+      kCritical: 60
+      kStability: 60
+      kReflex: 60
+
+54:
+  # Mob #4054
+  names:
+    aliases: r1guard помощник деревенского старосты
+    nominative: помощник деревенского старосты
+    genitive: помощника деревенского старосты
+    dative: помощнику деревенского старосты
+    accusative: помощника деревенского старосты
+    instrumental: помощником деревенского старосты
+    prepositional: помощнике деревенского старосты
+  descriptions:
+    short_desc: |
+      Крепкий плечистый крестьянин в нарядной одежде идет по улице.
+    long_desc: |
+      Крепкий плечистый мужик - помощник местного деревенского старосты
+      в нелегком деле поддержания порядка в деревне.
+  action_flags:
+  - kNpc
+  - kAware
+  - kNoCharm
+  - kNoBash
+  - kNoBlind
+  - kNoHold
+  - kNoSilence
+  - kNoUndercut
+  - kNoSkillTrain
+  - kNoRest
+  - kNoOverwhelm
+  affect_flags:
+  - kDetectInvisible
+  - kDetectLife
+  - kInfravision
+  - kProtectFromDark
+  - kProtectFromMind
+  - kHaste
+  alignment: 600
+  mob_type: E
+  stats:
+    level: 20
+    hitroll_penalty: 4
+    armor: 0
+    hp:
+      dice_count: 10
+      dice_size: 100
+      bonus: 5000
+    damage:
+      dice_count: 5
+      dice_size: 10
+      bonus: 12
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  attributes:
+    strength: 25
+    dexterity: 18
+    intelligence: 16
+    wisdom: 17
+    constitution: 23
+    charisma: 19
+  size: 40
+  mob_class: 104
+  race: 104
+  height: 180
+  weight: 180
+  skills:
+  - skill_id: 3  # kLeftHit
+    value: 100
+  - skill_id: 4  # kHammer
+    value: 60
+  - skill_id: 136  # kPunch
+    value: 60
+  triggers:
+  - 4006
+  - 4007
+  enhanced:
+    like_work: 30
+    extra_attack: 1
+    special_bitvector: '0'
+    spells:
+    - 28
+    - 28
+    - 28
+
+55:
+  # Mob #4055
+  names:
+    aliases: подмастерье
+    nominative: подмастерье
+    genitive: подмастерья
+    dative: подмастерью
+    accusative: подмастерья
+    instrumental: подмастерьем
+    prepositional: подмастерье
+  descriptions:
+    short_desc: |
+      Подмастерье скорняка торгует здесь товаром.
+    long_desc: |
+      Деревенский парнишка - ученик скорняка.
+  action_flags:
+  - kSentinel
+  - kNpc
+  - kNoCharm
+  - kNoSummon
+  - kNoSkillTrain
+  - kNoResurrection
+  affect_flags:
+  - kDetectInvisible
+  - kDetectLife
+  - kInfravision
+  alignment: 200
+  mob_type: E
+  stats:
+    level: 26
+    hitroll_penalty: 8
+    armor: 0
+    hp:
+      dice_count: 1
+      dice_size: 100
+      bonus: 300
+    damage:
+      dice_count: 5
+      dice_size: 6
+      bonus: 5
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 50000
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  attributes:
+    strength: 50
+    dexterity: 50
+    intelligence: 14
+    wisdom: 15
+    constitution: 18
+    charisma: 14
+  size: 45
+  mob_class: 100
+  race: 101
+  height: 160
+  weight: 150
+  skills:
+  - skill_id: 136  # kPunch
+    value: 78
+  enhanced:
+    like_work: 30
+    extra_attack: 1
+    special_bitvector: '0'
+
+56:
+  # Mob #4056
+  names:
+    aliases: скупщик купец
+    nominative: скупщик
+    genitive: скупщика
+    dative: скупщику
+    accusative: скупщика
+    instrumental: скупщиком
+    prepositional: скупщике
+  descriptions:
+    short_desc: |
+      Заезжий купец скупает звериные шкурки у охотников.
+    long_desc: |
+      Крепкий жилистый мужик, облаченный в отороченный мехом кафтан.
+  action_flags:
+  - kSentinel
+  - kNpc
+  - kNoCharm
+  - kNoSummon
+  - kProtect
+  - kNoResurrection
+  affect_flags:
+  - kDetectInvisible
+  - kDetectLife
+  - kInfravision
+  alignment: 200
+  mob_type: E
+  stats:
+    level: 30
+    hitroll_penalty: -1
+    armor: 0
+    hp:
+      dice_count: 1
+      dice_size: 100
+      bonus: 600
+    damage:
+      dice_count: 5
+      dice_size: 5
+      bonus: 5
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 500000
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  attributes:
+    strength: 50
+    dexterity: 50
+    intelligence: 23
+    wisdom: 24
+    constitution: 23
+    charisma: 17
+  size: 50
+  mob_class: 100
+  race: 101
+  height: 168
+  weight: 150
+  skills:
+  - skill_id: 136  # kPunch
+    value: 90
+  enhanced:
+    like_work: 1
+    extra_attack: 1
+    special_bitvector: '0'
+
+57:
+  # Mob #4057
+  names:
+    aliases: жирная крыса bigrat
+    nominative: жирная крыса
+    genitive: жирной крысы
+    dative: жирной крысе
+    accusative: жирную крысу
+    instrumental: жирной крысой
+    prepositional: жирной крысе
+  descriptions:
+    short_desc: |
+      Жирная крыса сидит здесь. (нагло ухмыляется)
+    long_desc: |
+      СПАЙ!!!
+  action_flags:
+  - kSentinel
+  - kNpc
+  affect_flags:
+  - kDetectInvisible
+  - kDetectLife
+  - kInfravision
+  alignment: -100
+  mob_type: E
+  stats:
+    level: 34
+    hitroll_penalty: -10
+    armor: -2
+    hp:
+      dice_count: 1
+      dice_size: 1
+      bonus: 1000
+    damage:
+      dice_count: 10
+      dice_size: 12
+      bonus: 10
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  attributes:
+    strength: 20
+    dexterity: 35
+    intelligence: 30
+    wisdom: 20
+    constitution: 14
+    charisma: 3
+  size: 30
+  mob_class: 100
+  race: 104
+  height: 198
+  weight: 200
+  triggers:
+  - 4017
+  - 4016
+  enhanced:
+    like_work: 100
+    extra_attack: 1
+    special_bitvector: '0'
+
+58:
+  # Mob #4058
+  names:
+    aliases: сказитель
+    nominative: сказитель
+    genitive: сказителя
+    dative: сказителю
+    accusative: сказителя
+    instrumental: сказителем
+    prepositional: неоконченном мобе
+  descriptions:
+    short_desc: |
+      Седовласый сказитель готов поделиться с Вами интересной историей.
+    long_desc: |
+      Седовласый странник хранит в своей памяти сотни сказаний и былин.
+      Можно попросить его рассказать сказку - авось не откажет.
+  action_flags:
+  - kSentinel
+  - kNpc
+  - kNoCharm
+  - kNoSummon
+  - kProtect
+  affect_flags:
+  - kDetectInvisible
+  - kDetectLife
+  - kInfravision
+  alignment: 200
+  mob_type: E
+  stats:
+    level: 30
+    hitroll_penalty: -1
+    armor: 0
+    hp:
+      dice_count: 1
+      dice_size: 100
+      bonus: 600
+    damage:
+      dice_count: 5
+      dice_size: 5
+      bonus: 5
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  attributes:
+    strength: 50
+    dexterity: 50
+    intelligence: 23
+    wisdom: 24
+    constitution: 23
+    charisma: 17
+  size: 50
+  mob_class: 100
+  race: 101
+  height: 168
+  weight: 150
+  triggers:
+  - 4020
+  enhanced:
+    like_work: 1
+    extra_attack: 1
+    special_bitvector: '0'
+
+70:
+  # Mob #4070
+  names:
+    aliases: ямщик
+    nominative: ямщик
+    genitive: ямщика
+    dative: ямщику
+    accusative: ямщика
+    instrumental: ямщиком
+    prepositional: ямщике
+  descriptions:
+    short_desc: |
+      Ямщик готов помочь Вам доставить весточку родным и близким.
+    long_desc: |
+      Огромный мужик, хоть и немножко подвыпивший, но еще в состоянии понять, куда и
+      кому вы хотите отправить письмо.    
+  action_flags:
+  - kSentinel
+  - kNpc
+  - kStayZone
+  - kNoCharm
+  - kNoSummon
+  - kProtect
+  affect_flags:
+  - kDetectInvisible
+  - kDetectLife
+  - kInfravision
+  - kSingleLight
+  - kHolyLight
+  alignment: 0
+  mob_type: E
+  stats:
+    level: 30
+    hitroll_penalty: 15
+    armor: -10
+    hp:
+      dice_count: 1
+      dice_size: 100
+      bonus: 500
+    damage:
+      dice_count: 1
+      dice_size: 1
+      bonus: 5
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  attributes:
+    strength: 20
+    dexterity: 20
+  size: 30
+  mob_class: 102
+  race: 101
+  height: 198
+  weight: 200
+  skills:
+  - skill_id: 136  # kPunch
+    value: 75
+  enhanced:
+    special_bitvector: d1

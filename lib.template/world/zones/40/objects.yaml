@@ -1,0 +1,352 @@
+# Objects for zone 40
+
+0:
+  # Object #4000
+  names:
+    aliases: идол изваяние деревянный
+    nominative: идол
+    genitive: идола
+    dative: идолу
+    accusative: идол
+    instrumental: идолом
+    prepositional: идоле
+  short_desc: Деревянное изваяние языческого бога стоит здесь посередине капища.
+  type: kOther
+  extra_flags:
+  - kNoinvis
+  - kNodecay
+  material: 0  # бронза
+  values:
+  - '0'
+  - '0'
+  - '0'
+  - '0'
+  weight: 50
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  spec_param: 0
+  max_durability: -1
+  cur_durability: -1
+  timer: 43200
+  spell: -1
+  level: 0
+  sex: kMale
+  max_in_world: 1
+
+1:
+  # Object #4001
+  names:
+    aliases: колодец 1род
+    nominative: колодец
+    genitive: колодца
+    dative: колодцу
+    accusative: колодец
+    instrumental: колодцем
+    prepositional: колодце
+  short_desc: Колодец выкопан здесь.
+  action_desc: |
+    Вы можете набрать воды отсюда.
+  type: kFountain
+  extra_flags:
+  - kNoinvis
+  - kMagic
+  - kNodecay
+  material: 0  # бронза
+  values:
+  - '999'
+  - '999'
+  - '0'
+  - '0'
+  weight: 1004
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  spec_param: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 43200
+  spell: -1
+  level: 1
+  sex: kMale
+  max_in_world: 100
+
+2:
+  # Object #4002
+  names:
+    aliases: объявление доска
+    nominative: объявление
+    genitive: объявления
+    dative: объявлению
+    accusative: объявление
+    instrumental: объявлением
+    prepositional: объявлении
+  short_desc: Вы видите прибитое к доске  около прилавка объявление.
+  type: kOther
+  extra_flags:
+  - kNoinvis
+  - kNodecay
+  affect_flags:
+  - kDetectMagic
+  material: 0  # бронза
+  values:
+  - '0'
+  - '0'
+  - '0'
+  - '0'
+  weight: 1
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  spec_param: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 43200
+  spell: -1
+  level: 0
+  sex: kNeutral
+  extra_descriptions:
+  - keywords: объявление
+    description: |2
+         Приветствую тебя путник, я умею выделывать шкурки животных, и я заплачу,
+      если ты принесешь мне труп ценного пушного зверя. Кстати, в деревне развелось
+      много мышей, они портят мои товары, я буду платить за каждый принесенный 
+      мне труп.
+  max_in_world: 1
+
+3:
+  # Object #4003
+  names:
+    aliases: тяжелая решетка с замком
+    nominative: тяжелая решетка с замком
+    genitive: тяжелой решетки с замком
+    dative: тяжелой решетке с замком
+    accusative: тяжелую решетку с замком
+    instrumental: тяжелой решеткой с замком
+    prepositional: тяжелой решетке с замком
+  short_desc: Тяжелая решетка с замком закрывает что-то здесь.
+  type: kOther
+  extra_flags:
+  - kNorent
+  - kNodonate
+  - kNoinvis
+  - kNosell
+  - kZonedecay
+  - kNodecay
+  material: 5  # дерево
+  values:
+  - '0'
+  - '1'
+  - '5'
+  - '11'
+  weight: 200
+  cost: 1000
+  rent_off: 1000
+  rent_on: 1000
+  spec_param: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 43200
+  spell: -1
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+
+4:
+  # Object #4004
+  names:
+    aliases: карта окрестностей лесной деревни
+    nominative: карта окрестностей лесной деревни
+    genitive: карты окрестностей лесной деревни
+    dative: карте окрестностей лесной деревни
+    accusative: карту окрестностей лесной деревни
+    instrumental: картой окрестностей лесной деревни
+    prepositional: карте окрестностей лесной деревни
+  short_desc: Карта окрестностей лесной деревни лежит здесь.
+  type: kOther
+  extra_flags:
+  - kNorent
+  - kNosell
+  - kDecay
+  - kSwimming
+  wear_flags:
+  - kTake
+  - kBoth
+  material: 17  # митрил
+  values:
+  - '0'
+  - '0'
+  - '0'
+  - '0'
+  weight: 1
+  cost: 10
+  rent_off: 0
+  rent_on: 0
+  spec_param: 0
+  max_durability: 10
+  cur_durability: 10
+  timer: 240
+  spell: -1
+  level: 0
+  sex: kFemale
+  extra_descriptions:
+  - keywords: карта
+    description: |
+      Достаточно грубая, но понятная схема деревни и прилегающей местности.
+
+                  мельня------поперечная улица-----------(к болоту)
+                                      |          |
+                                      |        старец
+                                      |
+      (в малиной сад)       старейшина|
+          |          притон           |
+          |  отшельник |              |
+          |     |      |              |
+          ---------бабичья улица------|  церковь     скорняк
+            |   |ведунья              |   |            |
+          капище            Гостиный--------мастеровая--умелец
+                              двор    |   |    улица
+                                      | кузня
+                                      |
+                          пахарская   |
+                          слобода-----|
+                            /         |
+                         цыган     застава
+                                      \
+                                       \
+             (среди холмов)----------(пожня)
+                       /                 \
+                  (кладбище)              \
+                                           |
+                                           |
+                           -(сказка)       |
+                           |               |         (разбойничье логово)
+                     (темный лес)-----(раменье)             /
+                                              \---(посыльная дорога)
+                                                         \
+                                                          \
+                                                      (к Корсуню)
+
+      Обозначения: в скобках направления или названия местностей-зон
+  max_in_world: 100000
+
+5:
+  # Object #4005
+  names:
+    aliases: книга пьянки
+    nominative: книга пьянки
+    genitive: книги пьянки
+    dative: книге пьянки
+    accusative: книгу пьянки
+    instrumental: книгой пьянки
+    prepositional: книге пьянки
+  short_desc: Испускающая крепкий запах браги пухлая книга лежит тут.
+  type: kBook
+  extra_flags:
+  - kNorent
+  - kNodonate
+  - kNosell
+  wear_flags:
+  - kTake
+  material: 17  # митрил
+  values:
+  - '0'
+  - '32'
+  - '0'
+  - '0'
+  weight: 1
+  cost: 5000
+  rent_off: 10
+  rent_on: 10
+  spec_param: 0
+  max_durability: 20
+  cur_durability: 20
+  timer: 120
+  spell: 0
+  level: 0
+  sex: kFemale
+  extra_descriptions:
+  - keywords: книга пьянки
+    description: |
+      Толстая засаленая книга испускающая
+      запах крепкой браги и медовухи.
+      Можно попробовать ее &Yпрочитать&n
+  max_in_world: 10000
+  triggers:
+  - 4010
+  - 4012
+
+6:
+  # Object #4006
+  names:
+    aliases: рунный камень
+    nominative: рунный камень
+    genitive: рунного камня
+    dative: рунному камню
+    accusative: рунный камень
+    instrumental: рунным камнем
+    prepositional: рунном камне
+  short_desc: Рунный камень вкопан десь в землю.
+  type: kOther
+  extra_flags:
+  - kNoinvis
+  - kNodecay
+  material: 12  # драгоценный камень
+  values:
+  - '0'
+  - '0'
+  - '0'
+  - '0'
+  weight: 1000
+  cost: 1000
+  rent_off: 1
+  rent_on: 1
+  spec_param: 0
+  max_durability: 1000
+  cur_durability: 760
+  timer: 1440
+  spell: 0
+  level: 0
+  sex: kMale
+  extra_descriptions:
+  - keywords: рунный камень
+    description: |
+      На источеной временем поверхности камня высечена руна:
+      __
+      _____ | /
+      ______|/
+      _______|
+      _______|
+  max_in_world: 1
+
+7:
+  # Object #4007
+  names:
+    aliases: баночка
+    nominative: баночка
+    genitive: баночки
+    dative: баночке
+    accusative: баночку
+    instrumental: баночкой
+    prepositional: баночке
+  short_desc: Баночка оставлена здесь кем-то.
+  type: kLiquidContainer
+  wear_flags:
+  - kTake
+  material: 11  # адамантит
+  values:
+  - '30'
+  - '30'
+  - '24'
+  - '1'
+  weight: 31
+  cost: 100
+  rent_off: 1
+  rent_on: 1
+  spec_param: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 5000
+  spell: 0
+  level: 0
+  sex: kFemale

@@ -30,15 +30,21 @@
 #   ./tools/run_load_tests.sh --loader=yaml --world=small --checksums
 #   ./tools/run_load_tests.sh --loader=sqlite --world=full
 #
-#   # Quick comparison test (YAML vs Legacy, small world, with checksums)
+#   # Quick smoke test (YAML small world, with checksums + round-trip)
 #   ./tools/run_load_tests.sh --quick
 #
+# NOTE:
+#   The small world is YAML-only: it boots the checked-in flat YAML in
+#   lib.template/world directly, with no conversion. Legacy and SQLite only
+#   apply to the full world (extracted from a legacy archive and converted).
+#
 # OPTIONS:
-#   --loader=TYPE     Run only tests for specific loader (legacy|sqlite|yaml)
+#   --loader=TYPE     Run only tests for specific loader (legacy|sqlite|yaml).
+#                     legacy/sqlite are full-world only; small world is YAML.
 #   --world=SIZE      Run only tests for specific world size (small|full)
 #   --checksums       Run only tests WITH checksum calculation
 #   --no-checksums    Run only tests WITHOUT checksum calculation
-#   --quick           Run quick comparison: Small_Legacy_checksums vs Small_YAML_checksums
+#   --quick           Run quick smoke: Small_YAML_checksums (+ round-trip)
 #   --rebuild         Force full rebuild (ninja -t clean && ninja)
 #   --build-type=TYPE Set meson build_profile (release|debug|dev|fasttest|custom)
 #   --recreate-builds Delete and recreate all build directories (implies world recreation)
@@ -90,7 +96,7 @@ for arg in "$@"; do
             RECREATE_BUILDS=1
             ;;
         --help)
-            head -n 46 "$0" | grep "^#" | grep -v "^#!/" | sed 's/^# \?//'
+            head -n 51 "$0" | grep "^#" | grep -v "^#!/" | sed 's/^# \?//'
             exit 0
             ;;
         *)
@@ -101,17 +107,17 @@ for arg in "$@"; do
     esac
 done
 
-# Quick mode: only Small_Legacy_checksums and Small_YAML_checksums.
+# Quick mode: small world only, which is YAML-only now.
 # Skip sqlite explicitly -- the project ships no sqlite3.wrap and the test box
 # may not have libsqlite3-dev installed, in which case `meson setup
 # -Dsqlite=auto` would error out.
 QUICK_SKIP_SQLITE=0
 if [ $QUICK_MODE -eq 1 ]; then
-    FILTER_LOADER=""  # Will run both legacy and yaml
+    FILTER_LOADER="yaml"  # small world is YAML-only
     FILTER_WORLD="small"
     FILTER_CHECKSUMS="yes"
     QUICK_SKIP_SQLITE=1
-    echo "Quick mode: Running Small_Legacy_checksums and Small_YAML_checksums"
+    echo "Quick mode: Running Small_YAML_checksums (+ round-trip)"
     echo ""
 fi
 
@@ -249,19 +255,23 @@ build_binary() {
 
 
 
-# Function to setup small world (uses lib.template)
+# Function to setup the small world (uses lib.template).
+#
+# The small world is YAML-only: lib.template/world ships only the checked-in
+# flat YAML (zones/, dictionaries/, world_config.yaml), so the YAML build boots
+# it directly -- there's no legacy->YAML conversion step here anymore. The
+# legacy mob/obj/wld/zon/trg/shp files are gone; shops load from
+# cfg/economics/shops.xml (copied in from lib/), not from world/shp.
 setup_small_world() {
-    local loader="$1"
-    
-    # Determine build directory
-    if [ "$loader" = "legacy" ]; then
-        local build_dir="$MUD_DIR/build_test"
-    elif [ "$loader" = "sqlite" ]; then
-        local build_dir="$MUD_DIR/build_sqlite"
-    elif [ "$loader" = "yaml" ]; then
-        local build_dir="$MUD_DIR/build_yaml"
+    local loader="$1"   # always "yaml"; small world is YAML-only
+
+    if [ "$loader" != "yaml" ]; then
+        echo "X ERROR: setup_small_world only supports 'yaml' (got '$loader')."
+        echo "  The small world is YAML-only; legacy/sqlite apply to the full world."
+        return 1
     fi
-    
+
+    local build_dir="$MUD_DIR/build_yaml"
     local dest_dir="$build_dir/small"
 
     echo ""
@@ -273,7 +283,7 @@ setup_small_world() {
 
     # Materialise the small world via the meson helper (the same one that
     # `-Dsmall_world=true` triggers during configure). It copies lib/ -> small/
-    # and overlays lib.template/.
+    # and overlays lib.template/ (including the checked-in YAML world).
     echo "Running tools/meson/setup_world.py to create small world structure..."
     python3 "$MUD_DIR/tools/meson/setup_world.py" \
         "$build_dir" "$MUD_DIR" "" > /tmp/setup_small_${loader}.log 2>&1 || {
@@ -282,55 +292,7 @@ setup_small_world() {
         cat /tmp/setup_small_${loader}.log
         return 1
     }
-    echo " Small world created at $dest_dir (lib + lib.template)"
-
-    if [ "$loader" = "legacy" ]; then
-        echo " Legacy world ready (using lib.template/world)"
-        echo ""
-        return 0
-    fi
-
-    # Clean old CONVERTED world files (YAML/SQLite), keep legacy source files for conversion
-    echo "Cleaning old converted world files..."
-    if [ "$loader" = "yaml" ]; then
-        # Remove YAML converted directories, keep legacy source files (world/mob/, world/obj/, etc.)
-        rm -rf "$dest_dir/world/mobs" "$dest_dir/world/objects" "$dest_dir/world/zones" \
-               "$dest_dir/world/triggers" "$dest_dir/world/dictionaries" \
-               "$dest_dir/world/world_config.yaml" "$dest_dir/world/index.yaml" 2>/dev/null || true
-    elif [ "$loader" = "sqlite" ]; then
-        # Remove SQLite database
-        rm -f "$dest_dir/world.db" 2>/dev/null || true
-    fi
-
-    echo "Converting world data to $loader format..."
-
-    if [ "$loader" = "sqlite" ]; then
-        echo "  Log: /tmp/convert_small_sqlite.log"
-        python3 "$MUD_DIR/tools/converter/convert_to_yaml.py" \
-            -i "$dest_dir" \
-            -o "$dest_dir" \
-            -f sqlite \
-            --db "$dest_dir/world.db" > /tmp/convert_small_sqlite.log 2>&1 || {
-            echo "X ERROR: Conversion failed"
-            echo "  Log: /tmp/convert_small_sqlite.log"
-            tail -10 /tmp/convert_small_sqlite.log
-            return 1
-        }
-        echo " Converted in-place to SQLite format"
-    elif [ "$loader" = "yaml" ]; then
-        echo "  Log: /tmp/convert_small_yaml.log"
-        python3 "$MUD_DIR/tools/converter/convert_to_yaml.py" \
-            -i "$dest_dir" \
-            -o "$dest_dir" \
-            -f yaml > /tmp/convert_small_yaml.log 2>&1 || {
-            echo "X ERROR: Conversion failed"
-            echo "  Log: /tmp/convert_small_yaml.log"
-            tail -10 /tmp/convert_small_yaml.log
-            return 1
-        }
-        echo " Converted in-place to YAML format"
-    fi
-    
+    echo " Small YAML world ready at $dest_dir (lib + lib.template, checked-in YAML)"
     echo ""
     return 0
 }
@@ -430,17 +392,42 @@ echo "━━━━━━━━━━━━━━━━━━━━━━━━�
 echo "  SETUP: Building binaries and preparing worlds"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
-# Determine which loaders are needed based on filters
+# Determine which loaders/worlds are needed based on filters.
 NEED_LEGACY=0
 NEED_SQLITE=0
 NEED_YAML=0
 NEED_SMALL=0
 NEED_FULL=0
 
-if [ -z "$FILTER_LOADER" ] || [ "$FILTER_LOADER" = "legacy" ]; then
+if [ -z "$FILTER_WORLD" ] || [ "$FILTER_WORLD" = "small" ]; then
+    NEED_SMALL=1
+fi
+if [ -z "$FILTER_WORLD" ] || [ "$FILTER_WORLD" = "full" ]; then
+    NEED_FULL=1
+fi
+
+# The full world needs a legacy archive. If it's missing, drop the full world
+# from scope now -- before any builds -- so we don't compile the legacy/SQLite
+# binaries (which are full-world-only) just to skip the tests later.
+if [ $NEED_FULL -eq 1 ] && [ ! -f "$FULL_WORLD_ARCHIVE" ]; then
+    echo "WARNING: Full world out of scope - archive not found: ${FULL_WORLD_ARCHIVE:-<unset>}"
+    echo "  Set FULL_WORLD_ARCHIVE to run full-world (legacy/sqlite/yaml) tests."
+    echo ""
+    NEED_FULL=0
+fi
+
+# The small world is YAML-only (it boots the checked-in lib.template YAML
+# directly), so YAML is needed whenever any world is in scope. Legacy and
+# SQLite only apply to the full world, which is still extracted from a legacy
+# archive and converted on the fly -- so we only build those binaries when the
+# full world is actually in scope.
+if [ -z "$FILTER_LOADER" ] || [ "$FILTER_LOADER" = "yaml" ]; then
+    NEED_YAML=1
+fi
+if [ $NEED_FULL -eq 1 ] && { [ -z "$FILTER_LOADER" ] || [ "$FILTER_LOADER" = "legacy" ]; }; then
     NEED_LEGACY=1
 fi
-if [ -z "$FILTER_LOADER" ] || [ "$FILTER_LOADER" = "sqlite" ]; then
+if [ $NEED_FULL -eq 1 ] && { [ -z "$FILTER_LOADER" ] || [ "$FILTER_LOADER" = "sqlite" ]; }; then
     NEED_SQLITE=1
 fi
 if [ $QUICK_SKIP_SQLITE -eq 1 ]; then
@@ -458,29 +445,23 @@ if [ $NEED_SQLITE -eq 1 ] && [ "$FILTER_LOADER" != "sqlite" ]; then
         NEED_SQLITE=0
     fi
 fi
-if [ -z "$FILTER_LOADER" ] || [ "$FILTER_LOADER" = "yaml" ]; then
-    NEED_YAML=1
-fi
-
-if [ -z "$FILTER_WORLD" ] || [ "$FILTER_WORLD" = "small" ]; then
-    NEED_SMALL=1
-fi
-if [ -z "$FILTER_WORLD" ] || [ "$FILTER_WORLD" = "full" ]; then
-    NEED_FULL=1
-fi
 
 # Build binaries if needed (with Admin API enabled for testing)
 if [ $NEED_LEGACY -eq 1 ]; then
 
-    build_binary "$MUD_DIR/build_test" "-Dadmin_api=true -Dbuild_profile=debug" "legacy" || exit 1
+    # yaml=disabled is explicit: YAML is the default now, and HAVE_YAML would
+    # otherwise win the runtime format pick (#ifdef HAVE_YAML first), so this
+    # build would boot YAML instead of legacy.
+    build_binary "$MUD_DIR/build_test" "-Dadmin_api=true -Dbuild_profile=debug -Dyaml=disabled" "legacy" || exit 1
 fi
 
 if [ $NEED_SQLITE -eq 1 ]; then
 
     # sqlite=auto: prefer system libsqlite3, fall back to the meson subproject
     # (which requires a checked-in subprojects/sqlite3.wrap that we currently
-    # don't ship).
-    build_binary "$MUD_DIR/build_sqlite" "-Dadmin_api=true -Dsqlite=auto -Dbuild_profile=debug" "sqlite" || exit 1
+    # don't ship). yaml=disabled so SQLite is the active format (HAVE_YAML
+    # would otherwise take precedence at runtime).
+    build_binary "$MUD_DIR/build_sqlite" "-Dadmin_api=true -Dsqlite=auto -Dbuild_profile=debug -Dyaml=disabled" "sqlite" || exit 1
 fi
 if [ $NEED_YAML -eq 1 ]; then
 
@@ -489,12 +470,7 @@ if [ $NEED_YAML -eq 1 ]; then
 fi
 # Setup worlds
 if [ $NEED_SMALL -eq 1 ]; then
-    if [ $NEED_LEGACY -eq 1 ]; then
-        setup_small_world "legacy" || exit 1
-    fi
-    if [ $NEED_SQLITE -eq 1 ]; then
-        setup_small_world "sqlite" || exit 1
-    fi
+    # Small world is YAML-only (checked-in flat YAML, booted as-is).
     if [ $NEED_YAML -eq 1 ]; then
         setup_small_world "yaml" || exit 1
     fi
@@ -569,8 +545,8 @@ should_run_test() {
         fi
     fi
 
-    # Quick mode: only legacy and yaml
-    if [ $QUICK_MODE -eq 1 ] && [ "$loader" != "legacy" ] && [ "$loader" != "yaml" ]; then
+    # Quick mode: small world is YAML-only.
+    if [ $QUICK_MODE -eq 1 ] && [ "$loader" != "yaml" ]; then
         return 1
     fi
 
@@ -961,19 +937,15 @@ if [ -n "$FILTER_CHECKSUMS" ]; then
     echo "Filter: checksums=$FILTER_CHECKSUMS"
 fi
 if [ $QUICK_MODE -eq 1 ]; then
-    echo "Mode: QUICK (Legacy vs YAML comparison)"
+    echo "Mode: QUICK (small YAML smoke)"
 fi
 echo "=============================================="
 echo ""
 
 # Small World Tests
 if [ -z "$FILTER_WORLD" ] || [ "$FILTER_WORLD" = "small" ]; then
-    echo "=== SMALL WORLD ==="
+    echo "=== SMALL WORLD (YAML-only) ==="
     echo ""
-    [ -x "$LEGACY_BIN" ] && run_test "Small_Legacy_checksums" "$LEGACY_BIN" "$MUD_DIR/build_test/small" "-W"
-    [ -x "$LEGACY_BIN" ] && run_test "Small_Legacy_no_checksums" "$LEGACY_BIN" "$MUD_DIR/build_test/small" ""
-    [ -x "$SQLITE_BIN" ] && run_test "Small_SQLite_checksums" "$SQLITE_BIN" "$MUD_DIR/build_sqlite/small" "-W"
-    [ -x "$SQLITE_BIN" ] && run_test "Small_SQLite_no_checksums" "$SQLITE_BIN" "$MUD_DIR/build_sqlite/small" ""
     [ -x "$YAML_BIN" ] && [ -d "$MUD_DIR/build_yaml/small" ] && run_test "Small_YAML_checksums" "$YAML_BIN" "$MUD_DIR/build_yaml/small" "-W"
     [ -x "$YAML_BIN" ] && [ -d "$MUD_DIR/build_yaml/small" ] && run_test "Small_YAML_no_checksums" "$YAML_BIN" "$MUD_DIR/build_yaml/small" ""
 
@@ -991,8 +963,6 @@ if [ -z "$FILTER_WORLD" ] || [ "$FILTER_WORLD" = "small" ]; then
     echo ""
     echo "=== SMALL WORLD - ADMIN API TESTS ==="
     echo ""
-    [ -x "$LEGACY_BIN" ] && run_admin_api_test "Small_Legacy_AdminAPI" "$LEGACY_BIN" "$MUD_DIR/build_test/small" "legacy"
-    [ -x "$SQLITE_BIN" ] && run_admin_api_test "Small_SQLite_AdminAPI" "$SQLITE_BIN" "$MUD_DIR/build_sqlite/small" "sqlite"
     [ -x "$YAML_BIN" ] && [ -d "$MUD_DIR/build_yaml/small" ] && run_admin_api_test "Small_YAML_AdminAPI" "$YAML_BIN" "$MUD_DIR/build_yaml/small" "yaml"
 fi
 
@@ -1052,16 +1022,9 @@ if [ -z "$FILTER_CHECKSUMS" ] || [ "$FILTER_CHECKSUMS" = "yes" ]; then
     }
 
     if [ -z "$FILTER_WORLD" ] || [ "$FILTER_WORLD" = "small" ]; then
+        # Small world is YAML-only: the only meaningful comparisons are the
+        # YAML round-trips against the baseline YAML boot.
         echo "Small world:"
-        if [ -z "$FILTER_LOADER" ] || [ "$FILTER_LOADER" = "legacy" ] || [ "$FILTER_LOADER" = "sqlite" ]; then
-            compare_checksums "Small_Legacy_checksums" "Small_SQLite_checksums"
-        fi
-        if [ -z "$FILTER_LOADER" ] || [ "$FILTER_LOADER" = "legacy" ] || [ "$FILTER_LOADER" = "yaml" ]; then
-            compare_checksums "Small_Legacy_checksums" "Small_YAML_checksums"
-        fi
-        if [ -z "$FILTER_LOADER" ] || [ "$FILTER_LOADER" = "sqlite" ] || [ "$FILTER_LOADER" = "yaml" ]; then
-            compare_checksums "Small_SQLite_checksums" "Small_YAML_checksums"
-        fi
         if [ -z "$FILTER_LOADER" ] || [ "$FILTER_LOADER" = "yaml" ]; then
             compare_checksums "Small_YAML_checksums" "Small_YAML_RoundTrip"
             compare_checksums "Small_YAML_checksums" "Small_YAML_FlatRoundTrip"

@@ -1,0 +1,121 @@
+# Dictionary: extra_flags
+kGlow: 0  # светится
+kHum: 1  # шумит
+kNorent: 2  # !рента
+kNodonate: 3  # !пожертвовать
+kNoinvis: 4  # !невидим
+kInvisible: 5  # невидим
+kMagic: 6  # магический
+kNodrop: 7  # !бросить
+kBless: 8  # благословлен
+kNosell: 9  # !продать
+kDecay: 10  # рассыпется
+kZonedecay: 11  # рассыпется вне зоны
+kNodisarm: 12  # !обезоружить
+kNodecay: 13  # !рассыпется
+kPoisoned: 14  # *отравлен
+kSharpen: 15  # заточен
+kArmored: 16  # укреплен
+kAppearsDay: 17  # *появится днем
+kAppearsNight: 18  # *появится ночью
+kAppearsFullmoon: 19  # *в полнолуние
+kAppearsWinter: 20  # *появится зимой
+kAppearsSpring: 21  # *появится весной
+kAppearsSummer: 22  # *появится летом
+kAppearsAutumn: 23  # *появится осенью
+kSwimming: 24  # плавает
+kFlying: 25  # летает
+kThrowing: 26  # можно метнуть
+kTicktimer: 27  # *таймер запущен
+kFire: 28  # горит
+kRepopDecay: 29  # рассыпется на репоп
+kNolocate: 30  # !разыскать
+kTimedLvl: 31  # слабеет со временем
+kNoalter: 32  # устойчив к магии
+kHasOneSlot: 33  # можно вплавить 1 камень
+kHasTwoSlots: 34  # можно вплавить 2 камня
+kHasThreeSlots: 35  # можно вплавить 3 камня
+kSetItem: 36  # сетовый предмет
+kNofail: 37  # успех при изучении
+kNamed: 38  # *именной предмет
+kBloody: 39  # *окровавлен
+kQuestItem: 40  # квестовый предмет
+k2inlaid: 41  # * не используется
+k3inlaid: 42  # * не используется
+kNopour: 43  # !перелить
+kUnique: 44  # уникальный
+kTransformed: 45  # *изменен кодом
+kNoRentTimer: 46  # *!разруш.постой
+kLimitedTimer: 47  # !нерушима
+kBindOnPurchase: 48  # *уникальная при покупке
+kNotOneInClanChest: 49  # *одну не положить в кланхран
+UNUSED_50: 50
+UNUSED_51: 51
+UNUSED_52: 52
+UNUSED_53: 53
+UNUSED_54: 54
+UNUSED_55: 55
+UNUSED_56: 56
+UNUSED_57: 57
+UNUSED_58: 58
+UNUSED_59: 59
+UNUSED_60: 60
+UNUSED_61: 61
+UNUSED_62: 62
+UNUSED_63: 63
+UNUSED_64: 64
+UNUSED_65: 65
+UNUSED_66: 66
+UNUSED_67: 67
+UNUSED_68: 68
+UNUSED_69: 69
+UNUSED_70: 70
+UNUSED_71: 71
+UNUSED_72: 72
+UNUSED_73: 73
+UNUSED_74: 74
+UNUSED_75: 75
+UNUSED_76: 76
+UNUSED_77: 77
+UNUSED_78: 78
+UNUSED_79: 79
+UNUSED_80: 80
+UNUSED_81: 81
+UNUSED_82: 82
+UNUSED_83: 83
+UNUSED_84: 84
+UNUSED_85: 85
+UNUSED_86: 86
+UNUSED_87: 87
+UNUSED_88: 88
+UNUSED_89: 89
+UNUSED_90: 90
+UNUSED_91: 91
+UNUSED_92: 92
+UNUSED_93: 93
+UNUSED_94: 94
+UNUSED_95: 95
+UNUSED_96: 96
+UNUSED_97: 97
+UNUSED_98: 98
+UNUSED_99: 99
+UNUSED_100: 100
+UNUSED_101: 101
+UNUSED_102: 102
+UNUSED_103: 103
+UNUSED_104: 104
+UNUSED_105: 105
+UNUSED_106: 106
+UNUSED_107: 107
+UNUSED_108: 108
+UNUSED_109: 109
+UNUSED_110: 110
+UNUSED_111: 111
+UNUSED_112: 112
+UNUSED_113: 113
+UNUSED_114: 114
+UNUSED_115: 115
+UNUSED_116: 116
+UNUSED_117: 117
+UNUSED_118: 118
+UNUSED_119: 119
