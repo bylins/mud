@@ -14,6 +14,7 @@
 #include "engine/entities/entities_constants.h"
 
 #include <bitset>
+#include <vector>
 
 /**
  * Для входа со скила без инита остальных полей:
@@ -134,6 +135,22 @@ class Damage {
   // issue.damage-change: apply the victim's kWardDamage <damage_change> actions to this in-flight Damage
   // (data-driven incoming-damage modifiers: scale dam, edit flags), gated by type/element/flags.
   void ApplyAffectDamageChanges(CharData *ch, CharData *victim, bool late_stage);
+  // issue.damage-change: scan the victim's kWardDamage <retaliation> actions and append their thorns
+  // contributions to reflect_pool_ (reads the PRE-reduction dam; never mutates it). Skipped for reflected
+  // damage (kMagicReflect) to stop a Process->Process bounce. DealReflectPool deals the pool afterwards.
+  void ApplyRetaliations(CharData *ch, CharData *victim);
+  void DealReflectPool(CharData *ch, CharData *victim);
+
+  // issue.damage-change: one accumulated thorns contribution (a <retaliation> that fired). Dealt back to
+  // the attacker as its own Damage after the main pipeline, so the attacker's own defenses transform it.
+  // Attribution is NOT stored here: the reflect is credited to the incoming attack (this->spell_id) at
+  // deal time -- a ward doesn't deal damage of its own; the reflected spell does.
+  struct ReflectHit {
+    int amount{0};
+    fight::DmgType type{fight::kUndefDmg};
+    EElement element{EElement::kUndefined};
+  };
+  std::vector<ReflectHit> reflect_pool_;
 
   // обратный дамаг от огненного щита
   int fs_damage{0};

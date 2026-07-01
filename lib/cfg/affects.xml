@@ -220,6 +220,17 @@
 				<trigger val="kWardAttack"/>
 				<reflection min="10" max="20"/>
 			</action>
+			<action>
+				<trigger val="kWardDamage"/>
+				<retaliation>
+					<conditions>
+						<type val="kMagicDmg"/>
+					</conditions>
+					<percent min="6" max="6" npc_bonus="2" boss_bonus="2"/>
+					<element type="kUndefDmg"/>
+					<flags add="kDrawBriefMagMirror"/>
+				</retaliation>
+			</action>
 		</actions>
 	</affect>
 	<affect id="kStairs"/>

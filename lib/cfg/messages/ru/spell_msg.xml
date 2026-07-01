@@ -1451,18 +1451,9 @@
 	</msg_sheaf>
 	<msg_sheaf id="kMagicGlass">
 		<name val="зеркало магии" />
-		<message type="kFightDeathToChar" val="Магическое зеркало спасло вам жизнь, чего не скажешь о $N5." />
-		<message type="kFightDeathToVict" val="Магическое зеркало спасло $n2 жизнь, чего не скажешь о вас." />
-		<message type="kFightDeathToRoom" val="Магическое зеркало спасло $n2 жизнь, чего не скажешь о $N5." />
-		<message type="kFightMissToChar" val="$N увернул$U от вашего магического зеркала." />
-		<message type="kFightMissToVict" val="Вы успели увернуться от магического зеркала $n1." />
-		<message type="kFightMissToRoom" val="$N успел$G увернуться от магического зеркала $n1." />
-		<message type="kFightHitToChar" val="Ваше магическое зеркало отразило часть удара $N1 в н$S же." />
-		<message type="kFightHitToVict" val="Магическое зеркало $n1 отразило часть вашего удара в вас же." />
-		<message type="kFightHitToRoom" val="Магическое зеркало $n1 отразило часть удара $N1 в н$S же." />
-		<message type="kFightGodToChar" val="Вы забыли, для чего создали магическое зеркало, увидев $N3." />
-		<message type="kFightGodToVict" val="Под вашим строгим взглядом $n забыл$g про свое магическое зеркало." />
-		<message type="kFightGodToRoom" val="$n забыл$g навыки владения магическим зеркалом при одном виде $N1." />
+		<!-- issue.damage-change: no kFight* here. The mirror deals no damage of its own; the reflected
+		     spell does, so the per-hit thorns (<retaliation> on the kMagicGlass affect) is attributed to
+		     the incoming attack and shows THAT spell's combat messages. -->
 		<message type="kCastPhraseHeathen" val="Аз воздам!" />
 		<message type="kCastPhraseChristian" val="... и воздам каждому из вас." />
 	</msg_sheaf>

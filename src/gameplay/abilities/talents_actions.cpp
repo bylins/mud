@@ -123,7 +123,7 @@ const std::map<std::string, int> kHitFlagByName{
 	{"kVictimFireShield", fight::kVictimFireShield}, {"kVictimAirShield", fight::kVictimAirShield},
 	{"kVictimIceShield", fight::kVictimIceShield},
 	{"kDrawBriefFireShield", fight::kDrawBriefFireShield}, {"kDrawBriefAirShield", fight::kDrawBriefAirShield},
-	{"kDrawBriefIceShield", fight::kDrawBriefIceShield},
+	{"kDrawBriefIceShield", fight::kDrawBriefIceShield}, {"kDrawBriefMagMirror", fight::kDrawBriefMagMirror},
 };
 
 // issue.damage-change: parse a `|`-separated name list into a mask (bit = enum value). Unknown => err_log.
@@ -1108,6 +1108,8 @@ void Actions::ParseAction(Action &out, parser_wrapper::DataNode node) {
 			ParseAbsorption(out.absorption_, manifestation);
 		} else if (strcmp(manifestation.GetName(), "damage_change") == 0) {
 			ParseDamageChange(out.damage_change_, manifestation);
+		} else if (strcmp(manifestation.GetName(), "retaliation") == 0) {
+			ParseRetaliation(out.retaliation_, manifestation);
 		} else if (strcmp(manifestation.GetName(), "manual_cast") == 0) {
 			// <manual_cast handler="SpellX"/>.
 			const char *hv = manifestation.GetValue("handler");
@@ -1236,6 +1238,45 @@ void Actions::ParseDamageChange(DamageChange &dc, parser_wrapper::DataNode &node
 		} else if (strcmp(cn, "flags") == 0) {
 			dc.flags_add |= ParseHitFlagMask(child.GetValue("add"));
 			dc.flags_remove |= ParseHitFlagMask(child.GetValue("remove"));
+		}
+	}
+}
+
+void Actions::ParseRetaliation(Retaliation &rt, parser_wrapper::DataNode &node) {
+	rt.present = true;
+	if (const char *p = node.GetValue("prob"); p && *p) { rt.prob = parse::ReadAsInt(p); }
+	for (auto &child : node.Children()) {
+		const auto cn = child.GetName();
+		if (strcmp(cn, "conditions") == 0) {
+			for (auto &c : child.Children()) {
+				const auto n = c.GetName();
+				if (strcmp(n, "type") == 0) {
+					rt.type_mask |= ParseDmgTypeMask(c.GetValue("val"));
+				} else if (strcmp(n, "element") == 0) {
+					rt.element_mask |= ParseElementMask(c.GetValue("val"));
+				} else if (strcmp(n, "flags") == 0) {
+					rt.flags_present |= ParseHitFlagMask(c.GetValue("present"));
+					rt.flags_missing |= ParseHitFlagMask(c.GetValue("missing"));
+				}
+			}
+		} else if (strcmp(cn, "percent") == 0) {
+			if (const char *v = child.GetValue("min"); v && *v) { rt.pct_min = parse::ReadAsInt(v); }
+			if (const char *v = child.GetValue("max"); v && *v) { rt.pct_max = parse::ReadAsInt(v); }
+			if (const char *v = child.GetValue("npc_bonus"); v && *v) { rt.npc_bonus = parse::ReadAsInt(v); }
+			if (const char *v = child.GetValue("boss_bonus"); v && *v) { rt.boss_bonus = parse::ReadAsInt(v); }
+		} else if (strcmp(cn, "element") == 0) {
+			// The reflected damage's element/type. Absent => same as the incoming hit (-1 sentinel).
+			if (const char *v = child.GetValue("val"); v && *v) {
+				rt.element = static_cast<int>(ITEM_BY_NAME<EElement>(v));
+			}
+			if (const char *v = child.GetValue("type"); v && *v) {
+				const auto it = kDmgTypeByName.find(v);
+				if (it != kDmgTypeByName.end()) { rt.dmg_type = static_cast<int>(it->second); }
+				else { err_log("Actions: unknown <retaliation><element type='%s'>.", v); }
+			}
+		} else if (strcmp(cn, "flags") == 0) {
+			rt.flags_add |= ParseHitFlagMask(child.GetValue("add"));
+			rt.flags_remove |= ParseHitFlagMask(child.GetValue("remove"));
 		}
 	}
 }

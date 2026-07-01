@@ -195,6 +195,34 @@ struct DamageChange {
 	bool present{false};
 };
 
+// issue.damage-change: a THORNS/RETALIATION modifier (`<retaliation>` on a kWardDamage action). Distinct
+// from the whole-cast <reflection> (Magic Mirror) above: here the bearer STILL takes the hit, and a
+// percentage of the PRE-reduction damage is dealt back to the attacker (fire-shield/magic-glass style).
+// Damage::ApplyRetaliations reads the in-flight Damage and appends to its reflect pool; the pool is dealt
+// (each as its own bearer->attacker Damage) after the main pipeline. Bitmasks decouple this header from
+// the fight/element enums, exactly like DamageChange (type/element/flag masks; 0 = "any"). The reflected
+// damage's element/dmg_type default to the incoming hit's (-1 sentinels) and may be overridden here.
+// The affect NEVER names a damage source: the reflected damage is attributed to the INCOMING attack (the
+// spell being reflected), taken from context by DealReflectPool -- a ward doesn't deal damage of its own.
+// The percent is base [min,max] plus bearer bonuses: `npc_bonus` when the bearer is a real NPC
+// (IsNpc && !charmice), and `boss_bonus` added on top only when that NPC also has the boss role.
+struct Retaliation {
+	int prob{100};
+	unsigned type_mask{0};          // <conditions><type> -- incoming damage must be one of these (0 = any)
+	unsigned element_mask{0};       // <conditions><element>
+	unsigned long long flags_present{0};   // <conditions><flags present=>
+	unsigned long long flags_missing{0};   // <conditions><flags missing=>
+	unsigned long long flags_add{0};       // <flags add=> -- set on the in-flight Damage when it fires (HUD glyph)
+	unsigned long long flags_remove{0};    // <flags remove=>
+	int pct_min{0};                 // <percent min=> base percent of the incoming damage
+	int pct_max{0};                 // <percent max=>
+	int npc_bonus{0};               // <percent npc_bonus=> added when the bearer is a real NPC
+	int boss_bonus{0};              // <percent boss_bonus=> added on top when that NPC is a boss
+	int element{-1};                // <element val=> EElement of the reflected damage (-1 = same as incoming)
+	int dmg_type{-1};               // <element type=> fight::DmgType of the reflected damage (-1 = same as incoming)
+	bool present{false};
+};
+
 class IAction {
  public:
 	virtual ~IAction() = default;
@@ -702,6 +730,7 @@ class Action {
 	Reflection reflection_;
 	Absorption absorption_;   // issue.attack-ward: defender absorb ward (<absorption>)
 	DamageChange damage_change_;   // issue.damage-change: passive incoming-damage modifier (<damage_change>)
+	Retaliation retaliation_;      // issue.damage-change: thorns/retaliation modifier (<retaliation>)
 	// Per-action target selector (issue.area-cast): how a non-first action picks its targets.
 	// Ignored for the first action (uses the spell's targeting flags). Default kTarSame.
 	EActionTarget target_{EActionTarget::kTarSame};
@@ -755,6 +784,7 @@ class Action {
 	[[nodiscard]] const Reflection &GetReflection() const { return reflection_; }
 	[[nodiscard]] const Absorption &GetAbsorption() const { return absorption_; }
 	[[nodiscard]] const DamageChange &GetDamageChange() const { return damage_change_; }
+	[[nodiscard]] const Retaliation &GetRetaliation() const { return retaliation_; }
 	[[nodiscard]] EActionTarget GetTarget() const { return target_; }
 	[[nodiscard]] EActionBase GetBase() const { return base_; }
 	[[nodiscard]] const std::string &GetTagName() const { return tag_name_; }
@@ -799,6 +829,7 @@ class Actions {
 	static void ParseReflection(Reflection &refl, parser_wrapper::DataNode &node);
 	static void ParseAbsorption(Absorption &absorb, parser_wrapper::DataNode &node);   // issue.attack-ward
 	static void ParseDamageChange(DamageChange &dc, parser_wrapper::DataNode &node);   // issue.damage-change
+	static void ParseRetaliation(Retaliation &rt, parser_wrapper::DataNode &node);   // issue.damage-change
 
 	// Empty fallback for the back-compat delegating getters when list_ is empty
 	// (a spell with no <action>): preserves the old "default-constructed gates"

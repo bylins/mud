@@ -52,29 +52,12 @@ bool Damage::CalcMagisShieldsDmgAbsoption(CharData *ch, CharData *victim) {
 		return false;
 	}
 
-	// отражение части маг дамага от зеркала
-	if (AFF_FLAGGED(victim, EAffect::kMagicGlass)
-		&& dmg_type == fight::kMagicDmg) {
-		int pct = 6;
-		if (victim->IsNpc() && !IsCharmice(victim)) {
-			pct += 2;
-			if (victim->get_role(static_cast<unsigned>(EMobClass::kBoss))) {
-				pct += 2;
-			}
-		}
-		// дамаг обратки
-		const int mg_damage = dam * pct / 100;
-		if (mg_damage > 0
-			&& victim->GetEnemy()
-			&& victim->GetPosition() > EPosition::kStun
-			&& victim->in_room != kNowhere) {
-			flags.set(fight::kDrawBriefMagMirror);
-			Damage dmg(SpellDmg(ESpell::kMagicGlass), mg_damage, fight::kUndefDmg);
-			dmg.flags.set(fight::kNoFleeDmg);
-			dmg.flags.set(fight::kMagicReflect);
-			dmg.Process(victim, ch);
-		}
-	}
+	// issue.damage-change: thorns/retaliation is now data-driven. Read the PRE-reduction damage here (at
+	// the top of the shield stage, before any reduction) and accumulate each firing <retaliation> into
+	// reflect_pool_; the pool is dealt after the main pipeline (DealReflectPool), so the attacker's own
+	// defenses transform it. Magic-glass's reflect is migrated (kMagicGlass <retaliation>); fire's fs_damage
+	// stays hardcoded below until Phase 5 folds it in.
+	ApplyRetaliations(ch, victim);
 
 	// обработка щитов, см Damage::post_init_shields()
 	if (flags[fight::kVictimFireShield]
@@ -349,6 +332,90 @@ void Damage::ApplyAffectDamageChanges(CharData *ch, CharData *victim, bool late_
 			}
 		}
 	}
+}
+
+void Damage::ApplyRetaliations(CharData *ch, CharData *victim) {
+	if (dam <= 0 || !ch || !victim || victim->affected.empty()) {
+		return;
+	}
+	// A reflected hit must never itself retaliate, or two thorns-bearers would bounce forever.
+	if (flags[fight::kMagicReflect]) {
+		return;
+	}
+	for (const auto &aff : victim->affected) {
+		if (!aff) {
+			continue;
+		}
+		for (const auto &action : affects::AffectActions(aff->affect_type).list()) {
+			if (!action.GetTrigger().test(talents_actions::EActionTrigger::kWardDamage)) {
+				continue;
+			}
+			const auto &rt = action.GetRetaliation();
+			if (!rt.present) {
+				continue;
+			}
+			if (rt.type_mask && !(rt.type_mask & (1u << static_cast<unsigned>(dmg_type)))) {
+				continue;
+			}
+			if (rt.element_mask && !(rt.element_mask & (1u << static_cast<unsigned>(element)))) {
+				continue;
+			}
+			const unsigned long long f = flags.to_ullong();
+			if ((f & rt.flags_present) != rt.flags_present || (f & rt.flags_missing) != 0) {
+				continue;
+			}
+			if (rt.prob < 100 && number(1, 100) > rt.prob) {
+				continue;
+			}
+			// Percent of the PRE-reduction damage, plus the bearer's (victim's) NPC/boss bonuses.
+			int pct = (rt.pct_min == rt.pct_max) ? rt.pct_min : number(rt.pct_min, rt.pct_max);
+			if (victim->IsNpc() && !IsCharmice(victim)) {
+				pct += rt.npc_bonus;
+				if (victim->get_role(static_cast<unsigned>(EMobClass::kBoss))) {
+					pct += rt.boss_bonus;
+				}
+			}
+			const int amount = dam * pct / 100;
+			if (amount > 0) {
+				ReflectHit hit;
+				hit.amount = amount;
+				hit.type = static_cast<fight::DmgType>((rt.dmg_type >= 0) ? rt.dmg_type : dmg_type);
+				hit.element = (rt.element >= 0) ? static_cast<EElement>(rt.element) : element;
+				reflect_pool_.push_back(hit);
+			}
+			// Flag edits (e.g. the kDrawBriefMagMirror HUD glyph) apply whenever the ward reacts.
+			for (int i = 0; i < fight::kHitFlagsNum; ++i) {
+				if (rt.flags_add & (1ULL << i)) {
+					flags.set(i);
+				}
+				if (rt.flags_remove & (1ULL << i)) {
+					flags.reset(i);
+				}
+			}
+		}
+	}
+}
+
+void Damage::DealReflectPool(CharData *ch, CharData *victim) {
+	if (reflect_pool_.empty()
+		|| !victim->GetEnemy()
+		|| victim->GetPosition() <= EPosition::kStun
+		|| victim->in_room == kNowhere) {
+		return;
+	}
+	for (const auto &hit : reflect_pool_) {
+		if (hit.amount <= 0) {
+			continue;
+		}
+		// A ward deals no damage of its own: the reflect is credited to the incoming attack (the spell
+		// being reflected), so its own combat/death messages are the ones shown.
+		Damage dmg(SpellDmg(spell_id), hit.amount, hit.type);
+		dmg.element = hit.element;
+		dmg.flags.set(fight::kNoFleeDmg);
+		dmg.flags.set(fight::kMagicReflect);
+		dmg.Process(victim, ch);
+	}
+	reflect_pool_.clear();
 }
 
 void Damage::ProcessDeath(CharData *ch, CharData *victim) const {
@@ -905,6 +972,9 @@ int Damage::Process(CharData *ch, CharData *victim) {
 		dmg.flags.set(fight::kMagicReflect);
 		dmg.Process(victim, ch);
 	}
+	// issue.damage-change: deal the accumulated data-driven thorns (e.g. magic-glass) alongside fire's
+	// fs_damage, at the same post-pipeline point (each as its own kMagicReflect-capped bearer->attacker hit).
+	DealReflectPool(ch, victim);
 	return dam;
 }
 
