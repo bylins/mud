@@ -94,6 +94,10 @@ enum class EActionTrigger {
 	               // an external caster via <points> (not natural regen). Fired on the bearer; event.actor
 	               // = the healer, event.amount = the restored amount. An optional <trigger category=>
 	               // restricts it to one points category (kHeal/kMoves/kThirst/kFull).
+	kDeath,        // issue.character-affect-triggers: the bearer is DYING (fired from die() before
+	               // raw_kill). event.actor = the killer. <trigger return="0"/> PREVENTS the death (like
+	               // an entry trigger's block) -- but the action must also heal (a <points><heal> on
+	               // kTarFightSelf), or the char is still at <=0 HP and dies again next tick.
 	kCount
 };
 

@@ -98,6 +98,7 @@ const std::map<std::string, EActionTrigger> kActionTriggerByName{
 	{"kExpired", EActionTrigger::kExpired},
 	{"kDispell", EActionTrigger::kDispell},
 	{"kPoints", EActionTrigger::kPoints},
+	{"kDeath", EActionTrigger::kDeath},
 };
 
 // issue.character-affect-triggers: <trigger val="kPoints" category="..."/> -> a points_intensity::ECategory

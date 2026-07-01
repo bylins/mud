@@ -494,6 +494,8 @@
 		<message type="kAffDispelledToRoom" val="Красный оттенок зрачков $n3 исчез."/>
 		<message type="kDamageToChar" val="Потревоженный вампиризм вскипает в вашей крови, обжигая изнутри!"/>
 		<message type="kDamageToRoom" val="$n болезненно морщится, потревожив вампирскую порчу."/>
+		<message type="kDeathToChar" val="Вампирская жажда вырвала вас из объятий смерти!"/>
+		<message type="kDeathToRoom" val="$n падает замертво, но багровое сияние вырывает $n3 из объятий смерти."/>
 		<message type="kShortDesc" val="вампиризм"/>
 	</msg_sheaf>
 	<msg_sheaf id="kLacerations">

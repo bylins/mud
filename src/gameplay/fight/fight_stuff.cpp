@@ -257,6 +257,12 @@ void die(CharData *ch, CharData *killer) {
 	if (stone_rebirth(ch, killer)) {
 		return;
 	}
+	// issue.character-affect-triggers: kDeath -- an affect may PREVENT this death (a <trigger return="0"/>
+	// that also heals via <points>). Like stone_rebirth, we abort die() before raw_kill; the killer still
+	// keeps any XP already credited by ProcessDeath (same as the rebirth stone).
+	if (RunCharDeathTriggers(ch, killer)) {
+		return;
+	}
 
 	if (ch->IsNpc()
 		|| !ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena)

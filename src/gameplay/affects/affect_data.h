@@ -127,6 +127,12 @@ namespace talents_actions { enum class EActionTrigger; }
 bool RunCharAffectTrigger(CharData *ch, EAffect affect_type, talents_actions::EActionTrigger trig,
 						  CharData *actor = nullptr, int event_amount = 0, int event_category = -1);
 
+// issue.character-affect-triggers: fire the dying char's kDeath actions (from die(), before raw_kill;
+// killer = the credited killer, may be null). Returns true if an affect PREVENTED the death (a kDeath
+// action resolved a <trigger return="0"/> "block"). A preventing affect must heal the char itself (a
+// <points><heal>); otherwise it is still at <=0 HP and dies again on the next tick. Defined in magic.cpp.
+bool RunCharDeathTriggers(CharData *ch, CharData *killer);
+
 void affect_total(CharData *ch);
 void affect_modify(CharData *ch, EApply loc, int mod, EAffect bitv, bool add);
 std::pair<EApply, int> GetApplyByWeaponAffect(EWeaponAffect element, CharData *ch);

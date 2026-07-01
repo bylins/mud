@@ -3576,6 +3576,72 @@ bool RunCharAffectTrigger(CharData *ch, EAffect affect_type, talents_actions::EA
 	return true;
 }
 
+// issue.character-affect-triggers: fire the DYING char's kDeath actions (from die(), before raw_kill).
+// Scans the char's own affects for kDeath actions and runs each on the char itself (kTarFightSelf ->
+// self-heal), with event.actor = the killer. Returns true if any kDeath action resolved a "block"
+// (<trigger return="0"/> or a handler override): the death is then prevented by die(). A preventing
+// affect must heal the char (a <points><heal>) -- this runner does NOT auto-heal, so an unhealed block
+// just delays death to the next tick (by design). Recursion is bounded inside RunRoomCycledAction.
+bool RunCharDeathTriggers(CharData *ch, CharData *killer) {
+	if (!ch || ch->in_room == kNowhere || ch->affected.empty()) {
+		return false;
+	}
+	const int level = ch->IsNpc() ? GetRealLevel(ch) : 1;
+	bool prevented = false;
+	std::vector<EAffect> seen;
+	for (const auto &aff : ch->affected) {
+		if (!aff || std::find(seen.begin(), seen.end(), aff->affect_type) != seen.end()) {
+			continue;
+		}
+		std::vector<talents_actions::Action> fired;
+		for (const auto &a : affects::AffectActions(aff->affect_type).list()) {
+			if (a.GetTrigger().test(talents_actions::EActionTrigger::kDeath)) {
+				fired.push_back(a);
+			}
+		}
+		if (fired.empty()) {
+			continue;
+		}
+		seen.push_back(aff->affect_type);
+		ActionContext ctx = BuildActionContext(ch, ESpell::kUndefined, level);
+		ctx.UseExternalActions(&fired);
+		ctx.cvict = ch;   // self: a <points><heal> / kTarFightSelf lands on the dying char
+		EventContext ev;
+		ev.trigger = talents_actions::EActionTrigger::kDeath;
+		ev.actor = killer;
+		ctx.SetEvent(ev);
+		ctx.SetAffectDamageMsg(affects::AffectMsgRaw(aff->affect_type, affects::EAffectMsgType::kDamageToChar),
+							   affects::AffectMsgRaw(aff->affect_type, affects::EAffectMsgType::kDamageToVict),
+							   affects::AffectMsgRaw(aff->affect_type, affects::EAffectMsgType::kDamageToRoom));
+		RunRoomCycledAction(ctx, world[ch->in_room], fired, 0);
+		if (ch->purged()) {
+			return prevented;   // a kDeath action purged the char -- can't prevent what's already gone
+		}
+		// issue.character-affect-triggers: the affect's own kDeath flavor (optional -- empty => silent),
+		// shown after the action ran (so a "torn back from death" line follows the heal). $n = the bearer.
+		const std::string &to_char = affects::AffectMsgRaw(aff->affect_type, affects::EAffectMsgType::kDeathToChar);
+		if (!to_char.empty()) {
+			act(to_char.c_str(), false, ch, nullptr, nullptr, kToChar);
+		}
+		const std::string &to_room = affects::AffectMsgRaw(aff->affect_type, affects::EAffectMsgType::kDeathToRoom);
+		if (!to_room.empty()) {
+			act(to_room.c_str(), true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
+		}
+		// Resolve the "prevent death" verdict: a manual_cast handler's ctx override wins, else the
+		// action's static <trigger return="0"/> tag. 0 == block (mirrors kEntryTriggerBlock).
+		std::optional<int> ret = ctx.GetTriggerReturn();
+		if (!ret) {
+			for (const auto &a : fired) {
+				if (a.GetTriggerReturn()) { ret = a.GetTriggerReturn(); break; }
+			}
+		}
+		if (ret && *ret == 0) {
+			prevented = true;
+		}
+	}
+	return prevented;
+}
+
 // issue.character-affect-triggers: run every action on the bearer's affects whose trigger matches
 // event.trigger (e.g. kPreHit / kPostHit), threading `event` onto the context so manual_cast handlers
 // can read its rich data (amount/weapon/skill/actor). Each action targets via its own <target> (e.g.

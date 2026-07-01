@@ -64,6 +64,10 @@ enum class EAffectMsgType {
 	kDamageToChar,        // to the char taking the affect's damage
 	kDamageToVict,        // to a distinct victim (only when dealer != victim; self-damage omits it)
 	kDamageToRoom,        // to onlookers
+	// issue.character-affect-triggers: flavor shown when this affect's kDeath trigger fires (the bearer is
+	// dying). Optional -- an empty slot shows nothing. $n = the dying bearer.
+	kDeathToChar,         // to the dying bearer (e.g. "the curse tears you back from death")
+	kDeathToRoom,         // to onlookers
 };
 
 // affect = the affect whose sheaf to read (EAffect::kUndefined => the shared "kDefault" sheaf).
