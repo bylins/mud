@@ -35,7 +35,9 @@ ECastResult CastAreaInRoom(CharData *ch, ESpell spell_id, int level);
 // in/out so a manual_cast handler can branch on / modify it.
 ECastResult CastRoomTickActionFromActions(CharData *ch, RoomData *room, ESpell ctx_spell,
 										  const std::vector<talents_actions::Action> &actions, int phase,
-										  int *tick_duration = nullptr, float fixed_potency = -1.0f);
+										  int *tick_duration = nullptr, float fixed_potency = -1.0f,
+										  const std::string &aff_dmg_char = "", const std::string &aff_dmg_vict = "",
+										  const std::string &aff_dmg_room = "");
 
 // issue.room-affect-trigger-improve: RunRoomEntryTriggers (the on-entry dispatcher) is declared in
 // magic_rooms.h (room_spells), since the movement code calls it. It is defined in magic.cpp because it

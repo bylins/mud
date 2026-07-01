@@ -64,6 +64,12 @@ enum class ERoomAffectMsgType {
 	kRoomAffectSelfInvisible,   // viewer has kDetectMagic and IS the caster
 	kRoomAffectPkVisible,       // pk variant: viewer lacks kDetectMagic
 	kRoomAffectPkInvisible,     // pk variant: viewer has kDetectMagic
+	// issue.character-affect-triggers: flavor for damage dealt by a ROOM/EXIT affect's own <damage> action
+	// (e.g. a trap, a room/exit kDispell sting). When set it FULLY REPLACES the generic combat hit line,
+	// mirroring the char-affect kDamageTo* keys. $n = the char dealing/taking the damage, $N = the victim.
+	kDamageToChar,
+	kDamageToVict,
+	kDamageToRoom,
 };
 
 // Message lookup keyed by the room affect. RoomAffectMsg falls back to the shared kDefault sheaf;

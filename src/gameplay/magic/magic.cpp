@@ -1784,6 +1784,13 @@ void SpendCharAffectCharge(CharData *bearer, EAffect affect_type) {
 		}
 	}
 	if (depleted) {
+		// issue.character-affect-triggers: count expired == timer expired -- fire the affect's kExpired
+		// trigger before it is consumed (so a charge-limited affect gets its "end" reaction, matching the
+		// timer-expiry path). No-op if it carries no kExpired action.
+		RunCharAffectTrigger(bearer, affect_type, talents_actions::EActionTrigger::kExpired);
+		if (bearer->purged()) {
+			return;
+		}
 		RemoveAffectFromChar(bearer, affect_type);
 	}
 }
@@ -3509,12 +3516,17 @@ static ECastResult RunRoomCycledAction(ActionContext &ctx, RoomData *room,
 // affect's current duration in and back out, so a manual_cast handler can branch on / modify it.
 ECastResult CastRoomTickActionFromActions(CharData *ch, RoomData *room, ESpell ctx_spell,
 										  const std::vector<talents_actions::Action> &actions, int phase,
-										  int *tick_duration, float fixed_potency) {
+										  int *tick_duration, float fixed_potency,
+										  const std::string &aff_dmg_char, const std::string &aff_dmg_vict,
+										  const std::string &aff_dmg_room) {
 	if (ch == nullptr) {
 		return ECastResult::kNotCast;
 	}
 	ActionContext ctx = BuildActionContext(ch, ctx_spell, GetRealLevel(ch), fixed_potency);
 	ctx.UseExternalActions(&actions);
+	// issue.character-affect-triggers: room/exit affect-owned damage flavor for a <damage> action (empty
+	// => the generic combat line, unchanged). Same channel the char runners use (Damage::Process reads it).
+	ctx.SetAffectDamageMsg(aff_dmg_char, aff_dmg_vict, aff_dmg_room);
 	if (tick_duration) {
 		ctx.SetTickDuration(*tick_duration);
 	}
@@ -3741,12 +3753,17 @@ constexpr int kEntryTriggerBlock = 0;
 // issue.room-affect-trigger-improve: spend one trigger charge after a triggered affect's action runs.
 // charges == -1 means unlimited (the default -- no-op). At 0 the affect is consumed: removed from its
 // host list (the room's or the exit's `affected`) with its kAffExpired line sent to the actor's room.
-static void ConsumeAffectCharge(const Affect<room_spells::ERoomApply>::shared_ptr &aff, room_spells::RoomAffects &host,
-								CharData *actor) {
+static void ConsumeAffectCharge(const Affect<room_spells::ERoomApply>::shared_ptr &aff, RoomData *room,
+								room_spells::RoomAffects &host, CharData *actor) {
 	if (!aff || aff->charges == -1) {
 		return;
 	}
 	if (--aff->charges <= 0) {
+		// issue.character-affect-triggers: count expired == timer expired -- fire the affect's kExpired
+		// trigger (in its caster's context, like the room/exit timer-expiry path) before it is consumed.
+		// No-op if the caster is gone or the affect has no kExpired action.
+		room_spells::RunRoomAffectTrigger(room, find_char(aff->caster_id), aff->affect_type,
+										  talents_actions::EActionTrigger::kExpired, aff->potency);
 		const std::string &msg =
 				room_spells::RoomAffectMsgRaw(aff->affect_type, room_spells::ERoomAffectMsgType::kAffExpiredToRoom);
 		if (!msg.empty() && actor && actor->in_room != kNowhere) {
@@ -3876,7 +3893,7 @@ bool room_spells::RunRoomEntryTriggers(CharData *actor, RoomData *room,
 			if (!caster) { continue; }   // no owner to source the cast this entry
 			const int ret = CastRoomEntryAction(caster, room, actor, p.type, action, p.potency, p.strength,
 					talents_actions::EActionTrigger::kEnter);   // room entry -> the "entry" message pair
-			ConsumeAffectCharge(p.aff, room->affected, actor);   // spend a trigger charge (no-op if unlimited)
+			ConsumeAffectCharge(p.aff, room, room->affected, actor);   // spend a trigger charge (no-op if unlimited)
 			// Only the block-check pass enforces the verdict; the effect passes ignore it.
 			if (phase == EEntryTriggerPhase::kBlockCheck && ret == kEntryTriggerBlock) {
 				allowed = false;   // block, but keep running the rest (so all blocking actions still fire)
@@ -3937,7 +3954,7 @@ bool room_spells::RunDoorTriggers(CharData *actor, RoomData *room, int dir, tale
 			CharData *caster = find_char(p.caster_id);
 			if (!caster) { continue; }   // no owner to source the cast
 			const int ret = CastRoomEntryAction(caster, room, actor, p.type, action, p.potency, p.strength, ev);
-			ConsumeAffectCharge(p.aff, p.host->affected, actor);   // spend a trigger charge (no-op if unlimited)
+			ConsumeAffectCharge(p.aff, room, p.host->affected, actor);   // spend a trigger charge (no-op if unlimited)
 			if (ret == kEntryTriggerBlock) {
 				allowed = false;   // refuse the door action, but keep firing the rest
 			}

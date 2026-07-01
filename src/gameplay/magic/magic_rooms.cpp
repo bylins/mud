@@ -107,6 +107,9 @@ const std::map<room_spells::ERoomAffectMsgType, std::string> kRoomAffectMsgTypeN
 		{room_spells::ERoomAffectMsgType::kRoomAffectSelfInvisible, "kRoomAffectSelfInvisible"},
 		{room_spells::ERoomAffectMsgType::kRoomAffectPkVisible, "kRoomAffectPkVisible"},
 		{room_spells::ERoomAffectMsgType::kRoomAffectPkInvisible, "kRoomAffectPkInvisible"},
+		{room_spells::ERoomAffectMsgType::kDamageToChar, "kDamageToChar"},
+		{room_spells::ERoomAffectMsgType::kDamageToVict, "kDamageToVict"},
+		{room_spells::ERoomAffectMsgType::kDamageToRoom, "kDamageToRoom"},
 	};
 }  // namespace
 
@@ -710,7 +713,13 @@ bool RunRoomAffectTrigger(RoomData *room, CharData *ch, ERoomAffect affect_type,
 	if (fired.empty()) {
 		return false;
 	}
-	CastRoomTickActionFromActions(ch, room, ESpell::kUndefined, fired, 0, nullptr, potency);
+	// issue.character-affect-triggers: hand the affect's own damage flavor to any <damage> in the chain
+	// (a room/exit trap or a kDispell sting), so it replaces the generic combat line -- the room-side
+	// analog of RunCharAffectTrigger's SetAffectDamageMsg. Empty slots keep the generic message.
+	CastRoomTickActionFromActions(ch, room, ESpell::kUndefined, fired, 0, nullptr, potency,
+			RoomAffectMsgRaw(affect_type, ERoomAffectMsgType::kDamageToChar),
+			RoomAffectMsgRaw(affect_type, ERoomAffectMsgType::kDamageToVict),
+			RoomAffectMsgRaw(affect_type, ERoomAffectMsgType::kDamageToRoom));
 	return true;
 }
 
