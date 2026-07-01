@@ -90,6 +90,10 @@ enum class EActionTrigger {
 	               // (dispel magic / unaffect -- the RemoveAffectAndAnnounce path). Fired on the bearer
 	               // before the strip; event.actor = the dispeller, so <action target="kTarActor"> can
 	               // sting them back.
+	kPoints,       // issue.character-affect-triggers: the bearer was RESTORED (HP/moves/thirst/full) by
+	               // an external caster via <points> (not natural regen). Fired on the bearer; event.actor
+	               // = the healer, event.amount = the restored amount. An optional <trigger category=>
+	               // restricts it to one points category (kHeal/kMoves/kThirst/kFull).
 	kCount
 };
 
@@ -687,6 +691,10 @@ class Action {
 	// issue.affect-migration: the event(s) that fire this action (empty = inline in the normal cast).
 	// Parsed from <trigger val="kPulse|kBattlePulse">. See EActionTrigger.
 	BitsetFlags<EActionTrigger> trigger_;
+	// issue.character-affect-triggers: <trigger val="kPoints" category="kHeal"/> -- restrict a kPoints
+	// trigger to one restoration category. Value mirrors points_intensity::ECategory (kHeal=0, kMoves=1,
+	// kThirst=2, kFull=3); -1 = no filter (react to any restoration). Ignored by non-kPoints triggers.
+	int trigger_points_category_{-1};
 	// issue.room-affect-trigger-improve: the value an EVENT trigger yields back to the firing game
 	// event, parsed from <trigger return="N"/> (int). 0 = block the action that fired it (e.g. refuse
 	// the room entry); non-zero = allow. std::nullopt = the action set no value -> the dispatcher
@@ -724,6 +732,7 @@ class Action {
 	[[nodiscard]] const std::string &GetManualHandler() const { return manual_handler_; }
 	[[nodiscard]] const std::vector<ESpell> &GetSideSpells() const { return side_spells_; }
 	[[nodiscard]] const BitsetFlags<EActionTrigger> &GetTrigger() const { return trigger_; }
+	[[nodiscard]] int GetTriggerPointsCategory() const { return trigger_points_category_; }
 	[[nodiscard]] std::optional<int> GetTriggerReturn() const { return trigger_return_; }
 	[[nodiscard]] std::optional<int> GetTriggerProb() const { return trigger_prob_; }
 };

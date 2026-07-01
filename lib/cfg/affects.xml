@@ -340,6 +340,12 @@
 					<amount min="50" dices_weight="0" alpha="0" beta="0"/>
 				</damage>
 			</action>
+			<action target="kTarFightSelf">
+				<trigger val="kPoints" category="kHeal"/>
+				<damage saving="kNone">
+					<amount min="50" dices_weight="0" alpha="0" beta="0"/>
+				</damage>
+			</action>
 		</actions>
 	</affect>
 	<affect id="kLacerations">

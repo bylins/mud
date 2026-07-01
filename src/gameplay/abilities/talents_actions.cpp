@@ -97,6 +97,14 @@ const std::map<std::string, EActionTrigger> kActionTriggerByName{
 	{"kKill", EActionTrigger::kKill},
 	{"kExpired", EActionTrigger::kExpired},
 	{"kDispell", EActionTrigger::kDispell},
+	{"kPoints", EActionTrigger::kPoints},
+};
+
+// issue.character-affect-triggers: <trigger val="kPoints" category="..."/> -> a points_intensity::ECategory
+// value (kept as int here to avoid a magic-subsystem include; MUST mirror that enum's values). kDamage
+// is intentionally absent -- it is weapon-hit narration, not a restoration a kPoints trigger reacts to.
+const std::map<std::string, int> kPointsCategoryByName{
+	{"kHeal", 0}, {"kMoves", 1}, {"kThirst", 2}, {"kFull", 3},
 };
 
 // issue.room-affect-trigger-improve: <action target=...> token -> EActionTarget, replacing a
@@ -1068,6 +1076,16 @@ void Actions::ParseAction(Action &out, parser_wrapper::DataNode node) {
 			}
 			if (const char *rv = manifestation.GetValue("return"); rv && *rv) {
 				out.trigger_return_ = parse::ReadAsInt(rv);
+			}
+			// issue.character-affect-triggers: optional <trigger category="kHeal"/> for kPoints -- restrict
+			// the trigger to one restoration category. Unknown name => no filter (react to any).
+			if (const char *cv = manifestation.GetValue("category"); cv && *cv) {
+				const auto it = kPointsCategoryByName.find(cv);
+				if (it != kPointsCategoryByName.end()) {
+					out.trigger_points_category_ = it->second;
+				} else {
+					err_log("Actions: unknown <trigger category='%s'> (kHeal|kMoves|kThirst|kFull).", cv);
+				}
 			}
 			if (const char *pv = manifestation.GetValue("prob"); pv && *pv) {
 				out.trigger_prob_ = parse::ReadAsInt(pv);

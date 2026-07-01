@@ -60,10 +60,11 @@ struct RollResult {
 //              exposed for reads only; do NOT cast on it)   (fired from Damage::ProcessDeath)
 struct EventContext {
 	talents_actions::EActionTrigger trigger{talents_actions::EActionTrigger::kCount};
-	int amount{0};                       // damage dealt (kPostHit)
+	int amount{0};                       // damage dealt (kPostHit) / points restored (kPoints)
 	ObjData *weapon{nullptr};            // weapon used for the hit
 	ESkill skill{ESkill::kUndefined};    // skill used for the hit
-	CharData *actor{nullptr};            // the other party in the event (e.g. the hit victim)
+	CharData *actor{nullptr};            // the other party in the event (e.g. the hit victim / the healer)
+	int points_category{-1};             // kPoints: which points_intensity::ECategory was restored (-1 = n/a)
 	[[nodiscard]] bool valid() const { return trigger != talents_actions::EActionTrigger::kCount; }
 	// issue.character-affect-triggers: numeric value of a well-known event tag, for <action base="tag"
 	// tag="NAME">. Known tags are backed by the typed fields above; unknown -> 0. (A general variant

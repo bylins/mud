@@ -120,8 +120,12 @@ bool RunCharAffectTick(CharData *ch, const Affect<EApply>::shared_ptr &aff);
 // loops, actor=null) and kDispell (from RemoveAffectAndAnnounce, actor=dispeller). Defined in magic.cpp;
 // recursion is bounded by the shared trigger-action depth guard. Returns true if any action fired.
 namespace talents_actions { enum class EActionTrigger; }
-bool RunCharAffectTrigger(CharData *ch, EAffect affect_type,
-						  talents_actions::EActionTrigger trig, CharData *actor = nullptr);
+// event_amount/event_category feed the EventContext (kPoints: the restored amount + which category, so
+// an <action base="tag"> can scale off it and a <trigger category=> action is filtered to that category;
+// event_category = -1 means no category, matching every action). Defaults keep kExpired/kDispell callers
+// unchanged.
+bool RunCharAffectTrigger(CharData *ch, EAffect affect_type, talents_actions::EActionTrigger trig,
+						  CharData *actor = nullptr, int event_amount = 0, int event_category = -1);
 
 void affect_total(CharData *ch);
 void affect_modify(CharData *ch, EApply loc, int mod, EAffect bitv, bool add);

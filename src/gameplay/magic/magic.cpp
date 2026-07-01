@@ -1890,6 +1890,32 @@ EStageResult CastToPoints(ActionContext &ctx) {
 		ctx.points_count += amounts[i];
 	}
 	update_pos(victim);
+
+	// issue.character-affect-triggers: kPoints -- the RESTORED char's affects react to being healed by an
+	// EXTERNAL caster (natural regen never reaches this stage). The reaction is run SELF-INFLICTED on the
+	// caster/healer (ch), so e.g. a vampirism bearer's curse harms whoever heals them with NO PvP against
+	// the bearer -- same model as kDispell. Fired once per applied category (so a <trigger category=>
+	// action reacts only to its category) and deduped by affect type; a lethal self-hit stops the loop.
+	if (ch != victim && !ch->purged() && !victim->purged()) {
+		for (size_t i = 0; i < std::size(categories); ++i) {
+			if (amounts[i] == 0) {
+				continue;
+			}
+			const int cat = static_cast<int>(categories[i].cat);
+			std::vector<EAffect> seen;
+			for (const auto &aff : victim->affected) {
+				if (!aff || std::find(seen.begin(), seen.end(), aff->affect_type) != seen.end()) {
+					continue;
+				}
+				seen.push_back(aff->affect_type);
+				RunCharAffectTrigger(ch, aff->affect_type, talents_actions::EActionTrigger::kPoints,
+									 ch, amounts[i], cat);
+				if (ch->purged() || victim->purged()) {
+					return EStageResult::kSuccess;
+				}
+			}
+		}
+	}
 	return EStageResult::kSuccess;
 }
 
@@ -3504,16 +3530,24 @@ bool RunCharAffectTick(CharData *ch, const Affect<EApply>::shared_ptr &aff) {
 // subject `ch`: for kExpired the bearer (its own timer/charges ran out; actor=null -> self/ally targets);
 // for kDispell the DISPELLER (so the retaliation is self-inflicted -- kTarFightSelf lands on the dispeller
 // as self-damage, no PvP against the bearer). Recursion is bounded inside RunRoomCycledAction.
-bool RunCharAffectTrigger(CharData *ch, EAffect affect_type,
-						  talents_actions::EActionTrigger trig, CharData *actor) {
+bool RunCharAffectTrigger(CharData *ch, EAffect affect_type, talents_actions::EActionTrigger trig,
+						  CharData *actor, int event_amount, int event_category) {
 	if (!ch || ch->in_room == kNowhere) {
 		return false;
 	}
 	std::vector<talents_actions::Action> fired;
 	for (const auto &a : affects::AffectActions(affect_type).list()) {
-		if (a.GetTrigger().test(trig)) {
-			fired.push_back(a);
+		if (!a.GetTrigger().test(trig)) {
+			continue;
 		}
+		// issue.character-affect-triggers: kPoints category filter -- if this action pins a category
+		// (<trigger category=>) and the restored category doesn't match, skip it. Actions with no
+		// category (and every non-kPoints trigger, where event_category is -1) always pass.
+		if (event_category >= 0 && a.GetTriggerPointsCategory() >= 0
+				&& a.GetTriggerPointsCategory() != event_category) {
+			continue;
+		}
+		fired.push_back(a);
 	}
 	if (fired.empty()) {
 		return false;
@@ -3522,13 +3556,15 @@ bool RunCharAffectTrigger(CharData *ch, EAffect affect_type,
 	ActionContext ctx = BuildActionContext(ch, ESpell::kUndefined, level);
 	ctx.UseExternalActions(&fired);
 	// issue.character-affect-triggers: <action target="kTarActor"> resolves off ctx.cvict (see
-	// ResolveActionTargets), so point cvict at the actor (the dispeller for kDispell). Without this it
-	// would fall back to the bearer/caster and the retaliation would hit the wrong char. For an
-	// actor-less trigger (kExpired) this leaves cvict null -> kTarActor yields no target, as intended.
+	// ResolveActionTargets), so point cvict at the actor (the dispeller for kDispell, the healer for
+	// kPoints). Without this it would fall back to the bearer/caster and the retaliation would hit the
+	// wrong char. For an actor-less trigger (kExpired) this leaves cvict null -> kTarActor yields nothing.
 	ctx.cvict = actor;
 	EventContext ev;
 	ev.trigger = trig;
 	ev.actor = actor;
+	ev.amount = event_amount;
+	ev.points_category = event_category;
 	ctx.SetEvent(ev);
 	// issue.character-affect-triggers: give any <damage> in this affect's trigger chain the affect's own
 	// damage flavor (kDamageTo* sheaf) instead of the generic combat hit line. Empty slots -> the
