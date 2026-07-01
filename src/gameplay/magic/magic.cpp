@@ -340,11 +340,10 @@ static int CalcTotalSpellDmg(CharData *ch, CharData *victim, ESpell spell_id,
 	return total_dmg;
 }
 
-// Three defensive checks shared between CastDamage and CastAffect. Each returns true (and emits
-// the standard 3-line ToChar/ToNotVict/ToVict message trio) when the defense fires; the caller
-// decides what to do next (recursive self-cast for reflection, early return for absorption).
-// Conditions match the stricter set that CastAffect used (IsViolent / !ch->IsGod / same-room
-// for the magic mirror; +remort/2 bias on the sonic barrier; IsViolent on the shield block).
+// The remaining code-only defense (magic mirror and sonic barrier are gone: the mirror is now a
+// data-driven kWardAttack affect, the barrier was dropped so warcries fizzle on gods like any spell).
+// TryBlockByMagicalShield returns true (and emits the standard ToChar/ToNotVict/ToVict message trio)
+// when the shield swallows the cast; the caller (RunAttackWards) then stops the whole cast.
 namespace {
 
 // Build and process one Damage object for a multi-hit damage spell. `count` is the
@@ -374,18 +373,10 @@ int LandOneDamageHit(CharData *ch, CharData *victim, ESpell spell_id, int total_
 
 // issue.attack-ward: TryReflectByMagicGlass removed -- the Magic Mirror (kMagicGlass) is now a
 // data-driven kWardAttack/reflect affect (its messages live in the affect msg cfg, see RunAttackWards).
-
-bool TryReflectBySonicBarrier(CharData *ch, CharData *victim, ESpell spell_id) {
-	if (ch == victim) return false;
-	if (!MUD::Spell(spell_id).IsFlagged(kMagWarcry)) return false;
-	if (!MUD::Spell(spell_id).IsViolentAgainst(ch, victim)) return false;
-	if (!privilege::IsGod(victim)) return false;
-	if (!ch->IsNpc() && GetRealLevel(victim) <= (GetRealLevel(ch) + remort::GetRealRemort(ch) / 2)) return false;
-	act("Звуковой барьер $N1 отразил ваш крик!", false, ch, nullptr, victim, kToChar);
-	act("Звуковой барьер $N1 отразил крик $n1!", false, ch, nullptr, victim, kToNotVict);
-	act("Ваш звуковой барьер отразил крик $n1!", false, ch, nullptr, victim, kToVict);
-	return true;
-}
+// issue.attack-ward: TryReflectBySonicBarrier removed too. It was a bespoke "gods reflect warcries"
+// workaround that existed only because a violent warcry slipped past the general immortal guard. A
+// warcry against a god now simply fails like any other spell -- the IsGod block in CastOnTarget's
+// is_entry gate fizzles it with the standard "no effect", no reflection.
 
 // The Vityaz magical-shield block: a skill+feat+worn-shield absorption. The chance is
 // (kShieldBlock / 20 + shield_weight / 2) percent. Mass/area/warcry casts bypass the shield.
@@ -411,7 +402,7 @@ bool TryBlockByMagicalShield(CharData *ch, CharData *victim, ESpell spell_id) {
 // stages. A violent, non-warcry MAGIC attack on `victim` may be REFLECTED (the whole cast bounces to the
 // caster: ctx.cvict = caster) or ABSORBED (per scope, recorded on ctx for the stages to honour) by the
 // victim's data-driven affects (kWardAttack actions: Magic Mirror reflect, Shadow Cloak absorb/damage)
-// or by the code-only defenses (sonic barrier reflect, magical shield absorb-all). `is_magic` gates the
+// or by the code-only defense (magical shield absorb-all). `is_magic` gates the
 // whole thing -- true for every cast today; later sourced from the <weave> component so non-magic skills
 // (once they share this pipeline) don't trip wards. First firing ward wins (mirrors the old chain).
 // Returns true if a ward fired.
@@ -432,8 +423,9 @@ bool RunAttackWards(ActionContext &ctx, bool is_magic) {
 	if (!is_magic || !caster || !victim || caster == victim || caster->in_room != victim->in_room) {
 		return false;
 	}
-	// Data-driven affect wards: only a violent, non-warcry cast by a non-god triggers them
-	// (the warcry case is handled by the sonic barrier below).
+	// Data-driven affect wards: only a violent, non-warcry cast by a non-god triggers them.
+	// Warcries are excluded here and are not otherwise warded -- a warcry against a god just
+	// fizzles at CastOnTarget's IsGod gate, like any spell.
 	if (!privilege::IsGod(caster) && !MUD::Spell(spell_id).IsFlagged(kMagWarcry)
 			&& MUD::Spell(spell_id).IsViolentAgainst(caster, victim)) {
 		std::vector<EAffect> seen;
@@ -492,11 +484,8 @@ bool RunAttackWards(ActionContext &ctx, bool is_magic) {
 			}
 		}
 	}
-	// Code-only defenses (not migrated): sonic barrier (warcry reflect), magical shield (absorb-all).
-	if (TryReflectBySonicBarrier(caster, victim, spell_id)) {
-		ctx.cvict = caster;
-		return true;
-	}
+	// Code-only defense (not migrated): magical shield (absorb-all). A violent warcry against an
+	// immortal is no longer reflected here -- it fails via the general IsGod block in CastOnTarget.
 	if (TryBlockByMagicalShield(caster, victim, spell_id)) {
 		ctx.SetWardStop();
 		return true;
@@ -518,7 +507,7 @@ EStageResult CastDamage(ActionContext &ctx) {
 	if (!pk_agro_action(ch, victim))
 		return EStageResult::kSuccess;
 	log("[MAG DAMAGE] %s damage %s (%d)", GET_NAME(ch), GET_NAME(victim), to_underlying(spell_id));
-	// issue.attack-ward: magic-mirror/sonic-barrier/shadow-cloak/shield defenses now run once at the
+	// issue.attack-ward: magic-mirror/shadow-cloak/shield defenses now run once at the
 	// is_entry gate (RunAttackWards). A scoped damage-absorb (e.g. Shadow Cloak) skips just this stage.
 	if (ctx.WardAbsorbsDamage()) {
 		return EStageResult::kSuccess;
@@ -2975,7 +2964,7 @@ ECastResult CastOnTarget(ActionContext &ctx, bool is_entry) {
 	if (is_entry) {
 		cvict = MaybeReflectToCaster(caster, cvict, spell_id);
 		ctx.cvict = cvict;
-		// issue.attack-ward: defender wards (Magic Mirror reflect / Shadow Cloak absorb / sonic / shield),
+		// issue.attack-ward: defender wards (Magic Mirror reflect / Shadow Cloak absorb / shield),
 		// once for the whole cast. Reflect redirects ctx.cvict to the caster; a whole-cast absorb stops
 		// here; a scoped absorb is read later by CastDamage/CastAffect.
 		RunAttackWards(ctx, /*is_magic=*/true);
