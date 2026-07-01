@@ -1000,6 +1000,9 @@ static bool TryApplyAffectTalent(CharData *ch, CharData *victim, ESpell spell_id
 		const int raw_mod = ComputeApplyModifier(apply, competence, potency);
 		taf.modifier = static_cast<int>(raw_mod * area_coeff);
 		taf.caster_id = ch->get_uid();
+		// issue.character-affect-triggers: trigger charges (<affects><charges max=N>, -1 = unlimited) --
+		// mirrors the room-affect impose. Spent when a persisting-affect trigger fires (SpendCharAffectCharge).
+		taf.charges = talent.GetChargesMax();
 		// Stored potency is the cast potency scaled by the <affects potency_weight=>
 		// attribute (default 1.0 = no change). Lets
 		// big-modifier spells stay dispellable by recording a deliberately weaker
@@ -1765,6 +1768,26 @@ void ApplyHeal(CharData *victim, int hit, int extra_percent) {
 
 }  // namespace
 
+// issue.character-affect-triggers: spend one trigger charge on a CHARACTER affect after its trigger
+// fired (the char-affect analog of the room's ConsumeAffectCharge). Decrements every instance of the
+// affect type (a multi-apply affect has one per apply; they stay in sync since impose gives each the
+// same charges_max); when any hits 0 the WHOLE affect is consumed via RemoveAffectFromChar. charges == -1
+// (the default) is unlimited -> no-op. Caller must NOT be mid-iteration over `bearer->affected`.
+void SpendCharAffectCharge(CharData *bearer, EAffect affect_type) {
+	if (!bearer) {
+		return;
+	}
+	bool depleted = false;
+	for (const auto &aff : bearer->affected) {
+		if (aff && aff->affect_type == affect_type && aff->charges != -1 && --aff->charges <= 0) {
+			depleted = true;
+		}
+	}
+	if (depleted) {
+		RemoveAffectFromChar(bearer, affect_type);
+	}
+}
+
 EStageResult CastToPoints(ActionContext &ctx) {
 	CharData *const ch = ctx.caster();
 	CharData *const victim = ctx.cvict;
@@ -1897,19 +1920,26 @@ EStageResult CastToPoints(ActionContext &ctx) {
 	// the bearer -- same model as kDispell. Fired once per applied category (so a <trigger category=>
 	// action reacts only to its category) and deduped by affect type; a lethal self-hit stops the loop.
 	if (ch != victim && !ch->purged() && !victim->purged()) {
+		// Snapshot the healed char's unique affect types first: spending a charge may remove an affect,
+		// which would invalidate a live iteration over victim->affected.
+		std::vector<EAffect> vtypes;
+		for (const auto &aff : victim->affected) {
+			if (aff && std::find(vtypes.begin(), vtypes.end(), aff->affect_type) == vtypes.end()) {
+				vtypes.push_back(aff->affect_type);
+			}
+		}
 		for (size_t i = 0; i < std::size(categories); ++i) {
 			if (amounts[i] == 0) {
 				continue;
 			}
 			const int cat = static_cast<int>(categories[i].cat);
-			std::vector<EAffect> seen;
-			for (const auto &aff : victim->affected) {
-				if (!aff || std::find(seen.begin(), seen.end(), aff->affect_type) != seen.end()) {
-					continue;
+			for (const EAffect t : vtypes) {
+				if (!AFF_FLAGGED(victim, t)) {
+					continue;   // already consumed (charge spent by an earlier category this cast)
 				}
-				seen.push_back(aff->affect_type);
-				RunCharAffectTrigger(ch, aff->affect_type, talents_actions::EActionTrigger::kPoints,
-									 ch, amounts[i], cat);
+				if (RunCharAffectTrigger(ch, t, talents_actions::EActionTrigger::kPoints, ch, amounts[i], cat)) {
+					SpendCharAffectCharge(victim, t);   // charge lives on the RESTORED char's affect
+				}
 				if (ch->purged() || victim->purged()) {
 					return EStageResult::kSuccess;
 				}
@@ -3589,6 +3619,7 @@ bool RunCharDeathTriggers(CharData *ch, CharData *killer) {
 	const int level = ch->IsNpc() ? GetRealLevel(ch) : 1;
 	bool prevented = false;
 	std::vector<EAffect> seen;
+	std::vector<EAffect> spend_after;   // types that actually PREVENTED death -> spend a charge (post-loop)
 	for (const auto &aff : ch->affected) {
 		if (!aff || std::find(seen.begin(), seen.end(), aff->affect_type) != seen.end()) {
 			continue;
@@ -3637,7 +3668,15 @@ bool RunCharDeathTriggers(CharData *ch, CharData *killer) {
 		}
 		if (ret && *ret == 0) {
 			prevented = true;
+			// issue.character-affect-triggers: a charge is spent ONLY when the affect actually PREVENTS
+			// death (a non-preventing kDeath -- curse/damage the killer -- burns nothing; and if the char
+			// dies the counter is moot, it's removed with the char). Deferred: spend after the loop so
+			// removing a depleted affect can't invalidate this iteration over ch->affected.
+			spend_after.push_back(aff->affect_type);
 		}
+	}
+	for (const EAffect t : spend_after) {
+		SpendCharAffectCharge(ch, t);
 	}
 	return prevented;
 }
@@ -3683,6 +3722,10 @@ bool RunCharEventTriggers(CharData *ch, const EventContext &event) {
 		if (ch->purged()) {
 			return true;
 		}
+		// issue.character-affect-triggers: spend a trigger charge -- kPreHit/kPostHit/kKill leave the
+		// affect in place, so charges bound how many times it may fire (no-op when unlimited). Safe here:
+		// we iterate the `types` snapshot, not ch->affected.
+		SpendCharAffectCharge(ch, t);
 	}
 	return true;
 }
