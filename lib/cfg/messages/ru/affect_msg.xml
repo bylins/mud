@@ -275,6 +275,9 @@
 		<message type="kAffExpiredToRoom" val="Воздушный щит вокруг $n1 исчез."/>
 		<message type="kShortDesc" val="воздушный щит"/>
 		<message type="kLook" val="воздушным"/>
+		<message type="kTransformToChar" val="Воздушный щит вокруг $N1 ослабил ваш удар."/>
+		<message type="kTransformToVict" val="Воздушный щит смягчил удар $n1."/>
+		<message type="kTransformToRoom" val="Воздушный щит вокруг $N1 ослабил удар $n1."/>
 	</msg_sheaf>
 	<msg_sheaf id="kFireShield">
 		<message type="kAffImposedToRoom" val="$n3 окутал огненный щит."/>

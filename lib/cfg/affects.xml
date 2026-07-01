@@ -194,6 +194,18 @@
 	</affect>
 	<affect id="kAirShield" buff="Y">
 		<flags val="kAfBattledec|kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+		<actions>
+			<action>
+				<trigger val="kWardDamage"/>
+				<damage_change stage="late">
+					<conditions>
+						<flags present="kVictimAirShield" missing="kCritHit"/>
+					</conditions>
+					<variation min="30" max="50" factor="-1"/>
+					<flags add="kDrawBriefAirShield"/>
+				</damage_change>
+			</action>
+		</actions>
 	</affect>
 	<affect id="kFireShield" buff="Y">
 		<flags val="kAfBattledec|kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>

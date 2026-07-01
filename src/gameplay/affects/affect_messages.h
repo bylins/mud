@@ -68,6 +68,12 @@ enum class EAffectMsgType {
 	// dying). Optional -- an empty slot shows nothing. $n = the dying bearer.
 	kDeathToChar,         // to the dying bearer (e.g. "the curse tears you back from death")
 	kDeathToRoom,         // to onlookers
+	// issue.damage-change: flavor shown when this affect's <damage_change> (kWardDamage) transforms an
+	// incoming attack -- e.g. a shield softening the blow. Optional; an empty slot shows nothing.
+	// The affect BEARER is the damage victim ($N); the attacker is $n. Emitted with kToNoBriefShields.
+	kTransformToChar,     // to the attacker (their hit was reduced/altered by the bearer's affect)
+	kTransformToVict,     // to the affect bearer (their affect reacted to the incoming damage)
+	kTransformToRoom,     // to onlookers
 };
 
 // affect = the affect whose sheaf to read (EAffect::kUndefined => the shared "kDefault" sheaf).

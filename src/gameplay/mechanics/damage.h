@@ -133,7 +133,7 @@ class Damage {
   void ProcessBlink(CharData *ch, CharData *victim);
   // issue.damage-change: apply the victim's kWardDamage <damage_change> actions to this in-flight Damage
   // (data-driven incoming-damage modifiers: scale dam, edit flags), gated by type/element/flags.
-  void ApplyAffectDamageChanges(CharData *victim);
+  void ApplyAffectDamageChanges(CharData *ch, CharData *victim, bool late_stage);
 
   // обратный дамаг от огненного щита
   int fs_damage{0};

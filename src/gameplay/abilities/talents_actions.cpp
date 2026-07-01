@@ -110,7 +110,9 @@ const std::map<std::string, int> kDmgTypeByName{
 	{"kUndefDmg", fight::kUndefDmg}, {"kPhysDmg", fight::kPhysDmg}, {"kMagicDmg", fight::kMagicDmg},
 	{"kPoisonDmg", fight::kPoisonDmg}, {"kPureDmg", fight::kPureDmg},
 };
-// Author-facing hit-flags only (the kVictim*/kDrawBrief* engine-state flags are intentionally excluded).
+// Hit-flags referenceable from <damage_change> conditions/edits. Besides the author-facing kIgnore*/
+// kCrit* set, the kVictim*Shield gates and kDrawBrief* display flags are exposed so shield reductions
+// (kWardDamage <damage_change>) can gate on "this shield is the active one" and light the brief-shield HUD.
 const std::map<std::string, int> kHitFlagByName{
 	{"kIgnoreSanct", fight::kIgnoreSanct}, {"kIgnorePrism", fight::kIgnorePrism},
 	{"kIgnoreArmor", fight::kIgnoreArmor}, {"kHalfIgnoreArmor", fight::kHalfIgnoreArmor},
@@ -118,6 +120,10 @@ const std::map<std::string, int> kHitFlagByName{
 	{"kCritHit", fight::kCritHit}, {"kCritLuck", fight::kCritLuck},
 	{"kIgnoreFireShield", fight::kIgnoreFireShield}, {"kMagicReflect", fight::kMagicReflect},
 	{"kIgnoreBlink", fight::kIgnoreBlink},
+	{"kVictimFireShield", fight::kVictimFireShield}, {"kVictimAirShield", fight::kVictimAirShield},
+	{"kVictimIceShield", fight::kVictimIceShield},
+	{"kDrawBriefFireShield", fight::kDrawBriefFireShield}, {"kDrawBriefAirShield", fight::kDrawBriefAirShield},
+	{"kDrawBriefIceShield", fight::kDrawBriefIceShield},
 };
 
 // issue.damage-change: parse a `|`-separated name list into a mask (bit = enum value). Unknown => err_log.
@@ -1208,6 +1214,7 @@ void Actions::ParseAbsorption(Absorption &absorb, parser_wrapper::DataNode &node
 void Actions::ParseDamageChange(DamageChange &dc, parser_wrapper::DataNode &node) {
 	dc.present = true;
 	if (const char *p = node.GetValue("prob"); p && *p) { dc.prob = parse::ReadAsInt(p); }
+	if (const char *s = node.GetValue("stage"); s && strcmp(s, "late") == 0) { dc.late = true; }
 	for (auto &child : node.Children()) {
 		const auto cn = child.GetName();
 		if (strcmp(cn, "conditions") == 0) {

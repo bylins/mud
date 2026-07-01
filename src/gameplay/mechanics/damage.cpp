@@ -132,18 +132,13 @@ bool Damage::CalcMagisShieldsDmgAbsoption(CharData *ch, CharData *victim) {
 		dam -= (dam * number(30, 50) / 100);
 	}
 
-	if (dam > 0
-		&& flags[fight::kVictimAirShield]
-		&& !flags[fight::kCritHit]) {
-		flags.set(fight::kDrawBriefAirShield);
-		act("Воздушный щит вокруг $N1 ослабил ваш удар.",
-			false, ch, nullptr, victim, kToChar | kToNoBriefShields);
-		act("Воздушный щит смягчил удар $n1.",
-			false, ch, nullptr, victim, kToVict | kToNoBriefShields);
-		act("Воздушный щит вокруг $N1 ослабил удар $n1.",
-			true, ch, nullptr, victim, kToNotVict | kToArenaListen | kToNoBriefShields);
-		dam -= (dam * number(30, 50) / 100);
-	}
+	// issue.damage-change: the air-shield reduction is now data-driven -- a stage="late" <damage_change>
+	// on kAirShield (gated kVictimAirShield + missing kCritHit, variation 30-50 reduce, lights the brief
+	// HUD, carries its own kTransform* flavor). Run at this late hook so it applies at the same pipeline
+	// point as before -- AFTER the fire/ice reflect (fs_damage) computations, which must see pre-reduction
+	// damage. Fire and ice stay hardcoded above: their reductions are entangled with the reflect and with
+	// the ice-crit kCritHit reset, so they migrate together with the (postponed) reflection action.
+	ApplyAffectDamageChanges(ch, victim, /*late_stage=*/true);
 
 	return false;
 }
@@ -290,8 +285,8 @@ void Damage::ProcessBlink(CharData *ch, CharData *victim) {
 // <damage_change> whose <conditions> match this Damage (type/element/flags) rolls its prob, then scales
 // `dam` by the variation and edits `flags`. Replaces the hardcoded per-affect blocks (kSanctuary,
 // kPrismaticAura, ... as they migrate); applied in affect-list order. -1 masks mean "any".
-void Damage::ApplyAffectDamageChanges(CharData *victim) {
-	if (!victim || victim->affected.empty()) {
+void Damage::ApplyAffectDamageChanges(CharData *ch, CharData *victim, bool late_stage) {
+	if (dam <= 0 || !victim || victim->affected.empty()) {
 		return;
 	}
 	for (const auto &aff : victim->affected) {
@@ -304,6 +299,11 @@ void Damage::ApplyAffectDamageChanges(CharData *victim) {
 			}
 			const auto &dc = action.GetDamageChange();
 			if (!dc.present) {
+				continue;
+			}
+			// stage="late" modifiers (shield reductions) run at a separate, later hook so a hardcoded
+			// reflect still reads the pre-reduction damage; the default (early) hook handles the rest.
+			if (dc.late != late_stage) {
 				continue;
 			}
 			if (dc.type_mask && !(dc.type_mask & (1u << static_cast<unsigned>(dmg_type)))) {
@@ -332,6 +332,19 @@ void Damage::ApplyAffectDamageChanges(CharData *victim) {
 				}
 				if (dc.flags_remove & (1ULL << i)) {
 					flags.reset(i);
+				}
+			}
+			// The modification applied: show the affect's own transform flavor (e.g. "the shield softened
+			// the blow"). The bearer is `victim` ($N); the attacker is `ch` ($n). Optional -- empty = silent.
+			if (ch) {
+				const EAffect at = aff->affect_type;
+				const std::string &mc = affects::AffectMsgRaw(at, affects::EAffectMsgType::kTransformToChar);
+				const std::string &mv = affects::AffectMsgRaw(at, affects::EAffectMsgType::kTransformToVict);
+				const std::string &mr = affects::AffectMsgRaw(at, affects::EAffectMsgType::kTransformToRoom);
+				if (!mc.empty()) { act(mc.c_str(), false, ch, nullptr, victim, kToChar | kToNoBriefShields); }
+				if (!mv.empty()) { act(mv.c_str(), false, ch, nullptr, victim, kToVict | kToNoBriefShields); }
+				if (!mr.empty()) {
+					act(mr.c_str(), true, ch, nullptr, victim, kToNotVict | kToArenaListen | kToNoBriefShields);
 				}
 			}
 		}
@@ -593,7 +606,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 		// issue.damage-change: data-driven incoming-damage modifiers (kWardDamage <damage_change>).
 		// kSanctuary and kPrismaticAura are now affect data (their hardcoded phys/magic scaling lived
 		// right here and was removed); kHold and the shields' reduction migrate in later phases.
-		ApplyAffectDamageChanges(victim);
+		ApplyAffectDamageChanges(ch, victim, /*late_stage=*/false);
 
 		if (victim->IsNpc() && Bonus::is_bonus_active(Bonus::EBonusType::BONUS_DAMAGE)) {
 			dam *= Bonus::get_mult_bonus();

@@ -189,6 +189,9 @@ struct DamageChange {
 	int var_min{0};                 // <variation min=> percent
 	int var_max{0};                 // <variation max=> percent
 	int var_factor{0};              // <variation factor=> signed direction (-1 reduce / +1 increase; 0 = none)
+	bool late{false};               // <damage_change stage="late"> -- applied AFTER the shield/reflect stage
+	                                // (so a hardcoded reflect still sees the pre-reduction damage); default
+	                                // "early" runs at the main incoming-damage hook (sanct/prism/hold).
 	bool present{false};
 };
 
