@@ -6,8 +6,8 @@
 #
 # PREREQUISITES:
 #   - lib.template/ directory with small world data (from repository)
-#   - (Optional) Full world archive at ~/repos/world.tgz
-#     Override with: FULL_WORLD_ARCHIVE=/path/to/world.tgz ./tools/run_load_tests.sh
+#   - (Optional) Full YAML world directory at ~/repos/world_yaml
+#     Override with: FULL_WORLD_DIR=/path/to/yaml_world ./tools/run_load_tests.sh
 #
 # USAGE:
 #   # Run all tests (default)
@@ -15,7 +15,6 @@
 #
 #   # Run specific loader tests
 #   ./tools/run_load_tests.sh --loader=yaml
-#   ./tools/run_load_tests.sh --loader=legacy
 #   ./tools/run_load_tests.sh --loader=sqlite
 #
 #   # Run specific world size
@@ -34,31 +33,35 @@
 #   ./tools/run_load_tests.sh --quick
 #
 # NOTE:
-#   The small world is YAML-only: it boots the checked-in flat YAML in
-#   lib.template/world directly, with no conversion. Legacy and SQLite only
-#   apply to the full world (extracted from a legacy archive and converted).
+#   The small world is YAML-only as primary source: it boots the checked-in
+#   flat YAML in lib.template/world directly. The SQLite round-trip test
+#   (--loader=sqlite) runs after the YAML boot and uses the engine-written
+#   world.db -- no converter involved.
+#
+#   The full world is a YAML directory (FULL_WORLD_DIR env var). No legacy
+#   archive extraction or conversion is performed.
 #
 # OPTIONS:
-#   --loader=TYPE     Run only tests for specific loader (legacy|sqlite|yaml).
-#                     legacy/sqlite are full-world only; small world is YAML.
+#   --loader=TYPE     Run only tests for specific loader (yaml|sqlite).
+#                     sqlite runs the YAML->SQLite->YAML round-trip.
 #   --world=SIZE      Run only tests for specific world size (small|full)
 #   --checksums       Run only tests WITH checksum calculation
 #   --no-checksums    Run only tests WITHOUT checksum calculation
-#   --quick           Run quick smoke: Small_YAML_checksums (+ round-trip)
+#   --quick           Run quick smoke: Small_YAML_checksums (+ YAML round-trips)
 #   --rebuild         Force full rebuild (ninja -t clean && ninja)
 #   --build-type=TYPE Set meson build_profile (release|debug|dev|fasttest|custom)
 #   --recreate-builds Delete and recreate all build directories (implies world recreation)
 #   --help            Show this help
 #
 # ENVIRONMENT VARIABLES:
-#   FULL_WORLD_ARCHIVE   Path to full world archive (tarball). REQUIRED for full-world tests;
-#                        small-world-only runs (e.g. --quick or --world=small) ignore it.
+#   FULL_WORLD_DIR   Path to full YAML world directory. REQUIRED for full-world
+#                    tests; small-world-only runs (e.g. --quick or --world=small)
+#                    ignore it.
 #
 
 MUD_DIR="$(cd "$(dirname "$0")/.." && pwd)"
-LEGACY_BIN="$MUD_DIR/build_test/circle"
-SQLITE_BIN="$MUD_DIR/build_sqlite/circle"
 YAML_BIN="$MUD_DIR/build_yaml/circle"
+MULTI_BIN="$MUD_DIR/build_multi/circle"
 
 # Parse command line arguments
 FILTER_LOADER=""
@@ -96,7 +99,7 @@ for arg in "$@"; do
             RECREATE_BUILDS=1
             ;;
         --help)
-            head -n 51 "$0" | grep "^#" | grep -v "^#!/" | sed 's/^# \?//'
+            head -n 57 "$0" | grep "^#" | grep -v "^#!/" | sed 's/^# \?//'
             exit 0
             ;;
         *)
@@ -107,24 +110,19 @@ for arg in "$@"; do
     esac
 done
 
-# Quick mode: small world only, which is YAML-only now.
-# Skip sqlite explicitly -- the project ships no sqlite3.wrap and the test box
-# may not have libsqlite3-dev installed, in which case `meson setup
-# -Dsqlite=auto` would error out.
-QUICK_SKIP_SQLITE=0
+# Quick mode: small world YAML-only.
 if [ $QUICK_MODE -eq 1 ]; then
-    FILTER_LOADER="yaml"  # small world is YAML-only
+    FILTER_LOADER="yaml"
     FILTER_WORLD="small"
     FILTER_CHECKSUMS="yes"
-    QUICK_SKIP_SQLITE=1
-    echo "Quick mode: Running Small_YAML_checksums (+ round-trip)"
+    echo "Quick mode: Running Small_YAML_checksums (+ round-trips)"
     echo ""
 fi
 
-# Path to full world archive (tarball). No default -- caller MUST pass via env.
+# Path to full YAML world directory. No default -- caller MUST pass via env.
 # When the full-world tests run and this is unset/missing, they are skipped with
-# an error message pointing the operator to FULL_WORLD_ARCHIVE.
-FULL_WORLD_ARCHIVE="${FULL_WORLD_ARCHIVE:-}"
+# an error message pointing the operator to FULL_WORLD_DIR.
+FULL_WORLD_DIR="${FULL_WORLD_DIR:-}"
 
 # Map a CMake-style build type ("Debug"/"Release"/"Test"/"FastTest") to the
 # corresponding meson profile. Pass through anything we don't recognise.
@@ -146,7 +144,7 @@ map_build_type_to_meson_profile() {
 # Args:
 #   $1 = build_dir (out-of-source directory to set up)
 #   $2 = meson_opts (space-separated -Doption=value flags)
-#   $3 = binary_name (label for log files, e.g. "legacy"/"yaml")
+#   $3 = binary_name (label for log files, e.g. "yaml"/"multi")
 build_binary() {
     local build_dir="$1"
     local meson_opts="$2"
@@ -254,29 +252,31 @@ build_binary() {
 }
 
 
-
 # Function to setup the small world (uses lib.template).
 #
 # The small world is YAML-only: lib.template/world ships only the checked-in
 # flat YAML (zones/, dictionaries/, world_config.yaml), so the YAML build boots
-# it directly -- there's no legacy->YAML conversion step here anymore. The
-# legacy mob/obj/wld/zon/trg/shp files are gone; shops load from
-# cfg/economics/shops.xml (copied in from lib/), not from world/shp.
+# it directly. shops load from cfg/economics/shops.xml (copied in from lib/),
+# not from world/shp.
+#
+# Args:
+#   $1 = loader (always "yaml" for the primary boot; the same world dir is
+#        reused for the SQLite round-trip test via build_multi)
+#   $2 = target build directory (default: build_yaml)
 setup_small_world() {
-    local loader="$1"   # always "yaml"; small world is YAML-only
+    local loader="$1"
+    local build_dir="${2:-$MUD_DIR/build_yaml}"
+    local dest_dir="$build_dir/small"
 
     if [ "$loader" != "yaml" ]; then
         echo "X ERROR: setup_small_world only supports 'yaml' (got '$loader')."
-        echo "  The small world is YAML-only; legacy/sqlite apply to the full world."
+        echo "  The small world is YAML-only."
         return 1
     fi
 
-    local build_dir="$MUD_DIR/build_yaml"
-    local dest_dir="$build_dir/small"
-
     echo ""
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo "Setting up: small world ($loader)"
+    echo "Setting up: small world in $(basename $build_dir)"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
     rm -rf "$dest_dir"
@@ -286,101 +286,50 @@ setup_small_world() {
     # and overlays lib.template/ (including the checked-in YAML world).
     echo "Running tools/meson/setup_world.py to create small world structure..."
     python3 "$MUD_DIR/tools/meson/setup_world.py" \
-        "$build_dir" "$MUD_DIR" "" > /tmp/setup_small_${loader}.log 2>&1 || {
+        "$build_dir" "$MUD_DIR" "" > /tmp/setup_small_${loader}_$(basename $build_dir).log 2>&1 || {
         echo "X ERROR: small world setup failed"
-        echo "  Log: /tmp/setup_small_${loader}.log"
-        cat /tmp/setup_small_${loader}.log
+        echo "  Log: /tmp/setup_small_${loader}_$(basename $build_dir).log"
+        cat /tmp/setup_small_${loader}_$(basename $build_dir).log
         return 1
     }
     echo " Small YAML world ready at $dest_dir (lib + lib.template, checked-in YAML)"
     echo ""
     return 0
 }
-# Function to setup full world (extracts from archive)
+
+# Function to setup full world from a YAML world directory.
+#
+# Args:
+#   $1 = target build directory (e.g. build_yaml or build_multi)
 setup_full_world() {
-    local loader="$1"
-    
-    # Determine build directory
-    if [ "$loader" = "legacy" ]; then
-        local build_dir="$MUD_DIR/build_test"
-    elif [ "$loader" = "sqlite" ]; then
-        local build_dir="$MUD_DIR/build_sqlite"
-    elif [ "$loader" = "yaml" ]; then
-        local build_dir="$MUD_DIR/build_yaml"
-    fi
-    
+    local build_dir="$1"
     local dest_dir="$build_dir/full"
-    
-    if [ -z "$FULL_WORLD_ARCHIVE" ]; then
-        echo "X ERROR: FULL_WORLD_ARCHIVE is not set."
-        echo "  Set it to the path of the world tarball, e.g.:"
-        echo "    FULL_WORLD_ARCHIVE=~/worlds/world.20260427.cleaned.tgz $0"
+
+    if [ -z "$FULL_WORLD_DIR" ]; then
+        echo "X ERROR: FULL_WORLD_DIR is not set."
+        echo "  Set it to the path of the YAML world directory, e.g.:"
+        echo "    FULL_WORLD_DIR=~/repos/world_yaml $0"
         return 1
     fi
-    if [ ! -f "$FULL_WORLD_ARCHIVE" ]; then
-        echo "X ERROR: Full world archive not found: $FULL_WORLD_ARCHIVE"
+    if [ ! -d "$FULL_WORLD_DIR" ]; then
+        echo "X ERROR: Full world directory not found: $FULL_WORLD_DIR"
         return 1
     fi
 
     echo ""
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo "Setting up: full world ($loader)"
+    echo "Setting up: full world in $(basename $build_dir)"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-
-    echo "[1/3] Extracting archive..."
-    echo "      Source: $FULL_WORLD_ARCHIVE"
-    echo "      Target: $dest_dir"
+    echo "  Source: $FULL_WORLD_DIR"
+    echo "  Target: $dest_dir"
 
     rm -rf "$dest_dir"
     mkdir -p "$dest_dir"
-    # --strip-components=1 drops the archive's top-level directory (whatever it
-    # is named -- "lib/", "world.YYYYMMDD/", ...) so contents land directly in
-    # $dest_dir. Keeps the script portable across archive layouts.
-    tar -xzf "$FULL_WORLD_ARCHIVE" -C "$dest_dir" --strip-components=1 > /tmp/extract_full.log 2>&1 || {
-        echo "X ERROR: Extraction failed"
-        echo "  Log: /tmp/extract_full.log"
+    cp -r "$FULL_WORLD_DIR/." "$dest_dir/" || {
+        echo "X ERROR: Failed to copy world from $FULL_WORLD_DIR"
         return 1
     }
-    echo " Extracted successfully"
-
-    if [ "$loader" = "legacy" ]; then
-        echo "[2/3] Preparing legacy world..."
-        echo " Ready at $dest_dir"
-    elif [ "$loader" = "sqlite" ] || [ "$loader" = "yaml" ]; then
-        echo "[2/3] Converting world data (this may take several minutes)..."
-        echo "      Format: $loader"
-        echo "      Log: /tmp/convert_full_${loader}.log"
-        echo "      Tip: Run 'tail -f /tmp/convert_full_${loader}.log' in another terminal to watch progress"
-        echo ""
-
-        if [ "$loader" = "sqlite" ]; then
-            python3 "$MUD_DIR/tools/converter/convert_to_yaml.py" \
-                -i "$dest_dir" \
-                -o "$dest_dir" \
-                -f sqlite \
-                --db "$dest_dir/world.db" \
- > /tmp/convert_full_sqlite.log 2>&1 || {
-                echo "X ERROR: Conversion failed"
-                echo "  Log: /tmp/convert_full_sqlite.log"
-                tail -20 /tmp/convert_full_sqlite.log
-                return 1
-            }
-            echo " Converted to SQLite format"
-        else
-            python3 "$MUD_DIR/tools/converter/convert_to_yaml.py" \
-                -i "$dest_dir" \
-                -o "$dest_dir" \
-                -f yaml \
- > /tmp/convert_full_yaml.log 2>&1 || {
-                echo "X ERROR: Conversion failed"
-                echo "  Log: /tmp/convert_full_yaml.log"
-                tail -20 /tmp/convert_full_yaml.log
-                return 1
-            }
-            echo " Converted to YAML format"
-        fi
-    fi
-
+    echo " Full YAML world ready at $dest_dir"
     echo ""
     return 0
 }
@@ -393,9 +342,8 @@ echo "  SETUP: Building binaries and preparing worlds"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
 # Determine which loaders/worlds are needed based on filters.
-NEED_LEGACY=0
-NEED_SQLITE=0
 NEED_YAML=0
+NEED_MULTI=0
 NEED_SMALL=0
 NEED_FULL=0
 
@@ -406,90 +354,64 @@ if [ -z "$FILTER_WORLD" ] || [ "$FILTER_WORLD" = "full" ]; then
     NEED_FULL=1
 fi
 
-# The full world needs a legacy archive. If it's missing, drop the full world
-# from scope now -- before any builds -- so we don't compile the legacy/SQLite
-# binaries (which are full-world-only) just to skip the tests later.
-if [ $NEED_FULL -eq 1 ] && [ ! -f "$FULL_WORLD_ARCHIVE" ]; then
-    echo "WARNING: Full world out of scope - archive not found: ${FULL_WORLD_ARCHIVE:-<unset>}"
-    echo "  Set FULL_WORLD_ARCHIVE to run full-world (legacy/sqlite/yaml) tests."
+# The full world needs a YAML world directory. If it's missing, drop the full
+# world from scope now -- before any builds.
+if [ $NEED_FULL -eq 1 ] && [ ! -d "$FULL_WORLD_DIR" ]; then
+    echo "WARNING: Full world out of scope - directory not found: ${FULL_WORLD_DIR:-<unset>}"
+    echo "  Set FULL_WORLD_DIR to run full-world tests."
     echo ""
     NEED_FULL=0
 fi
 
-# The small world is YAML-only (it boots the checked-in lib.template YAML
-# directly), so YAML is needed whenever any world is in scope. Legacy and
-# SQLite only apply to the full world, which is still extracted from a legacy
-# archive and converted on the fly -- so we only build those binaries when the
-# full world is actually in scope.
+# YAML is needed for any YAML test.
 if [ -z "$FILTER_LOADER" ] || [ "$FILTER_LOADER" = "yaml" ]; then
     NEED_YAML=1
 fi
-if [ $NEED_FULL -eq 1 ] && { [ -z "$FILTER_LOADER" ] || [ "$FILTER_LOADER" = "legacy" ]; }; then
-    NEED_LEGACY=1
-fi
-if [ $NEED_FULL -eq 1 ] && { [ -z "$FILTER_LOADER" ] || [ "$FILTER_LOADER" = "sqlite" ]; }; then
-    NEED_SQLITE=1
-fi
-if [ $QUICK_SKIP_SQLITE -eq 1 ]; then
-    NEED_SQLITE=0
-fi
-# Auto-skip SQLite when libsqlite3 dev headers aren't available. Avoids
-# forcing the operator to apt-install just to run the wider test pipeline;
-# explicit `--loader=sqlite` invocations still hit the build error so the
-# missing dependency is surfaced when actually requested.
-if [ $NEED_SQLITE -eq 1 ] && [ "$FILTER_LOADER" != "sqlite" ]; then
+# Multi (yaml+sqlite composite) is needed for SQLite round-trip tests.
+if [ -z "$FILTER_LOADER" ] || [ "$FILTER_LOADER" = "sqlite" ]; then
     if ! pkg-config --exists sqlite3 2>/dev/null; then
-        echo "⚠ SQLite dev headers not found (pkg-config sqlite3). Skipping SQLite tests."
-        echo "  Install libsqlite3-dev to enable, or pass --loader=sqlite to force-fail."
-        echo ""
-        NEED_SQLITE=0
+        if [ "$FILTER_LOADER" = "sqlite" ]; then
+            echo "X ERROR: SQLite dev headers not found (pkg-config sqlite3)."
+            echo "  Install libsqlite3-dev to enable SQLite tests."
+            exit 1
+        else
+            echo "⚠ SQLite dev headers not found (pkg-config sqlite3). Skipping SQLite round-trip tests."
+            echo "  Install libsqlite3-dev to enable, or pass --loader=sqlite to force-fail."
+            echo ""
+        fi
+    else
+        NEED_MULTI=1
     fi
 fi
 
 # Build binaries if needed (with Admin API enabled for testing)
-if [ $NEED_LEGACY -eq 1 ]; then
-
-    # yaml=disabled is explicit: YAML is the default now, and HAVE_YAML would
-    # otherwise win the runtime format pick (#ifdef HAVE_YAML first), so this
-    # build would boot YAML instead of legacy.
-    build_binary "$MUD_DIR/build_test" "-Dadmin_api=true -Dbuild_profile=debug -Dyaml=disabled" "legacy" || exit 1
-fi
-
-if [ $NEED_SQLITE -eq 1 ]; then
-
-    # sqlite=auto: prefer system libsqlite3, fall back to the meson subproject
-    # (which requires a checked-in subprojects/sqlite3.wrap that we currently
-    # don't ship). yaml=disabled so SQLite is the active format (HAVE_YAML
-    # would otherwise take precedence at runtime).
-    build_binary "$MUD_DIR/build_sqlite" "-Dadmin_api=true -Dsqlite=auto -Dbuild_profile=debug -Dyaml=disabled" "sqlite" || exit 1
-fi
 if [ $NEED_YAML -eq 1 ]; then
-
-
     build_binary "$MUD_DIR/build_yaml" "-Dadmin_api=true -Dyaml=builtin -Dbuild_profile=debug" "yaml" || exit 1
 fi
+
+if [ $NEED_MULTI -eq 1 ]; then
+    # Multi binary: both yaml and sqlite enabled. yaml=builtin wins the format
+    # pick at runtime only when it is the freshest source; sqlite=auto uses the
+    # system libsqlite3 (same as build_multi used during development).
+    build_binary "$MUD_DIR/build_multi" "-Dadmin_api=true -Dyaml=builtin -Dsqlite=auto -Dbuild_profile=debug" "multi" || exit 1
+fi
+
 # Setup worlds
 if [ $NEED_SMALL -eq 1 ]; then
-    # Small world is YAML-only (checked-in flat YAML, booted as-is).
     if [ $NEED_YAML -eq 1 ]; then
-        setup_small_world "yaml" || exit 1
+        setup_small_world "yaml" "$MUD_DIR/build_yaml" || exit 1
+    fi
+    if [ $NEED_MULTI -eq 1 ]; then
+        setup_small_world "yaml" "$MUD_DIR/build_multi" || exit 1
     fi
 fi
 
 if [ $NEED_FULL -eq 1 ]; then
-    if [ ! -f "$FULL_WORLD_ARCHIVE" ]; then
-        echo "WARNING: Full world tests skipped - archive not found: $FULL_WORLD_ARCHIVE"
-        NEED_FULL=0
-    else
-        if [ $NEED_LEGACY -eq 1 ]; then
-            setup_full_world "legacy" || exit 1
-        fi
-        if [ $NEED_SQLITE -eq 1 ]; then
-            setup_full_world "sqlite" || exit 1
-        fi
-        if [ $NEED_YAML -eq 1 ]; then
-            setup_full_world "yaml" || exit 1
-        fi
+    if [ $NEED_YAML -eq 1 ]; then
+        setup_full_world "$MUD_DIR/build_yaml" || exit 1
+    fi
+    if [ $NEED_MULTI -eq 1 ]; then
+        setup_full_world "$MUD_DIR/build_multi" || exit 1
     fi
 fi
 
@@ -502,7 +424,7 @@ echo ""
 should_run_test() {
     local test_name="$1"
 
-    # Extract components from test name (e.g., "Small_YAML_checksums" or "Small_Legacy_AdminAPI")
+    # Extract components from test name (e.g., "Small_YAML_checksums" or "Small_SQLite_RoundTrip")
     local world=$(echo "$test_name" | cut -d_ -f1 | tr 'A-Z' 'a-z')
     local loader=$(echo "$test_name" | cut -d_ -f2 | tr 'A-Z' 'a-z')
 
@@ -545,7 +467,7 @@ should_run_test() {
         fi
     fi
 
-    # Quick mode: small world is YAML-only.
+    # Quick mode: YAML-only.
     if [ $QUICK_MODE -eq 1 ] && [ "$loader" != "yaml" ]; then
         return 1
     fi
@@ -580,12 +502,30 @@ enable_admin_api() {
     return 0
 }
 
+# Ensure configuration.xml has a composite world_loader with both sqlite and
+# yaml sources. Idempotent: if the section already exists it is left as-is.
+enable_sqlite_composite_loader() {
+    local config_file="$1"
+
+    if grep -q "<world_loader>" "$config_file"; then
+        return 0
+    fi
+
+    sed -i '/<\/configuration>/i\
+\t<world_loader>\
+\t\t<sources>\
+\t\t\t<sqlite/>\
+\t\t\t<yaml/>\
+\t\t</sources>\
+\t</world_loader>' "$config_file"
+}
+
 # Function to run Admin API CRUD test
 run_admin_api_test() {
     local name="$1"
     local binary="$2"
     local test_dir="$3"
-    local world_format="$4"  # legacy, yaml, sqlite
+    local world_format="$4"  # yaml, sqlite
 
     # Check if this test should run
     if ! should_run_test "$name"; then
@@ -596,25 +536,16 @@ run_admin_api_test() {
 
     local work_dir="$(dirname "$test_dir")"
     local data_dir="$(basename "$test_dir")"
-    local world_size=$(basename "$work_dir" | sed 's/build_\(test\|sqlite\|yaml\)//')
+    local world_size=$(basename "$work_dir" | sed 's/build_\(yaml\|multi\)//')
 
     cd "$work_dir"
 
     # Recreate world to avoid checksum contamination from previous Admin API tests
     echo "  Recreating world for clean Admin API test..."
-    local loader_type=""
-    if [ "$world_format" = "legacy" ]; then
-        loader_type="legacy"
-    elif [ "$world_format" = "sqlite" ]; then
-        loader_type="sqlite"
-    elif [ "$world_format" = "yaml" ]; then
-        loader_type="yaml"
-    fi
-
     if [ "$data_dir" = "small" ]; then
-        setup_small_world "$loader_type" > /tmp/admin_api_setup_${loader_type}.log 2>&1
+        setup_small_world "yaml" "$work_dir" > /tmp/admin_api_setup_${world_format}.log 2>&1
     elif [ "$data_dir" = "full" ]; then
-        setup_full_world "$loader_type" > /tmp/admin_api_setup_${loader_type}.log 2>&1
+        setup_full_world "$work_dir" > /tmp/admin_api_setup_${world_format}.log 2>&1
     fi
 
     # setup_small_world/setup_full_world change back to MUD_DIR, so cd back to work_dir
@@ -679,8 +610,6 @@ run_admin_api_test() {
 
     echo ""
     cd "$MUD_DIR"
-
-    return $test_result
 }
 
 # Round-trip diagnostic: resave the world via `circle -S world_v2`, swap
@@ -790,6 +719,81 @@ run_flat_roundtrip_test() {
     mv "$cfg.flatbak" "$cfg"
 }
 
+# SQLite round-trip: boot the YAML world with the composite (yaml+sqlite)
+# binary so the engine writes world.db, then reboot from world.db and capture
+# checksums. Compares against the YAML-load baseline in the CHECKSUM COMPARISON
+# section -- must be 0 diffs.
+#
+# Args:
+#   $1 = test name (e.g. "Small_SQLite_RoundTrip")
+#   $2 = composite binary (build_multi/circle)
+#   $3 = test dir (build_multi/small or build_multi/full)
+run_sqlite_roundtrip_test() {
+    local name="$1"
+    local binary="$2"
+    local test_dir="$3"
+
+    if ! should_run_test "$name"; then
+        return 0
+    fi
+
+    echo "--- $name ---"
+
+    if [ ! -d "$test_dir/world" ]; then
+        echo "  X ERROR: $test_dir/world not present"
+        return 1
+    fi
+
+    local cfg="$test_dir/cfg/configuration.xml"
+    if [ ! -f "$cfg" ]; then
+        echo "  X ERROR: $cfg not found"
+        return 1
+    fi
+
+    # Ensure the composite loader (sqlite + yaml sources) is configured.
+    enable_sqlite_composite_loader "$cfg"
+
+    # Remove stale world.db so boot 1 always loads from YAML.
+    rm -f "$test_dir/world.db"
+    rm -rf "$test_dir/syslog" 2>/dev/null || true
+
+    # Kill any stale process on 4001.
+    fuser -k 4001/tcp 2>/dev/null || true
+    sleep 0.5
+
+    # Boot 1: YAML wins (SQLite empty) -> engine resyncs to world.db.
+    echo "  Boot 1: YAML-load + SQLite resync ..."
+    (cd "$test_dir" && exec "$binary" -d . 4001 > "stdout_sqlt1.log" 2>&1) &
+
+    local waited=0
+    while [ $waited -lt 300 ]; do
+        if LANG=C grep -qa "Boot db -- DONE" "$test_dir/syslog" 2>/dev/null; then
+            break
+        fi
+        sleep 1
+        waited=$((waited + 1))
+    done
+
+    fuser -k 4001/tcp 2>/dev/null || true
+    sleep 1
+
+    if ! LANG=C grep -qa "Boot db -- DONE" "$test_dir/syslog" 2>/dev/null; then
+        echo "  X ERROR: Boot 1 timed out (300s)"
+        tail -20 "$test_dir/syslog" 2>/dev/null || echo "  (no syslog)"
+        return 1
+    fi
+
+    if [ ! -f "$test_dir/world.db" ]; then
+        echo "  X ERROR: world.db not created after boot 1"
+        return 1
+    fi
+    echo "  Boot 1 complete (world.db populated)"
+
+    # Boot 2: SQLite wins (freshness > YAML mtime) -> load from SQLite -> checksums.
+    rm -rf "$test_dir/syslog" "$test_dir/checksums_detailed.txt" "$test_dir/checksums_buffers" 2>/dev/null || true
+    run_test "$name" "$binary" "$test_dir" "-W"
+}
+
 # Function to run a single test
 run_test() {
     local name="$1"
@@ -820,7 +824,7 @@ run_test() {
         sleep 0.5
         waited=$((waited + 1))
     done
-    
+
     if [ ! -f "$data_dir/syslog" ]; then
         echo "  X ERROR: Server did not create syslog"
         cat "$data_dir/stdout.log" 2>/dev/null || echo "  (no stdout log)"
@@ -915,7 +919,7 @@ run_test() {
         echo "  ERROR: Boot failed (no syslog)"
     fi
     echo ""
-    
+
     cd "$MUD_DIR"
 }
 
@@ -944,19 +948,21 @@ echo ""
 
 # Small World Tests
 if [ -z "$FILTER_WORLD" ] || [ "$FILTER_WORLD" = "small" ]; then
-    echo "=== SMALL WORLD (YAML-only) ==="
+    echo "=== SMALL WORLD - YAML ==="
     echo ""
     [ -x "$YAML_BIN" ] && [ -d "$MUD_DIR/build_yaml/small" ] && run_test "Small_YAML_checksums" "$YAML_BIN" "$MUD_DIR/build_yaml/small" "-W"
     [ -x "$YAML_BIN" ] && [ -d "$MUD_DIR/build_yaml/small" ] && run_test "Small_YAML_no_checksums" "$YAML_BIN" "$MUD_DIR/build_yaml/small" ""
 
-    # YAML round-trip on the small world (resave -> re-boot -> capture cs3).
     echo ""
-    echo "=== SMALL WORLD - YAML ROUND-TRIP ==="
+    echo "=== SMALL WORLD - YAML ROUND-TRIPS ==="
     echo ""
     [ -x "$YAML_BIN" ] && [ -d "$MUD_DIR/build_yaml/small" ] && run_roundtrip_test "Small_YAML_RoundTrip" "$YAML_BIN" "$MUD_DIR/build_yaml/small"
-    # Flat-layout round-trip: per-file world -> flat re-emit -> reboot. Checksums
-    # must match the per-file YAML run (compared below).
     [ -x "$YAML_BIN" ] && [ -d "$MUD_DIR/build_yaml/small" ] && run_flat_roundtrip_test "Small_YAML_FlatRoundTrip" "$YAML_BIN" "$MUD_DIR/build_yaml/small"
+
+    echo ""
+    echo "=== SMALL WORLD - SQLITE ROUND-TRIP ==="
+    echo ""
+    [ -x "$MULTI_BIN" ] && [ -d "$MUD_DIR/build_multi/small" ] && run_sqlite_roundtrip_test "Small_SQLite_RoundTrip" "$MULTI_BIN" "$MUD_DIR/build_multi/small"
 
     # Admin API CRUD Tests last -- they recreate the world from scratch and
     # mutate it, so anything order-sensitive has to run before this stage.
@@ -968,33 +974,26 @@ fi
 
 # Full World Tests
 if [ -z "$FILTER_WORLD" ] || [ "$FILTER_WORLD" = "full" ]; then
-    echo "=== FULL WORLD ==="
+    echo "=== FULL WORLD - YAML ==="
     echo ""
-    [ -x "$LEGACY_BIN" ] && run_test "Full_Legacy_checksums" "$LEGACY_BIN" "$MUD_DIR/build_test/full" "-W"
-    [ -x "$LEGACY_BIN" ] && run_test "Full_Legacy_no_checksums" "$LEGACY_BIN" "$MUD_DIR/build_test/full" ""
-    [ -x "$SQLITE_BIN" ] && run_test "Full_SQLite_checksums" "$SQLITE_BIN" "$MUD_DIR/build_sqlite/full" "-W"
-    [ -x "$SQLITE_BIN" ] && run_test "Full_SQLite_no_checksums" "$SQLITE_BIN" "$MUD_DIR/build_sqlite/full" ""
     [ -x "$YAML_BIN" ] && [ -d "$MUD_DIR/build_yaml/full" ] && run_test "Full_YAML_checksums" "$YAML_BIN" "$MUD_DIR/build_yaml/full" "-W"
     [ -x "$YAML_BIN" ] && [ -d "$MUD_DIR/build_yaml/full" ] && run_test "Full_YAML_no_checksums" "$YAML_BIN" "$MUD_DIR/build_yaml/full" ""
 
-    # YAML round-trip: resave the YAML world via -S, reboot the re-emitted
-    # copy, capture cs3, and compare with cs2 in the CHECKSUM COMPARISON
-    # section. Runs after the regular YAML tests because it mutates the world
-    # in place; admin API tests below re-extract from the archive anyway.
     echo ""
-    echo "=== FULL WORLD - YAML ROUND-TRIP ==="
+    echo "=== FULL WORLD - YAML ROUND-TRIPS ==="
     echo ""
     [ -x "$YAML_BIN" ] && [ -d "$MUD_DIR/build_yaml/full" ] && run_roundtrip_test "Full_YAML_RoundTrip" "$YAML_BIN" "$MUD_DIR/build_yaml/full"
     [ -x "$YAML_BIN" ] && [ -d "$MUD_DIR/build_yaml/full" ] && run_flat_roundtrip_test "Full_YAML_FlatRoundTrip" "$YAML_BIN" "$MUD_DIR/build_yaml/full"
 
-    # Admin API CRUD Tests last -- they recreate the world from scratch and
-    # mutate it (CRUD operations on running server), so anything order-sensitive
-    # has to run before this stage.
+    echo ""
+    echo "=== FULL WORLD - SQLITE ROUND-TRIP ==="
+    echo ""
+    [ -x "$MULTI_BIN" ] && [ -d "$MUD_DIR/build_multi/full" ] && run_sqlite_roundtrip_test "Full_SQLite_RoundTrip" "$MULTI_BIN" "$MUD_DIR/build_multi/full"
+
+    # Admin API CRUD Tests last.
     echo ""
     echo "=== FULL WORLD - ADMIN API TESTS ==="
     echo ""
-    [ -x "$LEGACY_BIN" ] && run_admin_api_test "Full_Legacy_AdminAPI" "$LEGACY_BIN" "$MUD_DIR/build_test/full" "legacy"
-    [ -x "$SQLITE_BIN" ] && run_admin_api_test "Full_SQLite_AdminAPI" "$SQLITE_BIN" "$MUD_DIR/build_sqlite/full" "sqlite"
     [ -x "$YAML_BIN" ] && [ -d "$MUD_DIR/build_yaml/full" ] && run_admin_api_test "Full_YAML_AdminAPI" "$YAML_BIN" "$MUD_DIR/build_yaml/full" "yaml"
 fi
 
@@ -1022,30 +1021,25 @@ if [ -z "$FILTER_CHECKSUMS" ] || [ "$FILTER_CHECKSUMS" = "yes" ]; then
     }
 
     if [ -z "$FILTER_WORLD" ] || [ "$FILTER_WORLD" = "small" ]; then
-        # Small world is YAML-only: the only meaningful comparisons are the
-        # YAML round-trips against the baseline YAML boot.
         echo "Small world:"
         if [ -z "$FILTER_LOADER" ] || [ "$FILTER_LOADER" = "yaml" ]; then
             compare_checksums "Small_YAML_checksums" "Small_YAML_RoundTrip"
             compare_checksums "Small_YAML_checksums" "Small_YAML_FlatRoundTrip"
+        fi
+        if [ -z "$FILTER_LOADER" ] || [ "$FILTER_LOADER" = "sqlite" ]; then
+            compare_checksums "Small_YAML_checksums" "Small_SQLite_RoundTrip"
         fi
         echo ""
     fi
 
     if [ -z "$FILTER_WORLD" ] || [ "$FILTER_WORLD" = "full" ]; then
         echo "Full world:"
-        if [ -z "$FILTER_LOADER" ] || [ "$FILTER_LOADER" = "legacy" ] || [ "$FILTER_LOADER" = "sqlite" ]; then
-            compare_checksums "Full_Legacy_checksums" "Full_SQLite_checksums"
-        fi
-        if [ -z "$FILTER_LOADER" ] || [ "$FILTER_LOADER" = "legacy" ] || [ "$FILTER_LOADER" = "yaml" ]; then
-            compare_checksums "Full_Legacy_checksums" "Full_YAML_checksums"
-        fi
-        if [ -z "$FILTER_LOADER" ] || [ "$FILTER_LOADER" = "sqlite" ] || [ "$FILTER_LOADER" = "yaml" ]; then
-            compare_checksums "Full_SQLite_checksums" "Full_YAML_checksums"
-        fi
         if [ -z "$FILTER_LOADER" ] || [ "$FILTER_LOADER" = "yaml" ]; then
             compare_checksums "Full_YAML_checksums" "Full_YAML_RoundTrip"
             compare_checksums "Full_YAML_checksums" "Full_YAML_FlatRoundTrip"
+        fi
+        if [ -z "$FILTER_LOADER" ] || [ "$FILTER_LOADER" = "sqlite" ]; then
+            compare_checksums "Full_YAML_checksums" "Full_SQLite_RoundTrip"
         fi
         echo ""
     fi
