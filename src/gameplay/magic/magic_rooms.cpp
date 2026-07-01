@@ -690,6 +690,30 @@ static bool RunRoomTick(RoomData *room, CharData *ch, const Affect<ERoomApply>::
 	return true;
 }
 
+// issue.character-affect-triggers: run a room/exit affect's actions for a LIFECYCLE trigger
+// (kExpired / kDispell) -- the room-side analog of RunCharAffectTrigger. Mirrors RunRoomTick but
+// filters by an explicit trigger instead of the pulse/battle-pulse set. `ch` sources the cast: for
+// kExpired it is the affect's caster (find_char(caster_id)); for kDispell it is the dispeller, so a
+// kTarFightSelf effect lands on them as self-inflicted damage (no PvP against anyone). Recursion is
+// bounded by the shared depth guard inside RunRoomCycledAction.
+bool RunRoomAffectTrigger(RoomData *room, CharData *ch, ERoomAffect affect_type,
+						  talents_actions::EActionTrigger trig, float potency) {
+	if (!room || ch == nullptr) {
+		return false;   // room affects have no bearer -- without a caster there is nothing to source the cast
+	}
+	std::vector<talents_actions::Action> fired;
+	for (const auto &action : RoomAffectActions(affect_type).list()) {
+		if (action.GetTrigger().test(trig)) {
+			fired.push_back(action);
+		}
+	}
+	if (fired.empty()) {
+		return false;
+	}
+	CastRoomTickActionFromActions(ch, room, ESpell::kUndefined, fired, 0, nullptr, potency);
+	return true;
+}
+
 void HandleRoomAffect(RoomData *room, CharData *ch, const Affect<ERoomApply>::shared_ptr &aff) {
 	assert(aff);
 	assert(room);
@@ -723,6 +747,10 @@ static void UpdateExitsAffects() {
 				if (af->affect_type != ERoomAffect::kUndefined) {
 					SendRemoveAffectMsgToRoom(af->affect_type, GetRoomRnum(room->vnum));
 				}
+				// issue.character-affect-triggers: kExpired on a door affect's timeout. The exit loop
+				// doesn't track the caster like the room loop, so resolve it here (no-op if gone).
+				RunRoomAffectTrigger(room, find_char(af->caster_id), af->affect_type,
+									 talents_actions::EActionTrigger::kExpired, af->potency);
 				ai = affects.erase(ai);
 			}
 		}
@@ -791,6 +819,11 @@ void UpdateRoomsAffects() {
 						SendRemoveAffectMsgToRoom(affect->affect_type, GetRoomRnum((*room)->vnum));
 					}
 				}
+				// issue.character-affect-triggers: kExpired -- the room affect's timer ran out; fire its
+				// kExpired actions in the caster's context (ch, resolved above) before the strip. No-op
+				// if the caster is gone (ch == nullptr), exactly like the pulse tick.
+				RunRoomAffectTrigger(*room, ch, affect->affect_type,
+									 talents_actions::EActionTrigger::kExpired, affect->potency);
 				RoomRemoveAffect(*room, affect_i);
 				continue;  // Чтоб не вызвался обработчик
 			}

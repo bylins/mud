@@ -143,6 +143,14 @@ RoomAffectActor ClassifyRoomAffectAccess(CharData *ch, long caster_id);
 // issue.affect-migration: the affect's own <actions> (each gated by its <trigger>); empty when none.
 [[nodiscard]] const talents_actions::Actions &RoomAffectActions(ERoomAffect affect_type);
 
+// issue.character-affect-triggers: fire a room/exit affect's <actions> matching `trig` (kExpired on
+// timer end, kDispell on forced removal) with `ch` as the caster context and `potency` as the cast
+// strength. No-op (returns false) if the affect has no matching action or `ch` is null -- room affects
+// have no bearer char, so they need a live caster to source the cast (the affect's caster for kExpired;
+// the dispeller for kDispell, which makes the retaliation self-inflicted). Defined in magic_rooms.cpp.
+bool RunRoomAffectTrigger(RoomData *room, CharData *ch, ERoomAffect affect_type,
+						  talents_actions::EActionTrigger trig, float potency);
+
 } // namespace room_spells
 
 // Room-affect registry name maps (cfg/room_affects.xml validates these). Global scope, mirroring

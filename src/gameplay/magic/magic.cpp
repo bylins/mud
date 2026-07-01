@@ -2210,6 +2210,14 @@ void CollectRemovals(RoomData *room, const talents_actions::TalentUnaffect::Set 
 // the room affect's identity (ERoomAffect); narration comes from the room-affect message system
 // (RoomAffectMsgRaw), the affect's own kAffDispelledTo{Char,Room} sheaf.
 void RemoveAffectAndAnnounce(CharData *ch, RoomData *room, room_spells::ERoomAffect removed) {
+	// issue.character-affect-triggers: kDispell -- fire the room affect's kDispell actions BEFORE the
+	// strip, run with the DISPELLER (ch) as the caster so the retaliation is SELF-INFLICTED (a
+	// kTarFightSelf effect lands on the dispeller as self-damage -- no PvP, same model as char affects).
+	float dispel_potency = 0.0f;
+	for (const auto &aff : room->affected) {
+		if (aff && aff->affect_type == removed) { dispel_potency = aff->potency; break; }
+	}
+	room_spells::RunRoomAffectTrigger(room, ch, removed, talents_actions::EActionTrigger::kDispell, dispel_potency);
 	// Canonical "erase while iterating" over std::list -- list::erase invalidates only the erased
 	// iterator and returns the next one. Bypasses room_spells::RoomRemoveAffect (a thin
 	// empty-list-guarded wrapper) because the guard is redundant inside a live iteration.
