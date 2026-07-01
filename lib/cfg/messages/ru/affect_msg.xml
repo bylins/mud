@@ -492,6 +492,8 @@
 		<message type="kAffImposedToChar" val="Ваши зрачки приобрели красный оттенок."/>
 		<message type="kAffDispelledToChar" val="Красный оттенок ваших зрачков исчез."/>
 		<message type="kAffDispelledToRoom" val="Красный оттенок зрачков $n3 исчез."/>
+		<message type="kDamageToChar" val="Потревоженный вампиризм вскипает в вашей крови, обжигая изнутри!"/>
+		<message type="kDamageToRoom" val="$n болезненно морщится, потревожив вампирскую порчу."/>
 		<message type="kShortDesc" val="вампиризм"/>
 	</msg_sheaf>
 	<msg_sheaf id="kLacerations">

@@ -111,6 +111,12 @@ class Damage {
   // нет (урон нанесён сам себе: тик повреждающего аффекта и т.п.). Обычно это caster_id
   // аффекта. 0 - автора нет; равен UID жертвы - урон самому себе, убийство не засчитывается.
   long author_uid{0};
+  // issue.character-affect-triggers: affect-owned damage flavor (set by the affect-trigger runners via
+  // CastDamage/LandOneDamageHit). When any is non-empty it FULLY REPLACES the generic combat hit line
+  // and the char_dam_message severity line in Process. $n = ch, $N = victim.
+  std::string aff_msg_char_;
+  std::string aff_msg_vict_;
+  std::string aff_msg_room_;
 
  private:
   // инит всех полей дефолтными значениями для конструкторов

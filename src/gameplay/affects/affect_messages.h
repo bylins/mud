@@ -58,6 +58,12 @@ enum class EAffectMsgType {
 	kWardToChar,          // to the attacker (their cast was reflected/absorbed)
 	kWardToVict,          // to the warded char (their affect reacted)
 	kWardToRoom,          // to onlookers
+	// issue.character-affect-triggers: flavor for damage dealt by this affect's own <damage> actions
+	// (e.g. a kDispell trap, a DoT). When set, it FULLY REPLACES the generic combat hit + severity line.
+	// $n = the char dealing/taking the damage (for affect self-damage they are the same), $N = the victim.
+	kDamageToChar,        // to the char taking the affect's damage
+	kDamageToVict,        // to a distinct victim (only when dealer != victim; self-damage omits it)
+	kDamageToRoom,        // to onlookers
 };
 
 // affect = the affect whose sheaf to read (EAffect::kUndefined => the shared "kDefault" sheaf).

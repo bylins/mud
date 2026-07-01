@@ -794,17 +794,32 @@ int Damage::Process(CharData *ch, CharData *victim) {
 		brief_shields_ = buf_;
 	}
 	// сообщения об ударах //
-	if (MUD::Skills().IsValid(skill_id)) {
-		SendSkillMessages(dam, ch, victim, skill_id, brief_shields_);
-	} else if (spell_id > ESpell::kUndefined) {
-		SendSkillMessages(dam, ch, victim, spell_id, brief_shields_);
+	// issue.character-affect-triggers: affect-owned damage flavor (a kDispell trap, a DoT) FULLY
+	// replaces the generic combat message AND the char_dam_message severity line -- the affect speaks
+	// for itself. $n = ch, $N = victim; a self-damage affect (ch == victim) uses only ToChar/ToRoom.
+	if (!aff_msg_char_.empty() || !aff_msg_vict_.empty() || !aff_msg_room_.empty()) {
+		if (!aff_msg_char_.empty()) {
+			act(aff_msg_char_.c_str(), false, ch, nullptr, victim, kToChar);
+		}
+		if (ch != victim && !aff_msg_vict_.empty()) {
+			act(aff_msg_vict_.c_str(), false, ch, nullptr, victim, kToVict);
+		}
+		if (!aff_msg_room_.empty()) {
+			act(aff_msg_room_.c_str(), true, ch, nullptr, victim, kToNotVict | kToArenaListen);
+		}
 	} else {
-		// удар оружием/рукой или серверный урон - всё из контейнера сообщений
-		// (для ударов оружием kFightHit* содержит плейсхолдер {intensity}, issue #3322)
-		SendSkillMessages(dam, ch, victim, damage_source, brief_shields_);
+		if (MUD::Skills().IsValid(skill_id)) {
+			SendSkillMessages(dam, ch, victim, skill_id, brief_shields_);
+		} else if (spell_id > ESpell::kUndefined) {
+			SendSkillMessages(dam, ch, victim, spell_id, brief_shields_);
+		} else {
+			// удар оружием/рукой или серверный урон - всё из контейнера сообщений
+			// (для ударов оружием kFightHit* содержит плейсхолдер {intensity}, issue #3322)
+			SendSkillMessages(dam, ch, victim, damage_source, brief_shields_);
+		}
+		/// Use SendMsgToChar -- act() doesn't send message if you are DEAD.
+		char_dam_message(dam, ch, victim, flags[fight::kNoFleeDmg]);
 	}
-	/// Use SendMsgToChar -- act() doesn't send message if you are DEAD.
-	char_dam_message(dam, ch, victim, flags[fight::kNoFleeDmg]);
 
 
 	// Проверить, что жертва все еще тут. Может уже сбежала по трусости.

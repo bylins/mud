@@ -351,10 +351,16 @@ namespace {
 // Returns the result of Damage::Process(), reused by the loop's `rand` to decide whether to
 // continue (a non-negative value means the victim is still alive).
 int LandOneDamageHit(CharData *ch, CharData *victim, ESpell spell_id, int total_dmg,
-					 EPosition ch_start_pos, EPosition victim_start_pos, int count) {
+					 EPosition ch_start_pos, EPosition victim_start_pos, int count,
+					 const std::string &aff_msg_char, const std::string &aff_msg_vict,
+					 const std::string &aff_msg_room) {
 	Damage dmg(SpellDmg(spell_id), total_dmg, fight::kMagicDmg);
 	dmg.ch_start_pos = ch_start_pos;
 	dmg.victim_start_pos = victim_start_pos;
+	// issue.character-affect-triggers: affect-owned damage flavor (empty for ordinary spell damage).
+	dmg.aff_msg_char_ = aff_msg_char;
+	dmg.aff_msg_vict_ = aff_msg_vict;
+	dmg.aff_msg_room_ = aff_msg_room;
 
 	if (CanUseFeat(ch, EFeat::kPowerMagic) && victim->IsNpc()) {
 		dmg.flags.set(fight::kIgnoreAbsorbe);
@@ -615,7 +621,9 @@ EStageResult CastDamage(ActionContext &ctx) {
 			&& victim->GetPosition() > EPosition::kDead) {
 			const int hp_before = victim->get_hit();
 			rand = LandOneDamageHit(ch, victim, spell_id, total_dmg,
-									ch_start_pos, victim_start_pos, count);
+									ch_start_pos, victim_start_pos, count,
+									ctx.AffectDamageMsgChar(), ctx.AffectDamageMsgVict(),
+									ctx.AffectDamageMsgRoom());
 			// accumulate the ACTUAL HP removed this hit (post-resist/save, capped
 			// at the target's HP) so a chained action scales off real damage. On death the victim is
 			// extracted -> count the HP it had; otherwise the HP it actually lost.
@@ -2932,6 +2940,8 @@ EStageResult CastSideSpell(ActionContext &ctx) {
 		sub.cvict = ctx.cvict;       // cast on the current target (this is a per-target stage)
 		sub.area_coeff = ctx.area_coeff;  // inherit the outer per-target falloff (mass spells)
 		sub.SetEvent(ctx.Event());   // issue.character-affect-triggers: a side-spell's handlers see the event too
+		sub.SetAffectDamageMsg(ctx.AffectDamageMsgChar(), ctx.AffectDamageMsgVict(),
+							   ctx.AffectDamageMsgRoom());   // ... and the affect's damage flavor
 		if (CastSpell(sub, ECastTargets::kSingle) == ECastResult::kNotCast) {
 			result = EStageResult::kFail;
 		}
@@ -3520,6 +3530,12 @@ bool RunCharAffectTrigger(CharData *ch, EAffect affect_type,
 	ev.trigger = trig;
 	ev.actor = actor;
 	ctx.SetEvent(ev);
+	// issue.character-affect-triggers: give any <damage> in this affect's trigger chain the affect's own
+	// damage flavor (kDamageTo* sheaf) instead of the generic combat hit line. Empty slots -> the
+	// generic message still shows (Damage::Process treats "no affect message" as before).
+	ctx.SetAffectDamageMsg(affects::AffectMsgRaw(affect_type, affects::EAffectMsgType::kDamageToChar),
+						   affects::AffectMsgRaw(affect_type, affects::EAffectMsgType::kDamageToVict),
+						   affects::AffectMsgRaw(affect_type, affects::EAffectMsgType::kDamageToRoom));
 	RunRoomCycledAction(ctx, world[ch->in_room], fired, 0);
 	return true;
 }

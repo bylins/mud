@@ -172,6 +172,15 @@ class ActionContext {
 	[[nodiscard]] bool WardAbsorbsDamage() const { return ward_absorb_damage_; }
 	void SetWardAbsorbAffect() { ward_absorb_affect_ = true; }
 	[[nodiscard]] bool WardAbsorbsAffect() const { return ward_absorb_affect_; }
+	// issue.character-affect-triggers: affect-owned damage flavor for <damage> stages run under this
+	// context (set by the affect-trigger runners). When present it FULLY REPLACES the generic combat
+	// message + severity line in Damage::Process. Copied into side_spell sub-contexts like the event.
+	void SetAffectDamageMsg(const std::string &to_char, const std::string &to_vict, const std::string &to_room) {
+		aff_dmg_msg_char_ = to_char; aff_dmg_msg_vict_ = to_vict; aff_dmg_msg_room_ = to_room;
+	}
+	[[nodiscard]] const std::string &AffectDamageMsgChar() const { return aff_dmg_msg_char_; }
+	[[nodiscard]] const std::string &AffectDamageMsgVict() const { return aff_dmg_msg_vict_; }
+	[[nodiscard]] const std::string &AffectDamageMsgRoom() const { return aff_dmg_msg_room_; }
 	[[nodiscard]] const talents_actions::Action *action() const;
 	[[nodiscard]] bool HasPendingActions() const;
 	// The action the current stage should read its block from: the cursor's
@@ -202,6 +211,9 @@ class ActionContext {
 	bool ward_stop_{false};            // issue.attack-ward: whole cast absorbed
 	bool ward_absorb_damage_{false};   // issue.attack-ward: damage stage absorbed (scoped)
 	bool ward_absorb_affect_{false};   // issue.attack-ward: affect stage absorbed (scoped)
+	std::string aff_dmg_msg_char_;   // issue.character-affect-triggers: see SetAffectDamageMsg
+	std::string aff_dmg_msg_vict_;
+	std::string aff_dmg_msg_room_;
 };
 
 // VNUM'ы мобов для заклинаний, создающих мобов
