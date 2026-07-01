@@ -286,6 +286,9 @@
 		<message type="kAffExpiredToRoom" val="Огненный щит вокруг $n1 исчез."/>
 		<message type="kShortDesc" val="огненный щит"/>
 		<message type="kLook" val="огненным"/>
+		<message type="kTransformToChar" val="Огненный щит вокруг $N1 ослабил вашу атаку."/>
+		<message type="kTransformToVict" val="Огненный щит принял часть повреждений на себя."/>
+		<message type="kTransformToRoom" val="Огненный щит вокруг $N1 ослабил атаку $n1."/>
 	</msg_sheaf>
 	<msg_sheaf id="kIceShield">
 		<message type="kAffImposedToRoom" val="$n3 окутал ледяной щит."/>
@@ -294,6 +297,12 @@
 		<message type="kAffExpiredToRoom" val="Ледяной щит вокруг $n1 исчез."/>
 		<message type="kShortDesc" val="ледяной щит"/>
 		<message type="kLook" val="ледяным"/>
+		<message type="kTransformToChar" val="Ледяной щит вокруг $N1 смягчил ваш удар."/>
+		<message type="kTransformToVict" val="Ледяной щит принял часть удара на себя."/>
+		<message type="kTransformToRoom" val="Ледяной щит вокруг $N1 смягчил удар $n1."/>
+		<message type="kTransformCritToChar" val="Ваше меткое попадания частично утонуло в ледяной пелене вокруг $N1."/>
+		<message type="kTransformCritToVict" val="Меткое попадание частично утонуло в ледяной пелене щита."/>
+		<message type="kTransformCritToRoom" val="Ледяной щит вокруг $N1 частично поглотил меткое попадание $n1."/>
 	</msg_sheaf>
 	<msg_sheaf id="kMagicGlass">
 		<message type="kAffImposedToRoom" val="$n3 покрыла зеркальная пелена."/>

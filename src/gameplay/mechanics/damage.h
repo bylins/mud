@@ -126,7 +126,6 @@ class Damage {
   void PerformPostInit(CharData *ch, CharData *victim);
   void SetPostInitShieldFlags(CharData *victim);
   // process()
-  bool CalcMagisShieldsDmgAbsoption(CharData *ch, CharData *victim);
   void CalcArmorDmgAbsorption(CharData *victim);
   bool CalcDmgAbsorption(CharData *ch, CharData *victim);
   void ProcessDeath(CharData *ch, CharData *victim) const;
@@ -152,8 +151,6 @@ class Damage {
   };
   std::vector<ReflectHit> reflect_pool_;
 
-  // обратный дамаг от огненного щита
-  int fs_damage{0};
   // строка для краткого режима щитов, дописывается после ударов и прочего
   // если во flags были соответствующие флаги
   std::string brief_shields_;

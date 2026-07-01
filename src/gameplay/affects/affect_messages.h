@@ -74,6 +74,12 @@ enum class EAffectMsgType {
 	kTransformToChar,     // to the attacker (their hit was reduced/altered by the bearer's affect)
 	kTransformToVict,     // to the affect bearer (their affect reacted to the incoming damage)
 	kTransformToRoom,     // to onlookers
+	// issue.damage-change: alternate transform flavor, selected by <damage_change msg="crit">. Lets one
+	// affect carry two messages -- e.g. the ice shield's normal "softened the blow" (kTransform*) vs its
+	// crit-absorb "the precise hit sank into the icy veil" (kTransformCrit*).
+	kTransformCritToChar,
+	kTransformCritToVict,
+	kTransformCritToRoom,
 };
 
 // affect = the affect whose sheaf to read (EAffect::kUndefined => the shared "kDefault" sheaf).

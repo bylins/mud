@@ -626,6 +626,9 @@ const std::map<affects::EAffectMsgType, std::string> kAffectMsgTypeNames{
 		{affects::EAffectMsgType::kTransformToChar, "kTransformToChar"},
 		{affects::EAffectMsgType::kTransformToVict, "kTransformToVict"},
 		{affects::EAffectMsgType::kTransformToRoom, "kTransformToRoom"},
+		{affects::EAffectMsgType::kTransformCritToChar, "kTransformCritToChar"},
+		{affects::EAffectMsgType::kTransformCritToVict, "kTransformCritToVict"},
+		{affects::EAffectMsgType::kTransformCritToRoom, "kTransformCritToRoom"},
 	};
 
 msg_container::MsgContainer<EAffect, affects::EAffectMsgType> &AffectMsgContainer() {

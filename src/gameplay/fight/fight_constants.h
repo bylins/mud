@@ -80,6 +80,8 @@ enum {
 	kDrawBriefIceShield,	// было отражение от ледяного щита в кратком режиме
 	kDrawBriefMagMirror,	// была обратка от маг. зеркала
 	kIgnoreBlink,			// игнор мигания
+	kShieldApplied,			// issue.damage-change: одна из защит (щитов) уже поглотила часть этого удара
+	kPunctualCrit,			// issue.damage-change: удар точным стилем (dam_critic>0) -- пробивает лед. щит
 
 	kHitFlagsNum			// кол-во флагов
 };

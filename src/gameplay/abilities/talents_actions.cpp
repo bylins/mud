@@ -124,6 +124,7 @@ const std::map<std::string, int> kHitFlagByName{
 	{"kVictimIceShield", fight::kVictimIceShield},
 	{"kDrawBriefFireShield", fight::kDrawBriefFireShield}, {"kDrawBriefAirShield", fight::kDrawBriefAirShield},
 	{"kDrawBriefIceShield", fight::kDrawBriefIceShield}, {"kDrawBriefMagMirror", fight::kDrawBriefMagMirror},
+	{"kShieldApplied", fight::kShieldApplied}, {"kPunctualCrit", fight::kPunctualCrit},
 };
 
 // issue.damage-change: parse a `|`-separated name list into a mask (bit = enum value). Unknown => err_log.
@@ -1217,6 +1218,10 @@ void Actions::ParseDamageChange(DamageChange &dc, parser_wrapper::DataNode &node
 	dc.present = true;
 	if (const char *p = node.GetValue("prob"); p && *p) { dc.prob = parse::ReadAsInt(p); }
 	if (const char *s = node.GetValue("stage"); s && strcmp(s, "late") == 0) { dc.late = true; }
+	if (const char *m = node.GetValue("msg"); m && *m) {
+		if (strcmp(m, "crit") == 0) { dc.msg_variant = 1; }
+		else if (strcmp(m, "none") == 0) { dc.msg_variant = 2; }
+	}
 	for (auto &child : node.Children()) {
 		const auto cn = child.GetName();
 		if (strcmp(cn, "conditions") == 0) {

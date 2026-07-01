@@ -192,6 +192,10 @@ struct DamageChange {
 	bool late{false};               // <damage_change stage="late"> -- applied AFTER the shield/reflect stage
 	                                // (so a hardcoded reflect still sees the pre-reduction damage); default
 	                                // "early" runs at the main incoming-damage hook (sanct/prism/hold).
+	int msg_variant{0};             // <damage_change msg=>: 0 (default) emit kTransformTo*; "crit" -> 1
+	                                // emit kTransformCrit* (a second flavor, e.g. ice "softened" vs "crit
+	                                // absorbed"); "none" -> 2 emit nothing (a silent modifier, e.g. fire's
+	                                // reflect-case reduction, whose flavor is the reflected hit itself).
 	bool present{false};
 };
 

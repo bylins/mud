@@ -199,19 +199,84 @@
 				<trigger val="kWardDamage"/>
 				<damage_change stage="late">
 					<conditions>
-						<flags present="kVictimAirShield" missing="kCritHit"/>
+						<flags present="kVictimAirShield" missing="kCritHit|kShieldApplied"/>
 					</conditions>
 					<variation min="30" max="50" factor="-1"/>
-					<flags add="kDrawBriefAirShield"/>
+					<flags add="kDrawBriefAirShield|kShieldApplied"/>
 				</damage_change>
 			</action>
 		</actions>
 	</affect>
 	<affect id="kFireShield" buff="Y">
 		<flags val="kAfBattledec|kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+		<actions>
+			<!-- Retaliation: a physical hit (not ignoring the shield, not a crit) reflects 15% back
+			     (+5 NPC bearer, +5 boss). Reflected as kUndefDmg, attributed to the incoming attack. -->
+			<action>
+				<trigger val="kWardDamage"/>
+				<retaliation>
+					<conditions>
+						<type val="kPhysDmg"/>
+						<flags present="kVictimFireShield" missing="kIgnoreFireShield|kCritHit"/>
+					</conditions>
+					<percent min="15" max="15" npc_bonus="5" boss_bonus="5"/>
+					<element type="kUndefDmg"/>
+				</retaliation>
+			</action>
+			<!-- Reduction, reflect case (phys, !ignore): silent; the reflected hit is the visible effect.
+			     Ordered before the general reduction so kShieldApplied gates the "weakened" message out. -->
+			<action>
+				<trigger val="kWardDamage"/>
+				<damage_change stage="late" msg="none">
+					<conditions>
+						<type val="kPhysDmg"/>
+						<flags present="kVictimFireShield" missing="kIgnoreFireShield|kCritHit|kShieldApplied"/>
+					</conditions>
+					<variation min="30" max="50" factor="-1"/>
+					<flags add="kDrawBriefFireShield|kShieldApplied"/>
+				</damage_change>
+			</action>
+			<!-- Reduction, non-reflect case (non-phys, or physical it can't reflect): shows "weakened". -->
+			<action>
+				<trigger val="kWardDamage"/>
+				<damage_change stage="late">
+					<conditions>
+						<flags present="kVictimFireShield" missing="kCritHit|kShieldApplied"/>
+					</conditions>
+					<variation min="30" max="50" factor="-1"/>
+					<flags add="kDrawBriefFireShield|kShieldApplied"/>
+				</damage_change>
+			</action>
+		</actions>
 	</affect>
 	<affect id="kIceShield" buff="Y">
 		<flags val="kAfBattledec|kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+		<actions>
+			<!-- Crit-absorb: a crit (not precise-style, not poison) has a 94% chance to be neutralized:
+			     reduce 30-50% AND clear kCritHit (converts it to a glancing hit). Its own "crit" flavor. -->
+			<action>
+				<trigger val="kWardDamage"/>
+				<damage_change stage="late" prob="94" msg="crit">
+					<conditions>
+						<type val="kPhysDmg|kMagicDmg|kPureDmg|kUndefDmg"/>
+						<flags present="kVictimIceShield|kCritHit" missing="kPunctualCrit|kShieldApplied"/>
+					</conditions>
+					<variation min="30" max="50" factor="-1"/>
+					<flags remove="kCritHit" add="kShieldApplied"/>
+				</damage_change>
+			</action>
+			<!-- Normal: soften a non-crit hit 30-50%. -->
+			<action>
+				<trigger val="kWardDamage"/>
+				<damage_change stage="late">
+					<conditions>
+						<flags present="kVictimIceShield" missing="kCritHit|kShieldApplied"/>
+					</conditions>
+					<variation min="30" max="50" factor="-1"/>
+					<flags add="kDrawBriefIceShield|kShieldApplied"/>
+				</damage_change>
+			</action>
+		</actions>
 	</affect>
 	<affect id="kMagicGlass" buff="Y">
 		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>

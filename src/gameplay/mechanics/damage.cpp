@@ -47,85 +47,6 @@ void TryRemoveExtrahits(CharData *ch, CharData *victim);
 
 // Estern - нужно разобраться, почему функции работы с опытом распиханы по всем углам
 //
-bool Damage::CalcMagisShieldsDmgAbsoption(CharData *ch, CharData *victim) {
-	if (dam <= 0) {
-		return false;
-	}
-
-	// issue.damage-change: thorns/retaliation is now data-driven. Read the PRE-reduction damage here (at
-	// the top of the shield stage, before any reduction) and accumulate each firing <retaliation> into
-	// reflect_pool_; the pool is dealt after the main pipeline (DealReflectPool), so the attacker's own
-	// defenses transform it. Magic-glass's reflect is migrated (kMagicGlass <retaliation>); fire's fs_damage
-	// stays hardcoded below until Phase 5 folds it in.
-	ApplyRetaliations(ch, victim);
-
-	// обработка щитов, см Damage::post_init_shields()
-	if (flags[fight::kVictimFireShield]
-		&& !flags[fight::kCritHit]) {
-		if (dmg_type == fight::kPhysDmg
-			&& !flags[fight::kIgnoreFireShield]) {
-			int pct = 15;
-			if (victim->IsNpc() && !IsCharmice(victim)) {
-				pct += 5;
-				if (victim->get_role(static_cast<unsigned>(EMobClass::kBoss))) {
-					pct += 5;
-				}
-			}
-			fs_damage = dam * pct / 100;
-		} else {
-			act("Огненный щит вокруг $N1 ослабил вашу атаку.",
-				false, ch, nullptr, victim, kToChar | kToNoBriefShields);
-			act("Огненный щит принял часть повреждений на себя.",
-				false, ch, nullptr, victim, kToVict | kToNoBriefShields);
-			act("Огненный щит вокруг $N1 ослабил атаку $n1.",
-				true, ch, nullptr, victim, kToNotVict | kToArenaListen | kToNoBriefShields);
-		}
-		flags.set(fight::kDrawBriefFireShield);
-		dam -= (dam * number(30, 50) / 100);
-	}
-
-	// если критический удар (не точка и стаб) и есть щит - 95% шанс в молоко
-	// критическим считается любой удар который вложиля в определенные границы
-	if (dam
-		&& flags[fight::kCritHit] && flags[fight::kVictimIceShield]
-		&& !dam_critic
-		&& spell_id != ESpell::kPoison
-		&& number(0, 100) < 94) {
-		act("Ваше меткое попадания частично утонуло в ледяной пелене вокруг $N1.",
-			false, ch, nullptr, victim, kToChar | kToNoBriefShields);
-		act("Меткое попадание частично утонуло в ледяной пелене щита.",
-			false, ch, nullptr, victim, kToVict | kToNoBriefShields);
-		act("Ледяной щит вокруг $N1 частично поглотил меткое попадание $n1.",
-			true, ch, nullptr, victim, kToNotVict | kToArenaListen | kToNoBriefShields);
-
-		flags.reset(fight::kCritHit);
-		if (dam > 0) dam -= (dam * number(30, 50) / 100);
-	}
-		//шоб небуло спама модернизировал условие
-	else if (dam > 0
-		&& flags[fight::kVictimIceShield]
-		&& !flags[fight::kCritHit]) {
-		flags.set(fight::kDrawBriefIceShield);
-		act("Ледяной щит вокруг $N1 смягчил ваш удар.",
-			false, ch, nullptr, victim, kToChar | kToNoBriefShields);
-		act("Ледяной щит принял часть удара на себя.",
-			false, ch, nullptr, victim, kToVict | kToNoBriefShields);
-		act("Ледяной щит вокруг $N1 смягчил удар $n1.",
-			true, ch, nullptr, victim, kToNotVict | kToArenaListen | kToNoBriefShields);
-		dam -= (dam * number(30, 50) / 100);
-	}
-
-	// issue.damage-change: the air-shield reduction is now data-driven -- a stage="late" <damage_change>
-	// on kAirShield (gated kVictimAirShield + missing kCritHit, variation 30-50 reduce, lights the brief
-	// HUD, carries its own kTransform* flavor). Run at this late hook so it applies at the same pipeline
-	// point as before -- AFTER the fire/ice reflect (fs_damage) computations, which must see pre-reduction
-	// damage. Fire and ice stay hardcoded above: their reductions are entangled with the reflect and with
-	// the ice-crit kCritHit reset, so they migrate together with the (postponed) reflection action.
-	ApplyAffectDamageChanges(ch, victim, /*late_stage=*/true);
-
-	return false;
-}
-
 void Damage::CalcArmorDmgAbsorption(CharData *victim) {
 	// броня на физ дамаг
 	if (dam > 0 && dmg_type == fight::kPhysDmg) {
@@ -259,7 +180,6 @@ void Damage::ProcessBlink(CharData *ch, CharData *victim) {
 		act("$n исчез$q из вашего поля зрения.", true, victim, nullptr, ch, kToVict);
 		act("$n исчез$q из поля зрения $N1.", true, victim, nullptr, ch, kToNotVict);
 		dam = 0;
-		fs_damage = 0;
 		return;
 	}
 }
@@ -319,11 +239,15 @@ void Damage::ApplyAffectDamageChanges(CharData *ch, CharData *victim, bool late_
 			}
 			// The modification applied: show the affect's own transform flavor (e.g. "the shield softened
 			// the blow"). The bearer is `victim` ($N); the attacker is `ch` ($n). Optional -- empty = silent.
-			if (ch) {
+			if (ch && dc.msg_variant != 2) {
+				using EAMT = affects::EAffectMsgType;
 				const EAffect at = aff->affect_type;
-				const std::string &mc = affects::AffectMsgRaw(at, affects::EAffectMsgType::kTransformToChar);
-				const std::string &mv = affects::AffectMsgRaw(at, affects::EAffectMsgType::kTransformToVict);
-				const std::string &mr = affects::AffectMsgRaw(at, affects::EAffectMsgType::kTransformToRoom);
+				const EAMT sc = (dc.msg_variant == 1) ? EAMT::kTransformCritToChar : EAMT::kTransformToChar;
+				const EAMT sv = (dc.msg_variant == 1) ? EAMT::kTransformCritToVict : EAMT::kTransformToVict;
+				const EAMT sr = (dc.msg_variant == 1) ? EAMT::kTransformCritToRoom : EAMT::kTransformToRoom;
+				const std::string &mc = affects::AffectMsgRaw(at, sc);
+				const std::string &mv = affects::AffectMsgRaw(at, sv);
+				const std::string &mr = affects::AffectMsgRaw(at, sr);
 				if (!mc.empty()) { act(mc.c_str(), false, ch, nullptr, victim, kToChar | kToNoBriefShields); }
 				if (!mv.empty()) { act(mv.c_str(), false, ch, nullptr, victim, kToVict | kToNoBriefShields); }
 				if (!mr.empty()) {
@@ -533,47 +457,18 @@ void Damage::ProcessDeath(CharData *ch, CharData *victim) const {
  * У мобов работают все 3 щита, у чаров только 1 рандомный на текущий удар.
  */
 void Damage::SetPostInitShieldFlags(CharData *victim) {
-	if (victim->IsNpc() && !IsCharmice(victim)) {
-		if (AFF_FLAGGED(victim, EAffect::kFireShield)) {
-			flags.set(fight::kVictimFireShield);
-		}
-
-		if (AFF_FLAGGED(victim, EAffect::kIceShield)) {
-			flags.set(fight::kVictimIceShield);
-		}
-
-		if (AFF_FLAGGED(victim, EAffect::kAirShield)) {
-			flags.set(fight::kVictimAirShield);
-		}
-	} else {
-		enum { FIRESHIELD, ICESHIELD, AIRSHIELD };
-		std::vector<int> shields;
-
-		if (AFF_FLAGGED(victim, EAffect::kFireShield)) {
-			shields.push_back(FIRESHIELD);
-		}
-
-		if (AFF_FLAGGED(victim, EAffect::kAirShield)) {
-			shields.push_back(AIRSHIELD);
-		}
-
-		if (AFF_FLAGGED(victim, EAffect::kIceShield)) {
-			shields.push_back(ICESHIELD);
-		}
-
-		if (shields.empty()) {
-			return;
-		}
-
-		int shield_num = number(0, static_cast<int>(shields.size() - 1));
-
-		if (shields[shield_num] == FIRESHIELD) {
-			flags.set(fight::kVictimFireShield);
-		} else if (shields[shield_num] == AIRSHIELD) {
-			flags.set(fight::kVictimAirShield);
-		} else if (shields[shield_num] == ICESHIELD) {
-			flags.set(fight::kVictimIceShield);
-		}
+	// issue.damage-change: mark which elemental shields the victim wears. Set for PCs and NPCs alike --
+	// the old "PCs get one random shield / NPCs get all" split is retired; shields are simply active
+	// whenever the affect is present. Only ONE shield reduces a given hit -- that is enforced
+	// data-driven by kShieldApplied on the shield <damage_change>s, not by limiting the flags here.
+	if (AFF_FLAGGED(victim, EAffect::kFireShield)) {
+		flags.set(fight::kVictimFireShield);
+	}
+	if (AFF_FLAGGED(victim, EAffect::kIceShield)) {
+		flags.set(fight::kVictimIceShield);
+	}
+	if (AFF_FLAGGED(victim, EAffect::kAirShield)) {
+		flags.set(fight::kVictimAirShield);
 	}
 }
 
@@ -587,6 +482,12 @@ void Damage::PerformPostInit(CharData *ch, CharData *victim) {
 	}
 
 	SetPostInitShieldFlags(victim);
+
+	// issue.damage-change: expose the precise-style (точный стиль) crit as a hit-flag so the ice-shield
+	// crit-absorb <damage_change> can gate on it -- a punctual crit (dam_critic>0) pierces the ice shield.
+	if (dam_critic > 0) {
+		flags.set(fight::kPunctualCrit);
+	}
 }
 
 // обработка щитов, зб, поглощения, сообщения для огн. щита НЕ ЗДЕСЬ
@@ -748,7 +649,12 @@ int Damage::Process(CharData *ch, CharData *victim) {
 	}
 	// щиты, броня, поглощение
 	if (victim != ch) {
-		bool shield_full_absorb = CalcMagisShieldsDmgAbsoption(ch, victim);
+		// issue.damage-change: the elemental shields are fully data-driven now (kWardDamage
+		// <retaliation>/<damage_change> on the shield affects). Retaliation reads the pre-reduction
+		// damage; the late <damage_change> pass applies the one-per-hit reduction (kShieldApplied) and
+		// the ice crit-absorb. CalcMagisShieldsDmgAbsoption is retired.
+		ApplyRetaliations(ch, victim);
+		ApplyAffectDamageChanges(ch, victim, /*late_stage=*/true);
 		CalcArmorDmgAbsorption(victim);
 		bool armor_full_absorb = CalcDmgAbsorption(ch, victim);
 		if (flags[fight::kCritHit] && (GetRealLevel(victim) >= 5 || !ch->IsNpc())
@@ -759,16 +665,16 @@ int Damage::Process(CharData *ch, CharData *victim) {
 			dam = std::max(dam, tmpdam); //крит
 		}
 		// полное поглощение
-		if (shield_full_absorb || armor_full_absorb) {
+		if (armor_full_absorb) {
 			return 0;
 		}
 		if (dam > 0)
 			ProcessBlink(ch, victim);
 	}
 
-	// Внутри magic_shields_dam вызывается dmg::proccess, если чар там умрет, то будет креш
+	// Защитная проверка: участники боя могли быть удалены в ходе обработки щитов/поглощения.
 	if (!(ch && victim) || (ch->purged() || victim->purged())) {
-		log("Death from CalcMagisShieldsDmgAbsoption");
+		log("Death during incoming-damage shield/absorption stage");
 		return 0;
 	}
 
@@ -962,18 +868,9 @@ int Damage::Process(CharData *ch, CharData *victim) {
 		ProcessDeath(ch, victim);
 		return -1;
 	}
-	// обратка от огненного щита
-	if (fs_damage > 0
-		&& victim->GetEnemy()
-		&& victim->GetPosition() > EPosition::kStun
-		&& victim->in_room != kNowhere) {
-		Damage dmg(SpellDmg(ESpell::kFireShield), fs_damage, fight::kUndefDmg);
-		dmg.flags.set(fight::kNoFleeDmg);
-		dmg.flags.set(fight::kMagicReflect);
-		dmg.Process(victim, ch);
-	}
-	// issue.damage-change: deal the accumulated data-driven thorns (e.g. magic-glass) alongside fire's
-	// fs_damage, at the same post-pipeline point (each as its own kMagicReflect-capped bearer->attacker hit).
+	// issue.damage-change: deal the accumulated data-driven thorns (fire/ice/glass retaliation) here, at
+	// the post-pipeline point where fire's fs_damage used to be applied -- each as its own kMagicReflect-
+	// capped bearer->attacker hit, so the attacker's own defenses transform it.
 	DealReflectPool(ch, victim);
 	return dam;
 }
