@@ -330,6 +330,16 @@
 				<trigger val="kKill"/>
 				<side_spell id="kHaste"/>
 			</action>
+			<action target="kTarFightSelf">
+				<trigger val="kExpired"/>
+				<side_spell id="kHaste"/>
+			</action>
+			<action target="kTarFightSelf">
+				<trigger val="kDispell"/>
+				<damage saving="kNone">
+					<amount min="50" dices_weight="0" alpha="0" beta="0"/>
+				</damage>
+			</action>
 		</actions>
 	</affect>
 	<affect id="kLacerations">

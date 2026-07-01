@@ -2025,6 +2025,13 @@ void ReduceStackOrRemove(CharData *victim, EAffect affect_type) {
 // (kAffDispelledTo{Char,Room}) fires for every other affect -- no more silent stripping of
 // common buffs.
 void RemoveAffectAndAnnounce(CharData *ch, CharData *victim, EAffect affect_type) {
+	// issue.character-affect-triggers: kDispell -- fire the affect's own kDispell <actions> BEFORE it is
+	// stripped, run with the DISPELLER (ch) as BOTH the caster and the actor. This makes the retaliation
+	// SELF-INFLICTED by the dispeller (their choice to dispel, their consequence): a <damage>/<affects>
+	// on kTarFightSelf lands on the dispeller as self-damage -- no pk-aggro, no revenge-rights, and the
+	// bearer (who may not have wanted a fight) is never dragged into PvP. Immortal immunity still applies
+	// to the self-damage normally. This is the announced-dispel path (dispel magic / unaffect) only.
+	RunCharAffectTrigger(ch, affect_type, talents_actions::EActionTrigger::kDispell, ch);
 	// issue.affect-migration: a char affect is identified by affect_type; dispel narration belongs to
 	// the AFFECT (its sheaf, with the kDefault generic fallback).
 	ReduceStackOrRemove(victim, affect_type);
@@ -3369,8 +3376,34 @@ ECastResult CastSpell(ActionContext &ctx, ECastTargets scope) {
 // (kTarRoomThis -> the room; kTarFoes/kTarGroup/... -> the room's occupants).
 // Run one cycled action (action[phase % N]) of an action list on the room. Shared by the kService
 // tick-spell path and the affect-owned-actions path below.
+// issue.character-affect-triggers: shared recursion guard for EVERY trigger-launched action chain
+// (kKill / kExpired / kDispell / kPreHit / kPostHit / room entry+tick) -- they all run through
+// RunRoomCycledAction. A triggered action that itself deals damage can kill -> ProcessDeath -> another
+// trigger -> back here; the single-threaded game loop lets a plain counter bound the nesting. Reaching
+// the cap almost always means a content loop, so at the cap the chain is skipped and logged once.
+// Replaces the kKill-only depth guard that used to live in Damage::ProcessDeath.
+namespace {
+constexpr int kMaxTriggerActionDepth = 5;
+int g_trigger_action_depth = 0;
+struct TriggerDepthGuard {
+	bool ok;
+	TriggerDepthGuard() : ok(g_trigger_action_depth < kMaxTriggerActionDepth) {
+		if (ok) { ++g_trigger_action_depth; }
+	}
+	~TriggerDepthGuard() { if (ok) { --g_trigger_action_depth; } }
+	TriggerDepthGuard(const TriggerDepthGuard &) = delete;
+	TriggerDepthGuard &operator=(const TriggerDepthGuard &) = delete;
+};
+}  // namespace
+
 static ECastResult RunRoomCycledAction(ActionContext &ctx, RoomData *room,
 									   const std::vector<talents_actions::Action> &list, int phase) {
+	TriggerDepthGuard depth_guard;
+	if (!depth_guard.ok) {
+		log("SYSERR: trigger-action recursion depth cap (%d) hit -- skipping a triggered action chain.",
+			kMaxTriggerActionDepth);
+		return ECastResult::kNotCast;
+	}
 	ctx.rvict = room;
 	if (list.empty()) {
 		return ECastResult::kNotCast;
@@ -3444,6 +3477,42 @@ bool RunCharAffectTick(CharData *ch, const Affect<EApply>::shared_ptr &aff) {
 	// a kTarSame <damage> action damages the bearer. World room = the bearer's room (cast context only).
 	CastRoomTickActionFromActions(ch, world[ch->in_room], ESpell::kUndefined, pulse, phase, &dur, aff->potency);
 	aff->duration = dur;
+	return true;
+}
+
+// issue.character-affect-triggers: run ONE affect type's <actions> matching `trig`, as caster `ch` and
+// with event.actor = `actor`. Unlike RunCharEventTriggers (which scans ALL of ch's affects for a per-hit
+// event), this fires exactly one affect type for a per-affect lifecycle event. The CALLER picks the
+// subject `ch`: for kExpired the bearer (its own timer/charges ran out; actor=null -> self/ally targets);
+// for kDispell the DISPELLER (so the retaliation is self-inflicted -- kTarFightSelf lands on the dispeller
+// as self-damage, no PvP against the bearer). Recursion is bounded inside RunRoomCycledAction.
+bool RunCharAffectTrigger(CharData *ch, EAffect affect_type,
+						  talents_actions::EActionTrigger trig, CharData *actor) {
+	if (!ch || ch->in_room == kNowhere) {
+		return false;
+	}
+	std::vector<talents_actions::Action> fired;
+	for (const auto &a : affects::AffectActions(affect_type).list()) {
+		if (a.GetTrigger().test(trig)) {
+			fired.push_back(a);
+		}
+	}
+	if (fired.empty()) {
+		return false;
+	}
+	const int level = ch->IsNpc() ? GetRealLevel(ch) : 1;
+	ActionContext ctx = BuildActionContext(ch, ESpell::kUndefined, level);
+	ctx.UseExternalActions(&fired);
+	// issue.character-affect-triggers: <action target="kTarActor"> resolves off ctx.cvict (see
+	// ResolveActionTargets), so point cvict at the actor (the dispeller for kDispell). Without this it
+	// would fall back to the bearer/caster and the retaliation would hit the wrong char. For an
+	// actor-less trigger (kExpired) this leaves cvict null -> kTarActor yields no target, as intended.
+	ctx.cvict = actor;
+	EventContext ev;
+	ev.trigger = trig;
+	ev.actor = actor;
+	ctx.SetEvent(ev);
+	RunRoomCycledAction(ctx, world[ch->in_room], fired, 0);
 	return true;
 }
 

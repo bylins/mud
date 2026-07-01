@@ -284,16 +284,6 @@ void Damage::ProcessBlink(CharData *ch, CharData *victim) {
 	}
 }
 
-namespace {
-// issue.character-affect-triggers: a kKill action may itself deal damage (an "explode on kill"
-// mechanic), which can kill another char -> Damage::Process -> ProcessDeath -> kKill again. The game
-// loop is single-threaded, so a plain depth counter bounds the chain. At the cap we stop firing and
-// log once. kMaxKillTriggerDepth is deliberately small -- deep on-kill chains are almost certainly a
-// content bug, not intent.
-constexpr int kMaxKillTriggerDepth = 5;
-int g_kill_trigger_depth = 0;
-}  // namespace
-
 void Damage::ProcessDeath(CharData *ch, CharData *victim) const {
 	CharData *killer = nullptr;
 
@@ -377,31 +367,24 @@ void Damage::ProcessDeath(CharData *ch, CharData *victim) const {
 	// killer != victim is already guaranteed by the resolution above); (2) killer and victim are in the
 	// SAME room -- an indirect DoT/spell kill only counts if its credited author is still here; (3) the
 	// damage is not server/script-dealt (kTriggerDeath = DG m/w/o-damage -- "the server hit them, not a
-	// character"); (4) the recursion depth is under the cap (an on-kill effect that damages can chain).
-	// The event exposes the victim as `actor` for reads only -- do NOT cast on it (it is dead); the
-	// existing corpse guards in Damage::Process / the cast pipeline log+bail if an action tries.
+	// character"). Recursion (an on-kill effect that itself deals damage) is bounded by the shared
+	// trigger-action depth guard inside RunRoomCycledAction. The event exposes the victim as `actor` for
+	// reads only -- do NOT cast on it (it is dead); the corpse guards in the cast pipeline log+bail if so.
 	if (killer && killer->in_room == victim->in_room
 			&& damage_source != fight::EDamageSource::kTriggerDeath) {
-		if (g_kill_trigger_depth < kMaxKillTriggerDepth) {
-			EventContext kill_event;
-			kill_event.trigger = talents_actions::EActionTrigger::kKill;
-			kill_event.amount = dam;
-			kill_event.weapon = wielded;
-			kill_event.skill = skill_id;
-			kill_event.actor = victim;
-			++g_kill_trigger_depth;
-			RunCharEventTriggers(killer, kill_event);
-			--g_kill_trigger_depth;
-			// A kill-trigger side effect (e.g. an explosion) may have purged one of the parties.
-			if (victim->purged()) {
-				return;   // the death was already fully processed by a nested ProcessDeath/die path
-			}
-			if (killer->purged()) {
-				killer = nullptr;   // fall back to the original attacker for die() below
-			}
-		} else {
-			log("SYSERR: kKill trigger depth cap (%d) hit -- skipping kKill on %s (chained on-kill effect?)",
-				kMaxKillTriggerDepth, GET_NAME(killer));
+		EventContext kill_event;
+		kill_event.trigger = talents_actions::EActionTrigger::kKill;
+		kill_event.amount = dam;
+		kill_event.weapon = wielded;
+		kill_event.skill = skill_id;
+		kill_event.actor = victim;
+		RunCharEventTriggers(killer, kill_event);
+		// A kill-trigger side effect (e.g. an explosion) may have purged one of the parties.
+		if (victim->purged()) {
+			return;   // the death was already fully processed by a nested ProcessDeath/die path
+		}
+		if (killer->purged()) {
+			killer = nullptr;   // fall back to the original attacker for die() below
 		}
 	}
 

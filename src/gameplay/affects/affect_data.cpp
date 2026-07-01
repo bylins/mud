@@ -1,5 +1,6 @@
 #include "affect_data.h"
 #include "gameplay/affects/affect_messages.h"
+#include "gameplay/abilities/talents_actions.h"   // issue.character-affect-triggers: kExpired trigger
 #include <set>   // issue.character-affect-triggers: per-round dedup of multi-instance affects
 #include "administration/privilege.h"
 #include "gameplay/affects/affect_handler.h"
@@ -218,6 +219,9 @@ void UpdateAffectOnPulse(CharData *ch, int count) {
 		pulse_aff = true;
 
 		if (affect->duration == 0) { //-1 вечный таймер по задумке
+			// issue.character-affect-triggers: kExpired -- timer ran out; fire the affect's kExpired
+			// <actions> on the bearer before the strip (natural end -> no dispeller actor).
+			RunCharAffectTrigger(ch, affect->affect_type, talents_actions::EActionTrigger::kExpired);
 			affect_i = RemoveAffect(ch, affect_i);
 		} else {
 			if (affect->duration > 0) {
@@ -337,6 +341,8 @@ void player_affect_update() {
 				if (affect->affect_type == EAffect::kDrunked) {
 					set_abstinent = true;
 				}
+				// issue.character-affect-triggers: kExpired (see UpdateAffectOnPulse) -- natural timeout.
+				RunCharAffectTrigger(i.get(), affect->affect_type, talents_actions::EActionTrigger::kExpired);
 				affect_i = RemoveAffect(i.get(), affect_i);
 				need_recalc = true;
 			} else {
@@ -446,6 +452,8 @@ void battle_affect_update(CharData *ch) {
 					ShowAffExpiredMsg(affect->affect_type, ch);
 				}
 			}
+			// issue.character-affect-triggers: kExpired (see UpdateAffectOnPulse) -- natural timeout in combat.
+			RunCharAffectTrigger(ch, affect->affect_type, talents_actions::EActionTrigger::kExpired);
 			affect_i = RemoveAffect(ch, affect_i);
 			need_recalc = true;
 		} else {
@@ -535,6 +543,8 @@ void mobile_affect_update() {
 						ShowAffExpiredMsg(affect->affect_type, ch);
 					}
 				}
+				// issue.character-affect-triggers: kExpired (see UpdateAffectOnPulse) -- natural timeout (mob).
+				RunCharAffectTrigger(ch, affect->affect_type, talents_actions::EActionTrigger::kExpired);
 				affect_i = RemoveAffect(ch, affect_i);
 				need_recalc = true;
 			} else {

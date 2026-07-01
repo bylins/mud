@@ -83,6 +83,13 @@ enum class EActionTrigger {
 	               // Fired from Damage::ProcessDeath on the resolved killer, before the victim is purged.
 	               // Event carries actor=victim, amount=fatal dmg, weapon, skill. Recommended targets are
 	               // kTarFightSelf / kTarGroup / kTarRandomAlly; do NOT target the victim (it is dead).
+	kExpired,      // issue.character-affect-triggers: THIS affect's timer (or trigger charges) ran out --
+	               // fired on the bearer once, just before the affect is stripped, from the affect-update
+	               // loops. Natural end -> no external actor; use self/ally targets (kTarFightSelf/Group).
+	kDispell,      // issue.character-affect-triggers: THIS affect was FORCIBLY removed by a dispeller
+	               // (dispel magic / unaffect -- the RemoveAffectAndAnnounce path). Fired on the bearer
+	               // before the strip; event.actor = the dispeller, so <action target="kTarActor"> can
+	               // sting them back.
 	kCount
 };
 

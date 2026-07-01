@@ -115,6 +115,14 @@ void mobile_affect_update();
 // (kPulse always, kBattlePulse only while fighting). Defined in magic.cpp. Returns true if any fired.
 bool RunCharAffectTick(CharData *ch, const Affect<EApply>::shared_ptr &aff);
 
+// issue.character-affect-triggers: run an affect TYPE's <actions> matching `trig` on the bearer `ch`,
+// with event.actor = `actor` (nullptr for actor-less triggers). Used for kExpired (from the affect-update
+// loops, actor=null) and kDispell (from RemoveAffectAndAnnounce, actor=dispeller). Defined in magic.cpp;
+// recursion is bounded by the shared trigger-action depth guard. Returns true if any action fired.
+namespace talents_actions { enum class EActionTrigger; }
+bool RunCharAffectTrigger(CharData *ch, EAffect affect_type,
+						  talents_actions::EActionTrigger trig, CharData *actor = nullptr);
+
 void affect_total(CharData *ch);
 void affect_modify(CharData *ch, EApply loc, int mod, EAffect bitv, bool add);
 std::pair<EApply, int> GetApplyByWeaponAffect(EWeaponAffect element, CharData *ch);
