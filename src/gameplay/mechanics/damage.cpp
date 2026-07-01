@@ -31,6 +31,8 @@
 #include "gameplay/affects/affect_handler.h"
 #include "gameplay/magic/magic_utils.h"
 #include "gameplay/magic/magic.h"   // issue.character-affect-triggers: RunCharEventTriggers / EventContext (kKill)
+#include "gameplay/affects/affect_messages.h"   // issue.damage-change: affects::AffectActions
+#include "gameplay/abilities/talents_actions.h"  // issue.damage-change: DamageChange / kWardDamage
 #include "gameplay/ai/spec_procs.h"
 #include "gameplay/mechanics/groups.h"
 #include "gameplay/mechanics/tutelar.h"
@@ -281,6 +283,58 @@ void Damage::ProcessBlink(CharData *ch, CharData *victim) {
 		dam = 0;
 		fs_damage = 0;
 		return;
+	}
+}
+
+// issue.damage-change: apply the victim's data-driven incoming-damage modifiers. Each kWardDamage
+// <damage_change> whose <conditions> match this Damage (type/element/flags) rolls its prob, then scales
+// `dam` by the variation and edits `flags`. Replaces the hardcoded per-affect blocks (kSanctuary,
+// kPrismaticAura, ... as they migrate); applied in affect-list order. -1 masks mean "any".
+void Damage::ApplyAffectDamageChanges(CharData *victim) {
+	if (!victim || victim->affected.empty()) {
+		return;
+	}
+	for (const auto &aff : victim->affected) {
+		if (!aff) {
+			continue;
+		}
+		for (const auto &action : affects::AffectActions(aff->affect_type).list()) {
+			if (!action.GetTrigger().test(talents_actions::EActionTrigger::kWardDamage)) {
+				continue;
+			}
+			const auto &dc = action.GetDamageChange();
+			if (!dc.present) {
+				continue;
+			}
+			if (dc.type_mask && !(dc.type_mask & (1u << static_cast<unsigned>(dmg_type)))) {
+				continue;
+			}
+			if (dc.element_mask && !(dc.element_mask & (1u << static_cast<unsigned>(element)))) {
+				continue;
+			}
+			const unsigned long long f = flags.to_ullong();   // re-read: a prior change may have edited flags
+			if ((f & dc.flags_present) != dc.flags_present || (f & dc.flags_missing) != 0) {
+				continue;
+			}
+			if (dc.prob < 100 && number(1, 100) > dc.prob) {
+				continue;
+			}
+			if (dc.var_factor != 0) {
+				const int pct = (dc.var_min == dc.var_max) ? dc.var_min : number(dc.var_min, dc.var_max);
+				dam = dam * (100 + dc.var_factor * pct) / 100;
+				if (dam < 0) {
+					dam = 0;
+				}
+			}
+			for (int i = 0; i < fight::kHitFlagsNum; ++i) {
+				if (dc.flags_add & (1ULL << i)) {
+					flags.set(i);
+				}
+				if (dc.flags_remove & (1ULL << i)) {
+					flags.reset(i);
+				}
+			}
+		}
 	}
 }
 
@@ -536,20 +590,10 @@ int Damage::Process(CharData *ch, CharData *victim) {
 	}
 
 	if (dam >= 2) {
-		if (AFF_FLAGGED(victim, EAffect::kPrismaticAura) && !flags[fight::kIgnorePrism]) {
-			if (dmg_type == fight::kPhysDmg) {
-				dam *= 2;
-			} else if (dmg_type == fight::kMagicDmg) {
-				dam /= 2;
-			}
-		}
-		if (AFF_FLAGGED(victim, EAffect::kSanctuary) && !flags[fight::kIgnoreSanct]) {
-			if (dmg_type == fight::kPhysDmg) {
-				dam /= 2;
-			} else if (dmg_type == fight::kMagicDmg) {
-				dam *= 2;
-			}
-		}
+		// issue.damage-change: data-driven incoming-damage modifiers (kWardDamage <damage_change>).
+		// kSanctuary and kPrismaticAura are now affect data (their hardcoded phys/magic scaling lived
+		// right here and was removed); kHold and the shields' reduction migrate in later phases.
+		ApplyAffectDamageChanges(victim);
 
 		if (victim->IsNpc() && Bonus::is_bonus_active(Bonus::EBonusType::BONUS_DAMAGE)) {
 			dam *= Bonus::get_mult_bonus();

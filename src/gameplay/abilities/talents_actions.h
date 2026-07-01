@@ -94,6 +94,9 @@ enum class EActionTrigger {
 	               // an external caster via <points> (not natural regen). Fired on the bearer; event.actor
 	               // = the healer, event.amount = the restored amount. An optional <trigger category=>
 	               // restricts it to one points category (kHeal/kMoves/kThirst/kFull).
+	kWardDamage,   // issue.damage-change: the bearer is taking an INCOMING damage instance (fired per
+	               // Damage::Process on the victim's affects). A <damage_change> action passively scales
+	               // the damage / edits its flags -- data-driven kSanctuary/kPrismaticAura/kHold/etc.
 	kDeath,        // issue.character-affect-triggers: the bearer is DYING (fired from die() before
 	               // raw_kill). event.actor = the killer. <trigger return="0"/> PREVENTS the death (like
 	               // an entry trigger's block) -- but the action must also heal (a <points><heal> on
@@ -168,6 +171,24 @@ struct Absorption {
 	EWardScope scope{EWardScope::kAll};
 	EApply chance{EApply::kNone};   // kNone => use `prob`; else roll vs the target's capped GET_<apply>
 	int prob{0};
+	bool present{false};
+};
+
+// issue.damage-change: a PASSIVE incoming-damage modifier (`<damage_change>` on a kWardDamage action).
+// Applied by Damage::ApplyAffectDamageChanges, NOT the cast pipeline -- it mutates the in-flight Damage.
+// Stored as decoupled bitmasks so this header needs no fight/element enums: type_mask bit = fight::DmgType
+// value, element_mask bit = EElement value, flag masks bit = fight:: hit-flag index (< 64). 0 mask = "any".
+struct DamageChange {
+	int prob{100};                  // % chance the whole modification applies
+	unsigned type_mask{0};          // <conditions><type> -- damage must be one of these (0 = any)
+	unsigned element_mask{0};       // <conditions><element> -- magic-damage element must be one of these (0 = any)
+	unsigned long long flags_present{0};   // <conditions><flags present=> -- all must be SET on the Damage
+	unsigned long long flags_missing{0};   // <conditions><flags missing=> -- all must be CLEAR
+	unsigned long long flags_add{0};       // <flags add=> -- set these on the Damage
+	unsigned long long flags_remove{0};    // <flags remove=> -- clear these
+	int var_min{0};                 // <variation min=> percent
+	int var_max{0};                 // <variation max=> percent
+	int var_factor{0};              // <variation factor=> signed direction (-1 reduce / +1 increase; 0 = none)
 	bool present{false};
 };
 
@@ -677,6 +698,7 @@ class Action {
 	// back at the caster on a successful prob roll.
 	Reflection reflection_;
 	Absorption absorption_;   // issue.attack-ward: defender absorb ward (<absorption>)
+	DamageChange damage_change_;   // issue.damage-change: passive incoming-damage modifier (<damage_change>)
 	// Per-action target selector (issue.area-cast): how a non-first action picks its targets.
 	// Ignored for the first action (uses the spell's targeting flags). Default kTarSame.
 	EActionTarget target_{EActionTarget::kTarSame};
@@ -729,6 +751,7 @@ class Action {
 	[[nodiscard]] const FlagCondition &GetRequired() const { return required_; }
 	[[nodiscard]] const Reflection &GetReflection() const { return reflection_; }
 	[[nodiscard]] const Absorption &GetAbsorption() const { return absorption_; }
+	[[nodiscard]] const DamageChange &GetDamageChange() const { return damage_change_; }
 	[[nodiscard]] EActionTarget GetTarget() const { return target_; }
 	[[nodiscard]] EActionBase GetBase() const { return base_; }
 	[[nodiscard]] const std::string &GetTagName() const { return tag_name_; }
@@ -772,6 +795,7 @@ class Actions {
 	static void ParseTargetConditions(Action &out, parser_wrapper::DataNode &node);
 	static void ParseReflection(Reflection &refl, parser_wrapper::DataNode &node);
 	static void ParseAbsorption(Absorption &absorb, parser_wrapper::DataNode &node);   // issue.attack-ward
+	static void ParseDamageChange(DamageChange &dc, parser_wrapper::DataNode &node);   // issue.damage-change
 
 	// Empty fallback for the back-compat delegating getters when list_ is empty
 	// (a spell with no <action>): preserves the old "default-constructed gates"

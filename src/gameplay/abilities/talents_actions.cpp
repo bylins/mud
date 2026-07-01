@@ -4,6 +4,7 @@
 #include "engine/core/target_resolver.h"
 #include "engine/entities/char_data.h"
 #include "gameplay/magic/spells_constants.h"
+#include "gameplay/fight/fight_constants.h"   // issue.damage-change: fight::DmgType + hit-flag values
 #include "gameplay/magic/magic_rooms.h"  // ERoomAffect, ITEM_BY_NAME/NAME_BY_ITEM<ERoomAffect>
 #include "gameplay/skills/skills.h"  // NAME_BY_ITEM<ESkill>
 #include "fmt/format.h"
@@ -99,7 +100,56 @@ const std::map<std::string, EActionTrigger> kActionTriggerByName{
 	{"kDispell", EActionTrigger::kDispell},
 	{"kPoints", EActionTrigger::kPoints},
 	{"kDeath", EActionTrigger::kDeath},
+	{"kWardDamage", EActionTrigger::kWardDamage},
 };
+
+// issue.damage-change: name -> value maps for <damage_change> conditions/flags. DmgType and the fight
+// hit-flags aren't meta-enum-registered, so we map by name here (values mirror fight_constants.h). EElement
+// IS registered (ITEM_BY_NAME<EElement>), so it's parsed directly. The masks are stored decoupled (ints).
+const std::map<std::string, int> kDmgTypeByName{
+	{"kUndefDmg", fight::kUndefDmg}, {"kPhysDmg", fight::kPhysDmg}, {"kMagicDmg", fight::kMagicDmg},
+	{"kPoisonDmg", fight::kPoisonDmg}, {"kPureDmg", fight::kPureDmg},
+};
+// Author-facing hit-flags only (the kVictim*/kDrawBrief* engine-state flags are intentionally excluded).
+const std::map<std::string, int> kHitFlagByName{
+	{"kIgnoreSanct", fight::kIgnoreSanct}, {"kIgnorePrism", fight::kIgnorePrism},
+	{"kIgnoreArmor", fight::kIgnoreArmor}, {"kHalfIgnoreArmor", fight::kHalfIgnoreArmor},
+	{"kIgnoreAbsorbe", fight::kIgnoreAbsorbe}, {"kNoFleeDmg", fight::kNoFleeDmg},
+	{"kCritHit", fight::kCritHit}, {"kCritLuck", fight::kCritLuck},
+	{"kIgnoreFireShield", fight::kIgnoreFireShield}, {"kMagicReflect", fight::kMagicReflect},
+	{"kIgnoreBlink", fight::kIgnoreBlink},
+};
+
+// issue.damage-change: parse a `|`-separated name list into a mask (bit = enum value). Unknown => err_log.
+static unsigned ParseDmgTypeMask(const char *val) {
+	unsigned mask = 0;
+	if (!val || !*val) { return mask; }
+	for (const auto &name : utils::Split(val, '|')) {
+		const auto it = kDmgTypeByName.find(name);
+		if (it != kDmgTypeByName.end()) { mask |= (1u << static_cast<unsigned>(it->second)); }
+		else { err_log("Actions: unknown <damage_change type='%s'>.", name.c_str()); }
+	}
+	return mask;
+}
+static unsigned ParseElementMask(const char *val) {
+	unsigned mask = 0;
+	if (!val || !*val) { return mask; }
+	for (const auto &name : utils::Split(val, '|')) {
+		const EElement e = ITEM_BY_NAME<EElement>(name);
+		mask |= (1u << static_cast<unsigned>(e));   // kUndefined(0) for an unknown name -> harmless bit
+	}
+	return mask;
+}
+static unsigned long long ParseHitFlagMask(const char *val) {
+	unsigned long long mask = 0;
+	if (!val || !*val) { return mask; }
+	for (const auto &name : utils::Split(val, '|')) {
+		const auto it = kHitFlagByName.find(name);
+		if (it != kHitFlagByName.end()) { mask |= (1ULL << static_cast<unsigned>(it->second)); }
+		else { err_log("Actions: unknown <damage_change flag '%s'>.", name.c_str()); }
+	}
+	return mask;
+}
 
 // issue.character-affect-triggers: <trigger val="kPoints" category="..."/> -> a points_intensity::ECategory
 // value (kept as int here to avoid a magic-subsystem include; MUST mirror that enum's values). kDamage
@@ -1050,6 +1100,8 @@ void Actions::ParseAction(Action &out, parser_wrapper::DataNode node) {
 			ParseReflection(out.reflection_, manifestation);
 		} else if (strcmp(manifestation.GetName(), "absorption") == 0) {
 			ParseAbsorption(out.absorption_, manifestation);
+		} else if (strcmp(manifestation.GetName(), "damage_change") == 0) {
+			ParseDamageChange(out.damage_change_, manifestation);
 		} else if (strcmp(manifestation.GetName(), "manual_cast") == 0) {
 			// <manual_cast handler="SpellX"/>.
 			const char *hv = manifestation.GetValue("handler");
@@ -1150,6 +1202,34 @@ void Actions::ParseAbsorption(Absorption &absorb, parser_wrapper::DataNode &node
 	const char *prob = node.GetValue("prob");
 	if (prob && *prob) {
 		absorb.prob = parse::ReadAsInt(prob);
+	}
+}
+
+void Actions::ParseDamageChange(DamageChange &dc, parser_wrapper::DataNode &node) {
+	dc.present = true;
+	if (const char *p = node.GetValue("prob"); p && *p) { dc.prob = parse::ReadAsInt(p); }
+	for (auto &child : node.Children()) {
+		const auto cn = child.GetName();
+		if (strcmp(cn, "conditions") == 0) {
+			for (auto &c : child.Children()) {
+				const auto n = c.GetName();
+				if (strcmp(n, "type") == 0) {
+					dc.type_mask |= ParseDmgTypeMask(c.GetValue("val"));
+				} else if (strcmp(n, "element") == 0) {
+					dc.element_mask |= ParseElementMask(c.GetValue("val"));
+				} else if (strcmp(n, "flags") == 0) {
+					dc.flags_present |= ParseHitFlagMask(c.GetValue("present"));
+					dc.flags_missing |= ParseHitFlagMask(c.GetValue("missing"));
+				}
+			}
+		} else if (strcmp(cn, "variation") == 0) {
+			if (const char *v = child.GetValue("min"); v && *v) { dc.var_min = parse::ReadAsInt(v); }
+			if (const char *v = child.GetValue("max"); v && *v) { dc.var_max = parse::ReadAsInt(v); }
+			if (const char *v = child.GetValue("factor"); v && *v) { dc.var_factor = parse::ReadAsInt(v); }
+		} else if (strcmp(cn, "flags") == 0) {
+			dc.flags_add |= ParseHitFlagMask(child.GetValue("add"));
+			dc.flags_remove |= ParseHitFlagMask(child.GetValue("remove"));
+		}
 	}
 }
 

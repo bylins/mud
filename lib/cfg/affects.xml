@@ -32,6 +32,28 @@
 	</affect>
 	<affect id="kSanctuary" buff="Y">
 		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+		<actions>
+			<action>
+				<trigger val="kWardDamage"/>
+				<damage_change>
+					<conditions>
+						<type val="kPhysDmg"/>
+						<flags missing="kIgnoreSanct"/>
+					</conditions>
+					<variation min="50" max="50" factor="-1"/>
+				</damage_change>
+			</action>
+			<action>
+				<trigger val="kWardDamage"/>
+				<damage_change>
+					<conditions>
+						<type val="kMagicDmg"/>
+						<flags missing="kIgnoreSanct"/>
+					</conditions>
+					<variation min="100" max="100" factor="1"/>
+				</damage_change>
+			</action>
+		</actions>
 	</affect>
 	<affect id="kGroup"/>
 	<affect id="kCurse" buff="N">
@@ -183,6 +205,28 @@
 	</affect>
 	<affect id="kPrismaticAura" buff="Y">
 		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+		<actions>
+			<action>
+				<trigger val="kWardDamage"/>
+				<damage_change>
+					<conditions>
+						<type val="kPhysDmg"/>
+						<flags missing="kIgnorePrism"/>
+					</conditions>
+					<variation min="100" max="100" factor="1"/>
+				</damage_change>
+			</action>
+			<action>
+				<trigger val="kWardDamage"/>
+				<damage_change>
+					<conditions>
+						<type val="kMagicDmg"/>
+						<flags missing="kIgnorePrism"/>
+					</conditions>
+					<variation min="50" max="50" factor="-1"/>
+				</damage_change>
+			</action>
+		</actions>
 	</affect>
 	<affect id="kHelper"/>
 	<affect id="kForcesOfEvil" buff="Y">

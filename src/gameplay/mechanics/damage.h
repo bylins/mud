@@ -131,6 +131,9 @@ class Damage {
   void ProcessDeath(CharData *ch, CharData *victim) const;
   void SendCritHitMsg(CharData *ch, CharData *victim);
   void ProcessBlink(CharData *ch, CharData *victim);
+  // issue.damage-change: apply the victim's kWardDamage <damage_change> actions to this in-flight Damage
+  // (data-driven incoming-damage modifiers: scale dam, edit flags), gated by type/element/flags.
+  void ApplyAffectDamageChanges(CharData *victim);
 
   // обратный дамаг от огненного щита
   int fs_damage{0};
