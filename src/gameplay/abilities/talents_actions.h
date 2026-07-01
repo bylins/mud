@@ -78,6 +78,11 @@ enum class EActionTrigger {
 	               // amount, weapon, skill, actor=victim)
 	kWardAttack,   // issue.attack-ward: the bearer is the TARGET of an incoming (magic) attack -- the
 	               // defender's affect may reflect/absorb it. Fired once per cast at the is_entry gate.
+	kKill,         // issue.character-affect-triggers: the bearer dealt the FATAL damage to a victim in
+	               // the same room (direct hit OR indirect DoT/spell -- whoever the death is credited to).
+	               // Fired from Damage::ProcessDeath on the resolved killer, before the victim is purged.
+	               // Event carries actor=victim, amount=fatal dmg, weapon, skill. Recommended targets are
+	               // kTarFightSelf / kTarGroup / kTarRandomAlly; do NOT target the victim (it is dead).
 	kCount
 };
 

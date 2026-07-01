@@ -56,6 +56,8 @@ struct RollResult {
 // event" (an ordinary cast, not trigger-launched). Members are filled per trigger kind at the fire-site:
 //   kPreHit         -> weapon, skill                          (pre-damage swing)
 //   kPostHit -> amount, weapon, skill, actor (= victim) (post-damage, on a landed hit)
+//   kKill    -> amount (= fatal dmg), weapon, skill, actor (= the killed victim, already dead --
+//              exposed for reads only; do NOT cast on it)   (fired from Damage::ProcessDeath)
 struct EventContext {
 	talents_actions::EActionTrigger trigger{talents_actions::EActionTrigger::kCount};
 	int amount{0};                       // damage dealt (kPostHit)

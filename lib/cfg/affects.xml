@@ -326,6 +326,10 @@
 					<heal min="1" dices_weight="0" alpha="0" beta="0.10" npc_coeff="0"/>
 				</points>
 			</action>
+			<action target="kTarFightSelf">
+				<trigger val="kKill"/>
+				<side_spell id="kHaste"/>
+			</action>
 		</actions>
 	</affect>
 	<affect id="kLacerations">
