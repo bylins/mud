@@ -107,6 +107,17 @@
 	<affect id="kCharmed"/>
 	<affect id="kHold" buff="N">
 		<flags val="kAfBattledec|kAfDispellable|kAfCurable|kAfEntanglement"/>
+		<actions>
+			<action>
+				<trigger val="kWardDamage"/>
+				<damage_change>
+					<conditions>
+						<type val="kPhysDmg"/>
+					</conditions>
+					<variation min="50" max="50" factor="1"/>
+				</damage_change>
+			</action>
+		</actions>
 	</affect>
 	<affect id="kFly" buff="Y">
 		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>

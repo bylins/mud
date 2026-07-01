@@ -636,13 +636,9 @@ int Damage::Process(CharData *ch, CharData *victim) {
 
 	// прочие множители
 
-	if (AFF_FLAGGED(victim, EAffect::kHold) && dmg_type == fight::kPhysDmg) {
-		if (ch->IsNpc() && !IsCharmice(ch)) {
-			dam = dam * 15 / 10;
-		} else {
-			dam = dam * 125 / 100;
-		}
-	}
+	// issue.damage-change: kHold's "held target takes more physical damage" migrated to a data-driven
+	// <damage_change> (kWardDamage) on the affect -- applied at the ApplyAffectDamageChanges hook above.
+	// Simplified to a flat x1.5 (the old NPC x1.5 / PC x1.25 split was dropped as a pointless distinction).
 
 	if (!victim->IsNpc() && IsCharmice(ch)) {
 		dam = dam * 8 / 10;
