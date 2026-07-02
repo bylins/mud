@@ -3742,20 +3742,21 @@ void SqliteWorldDataSource::SaveMobRecord(int mob_vnum, CharData &mob)
 			}
 		}
 	}
-	// Save mob destinations
+	// Save mob destinations. Room vnum 0 is a legitimate destination (issue
+	// found via full-world checksum diff: mobs patrolling back to room 0 lost
+	// their route on round-trip because this loop used to skip dest[i] == 0
+	// as if it were an empty slot). Bound by dest_count, not dest.size(), so
+	// unfilled trailing slots are correctly excluded without a value check.
 	const char *dest_sql = "INSERT INTO mob_destinations (mob_vnum, dest_order, room_vnum) VALUES (?, ?, ?)";
-	for (size_t i = 0; i < mob.mob_specials.dest.size(); ++i)
+	for (int i = 0; i < mob.mob_specials.dest_count && i < static_cast<int>(mob.mob_specials.dest.size()); ++i)
 	{
-		if (mob.mob_specials.dest[i] != 0)
+		if (sqlite3_prepare_v2(m_db, dest_sql, -1, &stmt, nullptr) == SQLITE_OK)
 		{
-			if (sqlite3_prepare_v2(m_db, dest_sql, -1, &stmt, nullptr) == SQLITE_OK)
-			{
-				sqlite3_bind_int(stmt, 1, mob_vnum);
-				sqlite3_bind_int(stmt, 2, i);
-				sqlite3_bind_int(stmt, 3, mob.mob_specials.dest[i]);
-				sqlite3_step(stmt);
-				sqlite3_finalize(stmt);
-			}
+			sqlite3_bind_int(stmt, 1, mob_vnum);
+			sqlite3_bind_int(stmt, 2, i);
+			sqlite3_bind_int(stmt, 3, mob.mob_specials.dest[i]);
+			sqlite3_step(stmt);
+			sqlite3_finalize(stmt);
 		}
 	}
 
