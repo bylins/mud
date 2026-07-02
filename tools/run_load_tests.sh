@@ -124,6 +124,13 @@ fi
 # an error message pointing the operator to FULL_WORLD_DIR.
 FULL_WORLD_DIR="${FULL_WORLD_DIR:-}"
 
+# Max seconds to wait for a boot (or a cold-boot resync) to complete. The
+# small world finishes in seconds regardless, but the full world (hundreds of
+# zones, tens of thousands of rooms) can take 2+ minutes for a plain boot and
+# longer still for a cold SQLite resync -- override via env if a bigger world
+# needs more headroom.
+BOOT_TIMEOUT="${BOOT_TIMEOUT:-900}"
+
 # Map a CMake-style build type ("Debug"/"Release"/"Test"/"FastTest") to the
 # corresponding meson profile. Pass through anything we don't recognise.
 map_build_type_to_meson_profile() {
@@ -637,6 +644,9 @@ run_roundtrip_test() {
 
     (cd "$test_dir" && rm -rf world_v2 stdout_rt.log)
 
+    fuser -k 4001/tcp 2>/dev/null || true
+    sleep 0.3
+
     echo "  Resaving world via '-S world_v2' ..."
     (cd "$test_dir" && exec "$binary" -d . -S world_v2 4001 > stdout_rt.log 2>&1)
     local rc=$?
@@ -687,6 +697,9 @@ run_flat_roundtrip_test() {
     else
         printf 'layout: flat\n' >> "$cfg"
     fi
+
+    fuser -k 4001/tcp 2>/dev/null || true
+    sleep 0.3
 
     echo "  Resaving world (layout=flat) via '-S world_flat' ..."
     (cd "$test_dir" && exec "$binary" -d . -S world_flat 4001 > stdout_flat.log 2>&1)
@@ -766,7 +779,7 @@ run_sqlite_roundtrip_test() {
     (cd "$test_dir" && exec "$binary" -d . 4001 > "stdout_sqlt1.log" 2>&1) &
 
     local waited=0
-    while [ $waited -lt 300 ]; do
+    while [ $waited -lt $BOOT_TIMEOUT ]; do
         if LANG=C grep -qa "Boot db -- DONE" "$test_dir/syslog" 2>/dev/null; then
             break
         fi
@@ -778,7 +791,7 @@ run_sqlite_roundtrip_test() {
     sleep 1
 
     if ! LANG=C grep -qa "Boot db -- DONE" "$test_dir/syslog" 2>/dev/null; then
-        echo "  X ERROR: Boot 1 timed out (300s)"
+        echo "  X ERROR: Boot 1 timed out (${BOOT_TIMEOUT}s)"
         tail -20 "$test_dir/syslog" 2>/dev/null || echo "  (no syslog)"
         return 1
     fi
@@ -813,6 +826,13 @@ run_test() {
     cd "$work_dir"
     rm -rf "$data_dir/syslog" "$data_dir/checksums_detailed.txt" "$data_dir/checksums_buffers" 2>/dev/null || true
 
+    # Proactively free port 4000 -- a leftover process here (from a prior stage
+    # that failed to shut down cleanly, or a stray manual test run) makes the
+    # new binary fail to bind immediately, and the wait loop below then blindly
+    # waits out its full timeout for a syslog pattern that will never appear.
+    fuser -k 4000/tcp 2>/dev/null || true
+    sleep 0.3
+
     # Start server in background (cd into data_dir so syslog/log/ land there)
     # exec replaces the subshell so $! captures the binary's PID, not the shell's
     echo "  Running: $binary -d . $extra_flags 4000 (from $data_dir)"
@@ -832,6 +852,17 @@ run_test() {
         return 1
     fi
 
+    # Fail fast on a bind error instead of waiting out the full 300s pattern
+    # timeout below for a boot that already died (e.g. port 4000 still held by
+    # a process that appeared between the fuser -k above and the exec).
+    sleep 0.3
+    if LANG=C grep -qa "Failed to bind to port" "$data_dir/syslog" 2>/dev/null; then
+        echo "  X ERROR: Server failed to bind to port 4000 (still in use?)"
+        tail -10 "$data_dir/syslog" 2>/dev/null
+        cd "$MUD_DIR"
+        return 1
+    fi
+
     # Determine what to wait for based on -W flag (checksums enabled)
     local wait_pattern
     if echo "$extra_flags" | grep -q -- "-W"; then
@@ -842,10 +873,10 @@ run_test() {
         wait_pattern="Boot db -- DONE"
     fi
 
-    # Wait for completion (max 5 minutes)
+    # Wait for completion (max $BOOT_TIMEOUT seconds)
     waited=0
     local boot_success=0
-    while [ $waited -lt 300 ]; do
+    while [ $waited -lt $BOOT_TIMEOUT ]; do
 
         # Check if pattern found (match with or without trailing period)
         if LANG=C grep -qEa "$wait_pattern" "$data_dir/syslog" 2>/dev/null; then
@@ -868,7 +899,7 @@ run_test() {
 
     # Check if boot succeeded
     if [ $boot_success -eq 0 ]; then
-        echo "  X ERROR: Boot timeout (5 minutes exceeded)"
+        echo "  X ERROR: Boot timeout (${BOOT_TIMEOUT}s exceeded)"
         echo "  Last 30 lines of syslog:"
         tail -30 "$data_dir/syslog" 2>/dev/null || echo "  (no syslog found)"
         cd "$MUD_DIR"

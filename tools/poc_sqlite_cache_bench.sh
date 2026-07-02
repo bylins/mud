@@ -79,8 +79,12 @@ boot_once() {
 
     (cd "$dir" && exec "$binary" -d . "$port" > "stdout_poc_${label}.log" 2>&1) &
 
+    # $BOOT_TIMEOUT_ITERS = seconds / 0.5 -- override BOOT_TIMEOUT for a large
+    # world (the full world's cold-boot resync writes every zone to a fresh
+    # SQLite db and can run well past a plain boot's time).
     local waited=0
-    while [ $waited -lt 120 ]; do
+    local max_iters=$((${BOOT_TIMEOUT:-900} * 2))
+    while [ $waited -lt $max_iters ]; do
         LANG=C grep -qa "Boot db -- DONE" "$dir/syslog" 2>/dev/null && break
         sleep 0.5
         waited=$((waited + 1))
