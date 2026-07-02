@@ -305,6 +305,9 @@ void player_affect_update() {
 		bool was_purged = false;
 		bool set_abstinent = false;
 		bool need_recalc = false;
+		// issue.damage-over-time: an out-of-combat data-driven DoT (kPulse actions) ticks once per affect
+		// type per pass (multi-instance affects share one tick, like poison in battle_affect_update).
+		std::set<EAffect> ticked_types;
 		auto affect_i = i->affected.begin();
 
 		while (affect_i != i->affected.end()) {
@@ -350,16 +353,32 @@ void player_affect_update() {
 			} else {
 				if (affect->duration > 0) {
 					if (IS_SET(affect->battleflag, kAfSameTime) && !i->GetEnemy()) {
-						utils::CExecutionTimer poison_timer;
-						++profile.counters[static_cast<std::size_t>(Counter::kPoisonCalls)];
-						// здесь плеера могут спуржить
-						if (ProcessPoisonDmg(i.get(), affect) == -1) {
+						// issue.damage-over-time: out of combat, a data-driven DoT (has <actions>) ticks its
+						// kPulse actions here -- the out-of-combat counterpart of battle_affect_update, so a
+						// burn/DoT keeps damaging even when the bearer is not fighting. Legacy poison (no
+						// actions) keeps the hardcoded ProcessPoisonDmg path. In combat the tick is skipped
+						// here (guarded by !GetEnemy) and handled per round by battle_affect_update.
+						if (!affects::AffectActions(affect->affect_type).list().empty()) {
+							if (ticked_types.insert(affect->affect_type).second) {
+								RunCharAffectTick(i.get(), affect);
+								if (i->purged()) {
+									was_purged = true;
+									++profile.counters[static_cast<std::size_t>(Counter::kPurgedPlayers)];
+									break;
+								}
+							}
+						} else {
+							utils::CExecutionTimer poison_timer;
+							++profile.counters[static_cast<std::size_t>(Counter::kPoisonCalls)];
+							// здесь плеера могут спуржить
+							if (ProcessPoisonDmg(i.get(), affect) == -1) {
+								profile.sections[static_cast<std::size_t>(Section::kProcessPoison)] += poison_timer.delta().count();
+								was_purged = true;
+								++profile.counters[static_cast<std::size_t>(Counter::kPurgedPlayers)];
+								break;
+							}
 							profile.sections[static_cast<std::size_t>(Section::kProcessPoison)] += poison_timer.delta().count();
-							was_purged = true;
-							++profile.counters[static_cast<std::size_t>(Counter::kPurgedPlayers)];
-							break;
 						}
-						profile.sections[static_cast<std::size_t>(Section::kProcessPoison)] += poison_timer.delta().count();
 					}
 //					sprintf(buf, "ЧАР: Спелл %s висит на %s длительносить %d\r\n", MUD::Spell(affect->type).GetCName(), GET_PAD(i, 5), affect->duration);
 //					mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
@@ -509,6 +528,8 @@ void mobile_affect_update() {
 		int was_charmed = false;
 		bool was_purged = false;
 		bool need_recalc = false;
+		// issue.damage-over-time: out-of-combat data-driven DoT ticks once per affect type per pass.
+		std::set<EAffect> ticked_types;
 		++profile.counters[static_cast<std::size_t>(Counter::kMobs)];
 //		if (!ch->in_used_zone()) {
 //			return;
@@ -551,24 +572,33 @@ void mobile_affect_update() {
 				need_recalc = true;
 			} else {
 				if (affect->duration > 0) {
-					// issue.character-affect-triggers: a poison MIGRATED to the data-driven mechanism (has
-					// <actions>) ticks per combat round in battle_affect_update, so the slow mob loop no
-					// longer DoTs it while it's fighting (avoids double). Legacy poison (no actions) keeps
-					// its old behaviour -- slow-ticked even in combat.
-					if (IS_SET(affect->battleflag, kAfSameTime)
-						&& (!ch->GetEnemy()
-							|| (affect->location == EApply::kPoison
-								&& affects::AffectActions(affect->affect_type).list().empty()))) {
-						utils::CExecutionTimer poison_timer;
-						++profile.counters[static_cast<std::size_t>(Counter::kPoisonCalls)];
-						// здесь плеера могут спуржить
-						if (ProcessPoisonDmg(ch, affect) == -1) {
+					// issue.character-affect-triggers/damage-over-time: a DoT with <actions> ticks per combat
+					// round in battle_affect_update while fighting; here (the slow mob loop) it ticks only
+					// OUT of combat -- so a burn keeps damaging a non-fighting mob without double-hitting in
+					// combat. Legacy poison (no actions) keeps its old hardcoded ProcessPoisonDmg path
+					// (slow-ticked out of combat, and even in combat for a kPoison DoT).
+					if (IS_SET(affect->battleflag, kAfSameTime)) {
+						if (!affects::AffectActions(affect->affect_type).list().empty()) {
+							if (!ch->GetEnemy() && ticked_types.insert(affect->affect_type).second) {
+								RunCharAffectTick(ch, affect);
+								if (ch->purged()) {
+									was_purged = true;
+									++profile.counters[static_cast<std::size_t>(Counter::kPurgedMobs)];
+									break;
+								}
+							}
+						} else if (!ch->GetEnemy() || affect->location == EApply::kPoison) {
+							utils::CExecutionTimer poison_timer;
+							++profile.counters[static_cast<std::size_t>(Counter::kPoisonCalls)];
+							// здесь плеера могут спуржить
+							if (ProcessPoisonDmg(ch, affect) == -1) {
+								profile.sections[static_cast<std::size_t>(Section::kProcessPoison)] += poison_timer.delta().count();
+								was_purged = true;
+								++profile.counters[static_cast<std::size_t>(Counter::kPurgedMobs)];
+								break;
+							}
 							profile.sections[static_cast<std::size_t>(Section::kProcessPoison)] += poison_timer.delta().count();
-							was_purged = true;
-							++profile.counters[static_cast<std::size_t>(Counter::kPurgedMobs)];
-							break;
 						}
-						profile.sections[static_cast<std::size_t>(Section::kProcessPoison)] += poison_timer.delta().count();
 					}
 					affect->duration--;
 					if (affect->duration == 0) {

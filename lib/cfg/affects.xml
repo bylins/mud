@@ -851,8 +851,11 @@
 			<!-- target="kTarFightSelf" = the bearer: a lone tick action defaults to kTarSame, which resolves
 			     to the PREVIOUS action's targets (empty here) -> no victim -> no damage. kTarFightSelf
 			     returns {caster}=the bearer, so the DoT damages the burning char. -->
+			<!-- kPulse (not kBattlePulse) so the burn ticks BOTH in combat (battle_affect_update) and out of
+			     combat (player_/mobile_affect_update) -- e.g. a fire-trap dispel sting on a char who is not
+			     fighting. RunCharAffectTick fires kPulse regardless of combat state. -->
 			<action target="kTarFightSelf">
-				<trigger val="kBattlePulse"/>
+				<trigger val="kPulse"/>
 				<!-- issue.damage-over-time: per-tick damage = amount.min + ceil(stored_potency * dices_weight).
 				     dices_weight is the DAMAGE scale; it is independent of the dispel strength (the stored
 				     potency itself, set by kFireBlast's <affects potency_weight>). Raise dices_weight for a
