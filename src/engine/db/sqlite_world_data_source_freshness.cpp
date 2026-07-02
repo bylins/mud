@@ -243,8 +243,9 @@ CREATE TABLE mob_spells (
 );
 CREATE TABLE mob_helpers (
     mob_vnum INTEGER NOT NULL,
+    helper_order INTEGER NOT NULL,
     helper_vnum INTEGER NOT NULL,
-    PRIMARY KEY (mob_vnum, helper_vnum),
+    PRIMARY KEY (mob_vnum, helper_order),
     FOREIGN KEY (mob_vnum) REFERENCES mobs(vnum) ON DELETE CASCADE
 );
 CREATE TABLE mob_destinations (

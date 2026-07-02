@@ -2186,8 +2186,12 @@ void SqliteWorldDataSource::LoadMobSpells()
 
 void SqliteWorldDataSource::LoadMobHelpers()
 {
-	const char *sql = "SELECT mob_vnum, helper_vnum FROM mob_helpers";
-	
+	// ORDER BY helper_order to preserve the original (possibly-repeated,
+	// weighted) helper list order -- the table's primary key is now
+	// (mob_vnum, helper_order), not (mob_vnum, helper_vnum), so a repeated
+	// vnum round-trips correctly instead of being deduplicated.
+	const char *sql = "SELECT mob_vnum, helper_vnum FROM mob_helpers ORDER BY mob_vnum, helper_order";
+
 	sqlite3_stmt *stmt;
 	if (sqlite3_prepare_v2(m_db, sql, -1, &stmt, nullptr) != SQLITE_OK)
 	{
@@ -3727,8 +3731,11 @@ void SqliteWorldDataSource::SaveMobRecord(int mob_vnum, CharData &mob)
 			}
 		}
 	}
-	// Save mob helpers
-	const char *helper_sql = "INSERT INTO mob_helpers (mob_vnum, helper_vnum) VALUES (?, ?)";
+	// Save mob helpers. helper_order (not helper_vnum) keys the primary key
+	// so a repeated vnum (weighted random helper selection in YAML) round-trips
+	// instead of silently colliding and being dropped on the second INSERT.
+	const char *helper_sql = "INSERT INTO mob_helpers (mob_vnum, helper_order, helper_vnum) VALUES (?, ?, ?)";
+	int helper_order = 0;
 	for (const auto &helper_vnum : mob.summon_helpers)
 	{
 		if (helper_vnum != 0)
@@ -3736,10 +3743,12 @@ void SqliteWorldDataSource::SaveMobRecord(int mob_vnum, CharData &mob)
 			if (sqlite3_prepare_v2(m_db, helper_sql, -1, &stmt, nullptr) == SQLITE_OK)
 			{
 				sqlite3_bind_int(stmt, 1, mob_vnum);
-				sqlite3_bind_int(stmt, 2, helper_vnum);
+				sqlite3_bind_int(stmt, 2, helper_order);
+				sqlite3_bind_int(stmt, 3, helper_vnum);
 				sqlite3_step(stmt);
 				sqlite3_finalize(stmt);
 			}
+			++helper_order;
 		}
 	}
 	// Save mob destinations. Room vnum 0 is a legitimate destination (issue
