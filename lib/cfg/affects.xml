@@ -848,7 +848,10 @@
 	<affect id="kBurning" buff="N">
 		<flags val="kAfSameTime|kAfDispellable"/>
 		<actions>
-			<action>
+			<!-- target="kTarFightSelf" = the bearer: a lone tick action defaults to kTarSame, which resolves
+			     to the PREVIOUS action's targets (empty here) -> no victim -> no damage. kTarFightSelf
+			     returns {caster}=the bearer, so the DoT damages the burning char. -->
+			<action target="kTarFightSelf">
 				<trigger val="kBattlePulse"/>
 				<!-- issue.damage-over-time: per-tick damage = amount.min + ceil(stored_potency * dices_weight).
 				     dices_weight is the DAMAGE scale; it is independent of the dispel strength (the stored

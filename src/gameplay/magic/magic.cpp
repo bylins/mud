@@ -3619,7 +3619,8 @@ bool RunCharAffectTick(CharData *ch, const Affect<EApply>::shared_ptr &aff) {
 	const int phase = aff->apply_time > 0 ? aff->apply_time - 1 : 0;
 	int dur = aff->duration;
 	// Spell-free tick on the affect's stored potency (ctx_spell kUndefined); the bearer is the caster, so
-	// a kTarSame <damage> action damages the bearer. World room = the bearer's room (cast context only).
+	// a <damage> action targeting kTarFightSelf damages the bearer (a lone action's default kTarSame
+	// resolves to the previous action's targets -- empty -- so it must be explicit). Room = bearer's room.
 	// issue.damage-over-time: give the tick's <damage> the affect's own damage flavor (kDamageTo*), same as
 	// the trigger path (RunCharAffectTrigger) -- without this a DoT deals damage silently (no visible line).
 	CastRoomTickActionFromActions(ch, world[ch->in_room], ESpell::kUndefined, pulse, phase, &dur, aff->potency,
