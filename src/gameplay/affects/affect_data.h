@@ -163,6 +163,15 @@ void ImposeAffectNoRecalc(CharData *ch, const Affect<EApply> &af);
 void ImposeAffectNoRecalc(CharData *ch, Affect<EApply> &af, bool add_dur, bool max_dur, bool add_mod, bool max_mod);
 void reset_affects(CharData *ch);
 void reset_affects_no_recalc(CharData *ch);
+
+// issue.mob-flag-affect-materialization: for a flag-only NPC, realize each kAfMaterialize buff FLAG it
+// carries (with no matching Affect yet) as a real duration=-1 (permanent, dispellable) affect, so the
+// data-driven affect system works for that mob. One affect_total() at the end if anything was added.
+void MaterializeMobFlagAffects(CharData *mob);
+// Materialize every NPC in the given zone (walks the zone's room rnum range).
+void MaterializeZoneMobAffects(ZoneRnum zrn);
+// (MarkZoneUsed -- the zone-wake hook that calls the above -- is declared in engine/entities/zone.h so
+//  the world/movement call sites can use it without pulling in this heavy affect header.)
 bool no_bad_affects(ObjData *obj);
 bool IsNegativeApply(EApply location);
 bool GetAffectNumByName(const std::string &affName, EAffect &result);

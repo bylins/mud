@@ -109,6 +109,10 @@ enum class EBuff { kNo, kYes, kAmbiguous };
 // one shield that reduces a given hit.
 [[nodiscard]] int AffectShieldWeight(EAffect affect_type);
 
+// issue.mob-flag-affect-materialization: affect types flagged kAfMaterialize, cached at load. These are
+// the buffs realized as real (dispellable, duration=-1) affects on a flag-only NPC when its zone wakes.
+[[nodiscard]] const std::vector<EAffect> &MaterializableAffects();
+
 // issue.affects-improve (P2): one stat-change an affect imposes -- its location (EApply) plus the
 // modifier-formula coefficients (same shape as a spell's <apply><modifier>). The affect, not the
 // spell, owns these; the spell/skill supplies competence/dice/duration. Parsed from affects.xml

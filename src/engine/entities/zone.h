@@ -80,6 +80,12 @@ class ZoneData {
 using ZoneTable = std::vector<ZoneData>;
 extern ZoneTable &zone_table;
 
+// issue.mob-flag-affect-materialization: mark a zone used, and on the dormant->awake edge realize its
+// NPCs' materializable buff flags into real affects. Idempotent (materializes only on false->true).
+// Use this in place of a bare `zone_table[z].used = true;` at PC-entry / after-reset wake points.
+// Defined in gameplay/affects/affect_data.cpp.
+void MarkZoneUsed(ZoneRnum zrn);
+
 ZoneVnum GetZoneVnumByCharPlace(CharData *ch);
 
 #endif // __ZONE_TABLE_HPP__

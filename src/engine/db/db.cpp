@@ -1870,12 +1870,12 @@ void after_reset_zone(ZoneRnum nr_zone) {
 		// Чар должен быть в игре
 		if (d->state == EConState::kPlaying) {
 			if (world[d->character->in_room]->zone_rn == nr_zone) {
-				zone_table[nr_zone].used = true;
+				MarkZoneUsed(nr_zone);   // player present when zone reset -> wake + materialize fresh mobs
 				return;
 			}
 			for (auto *k : d->character->followers) {
 				if (IsCharmice(k) && world[k->in_room]->zone_rn == nr_zone) {
-					zone_table[nr_zone].used = true;
+					MarkZoneUsed(nr_zone);   // charmice present when zone reset -> wake + materialize
 					return;
 				}
 			}

@@ -46,7 +46,12 @@ enum EAffFlag : Bitvector {
   // of a specific affect id. kAfNoPositionBonus: while this affect is the active shield, the attacker
   // gets no low-position damage bonus (air). kAfNoCritBonus: no crit damage bonus (ice).
   kAfNoPositionBonus	= 1u << 20,
-  kAfNoCritBonus		= 1u << 21
+  kAfNoCritBonus		= 1u << 21,
+  // issue.mob-flag-affect-materialization: this affect should be realized as a real (dispellable,
+  // duration=-1) Affect struct on a flag-only NPC when its zone wakes, so the data-driven affect
+  // system works for that mob. Declared on the buffs mobs commonly carry as bare flags (sanctuary,
+  // shields, prism, hold, ...). NOT on kGodsShield (stays a flag-only, non-dispellable "no damage" marker).
+  kAfMaterialize		= 1u << 22
 };
 
 /**

@@ -543,6 +543,7 @@ void init_EAffFlag_ITEM_NAMES() {
 	EAffFlag_name_by_value[EAffFlag::kAfIgnoreBlink] = "kAfIgnoreBlink";
 	EAffFlag_name_by_value[EAffFlag::kAfNoPositionBonus] = "kAfNoPositionBonus";
 	EAffFlag_name_by_value[EAffFlag::kAfNoCritBonus] = "kAfNoCritBonus";
+	EAffFlag_name_by_value[EAffFlag::kAfMaterialize] = "kAfMaterialize";
 
 	for (const auto &i : EAffFlag_name_by_value) {
 		EAffFlag_value_by_name[i.second] = i.first;
@@ -656,6 +657,9 @@ std::array<talents_actions::Actions, kAffectFlagTableSize> g_affect_actions{};
 // affect as one of the mutually-exclusive elemental shields; a hit passes through exactly one, picked
 // weighted-random by these values. 0 = not a shield.
 std::array<int, kAffectFlagTableSize> g_affect_shield_weight{};
+// issue.mob-flag-affect-materialization: affect types flagged kAfMaterialize, collected once at load so
+// the zone-wake materializer can walk a short list instead of scanning every EAffect per mob.
+std::vector<EAffect> g_materializable_affects{};
 bool g_affect_flags_loaded = false;
 
 // Parse an <affect buff="Y|N|A"> attribute into EBuff (the affect-side analog of ParseViolent). Absent
@@ -736,6 +740,13 @@ void BuildAffectFlagTable(parser_wrapper::DataNode data) {
 			if (act_node.GoToChild("actions")) {
 				g_affect_actions[idx].Build(act_node);
 			}
+		}
+	}
+	// issue.mob-flag-affect-materialization: cache the kAfMaterialize affect types.
+	g_materializable_affects.clear();
+	for (std::size_t i = 0; i < kAffectFlagTableSize; ++i) {
+		if (g_affect_flags[i] & to_underlying(EAffFlag::kAfMaterialize)) {
+			g_materializable_affects.push_back(static_cast<EAffect>(i));
 		}
 	}
 	g_affect_flags_loaded = true;
@@ -855,6 +866,12 @@ EBuff AffectBuffKind(EAffect affect_type) {
 int AffectShieldWeight(EAffect affect_type) {
 	const auto idx = static_cast<std::size_t>(to_underlying(affect_type));
 	return idx < kAffectFlagTableSize ? g_affect_shield_weight[idx] : 0;
+}
+
+// issue.mob-flag-affect-materialization: affect types flagged kAfMaterialize (buffs to realize as real
+// affects on flag-only NPCs when their zone wakes).
+const std::vector<EAffect> &MaterializableAffects() {
+	return g_materializable_affects;
 }
 
 // issue.affects-improve (P2): the affect's stat-change applies from affects.xml (empty if none).

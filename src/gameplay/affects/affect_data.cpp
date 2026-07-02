@@ -12,6 +12,8 @@
 #include "gameplay/affects/player_affect_update_profiler.h"
 #include "engine/entities/char_player.h"
 #include "engine/db/world_characters.h"
+#include "engine/db/db.h"          // world, top_of_world (zone-wake materialization)
+#include "engine/entities/zone.h"  // zone_table
 #include "gameplay/fight/fight_hit.h"
 #include "gameplay/classes/pc_classes.h"
 #include "gameplay/mechanics/deathtrap.h"
@@ -1285,6 +1287,77 @@ void affect_modify(CharData *ch, EApply loc, int mod, const EAffect bitv, bool a
 		}
 		default:break;
 	}            // switch
+}
+
+// issue.mob-flag-affect-materialization: realize a flag-only NPC's kAfMaterialize buff flags as real
+// duration=-1 (permanent, dispellable) affects, so the data-driven affect system works for it. Skips
+// flags that already have a matching affect. One recalc at the end. Materializable buffs (sanct/shields/
+// prism/hold) carry no <apply>, so each is a flag-only affect (location kNone, modifier 0); an affect
+// that DID have applies would need a base-modifier decision (out of scope for now).
+void MaterializeMobFlagAffects(CharData *mob) {
+	if (!mob || !mob->IsNpc() || !affects::AffectFlagsLoaded()) {
+		return;
+	}
+	bool added = false;
+	for (const EAffect at : affects::MaterializableAffects()) {
+		if (!AFF_FLAGGED(mob, at)) {
+			continue;
+		}
+		bool has_struct = false;
+		for (const auto &aff : mob->affected) {
+			if (aff && aff->affect_type == at) {
+				has_struct = true;
+				break;
+			}
+		}
+		if (has_struct) {
+			continue;
+		}
+		Affect<EApply> af;
+		af.affect_type = at;
+		af.duration = -1;             // permanent: never ticks or expires
+		af.location = EApply::kNone;  // materializable buffs carry no stat apply
+		af.modifier = 0;
+		af.caster_id = 0;
+		af.potency = 0.0f;            // intrinsic mob buff -> easily dispellable (no cast potency yet)
+		affect_to_char_no_recalc(mob, af);
+		added = true;
+	}
+	if (added) {
+		affect_total(mob);
+	}
+}
+
+void MaterializeZoneMobAffects(ZoneRnum zrn) {
+	if (zrn < 0 || static_cast<std::size_t>(zrn) >= zone_table.size()
+		|| affects::MaterializableAffects().empty()) {
+		return;
+	}
+	const RoomRnum first = zone_table[zrn].RnumRoomsLocation.first;
+	const RoomRnum last = zone_table[zrn].RnumRoomsLocation.second;
+	if (first < 0 || last < first) {
+		return;
+	}
+	for (RoomRnum rrn = first; rrn <= last && rrn <= top_of_world; ++rrn) {
+		if (rrn < 0 || !world[rrn]) {
+			continue;
+		}
+		for (const auto vict : world[rrn]->people) {
+			if (vict && vict->IsNpc()) {
+				MaterializeMobFlagAffects(vict);
+			}
+		}
+	}
+}
+
+void MarkZoneUsed(ZoneRnum zrn) {
+	if (zrn < 0 || static_cast<std::size_t>(zrn) >= zone_table.size()) {
+		return;
+	}
+	if (!zone_table[zrn].used) {          // dormant -> awake edge
+		zone_table[zrn].used = true;
+		MaterializeZoneMobAffects(zrn);
+	}
 }
 
 // * Снятие аффектов с чара при смерти/уходе в дт.

@@ -131,7 +131,7 @@ void PlaceCharToRoom(CharData *ch, RoomRnum room, bool process_entry_affects) {
 	}
 
 	if (!ch->IsNpc() && !GET_INVIS_LEV(ch)) {
-		zone_table[world[room]->zone_rn].used = true;
+		MarkZoneUsed(world[room]->zone_rn);   // wake the zone (materializes flag-only NPC buffs on the edge)
 		zone_table[world[room]->zone_rn].activity++;
 	} else if (process_entry_affects) {
 		//sventovit: здесь обрабатываются только неписи, чтобы игрок успел увидеть комнату

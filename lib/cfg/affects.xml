@@ -31,7 +31,7 @@
 		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
 	</affect>
 	<affect id="kSanctuary" buff="Y">
-		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfMaterialize"/>
 		<actions>
 			<action>
 				<trigger val="kWardDamage"/>
@@ -193,7 +193,7 @@
 		</apply>
 	</affect>
 	<affect id="kAirShield" buff="Y">
-		<flags val="kAfBattledec|kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfNoPositionBonus"/>
+		<flags val="kAfBattledec|kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfNoPositionBonus|kAfMaterialize"/>
 		<shield weight="10"/>
 		<actions>
 			<action>
@@ -209,7 +209,7 @@
 		</actions>
 	</affect>
 	<affect id="kFireShield" buff="Y">
-		<flags val="kAfBattledec|kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+		<flags val="kAfBattledec|kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfMaterialize"/>
 		<shield weight="10"/>
 		<actions>
 			<!-- Retaliation: a physical hit (not ignoring the shield, not a crit) reflects 15% back
@@ -253,7 +253,7 @@
 		</actions>
 	</affect>
 	<affect id="kIceShield" buff="Y">
-		<flags val="kAfBattledec|kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfNoCritBonus"/>
+		<flags val="kAfBattledec|kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfNoCritBonus|kAfMaterialize"/>
 		<shield weight="10"/>
 		<actions>
 			<!-- Crit-absorb: a crit (not precise-style, not poison) has a 94% chance to be neutralized:
@@ -283,7 +283,7 @@
 		</actions>
 	</affect>
 	<affect id="kMagicGlass" buff="Y">
-		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfMaterialize"/>
 		<actions>
 			<action>
 				<trigger val="kWardAttack"/>
@@ -307,7 +307,7 @@
 		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
 	</affect>
 	<affect id="kPrismaticAura" buff="Y">
-		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfNoCritBonus"/>
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfNoCritBonus|kAfMaterialize"/>
 		<actions>
 			<action>
 				<trigger val="kWardDamage"/>

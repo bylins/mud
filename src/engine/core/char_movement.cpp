@@ -818,7 +818,7 @@ void FleeToRoom(CharData *ch, RoomRnum room) {
 	}
 
 	if (!ch->IsNpc()) {
-		zone_table[world[room]->zone_rn].used = true;
+		MarkZoneUsed(world[room]->zone_rn);   // wake the zone (materializes flag-only NPC buffs on the edge)
 		zone_table[world[room]->zone_rn].activity++;
 	} else {
 		//sventovit: здесь обрабатываются только неписи, чтобы игрок успел увидеть комнату
