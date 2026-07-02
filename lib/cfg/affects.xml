@@ -75,7 +75,10 @@
 		<flags val="kAfSameTime|kAfDispellable|kAfCurable|kAfPoison"/>
 		<actions>
 			<action>
-				<trigger val="kBattlePulse"/>
+				<!-- kPulse (not kBattlePulse): poison ticks in AND out of combat. RunCharAffectTick only
+				     fires kPulse out of combat; with kBattlePulse the out-of-combat loops (which route
+				     actions-affects through RunCharAffectTick) would never tick poison. -->
+				<trigger val="kPulse"/>
 				<manual_cast handler="PoisonDot"/>
 			</action>
 		</actions>
