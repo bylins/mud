@@ -850,8 +850,12 @@
 		<actions>
 			<action>
 				<trigger val="kBattlePulse"/>
+				<!-- issue.damage-over-time: per-tick damage = amount.min + ceil(stored_potency * dices_weight).
+				     dices_weight is the DAMAGE scale; it is independent of the dispel strength (the stored
+				     potency itself, set by kFireBlast's <affects potency_weight>). Raise dices_weight for a
+				     harder-hitting burn without making it any harder to dispel. -->
 				<damage saving="kNone">
-					<amount min="0" dices_weight="0.1" alpha="0" beta="0" />
+					<amount min="0" dices_weight="0.6" alpha="0" beta="0" />
 				</damage>
 			</action>
 		</actions>

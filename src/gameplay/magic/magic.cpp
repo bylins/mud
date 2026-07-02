@@ -332,7 +332,8 @@ std::vector<Affect<EApply>> BuildMaterializedAffect(const CharData *mob, EAffect
 }
 
 static int CalcTotalSpellDmg(CharData *ch, CharData *victim, ESpell spell_id,
-							const talents_actions::Action &action, double competence) {
+							const talents_actions::Action &action, double competence,
+							int base_override = -1) {
 	const auto &potency_roll = MUD::Spell(spell_id).GetPotencyRoll();
 	const bool has_dmg = action.Contains(talents_actions::EAction::kDamage);
 	// prob: a <damage prob=> spell may simply not fire (default 100).
@@ -347,7 +348,14 @@ static int CalcTotalSpellDmg(CharData *ch, CharData *victim, ESpell spell_id,
 	}
 	int total_dmg{0};
 	if (number(1, 100) > std::min(ch->IsNpc() ? kMaxNpcResist : kMaxPcResist, GET_MR(victim))) {
-		const float base_dmg = CalcBaseDmg(ch, spell_id);
+		// issue.damage-over-time: a spell-free affect tick (spell_id kUndefined) has no spell dice to roll,
+		// so base_dmg would be 0 and the whole <amount> formula would collapse to amount.min. base_override
+		// (>=0) supplies the affect's STORED POTENCY as the damage base instead, so a DoT's per-tick damage
+		// = amount.min + ceil(potency * dices_weight ...): dices_weight scales the damage while the potency
+		// (dispel strength) is set separately by the imposing spell's <affects potency_weight>.
+		const float base_dmg = (base_override >= 0)
+			? static_cast<float>(base_override)
+			: CalcBaseDmg(ch, spell_id);
 		const float skill_coeff = potency_roll.CalcSkillCoeff(ch);
 		const float stat_coeff = potency_roll.CalcBaseStatCoeff(ch);
 		const float bonus_mod = ch->add_abils.percent_spellpower_add / 100.0;
@@ -640,9 +648,15 @@ EStageResult CastDamage(ActionContext &ctx) {
 
 	int total_dmg{0};
 
+	// issue.damage-over-time: for a spell-free tick (affect/room DoT, spell_id kUndefined) the fixed
+	// potency lives in ctx.potency().dices; feed it as the damage base so the DoT scales off its stored
+	// potency (see CalcTotalSpellDmg). Real spells (spell_id set) keep base_override = -1 (roll the dice).
+	const int base_override = (spell_id == ESpell::kUndefined)
+		? std::max(0, ctx.potency().dices)
+		: -1;
 	try {
 		total_dmg = static_cast<int>(CalcTotalSpellDmg(ch, victim, spell_id, ctx.action_or_default(),
-													   ctx.CompetenceBase()) * ctx.area_coeff);
+													   ctx.CompetenceBase(), base_override) * ctx.area_coeff);
 	} catch (std::exception &e) {
 		err_log("%s", e.what());
 	}
@@ -3606,7 +3620,12 @@ bool RunCharAffectTick(CharData *ch, const Affect<EApply>::shared_ptr &aff) {
 	int dur = aff->duration;
 	// Spell-free tick on the affect's stored potency (ctx_spell kUndefined); the bearer is the caster, so
 	// a kTarSame <damage> action damages the bearer. World room = the bearer's room (cast context only).
-	CastRoomTickActionFromActions(ch, world[ch->in_room], ESpell::kUndefined, pulse, phase, &dur, aff->potency);
+	// issue.damage-over-time: give the tick's <damage> the affect's own damage flavor (kDamageTo*), same as
+	// the trigger path (RunCharAffectTrigger) -- without this a DoT deals damage silently (no visible line).
+	CastRoomTickActionFromActions(ch, world[ch->in_room], ESpell::kUndefined, pulse, phase, &dur, aff->potency,
+			affects::AffectMsgRaw(aff->affect_type, affects::EAffectMsgType::kDamageToChar),
+			affects::AffectMsgRaw(aff->affect_type, affects::EAffectMsgType::kDamageToVict),
+			affects::AffectMsgRaw(aff->affect_type, affects::EAffectMsgType::kDamageToRoom));
 	aff->duration = dur;
 	return true;
 }
