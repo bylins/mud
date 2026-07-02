@@ -6671,7 +6671,7 @@
 			</action>
 		</talent_actions>
 	</spell>
-	<spell id="kFireTrap" element="kMind" mode="kTesting">
+	<spell id="kFireTrap" element="kFire" mode="kTesting">
 		<name val="fire trap" />
 		<components>
 			<verbal />
@@ -6682,12 +6682,12 @@
 		<targets val="kTarDirection" />
 		<flags val="kMagRoom" />
 		<potency_roll>
-			<base_skill id="kMindMagic" low_skill_bonus="0" hi_skill_bonus="40" />
-			<base_stat id="kInt" threshold="0" weight="100" />
+			<base_skill id="kFireMagic" low_skill_bonus="0" hi_skill_bonus="40" />
+			<base_stat id="kWis" threshold="0" weight="100" />
 		</potency_roll>
 		<success_roll>
-			<base_skill id="kMindMagic" low_skill_bonus="0" hi_skill_bonus="40" />
-			<base_stat id="kInt" threshold="0" weight="100" />
+			<base_skill id="kFireMagic" low_skill_bonus="0" hi_skill_bonus="40" />
+			<base_stat id="kWis" threshold="0" weight="100" />
 		</success_roll>
 		<talent_actions>
 			<action>
