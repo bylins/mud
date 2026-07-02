@@ -1226,14 +1226,10 @@ bool CharData::inc_restore_timer(int num) {
 	if (restore_timer_ <= num) {
 		return false;   // out of combat, but not long enough yet (fires on the 2nd tick, as before)
 	}
-	// Long enough out of combat. Bosses get the full stat/HP/spell restore (existing behaviour); every
-	// mob gets its dispelled intrinsic buffs re-materialized by the caller (game_limits).
-	if (get_role(static_cast<unsigned>(EMobClass::kBoss))) {
-		restore_mob();   // resets restore_timer_ + was_attacked_
-	} else {
-		restore_timer_ = 0;
-		was_attacked_ = false;
-	}
+	// Long enough out of combat: full stat/HP/moves/spell restore for EVERY mob (was: bosses only).
+	// restore_mob() resets restore_timer_ + was_attacked_. The caller then re-materializes any dispelled
+	// intrinsic buffs (see game_limits).
+	restore_mob();
 	return true;
 }
 
