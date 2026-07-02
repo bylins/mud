@@ -114,11 +114,25 @@ bool Damage::CalcDmgAbsorption(CharData *ch, CharData *victim) {
 	return false;
 }
 
-// issue.damage-change: does the shield chosen for this hit declare a given category property? Lets the
-// engine's damage rules test a declared affect property instead of naming a specific shield id.
-static bool ChosenShieldDeclares(int selected_shield, EAffFlag flag) {
-	return selected_shield >= 0
-		&& (affects::AffectFlagsByType(static_cast<EAffect>(selected_shield)) & flag) != 0;
+// issue.damage-change: does the victim have an active affect that declares a given category property?
+// Lets engine damage rules test a declared affect property instead of naming a specific affect id. A
+// shield's property counts only when it is the shield chosen for this hit (so ice/air stay selection-
+// gated); a non-shield affect (e.g. prismatic aura) counts whenever it is present.
+static bool VictimAffectDeclares(int selected_shield, CharData *victim, EAffFlag flag) {
+	for (const auto &aff : victim->affected) {
+		if (!aff) {
+			continue;
+		}
+		const EAffect at = aff->affect_type;
+		if ((affects::AffectFlagsByType(at) & flag) == 0) {
+			continue;
+		}
+		if (affects::AffectShieldWeight(at) > 0 && static_cast<int>(at) != selected_shield) {
+			continue;   // a shield acts only when it is the one chosen for this hit
+		}
+		return true;
+	}
+	return false;
 }
 
 void Damage::SendCritHitMsg(CharData *ch, CharData *victim) {
@@ -632,7 +646,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 	// на жертве есть воздушный щит
 	// атака - каст моба (в mage_damage увеличение дамага от позиции было только у колдунов)
 	if (victim_start_pos < EPosition::kFight
-		&& !ChosenShieldDeclares(selected_shield_, kAfNoPositionBonus)
+		&& !VictimAffectDeclares(selected_shield_, victim, kAfNoPositionBonus)
 		&& !(dmg_type == fight::kMagicDmg
 			&& ch->IsNpc())) {
 		dam += dam * (EPosition::kFight - victim_start_pos) / 4;
@@ -681,8 +695,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 		CalcArmorDmgAbsorption(victim);
 		bool armor_full_absorb = CalcDmgAbsorption(ch, victim);
 		if (flags[fight::kCritHit] && (GetRealLevel(victim) >= 5 || !ch->IsNpc())
-			&& !AFF_FLAGGED(victim, EAffect::kPrismaticAura)
-			&& !ChosenShieldDeclares(selected_shield_, kAfNoCritBonus)) {
+			&& !VictimAffectDeclares(selected_shield_, victim, kAfNoCritBonus)) {
 			int tmpdam = std::min(victim->get_real_max_hit() / 8, dam * 2);
 			tmpdam = ApplyResist(victim, EResist::kVitality, dam);
 			dam = std::max(dam, tmpdam); //крит

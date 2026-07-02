@@ -307,7 +307,7 @@
 		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
 	</affect>
 	<affect id="kPrismaticAura" buff="Y">
-		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfNoCritBonus"/>
 		<actions>
 			<action>
 				<trigger val="kWardDamage"/>
