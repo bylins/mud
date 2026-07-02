@@ -31,6 +31,9 @@
 set -u
 MUD_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 WORLD_NAME="${1:-small}"
+# Override with POC_BASE_PORT=<port> when the default 4010-4015 range might
+# collide with something already running on the host (e.g. a shared/prod box).
+BASE_PORT="${POC_BASE_PORT:-4010}"
 
 YAML_BIN="$MUD_DIR/build_yaml/circle"
 MULTI_BIN="$MUD_DIR/build_multi/circle"
@@ -128,7 +131,7 @@ boot_once() {
 
 # --- Reference: plain YAML boot, no cache in the picture at all ---
 echo "--- Reference: YAML-only (no cache) ---"
-boot_once "yaml_only" "$YAML_BIN" "$SRC_WORLD" 4010
+boot_once "yaml_only" "$YAML_BIN" "$SRC_WORLD" "$BASE_PORT"
 echo ""
 
 # --- Prepare a fresh working copy for the composite-loader runs ---
@@ -139,7 +142,7 @@ enable_composite_loader "$BENCH_DIR/cfg/configuration.xml"
 
 # --- Stage 1: COLD (no world.db yet -> reads YAML, writes SQLite) ---
 echo "--- Stage 1: COLD (world.db absent -> YAML load + SQLite write) ---"
-boot_once "cold" "$MULTI_BIN" "$BENCH_DIR" 4011
+boot_once "cold" "$MULTI_BIN" "$BENCH_DIR" "$((BASE_PORT + 1))"
 echo ""
 
 if [ ! -f "$BENCH_DIR/world.db" ]; then
@@ -149,7 +152,7 @@ fi
 
 # --- Stage 2: WARM (world.db is now fresher than the YAML files) ---
 echo "--- Stage 2: WARM (world.db present + fresh -> SQLite load) ---"
-boot_once "warm" "$MULTI_BIN" "$BENCH_DIR" 4012
+boot_once "warm" "$MULTI_BIN" "$BENCH_DIR" "$((BASE_PORT + 2))"
 echo ""
 
 # --- Stage 3: STALE (a YAML file was edited after the SQLite write) ---
@@ -157,12 +160,12 @@ echo "--- Stage 3: STALE (a YAML zone file touched -> falls back to YAML, re-res
 touch "$BENCH_DIR/world/zones/"*/rooms.yaml 2>/dev/null | head -1
 # Sleep isn't needed: freshness is compared as mtime, and touch always moves
 # it strictly forward from whatever the prior boot's resync stamped.
-boot_once "stale" "$MULTI_BIN" "$BENCH_DIR" 4013
+boot_once "stale" "$MULTI_BIN" "$BENCH_DIR" "$((BASE_PORT + 3))"
 echo ""
 
 # --- Stage 4: WARM again (re-synced after the stale reload) ---
 echo "--- Stage 4: WARM again (post-resync, back to fast path) ---"
-boot_once "warm2" "$MULTI_BIN" "$BENCH_DIR" 4014
+boot_once "warm2" "$MULTI_BIN" "$BENCH_DIR" "$((BASE_PORT + 4))"
 echo ""
 
 # --- Stage 5: SINGLE-ZONE STALE (only ONE zone's rooms.yaml touched) ---
@@ -175,7 +178,7 @@ echo "--- Stage 5: SINGLE-ZONE STALE (one zone's rooms.yaml touched -> only that
 first_zone_dir=$(find "$BENCH_DIR/world/zones" -mindepth 1 -maxdepth 1 -type d | sort | head -1)
 if [ -n "$first_zone_dir" ] && [ -f "$first_zone_dir/rooms.yaml" ]; then
     touch "$first_zone_dir/rooms.yaml"
-    boot_once "single_zone_stale" "$MULTI_BIN" "$BENCH_DIR" 4015
+    boot_once "single_zone_stale" "$MULTI_BIN" "$BENCH_DIR" "$((BASE_PORT + 5))"
 else
     echo "  X SKIPPED: could not find a zone directory with rooms.yaml under $BENCH_DIR/world/zones"
 fi
