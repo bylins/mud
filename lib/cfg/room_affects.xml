@@ -120,6 +120,9 @@
 				<trigger val="kDispell"/>
 				<affects saving="kNone" resist="kFire" potency_weight="0.3">
 					<duration base="0" skill_divisor="20" min="2" max="4"/>
+					<!-- issue.damage-over-time: 7 ticks (one charge per tick), so the dispel sting burns the
+					     dispeller ~6-7 ticks whether or not they are in combat, instead of the *30 PC duration. -->
+					<charges max="7"/>
 					<affect id="kBurning"/>
 				</affects>
 			</action>

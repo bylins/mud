@@ -3628,6 +3628,14 @@ bool RunCharAffectTick(CharData *ch, const Affect<EApply>::shared_ptr &aff) {
 			affects::AffectMsgRaw(aff->affect_type, affects::EAffectMsgType::kDamageToVict),
 			affects::AffectMsgRaw(aff->affect_type, affects::EAffectMsgType::kDamageToRoom));
 	aff->duration = dur;
+	// issue.damage-over-time: a DoT imposed with <charges max=N> lasts exactly N ticks -- one charge per
+	// tick, in OR out of combat -- independent of the (PC-vs-NPC, *30-scaled) duration. So a burn ticks the
+	// same number of times whether the bearer is fighting or not. When depleted, mark it expired (duration
+	// 0) so the caller's normal duration==0 removal runs next pass, rather than erasing ch->affected here
+	// mid-iteration. charges == -1 (the default) leaves the affect purely duration-bound.
+	if (!ch->purged() && aff->charges != -1 && --aff->charges <= 0) {
+		aff->duration = 0;
+	}
 	return true;
 }
 

@@ -1989,6 +1989,10 @@
 				     the burn duration, mirroring the blast. -->
 				<affects saving="kReflex" resist="kFire" potency_weight="0.5">
 					<duration base="0" skill_divisor="6" min="2" max="6" />
+					<!-- issue.damage-over-time: cap the burn at 7 ticks (one charge per tick), so it lasts the
+					     same number of ticks in and out of combat and does not run the *30 (mud-hour) duration
+					     on a PC victim. Duration is the fallback bound; charges win when shorter. -->
+					<charges max="7"/>
 					<affect id="kBurning"/>
 				</affects>
 			</action>
