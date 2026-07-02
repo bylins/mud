@@ -286,6 +286,25 @@ static void ForceReposition(CharData *victim, ESpell spell_id, EPosition pos, bo
 	}
 }
 
+// issue.mob-flag-affect-materialization: potency for a materialized intrinsic mob buff. The affect and
+// its granting spell share a name (kSanctuary affect <- kSanctuary spell, etc.), so we roll THAT spell's
+// <potency_roll> for the mob -- dice + the mob's skill_coeff + the mob's stat_coeff -- exactly as a real
+// cast would. Gives the buff a real, mob-scaled potency so dispel is a contest, not a free strip.
+float ComputeMaterializedAffectPotency(const CharData *mob, EAffect affect_type) {
+	ESpell spell_id;
+	try {
+		spell_id = ITEM_BY_NAME<ESpell>(NAME_BY_ITEM<EAffect>(affect_type));
+	} catch (const std::out_of_range &) {
+		return 0.0f;   // no same-named spell -> no potency source (stays easily dispelled)
+	}
+	const auto &pr = MUD::Spell(spell_id).GetPotencyRoll();
+	RollResult roll;
+	roll.dices = pr.RollSkillDices();
+	roll.skill_coeff = pr.CalcSkillCoeff(mob);
+	roll.stat_coeff = pr.CalcBaseStatCoeff(mob);
+	return CalcCastPotency(roll);
+}
+
 static int CalcTotalSpellDmg(CharData *ch, CharData *victim, ESpell spell_id,
 							const talents_actions::Action &action, double competence) {
 	const auto &potency_roll = MUD::Spell(spell_id).GetPotencyRoll();

@@ -1341,7 +1341,9 @@ void MaterializeMobFlagAffects(CharData *mob) {
 		af.location = EApply::kNone;  // materializable buffs carry no stat apply
 		af.modifier = 0;
 		af.caster_id = 0;
-		af.potency = 0.0f;            // intrinsic mob buff -> easily dispellable (no cast potency yet)
+		// Roll the buff's own (same-named) spell potency for this mob, so dispel is a real contest
+		// scaled to the mob rather than a free strip (was: potency 0).
+		af.potency = ComputeMaterializedAffectPotency(mob, at);
 		affect_to_char_no_recalc(mob, af);
 		added = true;
 	}

@@ -41,6 +41,11 @@ struct RollResult {
 	                              // low-skill bonus only, fed to SetBattleLag as skill_bonus.
 };
 
+// issue.mob-flag-affect-materialization: potency for a materialized intrinsic mob buff -- roll the
+// SAME-NAMED spell's <potency_roll> for the mob (its skill + stat + the spell's dice), so the buff
+// resists dispel like a real cast rather than being a free strip. 0 if no same-named spell.
+[[nodiscard]] float ComputeMaterializedAffectPotency(const CharData *mob, EAffect affect_type);
+
 // ActionContext (issue.spell-pipeline): the single object threaded through the whole
 // cast handler chain (CallMagic -> CastToSingleTarget -> the per-stage Cast* fns).
 // It carries the cast parameters, the targets, and the accumulating results so that
