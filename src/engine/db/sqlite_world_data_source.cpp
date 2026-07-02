@@ -667,6 +667,11 @@ int SqliteWorldDataSource::GetCount(const char *table)
 	return count;
 }
 
+bool SqliteWorldDataSource::IsZoneProcessed(int vnum) const
+{
+	return m_processed_zone_vnums.empty() || m_processed_zone_vnums.count(vnum / 100) > 0;
+}
+
 // Helper function to safely convert string to int
 static int SafeStoi(const std::string &str, int default_val = 0)
 {
@@ -788,6 +793,80 @@ void SqliteWorldDataSource::LoadZones()
 	sqlite3_finalize(stmt);
 
 	log("Loaded %d zones from SQLite.", zone_idx - 1);
+}
+
+// Load one zone's triggers/rooms/mobs/objects, in the order required by the
+// cross-references inside each (triggers before anything that attaches
+// them). Does not run the child sub-loaders -- see FinalizeZoneLoad().
+void SqliteWorldDataSource::LoadZone(int zone_vnum)
+{
+	LoadZoneTriggers(zone_vnum);
+	LoadZoneRooms(zone_vnum);
+	LoadZoneMobs(zone_vnum);
+	LoadZoneObjects(zone_vnum);
+}
+
+// Runs the four room child sub-loaders (flags/exits/triggers/extra
+// descriptions) exactly once, scoped to the set of zones THIS source
+// actually loaded (m_processed_zone_vnums). MUST run before
+// RosolveWorldDoorToRoomVnumsToRnums() (db.cpp) -- that pass resolves every
+// room's exit target from vnum to rnum, so exits must already be populated,
+// which is why this is a separate, earlier call from FinalizeZoneEntities().
+void SqliteWorldDataSource::FinalizeZoneRooms()
+{
+	if (m_processed_zone_vnums.empty())
+	{
+		return;
+	}
+
+	// The four sub-loaders take vnum_to_rnum as a parameter, so build it
+	// scoped to processed zones only -- otherwise they'd overwrite
+	// YAML-sourced rooms with (possibly stale) SQLite room_flags/exits/
+	// triggers/extra-description rows.
+	std::map<int, int> room_vnum_to_rnum;
+	for (RoomRnum i = kFirstRoom; i <= top_of_world; i++)
+	{
+		if (world[i] && IsZoneProcessed(world[i]->vnum))
+		{
+			room_vnum_to_rnum[world[i]->vnum] = i;
+		}
+	}
+	LoadRoomFlags(room_vnum_to_rnum);
+	LoadRoomExits(room_vnum_to_rnum);
+	LoadRoomTriggers(room_vnum_to_rnum);
+	LoadRoomExtraDescriptions(room_vnum_to_rnum);
+}
+
+// Runs every mob/object child sub-loader exactly once, after every entity
+// type is loaded, scoped to the set of zones THIS source actually loaded.
+// No downstream vnum-to-rnum resolution pass depends on this data (unlike
+// room exits), so it's safe to defer to the very end of boot.
+void SqliteWorldDataSource::FinalizeZoneEntities()
+{
+	if (m_processed_zone_vnums.empty())
+	{
+		return;
+	}
+
+	// Each sub-loader already checks IsZoneProcessed() internally (added at
+	// the top of every per-row loop), so no filtered map is needed here.
+	LoadMobFlags();
+	LoadMobSkills();
+	LoadMobTriggers();
+	LoadMobResistances();
+	LoadMobSaves();
+	LoadMobFeats();
+	LoadMobSpells();
+	LoadMobHelpers();
+	LoadMobDestinations();
+	LoadMobDeathLoad();
+
+	LoadObjectFlags();
+	LoadObjectApplies();
+	LoadObjectSkills();
+	LoadObjectExtraValues();
+	LoadObjectTriggers();
+	LoadObjectExtraDescriptions();
 }
 
 void SqliteWorldDataSource::LoadZoneCommands(ZoneData &zone)
@@ -1088,6 +1167,76 @@ void SqliteWorldDataSource::LoadTriggers()
 	log("Loaded %d triggers from SQLite.", top_of_trigt);
 }
 
+int SqliteWorldDataSource::CountZoneTriggers(int zone_vnum) const
+{
+	if (!m_db)
+	{
+		return 0;
+	}
+	const std::string sql = "SELECT COUNT(*) FROM triggers WHERE enabled = 1 AND vnum BETWEEN "
+		+ std::to_string(zone_vnum * 100) + " AND " + std::to_string(zone_vnum * 100 + 99);
+	sqlite3_stmt *stmt;
+	int count = 0;
+	if (sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, nullptr) == SQLITE_OK)
+	{
+		if (sqlite3_step(stmt) == SQLITE_ROW)
+		{
+			count = sqlite3_column_int(stmt, 0);
+		}
+		sqlite3_finalize(stmt);
+	}
+	return count;
+}
+
+// Per-zone trigger load. Does NOT allocate trig_index or reset top_of_trigt --
+// the orchestrator pre-sizes it once via CountZoneTriggers before any zone is
+// loaded (see db.cpp).
+void SqliteWorldDataSource::LoadZoneTriggers(int zone_vnum)
+{
+	const std::string sql = "SELECT t.vnum, t.name, t.attach_type_id, GROUP_CONCAT(ttb.type_char, '') AS type_chars, "
+		"t.narg, t.arglist, t.script FROM triggers t "
+		"LEFT JOIN trigger_type_bindings ttb ON t.vnum = ttb.trigger_vnum "
+		"WHERE t.enabled = 1 AND t.vnum BETWEEN " + std::to_string(zone_vnum * 100)
+		+ " AND " + std::to_string(zone_vnum * 100 + 99) + " GROUP BY t.vnum ORDER BY t.vnum";
+
+	sqlite3_stmt *stmt;
+	if (sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, nullptr) != SQLITE_OK)
+	{
+		log("SYSERR: Failed to prepare zone trigger query for zone %d: %s", zone_vnum, sqlite3_errmsg(m_db));
+		return;
+	}
+
+	while (sqlite3_step(stmt) == SQLITE_ROW)
+	{
+		int vnum = sqlite3_column_int(stmt, 0);
+		std::string name = GetText(stmt, 1);
+		int attach_type_id = sqlite3_column_int(stmt, 2);
+		std::string type_chars = GetText(stmt, 3);
+		int narg = sqlite3_column_int(stmt, 4);
+		std::string arglist = GetText(stmt, 5);
+		std::string script = GetText(stmt, 6);
+
+		byte attach_type = static_cast<byte>(attach_type_id);
+
+		long trigger_type = 0;
+		for (char ch : type_chars)
+		{
+			if (ch >= 'a' && ch <= 'z')
+				trigger_type |= (1L << (ch - 'a'));
+			else if (ch >= 'A' && ch <= 'Z')
+				trigger_type |= (1L << (26 + ch - 'A'));
+		}
+
+		auto trig = new Trigger(top_of_trigt, std::move(name), attach_type, trigger_type);
+		GET_TRIG_NARG(trig) = narg;
+		trig->arglist = arglist;
+
+		ParseTriggerScript(trig, script);
+		CreateTriggerIndex(vnum, trig);
+	}
+	sqlite3_finalize(stmt);
+}
+
 // ============================================================================
 // Room Loading
 // ============================================================================
@@ -1193,6 +1342,65 @@ void SqliteWorldDataSource::LoadRooms()
 	LoadRoomExtraDescriptions(room_vnum_to_rnum);
 
 
+}
+
+// Per-zone room load. `rooms` already has a real zone_vnum column, so this is
+// a plain WHERE filter on the primary query. Does NOT call the four child
+// sub-loaders (flags/exits/triggers/extra-descriptions) -- those run once,
+// for every processed zone at once, from FinalizeZoneLoad().
+void SqliteWorldDataSource::LoadZoneRooms(int zone_vnum)
+{
+	const std::string sql = "SELECT vnum, zone_vnum, name, description, sector_id FROM rooms "
+		"WHERE enabled = 1 AND zone_vnum = " + std::to_string(zone_vnum) + " ORDER BY vnum";
+
+	sqlite3_stmt *stmt;
+	if (sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, nullptr) != SQLITE_OK)
+	{
+		log("SYSERR: Failed to prepare zone room query for zone %d: %s", zone_vnum, sqlite3_errmsg(m_db));
+		return;
+	}
+
+	const int zone_rn = GetZoneRnum(zone_vnum);
+
+	while (sqlite3_step(stmt) == SQLITE_ROW)
+	{
+		int vnum = sqlite3_column_int(stmt, 0);
+		std::string name = GetText(stmt, 2);
+		std::string description = GetText(stmt, 3);
+		int sector_id = sqlite3_column_int(stmt, 4);
+
+		auto room = new RoomData;
+		room->vnum = vnum;
+		if (!name.empty()) { name[0] = UPPER(name[0]); }
+		room->set_name(name);
+
+		if (!description.empty())
+		{
+			room->description_num = GlobalObjects::descriptions().add(description);
+		}
+
+		if (zone_rn >= 0 && zone_rn < static_cast<int>(zone_table.size()))
+		{
+			room->zone_rn = zone_rn;
+			if (zone_table[zone_rn].RnumRoomsLocation.first == -1)
+			{
+				zone_table[zone_rn].RnumRoomsLocation.first = top_of_world + 1;
+			}
+			zone_table[zone_rn].RnumRoomsLocation.second = top_of_world + 1;
+		}
+		else
+		{
+			log("SYSERR: Room %d is outside of any zone.", vnum);
+		}
+
+		room->sector_type = static_cast<ESector>(sector_id);
+
+		world.push_back(room);
+		top_of_world++;
+	}
+	sqlite3_finalize(stmt);
+
+	m_processed_zone_vnums.insert(zone_vnum);
 }
 
 void SqliteWorldDataSource::LoadRoomFlags(const std::map<int, int> &vnum_to_rnum)
@@ -1354,6 +1562,166 @@ void SqliteWorldDataSource::LoadRoomExtraDescriptions(const std::map<int, int> &
 // Mob Loading
 // ============================================================================
 
+// Parse one row of the primary mobs query into mob_proto[top_of_mobt]/
+// mob_index[top_of_mobt], then advance top_of_mobt. Shared by LoadMobs
+// (bulk) and LoadZoneMobs (per-zone) -- the SELECT's column order must match
+// between callers. zone_vnum_to_rnum may cover all zones (bulk) or just one
+// (per-zone); either way RnumMobsLocation bookkeeping only touches the zone
+// this row's vnum/100 maps to.
+void SqliteWorldDataSource::LoadMobRow(sqlite3_stmt *stmt, const std::map<int, int> &zone_vnum_to_rnum)
+{
+	int vnum = sqlite3_column_int(stmt, 0);
+	CharData &mob = mob_proto[top_of_mobt];
+
+	// Initialize mob
+	mob.player_specials = player_special_data::s_for_mobiles;
+	mob.SetNpcAttribute(true);
+	mob.player_specials->saved.NameGod = 1001; // Default for Russian name declension
+	mob.set_move(100);
+	mob.set_max_move(100);
+
+	// Names
+	mob.SetCharAliases(GetText(stmt, 1));
+	mob.set_npc_name(GetText(stmt, 2));
+	mob.player_data.PNames[grammar::ECase::kNom] = GetText(stmt, 2);
+	mob.player_data.PNames[grammar::ECase::kGen] = GetText(stmt, 3);
+	mob.player_data.PNames[grammar::ECase::kDat] = GetText(stmt, 4);
+	mob.player_data.PNames[grammar::ECase::kAcc] = GetText(stmt, 5);
+	mob.player_data.PNames[grammar::ECase::kIns] = GetText(stmt, 6);
+	mob.player_data.PNames[grammar::ECase::kPre] = GetText(stmt, 7);
+
+	// Descriptions
+	mob.player_data.long_descr = utils::colorCAP(GetText(stmt, 8));
+	mob.player_data.description = GetText(stmt, 9);
+
+	// Base parameters
+	alignment::SetAlignment(&mob, sqlite3_column_int(stmt, 10));
+
+	// Stats
+	mob.set_level(sqlite3_column_int(stmt, 12));
+	GET_HR(&mob) = sqlite3_column_int(stmt, 13);
+	GET_AC(&mob) = sqlite3_column_int(stmt, 14);
+
+	// HP dice
+	mob.mem_queue.total = sqlite3_column_int(stmt, 15);  // hp_dice_count
+	mob.mem_queue.stored = sqlite3_column_int(stmt, 16);  // hp_dice_size
+	int hp_bonus = sqlite3_column_int(stmt, 17);
+	mob.set_hit(hp_bonus);
+	mob.set_max_hit(0);  // 0 = flag that HP is xdy+z
+
+	// Damage dice
+	mob.mob_specials.damnodice = sqlite3_column_int(stmt, 18);
+	mob.mob_specials.damsizedice = sqlite3_column_int(stmt, 19);
+	mob.real_abils.damroll = sqlite3_column_int(stmt, 20);
+
+	// Gold dice
+	mob.mob_specials.GoldNoDs = sqlite3_column_int(stmt, 21);
+	mob.mob_specials.GoldSiDs = sqlite3_column_int(stmt, 22);
+	currencies::SetHand(mob, currencies::kGold, sqlite3_column_int(stmt, 23));
+
+	// Experience
+	mob.set_exp(sqlite3_column_int(stmt, 24));
+
+	// Position (name, or a raw int for out-of-range values like 15)
+	std::string default_pos = GetText(stmt, 25);
+	std::string start_pos = GetText(stmt, 26);
+	mob.mob_specials.default_pos = static_cast<EPosition>(
+		EnumIntFromText(position_map, default_pos, static_cast<int>(EPosition::kStand)));
+	mob.SetPosition(static_cast<EPosition>(
+		EnumIntFromText(position_map, start_pos, static_cast<int>(EPosition::kStand))));
+
+	// Sex
+	std::string sex_str = GetText(stmt, 27);
+	mob.set_sex(static_cast<EGender>(
+		EnumIntFromText(gender_map, sex_str, static_cast<int>(EGender::kMale))));
+
+	// Physical attributes -- bounds mirror MobileFile::interpret_espec
+	// (boot_data_files.cpp). Без них старые данные расходятся с легаси.
+	GET_SIZE(&mob) = std::clamp<byte>(sqlite3_column_int(stmt, 28), 0, 100);
+	GET_HEIGHT(&mob) = std::clamp(sqlite3_column_int(stmt, 29), 0, 200);
+	GET_WEIGHT(&mob) = std::clamp(sqlite3_column_int(stmt, 30), 0, 200);
+
+	// Class and race
+	mob.set_class(static_cast<ECharClass>(sqlite3_column_int(stmt, 31)));
+	mob.player_data.Race = std::clamp(static_cast<ENpcRace>(sqlite3_column_int(stmt, 32)),
+									  ENpcRace::kBasic, ENpcRace::kLastNpcRace);
+
+	// Attributes (E-spec)
+	mob.set_str(sqlite3_column_int(stmt, 33));
+	mob.set_dex(sqlite3_column_int(stmt, 34));
+	mob.set_int(sqlite3_column_int(stmt, 35));
+	mob.set_wis(sqlite3_column_int(stmt, 36));
+	mob.set_con(sqlite3_column_int(stmt, 37));
+	mob.set_cha(sqlite3_column_int(stmt, 38));
+
+	// Enhanced E-spec fields (scalar values).
+	// Clamps mirror interpret_espec; см. PR #3224.
+	mob.set_str_add(sqlite3_column_int(stmt, 39));
+	mob.add_abils.hitreg = std::clamp(sqlite3_column_int(stmt, 40), -200, 200);
+	mob.add_abils.armour = std::clamp(sqlite3_column_int(stmt, 41), 0, 100);
+	mob.add_abils.manareg = std::clamp(sqlite3_column_int(stmt, 42), -200, 200);
+	mob.add_abils.cast_success = std::clamp(sqlite3_column_int(stmt, 43), -200, 300);
+	mob.add_abils.morale = std::clamp(sqlite3_column_int(stmt, 44), 0, 100);
+	mob.add_abils.initiative_add = std::clamp(sqlite3_column_int(stmt, 45), -200, 200);
+	mob.add_abils.absorb = std::clamp(sqlite3_column_int(stmt, 46), -200, 200);
+	mob.add_abils.aresist = std::clamp(sqlite3_column_int(stmt, 47), 0, 100);
+	mob.add_abils.mresist = std::clamp(sqlite3_column_int(stmt, 48), 0, 100);
+	mob.add_abils.presist = std::clamp(sqlite3_column_int(stmt, 49), 0, 100);
+	mob.mob_specials.attack_type = std::clamp(sqlite3_column_int(stmt, 50), 0, 99);
+	mob.mob_specials.like_work = std::clamp<byte>(sqlite3_column_int(stmt, 51), 0, 100);
+	mob.mob_specials.MaxFactor = std::clamp<byte>(sqlite3_column_int(stmt, 52), 0, 127);
+	mob.mob_specials.extra_attack = std::clamp<byte>(sqlite3_column_int(stmt, 53), 0, 127);
+	mob.set_remort(std::clamp<byte>(sqlite3_column_int(stmt, 54), 0, 100));
+
+	// special_bitvector (TEXT - FlagData)
+	std::string special_bv = GetText(stmt, 55);
+	if (!special_bv.empty())
+	{
+		mob.mob_specials.npc_flags.from_string((char *)special_bv.c_str());
+	}
+
+	// role (TEXT - bitset<9>)
+	std::string role_str = GetText(stmt, 56);
+	if (!role_str.empty())
+	{
+		CharData::role_t role(role_str);
+		mob.set_role(role);
+	}
+
+	// Movement speed: -1 == default cadence (the common 3-field legacy
+	// position line). Older DBs without the column read NULL -> -1, the
+	// same default the YAML loader uses (issue #3384 class).
+	mob.mob_specials.speed = (sqlite3_column_type(stmt, 57) == SQLITE_NULL)
+		? -1 : sqlite3_column_int(stmt, 57);
+
+	// Setup index
+	int zone_vnum = vnum / 100;
+	auto zone_it = zone_vnum_to_rnum.find(zone_vnum);
+	if (zone_it != zone_vnum_to_rnum.end())
+	{
+		if (zone_table[zone_it->second].RnumMobsLocation.first == -1)
+		{
+			zone_table[zone_it->second].RnumMobsLocation.first = top_of_mobt;
+		}
+		zone_table[zone_it->second].RnumMobsLocation.second = top_of_mobt;
+	}
+
+	mob_index[top_of_mobt].vnum = vnum;
+	mob_index[top_of_mobt].total_online = 0;
+	mob_index[top_of_mobt].stored = 0;
+	mob_index[top_of_mobt].func = nullptr;
+	mob_index[top_of_mobt].farg = nullptr;
+	mob_index[top_of_mobt].proto = nullptr;
+	mob_index[top_of_mobt].set_idx = -1;
+
+	// Initialize test data if needed
+	if (mob.GetLevel() == 0)
+		SetTestData(&mob);
+	mob.set_rnum(top_of_mobt);
+
+	top_of_mobt++;
+}
+
 void SqliteWorldDataSource::LoadMobs()
 {
 	log("Loading mobs from SQLite database.");
@@ -1406,158 +1774,7 @@ void SqliteWorldDataSource::LoadMobs()
 	top_of_mobt = 0;
 	while (sqlite3_step(stmt) == SQLITE_ROW)
 	{
-		int vnum = sqlite3_column_int(stmt, 0);
-		CharData &mob = mob_proto[top_of_mobt];
-
-		// Initialize mob
-		mob.player_specials = player_special_data::s_for_mobiles;
-		mob.SetNpcAttribute(true);
-		mob.player_specials->saved.NameGod = 1001; // Default for Russian name declension
-		mob.set_move(100);
-		mob.set_max_move(100);
-
-		// Names
-		mob.SetCharAliases(GetText(stmt, 1));
-		mob.set_npc_name(GetText(stmt, 2));
-		mob.player_data.PNames[grammar::ECase::kNom] = GetText(stmt, 2);
-		mob.player_data.PNames[grammar::ECase::kGen] = GetText(stmt, 3);
-		mob.player_data.PNames[grammar::ECase::kDat] = GetText(stmt, 4);
-		mob.player_data.PNames[grammar::ECase::kAcc] = GetText(stmt, 5);
-		mob.player_data.PNames[grammar::ECase::kIns] = GetText(stmt, 6);
-		mob.player_data.PNames[grammar::ECase::kPre] = GetText(stmt, 7);
-
-		// Descriptions
-		mob.player_data.long_descr = utils::colorCAP(GetText(stmt, 8));
-		mob.player_data.description = GetText(stmt, 9);
-
-		// Base parameters
-		alignment::SetAlignment(&mob, sqlite3_column_int(stmt, 10));
-
-		// Stats
-		mob.set_level(sqlite3_column_int(stmt, 12));
-		GET_HR(&mob) = sqlite3_column_int(stmt, 13);
-		GET_AC(&mob) = sqlite3_column_int(stmt, 14);
-
-		// HP dice
-		mob.mem_queue.total = sqlite3_column_int(stmt, 15);  // hp_dice_count
-		mob.mem_queue.stored = sqlite3_column_int(stmt, 16);  // hp_dice_size
-		int hp_bonus = sqlite3_column_int(stmt, 17);
-		mob.set_hit(hp_bonus);
-		mob.set_max_hit(0);  // 0 = flag that HP is xdy+z
-
-		// Damage dice
-		mob.mob_specials.damnodice = sqlite3_column_int(stmt, 18);
-		mob.mob_specials.damsizedice = sqlite3_column_int(stmt, 19);
-		mob.real_abils.damroll = sqlite3_column_int(stmt, 20);
-
-		// Gold dice
-		mob.mob_specials.GoldNoDs = sqlite3_column_int(stmt, 21);
-		mob.mob_specials.GoldSiDs = sqlite3_column_int(stmt, 22);
-		currencies::SetHand(mob, currencies::kGold, sqlite3_column_int(stmt, 23));
-
-		// Experience
-		mob.set_exp(sqlite3_column_int(stmt, 24));
-
-		// Position (name, or a raw int for out-of-range values like 15)
-		std::string default_pos = GetText(stmt, 25);
-		std::string start_pos = GetText(stmt, 26);
-		mob.mob_specials.default_pos = static_cast<EPosition>(
-			EnumIntFromText(position_map, default_pos, static_cast<int>(EPosition::kStand)));
-		mob.SetPosition(static_cast<EPosition>(
-			EnumIntFromText(position_map, start_pos, static_cast<int>(EPosition::kStand))));
-
-		// Sex
-		std::string sex_str = GetText(stmt, 27);
-		mob.set_sex(static_cast<EGender>(
-			EnumIntFromText(gender_map, sex_str, static_cast<int>(EGender::kMale))));
-
-		// Physical attributes -- bounds mirror MobileFile::interpret_espec
-		// (boot_data_files.cpp). Без них старые данные расходятся с легаси.
-		GET_SIZE(&mob) = std::clamp<byte>(sqlite3_column_int(stmt, 28), 0, 100);
-		GET_HEIGHT(&mob) = std::clamp(sqlite3_column_int(stmt, 29), 0, 200);
-		GET_WEIGHT(&mob) = std::clamp(sqlite3_column_int(stmt, 30), 0, 200);
-
-		// Class and race
-		mob.set_class(static_cast<ECharClass>(sqlite3_column_int(stmt, 31)));
-		mob.player_data.Race = std::clamp(static_cast<ENpcRace>(sqlite3_column_int(stmt, 32)),
-										  ENpcRace::kBasic, ENpcRace::kLastNpcRace);
-
-		// Attributes (E-spec)
-		mob.set_str(sqlite3_column_int(stmt, 33));
-		mob.set_dex(sqlite3_column_int(stmt, 34));
-		mob.set_int(sqlite3_column_int(stmt, 35));
-		mob.set_wis(sqlite3_column_int(stmt, 36));
-		mob.set_con(sqlite3_column_int(stmt, 37));
-		mob.set_cha(sqlite3_column_int(stmt, 38));
-
-		// Enhanced E-spec fields (scalar values).
-		// Clamps mirror interpret_espec; см. PR #3224.
-		mob.set_str_add(sqlite3_column_int(stmt, 39));
-		mob.add_abils.hitreg = std::clamp(sqlite3_column_int(stmt, 40), -200, 200);
-		mob.add_abils.armour = std::clamp(sqlite3_column_int(stmt, 41), 0, 100);
-		mob.add_abils.manareg = std::clamp(sqlite3_column_int(stmt, 42), -200, 200);
-		mob.add_abils.cast_success = std::clamp(sqlite3_column_int(stmt, 43), -200, 300);
-		mob.add_abils.morale = std::clamp(sqlite3_column_int(stmt, 44), 0, 100);
-		mob.add_abils.initiative_add = std::clamp(sqlite3_column_int(stmt, 45), -200, 200);
-		mob.add_abils.absorb = std::clamp(sqlite3_column_int(stmt, 46), -200, 200);
-		mob.add_abils.aresist = std::clamp(sqlite3_column_int(stmt, 47), 0, 100);
-		mob.add_abils.mresist = std::clamp(sqlite3_column_int(stmt, 48), 0, 100);
-		mob.add_abils.presist = std::clamp(sqlite3_column_int(stmt, 49), 0, 100);
-		mob.mob_specials.attack_type = std::clamp(sqlite3_column_int(stmt, 50), 0, 99);
-		mob.mob_specials.like_work = std::clamp<byte>(sqlite3_column_int(stmt, 51), 0, 100);
-		mob.mob_specials.MaxFactor = std::clamp<byte>(sqlite3_column_int(stmt, 52), 0, 127);
-		mob.mob_specials.extra_attack = std::clamp<byte>(sqlite3_column_int(stmt, 53), 0, 127);
-		mob.set_remort(std::clamp<byte>(sqlite3_column_int(stmt, 54), 0, 100));
-		
-		// special_bitvector (TEXT - FlagData)
-		std::string special_bv = GetText(stmt, 55);
-		if (!special_bv.empty())
-		{
-			mob.mob_specials.npc_flags.from_string((char *)special_bv.c_str());
-		}
-		
-		// role (TEXT - bitset<9>)
-		std::string role_str = GetText(stmt, 56);
-		if (!role_str.empty())
-		{
-			CharData::role_t role(role_str);
-			mob.set_role(role);
-		}
-
-		// Movement speed: -1 == default cadence (the common 3-field legacy
-		// position line). Older DBs without the column read NULL -> -1, the
-		// same default the YAML loader uses (issue #3384 class).
-		mob.mob_specials.speed = (sqlite3_column_type(stmt, 57) == SQLITE_NULL)
-			? -1 : sqlite3_column_int(stmt, 57);
-
-		// Set NPC flag
-
-		// Setup index
-		int zone_vnum = vnum / 100;
-		auto zone_it = zone_vnum_to_rnum.find(zone_vnum);
-		if (zone_it != zone_vnum_to_rnum.end())
-		{
-			if (zone_table[zone_it->second].RnumMobsLocation.first == -1)
-			{
-				zone_table[zone_it->second].RnumMobsLocation.first = top_of_mobt;
-			}
-			zone_table[zone_it->second].RnumMobsLocation.second = top_of_mobt;
-		}
-
-		mob_index[top_of_mobt].vnum = vnum;
-		mob_index[top_of_mobt].total_online = 0;
-		mob_index[top_of_mobt].stored = 0;
-		mob_index[top_of_mobt].func = nullptr;
-		mob_index[top_of_mobt].farg = nullptr;
-		mob_index[top_of_mobt].proto = nullptr;
-		mob_index[top_of_mobt].set_idx = -1;
-
-		// Initialize test data if needed
-		if (mob.GetLevel() == 0)
-			SetTestData(&mob);
-		mob.set_rnum(top_of_mobt);
-
-		top_of_mobt++;
+		LoadMobRow(stmt, zone_vnum_to_rnum);
 	}
 	sqlite3_finalize(stmt);
 
@@ -1588,6 +1805,65 @@ void SqliteWorldDataSource::LoadMobs()
 	log("Loaded %d mobs from SQLite.", top_of_mobt + 1);
 }
 
+int SqliteWorldDataSource::CountZoneMobs(int zone_vnum) const
+{
+	if (!m_db)
+	{
+		return 0;
+	}
+	const std::string sql = "SELECT COUNT(*) FROM mobs WHERE enabled = 1 AND vnum BETWEEN "
+		+ std::to_string(zone_vnum * 100) + " AND " + std::to_string(zone_vnum * 100 + 99);
+	sqlite3_stmt *stmt;
+	int count = 0;
+	if (sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, nullptr) == SQLITE_OK)
+	{
+		if (sqlite3_step(stmt) == SQLITE_ROW)
+		{
+			count = sqlite3_column_int(stmt, 0);
+		}
+		sqlite3_finalize(stmt);
+	}
+	return count;
+}
+
+// Per-zone mob load. Does NOT allocate mob_proto[]/mob_index[] or touch the
+// "top_of_mobt: count -> last-valid-index" conversion -- the orchestrator
+// pre-sizes both once via CountZoneMobs and does that conversion once, after
+// every zone is loaded (see db.cpp). Does NOT call the ten child sub-loaders
+// (flags/skills/triggers/resistances/...) -- those run once, for every
+// processed zone at once, from FinalizeZoneLoad().
+void SqliteWorldDataSource::LoadZoneMobs(int zone_vnum)
+{
+	const std::map<int, int> zone_vnum_to_rnum = { { zone_vnum, GetZoneRnum(zone_vnum) } };
+
+	const std::string sql = "SELECT vnum, aliases, name_nom, name_gen, name_dat, name_acc, name_ins, name_pre, "
+		"short_desc, long_desc, alignment, mob_type, level, hitroll_penalty, armor, "
+		"hp_dice_count, hp_dice_size, hp_bonus, dam_dice_count, dam_dice_size, dam_bonus, "
+		"gold_dice_count, gold_dice_size, gold_bonus, experience, default_pos, start_pos, "
+		"sex, size, height, weight, mob_class, race, "
+		"attr_str, attr_dex, attr_int, attr_wis, attr_con, attr_cha, "
+		"attr_str_add, hp_regen, armour_bonus, mana_regen, cast_success, morale, "
+		"initiative_add, absorb, aresist, mresist, presist, bare_hand_attack, "
+		"like_work, max_factor, extra_attack, mob_remort, special_bitvector, role, "
+		"speed FROM mobs WHERE enabled = 1 AND vnum BETWEEN " + std::to_string(zone_vnum * 100)
+		+ " AND " + std::to_string(zone_vnum * 100 + 99) + " ORDER BY vnum";
+
+	sqlite3_stmt *stmt;
+	if (sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, nullptr) != SQLITE_OK)
+	{
+		log("SYSERR: Failed to prepare zone mob query for zone %d: %s", zone_vnum, sqlite3_errmsg(m_db));
+		return;
+	}
+
+	while (sqlite3_step(stmt) == SQLITE_ROW)
+	{
+		LoadMobRow(stmt, zone_vnum_to_rnum);
+	}
+	sqlite3_finalize(stmt);
+
+	m_processed_zone_vnums.insert(zone_vnum);
+}
+
 void SqliteWorldDataSource::LoadMobFlags()
 {
 	const char *sql = "SELECT mob_vnum, flag_category, flag_name FROM mob_flags";
@@ -1609,6 +1885,7 @@ void SqliteWorldDataSource::LoadMobFlags()
 	while (sqlite3_step(stmt) == SQLITE_ROW)
 	{
 		int mob_vnum = sqlite3_column_int(stmt, 0);
+		if (!IsZoneProcessed(mob_vnum)) continue;
 		std::string category = GetText(stmt, 1);
 		std::string flag_name = GetText(stmt, 2);
 
@@ -1676,6 +1953,7 @@ void SqliteWorldDataSource::LoadMobSkills()
 	while (sqlite3_step(stmt) == SQLITE_ROW)
 	{
 		int mob_vnum = sqlite3_column_int(stmt, 0);
+		if (!IsZoneProcessed(mob_vnum)) continue;
 		int skill_id = sqlite3_column_int(stmt, 1);
 		int value = sqlite3_column_int(stmt, 2);
 
@@ -1714,6 +1992,7 @@ void SqliteWorldDataSource::LoadMobTriggers()
 	while (sqlite3_step(stmt) == SQLITE_ROW)
 	{
 		int mob_vnum = sqlite3_column_int(stmt, 0);
+		if (!IsZoneProcessed(mob_vnum)) continue;
 		int trigger_vnum = sqlite3_column_int(stmt, 1);
 
 		auto it = vnum_to_rnum.find(mob_vnum);
@@ -1745,6 +2024,7 @@ void SqliteWorldDataSource::LoadMobResistances()
 	while (sqlite3_step(stmt) == SQLITE_ROW)
 	{
 		int mob_vnum = sqlite3_column_int(stmt, 0);
+		if (!IsZoneProcessed(mob_vnum)) continue;
 		int resist_type = sqlite3_column_int(stmt, 1);
 		int value = sqlite3_column_int(stmt, 2);
 		
@@ -1787,6 +2067,7 @@ void SqliteWorldDataSource::LoadMobSaves()
 	while (sqlite3_step(stmt) == SQLITE_ROW)
 	{
 		int mob_vnum = sqlite3_column_int(stmt, 0);
+		if (!IsZoneProcessed(mob_vnum)) continue;
 		int save_type = sqlite3_column_int(stmt, 1);
 		int value = sqlite3_column_int(stmt, 2);
 		
@@ -1829,6 +2110,7 @@ void SqliteWorldDataSource::LoadMobFeats()
 	while (sqlite3_step(stmt) == SQLITE_ROW)
 	{
 		int mob_vnum = sqlite3_column_int(stmt, 0);
+		if (!IsZoneProcessed(mob_vnum)) continue;
 		int feat_id = sqlite3_column_int(stmt, 1);
 		
 		auto it = vnum_to_rnum.find(mob_vnum);
@@ -1870,6 +2152,7 @@ void SqliteWorldDataSource::LoadMobSpells()
 	while (sqlite3_step(stmt) == SQLITE_ROW)
 	{
 		int mob_vnum = sqlite3_column_int(stmt, 0);
+		if (!IsZoneProcessed(mob_vnum)) continue;
 		int spell_id = sqlite3_column_int(stmt, 1);
 		int count = sqlite3_column_int(stmt, 2);
 
@@ -1914,6 +2197,7 @@ void SqliteWorldDataSource::LoadMobHelpers()
 	while (sqlite3_step(stmt) == SQLITE_ROW)
 	{
 		int mob_vnum = sqlite3_column_int(stmt, 0);
+		if (!IsZoneProcessed(mob_vnum)) continue;
 		int helper_vnum = sqlite3_column_int(stmt, 1);
 		
 		auto it = vnum_to_rnum.find(mob_vnum);
@@ -1952,6 +2236,7 @@ void SqliteWorldDataSource::LoadMobDestinations()
 	while (sqlite3_step(stmt) == SQLITE_ROW)
 	{
 		int mob_vnum = sqlite3_column_int(stmt, 0);
+		if (!IsZoneProcessed(mob_vnum)) continue;
 		int dest_order = sqlite3_column_int(stmt, 1);
 		int room_vnum = sqlite3_column_int(stmt, 2);
 		
@@ -2003,6 +2288,7 @@ void SqliteWorldDataSource::LoadMobDeathLoad()
 	while (sqlite3_step(stmt) == SQLITE_ROW)
 	{
 		int mob_vnum = sqlite3_column_int(stmt, 0);
+		if (!IsZoneProcessed(mob_vnum)) continue;
 		auto it = vnum_to_rnum.find(mob_vnum);
 		if (it == vnum_to_rnum.end()) continue;
 
@@ -2025,6 +2311,80 @@ void SqliteWorldDataSource::LoadMobDeathLoad()
 // ============================================================================
 // Object Loading
 // ============================================================================
+
+// Parse one row of the primary objects query and add it to obj_proto. Shared
+// by LoadObjects (bulk) and LoadZoneObjects (per-zone) -- the SELECT's column
+// order must match between callers.
+void SqliteWorldDataSource::LoadObjectRow(sqlite3_stmt *stmt)
+{
+	int vnum = sqlite3_column_int(stmt, 0);
+
+	auto obj = std::make_shared<CObjectPrototype>(vnum);
+
+	// Names
+	obj->set_aliases(GetText(stmt, 1));
+	obj->set_short_description(utils::colorLOW(GetText(stmt, 2)));
+	obj->set_PName(grammar::ECase::kNom, utils::colorLOW(GetText(stmt, 2)));
+	obj->set_PName(grammar::ECase::kGen, utils::colorLOW(GetText(stmt, 3)));
+	obj->set_PName(grammar::ECase::kDat, utils::colorLOW(GetText(stmt, 4)));
+	obj->set_PName(grammar::ECase::kAcc, utils::colorLOW(GetText(stmt, 5)));
+	obj->set_PName(grammar::ECase::kIns, utils::colorLOW(GetText(stmt, 6)));
+	obj->set_PName(grammar::ECase::kPre, utils::colorLOW(GetText(stmt, 7)));
+	obj->set_description(utils::colorCAP(GetText(stmt, 8)));
+	obj->set_action_description(GetText(stmt, 9));
+
+	// Type
+	int obj_type_id = sqlite3_column_int(stmt, 10);
+	obj->set_type(static_cast<EObjType>(obj_type_id));
+
+	// Material
+	obj->set_material(static_cast<EObjMaterial>(sqlite3_column_int(stmt, 11)));
+
+	// Values
+	std::string val0 = GetText(stmt, 12);
+	std::string val1 = GetText(stmt, 13);
+	std::string val2 = GetText(stmt, 14);
+	std::string val3 = GetText(stmt, 15);
+
+	// Parse values - try as numbers
+
+	obj->set_val(0, SafeStol(val0));
+	obj->set_val(1, SafeStol(val1));
+	obj->set_val(2, SafeStol(val2));
+	obj->set_val(3, SafeStol(val3));
+
+	// Physical properties
+	obj->set_weight(sqlite3_column_int(stmt, 16));
+	// Match Legacy: weight of containers must exceed current quantity
+	if (obj->get_type() == EObjType::kLiquidContainer || obj->get_type() == EObjType::kFountain)
+	{
+		if (obj->get_weight() < obj->get_val(1))
+		{
+			obj->set_weight(obj->get_val(1) + 5);
+		}
+	}
+	obj->set_cost(sqlite3_column_int(stmt, 17));
+	obj->set_rent_off(sqlite3_column_int(stmt, 18));
+	obj->set_rent_on(sqlite3_column_int(stmt, 19));
+	obj->set_spec_param(sqlite3_column_int(stmt, 20));
+	int max_dur = sqlite3_column_int(stmt, 21);
+	int cur_dur = sqlite3_column_int(stmt, 22);
+	obj->set_maximum_durability(max_dur);
+	obj->set_current_durability(std::min(max_dur, cur_dur));  // Match Legacy: MIN(max, cur)
+	int timer = sqlite3_column_int(stmt, 23);
+	if (timer <= 0) {
+		timer = ObjData::SEVEN_DAYS;  // Match Legacy: default timer is 7 days
+	}
+	if (timer > 99999) timer = 99999;  // Cap timer like Legacy
+	obj->set_timer(timer);
+	obj->set_spell(sqlite3_column_int(stmt, 24));
+	obj->set_level(sqlite3_column_int(stmt, 25));
+	obj->set_sex(static_cast<EGender>(sqlite3_column_int(stmt, 26)));
+	obj->set_max_in_world(sqlite3_column_type(stmt, 27) == SQLITE_NULL ? -1 : sqlite3_column_int(stmt, 27));
+	obj->set_minimum_remorts(sqlite3_column_int(stmt, 28));
+
+	obj_proto.add(obj, vnum);
+}
 
 void SqliteWorldDataSource::LoadObjects()
 {
@@ -2060,73 +2420,7 @@ void SqliteWorldDataSource::LoadObjects()
 
 	while (sqlite3_step(stmt) == SQLITE_ROW)
 	{
-		int vnum = sqlite3_column_int(stmt, 0);
-
-		auto obj = std::make_shared<CObjectPrototype>(vnum);
-
-		// Names
-		obj->set_aliases(GetText(stmt, 1));
-		obj->set_short_description(utils::colorLOW(GetText(stmt, 2)));
-		obj->set_PName(grammar::ECase::kNom, utils::colorLOW(GetText(stmt, 2)));
-		obj->set_PName(grammar::ECase::kGen, utils::colorLOW(GetText(stmt, 3)));
-		obj->set_PName(grammar::ECase::kDat, utils::colorLOW(GetText(stmt, 4)));
-		obj->set_PName(grammar::ECase::kAcc, utils::colorLOW(GetText(stmt, 5)));
-		obj->set_PName(grammar::ECase::kIns, utils::colorLOW(GetText(stmt, 6)));
-		obj->set_PName(grammar::ECase::kPre, utils::colorLOW(GetText(stmt, 7)));
-		obj->set_description(utils::colorCAP(GetText(stmt, 8)));
-		obj->set_action_description(GetText(stmt, 9));
-
-		// Type
-		int obj_type_id = sqlite3_column_int(stmt, 10);
-		obj->set_type(static_cast<EObjType>(obj_type_id));
-
-		// Material
-		obj->set_material(static_cast<EObjMaterial>(sqlite3_column_int(stmt, 11)));
-
-		// Values
-		std::string val0 = GetText(stmt, 12);
-		std::string val1 = GetText(stmt, 13);
-		std::string val2 = GetText(stmt, 14);
-		std::string val3 = GetText(stmt, 15);
-
-		// Parse values - try as numbers
-		
-		obj->set_val(0, SafeStol(val0));
-		obj->set_val(1, SafeStol(val1));
-		obj->set_val(2, SafeStol(val2));
-		obj->set_val(3, SafeStol(val3));
-
-		// Physical properties
-		obj->set_weight(sqlite3_column_int(stmt, 16));
-		// Match Legacy: weight of containers must exceed current quantity
-		if (obj->get_type() == EObjType::kLiquidContainer || obj->get_type() == EObjType::kFountain)
-		{
-			if (obj->get_weight() < obj->get_val(1))
-			{
-				obj->set_weight(obj->get_val(1) + 5);
-			}
-		}
-		obj->set_cost(sqlite3_column_int(stmt, 17));
-		obj->set_rent_off(sqlite3_column_int(stmt, 18));
-		obj->set_rent_on(sqlite3_column_int(stmt, 19));
-		obj->set_spec_param(sqlite3_column_int(stmt, 20));
-		int max_dur = sqlite3_column_int(stmt, 21);
-		int cur_dur = sqlite3_column_int(stmt, 22);
-		obj->set_maximum_durability(max_dur);
-		obj->set_current_durability(std::min(max_dur, cur_dur));  // Match Legacy: MIN(max, cur)
-		int timer = sqlite3_column_int(stmt, 23);
-		if (timer <= 0) {
-			timer = ObjData::SEVEN_DAYS;  // Match Legacy: default timer is 7 days
-		}
-		if (timer > 99999) timer = 99999;  // Cap timer like Legacy
-		obj->set_timer(timer);
-		obj->set_spell(sqlite3_column_int(stmt, 24));
-		obj->set_level(sqlite3_column_int(stmt, 25));
-		obj->set_sex(static_cast<EGender>(sqlite3_column_int(stmt, 26)));
-		obj->set_max_in_world(sqlite3_column_type(stmt, 27) == SQLITE_NULL ? -1 : sqlite3_column_int(stmt, 27));
-		obj->set_minimum_remorts(sqlite3_column_int(stmt, 28));
-
-		obj_proto.add(obj, vnum);
+		LoadObjectRow(stmt);
 	}
 	sqlite3_finalize(stmt);
 
@@ -2151,6 +2445,35 @@ void SqliteWorldDataSource::LoadObjects()
 	log("Loaded %zu objects from SQLite.", obj_proto.size());
 }
 
+// Per-zone object load. objects has no zone_vnum column, so filter by the
+// vnum/100 convention. Does NOT call the six child sub-loaders (flags/
+// applies/skills/extra-values/triggers/extra-descriptions) -- those run
+// once, for every processed zone at once, from FinalizeZoneLoad().
+void SqliteWorldDataSource::LoadZoneObjects(int zone_vnum)
+{
+	const std::string sql = "SELECT vnum, aliases, name_nom, name_gen, name_dat, name_acc, name_ins, name_pre, "
+		"short_desc, action_desc, obj_type_id, material, value0, value1, value2, value3, "
+		"weight, cost, rent_off, rent_on, spec_param, max_durability, cur_durability, "
+		"timer, spell, level, sex, max_in_world, minimum_remorts "
+		"FROM objects WHERE enabled = 1 AND vnum BETWEEN " + std::to_string(zone_vnum * 100)
+		+ " AND " + std::to_string(zone_vnum * 100 + 99) + " ORDER BY vnum";
+
+	sqlite3_stmt *stmt;
+	if (sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, nullptr) != SQLITE_OK)
+	{
+		log("SYSERR: Failed to prepare zone object query for zone %d: %s", zone_vnum, sqlite3_errmsg(m_db));
+		return;
+	}
+
+	while (sqlite3_step(stmt) == SQLITE_ROW)
+	{
+		LoadObjectRow(stmt);
+	}
+	sqlite3_finalize(stmt);
+
+	m_processed_zone_vnums.insert(zone_vnum);
+}
+
 void SqliteWorldDataSource::LoadObjectFlags()
 {
 	const char *sql = "SELECT obj_vnum, flag_category, flag_name FROM obj_flags";
@@ -2165,6 +2488,7 @@ void SqliteWorldDataSource::LoadObjectFlags()
 	while (sqlite3_step(stmt) == SQLITE_ROW)
 	{
 		int obj_vnum = sqlite3_column_int(stmt, 0);
+		if (!IsZoneProcessed(obj_vnum)) continue;
 		std::string category = GetText(stmt, 1);
 		std::string flag_name = GetText(stmt, 2);
 
@@ -2282,6 +2606,7 @@ void SqliteWorldDataSource::LoadObjectApplies()
 	while (sqlite3_step(stmt) == SQLITE_ROW)
 	{
 		int obj_vnum = sqlite3_column_int(stmt, 0);
+		if (!IsZoneProcessed(obj_vnum)) continue;
 		int location_id = sqlite3_column_int(stmt, 1);
 		int modifier = sqlite3_column_int(stmt, 2);
 
@@ -2320,6 +2645,7 @@ void SqliteWorldDataSource::LoadObjectSkills()
 	while (sqlite3_step(stmt) == SQLITE_ROW)
 	{
 		int obj_vnum = sqlite3_column_int(stmt, 0);
+		if (!IsZoneProcessed(obj_vnum)) continue;
 		int skill_id = sqlite3_column_int(stmt, 1);
 		int value = sqlite3_column_int(stmt, 2);
 
@@ -2350,6 +2676,7 @@ void SqliteWorldDataSource::LoadObjectExtraValues()
 	while (sqlite3_step(stmt) == SQLITE_ROW)
 	{
 		int obj_vnum = sqlite3_column_int(stmt, 0);
+		if (!IsZoneProcessed(obj_vnum)) continue;
 		std::string vals = GetText(stmt, 1);
 		int rnum = obj_proto.get_rnum(obj_vnum);
 		if (rnum < 0 || vals.empty()) continue;
@@ -2387,6 +2714,7 @@ void SqliteWorldDataSource::LoadObjectTriggers()
 	while (sqlite3_step(stmt) == SQLITE_ROW)
 	{
 		int obj_vnum = sqlite3_column_int(stmt, 0);
+		if (!IsZoneProcessed(obj_vnum)) continue;
 		int trigger_vnum = sqlite3_column_int(stmt, 1);
 
 		int rnum = obj_proto.get_rnum(obj_vnum);
@@ -2412,6 +2740,7 @@ void SqliteWorldDataSource::LoadObjectExtraDescriptions()
 	while (sqlite3_step(stmt) == SQLITE_ROW)
 	{
 		int obj_vnum = sqlite3_column_int(stmt, 0);
+		if (!IsZoneProcessed(obj_vnum)) continue;
 		std::string keywords = GetText(stmt, 1);
 		std::string description = GetText(stmt, 2);
 

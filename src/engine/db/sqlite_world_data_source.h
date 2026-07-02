@@ -12,6 +12,7 @@
 #include <sqlite3.h>
 #include <string>
 #include <map>
+#include <set>
 
 class ZoneData;
 class RoomData;
@@ -57,7 +58,39 @@ public:
 	void MarkIndexSynced(Freshness version) override;
 	bool IsWritable() const override;
 
+	// Per-zone load (for CompositeWorldDataSource's per-zone source
+	// selection). LoadZoneRooms/Mobs/Objects/Triggers load ONLY each entity
+	// type's primary table, scoped to one zone -- they do NOT call the child
+	// sub-loaders (flags/skills/exits/applies/triggers/extra-descriptions/...)
+	// per zone, because those sub-loader queries have no zone filter (full
+	// table scan) and would be both slow (O(zones) full scans) and WRONG if
+	// run for a zone this source didn't actually load (it would overwrite a
+	// YAML-sourced zone's data with possibly-stale SQLite child rows).
+	// Instead each LoadZone* call records its zone_vnum in
+	// m_processed_zone_vnums, and the orchestrator (db.cpp) calls
+	// FinalizeZoneRooms()/FinalizeZoneEntities() to run all the child
+	// sub-loaders scoped to that processed-zone set, at the two points in
+	// the boot sequence documented on IWorldDataSource. Single-source
+	// (non-composite) boots never call LoadZone*, so m_processed_zone_vnums
+	// stays empty and every sub-loader's zone check is a no-op -- zero
+	// behavior change on that path.
+	bool SupportsPerZoneLoad() const override { return true; }
+	void LoadZone(int zone_vnum) override;
+	void LoadZoneTriggers(int zone_vnum) override;
+	void LoadZoneRooms(int zone_vnum) override;
+	void LoadZoneMobs(int zone_vnum) override;
+	void LoadZoneObjects(int zone_vnum) override;
+	int CountZoneMobs(int zone_vnum) const override;
+	int CountZoneTriggers(int zone_vnum) const override;
+	void FinalizeZoneRooms() override;
+	void FinalizeZoneEntities() override;
+
 private:
+	// True if `vnum`'s zone (vnum/100) was loaded via LoadZoneRooms/Mobs/
+	// Objects this boot, or if no per-zone load happened at all (bulk path --
+	// m_processed_zone_vnums stays empty, so every vnum passes).
+	bool IsZoneProcessed(int vnum) const;
+	std::set<int> m_processed_zone_vnums;
 	// Create the zone_sync / world_meta bookkeeping tables if absent, so an
 	// older world.db produced before this feature still works (it just reports
 	// freshness 0 until the first sync repopulates it).
@@ -91,6 +124,11 @@ private:
 	void LoadRoomExtraDescriptions(const std::map<int, int> &vnum_to_rnum);
 
 	// Mob loading helpers
+	// Parse one row of the primary `mobs` query (shared by LoadMobs and
+	// LoadZoneMobs) into mob_proto[top_of_mobt]/mob_index[top_of_mobt], then
+	// advance top_of_mobt. Caller owns the prepared statement's column order
+	// and lifetime.
+	void LoadMobRow(sqlite3_stmt *stmt, const std::map<int, int> &zone_vnum_to_rnum);
 	void LoadMobFlags();
 	void LoadMobSkills();
 	void LoadMobTriggers();
@@ -103,6 +141,10 @@ private:
 	void LoadMobDeathLoad();
 
 	// Object loading helpers
+	// Parse one row of the primary `objects` query (shared by LoadObjects and
+	// LoadZoneObjects) and add it to obj_proto. Caller owns the prepared
+	// statement's column order and lifetime.
+	void LoadObjectRow(sqlite3_stmt *stmt);
 	void LoadObjectFlags();
 	void LoadObjectApplies();
 	void LoadObjectSkills();
