@@ -124,7 +124,10 @@ class Damage {
   // инит msg_num, ch_start_pos, victim_start_pos
   // дергается в начале process, когда все уже заполнено
   void PerformPostInit(CharData *ch, CharData *victim);
-  void SetPostInitShieldFlags(CharData *victim);
+  // issue.damage-change: weighted-random-pick one elemental shield (by AffectShieldWeight) among the
+  // victim's shields; stores its EAffect underlying value in selected_shield_ (-1 = none). A hit passes
+  // through exactly that shield -- its retaliation/reduction actions run, the others are skipped.
+  void SelectMagicShield(CharData *victim);
   // process()
   void CalcArmorDmgAbsorption(CharData *victim);
   bool CalcDmgAbsorption(CharData *ch, CharData *victim);
@@ -150,6 +153,10 @@ class Damage {
     EElement element{EElement::kUndefined};
   };
   std::vector<ReflectHit> reflect_pool_;
+
+  // issue.damage-change: the elemental shield chosen (weighted-random) to handle this hit -- underlying
+  // EAffect value, or -1 if the victim has no shield. Only this shield's actions apply; others skip.
+  int selected_shield_{-1};
 
   // строка для краткого режима щитов, дописывается после ударов и прочего
   // если во flags были соответствующие флаги

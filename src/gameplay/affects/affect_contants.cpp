@@ -650,6 +650,10 @@ std::array<std::vector<affects::AffectApply>, kAffectFlagTableSize> g_affect_app
 // as room_affects), so a char affect can carry data-driven periodic effects (DoT). Mirrors
 // g_room_affect_actions. Indexed by to_underlying(EAffect).
 std::array<talents_actions::Actions, kAffectFlagTableSize> g_affect_actions{};
+// issue.damage-change: per-affect "magic shield" selection weight (<shield weight="N"/>). >0 marks the
+// affect as one of the mutually-exclusive elemental shields; a hit passes through exactly one, picked
+// weighted-random by these values. 0 = not a shield.
+std::array<int, kAffectFlagTableSize> g_affect_shield_weight{};
 bool g_affect_flags_loaded = false;
 
 // Parse an <affect buff="Y|N|A"> attribute into EBuff (the affect-side analog of ParseViolent). Absent
@@ -664,6 +668,7 @@ static affects::EBuff ParseAffectBuff(const char *raw) {
 void BuildAffectFlagTable(parser_wrapper::DataNode data) {
 	g_affect_flags.fill(0);
 	g_affect_buff.fill(affects::EBuff::kAmbiguous);
+	g_affect_shield_weight.fill(0);
 	for (auto &v : g_affect_applies) { v.clear(); }
 	for (auto &a : g_affect_actions) { a = talents_actions::Actions{}; }
 	for (auto &node : data.Children("affect")) {
@@ -691,6 +696,16 @@ void BuildAffectFlagTable(parser_wrapper::DataNode data) {
 		}
 		// issue.affect-migration: the affect's own buff/debuff/ambiguous classification.
 		g_affect_buff[idx] = ParseAffectBuff(node.GetValue("buff"));
+		// issue.damage-change: <shield weight="N"/> -- marks a mutually-exclusive elemental shield and its
+		// weighted-random selection weight (read off a COPY of the node, the obj_sets pattern).
+		{
+			auto snode = node;
+			if (snode.GoToChild("shield")) {
+				if (const char *w = snode.GetValue("weight"); w && *w) {
+					g_affect_shield_weight[idx] = std::max(0, parse::ReadAsInt(w));
+				}
+			}
+		}
 		// issue.affects-improve (P2): the affect's stat-change applies (location + <modifier>), same
 		// shape as a spell's <apply>. The affect IS the id, so applies carry only location + formula.
 		for (auto &ap : node.Children("apply")) {
@@ -832,6 +847,12 @@ const talents_actions::Actions &AffectActions(EAffect affect_type) {
 EBuff AffectBuffKind(EAffect affect_type) {
 	const auto idx = static_cast<std::size_t>(to_underlying(affect_type));
 	return idx < kAffectFlagTableSize ? g_affect_buff[idx] : EBuff::kAmbiguous;
+}
+
+// issue.damage-change: the affect's magic-shield selection weight (0 = not a shield).
+int AffectShieldWeight(EAffect affect_type) {
+	const auto idx = static_cast<std::size_t>(to_underlying(affect_type));
+	return idx < kAffectFlagTableSize ? g_affect_shield_weight[idx] : 0;
 }
 
 // issue.affects-improve (P2): the affect's stat-change applies from affects.xml (empty if none).

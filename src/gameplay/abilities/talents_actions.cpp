@@ -111,8 +111,10 @@ const std::map<std::string, int> kDmgTypeByName{
 	{"kPoisonDmg", fight::kPoisonDmg}, {"kPureDmg", fight::kPureDmg},
 };
 // Hit-flags referenceable from <damage_change> conditions/edits. Besides the author-facing kIgnore*/
-// kCrit* set, the kVictim*Shield gates and kDrawBrief* display flags are exposed so shield reductions
-// (kWardDamage <damage_change>) can gate on "this shield is the active one" and light the brief-shield HUD.
+// kCrit* set, the kDrawBrief* display flags and kShieldApplied/kPunctualCrit are exposed so shield
+// reductions (kWardDamage <damage_change>) can light the brief-shield HUD, enforce one-shield-per-hit,
+// and let the ice crit-absorb skip precise-style crits. (Which shield is active is decided in code by
+// the weighted SelectMagicShield, not via a flag.)
 const std::map<std::string, int> kHitFlagByName{
 	{"kIgnoreSanct", fight::kIgnoreSanct}, {"kIgnorePrism", fight::kIgnorePrism},
 	{"kIgnoreArmor", fight::kIgnoreArmor}, {"kHalfIgnoreArmor", fight::kHalfIgnoreArmor},
@@ -120,8 +122,6 @@ const std::map<std::string, int> kHitFlagByName{
 	{"kCritHit", fight::kCritHit}, {"kCritLuck", fight::kCritLuck},
 	{"kIgnoreFireShield", fight::kIgnoreFireShield}, {"kMagicReflect", fight::kMagicReflect},
 	{"kIgnoreBlink", fight::kIgnoreBlink},
-	{"kVictimFireShield", fight::kVictimFireShield}, {"kVictimAirShield", fight::kVictimAirShield},
-	{"kVictimIceShield", fight::kVictimIceShield},
 	{"kDrawBriefFireShield", fight::kDrawBriefFireShield}, {"kDrawBriefAirShield", fight::kDrawBriefAirShield},
 	{"kDrawBriefIceShield", fight::kDrawBriefIceShield}, {"kDrawBriefMagMirror", fight::kDrawBriefMagMirror},
 	{"kShieldApplied", fight::kShieldApplied}, {"kPunctualCrit", fight::kPunctualCrit},

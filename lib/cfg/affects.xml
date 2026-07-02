@@ -194,12 +194,13 @@
 	</affect>
 	<affect id="kAirShield" buff="Y">
 		<flags val="kAfBattledec|kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+		<shield weight="10"/>
 		<actions>
 			<action>
 				<trigger val="kWardDamage"/>
 				<damage_change stage="late">
 					<conditions>
-						<flags present="kVictimAirShield" missing="kCritHit|kShieldApplied"/>
+						<flags missing="kCritHit|kShieldApplied"/>
 					</conditions>
 					<variation min="30" max="50" factor="-1"/>
 					<flags add="kDrawBriefAirShield|kShieldApplied"/>
@@ -209,15 +210,17 @@
 	</affect>
 	<affect id="kFireShield" buff="Y">
 		<flags val="kAfBattledec|kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+		<shield weight="10"/>
 		<actions>
 			<!-- Retaliation: a physical hit (not ignoring the shield, not a crit) reflects 15% back
-			     (+5 NPC bearer, +5 boss). Reflected as kUndefDmg, attributed to the incoming attack. -->
+			     (+5 NPC bearer, +5 boss). Reflected as kUndefDmg, attributed to the incoming attack.
+			     Fires only when fire is the shield chosen for this hit (handled in SelectMagicShield). -->
 			<action>
 				<trigger val="kWardDamage"/>
 				<retaliation>
 					<conditions>
 						<type val="kPhysDmg"/>
-						<flags present="kVictimFireShield" missing="kIgnoreFireShield|kCritHit"/>
+						<flags missing="kIgnoreFireShield|kCritHit"/>
 					</conditions>
 					<percent min="15" max="15" npc_bonus="5" boss_bonus="5"/>
 					<element type="kUndefDmg"/>
@@ -230,7 +233,7 @@
 				<damage_change stage="late" msg="none">
 					<conditions>
 						<type val="kPhysDmg"/>
-						<flags present="kVictimFireShield" missing="kIgnoreFireShield|kCritHit|kShieldApplied"/>
+						<flags missing="kIgnoreFireShield|kCritHit|kShieldApplied"/>
 					</conditions>
 					<variation min="30" max="50" factor="-1"/>
 					<flags add="kDrawBriefFireShield|kShieldApplied"/>
@@ -241,7 +244,7 @@
 				<trigger val="kWardDamage"/>
 				<damage_change stage="late">
 					<conditions>
-						<flags present="kVictimFireShield" missing="kCritHit|kShieldApplied"/>
+						<flags missing="kCritHit|kShieldApplied"/>
 					</conditions>
 					<variation min="30" max="50" factor="-1"/>
 					<flags add="kDrawBriefFireShield|kShieldApplied"/>
@@ -251,6 +254,7 @@
 	</affect>
 	<affect id="kIceShield" buff="Y">
 		<flags val="kAfBattledec|kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+		<shield weight="10"/>
 		<actions>
 			<!-- Crit-absorb: a crit (not precise-style, not poison) has a 94% chance to be neutralized:
 			     reduce 30-50% AND clear kCritHit (converts it to a glancing hit). Its own "crit" flavor. -->
@@ -259,7 +263,7 @@
 				<damage_change stage="late" prob="94" msg="crit">
 					<conditions>
 						<type val="kPhysDmg|kMagicDmg|kPureDmg|kUndefDmg"/>
-						<flags present="kVictimIceShield|kCritHit" missing="kPunctualCrit|kShieldApplied"/>
+						<flags present="kCritHit" missing="kPunctualCrit|kShieldApplied"/>
 					</conditions>
 					<variation min="30" max="50" factor="-1"/>
 					<flags remove="kCritHit" add="kShieldApplied"/>
@@ -270,7 +274,7 @@
 				<trigger val="kWardDamage"/>
 				<damage_change stage="late">
 					<conditions>
-						<flags present="kVictimIceShield" missing="kCritHit|kShieldApplied"/>
+						<flags missing="kCritHit|kShieldApplied"/>
 					</conditions>
 					<variation min="30" max="50" factor="-1"/>
 					<flags add="kDrawBriefIceShield|kShieldApplied"/>

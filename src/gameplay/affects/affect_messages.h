@@ -104,6 +104,11 @@ enum class EAffectMsgType {
 enum class EBuff { kNo, kYes, kAmbiguous };
 [[nodiscard]] EBuff AffectBuffKind(EAffect affect_type);
 
+// issue.damage-change: the affect's magic-shield selection weight from affects.xml (<shield weight=>).
+// > 0 marks a mutually-exclusive elemental shield; 0 = not a shield. Used to weighted-randomly pick the
+// one shield that reduces a given hit.
+[[nodiscard]] int AffectShieldWeight(EAffect affect_type);
+
 // issue.affects-improve (P2): one stat-change an affect imposes -- its location (EApply) plus the
 // modifier-formula coefficients (same shape as a spell's <apply><modifier>). The affect, not the
 // spell, owns these; the spell/skill supplies competence/dice/duration. Parsed from affects.xml

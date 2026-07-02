@@ -117,7 +117,7 @@ bool Damage::CalcDmgAbsorption(CharData *ch, CharData *victim) {
 void Damage::SendCritHitMsg(CharData *ch, CharData *victim) {
 	// Блочить мессагу крита при ледяном щите вроде нелогично,
 	// так что добавил отдельные сообщения для ледяного щита (Купала)
-	if (!flags[fight::kVictimIceShield]) {
+	if (selected_shield_ != static_cast<int>(EAffect::kIceShield)) {
 		sprintf(buf, "&G&qВаше меткое попадание тяжело ранило %s.&Q&n\r\n",
 				sight::PersonName(victim, ch, 3));
 	} else {
@@ -127,7 +127,7 @@ void Damage::SendCritHitMsg(CharData *ch, CharData *victim) {
 
 	SendMsgToChar(buf, ch);
 
-	if (!flags[fight::kVictimIceShield]) {
+	if (selected_shield_ != static_cast<int>(EAffect::kIceShield)) {
 		sprintf(buf, "&r&qМеткое попадание %s тяжело ранило вас.&Q&n\r\n",
 				sight::PersonName(ch, victim, 1));
 	} else {
@@ -194,6 +194,11 @@ void Damage::ApplyAffectDamageChanges(CharData *ch, CharData *victim, bool late_
 	}
 	for (const auto &aff : victim->affected) {
 		if (!aff) {
+			continue;
+		}
+		// issue.damage-change: a shield affect acts only when it is the one chosen for this hit.
+		if (const int sw = affects::AffectShieldWeight(aff->affect_type);
+			sw > 0 && static_cast<int>(aff->affect_type) != selected_shield_) {
 			continue;
 		}
 		for (const auto &action : affects::AffectActions(aff->affect_type).list()) {
@@ -268,6 +273,11 @@ void Damage::ApplyRetaliations(CharData *ch, CharData *victim) {
 	}
 	for (const auto &aff : victim->affected) {
 		if (!aff) {
+			continue;
+		}
+		// issue.damage-change: a shield affect retaliates only when it is the one chosen for this hit.
+		if (const int sw = affects::AffectShieldWeight(aff->affect_type);
+			sw > 0 && static_cast<int>(aff->affect_type) != selected_shield_) {
 			continue;
 		}
 		for (const auto &action : affects::AffectActions(aff->affect_type).list()) {
@@ -456,19 +466,36 @@ void Damage::ProcessDeath(CharData *ch, CharData *victim) const {
  * Разный инит щитов у мобов и чаров.
  * У мобов работают все 3 щита, у чаров только 1 рандомный на текущий удар.
  */
-void Damage::SetPostInitShieldFlags(CharData *victim) {
-	// issue.damage-change: mark which elemental shields the victim wears. Set for PCs and NPCs alike --
-	// the old "PCs get one random shield / NPCs get all" split is retired; shields are simply active
-	// whenever the affect is present. Only ONE shield reduces a given hit -- that is enforced
-	// data-driven by kShieldApplied on the shield <damage_change>s, not by limiting the flags here.
-	if (AFF_FLAGGED(victim, EAffect::kFireShield)) {
-		flags.set(fight::kVictimFireShield);
+void Damage::SelectMagicShield(CharData *victim) {
+	// issue.damage-change: a character may wear several elemental shields, but a given hit passes through
+	// exactly ONE, chosen weighted-random by each shield's AffectShieldWeight (roulette-wheel). This
+	// unifies PCs and NPCs (both: all shields active, one applies per hit) and is decided up-front so
+	// BOTH the retaliation pass and the reduction pass gate on the same choice. The pool is every shield
+	// the victim has, independent of the hit -- so e.g. a crit is absorbed only when ice is the pick.
+	int total = 0;
+	for (const auto &aff : victim->affected) {
+		if (aff) {
+			total += affects::AffectShieldWeight(aff->affect_type);
+		}
 	}
-	if (AFF_FLAGGED(victim, EAffect::kIceShield)) {
-		flags.set(fight::kVictimIceShield);
+	if (total <= 0) {
+		return;   // no shields -> selected_shield_ stays -1
 	}
-	if (AFF_FLAGGED(victim, EAffect::kAirShield)) {
-		flags.set(fight::kVictimAirShield);
+	int roll = number(1, total);
+	int acc = 0;
+	for (const auto &aff : victim->affected) {
+		if (!aff) {
+			continue;
+		}
+		const int w = affects::AffectShieldWeight(aff->affect_type);
+		if (w <= 0) {
+			continue;
+		}
+		acc += w;
+		if (acc >= roll) {
+			selected_shield_ = static_cast<int>(aff->affect_type);
+			break;
+		}
 	}
 }
 
@@ -481,7 +508,7 @@ void Damage::PerformPostInit(CharData *ch, CharData *victim) {
 		victim_start_pos = victim->GetPosition();
 	}
 
-	SetPostInitShieldFlags(victim);
+	SelectMagicShield(victim);
 
 	// issue.damage-change: expose the precise-style (точный стиль) crit as a hit-flag so the ice-shield
 	// crit-absorb <damage_change> can gate on it -- a punctual crit (dam_critic>0) pierces the ice shield.
@@ -609,7 +636,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 	// на жертве есть воздушный щит
 	// атака - каст моба (в mage_damage увеличение дамага от позиции было только у колдунов)
 	if (victim_start_pos < EPosition::kFight
-		&& !flags[fight::kVictimAirShield]
+		&& selected_shield_ != static_cast<int>(EAffect::kAirShield)
 		&& !(dmg_type == fight::kMagicDmg
 			&& ch->IsNpc())) {
 		dam += dam * (EPosition::kFight - victim_start_pos) / 4;
@@ -659,7 +686,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 		bool armor_full_absorb = CalcDmgAbsorption(ch, victim);
 		if (flags[fight::kCritHit] && (GetRealLevel(victim) >= 5 || !ch->IsNpc())
 			&& !AFF_FLAGGED(victim, EAffect::kPrismaticAura)
-			&& !flags[fight::kVictimIceShield]) {
+			&& selected_shield_ != static_cast<int>(EAffect::kIceShield)) {
 			int tmpdam = std::min(victim->get_real_max_hit() / 8, dam * 2);
 			tmpdam = ApplyResist(victim, EResist::kVitality, dam);
 			dam = std::max(dam, tmpdam); //крит
