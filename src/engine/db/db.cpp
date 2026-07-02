@@ -587,8 +587,7 @@ void GameLoader::BootWorld(std::unique_ptr<world_loader::IWorldDataSource> data_
 		{
 			if (!src->IsWritable())
 			{
-				log("World source '%s' is stale but not writable (no schema yet); "
-					"skipping resync -- create it once with the converter to enable it",
+				log("World source '%s' is stale but not writable; skipping resync",
 					src->GetName().c_str());
 				continue;
 			}

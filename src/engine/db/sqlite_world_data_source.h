@@ -62,6 +62,13 @@ private:
 	// older world.db produced before this feature still works (it just reports
 	// freshness 0 until the first sync repopulates it).
 	void EnsureSyncTables();
+	// Bootstrap the core world schema (zones/rooms/mobs/objects/triggers/...)
+	// into a brand-new, schema-less world.db, so the engine can create its own
+	// SQLite cache from scratch without the Python converter. No-op if the
+	// 'zones' table is already present (converter-built or previously
+	// bootstrapped db). See sqlite_world_data_source_freshness.cpp for the
+	// embedded DDL (kept in sync with tools/converter/world_schema.sql).
+	void EnsureCoreSchema();
 	// Record a zone's content version (a Freshness/mtime) and, for a
 	// first-seen zone, bump the membership stamp. Called from MarkZoneSynced so
 	// dual-writes/resyncs keep the freshness bookkeeping current.
