@@ -4074,10 +4074,17 @@ bool room_spells::DispelExitAffects(CharData *caster, int dir, ESpell spell_id) 
 				continue;
 			}
 			const auto type = af->affect_type;
+			const float sting_potency = af->potency;
 			const auto &to_char = room_spells::RoomAffectMsgRaw(type, room_spells::ERoomAffectMsgType::kAffDispelledToChar);
 			if (!to_char.empty()) { act(to_char.c_str(), false, caster, nullptr, nullptr, kToChar); }
 			const auto &to_room = room_spells::RoomAffectMsgRaw(type, room_spells::ERoomAffectMsgType::kAffDispelledToRoom);
 			if (!to_room.empty()) { act(to_room.c_str(), true, caster, nullptr, nullptr, kToRoom | kToArenaListen); }
+			// issue.damage-over-time: fire the affect's kDispell actions (e.g. the fire-trap burning sting)
+			// on the dispeller BEFORE erasing. EXIT affects previously skipped this -- only the ROOM-affect
+			// dispel path (RemoveAffectAndAnnounce) fired kDispell, so a trap set on a passage never stung.
+			// Run with the dispeller as caster in their room; kTarFightSelf lands it on them (no PvP).
+			room_spells::RunRoomAffectTrigger(world[caster->in_room], caster, type,
+					talents_actions::EActionTrigger::kDispell, sting_potency);
 			it = ex->affected.erase(it);
 			any = true;
 		}
