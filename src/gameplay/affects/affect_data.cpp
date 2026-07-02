@@ -637,7 +637,18 @@ void mobile_affect_update() {
 			}
 		}
 
-		if (ch->affected.empty()) {
+		// issue.mob-flag-affect-materialization: drop the mob from affected_mobs once none of its
+		// surviving affects need per-tick processing (all permanent -1, or none left) -- so a mob left
+		// with only materialized buffs after a timed affect expired stops being scanned. The -1 affects
+		// remain on ch->affected (the damage system reads that), and a future timed affect re-registers it.
+		bool needs_update = false;
+		for (const auto &a : ch->affected) {
+			if (a && a->duration != -1) {
+				needs_update = true;
+				break;
+			}
+		}
+		if (!needs_update) {
 			auto it_erase = affected_mobs.find(ch);
 			if (it_erase != affected_mobs.end()) {
 				affected_mobs.erase(it_erase);
@@ -1058,7 +1069,11 @@ void affect_to_char(CharData *ch, const Affect<EApply> &af) {
 				| (af.battleflag & static_cast<Bitvector>(kAfFailed | kAfCharmBond));
 	}
 
-	if (ch->IsNpc()) {
+	// issue.mob-flag-affect-materialization: only register mobs that need per-tick affect processing.
+	// A permanent (duration -1) affect -- e.g. a materialized intrinsic buff -- never ticks or expires,
+	// so it does not belong in the per-tick affected_mobs set (the damage system reads ch->affected
+	// directly, so the buff still works). A later timed/pulsing affect re-registers the mob here.
+	if (ch->IsNpc() && af.duration != -1) {
 		affected_mobs.insert(ch);
 	}
 	ch->affected.push_front(affected_alloc);
@@ -1082,7 +1097,11 @@ void affect_to_char_no_recalc(CharData *ch, const Affect<EApply> &af) {
 				| (af.battleflag & static_cast<Bitvector>(kAfFailed | kAfCharmBond));
 	}
 
-	if (ch->IsNpc()) {
+	// issue.mob-flag-affect-materialization: only register mobs that need per-tick affect processing.
+	// A permanent (duration -1) affect -- e.g. a materialized intrinsic buff -- never ticks or expires,
+	// so it does not belong in the per-tick affected_mobs set (the damage system reads ch->affected
+	// directly, so the buff still works). A later timed/pulsing affect re-registers the mob here.
+	if (ch->IsNpc() && af.duration != -1) {
 		affected_mobs.insert(ch);
 	}
 	ch->affected.push_front(affected_alloc);
