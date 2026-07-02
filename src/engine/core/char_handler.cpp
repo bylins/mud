@@ -13,6 +13,7 @@
 #include "utils/grammar/declensions.h"
 #include "gameplay/mechanics/minions.h"
 #include "gameplay/mechanics/follow.h"
+#include "gameplay/affects/affect_data.h"   // issue.mob-flag-affect-materialization: spawn-hook
 #include "gameplay/fight/fight_stuff.h"
 #include "gameplay/economics/auction.h"
 #include "utils/backtrace.h"
@@ -137,6 +138,14 @@ void PlaceCharToRoom(CharData *ch, RoomRnum room, bool process_entry_affects) {
 		//sventovit: здесь обрабатываются только неписи, чтобы игрок успел увидеть комнату
 		//как сделать красивей я не придумал, т.к. look_at_room вызывается в act.movement а не тут
 		room_spells::ProcessRoomAffectsOnEntry(ch, ch->in_room);
+	}
+	// issue.mob-flag-affect-materialization: a mob placed into an ALREADY-AWAKE zone (script mobload,
+	// summon, reset under a present player) materializes its intrinsic buff flags here -- the wake-hook
+	// only catches mobs present when the zone first wakes. Placement is bounded (spawns/relocations, not
+	// routine wandering, which uses char_to_room), and MaterializeMobFlagAffects no-ops if the mob has no
+	// such buffs or already has them.
+	if (ch->IsNpc() && ch->in_room != kNowhere && zone_table[world[ch->in_room]->zone_rn].used) {
+		MaterializeMobFlagAffects(ch);
 	}
 	cities::CheckCityVisit(ch, room);
 }
