@@ -1525,7 +1525,15 @@ void SqliteWorldDataSource::LoadRoomTriggers(const std::map<int, int> &vnum_to_r
 
 void SqliteWorldDataSource::LoadRoomExtraDescriptions(const std::map<int, int> &vnum_to_rnum)
 {
-	const char *sql = "SELECT entity_vnum, keywords, description FROM extra_descriptions WHERE entity_type = 'room'";
+	// ORDER BY id DESC: the loop below PREPENDS onto room->ex_description --
+	// same as the YAML loader, which iterates the YAML list forward and also
+	// prepends, so its in-memory order ends up list-reversed. SaveRoomRecord
+	// writes rows by walking that same (already-reversed) in-memory list
+	// head-to-tail, so the lowest id is the LAST list entry. Re-prepending in
+	// id-DESCENDING order reproduces the YAML loader's list-reversed order
+	// exactly; id-ASCENDING does not (verified via full-world round-trip
+	// checksum testing on a room with 2+ extra descriptions).
+	const char *sql = "SELECT entity_vnum, keywords, description FROM extra_descriptions WHERE entity_type = 'room' ORDER BY id DESC";
 
 	sqlite3_stmt *stmt;
 	if (sqlite3_prepare_v2(m_db, sql, -1, &stmt, nullptr) != SQLITE_OK)
@@ -2594,7 +2602,11 @@ void SqliteWorldDataSource::LoadObjectFlags()
 
 void SqliteWorldDataSource::LoadObjectApplies()
 {
-	const char *sql = "SELECT obj_vnum, location_id, modifier FROM obj_applies";
+	// ORDER BY id: the loop below fills the FIRST empty apply slot for each
+	// row in turn, so an unordered result set can assign applies to the
+	// wrong slot index for an object with 2+ applies (found via full-world
+	// round-trip checksum testing).
+	const char *sql = "SELECT obj_vnum, location_id, modifier FROM obj_applies ORDER BY id";
 
 	sqlite3_stmt *stmt;
 	if (sqlite3_prepare_v2(m_db, sql, -1, &stmt, nullptr) != SQLITE_OK)
@@ -2728,7 +2740,9 @@ void SqliteWorldDataSource::LoadObjectTriggers()
 
 void SqliteWorldDataSource::LoadObjectExtraDescriptions()
 {
-	const char *sql = "SELECT entity_vnum, keywords, description FROM extra_descriptions WHERE entity_type = 'obj'";
+	// ORDER BY id DESC -- see LoadRoomExtraDescriptions for why (same prepend
+	// pattern below).
+	const char *sql = "SELECT entity_vnum, keywords, description FROM extra_descriptions WHERE entity_type = 'obj' ORDER BY id DESC";
 
 	sqlite3_stmt *stmt;
 	if (sqlite3_prepare_v2(m_db, sql, -1, &stmt, nullptr) != SQLITE_OK)
