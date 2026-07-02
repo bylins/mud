@@ -707,14 +707,6 @@ int Damage::Process(CharData *ch, CharData *victim) {
 		}
 		return 0;
 	}
-	// внутри есть !боевое везение!, для какого типа дамага - не знаю
-	DamageActorParameters params(ch, victim, dam);
-	handle_affects(params);
-	dam = params.damage;
-	DamageVictimParameters params1(ch, victim, dam);
-	handle_affects(params1);
-	dam = params1.damage;
-
 	// обратка от зеркал/огненного щита
 	if (flags[fight::kMagicReflect]) {
 		// ограничение для зеркал на 40% от макс хп кастера

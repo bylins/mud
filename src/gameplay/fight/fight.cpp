@@ -300,8 +300,6 @@ void stop_fighting(CharData *ch, int switch_others) {
 	}
 	ch->battle_affects.clear();
 	DpsSystem::check_round(ch);
-	StopFightParameters params(ch); //готовим параметры нужного типа и вызываем шаблонную функцию
-	handle_affects(params);
 	if (switch_others != 2) {
 		for (auto &temp : combat_list) {
 			if (temp.deleted)
@@ -2069,8 +2067,6 @@ bool stuff_before_round(CharData *ch) {
 	ch->battle_counter = 0;
 	ch->round_counter += 1;
 	DpsSystem::check_round(ch);
-	BattleRoundParameters params(ch);
-	handle_affects(params);
 	round_num_mtrigger(ch, ch->GetEnemy());
 
 	ch->battle_affects.set(kEafStand);

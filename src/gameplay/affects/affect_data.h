@@ -21,7 +21,6 @@
 extern std::unordered_set<CharData *> affected_mobs;
 
 // An affect structure. //
-class IAffectHandler;
 
 // Maps an affect's location enum to the flag enum stored in Affect::affect_type.
 // Character affects (EApply) use EAffect by default; room affects specialize this
@@ -53,7 +52,6 @@ class Affect {
 	// (Бывшее поле `must_handled` мигрировало в `battleflag & kAfMustBeHandled`; занимало
 	// одно и то же место в семантике и теперь не дублирует battleflag. См. EAffFlag.)
 	sh_int apply_time; // Указывает сколько аффект висит (пока используется только в комнатах) //
-	std::shared_ptr<IAffectHandler> handler; //обработчик аффектов
 	// Сила наложенного эффекта (потенция) на момент наложения: для заклинаний это dice +
 	// skill_coeff + stat_coeff из potency_roll. Сравнивается с потенцией снимающего
 	// заклинания при развеивании (CastUnaffects). У аффектов НЕ от заклинаний (умения,
