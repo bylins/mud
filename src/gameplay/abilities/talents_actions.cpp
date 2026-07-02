@@ -517,6 +517,9 @@ Damage::Damage(parser_wrapper::DataNode &node) {
 	saving_ = parse::ReadAsConstant<ESaving>(node.GetValue("saving"));
 	const char *prob = node.GetValue("prob");
 	prob_ = (prob && *prob) ? parse::ReadAsInt(prob) : 100;
+	// issue.damage-over-time: <damage source="poison"> reproduces ProcessPoisonDmg's kPoison branch.
+	const char *src = node.GetValue("source");
+	if (src && strcmp(src, "poison") == 0) { source_ = EDamageSource::kPoison; }
 	// <amount> is optional; absent -> keep the defaults (min 0, both weights 1.0). A present tag
 	// may still omit individual attributes, which fall back to those same defaults.
 	if (node.GoToChild("amount")) {

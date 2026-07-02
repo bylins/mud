@@ -388,6 +388,12 @@ class Components {
 // alpha*C) + beta*C, where C = skill_coeff + stat_coeff. alpha=0 reduces to the legacy additive
 // Formula A. The <amount> is optional; defaults are min=0, dices_weight=1.0, alpha=0, beta=1.0
 // amount = dice + competencies).
+// issue.damage-over-time: where a <damage> action's amount comes from. kNormal = the <amount> dice/potency
+// formula (all existing damage). kPoison = ProcessPoisonDmg's kPoison branch reproduced through the
+// data-driven path: amount = CalcPoisonDamage(victim) (GET_POISON based), dealt as kPoisonDmg, no-flee,
+// with the poisoner (affect caster_id) as author.
+enum class EDamageSource { kNormal, kPoison };
+
 class Damage : public IAction {
 	ESaving saving_{ESaving::kReflex};
 	int prob_{100};                          // percent chance the damage actually happens
@@ -404,6 +410,7 @@ class Damage : public IAction {
 	int hits_prob_{20};                      // percent chance the bonus fires (0 = random 0..extra)
 	bool has_instant_death_{false};          // issue.instant-death: presence => the spell can kill outright
 	int instant_death_prob_{100};            // percent chance the instant-death attempt is rolled
+	EDamageSource source_{EDamageSource::kNormal};  // issue.damage-over-time: <damage source="poison">
  public:
 	explicit Damage(parser_wrapper::DataNode &node);
 	[[nodiscard]] int GetProb() const { return prob_; }
@@ -418,6 +425,7 @@ class Damage : public IAction {
 	[[nodiscard]] ESaving GetSaving() const { return saving_; }
 	[[nodiscard]] bool HasInstantDeath() const { return has_instant_death_; }
 	[[nodiscard]] int GetInstantDeathProb() const { return instant_death_prob_; }
+	[[nodiscard]] EDamageSource GetSource() const { return source_; }
 
 	void Print(CharData *ch, std::ostringstream &buffer) const override;
 };

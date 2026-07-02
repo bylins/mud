@@ -194,6 +194,10 @@ class ActionContext {
 	[[nodiscard]] const std::string &AffectDamageMsgChar() const { return aff_dmg_msg_char_; }
 	[[nodiscard]] const std::string &AffectDamageMsgVict() const { return aff_dmg_msg_vict_; }
 	[[nodiscard]] const std::string &AffectDamageMsgRoom() const { return aff_dmg_msg_room_; }
+	// issue.damage-over-time: author (uid) credited for a <damage source="poison"> tick -- the poisoner
+	// (affect caster_id), so a poison kill counts for them. 0 = no author.
+	void SetDamageAuthorUid(long uid) { damage_author_uid_ = uid; }
+	[[nodiscard]] long DamageAuthorUid() const { return damage_author_uid_; }
 	[[nodiscard]] const talents_actions::Action *action() const;
 	[[nodiscard]] bool HasPendingActions() const;
 	// The action the current stage should read its block from: the cursor's
@@ -227,6 +231,7 @@ class ActionContext {
 	std::string aff_dmg_msg_char_;   // issue.character-affect-triggers: see SetAffectDamageMsg
 	std::string aff_dmg_msg_vict_;
 	std::string aff_dmg_msg_room_;
+	long damage_author_uid_{0};      // issue.damage-over-time: poison author for <damage source="poison">
 };
 
 // VNUM'ы мобов для заклинаний, создающих мобов

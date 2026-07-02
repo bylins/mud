@@ -74,12 +74,14 @@
 	<affect id="kPoisoned" buff="N">
 		<flags val="kAfSameTime|kAfDispellable|kAfCurable|kAfPoison"/>
 		<actions>
-			<action>
-				<!-- kPulse (not kBattlePulse): poison ticks in AND out of combat. RunCharAffectTick only
-				     fires kPulse out of combat; with kBattlePulse the out-of-combat loops (which route
-				     actions-affects through RunCharAffectTick) would never tick poison. -->
+			<!-- issue.damage-over-time: data-driven poison DoT (retires the PoisonDot manual_cast). kPulse =
+			     ticks in AND out of combat (RunCharAffectTick fires kPulse regardless of combat state).
+			     target=kTarFightSelf = the bearer (self-inflicted). <damage source="poison"> reproduces
+			     ProcessPoisonDmg's kPoison branch exactly: GET_POISON amount, kPoisonDmg, no-flee, poisoner
+			     as author. saving="kNone" -- poison has no per-tick save (and a bare <damage> needs one). -->
+			<action target="kTarFightSelf">
 				<trigger val="kPulse"/>
-				<manual_cast handler="PoisonDot"/>
+				<damage source="poison" saving="kNone"/>
 			</action>
 		</actions>
 	</affect>

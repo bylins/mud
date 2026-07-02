@@ -563,6 +563,22 @@ EStageResult CastDamage(ActionContext &ctx) {
 	if (victim == nullptr || victim->in_room == kNowhere || ch == nullptr)
 		return EStageResult::kSuccess;
 
+	// issue.damage-over-time: a poison-sourced <damage> tick reproduces ProcessPoisonDmg's kPoison branch
+	// exactly and returns before the general damage machinery: GET_POISON-based amount dealt as kPoisonDmg,
+	// no-flee, self-inflicted, credited to the poisoner (the affect's caster). Poison never had MR/area/
+	// saving/wards, so those are intentionally skipped. Affect flavor (empty for kPoisoned) -> generic line.
+	if (ctx.action_or_default().Contains(talents_actions::EAction::kDamage)
+			&& ctx.action_or_default().GetDmg().GetSource() == talents_actions::EDamageSource::kPoison) {
+		Damage pdmg(SpellDmg(ESpell::kPoison), CalcPoisonDamage(victim), fight::kPoisonDmg);
+		pdmg.flags.set(fight::kNoFleeDmg);
+		pdmg.author_uid = ctx.DamageAuthorUid();   // отравитель (для засчёта убийства), 0 если автора нет
+		pdmg.aff_msg_char_ = ctx.AffectDamageMsgChar();
+		pdmg.aff_msg_vict_ = ctx.AffectDamageMsgVict();
+		pdmg.aff_msg_room_ = ctx.AffectDamageMsgRoom();
+		const int r = pdmg.Process(ch, victim);
+		return (r < 0) ? EStageResult::kBreak : EStageResult::kSuccess;
+	}
+
 	if (!pk_agro_action(ch, victim))
 		return EStageResult::kSuccess;
 	log("[MAG DAMAGE] %s damage %s (%d)", GET_NAME(ch), GET_NAME(victim), to_underlying(spell_id));
@@ -2724,24 +2740,8 @@ EStageResult CastCreationAction(ActionContext &ctx) {
 
 // Dispatch for spells whose effect is a hand-coded handler in spells.cpp (the kMagManual flag).
 // Some handlers take only (caster, cvict) and ignore the unused `level` / `ovict` arguments.
-// issue.character-affect-triggers: the poison DoT as a data-driven tick action. Reuses ProcessPoisonDmg
-// for EXACT parity (its location-gate + GET_POISON formula + author + death handling). GET_POISON is the
-// bearer's total, so one call per tick suffices regardless of how many poison applies are stacked.
-static EStageResult PoisonDot(ActionContext &ctx) {
-	CharData *ch = ctx.caster();
-	if (!ch) {
-		return EStageResult::kSuccess;
-	}
-	for (const auto &af : ch->affected) {
-		if (af && af->location == EApply::kPoison) {
-			if (ProcessPoisonDmg(ch, af) == -1) {
-				return EStageResult::kBreak;   // bearer died/purged
-			}
-			break;
-		}
-	}
-	return EStageResult::kSuccess;
-}
+// issue.damage-over-time: the poison DoT is now a data-driven <damage source="poison"> action (see
+// CastDamage's poison branch), no longer a manual_cast handler -- PoisonDot was retired here.
 
 // name -> hand-coded handler. The <manual_cast><handler val="..."/> on an
 // action selects one by name (which matches the function name), replacing the old spell_id
@@ -2767,8 +2767,6 @@ static const std::map<std::string, std::function<EStageResult(ActionContext &)>>
 	{"SpellResurrection",   SpellResurrection},
 	// issue.affect-migration: room-affect per-tick manual handler (was the room_affects tick_handler).
 	{"HandleThunderstormTick", handlers::HandleThunderstormTick},
-	// issue.character-affect-triggers: char-affect poison DoT (the kPoisoned pulse action).
-	{"PoisonDot", PoisonDot},
 };
 
 // load-time validation hook (called from SpellInfoBuilder).
@@ -3577,12 +3575,14 @@ ECastResult CastRoomTickActionFromActions(CharData *ch, RoomData *room, ESpell c
 										  const std::vector<talents_actions::Action> &actions, int phase,
 										  int *tick_duration, float fixed_potency,
 										  const std::string &aff_dmg_char, const std::string &aff_dmg_vict,
-										  const std::string &aff_dmg_room) {
+										  const std::string &aff_dmg_room, long damage_author) {
 	if (ch == nullptr) {
 		return ECastResult::kNotCast;
 	}
 	ActionContext ctx = BuildActionContext(ch, ctx_spell, GetRealLevel(ch), fixed_potency);
 	ctx.UseExternalActions(&actions);
+	// issue.damage-over-time: author credited for a poison <damage source="poison"> tick (the poisoner).
+	ctx.SetDamageAuthorUid(damage_author);
 	// issue.character-affect-triggers: room/exit affect-owned damage flavor for a <damage> action (empty
 	// => the generic combat line, unchanged). Same channel the char runners use (Damage::Process reads it).
 	ctx.SetAffectDamageMsg(aff_dmg_char, aff_dmg_vict, aff_dmg_room);
@@ -3626,7 +3626,8 @@ bool RunCharAffectTick(CharData *ch, const Affect<EApply>::shared_ptr &aff) {
 	CastRoomTickActionFromActions(ch, world[ch->in_room], ESpell::kUndefined, pulse, phase, &dur, aff->potency,
 			affects::AffectMsgRaw(aff->affect_type, affects::EAffectMsgType::kDamageToChar),
 			affects::AffectMsgRaw(aff->affect_type, affects::EAffectMsgType::kDamageToVict),
-			affects::AffectMsgRaw(aff->affect_type, affects::EAffectMsgType::kDamageToRoom));
+			affects::AffectMsgRaw(aff->affect_type, affects::EAffectMsgType::kDamageToRoom),
+			aff->caster_id);   // issue.damage-over-time: poison <damage> credits the poisoner
 	aff->duration = dur;
 	// issue.damage-over-time: a DoT imposed with <charges max=N> lasts exactly N ticks -- one charge per
 	// tick, in OR out of combat -- independent of the (PC-vs-NPC, *30-scaled) duration. So a burn ticks the
