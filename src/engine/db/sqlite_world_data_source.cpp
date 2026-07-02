@@ -2920,6 +2920,7 @@ void SqliteWorldDataSource::SaveRoomRecord(RoomData *room)
 	ExecuteStatement("DELETE FROM room_exits WHERE room_vnum = " + rvd, "del room_exits");
 	ExecuteStatement("DELETE FROM room_flags WHERE room_vnum = " + rvd, "del room_flags");
 	ExecuteStatement("DELETE FROM entity_triggers WHERE entity_type = 'room' AND entity_vnum = " + rvd, "del room trigs");
+	ExecuteStatement("DELETE FROM extra_descriptions WHERE entity_type = 'room' AND entity_vnum = " + rvd, "del room extra descs");
 
 	// Insert room record
 	sqlite3_stmt *stmt = nullptr;
@@ -3018,8 +3019,8 @@ void SqliteWorldDataSource::SaveRoomRecord(RoomData *room)
 	}
 
 	// Save extra descriptions
-	const char *extra_sql = 
-		"INSERT INTO extra_descriptions (entity_type, entity_vnum, keyword, description) "
+	const char *extra_sql =
+		"INSERT INTO extra_descriptions (entity_type, entity_vnum, keywords, description) "
 		"VALUES ('room', ?, ?, ?)";
 
 	for (auto exdesc = room->ex_description; exdesc; exdesc = exdesc->next)
@@ -3548,6 +3549,7 @@ void SqliteWorldDataSource::SaveObjectRecord(int obj_vnum, CObjectPrototype *obj
 	ExecuteStatement("DELETE FROM obj_flags WHERE obj_vnum = " + ov, "del obj_flags");
 	ExecuteStatement("DELETE FROM obj_extra_values WHERE obj_vnum = " + ov, "del obj_extra_values");
 	ExecuteStatement("DELETE FROM entity_triggers WHERE entity_type = 'obj' AND entity_vnum = " + ov, "del obj trigs");
+	ExecuteStatement("DELETE FROM extra_descriptions WHERE entity_type = 'obj' AND entity_vnum = " + ov, "del obj extra descs");
 
 	// Insert object main record
 	sqlite3_stmt *stmt = nullptr;
@@ -3698,8 +3700,8 @@ void SqliteWorldDataSource::SaveObjectRecord(int obj_vnum, CObjectPrototype *obj
 	}
 
 	// Save object extra descriptions
-	const char *extra_sql = 
-		"INSERT INTO extra_descriptions (entity_type, entity_vnum, keyword, description) "
+	const char *extra_sql =
+		"INSERT INTO extra_descriptions (entity_type, entity_vnum, keywords, description) "
 		"VALUES ('obj', ?, ?, ?)";
 
 	for (auto exdesc = obj->get_ex_description(); exdesc; exdesc = exdesc->next)
