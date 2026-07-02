@@ -832,7 +832,7 @@ EVENT(trig_wait_event) {
 	// моба -- логируем возобновление, чтобы видеть, что механизм действительно работает.
 	if (wait_event_obj->from_current && type == MOB_TRIGGER && go) {
 		auto *mob = reinterpret_cast<CharData *>(go);
-		mudlog(fmt::format("DG: триггер '{}' (внум {}) продолжил работу после лага моба '{}' (внум {})",
+		mudlog(fmt::format("DG: триггер {} #{} продолжил работу после лага моба {} #{}",
 						   GET_TRIG_NAME(trig), GET_TRIG_VNUM(trig), GET_SHORT(mob), GET_MOB_VNUM(mob)),
 			   NRM, kLvlGod, SYSLOG, true);
 	}
