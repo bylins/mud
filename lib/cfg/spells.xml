@@ -6696,7 +6696,10 @@
 		<talent_actions>
 			<action>
 				<affects saving="kNone" resist="kVitality">
-					<duration base="20" skill_divisor="0" min="0" max="0" />
+					<!-- base="-1": permanent (never decays); the trap stays until it is triggered its
+					     3 charges' worth of times or dispelled. UpdateExitsAffects treats duration -1 as
+					     permanent. -->
+					<duration base="-1" skill_divisor="0" min="0" max="0" />
 					<charges max="3"/>
 					<affect id="kFireTrap"/>
 				</affects>
