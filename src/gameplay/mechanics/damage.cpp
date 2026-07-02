@@ -114,27 +114,23 @@ bool Damage::CalcDmgAbsorption(CharData *ch, CharData *victim) {
 	return false;
 }
 
-void Damage::SendCritHitMsg(CharData *ch, CharData *victim) {
-	// Блочить мессагу крита при ледяном щите вроде нелогично,
-	// так что добавил отдельные сообщения для ледяного щита (Купала)
-	if (selected_shield_ != static_cast<int>(EAffect::kIceShield)) {
-		sprintf(buf, "&G&qВаше меткое попадание тяжело ранило %s.&Q&n\r\n",
-				sight::PersonName(victim, ch, 3));
-	} else {
-		sprintf(buf, "&B&qВаше меткое попадание утонуло в ледяной пелене щита %s.&Q&n\r\n",
-				sight::PersonName(victim, ch, 1));
-	}
+// issue.damage-change: does the shield chosen for this hit declare a given category property? Lets the
+// engine's damage rules test a declared affect property instead of naming a specific shield id.
+static bool ChosenShieldDeclares(int selected_shield, EAffFlag flag) {
+	return selected_shield >= 0
+		&& (affects::AffectFlagsByType(static_cast<EAffect>(selected_shield)) & flag) != 0;
+}
 
+void Damage::SendCritHitMsg(CharData *ch, CharData *victim) {
+	// issue.damage-change: the ice-shield "sank into the icy veil" crit flavor now lives in the ice
+	// crit-absorb <damage_change>'s kTransformCrit* sheaf message (shown on the 94% absorb). This is just
+	// the plain crit line for a crit that lands.
+	sprintf(buf, "&G&qВаше меткое попадание тяжело ранило %s.&Q&n\r\n",
+			sight::PersonName(victim, ch, 3));
 	SendMsgToChar(buf, ch);
 
-	if (selected_shield_ != static_cast<int>(EAffect::kIceShield)) {
-		sprintf(buf, "&r&qМеткое попадание %s тяжело ранило вас.&Q&n\r\n",
-				sight::PersonName(ch, victim, 1));
-	} else {
-		sprintf(buf, "&r&qМеткое попадание %s утонуло в ледяной пелене вашего щита.&Q&n\r\n",
-				sight::PersonName(ch, victim, 1));
-	}
-
+	sprintf(buf, "&r&qМеткое попадание %s тяжело ранило вас.&Q&n\r\n",
+			sight::PersonName(ch, victim, 1));
 	SendMsgToChar(buf, victim);
 	// Закомментил чтобы не спамило, сделать потом в виде режима
 	//act("Меткое попадание $N1 заставило $n3 пошатнуться.", true, victim, nullptr, ch, TO_NOTVICT);
@@ -636,7 +632,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 	// на жертве есть воздушный щит
 	// атака - каст моба (в mage_damage увеличение дамага от позиции было только у колдунов)
 	if (victim_start_pos < EPosition::kFight
-		&& selected_shield_ != static_cast<int>(EAffect::kAirShield)
+		&& !ChosenShieldDeclares(selected_shield_, kAfNoPositionBonus)
 		&& !(dmg_type == fight::kMagicDmg
 			&& ch->IsNpc())) {
 		dam += dam * (EPosition::kFight - victim_start_pos) / 4;
@@ -686,7 +682,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 		bool armor_full_absorb = CalcDmgAbsorption(ch, victim);
 		if (flags[fight::kCritHit] && (GetRealLevel(victim) >= 5 || !ch->IsNpc())
 			&& !AFF_FLAGGED(victim, EAffect::kPrismaticAura)
-			&& selected_shield_ != static_cast<int>(EAffect::kIceShield)) {
+			&& !ChosenShieldDeclares(selected_shield_, kAfNoCritBonus)) {
 			int tmpdam = std::min(victim->get_real_max_hit() / 8, dam * 2);
 			tmpdam = ApplyResist(victim, EResist::kVitality, dam);
 			dam = std::max(dam, tmpdam); //крит

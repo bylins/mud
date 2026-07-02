@@ -193,7 +193,7 @@
 		</apply>
 	</affect>
 	<affect id="kAirShield" buff="Y">
-		<flags val="kAfBattledec|kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+		<flags val="kAfBattledec|kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfNoPositionBonus"/>
 		<shield weight="10"/>
 		<actions>
 			<action>
@@ -253,7 +253,7 @@
 		</actions>
 	</affect>
 	<affect id="kIceShield" buff="Y">
-		<flags val="kAfBattledec|kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+		<flags val="kAfBattledec|kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfNoCritBonus"/>
 		<shield weight="10"/>
 		<actions>
 			<!-- Crit-absorb: a crit (not precise-style, not poison) has a 94% chance to be neutralized:

@@ -41,7 +41,12 @@ enum EAffFlag : Bitvector {
   // issue.affects-improve (P3d): affect CATEGORY -- this affect's DoT pierces blink/dodge. Groundwork
   // for aconite; the future data-driven DoT tick reads this flag instead of ProcessPoisonDmg keying
   // on EApply::kAconitumPoison. Not read yet.
-  kAfIgnoreBlink		= 1u << 19
+  kAfIgnoreBlink		= 1u << 19,
+  // issue.damage-change: affect CATEGORY flags so engine damage rules test a declared property instead
+  // of a specific affect id. kAfNoPositionBonus: while this affect is the active shield, the attacker
+  // gets no low-position damage bonus (air). kAfNoCritBonus: no crit damage bonus (ice).
+  kAfNoPositionBonus	= 1u << 20,
+  kAfNoCritBonus		= 1u << 21
 };
 
 /**

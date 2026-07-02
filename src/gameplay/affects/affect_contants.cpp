@@ -541,6 +541,8 @@ void init_EAffFlag_ITEM_NAMES() {
 	EAffFlag_name_by_value[EAffFlag::kAfCasterInWorld] = "kAfCasterInWorld";
 	EAffFlag_name_by_value[EAffFlag::kAfCasterInWorldDelay] = "kAfCasterInWorldDelay";
 	EAffFlag_name_by_value[EAffFlag::kAfIgnoreBlink] = "kAfIgnoreBlink";
+	EAffFlag_name_by_value[EAffFlag::kAfNoPositionBonus] = "kAfNoPositionBonus";
+	EAffFlag_name_by_value[EAffFlag::kAfNoCritBonus] = "kAfNoCritBonus";
 
 	for (const auto &i : EAffFlag_name_by_value) {
 		EAffFlag_value_by_name[i.second] = i.first;
