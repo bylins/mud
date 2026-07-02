@@ -716,24 +716,25 @@ int perform_best_mob_attack(CharData *ch, int extmode) {
 
 		if (!best->IsNpc()) {
 			// поиск клонов и отработка атаки в клона персонажа
-			for (auto *f : best->followers)
+			for (auto *f : best->followers) {
 				if (f->IsFlagged(EMobFlag::kClone))
 					clone_number++;
-			for (auto *f : best->followers)
+			}
+			for (auto *f : best->followers) {
 				if (f->IsNpc() && f->IsFlagged(EMobFlag::kClone)
 					&& f->in_room == best->in_room) {
-					if (number(0, clone_number) == 1)
+					if (GetRealInt(ch) < kStupidMob) {
+						best = f;
 						break;
-					if ((GetRealInt(ch) < 20) && number(0, clone_number))
+					}
+					if ((GetRealInt(ch) < kHighAi) && number(1, clone_number + 1) == 1)
 						break;
-					if (GetRealInt(ch) >= 30)
-						break;
-					if ((GetRealInt(ch) >= 20)
-						&& number(1, 10 + VPOSI((35 - GetRealInt(ch)), 0, 15) * clone_number) <= 10)
+					if ((GetRealInt(ch) >= kHighAi)&& number(1, (clone_number + 1) / 2) == 1)
 						break;
 					best = f;
 					break;
 				}
+			}
 		}
 		if (!start_fight_mtrigger(ch, best)) {
 			return false;
