@@ -50,8 +50,13 @@ enum EAffFlag : Bitvector {
   // issue.mob-flag-affect-materialization: this affect should be realized as a real (dispellable,
   // duration=-1) Affect struct on a flag-only NPC when its zone wakes, so the data-driven affect
   // system works for that mob. Declared on the buffs mobs commonly carry as bare flags (sanctuary,
-  // shields, prism, hold, ...). NOT on kGodsShield (stays a flag-only, non-dispellable "no damage" marker).
-  kAfMaterialize		= 1u << 22
+  // shields, prism, hold, ...). NOT on kGodsShield: full absorption is a binary flag PROPERTY read
+  // straight off AFF_FLAGS (see kAfFullAbsorb), so it needs no struct and stays a non-dispellable marker.
+  kAfMaterialize		= 1u << 22,
+  // issue.damage-change: affect CATEGORY -- fully absorbs incoming damage (the "magic cocoon",
+  // kGodsShield). The engine's total-immunity block tests "victim has any affect flag whose type
+  // declares this" instead of the specific affect id, so item/flag-only/cast holders all qualify.
+  kAfFullAbsorb			= 1u << 23
 };
 
 /**

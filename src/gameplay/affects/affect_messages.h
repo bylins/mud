@@ -113,6 +113,11 @@ enum class EBuff { kNo, kYes, kAmbiguous };
 // the buffs realized as real (dispellable, duration=-1) affects on a flag-only NPC when its zone wakes.
 [[nodiscard]] const std::vector<EAffect> &MaterializableAffects();
 
+// issue.damage-change: affect types flagged kAfFullAbsorb -- grant total damage immunity. The engine's
+// total-immunity block tests whether the victim has any of these AFF flags set (works for cast, worn and
+// flag-only holders alike), instead of hard-coding the kGodsShield affect id.
+[[nodiscard]] const std::vector<EAffect> &FullAbsorbAffects();
+
 // issue.affects-improve (P2): one stat-change an affect imposes -- its location (EApply) plus the
 // modifier-formula coefficients (same shape as a spell's <apply><modifier>). The affect, not the
 // spell, owns these; the spell/skill supplies competence/dice/duration. Parsed from affects.xml

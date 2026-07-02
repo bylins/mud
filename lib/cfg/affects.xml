@@ -181,7 +181,7 @@
 		</apply>
 	</affect>
 	<affect id="kGodsShield" buff="Y">
-		<flags val="kAfBattledec|kAfUpdateDuration|kAfUpdateMod"/>
+		<flags val="kAfBattledec|kAfUpdateDuration|kAfUpdateMod|kAfFullAbsorb"/>
 		<apply location="kSavingStability">
 			<modifier min="10.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
 		</apply>

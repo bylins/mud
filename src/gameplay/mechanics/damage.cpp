@@ -135,6 +135,19 @@ static bool VictimAffectDeclares(int selected_shield, CharData *victim, EAffFlag
 	return false;
 }
 
+// issue.damage-change: does the victim have any affect that grants TOTAL damage immunity (kAfFullAbsorb,
+// e.g. the "magic cocoon" kGodsShield)? Unlike VictimAffectDeclares this reads the AFF_FLAGS bitset, not
+// the affect structs, so it holds for EVERY holder -- cast (affect_total ORs the flag), worn item
+// (weapon-affect sets the flag) and bare-flag NPC (vendors/renters) alike -- without needing a struct.
+static bool VictimFullyAbsorbs(CharData *victim) {
+	for (const EAffect at : affects::FullAbsorbAffects()) {
+		if (AFF_FLAGGED(victim, at)) {
+			return true;
+		}
+	}
+	return false;
+}
+
 void Damage::SendCritHitMsg(CharData *ch, CharData *victim) {
 	// issue.damage-change: the ice-shield "sank into the icy veil" crit flavor now lives in the ice
 	// crit-absorb <damage_change>'s kTransformCrit* sheaf message (shown on the 94% absorb). This is just
@@ -670,7 +683,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 						   "&CУчет поглощения урона: %d начислено, %d применено.&n\r\n", dam, ResultDam);
 		dam = ResultDam;
 	}
-	if (!privilege::IsImmortal(ch) && AFF_FLAGGED(victim, EAffect::kGodsShield)) {
+	if (!privilege::IsImmortal(ch) && VictimFullyAbsorbs(victim)) {
 		if (skill_id == ESkill::kBash) {
 			SendSkillMessages(dam, ch, victim, skill_id);
 		}
