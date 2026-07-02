@@ -132,7 +132,7 @@
 		</apply>
 	</affect>
 	<affect id="kBlink" buff="Y">
-		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfMaterialize"/>
 		<apply location="kSpelledBlinkPhys">
 			<modifier min="0.0" dices_weight="0.0" alpha="0" beta="7" factor="1" />
 		</apply>
@@ -486,7 +486,7 @@
 		</apply>
 	</affect>
 	<affect id="kCloudly" buff="Y">
-		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfMaterialize"/>
 		<apply location="kSpelledBlinkMag">
 			<modifier min="10.0" dices_weight="0.0" alpha="0" beta="0" factor="1" />
 		</apply>

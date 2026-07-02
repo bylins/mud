@@ -286,23 +286,49 @@ static void ForceReposition(CharData *victim, ESpell spell_id, EPosition pos, bo
 	}
 }
 
-// issue.mob-flag-affect-materialization: potency for a materialized intrinsic mob buff. The affect and
-// its granting spell share a name (kSanctuary affect <- kSanctuary spell, etc.), so we roll THAT spell's
-// <potency_roll> for the mob -- dice + the mob's skill_coeff + the mob's stat_coeff -- exactly as a real
-// cast would. Gives the buff a real, mob-scaled potency so dispel is a contest, not a free strip.
-float ComputeMaterializedAffectPotency(const CharData *mob, EAffect affect_type) {
-	ESpell spell_id;
+// issue.mob-flag-affect-materialization: build the real affect node(s) for a materialized intrinsic mob
+// buff. The affect and its granting spell share a name (kSanctuary affect <- kSanctuary spell, etc.), so
+// we roll THAT spell's <potency_roll> for the mob -- dice + the mob's skill_coeff + stat_coeff -- exactly
+// as a real cast would, and derive both the stored potency (so dispel is a contest, not a free strip) and
+// each apply's modifier. competence = skill_coeff + stat_coeff, the same value an entry action feeds
+// ComputeApplyModifier (ActionContext::CompetenceBase). An affect with <apply> children (kCloudly ->
+// blink+AC, kBlink -> blink) materializes WITH its stat applies -- one node per apply; an applies-less
+// buff (sanctuary/shields/prism/glass) gets a single bare flag-carrier node (location kNone). Every node
+// is permanent (duration -1) and uncredited (caster_id 0). No same-named spell -> zero roll (flat mins,
+// potency 0).
+std::vector<Affect<EApply>> BuildMaterializedAffect(const CharData *mob, EAffect affect_type) {
+	RollResult roll;   // stays zero if no same-named spell -> potency 0, competence 0 (flat apply mins)
 	try {
-		spell_id = ITEM_BY_NAME<ESpell>(NAME_BY_ITEM<EAffect>(affect_type));
+		const ESpell spell_id = ITEM_BY_NAME<ESpell>(NAME_BY_ITEM<EAffect>(affect_type));
+		const auto &pr = MUD::Spell(spell_id).GetPotencyRoll();
+		roll.dices = pr.RollSkillDices();
+		roll.skill_coeff = pr.CalcSkillCoeff(mob);
+		roll.stat_coeff = pr.CalcBaseStatCoeff(mob);
 	} catch (const std::out_of_range &) {
-		return 0.0f;   // no same-named spell -> no potency source (stays easily dispelled)
+		// no same-named spell: keep the zero roll (bare/min applies, potency 0)
 	}
-	const auto &pr = MUD::Spell(spell_id).GetPotencyRoll();
-	RollResult roll;
-	roll.dices = pr.RollSkillDices();
-	roll.skill_coeff = pr.CalcSkillCoeff(mob);
-	roll.stat_coeff = pr.CalcBaseStatCoeff(mob);
-	return CalcCastPotency(roll);
+	const float cast_potency = CalcCastPotency(roll);
+	const double competence = roll.skill_coeff + roll.stat_coeff;
+	std::vector<Affect<EApply>> nodes;
+	auto make = [&](EApply loc, int mod) {
+		Affect<EApply> af;
+		af.affect_type = affect_type;
+		af.duration = -1;             // permanent: never ticks or expires
+		af.location = loc;
+		af.modifier = mod;
+		af.caster_id = 0;
+		af.potency = cast_potency;
+		nodes.push_back(af);
+	};
+	const auto &applies = affects::AffectApplies(affect_type);
+	if (applies.empty()) {
+		make(EApply::kNone, 0);       // flag-only buff (actions-driven): bare carrier, no stat apply
+	} else {
+		for (const auto &ap : applies) {
+			make(ap.location, ComputeApplyModifier(ap, competence, roll));
+		}
+	}
+	return nodes;
 }
 
 static int CalcTotalSpellDmg(CharData *ch, CharData *victim, ESpell spell_id,

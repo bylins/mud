@@ -747,7 +747,17 @@ std::pair<EApply, int>  GetApplyByWeaponAffect(EWeaponAffect element, CharData *
 		case EWeaponAffect::kProtectFromMind:
 			return std::pair<EApply, int>(EApply::kResistMind, value);
 			break;
-		default: 
+		// issue.mob-flag-affect-materialization: worn cloudly/blink must grant the miss-chance APPLY,
+		// not just the flag -- ProcessBlink now gates on the apply, not AFF_FLAGGED. Flat 10 preserves
+		// the pre-change PC value (the old hardcoded flag path defaulted a flagged PC to blink 10); NPC
+		// bearers still take level+remort from ProcessBlink regardless of magnitude.
+		case EWeaponAffect::kCloudly:
+			return std::pair<EApply, int>(EApply::kSpelledBlinkMag, 10);
+			break;
+		case EWeaponAffect::kBlink:
+			return std::pair<EApply, int>(EApply::kSpelledBlinkPhys, 10);
+			break;
+		default:
 			return std::pair<EApply, int>(EApply::kNone, 0);
 			break;
 	}
@@ -1310,9 +1320,10 @@ void affect_modify(CharData *ch, EApply loc, int mod, const EAffect bitv, bool a
 
 // issue.mob-flag-affect-materialization: realize a flag-only NPC's kAfMaterialize buff flags as real
 // duration=-1 (permanent, dispellable) affects, so the data-driven affect system works for it. Skips
-// flags that already have a matching affect. One recalc at the end. Materializable buffs (sanct/shields/
-// prism/hold) carry no <apply>, so each is a flag-only affect (location kNone, modifier 0); an affect
-// that DID have applies would need a base-modifier decision (out of scope for now).
+// flags that already have a matching affect. One recalc at the end. Each buff's real node(s) -- bare
+// flag-carrier for actions-only buffs (sanct/shields/prism/glass), or one node per <apply> (kCloudly ->
+// blink+AC, kBlink -> blink) with a mob-scaled modifier and potency -- are built by
+// BuildMaterializedAffect (magic), which rolls the buff's same-named spell for this mob.
 void MaterializeMobFlagAffects(CharData *mob) {
 	if (!mob || !mob->IsNpc() || !affects::AffectFlagsLoaded() || mob->get_rnum() < 0) {
 		return;
@@ -1335,17 +1346,10 @@ void MaterializeMobFlagAffects(CharData *mob) {
 		if (has_struct) {
 			continue;
 		}
-		Affect<EApply> af;
-		af.affect_type = at;
-		af.duration = -1;             // permanent: never ticks or expires
-		af.location = EApply::kNone;  // materializable buffs carry no stat apply
-		af.modifier = 0;
-		af.caster_id = 0;
-		// Roll the buff's own (same-named) spell potency for this mob, so dispel is a real contest
-		// scaled to the mob rather than a free strip (was: potency 0).
-		af.potency = ComputeMaterializedAffectPotency(mob, at);
-		affect_to_char_no_recalc(mob, af);
-		added = true;
+		for (auto &af : BuildMaterializedAffect(mob, at)) {
+			affect_to_char_no_recalc(mob, af);
+			added = true;
+		}
 	}
 	if (added) {
 		affect_total(mob);

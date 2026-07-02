@@ -27,6 +27,7 @@
 class CharData;
 class ObjData;
 struct RoomData;
+template<typename> class Affect;   // issue.mob-flag-affect-materialization: BuildMaterializedAffect return
 
 // (issue.affect-migration) The old ESpell "first-aid removable" list + GetRemovableSpellId were
 // removed: curability is now the kAfCurable battleflag -- see Affect::removable(), DoFirstaid, and
@@ -41,10 +42,16 @@ struct RollResult {
 	                              // low-skill bonus only, fed to SetBattleLag as skill_bonus.
 };
 
-// issue.mob-flag-affect-materialization: potency for a materialized intrinsic mob buff -- roll the
-// SAME-NAMED spell's <potency_roll> for the mob (its skill + stat + the spell's dice), so the buff
-// resists dispel like a real cast rather than being a free strip. 0 if no same-named spell.
-[[nodiscard]] float ComputeMaterializedAffectPotency(const CharData *mob, EAffect affect_type);
+// issue.mob-flag-affect-materialization: build the real affect node(s) that realize an intrinsic mob
+// buff flag. The affect and its granting spell share a name (kSanctuary affect <- kSanctuary spell,
+// etc.), so we roll THAT spell's <potency_roll> for the mob (its skill + stat + the spell's dice),
+// deriving BOTH the stored potency (so the buff resists dispel like a real cast, not a free strip) and
+// each stat apply's modifier (competence = skill_coeff+stat_coeff, as an entry action's CompetenceBase).
+// An affect with <apply> children (kCloudly, kBlink) yields one node per apply WITH its computed
+// modifier; an applies-less buff (sanctuary/shields/prism/glass) yields one bare flag-carrier node.
+// duration is -1 (permanent) on every node. If no same-named spell exists the roll is zero (flat mins,
+// potency 0).
+[[nodiscard]] std::vector<Affect<EApply>> BuildMaterializedAffect(const CharData *mob, EAffect affect_type);
 
 // ActionContext (issue.spell-pipeline): the single object threaded through the whole
 // cast handler chain (CallMagic -> CastToSingleTarget -> the per-stage Cast* fns).

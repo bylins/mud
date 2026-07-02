@@ -155,24 +155,24 @@ void Damage::ProcessBlink(CharData *ch, CharData *victim) {
 		return;
 	ubyte blink = 0;
 	// даже в случае попадания можно уклониться мигалкой
+	// issue.mob-flag-affect-materialization: gate on the miss-chance APPLY, not the AFF flag. kCloudly/
+	// kBlink now grant kSpelledBlinkMag/Phys from every source -- cast (affects.xml <apply>), worn item
+	// (GetApplyByWeaponAffect) and materialized flag-only mob (BuildMaterializedAffect) -- so the flag
+	// check is redundant. NPC bearers still take level+remort; PCs take the apply value.
 	if (dmg_type == fight::kMagicDmg) {
-		if (AFF_FLAGGED(victim, EAffect::kCloudly) || victim->add_abils.percent_spell_blink_mag > 0) {
+		if (victim->add_abils.percent_spell_blink_mag > 0) {
 			if (victim->IsNpc()) {
 				blink = GetRealLevel(victim) + remort::GetRealRemort(victim);
-			} else if(victim->add_abils.percent_spell_blink_mag > 0) {
-				blink = victim->add_abils.percent_spell_blink_mag;
 			} else {
-				blink = 10;
+				blink = victim->add_abils.percent_spell_blink_mag;
 			}
 		}
 	} else if(dmg_type == fight::kPhysDmg) {
-		if (AFF_FLAGGED(victim, EAffect::kBlink) || victim->add_abils.percent_spell_blink_phys > 0) {
+		if (victim->add_abils.percent_spell_blink_phys > 0) {
 			if (victim->IsNpc()) {
 				blink = GetRealLevel(victim) + remort::GetRealRemort(victim);
-			} else if (victim->add_abils.percent_spell_blink_phys > 0) {
-				blink = victim->add_abils.percent_spell_blink_phys;
 			} else {
-				blink = 10;
+				blink = victim->add_abils.percent_spell_blink_phys;
 			}
 		}
 	}
