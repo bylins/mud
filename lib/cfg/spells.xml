@@ -1964,7 +1964,7 @@
 		<misc pos="kFight" violent="Y" danger="5" />
 		<mana max="110" min="90" change="2" />
 		<targets val="kTarIgnore" />
-		<flags val="kMagMasses|kMagDamage|kNpcDamagePc" />
+		<flags val="kMagMasses|kMagDamage|kMagAffects|kNpcDamagePc" />
 		<potency_roll>
 			<dices ndice="15" sdice="9" adice="45" />
 			<base_skill id="kFireMagic" low_skill_bonus="2.25" hi_skill_bonus="1.25" />
@@ -1983,6 +1983,16 @@
 					<targets skill_divisor="20" dice_size="2" min="5" max="20" />
 					<distribution type="kStepped" decay="0.05" free_targets="3" />
 				</area>
+				<!-- issue.damage-over-time: survivors of the blast catch fire (kBurning DoT). Runs after
+				     <damage> (a target killed by the blast is skipped). potency_weight scales the stored
+				     potency that drives kBurning's per-tick <damage>; a kReflex save / kFire resist cut
+				     the burn duration, mirroring the blast. -->
+				<affects saving="kReflex" resist="kFire" potency_weight="0.5">
+					<duration base="0" skill_divisor="6" min="2" max="6" />
+					<apply id="kBurning" location="kNone">
+						<modifier min="0" dices_weight="0" alpha="0" beta="0" factor="1" />
+					</apply>
+				</affects>
 			</action>
 		</talent_actions>
 	</spell>

@@ -204,6 +204,7 @@ enum class EAffect : Bitvector {
 	kCapable = 134,   // issue.affect-migration: "embedded spell" marker on a clone (ex-ESpell::kCapable kService spell)
 	kWebbed = 135,          // issue.affects-improve: kWeb's own affect (AC/hitroll penalty + kBind)
 	kInsidiousWound = 136,  // issue.affects-improve: punctual-style wound debuff
+	kBurning = 137,         // issue.damage-over-time: fully data-driven fire DoT (kFireBlast); ticks its own <damage>
 };
 
 // --- BitsetFlags integration for EAffect ----------------------------------------------------------
@@ -213,7 +214,7 @@ enum class EAffect : Bitvector {
 // BitsetFlags<EAffect> stays byte-identical to the old FlagData on disk. count = 89 distinct bits.
 template<>
 struct flag_traits<EAffect> {
-	static constexpr std::size_t count = 137;   // kInsidiousWound=136 + 1
+	static constexpr std::size_t count = 138;   // kBurning=137 + 1
 };
 template<>
 struct flag_index_mapping<EAffect> {

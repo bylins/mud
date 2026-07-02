@@ -839,4 +839,21 @@
 	<affect id="kInsidiousWound" buff="N">
 		<flags val="kAfDeadkeep"/>
 	</affect>
+	<!-- issue.damage-over-time: a fully data-driven fire damage-over-time debuff (imposed by kFireBlast).
+	     kAfSameTime makes it a combat DoT: battle_affect_update runs its <actions> once per combat round
+	     via RunCharAffectTick. The kBattlePulse action deals a self-<damage> tick (default target kTarSame
+	     = the bearer) scaled by the affect's stored potency: with a tick's fixed-potency roll competence
+	     is 0, so per-tick damage = amount.min + ceil(stored_potency * dices_weight). No C++ handler and no
+	     stat <apply> -- the damage lives entirely in data. kAfDispellable so it can be removed by dispel. -->
+	<affect id="kBurning" buff="N">
+		<flags val="kAfSameTime|kAfDispellable"/>
+		<actions>
+			<action>
+				<trigger val="kBattlePulse"/>
+				<damage saving="kNone">
+					<amount min="0" dices_weight="0.1" alpha="0" beta="0" />
+				</damage>
+			</action>
+		</actions>
+	</affect>
 </affects>

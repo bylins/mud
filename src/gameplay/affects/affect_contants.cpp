@@ -176,6 +176,7 @@ void init_EAffectFlag_ITEM_NAMES() {
 	EAffectFlag_name_by_value[EAffect::kCapable] = "kCapable";
 	EAffectFlag_name_by_value[EAffect::kWebbed] = "kWebbed";
 	EAffectFlag_name_by_value[EAffect::kInsidiousWound] = "kInsidiousWound";
+	EAffectFlag_name_by_value[EAffect::kBurning] = "kBurning";
 	for (const auto &i : EAffectFlag_name_by_value) {
 		EAffectFlag_value_by_name[i.second] = i.first;
 	}
@@ -644,7 +645,7 @@ msg_container::MsgContainer<EAffect, affects::EAffectMsgType> &AffectMsgContaine
 // loaded from affects.xml. affects.xml is the SOURCE OF TRUTH for what an effect does; the casting
 // source (spell/skill/item) only sets strength + duration. Indexed by to_underlying(EAffect)
 // (EAffect is 1-based; index 0 = kUndefined = no flags).
-constexpr std::size_t kAffectFlagTableSize = 137;  // EAffect max (kInsidiousWound=136) + 1
+constexpr std::size_t kAffectFlagTableSize = 138;  // EAffect max (kBurning=137) + 1
 std::array<Bitvector, kAffectFlagTableSize> g_affect_flags{};
 std::array<affects::EBuff, kAffectFlagTableSize> g_affect_buff{};
 // issue.affects-improve (P2): per-affect stat-change applies (location + modifier formula) from
