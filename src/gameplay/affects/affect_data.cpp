@@ -1295,12 +1295,15 @@ void affect_modify(CharData *ch, EApply loc, int mod, const EAffect bitv, bool a
 // prism/hold) carry no <apply>, so each is a flag-only affect (location kNone, modifier 0); an affect
 // that DID have applies would need a base-modifier decision (out of scope for now).
 void MaterializeMobFlagAffects(CharData *mob) {
-	if (!mob || !mob->IsNpc() || !affects::AffectFlagsLoaded()) {
+	if (!mob || !mob->IsNpc() || !affects::AffectFlagsLoaded() || mob->get_rnum() < 0) {
 		return;
 	}
+	// Read the INTRINSIC (prototype) buff flags, not the live mob's: a dispelled buff is gone from the
+	// live flags but must still be restorable, and on a fresh wake the live flags equal the prototype's.
+	const CharData *proto = &mob_proto[mob->get_rnum()];
 	bool added = false;
 	for (const EAffect at : affects::MaterializableAffects()) {
-		if (!AFF_FLAGGED(mob, at)) {
+		if (!AFF_FLAGGED(proto, at)) {
 			continue;
 		}
 		bool has_struct = false;

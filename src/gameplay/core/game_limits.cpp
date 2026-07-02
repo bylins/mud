@@ -14,6 +14,7 @@
 
 #include "gameplay/core/game_limits.h"
 #include "gameplay/core/experience.h"
+#include "gameplay/affects/affect_data.h"   // issue.mob-flag-affect-materialization: restore re-materialize
 #include "administration/privilege.h"
 #include "gameplay/mechanics/condition.h"
 #include "utils/grammar/gender.h"
@@ -1425,7 +1426,11 @@ void point_update() {
 	  	}
 
 		if (i->IsNpc()) {
-			i->inc_restore_timer(kSecsPerMudHour);
+			// issue.mob-flag-affect-materialization: on the tick the out-of-combat restore fires,
+			// re-materialize any intrinsic buffs a player dispelled during the fight.
+			if (i->inc_restore_timer(kSecsPerMudHour)) {
+				MaterializeMobFlagAffects(i);
+			}
 		}
 		/* Если чар или моб попытался проснуться а на нем аффект сон,
 		то он снова должен валиться в сон */

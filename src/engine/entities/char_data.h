@@ -499,7 +499,9 @@ class CharData : public ProtectedCharData {
 
 	void mark_attacked(CharData *attacker);
 
-	void inc_restore_timer(int num);
+	// issue.mob-flag-affect-materialization: returns true on the tick the out-of-combat restore fires,
+	// so the caller can re-materialize the mob's dispelled intrinsic buffs.
+	bool inc_restore_timer(int num);
 	obj_sets::activ_sum &obj_bonus();
 	[[nodiscard]] const obj_sets::activ_sum &obj_bonus() const { return obj_bonus_; }
 

@@ -1098,9 +1098,11 @@ const CharData::role_t &CharData::get_role_bits() const {
 	return role_;
 }
 
-// отмечает, что босса атаковал игрок: взводит флаг пост-боевого таймера рефреша
+// отмечает, что непися атаковал игрок: взводит флаг пост-боевого таймера рефреша
+// issue.mob-flag-affect-materialization: now marks ANY NPC a player engages (was: bosses only), so the
+// out-of-combat restore can re-materialize buffs the player dispelled during the fight.
 void CharData::mark_attacked(CharData *attacker) {
-	if (!this->IsNpc() || attacker->IsNpc() || !get_role(static_cast<unsigned>(EMobClass::kBoss))) {
+	if (!this->IsNpc() || attacker->IsNpc()) {
 		return;
 	}
 	was_attacked_ = true;
@@ -1216,13 +1218,23 @@ void CharData::set_wait(const unsigned _) {
 // инкремент и проверка таймера на рестор босса,
 // который находится вне боя и до этого был кем-то бит
 // (т.к. имеет не нулевой список атакеров)
-void CharData::inc_restore_timer(int num) {
-	if (get_role(static_cast<unsigned>(EMobClass::kBoss)) && was_attacked_ && !GetEnemy()) {
-		restore_timer_ += num;
-		if (restore_timer_ > num) {
-			restore_mob();
-		}
+bool CharData::inc_restore_timer(int num) {
+	if (!was_attacked_ || GetEnemy()) {   // only NPCs a player fought (mark_attacked), now out of combat
+		return false;
 	}
+	restore_timer_ += num;
+	if (restore_timer_ <= num) {
+		return false;   // out of combat, but not long enough yet (fires on the 2nd tick, as before)
+	}
+	// Long enough out of combat. Bosses get the full stat/HP/spell restore (existing behaviour); every
+	// mob gets its dispelled intrinsic buffs re-materialized by the caller (game_limits).
+	if (get_role(static_cast<unsigned>(EMobClass::kBoss))) {
+		restore_mob();   // resets restore_timer_ + was_attacked_
+	} else {
+		restore_timer_ = 0;
+		was_attacked_ = false;
+	}
+	return true;
 }
 
 obj_sets::activ_sum &CharData::obj_bonus() {
