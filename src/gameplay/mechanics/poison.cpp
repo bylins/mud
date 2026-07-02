@@ -472,14 +472,23 @@ bool IsSpellPoison(ESpell spell_id) {
 * APPLY_POISON - у плеера раз в 2 секунды везде, у моба раз в минуту везде.
 * Остальные аффекты - у плеера раз в 2 секунды везде, у моба в бою раз в 2 секунды, вне боя - раз в минуту.
 */
+// issue.damage-over-time: the regular-poison per-tick damage amount (GET_POISON based), extracted from
+// ProcessPoisonDmg UNCHANGED so the future data-driven <damage source="poison"> tick can reuse the exact
+// formula. Mobs take GET_POISON*4 per tick; players GET_POISON*5/30 (a player's affect tick is far more
+// frequent than a mob's, hence the /30). GET_POISON is the bearer's accumulated poison level (sum of the
+// active kPoison applies), so stacked poisons add up here.
+int CalcPoisonDamage(CharData *ch) {
+	int poison_dmg = GET_POISON(ch) * (ch->IsNpc() ? 4 : 5);
+	if (!ch->IsNpc()) {
+		poison_dmg = poison_dmg / 30;
+	}
+	return poison_dmg;
+}
+
 int ProcessPoisonDmg(CharData *ch, const Affect<EApply>::shared_ptr &af) {
 	int result = 0;
 	if (af->location == EApply::kPoison) {
-		int poison_dmg = GET_POISON(ch) * (ch->IsNpc() ? 4 : 5);
-		// мобов яд ядит на тике, а чаров каждый батл тик соответсвенно если это не моб надо делить на 30 или тип того
-		if (!ch->IsNpc())
-			poison_dmg = poison_dmg / 30;
-		//poison_dmg = interpolate(poison_dmg, 2); // И как оно должно работать чото нифига не понял, понял только что оно не работает
+		int poison_dmg = CalcPoisonDamage(ch);
 		Damage dmg(SpellDmg(ESpell::kPoison), poison_dmg, fight::kPoisonDmg);
 		dmg.flags.set(fight::kNoFleeDmg);
 		dmg.author_uid = af->caster_id;   // отравитель (для засчёта убийства), 0 если автора нет
