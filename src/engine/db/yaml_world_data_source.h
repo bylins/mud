@@ -68,6 +68,7 @@ public:
 	~YamlWorldDataSource() override = default;
 
 	std::string GetName() const override { return "YAML files: " + m_world_dir; }
+	std::string GetKind() const override { return "yaml"; }
 
 	void LoadZones() override;
 	void LoadTriggers() override;

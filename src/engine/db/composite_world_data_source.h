@@ -18,6 +18,13 @@
 //   - After a read, for each source, the zones where it lost the per-zone
 //     freshness comparison are resynced from the loaded world (self-heal) --
 //     NOT the whole zone list, just the ones it actually lost.
+//   - ForceSource(kind) (the -F CLI flag) bypasses freshness entirely for one
+//     boot: the named source wins every zone unconditionally, and every other
+//     source's whole zone list is force-resynced from it. For moving a cached
+//     SQLite world.db to a different machine and rebuilding its YAML tree --
+//     mtime-based freshness isn't portable across machines, so this is an
+//     explicit override, not something freshness comparison should try to
+//     infer.
 
 #ifndef COMPOSITE_WORLD_DATA_SOURCE_H_
 #define COMPOSITE_WORLD_DATA_SOURCE_H_
@@ -78,6 +85,18 @@ public:
 	// includes the legacy backend, which never implemented LoadZone*).
 	bool AllZonesSupportPerZoneLoad() const;
 
+	// One-shot override for the -F <kind> CLI flag: skip the normal per-zone
+	// freshness comparison entirely and make the source whose GetKind() ==
+	// `kind` win every zone (index and content), while every OTHER writable
+	// source has ALL its zones marked stale -- so the boot's normal resync
+	// pass (GameLoader::BootWorld, driven by StaleZonesBySource()) rebuilds
+	// them unconditionally from what was just read, instead of treating the
+	// forced source as a cache that might lose a freshness comparison. Must
+	// be called before LoadZones(). Returns false (and changes nothing) if no
+	// child source has that GetKind() -- the caller should treat that as
+	// fatal rather than silently booting in normal cache mode.
+	bool ForceSource(const std::string &kind);
+
 	// The per-zone content winner for `zone_vnum` (resolved by LoadZones()).
 	// null if LoadZones() hasn't run yet or the vnum is unknown to every
 	// source.
@@ -106,6 +125,7 @@ private:
 	std::map<int, IWorldDataSource *> m_zone_source;            // per-zone content winner
 	std::map<IWorldDataSource *, std::vector<int>> m_stale_zones;  // per-source dirty-zone lists
 	bool m_zone_sources_selected = false;
+	std::string m_forced_kind;  // set by ForceSource(); empty = normal freshness-based selection
 };
 
 // Factory: build a composite from an ordered list of sub-sources.

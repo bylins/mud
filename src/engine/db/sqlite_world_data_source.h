@@ -32,6 +32,7 @@ public:
 	~SqliteWorldDataSource() override;
 
 	std::string GetName() const override { return "SQLite database: " + m_db_path; }
+	std::string GetKind() const override { return "sqlite"; }
 
 	void LoadZones() override;
 	void LoadTriggers() override;

@@ -51,6 +51,19 @@ IWorldDataSource *CompositeWorldDataSource::SourceForZone(int zone_vnum) const
 	return it != m_zone_source.end() ? it->second : nullptr;
 }
 
+bool CompositeWorldDataSource::ForceSource(const std::string &kind)
+{
+	for (const auto &src : m_sources)
+	{
+		if (src->GetKind() == kind)
+		{
+			m_forced_kind = kind;
+			return true;
+		}
+	}
+	return false;
+}
+
 void CompositeWorldDataSource::SelectZoneSources()
 {
 	if (m_zone_sources_selected)
@@ -58,6 +71,64 @@ void CompositeWorldDataSource::SelectZoneSources()
 		return;
 	}
 	m_zone_sources_selected = true;
+
+	if (!m_forced_kind.empty())
+	{
+		IWorldDataSource *forced = nullptr;
+		for (const auto &src : m_sources)
+		{
+			if (src->GetKind() == m_forced_kind)
+			{
+				forced = src.get();
+				break;
+			}
+		}
+		// ForceSource() already validated `forced` exists at the time it was
+		// called; if it's gone now, m_sources changed underneath us, which
+		// never happens in practice (the caller owns the composite for its
+		// whole lifetime) -- fail loudly rather than silently falling back to
+		// normal freshness-based selection, since that would boot in cache
+		// mode instead of the explicitly requested rebuild.
+		if (!forced)
+		{
+			log("SYSERR: CompositeWorldDataSource forced kind '%s' vanished before SelectZoneSources()",
+				m_forced_kind.c_str());
+			m_forced_kind.clear();
+		}
+		else
+		{
+			m_index_source = forced;
+			std::vector<int> all_zones = ListZoneVnums();
+			m_zone_source.clear();
+			m_stale_zones.clear();
+			for (int zone_vnum : all_zones)
+			{
+				if (zone_vnum >= dungeons::kZoneStartDungeons)
+				{
+					continue;
+				}
+				m_zone_source[zone_vnum] = forced;
+				for (const auto &src : m_sources)
+				{
+					if (src.get() != forced)
+					{
+						m_stale_zones[src.get()].push_back(zone_vnum);
+					}
+				}
+			}
+			log("World source '%s' FORCED (kind='%s'): rebuilding %zu zone(s) unconditionally in every other source",
+				forced->GetName().c_str(), m_forced_kind.c_str(), m_zone_source.size());
+			for (const auto &src : m_sources)
+			{
+				if (src.get() != forced)
+				{
+					log("World source '%s': %zu zone(s) to force-resync", src->GetName().c_str(),
+						m_stale_zones[src.get()].size());
+				}
+			}
+			return;
+		}
+	}
 
 	// Index winner: whole-source, decides zone_table membership/order.
 	std::vector<Freshness> index_fresh(m_sources.size(), 0);

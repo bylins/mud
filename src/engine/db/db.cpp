@@ -140,6 +140,7 @@ long top_idnum = 0;        // highest idnum in use
 
 int circle_restrict = 0;    // level of game restriction
 bool enable_world_checksum = false;	// enable world checksum calculation
+const char *g_force_world_source = nullptr;	// -F <kind>: force one-shot source, see CompositeWorldDataSource::ForceSource
 RoomRnum r_mortal_start_room;    // rnum of mortal start room
 RoomRnum r_immort_start_room;    // rnum of immort start room
 RoomRnum r_frozen_start_room;    // rnum of frozen start room
@@ -578,6 +579,25 @@ void GameLoader::BootWorld(std::unique_ptr<world_loader::IWorldDataSource> data_
 	// Register data source in manager for OLC access
 	auto* ds_ptr = data_source.get();
 	world_loader::WorldDataSourceManager::Instance().SetDataSource(std::move(data_source));
+
+	// -F <kind>: one-shot override, e.g. rebuilding a YAML tree from a
+	// SQLite world.db that was copied in from another machine, where mtime-
+	// based freshness comparison isn't meaningful. Must fail loudly (not
+	// silently boot in normal cache mode) if the request can't be honored --
+	// see CompositeWorldDataSource::ForceSource.
+	if (g_force_world_source)
+	{
+		auto *composite_for_force = dynamic_cast<world_loader::CompositeWorldDataSource *>(ds_ptr);
+		if (!composite_for_force)
+		{
+			fatal_log("FATAL: -F %s requires a composite <world_loader><sources> with 2+ entries "
+				"(single-source config has nothing to force/rebuild).", g_force_world_source);
+		}
+		if (!composite_for_force->ForceSource(g_force_world_source))
+		{
+			fatal_log("FATAL: -F %s: no configured world source has that kind.", g_force_world_source);
+		}
+	}
 
 	boot_profiler.next_step("Loading zone table");
 	ds_ptr->LoadZones();

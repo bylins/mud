@@ -27,6 +27,13 @@ public:
 	// Returns the name/description of this data source for logging
 	virtual std::string GetName() const = 0;
 
+	// Short, stable machine-matchable identifier ("yaml", "sqlite", ...), used
+	// by GameLoader::BootWorld to resolve the -F <kind> "force one-shot
+	// source" CLI flag against CompositeWorldDataSource's children. Default
+	// "unknown" -- backends that don't participate in per-zone freshness
+	// (legacy, null) need not override this.
+	virtual std::string GetKind() const { return "unknown"; }
+
 	// Load world data in the correct order
 	// Each method populates the global data structures
 	virtual void LoadZones() = 0;
