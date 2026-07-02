@@ -89,6 +89,29 @@ public:
 	Freshness GetZoneFreshness(int zone_vnum) const override;
 	Freshness GetIndexFreshness() const override;
 
+	// Per-zone load (for CompositeWorldDataSource's per-zone source
+	// selection). Unlike the whole-world Load* methods above, these append
+	// exactly one zone's entities to the already-in-progress global tables --
+	// they do NOT allocate world[]'s dummy room 0, mob_proto/mob_index/
+	// trig_index (the orchestrator in db.cpp does that once, up front, sized
+	// via CountZoneMobs/CountZoneTriggers), nor run any of the global
+	// post-passes (CalculateFirstAndLastRooms, ResolveZoneTableCmdVnumArgsToRnums,
+	// etc.) -- those still run once, globally, after every zone is loaded.
+	// Callers MUST invoke these in ascending zone-vnum order, with triggers
+	// loaded (across ALL zones) before any rooms/mobs/objects are loaded,
+	// matching today's whole-world LoadTriggers-then-Rooms-then-Mobs-then-
+	// Objects sequence -- both GetRoomRnum/GetMobRnum/GetTriggerRnum binary
+	// searches and the trigger-attachment calls inside these methods depend
+	// on it.
+	bool SupportsPerZoneLoad() const override { return true; }
+	void LoadZone(int zone_vnum) override;
+	void LoadZoneTriggers(int zone_vnum) override;
+	void LoadZoneRooms(int zone_vnum) override;
+	void LoadZoneMobs(int zone_vnum) override;
+	void LoadZoneObjects(int zone_vnum) override;
+	int CountZoneMobs(int zone_vnum) const override;
+	int CountZoneTriggers(int zone_vnum) const override;
+
 	// Exposed for unit tests: parses a single mob YAML file into a CharData.
 	// Stateless aside from reading the global DictionaryManager singleton --
 	// callers are responsible for loading dictionaries beforehand.
@@ -111,6 +134,12 @@ private:
 	// data lives in a flat <sub>.yaml or a per-file <sub>/ directory. Runs
 	// sequentially in the main thread before tasks are distributed to workers.
 	std::vector<EntityFileTask> DiscoverEntityFiles(const std::string &sub);
+
+	// Same discovery, restricted to one zone -- used by the per-zone Load*
+	// methods (and, read-only, by CountZoneMobs/CountZoneTriggers). Identical
+	// layout-detection logic to DiscoverEntityFiles, just scoped to a single
+	// zone_vnum instead of looping GetZoneList().
+	std::vector<EntityFileTask> DiscoverEntityFilesForZone(int zone_vnum, const std::string &sub) const;
 
 	// Zone loading helpers
 	void LoadZoneCommands(ZoneData &zone, const YAML::Node &commands_node);

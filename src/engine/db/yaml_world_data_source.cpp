@@ -421,6 +421,90 @@ std::vector<EntityFileTask> YamlWorldDataSource::DiscoverEntityFiles(const std::
 	return tasks;
 }
 
+// Same layout-detection logic as DiscoverEntityFiles, restricted to a single
+// zone -- used by the per-zone Load* methods (see world_data_source.h).
+std::vector<EntityFileTask> YamlWorldDataSource::DiscoverEntityFilesForZone(int zone_vnum, const std::string &sub) const
+{
+	namespace fs = std::filesystem;
+	std::vector<EntityFileTask> tasks;
+
+	const std::string zone_dir = m_world_dir + "/zones/" + std::to_string(zone_vnum);
+	const std::string flat_path = zone_dir + "/" + sub + ".yaml";
+	const std::string index_path = zone_dir + "/" + sub + "/index.yaml";
+	const bool has_flat = fs::exists(flat_path);
+	const bool has_perfile = fs::exists(index_path);
+
+	bool use_flat;
+	if (has_flat && has_perfile)
+	{
+		use_flat = (m_save_layout == YamlLayout::Flat);
+		log("WARNING: zone %d has both flat %s.yaml and per-file %s/ -- using "
+			"%s per world_config layout; the other is ignored.",
+			zone_vnum, sub.c_str(), sub.c_str(), use_flat ? "flat" : "per-file");
+	}
+	else
+	{
+		use_flat = has_flat;
+	}
+
+	if (use_flat)
+	{
+		EntityFileTask task;
+		task.flat = true;
+		task.path = flat_path;
+		try
+		{
+			YAML::Node root = YAML::LoadFile(flat_path);
+			for (auto it = root.begin(); it != root.end(); ++it)
+			{
+				int rel_num = it->first.as<int>();
+				task.vnums.push_back(zone_vnum * 100 + rel_num);
+			}
+		}
+		catch (const YAML::Exception &e)
+		{
+			fatal_log("SYSERR: Failed to load flat %s file for zone %d ('%s'): %s",
+				sub.c_str(), zone_vnum, flat_path.c_str(), e.what());
+		}
+		std::sort(task.vnums.begin(), task.vnums.end());
+		if (!task.vnums.empty())
+		{
+			tasks.push_back(std::move(task));
+		}
+		return tasks;
+	}
+
+	if (!has_perfile)
+	{
+		return tasks;
+	}
+	try
+	{
+		YAML::Node root = YAML::LoadFile(index_path);
+		if (root[sub] && root[sub].IsSequence())
+		{
+			for (const auto &rel_node : root[sub])
+			{
+				int rel_num = rel_node.as<int>();
+				EntityFileTask task;
+				task.flat = false;
+				std::ostringstream ss;
+				ss << zone_dir << "/" << sub << "/"
+				   << std::setfill('0') << std::setw(2) << rel_num << ".yaml";
+				task.path = ss.str();
+				task.vnums.push_back(zone_vnum * 100 + rel_num);
+				tasks.push_back(std::move(task));
+			}
+		}
+	}
+	catch (const YAML::Exception &e)
+	{
+		fatal_log("SYSERR: Failed to load %s index for zone %d ('%s'): %s",
+			sub.c_str(), zone_vnum, index_path.c_str(), e.what());
+	}
+	return tasks;
+}
+
 std::string YamlWorldDataSource::ConvertToKoi8r(const std::string &utf8_str) const
 {
 	if (utf8_str.empty())
@@ -735,6 +819,16 @@ void YamlWorldDataSource::LoadZones()
 
 	// Parallel load zones
 	LoadZonesParallel();
+}
+
+// Load one zone's triggers/rooms/mobs/objects, in the order required by the
+// cross-references inside each (triggers before anything that attaches them).
+void YamlWorldDataSource::LoadZone(int zone_vnum)
+{
+	LoadZoneTriggers(zone_vnum);
+	LoadZoneRooms(zone_vnum);
+	LoadZoneMobs(zone_vnum);
+	LoadZoneObjects(zone_vnum);
 }
 
 static bool ParseCommandString(const std::string &line, struct reset_com &cmd)
@@ -1116,6 +1210,81 @@ void YamlWorldDataSource::LoadTriggers()
 	LoadTriggersParallel();
 }
 
+// Count a single zone's triggers without fully parsing them (flat layout
+// still parses the file to enumerate keys -- same cost DiscoverEntityFiles
+// already pays -- but per-file layout is a cheap index.yaml read).
+int YamlWorldDataSource::CountZoneTriggers(int zone_vnum) const
+{
+	int count = 0;
+	for (const auto &task : DiscoverEntityFilesForZone(zone_vnum, "triggers"))
+	{
+		count += static_cast<int>(task.vnums.size());
+	}
+	return count;
+}
+
+// Per-zone trigger load (serial -- one zone's worth of files, no thread pool
+// needed). Mirrors LoadTriggersParallel's merge step, scoped to one zone.
+// Does NOT allocate trig_index -- the orchestrator pre-sizes it once via
+// CountZoneTriggers before any zone is loaded (see db.cpp).
+void YamlWorldDataSource::LoadZoneTriggers(int zone_vnum)
+{
+	// Per-zone entry points can run without this instance's own LoadZones()
+	// ever having been called (the composite may have picked a DIFFERENT
+	// source to supply zone_table/the index) -- LoadDictionaries() is
+	// otherwise only reached from LoadZones(), so without this guard every
+	// ParseEnum/ParseFlags lookup below would silently fall back to its
+	// default value (issue found via per-zone round-trip testing: a room's
+	// sector and exits came back wrong when SQLite, not YAML, won the index).
+	if (!LoadDictionaries())
+	{
+		fatal_log("FATAL: Cannot continue without dictionaries. Aborting.");
+	}
+
+	std::vector<EntityFileTask> tasks = DiscoverEntityFilesForZone(zone_vnum, "triggers");
+	std::vector<std::pair<int, Trigger*>> zone_triggers;
+
+	for (const auto &task : tasks)
+	{
+		YAML::Node file_root;
+		try
+		{
+			file_root = YAML::LoadFile(task.path);
+		}
+		catch (const std::exception &e)
+		{
+			log("SYSERR: Failed to load triggers from '%s': %s", task.path.c_str(), e.what());
+			continue;
+		}
+		for (int vnum : task.vnums)
+		{
+			const YAML::Node node = task.flat ? file_root[vnum % 100] : file_root;
+			try
+			{
+				Trigger* trig = ParseTriggerNode(node);
+				zone_triggers.emplace_back(vnum, trig);
+			}
+			catch (const std::exception &e)
+			{
+				log("SYSERR: Failed to parse trigger %d from '%s': %s", vnum, task.path.c_str(), e.what());
+			}
+		}
+	}
+
+	// Sort by vnum within the zone -- required so the global trig_index[]
+	// stays vnum-ascending across zones (callers already visit zones in
+	// ascending vnum order, so per-zone-sorted + zone-order-ascending ==
+	// globally sorted, same invariant GetTriggerRnum's binary search needs).
+	std::sort(zone_triggers.begin(), zone_triggers.end(),
+		[](const auto &a, const auto &b) { return a.first < b.first; });
+
+	for (auto &[vnum, trig] : zone_triggers)
+	{
+		trig->set_rnum(top_of_trigt);
+		CreateTriggerIndex(vnum, trig);
+	}
+}
+
 // ============================================================================
 // Room Loading
 // ============================================================================
@@ -1406,6 +1575,116 @@ void YamlWorldDataSource::LoadRooms()
 
 	// Dictionaries already loaded in LoadZones, thread pool already created
 	LoadRoomsParallel();
+}
+
+// Per-zone room load (serial). Mirrors LoadRoomsParallel's merge step, scoped
+// to one zone -- but does NOT push the dummy room 0 (kNowhere) or set
+// zone_table[].RnumRoomsLocation: the orchestrator pushes the dummy room once
+// up front, and CalculateFirstAndLastRooms() (db.cpp) derives
+// RnumRoomsLocation from world[]->zone_rn once, after every zone is loaded --
+// same as it already does for the whole-world path.
+void YamlWorldDataSource::LoadZoneRooms(int zone_vnum)
+{
+	// See LoadZoneTriggers for why this guard is needed here.
+	if (!LoadDictionaries())
+	{
+		fatal_log("FATAL: Cannot continue without dictionaries. Aborting.");
+	}
+
+	std::vector<EntityFileTask> tasks = DiscoverEntityFilesForZone(zone_vnum, "rooms");
+	if (tasks.empty())
+	{
+		return;
+	}
+
+	int zone_rn = GetZoneRnum(zone_vnum);
+	if (zone_rn < 0)
+	{
+		log("SYSERR: LoadZoneRooms: zone %d not found in zone_table", zone_vnum);
+		return;
+	}
+
+	LocalDescriptionIndex local_index;
+	std::vector<std::tuple<int, RoomData*, size_t>> parsed_rooms;
+	std::map<int, std::vector<int>> room_triggers;
+
+	for (const auto &task : tasks)
+	{
+		YAML::Node file_root;
+		try
+		{
+			file_root = YAML::LoadFile(task.path);
+		}
+		catch (const std::exception &e)
+		{
+			log("SYSERR: Failed to load rooms from '%s': %s", task.path.c_str(), e.what());
+			continue;
+		}
+		for (int vnum : task.vnums)
+		{
+			const YAML::Node node = task.flat ? file_root[vnum % 100] : file_root;
+			try
+			{
+				size_t local_desc_idx = 0;
+				RoomData* room = ParseRoomNode(node, vnum, zone_rn, local_index, local_desc_idx);
+
+				if (node["triggers"] && node["triggers"].IsSequence())
+				{
+					std::vector<int> trigger_list;
+					for (const auto &trig_node : node["triggers"])
+					{
+						trigger_list.push_back(trig_node.as<int>());
+					}
+					if (!trigger_list.empty())
+					{
+						room_triggers[vnum] = std::move(trigger_list);
+					}
+				}
+
+				parsed_rooms.push_back(std::make_tuple(vnum, room, local_desc_idx));
+			}
+			catch (const std::exception &e)
+			{
+				log("SYSERR: Failed to parse room %d from '%s': %s", vnum, task.path.c_str(), e.what());
+			}
+		}
+	}
+
+	// Sort within the zone -- callers already visit zones in ascending vnum
+	// order, so per-zone-sorted + zone-order-ascending == globally sorted.
+	std::sort(parsed_rooms.begin(), parsed_rooms.end(),
+		[](const auto &a, const auto &b) { return std::get<0>(a) < std::get<0>(b); });
+
+	auto &global_descriptions = GlobalObjects::descriptions();
+	std::vector<size_t> local_to_global = global_descriptions.merge(local_index);
+
+	for (auto &[vnum, room, local_desc_idx] : parsed_rooms)
+	{
+		if (local_desc_idx > 0)
+		{
+			size_t local_idx_0based = local_desc_idx - 1;
+			if (local_idx_0based < local_to_global.size())
+			{
+				room->description_num = local_to_global[local_idx_0based];
+			}
+		}
+		world.push_back(room);
+	}
+	top_of_world = static_cast<RoomRnum>(world.size() - 1);
+
+	// Attach room triggers (needs top_of_world/world[] updated above so
+	// GetRoomRnum can find the rooms just appended).
+	for (const auto &[room_vnum, trigger_list] : room_triggers)
+	{
+		int room_rnum = GetRoomRnum(room_vnum);
+		if (room_rnum >= 0)
+		{
+			for (int trigger_vnum : trigger_list)
+			{
+				AttachTriggerToRoom(room_rnum, trigger_vnum, room_vnum);
+			}
+		}
+	}
 }
 
 void YamlWorldDataSource::LoadRoomExits(RoomData *room, const YAML::Node &exits_node, int room_vnum)
@@ -2069,6 +2348,122 @@ void YamlWorldDataSource::LoadMobs()
 	LoadMobsParallel();
 }
 
+// Count a single zone's mobs without fully parsing them.
+int YamlWorldDataSource::CountZoneMobs(int zone_vnum) const
+{
+	int count = 0;
+	for (const auto &task : DiscoverEntityFilesForZone(zone_vnum, "mobs"))
+	{
+		count += static_cast<int>(task.vnums.size());
+	}
+	return count;
+}
+
+// Per-zone mob load (serial). Mirrors LoadMobsParallel's merge step, scoped
+// to one zone. Does NOT allocate mob_proto[]/mob_index[] -- the orchestrator
+// pre-sizes both once via CountZoneMobs before any zone is loaded, and does
+// the one-time "top_of_mobt: count -> last-valid-index" conversion once,
+// after every zone is loaded (see db.cpp).
+void YamlWorldDataSource::LoadZoneMobs(int zone_vnum)
+{
+	// See LoadZoneTriggers for why this guard is needed here.
+	if (!LoadDictionaries())
+	{
+		fatal_log("FATAL: Cannot continue without dictionaries. Aborting.");
+	}
+
+	std::vector<EntityFileTask> tasks = DiscoverEntityFilesForZone(zone_vnum, "mobs");
+	if (tasks.empty())
+	{
+		return;
+	}
+
+	// CalculateFirstAndLastMobs() (db.cpp) is a no-op stub -- unlike rooms,
+	// nothing re-derives RnumMobsLocation from scratch, so it must be set
+	// here, same as the whole-world loader does inline.
+	const int zone_rn = GetZoneRnum(zone_vnum);
+
+	// Idempotent -- safe to repeat per zone (matches the whole-world loader's
+	// one-time init, just no longer guaranteed to run exactly once).
+	player_special_data::s_for_mobiles->saved.NameGod = 1001;
+
+	std::vector<std::pair<int, CharData>> parsed_mobs;
+	std::map<int, std::vector<int>> mob_triggers;
+
+	for (const auto &task : tasks)
+	{
+		YAML::Node file_root;
+		try
+		{
+			file_root = YAML::LoadFile(task.path);
+		}
+		catch (const std::exception &e)
+		{
+			log("SYSERR: Failed to load mobs from '%s': %s", task.path.c_str(), e.what());
+			continue;
+		}
+		for (int vnum : task.vnums)
+		{
+			const YAML::Node node = task.flat ? file_root[vnum % 100] : file_root;
+			try
+			{
+				parsed_mobs.emplace_back(vnum, ParseMobNode(node));
+
+				if (node["triggers"] && node["triggers"].IsSequence())
+				{
+					std::vector<int> trigger_list;
+					for (const auto &trig_node : node["triggers"])
+					{
+						trigger_list.push_back(trig_node.as<int>());
+					}
+					if (!trigger_list.empty())
+					{
+						mob_triggers[vnum] = std::move(trigger_list);
+					}
+				}
+			}
+			catch (const std::exception &e)
+			{
+				log("SYSERR: Failed to parse mob %d from '%s': %s", vnum, task.path.c_str(), e.what());
+			}
+		}
+	}
+
+	std::sort(parsed_mobs.begin(), parsed_mobs.end(),
+		[](const auto &a, const auto &b) { return a.first < b.first; });
+
+	std::map<int, MobRnum> vnum_to_rnum;
+	for (auto &[vnum, mob] : parsed_mobs)
+	{
+		const MobRnum rnum = AppendMobIndex(vnum);
+		mob_proto[rnum] = std::move(mob);
+		mob_proto[rnum].set_rnum(rnum);
+		vnum_to_rnum[vnum] = rnum;
+
+		if (zone_rn >= 0 && zone_rn < static_cast<int>(zone_table.size()))
+		{
+			if (zone_table[zone_rn].RnumMobsLocation.first == -1)
+			{
+				zone_table[zone_rn].RnumMobsLocation.first = rnum;
+			}
+			zone_table[zone_rn].RnumMobsLocation.second = rnum;
+		}
+	}
+
+	for (const auto &[mob_vnum, trigger_list] : mob_triggers)
+	{
+		auto it = vnum_to_rnum.find(mob_vnum);
+		if (it == vnum_to_rnum.end())
+		{
+			continue;
+		}
+		for (int trigger_vnum : trigger_list)
+		{
+			AttachTriggerToMob(it->second, trigger_vnum, mob_vnum);
+		}
+	}
+}
+
 // Parse single object file (thread-safe worker function)
 CObjectPrototype* YamlWorldDataSource::ParseObjectFile(const std::string &file_path, int vnum)
 {
@@ -2514,6 +2909,89 @@ void YamlWorldDataSource::LoadObjects()
 
 	// Dictionaries already loaded in LoadZones, thread pool already created
 	LoadObjectsParallel();
+}
+
+// Per-zone object load (serial). Mirrors LoadObjectsParallel's merge step,
+// scoped to one zone. obj_proto is dynamic (deque-backed), so no pre-sizing
+// pass is needed, unlike mobs/triggers.
+void YamlWorldDataSource::LoadZoneObjects(int zone_vnum)
+{
+	// See LoadZoneTriggers for why this guard is needed here.
+	if (!LoadDictionaries())
+	{
+		fatal_log("FATAL: Cannot continue without dictionaries. Aborting.");
+	}
+
+	std::vector<EntityFileTask> tasks = DiscoverEntityFilesForZone(zone_vnum, "objects");
+	if (tasks.empty())
+	{
+		return;
+	}
+
+	std::vector<std::pair<int, CObjectPrototype*>> parsed_objects;
+	std::map<int, std::vector<int>> object_triggers;
+
+	for (const auto &task : tasks)
+	{
+		YAML::Node file_root;
+		try
+		{
+			file_root = YAML::LoadFile(task.path);
+		}
+		catch (const std::exception &e)
+		{
+			log("SYSERR: Failed to load objects from '%s': %s", task.path.c_str(), e.what());
+			continue;
+		}
+		for (int vnum : task.vnums)
+		{
+			const YAML::Node node = task.flat ? file_root[vnum % 100] : file_root;
+			try
+			{
+				CObjectPrototype* obj = ParseObjectNode(node, vnum);
+
+				if (node["triggers"] && node["triggers"].IsSequence())
+				{
+					std::vector<int> trigger_list;
+					for (const auto &trig_node : node["triggers"])
+					{
+						trigger_list.push_back(trig_node.as<int>());
+					}
+					if (!trigger_list.empty())
+					{
+						object_triggers[vnum] = std::move(trigger_list);
+					}
+				}
+
+				parsed_objects.emplace_back(vnum, obj);
+			}
+			catch (const std::exception &e)
+			{
+				log("SYSERR: Failed to parse object %d from '%s': %s", vnum, task.path.c_str(), e.what());
+			}
+		}
+	}
+
+	std::sort(parsed_objects.begin(), parsed_objects.end(),
+		[](const auto &a, const auto &b) { return a.first < b.first; });
+
+	for (auto &[vnum, obj_raw_ptr] : parsed_objects)
+	{
+		auto obj = std::shared_ptr<CObjectPrototype>(obj_raw_ptr);
+		obj_proto.add(obj, vnum);
+	}
+
+	for (const auto &[obj_vnum, trigger_list] : object_triggers)
+	{
+		int rnum = obj_proto.get_rnum(obj_vnum);
+		if (rnum >= 0)
+		{
+			for (int trigger_vnum : trigger_list)
+			{
+				AttachTriggerToObject(rnum, trigger_vnum, obj_vnum);
+			}
+		}
+	}
 }
 
 // Helper methods for save operations
