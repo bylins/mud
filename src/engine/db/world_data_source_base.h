@@ -39,6 +39,18 @@ protected:
 	// Used by both YAML and SQLite loaders - 100% identical code
 	static IndexData* CreateTriggerIndex(int vnum, Trigger *trig);
 
+	// Append one mob_index[] entry at rnum=top_of_mobt and advance top_of_mobt.
+	// Mirrors CreateTriggerIndex's bookkeeping role for mobs -- the CharData
+	// (mob_proto[]) field population itself stays in each backend (too large
+	// and backend-specific to share); the caller fills mob_proto[<returned
+	// rnum>] and calls CharData::set_rnum(<returned rnum>) itself. Used by the
+	// per-zone LoadZoneMobs() implementations, where top_of_mobt/mob_proto/
+	// mob_index have already been pre-allocated and reset by the boot
+	// orchestrator (see db.cpp's per-zone boot path) before any zone is
+	// loaded, so this can be called once per mob across an arbitrary number of
+	// LoadZoneMobs() calls without re-allocating.
+	static MobRnum AppendMobIndex(MobVnum vnum);
+
 	// Attach trigger to room/mob/object
 	// Common logic for all loaders - checks trigger exists and adds to proto_script
 	static void AttachTriggerToRoom(RoomRnum room_rnum, int trigger_vnum, RoomVnum room_vnum);

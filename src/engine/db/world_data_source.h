@@ -79,6 +79,29 @@ public:
 	virtual void LoadZoneMobs(int /*zone_vnum*/) {}
 	virtual void LoadZoneObjects(int /*zone_vnum*/) {}
 
+	// Count of mobs/triggers a zone holds in this source, WITHOUT fully
+	// parsing them. Used by the per-zone boot orchestrator to size the
+	// pre-allocated mob_index/mob_proto/trig_index arrays once, up front,
+	// before the per-zone LoadZoneMobs/LoadZoneTriggers fill pass (those
+	// arrays are raw C arrays elsewhere in the engine and cannot grow
+	// incrementally). Default: 0 -- callers must check SupportsPerZoneLoad().
+	virtual int CountZoneMobs(int /*zone_vnum*/) const { return 0; }
+	virtual int CountZoneTriggers(int /*zone_vnum*/) const { return 0; }
+
+	// Called once by the orchestrator, letting a backend run any
+	// finalization step it deferred per-zone for cost or correctness reasons
+	// (e.g. child-table sub-loaders that only make sense run once, scoped to
+	// exactly the zones this source actually loaded -- see
+	// SqliteWorldDataSource for a concrete case). Split into a room and an
+	// entity phase because they run at different points in the boot
+	// sequence: FinalizeZoneRooms() must run BEFORE the door-vnum-to-rnum
+	// resolution pass (RosolveWorldDoorToRoomVnumsToRnums in db.cpp), since
+	// that pass needs every room's exits already populated; mob/object child
+	// data has no such downstream dependency, so FinalizeZoneEntities() runs
+	// once at the very end, after every entity type is loaded. Default: no-op.
+	virtual void FinalizeZoneRooms() {}
+	virtual void FinalizeZoneEntities() {}
+
 	// Record that a zone now holds content as of `version` (a Freshness/mtime),
 	// updating this source's freshness bookkeeping. The composite stamps every
 	// source with the SAME canonical version after a write/resync, so a freshly
@@ -93,10 +116,7 @@ public:
 	// source it was rebuilt from. Default: no-op.
 	virtual void MarkIndexSynced(Freshness /*version*/) {}
 
-	// Whether this source can be written to right now. A SQLite backend returns
-	// false when world.db has no world schema yet (it must be created once by
-	// the converter). The composite's post-boot resync skips non-writable
-	// targets instead of flooding the log with per-zone failures. Default: true.
+	// Whether this source can be written to right now. Default: true.
 	virtual bool IsWritable() const { return true; }
 
 	// Called once after a full-world resave (GameLoader::ResaveWorld) so a
