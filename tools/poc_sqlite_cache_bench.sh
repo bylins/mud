@@ -110,10 +110,18 @@ boot_once() {
     source_line=$(LANG=C grep -a "Using data source:" "$dir/syslog" | head -1 | sed 's/.*Using data source: //')
     local read_line
     read_line=$(LANG=C grep -a "World read source:" "$dir/syslog" | head -1 | sed 's/.*World read source/World read source/')
+    # Per-zone breakdown (composite_world_data_source.cpp's roll-up log) --
+    # confirms per-zone selection actually ran, not a whole-world fallback
+    # that happens to produce the same checksums by coincidence.
+    local zone_lines
+    zone_lines=$(LANG=C grep -a "World source '.*': won" "$dir/syslog")
 
     echo "  [$label] boot time: ${duration}s"
     [ -n "$source_line" ] && echo "    data source:  $source_line"
     [ -n "$read_line" ]   && echo "    $read_line"
+    if [ -n "$zone_lines" ]; then
+        echo "$zone_lines" | sed 's/^/    /'
+    fi
 
     printf '%s\n' "$duration" > "/tmp/poc_${WORLD_NAME}_${label}_time.txt"
 }
@@ -157,6 +165,22 @@ echo "--- Stage 4: WARM again (post-resync, back to fast path) ---"
 boot_once "warm2" "$MULTI_BIN" "$BENCH_DIR" 4014
 echo ""
 
+# --- Stage 5: SINGLE-ZONE STALE (only ONE zone's rooms.yaml touched) ---
+# This is the scenario that actually matters in production: the server runs
+# for days, a builder edits one zone live via OLC/admin-api, and the cache
+# must NOT fall back to reloading the whole world -- only that one zone
+# should come from YAML, every other zone should still hit SQLite. Boot time
+# here should be close to WARM, not close to the full-STALE case above.
+echo "--- Stage 5: SINGLE-ZONE STALE (one zone's rooms.yaml touched -> only that zone re-read from YAML) ---"
+first_zone_dir=$(find "$BENCH_DIR/world/zones" -mindepth 1 -maxdepth 1 -type d | sort | head -1)
+if [ -n "$first_zone_dir" ] && [ -f "$first_zone_dir/rooms.yaml" ]; then
+    touch "$first_zone_dir/rooms.yaml"
+    boot_once "single_zone_stale" "$MULTI_BIN" "$BENCH_DIR" 4015
+else
+    echo "  X SKIPPED: could not find a zone directory with rooms.yaml under $BENCH_DIR/world/zones"
+fi
+echo ""
+
 echo "=============================================="
 echo "SUMMARY"
 echo "=============================================="
@@ -166,15 +190,22 @@ t_cold=$(read_time cold)
 t_warm=$(read_time warm)
 t_stale=$(read_time stale)
 t_warm2=$(read_time warm2)
+t_single=$(read_time single_zone_stale)
 
 printf "  %-28s %8ss\n" "YAML-only (no cache)"        "$t_yaml"
 printf "  %-28s %8ss\n" "Composite, COLD (1st boot)"  "$t_cold"
 printf "  %-28s %8ss\n" "Composite, WARM (cached)"    "$t_warm"
-printf "  %-28s %8ss\n" "Composite, STALE (edited)"   "$t_stale"
+printf "  %-28s %8ss\n" "Composite, STALE (all zones edited)" "$t_stale"
 printf "  %-28s %8ss\n" "Composite, WARM again"        "$t_warm2"
+printf "  %-28s %8ss\n" "Composite, SINGLE-ZONE STALE" "$t_single"
 echo ""
 if [ "$t_yaml" != "?" ] && [ "$t_warm" != "?" ] && [ "$(echo "$t_warm > 0" | bc)" = "1" ]; then
     speedup=$(echo "scale=1; $t_yaml / $t_warm" | bc)
     echo "  Speedup (YAML-only / warm SQLite cache): ${speedup}x"
+fi
+if [ "$t_single" != "?" ] && [ "$t_stale" != "?" ] && [ "$(echo "$t_stale > 0" | bc)" = "1" ]; then
+    ratio=$(echo "scale=2; $t_single / $t_stale" | bc)
+    echo "  Single-zone-stale / full-stale time ratio: ${ratio} (should be well under 1.0 -- if"
+    echo "  it's close to 1.0, per-zone selection isn't actually saving anything)"
 fi
 echo "=============================================="

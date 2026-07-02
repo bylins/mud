@@ -807,6 +807,56 @@ run_sqlite_roundtrip_test() {
     run_test "$name" "$binary" "$test_dir" "-W"
 }
 
+# Per-zone round-trip: like run_sqlite_roundtrip_test, but after boot 2 (SQLite
+# warm) touches exactly ONE zone's rooms.yaml and reboots a third time. That
+# third boot must show a per-zone MIX (one zone from YAML, the rest still from
+# SQLite) and still produce checksums identical to the YAML baseline -- this
+# is the production scenario the per-zone selector exists for (server runs
+# for days, one zone gets edited live, the cache must not fall back to
+# reloading the whole world). Reuses run_sqlite_roundtrip_test for boots 1-2,
+# then does the third boot itself.
+#   $1 = test name (e.g. "Small_SQLite_SingleZoneStale")
+#   $2 = composite binary (build_multi/circle)
+#   $3 = test dir (build_multi/small or build_multi/full)
+run_sqlite_single_zone_stale_test() {
+    local name="$1"
+    local binary="$2"
+    local test_dir="$3"
+
+    if ! should_run_test "$name"; then
+        return 0
+    fi
+
+    # Boots 1-2: cold resync then warm SQLite read (not checksummed here --
+    # this function only cares about the third, mixed-source boot).
+    run_sqlite_roundtrip_test "${name}_prep" "$binary" "$test_dir" > /dev/null 2>&1
+
+    echo "--- $name ---"
+
+    local first_zone_dir
+    first_zone_dir=$(find "$test_dir/world/zones" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | sort | head -1)
+    if [ -z "$first_zone_dir" ] || [ ! -f "$first_zone_dir/rooms.yaml" ]; then
+        echo "  X ERROR: could not find a zone directory with rooms.yaml under $test_dir/world/zones"
+        return 1
+    fi
+    touch "$first_zone_dir/rooms.yaml"
+
+    rm -rf "$test_dir/syslog" "$test_dir/checksums_detailed.txt" "$test_dir/checksums_buffers" 2>/dev/null || true
+    run_test "$name" "$binary" "$test_dir" "-W"
+
+    # Confirm the per-zone selector actually mixed sources -- a silent
+    # whole-world fallback to YAML would also match the checksum baseline
+    # while completely failing to demonstrate/exercise per-zone selection.
+    local zone_lines
+    zone_lines=$(LANG=C grep -a "World source '.*': won" "$test_dir/syslog" 2>/dev/null)
+    if [ -n "$zone_lines" ]; then
+        echo "$zone_lines" | sed 's/^/  /'
+        if ! echo "$zone_lines" | grep -qE "won [1-9][0-9]* zone.*YAML|YAML.*won [1-9]"; then
+            echo "  WARNING: could not confirm YAML won at least one zone -- per-zone mixing may not have happened"
+        fi
+    fi
+}
+
 # Function to run a single test
 run_test() {
     local name="$1"
@@ -994,6 +1044,7 @@ if [ -z "$FILTER_WORLD" ] || [ "$FILTER_WORLD" = "small" ]; then
     echo "=== SMALL WORLD - SQLITE ROUND-TRIP ==="
     echo ""
     [ -x "$MULTI_BIN" ] && [ -d "$MUD_DIR/build_multi/small" ] && run_sqlite_roundtrip_test "Small_SQLite_RoundTrip" "$MULTI_BIN" "$MUD_DIR/build_multi/small"
+    [ -x "$MULTI_BIN" ] && [ -d "$MUD_DIR/build_multi/small" ] && run_sqlite_single_zone_stale_test "Small_SQLite_SingleZoneStale" "$MULTI_BIN" "$MUD_DIR/build_multi/small"
 
     # Admin API CRUD Tests last -- they recreate the world from scratch and
     # mutate it, so anything order-sensitive has to run before this stage.
@@ -1020,6 +1071,7 @@ if [ -z "$FILTER_WORLD" ] || [ "$FILTER_WORLD" = "full" ]; then
     echo "=== FULL WORLD - SQLITE ROUND-TRIP ==="
     echo ""
     [ -x "$MULTI_BIN" ] && [ -d "$MUD_DIR/build_multi/full" ] && run_sqlite_roundtrip_test "Full_SQLite_RoundTrip" "$MULTI_BIN" "$MUD_DIR/build_multi/full"
+    [ -x "$MULTI_BIN" ] && [ -d "$MUD_DIR/build_multi/full" ] && run_sqlite_single_zone_stale_test "Full_SQLite_SingleZoneStale" "$MULTI_BIN" "$MUD_DIR/build_multi/full"
 
     # Admin API CRUD Tests last.
     echo ""
@@ -1059,6 +1111,7 @@ if [ -z "$FILTER_CHECKSUMS" ] || [ "$FILTER_CHECKSUMS" = "yes" ]; then
         fi
         if [ -z "$FILTER_LOADER" ] || [ "$FILTER_LOADER" = "sqlite" ]; then
             compare_checksums "Small_YAML_checksums" "Small_SQLite_RoundTrip"
+            compare_checksums "Small_YAML_checksums" "Small_SQLite_SingleZoneStale"
         fi
         echo ""
     fi
@@ -1071,6 +1124,7 @@ if [ -z "$FILTER_CHECKSUMS" ] || [ "$FILTER_CHECKSUMS" = "yes" ]; then
         fi
         if [ -z "$FILTER_LOADER" ] || [ "$FILTER_LOADER" = "sqlite" ]; then
             compare_checksums "Full_YAML_checksums" "Full_SQLite_RoundTrip"
+            compare_checksums "Full_YAML_checksums" "Full_SQLite_SingleZoneStale"
         fi
         echo ""
     fi
