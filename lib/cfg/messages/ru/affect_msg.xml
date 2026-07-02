@@ -785,4 +785,13 @@
 		<message type="kAffExpiredToRoom" val="Раны $n1 затянулись."/>
 		<message type="kShortDesc" val="коварная рана"/>
 	</msg_sheaf>
+	<msg_sheaf id="kBurning">
+		<message type="kAffImposedToChar" val="Вас охватывает пламя!"/>
+		<message type="kAffImposedToRoom" val="$n0 вспыхнул$g, объят$g пламенем!"/>
+		<message type="kDamageToChar" val="&RЯзыки пламени жадно лижут вас, обжигая плоть!&n"/>
+		<message type="kDamageToRoom" val="&RПламя пляшет по телу $n2, обжигая плоть.&n"/>
+		<message type="kAffExpiredToChar" val="Пламя, охватившее вас, угасает."/>
+		<message type="kAffExpiredToRoom" val="Пламя, охватившее $n2, угасает."/>
+		<message type="kShortDesc" val="горение"/>
+	</msg_sheaf>
 </msg_container>

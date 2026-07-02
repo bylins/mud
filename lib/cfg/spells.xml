@@ -1989,9 +1989,7 @@
 				     the burn duration, mirroring the blast. -->
 				<affects saving="kReflex" resist="kFire" potency_weight="0.5">
 					<duration base="0" skill_divisor="6" min="2" max="6" />
-					<apply id="kBurning" location="kNone">
-						<modifier min="0" dices_weight="0" alpha="0" beta="0" factor="1" />
-					</apply>
+					<affect id="kBurning"/>
 				</affects>
 			</action>
 		</talent_actions>
