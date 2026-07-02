@@ -1,0 +1,667 @@
+# Mobs for zone 62
+
+# Mob #6200
+0:
+  names:
+    aliases: рогатый жук
+    nominative: рогатый жук
+    genitive: рогатого жука
+    dative: рогатому жуку
+    accusative: рогатого жука
+    instrumental: рогатым жуком
+    prepositional: рогатом жуке
+  descriptions:
+    short_desc: |2
+      Рогатый жук воинственно водит усами здесь.
+    long_desc: |2
+      Маленький черный рогатый жук.
+  alignment: 0
+  stats:
+    level: 5
+    hitroll_penalty: 8
+    armor: 8
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 150
+    damage:
+      dice_count: 2
+      dice_size: 3
+      bonus: 2
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 1500
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 10
+  race: 107
+  height: 198
+  weight: 5
+  attributes:
+    strength: 4
+    dexterity: 10
+    intelligence: 10
+    wisdom: 10
+    constitution: 3
+    charisma: 3
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kStayZone
+  affect_flags:
+    - kInfravision
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 21
+  triggers:
+    - 6200  # убилижука
+  enhanced:
+    absorb: 5
+    bare_hand_attack: 11
+    extra_attack: 1
+
+# Mob #6201
+1:
+  names:
+    aliases: красный маленький муравей
+    nominative: красный маленький муравей
+    genitive: красного маленького муравья
+    dative: красному маленькому муравью
+    accusative: красного маленького муравья
+    instrumental: красным маленьким муравьем
+    prepositional: красном маленьком муравье
+  descriptions:
+    short_desc: |2
+      Красный маленький муравей ползает здесь.
+    long_desc: |2
+      Красненький муравьишко.
+  alignment: 0
+  stats:
+    level: 1
+    hitroll_penalty: 18
+    armor: 8
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 25
+    damage:
+      dice_count: 1
+      dice_size: 3
+      bonus: 0
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 150
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 5
+  race: 107
+  height: 198
+  weight: 1
+  attributes:
+    strength: 3
+    dexterity: 10
+    intelligence: 3
+    wisdom: 3
+    constitution: 3
+    charisma: 3
+  action_flags:
+    - kNpc
+    - kStayZone
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 3
+  enhanced:
+    absorb: 1
+    bare_hand_attack: 4
+    special_bitvector: p0
+
+# Mob #6202
+2:
+  names:
+    aliases: длинный червяк
+    nominative: длинный червяк
+    genitive: длинного червяка
+    dative: длинному червяку
+    accusative: длинного червяка
+    instrumental: длинным червяком
+    prepositional: длинном червяке
+  descriptions:
+    short_desc: |2
+      Длинный червяк копается в земле.
+    long_desc: |2
+      Маленький коричневый с полосами червяк.
+  alignment: 0
+  stats:
+    level: 2
+    hitroll_penalty: 18
+    armor: 8
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 75
+    damage:
+      dice_count: 2
+      dice_size: 4
+      bonus: 0
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 220
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 5
+  race: 105
+  height: 198
+  weight: 1
+  attributes:
+    strength: 3
+    dexterity: 10
+    intelligence: 3
+    wisdom: 3
+    constitution: 3
+    charisma: 3
+  action_flags:
+    - kNpc
+    - kStayZone
+    - kNoSkillTrain
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 12
+  enhanced:
+    absorb: 2
+    bare_hand_attack: 2
+    special_bitvector: m0
+
+# Mob #6203
+3:
+  names:
+    aliases: маленький паучок
+    nominative: маленький паучок
+    genitive: маленького паучка
+    dative: маленькому паучку
+    accusative: маленького паучка
+    instrumental: маленьким паучком
+    prepositional: маленьком паучке
+  descriptions:
+    short_desc: |2
+      Маленький паучок пробует сплести паутину здесь.
+    long_desc: |2
+      Маленький серенький худенький паучок.
+  alignment: 0
+  stats:
+    level: 2
+    hitroll_penalty: 18
+    armor: 8
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 45
+    damage:
+      dice_count: 1
+      dice_size: 5
+      bonus: 0
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 225
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 5
+  race: 107
+  height: 198
+  weight: 1
+  attributes:
+    strength: 3
+    dexterity: 10
+    intelligence: 3
+    wisdom: 3
+    constitution: 3
+    charisma: 3
+  action_flags:
+    - kNpc
+    - kStayZone
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 9
+  enhanced:
+    absorb: 2
+    bare_hand_attack: 4
+    special_bitvector: p0
+
+# Mob #6204
+4:
+  names:
+    aliases: агрессивная плесень
+    nominative: агрессивная плесень
+    genitive: агрессивной плесени
+    dative: агрессивной плесени
+    accusative: агрессивную плесень
+    instrumental: агрессивной плесенью
+    prepositional: агрессивной плесени
+  descriptions:
+    short_desc: |2
+      Агрессивная плесень бросается на вас.
+    long_desc: |2
+      Странная плесень.
+  alignment: 0
+  stats:
+    level: 7
+    hitroll_penalty: 7
+    armor: 8
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 200
+    damage:
+      dice_count: 2
+      dice_size: 3
+      bonus: 2
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 2500
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  size: 10
+  race: 108
+  height: 198
+  weight: 5
+  attributes:
+    strength: 4
+    dexterity: 10
+    intelligence: 4
+    wisdom: 10
+    constitution: 3
+    charisma: 3
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kAgressive
+    - kStayZone
+  affect_flags:
+    - kInfravision
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 27
+  triggers:
+    - 6201  # убилиплесень
+  enhanced:
+    absorb: 7
+    bare_hand_attack: 1
+    max_factor: 1
+    extra_attack: 1
+
+# Mob #6205
+5:
+  names:
+    aliases: белая плесень
+    nominative: белая плесень
+    genitive: белой плесени
+    dative: белой плесени
+    accusative: белую плесень
+    instrumental: белой плесенью
+    prepositional: белой плесени
+  descriptions:
+    short_desc: |2
+      Белая плесень на полусгнившей деревяшке кажется небезобидной.
+    long_desc: |2
+      Беленькая плесень...
+      Совсем не аппетитная.
+  alignment: 0
+  stats:
+    level: 2
+    hitroll_penalty: 18
+    armor: 8
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 75
+    damage:
+      dice_count: 2
+      dice_size: 4
+      bonus: 0
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 200
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  size: 5
+  race: 108
+  height: 198
+  weight: 1
+  attributes:
+    strength: 3
+    dexterity: 10
+    intelligence: 3
+    wisdom: 3
+    constitution: 3
+    charisma: 3
+  action_flags:
+    - kNpc
+    - kStayZone
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 12
+  enhanced:
+    absorb: 2
+    bare_hand_attack: 1
+    special_bitvector: m0
+
+# Mob #6206
+6:
+  names:
+    aliases: маленькая мошка
+    nominative: маленькая мошка
+    genitive: маленькой мошки
+    dative: маленькой мошке
+    accusative: маленькую мошку
+    instrumental: маленькой мошкой
+    prepositional: маленькой мошке
+  descriptions:
+    short_desc: |2
+      Маленькая мошка надоедает своим жужжанием здесь.
+    long_desc: |2
+      Черная жужжащая мошка.
+  alignment: 0
+  stats:
+    level: 1
+    hitroll_penalty: 18
+    armor: 8
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 35
+    damage:
+      dice_count: 1
+      dice_size: 4
+      bonus: 0
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 80
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  size: 5
+  race: 107
+  height: 198
+  weight: 1
+  attributes:
+    strength: 3
+    dexterity: 10
+    intelligence: 3
+    wisdom: 3
+    constitution: 3
+    charisma: 3
+  action_flags:
+    - kNpc
+    - kStayZone
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 6
+  enhanced:
+    absorb: 1
+    bare_hand_attack: 4
+    special_bitvector: l0
+
+# Mob #6207
+7:
+  names:
+    aliases: маленькая букашка
+    nominative: маленькая букашка
+    genitive: маленькой букашки
+    dative: маленькой букашке
+    accusative: маленькую букашку
+    instrumental: маленькой букашкой
+    prepositional: маленькой букашке
+  descriptions:
+    short_desc: |2
+      Маленькая букашка ползает здесь.
+    long_desc: |2
+      Маленькая серая букашка.
+  alignment: 0
+  stats:
+    level: 1
+    hitroll_penalty: 18
+    armor: 8
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 35
+    damage:
+      dice_count: 1
+      dice_size: 4
+      bonus: 0
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 75
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  size: 5
+  race: 107
+  height: 198
+  weight: 1
+  attributes:
+    strength: 3
+    dexterity: 10
+    intelligence: 3
+    wisdom: 3
+    constitution: 3
+    charisma: 3
+  action_flags:
+    - kNpc
+    - kStayZone
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 6
+  enhanced:
+    absorb: 1
+    bare_hand_attack: 4
+    special_bitvector: p0
+
+# Mob #6208
+8:
+  names:
+    aliases: улитка
+    nominative: улитка
+    genitive: улитки
+    dative: улитке
+    accusative: улитку
+    instrumental: улиткой
+    prepositional: улитке
+  descriptions:
+    short_desc: |2
+      Улитка медленно ползет здесь.
+    long_desc: |2
+      Улитка, увенчанная крупным панцирем.
+  alignment: 0
+  stats:
+    level: 2
+    hitroll_penalty: 16
+    armor: 7
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 125
+    damage:
+      dice_count: 2
+      dice_size: 4
+      bonus: 2
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 300
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  size: 5
+  race: 107
+  height: 198
+  weight: 1
+  attributes:
+    strength: 3
+    dexterity: 10
+    intelligence: 3
+    wisdom: 3
+    constitution: 3
+    charisma: 3
+  action_flags:
+    - kNpc
+    - kStayZone
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 15
+  triggers:
+    - 6204  # убилиулитку
+  enhanced:
+    absorb: 2
+    bare_hand_attack: 8
+    special_bitvector: m0
+
+# Mob #6209
+9:
+  names:
+    aliases: зеленая гусеница
+    nominative: зеленая гусеница
+    genitive: зеленой гусеницы
+    dative: зеленой гусенице
+    accusative: зеленую гусеницу
+    instrumental: зеленой гусеницей
+    prepositional: зеленой гусенице
+  descriptions:
+    short_desc: |2
+      Зеленая гусеница ползет здесь, извиваясь.
+    long_desc: |2
+      Зеленая толстая гусеница.
+  alignment: 0
+  stats:
+    level: 2
+    hitroll_penalty: 18
+    armor: 8
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 45
+    damage:
+      dice_count: 1
+      dice_size: 6
+      bonus: 0
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 180
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  size: 5
+  race: 107
+  height: 198
+  weight: 1
+  attributes:
+    strength: 3
+    dexterity: 10
+    intelligence: 3
+    wisdom: 3
+    constitution: 3
+    charisma: 3
+  action_flags:
+    - kNpc
+    - kStayZone
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 9
+  enhanced:
+    absorb: 2
+    bare_hand_attack: 1
+    special_bitvector: m0
+
+# Mob #6210
+10:
+  names:
+    aliases: маленький комар
+    nominative: маленький комар
+    genitive: маленького комара
+    dative: маленькому комару
+    accusative: маленького комара
+    instrumental: маленьким комаром
+    prepositional: маленьком комаре
+  descriptions:
+    short_desc: |2
+      Маленький комар так и норовит укусить вас здесь.
+    long_desc: |2
+      Маленький, но противный комарик,
+      скорее всего, даже комариха.
+  alignment: 0
+  stats:
+    level: 1
+    hitroll_penalty: 18
+    armor: 8
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 35
+    damage:
+      dice_count: 1
+      dice_size: 4
+      bonus: 0
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 75
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 5
+  race: 107
+  height: 198
+  weight: 1
+  attributes:
+    strength: 3
+    dexterity: 10
+    intelligence: 3
+    wisdom: 3
+    constitution: 3
+    charisma: 3
+  action_flags:
+    - kNpc
+    - kStayZone
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 6
+  enhanced:
+    absorb: 1
+    bare_hand_attack: 16
+    special_bitvector: l0

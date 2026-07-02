@@ -1,0 +1,430 @@
+# Objects for zone 32
+
+# Object #3201
+1:
+  names:
+    aliases: снежинка созданная богом
+    nominative: '&Wснежинка созданная Богом&n'
+    genitive: '&Wснежинки созданная Богом&n'
+    dative: '&Wснежинке созданная Богом&n'
+    accusative: '&Wснежинку созданная Богом&n'
+    instrumental: '&Wснежинкой созданная Богом&n'
+    prepositional: '&Wснежинке созданная Богом&n'
+  short_desc: '&WЧудо чудное Диво дивное лежит здесь.&n'
+  type: kArmor
+  material: 16  # ОРГАНИКА
+  values:
+    - 7
+    - 7
+    - 0
+    - 0
+  weight: 1
+  cost: 1000
+  rent_off: 0
+  rent_on: 0
+  max_durability: 200
+  cur_durability: 200
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  minimum_remorts: -1
+  extra_flags:
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kFinger
+    - kNeck
+    - kWrist
+  affect_flags:
+    - kInvisibility
+    - kNoTrack
+    - kFly
+    - kWaterBreath
+    - kIceShield
+    - kMagicGlass
+    - kStoneHand
+    - kEarthAura
+  applies:
+    - location: 13  # макс.жизнь
+      modifier: 300
+    - location: 20  # воля
+      modifier: -50
+    - location: 23  # здоровье
+      modifier: -50
+    - location: 24  # стойкость
+      modifier: -50
+    - location: 39  # реакция
+      modifier: -50
+    - location: 62  # защита.от.физических.повреждений
+      modifier: 10
+    - location: 52  # защита.от.магических.повреждений
+      modifier: 10
+    - location: 44  # поглощение
+      modifier: 35
+
+# Object #3202
+2:
+  names:
+    aliases: доспех созданный Богом чудо диво
+    nominative: '&Wдоспех созданный Богом&n'
+    genitive: '&Wдоспеха созданный Богом&n'
+    dative: '&Wдоспеху созданный Богом&n'
+    accusative: '&Wдоспех созданный Богом&n'
+    instrumental: '&Wдоспехом созданный Богом&n'
+    prepositional: '&Wдоспехе созданный Богом&n'
+  short_desc: Чудо чудное Диво дивное лежит здесь.
+  type: kArmor
+  material: 16  # ОРГАНИКА
+  values:
+    - 15
+    - 15
+    - 0
+    - 0
+  weight: 15
+  cost: 1000
+  rent_off: 0
+  rent_on: 0
+  max_durability: 1500
+  cur_durability: 1500
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  minimum_remorts: -1
+  extra_flags:
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kBody
+  affect_flags:
+    - kDetectLife
+    - kFly
+    - kNoFlee
+    - kIceShield
+  applies:
+    - location: 13  # макс.жизнь
+      modifier: 500
+    - location: 20  # воля
+      modifier: -75
+    - location: 24  # стойкость
+      modifier: -75
+    - location: 68  # сила.заклинаний.%
+      modifier: 25
+    - location: 66  # бонус.физ.повреждений %
+      modifier: 25
+    - location: 50  # защита.от.ядов.и.болезней
+      modifier: 45
+    - location: 19  # повреждение
+      modifier: 30
+    - location: 40  # успех.колдовства
+      modifier: 30
+
+# Object #3203
+3:
+  names:
+    aliases: сосулька созданная Богом чудо диво
+    nominative: '&Wсосулька созданная Богом&n'
+    genitive: '&Wсосульки созданная Богом&n'
+    dative: '&Wсосульке созданная Богом&n'
+    accusative: '&Wсосульку созданная Богом&n'
+    instrumental: '&Wсосулькой созданная Богом&n'
+    prepositional: '&Wсосульке созданная Богом&n'
+  short_desc: Чудо чудное Диво дивное лежит здесь.
+  type: kWeapon
+  material: 16  # ОРГАНИКА
+  values:
+    - 0
+    - 35
+    - 4
+    - 11
+  weight: 3
+  cost: 1000
+  rent_off: 0
+  rent_on: 0
+  spec_param: 147
+  max_durability: 1000
+  cur_durability: 1000
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  minimum_remorts: -1
+  extra_flags:
+    - kNodisarm
+    - kSwimming
+    - kThrowing
+    - kNoalter
+    - kUnique
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+  affect_flags:
+    - kInvisibility
+    - kDetectMagic
+    - kDetectLife
+    - kIceShield
+    - kMagicGlass
+  applies:
+    - location: 13  # макс.жизнь
+      modifier: 350
+    - location: 19  # повреждение
+      modifier: 35
+    - location: 18  # попадание
+      modifier: 35
+    - location: 40  # успех.колдовства
+      modifier: 55
+    - location: 66  # бонус.физ.повреждений %
+      modifier: 25
+    - location: 68  # сила.заклинаний.%
+      modifier: 25
+    - location: 49  # защита.от.магии.разума
+      modifier: 45
+    - location: 44  # поглощение
+      modifier: 50
+
+# Object #3204
+4:
+  names:
+    aliases: снеговик созданный Богом чудо диво
+    nominative: '&Wснеговик созданный Богом&n'
+    genitive: '&Wснеговика созданного Богом&n'
+    dative: '&Wснеговику созданному Богом&n'
+    accusative: '&Wснеговик созданный Богом&n'
+    instrumental: '&Wснеговиком созданным Богом&n'
+    prepositional: '&Wснеговике созданном Богом&n'
+  short_desc: Чудо чудное Диво дивное лежит здесь.
+  type: kWeapon
+  material: 16  # ОРГАНИКА
+  values:
+    - 0
+    - 17
+    - 10
+    - 5
+  weight: 70
+  cost: 1000
+  rent_off: 0
+  rent_on: 0
+  spec_param: 146
+  max_durability: 1500
+  cur_durability: 1500
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  minimum_remorts: -1
+  extra_flags:
+    - kNodisarm
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kBoth
+  affect_flags:
+    - kFly
+    - kNoFlee
+    - kSingleLight
+    - kWaterBreath
+    - kIceShield
+    - kMagicGlass
+  applies:
+    - location: 13  # макс.жизнь
+      modifier: 300
+    - location: 14  # макс.энергия
+      modifier: 300
+    - location: 59  # бонус.ко.всем.умениям
+      modifier: 25
+    - location: 18  # попадание
+      modifier: 35
+    - location: 66  # бонус.физ.повреждений %
+      modifier: 25
+    - location: 23  # здоровье
+      modifier: -50
+    - location: 41  # удача
+      modifier: 50
+    - location: 42  # инициатива
+      modifier: 50
+
+# Object #3205
+5:
+  names:
+    aliases: ёлочка созданная Богом чудо диво елочка
+    nominative: '&Wёлочка созданная Богом&n'
+    genitive: '&Wёлочки созданная Богом&n'
+    dative: '&Wёлочке созданная Богом&n'
+    accusative: '&Wёлочку созданная Богом&n'
+    instrumental: '&Wёлочкой созданная Богом&n'
+    prepositional: '&Wёлочке созданная Богом&n'
+  short_desc: Чудо чудное Диво дивное лежит здесь.
+  type: kWeapon
+  material: 16  # ОРГАНИКА
+  values:
+    - 0
+    - 12
+    - 5
+    - 2
+  weight: 10
+  cost: 1000
+  rent_off: 0
+  rent_on: 0
+  spec_param: 141
+  max_durability: 1000
+  cur_durability: 1000
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  minimum_remorts: -1
+  extra_flags:
+    - kNodisarm
+    - kThrowing
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kWield
+    - kBoth
+  affect_flags:
+    - kInvisibility
+    - kNoFlee
+    - kWaterBreath
+    - kIceShield
+    - kMagicGlass
+  applies:
+    - location: 13  # макс.жизнь
+      modifier: 300
+    - location: 40  # успех.колдовства
+      modifier: 65
+    - location: 59  # бонус.ко.всем.умениям
+      modifier: 25
+    - location: 23  # здоровье
+      modifier: -50
+    - location: 41  # удача
+      modifier: 30
+    - location: 42  # инициатива
+      modifier: 30
+    - location: 12  # запоминание
+      modifier: 200
+    - location: 44  # поглощение
+      modifier: 50
+
+# Object #3206
+6:
+  names:
+    aliases: снежинка чудная 2025 чудо диво
+    nominative: '&Wснежинка чудная 2025 года&n'
+    genitive: '&Wснежинки чудной 2025 года&n'
+    dative: '&Wснежинке чудной 2025 года&n'
+    accusative: '&Wснежинку чудную 2025 года&n'
+    instrumental: '&Wснежинкой чудной 2025 года&n'
+    prepositional: '&Wснежинке чудной 2025 года&n'
+  short_desc: Чудо чудное Диво дивное лежит здесь.
+  type: kArmor
+  material: 16  # ОРГАНИКА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1000
+  rent_off: 0
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 60
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kFinger
+    - kNeck
+  affect_flags:
+    - kShield
+
+# Object #3208
+8:
+  names:
+    aliases: колечко с гравировкой 2025 года чудо диво
+    nominative: '&Wколечко с гравировкой &G2025 &Wгода&n'
+    genitive: '&Wколечка с гравировкой &G2025 &Wгода&n'
+    dative: '&Wколечку с гравировкой &G2025 &Wгода&n'
+    accusative: '&Wколечко с гравировкой &G2025 &Wгода&n'
+    instrumental: '&Wколечком с гравировкой &G2025 &Wгода&n'
+    prepositional: '&Wколечке с гравировкой &G2025 &Wгода&n'
+  short_desc: Чудо чудное Диво дивное лежит здесь.
+  type: kArmor
+  material: 6  # ДРАГ.МЕТАЛЛ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1000
+  rent_off: 0
+  rent_on: 0
+  max_durability: 1000
+  cur_durability: 1000
+  timer: 10000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 3
+  minimum_remorts: -1
+  extra_flags:
+    - kFlying
+    - kNoalter
+    - kUnique
+  wear_flags:
+    - kTake
+    - kFinger
+  affect_flags:
+    - kDetectLife
+    - kNoFlee
+    - kWaterBreath
+    - kIceShield
+  applies:
+    - location: 13  # макс.жизнь
+      modifier: 400
+    - location: 40  # успех.колдовства
+      modifier: 75
+    - location: 44  # поглощение
+      modifier: 50
+    - location: 59  # бонус.ко.всем.умениям
+      modifier: 25
+    - location: 66  # бонус.физ.повреждений %
+      modifier: 25
+    - location: 68  # сила.заклинаний.%
+      modifier: 25
+
+# Object #3260
+60:
+  names:
+    aliases: новый предмет
+    nominative: это что
+    genitive: нету чего
+    dative: привязать к чему
+    accusative: взять что
+    instrumental: вооружиться чем
+    prepositional: говорить о чем
+  short_desc: Что-то новое лежит здесь
+  type: kItemUndefined
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 0
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake

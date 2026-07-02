@@ -1,0 +1,11 @@
+# Triggers for zone 19
+
+# Trigger #1900
+0:
+  name: new trigger
+  attach_type: kMobTrigger
+  narg: 100
+  arglist: test
+  trigger_types:
+    - kEntry
+  script: say My trigger commandlist is not complete!

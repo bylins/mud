@@ -1,0 +1,60 @@
+# Triggers for zone 16
+
+# Trigger #1600
+0:
+  name: терем шпору, вызываем жеребца
+  attach_type: kObjTrigger
+  narg: 1
+  arglist: потереть
+  trigger_types:
+    - kCommand
+  script: |-2
+    if !%arg.contains(шпору)%
+      osend  %actor% Что Вы хотите потереть?
+      halt
+    end
+    wait %number.range(2,8)%
+    osend %actor% Вы потерли шпору на сапоге.
+    osend %actor% Шпора закрутилась и заблестела.
+    if %actor.riding%
+      osend %actor% Зачем тебе еще один скакун? Морда не треснет?!
+      halt
+    end
+    echoaround %actor% %actor.iname% потер%actor.q% шпору на сапоге.
+    echoaround %actor% Шпора закрутилась и заблестела.
+    load mob 1600
+    echo Послышался стук копыт Вороного жеребца.
+    oforce %actor% оседлать жеребец
+
+# Trigger #1601
+1:
+  name: 'отпускаем жеребца '
+  attach_type: kObjTrigger
+  narg: 1
+  arglist: топнуть
+  trigger_types:
+    - kCommand
+  script: |-2
+    eval igogo %actor.riding%
+    if (%igogo.vnum% == 1600)
+      osend %actor% Вы отпустили своего жеребца на волю.
+      echoaround %actor% %actor.iname% отпустил%actor.g% своего жеребца на волю.
+      opurge %igogo%
+      halt
+    end
+    osend %actor% Топтай, сопи, прогонять некого.
+
+# Trigger #1602
+2:
+  name: дикей лошадки
+  attach_type: kMobTrigger
+  narg: 50
+  trigger_types:
+    - kRandomGlobal
+    - kRandom
+  script: |-2
+    wait 1
+    if !%self.leader%
+      %echo% Возникший как из-под земли цыган ловко вскочил на %self.rname% и унесся прочь.
+      %purge% %self%
+    end

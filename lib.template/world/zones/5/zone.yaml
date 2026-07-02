@@ -1,0 +1,13 @@
+# Zone #5
+
+vnum: 5
+name: 'Системная зона 5 -- книги заклинаний #1'
+top_room: 599
+lifespan: 30
+reset_mode: 0
+reset_idle: 0
+zone_type: 0
+mode: 1  # level
+entrance: 599
+under_construction: 0
+zone_group: 1  # solo

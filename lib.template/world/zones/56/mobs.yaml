@@ -1,0 +1,832 @@
+# Mobs for zone 56
+
+# Mob #5600
+0:
+  names:
+    aliases: карась
+    nominative: карась
+    genitive: карася
+    dative: карасю
+    accusative: карася
+    instrumental: карасем
+    prepositional: карасе
+  descriptions:
+    short_desc: |2
+      Карась плавает здесь.
+    long_desc: |2
+      Небольшая толстая рыбка.
+  alignment: 0
+  stats:
+    level: 3
+    hitroll_penalty: 0
+    armor: 8
+    hp:
+      dice_count: 1
+      dice_size: 1
+      bonus: 60
+    damage:
+      dice_count: 1
+      dice_size: 2
+      bonus: 1
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 250
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 10
+  race: 104
+  height: 198
+  weight: 1
+  attributes:
+    strength: 11
+    dexterity: 13
+    intelligence: 6
+    wisdom: 6
+    constitution: 9
+    charisma: 4
+  action_flags:
+    - kNpc
+    - kOnlySwimming
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 20
+  enhanced:
+    absorb: 3
+    bare_hand_attack: 4
+    special_bitvector: v0
+
+# Mob #5601
+1:
+  names:
+    aliases: окунь
+    nominative: окунь
+    genitive: окуня
+    dative: окуню
+    accusative: окуня
+    instrumental: окунем
+    prepositional: окуне
+  descriptions:
+    short_desc: |2
+      Быстрый окунь проплывает здесь.
+    long_desc: |2
+      Юркий злобный хищник местного водоема.
+  alignment: 0
+  stats:
+    level: 4
+    hitroll_penalty: 17
+    armor: 9
+    hp:
+      dice_count: 1
+      dice_size: 1
+      bonus: 70
+    damage:
+      dice_count: 1
+      dice_size: 3
+      bonus: 1
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 350
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 10
+  race: 104
+  height: 198
+  weight: 2
+  attributes:
+    strength: 13
+    dexterity: 12
+    intelligence: 4
+    wisdom: 4
+    constitution: 10
+    charisma: 4
+  action_flags:
+    - kNpc
+    - kOnlySwimming
+  affect_flags:
+    - kInfravision
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 25
+  triggers:
+    - 5607  # убилокуня
+  enhanced:
+    absorb: 4
+    bare_hand_attack: 4
+    like_work: 5
+    special_bitvector: v0
+
+# Mob #5602
+2:
+  names:
+    aliases: ерш
+    nominative: ерш
+    genitive: ерша
+    dative: ершу
+    accusative: ерша
+    instrumental: ершом
+    prepositional: ерше
+  descriptions:
+    short_desc: |2
+      Веселый ерш играется в воде.
+    long_desc: |2
+      Маленькая черная рыбка.
+  alignment: 0
+  stats:
+    level: 4
+    hitroll_penalty: 17
+    armor: 8
+    hp:
+      dice_count: 1
+      dice_size: 1
+      bonus: 70
+    damage:
+      dice_count: 1
+      dice_size: 3
+      bonus: 1
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 350
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 15
+  race: 106
+  height: 198
+  weight: 2
+  attributes:
+    strength: 12
+    dexterity: 14
+    intelligence: 4
+    wisdom: 4
+    constitution: 10
+    charisma: 4
+  action_flags:
+    - kNpc
+    - kOnlySwimming
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 25
+  enhanced:
+    absorb: 4
+    bare_hand_attack: 4
+    like_work: 5
+    special_bitvector: v0
+
+# Mob #5603
+3:
+  names:
+    aliases: карп
+    nominative: карп
+    genitive: карпа
+    dative: карпу
+    accusative: карпа
+    instrumental: карпом
+    prepositional: карпе
+  descriptions:
+    short_desc: |2
+      Грустный карп медленно плывет здесь.
+    long_desc: |2
+      Крупная рыбина с полпуда весом.
+  alignment: -600
+  stats:
+    level: 5
+    hitroll_penalty: 16
+    armor: 7
+    hp:
+      dice_count: 1
+      dice_size: 1
+      bonus: 100
+    damage:
+      dice_count: 1
+      dice_size: 2
+      bonus: 1
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 500
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 20
+  race: 104
+  height: 198
+  weight: 3
+  attributes:
+    strength: 14
+    dexterity: 10
+    intelligence: 4
+    wisdom: 4
+    constitution: 10
+    charisma: 4
+  action_flags:
+    - kNpc
+    - kOnlySwimming
+  affect_flags:
+    - kInfravision
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 30
+  enhanced:
+    absorb: 5
+    like_work: 5
+    extra_attack: 1
+    special_bitvector: v0
+
+# Mob #5604
+4:
+  names:
+    aliases: налим
+    nominative: налим
+    genitive: налима
+    dative: налиму
+    accusative: налима
+    instrumental: налимом
+    prepositional: налиме
+  descriptions:
+    short_desc: |2
+      Скользкий налим плавает здесь.
+    long_desc: |2
+      Средних размеров аппетитная рыбина.
+  alignment: 0
+  stats:
+    level: 4
+    hitroll_penalty: 17
+    armor: 9
+    hp:
+      dice_count: 1
+      dice_size: 1
+      bonus: 60
+    damage:
+      dice_count: 1
+      dice_size: 3
+      bonus: 1
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 400
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 12
+  race: 104
+  height: 198
+  weight: 33
+  attributes:
+    strength: 13
+    dexterity: 15
+    intelligence: 4
+    wisdom: 4
+    constitution: 10
+    charisma: 4
+  action_flags:
+    - kNpc
+    - kOnlySwimming
+  affect_flags:
+    - kInfravision
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 30
+  enhanced:
+    absorb: 4
+    bare_hand_attack: 4
+    like_work: 5
+    special_bitvector: v0
+
+# Mob #5605
+5:
+  names:
+    aliases: лещ
+    nominative: лещ
+    genitive: леща
+    dative: лещу
+    accusative: леща
+    instrumental: лещем
+    prepositional: леще
+  descriptions:
+    short_desc: |2
+      Плоский лещ плавает здесь.
+    long_desc: |2
+      Тонкая но крупная плоская рыбина.
+  alignment: 0
+  stats:
+    level: 4
+    hitroll_penalty: 17
+    armor: 7
+    hp:
+      dice_count: 1
+      dice_size: 1
+      bonus: 70
+    damage:
+      dice_count: 1
+      dice_size: 3
+      bonus: 1
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 400
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 13
+  race: 106
+  height: 198
+  weight: 2
+  attributes:
+    strength: 12
+    dexterity: 10
+    intelligence: 5
+    wisdom: 5
+    constitution: 10
+    charisma: 4
+  action_flags:
+    - kNpc
+    - kStayZone
+    - kOnlySwimming
+  affect_flags:
+    - kInfravision
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 30
+  enhanced:
+    absorb: 4
+    bare_hand_attack: 4
+    like_work: 5
+    special_bitvector: v0
+
+# Mob #5606
+6:
+  names:
+    aliases: рак
+    nominative: рак
+    genitive: рака
+    dative: раку
+    accusative: рака
+    instrumental: раком
+    prepositional: раке
+  descriptions:
+    short_desc: |2
+      Медленный рак ползает по дну.
+    long_desc: |2
+      Красный падальщик этого водоема.
+  alignment: 0
+  stats:
+    level: 4
+    hitroll_penalty: 17
+    armor: 7
+    hp:
+      dice_count: 1
+      dice_size: 1
+      bonus: 80
+    damage:
+      dice_count: 1
+      dice_size: 4
+      bonus: 1
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 400
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 8
+  race: 100
+  height: 198
+  weight: 2
+  attributes:
+    strength: 10
+    dexterity: 8
+    intelligence: 3
+    wisdom: 4
+    constitution: 9
+    charisma: 4
+  action_flags:
+    - kNpc
+    - kStayZone
+    - kOnlySwimming
+  affect_flags:
+    - kInfravision
+  skills:
+    - skill_id: 2  # перехватить атаку
+      value: 10
+    - skill_id: 136  # кулачный бой
+      value: 30
+  enhanced:
+    absorb: 4
+    bare_hand_attack: 4
+    like_work: 5
+    special_bitvector: v0
+
+# Mob #5607
+7:
+  names:
+    aliases: чебак
+    nominative: чебак
+    genitive: чебака
+    dative: чебаку
+    accusative: чебака
+    instrumental: чебаком
+    prepositional: чебаке
+  descriptions:
+    short_desc: |2
+      Толстопузый чебак плавает здесь.
+    long_desc: |2
+      Крупная аппетитная рыбина.
+  alignment: -600
+  stats:
+    level: 3
+    hitroll_penalty: 18
+    armor: 9
+    hp:
+      dice_count: 1
+      dice_size: 1
+      bonus: 50
+    damage:
+      dice_count: 1
+      dice_size: 2
+      bonus: 1
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 350
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 7
+  race: 106
+  height: 198
+  weight: 1
+  attributes:
+    strength: 9
+    dexterity: 9
+    intelligence: 4
+    wisdom: 4
+    constitution: 9
+    charisma: 4
+  action_flags:
+    - kNpc
+    - kOnlySwimming
+  affect_flags:
+    - kInfravision
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 20
+  enhanced:
+    absorb: 3
+    bare_hand_attack: 4
+    like_work: 5
+    special_bitvector: v0
+
+# Mob #5608
+8:
+  names:
+    aliases: жерех
+    nominative: жерех
+    genitive: жереха
+    dative: жереху
+    accusative: жереха
+    instrumental: жерехом
+    prepositional: жерехе
+  descriptions:
+    short_desc: |2
+      Юркий жерех плавает здесь.
+    long_desc: |2
+      Средних размеров рыбина.
+  alignment: 0
+  stats:
+    level: 4
+    hitroll_penalty: 17
+    armor: 7
+    hp:
+      dice_count: 1
+      dice_size: 1
+      bonus: 99
+    damage:
+      dice_count: 1
+      dice_size: 3
+      bonus: 1
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 500
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 14
+  race: 106
+  height: 198
+  weight: 2
+  attributes:
+    strength: 10
+    dexterity: 10
+    intelligence: 4
+    wisdom: 4
+    constitution: 11
+    charisma: 4
+  action_flags:
+    - kNpc
+    - kStayZone
+    - kOnlySwimming
+  affect_flags:
+    - kInfravision
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 30
+  enhanced:
+    absorb: 4
+    bare_hand_attack: 4
+    like_work: 5
+    special_bitvector: v0
+
+# Mob #5609
+9:
+  names:
+    aliases: елец
+    nominative: елец
+    genitive: ельца
+    dative: ельцу
+    accusative: ельца
+    instrumental: ельцом
+    prepositional: ельце
+  descriptions:
+    short_desc: |2
+      Тонкий елец плавает здесь.
+    long_desc: |2
+      Средних размеров рыбка.
+  alignment: -600
+  stats:
+    level: 3
+    hitroll_penalty: 19
+    armor: 8
+    hp:
+      dice_count: 1
+      dice_size: 1
+      bonus: 75
+    damage:
+      dice_count: 1
+      dice_size: 2
+      bonus: 1
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 350
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 8
+  race: 106
+  height: 198
+  weight: 13
+  attributes:
+    strength: 7
+    dexterity: 10
+    intelligence: 4
+    wisdom: 4
+    constitution: 6
+    charisma: 4
+  action_flags:
+    - kNpc
+    - kStayZone
+    - kOnlySwimming
+  affect_flags:
+    - kInfravision
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 15
+  enhanced:
+    absorb: 3
+    bare_hand_attack: 4
+    special_bitvector: v0
+
+# Mob #5610
+10:
+  names:
+    aliases: сом
+    nominative: сом
+    genitive: сома
+    dative: сому
+    accusative: сома
+    instrumental: сомом
+    prepositional: соме
+  descriptions:
+    short_desc: |2
+      Большой сом плавает здесь.
+    long_desc: |2
+      Здоровенный сомяра с длинными скользкими усами.
+  alignment: 0
+  stats:
+    level: 8
+    hitroll_penalty: 13
+    armor: 8
+    hp:
+      dice_count: 1
+      dice_size: 1
+      bonus: 160
+    damage:
+      dice_count: 2
+      dice_size: 4
+      bonus: 1
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 2000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 30
+  race: 106
+  height: 198
+  weight: 4
+  attributes:
+    strength: 16
+    dexterity: 10
+    intelligence: 4
+    wisdom: 4
+    constitution: 12
+    charisma: 4
+  action_flags:
+    - kNpc
+    - kOnlySwimming
+  affect_flags:
+    - kInfravision
+  skills:
+    - skill_id: 2  # перехватить атаку
+      value: 20
+    - skill_id: 136  # кулачный бой
+      value: 35
+  enhanced:
+    absorb: 8
+    bare_hand_attack: 4
+    like_work: 10
+    max_factor: 1
+    special_bitvector: v0
+
+# Mob #5611
+11:
+  names:
+    aliases: щука
+    nominative: щука
+    genitive: щуки
+    dative: щуке
+    accusative: щуку
+    instrumental: щукой
+    prepositional: щуке
+  descriptions:
+    short_desc: |2
+      Злобная щука плавает здесь.
+    long_desc: |2
+      Длиннотелая местная охотница.
+  alignment: -600
+  stats:
+    level: 9
+    hitroll_penalty: 15
+    armor: 6
+    hp:
+      dice_count: 1
+      dice_size: 1
+      bonus: 125
+    damage:
+      dice_count: 2
+      dice_size: 3
+      bonus: 2
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 2500
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  size: 35
+  race: 106
+  height: 198
+  weight: 3
+  attributes:
+    strength: 16
+    dexterity: 14
+    intelligence: 4
+    wisdom: 4
+    constitution: 10
+    charisma: 4
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kAgressive
+    - kStayZone
+    - kHelper
+    - kNoSummon
+    - kNoFear
+    - kOnlySwimming
+  affect_flags:
+    - kInfravision
+  skills:
+    - skill_id: 5  # оглушить
+      value: 20
+    - skill_id: 136  # кулачный бой
+      value: 40
+  triggers:
+    - 5602  # убил щуку
+  enhanced:
+    absorb: 9
+    bare_hand_attack: 4
+    like_work: 11
+    max_factor: 1
+    extra_attack: 1
+    spells:
+      - 16
+      - 16
+
+# Mob #5612
+12:
+  names:
+    aliases: рыбак старый
+    nominative: старый рыбак
+    genitive: старого рыбака
+    dative: старому рыбаку
+    accusative: старого рыбака
+    instrumental: старым рыбаком
+    prepositional: старом рыбаке
+  descriptions:
+    short_desc: |2
+      Старый рыбак чинит здесь свою сеть.
+    long_desc: |2
+         Старый дедушка, который переловил почти всю рыбу в реке.
+  alignment: 0
+  stats:
+    level: 20
+    hitroll_penalty: 0
+    armor: -6
+    hp:
+      dice_count: 20
+      dice_size: 20
+      bonus: 500
+    damage:
+      dice_count: 1
+      dice_size: 2
+      bonus: 1
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kSit
+    start: kSit
+  sex: kMale
+  size: 50
+  race: 101
+  height: 198
+  weight: 150
+  attributes:
+    strength: 17
+    dexterity: 15
+    intelligence: 10
+    wisdom: 10
+    constitution: 17
+    charisma: 10
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kNoCharm
+    - kNoSummon
+    - kProtect
+  affect_flags:
+    - kDetectInvisible
+    - kInfravision
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 40
+  triggers:
+    - 5600  # зашел к рыбаку
+    - 5601  # сказал хорошо
+    - 5603  # дал филе рыбаку
+    - 5604  # резет зоны
+  enhanced:
+    max_factor: 2

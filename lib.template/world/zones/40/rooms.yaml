@@ -1,8 +1,7 @@
 # Rooms for zone 40
 
+# Room #4000
 0:
-  # Room #4000
-  zone: 40
   name: Поречная улица
   description: |2
        Поначалу, все городище стояло вдоль покатистого берега реки - и вода
@@ -14,25 +13,16 @@
     закрытая массивным замком.
   sector: kCity
   exits:
-  - direction: north
-    exit_flags: 0
-    key: -1
-    to_room: 4043  # Мельня
-    lock_complexity: 0
-  - direction: east
-    exit_flags: 0
-    key: -1
-    to_room: 4001  # Поречная улица
-    lock_complexity: 0
-  - direction: south
-    exit_flags: 0
-    key: 0
-    to_room: 4070  # Яма
-    lock_complexity: 0
+    - direction: north
+      to_room: 4043  # Мельня
+    - direction: east
+      to_room: 4001  # Поречная улица
+    - direction: south
+      to_room: 4070  # Яма
+      key: 0
 
+# Room #4001
 1:
-  # Room #4001
-  zone: 40
   name: Поречная улица
   description: |2
        Поначалу, все городище стояло вдоль покатистого берега реки - и вода
@@ -43,53 +33,36 @@
     а на юге - деревенский двор.
   sector: kCity
   exits:
-  - direction: north
-    exit_flags: 0
-    key: -1
-    to_room: 4051  # Дом мельника
-    lock_complexity: 0
-  - direction: east
-    exit_flags: 0
-    key: -1
-    to_room: 4061  # Поречная улица
-    lock_complexity: 0
-  - direction: south
-    exit_flags: 0
-    key: -1
-    to_room: 4040  # Во дворе дома
-    lock_complexity: 0
-  - direction: west
-    exit_flags: 0
-    key: -1
-    to_room: 4000  # Поречная улица
-    lock_complexity: 0
+    - direction: north
+      to_room: 4051  # Дом мельника
+    - direction: east
+      to_room: 4061  # Поречная улица
+    - direction: south
+      to_room: 4040  # Во дворе дома
+    - direction: west
+      to_room: 4000  # Поречная улица
 
+# Room #4002
 2:
-  # Room #4002
-  zone: 40
   name: Хижина охотника
   description: |2
        ___Вся хижина состоит из одной комнаты. На расположенных вдоль стен лавках
     постелены звериные шкуры, такие же шкуры, только чуть посвежее, лежат и на
     кровати с пологом, где, по-видимому, спит хозяин. В дальнем конце комнаты
     находится громоздкая каменная печь, в которой тлеют несколько углей.  
-  flags:
-  - kIndoors
-  - kPeaceful
-  - kForThieves
-  - kForWarriors
-  - kNohorse
   sector: kCity
+  flags:
+    - kIndoors
+    - kPeaceful
+    - kForThieves
+    - kForWarriors
+    - kNohorse
   exits:
-  - direction: west
-    exit_flags: 0
-    key: -1
-    to_room: 4020  # Скаковая улица
-    lock_complexity: 0
+    - direction: west
+      to_room: 4020  # Скаковая улица
 
+# Room #4003
 3:
-  # Room #4003
-  zone: 40
   name: Поречная улица
   description: |2
        Поначалу, все городище стояло вдоль покатистого берега реки - и вода
@@ -99,50 +72,35 @@
     улицей в растущем городе. Hа юге находится небольшой домик.
   sector: kCity
   exits:
-  - direction: east
-    exit_flags: 0
-    key: 0
-    to_room: 4005  # Поречная улица
-    lock_complexity: 0
-  - direction: south
-    exit_flags: 0
-    key: -1
-    to_room: 4055  # Домик травника
-    lock_complexity: 0
-  - direction: west
-    exit_flags: 0
-    key: -1
-    to_room: 4060  # Поречная улица
-    lock_complexity: 0
+    - direction: east
+      to_room: 4005  # Поречная улица
+      key: 0
+    - direction: south
+      to_room: 4055  # Домик травника
+    - direction: west
+      to_room: 4060  # Поречная улица
 
+# Room #4004
 4:
-  # Room #4004
-  zone: 40
   name: Голяцкий кабак
   description: |2
        Провонявшее тяжелым запахом полутемное помещение, заставленное столами и 
     лавками, многие из которых поломаны. Это излюбленное место сбора местной
     голытьбы, бывают и лихие людишки сюда захаживают. Отовсюду слышатся громкие
     крики и ругань.
-  flags:
-  - kIndoors
-  - kNohorse
   sector: kCity
+  flags:
+    - kIndoors
+    - kNohorse
   exits:
-  - direction: north
-    exit_flags: 16
-    key: -1
-    to_room: 4052  # Разбойный притон
-    lock_complexity: 0
-  - direction: east
-    exit_flags: 0
-    key: -1
-    to_room: 4028  # Лихой закоулок
-    lock_complexity: 0
+    - direction: north
+      to_room: 4052  # Разбойный притон
+      exit_flags: 16
+    - direction: east
+      to_room: 4028  # Лихой закоулок
 
+# Room #4005
 5:
-  # Room #4005
-  zone: 40
   name: Поречная улица
   description: |2
        Поначалу, все городище стояло вдоль покатистого берега реки - и вода
@@ -152,25 +110,15 @@
     погожей улицей в растущем городе.
   sector: kCity
   exits:
-  - direction: north
-    exit_flags: 0
-    key: -1
-    to_room: 4053  # Селянская хижина
-    lock_complexity: 0
-  - direction: east
-    exit_flags: 0
-    key: -1
-    to_room: 4006  # Поречная улица
-    lock_complexity: 0
-  - direction: west
-    exit_flags: 0
-    key: -1
-    to_room: 4003  # Поречная улица
-    lock_complexity: 0
+    - direction: north
+      to_room: 4053  # Селянская хижина
+    - direction: east
+      to_room: 4006  # Поречная улица
+    - direction: west
+      to_room: 4003  # Поречная улица
 
+# Room #4006
 6:
-  # Room #4006
-  zone: 40
   name: Поречная улица
   description: |2
        Поначалу, все городище стояло вдоль покатистого берега реки - и вода
@@ -180,111 +128,71 @@
     погожей улицей в растущем городе. 
   sector: kCity
   exits:
-  - direction: east
-    exit_flags: 0
-    key: -1
-    to_room: 4057  # Тропа
-    lock_complexity: 0
-  - direction: south
-    exit_flags: 0
-    key: -1
-    to_room: 4044  # Хижина старца
-    lock_complexity: 0
-  - direction: west
-    exit_flags: 0
-    key: -1
-    to_room: 4005  # Поречная улица
-    lock_complexity: 0
+    - direction: east
+      to_room: 4057  # Тропа
+    - direction: south
+      to_room: 4044  # Хижина старца
+    - direction: west
+      to_room: 4005  # Поречная улица
 
+# Room #4007
 7:
-  # Room #4007
-  zone: 40
   name: Базарная улица
   description: |2
        Эта улица, ведущая к центру селища - шумной осенью, в праздник урожая, 
     Базарной площади.
   sector: kCity
   exits:
-  - direction: north
-    exit_flags: 0
-    key: -1
-    to_room: 4060  # Поречная улица
-    lock_complexity: 0
-  - direction: south
-    exit_flags: 0
-    key: -1
-    to_room: 4008  # Базарная улица
-    lock_complexity: 0
+    - direction: north
+      to_room: 4060  # Поречная улица
+    - direction: south
+      to_room: 4008  # Базарная улица
 
+# Room #4008
 8:
-  # Room #4008
-  zone: 40
   name: Базарная улица
   description: |2
        Эта улица, ведущая к центру селища - шумной осенью, в праздник урожая,
     Базарной площади. Уже слышны чьи-то голоса. 
   sector: kCity
   exits:
-  - direction: north
-    exit_flags: 0
-    key: -1
-    to_room: 4007  # Базарная улица
-    lock_complexity: 0
-  - direction: south
-    exit_flags: 0
-    key: -1
-    to_room: 4009  # Базарная улица
-    lock_complexity: 0
+    - direction: north
+      to_room: 4007  # Базарная улица
+    - direction: south
+      to_room: 4009  # Базарная улица
 
+# Room #4009
 9:
-  # Room #4009
-  zone: 40
   name: Базарная улица
   description: |2
        Эта улица, ведущая к центру селища - шумной осенью, в праздник урожая,
     Базарной площади. На западе вы видите большой двор.
   sector: kCity
   exits:
-  - direction: north
-    exit_flags: 0
-    key: -1
-    to_room: 4008  # Базарная улица
-    lock_complexity: 0
-  - direction: south
-    exit_flags: 0
-    key: -1
-    to_room: 4010  # Базарная улица
-    lock_complexity: 0
-  - direction: west
-    keywords: ворота|ворота
-    exit_flags: 1
-    key: -1
-    to_room: 4046  # Двор
-    lock_complexity: 0
+    - direction: north
+      to_room: 4008  # Базарная улица
+    - direction: south
+      to_room: 4010  # Базарная улица
+    - direction: west
+      to_room: 4046  # Двор
+      keywords: ворота
+      exit_flags: 1
 
+# Room #4010
 10:
-  # Room #4010
-  zone: 40
   name: Базарная улица
   description: |2
        Эта улица, ведущая к центру селища - шумной осенью, в праздник урожая,
     Базарной площади.
   sector: kCity
   exits:
-  - direction: north
-    exit_flags: 0
-    key: -1
-    to_room: 4009  # Базарная улица
-    lock_complexity: 0
-  - direction: south
-    exit_flags: 0
-    key: -1
-    to_room: 4012  # Базарная площадь
-    lock_complexity: 0
+    - direction: north
+      to_room: 4009  # Базарная улица
+    - direction: south
+      to_room: 4012  # Базарная площадь
 
+# Room #4011
 11:
-  # Room #4011
-  zone: 40
   name: Базарная площадь
   description: |2
        Центр городища, получивший свое название по поводу проводимых на нем
@@ -292,29 +200,20 @@
     после сбора урожая, когда весь рабочий да и гулящий люд не только с городища,
     да и с окрестных слобод и селений собирается сюда людей посмотреть, себя 
     показать, потешить буйную головушку зеленым вином да завозными побасенками.
-  flags:
-  - kPeaceful
   sector: kCity
+  flags:
+    - kPeaceful
+    - kAlwaysLit
   exits:
-  - direction: east
-    exit_flags: 0
-    key: -1
-    to_room: 4012  # Базарная площадь
-    lock_complexity: 0
-  - direction: south
-    exit_flags: 0
-    key: -1
-    to_room: 4014  # Базарная площадь
-    lock_complexity: 0
-  - direction: west
-    exit_flags: 0
-    key: -1
-    to_room: 4023  # Бабичья улица
-    lock_complexity: 0
+    - direction: east
+      to_room: 4012  # Базарная площадь
+    - direction: south
+      to_room: 4014  # Базарная площадь
+    - direction: west
+      to_room: 4023  # Бабичья улица
 
+# Room #4012
 12:
-  # Room #4012
-  zone: 40
   name: Базарная площадь
   description: |2
        Центр городища, получивший свое название по поводу проводимых на нем
@@ -324,30 +223,17 @@
     показать, потешить буйно головушку зеленым вином да завозными побасенками.
   sector: kCity
   exits:
-  - direction: north
-    exit_flags: 0
-    key: -1
-    to_room: 4010  # Базарная улица
-    lock_complexity: 0
-  - direction: east
-    exit_flags: 0
-    key: -1
-    to_room: 4015  # Базарная площадь
-    lock_complexity: 0
-  - direction: south
-    exit_flags: 0
-    key: -1
-    to_room: 4013  # Базарная площадь
-    lock_complexity: 0
-  - direction: west
-    exit_flags: 0
-    key: -1
-    to_room: 4011  # Базарная площадь
-    lock_complexity: 0
+    - direction: north
+      to_room: 4010  # Базарная улица
+    - direction: east
+      to_room: 4015  # Базарная площадь
+    - direction: south
+      to_room: 4013  # Базарная площадь
+    - direction: west
+      to_room: 4011  # Базарная площадь
 
+# Room #4013
 13:
-  # Room #4013
-  zone: 40
   name: Базарная площадь
   description: |2
        Центр городища, получивший свое название по поводу проводимых на нем
@@ -357,32 +243,15 @@
     показать, потешить буйно головушку зеленым вином да завозными побасенками.
   sector: kCity
   exits:
-  - direction: north
-    exit_flags: 0
-    key: -1
-    to_room: 4012  # Базарная площадь
-    lock_complexity: 0
-  - direction: east
-    exit_flags: 0
-    key: -1
-    to_room: 4016  # Базарная площадь
-    lock_complexity: 0
-  - direction: south
-    description: Дверь
-    keywords: дверь|дверь
-    exit_flags: 1
-    key: 0
-    to_room: 0
-    lock_complexity: 0
-  - direction: west
-    exit_flags: 0
-    key: -1
-    to_room: 4014  # Базарная площадь
-    lock_complexity: 0
+    - direction: north
+      to_room: 4012  # Базарная площадь
+    - direction: east
+      to_room: 4016  # Базарная площадь
+    - direction: west
+      to_room: 4014  # Базарная площадь
 
+# Room #4014
 14:
-  # Room #4014
-  zone: 40
   name: Базарная площадь
   description: |2
        Центр городища, получивший свое название по поводу проводимых на нем
@@ -394,30 +263,17 @@
     котором приезжий люд может скоротать ночку-другую.
   sector: kCity
   exits:
-  - direction: north
-    exit_flags: 0
-    key: -1
-    to_room: 4011  # Базарная площадь
-    lock_complexity: 0
-  - direction: east
-    exit_flags: 0
-    key: -1
-    to_room: 4013  # Базарная площадь
-    lock_complexity: 0
-  - direction: south
-    exit_flags: 0
-    key: -1
-    to_room: 4020  # Скаковая улица
-    lock_complexity: 0
-  - direction: west
-    exit_flags: 0
-    key: -1
-    to_room: 4056  # Гостиный двор
-    lock_complexity: 0
+    - direction: north
+      to_room: 4011  # Базарная площадь
+    - direction: east
+      to_room: 4013  # Базарная площадь
+    - direction: south
+      to_room: 4020  # Скаковая улица
+    - direction: west
+      to_room: 4056  # Гостиный двор
 
+# Room #4015
 15:
-  # Room #4015
-  zone: 40
   name: Базарная площадь
   description: |2
        Центр городища, получивший свое название по поводу проводимых на нем
@@ -428,25 +284,15 @@
     С севера слышны песни залихватские да доносятся запахи ароматные.
   sector: kCity
   exits:
-  - direction: north
-    exit_flags: 0
-    key: -1
-    to_room: 4054  # Кабак
-    lock_complexity: 0
-  - direction: south
-    exit_flags: 0
-    key: -1
-    to_room: 4016  # Базарная площадь
-    lock_complexity: 0
-  - direction: west
-    exit_flags: 0
-    key: -1
-    to_room: 4012  # Базарная площадь
-    lock_complexity: 0
+    - direction: north
+      to_room: 4054  # Харчевня
+    - direction: south
+      to_room: 4016  # Базарная площадь
+    - direction: west
+      to_room: 4012  # Базарная площадь
 
+# Room #4016
 16:
-  # Room #4016
-  zone: 40
   name: Базарная площадь
   description: |2
        Центр городища, получивший свое название по поводу проводимых на нем
@@ -457,30 +303,15 @@
     На восток отходит улица ремесленников.
   sector: kCity
   exits:
-  - direction: north
-    exit_flags: 0
-    key: -1
-    to_room: 4015  # Базарная площадь
-    lock_complexity: 0
-  - direction: east
-    exit_flags: 0
-    key: -1
-    to_room: 4017  # Мастеровая улица
-    lock_complexity: 0
-  - direction: south
-    exit_flags: 0
-    key: 0
-    to_room: 0
-    lock_complexity: 0
-  - direction: west
-    exit_flags: 0
-    key: -1
-    to_room: 4013  # Базарная площадь
-    lock_complexity: 0
+    - direction: north
+      to_room: 4015  # Базарная площадь
+    - direction: east
+      to_room: 4017  # Мастеровая улица
+    - direction: west
+      to_room: 4013  # Базарная площадь
 
+# Room #4017
 17:
-  # Room #4017
-  zone: 40
   name: Мастеровая улица
   description: |2
        Как бают люди - жил здесь когда-то Васька Кривой - знатный был умелец по
@@ -490,30 +321,17 @@
     С юга доносится стук кузнечного молота.
   sector: kCity
   exits:
-  - direction: north
-    exit_flags: 0
-    key: -1
-    to_room: 4062  # Церковь
-    lock_complexity: 0
-  - direction: east
-    exit_flags: 0
-    key: -1
-    to_room: 4018  # Мастеровая улица
-    lock_complexity: 0
-  - direction: south
-    exit_flags: 0
-    key: -1
-    to_room: 4030  # Кузня
-    lock_complexity: 0
-  - direction: west
-    exit_flags: 0
-    key: -1
-    to_room: 4016  # Базарная площадь
-    lock_complexity: 0
+    - direction: north
+      to_room: 4062  # Церковь
+    - direction: east
+      to_room: 4018  # Мастеровая улица
+    - direction: south
+      to_room: 4030  # Кузня
+    - direction: west
+      to_room: 4016  # Базарная площадь
 
+# Room #4018
 18:
-  # Room #4018
-  zone: 40
   name: Мастеровая улица
   description: |2
        Как бают люди - жил здесь когда-то Васька Кривой - знатный был умелец 
@@ -524,32 +342,18 @@
     ремесленника.
   sector: kCity
   exits:
-  - direction: north
-    exit_flags: 0
-    key: -1
-    to_room: 4031  # Лавка скорняка
-    lock_complexity: 0
-  - direction: east
-    exit_flags: 0
-    key: -1
-    to_room: 4019  # Лавка ремесленника
-    lock_complexity: 0
-  - direction: south
-    description: Дверь
-    keywords: дверь|дверь
-    exit_flags: 1
-    key: 0
-    to_room: 4071  # Лавка скупщика
-    lock_complexity: 0
-  - direction: west
-    exit_flags: 0
-    key: -1
-    to_room: 4017  # Мастеровая улица
-    lock_complexity: 0
+    - direction: north
+      to_room: 4031  # Лавка скорняка
+    - direction: east
+      to_room: 4019  # Лавка ремесленника
+    - direction: south
+      to_room: 4071  # Склад
+      key: 0
+    - direction: west
+      to_room: 4017  # Мастеровая улица
 
+# Room #4019
 19:
-  # Room #4019
-  zone: 40
   name: Лавка ремесленника
   description: |2
        Богата земля русская самородками умелыми. Посреди избы стоит цвет 
@@ -557,21 +361,17 @@
     и развешаны вещицы самодельные, и для работы, и для увеселения пригожие. А 
     сами стены, да беседы, даже обдверина украшены узором чудным - тут и птица
     райская, и рыба дивная - глаз не отвесть. 
-  flags:
-  - kIndoors
-  - kPeaceful
-  - kNohorse
   sector: kCity
+  flags:
+    - kIndoors
+    - kPeaceful
+    - kNohorse
   exits:
-  - direction: west
-    exit_flags: 0
-    key: -1
-    to_room: 4018  # Мастеровая улица
-    lock_complexity: 0
+    - direction: west
+      to_room: 4018  # Мастеровая улица
 
+# Room #4020
 20:
-  # Room #4020
-  zone: 40
   name: Скаковая улица
   description: |2
        Расступись, голытьба, едет по улице бравый молодец - то ли воин-богатырь 
@@ -582,25 +382,15 @@
     стольный, Киевом нареченный. К востоку расположена хижина охотника.
   sector: kCity
   exits:
-  - direction: north
-    exit_flags: 0
-    key: -1
-    to_room: 4014  # Базарная площадь
-    lock_complexity: 0
-  - direction: east
-    exit_flags: 0
-    key: -1
-    to_room: 4002  # Хижина охотника
-    lock_complexity: 0
-  - direction: south
-    exit_flags: 0
-    key: -1
-    to_room: 4021  # Скаковая улица
-    lock_complexity: 0
+    - direction: north
+      to_room: 4014  # Базарная площадь
+    - direction: east
+      to_room: 4002  # Хижина охотника
+    - direction: south
+      to_room: 4021  # Скаковая улица
 
+# Room #4021
 21:
-  # Room #4021
-  zone: 40
   name: Скаковая улица
   description: |2
        Расступись, голытьба, едет по улице бравый молодец - то ли воин-богатырь 
@@ -612,25 +402,15 @@
     Пахарскую слободу.
   sector: kCity
   exits:
-  - direction: north
-    exit_flags: 0
-    key: -1
-    to_room: 4020  # Скаковая улица
-    lock_complexity: 0
-  - direction: south
-    exit_flags: 0
-    key: -1
-    to_room: 4022  # Скаковая улица
-    lock_complexity: 0
-  - direction: west
-    exit_flags: 0
-    key: -1
-    to_room: 4032  # Пахарская слобода
-    lock_complexity: 0
+    - direction: north
+      to_room: 4020  # Скаковая улица
+    - direction: south
+      to_room: 4022  # Скаковая улица
+    - direction: west
+      to_room: 4032  # Пахарская слобода
 
+# Room #4022
 22:
-  # Room #4022
-  zone: 40
   name: Скаковая улица
   description: |2
        Расступись, голытьба, едет по улице бравый молодец - то ли воин-богатырь 
@@ -642,20 +422,13 @@
     тяжелыми воротами, а на востоке расположена сторожевая застава.
   sector: kCity
   exits:
-  - direction: north
-    exit_flags: 0
-    key: -1
-    to_room: 4021  # Скаковая улица
-    lock_complexity: 0
-  - direction: east
-    exit_flags: 0
-    key: -1
-    to_room: 4038  # Застава у ворот
-    lock_complexity: 0
+    - direction: north
+      to_room: 4021  # Скаковая улица
+    - direction: east
+      to_room: 4038  # Застава у ворот
 
+# Room #4023
 23:
-  # Room #4023
-  zone: 40
   name: Бабичья улица
   description: |2
        Далеко разнесла людская молва весть о бабке Параскеве, обзывая и волхвицей,
@@ -665,20 +438,13 @@
     Только вот селится на ней народ тайный, к лихой ворожбе-заговорам привычный.
   sector: kCity
   exits:
-  - direction: east
-    exit_flags: 0
-    key: -1
-    to_room: 4011  # Базарная площадь
-    lock_complexity: 0
-  - direction: west
-    exit_flags: 0
-    key: -1
-    to_room: 4024  # Бабичья улица
-    lock_complexity: 0
+    - direction: east
+      to_room: 4011  # Базарная площадь
+    - direction: west
+      to_room: 4024  # Бабичья улица
 
+# Room #4024
 24:
-  # Room #4024
-  zone: 40
   name: Бабичья улица
   description: |2
        Далеко разнесла людская молва весть о бабке Параскеве, обзывая и
@@ -689,25 +455,15 @@
     привычный.
   sector: kCity
   exits:
-  - direction: east
-    exit_flags: 0
-    key: -1
-    to_room: 4023  # Бабичья улица
-    lock_complexity: 0
-  - direction: south
-    exit_flags: 0
-    key: -1
-    to_room: 4039  # Хижина ведуньи
-    lock_complexity: 0
-  - direction: west
-    exit_flags: 0
-    key: -1
-    to_room: 4025  # Бабичья улица
-    lock_complexity: 0
+    - direction: east
+      to_room: 4023  # Бабичья улица
+    - direction: south
+      to_room: 4039  # Хижина ведуньи
+    - direction: west
+      to_room: 4025  # Бабичья улица
 
+# Room #4025
 25:
-  # Room #4025
-  zone: 40
   name: Бабичья улица
   description: |2
        Далеко разнесла людская молва весть о бабке Параскеве, обзывая и
@@ -718,25 +474,15 @@
     привычный.
   sector: kCity
   exits:
-  - direction: north
-    exit_flags: 0
-    key: -1
-    to_room: 4027  # Лихой закоулок
-    lock_complexity: 0
-  - direction: east
-    exit_flags: 0
-    key: -1
-    to_room: 4024  # Бабичья улица
-    lock_complexity: 0
-  - direction: west
-    exit_flags: 0
-    key: -1
-    to_room: 4026  # Бабичья улица
-    lock_complexity: 0
+    - direction: north
+      to_room: 4027  # Лихой закоулок
+    - direction: east
+      to_room: 4024  # Бабичья улица
+    - direction: west
+      to_room: 4026  # Бабичья улица
 
+# Room #4026
 26:
-  # Room #4026
-  zone: 40
   name: Бабичья улица
   description: |2
        Далеко разнесла людская молва весть о бабке Параскеве, обзывая и
@@ -747,30 +493,17 @@
     привычный.
   sector: kCity
   exits:
-  - direction: north
-    exit_flags: 0
-    key: -1
-    to_room: 4042  # Хижина отшельника
-    lock_complexity: 0
-  - direction: east
-    exit_flags: 0
-    key: -1
-    to_room: 4025  # Бабичья улица
-    lock_complexity: 0
-  - direction: south
-    exit_flags: 0
-    key: -1
-    to_room: 4063  # Капище
-    lock_complexity: 0
-  - direction: west
-    exit_flags: 0
-    key: -1
-    to_room: 4045  # Слезная гора
-    lock_complexity: 0
+    - direction: north
+      to_room: 4042  # Хижина отшельника
+    - direction: east
+      to_room: 4025  # Бабичья улица
+    - direction: south
+      to_room: 4063  # Капище
+    - direction: west
+      to_room: 4045  # Слезная гора
 
+# Room #4027
 27:
-  # Room #4027
-  zone: 40
   name: Лихой закоулок
   description: |2
        Здесь с давних пор селились лихие людишки да голытьба, не привыкшие ни к
@@ -781,20 +514,13 @@
     невинными жизнями. На юге проходит Бабичья улица.
   sector: kCity
   exits:
-  - direction: north
-    exit_flags: 0
-    key: -1
-    to_room: 4028  # Лихой закоулок
-    lock_complexity: 0
-  - direction: south
-    exit_flags: 0
-    key: -1
-    to_room: 4025  # Бабичья улица
-    lock_complexity: 0
+    - direction: north
+      to_room: 4028  # Лихой закоулок
+    - direction: south
+      to_room: 4025  # Бабичья улица
 
+# Room #4028
 28:
-  # Room #4028
-  zone: 40
   name: Лихой закоулок
   description: |2
        Здесь с давних пор селились лихие людишки да голытьба, не привыкшие ни к
@@ -805,68 +531,52 @@
     невинными жизнями. На западе расположен голяцкий кабак.
   sector: kCity
   exits:
-  - direction: south
-    exit_flags: 0
-    key: -1
-    to_room: 4027  # Лихой закоулок
-    lock_complexity: 0
-  - direction: west
-    exit_flags: 0
-    key: -1
-    to_room: 4004  # Голяцкий кабак
-    lock_complexity: 0
+    - direction: south
+      to_room: 4027  # Лихой закоулок
+    - direction: west
+      to_room: 4004  # Голяцкий кабак
 
+# Room #4029
 29:
-  # Room #4029
-  zone: 40
   name: За воротами
   description: |2
-       За воротами одиноко и страшно, как будто вышел с родного порога и оказался
-    в чужом незнакомом мире. Вокруг вместо родных глазу хижин бескрайние поля,
-    где-то  вдалеке ограниченные лесом.
-  flags:
-  - kNoEntryMob
+    ___За воротами одиноко и страшно, как будто вышел с родного порога и оказался в
+    чужом незнакомом мире. Вокруг вместо родных глазу хижин бескрайние поля,
+    где-то вдалеке ограниченные лесом.  
   sector: kCity
+  flags:
+    - kNoEntryMob
   exits:
-  - direction: north
-    description: ворота
-    keywords: ворота|ворота
-    exit_flags: 1
-    key: -1
-    to_room: 4038  # Застава у ворот
-    lock_complexity: 0
-  - direction: south
-    exit_flags: 0
-    key: -1
-    to_room: 4100
-    lock_complexity: 0
+    - direction: north
+      to_room: 4038  # Застава у ворот
+      description: ворота
+      keywords: ворота
+      exit_flags: 3
+    - direction: south
+      to_room: 4100  # Посыльная дорога
 
+# Room #4030
 30:
-  # Room #4030
-  zone: 40
   name: Кузня
-  description: |
-    Просторная, выстроенная из вековых дубовых комлей изба. В одном углу,
+  description: |2
+    ___Просторная, выстроенная из вековых дубовых комлей изба. В одном углу,
     поблизости от прорубленного в стене окна, стоит мех и наковальня. Возле 
     двери - лавка, чуть подале - бадейка сорокапудовая, наполненная на три 
     четверти водой - в нее окунает кузнец выкованную вещицу. На земле, возле
     наковальни, рассыпаны уголь и куски камня железчатого.
-  flags:
-  - kIndoors
-  - kPeaceful
-  - kForWarriors
-  - kNohorse
   sector: kCity
+  flags:
+    - kIndoors
+    - kPeaceful
+    - kForWarriors
+    - kForge
+    - kNohorse
   exits:
-  - direction: north
-    exit_flags: 0
-    key: -1
-    to_room: 4017  # Мастеровая улица
-    lock_complexity: 0
+    - direction: north
+      to_room: 4017  # Мастеровая улица
 
+# Room #4031
 31:
-  # Room #4031
-  zone: 40
   name: Лавка скорняка
   description: |2
        Полутемная изба, воздух в которой пропитан духом лесного зверья. Везде,
@@ -874,22 +584,18 @@
     так и заморских. А чуть подале, у окна, затянутого бычьим пузырем, красуются
     уже готовые платья - хрущатые кафтаны, армяки, зипуны, рубахи. Развязывай
     мошну - да носи на загляденье честному народу.
-  flags:
-  - kIndoors
-  - kPeaceful
-  - kNoMagic
-  - kNohorse
   sector: kCity
+  flags:
+    - kIndoors
+    - kPeaceful
+    - kNoMagic
+    - kNohorse
   exits:
-  - direction: south
-    exit_flags: 0
-    key: -1
-    to_room: 4018  # Мастеровая улица
-    lock_complexity: 0
+    - direction: south
+      to_room: 4018  # Мастеровая улица
 
+# Room #4032
 32:
-  # Room #4032
-  zone: 40
   name: Пахарская слобода
   description: |2
        Эх, землица, кормилица ты наша. Всяк тебя топчет - не всяк поднять может.
@@ -898,20 +604,13 @@
     да и людишкам достанется. Улица тянется с востока на запад.
   sector: kCity
   exits:
-  - direction: east
-    exit_flags: 0
-    key: -1
-    to_room: 4021  # Скаковая улица
-    lock_complexity: 0
-  - direction: west
-    exit_flags: 0
-    key: -1
-    to_room: 4033  # Пахарская слобода
-    lock_complexity: 0
+    - direction: east
+      to_room: 4021  # Скаковая улица
+    - direction: west
+      to_room: 4033  # Пахарская слобода
 
+# Room #4033
 33:
-  # Room #4033
-  zone: 40
   name: Пахарская слобода
   description: |2
        Эх, землица, кормилица ты наша. Всяк тебя топчет - не всяк поднять может.
@@ -920,25 +619,15 @@
     да и людишкам достанется. На юге видна селянская хижина.
   sector: kCity
   exits:
-  - direction: east
-    exit_flags: 0
-    key: -1
-    to_room: 4032  # Пахарская слобода
-    lock_complexity: 0
-  - direction: south
-    exit_flags: 0
-    key: -1
-    to_room: 4036  # Хижина пахаря
-    lock_complexity: 0
-  - direction: west
-    exit_flags: 0
-    key: -1
-    to_room: 4034  # Пахарская слобода
-    lock_complexity: 0
+    - direction: east
+      to_room: 4032  # Пахарская слобода
+    - direction: south
+      to_room: 4036  # Хижина пахаря
+    - direction: west
+      to_room: 4034  # Пахарская слобода
 
+# Room #4034
 34:
-  # Room #4034
-  zone: 40
   name: Пахарская слобода
   description: |2
        Эх, землица, кормилица ты наша. Всяк тебя топчет - не всяк поднять может.
@@ -948,131 +637,93 @@
     улицы.
   sector: kCity
   exits:
-  - direction: north
-    exit_flags: 0
-    key: -1
-    to_room: 4035  # Хижина пахаря
-    lock_complexity: 0
-  - direction: east
-    exit_flags: 0
-    key: -1
-    to_room: 4033  # Пахарская слобода
-    lock_complexity: 0
-  - direction: south
-    exit_flags: 0
-    key: 0
-    to_room: 5901
-    lock_complexity: 0
-  - direction: west
-    exit_flags: 0
-    key: -1
-    to_room: 4037  # Хижина пахаря
-    lock_complexity: 0
+    - direction: north
+      to_room: 4035  # Хижина пахаря
+    - direction: east
+      to_room: 4033  # Пахарская слобода
+    - direction: south
+      to_room: 4064  # На лугу
+      key: 0
+    - direction: west
+      to_room: 4037  # Хижина пахаря
 
+# Room #4035
 35:
-  # Room #4035
-  zone: 40
   name: Хижина пахаря
   description: |2
        Уютный бревенчатый домик под соломенной крышей, с окнами из бычьего пузыря.
-     
-  flags:
-  - kIndoors
-  - kNohorse
   sector: kCity
+  flags:
+    - kIndoors
+    - kNohorse
   exits:
-  - direction: south
-    exit_flags: 0
-    key: -1
-    to_room: 4034  # Пахарская слобода
-    lock_complexity: 0
+    - direction: south
+      to_room: 4034  # Пахарская слобода
 
+# Room #4036
 36:
-  # Room #4036
-  zone: 40
   name: Хижина пахаря
   description: |2
        Уютный бревенчатый домик под соломенной крышей, с окнами из бычьего пузыря.
-     
-  flags:
-  - kIndoors
-  - kNohorse
   sector: kCity
+  flags:
+    - kIndoors
+    - kNohorse
   exits:
-  - direction: north
-    exit_flags: 0
-    key: -1
-    to_room: 4033  # Пахарская слобода
-    lock_complexity: 0
+    - direction: north
+      to_room: 4033  # Пахарская слобода
 
+# Room #4037
 37:
-  # Room #4037
-  zone: 40
   name: Хижина пахаря
   description: |2
        Уютный бревенчатый домик под соломенной крышей, с окнами из бычьего пузыря.
-     
-  flags:
-  - kIndoors
-  - kNohorse
   sector: kCity
+  flags:
+    - kIndoors
+    - kNohorse
   exits:
-  - direction: east
-    exit_flags: 0
-    key: -1
-    to_room: 4034  # Пахарская слобода
-    lock_complexity: 0
+    - direction: east
+      to_room: 4034  # Пахарская слобода
 
+# Room #4038
 38:
-  # Room #4038
-  zone: 40
   name: Застава у ворот
   description: |2
        Небольшая глинобитная хижина, крытая соломой, в которой несут стражу самые
     крепкие деревенские мужики, на случай нашествия ворога.
-  flags:
-  - kIndoors
   sector: kCity
+  flags:
+    - kIndoors
   exits:
-  - direction: south
-    description: ворота
-    keywords: ворота|ворота
-    exit_flags: 1
-    key: -1
-    to_room: 4029  # За воротами
-    lock_complexity: 0
-  - direction: west
-    exit_flags: 0
-    key: -1
-    to_room: 4022  # Скаковая улица
-    lock_complexity: 0
+    - direction: south
+      to_room: 4029  # За воротами
+      description: ворота
+      keywords: ворота
+      exit_flags: 3
+    - direction: west
+      to_room: 4022  # Скаковая улица
 
+# Room #4039
 39:
-  # Room #4039
-  zone: 40
   name: Хижина ведуньи
   description: |2
        Вы зашли в комнату к ведунье, повсюду по углам видны непонятные предметы,
-    на полках лежат, высушенные части зверей, применяемые бабкой при изгнании
+    на полках лежат высушенные части зверей, применяемые бабкой при изгнании
     злых духов и снятии порчи.
-      
-  flags:
-  - kIndoors
-  - kPeaceful
-  - kForMages
-  - kForSorcerers
-  - kNohorse
   sector: kCity
+  flags:
+    - kIndoors
+    - kPeaceful
+    - kForMages
+    - kForSorcerers
+    - kNohorse
   exits:
-  - direction: north
-    exit_flags: 0
-    key: -1
-    to_room: 4024  # Бабичья улица
-    lock_complexity: 0
+    - direction: north
+      to_room: 4024  # Бабичья улица
 
+# Room #4040
 40:
-  # Room #4040
-  zone: 40
   name: Во дворе дома
   description: |2
        Вы оказались во дворе крестьянского дома. Здесь наметано несколько стогов
@@ -1081,20 +732,13 @@
     Сам дом расположен восточнее.
   sector: kCity
   exits:
-  - direction: north
-    exit_flags: 0
-    key: -1
-    to_room: 4001  # Поречная улица
-    lock_complexity: 0
-  - direction: east
-    exit_flags: 0
-    key: -1
-    to_room: 4041  # Селянский дом
-    lock_complexity: 0
+    - direction: north
+      to_room: 4001  # Поречная улица
+    - direction: east
+      to_room: 4041  # Селянский дом
 
+# Room #4041
 41:
-  # Room #4041
-  zone: 40
   name: Селянский дом
   description: |2
        Большая комната, разделенная на две половины. Нижняя - сенцы, куда загоняют
@@ -1102,84 +746,65 @@
     полок с утварью и разложен очаг. Чуть пониже матицы прорублен дымоход.
     Верхняя - середа, где летом спят бабы с детишками, а зимой здесь собирается
     вся семья. 
-  flags:
-  - kIndoors
   sector: kCity
+  flags:
+    - kIndoors
   exits:
-  - direction: west
-    exit_flags: 0
-    key: -1
-    to_room: 4040  # Во дворе дома
-    lock_complexity: 0
+    - direction: west
+      to_room: 4040  # Во дворе дома
 
+# Room #4042
 42:
-  # Room #4042
-  zone: 40
   name: Хижина отшельника
   description: |2
        Вам пришлось низко пригнуться, прежде чем войти в эту лачугу, и разгрести
     кучу костей и всякой дряни, чтобы присесть на единственную лавку.
-  flags:
-  - kIndoors
-  - kPeaceful
-  - kForMages
-  - kNohorse
   sector: kCity
+  flags:
+    - kIndoors
+    - kPeaceful
+    - kForMages
+    - kNohorse
   exits:
-  - direction: south
-    exit_flags: 0
-    key: -1
-    to_room: 4026  # Бабичья улица
-    lock_complexity: 0
+    - direction: south
+      to_room: 4026  # Бабичья улица
 
+# Room #4043
 43:
-  # Room #4043
-  zone: 40
   name: Мельня
   description: |2
        Посреди комнаты, занимая ее почти всю, крутятся два тяжелых каменных
     колеса, приводимые в движение хитрым механизмом, установленным в реке.
     Гул стоит такой, что ничего невозможно услышать на расстоянии вытянутой
     руки.
-  flags:
-  - kIndoors
-  - kSoundproof
   sector: kCity
+  flags:
+    - kIndoors
+    - kSoundproof
   exits:
-  - direction: east
-    exit_flags: 0
-    key: -1
-    to_room: 4051  # Дом мельника
-    lock_complexity: 0
-  - direction: south
-    exit_flags: 0
-    key: -1
-    to_room: 4000  # Поречная улица
-    lock_complexity: 0
+    - direction: east
+      to_room: 4051  # Дом мельника
+    - direction: south
+      to_room: 4000  # Поречная улица
 
+# Room #4044
 44:
-  # Room #4044
-  zone: 40
   name: Хижина старца
   description: |2
        Небольшая каморка, в глубине которой, в очаге, пляшет огонь, отбрасывая
     кровавые отблески на дубовые стены, почерневшие от времени.
-  flags:
-  - kIndoors
-  - kPeaceful
-  - kForMages
-  - kForSorcerers
   sector: kCity
+  flags:
+    - kIndoors
+    - kPeaceful
+    - kForMages
+    - kForSorcerers
   exits:
-  - direction: north
-    exit_flags: 0
-    key: -1
-    to_room: 4006  # Поречная улица
-    lock_complexity: 0
+    - direction: north
+      to_room: 4006  # Поречная улица
 
+# Room #4045
 45:
-  # Room #4045
-  zone: 40
   name: Слезная гора
   description: |2
        Короток век людской, не успеешь оглянуться - обрядят тебя в одежды белые,
@@ -1188,308 +813,239 @@
     мертвякам перебегать - не к добру это.
   sector: kCity
   exits:
-  - direction: north
-    exit_flags: 0
-    key: 0
-    to_room: 4801
-    lock_complexity: 0
-  - direction: east
-    exit_flags: 0
-    key: -1
-    to_room: 4026  # Бабичья улица
-    lock_complexity: 0
+    - direction: north
+      to_room: 4801  # Дорожка в малиновый сад
+      key: 0
+    - direction: east
+      to_room: 4026  # Бабичья улица
 
+# Room #4046
 46:
-  # Room #4046
-  zone: 40
   name: Двор
   description: |2
        Вокруг широкого, покрытого навозом и сеном двора, стоят постройки -
-    выложенный из белого камня, ложенного сухой кладкой, дом, стены которого
+    выложенный из белого камня, уложенного сухой кладкой, дом, стены которого
     законопачены мхом, и катанная из дерева конюшня. Дорогу на восток, на улицу,
     перекрывают тяжелые дубовые ворота, запираемые тяжелой дубовой балкой.
   sector: kCity
   exits:
-  - direction: north
-    exit_flags: 0
-    key: -1
-    to_room: 4047  # Скотный двор
-    lock_complexity: 0
-  - direction: east
-    keywords: ворота|ворота
-    exit_flags: 1
-    key: -1
-    to_room: 4009  # Базарная улица
-    lock_complexity: 0
-  - direction: south
-    exit_flags: 0
-    key: -1
-    to_room: 4050  # Прихожая
-    lock_complexity: 0
+    - direction: north
+      to_room: 4047  # Скотный двор
+    - direction: east
+      to_room: 4009  # Базарная улица
+      keywords: ворота
+      exit_flags: 1
+    - direction: south
+      to_room: 4050  # Прихожая
 
+# Room #4047
 47:
-  # Room #4047
-  zone: 40
   name: Скотный двор
   description: |2
        Построенная из больших дубовых бревен дворовая постройка, в которой
     содержат лошадей, коров и более мелкую домашнюю живность.
-  flags:
-  - kIndoors
-  - kPeaceful
-  - kNoMagic
   sector: kCity
+  flags:
+    - kIndoors
+    - kPeaceful
+    - kNoMagic
   exits:
-  - direction: south
-    exit_flags: 0
-    key: -1
-    to_room: 4046  # Двор
-    lock_complexity: 0
+    - direction: south
+      to_room: 4046  # Двор
 
+# Room #4048
 48:
-  # Room #4048
-  zone: 40
   name: Лежня
   description: |2
        Небольшая полутемная комната, с кроватью, покрытой пологом и убранной
     чистым льняным холстом.
-  flags:
-  - kNoEntryMob
-  - kIndoors
-  - kPeaceful
-  - kForMages
-  - kForSorcerers
-  - kForThieves
-  - kForWarriors
-  - kNohorse
   sector: kCity
+  flags:
+    - kNoEntryMob
+    - kIndoors
+    - kPeaceful
+    - kForMages
+    - kForSorcerers
+    - kForThieves
+    - kForWarriors
+    - kNohorse
+    - kAlwaysLit
   exits:
-  - direction: south
-    exit_flags: 0
-    key: -1
-    to_room: 4049  # Гридня
-    lock_complexity: 0
+    - direction: south
+      to_room: 4049  # Гридня
 
+# Room #4049
 49:
-  # Room #4049
-  zone: 40
   name: Гридня
   description: |2
        Пригожая горница, убранная баберковыми занавесями, с окнами не из бычьего
     пузыря, а из диковинной заморской слюды, дубовые половицы устланы медвежьими
     шкурами. Вдоль стенок - лавки, покрытые сукном барзомецким, в центре 
     комнаты - стол, заваленный безделицами чудными да шкурами бурнастыми.
-  flags:
-  - kNoEntryMob
-  - kIndoors
-  - kPeaceful
-  - kForMages
-  - kForSorcerers
-  - kForThieves
-  - kForWarriors
-  - kForAssasines
-  - kForGuards
-  - kForPaladines
-  - kForRangers
-  - kNohorse
   sector: kCity
+  flags:
+    - kNoEntryMob
+    - kIndoors
+    - kPeaceful
+    - kForMages
+    - kForSorcerers
+    - kForThieves
+    - kForWarriors
+    - kForAssasines
+    - kForGuards
+    - kForPaladines
+    - kForRangers
+    - kNohorse
   exits:
-  - direction: north
-    exit_flags: 0
-    key: -1
-    to_room: 4048  # Лежня
-    lock_complexity: 0
-  - direction: east
-    exit_flags: 0
-    key: -1
-    to_room: 4050  # Прихожая
-    lock_complexity: 0
+    - direction: north
+      to_room: 4048  # Лежня
+    - direction: east
+      to_room: 4050  # Прихожая
 
+# Room #4050
 50:
-  # Room #4050
-  zone: 40
   name: Прихожая
   description: |2
        Просторная светлая комната, двери которой ведут в хозяйскую гостиную. 
-  flags:
-  - kIndoors
-  - kNohorse
   sector: kCity
+  flags:
+    - kIndoors
+    - kNohorse
   exits:
-  - direction: north
-    exit_flags: 0
-    key: -1
-    to_room: 4046  # Двор
-    lock_complexity: 0
-  - direction: west
-    exit_flags: 0
-    key: -1
-    to_room: 4049  # Гридня
-    lock_complexity: 0
+    - direction: north
+      to_room: 4046  # Двор
+    - direction: west
+      to_room: 4049  # Гридня
 
+# Room #4051
 51:
-  # Room #4051
-  zone: 40
   name: Дом мельника
   description: |2
        Несмотря на беспорядок, все в доме сияет чистотой. Видно хозяйка следит
     за убранством в комнатах, но сегодня она занята чем-то другим.
-  flags:
-  - kIndoors
   sector: kCity
+  flags:
+    - kIndoors
   exits:
-  - direction: south
-    exit_flags: 0
-    key: -1
-    to_room: 4001  # Поречная улица
-    lock_complexity: 0
-  - direction: west
-    exit_flags: 0
-    key: -1
-    to_room: 4043  # Мельня
-    lock_complexity: 0
+    - direction: south
+      to_room: 4001  # Поречная улица
+    - direction: west
+      to_room: 4043  # Мельня
 
+# Room #4052
 52:
-  # Room #4052
-  zone: 40
   name: Разбойный притон
   description: |2
        Потайное полуподпольное помещение, утонувшее в темноте, только скудное
     пламя очага отбрасывает на стены уродливые, колышущиеся тени.
-  flags:
-  - kIndoors
-  - kPeaceful
-  - kForThieves
   sector: kCity
+  flags:
+    - kIndoors
+    - kPeaceful
+    - kForThieves
   exits:
-  - direction: south
-    exit_flags: 0
-    key: -1
-    to_room: 4004  # Голяцкий кабак
-    lock_complexity: 0
+    - direction: south
+      to_room: 4004  # Голяцкий кабак
 
+# Room #4053
 53:
-  # Room #4053
-  zone: 40
   name: Селянская хижина
   description: |2
        Небольшая бревенчатая хижина, крытая соломой.
-  flags:
-  - kIndoors
   sector: kCity
+  flags:
+    - kIndoors
   exits:
-  - direction: south
-    exit_flags: 0
-    key: -1
-    to_room: 4005  # Поречная улица
-    lock_complexity: 0
+    - direction: south
+      to_room: 4005  # Поречная улица
 
+# Room #4054
 54:
-  # Room #4054
-  zone: 40
-  name: Кабак
-  description: |
+  name: Харчевня
+  description: |2
     ___Красна изба углами, а хозяйка - пирогами. Правду молвит народ - хороша
     хозяйка, красна да ласкоречива, а от пирожного духа ажно слюнки текут.
     А окромя пирогов, на огромной, дубовой лавке стоят клети с караваями
     румяными, да с шанежками и кренделями пышными. А у стены - бочки многоведерные
     с медом хмельным да винами зелеными. Веселись, душа русская, веселись, да
     меру знай.
+  sector: kInside
   flags:
-  - kIndoors
-  - kPeaceful
-  - kNohorse
-  sector: kCity
+    - kIndoors
+    - kPeaceful
+    - kNohorse
   exits:
-  - direction: south
-    exit_flags: 0
-    key: -1
-    to_room: 4015  # Базарная площадь
-    lock_complexity: 0
+    - direction: south
+      to_room: 4015  # Базарная площадь
 
+# Room #4055
 55:
-  # Room #4055
-  zone: 40
   name: Домик травника
   description: |2
        Небольшая комната, вся заваленная пучками сухих трав, многие из которых
     ведомы только хозяину. Возле окна, затянутого паутиной, стол и небольшая
     печь, в которой бурлит на огне какое-то варево с резким слащавым запахом.
     На лавке, покрытой самотканным сукном, валяется несколько берестяных ярлыков.
-  flags:
-  - kIndoors
-  - kPeaceful
-  - kForMages
-  - kForSorcerers
   sector: kCity
+  flags:
+    - kIndoors
+    - kPeaceful
+    - kForMages
+    - kForSorcerers
   exits:
-  - direction: north
-    exit_flags: 0
-    key: -1
-    to_room: 4003  # Поречная улица
-    lock_complexity: 0
+    - direction: north
+      to_room: 4003  # Поречная улица
 
+# Room #4056
 56:
-  # Room #4056
-  zone: 40
   name: Гостиный двор
-  description: |
+  description: |2
     ___После дороги дальней, посидев за чарой зелена вина, да погутарив со
-    друзьями - товарищами о подвигах ратных да о девицах красных, нет ничего
-    краше, чем растянуться на перине, на пуховой да забыться сном богатырским.
+    друзьями - товарищами о подвигах ратных, да о девицах красных. Нет ничего
+    краше, чем растянуться на перине пуховой да забыться сном богатырским.
     Вот и облюбовали себе сей двор послы дальнеземные, да богатыри заезжие для 
     отдохновения от забот и сует мирских.
     &GСовсем малых, да необученных так и тянет &Yвойти &Gв &Yшколу&G.&n
-  flags:
-  - kIndoors
-  - kPeaceful
-  - kForMages
-  - kForSorcerers
-  - kForThieves
-  - kForWarriors
-  - kForAssasines
-  - kForGuards
-  - kForPaladines
-  - kForRangers
-  - kForPoly
-  - kForMono
-  - kNohorse
   sector: kCity
+  flags:
+    - kIndoors
+    - kPeaceful
+    - kForMages
+    - kForSorcerers
+    - kForThieves
+    - kForWarriors
+    - kForAssasines
+    - kForGuards
+    - kForPaladines
+    - kForRangers
+    - kForPoly
+    - kForMono
+    - kNohorse
+    - kAlwaysLit
   exits:
-  - direction: east
-    exit_flags: 0
-    key: -1
-    to_room: 4014  # Базарная площадь
-    lock_complexity: 0
+    - direction: east
+      to_room: 4014  # Базарная площадь
   triggers:
-  - 9118
+    - 9118  # войти  в школу
 
+# Room #4057
 57:
-  # Room #4057
-  zone: 40
   name: Тропа
   description: |2
        Вы вышли на неширокую, хорошо утоптанную дорожку, ведущую к болоту. 
     Уже отсюда слышно щебетание птиц и шум воды. На западе видны деревенские 
     строения.
-  flags:
-  - kNoEntryMob
   sector: kField
+  flags:
+    - kNoEntryMob
   exits:
-  - direction: east
-    exit_flags: 0
-    key: -1
-    to_room: 4300
-    lock_complexity: 0
-  - direction: west
-    exit_flags: 0
-    key: -1
-    to_room: 4006  # Поречная улица
-    lock_complexity: 0
+    - direction: east
+      to_room: 4300  # Заводь
+    - direction: west
+      to_room: 4006  # Поречная улица
 
+# Room #4058
 58:
-  # Room #4058
-  zone: 40
   name: Большая яма
   description: |2
        Большая яма, вырытая в глиняном пласту и выложенная снизу тесом окружает
@@ -1498,20 +1054,19 @@
     выпустить. Похоже это местная темница. Вверху, за решеткой, вы видите вашего стража,
     который сильно ругается, припоминает всех ваших родственников до десятого колена.
     Вы поникли духом, и хныкая, хотите просить прощения: "Простите меня дурака".
-  flags:
-  - kPeaceful
-  - kNoMagic
-  - kNoTeleportIn
-  - kNoTeleportOut
-  - kNohorse
-  - kNoWeather
   sector: kCity
+  flags:
+    - kPeaceful
+    - kNoMagic
+    - kNoTeleportIn
+    - kNoTeleportOut
+    - kNohorse
+    - kNoWeather
   triggers:
-  - 4004
+    - 4004  # выходаизямы
 
+# Room #4060
 60:
-  # Room #4060
-  zone: 40
   name: Поречная улица
   description: |2
        Поначалу, все городище стояло вдоль покатистого берега реки - и вода
@@ -1521,25 +1076,15 @@
     погожей улицей в растущем городе.
   sector: kCity
   exits:
-  - direction: east
-    exit_flags: 0
-    key: -1
-    to_room: 4003  # Поречная улица
-    lock_complexity: 0
-  - direction: south
-    exit_flags: 0
-    key: -1
-    to_room: 4007  # Базарная улица
-    lock_complexity: 0
-  - direction: west
-    exit_flags: 0
-    key: -1
-    to_room: 4061  # Поречная улица
-    lock_complexity: 0
+    - direction: east
+      to_room: 4003  # Поречная улица
+    - direction: south
+      to_room: 4007  # Базарная улица
+    - direction: west
+      to_room: 4061  # Поречная улица
 
+# Room #4061
 61:
-  # Room #4061
-  zone: 40
   name: Поречная улица
   description: |2
        Поначалу, все городище стояло вдоль покатистого берега реки - и вода
@@ -1549,114 +1094,127 @@
     погожей улицей в растущем городе. На западе возвышается мельница.
   sector: kCity
   exits:
-  - direction: east
-    exit_flags: 0
-    key: -1
-    to_room: 4060  # Поречная улица
-    lock_complexity: 0
-  - direction: west
-    exit_flags: 0
-    key: -1
-    to_room: 4001  # Поречная улица
-    lock_complexity: 0
+    - direction: east
+      to_room: 4060  # Поречная улица
+    - direction: west
+      to_room: 4001  # Поречная улица
 
+# Room #4062
 62:
-  # Room #4062
-  zone: 40
   name: Церковь
   description: |2
        Вы зашли в просторную комнату с рядом широких скамеек. На стенах вы видите
     иконы, всюду горят свечи. За алтарем на стене находится распятие. Вы 
     чувствуете умиротворение в своей душе.
-  flags:
-  - kIndoors
-  - kPeaceful
-  - kNoMagic
-  - kForMages
-  - kForSorcerers
-  - kForThieves
-  - kForWarriors
-  - kForAssasines
-  - kForGuards
-  - kForPaladines
-  - kForRangers
-  - kForMono
-  - kNoSummonOut
-  - kNoTeleportOut
-  - kNohorse
   sector: kCity
+  flags:
+    - kIndoors
+    - kPeaceful
+    - kNoMagic
+    - kForMages
+    - kForSorcerers
+    - kForThieves
+    - kForWarriors
+    - kForAssasines
+    - kForGuards
+    - kForPaladines
+    - kForRangers
+    - kForMono
+    - kNoSummonOut
+    - kNoTeleportOut
+    - kNohorse
   exits:
-  - direction: south
-    exit_flags: 0
-    key: -1
-    to_room: 4017  # Мастеровая улица
-    lock_complexity: 0
+    - direction: south
+      to_room: 4017  # Мастеровая улица
 
+# Room #4063
 63:
-  # Room #4063
-  zone: 40
   name: Капище
   description: |2
        Вы вышли на широкую, утоптанную площадку. Посередине стоит деревянное
     изваяние бога Стрибога, около него находится каменный жертвенник. Крестьяне
     молятся здесь богам и приносят жертвы, желая получить милость или помощь 
     от них.
-  flags:
-  - kPeaceful
-  - kForPoly
-  - kForMaguses
   sector: kCity
+  flags:
+    - kPeaceful
+    - kForPoly
+    - kForMaguses
   exits:
-  - direction: north
-    exit_flags: 0
-    key: -1
-    to_room: 4026  # Бабичья улица
-    lock_complexity: 0
+    - direction: north
+      to_room: 4026  # Бабичья улица
 
+# Room #4064
+64:
+  name: На лугу
+  description: |2
+    ___Вы попали на небольшой луг рядом с деревней. Сюда любит приходить детвора
+    поиграть в свои игры. Пологий склон луга плавно уходит от деревни понижаясь
+    к оврагу.
+  sector: kInside
+  flags:
+    - kPeaceful
+  exits:
+    - direction: north
+      to_room: 4034  # Пахарская слобода
+      key: 0
+
+# Room #4070
 70:
-  # Room #4070
-  zone: 40
   name: Яма
   description: |2
        На Руси почтовые станции назывались - ямами.  Здесь можно было сменить
     лошадей во время дальней дороги.  От "ямы" пошли и ямщики.  На них возлагались
     обязанности не только извозчиков, но и почтовых курьеров.    
-  flags:
-  - kIndoors
-  - kPeaceful
-  - kNoMagic
-  - kNoWeather
   sector: kInside
+  flags:
+    - kIndoors
+    - kPeaceful
+    - kNoMagic
+    - kNoWeather
   exits:
-  - direction: north
-    exit_flags: 0
-    key: 0
-    to_room: 4000  # Поречная улица
-    lock_complexity: 0
+    - direction: north
+      to_room: 4000  # Поречная улица
+      key: 0
 
+# Room #4071
 71:
-  # Room #4071
-  zone: 40
-  name: Лавка скупщика
-  description: |
-    ___Просторная изба одного из местных охотников, превращенная по случаю прибытия
-    купца в лавку. Здесь купец скупает шкуры - и дешевую бурую медведину, и рыжие беличьи
-    шкурки, и блестящие, легкие как пух и в немалую цену весом связки норковых шкур.
-    Выходя отсюда, охотники - кто пересчитывает выручку, радостно посвистывая и прикидывая,
-    сколько монет оставить нынче в кабаке, а сколько отложить на обзаведение, а кто и сумрачно
-    ворчит в бороду.
-  flags:
-  - kIndoors
-  - kPeaceful
-  - kNoTrack
-  - kForRangers
-  - kNohorse
+  name: Склад
+  description: |2
+       Просторная изба одного из местных охотников, превращенная по случаю его
+    отбытия в склад всяческой деревенской собственности. Обширные сундуки здесь
+    соседствуют с пузатыми бочонками. На стенах закреплено множество различных,
+    в том числе и диковинных, боевых орудий. Поговаривают, будто кладовщик здесь
+    должность получил вовсе не по заслугам, да и приворовывает он, наверняка.
   sector: kInside
+  flags:
+    - kIndoors
+    - kPeaceful
+    - kNoTrack
+    - kNohorse
   exits:
-  - direction: north
-    description: Дверь
-    keywords: дверь|дверь
-    exit_flags: 1
-    key: 0
-    to_room: 4018  # Мастеровая улица
-    lock_complexity: 0
+    - direction: north
+      to_room: 4018  # Мастеровая улица
+      key: 0
+
+# Room #4080
+80:
+  name: Подпольное казино
+  description: |2
+    пока тока строится, во.
+  sector: kInside
+  flags:
+    - kIndoors
+    - kPeaceful
+    - kNoTrack
+    - kTunnel
+    - kNoTeleportIn
+    - kNoSummonOut
+    - kNoTeleportOut
+    - kNoWeather
+    - kNoRelocateIn
+    - kNoBattle
+    - kAlwaysLit
+    - kMoMapper
+  triggers:
+    - 4045  # не пускаем в казино если не истек таймер

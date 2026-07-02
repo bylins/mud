@@ -1,0 +1,42 @@
+# Triggers for zone 54
+
+# Trigger #5400
+0:
+  name: 'охотник2 '
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kReceive
+  script: |-2
+    wait 1
+    switch %object.vnum%
+      case 5402
+        %purge% %object%
+        say - Я так давно его искал, жена говорит не возвращайся из леса,  пока не найдешь глухариное перо!
+        say - Спасибо. Вот, возьми.
+        %self.gold(+100)%
+        %actor.questbodrich(4)%
+        дать 100 кун %actor.iname%
+        if ((%world.curobjs(229)% < %world.maxobj(229)%) && (%random.100% < 11))
+          load obj 229
+          дать рун %actor.iname%
+        end
+      break
+      default
+        say Твою м@^*, зачем мне это?
+        eval getobject %object.name%
+        броси %getobject.car%.%getobject.cdr%
+      break
+    done
+
+# Trigger #5401
+1:
+  name: 'охотник1 '
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kGreetPC
+  script: |-2
+    ругать
+    msend %actor% - Искать, Мухтар, искать, мне надоело здесь шататься!
+    msend %actor% - Путник, если найдешь ... ээээ, блин забыл, я в долгу не останусь.

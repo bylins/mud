@@ -1,0 +1,911 @@
+# Rooms for zone 42
+
+# Room #4200
+0:
+  name: Посыльная дорога
+  description: |2
+        Дорога, по которой направляются людишки на поклон к Киевскому князю.  
+  sector: kField
+  flags:
+    - kBfsMark
+  exits:
+    - direction: north
+      to_room: 4109  # Посыльная дорога
+    - direction: south
+      to_room: 4203  # Посыльная дорога
+
+# Room #4201
+1:
+  name: Раменье
+  description: |2
+       Бескрайние степные просторы постепенно переходят в лес. Среди гордых
+    стволов то здесь, то там попадаются свежесрубленные пни.
+    <springday> Кудрявые пышные березы печально шумят вышиною листвой.
+    <springday>
+    <springnight> Кудрявые пышные березы печально шумят вышиною листвой.
+    <springnight>
+    <summerday> Кудрявые пышные березы печально шумят вышиною листвой.
+    <summerday>
+    <summernight> Кудрявые пышные березы печально шумят вышиною листвой.
+    <summernight>
+    <autumnday> Березы, отряхнув летние наряды, отливают чернью верхушек.
+    <autumnday>
+    <autumnnight> Березы, отряхнув летние наряды, отливают чернью верхушек.
+    <autumnnight>
+  sector: kField
+  flags:
+    - kBfsMark
+  exits:
+    - direction: north
+      to_room: 4137  # Займище
+    - direction: east
+      to_room: 4202  # Раменье
+    - direction: south
+      to_room: 4215  # Раменье
+
+# Room #4202
+2:
+  name: Раменье
+  description: |2
+       Бескрайние степные просторы постепенно переходят в лес. Среди гордых стволов
+    то здесь, то там попадаются свежесрубленные пни.
+    <springday> Кудрявые пышные березы печально шумят вышиною листвой.
+    <springday>
+    <springnight> Кудрявые пышные березы печально шумят вышиною листвой.
+    <springnight>
+    <summerday> Кудрявые пышные березы печально шумят вышиною листвой.
+    <summerday>
+    <summernight> Кудрявые пышные березы печально шумят вышиною листвой.
+    <summernight>
+    <autumnday> Березы, отряхнув летние наряды, отливают чернью верхушек.
+    <autumnday>
+    <autumnnight> Березы, отряхнув летние наряды, отливают чернью верхушек.
+    <autumnnight>
+  sector: kField
+  flags:
+    - kBfsMark
+  exits:
+    - direction: north
+      to_room: 4139  # Займище
+    - direction: east
+      to_room: 4244  # Раменье
+    - direction: south
+      to_room: 4214  # Раменье
+    - direction: west
+      to_room: 4201  # Раменье
+
+# Room #4203
+3:
+  name: Посыльная дорога
+  description: |2
+       Дорога, по которой направляются людишки на поклон к Киевскому князю.  
+  sector: kField
+  flags:
+    - kBfsMark
+  exits:
+    - direction: north
+      to_room: 4200  # Посыльная дорога
+    - direction: south
+      to_room: 4204  # Посыльная дорога
+    - direction: west
+      to_room: 4226  # Светлый лес
+
+# Room #4204
+4:
+  name: Посыльная дорога
+  description: |2
+       Дорога, по которой направляются людишки на поклон к Киевскому князю.   
+  sector: kField
+  flags:
+    - kBfsMark
+  exits:
+    - direction: north
+      to_room: 4203  # Посыльная дорога
+    - direction: east
+      to_room: 4205  # Посыльная дорога
+    - direction: south
+      to_room: 4229  # Горячий ключ
+    - direction: west
+      to_room: 4227  # Светлый лес
+
+# Room #4205
+5:
+  name: Посыльная дорога
+  description: |2
+       Дорога, по которой направляются людишки на поклон к Киевскому князю.  
+  sector: kField
+  flags:
+    - kBfsMark
+  exits:
+    - direction: east
+      to_room: 4206  # Посыльная дорога
+    - direction: south
+      to_room: 4225  # Дубовая роща
+    - direction: west
+      to_room: 4204  # Посыльная дорога
+
+# Room #4206
+6:
+  name: Посыльная дорога
+  description: |2
+       Дорога, по которой направляются людишки на поклон к Киевскому князю.  
+  sector: kField
+  flags:
+    - kBfsMark
+  exits:
+    - direction: east
+      to_room: 4207  # Посыльная дорога
+    - direction: south
+      to_room: 4224  # Дубовая роща
+    - direction: west
+      to_room: 4205  # Посыльная дорога
+
+# Room #4207
+7:
+  name: Посыльная дорога
+  description: |2
+       Дорога, по которой направляются людишки на поклон к Киевскому князю.  
+  sector: kField
+  flags:
+    - kBfsMark
+  exits:
+    - direction: south
+      to_room: 4208  # Посыльная дорога
+    - direction: west
+      to_room: 4206  # Посыльная дорога
+
+# Room #4208
+8:
+  name: Посыльная дорога
+  description: |2
+       Дорога, по которой направляются людишки на поклон к Киевскому князю.  
+  sector: kField
+  flags:
+    - kBfsMark
+  exits:
+    - direction: north
+      to_room: 4207  # Посыльная дорога
+    - direction: east
+      to_room: 4219  # Густой кустарник
+    - direction: south
+      to_room: 4209  # Посыльная дорога
+    - direction: west
+      to_room: 4224  # Дубовая роща
+
+# Room #4209
+9:
+  name: Посыльная дорога
+  description: |2
+       Дорога, по которой направляются людишки на поклон к Киевскому князю.  
+  sector: kField
+  flags:
+    - kBfsMark
+  exits:
+    - direction: north
+      to_room: 4208  # Посыльная дорога
+    - direction: east
+      to_room: 4222  # Молодой лес
+    - direction: south
+      to_room: 4210  # Посыльная дорога
+    - direction: west
+      to_room: 4232  # Дубовая роща
+
+# Room #4210
+10:
+  name: Посыльная дорога
+  description: |2
+       Дорога, по которой направляются людишки на поклон к Киевскому князю. 
+  sector: kField
+  flags:
+    - kBfsMark
+  exits:
+    - direction: north
+      to_room: 4209  # Посыльная дорога
+    - direction: east
+      to_room: 4211  # Посыльная дорога
+    - direction: south
+      to_room: 4236  # Дубовая роща
+    - direction: west
+      to_room: 4234  # Дубовая роща
+
+# Room #4211
+11:
+  name: Посыльная дорога
+  description: |2
+       Дорога, по которой направляются людишки на поклон к Киевскому князю.  
+  sector: kField
+  flags:
+    - kBfsMark
+  exits:
+    - direction: north
+      to_room: 4222  # Молодой лес
+    - direction: east
+      to_room: 4239  # Молодой лес
+    - direction: south
+      to_room: 4212  # Посыльная дорога
+    - direction: west
+      to_room: 4210  # Посыльная дорога
+
+# Room #4212
+12:
+  name: Посыльная дорога
+  description: |2
+       Дорога, по которой направляются людишки на поклон к Киевскому князю.  
+  sector: kField
+  flags:
+    - kBfsMark
+  exits:
+    - direction: north
+      to_room: 4211  # Посыльная дорога
+    - direction: east
+      to_room: 4238  # Молодой лес
+    - direction: south
+      to_room: 4213  # Посыльная дорога
+    - direction: west
+      to_room: 4236  # Дубовая роща
+
+# Room #4213
+13:
+  name: Посыльная дорога
+  description: |2
+       Дорога, по которой направляются людишки на поклон к Киевскому князю.   
+  sector: kField
+  flags:
+    - kBfsMark
+  exits:
+    - direction: north
+      to_room: 4212  # Посыльная дорога
+    - direction: south
+      to_room: 4400  # Посыльная дорога
+    - direction: west
+      to_room: 4237  # Перед оврагом
+
+# Room #4214
+14:
+  name: Раменье
+  description: |2
+       Бескрайние степные просторы постепенно переходят в лес. Среди гордых стволов
+    то здесь, то там попадаются свежесрубленные пни.
+    <springday> Кудрявые пышные березы печально шумят вышиною листвой.
+    <springday>
+    <springnight> Кудрявые пышные березы печально шумят вышиною листвой.
+    <springnight>
+    <summerday> Кудрявые пышные березы печально шумят вышиною листвой.
+    <summerday>
+    <summernight> Кудрявые пышные березы печально шумят вышиною листвой.
+    <summernight>
+    <autumnday> Березы, отряхнув летние наряды, отливают чернью верхушек.
+    <autumnday>
+    <autumnnight> Березы, отряхнув летние наряды, отливают чернью верхушек.
+    <autumnnight>
+  sector: kField
+  flags:
+    - kBfsMark
+  exits:
+    - direction: north
+      to_room: 4202  # Раменье
+    - direction: east
+      to_room: 4217  # Раменье
+    - direction: west
+      to_room: 4215  # Раменье
+
+# Room #4215
+15:
+  name: Раменье
+  description: |2
+       Бескрайние степные просторы постепенно переходят в лес. Среди гордых стволов
+    то здесь, то там попадаются свежесрубленные пни.
+    <springday> Кудрявые пышные березы печально шумят вышиною листвой.
+    <springday>
+    <springnight> Кудрявые пышные березы печально шумят вышиною листвой.
+    <springnight>
+    <summerday> Кудрявые пышные березы печально шумят вышиною листвой.
+    <summerday>
+    <summernight> Кудрявые пышные березы печально шумят вышиною листвой.
+    <summernight>
+    <autumnday> Березы, отряхнув летние наряды, отливают чернью верхушек.
+    <autumnday>
+    <autumnnight> Березы, отряхнув летние наряды, отливают чернью верхушек.
+    <autumnnight>
+  sector: kField
+  flags:
+    - kBfsMark
+  exits:
+    - direction: north
+      to_room: 4201  # Раменье
+    - direction: east
+      to_room: 4214  # Раменье
+
+# Room #4217
+17:
+  name: Раменье
+  description: |2
+       Бескрайние степные просторы постепенно переходят в лес. Среди гордых стволов
+    то здесь, то там попадаются свежесрубленные пни.
+    <springday> Кудрявые пышные березы печально шумят вышиною листвой.
+    <springday>
+    <springnight> Кудрявые пышные березы печально шумят вышиною листвой.
+    <springnight>
+    <summerday> Кудрявые пышные березы печально шумят вышиною листвой.
+    <summerday>
+    <summernight> Кудрявые пышные березы печально шумят вышиною листвой.
+    <summernight>
+    <autumnday> Березы, отряхнув летние наряды, отливают чернью верхушек.
+    <autumnday>
+    <autumnnight> Березы, отряхнув летние наряды, отливают чернью верхушек.
+    <autumnnight>
+  sector: kField
+  flags:
+    - kBfsMark
+  exits:
+    - direction: north
+      to_room: 4244  # Раменье
+    - direction: east
+      to_room: 4243  # Спуск к озеру
+    - direction: south
+      to_room: 4218  # Густой кустарник
+    - direction: west
+      to_room: 4214  # Раменье
+
+# Room #4218
+18:
+  name: Густой кустарник
+  description: |2
+       Под ногами трещит сухой хворост. А вокруг раскинулись заросли орешника.
+    Толстые стволы чередуются с молодой, в палец толщиной, порослью. На востоке,
+    спрятавшись подальше от нескромного взгляда, поблескивает гладь лесного озера.
+  sector: kField
+  flags:
+    - kBfsMark
+  exits:
+    - direction: north
+      to_room: 4217  # Раменье
+    - direction: east
+      to_room: 4220  # Лесное озеро
+    - direction: south
+      to_room: 4219  # Густой кустарник
+
+# Room #4219
+19:
+  name: Густой кустарник
+  description: |2
+       Под ногами трещит сухой хворост. А вокруг раскинулись заросли орешника.
+    Толстые стволы чередуются с молодой, в палец толщиной, порослью. На юге это
+    беличье раздолье переходит в молодой лиственный лес.
+  sector: kField
+  flags:
+    - kBfsMark
+  exits:
+    - direction: north
+      to_room: 4218  # Густой кустарник
+    - direction: east
+      to_room: 4221  # Поляна у озера
+    - direction: south
+      to_room: 4222  # Молодой лес
+    - direction: west
+      to_room: 4208  # Посыльная дорога
+
+# Room #4220
+20:
+  name: Лесное озеро
+  description: |2
+       Небольшое озеро, спрятавшееся среди зарослей кустарника, кажется бездонным
+    из-за отражающегося в недвижимой поверхности неба. На востоке виднеется
+    златоверхий терем, ярко выделяющийся среди темной массы деревьев. Отсюда видна
+    только золоченая кровля с золотыми репьями. Пышные резные мотивы покрывают
+    оконные наличники: тут и травные узоры и птицы и звери. Верхние ярусы терема
+    украшают многоцветные изразцы.  
+  sector: kWaterSwim
+  flags:
+    - kBfsMark
+  exits:
+    - direction: north
+      to_room: 4243  # Спуск к озеру
+    - direction: east
+      to_room: 24200  # Высокий терем
+      key: 0
+    - direction: south
+      to_room: 4221  # Поляна у озера
+    - direction: west
+      to_room: 4218  # Густой кустарник
+
+# Room #4221
+21:
+  name: Поляна у озера
+  description: |2
+       В глубине леса, среди зарослей кустарника, притаилось небольшое лесное
+    озерце. А на востоке, притулившись к серой, обдутой всеми ветрами скале,
+    стоит почерневшая лачуга. 
+  sector: kField
+  flags:
+    - kBfsMark
+  exits:
+    - direction: north
+      to_room: 4220  # Лесное озеро
+    - direction: east
+      to_room: 4241  # Лесная сторожка
+      exit_flags: 1
+    - direction: south
+      to_room: 4223  # Молодой лес
+    - direction: west
+      to_room: 4219  # Густой кустарник
+
+# Room #4222
+22:
+  name: Молодой лес
+  description: |2
+       Чего только не намешано вокруг - кусты черемухи и стройные березки,
+    испуганные осины и молчаливые дубки. И первозданная тишина. 
+  sector: kField
+  flags:
+    - kBfsMark
+  exits:
+    - direction: north
+      to_room: 4219  # Густой кустарник
+    - direction: east
+      to_room: 4223  # Молодой лес
+    - direction: south
+      to_room: 4211  # Посыльная дорога
+    - direction: west
+      to_room: 4209  # Посыльная дорога
+
+# Room #4223
+23:
+  name: Молодой лес
+  description: |2
+       Чего только не намешано вокруг - кусты черемухи и стройные березки,
+    испуганные осины и молчаливые дубки. И первозданная тишина. 
+  sector: kField
+  flags:
+    - kBfsMark
+  exits:
+    - direction: north
+      to_room: 4221  # Поляна у озера
+    - direction: east
+      to_room: 4240  # Молодой лес
+    - direction: south
+      to_room: 4239  # Молодой лес
+    - direction: west
+      to_room: 4222  # Молодой лес
+
+# Room #4224
+24:
+  name: Дубовая роща
+  description: |2
+       Кругом дремлют вековые деревья. Стволы, покрытые изрезанной толстыми 
+    морщинами корой поросли мхом, а кроны вознеслись высоко в небо. 
+  sector: kField
+  flags:
+    - kBfsMark
+  exits:
+    - direction: north
+      to_room: 4206  # Посыльная дорога
+    - direction: east
+      to_room: 4208  # Посыльная дорога
+    - direction: south
+      to_room: 4232  # Дубовая роща
+    - direction: west
+      to_room: 4225  # Дубовая роща
+
+# Room #4225
+25:
+  name: Дубовая роща
+  description: |2
+       Кругом дремлют вековые деревья. Стволы, покрытые изрезанной толстыми 
+    морщинами корой, поросли мхом, а кроны вознеслись высоко в небо. 
+  sector: kField
+  flags:
+    - kBfsMark
+  exits:
+    - direction: north
+      to_room: 4205  # Посыльная дорога
+    - direction: east
+      to_room: 4224  # Дубовая роща
+    - direction: south
+      to_room: 4231  # Дубовая роща
+    - direction: west
+      to_room: 4229  # Горячий ключ
+
+# Room #4226
+26:
+  name: Светлый лес
+  description: |2
+       Разлапистые рябины, увитые спиралями хмеля, чередуются с молоденькими
+    березками и зарослями черемухи.
+  sector: kCity
+  flags:
+    - kBfsMark
+  exits:
+    - direction: east
+      to_room: 4203  # Посыльная дорога
+    - direction: south
+      to_room: 4227  # Светлый лес
+
+# Room #4227
+27:
+  name: Светлый лес
+  description: |2
+       Разлапистые рябины, увитые спиралями хмеля, чередуются с молоденькими
+    березками и зарослями черемухи.
+  sector: kField
+  flags:
+    - kBfsMark
+  exits:
+    - direction: north
+      to_room: 4226  # Светлый лес
+    - direction: east
+      to_room: 4204  # Посыльная дорога
+    - direction: south
+      to_room: 4228  # Светлый лес
+    - direction: west
+      to_room: 4246  # Перед старым лесом
+
+# Room #4228
+28:
+  name: Светлый лес
+  description: |2
+       Разлапистые рябины, увитые спиралями хмеля, чередуются с молоденькими
+    березками и зарослями черемухи.
+  sector: kField
+  flags:
+    - kBfsMark
+  exits:
+    - direction: north
+      to_room: 4227  # Светлый лес
+    - direction: east
+      to_room: 4229  # Горячий ключ
+    - direction: west
+      to_room: 4245  # Перед старым лесом
+
+# Room #4229
+29:
+  name: Горячий ключ
+  description: |2
+       В небольшой балке, на самой границе светлого леса и дубовой рощи, бьет
+    горячий ключ. Рядом вбит колышек, на котором заботливый прохожий повесил
+    ковшик, сделанный из бересты. Ладно так - издали видно.
+    <winterday> Над водой подымается пар, стелясь у земли молочно-голубой дымкой.
+    <winterday>
+    <winternight> Над водой подымается пар, стелясь у земли молочно-голубой дымкой.
+    <winternight>
+  sector: kField
+  flags:
+    - kBfsMark
+  exits:
+    - direction: north
+      to_room: 4204  # Посыльная дорога
+    - direction: east
+      to_room: 4225  # Дубовая роща
+    - direction: south
+      to_room: 4230  # Дубовая роща
+    - direction: west
+      to_room: 4228  # Светлый лес
+
+# Room #4230
+30:
+  name: Дубовая роща
+  description: |2
+       Кругом дремлют вековые деревья. Стволы, покрытые изрезанной толстыми 
+    морщинами корой, поросли мхом, а кроны вознеслись высоко в небо. 
+  sector: kField
+  flags:
+    - kBfsMark
+  exits:
+    - direction: north
+      to_room: 4229  # Горячий ключ
+    - direction: east
+      to_room: 4231  # Дубовая роща
+
+# Room #4231
+31:
+  name: Дубовая роща
+  description: |2
+    ___С вечного дуба смотрит владыка Огня и Жизни. Бог, который для плодородия Земли
+    золотыми бичами гоняет в небе черных коров, однажды громовым копьем бросил себя
+    на священное с того дня дерево. Это было давно-давно, при пращурах или при
+    более дальних предках, для которых по древности лет нет обозначения степени
+    родства. Бог сломил-разбил вершину дуба и, уйдя назад от оплодотворенной земли
+    в небесную твердь, оставил свой образ в стволе.  
+  sector: kField
+  flags:
+    - kBfsMark
+    - kForPoly
+  exits:
+    - direction: north
+      to_room: 4225  # Дубовая роща
+    - direction: east
+      to_room: 4232  # Дубовая роща
+    - direction: south
+      to_room: 4233  # Дубовая роща
+    - direction: west
+      to_room: 4230  # Дубовая роща
+
+# Room #4232
+32:
+  name: Дубовая роща
+  description: |2
+       Кругом дремлют вековые деревья. Стволы, покрытые изрезанной толстыми 
+    морщинами корой поросли мхом, а кроны вознеслись высоко в небо.
+  sector: kField
+  flags:
+    - kBfsMark
+  exits:
+    - direction: north
+      to_room: 4224  # Дубовая роща
+    - direction: east
+      to_room: 4209  # Посыльная дорога
+    - direction: south
+      to_room: 4234  # Дубовая роща
+    - direction: west
+      to_room: 4231  # Дубовая роща
+
+# Room #4233
+33:
+  name: Дубовая роща
+  description: |2
+       Кругом дремлют вековые деревья. Стволы, покрытые изрезанной толстыми 
+    морщинами корой поросли мхом, а кроны вознеслись высоко в небо. 
+  sector: kField
+  flags:
+    - kBfsMark
+  exits:
+    - direction: north
+      to_room: 4231  # Дубовая роща
+    - direction: east
+      to_room: 4234  # Дубовая роща
+
+# Room #4234
+34:
+  name: Дубовая роща
+  description: |2
+       Кругом дремлют вековые деревья. Стволы, покрытые изрезанной толстыми 
+    морщинами корой поросли мхом, а кроны вознеслись высоко в небо.
+  sector: kField
+  flags:
+    - kBfsMark
+  exits:
+    - direction: north
+      to_room: 4232  # Дубовая роща
+    - direction: east
+      to_room: 4210  # Посыльная дорога
+    - direction: south
+      to_room: 4235  # Дубовая роща
+    - direction: west
+      to_room: 4233  # Дубовая роща
+
+# Room #4235
+35:
+  name: Дубовая роща
+  description: |2
+       Кругом дремлют вековые деревья. Стволы, покрытые изрезанной толстыми 
+    морщинами корой, поросли мхом, а кроны вознеслись высоко в небо.
+  sector: kField
+  flags:
+    - kBfsMark
+  exits:
+    - direction: north
+      to_room: 4234  # Дубовая роща
+    - direction: east
+      to_room: 4236  # Дубовая роща
+
+# Room #4236
+36:
+  name: Дубовая роща
+  description: |2
+       Кругом дремлют вековые деревья. Стволы, покрытые изрезанной толстыми 
+    морщинами корой поросли мхом, а кроны вознеслись высоко в небо. 
+  sector: kField
+  flags:
+    - kBfsMark
+  exits:
+    - direction: north
+      to_room: 4210  # Посыльная дорога
+    - direction: east
+      to_room: 4212  # Посыльная дорога
+    - direction: south
+      to_room: 4237  # Перед оврагом
+    - direction: west
+      to_room: 4235  # Дубовая роща
+
+# Room #4237
+37:
+  name: Перед оврагом
+  description: |2
+       Лес обрывается, как по мановению волшебной палочки. Дальше, на юге, крутой,
+    поросший кустарником склон. Вниз можно спустится уцепившись за колючие ветки.
+  sector: kField
+  flags:
+    - kNoEntryMob
+    - kBfsMark
+  exits:
+    - direction: north
+      to_room: 4236  # Дубовая роща
+    - direction: east
+      to_room: 4213  # Посыльная дорога
+    - direction: down
+      to_room: 4753  # Овраг
+      key: 0
+
+# Room #4238
+38:
+  name: Молодой лес
+  description: |2
+       Чего только не намешано вокруг - кусты черемухи и стройные березки,
+    испуганные осины и молчаливые дубки. И первозданная тишина.
+  sector: kField
+  flags:
+    - kBfsMark
+  exits:
+    - direction: north
+      to_room: 4239  # Молодой лес
+    - direction: south
+      to_room: 4416  # Среди вековых деревьев
+    - direction: west
+      to_room: 4212  # Посыльная дорога
+
+# Room #4239
+39:
+  name: Молодой лес
+  description: |2
+       Чего только не намешано вокруг - кусты черемухи и стройные березки,
+    испуганные осины и молчаливые дубки. И первозданная тишина. 
+  sector: kField
+  flags:
+    - kBfsMark
+  exits:
+    - direction: north
+      to_room: 4223  # Молодой лес
+    - direction: east
+      to_room: 4242  # Молодой лес
+    - direction: south
+      to_room: 4238  # Молодой лес
+    - direction: west
+      to_room: 4211  # Посыльная дорога
+
+# Room #4240
+40:
+  name: Молодой лес
+  description: |2
+       Чего только не намешано вокруг - кусты черемухи и стройные березки,
+    испуганные осины и молчаливые дубки. И первозданная тишина. 
+  sector: kField
+  flags:
+    - kBfsMark
+  exits:
+    - direction: south
+      to_room: 4242  # Молодой лес
+    - direction: west
+      to_room: 4223  # Молодой лес
+
+# Room #4241
+41:
+  name: Лесная сторожка
+  description: |2
+       Покосившая лачуга, срубленная всего лишь из трех венцов - но каких ! 
+    Бревна неимоверной толщины - богатырям впору такие сутунки ворочать - вот так
+    бревна.
+  sector: kInside
+  flags:
+    - kDarked
+    - kNoEntryMob
+    - kIndoors
+    - kBfsMark
+    - kForMages
+    - kForSorcerers
+    - kForThieves
+    - kForWarriors
+    - kForAssasines
+    - kForGuards
+    - kForPaladines
+    - kForRangers
+    - kForge
+    - kForMerchants
+    - kForMaguses
+    - kNohorse
+  exits:
+    - direction: west
+      to_room: 4221  # Поляна у озера
+      exit_flags: 1
+
+# Room #4242
+42:
+  name: Молодой лес
+  description: |2
+       Чего только не намешано вокруг - кусты черемухи и стройные березки,
+    испуганные осины и молчаливые дубки. И первозданная тишина. 
+  sector: kField
+  flags:
+    - kBfsMark
+  exits:
+    - direction: north
+      to_room: 4240  # Молодой лес
+    - direction: west
+      to_room: 4239  # Молодой лес
+
+# Room #4243
+43:
+  name: Спуск к озеру
+  description: |2
+       Пологий берег ведет к небольшому озеру, спрятавшемуся среди рябиновых 
+    зарослей.
+    <springday> У самого обрыва воды - травы по пояс. Шелестящие, поющие. А за ним темнеет
+    лес.
+    <springday>
+    <springnight> У самого обрыва воды - травы по пояс. Шелестящие, поющие. А за ним темнеет
+    лес.
+    <springnight>
+    <summerday> У самого обрыва воды - травы по пояс. Шелестящие, поющие. А за ним темнеет
+    лес.
+    <summerday>
+    <summernight> У самого обрыва воды - травы по пояс. Шелестящие, поющие. А за ним темнеет
+    лес.
+    <summernight>
+  sector: kField
+  flags:
+    - kBfsMark
+  exits:
+    - direction: south
+      to_room: 4220  # Лесное озеро
+    - direction: west
+      to_room: 4217  # Раменье
+
+# Room #4244
+44:
+  name: Раменье
+  description: |2
+       Бескрайние степные просторы постепенно переходят в лес. Среди гордых стволов
+    то здесь, то там попадаются свежесрубленные пни.
+    <springday> Кудрявые пышные березы печально шумят вышиною листвой.
+    <springday>
+    <springnight> Кудрявые пышные березы печально шумят вышиною листвой.
+    <springnight>
+    <summerday> Кудрявые пышные березы печально шумят вышиною листвой.
+    <summerday>
+    <summernight> Кудрявые пышные березы печально шумят вышиною листвой.
+    <summernight>
+    <autumnday> Березы, отряхнув летние наряды, отливают чернью верхушек.
+    <autumnday>
+    <autumnnight> Березы, отряхнув летние наряды, отливают чернью верхушек.
+    <autumnnight>
+  sector: kField
+  flags:
+    - kBfsMark
+  exits:
+    - direction: south
+      to_room: 4217  # Раменье
+    - direction: west
+      to_room: 4202  # Раменье
+
+# Room #4245
+45:
+  name: Перед старым лесом
+  description: |2
+       Деревья становятся все мощнее и мощнее, а на западе они вообще стоят
+    сплошной стеной, огромные, покрытые толстой морщинистой корой.
+  sector: kField
+  flags:
+    - kBfsMark
+  exits:
+    - direction: north
+      to_room: 4246  # Перед старым лесом
+    - direction: east
+      to_room: 4228  # Светлый лес
+    - direction: west
+      to_room: 4600  # Темный лес
+
+# Room #4246
+46:
+  name: Перед старым лесом
+  description: |2
+       Деревья становятся все мощнее и мощнее, а на западе они вообще стоят
+    сплошной стеной, огромные, покрытые толстой морщинистой корой.
+  sector: kField
+  flags:
+    - kBfsMark
+  exits:
+    - direction: east
+      to_room: 4227  # Светлый лес
+    - direction: south
+      to_room: 4245  # Перед старым лесом
+    - direction: west
+      to_room: 4621  # Сосновый бор

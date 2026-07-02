@@ -1,0 +1,1061 @@
+# Triggers for zone 10
+
+# Trigger #1000
+0:
+  name: ладон сдулся
+  attach_type: kObjTrigger
+  narg: 4
+  arglist: проткнуть
+  trigger_types:
+    - kCommand
+  script: |-2
+    wait 1
+    %echo% С громким звуком ПУФФФФ Ладон сдулся и превратился в маленький кусочек резины.
+    %purge% %self%
+
+# Trigger #1001
+1:
+  name: Возрождение
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kIncomePC
+  script: |-2
+    eval tmp %actor.wait(22)%
+    wait 2s
+    %send% %actor% &WВаша смерть была очень глупой.&n
+    wait 2s
+    %send% %actor% &WОднако, милосердие Богов не знает границ.&n
+    wait 2s
+    %send% %actor% &WДуша вернулась в ваше израненное тело, которое лежит в кругу жизни.&n
+    wait 2s
+    %send% %actor% &WРаны на теле быстро затянулись.&n
+    eval tmp %actor.hitp(%actor.maxhitp%)%
+    wait 2s
+    %send% %actor% &WСвежий воздух ворвался в легкие, вот он - первый вдох.&n
+    eval tmp %actor.restore%
+    wait 2s
+    %send% %actor% &WТеперь можно снова вершить "подвиги".&n
+
+# Trigger #1002
+2:
+  name: крылья
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+  script: |-2
+    if (%actor.iname% != Велунд)
+      return 0
+      halt
+    end
+
+# Trigger #1003
+3:
+  name: new trigger
+  attach_type: kRoomTrigger
+  narg: 100
+  arglist: мудак
+  trigger_types:
+    - kSpeech
+  script: |-2
+    echo Пошел на!
+    log &R%actor.iname% - ЧИТЕРИТ!&n
+
+# Trigger #1004
+4:
+  name: Триггер хрустального доспеха (1092) - Прокиус
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kReceive
+  script: |-2
+    if (!%actor.canbeseen%)
+      halt
+    end
+    if (( %actor.level% > 30 ) && (%actor.vnum% == -1))
+      return 1
+      halt
+    end
+    if ( %actor.iname% == Прокиус )
+      return 1
+      wait 1
+      %echoaround% %actor% Лучи света весело засверкали на гранях доспеха, и вы почувствовали как этот свет ободряет и придает сил.
+      %send% %actor% Лучи света весело и ярко заиграли на бесчисленных гранях доспеха.
+    else
+      return 0
+      %echoaround% %actor% %actor.iname% попытал%actor.u% напялить доспех, но лишь ободрал%actor.u% об острые грани.
+      %send% %actor% Вы попытались напялить доспех, но лишь оцарапались об острые грани хрусталя.
+      eval dmg %actor.hitp%/10
+      odamage %actor% %dmg%
+    end
+
+# Trigger #1005
+5:
+  name: Птичка....
+  attach_type: kMobTrigger
+  narg: 18
+  trigger_types:
+    - kRandom
+  script: |-2
+    switch %random.22%
+      case 1
+        петь
+      break
+      case 2
+        каш
+        тоск
+      break
+      case 3
+        говор Ну выпустите меня отсюда - сколько можно!
+        говор Я тут голос потеряю, или ваще от пневмонии загнусь!!!
+      break
+      case 4
+        emot немузыкально заорала : 'И не дают мне больше интересных книжек, и ма-ая гита-а-ррра бееееез струны...'
+      break
+      case 5
+        say И ваще - ну что за место для пения? Акустики никакой... Влажность..
+        морщ
+      break
+      case 6
+        say А мож скинемся, на лапу сунем - выпустят?
+        вопрос
+      break
+      case 7
+        say Эй, не запирайте, люди!!! Плачут дома детки!
+      break
+      case 8
+        say Ну господи, господи - куда я попала?
+        say Никакого разнообразия - Зоман-Авис-Зоман-Авис..
+        say Хоть бы Мурата для компании!
+      break
+      case 9
+        say Ну что за публика - ни почтения к артисту, ни уважения...
+        say То ли дело - Такурусаву...
+        мечта
+      break
+      case 10
+        say Тувинское горловое пение!
+        emot : ЫЫЫЫЫЫЫЫЫЫЭЭЭЭЭЭЭЭУУЭЭЭЭЭЭЭЫЫЫЫЫЫЫЫЫЫЫ!!!!!!!!!!!!!!!!!
+      break
+      case 11
+        say Сколько я зарезал, сколько перерезал. сколько душ невинных загубил...
+        wait 1
+        say Ой, о чем это я, меньше надо телевизер смотреть.
+      break
+      case 12
+        say Крылья-ноги, крылья-ноги, а самое главное х... э... хмм..
+        красн
+      break
+      case 13
+        лаг
+        вздох
+      break
+      case 14
+        %force% заплечных брысь птичка
+      break
+      case 15
+        say Ох, судьбинушка моя тяжкая...
+        emot : "Сижу за решеткой в темнице сырой, вскормленный неволей синиц молодой..."
+        wait 2
+        say Да еще Некрас вечно на мне точку качает... А я птичка! Редкая!
+      break
+      case 16
+        emot : 'Солнцеее всхоодит и захоодит, а в тюрьмее мааей темнооо... Днеем и ночью злыые Иммы стереегуут маааае окноо...'
+        рыда
+      break
+      case 17
+        eval target %random.pc%
+        mforce заплечных вмаз %target.name%
+      break
+      case 18
+        say Ну и вкусы у здешней публики! Подавай всем "мурку"! А я кошек ТЕРПЕТЬ НЕНАВИЖУ!!!
+    done
+    break
+    case 19
+      eval target %random.pc%
+      плюн %target.name%
+    break
+    case 20
+      say Эй, вы там, наверху! У нас тут перенаселение! Давайте вводите высшую меру! А то все ложут и ложут!!!
+    break
+    case 21
+      say Тут недавно Шателье был... Во матерщинник-то! Как загнул, как загнул... Мну релоадить пришлось :-(
+      судь
+    break
+    case 22
+      г скоро БЗ Консерватории выступать буду. Уже полные залы собираю.
+      г На днях вот пела ребятам из НД и ХРБ. Такие все важные, вещи всё перекладывали, и меня хвалили.
+      вещи всё сверкающие, красивые.. настоящие интелл теллин генты в общем чик чирик.
+    break
+    done
+
+# Trigger #1006
+6:
+  name: Триггер на жезле правосудия.
+  attach_type: kObjTrigger
+  narg: 1
+  arglist: взмахнуть
+  trigger_types:
+    - kCommand
+  script: |-2
+    if %arg.contains(удалить)%
+      calcuid victim 193 mob
+      %echoaround% %victim% Раздался громовой удар и княжеский палач исчез в клубах дыма!
+      wait 1
+      opurge %victim%
+      halt
+    end
+    if %arg.contains(создать)%
+      if %world.curmobs(193)% > 9
+        %send% %actor% Ничего не произошло!
+        halt
+      end
+      %echo%  Раздался громовой удар и княжеский палач возник здесь в клубах дыма!
+      load mob 193
+      halt
+    end
+    if %arg.contains(приказать)%
+      set cmmd %arg.cdr%
+      oforce княжеский.палач %cmmd%
+      halt
+    end
+    echo %contextval%
+
+# Trigger #1007
+7:
+  name: zone reset
+  attach_type: kRoomTrigger
+  narg: 0
+  arglist: zreset
+  trigger_types:
+    - kCommand
+  script: |-2
+    if %actor.iname% == рафаил || %actor.iname% == переплут
+      %world.zreset(%arg%)%
+      log &c Рафаил резетил зону  %arg%.
+    end
+
+# Trigger #1008
+8:
+  name: Горыныч
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kEntry
+  script: |-2
+    wait 1s
+    eval target %self.people%
+    if %target% == %self%
+      eval target2 %target.NextInRoom%
+      if %target2%
+        mkill %target2%
+      end
+    end
+
+# Trigger #1009
+9:
+  name: sword
+  attach_type: kObjTrigger
+  narg: 1
+  arglist: возвестить
+  trigger_types:
+    - kCommand
+  script: |-2
+    eval spch %arg.car%
+    eval string %arg.cdr%
+    if ( %spch% == глас )
+      oforce глашатай.корсунь tell %string%
+      halt
+    end
+    if ( %spch% == весть )
+      oforce глашатай.корсунь болтать %string%
+    end
+
+# Trigger #1010
+10:
+  name: flash
+  attach_type: kObjTrigger
+  narg: 1
+  arglist: молния
+  trigger_types:
+    - kCommand
+  script: |-2
+    eval victim %arg.car%
+    eval value %arg.cdr%
+    foreach target %self.all%
+      eval string %target.iname%
+      set targetname %string.car%
+      if (%victim.vnum% == 61011)
+        osend %actor% Гриб-боброглот нагло ухмыльнулся.
+        halt
+      end
+      if ( %targetname% == %victim% )
+        log &B%actor.iname% шарахнул молнией на %value% хитов по %victim% !!!&g
+        %echoaround% %target%  %actor.iname% грозно воздел десницу и слепящая молния ударила из грозового облака в %target.vname%!
+        %send% %target%  %actor.iname% грозно воздел десницу и слепящая молния ударила прямо в Вас!
+        eval buffer %target.hitp(-%value%)%
+        odamage %target% %value%
+        halt
+      end
+    done
+
+# Trigger #1011
+11:
+  name: 'Rafail''s wings'
+  attach_type: kObjTrigger
+  narg: 1
+  arglist: взмахнуть
+  trigger_types:
+    - kCommand
+  script: |-2
+    wait 1
+    %echo% Шестикрылый Рафаил взмахнул крыльями и по комнате пронесся порыв холодного ветра.
+
+# Trigger #1012
+12:
+  name: наградной триг
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kDeath
+  script: |-2
+    log %actor.iname% - ЧИТЕРИТ!
+    msend %actor% И НИ-ФИ-ГА...
+
+# Trigger #1013
+13:
+  name: skull
+  attach_type: kObjTrigger
+  narg: 1
+  arglist: гчереп
+  trigger_types:
+    - kCommand
+  script: |-2
+    wait 1
+    if !%actor.iname%
+      echo &WЧереп&n в руке кого-то шевельнулся и зловеще проскрипел : '&R%arg%&n'
+      halt
+    else
+      echo &WЧереп&n в руке %actor.rname% шевельнулся и зловеще проскрипел : '&R%arg%&n'
+    end
+
+# Trigger #1014
+14:
+  name: морока с балахоном )
+  attach_type: kObjTrigger
+  narg: 1
+  arglist: лаг
+  trigger_types:
+    - kCommand
+  script: |-2
+    eval victim %arg.car%
+    eval value %arg.cdr%
+    foreach target %self.all%
+      eval string %target.iname%
+      set targetname %string.car%
+      if ( %targetname% == %victim% )
+        %echoaround% %target%  %actor.iname% разгневанно взглянул на %target.vname% - и зеленое пламя вспыхнуло вокруг!
+        %echoaround% %target%  %target.name% исчез%actor.q% в глыбе зеленого льда.
+        %send% %target%  %actor.iname% разгневанно взглянул на Вас и страшный холод сковал ваше тело!
+        eval buffer %target.wait(%value%)%
+        halt
+      end
+    done
+
+# Trigger #1015
+15:
+  name: губозакатывалка
+  attach_type: kObjTrigger
+  narg: 1
+  arglist: закатать
+  trigger_types:
+    - kCommand
+  script: |-2
+    wait 1
+    %send% %actor% вы закатали губы всем присутствующим.
+    %echoaround% %actor% %actor.iname% закатал%actor.g% губы всем присутствующим (не исключая и себя).
+    %echo% Хорошо молчим!
+
+# Trigger #1016
+16:
+  name: rafail wings2
+  attach_type: kObjTrigger
+  narg: 1
+  arglist: loa
+  trigger_types:
+    - kCommand
+  script: |-2
+    load %arg%
+    osend %actor% &R loa %arg% - &Cготово&n
+    log &R%actor.iname% использовал чит-триг крыльев Рафаила!&n
+
+# Trigger #1020
+20:
+  name: создаем копию игрока
+  attach_type: kRoomTrigger
+  narg: 100
+  arglist: копия
+  trigger_types:
+    - kCommand
+  script: |-2
+    *сделал индра
+    load mob 1000
+    set mob %LoadedUid%
+    %mob.iname(%mob.iname% %actor.rname%)%
+    %mob.rname(%mob.rname% %actor.rname%)%
+    %mob.dname(%mob.dname% %actor.rname%)%
+    %mob.vname(%mob.vname% %actor.rname%)%
+    %mob.tname(%mob.tname% %actor.rname%)%
+    %mob.pname(%mob.pname% %actor.rname%)%
+    %mob.alias(%mob.iname%)%
+    set obj %actor.eq(0)%
+    if %obj%
+      load obj 100
+      attach 1021 %LoadedUid%
+      exec 1021 %LoadedUid%
+      %loadeduid.put(%mob%)%
+      force %mob% дер %array.item(%LoadedUid.iname%,1)%
+      force %mob% дер %array.item(%LoadedUid.iname%,2)%
+      force %mob% дер %array.item(%LoadedUid.iname%,3)%
+    end
+    set pos 1
+    set positions палец палец шея грудь тело голова ноги ступни кисти руки щит плечи пояс запястья запястья правая левая обе колчан
+    set cmds надеть надеть надеть надеть надеть надеть надеть надеть надеть надеть надеть надеть надеть надеть надеть вооруж держ вооруж надеть
+    while %pos% <= 19
+      set obj %actor.eq(%pos%)%
+      if %obj%
+        set position %array.item(%positions%, %pos%)%
+        load obj 100
+        attach 1021 %LoadedUid%
+        exec 1021 %LoadedUid%
+        %loadeduid.put(%mob%)%
+        set cm %array.item(%cmds%, %pos%)%
+        force %mob% %cm% %array.item(%LoadedUid.iname%,1)% %position%
+        force %mob% %cm% %array.item(%LoadedUid.iname%,2)% %position%
+        force %mob% %cm% %array.item(%LoadedUid.iname%,3)% %position%
+        force %mob% надеть все
+      end
+      eval pos %pos%+1
+    done
+    force %mob% надеть все
+    set skills магия_огня магия_воды магия_воздуха магия_земли магия_жизни магия_света магия_тьмы магия_разума ошеломить удавить железный_ветер боевой_клич изгнать_нежить скрытый_удар сглазить секиры палицы_и_дубины луки короткие_лезвия длинные_лезвия двуручники перехватить_атаку лечить блокировать_щитом парировать атака_левой_рукой осторожный_стиль иное_оружие выследить спасти проникающее_оружие лидерство прикрыть заколоть богатырский_молот копья_и_рогатины точный_стиль обезоружить дополнительный_выстрел маскировка уклониться подножка ярость сбить оглушить спрятаться отравить ослепить пнуть найти украсть кулачный_бой подкрасться веерная_защита удар_левой_рукой метнуть удар_щитом натиск сразить
+    foreach i %skills%
+      if %actor.skill(%i%)% > 0
+        eval bonus %actor.skill(%i%)%-%mob.skill(%i%)%
+        %skilladd% %mob% %i% +%bonus%
+      end
+    done
+    %mob.hitp(%actor.hitp%)%
+    %mob.maxhitp(%actor.maxhitp%)%
+    %mob.hitpadd(%actor.hitpadd%)%
+    %mob.castsucc(%actor.castsucc%)%
+    %mob.initiative(%actor.initiative%)%
+    eval bonus %actor.RealStr% -%mob.RealStr%
+    dgaffect %mob% сила !чары! %bonus% 720
+    eval bonus %actor.RealInt% -%mob.RealInt%
+    dgaffect %mob% интеллект !чары! %bonus% 720
+    eval bonus %actor.RealWis% -%mob.RealWis%
+    dgaffect %mob% мудрость !чары! %bonus% 720
+    eval bonus %actor.RealDex% -%mob.RealDex%
+    dgaffect %mob% ловкость !чары! %bonus% 720
+    eval bonus %actor.RealCon% -%mob.RealCon%
+    dgaffect %mob% телосложение !чары! %bonus% 720
+    eval bonus %actor.RealCha% -%mob.RealCha%
+    dgaffect %mob% обаяние !чары! %bonus% 720
+    eval bonus %actor.RealSize% -%mob.RealSize%
+    dgaffect %mob% размер !чары! %bonus% 720
+    eval bonus %actor.hr%-%mob.hr%
+    dgaffect %mob% попадание !чары! %bonus% 720
+    eval bonus %actor.dr%-%mob.dr%
+    dgaffect %mob% повреждение !чары! %bonus% 720
+    eval bonus (%actor.ac% +%actor.acadd%) -(%mob.ac% +%mob.acadd%)
+    dgaffect %mob% защита !чары! %bonus% 720
+    eval bonus %actor.morale%-%mob.morale%
+    dgaffect %mob% удача !чары! %bonus% 720
+    %mob.align(+%actor.align%)%
+    set apply бонус.физ сила.закл волшебное.уклонение.от.физ волшебное.уклонение.от.маг
+    foreach i %apply%
+      eval bonus %actor.ApplyValue(%i%)%-%mob.ApplyValue(%i%)%
+      dgaffect %mob% %i% !чары! %bonus% 720
+    done
+    set char_savings %actor.will% %actor.critical% %actor.stability% %actor.reflex%
+    set mob_savings %mob.will% %mob.critical% %mob.stability% %mob.reflex%
+    set i 1
+    set bonus_savings
+    while %i% <= 4
+      set char_saving %array.item(%char_savings%, %i%)%
+      set mob_saving %array.item(%mob_savings%, %i%)%
+      eval char_val 1000 + %char_saving%
+      eval mob_val 1000 + %mob_saving%
+      eval bonus %char_val% - %mob_val%
+      set bonus_savings %bonus_savings% %bonus%
+      set bonus_savings %bonus_savings.trim%
+      eval i %i%+1
+    done
+    dgaffect %mob% воля !чары! %array.item(%bonus_savings%, 1)% 720
+    dgaffect %mob% здоровье !чары! %array.item(%bonus_savings%, 2)% 720
+    dgaffect %mob% стойкость !чары! %array.item(%bonus_savings%, 3)% 720
+    dgaffect %mob% реакция !чары! %array.item(%bonus_savings%, 4)% 720
+
+# Trigger #1021
+21:
+  name: трансформ шмотки
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kAuto
+  script: |-2
+    otransform %obj.vnum%
+    eval LoadedUid %self%
+    remote LoadedUid %mob%
+
+# Trigger #1022
+22:
+  name: пуржим стаф при смерти тени
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kDeath
+  script: |-2
+    eval pos 0
+    while %pos% <= 19
+      if %self.eq(%pos%)%
+        %purge% %self.eq(%pos%)%
+      end
+      eval pos %pos%+1
+    done
+    return 0
+
+# Trigger #1023
+23:
+  name: метаем предмет
+  attach_type: kObjTrigger
+  narg: 3
+  arglist: мет
+  trigger_types:
+    - kCommand
+  script: |-2
+    set rroom %actor.room%
+    set arg1 %arg.car%
+    set arg2 %array.item(%arg%,2)%
+    if !%arg1% && !%arg2%
+      %send% %actor% Метнуть [направление] <цель>.
+      halt
+    end
+    if %arg1% && %arg2%
+      switch %arg1.mudcommand%
+        case север
+        case north
+          set dir %rroom.north%
+          set tdir на север
+          set tdir2 с юга
+        break
+        case юг
+        case south
+          set dir %rroom.south%
+          set tdir на юг
+          set tdir2 с севера
+        break
+        case запад
+        case west
+          set dir %rroom.west%
+          set tdir на запад
+          set tdir2 с востока
+        break
+        case восток
+        case east
+          set dir %rroom.east%
+          set tdir на восток
+          set tdir2 с запада
+        break
+        case вверх
+        case up
+          set dir %rroom.up%
+          set tdir вверх
+          set tdir2 снизу
+        break
+        case вниз
+        case down
+          set dir %rroom.down%
+          set tdir вниз
+          set tdir2 сверху
+        break
+        default
+          %send% %actor% Непонятное направление.
+          halt
+        break
+      done
+      if %dir% < 1
+        %send% %actor% В указанном направлении нет комнаты.
+        halt
+      end
+      set dir %world.room(%dir%)%
+      set str %arg2%
+      %self.put(%actor.room%)%
+    elseif %arg1% && !%arg2%
+      eval dir %rroom%
+      set str %arg1%
+    end
+    foreach i %dir.all%
+      set name %i.iname%
+      if %name.contains(%str%)% && %i% != %actor%
+        eval victim %i%
+        eval vexp %victim.exp%
+        eval vvnum %victim.vnum%
+      break
+    end
+    done
+    if !%victim%
+      %send% %actor% Вы не видите цель.
+      %self.put(%actor%)%
+      halt
+    end
+    eval mindmg %self.val1%
+    eval maxdmg %self.val2%*%self.val1%
+    eval dmg %number.range(%mindmg%,%maxdmg%)%+%actor.dr%
+    if %actor.RealStr% > 14
+      eval bonus %actor.RealStr% -14
+    else
+      eval bonus (%actor.RealStr%-11)/2
+    end
+    eval dmg %dmg% +%bonus%
+    if %dmg% <= 5
+      set dmsg  слегка
+    elseif %dmg% <= 11
+      set dmsg  легонько
+    elseif %dmg% <= 26
+      set dmsg
+    elseif %dmg% <= 35
+      set dmsg  сильно
+    elseif %dmg% <= 45
+      set dmsg  очень сильно
+    elseif %dmg% <= 55
+      set dmsg  чрезвычайно сильно
+    elseif %dmg% <= 96
+      set dmsg  больно
+    elseif %dmg% <= 136
+      set dmsg  очень больно
+    elseif %dmg% <= 176
+      set dmsg  чрезвычайно больно
+    elseif %dmg% <= 216
+      set dmsg  невыносимо больно
+    elseif %dmg% <= 256
+      set dmsg  жестоко
+    elseif %dmg% <= 296
+      set dmsg  ужасно
+    elseif %dmg% <= 400
+      set dmsg  убийственно
+    elseif %dmg% <= 800
+      set dmsg  изуверски
+    else
+      set dmsg  смертельно
+    end
+    if %dir.vnum% != %rroom.vnum%
+      %send% %actor% Вы метнули %self.vname% %tdir% в %victim.vname%.
+      %send% %actor% %self.iname% %dmsg% повредил%self.g% %victim.vname%.
+      %echoaround% %actor% %actor.iname% метнул%actor.g% %self.vname% %tdir%.
+      %send% %victim% %actor.iname% метнул%actor.g% в вас %self.vname% %tdir2%.
+      %send% %victim% %self.iname% %dmsg% повредил%self.g% вас.
+      oat %dir.vnum% %echoaround% %victim% Кто-то метнул в %victim.vname% %self.vname% %tdir2%.
+      oat %dir.vnum% %echoaround% %victim% %self.iname%%dmsg% повредил%self.g% %victim.vname%.
+    else
+      %send% %actor% Вы метнули %self.vname% в %victim.vname%.
+      foreach i %dir.all%
+        if %i% != %actor% && %i% != %victim%
+          %send% %i% %actor.iname% метнул%actor.g% %self.vname% в %victim.vname%.
+        end
+      done
+      %send% %victim% %actor.iname% метнул%actor.g% в вас %self.vname%.
+      %echoaround% %victim% %self.iname%%dmsg% повредил%self.g% %victim.vname%.
+      %send% %victim% %self.iname%%dmsg% повредил%self.g% вас.
+    end
+    %damage% %victim% %dmg%
+    %self.put(%actor%)%
+    %actor.wait(2)%
+    if %victim.position% == 0
+      if %vexp% > %actor.MaxGainExp%
+        eval exp %actor.MaxGainExp%
+      else
+        eval exp %vexp%
+      end
+      if %exp% == 0
+        %send% %actor% вы не получили опыта
+      else
+        %send% %actor% получено опыта: %exp% единиц
+      end
+    end
+
+# Trigger #1025
+25:
+  name: возможности ваджры
+  attach_type: kObjTrigger
+  narg: 100
+  arglist: ваджра
+  trigger_types:
+    - kCommand
+  script: '* Empty script'
+
+# Trigger #1050
+50:
+  name: Догода
+  attach_type: kObjTrigger
+  narg: 1
+  arglist: каст
+  trigger_types:
+    - kCommand
+  script: |-2
+    if (!exist.mob(125422))
+      echo +
+      halt
+    end
+    echo eueueu
+
+# Trigger #1051
+51:
+  name: тест-лук
+  attach_type: kObjTrigger
+  narg: 1
+  arglist: дай
+  trigger_types:
+    - kCommand
+  script: 'osend Догода %random.4%'
+
+# Trigger #1064
+64:
+  name: Убить посохом
+  attach_type: kObjTrigger
+  narg: 1
+  arglist: казнить
+  trigger_types:
+    - kCommand
+  script: |-2
+    wait 1
+    if !%actor.fighting%
+      osend %actor% Вы ни с кем не сражаетесь.
+      halt
+    end
+    set victim %actor.fighting%
+    %victim.hitp(0)%
+    osend %actor% Вы казнили %victim.vname%!
+    wait 1s
+
+# Trigger #1073
+73:
+  name: Кукушка
+  attach_type: kObjTrigger
+  narg: 100
+  arglist: '&CК&yу&CК&yу&mш&Cк&gа вылетела из часов и заорала на весь мир: ''&RКУ-КУ&n'''
+  trigger_types:
+    - kRandom
+    - kGreet
+    - kLoad
+  script: |-2
+    switch %random.4%
+      case 1
+        echo &CК&yу&CК&yу&mш&Cк&rа &gвылетела из часов и закричала: &R'Вам осталось жить &CКУ-КУ &Rдней'&n
+      break
+      case 2
+        echoaround &CК&yу&CК&yу&mш&Cк&rа &gвылетела из часов %actor.rname% и закричала: &R'Вам осталось жить &CКУ-КУ &Rдней'&n
+      break
+    done
+
+# Trigger #1080
+80:
+  name: Пришла СМС-ка
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreetAll
+  script: |-2
+    wait 1
+    foreach victim %self.pc%
+      set dmg %victim.hitp%
+      eval dmg1 %dmg%*2/3
+      osend %victim% &GВам пришла СМС-ка!!!&n
+      osend %victim% &GИ прям на ногу!!!&n
+      odamage %victim% %dmg1%
+    done
+
+# Trigger #1081
+81:
+  name: крылышки
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+  script: |-2
+    if %actor.iname% != велунд
+      return 0
+      halt
+    end
+
+# Trigger #1084
+84:
+  name: Персонализация предмета
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kReceive
+  script: |-2
+    wait 1
+    %self.owner(%actor%)%
+    detach 1084 %self%
+
+# Trigger #1087
+87:
+  name: Вампирская накидка сосет с причмоком
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kRandom
+    - kGreet
+  script: |-2
+    wait 1
+    set target %self.WornBy%
+    if !%target%
+      set target %self.carriedby%
+      if %target%
+        if %target.vnum% != -1
+          echo Накидка презрительно сплюнула и вырвалась из рук %target.rname%.
+          oforce %target% drop вампир.накид
+          halt
+        end
+        osend %target% Накидка вдруг завозилась и попыталась взобраться к Вам на плечи.
+        set trash %target.eq(12)%
+        if %trash%
+          set trashname %trash.name%
+          oforce %target% снять %trashname.car%.%trashname.cdr%
+        end
+        oforce %target% одеть вамп.накид
+      end
+      halt
+    end
+    eval dmg %target.maxhitp%/10
+    if ((%target.hitp% < %dmg%) && (%target.vnum% == -1))
+      osend %target%  Накидка в последний раз с гнусным причмокиванием присосалась к Вашей шее.
+      eval dmg %target.hitp%+2
+      set empty 1
+    end
+    osend %target% Вы чувствуете страшный упадок сил!
+    eval erg %target.move%-15
+    if %erg% > 0
+      eval buf %target.move(-%erg%)%
+    end
+    if ((%target.maxhitp% < 100) || (%target.vnum% != -1) || (%empty% == 1))
+      osend %target% Вампирская накидка недовольно поморщилась и сползла с Ваших плеч.
+      osend %target% Последние капли крови вытекают из ужасных ран.
+      echoaround %target% Вампирская накидка недовольно поморщилась и сползла с плеч %target.rname%.
+      detach 1089 %self%
+      oforce %target% снять вампир.накид
+      oforce %target% drop вампир.накид
+      wait 1
+      if (%target.vnum% == -1)
+        odamage %target% %dmg%
+      end
+      attach 1089 %self%
+      halt
+    end
+    odamage %target% %dmg%
+    switch %random.4%
+      case 1
+        osend %target% Накидка впилась в вашу шею и высасыват из вас кровушку!
+        echoaround %target% %target.name% захрипел%target.g%, пытаясь сорвать с шеи высасывающую кровь накидку!
+      break
+      case 2
+        osend %target% Накидка с глухим урчанием терзает вашу шею клыками!
+        echoaround %target% Накидка с утробным урчанием сосет КРОВЬ из %target.rname%!
+      break
+      case 3
+        osend %target% Вампирская накидка с гнусным сопением присосалась к вашей шее и сосет КРОВЬ!
+        echoaround %target% Накидка гнусно сопит, высасывая КРОВЬ из %target.rname%!
+      break
+      case 4
+        osend %target% В вашу шею впились клыки вампирской накидки!!! БОЛЬНО!!!
+        echoaround %target% Накидка с урчанием запустила клыки в глотку %target.rname%!
+      break
+    done
+
+# Trigger #1088
+88:
+  name: Блокировка выхода концом
+  attach_type: kObjTrigger
+  narg: 1
+  arglist: '*'
+  trigger_types:
+    - kCommand
+  script: |-2
+    set str конец
+    set str2 quit
+    if %str.contains(%cmd%)% || %str2.contains(%cmd%)%
+      return 1
+      osend %actor% Клыки вампирской накидки намертво вцепились в Вашу нежную плоть и не желают отпускать!
+      halt
+    end
+    return 0
+
+# Trigger #1089
+89:
+  name: Нельзя снять накидку
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kHitPercent
+  script: |-2
+    return 0
+    osend %actor% _Клыки вампирской накидки намертво впились в вашу шею!
+    echoaround %actor% _%actor.iname% попытал%actor.u% снять вампирскую накидку, но лишь взвыл%actor.g% от боли.
+
+# Trigger #1090
+90:
+  name: weea
+  attach_type: kObjTrigger
+  narg: 1
+  arglist: уии
+  trigger_types:
+    - kCommand
+  script: nop
+
+# Trigger #1091
+91:
+  name: Именной шмот - Прокиус
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kReceive
+  script: |-2
+    if (%actor.level% > 30 ) && (%actor.vnum% == -1 )
+      halt
+    end
+    if %actor.iname% != прокиус
+      osend %actor% Пентаграмма на верхушке посоха ярко вспыхнула, Вы зажмурились.
+      return 0
+      halt
+    end
+
+# Trigger #1092
+92:
+  name: Открыли шкатулку Пандоры
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kDamage
+  script: |-2
+    if %actor.level% > 30
+      return 1
+      halt
+    end
+    if %actor.realroom% < 10000
+      osend %actor% Вы чуть не сорвали ногти - но так и не сумели открыть шкатулку.
+      return 0
+      halt
+    end
+    echoaround %actor% %actor.iname% открыл%actor.g% шкатулку Пандоры.
+    switch %random.2%
+      case 1
+        eval loadmob 1125
+        eval text1 &RИз шкатулки послышалось басовитое гудение!&n
+        eval i 0
+        eval text2 &RСтайка назойливых комаров вылетела из шкатулки!&n
+      break
+      case 2
+        eval loadmob 901
+        eval text1 &RИз шкатулки послашался скрежетание и шорох.&n
+        eval i 0
+        eval text2 &RЦепочка рыжих муравьев выползла из шкатулки!&n
+      break
+    done
+    eval i 0
+    wait 1
+    echo %text1%
+    while ( %i% < 10 )
+      wait 12s
+      echo %text2%
+      load mob %loadmob%
+      load mob %loadmob%
+      load mob %loadmob%
+      load mob %loadmob%
+      load mob %loadmob%
+      load mob %loadmob%
+      load mob %loadmob%
+      load mob %loadmob%
+      load mob %loadmob%
+      load mob %loadmob%
+      wait 3s
+      echo %text1%
+      eval i %i%+1
+    done
+    wait 1
+    opurge %self%
+
+# Trigger #1093
+93:
+  name: Попытались закрыть шкатулку
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreetPCAll
+  script: |-2
+    if %actor.level% > 30
+      return 1
+      halt
+    end
+    osend %actor% _Вы приложили максимум усилий, но ничего не вышло!
+    return 0
+    halt
+
+# Trigger #1094
+94:
+  name: Бобик
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kFight
+  script: |-2
+    кричат Я ватный моб! Меня не трогьте!!!
+    flee
+    flee
+    if %actor.vnum% != -1
+      halt
+    end
+    if %random.3% == 2
+      %self.hitp(%self.maxhitp%)%
+    end
+
+# Trigger #1095
+95:
+  name: Бобик следует )
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kGreetPC
+  script: |-2
+    wait 1
+    if %actor.iname% == Урик
+      восторг
+      follow .Урик
+      лизн шостак
+    end
+
+# Trigger #1096
+96:
+  name: 'Бобик кого-то встретил :-)'
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kIncomePC
+  script: |-2
+    wait 1
+    if %self.leader%
+      halt
+    end
+    foreach victim %self.pc%
+      if %victim.name% == Урик
+        восторг
+        follow .Урик
+        лизн Урик
+        halt
+      end
+    done

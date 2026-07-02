@@ -1,0 +1,820 @@
+# Objects for zone 50
+
+# Object #5000
+0:
+  names:
+    aliases: идол изваяние деревянный
+    nominative: идол
+    genitive: идола
+    dative: идолу
+    accusative: идол
+    instrumental: идолом
+    prepositional: идоле
+  short_desc: Деревянное изваяние языческого бога стоит здесь посередине капища.
+  type: kOther
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 50
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: -1
+  cur_durability: -1
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNodecay
+
+# Object #5001
+1:
+  names:
+    aliases: колодец
+    nominative: колодец
+    genitive: колодца
+    dative: колодцу
+    accusative: колодец
+    instrumental: колодцем
+    prepositional: колодце
+  short_desc: Колодец выкопан здесь.
+  action_desc: |2
+    Вы можете набрать воды отсюда.
+  type: kFountain
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 999
+    - 999
+    - 0
+    - 0
+  weight: 1004
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 1
+  sex: kMale
+  max_in_world: 1
+  extra_flags:
+    - kNoinvis
+    - kNodecay
+
+# Object #5002
+2:
+  names:
+    aliases: бумага
+    nominative: бумага
+    genitive: бумагу
+    dative: бумаге
+    accusative: бумагу
+    instrumental: бумагой
+    prepositional: бумаге
+  short_desc: Бумага приколота к доске здесь.
+  type: kOther
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kNodecay
+  affect_flags:
+    - kDetectMagic
+  extra_descriptions:
+    - keywords: бумага
+      description: |2
+           Всем жителям деревни и случайным путникам. В деревне начинается операция
+        "антипаразит". Все кто поможет в этом и докажет принесенным трупом вредителя
+        свое участие окажет неоценимую услугу и получит премию.
+        За платой обращайтесь к моему ученику.
+
+# Object #5003
+3:
+  names:
+    aliases: объявление
+    nominative: объявление
+    genitive: объявления
+    dative: объявлению
+    accusative: объявление
+    instrumental: объявлением
+    prepositional: объявлении
+  short_desc: Объявление находится здесь.
+  type: kOther
+  material: 17  # БЕРЕСТА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 5000
+  cur_durability: 5000
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  max_in_world: 1
+  extra_flags:
+    - kNodecay
+  affect_flags:
+    - kDetectMagic
+  extra_descriptions:
+    - keywords: объявление
+      description: |2
+           Всем известно что я всю жизнь провел в охоте и поимке животных. Сейчас
+        же я постарел и поэтому сам охотится не могу. Но знаю как приготовить шкурки
+        ценных животных и кому и где их продать. Так что если вы подстрелите что в
+        лесу приносите свои трофеи мне, я куплю их.
+
+# Object #5004
+4:
+  names:
+    aliases: большой молот
+    nominative: большой молот
+    genitive: большого молота
+    dative: большому молоту
+    accusative: большой молот
+    instrumental: большим молотом
+    prepositional: большом молоте
+  short_desc: Большой молот лежит здесь.
+  type: kWeapon
+  material: 5  # КОВАНАЯ.СТАЛЬ
+  values:
+    - 0
+    - 3
+    - 8
+    - 6
+  weight: 30
+  cost: 1000
+  rent_off: 1000
+  rent_on: 1000
+  spec_param: 146
+  max_durability: 150
+  cur_durability: 150
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  wear_flags:
+    - kTake
+    - kBoth
+  anti_flags:
+    - kMage
+    - kSorcerer
+    - kThief
+    - kAssasine
+    - kGuard
+    - kPaladine
+    - kRanger
+    - kMerchant
+    - kMagus
+  applies:
+    - location: 1  # сила
+      modifier: 2
+
+# Object #5005
+5:
+  names:
+    aliases: серебряный шлем
+    nominative: серебряный шлем
+    genitive: серебряного шлема
+    dative: серебряному шлему
+    accusative: серебряный шлем
+    instrumental: серебряным шлемом
+    prepositional: серебряном шлеме
+  short_desc: Серебряный шлем лежит здесь.
+  type: kArmor
+  material: 6  # ДРАГ.МЕТАЛЛ
+  values:
+    - 2
+    - 6
+    - 5
+    - 3
+  weight: 3
+  cost: 1000
+  rent_off: 1000
+  rent_on: 50
+  max_durability: 300
+  cur_durability: 300
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHead
+  affect_flags:
+    - kDetectAlign
+
+# Object #5006
+6:
+  names:
+    aliases: серебряные перчатки
+    nominative: серебряные перчатки
+    genitive: серебряных перчаток
+    dative: серебряным перчаткам
+    accusative: серебряные перчатки
+    instrumental: серебряными перчатками
+    prepositional: серебряных перчатках
+  short_desc: Серебряные перчатки лежат здесь.
+  type: kArmor
+  material: 6  # ДРАГ.МЕТАЛЛ
+  values:
+    - 2
+    - 5
+    - 3
+    - 10
+  weight: 5
+  cost: 200
+  rent_off: 200
+  rent_on: 20
+  max_durability: 150
+  cur_durability: 150
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  wear_flags:
+    - kTake
+    - kHands
+  affect_flags:
+    - kBless
+
+# Object #5007
+7:
+  names:
+    aliases: амулет неуязвимости
+    nominative: амулет неуязвимости
+    genitive: амулета неуязвимости
+    dative: амулету неуязвимости
+    accusative: амулета неуязвимости
+    instrumental: амулетом неуязвимости
+    prepositional: амулете неуязвимости
+  short_desc: Амулет всесильных богов лежит здесь.
+  type: kArmor
+  material: 6  # ДРАГ.МЕТАЛЛ
+  values:
+    - 4
+    - 4
+    - 6
+    - 9
+  weight: 1
+  cost: 1000
+  rent_off: 200
+  rent_on: 20
+  max_durability: 150
+  cur_durability: 150
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kNeck
+
+# Object #5008
+8:
+  names:
+    aliases: доспехи бога
+    nominative: доспехи бога
+    genitive: доспехи бога
+    dative: доспехам бога
+    accusative: доспехи бога
+    instrumental: доспехами бога
+    prepositional: доспехах бога
+  short_desc: Ослепительной яркости доспехи лежат здесь.
+  type: kArmor
+  material: 5  # КОВАНАЯ.СТАЛЬ
+  values:
+    - 9
+    - 9
+    - 5
+    - 3
+  weight: 10
+  cost: 2000
+  rent_off: 2000
+  rent_on: 500
+  max_durability: 500
+  cur_durability: 500
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  wear_flags:
+    - kTake
+    - kBody
+
+# Object #5009
+9:
+  names:
+    aliases: сапоги со шпорами
+    nominative: сапоги со шпорами
+    genitive: сапог со шпорами
+    dative: сапогам со шпорами
+    accusative: сапоги со шпорами
+    instrumental: сапогами со шпорами
+    prepositional: сапогах со шпорами
+  short_desc: Сапоги со шпорами лежат здесь.
+  type: kArmor
+  material: 5  # КОВАНАЯ.СТАЛЬ
+  values:
+    - 2
+    - 6
+    - 5
+    - 7
+  weight: 2
+  cost: 1000
+  rent_off: 1000
+  rent_on: 40
+  max_durability: 150
+  cur_durability: 150
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  wear_flags:
+    - kTake
+    - kFeet
+
+# Object #5010
+10:
+  names:
+    aliases: драконьи поножи
+    nominative: драконьи поножи
+    genitive: драконьих поножах
+    dative: драконьим поножам
+    accusative: драконьи поножи
+    instrumental: драконьими поножами
+    prepositional: драконьих поножах
+  short_desc: Поножи сделанные из кожи летающего змея лежат здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 6
+    - 2
+    - 4
+    - 6
+  weight: 1
+  cost: 1000
+  rent_off: 1000
+  rent_on: 20
+  max_durability: 500
+  cur_durability: 500
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  wear_flags:
+    - kTake
+    - kLegs
+    - kWield
+  affect_flags:
+    - kNoFlee
+
+# Object #5011
+11:
+  names:
+    aliases: серебряные наручи
+    nominative: серебряные наручи
+    genitive: серебряных наручей
+    dative: серебряным наручам
+    accusative: серебряные наручи
+    instrumental: серебряными наручами
+    prepositional: серебряных наручах
+  short_desc: Серебряные наручи лежат здесь.
+  type: kArmor
+  material: 6  # ДРАГ.МЕТАЛЛ
+  values:
+    - 2
+    - 5
+    - 4
+    - 6
+  weight: 2
+  cost: 1000
+  rent_off: 1000
+  rent_on: 30
+  max_durability: 150
+  cur_durability: 150
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  wear_flags:
+    - kTake
+    - kArms
+  affect_flags:
+    - kHold
+
+# Object #5012
+12:
+  names:
+    aliases: щит солнца
+    nominative: щит солнца
+    genitive: щита солнца
+    dative: щиту солнца
+    accusative: щит солнца
+    instrumental: щитом солнца
+    prepositional: щите солнца
+  short_desc: Щит с изображением солнца лежит здесь.
+  type: kArmor
+  material: 5  # КОВАНАЯ.СТАЛЬ
+  values:
+    - 4
+    - 6
+    - 7
+    - 3
+  weight: 10
+  cost: 1000
+  rent_off: 1000
+  rent_on: 20
+  max_durability: 300
+  cur_durability: 300
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kShield
+    - kHold
+  affect_flags:
+    - kHolyLight
+
+# Object #5013
+13:
+  names:
+    aliases: царский кушак
+    nominative: царский кушак
+    genitive: царского кушака
+    dative: царскому кушаку
+    accusative: царский кушак
+    instrumental: царским кушаком
+    prepositional: царском кушаке
+  short_desc: Царский кушак лежит здесь.
+  type: kArmor
+  material: 14  # ТКАНЬ
+  values:
+    - 2
+    - 4
+    - 3
+    - 5
+  weight: 1
+  cost: 200
+  rent_off: 200
+  rent_on: 20
+  max_durability: 100
+  cur_durability: 100
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kWaist
+    - kWield
+  affect_flags:
+    - kIceAura
+
+# Object #5014
+14:
+  names:
+    aliases: кольцо власти
+    nominative: кольцо власти
+    genitive: кольца власти
+    dative: кольцу власти
+    accusative: кольцо власти
+    instrumental: кольцом власти
+    prepositional: кольце власти
+  short_desc: Кольцо власти лежит здесь.
+  type: kArmor
+  material: 6  # ДРАГ.МЕТАЛЛ
+  values:
+    - 2
+    - 2
+    - 4
+    - 2
+  weight: 1
+  cost: 500
+  rent_off: 500
+  rent_on: 10
+  max_durability: 150
+  cur_durability: 150
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  wear_flags:
+    - kTake
+    - kFinger
+
+# Object #5015
+15:
+  names:
+    aliases: кольцо справедливости
+    nominative: кольцо справедливости
+    genitive: кольца справедливости
+    dative: кольцу справедливости
+    accusative: кольцо справедливости
+    instrumental: кольцом справедливости
+    prepositional: кольце справедливости
+  short_desc: Кольцо справедливости лежит здесь.
+  type: kArmor
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 2
+    - 2
+    - 4
+    - 9
+  weight: 1
+  cost: 500
+  rent_off: 500
+  rent_on: 20
+  max_durability: 150
+  cur_durability: 150
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  wear_flags:
+    - kTake
+    - kFinger
+
+# Object #5016
+16:
+  names:
+    aliases: меч инкрустированный золотом
+    nominative: меч инкрустированный золотом
+    genitive: меча инкрустированного золотом
+    dative: мечу  инкрустированного золотом
+    accusative: меч  инкрустированный золотом
+    instrumental: мечом инкрустированным золотом
+    prepositional: мече инкрустированным золотом
+  short_desc: Меч инкрустированный золотом лежит здесь.
+  type: kWeapon
+  material: 1  # БУЛАТ
+  values:
+    - 0
+    - 5
+    - 5
+    - 7
+  weight: 30
+  cost: 10000
+  rent_off: 10000
+  rent_on: 7777
+  spec_param: 143
+  max_durability: 250
+  cur_durability: 250
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kGlow
+  wear_flags:
+    - kTake
+    - kFinger
+    - kWield
+    - kHold
+  affect_flags:
+    - kDetectInvisibility
+    - kInfravision
+
+# Object #5017
+17:
+  names:
+    aliases: карта окрестностей речной деревни
+    nominative: карта окрестностей речной деревни
+    genitive: карты окрестностей речной деревни
+    dative: карте окрестностей речной деревни
+    accusative: карту окрестностей речной деревни
+    instrumental: картой окрестностей речной деревни
+    prepositional: карте окрестностей речной деревни
+  short_desc: Карта окрестностей речной деревни лежит здесь.
+  type: kOther
+  material: 17  # БЕРЕСТА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 10
+  rent_off: 0
+  rent_on: 0
+  max_durability: 10
+  cur_durability: 10
+  timer: 240
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 100000
+  extra_flags:
+    - kNorent
+    - kNosell
+    - kDecay
+    - kSwimming
+  wear_flags:
+    - kTake
+    - kBoth
+  extra_descriptions:
+    - keywords: карта
+      description: |2
+        Достаточно грубая, но понятная схема деревни и прилегающей местности.
+                                        (на реке)
+                   (хутор)               |
+                      |                  |  (полянка)
+                      |                  /  /
+                      --------(лесная дорога)
+              (птичий лес)              |
+                                        |         церковь
+                                охотник-|-гадалка    |
+                                        |---------------у реки
+                      (заброшенный дом)-|
+                                        |-------------\
+                                колодец-|--Постоялый   \
+                                        |     двор     дорога-----(через лес)
+                                        |               / \
+                               торговая-|         капище   следопыт
+                                 улица -|-старейшина
+                                        |
+        ________________________________|-кладовщик
+                             лихой чел. |
+                                 |------|-ворожея
+                              старик    |
+                                      цыган
+        Обозначения: в скобках направления или названия местностей-зон
+
+# Object #5018
+18:
+  names:
+    aliases: деревянная табличка
+    nominative: деревянная табличка
+    genitive: деревянной таблички
+    dative: деревянной табличке
+    accusative: деревянную табличку
+    instrumental: деревянной табличкой
+    prepositional: деревянной табличке
+  short_desc: Небольшая деревянная табличка с какой-то надписью закреплена у входа.
+  type: kOther
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 50
+  cur_durability: 50
+  timer: 10000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kNodecay
+  extra_descriptions:
+    - keywords: деревянная табличка
+      description: |2
+        +--------------------------------------------------------------------+
+        |     По наказу головы деревни помогать молодым воинам экипировкой   |
+        |  наказываю помощнику своему каждому попросившему выдавать нужные   |
+        |  вещи. Если что-то не так выдаст - будите меня, я у задней стены   |
+        |  склада за большой бочкой с пивом.                                 |
+        |                                                        Кладовщик   |
+        +--------------------------------------------------------------------+
+
+# Object #5050
+50:
+  names:
+    aliases: осколок камень скол
+    nominative: осколок
+    genitive: осколка
+    dative: осколку
+    accusative: осколок
+    instrumental: осколком
+    prepositional: осколке
+  short_desc: Невзрачный каменный осколок лежит здесь.
+  type: kOther
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 50
+  cur_durability: 50
+  timer: 60
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+    - kNodonate
+    - kNosell
+    - kFire
+  wear_flags:
+    - kTake
+
+# Object #5051
+51:
+  names:
+    aliases: письмо
+    nominative: письмо
+    genitive: письма
+    dative: письму
+    accusative: письмо
+    instrumental: письмом
+    prepositional: письме
+  short_desc: Свернутый в трубочку кусок бересты лежит здесь.
+  action_desc: |2
+    Кусок бересты исписанный каракулями.
+    Даже предположить нельзя что здесб написано
+  type: kOther
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 0
+  rent_on: 0
+  max_durability: 20
+  cur_durability: 20
+  timer: 60
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  max_in_world: 1
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: письмо
+      description: |2
+        Здрав будь, родич!
+        Привет мой и поклон прими, да приглашение - хочет собрать батюшка старших родовичей.
+        Еще слышал от человека прохожего, что неладно у вас, так принесший эту записку поможет,
+        отработает мне долг. Прости, что сам не пришел, но дел на хозяйстве много, свободного часа нет.
+
+# Object #5099
+99:
+  names:
+    aliases: сундук
+    nominative: это что
+    genitive: нету чего
+    dative: привязать к чему
+    accusative: взять что
+    instrumental: вооружиться чем
+    prepositional: говорить о чем
+  short_desc: Что-то новое лежит здесь
+  type: kContainer
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 1
+    - 5
+    - -1
+    - 255
+  weight: 0
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 0
+  cur_durability: 0
+  timer: 5
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  wear_flags:
+    - kTake

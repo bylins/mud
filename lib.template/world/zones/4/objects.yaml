@@ -1,0 +1,1070 @@
+# Objects for zone 4
+
+# Object #400
+0:
+  names:
+    aliases: толстая книга страха божьего переплете черной кожи
+    nominative: книга страха божьего
+    genitive: книги страха божьего
+    dative: книге страха божьего
+    accusative: книгу страха божьего
+    instrumental: книгой страха божьего
+    prepositional: книге страха божьего
+  short_desc: Толстая книга в переплете из черной кожи лежит тут.
+  type: kBook
+  material: 15  # КОЖА
+  values:
+    - 0
+    - 156
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 20
+  cur_durability: 20
+  timer: 45
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 3
+  wear_flags:
+    - kTake
+
+# Object #401
+1:
+  names:
+    aliases: светящийся пергамент
+    nominative: светящийся пергамент
+    genitive: светящегося пергамента
+    dative: светящемуся пергаменту
+    accusative: светящийся пергамент
+    instrumental: светящимся пергаментом
+    prepositional: светящемся пергаменте
+  short_desc: Свернутый в трубку пергамет светится зеленоватым сиянием.
+  type: kBook
+  material: 15  # КОЖА
+  values:
+    - 0
+    - 50
+    - 0
+    - 0
+  weight: 1
+  cost: 1500
+  rent_off: 10
+  rent_on: 10
+  max_durability: 10
+  cur_durability: 10
+  timer: 40
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: светящийся пергамент
+      description: |2
+        Лист отличного гладкого пергамента, покрытый строчками
+        странных рун. Легкое зеленоватое сияние исходит от него,
+        а пальцы слегка немеют от прикосновения.
+
+# Object #402
+2:
+  names:
+    aliases: летопись забытых войн потрепанный пергаментный свиток
+    nominative: летопись забытых войн
+    genitive: летописи забытых войн
+    dative: летописи забытых войн
+    accusative: летопись забытых войн
+    instrumental: летописью забытых войн
+    prepositional: летописи забытых войн
+  short_desc: Потрепанный пергаментный свиток лежит тут.
+  type: kBook
+  material: 15  # КОЖА
+  values:
+    - 0
+    - 41
+    - 0
+    - 0
+  weight: 1
+  cost: 2000
+  rent_off: 10
+  rent_on: 10
+  max_durability: 50
+  cur_durability: 30
+  timer: 30
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNorent
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: летопись забытых войн
+      description: |2
+        Это обычный пергаментный свиток, только очень старый и потертый.
+        Внутреннюю его поверхность покрывают полустершиеся строчки.
+
+# Object #403
+3:
+  names:
+    aliases: волшебная книга
+    nominative: волшебная книга
+    genitive: волшебной книги
+    dative: волшебной книге
+    accusative: волшебную книгу
+    instrumental: волшебной книгой
+    prepositional: волшебной книге
+  short_desc: Окруженная роем светящихся огоньков книга лежит на земле.
+  type: kBook
+  material: 15  # КОЖА
+  values:
+    - 0
+    - 86
+    - 0
+    - 0
+  weight: 1
+  cost: 1500
+  rent_off: 10
+  rent_on: 10
+  max_durability: 50
+  cur_durability: 45
+  timer: 40
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 3
+  extra_flags:
+    - kNorent
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: волшебная книга
+      description: |2
+        Книга в красивом переплете из гладкой кожи,
+        окруженная роем мерцающих синих огоньков.
+
+# Object #404
+4:
+  names:
+    aliases: берестяная книга стрелой обложке
+    nominative: берестяная книга со стрелой на обложке
+    genitive: берестяной книги со стрелой на обложке
+    dative: берестяной книге со стрелой на обложке
+    accusative: берестяную книгу со стрелой на обложке
+    instrumental: берестяной книгой со стрелой на обложке
+    prepositional: берестяной книге со стрелой на обложке
+  short_desc: Потрепанная пачка берестяных листов лежит тут.
+  type: kBook
+  material: 17  # БЕРЕСТА
+  values:
+    - 0
+    - 133
+    - 0
+    - 0
+  weight: 1
+  cost: 5000
+  rent_off: 10
+  rent_on: 10
+  max_durability: 50
+  cur_durability: 45
+  timer: 30
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: берестяная книга стрелой обложке
+      description: |2
+        Несколько гладких, но весьма потрепаных квадратных кусков
+        бересты, скрепленных липовым лыком. На обложке чем-то, похожим
+        не то на смолу, не то на подсохший сок ягод намалевано изображение стрелы.
+
+# Object #405
+5:
+  names:
+    aliases: трактат свойствах теней
+    nominative: трактат о свойствах теней
+    genitive: трактата о свойствах теней
+    dative: трактату о свойствах теней
+    accusative: трактат о свойствах теней
+    instrumental: трактатом о свойствах теней
+    prepositional: трактате о свойствах теней
+  short_desc: Пухлая книга в переплете из серой ткани лежит тут.
+  type: kBook
+  material: 15  # КОЖА
+  values:
+    - 0
+    - 71
+    - 0
+    - 0
+  weight: 1
+  cost: 6000
+  rent_off: 10
+  rent_on: 10
+  max_durability: 70
+  cur_durability: 50
+  timer: 30
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: трактат свойствах теней
+      description: |2
+        Толстая книга в серой обложке,
+        словно окутанная серыми прозрачными тенями.
+
+# Object #406
+6:
+  names:
+    aliases: железная книга
+    nominative: железная книга
+    genitive: железной книги
+    dative: железной книге
+    accusative: железную книгу
+    instrumental: железной книгой
+    prepositional: железной книге
+  short_desc: Отливающая металлом огромная книга лежит на земле.
+  type: kBook
+  material: 3  # ЖЕЛЕЗО
+  values:
+    - 0
+    - 143
+    - 0
+    - 0
+  weight: 40
+  cost: 7000
+  rent_off: 10
+  rent_on: 10
+  max_durability: 200
+  cur_durability: 190
+  timer: 40
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: железная книга
+      description: |2
+        И кому же в голову взбрело книгу из железа ковать?
+        А вот она - листы железные в железном же переплете, тяжесть неподъемная.
+
+# Object #407
+7:
+  names:
+    aliases: книга превратностях судьбы
+    nominative: книга о превратностях судьбы
+    genitive: книги о превратностях судьбы
+    dative: книге о превратностях судьбы
+    accusative: книгу о превратностях судьбы
+    instrumental: книгой о превратностях судьбы
+    prepositional: книге о превратностях судьбы
+  short_desc: Толстая растрепанная книга лежит тут.
+  type: kBook
+  material: 15  # КОЖА
+  values:
+    - 0
+    - 170
+    - 0
+    - 0
+  weight: 2
+  cost: 5000
+  rent_off: 10
+  rent_on: 10
+  max_durability: 50
+  cur_durability: 45
+  timer: 40
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: книга превратностях судьбы
+      description: |2
+        Очень толстая, но страшно потрепанная, в нескольких местах
+        порванная, и даже кое-где обугленная книга.
+
+# Object #408
+8:
+  names:
+    aliases: трактат темницах узилищах
+    nominative: трактат о темницах и узилищах
+    genitive: трактата о темницах и узилищах
+    dative: трактату о темницах и узилищах
+    accusative: трактат о темницах и узилищах
+    instrumental: трактатом о темницах и узилищах
+    prepositional: трактате о темницах и узилищах
+  short_desc: Толстая книга с железной застежкой лежит тут.
+  type: kBook
+  material: 15  # КОЖА
+  values:
+    - 0
+    - 58
+    - 0
+    - 0
+  weight: 10
+  cost: 15000
+  rent_off: 10
+  rent_on: 10
+  max_durability: 100
+  cur_durability: 45
+  timer: 300
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: трактат темницах узилищах
+      description: |2
+        Толстая книга, окованная со всех сторон железом.
+        Массивная кованая застежка могла бы послужить амбарным замком.
+
+# Object #409
+9:
+  names:
+    aliases: книга каменном переплете
+    nominative: книга в каменном переплете
+    genitive: книги в каменном переплете
+    dative: книге в каменном переплете
+    accusative: книгу в каменном переплете
+    instrumental: книгой в каменном переплете
+    prepositional: книге в каменном переплете
+  short_desc: Громадный том в переплете из каменных пластин лежит здесь.
+  type: kBook
+  material: 12  # КАМЕНЬ
+  values:
+    - 0
+    - 98
+    - 0
+    - 0
+  weight: 1
+  cost: 100
+  rent_off: 100
+  rent_on: 100
+  max_durability: 50
+  cur_durability: 50
+  timer: 300
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+  wear_flags:
+    - kTake
+  anti_flags:
+    - kSorcerer
+    - kThief
+    - kWarrior
+    - kAssasine
+    - kGuard
+    - kPaladine
+    - kRanger
+    - kVigilant
+    - kMerchant
+    - kMagus
+    - kConjurer
+    - kCharmer
+    - kWizard
+
+# Object #410
+10:
+  names:
+    aliases: белый свиток
+    nominative: белый свиток
+    genitive: белого свитка
+    dative: белому свитку
+    accusative: белый свиток
+    instrumental: белым свитком
+    prepositional: белом свитке
+  short_desc: Свиток, источающий белое сияние, лежит тут.
+  type: kBook
+  material: 15  # КОЖА
+  values:
+    - 0
+    - 1
+    - 0
+    - 0
+  weight: 1
+  cost: 1000
+  rent_off: 1
+  rent_on: 1
+  max_durability: 25
+  cur_durability: 25
+  timer: 35
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+    - kNoinvis
+    - kNoalter
+  wear_flags:
+    - kTake
+
+# Object #411
+11:
+  names:
+    aliases: трактат невыносимом ужасе пустоты
+    nominative: трактат о невыносимом ужасе пустоты
+    genitive: трактата о невыносимом ужасе пустоты
+    dative: трактату о невыносимом ужасе пустоты
+    accusative: трактат о невыносимом ужасе пустоты
+    instrumental: трактатом о невыносимом ужасе пустоты
+    prepositional: трактате о невыносимом ужасе пустоты
+  short_desc: Толстая книга в иссиня-черной обложке лежит тут.
+  type: kBook
+  material: 15  # КОЖА
+  values:
+    - 0
+    - 134
+    - 0
+    - 0
+  weight: 4
+  cost: 1000
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 100
+  cur_durability: 70
+  timer: 300
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+    - kNoalter
+  wear_flags:
+    - kTake
+
+# Object #412
+12:
+  names:
+    aliases: мягкая книга
+    nominative: мягкая книга
+    genitive: мягкой книги
+    dative: мягкой книге
+    accusative: мягкую книгу
+    instrumental: мягкой книгой
+    prepositional: мягкой книге
+  short_desc: Книга в мягком переплете из кожи лежит тут.
+  type: kBook
+  material: 15  # КОЖА
+  values:
+    - 0
+    - 140
+    - 0
+    - 0
+  weight: 1
+  cost: 3000
+  rent_off: 3000
+  rent_on: 3000
+  max_durability: 50
+  cur_durability: 40
+  timer: 30
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+  wear_flags:
+    - kTake
+
+# Object #413
+13:
+  names:
+    aliases: древний трактат защите семью вратами
+    nominative: 'древний трактат "О защите за семью вратами"'
+    genitive: 'древнего трактата "О защите за семью вратами"'
+    dative: 'древнему трактату "О защите за семью вратами"'
+    accusative: 'древний трактат "О защите за семью вратами"'
+    instrumental: 'древним трактатом "О защите за семью вратами"'
+    prepositional: 'древнем трактате "О защите за семью вратами"'
+  short_desc: 'Древний трактат "О защите за семью вратами" оставлен здесь кем-то.'
+  type: kBook
+  material: 15  # КОЖА
+  values:
+    - 0
+    - 78
+    - 0
+    - 0
+  weight: 1
+  cost: 5000
+  rent_off: 5000
+  rent_on: 5000
+  max_durability: 100
+  cur_durability: 80
+  timer: 360
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+  wear_flags:
+    - kTake
+
+# Object #414
+14:
+  names:
+    aliases: слово чертах резах растрепанная рукопись
+    nominative: слово о чертах и резах
+    genitive: слова о чертах и резах
+    dative: слову о чертах и резах
+    accusative: слово о чертах и резах
+    instrumental: словом о чертах и резах
+    prepositional: слове о чертах и резах
+  short_desc: Растрепанная рукопись лежит тут.
+  type: kBook
+  material: 17  # БЕРЕСТА
+  values:
+    - 0
+    - 188
+    - 0
+    - 0
+  weight: 1
+  cost: 3000
+  rent_off: 1
+  rent_on: 0
+  max_durability: 30
+  cur_durability: 20
+  timer: 45
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  max_in_world: 2
+  extra_flags:
+    - kNorent
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: слово чертах резах растрепанная рукопись
+      description: |2
+        Толстая пачка испещренных странными значками 
+        пергаментных листов, кое-как стянутая бечевой.
+
+# Object #415
+15:
+  names:
+    aliases: трактат о довольстве
+    nominative: трактат о довольстве
+    genitive: трактата о довольстве
+    dative: трактату о довольстве
+    accusative: трактат о довольстве
+    instrumental: трактатом о довольстве
+    prepositional: трактате о довольстве
+  short_desc: Под ногами пылится какой-то трактат.
+  type: kBook
+  material: 17  # БЕРЕСТА
+  values:
+    - 0
+    - 103
+    - 0
+    - 0
+  weight: 1
+  cost: 100
+  rent_off: 10
+  rent_on: 10
+  max_durability: 1
+  cur_durability: 1
+  timer: 1000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+  wear_flags:
+    - kTake
+
+# Object #416
+16:
+  names:
+    aliases: книга о заповедных дорогах
+    nominative: книга о заповедных дорогах
+    genitive: книги о заповедных дорогах
+    dative: книге о заповедных дорогах
+    accusative: книгу о заповедных дорогах
+    instrumental: книгой о заповедных дорогах
+    prepositional: книге о заповедных дорогах
+  short_desc: Поросшая травой книга лежит у ваших ног.
+  type: kBook
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 0
+    - 119
+    - 0
+    - 0
+  weight: 1
+  cost: 1000
+  rent_off: 100
+  rent_on: 100
+  max_durability: 10
+  cur_durability: 10
+  timer: 1000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+  wear_flags:
+    - kTake
+
+# Object #417
+17:
+  names:
+    aliases: книга о волшебных свойствах зеркал
+    nominative: книга о волшебных свойствах зеркал
+    genitive: книги о волшебных свойствах зеркал
+    dative: книге о волшебных свойствах зеркал
+    accusative: книгу о волшебных свойствах зеркал
+    instrumental: книгой о волшебных свойствах зеркал
+    prepositional: книге о волшебных свойствах зеркал
+  short_desc: Странная книга отражает вашу сущность.
+  type: kBook
+  material: 17  # БЕРЕСТА
+  values:
+    - 0
+    - 132
+    - 0
+    - 0
+  weight: 1
+  cost: 500
+  rent_off: 10
+  rent_on: 10
+  max_durability: 10
+  cur_durability: 10
+  timer: 10000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 3
+  extra_flags:
+    - kNorent
+  wear_flags:
+    - kTake
+
+# Object #418
+18:
+  names:
+    aliases: трактат греховности плутовства обмана
+    nominative: трактат о греховности плутовства и обмана
+    genitive: трактата о греховности плутовства и обмана
+    dative: трактату о греховности плутовства и обмана
+    accusative: трактат о греховности плутовства и обмана
+    instrumental: трактатом о греховности плутовства и обмана
+    prepositional: трактате о греховности плутовства и обмана
+  short_desc: Тяжеловесный трактат с застежками из темного металла брошен тут.
+  type: kBook
+  material: 15  # КОЖА
+  values:
+    - 0
+    - 200
+    - 0
+    - 0
+  weight: 10
+  cost: 5000
+  rent_off: 5000
+  rent_on: 5000
+  max_durability: 50
+  cur_durability: 30
+  timer: 500
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+    - kMagic
+    - kNosell
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: трактат греховности плутовства обмана
+      description: |2
+        Толстая книга со стороной в локоть, туго стянутая
+        двумя ремнями с застежками из темного металла, и окованная
+        тем же металлом по углам.
+
+# Object #419
+19:
+  names:
+    aliases: 'ветхая пергаментная книга мертвых именах '
+    nominative: книга о мертвых именах
+    genitive: книги о мертвых именах
+    dative: книге о мертвых именах
+    accusative: книгу о мертвых именах
+    instrumental: книгой о мертвых именах
+    prepositional: книге о мертвых именах
+  short_desc: Страшно ветхая пергаментная книга без переплета лежит тут.
+  type: kBook
+  material: 15  # КОЖА
+  values:
+    - 0
+    - 209
+    - 0
+    - 0
+  weight: 10
+  cost: 500
+  rent_off: 500
+  rent_on: 500
+  max_durability: 50
+  cur_durability: 30
+  timer: 500
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+    - kMagic
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: 'ветхая пергаментная книга мертвых именах '
+      description: |2
+        Это истрепанная пачка пергаментных листов сшитая по краю
+        то ли жилами, то ли грубой нитью. Края ее истрепались и крошатся
+        прямо на глазах. Страницы покрыты вязью странных значков при одном
+        взгляде на которые по спине пробегает морозное дуновение.
+
+# Object #420
+20:
+  names:
+    aliases: трактат незримых чудовищах огромный толстый фолиант
+    nominative: трактат о незримых чудовищах
+    genitive: трактата о незримых чудовищах
+    dative: трактату о незримых чудовищах
+    accusative: трактат о незримых чудовищах
+    instrumental: трактатом о незримых чудовищах
+    prepositional: трактате о незримых чудовищах
+  short_desc: Огромный толстый фолиант дрожжит, подпрыгивает и лязгает застежками под ногами.
+  type: kBook
+  material: 15  # КОЖА
+  values:
+    - 0
+    - 211
+    - 0
+    - 0
+  weight: 10
+  cost: 500
+  rent_off: 500
+  rent_on: 500
+  max_durability: 50
+  cur_durability: 30
+  timer: 500
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 2
+  extra_flags:
+    - kNorent
+    - kMagic
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: трактат незримых чудовищах огромный толстый фолиант
+      description: |2
+        Это чудовищно большая и толстая книга в переплете из обтянутых грубой
+        кожей досок, снабженная мощными коваными застежками. Она все время дергается,
+        подпрыгивает и хлопает обложкой, неприятно напоминая дергающуюся зубастую пасть.
+
+# Object #421
+21:
+  names:
+    aliases: книга причинах движения
+    nominative: книга о причинах движения
+    genitive: книги о причинах движения
+    dative: книге о причинах движения
+    accusative: книгу о причинах движения
+    instrumental: книгой о причинах движения
+    prepositional: книге о причинах движения
+  short_desc: Толстая книга в тканном переплете лежит тут.
+  type: kBook
+  material: 15  # КОЖА
+  values:
+    - 0
+    - 55
+    - 0
+    - 0
+  weight: 10
+  cost: 500
+  rent_off: 500
+  rent_on: 500
+  max_durability: 50
+  cur_durability: 30
+  timer: 500
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+    - kMagic
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: книга причинах движения
+      description: |2
+        Это пухлая книга в переплете из обтянутых потертой тканью дощечек.
+
+# Object #422
+22:
+  names:
+    aliases: пачка пергаментных листов записки охотника змеечеловеков
+    nominative: записки охотника на змеечеловеков
+    genitive: записок охотника на змеечеловеков
+    dative: запискам охотника на змеечеловеков
+    accusative: записки охотника на змеечеловеков
+    instrumental: записками охотника на змеечеловеков
+    prepositional: записках охотника на змеечеловеков
+  short_desc: Пачка туго скрученных и перетянутых шелковой лентой пергаментных листов лежит тут.
+  type: kBook
+  material: 15  # КОЖА
+  values:
+    - 0
+    - 242
+    - 0
+    - 0
+  weight: 10
+  cost: 500
+  rent_off: 500
+  rent_on: 500
+  max_durability: 50
+  cur_durability: 30
+  timer: 500
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+    - kMagic
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: пачка пергаментных листов записки охотника змеечеловеков
+      description: |2
+        Это туко скрученная пачка потрепанных пергаментных листов,
+        обмотанная и обвязанная не менее видавшей виды лентой красного
+        шелка.
+
+# Object #423
+23:
+  names:
+    aliases: шипящая книга ольховой коры
+    nominative: шипящая книга из ольховой коры
+    genitive: шипящей книги из ольховой коры
+    dative: шипящей книге из ольховой коры
+    accusative: шипящую книгу из ольховой коры
+    instrumental: шипящей книгой из ольховой коры
+    prepositional: шипящей книге из ольховой коры
+  short_desc: Книга из выглаженных кусков ольховой коры лежит тут, периодически испуская злобное шипение.
+  type: kBook
+  material: 15  # КОЖА
+  values:
+    - 0
+    - 241
+    - 0
+    - 0
+  weight: 10
+  cost: 500
+  rent_off: 500
+  rent_on: 500
+  max_durability: 50
+  cur_durability: 30
+  timer: 500
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+    - kMagic
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: шипящая книга ольховой коры
+      description: |2
+        Это книга из выглаженных и ровно обрезанных листов коры,
+        переплетенная тонкими кожаными ремешками. Она то и дело
+        подергивается и испускает неприятное шипение.
+
+# Object #424
+24:
+  names:
+    aliases: переливающийся свиток
+    nominative: переливающийся свиток
+    genitive: переливающегося свитка
+    dative: переливающемуся свитку
+    accusative: переливающийся свиток
+    instrumental: переливающимся свитком
+    prepositional: переливающемся свитке
+  short_desc: Переливающийся призрачными синим огнем свиток лежит тут.
+  type: kBook
+  material: 15  # КОЖА
+  values:
+    - 0
+    - 121
+    - 0
+    - 0
+  weight: 10
+  cost: 500
+  rent_off: 500
+  rent_on: 500
+  max_durability: 50
+  cur_durability: 30
+  timer: 500
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+    - kMagic
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: переливающийся свиток
+      description: |2
+        Это намотанный на омфалос из красного дерева плотный
+        свиток пергамента, который, вот диво, переливается
+        всеми оттенками синего: от штормового моря, до
+        вечереющего зимнего неба.
+
+# Object #425
+25:
+  names:
+    aliases: книга прозорения изображением открытых глаз
+    nominative: книга прозрения
+    genitive: книги прозрения
+    dative: книге прозрения
+    accusative: книгу прозрения
+    instrumental: книгой прозрения
+    prepositional: книге прозрения
+  short_desc: Книга с изображением открытых глаз лежит здесь.
+  type: kBook
+  material: 15  # КОЖА
+  values:
+    - 0
+    - 14
+    - 0
+    - 0
+  weight: 1
+  cost: 500
+  rent_off: 500
+  rent_on: 500
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 5
+  wear_flags:
+    - kTake
+
+# Object #426
+26:
+  names:
+    aliases: дымящаяся книга
+    nominative: дымящаяся книга
+    genitive: дымящейся книги
+    dative: дымящейся книге
+    accusative: дымящуюся книгу
+    instrumental: дымящейся книгой
+    prepositional: дымящейся книге
+  short_desc: Лежащая здесь книга источает дымок.
+  type: kBook
+  material: 15  # КОЖА
+  values:
+    - 0
+    - 212
+    - 0
+    - 0
+  weight: 10
+  cost: 500
+  rent_off: 0
+  rent_on: 0
+  max_durability: 50
+  cur_durability: 40
+  timer: 120
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+    - kMagic
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: дымящаяся книга
+      description: |2
+        На облошке этой источающей дымок книги изображена стрела.
+
+# Object #427
+27:
+  names:
+    aliases: едкая книга
+    nominative: едкая книга
+    genitive: едкой книги
+    dative: едкой книге
+    accusative: едкую книгу
+    instrumental: едкой книгой
+    prepositional: едкой книге
+  short_desc: Распространяющая ядовитый туман книга лежит тут.
+  type: kBook
+  material: 15  # КОЖА
+  values:
+    - 0
+    - 167
+    - 0
+    - 0
+  weight: 10
+  cost: 500
+  rent_off: 0
+  rent_on: 0
+  max_durability: 50
+  cur_durability: 40
+  timer: 120
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+    - kMagic
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: едкая книга
+      description: |2
+        Вокруг этой книги клубится неприятный ядовитый туман.

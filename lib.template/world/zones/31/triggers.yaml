@@ -1,0 +1,43 @@
+# Triggers for zone 31
+
+# Trigger #3100
+0:
+  name: Тест для телепорта
+  attach_type: kObjTrigger
+  narg: 2
+  arglist: активировать
+  trigger_types:
+    - kCommand
+  script: |-2
+    if %actor.vnum% != -1
+      halt
+    end
+    if !(%arg.contains(врата)%)
+      osend %actor% _И с чем вы хотите проделать это?
+      halt
+    end
+    wait 2
+    osend %actor% _Вы попытались активировать врата.
+    echoaround %actor% _Врата в никуда %actor.rname% засияли ослепительным светом.
+    calcuid actorroom %actor.realroom% room
+    attach 3101 %actorroom%
+    exec 3101 %actorroom%
+    detach 3101 %actorroom%
+    if %random.99% == 1
+      osend %actor% _Из-за небрежного обращения врата в никуда рассыпались.
+      %purge% %self%
+    end
+
+# Trigger #3101
+1:
+  name: Установка портала
+  attach_type: kRoomTrigger
+  narg: 1
+  trigger_types:
+    - kAuto
+  script: |-2
+    calcuid gate 3101 obj
+    eval nzone %gate.val0%
+    eval maxroom %gate.val1%
+    eval numberroom %nzone% + %random.num(%maxroom%)%
+    wportal %numberroom% 2

@@ -1,0 +1,13 @@
+# Zone #36
+
+vnum: 36
+name: 'Системная зона 36 -- Именные вещи #2'
+top_room: 3699
+lifespan: 0
+reset_mode: 0
+reset_idle: 0
+zone_type: 0
+mode: 1  # level
+entrance: 3699
+under_construction: 0
+zone_group: 1  # solo

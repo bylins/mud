@@ -1,0 +1,1060 @@
+# Mobs for zone 55
+
+# Mob #5500
+0:
+  names:
+    aliases: коршун
+    nominative: коршун
+    genitive: коршуна
+    dative: коршуну
+    accusative: коршуна
+    instrumental: коршуном
+    prepositional: коршуне
+  descriptions:
+    short_desc: |2
+      Коршун высматривает добычу здесь.
+    long_desc: |2
+      Птица-хищник.
+  alignment: 0
+  stats:
+    level: 8
+    hitroll_penalty: 10
+    armor: 5
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 300
+    damage:
+      dice_count: 3
+      dice_size: 5
+      bonus: 3
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 3000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 5
+  race: 103
+  height: 5
+  weight: 3
+  attributes:
+    strength: 7
+    dexterity: 5
+    intelligence: 3
+    wisdom: 3
+    constitution: 7
+    charisma: 3
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kStayZone
+    - kMemory
+    - kHelper
+    - kNoCharm
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 30
+    - skill_id: 151  # парировать
+      value: 40
+    - skill_id: 157  # уклониться
+      value: 60
+  triggers:
+    - 5501  # смерть коршуна
+  enhanced:
+    absorb: 8
+    bare_hand_attack: 15
+    like_work: 60
+    max_factor: 1
+    extra_attack: 1
+
+# Mob #5501
+1:
+  names:
+    aliases: хозяйка
+    nominative: хозяйка
+    genitive: хозяйки
+    dative: хозяйке
+    accusative: хозяйку
+    instrumental: хозяйкой
+    prepositional: хозяйке
+  descriptions:
+    short_desc: |2
+      Хозяйка стоит здесь.
+    long_desc: |2
+      Крепкая властная женщина.
+  alignment: 0
+  stats:
+    level: 21
+    hitroll_penalty: 8
+    armor: 5
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 800
+    damage:
+      dice_count: 4
+      dice_size: 5
+      bonus: 5
+  gold:
+    dice_count: 10
+    dice_size: 5
+    bonus: 120
+  experience: 50000
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  size: 15
+  race: 101
+  height: 150
+  weight: 50
+  attributes:
+    strength: 10
+    dexterity: 5
+    intelligence: 11
+    wisdom: 11
+    constitution: 16
+    charisma: 10
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kStayZone
+    - kMemory
+    - kHelper
+    - kNoCharm
+    - kNoSleep
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kSanctuary
+    - kInfravision
+  skills:
+    - skill_id: 134  # пнуть
+      value: 80
+    - skill_id: 136  # кулачный бой
+      value: 66
+    - skill_id: 151  # парировать
+      value: 80
+    - skill_id: 157  # уклониться
+      value: 80
+    - skill_id: 160  # подножка
+      value: 80
+  triggers:
+    - 5500  # хозяйка-встреча
+    - 5502  # дали крыло хозяйке
+  enhanced:
+    absorb: 21
+    like_work: 90
+    max_factor: 3
+    extra_attack: 1
+    spells:
+      - 15
+      - 15
+      - 15
+      - 15
+      - 15
+    helpers:
+      - 5502
+
+# Mob #5502
+2:
+  names:
+    aliases: батрак
+    nominative: батрак
+    genitive: батрака
+    dative: батраку
+    accusative: батрака
+    instrumental: батраком
+    prepositional: батраке
+  descriptions:
+    short_desc: |2
+      Батрак работает здесь.
+    long_desc: |2
+      Крепкий молодой парень.
+  alignment: 0
+  stats:
+    level: 8
+    hitroll_penalty: 10
+    armor: 5
+    hp:
+      dice_count: 5
+      dice_size: 10
+      bonus: 250
+    damage:
+      dice_count: 5
+      dice_size: 2
+      bonus: 4
+  gold:
+    dice_count: 4
+    dice_size: 4
+    bonus: 10
+  experience: 3000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 10
+  race: 101
+  height: 150
+  weight: 90
+  attributes:
+    strength: 15
+    dexterity: 5
+    intelligence: 5
+    wisdom: 5
+    constitution: 15
+    charisma: 5
+  action_flags:
+    - kNpc
+    - kStayZone
+    - kHelper
+    - kNoSleep
+  skills:
+    - skill_id: 134  # пнуть
+      value: 80
+    - skill_id: 136  # кулачный бой
+      value: 30
+  enhanced:
+    absorb: 8
+    like_work: 80
+    max_factor: 1
+    extra_attack: 1
+    special_bitvector: y0
+
+# Mob #5503
+3:
+  names:
+    aliases: лентяй
+    nominative: лентяй
+    genitive: лентяя
+    dative: лентяю
+    accusative: лентяя
+    instrumental: лентяем
+    prepositional: лентяе
+  descriptions:
+    short_desc: |2
+      Лентяй бьет баклуши здесь.
+    long_desc: |2
+      Ведь здоровый мужик, а работать не хочет.
+  alignment: 0
+  stats:
+    level: 8
+    hitroll_penalty: 15
+    armor: 7
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 250
+    damage:
+      dice_count: 3
+      dice_size: 4
+      bonus: 8
+  gold:
+    dice_count: 20
+    dice_size: 1
+    bonus: 12
+  experience: 3000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 15
+  race: 101
+  height: 170
+  weight: 120
+  attributes:
+    strength: 14
+    dexterity: 4
+    intelligence: 3
+    wisdom: 3
+    constitution: 15
+    charisma: 3
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kStayZone
+    - kNoCharm
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 24
+    - skill_id: 150  # обезоружить
+      value: 80
+  triggers:
+    - 5505  # смерть лентяя
+  enhanced:
+    absorb: 8
+    like_work: 90
+    max_factor: 1
+    extra_attack: 1
+
+# Mob #5504
+4:
+  names:
+    aliases: сердитый мужик
+    nominative: сердитый мужик
+    genitive: сердитого мужика
+    dative: сердитому мужику
+    accusative: сердитого мужика
+    instrumental: сердитым мужиком
+    prepositional: сердитом мужике
+  descriptions:
+    short_desc: |2
+      Сердитый мужик смотрит на вас.
+    long_desc: |2
+      Крепкий мужчина с озлобленным выражением на лице.
+  alignment: 0
+  stats:
+    level: 9
+    hitroll_penalty: 8
+    armor: 5
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 350
+    damage:
+      dice_count: 8
+      dice_size: 1
+      bonus: 3
+  gold:
+    dice_count: 1
+    dice_size: 5
+    bonus: 50
+  experience: 5000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 10
+  race: 101
+  height: 170
+  weight: 120
+  attributes:
+    strength: 14
+    dexterity: 10
+    intelligence: 4
+    wisdom: 4
+    constitution: 14
+    charisma: 3
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kAgressive
+    - kStayZone
+    - kMemory
+    - kHelper
+    - kNoFear
+  skills:
+    - skill_id: 132  # сбить
+      value: 50
+    - skill_id: 134  # пнуть
+      value: 60
+    - skill_id: 136  # кулачный бой
+      value: 60
+  triggers:
+    - 5506  # смерть мужика
+  enhanced:
+    absorb: 9
+    like_work: 100
+    max_factor: 1
+    extra_attack: 1
+
+# Mob #5505
+5:
+  names:
+    aliases: петух
+    nominative: петух
+    genitive: петуха
+    dative: петуху
+    accusative: петуха
+    instrumental: петухом
+    prepositional: петухе
+  descriptions:
+    short_desc: |2
+      Петух важно вышагивает здесь.
+    long_desc: |2
+      Красно-черный большой петух важно вышагивает и осматривает окружающих.
+  alignment: 0
+  stats:
+    level: 5
+    hitroll_penalty: 12
+    armor: 6
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 200
+    damage:
+      dice_count: 2
+      dice_size: 8
+      bonus: 2
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 1500
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 3
+  race: 103
+  height: 7
+  weight: 2
+  attributes:
+    strength: 3
+    dexterity: 3
+    intelligence: 3
+    wisdom: 3
+    constitution: 3
+    charisma: 3
+  action_flags:
+    - kNpc
+    - kStayZone
+    - kHelper
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 24
+  enhanced:
+    absorb: 5
+    bare_hand_attack: 15
+
+# Mob #5506
+6:
+  names:
+    aliases: курица
+    nominative: курица
+    genitive: курицы
+    dative: курице
+    accusative: курицу
+    instrumental: курицей
+    prepositional: курице
+  descriptions:
+    short_desc: |2
+      Курица кудахчет и ищет корм.
+    long_desc: |2
+      Красно-черная курица роется в земле в поисках корма.
+  alignment: 0
+  stats:
+    level: 4
+    hitroll_penalty: 16
+    armor: 8
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 100
+    damage:
+      dice_count: 2
+      dice_size: 2
+      bonus: 2
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 1000
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  size: 3
+  race: 103
+  height: 6
+  weight: 2
+  attributes:
+    strength: 3
+    dexterity: 3
+    intelligence: 3
+    wisdom: 3
+    constitution: 3
+    charisma: 3
+  action_flags:
+    - kNpc
+    - kStayZone
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 15
+  enhanced:
+    absorb: 4
+    bare_hand_attack: 15
+    helpers:
+      - 5505
+
+# Mob #5507
+7:
+  names:
+    aliases: цыпленок
+    nominative: цыпленок
+    genitive: цыпленка
+    dative: цыпленку
+    accusative: цыпленка
+    instrumental: цыпленком
+    prepositional: цыпленке
+  descriptions:
+    short_desc: |2
+      Маленький цыпленок ходит здесь.
+    long_desc: |2
+      Маленький желторотый цыпленок гуляет здесь.
+  alignment: 0
+  stats:
+    level: 2
+    hitroll_penalty: 19
+    armor: 9
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 50
+    damage:
+      dice_count: 2
+      dice_size: 2
+      bonus: 1
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 200
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 1
+  race: 103
+  height: 1
+  weight: 1
+  attributes:
+    strength: 3
+    dexterity: 3
+    intelligence: 3
+    wisdom: 3
+    constitution: 3
+    charisma: 3
+  action_flags:
+    - kNpc
+    - kStayZone
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 6
+  enhanced:
+    absorb: 2
+    bare_hand_attack: 15
+    spells:
+      - 15
+      - 15
+      - 15
+
+# Mob #5508
+8:
+  names:
+    aliases: корова
+    nominative: корова
+    genitive: коровы
+    dative: корове
+    accusative: корову
+    instrumental: коровой
+    prepositional: корове
+  descriptions:
+    short_desc: |2
+      Корова отмахивается от насекомых здесь.
+    long_desc: |2
+      Большая корова в основном белого цвета с черными пятнами.
+  alignment: 0
+  stats:
+    level: 8
+    hitroll_penalty: 12
+    armor: 6
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 200
+    damage:
+      dice_count: 2
+      dice_size: 3
+      bonus: 5
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 3000
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  size: 10
+  race: 104
+  height: 200
+  weight: 150
+  attributes:
+    strength: 10
+    dexterity: 3
+    intelligence: 3
+    wisdom: 3
+    constitution: 10
+    charisma: 3
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kStayZone
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 24
+  enhanced:
+    absorb: 8
+    bare_hand_attack: 14
+    max_factor: 1
+    extra_attack: 1
+
+# Mob #5509
+9:
+  names:
+    aliases: теленок
+    nominative: теленок
+    genitive: теленка
+    dative: теленку
+    accusative: теленка
+    instrumental: теленком
+    prepositional: теленке
+  descriptions:
+    short_desc: |2
+      Теленок отдыхает здесь.
+    long_desc: |2
+      Уже подросший, твердо стоящий на ногах теленок с печальными глазами.
+  alignment: 0
+  stats:
+    level: 4
+    hitroll_penalty: 16
+    armor: 8
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 100
+    damage:
+      dice_count: 2
+      dice_size: 3
+      bonus: 3
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 1000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 5
+  race: 104
+  height: 100
+  weight: 50
+  attributes:
+    strength: 5
+    dexterity: 3
+    intelligence: 3
+    wisdom: 3
+    constitution: 5
+    charisma: 3
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kStayZone
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 15
+  enhanced:
+    absorb: 4
+    bare_hand_attack: 14
+    helpers:
+      - 5508
+
+# Mob #5510
+10:
+  names:
+    aliases: свинья
+    nominative: свинья
+    genitive: свиньи
+    dative: свинье
+    accusative: свинью
+    instrumental: свиньей
+    prepositional: свинье
+  descriptions:
+    short_desc: |2
+      Свинья роется в корыте.
+    long_desc: |2
+      Толстая свинья с маленькими глазками.
+  alignment: 0
+  stats:
+    level: 9
+    hitroll_penalty: 13
+    armor: 6
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 300
+    damage:
+      dice_count: 2
+      dice_size: 5
+      bonus: 4
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 4000
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  size: 3
+  race: 104
+  height: 70
+  weight: 150
+  attributes:
+    strength: 10
+    dexterity: 5
+    intelligence: 3
+    wisdom: 3
+    constitution: 10
+    charisma: 3
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kStayZone
+    - kAggressiveNight
+    - kNoCharm
+  skills:
+    - skill_id: 132  # сбить
+      value: 40
+    - skill_id: 136  # кулачный бой
+      value: 30
+  enhanced:
+    absorb: 9
+    bare_hand_attack: 4
+    like_work: 50
+    max_factor: 1
+    extra_attack: 1
+
+# Mob #5511
+11:
+  names:
+    aliases: баран
+    nominative: баран
+    genitive: барана
+    dative: барану
+    accusative: барана
+    instrumental: бараном
+    prepositional: баране
+  descriptions:
+    short_desc: |2
+      Большой баран уперся в стену здесь.
+    long_desc: |2
+      Молодой баран с крепкими рогами.
+  alignment: 0
+  stats:
+    level: 6
+    hitroll_penalty: 10
+    armor: 4
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 250
+    damage:
+      dice_count: 2
+      dice_size: 3
+      bonus: 10
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 2000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 10
+  race: 104
+  height: 80
+  weight: 70
+  attributes:
+    strength: 10
+    dexterity: 5
+    intelligence: 3
+    wisdom: 3
+    constitution: 10
+    charisma: 3
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kStayZone
+    - kMemory
+    - kHelper
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 30
+    - skill_id: 137  # спасти
+      value: 80
+  enhanced:
+    absorb: 6
+    bare_hand_attack: 14
+
+# Mob #5512
+12:
+  names:
+    aliases: овечка
+    nominative: овечка
+    genitive: овечки
+    dative: овечке
+    accusative: овечку
+    instrumental: овечкой
+    prepositional: овечке
+  descriptions:
+    short_desc: |2
+      Овечка отдыхает здесь.
+    long_desc: |2
+      Овечка с нежной шерстью смотрит на вас печальными глазами.
+  alignment: 0
+  stats:
+    level: 4
+    hitroll_penalty: 16
+    armor: 4
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 150
+    damage:
+      dice_count: 2
+      dice_size: 3
+      bonus: 2
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 1000
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  size: 3
+  race: 104
+  height: 70
+  weight: 60
+  attributes:
+    strength: 3
+    dexterity: 3
+    intelligence: 3
+    wisdom: 3
+    constitution: 3
+    charisma: 3
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kStayZone
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 18
+  enhanced:
+    absorb: 4
+    bare_hand_attack: 14
+    helpers:
+      - 5511
+
+# Mob #5513
+13:
+  names:
+    aliases: мерин
+    nominative: мерин
+    genitive: мерина
+    dative: мерину
+    accusative: мерина
+    instrumental: мерином
+    prepositional: мерине
+  descriptions:
+    short_desc: |2
+      Мерин стоит привязанный здесь.
+    long_desc: |2
+      Крупный конь, в первую очередь используемый для пашни и перевоза.
+  alignment: 0
+  stats:
+    level: 6
+    hitroll_penalty: 3
+    armor: 5
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 400
+    damage:
+      dice_count: 2
+      dice_size: 10
+      bonus: 5
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 2000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 25
+  race: 104
+  height: 200
+  weight: 190
+  attributes:
+    strength: 12
+    dexterity: 3
+    intelligence: 5
+    wisdom: 5
+    constitution: 12
+    charisma: 5
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kStayZone
+    - kMounting
+  skills:
+    - skill_id: 132  # сбить
+      value: 70
+    - skill_id: 136  # кулачный бой
+      value: 30
+  enhanced:
+    absorb: 6
+    bare_hand_attack: 13
+    like_work: 90
+    extra_attack: 1
+
+# Mob #5514
+14:
+  names:
+    aliases: хозяин
+    nominative: хозяин
+    genitive: хозяина
+    dative: хозяину
+    accusative: хозяина
+    instrumental: хозяином
+    prepositional: хозяине
+  descriptions:
+    short_desc: |2
+      Хозяин сидит здесь за столом.
+    long_desc: |2
+      Сильный мужчина со шрамом на лице.
+  alignment: 0
+  stats:
+    level: 21
+    hitroll_penalty: 8
+    armor: 5
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 1000
+    damage:
+      dice_count: 4
+      dice_size: 3
+      bonus: 15
+  gold:
+    dice_count: 10
+    dice_size: 5
+    bonus: 180
+  experience: 50000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 20
+  race: 101
+  height: 170
+  weight: 90
+  attributes:
+    strength: 20
+    dexterity: 5
+    intelligence: 11
+    wisdom: 11
+    constitution: 16
+    charisma: 20
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kStayZone
+    - kMemory
+    - kHelper
+    - kNoCharm
+    - kNoSleep
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kSanctuary
+    - kInfravision
+  skills:
+    - skill_id: 132  # сбить
+      value: 90
+    - skill_id: 134  # пнуть
+      value: 90
+    - skill_id: 136  # кулачный бой
+      value: 66
+    - skill_id: 141  # палицы и дубины
+      value: 90
+    - skill_id: 151  # парировать
+      value: 90
+    - skill_id: 189  # магия жизни
+      value: 210
+  triggers:
+    - 5507  # дали хозяину
+    - 5508  # Хозяин дает письмо
+  enhanced:
+    absorb: 21
+    like_work: 95
+    max_factor: 3
+    extra_attack: 1
+    spells:
+      - 15
+      - 15
+      - 15
+      - 15
+      - 15
+      - 28
+      - 28
+      - 28
+    helpers:
+      - 5501
+      - 5502
+
+# Mob #5524
+24:
+  names:
+    aliases: неоконченный моб
+    nominative: неоконченный моб
+    genitive: неоконченного моба
+    dative: неоконченному мобу
+    accusative: неоконченного моба
+    instrumental: неоконченным мобом
+    prepositional: неоконченном мобе
+  descriptions:
+    short_desc: |2
+      Неоконченный моб стоит тут.
+    long_desc: |2
+      Выглядит достаточно незавершенно.
+  alignment: 0
+  stats:
+    level: 1
+    hitroll_penalty: 20
+    armor: 0
+    hp:
+      dice_count: 1
+      dice_size: 100
+      bonus: 1
+    damage:
+      dice_count: 1
+      dice_size: 1
+      bonus: 0
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kNeutral
+  size: 30
+  race: 103
+  height: 198
+  weight: 200
+  action_flags:
+    - kNpc
+  enhanced:

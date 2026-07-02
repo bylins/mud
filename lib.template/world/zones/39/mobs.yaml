@@ -1,0 +1,467 @@
+# Mobs for zone 39
+
+# Mob #3900
+0:
+  names:
+    aliases: хозяин корабля
+    nominative: хозяин корабля
+    genitive: хозяина корабля
+    dative: хозяину корабля
+    accusative: хозяина корабля
+    instrumental: хозяином корабля
+    prepositional: хозяине корабля
+  descriptions:
+    short_desc: |2
+      Хозяин корабля расселся здесь на бочке.
+    long_desc: |2
+      Сильный, когда-то даже стройный мужик с большим шрамом на щеке.
+  alignment: -600
+  stats:
+    level: 20
+    hitroll_penalty: 20
+    armor: 0
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 500
+    damage:
+      dice_count: 0
+      dice_size: 0
+      bonus: 5
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kSit
+    start: kSit
+  sex: kMale
+  size: 50
+  race: 101
+  height: 175
+  weight: 160
+  action_flags:
+    - kSentinel
+    - kNpc
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+  enhanced:
+    max_factor: 2
+
+# Mob #3901
+1:
+  names:
+    aliases: грустный купец
+    nominative: грустный купец
+    genitive: грустного купца
+    dative: грустному купцу
+    accusative: грустного купца
+    instrumental: грустным купцом
+    prepositional: грустном купце
+  descriptions:
+    short_desc: |2
+      Грустный купец в скромных одеждах выжидающе смотрит на Вас.
+    long_desc: |2
+      Этому купцу, похоже, совсем недолго осталось торговать пока он не попадет в долговое рабство.
+  alignment: 600
+  stats:
+    level: 18
+    hitroll_penalty: 20
+    armor: 0
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 600
+    damage:
+      dice_count: 0
+      dice_size: 0
+      bonus: 5
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 50
+  race: 101
+  height: 175
+  weight: 140
+  action_flags:
+    - kSentinel
+    - kNpc
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+  enhanced:
+    max_factor: 2
+
+# Mob #3902
+2:
+  names:
+    aliases: довольный торговец
+    nominative: довольный торговец
+    genitive: довольного торговца
+    dative: довольному торговцу
+    accusative: довольного торговца
+    instrumental: довольным торговцом
+    prepositional: довольном торговце
+  descriptions:
+    short_desc: |2
+      Всем довольный торговец пересчитывает свою выручку.
+    long_desc: |2
+      Такой человек даже в выгребной яме будет не тонуть, а весело булькать.
+  alignment: -600
+  stats:
+    level: 20
+    hitroll_penalty: 20
+    armor: 0
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 600
+    damage:
+      dice_count: 0
+      dice_size: 0
+      bonus: 5
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 50
+  race: 101
+  height: 175
+  weight: 140
+  action_flags:
+    - kSentinel
+    - kNpc
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+  enhanced:
+    max_factor: 2
+
+# Mob #3903
+3:
+  names:
+    aliases: раскосый азиатский купец
+    nominative: азиатский купец
+    genitive: азиатского купца
+    dative: азиатскому купцу
+    accusative: азиатского купца
+    instrumental: азиатским купцом
+    prepositional: азиатском купце
+  descriptions:
+    short_desc: |2
+      Раскосый купец хитро поглядывает на вас.
+    long_desc: |2
+      Гость с таинственного востока явно что-то замышляет.
+  alignment: -600
+  stats:
+    level: 20
+    hitroll_penalty: 20
+    armor: 0
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 600
+    damage:
+      dice_count: 0
+      dice_size: 0
+      bonus: 5
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 40
+  race: 101
+  height: 155
+  weight: 120
+  action_flags:
+    - kSentinel
+    - kNpc
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+  enhanced:
+    max_factor: 2
+
+# Mob #3904
+4:
+  names:
+    aliases: худой путешествующий проповедник
+    nominative: путешествующий проповедник
+    genitive: путешествующего проповедника
+    dative: путешествующему проповеднику
+    accusative: путешествующего проповедника
+    instrumental: путешествующем проповедником
+    prepositional: путешествующем проповеднике
+  descriptions:
+    short_desc: |2
+      Худой проповедник задумчиво смотрит на воду.
+    long_desc: |2
+      Скромные одежды, книга с крестом в руках, умиротворенное лицо - что еще нужно для обращения диких язычников в христианскую веру?
+  alignment: 600
+  stats:
+    level: 22
+    hitroll_penalty: 20
+    armor: 0
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 600
+    damage:
+      dice_count: 0
+      dice_size: 0
+      bonus: 5
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 50
+  race: 101
+  height: 175
+  weight: 140
+  action_flags:
+    - kSentinel
+    - kNpc
+  enhanced:
+    max_factor: 3
+
+# Mob #3905
+5:
+  names:
+    aliases: охранник припасов
+    nominative: охранник припасов
+    genitive: охранника припасов
+    dative: охраннику припасов
+    accusative: охранника припасов
+    instrumental: охранником припасов
+    prepositional: охраннике припасов
+  descriptions:
+    short_desc: |2
+      Между бочек во мраке притаился охранник.
+    long_desc: |2
+      Может охраняет припасы он и неплохо, но уж точно не от себя - больно толстый.
+  alignment: -600
+  stats:
+    level: 20
+    hitroll_penalty: 20
+    armor: 0
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 600
+    damage:
+      dice_count: 0
+      dice_size: 0
+      bonus: 5
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kSit
+    start: kSit
+  sex: kMale
+  size: 50
+  race: 101
+  height: 175
+  weight: 140
+  action_flags:
+    - kSentinel
+    - kNpc
+  enhanced:
+    max_factor: 2
+
+# Mob #3906
+6:
+  names:
+    aliases: тощая крыса
+    nominative: тощая крыса
+    genitive: тощей крысы
+    dative: тощей крысе
+    accusative: тощую крысу
+    instrumental: тощей крысой
+    prepositional: тощей крысе
+  descriptions:
+    short_desc: |2
+      Тощая крыса прячется здесь от людей.
+    long_desc: |2
+      Судя по всему, она больше заботится о том, чтобы ее никто не слопал, чем о том, чего бы слопать самой.
+  alignment: -600
+  stats:
+    level: 10
+    hitroll_penalty: 20
+    armor: 0
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 50
+    damage:
+      dice_count: 2
+      dice_size: 3
+      bonus: 3
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  size: 20
+  race: 104
+  height: 50
+  weight: 30
+  attributes:
+    strength: 5
+    dexterity: 5
+    intelligence: 5
+    wisdom: 5
+    constitution: 5
+    charisma: 5
+  action_flags:
+    - kNpc
+    - kWimpy
+  skills:
+    - skill_id: 138  # подкрасться
+      value: 100
+    - skill_id: 156  # маскировка
+      value: 100
+  enhanced:
+    bare_hand_attack: 8
+    max_factor: 1
+    special_bitvector: i0j0
+    destinations:
+      - 3904
+      - 3908
+      - 3905
+      - 3907
+      - 3906
+
+# Mob #3907
+7:
+  names:
+    aliases: охранник кнутом
+    nominative: охранник с кнутом
+    genitive: охранника с кнутом
+    dative: охраннику с кнутом
+    accusative: охранника с кнутом
+    instrumental: охранником с кнутом
+    prepositional: охраннике с кнутом
+  descriptions:
+    short_desc: |2
+      Охранник с кнутом следит за порядком.
+    long_desc: |2
+      Высокий и сильный охранник следит за порядком и подгоняет неторопливых рабов кнутом.
+  alignment: -600
+  stats:
+    level: 20
+    hitroll_penalty: 20
+    armor: 0
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 600
+    damage:
+      dice_count: 0
+      dice_size: 0
+      bonus: 5
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 50
+  race: 101
+  height: 175
+  weight: 140
+  action_flags:
+    - kNpc
+  enhanced:
+    max_factor: 2
+    destinations:
+      - 3900
+      - 3901
+      - 3902
+
+# Mob #3908
+8:
+  names:
+    aliases: серьезный купец
+    nominative: серьезный купец
+    genitive: серьезного купца
+    dative: серьезному купцу
+    accusative: серьезного купца
+    instrumental: серьезным купцом
+    prepositional: серьезном купце
+  descriptions:
+    short_desc: |2
+      Стоящий тут купец серьезно поглядывает на окружающих.
+    long_desc: |2
+      Лицо этого невысокого мужчины постоянно носит серьезное, сосредоточенное выражение, будто какая-то дума донимает его.
+  alignment: -600
+  stats:
+    level: 20
+    hitroll_penalty: 20
+    armor: 0
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 600
+    damage:
+      dice_count: 0
+      dice_size: 0
+      bonus: 5
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 40
+  race: 101
+  height: 155
+  weight: 120
+  action_flags:
+    - kSentinel
+    - kNpc
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+  enhanced:
+    max_factor: 2

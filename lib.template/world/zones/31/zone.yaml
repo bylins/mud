@@ -1,0 +1,17 @@
+# Zone #31
+
+vnum: 31
+name: Системная зона 31 -- прототипы новой системы крафта.
+metadata:
+  location: Правь
+  author: Свентовит
+  description: Зона содержит прототипы для новой системы крафта
+top_room: 3199
+lifespan: 1
+reset_mode: 0
+reset_idle: 0
+zone_type: 0
+mode: 1  # level
+entrance: 3100
+under_construction: 0
+zone_group: 1  # solo

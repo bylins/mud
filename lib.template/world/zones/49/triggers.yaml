@@ -1,0 +1,397 @@
+# Triggers for zone 49
+
+# Trigger #4900
+0:
+  name: Кто в теремочке живет?
+  attach_type: kMobTrigger
+  narg: 100
+  arglist: '*'
+  trigger_types:
+    - kSpeech
+  script: |-2
+    *лоад проводника
+    if !%actor.iname%
+      halt
+    end
+    if !(%speech.contains(кто)% && %speech.contains(терем)% && %speech.contains(жив)%)
+      halt
+    end
+    set tmp 1
+    while (%tmp% < 6)
+      if !%exist.mob(490%tmp%)%
+        set vnumlist %vnumlist% 490%tmp%
+      end
+      eval tmp %tmp%+1
+    done
+    if (%vnumlist.words% == 0)
+      *свободных проводников нет, отправляем в зад
+      wait 1s
+      %send% %actor% Похоже, никого нет дома, придется зайти попозже.
+      %send% %actor% Внезапно поднявшийся ветер подхватил вас и понес неведомо куда.
+      %echoaround% %actor% Внезапно поднявшийся ветер подхватил %actor.vname% и понес неведомо куда.
+      %send% %actor% Очнулись вы уже в комнатах отдыха...
+      %teleport% %actor% %actor.loadroom%
+      %echoaround% %actor% %actor.iname% свалил%actor.u% сюда невесть откуда.
+      halt
+    end
+    *выбрали одного из незанятых проводника
+    eval hlpr %vnumlist.words(%random.num(%vnumlist.words%)%)%
+    *%echo% %vnumlist%
+    *%echo% %hlpr%
+    %load% mob %hlpr%
+    calcuid helper %hlpr% mob
+    if %helper%
+      wait 3
+      %send% %actor% Как только вы произнесли эти слова...
+      %echo% Из теремочка выскочил%helper.g% %helper.iname%.
+      eval pupil %actor%
+      remote pupil %helper%
+      attach 4901 %helper%
+      exec 4901 %helper%
+    end
+
+# Trigger #4901
+1:
+  name: Вошли к проводнику
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kAuto
+  script: |-2
+    if !%pupil.name%
+      wait 3
+      %echo% %self.iname% поглядел%self.g% по сторонам, пожал%self.g% плечами и забежал%self.g% обратно в теремок.
+      %purge% %self%
+      halt
+    end
+    %send% %pupil% %self.iname% сказал%self.g% : 'Здравствуй, %actor.iname%!'
+    %send% %pupil% %self.iname% сказал%self.g% : 'Я буду сопровождать твое обучение'
+    %send% %pupil% %self.iname% сказал%self.g% : 'Давай же скорее пройдем в дом и начнем'
+    %send% %pupil% С этими словами %self.iname% схватил%self.g% вас за руку и резво потащил%self.g% в терем.
+    %teleport% %self% 4901
+    %teleport% %pupil% 4901
+    eval tmp %pupil.wait(1)%
+    wait 1s
+    %send% %pupil% %self.iname% сказал%self.g% : 'Начнем, пожалуй, с передвижений...'
+    %send% %pupil% %self.iname% сказал%self.g% : 'Наш мир состоит из отдельных "комнат", большинство которых'
+    %send% %pupil% %self.iname% сказал%self.g% : 'связаны между собой выходами. В этой комнате, например, есть'
+    %send% %pupil% %self.iname% сказал%self.g% : 'выход на север. Чтобы пройти в этом направлении, достаточно'
+    %send% %pupil% %self.iname% сказал%self.g% : 'ввести команду &Rсевер&n, вот так...'
+    north
+    eval tmp %pupil.setquest(4900 1)%
+    detach 4901 %self%
+
+# Trigger #4902
+2:
+  name: Приветствие проводника
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kAuto
+  script: |-2
+    if !%pupil.name%
+      wait 3
+      %echo% %self.iname% поглядел%self.g% по сторонам, пожал%self.g% плечами и забежал%self.g% обратно в теремок.
+      %purge% %self%
+      halt
+    end
+    %send% %pupil% %self.iname% сказал%self.g% : 'Здравствуй, %actor.iname%!'
+    %send% %pupil% %self.iname% сказал%self.g% : 'Я буду сопровождать твое обучение'
+    %send% %pupil% %self.iname% сказал%self.g% : 'Давай же скорее пройдем в дом и начнем'
+    %send% %pupil% С этими словами %self.iname% схватил%self.g% вас за руку и резво потащил%self.g% в терем.
+    %teleport% %self% 4901
+    %teleport% %pupil% 4901
+    eval tmp %pupil.wait(1)%
+    wait 1s
+    %send% %pupil% %self.iname% сказал%self.g% : 'Начнем, пожалуй, с передвижений...'
+    %send% %pupil% %self.iname% сказал%self.g% : 'Наш мир состоит из отдельных "комнат", большинство которых'
+    %send% %pupil% %self.iname% сказал%self.g% : 'связаны между собой выходами. В этой комнате, например, есть'
+    %send% %pupil% %self.iname% сказал%self.g% : 'выход на север. Чтобы пройти в этом направлении, достаточно'
+    %send% %pupil% %self.iname% сказал%self.g% : 'ввести команду &Rсевер&n, вот так...'
+    north
+    eval tmp %pupil.setquest(4900 1)%
+
+# Trigger #4903
+3:
+  name: '[o4901-4910] Взяли вещь'
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+  script: |-2
+    *[o4901-4910] Взяли вещь
+    eval tmp %self.effect(+рассыпется)%
+    if (%actor.getquest(4900)% == 9)
+      set tmp %actor.getquest(4909)%
+      if !%tmp.contains(-%self.vnum%-)%
+        eval tmp %actor.setquest(4909 %actor.getquest(4909)% -%self.vnum%-)%
+      end
+      *elseif (%actor.getquest(4900)% == 10)
+      *  set tmp %actor.getquest(4910)%
+      *  if !%tmp.contains(-%self.vnum%-)%
+      *    eval tmp %actor.setquest(4910 %actor.getquest(4910)% -%self.vnum%-)%
+      *  end
+    end
+    wait 1
+    if %self.sex% == 1
+      %echo% На месте %self.rname% тут же появился новый, точно такой же.
+    else
+      %echo% На месте %self.rname% тут же появилась новая, точно такая же.
+    end
+    %load% obj %self.vnum%
+    detach 4903 %self%
+
+# Trigger #4981
+81:
+  name: '[m4901-4905] Рандом-триг проводников'
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kRandom
+  script: |-2
+    *[m4901-4905] Рандом-триг проводников
+    if (%pupil.realroom% != %self.realroom%)
+      halt
+    end
+    switch %pupil.getquest(4900)%
+      case 3
+        if ((%pupil.position% > 3) && (%pupil.position% < 7))
+          разбуд .%pupil.name%
+          wait 1
+          %send% %pupil% %self.iname% сказал%self.g% : 'Хорошо!'
+          %send% %pupil% %self.iname% сказал%self.g% : 'Спать ложиться рекомендую только в мирных комнатах.'
+          %send% %pupil% %self.iname% сказал%self.g% : 'Догоняй как будут силы...'
+          east
+          eval tmp %pupil.setquest(4900 4)%
+        end
+      break
+    done
+
+# Trigger #4982
+82:
+  name: '[m4901-4905] Команд-триг проводников'
+  attach_type: kMobTrigger
+  narg: 100
+  arglist: '*'
+  trigger_types:
+    - kCommand
+  script: |-2
+    *[m4901-4905] Команд-триг проводников
+    return 0
+    if (%pupil% != %actor%)
+      halt
+    end
+    wait 1
+    switch %pupil.getquest(4900)%
+      case 5
+        if (%cmd.mudcommand% == смотреть)
+          set cmd1 1
+          global cmd1
+        end
+        if (%cmd.mudcommand% == осмотреть)
+          set cmd2 1
+          global cmd2
+        end
+        if (%cmd.mudcommand% == выходы)
+          set cmd3 1
+          global cmd3
+        end
+        if (%cmd.mudcommand% == оглядеться)
+          set cmd4 1
+          global cmd4
+        end
+        if (%cmd1% && %cmd2% && %cmd3% && %cmd4%)
+          wait 3
+          %send% %pupil% %self.iname% сказал%self.g% : 'Ну, надеюсь все понятно... Идем дальше'
+          unset cmd1
+          unset cmd2
+          unset cmd3
+          unset cmd4
+          east
+          eval tmp %pupil.setquest(4900 6)%
+          detach 4982 %self%
+        end
+      break
+    done
+
+# Trigger #4983
+83:
+  name: '[m4901-4905] Сказали что-то проводнику'
+  attach_type: kMobTrigger
+  narg: 100
+  arglist: '*'
+  trigger_types:
+    - kSpeech
+  script: |-2
+    *[m4901-4905] Сказали что-то проводнику
+    if (%pupil% != %actor%)
+      halt
+    end
+    wait 1
+    switch %pupil.getquest(4900)%
+      case 7
+        if (%speech% == готов%pupil.g%)
+          прыг
+          %send% %pupil% %self.iname% сказал%self.g% : 'Тогда вперед, то есть вверх!'
+          up
+          eval tmp %pupil.setquest(4900 8)%
+          detach 4983 %self%
+        end
+      break
+    done
+    дум
+    %send% %pupil% %self.iname% сказал%self.g% : 'Чего-то не то ты говоришь...'
+
+# Trigger #4984
+84:
+  name: '[m4901-4905] Вошли к проводнику'
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kGreetAll
+  script: |-2
+    *[m4901-4905] Вошли к проводнику
+    if ((%actor% != %pupil%) || !%pupil.name%)
+      halt
+    end
+    wait 1
+    switch %pupil.getquest(4900)%
+      case 1
+        прыг
+        %send% %pupil% %self.iname% сказал%self.g% : 'Вот видишь, не так уж сложно, правда?'
+        %send% %pupil% %self.iname% сказал%self.g% : 'Как ты уже, наверное, понял%pupil.g%, также можно'
+        %send% %pupil% %self.iname% сказал%self.g% : 'ходить и в других направлениях - &Rюг&n, &Rзапад&n,'
+        %send% %pupil% %self.iname% сказал%self.g% : '&Rвосток&n, а также &Rвверх&n и &Rвниз&n.'
+        %send% %pupil% %self.iname% сказал%self.g% : 'Также можно вводить сокращенные варианты команд:'
+        %send% %pupil% %self.iname% сказал%self.g% : '&Rс&n, &Rю&n, &Rз&n, &Rв&n, а также &Rвв&n и &Rвн&n.'
+        %send% %pupil% %self.iname% сказал%self.g% : 'Итак, за мной, в следующую комнату!'
+        west
+        eval tmp %pupil.setquest(4900 2)%
+      break
+      case 2
+        %send% %pupil% %self.iname% сказал%self.g% : 'Хорошо, теперь я расскажу тебе про строку состояния'
+        %send% %pupil% %self.iname% сказал%self.g% : 'Так называется строка внизу экрана, что-то вроде...'
+        %send% %pupil% %self.iname% сказал%self.g% : '&g36H 84M&n 1999о Зауч:0 Вых:В>'
+        %send% %pupil% %self.iname% сказал%self.g% : 'В этой строке отображаются твои очки жизни и движения,'
+        %send% %pupil% %self.iname% сказал%self.g% : 'количество требуемого опыта для получения следующего'
+        %send% %pupil% %self.iname% сказал%self.g% : 'уровня, время заучивания заклинаний и выходы из текущей'
+        %send% %pupil% %self.iname% сказал%self.g% : 'комнаты. Там может быть и другая полезная информация -'
+        %send% %pupil% %self.iname% сказал%self.g% : 'подробнее можно прочитать в справке: &gсправка СТРОКА&n.'
+        wait 1s
+        %send% %pupil% %self.iname% сказал%self.g% : 'Если твои очки движения или жизни уменьшатся, нужно'
+        %send% %pupil% %self.iname% сказал%self.g% : 'подождать пока они восстановятся, либо использовать для'
+        %send% %pupil% %self.iname% сказал%self.g% : 'их восстановления магию. Восстановление жизней пойдет'
+        %send% %pupil% %self.iname% сказал%self.g% : 'гораздо быстрее если &Rсесть&n, &Rотдохнуть&n или лечь &Rспать&n.'
+        %send% %pupil% %self.iname% сказал%self.g% : 'Чтобы двигаться дальше, нужно &Rпроснуться&n и &Rвстать&n на ноги.'
+        %send% %pupil% От этих слов на вас вдруг навалилась усталость.
+        attach 4981 %self%
+        eval tmp %pupil.move(1)%
+        eval tmp %pupil.setquest(4900 3)%
+      break
+      case 4
+        %send% %pupil% %self.iname% сказал%self.g% : 'Важно научиться изучать окружающую местность. Для этого'
+        %send% %pupil% %self.iname% сказал%self.g% : 'можно использовать команды &Rоглядеться&n, &Rвыходы&n, &Rсмотреть&n,'
+        %send% %pupil% %self.iname% сказал%self.g% : '&Rосмотреть&n, или их сокращенные варианты: &Rогл&n, &Rвых&n, &Rсм&n, &Rосм&n.'
+        %send% %pupil% %self.iname% сказал%self.g% : 'Подробнее об этих командах можно прочитать в справке,'
+        %send% %pupil% %self.iname% сказал%self.g% : 'например &gсправка ВЫХОДЫ&n, или &gсправка ОСМОТРЕТЬ&n.'
+        %send% %pupil% %self.iname% сказал%self.g% : 'Попробуй, посмотри какую информацию эти команды дают.'
+        eval tmp %pupil.setquest(4900 5)%
+        attach 4982 %self%
+      break
+      case 5
+        %send% %pupil% %self.iname% сказал%self.g% : 'Попробуй команды &Rоглядеться&n, &Rвыходы&n, &Rсмотреть&n и &Rосмотреть&n.'
+        %send% %pupil% %self.iname% сказал%self.g% : 'Тогда мы сможем продолжить обучение...'
+      break
+      case 6
+        %send% %pupil% %self.iname% сказал%self.g% : 'Помимо изучения окружающих тебя вещей, нужно не забывать'
+        %send% %pupil% %self.iname% сказал%self.g% : 'и про себя. Существуют следующие полезные команды: &Rсчет&n,'
+        %send% %pupil% %self.iname% сказал%self.g% : '&Rаффекты&n, &Rумения&n, &Rспособности&n, &Rктоя&n.'
+        %send% %pupil% %self.iname% сказал%self.g% : 'В справке можно найти информацию не только об этих командах,'
+        %send% %pupil% %self.iname% сказал%self.g% : 'но и о конкретных аффектах, умениях и способностях, которые'
+        %send% %pupil% %self.iname% сказал%self.g% : 'там отображаются, например - &gсправка АТАКАЛЕВОЙРУКОЙ&n.'
+        wait 1s
+        %send% %pupil% %self.iname% сказал%self.g% : 'Если твое имя до сих пор не было одобрено никем из богов,'
+        %send% %pupil% %self.iname% сказал%self.g% : 'можно вежливо &Rвоззвать&n к богам с просьбой его одобрить.'
+        %send% %pupil% %self.iname% сказал%self.g% : 'Общение в нашем мире вообще значит очень много. Существует'
+        %send% %pupil% %self.iname% сказал%self.g% : 'несколько общих и личных каналов для общения между игроками:'
+        %send% %pupil% %self.iname% сказал%self.g% : 'в рамках одной комнаты можно &Rговорить&n, &Rшептать&n, &Rспросить&n,'
+        %send% %pupil% %self.iname% сказал%self.g% : 'использовать &Rсоциалы&n; помимо этого можно &Rболтать&n, &Rорать&n,'
+        %send% %pupil% %self.iname% сказал%self.g% : '&Rкричать&n, &Rсказать&n. Не забывай пользоваться справкой'
+        %send% %pupil% %self.iname% сказал%self.g% : 'если что-то будет непонятно.'
+        %send% %pupil% %self.iname% сказал%self.g% : 'Скажи когда будешь готов%pupil.g% учиться дальше (&Rг готов%pupil.g%&n)'
+        eval tmp %pupil.setquest(4900 7)%
+        attach 4983 %self%
+      break
+      case 7
+        %send% %pupil% %self.iname% сказал%self.g% : 'Ну так что, готов%pupil.g%? (напиши &Rговорить готов%pupil.g%&n)'
+      break
+      case 8
+        %send% %pupil% %self.iname% сказал%self.g% : 'Теперь о вещах. У каждого персонажа есть своя &Rэкипировка&n'
+        %send% %pupil% %self.iname% сказал%self.g% : '(используемые, надетые вещи) и свой &Rинвентарь&n (вещи в руках).'
+        %send% %pupil% %self.iname% сказал%self.g% : 'Кроме этого вещи могут быть в контейнерах (сумки, сундуки, трупы),'
+        %send% %pupil% %self.iname% сказал%self.g% : 'и даже просто в комнатах. Многие вещи можно &Rвзять&n, после чего'
+        %send% %pupil% %self.iname% сказал%self.g% : 'можно будет &Rбросить&n, либо &Rположить&n в контейнер, или же '
+        %send% %pupil% %self.iname% сказал%self.g% : 'начать использовать - &Rодеть&n, &Rвооружиться&n, &Rдержать&n. В этой'
+        %send% %pupil% %self.iname% сказал%self.g% : 'комнате есть несколько вещей, с которыми ты можешь поупражняться.'
+        wait 1s
+        %send% %pupil% %self.iname% сказал%self.g% : 'Не забудь &Rснять&n и &Rбросить&n их здесь когда закончишь.'
+        wait 1s
+        %send% %pupil% %self.iname% сказал%self.g% : 'Я буду ждать тебя в комнате к западу отсюда...'
+        west
+        eval tmp %pupil.setquest(4900 9)%
+      break
+      case 9
+        set tmp %actor.getquest(4909)%
+        if (%tmp.contains(-4901-)% && %tmp.contains(-4902-)% && %tmp.contains(-4903-)% && %tmp.contains(-4905-)%)
+          %send% %pupil% %self.iname% сказал%self.g% : 'С обычными вещами ты обращаться уже умеешь, теперь черед'
+          %send% %pupil% %self.iname% сказал%self.g% : 'магических предметов. Впринципе, заклинание может быть'
+          %send% %pupil% %self.iname% сказал%self.g% : 'заключено в свиток, палочку, посох или напиток.'
+          wait 1s
+          %send% %pupil% %self.iname% сказал%self.g% : 'Свиток можно &Rзачитать&n, в том числе с указанием цели:'
+          %send% %pupil% %self.iname% сказал%self.g% : 'объекта или персонажа (моба).'
+          %send% %pupil% %self.iname% сказал%self.g% : 'Палочку можно &Rприменить&n, так же, с указанием цели.'
+          %send% %pupil% %self.iname% сказал%self.g% : 'Посохи тоже &Rпримен&nяют, но магия из них воздействует'
+          %send% %pupil% %self.iname% сказал%self.g% : 'на всех персонажей, находящихся в комнате, кроме игрока,'
+          %send% %pupil% %self.iname% сказал%self.g% : 'применившего посох.'
+          %send% %pupil% %self.iname% сказал%self.g% : 'Напитки можно &Rосушить&n, чтобы вызвать содержащуюся в'
+          %send% %pupil% %self.iname% сказал%self.g% : 'них магию на себя. Их также можно &Rперелить&n в емкость'
+          %send% %pupil% %self.iname% сказал%self.g% : 'чтобы потом уже просто &Rпить&n.'
+          %send% %pupil% %self.iname% сказал%self.g% : 'И палочки, и посохи необходимо взять в левую руку перед'
+          %send% %pupil% %self.iname% сказал%self.g% : 'применением. Свитки и осушаемые напитки берутся в левую'
+          %send% %pupil% %self.iname% сказал%self.g% : 'руку автоматически, разоружая тебя.'
+          eval tmp %pupil.setquest(4900 10)%
+          eval tmp %pupil.unsetquest(4909)%
+        else
+          %send% %pupil% %self.iname% сказал%self.g% : 'Мне кажется, в комнате на востоке еще есть вещи, с которыми'
+          %send% %pupil% %self.iname% сказал%self.g% : 'тебе нужно поупражняться. Если что-то будет непонятно,'
+          %send% %pupil% %self.iname% сказал%self.g% : 'попробуй осмотреть их - там есть подсказки.'
+        end
+      break
+    done
+
+# Trigger #4985
+85:
+  name: '[m4901-4905] Дали что-то проводнику'
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kReceive
+  script: say My trigger commandlist is not complete!
+
+# Trigger #4986
+86:
+  name: '[m4901-4905] Проводник вошел в комнату'
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kIncome
+  script: say My trigger commandlist is not complete!
+
+# Trigger #4987
+87:
+  name: '[m4901-4905] Авто-триг проводников'
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kAuto
+  script: say My trigger commandlist is not complete!

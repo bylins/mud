@@ -1,0 +1,1295 @@
+# Mobs for zone 46
+
+# Mob #4600
+0:
+  names:
+    aliases: бурундук
+    nominative: бурундук
+    genitive: бурундука
+    dative: бурундуку
+    accusative: бурундука
+    instrumental: бурундуком
+    prepositional: бурундуке
+  descriptions:
+    short_desc: |2
+      Небольшой бурундук с любопытством смотрит на Вас.
+    long_desc: |2
+      Небольшой полосатый пушной зверек.
+  alignment: 0
+  stats:
+    level: 2
+    hitroll_penalty: 17
+    armor: 8
+    hp:
+      dice_count: 5
+      dice_size: 3
+      bonus: 20
+    damage:
+      dice_count: 1
+      dice_size: 2
+      bonus: 1
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 150
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 8
+  race: 104
+  height: 40
+  weight: 10
+  attributes:
+    strength: 8
+    dexterity: 8
+    intelligence: 8
+    wisdom: 8
+    constitution: 8
+    charisma: 8
+  action_flags:
+    - kNpc
+    - kStayZone
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 9
+  enhanced:
+    absorb: 2
+    bare_hand_attack: 4
+
+# Mob #4601
+1:
+  names:
+    aliases: белка
+    nominative: белка
+    genitive: белки
+    dative: белке
+    accusative: белку
+    instrumental: белкой
+    prepositional: белке
+  descriptions:
+    short_desc: |2
+      Рыжая белка с пушистым хвостом скачет с ветки на ветку.
+    long_desc: |2
+      Небольшой пушной зверек с пушистым хвостом.
+  alignment: 0
+  stats:
+    level: 1
+    hitroll_penalty: 19
+    armor: 8
+    hp:
+      dice_count: 5
+      dice_size: 3
+      bonus: 25
+    damage:
+      dice_count: 1
+      dice_size: 1
+      bonus: 1
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 100
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  size: 8
+  race: 104
+  height: 40
+  weight: 60
+  attributes:
+    strength: 8
+    dexterity: 9
+    intelligence: 8
+    wisdom: 8
+    constitution: 8
+    charisma: 8
+  action_flags:
+    - kNpc
+    - kStayZone
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 6
+  enhanced:
+    absorb: 1
+    bare_hand_attack: 4
+    special_bitvector: n0
+
+# Mob #4602
+2:
+  names:
+    aliases: дрозд
+    nominative: дрозд
+    genitive: дрозда
+    dative: дрозду
+    accusative: дрозда
+    instrumental: дроздом
+    prepositional: дрозде
+  descriptions:
+    short_desc: |2
+      Голосистый дрозд порхает с ветки на ветку.
+    long_desc: |2
+      Небольшая лесная певчая птичка.
+  alignment: 0
+  stats:
+    level: 2
+    hitroll_penalty: 19
+    armor: 9
+    hp:
+      dice_count: 5
+      dice_size: 3
+      bonus: 20
+    damage:
+      dice_count: 1
+      dice_size: 2
+      bonus: 1
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 110
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 8
+  race: 103
+  height: 40
+  weight: 5
+  attributes:
+    strength: 8
+    dexterity: 8
+    intelligence: 8
+    wisdom: 8
+    constitution: 8
+    charisma: 8
+  action_flags:
+    - kNpc
+    - kStayZone
+    - kFlying
+    - kAppearsSpring
+    - kAppearsSummer
+    - kAppearsAutumn
+  affect_flags:
+    - kFly
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 6
+  enhanced:
+    absorb: 2
+    bare_hand_attack: 2
+    special_bitvector: l0
+
+# Mob #4603
+3:
+  names:
+    aliases: заяц
+    nominative: заяц
+    genitive: зайца
+    dative: зайцу
+    accusative: зайца
+    instrumental: зайцем
+    prepositional: зайце
+  descriptions:
+    short_desc: |2
+      Заяц проскакал мимо, запутывая след.
+    long_desc: |2
+      Трусливый лесной обитатель.
+      Шкурка странного серо-белого цвета.
+  alignment: 0
+  stats:
+    level: 2
+    hitroll_penalty: 18
+    armor: 8
+    hp:
+      dice_count: 5
+      dice_size: 3
+      bonus: 35
+    damage:
+      dice_count: 2
+      dice_size: 1
+      bonus: 1
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 150
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 9
+  race: 104
+  height: 40
+  weight: 11
+  attributes:
+    strength: 9
+    dexterity: 9
+    intelligence: 9
+    wisdom: 9
+    constitution: 9
+    charisma: 9
+  action_flags:
+    - kNpc
+    - kStayZone
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 9
+  enhanced:
+    absorb: 2
+    bare_hand_attack: 13
+    special_bitvector: n0
+
+# Mob #4604
+4:
+  names:
+    aliases: дятел
+    nominative: дятел
+    genitive: дятла
+    dative: дятлу
+    accusative: дятла
+    instrumental: дятлом
+    prepositional: дятле
+  descriptions:
+    short_desc: |2
+      Дятел долбит ствол дерева своим крепким клювом.
+    long_desc: |2
+      Санитар леса.
+  alignment: 0
+  stats:
+    level: 2
+    hitroll_penalty: 17
+    armor: 8
+    hp:
+      dice_count: 5
+      dice_size: 3
+      bonus: 35
+    damage:
+      dice_count: 2
+      dice_size: 2
+      bonus: 0
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 250
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 9
+  race: 103
+  height: 40
+  weight: 10
+  attributes:
+    strength: 10
+    dexterity: 9
+    intelligence: 9
+    wisdom: 9
+    constitution: 9
+    charisma: 9
+  action_flags:
+    - kNpc
+    - kStayZone
+    - kAppearsSpring
+    - kAppearsSummer
+    - kAppearsAutumn
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 12
+  enhanced:
+    absorb: 2
+    bare_hand_attack: 12
+    special_bitvector: l0
+
+# Mob #4605
+5:
+  names:
+    aliases: сойка
+    nominative: сойка
+    genitive: сойки
+    dative: сойке
+    accusative: сойку
+    instrumental: сойкой
+    prepositional: сойке
+  descriptions:
+    short_desc: |2
+      Сойка перескакивает с ветки на ветку, выискивая укромный уголок.
+    long_desc: |2
+      Небольшая лесная пичуга.
+  alignment: 0
+  stats:
+    level: 2
+    hitroll_penalty: 18
+    armor: 8
+    hp:
+      dice_count: 5
+      dice_size: 3
+      bonus: 40
+    damage:
+      dice_count: 1
+      dice_size: 2
+      bonus: 1
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 200
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  size: 9
+  race: 104
+  height: 40
+  weight: 5
+  attributes:
+    strength: 9
+    dexterity: 9
+    intelligence: 9
+    wisdom: 9
+    constitution: 9
+    charisma: 9
+  action_flags:
+    - kNpc
+    - kStayZone
+    - kAppearsSpring
+    - kAppearsSummer
+    - kAppearsAutumn
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 9
+  enhanced:
+    absorb: 2
+    bare_hand_attack: 2
+    special_bitvector: l0
+
+# Mob #4606
+6:
+  names:
+    aliases: сорока
+    nominative: сорока
+    genitive: сороки
+    dative: сороке
+    accusative: сороку
+    instrumental: сорокой
+    prepositional: сороке
+  descriptions:
+    short_desc: |2
+      Белобокая сорока выискивает где что не так лежит.
+    long_desc: |2
+      Известная лесная воровка.
+  alignment: 0
+  stats:
+    level: 2
+    hitroll_penalty: 18
+    armor: 8
+    hp:
+      dice_count: 5
+      dice_size: 3
+      bonus: 45
+    damage:
+      dice_count: 2
+      dice_size: 1
+      bonus: 2
+  gold:
+    dice_count: 1
+    dice_size: 5
+    bonus: 0
+  experience: 120
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  size: 9
+  race: 103
+  height: 40
+  weight: 10
+  attributes:
+    strength: 5
+    dexterity: 15
+    intelligence: 9
+    wisdom: 9
+    constitution: 9
+    charisma: 9
+  action_flags:
+    - kScavenger
+    - kNpc
+    - kStayZone
+    - kLooter
+    - kFlying
+    - kAppearsDay
+  affect_flags:
+    - kFly
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 12
+  enhanced:
+    absorb: 2
+    bare_hand_attack: 8
+    special_bitvector: l0a1
+
+# Mob #4607
+7:
+  names:
+    aliases: норка
+    nominative: норка
+    genitive: норки
+    dative: норке
+    accusative: норку
+    instrumental: норкой
+    prepositional: норке
+  descriptions:
+    short_desc: |2
+      Шустрая норка прошмыгнула мимо Вас.
+    long_desc: |2
+      Небольшой лесной хищник.
+  alignment: 0
+  stats:
+    level: 2
+    hitroll_penalty: 17
+    armor: 7
+    hp:
+      dice_count: 5
+      dice_size: 3
+      bonus: 35
+    damage:
+      dice_count: 1
+      dice_size: 2
+      bonus: 1
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 250
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  size: 10
+  race: 104
+  height: 40
+  weight: 11
+  attributes:
+    strength: 10
+    dexterity: 12
+    intelligence: 9
+    wisdom: 9
+    constitution: 9
+    charisma: 9
+  action_flags:
+    - kNpc
+    - kStayZone
+  affect_flags:
+    - kInfravision
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 12
+  enhanced:
+    absorb: 2
+    bare_hand_attack: 4
+    like_work: 10
+
+# Mob #4608
+8:
+  names:
+    aliases: тетерев
+    nominative: тетерев
+    genitive: тетерева
+    dative: тетереву
+    accusative: тетерева
+    instrumental: тетеревом
+    prepositional: тетереве
+  descriptions:
+    short_desc: |2
+      Пестрый тетерев вспорхнул из-под Ваших ног.
+    long_desc: |2
+      Средних размеров нехищная птица.
+  alignment: 0
+  stats:
+    level: 2
+    hitroll_penalty: 17
+    armor: 7
+    hp:
+      dice_count: 5
+      dice_size: 3
+      bonus: 60
+    damage:
+      dice_count: 2
+      dice_size: 2
+      bonus: 1
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 250
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 12
+  race: 103
+  height: 40
+  weight: 5
+  attributes:
+    strength: 3
+    dexterity: 9
+    intelligence: 9
+    wisdom: 9
+    constitution: 12
+    charisma: 9
+  action_flags:
+    - kNpc
+    - kStayZone
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 12
+  enhanced:
+    absorb: 2
+    bare_hand_attack: 2
+    like_work: 10
+    special_bitvector: l0
+
+# Mob #4609
+9:
+  names:
+    aliases: сова
+    nominative: сова
+    genitive: совы
+    dative: сове
+    accusative: сову
+    instrumental: совой
+    prepositional: сове
+  descriptions:
+    short_desc: |2
+      Нахохлившаяся сова сидит на ветке.
+    long_desc: |2
+      Средних размеров преимущественно ночной хищник.
+  alignment: 0
+  stats:
+    level: 3
+    hitroll_penalty: 17
+    armor: 7
+    hp:
+      dice_count: 5
+      dice_size: 3
+      bonus: 40
+    damage:
+      dice_count: 2
+      dice_size: 1
+      bonus: 2
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 400
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  size: 11
+  race: 103
+  height: 40
+  weight: 5
+  attributes:
+    strength: 10
+    dexterity: 9
+    intelligence: 12
+    wisdom: 12
+    constitution: 3
+    charisma: 9
+  action_flags:
+    - kNpc
+    - kStayZone
+    - kAppearsNight
+  affect_flags:
+    - kInfravision
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 12
+  enhanced:
+    absorb: 3
+    bare_hand_attack: 1
+    like_work: 10
+    special_bitvector: l0
+
+# Mob #4610
+10:
+  names:
+    aliases: колонок
+    nominative: колонок
+    genitive: колонка
+    dative: колонку
+    accusative: колонка
+    instrumental: колонком
+    prepositional: колонке
+  descriptions:
+    short_desc: |2
+      Пушистый колонок вылез из-под корней в поисках добычи.
+    long_desc: |2
+      Небольшой лесной хищник.
+  alignment: 0
+  stats:
+    level: 2
+    hitroll_penalty: 17
+    armor: 7
+    hp:
+      dice_count: 5
+      dice_size: 3
+      bonus: 40
+    damage:
+      dice_count: 1
+      dice_size: 2
+      bonus: 2
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 250
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 10
+  race: 104
+  height: 40
+  weight: 60
+  attributes:
+    strength: 10
+    dexterity: 12
+    intelligence: 9
+    wisdom: 9
+    constitution: 9
+    charisma: 9
+  action_flags:
+    - kNpc
+    - kStayZone
+  affect_flags:
+    - kInfravision
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 12
+  enhanced:
+    absorb: 2
+    bare_hand_attack: 4
+    like_work: 10
+
+# Mob #4611
+11:
+  names:
+    aliases: глухарь
+    nominative: глухарь
+    genitive: глухаря
+    dative: глухарю
+    accusative: глухаря
+    instrumental: глухарем
+    prepositional: глухаре
+  descriptions:
+    short_desc: |2
+      Крупный глухарь важно шествует мимо Вас.
+    long_desc: |2
+      Крупная лесная нехищная птица.
+  alignment: 0
+  stats:
+    level: 3
+    hitroll_penalty: 16
+    armor: 6
+    hp:
+      dice_count: 5
+      dice_size: 3
+      bonus: 80
+    damage:
+      dice_count: 2
+      dice_size: 1
+      bonus: 2
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 500
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 15
+  race: 103
+  height: 40
+  weight: 10
+  attributes:
+    strength: 12
+    dexterity: 10
+    intelligence: 9
+    wisdom: 9
+    constitution: 12
+    charisma: 9
+  action_flags:
+    - kNpc
+    - kStayZone
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 15
+  enhanced:
+    absorb: 3
+    bare_hand_attack: 12
+    special_bitvector: l0
+
+# Mob #4612
+12:
+  names:
+    aliases: филин
+    nominative: филин
+    genitive: филина
+    dative: филину
+    accusative: филина
+    instrumental: филином
+    prepositional: филине
+  descriptions:
+    short_desc: |2
+      Крупный филин смотрит на Вас мудрым взглядом.
+    long_desc: |2
+      Крупный, преимущественно ночной, хищник.
+  alignment: 0
+  stats:
+    level: 4
+    hitroll_penalty: 16
+    armor: 6
+    hp:
+      dice_count: 5
+      dice_size: 4
+      bonus: 80
+    damage:
+      dice_count: 2
+      dice_size: 2
+      bonus: 2
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 1000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 15
+  race: 103
+  height: 40
+  weight: 10
+  attributes:
+    strength: 12
+    dexterity: 10
+    intelligence: 12
+    wisdom: 12
+    constitution: 12
+    charisma: 9
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kStayZone
+    - kAppearsNight
+  affect_flags:
+    - kInfravision
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 18
+  enhanced:
+    absorb: 4
+    bare_hand_attack: 1
+    special_bitvector: l0
+
+# Mob #4613
+13:
+  names:
+    aliases: куница
+    nominative: куница
+    genitive: куницы
+    dative: кунице
+    accusative: куницу
+    instrumental: куницей
+    prepositional: кунице
+  descriptions:
+    short_desc: |2
+      Хищная куница норовит незаметно подкрасться к жертве.
+    long_desc: |2
+      Небольшой гибкий и шустрый лесной хищник.
+  alignment: 0
+  stats:
+    level: 4
+    hitroll_penalty: 16
+    armor: 6
+    hp:
+      dice_count: 5
+      dice_size: 3
+      bonus: 70
+    damage:
+      dice_count: 1
+      dice_size: 4
+      bonus: 1
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 1000
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  size: 14
+  race: 104
+  height: 40
+  weight: 11
+  attributes:
+    strength: 12
+    dexterity: 12
+    intelligence: 9
+    wisdom: 9
+    constitution: 10
+    charisma: 9
+  action_flags:
+    - kNpc
+    - kStayZone
+  affect_flags:
+    - kInfravision
+    - kSneak
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 15
+  enhanced:
+    absorb: 4
+    bare_hand_attack: 4
+    extra_attack: 1
+
+# Mob #4614
+14:
+  names:
+    aliases: барсук
+    nominative: барсук
+    genitive: барсука
+    dative: барсуку
+    accusative: барсука
+    instrumental: барсуком
+    prepositional: барсуке
+  descriptions:
+    short_desc: |2
+      Барсук сноровисто копается в земле в поисках пропитания.
+    long_desc: |2
+      Некрупный лесной житель.
+  alignment: 0
+  stats:
+    level: 4
+    hitroll_penalty: 14
+    armor: 5
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 100
+    damage:
+      dice_count: 1
+      dice_size: 1
+      bonus: 2
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 1000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 20
+  race: 104
+  height: 40
+  weight: 10
+  attributes:
+    strength: 13
+    dexterity: 12
+    intelligence: 10
+    wisdom: 10
+    constitution: 13
+    charisma: 10
+  action_flags:
+    - kNpc
+    - kStayZone
+  affect_flags:
+    - kInfravision
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 18
+  enhanced:
+    absorb: 4
+    bare_hand_attack: 4
+    extra_attack: 1
+  dead_load:
+    - obj_vnum: 5517
+      load_prob: 75
+      load_type: 0
+      spec_param: 0
+
+# Mob #4615
+15:
+  names:
+    aliases: косуля
+    nominative: косуля
+    genitive: косули
+    dative: косуле
+    accusative: косулю
+    instrumental: косулей
+    prepositional: косуле
+  descriptions:
+    short_desc: |2
+      Робкая косуля пугливо смотрит по сторонам.
+    long_desc: |2
+      Небольшой лесной олень.
+  alignment: 0
+  stats:
+    level: 5
+    hitroll_penalty: 14
+    armor: 5
+    hp:
+      dice_count: 5
+      dice_size: 3
+      bonus: 120
+    damage:
+      dice_count: 2
+      dice_size: 2
+      bonus: 1
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 1500
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  size: 20
+  race: 104
+  height: 100
+  weight: 60
+  attributes:
+    strength: 14
+    dexterity: 12
+    intelligence: 10
+    wisdom: 10
+    constitution: 12
+    charisma: 10
+  action_flags:
+    - kNpc
+    - kStayZone
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 18
+  enhanced:
+    absorb: 5
+    bare_hand_attack: 13
+    extra_attack: 1
+
+# Mob #4616
+16:
+  names:
+    aliases: тур
+    nominative: тур
+    genitive: тура
+    dative: туру
+    accusative: тура
+    instrumental: туром
+    prepositional: туре
+  descriptions:
+    short_desc: |2
+      Тур проходит мимо, ломая сухой кустарник.
+    long_desc: |2
+      Крупный лесной бык.
+  alignment: 0
+  stats:
+    level: 11
+    hitroll_penalty: 8
+    armor: 2
+    hp:
+      dice_count: 8
+      dice_size: 5
+      bonus: 260
+    damage:
+      dice_count: 3
+      dice_size: 2
+      bonus: 3
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 7500
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 23
+  race: 104
+  height: 140
+  weight: 140
+  attributes:
+    strength: 18
+    dexterity: 12
+    intelligence: 10
+    wisdom: 10
+    constitution: 18
+    charisma: 10
+  action_flags:
+    - kNpc
+    - kStayZone
+    - kNoSkillTrain
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 33
+  enhanced:
+    absorb: 11
+    bare_hand_attack: 14
+    max_factor: 1
+    extra_attack: 1
+
+# Mob #4617
+17:
+  names:
+    aliases: лиса рыжая плутовка
+    nominative: лиса
+    genitive: лисы
+    dative: лисе
+    accusative: лису
+    instrumental: лисой
+    prepositional: лисе
+  descriptions:
+    short_desc: |2
+      Рыжая плутовка-лиса пробегает мимо.
+    long_desc: |2
+      Рыжая героиня народных сказок.
+  alignment: 0
+  stats:
+    level: 6
+    hitroll_penalty: 13
+    armor: 3
+    hp:
+      dice_count: 5
+      dice_size: 3
+      bonus: 150
+    damage:
+      dice_count: 2
+      dice_size: 2
+      bonus: 2
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 2000
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  size: 23
+  race: 104
+  height: 60
+  weight: 12
+  attributes:
+    strength: 15
+    dexterity: 15
+    intelligence: 10
+    wisdom: 10
+    constitution: 15
+    charisma: 10
+  action_flags:
+    - kNpc
+    - kStayZone
+  affect_flags:
+    - kInfravision
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 24
+  enhanced:
+    absorb: 6
+    bare_hand_attack: 4
+    extra_attack: 1
+
+# Mob #4618
+18:
+  names:
+    aliases: лось
+    nominative: лось
+    genitive: лося
+    dative: лосю
+    accusative: лося
+    instrumental: лосем
+    prepositional: лосе
+  descriptions:
+    short_desc: |2
+      Лось бредет здесь, сшибая ветви развесистыми рогами.
+    long_desc: |2
+      Крупный лесной житель с длинными ветвистыми рогами.
+  alignment: 0
+  stats:
+    level: 9
+    hitroll_penalty: 10
+    armor: 1
+    hp:
+      dice_count: 5
+      dice_size: 6
+      bonus: 220
+    damage:
+      dice_count: 3
+      dice_size: 2
+      bonus: 2
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 5000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 30
+  race: 104
+  height: 200
+  weight: 200
+  attributes:
+    strength: 17
+    dexterity: 12
+    intelligence: 10
+    wisdom: 10
+    constitution: 18
+    charisma: 3
+  action_flags:
+    - kNpc
+    - kStayZone
+    - kNoSkillTrain
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 27
+  enhanced:
+    absorb: 9
+    bare_hand_attack: 14
+    max_factor: 1
+    extra_attack: 1
+
+# Mob #4619
+19:
+  names:
+    aliases: волк
+    nominative: волк
+    genitive: волка
+    dative: волку
+    accusative: волка
+    instrumental: волком
+    prepositional: волке
+  descriptions:
+    short_desc: |2
+      Голодный волк пробегает в поисках поживы.
+    long_desc: |2
+      Крупный лесной хищник.
+  alignment: 0
+  stats:
+    level: 9
+    hitroll_penalty: 10
+    armor: 0
+    hp:
+      dice_count: 5
+      dice_size: 3
+      bonus: 220
+    damage:
+      dice_count: 4
+      dice_size: 2
+      bonus: 3
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 5000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 30
+  race: 104
+  height: 100
+  weight: 50
+  attributes:
+    strength: 17
+    dexterity: 14
+    intelligence: 10
+    wisdom: 10
+    constitution: 16
+    charisma: 10
+  action_flags:
+    - kNpc
+    - kStayZone
+    - kNoSkillTrain
+  affect_flags:
+    - kInfravision
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 30
+  enhanced:
+    absorb: 9
+    bare_hand_attack: 4
+    max_factor: 1
+    extra_attack: 1
+
+# Mob #4620
+20:
+  names:
+    aliases: медведь
+    nominative: медведь
+    genitive: медведя
+    dative: медведю
+    accusative: медведя
+    instrumental: медведем
+    prepositional: медведе
+  descriptions:
+    short_desc: |2
+      Бурый медведь пробирается между ветвей.
+    long_desc: |2
+      Лесной хищник с длинными клыками и когтями.
+  alignment: 0
+  stats:
+    level: 12
+    hitroll_penalty: 8
+    armor: 3
+    hp:
+      dice_count: 5
+      dice_size: 5
+      bonus: 250
+    damage:
+      dice_count: 4
+      dice_size: 2
+      bonus: 4
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 10000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 35
+  race: 104
+  height: 140
+  weight: 140
+  attributes:
+    strength: 18
+    dexterity: 15
+    intelligence: 12
+    wisdom: 12
+    constitution: 18
+    charisma: 10
+  action_flags:
+    - kNpc
+    - kStayZone
+  affect_flags:
+    - kDetectInvisible
+    - kInfravision
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 39
+  enhanced:
+    absorb: 12
+    bare_hand_attack: 4
+    max_factor: 1
+    extra_attack: 1

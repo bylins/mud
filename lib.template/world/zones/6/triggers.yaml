@@ -1,0 +1,61 @@
+# Triggers for zone 6
+
+# Trigger #600
+0:
+  name: лоад руны !разрушения!
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kDeath
+  script: |-2
+    if %random.3%== 1 then
+      load obj 600
+    end
+
+# Trigger #601
+1:
+  name: лоад руны !низложения!
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kDeath
+  script: |-2
+    if %random.10%== 1 then
+      load obj 601
+    end
+
+# Trigger #602
+2:
+  name: лоад руны !богов!
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kDeath
+  script: |-2
+    if %random.10%== 1 then
+      load obj 602
+    end
+
+# Trigger #603
+3:
+  name: лоад руны !единения!
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kDeath
+  script: |-2
+    if %random.10%== 1 then
+      load obj 603
+    end
+
+# Trigger #604
+4:
+  name: лоад руны !разобщения!
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kDeath
+  script: |-2
+    if %random.10%== 1 then
+      load obj 604
+    end

@@ -1,0 +1,390 @@
+# Rooms for zone 51
+
+# Room #5100
+0:
+  name: На крыльце
+  description: |2
+       Покосившееся крыльцо скрипит под ногами. Дерево почернело и облупилось, но
+    сохранило крепость. Хоть и можно здесь постоять, но Вас больше интересует сам
+    заброшенный дом. Хочется зайти, но холодок в груди заставляет подумать над
+    этим шагом. 
+  sector: kCity
+  flags:
+    - kNohorse
+    - kNoWeather
+  exits:
+    - direction: east
+      to_room: 5023  # Заброшенный дом
+    - direction: west
+      to_room: 5101  # В сенях
+
+# Room #5101
+1:
+  name: В сенях
+  description: |2
+       Сени когда-то служили промежуточной частью между отапливаемой и 
+    хозяйственной частью дома. Здесь когда-то лежала нехитрая крестьянская 
+    утварь, но сейчас только пыль и грязь.
+  sector: kCity
+  flags:
+    - kNoWeather
+  exits:
+    - direction: east
+      to_room: 5100  # На крыльце
+    - direction: west
+      to_room: 5102  # В сенях
+
+# Room #5102
+2:
+  name: В сенях
+  description: |2
+       Что заставило хозяев покинуть этот дом, сохранившийся в приличном состоянии
+    даже за долгое время запустения и одиночества? В этом месте сеней находятся
+    две двери, одна из которых ведет в избу, другая - на сеновал.  
+  sector: kCity
+  flags:
+    - kNoWeather
+  exits:
+    - direction: north
+      to_room: 5107  # В избе
+      exit_flags: 3
+    - direction: east
+      to_room: 5101  # В сенях
+    - direction: south
+      to_room: 5103  # На сеновале
+      exit_flags: 3
+
+# Room #5103
+3:
+  name: На сеновале
+  description: |2
+       Под ногами разбросана солома вперемешку с сеном, по углам лежат старые
+    инструменты. Сюда забрасывается корм для домашнего скота, а потом подается
+    по стойлам.
+  sector: kCity
+  flags:
+    - kNoWeather
+  exits:
+    - direction: north
+      to_room: 5102  # В сенях
+      exit_flags: 3
+    - direction: east
+      to_room: 5104  # На сеновале
+    - direction: south
+      to_room: 5105  # На сеновале
+
+# Room #5104
+4:
+  name: На сеновале
+  description: |2
+       Под ногами разбросана солома вперемешку с сеном, по углам лежат старые
+    инструменты. Сюда забрасывается корм для домашнего скота, а потом подается
+    по стойлам.
+  sector: kCity
+  flags:
+    - kNoWeather
+  exits:
+    - direction: south
+      to_room: 5106  # На сеновале
+    - direction: west
+      to_room: 5103  # На сеновале
+  triggers:
+    - 5101  # ресет 
+
+# Room #5105
+5:
+  name: На сеновале
+  description: |2
+    ___Когда-то весь заполненный веревками с сушенным луком, чесноком и другими
+    специями. Сейчас даже запаха от них не осталось.
+  sector: kCity
+  flags:
+    - kNoWeather
+  exits:
+    - direction: north
+      to_room: 5103  # На сеновале
+    - direction: east
+      to_room: 5106  # На сеновале
+
+# Room #5106
+6:
+  name: На сеновале
+  description: |2
+       Здесь когда-то хранились мешки с зерном и мукой. Даже сейчас еще на
+    полу попадаются разбросанные зерна и белые пятна от муки. Для рачительных
+    хозяев непозволительно, чтобы хлеб так бросался.
+  sector: kCity
+  flags:
+    - kNoWeather
+  exits:
+    - direction: north
+      to_room: 5104  # На сеновале
+    - direction: west
+      to_room: 5105  # На сеновале
+
+# Room #5107
+7:
+  name: В избе
+  description: |2
+       Крепкий пятистенок срублен опытными мастерами, толстые бревна плотно
+    подогнаны друг к другу, внутренняя сторона стесана так, что создаются
+    плоские гладкие стены.
+  sector: kCity
+  flags:
+    - kNoWeather
+  exits:
+    - direction: north
+      to_room: 5108  # В избе
+    - direction: east
+      to_room: 5109  # У печи
+    - direction: south
+      to_room: 5102  # В сенях
+      exit_flags: 3
+
+# Room #5108
+8:
+  name: В избе
+  description: |2
+       Вдоль стен поставлены широкие крепкие лавки, на которых можно сидеть,
+    а в случае необходимости и прилечь. На сделанной из толстой доски лавке
+    разместится и здоровый мужик.
+  sector: kCity
+  flags:
+    - kNoWeather
+  exits:
+    - direction: east
+      to_room: 5110  # В избе
+    - direction: south
+      to_room: 5107  # В избе
+
+# Room #5109
+9:
+  name: У печи
+  description: |2
+       Большая русская печь, сложенная из каленого кирпича, стоит в избе и светит
+    обмазанными мелом боками. Русская земля богата, но и крепка студеными морозами, 
+    и только на печи можно отогреться.
+  sector: kCity
+  flags:
+    - kNoWeather
+  exits:
+    - direction: north
+      to_room: 5110  # В избе
+    - direction: east
+      to_room: 5112  # На кухне
+    - direction: west
+      to_room: 5107  # В избе
+
+# Room #5110
+10:
+  name: В избе
+  description: |2
+       Невысокие потолки держатся на толстых балках. Потолки, сделанные из толстых
+    досок выдержат и тяжесть дома, и не выпустят тепло в студеное время. Только
+    крепкий хозяин может позволить поставить потолки, обычно прямо балка-матица с
+    ребрами-стропилами мозолят взгляд изнутри дома.  
+  sector: kCity
+  flags:
+    - kNoWeather
+  exits:
+    - direction: south
+      to_room: 5109  # У печи
+    - direction: west
+      to_room: 5108  # В избе
+
+# Room #5111
+11:
+  name: На кухне
+  description: |2
+       Когда-то здесь стоял большой стол, за которым собиралась на трапезу вся 
+    семья. Стол крепко вмялся в пол, оставив после себя следы ножек.
+  sector: kCity
+  flags:
+    - kNoWeather
+  exits:
+    - direction: south
+      to_room: 5112  # На кухне
+
+# Room #5112
+12:
+  name: На кухне
+  description: |2
+       Печь повернута к кухне своей пустой топкой, а когда-то здесь было шумно от
+    хозяек, готовящих пищу. Слева от печи - маленькая лестница в подпол.  
+  sector: kCity
+  flags:
+    - kNoWeather
+  exits:
+    - direction: north
+      to_room: 5111  # На кухне
+    - direction: west
+      to_room: 5109  # У печи
+    - direction: down
+      to_room: 5115  # Подпол
+
+# Room #5113
+13:
+  name: Подпол
+  description: |2
+       Деревянный короб когда-то служил для хранений картошки и овощей. Сейчас
+    от них даже запаха не осталось.
+  sector: kCity
+  flags:
+    - kDarked
+    - kNoWeather
+  exits:
+    - direction: east
+      to_room: 5115  # Подпол
+    - direction: south
+      to_room: 5114  # Подпол
+
+# Room #5114
+14:
+  name: Подпол
+  description: |2
+       Высокие полки когда-то были заполнены тарами с квашениями, солениями и
+    варениями. Здесь же хранились сметана, молоко и масла.
+  sector: kCity
+  flags:
+    - kDarked
+    - kNoWeather
+  exits:
+    - direction: north
+      to_room: 5113  # Подпол
+    - direction: east
+      to_room: 5116  # Подпол
+
+# Room #5115
+15:
+  name: Подпол
+  description: |2
+       Вы спустились в подпол. Под ногами утоптанная земля, со всех сторон
+    тянет сыростью. Немного тесновато и душновато, очень не хочется долго
+    здесь находиться. Надо быстрее здесь все осмотреть и наверх.
+  sector: kCity
+  flags:
+    - kDarked
+    - kNoWeather
+  exits:
+    - direction: south
+      to_room: 5116  # Подпол
+    - direction: west
+      to_room: 5113  # Подпол
+    - direction: up
+      to_room: 5112  # На кухне
+
+# Room #5116
+16:
+  name: Подпол
+  description: |2
+       Темно, хоть глаз выколи. Голова уперлась в толстенную балку, одну из 
+    тех, что перекрывают весь дом и на которые затем настилается пол. Под 
+    ногами какая-то возня и шевеленье.
+  sector: kCity
+  flags:
+    - kDarked
+    - kNoWeather
+  exits:
+    - direction: north
+      to_room: 5115  # Подпол
+    - direction: west
+      to_room: 5114  # Подпол
+
+# Room #5117
+17:
+  name: На чердаке
+  description: |2
+       Пыльный чердак завален старыми вещами и разным хламом, всегда убираемым
+    с глаз долой подальше.
+  sector: kCity
+  flags:
+    - kNoWeather
+  exits:
+    - direction: north
+      to_room: 5119  # Чердак
+    - direction: east
+      to_room: 5118  # Чердак
+    - direction: down
+      to_room: 5104  # На сеновале
+
+# Room #5118
+18:
+  name: Чердак
+  description: |2
+       Полы чердака скрипят под вашими ногами. Надо быть осторожными, ведь даже в
+    новом доме ходить по чердаку не стоит, не рассчитывают строители на прогулки по
+    потолкам. А в старом доме, не ровен час, провалишься вниз.
+  sector: kCity
+  flags:
+    - kNoWeather
+  exits:
+    - direction: north
+      to_room: 5120  # Чердак
+    - direction: west
+      to_room: 5117  # На чердаке
+
+# Room #5119
+19:
+  name: Чердак
+  description: |2
+       Под старыми грязными тряпками вы обнаружили маленький ткацкий станочек,
+    тот, на котором из мягкого льна ткут полотно. Это большая ценность, как могли
+    хозяева оставить его.
+  sector: kCity
+  flags:
+    - kNoWeather
+  exits:
+    - direction: north
+      to_room: 5121  # Чердак
+    - direction: east
+      to_room: 5120  # Чердак
+    - direction: south
+      to_room: 5117  # На чердаке
+
+# Room #5120
+20:
+  name: Чердак
+  description: |2
+       Крыша прохудилась и каждый дождь эту часть чердака заливает водой, отчего
+    здесь постоянно влажно и склизко.
+  sector: kCity
+  flags:
+    - kNoWeather
+  exits:
+    - direction: north
+      to_room: 5122  # Чердак
+    - direction: south
+      to_room: 5118  # Чердак
+    - direction: west
+      to_room: 5119  # Чердак
+
+# Room #5121
+21:
+  name: Чердак
+  description: |2
+       Сквозь разошедшиеся и прохудившиеся доски открывается вид на эту часть
+    деревни и реку за ней. Да, большая река, и на ней малюсенькое пятно деревни.
+  sector: kCity
+  flags:
+    - kNoWeather
+  exits:
+    - direction: east
+      to_room: 5122  # Чердак
+    - direction: south
+      to_room: 5119  # Чердак
+
+# Room #5122
+22:
+  name: Чердак
+  description: |2
+       Здесь давно поселился паук и закрыл все возможные угла своими сетями.
+    Вольготно ему, никто не беспокоит, вон сколько уже на полу валяется
+    обескровленных насекомых.
+  sector: kCity
+  flags:
+    - kNoWeather
+  exits:
+    - direction: south
+      to_room: 5120  # Чердак
+    - direction: west
+      to_room: 5121  # Чердак

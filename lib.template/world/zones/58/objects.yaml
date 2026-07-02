@@ -1,0 +1,343 @@
+# Objects for zone 58
+
+# Object #5800
+0:
+  names:
+    aliases: огромный дуб
+    nominative: огромный дуб
+    genitive: огромного дуба
+    dative: огромному дубу
+    accusative: огромный дуб
+    instrumental: огромным дубом
+    prepositional: огромном дубе
+  short_desc: Огромный вековой дуб растет здесь.
+  type: kContainer
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 100
+    - 0
+    - -1
+    - 0
+  weight: 200
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 10000
+  cur_durability: 10000
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  extra_flags:
+    - kHum
+    - kNodecay
+
+# Object #5801
+1:
+  names:
+    aliases: связка желудей
+    nominative: связка желудей
+    genitive: связки желудей
+    dative: связке желудей
+    accusative: связку желудей
+    instrumental: связкой желудей
+    prepositional: связке желудей
+  short_desc: Связка желудей лежит здесь.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 6
+    - 3
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 10
+  cur_durability: 10
+  timer: 30
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNorent
+    - kNodonate
+    - kNosell
+    - kDecay
+    - kZonedecay
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+    - kBoth
+
+# Object #5802
+2:
+  names:
+    aliases: бутыль
+    nominative: бутыль
+    genitive: бутыли
+    dative: бутыли
+    accusative: бутыль
+    instrumental: бутылей
+    prepositional: бутыли
+  short_desc: Бутыль  с вином лежит здесь.
+  type: kLiquidContainer
+  material: 16  # ОРГАНИКА
+  values:
+    - 100
+    - 20
+    - 2
+    - 0
+  weight: 25
+  cost: 40
+  rent_off: 40
+  rent_on: 10
+  max_durability: 10
+  cur_durability: 10
+  timer: 30
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  extra_flags:
+    - kNorent
+    - kNodonate
+    - kNosell
+    - kZonedecay
+  wear_flags:
+    - kTake
+    - kHold
+
+# Object #5803
+3:
+  names:
+    aliases: белая палка
+    nominative: белая палка
+    genitive: белой палки
+    dative: белой палке
+    accusative: белую палку
+    instrumental: белой палкой
+    prepositional: белой палке
+  short_desc: Белая палка лежит здесь.
+  type: kWeapon
+  material: 8  # ДЕРЕВО
+  values:
+    - 0
+    - 3
+    - 4
+    - 5
+  weight: 2
+  cost: 100
+  rent_off: 100
+  rent_on: 20
+  spec_param: 141
+  max_durability: 50
+  cur_durability: 45
+  timer: 30
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNorent
+    - kZonedecay
+    - kNodisarm
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+    - kBoth
+
+# Object #5804
+4:
+  names:
+    aliases: острый кинжал
+    nominative: острый кинжал
+    genitive: острого кинжала
+    dative: острому кинжалу
+    accusative: острый кинжал
+    instrumental: острым кинжалом
+    prepositional: остром кинжале
+  short_desc: Острый кинжал лежит здесь.
+  type: kWeapon
+  material: 5  # КОВАНАЯ.СТАЛЬ
+  values:
+    - 0
+    - 3
+    - 3
+    - 10
+  weight: 2
+  cost: 10
+  rent_off: 10
+  rent_on: 10
+  spec_param: 147
+  max_durability: 100
+  cur_durability: 100
+  timer: 30
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNorent
+    - kZonedecay
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+    - kBoth
+
+# Object #5805
+5:
+  names:
+    aliases: конверт
+    nominative: конверт
+    genitive: конверта
+    dative: конверту
+    accusative: конверт
+    instrumental: конвертом
+    prepositional: конверте
+  short_desc: Конверт с печатью лежит здесь.
+  type: kOther
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 10
+  cur_durability: 10
+  timer: 30
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNorent
+    - kNodonate
+    - kNosell
+    - kZonedecay
+  wear_flags:
+    - kTake
+    - kHold
+
+# Object #5806
+6:
+  names:
+    aliases: меховая шапка с хвостом
+    nominative: меховая шапка с хвостом
+    genitive: меховой шапки с хвостом
+    dative: меховую шапку с хвостом
+    accusative: меховую шапку с хвостом
+    instrumental: меховой шапкой с хвостом
+    prepositional: меховой шапке с хвостом
+  short_desc: Меховая шапка с лисьим хвостом лежит здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 2
+    - 1
+    - 0
+    - 0
+  weight: 2
+  cost: 80
+  rent_off: 80
+  rent_on: 8
+  max_durability: 150
+  cur_durability: 145
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 5
+  wear_flags:
+    - kTake
+    - kHead
+  applies:
+    - location: 2  # ловкость
+      modifier: 1
+    - location: 6  # обаяние
+      modifier: -2
+
+# Object #5807
+7:
+  names:
+    aliases: тяжелый ключ
+    nominative: тяжелый ключ
+    genitive: тяжелого ключа
+    dative: тяжелому ключу
+    accusative: тяжелый ключ
+    instrumental: тяжелым ключом
+    prepositional: тяжелом ключе
+  short_desc: Тяжелый ключ лежит здесь.
+  type: kKey
+  material: 1  # БУЛАТ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 10000
+  rent_on: 10000
+  max_durability: 50
+  cur_durability: 50
+  timer: 30
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNorent
+    - kNosell
+    - kDecay
+    - kZonedecay
+    - kRepopDecay
+  wear_flags:
+    - kTake
+    - kHold
+
+# Object #5808
+8:
+  names:
+    aliases: знак судьбы
+    nominative: знак судьбы
+    genitive: знака судьбы
+    dative: знаку судьбы
+    accusative: знак судьбы
+    instrumental: знаком судьбы
+    prepositional: знаке судьбы
+  short_desc: Знак судьбы лежит здесь.
+  type: kArmor
+  material: 4  # СТАЛЬ
+  values:
+    - 1
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 25
+  cur_durability: 25
+  timer: 20
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNorent
+    - kNodonate
+    - kNosell
+    - kDecay
+    - kZonedecay
+  wear_flags:
+    - kTake
+    - kNeck
+    - kHold
+  triggers:
+    - 5814  # выкзнак
+    - 5815  # раснак

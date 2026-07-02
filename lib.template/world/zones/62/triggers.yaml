@@ -1,0 +1,124 @@
+# Triggers for zone 62
+
+# Trigger #6200
+0:
+  name: убилижука
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kDeath
+  script: |-2
+    if %world.curobjs(6200)% < 1
+      load obj 6200
+    end
+
+# Trigger #6201
+1:
+  name: убилиплесень
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kDeath
+  script: |-2
+    if %world.curobjs(6205)% < 1
+      load obj 6205
+      echo Плесень умерла, превратившись в маленький комок грязи.
+      echo Там, где раньше была плесень блеснуло что-то металлическое.
+    end
+    if (%world.curobjs(6206)% < 50) && (%random.5%==1)
+      load obj 6206
+      echo Среди мусора еще что-то блеснуло.
+    end
+
+# Trigger #6202
+2:
+  name: открсундук
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kKill
+  script: |-2
+    wait 1
+    osend %actor% Вы отперли ящик и открыли его.
+    echoaround %actor%   %actor.iname% отпер%actor.q% ящик и открыл%actor.g% его.
+    osend %actor% Маленький банный ключ рассыпался в ваших руках.
+    calcuid target 6200 obj
+    opurge %target%
+    switch %random.10%
+      case 1
+      case 2
+        osend %actor% Осмотрев ящик, вы заметили внутри странный предмет, заиндевевшую пластину.
+        echoaround %actor% %actor.iname% наш%actor.g% обледеневшую табличку.
+        load obj 517
+        calcuid book 517 obj
+      break
+      case 3
+        osend %actor% Осмотрев ящик, вы нашли внутри старую книгу.
+        echoaround %actor% %actor.iname% наш%actor.g% в судуке старую книгу.
+        load obj 1712
+        calcuid book 1712 obj
+      break
+    done
+    calcuid chest 6203 obj
+    %book.put(%chest%)%
+    %chest.val1(1)%
+
+# Trigger #6203
+3:
+  name: ищемклад
+  attach_type: kObjTrigger
+  narg: 4
+  arglist: набрать
+  trigger_types:
+    - kCommand
+  script: |-2
+    if !%exist.obj(6205)%
+      halt
+    end
+    if !%arg.contains(воды)%
+      osend %actor% Чего?
+      halt
+    end
+    calcuid vedro62 6205 obj
+    if ( %actor.eq(17)% != %vedro62% )
+      osend %actor% Во что???
+      halt
+    end
+    * держим в руке
+    osend %actor% Наклонившись, вы попробовали набрать воды в ведро.
+    echoaround %actor% %actor.iname% наклонился, чтобы набрать воды из колодца.
+    osend %actor% Вдруг, за одним из бревен внутри колодца Вы что-то заметили.
+    osend %actor% Просунули туда руку и у вас в руках оказался сверток.
+    osend %actor% Ведро выскользнуло из рук и упало в колодец.
+    if (%random.1000% <= 400)
+      load obj 6208
+      oforce %actor.iname% взять сверток
+    else
+      osend %actor% Сверток выскользнул из рук и упал в колодец.
+    end
+    calcuid target 6205 obj
+    opurge %target%
+
+# Trigger #6204
+4:
+  name: убилиулитку
+  attach_type: kMobTrigger
+  narg: 50
+  trigger_types:
+    - kDeath
+  script: |-2
+    if %world.curobjs(6209)% < 10000
+      load obj 6209
+    end
+
+# Trigger #6205
+5:
+  name: Репоп
+  attach_type: kRoomTrigger
+  narg: 100
+  trigger_types:
+    - kDeath
+  script: |-2
+    calcuid colodec 6207 obj
+    detach 6203 %colodec%
+    attach 6203 %colodec%

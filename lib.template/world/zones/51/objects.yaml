@@ -1,0 +1,274 @@
+# Objects for zone 51
+
+# Object #5100
+0:
+  names:
+    aliases: кухонный нож
+    nominative: кухонный нож
+    genitive: кухонного ножа
+    dative: кухонному ножу
+    accusative: кухонный нож
+    instrumental: кухонным ножом
+    prepositional: кухонном ноже
+  short_desc: Кухонный нож лежит здесь.
+  type: kWeapon
+  material: 4  # СТАЛЬ
+  values:
+    - 0
+    - 3
+    - 3
+    - 7
+  weight: 5
+  cost: 50
+  rent_off: 100
+  rent_on: 5
+  spec_param: 144
+  max_durability: 100
+  cur_durability: 100
+  timer: 2880
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 10
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+    - kBoth
+
+# Object #5101
+1:
+  names:
+    aliases: пыльный сундук
+    nominative: пыльный сундук
+    genitive: пыльного сундука
+    dative: пыльному сундуку
+    accusative: пыльный сундук
+    instrumental: пыльным сундуком
+    prepositional: пыльном сундуке
+  short_desc: Пыльный сундук лежит среди мусора.
+  type: kContainer
+  material: 5  # КОВАНАЯ.СТАЛЬ
+  values:
+    - 100
+    - 13
+    - 5103
+    - 0
+  weight: 100
+  cost: 100
+  rent_off: 100
+  rent_on: 1000
+  max_durability: 100
+  cur_durability: 100
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  extra_flags:
+    - kNodecay
+  triggers:
+    - 5102  # открсундук
+
+# Object #5102
+2:
+  names:
+    aliases: кучка монет
+    nominative: кучка монет
+    genitive: кучки монет
+    dative: кучке монет
+    accusative: кучку монет
+    instrumental: кучкой монет
+    prepositional: кучке монет
+  short_desc: Кучка монет лежит здесь.
+  type: kMoney
+  material: 6  # ДРАГ.МЕТАЛЛ
+  values:
+    - 50
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 50
+  rent_off: 50
+  rent_on: 50
+  max_durability: 300
+  cur_durability: 300
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  wear_flags:
+    - kTake
+
+# Object #5103
+3:
+  names:
+    aliases: маленький ключ
+    nominative: маленький ключ
+    genitive: маленького ключа
+    dative: маленькому ключу
+    accusative: маленький ключ
+    instrumental: маленьким ключом
+    prepositional: маленьком ключе
+  short_desc: Маленький ключ лежит здесь.
+  action_desc: |2
+    С трудом ключ провернулся в замке.
+  type: kKey
+  material: 4  # СТАЛЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 25
+  cur_durability: 25
+  timer: 5
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kDecay
+    - kZonedecay
+    - kRepopDecay
+  wear_flags:
+    - kTake
+    - kHold
+
+# Object #5104
+4:
+  names:
+    aliases: лестница
+    nominative: лестница
+    genitive: лестницы
+    dative: лестнице
+    accusative: лестницу
+    instrumental: лестницей
+    prepositional: лестнице
+  short_desc: На полу лежит лестница.
+  type: kOther
+  material: 8  # ДЕРЕВО
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 10000
+  cur_durability: 10000
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kNodecay
+  triggers:
+    - 5100  # лестница 
+
+# Object #5105
+5:
+  names:
+    aliases: лестница
+    nominative: лестница
+    genitive: лестницы
+    dative: лестнице
+    accusative: лестницу
+    instrumental: лестницей
+    prepositional: лестнице
+  short_desc: К балке приставлена лестница, ведущая на чердак.
+  type: kOther
+  material: 8  # ДЕРЕВО
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 10000
+  cur_durability: 10000
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kNodecay
+
+# Object #5106
+6:
+  names:
+    aliases: драные сапоги
+    nominative: драные сапоги
+    genitive: драных сапог
+    dative: драным сапогам
+    accusative: драные сапоги
+    instrumental: драными сапогами
+    prepositional: драных сапогах
+  short_desc: Драные сапоги лежат здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 1
+    - 1
+    - 0
+    - 0
+  weight: 4
+  cost: 50
+  rent_off: 100
+  rent_on: 10
+  max_durability: 100
+  cur_durability: 100
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 10
+  wear_flags:
+    - kTake
+    - kFeet
+
+# Object #5107
+7:
+  names:
+    aliases: разбитый ящик
+    nominative: разбитый ящик
+    genitive: разбитого ящика
+    dative: разбитому ящику
+    accusative: разбитый ящик
+    instrumental: разбитым ящиком
+    prepositional: разбитом ящике
+  short_desc: Разбитый ящик лежит у стены.
+  type: kContainer
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 100
+    - 0
+    - -1
+    - 0
+  weight: 100
+  cost: 100
+  rent_off: 100
+  rent_on: 1000
+  max_durability: 100
+  cur_durability: 100
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  extra_flags:
+    - kNodecay
+  triggers:
+    - 5102  # открсундук

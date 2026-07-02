@@ -1,0 +1,13 @@
+# Zone #30
+
+vnum: 30
+name: Системная зона 30 -- Ингредиенты для заклинаний, создаваемые мобы
+top_room: 3099
+lifespan: 0
+reset_mode: 0
+reset_idle: 0
+zone_type: 0
+mode: 1  # level
+entrance: 3099
+under_construction: 0
+zone_group: 1  # solo

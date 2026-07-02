@@ -1,0 +1,2284 @@
+# Mobs for zone 33
+
+# Mob #3300
+0:
+  names:
+    aliases: оборванец
+    nominative: оборванец
+    genitive: оборванеца
+    dative: оборванецу
+    accusative: оборванец
+    instrumental: оборванецом
+    prepositional: оборванеце
+  descriptions:
+    short_desc: |2
+      Стабер - использовать группой из 3-5ти однаковых мобов
+    long_desc: неопределен
+  alignment: -600
+  stats:
+    level: 25
+    hitroll_penalty: 0
+    armor: -5
+    hp:
+      dice_count: 10
+      dice_size: 10
+      bonus: 580
+    damage:
+      dice_count: 4
+      dice_size: 4
+      bonus: 12
+  gold:
+    dice_count: 2
+    dice_size: 2
+    bonus: 7
+  experience: 60000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 50
+  race: 101
+  height: 175
+  weight: 85
+  attributes:
+    strength: 22
+    dexterity: 25
+    intelligence: 19
+    wisdom: 13
+    constitution: 24
+    charisma: 15
+  action_flags:
+    - kNpc
+    - kNoCharm
+    - kNoSummon
+    - kLooter
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+    - kBless
+    - kHide
+    - kBlink
+  skills:
+    - skill_id: 22  # осторожный стиль
+      value: 65
+    - skill_id: 131  # заколоть
+      value: 90
+    - skill_id: 133  # спрятаться
+      value: 50
+    - skill_id: 136  # кулачный бой
+      value: 100
+    - skill_id: 137  # спасти
+      value: 50
+    - skill_id: 157  # уклониться
+      value: 80
+    - skill_id: 167  # скрытый удар
+      value: 40
+  enhanced:
+    absorb: 25
+    bare_hand_attack: 11
+    like_work: 100
+    max_factor: 3
+    extra_attack: 1
+    special_bitvector: b1c1C3
+
+# Mob #3301
+1:
+  names:
+    aliases: здоровяк
+    nominative: здоровяк
+    genitive: здоровяка
+    dative: здоровяку
+    accusative: здоровяк
+    instrumental: здоровяком
+    prepositional: здоровяке
+  descriptions:
+    short_desc: |2
+      Танкетки использовать группой по 2-4 одинаковых
+    long_desc: неопределен
+  alignment: -600
+  stats:
+    level: 26
+    hitroll_penalty: 3
+    armor: 4
+    hp:
+      dice_count: 10
+      dice_size: 10
+      bonus: 890
+    damage:
+      dice_count: 6
+      dice_size: 5
+      bonus: 10
+  gold:
+    dice_count: 4
+    dice_size: 4
+    bonus: 7
+  experience: 75000
+  position:
+    default: kStand
+    start: kStand
+  sex: kNeutral
+  size: 100
+  race: 101
+  height: 175
+  weight: 85
+  attributes:
+    strength: 26
+    dexterity: 18
+    intelligence: 17
+    wisdom: 12
+    constitution: 27
+    charisma: 12
+  action_flags:
+    - kNpc
+    - kNoCharm
+    - kNoSummon
+    - kLooter
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+    - kBless
+  skills:
+    - skill_id: 1  # прикрыть
+      value: 100
+    - skill_id: 4  # богатырский молот
+      value: 70
+    - skill_id: 136  # кулачный бой
+      value: 100
+    - skill_id: 137  # спасти
+      value: 30
+    - skill_id: 189  # магия жизни
+      value: 260
+  enhanced:
+    absorb: 26
+    like_work: 100
+    max_factor: 3
+    extra_attack: 1
+    special_bitvector: b1c1
+    spells:
+      - 48
+      - 48
+      - 64
+
+# Mob #3302
+2:
+  names:
+    aliases: секач
+    nominative: секач
+    genitive: секача
+    dative: секачу
+    accusative: секач
+    instrumental: секачем
+    prepositional: секаче
+  descriptions:
+    short_desc: |2
+      Танк группы свиней (с кабанихой и 2+ поросенка)
+    long_desc: неопределен
+  alignment: -600
+  stats:
+    level: 25
+    hitroll_penalty: 0
+    armor: 0
+    hp:
+      dice_count: 10
+      dice_size: 10
+      bonus: 1300
+    damage:
+      dice_count: 8
+      dice_size: 8
+      bonus: 10
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 80000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 100
+  race: 104
+  height: 175
+  weight: 85
+  attributes:
+    strength: 28
+    dexterity: 14
+    intelligence: 17
+    wisdom: 13
+    constitution: 31
+    charisma: 10
+  action_flags:
+    - kNpc
+    - kNoCharm
+    - kNoSummon
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+    - kBless
+  skills:
+    - skill_id: 22  # осторожный стиль
+      value: 80
+    - skill_id: 136  # кулачный бой
+      value: 90
+    - skill_id: 137  # спасти
+      value: 80
+    - skill_id: 150  # обезоружить
+      value: 90
+  enhanced:
+    absorb: 25
+    bare_hand_attack: 14
+    like_work: 100
+    max_factor: 3
+    special_bitvector: C3
+
+# Mob #3303
+3:
+  names:
+    aliases: кабаниха
+    nominative: кабаниха
+    genitive: кабанихи
+    dative: кабанихе
+    accusative: кабаниху
+    instrumental: кабанихой
+    prepositional: кабанихе
+  descriptions:
+    short_desc: |2
+      Лекарь группы  свиней
+    long_desc: неопределен
+  alignment: -600
+  stats:
+    level: 23
+    hitroll_penalty: 0
+    armor: 0
+    hp:
+      dice_count: 10
+      dice_size: 10
+      bonus: 871
+    damage:
+      dice_count: 7
+      dice_size: 7
+      bonus: 7
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 90000
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  size: 100
+  race: 104
+  height: 175
+  weight: 85
+  attributes:
+    strength: 25
+    dexterity: 14
+    intelligence: 21
+    wisdom: 13
+    constitution: 31
+    charisma: 10
+  action_flags:
+    - kNpc
+    - kNoCharm
+    - kNoSummon
+    - kNoHold
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+    - kBless
+    - kBlink
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 90
+    - skill_id: 189  # магия жизни
+      value: 230
+  enhanced:
+    absorb: 23
+    bare_hand_attack: 14
+    like_work: 100
+    max_factor: 3
+    spells:
+      - 14
+      - 14
+      - 14
+      - 28
+      - 28
+      - 28
+      - 28
+      - 79
+      - 79
+      - 79
+      - 93
+      - 114
+      - 114
+
+# Mob #3304
+4:
+  names:
+    aliases: поросенок
+    nominative: поросенок
+    genitive: поросенка
+    dative: поросенку
+    accusative: поросенок
+    instrumental: поросенком
+    prepositional: поросенке
+  descriptions:
+    short_desc: |2
+      Дамагеры группы свиней
+    long_desc: неопределен
+  alignment: -600
+  stats:
+    level: 25
+    hitroll_penalty: 0
+    armor: 0
+    hp:
+      dice_count: 10
+      dice_size: 10
+      bonus: 520
+    damage:
+      dice_count: 9
+      dice_size: 9
+      bonus: 10
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 65000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 100
+  race: 104
+  height: 175
+  weight: 85
+  attributes:
+    strength: 27
+    dexterity: 19
+    intelligence: 17
+    wisdom: 13
+    constitution: 16
+    charisma: 10
+  action_flags:
+    - kNpc
+    - kNoCharm
+    - kNoSummon
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+    - kBless
+  skills:
+    - skill_id: 132  # сбить
+      value: 75
+    - skill_id: 136  # кулачный бой
+      value: 115
+    - skill_id: 167  # скрытый удар
+      value: 30
+  enhanced:
+    absorb: 25
+    bare_hand_attack: 14
+    like_work: 30
+    max_factor: 3
+
+# Mob #3305
+5:
+  names:
+    aliases: разбойник
+    nominative: разбойник - стабер
+    genitive: разбойника
+    dative: разбойнику
+    accusative: разбойник
+    instrumental: разбойником
+    prepositional: разбойнике
+  descriptions:
+    short_desc: |2
+      Разбойник стабер
+    long_desc: неопределен
+  alignment: -600
+  stats:
+    level: 25
+    hitroll_penalty: 0
+    armor: -6
+    hp:
+      dice_count: 10
+      dice_size: 10
+      bonus: 590
+    damage:
+      dice_count: 5
+      dice_size: 5
+      bonus: 12
+  gold:
+    dice_count: 2
+    dice_size: 2
+    bonus: 7
+  experience: 52000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 50
+  race: 101
+  height: 175
+  weight: 85
+  attributes:
+    strength: 22
+    dexterity: 26
+    intelligence: 19
+    wisdom: 13
+    constitution: 24
+    charisma: 15
+  action_flags:
+    - kNpc
+    - kNoCharm
+    - kNoSummon
+    - kLooter
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+    - kBless
+  skills:
+    - skill_id: 22  # осторожный стиль
+      value: 65
+    - skill_id: 131  # заколоть
+      value: 90
+    - skill_id: 133  # спрятаться
+      value: 50
+    - skill_id: 136  # кулачный бой
+      value: 100
+    - skill_id: 167  # скрытый удар
+      value: 60
+  enhanced:
+    absorb: 25
+    bare_hand_attack: 11
+    like_work: 55
+    max_factor: 3
+    extra_attack: 1
+    special_bitvector: b1c1C3
+    feats:
+      - 29
+      - 30
+      - 31
+      - 32
+      - 33
+      - 34
+      - 35
+      - 36
+      - 37
+      - 38
+
+# Mob #3306
+6:
+  names:
+    aliases: разбойник
+    nominative: разбойник -  танк
+    genitive: разбойника
+    dative: разбойнику
+    accusative: разбойник
+    instrumental: разбойником
+    prepositional: разбойнике
+  descriptions:
+    short_desc: |2
+      Разбойник танк
+    long_desc: неопределен
+  alignment: -600
+  stats:
+    level: 27
+    hitroll_penalty: 0
+    armor: -8
+    hp:
+      dice_count: 10
+      dice_size: 10
+      bonus: 850
+    damage:
+      dice_count: 5
+      dice_size: 5
+      bonus: 7
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 67000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 100
+  race: 101
+  height: 175
+  weight: 85
+  attributes:
+    strength: 24
+    dexterity: 14
+    intelligence: 17
+    wisdom: 13
+    constitution: 27
+    charisma: 10
+  action_flags:
+    - kNpc
+    - kNoCharm
+    - kNoSummon
+    - kLooter
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+    - kBless
+  skills:
+    - skill_id: 22  # осторожный стиль
+      value: 80
+    - skill_id: 136  # кулачный бой
+      value: 90
+    - skill_id: 137  # спасти
+      value: 80
+    - skill_id: 150  # обезоружить
+      value: 90
+  enhanced:
+    absorb: 27
+    like_work: 100
+    max_factor: 3
+    extra_attack: 1
+    special_bitvector: b1c1C3
+
+# Mob #3307
+7:
+  names:
+    aliases: разбойник
+    nominative: разбойник -  дамагер-башер
+    genitive: разбойника
+    dative: разбойнику
+    accusative: разбойник
+    instrumental: разбойником
+    prepositional: разбойнике
+  descriptions:
+    short_desc: |2
+      Разбойник дамагер-башер
+    long_desc: неопределен
+  alignment: -600
+  stats:
+    level: 26
+    hitroll_penalty: 0
+    armor: 5
+    hp:
+      dice_count: 10
+      dice_size: 10
+      bonus: 650
+    damage:
+      dice_count: 7
+      dice_size: 7
+      bonus: 5
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 67000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 70
+  race: 101
+  height: 175
+  weight: 85
+  attributes:
+    strength: 24
+    dexterity: 21
+    intelligence: 17
+    wisdom: 13
+    constitution: 27
+    charisma: 10
+  action_flags:
+    - kNpc
+    - kNoCharm
+    - kNoSummon
+    - kLooter
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+    - kBless
+  skills:
+    - skill_id: 132  # сбить
+      value: 80
+    - skill_id: 136  # кулачный бой
+      value: 90
+    - skill_id: 141  # палицы и дубины
+      value: 90
+    - skill_id: 142  # секиры
+      value: 90
+    - skill_id: 143  # длинные лезвия
+      value: 90
+    - skill_id: 144  # короткие лезвия
+      value: 90
+    - skill_id: 145  # иное оружие
+      value: 90
+    - skill_id: 146  # двуручники
+      value: 90
+    - skill_id: 147  # проникающее оружие
+      value: 90
+    - skill_id: 148  # копья и рогатины
+      value: 90
+    - skill_id: 150  # обезоружить
+      value: 90
+    - skill_id: 154  # луки
+      value: 90
+  enhanced:
+    absorb: 26
+    like_work: 30
+    max_factor: 3
+    extra_attack: 1
+    special_bitvector: b1c1C3
+    feats:
+      - 29
+      - 30
+      - 31
+      - 32
+      - 33
+      - 34
+      - 35
+      - 36
+      - 37
+      - 38
+
+# Mob #3308
+8:
+  names:
+    aliases: разбойник
+    nominative: разбойник -  маг фрагер
+    genitive: разбойника
+    dative: разбойнику
+    accusative: разбойник
+    instrumental: разбойником
+    prepositional: разбойнике
+  descriptions:
+    short_desc: |2
+      Разбойник маг фрагер
+    long_desc: неопределен
+  alignment: -600
+  stats:
+    level: 28
+    hitroll_penalty: 6
+    armor: -8
+    hp:
+      dice_count: 10
+      dice_size: 10
+      bonus: 590
+    damage:
+      dice_count: 5
+      dice_size: 5
+      bonus: 1
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 67000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 100
+  race: 101
+  height: 175
+  weight: 85
+  attributes:
+    strength: 14
+    dexterity: 14
+    intelligence: 23
+    wisdom: 32
+    constitution: 22
+    charisma: 10
+  action_flags:
+    - kNpc
+    - kNoCharm
+    - kNoSummon
+    - kLooter
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+    - kBless
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 90
+  enhanced:
+    absorb: 28
+    like_work: 35
+    max_factor: 4
+    extra_attack: 1
+    special_bitvector: b1c1C3
+    spells:
+      - 6
+      - 6
+      - 6
+      - 6
+      - 6
+      - 6
+      - 26
+      - 26
+      - 72
+      - 72
+      - 72
+      - 72
+      - 72
+      - 72
+      - 72
+      - 79
+      - 79
+      - 89
+      - 89
+      - 128
+
+# Mob #3309
+9:
+  names:
+    aliases: разбойник
+    nominative: разбойник -  лекарь
+    genitive: разбойника
+    dative: разбойнику
+    accusative: разбойник
+    instrumental: разбойником
+    prepositional: разбойнике
+  descriptions:
+    short_desc: |2
+      Разбойник лекарь
+    long_desc: неопределен
+  alignment: -600
+  stats:
+    level: 23
+    hitroll_penalty: 9
+    armor: -8
+    hp:
+      dice_count: 10
+      dice_size: 10
+      bonus: 590
+    damage:
+      dice_count: 5
+      dice_size: 5
+      bonus: 1
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 67000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 100
+  race: 101
+  height: 175
+  weight: 85
+  attributes:
+    strength: 14
+    dexterity: 14
+    intelligence: 23
+    wisdom: 32
+    constitution: 22
+    charisma: 10
+  action_flags:
+    - kNpc
+    - kNoCharm
+    - kNoSummon
+    - kNoHold
+    - kLooter
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+    - kBless
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 90
+    - skill_id: 189  # магия жизни
+      value: 230
+  enhanced:
+    absorb: 23
+    like_work: 35
+    max_factor: 3
+    extra_attack: 1
+    special_bitvector: b1c1C3
+    spells:
+      - 28
+      - 28
+      - 28
+      - 28
+      - 28
+      - 36
+      - 36
+      - 36
+      - 75
+      - 75
+      - 75
+      - 79
+      - 79
+      - 79
+      - 81
+      - 81
+      - 81
+      - 81
+      - 83
+      - 83
+      - 83
+      - 83
+      - 89
+      - 89
+      - 89
+      - 92
+      - 92
+      - 92
+      - 92
+      - 92
+      - 92
+      - 92
+      - 93
+
+# Mob #3310
+10:
+  names:
+    aliases: разбойник
+    nominative: разбойник -  маг-   обсиратель
+    genitive: разбойника
+    dative: разбойнику
+    accusative: разбойник
+    instrumental: разбойником
+    prepositional: разбойнике
+  descriptions:
+    short_desc: |2
+      Разбойник маг -обсиратель
+    long_desc: неопределен
+  alignment: -600
+  stats:
+    level: 28
+    hitroll_penalty: 6
+    armor: -8
+    hp:
+      dice_count: 10
+      dice_size: 10
+      bonus: 590
+    damage:
+      dice_count: 5
+      dice_size: 5
+      bonus: 1
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 67000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 100
+  race: 101
+  height: 175
+  weight: 85
+  attributes:
+    strength: 14
+    dexterity: 14
+    intelligence: 23
+    wisdom: 32
+    constitution: 22
+    charisma: 10
+  action_flags:
+    - kNpc
+    - kNoCharm
+    - kNoSummon
+    - kLooter
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+    - kBless
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 90
+  enhanced:
+    absorb: 28
+    like_work: 35
+    max_factor: 4
+    extra_attack: 1
+    special_bitvector: b1c1C3
+    spells:
+      - 23
+      - 26
+      - 26
+      - 33
+      - 33
+      - 55
+      - 55
+      - 55
+      - 55
+      - 79
+      - 79
+      - 82
+      - 83
+      - 83
+      - 83
+      - 88
+      - 89
+      - 89
+      - 93
+      - 93
+      - 111
+      - 111
+      - 128
+
+# Mob #3311
+11:
+  names:
+    aliases: разбойник
+    nominative: разбойник 2 - стабер
+    genitive: разбойника
+    dative: разбойнику
+    accusative: разбойник
+    instrumental: разбойником
+    prepositional: разбойнике
+  descriptions:
+    short_desc: |2
+      Разбойник стабер
+    long_desc: неопределен
+  alignment: -600
+  stats:
+    level: 25
+    hitroll_penalty: 0
+    armor: -6
+    hp:
+      dice_count: 10
+      dice_size: 10
+      bonus: 591
+    damage:
+      dice_count: 5
+      dice_size: 5
+      bonus: 12
+  gold:
+    dice_count: 2
+    dice_size: 2
+    bonus: 7
+  experience: 52000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 50
+  race: 101
+  height: 175
+  weight: 85
+  attributes:
+    strength: 22
+    dexterity: 26
+    intelligence: 19
+    wisdom: 13
+    constitution: 24
+    charisma: 15
+  action_flags:
+    - kNpc
+    - kNoCharm
+    - kNoSummon
+    - kLooter
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+    - kBless
+  skills:
+    - skill_id: 22  # осторожный стиль
+      value: 65
+    - skill_id: 131  # заколоть
+      value: 90
+    - skill_id: 133  # спрятаться
+      value: 50
+    - skill_id: 136  # кулачный бой
+      value: 100
+    - skill_id: 167  # скрытый удар
+      value: 60
+  enhanced:
+    absorb: 25
+    bare_hand_attack: 11
+    like_work: 55
+    max_factor: 3
+    extra_attack: 1
+    special_bitvector: b1c1C3
+    feats:
+      - 29
+      - 30
+      - 31
+      - 32
+      - 33
+      - 34
+      - 35
+      - 36
+      - 37
+      - 38
+
+# Mob #3312
+12:
+  names:
+    aliases: разбойник
+    nominative: разбойник 2 -  танк
+    genitive: разбойника
+    dative: разбойнику
+    accusative: разбойник
+    instrumental: разбойником
+    prepositional: разбойнике
+  descriptions:
+    short_desc: |2
+      Разбойник танк
+    long_desc: неопределен
+  alignment: -600
+  stats:
+    level: 27
+    hitroll_penalty: 0
+    armor: -8
+    hp:
+      dice_count: 10
+      dice_size: 10
+      bonus: 851
+    damage:
+      dice_count: 5
+      dice_size: 5
+      bonus: 7
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 67000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 100
+  race: 101
+  height: 175
+  weight: 85
+  attributes:
+    strength: 24
+    dexterity: 14
+    intelligence: 17
+    wisdom: 13
+    constitution: 27
+    charisma: 10
+  action_flags:
+    - kNpc
+    - kNoCharm
+    - kNoSummon
+    - kLooter
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+    - kBless
+  skills:
+    - skill_id: 22  # осторожный стиль
+      value: 80
+    - skill_id: 136  # кулачный бой
+      value: 90
+    - skill_id: 137  # спасти
+      value: 80
+    - skill_id: 150  # обезоружить
+      value: 90
+  enhanced:
+    absorb: 27
+    like_work: 100
+    max_factor: 3
+    extra_attack: 1
+    special_bitvector: b1c1C3
+
+# Mob #3313
+13:
+  names:
+    aliases: разбойник
+    nominative: разбойник  2 -  дамагер-башер
+    genitive: разбойника
+    dative: разбойнику
+    accusative: разбойник
+    instrumental: разбойником
+    prepositional: разбойнике
+  descriptions:
+    short_desc: |2
+      Разбойник дамагер-башер
+    long_desc: неопределен
+  alignment: -600
+  stats:
+    level: 26
+    hitroll_penalty: 0
+    armor: 5
+    hp:
+      dice_count: 10
+      dice_size: 10
+      bonus: 651
+    damage:
+      dice_count: 7
+      dice_size: 7
+      bonus: 5
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 67000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 70
+  race: 101
+  height: 175
+  weight: 85
+  attributes:
+    strength: 24
+    dexterity: 21
+    intelligence: 17
+    wisdom: 13
+    constitution: 27
+    charisma: 10
+  action_flags:
+    - kNpc
+    - kNoCharm
+    - kNoSummon
+    - kLooter
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+    - kBless
+  skills:
+    - skill_id: 132  # сбить
+      value: 80
+    - skill_id: 136  # кулачный бой
+      value: 90
+    - skill_id: 141  # палицы и дубины
+      value: 90
+    - skill_id: 142  # секиры
+      value: 90
+    - skill_id: 143  # длинные лезвия
+      value: 90
+    - skill_id: 144  # короткие лезвия
+      value: 90
+    - skill_id: 145  # иное оружие
+      value: 90
+    - skill_id: 146  # двуручники
+      value: 90
+    - skill_id: 147  # проникающее оружие
+      value: 90
+    - skill_id: 148  # копья и рогатины
+      value: 90
+    - skill_id: 150  # обезоружить
+      value: 90
+    - skill_id: 154  # луки
+      value: 90
+  enhanced:
+    absorb: 26
+    like_work: 30
+    max_factor: 3
+    extra_attack: 1
+    special_bitvector: b1c1C3
+    feats:
+      - 29
+      - 30
+      - 31
+      - 32
+      - 33
+      - 34
+      - 35
+      - 36
+      - 37
+      - 38
+
+# Mob #3314
+14:
+  names:
+    aliases: разбойник
+    nominative: разбойник 2 -  маг фрагер
+    genitive: разбойника
+    dative: разбойнику
+    accusative: разбойник
+    instrumental: разбойником
+    prepositional: разбойнике
+  descriptions:
+    short_desc: |2
+      Разбойник маг фрагер
+    long_desc: неопределен
+  alignment: -600
+  stats:
+    level: 28
+    hitroll_penalty: 6
+    armor: -8
+    hp:
+      dice_count: 10
+      dice_size: 10
+      bonus: 591
+    damage:
+      dice_count: 5
+      dice_size: 5
+      bonus: 1
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 67000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 100
+  race: 101
+  height: 175
+  weight: 85
+  attributes:
+    strength: 14
+    dexterity: 14
+    intelligence: 23
+    wisdom: 32
+    constitution: 22
+    charisma: 10
+  action_flags:
+    - kNpc
+    - kNoCharm
+    - kNoSummon
+    - kLooter
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+    - kBless
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 90
+  enhanced:
+    absorb: 28
+    like_work: 35
+    max_factor: 4
+    extra_attack: 1
+    special_bitvector: b1c1C3
+    spells:
+      - 6
+      - 6
+      - 6
+      - 6
+      - 6
+      - 6
+      - 26
+      - 26
+      - 72
+      - 72
+      - 72
+      - 72
+      - 72
+      - 72
+      - 72
+      - 79
+      - 79
+      - 89
+      - 89
+      - 128
+
+# Mob #3315
+15:
+  names:
+    aliases: разбойник
+    nominative: разбойник 2-  лекарь
+    genitive: разбойника
+    dative: разбойнику
+    accusative: разбойник
+    instrumental: разбойником
+    prepositional: разбойнике
+  descriptions:
+    short_desc: |2
+      Разбойник лекарь
+    long_desc: неопределен
+  alignment: -600
+  stats:
+    level: 23
+    hitroll_penalty: 9
+    armor: -8
+    hp:
+      dice_count: 10
+      dice_size: 10
+      bonus: 591
+    damage:
+      dice_count: 5
+      dice_size: 5
+      bonus: 1
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 67000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 100
+  race: 101
+  height: 175
+  weight: 85
+  attributes:
+    strength: 14
+    dexterity: 14
+    intelligence: 23
+    wisdom: 32
+    constitution: 22
+    charisma: 10
+  action_flags:
+    - kNpc
+    - kNoCharm
+    - kNoSummon
+    - kNoHold
+    - kLooter
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+    - kBless
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 90
+    - skill_id: 189  # магия жизни
+      value: 230
+  enhanced:
+    absorb: 23
+    like_work: 35
+    max_factor: 3
+    extra_attack: 1
+    special_bitvector: b1c1C3
+    spells:
+      - 28
+      - 28
+      - 28
+      - 28
+      - 28
+      - 36
+      - 36
+      - 36
+      - 75
+      - 75
+      - 75
+      - 79
+      - 79
+      - 79
+      - 81
+      - 81
+      - 81
+      - 81
+      - 83
+      - 83
+      - 83
+      - 83
+      - 89
+      - 89
+      - 89
+      - 92
+      - 92
+      - 92
+      - 92
+      - 92
+      - 92
+      - 92
+      - 93
+
+# Mob #3316
+16:
+  names:
+    aliases: разбойник
+    nominative: разбойник - 2 маг-   обсиратель
+    genitive: разбойника
+    dative: разбойнику
+    accusative: разбойник
+    instrumental: разбойником
+    prepositional: разбойнике
+  descriptions:
+    short_desc: |2
+      Разбойник маг -обсиратель
+    long_desc: неопределен
+  alignment: -600
+  stats:
+    level: 28
+    hitroll_penalty: 6
+    armor: -8
+    hp:
+      dice_count: 10
+      dice_size: 10
+      bonus: 591
+    damage:
+      dice_count: 5
+      dice_size: 5
+      bonus: 1
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 67000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 100
+  race: 101
+  height: 175
+  weight: 85
+  attributes:
+    strength: 14
+    dexterity: 14
+    intelligence: 23
+    wisdom: 32
+    constitution: 22
+    charisma: 10
+  action_flags:
+    - kNpc
+    - kNoCharm
+    - kNoSummon
+    - kLooter
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+    - kBless
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 90
+  enhanced:
+    absorb: 28
+    like_work: 35
+    max_factor: 4
+    extra_attack: 1
+    special_bitvector: b1c1C3
+    spells:
+      - 23
+      - 26
+      - 26
+      - 33
+      - 33
+      - 55
+      - 55
+      - 55
+      - 55
+      - 79
+      - 79
+      - 82
+      - 83
+      - 83
+      - 83
+      - 88
+      - 89
+      - 89
+      - 93
+      - 93
+      - 111
+      - 111
+      - 128
+
+# Mob #3317
+17:
+  names:
+    aliases: разбойник
+    nominative: разбойник 3 - стабер
+    genitive: разбойника
+    dative: разбойнику
+    accusative: разбойник
+    instrumental: разбойником
+    prepositional: разбойнике
+  descriptions:
+    short_desc: |2
+      Разбойник стабер
+    long_desc: неопределен
+  alignment: -600
+  stats:
+    level: 25
+    hitroll_penalty: 0
+    armor: -6
+    hp:
+      dice_count: 10
+      dice_size: 10
+      bonus: 592
+    damage:
+      dice_count: 5
+      dice_size: 5
+      bonus: 12
+  gold:
+    dice_count: 2
+    dice_size: 2
+    bonus: 7
+  experience: 52000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 50
+  race: 101
+  height: 175
+  weight: 85
+  attributes:
+    strength: 22
+    dexterity: 26
+    intelligence: 19
+    wisdom: 13
+    constitution: 24
+    charisma: 15
+  action_flags:
+    - kNpc
+    - kNoCharm
+    - kNoSummon
+    - kLooter
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+    - kBless
+  skills:
+    - skill_id: 22  # осторожный стиль
+      value: 65
+    - skill_id: 131  # заколоть
+      value: 90
+    - skill_id: 133  # спрятаться
+      value: 50
+    - skill_id: 136  # кулачный бой
+      value: 100
+    - skill_id: 167  # скрытый удар
+      value: 60
+  enhanced:
+    absorb: 25
+    bare_hand_attack: 11
+    like_work: 55
+    max_factor: 3
+    extra_attack: 1
+    special_bitvector: b1c1C3
+    feats:
+      - 29
+      - 30
+      - 31
+      - 32
+      - 33
+      - 34
+      - 35
+      - 36
+      - 37
+      - 38
+
+# Mob #3318
+18:
+  names:
+    aliases: разбойник
+    nominative: разбойник 3 -  танк
+    genitive: разбойника
+    dative: разбойнику
+    accusative: разбойник
+    instrumental: разбойником
+    prepositional: разбойнике
+  descriptions:
+    short_desc: |2
+      Разбойник танк
+    long_desc: неопределен
+  alignment: -600
+  stats:
+    level: 27
+    hitroll_penalty: 0
+    armor: -8
+    hp:
+      dice_count: 10
+      dice_size: 10
+      bonus: 852
+    damage:
+      dice_count: 5
+      dice_size: 5
+      bonus: 7
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 67000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 100
+  race: 101
+  height: 175
+  weight: 85
+  attributes:
+    strength: 24
+    dexterity: 14
+    intelligence: 17
+    wisdom: 13
+    constitution: 27
+    charisma: 10
+  action_flags:
+    - kNpc
+    - kNoCharm
+    - kNoSummon
+    - kLooter
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+    - kBless
+  skills:
+    - skill_id: 22  # осторожный стиль
+      value: 80
+    - skill_id: 136  # кулачный бой
+      value: 90
+    - skill_id: 137  # спасти
+      value: 80
+    - skill_id: 150  # обезоружить
+      value: 90
+  enhanced:
+    absorb: 27
+    like_work: 100
+    max_factor: 3
+    extra_attack: 1
+    special_bitvector: b1c1C3
+
+# Mob #3319
+19:
+  names:
+    aliases: разбойник
+    nominative: разбойник  3 -  дамагер-башер
+    genitive: разбойника
+    dative: разбойнику
+    accusative: разбойник
+    instrumental: разбойником
+    prepositional: разбойнике
+  descriptions:
+    short_desc: |2
+      Разбойник дамагер-башер
+    long_desc: неопределен
+  alignment: -600
+  stats:
+    level: 26
+    hitroll_penalty: 0
+    armor: 5
+    hp:
+      dice_count: 10
+      dice_size: 10
+      bonus: 652
+    damage:
+      dice_count: 7
+      dice_size: 7
+      bonus: 5
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 67000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 70
+  race: 101
+  height: 175
+  weight: 85
+  attributes:
+    strength: 24
+    dexterity: 21
+    intelligence: 17
+    wisdom: 13
+    constitution: 27
+    charisma: 10
+  action_flags:
+    - kNpc
+    - kNoCharm
+    - kNoSummon
+    - kLooter
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+    - kBless
+  skills:
+    - skill_id: 132  # сбить
+      value: 80
+    - skill_id: 136  # кулачный бой
+      value: 90
+    - skill_id: 141  # палицы и дубины
+      value: 90
+    - skill_id: 142  # секиры
+      value: 90
+    - skill_id: 143  # длинные лезвия
+      value: 90
+    - skill_id: 144  # короткие лезвия
+      value: 90
+    - skill_id: 145  # иное оружие
+      value: 90
+    - skill_id: 146  # двуручники
+      value: 90
+    - skill_id: 147  # проникающее оружие
+      value: 90
+    - skill_id: 148  # копья и рогатины
+      value: 90
+    - skill_id: 150  # обезоружить
+      value: 90
+    - skill_id: 154  # луки
+      value: 90
+  enhanced:
+    absorb: 26
+    like_work: 30
+    max_factor: 3
+    extra_attack: 1
+    special_bitvector: b1c1C3
+    feats:
+      - 29
+      - 30
+      - 31
+      - 32
+      - 33
+      - 34
+      - 35
+      - 36
+      - 37
+      - 38
+
+# Mob #3320
+20:
+  names:
+    aliases: разбойник
+    nominative: разбойник 3 -  маг фрагер
+    genitive: разбойника
+    dative: разбойнику
+    accusative: разбойник
+    instrumental: разбойником
+    prepositional: разбойнике
+  descriptions:
+    short_desc: |2
+      Разбойник маг фрагер
+    long_desc: неопределен
+  alignment: -600
+  stats:
+    level: 28
+    hitroll_penalty: 6
+    armor: -8
+    hp:
+      dice_count: 10
+      dice_size: 10
+      bonus: 592
+    damage:
+      dice_count: 5
+      dice_size: 5
+      bonus: 1
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 67000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 100
+  race: 101
+  height: 175
+  weight: 85
+  attributes:
+    strength: 14
+    dexterity: 14
+    intelligence: 23
+    wisdom: 32
+    constitution: 22
+    charisma: 10
+  action_flags:
+    - kNpc
+    - kNoCharm
+    - kNoSummon
+    - kLooter
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+    - kBless
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 90
+  enhanced:
+    absorb: 28
+    like_work: 35
+    max_factor: 4
+    extra_attack: 1
+    special_bitvector: b1c1C3
+    spells:
+      - 6
+      - 6
+      - 6
+      - 6
+      - 6
+      - 6
+      - 26
+      - 26
+      - 72
+      - 72
+      - 72
+      - 72
+      - 72
+      - 72
+      - 72
+      - 79
+      - 79
+      - 89
+      - 89
+      - 128
+
+# Mob #3321
+21:
+  names:
+    aliases: разбойник
+    nominative: разбойник 3-  лекарь
+    genitive: разбойника
+    dative: разбойнику
+    accusative: разбойник
+    instrumental: разбойником
+    prepositional: разбойнике
+  descriptions:
+    short_desc: |2
+      Разбойник лекарь
+    long_desc: неопределен
+  alignment: -600
+  stats:
+    level: 23
+    hitroll_penalty: 9
+    armor: -8
+    hp:
+      dice_count: 10
+      dice_size: 10
+      bonus: 592
+    damage:
+      dice_count: 5
+      dice_size: 5
+      bonus: 1
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 67000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 100
+  race: 101
+  height: 175
+  weight: 85
+  attributes:
+    strength: 14
+    dexterity: 14
+    intelligence: 23
+    wisdom: 32
+    constitution: 22
+    charisma: 10
+  action_flags:
+    - kNpc
+    - kNoCharm
+    - kNoSummon
+    - kNoHold
+    - kLooter
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+    - kBless
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 90
+    - skill_id: 189  # магия жизни
+      value: 230
+  enhanced:
+    absorb: 23
+    like_work: 35
+    max_factor: 3
+    extra_attack: 1
+    special_bitvector: b1c1C3
+    spells:
+      - 28
+      - 28
+      - 28
+      - 28
+      - 28
+      - 36
+      - 36
+      - 36
+      - 75
+      - 75
+      - 75
+      - 79
+      - 79
+      - 79
+      - 81
+      - 81
+      - 81
+      - 81
+      - 83
+      - 83
+      - 83
+      - 83
+      - 89
+      - 89
+      - 89
+      - 92
+      - 92
+      - 92
+      - 92
+      - 92
+      - 92
+      - 92
+      - 93
+
+# Mob #3322
+22:
+  names:
+    aliases: разбойник
+    nominative: разбойник - 3маг-   обсиратель
+    genitive: разбойника
+    dative: разбойнику
+    accusative: разбойник
+    instrumental: разбойником
+    prepositional: разбойнике
+  descriptions:
+    short_desc: |2
+      Разбойник маг -обсиратель
+    long_desc: неопределен
+  alignment: -600
+  stats:
+    level: 28
+    hitroll_penalty: 6
+    armor: -8
+    hp:
+      dice_count: 10
+      dice_size: 10
+      bonus: 592
+    damage:
+      dice_count: 5
+      dice_size: 5
+      bonus: 1
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 67000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 100
+  race: 101
+  height: 175
+  weight: 85
+  attributes:
+    strength: 14
+    dexterity: 14
+    intelligence: 23
+    wisdom: 32
+    constitution: 22
+    charisma: 10
+  action_flags:
+    - kNpc
+    - kNoCharm
+    - kNoSummon
+    - kLooter
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+    - kBless
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 90
+  enhanced:
+    absorb: 28
+    like_work: 35
+    max_factor: 4
+    extra_attack: 1
+    special_bitvector: b1c1C3
+    spells:
+      - 23
+      - 26
+      - 26
+      - 33
+      - 33
+      - 55
+      - 55
+      - 55
+      - 55
+      - 79
+      - 79
+      - 82
+      - 83
+      - 83
+      - 83
+      - 88
+      - 89
+      - 89
+      - 93
+      - 93
+      - 111
+      - 111
+      - 128
+
+# Mob #3323
+23:
+  names:
+    aliases: стражник
+    nominative: стражник витяз-хилер и хз кто в общем
+    genitive: стражника
+    dative: стражнику
+    accusative: стражник
+    instrumental: стражником
+    prepositional: стражнике
+  descriptions:
+    short_desc: |2
+      Стражник -  прикрывает и Гхиляется, типа  витязя(молча,слепь прокла)
+    long_desc: неопределен
+  alignment: -600
+  stats:
+    level: 26
+    hitroll_penalty: 3
+    armor: 4
+    hp:
+      dice_count: 10
+      dice_size: 10
+      bonus: 890
+    damage:
+      dice_count: 6
+      dice_size: 5
+      bonus: 10
+  gold:
+    dice_count: 4
+    dice_size: 4
+    bonus: 7
+  experience: 83000
+  position:
+    default: kStand
+    start: kStand
+  sex: kNeutral
+  size: 100
+  race: 101
+  height: 175
+  weight: 85
+  attributes:
+    strength: 26
+    dexterity: 18
+    intelligence: 17
+    wisdom: 12
+    constitution: 27
+    charisma: 12
+  action_flags:
+    - kNpc
+    - kNoCharm
+    - kNoSummon
+    - kLooter
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+    - kBless
+  skills:
+    - skill_id: 1  # прикрыть
+      value: 100
+    - skill_id: 4  # богатырский молот
+      value: 70
+    - skill_id: 136  # кулачный бой
+      value: 100
+    - skill_id: 137  # спасти
+      value: 30
+    - skill_id: 189  # магия жизни
+      value: 260
+  enhanced:
+    absorb: 26
+    like_work: 100
+    max_factor: 3
+    extra_attack: 1
+    special_bitvector: b1c1
+    spells:
+      - 36
+      - 36
+      - 36
+      - 36
+      - 48
+      - 48
+      - 64
+      - 75
+      - 75
+      - 79
+      - 79
+      - 81
+      - 81
+      - 83
+      - 83
+      - 89
+      - 89
+      - 93
+
+# Mob #3324
+24:
+  names:
+    aliases: стражник
+    nominative: стражник дамагер
+    genitive: стражника дамагера
+    dative: стражнику дамагеру
+    accusative: стражник дамагер
+    instrumental: стражником дамагером
+    prepositional: стражнике дамагере
+  descriptions:
+    short_desc: |2
+      Ну обычный дамагер - пнуть да сбашить посильнее бы
+    long_desc: неопределен
+  alignment: -600
+  stats:
+    level: 27
+    hitroll_penalty: 0
+    armor: 5
+    hp:
+      dice_count: 10
+      dice_size: 10
+      bonus: 830
+    damage:
+      dice_count: 7
+      dice_size: 7
+      bonus: 7
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 84000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 70
+  race: 104
+  height: 175
+  weight: 85
+  attributes:
+    strength: 26
+    dexterity: 21
+    intelligence: 17
+    wisdom: 13
+    constitution: 24
+    charisma: 10
+  action_flags:
+    - kNpc
+    - kNoCharm
+    - kNoSummon
+    - kLooter
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+    - kBless
+  skills:
+    - skill_id: 132  # сбить
+      value: 80
+    - skill_id: 134  # пнуть
+      value: 90
+    - skill_id: 136  # кулачный бой
+      value: 90
+    - skill_id: 141  # палицы и дубины
+      value: 90
+    - skill_id: 142  # секиры
+      value: 90
+    - skill_id: 143  # длинные лезвия
+      value: 90
+    - skill_id: 144  # короткие лезвия
+      value: 90
+    - skill_id: 145  # иное оружие
+      value: 90
+    - skill_id: 146  # двуручники
+      value: 90
+    - skill_id: 147  # проникающее оружие
+      value: 90
+    - skill_id: 148  # копья и рогатины
+      value: 90
+    - skill_id: 150  # обезоружить
+      value: 90
+    - skill_id: 154  # луки
+      value: 90
+  enhanced:
+    absorb: 27
+    like_work: 30
+    max_factor: 3
+    extra_attack: 1
+    special_bitvector: b1c1C3
+    feats:
+      - 29
+      - 30
+      - 31
+      - 32
+      - 33
+      - 34
+      - 35
+      - 36
+      - 37
+      - 38
+
+# Mob #3325
+25:
+  names:
+    aliases: стражник танк
+    nominative: стражник танк
+    genitive: стражника танка
+    dative: стражнику танку
+    accusative: стражник танк
+    instrumental: стражником танком
+    prepositional: стражнике танке
+  descriptions:
+    short_desc: |2
+      Стражник танк
+    long_desc: неопределен
+  alignment: -600
+  stats:
+    level: 27
+    hitroll_penalty: 0
+    armor: -8
+    hp:
+      dice_count: 10
+      dice_size: 10
+      bonus: 1125
+    damage:
+      dice_count: 5
+      dice_size: 5
+      bonus: 7
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 79000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 100
+  race: 101
+  height: 175
+  weight: 85
+  attributes:
+    strength: 24
+    dexterity: 14
+    intelligence: 17
+    wisdom: 13
+    constitution: 27
+    charisma: 10
+  action_flags:
+    - kNpc
+    - kNoCharm
+    - kNoSummon
+    - kLooter
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+    - kBless
+  skills:
+    - skill_id: 22  # осторожный стиль
+      value: 80
+    - skill_id: 136  # кулачный бой
+      value: 90
+    - skill_id: 137  # спасти
+      value: 80
+    - skill_id: 150  # обезоружить
+      value: 90
+  enhanced:
+    absorb: 27
+    like_work: 100
+    max_factor: 3
+    extra_attack: 1
+    special_bitvector: b1c1C3

@@ -1,0 +1,467 @@
+# Mobs for zone 52
+
+# Mob #5200
+0:
+  names:
+    aliases: ежик
+    nominative: ежик
+    genitive: ежика
+    dative: ежику
+    accusative: ежика
+    instrumental: ежиком
+    prepositional: ежике
+  descriptions:
+    short_desc: |2
+      Ежик шуршит в траве.
+    long_desc: |2
+      Ежик что-то ищет в траве.
+  alignment: 0
+  stats:
+    level: 3
+    hitroll_penalty: 12
+    armor: 5
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 100
+    damage:
+      dice_count: 2
+      dice_size: 3
+      bonus: 1
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 500
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 4
+  race: 104
+  height: 198
+  weight: 200
+  attributes:
+    strength: 5
+    dexterity: 11
+    intelligence: 11
+    wisdom: 11
+    constitution: 11
+    charisma: 11
+  action_flags:
+    - kNpc
+    - kStayZone
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 15
+  enhanced:
+    absorb: 3
+    bare_hand_attack: 4
+
+# Mob #5201
+1:
+  names:
+    aliases: собиратель трав
+    nominative: собиратель трав
+    genitive: собирателя трав
+    dative: собирателю трав
+    accusative: собирателя трав
+    instrumental: собирателем трав
+    prepositional: собирателе трав
+  descriptions:
+    short_desc: |2
+      Собиратель трав отдыхает здесь.
+    long_desc: |2
+         Щуплый старичок ощупывает каждое растение в поисках нужного. За поясом
+      у него уже целая куча собранного материала, которое он, наверное, может
+      продать.
+  alignment: 0
+  stats:
+    level: 16
+    hitroll_penalty: 2
+    armor: -2
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 2000
+    damage:
+      dice_count: 2
+      dice_size: 20
+      bonus: 10
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 10
+  experience: 20000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 20
+  race: 105
+  height: 198
+  weight: 200
+  attributes:
+    strength: 11
+    dexterity: 11
+    intelligence: 25
+    wisdom: 25
+    constitution: 11
+    charisma: 25
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kStayZone
+    - kNoCharm
+  affect_flags:
+    - kDetectAlign
+    - kDetectInvisible
+    - kDetectMagic
+    - kDetectLife
+    - kSanctuary
+    - kAwarness
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 90
+  enhanced:
+    absorb: 16
+    like_work: 100
+    max_factor: 2
+    extra_attack: 2
+    spells:
+      - 10
+      - 30
+      - 33
+      - 53
+      - 63
+
+# Mob #5202
+2:
+  names:
+    aliases: волк
+    nominative: волк
+    genitive: волка
+    dative: волку
+    accusative: волка
+    instrumental: волком
+    prepositional: волке
+  descriptions:
+    short_desc: |2
+      Волк готовится к нападению здесь.
+    long_desc: |2
+      Серый облезлый волк ощетинился на Вас.
+  alignment: 0
+  stats:
+    level: 7
+    hitroll_penalty: 10
+    armor: 5
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 150
+    damage:
+      dice_count: 2
+      dice_size: 5
+      bonus: 3
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 2500
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 5
+  race: 104
+  height: 198
+  weight: 200
+  attributes:
+    strength: 10
+    dexterity: 5
+    intelligence: 3
+    wisdom: 3
+    constitution: 6
+    charisma: 3
+  action_flags:
+    - kNpc
+    - kAgressive
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+  skills:
+    - skill_id: 134  # пнуть
+      value: 40
+    - skill_id: 136  # кулачный бой
+      value: 18
+  enhanced:
+    absorb: 7
+    bare_hand_attack: 4
+    like_work: 50
+    max_factor: 1
+
+# Mob #5203
+3:
+  names:
+    aliases: белка
+    nominative: белка
+    genitive: белки
+    dative: белке
+    accusative: белку
+    instrumental: белкой
+    prepositional: белке
+  descriptions:
+    short_desc: |2
+      Белка сидит здесь.
+    long_desc: |2
+      Шустрая маленькая белка настороженно смотрит вокруг.
+  alignment: 0
+  stats:
+    level: 5
+    hitroll_penalty: 15
+    armor: 5
+    hp:
+      dice_count: 10
+      dice_size: 5
+      bonus: 150
+    damage:
+      dice_count: 2
+      dice_size: 3
+      bonus: 3
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 1500
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  size: 3
+  race: 104
+  height: 198
+  weight: 200
+  attributes:
+    strength: 4
+    dexterity: 8
+    intelligence: 3
+    wisdom: 3
+    constitution: 3
+    charisma: 10
+  action_flags:
+    - kNpc
+    - kStayZone
+  skills:
+    - skill_id: 133  # спрятаться
+      value: 70
+    - skill_id: 136  # кулачный бой
+      value: 21
+  enhanced:
+    absorb: 5
+    bare_hand_attack: 4
+    like_work: 90
+    spells:
+      - 37
+      - 37
+
+# Mob #5204
+4:
+  names:
+    aliases: бобер
+    nominative: бобер
+    genitive: бобра
+    dative: бобру
+    accusative: бобра
+    instrumental: бобром
+    prepositional: бобре
+  descriptions:
+    short_desc: |2
+      Бобер строит здесь запруду.
+    long_desc: |2
+      Бобер с черной лоснящейся шкурой таскает ветки к себе на запруду.
+  alignment: 0
+  stats:
+    level: 7
+    hitroll_penalty: 14
+    armor: 9
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 300
+    damage:
+      dice_count: 3
+      dice_size: 3
+      bonus: 5
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 2500
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 3
+  race: 104
+  height: 198
+  weight: 200
+  attributes:
+    strength: 8
+    dexterity: 5
+    intelligence: 3
+    wisdom: 3
+    constitution: 5
+    charisma: 4
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kStayZone
+    - kHelper
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kWaterWalk
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 30
+  enhanced:
+    absorb: 7
+    bare_hand_attack: 4
+    max_factor: 1
+
+# Mob #5205
+5:
+  names:
+    aliases: лягушка квакушка
+    nominative: лягушка-квакушка
+    genitive: лягушки-квакушки
+    dative: лягушке-квакушке
+    accusative: лягушку-квакушку
+    instrumental: лягушкой-квакушкой
+    prepositional: лягушке-квакушке
+  descriptions:
+    short_desc: |2
+      Лягушка квакает здесь.
+    long_desc: |2
+      Зеленая с коричневыми разводами лягушка квакает здесь.
+  alignment: 0
+  stats:
+    level: 2
+    hitroll_penalty: 17
+    armor: 8
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 75
+    damage:
+      dice_count: 1
+      dice_size: 2
+      bonus: 1
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 250
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  size: 2
+  race: 105
+  height: 198
+  weight: 200
+  attributes:
+    strength: 4
+    dexterity: 3
+    intelligence: 3
+    wisdom: 3
+    constitution: 3
+    charisma: 3
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kStayZone
+    - kAppearsDay
+    - kAppearsNight
+    - kAppearsSpring
+    - kAppearsSummer
+    - kAppearsAutumn
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 12
+  enhanced:
+    absorb: 2
+    bare_hand_attack: 13
+    extra_attack: 1
+
+# Mob #5206
+6:
+  names:
+    aliases: рысь пятнистая
+    nominative: рысь
+    genitive: рыси
+    dative: рыси
+    accusative: рысь
+    instrumental: рысью
+    prepositional: рыси
+  descriptions:
+    short_desc: |2
+      Пятнистая рысь изогнула спину перед прыжком здесь.
+    long_desc: |2
+      Пятнистая рысь с острыми клыками.
+  alignment: 0
+  stats:
+    level: 9
+    hitroll_penalty: 14
+    armor: 9
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 300
+    damage:
+      dice_count: 3
+      dice_size: 3
+      bonus: 5
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 5000
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  size: 4
+  race: 104
+  height: 198
+  weight: 200
+  attributes:
+    strength: 12
+    dexterity: 12
+    intelligence: 3
+    wisdom: 3
+    constitution: 8
+    charisma: 4
+  action_flags:
+    - kNpc
+    - kStayZone
+    - kWimpy
+    - kAggressiveNight
+    - kHelper
+    - kNoCharm
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kWaterWalk
+    - kInfravision
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 36
+    - skill_id: 157  # уклониться
+      value: 80
+  enhanced:
+    absorb: 9
+    bare_hand_attack: 4
+    like_work: 80
+    max_factor: 1

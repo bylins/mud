@@ -1,0 +1,813 @@
+# Rooms for zone 43
+
+# Room #4300
+0:
+  name: Заводь
+  description: |2
+       Низинка у реки, которая при половодье разливается на многие версты.
+  sector: kField
+  flags:
+    - kBfsMark
+  exits:
+    - direction: east
+      to_room: 4301  # Заводь
+    - direction: west
+      to_room: 4057  # Тропа
+
+# Room #4301
+1:
+  name: Заводь
+  description: |2
+    ___Идя дальше, вы видите несколько поваленных полусгнивших деревьев, которые
+    лежат тут, один Бог знает, сколько лет.
+  sector: kField
+  flags:
+    - kBfsMark
+  exits:
+    - direction: east
+      to_room: 4302  # Заводь
+    - direction: south
+      to_room: 4312  # Заводь
+    - direction: west
+      to_room: 4300  # Заводь
+
+# Room #4302
+2:
+  name: Заводь
+  description: |2
+       Низинка у реки, земля которой превращается в топкую грязь весной.
+  sector: kField
+  flags:
+    - kBfsMark
+  exits:
+    - direction: north
+      to_room: 4303  # Ракитовый куст
+    - direction: east
+      to_room: 4305  # Заводь
+    - direction: south
+      to_room: 4311  # Заводь
+    - direction: west
+      to_room: 4301  # Заводь
+
+# Room #4303
+3:
+  name: Ракитовый куст
+  description: |2
+       На высоком обрывистом берегу растет несколько ракитовых кустов. Раздвинув
+    ветки, Вы увидели широкую реку, которая несет свои воды все дальше и дальше,
+    впадая, как говорят люди, в Черное море.
+  sector: kField
+  flags:
+    - kBfsMark
+  exits:
+    - direction: east
+      to_room: 4304  # Ракитовый куст
+    - direction: south
+      to_room: 4302  # Заводь
+
+# Room #4304
+4:
+  name: Ракитовый куст
+  description: |2
+       На высоком обрывистом берегу растет несколько ракитовых кустов. Их густые
+    ветки скрывают от вас вид широкой реки, что неспешно несет свои гладкие воды
+    куда-то вдаль. Нет, врут, наверно, люди про Черное море.
+  sector: kField
+  flags:
+    - kBfsMark
+  exits:
+    - direction: south
+      to_room: 4305  # Заводь
+    - direction: west
+      to_room: 4303  # Ракитовый куст
+
+# Room #4305
+5:
+  name: Заводь
+  description: |2
+       Низинка у реки, заросшая невысокими кустиками. Эти кусты выглядят как 
+    настоящий рассадник комаров.
+  sector: kField
+  flags:
+    - kBfsMark
+  exits:
+    - direction: north
+      to_room: 4304  # Ракитовый куст
+    - direction: east
+      to_room: 4307  # Плакучая ивушка
+    - direction: south
+      to_room: 4306  # Заводь
+    - direction: west
+      to_room: 4302  # Заводь
+
+# Room #4306
+6:
+  name: Заводь
+  description: |2
+       После того, как вода сходит с этого места и грязь подсыхает, превращаясь 
+    в твердую почву, земля покрывается красивыми и яркими цветами. Цветы эти радуют
+    глаз совсем недолго, но крестьянские дети с нетерпением ждут этого времени.
+  sector: kField
+  flags:
+    - kBfsMark
+  exits:
+    - direction: north
+      to_room: 4305  # Заводь
+    - direction: east
+      to_room: 4309  # Заводь
+    - direction: south
+      to_room: 4315  # Речное займище
+    - direction: west
+      to_room: 4311  # Заводь
+
+# Room #4307
+7:
+  name: Плакучая ивушка
+  description: |2
+       Стройная ивушка склонила голову над широкой рекой, роняя свои слезы в ее
+    прозрачные воды.
+  sector: kField
+  flags:
+    - kBfsMark
+  exits:
+    - direction: east
+      to_room: 4308  # Плакучая ивушка
+    - direction: south
+      to_room: 4309  # Заводь
+    - direction: west
+      to_room: 4305  # Заводь
+
+# Room #4308
+8:
+  name: Плакучая ивушка
+  description: |2
+       Ива на берегу реки тяжело склонила свою верхушку в земном поклоне, плача
+    об одной ей известном горе.
+  sector: kField
+  flags:
+    - kBfsMark
+  exits:
+    - direction: south
+      to_room: 4310  # Заводь
+    - direction: west
+      to_room: 4307  # Плакучая ивушка
+
+# Room #4309
+9:
+  name: Заводь
+  description: |2
+       На небольшом бугорке растет одинокая чахлая березка. Ствол ее у земли
+    изрядно обглодан зайцами, и вам становится ясно, что следующую зиму березка не
+    переживет.  
+  sector: kField
+  flags:
+    - kBfsMark
+  exits:
+    - direction: north
+      to_room: 4307  # Плакучая ивушка
+    - direction: east
+      to_room: 4310  # Заводь
+    - direction: south
+      to_room: 4316  # Заливной луг
+    - direction: west
+      to_room: 4306  # Заводь
+
+# Room #4310
+10:
+  name: Заводь
+  description: |2
+       По весне это место превращается в огромную лужу, не высыхающую до середины
+    лета. 
+  sector: kField
+  flags:
+    - kBfsMark
+  exits:
+    - direction: north
+      to_room: 4308  # Плакучая ивушка
+    - direction: east
+      to_room: 4317  # Плакучая ивушка
+    - direction: south
+      to_room: 4319  # Заливной луг
+    - direction: west
+      to_room: 4309  # Заводь
+
+# Room #4311
+11:
+  name: Заводь
+  description: |2
+       Весной эту часть земли заливает река, что выходит из берегов, питаемая
+    талыми водами. 
+  sector: kField
+  flags:
+    - kBfsMark
+  exits:
+    - direction: north
+      to_room: 4302  # Заводь
+    - direction: east
+      to_room: 4306  # Заводь
+    - direction: south
+      to_room: 4314  # Речное займище
+    - direction: west
+      to_room: 4312  # Заводь
+
+# Room #4312
+12:
+  name: Заводь
+  description: |2
+       Несколько больших камней лежат здесь. Летом на них частенько вползают 
+    змеи - погреться на солнце. Будьте осторожны, выбирая место для отдыха.
+  sector: kField
+  flags:
+    - kBfsMark
+  exits:
+    - direction: north
+      to_room: 4301  # Заводь
+    - direction: east
+      to_room: 4311  # Заводь
+    - direction: south
+      to_room: 4313  # Речное займище
+
+# Room #4313
+13:
+  name: Речное займище
+  description: |2
+       При половодье вода сюда почти не доходит, поэтому самые отчаянные селяне 
+    приноровились и здесь собирать неплохой урожай.
+  sector: kField
+  flags:
+    - kBfsMark
+  exits:
+    - direction: north
+      to_room: 4312  # Заводь
+    - direction: east
+      to_room: 4314  # Речное займище
+    - direction: south
+      to_room: 4325  # Речное займище
+    - direction: west
+      to_room: 4326  # Речное займище
+
+# Room #4314
+14:
+  name: Речное займище
+  description: |2
+       Когда-то это место обрабатывали и собирали здесь неплохой урожай. Но после
+    смерти одного из крестьян, это поле так и осталось заброшенным. Теперь летом 
+    тут вырастает только репей и сорная трава.
+  sector: kField
+  flags:
+    - kBfsMark
+  exits:
+    - direction: north
+      to_room: 4311  # Заводь
+    - direction: east
+      to_room: 4315  # Речное займище
+    - direction: south
+      to_room: 4324  # Речное займище
+    - direction: west
+      to_room: 4313  # Речное займище
+
+# Room #4315
+15:
+  name: Речное займище
+  description: |2
+       Тут лежит пара толстенных обгоревших бревен и летом видна выжженная земля,
+    на которой ничего не растет. Как рассказывают дряхлые старики - это была первая
+    церковь нового бога, построенная на сваях, чтоб устоять при сильных разливах 
+    рек. Говорят так же, что Перун, разозлившись на дерзость людей, испепелил церковь
+    молнией.
+  sector: kField
+  flags:
+    - kBfsMark
+  exits:
+    - direction: north
+      to_room: 4306  # Заводь
+    - direction: east
+      to_room: 4316  # Заливной луг
+    - direction: south
+      to_room: 4323  # Заливной луг
+    - direction: west
+      to_room: 4314  # Речное займище
+
+# Room #4316
+16:
+  name: Заливной луг
+  description: |2
+       Весной, когда река разливает свои талые воды, этот луг на добрый локоть
+    покрыт мутной водой, но стоит ей спасть - и весь он покрывается густой,
+    шелковой муравушкой, которая так мягко стелется у Ваших ног.
+  sector: kField
+  flags:
+    - kBfsMark
+  exits:
+    - direction: north
+      to_room: 4309  # Заводь
+    - direction: east
+      to_room: 4319  # Заливной луг
+    - direction: south
+      to_room: 4322  # Заливной луг
+    - direction: west
+      to_room: 4315  # Речное займище
+
+# Room #4317
+17:
+  name: Плакучая ивушка
+  description: |2
+       Стройная ивушка любуется своим отражением в зеркале реки. Под сенью ее 
+    ветвей на воде лежит прохладная тень, в которой иногда можно заметить силуэты
+    проплывающих рыб.
+  sector: kField
+  flags:
+    - kBfsMark
+  exits:
+    - direction: south
+      to_room: 4318  # Заливной луг
+    - direction: west
+      to_room: 4310  # Заводь
+
+# Room #4318
+18:
+  name: Заливной луг
+  description: |2
+       Ранним летним утром можно увидеть, как на этот луг деревенский пастушок
+    выгоняет небольшое стадо коров. Здесь не водится никаких опасных зверей
+    и поэтому пастушок может целый день удить рыбу в реке или просто лежать на
+    траве, предаваясь лени и сну.
+  sector: kField
+  flags:
+    - kNoEntryMob
+    - kPeaceful
+    - kBfsMark
+  exits:
+    - direction: north
+      to_room: 4317  # Плакучая ивушка
+    - direction: south
+      to_room: 4320  # Заливной луг
+    - direction: west
+      to_room: 4319  # Заливной луг
+
+# Room #4319
+19:
+  name: Заливной луг
+  description: |2
+       Летом и осенью здесь всегда можно увидеть стога сена. Крестьяне могут только 
+    благодарить богов за близость такого отличного луга.
+  sector: kField
+  flags:
+    - kBfsMark
+  exits:
+    - direction: north
+      to_room: 4310  # Заводь
+    - direction: east
+      to_room: 4318  # Заливной луг
+    - direction: south
+      to_room: 4321  # Заливной луг
+    - direction: west
+      to_room: 4316  # Заливной луг
+
+# Room #4320
+20:
+  name: Заливной луг
+  description: |2
+       Зимой тут проходит вытоптанная в снегу тропка к деревянным мостикам перед
+    полыней, вырубленной во льду. Крестьянки, не взирая на холод, полоскают белье
+    в проруби. Местная старуха-знахарка советовала лечить все болезни окунанием
+    больного в прорубь. После нескольких смертельных случаев крестьяне разуверились
+    в ее волшебных талантах и проверили ее метод на ней самой. Вы можете найти ее
+    могилку на деревенском кладбище. 
+  sector: kField
+  flags:
+    - kBfsMark
+  exits:
+    - direction: north
+      to_room: 4318  # Заливной луг
+    - direction: south
+      to_room: 4336  # Заросли камыша
+    - direction: west
+      to_room: 4321  # Заливной луг
+
+# Room #4321
+21:
+  name: Заливной луг
+  description: |2
+       Это место выглядит как белая равнина зимой и густой травяной лес летом.
+    Местные мальчишки часто прячутся в высокой траве, подглядывая за девками или
+    пытаясь поймать в хитрые силки птиц.
+  sector: kField
+  flags:
+    - kBfsMark
+  exits:
+    - direction: north
+      to_room: 4319  # Заливной луг
+    - direction: east
+      to_room: 4320  # Заливной луг
+    - direction: south
+      to_room: 4330  # У озера
+    - direction: west
+      to_room: 4322  # Заливной луг
+
+# Room #4322
+22:
+  name: Заливной луг
+  description: |2
+       Осенью нередко вспыхивали большие пожары, когда высокая сухая трава 
+    загоралась по недосмотру или от случайного огня. Все живое погибало в этом
+    огне. Но красная весна всегда заживляла эти раны и летом ничего не напоминало
+    о пожаре.
+  sector: kField
+  flags:
+    - kBfsMark
+  exits:
+    - direction: north
+      to_room: 4316  # Заливной луг
+    - direction: east
+      to_room: 4321  # Заливной луг
+    - direction: south
+      to_room: 4329  # У озера
+    - direction: west
+      to_room: 4323  # Заливной луг
+
+# Room #4323
+23:
+  name: Заливной луг
+  description: |2
+       Где-то здесь, по слухам, один из лесных душегубов спрятал все свое 
+    награбленное добро. Взрослые мужики только посмеивались в бороды, а мальчишки, 
+    вдохновленные такими рассказами, были похожи на усердных кротов, роющихся в земле. 
+  sector: kField
+  flags:
+    - kBfsMark
+  exits:
+    - direction: north
+      to_room: 4315  # Речное займище
+    - direction: east
+      to_room: 4322  # Заливной луг
+    - direction: south
+      to_room: 4328  # Плоские сормы
+    - direction: west
+      to_room: 4324  # Речное займище
+
+# Room #4324
+24:
+  name: Речное займище
+  description: |2
+       Зимой люди с трудом пробираются через снежные сугробы, а летом с не 
+    меньшим трудом продираются через густые травы, высотой по грудь взрослому
+    человеку.
+  sector: kField
+  flags:
+    - kBfsMark
+  exits:
+    - direction: north
+      to_room: 4314  # Речное займище
+    - direction: east
+      to_room: 4323  # Заливной луг
+    - direction: south
+      to_room: 4327  # Болотце
+    - direction: west
+      to_room: 4325  # Речное займище
+
+# Room #4325
+25:
+  name: Речное займище
+  description: |2
+       Летом огромные кузнечики стрекочут так, что в ближних деревенских домах
+    усталому путнику тяжело спать. Местные же жители привыкли и совсем не замечают
+    этих звуков.
+  sector: kField
+  flags:
+    - kBfsMark
+  exits:
+    - direction: north
+      to_room: 4313  # Речное займище
+    - direction: east
+      to_room: 4324  # Речное займище
+    - direction: south
+      to_room: 4334  # Речное займище
+    - direction: west
+      to_room: 4335  # Речное займище
+
+# Room #4326
+26:
+  name: Речное займище
+  description: |2
+       Редкая березовая рощица тянет свои ветки к солнцу, словно умоляя небо
+    избавить ее от майских жуков.
+  sector: kField
+  flags:
+    - kBfsMark
+  exits:
+    - direction: east
+      to_room: 4313  # Речное займище
+    - direction: south
+      to_room: 4335  # Речное займище
+
+# Room #4327
+27:
+  name: Болотце
+  description: |2
+       Огромные лужи, даже скорее небольшие болотца остаются здесь после половодья.
+    Единственные, кто искренне им рад это лягушки да небольшие змеи, предпочитающие
+    проводить свое время в сырости и тепле.
+  sector: kWaterSwim
+  flags:
+    - kBfsMark
+  exits:
+    - direction: north
+      to_room: 4324  # Речное займище
+    - direction: east
+      to_room: 4328  # Плоские сормы
+    - direction: south
+      to_room: 4333  # Болотце
+    - direction: west
+      to_room: 4334  # Речное займище
+
+# Room #4328
+28:
+  name: Плоские сормы
+  description: |2
+       Мутные ручьи текут здесь, подпитывая болото из озера. Ваши ноги проваливаются
+    в чавкающую грязь.
+  sector: kField
+  flags:
+    - kBfsMark
+  exits:
+    - direction: north
+      to_room: 4323  # Заливной луг
+    - direction: east
+      to_room: 4329  # У озера
+    - direction: south
+      to_room: 4332  # Плоские сормы
+    - direction: west
+      to_room: 4327  # Болотце
+
+# Room #4329
+29:
+  name: У озера
+  description: |2
+       Зимой озеро у берегов промерзает до дна. Летом же местные крестьяне 
+    ловят здесь жирных карасей и собирают раков.
+  sector: kField
+  flags:
+    - kBfsMark
+  exits:
+    - direction: north
+      to_room: 4322  # Заливной луг
+    - direction: east
+      to_room: 4330  # У озера
+    - direction: south
+      to_room: 4331  # У озера
+    - direction: west
+      to_room: 4328  # Плоские сормы
+
+# Room #4330
+30:
+  name: У озера
+  description: |2
+       Довольно большое озеро. В тихую погоду в его поверхность можно смотреться
+    как в зеркало. По слухам, здесь водится несколько русалок и кто-то видел
+    даже водяного. Будьте осторожны, купаясь здесь. 
+  sector: kField
+  flags:
+    - kBfsMark
+  exits:
+    - direction: north
+      to_room: 4321  # Заливной луг
+    - direction: east
+      to_room: 4336  # Заросли камыша
+    - direction: west
+      to_room: 4329  # У озера
+
+# Room #4331
+31:
+  name: У озера
+  description: |2
+       Земля плавно спускается к берегу озера. Отсюда вы можете разглядеть, что 
+    озеро довольно бурно заросло водорослями. Рядом с берегом вы замечаете крупные
+    листья кувшинок и забавных жуков-водомерок, бегающих наперегонки друг с другом.
+    Зимой же, под снежными сугробами, вы не поймете даже, где заканчивается земля
+    и начинается лед.
+  sector: kField
+  flags:
+    - kBfsMark
+  exits:
+    - direction: north
+      to_room: 4329  # У озера
+    - direction: west
+      to_room: 4332  # Плоские сормы
+
+# Room #4332
+32:
+  name: Плоские сормы
+  description: |2
+       Узкие ручейки текут по проторенной дорожке из озера к болотцу.
+  sector: kField
+  flags:
+    - kBfsMark
+  exits:
+    - direction: north
+      to_room: 4328  # Плоские сормы
+    - direction: east
+      to_room: 4331  # У озера
+    - direction: west
+      to_room: 4333  # Болотце
+
+# Room #4333
+33:
+  name: Болотце
+  description: |2
+       Небольшое болото, которое так и осталось с последнего половодья.
+  sector: kWaterSwim
+  flags:
+    - kBfsMark
+  exits:
+    - direction: north
+      to_room: 4327  # Болотце
+    - direction: east
+      to_room: 4332  # Плоские сормы
+
+# Room #4334
+34:
+  name: Речное займище
+  description: |2
+       Это по-своему красивое и дикое место. Заросли густых кустов вербы весной
+    выглядят очень красиво. Сюда очень редко наведываются местные жители и мелкие 
+    звери чувствуют себя здесь в относительной безопасности. 
+  sector: kField
+  flags:
+    - kBfsMark
+  exits:
+    - direction: north
+      to_room: 4325  # Речное займище
+    - direction: east
+      to_room: 4327  # Болотце
+
+# Room #4335
+35:
+  name: Речное займище
+  description: |2
+       Здесь растет пара кряжистых дубов, в ветвях которых нашли себе приют 
+    множество птиц и белок. В летнюю жару, в тени этих дубов можно найти освежающую
+    прохладу и отдохновение.
+  sector: kField
+  flags:
+    - kBfsMark
+  exits:
+    - direction: north
+      to_room: 4326  # Речное займище
+    - direction: east
+      to_room: 4325  # Речное займище
+
+# Room #4336
+36:
+  name: Заросли камыша
+  description: |2
+       Один из берегов озера покрыт зарослями камыша. Зимой сухой камыш торчит
+    из снега, как острые пики ворога лютого. Летом же в его шелесте людям чудятся
+    чьи-то голоса. Некоторые верят, что так с ними общаются ушедшие в мир теней
+    предки.
+  sector: kField
+  flags:
+    - kNoEntryMob
+    - kBfsMark
+  exits:
+    - direction: north
+      to_room: 4320  # Заливной луг
+    - direction: east
+      to_room: 4337  # Стоялая вода
+    - direction: south
+      to_room: 4338  # Заросли камыша
+    - direction: west
+      to_room: 4330  # У озера
+
+# Room #4337
+37:
+  name: Стоялая вода
+  description: |2
+       Вы попали на болото, покрытое мхом и стелющимся кустарником.
+  sector: kWaterSwim
+  flags:
+    - kBfsMark
+  exits:
+    - direction: east
+      to_room: 4340  # Стоялая вода
+    - direction: south
+      to_room: 4339  # Стоялая вода
+    - direction: west
+      to_room: 4336  # Заросли камыша
+
+# Room #4338
+38:
+  name: Заросли камыша
+  description: |2
+       Высокая стена из камыша скрывает от вас озеро. По колебанию верхушек камышей
+    можно понять, что этот лес обитаем и живет своей бурной жизнью.
+  sector: kField
+  flags:
+    - kBfsMark
+  exits:
+    - direction: north
+      to_room: 4336  # Заросли камыша
+    - direction: east
+      to_room: 4339  # Стоялая вода
+
+# Room #4339
+39:
+  name: Стоялая вода
+  description: |2
+       Небольшие островки суши, перемежающиеся с лужами воды. Чахлая сосна стоит
+    тут. Кора ее покрыта мхом, как зеленым тулупом.
+  sector: kWaterSwim
+  flags:
+    - kBfsMark
+  exits:
+    - direction: north
+      to_room: 4337  # Стоялая вода
+    - direction: east
+      to_room: 4341  # Гнилое болото
+    - direction: south
+      to_room: 4342  # Гнилое болото
+    - direction: west
+      to_room: 4338  # Заросли камыша
+
+# Room #4340
+40:
+  name: Стоялая вода
+  description: |2
+       Ковер из мха приглушает звук ваших шагов и скрывает стволы упавших деревьев.
+  sector: kWaterSwim
+  flags:
+    - kBfsMark
+  exits:
+    - direction: south
+      to_room: 4341  # Гнилое болото
+    - direction: west
+      to_room: 4337  # Стоялая вода
+
+# Room #4341
+41:
+  name: Гнилое болото
+  description: |2
+       Это более опасная часть болота. Мох поменял свой цвет с зеленого на 
+    бурый и коричневый. Между корягами и кочками видны окна воды, кое-где затянутые
+    ряской. 
+  sector: kWaterSwim
+  flags:
+    - kBfsMark
+  exits:
+    - direction: north
+      to_room: 4340  # Стоялая вода
+    - direction: south
+      to_room: 4343  # Гнилое болото
+    - direction: west
+      to_room: 4339  # Стоялая вода
+
+# Room #4342
+42:
+  name: Гнилое болото
+  description: |2
+       Вы попали на болото, покрытое мхом и стелющимся кустарником. Предательский 
+    мох на кочках весьма скользок. Одно непродуманное движение и вы очутитесь по
+    уши в затхлой коричневой воде.
+  sector: kWaterSwim
+  flags:
+    - kBfsMark
+  exits:
+    - direction: north
+      to_room: 4339  # Стоялая вода
+    - direction: east
+      to_room: 4343  # Гнилое болото
+
+# Room #4343
+43:
+  name: Гнилое болото
+  description: |2
+    ___Вы продолжаете свой путь по болоту. Внезапно Вы обратили внимание на
+    интересную деталь - на восток ведет множество звериных следов, но ни один
+    из них не возвращается... Похоже, там гиблое место.
+  sector: kField
+  flags:
+    - kBfsMark
+  exits:
+    - direction: north
+      to_room: 4341  # Гнилое болото
+    - direction: east
+      to_room: 4344  # Затресье
+    - direction: west
+      to_room: 4342  # Гнилое болото
+
+# Room #4344
+44:
+  name: Затресье
+  description: |2
+       Трясина, засасывающая все живое. В последние минуты своей жизни вы успеваете
+    понять, что эти минуты действительно последние и никто не успеет к вам на
+    помощь. Страшная смерть...
+  sector: kInside
+  flags:
+    - kDarked
+    - kDeathTrap
+    - kNoEntryMob
+    - kBfsMark
+  exits:
+    - direction: west
+      to_room: 4343  # Гнилое болото

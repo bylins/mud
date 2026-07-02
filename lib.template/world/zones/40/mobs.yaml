@@ -1,7 +1,7 @@
 # Mobs for zone 40
 
+# Mob #4000
 0:
-  # Mob #4000
   names:
     aliases: седой крепкий старейшина
     nominative: старейшина
@@ -11,27 +11,12 @@
     instrumental: старейшиной
     prepositional: старейшине
   descriptions:
-    short_desc: |
+    short_desc: |2
       Седой крепкий мужичонка с цепким взглядом стоит здесь.
-    long_desc: |
+    long_desc: |2
       Пожилой седовласый старец.
       Уважаемый человек в деревне.
-  action_flags:
-  - kSentinel
-  - kNpc
-  - kNoCharm
-  - kNoSummon
-  - kNoSleep
-  - kProtect
-  affect_flags:
-  - kDetectAlign
-  - kDetectInvisible
-  - kDetectMagic
-  - kDetectLife
-  - kSanctuary
-  - kProtectFromDark
   alignment: 600
-  mob_type: E
   stats:
     level: 15
     hitroll_penalty: 10
@@ -53,6 +38,10 @@
     default: kStand
     start: kStand
   sex: kMale
+  size: 30
+  race: 101
+  height: 180
+  weight: 150
   attributes:
     strength: 20
     dexterity: 20
@@ -60,21 +49,30 @@
     wisdom: 20
     constitution: 20
     charisma: 20
-  size: 30
-  mob_class: 100
-  race: 101
-  height: 180
-  weight: 150
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kNoCharm
+    - kNoSummon
+    - kNoSleep
+    - kProtect
+  affect_flags:
+    - kDetectAlign
+    - kDetectInvisible
+    - kDetectMagic
+    - kDetectLife
+    - kSanctuary
+    - kProtectFromDark
   skills:
-  - skill_id: 136  # kPunch
-    value: 45
+    - skill_id: 136  # кулачный бой
+      value: 45
   enhanced:
     like_work: 90
+    max_factor: 2
     extra_attack: 1
-    special_bitvector: '0'
 
+# Mob #4001
 1:
-  # Mob #4001
   names:
     aliases: жена старейшина дородная женщина
     nominative: жена старейшины
@@ -84,21 +82,11 @@
     instrumental: женой старейшины
     prepositional: жене старейшины
   descriptions:
-    short_desc: |
+    short_desc: |2
       Дородная румяная женщина стоит здесь.
-    long_desc: |
+    long_desc: |2
       Почтенная хозяйка дома.
-  action_flags:
-  - kSentinel
-  - kNpc
-  - kNoCharm
-  - kNoSummon
-  - kNoSleep
-  - kProtect
-  affect_flags:
-  - kProtectFromDark
   alignment: 600
-  mob_type: E
   stats:
     level: 13
     hitroll_penalty: 12
@@ -120,6 +108,10 @@
     default: kStand
     start: kStand
   sex: kFemale
+  size: 30
+  race: 101
+  height: 180
+  weight: 150
   attributes:
     strength: 16
     dexterity: 16
@@ -127,20 +119,24 @@
     wisdom: 20
     constitution: 20
     charisma: 20
-  size: 30
-  mob_class: 100
-  race: 101
-  height: 180
-  weight: 150
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kNoCharm
+    - kNoSummon
+    - kNoSleep
+    - kProtect
+  affect_flags:
+    - kProtectFromDark
   skills:
-  - skill_id: 136  # kPunch
-    value: 39
+    - skill_id: 136  # кулачный бой
+      value: 39
   enhanced:
     bare_hand_attack: 2
-    special_bitvector: '0'
+    max_factor: 1
 
+# Mob #4002
 2:
-  # Mob #4002
   names:
     aliases: сын старейшины
     nominative: сын старейшины
@@ -150,19 +146,11 @@
     instrumental: сыном старейшины
     prepositional: сыне старейшины
   descriptions:
-    short_desc: |
+    short_desc: |2
       Сын старейшины стоит здесь.
-    long_desc: |
+    long_desc: |2
       Стройный молодой парень.
-  action_flags:
-  - kNpc
-  - kStayZone
-  - kNoCharm
-  - kNoSummon
-  - kNoSleep
-  - kProtect
   alignment: 600
-  mob_type: E
   stats:
     level: 12
     hitroll_penalty: 17
@@ -184,6 +172,10 @@
     default: kStand
     start: kStand
   sex: kMale
+  size: 30
+  race: 101
+  height: 180
+  weight: 150
   attributes:
     strength: 20
     dexterity: 20
@@ -191,23 +183,24 @@
     wisdom: 16
     constitution: 18
     charisma: 15
-  size: 30
-  mob_class: 102
-  race: 101
-  height: 180
-  weight: 150
+  action_flags:
+    - kNpc
+    - kStayZone
+    - kNoCharm
+    - kNoSummon
+    - kNoSleep
+    - kProtect
   skills:
-  - skill_id: 136  # kPunch
-    value: 36
+    - skill_id: 136  # кулачный бой
+      value: 36
   triggers:
-  - 4003
+    - 4003  # нападениежителя
   enhanced:
     like_work: 50
-    max_factor: 10
-    special_bitvector: '0'
+    max_factor: 1
 
+# Mob #4003
 3:
-  # Mob #4003
   names:
     aliases: кузнец
     nominative: кузнец
@@ -217,22 +210,13 @@
     instrumental: кузнецом
     prepositional: кузнеце
   descriptions:
-    short_desc: |
+    short_desc: |2
       Крепкий мужчина стоит возле горна.
-    long_desc: |
+    long_desc: |2
       Крепкий мужчина в кожаном халате.
       От постоянной тяжелой работы тело
       его окрепло и огрубело.
-  action_flags:
-  - kSentinel
-  - kNpc
-  - kNoCharm
-  - kNoSummon
-  - kNoSleep
-  - kProtect
-  - kNoResurrection
   alignment: 600
-  mob_type: E
   stats:
     level: 20
     hitroll_penalty: 8
@@ -254,6 +238,10 @@
     default: kStand
     start: kStand
   sex: kMale
+  size: 30
+  race: 101
+  height: 180
+  weight: 150
   attributes:
     strength: 25
     dexterity: 20
@@ -261,22 +249,24 @@
     wisdom: 20
     constitution: 25
     charisma: 20
-  size: 30
-  mob_class: 100
-  race: 101
-  height: 180
-  weight: 150
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kNoCharm
+    - kNoSummon
+    - kNoSleep
+    - kProtect
+    - kNoResurrection
   skills:
-  - skill_id: 136  # kPunch
-    value: 60
+    - skill_id: 136  # кулачный бой
+      value: 60
   enhanced:
     bare_hand_attack: 5
     like_work: 70
-    max_factor: 10
-    special_bitvector: '0'
+    max_factor: 2
 
+# Mob #4004
 4:
-  # Mob #4004
   names:
     aliases: подмастерье помощник подручный
     nominative: подмастерье
@@ -286,19 +276,11 @@
     instrumental: подмастерьем
     prepositional: подмастерье
   descriptions:
-    short_desc: |
+    short_desc: |2
       Подручный кузнеца стоит здесь.
-    long_desc: |
+    long_desc: |2
       Молодой проворный юноша.
-  action_flags:
-  - kNpc
-  - kStayZone
-  - kNoCharm
-  - kNoSummon
-  - kNoSleep
-  - kProtect
   alignment: 600
-  mob_type: E
   stats:
     level: 12
     hitroll_penalty: 15
@@ -320,6 +302,10 @@
     default: kStand
     start: kStand
   sex: kMale
+  size: 30
+  race: 101
+  height: 180
+  weight: 150
   attributes:
     strength: 18
     dexterity: 20
@@ -327,22 +313,23 @@
     wisdom: 15
     constitution: 15
     charisma: 15
-  size: 30
-  mob_class: 100
-  race: 101
-  height: 180
-  weight: 150
+  action_flags:
+    - kNpc
+    - kStayZone
+    - kNoCharm
+    - kNoSummon
+    - kNoSleep
+    - kProtect
   skills:
-  - skill_id: 136  # kPunch
-    value: 36
+    - skill_id: 136  # кулачный бой
+      value: 36
   triggers:
-  - 4003
+    - 4003  # нападениежителя
   enhanced:
-    max_factor: 10
-    special_bitvector: '0'
+    max_factor: 1
 
+# Mob #4005
 5:
-  # Mob #4005
   names:
     aliases: седой отшельник
     nominative: отшельник
@@ -352,19 +339,11 @@
     instrumental: отшельником
     prepositional: отшельнике
   descriptions:
-    short_desc: |
+    short_desc: |2
       Седой отшельник сидит у окна.
-    long_desc: |
+    long_desc: |2
       Седой старик.
-  action_flags:
-  - kSentinel
-  - kNpc
-  - kNoCharm
-  - kNoSummon
-  - kNoSleep
-  - kProtect
   alignment: 600
-  mob_type: E
   stats:
     level: 20
     hitroll_penalty: 5
@@ -386,6 +365,10 @@
     default: kSit
     start: kSit
   sex: kMale
+  size: 30
+  race: 101
+  height: 180
+  weight: 150
   attributes:
     strength: 15
     dexterity: 15
@@ -393,43 +376,36 @@
     wisdom: 25
     constitution: 15
     charisma: 20
-  size: 30
-  mob_class: 100
-  race: 101
-  height: 180
-  weight: 150
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kNoCharm
+    - kNoSummon
+    - kNoSleep
+    - kProtect
   skills:
-  - skill_id: 136  # kPunch
-    value: 60
+    - skill_id: 136  # кулачный бой
+      value: 60
   enhanced:
     like_work: 70
-    max_factor: 10
-    special_bitvector: '0'
+    max_factor: 2
 
+# Mob #4006
 6:
-  # Mob #4006
   names:
     aliases: ведунья колдунья старуха
     nominative: ведунья
     genitive: ведуньи
     dative: ведунье
-    accusative: ведуньи
+    accusative: ведунью
     instrumental: ведуньей
     prepositional: ведунье
   descriptions:
-    short_desc: |
+    short_desc: |2
       Косматая старуха с ожерельем на шее стоит здесь.
-    long_desc: |
+    long_desc: |2
       Седая косматая старуха.
-  action_flags:
-  - kSentinel
-  - kNpc
-  - kNoCharm
-  - kNoSummon
-  - kNoSleep
-  - kProtect
   alignment: 600
-  mob_type: E
   stats:
     level: 15
     hitroll_penalty: 10
@@ -451,6 +427,10 @@
     default: kStand
     start: kStand
   sex: kFemale
+  size: 30
+  race: 101
+  height: 180
+  weight: 150
   attributes:
     strength: 12
     dexterity: 15
@@ -458,20 +438,21 @@
     wisdom: 25
     constitution: 15
     charisma: 20
-  size: 30
-  mob_class: 100
-  race: 101
-  height: 180
-  weight: 150
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kNoCharm
+    - kNoSummon
+    - kNoSleep
+    - kProtect
   skills:
-  - skill_id: 136  # kPunch
-    value: 45
+    - skill_id: 136  # кулачный бой
+      value: 45
   enhanced:
-    max_factor: 10
-    special_bitvector: '0'
+    max_factor: 2
 
+# Mob #4007
 7:
-  # Mob #4007
   names:
     aliases: травник лекарь старик
     nominative: травник
@@ -481,19 +462,11 @@
     instrumental: травником
     prepositional: травнике
   descriptions:
-    short_desc: |
+    short_desc: |2
       Невысокий мужчина с окладистой бородой стоит здесь.
-    long_desc: |
+    long_desc: |2
       Немолодой крепкий мужчина.
-  action_flags:
-  - kSentinel
-  - kNpc
-  - kNoCharm
-  - kNoSummon
-  - kNoSleep
-  - kProtect
   alignment: 600
-  mob_type: E
   stats:
     level: 20
     hitroll_penalty: 5
@@ -515,6 +488,10 @@
     default: kStand
     start: kStand
   sex: kMale
+  size: 30
+  race: 101
+  height: 180
+  weight: 150
   attributes:
     strength: 18
     dexterity: 18
@@ -522,20 +499,21 @@
     wisdom: 25
     constitution: 15
     charisma: 20
-  size: 30
-  mob_class: 100
-  race: 101
-  height: 180
-  weight: 150
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kNoCharm
+    - kNoSummon
+    - kNoSleep
+    - kProtect
   skills:
-  - skill_id: 136  # kPunch
-    value: 60
+    - skill_id: 136  # кулачный бой
+      value: 60
   enhanced:
-    max_factor: 10
-    special_bitvector: '0'
+    max_factor: 2
 
+# Mob #4008
 8:
-  # Mob #4008
   names:
     aliases: старец седой
     nominative: седой старец
@@ -545,19 +523,11 @@
     instrumental: седым старцем
     prepositional: седом старце
   descriptions:
-    short_desc: |
+    short_desc: |2
       Седой, как лунь, старец стоит здесь.
-    long_desc: |
+    long_desc: |2
       Седоволосый старец в белых одеждах.
-  action_flags:
-  - kSentinel
-  - kNpc
-  - kNoCharm
-  - kNoSummon
-  - kNoSleep
-  - kProtect
   alignment: 600
-  mob_type: E
   stats:
     level: 20
     hitroll_penalty: 0
@@ -579,6 +549,10 @@
     default: kStand
     start: kStand
   sex: kMale
+  size: 30
+  race: 101
+  height: 180
+  weight: 150
   attributes:
     strength: 15
     dexterity: 15
@@ -586,20 +560,21 @@
     wisdom: 30
     constitution: 15
     charisma: 25
-  size: 30
-  mob_class: 100
-  race: 101
-  height: 180
-  weight: 150
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kNoCharm
+    - kNoSummon
+    - kNoSleep
+    - kProtect
   skills:
-  - skill_id: 136  # kPunch
-    value: 60
+    - skill_id: 136  # кулачный бой
+      value: 60
   enhanced:
-    max_factor: 10
-    special_bitvector: '0'
+    max_factor: 2
 
+# Mob #4009
 9:
-  # Mob #4009
   names:
     aliases: трактирщик
     nominative: трактирщик
@@ -609,21 +584,12 @@
     instrumental: трактирщиком
     prepositional: трактирщике
   descriptions:
-    short_desc: |
+    short_desc: |2
       Огромный, с сизым носом, трактирщик отдыхает за стойкой.
-    long_desc: |
+    long_desc: |2
       Крепкий мужик, не дурак выпить.
       С удовольствием за хорошие деньги угостит любого.
-  action_flags:
-  - kSentinel
-  - kNpc
-  - kNoCharm
-  - kNoSummon
-  - kNoSleep
-  - kProtect
-  - kNoResurrection
   alignment: 600
-  mob_type: E
   stats:
     level: 15
     hitroll_penalty: 5
@@ -645,6 +611,10 @@
     default: kSit
     start: kSit
   sex: kMale
+  size: 30
+  race: 101
+  height: 180
+  weight: 150
   attributes:
     strength: 20
     dexterity: 15
@@ -652,22 +622,24 @@
     wisdom: 15
     constitution: 22
     charisma: 20
-  size: 30
-  mob_class: 100
-  race: 101
-  height: 180
-  weight: 150
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kNoCharm
+    - kNoSummon
+    - kNoSleep
+    - kProtect
+    - kNoResurrection
   skills:
-  - skill_id: 136  # kPunch
-    value: 45
+    - skill_id: 136  # кулачный бой
+      value: 45
   enhanced:
-    max_factor: 10
-    special_bitvector: '0'
+    max_factor: 2
 
+# Mob #4010
 10:
-  # Mob #4010
   names:
-    aliases: пьяный мужчина
+    aliases: пьяный мужчина пьяница
     nominative: пьяница
     genitive: пьяницы
     dative: пьянице
@@ -675,20 +647,12 @@
     instrumental: пьяницей
     prepositional: пьянице
   descriptions:
-    short_desc: |
+    short_desc: |2
       Пьяный мужчина бредет потихоньку домой.
-    long_desc: |
+    long_desc: |2
       Оборванный и грязный, с бутылками, торчащими из кармана, прется немолодой
       уже человек, не разбирая дороги.
-  action_flags:
-  - kNpc
-  - kStayZone
-  - kNoCharm
-  - kNoSummon
-  - kNoSleep
-  - kNoSkillTrain
   alignment: 0
-  mob_type: E
   stats:
     level: 3
     hitroll_penalty: 20
@@ -710,6 +674,10 @@
     default: kStand
     start: kStand
   sex: kMale
+  size: 30
+  race: 101
+  height: 170
+  weight: 120
   attributes:
     strength: 15
     dexterity: 7
@@ -717,20 +685,22 @@
     wisdom: 3
     constitution: 20
     charisma: 3
-  size: 30
-  mob_class: 102
-  race: 101
-  height: 170
-  weight: 120
+  action_flags:
+    - kNpc
+    - kStayZone
+    - kNoCharm
+    - kNoSummon
+    - kNoSleep
+    - kNoSkillTrain
   skills:
-  - skill_id: 136  # kPunch
-    value: 15
+    - skill_id: 136  # кулачный бой
+      value: 15
   enhanced:
-    max_factor: 10
+    absorb: 3
     special_bitvector: y0
 
+# Mob #4011
 11:
-  # Mob #4011
   names:
     aliases: скорняк продавец
     nominative: скорняк
@@ -740,24 +710,11 @@
     instrumental: скорняком
     prepositional: скорняке
   descriptions:
-    short_desc: |
+    short_desc: |2
       Скорняк кроит шапку из шкуры бобра.
-    long_desc: |
+    long_desc: |2
       Плотный мужчина с задубевшей от растворов кожей.
-  action_flags:
-  - kSentinel
-  - kNpc
-  - kNoCharm
-  - kNoSummon
-  - kNoSleep
-  - kProtect
-  affect_flags:
-  - kDetectInvisible
-  - kDetectLife
-  - kInfravision
-  - kMagicGlass
   alignment: 600
-  mob_type: E
   stats:
     level: 30
     hitroll_penalty: 10
@@ -779,6 +736,10 @@
     default: kStand
     start: kStand
   sex: kMale
+  size: 50
+  race: 101
+  height: 198
+  weight: 100
   attributes:
     strength: 30
     dexterity: 30
@@ -786,22 +747,28 @@
     wisdom: 15
     constitution: 30
     charisma: 15
-  size: 50
-  mob_class: 100
-  race: 101
-  height: 198
-  weight: 100
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kNoCharm
+    - kNoSummon
+    - kNoSleep
+    - kProtect
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+    - kMagicGlass
   skills:
-  - skill_id: 136  # kPunch
-    value: 90
+    - skill_id: 136  # кулачный бой
+      value: 90
   triggers:
-  - 4000
+    - 4000  # триггер на скорняке 
   enhanced:
-    max_factor: 10
-    special_bitvector: '0'
+    max_factor: 4
 
+# Mob #4012
 12:
-  # Mob #4012
   names:
     aliases: охотник следопыт
     nominative: охотник
@@ -811,19 +778,11 @@
     instrumental: охотником
     prepositional: охотнике
   descriptions:
-    short_desc: |
+    short_desc: |2
       Стройный молодой охотник-следопыт проходит здесь.
-    long_desc: |
+    long_desc: |2
       Стройный мужчина.
-  action_flags:
-  - kNpc
-  - kStayZone
-  - kNoCharm
-  - kNoSummon
-  - kNoSleep
-  - kProtect
   alignment: 600
-  mob_type: E
   stats:
     level: 10
     hitroll_penalty: 13
@@ -845,6 +804,10 @@
     default: kStand
     start: kStand
   sex: kMale
+  size: 30
+  race: 101
+  height: 180
+  weight: 150
   attributes:
     strength: 20
     dexterity: 18
@@ -852,22 +815,23 @@
     wisdom: 15
     constitution: 20
     charisma: 20
-  size: 30
-  mob_class: 100
-  race: 101
-  height: 180
-  weight: 150
+  action_flags:
+    - kNpc
+    - kStayZone
+    - kNoCharm
+    - kNoSummon
+    - kNoSleep
+    - kProtect
   skills:
-  - skill_id: 136  # kPunch
-    value: 30
+    - skill_id: 136  # кулачный бой
+      value: 30
   triggers:
-  - 4003
+    - 4003  # нападениежителя
   enhanced:
-    max_factor: 10
-    special_bitvector: '0'
+    max_factor: 1
 
+# Mob #4013
 13:
-  # Mob #4013
   names:
     aliases: лихой человек убивец
     nominative: лихой человек
@@ -877,21 +841,11 @@
     instrumental: лихим человеком
     prepositional: лихом человеке
   descriptions:
-    short_desc: |
+    short_desc: |2
       Лихой человек сидит на стуле.
-    long_desc: |
+    long_desc: |2
       Неприметный человек с вороватым взглядом.
-  action_flags:
-  - kSentinel
-  - kNpc
-  - kNoCharm
-  - kNoSummon
-  - kNoSleep
-  - kProtect
-  affect_flags:
-  - kDetectLife
   alignment: 600
-  mob_type: E
   stats:
     level: 15
     hitroll_penalty: 10
@@ -913,6 +867,10 @@
     default: kSit
     start: kSit
   sex: kMale
+  size: 30
+  race: 101
+  height: 180
+  weight: 150
   attributes:
     strength: 16
     dexterity: 25
@@ -920,21 +878,24 @@
     wisdom: 20
     constitution: 16
     charisma: 12
-  size: 30
-  mob_class: 100
-  race: 101
-  height: 180
-  weight: 150
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kNoCharm
+    - kNoSummon
+    - kNoSleep
+    - kProtect
+  affect_flags:
+    - kDetectLife
   skills:
-  - skill_id: 136  # kPunch
-    value: 45
+    - skill_id: 136  # кулачный бой
+      value: 45
   enhanced:
     like_work: 80
-    max_factor: 10
-    special_bitvector: '0'
+    max_factor: 2
 
+# Mob #4014
 14:
-  # Mob #4014
   names:
     aliases: конь
     nominative: конь
@@ -944,20 +905,11 @@
     instrumental: конем
     prepositional: коне
   descriptions:
-    short_desc: |
+    short_desc: |2
       Конь стоит здесь.
-    long_desc: |
+    long_desc: |2
       Просто конь.
-  action_flags:
-  - kSentinel
-  - kNpc
-  - kNoCharm
-  - kNoSummon
-  - kNoSleep
-  - kNoHold
-  - kNoSkillTrain
   alignment: 0
-  mob_type: E
   stats:
     level: 6
     hitroll_penalty: 10
@@ -979,6 +931,10 @@
     default: kStand
     start: kStand
   sex: kMale
+  size: 30
+  race: 104
+  height: 180
+  weight: 10
   attributes:
     strength: 12
     dexterity: 12
@@ -986,22 +942,25 @@
     wisdom: 10
     constitution: 12
     charisma: 10
-  size: 30
-  mob_class: 100
-  race: 104
-  height: 180
-  weight: 150
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kNoCharm
+    - kNoSummon
+    - kNoSleep
+    - kMounting
+    - kNoHold
+    - kNoSkillTrain
   skills:
-  - skill_id: 136  # kPunch
-    value: 18
+    - skill_id: 136  # кулачный бой
+      value: 18
   enhanced:
+    absorb: 6
     bare_hand_attack: 13
     like_work: 100
-    max_factor: 10
-    special_bitvector: '0'
 
+# Mob #4015
 15:
-  # Mob #4015
   names:
     aliases: дурачок юродивый
     nominative: дурачок
@@ -1011,19 +970,13 @@
     instrumental: дурачком
     prepositional: дурачке
   descriptions:
-    short_desc: |
+    short_desc: |2
       Местный дурачок, кривляясь и корчась, проходит мимо.
-    long_desc: |
+    long_desc: |2
       Местный придурок, который толи таким уродился,
       толи стал таким. В деревне его никто не любит
       и не уважает.
-  action_flags:
-  - kNpc
-  - kStayZone
-  - kHelper
-  - kLooter
   alignment: 600
-  mob_type: E
   stats:
     level: 10
     hitroll_penalty: 15
@@ -1045,6 +998,10 @@
     default: kStand
     start: kStand
   sex: kMale
+  size: 30
+  race: 101
+  height: 180
+  weight: 150
   attributes:
     strength: 15
     dexterity: 15
@@ -1052,20 +1009,19 @@
     wisdom: 15
     constitution: 15
     charisma: 15
-  size: 30
-  mob_class: 100
-  race: 101
-  height: 180
-  weight: 150
+  action_flags:
+    - kNpc
+    - kStayZone
+    - kHelper
+    - kLooter
   skills:
-  - skill_id: 136  # kPunch
-    value: 30
+    - skill_id: 136  # кулачный бой
+      value: 30
   enhanced:
-    max_factor: 10
-    special_bitvector: '0'
+    max_factor: 1
 
+# Mob #4016
 16:
-  # Mob #4016
   names:
     aliases: коза белый
     nominative: коза
@@ -1075,19 +1031,12 @@
     instrumental: козой
     prepositional: козе
   descriptions:
-    short_desc: |
+    short_desc: |2
       Белая коза щиплет тут травку.
-    long_desc: |
+    long_desc: |2
       Кто-то явно решил, что и на этом пустыре растет хорошая трава, нечего козу 
       выводить на пастбище.
-  action_flags:
-  - kSentinel
-  - kNpc
-  - kNoCharm
-  - kNoSummon
-  - kProtect
   alignment: 0
-  mob_type: E
   stats:
     level: 2
     hitroll_penalty: 20
@@ -1109,6 +1058,10 @@
     default: kStand
     start: kStand
   sex: kFemale
+  size: 15
+  race: 104
+  height: 110
+  weight: 50
   attributes:
     strength: 10
     dexterity: 10
@@ -1116,20 +1069,20 @@
     wisdom: 10
     constitution: 10
     charisma: 10
-  size: 15
-  mob_class: 100
-  race: 104
-  height: 110
-  weight: 50
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kNoCharm
+    - kNoSummon
+    - kProtect
   skills:
-  - skill_id: 136  # kPunch
-    value: 3
+    - skill_id: 136  # кулачный бой
+      value: 3
   enhanced:
-    max_factor: 10
-    special_bitvector: '0'
+    absorb: 2
 
+# Mob #4017
 17:
-  # Mob #4017
   names:
     aliases: пес дворняжка
     nominative: пес
@@ -1139,19 +1092,11 @@
     instrumental: псом
     prepositional: псе
   descriptions:
-    short_desc: |
+    short_desc: |2
       Дворовый пес пробегает мимо Вас.
-    long_desc: |
+    long_desc: |2
       Рыжеватый ободранный пес.
-  action_flags:
-  - kNpc
-  - kHelper
-  - kNoCharm
-  - kNoSummon
-  affect_flags:
-  - kSilence
   alignment: 0
-  mob_type: E
   stats:
     level: 21
     hitroll_penalty: 18
@@ -1173,6 +1118,10 @@
     default: kStand
     start: kStand
   sex: kMale
+  size: 15
+  race: 110
+  height: 80
+  weight: 25
   attributes:
     strength: 10
     dexterity: 15
@@ -1180,21 +1129,23 @@
     wisdom: 10
     constitution: 7
     charisma: 10
-  size: 15
-  mob_class: 101
-  race: 110
-  height: 80
-  weight: 25
+  action_flags:
+    - kNpc
+    - kHelper
+    - kNoCharm
+    - kNoSummon
+  affect_flags:
+    - kSilence
   skills:
-  - skill_id: 136  # kPunch
-    value: 15
+    - skill_id: 136  # кулачный бой
+      value: 15
   enhanced:
+    absorb: 21
     bare_hand_attack: 4
-    max_factor: 10
-    special_bitvector: '0'
+    max_factor: 3
 
+# Mob #4018
 18:
-  # Mob #4018
   names:
     aliases: крестьянин
     nominative: крестьянин
@@ -1204,19 +1155,12 @@
     instrumental: крестьянином
     prepositional: крестьянине
   descriptions:
-    short_desc: |
+    short_desc: |2
       Крестьянин идет по своим делам.
-    long_desc: |
+    long_desc: |2
       Работник полей явно сейчас свободен от пахоты, 
       наверняка он занимается домашними делами.
-  action_flags:
-  - kNpc
-  - kStayZone
-  - kNoCharm
-  - kNoSummon
-  - kNoSleep
   alignment: 600
-  mob_type: E
   stats:
     level: 10
     hitroll_penalty: 10
@@ -1238,6 +1182,10 @@
     default: kStand
     start: kStand
   sex: kMale
+  size: 30
+  race: 101
+  height: 180
+  weight: 150
   attributes:
     strength: 15
     dexterity: 15
@@ -1245,22 +1193,22 @@
     wisdom: 3
     constitution: 17
     charisma: 15
-  size: 30
-  mob_class: 102
-  race: 101
-  height: 180
-  weight: 150
+  action_flags:
+    - kNpc
+    - kStayZone
+    - kNoCharm
+    - kNoSummon
+    - kNoSleep
   skills:
-  - skill_id: 136  # kPunch
-    value: 30
+    - skill_id: 136  # кулачный бой
+      value: 30
   triggers:
-  - 4003
+    - 4003  # нападениежителя
   enhanced:
-    max_factor: 10
-    special_bitvector: '0'
+    max_factor: 1
 
+# Mob #4019
 19:
-  # Mob #4019
   names:
     aliases: крестьянка
     nominative: крестьянка
@@ -1270,18 +1218,11 @@
     instrumental: крестьянкой
     prepositional: крестьянке
   descriptions:
-    short_desc: |
+    short_desc: |2
       Крестьянка с корзинкой проходит мимо.
-    long_desc: |
+    long_desc: |2
       Крестьянская женщина неспешно проходит здесь.
-  action_flags:
-  - kNpc
-  - kStayZone
-  - kNoCharm
-  - kNoSummon
-  - kNoSleep
   alignment: 600
-  mob_type: E
   stats:
     level: 8
     hitroll_penalty: 15
@@ -1303,6 +1244,10 @@
     default: kStand
     start: kStand
   sex: kFemale
+  size: 30
+  race: 101
+  height: 180
+  weight: 150
   attributes:
     strength: 14
     dexterity: 15
@@ -1310,22 +1255,22 @@
     wisdom: 13
     constitution: 15
     charisma: 15
-  size: 30
-  mob_class: 102
-  race: 101
-  height: 180
-  weight: 150
+  action_flags:
+    - kNpc
+    - kStayZone
+    - kNoCharm
+    - kNoSummon
+    - kNoSleep
   skills:
-  - skill_id: 136  # kPunch
-    value: 24
+    - skill_id: 136  # кулачный бой
+      value: 24
   triggers:
-  - 4003
+    - 4003  # нападениежителя
   enhanced:
-    max_factor: 10
-    special_bitvector: '0'
+    max_factor: 1
 
+# Mob #4020
 20:
-  # Mob #4020
   names:
     aliases: паук
     nominative: паук
@@ -1335,19 +1280,11 @@
     instrumental: пауком
     prepositional: пауке
   descriptions:
-    short_desc: |
+    short_desc: |2
       Паук плетет здесь свою паутину.
-    long_desc: |
+    long_desc: |2
       Обычный домашний паук.
-  action_flags:
-  - kSentinel
-  - kNpc
-  - kStayZone
-  - kNoCharm
-  affect_flags:
-  - kSlow
   alignment: 0
-  mob_type: E
   stats:
     level: 1
     hitroll_penalty: 18
@@ -1369,6 +1306,10 @@
     default: kStand
     start: kStand
   sex: kMale
+  size: 1
+  race: 107
+  height: 1
+  weight: 1
   attributes:
     strength: 5
     dexterity: 5
@@ -1376,21 +1317,24 @@
     wisdom: 5
     constitution: 5
     charisma: 5
-  size: 1
-  mob_class: 103
-  race: 107
-  height: 1
-  weight: 1
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kStayZone
+    - kNoCharm
+    - kNoHelp
+  affect_flags:
+    - kSlow
   skills:
-  - skill_id: 136  # kPunch
-    value: 3
+    - skill_id: 136  # кулачный бой
+      value: 3
   enhanced:
+    absorb: 1
     bare_hand_attack: 4
-    max_factor: 10
     special_bitvector: g0
 
+# Mob #4021
 21:
-  # Mob #4021
   names:
     aliases: мышь
     nominative: мышь
@@ -1400,21 +1344,11 @@
     instrumental: мышью
     prepositional: мыше
   descriptions:
-    short_desc: |
+    short_desc: |2
       Серая мышь пытается юркнуть в подходящую норку.
-    long_desc: |
+    long_desc: |2
       Обычная домовая мышь.
-  action_flags:
-  - kNpc
-  - kStayZone
-  - kNoCharm
-  - kNoSleep
-  - kAppearsNight
-  - kNoSkillTrain
-  affect_flags:
-  - kHaste
   alignment: 0
-  mob_type: E
   stats:
     level: 1
     hitroll_penalty: 18
@@ -1436,6 +1370,10 @@
     default: kStand
     start: kStand
   sex: kFemale
+  size: 3
+  race: 104
+  height: 4
+  weight: 1
   attributes:
     strength: 3
     dexterity: 7
@@ -1443,21 +1381,28 @@
     wisdom: 7
     constitution: 5
     charisma: 7
-  size: 3
-  mob_class: 103
-  race: 104
-  height: 4
-  weight: 1
+  action_flags:
+    - kNpc
+    - kStayZone
+    - kNoCharm
+    - kNoSleep
+    - kAppearsNight
+    - kNoSkillTrain
+  affect_flags:
+    - kHaste
   skills:
-  - skill_id: 136  # kPunch
-    value: 9
+    - skill_id: 136  # кулачный бой
+      value: 9
   enhanced:
+    absorb: 1
     bare_hand_attack: 4
-    max_factor: 10
     special_bitvector: i0
+    saves:
+      kStability: -10
+      kReflex: -10
 
+# Mob #4022
 22:
-  # Mob #4022
   names:
     aliases: хозяин постоялый двор родовая
     nominative: хозяин
@@ -1467,26 +1412,11 @@
     instrumental: хозяином
     prepositional: хозяине
   descriptions:
-    short_desc: |
+    short_desc: |2
       Хозяин постоялого двора с интересом рассматривает Вас.
-    long_desc: |
+    long_desc: |2
       Крепкий мужчина с добродушным лицом.
-  action_flags:
-  - kSentinel
-  - kNpc
-  - kNoCharm
-  - kNoSummon
-  - kNoSleep
-  - kProtect
-  - kNoResurrection
-  affect_flags:
-  - kDetectInvisible
-  - kDetectMagic
-  - kDetectLife
-  - kInfravision
-  - kSingleLight
   alignment: 600
-  mob_type: E
   stats:
     level: 15
     hitroll_penalty: 5
@@ -1508,6 +1438,10 @@
     default: kSit
     start: kSit
   sex: kMale
+  size: 30
+  race: 101
+  height: 180
+  weight: 150
   attributes:
     strength: 20
     dexterity: 15
@@ -1515,20 +1449,30 @@
     wisdom: 15
     constitution: 22
     charisma: 20
-  size: 30
-  mob_class: 100
-  race: 101
-  height: 180
-  weight: 150
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kNoCharm
+    - kNoSummon
+    - kNoSleep
+    - kProtect
+    - kNoResurrection
+  affect_flags:
+    - kDetectInvisible
+    - kDetectMagic
+    - kDetectLife
+    - kInfravision
+    - kSingleLight
+    - kHolyLight
   skills:
-  - skill_id: 136  # kPunch
-    value: 45
+    - skill_id: 136  # кулачный бой
+      value: 45
   enhanced:
-    max_factor: 10
+    max_factor: 2
     special_bitvector: b1c1
 
+# Mob #4023
 23:
-  # Mob #4023
   names:
     aliases: конюх
     nominative: конюх
@@ -1538,20 +1482,11 @@
     instrumental: конюхом
     prepositional: конюхе
   descriptions:
-    short_desc: |
+    short_desc: |2
       Конюх стоит здесь, с интересом поглядывая по сторонам.
-    long_desc: |
+    long_desc: |2
       Молодой парень с простодушным лицом.
-  action_flags:
-  - kSentinel
-  - kNpc
-  - kStayZone
-  - kNoCharm
-  - kNoSummon
-  - kNoSleep
-  - kProtect
   alignment: 600
-  mob_type: E
   stats:
     level: 12
     hitroll_penalty: 5
@@ -1573,6 +1508,10 @@
     default: kSit
     start: kSit
   sex: kMale
+  size: 30
+  race: 101
+  height: 180
+  weight: 150
   attributes:
     strength: 18
     dexterity: 15
@@ -1580,20 +1519,22 @@
     wisdom: 15
     constitution: 18
     charisma: 20
-  size: 30
-  mob_class: 100
-  race: 101
-  height: 180
-  weight: 150
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kStayZone
+    - kNoCharm
+    - kNoSummon
+    - kNoSleep
+    - kProtect
   skills:
-  - skill_id: 136  # kPunch
-    value: 36
+    - skill_id: 136  # кулачный бой
+      value: 36
   enhanced:
-    max_factor: 10
-    special_bitvector: '0'
+    max_factor: 1
 
+# Mob #4024
 24:
-  # Mob #4024
   names:
     aliases: трактирщик хитрый
     nominative: трактирщик
@@ -1603,20 +1544,11 @@
     instrumental: трактирщиком
     prepositional: трактирщике
   descriptions:
-    short_desc: |
+    short_desc: |2
       Подвыпивший трактирщик с хитрым взглядом стоит за стойкой.
-    long_desc: |
+    long_desc: |2
       Крепкий мужик, не дурак выпить.
-  action_flags:
-  - kSentinel
-  - kNpc
-  - kNoCharm
-  - kNoSummon
-  - kNoSleep
-  - kProtect
-  - kNoResurrection
   alignment: 600
-  mob_type: E
   stats:
     level: 15
     hitroll_penalty: 5
@@ -1638,6 +1570,10 @@
     default: kSit
     start: kSit
   sex: kMale
+  size: 30
+  race: 101
+  height: 180
+  weight: 150
   attributes:
     strength: 20
     dexterity: 15
@@ -1645,20 +1581,22 @@
     wisdom: 15
     constitution: 22
     charisma: 20
-  size: 30
-  mob_class: 100
-  race: 101
-  height: 180
-  weight: 150
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kNoCharm
+    - kNoSummon
+    - kNoSleep
+    - kProtect
+    - kNoResurrection
   skills:
-  - skill_id: 136  # kPunch
-    value: 45
+    - skill_id: 136  # кулачный бой
+      value: 45
   enhanced:
-    max_factor: 10
-    special_bitvector: '0'
+    max_factor: 2
 
+# Mob #4025
 25:
-  # Mob #4025
   names:
     aliases: ремесленник умелец
     nominative: умелец
@@ -1668,20 +1606,11 @@
     instrumental: умельцем
     prepositional: умельце
   descriptions:
-    short_desc: |
+    short_desc: |2
       Деревенский умелец простодушно смотрит на Вас.
-    long_desc: |
+    long_desc: |2
       Местный самородок.
-  action_flags:
-  - kSentinel
-  - kNpc
-  - kNoCharm
-  - kNoSummon
-  - kNoSleep
-  - kProtect
-  - kNoResurrection
   alignment: 600
-  mob_type: E
   stats:
     level: 15
     hitroll_penalty: 5
@@ -1703,6 +1632,10 @@
     default: kSit
     start: kSit
   sex: kMale
+  size: 30
+  race: 101
+  height: 180
+  weight: 150
   attributes:
     strength: 20
     dexterity: 15
@@ -1710,20 +1643,22 @@
     wisdom: 15
     constitution: 22
     charisma: 20
-  size: 30
-  mob_class: 100
-  race: 101
-  height: 180
-  weight: 150
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kNoCharm
+    - kNoSummon
+    - kNoSleep
+    - kProtect
+    - kNoResurrection
   skills:
-  - skill_id: 136  # kPunch
-    value: 45
+    - skill_id: 136  # кулачный бой
+      value: 45
   enhanced:
-    max_factor: 10
-    special_bitvector: '0'
+    max_factor: 2
 
+# Mob #4026
 26:
-  # Mob #4026
   names:
     aliases: дочка ведуньи
     nominative: дочка ведуньи
@@ -1733,19 +1668,12 @@
     instrumental: дочкой ведуньи
     prepositional: дочке ведуньи
   descriptions:
-    short_desc: |
+    short_desc: |2
       Уже взрослая дочка ведуньи стоит тут, торгуя магическими вещами.
-    long_desc: |
+    long_desc: |2
       Придет время и она, вместо своей матери начнет помогать людям в своих
       проблемах.
-  action_flags:
-  - kSentinel
-  - kNpc
-  - kStayZone
-  - kNoCharm
-  - kNoResurrection
   alignment: 0
-  mob_type: E
   stats:
     level: 9
     hitroll_penalty: 15
@@ -1767,6 +1695,10 @@
     default: kStand
     start: kStand
   sex: kFemale
+  size: 50
+  race: 101
+  height: 198
+  weight: 200
   attributes:
     strength: 3
     dexterity: 3
@@ -1774,20 +1706,22 @@
     wisdom: 3
     constitution: 3
     charisma: 3
-  size: 50
-  mob_class: 102
-  race: 101
-  height: 198
-  weight: 200
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kStayZone
+    - kNoCharm
+    - kNoResurrection
   skills:
-  - skill_id: 136  # kPunch
-    value: 3
+    - skill_id: 136  # кулачный бой
+      value: 3
   enhanced:
+    absorb: 9
     like_work: 50
-    special_bitvector: '0'
+    max_factor: 1
 
+# Mob #4027
 27:
-  # Mob #4027
   names:
     aliases: вдова мельника немолодая женщина
     nominative: вдова мельника
@@ -1797,22 +1731,12 @@
     instrumental: вдовой мельника
     prepositional: вдове мельника
   descriptions:
-    short_desc: |
+    short_desc: |2
       Немолодая женщина с открытым лицом с грустью смотрит на Вас.
     long_desc: |2
          Немолодая уже женщина, тяжелая судьба которой наложила свой отпечаток
       на ее лицо.
-  action_flags:
-  - kSentinel
-  - kNpc
-  - kNoCharm
-  - kNoSummon
-  - kNoSleep
-  - kProtect
-  affect_flags:
-  - kProtectFromDark
   alignment: 600
-  mob_type: E
   stats:
     level: 13
     hitroll_penalty: 12
@@ -1834,6 +1758,10 @@
     default: kStand
     start: kStand
   sex: kFemale
+  size: 30
+  race: 101
+  height: 150
+  weight: 60
   attributes:
     strength: 16
     dexterity: 16
@@ -1841,23 +1769,93 @@
     wisdom: 20
     constitution: 20
     charisma: 20
-  size: 30
-  mob_class: 102
-  race: 101
-  height: 150
-  weight: 60
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kNoCharm
+    - kNoSummon
+    - kNoSleep
+    - kProtect
+  affect_flags:
+    - kProtectFromDark
   skills:
-  - skill_id: 136  # kPunch
-    value: 39
+    - skill_id: 136  # кулачный бой
+      value: 39
   triggers:
-  - 4001
-  - 4003
+    - 4001  # триггер на хозяйке мельницы 
+    - 4003  # нападениежителя
   enhanced:
     bare_hand_attack: 2
-    special_bitvector: '0'
+    max_factor: 1
 
+# Mob #4028
+28:
+  names:
+    aliases: молодой цыган
+    nominative: Молодой цыган
+    genitive: молодого цыгана
+    dative: молодому цыгану
+    accusative: молодой цыган
+    instrumental: молодым цыганом
+    prepositional: молодом цыгане
+  descriptions:
+    short_desc: |2
+      Молодой цыган сидит здесь.
+    long_desc: |2
+      Молодой парень с серьгами в ушах.
+  alignment: 0
+  stats:
+    level: 18
+    hitroll_penalty: 5
+    armor: 5
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 500
+    damage:
+      dice_count: 3
+      dice_size: 5
+      bonus: 10
+  gold:
+    dice_count: 10
+    dice_size: 10
+    bonus: 100
+  experience: 30000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 20
+  race: 101
+  height: 190
+  weight: 200
+  attributes:
+    strength: 1
+    dexterity: 15
+    intelligence: 13
+    wisdom: 13
+    constitution: 14
+    charisma: 11
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kStayZone
+    - kNoCharm
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+  triggers:
+    - 4021  # дали куны цыгану4028
+    - 4022  # цыган4028 встречает
+  enhanced:
+    absorb: 18
+    max_factor: 2
+    extra_attack: 1
+    special_bitvector: e1
+
+# Mob #4052
 52:
-  # Mob #4052
   names:
     aliases: мышь
     nominative: мышь
@@ -1867,22 +1865,19 @@
     instrumental: мышь
     prepositional: мышь
   descriptions:
-    short_desc: |
+    short_desc: |2
       МЫШЬ бегает тут.
-    long_desc: |
+    long_desc: |2
       Выглядит достаточно незавершенно.
-  action_flags:
-  - kNpc
   alignment: 0
-  mob_type: E
   stats:
-    level: 48
+    level: 1
     hitroll_penalty: 20
     armor: 0
     hp:
       dice_count: 1
       dice_size: 1
-      bonus: 1
+      bonus: 100
     damage:
       dice_count: 2
       dice_size: 1
@@ -1891,26 +1886,39 @@
     dice_count: 0
     dice_size: 0
     bonus: 0
-  experience: 10000000
+  experience: 1
   position:
     default: kStand
     start: kStand
   sex: kNeutral
   size: 30
-  mob_class: 100
   race: 100
   height: 198
   weight: 200
+  attributes:
+    strength: 11
+    dexterity: 11
+    intelligence: 11
+    wisdom: 11
+    constitution: 1
+    charisma: 11
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kNoHelp
+  triggers:
+    - 4014  # Экспа
   enhanced:
-    special_bitvector: '0'
+    cast_success: 77
+    absorb: 1
     saves:
-      kWill: -78
-      kCritical: -78
-      kStability: -78
-      kReflex: -78
+      kWill: -86
+      kCritical: -86
+      kStability: -86
+      kReflex: -86
 
+# Mob #4053
 53:
-  # Mob #4053
   names:
     aliases: Делан моб
     nominative: Делан
@@ -1920,9 +1928,9 @@
     instrumental: Деланом
     prepositional: Делане
   descriptions:
-    short_desc: |
+    short_desc: |2
       Дух восставшего из делета Опытного Кайсяку Делана (бывшего боярина НД) летает здесь.
-    long_desc: |
+    long_desc: |2
       Над Ленгом, где скалистые вершины
       Штурмуют неприступный небосвод,
       С приходом ночи зарево встает,
@@ -1939,25 +1947,15 @@
       Делан одет :
       <в правой руке>             призрачный кинжал
       <в левой руке>              заточка
-  action_flags:
-  - kSentinel
-  - kNpc
-  - kNoCharm
-  - kNoSkillTrain
-  - kNoHelp
-  - kIgnoresNoMob
-  - kIgnoresPeaceRoom
-  - kNoResurrection
   alignment: -800
-  mob_type: E
   stats:
-    level: 3
+    level: 20
     hitroll_penalty: 20
     armor: 1
     hp:
       dice_count: 0
       dice_size: 0
-      bonus: 1
+      bonus: 1000
     damage:
       dice_count: 1
       dice_size: 1
@@ -1971,60 +1969,58 @@
     default: kStand
     start: kStand
   sex: kMale
-  attributes:
-    strength: 50
-    dexterity: 3
-    intelligence: 20
-    wisdom: 20
-    constitution: 25
-    charisma: 25
   size: 30
-  mob_class: 102
   race: 101
   height: 198
   weight: 200
+  attributes:
+    strength: 50
+    dexterity: 20
+    intelligence: 20
+    wisdom: 11
+    constitution: 25
+    charisma: 25
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kNoCharm
+    - kCorpse
+    - kNoSkillTrain
+    - kNoHelp
+    - kIgnoresNoMob
+    - kIgnoresPeaceRoom
+    - kNoResurrection
+  affect_flags:
+    - kGodsShield
   skills:
-  - skill_id: 3  # kLeftHit
-    value: 140
-  - skill_id: 5  # kOverwhelm
-    value: 200
-  - skill_id: 22  # kAwake
-    value: 200
-  - skill_id: 133  # kHide
-    value: 125
-  - skill_id: 136  # kPunch
-    value: 90
-  - skill_id: 138  # kSneak
-    value: 125
-  - skill_id: 140  # kTrack
-    value: 120
-  - skill_id: 141  # kClubs
-    value: 120
-  - skill_id: 142  # kAxes
-    value: 120
-  - skill_id: 143  # kLongBlades
-    value: 120
-  - skill_id: 144  # kShortBlades
-    value: 120
-  - skill_id: 145  # kNonstandart
-    value: 120
-  - skill_id: 146  # kTwohands
-    value: 120
-  - skill_id: 147  # kPicks
-    value: 120
-  - skill_id: 148  # kSpades
-    value: 120
-  - skill_id: 149  # kSideAttack
-    value: 90
-  - skill_id: 157  # kDodge
-    value: 125
-  dead_load:
-  - obj_vnum: 1720
-    load_prob: 100
-    load_type: 0
-    spec_param: 0
+    - skill_id: 3  # удар левой рукой
+      value: 140
+    - skill_id: 136  # кулачный бой
+      value: 90
+    - skill_id: 138  # подкрасться
+      value: 125
+    - skill_id: 140  # выследить
+      value: 120
+    - skill_id: 141  # палицы и дубины
+      value: 120
+    - skill_id: 142  # секиры
+      value: 120
+    - skill_id: 143  # длинные лезвия
+      value: 120
+    - skill_id: 144  # короткие лезвия
+      value: 120
+    - skill_id: 145  # иное оружие
+      value: 120
+    - skill_id: 146  # двуручники
+      value: 120
+    - skill_id: 147  # проникающее оружие
+      value: 120
+    - skill_id: 148  # копья и рогатины
+      value: 120
+    - skill_id: 149  # атака левой рукой
+      value: 90
   triggers:
-  - 4005
+    - 4005  # Тестовый триггер для мобов
   enhanced:
     hp_regen: 175
     armour_bonus: 100
@@ -2033,21 +2029,33 @@
     absorb: 60
     bare_hand_attack: 11
     like_work: 100
+    max_factor: 7
     extra_attack: 1
-    special_bitvector: '0'
     resistances:
-      kWater: 200
-      kEarth: 200
-      kVitality: 150
-      kMind: 150
+      kWater: 95
+      kEarth: 95
+      kVitality: 75
+      kMind: 75
+      kDark: 20
     saves:
       kWill: 60
       kCritical: 60
       kStability: 60
       kReflex: 60
+    spells:
+      - 68
+      - 68
+      - 68
+      - 68
+      - 68
+      - 68
+      - 68
+      - 68
+      - 68
+      - 68
 
+# Mob #4054
 54:
-  # Mob #4054
   names:
     aliases: r1guard помощник деревенского старосты
     nominative: помощник деревенского старосты
@@ -2057,32 +2065,12 @@
     instrumental: помощником деревенского старосты
     prepositional: помощнике деревенского старосты
   descriptions:
-    short_desc: |
+    short_desc: |2
       Крепкий плечистый крестьянин в нарядной одежде идет по улице.
-    long_desc: |
+    long_desc: |2
       Крепкий плечистый мужик - помощник местного деревенского старосты
       в нелегком деле поддержания порядка в деревне.
-  action_flags:
-  - kNpc
-  - kAware
-  - kNoCharm
-  - kNoBash
-  - kNoBlind
-  - kNoHold
-  - kNoSilence
-  - kNoUndercut
-  - kNoSkillTrain
-  - kNoRest
-  - kNoOverwhelm
-  affect_flags:
-  - kDetectInvisible
-  - kDetectLife
-  - kInfravision
-  - kProtectFromDark
-  - kProtectFromMind
-  - kHaste
   alignment: 600
-  mob_type: E
   stats:
     level: 20
     hitroll_penalty: 4
@@ -2104,6 +2092,10 @@
     default: kStand
     start: kStand
   sex: kMale
+  size: 40
+  race: 104
+  height: 180
+  weight: 180
   attributes:
     strength: 25
     dexterity: 18
@@ -2111,32 +2103,48 @@
     wisdom: 17
     constitution: 23
     charisma: 19
-  size: 40
-  mob_class: 104
-  race: 104
-  height: 180
-  weight: 180
+  action_flags:
+    - kNpc
+    - kAware
+    - kNoCharm
+    - kNoBash
+    - kNoBlind
+    - kNoHold
+    - kNoSilence
+    - kNoUndercut
+    - kNoSkillTrain
+    - kNoRest
+    - kNoOverwhelm
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+    - kProtectFromDark
+    - kProtectFromMind
+    - kHaste
   skills:
-  - skill_id: 3  # kLeftHit
-    value: 100
-  - skill_id: 4  # kHammer
-    value: 60
-  - skill_id: 136  # kPunch
-    value: 60
+    - skill_id: 3  # удар левой рукой
+      value: 100
+    - skill_id: 4  # богатырский молот
+      value: 60
+    - skill_id: 136  # кулачный бой
+      value: 60
+    - skill_id: 189  # магия жизни
+      value: 200
   triggers:
-  - 4006
-  - 4007
+    - 4006  # ПКиллер заходит к помощникам
+    - 4007  # Помощник заходик к ПКиллеру
   enhanced:
     like_work: 30
+    max_factor: 2
     extra_attack: 1
-    special_bitvector: '0'
     spells:
-    - 28
-    - 28
-    - 28
+      - 28
+      - 28
+      - 28
 
+# Mob #4055
 55:
-  # Mob #4055
   names:
     aliases: подмастерье
     nominative: подмастерье
@@ -2146,23 +2154,11 @@
     instrumental: подмастерьем
     prepositional: подмастерье
   descriptions:
-    short_desc: |
+    short_desc: |2
       Подмастерье скорняка торгует здесь товаром.
-    long_desc: |
+    long_desc: |2
       Деревенский парнишка - ученик скорняка.
-  action_flags:
-  - kSentinel
-  - kNpc
-  - kNoCharm
-  - kNoSummon
-  - kNoSkillTrain
-  - kNoResurrection
-  affect_flags:
-  - kDetectInvisible
-  - kDetectLife
-  - kInfravision
   alignment: 200
-  mob_type: E
   stats:
     level: 26
     hitroll_penalty: 8
@@ -2184,6 +2180,10 @@
     default: kStand
     start: kStand
   sex: kMale
+  size: 45
+  race: 101
+  height: 160
+  weight: 150
   attributes:
     strength: 50
     dexterity: 50
@@ -2191,47 +2191,41 @@
     wisdom: 15
     constitution: 18
     charisma: 14
-  size: 45
-  mob_class: 100
-  race: 101
-  height: 160
-  weight: 150
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kNoCharm
+    - kNoSummon
+    - kNoSkillTrain
+    - kNoResurrection
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
   skills:
-  - skill_id: 136  # kPunch
-    value: 78
+    - skill_id: 136  # кулачный бой
+      value: 78
   enhanced:
     like_work: 30
+    max_factor: 3
     extra_attack: 1
-    special_bitvector: '0'
 
+# Mob #4056
 56:
-  # Mob #4056
   names:
-    aliases: скупщик купец
-    nominative: скупщик
-    genitive: скупщика
-    dative: скупщику
-    accusative: скупщика
-    instrumental: скупщиком
-    prepositional: скупщике
+    aliases: толстый кладовщик
+    nominative: кладовщик
+    genitive: кладовщика
+    dative: кладовщику
+    accusative: кладовщика
+    instrumental: кладовщиком
+    prepositional: кладовщике
   descriptions:
-    short_desc: |
-      Заезжий купец скупает звериные шкурки у охотников.
-    long_desc: |
-      Крепкий жилистый мужик, облаченный в отороченный мехом кафтан.
-  action_flags:
-  - kSentinel
-  - kNpc
-  - kNoCharm
-  - kNoSummon
-  - kProtect
-  - kNoResurrection
-  affect_flags:
-  - kDetectInvisible
-  - kDetectLife
-  - kInfravision
+    short_desc: |2
+      Толстый кладовщик копается в своих записях.
+    long_desc: |2
+      Толстый неопрятный мужик, облаченный в отороченный мехом кафтан.
   alignment: 200
-  mob_type: E
   stats:
     level: 30
     hitroll_penalty: -1
@@ -2247,12 +2241,16 @@
   gold:
     dice_count: 0
     dice_size: 0
-    bonus: 500000
+    bonus: 0
   experience: 0
   position:
     default: kStand
     start: kStand
   sex: kMale
+  size: 50
+  race: 101
+  height: 168
+  weight: 150
   attributes:
     strength: 50
     dexterity: 50
@@ -2260,21 +2258,29 @@
     wisdom: 24
     constitution: 23
     charisma: 17
-  size: 50
-  mob_class: 100
-  race: 101
-  height: 168
-  weight: 150
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kNoCharm
+    - kNoSummon
+    - kProtect
+    - kNoResurrection
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
   skills:
-  - skill_id: 136  # kPunch
-    value: 90
+    - skill_id: 136  # кулачный бой
+      value: 90
+  triggers:
+    - 2102  # Выдача базовой экипировки
   enhanced:
     like_work: 1
+    max_factor: 4
     extra_attack: 1
-    special_bitvector: '0'
 
+# Mob #4057
 57:
-  # Mob #4057
   names:
     aliases: жирная крыса bigrat
     nominative: жирная крыса
@@ -2284,19 +2290,11 @@
     instrumental: жирной крысой
     prepositional: жирной крысе
   descriptions:
-    short_desc: |
+    short_desc: |2
       Жирная крыса сидит здесь. (нагло ухмыляется)
-    long_desc: |
+    long_desc: |2
       СПАЙ!!!
-  action_flags:
-  - kSentinel
-  - kNpc
-  affect_flags:
-  - kDetectInvisible
-  - kDetectLife
-  - kInfravision
   alignment: -100
-  mob_type: E
   stats:
     level: 34
     hitroll_penalty: -10
@@ -2318,6 +2316,10 @@
     default: kStand
     start: kStand
   sex: kFemale
+  size: 30
+  race: 104
+  height: 198
+  weight: 200
   attributes:
     strength: 20
     dexterity: 35
@@ -2325,21 +2327,23 @@
     wisdom: 20
     constitution: 14
     charisma: 3
-  size: 30
-  mob_class: 100
-  race: 104
-  height: 198
-  weight: 200
+  action_flags:
+    - kSentinel
+    - kNpc
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
   triggers:
-  - 4017
-  - 4016
+    - 4017  # Крыса спаит
+    - 4016  # Крысса жретЪ
   enhanced:
     like_work: 100
+    max_factor: 4
     extra_attack: 1
-    special_bitvector: '0'
 
+# Mob #4058
 58:
-  # Mob #4058
   names:
     aliases: сказитель
     nominative: сказитель
@@ -2347,25 +2351,14 @@
     dative: сказителю
     accusative: сказителя
     instrumental: сказителем
-    prepositional: неоконченном мобе
+    prepositional: сказителе
   descriptions:
-    short_desc: |
+    short_desc: |2
       Седовласый сказитель готов поделиться с Вами интересной историей.
-    long_desc: |
+    long_desc: |2
       Седовласый странник хранит в своей памяти сотни сказаний и былин.
       Можно попросить его рассказать сказку - авось не откажет.
-  action_flags:
-  - kSentinel
-  - kNpc
-  - kNoCharm
-  - kNoSummon
-  - kProtect
-  affect_flags:
-  - kDetectInvisible
-  - kDetectLife
-  - kInfravision
   alignment: 200
-  mob_type: E
   stats:
     level: 30
     hitroll_penalty: -1
@@ -2387,6 +2380,10 @@
     default: kStand
     start: kStand
   sex: kMale
+  size: 50
+  race: 101
+  height: 168
+  weight: 150
   attributes:
     strength: 50
     dexterity: 50
@@ -2394,20 +2391,72 @@
     wisdom: 24
     constitution: 23
     charisma: 17
-  size: 50
-  mob_class: 100
-  race: 101
-  height: 168
-  weight: 150
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kNoCharm
+    - kNoSummon
+    - kProtect
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
   triggers:
-  - 4020
+    - 4023  # Вошли к сказителю
+    - 4020  # [m58] расскажи сказку
   enhanced:
     like_work: 1
+    max_factor: 4
     extra_attack: 1
-    special_bitvector: '0'
 
+# Mob #4066
+66:
+  names:
+    aliases: неоконченный моб
+    nominative: неоконченный моб
+    genitive: неоконченного моба
+    dative: неоконченному мобу
+    accusative: неоконченного моба
+    instrumental: неоконченным мобом
+    prepositional: неоконченном мобе
+  descriptions:
+    short_desc: |2
+      Неоконченный моб стоит тут.
+    long_desc: |2
+      Выглядит достаточно незавершенно.
+  alignment: 0
+  stats:
+    level: 1
+    hitroll_penalty: 20
+    armor: 0
+    hp:
+      dice_count: 1
+      dice_size: 100
+      bonus: 1
+    damage:
+      dice_count: 1
+      dice_size: 1
+      bonus: 0
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 30
+  race: 100
+  height: 198
+  weight: 200
+  action_flags:
+    - kNpc
+    - kNoFight
+  enhanced:
+
+# Mob #4070
 70:
-  # Mob #4070
   names:
     aliases: ямщик
     nominative: ямщик
@@ -2417,26 +2466,12 @@
     instrumental: ямщиком
     prepositional: ямщике
   descriptions:
-    short_desc: |
-      Ямщик готов помочь Вам доставить весточку родным и близким.
-    long_desc: |
+    short_desc: |2
+      Ямщик готов помочь вам доставить весточку родным и близким.
+    long_desc: |2
       Огромный мужик, хоть и немножко подвыпивший, но еще в состоянии понять, куда и
       кому вы хотите отправить письмо.    
-  action_flags:
-  - kSentinel
-  - kNpc
-  - kStayZone
-  - kNoCharm
-  - kNoSummon
-  - kProtect
-  affect_flags:
-  - kDetectInvisible
-  - kDetectLife
-  - kInfravision
-  - kSingleLight
-  - kHolyLight
   alignment: 0
-  mob_type: E
   stats:
     level: 30
     hitroll_penalty: 15
@@ -2458,16 +2493,486 @@
     default: kStand
     start: kStand
   sex: kMale
-  attributes:
-    strength: 20
-    dexterity: 20
   size: 30
-  mob_class: 102
   race: 101
   height: 198
   weight: 200
+  attributes:
+    strength: 20
+    dexterity: 20
+    intelligence: 11
+    wisdom: 11
+    constitution: 11
+    charisma: 11
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kStayZone
+    - kNoCharm
+    - kNoSummon
+    - kProtect
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+    - kSingleLight
+    - kHolyLight
   skills:
-  - skill_id: 136  # kPunch
-    value: 75
+    - skill_id: 136  # кулачный бой
+      value: 75
   enhanced:
+    max_factor: 4
+    mob_remort: 5
     special_bitvector: d1
+
+# Mob #4080
+80:
+  names:
+    aliases: лохматый домовой
+    nominative: лохматый домовой
+    genitive: лохматого домового
+    dative: лохматому домовому
+    accusative: лохматого домового
+    instrumental: лохматым домовым
+    prepositional: лохматом домовом
+  descriptions:
+    short_desc: |2
+      ЛОхматый домовой стоит тут.
+    long_desc: |2
+      Он рили оч лохматый шо аж ппц, я вам серьезно грю.
+  alignment: 0
+  stats:
+    level: 1
+    hitroll_penalty: -30
+    armor: -30
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 10000
+    damage:
+      dice_count: 20
+      dice_size: 20
+      bonus: 50
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 30
+  race: 100
+  height: 198
+  weight: 200
+  attributes:
+    strength: 50
+    dexterity: 50
+    intelligence: 50
+    wisdom: 50
+    constitution: 50
+    charisma: 50
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kProtect
+  affect_flags:
+    - kDetectAlign
+    - kDetectInvisible
+    - kDetectMagic
+    - kDetectLife
+    - kPoisoned
+  triggers:
+    - 4040  # раздача карт и начало игры
+    - 4044  # проигрыш в казино
+    - 4046  # приветствуем игрока и предлагаем сыграть
+    - 4048  # зап проверка
+  enhanced:
+    special_bitvector: e1
+
+# Mob #4088
+88:
+  names:
+    aliases: круглый мяч
+    nominative: '&Wк&Kр&Wу&Kг&Wл&Kы&Wй &Kм&Wя&Kч&n'
+    genitive: '&Wк&Kр&Wу&Kг&Wл&Kо&Wг&Kо &Wм&Kя&Wч&Kа&n'
+    dative: '&Wк&Kр&Wу&Kг&Wл&Kо&Wм&Kу &Wм&Kя&Wч&Kу&n'
+    accusative: '&Wк&Kр&Wу&Kг&Wл&Kы&Wй &Kм&Wя&Kч&n'
+    instrumental: '&Wк&Kр&Wу&Kг&Wл&Kы&Wм &Kм&Wя&Kч&Wо&Kм&n'
+    prepositional: '&Wк&Kр&Wу&Kг&Wл&Kо&Wм &Kм&Wя&Kч&Wе&n'
+  descriptions:
+    short_desc: |2
+      &WК&Kр&Wу&Kг&Wл&Kы&Wй &Kм&Wя&Kч &Wс &Kб&Wе&Kл&Wо&K-&Wч&Kе&Wр&Kн&Wо&Kй &Wр&Kа&Wс&Kц&Wв&Kе&Wт&Kк&Wо&Kй &Wк&Kа&Wт&Kи&Wт&Kс&Wя &Kз&Wд&Kе&Wс&Kь&W.&n
+    long_desc: |2
+      &WК&Kр&Wу&Kг&Wл&Kы&Wй &Kм&Wя&Kч &Wс &Kб&Wе&Kл&Wо&K-&Wч&Kе&Wр&Kн&Wо&Kй &Wр&Kа&Wс&Kц&Wв&Kе&Wт&Kк&Wо&Kй &Wк&Kа&Wт&Kи&Wт&Kс&Wя &Kз&Wд&Kе&Wс&Kь&W.&n
+      (команда "ударить <север/восток/юг/запад/вверх/вниз>")
+  alignment: 0
+  stats:
+    level: 50
+    hitroll_penalty: 20
+    armor: 0
+    hp:
+      dice_count: 1
+      dice_size: 100
+      bonus: 10000
+    damage:
+      dice_count: 1
+      dice_size: 1
+      bonus: 0
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 30
+  race: 109
+  height: 198
+  weight: 200
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kAware
+    - kNoCharm
+    - kNoSummon
+    - kNoSleep
+    - kNoBash
+    - kNoBlind
+    - kNoHold
+    - kNoSilence
+    - kNoFear
+    - kNoGroup
+    - kCorpse
+    - kProtect
+    - kSwimming
+    - kFlying
+    - kNoFight
+    - kNotKillPunctual
+    - kNoUndercut
+    - kNoSkillTrain
+    - kNoRest
+    - kNoOverwhelm
+    - kNoHelp
+    - kIgnoresNoMob
+    - kNoResurrection
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kWaterWalk
+    - kInfravision
+    - kFly
+    - kWaterBreath
+    - kGodsShield
+  triggers:
+    - 58122  # ударить мяч
+    - 58125  # триггер чтобы можно было определить кто забивал гол
+    - 58126  # определить есть у мяча лаг или нет
+    - 58129  # мяч загружается в мир
+  enhanced:
+    max_factor: 7
+    special_bitvector: m0
+
+# Mob #4094
+94:
+  names:
+    aliases: Посланник Богов Былята
+    nominative: Былята
+    genitive: Быляты
+    dative: Быляте
+    accusative: Быляту
+    instrumental: Былятой
+    prepositional: Быляте
+  descriptions:
+    short_desc: |2
+      Посланник Богов Былята был отправлен сюда для помощи &Wновичкам&n.
+    long_desc: |2
+      Очень высокий и худой отрок, с кустом чертополоха на голове - вы взаправду это видите?
+      Крестьянки шепчутся, мол за полтыщи кун утраивает он силу мужиков местных! Еле ходят потом бедные бабы...
+      Сей отрок был избран Богами для помощи новичкам.
+  alignment: 0
+  stats:
+    level: 25
+    hitroll_penalty: 20
+    armor: 0
+    hp:
+      dice_count: 50
+      dice_size: 10000
+      bonus: 50000
+    damage:
+      dice_count: 1
+      dice_size: 1
+      bonus: 0
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 50
+  race: 100
+  height: 188
+  weight: 127
+  attributes:
+    strength: 50
+    dexterity: 50
+    intelligence: 50
+    wisdom: 50
+    constitution: 50
+    charisma: 50
+  action_flags:
+    - kSentinel
+    - kNpc
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kSingleLight
+  triggers:
+    - 4043  # Посланник Богов Былята отдыхает здесь.
+    - 4067  # обкаст Быляты
+  enhanced:
+    mob_remort: 5
+
+# Mob #4097
+97:
+  names:
+    aliases: пятиголовый ледяной змей
+    nominative: пятиголовый ледяной змей
+    genitive: пятиголового ледяного змея
+    dative: пятиголовому ледяному змею
+    accusative: пятиголового ледяного змея
+    instrumental: пятиголовым ледяным змеем
+    prepositional: пятиголовом ледяном змее
+  descriptions:
+    short_desc: |2
+      Огромный пятиголовый змей готов разорвать очередную жертву.
+    long_desc: |2
+      Громадный змей, словно скала, возвышается над вами.
+      Ледяная чешуя покрывает его могучее тело. Острые когти
+      на могучих лапах способны одним ударом вскрыть любой доспех
+      и нанести смертельные раны.
+  alignment: -600
+  stats:
+    level: 49
+    hitroll_penalty: -30
+    armor: -23
+    hp:
+      dice_count: 12
+      dice_size: 12
+      bonus: 73000
+    damage:
+      dice_count: 30
+      dice_size: 35
+      bonus: 45
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 12000000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 100
+  race: 104
+  height: 200
+  weight: 200
+  attributes:
+    strength: 45
+    dexterity: 30
+    intelligence: 35
+    wisdom: 50
+    constitution: 50
+    charisma: 20
+  action_flags:
+    - kSentinel
+    - kScavenger
+    - kNpc
+    - kNoSleep
+    - kNoBash
+    - kNoSilence
+    - kNoFear
+    - kLooter
+    - kNoOverwhelm
+    - kNoResurrection
+  affect_flags:
+    - kDetectAlign
+    - kDetectMagic
+    - kDetectLife
+    - kInfravision
+    - kBless
+    - kAwarness
+    - kBlink
+    - kHaste
+    - kIceShield
+    - kIceAura
+  skills:
+    - skill_id: 5  # оглушить
+      value: 200
+    - skill_id: 22  # осторожный стиль
+      value: 200
+    - skill_id: 132  # сбить
+      value: 200
+    - skill_id: 136  # кулачный бой
+      value: 200
+    - skill_id: 167  # скрытый удар
+      value: 50
+    - skill_id: 179  # изгнать нежить
+      value: 200
+    - skill_id: 181  # удавить
+      value: 100
+    - skill_id: 188  # магия разума
+      value: 100
+    - skill_id: 189  # магия жизни
+      value: 490
+  triggers:
+    - 75521  # батлтриг пятиглавого
+    - 75537  # умер четвертый блок лоад осколка
+    - 75592  # лоад мобчиков в пустоши
+  enhanced:
+    hp_regen: 150
+    armour_bonus: 50
+    mana_regen: 50
+    cast_success: 150
+    morale: 15
+    initiative_add: 30
+    absorb: 49
+    aresist: 50
+    mresist: 10
+    presist: 5
+    bare_hand_attack: 4
+    like_work: 100
+    max_factor: 7
+    extra_attack: 4
+    special_bitvector: a0b0c0d0b1c1
+    resistances:
+      kFire: 50
+      kAir: 50
+      kWater: 50
+      kEarth: 35
+      kVitality: 95
+      kMind: 95
+      kImmunity: 95
+      kDark: 19
+    saves:
+      kWill: -200
+      kCritical: -200
+      kStability: -200
+      kReflex: -200
+    feats:
+      - 17
+      - 28
+      - 42
+      - 53
+      - 57
+      - 60
+      - 61
+    spells:
+      - 28
+      - 28
+      - 28
+      - 28
+      - 28
+      - 56
+      - 56
+      - 56
+      - 56
+      - 56
+      - 82
+      - 82
+      - 82
+      - 88
+      - 88
+      - 88
+      - 88
+      - 88
+      - 88
+      - 88
+      - 94
+      - 94
+      - 94
+      - 98
+      - 98
+      - 98
+      - 98
+      - 98
+      - 98
+      - 128
+      - 128
+      - 128
+      - 128
+      - 128
+      - 128
+      - 128
+      - 128
+      - 143
+      - 143
+      - 143
+      - 143
+      - 143
+      - 143
+      - 143
+      - 143
+      - 143
+      - 143
+      - 150
+      - 150
+      - 150
+      - 150
+      - 150
+      - 150
+      - 150
+      - 150
+      - 150
+      - 150
+
+# Mob #4098
+98:
+  names:
+    aliases: неоконченный моб
+    nominative: неоконченный моб
+    genitive: неоконченного моба
+    dative: неоконченному мобу
+    accusative: неоконченного моба
+    instrumental: неоконченным мобом
+    prepositional: неоконченном мобе
+  descriptions:
+    short_desc: |2
+      Неоконченный моб стоит тут.
+    long_desc: |2
+      Выглядит достаточно незавершенно.
+  alignment: 0
+  stats:
+    level: 1
+    hitroll_penalty: 20
+    armor: 0
+    hp:
+      dice_count: 1
+      dice_size: 100
+      bonus: 1
+    damage:
+      dice_count: 1
+      dice_size: 1
+      bonus: 0
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 30
+  race: 100
+  height: 198
+  weight: 200
+  action_flags:
+    - kNpc
+  enhanced:

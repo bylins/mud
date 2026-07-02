@@ -1,0 +1,13 @@
+# Zone #33
+
+vnum: 33
+name: 'Системная зона 33 -- сет-шмот #2'
+top_room: 3399
+lifespan: 0
+reset_mode: 0
+reset_idle: 0
+zone_type: 0
+mode: 1  # level
+entrance: 3399
+under_construction: 0
+zone_group: 1  # solo

@@ -1,0 +1,123 @@
+# Triggers for zone 20
+
+# Trigger #2000
+0:
+  name: Лизать леденец
+  attach_type: kObjTrigger
+  narg: 3
+  arglist: лизать
+  trigger_types:
+    - kCommand
+  script: |-2
+    if !%arg.contains(леденец)%
+      osend %actor% _Что это вы лизать собрались?
+      halt
+    end
+    osend %actor% Вы лизнули леденец. Вку-усно!
+    echoaround %actor%   %actor.iname% с аппетитом лизнул%actor.g% леденец и сладко причмокнул%actor.g%.
+    eval count %self.val1%+1
+    %self.val1(%count%)%
+    if (%self.val1% > 4)
+      echoaround %actor%   %actor.iname% доел%actor.g% леденец и со вздохом отбросил%actor.g% пустую палочку.
+      osend %actor% Вы доели леденец. В ваших руках осталась лишь палочка.
+      load obj 2099
+      calcuid palka 2099 obj
+      eval temp %palka.put(%actor%)%
+      wait 1
+      opurge %self%
+    end
+
+# Trigger #2001
+1:
+  name: описание
+  attach_type: kRoomTrigger
+  narg: 0
+  trigger_types:
+    - kAuto
+  script: |-2
+    *это пояснение к еде:
+    ценообразование от насыщения:
+    часов : Кун
+    1 : 1
+    3 : 1
+    6 : 7-10
+    9 : 12-15
+    12: 20-30
+    16: 40-50
+    24: 60-100
+    36: 140-160
+    48: 250-300
+    в зависимости от "красоты" предмета цена варируется и может выходить за рамки.
+    хиты:
+    для всей еды 10, исключение: крупные куски еды - 25, огромные куски еды - 50
+    рента
+    простая еда до 9 часов восст 1
+    9-16 часов - 5 кун
+    17-24 часа - 10 кун
+    25-36 часов - 25 кун
+    37-48 часов - 60 кун
+    особая еда дороже
+
+# Trigger #2002
+2:
+  name: распить чарку
+  attach_type: kObjTrigger
+  narg: 3
+  arglist: распить
+  trigger_types:
+    - kCommand
+  script: |-2
+    if (!%arg.contains(чарку)%)
+      wsend %actor% Что это вы собрались распить?
+      halt
+    end
+
+# Trigger #2003
+3:
+  name: Отключенный триггер
+  attach_type: kMobTrigger
+  narg: 1
+  arglist: нужен наемник
+  trigger_types:
+    - kSpeech
+  script: |-2
+    wait 1
+    echo Это отключенный триггер
+    halt
+
+# Trigger #2004
+4:
+  name: Отключенный триггер
+  attach_type: kMobTrigger
+  narg: 2
+  trigger_types:
+    - kBribe
+  script: |-2
+    wait 1
+    echo Это отключенный триггер
+    halt
+
+# Trigger #2005
+5:
+  name: Отключенный триггер
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kRandomGlobal
+    - kRandom
+  script: |-2
+    wait 1
+    echo Это отключенный триггер
+    halt
+
+# Trigger #2006
+6:
+  name: Отключенный триггер
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kLoad
+  script: |-2
+    wait 1
+    echo Это отключенный триггер
+    halt

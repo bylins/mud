@@ -1,0 +1,26 @@
+# Triggers for zone 48
+
+# Trigger #4800
+0:
+  name: зашел в первую локацию сада
+  attach_type: kRoomTrigger
+  narg: 100
+  trigger_types:
+    - kAct
+  script: |-2
+    wait 2
+    echo Вы вспомнили народную песню: "Ягода малина в лес меня манила..."
+    echo И Вам вдруг захотелось отведать малины!
+
+# Trigger #4801
+1:
+  name: Пуржим малину зимой-весной
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kLoad
+  script: |-2
+    if (%weather.season% == зима) || (%weather.season% == весна)
+      wait 1
+      %purge% %self%
+    end

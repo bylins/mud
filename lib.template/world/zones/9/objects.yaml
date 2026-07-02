@@ -1,0 +1,2476 @@
+# Objects for zone 9
+
+# Object #900
+0:
+  names:
+    aliases: фиолетовый прозрачный камушек
+    nominative: фиолетовый прозрачный камушек
+    genitive: фиолетового прозрачного камушка
+    dative: фиолетовому прозрачному камушку
+    accusative: фиолетовый прозрачный камушек
+    instrumental: фиолетовым прозрачным камушком
+    prepositional: фиолетовом прозрачном камушке
+  short_desc: Фиолетовый прозрачный камушек, переливаясь, лежит тут.
+  type: kTreasure
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 10
+  rent_off: 10
+  rent_on: 10
+  max_durability: 30
+  cur_durability: 30
+  timer: 20000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #901
+1:
+  names:
+    aliases: голубой камушек
+    nominative: зеленовато-голубой камушек
+    genitive: зеленовато-голубого камушка
+    dative: зеленовато-голубому камушку
+    accusative: зеленовато-голубой камушек
+    instrumental: зеленовато-голубым камушком
+    prepositional: зеленовато-голубом камушке
+  short_desc: Зеленовато-голубой камушек забыт на земле.
+  type: kTreasure
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 20
+  rent_off: 20
+  rent_on: 20
+  max_durability: 30
+  cur_durability: 30
+  timer: 20000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #902
+2:
+  names:
+    aliases: бесцветный камушек
+    nominative: бесцветный камушек
+    genitive: бесцветного камушка
+    dative: бесцветному камушку
+    accusative: бесцветный камушек
+    instrumental: бесцветным камушком
+    prepositional: бесцветном камушке
+  short_desc: Бесцветный камушек тускло сверкает тут.
+  type: kTreasure
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 30
+  rent_off: 30
+  rent_on: 30
+  max_durability: 50
+  cur_durability: 50
+  timer: 20000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #903
+3:
+  names:
+    aliases: зеленый камушек
+    nominative: ярко-зеленый камушек
+    genitive: ярко-зеленого камушка
+    dative: ярко-зеленому камушку
+    accusative: ярко-зеленый камушек
+    instrumental: ярко-зеленым камушком
+    prepositional: ярко-зеленом камушке
+  short_desc: Ярко-зеленый камушек блестит, как трава по утру, тут.
+  type: kTreasure
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 40
+  rent_off: 40
+  rent_on: 40
+  max_durability: 30
+  cur_durability: 30
+  timer: 20000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #904
+4:
+  names:
+    aliases: красный камушек
+    nominative: ярко-красный камушек
+    genitive: ярко-красного камушка
+    dative: ярко-красному камушку
+    accusative: ярко-красный камушек
+    instrumental: ярко-красным камушком
+    prepositional: ярко-красном камушке
+  short_desc: Как кровь ярко-красный камушек брошен в пыль.
+  type: kTreasure
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 50
+  rent_off: 50
+  rent_on: 50
+  max_durability: 30
+  cur_durability: 30
+  timer: 20000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #905
+5:
+  names:
+    aliases: золотистый камушек
+    nominative: золотисто-зеленый камушек
+    genitive: золотисто-зеленого камушка
+    dative: золотисто-зеленому камушку
+    accusative: золотисто-зеленый камушек
+    instrumental: золотисто-зеленым камушком
+    prepositional: золотисто-зеленом камушке
+  short_desc: Золотисто-зеленый камушек поблескивает в пыли.
+  type: kTreasure
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 3
+  cost: 60
+  rent_off: 60
+  rent_on: 60
+  max_durability: 30
+  cur_durability: 30
+  timer: 20000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #906
+6:
+  names:
+    aliases: синий камушек
+    nominative: синий камушек
+    genitive: синего камушка
+    dative: синему камушку
+    accusative: синий камушек
+    instrumental: синим камушком
+    prepositional: синем камушке
+  short_desc: Как капля моря синий камушек брошен в пыль.
+  type: kTreasure
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 3
+  cost: 70
+  rent_off: 70
+  rent_on: 70
+  max_durability: 30
+  cur_durability: 30
+  timer: 20000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #907
+7:
+  names:
+    aliases: белый камушек
+    nominative: белый камушек
+    genitive: белого камушка
+    dative: белому камушку
+    accusative: белый камушек
+    instrumental: белым камушком
+    prepositional: белом камушке
+  short_desc: Как лед белый полупрозрачный камушек брошен тут.
+  type: kTreasure
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 3
+  cost: 80
+  rent_off: 70
+  rent_on: 70
+  max_durability: 30
+  cur_durability: 30
+  timer: 20000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #908
+8:
+  names:
+    aliases: желтый камушек
+    nominative: золотисто-желтый камушек
+    genitive: золотисто-желтого камушка
+    dative: золотисто-желтому камушку
+    accusative: золотисто-желтый камушек
+    instrumental: золотисто-желтым камушком
+    prepositional: золотисто-желтом камушке
+  short_desc: Золотисто-желтый камушек брошен на землю.
+  type: kTreasure
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 3
+  cost: 90
+  rent_off: 90
+  rent_on: 90
+  max_durability: 30
+  cur_durability: 30
+  timer: 20000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #909
+9:
+  names:
+    aliases: фиолетовый прозрачный камушек
+    nominative: фиолетовый прозрачный камушек
+    genitive: фиолетового прозрачного камушка
+    dative: фиолетовому прозрачному камушку
+    accusative: фиолетовый прозрачный камушек
+    instrumental: фиолетовым прозрачным камушком
+    prepositional: фиолетовом прозрачном камушке
+  short_desc: Фиолетовый прозрачный камушек, переливаясь, лежит тут.
+  type: kTreasure
+  material: 11  # СТЕКЛО
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 10
+  rent_off: 10
+  rent_on: 10
+  max_durability: 30
+  cur_durability: 30
+  timer: 20000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #910
+10:
+  names:
+    aliases: голубой камушек
+    nominative: зеленовато-голубой камушек
+    genitive: зеленовато-голубого камушка
+    dative: зеленовато-голубому камушку
+    accusative: зеленовато-голубой камушек
+    instrumental: зеленовато-голубым камушком
+    prepositional: зеленовато-голубом камушке
+  short_desc: Зеленовато-голубой камушек забыт на земле.
+  type: kTreasure
+  material: 11  # СТЕКЛО
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 20
+  rent_off: 10
+  rent_on: 10
+  max_durability: 30
+  cur_durability: 30
+  timer: 20000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #911
+11:
+  names:
+    aliases: бесцветный камушек
+    nominative: бесцветный камушек
+    genitive: бесцветного камушка
+    dative: бесцветному камушку
+    accusative: бесцветный камушек
+    instrumental: бесцветным камушком
+    prepositional: бесцветном камушке
+  short_desc: Бесцветный камушек тускло сверкает тут.
+  type: kTreasure
+  material: 11  # СТЕКЛО
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 30
+  rent_off: 30
+  rent_on: 30
+  max_durability: 50
+  cur_durability: 50
+  timer: 20000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #912
+12:
+  names:
+    aliases: зеленый камушек
+    nominative: ярко-зеленый камушек
+    genitive: ярко-зеленого камушка
+    dative: ярко-зеленому камушку
+    accusative: ярко-зеленый камушек
+    instrumental: ярко-зеленым камушком
+    prepositional: ярко-зеленом камушке
+  short_desc: Ярко-зеленый камушек блестит, как трава по утру, тут.
+  type: kTreasure
+  material: 11  # СТЕКЛО
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 40
+  rent_off: 40
+  rent_on: 40
+  max_durability: 30
+  cur_durability: 30
+  timer: 20000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #913
+13:
+  names:
+    aliases: красный камушек
+    nominative: ярко-красный камушек
+    genitive: ярко-красного камушка
+    dative: ярко-красному камушку
+    accusative: ярко-красный камушек
+    instrumental: ярко-красным камушком
+    prepositional: ярко-красном камушке
+  short_desc: Как кровь ярко-красный камушек брошен в пыль.
+  type: kTreasure
+  material: 11  # СТЕКЛО
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 50
+  rent_off: 50
+  rent_on: 50
+  max_durability: 30
+  cur_durability: 30
+  timer: 20000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #914
+14:
+  names:
+    aliases: золотистый камушек
+    nominative: золотисто-зеленый камушек
+    genitive: золотисто-зеленого камушка
+    dative: золотисто-зеленому камушку
+    accusative: золотисто-зеленый камушек
+    instrumental: золотисто-зеленым камушком
+    prepositional: золотисто-зеленом камушке
+  short_desc: Золотисто-зеленый камушек поблескивает в пыли.
+  type: kTreasure
+  material: 11  # СТЕКЛО
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 60
+  rent_off: 60
+  rent_on: 60
+  max_durability: 30
+  cur_durability: 30
+  timer: 20000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #915
+15:
+  names:
+    aliases: синий камушек
+    nominative: синий камушек
+    genitive: синего камушка
+    dative: синему камушку
+    accusative: синий камушек
+    instrumental: синим камушком
+    prepositional: синем камушке
+  short_desc: Как капля моря синий камушек брошен в пыль.
+  type: kTreasure
+  material: 11  # СТЕКЛО
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 70
+  rent_off: 70
+  rent_on: 70
+  max_durability: 30
+  cur_durability: 30
+  timer: 20000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #916
+16:
+  names:
+    aliases: белый камушек
+    nominative: белый камушек
+    genitive: белого камушка
+    dative: белому камушку
+    accusative: белый камушек
+    instrumental: белым камушком
+    prepositional: белом камушке
+  short_desc: Как лед белый полупрозрачный камушек брошен тут.
+  type: kTreasure
+  material: 11  # СТЕКЛО
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 80
+  rent_off: 80
+  rent_on: 80
+  max_durability: 30
+  cur_durability: 30
+  timer: 20000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #917
+17:
+  names:
+    aliases: желтый камушек
+    nominative: золотисто-желтый камушек
+    genitive: золотисто-желтого камушка
+    dative: золотисто-желтому камушку
+    accusative: золотисто-желтый камушек
+    instrumental: золотисто-желтым камушком
+    prepositional: золотисто-желтом камушке
+  short_desc: Золотисто-желтый камушек брошен на землю.
+  type: kTreasure
+  material: 11  # СТЕКЛО
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 90
+  rent_off: 90
+  rent_on: 90
+  max_durability: 30
+  cur_durability: 30
+  timer: 20000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #918
+18:
+  names:
+    aliases: лопата
+    nominative: лопата с деревянной ручкой
+    genitive: лопаты с деревянной ручкой
+    dative: лопате с деревянной ручкой
+    accusative: лопату с деревянной ручкой
+    instrumental: лопатой с деревянной ручкой
+    prepositional: лопате с деревянной ручкой
+  short_desc: Совковая лопата с деревянной ручкой валяется в пыли
+  type: kWeapon
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 0
+    - 1
+    - 2
+    - 5
+  weight: 9
+  cost: 1000
+  rent_off: 100
+  rent_on: 200
+  spec_param: 145
+  max_durability: 100
+  cur_durability: 100
+  timer: 15000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  wear_flags:
+    - kTake
+    - kBoth
+
+# Object #919
+19:
+  names:
+    aliases: шкатулка пандоры
+    nominative: шкатулка Пандоры
+    genitive: шкатулки Пандоры
+    dative: шкатулке Пандоры
+    accusative: шкатулку Пандоры
+    instrumental: шкатулкой Пандоры
+    prepositional: шкатулке Пандоры
+  short_desc: Шкатулка, покрытая искусной резьбой, лежит тут.
+  type: kWeapon
+  material: 7  # КРИСТАЛЛ
+  values:
+    - 0
+    - 5
+    - 5
+    - 5
+  weight: 3
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  spec_param: 145
+  max_durability: 900
+  cur_durability: 900
+  timer: 82000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kNodonate
+    - kMagic
+    - kNosell
+    - kNodisarm
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+  applies:
+    - location: 1  # сила
+      modifier: 2
+    - location: 2  # ловкость
+      modifier: 2
+    - location: 3  # интеллект
+      modifier: 2
+    - location: 4  # мудрость
+      modifier: 2
+    - location: 5  # телосложение
+      modifier: 2
+    - location: 6  # обаяние
+      modifier: 2
+
+# Object #920
+20:
+  names:
+    aliases: дождевой червяк
+    nominative: дождевой червяк
+    genitive: дождевого червяка
+    dative: дождевому червяку
+    accusative: дождевого червяка
+    instrumental: дождевым червяком
+    prepositional: дождевом червяке
+  short_desc: Скользкий дождевой червяк извивается на земле.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 1
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 10
+  rent_on: 10
+  max_durability: 10
+  cur_durability: 10
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 10000
+  extra_flags:
+    - kAppearsSpring
+    - kAppearsSummer
+    - kAppearsAutumn
+  wear_flags:
+    - kTake
+
+# Object #921
+21:
+  names:
+    aliases: старая кирка
+    nominative: старая кирка
+    genitive: старой кирки
+    dative: старой кирке
+    accusative: старую кирку
+    instrumental: старой киркой
+    prepositional: старой кирке
+  short_desc: Насквозь проржавевшая кирка брошена тут в пыль
+  type: kWeapon
+  material: 3  # ЖЕЛЕЗО
+  values:
+    - 0
+    - 3
+    - 3
+    - 3
+  weight: 6
+  cost: 10
+  rent_off: 10
+  rent_on: 10
+  spec_param: 142
+  max_durability: 500
+  cur_durability: 500
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  wear_flags:
+    - kTake
+    - kWield
+
+# Object #922
+22:
+  names:
+    aliases: огромный ржавый гвоздь
+    nominative: огромный ржавый гвоздь
+    genitive: огромного ржавого гвоздя
+    dative: огромному ржавому гвоздю
+    accusative: огромный ржавый гвоздь
+    instrumental: огромным ржавым гвоздем
+    prepositional: огромном ржавом гвозде
+  short_desc: Огромный, но очень сильно проржавевший гвоздь воткнут в землю
+  type: kWeapon
+  material: 2  # БРОНЗА
+  values:
+    - 0
+    - 4
+    - 3
+    - 11
+  weight: 9
+  cost: 250
+  rent_off: 150
+  rent_on: 50
+  spec_param: 147
+  max_durability: 100
+  cur_durability: 100
+  timer: 2880
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  max_in_world: 200
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+
+# Object #923
+23:
+  names:
+    aliases: слиток серебряный
+    nominative: серебрянный слиток
+    genitive: серебрянного слитка
+    dative: серебрянному слитку
+    accusative: серебрянный слиток
+    instrumental: серебрянным слитком
+    prepositional: серебрянном слитке
+  short_desc: Слиток, лежащий на земле, манит Вас своим серебрянным блеском
+  type: kTreasure
+  material: 6  # ДРАГ.МЕТАЛЛ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 10
+  cost: 100
+  rent_off: 50
+  rent_on: 25
+  max_durability: 40
+  cur_durability: 40
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #924
+24:
+  names:
+    aliases: слиток золотой
+    nominative: золотой слиток
+    genitive: золотого слитка
+    dative: золотому слитку
+    accusative: золотой слиток
+    instrumental: золотым слитком
+    prepositional: золотом слитке
+  short_desc: Слиток, лежащий на земле, манит Вас своим золотым блеском
+  type: kTreasure
+  material: 6  # ДРАГ.МЕТАЛЛ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 12
+  cost: 300
+  rent_off: 150
+  rent_on: 100
+  max_durability: 40
+  cur_durability: 40
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #925
+25:
+  names:
+    aliases: слиток платиновый
+    nominative: платиновый слиток
+    genitive: платинового слитка
+    dative: платиновому слитку
+    accusative: платиновый слиток
+    instrumental: платиновым слитком
+    prepositional: платиновом слитке
+  short_desc: Слиток, лежащий на земле, манит Вас своим платиновым мерцанием
+  type: kTreasure
+  material: 6  # ДРАГ.МЕТАЛЛ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 20
+  cost: 500
+  rent_off: 250
+  rent_on: 150
+  max_durability: 40
+  cur_durability: 40
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #926
+26:
+  names:
+    aliases: слиток бронзы
+    nominative: слиток бронзы
+    genitive: слиток бронзы
+    dative: слиток бронзы
+    accusative: слиток бронзы
+    instrumental: слиток бронзы
+    prepositional: слиток бронзы
+  short_desc: Слиток, лежащий на земле, манит Вас своим ярким отливом
+  type: kTreasure
+  material: 2  # БРОНЗА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 15
+  cost: 150
+  rent_off: 100
+  rent_on: 50
+  max_durability: 40
+  cur_durability: 40
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #927
+27:
+  names:
+    aliases: слиток железо
+    nominative: слиток железа
+    genitive: слитка железа
+    dative: слитку железа
+    accusative: слиток железа
+    instrumental: слитком железа
+    prepositional: слитке железа
+  short_desc: Слиток, лежащий на земле, манит Вас своим тусклым мерцанием
+  type: kTreasure
+  material: 3  # ЖЕЛЕЗО
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 20
+  cost: 100
+  rent_off: 50
+  rent_on: 20
+  max_durability: 40
+  cur_durability: 40
+  timer: 2880
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #928
+28:
+  names:
+    aliases: слиток неизвестного металла
+    nominative: слиток неизвестного металла
+    genitive: слитка неизвестного металла
+    dative: слитку неизвестного металла
+    accusative: слиток неизвестного металла
+    instrumental: слитком неизвестного металла
+    prepositional: слитке неизвестного металла
+  short_desc: Слиток из неизвестного Вам материала лежит в пыли, мягко мерцая
+  type: kTreasure
+  material: 12  # КАМЕНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 25
+  cost: 500
+  rent_off: 450
+  rent_on: 350
+  max_durability: 50
+  cur_durability: 50
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #929
+29:
+  names:
+    aliases: кусок серебряной руды
+    nominative: кусок серебряной руды
+    genitive: куска серебряной руды
+    dative: куску серебряной руды
+    accusative: кусок серебряной руды
+    instrumental: куском серебряной руды
+    prepositional: куске серебряной руды
+  short_desc: Кусок руды с серебряным отливом выброшен за ненадобностью на землю.
+  type: kTreasure
+  material: 6  # ДРАГ.МЕТАЛЛ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 20
+  cost: 100
+  rent_off: 50
+  rent_on: 25
+  max_durability: 40
+  cur_durability: 40
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #930
+30:
+  names:
+    aliases: кусок золотой руды
+    nominative: кусок золотой руды
+    genitive: куска золотой руды
+    dative: куску золотой руды
+    accusative: кусок золотой руды
+    instrumental: куском золотой руды
+    prepositional: куске золотой руды
+  short_desc: Кусок руды с золотым отливом выброшен за ненадобностью на землю
+  type: kTreasure
+  material: 6  # ДРАГ.МЕТАЛЛ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 15
+  cost: 150
+  rent_off: 100
+  rent_on: 50
+  max_durability: 40
+  cur_durability: 40
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #931
+31:
+  names:
+    aliases: кусок платиновой руды
+    nominative: кусок платиновой руды
+    genitive: куска платиновой руды
+    dative: куску платиновой руды
+    accusative: кусок платиновой руды
+    instrumental: куском платиновой руды
+    prepositional: куске платиновой руды
+  short_desc: Кусок руды с платиновым отливом выброшен за ненадобностью на землю
+  type: kTreasure
+  material: 6  # ДРАГ.МЕТАЛЛ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 20
+  cost: 200
+  rent_off: 150
+  rent_on: 75
+  max_durability: 40
+  cur_durability: 40
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #932
+32:
+  names:
+    aliases: кусок бронзов руд
+    nominative: кусок бронзовой руды
+    genitive: куска бронзовой руды
+    dative: куску бронзовой руды
+    accusative: кусок бронзовой руды
+    instrumental: куском бронзовой руды
+    prepositional: куске бронзовой руды
+  short_desc: Кусок руды с бронзовым отливом выброшен за ненадобностью на землю
+  type: kTreasure
+  material: 2  # БРОНЗА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 15
+  cost: 100
+  rent_off: 50
+  rent_on: 25
+  max_durability: 40
+  cur_durability: 40
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #933
+33:
+  names:
+    aliases: кусок железной руды
+    nominative: кусок железной руды
+    genitive: куска железной руды
+    dative: куску железной руды
+    accusative: кусок железной руды
+    instrumental: куском железной руды
+    prepositional: куске железной руды
+  short_desc: Кусок руды с металлическим отливом выброшен за ненадобностью на землю
+  type: kTreasure
+  material: 3  # ЖЕЛЕЗО
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 20
+  cost: 75
+  rent_off: 50
+  rent_on: 25
+  max_durability: 40
+  cur_durability: 40
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #934
+34:
+  names:
+    aliases: осколок метеорита
+    nominative: осколок метеорита
+    genitive: осколка метеорита
+    dative: осколку метеорита
+    accusative: осколок метеорита
+    instrumental: осколком метеорита
+    prepositional: осколке метеорита
+  short_desc: Оплавившийся осколок неизвестного Вам материала лежит тут
+  type: kTreasure
+  material: 12  # КАМЕНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 25
+  cost: 500
+  rent_off: 250
+  rent_on: 125
+  max_durability: 50
+  cur_durability: 50
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #960
+60:
+  names:
+    aliases: большие ветвистые рога
+    nominative: большие ветвистые рога
+    genitive: больших ветвистых рогов
+    dative: большим ветвистым рогам
+    accusative: большие ветвистые рога
+    instrumental: большими ветвистыми рогами
+    prepositional: больших ветвистых рогах
+  short_desc: Ветвистые оленьи рога лежат тут.
+  type: kOther
+  material: 13  # КОСТЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 5
+  cost: 100
+  rent_off: 30
+  rent_on: 30
+  max_durability: 100
+  cur_durability: 100
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 100
+  extra_flags:
+    - kNosell
+  wear_flags:
+    - kTake
+    - kHead
+  extra_descriptions:
+    - keywords: большие ветвистые рога
+      description: |2
+        Полезная в хозяйстве вещь.
+        Можно повесить на стену.
+        А можно подарить жене - она найдет им применение.
+
+# Object #961
+61:
+  names:
+    aliases: зуб хромого рябого одноглазого и плешивого ростовщика
+    nominative: зуб хромого, рябого, одноглазого и плешивого ростовщика
+    genitive: зуба хромого, рябого, одноглазого и плешивого ростовщика
+    dative: зубу хромого, рябого, одноглазого и плешивого ростовщика
+    accusative: зуб хромого, рябого, одноглазого и плешивого ростовщика
+    instrumental: зубом хромого, рябого, одноглазого и плешивого ростовщика
+    prepositional: зубе хромого, рябого, одноглазого и плешивого ростовщика
+  short_desc: Человеческий зуб лежит тут.
+  type: kTrap
+  material: 13  # КОСТЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 10
+  rent_off: 10
+  rent_on: 10
+  max_durability: 50
+  cur_durability: 40
+  timer: 2880
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 200
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: зуб хромого рябого одноглазого и плешивого ростовщика
+      description: |2
+        _
+        Нет никакого сомнения, что этот зуб принадлежал лишенному волос,
+        хромому, рябому и одноглазому кровопийце-ростовщику.
+        Кроме того, у него была толстая жена, десять детей и заслуженный геморрой.
+
+# Object #962
+62:
+  names:
+    aliases: дождевой червяк
+    nominative: дождевой червяк
+    genitive: дождевого червяка
+    dative: дождевому червяку
+    accusative: дождевого червяка
+    instrumental: дождевым червяком
+    prepositional: дождевом червяке
+  short_desc: Дождевой червяк извивается тут.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 1
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 10
+  rent_off: 10
+  rent_on: 10
+  max_durability: 10
+  cur_durability: 10
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 500
+  extra_flags:
+    - kNorent
+    - kNosell
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: дождевой червяк
+      description: |2
+        Длинный розовый извивающийся червяк.
+
+# Object #963
+63:
+  names:
+    aliases: пустая_бутылка
+    nominative: пустая_бутылка
+    genitive: пустой_бутылки
+    dative: пустой_бутылке
+    accusative: пустую_бутылку
+    instrumental: пустой_бутылкой
+    prepositional: пустой_бутылке
+  short_desc: Треснутая пустая бутылка лежит тут.
+  type: kLiquidContainer
+  material: 11  # СТЕКЛО
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 10
+  rent_off: 10
+  rent_on: 10
+  max_durability: 50
+  cur_durability: 20
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 100
+  extra_flags:
+    - kNosell
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: пустая бутылка
+      description: |2
+        При иных обстоятельствах сей почтенной емкости можно было бы воздать должное уважение.
+        Что пользы человеку от всех его трудов, над чем он трудится под солнцем?
+        Увы, все бренно на этом свете, все суета сует и всяческая суета...
+
+# Object #964
+64:
+  names:
+    aliases: булыжник
+    nominative: булыжник
+    genitive: булыжника
+    dative: булыжнику
+    accusative: булыжник
+    instrumental: булыжником
+    prepositional: булыжнике
+  short_desc: Увесистый булыжник лежит тут.
+  type: kWeapon
+  material: 12  # КАМЕНЬ
+  values:
+    - 0
+    - 2
+    - 4
+    - 5
+  weight: 8
+  cost: 5
+  rent_off: 5
+  rent_on: 5
+  spec_param: 145
+  max_durability: 200
+  cur_durability: 200
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 200
+  extra_flags:
+    - kNosell
+    - kThrowing
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+    - kBoth
+  extra_descriptions:
+    - keywords: булыжник
+      description: |2
+        Здоровенная увесистая каменюка.
+        Летает редко, но метко.
+
+# Object #965
+65:
+  names:
+    aliases: могилка кладоискателя аккуратное надгробие
+    nominative: могилка кладоискателя
+    genitive: могилки кладоискателя
+    dative: могилке кладоискателя
+    accusative: могилку кладоискателя
+    instrumental: могилкой кладоискателя
+    prepositional: могилке кладоискателя
+  short_desc: Аккуратное надгробие возвышается над чьей-то могилкой.
+  type: kOther
+  material: 12  # КАМЕНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1000
+  cost: 1
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 40
+  cur_durability: 40
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+    - kNosell
+  extra_descriptions:
+    - keywords: могилка кладоискателя аккуратное надгробие
+      description: |2
+        Эпитафия гласит: "Не уверен - не выкапывай!"
+
+# Object #966
+66:
+  names:
+    aliases: дырявый котелок
+    nominative: дырявый котелок
+    genitive: дырявого котелка
+    dative: дырявому котелку
+    accusative: дырявый котелок
+    instrumental: дырявым котелком
+    prepositional: дырявом котелке
+  short_desc: Прохудившийся походный котелок валяется тут.
+  type: kTrap
+  material: 3  # ЖЕЛЕЗО
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 7
+  cost: 20
+  rent_off: 10
+  rent_on: 20
+  max_durability: 100
+  cur_durability: 30
+  timer: 4000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 60
+  wear_flags:
+    - kTake
+    - kHead
+  extra_descriptions:
+    - keywords: дырявый котелок
+      description: |2
+        Кто-то потерял свой дырявый котелок...
+
+# Object #967
+67:
+  names:
+    aliases: огромный пустой сундук
+    nominative: огромный пустой сундук
+    genitive: огромного пустого сундука
+    dative: огромному пустому сундуку
+    accusative: огромный пустой сундук
+    instrumental: огромным пустым сундуком
+    prepositional: огромном пустом сундуке
+  short_desc: Здесь стоит ОГРОМНЫЙ сундук.
+  type: kContainer
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 1000
+    - 5
+    - -1
+    - 0
+  weight: 750
+  cost: 500
+  rent_off: 500
+  rent_on: 500
+  max_durability: 1000
+  cur_durability: 1000
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 20
+  extra_flags:
+    - kNorent
+    - kNosell
+  extra_descriptions:
+    - keywords: ОГРОМНЫЙ ПУСТОЙ СУНДУК
+      description: |2
+        Огромный, но к сожалению совершенно пустой сундук.
+        На передней стенке нацарапано вкривь и вкось:
+        ___КИСА И ОСЯ ТУТ БЫЛИ!
+
+# Object #968
+68:
+  names:
+    aliases: скелет старинного вида кучка костей
+    nominative: скелет старинного вида
+    genitive: скелета старинного вида
+    dative: скелету старинного вида
+    accusative: скелет старинного вида
+    instrumental: скелетом старинного вида
+    prepositional: скелете старинного вида
+  short_desc: Увенчаная черепом кучка костей лежит тут.
+  type: kTrap
+  material: 13  # КОСТЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 6
+  cost: 1
+  rent_off: 100
+  rent_on: 100
+  max_durability: 100
+  cur_durability: 30
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 50
+  extra_flags:
+    - kNorent
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: скелет старинного вида кучка костей
+      description: |2
+        Кучка очень старых человеческих костей вопреки обыкновению не проявляет агрессии.
+
+# Object #969
+69:
+  names:
+    aliases: прогнивший_бочонок бочонок_прогнивший
+    nominative: прогнивший_бочонок
+    genitive: прогнившего_бочонка
+    dative: прогнившему_бочонку
+    accusative: прогнивший_бочонок
+    instrumental: прогнившим_бочонком
+    prepositional: прогнившем_бочонке
+  short_desc: Старый прогнивший бочонок стоит тут.
+  type: kLiquidContainer
+  material: 8  # ДЕРЕВО
+  values:
+    - 120
+    - 10
+    - 0
+    - 0
+  weight: 15
+  cost: 10
+  rent_off: 10
+  rent_on: 10
+  max_durability: 50
+  cur_durability: 10
+  timer: 2880
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 200
+  extra_flags:
+    - kNosell
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: прогнивший бочонок
+      description: |2
+        Маленький бочонок.
+        Гнилые доски прогибаются от легкого нажатия.
+
+# Object #970
+70:
+  names:
+    aliases: ослиная челюсть
+    nominative: ослиная челюсть
+    genitive: ослиной челюсти
+    dative: ослиной челюсти
+    accusative: ослиную челюсть
+    instrumental: ослиной челюстью
+    prepositional: ослиной челюсти
+  short_desc: Ослиная челюсть валяется под ногами.
+  type: kWeapon
+  material: 13  # КОСТЬ
+  values:
+    - 0
+    - 4
+    - 4
+    - 6
+  weight: 6
+  cost: 200
+  rent_off: 200
+  rent_on: 10
+  spec_param: 145
+  max_durability: 120
+  cur_durability: 100
+  timer: 7200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 9
+  wear_flags:
+    - kTake
+    - kNeck
+    - kWield
+    - kBoth
+  extra_descriptions:
+    - keywords: ослиная челюсть
+      description: |2
+        Увесистая ослиная челюсть носит на себе следы мощных ударов.
+
+# Object #971
+71:
+  names:
+    aliases: резной пряслень
+    nominative: резной пряслень
+    genitive: резного прясленя
+    dative: резному прясленю
+    accusative: резной пряслень
+    instrumental: резным прясленем
+    prepositional: резном пряслене
+  short_desc: Резной каменный пряслень лежит тут.
+  type: kOther
+  material: 12  # КАМЕНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 300
+  rent_off: 300
+  rent_on: 15
+  max_durability: 50
+  cur_durability: 50
+  timer: 4320
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  max_in_world: 10
+  wear_flags:
+    - kTake
+    - kFinger
+    - kNeck
+    - kWaist
+  no_flags:
+    - kColored
+  anti_flags:
+    - kColored
+  applies:
+    - location: 49  # защита.от.магии.разума
+      modifier: 2
+  extra_descriptions:
+    - keywords: резной пряслень
+      description: |2
+        Увесистый каменный кругляш с отверстием посередине,
+        покрытый резным узором в виде веток и листьев.
+
+# Object #972
+72:
+  names:
+    aliases: помет барсука
+    nominative: помет барсука
+    genitive: помета барсука
+    dative: помету барсука
+    accusative: помет барсука
+    instrumental: пометом барсука
+    prepositional: помете барсука
+  short_desc: Кучка барсучьего помета испускает резкий запах.
+  type: kTrap
+  material: 16  # ОРГАНИКА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 100
+  cur_durability: 100
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 100
+  extra_flags:
+    - kNorent
+    - kNosell
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: помет барсука
+      description: |2
+        Какие странные у Вас интересы в этой жизни...
+
+# Object #973
+73:
+  names:
+    aliases: маленькая черная бутылочка
+    nominative: маленькая черная бутылочка
+    genitive: маленькой черной бутылочки
+    dative: маленькой черной бутылочке
+    accusative: маленькую черную бутылочку
+    instrumental: маленькой черной бутылочкой
+    prepositional: маленькой черной бутылочке
+  short_desc: Маленькая черная бутылочка стоит тут.
+  type: kPotion
+  material: 11  # СТЕКЛО
+  values:
+    - 50
+    - 33
+    - 0
+    - 0
+  weight: 1
+  cost: 50
+  rent_off: 1
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 100
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: маленькая черная бутылочка
+      description: |2
+        Маленькая склянка с мутно-черной жидкостью,
+        испускающей горьковатый запах.
+
+# Object #974
+74:
+  names:
+    aliases: тухлая репа
+    nominative: тухлая репа
+    genitive: тухлой репы
+    dative: тухлой репе
+    accusative: тухлую репу
+    instrumental: тухлой репой
+    prepositional: тухлой репе
+  short_desc: Протухшая репа лежит тут, распространяя зловоние.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 1
+    - 0
+    - 0
+    - 35
+  weight: 2
+  cost: 10
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 100
+  cur_durability: 10
+  timer: 180
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 50
+  extra_flags:
+    - kNorent
+    - kNosell
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: тухлая репа
+      description: |2
+        Вам больше делать нечего, кроме как тухлятину разглядывать?
+
+# Object #975
+75:
+  names:
+    aliases: щербатый череп
+    nominative: щербатый череп
+    genitive: щербатого черепа
+    dative: щербатому черепу
+    accusative: щербатый череп
+    instrumental: щербатым черепом
+    prepositional: щербатом черепе
+  short_desc: Щербатый человеческий череп лежит тут.
+  type: kOther
+  material: 13  # КОСТЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 300
+  rent_off: 500
+  rent_on: 25
+  max_durability: 50
+  cur_durability: 30
+  timer: 2880
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 10
+  extra_flags:
+    - kNorent
+  wear_flags:
+    - kTake
+    - kHead
+  affect_flags:
+    - kDetectInvisibility
+  applies:
+    - location: 20  # воля
+      modifier: -6
+  extra_descriptions:
+    - keywords: щербатый череп
+      description: |2
+        Желтый человеческий череп красуется аж тремя зубами.
+
+# Object #976
+76:
+  names:
+    aliases: рваный сапог
+    nominative: рваный сапог
+    genitive: рваного сапога
+    dative: рваному сапогу
+    accusative: рваный сапог
+    instrumental: рваным сапогом
+    prepositional: рваном сапоге
+  short_desc: Старый изодраный сапог лежит тут.
+  type: kWorm
+  material: 15  # КОЖА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 1
+  rent_off: 500
+  rent_on: 500
+  max_durability: 100
+  cur_durability: 10
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 300
+  extra_flags:
+    - kNosell
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: рваный сапог
+      description: |2
+        Когда-то сапог сей сшит был из кожи добротной и толстой.
+        Высок был и даже подкован подковой железной.
+        Ныне же зело изорван он, грязен,
+        Просится просто подальше закинуть с размаху.
+
+# Object #977
+77:
+  names:
+    aliases: бронзовая фибула застежка плаща
+    nominative: бронзовая фибула
+    genitive: бронзовой фибулы
+    dative: бронзовой фибуле
+    accusative: бронзовую фибулу
+    instrumental: бронзовой фибулой
+    prepositional: бронзовой фибуле
+  short_desc: Бронзовая застежка для плаща лежит тут.
+  type: kOther
+  material: 2  # БРОНЗА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 300
+  rent_off: 300
+  rent_on: 30
+  max_durability: 80
+  cur_durability: 80
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 30
+  wear_flags:
+    - kTake
+    - kShoulders
+    - kWrist
+  applies:
+    - location: 14  # макс.энергия
+      modifier: 20
+  extra_descriptions:
+    - keywords: бронзовая фибула застежка плаща
+      description: |2
+        Овальная толстая бронзовая пластина с защелкой на тыльной стороне.
+        На лицевой стороне выгравировано несколько рун, должно быть, имя владельца или оберег.
+
+# Object #978
+78:
+  names:
+    aliases: старая подкова
+    nominative: старая подкова
+    genitive: старой подковы
+    dative: старой подкове
+    accusative: старую подкову
+    instrumental: старой подковой
+    prepositional: старой подкове
+  short_desc: Старая подкова потеряна лошадью.
+  type: kOther
+  material: 3  # ЖЕЛЕЗО
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 4
+  cost: 50
+  rent_off: 50
+  rent_on: 10
+  max_durability: 75
+  cur_durability: 30
+  timer: 2880
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 300
+  extra_flags:
+    - kNosell
+  wear_flags:
+    - kTake
+    - kNeck
+  applies:
+    - location: 6  # обаяние
+      modifier: -3
+    - location: 3  # интеллект
+      modifier: -3
+  extra_descriptions:
+    - keywords: старая подкова
+      description: |2
+        Старая полустертая лошадиная подкова.
+
+# Object #979
+79:
+  names:
+    aliases: старая кирка
+    nominative: старая кирка
+    genitive: старой кирки
+    dative: старой кирке
+    accusative: старую кирку
+    instrumental: старой киркой
+    prepositional: старой кирке
+  short_desc: Насквозь проржавевшая кирка брошена тут в пыль
+  type: kWeapon
+  material: 3  # ЖЕЛЕЗО
+  values:
+    - 0
+    - 3
+    - 3
+    - 3
+  weight: 6
+  cost: 200
+  rent_off: 10
+  rent_on: 10
+  spec_param: 142
+  max_durability: 75
+  cur_durability: 75
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  wear_flags:
+    - kTake
+    - kWield
+  extra_descriptions:
+    - keywords: старая кирка
+      description: |2
+        Старая, почти проржавевшая кирка на изъеденной жучком на изъеденной жучком деревянной ручке.
+
+# Object #980
+80:
+  names:
+    aliases: огромный ржавый гвоздь
+    nominative: огромный ржавый гвоздь
+    genitive: огромного ржавого гвоздя
+    dative: огромному ржавому гвоздю
+    accusative: огромный ржавый гвоздь
+    instrumental: огромным ржавым гвоздем
+    prepositional: огромном ржавом гвозде
+  short_desc: Огромный, но очень сильно проржавевший гвоздь воткнут в землю.
+  type: kTrap
+  material: 3  # ЖЕЛЕЗО
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 100
+  cur_durability: 10
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 400
+  extra_flags:
+    - kNosell
+  wear_flags:
+    - kTake
+
+# Object #981
+81:
+  names:
+    aliases: костяной божок статуэтка
+    nominative: костяной божок
+    genitive: костяного божка
+    dative: костяному божку
+    accusative: костяного божка
+    instrumental: костяным божком
+    prepositional: костяном божке
+  short_desc: Костяная статуэтка лежит тут.
+  type: kTreasure
+  material: 13  # КОСТЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 400
+  rent_off: 50
+  rent_on: 500
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 20
+  wear_flags:
+    - kTake
+    - kHold
+  no_flags:
+    - kMale
+  extra_descriptions:
+    - keywords: костяной божок статуэтка
+      description: |2
+        Костяной божок недвусмысленной формы.
+        Полезная в хозяйстве вещь, особенно во время княжеского призыва на военные сборы.
+
+# Object #982
+82:
+  names:
+    aliases: дохлая крыса веревочке
+    nominative: крыса на веревочке
+    genitive: крысы на веревочке
+    dative: крысе на веревочке
+    accusative: крысу на веревочке
+    instrumental: крысой на веревочке
+    prepositional: крысе на веревочке
+  short_desc: Дохлая крыса с привязанной к хвосту веревочкой лежит тут.
+  type: kTrap
+  material: 16  # ОРГАНИКА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 1
+  rent_off: 500
+  rent_on: 20
+  max_durability: 50
+  cur_durability: 50
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 50
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: крысе веревочке
+      description: |2
+        Друг, да ты чего! Это же самая классная в мире крыса на веревочке!
+        Можно крутить поверх головы, можно дразнить собак, а можно подкинуть в окошко трактирщице.
+
+# Object #983
+83:
+  names:
+    aliases: кусочек зеленого стекла
+    nominative: кусочек зеленого стекла
+    genitive: кусочка зеленого стекла
+    dative: кусочку зеленого стекла
+    accusative: кусочек зеленого стекла
+    instrumental: кусочком зеленого стекла
+    prepositional: кусочке зеленого стекла
+  short_desc: Выгнутый кусочек зеленого стекла поблескивает тут.
+  type: kTrap
+  material: 11  # СТЕКЛО
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 0
+  cur_durability: 0
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 100
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: кусочек зеленого стекла
+      description: |2
+        Классная штука! Через него можно даже смотреть на солнце!
+        Настоящая драгоценность!
+
+# Object #984
+84:
+  names:
+    aliases: стершаяся куна
+    nominative: стершаяся куна
+    genitive: стершейся куны
+    dative: стершейся куне
+    accusative: стершуюся куну
+    instrumental: стершейся куной
+    prepositional: стершейся куне
+  short_desc: Одна куна лежит здесь.
+  type: kTreasure
+  material: 6  # ДРАГ.МЕТАЛЛ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 50
+  cur_durability: 1
+  timer: 2880
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kNodonate
+    - kNosell
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: стершаяся куна
+      description: |2
+        Совершенно стершаяся от длительного употребления куна.
+        Не умеет молодежь беречь хорошие вещи...
+
+# Object #985
+85:
+  names:
+    aliases: крест рукояти зазубренного меча
+    nominative: крест с рукояти зазубренного меча
+    genitive: креста с рукояти зазубренного меча
+    dative: кресту с рукояти зазубренного меча
+    accusative: крест с рукояти зазубренного меча
+    instrumental: крестом с рукояти зазубренного меча
+    prepositional: кресте с рукояти зазубренного меча
+  short_desc: Ржавое кованое распятие валяется тут.
+  type: kTrap
+  material: 5  # КОВАНАЯ.СТАЛЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 5
+  cost: 20
+  rent_off: 20
+  rent_on: 20
+  max_durability: 100
+  cur_durability: 30
+  timer: 2000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 10
+  extra_flags:
+    - kNosell
+  wear_flags:
+    - kTake
+    - kNeck
+  extra_descriptions:
+    - keywords: крест рукояти зазубренного меча
+      description: |2
+        Судя по оставшимся следам, этот меч некогда украшал
+        рукоять славного меча, наверняка иззубренного во множестве битв.
+
+# Object #986
+86:
+  names:
+    aliases: обломок сабли света
+    nominative: обломок сабли света
+    genitive: обломка сабли света
+    dative: обломку сабли света
+    accusative: обломок сабли света
+    instrumental: обломком сабли света
+    prepositional: обломке сабли света
+  short_desc: 'Обломок легендарного оружия - "сабли света" - лежит тут.'
+  type: kOther
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 10000
+  rent_off: 10
+  rent_on: 10
+  max_durability: 1000
+  cur_durability: 1000
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 20
+  extra_flags:
+    - kNosell
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: обломок сабли света
+      description: |2
+        Некогда это было изящное оружие цивилизованного времени.
+        Теперь же это просто бесполезный обломок.
+        Sic transit gloria mundi...
+
+# Object #987
+87:
+  names:
+    aliases: пластина платинового доспеха
+    nominative: '&Wпластина от платинового доспеха&n'
+    genitive: '&Wпластины от платинового доспеха&n'
+    dative: '&Wпластине от платинового доспеха&n'
+    accusative: '&Wпластину от платинового доспеха&n'
+    instrumental: '&Wпластиной от платинового доспеха&n'
+    prepositional: '&Wпластине от платинового доспеха&n'
+  short_desc: Единственная пластина от некогда легендарного доспеха лежит тут.
+  type: kTreasure
+  material: 6  # ДРАГ.МЕТАЛЛ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 10
+  rent_off: 100
+  rent_on: 1000
+  max_durability: 120
+  cur_durability: 40
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 30
+  extra_flags:
+    - kNosell
+  wear_flags:
+    - kTake
+    - kFinger
+    - kNeck
+  extra_descriptions:
+    - keywords: пластина платинового доспеха
+      description: |2
+        Жалкие останки некогда прекрасного доспеха внушают мысль о тщетности всего сущего.
+        Какой-то варвар нацарапал на единственной уцелевшей пластине слово ""Маё!!!",
+        не поскупившись на восклицательные знаки.
+
+# Object #988
+88:
+  names:
+    aliases: помет двухголового черного змея
+    nominative: помет Двухголового Черного Змея
+    genitive: помета Двухголового Черного Змея
+    dative: помету Двухголового Черного Змея
+    accusative: помет Двухголового Черного Змея
+    instrumental: пометом Двухголового Черного Змея
+    prepositional: помете Двухголового Черного Змея
+  short_desc: Здоровенная куча навоза возвышается тут.
+  type: kTrap
+  material: 16  # ОРГАНИКА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 300
+  cost: 1
+  rent_off: 100000
+  rent_on: 100000
+  max_durability: 1000
+  cur_durability: 1000
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 10
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: помет Двухголового Черного Змея
+      description: |2
+        О, да! В Вас сразу видно истинного ценителя и почитателя!
+        Продолжайте в том же духе - и вам обеспечена всемирная известность,
+        а как вершина карьеры - бесплатная экскурсия в пещеру объекта почитания.
+
+# Object #989
+89:
+  names:
+    aliases: зверски измочаленный труп енота-зануды
+    nominative: зверски измочаленный труп енота-зануды
+    genitive: зверски измочаленного трупа енота-зануды
+    dative: зверски измочаленному трупу енота-зануды
+    accusative: зверски измочаленный труп енота-зануды
+    instrumental: зверски измочаленным трупом енота-зануды
+    prepositional: зверски измочаленном трупе енота-зануды
+  short_desc: Зверски измочаленный труп заморского пушного зверя лежит тут.
+  type: kContainer
+  material: 16  # ОРГАНИКА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 50
+  cost: 0
+  rent_off: 10000
+  rent_on: 10000
+  max_durability: 100
+  cur_durability: 10
+  timer: 20
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 10
+  extra_flags:
+    - kNorent
+    - kNosell
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: зверски измочаленный труп енота зануды
+      description: |2
+        Несчастная тушка носит на себе следы пинков, ударов двуручных мечей,
+        топоров и дубин, отметины от стрел, огненных шаров, молний, вытравленные
+        кислотой проплешины и даже пару четких отпечатков чьих-то горящих рук.
+
+# Object #996
+96:
+  names:
+    aliases: медное запястье
+    nominative: медное запястье
+    genitive: медного запястья
+    dative: медному запястью
+    accusative: медное запястье
+    instrumental: медным запястьем
+    prepositional: медном запястье
+  short_desc: Медное запястье поблескивает на земле.
+  type: kArmor
+  material: 2  # БРОНЗА
+  values:
+    - 1
+    - 1
+    - 0
+    - 0
+  weight: 3
+  cost: 1500
+  rent_off: 1500
+  rent_on: 30
+  max_durability: 60
+  cur_durability: 60
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  extra_flags:
+    - kHasOneSlot
+  wear_flags:
+    - kTake
+    - kWrist
+  extra_descriptions:
+    - keywords: медное запястье
+      description: |2
+        Тонкое медное запястье, на которое искусные руки умельца
+        навели тонкий черненый узор в виде листьев и цветов.
+
+# Object #997
+97:
+  names:
+    aliases: широкое серебряное обручье
+    nominative: широкое серебряное обручье
+    genitive: широкого серебряного обручья
+    dative: широкому серебряному обручью
+    accusative: широкое серебряное обручье
+    instrumental: широким серебряным обручьем
+    prepositional: широком серебряном обручье
+  short_desc: Широкое обручье из серебристого металла лежит тут.
+  type: kArmor
+  material: 6  # ДРАГ.МЕТАЛЛ
+  values:
+    - 2
+    - 1
+    - 0
+    - 0
+  weight: 10
+  cost: 4000
+  rent_off: 3000
+  rent_on: 50
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  extra_flags:
+    - kHasOneSlot
+  wear_flags:
+    - kTake
+    - kWrist
+  extra_descriptions:
+    - keywords: широкое серебряное обручье
+      description: |2
+        Тяжелое обручье, шириной почти в четыре пальца, выкованное
+        из чистого серебра. На поверхности его глубоко врезаный узор
+        изображает сплетающиеся травы, ветви и листья.
+
+# Object #998
+98:
+  names:
+    aliases: резное запястье
+    nominative: резное запястье
+    genitive: резного запястья
+    dative: резному запястью
+    accusative: резное запястье
+    instrumental: резным запястьем
+    prepositional: резном запястье
+  short_desc: Кто-то потерял красивое резное запястье из снежно-белой кости.
+  type: kArmor
+  material: 13  # КОСТЬ
+  values:
+    - 1
+    - 1
+    - 0
+    - 0
+  weight: 3
+  cost: 3000
+  rent_off: 3000
+  rent_on: 50
+  max_durability: 50
+  cur_durability: 50
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  extra_flags:
+    - kHasOneSlot
+  wear_flags:
+    - kTake
+    - kWrist
+  extra_descriptions:
+    - keywords: резное запястье
+      description: |2
+        Красивое резное запястье из белоснежной кости.
+        По всей его поверхности сплетаются чешуйчатые
+        тела змей, ящериц и вовсе непонятных зверей.
+
+# Object #999
+99:
+  names:
+    aliases: ржавый обруч
+    nominative: ржавый обруч
+    genitive: ржавого обруча
+    dative: ржавому обручу
+    accusative: ржавый обруч
+    instrumental: ржавым обручем
+    prepositional: ржавом обруче
+  short_desc: Насквозь проржавевший железный обруч лежит тут.
+  type: kArmor
+  material: 3  # ЖЕЛЕЗО
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 12
+  cost: 10
+  rent_off: 2
+  rent_on: 2
+  max_durability: 40
+  cur_durability: 15
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNosell
+    - kHasThreeSlots
+  wear_flags:
+    - kTake
+    - kHead
+  extra_descriptions:
+    - keywords: ржавый обруч
+      description: |2
+        Насквозь проржавевший обруч, с многочисленными дырами,
+        как видно от гвоздей или заклепок. Неизвестно для чего
+        он служил раньше - но сейчас это просто ржавый мусор,
+        готовый рассыпаться в прах от прикосновения.

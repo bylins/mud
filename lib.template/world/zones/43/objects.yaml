@@ -1,0 +1,36 @@
+# Objects for zone 43
+
+# Object #4300
+0:
+  names:
+    aliases: оранжевый цветок
+    nominative: цветок
+    genitive: цветка
+    dative: цветку
+    accusative: цветок
+    instrumental: цветком
+    prepositional: цветке
+  short_desc: 'Небольшой оранжевый цветок растет тут между кочек. '
+  type: kOther
+  material: 16  # ОРГАНИКА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 10
+  cur_durability: 10
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNorent
+    - kZonedecay
+    - kNodecay
+  wear_flags:
+    - kTake

@@ -1,0 +1,90 @@
+# Triggers for zone 51
+
+# Trigger #5100
+0:
+  name: 'лестница '
+  attach_type: kObjTrigger
+  narg: 4
+  arglist: приставить
+  trigger_types:
+    - kCommand
+  script: |-2
+    if !%arg.contains(лестниц)%
+      osend %actor% Чего приставить?
+      return 0
+      halt
+    end
+    odoor 5104 up room 5117
+    osend %actor% Поднатужившись, Вы приставили лестницу и теперь можно подняться наверх.
+    echoaround %actor% %actor.iname% приставил%actor.g% лестницу и теперь можно подняться наверх.
+    load obj 5105
+    calcuid target 5104 obj
+    wait 1
+    opurge %target%
+
+# Trigger #5101
+1:
+  name: 'ресет '
+  attach_type: kRoomTrigger
+  narg: 100
+  arglist: ресет
+  trigger_types:
+    - kDeath
+  script: |-2
+    if %world.curobjs(5105)% > 0 || %room.up%
+      wdoor 5104 up purge
+      echo Лестница пошатнулась и упала на пол.
+      calcuid target 5105 obj
+      wpurge %target%
+    end
+
+# Trigger #5102
+2:
+  name: открсундук
+  attach_type: kObjTrigger
+  narg: 100
+  arglist: открсундук
+  trigger_types:
+    - kKill
+  script: |-2
+    wait 1
+    echo Маленький ключ рассыпался в руках.
+    switch %random.5%
+      case 1
+        if %world.curobjs(517)% < %world.maxobj(517)%
+          osend %actor% Нагнувшись, чтобы отпереть сундук, вы заметили рядом странный
+          osend %actor% предмет - это обледеневшая пластина
+          echoaround %actor.iname% нашел обледеневшую табличку.
+          load obj 517
+        end
+      break
+      case 2
+        if %world.curobjs(1730)% < 1
+          osend %actor% Нагнувшись, чтобы отпереть сундук, вы заметили рядом странный
+          osend %actor% предмет - это какая-то старая книга.
+          echoaround %actor.iname% нашел в пыли старую книгу.
+          load obj 1730
+        end
+      break
+    done
+    calcuid target 5103 obj
+    opurge %target%
+
+# Trigger #5113
+13:
+  name: Незахотели давать денег ефимию
+  attach_type: kMobTrigger
+  narg: 0
+  arglist: нет
+  trigger_types:
+    - kSpeech
+  script: say My trigger commandlist is not complete!
+
+# Trigger #5114
+14:
+  name: Белый паук рип
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kDeath
+  script: load obj 5103

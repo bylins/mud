@@ -1,0 +1,122 @@
+# Mobs for zone 19
+
+# Mob #1900
+0:
+  names:
+    aliases: тестовый продавец
+    nominative: ░@
+    genitive: S
+    dative: тестовому продавцу
+    accusative: тестового продавца
+    instrumental: тестовым продавцом
+    prepositional: тестовом продавце
+  descriptions:
+    short_desc: |2
+      Продавец предлагает Вам что-то потестить.
+    long_desc: |2
+      Выглядит достаточно незавершенно.
+  alignment: 0
+  stats:
+    level: 1
+    hitroll_penalty: 20
+    armor: 0
+    hp:
+      dice_count: 50
+      dice_size: 100
+      bonus: 150
+    damage:
+      dice_count: 1
+      dice_size: 1
+      bonus: 0
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 30
+  race: 100
+  height: 198
+  weight: 200
+  action_flags:
+    - kNpc
+    - kNoCharm
+    - kNoSleep
+    - kNoFear
+  triggers:
+    - 1900  # new trigger
+  enhanced:
+
+# Mob #1901
+1:
+  names:
+    aliases: странствующий торговец
+    nominative: странствующий торговец
+    genitive: странствующего торговца
+    dative: странствующему торговцу
+    accusative: странствующего торговца
+    instrumental: странствующим торговцем
+    prepositional: странствующем торговце
+  descriptions:
+    short_desc: |2
+      Странствующий торговец медленно бредет мимо.
+    long_desc: |2
+      Бородатый загорелый детина с провощенным коробом за саженными плечами.
+  alignment: 0
+  stats:
+    level: 1
+    hitroll_penalty: 20
+    armor: 0
+    hp:
+      dice_count: 1
+      dice_size: 100
+      bonus: 1
+    damage:
+      dice_count: 1
+      dice_size: 1
+      bonus: 0
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 30
+  race: 100
+  height: 198
+  weight: 200
+  action_flags:
+    - kNpc
+    - kAware
+    - kNoCharm
+    - kNoSummon
+    - kNoSleep
+    - kNoBash
+    - kNoBlind
+    - kNoHold
+    - kNoSilence
+    - kNoFear
+    - kProtect
+    - kNoFight
+    - kNotKillPunctual
+    - kNoUndercut
+    - kNoSkillTrain
+    - kNoRest
+    - kNoOverwhelm
+  affect_flags:
+    - kDetectAlign
+    - kDetectInvisible
+    - kDetectMagic
+    - kDetectLife
+    - kInfravision
+    - kSingleLight
+    - kWaterBreath
+    - kGodsShield
+    - kMagicGlass
+  enhanced:

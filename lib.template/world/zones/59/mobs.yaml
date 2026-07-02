@@ -1,0 +1,788 @@
+# Mobs for zone 59
+
+# Mob #5900
+0:
+  names:
+    aliases: широкоплечий дряхлый чернокнижник старик
+    nominative: дряхлый чернокнижник
+    genitive: дряхлого чернокнижника
+    dative: дряхлому чернокнижнику
+    accusative: дряхлого чернокнижника
+    instrumental: дряхлым чернокнижником
+    prepositional: дряхлом чернокнижнике
+  descriptions:
+    short_desc: |2
+      Широкоплечий, но явно дряхлый старик склонился здесь над гримуаром.
+    long_desc: |2
+      Длинный черный плащ словно повесили на вешалку,
+      к которой также приделали сверху седую голову.
+      При каждом движении этого человека создается
+      ощущение, что он вот-вот рассыпется горкой песка
+      по полу.
+  alignment: -600
+  stats:
+    level: 30
+    hitroll_penalty: 5
+    armor: -30
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 1000
+    damage:
+      dice_count: 3
+      dice_size: 5
+      bonus: 10
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 20
+  race: 101
+  height: 198
+  weight: 200
+  attributes:
+    strength: 18
+    dexterity: 15
+    intelligence: 13
+    wisdom: 13
+    constitution: 14
+    charisma: 3
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kStayZone
+    - kNoCharm
+    - kProtect
+    - kNoFight
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 60
+  triggers:
+    - 5901  # Приветствие квестера
+    - 5903  # Общаемся с квестером
+  enhanced:
+    max_factor: 4
+    extra_attack: 1
+
+# Mob #5901
+1:
+  names:
+    aliases: живой мертвец мертвяк
+    nominative: живой мертвец
+    genitive: живого мертвеца
+    dative: живому мертвецу
+    accusative: живого мертвеца
+    instrumental: живым мертвецом
+    prepositional: живом мертвеце
+  descriptions:
+    short_desc: |2
+      Мертвяк удивленно смотрит на Вас, почесывая плешивую макушку.
+    long_desc: |2
+      Полуразложившийся труп, по какой-то 
+      причине восставший из своей могилы.
+      Что-то есть в его движениях от обычного 
+      человека - осмысленность какая-то, чтоли.
+  alignment: -600
+  stats:
+    level: 18
+    hitroll_penalty: -10
+    armor: 5
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 100
+    damage:
+      dice_count: 3
+      dice_size: 5
+      bonus: 200
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 30000
+  position:
+    default: kStand
+    start: kSit
+  sex: kMale
+  size: 20
+  race: 112
+  height: 198
+  weight: 200
+  attributes:
+    strength: 18
+    dexterity: 15
+    intelligence: 13
+    wisdom: 13
+    constitution: 14
+    charisma: 3
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kStayZone
+    - kCorpse
+    - kNoRest
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 60
+  triggers:
+    - 5907  # Приветствие мертвяка
+  enhanced:
+    absorb: 18
+    bare_hand_attack: 8
+    max_factor: 2
+
+# Mob #5902
+2:
+  names:
+    aliases: костяная гончая
+    nominative: костяная гончая
+    genitive: костяной гончей
+    dative: костяной гончей
+    accusative: костяную гончую
+    instrumental: костяной гончей
+    prepositional: костяной гончей
+  descriptions:
+    short_desc: |2
+      Большая костяная гончая скалится на Вас, задорно помахивая костяным хвостом. 
+    long_desc: |2
+      Вполне обычная большая собака, только без мышц,
+      глаз, кожи и прочих принадлежностей живых существ.
+      Вы, пожалуй, даже смогли бы оседлать ее, чтобы
+      не тратить силы в пути.
+  alignment: -600
+  stats:
+    level: 25
+    hitroll_penalty: -10
+    armor: -10
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 150
+    damage:
+      dice_count: 3
+      dice_size: 5
+      bonus: 200
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  size: 30
+  race: 112
+  height: 198
+  weight: 200
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kStayZone
+    - kMounting
+    - kCorpse
+    - kSwimming
+    - kNoRest
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+  triggers:
+    - 5924  # Приветствие умертвий
+    - 5919  # Гонка входит в комнату
+  enhanced:
+    bare_hand_attack: 4
+    max_factor: 3
+    extra_attack: 1
+    special_bitvector: p0
+
+# Mob #5903
+3:
+  names:
+    aliases: громадный сильный костяной дракон
+    nominative: сильный костяной дракон
+    genitive: сильного костяного дракона
+    dative: сильному костяному дракону
+    accusative: сильного костяного дракона
+    instrumental: сильным костяным драконом
+    prepositional: сильном костяном драконе
+  descriptions:
+    short_desc: |2
+      Громадный костяной дракон машет крыльями над развесистым дубом.
+    long_desc: |2
+      При таких размерах этого дракона удивительно, что
+      цепь до сих пор не оторвалась. Наверняка она тоже
+      заколдована. Интересно, не откусит ли эта зверушка
+      Вам голову если ее освободить?
+  alignment: -600
+  stats:
+    level: 25
+    hitroll_penalty: -10
+    armor: -20
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 300
+    damage:
+      dice_count: 3
+      dice_size: 4
+      bonus: 200
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 30
+  race: 112
+  height: 198
+  weight: 200
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kNoCharm
+    - kCorpse
+    - kFlying
+    - kNoRest
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+  triggers:
+    - 5910  # Дракон пытается улететь
+  enhanced:
+    bare_hand_attack: 2
+    max_factor: 3
+    extra_attack: 2
+
+# Mob #5904
+4:
+  names:
+    aliases: немолодая жена чернокнижника женщина
+    nominative: жена чернокнижника
+    genitive: жены чернокнижника
+    dative: жене чернокнижника
+    accusative: жену чернокнижника
+    instrumental: женой чернокнижника
+    prepositional: жене чернокнижника
+  descriptions:
+    short_desc: |2
+      Немолодая женщина готовит на обед жареного кабанчика.
+    long_desc: |2
+      Высокая, стройная женщина с горделивой осанкой.
+      Лишь хорошенько приглядевшись можно понять, что
+      она слепа - двигается по кухне она легко и
+      непринужденно.
+  alignment: 0
+  stats:
+    level: 30
+    hitroll_penalty: -10
+    armor: 0
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 1000
+    damage:
+      dice_count: 1
+      dice_size: 1
+      bonus: 100
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  size: 30
+  race: 101
+  height: 198
+  weight: 200
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kStayZone
+    - kProtect
+  affect_flags:
+    - kBlind
+  triggers:
+    - 5911  # Приветствие жены чернока
+  enhanced:
+    bare_hand_attack: 1
+    max_factor: 4
+
+# Mob #5905
+5:
+  names:
+    aliases: маленькая девочка дочь чернокнижника
+    nominative: дочь чернокнижника
+    genitive: дочери чернокнижника
+    dative: дочери чернокнижника
+    accusative: дочь чернокнижника
+    instrumental: дочерью чернокнижника
+    prepositional: дочери чернокнижника
+  descriptions:
+    short_desc: |2
+      Совсем маленькая девочка с глазами рыси стоит здесь.
+    long_desc: |2
+      Вроде как обычная девчонка, но вот взгляд!
+      Кажется, взглянув на Вас она уже узнала все
+      Ваши тайны и секреты. Аж дрожь пробирает!
+  alignment: -600
+  stats:
+    level: 34
+    hitroll_penalty: 20
+    armor: -20
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 300
+    damage:
+      dice_count: 1
+      dice_size: 1
+      bonus: 0
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kRest
+  sex: kFemale
+  size: 30
+  race: 101
+  height: 198
+  weight: 200
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kNoCharm
+    - kNoRest
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+    - kForcesOfEvil
+  triggers:
+    - 5916  # Боевой триг дочки
+    - 5912  # Девчонка приветствует
+    - 5921  # Притворились, дочка наступает
+    - 5923  # Благодарности, награды
+  enhanced:
+    bare_hand_attack: 4
+    max_factor: 4
+
+# Mob #5906
+6:
+  names:
+    aliases: обезумевшая небесная защитница
+    nominative: небесная защитница
+    genitive: небесной защитницы
+    dative: небесной защитнице
+    accusative: небесную защитницу
+    instrumental: небесной защитницей
+    prepositional: небесной защитнице
+  descriptions:
+    short_desc: |2
+      Обезумевшая небесная защитница летает тут.
+    long_desc: |2
+      Сияющая призрачная фигура о двух крылах.
+      Глаза ее светятся красным цветом ярости и ненависти ко всему живому.
+  alignment: 0
+  stats:
+    level: 33
+    hitroll_penalty: 20
+    armor: 10
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 1300
+    damage:
+      dice_count: 2
+      dice_size: 4
+      bonus: 0
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  size: 65
+  race: 114
+  height: 200
+  weight: 150
+  attributes:
+    strength: 28
+    dexterity: 20
+    intelligence: 13
+    wisdom: 20
+    constitution: 24
+    charisma: 22
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kAgressive
+    - kCorpse
+    - kFlying
+    - kHorde
+    - kLightingBreath
+    - kNoRest
+    - kAreaAttack
+  affect_flags:
+    - kDetectInvisible
+    - kSanctuary
+    - kInfravision
+    - kFly
+    - kAirShield
+  triggers:
+    - 5920  # Притвориться перед защитницей
+    - 5915  # Боевой триг защитницы
+    - 5922  # Небесную защитницу таки рипнули
+  enhanced:
+    initiative_add: 30
+    max_factor: 4
+    special_bitvector: l0
+    helpers:
+      - 5910
+      - 5911
+
+# Mob #5907
+7:
+  names:
+    aliases: довольное умертвие мышки
+    nominative: умертвие мышки
+    genitive: умертвия мышки
+    dative: умертвию мышки
+    accusative: умертвие мышки
+    instrumental: умертвием мышки
+    prepositional: умертвии мышки
+  descriptions:
+    short_desc: |2
+      Довольное умертвие мышки ищет чем бы здесь поживиться.
+    long_desc: |2
+      Немного полинявшая, с помутневшими глазами мышка.
+      Бегает себе, резвится в поле, словно и не умирала.
+  alignment: -600
+  stats:
+    level: 12
+    hitroll_penalty: 20
+    armor: 0
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 100
+    damage:
+      dice_count: 1
+      dice_size: 1
+      bonus: 50
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 9000
+  position:
+    default: kStand
+    start: kStand
+  sex: kNeutral
+  size: 30
+  race: 114
+  height: 198
+  weight: 200
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kSwimming
+  affect_flags:
+    - kDetectLife
+    - kInfravision
+  skills:
+    - skill_id: 157  # уклониться
+      value: 50
+  triggers:
+    - 5924  # Приветствие умертвий
+  enhanced:
+    absorb: 12
+    bare_hand_attack: 4
+    max_factor: 1
+    extra_attack: 1
+    special_bitvector: p0
+
+# Mob #5908
+8:
+  names:
+    aliases: радостный скелет
+    nominative: радостный скелет
+    genitive: радостного скелета
+    dative: радостному скелету
+    accusative: радостного скелета
+    instrumental: радостным скелетом
+    prepositional: радостном скелете
+  descriptions:
+    short_desc: |2
+      Радостный скелет гуляет здесь, наслаждаясь видами природы.
+    long_desc: |2
+      Ведет себя так, словно и не умирал никогда.
+      Видать действительно в смерти есть покой.
+  alignment: -600
+  stats:
+    level: 9
+    hitroll_penalty: 10
+    armor: 0
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 200
+    damage:
+      dice_count: 1
+      dice_size: 1
+      bonus: 50
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 5000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 30
+  race: 112
+  height: 198
+  weight: 200
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kCorpse
+  affect_flags:
+    - kInfravision
+  triggers:
+    - 5924  # Приветствие умертвий
+  enhanced:
+    absorb: 9
+    max_factor: 1
+    extra_attack: 1
+
+# Mob #5909
+9:
+  names:
+    aliases: довольное умертвие мышки
+    nominative: умертвие мышки
+    genitive: умертвия мышки
+    dative: умертвию мышки
+    accusative: умертвие мышки
+    instrumental: умертвием мышки
+    prepositional: умертвии мышки
+  descriptions:
+    short_desc: |2
+      УЖАСНОЕ ЧУДОВИЩЕ, КОТОРОМУ ЗРЯ ДАЛИ ФЛАГ ОЖИВЛЕН (СЛУЖЕБНЫЙ) стоит здесь.
+    long_desc: |2
+      Немного полинявшая, с помутневшими глазами мышка.
+      Бегает себе, резвится в поле, словно и не умирала.
+  alignment: -600
+  stats:
+    level: 8
+    hitroll_penalty: 20
+    armor: 0
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 100
+    damage:
+      dice_count: 1
+      dice_size: 1
+      bonus: 50
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 3000
+  position:
+    default: kStand
+    start: kStand
+  sex: kNeutral
+  size: 30
+  race: 114
+  height: 198
+  weight: 200
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kCorpse
+    - kResurrected
+  affect_flags:
+    - kDetectLife
+    - kInfravision
+  skills:
+    - skill_id: 157  # уклониться
+      value: 50
+  triggers:
+    - 5924  # Приветствие умертвий
+  enhanced:
+    absorb: 8
+    bare_hand_attack: 4
+    max_factor: 1
+    extra_attack: 1
+    special_bitvector: p0
+
+# Mob #5910
+10:
+  names:
+    aliases: хранитель
+    nominative: хранитель
+    genitive: хранителя
+    dative: хранителю
+    accusative: хранителя
+    instrumental: хранителем
+    prepositional: хранителе
+  descriptions:
+    short_desc: |2
+      *Хранитель летает здесь.
+    long_desc: |2
+      Созданное силой магии существо повинуется любой воле своего хозяина.
+  alignment: 600
+  stats:
+    level: 14
+    hitroll_penalty: 10
+    armor: 8
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 250
+    damage:
+      dice_count: 5
+      dice_size: 4
+      bonus: 0
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 15000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 30
+  race: 114
+  height: 198
+  weight: 200
+  attributes:
+    strength: 3
+    dexterity: 19
+    intelligence: 12
+    wisdom: 12
+    constitution: 10
+    charisma: 14
+  action_flags:
+    - kNpc
+    - kAgressive
+    - kMemory
+    - kAgressivePoly
+    - kCorpse
+    - kSwimming
+    - kFlying
+    - kHorde
+  affect_flags:
+    - kDetectInvisible
+    - kInfravision
+  enhanced:
+    morale: 7
+    absorb: 14
+    bare_hand_attack: 2
+    max_factor: 2
+    extra_attack: 1
+    destinations:
+      - 5951
+      - 5961
+      - 5933
+
+# Mob #5911
+11:
+  names:
+    aliases: хранитель
+    nominative: хранитель
+    genitive: хранителя
+    dative: хранителю
+    accusative: хранителя
+    instrumental: хранителем
+    prepositional: хранителе
+  descriptions:
+    short_desc: |2
+      *Хранитель летает здесь.
+    long_desc: |2
+      Созданное силой магии существо повинуется любой воле своего хозяина.
+  alignment: 600
+  stats:
+    level: 14
+    hitroll_penalty: 10
+    armor: 8
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 250
+    damage:
+      dice_count: 5
+      dice_size: 4
+      bonus: 0
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 15000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 30
+  race: 114
+  height: 198
+  weight: 200
+  attributes:
+    strength: 3
+    dexterity: 19
+    intelligence: 12
+    wisdom: 12
+    constitution: 10
+    charisma: 14
+  action_flags:
+    - kNpc
+    - kAgressive
+    - kMemory
+    - kAgressivePoly
+    - kCorpse
+    - kSwimming
+    - kFlying
+    - kHorde
+  affect_flags:
+    - kDetectInvisible
+    - kInfravision
+  enhanced:
+    morale: 7
+    absorb: 14
+    bare_hand_attack: 2
+    max_factor: 2
+    extra_attack: 1
+    destinations:
+      - 5933
+      - 5951
+      - 5961

@@ -1,0 +1,404 @@
+# Rooms for zone 53
+
+# Room #5300
+0:
+  name: К опушке
+  description: |2
+       От лесной дороги ответвляется небольшая тропинка к лесной опушке. Сюда
+    не боятся отпускать самых малых детей, чтобы ягоды и грибы собирали, изучали
+    родной лес.
+  sector: kField
+  flags:
+    - kNoEntryMob
+  exits:
+    - direction: north
+      to_room: 5302  # На тропинке
+    - direction: south
+      to_room: 5214  # Прилесок
+
+# Room #5301
+1:
+  name: Шалаш
+  description: |2
+       Искусно сложенный из ивовых прутьев шалаш хорошо защищает от ветра
+    и дождя. Похоже, деревенские детишки любят здесь устраивать посиделки и
+    проводить время.
+  sector: kField
+  flags:
+    - kNoEntryMob
+    - kIndoors
+    - kPeaceful
+    - kForMages
+    - kForSorcerers
+    - kForThieves
+    - kForWarriors
+    - kForAssasines
+    - kForGuards
+    - kForPaladines
+    - kForRangers
+    - kForPoly
+    - kForge
+    - kForMerchants
+    - kForMaguses
+    - kNohorse
+    - kNoWeather
+  exits:
+    - direction: north
+      to_room: 5303  # У шалаша
+      keywords: шалаш
+      exit_flags: 3
+
+# Room #5302
+2:
+  name: На тропинке
+  description: |2
+       Тропинка ведет к светлой опушке. Сюда обычно заходят дети и женщины за
+    ягодами и грибами.
+  sector: kField
+  exits:
+    - direction: north
+      to_room: 5305  # Тропинка к опушке
+    - direction: south
+      to_room: 5300  # К опушке
+    - direction: west
+      to_room: 5304  # Неприметная тропа
+
+# Room #5303
+3:
+  name: У шалаша
+  description: |2
+       Маленькая неприметная тропка привела к шалашу. Шалаш маленький и не сразу
+    заметен на фоне окружающей листвы.
+  sector: kField
+  flags:
+    - kNoEntryMob
+  exits:
+    - direction: east
+      to_room: 5304  # Неприметная тропа
+    - direction: south
+      to_room: 5301  # Шалаш
+      keywords: шалаш
+      exit_flags: 3
+
+# Room #5304
+4:
+  name: Неприметная тропа
+  description: |2
+       Маленькая неприметная тропа образовалась в лесочке. Помятая трава,
+    сломанные ветки деревьев на высоте полутора сажен, явно указывают на
+    людей, но небольшого роста или детей.
+  sector: kField
+  exits:
+    - direction: east
+      to_room: 5302  # На тропинке
+    - direction: west
+      to_room: 5303  # У шалаша
+
+# Room #5305
+5:
+  name: Тропинка к опушке
+  description: |2
+       Тропинка ведет к светлой лесной опушке. Полная ягод и грибов,
+    она привлекает детей и женщин со всей округи.
+  sector: kField
+  flags:
+    - kNoEntryMob
+  exits:
+    - direction: north
+      to_room: 5306  # Опушка
+    - direction: south
+      to_room: 5302  # На тропинке
+
+# Room #5306
+6:
+  name: Опушка
+  description: |2
+       Красивая опушка открывается вашему взору. Летом здесь вовсю буйствуют цветы,
+    кружит голову запах ягод и грибов. Зимой тишина и скрип снега под ногами, следы
+    лесных зверей.
+  sector: kField
+  exits:
+    - direction: north
+      to_room: 5311  # Пень
+    - direction: east
+      to_room: 5312  # Опушка
+    - direction: south
+      to_room: 5305  # Тропинка к опушке
+    - direction: west
+      to_room: 5307  # У муравейника
+
+# Room #5307
+7:
+  name: У муравейника
+  description: |2
+       Сразу видно кто хозяин на этом участке опушки - муравьи, ползающие во все
+    стороны от муравейника.
+  sector: kField
+  exits:
+    - direction: north
+      to_room: 5310  # Полянка
+    - direction: east
+      to_room: 5306  # Опушка
+    - direction: west
+      to_room: 5308  # Муравейник
+
+# Room #5308
+8:
+  name: Муравейник
+  description: |2
+       Огромный муравейник пристроился у южной стороны огромной ели. Натасканные
+    иголки со всей округи создали кучу размером с небольшую избу.
+  sector: kField
+  exits:
+    - direction: north
+      to_room: 5309  # Рядом с муравейником
+    - direction: east
+      to_room: 5307  # У муравейника
+
+# Room #5309
+9:
+  name: Рядом с муравейником
+  description: |2
+       Еще одна вотчина муравьев на опушке. Только редкие растения смогли
+    ужиться с муравьями.
+  sector: kField
+  exits:
+    - direction: north
+      to_room: 5319  # Ручей
+    - direction: east
+      to_room: 5310  # Полянка
+    - direction: south
+      to_room: 5308  # Муравейник
+
+# Room #5310
+10:
+  name: Полянка
+  description: |2
+    ___Полянка так и напрашивается, чтобы на ней отдохнуть от праведных дел. Но вид
+    огромного муравейника, расположившегося рядом, говорит, что лучше это сделать
+    чуть дальше.  
+  sector: kField
+  exits:
+    - direction: north
+      to_room: 5320  # Ручей
+    - direction: south
+      to_room: 5307  # У муравейника
+    - direction: west
+      to_room: 5309  # Рядом с муравейником
+
+# Room #5311
+11:
+  name: Пень
+  description: |2
+       Остатки старого огромного дерева. Вот все, что осталось от когда-то самого
+    большого дерева. Хоть и остался только пень, через него перелезть сложновато.
+  sector: kField
+  flags:
+    - kTunnel
+  exits:
+    - direction: south
+      to_room: 5306  # Опушка
+
+# Room #5312
+12:
+  name: Опушка
+  description: |2
+       Красивая опушка открывается вашему взору. Летом здесь вовсю буйствуют цветы,
+    кружит голову запах ягод и грибов. Зимой тишина и скрип снега под ногами, следы
+    лесных зверей.
+  sector: kField
+  exits:
+    - direction: north
+      to_room: 5314  # Опушка
+    - direction: east
+      to_room: 5313  # Опушка
+    - direction: west
+      to_room: 5306  # Опушка
+
+# Room #5313
+13:
+  name: Опушка
+  description: |2
+       Большое дерево накрыло этот угол поляны своей кроной. Вокруг дерева
+    трава практически не растет и только мягкая упругая листва создала
+    разноцветный ковер, на котором просто невозможно не отдохнуть.
+  sector: kField
+  exits:
+    - direction: north
+      to_room: 5315  # Опушка
+    - direction: west
+      to_room: 5312  # Опушка
+
+# Room #5314
+14:
+  name: Опушка
+  description: |2
+       Полная различных цветов и трав опушка открывается взгляду. Вот где было что
+    собирать травнику и лекарю, да и детям ягод нашлось бы, а остальным грибы.
+  sector: kField
+  exits:
+    - direction: north
+      to_room: 5316  # Опушка
+    - direction: east
+      to_room: 5315  # Опушка
+    - direction: south
+      to_room: 5312  # Опушка
+
+# Room #5315
+15:
+  name: Опушка
+  description: |2
+       Красивая опушка открывается вашему взору. Летом здесь вовсю буйствуют цветы,
+    кружит голову запах ягод и грибов. Зимой тишина и скрип снега под ногами, следы
+    лесных зверей.
+  sector: kField
+  exits:
+    - direction: north
+      to_room: 5317  # Опушка
+    - direction: south
+      to_room: 5313  # Опушка
+    - direction: west
+      to_room: 5314  # Опушка
+
+# Room #5316
+16:
+  name: Опушка
+  description: |2
+       Красивая опушка открывается вашему взору. Летом здесь вовсю буйствуют цветы,
+    кружит голову запах ягод и грибов. Зимой тишина и скрип снега под ногами, следы
+    лесных зверей.
+  sector: kField
+  exits:
+    - direction: north
+      to_room: 5323  # Опушка
+    - direction: east
+      to_room: 5317  # Опушка
+    - direction: south
+      to_room: 5314  # Опушка
+    - direction: west
+      to_room: 5318  # За пнем
+
+# Room #5317
+17:
+  name: Опушка
+  description: |2
+       Красивая опушка открывается вашему взору. Летом здесь вовсю буйствуют цветы,
+    кружит голову запах ягод и грибов. Зимой тишина и скрип снега под ногами, следы
+    лесных зверей.
+  sector: kField
+  exits:
+    - direction: north
+      to_room: 5324  # Валежник
+    - direction: south
+      to_room: 5315  # Опушка
+    - direction: west
+      to_room: 5316  # Опушка
+
+# Room #5318
+18:
+  name: За пнем
+  description: |2
+       Пень перегородил всю полянку и здесь даже немного темнее, чем в остальной части
+    полянки. Труха от пня шуршит под ногами.
+  sector: kField
+  exits:
+    - direction: north
+      to_room: 5322  # Опушка
+    - direction: east
+      to_room: 5316  # Опушка
+    - direction: west
+      to_room: 5320  # Ручей
+
+# Room #5319
+19:
+  name: Ручей
+  description: |2
+       Через опушку от родника протекает маленький ручей и скрывается в лесу.
+    Чистая прозрачная вода журчит по пробитому многими годами руслу не шире и
+    не глубже сажени.
+  sector: kField
+  exits:
+    - direction: east
+      to_room: 5320  # Ручей
+    - direction: south
+      to_room: 5309  # Рядом с муравейником
+
+# Room #5320
+20:
+  name: Ручей
+  description: |2
+       Чистый ручей с родниковой водой скрывается и показывается среди
+    растений, плотно облепивших его со всех сторон.
+  sector: kField
+  exits:
+    - direction: north
+      to_room: 5321  # Родник
+    - direction: east
+      to_room: 5318  # За пнем
+    - direction: south
+      to_room: 5310  # Полянка
+    - direction: west
+      to_room: 5319  # Ручей
+
+# Room #5321
+21:
+  name: Родник
+  description: |2
+       Родник выбивается из-под большого камня и образует небольшой ручей на опушке.
+    Заботливыми руками для стока воды сделан специальный желоб, и теперь, чтобы напиться,
+    достаточно наклониться и подставить рот для воды. На березке слева заботливо висит
+    берестяной ковш.
+  sector: kField
+  exits:
+    - direction: east
+      to_room: 5322  # Опушка
+    - direction: south
+      to_room: 5320  # Ручей
+
+# Room #5322
+22:
+  name: Опушка
+  description: |2
+       Красивая опушка открывается вашему взору. Летом здесь вовсю буйствуют цветы,
+    кружит голову запах ягод и грибов. Зимой тишина и скрип снега под ногами, следы
+    лесных зверей.
+  sector: kField
+  exits:
+    - direction: east
+      to_room: 5323  # Опушка
+    - direction: south
+      to_room: 5318  # За пнем
+    - direction: west
+      to_room: 5321  # Родник
+
+# Room #5323
+23:
+  name: Опушка
+  description: |2
+       Красивая опушка открывается вашему взору. Летом здесь вовсю буйствуют цветы,
+    кружит голову запах ягод и грибов. Зимой тишина и скрип снега под ногами, следы
+    лесных зверей.
+  sector: kField
+  exits:
+    - direction: east
+      to_room: 5324  # Валежник
+    - direction: south
+      to_room: 5316  # Опушка
+    - direction: west
+      to_room: 5322  # Опушка
+
+# Room #5324
+24:
+  name: Валежник
+  description: |2
+       Ветер снес в этот угол полянки все упавшие с деревьев ветки и листья, создав
+    мягкую горку, в которой постоянно слышится сопение лесных зверушек, птичек и
+    насекомых.
+  sector: kField
+  flags:
+    - kDarked
+  exits:
+    - direction: south
+      to_room: 5317  # Опушка
+    - direction: west
+      to_room: 5323  # Опушка

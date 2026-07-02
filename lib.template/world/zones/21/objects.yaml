@@ -1,0 +1,3383 @@
+# Objects for zone 21
+
+# Object #2100
+0:
+  names:
+    aliases: кожаная куртка
+    nominative: кожаная куртка
+    genitive: кожаной куртки
+    dative: кожаной куртке
+    accusative: кожаную куртку
+    instrumental: кожаной курткой
+    prepositional: кожаной куртке
+  short_desc: Кожаная куртка лежит здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 2
+    - 3
+    - 0
+    - 0
+  weight: 4
+  cost: 40
+  rent_off: 40
+  rent_on: 4
+  max_durability: 75
+  cur_durability: 75
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNosell
+  wear_flags:
+    - kTake
+    - kBody
+
+# Object #2101
+1:
+  names:
+    aliases: кожаная шапка
+    nominative: кожаная шапка
+    genitive: кожаной шапки
+    dative: кожаной шапке
+    accusative: кожаную шапку
+    instrumental: кожаной шапкой
+    prepositional: кожаной шапке
+  short_desc: Кожаная шапка лежит здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 0
+    - 2
+    - 0
+    - 0
+  weight: 2
+  cost: 15
+  rent_off: 15
+  rent_on: 2
+  max_durability: 75
+  cur_durability: 75
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNosell
+  wear_flags:
+    - kTake
+    - kHead
+
+# Object #2102
+2:
+  names:
+    aliases: кожаные портки
+    nominative: кожаные портки
+    genitive: кожаных портков
+    dative: кожаным порткам
+    accusative: кожаные портки
+    instrumental: кожаными портками
+    prepositional: кожаных портках
+  short_desc: Кожаные портки лежат здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 0
+    - 2
+    - 0
+    - 0
+  weight: 1
+  cost: 25
+  rent_off: 25
+  rent_on: 3
+  max_durability: 75
+  cur_durability: 75
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  extra_flags:
+    - kNosell
+  wear_flags:
+    - kTake
+    - kLegs
+
+# Object #2103
+3:
+  names:
+    aliases: кожаные сапоги
+    nominative: кожаные сапоги
+    genitive: кожаных сапогов
+    dative: кожаным сапогам
+    accusative: кожаные сапоги
+    instrumental: кожаными сапогами
+    prepositional: кожаных сапогах
+  short_desc: Кожаные сапоги лежат здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 0
+    - 2
+    - 0
+    - 0
+  weight: 2
+  cost: 20
+  rent_off: 20
+  rent_on: 2
+  max_durability: 75
+  cur_durability: 75
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  extra_flags:
+    - kNosell
+  wear_flags:
+    - kTake
+    - kFeet
+
+# Object #2104
+4:
+  names:
+    aliases: кожаные перчатки
+    nominative: кожаные перчатки
+    genitive: кожаных перчаток
+    dative: кожаным перчаткам
+    accusative: кожаные перчатки
+    instrumental: кожаными перчатками
+    prepositional: кожаных перчатках
+  short_desc: Кожаные перчатки лежат здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 0
+    - 2
+    - 0
+    - 0
+  weight: 3
+  cost: 15
+  rent_off: 15
+  rent_on: 2
+  max_durability: 75
+  cur_durability: 75
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  extra_flags:
+    - kNosell
+  wear_flags:
+    - kTake
+    - kHands
+
+# Object #2105
+5:
+  names:
+    aliases: кожаные рукава
+    nominative: кожаные рукава
+    genitive: кожаных рукавов
+    dative: кожаным рукавам
+    accusative: кожаные рукава
+    instrumental: кожаными рукавами
+    prepositional: кожаных рукавах
+  short_desc: Кожаные рукава лежат здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 0
+    - 2
+    - 0
+    - 0
+  weight: 1
+  cost: 20
+  rent_off: 20
+  rent_on: 2
+  max_durability: 75
+  cur_durability: 75
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  extra_flags:
+    - kNosell
+  wear_flags:
+    - kTake
+    - kArms
+
+# Object #2106
+6:
+  names:
+    aliases: кожаный плащ
+    nominative: кожаный плащ
+    genitive: кожаного плаща
+    dative: кожаному плащу
+    accusative: кожаный плащ
+    instrumental: кожаным плащом
+    prepositional: кожаном плаще
+  short_desc: Кожаный плащ лежит здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 2
+    - 2
+    - 0
+    - 0
+  weight: 2
+  cost: 40
+  rent_off: 40
+  rent_on: 4
+  max_durability: 75
+  cur_durability: 75
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNosell
+  wear_flags:
+    - kTake
+    - kShoulders
+
+# Object #2107
+7:
+  names:
+    aliases: кожаный пояс
+    nominative: кожаный пояс
+    genitive: кожаного пояса
+    dative: кожаному поясу
+    accusative: кожаный пояс
+    instrumental: кожаным поясом
+    prepositional: кожаном поясе
+  short_desc: Кожаный пояс лежит здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 0
+    - 2
+    - 0
+    - 0
+  weight: 1
+  cost: 15
+  rent_off: 15
+  rent_on: 2
+  max_durability: 75
+  cur_durability: 75
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNosell
+  wear_flags:
+    - kTake
+    - kWaist
+
+# Object #2108
+8:
+  names:
+    aliases: сермяжная куртка
+    nominative: сермяжная куртка
+    genitive: сермяжной куртки
+    dative: сермяжной куртке
+    accusative: сермяжную куртку
+    instrumental: сермяжной курткой
+    prepositional: сермяжной куртке
+  short_desc: Сермяжная куртка лежит здесь.
+  type: kArmor
+  material: 14  # ТКАНЬ
+  values:
+    - 2
+    - 2
+    - 0
+    - 0
+  weight: 2
+  cost: 30
+  rent_off: 30
+  rent_on: 3
+  max_durability: 75
+  cur_durability: 75
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNosell
+  wear_flags:
+    - kTake
+    - kBody
+
+# Object #2109
+9:
+  names:
+    aliases: сермяжная шапка
+    nominative: сермяжная шапка
+    genitive: сермяжной шапки
+    dative: сермяжной шапке
+    accusative: сермяжную шапку
+    instrumental: сермяжной шапкой
+    prepositional: сермяжной шапке
+  short_desc: Сермяжная шапка лежит здесь.
+  type: kArmor
+  material: 14  # ТКАНЬ
+  values:
+    - 0
+    - 1
+    - 0
+    - 0
+  weight: 1
+  cost: 12
+  rent_off: 12
+  rent_on: 1
+  max_durability: 50
+  cur_durability: 50
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNosell
+  wear_flags:
+    - kTake
+    - kHead
+
+# Object #2110
+10:
+  names:
+    aliases: сермяжные штаны
+    nominative: сермяжные штаны
+    genitive: сермяжных штанов
+    dative: сермяжным штанам
+    accusative: сермяжные штаны
+    instrumental: сермяжными штанами
+    prepositional: сермяжных штанах
+  short_desc: Сермяжные штаны лежат здесь.
+  type: kArmor
+  material: 14  # ТКАНЬ
+  values:
+    - 0
+    - 1
+    - 0
+    - 0
+  weight: 1
+  cost: 20
+  rent_off: 20
+  rent_on: 2
+  max_durability: 50
+  cur_durability: 50
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  extra_flags:
+    - kNosell
+  wear_flags:
+    - kTake
+    - kLegs
+
+# Object #2111
+11:
+  names:
+    aliases: грубые лапти
+    nominative: грубые лапти
+    genitive: грубых лаптей
+    dative: грубым лаптям
+    accusative: грубые лапти
+    instrumental: грубыми лаптями
+    prepositional: грубых лаптях
+  short_desc: Грубые лапти лежат здесь.
+  type: kArmor
+  material: 17  # БЕРЕСТА
+  values:
+    - 0
+    - 1
+    - 0
+    - 0
+  weight: 1
+  cost: 15
+  rent_off: 15
+  rent_on: 2
+  max_durability: 50
+  cur_durability: 50
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  extra_flags:
+    - kNosell
+  wear_flags:
+    - kTake
+    - kFeet
+
+# Object #2112
+12:
+  names:
+    aliases: сермяжные рукавицы
+    nominative: сермяжные рукавицы
+    genitive: сермяжных рукавиц
+    dative: сермяжным рукавицам
+    accusative: сермяжные рукавицы
+    instrumental: сермяжными рукавицами
+    prepositional: сермяжных рукавицах
+  short_desc: Сермяжные рукавицы лежат здесь.
+  type: kArmor
+  material: 14  # ТКАНЬ
+  values:
+    - 0
+    - 1
+    - 0
+    - 0
+  weight: 2
+  cost: 12
+  rent_off: 12
+  rent_on: 1
+  max_durability: 50
+  cur_durability: 50
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  extra_flags:
+    - kNosell
+  wear_flags:
+    - kTake
+    - kHands
+
+# Object #2113
+13:
+  names:
+    aliases: сермяжные рукава
+    nominative: сермяжные рукава
+    genitive: сермяжных рукавов
+    dative: сермяжным рукавам
+    accusative: сермяжные рукава
+    instrumental: сермяжными рукавами
+    prepositional: сермяжных рукавах
+  short_desc: Сермяжные рукава лежат здесь.
+  type: kArmor
+  material: 14  # ТКАНЬ
+  values:
+    - 0
+    - 1
+    - 0
+    - 0
+  weight: 1
+  cost: 15
+  rent_off: 15
+  rent_on: 2
+  max_durability: 50
+  cur_durability: 50
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  extra_flags:
+    - kNosell
+  wear_flags:
+    - kTake
+    - kArms
+
+# Object #2114
+14:
+  names:
+    aliases: сермяжная накидка
+    nominative: сермяжная накидка
+    genitive: сермяжной накидки
+    dative: сермяжной накидке
+    accusative: сермяжную накидку
+    instrumental: сермяжной накидкой
+    prepositional: сермяжной накидке
+  short_desc: Сермяжная накидка лежит здесь.
+  type: kArmor
+  material: 14  # ТКАНЬ
+  values:
+    - 2
+    - 1
+    - 0
+    - 0
+  weight: 1
+  cost: 30
+  rent_off: 30
+  rent_on: 3
+  max_durability: 50
+  cur_durability: 50
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNosell
+  wear_flags:
+    - kTake
+    - kShoulders
+
+# Object #2115
+15:
+  names:
+    aliases: сермяжный пояс
+    nominative: сермяжный пояс
+    genitive: сермяжного пояса
+    dative: сермяжному поясу
+    accusative: сермяжный пояс
+    instrumental: сермяжным поясом
+    prepositional: сермяжном поясе
+  short_desc: Сермяжный пояс лежит здесь.
+  type: kArmor
+  material: 14  # ТКАНЬ
+  values:
+    - 0
+    - 1
+    - 0
+    - 0
+  weight: 1
+  cost: 12
+  rent_off: 12
+  rent_on: 1
+  max_durability: 50
+  cur_durability: 50
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNosell
+  wear_flags:
+    - kTake
+    - kWaist
+
+# Object #2116
+16:
+  names:
+    aliases: легкий латный доспех
+    nominative: легкий латный доспех
+    genitive: легкого латного доспеха
+    dative: легкому латному доспеху
+    accusative: легкий латный доспех
+    instrumental: легким латным доспехом
+    prepositional: легким латном доспехе
+  short_desc: Легкий металлический доспех лежит здесь.
+  type: kArmor
+  material: 3  # ЖЕЛЕЗО
+  values:
+    - 3
+    - 4
+    - 0
+    - 0
+  weight: 5
+  cost: 50
+  rent_off: 50
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNosell
+  wear_flags:
+    - kTake
+    - kBody
+
+# Object #2117
+17:
+  names:
+    aliases: легкий латный шлем
+    nominative: легкий латный шлем
+    genitive: легкого латного шлема
+    dative: легкому латному шлему
+    accusative: легкий латный шлем
+    instrumental: легким латным шлемом
+    prepositional: легком латном шлеме
+  short_desc: Легкий металлический шлем лежит здесь.
+  type: kArmor
+  material: 3  # ЖЕЛЕЗО
+  values:
+    - 0
+    - 3
+    - 0
+    - 0
+  weight: 4
+  cost: 20
+  rent_off: 20
+  rent_on: 2
+  max_durability: 75
+  cur_durability: 75
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNosell
+  wear_flags:
+    - kTake
+    - kHead
+
+# Object #2118
+18:
+  names:
+    aliases: легкие латные поножи
+    nominative: легкие латные поножи
+    genitive: легких латных поножей
+    dative: легким латным поножам
+    accusative: легкие латные поножи
+    instrumental: легкими латными поножами
+    prepositional: легких латных поножах
+  short_desc: Легкие металлические поножи лежат здесь.
+  type: kArmor
+  material: 3  # ЖЕЛЕЗО
+  values:
+    - 0
+    - 3
+    - 0
+    - 0
+  weight: 3
+  cost: 25
+  rent_off: 25
+  rent_on: 3
+  max_durability: 75
+  cur_durability: 75
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  extra_flags:
+    - kNosell
+  wear_flags:
+    - kTake
+    - kLegs
+
+# Object #2119
+19:
+  names:
+    aliases: легкие латные сапоги
+    nominative: легкие латные сапоги
+    genitive: легких латных сапогов
+    dative: легким латным сапогам
+    accusative: легкие латные сапоги
+    instrumental: легкими латными сапогами
+    prepositional: легких латных сапогах
+  short_desc: Легкие металлические сапоги лежат здесь.
+  type: kArmor
+  material: 3  # ЖЕЛЕЗО
+  values:
+    - 0
+    - 3
+    - 0
+    - 0
+  weight: 3
+  cost: 25
+  rent_off: 25
+  rent_on: 3
+  max_durability: 75
+  cur_durability: 75
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  extra_flags:
+    - kNosell
+  wear_flags:
+    - kTake
+    - kFeet
+
+# Object #2120
+20:
+  names:
+    aliases: легкие латные перчатки
+    nominative: легкие латные перчатки
+    genitive: легких латных перчаток
+    dative: легким латным перчаткам
+    accusative: легкие латные перчатки
+    instrumental: легкими латными перчатками
+    prepositional: легких латных перчатках
+  short_desc: Легкие металлические перчатки лежат здесь.
+  type: kArmor
+  material: 3  # ЖЕЛЕЗО
+  values:
+    - 0
+    - 3
+    - 0
+    - 0
+  weight: 4
+  cost: 20
+  rent_off: 20
+  rent_on: 2
+  max_durability: 75
+  cur_durability: 75
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  extra_flags:
+    - kNosell
+  wear_flags:
+    - kTake
+    - kHands
+
+# Object #2121
+21:
+  names:
+    aliases: легкие латные наручи
+    nominative: легкие латные наручи
+    genitive: легких латных наручей
+    dative: легким латным наручам
+    accusative: легкие латные наручи
+    instrumental: легкими латными наручами
+    prepositional: легких латных наручах
+  short_desc: Легкие металлические наручи лежат здесь.
+  type: kArmor
+  material: 3  # ЖЕЛЕЗО
+  values:
+    - 0
+    - 3
+    - 0
+    - 0
+  weight: 2
+  cost: 25
+  rent_off: 25
+  rent_on: 3
+  max_durability: 75
+  cur_durability: 75
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  extra_flags:
+    - kNosell
+  wear_flags:
+    - kTake
+    - kArms
+
+# Object #2122
+22:
+  names:
+    aliases: легкие латные наплечники
+    nominative: легкие латные наплечники
+    genitive: легких латных наплечников
+    dative: легким латным наплечникам
+    accusative: легкие латные наплечники
+    instrumental: легкими латными наплечниками
+    prepositional: легких латных наплечниках
+  short_desc: Легкие металлические наплечники лежат здесь.
+  type: kArmor
+  material: 3  # ЖЕЛЕЗО
+  values:
+    - 2
+    - 3
+    - 0
+    - 0
+  weight: 3
+  cost: 50
+  rent_off: 50
+  rent_on: 5
+  max_durability: 75
+  cur_durability: 75
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  extra_flags:
+    - kNosell
+  wear_flags:
+    - kTake
+    - kShoulders
+
+# Object #2123
+23:
+  names:
+    aliases: легкий латный пояс
+    nominative: легкий латный пояс
+    genitive: легкого латного пояса
+    dative: легкому латному поясу
+    accusative: легкий латный пояс
+    instrumental: легким латным поясом
+    prepositional: легком латном поясе
+  short_desc: Легкий металлический пояс лежит здесь.
+  type: kArmor
+  material: 3  # ЖЕЛЕЗО
+  values:
+    - 0
+    - 3
+    - 0
+    - 0
+  weight: 2
+  cost: 20
+  rent_off: 20
+  rent_on: 2
+  max_durability: 75
+  cur_durability: 75
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNosell
+  wear_flags:
+    - kTake
+    - kWaist
+
+# Object #2124
+24:
+  names:
+    aliases: грубая куртка
+    nominative: грубая куртка
+    genitive: грубой куртки
+    dative: грубой куртке
+    accusative: грубую куртку
+    instrumental: грубой курткой
+    prepositional: грубой куртке
+  short_desc: Грубая кожаная куртка лежит здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 4
+    - 3
+    - 0
+    - 0
+  weight: 5
+  cost: 80
+  rent_off: 80
+  rent_on: 8
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  wear_flags:
+    - kTake
+    - kBody
+
+# Object #2125
+25:
+  names:
+    aliases: грубая шапка
+    nominative: грубая шапка
+    genitive: грубой шапки
+    dative: грубой шапке
+    accusative: грубую шапку
+    instrumental: грубой шапкой
+    prepositional: грубой шапке
+  short_desc: Грубая кожаная шапка лежит здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 1
+    - 2
+    - 0
+    - 0
+  weight: 2
+  cost: 30
+  rent_off: 30
+  rent_on: 3
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  wear_flags:
+    - kTake
+    - kHead
+
+# Object #2126
+26:
+  names:
+    aliases: грубые портки
+    nominative: грубые портки
+    genitive: грубых портков
+    dative: грубым порткам
+    accusative: грубые портки
+    instrumental: грубыми портками
+    prepositional: грубых портках
+  short_desc: Грубые кожаные портки лежат здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 1
+    - 2
+    - 0
+    - 0
+  weight: 2
+  cost: 50
+  rent_off: 50
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  wear_flags:
+    - kTake
+    - kLegs
+
+# Object #2127
+27:
+  names:
+    aliases: грубые сапоги
+    nominative: грубые сапоги
+    genitive: грубых сапогов
+    dative: грубым сапогам
+    accusative: грубые сапоги
+    instrumental: грубыми сапогами
+    prepositional: грубых сапогах
+  short_desc: Грубые кожаные сапоги лежат здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 2
+    - 2
+    - 0
+    - 0
+  weight: 3
+  cost: 40
+  rent_off: 40
+  rent_on: 4
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  wear_flags:
+    - kTake
+    - kFeet
+
+# Object #2128
+28:
+  names:
+    aliases: грубые перчатки
+    nominative: грубые перчатки
+    genitive: грубых перчаток
+    dative: грубым перчаткам
+    accusative: грубые перчатки
+    instrumental: грубыми перчатками
+    prepositional: грубых перчатках
+  short_desc: Грубые кожаные перчатки лежат здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 2
+    - 2
+    - 0
+    - 0
+  weight: 4
+  cost: 30
+  rent_off: 30
+  rent_on: 3
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  wear_flags:
+    - kTake
+    - kHands
+
+# Object #2129
+29:
+  names:
+    aliases: грубые рукава
+    nominative: грубые рукава
+    genitive: грубых рукавов
+    dative: грубым рукавам
+    accusative: грубые рукава
+    instrumental: грубыми рукавами
+    prepositional: грубых рукавах
+  short_desc: Грубые кожаные рукава лежат здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 1
+    - 2
+    - 0
+    - 0
+  weight: 2
+  cost: 40
+  rent_off: 40
+  rent_on: 4
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  wear_flags:
+    - kTake
+    - kArms
+
+# Object #2130
+30:
+  names:
+    aliases: грубый плащ
+    nominative: грубый плащ
+    genitive: грубого плаща
+    dative: грубому плащу
+    accusative: грубый плащ
+    instrumental: грубым плащом
+    prepositional: грубом плаще
+  short_desc: Грубый кожаный плащ лежит здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 3
+    - 3
+    - 0
+    - 0
+  weight: 2
+  cost: 80
+  rent_off: 80
+  rent_on: 8
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kShoulders
+
+# Object #2131
+31:
+  names:
+    aliases: грубый пояс
+    nominative: грубый пояс
+    genitive: грубого пояса
+    dative: грубому поясу
+    accusative: грубый пояс
+    instrumental: грубым поясом
+    prepositional: грубом поясе
+  short_desc: Грубый кожаный пояс лежит здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 1
+    - 2
+    - 0
+    - 0
+  weight: 2
+  cost: 30
+  rent_off: 30
+  rent_on: 3
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kWaist
+
+# Object #2132
+32:
+  names:
+    aliases: дерюжная куртка
+    nominative: дерюжная куртка
+    genitive: дерюжной куртки
+    dative: дерюжной куртке
+    accusative: дерюжную куртку
+    instrumental: дерюжной курткой
+    prepositional: дерюжной куртке
+  short_desc: Дерюжная куртка лежит здесь.
+  type: kArmor
+  material: 14  # ТКАНЬ
+  values:
+    - 2
+    - 3
+    - 0
+    - 0
+  weight: 4
+  cost: 65
+  rent_off: 65
+  rent_on: 7
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  wear_flags:
+    - kTake
+    - kBody
+
+# Object #2133
+33:
+  names:
+    aliases: дерюжная шапка
+    nominative: дерюжная шапка
+    genitive: дерюжной шапки
+    dative: дерюжной шапке
+    accusative: дерюжную шапку
+    instrumental: дерюжной шапкой
+    prepositional: дерюжной шапке
+  short_desc: Дерюжная шапка лежит здесь.
+  type: kArmor
+  material: 14  # ТКАНЬ
+  values:
+    - 1
+    - 1
+    - 0
+    - 0
+  weight: 1
+  cost: 25
+  rent_off: 25
+  rent_on: 3
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  wear_flags:
+    - kTake
+    - kHead
+
+# Object #2134
+34:
+  names:
+    aliases: дерюжные портки
+    nominative: дерюжные портки
+    genitive: дерюжных портков
+    dative: дерюжным порткам
+    accusative: дерюжные портки
+    instrumental: дерюжными портками
+    prepositional: дерюжных портках
+  short_desc: Дерюжные портки лежат здесь.
+  type: kArmor
+  material: 14  # ТКАНЬ
+  values:
+    - 1
+    - 1
+    - 0
+    - 0
+  weight: 1
+  cost: 40
+  rent_off: 40
+  rent_on: 4
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  wear_flags:
+    - kTake
+    - kLegs
+
+# Object #2135
+35:
+  names:
+    aliases: крепкие лапти
+    nominative: крепкие лапти
+    genitive: крепких лаптей
+    dative: крепким лаптям
+    accusative: крепкие лапти
+    instrumental: крепкими лаптями
+    prepositional: крепких лаптях
+  short_desc: Крепкие лапти лежат здесь.
+  type: kArmor
+  material: 17  # БЕРЕСТА
+  values:
+    - 1
+    - 1
+    - 0
+    - 0
+  weight: 2
+  cost: 30
+  rent_off: 30
+  rent_on: 3
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  wear_flags:
+    - kTake
+    - kFeet
+
+# Object #2136
+36:
+  names:
+    aliases: дерюжные рукавицы
+    nominative: дерюжные рукавицы
+    genitive: дерюжных рукавиц
+    dative: дерюжным рукавицам
+    accusative: дерюжные рукавицы
+    instrumental: дерюжными рукавицами
+    prepositional: дерюжных рукавицах
+  short_desc: Дерюжные рукавицы лежат здесь.
+  type: kArmor
+  material: 14  # ТКАНЬ
+  values:
+    - 1
+    - 1
+    - 0
+    - 0
+  weight: 3
+  cost: 25
+  rent_off: 25
+  rent_on: 3
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  wear_flags:
+    - kTake
+    - kHands
+
+# Object #2137
+37:
+  names:
+    aliases: дерюжные рукава
+    nominative: дерюжные рукава
+    genitive: дерюжных рукавов
+    dative: дерюжным рукавам
+    accusative: дерюжные рукава
+    instrumental: дерюжными рукавами
+    prepositional: дерюжных рукавах
+  short_desc: Дерюжные рукава лежат здесь.
+  type: kArmor
+  material: 14  # ТКАНЬ
+  values:
+    - 1
+    - 1
+    - 0
+    - 0
+  weight: 2
+  cost: 30
+  rent_off: 30
+  rent_on: 3
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  wear_flags:
+    - kTake
+    - kArms
+
+# Object #2138
+38:
+  names:
+    aliases: дерюжная накидка
+    nominative: дерюжная накидка
+    genitive: дерюжной накидки
+    dative: дерюжной накидке
+    accusative: дерюжную накидку
+    instrumental: дерюжной накидкой
+    prepositional: дерюжной накидке
+  short_desc: Дерюжная накидка лежит здесь.
+  type: kArmor
+  material: 14  # ТКАНЬ
+  values:
+    - 1
+    - 2
+    - 0
+    - 0
+  weight: 2
+  cost: 65
+  rent_off: 65
+  rent_on: 7
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  wear_flags:
+    - kTake
+    - kShoulders
+
+# Object #2139
+39:
+  names:
+    aliases: дерюжный пояс
+    nominative: дерюжный пояс
+    genitive: дерюжного пояса
+    dative: дерюжному поясу
+    accusative: дерюжный пояс
+    instrumental: дерюжным поясом
+    prepositional: дерюжном поясе
+  short_desc: Дерюжный пояс лежит здесь.
+  type: kArmor
+  material: 14  # ТКАНЬ
+  values:
+    - 1
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 25
+  rent_off: 25
+  rent_on: 3
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kWaist
+
+# Object #2140
+40:
+  names:
+    aliases: кованый доспех
+    nominative: кованый доспех
+    genitive: кованого доспеха
+    dative: кованому доспеху
+    accusative: кованый доспех
+    instrumental: кованым доспехом
+    prepositional: кованом доспехе
+  short_desc: Кованый доспех лежит здесь.
+  type: kArmor
+  material: 5  # КОВАНАЯ.СТАЛЬ
+  values:
+    - 4
+    - 3
+    - 0
+    - 0
+  weight: 8
+  cost: 100
+  rent_off: 100
+  rent_on: 10
+  max_durability: 125
+  cur_durability: 125
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kBody
+
+# Object #2141
+41:
+  names:
+    aliases: кованый шлем
+    nominative: кованый шлем
+    genitive: кованого шлема
+    dative: кованому шлему
+    accusative: кованый шлем
+    instrumental: кованым шлемом
+    prepositional: кованом шлеме
+  short_desc: Кованый шлем лежит здесь.
+  type: kArmor
+  material: 5  # КОВАНАЯ.СТАЛЬ
+  values:
+    - 1
+    - 3
+    - 0
+    - 0
+  weight: 3
+  cost: 50
+  rent_off: 50
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHead
+
+# Object #2142
+42:
+  names:
+    aliases: кованые поножи
+    nominative: кованые поножи
+    genitive: кованых поножей
+    dative: кованым поножам
+    accusative: кованые поножи
+    instrumental: коваными поножами
+    prepositional: кованых поножах
+  short_desc: Кованые поножи лежат здесь.
+  type: kArmor
+  material: 5  # КОВАНАЯ.СТАЛЬ
+  values:
+    - 1
+    - 3
+    - 0
+    - 0
+  weight: 3
+  cost: 60
+  rent_off: 60
+  rent_on: 6
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  wear_flags:
+    - kTake
+    - kLegs
+
+# Object #2143
+43:
+  names:
+    aliases: кованые сапоги
+    nominative: кованые сапоги
+    genitive: кованых сапогов
+    dative: кованым сапогам
+    accusative: кованые сапоги
+    instrumental: коваными сапогами
+    prepositional: кованых сапогах
+  short_desc: Кованые сапоги лежат здесь.
+  type: kArmor
+  material: 5  # КОВАНАЯ.СТАЛЬ
+  values:
+    - 2
+    - 3
+    - 0
+    - 0
+  weight: 4
+  cost: 60
+  rent_off: 60
+  rent_on: 6
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  wear_flags:
+    - kTake
+    - kFeet
+
+# Object #2144
+44:
+  names:
+    aliases: кованые рукавицы
+    nominative: кованые рукавицы
+    genitive: кованых рукавиц
+    dative: кованым рукавицам
+    accusative: кованые рукавицы
+    instrumental: коваными рукавицами
+    prepositional: кованых рукавицах
+  short_desc: Кованые рукавицы лежат здесь.
+  type: kArmor
+  material: 5  # КОВАНАЯ.СТАЛЬ
+  values:
+    - 2
+    - 3
+    - 0
+    - 0
+  weight: 5
+  cost: 50
+  rent_off: 50
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  wear_flags:
+    - kTake
+    - kHands
+
+# Object #2145
+45:
+  names:
+    aliases: кованые наручи
+    nominative: кованые наручи
+    genitive: кованых наручей
+    dative: кованым наручам
+    accusative: кованые наручи
+    instrumental: коваными наручами
+    prepositional: кованых наручах
+  short_desc: Кованые наручи лежат здесь.
+  type: kArmor
+  material: 5  # КОВАНАЯ.СТАЛЬ
+  values:
+    - 1
+    - 3
+    - 0
+    - 0
+  weight: 4
+  cost: 60
+  rent_off: 60
+  rent_on: 6
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  wear_flags:
+    - kTake
+    - kArms
+
+# Object #2146
+46:
+  names:
+    aliases: кованые наплечники
+    nominative: кованые наплечники
+    genitive: кованых наплечников
+    dative: кованым наплечникам
+    accusative: кованые наплечники
+    instrumental: коваными наплечниками
+    prepositional: кованых наплечниках
+  short_desc: Кованые наплечники лежат здесь.
+  type: kArmor
+  material: 5  # КОВАНАЯ.СТАЛЬ
+  values:
+    - 3
+    - 3
+    - 0
+    - 0
+  weight: 4
+  cost: 100
+  rent_off: 100
+  rent_on: 10
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  wear_flags:
+    - kTake
+    - kShoulders
+
+# Object #2147
+47:
+  names:
+    aliases: кованый пояс
+    nominative: кованый пояс
+    genitive: кованого пояса
+    dative: кованому поясу
+    accusative: кованый пояс
+    instrumental: кованым поясом
+    prepositional: кованом поясе
+  short_desc: Кованый пояс лежит здесь.
+  type: kArmor
+  material: 5  # КОВАНАЯ.СТАЛЬ
+  values:
+    - 1
+    - 3
+    - 0
+    - 0
+  weight: 3
+  cost: 50
+  rent_off: 50
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kWaist
+
+# Object #2148
+48:
+  names:
+    aliases: простенькое колечко
+    nominative: простенькое колечко
+    genitive: простенького колечка
+    dative: простенькому колечку
+    accusative: простенькое колечко
+    instrumental: простенькым колечком
+    prepositional: простеньком колечке
+  short_desc: Простенькое колечко лежит здесь.
+  type: kWorm
+  material: 10  # КЕРАМИКА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 60
+  rent_off: 60
+  rent_on: 6
+  max_durability: 75
+  cur_durability: 75
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  wear_flags:
+    - kTake
+    - kFinger
+  applies:
+    - location: 25  # восст.жизни
+      modifier: 2
+
+# Object #2149
+49:
+  names:
+    aliases: плетеный браслет
+    nominative: плетеный браслет
+    genitive: плетеного браслета
+    dative: плетеному браслету
+    accusative: плетеный браслет
+    instrumental: плетеным браслетом
+    prepositional: плетеном браслете
+  short_desc: Плетеный браслет лежит здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 0
+    - 1
+    - 0
+    - 0
+  weight: 1
+  cost: 75
+  rent_off: 75
+  rent_on: 8
+  max_durability: 75
+  cur_durability: 75
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kWrist
+  applies:
+    - location: 26  # восст.энергии
+      modifier: 5
+
+# Object #2150
+50:
+  names:
+    aliases: простой амулет
+    nominative: простой амулет
+    genitive: простого амулета
+    dative: простому амулету
+    accusative: простой амулет
+    instrumental: простым амулетом
+    prepositional: простом амулете
+  short_desc: Простой амулет лежит здесь.
+  type: kWorm
+  material: 10  # КЕРАМИКА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 90
+  rent_off: 90
+  rent_on: 9
+  max_durability: 75
+  cur_durability: 75
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kNeck
+  applies:
+    - location: 12  # запоминание
+      modifier: 2
+
+# Object #2151
+51:
+  names:
+    aliases: грубый щит
+    nominative: грубый щит
+    genitive: грубого щита
+    dative: грубому щиту
+    accusative: грубый щит
+    instrumental: грубым щитом
+    prepositional: грубом щите
+  short_desc: Грубо сделанный кожаный щит валяется тут.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 2
+    - 2
+    - 0
+    - 0
+  weight: 12
+  cost: 60
+  rent_off: 60
+  rent_on: 6
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kShield
+
+# Object #2152
+52:
+  names:
+    aliases: прочная куртка
+    nominative: прочная куртка
+    genitive: прочной куртки
+    dative: прочной куртке
+    accusative: прочную куртку
+    instrumental: прочной курткой
+    prepositional: прочной куртке
+  short_desc: Прочная куртка лежит здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 6
+    - 2
+    - 0
+    - 0
+  weight: 6
+  cost: 120
+  rent_off: 120
+  rent_on: 12
+  max_durability: 150
+  cur_durability: 150
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  wear_flags:
+    - kTake
+    - kBody
+
+# Object #2153
+53:
+  names:
+    aliases: прочная шапка
+    nominative: прочная шапка
+    genitive: прочной шапки
+    dative: прочной шапке
+    accusative: прочную шапку
+    instrumental: прочной шапкой
+    prepositional: прочной шапке
+  short_desc: Прочная шапка лежит здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 2
+    - 2
+    - 0
+    - 0
+  weight: 3
+  cost: 45
+  rent_off: 45
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  wear_flags:
+    - kTake
+    - kHead
+
+# Object #2154
+54:
+  names:
+    aliases: прочные штаны
+    nominative: прочные штаны
+    genitive: прочных штанов
+    dative: прочным штанам
+    accusative: прочные штаны
+    instrumental: прочными штанами
+    prepositional: прочных штанах
+  short_desc: Прочные штаны лежат здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 2
+    - 2
+    - 0
+    - 0
+  weight: 3
+  cost: 75
+  rent_off: 75
+  rent_on: 8
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  wear_flags:
+    - kTake
+    - kLegs
+
+# Object #2155
+55:
+  names:
+    aliases: прочные сапоги
+    nominative: прочные сапоги
+    genitive: прочных сапогов
+    dative: прочным сапогам
+    accusative: прочные сапоги
+    instrumental: прочными сапогами
+    prepositional: прочных сапогах
+  short_desc: Прочные сапоги лежат здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 3
+    - 2
+    - 0
+    - 0
+  weight: 4
+  cost: 60
+  rent_off: 60
+  rent_on: 6
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  wear_flags:
+    - kTake
+    - kFeet
+
+# Object #2156
+56:
+  names:
+    aliases: прочные перчатки
+    nominative: прочные перчатки
+    genitive: прочных перчаток
+    dative: прочным перчаткам
+    accusative: прочные перчатки
+    instrumental: прочными перчатками
+    prepositional: прочных перчатках
+  short_desc: Прочные перчатки лежат здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 3
+    - 3
+    - 0
+    - 0
+  weight: 5
+  cost: 45
+  rent_off: 45
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  wear_flags:
+    - kTake
+    - kHands
+
+# Object #2157
+57:
+  names:
+    aliases: прочные наручи
+    nominative: прочные наручи
+    genitive: прочных наручей
+    dative: прочным наручам
+    accusative: прочные наручи
+    instrumental: прочными наручами
+    prepositional: прочных наручах
+  short_desc: Прочные наручи лежат здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 2
+    - 1
+    - 0
+    - 0
+  weight: 4
+  cost: 60
+  rent_off: 60
+  rent_on: 6
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  wear_flags:
+    - kTake
+    - kArms
+
+# Object #2158
+58:
+  names:
+    aliases: прочный плащ
+    nominative: прочный плащ
+    genitive: прочного плаща
+    dative: прочному плащу
+    accusative: прочный плащ
+    instrumental: прочным плащом
+    prepositional: прочном плаще
+  short_desc: Прочный плащ лежит здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 4
+    - 3
+    - 0
+    - 0
+  weight: 4
+  cost: 120
+  rent_off: 120
+  rent_on: 12
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kShoulders
+
+# Object #2159
+59:
+  names:
+    aliases: прочный пояс
+    nominative: прочный пояс
+    genitive: прочного пояса
+    dative: прочному поясу
+    accusative: прочный пояс
+    instrumental: прочным поясом
+    prepositional: прочном поясе
+  short_desc: Прочный пояс лежит здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 2
+    - 2
+    - 0
+    - 0
+  weight: 2
+  cost: 45
+  rent_off: 45
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kWaist
+
+# Object #2160
+60:
+  names:
+    aliases: понитковая куртка
+    nominative: понитковая куртка
+    genitive: понитковой куртки
+    dative: понитковой куртке
+    accusative: понитковую куртку
+    instrumental: понитковой курткой
+    prepositional: понитковой куртке
+  short_desc: Понитковая куртка лежит здесь.
+  type: kArmor
+  material: 14  # ТКАНЬ
+  values:
+    - 5
+    - 2
+    - 0
+    - 0
+  weight: 5
+  cost: 100
+  rent_off: 100
+  rent_on: 10
+  max_durability: 125
+  cur_durability: 125
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  wear_flags:
+    - kTake
+    - kBody
+
+# Object #2161
+61:
+  names:
+    aliases: понитковая шапка
+    nominative: понитковая шапка
+    genitive: понитковой шапки
+    dative: понитковой шапке
+    accusative: понитковую шапку
+    instrumental: понитковой шапкой
+    prepositional: понитковой шапке
+  short_desc: Понитковая шапка лежит здесь.
+  type: kArmor
+  material: 14  # ТКАНЬ
+  values:
+    - 1
+    - 2
+    - 0
+    - 0
+  weight: 2
+  cost: 40
+  rent_off: 40
+  rent_on: 4
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  wear_flags:
+    - kTake
+    - kHead
+
+# Object #2162
+62:
+  names:
+    aliases: понитковые штаны
+    nominative: понитковые штаны
+    genitive: понитковых штанов
+    dative: понитковым штанам
+    accusative: понитковые штаны
+    instrumental: понитковыми штанами
+    prepositional: понитковых штанах
+  short_desc: Понитковые штаны лежат здесь.
+  type: kArmor
+  material: 14  # ТКАНЬ
+  values:
+    - 2
+    - 1
+    - 0
+    - 0
+  weight: 2
+  cost: 60
+  rent_off: 60
+  rent_on: 6
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  wear_flags:
+    - kTake
+    - kLegs
+
+# Object #2163
+63:
+  names:
+    aliases: походные лапти
+    nominative: походные лапти
+    genitive: походных лаптей
+    dative: походным лаптям
+    accusative: походные лапти
+    instrumental: походными лаптями
+    prepositional: походных лаптях
+  short_desc: Походные лапти лежат здесь.
+  type: kArmor
+  material: 17  # БЕРЕСТА
+  values:
+    - 1
+    - 2
+    - 0
+    - 0
+  weight: 3
+  cost: 50
+  rent_off: 50
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  wear_flags:
+    - kTake
+    - kFeet
+
+# Object #2164
+64:
+  names:
+    aliases: понитковые рукавицы
+    nominative: понитковые рукавицы
+    genitive: понитковых рукавиц
+    dative: понитковым рукавицам
+    accusative: понитковые рукавицы
+    instrumental: понитковыми рукавицами
+    prepositional: понитковых рукавицах
+  short_desc: Понитковые рукавицы лежат здесь.
+  type: kArmor
+  material: 14  # ТКАНЬ
+  values:
+    - 2
+    - 2
+    - 0
+    - 0
+  weight: 4
+  cost: 40
+  rent_off: 40
+  rent_on: 4
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  wear_flags:
+    - kTake
+    - kHands
+
+# Object #2165
+65:
+  names:
+    aliases: понитковые наручи
+    nominative: понитковые наручи
+    genitive: понитковых наручей
+    dative: понитковым наручам
+    accusative: понитковые наручи
+    instrumental: понитковыми наручами
+    prepositional: понитковых наручах
+  short_desc: Понитковые наручи лежат здесь.
+  type: kArmor
+  material: 14  # ТКАНЬ
+  values:
+    - 1
+    - 2
+    - 0
+    - 0
+  weight: 3
+  cost: 50
+  rent_off: 50
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  wear_flags:
+    - kTake
+    - kArms
+
+# Object #2166
+66:
+  names:
+    aliases: понитковая накидка
+    nominative: понитковая накидка
+    genitive: понитковой накидки
+    dative: понитковой накидке
+    accusative: понитковую накидку
+    instrumental: понитковой накидкой
+    prepositional: понитковой накидке
+  short_desc: Понитковая накидка лежит здесь.
+  type: kArmor
+  material: 14  # ТКАНЬ
+  values:
+    - 3
+    - 2
+    - 0
+    - 0
+  weight: 4
+  cost: 100
+  rent_off: 100
+  rent_on: 10
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  wear_flags:
+    - kTake
+    - kShoulders
+
+# Object #2167
+67:
+  names:
+    aliases: понитковый пояс
+    nominative: понитковый пояс
+    genitive: пониткового пояса
+    dative: понитковому поясу
+    accusative: понитковый пояс
+    instrumental: понитковым поясом
+    prepositional: понитковом поясе
+  short_desc: Понитковый пояс лежит здесь.
+  type: kArmor
+  material: 14  # ТКАНЬ
+  values:
+    - 2
+    - 1
+    - 0
+    - 0
+  weight: 2
+  cost: 40
+  rent_off: 40
+  rent_on: 4
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kWaist
+
+# Object #2168
+68:
+  names:
+    aliases: закаленный доспех
+    nominative: закаленный доспех
+    genitive: закаленного доспеха
+    dative: закаленному доспеху
+    accusative: закаленный доспех
+    instrumental: закаленным доспехом
+    prepositional: закаленном доспехе
+  short_desc: Закаленный доспех лежит здесь.
+  type: kArmor
+  material: 5  # КОВАНАЯ.СТАЛЬ
+  values:
+    - 6
+    - 3
+    - 0
+    - 0
+  weight: 12
+  cost: 140
+  rent_off: 140
+  rent_on: 14
+  max_durability: 150
+  cur_durability: 150
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kBody
+
+# Object #2169
+69:
+  names:
+    aliases: закаленный шлем
+    nominative: закаленный шлем
+    genitive: закаленного шлема
+    dative: закаленному шлему
+    accusative: закаленный шлем
+    instrumental: закаленным шлемом
+    prepositional: закаленном шлеме
+  short_desc: Закаленный шлем лежит здесь.
+  type: kArmor
+  material: 5  # КОВАНАЯ.СТАЛЬ
+  values:
+    - 2
+    - 3
+    - 0
+    - 0
+  weight: 5
+  cost: 80
+  rent_off: 80
+  rent_on: 8
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHead
+
+# Object #2170
+70:
+  names:
+    aliases: закаленные поножи
+    nominative: закаленные поножи
+    genitive: закаленных поножей
+    dative: закаленным поножам
+    accusative: закаленные поножи
+    instrumental: закаленными поножами
+    prepositional: закаленных поножах
+  short_desc: Закаленные поножи лежат здесь.
+  type: kArmor
+  material: 5  # КОВАНАЯ.СТАЛЬ
+  values:
+    - 2
+    - 3
+    - 0
+    - 0
+  weight: 5
+  cost: 90
+  rent_off: 90
+  rent_on: 9
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  wear_flags:
+    - kTake
+    - kLegs
+
+# Object #2171
+71:
+  names:
+    aliases: закаленные сапоги
+    nominative: закаленные сапоги
+    genitive: закаленных сапогов
+    dative: закаленным сапогам
+    accusative: закаленные сапоги
+    instrumental: закаленными сапогами
+    prepositional: закаленных сапогах
+  short_desc: Закаленные сапоги лежат здесь.
+  type: kArmor
+  material: 5  # КОВАНАЯ.СТАЛЬ
+  values:
+    - 3
+    - 3
+    - 0
+    - 0
+  weight: 5
+  cost: 90
+  rent_off: 90
+  rent_on: 9
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  wear_flags:
+    - kTake
+    - kFeet
+
+# Object #2172
+72:
+  names:
+    aliases: закаленные рукавицы
+    nominative: закаленные рукавицы
+    genitive: закаленных рукавиц
+    dative: закаленным рукавицам
+    accusative: закаленные рукавицы
+    instrumental: закаленными рукавицами
+    prepositional: закаленных рукавицах
+  short_desc: Закаленные рукавицы лежат здесь.
+  type: kArmor
+  material: 5  # КОВАНАЯ.СТАЛЬ
+  values:
+    - 3
+    - 3
+    - 0
+    - 0
+  weight: 6
+  cost: 80
+  rent_off: 80
+  rent_on: 8
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  wear_flags:
+    - kTake
+    - kHands
+
+# Object #2173
+73:
+  names:
+    aliases: закаленные наручи
+    nominative: закаленные наручи
+    genitive: закаленных наручей
+    dative: закаленным наручам
+    accusative: закаленные наручи
+    instrumental: закаленными наручами
+    prepositional: закаленных наручах
+  short_desc: Закаленные наручи лежат здесь.
+  type: kArmor
+  material: 5  # КОВАНАЯ.СТАЛЬ
+  values:
+    - 2
+    - 2
+    - 0
+    - 0
+  weight: 5
+  cost: 90
+  rent_off: 90
+  rent_on: 9
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  wear_flags:
+    - kTake
+    - kArms
+
+# Object #2174
+74:
+  names:
+    aliases: закаленные наплечники
+    nominative: закаленные наплечники
+    genitive: закаленных наплечников
+    dative: закаленным наплечникам
+    accusative: закаленные наплечники
+    instrumental: закаленными наплечниками
+    prepositional: закаленных наплечниках
+  short_desc: Закаленные наплечники лежат здесь.
+  type: kArmor
+  material: 5  # КОВАНАЯ.СТАЛЬ
+  values:
+    - 4
+    - 4
+    - 0
+    - 0
+  weight: 8
+  cost: 140
+  rent_off: 140
+  rent_on: 14
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  wear_flags:
+    - kTake
+    - kShoulders
+
+# Object #2175
+75:
+  names:
+    aliases: закаленный пояс
+    nominative: закаленный пояс
+    genitive: закаленного пояса
+    dative: закаленному поясу
+    accusative: закаленный пояс
+    instrumental: закаленным поясом
+    prepositional: закаленном поясе
+  short_desc: Закаленный пояс лежит здесь.
+  type: kArmor
+  material: 5  # КОВАНАЯ.СТАЛЬ
+  values:
+    - 2
+    - 3
+    - 0
+    - 0
+  weight: 5
+  cost: 80
+  rent_off: 80
+  rent_on: 8
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kWaist
+
+# Object #2176
+76:
+  names:
+    aliases: резное колечко
+    nominative: резное колечко
+    genitive: резного колечка
+    dative: резному колечку
+    accusative: резное колечко
+    instrumental: резным колечком
+    prepositional: резном колечке
+  short_desc: Резное колечко лежит здесь.
+  type: kWorm
+  material: 13  # КОСТЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 90
+  rent_off: 90
+  rent_on: 9
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  wear_flags:
+    - kTake
+    - kFinger
+  applies:
+    - location: 25  # восст.жизни
+      modifier: 5
+
+# Object #2177
+77:
+  names:
+    aliases: резной браслет
+    nominative: резной браслет
+    genitive: резного браслета
+    dative: резному браслету
+    accusative: резной браслет
+    instrumental: резным браслетом
+    prepositional: резном браслете
+  short_desc: Резной браслет лежит здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 1
+    - 1
+    - 0
+    - 0
+  weight: 1
+  cost: 100
+  rent_off: 100
+  rent_on: 10
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kWrist
+  applies:
+    - location: 26  # восст.энергии
+      modifier: 10
+
+# Object #2178
+78:
+  names:
+    aliases: простой оберег
+    nominative: простой оберег
+    genitive: простого оберега
+    dative: простому оберегу
+    accusative: простой оберег
+    instrumental: простым оберегом
+    prepositional: простом обереге
+  short_desc: Простой оберег лежит здесь.
+  type: kWorm
+  material: 6  # ДРАГ.МЕТАЛЛ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 80
+  rent_off: 80
+  rent_on: 8
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kNeck
+  applies:
+    - location: 12  # запоминание
+      modifier: 5
+
+# Object #2179
+79:
+  names:
+    aliases: утяжеленный щит
+    nominative: утяжеленный щит
+    genitive: утяжеленного щита
+    dative: утяжеленному щиту
+    accusative: утяжеленный щит
+    instrumental: утяжеленным щитом
+    prepositional: утяжеленном щите
+  short_desc: Утяжеленный щит лежит здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 2
+    - 4
+    - 0
+    - 0
+  weight: 15
+  cost: 100
+  rent_off: 100
+  rent_on: 10
+  max_durability: 125
+  cur_durability: 125
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kShield
+
+# Object #2180
+80:
+  names:
+    aliases: тяжелый доспех
+    nominative: тяжелый доспех
+    genitive: тяжелого доспеха
+    dative: тяжелому доспеху
+    accusative: тяжелый доспех
+    instrumental: тяжелым доспехом
+    prepositional: тяжелом доспехе
+  short_desc: Тяжелый закаленный доспех лежит здесь.
+  type: kArmor
+  material: 1  # БУЛАТ
+  values:
+    - 7
+    - 5
+    - 0
+    - 0
+  weight: 15
+  cost: 300
+  rent_off: 300
+  rent_on: 300
+  max_durability: 150
+  cur_durability: 150
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kBody
+
+# Object #2181
+81:
+  names:
+    aliases: простой щит
+    nominative: простой щит
+    genitive: простого щита
+    dative: простому щиту
+    accusative: простой щит
+    instrumental: простым щитом
+    prepositional: простом щите
+  short_desc: Простой щит лежит здесь.
+  type: kArmor
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 1
+    - 2
+    - 0
+    - 0
+  weight: 9
+  cost: 20
+  rent_off: 20
+  rent_on: 2
+  max_durability: 75
+  cur_durability: 75
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNosell
+  wear_flags:
+    - kTake
+    - kShield
+
+# Object #2182
+82:
+  names:
+    aliases: кожаная_фляга фляга_кожаная
+    nominative: кожаная_фляга
+    genitive: кожаной_фляги
+    dative: кожаной_фляге
+    accusative: кожаную_флягу
+    instrumental: кожаной_флягой
+    prepositional: кожаной_фляге
+  short_desc: Кожаная фляга с деревянной пробкой лежит тут.
+  type: kLiquidContainer
+  material: 15  # КОЖА
+  values:
+    - 20
+    - 20
+    - 0
+    - 0
+  weight: 25
+  cost: 2
+  rent_off: 1
+  rent_on: 1
+  max_durability: 75
+  cur_durability: 75
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: кожаная фляга
+      description: |2
+        Небольшая кожаная фляга с деревянной пробкой на ремешке.
+
+# Object #2183
+83:
+  names:
+    aliases: малый_мех мех_малый
+    nominative: малый_мех
+    genitive: малого_меха
+    dative: малому_меху
+    accusative: малый_мех
+    instrumental: малым_мехом
+    prepositional: малом_мехе
+  short_desc: Маленький дорожный мех лежит тут.
+  type: kLiquidContainer
+  material: 15  # КОЖА
+  values:
+    - 50
+    - 50
+    - 0
+    - 0
+  weight: 55
+  cost: 2
+  rent_off: 2
+  rent_on: 2
+  max_durability: 75
+  cur_durability: 75
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: малый мех
+      description: |2
+        Небольшой дорожный мех -- на одного путника, или дорогу не шибко дальнюю.
+
+# Object #2184
+84:
+  names:
+    aliases: мех
+    nominative: мех
+    genitive: меха
+    dative: меху
+    accusative: мех
+    instrumental: мехом
+    prepositional: мехе
+  short_desc: Небольшой кожаный мех для различных жидкостей лежит тут.
+  type: kLiquidContainer
+  material: 15  # КОЖА
+  values:
+    - 100
+    - 100
+    - 0
+    - 0
+  weight: 105
+  cost: 6
+  rent_off: 4
+  rent_on: 4
+  max_durability: 75
+  cur_durability: 75
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: мех
+      description: |2
+        Вместительный походный мех для различных жидкостей.
+
+# Object #2185
+85:
+  names:
+    aliases: двумех
+    nominative: двумех
+    genitive: двумеха
+    dative: двумеху
+    accusative: двумех
+    instrumental: двумехом
+    prepositional: двумехе
+  short_desc: Большой двумех для жидкостей брошен тут.
+  type: kLiquidContainer
+  material: 15  # КОЖА
+  values:
+    - 200
+    - 200
+    - 0
+    - 0
+  weight: 205
+  cost: 15
+  rent_off: 6
+  rent_on: 6
+  max_durability: 75
+  cur_durability: 75
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: двумех
+      description: |2
+        Двойной мех, какие в пути везут обычно, перекинув
+        через хребет лошади. Сюда войдет воды или вина
+        на целую дружину.
+
+# Object #2186
+86:
+  names:
+    aliases: свечка
+    nominative: свечка
+    genitive: свечки
+    dative: свечке
+    accusative: свечку
+    instrumental: свечкой
+    prepositional: свечке
+  short_desc: Восковая свечка лежит тут под ногами.
+  type: kLightSource
+  material: 16  # ОРГАНИКА
+  values:
+    - 0
+    - 0
+    - 12
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 75
+  cur_durability: 75
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свечка
+      description: |2
+        Восковая свечка ручной лепки 
+        приятно пахнет медом.
+  triggers:
+    - 2101  # Трансформация свечки после догорания
+
+# Object #2187
+87:
+  names:
+    aliases: факел
+    nominative: факел
+    genitive: факела
+    dative: факелу
+    accusative: факел
+    instrumental: факелом
+    prepositional: факеле
+  short_desc: Факел валяется здесь.
+  type: kLightSource
+  material: 8  # ДЕРЕВО
+  values:
+    - 0
+    - 0
+    - 48
+    - 0
+  weight: 2
+  cost: 5
+  rent_off: 2
+  rent_on: 2
+  max_durability: 75
+  cur_durability: 75
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: факел
+      description: |2
+        Факел из толстой оструганной палки,
+        с намотанным на один конец обугленным
+        слегка тряпьем.
+
+# Object #2188
+88:
+  names:
+    aliases: медный масляный фонарь
+    nominative: масляный фонарь
+    genitive: масляного фонаря
+    dative: масляному фонарю
+    accusative: масляный фонарь
+    instrumental: масляным фонарем
+    prepositional: масляном фонаре
+  short_desc: Масляный медный фонарь брошен тут.
+  type: kLightSource
+  material: 16  # ОРГАНИКА
+  values:
+    - 0
+    - 0
+    - 120
+    - 0
+  weight: 3
+  cost: 20
+  rent_off: 5
+  rent_on: 5
+  max_durability: 75
+  cur_durability: 75
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kWaist
+    - kHold
+  extra_descriptions:
+    - keywords: масляный фонарь
+      description: |2
+        Искусно сделанный и дорогой масляный фонарь.
+        Как ни тряси его -- масло не прольется.
+        Можно в руке нести, а можно на пояс повесить.
+
+# Object #2189
+89:
+  names:
+    aliases: дорожный холщовый мешок
+    nominative: холщовый мешок
+    genitive: холщового мешка
+    dative: холщовому мешку
+    accusative: холщовый мешок
+    instrumental: холщовым мешком
+    prepositional: холщовом мешке
+  short_desc: Дорожный холщовый мешок лежит тут.
+  type: kContainer
+  material: 14  # ТКАНЬ
+  values:
+    - 75
+    - 0
+    - -1
+    - 0
+  weight: 1
+  cost: 10
+  rent_off: 5
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kShoulders
+    - kWaist
+  extra_descriptions:
+    - keywords: холщовый мешок
+      description: |2
+        Простой холщовый мешок с лямкой, чтоб вешать на плечо.
+
+# Object #2190
+90:
+  names:
+    aliases: лубяной короб
+    nominative: лубяной короб
+    genitive: лубяного короба
+    dative: лубяному коробу
+    accusative: лубяной короб
+    instrumental: лубяным коробом
+    prepositional: лубяном коробе
+  short_desc: Большой лубяной короб стоит тут.
+  type: kContainer
+  material: 14  # ТКАНЬ
+  values:
+    - 250
+    - 1
+    - -1
+    - 0
+  weight: 5
+  cost: 25
+  rent_off: 20
+  rent_on: 5
+  max_durability: 150
+  cur_durability: 150
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+    - kShoulders
+  extra_descriptions:
+    - keywords: лубяной короб
+      description: |2
+        Вместительный заплечный короб с полотняными лямками и крышкой.
+        В такие собирают грибы и ягоды, если не для баловства, а на всю зиму.
+
+# Object #2191
+91:
+  names:
+    aliases: кожаный дорожный сундук
+    nominative: дорожный сундук
+    genitive: дорожного сундука
+    dative: дорожному сундуку
+    accusative: дорожный сундук
+    instrumental: дорожным сундуком
+    prepositional: дорожном сундуке
+  short_desc: Кожаный дорожный сундук стоит тут.
+  type: kContainer
+  material: 14  # ТКАНЬ
+  values:
+    - 500
+    - 1
+    - -1
+    - 0
+  weight: 7
+  cost: 100
+  rent_off: 15
+  rent_on: 10
+  max_durability: 150
+  cur_durability: 150
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+    - kShoulders
+  extra_descriptions:
+    - keywords: дорожный сундук
+      description: |2
+        Большой дорожный сундук из кожи на каркасе из выгнутых веток.
+        Можно продеть руки в кожаные ремни и нести за спиной.
+
+# Object #2192
+92:
+  names:
+    aliases: переметная сума
+    nominative: переметная сума
+    genitive: переметной сумы
+    dative: переметной суме
+    accusative: переметную суму
+    instrumental: переметной сумой
+    prepositional: переметной суме
+  short_desc: Походная переметная сума валяется тут.
+  type: kContainer
+  material: 14  # ТКАНЬ
+  values:
+    - 750
+    - 0
+    - -1
+    - 0
+  weight: 5
+  cost: 200
+  rent_off: 20
+  rent_on: 10
+  max_durability: 150
+  cur_durability: 150
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+    - kNeck
+    - kShoulders
+    - kWaist
+  extra_descriptions:
+    - keywords: переметная сума
+      description: |2
+        Большущая переметная сума, в каких купцы 
+        возят товар, перекинув суму через спину
+        лошади или ослика.
+
+# Object #2193
+93:
+  names:
+    aliases: гусиное перо
+    nominative: гусиное перо
+    genitive: гусиного пера
+    dative: гусиному перу
+    accusative: гусиное перо
+    instrumental: гусиным пером
+    prepositional: гусином пере
+  short_desc: Очиненное гусиное перо валяется тут.
+  type: kPen
+  material: 13  # КОСТЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 5
+  rent_off: 1
+  rent_on: 1
+  max_durability: 25
+  cur_durability: 25
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: гусиное перо
+      description: |2
+        Тонко очиненное гусиное перо. Если раздобыть 
+        чернил и лист бересты или пергамента --
+        можно писать, коли грамотный.
+
+# Object #2194
+94:
+  names:
+    aliases: лист гладкой бересты
+    nominative: лист гладкой бересты
+    genitive: листа гладкой бересты
+    dative: листу гладкой бересты
+    accusative: лист гладкой бересты
+    instrumental: листом гладкой бересты
+    prepositional: листе гладкой бересты
+  short_desc: Лист белой гладкой бересты брошен тут.
+  type: kNote
+  material: 17  # БЕРЕСТА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 5
+  rent_off: 1
+  rent_on: 1
+  max_durability: 75
+  cur_durability: 75
+  timer: 7200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: лист гладкой бересты
+      description: |2
+        ___Белый лист березовой коры, выглаженый камнем и с темной стороны слегка
+        смазанный воском, чтобы не сломался. На таких пишут грамоты и письма.  
+
+# Object #2195
+95:
+  names:
+    aliases: костяные бабки
+    nominative: костяные бабки
+    genitive: костяных бабок
+    dative: костяным бабкам
+    accusative: костяные бабки
+    instrumental: костяными бабками
+    prepositional: костяных бабках
+  short_desc: Пара костяных бабок лежит тут.
+  type: kOther
+  material: 13  # КОСТЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 30
+  rent_off: 1
+  rent_on: 1
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: костяные бабки
+      description: |2
+        Пара костяных бабок  с намалеванными точками для игры в зернь.
+  triggers:
+    - 2100  # Бросок костяных бабок
+
+# Object #2196
+96:
+  names:
+    aliases: кожаный заплечный короб
+    nominative: кожаный заплечный короб
+    genitive: кожаного заплечного короба
+    dative: кожаному заплечному коробу
+    accusative: кожаный заплечный короб
+    instrumental: кожаным заплечным коробом
+    prepositional: кожаном заплечном коробе
+  short_desc: Прочный кожаный короб с лямками стоит здесь.
+  type: kContainer
+  material: 15  # КОЖА
+  values:
+    - 1000
+    - 1
+    - -1
+    - 0
+  weight: 5
+  cost: 500
+  rent_off: 50
+  rent_on: 10
+  max_durability: 150
+  cur_durability: 150
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+    - kNeck
+    - kShoulders
+  extra_descriptions:
+    - keywords: кожаный заплечный короб
+      description: |2
+        Очень вместительный кожаный короб на каркасе
+        из искусно выгнутых веток. Короб снабжен крышкой,
+        а кожа пропитана воском до железной твердости.
+        Пара лямок из мягкой кожи позволяют носить его
+        за спиной.
+
+# Object #2197
+97:
+  names:
+    aliases: огромная дубовая бочка
+    nominative: огромная_дубовая_бочка
+    genitive: огромной_дубовой_бочки
+    dative: огромной_дубовой_бочке
+    accusative: огромную_дубовую_бочку
+    instrumental: огромной_дубовой_бочкой
+    prepositional: огромной_дубовой_бочке
+  short_desc: Здоровенная бочка из доброго дуба стоит здесь.
+  type: kLiquidContainer
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 500
+    - 500
+    - 0
+    - 0
+  weight: 505
+  cost: 30
+  rent_off: 20
+  rent_on: 10
+  max_durability: 150
+  cur_durability: 150
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNosell
+  wear_flags:
+    - kTake
+    - kNeck
+    - kShoulders
+  extra_descriptions:
+    - keywords: огромная дубовая бочка
+      description: |2
+        Накрепко стянутая обручами здоровенная бочка
+        в сбруе из сыромятных ремней, чтобы носить
+        за спиной.
+
+# Object #2198
+98:
+  names:
+    aliases: медальон изображением лошади
+    nominative: медальон с изображением лошади
+    genitive: медальона с изображением лошади
+    dative: медальону с изображением лошади
+    accusative: медальон с изображением лошади
+    instrumental: медальоном с изображением лошади
+    prepositional: медальоне с изображением лошади
+  short_desc: Красивый медальон с изображением лошади, валяется у ваших ног.
+  type: kTreasure
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 5
+  cost: 1000
+  rent_off: 150
+  rent_on: 150
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNosell
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: медальон
+      description: |2
+        Небольшой медальон, с изысканным изображением лошади.
+        Изображение слегка затертое, потереть его, почистить.
+  triggers:
+    - 2103  # лошадь из медальона
+
+# Object #2199
+99:
+  names:
+    aliases: свечной огарок
+    nominative: свечной огарок
+    genitive: свечного огарка
+    dative: свечному огарку
+    accusative: свечной огарок
+    instrumental: свечным огарком
+    prepositional: свечном огарке
+  short_desc: Оплывший свечной огарок лежит под ногами.
+  type: kOther
+  material: 16  # ОРГАНИКА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 10
+  cur_durability: 5
+  timer: 5
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNorent
+    - kNodonate
+    - kNosell
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свечной огарок
+      description: |2
+        Оплывший комочек воска со следами копоти и остатками фитиля.

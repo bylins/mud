@@ -1,0 +1,159 @@
+# Triggers for zone 63
+
+# Trigger #6300
+0:
+  name: вошли к монаху
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kGreetPCAll
+  script: |-2
+    wait 4
+    крест %actor.iname%
+    say В недобрый час и в недобром месте пришлось встретиться нам!
+    wait 1
+    взд
+    say Эта разрушенная сторожевая башня стала местом сосредоточения темных сил.
+    say Где-то наверху башни вершит свой темный ритуал осквернитель неупокоенных трупов.
+    wait 3
+    взд
+    say Сможешь ли ты наказать Зло?
+    вопр %actor.iname%
+    end
+
+# Trigger #6301
+1:
+  name: сказал смогу
+  attach_type: kMobTrigger
+  narg: 100
+  arglist: смогу
+  trigger_types:
+    - kSpeech
+  script: |-2
+    wait 2
+    say Я знал, что ты согласишься помочь.
+    if (%actor.sex% == 1)
+      say Но будь осторожен, обитатели Царства мертвых тоже разгневаны
+    else
+      say Но будь осторожна, обитатели Царства мертвых тоже разгневаны
+    end
+    say Они послали навью наказать осквернителя трупов, но для нее любой живой - враг!
+    say Смотри не попадись ей под руку!
+    wait 4
+    say Прежде чем разделаешься с осквернителем, тебе придется сразиться с нежитью
+    say Осквернитель успел поднять несколько умертвий. Теперь они выполняют его волю!
+    wait 5
+    say Этот злодей не имел бы такой силы, если бы не похитил из Храма плащаницу.
+    say Теперь этот святой дар он использует для усиления своих заклятий.
+    say Вернувшему плащаницу воздастся за труды его!
+    attach 6302 %self%
+    detach 6300 %self%
+    detach 6301 %self%
+    end
+
+# Trigger #6302
+2:
+  name: отдали плащаницу
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kReceive
+  script: |-2
+    wait 1
+    if (%object.vnum% == 6310)
+      wait 1
+      %purge% %object%
+      say Я верил в тебя!
+      рад %actor.iname%
+      wait 1
+      say Вот, прими за труды свои... тут немного, но это от чистого сердца.
+      %actor.questbodrich(6)%
+      if (%random.1000% <= 75)
+        load obj 1716
+        дать пергамент .%actor.iname%
+      else
+        msend %actor% Седой монах дал небольшую кучку кун.
+        %actor.gold(+150)%
+      end
+    end
+    detach 6302 %self%
+
+# Trigger #6303
+3:
+  name: убили осквернителя
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kDeath
+  script: |-2
+    if %world.curobjs(6310)% < 1
+      load obj 6310
+    end
+    if %random.100% <= 75
+      if %world.curobjs(592)% < %world.maxobj(592)%
+        load obj 592
+      end
+    end
+
+# Trigger #6304
+4:
+  name: убили навью
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kDeath
+  script: |-2
+    if (%world.curobjs(6309)% < 12) && (%random.100% <= 15)
+      load obj 6309
+      echo Навья, испустив истошный крик, растворилась в пустоте.
+      echo А на том месте, где она только что стояла, появились добротные сапоги.
+    end
+
+# Trigger #6305
+5:
+  name: убили силуэт
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kDeath
+  script: |-2
+    if (%world.curobjs(6306)% < 10) && (%random.100% <= 15)
+      load obj 6306
+      echo Темный силуэт исчез, словно его никогда и не было
+      echo А на его месте что-то сверкнуло золотым отблеском.
+    end
+
+# Trigger #6306
+6:
+  name: убили умертвие
+  attach_type: kMobTrigger
+  narg: 100
+  arglist: '*'
+  trigger_types:
+    - kDeath
+  script: |-2
+    return 0
+    echo Умертвие исчезло в ослепительной вспышке.
+    if (%world.curobjs(6307)% < 12) && (%random.100% <= 20)
+      load obj 6307
+      set load 1
+    end
+    if ( %world.curobjs(6308)% < 4 ) && ( %random.100% <= 8 )
+      load obj 6308
+      set load 1
+    end
+    if (%load% == 1)
+      echo А на его месте остался лежать какой-то предмет.
+    end
+
+# Trigger #6307
+7:
+  name: убили шершня
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kDeath
+  script: |-2
+    if (%world.curobjs(6303)% < 12) && (%random.10% <= 2)
+      load obj 6303
+    end

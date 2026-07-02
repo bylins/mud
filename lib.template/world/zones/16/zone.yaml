@@ -1,0 +1,13 @@
+# Zone #16
+
+vnum: 16
+name: 'Системная зона 16 -- Зарезервировано для craft''а (!OLC)'
+top_room: 1699
+lifespan: 0
+reset_mode: 0
+reset_idle: 0
+zone_type: 0
+mode: 1  # level
+entrance: 1699
+under_construction: 0
+zone_group: 1  # solo

@@ -1,0 +1,18 @@
+# Triggers for zone 4
+
+# Trigger #401
+1:
+  name: new trigger
+  attach_type: kRoomTrigger
+  narg: 100
+  trigger_types:
+    - kAct
+    - kGreet
+  script: |-2
+    say My trigger commandlist is not complete!
+    if %actor.iname% == Стрибог && %actor.level% >31
+      wsend %actor% да
+    else
+      wsend %actor% нет
+    end
+    d

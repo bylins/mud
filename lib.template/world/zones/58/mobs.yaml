@@ -1,0 +1,688 @@
+# Mobs for zone 58
+
+# Mob #5800
+0:
+  names:
+    aliases: чудище лесное
+    nominative: чудище лесное
+    genitive: чудища лесного
+    dative: чудищу лесному
+    accusative: чудище лесное
+    instrumental: чудищем лесным
+    prepositional: чудище лесном
+  descriptions:
+    short_desc: |2
+      Чудище лесное ходит здесь.
+    long_desc: |2
+      Не то животное, не то человек, не разберешь. Но бросается на всех, кто 
+      заходит в дремучий лес.
+  alignment: 0
+  stats:
+    level: 8
+    hitroll_penalty: 6
+    armor: 6
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 200
+    damage:
+      dice_count: 2
+      dice_size: 2
+      bonus: 3
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 3000
+  position:
+    default: kStand
+    start: kStand
+  sex: kNeutral
+  size: 15
+  race: 114
+  height: 198
+  weight: 200
+  attributes:
+    strength: 16
+    dexterity: 5
+    intelligence: 3
+    wisdom: 3
+    constitution: 18
+    charisma: 3
+  action_flags:
+    - kScavenger
+    - kNpc
+    - kAgressive
+    - kStayZone
+    - kHelper
+  affect_flags:
+    - kInfravision
+  skills:
+    - skill_id: 2  # перехватить атаку
+      value: 50
+    - skill_id: 136  # кулачный бой
+      value: 30
+    - skill_id: 137  # спасти
+      value: 50
+    - skill_id: 151  # парировать
+      value: 50
+  triggers:
+    - 5817  # смертьчудища
+  enhanced:
+    absorb: 8
+    bare_hand_attack: 5
+    like_work: 95
+    max_factor: 1
+
+# Mob #5801
+1:
+  names:
+    aliases: толстый десятник
+    nominative: толстый десятник
+    genitive: толстого десятника
+    dative: толстому десятнику
+    accusative: толстого десятника
+    instrumental: толстым десятником
+    prepositional: толстом десятнике
+  descriptions:
+    short_desc: |2
+      Толстый десятник стоит здесь.
+    long_desc: |2
+      Здоровущий мужик с отвисающим толстым пузом.
+  alignment: 0
+  stats:
+    level: 18
+    hitroll_penalty: 3
+    armor: 2
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 1000
+    damage:
+      dice_count: 10
+      dice_size: 5
+      bonus: 0
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 1000
+  experience: 30000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 20
+  race: 101
+  height: 198
+  weight: 200
+  attributes:
+    strength: 25
+    dexterity: 5
+    intelligence: 10
+    wisdom: 10
+    constitution: 25
+    charisma: 5
+  action_flags:
+    - kSentinel
+    - kScavenger
+    - kNpc
+    - kStayZone
+    - kHelper
+    - kNoCharm
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+  skills:
+    - skill_id: 132  # сбить
+      value: 90
+    - skill_id: 136  # кулачный бой
+      value: 90
+    - skill_id: 150  # обезоружить
+      value: 80
+    - skill_id: 160  # подножка
+      value: 90
+  triggers:
+    - 5801  # датьденьгидесятник
+    - 5809  # датьбутыльдесятник
+  enhanced:
+    absorb: 18
+    bare_hand_attack: 5
+    like_work: 95
+    max_factor: 2
+    extra_attack: 1
+    spells:
+      - 54
+      - 54
+      - 54
+
+# Mob #5802
+2:
+  names:
+    aliases: guard58 дружинник
+    nominative: дружинник
+    genitive: дружинника
+    dative: дружиннику
+    accusative: дружинника
+    instrumental: дружинником
+    prepositional: дружиннике
+  descriptions:
+    short_desc: |2
+      Грустный дружинник стоит здесь.
+    long_desc: |2
+      Сильный воитель измотан своим начальником.
+  alignment: 0
+  stats:
+    level: 12
+    hitroll_penalty: 5
+    armor: 5
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 500
+    damage:
+      dice_count: 2
+      dice_size: 6
+      bonus: 6
+  gold:
+    dice_count: 5
+    dice_size: 3
+    bonus: 10
+  experience: 10000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 20
+  race: 101
+  height: 198
+  weight: 200
+  attributes:
+    strength: 20
+    dexterity: 10
+    intelligence: 5
+    wisdom: 5
+    constitution: 20
+    charisma: 10
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kStayZone
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+  skills:
+    - skill_id: 1  # прикрыть
+      value: 80
+    - skill_id: 132  # сбить
+      value: 80
+    - skill_id: 136  # кулачный бой
+      value: 60
+    - skill_id: 137  # спасти
+      value: 80
+    - skill_id: 150  # обезоружить
+      value: 80
+  enhanced:
+    absorb: 12
+    bare_hand_attack: 6
+    like_work: 90
+    max_factor: 1
+    extra_attack: 1
+
+# Mob #5803
+3:
+  names:
+    aliases: слепой старик
+    nominative: слепой старик
+    genitive: слепого старика
+    dative: слепому старику
+    accusative: слепого старика
+    instrumental: слепым стариком
+    prepositional: слепом старике
+  descriptions:
+    short_desc: |2
+      Слепой старик стоит здесь.
+    long_desc: |2
+      Сколько лет этому чернобородому старику никто сказать не сможет, 
+      но очень много.
+  alignment: 0
+  stats:
+    level: 15
+    hitroll_penalty: 4
+    armor: 8
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 300
+    damage:
+      dice_count: 2
+      dice_size: 4
+      bonus: 2
+  gold:
+    dice_count: 1
+    dice_size: 5
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 10
+  race: 101
+  height: 198
+  weight: 200
+  attributes:
+    strength: 20
+    dexterity: 20
+    intelligence: 20
+    wisdom: 20
+    constitution: 20
+    charisma: 20
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kStayZone
+    - kNoCharm
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 45
+    - skill_id: 141  # палицы и дубины
+      value: 80
+  triggers:
+    - 5802  # встречастарик
+    - 5804  # далипалкаслепой
+  enhanced:
+    like_work: 95
+    max_factor: 2
+    extra_attack: 1
+    spells:
+      - 54
+      - 54
+      - 54
+      - 54
+
+# Mob #5804
+4:
+  names:
+    aliases: свирепый вепрь
+    nominative: свирепый вепрь
+    genitive: свирепого вепря
+    dative: свирепому вепрю
+    accusative: свирепого вепря
+    instrumental: свирепым вепрем
+    prepositional: свирепом вепре
+  descriptions:
+    short_desc: |2
+      Свирепый вепрь роет клыками землю.
+    long_desc: |2
+      Здоровый кабан с большими клыками. Идет напролом, не обращая внимания
+      на препятствия.
+  alignment: 0
+  stats:
+    level: 9
+    hitroll_penalty: 10
+    armor: 7
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 320
+    damage:
+      dice_count: 2
+      dice_size: 5
+      bonus: 2
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 5000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 20
+  race: 104
+  height: 198
+  weight: 200
+  attributes:
+    strength: 16
+    dexterity: 8
+    intelligence: 3
+    wisdom: 3
+    constitution: 14
+    charisma: 3
+  action_flags:
+    - kNpc
+    - kAgressive
+    - kStayZone
+    - kHelper
+    - kNoSleep
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 36
+  triggers:
+    - 5803  # датьжелудьборов
+  enhanced:
+    absorb: 9
+    like_work: 95
+    max_factor: 1
+    extra_attack: 1
+
+# Mob #5805
+5:
+  names:
+    aliases: старик
+    nominative: старик
+    genitive: старика
+    dative: старику
+    accusative: старика
+    instrumental: стариком
+    prepositional: старике
+  descriptions:
+    short_desc: |2
+      Старик стоит здесь.
+    long_desc: |2
+      Сколько лет этому чернобородому старику никто сказать не сможет, 
+      но очень много.
+  alignment: 0
+  stats:
+    level: 12
+    hitroll_penalty: 4
+    armor: 8
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 120
+    damage:
+      dice_count: 2
+      dice_size: 4
+      bonus: 2
+  gold:
+    dice_count: 1
+    dice_size: 5
+    bonus: 100
+  experience: 10000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 10
+  race: 101
+  height: 198
+  weight: 200
+  attributes:
+    strength: 10
+    dexterity: 5
+    intelligence: 20
+    wisdom: 20
+    constitution: 10
+    charisma: 5
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kAgressive
+    - kStayZone
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kFly
+    - kAwarness
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 36
+    - skill_id: 141  # палицы и дубины
+      value: 80
+  triggers:
+    - 5805  # смертьстарика
+  enhanced:
+    absorb: 12
+    like_work: 95
+    max_factor: 1
+    extra_attack: 1
+    spells:
+      - 52
+      - 54
+      - 54
+      - 72
+    helpers:
+      - 5800
+
+# Mob #5806
+6:
+  names:
+    aliases: следопыт
+    nominative: следопыт
+    genitive: следопыта
+    dative: следопыту
+    accusative: следопыта
+    instrumental: следопытом
+    prepositional: следопыте
+  descriptions:
+    short_desc: |2
+      Следопыт стоит здесь.
+    long_desc: |2
+      Здоровый крепкий воин с внимательным взглядом.
+  alignment: 0
+  stats:
+    level: 18
+    hitroll_penalty: 1
+    armor: 1
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 1000
+    damage:
+      dice_count: 10
+      dice_size: 5
+      bonus: 0
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 1000
+  experience: 30000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 20
+  race: 101
+  height: 198
+  weight: 200
+  attributes:
+    strength: 25
+    dexterity: 20
+    intelligence: 10
+    wisdom: 10
+    constitution: 25
+    charisma: 5
+  action_flags:
+    - kSentinel
+    - kScavenger
+    - kNpc
+    - kStayZone
+    - kHelper
+    - kNoCharm
+  skills:
+    - skill_id: 132  # сбить
+      value: 100
+    - skill_id: 134  # пнуть
+      value: 100
+    - skill_id: 136  # кулачный бой
+      value: 75
+    - skill_id: 137  # спасти
+      value: 100
+    - skill_id: 150  # обезоружить
+      value: 100
+    - skill_id: 151  # парировать
+      value: 100
+  triggers:
+    - 5810  # встречследопыт
+    - 5811  # датьконвертследопыт
+  enhanced:
+    absorb: 18
+    bare_hand_attack: 5
+    like_work: 95
+    max_factor: 2
+    extra_attack: 1
+    special_bitvector: a0
+    spells:
+      - 54
+      - 54
+      - 54
+
+# Mob #5807
+7:
+  names:
+    aliases: лазутчик
+    nominative: лазутчик
+    genitive: лазутчика
+    dative: лазутчику
+    accusative: лазутчика
+    instrumental: лазутчиком
+    prepositional: лазутчике
+  descriptions:
+    short_desc: |2
+      Лазутчик что-то ищет здесь.
+    long_desc: |2
+      Мерзкий степняк. Маленького роста мужчина с плюгавенькой бороденкой.
+  alignment: 0
+  stats:
+    level: 12
+    hitroll_penalty: 7
+    armor: 7
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 120
+    damage:
+      dice_count: 1
+      dice_size: 6
+      bonus: 3
+  gold:
+    dice_count: 3
+    dice_size: 25
+    bonus: 25
+  experience: 10000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 15
+  race: 101
+  height: 198
+  weight: 200
+  attributes:
+    strength: 12
+    dexterity: 18
+    intelligence: 3
+    wisdom: 3
+    constitution: 12
+    charisma: 4
+  action_flags:
+    - kSentinel
+    - kScavenger
+    - kNpc
+    - kAgressive
+    - kStayZone
+    - kWimpy
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kSneak
+    - kHide
+  skills:
+    - skill_id: 131  # заколоть
+      value: 60
+    - skill_id: 136  # кулачный бой
+      value: 30
+    - skill_id: 147  # проникающее оружие
+      value: 60
+    - skill_id: 157  # уклониться
+      value: 60
+    - skill_id: 160  # подножка
+      value: 60
+  triggers:
+    - 5816  # смертьлазутч
+  enhanced:
+    absorb: 12
+    bare_hand_attack: 2
+    like_work: 90
+    max_factor: 1
+
+# Mob #5808
+8:
+  names:
+    aliases: старушка
+    nominative: старушка
+    genitive: старушки
+    dative: старушке
+    accusative: старушку
+    instrumental: старушкой
+    prepositional: старушке
+  descriptions:
+    short_desc: |2
+      Старушка сидит здесь.
+    long_desc: |2
+      Маленькая вся как сушеный банан старушка.
+  alignment: 0
+  stats:
+    level: 25
+    hitroll_penalty: 0
+    armor: 0
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 1000
+    damage:
+      dice_count: 10
+      dice_size: 5
+      bonus: 0
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kSit
+    start: kSit
+  sex: kFemale
+  size: 0
+  race: 101
+  height: 198
+  weight: 200
+  attributes:
+    strength: 20
+    dexterity: 20
+    intelligence: 20
+    wisdom: 20
+    constitution: 20
+    charisma: 20
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kStayZone
+    - kNoCharm
+  affect_flags:
+    - kDetectInvisible
+    - kDetectMagic
+    - kDetectLife
+    - kSanctuary
+    - kInfravision
+    - kSingleLight
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 75
+    - skill_id: 189  # магия жизни
+      value: 250
+  triggers:
+    - 5812  # встречстаруха
+    - 5813  # готовстаруха
+    - 5818  # СКАЗАЛготовстаруха
+  enhanced:
+    like_work: 100
+    max_factor: 3
+    extra_attack: 2
+    spells:
+      - 28
+      - 28
+      - 28
+      - 28
+      - 28

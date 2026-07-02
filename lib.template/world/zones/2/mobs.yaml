@@ -1,7 +1,7 @@
 # Mobs for zone 2
 
+# Mob #200
 0:
-  # Mob #200
   names:
     aliases: моб первого уровня
     nominative: моб первого уровня
@@ -11,18 +11,12 @@
     instrumental: мобом первого уровня
     prepositional: мобе первого уровня
   descriptions:
-    short_desc: |
+    short_desc: |2
       Моб первого уровня прохаживается здесь
-    long_desc: |
+    long_desc: |2
       Приглядевшись повнимательнее, Вы заметили, что это существо всего лишь
       первого уровня
-  action_flags:
-  - kNpc
-  - kStayZone
-  affect_flags:
-  - kNoTrack
   alignment: 600
-  mob_type: E
   stats:
     level: 1
     hitroll_penalty: 20
@@ -45,18 +39,22 @@
     start: kStand
   sex: kMale
   size: 31
-  mob_class: 100
   race: 100
   height: 198
   weight: 150
+  action_flags:
+    - kNpc
+    - kStayZone
+  affect_flags:
+    - kNoTrack
   skills:
-  - skill_id: 136  # kPunch
-    value: 3
+    - skill_id: 136  # кулачный бой
+      value: 3
   enhanced:
-    special_bitvector: '0'
+    absorb: 1
 
+# Mob #201
 1:
-  # Mob #201
   names:
     aliases: моб первого уровня
     nominative: моб первого уровня
@@ -66,18 +64,12 @@
     instrumental: мобом первого уровня
     prepositional: мобе первого уровня
   descriptions:
-    short_desc: |
+    short_desc: |2
       Моб первого уровня прохаживается здесь
-    long_desc: |
+    long_desc: |2
       Приглядевшись повнимательнее, Вы заметили, что это существо всего лишь
       первого уровня
-  action_flags:
-  - kNpc
-  - kStayZone
-  affect_flags:
-  - kNoTrack
   alignment: 600
-  mob_type: E
   stats:
     level: 1
     hitroll_penalty: 20
@@ -100,18 +92,22 @@
     start: kStand
   sex: kMale
   size: 31
-  mob_class: 100
   race: 100
   height: 198
   weight: 150
+  action_flags:
+    - kNpc
+    - kStayZone
+  affect_flags:
+    - kNoTrack
   skills:
-  - skill_id: 136  # kPunch
-    value: 3
+    - skill_id: 136  # кулачный бой
+      value: 3
   enhanced:
-    special_bitvector: '0'
+    absorb: 1
 
+# Mob #202
 2:
-  # Mob #202
   names:
     aliases: моб второго уровня
     nominative: моб второго уровня
@@ -121,18 +117,12 @@
     instrumental: мобом второго уровня
     prepositional: мобе второго уровня
   descriptions:
-    short_desc: |
+    short_desc: |2
       Маленький моб стоит и размышляет о жизни
-    long_desc: |
+    long_desc: |2
       Странно, подумали Вы, взглянув на это создание, что такое умное на вид
       существо всего лишь второго уровня
-  action_flags:
-  - kNpc
-  - kStayZone
-  affect_flags:
-  - kNoTrack
   alignment: 600
-  mob_type: E
   stats:
     level: 2
     hitroll_penalty: 19
@@ -155,18 +145,22 @@
     start: kStand
   sex: kMale
   size: 32
-  mob_class: 100
   race: 100
   height: 198
   weight: 150
+  action_flags:
+    - kNpc
+    - kStayZone
+  affect_flags:
+    - kNoTrack
   skills:
-  - skill_id: 136  # kPunch
-    value: 6
+    - skill_id: 136  # кулачный бой
+      value: 6
   enhanced:
-    special_bitvector: '0'
+    absorb: 2
 
+# Mob #203
 3:
-  # Mob #203
   names:
     aliases: моб третьего уровня
     nominative: моб третьего уровня
@@ -176,18 +170,12 @@
     instrumental: мобом третьего уровня
     prepositional: мобе третьего уровня
   descriptions:
-    short_desc: |
+    short_desc: |2
       Пузатая мелочь шныряет под ногами
-    long_desc: |
+    long_desc: |2
       Приглядевшись внимательнее, Вы заметили, что эта пузатая мелочь
       третьего уровня
-  action_flags:
-  - kNpc
-  - kStayZone
-  affect_flags:
-  - kNoTrack
   alignment: 600
-  mob_type: E
   stats:
     level: 3
     hitroll_penalty: 18
@@ -210,18 +198,22 @@
     start: kStand
   sex: kMale
   size: 33
-  mob_class: 100
   race: 100
   height: 198
   weight: 150
+  action_flags:
+    - kNpc
+    - kStayZone
+  affect_flags:
+    - kNoTrack
   skills:
-  - skill_id: 136  # kPunch
-    value: 9
+    - skill_id: 136  # кулачный бой
+      value: 9
   enhanced:
-    special_bitvector: '0'
+    absorb: 3
 
+# Mob #204
 4:
-  # Mob #204
   names:
     aliases: моб четвертого уровня
     nominative: моб четвертого уровня
@@ -231,18 +223,12 @@
     instrumental: мобом четвертого уровня
     prepositional: мобе четвертого уровня
   descriptions:
-    short_desc: |
+    short_desc: |2
       Пузатая немелочь расхаживает взад вперед
-    long_desc: |
+    long_desc: |2
       Странно, подумали Вы, взглянув на это создание, что такое умное на вид
       существо всего лишь четвертого уровня
-  action_flags:
-  - kNpc
-  - kStayZone
-  affect_flags:
-  - kNoTrack
   alignment: 600
-  mob_type: E
   stats:
     level: 4
     hitroll_penalty: 17
@@ -265,18 +251,22 @@
     start: kStand
   sex: kMale
   size: 34
-  mob_class: 100
   race: 100
   height: 198
   weight: 150
+  action_flags:
+    - kNpc
+    - kStayZone
+  affect_flags:
+    - kNoTrack
   skills:
-  - skill_id: 136  # kPunch
-    value: 12
+    - skill_id: 136  # кулачный бой
+      value: 12
   enhanced:
-    special_bitvector: '0'
+    absorb: 4
 
+# Mob #205
 5:
-  # Mob #205
   names:
     aliases: чармис пятого уровня
     nominative: чармис пятого уровня дамагер
@@ -286,16 +276,10 @@
     instrumental: чармисом пятого уровня
     prepositional: чармисе пятого уровня
   descriptions:
-    short_desc: |
+    short_desc: |2
       Это просто чармис пятого уровня
-    long_desc: |2+
-
-  action_flags:
-  - kNpc
-  affect_flags:
-  - kNoTrack
+    long_desc: неопределен
   alignment: 600
-  mob_type: E
   stats:
     level: 5
     hitroll_penalty: 14
@@ -318,18 +302,21 @@
     start: kStand
   sex: kMale
   size: 35
-  mob_class: 100
   race: 100
   height: 198
   weight: 150
+  action_flags:
+    - kNpc
+  affect_flags:
+    - kNoTrack
   skills:
-  - skill_id: 136  # kPunch
-    value: 15
+    - skill_id: 136  # кулачный бой
+      value: 15
   enhanced:
-    special_bitvector: '0'
+    absorb: 5
 
+# Mob #206
 6:
-  # Mob #206
   names:
     aliases: чармис шестого уровня
     nominative: чармис шестого уровня танк
@@ -339,17 +326,10 @@
     instrumental: чармисом шестого уровня
     prepositional: чармисе шестого уровня
   descriptions:
-    short_desc: |
-      чармис шестого уровня стоит тут
-    long_desc: |2+
-
-  action_flags:
-  - kNpc
-  - kStayZone
-  affect_flags:
-  - kNoTrack
+    short_desc: |2
+      Чармис шестого уровня стоит тут
+    long_desc: неопределен
   alignment: 600
-  mob_type: E
   stats:
     level: 6
     hitroll_penalty: 15
@@ -372,20 +352,24 @@
     start: kStand
   sex: kMale
   size: 36
-  mob_class: 100
   race: 100
   height: 198
   weight: 150
+  action_flags:
+    - kNpc
+    - kStayZone
+  affect_flags:
+    - kNoTrack
   skills:
-  - skill_id: 136  # kPunch
-    value: 18
-  - skill_id: 137  # kRescue
-    value: 10
+    - skill_id: 136  # кулачный бой
+      value: 18
+    - skill_id: 137  # спасти
+      value: 10
   enhanced:
-    special_bitvector: '0'
+    absorb: 6
 
+# Mob #207
 7:
-  # Mob #207
   names:
     aliases: чармис седьмого уровня
     nominative: чармис седьмого уровня_дамаг
@@ -395,17 +379,10 @@
     instrumental: чармисом седьмого уровня
     prepositional: чармисе седьмого уровня
   descriptions:
-    short_desc: |
-      чармис седьмого уровня расположился тут
-    long_desc: |2+
-
-  action_flags:
-  - kNpc
-  - kStayZone
-  affect_flags:
-  - kNoTrack
+    short_desc: |2
+      Чармис седьмого уровня расположился тут
+    long_desc: неопределен
   alignment: 600
-  mob_type: E
   stats:
     level: 7
     hitroll_penalty: 13
@@ -428,18 +405,23 @@
     start: kStand
   sex: kMale
   size: 37
-  mob_class: 100
   race: 100
   height: 198
   weight: 150
+  action_flags:
+    - kNpc
+    - kStayZone
+  affect_flags:
+    - kNoTrack
   skills:
-  - skill_id: 136  # kPunch
-    value: 21
+    - skill_id: 136  # кулачный бой
+      value: 21
   enhanced:
-    special_bitvector: '0'
+    absorb: 7
+    max_factor: 1
 
+# Mob #208
 8:
-  # Mob #208
   names:
     aliases: чармис восьмого уровня
     nominative: чармис восьмого уровня_танк
@@ -449,17 +431,10 @@
     instrumental: чармисом восьмого уровня
     prepositional: чармисе восьмого уровня
   descriptions:
-    short_desc: |
+    short_desc: |2
       Несколько раздобревший вширь чармис стоит здесь
-    long_desc: |2+
-
-  action_flags:
-  - kNpc
-  - kStayZone
-  affect_flags:
-  - kNoTrack
+    long_desc: неопределен
   alignment: 600
-  mob_type: E
   stats:
     level: 8
     hitroll_penalty: 13
@@ -482,20 +457,25 @@
     start: kStand
   sex: kMale
   size: 38
-  mob_class: 100
   race: 100
   height: 198
   weight: 150
+  action_flags:
+    - kNpc
+    - kStayZone
+  affect_flags:
+    - kNoTrack
   skills:
-  - skill_id: 136  # kPunch
-    value: 24
-  - skill_id: 137  # kRescue
-    value: 16
+    - skill_id: 136  # кулачный бой
+      value: 24
+    - skill_id: 137  # спасти
+      value: 16
   enhanced:
-    special_bitvector: '0'
+    absorb: 8
+    max_factor: 1
 
+# Mob #209
 9:
-  # Mob #209
   names:
     aliases: чармис девятого уровня
     nominative: чармис девятого уровня_дамаг
@@ -505,17 +485,10 @@
     instrumental: чармисом девятого уровня
     prepositional: чармисе девятого уровня
   descriptions:
-    short_desc: |
+    short_desc: |2
       Несколько раздобревший вширь и ввысь чармис стоит туточки
-    long_desc: |2+
-
-  action_flags:
-  - kNpc
-  - kStayZone
-  affect_flags:
-  - kNoTrack
+    long_desc: неопределен
   alignment: 600
-  mob_type: E
   stats:
     level: 9
     hitroll_penalty: 11
@@ -538,19 +511,24 @@
     start: kStand
   sex: kMale
   size: 39
-  mob_class: 100
   race: 100
   height: 198
   weight: 150
+  action_flags:
+    - kNpc
+    - kStayZone
+  affect_flags:
+    - kNoTrack
   skills:
-  - skill_id: 136  # kPunch
-    value: 27
+    - skill_id: 136  # кулачный бой
+      value: 27
   enhanced:
+    absorb: 9
+    max_factor: 1
     extra_attack: 1
-    special_bitvector: '0'
 
+# Mob #210
 10:
-  # Mob #210
   names:
     aliases: чармис десятого уровня
     nominative: чармис десятого уровня_танк
@@ -560,17 +538,10 @@
     instrumental: чармисом десятого уровня
     prepositional: чармисе десятого уровня
   descriptions:
-    short_desc: |
+    short_desc: |2
       Несколько обнаглевший чармис смотрит на Вас, не отрываясь.
-    long_desc: |2+
-
-  action_flags:
-  - kNpc
-  - kStayZone
-  affect_flags:
-  - kNoTrack
+    long_desc: неопределен
   alignment: 600
-  mob_type: E
   stats:
     level: 10
     hitroll_penalty: 11
@@ -593,21 +564,26 @@
     start: kStand
   sex: kMale
   size: 40
-  mob_class: 100
   race: 100
   height: 198
   weight: 150
+  action_flags:
+    - kNpc
+    - kStayZone
+  affect_flags:
+    - kNoTrack
   skills:
-  - skill_id: 136  # kPunch
-    value: 30
-  - skill_id: 137  # kRescue
-    value: 22
+    - skill_id: 136  # кулачный бой
+      value: 30
+    - skill_id: 137  # спасти
+      value: 22
   enhanced:
+    absorb: 10
+    max_factor: 1
     extra_attack: 1
-    special_bitvector: '0'
 
+# Mob #211
 11:
-  # Mob #211
   names:
     aliases: чармис одиннадцатого уровня
     nominative: чармис одиннадцатого уровня_дамаг
@@ -617,17 +593,10 @@
     instrumental: чармисом одиннадцатого уровня
     prepositional: чармисе одиннадцатого уровня
   descriptions:
-    short_desc: |
-      чармис средних размеров глазеет на окружающих
-    long_desc: |2+
-
-  action_flags:
-  - kNpc
-  - kStayZone
-  affect_flags:
-  - kNoTrack
+    short_desc: |2
+      Чармис средних размеров глазеет на окружающих
+    long_desc: неопределен
   alignment: 600
-  mob_type: E
   stats:
     level: 11
     hitroll_penalty: 9
@@ -650,19 +619,24 @@
     start: kStand
   sex: kMale
   size: 41
-  mob_class: 100
   race: 100
   height: 198
   weight: 150
+  action_flags:
+    - kNpc
+    - kStayZone
+  affect_flags:
+    - kNoTrack
   skills:
-  - skill_id: 136  # kPunch
-    value: 33
+    - skill_id: 136  # кулачный бой
+      value: 33
   enhanced:
+    absorb: 11
+    max_factor: 1
     extra_attack: 1
-    special_bitvector: '0'
 
+# Mob #212
 12:
-  # Mob #212
   names:
     aliases: чармис двенадцатого уровня
     nominative: чармис двенадцатого уровня_танк
@@ -672,17 +646,10 @@
     instrumental: чармисом двенадцатого уровня
     prepositional: чармисе двенадцатого уровня
   descriptions:
-    short_desc: |
-      чармис средних размеров обозревает окрестности
-    long_desc: |2+
-
-  action_flags:
-  - kNpc
-  - kStayZone
-  affect_flags:
-  - kNoTrack
+    short_desc: |2
+      Чармис средних размеров обозревает окрестности
+    long_desc: неопределен
   alignment: 600
-  mob_type: E
   stats:
     level: 12
     hitroll_penalty: 10
@@ -705,21 +672,26 @@
     start: kStand
   sex: kMale
   size: 42
-  mob_class: 100
   race: 100
   height: 198
   weight: 150
+  action_flags:
+    - kNpc
+    - kStayZone
+  affect_flags:
+    - kNoTrack
   skills:
-  - skill_id: 136  # kPunch
-    value: 36
-  - skill_id: 137  # kRescue
-    value: 28
+    - skill_id: 136  # кулачный бой
+      value: 36
+    - skill_id: 137  # спасти
+      value: 28
   enhanced:
+    absorb: 12
+    max_factor: 1
     extra_attack: 1
-    special_bitvector: '0'
 
+# Mob #213
 13:
-  # Mob #213
   names:
     aliases: чармис тринадцатого уровня
     nominative: чармис тринадцатого уровня_дамаг
@@ -729,17 +701,10 @@
     instrumental: чармисом тринадцатого уровня
     prepositional: чармисе тринадцатого уровня
   descriptions:
-    short_desc: |
+    short_desc: |2
       Маленький чертенок считает до дюжины
-    long_desc: |2+
-
-  action_flags:
-  - kNpc
-  - kStayZone
-  affect_flags:
-  - kNoTrack
+    long_desc: неопределен
   alignment: 600
-  mob_type: E
   stats:
     level: 13
     hitroll_penalty: 9
@@ -762,19 +727,24 @@
     start: kStand
   sex: kMale
   size: 43
-  mob_class: 100
   race: 100
   height: 198
   weight: 150
+  action_flags:
+    - kNpc
+    - kStayZone
+  affect_flags:
+    - kNoTrack
   skills:
-  - skill_id: 136  # kPunch
-    value: 39
+    - skill_id: 136  # кулачный бой
+      value: 39
   enhanced:
+    absorb: 13
+    max_factor: 1
     extra_attack: 1
-    special_bitvector: '0'
 
+# Mob #214
 14:
-  # Mob #214
   names:
     aliases: чармис четырнадцатого уровня
     nominative: чармис четырнадцатого уровня
@@ -784,17 +754,10 @@
     instrumental: чармисом четырнадцатого уровня
     prepositional: чармисе четырнадцатого уровня
   descriptions:
-    short_desc: |
+    short_desc: |2
       Высокий дылда опирается на сучковатую дубину
-    long_desc: |2+
-
-  action_flags:
-  - kNpc
-  - kStayZone
-  affect_flags:
-  - kNoTrack
+    long_desc: неопределен
   alignment: 600
-  mob_type: E
   stats:
     level: 14
     hitroll_penalty: 8
@@ -817,21 +780,26 @@
     start: kStand
   sex: kMale
   size: 44
-  mob_class: 100
   race: 100
   height: 198
   weight: 150
+  action_flags:
+    - kNpc
+    - kStayZone
+  affect_flags:
+    - kNoTrack
   skills:
-  - skill_id: 136  # kPunch
-    value: 42
-  - skill_id: 137  # kRescue
-    value: 34
+    - skill_id: 136  # кулачный бой
+      value: 42
+    - skill_id: 137  # спасти
+      value: 34
   enhanced:
+    absorb: 14
+    max_factor: 2
     extra_attack: 1
-    special_bitvector: '0'
 
+# Mob #215
 15:
-  # Mob #215
   names:
     aliases: чармис пятнадцатого уровня
     nominative: чармис пятнадцатого уровня
@@ -841,17 +809,10 @@
     instrumental: чармисом пятнадцатого уровня
     prepositional: чармисе пятнадцатого уровня
   descriptions:
-    short_desc: |
+    short_desc: |2
       Просто чармис просто пятнадцатого уровня.
-    long_desc: |2+
-
-  action_flags:
-  - kNpc
-  - kStayZone
-  affect_flags:
-  - kNoTrack
+    long_desc: неопределен
   alignment: 600
-  mob_type: E
   stats:
     level: 15
     hitroll_penalty: 8
@@ -874,19 +835,24 @@
     start: kStand
   sex: kMale
   size: 45
-  mob_class: 100
   race: 100
   height: 198
   weight: 150
+  action_flags:
+    - kNpc
+    - kStayZone
+  affect_flags:
+    - kNoTrack
   skills:
-  - skill_id: 136  # kPunch
-    value: 45
+    - skill_id: 136  # кулачный бой
+      value: 45
   enhanced:
+    absorb: 15
+    max_factor: 2
     extra_attack: 1
-    special_bitvector: '0'
 
+# Mob #216
 16:
-  # Mob #216
   names:
     aliases: чармис шестнадцатого уровня
     nominative: чармис шестнадцатого уровня
@@ -896,17 +862,10 @@
     instrumental: чармисом шестнадцатого уровня
     prepositional: чармисе шестнадцатого уровня
   descriptions:
-    short_desc: |
+    short_desc: |2
       Просто чармис шестнадцатого уровня.
-    long_desc: |2+
-
-  action_flags:
-  - kNpc
-  - kStayZone
-  affect_flags:
-  - kNoTrack
+    long_desc: неопределен
   alignment: 600
-  mob_type: E
   stats:
     level: 16
     hitroll_penalty: 7
@@ -929,21 +888,26 @@
     start: kStand
   sex: kMale
   size: 46
-  mob_class: 100
   race: 100
   height: 198
   weight: 150
+  action_flags:
+    - kNpc
+    - kStayZone
+  affect_flags:
+    - kNoTrack
   skills:
-  - skill_id: 136  # kPunch
-    value: 48
-  - skill_id: 137  # kRescue
-    value: 40
+    - skill_id: 136  # кулачный бой
+      value: 48
+    - skill_id: 137  # спасти
+      value: 40
   enhanced:
+    absorb: 16
+    max_factor: 2
     extra_attack: 1
-    special_bitvector: '0'
 
+# Mob #217
 17:
-  # Mob #217
   names:
     aliases: чармис семнадцатого уровня
     nominative: чармис семнадцатого уровня
@@ -953,17 +917,10 @@
     instrumental: чармисом семнадцатого уровня
     prepositional: чармисе семнадцатого уровня
   descriptions:
-    short_desc: |
+    short_desc: |2
       Чармис семнадцатого уровня мается дурью.
-    long_desc: |2+
-
-  action_flags:
-  - kNpc
-  - kStayZone
-  affect_flags:
-  - kNoTrack
+    long_desc: неопределен
   alignment: 600
-  mob_type: E
   stats:
     level: 17
     hitroll_penalty: 7
@@ -986,19 +943,24 @@
     start: kStand
   sex: kMale
   size: 47
-  mob_class: 100
   race: 100
   height: 198
   weight: 150
+  action_flags:
+    - kNpc
+    - kStayZone
+  affect_flags:
+    - kNoTrack
   skills:
-  - skill_id: 136  # kPunch
-    value: 51
+    - skill_id: 136  # кулачный бой
+      value: 51
   enhanced:
+    absorb: 17
+    max_factor: 2
     extra_attack: 1
-    special_bitvector: '0'
 
+# Mob #218
 18:
-  # Mob #218
   names:
     aliases: чармис восемнадцатого уровня
     nominative: чармис восемнадцатого уровня
@@ -1008,17 +970,10 @@
     instrumental: чармисом восемнадцатого уровня
     prepositional: чармисе восемнадцатого уровня
   descriptions:
-    short_desc: |
+    short_desc: |2
       Чармис восемнадцатого уровня просто стоит тут.
-    long_desc: |2+
-
-  action_flags:
-  - kNpc
-  - kStayZone
-  affect_flags:
-  - kNoTrack
+    long_desc: неопределен
   alignment: 600
-  mob_type: E
   stats:
     level: 18
     hitroll_penalty: 6
@@ -1041,21 +996,26 @@
     start: kStand
   sex: kMale
   size: 48
-  mob_class: 100
   race: 100
   height: 198
   weight: 150
+  action_flags:
+    - kNpc
+    - kStayZone
+  affect_flags:
+    - kNoTrack
   skills:
-  - skill_id: 136  # kPunch
-    value: 54
-  - skill_id: 137  # kRescue
-    value: 46
+    - skill_id: 136  # кулачный бой
+      value: 54
+    - skill_id: 137  # спасти
+      value: 46
   enhanced:
+    absorb: 18
+    max_factor: 2
     extra_attack: 1
-    special_bitvector: '0'
 
+# Mob #219
 19:
-  # Mob #219
   names:
     aliases: чармис девятнадцатого уровня
     nominative: чармис девятнадцатого уровня
@@ -1065,17 +1025,10 @@
     instrumental: чармисом девятнадцатого уровня
     prepositional: чармисе девятнадцатого уровня
   descriptions:
-    short_desc: |
+    short_desc: |2
       Девятнадцатиуровневый монстр рычит на Вас.
-    long_desc: |2+
-
-  action_flags:
-  - kNpc
-  - kStayZone
-  affect_flags:
-  - kNoTrack
+    long_desc: неопределен
   alignment: 600
-  mob_type: E
   stats:
     level: 19
     hitroll_penalty: 6
@@ -1098,19 +1051,24 @@
     start: kStand
   sex: kMale
   size: 49
-  mob_class: 100
   race: 100
   height: 198
   weight: 150
+  action_flags:
+    - kNpc
+    - kStayZone
+  affect_flags:
+    - kNoTrack
   skills:
-  - skill_id: 136  # kPunch
-    value: 57
+    - skill_id: 136  # кулачный бой
+      value: 57
   enhanced:
+    absorb: 19
+    max_factor: 2
     extra_attack: 1
-    special_bitvector: '0'
 
+# Mob #220
 20:
-  # Mob #220
   names:
     aliases: чармис двадцатого уровня
     nominative: чармис двадцатого уровня_танк
@@ -1120,17 +1078,10 @@
     instrumental: чармисом двадцатого уровня
     prepositional: чармисе двадцатого уровня
   descriptions:
-    short_desc: |
-      чармис двадцатого уровня стоит здесь и мается со скуки
-    long_desc: |2+
-
-  action_flags:
-  - kNpc
-  - kStayZone
-  affect_flags:
-  - kNoTrack
+    short_desc: |2
+      Чармис двадцатого уровня стоит здесь и мается со скуки
+    long_desc: неопределен
   alignment: 600
-  mob_type: E
   stats:
     level: 20
     hitroll_penalty: 5
@@ -1153,21 +1104,26 @@
     start: kStand
   sex: kMale
   size: 50
-  mob_class: 100
   race: 100
   height: 198
   weight: 150
+  action_flags:
+    - kNpc
+    - kStayZone
+  affect_flags:
+    - kNoTrack
   skills:
-  - skill_id: 136  # kPunch
-    value: 60
-  - skill_id: 137  # kRescue
-    value: 52
+    - skill_id: 136  # кулачный бой
+      value: 60
+    - skill_id: 137  # спасти
+      value: 52
   enhanced:
+    absorb: 20
+    max_factor: 2
     extra_attack: 1
-    special_bitvector: '0'
 
+# Mob #221
 21:
-  # Mob #221
   names:
     aliases: чармис двадцать первого уровня
     nominative: чармис двадцать первого уровня_дамаг
@@ -1177,17 +1133,10 @@
     instrumental: чармисом двадцать первого уровня
     prepositional: чармисе двадцать первого уровня
   descriptions:
-    short_desc: |
-      чармис двадцать первого уровня стоит здесь и мается со скуки
-    long_desc: |2+
-
-  action_flags:
-  - kNpc
-  - kStayZone
-  affect_flags:
-  - kNoTrack
+    short_desc: |2
+      Чармис двадцать первого уровня стоит здесь и мается со скуки
+    long_desc: неопределен
   alignment: 600
-  mob_type: E
   stats:
     level: 21
     hitroll_penalty: 4
@@ -1210,19 +1159,24 @@
     start: kStand
   sex: kMale
   size: 51
-  mob_class: 100
   race: 100
   height: 198
   weight: 150
+  action_flags:
+    - kNpc
+    - kStayZone
+  affect_flags:
+    - kNoTrack
   skills:
-  - skill_id: 136  # kPunch
-    value: 63
+    - skill_id: 136  # кулачный бой
+      value: 63
   enhanced:
+    absorb: 21
+    max_factor: 3
     extra_attack: 1
-    special_bitvector: '0'
 
+# Mob #222
 22:
-  # Mob #222
   names:
     aliases: чармис двадцать второго уровня
     nominative: чармис двадцать второго уровня_танк
@@ -1232,17 +1186,10 @@
     instrumental: чармисом двадцать второго уровня
     prepositional: чармисе двадцать второго уровня
   descriptions:
-    short_desc: |
-      чармис двадцать второго уровня стоит здесь и мается со скуки
-    long_desc: |2+
-
-  action_flags:
-  - kNpc
-  - kStayZone
-  affect_flags:
-  - kNoTrack
+    short_desc: |2
+      Чармис двадцать второго уровня стоит здесь и мается со скуки
+    long_desc: неопределен
   alignment: 600
-  mob_type: E
   stats:
     level: 22
     hitroll_penalty: 3
@@ -1265,21 +1212,26 @@
     start: kStand
   sex: kMale
   size: 52
-  mob_class: 100
   race: 100
   height: 198
   weight: 150
+  action_flags:
+    - kNpc
+    - kStayZone
+  affect_flags:
+    - kNoTrack
   skills:
-  - skill_id: 136  # kPunch
-    value: 66
-  - skill_id: 137  # kRescue
-    value: 58
+    - skill_id: 136  # кулачный бой
+      value: 66
+    - skill_id: 137  # спасти
+      value: 58
   enhanced:
+    absorb: 22
+    max_factor: 3
     extra_attack: 1
-    special_bitvector: '0'
 
+# Mob #223
 23:
-  # Mob #223
   names:
     aliases: чармис двадцать третьего уровня
     nominative: чармис двадцать третьего уровня_дамаг
@@ -1289,17 +1241,10 @@
     instrumental: чармисом двадцать третьего уровня
     prepositional: чармисе двадцать третьего уровня
   descriptions:
-    short_desc: |
-      чармис двадцать третьего уровня стоит здесь и мается со скуки
-    long_desc: |2+
-
-  action_flags:
-  - kNpc
-  - kStayZone
-  affect_flags:
-  - kNoTrack
+    short_desc: |2
+      Чармис двадцать третьего уровня стоит здесь и мается со скуки
+    long_desc: неопределен
   alignment: 600
-  mob_type: E
   stats:
     level: 23
     hitroll_penalty: 3
@@ -1322,19 +1267,24 @@
     start: kStand
   sex: kMale
   size: 53
-  mob_class: 100
   race: 100
   height: 198
   weight: 150
+  action_flags:
+    - kNpc
+    - kStayZone
+  affect_flags:
+    - kNoTrack
   skills:
-  - skill_id: 136  # kPunch
-    value: 69
+    - skill_id: 136  # кулачный бой
+      value: 69
   enhanced:
+    absorb: 23
+    max_factor: 3
     extra_attack: 1
-    special_bitvector: '0'
 
+# Mob #224
 24:
-  # Mob #224
   names:
     aliases: чармис двадцать четвертого уровня
     nominative: чармис двадцать четвертого уровня_танк
@@ -1344,17 +1294,10 @@
     instrumental: чармисом двадцать четвертого уровня
     prepositional: чармисе двадцать четвертого уровня
   descriptions:
-    short_desc: |
-      чармис двадцать четвертого уровня стоит здесь и мается со скуки
-    long_desc: |2+
-
-  action_flags:
-  - kNpc
-  - kStayZone
-  affect_flags:
-  - kNoTrack
+    short_desc: |2
+      Чармис двадцать четвертого уровня стоит здесь и мается со скуки
+    long_desc: неопределен
   alignment: 600
-  mob_type: E
   stats:
     level: 24
     hitroll_penalty: 2
@@ -1377,21 +1320,26 @@
     start: kStand
   sex: kMale
   size: 54
-  mob_class: 100
   race: 100
   height: 198
   weight: 150
+  action_flags:
+    - kNpc
+    - kStayZone
+  affect_flags:
+    - kNoTrack
   skills:
-  - skill_id: 136  # kPunch
-    value: 72
-  - skill_id: 137  # kRescue
-    value: 64
+    - skill_id: 136  # кулачный бой
+      value: 72
+    - skill_id: 137  # спасти
+      value: 64
   enhanced:
+    absorb: 24
+    max_factor: 3
     extra_attack: 1
-    special_bitvector: '0'
 
+# Mob #225
 25:
-  # Mob #225
   names:
     aliases: чармис двадцать пятого уровня
     nominative: чармис двадцать пятого уровня_дамаг
@@ -1401,17 +1349,10 @@
     instrumental: чармисом двадцать пятого уровня
     prepositional: чармисе двадцать пятого уровня
   descriptions:
-    short_desc: |
-      чармис двадцать пятого уровня стоит здесь и мается со скуки
-    long_desc: |2+
-
-  action_flags:
-  - kNpc
-  - kStayZone
-  affect_flags:
-  - kNoTrack
+    short_desc: |2
+      Чармис двадцать пятого уровня стоит здесь и мается со скуки
+    long_desc: неопределен
   alignment: 600
-  mob_type: E
   stats:
     level: 25
     hitroll_penalty: 2
@@ -1434,19 +1375,24 @@
     start: kStand
   sex: kMale
   size: 55
-  mob_class: 100
   race: 100
   height: 198
   weight: 150
+  action_flags:
+    - kNpc
+    - kStayZone
+  affect_flags:
+    - kNoTrack
   skills:
-  - skill_id: 136  # kPunch
-    value: 75
+    - skill_id: 136  # кулачный бой
+      value: 75
   enhanced:
+    absorb: 25
+    max_factor: 3
     extra_attack: 2
-    special_bitvector: '0'
 
+# Mob #226
 26:
-  # Mob #226
   names:
     aliases: чармис двадцать шестого уровня
     nominative: чармис двадцать шестого уровня_танк
@@ -1456,17 +1402,10 @@
     instrumental: чармисом двадцать шестого уровня
     prepositional: чармисе двадцать шестого уровня
   descriptions:
-    short_desc: |
-      чармис двадцать шестого уровня стоит здесь и мается со скуки
-    long_desc: |2+
-
-  action_flags:
-  - kNpc
-  - kStayZone
-  affect_flags:
-  - kNoTrack
+    short_desc: |2
+      Чармис двадцать шестого уровня стоит здесь и мается со скуки
+    long_desc: неопределен
   alignment: 600
-  mob_type: E
   stats:
     level: 26
     hitroll_penalty: 2
@@ -1489,21 +1428,26 @@
     start: kStand
   sex: kMale
   size: 56
-  mob_class: 100
   race: 100
   height: 198
   weight: 150
+  action_flags:
+    - kNpc
+    - kStayZone
+  affect_flags:
+    - kNoTrack
   skills:
-  - skill_id: 136  # kPunch
-    value: 78
-  - skill_id: 137  # kRescue
-    value: 70
+    - skill_id: 136  # кулачный бой
+      value: 78
+    - skill_id: 137  # спасти
+      value: 70
   enhanced:
+    absorb: 26
+    max_factor: 3
     extra_attack: 2
-    special_bitvector: '0'
 
+# Mob #227
 27:
-  # Mob #227
   names:
     aliases: чармис двадцать седьмого уровня
     nominative: чармис двадцать седьмого уровня_дамаг
@@ -1513,17 +1457,10 @@
     instrumental: чармисом двадцать седьмого уровня
     prepositional: чармисе двадцать седьмого уровня
   descriptions:
-    short_desc: |
-      чармис двадцать седьмого уровня стоит здесь и мается со скуки
-    long_desc: |2+
-
-  action_flags:
-  - kNpc
-  - kStayZone
-  affect_flags:
-  - kNoTrack
+    short_desc: |2
+      Чармис двадцать седьмого уровня стоит здесь и мается со скуки
+    long_desc: неопределен
   alignment: 600
-  mob_type: E
   stats:
     level: 27
     hitroll_penalty: 1
@@ -1546,19 +1483,24 @@
     start: kStand
   sex: kMale
   size: 57
-  mob_class: 100
   race: 100
   height: 198
   weight: 150
+  action_flags:
+    - kNpc
+    - kStayZone
+  affect_flags:
+    - kNoTrack
   skills:
-  - skill_id: 136  # kPunch
-    value: 81
+    - skill_id: 136  # кулачный бой
+      value: 81
   enhanced:
+    absorb: 27
+    max_factor: 3
     extra_attack: 2
-    special_bitvector: '0'
 
+# Mob #228
 28:
-  # Mob #228
   names:
     aliases: чармис двадцать восьмого уровня
     nominative: чармис двадцать восьмого уровня_танк
@@ -1568,17 +1510,10 @@
     instrumental: чармисом двадцать восьмого уровня
     prepositional: чармисе двадцать восьмого уровня
   descriptions:
-    short_desc: |
-      чармис двадцать восьмого уровня стоит здесь и мается со скуки
-    long_desc: |2+
-
-  action_flags:
-  - kNpc
-  - kStayZone
-  affect_flags:
-  - kNoTrack
+    short_desc: |2
+      Чармис двадцать восьмого уровня стоит здесь и мается со скуки
+    long_desc: неопределен
   alignment: 600
-  mob_type: E
   stats:
     level: 28
     hitroll_penalty: 0
@@ -1601,21 +1536,26 @@
     start: kStand
   sex: kMale
   size: 58
-  mob_class: 100
   race: 100
   height: 198
   weight: 150
+  action_flags:
+    - kNpc
+    - kStayZone
+  affect_flags:
+    - kNoTrack
   skills:
-  - skill_id: 136  # kPunch
-    value: 84
-  - skill_id: 137  # kRescue
-    value: 76
+    - skill_id: 136  # кулачный бой
+      value: 84
+    - skill_id: 137  # спасти
+      value: 76
   enhanced:
+    absorb: 28
+    max_factor: 4
     extra_attack: 2
-    special_bitvector: '0'
 
+# Mob #229
 29:
-  # Mob #229
   names:
     aliases: чармис двадцать девятого уровня
     nominative: чармис двадцать девятого уровня_дамаг
@@ -1625,17 +1565,10 @@
     instrumental: чармисом двадцать девятого уровня
     prepositional: чармисе двадцать девятого уровня
   descriptions:
-    short_desc: |
-      чармис двадцать девятого уровня стоит здесь и мается со скуки
-    long_desc: |2+
-
-  action_flags:
-  - kNpc
-  - kStayZone
-  affect_flags:
-  - kNoTrack
+    short_desc: |2
+      Чармис двадцать девятого уровня стоит здесь и мается со скуки
+    long_desc: неопределен
   alignment: 600
-  mob_type: E
   stats:
     level: 29
     hitroll_penalty: -1
@@ -1658,19 +1591,24 @@
     start: kStand
   sex: kMale
   size: 59
-  mob_class: 100
   race: 100
   height: 198
   weight: 150
+  action_flags:
+    - kNpc
+    - kStayZone
+  affect_flags:
+    - kNoTrack
   skills:
-  - skill_id: 136  # kPunch
-    value: 87
+    - skill_id: 136  # кулачный бой
+      value: 87
   enhanced:
+    absorb: 29
+    max_factor: 4
     extra_attack: 3
-    special_bitvector: '0'
 
+# Mob #230
 30:
-  # Mob #230
   names:
     aliases: чармис тридцатого уровня
     nominative: чармис тридцатого уровня_танк
@@ -1680,17 +1618,10 @@
     instrumental: чармисом тридцатого уровня
     prepositional: чармисе тридцатого уровня
   descriptions:
-    short_desc: |
-      чармис тридцатого уровня стоит здесь и мается со скуки
-    long_desc: |2+
-
-  action_flags:
-  - kNpc
-  - kStayZone
-  affect_flags:
-  - kNoTrack
+    short_desc: |2
+      Чармис тридцатого уровня стоит здесь и мается со скуки
+    long_desc: неопределен
   alignment: 600
-  mob_type: E
   stats:
     level: 30
     hitroll_penalty: -1
@@ -1712,24 +1643,34 @@
     default: kStand
     start: kStand
   sex: kMale
-  attributes:
-    dexterity: 25
   size: 60
-  mob_class: 100
   race: 100
   height: 198
   weight: 150
+  attributes:
+    strength: 11
+    dexterity: 25
+    intelligence: 11
+    wisdom: 11
+    constitution: 11
+    charisma: 11
+  action_flags:
+    - kNpc
+    - kStayZone
+  affect_flags:
+    - kNoTrack
   skills:
-  - skill_id: 136  # kPunch
-    value: 90
-  - skill_id: 137  # kRescue
-    value: 82
+    - skill_id: 136  # кулачный бой
+      value: 90
+    - skill_id: 137  # спасти
+      value: 82
   enhanced:
+    absorb: 30
+    max_factor: 4
     extra_attack: 3
-    special_bitvector: '0'
 
+# Mob #231
 31:
-  # Mob #231
   names:
     aliases: чармис тридцать первого уровня_дамаг
     nominative: чармис тридцать первого уровня_дамаг
@@ -1739,17 +1680,10 @@
     instrumental: чармисом тридцатого уровня
     prepositional: чармисе тридцатого уровня
   descriptions:
-    short_desc: |
-      чармис тридцатого уровня стоит здесь и мается со скуки
-    long_desc: |2+
-
-  action_flags:
-  - kNpc
-  - kStayZone
-  affect_flags:
-  - kNoTrack
+    short_desc: |2
+      Чармис тридцатого уровня стоит здесь и мается со скуки
+    long_desc: неопределен
   alignment: 600
-  mob_type: E
   stats:
     level: 31
     hitroll_penalty: -1
@@ -1772,19 +1706,30 @@
     start: kStand
   sex: kMale
   size: 61
-  mob_class: 100
   race: 100
   height: 198
   weight: 150
+  action_flags:
+    - kNpc
+    - kStayZone
+  affect_flags:
+    - kNoTrack
   skills:
-  - skill_id: 136  # kPunch
-    value: 93
+    - skill_id: 136  # кулачный бой
+      value: 93
   enhanced:
+    cast_success: 20
+    absorb: 31
+    max_factor: 4
     extra_attack: 3
-    special_bitvector: '0'
+    saves:
+      kWill: -10
+      kCritical: -10
+      kStability: -10
+      kReflex: -10
 
+# Mob #232
 32:
-  # Mob #232
   names:
     aliases: чармис тридцать воторого уровня_танк
     nominative: чармис тридцать воторого уровня_танк
@@ -1794,17 +1739,10 @@
     instrumental: чармисом тридцатого уровня
     prepositional: чармисе тридцатого уровня
   descriptions:
-    short_desc: |
-      чармис тридцатого уровня стоит здесь и мается со скуки
-    long_desc: |2+
-
-  action_flags:
-  - kNpc
-  - kStayZone
-  affect_flags:
-  - kNoTrack
+    short_desc: |2
+      Чармис тридцатого уровня стоит здесь и мается со скуки
+    long_desc: неопределен
   alignment: 600
-  mob_type: E
   stats:
     level: 32
     hitroll_penalty: -2
@@ -1827,21 +1765,32 @@
     start: kStand
   sex: kMale
   size: 63
-  mob_class: 100
   race: 100
   height: 198
   weight: 150
+  action_flags:
+    - kNpc
+    - kStayZone
+  affect_flags:
+    - kNoTrack
   skills:
-  - skill_id: 136  # kPunch
-    value: 96
-  - skill_id: 137  # kRescue
-    value: 88
+    - skill_id: 136  # кулачный бой
+      value: 96
+    - skill_id: 137  # спасти
+      value: 88
   enhanced:
+    cast_success: 23
+    absorb: 32
+    max_factor: 4
     extra_attack: 3
-    special_bitvector: '0'
+    saves:
+      kWill: -14
+      kCritical: -14
+      kStability: -14
+      kReflex: -14
 
+# Mob #233
 33:
-  # Mob #233
   names:
     aliases: чармис тридцать третего уровня_дамаг
     nominative: чармис тридцать третего уровня_дамаг
@@ -1851,17 +1800,10 @@
     instrumental: чармисом тридцатого уровня
     prepositional: чармисе тридцатого уровня
   descriptions:
-    short_desc: |
-      чармис тридцатого уровня стоит здесь и мается со скуки
-    long_desc: |2+
-
-  action_flags:
-  - kNpc
-  - kStayZone
-  affect_flags:
-  - kNoTrack
+    short_desc: |2
+      Чармис тридцатого уровня стоит здесь и мается со скуки
+    long_desc: неопределен
   alignment: 600
-  mob_type: E
   stats:
     level: 33
     hitroll_penalty: -2
@@ -1884,19 +1826,30 @@
     start: kStand
   sex: kMale
   size: 63
-  mob_class: 100
   race: 100
   height: 198
   weight: 150
+  action_flags:
+    - kNpc
+    - kStayZone
+  affect_flags:
+    - kNoTrack
   skills:
-  - skill_id: 136  # kPunch
-    value: 99
+    - skill_id: 136  # кулачный бой
+      value: 99
   enhanced:
+    cast_success: 26
+    absorb: 33
+    max_factor: 4
     extra_attack: 3
-    special_bitvector: '0'
+    saves:
+      kWill: -18
+      kCritical: -18
+      kStability: -18
+      kReflex: -18
 
+# Mob #234
 34:
-  # Mob #234
   names:
     aliases: чармис тридцать четвертого уровня_танк
     nominative: чармис тридцать четвертого уровня_танк
@@ -1906,17 +1859,10 @@
     instrumental: чармисом тридцатого уровня
     prepositional: чармисе тридцатого уровня
   descriptions:
-    short_desc: |
-      чармис тридцатого уровня стоит здесь и мается со скуки
-    long_desc: |2+
-
-  action_flags:
-  - kNpc
-  - kStayZone
-  affect_flags:
-  - kNoTrack
+    short_desc: |2
+      Чармис тридцатого уровня стоит здесь и мается со скуки
+    long_desc: неопределен
   alignment: 600
-  mob_type: E
   stats:
     level: 34
     hitroll_penalty: -3
@@ -1939,21 +1885,32 @@
     start: kStand
   sex: kMale
   size: 63
-  mob_class: 100
   race: 100
   height: 198
   weight: 150
+  action_flags:
+    - kNpc
+    - kStayZone
+  affect_flags:
+    - kNoTrack
   skills:
-  - skill_id: 136  # kPunch
-    value: 102
-  - skill_id: 137  # kRescue
-    value: 94
+    - skill_id: 136  # кулачный бой
+      value: 102
+    - skill_id: 137  # спасти
+      value: 94
   enhanced:
+    cast_success: 29
+    absorb: 34
+    max_factor: 4
     extra_attack: 3
-    special_bitvector: '0'
+    saves:
+      kWill: -22
+      kCritical: -22
+      kStability: -22
+      kReflex: -22
 
+# Mob #235
 35:
-  # Mob #235
   names:
     aliases: чармис тридцать пятого уровня_дамаг
     nominative: чармис тридцать пятого уровня_дамаг
@@ -1963,17 +1920,10 @@
     instrumental: чармисом тридцатого уровня
     prepositional: чармисе тридцатого уровня
   descriptions:
-    short_desc: |
-      чармис тридцатого уровня стоит здесь и мается со скуки
-    long_desc: |2+
-
-  action_flags:
-  - kNpc
-  - kStayZone
-  affect_flags:
-  - kNoTrack
+    short_desc: |2
+      Чармис тридцатого уровня стоит здесь и мается со скуки
+    long_desc: неопределен
   alignment: 600
-  mob_type: E
   stats:
     level: 35
     hitroll_penalty: -4
@@ -1996,19 +1946,30 @@
     start: kStand
   sex: kMale
   size: 63
-  mob_class: 100
   race: 100
   height: 198
   weight: 150
+  action_flags:
+    - kNpc
+    - kStayZone
+  affect_flags:
+    - kNoTrack
   skills:
-  - skill_id: 136  # kPunch
-    value: 105
+    - skill_id: 136  # кулачный бой
+      value: 105
   enhanced:
+    cast_success: 32
+    absorb: 35
+    max_factor: 5
     extra_attack: 3
-    special_bitvector: '0'
+    saves:
+      kWill: -26
+      kCritical: -26
+      kStability: -26
+      kReflex: -26
 
+# Mob #236
 36:
-  # Mob #236
   names:
     aliases: чармис тридцать шестого уровня_танк
     nominative: чармис тридцать шестого уровня_танк
@@ -2018,17 +1979,10 @@
     instrumental: чармисом тридцатого уровня
     prepositional: чармисе тридцатого уровня
   descriptions:
-    short_desc: |
-      чармис тридцатого уровня стоит здесь и мается со скуки
-    long_desc: |2+
-
-  action_flags:
-  - kNpc
-  - kStayZone
-  affect_flags:
-  - kNoTrack
+    short_desc: |2
+      Чармис тридцатого уровня стоит здесь и мается со скуки
+    long_desc: неопределен
   alignment: 600
-  mob_type: E
   stats:
     level: 36
     hitroll_penalty: -5
@@ -2051,21 +2005,32 @@
     start: kStand
   sex: kMale
   size: 63
-  mob_class: 100
   race: 100
   height: 198
   weight: 150
+  action_flags:
+    - kNpc
+    - kStayZone
+  affect_flags:
+    - kNoTrack
   skills:
-  - skill_id: 136  # kPunch
-    value: 108
-  - skill_id: 137  # kRescue
-    value: 100
+    - skill_id: 136  # кулачный бой
+      value: 108
+    - skill_id: 137  # спасти
+      value: 100
   enhanced:
+    cast_success: 35
+    absorb: 36
+    max_factor: 5
     extra_attack: 3
-    special_bitvector: '0'
+    saves:
+      kWill: -30
+      kCritical: -30
+      kStability: -30
+      kReflex: -30
 
+# Mob #237
 37:
-  # Mob #237
   names:
     aliases: чармис тридцать седьмого уровня_дамаг
     nominative: чармис тридцать седьмого уровня_дамаг
@@ -2075,17 +2040,10 @@
     instrumental: чармисом тридцатого уровня
     prepositional: чармисе тридцатого уровня
   descriptions:
-    short_desc: |
-      чармис тридцатого уровня стоит здесь и мается со скуки
-    long_desc: |2+
-
-  action_flags:
-  - kNpc
-  - kStayZone
-  affect_flags:
-  - kNoTrack
+    short_desc: |2
+      Чармис тридцатого уровня стоит здесь и мается со скуки
+    long_desc: неопределен
   alignment: 600
-  mob_type: E
   stats:
     level: 37
     hitroll_penalty: -6
@@ -2108,19 +2066,30 @@
     start: kStand
   sex: kMale
   size: 63
-  mob_class: 100
   race: 100
   height: 198
   weight: 150
+  action_flags:
+    - kNpc
+    - kStayZone
+  affect_flags:
+    - kNoTrack
   skills:
-  - skill_id: 136  # kPunch
-    value: 111
+    - skill_id: 136  # кулачный бой
+      value: 111
   enhanced:
+    cast_success: 38
+    absorb: 37
+    max_factor: 5
     extra_attack: 4
-    special_bitvector: '0'
+    saves:
+      kWill: -34
+      kCritical: -34
+      kStability: -34
+      kReflex: -34
 
+# Mob #238
 38:
-  # Mob #238
   names:
     aliases: чармис тридцать восьмого уровня_танк
     nominative: чармис тридцать восьмого уровня_танк
@@ -2130,17 +2099,10 @@
     instrumental: чармисом тридцатого уровня
     prepositional: чармисе тридцатого уровня
   descriptions:
-    short_desc: |
-      чармис тридцатого уровня стоит здесь и мается со скуки
-    long_desc: |2+
-
-  action_flags:
-  - kNpc
-  - kStayZone
-  affect_flags:
-  - kNoTrack
+    short_desc: |2
+      Чармис тридцатого уровня стоит здесь и мается со скуки
+    long_desc: неопределен
   alignment: 600
-  mob_type: E
   stats:
     level: 38
     hitroll_penalty: -6
@@ -2163,21 +2125,32 @@
     start: kStand
   sex: kMale
   size: 65
-  mob_class: 100
   race: 100
   height: 198
   weight: 150
+  action_flags:
+    - kNpc
+    - kStayZone
+  affect_flags:
+    - kNoTrack
   skills:
-  - skill_id: 136  # kPunch
-    value: 114
-  - skill_id: 137  # kRescue
-    value: 106
+    - skill_id: 136  # кулачный бой
+      value: 114
+    - skill_id: 137  # спасти
+      value: 106
   enhanced:
+    cast_success: 41
+    absorb: 38
+    max_factor: 5
     extra_attack: 3
-    special_bitvector: '0'
+    saves:
+      kWill: -38
+      kCritical: -38
+      kStability: -38
+      kReflex: -38
 
+# Mob #239
 39:
-  # Mob #239
   names:
     aliases: чармис тридцать девятого уровня_дамаг
     nominative: чармис тридцать девятого уровня_дамаг
@@ -2187,17 +2160,10 @@
     instrumental: чармисом тридцатого уровня
     prepositional: чармисе тридцатого уровня
   descriptions:
-    short_desc: |
-      чармис тридцатого уровня стоит здесь и мается со скуки
-    long_desc: |2+
-
-  action_flags:
-  - kNpc
-  - kStayZone
-  affect_flags:
-  - kNoTrack
+    short_desc: |2
+      Чармис тридцатого уровня стоит здесь и мается со скуки
+    long_desc: неопределен
   alignment: 600
-  mob_type: E
   stats:
     level: 39
     hitroll_penalty: -7
@@ -2220,19 +2186,30 @@
     start: kStand
   sex: kMale
   size: 63
-  mob_class: 100
   race: 100
   height: 198
   weight: 150
+  action_flags:
+    - kNpc
+    - kStayZone
+  affect_flags:
+    - kNoTrack
   skills:
-  - skill_id: 136  # kPunch
-    value: 117
+    - skill_id: 136  # кулачный бой
+      value: 117
   enhanced:
+    cast_success: 44
+    absorb: 39
+    max_factor: 5
     extra_attack: 4
-    special_bitvector: '0'
+    saves:
+      kWill: -42
+      kCritical: -42
+      kStability: -42
+      kReflex: -42
 
+# Mob #240
 40:
-  # Mob #240
   names:
     aliases: чармис сорокового уровня_танк
     nominative: чармис сорокового уровня_танк
@@ -2242,17 +2219,10 @@
     instrumental: чармисом тридцатого уровня
     prepositional: чармисе тридцатого уровня
   descriptions:
-    short_desc: |
-      чармис тридцатого уровня стоит здесь и мается со скуки
-    long_desc: |2+
-
-  action_flags:
-  - kNpc
-  - kStayZone
-  affect_flags:
-  - kNoTrack
+    short_desc: |2
+      Чармис тридцатого уровня стоит здесь и мается со скуки
+    long_desc: неопределен
   alignment: 600
-  mob_type: E
   stats:
     level: 40
     hitroll_penalty: -7
@@ -2275,21 +2245,32 @@
     start: kStand
   sex: kMale
   size: 65
-  mob_class: 100
   race: 100
   height: 198
   weight: 150
+  action_flags:
+    - kNpc
+    - kStayZone
+  affect_flags:
+    - kNoTrack
   skills:
-  - skill_id: 136  # kPunch
-    value: 120
-  - skill_id: 137  # kRescue
-    value: 112
+    - skill_id: 136  # кулачный бой
+      value: 120
+    - skill_id: 137  # спасти
+      value: 112
   enhanced:
+    cast_success: 47
+    absorb: 40
+    max_factor: 5
     extra_attack: 4
-    special_bitvector: '0'
+    saves:
+      kWill: -46
+      kCritical: -46
+      kStability: -46
+      kReflex: -46
 
+# Mob #241
 41:
-  # Mob #241
   names:
     aliases: чармис сорок первого уровня_дамаг
     nominative: чармис сорок первого уровня_дамаг
@@ -2299,17 +2280,10 @@
     instrumental: чармисом тридцатого уровня
     prepositional: чармисе тридцатого уровня
   descriptions:
-    short_desc: |
-      чармис тридцатого уровня стоит здесь и мается со скуки
-    long_desc: |2+
-
-  action_flags:
-  - kNpc
-  - kStayZone
-  affect_flags:
-  - kNoTrack
+    short_desc: |2
+      Чармис тридцатого уровня стоит здесь и мается со скуки
+    long_desc: неопределен
   alignment: 600
-  mob_type: E
   stats:
     level: 41
     hitroll_penalty: -8
@@ -2332,19 +2306,30 @@
     start: kStand
   sex: kMale
   size: 65
-  mob_class: 100
   race: 100
   height: 198
   weight: 150
+  action_flags:
+    - kNpc
+    - kStayZone
+  affect_flags:
+    - kNoTrack
   skills:
-  - skill_id: 136  # kPunch
-    value: 123
+    - skill_id: 136  # кулачный бой
+      value: 123
   enhanced:
+    cast_success: 50
+    absorb: 41
+    max_factor: 5
     extra_attack: 4
-    special_bitvector: '0'
+    saves:
+      kWill: -50
+      kCritical: -50
+      kStability: -50
+      kReflex: -50
 
+# Mob #242
 42:
-  # Mob #242
   names:
     aliases: чармис сорок второго  уровня_танк
     nominative: чармис сорок второго  уровня_танк
@@ -2354,17 +2339,10 @@
     instrumental: чармисом тридцатого уровня
     prepositional: чармисе тридцатого уровня
   descriptions:
-    short_desc: |
-      чармис тридцатого уровня стоит здесь и мается со скуки
-    long_desc: |2+
-
-  action_flags:
-  - kNpc
-  - kStayZone
-  affect_flags:
-  - kNoTrack
+    short_desc: |2
+      Чармис тридцатого уровня стоит здесь и мается со скуки
+    long_desc: неопределен
   alignment: 600
-  mob_type: E
   stats:
     level: 42
     hitroll_penalty: 0
@@ -2387,21 +2365,32 @@
     start: kStand
   sex: kMale
   size: 67
-  mob_class: 100
   race: 100
   height: 198
   weight: 150
+  action_flags:
+    - kNpc
+    - kStayZone
+  affect_flags:
+    - kNoTrack
   skills:
-  - skill_id: 136  # kPunch
-    value: 126
-  - skill_id: 137  # kRescue
-    value: 118
+    - skill_id: 136  # кулачный бой
+      value: 126
+    - skill_id: 137  # спасти
+      value: 118
   enhanced:
+    cast_success: 53
+    absorb: 42
+    max_factor: 6
     extra_attack: 4
-    special_bitvector: '0'
+    saves:
+      kWill: -54
+      kCritical: -54
+      kStability: -54
+      kReflex: -54
 
+# Mob #243
 43:
-  # Mob #243
   names:
     aliases: чармис сорок третего уровня_дамаг
     nominative: чармис сорок третего уровня_дамаг
@@ -2411,17 +2400,10 @@
     instrumental: чармисом тридцатого уровня
     prepositional: чармисе тридцатого уровня
   descriptions:
-    short_desc: |
-      чармис тридцатого уровня стоит здесь и мается со скуки
-    long_desc: |2+
-
-  action_flags:
-  - kNpc
-  - kStayZone
-  affect_flags:
-  - kNoTrack
+    short_desc: |2
+      Чармис тридцатого уровня стоит здесь и мается со скуки
+    long_desc: неопределен
   alignment: 600
-  mob_type: E
   stats:
     level: 43
     hitroll_penalty: 0
@@ -2444,19 +2426,30 @@
     start: kStand
   sex: kMale
   size: 65
-  mob_class: 100
   race: 100
   height: 198
   weight: 150
+  action_flags:
+    - kNpc
+    - kStayZone
+  affect_flags:
+    - kNoTrack
   skills:
-  - skill_id: 136  # kPunch
-    value: 129
+    - skill_id: 136  # кулачный бой
+      value: 129
   enhanced:
+    cast_success: 56
+    absorb: 43
+    max_factor: 6
     extra_attack: 4
-    special_bitvector: '0'
+    saves:
+      kWill: -58
+      kCritical: -58
+      kStability: -58
+      kReflex: -58
 
+# Mob #244
 44:
-  # Mob #244
   names:
     aliases: чармис сорок четвертого  уровня_танк
     nominative: чармис сорок четвертого  уровня_танк
@@ -2466,17 +2459,10 @@
     instrumental: чармисом тридцатого уровня
     prepositional: чармисе тридцатого уровня
   descriptions:
-    short_desc: |
-      чармис тридцатого уровня стоит здесь и мается со скуки
-    long_desc: |2+
-
-  action_flags:
-  - kNpc
-  - kStayZone
-  affect_flags:
-  - kNoTrack
+    short_desc: |2
+      Чармис тридцатого уровня стоит здесь и мается со скуки
+    long_desc: неопределен
   alignment: 600
-  mob_type: E
   stats:
     level: 44
     hitroll_penalty: 0
@@ -2499,21 +2485,32 @@
     start: kStand
   sex: kMale
   size: 67
-  mob_class: 100
   race: 100
   height: 198
   weight: 150
+  action_flags:
+    - kNpc
+    - kStayZone
+  affect_flags:
+    - kNoTrack
   skills:
-  - skill_id: 136  # kPunch
-    value: 132
-  - skill_id: 137  # kRescue
-    value: 124
+    - skill_id: 136  # кулачный бой
+      value: 132
+    - skill_id: 137  # спасти
+      value: 124
   enhanced:
+    cast_success: 59
+    absorb: 44
+    max_factor: 6
     extra_attack: 4
-    special_bitvector: '0'
+    saves:
+      kWill: -62
+      kCritical: -62
+      kStability: -62
+      kReflex: -62
 
+# Mob #245
 45:
-  # Mob #245
   names:
     aliases: чармис сорок пятого уровня_дамаг
     nominative: чармис сорок пятого уровня_дамаг
@@ -2523,17 +2520,10 @@
     instrumental: чармисом тридцатого уровня
     prepositional: чармисе тридцатого уровня
   descriptions:
-    short_desc: |
-      чармис тридцатого уровня стоит здесь и мается со скуки
-    long_desc: |2+
-
-  action_flags:
-  - kNpc
-  - kStayZone
-  affect_flags:
-  - kNoTrack
+    short_desc: |2
+      Чармис тридцатого уровня стоит здесь и мается со скуки
+    long_desc: неопределен
   alignment: 600
-  mob_type: E
   stats:
     level: 45
     hitroll_penalty: 0
@@ -2556,19 +2546,30 @@
     start: kStand
   sex: kMale
   size: 67
-  mob_class: 100
   race: 100
   height: 198
   weight: 150
+  action_flags:
+    - kNpc
+    - kStayZone
+  affect_flags:
+    - kNoTrack
   skills:
-  - skill_id: 136  # kPunch
-    value: 135
+    - skill_id: 136  # кулачный бой
+      value: 135
   enhanced:
+    cast_success: 62
+    absorb: 45
+    max_factor: 6
     extra_attack: 4
-    special_bitvector: '0'
+    saves:
+      kWill: -66
+      kCritical: -66
+      kStability: -66
+      kReflex: -66
 
+# Mob #246
 46:
-  # Mob #246
   names:
     aliases: чармис сорок шестого уровня_танк
     nominative: чармис сорок шестого уровня_танк
@@ -2578,17 +2579,10 @@
     instrumental: чармисом тридцатого уровня
     prepositional: чармисе тридцатого уровня
   descriptions:
-    short_desc: |
-      чармис тридцатого уровня стоит здесь и мается со скуки
-    long_desc: |2+
-
-  action_flags:
-  - kNpc
-  - kStayZone
-  affect_flags:
-  - kNoTrack
+    short_desc: |2
+      Чармис тридцатого уровня стоит здесь и мается со скуки
+    long_desc: неопределен
   alignment: 600
-  mob_type: E
   stats:
     level: 46
     hitroll_penalty: 0
@@ -2611,21 +2605,32 @@
     start: kStand
   sex: kMale
   size: 70
-  mob_class: 100
   race: 100
   height: 198
   weight: 150
+  action_flags:
+    - kNpc
+    - kStayZone
+  affect_flags:
+    - kNoTrack
   skills:
-  - skill_id: 136  # kPunch
-    value: 138
-  - skill_id: 137  # kRescue
-    value: 130
+    - skill_id: 136  # кулачный бой
+      value: 138
+    - skill_id: 137  # спасти
+      value: 130
   enhanced:
+    cast_success: 65
+    absorb: 46
+    max_factor: 6
     extra_attack: 4
-    special_bitvector: '0'
+    saves:
+      kWill: -70
+      kCritical: -70
+      kStability: -70
+      kReflex: -70
 
+# Mob #247
 47:
-  # Mob #247
   names:
     aliases: чармис сорок седьмого уровня_дамаг
     nominative: чармис сорок седьмого уровня_дамаг
@@ -2635,17 +2640,10 @@
     instrumental: чармисом тридцатого уровня
     prepositional: чармисе тридцатого уровня
   descriptions:
-    short_desc: |
-      чармис тридцатого уровня стоит здесь и мается со скуки
-    long_desc: |2+
-
-  action_flags:
-  - kNpc
-  - kStayZone
-  affect_flags:
-  - kNoTrack
+    short_desc: |2
+      Чармис тридцатого уровня стоит здесь и мается со скуки
+    long_desc: неопределен
   alignment: 600
-  mob_type: E
   stats:
     level: 47
     hitroll_penalty: 0
@@ -2668,19 +2666,30 @@
     start: kStand
   sex: kMale
   size: 70
-  mob_class: 100
   race: 100
   height: 198
   weight: 150
+  action_flags:
+    - kNpc
+    - kStayZone
+  affect_flags:
+    - kNoTrack
   skills:
-  - skill_id: 136  # kPunch
-    value: 141
+    - skill_id: 136  # кулачный бой
+      value: 141
   enhanced:
+    cast_success: 68
+    absorb: 47
+    max_factor: 6
     extra_attack: 5
-    special_bitvector: '0'
+    saves:
+      kWill: -74
+      kCritical: -74
+      kStability: -74
+      kReflex: -74
 
+# Mob #248
 48:
-  # Mob #248
   names:
     aliases: чармис сорок восьмого уровня_танк
     nominative: чармис сорок восьмого уровня_танк
@@ -2690,17 +2699,10 @@
     instrumental: чармисом тридцатого уровня
     prepositional: чармисе тридцатого уровня
   descriptions:
-    short_desc: |
-      чармис тридцатого уровня стоит здесь и мается со скуки
-    long_desc: |2+
-
-  action_flags:
-  - kNpc
-  - kStayZone
-  affect_flags:
-  - kNoTrack
+    short_desc: |2
+      Чармис тридцатого уровня стоит здесь и мается со скуки
+    long_desc: неопределен
   alignment: 600
-  mob_type: E
   stats:
     level: 48
     hitroll_penalty: 0
@@ -2723,21 +2725,32 @@
     start: kStand
   sex: kMale
   size: 72
-  mob_class: 100
   race: 100
   height: 198
   weight: 150
+  action_flags:
+    - kNpc
+    - kStayZone
+  affect_flags:
+    - kNoTrack
   skills:
-  - skill_id: 136  # kPunch
-    value: 144
-  - skill_id: 137  # kRescue
-    value: 136
+    - skill_id: 136  # кулачный бой
+      value: 144
+    - skill_id: 137  # спасти
+      value: 136
   enhanced:
+    cast_success: 71
+    absorb: 48
+    max_factor: 6
     extra_attack: 4
-    special_bitvector: '0'
+    saves:
+      kWill: -78
+      kCritical: -78
+      kStability: -78
+      kReflex: -78
 
+# Mob #249
 49:
-  # Mob #249
   names:
     aliases: чармис тридцатого уровня
     nominative: чармис сорок девятого уровня_дамаг
@@ -2747,17 +2760,10 @@
     instrumental: чармисом тридцатого уровня
     prepositional: чармисе тридцатого уровня
   descriptions:
-    short_desc: |
-      чармис тридцатого уровня стоит здесь и мается со скуки
-    long_desc: |2+
-
-  action_flags:
-  - kNpc
-  - kStayZone
-  affect_flags:
-  - kNoTrack
+    short_desc: |2
+      Чармис тридцатого уровня стоит здесь и мается со скуки
+    long_desc: неопределен
   alignment: 600
-  mob_type: E
   stats:
     level: 49
     hitroll_penalty: 0
@@ -2780,19 +2786,30 @@
     start: kStand
   sex: kMale
   size: 70
-  mob_class: 100
   race: 100
   height: 198
   weight: 150
+  action_flags:
+    - kNpc
+    - kStayZone
+  affect_flags:
+    - kNoTrack
   skills:
-  - skill_id: 136  # kPunch
-    value: 147
+    - skill_id: 136  # кулачный бой
+      value: 147
   enhanced:
+    cast_success: 74
+    absorb: 49
+    max_factor: 7
     extra_attack: 5
-    special_bitvector: '0'
+    saves:
+      kWill: -82
+      kCritical: -82
+      kStability: -82
+      kReflex: -82
 
+# Mob #250
 50:
-  # Mob #250
   names:
     aliases: чармис пятидесятого уровня_танк
     nominative: чармис пятидесятого уровня_танк
@@ -2802,17 +2819,10 @@
     instrumental: чармисом тридцатого уровня
     prepositional: чармисе тридцатого уровня
   descriptions:
-    short_desc: |
-      чармис тридцатого уровня стоит здесь и мается со скуки
-    long_desc: |2+
-
-  action_flags:
-  - kNpc
-  - kStayZone
-  affect_flags:
-  - kNoTrack
+    short_desc: |2
+      Чармис тридцатого уровня стоит здесь и мается со скуки
+    long_desc: неопределен
   alignment: 600
-  mob_type: E
   stats:
     level: 50
     hitroll_penalty: 0
@@ -2835,15 +2845,26 @@
     start: kStand
   sex: kMale
   size: 75
-  mob_class: 100
   race: 100
   height: 198
   weight: 150
+  action_flags:
+    - kNpc
+    - kStayZone
+  affect_flags:
+    - kNoTrack
   skills:
-  - skill_id: 136  # kPunch
-    value: 150
-  - skill_id: 137  # kRescue
-    value: 142
+    - skill_id: 136  # кулачный бой
+      value: 150
+    - skill_id: 137  # спасти
+      value: 142
   enhanced:
+    cast_success: 77
+    absorb: 50
+    max_factor: 7
     extra_attack: 5
-    special_bitvector: '0'
+    saves:
+      kWill: -86
+      kCritical: -86
+      kStability: -86
+      kReflex: -86

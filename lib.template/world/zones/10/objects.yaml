@@ -1,0 +1,4537 @@
+# Objects for zone 10
+
+# Object #1000
+0:
+  names:
+    aliases: Походный алтарь возрождения
+    nominative: '&Rпоходный алтарь возрождения&n'
+    genitive: '&Rпоходного алтаря возрождения&n'
+    dative: '&Rпоходному алтарю возрождения&n'
+    accusative: '&Rпоходный алтарь возрождения&n'
+    instrumental: '&Rпоходным алтарем возрождения&n'
+    prepositional: '&Rпоходном алтаре возрождения&n'
+  short_desc: '&RПоходный алтарь возрождения&n, окутанный призрачной дымкой, стоит здесь.'
+  type: kTreasure
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 999
+  cur_durability: 999
+  timer: 200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kMagic
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kNoalter
+  extra_descriptions:
+    - keywords: undefined
+      description: |+2
+        
+  triggers:
+    - 105  # оповещаем о поставленном алтаре
+
+# Object #1001
+1:
+  names:
+    aliases: пушка
+    nominative: пушка
+    genitive: пушки
+    dative: пушке
+    accusative: пушку
+    instrumental: пушкой
+    prepositional: пушке
+  short_desc: Свободный слот
+  type: kWeapon
+  material: 15  # КОЖА
+  values:
+    - 100
+    - 100
+    - 50
+    - 15
+  weight: 5000
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  spec_param: 141
+  max_durability: 10000
+  cur_durability: 10000
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNosell
+    - kFlying
+  wear_flags:
+    - kTake
+    - kNeck
+    - kHead
+    - kHands
+    - kShoulders
+    - kWaist
+    - kWrist
+    - kBoth
+  anti_flags:
+    - kMono
+    - kPoly
+  affect_flags:
+    - kNoTrack
+  applies:
+    - location: 18  # попадание
+      modifier: 100
+    - location: 3  # интеллект
+      modifier: 50
+    - location: 6  # обаяние
+      modifier: 50
+
+# Object #1002
+2:
+  names:
+    aliases: облака Лазурного тумана сумка узел
+    nominative: '&Wоблака &CЛазурного тумана&n'
+    genitive: '&Wоблаков &CЛазурного тумана&n'
+    dative: '&Wоблакам &CЛазурного тумана&n'
+    accusative: '&Wоблака &CЛазурного тумана&n'
+    instrumental: '&Wоблаками &CЛазурного тумана&n'
+    prepositional: '&Wоблаках &CЛазурного тумана&n'
+  short_desc: '&WОблака &CЛазурного тумана&Y парят над землей.'
+  type: kContainer
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 1700
+    - 3
+    - -1
+    - 0
+  weight: 1
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  spec_param: 154
+  max_durability: 1000
+  cur_durability: 1000
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 1
+  extra_flags:
+    - kNodecay
+    - kSwimming
+    - kFlying
+  wear_flags:
+    - kTake
+    - kNeck
+    - kHead
+    - kWaist
+    - kWield
+    - kBoth
+  affect_flags:
+    - kBless
+  triggers:
+    - 1002  # крылья
+
+# Object #1003
+3:
+  names:
+    aliases: чудная сумка кишащая добром
+    nominative: '&Rчудная &Wсумка кишащая &Rдобром&n'
+    genitive: '&Rчудной &Wсумки кишащей &Rдобром&n'
+    dative: '&Rчудной &Wсумке кишащей &Rдобром&n'
+    accusative: '&Rчудную &Wсумку кишащую &Rдобром&n'
+    instrumental: '&Rчудной &Wсумкой кишащей &Rдобром&n'
+    prepositional: '&Rчудной &Wсумке кишащей &Rдобром&n'
+  short_desc: Вместительная сумища с &Rкрасно&Y-&Wбелым&Y орнаментом. Из бокового кармана торчит початая бутыль с мутной жидкостью.
+  type: kContainer
+  material: 15  # КОЖА
+  values:
+    - 1000
+    - 3
+    - -1
+    - 0
+  weight: 1
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 1000
+  cur_durability: 1000
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  max_in_world: 1
+  extra_flags:
+    - kNodecay
+    - kSwimming
+    - kFlying
+  wear_flags:
+    - kTake
+    - kNeck
+    - kShoulders
+    - kWaist
+    - kWrist
+
+# Object #1004
+4:
+  names:
+    aliases: крылья велунда
+    nominative: '&Rкрылья &WВелунда&n'
+    genitive: '&Rкрыльев &WВелунда&n'
+    dative: '&Rкрыльям &WВелунда&n'
+    accusative: '&Rкрылья &WВелунда&n'
+    instrumental: '&Rкрыльями &WВелунда&n'
+    prepositional: '&Rкрыльях &WВелунда&n'
+  short_desc: Чьи-то &Rкрылья&Y парят здесь.
+  type: kArmor
+  material: 16  # ОРГАНИКА
+  values:
+    - 10
+    - 10
+    - 0
+    - 0
+  weight: 1
+  cost: 100000
+  rent_off: 100000
+  rent_on: 100000
+  max_durability: 1000
+  cur_durability: 1000
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  extra_flags:
+    - kNodonate
+    - kMagic
+    - kNosell
+    - kNodecay
+    - kArmored
+    - kFlying
+    - kNolocate
+  wear_flags:
+    - kShoulders
+  affect_flags:
+    - kDetectAlign
+    - kDetectInvisibility
+    - kDetectMagic
+    - kDetectLife
+    - kInfravision
+    - kProtectFromDark
+    - kProtectFromMind
+    - kNoTrack
+    - kFly
+    - kDetectPoison
+
+# Object #1005
+5:
+  names:
+    aliases: губозакатывалку с резной рукояткой
+    nominative: губозакатывалка с резной рукояткой
+    genitive: губозакатывалки с резной рукояткой
+    dative: губозакатывалке с резной рукояткой
+    accusative: губозакатывалку с резной рукояткой
+    instrumental: губозакатывалкой с резной рукояткой
+    prepositional: губозакатывалке с резной рукояткой
+  short_desc: Губозакатывалка с резной рукояткой лежит тут.
+  type: kWeapon
+  material: 5  # КОВАНАЯ.СТАЛЬ
+  values:
+    - 3
+    - 3
+    - 3
+    - 6
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  spec_param: 141
+  max_durability: 100
+  cur_durability: 100
+  timer: 100
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kHum
+    - kNodisarm
+    - kLimitedTimer
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+  triggers:
+    - 1015  # губозакатывалка
+
+# Object #1006
+6:
+  names:
+    aliases: солнечный самострел солнечный самострел
+    nominative: '&Cсолнечный самострел&n'
+    genitive: солнечного самострела
+    dative: солнечному самострелу
+    accusative: солнечный самострел
+    instrumental: солнечным самострелом
+    prepositional: солнечном самостреле
+  short_desc: Один из эелементов спецодежды Дажьбога
+  action_desc: |2
+    Самострел офигительно забубенил стрелу...
+  type: kWeapon
+  material: 10  # КЕРАМИКА
+  values:
+    - 100000
+    - 100000
+    - 20
+    - 9
+  weight: 12
+  cost: 10000000
+  rent_off: 100000000
+  rent_on: 1000
+  spec_param: 154
+  max_durability: 1000
+  cur_durability: 1000
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  minimum_remorts: 25
+  extra_flags:
+    - kGlow
+    - kHum
+    - kNodisarm
+    - kPoisoned
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+  anti_flags:
+    - kCharmice
+  affect_flags:
+    - kDetectLife
+  applies:
+    - location: 6  # обаяние
+      modifier: 30
+    - location: 1  # сила
+      modifier: 30
+  extra_descriptions:
+    - keywords: карабин
+      description: |2
+        m16
+    - keywords: зебра
+      description: |2
+        укщшопшкпокеп
+    - keywords: карабин
+      description: |2
+        блаблабла
+
+# Object #1007
+7:
+  names:
+    aliases: баул великого упыря
+    nominative: '&Gб&Wа&Rу&Yл &BВеликого &RУПЫРЯ&n'
+    genitive: '&Gб&Wа&Rу&Yл&Kа &BВеликого &RУПЫРЯ&n'
+    dative: '&Gб&Wа&Rу&Yл&Kу &BВеликого &RУПЫРЯ&n'
+    accusative: '&Gб&Wа&Rу&Yл &BВеликого &RУПЫРЯ&n'
+    instrumental: '&Gб&Wа&Rу&Yл&Kом &BВеликого &RУПЫРЯ&n'
+    prepositional: '&Gб&Wа&Rу&Yл&Kе &BВеликого &RУПЫРЯ&n'
+  short_desc: Какой-то УПЫРЬ бросил здесь свой баул.
+  type: kContainer
+  material: 15  # КОЖА
+  values:
+    - 1200
+    - 3
+    - -1
+    - 0
+  weight: 1
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  spec_param: 154
+  max_durability: 1000
+  cur_durability: 1000
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  extra_flags:
+    - kNodecay
+    - kSwimming
+    - kFlying
+  wear_flags:
+    - kTake
+    - kNeck
+    - kArms
+    - kShoulders
+    - kWaist
+
+# Object #1008
+8:
+  names:
+    aliases: венок голубых васильков
+    nominative: '&Gвенок&n &Wиз&n &Cголубых&n &Yвасильков&n'
+    genitive: '&Gвенка&n &Wиз&n &Cголубых&n &Yвасильков&n'
+    dative: '&Gвенку&n &Wиз&n &Cголубых&n &Yвасильков&n'
+    accusative: '&Gвенок&n &Wиз&n &Cголубых&n &Yвасильков&n'
+    instrumental: '&Gвенком&n &Wиз&n &Cголубых&n &Yвасильков&n'
+    prepositional: '&Gвенке&n &Wиз&n &Cголубых&n &Yвасильков&n'
+  short_desc: Венок сплетенный из голубых васильков парит в воздухе.
+  type: kWorm
+  material: 16  # ОРГАНИКА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 100
+  rent_off: 100
+  rent_on: 100
+  max_durability: 100
+  cur_durability: 100
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNolocate
+  wear_flags:
+    - kTake
+    - kHead
+  affect_flags:
+    - kDetectLife
+    - kNoTrack
+  applies:
+    - location: 18  # попадание
+      modifier: 125
+    - location: 19  # повреждение
+      modifier: 125
+    - location: 1  # сила
+      modifier: 40
+    - location: 4  # мудрость
+      modifier: 40
+    - location: 2  # ловкость
+      modifier: 40
+  skills:
+    - skill_id: 23  # опознание
+      value: 200
+    - skill_id: 31  # лечить
+      value: 200
+  triggers:
+    - 1050  # Догода
+
+# Object #1009
+9:
+  names:
+    aliases: тест лук
+    nominative: тест-лук
+    genitive: тест-лука
+    dative: тест-луку
+    accusative: тест-лук
+    instrumental: тест-луком
+    prepositional: тест-луке
+  short_desc: Лук тестера
+  type: kWeapon
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 100
+    - 200
+    - 50
+    - 9
+  weight: 50
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  spec_param: 154
+  max_durability: 10000
+  cur_durability: 10000
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kFlying
+  wear_flags:
+    - kTake
+    - kBoth
+  anti_flags:
+    - kMono
+    - kPoly
+  applies:
+    - location: 19  # повреждение
+      modifier: 20
+    - location: 18  # попадание
+      modifier: 20
+    - location: 1  # сила
+      modifier: 30
+    - location: 41  # удача
+      modifier: 50
+    - location: 4  # мудрость
+      modifier: 40
+    - location: 40  # успех.колдовства
+      modifier: 220
+  skills:
+    - skill_id: 5  # оглушить
+      value: 200
+    - skill_id: 21  # точный стиль
+      value: 200
+    - skill_id: 149  # атака левой рукой
+      value: 100
+    - skill_id: 154  # луки
+      value: 200
+    - skill_id: 155  # дополнительный выстрел
+      value: 200
+    - skill_id: 167  # скрытый удар
+      value: 200
+    - skill_id: 187  # магия тьмы
+      value: 200
+  triggers:
+    - 1051  # тест-лук
+
+# Object #1010
+10:
+  names:
+    aliases: солнечный луч
+    nominative: солнечный луч
+    genitive: солнечного луча
+    dative: солнечному лучу
+    accusative: солнечный луч
+    instrumental: солнечным лучом
+    prepositional: солнечном луче
+  short_desc: Сверкающий луч забыт тут кем-то из богов
+  type: kWeapon
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 0
+    - 452
+    - 2
+    - 11
+  weight: 0
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  spec_param: 154
+  max_durability: 400
+  cur_durability: 400
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kGlow
+    - kFire
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+  affect_flags:
+    - kSanctuary
+    - kBlink
+    - kSingleLight
+  applies:
+    - location: 1  # сила
+      modifier: 40
+    - location: 5  # телосложение
+      modifier: -40
+    - location: 6  # обаяние
+      modifier: 30
+  triggers:
+    - 101099  # будим всех кто в обмороке
+
+# Object #1011
+11:
+  names:
+    aliases: амулет звезда
+    nominative: амулет с мерцающей звездой
+    genitive: амулета с мерцающей звездой
+    dative: амулет с мерцающей звездой
+    accusative: амулет с мерцающей звездой
+    instrumental: амулетом с мерцающей звездой
+    prepositional: амулете с мерцающей звездой
+  short_desc: Магический амулет с мерцающей внутри звездой лежит тут
+  type: kWorm
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 100
+  rent_off: 0
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kNeck
+
+# Object #1012
+12:
+  names:
+    aliases: оберег неба
+    nominative: оберег неба
+    genitive: оберега неба
+    dative: оберегу неба
+    accusative: оберег неба
+    instrumental: оберегом неба
+    prepositional: обереге неба
+  short_desc: Оберег с кусочком неба лежит тут
+  type: kWorm
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 100
+  rent_off: 0
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  wear_flags:
+    - kTake
+    - kNeck
+
+# Object #1013
+13:
+  names:
+    aliases: шаровая молния
+    nominative: шаровая молния
+    genitive: шаровой молнии
+    dative: шаровой молнии
+    accusative: шаровую молнию
+    instrumental: шаровой молнией
+    prepositional: шаровой молнии
+  short_desc: Шарашая молния висит неподвижно тут ожидая хозяина
+  type: kWeapon
+  material: 1  # БУЛАТ
+  values:
+    - 0
+    - 456
+    - 2
+    - 9
+  weight: 1
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 500
+  cur_durability: 500
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kHum
+    - kFlying
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+
+# Object #1014
+14:
+  names:
+    aliases: обломок радуга
+    nominative: обломок радуги
+    genitive: обломока радуги
+    dative: обломоку радуги
+    accusative: обломок радуги
+    instrumental: обломком радуги
+    prepositional: обломке радуги
+  short_desc: Частичка радуги висит тут в воздухе
+  type: kWorm
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  wear_flags:
+    - kTake
+    - kWrist
+
+# Object #1015
+15:
+  names:
+    aliases: талисман свет лунный
+    nominative: талисман из лунного света
+    genitive: талисмана из лунного света
+    dative: талисману из лунного света
+    accusative: талисман из лунного света
+    instrumental: талисманом из лунного света
+    prepositional: талисмане из лунного света
+  short_desc: Талисман из лунного света мерцает тут
+  type: kWorm
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  wear_flags:
+    - kTake
+    - kWrist
+
+# Object #1016
+16:
+  names:
+    aliases: кольцо грусти
+    nominative: кольцо грусти
+    genitive: кольца грусти
+    dative: кольцу грусти
+    accusative: кольцо грусти
+    instrumental: кольцом грусти
+    prepositional: кольце грусти
+  short_desc: Колечко, вызывающее у Вас в душе что то тяжелое, валяеться тут
+  type: kTreasure
+  material: 6  # ДРАГ.МЕТАЛЛ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 0
+  rent_off: 100
+  rent_on: 0
+  max_durability: 200
+  cur_durability: 200
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  wear_flags:
+    - kTake
+    - kFinger
+  applies:
+    - location: 18  # попадание
+      modifier: 100
+
+# Object #1017
+17:
+  names:
+    aliases: суд богов
+    nominative: суд богов
+    genitive: суда богов
+    dative: суду богов
+    accusative: суд богов
+    instrumental: судом богов
+    prepositional: суде богов
+  short_desc: Страшное оружие богов витает тут в воздухе.
+  action_desc: |2
+    Суд богов колбасит и плющит противника Хорса.
+  type: kWeapon
+  material: 7  # КРИСТАЛЛ
+  values:
+    - 15
+    - 15
+    - 15
+    - 6
+  weight: 30
+  cost: 1000
+  rent_off: 1000
+  rent_on: 1000
+  spec_param: 143
+  max_durability: 1000
+  cur_durability: 1000
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kGlow
+    - kNodonate
+    - kNodecay
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+    - kBoth
+  affect_flags:
+    - kBlink
+    - kHaste
+  applies:
+    - location: 41  # удача
+      modifier: 20
+
+# Object #1018
+18:
+  names:
+    aliases: стакан поп корна
+    nominative: '&Yстакан&n &Rп&n&Wо&n&Rп&n&W-&n&Rк&n&Wо&n&Rр&n&Wн&n&Rа&n'
+    genitive: '&Yстакана&n &Rп&n&Wо&n&Rп&n&W-&n&Rк&n&Wо&n&Rр&n&Wн&n&Rа&n'
+    dative: '&Yстакану&n &Rп&n&Wо&n&Rп&n&W-&n&Rк&n&Wо&n&Rр&n&Wн&n&Rа&n'
+    accusative: '&Yстакан&n &Rп&n&Wо&n&Rп&n&W-&n&Rк&n&Wо&n&Rр&n&Wн&n&Rа&n'
+    instrumental: '&Yстаканом&n &Rп&n&Wо&n&Rп&n&W-&n&Rк&n&Wо&n&Rр&n&Wн&n&Rа&n'
+    prepositional: '&Yстакане&n &Rп&n&Wо&n&Rп&n&W-&n&Rк&n&Wо&n&Rр&n&Wн&n&Rа&n'
+  short_desc: Поп-корн рассыпался из стакана, прям вам на ноги.
+  type: kTreasure
+  material: 16  # ОРГАНИКА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 0
+  cost: 1
+  rent_off: 0
+  rent_on: 0
+  max_durability: 0
+  cur_durability: 0
+  timer: 2000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  wear_flags:
+    - kTake
+    - kHold
+  affect_flags:
+    - kSilence
+
+# Object #1019
+19:
+  names:
+    aliases: 3д очки
+    nominative: '&B3&n&Rd&n-&Wочки&n'
+    genitive: '&B3&n&Rd&n-&Wочков&n'
+    dative: '&B3&n&Rd&n-&Wочкам&n'
+    accusative: '&B3&n&Rd&n-&Wочки&n'
+    instrumental: '&B3&n&Rd&n-&Wочками&n'
+    prepositional: '&B3&n&Rd&n-&Wочках&n'
+  short_desc: Очки для просмотра незабывамех зрелищ лежат на земле.
+  type: kWorm
+  material: 16  # ОРГАНИКА
+  values:
+    - 7213
+    - 220
+    - 1000
+    - 0
+  weight: 0
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 0
+  cur_durability: 0
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  wear_flags:
+    - kTake
+    - kHead
+  applies:
+    - location: 6  # обаяние
+      modifier: 50
+
+# Object #1020
+20:
+  names:
+    aliases: носовой платок
+    nominative: носовой платок
+    genitive: носового платка
+    dative: носовому платку
+    accusative: носовой платок
+    instrumental: носовым платком
+    prepositional: носовом платке
+  short_desc: Огромаднейший платочек валяеться тут.
+  type: kTrash
+  material: 14  # ТКАНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 0
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 150
+  cur_durability: 150
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kNeck
+    - kWield
+    - kHold
+
+# Object #1021
+21:
+  names:
+    aliases: перстень осколком небесного камня
+    nominative: '&Bперстень с осколком небесного камня&n'
+    genitive: перстня с осколком небесного камня
+    dative: перстню с осколком небесного камня
+    accusative: перстень с осколком небесного камня
+    instrumental: перстнем с осколком небесного камня
+    prepositional: перстне с осколком небесного камня
+  short_desc: Пылающий синим пламенем перстень лежит здесь.
+  type: kWorm
+  material: 7  # КРИСТАЛЛ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1000
+  rent_off: 13
+  rent_on: 13
+  max_durability: 300
+  cur_durability: 300
+  timer: 46080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kInvisible
+    - kNolocate
+  wear_flags:
+    - kTake
+    - kFinger
+  applies:
+    - location: 40  # успех.колдовства
+      modifier: 15
+    - location: 12  # запоминание
+      modifier: 10
+    - location: 22  # защита.от.стихии.воздуха
+      modifier: 50
+  extra_descriptions:
+    - keywords: перстень осколком небесного камня
+      description: |2
+        Тяжелый перстень из неизвестного металла, со вставленным в него
+        мраморно-прозрачно камнем, переливающийся языками холодного серебристого огня.
+
+# Object #1022
+22:
+  names:
+    aliases: венок
+    nominative: лавровый венок
+    genitive: лаврового венка
+    dative: лавровому венку
+    accusative: лавровый венок
+    instrumental: лавровым венком
+    prepositional: лавровом венке
+  short_desc: Венок из веток лавра брошен кем-то тут.
+  type: kTreasure
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 0
+  cost: 0
+  rent_off: 1000
+  rent_on: 100
+  max_durability: 50000
+  cur_durability: 50000
+  timer: 20000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  extra_flags:
+    - kNodonate
+  wear_flags:
+    - kTake
+    - kNeck
+    - kHead
+  affect_flags:
+    - kDetectInvisibility
+    - kSanctuary
+    - kInfravision
+  applies:
+    - location: 1  # сила
+      modifier: 1
+    - location: 2  # ловкость
+      modifier: 1
+    - location: 3  # интеллект
+      modifier: 1
+    - location: 4  # мудрость
+      modifier: 1
+    - location: 5  # телосложение
+      modifier: 1
+    - location: 6  # обаяние
+      modifier: 1
+
+# Object #1023
+23:
+  names:
+    aliases: кружка пива
+    nominative: кружка пива
+    genitive: кружки пива
+    dative: кружке пива
+    accusative: кружку пива
+    instrumental: кружкой пива
+    prepositional: кружке пива
+  short_desc: Огромаднейшая кружка светлого пива стоит тут.
+  type: kWeapon
+  material: 11  # СТЕКЛО
+  values:
+    - 0
+    - 500
+    - 9
+    - 4
+  weight: 1
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  spec_param: 145
+  max_durability: 200
+  cur_durability: 200
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNodrop
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+
+# Object #1024
+24:
+  names:
+    aliases: ерш вяленый
+    nominative: ерш вяленый
+    genitive: ерша вяленого
+    dative: ершу вяленому
+    accusative: ерша вяленого
+    instrumental: ершом вяленым
+    prepositional: ерше вяленом
+  short_desc: Хвост вяленого ерша торчит из земли тут.
+  type: kWeapon
+  material: 16  # ОРГАНИКА
+  values:
+    - 0
+    - 100
+    - 20
+    - 4
+  weight: 1
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 200
+  cur_durability: 200
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNodrop
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+
+# Object #1025
+25:
+  names:
+    aliases: медаль защитника
+    nominative: медаль защитника
+    genitive: медали защитника
+    dative: медали защитника
+    accusative: медаль защитника
+    instrumental: медалью защитника
+    prepositional: медали защитника
+  short_desc: Тяжелая медаль сложной формы лежил на земле.
+  type: kArmor
+  material: 6  # ДРАГ.МЕТАЛЛ
+  values:
+    - 3
+    - 3
+    - 0
+    - 0
+  weight: 6
+  cost: 640
+  rent_off: 340
+  rent_on: 240
+  max_durability: 100
+  cur_durability: 100
+  timer: 12000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNodonate
+    - kMagic
+    - kFire
+    - kNolocate
+  wear_flags:
+    - kTake
+    - kNeck
+    - kWrist
+  affect_flags:
+    - kDetectInvisibility
+    - kSingleLight
+  applies:
+    - location: 5  # телосложение
+      modifier: 2
+    - location: 41  # удача
+      modifier: 5
+
+# Object #1026
+26:
+  names:
+    aliases: Жезл защитника
+    nominative: жезл защитника
+    genitive: жезла защитника
+    dative: жезлу защитника
+    accusative: жезл защитника
+    instrumental: жезлом защитника
+    prepositional: жезле защитника
+  short_desc: Тяжелый рунный жезл лежит на земле.
+  type: kWeapon
+  material: 1  # БУЛАТ
+  values:
+    - 0
+    - 7
+    - 3
+    - 10
+  weight: 20
+  cost: 650
+  rent_off: 450
+  rent_on: 250
+  spec_param: 141
+  max_durability: 200
+  cur_durability: 200
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kMagic
+    - kNodisarm
+    - kFire
+    - kNolocate
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+    - kBoth
+  affect_flags:
+    - kDetectInvisibility
+    - kFly
+  applies:
+    - location: 1  # сила
+      modifier: 1
+    - location: 5  # телосложение
+      modifier: 1
+    - location: 2  # ловкость
+      modifier: 1
+
+# Object #1027
+27:
+  names:
+    aliases: Пылающая корона вторжения
+    nominative: пылающая корона вторжения
+    genitive: пылающей короны вторжения
+    dative: пылающей короне вторжения
+    accusative: пылающую корону вторжения
+    instrumental: пылающей короной вторжения
+    prepositional: пылающей короне вторжения
+  short_desc: Корона из сгустков лавы ослепительно пылает у ваших ног.
+  type: kArmor
+  material: 7  # КРИСТАЛЛ
+  values:
+    - 3
+    - 4
+    - 0
+    - 0
+  weight: 12
+  cost: 1200
+  rent_off: 2300
+  rent_on: 1200
+  max_durability: 70
+  cur_durability: 70
+  timer: 3500
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNodonate
+    - kMagic
+    - kFire
+    - kNolocate
+  wear_flags:
+    - kTake
+    - kHead
+  no_flags:
+    - kSorcerer
+  affect_flags:
+    - kSingleLight
+    - kFireShield
+    - kFireAura
+  applies:
+    - location: 40  # успех.колдовства
+      modifier: 12
+    - location: 25  # восст.жизни
+      modifier: 30
+
+# Object #1028
+28:
+  names:
+    aliases: Букет белых лилий
+    nominative: букет &Wбелых лилий&n
+    genitive: букета белых лилий
+    dative: букету белых лилий
+    accusative: букет белых лилий
+    instrumental: букетом белых лилий
+    prepositional: букете белых лилий
+  short_desc: Большой букет прекрасныйх белых лилий перевяязан красными лентами.
+  type: kTreasure
+  material: 16  # ОРГАНИКА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 6
+  cost: 30
+  rent_off: 20
+  rent_on: 10
+  spec_param: 145
+  max_durability: 50
+  cur_durability: 50
+  timer: 10040
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+    - kHold
+
+# Object #1029
+29:
+  names:
+    aliases: Тактическая ракета Томогавк
+    nominative: тактическая ракета Томогавк
+    genitive: тактической ракеты Томогавк
+    dative: тактической ракете Томогавк
+    accusative: тактическую ракету Томогавк
+    instrumental: тактической ракетой Томогавк
+    prepositional: тактической ракете Томогавк
+  short_desc: Огромный цилиндр блестящего металла установлен тут.
+  type: kWeapon
+  material: 10  # КЕРАМИКА
+  values:
+    - 3
+    - 3
+    - 3
+    - 14
+  weight: 100
+  cost: 230
+  rent_off: 34
+  rent_on: 24
+  max_durability: 200
+  cur_durability: 200
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kHum
+    - kNodonate
+    - kMagic
+    - kFlying
+    - kThrowing
+    - kNolocate
+  wear_flags:
+    - kTake
+    - kBody
+    - kBoth
+  affect_flags:
+    - kDetectInvisibility
+    - kDetectLife
+    - kIceAura
+  applies:
+    - location: 41  # удача
+      modifier: 30
+    - location: 36  # размер
+      modifier: 30
+    - location: 40  # успех.колдовства
+      modifier: 30
+
+# Object #1030
+30:
+  names:
+    aliases: глаз
+    nominative: глаз Одина
+    genitive: глаза Одина
+    dative: глазу Одина
+    accusative: глаз Одина
+    instrumental: глазом Одина
+    prepositional: глазе Одина
+  short_desc: Чей-то глаз лежит перед Вами.
+  type: kTreasure
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 0
+  cost: 0
+  rent_off: 100000
+  rent_on: 100000
+  max_durability: 1000
+  cur_durability: 1000
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  extra_flags:
+    - kNodonate
+    - kNoinvis
+    - kFlying
+    - kThrowing
+    - UNUSED_90
+  wear_flags:
+    - kTake
+    - kNeck
+    - kHead
+    - kWield
+    - kHold
+  affect_flags:
+    - kDetectAlign
+    - kDetectInvisibility
+    - kDetectMagic
+    - kDetectLife
+    - kInfravision
+    - kDetectPoison
+  applies:
+    - location: 37  # броня
+      modifier: 100
+    - location: 3  # интеллект
+      modifier: 10
+    - location: 1  # сила
+      modifier: 10
+    - location: 2  # ловкость
+      modifier: 10
+    - location: 5  # телосложение
+      modifier: 10
+    - location: 6  # обаяние
+      modifier: 10
+
+# Object #1031
+31:
+  names:
+    aliases: атомная бомба
+    nominative: атомная бомба
+    genitive: атомной бомбы
+    dative: атомной бомбе
+    accusative: атомную бомбу
+    instrumental: атомной бомбой
+    prepositional: атомной бомбе
+  short_desc: Большая цилиндрическая фигня из неизвестного металла валяется у вас под ногами.
+  action_desc: |2
+    БББББББАААААААААААААААААААААААААААААААААААХХХХХХХХХХХХХ!!!!!!!!!!!!!
+  type: kStaff
+  material: 6  # ДРАГ.МЕТАЛЛ
+  values:
+    - 999
+    - 1
+    - 1
+    - 68
+  weight: 1
+  cost: 0
+  rent_off: 10000
+  rent_on: 10000
+  spec_param: 141
+  max_durability: 10000
+  cur_durability: 10000
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  extra_flags:
+    - kHum
+    - kNosell
+    - kNodisarm
+    - kFlying
+    - kThrowing
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+    - kBoth
+
+# Object #1032
+32:
+  names:
+    aliases: косуха
+    nominative: косуха
+    genitive: косухи
+    dative: косухе
+    accusative: косуху
+    instrumental: косухой
+    prepositional: косухе
+  short_desc: Куртка из толстой кожи с большим количеством металлических застежок и кругляшков валяется в пыли.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 25
+    - 25
+    - 0
+    - 0
+  weight: 10
+  cost: 100
+  rent_off: 10000000
+  rent_on: 10000000
+  max_durability: 99999
+  cur_durability: 9999
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  wear_flags:
+    - kTake
+    - kBody
+    - kShoulders
+  affect_flags:
+    - kDetectInvisibility
+    - kDetectLife
+    - kSanctuary
+    - kInfravision
+    - kFly
+    - kHolyLight
+    - kFireShield
+    - kMagicGlass
+  applies:
+    - location: 1  # сила
+      modifier: 25
+    - location: 2  # ловкость
+      modifier: 25
+    - location: 4  # мудрость
+      modifier: 20
+    - location: 5  # телосложение
+      modifier: 25
+    - location: 6  # обаяние
+      modifier: 25
+
+# Object #1033
+33:
+  names:
+    aliases: огромный букет роз
+    nominative: '&Mогромный букет роз&n'
+    genitive: огромного букета роз
+    dative: огромному букету роз
+    accusative: огромный букет роз
+    instrumental: огромным букетом роз
+    prepositional: огромном букете роз
+  short_desc: Прекрасный букет роз, достойный самой царицы, стоит тут в красивой вазе.
+  type: kTreasure
+  material: 16  # ОРГАНИКА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1000
+  rent_off: 1
+  rent_on: 1
+  max_durability: 20
+  cur_durability: 20
+  timer: 10040
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  extra_flags:
+    - kNodecay
+    - kSwimming
+    - kFlying
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+
+# Object #1034
+34:
+  names:
+    aliases: бочка bigbeer
+    nominative: бочка
+    genitive: бочки
+    dative: бочке
+    accusative: бочку
+    instrumental: бочкой
+    prepositional: бочке
+  short_desc: 'Здесь стоит огромная бочка с надписью: "Выпей в память почивших тружеников сундука и сумки!"'
+  type: kFountain
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 9999
+    - 9999
+    - 3
+    - 0
+  weight: 10004
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 0
+  cur_durability: 0
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNoinvis
+    - kNodecay
+  extra_descriptions:
+    - keywords: бочка
+      description: |2
+        Огромная бочка, наполненная восхитительно пахнущей горячей медовухой.
+        Сбоку к ней привинчена табличка: "Памяти с миром почивших стафхолдеров
+        всея "Былин", а именно: Абрашки, Барсия, Боряты, Ветляна, Вечерницы, 
+        Горуни, Громадара, Задига, Затаки, Йарика, Зворко, Злынки, Зоримира,
+        Измера, Красуни, Лелика, Норданы, Озмаха, Релфима, Ровисара, Урюпа и прочих."
+
+# Object #1035
+35:
+  names:
+    aliases: шмайсер
+    nominative: mP-40
+    genitive: mP-40
+    dative: mP-40
+    accusative: mP-40
+    instrumental: mP-40
+    prepositional: mP-40
+  short_desc: Странная загогулина из металла лежит на земле.
+  type: kWeapon
+  material: 4  # СТАЛЬ
+  values:
+    - 50
+    - 555
+    - 20
+    - 9
+  weight: 6
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  spec_param: 154
+  max_durability: 9999
+  cur_durability: 9999
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  extra_flags:
+    - kNodonate
+    - kNosell
+    - kNodisarm
+  wear_flags:
+    - kTake
+    - kShoulders
+    - kBoth
+  anti_flags:
+    - kMale
+    - kFemale
+    - kCharmice
+
+# Object #1036
+36:
+  names:
+    aliases: кусок бересты
+    nominative: кусок бересты
+    genitive: куска бересты
+    dative: куску бересты
+    accusative: кусок бересты
+    instrumental: куском бересты
+    prepositional: куске бересты
+  short_desc: Кусок бересты с рунами на нем лежит в пыли.
+  type: kNote
+  material: 17  # БЕРЕСТА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 0
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  extra_flags:
+    - kNoinvis
+    - kNodecay
+  wear_flags:
+    - kTake
+
+# Object #1037
+37:
+  names:
+    aliases: фуражка
+    nominative: фуражка с черепом
+    genitive: фуражки с черепом
+    dative: фуражке с черепом
+    accusative: фуражку с черепом
+    instrumental: фуражкой с черепом
+    prepositional: фуражке с черепом
+  short_desc: Странный головной убор лежит на земле
+  type: kArmor
+  material: 14  # ТКАНЬ
+  values:
+    - 20
+    - 20
+    - 0
+    - 0
+  weight: 2
+  cost: 100
+  rent_off: 9999999
+  rent_on: 0
+  max_durability: 9999999
+  cur_durability: 9999999
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  extra_flags:
+    - kNoinvis
+    - kNodecay
+  wear_flags:
+    - kTake
+    - kHead
+
+# Object #1038
+38:
+  names:
+    aliases: китель
+    nominative: черный китель
+    genitive: черного кителя
+    dative: черному кителю
+    accusative: черный китель
+    instrumental: черным кителем
+    prepositional: черном кителе
+  short_desc: Странное одеяние лежит на земле
+  type: kArmor
+  material: 14  # ТКАНЬ
+  values:
+    - 40
+    - 40
+    - 0
+    - 0
+  weight: 2
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 9999
+  cur_durability: 9999
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  wear_flags:
+    - kTake
+    - kBody
+  affect_flags:
+    - kBless
+    - kFly
+    - kHaste
+    - kIceShield
+    - kMagicGlass
+  applies:
+    - location: 1  # сила
+      modifier: 25
+    - location: 2  # ловкость
+      modifier: 25
+    - location: 3  # интеллект
+      modifier: 25
+    - location: 4  # мудрость
+      modifier: 25
+    - location: 5  # телосложение
+      modifier: 25
+    - location: 6  # обаяние
+      modifier: 25
+
+# Object #1039
+39:
+  names:
+    aliases: железный крест с дубовыми листьями и мечами
+    nominative: железный крест с дубовыми листьями и мечами
+    genitive: железного креста с дубовыми листьями и мечами
+    dative: железному кресту с дубовыми листьями и мечами
+    accusative: железный крест с дубовыми листьями и мечами
+    instrumental: железным крестом с дубовыми листьями и мечами
+    prepositional: железном кресте с дубовыми листьями и мечами
+  short_desc: Небольшая награда в виде креста брошена тут в пыли.
+  type: kTreasure
+  material: 6  # ДРАГ.МЕТАЛЛ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 0
+  cost: 0
+  rent_off: 1
+  rent_on: 1
+  max_durability: 999
+  cur_durability: 999
+  timer: 30000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  wear_flags:
+    - kTake
+    - kNeck
+  affect_flags:
+    - kDetectAlign
+    - kDetectInvisibility
+    - kDetectMagic
+    - kBless
+  applies:
+    - location: 3  # интеллект
+      modifier: 1
+    - location: 4  # мудрость
+      modifier: 1
+    - location: 41  # удача
+      modifier: 4
+    - location: 13  # макс.жизнь
+      modifier: 50
+    - location: 18  # попадание
+      modifier: 5
+    - location: 25  # восст.жизни
+      modifier: 10
+
+# Object #1040
+40:
+  names:
+    aliases: юбочка
+    nominative: юбочка из плюша
+    genitive: юбочки из плюша
+    dative: юбочке из плюша
+    accusative: юбочку из плюша
+    instrumental: юбочкой из плюша
+    prepositional: юбочке из плюша
+  short_desc: Помятая и ношенная юбка валяется в пыли.
+  type: kArmor
+  material: 14  # ТКАНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 1000
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 9999
+  cur_durability: 9999
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  wear_flags:
+    - kTake
+    - kLegs
+
+# Object #1041
+41:
+  names:
+    aliases: футболка с надписью Led Zeppelin
+    nominative: 'футболка с надписью "Led Zeppelin"'
+    genitive: 'футболки с надписью "Led Zeppelin"'
+    dative: 'футболке с надписью "Led Zeppelin"'
+    accusative: 'футболку с надписью "Led Zeppelin"'
+    instrumental: 'футболкой с надписью "Led Zeppelin"'
+    prepositional: 'футболке с надписью "Led Zeppelin"'
+  short_desc: 'Красная фуфайка с огромной надписью "Led Zeppelin" с обеих сторон.'
+  type: kArmor
+  material: 14  # ТКАНЬ
+  values:
+    - 1
+    - 1
+    - 0
+    - 0
+  weight: 1
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 300
+  cur_durability: 300
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  extra_flags:
+    - kNolocate
+  wear_flags:
+    - kTake
+    - kBody
+  affect_flags:
+    - kNoTrack
+  extra_descriptions:
+    - keywords: футболка с надписью Led Zeppelin
+      description: |2
+        Красная фуфайка с огромной надписью "Led Zeppelin" с обеих сторон.
+
+# Object #1042
+42:
+  names:
+    aliases: сиськи силиконовые третьего размера
+    nominative: сиськи силиконовые третьего размера
+    genitive: сисек силиконовых третьего размера
+    dative: сиськам силиконовым третьего размера
+    accusative: сиськи силиконовые третьего размера
+    instrumental: сиськами силиконовыми третьего размера
+    prepositional: сиськах силиконовых третьего размера
+  short_desc: Силиконовые сиськи третьего размера кем-то брошены здесть...
+  type: kLiquidContainer
+  material: 16  # ОРГАНИКА
+  values:
+    - 300
+    - 300
+    - 10
+    - 0
+  weight: 1004
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 9999
+  cur_durability: 9999
+  timer: 7200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 1
+  extra_flags:
+    - kNolocate
+  wear_flags:
+    - kTake
+    - kNeck
+  applies:
+    - location: 3  # интеллект
+      modifier: -3
+    - location: 6  # обаяние
+      modifier: 3
+  extra_values:
+    POTION_PROTO_VNUM: 0
+    POTION_SPELL1_LVL: 25
+    POTION_SPELL1_NUM: 103
+
+# Object #1043
+43:
+  names:
+    aliases: кобура
+    nominative: кобура
+    genitive: кобуры
+    dative: кобуре
+    accusative: кобуру
+    instrumental: кобурой
+    prepositional: кобуре
+  short_desc: Странная сумка из кожи лежит на земле.
+  type: kContainer
+  material: 15  # КОЖА
+  values:
+    - 999
+    - 1
+    - -1
+    - 0
+  weight: 1
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 9999
+  cur_durability: 9999
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  extra_flags:
+    - kNoinvis
+  wear_flags:
+    - kTake
+    - kWaist
+
+# Object #1044
+44:
+  names:
+    aliases: пистолет Люгер
+    nominative: 'пистолет "Люгер"'
+    genitive: 'пистолета "Люгер"'
+    dative: 'пистолету "Люгер"'
+    accusative: 'пистолет "Люгер"'
+    instrumental: 'пистолетом "Люгер"'
+    prepositional: 'пистолете "Люгер"'
+  short_desc: Какая-то штуковина из металла лежит на земле.
+  type: kWeapon
+  material: 4  # СТАЛЬ
+  values:
+    - 50
+    - 333
+    - 20
+    - 9
+  weight: 5
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  spec_param: 154
+  max_durability: 9999
+  cur_durability: 9999
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  extra_flags:
+    - kNodisarm
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+  triggers:
+    - 132  # test Milich
+
+# Object #1045
+45:
+  names:
+    aliases: перстень осколком земной кости
+    nominative: '&Rперстень с осколком земной кости&n'
+    genitive: перстня с осколком земной кости
+    dative: перстню с осколком земной кости
+    accusative: перстень с осколком земной кости
+    instrumental: перстнем с осколком земной кости
+    prepositional: перстне с осколком земной кости
+  short_desc: Переливающися багровм светом перстень лежит здесь.
+  type: kWorm
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 1000
+  rent_off: 13
+  rent_on: 13
+  max_durability: 300
+  cur_durability: 300
+  timer: 46080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNolocate
+  wear_flags:
+    - kTake
+    - kFinger
+  applies:
+    - location: 41  # удача
+      modifier: 5
+    - location: 19  # повреждение
+      modifier: 3
+    - location: 21  # защита.от.стихии.огня
+      modifier: 50
+  extra_descriptions:
+    - keywords: перстень осколком земной кости
+      description: |2
+        Перстень из неведомого материала, со вставленным в него
+        угольно-чреным камнем, пылающий холодным багровым светом.
+
+# Object #1046
+46:
+  names:
+    aliases: пояс из живого камня
+    nominative: '&Kпояс из живого камня&n'
+    genitive: пояса из живого камня
+    dative: поясу из живого камня
+    accusative: пояс из живого камня
+    instrumental: поясом из живого камня
+    prepositional: поясе из живого камня
+  short_desc: Странного вида пояс лежит здесь в пыли.
+  type: kArmor
+  material: 12  # КАМЕНЬ
+  values:
+    - 5
+    - 5
+    - 0
+    - 0
+  weight: 3
+  cost: 1000
+  rent_off: 13
+  rent_on: 13
+  max_durability: 500
+  cur_durability: 500
+  timer: 20400
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  extra_flags:
+    - kNolocate
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kWaist
+  affect_flags:
+    - kProtectFromDark
+    - kFly
+    - kBlink
+    - kMagicGlass
+  applies:
+    - location: 2  # ловкость
+      modifier: 2
+    - location: 1  # сила
+      modifier: 2
+    - location: 3  # интеллект
+      modifier: 2
+    - location: 4  # мудрость
+      modifier: 2
+    - location: 5  # телосложение
+      modifier: 2
+  extra_descriptions:
+    - keywords: пояс из живого камня
+      description: |2
+        Широкий пояс, на ощупь сделанный из камня, но его поврехность
+        пульсирует и продавливается, словно живая плоть.
+
+# Object #1047
+47:
+  names:
+    aliases: свиток
+    nominative: свиток
+    genitive: свитка
+    dative: свитку
+    accusative: свиток
+    instrumental: свитком
+    prepositional: свитке
+  short_desc: Скрученный в трубку свиток лежит здесь.
+  type: kOther
+  material: 17  # БЕРЕСТА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 10
+  cur_durability: 10
+  timer: 120
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNorent
+    - kNodonate
+    - kNoinvis
+    - kNosell
+    - kNodecay
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: свиток
+      description: |2
+        Укрыт клад у верных людей.
+        Смотрят за ним втроем, но в четыре глаза.
+  triggers:
+    - 50074  # Именной шмот - Курлан
+
+# Object #1048
+48:
+  names:
+    aliases: светящийся череп
+    nominative: '&Bсветящийся череп&n'
+    genitive: светящегося черепа
+    dative: светящемуся черепу
+    accusative: светящийся череп
+    instrumental: светящимся черепом
+    prepositional: светящемся черепе
+  short_desc: '&BБледно светящийся щербатый череп покачивается в воздухе.&n'
+  type: kOther
+  material: 13  # КОСТЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 1000
+  cur_durability: 1000
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  wear_flags:
+    - kTake
+    - kHold
+  anti_flags:
+    - kKiller
+    - kBattle
+  affect_flags:
+    - kNoTrack
+  applies:
+    - location: 6  # обаяние
+      modifier: 40
+  triggers:
+    - 1013  # skull
+
+# Object #1049
+49:
+  names:
+    aliases: соленый огурчик
+    nominative: '&gсоленый огурчик&n'
+    genitive: соленого огурчика
+    dative: соленому огурчику
+    accusative: соленый огурчик
+    instrumental: соленым огурчиком
+    prepositional: соленом огурчике
+  short_desc: Крепенький, весь в пупырышках аппетитный соленый огурчик истекает соком.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 1
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 0
+  rent_off: 2
+  rent_on: 2
+  max_durability: 10
+  cur_durability: 10
+  timer: 10000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: соленый огурчик
+      description: |2
+        Крепенький, весь в пупырышках аппетитный соленый огурчик истекает соком.
+
+# Object #1050
+50:
+  names:
+    aliases: книга ЧИТЕРА
+    nominative: книга ЧИТЕРА
+    genitive: книги ЧИТЕРА
+    dative: книге ЧИТЕРА
+    accusative: книгу ЧИТЕРА
+    instrumental: книгой ЧИТЕРА
+    prepositional: книге ЧИТЕРА
+  short_desc: Очень сильно пахнущая читами книга лежит тут.
+  type: kBook
+  material: 14  # ТКАНЬ
+  values:
+    - 4
+    - 139
+    - 0
+    - 0
+  weight: 1
+  cost: 500
+  rent_off: 1
+  rent_on: 1
+  max_durability: 500
+  cur_durability: 500
+  timer: 12200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  wear_flags:
+    - kTake
+  triggers:
+    - 4005  # Тестовый триггер для мобов
+
+# Object #1051
+51:
+  names:
+    aliases: перстенек скромный
+    nominative: перстенек
+    genitive: перстенька
+    dative: перстеньку
+    accusative: перстенек
+    instrumental: перстеньком
+    prepositional: перстеньке
+  short_desc: Скромный перстенек лежит тут переливаясь бирюзовым сиянием.
+  type: kArmor
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 50000
+  rent_off: 50000
+  rent_on: 1
+  max_durability: 150
+  cur_durability: 150
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  extra_flags:
+    - kMagic
+    - kNodecay
+    - kNolocate
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kFinger
+  affect_flags:
+    - kDetectPoison
+  applies:
+    - location: 3  # интеллект
+      modifier: 15
+    - location: 40  # успех.колдовства
+      modifier: 20
+    - location: 20  # воля
+      modifier: -10
+
+# Object #1052
+52:
+  names:
+    aliases: аленький цветочек
+    nominative: '&Rаленький цветочек&n'
+    genitive: аленького цветочка
+    dative: аленькому цветочку
+    accusative: аленький цветочек
+    instrumental: аленьким цветочком
+    prepositional: аленьком цветочке
+  short_desc: '&RАленький цветочек&n растет здесь.'
+  type: kTreasure
+  material: 16  # ОРГАНИКА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 10
+  cost: 777
+  rent_off: 777
+  rent_on: 777
+  max_durability: 300
+  cur_durability: 300
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNorent
+  wear_flags:
+    - kTake
+    - kFinger
+    - kHold
+  affect_flags:
+    - kShield
+  applies:
+    - location: 41  # удача
+      modifier: 30
+    - location: 1  # сила
+      modifier: 10
+    - location: 25  # восст.жизни
+      modifier: 120
+    - location: 24  # стойкость
+      modifier: 50
+    - location: 48  # защита.от.тяжелых.ран
+      modifier: 50
+  extra_descriptions:
+    - keywords: аленький цветочек
+      description: |2
+        Прекрасный цветок, с лепестками, алеющими утренней зарей.
+
+# Object #1053
+53:
+  names:
+    aliases: золотой трон
+    nominative: золотой трон
+    genitive: золотого трона
+    dative: золотому трону
+    accusative: золотой трон
+    instrumental: золотым троном
+    prepositional: золотом троне
+  short_desc: Покрытый дивными узорами в виде водорослей золотой трон высится тут.
+  type: kOther
+  material: 6  # ДРАГ.МЕТАЛЛ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 10000
+  cost: 1000000
+  rent_off: 1000000
+  rent_on: 1000000
+  max_durability: 1000
+  cur_durability: 1000
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  extra_flags:
+    - kNoinvis
+    - kMagic
+    - kNodecay
+  extra_descriptions:
+    - keywords: золотой трон
+      description: |2
+        Величественный золотой трон, покоящийся на основании из гигантских окаменелых раковин.
+        Инструмент неведомого мастера покрыл его поверхность бесконечными извивами гибких стеблей
+        водорослей. При колыхании воды кажется, что узоры на поверхности трона живут свой жизнью, 
+        медленно покачиваясь вслед.
+
+# Object #1054
+54:
+  names:
+    aliases: трезубец морских бурь
+    nominative: '&Bтрезубец морских бурь&n'
+    genitive: трезубца морских бурь
+    dative: трезубцу морских бурь
+    accusative: трезубец морских бурь
+    instrumental: трезубцом морских бурь
+    prepositional: трезубце морских бурь
+  short_desc: Окруженный вихорем холодного ветра золотой трезубец летает здесь.
+  type: kWeapon
+  material: 6  # ДРАГ.МЕТАЛЛ
+  values:
+    - 70
+    - 700
+    - 20
+    - 10
+  weight: 9
+  cost: 1000
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 9999999
+  cur_durability: 9999999
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  wear_flags:
+    - kTake
+    - kWield
+  anti_flags:
+    - kMale
+    - kFemale
+    - kCharmice
+  affect_flags:
+    - kDetectInvisibility
+    - kDetectLife
+    - kWaterWalk
+    - kInfravision
+    - kNoTrack
+    - kBless
+    - kFly
+    - kAwareness
+    - kBlink
+    - kHaste
+    - kWaterBreath
+    - kShield
+    - kMagicGlass
+    - kIceAura
+  applies:
+    - location: 4  # мудрость
+      modifier: 25
+  extra_descriptions:
+    - keywords: трезубец морских бурь
+      description: |2
+        ___Вы видите огромных размеров золотой трезубец, пыдающий синим огнем.
+        Вокруг него с воем кружится бешеный вихрь, наполненый каплями воды, вперемежку
+        с осколками льда. Время от времени пространство между волнистыми зубцами трезубца 
+        с грохотом вспарывают ветвистые молнии.
+
+# Object #1055
+55:
+  names:
+    aliases: кожа Ладона
+    nominative: кожа Ладона
+    genitive: кожи Ладона
+    dative: коже Ладона
+    accusative: кожу Ладона
+    instrumental: кожей Ладона
+    prepositional: коже Ладона
+  short_desc: Чья-то превосходно выделанная кожа лежит у ваших ног.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 0
+    - 75
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 0
+  rent_on: 0
+  max_durability: 300
+  cur_durability: 300
+  timer: 30
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kGlow
+    - kMagic
+    - kNolocate
+  wear_flags:
+    - kTake
+    - kBody
+    - kShoulders
+  affect_flags:
+    - kShield
+  applies:
+    - location: 13  # макс.жизнь
+      modifier: 100
+  triggers:
+    - 1000  # ладон сдулся
+
+# Object #1056
+56:
+  names:
+    aliases: скалка
+    nominative: '&Yскалка&n'
+    genitive: скалки
+    dative: скалке
+    accusative: скалку
+    instrumental: скалкой
+    prepositional: скалке
+  short_desc: Увесистая скалка, покрытая чудным узором лежит тут.
+  type: kWeapon
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 70
+    - 70
+    - 20
+    - 5
+  weight: 5
+  cost: 1000
+  rent_off: 0
+  rent_on: 0
+  max_durability: 1000
+  cur_durability: 950
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  wear_flags:
+    - kTake
+    - kWield
+  affect_flags:
+    - kNoTrack
+    - kBless
+  applies:
+    - location: 19  # повреждение
+      modifier: 100
+    - location: 18  # попадание
+      modifier: 100
+    - location: 3  # интеллект
+      modifier: 40
+  extra_descriptions:
+    - keywords: скалка
+      description: |2
+        Общеизвестный инструмент для перевоспитания строптивых мужей.
+
+# Object #1057
+57:
+  names:
+    aliases: серая ряса капюшоном
+    nominative: '&Kсерая ряса с капюшоном&n'
+    genitive: серой рясы с капюшоном
+    dative: серой рясе с капюшоном
+    accusative: серую рясу с капюшоном
+    instrumental: серой рясой с капюшоном
+    prepositional: серой рясе с капюшоном
+  short_desc: Ряса из грубой шерстяной ткани валяется здесь.
+  type: kWorm
+  material: 14  # ТКАНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 5000
+  cur_durability: 5000
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  wear_flags:
+    - kTake
+    - kBody
+  anti_flags:
+    - kKiller
+    - kBattle
+  extra_descriptions:
+    - keywords: серая ряса капюшоном
+      description: |2
+        вы видите простую серую рясу с глубоким капюшоном, способным полностью скрыть лицо.
+        Поясом служит обрывок грубой веревки, продетый в матерчатые петли.
+        В этой одежде не было бы ровно ничего странного, если бы не пробегающие по ней сполохи зеленого пламени,
+        в котором вспыхивают и гаснут странные символы.
+  triggers:
+    - 1014  # морока с балахоном )
+
+# Object #1058
+58:
+  names:
+    aliases: жареная Котена
+    nominative: жареная Котена
+    genitive: жареной Котены
+    dative: жареной Котене
+    accusative: жареную Котену
+    instrumental: жареной Котеной
+    prepositional: жареной Котене
+  short_desc: Покрытая румяной корочкой жареная Котена с кистью винограда в пасти лежит тут на блюде.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 24
+    - 0
+    - 0
+    - 25
+  weight: 1
+  cost: 10
+  rent_off: 10
+  rent_on: 10
+  max_durability: 30
+  cur_durability: 30
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kNodonate
+    - kNoinvis
+    - kNolocate
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: жареная Котена
+      description: |2
+        Покрытая румяной корочкой жареная Котена
+        с кистью винограда в пасти лежит на блюде,
+        обложенная свежей зеленью и фруктами.
+
+# Object #1059
+59:
+  names:
+    aliases: свиток морских карт
+    nominative: '&Yсвиток морских карт&n'
+    genitive: свитка морских карт
+    dative: свитку морских карт
+    accusative: свиток морских карт
+    instrumental: свитком морских карт
+    prepositional: свитке морских карт
+  short_desc: Окруженный странным призрачным мерцанием свиток лежит здесь.
+  type: kOther
+  material: 7  # КРИСТАЛЛ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 3
+  cost: 1000
+  rent_off: 1
+  rent_on: 1
+  max_durability: 9999999
+  cur_durability: 9999999
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  wear_flags:
+    - kTake
+    - kHold
+  anti_flags:
+    - kMale
+    - kFemale
+  extra_descriptions:
+    - keywords: свиток морских карт
+      description: |2
+        Свиток сам собой равзернулся в карту, 
+        на которой с невиданной точностью изображены моря,
+        реки и проливы. Приглядевшись, вы увидели, по карте
+        плывут корабли, облака свиваются в бури и стекают с горных
+        склонов, а морские чудовища вздымают над поверхностью
+        уродливые головы.
+        __________
+
+# Object #1060
+60:
+  names:
+    aliases: золотая подкова
+    nominative: золотая подкова
+    genitive: золотой подковы
+    dative: золотой подкове
+    accusative: золотую подкову
+    instrumental: золотой подковой
+    prepositional: золотой подкове
+  short_desc: Золотаz подкова сверкаz лежит тут.
+  type: kWorm
+  material: 6  # ДРАГ.МЕТАЛЛ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 999
+  cur_durability: 999
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  extra_flags:
+    - kInvisible
+    - kMagic
+    - kBless
+    - kNodecay
+    - kNolocate
+  wear_flags:
+    - kTake
+    - kFinger
+    - kNeck
+    - kShoulders
+    - kWrist
+  affect_flags:
+    - kDetectInvisibility
+    - kDetectLife
+    - kProtectFromDark
+    - kNoTrack
+  applies:
+    - location: 6  # обаяние
+      modifier: 20
+    - location: 3  # интеллект
+      modifier: 20
+    - location: 4  # мудрость
+      modifier: 25
+    - location: 48  # защита.от.тяжелых.ран
+      modifier: 76
+    - location: 12  # запоминание
+      modifier: 100
+  extra_descriptions:
+    - keywords: 1
+      description: |2
+        123123
+  triggers:
+    - 101  # тест1
+
+# Object #1061
+61:
+  names:
+    aliases: мертвые руки
+    nominative: мертвые руки
+    genitive: мертвых рук
+    dative: мертвым рукам
+    accusative: мертвые руки
+    instrumental: мертвыми руками
+    prepositional: мертвых руках
+  short_desc: Чьи-то отрубленные руки с огромными когтями валяются тут.
+  type: kArmor
+  material: 13  # КОСТЬ
+  values:
+    - 20
+    - 10
+    - 0
+    - 0
+  weight: 1
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 999
+  cur_durability: 999
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  extra_flags:
+    - kMagic
+    - kNodecay
+  wear_flags:
+    - kTake
+    - kArms
+  affect_flags:
+    - kAwareness
+    - kBlink
+  applies:
+    - location: 2  # ловкость
+      modifier: 5
+    - location: 37  # броня
+      modifier: 8
+    - location: 17  # защита
+      modifier: -30
+
+# Object #1062
+62:
+  names:
+    aliases: тусклый меч
+    nominative: тусклый меч
+    genitive: тусклого меча
+    dative: тусклому мечу
+    accusative: тусклый меч
+    instrumental: тусклым мечом
+    prepositional: тусклом мече
+  short_desc: Слегка изогнутый меч странного цвета валяется у ваших ног.
+  type: kWeapon
+  material: 5  # КОВАНАЯ.СТАЛЬ
+  values:
+    - 20
+    - 500
+    - 20
+    - 10
+  weight: 5
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  spec_param: 143
+  max_durability: 999
+  cur_durability: 999
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  extra_flags:
+    - kGlow
+    - kMagic
+    - kBless
+    - kNodisarm
+    - kNodecay
+    - kPoisoned
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+    - kBoth
+  affect_flags:
+    - kDetectLife
+    - kInfravision
+    - kHolyLight
+    - kHaste
+  applies:
+    - location: 18  # попадание
+      modifier: 5
+    - location: 19  # повреждение
+      modifier: 5
+    - location: 39  # реакция
+      modifier: -10
+
+# Object #1063
+63:
+  names:
+    aliases: стальной крюк
+    nominative: стальной крюк
+    genitive: стального крюка
+    dative: стальному крюку
+    accusative: стальной крюк
+    instrumental: стальным крюком
+    prepositional: стальном крюке
+  short_desc: Покрытый запекшейся кровью крюк валяется здесь всеми забытый.
+  type: kWeapon
+  material: 4  # СТАЛЬ
+  values:
+    - 15
+    - 7
+    - 15
+    - 10
+  weight: 7
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  spec_param: 145
+  max_durability: 999
+  cur_durability: 999
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  extra_flags:
+    - kGlow
+    - kMagic
+    - kBless
+    - kNodisarm
+    - kNodecay
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+    - kBoth
+  applies:
+    - location: 19  # повреждение
+      modifier: 7
+
+# Object #1064
+64:
+  names:
+    aliases: посох могущества
+    nominative: посох могущества
+    genitive: посоха могущества
+    dative: посоху могущества
+    accusative: посох могущества
+    instrumental: посохом могущества
+    prepositional: посохе могущества
+  short_desc: Короткий стержень из непонятного материала заставляет вас трепетать от одного взгляда на него.
+  type: kWeapon
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 0
+    - 50
+    - 20
+    - 6
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  spec_param: 141
+  max_durability: 999
+  cur_durability: 999
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kGlow
+    - kInvisible
+    - kMagic
+    - kBless
+    - kNodisarm
+    - kNodecay
+    - kSwimming
+    - kFire
+  wear_flags:
+    - kTake
+    - kWield
+  affect_flags:
+    - kShield
+  applies:
+    - location: 18  # попадание
+      modifier: 30
+    - location: 12  # запоминание
+      modifier: 100
+    - location: 1  # сила
+      modifier: 50
+    - location: 6  # обаяние
+      modifier: 50
+    - location: 4  # мудрость
+      modifier: 50
+    - location: 3  # интеллект
+      modifier: 50
+  triggers:
+    - 1064  # Убить посохом
+
+# Object #1065
+65:
+  names:
+    aliases: шкура Змея Горыныча
+    nominative: шкура Змея Горыныча
+    genitive: шкуры Змея Горыныча
+    dative: шкуре Змея Горыныча
+    accusative: шкуру Змея Горыныча
+    instrumental: шкурой Змея Горыныча
+    prepositional: шкуре Змея Горыныча
+  short_desc: Кем-то содранная шкура огромного змея валяется тут.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 10
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 999
+  cur_durability: 999
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  extra_flags:
+    - kInvisible
+    - kMagic
+  wear_flags:
+    - kTake
+    - kShoulders
+  affect_flags:
+    - kSneak
+    - kFly
+    - kWaterBreath
+    - kMagicGlass
+  applies:
+    - location: 13  # макс.жизнь
+      modifier: 100
+    - location: 2  # ловкость
+      modifier: 20
+    - location: 24  # стойкость
+      modifier: -50
+
+# Object #1066
+66:
+  names:
+    aliases: простенький кинжальчик
+    nominative: простенький кинжальчик
+    genitive: простенького кинжальчика
+    dative: простенькому кинжальчику
+    accusative: простенький кинжальчик
+    instrumental: простеньким кинжальчиком
+    prepositional: простеньком кинжальчике
+  short_desc: Простенький Кинжальчик простенько лежит тут...
+  type: kWeapon
+  material: 4  # СТАЛЬ
+  values:
+    - 0
+    - 255
+    - 1
+    - 11
+  weight: 17
+  cost: 1
+  rent_off: 0
+  rent_on: 0
+  spec_param: 147
+  max_durability: 10000
+  cur_durability: 10000
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  extra_flags:
+    - kGlow
+    - kHum
+    - kNodecay
+    - kFire
+    - kNolocate
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+  anti_flags:
+    - kKiller
+    - kBattle
+  applies:
+    - location: 2  # ловкость
+      modifier: 50
+    - location: 4  # мудрость
+      modifier: 50
+    - location: 5  # телосложение
+      modifier: 50
+    - location: 3  # интеллект
+      modifier: 50
+    - location: 1  # сила
+      modifier: 50
+    - location: 6  # обаяние
+      modifier: 50
+
+# Object #1067
+67:
+  names:
+    aliases: стеклянная бутылка
+    nominative: стеклянная бутылка
+    genitive: стеклянной бутылки
+    dative: стеклянной бутылке
+    accusative: стеклянную бутылку
+    instrumental: стеклянной бутылкой
+    prepositional: стеклянной бутылке
+  short_desc: Стеклянная бутылка перекатывается под ногами.
+  type: kLiquidContainer
+  material: 11  # СТЕКЛО
+  values:
+    - 20
+    - 0
+    - 0
+    - 0
+  weight: 105
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 10
+  cur_durability: 10
+  timer: 10000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  wear_flags:
+    - kTake
+
+# Object #1068
+68:
+  names:
+    aliases: одежда шлем
+    nominative: шлем
+    genitive: шлема
+    dative: шлему
+    accusative: шлем
+    instrumental: шлемом
+    prepositional: шлеме
+  short_desc: Обычный шлем.
+  type: kWorm
+  material: 14  # ТКАНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 0
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 1000
+  cur_durability: 1000
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNodecay
+  wear_flags:
+    - kTake
+    - kHead
+  affect_flags:
+    - kShield
+
+# Object #1069
+69:
+  names:
+    aliases: корни и ветки
+    nominative: корни и ветки
+    genitive: корней и веток
+    dative: корням и веткам
+    accusative: корни и ветки
+    instrumental: корнями и ветками
+    prepositional: корнях и ветках
+  short_desc: Переплетение корней и веток образуют здесь удобную мебель
+  type: kOther
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1000
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 0
+  cur_durability: 0
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  max_in_world: 1
+  extra_flags:
+    - kHum
+    - kMagic
+    - kNodecay
+
+# Object #1070
+70:
+  names:
+    aliases: радужный амулет
+    nominative: '&Wрадужный &Gа&Rм&Wу&Bл&Kе&Mт&n'
+    genitive: радужного амулета
+    dative: радужному амулету
+    accusative: радужный амулет
+    instrumental: радужным амулетом
+    prepositional: радужном амулете
+  short_desc: '&GМаленькое &Wз&Rе&Gр&Kк&Yа&Rл&Bо &Gлежит здесь переливаясь всеми цветами радуги.&G'
+  action_desc: |2
+    Амулет вспыхнул у вас перед глазами.
+  type: kContainer
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 1000
+    - 1
+    - -1
+    - 0
+  weight: 1
+  cost: 1000
+  rent_off: 1000
+  rent_on: 1
+  max_durability: 10000
+  cur_durability: 10000
+  timer: 10000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  extra_flags:
+    - kMagic
+    - kNodecay
+    - kSwimming
+    - kNolocate
+  wear_flags:
+    - kTake
+    - kNeck
+    - kArms
+    - kWrist
+    - kHold
+  affect_flags:
+    - kDetectAlign
+    - kDetectInvisibility
+    - kDetectMagic
+    - kInfravision
+    - kNoTrack
+  applies:
+    - location: 12  # запоминание
+      modifier: 100
+    - location: 41  # удача
+      modifier: 40
+    - location: 6  # обаяние
+      modifier: 15
+
+# Object #1071
+71:
+  names:
+    aliases: вампирская накидка
+    nominative: '&Rвампирская накидка&n'
+    genitive: '&Rвампирской накидки&n'
+    dative: '&Rвампирской накидке&n'
+    accusative: '&Rвампирскую накидку&n'
+    instrumental: '&Rвампирской накидкой&n'
+    prepositional: '&Rвампирской накидке&n'
+  short_desc: Длинная накидка из блестящей черной ткани с кроваво-красной подкладкой лежит тут.
+  type: kWorm
+  material: 14  # ТКАНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 2000
+  rent_off: 1
+  rent_on: 1
+  max_durability: 99999
+  cur_durability: 99999
+  timer: 2880
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+    - kNoinvis
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+  wear_flags:
+    - kTake
+    - kBody
+    - kShoulders
+  affect_flags:
+    - kDetectMagic
+  applies:
+    - location: 4  # мудрость
+      modifier: 3
+  triggers:
+    - 1088  # Блокировка выхода концом
+    - 1089  # Нельзя снять накидку
+    - 1087  # Вампирская накидка сосет с причмоком
+
+# Object #1072
+72:
+  names:
+    aliases: окровавленная ночная рубашка
+    nominative: '&Rокровавленная&W ночная рубашка&n'
+    genitive: окровавленной ночной рубашки
+    dative: окровавленной ночной рубашке
+    accusative: окровавленную ночную рубашку
+    instrumental: окровавленной ночной рубашкой
+    prepositional: окровавленной ночной рубашке
+  short_desc: Когда-то белоснежная, а теперь вся в бурых пятных, ночная рубашка вызывает дрожь своим видом.
+  type: kArmor
+  material: 14  # ТКАНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 999
+  cur_durability: 999
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  max_in_world: 1
+  extra_flags:
+    - kMagic
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kNolocate
+  wear_flags:
+    - kTake
+    - kBody
+  affect_flags:
+    - kNoTrack
+    - kFly
+    - kShield
+  applies:
+    - location: 13  # макс.жизнь
+      modifier: 100
+
+# Object #1073
+73:
+  names:
+    aliases: Часы с кукушкой
+    nominative: '&Gч&rа&Kс&Mы &Wс &CК&yу&CК&yу&mш&Cк&gо&Yй&n'
+    genitive: '&Gч&rа&Kс&gо&cв &Wс &CК&yу&CК&yу&mш&Cк&gо&Yй&n'
+    dative: '&Gч&rа&Kс&rа&cм &Wс &CК&yу&CК&yу&mш&Cк&gо&Yй&n'
+    accusative: '&Gч&rа&Kс&Mы &Wс &CК&yу&CК&yу&mш&Cк&gо&Yй&n'
+    instrumental: '&Gч&rа&Kс&rа&cм&Bи &Wс &CК&yу&CК&yу&mш&Cк&gо&Yй&n'
+    prepositional: '&Gч&rа&Kс&rа&bх &Wс &CК&yу&CК&yу&mш&Cк&gо&Yй&n'
+  short_desc: '&GЧ&rа&Kс&Mы &Wс &CК&yу&CК&yу&mш&Cк&gо&Yй&n откукивают тут последний час.'
+  type: kWorm
+  material: 5  # КОВАНАЯ.СТАЛЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 99999999
+  rent_off: 0
+  rent_on: 0
+  max_durability: 99999
+  cur_durability: 9999
+  timer: 90000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  minimum_remorts: 50
+  extra_flags:
+    - kNodonate
+    - kNodecay
+    - kHasThreeSlots
+  wear_flags:
+    - kTake
+    - kWrist
+  affect_flags:
+    - kInvisibility
+    - kDetectAlign
+    - kDetectInvisibility
+    - kDetectMagic
+    - kDetectLife
+    - kInfravision
+    - kNoTrack
+    - kFly
+    - kDetectPoison
+    - kWaterBreath
+    - kShield
+  applies:
+    - location: 9  # возраст
+      modifier: 100
+    - location: 4  # мудрость
+      modifier: 38
+    - location: 3  # интеллект
+      modifier: 35
+    - location: 6  # обаяние
+      modifier: 40
+    - location: 1  # сила
+      modifier: 50
+    - location: 2  # ловкость
+      modifier: 50
+  skills:
+    - skill_id: 6  # отравить
+      value: 200
+    - skill_id: 11  # освежевать
+      value: 200
+    - skill_id: 23  # опознание
+      value: 200
+    - skill_id: 30  # опохмелиться
+      value: 200
+    - skill_id: 31  # лечить
+      value: 200
+    - skill_id: 32  # разжечь костер
+      value: 200
+    - skill_id: 131  # заколоть
+      value: 200
+    - skill_id: 133  # спрятаться
+      value: 200
+    - skill_id: 134  # пнуть
+      value: 200
+    - skill_id: 138  # подкрасться
+      value: 200
+    - skill_id: 139  # украсть
+      value: 200
+    - skill_id: 140  # выследить
+      value: 200
+    - skill_id: 153  # оборотничество
+      value: 200
+    - skill_id: 156  # маскировка
+      value: 200
+    - skill_id: 160  # подножка
+      value: 200
+    - skill_id: 168  # врата
+      value: 200
+    - skill_id: 171  # выковать оружие
+      value: 200
+    - skill_id: 172  # выковать доспех
+      value: 200
+    - skill_id: 173  # смастерить диковинку
+      value: 200
+    - skill_id: 174  # сшить одежду
+      value: 200
+  extra_descriptions:
+    - keywords: Часы с кукушкой одежда
+      description: |2
+        &GЧ&rа&Kс&Mы &Wс &CК&yу&CК&yу&mш&Cк&gо&Yй&n откукивают Ваш последний час.
+
+# Object #1074
+74:
+  names:
+    aliases: черный пиджак
+    nominative: '&Kчерный пиджак&n'
+    genitive: '&Kчерного пиджака&n'
+    dative: '&Kчерному пиджаку&n'
+    accusative: '&Kчерный пиджак&n'
+    instrumental: '&Kчерным пиджаком&n'
+    prepositional: '&Kчерном пиджаке&n'
+  short_desc: Солидного вида пиджак аккуратно сложен тут.
+  type: kWorm
+  material: 14  # ТКАНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 100000
+  rent_off: 100000
+  rent_on: 100000
+  max_durability: 9999
+  cur_durability: 9999
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  extra_flags:
+    - kNolocate
+  wear_flags:
+    - kTake
+    - kBody
+
+# Object #1075
+75:
+  names:
+    aliases: черные ботинки
+    nominative: '&Kчерные ботинки&n'
+    genitive: '&Kчерных ботинок&n'
+    dative: '&Kчерным ботинкам&n'
+    accusative: '&Kчерные ботинки&n'
+    instrumental: '&Kчерными ботинками&n'
+    prepositional: '&Kчерных ботинках&n'
+  short_desc: Черные лакированые ботинки стоят здесь.
+  type: kWorm
+  material: 15  # КОЖА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 99
+  cost: 100000
+  rent_off: 100000
+  rent_on: 100000
+  max_durability: 9999
+  cur_durability: 9999
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  extra_flags:
+    - kNolocate
+  wear_flags:
+    - kTake
+    - kFeet
+
+# Object #1076
+76:
+  names:
+    aliases: темные очки
+    nominative: '&Kтемные очки&n'
+    genitive: '&Kтемных очков&n'
+    dative: '&Kтемным очкам&n'
+    accusative: '&Kтемные очки&n'
+    instrumental: '&Kтемными очками&n'
+    prepositional: '&Kтемных очках&n'
+  short_desc: Темные очки забыты здесь кем-то.
+  type: kWorm
+  material: 14  # ТКАНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 100000
+  rent_off: 100000
+  rent_on: 100000
+  max_durability: 9999
+  cur_durability: 9999
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  extra_flags:
+    - kNolocate
+  wear_flags:
+    - kTake
+    - kHead
+  applies:
+    - location: 6  # обаяние
+      modifier: 50
+    - location: 1  # сила
+      modifier: 50
+  skills:
+    - skill_id: 186  # магия света
+      value: 200
+
+# Object #1077
+77:
+  names:
+    aliases: черные брюки
+    nominative: '&Kчерные брюки&n'
+    genitive: '&Kчерных брюк&n'
+    dative: '&Kчерным брюкам&n'
+    accusative: '&Kчерные брюки&n'
+    instrumental: '&Kчерными брюками&n'
+    prepositional: '&Kчерных брюках&n'
+  short_desc: Черные брюки лежат здесь.
+  type: kWorm
+  material: 14  # ТКАНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 100000
+  rent_off: 0
+  rent_on: 0
+  max_durability: 9999
+  cur_durability: 9999
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  extra_flags:
+    - kNolocate
+  wear_flags:
+    - kTake
+    - kLegs
+
+# Object #1078
+78:
+  names:
+    aliases: пояс с черной пряжкой
+    nominative: '&Kпояс с черной пряжкой&n'
+    genitive: '&Kпояса с черной пряжкой&n'
+    dative: '&Kпоясу с черной пряжкой&n'
+    accusative: '&Kпояс с черной пряжкой&n'
+    instrumental: '&Kпоясом с черной пряжкой&n'
+    prepositional: '&Kпоясе с черной пряжкой&n'
+  short_desc: Пояс с черной пряжкой блестит на земле.
+  type: kWorm
+  material: 15  # КОЖА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 100000
+  rent_off: 100000
+  rent_on: 100000
+  max_durability: 9999
+  cur_durability: 9999
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  extra_flags:
+    - kNolocate
+  wear_flags:
+    - kTake
+    - kWaist
+
+# Object #1079
+79:
+  names:
+    aliases: расписная рубаха лебедями
+    nominative: расписная рубаха с лебедями
+    genitive: расписной рубахи с лебедями
+    dative: расписной рубахе с лебедями
+    accusative: расписную рубаху с лебедями
+    instrumental: расписной рубахой с лебедями
+    prepositional: расписной рубахе с лебедями
+  short_desc: Расписная рубаха с лебедями лежит здесь.
+  type: kWorm
+  material: 14  # ТКАНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1000
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 9999
+  cur_durability: 9999
+  timer: 10000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  wear_flags:
+    - kTake
+    - kBody
+  affect_flags:
+    - kBlindness
+  applies:
+    - location: 3  # интеллект
+      modifier: 3
+    - location: 40  # успех.колдовства
+      modifier: 13
+
+# Object #1080
+80:
+  names:
+    aliases: СМС-ка
+    nominative: сМС-ка
+    genitive: сМС-ки
+    dative: сМС-ке
+    accusative: сМС-ку
+    instrumental: сМС-кой
+    prepositional: сМС-ке
+  short_desc: Массивная, кованая СМС-ка лежит тут. ...Светится ярким ликтронным сиянием!
+  type: kTrash
+  material: 8  # ДЕРЕВО
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 200
+  cost: 1000
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 9999
+  cur_durability: 9999
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kNoinvis
+    - kNodecay
+  extra_descriptions:
+    - keywords: СМС-ка
+      description: |2
+        В сообщении значится: +1017
+  triggers:
+    - 1080  # Пришла СМС-ка
+
+# Object #1081
+81:
+  names:
+    aliases: шкатулка Пандоры
+    nominative: шкатулка Пандоры
+    genitive: шкатулки Пандоры
+    dative: шкатулке Пандоры
+    accusative: шкатулку Пандоры
+    instrumental: шкатулкой Пандоры
+    prepositional: шкатулке Пандоры
+  short_desc: Шкатулка, которую так ищет Пандора...
+  action_desc: |2
+    Не открывается, пока не возьмешь... Ж)
+  type: kWeapon
+  material: 8  # ДЕРЕВО
+  values:
+    - 1
+    - 1
+    - 1
+    - 5
+  weight: 1
+  cost: 1000
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 9999
+  cur_durability: 9999
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  extra_flags:
+    - kGlow
+    - kHum
+    - kNodonate
+    - kNosell
+    - kNodecay
+    - kPoisoned
+    - kFlying
+    - kFire
+    - kNolocate
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kBoth
+  affect_flags:
+    - kDetectAlign
+    - kDetectInvisibility
+    - kDetectMagic
+    - kDetectLife
+    - kWaterWalk
+    - kInfravision
+    - kProtectFromDark
+    - kProtectFromMind
+    - kNoTrack
+    - kBless
+    - kFly
+    - kAwareness
+    - kNoFlee
+    - kSingleLight
+    - kHaste
+    - kWaterBreath
+    - kStoneHand
+  applies:
+    - location: 2  # ловкость
+      modifier: 50
+    - location: 4  # мудрость
+      modifier: 50
+    - location: 5  # телосложение
+      modifier: 50
+    - location: 3  # интеллект
+      modifier: 50
+    - location: 1  # сила
+      modifier: 50
+    - location: 6  # обаяние
+      modifier: 50
+
+# Object #1082
+82:
+  names:
+    aliases: штаны с петухами
+    nominative: штаны с петухами
+    genitive: штанов с петухами
+    dative: штанам с петухами
+    accusative: штаны с петухами
+    instrumental: штанами с петухами
+    prepositional: штанах с петухами
+  short_desc: Штаны с петухами валяются здесь.
+  type: kWorm
+  material: 14  # ТКАНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1000
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 9999
+  cur_durability: 9999
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  wear_flags:
+    - kTake
+    - kLegs
+
+# Object #1083
+83:
+  names:
+    aliases: почка Одина
+    nominative: почка Одина
+    genitive: почки Одина
+    dative: почке Одина
+    accusative: почку Одина
+    instrumental: почкой Одина
+    prepositional: почке Одина
+  short_desc: Почка Одина
+  type: kTrap
+  material: 8  # ДЕРЕВО
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1000
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 9999
+  cur_durability: 9999
+  timer: 3
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  wear_flags:
+    - kTake
+
+# Object #1084
+84:
+  names:
+    aliases: посох золотого песка
+    nominative: посох золотого песка
+    genitive: посоха золотого песка
+    dative: посоху золотого песка
+    accusative: посох золотого песка
+    instrumental: посохом золотого песка
+    prepositional: посохе золотого песка
+  short_desc: Тонкий витой посох с золотым навершием лежит тут.
+  type: kWand
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 30
+    - 30
+    - 20
+    - 3
+  weight: 5
+  cost: 300
+  rent_off: 30
+  rent_on: 30
+  max_durability: 200
+  cur_durability: 200
+  timer: 14400
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  wear_flags:
+    - kTake
+    - kHold
+  applies:
+    - location: 40  # успех.колдовства
+      modifier: 7
+  triggers:
+    - 1084  # Персонализация предмета
+
+# Object #1085
+85:
+  names:
+    aliases: доспех последней обороны
+    nominative: доспех последней обороны
+    genitive: доспеха последней обороны
+    dative: доспеху последней обороны
+    accusative: доспех последней обороны
+    instrumental: доспехом последней обороны
+    prepositional: доспехе последней обороны
+  short_desc: Доспех последней обороны аккуратно сложен здесь.
+  action_desc: |2
+    Доспех сильных воинов и искустных магов. Кажется, протри его рукой,
+    и в отблеске можно углядеть пожары минувших битв и сражений.
+  type: kArmor
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 7
+    - 7
+    - 0
+    - 0
+  weight: 30
+  cost: 999
+  rent_off: 2000
+  rent_on: 200
+  max_durability: 350
+  cur_durability: 350
+  timer: 10000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kBody
+  affect_flags:
+    - kDetectMagic
+    - kProtectFromDark
+    - kBless
+  applies:
+    - location: 42  # инициатива
+      modifier: 6
+    - location: 44  # поглощение
+      modifier: 10
+    - location: 20  # воля
+      modifier: 15
+
+# Object #1086
+86:
+  names:
+    aliases: шкатулка пандоры
+    nominative: шкатулка Пандоры
+    genitive: шкатулки Пандоры
+    dative: шкатулке Пандоры
+    accusative: шкатулку Пандоры
+    instrumental: шкатулкой Пандоры
+    prepositional: шкатулке Пандоры
+  short_desc: Шкатулка Пандоры дожидается тут того, кто решится ее открыть.
+  type: kContainer
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 300
+    - 5
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 9999
+  cur_durability: 9999
+  timer: 120
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNorent
+    - kNoinvis
+    - kNosell
+  wear_flags:
+    - kTake
+  triggers:
+    - 1092  # Открыли шкатулку Пандоры
+    - 1093  # Попытались закрыть шкатулку
+
+# Object #1087
+87:
+  names:
+    aliases: 'шлем ''мертвая голова'''
+    nominative: 'шлем ''мертвая голова'''
+    genitive: 'шлема ''мертвая голова'''
+    dative: 'шлему ''мертвая голова'''
+    accusative: 'шлем ''мертвая голова'''
+    instrumental: 'шлемом ''мертвая голова'''
+    prepositional: 'шлеме ''мертвая голова'''
+  short_desc: 'Шлеме ''мертвая голова'' лежит тут.'
+  type: kArmor
+  material: 1  # БУЛАТ
+  values:
+    - 5
+    - 5
+    - 0
+    - 0
+  weight: 10
+  cost: 1000
+  rent_off: 500
+  rent_on: 250
+  max_durability: 150
+  cur_durability: 150
+  timer: 10000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  extra_flags:
+    - kNolocate
+  wear_flags:
+    - kTake
+    - kHead
+  affect_flags:
+    - kBless
+  applies:
+    - location: 1  # сила
+      modifier: 1
+    - location: 37  # броня
+      modifier: 5
+    - location: 2  # ловкость
+      modifier: 1
+
+# Object #1088
+88:
+  names:
+    aliases: браслет колдуна
+    nominative: браслет колдуна
+    genitive: браслета колдуна
+    dative: браслету колдуна
+    accusative: браслет колдуна
+    instrumental: браслетом колдуна
+    prepositional: браслете колдуна
+  short_desc: На турнире славном был выдан сей браслет победителю.
+  action_desc: |2
+    Браслет колдуна начал медленно мерцать.
+  type: kWorm
+  material: 14  # ТКАНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 3000
+  rent_off: 300
+  rent_on: 200
+  max_durability: 75
+  cur_durability: 75
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  extra_flags:
+    - kNodonate
+    - kNosell
+    - kNodecay
+    - kNolocate
+  wear_flags:
+    - kTake
+    - kWrist
+  applies:
+    - location: 41  # удача
+      modifier: -50
+
+# Object #1089
+89:
+  names:
+    aliases: железный крест
+    nominative: железный крест
+    genitive: железного креста
+    dative: железному кресту
+    accusative: железный крест
+    instrumental: железным крестом
+    prepositional: железном кресте
+  short_desc: Небольшая награда в виде креста брошена тут в пыли.
+  type: kTreasure
+  material: 6  # ДРАГ.МЕТАЛЛ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 0
+  cost: 1000
+  rent_off: 250
+  rent_on: 250
+  max_durability: 999
+  cur_durability: 999
+  timer: 30000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  extra_flags:
+    - kNodonate
+    - kNoinvis
+    - kNosell
+    - kNolocate
+  wear_flags:
+    - kTake
+    - kNeck
+  affect_flags:
+    - kDetectInvisibility
+    - kInfravision
+    - kBless
+  applies:
+    - location: 41  # удача
+      modifier: 2
+    - location: 40  # успех.колдовства
+      modifier: 3
+    - location: 24  # стойкость
+      modifier: -100
+
+# Object #1090
+90:
+  names:
+    aliases: Рыцарский железный крест с бриллиантами в золоте
+    nominative: рыцарский железный крест с бриллиантами в золоте
+    genitive: рыцарского железного креста с бриллиантами в золоте
+    dative: рыцарскому железному кресту с бриллиантами в золоте
+    accusative: рыцарский железный крест с бриллиантами в золоте
+    instrumental: рыцарским железным крестом с бриллиантами в золоте
+    prepositional: рыцарском железном кресте с бриллиантами в золоте
+  short_desc: Небольшая награда в виде креста брошена тут в пыли.
+  type: kTreasure
+  material: 6  # ДРАГ.МЕТАЛЛ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 0
+  cost: 10000
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 999
+  cur_durability: 999
+  timer: 12000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  extra_flags:
+    - kNolocate
+  wear_flags:
+    - kTake
+    - kNeck
+  affect_flags:
+    - kDetectAlign
+    - kDetectInvisibility
+    - kDetectMagic
+    - kSanctuary
+    - kBless
+  applies:
+    - location: 41  # удача
+      modifier: 6
+    - location: 6  # обаяние
+      modifier: 2
+    - location: 13  # макс.жизнь
+      modifier: 100
+    - location: 19  # повреждение
+      modifier: 5
+    - location: 40  # успех.колдовства
+      modifier: 6
+    - location: 39  # реакция
+      modifier: 6
+
+# Object #1091
+91:
+  names:
+    aliases: посох лазурной
+    nominative: '&Yпосох &yс &Bлазурной пентаграммой&n'
+    genitive: посоха с лазурной пентаграммой
+    dative: посоху с лазурной пентаграммой
+    accusative: посох с лазурной пентаграммой
+    instrumental: посохом с лазурной пентаграммой
+    prepositional: посохе с лазурной пентаграммой
+  short_desc: Лазурный свет исходит от крепкого посоха, воткнутого здесь.
+  type: kWeapon
+  material: 7  # КРИСТАЛЛ
+  values:
+    - 1
+    - 4
+    - 4
+    - 6
+  weight: 10
+  cost: 1000
+  rent_off: 1
+  rent_on: 1
+  spec_param: 141
+  max_durability: 1000
+  cur_durability: 1000
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kGlow
+    - kMagic
+    - kNodisarm
+    - kNodecay
+    - kSwimming
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kWaist
+    - kWield
+  extra_descriptions:
+    - keywords: пентаграмма
+      description: |2
+        Пентаграмма ярко мерцает, мешая рассмотреть, что же там внутри.
+  triggers:
+    - 1091  # Именной шмот - Прокиус
+
+# Object #1092
+92:
+  names:
+    aliases: хрустальный доспех постижения тайн Мира
+    nominative: '&Bхрустальный доспех постижения тайн Мира&n'
+    genitive: хрустального доспеха постижения тайн Мира
+    dative: хрустальному доспеху постижения тайн Мира
+    accusative: хрустальный доспех постижения тайн Мира
+    instrumental: хрустальным доспехом постижения тайн Мира
+    prepositional: хрустальном доспехе постижения тайн Мира
+  short_desc: Сверкающий доспех медленно покачивается в воздухе.
+  type: kArmor
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 6
+    - 10
+    - 0
+    - 0
+  weight: 8
+  cost: 1000
+  rent_off: 1000
+  rent_on: 100
+  max_durability: 500
+  cur_durability: 500
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  extra_flags:
+    - kGlow
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kBody
+  affect_flags:
+    - kBless
+    - kFly
+    - kAirAura
+    - kFireAura
+    - kIceAura
+  applies:
+    - location: 41  # удача
+      modifier: 10
+    - location: 40  # успех.колдовства
+      modifier: 15
+    - location: 6  # обаяние
+      modifier: 3
+    - location: 3  # интеллект
+      modifier: 3
+  extra_descriptions:
+    - keywords: хрустальный доспех постижения тайн Мира
+      description: |2
+        Неописуемой красоты сверкающий доспех из прозрачного горного хрусталя.
+        Лучи света преломляются и дробятся на его бесчисленных гранях, посылая
+        вокруг яркие отблески. Кажется, что доспех пылает прозрачным голубым пламенем,
+        в котором, словно бы возникают картины дальних земель, таящих дивные секреты.
+  triggers:
+    - 1004  # Триггер хрустального доспеха (1092) - Прокиус
+
+# Object #1093
+93:
+  names:
+    aliases: чешуйка змея горыныча
+    nominative: '&gчешуйка&R змея горыныча&n'
+    genitive: '&gчешуйки&R змея горыныча&n'
+    dative: '&gчешуйке&R змея горыныча&n'
+    accusative: '&gчешуйку&R змея горыныча&n'
+    instrumental: '&gчешуйкой&R змея горыныча&n'
+    prepositional: '&gчешуйке&R змея горыныча&n'
+  short_desc: Маленькая змеиная чешуйка - размером всего-то с пару ладоней, лежит здесь.
+  type: kWorm
+  material: 13  # КОСТЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 3
+  cost: 1000
+  rent_off: 10
+  rent_on: 10
+  max_durability: 150
+  cur_durability: 150
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNolocate
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kNeck
+  affect_flags:
+    - kFly
+    - kHaste
+    - kFireShield
+  extra_descriptions:
+    - keywords: чешуйка змея горыныча
+      description: |2
+        Небольшая змеиная чешуйка густого, темно-зеленого цвета, 
+        размером всего-то с пару ладоней, покрытая серыми разводами.
+
+# Object #1094
+94:
+  names:
+    aliases: жезл божественного правосудия
+    nominative: '&Wжезл божественного правосудия&n'
+    genitive: жезла божественного правосудия
+    dative: жезлу божественного правосудия
+    accusative: жезл божественного правосудия
+    instrumental: жезлом божественного правосудия
+    prepositional: жезле божественного правосудия
+  short_desc: Сверкающий жезл парит в нескольких ладонях над землей.
+  type: kWeapon
+  material: 7  # КРИСТАЛЛ
+  values:
+    - 0
+    - 10000
+    - 20
+    - 6
+  weight: 10
+  cost: 100000
+  rent_off: 0
+  rent_on: 0
+  spec_param: 141
+  max_durability: 1000000
+  cur_durability: 1000000
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kGlow
+    - kMagic
+    - kBless
+    - kNosell
+    - kNolocate
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kWield
+  anti_flags:
+    - kMage
+    - kSorcerer
+    - kThief
+    - kWarrior
+    - kAssasine
+    - kGuard
+    - kPaladine
+    - kRanger
+    - kMagus
+    - kKiller
+    - kColored
+    - kFree1
+    - kFree2
+    - kFree3
+    - kFree4
+    - kFree5
+    - kFree6
+  applies:
+    - location: 18  # попадание
+      modifier: 100
+  extra_descriptions:
+    - keywords: жезл божественного правосудия
+      description: |2
+        Изящный витой желз из неизвестного материала, увенчаный сверкающим
+        белым сиянием драгоценным камнем.
+  triggers:
+    - 1006  # Триггер на жезле правосудия.
+
+# Object #1095
+95:
+  names:
+    aliases: шесть белоснежных крыльев
+    nominative: '&Wшесть белоснежных крыльев&n'
+    genitive: шести белоснежных крыльев
+    dative: шести белоснежным крыльям
+    accusative: шесть белоснежных крыльев
+    instrumental: шестью белоснежными крыльями
+    prepositional: шести белоснежных крыльях
+  short_desc: Шесть огромных, покрытых мягкими белыми перьями крыльев расстелились по земле.
+  type: kWorm
+  material: 16  # ОРГАНИКА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 3
+  cost: 1000
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 500
+  cur_durability: 500
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 1
+  wear_flags:
+    - kTake
+    - kShoulders
+  affect_flags:
+    - kDetectAlign
+    - kDetectInvisibility
+    - kDetectMagic
+    - kDetectLife
+    - kInfravision
+    - kNoTrack
+    - kFly
+    - kShield
+  applies:
+    - location: 1  # сила
+      modifier: 30
+    - location: 4  # мудрость
+      modifier: 30
+    - location: 6  # обаяние
+      modifier: 40
+  extra_descriptions:
+    - keywords: шесть белоснежных крыльев
+      description: |2
+        Шесть огромных белоперых крыльев, окруженных призрачным светоносным облаком.
+  triggers:
+    - 1011  # Rafail's wings
+    - 1016  # rafail wings2
+    - 1152  # Сообщения пенька переплута
+    - 1160  # триг на пеньке (исполнение команд)
+    - 1090  # weea
+
+# Object #1096
+96:
+  names:
+    aliases: снежная буря
+    nominative: '&Bснежная буря&n'
+    genitive: снежной бури
+    dative: снежной буре
+    accusative: снежную бурю
+    instrumental: снежной бурей
+    prepositional: снежной буре
+  short_desc: '&BНеистовый снежный вихрь воет и кружится здесь!&n'
+  type: kItemUndefined
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 10000
+  rent_off: 10000
+  rent_on: 1
+  max_durability: 500
+  cur_durability: 500
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kHum
+    - kMagic
+    - kNolocate
+  wear_flags:
+    - kTake
+    - kShoulders
+  no_flags:
+    - UNUSED_60
+    - UNUSED_61
+    - UNUSED_62
+    - UNUSED_63
+    - UNUSED_64
+    - UNUSED_65
+  affect_flags:
+    - kDetectInvisibility
+    - kNoTrack
+    - kFly
+    - kIceShield
+    - kAirAura
+    - kIceAura
+  applies:
+    - location: 1  # сила
+      modifier: 50
+    - location: 5  # телосложение
+      modifier: 50
+  extra_descriptions:
+    - keywords: снежная буря
+      description: |2
+        Вы видите неистово воющий бешенный вихрь, 
+        несущий массу снега и мелких льдинок.
+
+# Object #1097
+97:
+  names:
+    aliases: сияющий меч прозванный глас божий
+    nominative: '&Yсияющий меч прозванный "Глас Божий"&n'
+    genitive: 'сияющего меча прозванного "Глас Божий"'
+    dative: 'сияющему мечу прозванному "Глас Божий"'
+    accusative: 'сияющий меч прозванный "Глас Божий"'
+    instrumental: 'сияющим мечом прозванным "Глас Божий"'
+    prepositional: 'сияющем мече прозванном "Глас Божий"'
+  short_desc: Испускающий ослепительный белый свет громадный меч парит в воздухе.
+  type: kWeapon
+  material: 6  # ДРАГ.МЕТАЛЛ
+  values:
+    - 10
+    - 100
+    - 20
+    - 3
+  weight: 25
+  cost: 10000
+  rent_off: 10000
+  rent_on: 10000
+  max_durability: 1000
+  cur_durability: 1000
+  timer: 88000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  extra_flags:
+    - kGlow
+    - kNodonate
+    - kNoinvis
+    - kMagic
+    - kBless
+    - kNosell
+    - kNodisarm
+    - kNolocate
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kWield
+  no_flags:
+    - UNUSED_60
+    - UNUSED_61
+    - UNUSED_62
+    - UNUSED_63
+    - UNUSED_64
+    - UNUSED_65
+  triggers:
+    - 1009  # sword
+
+# Object #1098
+98:
+  names:
+    aliases: грозовая туча
+    nominative: '&Kгрозовая туча&n'
+    genitive: грозовой тучи
+    dative: грозовой туче
+    accusative: грозовую тучу
+    instrumental: грозовой тучей
+    prepositional: грозовой туче
+  short_desc: '&KТемное грозовое облако, пронизаемое &Cзарницами&K висит над вами.&n'
+  type: kWeapon
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 50
+    - 200
+    - 20
+    - 9
+  weight: 1
+  cost: 100
+  rent_off: 0
+  rent_on: 0
+  spec_param: 154
+  max_durability: 5000
+  cur_durability: 5000
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  wear_flags:
+    - kTake
+    - kBoth
+  affect_flags:
+    - kFly
+    - kShield
+    - kMagicGlass
+  extra_descriptions:
+    - keywords: грозовая туча
+      description: |2
+        Вы видите темное грозовое облако грозно нависшее над окружающим миром.
+        Яростные зарницы пронзают его дымчато-синее тело, озаряя все вокруг призрачным сиянием.
+  triggers:
+    - 1010  # flash
+
+# Object #1099
+99:
+  names:
+    aliases: красная книга
+    nominative: '&Rкрасная книга&n'
+    genitive: '&Rкрасной книги&n'
+    dative: '&Rкрасной книге&n'
+    accusative: '&Rкрасную книгу&n'
+    instrumental: '&Rкрасной книгой&n'
+    prepositional: '&Rкрасной книге&n'
+  short_desc: Переплетенный в красную кожу огромный том лежит здесь.
+  type: kBook
+  material: 16  # ОРГАНИКА
+  values:
+    - 0
+    - 54
+    - 0
+    - 0
+  weight: 5
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 50
+  cur_durability: 50
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kGlow
+    - kMagic
+    - kBless
+    - kDecay
+    - kFlying
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: красная книга
+      description: |2
+        Вы видите огромный фолиант, в добротном переплете
+        из толстой красной кожи с золотым теснением.
+        ________
+        &Rкрасная книга&n (в руках)
+        Поренут.
+        Пашута.
+        Морок.
+        Пелен.
+        Стрибог.

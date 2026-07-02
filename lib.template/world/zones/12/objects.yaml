@@ -1,0 +1,4477 @@
+# Objects for zone 12
+
+# Object #1200
+0:
+  names:
+    aliases: перчатки лунной тени
+    nominative: '&cперчатки Лунной тени&n'
+    genitive: '&cперчаток Лунной тени&n'
+    dative: '&cперчаткам Лунной тени&n'
+    accusative: '&cперчатки Лунной тени&n'
+    instrumental: '&cперчатками Лунной тени&n'
+    prepositional: '&cперчатках Лунной тени&n'
+  short_desc: Перчатки Лунной тени отлично смотрелись бы в комплекте с другой такой же броней.
+  type: kArmor
+  material: 7  # КРИСТАЛЛ
+  values:
+    - 5
+    - 5
+    - 0
+    - 0
+  weight: 1
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 500
+  timer: 86400
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 2
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kHands
+  extra_descriptions:
+    - keywords: перчатки лунной тени
+      description: |+2
+        Вы видите легендарные перчатки, о которых столь много поют бродячие гусляры.
+        В давно забытые времена великий колдун отковал их из прозрачного камня,
+        в которые обратились лучи лунного света, упавшие в воды реки Царства Мертвых.
+        Если верить тем песням, вместе с перчатками были откованы также наручи и браслет.
+        
+
+# Object #1201
+1:
+  names:
+    aliases: наручи лунной тени
+    nominative: '&cнаручи Лунной тени&n'
+    genitive: '&cнаручей Лунной тени&n'
+    dative: '&cнаручам Лунной тени&n'
+    accusative: '&cнаручи Лунной тени&n'
+    instrumental: '&cнаручами Лунной тени&n'
+    prepositional: '&cнаручах Лунной тени&n'
+  short_desc: Наручи Лунной тени отлично смотрелись бы в комплекте с другой такой же броней.
+  type: kArmor
+  material: 7  # КРИСТАЛЛ
+  values:
+    - 5
+    - 5
+    - 0
+    - 0
+  weight: 1
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 500
+  timer: 86400
+  spell: 12  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 2
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kArms
+  extra_descriptions:
+    - keywords: наручи лунной тени
+      description: |2
+        Вы видите легендарные наручи, о которых столь много поют бродячие гусляры.
+        В давно забытые времена великий колдун отковал их из прозрачного камня,
+        в которые обратились лучи лунного света, упавшие в воды реки Царства Мертвых.
+        Если верить тем песням, вместе с наручами были откованы также перчатки и браслет.
+
+# Object #1202
+2:
+  names:
+    aliases: браслет лунной тени
+    nominative: '&cбраслет Лунной тени&n'
+    genitive: '&cбраслета Лунной тени&n'
+    dative: '&cбраслету Лунной тени&n'
+    accusative: '&cбраслет Лунной тени&n'
+    instrumental: '&cбраслетом Лунной тени&n'
+    prepositional: '&cбраслете Лунной тени&n'
+  short_desc: Браслет Лунной тени отлично смотрелся бы в комплекте с другой такой же броней.
+  type: kArmor
+  material: 7  # КРИСТАЛЛ
+  values:
+    - 5
+    - 5
+    - 0
+    - 0
+  weight: 1
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 500
+  timer: 86400
+  spell: 12  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 2
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+    - kUnique
+  wear_flags:
+    - kTake
+    - kWrist
+  extra_descriptions:
+    - keywords: браслет лунной тени
+      description: |+2
+        Вы видите легендарный браслет, о котором столь много поют бродячие гусляры.
+        В давно забытые времена великий колдун отковал его из прозрачного камня,
+        в который обратились лучи лунного света, упавшие в воды реки Царства Мертвых. 
+        Если верить тем песням, вместе с браслетом были откованы также наручи и перчатки.
+        
+
+# Object #1203
+3:
+  names:
+    aliases: шляпа полной луны
+    nominative: '&Yшляпа полной Луны&n'
+    genitive: '&Yшляпы полной Луны&n'
+    dative: '&Yшляпе полной Луны&n'
+    accusative: '&Yшляпу полной Луны&n'
+    instrumental: '&Yшляпой полной Луны&n'
+    prepositional: '&Yшляпе полной Луны&n'
+  short_desc: Шляпа полной Луны отлично смотрелась бы в комплекте с другой такой же броней.
+  type: kArmor
+  material: 7  # КРИСТАЛЛ
+  values:
+    - 5
+    - 5
+    - 0
+    - 0
+  weight: 1
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 500
+  timer: 86400
+  spell: 12  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 2
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kHead
+  extra_descriptions:
+    - keywords: Доспех лунной тени
+      description: |2
+        Вы видите легендарную часть одеяния, о котором столь много поют бродячие гусляры.
+        В давно забытые времена великий колдун отковал ее из прозрачного камня,
+        в ночь, когда Луна превратилась в идеальный круг. 
+        Если верить тем песням, то где-то еще существуют недостающие части.
+
+# Object #1204
+4:
+  names:
+    aliases: наручи полной Луны
+    nominative: '&Yнаручи полной Луны&n'
+    genitive: '&Yнаручей полной Луны&n'
+    dative: '&Yнаручам полной Луны&n'
+    accusative: '&Yнаручи полной Луны&n'
+    instrumental: '&Yнаручами полной Луны&n'
+    prepositional: '&Yнаручах полной Луны&n'
+  short_desc: Наручи полной Луны отлично смотрелись бы в комплекте с другой такой же броней.
+  type: kArmor
+  material: 7  # КРИСТАЛЛ
+  values:
+    - 5
+    - 5
+    - 0
+    - 0
+  weight: 1
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 500
+  timer: 86400
+  spell: 12  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 2
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kArms
+  extra_descriptions:
+    - keywords: наручи лунной тени
+      description: |2
+        Вы видите легендарную часть одеяния, о котором столь много поют бродячие гусляры.
+        В давно забытые времена великий колдун отковал ее из прозрачного камня,
+        в ночь, когда Луна превратилась в идеальный круг. 
+        Если верить тем песням, то где-то еще существуют недостающие части.
+
+# Object #1205
+5:
+  names:
+    aliases: кольцо полной луны
+    nominative: '&Yкольцо полной Луны&n'
+    genitive: '&Yкольца полной Луны&n'
+    dative: '&Yкольцу полной Луны&n'
+    accusative: '&Yкольцо полной Луны&n'
+    instrumental: '&Yкольцом полной Луны&n'
+    prepositional: '&Yкольце полной Луны&n'
+  short_desc: Прекрасное кольцо полной Луны леветирует здесь.
+  type: kArmor
+  material: 7  # КРИСТАЛЛ
+  values:
+    - 5
+    - 5
+    - 0
+    - 0
+  weight: 1
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 500
+  timer: 86400
+  spell: 12  # !undefined!
+  level: 0
+  sex: kNeutral
+  max_in_world: 2
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+    - kUnique
+  wear_flags:
+    - kTake
+    - kFinger
+  extra_descriptions:
+    - keywords: поножи лунной тени
+      description: |2
+        Вы видите легендарную часть одеяния, о котором столь много поют бродячие гусляры.
+        В давно забытые времена великий колдун отковал ее из прозрачного камня,
+        в ночь, когда Луна превратилась в идеальный круг. 
+        Если верить тем песням, то где-то еще существуют недостающие части.
+
+# Object #1206
+6:
+  names:
+    aliases: кольцо слепого палача
+    nominative: '&Rкольцо слепого палача&n'
+    genitive: '&Rкольца слепого палача&n'
+    dative: '&Rкольцу слепого палача&n'
+    accusative: '&Rкольцо слепого палача&n'
+    instrumental: '&Rкольцом слепого палача&n'
+    prepositional: '&Rкольце слепого палача&n'
+  short_desc: Прекрасное кольцо слепого палача леветирует здесь.
+  type: kArmor
+  material: 7  # КРИСТАЛЛ
+  values:
+    - 5
+    - 5
+    - 0
+    - 0
+  weight: 12
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 500
+  timer: 86400
+  spell: 12  # !undefined!
+  level: 0
+  sex: kNeutral
+  max_in_world: 2
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+    - kUnique
+  wear_flags:
+    - kTake
+    - kFinger
+
+# Object #1207
+7:
+  names:
+    aliases: плащ слепого палача
+    nominative: '&Rплащ слепого палача&n'
+    genitive: '&Rплаща слепого палача&n'
+    dative: '&Rплащу слепого палача&n'
+    accusative: '&Rплащ слепого палача&n'
+    instrumental: '&Rплащем слепого палача&n'
+    prepositional: '&Rплаще слепого палача&n'
+  short_desc: Длиннополый плащ слепого палача леветирует здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 6
+    - 3
+    - 0
+    - 0
+  weight: 4
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 500
+  timer: 86400
+  spell: 15  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 2
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kShoulders
+
+# Object #1208
+8:
+  names:
+    aliases: амулет слепого палача
+    nominative: '&Rамулет слепого палача&n'
+    genitive: '&Rамулета слепого палача&n'
+    dative: '&Rамулету слепого палача&n'
+    accusative: '&Rамулет слепого палача&n'
+    instrumental: '&Rамулетом слепого палача&n'
+    prepositional: '&Rамулете слепого палача&n'
+  short_desc: Великолепный амулет слепого палача леветирует здесь.
+  type: kArmor
+  material: 7  # КРИСТАЛЛ
+  values:
+    - 5
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 86400
+  spell: 15  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 2
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+    - kUnique
+  wear_flags:
+    - kTake
+    - kNeck
+
+# Object #1209
+9:
+  names:
+    aliases: амулет солнечного затмения
+    nominative: '&Kамулет Солнечного Затмения&n'
+    genitive: '&Kамулета Солнечного Затмения&n'
+    dative: '&Kамулету Солнечного Затмения&n'
+    accusative: '&Kамулет Солнечного Затмения&n'
+    instrumental: '&Kамулетом Солнечного Затмения&n'
+    prepositional: '&Kамулете Солнечного Затмения&n'
+  short_desc: Амулет Солнечного Затмения отлично смотрелся бы в комплекте с другой такой же броней.
+  type: kArmor
+  material: 1  # БУЛАТ
+  values:
+    - 5
+    - 5
+    - 0
+    - 0
+  weight: 1
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 500
+  timer: 86400
+  spell: 15  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 2
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+    - kUnique
+  wear_flags:
+    - kTake
+    - kNeck
+  extra_descriptions:
+    - keywords: доспех солнечного затмения
+      description: |2
+        Изящен и невесом стальной кованый доспех, притягивает к себе взгляд его
+        иссиня-черная поверхность. Удивителен темный металл-излучает он яркий ореол,
+        слепящий глаза и вызывающий невольные слезы. Лишь одно упоминание встречается
+        о нем в древних рукописях - мрачное повествование единственного выжившего
+        мореплавателя из всей команды корабля о том, как в землях пустых и безжизненных
+        пришлось ему воочию увидеть страшную бойню. Содрогнулось ясно солнце, закрыло
+        свой ясный лик + воспользовался этим повелитель песков и выковал он темный доспех,
+        впитавший в себя весь ужас безвинных...Так создала Судьба-насмешница
+        один из артефактов Солнечного Затмения.
+
+# Object #1210
+10:
+  names:
+    aliases: браслет солнечного затмения
+    nominative: '&Kбраслет Солнечного Затмения&n'
+    genitive: '&Kбраслета Солнечного Затмения&n'
+    dative: '&Kбраслету Солнечного Затмения&n'
+    accusative: '&Kбраслет Солнечного Затмения&n'
+    instrumental: '&Kбраслетом Солнечного Затмения&n'
+    prepositional: '&Kбраслете Солнечного Затмения&n'
+  short_desc: Легендарный браслет Солнечного Затмения лежит перед вами.
+  type: kArmor
+  material: 1  # БУЛАТ
+  values:
+    - 5
+    - 5
+    - 0
+    - 0
+  weight: 1
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 500
+  timer: 86400
+  spell: 15  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 2
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kWrist
+  extra_descriptions:
+    - keywords: секира Солнечного Затмения
+      description: |2
+        Причудливая золотистая вязь обволакивает древко секиры. 
+        Вспыхивает яркими  иголочками не то заклятье, не то
+        благословение Древних. Темным солнцем горит вороненая сталь
+        лезвия секиры и  кажется, будто тихо звенит 
+        закаленный клинок + последний артефакт Солнечного Затмения
+
+# Object #1211
+11:
+  names:
+    aliases: плащ солнечного затмения
+    nominative: '&Kплащ Солнечного Затмения&n'
+    genitive: '&Kплаща Солнечного Затмения&n'
+    dative: '&Kплащу Солнечного Затмения&n'
+    accusative: '&Kплащ Солнечного Затмения&n'
+    instrumental: '&Kплащем Солнечного Затмения&n'
+    prepositional: '&Kплаще Солнечного Затмения&n'
+  short_desc: Плащ Солнечного Затмения отлично смотрелся бы в комплекте с другой такой же броней.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 5
+    - 5
+    - 0
+    - 0
+  weight: 2
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 500
+  timer: 86400
+  spell: 15  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 2
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kShoulders
+  extra_descriptions:
+    - keywords: плащ солнечного затмения
+      description: |2
+        Туманной сизой дымкой мягко струятся полы плаща, мягкой тенью окутывая
+        своего носителя. Но вспыхивает яркий рыжий огонь стоит только ветру
+        раздуть его полы. В незапамятные времена, гласят легенды, в далеких
+        таинственных землях утренней свежести , приказал Император соткать
+        чудный плащ, равного которому нет на земле. Взяли мастера задумчивую 
+        тень луны и веселые солнечные брызги... Так создала Судьба-насмешница 
+        один из артефактов Солнечного Затмения.
+
+# Object #1212
+12:
+  names:
+    aliases: УДАЛЁН
+    nominative: уДАЛЕН
+    genitive: нету чего
+    dative: привязать к чему
+    accusative: взять что
+    instrumental: вооружиться чем
+    prepositional: говорить о чем
+  short_desc: Что-то новое лежит здесь
+  type: kItemUndefined
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 0
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #1213
+13:
+  names:
+    aliases: поножи полуденного неба
+    nominative: '&Bпоножи Полуденного Неба&n'
+    genitive: '&Bпоножей Полуденного Неба&n'
+    dative: '&Bпоножам Полуденного Неба&n'
+    accusative: '&Bпоножи Полуденного Неба&n'
+    instrumental: '&Bпоножами Полуденного Неба&n'
+    prepositional: '&Bпоножах Полуденного Неба&n'
+  short_desc: Поножи Полуденного Неба отлично смотрелись бы в комплекте с другой такой же броней.
+  type: kArmor
+  material: 5  # КОВАНАЯ.СТАЛЬ
+  values:
+    - 6
+    - 6
+    - 0
+    - 0
+  weight: 8
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 500
+  timer: 86400
+  spell: 15  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 2
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kLegs
+  extra_descriptions:
+    - keywords: поножи полуденного неба
+      description: |2
+        Ярко сверкают лазурью благородные поножи, словно вся небесная синь
+        пролились на них своими яркими красками. Нежным золотом тронули
+        их полуденные лучи, нарисовав замысловатый вензель.
+        Вот только остался незавершенным рисунок. Ходит молва, что видели
+        в мире кольцо и амулет под стать поножам, но найдется ль храбрец,
+        что соберет рисунок воедино?
+
+# Object #1214
+14:
+  names:
+    aliases: кольцо полуденного неба
+    nominative: '&Bкольцо Полуденного Неба&n'
+    genitive: '&Bкольца Полуденного Неба&n'
+    dative: '&Bкольцу Полуденного Неба&n'
+    accusative: '&Bкольцо Полуденного Неба&n'
+    instrumental: '&Bкольцом Полуденного Неба&n'
+    prepositional: '&Bкольце Полуденного Неба&n'
+  short_desc: Прекрасное кольцо Полуденного Неба лежит здесь.
+  type: kArmor
+  material: 1  # БУЛАТ
+  values:
+    - 5
+    - 5
+    - 0
+    - 0
+  weight: 20
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 500
+  timer: 86400
+  spell: 15  # !undefined!
+  level: 0
+  sex: kNeutral
+  max_in_world: 2
+  extra_flags:
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+    - kUnique
+  wear_flags:
+    - kTake
+    - kFinger
+  extra_descriptions:
+    - keywords: кольцо полуденного неба
+      description: |2
+        Замысловатый золотистый рисунок бежит по тонкому голубоватому ободку кольца,
+        плавно обвивая основание вставленного камня. Яркий сапфир привлекает ваш взор
+        своей насыщенной синевой. Вот только остался незавершенным рисунок на кольце.
+        Ходит молва, что видели в мире амулет и поножи под стать этой красоте, но
+        найдется ль храбрец, что соберет рисунок воедино?  
+
+# Object #1215
+15:
+  names:
+    aliases: амулет полуденного неба
+    nominative: '&Bамулет Полуденного Неба&n'
+    genitive: '&Bамулета Полуденного Неба&n'
+    dative: '&Bамулету Полуденного Неба&n'
+    accusative: '&Bамулет Полуденного Неба&n'
+    instrumental: '&Bамулетом Полуденного Неба&n'
+    prepositional: '&Bамулете Полуденного Неба&n'
+  short_desc: Великолепный амулет Полуденного Неба лежит здесь.
+  type: kArmor
+  material: 7  # КРИСТАЛЛ
+  values:
+    - 5
+    - 5
+    - 0
+    - 0
+  weight: 1
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 500
+  timer: 86400
+  spell: 15  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 2
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+    - kUnique
+  wear_flags:
+    - kTake
+    - kNeck
+  extra_descriptions:
+    - keywords: амулет полуденного неба
+      description: |2
+        Бежит тонкой золотой нитью по голубоватому металлу амулета искусный
+        замысловатый вензель, играя яркими бликами и обвивая чистейший сапфир. Вот
+        только остался незавершенным рисунок. Ходит молва, что видели в мире кольцо и
+        поножи под стать амулету, но найдется ль храбрец, что соберет рисунок воедино?
+
+# Object #1216
+16:
+  names:
+    aliases: УДАЛЁН
+    nominative: уДАЛЕН
+    genitive: нету чего
+    dative: привязать к чему
+    accusative: взять что
+    instrumental: вооружиться чем
+    prepositional: говорить о чем
+  short_desc: Что-то новое лежит здесь
+  type: kItemUndefined
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 0
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #1217
+17:
+  names:
+    aliases: доспех Великой Судьбы
+    nominative: '&Cдоспех Великой Судьбы&n'
+    genitive: '&Cдоспеха Великой Судьбы&n'
+    dative: '&Cдоспеху Великой Судьбы&n'
+    accusative: '&Cдоспех Великой Судьбы&n'
+    instrumental: '&Cдоспехом Великой Судьбы&n'
+    prepositional: '&Cдоспехе Великой Судьбы&n'
+  short_desc: Доспех Великой Судьбы отлично смотрелся бы в комплекте с другой такой же броней.
+  type: kArmor
+  material: 13  # КОСТЬ
+  values:
+    - 8
+    - 6
+    - 0
+    - 0
+  weight: 12
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 58000
+  spell: 15  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kBody
+  extra_descriptions:
+    - keywords: доспех великой судьбы
+      description: |2
+        Нелеп и неудобен наскоро собранный доспех. С царапающим скрежетом закрываются 
+        застежки, будто ворота несмазанные скрипят. Отказываются воины молодые да удалые
+        даже смотреть на него, не то, что носить. Вот только  кто догадается какую истинную
+        силу таит в себе доспех Великой Судьбы? Раскидала свои подарки капризница  по белу
+        свету + кто отыщет ее дары - наградит того Судьба своей милостью.
+
+# Object #1218
+18:
+  names:
+    aliases: поножи Великой Судьбы
+    nominative: '&Cпоножи Великой Судьбы&n'
+    genitive: '&Cпоножей Великой Судьбы&n'
+    dative: '&Cпоножам Великой Судьбы&n'
+    accusative: '&Cпоножи Великой Судьбы&n'
+    instrumental: '&Cпоножиами Великой Судьбы&n'
+    prepositional: '&Cпоножах Великой Судьбы&n'
+  short_desc: Поножи Великой Судьбы отлично смотрелись бы в комплекте с другой такой же броней.
+  type: kArmor
+  material: 3  # ЖЕЛЕЗО
+  values:
+    - 5
+    - 5
+    - 0
+    - 0
+  weight: 4
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 58000
+  spell: 15  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 1
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kLegs
+  extra_descriptions:
+    - keywords: поножи великой судьбы
+      description: |2
+        Тускло поблескивает грубая сталь поножей, переливаясь медными оттенками,
+        и ясно бывалым воинам, что не спасет бракованная сталь в бою, не защитит
+        от вражеского удара. Вот только   кто догадается какую истинную силу
+        таят в себе поножи Великой Судьбы? Раскидала свои подарки капризница 
+        по белу свету + кто отыщет ее дары - наградит того Судьба своей милостью.
+
+# Object #1219
+19:
+  names:
+    aliases: наручи Великой Судьбы
+    nominative: '&Cнаручи Великой Судьбы&n'
+    genitive: '&Cнаручей Великой Судьбы&n'
+    dative: '&Cнаручам Великой Судьбы&n'
+    accusative: '&Cнаручи Великой Судьбы&n'
+    instrumental: '&Cнаручиами Великой Судьбы&n'
+    prepositional: '&Cнаручах Великой Судьбы&n'
+  short_desc: Наручи Великой Судьбы отлично смотрелись бы в комплекте с другой такой же броней.
+  type: kArmor
+  material: 7  # КРИСТАЛЛ
+  values:
+    - 5
+    - 5
+    - 0
+    - 0
+  weight: 5
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 58000
+  spell: 15  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 1
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kArms
+  extra_descriptions:
+    - keywords: наручи великой судьбы
+      description: |2
+        Широкие металлические швы, словно белые рубцы, покрывают грубо
+        выкованные наручи. Видать не мастер, подмастерье сковал наручи,
+        да и выкинул за ненадобностью. И кто догадается какую истинную
+        силу таят в себе наручи Великой Судьбы? Раскидала свои подарки 
+        капризница по белу свету + кто отыщет ее дары - наградит
+        того Судьба своей милостью.
+
+# Object #1220
+20:
+  names:
+    aliases: шлем Великой Судьбы
+    nominative: '&Cшлем Великой Судьбы&n'
+    genitive: '&Cшлема Великой Судьбы&n'
+    dative: '&Cшлему Великой Судьбы&n'
+    accusative: '&Cшлем Великой Судьбы&n'
+    instrumental: '&Cшлемом Великой Судьбы&n'
+    prepositional: '&Cшлеме Великой Судьбы&n'
+  short_desc: Шлем Великой Судьбы отлично смотрелся бы в комплекте с другой такой же броней.
+  type: kArmor
+  material: 7  # КРИСТАЛЛ
+  values:
+    - 5
+    - 5
+    - 0
+    - 0
+  weight: 3
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 58000
+  spell: 15  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kHead
+  extra_descriptions:
+    - keywords: шлем великой судьбы
+      description: |2
+        Грубо вылепленный будто из глины, невзрачен покореженный шлем.
+        Разъедает его, словно старое дерево гниль, ржавчина.
+        Кто догадается какую истинную силу таит в себе шлем Великой Судьбы?
+        Раскидала свои подарки капризница  по белу свету + кто отыщет
+        ее дары - наградит того Судьба своей милостью. 
+
+# Object #1221
+21:
+  names:
+    aliases: амулет Великой Судьбы
+    nominative: '&Cамулет Великой Судьбы&n'
+    genitive: '&Cамулета Великой Судьбы&n'
+    dative: '&Cамулету Великой Судьбы&n'
+    accusative: '&Cамулет Великой Судьбы&n'
+    instrumental: '&Cамулетом Великой Судьбы&n'
+    prepositional: '&Cамулете Великой Судьбы&n'
+  short_desc: Амулет Великой Судьбы отлично смотрелся бы в комплекте с другой такой же броней.
+  type: kArmor
+  material: 12  # КАМЕНЬ
+  values:
+    - 3
+    - 3
+    - 0
+    - 0
+  weight: 1
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 58000
+  spell: 15  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kNeck
+  extra_descriptions:
+    - keywords: амулет великой судьбы
+      description: |2
+        Неприметен черный камушек, да и кто догадается какую силу
+        таит в себе амулет Великой Судьбы? Раскидала свои подарки
+        капризница по белу свету + кто отыщет ее дары - наградит
+        того Судьба своей милостью.
+
+# Object #1222
+22:
+  names:
+    aliases: перчатки невидимой смерти
+    nominative: перчатки &KНевидимой Смерти&n
+    genitive: перчаток &KНевидимой Смерти&n
+    dative: перчаткам &KНевидимой Смерти&n
+    accusative: перчатки &KНевидимой Смерти&n
+    instrumental: перчатками &KНевидимой Смерти&n
+    prepositional: перчатках &KНевидимой Смерти&n
+  short_desc: Темные кожанные перчатки лежат тут, слегка мерцая.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 3
+    - 2
+    - 0
+    - 0
+  weight: 6
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 10  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kHands
+  no_flags:
+    - kBattle
+  extra_descriptions:
+    - keywords: перчатки
+      description: |2
+        Эти перчатки неплохо бы смотрелись на наемнике с другими подобными вещами.
+
+# Object #1223
+23:
+  names:
+    aliases: наручи невидимой смерти
+    nominative: наручи &KНевидимой Смерти&n
+    genitive: наручей &KНевидимой Смерти&n
+    dative: наручам &KНевидимой Смерти&n
+    accusative: наручи &KНевидимой Смерти&n
+    instrumental: наручами &KНевидимой Смерти&n
+    prepositional: наручах &KНевидимой Смерти&n
+  short_desc: Темные кожанные наручи лежат тут, слегка мерцая.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 4
+    - 3
+    - 0
+    - 0
+  weight: 5
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 10  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kArms
+  no_flags:
+    - kBattle
+  extra_descriptions:
+    - keywords: наручи
+      description: |2
+        Эти наручи неплохо бы смотрелись на наемнике с другими подобными вещами.
+
+# Object #1224
+24:
+  names:
+    aliases: штаны невидимой смерти
+    nominative: штаны &KНевидимой Смерти&n
+    genitive: штанов &KНевидимой Смерти&n
+    dative: штанам &KНевидимой Смерти&n
+    accusative: штаны &KНевидимой Смерти&n
+    instrumental: штанами &KНевидимой Смерти&n
+    prepositional: штанах &KНевидимой Смерти&n
+  short_desc: Темные кожанные штаны лежат тут, слегка мерцая.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 4
+    - 3
+    - 0
+    - 0
+  weight: 7
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 10  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kLegs
+  no_flags:
+    - kBattle
+  extra_descriptions:
+    - keywords: штаны
+      description: |2
+        Эти штаны неплохо бы смотрелись на наемнике с другими подобными вещами.
+
+# Object #1225
+25:
+  names:
+    aliases: сапоги невидимой смерти
+    nominative: сапоги &KНевидимой Смерти&n
+    genitive: сапог &KНевидимой Смерти&n
+    dative: сапогам &KНевидимой Смерти&n
+    accusative: сапоги &KНевидимой Смерти&n
+    instrumental: сапогами &KНевидимой Смерти&n
+    prepositional: сапогах &KНевидимой Смерти&n
+  short_desc: Темные кожанные сапоги лежат тут, слегка мерцая.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 4
+    - 3
+    - 0
+    - 0
+  weight: 7
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 10  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kFeet
+  no_flags:
+    - kBattle
+  extra_descriptions:
+    - keywords: сапоги
+      description: |2
+        Эти сапоги неплохо бы смотрелись на наемнике с другими подобными вещами.
+
+# Object #1226
+26:
+  names:
+    aliases: капюшон невидимой смерти
+    nominative: капюшон &KНевидимой Смерти&n
+    genitive: капюшона &KНевидимой Смерти&n
+    dative: капюшону &KНевидимой Смерти&n
+    accusative: капюшон &KНевидимой Смерти&n
+    instrumental: капюшоном &KНевидимой Смерти&n
+    prepositional: капюшоне &KНевидимой Смерти&n
+  short_desc: Темный кожанный капюшон лежит тут, слегка мерцая.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 4
+    - 3
+    - 0
+    - 0
+  weight: 7
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 10  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kHead
+  no_flags:
+    - kBattle
+  extra_descriptions:
+    - keywords: капюшон
+      description: |2
+        Этот капюшон неплохо бы смотрелся на наемнике с другими подобными вещами.
+
+# Object #1227
+27:
+  names:
+    aliases: плащ невидимой смерти
+    nominative: плащ &KНевидимой Смерти&n
+    genitive: плаща &KНевидимой Смерти&n
+    dative: плащу &KНевидимой Смерти&n
+    accusative: плащ &KНевидимой Смерти&n
+    instrumental: плащем &KНевидимой Смерти&n
+    prepositional: плаще &KНевидимой Смерти&n
+  short_desc: Темный кожанный плащ лежит тут, слегка мерцая.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 8
+    - 5
+    - 0
+    - 0
+  weight: 7
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 10  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kShoulders
+  no_flags:
+    - kBattle
+  affect_flags:
+    - kInvisibility
+  extra_descriptions:
+    - keywords: плащ
+      description: |2
+        Этот плащ неплохо бы смотрелся на наемнике с другими подобными вещами.
+
+# Object #1228
+28:
+  names:
+    aliases: пояс невидимой смерти
+    nominative: пояс &KНевидимой Смерти&n
+    genitive: пояса &KНевидимой Смерти&n
+    dative: поясу &KНевидимой Смерти&n
+    accusative: пояс &KНевидимой Смерти&n
+    instrumental: поясом &KНевидимой Смерти&n
+    prepositional: поясе &KНевидимой Смерти&n
+  short_desc: Темный кожанный пояс лежит тут, слегка мерцая.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 4
+    - 2
+    - 0
+    - 0
+  weight: 3
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 10  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kWaist
+  no_flags:
+    - kBattle
+  extra_descriptions:
+    - keywords: пояс
+      description: |2
+        Этот пояс неплохо бы смотрелся на наемнике с другими подобными вещами.
+
+# Object #1229
+29:
+  names:
+    aliases: куртка невидимой смерти
+    nominative: куртка &KНевидимой Смерти&n
+    genitive: куртки &KНевидимой Смерти&n
+    dative: куртке &KНевидимой Смерти&n
+    accusative: куртку &KНевидимой Смерти&n
+    instrumental: курткой &KНевидимой Смерти&n
+    prepositional: куртке &KНевидимой Смерти&n
+  short_desc: Темная кожанная куртка лежит тут, слегка мерцая.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 8
+    - 6
+    - 0
+    - 0
+  weight: 10
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 10  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kBody
+  no_flags:
+    - kBattle
+  extra_descriptions:
+    - keywords: куртка
+      description: |2
+        Эта куртка неплохо бы смотрелась на наемнике с другими подобными вещами.
+
+# Object #1230
+30:
+  names:
+    aliases: кольцо невидимой смерти
+    nominative: кольцо &KНевидимой Смерти&n
+    genitive: кольца &KНевидимой Смерти&n
+    dative: кольцу &KНевидимой Смерти&n
+    accusative: кольцо &KНевидимой Смерти&n
+    instrumental: кольцом &KНевидимой Смерти&n
+    prepositional: кольце &KНевидимой Смерти&n
+  short_desc: Темное мерцающее колечко лежит тут.
+  type: kArmor
+  material: 10  # КЕРАМИКА
+  values:
+    - 2
+    - 2
+    - 0
+    - 0
+  weight: 1
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 10  # !undefined!
+  level: 0
+  sex: kNeutral
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kFinger
+  no_flags:
+    - kBattle
+  extra_descriptions:
+    - keywords: кольцо
+      description: |2
+        Это кольцо неплохо бы смотрелось на наемнике с другими подобными вещами.
+
+# Object #1231
+31:
+  names:
+    aliases: талисман невидимой смерти
+    nominative: талисман &KНевидимой Смерти&n
+    genitive: талисмана &KНевидимой Смерти&n
+    dative: талисману &KНевидимой Смерти&n
+    accusative: талисман &KНевидимой Смерти&n
+    instrumental: талисманом &KНевидимой Смерти&n
+    prepositional: талисмане &KНевидимой Смерти&n
+  short_desc: Темный мерцающий талисман лежит тут.
+  type: kArmor
+  material: 10  # КЕРАМИКА
+  values:
+    - 2
+    - 2
+    - 0
+    - 0
+  weight: 1
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 10  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kNeck
+  no_flags:
+    - kBattle
+  extra_descriptions:
+    - keywords: талисман
+      description: |2
+        Этот талисман неплохо бы смотрелся на наемнике с другими подобными вещами.
+
+# Object #1232
+32:
+  names:
+    aliases: амулет невидимой смерти
+    nominative: амулет &KНевидимой Смерти&n
+    genitive: амулета &KНевидимой Смерти&n
+    dative: амулету &KНевидимой Смерти&n
+    accusative: амулет &KНевидимой Смерти&n
+    instrumental: амулетом &KНевидимой Смерти&n
+    prepositional: амулете &KНевидимой Смерти&n
+  short_desc: Темный мерцающий амулет лежит тут.
+  type: kArmor
+  material: 10  # КЕРАМИКА
+  values:
+    - 2
+    - 2
+    - 0
+    - 0
+  weight: 1
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 10  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kNeck
+  no_flags:
+    - kBattle
+  extra_descriptions:
+    - keywords: амулет
+      description: |2
+        Этот амулет неплохо бы смотрелся на наемнике с другими подобными вещами.
+
+# Object #1233
+33:
+  names:
+    aliases: печать невидимой смерти
+    nominative: печать &KНевидимой Смерти&n
+    genitive: печати &KНевидимой Смерти&n
+    dative: печати &KНевидимой Смерти&n
+    accusative: печать &KНевидимой Смерти&n
+    instrumental: печатью &KНевидимой Смерти&n
+    prepositional: печати &KНевидимой Смерти&n
+  short_desc: Темная мерцающая печать лежит тут.
+  type: kArmor
+  material: 10  # КЕРАМИКА
+  values:
+    - 2
+    - 2
+    - 0
+    - 0
+  weight: 1
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 10  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kFinger
+  no_flags:
+    - kBattle
+  extra_descriptions:
+    - keywords: печать
+      description: |2
+        Эта печать неплохо бы смотрелась на наемнике с другими подобными вещами.
+
+# Object #1234
+34:
+  names:
+    aliases: браслет невидимой смерти
+    nominative: браслет &KНевидимой Смерти&n
+    genitive: браслета &KНевидимой Смерти&n
+    dative: браслету &KНевидимой Смерти&n
+    accusative: браслет &KНевидимой Смерти&n
+    instrumental: браслетом &KНевидимой Смерти&n
+    prepositional: браслете &KНевидимой Смерти&n
+  short_desc: Темный мерцающий браслет лежит тут.
+  type: kArmor
+  material: 10  # КЕРАМИКА
+  values:
+    - 2
+    - 2
+    - 0
+    - 0
+  weight: 2
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 10  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kWrist
+  no_flags:
+    - kBattle
+  extra_descriptions:
+    - keywords: браслет
+      description: |2
+        Этот браслет неплохо бы смотрелся на наемнике с другими подобными вещами.
+
+# Object #1235
+35:
+  names:
+    aliases: удавка невидимой смерти
+    nominative: удавка &KНевидимой Смерти&n
+    genitive: удавки &KНевидимой Смерти&n
+    dative: удавке &KНевидимой Смерти&n
+    accusative: удавку &KНевидимой Смерти&n
+    instrumental: удавкой &KНевидимой Смерти&n
+    prepositional: удавке &KНевидимой Смерти&n
+  short_desc: Темная удавка лежит тут, слегка мерцая.
+  type: kArmor
+  material: 14  # ТКАНЬ
+  values:
+    - 2
+    - 2
+    - 0
+    - 0
+  weight: 2
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 10  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kWrist
+  no_flags:
+    - kBattle
+  extra_descriptions:
+    - keywords: удавка
+      description: |2
+        Эта удавка неплохо бы смотрелась на наемнике с другими подобными вещами.
+
+# Object #1236
+36:
+  names:
+    aliases: кинжал невидимой смерти
+    nominative: кинжал &KНевидимой Смерти&n
+    genitive: кинжала &KНевидимой Смерти&n
+    dative: кинжалу &KНевидимой Смерти&n
+    accusative: кинжал &KНевидимой Смерти&n
+    instrumental: кинжалом &KНевидимой Смерти&n
+    prepositional: кинжале &KНевидимой Смерти&n
+  short_desc: Темный кинжал лежит тут, слегка мерцая.
+  type: kWeapon
+  material: 1  # БУЛАТ
+  values:
+    - 2
+    - 5
+    - 5
+    - 11
+  weight: 7
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  spec_param: 147
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 10  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodisarm
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kHold
+  no_flags:
+    - kBattle
+  extra_descriptions:
+    - keywords: кинжал
+      description: |2
+        Этот кинжал неплохо бы смотрелся на наемнике с другими подобными вещами.
+
+# Object #1237
+37:
+  names:
+    aliases: узкий клинок невидимой смерти
+    nominative: узкий клинок &KНевидимой Смерти&n
+    genitive: узкого клинка &KНевидимой Смерти&n
+    dative: узкому клинку &KНевидимой Смерти&n
+    accusative: узкий клинок &KНевидимой Смерти&n
+    instrumental: узким клинком &KНевидимой Смерти&n
+    prepositional: узком клинке &KНевидимой Смерти&n
+  short_desc: Темный узкий клинок лежит тут, слегка мерцая.
+  type: kWeapon
+  material: 1  # БУЛАТ
+  values:
+    - 2
+    - 4
+    - 9
+    - 11
+  weight: 7
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  spec_param: 147
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 10  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodisarm
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kWield
+  no_flags:
+    - kBattle
+  extra_descriptions:
+    - keywords: узкий клинок невидимой смерти
+      description: |2
+        Этот клинок неплохо бы смотрелся на наемнике с другими подобными вещами.
+
+# Object #1238
+38:
+  names:
+    aliases: перчатки темной власти
+    nominative: перчатки &KТемной Власти&n
+    genitive: перчаток &KТемной Власти&n
+    dative: перчаткам &KТемной Власти&n
+    accusative: перчатки &KТемной Власти&n
+    instrumental: перчатками &KТемной Власти&n
+    prepositional: перчатках &KТемной Власти&n
+  short_desc: Темные перчатки лежат тут, притягивая взгляд.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 2
+    - 2
+    - 0
+    - 0
+  weight: 3
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 9  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kHands
+  no_flags:
+    - kBattle
+
+# Object #1239
+39:
+  names:
+    aliases: рукава темной власти
+    nominative: рукава &KТемной Власти&n
+    genitive: рукавов &KТемной Власти&n
+    dative: рукавам &KТемной Власти&n
+    accusative: рукава &KТемной Власти&n
+    instrumental: рукавами &KТемной Власти&n
+    prepositional: рукавах &KТемной Власти&n
+  short_desc: Темные рукава лежат тут, притягивая взгляд.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 3
+    - 3
+    - 0
+    - 0
+  weight: 4
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 9  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kArms
+  no_flags:
+    - kBattle
+
+# Object #1240
+40:
+  names:
+    aliases: штаны темной власти
+    nominative: штаны &KТемной Власти&n
+    genitive: штанов &KТемной Власти&n
+    dative: штанам &KТемной Власти&n
+    accusative: штаны &KТемной Власти&n
+    instrumental: штанами &KТемной Власти&n
+    prepositional: штанах &KТемной Власти&n
+  short_desc: Темные штаны лежат тут, притягивая взгляд.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 3
+    - 3
+    - 0
+    - 0
+  weight: 5
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 9  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kLegs
+  no_flags:
+    - kBattle
+
+# Object #1241
+41:
+  names:
+    aliases: сапожки темной власти
+    nominative: сапожки &KТемной Власти&n
+    genitive: сапожек &KТемной Власти&n
+    dative: сапожкам &KТемной Власти&n
+    accusative: сапожки &KТемной Власти&n
+    instrumental: сапожками &KТемной Власти&n
+    prepositional: сапожках &KТемной Власти&n
+  short_desc: Темные сапожки лежат тут, притягивая взгляд.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 3
+    - 3
+    - 0
+    - 0
+  weight: 4
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 9  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kFeet
+  no_flags:
+    - kBattle
+
+# Object #1242
+42:
+  names:
+    aliases: пояс темной власти
+    nominative: пояс &KТемной Власти&n
+    genitive: пояса &KТемной Власти&n
+    dative: поясу &KТемной Власти&n
+    accusative: пояс &KТемной Власти&n
+    instrumental: поясом &KТемной Власти&n
+    prepositional: поясе &KТемной Власти&n
+  short_desc: Темный пояс лежит тут, притягивая взгляд.
+  type: kContainer
+  material: 15  # КОЖА
+  values:
+    - 2000
+    - 5
+    - 0
+    - 0
+  weight: 2
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 5  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kWaist
+  no_flags:
+    - kBattle
+
+# Object #1243
+43:
+  names:
+    aliases: роба темной власти
+    nominative: роба &KТемной Власти&n
+    genitive: робы &KТемной Власти&n
+    dative: робе &KТемной Власти&n
+    accusative: робу &KТемной Власти&n
+    instrumental: робой &KТемной Власти&n
+    prepositional: робе &KТемной Власти&n
+  short_desc: Темная  роба лежит тут, притягивая взгляд.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 6
+    - 6
+    - 0
+    - 0
+  weight: 8
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 5  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kBody
+  no_flags:
+    - kBattle
+
+# Object #1244
+44:
+  names:
+    aliases: плащ темной власти
+    nominative: плащ &KТемной Власти&n
+    genitive: плаща &KТемной Власти&n
+    dative: плащу &KТемной Власти&n
+    accusative: плащ &KТемной Власти&n
+    instrumental: плащем &KТемной Власти&n
+    prepositional: плаще &KТемной Власти&n
+  short_desc: Темный плащ лежит тут, притягивая взгляд.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 4
+    - 6
+    - 0
+    - 0
+  weight: 5
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 5  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kShoulders
+  no_flags:
+    - kBattle
+
+# Object #1245
+45:
+  names:
+    aliases: корона темной власти
+    nominative: корона &KТемной Власти&n
+    genitive: короны &KТемной Власти&n
+    dative: короне &KТемной Власти&n
+    accusative: корону &KТемной Власти&n
+    instrumental: короной &KТемной Власти&n
+    prepositional: короне &KТемной Власти&n
+  short_desc: Темная костяная корона лежит тут, притягивая взгляд.
+  type: kArmor
+  material: 13  # КОСТЬ
+  values:
+    - 4
+    - 4
+    - 0
+    - 0
+  weight: 4
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 5  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kHead
+  no_flags:
+    - kBattle
+
+# Object #1246
+46:
+  names:
+    aliases: кольцо темной власти
+    nominative: кольцо &KТемной Власти&n
+    genitive: кольца &KТемной Власти&n
+    dative: кольцу &KТемной Власти&n
+    accusative: кольцо &KТемной Власти&n
+    instrumental: кольцом &KТемной Власти&n
+    prepositional: кольце &KТемной Власти&n
+  short_desc: Темное костяное кольцо лежит тут, притягивая взгляд.
+  type: kArmor
+  material: 13  # КОСТЬ
+  values:
+    - 1
+    - 1
+    - 0
+    - 0
+  weight: 1
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 5  # !undefined!
+  level: 0
+  sex: kNeutral
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kFinger
+  no_flags:
+    - kBattle
+
+# Object #1247
+47:
+  names:
+    aliases: перстень темной власти
+    nominative: перстень &KТемной Власти&n
+    genitive: перстня &KТемной Власти&n
+    dative: перстню &KТемной Власти&n
+    accusative: перстень &KТемной Власти&n
+    instrumental: перстнем &KТемной Власти&n
+    prepositional: перстне &KТемной Власти&n
+  short_desc: Темный перстень лежит тут, притягивая взгляд.
+  type: kArmor
+  material: 13  # КОСТЬ
+  values:
+    - 1
+    - 1
+    - 0
+    - 0
+  weight: 1
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 4  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kFinger
+  no_flags:
+    - kBattle
+
+# Object #1248
+48:
+  names:
+    aliases: браслет темной власти
+    nominative: браслет &KТемной Власти&n
+    genitive: браслета &KТемной Власти&n
+    dative: браслету &KТемной Власти&n
+    accusative: браслет &KТемной Власти&n
+    instrumental: браслетом &KТемной Власти&n
+    prepositional: браслете &KТемной Власти&n
+  short_desc: Темный браслет лежит тут, притягивая взгляд.
+  type: kArmor
+  material: 13  # КОСТЬ
+  values:
+    - 1
+    - 1
+    - 0
+    - 0
+  weight: 2
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 5  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kWrist
+  no_flags:
+    - kBattle
+
+# Object #1249
+49:
+  names:
+    aliases: окова темной власти
+    nominative: окова &KТемной Власти&n
+    genitive: оковы &KТемной Власти&n
+    dative: окове &KТемной Власти&n
+    accusative: окову &KТемной Власти&n
+    instrumental: оковой &KТемной Власти&n
+    prepositional: окове &KТемной Власти&n
+  short_desc: Темная окова лежит тут, притягивая взгляд.
+  type: kArmor
+  material: 13  # КОСТЬ
+  values:
+    - 1
+    - 1
+    - 0
+    - 0
+  weight: 4
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 5  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kWrist
+  no_flags:
+    - kBattle
+
+# Object #1250
+50:
+  names:
+    aliases: ожерелье темной власти
+    nominative: ожерелье &KТемной Власти&n
+    genitive: ожерелья &KТемной Власти&n
+    dative: ожерелью &KТемной Власти&n
+    accusative: ожерелье &KТемной Власти&n
+    instrumental: ожерельем &KТемной Власти&n
+    prepositional: ожерелье &KТемной Власти&n
+  short_desc: Темное ожерелье лежит тут, притягивая взгляд.
+  type: kArmor
+  material: 13  # КОСТЬ
+  values:
+    - 1
+    - 1
+    - 0
+    - 0
+  weight: 2
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 5  # !undefined!
+  level: 0
+  sex: kNeutral
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kNeck
+  no_flags:
+    - kBattle
+
+# Object #1251
+51:
+  names:
+    aliases: амулет темной власти
+    nominative: амулет &KТемной Власти&n
+    genitive: амулета &KТемной Власти&n
+    dative: амулету &KТемной Власти&n
+    accusative: амулет &KТемной Власти&n
+    instrumental: амулетом &KТемной Власти&n
+    prepositional: амулете &KТемной Власти&n
+  short_desc: Темный амулет лежит тут, притягивая взгляд.
+  type: kArmor
+  material: 13  # КОСТЬ
+  values:
+    - 1
+    - 1
+    - 0
+    - 0
+  weight: 1
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 5  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kNeck
+  no_flags:
+    - kBattle
+
+# Object #1252
+52:
+  names:
+    aliases: щит символ темной власти
+    nominative: символ &KТемной Власти&n
+    genitive: символа &KТемной Власти&n
+    dative: символу &KТемной Власти&n
+    accusative: символ &KТемной Власти&n
+    instrumental: символом &KТемной Власти&n
+    prepositional: символе &KТемной Власти&n
+  short_desc: Большой символ лежит тут, притягивая взгляд.
+  type: kArmor
+  material: 13  # КОСТЬ
+  values:
+    - 2
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 4  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodisarm
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kShield
+  no_flags:
+    - kBattle
+
+# Object #1253
+53:
+  names:
+    aliases: посох темной власти
+    nominative: посох &KТемной Власти&n
+    genitive: посоха &KТемной Власти&n
+    dative: посоху &KТемной Власти&n
+    accusative: посох &KТемной Власти&n
+    instrumental: посохом &KТемной Власти&n
+    prepositional: посохе &KТемной Власти&n
+  short_desc: Темный посох с огромной черной жемчужиной лежит тут, притягивая взгляд.
+  type: kWeapon
+  material: 1  # БУЛАТ
+  values:
+    - 2
+    - 4
+    - 8
+    - 5
+  weight: 10
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  spec_param: 141
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 5  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodisarm
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kWield
+    - kBoth
+  no_flags:
+    - kBattle
+
+# Object #1254
+54:
+  names:
+    aliases: наручи забытой магии
+    nominative: наручи &RЗабытой Магии&n
+    genitive: наручей &RЗабытой Магии&n
+    dative: наручам &RЗабытой Магии&n
+    accusative: наручи &RЗабытой Магии&n
+    instrumental: наручами &RЗабытой Магии&n
+    prepositional: наручах &RЗабытой Магии&n
+  short_desc: Мерцающие магическим светом наручи лежат тут.
+  type: kArmor
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 5
+    - 3
+    - 0
+    - 0
+  weight: 4
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 1  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kArms
+  no_flags:
+    - kBattle
+
+# Object #1255
+55:
+  names:
+    aliases: перчатки забытой магии
+    nominative: перчатки &RЗабытой Магии&n
+    genitive: перчаток &RЗабытой Магии&n
+    dative: перчаткам &RЗабытой Магии&n
+    accusative: перчатки &RЗабытой Магии&n
+    instrumental: перчатками &RЗабытой Магии&n
+    prepositional: перчатках &RЗабытой Магии&n
+  short_desc: Мерцающие магическим светом перчатки лежат тут.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 4
+    - 2
+    - 0
+    - 0
+  weight: 2
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 1  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kHands
+  no_flags:
+    - kBattle
+
+# Object #1256
+56:
+  names:
+    aliases: штаны забытой магии
+    nominative: штаны &RЗабытой Магии&n
+    genitive: штанов &RЗабытой Магии&n
+    dative: штанам &RЗабытой Магии&n
+    accusative: штаны &RЗабытой Магии&n
+    instrumental: штанами &RЗабытой Магии&n
+    prepositional: штанах &RЗабытой Магии&n
+  short_desc: Мерцающие магическим светом штаны лежат тут.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 5
+    - 3
+    - 0
+    - 0
+  weight: 6
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 1  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kLegs
+  no_flags:
+    - kBattle
+
+# Object #1257
+57:
+  names:
+    aliases: сапоги забытой магии
+    nominative: сапоги &RЗабытой Магии&n
+    genitive: сапог &RЗабытой Магии&n
+    dative: сапогам &RЗабытой Магии&n
+    accusative: сапоги &RЗабытой Магии&n
+    instrumental: сапогами &RЗабытой Магии&n
+    prepositional: сапогах &RЗабытой Магии&n
+  short_desc: Мерцающие магическим сапоги штаны лежат тут.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 4
+    - 3
+    - 0
+    - 0
+  weight: 5
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 1  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kFeet
+  no_flags:
+    - kBattle
+
+# Object #1258
+58:
+  names:
+    aliases: пояс забытой магии
+    nominative: пояс &RЗабытой Магии&n
+    genitive: пояса &RЗабытой Магии&n
+    dative: поясу &RЗабытой Магии&n
+    accusative: пояс &RЗабытой Магии&n
+    instrumental: поясом &RЗабытой Магии&n
+    prepositional: поясе &RЗабытой Магии&n
+  short_desc: Мерцающий магическим светом пояс лежит тут.
+  type: kContainer
+  material: 15  # КОЖА
+  values:
+    - 2000
+    - 5
+    - 0
+    - 0
+  weight: 2
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 1  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kWaist
+  no_flags:
+    - kBattle
+
+# Object #1259
+59:
+  names:
+    aliases: кольцо забытой магии
+    nominative: кольцо &RЗабытой Магии&n
+    genitive: кольца &RЗабытой Магии&n
+    dative: кольцу &RЗабытой Магии&n
+    accusative: кольцо &RЗабытой Магии&n
+    instrumental: кольцом &RЗабытой Магии&n
+    prepositional: кольце &RЗабытой Магии&n
+  short_desc: Мерцающее магическим светом кольцо лежит тут.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 1
+    - 1
+    - 0
+    - 0
+  weight: 1
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 1  # !undefined!
+  level: 0
+  sex: kNeutral
+  max_in_world: 2
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kFinger
+  no_flags:
+    - kBattle
+
+# Object #1260
+60:
+  names:
+    aliases: ожерелье забытой магии
+    nominative: ожерелье &RЗабытой Магии&n
+    genitive: ожерелья &RЗабытой Магии&n
+    dative: ожерелью &RЗабытой Магии&n
+    accusative: ожерелье &RЗабытой Магии&n
+    instrumental: ожерельем &RЗабытой Магии&n
+    prepositional: ожерелье &RЗабытой Магии&n
+  short_desc: Мерцающее магическим светом ожерелье лежит тут.
+  type: kArmor
+  material: 11  # СТЕКЛО
+  values:
+    - 1
+    - 1
+    - 0
+    - 0
+  weight: 1
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 1  # !undefined!
+  level: 0
+  sex: kNeutral
+  max_in_world: 2
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kNeck
+  no_flags:
+    - kBattle
+
+# Object #1261
+61:
+  names:
+    aliases: браслет забытой магии
+    nominative: браслет &RЗабытой Магии&n
+    genitive: браслета &RЗабытой Магии&n
+    dative: браслету &RЗабытой Магии&n
+    accusative: браслет &RЗабытой Магии&n
+    instrumental: браслетом &RЗабытой Магии&n
+    prepositional: браслете &RЗабытой Магии&n
+  short_desc: Мерцающий магическим светом браслет лежит тут.
+  type: kArmor
+  material: 13  # КОСТЬ
+  values:
+    - 2
+    - 2
+    - 0
+    - 0
+  weight: 1
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 1  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 2
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kWrist
+  no_flags:
+    - kBattle
+
+# Object #1262
+62:
+  names:
+    aliases: одежды забытой магии
+    nominative: одежды &RЗабытой Магии&n
+    genitive: одежд &RЗабытой Магии&n
+    dative: одеждам &RЗабытой Магии&n
+    accusative: одежды &RЗабытой Магии&n
+    instrumental: одеждами &RЗабытой Магии&n
+    prepositional: одеждах &RЗабытой Магии&n
+  short_desc: Мерцающие магическим светом одежды лежат тут.
+  type: kArmor
+  material: 14  # ТКАНЬ
+  values:
+    - 9
+    - 7
+    - 0
+    - 0
+  weight: 7
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 1  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kBody
+  no_flags:
+    - kBattle
+
+# Object #1263
+63:
+  names:
+    aliases: мантия забытой магии
+    nominative: мантия &RЗабытой Магии&n
+    genitive: мантии &RЗабытой Магии&n
+    dative: мантии &RЗабытой Магии&n
+    accusative: мантию &RЗабытой Магии&n
+    instrumental: мантией &RЗабытой Магии&n
+    prepositional: мантии &RЗабытой Магии&n
+  short_desc: Мерцающая магическим светом мантия лежит тут.
+  type: kArmor
+  material: 14  # ТКАНЬ
+  values:
+    - 8
+    - 5
+    - 0
+    - 0
+  weight: 5
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 1  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kShoulders
+  no_flags:
+    - kBattle
+
+# Object #1264
+64:
+  names:
+    aliases: обруч забытой магии
+    nominative: обруч &RЗабытой Магии&n
+    genitive: обруча &RЗабытой Магии&n
+    dative: обручу &RЗабытой Магии&n
+    accusative: обруч &RЗабытой Магии&n
+    instrumental: обручем &RЗабытой Магии&n
+    prepositional: обруче &RЗабытой Магии&n
+  short_desc: Мерцающий магическим светом обруч лежит тут.
+  type: kArmor
+  material: 13  # КОСТЬ
+  values:
+    - 2
+    - 4
+    - 0
+    - 0
+  weight: 4
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 1  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kHead
+  no_flags:
+    - kBattle
+
+# Object #1265
+65:
+  names:
+    aliases: посох забытой магии
+    nominative: посох &RЗабытой Магии&n
+    genitive: посоха &RЗабытой Магии&n
+    dative: посоху &RЗабытой Магии&n
+    accusative: посох &RЗабытой Магии&n
+    instrumental: посохом &RЗабытой Магии&n
+    prepositional: посохе &RЗабытой Магии&n
+  short_desc: Мерцающий магическим светом посох лежит тут.
+  type: kWeapon
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 1
+    - 1
+    - 1
+    - 5
+  weight: 20
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  spec_param: 141
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 1  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodisarm
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kBoth
+  no_flags:
+    - kBattle
+
+# Object #1266
+66:
+  names:
+    aliases: жезл забытой магии
+    nominative: жезл &RЗабытой Магии&n
+    genitive: жезла &RЗабытой Магии&n
+    dative: жезлу &RЗабытой Магии&n
+    accusative: жезл &RЗабытой Магии&n
+    instrumental: жезлом &RЗабытой Магии&n
+    prepositional: жезле &RЗабытой Магии&n
+  short_desc: Мерцающий магическим светом жезл лежит тут.
+  type: kWeapon
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 2
+    - 5
+    - 6
+    - 5
+  weight: 10
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  spec_param: 141
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 1  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodisarm
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kWield
+  no_flags:
+    - kBattle
+
+# Object #1267
+67:
+  names:
+    aliases: знак забытой магии
+    nominative: знак &RЗабытой Магии&n
+    genitive: знака &RЗабытой Магии&n
+    dative: знаку &RЗабытой Магии&n
+    accusative: знак &RЗабытой Магии&n
+    instrumental: знаком &RЗабытой Магии&n
+    prepositional: знаке &RЗабытой Магии&n
+  short_desc: Мерцающий магическим светом знак лежит тут.
+  type: kArmor
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 3
+    - 3
+    - 0
+    - 0
+  weight: 5
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 400
+  timer: 72000
+  spell: 1  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  minimum_remorts: 9
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodisarm
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kShield
+  no_flags:
+    - kBattle
+
+# Object #1268
+68:
+  names:
+    aliases: доспех верного наемника
+    nominative: '&bдоспех верного наемника&n'
+    genitive: '&bдоспеха верного наемника&n'
+    dative: '&bдоспеху верного наемника&n'
+    accusative: '&bдоспех верного наемника&n'
+    instrumental: '&bдоспехом верного наемника&n'
+    prepositional: '&bдоспехе верного наемника&n'
+  short_desc: Доспех из темно-синей кожи лежит здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 3
+    - 3
+    - 0
+    - 0
+  weight: 3
+  cost: 75000
+  rent_off: 10000
+  rent_on: 1000
+  max_durability: 200
+  cur_durability: 200
+  timer: 58000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 2
+  extra_flags:
+    - kNodecay
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kBody
+  no_flags:
+    - kMage
+    - kSorcerer
+    - kThief
+    - kWarrior
+    - kAssasine
+    - kGuard
+    - kPaladine
+    - kRanger
+    - kVigilant
+    - kMerchant
+    - kMagus
+  applies:
+    - location: 18  # попадание
+      modifier: 3
+    - location: 19  # повреждение
+      modifier: 3
+
+# Object #1269
+69:
+  names:
+    aliases: перчатки верного наемника
+    nominative: '&bперчатки верного наемника&n'
+    genitive: '&bперчаток верного наемника&n'
+    dative: '&bперчаткам верного наемника&n'
+    accusative: '&bперчатки верного наемника&n'
+    instrumental: '&bперчатками верного наемника&n'
+    prepositional: '&bперчатках верного наемника&n'
+  short_desc: Cиние перчатки из толстой кожи лежат здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 3
+    - 3
+    - 0
+    - 0
+  weight: 9
+  cost: 75000
+  rent_off: 10000
+  rent_on: 1000
+  max_durability: 300
+  cur_durability: 300
+  timer: 58000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 2
+  extra_flags:
+    - kNodecay
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kHands
+  no_flags:
+    - kMage
+    - kSorcerer
+    - kThief
+    - kWarrior
+    - kAssasine
+    - kGuard
+    - kPaladine
+    - kRanger
+    - kVigilant
+    - kMerchant
+    - kMagus
+  applies:
+    - location: 18  # попадание
+      modifier: 3
+    - location: 19  # повреждение
+      modifier: 3
+
+# Object #1270
+70:
+  names:
+    aliases: повязка верного наемника
+    nominative: '&bповязка верного наемника&n'
+    genitive: '&bповязки верного наемника&n'
+    dative: '&bповязке верного наемника&n'
+    accusative: '&bповязку верного наемника&n'
+    instrumental: '&bповязкой верного наемника&n'
+    prepositional: '&bповязке верного наемника&n'
+  short_desc: Плетеная повязка из кожи валяется здесь.
+  type: kArmor
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 3
+    - 3
+    - 0
+    - 0
+  weight: 2
+  cost: 75000
+  rent_off: 10000
+  rent_on: 1000
+  max_durability: 300
+  cur_durability: 300
+  timer: 58000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 2
+  extra_flags:
+    - kNodecay
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kHead
+    - kWaist
+  no_flags:
+    - kMage
+    - kSorcerer
+    - kThief
+    - kWarrior
+    - kAssasine
+    - kGuard
+    - kPaladine
+    - kRanger
+    - kVigilant
+    - kMerchant
+    - kMagus
+  applies:
+    - location: 18  # попадание
+      modifier: 3
+    - location: 19  # повреждение
+      modifier: 3
+
+# Object #1271
+71:
+  names:
+    aliases: сапоги верного наемника
+    nominative: '&bсапоги верного наемника&n'
+    genitive: '&bсапог верного наемника&n'
+    dative: '&bсапогам верного наемника&n'
+    accusative: '&bсапоги верного наемника&n'
+    instrumental: '&bсапогами верного наемника&n'
+    prepositional: '&bсапогах верного наемника&n'
+  short_desc: Сапоги самого заурядного фасона небрежно брошены.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 3
+    - 3
+    - 0
+    - 0
+  weight: 5
+  cost: 75000
+  rent_off: 10000
+  rent_on: 1000
+  max_durability: 300
+  cur_durability: 300
+  timer: 58000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 2
+  extra_flags:
+    - kNodecay
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kFeet
+  no_flags:
+    - kMage
+    - kSorcerer
+    - kThief
+    - kWarrior
+    - kAssasine
+    - kGuard
+    - kPaladine
+    - kRanger
+    - kVigilant
+    - kMerchant
+    - kMagus
+  applies:
+    - location: 18  # попадание
+      modifier: 3
+    - location: 19  # повреждение
+      modifier: 3
+
+# Object #1272
+72:
+  names:
+    aliases: шляпа странствующего целителя
+    nominative: '&gшляпа странствующего целителя&n'
+    genitive: '&gшляпы странствующего целителя&n'
+    dative: '&gшляпе странствующего целителя&n'
+    accusative: '&gшляпу странствующего целителя&n'
+    instrumental: '&gшляпой странствующего целителя&n'
+    prepositional: '&gшляпе странствующего целителя&n'
+  short_desc: Шляпа странствующего целителя левитирует здесь.
+  type: kArmor
+  material: 14  # ТКАНЬ
+  values:
+    - 5
+    - 5
+    - 0
+    - 0
+  weight: 1
+  cost: 75000
+  rent_off: 15000
+  rent_on: 2500
+  max_durability: 500
+  cur_durability: 500
+  timer: 86400
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 2
+  minimum_remorts: -35
+  extra_flags:
+    - kMagic
+    - kNodisarm
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kHead
+  extra_descriptions:
+    - keywords: шляпа странствующего целителя
+      description: |2
+        Длиннополая шляпа, изумрудно зеленого цвета,
+        по которой пущен серебристо-бронзовый узор из целебных трав.
+        По всей видимости она пренадлежит одному из могущественных целителей.
+
+# Object #1273
+73:
+  names:
+    aliases: амулет странствующего целителя
+    nominative: '&gамулет странствующего целителя&n'
+    genitive: '&gамулета странствующего целителя&n'
+    dative: '&gамулету странствующего целителя&n'
+    accusative: '&gамулет странствующего целителя&n'
+    instrumental: '&gамулетом странствующего целителя&n'
+    prepositional: '&gамулете странствующего целителя&n'
+  short_desc: Красивый амулет странствующего целителя левитирует здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 5
+    - 5
+    - 0
+    - 0
+  weight: 1
+  cost: 75000
+  rent_off: 12000
+  rent_on: 2000
+  max_durability: 500
+  cur_durability: 500
+  timer: 86400
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 2
+  minimum_remorts: -35
+  extra_flags:
+    - kMagic
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+    - kUnique
+  wear_flags:
+    - kTake
+    - kNeck
+  extra_descriptions:
+    - keywords: плащ странствующего целителя
+      description: |2
+        Изумрудно зеленый кожанный плащ, весь расшит шелком и бисером.
+        Вьются по провощеным холстинным бокам целебные травы, склоняют рогатые
+        головы диковинные звери. Вереница рун по краю отгоняет нечистую силу.
+
+# Object #1274
+74:
+  names:
+    aliases: браслет странствующего целителя
+    nominative: '&gбраслет странствующего целителя&n'
+    genitive: '&gбраслета странствующего целителя&n'
+    dative: '&gбраслету странствующего целителя&n'
+    accusative: '&gбраслет странствующего целителя&n'
+    instrumental: '&gбраслетом странствующего целителя&n'
+    prepositional: '&gбраслете странствующего целителя&n'
+  short_desc: Браслет странствующего целителя левитирует здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 5
+    - 5
+    - 0
+    - 0
+  weight: 2
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 500
+  timer: 86400
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 2
+  minimum_remorts: -35
+  extra_flags:
+    - kMagic
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+    - kUnique
+  wear_flags:
+    - kTake
+    - kWrist
+  extra_descriptions:
+    - keywords: браслет странствующего целителя
+      description: |2
+        Браслет из мягкой кожи, вязь рун указывает на владельца-целителя.
+
+# Object #1275
+75:
+  names:
+    aliases: УДАЛЁН
+    nominative: уДАЛЕН
+    genitive: нету чего
+    dative: привязать к чему
+    accusative: взять что
+    instrumental: вооружиться чем
+    prepositional: говорить о чем
+  short_desc: Что-то новое лежит здесь
+  type: kItemUndefined
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 0
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #1276
+76:
+  names:
+    aliases: крепкий плащ кожух меткого лучника
+    nominative: '&rкожух меткого лучника&n'
+    genitive: '&rкожуха меткого лучника&n'
+    dative: '&rкожуху меткого лучника&n'
+    accusative: '&rкожух меткого лучника&n'
+    instrumental: '&rкожухом меткого лучника&n'
+    prepositional: '&rкожухе меткого лучника&n'
+  short_desc: Крепкий плащ, переживший немало невзгод, валяется тут.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 8
+    - 8
+    - 0
+    - 0
+  weight: 17
+  cost: 75000
+  rent_off: 15000
+  rent_on: 2000
+  max_durability: 400
+  cur_durability: 400
+  timer: 58000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 2
+  minimum_remorts: 3
+  extra_flags:
+    - kMagic
+    - kNodecay
+    - kSwimming
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kBody
+    - kShoulders
+  extra_descriptions:
+    - keywords: крепкий плащ кожух меткого лучника
+      description: |2
+        Удобный охотничий плащ, аккуратно выделанный из разнообразных видов кожи.
+        Вы точно не уверены, но видимо до вас его носило много удачливых охотников.
+        Тут и там, по всей поверхности плаща, прослеживаются многочисленные знаки,
+        известные только тем, кто дружит с луком с рождения.
+
+# Object #1277
+77:
+  names:
+    aliases: колчан меткого лучника сумка сума
+    nominative: '&rколчан меткого лучника&n'
+    genitive: '&rколчана меткого лучника&n'
+    dative: '&rколчану меткого лучника&n'
+    accusative: '&rколчан меткого лучника&n'
+    instrumental: '&rколчаном меткого лучника&n'
+    prepositional: '&rколчане меткого лучника&n'
+  short_desc: Забытый каким-то лучником колчан, полный стрел, валяется тут.
+  type: kContainer
+  material: 15  # КОЖА
+  values:
+    - 2000
+    - 0
+    - -1
+    - 0
+  weight: 3
+  cost: 55000
+  rent_off: 12000
+  rent_on: 2000
+  max_durability: 400
+  cur_durability: 400
+  timer: 58000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 2
+  minimum_remorts: 3
+  extra_flags:
+    - kMagic
+    - kNodecay
+    - kSwimming
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kWaist
+  extra_descriptions:
+    - keywords: забытый колчан меткого лучника
+      description: |2
+        Казалось бы, колчан как колчан. Да и некрасивый какой-то. Однако, приглядевшись,
+        вы замечаете, что если закрепить колчан на поясе, доставать стрелы можно будет
+        движением вбок, через его стенки. Это должно сэкономить драгоценные секунды и
+        наверняка позволит стрелять чаще.
+
+# Object #1278
+78:
+  names:
+    aliases: выделанные порты меткого лучника
+    nominative: '&rпорты меткого лучника&n'
+    genitive: '&rпортов меткого лучника&n'
+    dative: '&rпортам меткого лучника&n'
+    accusative: '&rпорты меткого лучника&n'
+    instrumental: '&rпортами меткого лучника&n'
+    prepositional: '&rпортах меткого лучника&n'
+  short_desc: Изящно выделанные порты из тонкой кожи валяются тут.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 6
+    - 6
+    - 0
+    - 0
+  weight: 2
+  cost: 75000
+  rent_off: 15000
+  rent_on: 2000
+  max_durability: 400
+  cur_durability: 400
+  timer: 58000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 2
+  minimum_remorts: 3
+  extra_flags:
+    - kMagic
+    - kNodecay
+    - kSwimming
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kLegs
+  extra_descriptions:
+    - keywords: выделанные порты меткого лучника
+      description: |2
+        Весьма необычного кроя, к которому трудно привыкнуть простому человеку, порты не
+        привлекают внимания окружающих. В таких портах хорошо сидеть в засаде - ведь даже
+        после начала атаки ваше местоположение может остаться тайной для вашей жертвы.
+
+# Object #1279
+79:
+  names:
+    aliases: ботинки чеботы меткого лучника
+    nominative: '&rчеботы меткого лучника&n'
+    genitive: '&rчеботов меткого лучника&n'
+    dative: '&rчеботам меткого лучника&n'
+    accusative: '&rчеботы меткого лучника&n'
+    instrumental: '&rчеботами меткого лучника&n'
+    prepositional: '&rчеботах меткого лучника&n'
+  short_desc: Прочно сшитые ботинки из тонкой кожи валяются тут.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 6
+    - 6
+    - 0
+    - 0
+  weight: 36
+  cost: 75000
+  rent_off: 15000
+  rent_on: 2000
+  max_durability: 400
+  cur_durability: 400
+  timer: 58000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 2
+  minimum_remorts: 3
+  extra_flags:
+    - kMagic
+    - kNodecay
+    - kSwimming
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kFeet
+  extra_descriptions:
+    - keywords: ботинки чеботы меткого лучника
+      description: |2
+        Комфортнейшие ботинки из мягкой кожи, укрепленные прочной деревянной подошвой.
+        Умелый охотник легко сможет подобраться к зверю поближе по мягкому лесному грунту,
+        а коли придется нагонять животное по острым скалам, он будет уверен, что ступням
+        его ничего не угрожает.
+
+# Object #1280
+80:
+  names:
+    aliases: сапожки-слуги-чернобога
+    nominative: '&Rсапожки&n &Wслуги чернобога&n'
+    genitive: '&Rсапожек&n &Wслуги чернобога&n'
+    dative: '&Rсапожкам&n &Wслуги чернобога&n'
+    accusative: '&Rсапожки&n &Wслуги чернобога&n'
+    instrumental: '&Rсапожками&n &Wслуги чернобога&n'
+    prepositional: '&Rсапожках&n &Wслуги чернобога&n'
+  short_desc: '&RИскусно выделанные сапожки&n &Wлежат на земле источая могильный холод.&n'
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 5
+    - 3
+    - 0
+    - 0
+  weight: 1
+  cost: 75000
+  rent_off: 25000
+  rent_on: 2000
+  max_durability: 400
+  cur_durability: 400
+  timer: 58000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 2
+  minimum_remorts: 3
+  extra_flags:
+    - kNodonate
+    - kMagic
+    - kBless
+    - kNodecay
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kFeet
+
+# Object #1281
+81:
+  names:
+    aliases: одеяние-слуги-чернобога
+    nominative: '&Rодеяние&n &Wслуги чернобога&n'
+    genitive: '&Rодеяний&n &Wслуги чернобога&n'
+    dative: '&Rодеянию&n &Wслуги чернобога&n'
+    accusative: '&Rодеяние&n &Wслуги чернобога&n'
+    instrumental: '&Rодеянием&n &Wслуги чернобога&n'
+    prepositional: '&Rодеянии&n &Wслуги чернобога&n'
+  short_desc: '&RОдеяние забытое последователем чернобога&n &Wпарит над землей.&n'
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 6
+    - 4
+    - 0
+    - 0
+  weight: 1
+  cost: 75000
+  rent_off: 25000
+  rent_on: 2000
+  max_durability: 400
+  cur_durability: 400
+  timer: 58000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  max_in_world: 2
+  minimum_remorts: 3
+  extra_flags:
+    - kNodonate
+    - kMagic
+    - kBless
+    - kNodecay
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kBody
+
+# Object #1282
+82:
+  names:
+    aliases: трость-слуги-чернобога
+    nominative: '&Rтрость&n &Wслуги чернобога&n'
+    genitive: '&Rтрости&n &Wслуги чернобога&n'
+    dative: '&Rтрости&n &Wслуги чернобога&n'
+    accusative: '&Rтрость&n &Wслуги чернобога&n'
+    instrumental: '&Rтростью&n &Wслуги чернобога&n'
+    prepositional: '&Rтрости&n &Wслуги чернобога&n'
+  short_desc: '&RИзящная трость из резной кости&n &Wзависла над землей источая могильный холод.&n'
+  type: kWeapon
+  material: 13  # КОСТЬ
+  values:
+    - 0
+    - 6
+    - 6
+    - 6
+  weight: 7
+  cost: 75000
+  rent_off: 25000
+  rent_on: 2000
+  spec_param: 141
+  max_durability: 400
+  cur_durability: 400
+  timer: 58000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 2
+  minimum_remorts: 3
+  extra_flags:
+    - kNodonate
+    - kMagic
+    - kBless
+    - kNodisarm
+    - kNodecay
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kWield
+
+# Object #1283
+83:
+  names:
+    aliases: пояс-слуги-чернобога
+    nominative: '&Rпояс&n &Wслуги чернобога&n'
+    genitive: '&Rпояса&n &Wслуги чернобога&n'
+    dative: '&Rпоясу&n &Wслуги чернобога&n'
+    accusative: '&Rпояс&n &Wслуги чернобога&n'
+    instrumental: '&Rпоясом&n &Wслуги чернобога&n'
+    prepositional: '&Rпоясе&n &Wслуги чернобога&n'
+  short_desc: '&RПояс&n &Wисточающий могильный холод забыт здесь последователем чернобога.&n'
+  type: kContainer
+  material: 15  # КОЖА
+  values:
+    - 2000
+    - 1
+    - 0
+    - 0
+  weight: 1
+  cost: 75000
+  rent_off: 25000
+  rent_on: 2000
+  max_durability: 400
+  cur_durability: 400
+  timer: 58000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 2
+  minimum_remorts: 3
+  extra_flags:
+    - kNodonate
+    - kMagic
+    - kBless
+    - kNodecay
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kWaist
+
+# Object #1284
+84:
+  names:
+    aliases: клинок танцующей тени
+    nominative: '&Kклинок танцующей тени&n'
+    genitive: '&Kклинка танцующей тени&n'
+    dative: '&Kклинку танцующей тени&n'
+    accusative: '&Kклинок танцующей тени&n'
+    instrumental: '&Kклинком танцующей тени&n'
+    prepositional: '&Kклинке танцующей тени&n'
+  short_desc: Темный, как сама ночь, клинок лежит здесь.
+  type: kWeapon
+  material: 1  # БУЛАТ
+  values:
+    - 0
+    - 8
+    - 8
+    - 11
+  weight: 15
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3000
+  spec_param: 147
+  max_durability: 1000
+  cur_durability: 1000
+  timer: 58000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 2
+  minimum_remorts: 3
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodisarm
+    - kNodecay
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kWield
+  extra_descriptions:
+    - keywords: клинок танцующей тени
+      description: |2
+        Идеально сбалансированный клинок, с черным лезвием. Он был сделан
+        по заказу тайного братства воров. Сумрачные тени слегка окутывают лезвие и рукоять,
+        тем самым не позволяя ему сверкнуть и выдать своего владельца.
+
+# Object #1285
+85:
+  names:
+    aliases: заточка танцующей тени
+    nominative: '&Kзаточка танцующей тени&n'
+    genitive: '&Kзаточки танцующей тени&n'
+    dative: '&Kзаточке танцующей тени&n'
+    accusative: '&Kзаточку танцующей тени&n'
+    instrumental: '&Kзаточкой танцующей тени&n'
+    prepositional: '&Kзаточке танцующей тени&n'
+  short_desc: Заточка, окутанная сумрачными тенями, лежит здесь.
+  type: kWeapon
+  material: 1  # БУЛАТ
+  values:
+    - 0
+    - 6
+    - 7
+    - 11
+  weight: 10
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3000
+  spec_param: 147
+  max_durability: 1000
+  cur_durability: 1000
+  timer: 58000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 2
+  minimum_remorts: 3
+  extra_flags:
+    - kBless
+    - kNodisarm
+    - kNodecay
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: заточка танцующей тени
+      description: |2
+        Сумрачные тени окутывают идеально заточеное темное лезвие.
+        Резная рукоять, словно литая ложится в руку владельца. Это оружие
+        было изготовлено специально на заказ тайного братства воров.
+
+# Object #1286
+86:
+  names:
+    aliases: куртка танцующей тени
+    nominative: '&Kкуртка танцующей тени&n'
+    genitive: '&Kкуртки танцующей тени&n'
+    dative: '&Kкуртке танцующей тени&n'
+    accusative: '&Kкуртку танцующей тени&n'
+    instrumental: '&Kкурткой танцующей тени&n'
+    prepositional: '&Kкуртке танцующей тени&n'
+  short_desc: Неприметная темная куртка лежит здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 8
+    - 6
+    - 0
+    - 0
+  weight: 10
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3000
+  max_durability: 400
+  cur_durability: 400
+  timer: 58000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 2
+  minimum_remorts: 3
+  extra_flags:
+    - kBless
+    - kNodecay
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kBody
+  extra_descriptions:
+    - keywords: куртка танцующей тени
+      description: |2
+        Темная куртка замысловатого покроя изготовлена из кожи теневого дракона.
+        Мастер, пошивший эту вещь, сберег все свойства материала. Даже днем
+        куртка держит своего владельца в сумеречной тени, скрывая его очертания.
+
+# Object #1287
+87:
+  names:
+    aliases: браслет танцующей тени
+    nominative: '&Kбраслет танцующей тени&n'
+    genitive: '&Kбраслета танцующей тени&n'
+    dative: '&Kбраслету танцующей тени&n'
+    accusative: '&Kбраслет танцующей тени&n'
+    instrumental: '&Kбраслетом танцующей тени&n'
+    prepositional: '&Kбраслете танцующей тени&n'
+  short_desc: Призрачный, словно сама тень, браслет лежит здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 3
+    - 3
+    - 0
+    - 0
+  weight: 9
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3000
+  max_durability: 400
+  cur_durability: 400
+  timer: 58000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 2
+  minimum_remorts: 3
+  extra_flags:
+    - kBless
+    - kNodecay
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kWrist
+  extra_descriptions:
+    - keywords: браслет танцующей тени
+      description: |2
+        Этот браслет всегда держит своего владельца в тени, позволяя
+        незаметно пробираться в самые потайные уголки мира. Он был сделан
+        по заказу тайного братства воров для самых опытных членов братства.
+
+# Object #1288
+88:
+  names:
+    aliases: перчатки неизведанных дорог
+    nominative: '&Wперчатки&n &Mнеизведанных дорог&n'
+    genitive: '&Wперчаток&n &Mнеизведанных дорог&n'
+    dative: '&Wперчаткам&n &Mнеизведанных дорог&n'
+    accusative: '&Wперчатки&n &Mнеизведанных дорог&n'
+    instrumental: '&Wперчатками&n &Mнеизведанных дорог&n'
+    prepositional: '&Wперчатках&n &Mнеизведанных дорог&n'
+  short_desc: Магические перчатки, окутанные &mпурпурным сиянием&n, лежат здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 4
+    - 4
+    - 0
+    - 0
+  weight: 5
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3000
+  max_durability: 450
+  cur_durability: 450
+  timer: 58000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 2
+  minimum_remorts: 3
+  extra_flags:
+    - kNodonate
+    - kMagic
+    - kBless
+    - kNodecay
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kHands
+  extra_descriptions:
+    - keywords: перчатки неизведанных дорог
+      description: |2
+        Легкое пурпурное сияние окружает добротные перчатки, пошитые
+        искусным мастером так, что не видно ни единого шва. Магическая сила,
+        которой они наполнены, рвется наружу, что бы показать своему владельцу
+        доселе неизведанные пути-дороги.
+
+# Object #1289
+89:
+  names:
+    aliases: сапоги неизведанных дорог
+    nominative: '&Wсапоги&n &Mнеизведанных дорог&n'
+    genitive: '&Wсапог&n &Mнеизведанных дорог&n'
+    dative: '&Wсапогам&n &Mнеизведанных дорог&n'
+    accusative: '&Wсапоги&n &Mнеизведанных дорог&n'
+    instrumental: '&Wсапогами&n &Mнеизведанных дорог&n'
+    prepositional: '&Wсапогах&n &Mнеизведанных дорог&n'
+  short_desc: Магические сапоги, окутанные &mпурпурным сиянием&n, лежат здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 3
+    - 5
+    - 0
+    - 0
+  weight: 8
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3000
+  max_durability: 450
+  cur_durability: 450
+  timer: 58000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 2
+  minimum_remorts: 3
+  extra_flags:
+    - kNodonate
+    - kMagic
+    - kBless
+    - kNodecay
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kFeet
+  extra_descriptions:
+    - keywords: сапоги неизведанных дорог
+      description: |2
+        Легкое пурпурное сияние окружает добротные сапоги, пошитые
+        искусным мастером так, что не видно ни единого шва. Магическая сила,
+        которой они наполнены, рвется наружу, что бы показать своему владельцу
+        доселе неизведанные пути-дороги.
+
+# Object #1290
+90:
+  names:
+    aliases: одежды неизведанных дорог
+    nominative: '&Wодежды&n &Mнеизведанных дорог&n'
+    genitive: '&Wодежд&n &Mнеизведанных дорог&n'
+    dative: '&Wодеждам&n &Mнеизведанных дорог&n'
+    accusative: '&Wодежды&n &Mнеизведанных дорог&n'
+    instrumental: '&Wодеждами&n &Mнеизведанных дорог&n'
+    prepositional: '&Wодеждах&n &Mнеизведанных дорог&n'
+  short_desc: Магические одежды, окутанные &mпурпурным сиянием&n, лежат здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 6
+    - 6
+    - 0
+    - 0
+  weight: 15
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3000
+  max_durability: 450
+  cur_durability: 450
+  timer: 58000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 2
+  minimum_remorts: 3
+  extra_flags:
+    - kNodonate
+    - kMagic
+    - kBless
+    - kNodecay
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kBody
+  extra_descriptions:
+    - keywords: одежды неизведанных дорог
+      description: |2
+        Магические одежды искусно пошитые неизвестным мастером. Пурпурные
+        магические рисунки изредка проступают на нагрудной части и образуют
+        загадочные магические символы, таящие в себе секреты высшего волшебства.
+
+# Object #1291
+91:
+  names:
+    aliases: шаровары неизведанных дорог
+    nominative: '&Wшаровары&n &Mнеизведанных дорог&n'
+    genitive: '&Wшаровар&n &Mнеизведанных дорог&n'
+    dative: '&Wшароварам&n &Mнеизведанных дорог&n'
+    accusative: '&Wшаровары&n &Mнеизведанных дорог&n'
+    instrumental: '&Wшароварами&n &Mнеизведанных дорог&n'
+    prepositional: '&Wшароварах&n &Mнеизведанных дорог&n'
+  short_desc: Магические шаровары, окутанные &mпурпурным сиянием&n, лежат здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 4
+    - 4
+    - 0
+    - 0
+  weight: 9
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3000
+  max_durability: 450
+  cur_durability: 450
+  timer: 58000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 2
+  minimum_remorts: 3
+  extra_flags:
+    - kNodonate
+    - kMagic
+    - kBless
+    - kNodecay
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kLegs
+  extra_descriptions:
+    - keywords: шаровары неизведанных дорог
+      description: |2
+        Легкое пурпурное сияние окружает добротные шаровары, пошитые
+        искусным мастером так, что не видно ни единого шва. Магическая сила,
+        которой они наполнены, рвется наружу, что бы показать своему владельцу
+        доселе неизведанные пути-дороги.
+
+# Object #1292
+92:
+  names:
+    aliases: посох неизведанных дорог
+    nominative: '&Wпосох&n &Mнеизведанных дорог&n'
+    genitive: '&Wпосоха&n &Mнеизведанных дорог&n'
+    dative: '&Wпосоху&n &Mнеизведанных дорог&n'
+    accusative: '&Wпосох&n &Mнеизведанных дорог&n'
+    instrumental: '&Wпосохом&n &Mнеизведанных дорог&n'
+    prepositional: '&Wпосохе&n &Mнеизведанных дорог&n'
+  short_desc: Магический посох с &mпурпурным набалдашником&n лежит здесь.
+  type: kWeapon
+  material: 8  # ДЕРЕВО
+  values:
+    - 6
+    - 6
+    - 7
+    - 5
+  weight: 15
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3000
+  spec_param: 141
+  max_durability: 450
+  cur_durability: 450
+  timer: 58000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 2
+  minimum_remorts: 3
+  extra_flags:
+    - kNodonate
+    - kMagic
+    - kBless
+    - kNodisarm
+    - kNodecay
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kWield
+  extra_descriptions:
+    - keywords: посох неизведанных дорог
+      description: |2
+        Изящный магический посох изготовлен из диковинной породы дерева.
+        Навершие его украшает небольшая сфера, которая светится ярким пурпурным
+        сиянием и если внимательно всмотреться в нее, то можно увидеть леса, поля,
+        реки и горы.
+
+# Object #1293
+93:
+  names:
+    aliases: калантарь клеймом китовраса
+    nominative: '&Kкалантарь с &Wкл&wей&Kмо&wм К&Wит&wов&Kра&wса&n'
+    genitive: '&Kкалантаря с &Wкл&wей&Kмо&wм К&Wит&wов&Kра&wса&n'
+    dative: '&Kкалантарю с &Wкл&wей&Kмо&wм К&Wит&wов&Kра&wса&n'
+    accusative: '&Kкалантарь с &Wкл&wей&Kмо&wм К&Wит&wов&Kра&wса&n'
+    instrumental: '&Kкалантарем с &Wкл&wей&Kмо&wм К&Wит&wов&Kра&wса&n'
+    prepositional: '&Kкалантаре с &Wкл&wей&Kмо&wм К&Wит&wов&Kра&wса&n'
+  short_desc: Калантарь с клеймом Китовраса лежит перед Вами.
+  type: kArmor
+  material: 4  # СТАЛЬ
+  values:
+    - 8
+    - 6
+    - 0
+    - 0
+  weight: 12
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 500
+  timer: 58000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 2
+  minimum_remorts: 3
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kBody
+
+# Object #1294
+94:
+  names:
+    aliases: шишак клеймом китовраса
+    nominative: '&Kшишак с &Wкл&wей&Kмо&wм К&Wит&wов&Kра&wса&n'
+    genitive: '&Kшишака с &Wкл&wей&Kмо&wм К&Wит&wов&Kра&wса&n'
+    dative: '&Kшишаку с &Wкл&wей&Kмо&wм К&Wит&wов&Kра&wса&n'
+    accusative: '&Kшишак с &Wкл&wей&Kмо&wм К&Wит&wов&Kра&wса&n'
+    instrumental: '&Kшишаком с &Wкл&wей&Kмо&wм К&Wит&wов&Kра&wса&n'
+    prepositional: '&Kшишаке с &Wкл&wей&Kмо&wм К&Wит&wов&Kра&wса&n'
+  short_desc: Шишак с клеймом Китовраса лежит перед Вами.
+  type: kArmor
+  material: 4  # СТАЛЬ
+  values:
+    - 5
+    - 5
+    - 0
+    - 0
+  weight: 3
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 500
+  timer: 58000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 2
+  minimum_remorts: 3
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kHead
+
+# Object #1295
+95:
+  names:
+    aliases: кушак клеймом китовраса
+    nominative: '&Kкушак с &Wкл&wей&Kмо&wм К&Wит&wов&Kра&wса&n'
+    genitive: '&Kкушака с &Wкл&wей&Kмо&wм К&Wит&wов&Kра&wса&n'
+    dative: '&Kкушаку с &Wкл&wей&Kмо&wм К&Wит&wов&Kра&wса&n'
+    accusative: '&Kкушак с &Wкл&wей&Kмо&wм К&Wит&wов&Kра&wса&n'
+    instrumental: '&Kкушаком с &Wкл&wей&Kмо&wм К&Wит&wов&Kра&wса&n'
+    prepositional: '&Kкушаке с &Wкл&wей&Kмо&wм К&Wит&wов&Kра&wса&n'
+  short_desc: Кушак с клеймом Китовраса лежит перед Вами.
+  type: kArmor
+  material: 4  # СТАЛЬ
+  values:
+    - 4
+    - 2
+    - 0
+    - 0
+  weight: 3
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 500
+  timer: 58000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 2
+  minimum_remorts: 3
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kWaist
+
+# Object #1296
+96:
+  names:
+    aliases: сапоги клеймом китовраса
+    nominative: '&Kсапоги с &Wкл&wей&Kмо&wм К&Wит&wов&Kра&wса&n'
+    genitive: '&Kсапог с &Wкл&wей&Kмо&wм К&Wит&wов&Kра&wса&n'
+    dative: '&Kсапогам с &Wкл&wей&Kмо&wм К&Wит&wов&Kра&wса&n'
+    accusative: '&Kсапоги с &Wкл&wей&Kмо&wм К&Wит&wов&Kра&wса&n'
+    instrumental: '&Kсапогами с &Wкл&wей&Kмо&wм К&Wит&wов&Kра&wса&n'
+    prepositional: '&Kсапогах с &Wкл&wей&Kмо&wм К&Wит&wов&Kра&wса&n'
+  short_desc: Сапоги с клеймом Китовраса лежат перед Вами.
+  type: kArmor
+  material: 4  # СТАЛЬ
+  values:
+    - 4
+    - 3
+    - 0
+    - 0
+  weight: 36
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 500
+  timer: 58000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 2
+  minimum_remorts: 3
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kFeet
+
+# Object #1297
+97:
+  names:
+    aliases: рукавицы клеймом китовраса
+    nominative: '&Kрукавицы с &Wкл&wей&Kмо&wм К&Wит&wов&Kра&wса&n'
+    genitive: '&Kрукавиц с &Wкл&wей&Kмо&wм К&Wит&wов&Kра&wса&n'
+    dative: '&Kрукавицам с &Wкл&wей&Kмо&wм К&Wит&wов&Kра&wса&n'
+    accusative: '&Kрукавицы с &Wкл&wей&Kмо&wм К&Wит&wов&Kра&wса&n'
+    instrumental: '&Kрукавицами с &Wкл&wей&Kмо&wм К&Wит&wов&Kра&wса&n'
+    prepositional: '&Kрукавицах с &Wкл&wей&Kмо&wм К&Wит&wов&Kра&wса&n'
+  short_desc: Рукавицы с клеймом Китовраса лежат перед Вами.
+  type: kArmor
+  material: 4  # СТАЛЬ
+  values:
+    - 3
+    - 2
+    - 0
+    - 0
+  weight: 10
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3500
+  max_durability: 500
+  cur_durability: 500
+  timer: 58000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 2
+  minimum_remorts: 3
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kHands
+
+# Object #1298
+98:
+  names:
+    aliases: пояс танцующей тени сумка
+    nominative: '&Kпояс танцующей тени&n'
+    genitive: '&Kпояса танцующей тени&n'
+    dative: '&Kпоясу танцующей тени&n'
+    accusative: '&Kпояс танцующей тени&n'
+    instrumental: '&Kпоясом танцующей тени&n'
+    prepositional: '&Kпоясе танцующей тени&n'
+  short_desc: Неприметный темный пояс лежит здесь.
+  type: kContainer
+  material: 15  # КОЖА
+  values:
+    - 2000
+    - 0
+    - -1
+    - 0
+  weight: 1
+  cost: 75000
+  rent_off: 15000
+  rent_on: 3000
+  max_durability: 400
+  cur_durability: 400
+  timer: 58000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 2
+  minimum_remorts: 3
+  extra_flags:
+    - kBless
+    - kNodecay
+    - kFlying
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kWaist
+  extra_descriptions:
+    - keywords: пояс танцующей тени
+      description: |2
+        Темный пояс замысловатого покроя изготовлен из кожи теневого дракона.
+        Мастер, пошивший эту вещь, сберег все свойства материала. Даже днем
+        пояс помогает скрывать очертания своего владельца в сумеречной тени.

@@ -1,0 +1,13 @@
+# Zone #13
+
+vnum: 13
+name: Системная зона 13 -- стандартные свитки
+top_room: 1399
+lifespan: 25
+reset_mode: 0
+reset_idle: 0
+zone_type: 0
+mode: 1  # level
+entrance: 1300
+under_construction: 0
+zone_group: 1  # solo

@@ -1,0 +1,13 @@
+# Zone #37
+
+vnum: 37
+name: 'Системная зона 37 -- Именные вещи #1'
+top_room: 3799
+lifespan: 0
+reset_mode: 0
+reset_idle: 0
+zone_type: 0
+mode: 1  # level
+entrance: 3799
+under_construction: 0
+zone_group: 1  # solo

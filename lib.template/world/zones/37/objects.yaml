@@ -1,0 +1,4359 @@
+# Objects for zone 37
+
+# Object #3700
+0:
+  names:
+    aliases: рот ярика
+    nominative: '&Yрот &GЯрика&n'
+    genitive: '&Yрта &GЯрика&n'
+    dative: '&Yрту &GЯрика&n'
+    accusative: '&Yрот &GЯрика&n'
+    instrumental: '&Yртом &GЯрика&n'
+    prepositional: '&Yрту &GЯрика&n'
+  short_desc: Чужой рваный рот лежит тут.
+  type: kContainer
+  material: 13  # КОСТЬ
+  values:
+    - 999
+    - 5
+    - -1
+    - 0
+  weight: 2
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  spec_param: 145
+  max_durability: 99999
+  cur_durability: 99999
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  extra_flags:
+    - kMagic
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+  wear_flags:
+    - kTake
+    - kNeck
+    - kHead
+    - kShoulders
+    - kWaist
+    - kHold
+  extra_descriptions:
+    - keywords: рот ярика
+      description: |2
+        Постоянно широко открытый рот.
+        У Вас появилось странное желание туда что-нибудь положить.
+        Вам вдруг послышалось напоминание Богов о цене, которую Вам придется заплатить за каждое изменение.
+  triggers:
+    - 3700  # Именной стафф - Ронари
+    - 3799  # Форс-триггер
+
+# Object #3701
+1:
+  names:
+    aliases: сума белого сокола
+    nominative: '&gсума Белого Сокола&n'
+    genitive: '&gсумы Белого Сокола&n'
+    dative: '&gсуме Белого Сокола&n'
+    accusative: '&gсуму Белого Сокола&n'
+    instrumental: '&gсумой Белого Сокола&n'
+    prepositional: '&gсуме Белого Сокола&n'
+  short_desc: Дорожная сума с вышитым бисером на боку белым соколом лежит тут.
+  type: kContainer
+  material: 15  # КОЖА
+  values:
+    - 999
+    - 1
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  spec_param: 142
+  max_durability: 99999
+  cur_durability: 99999
+  timer: 99999
+  spell: 13  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kMagic
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+  wear_flags:
+    - kTake
+    - kNeck
+    - kShoulders
+    - kWaist
+    - kHold
+  triggers:
+    - 3701  # Именной стафф - Коннор
+    - 3799  # Форс-триггер
+
+# Object #3702
+2:
+  names:
+    aliases: пылающая сума
+    nominative: '&Rпылающая сума&n'
+    genitive: '&Rпылающей сумы&n'
+    dative: '&Rпылающей суме&n'
+    accusative: '&Rпылающую суму&n'
+    instrumental: '&Rпылающей сумой&n'
+    prepositional: '&Rпылающей суме&n'
+  short_desc: Горящая жирным коптящим пламенем сума лежит тут.
+  type: kContainer
+  material: 15  # КОЖА
+  values:
+    - 999
+    - 1
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  spec_param: 144
+  max_durability: 99999
+  cur_durability: 99999
+  timer: 99999
+  spell: 14  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kMagic
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kNeck
+    - kShoulders
+    - kWaist
+    - kHold
+  triggers:
+    - 3702  # Именной стаф - Огнезара
+    - 3799  # Форс-триггер
+
+# Object #3703
+3:
+  names:
+    aliases: сумка лекаря мертвых
+    nominative: '&Kсумка лекаря мертвых&n'
+    genitive: '&Kсумки лекаря мертвых&n'
+    dative: '&Kсумке лекаря мертвых&n'
+    accusative: '&Kсумку лекаря мертвых&n'
+    instrumental: '&Kсумкой лекаря мертвых&n'
+    prepositional: '&Kсумке лекаря мертвых&n'
+  short_desc: Сумка со внутренностями мертвецов лежит здесь на земле.
+  type: kContainer
+  material: 15  # КОЖА
+  values:
+    - 999
+    - 1
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  spec_param: 145
+  max_durability: 99999
+  cur_durability: 99999
+  timer: 99999
+  spell: 15  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kMagic
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+  wear_flags:
+    - kTake
+    - kNeck
+    - kShoulders
+    - kWaist
+    - kHold
+  triggers:
+    - 3703  # Именной стаф - Васса
+    - 3799  # Форс-триггер
+
+# Object #3704
+4:
+  names:
+    aliases: сумка торба
+    nominative: '&Rт&Yо&Gр&Cб&Bа &Mд&Rл&Yя &Gп&Cл&Bю&Mш&Rе&Yк&n'
+    genitive: '&Rт&Yо&Gр&Cб&Bы &Mд&Rл&Yя &Gп&Cл&Bю&Mш&Rе&Yк&n'
+    dative: '&Rт&Yо&Gр&Cб&Bе &Mд&Rл&Yя &Gп&Cл&Bю&Mш&Rе&Yк&n'
+    accusative: '&Rт&Yо&Gр&Cб&Bу &Mд&Rл&Yя &Gп&Cл&Bю&Mш&Rе&Yк&n'
+    instrumental: '&Rт&Yо&Gр&Cб&Bо&Mй &Rд&Yл&Gя &Cп&Bл&Mю&Rш&Yе&Gк&n'
+    prepositional: '&Rт&Yо&Gр&Cб&Bе &Mд&Rл&Yя &Gп&Cл&Bю&Mш&Rе&Yк&n'
+  short_desc: Огромная и разноцветная &Rт&Yо&Gр&Cб&Bа &Mд&Rл&Yя &Gп&Gл&Bю&Mш&Rе&Yк&n просто поражает своей красотой.
+  type: kContainer
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 999
+    - 5
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  spec_param: 145
+  max_durability: 99999
+  cur_durability: 99999
+  timer: 99999
+  spell: 15  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kMagic
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+  wear_flags:
+    - kTake
+    - kNeck
+    - kHead
+    - kShoulders
+    - kWaist
+    - kWrist
+  triggers:
+    - 3704  # Именной шмот - Мортыфан (бывш. хоз. Еска)
+
+# Object #3705
+5:
+  names:
+    aliases: желудок малька
+    nominative: '&Bжелудок малька&n'
+    genitive: '&Bжелудка малька&n'
+    dative: '&Bжелудку малька&n'
+    accusative: '&Bжелудок малька&n'
+    instrumental: '&Bжелудком малька&n'
+    prepositional: '&Bжелудке малька&n'
+  short_desc: Высушеный желудок мелкой рыбешки валяется тут.
+  type: kContainer
+  material: 15  # КОЖА
+  values:
+    - 999
+    - 3
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  spec_param: 144
+  max_durability: -1
+  cur_durability: -1
+  timer: 99999
+  spell: 8  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kMagic
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+  wear_flags:
+    - kTake
+    - kNeck
+    - kShoulders
+    - kWaist
+    - kHold
+  triggers:
+    - 3705  # Именной шмот - Эрфис
+    - 3799  # Форс-триггер
+
+# Object #3706
+6:
+  names:
+    aliases: сумка шкуры черной пантеры
+    nominative: '&Wсумка из шкуры&K черной пантеры&n'
+    genitive: '&Wсумки из шкуры&K черной пантеры&n'
+    dative: '&Wсумке из шкуры&K черной пантеры&n'
+    accusative: '&Wсумку из шкуры&K черной пантеры&n'
+    instrumental: '&Wсумкой из шкуры&K черной пантеры&n'
+    prepositional: '&Wсумке из шкуры&K черной пантеры&n'
+  short_desc: Сумка из черной блестящей шкуры лежит тут.
+  type: kContainer
+  material: 15  # КОЖА
+  values:
+    - 999
+    - 5
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  spec_param: 144
+  max_durability: 9999
+  cur_durability: 9999
+  timer: 99999
+  spell: 12  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kMagic
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kNeck
+    - kShoulders
+    - kWaist
+  triggers:
+    - 3706  # Именной шмот -- Ведрусса
+    - 3799  # Форс-триггер
+
+# Object #3707
+7:
+  names:
+    aliases: торба карманника
+    nominative: '&Rторба &Kкарманника&n'
+    genitive: '&Rторбы &Kкарманника&n'
+    dative: '&Rторбе &Kкарманника&n'
+    accusative: '&Rторбу &Kкарманника&n'
+    instrumental: '&Rторбой &Kкарманника&n'
+    prepositional: '&Rторбе &Kкарманника&n'
+  short_desc: Невзрачная черная торба лежит на земле.
+  type: kContainer
+  material: 14  # ТКАНЬ
+  values:
+    - 999
+    - 5
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  spec_param: 144
+  max_durability: 99999
+  cur_durability: 99999
+  timer: 99999
+  spell: 12  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kNeck
+    - kShoulders
+    - kWaist
+
+# Object #3708
+8:
+  names:
+    aliases: большое зеркало сума
+    nominative: '&cбольшое пребольшое зеркало&n'
+    genitive: '&cбольшого пребольшого зеркала&n'
+    dative: '&cбольшому пребольшому зеркалу&n'
+    accusative: '&cбольшое пребольшое зеркало&n'
+    instrumental: '&cбольшим пребольшим зеркалом&n'
+    prepositional: '&cбольшом пребольшом зеркале&n'
+  short_desc: Большое пребольшое зеркало стоит здесь.
+  type: kContainer
+  material: 15  # КОЖА
+  values:
+    - 999
+    - 1
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  spec_param: 144
+  max_durability: 99999
+  cur_durability: 99999
+  timer: 99999
+  spell: 12  # !undefined!
+  level: 0
+  sex: kNeutral
+  extra_flags:
+    - kMagic
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kNeck
+    - kShoulders
+    - kWaist
+    - kHold
+  triggers:
+    - 3708  # Именной стаф - Херуба
+    - 58102  # зеркало
+
+# Object #3709
+9:
+  names:
+    aliases: шкура змея кожа змеи сума
+    nominative: '&gшкура Змея&n'
+    genitive: '&gшкуры Змея&n'
+    dative: '&gшкуре Змея&n'
+    accusative: '&gшкуру Змея&n'
+    instrumental: '&gшкурой Змея&n'
+    prepositional: '&gшкуре Змея&n'
+  short_desc: Кожа огромной змеи лежит тут.
+  type: kContainer
+  material: 15  # КОЖА
+  values:
+    - 999
+    - 5
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 0
+  spec_param: 142
+  max_durability: 99999
+  cur_durability: 99999
+  timer: 99999
+  spell: 12  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kNeck
+    - kBody
+    - kShoulders
+    - kWaist
+    - kWrist
+  triggers:
+    - 3709  # Именной стафф - Кудряш
+    - 3799  # Форс-триггер
+
+# Object #3710
+10:
+  names:
+    aliases: кровавая бледная сума
+    nominative: '&Rкроваво&n-&Mмертвенная&n сума'
+    genitive: '&Rкроваво&n-&Mмертвенной&n сумы'
+    dative: '&Rкроваво&n-&Mмертвенной&n суме'
+    accusative: '&Rкроваво&n-&Mмертвенную&n суму'
+    instrumental: '&Rкроваво&n-&Mмертвенной&n сумой'
+    prepositional: '&Rкроваво&n-&Mмертвенной&n суме'
+  short_desc: '&RКроваво&n-&Mмертвенная&n сума лежит здесь &cм&Cе&cр&Cц&cа&Cя &Cл&cу&Cн&cн&Cы&cм&n цветом всех &Mмертвых&n.'
+  type: kContainer
+  material: 15  # КОЖА
+  values:
+    - 999
+    - 7
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  spec_param: 142
+  max_durability: 99999
+  cur_durability: 99999
+  timer: 99999
+  spell: 12  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kMagic
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kNeck
+    - kShoulders
+    - kWaist
+    - kHold
+    - kBoth
+  triggers:
+    - 3710  # Именной стаф - Иттарио
+    - 3799  # Форс-триггер
+
+# Object #3711
+11:
+  names:
+    aliases: сумка эмблемой златогривого львенка
+    nominative: '&Yсумка с эмблемой Златогривого Львенка&n'
+    genitive: '&Yсумки с эмблемой Златогривого Львенка&n'
+    dative: '&Yсумке с эмблемой Златогривого Львенка&n'
+    accusative: '&Yсумку с эмблемой Златогривого Львенка&n'
+    instrumental: '&Yсумкой с эмблемой Златогривого Львенка&n'
+    prepositional: '&Yсумке с эмблемой Златогривого Львенка&n'
+  short_desc: Переливающаяся солнечным светом сумка лежит тут.
+  type: kContainer
+  material: 15  # КОЖА
+  values:
+    - 999
+    - 5
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  spec_param: 142
+  max_durability: 99999
+  cur_durability: 99999
+  timer: 99999
+  spell: 12  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNodonate
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kWaist
+  triggers:
+    - 3711  # Именной стафф - Ранерий
+    - 3799  # Форс-триггер
+
+# Object #3712
+12:
+  names:
+    aliases: кровавая шевелящаяся сума
+    nominative: '&rкровавая шевелящаяся сума&n'
+    genitive: '&rкровавой шевелящейся сумы&n'
+    dative: '&rкровавой шевелящейся суме&n'
+    accusative: '&rкровавую шевелящуюся суму&n'
+    instrumental: '&rкровавой шевелящейся сумой&n'
+    prepositional: '&rкровавой шевелящейся суме&n'
+  short_desc: Покрытая кровью сума медленно ползет по земле.
+  type: kContainer
+  material: 1  # БУЛАТ
+  values:
+    - 999
+    - 5
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  spec_param: 142
+  max_durability: 99999
+  cur_durability: 99999
+  timer: 99999
+  spell: 8  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kNeck
+    - kShoulders
+    - kWaist
+  triggers:
+    - 3712  # Именной стафф  - Вултор
+    - 3799  # Форс-триггер
+
+# Object #3713
+13:
+  names:
+    aliases: танькино лукошко
+    nominative: '&Yта&yнь&Yки&yно&Y лу&yко&Yшко&n'
+    genitive: '&Yта&yнь&Yки&yного&Y лу&yко&Yшка&n'
+    dative: '&Yта&yнь&Yки&yному&Y лу&yко&Yшку&n'
+    accusative: '&Yта&yнь&Yки&yно&Y лу&yко&Yшко&n'
+    instrumental: '&Yта&yнь&Yки&yным&Y лу&yко&Yшком&n'
+    prepositional: '&Yта&yнь&Yки&yном&Y лу&yко&Yшке&n'
+  short_desc: Кто-то потерял здесь плетеное лукошко.
+  type: kContainer
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 999
+    - 1
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  spec_param: 144
+  max_durability: 99999
+  cur_durability: 99999
+  timer: 99999
+  spell: 2  # !undefined!
+  level: 0
+  sex: kNeutral
+  extra_flags:
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kNeck
+    - kWaist
+    - kWrist
+    - kHold
+  triggers:
+    - 3713  # Именной стафф - Татиана
+    - 3799  # Форс-триггер
+
+# Object #3714
+14:
+  names:
+    aliases: сумка хранения косячков
+    nominative: сумка для &Mхранения &Yкосячков&n
+    genitive: сумки для &Mхранения &Yкосячков&n
+    dative: сумке для &Mхранения &Yкосячков&n
+    accusative: сумку для &Mхранения &Yкосячков&n
+    instrumental: сумкой для &Mхранения &Yкосячков&n
+    prepositional: сумке для &Mхранения &Yкосячков&n
+  short_desc: Испускающая травянистый запах сумка лежит тут.
+  type: kContainer
+  material: 15  # КОЖА
+  values:
+    - 999
+    - 1
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  spec_param: 144
+  max_durability: 99999
+  cur_durability: 99999
+  timer: 99999
+  spell: 12  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kNeck
+    - kShoulders
+    - kWaist
+    - kWield
+  triggers:
+    - 3714  # Именной стафф - Эйнар
+    - 3799  # Форс-триггер
+
+# Object #3715
+15:
+  names:
+    aliases: боты Полосния
+    nominative: '&Wботы Полосния&n'
+    genitive: '&Wботов Полосния&n'
+    dative: '&Wботам Полосния&n'
+    accusative: '&Wботы Полосния&n'
+    instrumental: '&Wботами Полосния&n'
+    prepositional: '&Wботах Полосния&n'
+  short_desc: Полосний позабыл тут свои боты.
+  type: kContainer
+  material: 15  # КОЖА
+  values:
+    - 999
+    - 15
+    - 12354
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  spec_param: 144
+  max_durability: 99999
+  cur_durability: 99999
+  timer: 99999
+  spell: 12  # !undefined!
+  level: 0
+  sex: kPoly
+  extra_flags:
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kNeck
+    - kFeet
+    - kWaist
+  triggers:
+    - 3799  # Форс-триггер
+    - 3715  # Именной стафф -- Полосний
+
+# Object #3716
+16:
+  names:
+    aliases: румяный бублик
+    nominative: '&Yр&Cу&Yм&Cя&Yн&Cы&Yй&C б&Yу&Cб&Yл&Cи&Yк&n'
+    genitive: '&Yр&Cу&Yм&Cя&Yн&Cо&Yг&Cо&Y б&Cу&Yб&Cл&Yи&Cк&Yа&n'
+    dative: '&Yр&Cу&Yм&Cя&Yн&Cо&Yм&Cу&Y б&Cу&Yб&Cл&Yи&Cк&Yу&n'
+    accusative: '&Yр&Cу&Yм&Cя&Yн&Cы&Yй&C б&Yу&Cб&Yл&Cи&Yк&n'
+    instrumental: '&Yр&Cу&Yм&Cя&Yн&Cы&Yм &Cб&Yу&Cб&Yл&Cи&Yк&Cо&Yм&n'
+    prepositional: '&Yр&Cу&Yм&Cя&Yн&Cо&Yм &Cб&Yу&Cб&Yл&Cи&Yк&Cе&n'
+  short_desc: Румяный бублик лежит здесь.
+  type: kContainer
+  material: 15  # КОЖА
+  values:
+    - 2000
+    - 5
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  spec_param: 144
+  max_durability: 99999
+  cur_durability: 99999
+  timer: 99999
+  spell: 12  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kFinger
+    - kNeck
+    - kWaist
+    - kWrist
+  triggers:
+    - 3716  # Именной стафф - Альмир
+    - 3799  # Форс-триггер
+
+# Object #3717
+17:
+  names:
+    aliases: маскировочный халат
+    nominative: '&Gмас&gк&cир&gов&Gоч&cн&gый х&Gал&cа&gт&n'
+    genitive: '&Gмас&gк&cир&gов&Gоч&cн&gог&cо х&Gал&cа&gта&n'
+    dative: '&Gмас&gк&cир&gов&Gоч&cн&gом&cу х&Gал&cа&gту&n'
+    accusative: '&Gмас&gк&cир&gов&Gоч&cн&gый х&Gал&cа&gт&n'
+    instrumental: '&Gмас&gк&cир&gов&Gоч&cн&gым х&Gал&cа&gто&cм&n'
+    prepositional: '&Gмас&gк&cир&gов&Gоч&cн&gом х&Gал&cа&gте&n'
+  short_desc: Расшитый лоскутками ткани зеленый халат пылится на земле.
+  type: kContainer
+  material: 14  # ТКАНЬ
+  values:
+    - 999
+    - 5
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  spec_param: 142
+  max_durability: 9999
+  cur_durability: 9999
+  timer: 99999
+  spell: 12  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kNeck
+    - kBody
+    - kShoulders
+    - kWaist
+  triggers:
+    - 3717  # Именной стаф - Козька
+    - 3799  # Форс-триггер
+
+# Object #3718
+18:
+  names:
+    aliases: сумка мастера гильдии
+    nominative: '&Kсумка &mмастера гильдии&n'
+    genitive: '&Kсумки &mмастера гильдии&n'
+    dative: '&Kсумке &mмастера гильдии&n'
+    accusative: '&Kсумку &mмастера гильдии&n'
+    instrumental: '&Kсумкой &mмастера гильдии&n'
+    prepositional: '&Kсумке &mмастера гильдии&n'
+  short_desc: Сумка мастера дожидается своего хозяина.
+  type: kContainer
+  material: 15  # КОЖА
+  values:
+    - 999
+    - 5
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  spec_param: 142
+  max_durability: 99999
+  cur_durability: 99999
+  timer: 99999
+  spell: 12  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNoinvis
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kNeck
+    - kShoulders
+    - kWaist
+  triggers:
+    - 3799  # Форс-триггер
+    - 3718  # Именной стафф - Тешигнев
+
+# Object #3719
+19:
+  names:
+    aliases: кошель сумка сума
+    nominative: '&Cэлегантный кошель из меха хомячка&n'
+    genitive: '&Cэлегантного кошеля из меха хомячка&n'
+    dative: '&Cэлегантному кошелю из меха хомячка&n'
+    accusative: '&Cэлегантный кошель из меха хомячка&n'
+    instrumental: '&Cэлегантным кошелем из меха хомячка&n'
+    prepositional: '&Cэлегантном кошеле из меха хомячка&n'
+  short_desc: Красивая сумка из пушистого зверя лежит здесь.
+  type: kContainer
+  material: 13  # КОСТЬ
+  values:
+    - 999
+    - 1
+    - -1
+    - 0
+  weight: 2
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  spec_param: 142
+  max_durability: 99999
+  cur_durability: 99999
+  timer: 99999
+  spell: 12  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kMagic
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+  wear_flags:
+    - kTake
+    - kNeck
+    - kShoulders
+    - kWaist
+    - kHold
+  extra_descriptions:
+    - keywords: кошель сумка сума
+      description: |2
+        Изящная сумка на изготовление которой ушло много пушистых зверюшек.
+        На одной из тесемок сумки серебром вышито "скажи что у нее глаза красивые".
+  triggers:
+    - 3719  # Именной стаф - Витрир
+
+# Object #3720
+20:
+  names:
+    aliases: тайник асгарда сумка сума
+    nominative: '&Wтайник Асгарда&n'
+    genitive: '&Wтайника Асгарда&n'
+    dative: '&Wтайнику Асгарда&n'
+    accusative: '&Wтайник Асгарда&n'
+    instrumental: '&Wтайником Асгарда&n'
+    prepositional: '&Wтайнике Асгарда&n'
+  short_desc: Тайник Асгарда притягивает Ваш взор.
+  type: kContainer
+  material: 15  # КОЖА
+  values:
+    - 999
+    - 5
+    - -1
+    - 0
+  weight: 2
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  spec_param: 142
+  max_durability: 99999
+  cur_durability: 99999
+  timer: 99999
+  spell: 8  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kMagic
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+  wear_flags:
+    - kTake
+    - kNeck
+    - kShoulders
+    - kWaist
+    - kHold
+  triggers:
+    - 3720  # Именной шмот -- Асгард
+    - 3799  # Форс-триггер
+
+# Object #3721
+21:
+  names:
+    aliases: котомка листьев ясеня
+    nominative: котомка из &gлистьев ясеня&n
+    genitive: котомки из &gлистьев ясеня&n
+    dative: котомке из &gлистьев ясеня&n
+    accusative: котомку из &gлистьев ясеня&n
+    instrumental: котомкой из &gлистьев ясеня&n
+    prepositional: котомке из &gлистьев ясеня&n
+  short_desc: Сплетенная из листьев котомка лежит тут.
+  type: kContainer
+  material: 16  # ОРГАНИКА
+  values:
+    - 999
+    - 5
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  spec_param: 144
+  max_durability: 99999
+  cur_durability: 99999
+  timer: 99999
+  spell: 8  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNosell
+    - kNodecay
+    - kFlying
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kNeck
+    - kShoulders
+    - kWaist
+    - kHold
+  triggers:
+    - 3721  # Именной стафф -- Кронгнир
+    - 3799  # Форс-триггер
+
+# Object #3722
+22:
+  names:
+    aliases: Футляр Для Гитары сумка
+    nominative: '&Rфутляр &WДля &CГитары&n'
+    genitive: '&Rфутляра &WДля &CГитары&n'
+    dative: '&Rфутляру &WДля &CГитары&n'
+    accusative: '&Rфутляр &WДля &CГитары&n'
+    instrumental: '&Rфутляром &WДля &CГитары&n'
+    prepositional: '&Rфутляре &WДля &CГитары&n'
+  short_desc: Кто-то потерял тут футляр для гитары.
+  type: kContainer
+  material: 15  # КОЖА
+  values:
+    - 999
+    - 5
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  spec_param: 144
+  max_durability: 99999
+  cur_durability: 99999
+  timer: 99999
+  spell: 12  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kNeck
+    - kShoulders
+  triggers:
+    - 3722  # Именной стафф -- Хрон
+    - 3799  # Форс-триггер
+
+# Object #3723
+23:
+  names:
+    aliases: 'вышитый гарусом охотничий ягдташ '
+    nominative: '&yвышитый гарусом ягдташ&n'
+    genitive: '&yвышитого гарусом ягдташа&n'
+    dative: '&yвышитому гарусом ягдташу&n'
+    accusative: '&yвышитый гарусом ягдташ&n'
+    instrumental: '&yвышитым гарусом ягдташем&n'
+    prepositional: '&yвышитом гарусом ягдташем&n'
+  short_desc: Вышитый гарусом охотничий ягдташ лежит тут.
+  type: kContainer
+  material: 15  # КОЖА
+  values:
+    - 999
+    - 5
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 50
+  rent_on: 50
+  spec_param: 144
+  max_durability: 99999
+  cur_durability: 99999
+  timer: 99999
+  spell: 12  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kMagic
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kNeck
+    - kShoulders
+    - kWaist
+  triggers:
+    - 3723  # Именной стафф  -- Алькира
+    - 3799  # Форс-триггер
+
+# Object #3724
+24:
+  names:
+    aliases: окровавленная аптечка лекарская сумка
+    nominative: '&Rокровавленная &Wаптечка&n'
+    genitive: '&Rокровавленной &Wаптечки&n'
+    dative: '&Rокровавленной &Wаптечке&n'
+    accusative: '&Rокровавленную &Wаптечку&n'
+    instrumental: '&Rокровавленной &Wаптечкой&n'
+    prepositional: '&Rокровавленной &Wаптечке&n'
+  short_desc: Окровавленная лекарская сумка лежит тут.
+  type: kContainer
+  material: 4  # СТАЛЬ
+  values:
+    - 500
+    - 5
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  spec_param: 144
+  max_durability: 99999
+  cur_durability: 99999
+  timer: 99999
+  spell: 12  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kNodonate
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kNeck
+    - kShoulders
+    - kWaist
+  triggers:
+    - 3724  # Именной стафф -- Воян
+    - 3799  # Форс-триггер
+
+# Object #3725
+25:
+  names:
+    aliases: черный кошель
+    nominative: черный кошель
+    genitive: черного кошеля
+    dative: черному кошелю
+    accusative: черный кошель
+    instrumental: черным кошелем
+    prepositional: черном кошеле
+  short_desc: Черный кошель лежит здесь.
+  type: kContainer
+  material: 15  # КОЖА
+  values:
+    - 999
+    - 5
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  spec_param: 142
+  max_durability: 99999
+  cur_durability: 99999
+  timer: 99999
+  spell: 12  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kNeck
+    - kArms
+    - kShoulders
+    - kWaist
+    - kWrist
+  triggers:
+    - 3799  # Форс-триггер
+    - 3725  # Именной стафф -- Улук
+
+# Object #3726
+26:
+  names:
+    aliases: черная дыра сума
+    nominative: '&Kчерная дыра&n'
+    genitive: '&Kчерной дыры&n'
+    dative: '&Kчерной дыре&n'
+    accusative: '&Kчерную дыру&n'
+    instrumental: '&Kчерной дырой&n'
+    prepositional: '&Kчерной дыре&n'
+  short_desc: '&KЧерная дыра летает здесь.&n'
+  type: kContainer
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 2000
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  spec_param: 142
+  max_durability: 99999
+  cur_durability: 99999
+  timer: 99999
+  spell: 12  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kMagic
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kNeck
+    - kShoulders
+    - kWaist
+    - kWrist
+    - kHold
+  triggers:
+    - 3799  # Форс-триггер
+    - 3726  # Именной стафф -- Эстери
+
+# Object #3727
+27:
+  names:
+    aliases: торба вредными вирусами
+    nominative: '&Rторба с &Gвредными &Cвирусами&n'
+    genitive: '&Rторбы с &Gвредными &Cвирусами&n'
+    dative: '&Rторбе с &Gвредными &Cвирусами&n'
+    accusative: '&Rторбу с &Gвредными &Cвирусами&n'
+    instrumental: '&Rторбой с &Gвредными &Cвирусами&n'
+    prepositional: '&Rторбе с &Gвредными &Cвирусами&n'
+  short_desc: Какой-то неряха обранил здесь свою торбу.
+  type: kContainer
+  material: 14  # ТКАНЬ
+  values:
+    - 1000
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  spec_param: 142
+  max_durability: 99999
+  cur_durability: 99999
+  timer: 99999
+  spell: 12  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kMagic
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kNeck
+    - kShoulders
+    - kWaist
+  triggers:
+    - 3799  # Форс-триггер
+    - 3727  # Именной стафф -- Тикен
+
+# Object #3728
+28:
+  names:
+    aliases: маленький крокодил
+    nominative: '&Mма&gле&Mнь&gки&Mй к&gро&Mко&gди&Mл&n'
+    genitive: '&Mма&gле&Mнь&gко&Mго к&gро&Mко&gди&Mла&n'
+    dative: '&Mма&gле&Mнь&gко&Mму к&gро&Mко&gди&Mлу&n'
+    accusative: '&Mма&gле&Mнь&gко&Mго к&gро&Mко&gди&Mла&n'
+    instrumental: '&Mма&gле&Mнь&gки&Mм к&gро&Mко&gди&Mлом&n'
+    prepositional: '&Mма&gле&Mнь&gко&Mм к&gро&Mко&gди&Mле&n'
+  short_desc: Кто-то потерял здесь ручного крокодила.
+  type: kContainer
+  material: 15  # КОЖА
+  values:
+    - 999
+    - 5
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  spec_param: 142
+  max_durability: 99999
+  cur_durability: 99999
+  timer: 99999
+  spell: 8  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kNeck
+    - kShoulders
+    - kWaist
+  triggers:
+    - 3799  # Форс-триггер
+    - 3728  # Именной стафф --  Сариус
+
+# Object #3729
+29:
+  names:
+    aliases: мазевая сумка пумпоном
+    nominative: '&Kмазевая сумка с &Rпумпоном&n'
+    genitive: '&Kмазевой сумки с &Rпумпоном&n'
+    dative: '&Kмазевой сумке с &Rпумпоном&n'
+    accusative: '&Kмазевую сумку с &Rпумпоном&n'
+    instrumental: '&Kмазевой сумкой с &Rпумпоном&n'
+    prepositional: '&Kмазевой сумке с &Rпумпоном&n'
+  short_desc: Вздрагивая боками, помахивая пумпонами, тут колбасится сумка Мачо.
+  type: kContainer
+  material: 15  # КОЖА
+  values:
+    - 999
+    - 5
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 99999
+  cur_durability: 99999
+  timer: 99999
+  spell: 2  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kNeck
+    - kShoulders
+    - kWaist
+  triggers:
+    - 3729  # Именной стафф -- Ромес
+
+# Object #3730
+30:
+  names:
+    aliases: огромный баул героев востока
+    nominative: '&Yог&yром&Yный &Yба&yул &BГе&cро&Cев Во&cсто&Bка&n'
+    genitive: '&Yог&yром&Yного &Yба&yула &BГе&cро&Cев Во&cсто&Bка&n'
+    dative: '&Yог&yром&Yному &Yба&yулу &BГе&cро&Cев Во&cсто&Bка&n'
+    accusative: '&Yог&yром&Yный &Yба&yул &BГе&cро&Cев Во&cсто&Bка&n'
+    instrumental: '&Yог&yром&Yным &Yба&yулом &BГе&cро&Cев Во&cсто&Bка&n'
+    prepositional: '&Yог&yром&Yном &Yба&yуле &BГе&cро&Cев Во&cсто&Bка&n'
+  short_desc: '&YОг&yром&Yный &Yба&yул&Y лежит здесь.'
+  type: kContainer
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 999
+    - 5
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 99999
+  cur_durability: 99999
+  timer: 99999
+  spell: 2  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kMagic
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+  wear_flags:
+    - kTake
+    - kNeck
+    - kShoulders
+    - kWaist
+  triggers:
+    - 3730  # Именной шмот - Ахмед
+    - 3799  # Форс-триггер
+
+# Object #3731
+31:
+  names:
+    aliases: сума опатного алкохимика
+    nominative: '&Wсума &Bопытного &Rалкохимика&n'
+    genitive: '&Wсумы &Bопытного &Rалкохимика&n'
+    dative: '&Wсуму &Bопытного &Rалкохимика&n'
+    accusative: '&Wсуму &Bопытного &Rалкохимика&n'
+    instrumental: '&Wсумой &Bопытного &Rалкохимика&n'
+    prepositional: '&Wсуме &Bопытного &Rалкохимика&n'
+  short_desc: Сумка, с изображением схемы алхимического преобразования говна в золото, лежит тут и не тонет.
+  type: kContainer
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 999
+    - 5
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 99999
+  cur_durability: 99999
+  timer: 99999
+  spell: 2  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kMagic
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+  wear_flags:
+    - kTake
+    - kNeck
+    - kShoulders
+    - kWaist
+  triggers:
+    - 3731  # Именной шмот - Лобан
+
+# Object #3732
+32:
+  names:
+    aliases: лешко авоська сумка
+    nominative: '&Yуз&rор&Yно &rвы&Yшит&rая &Yав&rось&Yка&n'
+    genitive: '&Yуз&rор&Yно &rвы&Yшит&rой &Yав&rось&Yки&n'
+    dative: '&Yуз&rор&Yно &rвы&Yшит&rой &Yав&rось&Yке&n'
+    accusative: '&Yуз&rор&Yно &rвы&Yшит&rую &Yав&rось&Yку&n'
+    instrumental: '&Yуз&rор&Yно &rвы&Yшит&rой &Yав&rось&Yкой&n'
+    prepositional: '&Yуз&rор&Yно &rвы&Yшит&rой &Yав&rось&Yке&n'
+  short_desc: Авоська вышитая странным узором, расплывающимся перед глазами, лежит здесь.
+  type: kContainer
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 999
+    - 5
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 99999
+  cur_durability: 99999
+  timer: 99999
+  spell: 2  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kMagic
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+  wear_flags:
+    - kTake
+    - kNeck
+    - kShoulders
+    - kWaist
+  triggers:
+    - 3732  # Именной шмот - Лешко
+
+# Object #3733
+33:
+  names:
+    aliases: сума сумка кровавая сумочка
+    nominative: '&Wк&nро&Kвав&rа&Rя с&rу&Kмоч&nк&Wа&n'
+    genitive: '&Wк&nро&Kвав&rо&Rй с&rу&Kмоч&nк&Wи&n'
+    dative: '&Wк&nро&Kвав&rо&Rй с&rу&Kмоч&nк&Wе&n'
+    accusative: '&Wк&nро&Kвав&rу&Rю с&rу&Kмоч&nк&Wу&n'
+    instrumental: '&Wк&nро&Kвав&rо&Rй с&rу&Kмоч&nко&Wй&n'
+    prepositional: '&Wк&nро&Kвав&rо&Rй с&rу&Kмоч&nк&Wе&n'
+  short_desc: Медленно по земле растекается кровавая сумочка.
+  type: kContainer
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 999
+    - 5
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 99999
+  cur_durability: 99999
+  timer: 99999
+  spell: 2  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kMagic
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+  wear_flags:
+    - kTake
+    - kNeck
+    - kShoulders
+    - kWaist
+    - kWrist
+  triggers:
+    - 3733  # Именной шмот - Милина
+
+# Object #3734
+34:
+  names:
+    aliases: сума сумка Бродячего Хулигана
+    nominative: сума &YБродячего &KХулигана&n
+    genitive: сумы &YБродячего &KХулигана&n
+    dative: суме &YБродячего &KХулигана&n
+    accusative: суму &YБродячего &KХулигана&n
+    instrumental: сумой &YБродячего &KХулигана&n
+    prepositional: суме &YБродячего &KХулигана&n
+  short_desc: Сума бродячего Хулигана лежит здесь.
+  type: kContainer
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 999
+    - 5
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 99999
+  cur_durability: 99999
+  timer: 99999
+  spell: 2  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kMagic
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+  wear_flags:
+    - kTake
+    - kNeck
+    - kShoulders
+    - kWaist
+  triggers:
+    - 3734  # Именной шмот - Надир
+
+# Object #3735
+35:
+  names:
+    aliases: сумка сума колбасой
+    nominative: '&Rсумка с колбасой&n'
+    genitive: '&Rсумки с колбасой&n'
+    dative: '&Rсумке с колбасой&n'
+    accusative: '&Rсумку с колбасой&n'
+    instrumental: '&Rсумкой с колбасой&n'
+    prepositional: '&Rсумке с колбасой&n'
+  short_desc: Сумка набитая колбасными обрезками лежит здесь.
+  type: kContainer
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 2000
+    - 1
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 999999
+  cur_durability: 999999
+  timer: 99999
+  spell: 2  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kMagic
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+  wear_flags:
+    - kTake
+    - kNeck
+    - kShoulders
+    - kWaist
+  triggers:
+    - 3735  # Именной шмот - Полиграф
+
+# Object #3736
+36:
+  names:
+    aliases: сумка священными письменами
+    nominative: '&Wсумка со &Yсвя&Rщен&Yным&Rи п&Yись&Rмен&Yами&n'
+    genitive: '&Wсумки со &Yсвя&Rщен&Yным&Rи п&Yись&Rмен&Yами&n'
+    dative: '&Wсумке со &Yсвя&Rщен&Yным&Rи п&Yись&Rмен&Yами&n'
+    accusative: '&Wсумку со &Yсвя&Rщен&Yным&Rи п&Yись&Rмен&Yами&n'
+    instrumental: '&Wсумкой со &Yсвя&Rщен&Yным&Rи п&Yись&Rмен&Yами&n'
+    prepositional: '&Wсумке со &Yсвя&Rщен&Yным&Rи п&Yись&Rмен&Yами&n'
+  short_desc: Сумка со священными письменами так и манит ее взять.
+  type: kContainer
+  material: 15  # КОЖА
+  values:
+    - 999
+    - 5
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 12
+  max_durability: 99999
+  cur_durability: 99999
+  timer: 99999
+  spell: 2  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNoinvis
+    - kMagic
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kNeck
+    - kLegs
+    - kShoulders
+    - kWaist
+    - kWield
+    - kHold
+  triggers:
+    - 3736  # Именной шмот -- Севиль
+    - 3799  # Форс-триггер
+
+# Object #3737
+37:
+  names:
+    aliases: сумка рюкзак рюкзачок
+    nominative: '&Bрюкзачок &Yневского &Gбродяги&n'
+    genitive: '&Bрюкзачка &Yневского &Gбродяги&n'
+    dative: '&Bрюкзачку &Yневского &Gбродяги&n'
+    accusative: '&Bрюкзачок &Yневского &Gбродяги&n'
+    instrumental: '&Bрюкзачком &Yневского &Gбродяги&n'
+    prepositional: '&Bрюкзачке &Yневского &Gбродяги&n'
+  short_desc: Небольшой рюкзачок с вышитым крылатым сапожком небрежно валяется в пыли.
+  type: kContainer
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 999
+    - 5
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 99999
+  cur_durability: 99999
+  timer: 99999
+  spell: 2  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kMagic
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+  wear_flags:
+    - kTake
+    - kNeck
+    - kShoulders
+    - kWaist
+  triggers:
+    - 3737  # Именной шмот - Гиран
+
+# Object #3738
+38:
+  names:
+    aliases: сумка роза
+    nominative: '&Cледяная &MРоза&n'
+    genitive: '&Cледяной &MРозы&n'
+    dative: '&Cледяной &MРозе&n'
+    accusative: '&Cледяную &MРозу&n'
+    instrumental: '&Cледяной &MРозой&n'
+    prepositional: '&Cледяной &MРозе&n'
+  short_desc: '&MРоза&Y, заключенная в магический &Cкристалл льда&Y, лежит здесь.'
+  type: kContainer
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 999
+    - 5
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 99999
+  cur_durability: 99999
+  timer: 99999
+  spell: 2  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kMagic
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+  wear_flags:
+    - kTake
+    - kNeck
+    - kShoulders
+    - kWaist
+  triggers:
+    - 3738  # Именной шмот - Лиана
+
+# Object #3739
+39:
+  names:
+    aliases: забрызганная кровью мясорубка
+    nominative: '&Wз&Mа&Wб&Mр&Wы&Mз&Wг&Mа&Wн&Mн&Wа&Mя &RКРОВЬЮ&n &Mм&Wя&Mс&Wо&Mр&Wу&Mб&Wк&Mа&n'
+    genitive: '&Wз&Mа&Wб&Mр&Wы&Mз&Wг&Mа&Wн&Mн&Wо&Mй &RКРОВЬЮ&n &Mм&Wя&Mс&Wо&Mр&Wу&Mб&Wк&Mи&n'
+    dative: '&Wз&Mа&Wб&Mр&Wы&Mз&Wг&Mа&Wн&Mн&Wо&Mй &RКРОВЬЮ&n &Mм&Wя&Mс&Wо&Mр&Wу&Mб&Wк&Mе&n'
+    accusative: '&Wз&Mа&Wб&Mр&Wы&Mз&Wг&Mа&Wн&Mн&Wу&Mю &RКРОВЬЮ&n &Mм&Wя&Mс&Wо&Mр&Wу&Mб&Wк&Mу&n'
+    instrumental: '&Wз&Mа&Wб&Mр&Wы&Mз&Wг&Mа&Wн&Mн&Wо&Mй &RКРОВЬЮ&n &Mм&Wя&Mс&Wо&Mр&Wу&Mб&Wк&Mо&Wй&n'
+    prepositional: '&Wз&Mа&Wб&Mр&Wы&Mз&Wг&Mа&Wн&Mн&Wо&Mй &RКРОВЬЮ&n &Mм&Wя&Mс&Wо&Mр&Wу&Mб&Wк&Mе&n'
+  short_desc: Покрытая кровавыми разводами мясорубка стоит тут.
+  type: kContainer
+  material: 5  # КОВАНАЯ.СТАЛЬ
+  values:
+    - 999
+    - 5
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 99999
+  cur_durability: 99999
+  timer: 99999
+  spell: 2  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNodecay
+    - kSwimming
+    - kFlying
+  wear_flags:
+    - kTake
+    - kNeck
+    - kShoulders
+    - kWaist
+    - kHold
+  triggers:
+    - 3739  # Именной шмот - Саний
+    - 3797  # Форс-триггер #2
+
+# Object #3740
+40:
+  names:
+    aliases: сума благородного вора НД
+    nominative: '&Wсума &yблагородного &Wвора&n'
+    genitive: '&Wсумы &yблагородного &Wвора&n'
+    dative: '&Wсуме &yблагородного &Wвора&n'
+    accusative: '&Wсуму &yблагородного &Wвора&n'
+    instrumental: '&Wсумой &yблагородного &Wвора&n'
+    prepositional: '&Wсуме &yблагородного &Wвора&n'
+  short_desc: Неприметная сума пылится в углу.
+  type: kContainer
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 999
+    - 5
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 99999
+  cur_durability: 99999
+  timer: 99999
+  spell: 2  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kMagic
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+  wear_flags:
+    - kTake
+    - kNeck
+    - kShoulders
+    - kWaist
+  triggers:
+    - 3740  # Именной шмот - Рене
+
+# Object #3741
+41:
+  names:
+    aliases: колчан из кожи призрачного дракона
+    nominative: '&Gколчан &cиз кожи призрачного дракона&n'
+    genitive: '&Gколчана &cиз кожи призрачного дракона&n'
+    dative: '&Gколчану &cиз кожи призрачного дракона&n'
+    accusative: '&Gколчан &cиз кожи призрачного дракона&n'
+    instrumental: '&Gколчаном &cиз кожи призрачного дракона&n'
+    prepositional: '&Gколчане &cиз кожи призрачного дракона&n'
+  short_desc: Колчан из призрачно-светящейся кожи лежит тут.
+  type: kContainer
+  material: 15  # КОЖА
+  values:
+    - 999
+    - 5
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 99999
+  cur_durability: 99999
+  timer: 99999
+  spell: 2  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kNamed
+  wear_flags:
+    - kTake
+    - kNeck
+    - kWaist
+    - kWrist
+    - kHold
+  triggers:
+    - 3741  # Именной стафф -- Вадиар
+
+# Object #3742
+42:
+  names:
+    aliases: сума сумка брелок аниме
+    nominative: '&Gбо&gльш&Gой &cпре&Cболь&cшой &Kан&Wиме&nшный б&Wрел&Kок&n'
+    genitive: '&Gбо&gльш&Gого &cпре&Cболь&cшого &Kан&Wиме&nшного б&Wрел&Kка&n'
+    dative: '&Gбо&gльш&Gому &cпре&Cболь&cшому &Kан&Wиме&nшному б&Wрел&Kку&n'
+    accusative: '&Gбо&gльш&Gой &cпре&Cболь&cшой &Kан&Wиме&nшный б&Wрел&Kок&n'
+    instrumental: '&Gбо&gльш&Gым &cпре&Cболь&cшым &Kан&Wиме&nшным б&Wрел&Kком&n'
+    prepositional: '&Gбо&gльш&Gом &cпре&Cболь&cшом &Kан&Wиме&nшном б&Wрел&Kке&n'
+  short_desc: Брелок в виде кошки ждет тут своего хозяина.
+  type: kContainer
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 999
+    - 5
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 999999
+  cur_durability: 999999
+  timer: 99999
+  spell: 2  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kMagic
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+  wear_flags:
+    - kTake
+    - kNeck
+    - kShoulders
+    - kWaist
+  triggers:
+    - 3742  # Именной шмот - Йорико
+
+# Object #3743
+43:
+  names:
+    aliases: сетка оловянных лепестков
+    nominative: '&Kсетка из оловянных лепестков&n'
+    genitive: '&Kсетки из оловянных лепестков&n'
+    dative: '&Kсетке из оловянных лепестков&n'
+    accusative: '&Kсетку из оловянных лепестков&n'
+    instrumental: '&Kсеткой из оловянных лепестков&n'
+    prepositional: '&Kсетке из оловянных лепестков&n'
+  short_desc: Сеточка из тончайших лепестков серебристо-белого цвета предстала перед Вашим взором.
+  type: kContainer
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 999
+    - 5
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 1000
+  cur_durability: 1000
+  timer: 99999
+  spell: 2  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kMagic
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+  wear_flags:
+    - kTake
+    - kNeck
+    - kShoulders
+    - kWaist
+  triggers:
+    - 3743  # Именной шмот - Скифша
+
+# Object #3744
+44:
+  names:
+    aliases: сетка продуктами
+    nominative: '&Kсетка&n с &gпродуктами&n'
+    genitive: '&Kсетки&n с &gпродуктами&n'
+    dative: '&Kсетке&n с &gпродуктами&n'
+    accusative: '&Kсетку&n с &gпродуктами&n'
+    instrumental: '&Kсеткой&n с &gпродуктами&n'
+    prepositional: '&Kсетке&n с &gпродуктами&n'
+  short_desc: Большая &Kсетка&n с &gпродуктами&n забыта хозяином.
+  type: kContainer
+  material: 14  # ТКАНЬ
+  values:
+    - 999
+    - 5
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 1000
+  cur_durability: 1000
+  timer: 99999
+  spell: 2  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kMagic
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+  wear_flags:
+    - kTake
+    - kFinger
+    - kNeck
+    - kWaist
+  triggers:
+    - 3744  # Именной стаф - Карл
+
+# Object #3745
+45:
+  names:
+    aliases: тулун украшенный золотыми нитями сума сумка
+    nominative: тулун &Yукрашенный золотыми нитями&n
+    genitive: тулуна &Yукрашенного золотыми нитями&n
+    dative: тулуну &Yукрашенному золотыми нитями&n
+    accusative: тулун &Yукрашенный золотыми нитями&n
+    instrumental: тулуном &Yукрашенным золотыми нитями&n
+    prepositional: тулуне &Yукрашенном золотыми нитями&n
+  short_desc: Монгольский тулун оставлен здесь своим владельцем.
+  type: kContainer
+  material: 15  # КОЖА
+  values:
+    - 999
+    - 5
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 1000
+  cur_durability: 1000
+  timer: 99999
+  spell: 2  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kMagic
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+  wear_flags:
+    - kTake
+    - kNeck
+    - kWaist
+  triggers:
+    - 3745  # Именной шмот - Талгат
+    - 3797  # Форс-триггер #2
+
+# Object #3746
+46:
+  names:
+    aliases: маленькая серая тучка
+    nominative: '&Cмаленькая &Kсерая &Wтучка&n'
+    genitive: '&Cмаленькой &Kсерой &Wтучки&n'
+    dative: '&Cмаленькой &Kсерой &Wтучке&n'
+    accusative: '&Cмаленькую &Kсерую &Wтучку&n'
+    instrumental: '&Cмаленькой &Kсерой &Wтучкой&n'
+    prepositional: '&Cмаленькой &Kсерой &Wтучке&n'
+  short_desc: '&CМаленькая &Kсерая &Wтучка&n парит над землей.'
+  type: kContainer
+  material: 6  # ДРАГ.МЕТАЛЛ
+  values:
+    - 999
+    - 5
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 1000
+  cur_durability: 1000
+  timer: 99999
+  spell: 2  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kMagic
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+  wear_flags:
+    - kTake
+    - kNeck
+    - kShoulders
+    - kWaist
+    - kWrist
+  triggers:
+    - 3746  # Именной шмот - Римелика
+    - 3797  # Форс-триггер #2
+
+# Object #3747
+47:
+  names:
+    aliases: сумка лунных нитей
+    nominative: '&bсумка &Bиз &Kл&Wу&Yнн&Wы&Kх &Bни&bтей&n'
+    genitive: '&bсумки &Bиз &Kл&Wу&Yнн&Wы&Kх &Bни&bтей&n'
+    dative: '&bсумке &Bиз &Kл&Wу&Yнн&Wы&Kх &Bни&bтей&n'
+    accusative: '&bсумку &Bиз &Kл&Wу&Yнн&Wы&Kх &Bни&bтей&n'
+    instrumental: '&bсумкой &Bиз &Kл&Wу&Yнн&Wы&Kх &Bни&bтей&n'
+    prepositional: '&bсумке &Bиз &Kл&Wу&Yнн&Wы&Kх &Bни&bтей&n'
+  short_desc: Нити лунного света причудливо сплелись здесь.
+  type: kContainer
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 999
+    - 5
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 1000
+  cur_durability: 1000
+  timer: 99999
+  spell: 2  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kMagic
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+  wear_flags:
+    - kTake
+    - kNeck
+    - kWaist
+    - kWrist
+  extra_descriptions:
+    - keywords: Сумка лунных нитей
+      description: |2
+        Сплести лунные нити воедино может лишь юная прекрасная девушка. 
+        Вот и эту сумку старательно мастерила купеческая дочь Ежика. И далеко не
+        всякому дозволено после лицезреть красоту лунного сияния на своем 
+        запястье.
+  triggers:
+    - 3747  # Именной шмот - Чира
+    - 3797  # Форс-триггер #2
+
+# Object #3748
+48:
+  names:
+    aliases: ридикюль старой бабушки сумка
+    nominative: '&Kридикюль старой &Wбабушки&n'
+    genitive: '&Kридикюля старой &Wбабушки&n'
+    dative: '&Kридикюлю старой &Wбабушки&n'
+    accusative: '&Kридикюль старой &Wбабушки&n'
+    instrumental: '&Kридикюлем старой &Wбабушки&n'
+    prepositional: '&Kридикюле старой &Wбабушки&n'
+  short_desc: Какая-то старушка забыла свой ридикюль здесь.
+  type: kContainer
+  material: 14  # ТКАНЬ
+  values:
+    - 999
+    - 5
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 1000
+  cur_durability: 1000
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kMagic
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+  wear_flags:
+    - kTake
+    - kNeck
+    - kWaist
+    - kWrist
+  triggers:
+    - 3748  # Именной шмот - Дельфа
+    - 3797  # Форс-триггер #2
+
+# Object #3749
+49:
+  names:
+    aliases: волшебная сума
+    nominative: '&Wволшебная сума&n'
+    genitive: '&Wволшебной сумы&n'
+    dative: '&Wволшебной суме&n'
+    accusative: '&Wволшебную суму&n'
+    instrumental: '&Wволшебной сумой&n'
+    prepositional: '&Wволшебной суме&n'
+  short_desc: Волшебная сума парит над землей.
+  type: kContainer
+  material: 14  # ТКАНЬ
+  values:
+    - 999
+    - 5
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 1000
+  cur_durability: 1000
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kMagic
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+  wear_flags:
+    - kTake
+    - kNeck
+    - kWaist
+    - kWrist
+  triggers:
+    - 3749  # Именной стаф - Сиррон
+    - 3797  # Форс-триггер #2
+
+# Object #3750
+50:
+  names:
+    aliases: старинный кожаный сундук
+    nominative: '&yстаринный кожаный сундук&n'
+    genitive: '&yстаринного кожаного сундука&n'
+    dative: '&yстаринному кожаному сундуку&n'
+    accusative: '&yстаринный кожаный сундук&n'
+    instrumental: '&yстаринным кожаным сундуком&n'
+    prepositional: '&yстаринном кожаном сундуке&n'
+  short_desc: '&yСтаринный кожаный сундук&n стоит в пыли.'
+  type: kContainer
+  material: 15  # КОЖА
+  values:
+    - 999
+    - 5
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 999
+  cur_durability: 999
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  extra_flags:
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+  wear_flags:
+    - kTake
+    - kNeck
+    - kShoulders
+    - kWaist
+    - kWrist
+  extra_descriptions:
+    - keywords: старинный кожаный сундук
+      description: |2
+        Почерневший от времени кожаный сундук с лямками и ремешками.
+        Чудные рельефные узоры покрывают его со всех сторон.
+  triggers:
+    - 3750  # Именной стаф - Вимор
+    - 3797  # Форс-триггер #2
+
+# Object #3751
+51:
+  names:
+    aliases: сума сумка зеленого фея
+    nominative: '&Yсума &GЗеленого Фея&n'
+    genitive: '&Yсумы &GЗеленого Фея&n'
+    dative: '&Yсуме &GЗеленого Фея&n'
+    accusative: '&Yсуму &GЗеленого Фея&n'
+    instrumental: '&Yсумой &GЗеленого Фея&n'
+    prepositional: '&Yсуме &GЗеленого Фея&n'
+  short_desc: Большая сума, с изображением маленького зеленого человечка с крыльями.
+  type: kContainer
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 999
+    - 5
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 999
+  cur_durability: 999
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kMagic
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+  wear_flags:
+    - kTake
+    - kNeck
+    - kShoulders
+    - kWaist
+  triggers:
+    - 3751  # Именной шмот - Сивух
+
+# Object #3752
+52:
+  names:
+    aliases: карамельный кармашек
+    nominative: '&mкарамельный &Mкармашек&n'
+    genitive: '&mкарамельного &Mкармашка&n'
+    dative: '&mкарамельному &Mкармашку&n'
+    accusative: '&mкарамельный &Mкармашек&n'
+    instrumental: '&mкарамельным &Mкармашком&n'
+    prepositional: '&mкарамельным &Mкармашке&n'
+  short_desc: '&mКарамельный &Mкармашек&n тает на солнце.'
+  type: kContainer
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 999
+    - 5
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 999
+  cur_durability: 999
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  extra_flags:
+    - kNosell
+    - kSwimming
+    - kFlying
+  wear_flags:
+    - kTake
+    - kNeck
+    - kShoulders
+    - kWaist
+    - kWrist
+  triggers:
+    - 3752  # Именной стаф - Кьяра
+    - 3797  # Форс-триггер #2
+
+# Object #3753
+53:
+  names:
+    aliases: бездонная сумка жадного волхва
+    nominative: '&Kбездонная&n сумка &Wжадного волхва&n'
+    genitive: '&Kбездонной&n сумки &Wжадного волхва&n'
+    dative: '&Kбездонной&n сумке &Wжадного волхва&n'
+    accusative: '&Kбездонную&n сумку &Wжадного волхва&n'
+    instrumental: '&Kбездонной&n сумкой &Wжадного волхва&n'
+    prepositional: '&Kбездонной&n сумке &Wжадного волхва&n'
+  short_desc: '&KБездонная&n сумка &Wжадного волхва&n брошена здесь.'
+  type: kContainer
+  material: 14  # ТКАНЬ
+  values:
+    - 999
+    - 5
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 1000
+  cur_durability: 1000
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+  wear_flags:
+    - kTake
+    - kNeck
+    - kShoulders
+    - kWaist
+    - kWrist
+  triggers:
+    - 3753  # Именной стаф - Сигвард
+    - 3797  # Форс-триггер #2
+
+# Object #3754
+54:
+  names:
+    aliases: мешочек незабытой магии
+    nominative: мешочек &RНезабытой Магии&n
+    genitive: мешочка &RНезабытой Магии&n
+    dative: мешочку &RНезабытой Магии&n
+    accusative: мешочек &RНезабытой Магии&n
+    instrumental: мешочком &RНезабытой Магии&n
+    prepositional: мешочке &RНезабытой Магии&n
+  short_desc: Мерцающий магическим светом мешочек лежит тут.
+  type: kContainer
+  material: 8  # ДЕРЕВО
+  values:
+    - 999
+    - 5
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 999
+  cur_durability: 999
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  extra_flags:
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+  wear_flags:
+    - kTake
+    - kNeck
+    - kShoulders
+    - kWaist
+    - kWrist
+  triggers:
+    - 3754  # Именной стафф - Штайн
+    - 3797  # Форс-триггер #2
+
+# Object #3755
+55:
+  names:
+    aliases: пояс великого хана
+    nominative: '&Wпояс&n &YВеликого Хана&n'
+    genitive: '&Wпояса&n &YВеликого Хана&n'
+    dative: '&Wпоясу&n &YВеликого Хана&n'
+    accusative: '&Wпояс&n &YВеликого Хана&n'
+    instrumental: '&Wпоясом &YВеликого Хана&n'
+    prepositional: '&Wпоясе &YВеликого Хана&n'
+  short_desc: '&WПояс&n &YВеликого Хана&n лежит здесь.'
+  type: kContainer
+  material: 14  # ТКАНЬ
+  values:
+    - 999
+    - 5
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 999
+  cur_durability: 999
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  extra_flags:
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+  wear_flags:
+    - kTake
+    - kNeck
+    - kWaist
+  triggers:
+    - 3755  # Именной стаф - Баюр
+    - 3797  # Форс-триггер #2
+
+# Object #3756
+56:
+  names:
+    aliases: музыкальная шкатулка
+    nominative: '&Cм&Mу&Bз&Yы&Gк&Rа&Gл&Yь&Bн&Mа&Cя &Wшкатулка&n'
+    genitive: '&Cм&Mу&Bз&Yы&Gк&Rа&Gл&Yь&Bн&Mо&Cй &Wшкатулки&n'
+    dative: '&Cм&Mу&Bз&Yы&Gк&Rа&Gл&Yь&Bн&Mо&Cй &Wшкатулке&n'
+    accusative: '&Cм&Mу&Bз&Yы&Gк&Rа&Gл&Yь&Bн&Mу&Cю &Wшкатулку&n'
+    instrumental: '&Cм&Mу&Bз&Yы&Gк&Rа&Gл&Yь&Bн&Mо&Cй &Wшкатулкой&n'
+    prepositional: '&Cм&Mу&Bз&Yы&Gк&Rа&Gл&Yь&Bн&Mо&Cй &Wшкатулке&n'
+  short_desc: Музыкальная шкатулка ждет своего хозяина.
+  type: kContainer
+  material: 15  # КОЖА
+  values:
+    - 999
+    - 5
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 999
+  cur_durability: 999
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+  wear_flags:
+    - kTake
+    - kNeck
+    - kWaist
+    - kWrist
+  triggers:
+    - 3756  # Именной стаф - Гуслис
+    - 3797  # Форс-триггер #2
+
+# Object #3757
+57:
+  names:
+    aliases: геройский мешок терновых веток
+    nominative: '&Cгеройский &Wмешок&n из &Rтерновых &Yветок&n'
+    genitive: '&Cгеройского &Wмешка&n из &Rтерновых &Yветок&n'
+    dative: '&Cгеройскому &Wмешку&n из &Rтерновых &Yветок&n'
+    accusative: '&Cгеройский &Wмешок&n из &Rтерновых &Yветок&n'
+    instrumental: '&Cгеройским &Wмешком&n из &Rтерновых &Yветок&n'
+    prepositional: '&Cгеройском &Wмешке&n из &Rтерновых &Yветок&n'
+  short_desc: Кто-то забыл свой мешок здесь.
+  type: kContainer
+  material: 8  # ДЕРЕВО
+  values:
+    - 999
+    - 5
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 999
+  cur_durability: 999
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  extra_flags:
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+  wear_flags:
+    - kTake
+    - kNeck
+    - kShoulders
+    - kWaist
+    - kWrist
+  triggers:
+    - 3757  # Именной стаф - Гразий
+    - 3797  # Форс-триггер #2
+
+# Object #3758
+58:
+  names:
+    aliases: питомза начертанной руной счастья сума
+    nominative: '&Kпи&nто&Wмз&nа с &Kна&nче&Wрт&nан&Kной&n &Yру&yно&gй с&Gча&Cст&cья&n'
+    genitive: '&Kпи&nто&Wмз&nы с &Kна&nче&Wрт&nан&Kной&n &Yру&yно&gй с&Gча&Cст&cья&n'
+    dative: '&Kпи&nто&Wмз&nе с &Kна&nче&Wрт&nан&Kной&n &Yру&yно&gй с&Gча&Cст&cья&n'
+    accusative: '&Kпи&nто&Wмз&nу с &Kна&nче&Wрт&nан&Kной&n &Yру&yно&gй с&Gча&Cст&cья&n'
+    instrumental: '&Kпи&nто&Wмз&nой с &Kна&nче&Wрт&nан&Kной&n &Yру&yно&gй с&Gча&Cст&cья&n'
+    prepositional: '&Kпи&nто&Wмз&nе с &Kна&nче&Wрт&nан&Kной&n &Yру&yно&gй с&Gча&Cст&cья&n'
+  short_desc: '&KПи&nто&Wмз&nа с &Kна&nче&Wрт&nан&Kной&n &Yру&yно&gй с&Gча&Cст&cья&n лежит у Ваших ног.'
+  type: kContainer
+  material: 14  # ТКАНЬ
+  values:
+    - 999
+    - 5
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 999
+  cur_durability: 999
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+  wear_flags:
+    - kTake
+    - kNeck
+    - kWaist
+    - kWrist
+  extra_descriptions:
+    - keywords: питомза начертанной руной счастья
+      description: |2
+        Большая заплечная сума сделана лучшими мастерами по заказу одного уважаемого волхва.
+
+# Object #3759
+59:
+  names:
+    aliases: трепещущая сума живых мышек
+    nominative: '&Kтрепещущая &Wсума из живых &Kмышек&n'
+    genitive: '&Kтрепещущей &Wсумы из живых &Kмышек&n'
+    dative: '&Kтрепещущей &Wсуме из живых &Kмышек&n'
+    accusative: '&Kтрепещущую &Wсуму из живых &Kмышек&n'
+    instrumental: '&Kтрепещущей &Wсумой из живых &Kмышек&n'
+    prepositional: '&Kтрепещущей &Wсуме из живых &Kмышек&n'
+  short_desc: '&KТрепещущая &Wсума из живых &Kмышек&n расползается перед Вами.'
+  type: kContainer
+  material: 16  # ОРГАНИКА
+  values:
+    - 999
+    - 1
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 999
+  cur_durability: 999
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+  wear_flags:
+    - kTake
+    - kNeck
+    - kWaist
+    - kWrist
+
+# Object #3760
+60:
+  names:
+    aliases: дупло свирепого луня сума сумка
+    nominative: '&gдуп&cло &Cсви&cреп&gого &Gлуня&n'
+    genitive: '&gдуп&cла &Cсви&cреп&gого &Gлуня&n'
+    dative: '&gдуп&cлу &Cсви&cреп&gого &Gлуня&n'
+    accusative: '&gдуп&cло &Cсви&cреп&gого &Gлуня&n'
+    instrumental: '&gдуп&cлом &Cсви&cреп&gого &Gлуня&n'
+    prepositional: '&gдуп&cле &Cсви&cреп&gого &Gлуня&n'
+  short_desc: '&gДуп&cло &Cсви&cреп&gого &Gлуня&n каким-то неведомым образом оказалось здесь.'
+  type: kContainer
+  material: 14  # ТКАНЬ
+  values:
+    - 999
+    - 1
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 999
+  cur_durability: 999
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  extra_flags:
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+  wear_flags:
+    - kTake
+    - kNeck
+    - kWaist
+    - kWrist
+  triggers:
+    - 3760  # Именной стаф - Есугей
+
+# Object #3761
+61:
+  names:
+    aliases: авоська бутылками
+    nominative: '&Rа&Yв&Rо&Yс&Rь&Yк&Rа &Wс &gбутылками&n'
+    genitive: '&Rа&Yв&Rо&Yс&Rь&Yк&Rи &Wс &gбутылками&n'
+    dative: '&Rа&Yв&Rо&Yс&Rь&Yк&Rе &Wс &gбутылками&n'
+    accusative: '&Rа&Yв&Rо&Yс&Rь&Yк&Rу &Wс &gбутылками&n'
+    instrumental: '&Rа&Yв&Rо&Yс&Rь&Yк&Rо&Yй &Wс &gбутылками&n'
+    prepositional: '&Rа&Yв&Rо&Yс&Rь&Yк&Rе &Wс &gбутылками&n'
+  short_desc: '&RА&Yв&Rо&Yс&Rь&Yк&Rа &Wс &gбутылками&n валяется на земле.'
+  type: kContainer
+  material: 14  # ТКАНЬ
+  values:
+    - 2000
+    - 1
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 999
+  cur_durability: 999
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+  wear_flags:
+    - kTake
+    - kNeck
+    - kWaist
+    - kWrist
+    - kHold
+  triggers:
+    - 3761  # Именной стафф - Вяхорь
+    - 3797  # Форс-триггер #2
+
+# Object #3762
+62:
+  names:
+    aliases: старческая мошна
+    nominative: '&Wста&nрче&Kска&nя мо&Wшна&n'
+    genitive: '&Wста&nрче&Kско&nй мо&Wшны&n'
+    dative: '&Wста&nрче&Kско&nй мо&Wшне&n'
+    accusative: '&Wста&nрче&Kску&nю мо&Wшну&n'
+    instrumental: '&Wста&nрче&Kско&nй мо&Wшной&n'
+    prepositional: '&Wста&nрче&Kско&nй мо&Wшне&n'
+  short_desc: Невзрачная старческая сумка валяется в пыли.
+  type: kContainer
+  material: 14  # ТКАНЬ
+  values:
+    - 999
+    - 5
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 999
+  cur_durability: 999
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+  wear_flags:
+    - kTake
+    - kNeck
+    - kWaist
+    - kWrist
+    - kHold
+  triggers:
+    - 3762  # Именной стафф - Алексей
+    - 3797  # Форс-триггер #2
+
+# Object #3763
+63:
+  names:
+    aliases: аптечка
+    nominative: '&Rа&Wпт&Rе&Wчк&Rа&n'
+    genitive: '&Rа&Wпт&Rе&Wчк&Rи&n'
+    dative: '&Rа&Wпт&Rе&Wчк&Rе&n'
+    accusative: '&Rа&Wпт&Rе&Wчк&Rу&n'
+    instrumental: '&Rа&Wпт&Rе&Wчк&Rой&n'
+    prepositional: '&Rа&Wпт&Rе&Wчк&Rе&n'
+  short_desc: Какой-то лекарь забыл здесь свою аптечку.
+  type: kContainer
+  material: 17  # БЕРЕСТА
+  values:
+    - 999
+    - 5
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 999
+  cur_durability: 999
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  wear_flags:
+    - kTake
+    - kNeck
+    - kWaist
+    - kWrist
+  triggers:
+    - 3763  # Именной стафф - Лорелея
+    - 3797  # Форс-триггер #2
+
+# Object #3764
+64:
+  names:
+    aliases: сума плесецкого патруля
+    nominative: '&Yсума &KПлесецкого &RПатруля&n'
+    genitive: '&Yсумы &KПлесецкого &RПатруля&n'
+    dative: '&Yсуме &KПлесецкого &RПатруля&n'
+    accusative: '&Yсуму &KПлесецкого &RПатруля&n'
+    instrumental: '&Yсумой &KПлесецкого &RПатруля&n'
+    prepositional: '&Yсуме &KПлесецкого &RПатруля&n'
+  short_desc: '&YСума &KПлесецкого &RПатруля&n забыта здесь хозяином.'
+  type: kContainer
+  material: 14  # ТКАНЬ
+  values:
+    - 999
+    - 5
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 999
+  cur_durability: 999
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+  wear_flags:
+    - kTake
+    - kNeck
+    - kWaist
+    - kWrist
+  triggers:
+    - 3764  # Именной стафф - Одерон
+    - 3797  # Форс-триггер #2
+
+# Object #3765
+65:
+  names:
+    aliases: огромный полый череп замогильным светом глазах сумка
+    nominative: '&Wогромный полый &Kчереп &Wс &Cзамогильным &Wсветом в глазах&n'
+    genitive: '&Wогромного полого &Kчерепа &Wс &Cзамогильным &Wсветом в глазах&n'
+    dative: '&Wогромному полому &Kчерепу &Wс &Cзамогильным &Wсветом в глазах&n'
+    accusative: '&Wогромный полый &Kчереп &Wс &Cзамогильным &Wсветом в глазах&n'
+    instrumental: '&Wогромном полом &Kчерепом &Wс &Cзамогильным &Wсветом в глазах&n'
+    prepositional: '&Wогромном полом &Kчерепе &Wс &Cзамогильным &Wсветом в глазах&n'
+  short_desc: Внушительных размеров череп лежит здесь глядя на вас пустыми глазницами.
+  type: kContainer
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 999
+    - 5
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 999
+  cur_durability: 999
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  extra_flags:
+    - kMagic
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+  wear_flags:
+    - kTake
+    - kNeck
+    - kShoulders
+    - kWaist
+  triggers:
+    - 3765  # Именной шмот - Бойко
+
+# Object #3766
+66:
+  names:
+    aliases: сумка метка двор
+    nominative: '&Wметка &KТемного Двора&n'
+    genitive: '&Wметки &KТемного Двора&n'
+    dative: '&Wметке &KТемного Двора&n'
+    accusative: '&Wметку &KТемного Двора&n'
+    instrumental: '&Wметкой &KТемного Двора&n'
+    prepositional: '&Wметке &KТемного Двора&n'
+  short_desc: Черная аки тьма &Kметка&Y, с изображением &Wбелки&Y, грызущей &yорехи&Y, лежит у Ваших ног.
+  type: kContainer
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 2000
+    - 5
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 999
+  cur_durability: 999
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kMagic
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+  wear_flags:
+    - kTake
+    - kNeck
+    - kShoulders
+    - kWaist
+
+# Object #3767
+67:
+  names:
+    aliases: котомка мещанского барыги
+    nominative: '&yкотомка &Yмещанского &Rбарыги&n'
+    genitive: '&yкотомки &Yмещанского &Rбарыги&n'
+    dative: '&yкотомке &Yмещанского &Rбарыги&n'
+    accusative: '&yкотомку &Yмещанского &Rбарыги&n'
+    instrumental: '&yкотомкой &Yмещанского &Rбарыги&n'
+    prepositional: '&yкотомке &Yмещанского &Rбарыги&n'
+  short_desc: Богатенький мещанин выкинул здесь свою &yкотомку&n.
+  type: kContainer
+  material: 14  # ТКАНЬ
+  values:
+    - 999
+    - 5
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 999
+  cur_durability: 999
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+  wear_flags:
+    - kTake
+    - kNeck
+    - kWaist
+    - kWrist
+  extra_descriptions:
+    - keywords: котомка мещанского барыги
+      description: |2
+        Красивая &Yяркая &yкотомка&n сделана лучшими заморскими мастерами.
+        Не каждый мещанин может себе такую позволить.
+        Котомка украшена &Cса&cмо&gцв&Gет&gны&cми &Cка&Bме&bнья&Bми&n.
+  triggers:
+    - 3767  # Именной стафф - Шелди
+    - 3797  # Форс-триггер #2
+
+# Object #3768
+68:
+  names:
+    aliases: сум пламя замершее
+    nominative: '&rзамершее Пламя&n'
+    genitive: '&rзамершего Пламени&n'
+    dative: '&rзамершему Пламени&n'
+    accusative: '&rзамершее Пламя&n'
+    instrumental: '&rзамершим Пламенем&n'
+    prepositional: '&rзамершем Пламене&n'
+  short_desc: '&rСтранный кусочек льда &Yнеестественного красноватого оттенка лежит посреди дороги.'
+  type: kContainer
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 999
+    - 5
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 999
+  cur_durability: 999
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  max_in_world: 1
+  extra_flags:
+    - kMagic
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+  wear_flags:
+    - kTake
+    - kNeck
+    - kShoulders
+    - kWaist
+  triggers:
+    - 3768  # Именной шмот - Эйко
+
+# Object #3769
+69:
+  names:
+    aliases: сумка аномалия
+    nominative: '&Kск&nрыт&Kая&c Ано&Cмал&cия&n'
+    genitive: '&Kск&nрыт&Kой&c Ано&Cмал&cии&n'
+    dative: '&Kск&nрыт&Kой&c Ано&Cмал&cии&n'
+    accusative: '&Kск&nрыт&Kую&c Ано&Cмал&cию&n'
+    instrumental: '&Kск&nрыт&Kой&c Ано&Cмал&cией&n'
+    prepositional: '&Kск&nрыт&Kой&c Ано&Cмал&cии&n'
+  short_desc: '&KНепонятный сгусток &Cэнергии&K клубится здесь!&Y'
+  type: kContainer
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 1500
+    - 3
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 999
+  cur_durability: 999
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kMagic
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+  wear_flags:
+    - kTake
+    - kNeck
+    - kShoulders
+    - kWaist
+
+# Object #3770
+70:
+  names:
+    aliases: сумка флаг
+    nominative: '&cс&Cи&cн&Cе&n-&yж&Yе&yл&Yт&Yы&yй&W флаг Украины&n'
+    genitive: '&cс&Cи&cн&Cе&n-&yж&Yе&yл&Yт&Yо&yго&W флага Украины&n'
+    dative: '&cс&Cи&cн&Cе&n-&yж&Yе&yл&Yт&Yо&yму&W флагу Украины&n'
+    accusative: '&cс&Cи&cн&Cе&n-&yж&Yе&yл&Yт&Yы&yй&W флаг Украины&n'
+    instrumental: '&cс&Cи&cн&Cе&n-&yж&Yе&yл&Yт&Yы&yм&W флагом Украины&n'
+    prepositional: '&cс&Cи&cн&Cе&n-&yж&Yе&yл&Yт&Yо&yм&W флаге Украины&n'
+  short_desc: '&cС&CИ&cН&CЕ&n-&yЖ&YЕ&yЛ&YТ&YЫ&yЙ&W флаг Украины&Y развевается здесь на шесте.'
+  type: kContainer
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 1999
+    - 5
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 999
+  cur_durability: 999
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  extra_flags:
+    - kMagic
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+  wear_flags:
+    - kTake
+    - kFinger
+    - kNeck
+    - kShoulders
+    - kWaist
+    - kWrist
+  triggers:
+    - 3770  # Именной шмот - Пилатий
+
+# Object #3771
+71:
+  names:
+    aliases: сума вышитым гербом Вольных Стрелков
+    nominative: '&Cсу&cма &yс в&Yыш&yит&cым &Cге&cрб&yом &RВольных Стрелков&n'
+    genitive: '&Cсу&cмы &yс в&Yыш&yит&cым &Cге&cрб&yом &RВольных стрелков&n'
+    dative: '&Cсу&cме &yс в&Yыш&yит&cым &Cге&cрб&yом &RВольных стрелков&n'
+    accusative: '&Cсу&cму &yс в&Yыш&yит&cым &Cге&cрб&yом &RВольных стрелков&n'
+    instrumental: '&Cсу&cмой &yс в&Yыш&yит&cым &Cге&cрб&yом &RВольных стрелков&n'
+    prepositional: '&Cсу&cме &yс в&Yыш&yит&cым &Cге&cрб&yом &RВольных стрелков&n'
+  short_desc: Вы зачарованно смотрите, как &Cсу&cма &yс в&Yыш&yит&cым &Cге&cрб&yом &RВольных стрелков&n плавно парит над землей.
+  type: kContainer
+  material: 14  # ТКАНЬ
+  values:
+    - 999
+    - 1
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 999
+  cur_durability: 999
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  max_in_world: 1
+  extra_flags:
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+  wear_flags:
+    - kTake
+    - kNeck
+    - kShoulders
+    - kWaist
+    - kWrist
+  triggers:
+    - 3771  # Именной стафф Рольт
+
+# Object #3772
+72:
+  names:
+    aliases: веселое ведерко самогон сумка сума
+    nominative: '&gв&Gе&gс&Gе&gл&Gо&gе &yв&Yе&yд&Yе&yр&Yк&yо&n'
+    genitive: '&gв&Gе&gс&Gе&gл&Gо&gг&Gо &yв&Yе&yд&Yе&yр&Yк&yа&n'
+    dative: '&gв&Gе&gс&Gе&gл&Gо&gм&Gу &yв&Yе&yд&Yе&yр&Yк&yу&n'
+    accusative: '&gв&Gе&gс&Gе&gл&Gо&gе &yв&Yе&yд&Yе&yр&Yк&yо&n'
+    instrumental: '&gв&Gе&gс&Gе&gл&Gы&gм &yв&Yе&yд&Yе&yр&Yк&yо&Yм&n'
+    prepositional: '&gв&Gе&gс&Gе&gл&Gо&gм &yв&Yе&yд&Yе&yр&Yк&yе&n'
+  short_desc: '&YПр&yич&Yуд&yли&Yво&yе у&Yст&yро&Yйс&yтво &Kо &wс&Wе&wм&Wи &wн&Wог&wа&Kх &Rв&rа&Rр&rи&Rт &Gво&gлш&Gеб&gны&Gй н&gап&Gит&gок&Y.'
+  type: kContainer
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 1500
+    - 3
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 999
+  cur_durability: 999
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  max_in_world: 1
+  extra_flags:
+    - kMagic
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+  wear_flags:
+    - kTake
+    - kNeck
+    - kShoulders
+    - kWaist
+  triggers:
+    - 3772  # Именной шмот - Дагомир
+
+# Object #3773
+73:
+  names:
+    aliases: хвост бобра
+    nominative: '&Yхвост &yбобра&n'
+    genitive: '&Yхвоста &yбобра&n'
+    dative: '&Yхвосту &yбобра&n'
+    accusative: '&Yхвост &yбобра&n'
+    instrumental: '&Yхвостом &yбобра&n'
+    prepositional: '&Yхвосте &yбобра&n'
+  short_desc: Вырванный &Yхвост &yбобра&n лежит перед Вами!
+  type: kContainer
+  material: 15  # КОЖА
+  values:
+    - 999
+    - 5
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 1000
+  cur_durability: 1000
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+  wear_flags:
+    - kTake
+    - kNeck
+    - kWaist
+  triggers:
+    - 3773  # Именной стафф - Бобр
+
+# Object #3774
+74:
+  names:
+    aliases: хищная сума душегуба
+    nominative: '&Rхи&rщн&mая &rсу&Rма &rду&mше&rгу&Rба&n'
+    genitive: '&Rхи&rщн&mой &rсу&Rмы &rду&mше&rгу&Rба&n'
+    dative: '&Rхи&rщн&mой &rсу&Rме &rду&mше&rгу&Rба&n'
+    accusative: '&Rхи&rщн&mую &rсу&Rму &rду&mше&rгу&Rба&n'
+    instrumental: '&Rхи&rщн&mой &rсу&Rмой &rду&mше&rгу&Rба&n'
+    prepositional: '&Rхи&rщн&mой &rсу&Rме &rду&mше&rгу&Rба&n'
+  short_desc: '&RХи&rщн&mая &rсу&Rма &rду&mше&rгу&Rба&n скалится на Вас.'
+  type: kContainer
+  material: 14  # ТКАНЬ
+  values:
+    - 999
+    - 5
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 999
+  cur_durability: 999
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+  wear_flags:
+    - kTake
+    - kNeck
+    - kShoulders
+    - kWaist
+    - kWrist
+  triggers:
+    - 3774  # Именной стаф - Дрегвий
+    - 3797  # Форс-триггер #2
+
+# Object #3775
+75:
+  names:
+    aliases: колчан удалого стрельца
+    nominative: '&Wколчан удалого стрельца&n'
+    genitive: '&Wколчана удалого стрельца&n'
+    dative: '&Wколчану удалого стрельца&n'
+    accusative: '&Wколчан удалого стрельца&n'
+    instrumental: '&Wколчаном удалого стрельца&n'
+    prepositional: '&Wколчане удалого стрельца&n'
+  short_desc: '&WКолчан удалого стрельца&n лежит перед Вами.'
+  type: kContainer
+  material: 15  # КОЖА
+  values:
+    - 999
+    - 5
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 999
+  cur_durability: 999
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+  wear_flags:
+    - kTake
+    - kNeck
+    - kShoulders
+    - kWaist
+    - kWrist
+  triggers:
+    - 3775  # именной стафф - федяш
+
+# Object #3776
+76:
+  names:
+    aliases: сумка веселыми котятами
+    nominative: '&Mс&Gу&Bм&Yк&Cа &Wс &Bвеселыми котятами&n'
+    genitive: '&Mс&Gу&Bм&Yк&Cи &Wс &Bвеселыми котятами&n'
+    dative: '&Mс&Gу&Bм&Yк&Cе &Wс &Bвеселыми котятами&n'
+    accusative: '&Mс&Gу&Bм&Yк&Cу &Wс &Bвеселыми котятами&n'
+    instrumental: '&Mс&Gу&Bм&Yк&Cо&Rй &Wс &Bвеселыми котятами&n'
+    prepositional: '&Mс&Gу&Bм&Yк&Cе &Wс &Bвеселыми котятами&n'
+  short_desc: '&CУ Ваших ног лежит &Mс&Gу&Bм&Yк&Cа &Gв которой что-то активно шевелится и время от времени раздается истошный кошачий &Mвопль&n.'
+  type: kContainer
+  material: 15  # КОЖА
+  values:
+    - 2000
+    - 5
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 999
+  cur_durability: 999
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+  wear_flags:
+    - kTake
+    - kNeck
+    - kShoulders
+    - kWaist
+    - kWrist
+  extra_descriptions:
+    - keywords: сумка веселыми котятами
+      description: |2
+        Красивая Разноцветная сумка в которой все время что-то двигается, шевелиться, прыгает.
+        Из сумки раздаются громкое шипение и мяуканье : "Отдай мне мой хвоссст, МЯ-Я-Яу, говорю отда-а-ай"!
+  triggers:
+    - 3776  # Именной стаф - Младин
+    - 3797  # Форс-триггер #2
+
+# Object #3777
+77:
+  names:
+    aliases: крошня крюки сумка
+    nominative: крошня с крюками
+    genitive: крошни с крюками
+    dative: крошне с крюками
+    accusative: крошню с крюками
+    instrumental: крошней с крюками
+    prepositional: крошне с крюками
+  short_desc: Какая-то непонятная требуха валяется под ногами, издавая странные приглушенные звуки.
+  type: kContainer
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 999
+    - 5
+    - 99999
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 999
+  cur_durability: 999
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kMagic
+    - kNosell
+    - kNodecay
+    - kFlying
+  wear_flags:
+    - kTake
+    - kNeck
+    - kShoulders
+    - kWaist
+    - kWrist
+  extra_descriptions:
+    - keywords: крошня крюки сумка
+      description: |2
+        С виду довольно-таки небольшая плетеная крошня,
+        на которой серебром вышита какая-то дивная
+        закорючка - не руна, не буква, а бог знает что.
+
+# Object #3778
+78:
+  names:
+    aliases: неумело скроенная сумка
+    nominative: '&Kнеумело скроенная сумка&n'
+    genitive: '&Kнеумело скроенной сумки&n'
+    dative: '&Kнеумело скроенной сумке&n'
+    accusative: '&Kнеумело скроенную сумку&n'
+    instrumental: '&Kнеумело скроенной сумкой&n'
+    prepositional: '&Kнеумело скроенной сумке&n'
+  short_desc: Неумело скроенная сумка из лоскутов кожи лежит здесь.
+  type: kContainer
+  material: 15  # КОЖА
+  values:
+    - 999
+    - 5
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 999
+  cur_durability: 999
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+  wear_flags:
+    - kTake
+    - kNeck
+    - kShoulders
+    - kWaist
+    - kWrist
+  extra_descriptions:
+    - keywords: неумело скроенная сумка
+      description: |2
+        Жутко скроенная сумка из лоскутов кожи, которые по-видимому
+        остались от более ценной вещи. Она явно была сшита человеком,
+        абсолютно ничего несмыслящем в портном деле.
+  triggers:
+    - 3778  # Именная сумка - Векомир
+
+# Object #3779
+79:
+  names:
+    aliases: банка сумка сума
+    nominative: '&Kс&nт&cран&nна&Wя &nба&Rн&rк&Kа&n'
+    genitive: '&Kс&nт&cран&nно&Wй &nба&Rн&rк&Kи&n'
+    dative: '&Kс&nт&cран&nно&Wй &nба&Rн&rк&Kе&n'
+    accusative: '&Kс&nт&cран&nну&Wю &nба&Rн&rк&Kу&n'
+    instrumental: '&Kс&nт&cран&nно&Wй &nба&Rн&rк&Kой&n'
+    prepositional: '&Kс&nт&cран&nно&Wй &nба&Rн&rк&Kе&n'
+  short_desc: '&YНепривлекательная &Kс&nт&cран&nна&Wя &nба&Rн&rк&Kа &Yлежит здесь.'
+  type: kContainer
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 999
+    - 5
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 999
+  cur_durability: 999
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kMagic
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+  wear_flags:
+    - kTake
+    - kNeck
+    - kShoulders
+    - kWaist
+  triggers:
+    - 3779  # Именной шмот - Шышок
+
+# Object #3780
+80:
+  names:
+    aliases: мешок рисом
+    nominative: '&Yм&Wе&Yш&Wо&Yк &Wс &Yр&Wи&Yс&Wо&Yм&n'
+    genitive: '&Yм&Wе&Yш&Wк&Yа &Wс &Yр&Wи&Yс&Wо&Yм&n'
+    dative: '&Yм&Wе&Yш&Wк&Yу &Wс &Yр&Wи&Yс&Wо&Yм&n'
+    accusative: '&Yм&Wе&Yш&Wо&Yк &Wс &Yр&Wи&Yс&Wо&Yм&n'
+    instrumental: '&Yм&Wе&Yш&Wк&Yом &Wс &Yр&Wи&Yс&Wо&Yм&n'
+    prepositional: '&Yм&Wе&Yш&Wк&Yе &Wс &Yр&Wи&Yс&Wо&Yм&n'
+  short_desc: '&YМ&Wе&Yш&Wо&Yк &Wс &Yр&Wи&Yс&Wо&Yм&n стоит на земле.'
+  type: kContainer
+  material: 14  # ТКАНЬ
+  values:
+    - 999
+    - 5
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 999
+  cur_durability: 999
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  extra_flags:
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+  wear_flags:
+    - kTake
+    - kNeck
+    - kShoulders
+    - kWaist
+    - kWrist
+  triggers:
+    - 3780  # Именная сумка - Мангас
+    - 3797  # Форс-триггер #2
+
+# Object #3781
+81:
+  names:
+    aliases: рюкзачок шкуры полярного волка
+    nominative: '&Wрюкзачок из шкуры полярного волка&n'
+    genitive: '&Wрюкзачка из шкуры полярного волка&n'
+    dative: '&Wрюкзачку из шкуры полярного волка&n'
+    accusative: '&Wрюкзачок из шкуры полярного волка&n'
+    instrumental: '&Wрюкзачком из шкуры полярного волка&n'
+    prepositional: '&Wрюкзачке из шкуры полярного волка&n'
+  short_desc: Небольшой &Wослепительно белый&n рюкзачок позабыт здесь хозяином.
+  type: kContainer
+  material: 15  # КОЖА
+  values:
+    - 999
+    - 5
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 999
+  cur_durability: 999
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  extra_flags:
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+  wear_flags:
+    - kTake
+    - kNeck
+    - kShoulders
+    - kWaist
+  extra_descriptions:
+    - keywords: рюкзачок шкуры полярного волка
+      description: |2
+        Небольшой вещмешок, отливающий &Wбелизной&n шкуры северного хищника, скроен так,
+        что в него можно вместить полцарства и незаметно оставить на память.
+        На верхней части рюкзачка &Rохрой&n нарисован волчонок, задумчиво чешущий
+        лапой за ухом.
+  triggers:
+    - 3781  # Именной стафф - Гранислав
+    - 3797  # Форс-триггер #2
+
+# Object #3782
+82:
+  names:
+    aliases: баул кожи гигантского хомяка
+    nominative: '&yбаул из кожи гигантского хомяка&n'
+    genitive: '&yбаула из кожи гигантского хомяка&n'
+    dative: '&yбаулу из кожи гигантского хомяка&n'
+    accusative: '&yбаул из кожи гигантского хомяка&n'
+    instrumental: '&yбаулом из кожи гигантского хомяка&n'
+    prepositional: '&yбауле из кожи гигантского хомяка&n'
+  short_desc: '&yРыжий баул&n смиренно ждет своего хозяина.'
+  type: kContainer
+  material: 15  # КОЖА
+  values:
+    - 999
+    - 5
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 999
+  cur_durability: 999
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNosell
+    - kNodecay
+    - kFlying
+  wear_flags:
+    - kTake
+    - kNeck
+    - kShoulders
+    - kWaist
+    - kWrist
+  triggers:
+    - 3782  # Именной стафф - Сагудор
+
+# Object #3783
+83:
+  names:
+    aliases: яркая сума фокусника
+    nominative: '&Yяр&yка&gя с&Gум&Cа ф&cок&Bус&bни&Kка&n'
+    genitive: '&Yяр&yко&gй с&Gум&Cы ф&cок&Bус&bни&Kка&n'
+    dative: '&Yяр&yко&gй с&Gум&Cе ф&cок&Bус&bни&Kка&n'
+    accusative: '&Yяр&yку&gю с&Gум&Cу ф&cок&Bус&bни&Kка&n'
+    instrumental: '&Yяр&yко&gй с&Gум&Cой ф&cок&Bус&bни&Kка&n'
+    prepositional: '&Yяр&yко&gй с&Gум&Cе ф&cок&Bус&bни&Kка&n'
+  short_desc: '&YЯр&yка&gя с&Gум&Cа ф&cок&Bус&bни&Kка&n парит над землей.'
+  type: kContainer
+  material: 15  # КОЖА
+  values:
+    - 999
+    - 5
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 999
+  cur_durability: 999
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+  wear_flags:
+    - kTake
+    - kNeck
+    - kShoulders
+    - kWaist
+    - kWrist
+  triggers:
+    - 3783  # Именной стаф -- Завлада
+
+# Object #3784
+84:
+  names:
+    aliases: неприметный пояс инкрустированным глазом дракона
+    nominative: '&Kнеприметный пояс &nс инкрустированным &Gгл&Kаз&Gом &cдр&gако&cна&n'
+    genitive: '&Kнеприметного пояса &nс инкрустированным &Gгл&Kаз&Gом &cдр&gако&cна&n'
+    dative: '&Kнеприметному поясу &nс инкрустированным &Gгл&Kаз&Gом &cдр&gако&cна&n'
+    accusative: '&Kнеприметный пояс &nс инкрустированным &Gгл&Kаз&Gом &cдр&gако&cна&n'
+    instrumental: '&Kнеприметным поясом &nс инкрустированным &Gгл&Kаз&Gом &cдр&gако&cна&n'
+    prepositional: '&Kнеприметном поясе &nс инкрустированным &Gгл&Kаз&Gом &cдр&gако&cна&n'
+  short_desc: '&KНеприметный пояс &nс инкрустированным &Gгл&Kаз&Gом &cдр&gако&cна&n лежит перед Вами.'
+  type: kContainer
+  material: 15  # КОЖА
+  values:
+    - 999
+    - 5
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 999
+  cur_durability: 999
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+  wear_flags:
+    - kTake
+    - kWaist
+  triggers:
+    - 3784  # Именной стафф -- Ольгерд
+
+# Object #3785
+85:
+  names:
+    aliases: окровавленная сума живодера
+    nominative: '&Rокр&rов&Rавл&rен&Rная &Wсума &Kживодера&n'
+    genitive: '&Rокр&rов&Rавл&rен&Rной &Wсумы &Kживодера&n'
+    dative: '&Rокр&rов&Rавл&rен&Rной &Wсуме &Kживодера&n'
+    accusative: '&Rокр&rов&Rавл&rен&Rную &Wсуму &Kживодера&n'
+    instrumental: '&Rокр&rов&Rавл&rен&Rной &Wсумой &Kживодера&n'
+    prepositional: '&Rокр&rов&Rавл&rен&Rной &Wсуме &Kживодера&n'
+  short_desc: '&RОкр&rов&Rавл&rен&Rная &Wсума &Kживодера&n брошена на земле.'
+  type: kContainer
+  material: 15  # КОЖА
+  values:
+    - 999
+    - 5
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 999
+  cur_durability: 999
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+  wear_flags:
+    - kTake
+    - kNeck
+    - kShoulders
+    - kWaist
+    - kWrist
+  triggers:
+    - 3785  # Именной стаф - омельян
+
+# Object #3786
+86:
+  names:
+    aliases: шелковая калита печатью белого золота
+    nominative: '&Wшелковая &Rкалита &Wс печатью из белого золота&n'
+    genitive: '&Wшелковой &Rкалиты &Wс печатью из белого золота&n'
+    dative: '&Wшелковой &Rкалите &Wс печатью из белого золота&n'
+    accusative: '&Wшелковую &Rкалиту &Wс печатью из белого золота&n'
+    instrumental: '&Wшелковой &Rкалитой &Wс печатью из белого золота&n'
+    prepositional: '&Wшелковой &Rкалите &Wс печатью из белого золота&n'
+  short_desc: Вместительная калита &Wиз белого шелка&n лежит здесь.
+  type: kContainer
+  material: 14  # ТКАНЬ
+  values:
+    - 999
+    - 5
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 999
+  cur_durability: 999
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+  wear_flags:
+    - kTake
+    - kNeck
+    - kShoulders
+    - kWaist
+    - kWrist
+  triggers:
+    - 3786  # именной стафф - Кайнур
+
+# Object #3787
+87:
+  names:
+    aliases: кожаная сумка дворянина
+    nominative: '&yкожаная сумка &WДворянина&n'
+    genitive: '&yкожаной сумки &WДворянина&n'
+    dative: '&yкожаной сумке &WДворянина&n'
+    accusative: '&yкожаную сумку &WДворянина&n'
+    instrumental: '&yкожаной сумкой &WДворянина&n'
+    prepositional: '&yкожаной сумке &WДворянина&n'
+  short_desc: Большая кожаная сумка, изготовленная заморскими мастерами, лежит здесь.
+  type: kContainer
+  material: 14  # ТКАНЬ
+  values:
+    - 999
+    - 5
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 999
+  cur_durability: 999
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+  wear_flags:
+    - kTake
+    - kNeck
+    - kShoulders
+    - kWaist
+    - kWrist
+  triggers:
+    - 3787  # Именной стафф - Блажена
+
+# Object #3788
+88:
+  names:
+    aliases: карман
+    nominative: карман
+    genitive: кармана
+    dative: карману
+    accusative: карман
+    instrumental: карманом
+    prepositional: кармане
+  short_desc: На кожаном кармане стоит клеймо в виде серого енота.
+  type: kContainer
+  material: 15  # КОЖА
+  values:
+    - 999
+    - 5
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 999
+  cur_durability: 999
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+  wear_flags:
+    - kTake
+    - kNeck
+    - kShoulders
+    - kWaist
+    - kWrist
+  extra_descriptions:
+    - keywords: карман
+      description: |2
+        Удобный кожаный карман с клеймом в виде серого енота.
+  triggers:
+    - 3788  # Именной стафф - Благомир
+
+# Object #3789
+89:
+  names:
+    aliases: сфера Истории Мироздания
+    nominative: '&Wсфера &RИстор&Yии &cМиро&Cздания&n'
+    genitive: '&Wсферы &RИстор&Yии &cМиро&Cздания&n'
+    dative: '&Wсфере &RИстор&Yии &cМиро&Cздания&n'
+    accusative: '&Wсферу &RИстор&Yии &cМиро&Cздания&n'
+    instrumental: '&Wсферой &RИстор&Yии &cМиро&Cздания&n'
+    prepositional: '&Wсфере &RИстор&Yии &cМиро&Cздания&n'
+  short_desc: '&WСфера &RИстор&Yии &cМиро&Cздания&Y парит над Землей.&n'
+  type: kContainer
+  material: 15  # КОЖА
+  values:
+    - 999
+    - 5
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 999
+  cur_durability: 999
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+  wear_flags:
+    - kTake
+    - kNeck
+    - kShoulders
+    - kWaist
+    - kWrist
+
+# Object #3790
+90:
+  names:
+    aliases: замшевый карман чешуйками красного дракона
+    nominative: '&Kзамшевый карман &cс ч&Cеш&cуй&Cка&cми &Rкрасного &Kд&nр&Wа&nк&Kо&nн&Wа&n'
+    genitive: '&Kзамшевого кармана &cс ч&Cеш&cуй&Cка&cми &Rкрасного &Kд&nр&Wа&nк&Kо&nн&Wа&n'
+    dative: '&Kзамшевому карману &cс ч&Cеш&cуй&Cка&cми &Rкрасного &Kд&nр&Wа&nк&Kо&nн&Wа&n'
+    accusative: '&Kзамшевый карман &cс ч&Cеш&cуй&Cка&cми &Rкрасного &Kд&nр&Wа&nк&Kо&nн&Wа&n'
+    instrumental: '&Kзамшевым карманом &cс ч&Cеш&cуй&Cка&cми &Rкрасного &Kд&nр&Wа&nк&Kо&nн&Wа&n'
+    prepositional: '&Kзамшевом кармане &cс ч&Cеш&cуй&Cка&cми &Rкрасного &Kд&nр&Wа&nк&Kо&nн&Wа&n'
+  short_desc: '&KЗамшевый карман &cс ч&Cеш&cуй&Cка&cми &Rкрасного &Kд&nр&Wа&nк&Kо&nн&Wа&n прячет руны и терпеливо ждет своего хозяина.'
+  type: kContainer
+  material: 14  # ТКАНЬ
+  values:
+    - 999
+    - 5
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 999
+  cur_durability: 999
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  extra_flags:
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+  wear_flags:
+    - kTake
+    - kNeck
+    - kShoulders
+    - kWaist
+    - kWrist
+  extra_descriptions:
+    - keywords: замшевый карман чешуйками красного дракона
+      description: |2
+        Вы видите перед собой парящий в воздухе карман, сплошь усеянный чешуйками красного 
+        дракона. Каждая из чешуек хаотично движется, создавая иллюзию переливчатых огненных волн.
+  triggers:
+    - 3790  # Именной стафф - дарсия
+
+# Object #3791
+91:
+  names:
+    aliases: сердце василисы
+    nominative: '&Kсер&n&rдце&n&R_Ва&n&rсил&n&Kисы&n'
+    genitive: '&Kсер&n&rдца&n&R_Ва&n&rсил&n&Kисы&n'
+    dative: '&Kсер&n&rдцу&n&R_Ва&n&rсил&n&Kисы&n'
+    accusative: '&Kсер&n&rдце&n&R_Ва&n&rсил&n&Kисы&n'
+    instrumental: '&Kсер&n&rдцем&n&R_Ва&n&rсил&n&Kисы&n'
+    prepositional: '&Kсер&n&rдце&n&R_Ва&n&rсил&n&Kисы&n'
+  short_desc: '&KОбугленный&n комок плоти лежит здесь.'
+  type: kLiquidContainer
+  material: 16  # ОРГАНИКА
+  values:
+    - 999
+    - 0
+    - 13
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 1000
+  cur_durability: 1000
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  extra_flags:
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+  wear_flags:
+    - kTake
+    - kNeck
+    - kHold
+  extra_descriptions:
+    - keywords: сердце василисы
+      description: |2
+        &CВедь должно быть моим твое сердце, твое сердце вернет мне весну...&n
+  triggers:
+    - 3791  # Именной стаф Наська
+
+# Object #3792
+92:
+  names:
+    aliases: чемоданчик тушки коня
+    nominative: '&Yчемоданчик &Bиз тушки &Rконя&n'
+    genitive: '&Yчемоданчика &Bиз тушки &Rконя&n'
+    dative: '&Yчемоданчику &Bиз тушки &Rконя&n'
+    accusative: '&Yчемоданчик &Bиз тушки &Rконя&n'
+    instrumental: '&Yчемоданчиком &Bиз тушки &Rконя&n'
+    prepositional: '&Yчемоданчике &Bиз тушки &Rконя&n'
+  short_desc: '&YЧемоданчик &Bиз тушки &Rконя&n жалобно звенит упряжкой.'
+  type: kContainer
+  material: 15  # КОЖА
+  values:
+    - 999
+    - 5
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 999
+  cur_durability: 999
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+  wear_flags:
+    - kTake
+    - kNeck
+    - kShoulders
+    - kWaist
+    - kWrist
+  triggers:
+    - 3792  # Именной стаф - Азалия
+
+# Object #3793
+93:
+  names:
+    aliases: серебряный гроб таинственными росписями
+    nominative: '&Kсеребряный гроб &Rс таинственными росписями&n'
+    genitive: '&Kсеребряного гроба &Rс таинственными росписями&n'
+    dative: '&Kсеребряному гробу &Rс таинственными росписями&n'
+    accusative: '&Kсеребряный гроб &Rс таинственными росписями&n'
+    instrumental: '&Kсеребряным гробом &Rс таинственными росписями&n'
+    prepositional: '&Kсеребряном гробу &Rс таинственными росписями&n'
+  short_desc: '&KСеребряный гроб &Rс таинственными росписями&n стоит здесь.'
+  type: kContainer
+  material: 8  # ДЕРЕВО
+  values:
+    - 999
+    - 5
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 999
+  cur_durability: 999
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+  wear_flags:
+    - kTake
+    - kNeck
+    - kShoulders
+    - kWaist
+  triggers:
+    - 3793  # Именной стаф - Неруб
+
+# Object #3794
+94:
+  names:
+    aliases: сумка большого кролика
+    nominative: '&Rсумка &Kб&nо&Wл&nь&Kш&nо&Wг&nо &cкр&Cоли&cка&n'
+    genitive: '&Rсумки &Kб&nо&Wл&nь&Kш&nо&Wг&nо &cкр&Cоли&cка&n'
+    dative: '&Rсумке &Kб&nо&Wл&nь&Kш&nо&Wг&nо &cкр&Cоли&cка&n'
+    accusative: '&Rсумку &Kб&nо&Wл&nь&Kш&nо&Wг&nо &cкр&Cоли&cка&n'
+    instrumental: '&Rсумкой &Kб&nо&Wл&nь&Kш&nо&Wг&nо &cкр&Cоли&cка&n'
+    prepositional: '&Rсумке &Kб&nо&Wл&nь&Kш&nо&Wг&nо &cкр&Cоли&cка&n'
+  short_desc: '&RСумка &Kб&nо&Wл&nь&Kш&nо&Wг&nо &cкр&Cоли&cка&n &Yлежит перед Вами.&n'
+  type: kContainer
+  material: 15  # КОЖА
+  values:
+    - 999
+    - 5
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 999
+  cur_durability: 999
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+  wear_flags:
+    - kTake
+    - kNeck
+    - kShoulders
+    - kWaist
+    - kWrist
+  triggers:
+    - 3794  # именной стафф - Пулана
+
+# Object #3795
+95:
+  names:
+    aliases: торба шишек сумка
+    nominative: '&Gто&gрб&Gа д&gля &Gши&gш&Gек&n'
+    genitive: '&Gто&gрб&Gы д&gля &Gши&gш&Gек&n'
+    dative: '&Gто&gрб&Gе д&gля &Gши&gш&Gек&n'
+    accusative: '&Gто&gрб&Gу д&gля &Gши&gш&Gек&n'
+    instrumental: '&Gто&gрб&Gой д&gля &Gши&gш&Gек&n'
+    prepositional: '&Gто&gрб&Gе д&gля &Gши&gш&Gек&n'
+  short_desc: '&GТо&gрб&Gа д&gля &Gши&gш&Gек&Y лежит на земле.&n'
+  type: kContainer
+  material: 15  # КОЖА
+  values:
+    - 999
+    - 5
+    - -1
+    - 0
+  weight: 1
+  cost: 0
+  rent_off: 1
+  rent_on: 1
+  max_durability: 999
+  cur_durability: 999
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNodecay
+    - kSwimming
+    - kFlying
+  wear_flags:
+    - kTake
+    - kNeck
+    - kShoulders
+    - kWaist
+    - kWrist
+
+# Object #3796
+96:
+  names:
+    aliases: сине гранатовая сумка
+    nominative: '&bсине&K-&rгранатовая &bсумка&n'
+    genitive: '&bсине&K-&rгранатовой &bсумки&n'
+    dative: '&bсине&K-&rгранатовой &bсумке&n'
+    accusative: '&bсине&K-&rгранатовую &bсумку&n'
+    instrumental: '&bсине&K-&rгранатовой &bсумкой&n'
+    prepositional: '&bсине&K-&rгранатовой &bсумке&n'
+  short_desc: '&bСине&K-&rгранатовая &bсумка&n &Yлежит на земле.&n'
+  type: kContainer
+  material: 15  # КОЖА
+  values:
+    - 999
+    - 5
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 999
+  cur_durability: 999
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+  wear_flags:
+    - kTake
+    - kNeck
+    - kShoulders
+    - kWaist
+    - kWrist
+  triggers:
+    - 3796  # Именной стаф - Дэлмин
+
+# Object #3797
+97:
+  names:
+    aliases: ваш карман
+    nominative: '&Rваш карман&n'
+    genitive: '&Rвашего кармана&n'
+    dative: '&Rвашему карману&n'
+    accusative: '&Rваш карман&n'
+    instrumental: '&Rвашим карманом&n'
+    prepositional: '&Rваше кармане&n'
+  short_desc: Ваш собственный карман валяется тут.
+  type: kContainer
+  material: 15  # КОЖА
+  values:
+    - 1000
+    - 0
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 1000
+  cur_durability: 1000
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: ваш карман
+      description: |2
+        Кармаааашек!
+
+# Object #3798
+98:
+  names:
+    aliases: кольчатая сума с золотым гербом
+    nominative: '&Wкольчатая сума&n c &Yзолотым гербом&n'
+    genitive: '&Wкольчатой сумы&n c &Yзолотым гербом&n'
+    dative: '&Wкольчатой суме&n c &Yзолотым гербом&n'
+    accusative: '&Wкольчатую суму&n c &Yзолотым гербом&n'
+    instrumental: '&Wкольчатой сумой&n c &Yзолотым гербом&n'
+    prepositional: '&Wкольчатой суме&n c &Yзолотым гербом&n'
+  short_desc: Кольчатая сума воина лежит здесь.
+  type: kContainer
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 2000
+    - 5
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 1000
+  cur_durability: 1000
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  wear_flags:
+    - kTake
+    - kShoulders
+    - kWaist
+  extra_descriptions:
+    - keywords: кольчатая сума с золотым гербом
+      description: |2
+        Тяжелая сума воина, повидавшего не мало кровопролитных боев.
+        Кольца сумы очень качественно сплавлены друг с другом объемным количеством металла,
+        от чего звенья такие массивные и громоздкие.
+  triggers:
+    - 10606  # Именная сумка - нисон
+
+# Object #3799
+99:
+  names:
+    aliases: сумка лоскутков тени
+    nominative: '&Kсумка из лоскутков тени&n'
+    genitive: '&Kсумки из лоскутков тени&n'
+    dative: '&Kсумке из лоскутков тени&n'
+    accusative: '&Kсумку из лоскутков тени&n'
+    instrumental: '&Kсумкой из лоскутков тени&n'
+    prepositional: '&Kсумке из лоскутков тени&n'
+  short_desc: Комок из лоскутков тени валяется под ногами.
+  type: kContainer
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 2000
+    - 1
+    - -1
+    - 0
+  weight: 1
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 999
+  cur_durability: 999
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kNosell
+    - kNodecay
+    - kFlying
+    - kNamed
+  wear_flags:
+    - kTake
+    - kNeck
+    - kShoulders
+    - kWaist
+    - kWrist
+  extra_descriptions:
+    - keywords: сумка лоскутков тени
+      description: |2
+        Это сотканая из невесомых кусочков тени сумка.

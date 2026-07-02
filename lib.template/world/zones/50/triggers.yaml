@@ -1,0 +1,697 @@
+# Triggers for zone 50
+
+# Trigger #5000
+0:
+  name: на чуже
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kGreetPCAll
+  script: |-2
+    tell %actor.iname% Не подскажете, люди добрые, как добраться до Киева?
+    ухмылка
+
+# Trigger #5001
+1:
+  name: на чуже1
+  attach_type: kMobTrigger
+  narg: 100
+  arglist: запад
+  trigger_types:
+    - kSpeech
+  script: |-2
+    if %speech%==запад
+      tell %actor.iname% Спасибо!
+      умница %actor.iname%
+    endif
+
+# Trigger #5002
+2:
+  name: 'триггер на знахаре '
+  attach_type: kMobTrigger
+  narg: 100
+  arglist: труп
+  trigger_types:
+    - kReceive
+  script: |-2
+    wait 1
+    switch %object.name%
+      case труп таракана
+        say  Еще одним гадом меньше! Молодец, продолжай дальше, держи премию.
+        %self.gold(+1)%
+        дать 1 кун %actor.iname%
+        mpurge %object%
+      break
+      case труп клопа
+        say  Еще одним гадом меньше! Молодец, продолжай дальше, держи премию.
+        %self.gold(+1)%
+        дать 1 кун %actor.iname%
+        mpurge %object%
+      break
+      case труп моли
+        say  Еще одним гадом меньше! Молодец, продолжай дальше.
+        load obj 101
+        дать ломоть %actor.iname%
+        mpurge %object%
+      break
+      case труп блохи
+        say  Еще одним гадом меньше! Молодец, продолжай дальше.
+        load obj 101
+        дать ломоть %actor.iname%
+        mpurge %object%
+      break
+      case труп серой мыши
+        say  О, грызун, разносчик заразы! Получи премию.
+        %self.gold(+5)%
+        дать 5 кун %actor.iname%
+        mpurge %object%
+      break
+      default
+        say  Зачем мне это?
+        eval getobject %object.name%
+        if  %getobject.car% == труп
+          mpurge %object%
+        else
+          броси %getobject.car%.%getobject.cdr%
+        end
+      break
+    done
+
+# Trigger #5003
+3:
+  name: 'триггер на охотнике '
+  attach_type: kMobTrigger
+  narg: 100
+  arglist: труп
+  trigger_types:
+    - kReceive
+  script: |-2
+    wait 1
+    switch %object.name%
+      case труп белки
+        say  Из белки хорошая шкурка получится, продам потом иноземцу!
+        улыб
+        %self.gold(+10)%
+        дать 10 кун %actor.iname%
+        mpurge %object%
+      break
+      case труп бобра
+        say  Из бобра шикарная шкурка получится, продам потом иноземцу!
+        %self.gold(+75)%
+        дать 75 кун %actor.iname%
+        mpurge %object%
+      break
+      case труп рыси
+        say  Из рыси шикарная шкурка получится, продам потом иноземцу!
+        %self.gold(+100)%
+        дать 100 кун %actor.iname%
+        mpurge %object%
+      break
+      case труп волка
+        say О, ты убил%actor.g% волка! Это опасно, их целая стая!
+        %self.gold(+20)%
+        дать 20 кун %actor.iname%
+        mpurge %object%
+      break
+      default
+        say  Зачем мне это?
+        броси all
+      break
+    done
+
+# Trigger #5004
+4:
+  name: входнарентухая
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kGreetPCAll
+  script: |-2
+    wait 1
+    set factor %self.people%
+    while %factor%
+      set pc %factor.NextInRoom%
+      if (%factor.vnum% == -1) && (%factor.level%>19) && (%factor.level%<31)
+        if %factor.sex%==1
+          tell %factor.iname% Вырос ты уже, нечего тебе здесь штаны просиживать.
+        else
+          tell %factor.iname% Выросла ты уже, нечего тебе здесь юбку просиживать.
+        end
+        tell %factor.iname% Не пушу я тебя здесь на постой, иди в город, там где большие нужны.
+        tell %factor.iname% А от вас только проблемы здесь будут.
+        echoaround %factor% Хозяйка вытолкнула %factor.rname% в трактир.
+        msend %factor.iname% Хозяйка вытолкнула вас в трактир.
+        mteleport %factor.iname% 5001
+        if %factor.sex%==1
+          mat 5001 echoaround %factor% Немного взлохмоченный %factor.iname% пришел сверху.
+        else
+          mat 5001 echoaround %factor% Немного взлохмоченная %factor.iname% пришла сверху.
+        end
+      end
+    end
+    if %pc%
+      makeuid factor %pc%
+    else
+      set factor 0
+    end
+    done
+
+# Trigger #5005
+5:
+  name: триггер на дочке
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kGreetPC
+  script: |-2
+    if ((%actor.level% >= 10) || (%actor.bank% >= 20))
+      halt
+    end
+    wait  1
+    msend %actor% Дочка сказала Вам:
+    msend %actor% - Эх ты горемычн%actor.w%, голодн%actor.w% наверное, %actor.iname%.
+    msend %actor% - Что мы нехристи чтобы не накормить.
+    msend %actor% - Сейчас, подожди...
+    dgcast 'насыщение' .%actor.iname%
+
+# Trigger #5006
+6:
+  name: Стражник заходит к ПКиллеру
+  attach_type: kMobTrigger
+  narg: 75
+  trigger_types:
+    - kIncomePC
+  script: |-2
+    wait 1
+    if %actor.clan% != null
+      halt
+    end
+    foreach char %self.pc%
+      if %char.agressor% > 5000
+        if %char.agressor% < 5099
+          set target %char%
+        break
+      end
+    end
+    if %char.agressor% > 5100
+      if %char.agressor% < 5199
+        set target %char%
+      break
+    end
+    end
+    if %char.agressor% > 5600
+      if %char.agressor% < 5699
+        set target %char%
+      break
+    end
+    end
+    done
+    if !%target%
+      halt
+    end
+    if %target.sex% == 1
+      крича %target.name%, - вот он, убивец, хватай его! Вяжи его!
+    else
+      крича %target.name%, мерзавка, хватай ее! Вяжи ее!
+    end
+    крича %target.name% - вот он%target.g% где, хватай, ребяты!
+    mforce %target.name% просн
+    mforce %target.name% stand
+    появ
+    mforce %target.name% трепет
+    mforce %target.name% следовать r1guarg
+    group all
+    kill %target%
+
+# Trigger #5007
+7:
+  name: ПКллер заходит к стражнику
+  attach_type: kMobTrigger
+  narg: 80
+  trigger_types:
+    - kGreetPC
+  script: |-2
+    wait 1
+    if %actor.clan% != null
+      halt
+    end
+    if !%actor.agressor%
+      halt
+    end
+    if %actor.agressor% > 5000
+      if %actor.agressor% < 5099
+        set agr 1
+      end
+    end
+    if %actor.agressor% > 5100
+      if %actor.agressor% < 5199
+        set agr 1
+      end
+    end
+    if %actor.agressor% > 5600
+      if %actor.agressor% < 5699
+        set agr 1
+      end
+    end
+    if %agr% == 1
+      if %actor.sex% == 1
+        крича %actor.iname%, - вот он, убивец, хватай его! Вяжи его!
+      else
+        крича %actor.iname%, мерзавка, хватай ее! Вяжи ее!
+      end
+      крича %actor.iname% - вот он%actor.g% где, хватай, ребяты!
+      mforce %actor.iname% stand
+      mforce %actor.iname% следовать r2guard
+      group all
+      kill %actor%
+    end
+
+# Trigger #5008
+8:
+  name: Заходят к страннику
+  attach_type: kMobTrigger
+  narg: 75
+  trigger_types:
+    - kGreetPCAll
+  script: |-2
+    wait 1
+    emot поднял голову и прислушался к вашим шагам
+    say Остановись, добрый человек! Удели мне минуту!
+    attach 5009 %self%
+
+# Trigger #5009
+9:
+  name: слушаем странника
+  attach_type: kMobTrigger
+  narg: 0
+  arglist: слушаю говори
+  trigger_types:
+    - kSpeech
+  script: |-2
+    if %speech% == слушаю
+      wait 1s
+      say Да будет на тебе благословение богов! Я не здешний, пришел сюда в поисках одной вещи...
+      wait 1s
+      say Хочешь ли ты выслушать мою историю? Готов ли ты помочь?
+      attach 5018 %self%
+      detach 5009 %self%
+    end
+
+# Trigger #5010
+10:
+  name: Дали осколок старику
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kReceive
+  script: |-2
+    wait 1
+    if %object.vnum% != 5050
+      wait 1s
+      echo %self.name% внимательно ощупал %object.vname%.
+      wait 1s
+      say Я не чувствую исходящего от него жара, опять какую-то безделушку мне принесли.
+      wait 1s
+      drop %object.name%
+      взд
+      halt
+    end
+    wait 1
+    mpurge %object%
+    wait 1s
+    say Да, это он! Я чувствую жар его! Благодарю тебя, мой спаситель!
+    wait 2s
+    if (%actor.CanGetFeat(предсмертная ярость)% && !%actor.feat(предсмертная ярость)%)
+      say Я хоть и слеп, а все же кое-что из воинского мастерства помню. Подойди, покажу тебе одну ухватку.
+      echoaround %actor%
+      mfeatturn %actor% предсмертная.ярость set
+      halt
+    end
+    if %random.1000% < 310
+      say Нечем мне тебя отблагодарить, но вот возьми эту книгу, может, ее удастся выгодно продать ?
+      wait 5
+      load obj 514
+      дать книг .%actor.iname%
+      halt
+    end
+    %actor.questbodrich(3)%
+    eval owner %self%
+    eval char %actor%
+    eval questnum 5010
+    eval exp 50000
+    exec 203 %world.room(203)%
+    detach 5010 %self%
+
+# Trigger #5011
+11:
+  name: Заходит квестер к Ефимию
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kGreetPCAll
+  script: |-2
+    if %quest50% && %quest50% == %actor%
+      wait 2s
+      if %quest50.room% == %self.room%
+        say Ну что стоишь ? Что надобно ?
+        attach 5012 %self%
+        detach 5011 %self%
+      end
+    end
+
+# Trigger #5012
+12:
+  name: Говорим Ефимию что надо
+  attach_type: kMobTrigger
+  narg: 0
+  arglist: осколок камень скол
+  trigger_types:
+    - kSpeech
+  script: |-2
+    wait 1s
+    say Что-то нынче он всем нужен? И с чего бы это?
+    say Обычный желтый камешек, разве что теплый даже в мороз.
+    say Может, раз он тебе так нужен, кунами за него дашь? Скажем 8000 кун?
+    wait 1s
+    if %actor.sex% == 1
+      say Согласен?
+    else
+      say Согласна?
+    end
+    attach 5013 %self%
+    attach 5014 %self%
+    detach 5012 %self%
+
+# Trigger #5013
+13:
+  name: Незахотели давать денег ефимию
+  attach_type: kMobTrigger
+  narg: 0
+  arglist: нет
+  trigger_types:
+    - kSpeech
+  script: |-2
+    wait 1s
+    %actor.setquest(5004)%
+    detach 5014 %self%
+    say Ну, тогда отработать придется.
+    say Я от дядьки своего давно вестей не получал.
+    say Сходи, отнеси ему весточку, помоги, если надо.
+    say Постараешься - награжу. Вот, возьми.
+    wait 1
+    load obj 5051
+    дать письм %actor.iname%
+    say Живет он на хуторе, что в лесу на закат от деревни.
+    detach 5013 %self%
+
+# Trigger #5014
+14:
+  name: Дали денег Ефимию
+  attach_type: kMobTrigger
+  narg: 200
+  trigger_types:
+    - kBribe
+  script: |-2
+    if %amount% < 8000
+      wait 1s
+      echo Ефимий аккуратно пересчитал деньги.
+      wait 1s
+      say ОБМАНЩИК!
+      wait 4
+      set dam %actor.hitp%
+      msend %actor% Неуловимый удар громадного кулака отбросил Вас к стене!
+      echoaround %actor% Неуловимый удар громадного кулака отбросил %actor.vname% к стене!
+      mdamage %actor.iname% %dam%
+    else
+      wait 1s
+      echo Ефимий аккуратно пересчитал деньги.
+      %self.gold(-8000)%
+      echo Ефимий припрятал деньги за пазухой.
+      load obj 5050
+      дать камень %actor.iname%
+      wait 1s
+      say Надо же, за такую пустяковину деньги платить! Совсем одурел народ.
+      detach 5013 %self%
+      detach 5014 %self%
+    end
+
+# Trigger #5015
+15:
+  name: дали письмо дядюшки Ефимию
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kReceive
+  script: |-2
+    wait 1
+    if %object.vnum% != 5518
+      дум
+      say Иди-ка ты своей дорогой...
+      брос %object.name%
+      halt
+    end
+    wait 1
+    mpurge %object%
+    wait 1s
+    if !%actor.quested(5004)%
+      emot прочитал весточку
+      say Тебя, видать, дядюшка послал?
+      wait 1s
+      say ну что же, благодарствую за помощь
+      поклон
+      say И за вести спасибо.
+      halt
+    end
+    %actor.unsetquest(5000)%
+    %actor.unsetquest(5001)%
+    %actor.unsetquest(5002)%
+    %actor.unsetquest(5003)%
+    %actor.unsetquest(5004)%
+    say Постарался, вижу, вижу. Хорошие слова о тебе родич мой пишет.
+    say Что ж, раз обещал - отдам. Бери вот...
+    wait 5
+    load obj 5050
+    дать оскол %actor.iname%
+
+# Trigger #5016
+16:
+  name: принесли письмо дядьке
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kReceive
+  script: |-2
+    wait 1s
+    if %object.vnum% == 5051
+      say Спасибо, что принес весточку от родича. Давно я к ним не хаживал.
+      say Что-то ноги отниматься стали. Знахарь наш какое-то зелье готовит, оно вроде и помогает...
+      say Да только он сам признается - не будет в зелье силы без нужных добавок.
+      say А найти их он не может, стар уже по лесам да полям бегать.
+      wait 1
+      say Вот что, родич пишет, что ты работу подрядился выполнить?
+      say Значит и найди их.
+      say Принеси мне ...., ...., да ...., и тогда буду считать твою службу исполненной!
+      attach 5017 %self%
+      mpurge %object%
+      detach 5016 %self%
+    end
+
+# Trigger #5017
+17:
+  name: приносим ингры - и получаем письмо
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kReceive
+  script: 'detach 5017 %self%'
+
+# Trigger #5018
+18:
+  name: Рассказ странника
+  attach_type: kMobTrigger
+  narg: 1
+  arglist: слушаю продолжай говори готов готова
+  trigger_types:
+    - kSpeech
+  script: |-2
+    wait 1s
+    say Тогда слушай. Когда-то я был богатым купцом.
+    echo _- Были у меня лавки, полные добра.
+    echo _- Были ладьи быстроходные, были приказчики проворные да охрана надежная.
+    wait 1s
+    взд
+    wait 2s
+    say Но как-то во хмелю сказал я, не подумавши, о Богах старых нехорошие слова.
+    echo _- А Они и услышали. И наказали - стал я слепнуть день ото дня.
+    echo _- Без догляду хозяйского развалилась торговля, ушло богатство.
+    echo _- Волхвы сказали, что большими дарами можно искупить вину.
+    echo _- И отнес я все добро на капище. Не помогло, видно не те дары Богам нужны...
+    wait 1s
+    say  Но как-то услышал я, что есть в этих местах семья, которая владеет редкой диковинкой.
+    echo _- Скол секиры громовой, которой Перун Змея гоняет.
+    echo _- Пришел я к ним, да прогнали со двора нищего калеку,
+    echo _- Что я им дать могу, чем отблагодарить?
+    echo _- Прошу - добудь мне драгоценный дар, уговори аль отслужи.
+    echo _- Может, если бы отнес такой дар, не богатством кичась, а почтение выказывая
+    echo _- Может тогда простят мне глупые слова, да от хвори избавят?
+    set quest50 %actor%
+    calcuid efim 5029 mob
+    attach 5011 %efim%
+    remote quest50 %efim%
+    *attach 5010 %self%
+    detach 5008 %self%
+    detach 5018 %self%
+
+# Trigger #5019
+19:
+  name: встречает старый цыган
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+  script: |-2
+    tell %actor.iname% Хочешь довезу тебя до одного места, сам туда ты не проберешься!
+    eval needgold %actor.level%
+    switch %needgold%
+      case 1
+      case 21
+      case 31
+        set what куна
+      break
+    break
+    break
+    case 2
+    case 3
+    case 4
+    case 22
+    case 23
+    case 24
+    case 32
+    case 33
+    case 34
+      set what куны
+    break
+    break
+    break
+    break
+    break
+    break
+    break
+    break
+    break
+    default
+      set what кун
+    break
+    done
+    tell %actor.iname% Всего-то %needgold% %what% и ты там!
+
+# Trigger #5020
+20:
+  name: дали куны цыгану5031
+  attach_type: kMobTrigger
+  narg: 1
+  trigger_types:
+    - kBribe
+  script: |-2
+    if %actor.vnum% != -1
+      halt
+    end
+    eval needgold %actor.level%
+    if %amount% < %needgold%
+      дать %amount% кун %actor.iname%
+      tell %actor.iname% Маловато будет!
+    else
+      echo Цыган обернулся куда-то к кустам и громко свистнул.
+      echo Из-за кустов выскочил цыганенок с телегой.
+      msend %actor.iname% С ветерком довезут, глазом моргнуть не успеешь!
+      msend %actor% Цыганенок быстро подвел Вам телегу.
+      echoaround %actor% %actor.iname% влез%actor.q% на телегу.
+      echo Цыганенок крикнул: А ну залетные!
+      mteleport %actor% 4064 horse
+      wait 1
+      msend %actor% Не успели Вы и глазом моргнуть, уже приехали!
+      msend %actor% Цыганенок быстро развернул телегу и умчался обратно.
+      echoaround %actor% %actor.iname% слез%actor.q% с подъехавшей телеги.
+      echoaround %actor% Телега развернулась и умчалась прочь.
+    end
+
+# Trigger #5021
+21:
+  name: встречает старый следопыт
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kGreetPCAll
+  script: |-2
+    *встречастарый | Mobiles | Great-All PC | 100
+    tell %actor.iname% Могу провести неизвестными никому дорогами до степной деревни!
+    eval needgold %actor.level%
+    switch %needgold%
+      case 1
+      case 21
+      case 31
+        set what куну
+      break
+    break
+    break
+    case 2
+    case 3
+    case 4
+    case 22
+    case 23
+    case 24
+    case 32
+    case 33
+    case 34
+      set what куны
+    break
+    break
+    break
+    break
+    break
+    break
+    break
+    break
+    break
+    default
+      set what кун
+    break
+    done
+    tell %actor.iname% Всего за %needgold% %what%!
+
+# Trigger #5022
+22:
+  name: дать кун старому следопыту
+  attach_type: kMobTrigger
+  narg: 1
+  trigger_types:
+    - kBribe
+  script: |-2
+    *дать20старому | Mobiles | Bribe | 1
+    if %actor.vnum% != -1
+      halt
+    end
+    eval needgold %actor.level%
+    if %amount% < %needgold%
+      дать %amount% кун %actor.iname%
+      tell %actor.iname% Мало, договор превыше всего!
+    else
+      echo Следопыт коротко крякнул как утка.
+      msend %actor.iname% Из-за кустов вылез еще один следопыт и махнул рукой чтобы следовали за ним.
+      if %actor.sex%==1
+        echoaround %actor% Из-за кустов вылез еще один следопыт и махнул рукой для %actor.iname% чтобы следовал за ним.
+        echoaround %actor% %actor.iname% исчез в кустах вместе с проводником.
+      else
+        echoaround %actor% Из-за кустов вылез еще один следопыт и махнул рукой для %actor.iname% чтобы следовала за ним.
+        echoaround %actor% %actor.iname% исчезла в кустах вместе с проводником.
+      endif
+      mteleport %actor.iname% 6053 horse
+      msend %actor% Ваше путешествие окончилось.
+      * if %actor.sex%==1
+      *  mat 6053 echoaround %actor% %actor.iname% появился с проводником.
+      * else
+      *  mat 6053 echoaround %actor% %actor.iname% появилась с проводником.
+      * end
+      *  mat 6053 echo Проводник скрылся под навесом.
+      *end
+    end
