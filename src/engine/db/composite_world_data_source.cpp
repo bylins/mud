@@ -4,6 +4,7 @@
 #include "composite_world_data_source.h"
 
 #include "engine/entities/zone.h"
+#include "gameplay/mechanics/dungeons.h"
 #include "utils/logger.h"
 
 #include <algorithm>
@@ -32,73 +33,113 @@ std::string CompositeWorldDataSource::GetName() const
 	return name;
 }
 
-Freshness CompositeWorldDataSource::OverallFreshness(const IWorldDataSource &src) const
+bool CompositeWorldDataSource::AllZonesSupportPerZoneLoad() const
 {
-	Freshness best = src.GetIndexFreshness();
-	for (int vnum : src.ListZoneVnums())
+	for (const auto &src : m_sources)
 	{
-		best = std::max(best, src.GetZoneFreshness(vnum));
+		if (!src->SupportsPerZoneLoad())
+		{
+			return false;
+		}
 	}
-	return best;
+	return true;
 }
 
-void CompositeWorldDataSource::SelectReadSource()
+IWorldDataSource *CompositeWorldDataSource::SourceForZone(int zone_vnum) const
 {
-	if (m_read_source_selected)
+	auto it = m_zone_source.find(zone_vnum);
+	return it != m_zone_source.end() ? it->second : nullptr;
+}
+
+void CompositeWorldDataSource::SelectZoneSources()
+{
+	if (m_zone_sources_selected)
 	{
 		return;
 	}
-	m_read_source_selected = true;
+	m_zone_sources_selected = true;
 
-	// Compute each source's overall freshness once.
-	std::vector<Freshness> fresh(m_sources.size(), 0);
-	size_t winner = 0;
+	// Index winner: whole-source, decides zone_table membership/order.
+	std::vector<Freshness> index_fresh(m_sources.size(), 0);
+	size_t index_winner = 0;
 	for (size_t i = 0; i < m_sources.size(); ++i)
 	{
-		fresh[i] = OverallFreshness(*m_sources[i]);
-		// Strictly-greater wins; on ties keep the earlier (higher-priority) one.
-		if (fresh[i] > fresh[winner])
+		index_fresh[i] = m_sources[i]->GetIndexFreshness();
+		if (index_fresh[i] > index_fresh[index_winner])
 		{
-			winner = i;
+			index_winner = i;
 		}
-		log("World source [%zu] '%s': freshness=%llu",
-			i, m_sources[i]->GetName().c_str(),
-			static_cast<unsigned long long>(fresh[i]));
 	}
+	m_index_source = m_sources[index_winner].get();
+	log("World index source: '%s' (priority %zu, freshness=%llu)",
+		m_index_source->GetName().c_str(), index_winner,
+		static_cast<unsigned long long>(index_fresh[index_winner]));
 
-	m_read_source = m_sources[winner].get();
-	log("World read source: '%s' (priority %zu, freshness=%llu)",
-		m_read_source->GetName().c_str(), winner,
-		static_cast<unsigned long long>(fresh[winner]));
+	// Content winner: per zone, strictly-greater freshness wins; ties keep
+	// the earlier (higher-priority) source. Union of every source's zone
+	// list, so a zone can be picked even if it's not in the index winner.
+	std::vector<int> all_zones = ListZoneVnums();
+	m_zone_source.clear();
+	m_stale_zones.clear();
 
-	// Every source strictly staler than the winner is rewritten after boot so
-	// all backends converge to the loaded world.
-	m_stale_sources.clear();
-	for (size_t i = 0; i < m_sources.size(); ++i)
+	std::map<IWorldDataSource *, int> won_count;
+	for (int zone_vnum : all_zones)
 	{
-		if (i == winner)
+		if (zone_vnum >= dungeons::kZoneStartDungeons)
 		{
+			// Dungeon-instance zones are never persisted; skip freshness
+			// bookkeeping for them entirely (they shouldn't appear in
+			// ListZoneVnums() from a real backend anyway, but be defensive).
 			continue;
 		}
-		if (fresh[i] < fresh[winner])
+
+		std::vector<Freshness> fresh(m_sources.size(), 0);
+		size_t winner = 0;
+		for (size_t i = 0; i < m_sources.size(); ++i)
 		{
-			m_stale_sources.push_back(m_sources[i].get());
-			log("World source '%s' is stale -- will be rewritten after boot",
-				m_sources[i]->GetName().c_str());
+			fresh[i] = m_sources[i]->GetZoneFreshness(zone_vnum);
+			if (fresh[i] > fresh[winner])
+			{
+				winner = i;
+			}
 		}
+
+		IWorldDataSource *winner_src = m_sources[winner].get();
+		m_zone_source[zone_vnum] = winner_src;
+		++won_count[winner_src];
+
+		for (size_t i = 0; i < m_sources.size(); ++i)
+		{
+			if (i == winner)
+			{
+				continue;
+			}
+			if (fresh[i] < fresh[winner])
+			{
+				m_stale_zones[m_sources[i].get()].push_back(zone_vnum);
+			}
+		}
+	}
+
+	// Roll-up log, not one line per zone -- a full-world boot can have
+	// hundreds of zones.
+	for (const auto &src : m_sources)
+	{
+		log("World source '%s': won %d zone(s), %zu stale zone(s) to resync",
+			src->GetName().c_str(), won_count[src.get()], m_stale_zones[src.get()].size());
 	}
 }
 
 void CompositeWorldDataSource::LoadZones()
 {
-	SelectReadSource();
-	m_read_source->LoadZones();
+	SelectZoneSources();
+	m_index_source->LoadZones();
 }
 
-void CompositeWorldDataSource::LoadTriggers() { m_read_source->LoadTriggers(); }
-void CompositeWorldDataSource::LoadRooms() { m_read_source->LoadRooms(); }
-void CompositeWorldDataSource::LoadMobs() { m_read_source->LoadMobs(); }
-void CompositeWorldDataSource::LoadObjects() { m_read_source->LoadObjects(); }
+void CompositeWorldDataSource::LoadTriggers() { m_index_source->LoadTriggers(); }
+void CompositeWorldDataSource::LoadRooms() { m_index_source->LoadRooms(); }
+void CompositeWorldDataSource::LoadMobs() { m_index_source->LoadMobs(); }
+void CompositeWorldDataSource::LoadObjects() { m_index_source->LoadObjects(); }
 
 Freshness CompositeWorldDataSource::CanonicalZoneVersion(int zone_rnum) const
 {
@@ -179,6 +220,22 @@ void CompositeWorldDataSource::SaveObjects(int zone_rnum, int specific_vnum)
 	for (auto &src : m_sources)
 	{
 		src->MarkZoneSynced(zone_rnum, version);
+	}
+}
+
+void CompositeWorldDataSource::FinalizeZoneRooms()
+{
+	for (auto &src : m_sources)
+	{
+		src->FinalizeZoneRooms();
+	}
+}
+
+void CompositeWorldDataSource::FinalizeZoneEntities()
+{
+	for (auto &src : m_sources)
+	{
+		src->FinalizeZoneEntities();
 	}
 }
 

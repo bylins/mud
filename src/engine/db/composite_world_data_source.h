@@ -4,18 +4,27 @@
 //
 // Model (see configuration.xml <world_loader><sources>):
 //   - Each child source has a priority given by its order (first == highest).
-//   - On read, the source with the highest freshness wins; ties are broken by
-//     priority. (v1 decides at whole-world granularity; per-zone selection is
-//     layered on later via the LoadZone* hooks in IWorldDataSource.)
+//   - Zone INDEX (membership: which zones exist) is a whole-source decision:
+//     the source with the highest GetIndexFreshness() wins and supplies
+//     LoadZones()/zone_table (zone add/remove is rare, so this stays coarse).
+//   - Zone CONTENT (rooms/mobs/objects/triggers) is decided PER ZONE: for
+//     each zone vnum (union of every source's ListZoneVnums()), the source
+//     with the highest GetZoneFreshness(vnum) wins; ties broken by priority.
+//     This is what makes editing one zone live (via OLC/admin-api, already
+//     zone-scoped writes) NOT fall back to reloading the entire world from
+//     the stale-everywhere-else source -- only that one zone's content comes
+//     from the edited source, every other zone still reads its cached copy.
 //   - On write, every source is written (fan-out / dual-write).
-//   - After a read, any source that was staler than the one we read from is
-//     scheduled for a full rewrite so all backends converge (self-heal).
+//   - After a read, for each source, the zones where it lost the per-zone
+//     freshness comparison are resynced from the loaded world (self-heal) --
+//     NOT the whole zone list, just the ones it actually lost.
 
 #ifndef COMPOSITE_WORLD_DATA_SOURCE_H_
 #define COMPOSITE_WORLD_DATA_SOURCE_H_
 
 #include "world_data_source.h"
 
+#include <map>
 #include <memory>
 #include <string>
 #include <vector>
@@ -31,7 +40,14 @@ public:
 
 	std::string GetName() const override;
 
-	// Reads: delegate to the freshest source (decided lazily on first call).
+	// Reads: LoadZones() picks the index-freshness winner for zone_table,
+	// then resolves a per-zone content winner for everything else. If not
+	// every source supports per-zone loading (AllZonesSupportPerZoneLoad()
+	// is false), LoadTriggers/Rooms/Mobs/Objects fall back to whole-source
+	// delegation to the index winner -- the orchestrator (GameLoader::
+	// BootWorld) checks that flag and only drives the per-zone LoadZone*
+	// loop when every source can support it; otherwise it calls these
+	// fallback methods exactly like a single source would.
 	void LoadZones() override;
 	void LoadTriggers() override;
 	void LoadRooms() override;
@@ -46,34 +62,50 @@ public:
 	void SaveObjects(int zone_rnum, int specific_vnum = -1) override;
 	void FinalizeResave() override;
 
+	// Fan out to every source -- see IWorldDataSource::FinalizeZoneRooms/
+	// FinalizeZoneEntities for when the boot orchestrator calls each.
+	void FinalizeZoneRooms() override;
+	void FinalizeZoneEntities() override;
+
 	// Aggregated freshness/membership, so composites can themselves nest.
 	std::vector<int> ListZoneVnums() const override;
 	Freshness GetZoneFreshness(int zone_vnum) const override;
 	Freshness GetIndexFreshness() const override;
 
-	// Sources that were staler than the one we read from and should be fully
-	// rewritten from the in-memory world after boot. Empty until LoadZones()
-	// has run. The boot path (GameLoader::BootWorld) drives the actual rewrite,
-	// since it owns access to the global world tables.
-	const std::vector<IWorldDataSource *> &StaleSources() const { return m_stale_sources; }
+	// True if every child source supports per-zone loading. Gates whether
+	// the boot orchestrator uses the per-zone LoadZone* loop or falls back
+	// to whole-source LoadTriggers/Rooms/Mobs/Objects (e.g. a composite that
+	// includes the legacy backend, which never implemented LoadZone*).
+	bool AllZonesSupportPerZoneLoad() const;
 
-	// The source actually read from (for logging). null until LoadZones().
-	IWorldDataSource *ReadSource() const { return m_read_source; }
+	// The per-zone content winner for `zone_vnum` (resolved by LoadZones()).
+	// null if LoadZones() hasn't run yet or the vnum is unknown to every
+	// source.
+	IWorldDataSource *SourceForZone(int zone_vnum) const;
+
+	// For each source, the zone vnums where it lost the per-zone freshness
+	// comparison (excluding dungeon-instance vnums, which are never
+	// persisted) and should be resynced from the loaded world after boot.
+	// Empty until LoadZones() has run. The boot path (GameLoader::BootWorld)
+	// drives the actual resync, since it owns access to the global world
+	// tables.
+	const std::map<IWorldDataSource *, std::vector<int>> &StaleZonesBySource() const { return m_stale_zones; }
 
 private:
-	// Decide (once) which source to read from and which are stale.
-	void SelectReadSource();
-	// max(index freshness, freshest zone) for a single source.
-	Freshness OverallFreshness(const IWorldDataSource &src) const;
+	// Decide (once) the index-freshness winner (m_index_source) and, per
+	// zone, the content-freshness winner (m_zone_source) plus each source's
+	// stale-zone list (m_stale_zones).
+	void SelectZoneSources();
 	// Canonical content version of a zone after a write: the freshest the zone
 	// looks across all sources (i.e. the just-written file mtime). Every source
 	// is stamped with this so none ends up spuriously newer than the others.
 	Freshness CanonicalZoneVersion(int zone_rnum) const;
 
 	std::vector<std::unique_ptr<IWorldDataSource>> m_sources;  // [0] = highest priority
-	IWorldDataSource *m_read_source = nullptr;                 // winner, lazily chosen
-	std::vector<IWorldDataSource *> m_stale_sources;           // to rewrite after boot
-	bool m_read_source_selected = false;
+	IWorldDataSource *m_index_source = nullptr;                 // zone_table/index winner
+	std::map<int, IWorldDataSource *> m_zone_source;            // per-zone content winner
+	std::map<IWorldDataSource *, std::vector<int>> m_stale_zones;  // per-source dirty-zone lists
+	bool m_zone_sources_selected = false;
 };
 
 // Factory: build a composite from an ordered list of sub-sources.
