@@ -1,0 +1,13 @@
+# Zone #17
+
+vnum: 17
+name: 'Системная зона 17 -- Книги для отваров #1'
+top_room: 1799
+lifespan: 0
+reset_mode: 0
+reset_idle: 0
+zone_type: 0
+mode: 1  # level
+entrance: 1799
+under_construction: 0
+zone_group: 1  # solo

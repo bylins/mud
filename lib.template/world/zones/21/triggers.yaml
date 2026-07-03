@@ -1,0 +1,118 @@
+# Triggers for zone 21
+
+# Trigger #2100
+0:
+  name: Бросок костяных бабок
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreetAll
+  script: |-2
+    eval kost2601 %random.6%
+    eval kost2602 %random.6%
+    wait 3
+    echo Костяные бабки упали на землю и выпало %kost2601% и %kost2602%
+    wait 1
+
+# Trigger #2101
+1:
+  name: Трансформация свечки после догорания
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kReceive
+    - kHitPercent
+  script: |-2
+    wait 1
+    if (%self.val2% == 0)
+      otransform 2199
+      detach 2101 %self%
+    end
+
+# Trigger #2102
+2:
+  name: Выдача базовой экипировки
+  attach_type: kMobTrigger
+  narg: 100
+  arglist: помоги
+  trigger_types:
+    - kSpeech
+  script: |-2
+    wait 1
+    if !%actor.canbeseen%
+      г Кто здесь? Кому помогать? Не вижу!
+      чесат
+      halt
+    end
+    %send% %actor% %self.name% внимательно осмотрел%self.g% Вас.
+    if !%actor.IsNoob%
+      г И не стыдно тебе? Уже опытнее меня, а все о помощи просишь.
+      укор .%actor.iname%
+      halt
+    end
+    eval money %actor.gold%+%actor.bank%
+    if (%money% > 200)
+      г Да ты ведь богаче меня уже! Не дам ничего!
+      фиг .%actor.iname%
+      halt
+    end
+    eval datem (%date.unix%-%actor.getquest(2102)%)/60
+    if (%datem% < 24)
+      г А не слишком ли ты часто просишь о помощи?!
+      хмур .%actor.iname%
+      г Чаще двух раз за день помогать не стану!
+      halt
+    end
+    дум
+    mjunk all
+    foreach vnum %actor.NoobOutfit%
+      %load% obj %vnum%
+    done
+    foreach item %self.objs%
+      %item.effect(+рассыпется)%
+      %item.effect(+!продать)%
+      %item.cost(0)%
+      %item.rent(0)%
+      %item.renteq(0)%
+    done
+    %echo% %self.name% достал%self.g% некоторые вещи из сундучка, припрятанного неподалеку.
+    полож all мешок
+    log room [%self.realroom%] char %actor.iname%
+    %actor.setquest(2102 %date.unix%)%
+    give all .%actor.iname%
+
+# Trigger #2103
+3:
+  name: лошадь из медальона
+  attach_type: kObjTrigger
+  narg: 2
+  arglist: потереть
+  trigger_types:
+    - kCommand
+  script: |-2
+    if %actor.fighting%
+      osend %actor%  Невозможно! Вы сражаетесь!
+      halt
+    end
+    if !%arg.contains(медальон)%
+      osend %actor% Что-что потереть?
+      halt
+    end
+    if !%self.canbeseen(%actor%)%
+      osend %actor% Вы не видите медальон.
+      halt
+    end
+    osend %actor% Вы бережно потерли медальон.
+    echoaround %actor% %actor.iname% бережно потер%actor.q% медальон.
+    eval horse %actor.riding%
+    if (%horse.vnum% == 2100)
+      osend %actor% Вы отпустили свою лошадь.
+      opurge %horse%
+      halt
+    end
+    osend %actor% Медальон засиял в ваших руках.
+    echoaround %actor% Медальон засиял в руках %actor.rname%.
+    load mob 2100
+    osend %actor% Рядом с вами появилась лошадь.
+    echoaround %actor% Лошадь прискакала к %actor.dname%.
+    oforce %actor% оседлать лошадь

@@ -1,0 +1,136 @@
+# Rooms for zone 49
+
+# Room #4900
+0:
+  name: Чисто поле
+  description: |2
+       Ты стоишь на небольшой полянке посреди глухого леса, на севере - холмик
+    небольшой, а в нем - вот диво! - дверка резная, дубовая, настежь открытая.
+    За дверкой комната в полумраке. Видно, там-то и есть та самая школа, там-
+    то тебе и помогут во всем разобраться.
+  sector: kInside
+  flags:
+    - kPeaceful
+    - kNoTeleportIn
+    - kNoSummonOut
+    - kNoTeleportOut
+
+# Room #4901
+1:
+  name: Прихожая
+  description: |2
+    Вы оказались в комнате, наполненной обломками творческих мыслей билдера.
+  sector: kInside
+  flags:
+    - kIndoors
+    - kPeaceful
+    - kNoTeleportIn
+    - kNoSummonOut
+    - kNoTeleportOut
+    - kNoBattle
+  exits:
+    - direction: north
+      to_room: 4902  # Коридор терема
+      key: 0
+
+# Room #4902
+2:
+  name: Коридор терема
+  description: |2
+    Вы оказались в комнате, наполненной обломками творческих мыслей билдера.
+  sector: kInside
+  flags:
+    - kIndoors
+    - kPeaceful
+    - kNoTeleportIn
+    - kNoSummonOut
+    - kNoTeleportOut
+    - kNoBattle
+  exits:
+    - direction: east
+      to_room: 4904  # Возле лестницы
+      key: 0
+    - direction: south
+      to_room: 4901  # Прихожая
+      key: 0
+    - direction: west
+      to_room: 4903  # Небольшой закуток
+      key: 0
+
+# Room #4903
+3:
+  name: Небольшой закуток
+  description: |2
+    Вы оказались в комнате, наполненной обломками творческих мыслей билдера.
+  sector: kInside
+  flags:
+    - kIndoors
+    - kPeaceful
+    - kNoTeleportIn
+    - kNoSummonOut
+    - kNoTeleportOut
+    - kNoBattle
+  exits:
+    - direction: east
+      to_room: 4902  # Коридор терема
+      key: 0
+
+# Room #4904
+4:
+  name: Возле лестницы
+  description: |2
+    Вы оказались в комнате, наполненной обломками творческих мыслей билдера.
+  sector: kInside
+  flags:
+    - kIndoors
+    - kPeaceful
+    - kNoTeleportIn
+    - kNoSummonOut
+    - kNoTeleportOut
+    - kNoBattle
+  exits:
+    - direction: west
+      to_room: 4902  # Коридор терема
+      key: 0
+    - direction: up
+      to_room: 4905  # У лестницы
+      key: 0
+
+# Room #4905
+5:
+  name: У лестницы
+  description: |2
+    Вы оказались в комнате, наполненной обломками творческих мыслей билдера.
+  sector: kInside
+  flags:
+    - kIndoors
+    - kPeaceful
+    - kNoTeleportIn
+    - kNoSummonOut
+    - kNoTeleportOut
+    - kNoBattle
+  exits:
+    - direction: west
+      to_room: 4906  # Верхний этаж
+      key: 0
+    - direction: down
+      to_room: 4904  # Возле лестницы
+      key: 0
+
+# Room #4906
+6:
+  name: Верхний этаж
+  description: |2
+    Вы оказались в комнате, наполненной обломками творческих мыслей билдера.
+  sector: kInside
+  flags:
+    - kIndoors
+    - kPeaceful
+    - kNoTeleportIn
+    - kNoSummonOut
+    - kNoTeleportOut
+    - kNoBattle
+  exits:
+    - direction: east
+      to_room: 4905  # У лестницы
+      key: 0

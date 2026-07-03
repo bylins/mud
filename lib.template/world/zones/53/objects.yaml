@@ -1,0 +1,343 @@
+# Objects for zone 53
+
+# Object #5300
+0:
+  names:
+    aliases: бледная поганка
+    nominative: бледная поганка
+    genitive: бледной погадки
+    dative: бледной поганке
+    accusative: бледную поганку
+    instrumental: бледной поганкой
+    prepositional: бледной поганке
+  short_desc: Бледная поганка растет тут.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 2
+    - 1
+    - 0
+    - 1
+  weight: 1
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 10
+  cur_durability: 10
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 1
+  sex: kFemale
+  max_in_world: 2
+  extra_flags:
+    - kNodecay
+    - kAppearsDay
+    - kAppearsNight
+    - kAppearsSummer
+    - kAppearsAutumn
+  wear_flags:
+    - kTake
+
+# Object #5301
+1:
+  names:
+    aliases: белый гриб
+    nominative: белый гриб
+    genitive: белого гриба
+    dative: белому грибу
+    accusative: белый гриб
+    instrumental: белым грибом
+    prepositional: белым грибом
+  short_desc: Белый гриб растет тут.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 4
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 20
+  rent_off: 10
+  rent_on: 10
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 1
+  sex: kMale
+  max_in_world: 30
+  extra_flags:
+    - kNodecay
+    - kAppearsDay
+    - kAppearsNight
+    - kAppearsSummer
+    - kAppearsAutumn
+  wear_flags:
+    - kTake
+
+# Object #5302
+2:
+  names:
+    aliases: капля меда
+    nominative: капля меда
+    genitive: капли меда
+    dative: капле меда
+    accusative: каплю меда
+    instrumental: каплей меда
+    prepositional: капле меда
+  short_desc: Капля меда лежит тут.
+  type: kPotion
+  material: 16  # ОРГАНИКА
+  values:
+    - 5
+    - 103
+    - -1
+    - -1
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 1
+  sex: kFemale
+  max_in_world: 30
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: капля меда
+      description: |2
+        Довольно крупная капля меда. Пожалуй, ее бы хватило чтобы
+        вас насытить. Стоит только осушить ее.
+
+# Object #5303
+3:
+  names:
+    aliases: родник
+    nominative: родник
+    genitive: родника
+    dative: роднику
+    accusative: родник
+    instrumental: родником
+    prepositional: роднике
+  short_desc: Родник журчит здесь.
+  action_desc: |2
+       Родник с чистый прохладной водой.
+  type: kFountain
+  material: 12  # КАМЕНЬ
+  values:
+    - 999
+    - 999
+    - 15
+    - 0
+  weight: 1004
+  cost: 1000000
+  rent_off: 1000000
+  rent_on: 1000000
+  max_durability: 100
+  cur_durability: 55
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 1
+  sex: kMale
+  max_in_world: 1
+  extra_flags:
+    - kHum
+    - kNodecay
+    - kAppearsDay
+    - kAppearsNight
+    - kAppearsSpring
+    - kAppearsSummer
+    - kAppearsAutumn
+
+# Object #5304
+4:
+  names:
+    aliases: земляника
+    nominative: земляника
+    genitive: земляники
+    dative: землянике
+    accusative: землянику
+    instrumental: земляникой
+    prepositional: землянике
+  short_desc: Земляника спеет здесь.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 3
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 3
+  rent_off: 3
+  rent_on: 3
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 10
+  extra_flags:
+    - kNoinvis
+    - kNodecay
+    - kAppearsDay
+    - kAppearsNight
+    - kAppearsSpring
+    - kAppearsSummer
+  wear_flags:
+    - kTake
+
+# Object #5305
+5:
+  names:
+    aliases: ус
+    nominative: ус
+    genitive: уса
+    dative: усу
+    accusative: ус
+    instrumental: усом
+    prepositional: усу
+  short_desc: Ус лежит здесь.
+  action_desc: |2
+       Тонкий ус легко гнется, но сломать его совсем не просто.
+  type: kWeapon
+  material: 15  # КОЖА
+  values:
+    - 0
+    - 2
+    - 4
+    - 12
+  weight: 5
+  cost: 100
+  rent_off: 20
+  rent_on: 5
+  spec_param: 145
+  max_durability: 100
+  cur_durability: 100
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 5
+  extra_flags:
+    - kNoinvis
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+    - kBoth
+  applies:
+    - location: 13  # макс.жизнь
+      modifier: 5
+    - location: 2  # ловкость
+      modifier: 1
+
+# Object #5306
+6:
+  names:
+    aliases: шкура медведя
+    nominative: шкура медведя
+    genitive: шкуры медведя
+    dative: шкуре медведя
+    accusative: шкуру медведя
+    instrumental: шкурой медведя
+    prepositional: шкуре медведя
+  short_desc: Шкура медведя лежит здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 2
+    - 2
+    - 0
+    - 0
+  weight: 0
+  cost: 240
+  rent_off: 240
+  rent_on: 24
+  max_durability: 150
+  cur_durability: 150
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 5
+  wear_flags:
+    - kTake
+    - kShoulders
+
+# Object #5307
+7:
+  names:
+    aliases: паучье брюхо
+    nominative: паучье брюхо
+    genitive: паучьего брюха
+    dative: паучьему брюху
+    accusative: паучье брюхо
+    instrumental: паучьим брюхом
+    prepositional: паучьем брюхе
+  short_desc: Брюхо паука лежит здесь.
+  type: kArmor
+  material: 16  # ОРГАНИКА
+  values:
+    - 1
+    - 1
+    - 0
+    - 0
+  weight: 2
+  cost: 50
+  rent_off: 50
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 95
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  max_in_world: 4
+  wear_flags:
+    - kTake
+    - kHead
+
+# Object #5308
+8:
+  names:
+    aliases: клюв дятла
+    nominative: клюв дятла
+    genitive: клюва дятла
+    dative: клюву дятла
+    accusative: клюв дятла
+    instrumental: клювом дятла
+    prepositional: клюве дятла
+  short_desc: Клюв дятла лежит здесь.
+  type: kWeapon
+  material: 13  # КОСТЬ
+  values:
+    - 0
+    - 2
+    - 5
+    - 11
+  weight: 10
+  cost: 50
+  rent_off: 50
+  rent_on: 5
+  spec_param: 145
+  max_durability: 100
+  cur_durability: 100
+  timer: 4320
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 5
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+    - kBoth
+  applies:
+    - location: 4  # мудрость
+      modifier: 1

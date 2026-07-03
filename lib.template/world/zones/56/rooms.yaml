@@ -1,0 +1,889 @@
+# Rooms for zone 56
+
+# Room #5600
+0:
+  name: У истока реки
+  description: |2
+       Здесь из земли струится небольшой ручеек, который перерастает в быструю
+    реку.
+  sector: kWaterSwim
+  flags:
+    - kNoEntryMob
+  exits:
+    - direction: north
+      to_room: 5601  # Мелководье
+    - direction: south
+      to_room: 5230  # У запруды
+      key: 0
+
+# Room #5601
+1:
+  name: Мелководье
+  description: |2
+      Ты входишь в воду по колено, мелкие водоросли щекочут твои ноги.
+  sector: kWaterSwim
+  flags:
+    - kNoEntryMob
+  exits:
+    - direction: north
+      to_room: 5603  # Речушка
+    - direction: south
+      to_room: 5600  # У истока реки
+
+# Room #5602
+2:
+  name: Речушка
+  description: |2
+      Много рыбы в этой речушке, она приплывает сюда для того, чтобы погреться
+    на солнце.
+  sector: kWaterSwim
+  exits:
+    - direction: north
+      to_room: 5605  # Речушка
+    - direction: east
+      to_room: 5603  # Речушка
+
+# Room #5603
+3:
+  name: Речушка
+  description: |2
+    ___Поверхность реки кишит водоворотами, но ты уже не соломинка во власти
+    стихии. На север продолжается основное русло реки. Ну и куда ты направишь
+    теперь свои стопы?
+  sector: kWaterSwim
+  exits:
+    - direction: north
+      to_room: 5606  # Речушка
+    - direction: east
+      to_room: 5604  # Речушка
+    - direction: south
+      to_room: 5601  # Мелководье
+    - direction: west
+      to_room: 5602  # Речушка
+
+# Room #5604
+4:
+  name: Речушка
+  description: |2
+      Много рыбы в этой речушке, она приплывает сюда для того, чтобы погреться
+    на солнце.
+  sector: kWaterSwim
+  exits:
+    - direction: north
+      to_room: 5607  # Речушка
+    - direction: west
+      to_room: 5603  # Речушка
+
+# Room #5605
+5:
+  name: Речушка
+  description: |2
+       Быстрое течение несет тебя на север. Обрывистый западный берег реки
+    нависает над тобой.
+  sector: kWaterSwim
+  exits:
+    - direction: north
+      to_room: 5609  # Река
+    - direction: east
+      to_room: 5606  # Речушка
+    - direction: south
+      to_room: 5602  # Речушка
+
+# Room #5606
+6:
+  name: Речушка
+  description: |2
+       Быстрое течение несет тебя на север. Обрывистый западный берег реки
+    нависает над тобой.
+  sector: kWaterSwim
+  exits:
+    - direction: north
+      to_room: 5610  # Река
+    - direction: east
+      to_room: 5607  # Речушка
+    - direction: south
+      to_room: 5603  # Речушка
+    - direction: west
+      to_room: 5605  # Речушка
+
+# Room #5607
+7:
+  name: Речушка
+  description: |2
+      Яркие лучи солнца играют на поверхности воды и переливаются всеми цветами
+    радуги.
+  sector: kWaterSwim
+  exits:
+    - direction: north
+      to_room: 5611  # Река
+    - direction: south
+      to_room: 5604  # Речушка
+    - direction: west
+      to_room: 5606  # Речушка
+
+# Room #5608
+8:
+  name: Пологий берег
+  description: |2
+       Ты находишься на широком пляже. Множество рыбаков пытаются бросать
+    свои сети в реку, но не у многих это получается. 
+  sector: kField
+  exits:
+    - direction: north
+      to_room: 5613  # Пологий берег
+    - direction: east
+      to_room: 5609  # Река
+
+# Room #5609
+9:
+  name: Река
+  description: |2
+       Большая река величественно несет свои воды к морю. Правый берег
+    узкой полоской виднеется на горизонте. Тут и там по воде расходятся
+    круги.
+  sector: kWaterSwim
+  exits:
+    - direction: north
+      to_room: 5614  # Река
+    - direction: east
+      to_room: 5610  # Река
+    - direction: south
+      to_room: 5605  # Речушка
+    - direction: west
+      to_room: 5608  # Пологий берег
+
+# Room #5610
+10:
+  name: Река
+  description: |2
+       Быстрое течение несет тебя на север, там река становится еще шире. 
+  sector: kWaterSwim
+  exits:
+    - direction: north
+      to_room: 5615  # Река
+    - direction: east
+      to_room: 5611  # Река
+    - direction: south
+      to_room: 5606  # Речушка
+    - direction: west
+      to_room: 5609  # Река
+
+# Room #5611
+11:
+  name: Река
+  description: |2
+       Большая река величественно несет свои воды к морю. Левый берег
+    узкой полоской виднеется на горизонте. Что-то крепко хватает тебя
+    из-под воды, но потом презрительно выплевывает.
+  sector: kWaterSwim
+  exits:
+    - direction: north
+      to_room: 5616  # Река
+    - direction: east
+      to_room: 5612  # Река
+    - direction: south
+      to_room: 5607  # Речушка
+    - direction: west
+      to_room: 5610  # Река
+
+# Room #5612
+12:
+  name: Река
+  description: |2
+       Мелкие водоросли цепляются за ноги, косяки рыб носятся туда сюда.
+  sector: kWaterSwim
+  exits:
+    - direction: north
+      to_room: 5617  # Река
+    - direction: west
+      to_room: 5611  # Река
+
+# Room #5613
+13:
+  name: Пологий берег
+  description: |2
+       Ты находишься на широком пляже. Множество рыбаков пытаются бросать
+    свои сети в реку, но не у многих это получается.
+  sector: kForest
+  exits:
+    - direction: north
+      to_room: 5622  # Пологий берег
+    - direction: east
+      to_room: 5614  # Река
+    - direction: south
+      to_room: 5608  # Пологий берег
+
+# Room #5614
+14:
+  name: Река
+  description: |2
+       Над головой кричат чайки, хищники охотятся за мальками и прочими
+    рыбами.
+  sector: kWaterSwim
+  exits:
+    - direction: north
+      to_room: 5621  # Река
+    - direction: east
+      to_room: 5615  # Река
+    - direction: south
+      to_room: 5609  # Река
+    - direction: west
+      to_room: 5613  # Пологий берег
+
+# Room #5615
+15:
+  name: Река
+  description: |2
+    __Течение всюду довольно быстрое и плесы практически отсутствуют.
+    Ширина реки даже в очень большую воду не превышает 30 - 40 м.
+  sector: kWaterSwim
+  exits:
+    - direction: north
+      to_room: 5620  # Река
+    - direction: east
+      to_room: 5616  # Река
+    - direction: south
+      to_room: 5610  # Река
+    - direction: west
+      to_room: 5614  # Река
+
+# Room #5616
+16:
+  name: Река
+  description: |2
+       Большая река величественно несет свои воды к морю. Правый берег
+    узкой полоской виднеется на горизонте. Кое-где виднеются поплавки
+    рыбацких сетей.
+  sector: kWaterSwim
+  exits:
+    - direction: north
+      to_room: 5619  # Река
+    - direction: east
+      to_room: 5617  # Река
+    - direction: south
+      to_room: 5611  # Река
+    - direction: west
+      to_room: 5615  # Река
+
+# Room #5617
+17:
+  name: Река
+  description: |2
+    ___Мелкие водоросли цепляются за ноги, косяки рыб носятся туда-сюда.
+  sector: kWaterSwim
+  exits:
+    - direction: north
+      to_room: 5618  # Река
+    - direction: south
+      to_room: 5612  # Река
+    - direction: west
+      to_room: 5616  # Река
+
+# Room #5618
+18:
+  name: Река
+  description: |2
+    ___Дальше река очень широко разливается и, похоже, что здесь
+    она уходит в старицу.
+  sector: kWaterSwim
+  exits:
+    - direction: north
+      to_room: 5627  # Река
+    - direction: east
+      to_room: 5644  # Старица
+    - direction: south
+      to_room: 5617  # Река
+    - direction: west
+      to_room: 5619  # Река
+
+# Room #5619
+19:
+  name: Река
+  description: |2
+       Сильное течение реки омывает вам ноги. Глубина реки увеличивается,
+    но она не мешает вам продолжить свой путь.
+  sector: kWaterSwim
+  exits:
+    - direction: north
+      to_room: 5626  # Река
+    - direction: east
+      to_room: 5618  # Река
+    - direction: south
+      to_room: 5616  # Река
+    - direction: west
+      to_room: 5620  # Река
+
+# Room #5620
+20:
+  name: Река
+  description: |2
+       Сильное течение реки омывает вам ноги. Глубина реки увеличивается
+    но она не мешает вам продолжить свой путь.
+  sector: kWaterSwim
+  exits:
+    - direction: north
+      to_room: 5625  # Река
+    - direction: east
+      to_room: 5619  # Река
+    - direction: south
+      to_room: 5615  # Река
+    - direction: west
+      to_room: 5621  # Река
+
+# Room #5621
+21:
+  name: Река
+  description: |2
+       Берега затоплены, и лишь очень внимательно наблюдая за водой и кустами
+    можно проследить русло. 
+  sector: kWaterSwim
+  exits:
+    - direction: north
+      to_room: 5624  # Река
+    - direction: east
+      to_room: 5620  # Река
+    - direction: south
+      to_room: 5614  # Река
+    - direction: west
+      to_room: 5622  # Пологий берег
+
+# Room #5622
+22:
+  name: Пологий берег
+  description: |2
+       Ты находишься на широком пляже. Множество рыбаков пытаются бросать
+    свои сети в реку, но не у многих это получается.
+  sector: kField
+  exits:
+    - direction: north
+      to_room: 5623  # Пологий берег
+    - direction: east
+      to_room: 5621  # Река
+    - direction: south
+      to_room: 5613  # Пологий берег
+
+# Room #5623
+23:
+  name: Пологий берег
+  description: |2
+       Ты находишься на широком пляже. Множество рыбаков пытаются бросать
+    свои сети в реку, но не у многих это получается.
+  sector: kField
+  exits:
+    - direction: north
+      to_room: 5629  # Пологий берег
+    - direction: east
+      to_room: 5624  # Река
+    - direction: south
+      to_room: 5622  # Пологий берег
+
+# Room #5624
+24:
+  name: Река
+  description: |2
+       Река образует многочисленные рукава и протоки. Очень живописны места,
+    где река подходит к коренному берегу. 
+  sector: kWaterSwim
+  exits:
+    - direction: north
+      to_room: 5630  # Река
+    - direction: east
+      to_room: 5625  # Река
+    - direction: south
+      to_room: 5621  # Река
+    - direction: west
+      to_room: 5623  # Пологий берег
+
+# Room #5625
+25:
+  name: Река
+  description: |2
+        Сильное течение реки омывает вам ноги. Глубина реки увеличивается
+    но она не мешает вам продолжить свой путь.
+  sector: kWaterSwim
+  exits:
+    - direction: north
+      to_room: 5631  # Река
+    - direction: east
+      to_room: 5626  # Река
+    - direction: south
+      to_room: 5620  # Река
+    - direction: west
+      to_room: 5624  # Река
+
+# Room #5626
+26:
+  name: Река
+  description: |2
+       Сильное течение реки омывает вам ноги. Глубина реки увеличивается
+    но она не мешает вам продолжить свой путь.
+  sector: kWaterSwim
+  exits:
+    - direction: north
+      to_room: 5632  # Река
+    - direction: east
+      to_room: 5627  # Река
+    - direction: south
+      to_room: 5619  # Река
+    - direction: west
+      to_room: 5625  # Река
+
+# Room #5627
+27:
+  name: Река
+  description: |2
+    ___Мелкие водоросли цепляются за ноги, косяки рыб носятся туда-сюда.
+  sector: kWaterSwim
+  exits:
+    - direction: north
+      to_room: 5633  # Река
+    - direction: south
+      to_room: 5618  # Река
+    - direction: west
+      to_room: 5626  # Река
+
+# Room #5628
+28:
+  name: Хижина рыбака
+  description: |2
+       Вы зашли в небольшую покосившуюся лачужку бедного рыбака.
+    В доме сидит старый, дряхлый рыбак, переплетая свои сети.
+  sector: kInside
+  flags:
+    - kNoEntryMob
+    - kIndoors
+    - kPeaceful
+    - kNoMagic
+    - kForMages
+    - kForSorcerers
+    - kForThieves
+    - kForWarriors
+    - kForAssasines
+    - kForGuards
+    - kForPaladines
+    - kForRangers
+    - kForPoly
+    - kForMono
+    - kForge
+    - kForMerchants
+    - kForMaguses
+    - kNoSummonOut
+    - kNoTeleportOut
+    - kNohorse
+    - kNoWeather
+  exits:
+    - direction: east
+      to_room: 5629  # Пологий берег
+  triggers:
+    - 5605  # reset 56
+
+# Room #5629
+29:
+  name: Пологий берег
+  description: |2
+       Ты находишься на широком пляже. Множество рыбаков пытаются бросать
+    свои сети в реку, но не у многих это получается.
+  sector: kField
+  exits:
+    - direction: north
+      to_room: 5635  # Пологий берег
+    - direction: east
+      to_room: 5630  # Река
+    - direction: south
+      to_room: 5623  # Пологий берег
+    - direction: west
+      to_room: 5628  # Хижина рыбака
+
+# Room #5630
+30:
+  name: Река
+  description: |2
+       Довольно часто видны дома в стороне от реки. Течение реки все усиливается
+    и усиливается.
+  sector: kWaterSwim
+  exits:
+    - direction: north
+      to_room: 5636  # Река
+    - direction: east
+      to_room: 5631  # Река
+    - direction: south
+      to_room: 5624  # Река
+    - direction: west
+      to_room: 5629  # Пологий берег
+
+# Room #5631
+31:
+  name: Река
+  description: |2
+        Сильное течение реки омывает вам ноги. Глубина реки увеличивается
+    но она не мешает вам продолжить свой путь.
+  sector: kWaterSwim
+  exits:
+    - direction: north
+      to_room: 5637  # Река
+    - direction: east
+      to_room: 5632  # Река
+    - direction: south
+      to_room: 5625  # Река
+    - direction: west
+      to_room: 5630  # Река
+
+# Room #5632
+32:
+  name: Река
+  description: |2
+       Сильное течение реки омывает вам ноги. Глубина реки увеличивается
+    но она не мешает вам продолжить свой путь.
+  sector: kWaterSwim
+  exits:
+    - direction: north
+      to_room: 5638  # Река
+    - direction: east
+      to_room: 5633  # Река
+    - direction: south
+      to_room: 5626  # Река
+    - direction: west
+      to_room: 5631  # Река
+
+# Room #5633
+33:
+  name: Река
+  description: |2
+       Мелкие водоросли цепляются за ноги, косяки рыб носятся туда сюда. На
+    востоке виднеется не то воронка, не то омут. Стоит ли идти туда?!
+  sector: kWaterSwim
+  exits:
+    - direction: north
+      to_room: 5639  # Река
+    - direction: east
+      to_room: 5634  # Омут
+    - direction: south
+      to_room: 5627  # Река
+    - direction: west
+      to_room: 5632  # Река
+
+# Room #5634
+34:
+  name: Омут
+  description: |2
+       В узком ущелье вода беснуется, разбиваясь о скалы. Брызги летят
+    во все стороны. Поверхность сплошь в пене и водоворотах. Ты не выдерживаешь
+    этого и вода поглощает тебя.
+  sector: kOnlyFlying
+  exits:
+    - direction: west
+      to_room: 5633  # Река
+
+# Room #5635
+35:
+  name: Пологий берег
+  description: |2
+       Здесь пляж заканчивается, упираясь в обрыв. Кто-то загорает, кто-то
+    обсуждает последние сплетни.
+  sector: kField
+  exits:
+    - direction: east
+      to_room: 5636  # Река
+    - direction: south
+      to_room: 5629  # Пологий берег
+
+# Room #5636
+36:
+  name: Река
+  description: |2
+       Берега к устью простираются низменные, а в самом низу мокрые и  поросшие
+    камышом.
+     
+  sector: kWaterSwim
+  exits:
+    - direction: north
+      to_room: 5640  # Река
+    - direction: east
+      to_room: 5637  # Река
+    - direction: south
+      to_room: 5630  # Река
+    - direction: west
+      to_room: 5635  # Пологий берег
+
+# Room #5637
+37:
+  name: Река
+  description: |2
+        Сильное течение реки омывает вам ноги. Глубина реки увеличивается,
+    но она не мешает вам продолжить свой путь.    
+     
+  sector: kWaterSwim
+  exits:
+    - direction: north
+      to_room: 5641  # Река
+    - direction: east
+      to_room: 5638  # Река
+    - direction: south
+      to_room: 5631  # Река
+    - direction: west
+      to_room: 5636  # Река
+
+# Room #5638
+38:
+  name: Река
+  description: |2
+        Сильное течение реки омывает Вам ноги. Глубина реки увеличивается,
+    но она не мешает вам продолжить свой путь.
+  sector: kWaterSwim
+  exits:
+    - direction: north
+      to_room: 5642  # Река
+    - direction: east
+      to_room: 5639  # Река
+    - direction: south
+      to_room: 5632  # Река
+    - direction: west
+      to_room: 5637  # Река
+
+# Room #5639
+39:
+  name: Река
+  description: |2
+    ___Мелкие водоросли цепляются за ноги, косяки рыб носятся туда-сюда.
+  sector: kWaterSwim
+  exits:
+    - direction: south
+      to_room: 5633  # Река
+    - direction: west
+      to_room: 5638  # Река
+
+# Room #5640
+40:
+  name: Река
+  description: |2
+        Сильное течение реки омывает вам ноги. Глубина реки увеличивается
+    но она не мешает вам продолжить свой путь.
+  sector: kWaterSwim
+  exits:
+    - direction: east
+      to_room: 5641  # Река
+    - direction: south
+      to_room: 5636  # Река
+
+# Room #5641
+41:
+  name: Река
+  description: |2
+       Вы оказались перед небольшой расщелиной. Вода здесь заметно потемнела,
+    скорее всего, здесь водятся щуки. На севере виднеется чье-то логово.
+  sector: kWaterSwim
+  exits:
+    - direction: north
+      to_room: 5643  # Логово щуки
+    - direction: east
+      to_room: 5642  # Река
+    - direction: south
+      to_room: 5637  # Река
+    - direction: west
+      to_room: 5640  # Река
+
+# Room #5642
+42:
+  name: Река
+  description: |2
+        Сильное течение реки омывает вам ноги. Глубина реки увеличивается
+    но она не мешает вам продолжить свой путь.
+  sector: kWaterSwim
+  exits:
+    - direction: south
+      to_room: 5638  # Река
+    - direction: west
+      to_room: 5641  # Река
+
+# Room #5643
+43:
+  name: Логово щуки
+  description: |2
+       Вы попали в темную расщелину, лучи солнца почти не проникают сюда.
+    Вы почувствовали колыхание воды. Из темноты на вас набросилась щука. 
+  sector: kWaterSwim
+  exits:
+    - direction: south
+      to_room: 5641  # Река
+
+# Room #5644
+44:
+  name: Старица
+  description: |2
+       Небольшое ответвление реки уходит на восток. Течение здесь несильное,
+    стаи мальков играются на поверхности воды.
+  sector: kWaterSwim
+  exits:
+    - direction: east
+      to_room: 5645  # Старица
+    - direction: west
+      to_room: 5618  # Река
+
+# Room #5645
+45:
+  name: Старица
+  description: |2
+       Вы зашли в небольшую старицу. Вода тут гораздо теплее, чем в реке.
+    Виднеются большие заросли камыша. В воздухе над старицей летают чайки,
+    пытаясь поймать себе добычу.
+     
+  sector: kWaterSwim
+  exits:
+    - direction: north
+      to_room: 5646  # Старица
+    - direction: east
+      to_room: 5648  # Старица
+    - direction: south
+      to_room: 5649  # Старица
+    - direction: west
+      to_room: 5644  # Старица
+
+# Room #5646
+46:
+  name: Старица
+  description: |2
+    ___Вы зашли в небольшую старицу. Вода тут гораздо теплее, чем в реке.
+    Виднеются большие заросли камыша. В воздухе над старицей летают чайки,
+    пытаясь поймать себе добычу.
+  sector: kWaterSwim
+  exits:
+    - direction: east
+      to_room: 5647  # Старица
+    - direction: south
+      to_room: 5645  # Старица
+
+# Room #5647
+47:
+  name: Старица
+  description: |2
+    ___Вы зашли в небольшую старицу. Вода тут гораздо теплее, чем в реке.
+    Виднеются большие заросли камыша. В воздухе над старицей летают чайки,
+    пытаясь поймать себе добычу.
+  sector: kWaterSwim
+  exits:
+    - direction: north
+      to_room: 5651  # Старица
+    - direction: east
+      to_room: 5652  # Старица
+    - direction: south
+      to_room: 5648  # Старица
+    - direction: west
+      to_room: 5646  # Старица
+
+# Room #5648
+48:
+  name: Старица
+  description: |2
+    ___Вы зашли в небольшую старицу. Вода тут гораздо теплее, чем в реке.
+    Виднеются большие заросли камыша. В воздухе над старицей летают чайки,
+    пытаясь поймать себе добычу.
+  sector: kWaterSwim
+  exits:
+    - direction: north
+      to_room: 5647  # Старица
+    - direction: east
+      to_room: 5653  # Старица
+    - direction: south
+      to_room: 5650  # Старица
+    - direction: west
+      to_room: 5645  # Старица
+
+# Room #5649
+49:
+  name: Старица
+  description: |2
+    ___Вы зашли в небольшую старицу. Вода тут гораздо теплее, чем в реке.
+    Виднеются большие заросли камыша. В воздухе над старицей летают чайки,
+    пытаясь поймать себе добычу.
+  sector: kWaterSwim
+  exits:
+    - direction: north
+      to_room: 5645  # Старица
+    - direction: east
+      to_room: 5650  # Старица
+
+# Room #5650
+50:
+  name: Старица
+  description: |2
+    ___Вы зашли в небольшую старицу. Вода тут гораздо теплее, чем в реке.
+    Виднеются большие заросли камыша. В воздухе над старицей летают чайки,
+    пытаясь поймать себе добычу.
+  sector: kWaterSwim
+  exits:
+    - direction: north
+      to_room: 5648  # Старица
+    - direction: east
+      to_room: 5655  # Старица
+    - direction: south
+      to_room: 5654  # Старица
+    - direction: west
+      to_room: 5649  # Старица
+
+# Room #5651
+51:
+  name: Старица
+  description: |2
+    ___Вы зашли в небольшую старицу. Вода тут гораздо теплее, чем в реке.
+    Виднеются большие заросли камыша. В воздухе над старицей летают чайки,
+    пытаясь поймать себе добычу.
+  sector: kWaterSwim
+  exits:
+    - direction: south
+      to_room: 5647  # Старица
+
+# Room #5652
+52:
+  name: Старица
+  description: |2
+    ___Вы зашли в небольшую старицу. Вода тут гораздо теплее, чем в реке.
+    Виднеются большие заросли камыша. В воздухе над старицей летают чайки,
+    пытаясь поймать себе добычу.
+  sector: kWaterSwim
+  exits:
+    - direction: south
+      to_room: 5653  # Старица
+    - direction: west
+      to_room: 5647  # Старица
+
+# Room #5653
+53:
+  name: Старица
+  description: |2
+    ___Вы зашли в небольшую старицу. Вода тут гораздо теплее, чем в реке.
+    Виднеются большие заросли камыша. В воздухе над старицей летают чайки,
+    пытаясь поймать себе добычу.
+  sector: kWaterSwim
+  exits:
+    - direction: north
+      to_room: 5652  # Старица
+    - direction: south
+      to_room: 5655  # Старица
+    - direction: west
+      to_room: 5648  # Старица
+
+# Room #5654
+54:
+  name: Старица
+  description: |2
+    ___Вы зашли в небольшую старицу. Вода тут гораздо теплее, чем в реке.
+    Виднеются большие заросли камыша. В воздухе над старицей летают чайки,
+    пытаясь поймать себе добычу.
+  sector: kWaterSwim
+  exits:
+    - direction: north
+      to_room: 5650  # Старица
+
+# Room #5655
+55:
+  name: Старица
+  description: |2
+    ___Вы зашли в небольшую старицу. Вода тут гораздо теплее, чем в реке.
+    Виднеются большие заросли камыша. В воздухе над старицей летают чайки,
+    пытаясь поймать себе добычу.
+  sector: kWaterSwim
+  exits:
+    - direction: north
+      to_room: 5653  # Старица
+    - direction: west
+      to_room: 5650  # Старица

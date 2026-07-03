@@ -1,0 +1,431 @@
+# Triggers for zone 58
+
+# Trigger #5800
+0:
+  name: встречатолстыйстражник
+  attach_type: kRoomTrigger
+  narg: 100
+  trigger_types:
+    - kAct
+  script: |-2
+    if %direction% == west && %world.curmobs(5801)%==1
+      wait 1
+      wsend %actor.iname% Толстый десятник посмотрел на вас.
+      wsend %actor.iname%  Толстый десятник сказал: Эй, мелюзга, куда собрался?
+      wsend %actor.iname%  Толстый десятник сказал: В город, героем стать?
+      wsend %actor.iname%  Толстый обошел вас со всех сторон, делая мерзкие замечания в ваш адрес.
+      wsend %actor.iname%  Толстый десятник сказал: Мы тут дорогу сторожим, от опасностей очищаем.
+      wsend %actor.iname%  Толстый десятник сказал: Так что проход платный, особенно для таких как ты.
+      wsend %actor.iname%  Толстый десятник расхохотался.
+      wsend %actor.iname%  Толстый десятник сказал: Давай 2000 кун, может и пропустим!
+    end
+
+# Trigger #5801
+1:
+  name: датьденьгидесятник
+  attach_type: kMobTrigger
+  narg: 1
+  trigger_types:
+    - kBribe
+  script: |-2
+    if %amount% > 1999
+      wait 1
+      tell %actor.iname% Ух ты, у тебя такие деньги есть.
+      tell %actor.iname% Ладно, проходи, да побыстрей.
+      отпер ворот
+      откры ворот
+      wait 5 s
+      закр ворот
+      запер ворот
+    else
+      wait 1
+      msend %actor.iname% Куда мне твоя мелочь, проваливай пока не накостыляли.
+      дать %amount% кун %actor.iname%
+    end
+
+# Trigger #5802
+2:
+  name: встречастарик
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kGreetPCAll
+  script: |-2
+    wait 1
+    tell %actor.iname% Добрый путник!
+    msend %actor% Помоги старому слепому беспомощному старику.
+    msend %actor% Где-то здесь я оступился и выронил свою палку. Без нее
+    msend %actor% я только смог дойти ощупью до этой щели в дереве и
+    msend %actor% спрятаться от лесных чудовищ.
+    msend %actor% Я ничего не вижу, но чувствую где-то здесь ходят странные
+    msend %actor% существа, так что будь осторожен. И вполне возможно моя
+    msend %actor% палка у них.
+
+# Trigger #5803
+3:
+  name: датьжелудьборов
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kReceive
+  script: |-2
+    if %object.vnum% == 5801
+      wait 1
+      echo Вепрь увидел брошенную вами связку желудей и стал их жадно есть.
+      echo При этом он абсолютно забыл про вас.
+      echo Не дай бог так оголодать!
+      echo Но успев только проглотить желуди, вепрь вдруг захрипел,
+      echo зашатался и упал. Потом вдруг раздался хлопок и пропал даже его труп.
+      echo Вот это желуди.
+      mpurge %object%
+      mpurge %self%
+    end
+
+# Trigger #5804
+4:
+  name: далипалкаслепой
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kReceive
+  script: |-2
+    if %object.vnum% == 5803
+      wait 1
+      echo Спасибо, добрый путник.
+      echo Ну а теперь моя награда.
+      ухм
+      mpurge %object%
+      load mob 5805
+      mpurge %self%
+    end
+
+# Trigger #5805
+5:
+  name: смертьстарика
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kDeath
+  script: load obj 5802
+
+# Trigger #5806
+6:
+  name: лезтьсевер
+  attach_type: kRoomTrigger
+  narg: 100
+  arglist: лезть
+  trigger_types:
+    - kCommand
+  script: |-2
+    if %cmd%==лезть
+      wait 1
+      echoaround %actor% %actor.iname% пролез между веток на север.
+      wsend %actor% Вы с трудом пролезли между веток.
+      wteleport %actor% 5824
+      wat 5824 echoaround %actor% %actor.iname% появился отряхиваясь от веток.
+      wsend %actor.iname% Вы вылезли из лаза, встали на ноги и отряхнулись от веток.
+    end
+
+# Trigger #5807
+7:
+  name: лезтьюг
+  attach_type: kRoomTrigger
+  narg: 100
+  arglist: лезть
+  trigger_types:
+    - kCommand
+  script: |-2
+    if %cmd%==лезть
+      echoaround %actor% %actor.iname% пролез между веток на север.
+      wsend %actor% Вы с трудом пролезли между веток.
+      wteleport %actor% 5823
+      wat 5823 echoaround %actor% %actor.iname% появился отряхиваясь от веток.
+      wsend %actor.iname% Вы вылезли из лаза, встали на ноги и отряхнулись от веток.
+    end
+
+# Trigger #5808
+8:
+  name: постучать
+  attach_type: kRoomTrigger
+  narg: 100
+  arglist: постучать
+  trigger_types:
+    - kCommand
+  script: |-2
+    if %cmd%==постучать && %world.curmobs(5801)%==1
+      wteleport %actor% 5813
+      wsend %actor.iname% Кто-то долго возился с замком с той стороны, но после длительной
+      wsend %actor.iname% паузы ворота открылись и пропустили вас. И с лязгом закрылись.
+      wsend %actor.iname% Вы прошли в ворота.
+      wsend %actor.iname% Толстый десятник посмотрел на Вас.
+      wsend %actor.iname% Толстый десятник сказал: Ну что домой, к мамочке захотел? Штаны то сухие?
+      wsend %actor.iname% Толстый десятник громко расхохотался.
+    end
+
+# Trigger #5809
+9:
+  name: датьбутыльдесятник
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kReceive
+  script: |-2
+    if %object.vnum% == 5802
+      wait 1
+      echo Толстый десятник посмотрел на Вас обалдевшими глазами.
+      echo Ба! Да ты малыш учишься. Правильно, старших надо уважать.
+      дум
+      wait 1
+      echo И обязательно им наливать.
+      echo Десятник улыбнулся, о чем то помечтав. Ладно, мы пойдем
+      echo здесь недалеко сообразим на троих, а ты посторожи здесь.
+      echo Всех впускать, никого не выпускать. А то убьются на дороге.
+      echo Знаешь там какая-то нечистая сила поселилась, зверье взбесилось.
+      echo Нападает на всех подряд, как будто им леса мало.
+      wait 1
+      mpurge %object%
+      дать ключ .%actor.iname%
+      foreach mob %self.npc%
+        if %mob.vnum% == 5802
+          mpurge %mob%
+        end
+      done
+      wait 1
+      mpurge %self%
+    end
+
+# Trigger #5810
+10:
+  name: встречследопыт
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kGreetPCAll
+  script: |-2
+    wait 1
+    msend %actor% Следопыт сказал: Добрый день!
+    msend %actor% Следопыт сказал: Дальше я никого не пропущу. У нас облава, ищем лазутчика.
+    msend %actor% Следопыт сказал: Он укрылся в этом лесу, и пока мы его не найдем или
+    msend %actor% Следопыт сказал: не получим подтверждения его смерти, никто не пройдет
+    msend %actor% Следопыт сказал: дальше.
+    if %actor.level% < 5
+      wait 1
+      msend %actor% Следопыт сказал: Ты слишком мал, я возвращаю тебя домой.
+      echoaround %actor% Следопыт что-то произнес и %actor.iname% пропал в спышке света.
+      wsend %actor% Вы пропали в вспышке света.
+      wteleport %actor% 5838
+      echoaround %actor% %actor.iname% появился в вспышке света.
+      wsend %actor.iname% Вы появились в новом месте.
+    endif
+
+# Trigger #5811
+11:
+  name: датьконвертследопыт
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kReceive
+  script: |-2
+    if (%object.vnum% != 5805)
+      msend %actor% Ему это не нужно!
+      return 0
+      halt
+    end
+    wait 1
+    mpurge %object%
+    echo Следопыт посмотрел на конверт, быстро его вскрыл.
+    say Так! Важное сообщение, его срочно надо доставить князю
+    echo Следопыт задумался, затем посмотрел в Вашу сторону.
+    say Этот конверт мог быть только у вражеского лазутчика
+    say Как ты докажешь, что ты - не он?
+    echo Вы стали быстро рассказывать про бой с незнакомцем в лесу,
+    echo как нашли у него конверт. Как только Вы начали свой рассказ,
+    echo следопыт свистнул и из-за ближайшего куста вышел лучник.
+    echo Что-то ему приказав, следопыт продолжил Вас внимательно слушать.
+    echo Под конец повествования посланный лучник вернулся и что-то сказал на ухо следопыту.
+    wait 1
+    say Ну что же, вроде все сходится
+    say Ты можешь продолжить свой путь, а я отнесу конверт
+    if %exist.mob(5802)%
+      calcuid vmob 5802 mob
+      mpurge %vmob%
+    end
+    if %exist.mob(5802)%
+      calcuid vmob 5802 mob
+      mpurge %vmob%
+    end
+    if %actor.class%==13
+      say Вот, нашел среди листьев, может тебе пригодится.
+      if %random.2% == 1
+        load obj 4414
+      else
+        load obj 4415
+      end
+      дать all .%actor.iname%
+    end
+    say Я немного провожу тебя
+    wait 1s
+    set fchar %self.people%
+    while %fchar%
+      set pc %fchar.NextInRoom%
+      if %fchar.vnum% == -1
+        mteleport %fchar% 27057
+        *%fchar.loadroom(27018)% убрал ибо устарело нафиг это уже
+        *раньше служило для того чтобы из корсы было не вернуться в родовые пкашить
+        if %fchar.realroom% == 27057
+          msend %fchar% Вы вышли на утоптанную дорогу.
+          if %fchar.sex% == 1
+            mat 27057 echoaround %fchar% %fchar.name% вышел на дорогу.
+          else
+            mat 27057 echoaround %fchar% %fchar.name% вышла на дорогу.
+          end
+          сказ %fchar.name% Дальше сами, я побежал к воеводе
+          msend %fchar% Следопыт подмигнул вам на прощание и быстро убежал.
+        end
+      end
+      if %pc%
+        makeuid fchar %pc%
+      else
+        set fchar 0
+      end
+    done
+    mpurge %self%
+
+# Trigger #5812
+12:
+  name: встречстаруха
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kGreetPC
+  script: |-2
+    wait 3
+    if %actor.realroom%==5838 && %actor.level%<4
+      г Рано тебе из родного дома уходить.
+      halt
+    end
+    if %actor.realroom% == 5838
+      г Добрый день!
+      г Хочешь попытать счастья, покинув родную деревню?
+      г Впереди много неизвестностей и трудностей!
+      г Готов%actor.a% ли ты к новым приключениям?
+    elseif %actor.realroom% == 5837
+      г Ну чего, готов%actor.g% возвращаться?
+    end
+
+# Trigger #5813
+13:
+  name: готовстаруха
+  attach_type: kMobTrigger
+  narg: 1
+  arglist: готов готова
+  trigger_types:
+    - kCommand
+  script: |-2
+    wait 3
+    if %actor.level% < 5
+      г Мал%actor.g% ты еще из родного дома уходить.
+      halt
+    end
+    switch %self.realroom%
+      case 5838
+        г Ну попробуй, но чтобы ты мог%actor.q% всегда вернуться назад, подойди ко мне и скажи готов.
+        г Ступай, и да поможет тебе земля русская.
+        крест
+        echo Старушка что-то негромко сказала и все кто был рядом с ней исчезли.
+        msend %actor% Вас подхватило воздухом и вы на миг потеряли сознание.
+        mat 5837 echo Кто-то появился тут в клубах дыма.
+        mteleport allchar 5837
+        halt
+      break
+      case 5837
+        г Ну что же, не все сразу.
+        вздохн
+        echoaround %actor% Старушка что-то негромко сказала и %actor.iname% исчез%actor.q%.
+        msend %actor% Вас подхватило воздухом и вы на миг потеряли сознание.
+        mteleport %actor% 5838 horse
+        echoaround %actor% Кто-то появился тут в клубах дыма.
+      break
+    done
+
+# Trigger #5814
+14:
+  name: выкзнак
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreetAll
+  script: |-2
+    wait 1
+    osend %actor% Возвращаю Вас в безопасное место.
+    oteleport %actor% 5838 horse
+
+# Trigger #5815
+15:
+  name: раснак
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kSpeech
+  script: |-2
+    if %self.carriedby%
+      osend %self.carriedby% Время вышло на решение задания.
+      osend %self.carriedby% Возвращаю все вас домой, в безопасное место.
+      oteleport %self.carriedby% 5838
+    end
+
+# Trigger #5816
+16:
+  name: смертьлазутч
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kDeath
+  script: load obj 5805
+
+# Trigger #5817
+17:
+  name: смертьчудища
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kDeath
+  script: |-2
+    if (%actor.realroom%>5823) && (%world.curobjs(5803)%==0)
+      load obj 5803
+    end
+
+# Trigger #5818
+18:
+  name: СКАЗАЛготовстаруха
+  attach_type: kMobTrigger
+  narg: 1
+  arglist: готов готова да
+  trigger_types:
+    - kSpeech
+  script: |-2
+    wait 3
+    if ((%self.realroom%==5838) && (%actor.level% < 5))
+      г Мал%actor.g% ты еще из родного дома уходить.
+      halt
+    end
+    switch %self.realroom%
+      case 5838
+        г Ну попробуй, но чтобы ты мог%actor.q% всегда вернуться назад, подойди ко мне и скажи готов.
+        г Ступай, и да поможет тебе земля русская.
+        крест
+        echo Старушка что-то негромко сказала и все кто был рядом с ней исчезли.
+        msend %actor% Вас подхватило воздухом и вы на миг потеряли сознание.
+        mat 5837 echo Кто-то появился тут в клубах дыма.
+        mteleport allchar 5837
+        halt
+      break
+      case 5837
+        г Ну что же, не все сразу.
+        вздохн
+        echoaround %actor% Старушка что-то негромко сказала и %actor.iname% исчез%actor.q%.
+        msend %actor% Вас подхватило воздухом и вы на миг потеряли сознание.
+        mteleport %actor% 5838 horse
+        echoaround %actor% Кто-то появился тут в клубах дыма.
+      break
+    done

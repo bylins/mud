@@ -1,0 +1,2846 @@
+# Objects for zone 17
+
+# Object #1700
+0:
+  names:
+    aliases: книга топором обложке
+    nominative: книга с топором на обложке
+    genitive: книги с топором на обложке
+    dative: книге с топором на обложке
+    accusative: книгу с топором на обложке
+    instrumental: книгой с топором на обложке
+    prepositional: книге с топором на обложке
+  short_desc: Книга с изображением окровавленного топора на обложке валяется в пыли.
+  type: kBook
+  material: 17  # БЕРЕСТА
+  values:
+    - 3
+    - 0
+    - 1
+    - 0
+  weight: 3
+  cost: 1000
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 100
+  cur_durability: 100
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+    - kNodonate
+    - kNoinvis
+    - kNosell
+  wear_flags:
+    - kTake
+
+# Object #1701
+1:
+  names:
+    aliases: поваренная книга
+    nominative: поваренная книга
+    genitive: поваренной книги
+    dative: поваренной книге
+    accusative: поваренную книгу
+    instrumental: поваренной книгой
+    prepositional: поваренной книге
+  short_desc: Пухлая поваренная книга лежит перед Вами.
+  type: kBook
+  material: 17  # БЕРЕСТА
+  values:
+    - 3
+    - 1
+    - 7
+    - 0
+  weight: 2
+  cost: 10
+  rent_off: 10
+  rent_on: 10
+  max_durability: 50
+  cur_durability: 50
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+    - kNosell
+  wear_flags:
+    - kTake
+
+# Object #1702
+2:
+  names:
+    aliases: береста
+    nominative: исписанная береста с неприятным запахом
+    genitive: исписанной бересты с неприятным запахом
+    dative: исписанной бересте с неприятным запахом
+    accusative: исписанную бересту с неприятным запахом
+    instrumental: исписанной берестой с неприятным запахом
+    prepositional: исписанной бересте с неприятным запахом
+  short_desc: Исписанный клочок бересты, пропахший чем-то неприятным, валяется на земле.
+  type: kBook
+  material: 17  # БЕРЕСТА
+  values:
+    - 3
+    - 2
+    - 20
+    - 0
+  weight: 1
+  cost: 100
+  rent_off: 100
+  rent_on: 100
+  max_durability: 25
+  cur_durability: 25
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+    - kNosell
+  wear_flags:
+    - kTake
+
+# Object #1703
+3:
+  names:
+    aliases: охранная книга
+    nominative: охранная книга
+    genitive: охранной книги
+    dative: охранной книге
+    accusative: охранную книгу
+    instrumental: охранной книгой
+    prepositional: охранной книге
+  short_desc: Красивая книга с изображением Ангела-хранителя притягивает Вас.
+  type: kBook
+  material: 17  # БЕРЕСТА
+  values:
+    - 3
+    - 3
+    - 0
+    - 0
+  weight: 3
+  cost: 1000
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 100
+  cur_durability: 100
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 5
+  extra_flags:
+    - kNorent
+    - kBless
+    - kNosell
+  wear_flags:
+    - kTake
+
+# Object #1704
+4:
+  names:
+    aliases: огромный фолиант
+    nominative: огромный фолиант
+    genitive: огромного фолианта
+    dative: огромному фолианту
+    accusative: огромный фолиант
+    instrumental: огромным фолиантом
+    prepositional: огромном фолианте
+  short_desc: Невероятный размеров фолиант лежит на земле.
+  type: kBook
+  material: 6  # ДРАГ.МЕТАЛЛ
+  values:
+    - 3
+    - 4
+    - 5
+    - 0
+  weight: 3
+  cost: 1000
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 50
+  cur_durability: 50
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+    - kNosell
+  wear_flags:
+    - kTake
+
+# Object #1705
+5:
+  names:
+    aliases: свиток размытыми  письменами
+    nominative: свиток с размытыми письменами
+    genitive: свитка с размытыми письменами
+    dative: свитку с размытыми письменами
+    accusative: свиток с размытыми письменами
+    instrumental: свитком с размытыми письменами
+    prepositional: свитке с размытыми письменами
+  short_desc: Старый свиток с размытыми письменами привлек Ваше внимание.
+  type: kBook
+  material: 17  # БЕРЕСТА
+  values:
+    - 3
+    - 5
+    - 25
+    - 0
+  weight: 1
+  cost: 10000
+  rent_off: 10000
+  rent_on: 10000
+  max_durability: 40
+  cur_durability: 40
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+    - kNodonate
+    - kNosell
+  wear_flags:
+    - kTake
+
+# Object #1706
+6:
+  names:
+    aliases: древняя книга
+    nominative: древняя книга
+    genitive: древней книги
+    dative: древней книге
+    accusative: древнюю книгу
+    instrumental: древней книгой
+    prepositional: древней книге
+  short_desc: Очень старая книга потерлась и местами истлела от времени.
+  type: kBook
+  material: 17  # БЕРЕСТА
+  values:
+    - 3
+    - 6
+    - 5
+    - 0
+  weight: 2
+  cost: 100
+  rent_off: 100
+  rent_on: 100
+  max_durability: 20
+  cur_durability: 20
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+    - kNosell
+  wear_flags:
+    - kTake
+
+# Object #1707
+7:
+  names:
+    aliases: книга лечебных травах
+    nominative: книга о лечебных травах
+    genitive: книги о лечебных травах
+    dative: книге о лечебных травах
+    accusative: книгу о лечебных травах
+    instrumental: книгой о лечебных травах
+    prepositional: книге о лечебных травах
+  short_desc: Потрепанная книга о лечебных травах оставлена каким-то знахарем здесь.
+  type: kBook
+  material: 17  # БЕРЕСТА
+  values:
+    - 3
+    - 7
+    - 15
+    - 0
+  weight: 2
+  cost: 100
+  rent_off: 100
+  rent_on: 100
+  max_durability: 50
+  cur_durability: 50
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+    - kNosell
+  wear_flags:
+    - kTake
+
+# Object #1708
+8:
+  names:
+    aliases: книга листом подорожника
+    nominative: книга с листом подорожника на обложке
+    genitive: книги с листом подорожника на обложке
+    dative: книге с листом подорожника на обложке
+    accusative: книгу с листом подорожника на обложке
+    instrumental: книгой с листом подорожника на обложке
+    prepositional: книге с листом подорожника на обложке
+  short_desc: Яркая книга с большим листом подорожника на обложке привлекла Ваше внимание.
+  type: kBook
+  material: 15  # КОЖА
+  values:
+    - 3
+    - 8
+    - 5
+    - 0
+  weight: 1
+  cost: 100
+  rent_off: 100
+  rent_on: 100
+  max_durability: 100
+  cur_durability: 100
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+    - kNosell
+  wear_flags:
+    - kTake
+
+# Object #1709
+9:
+  names:
+    aliases: книга бурыми наростами
+    nominative: книга с бурыми наростами на переплете
+    genitive: книги с бурыми наростами на переплете
+    dative: книге с бурыми наростами на переплете
+    accusative: книгу с бурыми наростами на переплете
+    instrumental: книгой с бурыми наростами на переплете
+    prepositional: книге с бурыми наростами на переплете
+  short_desc: Светлая книга со странными бурыми наростами на переплете лежит перед Вами.
+  type: kBook
+  material: 17  # БЕРЕСТА
+  values:
+    - 3
+    - 9
+    - 1
+    - 0
+  weight: 1
+  cost: 10
+  rent_off: 10
+  rent_on: 10
+  max_durability: 75
+  cur_durability: 75
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNorent
+    - kNosell
+  wear_flags:
+    - kTake
+
+# Object #1710
+10:
+  names:
+    aliases: трактат секретах брожения
+    nominative: трактат о секретах брожения
+    genitive: трактата о секретах брожения
+    dative: трактату о секретах брожения
+    accusative: трактат о секретах брожения
+    instrumental: трактатом о секретах брожения
+    prepositional: трактате о секретах брожения
+  short_desc: Фолиант  с изображением странного аппарата на переплете привлек Ваше внимание.
+  type: kBook
+  material: 15  # КОЖА
+  values:
+    - 3
+    - 10
+    - 3
+    - 0
+  weight: 2
+  cost: 1000
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 75
+  cur_durability: 75
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+    - kNodonate
+    - kNosell
+  wear_flags:
+    - kTake
+
+# Object #1711
+11:
+  names:
+    aliases: книга изображением
+    nominative: книга с изображением черных ягод
+    genitive: книги с изображением черных ягод
+    dative: книге с изображением черных ягод
+    accusative: книгу с изображением черных ягод
+    instrumental: книгой с изображением черных ягод
+    prepositional: книге с изображением черных ягод
+  short_desc: Белая книга с изображнием иссине-черных ягод на переплете открылась перед Вами.
+  type: kBook
+  material: 17  # БЕРЕСТА
+  values:
+    - 3
+    - 11
+    - 1
+    - 0
+  weight: 1
+  cost: 100
+  rent_off: 100
+  rent_on: 100
+  max_durability: 100
+  cur_durability: 100
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+    - kNosell
+  wear_flags:
+    - kTake
+
+# Object #1712
+12:
+  names:
+    aliases: кроваво книга
+    nominative: кроваво-красная книга
+    genitive: кроваво-красной книги
+    dative: кроваво-красной книге
+    accusative: кроваво-красную книгу
+    instrumental: кроваво-красной книгой
+    prepositional: кроваво-красной книге
+  short_desc: Книга цвета свежей крови лежит на земле.
+  type: kBook
+  material: 17  # БЕРЕСТА
+  values:
+    - 3
+    - 12
+    - 1
+    - 0
+  weight: 1
+  cost: 10
+  rent_off: 10
+  rent_on: 10
+  max_durability: 50
+  cur_durability: 50
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+    - kNosell
+  wear_flags:
+    - kTake
+
+# Object #1713
+13:
+  names:
+    aliases: рукопись старого лекаря
+    nominative: рукопись старого лекаря
+    genitive: рукописи старого лекаря
+    dative: рукописи старого лекаря
+    accusative: рукопись старого лекаря
+    instrumental: рукописью старого лекаря
+    prepositional: рукописи старого лекаря
+  short_desc: 'На старой потертой рукописи почти невозможно что-то разобрать. '
+  type: kBook
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 3
+    - 13
+    - 28
+    - 0
+  weight: 1
+  cost: 1000
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 25
+  cur_durability: 25
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+    - kNodonate
+    - kNosell
+  wear_flags:
+    - kTake
+
+# Object #1714
+14:
+  names:
+    aliases: старинный пергамент
+    nominative: старинный пергамент
+    genitive: старинного пергамента
+    dative: старинному пергаменту
+    accusative: старинный пергамент
+    instrumental: старинным пергаментом
+    prepositional: старинном пергаменте
+  short_desc: Старый рассыпающийся пергамент втоптан в землю.
+  type: kBook
+  material: 15  # КОЖА
+  values:
+    - 3
+    - 14
+    - 10
+    - 0
+  weight: 1
+  cost: 100
+  rent_off: 100
+  rent_on: 100
+  max_durability: 30
+  cur_durability: 30
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+    - kNosell
+  wear_flags:
+    - kTake
+
+# Object #1715
+15:
+  names:
+    aliases: книга отваге героев
+    nominative: книга об отваге Героев
+    genitive: книги об отваге Героев
+    dative: книге об отваге Героев
+    accusative: книгу об отваге Героев
+    instrumental: книгой об отваге Героев
+    prepositional: книге об отваге Героев
+  short_desc: Тяжелая книга с изображением Воина в сверкающих доспехах попалась Вам на глаза.
+  type: kBook
+  material: 17  # БЕРЕСТА
+  values:
+    - 3
+    - 15
+    - 5
+    - 0
+  weight: 1
+  cost: 1000
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 75
+  cur_durability: 75
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+    - kBless
+    - kNosell
+  wear_flags:
+    - kTake
+
+# Object #1716
+16:
+  names:
+    aliases: призрачный пергамент
+    nominative: призрачный пергамент
+    genitive: призрачного пергамента
+    dative: призрачному пергаменту
+    accusative: призрачный пергамент
+    instrumental: призрачным пергаментом
+    prepositional: призрачном пергаменте
+  short_desc: Призрачный пергамент парит возле Вас.
+  type: kBook
+  material: 17  # БЕРЕСТА
+  values:
+    - 3
+    - 16
+    - 5
+    - 0
+  weight: 1
+  cost: 10
+  rent_off: 10
+  rent_on: 10
+  max_durability: 100
+  cur_durability: 100
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+    - kNosell
+  wear_flags:
+    - kTake
+
+# Object #1717
+17:
+  names:
+    aliases: сияющий свиток
+    nominative: сияющий свиток
+    genitive: сияющего свитка
+    dative: сияющему свитку
+    accusative: сияющий свиток
+    instrumental: сияющим свитокм
+    prepositional: сияющем свитке
+  short_desc: Небольшой свиток, окруженный ореолом сияния, покоится у Ваших ног.
+  type: kBook
+  material: 17  # БЕРЕСТА
+  values:
+    - 3
+    - 17
+    - 18
+    - 0
+  weight: 1
+  cost: 1000
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 50
+  cur_durability: 50
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  extra_flags:
+    - kGlow
+    - kNorent
+    - kNodonate
+    - kNosell
+  wear_flags:
+    - kTake
+
+# Object #1718
+18:
+  names:
+    aliases: испачканный кровью свиток
+    nominative: испачканный кровью свиток
+    genitive: испачканного кровью свитка
+    dative: испачканному кровью свитку
+    accusative: испачканный кровью свиток
+    instrumental: испачканным кровью свитком
+    prepositional: испачканном кровью свитке
+  short_desc: Старый свиток, заляпанный кровью, лежит на земле.
+  type: kBook
+  material: 17  # БЕРЕСТА
+  values:
+    - 3
+    - 18
+    - 5
+    - 0
+  weight: 1
+  cost: 1000
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 50
+  cur_durability: 50
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  wear_flags:
+    - kTake
+
+# Object #1719
+19:
+  names:
+    aliases: цветочный пергамент
+    nominative: цветочный пергамент
+    genitive: цветочного пергамента
+    dative: цветочному пергаменту
+    accusative: цветочный пергамент
+    instrumental: цветочным пергаментом
+    prepositional: цветочном пергаменте
+  short_desc: Красочный цветочный пергамент привлекает бабочек.
+  type: kBook
+  material: 17  # БЕРЕСТА
+  values:
+    - 3
+    - 19
+    - 22
+    - 0
+  weight: 1
+  cost: 100
+  rent_off: 100
+  rent_on: 100
+  max_durability: 50
+  cur_durability: 50
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+    - kNosell
+  wear_flags:
+    - kTake
+
+# Object #1720
+20:
+  names:
+    aliases: невзрачный пергамент
+    nominative: невзрачный пергамент
+    genitive: невзрачного пергамента
+    dative: невзрачному пергаменту
+    accusative: невзрачный пергамент
+    instrumental: невзрачным пергаментом
+    prepositional: невзрачном пергаменте
+  short_desc: Совершенно невзрачный пергамент случайно попался Вам на глаза.
+  type: kBook
+  material: 15  # КОЖА
+  values:
+    - 3
+    - 20
+    - 28
+    - 0
+  weight: 1
+  cost: 1000
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 50
+  cur_durability: 50
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+    - kNosell
+  wear_flags:
+    - kTake
+
+# Object #1721
+21:
+  names:
+    aliases: книга совином зрении
+    nominative: книга о совином зрении
+    genitive: книги о совином зрении
+    dative: книге о совином зрении
+    accusative: книгу о совином зрении
+    instrumental: книгой о совином зрении
+    prepositional: книге о совином зрении
+  short_desc: Невзрачная книга о совинном зрении лежит на земле.
+  type: kBook
+  material: 15  # КОЖА
+  values:
+    - 3
+    - 21
+    - 7
+    - 0
+  weight: 1
+  cost: 10
+  rent_off: 10
+  rent_on: 10
+  max_durability: 30
+  cur_durability: 30
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+    - kNosell
+  wear_flags:
+    - kTake
+
+# Object #1722
+22:
+  names:
+    aliases: книга водянистом
+    nominative: книга в водянистом переплете
+    genitive: книги в водянистом переплете
+    dative: книге в водянистом переплете
+    accusative: книгу в водянистом переплете
+    instrumental: книгой в водянистом переплете
+    prepositional: книге в водянистом переплете
+  short_desc: Огромная книга в водянистом переплете играет бликами в лучах солнца.
+  type: kBook
+  material: 17  # БЕРЕСТА
+  values:
+    - 3
+    - 22
+    - 7
+    - 0
+  weight: 3
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 50
+  cur_durability: 50
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+    - kNosell
+  wear_flags:
+    - kTake
+
+# Object #1723
+23:
+  names:
+    aliases: грязная книга
+    nominative: грязная книга
+    genitive: грязной книги
+    dative: грязной книге
+    accusative: грязную книгу
+    instrumental: грязной книгой
+    prepositional: грязной книге
+  short_desc: Грязная книга валяется в луковой шелухе.
+  type: kBook
+  material: 17  # БЕРЕСТА
+  values:
+    - 3
+    - 23
+    - 12
+    - 0
+  weight: 1
+  cost: 1000
+  rent_off: 100
+  rent_on: 100
+  max_durability: 40
+  cur_durability: 40
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+  wear_flags:
+    - kTake
+
+# Object #1724
+24:
+  names:
+    aliases: окутанный сумраком манускрипт
+    nominative: окутанный сумраком манускрипт
+    genitive: окутанного сумраком манускрипта
+    dative: окутанному сумраком манускрипту
+    accusative: окутанный сумраком манускрипт
+    instrumental: окутанным сумраком манускриптом
+    prepositional: окутанном сумраком манускрипте
+  short_desc: Окутанный облаком сумрака манускрипт лежит перед Вами.
+  type: kBook
+  material: 17  # БЕРЕСТА
+  values:
+    - 3
+    - 24
+    - 15
+    - 0
+  weight: 1
+  cost: 1000
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 50
+  cur_durability: 50
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+    - kNodonate
+    - kNosell
+  wear_flags:
+    - kTake
+
+# Object #1725
+25:
+  names:
+    aliases: книга обложкой коры дуба
+    nominative: книга с обложкой из коры дуба
+    genitive: книги с обложкой из коры дуба
+    dative: книге с обложкой из коры дуба
+    accusative: книгу с обложкой из коры дуба
+    instrumental: книгой с обложкой из коры дуба
+    prepositional: книге с обложкой из коры дуба
+  short_desc: Грубая книга с обложкой из коры валяется здесь.
+  type: kBook
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 3
+    - 25
+    - 12
+    - 0
+  weight: 2
+  cost: 1000
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 100
+  cur_durability: 100
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+    - kNosell
+  wear_flags:
+    - kTake
+
+# Object #1726
+26:
+  names:
+    aliases: свиток тончайшей кожи
+    nominative: свиток из тончайшей кожи
+    genitive: свитка из тончайшей кожи
+    dative: свитку из тончайшей кожи
+    accusative: свиток из тончайшей кожи
+    instrumental: свитком из тончайшей кожи
+    prepositional: свитке из тончайшей кожи
+  short_desc: Кто-то обронил свиток из тончайшей кожи.
+  type: kBook
+  material: 15  # КОЖА
+  values:
+    - 3
+    - 26
+    - 5
+    - 0
+  weight: 1
+  cost: 1000
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 30
+  cur_durability: 30
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+    - kNosell
+  wear_flags:
+    - kTake
+
+# Object #1727
+27:
+  names:
+    aliases: солнечная книга
+    nominative: солнечная книга
+    genitive: солнечной книги
+    dative: солнечной книге
+    accusative: солнечную книгу
+    instrumental: солнечной книгой
+    prepositional: солнечной книге
+  short_desc: Тонкая книга, озаряемая лучами солнца, попалась Вам на глаза.
+  type: kBook
+  material: 16  # ОРГАНИКА
+  values:
+    - 3
+    - 27
+    - 14
+    - 0
+  weight: 1
+  cost: 1000
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 50
+  cur_durability: 50
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kGlow
+    - kNorent
+    - kNosell
+  wear_flags:
+    - kTake
+
+# Object #1728
+28:
+  names:
+    aliases: разбухшая книга
+    nominative: разбухшая книга
+    genitive: разбухшей книги
+    dative: разбухшей книге
+    accusative: разбухшую книгу
+    instrumental: разбухшей книгой
+    prepositional: разбухшей книге
+  short_desc: Разбухшая до невероятных размеров книга лежит в луже.
+  type: kBook
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 3
+    - 28
+    - 0
+    - 0
+  weight: 3
+  cost: 10000
+  rent_off: 10000
+  rent_on: 10000
+  max_durability: 40
+  cur_durability: 40
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+    - kNosell
+  wear_flags:
+    - kTake
+
+# Object #1729
+29:
+  names:
+    aliases: книга мерцании звезд
+    nominative: книга о мерцании звезд
+    genitive: книги о мерцании звезд
+    dative: книге о мерцании звезд
+    accusative: книгу о мерцании звезд
+    instrumental: книгой о мерцании звезд
+    prepositional: книге о мерцании звезд
+  short_desc: 'Темно-синяя книга в усыпаном звездами переплете лежит на земле. '
+  type: kBook
+  material: 17  # БЕРЕСТА
+  values:
+    - 3
+    - 29
+    - 20
+    - 0
+  weight: 1
+  cost: 1000
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 75
+  cur_durability: 75
+  timer: 1440
+  spell: 5  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+    - kNosell
+  wear_flags:
+    - kTake
+
+# Object #1730
+30:
+  names:
+    aliases: книга усыпанная цветами
+    nominative: усыпанная желтыми цветами книга
+    genitive: усыпанной желтыми цветами книги
+    dative: усыпанной желтыми цветами книге
+    accusative: усыпанную желтыми цветами книгу
+    instrumental: усыпанной желтыми цветами книгой
+    prepositional: усыпанной желтыми цветами книге
+  short_desc: Усыпанная желтыми цветами книга лежит перед Вами. Красивая... Яркая...
+  type: kBook
+  material: 17  # БЕРЕСТА
+  values:
+    - 3
+    - 30
+    - 1
+    - 0
+  weight: 1
+  cost: 1000
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 50
+  cur_durability: 50
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+    - kNosell
+  wear_flags:
+    - kTake
+
+# Object #1731
+31:
+  names:
+    aliases: рецепт хозяйки постоялого двора
+    nominative: рецепт хозяйки Постоялого двора
+    genitive: рецепта хозяйки Постоялого двора
+    dative: рецепту хозяйки Постоялого двора
+    accusative: рецепт хозяйки Постоялого двора
+    instrumental: рецептом хозяйки Постоялого двора
+    prepositional: рецепте хозяйки Постоялого двора
+  short_desc: Небольшая рукопись оставлена кем-то здесь.
+  type: kBook
+  material: 17  # БЕРЕСТА
+  values:
+    - 3
+    - 31
+    - 1
+    - 0
+  weight: 1
+  cost: 100
+  rent_off: 100
+  rent_on: 100
+  max_durability: 40
+  cur_durability: 40
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+    - kNosell
+  wear_flags:
+    - kTake
+
+# Object #1732
+32:
+  names:
+    aliases: книга моря
+    nominative: книга цвета моря
+    genitive: книги цвета моря
+    dative: книге цвета моря
+    accusative: книгу цвета моря
+    instrumental: книгой цвета моря
+    prepositional: книге цвета моря
+  short_desc: Книга в переплете цвета морских волн забыта кем-то.
+  type: kBook
+  material: 15  # КОЖА
+  values:
+    - 3
+    - 32
+    - 15
+    - 0
+  weight: 1
+  cost: 100
+  rent_off: 100
+  rent_on: 100
+  max_durability: 50
+  cur_durability: 50
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+    - kNosell
+    - kSwimming
+  wear_flags:
+    - kTake
+
+# Object #1733
+33:
+  names:
+    aliases: книга вставками змеиной кожи
+    nominative: книга со вставками из змеиной кожи
+    genitive: книги со вставками из змеиной кожи
+    dative: книге со вставками из змеиной кожи
+    accusative: книгу со вставками из змеиной кожи
+    instrumental: книгой со вставками из змеиной кожи
+    prepositional: книге со вставками из змеиной кожи
+  short_desc: Книга со вставками из змеиной кожи на обложке пылится здесь.
+  type: kBook
+  material: 15  # КОЖА
+  values:
+    - 3
+    - 33
+    - 15
+    - 0
+  weight: 2
+  cost: 1000
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 100
+  cur_durability: 100
+  timer: 1440
+  spell: 5  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+    - kNodonate
+    - kMagic
+    - kNosell
+  wear_flags:
+    - kTake
+
+# Object #1734
+34:
+  names:
+    aliases: 'книга '
+    nominative: книга о защите Небесной
+    genitive: книги о защите Небесной
+    dative: книге о защите Небесной
+    accusative: книгу о защите Небесной
+    instrumental: книгой о защите Небесной
+    prepositional: книге о защите Небесной
+  short_desc: Благославленная Небесами книга парит над землей.
+  type: kBook
+  material: 6  # ДРАГ.МЕТАЛЛ
+  values:
+    - 3
+    - 34
+    - 29
+    - 0
+  weight: 1
+  cost: 10000
+  rent_off: 10000
+  rent_on: 10000
+  max_durability: 50
+  cur_durability: 50
+  timer: 1440
+  spell: 5  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kGlow
+    - kNorent
+    - kInvisible
+    - kBless
+    - kNosell
+  wear_flags:
+    - kTake
+
+# Object #1735
+35:
+  names:
+    aliases: книга переплете
+    nominative: книга в переплете из волчьей шерсти
+    genitive: книги в переплете из волчьей шерсти
+    dative: книге в переплете из волчьей шерсти
+    accusative: книгу в переплете из волчьей шерсти
+    instrumental: книгой в переплете из волчьей шерсти
+    prepositional: книге в переплете из волчьей шерсти
+  short_desc: Книга в мягком переплете из шерсти черного волка лежит на земле.
+  type: kBook
+  material: 15  # КОЖА
+  values:
+    - 3
+    - 35
+    - 10
+    - 0
+  weight: 1
+  cost: 100
+  rent_off: 100
+  rent_on: 100
+  max_durability: 75
+  cur_durability: 75
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 3
+  extra_flags:
+    - kNorent
+    - kNosell
+  wear_flags:
+    - kTake
+
+# Object #1736
+36:
+  names:
+    aliases: порванная рукопись
+    nominative: порванная рукопись
+    genitive: порванной рукописи
+    dative: порванной рукописи
+    accusative: порванную рукопись
+    instrumental: порванной рукописью
+    prepositional: порванной рукописи
+  short_desc: Кто-то разорвал рукопись практически в клочья.
+  type: kBook
+  material: 15  # КОЖА
+  values:
+    - 3
+    - 36
+    - 27
+    - 0
+  weight: 1
+  cost: 1000
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 25
+  cur_durability: 25
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+    - kNosell
+  wear_flags:
+    - kTake
+
+# Object #1737
+37:
+  names:
+    aliases: иноземный свиток
+    nominative: иноземный свиток с разбитой печатью
+    genitive: иноземного свитка с разбитой печатью
+    dative: иноземному свитку с разбитой печатью
+    accusative: иноземный свиток с разбитой печатью
+    instrumental: иноземным свитком с разбитой печатью
+    prepositional: иноземном свитке с разбитой печатью
+  short_desc: Иноземный свиток с разбитой печатью потерян кем-то.
+  type: kBook
+  material: 15  # КОЖА
+  values:
+    - 3
+    - 37
+    - 17
+    - 0
+  weight: 1
+  cost: 100
+  rent_off: 100
+  rent_on: 100
+  max_durability: 40
+  cur_durability: 40
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+    - kNodonate
+    - kNosell
+  wear_flags:
+    - kTake
+
+# Object #1738
+38:
+  names:
+    aliases: неоконченная летопись
+    nominative: неоконченная летопись
+    genitive: неоконченной летописи
+    dative: неоконченной летописи
+    accusative: неоконченную летопись
+    instrumental: неоконченной летописью
+    prepositional: неоконченной летописи
+  short_desc: Так и неоконченная летопись лежит пред Вами.
+  type: kBook
+  material: 15  # КОЖА
+  values:
+    - 3
+    - 38
+    - 1
+    - 0
+  weight: 1
+  cost: 100
+  rent_off: 100
+  rent_on: 100
+  max_durability: 100
+  cur_durability: 100
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+    - kNosell
+  wear_flags:
+    - kTake
+
+# Object #1739
+39:
+  names:
+    aliases: жгучая книга
+    nominative: жгучая книга
+    genitive: жгучей книги
+    dative: жгучей книге
+    accusative: жгучую книгу
+    instrumental: жгучей книгой
+    prepositional: жгучей книге
+  short_desc: Черная книга, переплетенная крапивой, брошена кем-то.
+  type: kBook
+  material: 15  # КОЖА
+  values:
+    - 3
+    - 39
+    - 27
+    - 0
+  weight: 1
+  cost: 1000
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 30
+  cur_durability: 30
+  timer: 1440
+  spell: 5  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+    - kNosell
+  wear_flags:
+    - kTake
+
+# Object #1740
+40:
+  names:
+    aliases: леденящая душу книга
+    nominative: леденящая душу книга
+    genitive: леденящей душу книги
+    dative: леденящей душу книге
+    accusative: леденящую душу книгу
+    instrumental: леденящей душу книгой
+    prepositional: леденящей душу книге
+  short_desc: От книги, покрытой крупинками льда, веет холодом.
+  type: kBook
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 3
+    - 40
+    - 27
+    - 0
+  weight: 1
+  cost: 1000
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 150
+  cur_durability: 150
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+    - kNosell
+  wear_flags:
+    - kTake
+
+# Object #1741
+41:
+  names:
+    aliases: трактат пользе мелких тварей
+    nominative: трактат о пользе мелких тварей
+    genitive: трактата о пользе мелких тварей
+    dative: трактату о пользе мелких тварей
+    accusative: трактат о пользе мелких тварей
+    instrumental: трактатом о пользе мелких тварей
+    prepositional: трактате о пользе мелких тварей
+  short_desc: Трактат содержит в себе много неизведонного.
+  type: kBook
+  material: 17  # БЕРЕСТА
+  values:
+    - 3
+    - 41
+    - 10
+    - 0
+  weight: 1
+  cost: 2000
+  rent_off: 1
+  rent_on: 1
+  max_durability: 40
+  cur_durability: 40
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+  wear_flags:
+    - kTake
+
+# Object #1742
+42:
+  names:
+    aliases: осколок зеркала
+    nominative: осколок зеркала
+    genitive: осколка зеркала
+    dative: осколку зеркала
+    accusative: осколок зеркала
+    instrumental: осколком зеркала
+    prepositional: осколке зеркала
+  short_desc: На осколке зеркала неразборчиво что-то нацарапано.
+  type: kBook
+  material: 11  # СТЕКЛО
+  values:
+    - 3
+    - 42
+    - 28
+    - 0
+  weight: 3
+  cost: 1000
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 50
+  cur_durability: 50
+  timer: 1440
+  spell: 5  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  extra_flags:
+    - kGlow
+    - kNorent
+    - kNodonate
+    - kNoinvis
+    - kNosell
+  wear_flags:
+    - kTake
+
+# Object #1743
+43:
+  names:
+    aliases: трактат свойствах камня
+    nominative: трактат о свойствах камня
+    genitive: трактата о свойствах камня
+    dative: трактату о свойствах камня
+    accusative: трактат о свойствах камня
+    instrumental: трактатом о свойствах камня
+    prepositional: трактате о свойствах камня
+  short_desc: Тяжелая книга в каменном переплете практически вросла в землю.
+  type: kBook
+  material: 17  # БЕРЕСТА
+  values:
+    - 3
+    - 43
+    - 15
+    - 0
+  weight: 1
+  cost: 1000
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 10
+  cur_durability: 10
+  timer: 1440
+  spell: 5  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+    - kNosell
+  wear_flags:
+    - kTake
+
+# Object #1744
+44:
+  names:
+    aliases: книга возникновения радуги
+    nominative: книга о возникновении радуги
+    genitive: книги о возникновении радуги
+    dative: книге о возникновении радуги
+    accusative: книгу о возникновении радуги
+    instrumental: книгой о возникновении радуги
+    prepositional: книге о возникновении радуги
+  short_desc: Книга, оплетенная радужными нитями, притягивает Ваш взгляд.
+  type: kBook
+  material: 15  # КОЖА
+  values:
+    - 3
+    - 44
+    - 16
+    - 0
+  weight: 1
+  cost: 1000
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 50
+  cur_durability: 50
+  timer: 1440
+  spell: 5  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+    - kNosell
+  wear_flags:
+    - kTake
+
+# Object #1745
+45:
+  names:
+    aliases: украшенный бисером пергамент
+    nominative: украшенный бисером пергамент
+    genitive: украшенного бисерома пергамента
+    dative: украшенному бисерому пергаменту
+    accusative: украшенный бисером пергамент
+    instrumental: украшенным бисеромом пергаментом
+    prepositional: украшенном бисероме пергаменте
+  short_desc: Пергамент, украшенный разноцветным бисером, утерян кем-то.
+  type: kBook
+  material: 15  # КОЖА
+  values:
+    - 3
+    - 45
+    - 16
+    - 0
+  weight: 1
+  cost: 1000
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 30
+  cur_durability: 30
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+    - kNosell
+  wear_flags:
+    - kTake
+
+# Object #1746
+46:
+  names:
+    aliases: догорающий свиток
+    nominative: догорающий свиток
+    genitive: догорающего свитка
+    dative: догорающему свитку
+    accusative: догорающий свиток
+    instrumental: догорающим свитком
+    prepositional: догорающем свитке
+  short_desc: Древний свиток догорает на земле.
+  type: kBook
+  material: 17  # БЕРЕСТА
+  values:
+    - 3
+    - 46
+    - 16
+    - 0
+  weight: 1
+  cost: 1000
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 10
+  cur_durability: 10
+  timer: 1440
+  spell: 5  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  extra_flags:
+    - kGlow
+    - kNorent
+    - kNosell
+  wear_flags:
+    - kTake
+
+# Object #1747
+47:
+  names:
+    aliases: обледеневший свиток
+    nominative: обледеневший свиток
+    genitive: обледеневшего свитка
+    dative: обледеневшему свитку
+    accusative: обледеневший свиток
+    instrumental: обледеневшим свитком
+    prepositional: обледеневшем свитке
+  short_desc: Свиток, покрытый льдом, лежит на земле.
+  type: kBook
+  material: 17  # БЕРЕСТА
+  values:
+    - 3
+    - 47
+    - 16
+    - 0
+  weight: 1
+  cost: 1000
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 50
+  cur_durability: 50
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+    - kNosell
+  wear_flags:
+    - kTake
+
+# Object #1748
+48:
+  names:
+    aliases: серый пергамент
+    nominative: серый пергамент
+    genitive: серого пергамента
+    dative: серому пергаменту
+    accusative: серый пергамент
+    instrumental: серым пергаментом
+    prepositional: сером пергаменте
+  short_desc: Серый невзрачный пергамент лежит перед Вами.
+  type: kBook
+  material: 14  # ТКАНЬ
+  values:
+    - 3
+    - 48
+    - 5
+    - 0
+  weight: 1
+  cost: 100
+  rent_off: 100
+  rent_on: 100
+  max_durability: 25
+  cur_durability: 25
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+    - kBless
+    - kNosell
+  wear_flags:
+    - kTake
+
+# Object #1749
+49:
+  names:
+    aliases: длинная рукопись
+    nominative: длинная рукопись
+    genitive: длинной рукописи
+    dative: длинной рукописи
+    accusative: длинную рукопись
+    instrumental: длинной рукописью
+    prepositional: длинной рукописи
+  short_desc: Очень длинная рукопись не дочитана кем-то.
+  type: kBook
+  material: 17  # БЕРЕСТА
+  values:
+    - 3
+    - 49
+    - 22
+    - 0
+  weight: 2
+  cost: 100
+  rent_off: 100
+  rent_on: 100
+  max_durability: 25
+  cur_durability: 25
+  timer: 1440
+  spell: 5  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kHum
+    - kNorent
+    - kNoinvis
+    - kNosell
+  wear_flags:
+    - kTake
+
+# Object #1750
+50:
+  names:
+    aliases: окутанная тенью книга
+    nominative: окутанная тенью книга
+    genitive: окутанной тенью книги
+    dative: окутанной тенью книге
+    accusative: окутанную тенью книгу
+    instrumental: окутанной тенью книгой
+    prepositional: окутанной тенью книге
+  short_desc: Сквозь облако теней можно рассмотреть контуры какой-то книги.
+  type: kBook
+  material: 6  # ДРАГ.МЕТАЛЛ
+  values:
+    - 3
+    - 50
+    - 20
+    - 0
+  weight: 2
+  cost: 10000
+  rent_off: 10000
+  rent_on: 10000
+  max_durability: 100
+  cur_durability: 100
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+    - kBless
+  wear_flags:
+    - kTake
+
+# Object #1751
+51:
+  names:
+    aliases: окованная цепями книга
+    nominative: окованная цепями книга
+    genitive: окованной цепями книга
+    dative: окованной цепями книга
+    accusative: окованную цепями книга
+    instrumental: окованной цепями книга
+    prepositional: окованной цепями книга
+  short_desc: Огромная книга, окованная тяжелыми цепями, лежит перед Вами.
+  type: kBook
+  material: 3  # ЖЕЛЕЗО
+  values:
+    - 3
+    - 51
+    - 25
+    - 0
+  weight: 5
+  cost: 1000
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 100
+  cur_durability: 100
+  timer: 1440
+  spell: 5  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+    - kNosell
+  wear_flags:
+    - kTake
+
+# Object #1752
+52:
+  names:
+    aliases: обрывой книги
+    nominative: 'обрывок книги "Приворотов"'
+    genitive: 'обрывка книги "Приворотов"'
+    dative: 'обрывку книги "Приворотов"'
+    accusative: 'обрывок книги "Приворотов"'
+    instrumental: 'обрывком книги "Приворотов"'
+    prepositional: 'обрывке книги "Приворотов"'
+  short_desc: 'Вырванный кусок старой книги '
+  type: kBook
+  material: 17  # БЕРЕСТА
+  values:
+    - 3
+    - 52
+    - 22
+    - 0
+  weight: 1
+  cost: 10
+  rent_off: 10
+  rent_on: 10
+  max_durability: 75
+  cur_durability: 75
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+    - kNosell
+  wear_flags:
+    - kTake
+
+# Object #1753
+53:
+  names:
+    aliases: прожженный свиток
+    nominative: прожженный в нескольких местах свиток
+    genitive: прожженного в нескольких местах свитка
+    dative: прожженному в нескольких местах свитку
+    accusative: прожженный в нескольких местах свиток
+    instrumental: прожженным в нескольких местах свитком
+    prepositional: прожженном в нескольких местах свитке
+  short_desc: Прожженный в нескольких местах свиток лежит перед Вами.
+  type: kBook
+  material: 15  # КОЖА
+  values:
+    - 3
+    - 53
+    - 18
+    - 0
+  weight: 1
+  cost: 100
+  rent_off: 100
+  rent_on: 100
+  max_durability: 50
+  cur_durability: 50
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+    - kNosell
+  wear_flags:
+    - kTake
+
+# Object #1754
+54:
+  names:
+    aliases: тонкая книга
+    nominative: тонкая книга
+    genitive: тонкой книги
+    dative: тонкой книге
+    accusative: тонкую книгу
+    instrumental: тонкой книгой
+    prepositional: тонкой книге
+  short_desc: Тонкая книжечка валяется на земле.
+  type: kBook
+  material: 17  # БЕРЕСТА
+  values:
+    - 3
+    - 54
+    - 15
+    - 0
+  weight: 1
+  cost: 10
+  rent_off: 10
+  rent_on: 10
+  max_durability: 40
+  cur_durability: 40
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+    - kNosell
+  wear_flags:
+    - kTake
+
+# Object #1755
+55:
+  names:
+    aliases: липкая книга
+    nominative: липкая книга
+    genitive: липкой книги
+    dative: липкой книге
+    accusative: липкую книгу
+    instrumental: липкой книгой
+    prepositional: липкой книге
+  short_desc: На книгу уже налипла грязь и старые листья. Вам даже не хочется к ней прикасаться.
+  type: kBook
+  material: 8  # ДЕРЕВО
+  values:
+    - 3
+    - 55
+    - 15
+    - 0
+  weight: 1
+  cost: 100
+  rent_off: 100
+  rent_on: 100
+  max_durability: 75
+  cur_durability: 75
+  timer: 1440
+  spell: 5  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+    - kNosell
+  wear_flags:
+    - kTake
+
+# Object #1756
+56:
+  names:
+    aliases: старая книга рецептов
+    nominative: старая книга рецептов
+    genitive: старой книги рецептов
+    dative: старой книге рецептов
+    accusative: старую книгу рецептов
+    instrumental: старой книгой рецептов
+    prepositional: старой книге рецептов
+  short_desc: Старая замызганная книга лежит тут.
+  type: kBook
+  material: 15  # КОЖА
+  values:
+    - 3
+    - 56
+    - 0
+    - 0
+  weight: 1
+  cost: 2000
+  rent_off: 2000
+  rent_on: 2000
+  max_durability: 100
+  cur_durability: 30
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: старая книга рецептов
+      description: |2
+        Старая замызганная книжонка в растрепанной обложке
+        покрыта пятнами и разводами, источающими гнусные запахи.
+
+# Object #1757
+57:
+  names:
+    aliases: трактат о воровских уловках
+    nominative: трактат о воровских уловках
+    genitive: трактата о воровских уловках
+    dative: трактату о воровских уловках
+    accusative: трактат о воровских уловках
+    instrumental: трактатом о воровских уловках
+    prepositional: трактате о воровских уловках
+  short_desc: Стянутый ремнями пухленький трактат лежит тут.
+  type: kBook
+  material: 15  # КОЖА
+  values:
+    - 3
+    - 57
+    - 0
+    - 0
+  weight: 1
+  cost: 75000
+  rent_off: 5000
+  rent_on: 5000
+  max_durability: 100
+  cur_durability: 80
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 5
+  extra_flags:
+    - kNorent
+    - kNosell
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: трактат воровских уловках
+      description: |2
+        Известная книга, написаная осттавным стражником из Тотьмы
+        с целью помочь добропорядочным горожанам обезопасить свои
+        дома от воров.
+        Увы, но куда чаще эта канига используется с прямо противоположными целяими.
+
+# Object #1758
+58:
+  names:
+    aliases: книга переплете бычьей кожи
+    nominative: книга в переплете из бычьей кожи
+    genitive: книги в переплете из бычьей кожи
+    dative: книге в переплете из бычьей кожи
+    accusative: книгу в переплете из бычьей кожи
+    instrumental: книгой в переплете из бычьей кожи
+    prepositional: книге в переплете из бычьей кожи
+  short_desc: Толстенная книга в переплете из толстой лоснящейся кожи лежит тут.
+  type: kBook
+  material: 15  # КОЖА
+  values:
+    - 3
+    - 58
+    - 0
+    - 0
+  weight: 1
+  cost: 75000
+  rent_off: 1
+  rent_on: 1
+  max_durability: 100
+  cur_durability: 80
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 10
+  extra_flags:
+    - kNorent
+    - kNosell
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: книга переплете бычьей кожи
+      description: |2
+        Толстенный фолиант в переплуте из толстой кожи, снабженный
+        медными кованными застежками, способными удержать и упряжку лошадей.
+
+# Object #1759
+59:
+  names:
+    aliases: трактат источниках премудрости
+    nominative: трактат об источниках премудрости
+    genitive: трактата об источниках премудрости
+    dative: трактату об источниках премудрости
+    accusative: трактат об источниках премудрости
+    instrumental: трактатом об источниках премудрости
+    prepositional: трактате об источниках премудрости
+  short_desc: Тяжелая книга в мрачном черном переплете лежит тут.
+  type: kBook
+  material: 15  # КОЖА
+  values:
+    - 3
+    - 59
+    - 0
+    - 0
+  weight: 3
+  cost: 75000
+  rent_off: 1
+  rent_on: 1
+  max_durability: 100
+  cur_durability: 80
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 10
+  extra_flags:
+    - kNorent
+    - kNosell
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: трактат источниках премудрости
+      description: |2
+        Тыжеленная книга в мрачном черном переплете из черной кожи.
+        На обложке серебром выложена змея, кусающая свой хвост.
+
+# Object #1760
+60:
+  names:
+    aliases: записки крысах других зверях превредных досаду убыток причиняющих книга переплете навощенной
+    nominative: записки о крысах и других зверях превредных, досаду и убыток причиняющих
+    genitive: записок о крысах и других зверях превредных, досаду и убыток причиняющих
+    dative: запискам о крысах и других зверях превредных, досаду и убыток причиняющих
+    accusative: записки о крысах и других зверях превредных, досаду и убыток причиняющих
+    instrumental: записками о крысах и других зверях превредных, досаду и убыток причиняющих
+    prepositional: записках о крысах и других зверях превредных, досаду и убыток причиняющих
+  short_desc: Здесь лежит толстая книга в переплете из навощенной ткани.
+  type: kBook
+  material: 14  # ТКАНЬ
+  values:
+    - 3
+    - 60
+    - 0
+    - 0
+  weight: 3
+  cost: 75000
+  rent_off: 1
+  rent_on: 1
+  max_durability: 100
+  cur_durability: 80
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 10
+  extra_flags:
+    - kNorent
+    - kNosell
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: записки крысах других зерях превредных досаду убыток причиняющих книга переплете навощенной
+      description: |2
+        Толстая книга в простом переплете из обтянутых навощенной тканью досок.
+        Застежки и переплет изрядно изгрызены крысами.
+
+# Object #1761
+61:
+  names:
+    aliases: заметки о чарах магических
+    nominative: заметки о чарах магических
+    genitive: заметок о чарах магических
+    dative: заметкам о чарах магических
+    accusative: заметки о чарах магических
+    instrumental: заметками о чарах магических
+    prepositional: заметках о чарах магических
+  short_desc: На ветру тихо шелестят какие-то потрепанные заметки.
+  type: kBook
+  material: 17  # БЕРЕСТА
+  values:
+    - 4
+    - 90
+    - 0
+    - 0
+  weight: 1
+  cost: 1000
+  rent_off: 1
+  rent_on: 1
+  max_durability: 50
+  cur_durability: 50
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 1
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: заметки о чарах магических
+      description: |2
+        Бегло пробежавшись по заметкам, вы узнали, что это записи какого-то колдуна.
+        Похоже, он научился зачаровывать своих двойников таким образом, что они сами могли произносить заклинания
+        и поражать врагов молниями и огненными шарами. Видимо, он решил проверить это на лесной стене, и, видимо, неудачно.
+
+# Object #1762
+62:
+  names:
+    aliases: скользящая по теням книга
+    nominative: скользящая по теням книга
+    genitive: скользящей по теням книги
+    dative: скользящей по теням книге
+    accusative: скользящую по теням книгу
+    instrumental: скользящей по теням книгой
+    prepositional: скользящей по теням книге
+  short_desc: Полупрозрачная книга, с размытыми силуэтами на обложке.
+  type: kBook
+  material: 17  # БЕРЕСТА
+  values:
+    - 0
+    - 208
+    - 0
+    - 0
+  weight: 1
+  cost: 200
+  rent_off: 10000
+  rent_on: 10000
+  max_durability: 100
+  cur_durability: 100
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 2
+  wear_flags:
+    - kTake
+
+# Object #1763
+63:
+  names:
+    aliases: тайный манускрипт искусстве верхового боя
+    nominative: тайный манускрипт об искусстве верхового боя
+    genitive: тайного манускрипта об искусстве верхового боя
+    dative: тайному манускрипту об искусстве верхового боя
+    accusative: тайный манускрипт об искусстве верхового боя
+    instrumental: тайным манускриптом об искусстве верхового боя
+    prepositional: тайном манускрипте об искусстве верхового боя
+  short_desc: В черном облаке под вашими ногами Вы едва различаете контуры какой-то книги.
+  type: kBook
+  material: 13  # КОСТЬ
+  values:
+    - 1
+    - 190
+    - 28
+    - 0
+  weight: 1
+  cost: 100
+  rent_off: 1000
+  rent_on: 100
+  max_durability: 100
+  cur_durability: 100
+  timer: 1440
+  spell: 1  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+    - kNosell
+  wear_flags:
+    - kTake
+
+# Object #1764
+64:
+  names:
+    aliases: книга вихрь воронка
+    nominative: книга с воронкой на обложке
+    genitive: книги с воронкой на обложке
+    dative: книге с воронкой на обложке
+    accusative: книгу с воронкой на обложке
+    instrumental: книгой с воронкой на обложке
+    prepositional: книге с воронкой на обложке
+  short_desc: Книга о вихрях лежит на земле.
+  type: kBook
+  material: 17  # БЕРЕСТА
+  values:
+    - 0
+    - 210
+    - 0
+    - 0
+  weight: 1
+  cost: 10000
+  rent_off: 0
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 2
+  extra_flags:
+    - kNorent
+    - kFlying
+  wear_flags:
+    - kTake
+
+# Object #1765
+65:
+  names:
+    aliases: записки мага побывавшего в буре книга
+    nominative: записки мага, побывавшего в буре
+    genitive: записок мага, побывавшего в буре
+    dative: запискам мага, побывавшего в буре
+    accusative: записки мага, побывавшего в буре
+    instrumental: записками мага, побывавшего в буре
+    prepositional: записках мага, побывавшего в буре
+  short_desc: Записки мага, побывавшего в буре лежат здесь
+  type: kBook
+  material: 17  # БЕРЕСТА
+  values:
+    - 0
+    - 168
+    - 0
+    - 0
+  weight: 1
+  cost: 100000
+  rent_off: 100000
+  rent_on: 1
+  max_durability: 100
+  cur_durability: 100
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 3
+  minimum_remorts: 6
+  wear_flags:
+    - kTake
+
+# Object #1766
+66:
+  names:
+    aliases: книга глубина жизнь
+    nominative: книга о жизни на глубине
+    genitive: книги о жизни на глубине
+    dative: книге о жизни на глубине
+    accusative: книгу о жизни на глубине
+    instrumental: книгой о жизни на глубине
+    prepositional: книге о жизни на глубине
+  short_desc: Книга о морских глубинах лежит на земле.
+  type: kBook
+  material: 17  # БЕРЕСТА
+  values:
+    - 0
+    - 221
+    - 0
+    - 0
+  weight: 1
+  cost: 10000
+  rent_off: 0
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 2
+  extra_flags:
+    - kNorent
+    - kFlying
+  wear_flags:
+    - kTake
+
+# Object #1767
+67:
+  names:
+    aliases: шипящая книга
+    nominative: шипящая книга
+    genitive: шипящей книги
+    dative: шипящей книге
+    accusative: шипящую книгу
+    instrumental: шипящей книгой
+    prepositional: шипящей книге
+  short_desc: Издающая странные звуки книга лежит здесь.
+  type: kBook
+  material: 17  # БЕРЕСТА
+  values:
+    - 0
+    - 225
+    - 0
+    - 0
+  weight: 1
+  cost: 10000
+  rent_off: 0
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 2
+  extra_flags:
+    - kNorent
+    - kFlying
+  wear_flags:
+    - kTake
+
+# Object #1768
+68:
+  names:
+    aliases: посыпанная мраморной крошкой книга
+    nominative: посыпанная мраморной крошкой книга
+    genitive: посыпанной мраморной крошкой книги
+    dative: посыпанной мраморной крошкой книге
+    accusative: посыпанную мраморной крошкой книгу
+    instrumental: посыпанной мраморной крошкой книгой
+    prepositional: посыпанной мраморной крошкой книге
+  short_desc: Испачканная в мраморную пыть книга лежит здесь.
+  type: kBook
+  material: 17  # БЕРЕСТА
+  values:
+    - 0
+    - 224
+    - 0
+    - 0
+  weight: 1
+  cost: 10000
+  rent_off: 0
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 2
+  extra_flags:
+    - kNorent
+    - kFlying
+  wear_flags:
+    - kTake
+
+# Object #1769
+69:
+  names:
+    aliases: книга большим глазом
+    nominative: книга с большим глазом
+    genitive: книги с большим глазом
+    dative: книге с большим глазом
+    accusative: книгу с большим глазом
+    instrumental: книгой с большим глазом
+    prepositional: книге с большим глазом
+  short_desc: Книга с большим глазом на обложке взирает на Вас.
+  type: kBook
+  material: 17  # БЕРЕСТА
+  values:
+    - 0
+    - 219
+    - 0
+    - 0
+  weight: 1
+  cost: 10000
+  rent_off: 0
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 2
+  extra_flags:
+    - kNorent
+    - kFlying
+  wear_flags:
+    - kTake
+
+# Object #1770
+70:
+  names:
+    aliases: Летопись родных краях
+    nominative: летопись о родных краях
+    genitive: летописи о родных краях
+    dative: летописи о родных краях
+    accusative: летопись о родных краях
+    instrumental: летописью о родных краях
+    prepositional: летописи о родных краях
+  short_desc: Летопись о родных землях лежит у Ваших ног.
+  type: kBook
+  material: 17  # БЕРЕСТА
+  values:
+    - 0
+    - 226
+    - 0
+    - 0
+  weight: 1
+  cost: 10000
+  rent_off: 0
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 2
+  extra_flags:
+    - kNorent
+    - kFlying
+  wear_flags:
+    - kTake
+
+# Object #1771
+71:
+  names:
+    aliases: книга пророчеств
+    nominative: книга пророчеств
+    genitive: книги пророчеств
+    dative: книге пророчеств
+    accusative: книгу пророчеств
+    instrumental: книгой пророчеств
+    prepositional: книге пророчеств
+  short_desc: Книга о всем что будет лежит перед вами.
+  type: kBook
+  material: 17  # БЕРЕСТА
+  values:
+    - 0
+    - 220
+    - 0
+    - 0
+  weight: 1
+  cost: 10000
+  rent_off: 0
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 2
+  extra_flags:
+    - kNorent
+    - kFlying
+  wear_flags:
+    - kTake
+
+# Object #1772
+72:
+  names:
+    aliases: книга изображением большого камня
+    nominative: книга с изображением большого камня
+    genitive: книги с изображением большого камня
+    dative: книге с изображением большого камня
+    accusative: книгу с изображением большого камня
+    instrumental: книгой с изображением большого камня
+    prepositional: книге с изображением большого камня
+  short_desc: Гигантская книга в виде глыбы стоит здесь.
+  type: kBook
+  material: 17  # БЕРЕСТА
+  values:
+    - 0
+    - 214
+    - 0
+    - 0
+  weight: 1
+  cost: 10000
+  rent_off: 0
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 2
+  extra_flags:
+    - kNorent
+    - kFlying
+  wear_flags:
+    - kTake
+
+# Object #1773
+73:
+  names:
+    aliases: книга поведение стол
+    nominative: книга о поведении за столом
+    genitive: книги о поведении за столом
+    dative: книге о поведении за столом
+    accusative: книгу о поведении за столом
+    instrumental: книгой о поведении за столом
+    prepositional: книге о поведении за столом
+  short_desc: Книга с изображением ножа и ложки на обложке лежит перед вами.
+  type: kBook
+  material: 17  # БЕРЕСТА
+  values:
+    - 0
+    - 223
+    - 0
+    - 0
+  weight: 1
+  cost: 10000
+  rent_off: 0
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 2
+  extra_flags:
+    - kNorent
+    - kFlying
+  wear_flags:
+    - kTake
+
+# Object #1774
+74:
+  names:
+    aliases: книга глаза мрак
+    nominative: книга с глазами во мраке
+    genitive: книги с глазами во мраке
+    dative: книге с глазами во мраке
+    accusative: книгу с глазами во мраке
+    instrumental: книгой с глазами во мраке
+    prepositional: книге с глазами во мраке
+  short_desc: Книга с изображением глаз во мраке на обложке лежит перед вами.
+  type: kBook
+  material: 17  # БЕРЕСТА
+  values:
+    - 0
+    - 216
+    - 0
+    - 0
+  weight: 1
+  cost: 10000
+  rent_off: 0
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 2
+  extra_flags:
+    - kNorent
+    - kFlying
+  wear_flags:
+    - kTake
+
+# Object #1775
+75:
+  names:
+    aliases: страница заметки ведьмак отшельник
+    nominative: страница из заметок ведьмака-отшельника
+    genitive: страницы из заметок ведьмака-отшельника
+    dative: странице из заметок ведьмака-отшельника
+    accusative: страницу из заметок ведьмака-отшельника
+    instrumental: страницей из заметок ведьмака-отшельника
+    prepositional: странице из заметок ведьмака-отшельника
+  short_desc: Пожелтевшая страница из дневника, расписанная вдоль и поперек ведьмаком лежит здесь.
+  type: kBook
+  material: 17  # БЕРЕСТА
+  values:
+    - 0
+    - 227
+    - 0
+    - 0
+  weight: 1
+  cost: 20000
+  rent_off: 0
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 2
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: страница заметки ведьмак отшельник
+      description: |2
+        Страница из дневника с древней черной магией. Неужели я смогу ее понять? Если рисунки еще и можно понять, то слова написаны на каком то древнем
+        наречии. Лишь по истине великому витязю иль лекарю доступен этот древний язык
+
+# Object #1776
+76:
+  names:
+    aliases: черный псалтырь стенаний
+    nominative: черный псалтырь стенаний
+    genitive: черного псалтыря стенаний
+    dative: черному псалтырю стенаний
+    accusative: черный псалтырь стенаний
+    instrumental: черным псалтырем стенаний
+    prepositional: черном псалтыре стенаний
+  short_desc: Черный псалтырь с ликами мучеников на обложке лежит перед вами.
+  type: kBook
+  material: 17  # БЕРЕСТА
+  values:
+    - 0
+    - 173
+    - 0
+    - 0
+  weight: 1
+  cost: 10000
+  rent_off: 0
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 2
+  extra_flags:
+    - kNorent
+    - kFlying
+  wear_flags:
+    - kTake
+
+# Object #1777
+77:
+  names:
+    aliases: трактат роса туман книга окутанная
+    nominative: трактат о росе и тумане
+    genitive: трактата о росе и тумане
+    dative: трактату о росе и тумане
+    accusative: трактат о росе и тумане
+    instrumental: трактатом о росе и тумане
+    prepositional: трактате о росе и тумане
+  short_desc: Книга, окутанная туманом одиноко лежит на земле.
+  type: kBook
+  material: 17  # БЕРЕСТА
+  values:
+    - 0
+    - 236
+    - 0
+    - 0
+  weight: 1
+  cost: 10000
+  rent_off: 0
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 2
+  extra_flags:
+    - kNorent
+    - kFlying
+  wear_flags:
+    - kTake
+
+# Object #1778
+78:
+  names:
+    aliases: древний мерцающий фолиант
+    nominative: древний мерцающий фолиант
+    genitive: древнего мерцающиго фолианта
+    dative: древнему мерцающему фолианту
+    accusative: древний мерцающий фолиант
+    instrumental: древним мерцающим фолиантом
+    prepositional: древнем мерцающем фолианте
+  short_desc: Древний мерцающий фолиант, окутанный тьмой лежит на земле.
+  type: kBook
+  material: 17  # БЕРЕСТА
+  values:
+    - 0
+    - 235
+    - 0
+    - 0
+  weight: 1
+  cost: 10000
+  rent_off: 0
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 2
+  extra_flags:
+    - kNorent
+    - kFlying
+  wear_flags:
+    - kTake
+
+# Object #1779
+79:
+  names:
+    aliases: древний трактат сотней глаз обложке
+    nominative: трактат с сотней глаз на обложке
+    genitive: трактата с сотней глаз на обложке
+    dative: трактату с сотней глаз на обложке
+    accusative: трактат с сотней глаз на обложке
+    instrumental: трактатом с сотней глаз на обложке
+    prepositional: трактате с сотней глаз на обложке
+  short_desc: Древний трактат с сотней нарисованных глаз лежит на земле.
+  type: kBook
+  material: 17  # БЕРЕСТА
+  values:
+    - 0
+    - 237
+    - 0
+    - 0
+  weight: 1
+  cost: 10000
+  rent_off: 0
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 2
+  extra_flags:
+    - kNorent
+    - kFlying
+  wear_flags:
+    - kTake

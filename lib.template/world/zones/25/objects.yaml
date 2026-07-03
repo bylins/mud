@@ -1,0 +1,4860 @@
+# Objects for zone 25
+
+# Object #2500
+0:
+  names:
+    aliases: шарик подарок
+    nominative: '&Rш&Yа&Gр&Cи&Bк &Rд&Yл&Gя &Rн&Yо&Gво&Cго&Bдн&Mей &Rе&Yл&Gк&Cи&n'
+    genitive: '&Rш&Yа&Gри&Cк&Bа &Rд&Yл&Gя &Rн&Yо&Gво&Cго&Bдн&Mей &Rе&Yл&Gк&Cи&n'
+    dative: '&Rш&Yа&Gри&Cк&Bу &Rд&Yл&Gя &Rн&Yо&Gво&Cго&Bдн&Mей &Rе&Yл&Gк&Cи&n'
+    accusative: '&Rш&Yа&Gр&Cи&Bк &Rд&Yл&Gя &Rн&Yо&Gво&Cго&Bдн&Mей &Rе&Yл&Gк&Cи&n'
+    instrumental: '&Rш&Yар&Gик&Cо&Bм &Rд&Yл&Gя &Rн&Yо&Gво&Cго&Bдн&Mей &Rе&Yл&Gк&Cи&n'
+    prepositional: '&Rш&Yа&Gри&Cк&Bе &Rд&Yл&Gя &Rн&Yо&Gво&Cго&Bдн&Mей &Rе&Yл&Gк&Cи&n'
+  short_desc: '&RШ&Yа&Gр&Cи&Bк&M &Rд&Yл&Gя &Rн&Yо&Gво&Cго&Bдн&Mей &Rе&Yл&Gк&Cи&Y лежит здесь.'
+  type: kOther
+  material: 11  # СТЕКЛО
+  values:
+    - 1000
+    - 0
+    - 0
+    - 0
+  weight: 0
+  cost: 1
+  rent_off: 0
+  rent_on: 0
+  max_durability: 99999
+  cur_durability: 99999
+  timer: 56160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  extra_flags:
+    - kNodonate
+    - kMagic
+    - kNosell
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kNolocate
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kFinger
+    - kNeck
+    - kWield
+  affect_flags:
+    - kMagicGlass
+  extra_descriptions:
+    - keywords: шарик подарок для новогодней елки
+      description: |2
+           Очень красивый шарик для новогодней елки. Нужно
+        обязательно &Rповешать&n его на новогоднюю елку.
+
+# Object #2501
+1:
+  names:
+    aliases: бутылка шампанского
+    nominative: '&Kбу&gтылка &Kша&gмпанского&n'
+    genitive: '&Kбу&gтылки &Kша&gмпанского&n'
+    dative: '&Kбу&gтылку &Kша&gмпанского&n'
+    accusative: '&Kбу&gтылку &Kша&gмпанского&n'
+    instrumental: '&Kбу&gтылкой &Kша&gмпанского&n'
+    prepositional: '&Kбу&gтылке &Kша&gмпанского&n'
+  short_desc: Бутылка с шампанским стоит здесь.
+  type: kPotion
+  material: 11  # СТЕКЛО
+  values:
+    - 30
+    - 1
+    - 16
+    - 103
+  weight: 0
+  cost: 1000
+  rent_off: 10
+  rent_on: 10
+  max_durability: 1100
+  cur_durability: 1100
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kNosell
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kHold
+
+# Object #2502
+2:
+  names:
+    aliases: коробка конфет
+    nominative: '&Wкоробка конфет&n'
+    genitive: '&Wкоробки конфет&n'
+    dative: '&Wкоробке конфет&n'
+    accusative: '&Wкоробку конфет&n'
+    instrumental: '&Wкоробкой конфет&n'
+    prepositional: '&Wкоробке конфет&n'
+  short_desc: Красивая коробка из под конфет лежит здесь.
+  type: kContainer
+  material: 17  # БЕРЕСТА
+  values:
+    - 25
+    - 0
+    - -1
+    - 0
+  weight: 0
+  cost: 0
+  rent_off: 10
+  rent_on: 10
+  max_durability: 1100
+  cur_durability: 1100
+  timer: 480
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kMagic
+    - kNosell
+    - kDecay
+  wear_flags:
+    - kTake
+    - kHold
+  affect_flags:
+    - kHaste
+
+# Object #2503
+3:
+  names:
+    aliases: новогодняя открытка
+    nominative: '&Cновогодняя &nоткрытка'
+    genitive: '&Cновогодней &nоткрытки'
+    dative: '&Cновогодней &nоткрытке'
+    accusative: '&Cновогоднюю &nоткрытку'
+    instrumental: '&Cновогодней &nоткрыткой'
+    prepositional: '&Cновогодней &nоткрытке'
+  short_desc: '&CНовогодняя &Yоткрытка лежит здесь.'
+  action_desc: |2
+    Вы зачитали новогоднюю открытку, которая наполнила вас здоровьем!
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 30
+    - 28
+    - 14
+    - 89
+  weight: 1
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 9999
+  cur_durability: 100
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kMagic
+    - kSwimming
+    - kFlying
+    - kNolocate
+    - kNoalter
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: новогодняя открытка
+      description: |2
+        &KНа открытке написано новогоднее поздравление.&n
+        &c************************************************************************
+        &c* &WУважаемый Игрок, поздравляем вас&R                     *               &c*
+        &c* &WС Новым 2019 Годом.                                  &G^               &c*
+        &c*                                                    &G//M\&R*             &c*
+        &c* &WЖелаем счастья, здоровья, а также                &R*&G/v\m/\             &c*
+        &c* &WУспехов в личной жизни и на работе.              &Gvm&R*&G\mv\/&R*           &c*
+        &c*                                                 &G/\v/\v/\v/\          &c*
+        &c* &WС уважением,                                       &K|/\/|             &c*
+        &c*    &Wвесь имм-коллектив МАДа "Былины".                                 &c*
+        &c************************************************************************&n
+
+# Object #2504
+4:
+  names:
+    aliases: пельмени
+    nominative: 'пельмени "новогодние"'
+    genitive: пельменей новогодних
+    dative: пельменям новогодним
+    accusative: 'пельмени "новогодние"'
+    instrumental: пельменями новогодними
+    prepositional: пелменях новогодних
+  short_desc: Тарелка с горячими пельменями стоит здесь,.. от тарелки исходит пар.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 20
+    - 0
+    - 0
+    - 0
+  weight: 0
+  cost: 1000
+  rent_off: 10
+  rent_on: 10
+  max_durability: 1100
+  cur_durability: 1100
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 1
+  extra_flags:
+    - kNoalter
+  wear_flags:
+    - kTake
+  applies:
+    - location: 59  # бонус.ко.всем.умениям
+      modifier: 20
+
+# Object #2505
+5:
+  names:
+    aliases: шапка ушанка
+    nominative: '&Kшапка-ушанка&n'
+    genitive: '&Kшапки-ушанки&n'
+    dative: '&Kшапке-ушанке&n'
+    accusative: '&Kшапку-ушанку&n'
+    instrumental: '&Kшапкой-ушанкой&n'
+    prepositional: '&Kшапке-ушанке&n'
+  short_desc: Теплая шапка-ушанка лежит здесь. Хватай ее скорее!
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 2
+    - 5
+    - 0
+    - 0
+  weight: 1
+  cost: 3000
+  rent_off: 100
+  rent_on: 5
+  max_durability: 500
+  cur_durability: 500
+  timer: 21600
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  minimum_remorts: -1
+  extra_flags:
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kHead
+  affect_flags:
+    - kInfravision
+    - kBlink
+  applies:
+    - location: 5  # телосложение
+      modifier: 2
+    - location: 1  # сила
+      modifier: 2
+    - location: 20  # воля
+      modifier: -10
+    - location: 13  # макс.жизнь
+      modifier: 40
+    - location: 41  # удача
+      modifier: 5
+    - location: 19  # повреждение
+      modifier: 5
+  extra_descriptions:
+    - keywords: шапка ушанка
+      description: |2
+        Теплая шапка-ушанка поможет сохранить вам голову в тепле во время новогодних гуляний.
+
+# Object #2506
+6:
+  names:
+    aliases: леденец форме елочки
+    nominative: '&gледенец в форме елочки&n'
+    genitive: '&gледенца в форме елочки&n'
+    dative: '&gледенцу в форме елочки&n'
+    accusative: '&gледенец в форме елочки&n'
+    instrumental: '&gледенцом в форме елочки&n'
+    prepositional: '&gледенце в форме елочки&n'
+  short_desc: '&gЛеденец в форме елочки&n притягивает взгляд.'
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 999
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 3000
+  rent_off: 100
+  rent_on: 5
+  max_durability: 75
+  cur_durability: 75
+  timer: 21600
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  minimum_remorts: -1
+  extra_flags:
+    - kNodisarm
+    - kSwimming
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kNeck
+    - kHold
+  affect_flags:
+    - kDetectInvisibility
+    - kInfravision
+  applies:
+    - location: 6  # обаяние
+      modifier: 2
+    - location: 3  # интеллект
+      modifier: 2
+    - location: 12  # запоминание
+      modifier: 35
+    - location: 13  # макс.жизнь
+      modifier: 35
+  extra_descriptions:
+    - keywords: леденец форме елочки
+      description: |2
+        Сладкий, вкусный леденец на палочке сделан в форме елки. Хорошо что не со вкусом :)
+
+# Object #2507
+7:
+  names:
+    aliases: новогодняя гирлянда
+    nominative: '&Gновогодняя &Yг&Rи&Yр&Rл&Yя&Rн&Yд&Rа&n'
+    genitive: '&Gновогодней &Yг&Rи&Yр&Rл&Yя&Rн&Yд&Rы&n'
+    dative: '&Gновогодней &Yг&Rи&Yр&Rл&Yя&Rн&Yд&Rе&n'
+    accusative: '&Gновогоднюю &Yг&Rи&Yр&Rл&Yя&Rн&Yд&Rу&n'
+    instrumental: '&Gновогодней &Yг&Rи&Yр&Rл&Yя&Rн&Yд&Rо&Yй&n'
+    prepositional: '&Gновогодней &Yг&Rи&Yр&Rл&Yя&Rн&Yд&Rе&n'
+  short_desc: Яркая &Gновогодняя &Yг&Rи&Yр&Rл&Yя&Rн&Yд&Rа&n радует взор.
+  type: kOther
+  material: 14  # ТКАНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1000
+  rent_off: 100
+  rent_on: 10
+  max_durability: 300
+  cur_durability: 300
+  timer: 21600
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  minimum_remorts: -1
+  extra_flags:
+    - kGlow
+    - kNodecay
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kFinger
+    - kNeck
+    - kWaist
+    - kWrist
+  affect_flags:
+    - kInvisibility
+    - kBlink
+    - kSingleLight
+  applies:
+    - location: 5  # телосложение
+      modifier: 2
+    - location: 1  # сила
+      modifier: 2
+    - location: 24  # стойкость
+      modifier: -10
+    - location: 48  # защита.от.тяжелых.ран
+      modifier: 5
+    - location: 18  # попадание
+      modifier: 5
+    - location: 19  # повреждение
+      modifier: 5
+    - location: 13  # макс.жизнь
+      modifier: 35
+  skills:
+    - skill_id: 157  # уклониться
+      value: 5
+  extra_descriptions:
+    - keywords: новогодняя гирлянда
+      description: |2
+        Яркая &Gновогодняя &Yг&Rи&Yр&Rл&Yя&Rн&Yд&Rа&n сияет огоньками.
+
+# Object #2508
+8:
+  names:
+    aliases: маленькая елочка горшке
+    nominative: маленькая &gелочка в горшке&n
+    genitive: маленькой &gелочки в горшке&n
+    dative: маленькой &gелочке в горшке&n
+    accusative: маленькую &gелочку в горшке&n
+    instrumental: маленькой &gелочкой в горшке&n
+    prepositional: маленькой &gелочке в горшке&n
+  short_desc: Маленькая &gелочка в горшке&n стоит посреди комнаты.
+  type: kOther
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1000
+  rent_off: 100
+  rent_on: 10
+  max_durability: 400
+  cur_durability: 400
+  timer: 21600
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  minimum_remorts: -1
+  extra_flags:
+    - kNodecay
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kHead
+    - kHold
+  affect_flags:
+    - kDetectAlign
+    - kDetectInvisibility
+    - kDetectMagic
+  applies:
+    - location: 39  # реакция
+      modifier: -10
+    - location: 13  # макс.жизнь
+      modifier: 35
+    - location: 12  # запоминание
+      modifier: 35
+    - location: 40  # успех.колдовства
+      modifier: 15
+    - location: 44  # поглощение
+      modifier: 10
+  extra_descriptions:
+    - keywords: маленькая елочка горшке
+      description: |2
+        Это маленькая живая елка, живущая в кадке. Можно поставить и на подоконник,
+        и на стол, а можно и в обнимку с ней встретить новый год.
+
+# Object #2509
+9:
+  names:
+    aliases: рога северного оленя
+    nominative: '&yрога северного оленя&n'
+    genitive: '&yрогов северного оленя&n'
+    dative: '&yрогам северного оленя&n'
+    accusative: '&yрога северного оленя&n'
+    instrumental: '&yрогами северного оленя&n'
+    prepositional: '&yрогах северного оленя&n'
+  short_desc: '&WРога северного оленя&n лежат на земле, ожидая своего истинного владельца.'
+  type: kArmor
+  material: 13  # КОСТЬ
+  values:
+    - 4
+    - 5
+    - 0
+    - 0
+  weight: 5
+  cost: 3000
+  rent_off: 100
+  rent_on: 10
+  max_durability: 400
+  cur_durability: 400
+  timer: 21600
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  minimum_remorts: -1
+  extra_flags:
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kHead
+  applies:
+    - location: 1  # сила
+      modifier: 2
+    - location: 2  # ловкость
+      modifier: 2
+    - location: 39  # реакция
+      modifier: -13
+    - location: 23  # здоровье
+      modifier: -5
+    - location: 18  # попадание
+      modifier: 5
+    - location: 19  # повреждение
+      modifier: 5
+    - location: 41  # удача
+      modifier: 5
+  extra_descriptions:
+    - keywords: рога северного оленя
+      description: |2
+        Большие, красивые ветвистые рога. Кажется, вы обронили? :)
+
+# Object #2510
+10:
+  names:
+    aliases: шапка заячьими ушами
+    nominative: '&Rшапка с &Wзаячьими ушами&n'
+    genitive: '&Rшапки с &Wзаячьими ушами&n'
+    dative: '&Rшапке с &Wзаячьими ушами&n'
+    accusative: '&Rшапку с &Wзаячьими ушами&n'
+    instrumental: '&Rшапкой с &Wзаячьими ушами&n'
+    prepositional: '&Rшапке с &Wзаячьими ушами&n'
+  short_desc: '&RНовогодняя шапка с &Wзаячьими ушами&n валяется на земле.'
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 4
+    - 3
+    - 0
+    - 0
+  weight: 1
+  cost: 3000
+  rent_off: 10
+  rent_on: 5
+  max_durability: 400
+  cur_durability: 400
+  timer: 21600
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  minimum_remorts: -1
+  extra_flags:
+    - kFlying
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kHead
+  affect_flags:
+    - kInvisibility
+    - kDetectAlign
+    - kDetectInvisibility
+    - kDetectMagic
+    - kInfravision
+    - kBless
+    - kAwareness
+  applies:
+    - location: 2  # ловкость
+      modifier: 2
+    - location: 24  # стойкость
+      modifier: -10
+    - location: 13  # макс.жизнь
+      modifier: 35
+    - location: 42  # инициатива
+      modifier: 7
+    - location: 19  # повреждение
+      modifier: 5
+  extra_descriptions:
+    - keywords: шапка заячьими ушами
+      description: |2
+        Красная шапка с узкой меховой оторочкой, к которой прилажены длинные заячьи ушки.
+        Игрушечные. :) 
+
+# Object #2511
+11:
+  names:
+    aliases: маленький резной снеговик
+    nominative: '&yмаленький резной снеговик&n'
+    genitive: '&yмаленького резного снеговика&n'
+    dative: '&yмаленькому резному снеговику&n'
+    accusative: '&yмаленький резной снеговик&n'
+    instrumental: '&yмаленьким резным снеговиком&n'
+    prepositional: '&yмаленьким резном снеговике&n'
+  short_desc: Вырезанный из дерева снеговик потешно улыбается.
+  type: kArmor
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 3
+    - 3
+    - 0
+    - 0
+  weight: 1
+  cost: 3000
+  rent_off: 10
+  rent_on: 5
+  max_durability: 300
+  cur_durability: 300
+  timer: 21600
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  minimum_remorts: -1
+  extra_flags:
+    - kBless
+    - kNodisarm
+    - kNodecay
+    - kFlying
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kNeck
+    - kWaist
+    - kHold
+  affect_flags:
+    - kDetectInvisibility
+    - kProtectFromDark
+    - kProtectFromMind
+    - kWaterBreath
+    - kAirAura
+    - kFireAura
+    - kIceAura
+  applies:
+    - location: 4  # мудрость
+      modifier: 2
+    - location: 3  # интеллект
+      modifier: 2
+    - location: 12  # запоминание
+      modifier: 30
+    - location: 40  # успех.колдовства
+      modifier: 12
+    - location: 44  # поглощение
+      modifier: 10
+  extra_descriptions:
+    - keywords: маленький резной снеговик
+      description: |2
+        Маленький снеговик вырезан из дерева. У него есть все, что есть у каждого 
+        уважающего себя снеговика - ведро на голове, нос-морковка и метла в оффе.
+
+# Object #2512
+12:
+  names:
+    aliases: корона повелителя мира
+    nominative: '&Yкорона повелителя мира&n'
+    genitive: '&Yкороны повелителя мира&n'
+    dative: '&Yкороне повелителя мира&n'
+    accusative: '&Yкорону повелителя мира&n'
+    instrumental: '&Yкороной повелителя мира&n'
+    prepositional: '&Yкороне повелителя мира&n'
+  short_desc: Роскошная &Yкорона повелителя мира&n небрежно брошена своим царственным владельцем.
+  type: kArmor
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 5
+    - 5
+    - 0
+    - 0
+  weight: 1
+  cost: 10000
+  rent_off: 10
+  rent_on: 5
+  max_durability: 500
+  cur_durability: 500
+  timer: 4320
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  minimum_remorts: -1
+  extra_flags:
+    - kBless
+    - kFlying
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kHead
+    - kHold
+  affect_flags:
+    - kDetectInvisibility
+    - kFly
+    - kIceShield
+    - kMagicGlass
+  applies:
+    - location: 2  # ловкость
+      modifier: 2
+    - location: 3  # интеллект
+      modifier: 2
+    - location: 4  # мудрость
+      modifier: 2
+    - location: 5  # телосложение
+      modifier: 2
+    - location: 13  # макс.жизнь
+      modifier: 50
+    - location: 51  # защита.от.чар
+      modifier: 5
+    - location: 40  # успех.колдовства
+      modifier: 11
+  extra_descriptions:
+    - keywords: корона повелителя мира
+      description: |2
+        Что тут скажешь, такой подарочек на новый год каждый рад получить!
+
+# Object #2513
+13:
+  names:
+    aliases: теплый свитер оленями
+    nominative: '&Kтеплый свитер с &Wоленями&n'
+    genitive: '&Kтеплого свитера с &Wоленями&n'
+    dative: '&Kтеплому свитеру с &Wоленями&n'
+    accusative: '&Kтеплый свитер с &Wоленями&n'
+    instrumental: '&Kтеплым свитером с &Wоленями&n'
+    prepositional: '&Kтеплом свитере с &Wоленями&n'
+  short_desc: '&KТеплый свитер с вышитыми &Wоленями&n лежит здесь.'
+  type: kArmor
+  material: 14  # ТКАНЬ
+  values:
+    - 6
+    - 5
+    - 0
+    - 0
+  weight: 1
+  cost: 3000
+  rent_off: 10
+  rent_on: 5
+  max_durability: 400
+  cur_durability: 400
+  timer: 21600
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  minimum_remorts: -1
+  extra_flags:
+    - kBless
+    - kNodecay
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kBody
+    - kShoulders
+  affect_flags:
+    - kInfravision
+    - kProtectFromDark
+    - kBless
+    - kFly
+  applies:
+    - location: 2  # ловкость
+      modifier: 2
+    - location: 5  # телосложение
+      modifier: 3
+    - location: 39  # реакция
+      modifier: -10
+    - location: 24  # стойкость
+      modifier: -10
+    - location: 19  # повреждение
+      modifier: 5
+    - location: 18  # попадание
+      modifier: 5
+  skills:
+    - skill_id: 21  # точный стиль
+      value: 15
+  extra_descriptions:
+    - keywords: теплый свитер с оленями
+      description: |2
+        Теплый свитер из мягкой шерсти, на котором вышит узор из оленей.
+
+# Object #2514
+14:
+  names:
+    aliases: вязаный шарф со снежинками
+    nominative: '&rвязаный шарф со &Cснежинками&n'
+    genitive: '&rвязаного шарфа со &Cснежинками&n'
+    dative: '&rвязаному шарфу со &Cснежинками&n'
+    accusative: '&rвязаный шарф со &Cснежинками&n'
+    instrumental: '&rвязаным шарфом со &Cснежинками&n'
+    prepositional: '&rвязаном шарфе со &Cснежинками&n'
+  short_desc: Теплый &rвязаный шарф с узором из &Cснежинок&n лежит здесь.
+  type: kArmor
+  material: 14  # ТКАНЬ
+  values:
+    - 2
+    - 2
+    - 0
+    - 0
+  weight: 1
+  cost: 3000
+  rent_off: 10
+  rent_on: 5
+  max_durability: 400
+  cur_durability: 400
+  timer: 21600
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  minimum_remorts: -1
+  extra_flags:
+    - kBless
+    - kFlying
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kNeck
+    - kHead
+    - kWaist
+  affect_flags:
+    - kInvisibility
+    - kDetectInvisibility
+    - kHaste
+    - kWaterBreath
+  applies:
+    - location: 40  # успех.колдовства
+      modifier: 11
+    - location: 39  # реакция
+      modifier: -10
+    - location: 13  # макс.жизнь
+      modifier: 30
+  extra_descriptions:
+    - keywords: вязаный шарф со снежинками
+      description: |2
+        Теплый вязаный шарфик, совсем как тот, который в детстве вам связала ваша мама.
+
+# Object #2515
+15:
+  names:
+    aliases: унты длинным мехом
+    nominative: '&Kунты с длинным мехом&n'
+    genitive: '&Kунты с длинным мехом&n'
+    dative: '&Kунты с длинным мехом&n'
+    accusative: '&Kунты с длинным мехом&n'
+    instrumental: '&Kунты с длинным мехом&n'
+    prepositional: '&Kунты с длинным мехом&n'
+  short_desc: Высокие &Kунты с длинным мехом&n стоят на земле.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 3
+    - 3
+    - 0
+    - 0
+  weight: 1
+  cost: 3000
+  rent_off: 10
+  rent_on: 5
+  max_durability: 400
+  cur_durability: 400
+  timer: 14400
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  minimum_remorts: -1
+  extra_flags:
+    - kBless
+    - kFlying
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kFeet
+  affect_flags:
+    - kDetectInvisibility
+    - kFly
+  applies:
+    - location: 1  # сила
+      modifier: 2
+    - location: 23  # здоровье
+      modifier: -5
+    - location: 39  # реакция
+      modifier: -10
+    - location: 24  # стойкость
+      modifier: -10
+    - location: 2  # ловкость
+      modifier: 2
+    - location: 13  # макс.жизнь
+      modifier: 35
+  extra_descriptions:
+    - keywords: унты длинным мехом
+      description: |2
+        Теплые сапожки - шерсть внутри, шерсть снаружи - всю зиму в них проходить можно!
+
+# Object #2516
+16:
+  names:
+    aliases: пояс елочками
+    nominative: '&rпояс с &gелочками&n'
+    genitive: '&rпояса с &gелочками&n'
+    dative: '&rпоясу с &gелочками&n'
+    accusative: '&rпояс с &gелочками&n'
+    instrumental: '&rпоясом с &gелочками&n'
+    prepositional: '&rпоясе с &gелочками&n'
+  short_desc: Вязаный &rпояс с &gелочками&n лежит на земле.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 4
+    - 4
+    - 0
+    - 0
+  weight: 1
+  cost: 30
+  rent_off: 13
+  rent_on: 5
+  max_durability: 400
+  cur_durability: 400
+  timer: 21600
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  minimum_remorts: -1
+  extra_flags:
+    - kBless
+    - kFlying
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kWaist
+  affect_flags:
+    - kDetectInvisibility
+    - kBless
+    - kAwareness
+    - kBlink
+    - kHaste
+  applies:
+    - location: 22  # защита.от.стихии.воздуха
+      modifier: 10
+    - location: 21  # защита.от.стихии.огня
+      modifier: 10
+    - location: 46  # защита.от.стихии.воды
+      modifier: 10
+    - location: 47  # защита.от.стихии.земли
+      modifier: 10
+    - location: 13  # макс.жизнь
+      modifier: 50
+    - location: 39  # реакция
+      modifier: -10
+    - location: 19  # повреждение
+      modifier: 6
+  skills:
+    - skill_id: 11  # освежевать
+      value: 10
+  extra_descriptions:
+    - keywords: пояс елочками
+      description: |2
+        Вязаный поясок с узором из елочек и снеговиков.
+
+# Object #2517
+17:
+  names:
+    aliases: ожерелье из снежинок
+    nominative: '&Wожерелье из снежинок&n'
+    genitive: '&Wожерелья из снежинок&n'
+    dative: '&Wожерелью из снежинок&n'
+    accusative: '&Wожерелье из снежинок&n'
+    instrumental: '&Wожерельем из снежинок&n'
+    prepositional: '&Wожерелье из снежинок&n'
+  short_desc: '&WОжерелье состоящее из снежинок&n лежит, источая холод.'
+  type: kOther
+  material: 11  # СТЕКЛО
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 3000
+  rent_off: 10
+  rent_on: 5
+  max_durability: 300
+  cur_durability: 300
+  timer: 21600
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  minimum_remorts: -1
+  extra_flags:
+    - kBless
+    - kFlying
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kNeck
+    - kWrist
+  affect_flags:
+    - kDetectInvisibility
+    - kInfravision
+    - kProtectFromDark
+    - kProtectFromMind
+  applies:
+    - location: 3  # интеллект
+      modifier: 2
+    - location: 40  # успех.колдовства
+      modifier: 10
+    - location: 39  # реакция
+      modifier: -7
+    - location: 48  # защита.от.тяжелых.ран
+      modifier: 6
+    - location: 24  # стойкость
+      modifier: -7
+    - location: 4  # мудрость
+      modifier: 2
+  extra_descriptions:
+    - keywords: ожерелье из снежинок
+      description: |2
+        Ожерелье создано из больших красивых снежинок неведомой магической силой.
+
+# Object #2518
+18:
+  names:
+    aliases: круглая льдинка
+    nominative: '&Cкруглая льдинка&n'
+    genitive: '&Cкруглой льдинки&n'
+    dative: '&Cкруглой льдинке&n'
+    accusative: '&Cкруглую льдинку&n'
+    instrumental: '&Cкруглой льдинкой&n'
+    prepositional: '&Cкруглой льдинке&n'
+  short_desc: '&CКруглая льдинка&n брошена на землю.'
+  type: kArmor
+  material: 7  # КРИСТАЛЛ
+  values:
+    - 3
+    - 3
+    - 0
+    - 0
+  weight: 1
+  cost: 3000
+  rent_off: 10
+  rent_on: 5
+  max_durability: 300
+  cur_durability: 300
+  timer: 21600
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  minimum_remorts: -1
+  extra_flags:
+    - kBless
+    - kFlying
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kFinger
+    - kNeck
+    - kWrist
+    - kHold
+  affect_flags:
+    - kDetectInvisibility
+    - kFly
+    - kBlink
+    - kIceShield
+  applies:
+    - location: 42  # инициатива
+      modifier: 5
+    - location: 48  # защита.от.тяжелых.ран
+      modifier: 6
+    - location: 2  # ловкость
+      modifier: 3
+    - location: 20  # воля
+      modifier: -10
+    - location: 22  # защита.от.стихии.воздуха
+      modifier: 10
+    - location: 13  # макс.жизнь
+      modifier: 35
+  skills:
+    - skill_id: 21  # точный стиль
+      value: 15
+  extra_descriptions:
+    - keywords: круглая льдинка
+      description: |2
+        Круглая льдинка, бессмысленная (и беспощадная) на первый взгляд, может пригодиться
+        в хозяйстве. Например, ей можно кинуть в ворога, или в вредного воеводу :)
+
+# Object #2519
+19:
+  names:
+    aliases: сахарный змей горыныч
+    nominative: '&Wсахарный змей горыныч&n'
+    genitive: '&Wсахарного змея горыныча&n'
+    dative: '&Wсахарному змею горынычу&n'
+    accusative: '&Wсахарного змея горыныча&n'
+    instrumental: '&Wсахарным змеем горынычом&n'
+    prepositional: '&Wсахарном змее горыныче&n'
+  short_desc: Грозный змей, сделанный из сахара, оставлен кем-то.
+  type: kFood
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 999
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 3003
+  rent_off: 10
+  rent_on: 5
+  max_durability: 300
+  cur_durability: 300
+  timer: 21600
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  minimum_remorts: -1
+  extra_flags:
+    - kGlow
+    - kFlying
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kFinger
+    - kNeck
+    - kHold
+  affect_flags:
+    - kInvisibility
+    - kDetectAlign
+    - kDetectInvisibility
+    - kDetectMagic
+    - kFly
+    - kSingleLight
+    - kDetectPoison
+    - kHaste
+  applies:
+    - location: 4  # мудрость
+      modifier: 3
+    - location: 44  # поглощение
+      modifier: 15
+    - location: 13  # макс.жизнь
+      modifier: 40
+  extra_descriptions:
+    - keywords: сахарный змей горыныч леденец
+      description: |2
+        Грозный змей! Три головы, скалятся-то как! А сам из сахара сделан, и на вкус, говорят,
+        пальчики оближешь!
+
+# Object #2520
+20:
+  names:
+    aliases: мешок деда мороза
+    nominative: '&Rмешок деда мороза&n'
+    genitive: '&Rмешка деда мороза&n'
+    dative: '&Rмешку деда мороза&n'
+    accusative: '&Rмешок деда мороза&n'
+    instrumental: '&Rмешком деда мороза&n'
+    prepositional: '&Rмешке деда мороза&n'
+  short_desc: Большой красный мешок забыт кем-то.
+  type: kContainer
+  material: 14  # ТКАНЬ
+  values:
+    - 9999
+    - 0
+    - -1
+    - 0
+  weight: 1
+  cost: 3000
+  rent_off: 10
+  rent_on: 5
+  max_durability: 150
+  cur_durability: 150
+  timer: 21600
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  minimum_remorts: -1
+  extra_flags:
+    - kBless
+    - kFlying
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kNeck
+    - kShoulders
+    - kWaist
+    - kHold
+    - kBoth
+  affect_flags:
+    - kInvisibility
+    - kDetectInvisibility
+    - kHaste
+    - kIceAura
+  applies:
+    - location: 19  # повреждение
+      modifier: 7
+    - location: 13  # макс.жизнь
+      modifier: 40
+    - location: 5  # телосложение
+      modifier: 3
+  extra_descriptions:
+    - keywords: мешок деда мороза
+      description: |2
+        Большой, красный, мягкий, глубокий. 
+
+# Object #2521
+21:
+  names:
+    aliases: свиной пяточок
+    nominative: свиной пяточок
+    genitive: свиного пяточка
+    dative: свиному пяточку
+    accusative: свиной пяточок
+    instrumental: свиным пяточком
+    prepositional: свином пяточке
+  short_desc: Свиной пяточек - символ нового года, лежит здесь, тихо похрюкивая.
+  type: kOther
+  material: 8  # ДЕРЕВО
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 3000
+  rent_off: 10
+  rent_on: 5
+  max_durability: 75
+  cur_durability: 75
+  timer: 21600
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  minimum_remorts: -1
+  extra_flags:
+    - kBless
+    - kNodecay
+    - kFlying
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kFinger
+    - kNeck
+    - kHold
+  affect_flags:
+    - kDetectAlign
+    - kDetectInvisibility
+    - kProtectFromDark
+    - kProtectFromMind
+  applies:
+    - location: 4  # мудрость
+      modifier: 2
+    - location: 40  # успех.колдовства
+      modifier: 12
+    - location: 39  # реакция
+      modifier: -7
+    - location: 24  # стойкость
+      modifier: -7
+    - location: 13  # макс.жизнь
+      modifier: 40
+    - location: 12  # запоминание
+      modifier: 40
+  skills:
+    - skill_id: 182  # магия воздуха
+      value: 5
+  extra_descriptions:
+    - keywords: черная змея
+      description: |2
+        Черная водяная змея хитро глядит по сторонам - она
+        поможет вам принимать мудрые решения весь следующий год.
+
+# Object #2522
+22:
+  names:
+    aliases: мудрая водяная змея
+    nominative: мудрая водяная змея
+    genitive: мудрой водяной змеи
+    dative: мудрой водяной змее
+    accusative: мудрую водяную змею
+    instrumental: мудрой водяной змеей
+    prepositional: мудрой водяной змее
+  short_desc: Мудрая змея, символ года, с интересом поглядывает на вас.
+  type: kOther
+  material: 15  # КОЖА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 3000
+  rent_off: 10
+  rent_on: 5
+  max_durability: 300
+  cur_durability: 300
+  timer: 21600
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  minimum_remorts: -1
+  extra_flags:
+    - kBless
+    - kNodecay
+    - kSwimming
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kFinger
+    - kNeck
+    - kHold
+  affect_flags:
+    - kDetectAlign
+    - kDetectInvisibility
+    - kProtectFromDark
+    - kProtectFromMind
+  applies:
+    - location: 2  # ловкость
+      modifier: 2
+    - location: 41  # удача
+      modifier: 5
+    - location: 42  # инициатива
+      modifier: 5
+    - location: 23  # здоровье
+      modifier: -10
+    - location: 5  # телосложение
+      modifier: 3
+    - location: 19  # повреждение
+      modifier: 4
+    - location: 18  # попадание
+      modifier: 4
+  extra_descriptions:
+    - keywords: мудрая водяная змея
+      description: |2
+        Черная водяная змея хитро глядит по сторонам - она
+        поможет вам принимать мудрые решения весь следующий год.
+
+# Object #2523
+23:
+  names:
+    aliases: вырезанная из дерева снежинка
+    nominative: '&rвырезанная из дерева снежинка&n'
+    genitive: '&rвырезанной из дерева снежинки&n'
+    dative: '&rвырезанной из дерева снежинке&n'
+    accusative: '&rвырезанную из дерева снежинку&n'
+    instrumental: '&rвырезанной из дерева снежинкой&n'
+    prepositional: '&rвырезанной из дерева снежинке&n'
+  short_desc: Снежинка, вырезанная из дерева, лежит на полу - будто упала с неба.
+  type: kArmor
+  material: 8  # ДЕРЕВО
+  values:
+    - 1
+    - 1
+    - 0
+    - 0
+  weight: 1
+  cost: 3000
+  rent_off: 10
+  rent_on: 5
+  max_durability: 300
+  cur_durability: 300
+  timer: 21600
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  minimum_remorts: -1
+  extra_flags:
+    - kBless
+    - kFlying
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kFinger
+    - kNeck
+    - kWrist
+    - kHold
+  anti_flags:
+    - kCharmice
+  affect_flags:
+    - kDetectAlign
+    - kDetectInvisibility
+    - kAwareness
+    - kBlink
+    - kStoneHand
+  applies:
+    - location: 1  # сила
+      modifier: 2
+    - location: 18  # попадание
+      modifier: 3
+    - location: 19  # повреждение
+      modifier: 3
+    - location: 13  # макс.жизнь
+      modifier: 50
+    - location: 41  # удача
+      modifier: 5
+  skills:
+    - skill_id: 157  # уклониться
+      value: 3
+  extra_descriptions:
+    - keywords: вырезанная из дерева снежинка
+      description: |2
+        Снежинка, вырезанная из дерева с ювелирной точностью, восхищает своей красотой.
+
+# Object #2524
+24:
+  names:
+    aliases: плетеная из соломы снежинка
+    nominative: '&Yплетеная из соломы снежинка&n'
+    genitive: '&Yплетеной из соломы снежинки&n'
+    dative: '&Yплетеной из соломы снежинке&n'
+    accusative: '&Yплетеную из соломы снежинку&n'
+    instrumental: '&Yплетеной из соломы снежинкой&n'
+    prepositional: '&Yплетеной из соломы снежинке&n'
+  short_desc: Соломенная снежинка лежит на земле, будто упала с неба, как настоящая.
+  type: kOther
+  material: 16  # ОРГАНИКА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 3000
+  rent_off: 10
+  rent_on: 5
+  max_durability: 300
+  cur_durability: 300
+  timer: 21600
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  minimum_remorts: -1
+  extra_flags:
+    - kBless
+    - kNodecay
+    - kFlying
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kFinger
+    - kNeck
+    - kHold
+  affect_flags:
+    - kFly
+  applies:
+    - location: 18  # попадание
+      modifier: 7
+    - location: 19  # повреждение
+      modifier: 7
+    - location: 41  # удача
+      modifier: 5
+    - location: 13  # макс.жизнь
+      modifier: 40
+  skills:
+    - skill_id: 155  # дополнительный выстрел
+      value: 10
+    - skill_id: 157  # уклониться
+      value: 10
+  extra_descriptions:
+    - keywords: плетеная из соломы снежинка
+      description: |2
+        Снежинка сплетена из соломы, да перевязана красными нитями, а на нитях синие бусины надеты.
+
+# Object #2525
+25:
+  names:
+    aliases: вязаные носки мишками
+    nominative: '&Kвязаные носки с &yмишками&n'
+    genitive: '&Kвязаных носков с &yмишками&n'
+    dative: '&Kвязаным носкам с &yмишками&n'
+    accusative: '&Kвязаные носки с &yмишками&n'
+    instrumental: '&Kвязаными носками с &yмишками&n'
+    prepositional: '&Kвязаных носках с &yмишками&n'
+  short_desc: '&KВязаные носки с &yмишками&n, подарок бабушки!'
+  type: kArmor
+  material: 14  # ТКАНЬ
+  values:
+    - 5
+    - 5
+    - 0
+    - 0
+  weight: 1
+  cost: 300
+  rent_off: 10
+  rent_on: 5
+  max_durability: 300
+  cur_durability: 300
+  timer: 21600
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  minimum_remorts: -1
+  extra_flags:
+    - kBless
+    - kFlying
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kFeet
+    - kHold
+  affect_flags:
+    - kDetectInvisibility
+    - kInfravision
+    - kProtectFromDark
+    - kProtectFromMind
+    - kBlink
+    - kHaste
+  applies:
+    - location: 13  # макс.жизнь
+      modifier: 50
+    - location: 2  # ловкость
+      modifier: 2
+    - location: 20  # воля
+      modifier: -8
+    - location: 24  # стойкость
+      modifier: -8
+    - location: 39  # реакция
+      modifier: -8
+    - location: 41  # удача
+      modifier: 5
+    - location: 5  # телосложение
+      modifier: 1
+  extra_descriptions:
+    - keywords: вязаные носки мишками
+      description: |2
+        Теплые шерстяные носки, с узором из мишек. Точно такие же, как были у вас в детстве!
+
+# Object #2526
+26:
+  names:
+    aliases: теплый клетчатый плед
+    nominative: '&yтеплый &Rк&gл&Rе&gт&Rч&gа&Rт&gы&Rй &yплед&n'
+    genitive: '&yтеплого &Rк&gл&Rе&gт&Rч&gа&Rт&gо&Rго &yпледа&n'
+    dative: '&yтеплому &Rк&gл&Rе&gт&Rч&gа&Rт&gо&Rм&gу &yпледу&n'
+    accusative: '&yтеплый &Rк&gл&Rе&gт&Rч&gа&Rт&gы&Rй &yплед&n'
+    instrumental: '&yтеплым &Rк&gл&Rе&gт&Rч&gа&Rт&gы&Rм &yпледом&n'
+    prepositional: '&yтеплом &Rк&gл&Rе&gт&Rч&gа&Rт&gо&Rм &yпледе&n'
+  short_desc: '&yТеплый &Rк&gл&Rе&gт&Rч&gа&Rт&gы&Rй &yплед&n лежит на полу.'
+  type: kArmor
+  material: 14  # ТКАНЬ
+  values:
+    - 5
+    - 5
+    - 0
+    - 0
+  weight: 1
+  cost: 3000
+  rent_off: 10
+  rent_on: 5
+  max_durability: 400
+  cur_durability: 400
+  timer: 21600
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  minimum_remorts: -1
+  extra_flags:
+    - kBless
+    - kFlying
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kShoulders
+    - kWaist
+  affect_flags:
+    - kInvisibility
+    - kDetectAlign
+    - kDetectInvisibility
+    - kDetectMagic
+    - kFly
+  applies:
+    - location: 5  # телосложение
+      modifier: 2
+    - location: 48  # защита.от.тяжелых.ран
+      modifier: 10
+    - location: 20  # воля
+      modifier: -10
+    - location: 21  # защита.от.стихии.огня
+      modifier: 10
+    - location: 44  # поглощение
+      modifier: 10
+    - location: 19  # повреждение
+      modifier: 6
+    - location: 18  # попадание
+      modifier: 7
+    - location: 13  # макс.жизнь
+      modifier: 50
+  skills:
+    - skill_id: 3  # удар левой рукой
+      value: 10
+  extra_descriptions:
+    - keywords: теплый клетчатый плед
+      description: |2
+        Мягкий шерстяной плед согреет вас в любой мороз.
+
+# Object #2527
+27:
+  names:
+    aliases: кружка горячим
+    nominative: кружка горячего чая
+    genitive: кружки горячего чая
+    dative: кружке горячего чая
+    accusative: кружку горячего чая
+    instrumental: кружкой горячего чая
+    prepositional: кружке горячего чая
+  short_desc: Кружка горячего чая стоит на земле.
+  type: kLiquidContainer
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 250
+    - 250
+    - 23
+    - 0
+  weight: 255
+  cost: 3000
+  rent_off: 10
+  rent_on: 5
+  max_durability: 150
+  cur_durability: 150
+  timer: 21600
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  minimum_remorts: -1
+  extra_flags:
+    - kBless
+    - kNodisarm
+    - kNoalter
+    - kNopour
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+    - kBoth
+  affect_flags:
+    - kDetectInvisibility
+    - kProtectFromDark
+    - kProtectFromMind
+  applies:
+    - location: 1  # сила
+      modifier: 1
+  extra_descriptions:
+    - keywords: кружка горячим чаем
+      description: |2
+        Большая кружка с горячим чаем. Чай так вкусно пахнет, м-мм!
+        Еще бы сахарного горыныча к нему.
+  extra_values:
+    POTION_PROTO_VNUM: 0
+    POTION_SPELL1_LVL: 50
+    POTION_SPELL1_NUM: 175
+    POTION_SPELL2_LVL: 50
+    POTION_SPELL2_NUM: 176
+    POTION_SPELL3_LVL: 50
+    POTION_SPELL3_NUM: 177
+
+# Object #2528
+28:
+  names:
+    aliases: книжка со сказками
+    nominative: '&mкнижка со сказками&n'
+    genitive: '&mкнижки со сказками&n'
+    dative: '&mкнижке со сказками&n'
+    accusative: '&mкнижку со сказками&n'
+    instrumental: '&mкнижкой со сказками&n'
+    prepositional: '&mкнижке со сказками&n'
+  short_desc: Толстая &mкнижка со сказками&n лежит раскрытая на земле.
+  action_desc: |2
+    Книжка тихо зашелестела страницами.
+  type: kWand
+  material: 15  # КОЖА
+  values:
+    - 0
+    - 10
+    - 10
+    - 38
+  weight: 1
+  cost: 3000
+  rent_off: 10
+  rent_on: 5
+  max_durability: 75
+  cur_durability: 75
+  timer: 21600
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  minimum_remorts: -1
+  extra_flags:
+    - kBless
+    - kNodisarm
+    - kNodecay
+    - kFlying
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kHold
+  affect_flags:
+    - kInvisibility
+    - kDetectAlign
+    - kDetectInvisibility
+    - kDetectMagic
+    - kFly
+    - kBlink
+  applies:
+    - location: 6  # обаяние
+      modifier: 1
+    - location: 40  # успех.колдовства
+      modifier: 12
+    - location: 13  # макс.жизнь
+      modifier: 20
+  skills:
+    - skill_id: 166  # сглазить
+      value: 15
+  extra_descriptions:
+    - keywords: книжка со сказками
+      description: |2
+        Любимые сказки приятно перечитать всегда. Заодно вспомнить, как летали во сне, что в детстве могли
+        все - было подвластно любое волшебство, жизнь была полна чудес и колдовства.
+
+# Object #2529
+29:
+  names:
+    aliases: лубяная картинка
+    nominative: '&yлубяная картинка&n'
+    genitive: '&yлубяной картинки&n'
+    dative: '&yлубяной картинке&n'
+    accusative: '&yлубяную картинку&n'
+    instrumental: '&yлубяной картинкой&n'
+    prepositional: '&yлубяной картинке&n'
+  short_desc: Лубяная картинка лежит на земле.
+  action_desc: |2
+    Картинка засветилась ярким светом, и...
+  type: kWand
+  material: 8  # ДЕРЕВО
+  values:
+    - 0
+    - 10
+    - 10
+    - 48
+  weight: 1
+  cost: 3000
+  rent_off: 10
+  rent_on: 5
+  max_durability: 300
+  cur_durability: 300
+  timer: 21600
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  minimum_remorts: -1
+  extra_flags:
+    - kBless
+    - kFlying
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kNeck
+    - kHold
+  affect_flags:
+    - kDetectAlign
+    - kDetectInvisibility
+    - kInfravision
+    - kHaste
+  applies:
+    - location: 13  # макс.жизнь
+      modifier: 60
+    - location: 1  # сила
+      modifier: 2
+  skills:
+    - skill_id: 180  # железный ветер
+      value: 15
+  extra_descriptions:
+    - keywords: лубяная картинка
+      description: |2
+        На тоненькой деревянной пластине вырезана картинка - дед мороз с елкой.
+
+# Object #2530
+30:
+  names:
+    aliases: пряничный домик
+    nominative: '&Kпряничный домик&n'
+    genitive: '&Kпряничного домика&n'
+    dative: '&Kпряничному домику&n'
+    accusative: '&Kпряничный домик&n'
+    instrumental: '&Kпряничным домиком&n'
+    prepositional: '&Kпряничном домике&n'
+  short_desc: Вкусный пряничный домик выронен кем-то.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 999
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 3000
+  rent_off: 10
+  rent_on: 5
+  max_durability: 150
+  cur_durability: 150
+  timer: 21600
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  minimum_remorts: -1
+  extra_flags:
+    - kBless
+    - kNodecay
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kHold
+  affect_flags:
+    - kProtectFromDark
+    - kProtectFromMind
+  skills:
+    - skill_id: 22  # осторожный стиль
+      value: 7
+  extra_descriptions:
+    - keywords: пряничный домик
+      description: |2
+        Сладкий, с повидлом внутри пряник в виде домика.
+
+# Object #2531
+31:
+  names:
+    aliases: новогодний колокольчик
+    nominative: '&Cновогодний колокольчик&n'
+    genitive: '&Cновогоднего колокольчика&n'
+    dative: '&Cновогоднему колокольчику&n'
+    accusative: '&Cновогодний колокольчик&n'
+    instrumental: '&Cновогодним колокольчиком&n'
+    prepositional: '&Cновогоднем колокольчике&n'
+  short_desc: '&CНовогодний колокольчик&n валяется здесь.'
+  type: kOther
+  material: 13  # КОСТЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 3000
+  rent_off: 10
+  rent_on: 5
+  max_durability: 300
+  cur_durability: 300
+  timer: 21600
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  minimum_remorts: -1
+  extra_flags:
+    - kBless
+    - kFlying
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kNeck
+  affect_flags:
+    - kInvisibility
+    - kWaterBreath
+  applies:
+    - location: 6  # обаяние
+      modifier: 2
+    - location: 3  # интеллект
+      modifier: 2
+    - location: 40  # успех.колдовства
+      modifier: 12
+    - location: 39  # реакция
+      modifier: -5
+  extra_descriptions:
+    - keywords: новогодний колокольчик
+      description: |2
+        Колокольчик вырезан из дерева и расписан снежинками и елками.
+
+# Object #2532
+32:
+  names:
+    aliases: елочный шарик
+    nominative: '&Mелочный шарик&n'
+    genitive: '&Mелочного шарика&n'
+    dative: '&Mелочному шарику&n'
+    accusative: '&Mелочный шарик&n'
+    instrumental: '&Mелочным шариком&n'
+    prepositional: '&Mелочном шарике&n'
+  short_desc: Красивый &Mелочный шарик&n лежит на полу.
+  type: kOther
+  material: 11  # СТЕКЛО
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 3000
+  rent_off: 10
+  rent_on: 5
+  max_durability: 300
+  cur_durability: 300
+  timer: 21600
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  minimum_remorts: -1
+  extra_flags:
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kFinger
+    - kNeck
+    - kHold
+  affect_flags:
+    - kMagicGlass
+  applies:
+    - location: 48  # защита.от.тяжелых.ран
+      modifier: 10
+    - location: 50  # защита.от.ядов.и.болезней
+      modifier: 10
+    - location: 49  # защита.от.магии.разума
+      modifier: 10
+    - location: 13  # макс.жизнь
+      modifier: 60
+  extra_descriptions:
+    - keywords: елочный шарик
+      description: |2
+        Круглый и блестящий. Слегка поцарапан в одном месте.
+
+# Object #2533
+33:
+  names:
+    aliases: гирлянда из колосков пшеницы
+    nominative: '&Yгирлянда из колосков пшеницы&n'
+    genitive: '&Yгирлянды из колосков пшеницы&n'
+    dative: '&Yгирлянде из колосков пшеницы&n'
+    accusative: '&Yгирлянду из колосков пшеницы&n'
+    instrumental: '&Yгирляндой из колосков пшеницы&n'
+    prepositional: '&Yгирлянде из колосков пшеницы&n'
+  short_desc: Гирлянда плетеная из пшеницы лежит на земле. Украшает ее, наверное.
+  type: kOther
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 3000
+  rent_off: 10
+  rent_on: 5
+  max_durability: 300
+  cur_durability: 300
+  timer: 21600
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  minimum_remorts: -1
+  extra_flags:
+    - kBless
+    - kFlying
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kFinger
+    - kNeck
+    - kWaist
+    - kWrist
+    - kHold
+  affect_flags:
+    - kStoneHand
+  applies:
+    - location: 1  # сила
+      modifier: 2
+    - location: 2  # ловкость
+      modifier: 2
+    - location: 20  # воля
+      modifier: -5
+    - location: 23  # здоровье
+      modifier: -5
+    - location: 41  # удача
+      modifier: 5
+    - location: 18  # попадание
+      modifier: 5
+    - location: 19  # повреждение
+      modifier: 5
+  skills:
+    - skill_id: 5  # оглушить
+      value: 5
+  extra_descriptions:
+    - keywords: гирлянда из колосков пшеницы
+      description: |2
+        Колоски сплетены в гирлянду, которую оплетает красная шрокая лента.
+        Колоски сплетены в гирлянду, которую оплетает красная широкая лента.
+
+# Object #2534
+34:
+  names:
+    aliases: несгорающая свеча
+    nominative: несгорающая &Yсвеча&n
+    genitive: несгорающей &Yсвечи&n
+    dative: несгорающей &Yсвече&n
+    accusative: несгорающую &Yсвечу&n
+    instrumental: несгорающей &Yсвечой&n
+    prepositional: несгорающей &Yсвече&n
+  short_desc: Несгорающая &Yсвеча&n стоит на полу.
+  type: kLightSource
+  material: 16  # ОРГАНИКА
+  values:
+    - 0
+    - 0
+    - -1
+    - 0
+  weight: 1
+  cost: 3000
+  rent_off: 10
+  rent_on: 5
+  max_durability: 75
+  cur_durability: 75
+  timer: 21600
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  minimum_remorts: -1
+  extra_flags:
+    - kGlow
+    - kNodisarm
+    - kNodecay
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kHold
+  affect_flags:
+    - kDetectAlign
+    - kDetectInvisibility
+    - kDetectMagic
+    - kInfravision
+    - kProtectFromDark
+    - kBlink
+    - kHolyLight
+    - kFireAura
+  applies:
+    - location: 13  # макс.жизнь
+      modifier: 35
+    - location: 42  # инициатива
+      modifier: 15
+    - location: 24  # стойкость
+      modifier: -5
+    - location: 48  # защита.от.тяжелых.ран
+      modifier: 7
+    - location: 18  # попадание
+      modifier: 5
+    - location: 19  # повреждение
+      modifier: 7
+  extra_descriptions:
+    - keywords: несгорающая свеча
+      description: |2
+        Витая свеча горит удивительно долго - сколько вы ее не используете - похоже она не
+        уменьшается.
+
+# Object #2535
+35:
+  names:
+    aliases: большой мандарин
+    nominative: '&Rбольшой мандарин&n'
+    genitive: '&Rбольшого мандарина&n'
+    dative: '&Rбольшому мандарину&n'
+    accusative: '&Rбольшой мандарин&n'
+    instrumental: '&Rбольшим мандарином&n'
+    prepositional: '&Rбольшом мандарине&n'
+  short_desc: Большой вкусный мандарин лежит на земле, вкусно пахнет и зовет к себе.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 999
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 3000
+  rent_off: 10
+  rent_on: 5
+  max_durability: 75
+  cur_durability: 75
+  timer: 21600
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  minimum_remorts: -1
+  extra_flags:
+    - kGlow
+    - kNodecay
+    - kFlying
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kNeck
+    - kHold
+  applies:
+    - location: 6  # обаяние
+      modifier: 1
+    - location: 13  # макс.жизнь
+      modifier: 50
+
+# Object #2536
+36:
+  names:
+    aliases: венок из еловых лап
+    nominative: венок из еловых лап
+    genitive: венка из еловых лап
+    dative: венку из еловых лап
+    accusative: венок из еловых лап
+    instrumental: венком из еловых лап
+    prepositional: венке изееловых лап
+  short_desc: '&gВенок из еловых лап, &Yукрашенный &rсвечами &Yи &rлентами,&Y висит на стене.'
+  type: kOther
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 75
+  cur_durability: 75
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 18
+  minimum_remorts: -1
+  extra_flags:
+    - kNodecay
+    - kNoalter
+  affect_flags:
+    - kFireShield
+  applies:
+    - location: 5  # телосложение
+      modifier: 2
+    - location: 19  # повреждение
+      modifier: 5
+    - location: 13  # макс.жизнь
+      modifier: 50
+    - location: 13  # макс.жизнь
+      modifier: 50
+  extra_descriptions:
+    - keywords: венок из еловых лап
+      description: |2
+        Ветки елки завязаны в венок, перевязаны лентами, украшены елочными шарами и бантами.
+        В венке горит маленькая свечка. 
+
+# Object #2537
+37:
+  names:
+    aliases: огромная ледяная фигура змеи
+    nominative: ледяная фигура змеи
+    genitive: ледяной фигуры змеи
+    dative: ледяной фигуре змеи
+    accusative: ледяную фигуру змеи
+    instrumental: ледяной фигурой змеи
+    prepositional: ледяной фигуре змеи
+  short_desc: '&CОгромная ледяная фигура змеи стоит здесь, на радость детворе.&Y'
+  type: kOther
+  material: 7  # КРИСТАЛЛ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 75
+  cur_durability: 75
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 14
+  minimum_remorts: -1
+  extra_flags:
+    - kNodecay
+    - kNoalter
+  extra_descriptions:
+    - keywords: огромная ледяная фигура змеи
+      description: |2
+        Фигура мастерски вытесана изо льда.
+        Змея словно готовится схватить жертву.
+
+# Object #2538
+38:
+  names:
+    aliases: искрящийся снег
+    nominative: искрящийся снег
+    genitive: искрящегося снега
+    dative: искрящемуся снегу
+    accusative: искрящийся снег
+    instrumental: искрящемся снегом
+    prepositional: искрящемся снеге
+  short_desc: '&WБелый искрящийся снег, устилающий землю, хрустит под ногами.&Y'
+  type: kOther
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 75
+  cur_durability: 75
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 16
+  extra_flags:
+    - kNodecay
+    - kNoalter
+  extra_descriptions:
+    - keywords: искрящийся снег
+      description: |2
+        Белый-белый снег, холодный и колючий.
+
+# Object #2539
+39:
+  names:
+    aliases: яркая гирлянда
+    nominative: яркая гирлянда
+    genitive: яркой гирлянды
+    dative: яркой гирлянде
+    accusative: яркую гирлянду
+    instrumental: яркой гирляндой
+    prepositional: яркой гирлянде
+  short_desc: '&RЯ&Mр&Yк&Gа&Cя &cг&mи&yр&rл&gя&Kн&Wд&Gа&n, плетеная из разноцветных лент, украшает стену.'
+  type: kOther
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 75
+  cur_durability: 75
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 100
+  extra_flags:
+    - kNodecay
+  extra_descriptions:
+    - keywords: яркая гирлянда
+      description: |2
+        Гирлянда сплетена из лент, украшена маленькими ветками елки, которые вплетены в нее,
+        конфетами и сластями - дабы задобрить злых зимних духов.
+
+# Object #2540
+40:
+  names:
+    aliases: кукла дедмороза
+    nominative: кукла дедмороза
+    genitive: куклы дедморозы
+    dative: кукле дедморозе
+    accusative: куклу дедморозу
+    instrumental: куклой дедморозой
+    prepositional: кукле дедморозе
+  short_desc: '&yТряпичная кукла, изображающая &RДеда Мороза, &Yприкреплена на видное место.'
+  type: kOther
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 75
+  cur_durability: 75
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  max_in_world: 15
+  extra_flags:
+    - kNodecay
+  extra_descriptions:
+    - keywords: кукла деда мороза
+      description: |2
+        Кукла сшита из грубого материала и набита чем-то вроде соломы. Борода у нее из ваты, 
+        а мешок из холстины.
+
+# Object #2541
+41:
+  names:
+    aliases: ледяной узор на окне
+    nominative: ледяной узор на окне
+    genitive: ледяного узора на окне
+    dative: ледяному узору на окне
+    accusative: ледяной узор на окне
+    instrumental: ледяным узором на окне
+    prepositional: ледяном узоре на окне
+  short_desc: '&CПричудливый ледяной узор украшает окно.&Y'
+  type: kOther
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 75
+  cur_durability: 75
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 10
+  extra_flags:
+    - kNodecay
+  extra_descriptions:
+    - keywords: ледяной узор на окне
+      description: |2
+        Ледяной узор причудливо извивается, рисуя снежных драконов, летящих сквозь буран.
+
+# Object #2542
+42:
+  names:
+    aliases: свеча стеклянном шаре
+    nominative: свеча в стеклянном шаре
+    genitive: свечи в стекляннома шаре
+    dative: свече в стеклянному шаре
+    accusative: свечу в стеклянном шаре
+    instrumental: свечой в стеклянномом шаре
+    prepositional: свече в стеклянноме шаре
+  short_desc: '&yВ доме на подоконнике стоит &Wстеклянный шар&Y, в котором горит &rсвеча.&Y'
+  type: kOther
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 75
+  cur_durability: 75
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 12
+  extra_flags:
+    - kNodecay
+  extra_descriptions:
+    - keywords: свеча в стеклянном шаре
+      description: |2
+        В чужих окнах всегда найдется что-то интересное.
+        На дне шара лежит искусственный снег
+        и две красные ягоды, а в центре - витая свеча.
+
+# Object #2543
+43:
+  names:
+    aliases: соломенная голова змея горыныча
+    nominative: соломенная голова змея горыныча
+    genitive: соломенной головы змея горыныча
+    dative: соломенной голове змея горыныча
+    accusative: соломенную голову змея горыныча
+    instrumental: соломенной головой змея горыныча
+    prepositional: соломенной голове змея горыныча
+  short_desc: '&yСоломенная голова Змея Горыныча &Yвоткнута на палку и стоит посреди дороги на радость детворе.'
+  type: kOther
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 75
+  cur_durability: 75
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 14
+  extra_flags:
+    - kNodecay
+  extra_descriptions:
+    - keywords: соломенная голова змея горыныча
+      description: |2
+        Голова - как живая! Кажется - сейчас огнем дыхнет.
+
+# Object #2544
+44:
+  names:
+    aliases: снеговик снежная баба
+    nominative: снеговик и снежная баба
+    genitive: снеговика и снежную бабу
+    dative: снеговику и снежной бабе
+    accusative: снеговика и снежную бабу
+    instrumental: снеговиком и снежной бабой
+    prepositional: снеговике и снежной бабе
+  short_desc: '&yС довольными лицами стоят &Wснеговик и снежная баба. &Y(держатся за руки)'
+  type: kOther
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 75
+  cur_durability: 75
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 15
+  extra_flags:
+    - kNodecay
+  extra_descriptions:
+    - keywords: снеговик и снежная баба
+      description: |2
+        Чем они довольны? Соседством друг с другом, вероятно!
+
+# Object #2545
+45:
+  names:
+    aliases: елочные иголки
+    nominative: елочные иголки
+    genitive: елочных иголков
+    dative: елочным иголкам
+    accusative: елочные иголки
+    instrumental: елочными иголками
+    prepositional: елочных иголках
+  short_desc: '&gЕлочные иголки&n рассыпаны по земле.'
+  type: kOther
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 75
+  cur_durability: 75
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 13
+  extra_flags:
+    - kNodecay
+  extra_descriptions:
+    - keywords: елочные иголки
+      description: |2
+        Маленькие, зеленые и колючие.
+
+# Object #2546
+46:
+  names:
+    aliases: гроздья шишек
+    nominative: гроздья шишек
+    genitive: гроздей шишек
+    dative: гроздьям шишек
+    accusative: гроздья шишек
+    instrumental: гроздьями шишек
+    prepositional: гроздьях шишек
+  short_desc: '&yГроздья шишек,&Y украшенные &rбантами &Yи &Cлентами, &Yукрашают дорогу.'
+  type: kOther
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 75
+  cur_durability: 75
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 14
+  extra_flags:
+    - kNodecay
+  extra_descriptions:
+    - keywords: гроздья шишек
+      description: |2
+        Большие, кедровые. 
+
+# Object #2547
+47:
+  names:
+    aliases: сосульки
+    nominative: сосульки
+    genitive: сосулек
+    dative: сосулькам
+    accusative: сосульки
+    instrumental: сосульками
+    prepositional: сосульках
+  short_desc: '&yБольшие &Cсосульки &Yсвисают здесь, готовясь упасть на прохожих.'
+  type: kOther
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 75
+  cur_durability: 75
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 12
+  extra_flags:
+    - kNodecay
+  extra_descriptions:
+    - keywords: сосульки
+      description: |2
+        Большой кусок льда, на голову упадет - не обрадуешься!
+        К одной из сосулек прикреплен бантик - и сосульки решили мы украсить к новому году!
+
+# Object #2548
+48:
+  names:
+    aliases: пушистая елка
+    nominative: пушистая елка
+    genitive: пушистой елки
+    dative: пушистой елке
+    accusative: пушистую елку
+    instrumental: пушистой елкой
+    prepositional: пушистой елке
+  short_desc: '&gПушистая елочка &Yпротянула во все стороны свои &gлапы, &Yукрашенные всевозможными &Rигрушками &Yи &Wгирляндами.&Y'
+  type: kOther
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 75
+  cur_durability: 75
+  timer: 50000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 500
+  extra_flags:
+    - kNodecay
+  extra_descriptions:
+    - keywords: пушистая елка
+      description: |2
+        Высокая &gелочка-красавица&n &Rм&Yи&Cг&Mа&Gе&Kт &Yо&Wг&Yо&Wн&Yь&Wк&Yа&Wм&Yи&n, даря непередаваемое новогоднее настроение.
+        В новогодние праздники каждый может &Wзабрать подарок&n, оставленный &RДедом Морозом&n под &gелкой&n.
+  triggers:
+    - 2512  # [o48] забрать подарок
+    - 2529  # [o48] елка спамит в клетку
+
+# Object #2549
+49:
+  names:
+    aliases: ледяной кокон
+    nominative: ледяной кокон
+    genitive: ледяного кокона
+    dative: ледяному кокону
+    accusative: ледяной кокон
+    instrumental: ледяным коконом
+    prepositional: ледяном коконе
+  short_desc: Ледяной кокон лежит здесь, блестит и переливается.
+  type: kArmor
+  material: 7  # КРИСТАЛЛ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 200
+  cur_durability: 200
+  timer: 240
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kFlying
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kBody
+    - kWrist
+  extra_descriptions:
+    - keywords: ледяной кокон
+      description: |2
+        Овальной формы доспех, выкованный в ледяной печи
+        самим Дедом Морозом. Защищает владельца от всех
+        напастей, кои есть на свете, кроме самой глупости
+        человеческой.
+
+# Object #2550
+50:
+  names:
+    aliases: обруч теплого снега 0123
+    nominative: обруч &rТеплого Снега&n
+    genitive: обруча &rТеплого Снега&n
+    dative: обручу &rТеплого Снега&n
+    accusative: обруч &rТеплого Снега&n
+    instrumental: обручем &rТеплого Снега&n
+    prepositional: обруче &rТеплого Снега&n
+  short_desc: Обруч из снега лежит на земле в ожидании хозяина.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 2
+    - 5
+    - 0
+    - 0
+  weight: 1
+  cost: 3000
+  rent_off: 100
+  rent_on: 5
+  max_durability: 2000
+  cur_durability: 2000
+  timer: 36250
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kBless
+    - kSwimming
+    - kNoalter
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kHead
+  no_flags:
+    - kBattle
+  extra_descriptions:
+    - keywords: обруч теплого снега
+      description: |2
+        Обруч создан из снега, но если его отважиться одеть окажется, что он вовсе не холодный.
+
+# Object #2551
+51:
+  names:
+    aliases: куртка теплого снега 0123
+    nominative: куртка &rТеплого Снега&n
+    genitive: куртки &rТеплого Снега&n
+    dative: куртке &rТеплого Снега&n
+    accusative: куртку &rТеплого Снега&n
+    instrumental: курткой &rТеплого Снега&n
+    prepositional: куртке &rТеплого Снега&n
+  short_desc: Куртка из снега небрежно брошена на землю.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 8
+    - 8
+    - 0
+    - 0
+  weight: 1
+  cost: 3000
+  rent_off: 100
+  rent_on: 5
+  max_durability: 2000
+  cur_durability: 2000
+  timer: 36250
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kBless
+    - kSwimming
+    - kNoalter
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kBody
+  no_flags:
+    - kBattle
+  extra_descriptions:
+    - keywords: куртка теплого снега
+      description: |2
+        Куртка из снега кажется неожиданно теплой на ощупь и смотрится довольно неплохо.
+
+# Object #2552
+52:
+  names:
+    aliases: сумка теплого снега
+    nominative: сумка &rТеплого Снега&n
+    genitive: сумки &rТеплого Снега&n
+    dative: сумке &rТеплого Снега&n
+    accusative: сумку &rТеплого Снега&n
+    instrumental: сумкой &rТеплого Снега&n
+    prepositional: сумке &rТеплого Снега&n
+  short_desc: Сумка из снега оставлена тут.
+  type: kContainer
+  material: 15  # КОЖА
+  values:
+    - 999
+    - 0
+    - -1
+    - 0
+  weight: 1
+  cost: 3000
+  rent_off: 100
+  rent_on: 5
+  max_durability: 2000
+  cur_durability: 2000
+  timer: 36250
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kBless
+    - kSwimming
+    - kNoalter
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kWaist
+  no_flags:
+    - kBattle
+  extra_descriptions:
+    - keywords: сума теплого снега
+      description: |2
+        Сумка, сделанная из снега, не разваливается при ходьбе и в нее вмещается огромное 
+        количество вещей, хотя размера она и небольшого. Чудеса!
+
+# Object #2553
+53:
+  names:
+    aliases: амулет теплого снега 0123
+    nominative: амулет &rТеплого Снега&n
+    genitive: амулета &rТеплого Снега&n
+    dative: амулету &rТеплого Снега&n
+    accusative: амулет &rТеплого Снега&n
+    instrumental: амулетом &rТеплого Снега&n
+    prepositional: амулете &rТеплого Снега&n
+  short_desc: Амулет из снега лежит посреди дороги.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 2
+    - 5
+    - 0
+    - 0
+  weight: 1
+  cost: 3000
+  rent_off: 100
+  rent_on: 5
+  max_durability: 2000
+  cur_durability: 2000
+  timer: 36250
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kBless
+    - kSwimming
+    - kNoalter
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kNeck
+  no_flags:
+    - kBattle
+  extra_descriptions:
+    - keywords: амулет теплого снега
+      description: |2
+        Кажется, снег падая на вас, принял форму амулета - он покрыт чудесными узорами, и 
+        даже греет.
+
+# Object #2554
+54:
+  names:
+    aliases: оберег сотканный из снега 456
+    nominative: оберег &Wсотканный из снега&n
+    genitive: оберега &Wсотканного иза снега&n
+    dative: оберегу &Wсотканному из снега&n
+    accusative: оберег &Wсотканный из снега&n
+    instrumental: оберегом &Wсотканным из снега&n
+    prepositional: обереге &Wсотканном ие снега&n
+  short_desc: Сотканный из снега оберег лежит на земле.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 2
+    - 5
+    - 0
+    - 0
+  weight: 1
+  cost: 3000
+  rent_off: 100
+  rent_on: 5
+  max_durability: 2000
+  cur_durability: 2000
+  timer: 36250
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kBless
+    - kSwimming
+    - kNoalter
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kNeck
+  no_flags:
+    - kBattle
+
+# Object #2555
+55:
+  names:
+    aliases: повязка сотканная из снега 456
+    nominative: повязка &Wсотканная из снега&n
+    genitive: повязки &Wсотканной из снега&n
+    dative: повязке &Wсотканной из снега&n
+    accusative: повязку &Wсотканную из снега&n
+    instrumental: повязкой &Wсотканной из снега&n
+    prepositional: повязке &Wсотканной из снега&n
+  short_desc: Снежная повязка лежит под ногами.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 2
+    - 5
+    - 0
+    - 0
+  weight: 1
+  cost: 3000
+  rent_off: 100
+  rent_on: 5
+  max_durability: 2000
+  cur_durability: 2000
+  timer: 36250
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kBless
+    - kSwimming
+    - kNoalter
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kWaist
+  no_flags:
+    - kBattle
+
+# Object #2556
+56:
+  names:
+    aliases: плащ сотканный из снега 456
+    nominative: плащ &Wсотканный из снега&n
+    genitive: плаща &Wсотканного из снега&n
+    dative: плащу &Wсотканному из снега&n
+    accusative: плащ &Wсотканный из снега&n
+    instrumental: плащом &Wсотканным из снега&n
+    prepositional: плаще &Wсотканном из снега&n
+  short_desc: Плащ сотканный из снега небрежно брошен здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 2
+    - 5
+    - 0
+    - 0
+  weight: 1
+  cost: 3000
+  rent_off: 100
+  rent_on: 5
+  max_durability: 2000
+  cur_durability: 2000
+  timer: 36250
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kBless
+    - kSwimming
+    - kNoalter
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kShoulders
+  no_flags:
+    - kBattle
+
+# Object #2557
+57:
+  names:
+    aliases: посох сотканный из снега 456
+    nominative: посох &Wсотканный из снега&n
+    genitive: посоха&W сотканного из снега&n
+    dative: посоху &Wсотканному из снега&n
+    accusative: посох &Wсотканный из снега&n
+    instrumental: посохом &Wсотканным из снега&n
+    prepositional: посохе &Wсотканном из снега&n
+  short_desc: Снежный посох воткнут в землю.
+  type: kWeapon
+  material: 15  # КОЖА
+  values:
+    - 3
+    - 5
+    - 5
+    - 6
+  weight: 1
+  cost: 3000
+  rent_off: 100
+  rent_on: 5
+  spec_param: 141
+  max_durability: 2000
+  cur_durability: 2000
+  timer: 36250
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kBless
+    - kNodisarm
+    - kSwimming
+    - kNoalter
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kWield
+  no_flags:
+    - kBattle
+
+# Object #2558
+58:
+  names:
+    aliases: колечко из синего льда 789
+    nominative: колечко из &cсинего льда&n
+    genitive: колечка из &cсинего льда&n
+    dative: колечку из &cсинего льда&n
+    accusative: колечко из &cсинего льда&n
+    instrumental: колечком из &cсинего льда&n
+    prepositional: колечке из &cсинего льда&n
+  short_desc: 'Ледяное кольцо блестит на земле. '
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 2
+    - 5
+    - 0
+    - 0
+  weight: 1
+  cost: 3000
+  rent_off: 100
+  rent_on: 5
+  max_durability: 2000
+  cur_durability: 2000
+  timer: 36250
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  extra_flags:
+    - kBless
+    - kSwimming
+    - kNoalter
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kFinger
+  no_flags:
+    - kBattle
+
+# Object #2559
+59:
+  names:
+    aliases: перстенек из синего льда 789
+    nominative: перстенек из &cсинего льда&n
+    genitive: перстенька из &cсинего льда&n
+    dative: перстеньку из &cсинего льда&n
+    accusative: перстенек из &cсинего льда&n
+    instrumental: перстеньком из &cсинего льда&n
+    prepositional: перстеньке из &cсинего льда&n
+  short_desc: Маленький перстенек из синего льда лежит на земле.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 2
+    - 2
+    - 0
+    - 0
+  weight: 1
+  cost: 3000
+  rent_off: 100
+  rent_on: 5
+  max_durability: 2000
+  cur_durability: 2000
+  timer: 36250
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kBless
+    - kSwimming
+    - kNoalter
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kFinger
+  no_flags:
+    - kBattle
+
+# Object #2560
+60:
+  names:
+    aliases: сапожки из синего льда 789
+    nominative: сапожки из &cсинего льда&n
+    genitive: сапожков из &cсинего льда&n
+    dative: сапожкам из &cсинего льда&n
+    accusative: сапожки из &cсинего льда&n
+    instrumental: сапожками из &cсинего льда&n
+    prepositional: сапожках из &cсинего льда&n
+  short_desc: Сапожки изо льда светятся синим светом здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 2
+    - 5
+    - 0
+    - 0
+  weight: 40
+  cost: 3000
+  rent_off: 100
+  rent_on: 5
+  max_durability: 2000
+  cur_durability: 2000
+  timer: 36250
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  extra_flags:
+    - kBless
+    - kSwimming
+    - kNoalter
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kFeet
+  no_flags:
+    - kBattle
+
+# Object #2561
+61:
+  names:
+    aliases: наручи из синего льда 789
+    nominative: наручи из &cсинего льда&n
+    genitive: наручей из &cсинего льда&n
+    dative: наручам из &cсинего льда&n
+    accusative: наручи из &cсинего льда&n
+    instrumental: наручами из &cсинего льда&n
+    prepositional: наручах из &cсинего льда&n
+  short_desc: Осколки льда в виде грубых наручей брошены на землю.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 2
+    - 5
+    - 0
+    - 0
+  weight: 1
+  cost: 3000
+  rent_off: 100
+  rent_on: 5
+  max_durability: 2000
+  cur_durability: 2000
+  timer: 36250
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  extra_flags:
+    - kBless
+    - kSwimming
+    - kNoalter
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kArms
+  no_flags:
+    - kBattle
+
+# Object #2562
+62:
+  names:
+    aliases: ошейник зимней вьюги 101112
+    nominative: ошейник &Kзимней вьюги&n
+    genitive: ошейника &Kзимней вьюги&n
+    dative: ошейнику &Kзимней вьюги&n
+    accusative: ошейник &Kзимней вьюги&n
+    instrumental: ошейником &Kзимней вьюги&n
+    prepositional: ошейнике &Kзимней вьюги&n
+  short_desc: Изящный ошейник принесен и брошен здесь зимней вьюгой.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 2
+    - 5
+    - 0
+    - 0
+  weight: 1
+  cost: 3000
+  rent_off: 100
+  rent_on: 5
+  max_durability: 2000
+  cur_durability: 2000
+  timer: 36250
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kBless
+    - kSwimming
+    - kNoalter
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kNeck
+  no_flags:
+    - kBattle
+
+# Object #2563
+63:
+  names:
+    aliases: жезл зимней вьюги  101112
+    nominative: жезл &Kзимней вьюги&n
+    genitive: жезла &Kзимней вьюги&n
+    dative: жезлу &Kзимней вьюги&n
+    accusative: жезл &Kзимней вьюги&n
+    instrumental: жезлом &Kзимней вьюги&n
+    prepositional: жезле &Kзимней вьюги&n
+  short_desc: Жезл, воткнутый в землю острым концом, трепещет на ветру.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 2
+    - 5
+    - 0
+    - 0
+  weight: 1
+  cost: 3000
+  rent_off: 100
+  rent_on: 5
+  max_durability: 2000
+  cur_durability: 2000
+  timer: 36250
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kBless
+    - kSwimming
+    - kNoalter
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kHold
+  no_flags:
+    - kBattle
+
+# Object #2564
+64:
+  names:
+    aliases: поножи зимней вьюги  101112
+    nominative: поножи &Kзимней вьюги&n
+    genitive: поножей &Kзимней вьюги&n
+    dative: поножам &Kзимней вьюги&n
+    accusative: поножи &Kзимней вьюги&n
+    instrumental: поножами &Kзимней вьюги&n
+    prepositional: поножах &Kзимней вьюги&n
+  short_desc: Снег на земле образует что-то похожее на поножи.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 2
+    - 5
+    - 0
+    - 0
+  weight: 1
+  cost: 3000
+  rent_off: 100
+  rent_on: 5
+  max_durability: 2000
+  cur_durability: 2000
+  timer: 36250
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  extra_flags:
+    - kHum
+    - kBless
+    - kSwimming
+    - kNoalter
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kLegs
+  no_flags:
+    - kBattle
+
+# Object #2565
+65:
+  names:
+    aliases: перчатки зимней вьюги  101112
+    nominative: перчатки &Kзимней вьюги&n
+    genitive: перчатков &Kзимней вьюги&n
+    dative: перчаткам &Kзимней вьюги&n
+    accusative: перчатки &Kзимней вьюги&n
+    instrumental: перчатками &Kзимней вьюги&n
+    prepositional: перчатках &Kзимней вьюги&n
+  short_desc: Из снега на земле проступают контуры перчаток.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 2
+    - 5
+    - 0
+    - 0
+  weight: 1
+  cost: 3000
+  rent_off: 100
+  rent_on: 5
+  max_durability: 2000
+  cur_durability: 2000
+  timer: 36250
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  extra_flags:
+    - kBless
+    - kSwimming
+    - kNoalter
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kHands
+  no_flags:
+    - kBattle
+
+# Object #2566
+66:
+  names:
+    aliases: поножи зимнего солнца 131415
+    nominative: поножи &Yзимнего солнца&n
+    genitive: поножей &Yзимнего солнца&n
+    dative: поножам &Yзимнего солнца&n
+    accusative: поножи &Yзимнего солнца&n
+    instrumental: поножами &Yзимнего солнца&n
+    prepositional: поножах &Yзимнего солнца&n
+  short_desc: Причудливые поножи лежат на земле, распространяя холодное сияние.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 2
+    - 5
+    - 0
+    - 0
+  weight: 1
+  cost: 3000
+  rent_off: 100
+  rent_on: 5
+  max_durability: 2000
+  cur_durability: 2000
+  timer: 36250
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  extra_flags:
+    - kBless
+    - kSwimming
+    - kNoalter
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kLegs
+  no_flags:
+    - kBattle
+
+# Object #2567
+67:
+  names:
+    aliases: перчатки зимнего солнца 131415
+    nominative: перчатки &Yзимнего солнца&n
+    genitive: перчаток &Yзимнего солнца&n
+    dative: перчаткам &Yзимнего солнца&n
+    accusative: перчатки &Yзимнего солнца&n
+    instrumental: перчатками &Yзимнего солнца&n
+    prepositional: перчатках &Yзимнего солнца&n
+  short_desc: Перчатки вырисовываются в сиянии зимнего солнца и совершенно не видны без него.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 2
+    - 5
+    - 0
+    - 0
+  weight: 14
+  cost: 3000
+  rent_off: 100
+  rent_on: 5
+  max_durability: 2000
+  cur_durability: 2000
+  timer: 36250
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  extra_flags:
+    - kBless
+    - kSwimming
+    - kNoalter
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kHands
+  no_flags:
+    - kBattle
+
+# Object #2568
+68:
+  names:
+    aliases: плащ зимнего солнца 131415
+    nominative: плащ &Yзимнего солнца&n
+    genitive: плаща &Yзимнего солнца&n
+    dative: плащу &Yзимнего солнца&n
+    accusative: плащ &Yзимнего солнца&n
+    instrumental: плащом &Yзимнего солнца&n
+    prepositional: плаще &Yзимнего солнца&n
+  short_desc: Теплый плащ, дар самого зимнего солнца, лежит на полу.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 2
+    - 5
+    - 0
+    - 0
+  weight: 1
+  cost: 3000
+  rent_off: 100
+  rent_on: 5
+  max_durability: 2000
+  cur_durability: 2000
+  timer: 36250
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kBless
+    - kSwimming
+    - kNoalter
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kShoulders
+  no_flags:
+    - kBattle
+
+# Object #2569
+69:
+  names:
+    aliases: обруч зимнего солнца 131415
+    nominative: обруч &Yзимнего солнца&n
+    genitive: обруча &Yзимнего солнца&n
+    dative: обручу &Yзимнего солнца&n
+    accusative: обруч &Yзимнего солнца&n
+    instrumental: обручом &Yзимнего солнца&n
+    prepositional: обруче &Yзимнего солнца&n
+  short_desc: Блестящий обруч, контур солнца, лежит на земле.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 2
+    - 5
+    - 0
+    - 0
+  weight: 1
+  cost: 3000
+  rent_off: 100
+  rent_on: 5
+  max_durability: 2000
+  cur_durability: 2000
+  timer: 36250
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kBless
+    - kSwimming
+    - kNoalter
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kWaist
+  no_flags:
+    - kBattle
+
+# Object #2570
+70:
+  names:
+    aliases: амулет северного сияния 16
+    nominative: амулет &CСеверного Сияния&n
+    genitive: амулета &CСеверного Сияния&n
+    dative: амулету &CСеверного Сияния&n
+    accusative: амулет &CСеверного Сияния&n
+    instrumental: амулетом &CСеверного Сияния&n
+    prepositional: амулете &CСеверного Сияния&n
+  short_desc: Амулет распространяющий дивное сияние лежит на земле.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 2
+    - 5
+    - 0
+    - 0
+  weight: 1
+  cost: 3000
+  rent_off: 100
+  rent_on: 5
+  max_durability: 2000
+  cur_durability: 2000
+  timer: 36250
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kBless
+    - kSwimming
+    - kNoalter
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kNeck
+  no_flags:
+    - kBattle
+
+# Object #2571
+71:
+  names:
+    aliases: доспех северного сияния 16
+    nominative: доспех &CСеверного Сияния&n
+    genitive: доспеха &CСеверного Сияния&n
+    dative: доспеху &CСеверного Сияния&n
+    accusative: доспех &CСеверного Сияния&n
+    instrumental: доспехом &CСеверного Сияния&n
+    prepositional: доспехе &CСеверного Сияния&n
+  short_desc: Доспех достойный героев древности лежит позабытый.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 2
+    - 5
+    - 0
+    - 0
+  weight: 1
+  cost: 3000
+  rent_off: 100
+  rent_on: 5
+  max_durability: 2000
+  cur_durability: 2000
+  timer: 36250
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kHum
+    - kBless
+    - kSwimming
+    - kNoalter
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kBody
+  no_flags:
+    - kBattle
+
+# Object #2572
+72:
+  names:
+    aliases: корона северного сияния
+    nominative: корона &CСеверного Сияния&n
+    genitive: короны &CСеверного Сияния&n
+    dative: короне &CСеверного Сияния&n
+    accusative: корону &CСеверного Сияния&n
+    instrumental: короной &CСеверного Сияния&n
+    prepositional: короне &CСеверного Сияния&n
+  short_desc: Корона лежит на земле, сияя невыразимо прекрасным светом.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 2
+    - 5
+    - 0
+    - 0
+  weight: 1
+  cost: 3000
+  rent_off: 100
+  rent_on: 5
+  max_durability: 2000
+  cur_durability: 2000
+  timer: 36250
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kBless
+    - kSwimming
+    - kNoalter
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kHead
+  no_flags:
+    - kBattle
+
+# Object #2573
+73:
+  names:
+    aliases: браслет северного сияния 16
+    nominative: браслет &CСеверного Сияния&n
+    genitive: браслета &CСеверного Сияния&n
+    dative: браслету &CСеверного Сияния&n
+    accusative: браслет &CСеверного Сияния&n
+    instrumental: браслетом &CСеверного Сияния&n
+    prepositional: браслете &CСеверного Сияния&n
+  short_desc: Изящный браслет лежит здесь, сияя синим пламенем.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 2
+    - 5
+    - 0
+    - 0
+  weight: 1
+  cost: 3000
+  rent_off: 100
+  rent_on: 5
+  max_durability: 2000
+  cur_durability: 2000
+  timer: 36250
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kBless
+    - kSwimming
+    - kNoalter
+    - kSetItem
+  wear_flags:
+    - kTake
+    - kWrist
+  no_flags:
+    - kBattle
+
+# Object #2574
+74:
+  names:
+    aliases: плащ смелой воительницы
+    nominative: '&Kплащ смелой воительницы&n'
+    genitive: '&Kплаща смелой воительницы&n'
+    dative: '&Kплащу смелой воительницы&n'
+    accusative: '&Kплащ смелой воительницы&n'
+    instrumental: '&Kплащем смелой воительницы&n'
+    prepositional: '&Kплаще смелой воительницы&n'
+  short_desc: Теплый плащ лежит здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 6
+    - 6
+    - 0
+    - 0
+  weight: 1
+  cost: 5
+  rent_off: 10
+  rent_on: 10
+  max_durability: 400
+  cur_durability: 400
+  timer: 21600
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 2
+  extra_flags:
+    - kBless
+    - kSwimming
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kShoulders
+  affect_flags:
+    - kInvisibility
+    - kFly
+    - kBlink
+  applies:
+    - location: 2  # ловкость
+      modifier: 2
+    - location: 13  # макс.жизнь
+      modifier: 30
+    - location: 41  # удача
+      modifier: 10
+    - location: 19  # повреждение
+      modifier: 3
+  extra_descriptions:
+    - keywords: плащ смелой воительницы
+      description: |2
+        Изящный женский плащ, покрытый причудливой вышивкой,
+        надежно скрывает свою владелицу от посторонних глаз.
+
+# Object #2575
+75:
+  names:
+    aliases: новогодние перчатки богатыря
+    nominative: '&Rновогодние перчатки &Wбогатыря&n'
+    genitive: '&Rновогодних перчаток &Wбогатыря&n'
+    dative: '&Rновогодним перчаткам &Wбогатыря&n'
+    accusative: '&Rновогодние перчатки &Wбогатыря&n'
+    instrumental: '&Rновогодними перчатками &Wбогатыря&n'
+    prepositional: '&Rновогодних перчатках &Wбогатыря&n'
+  short_desc: '&RНовогодние перчатки &Wбогатыря&n лежат на земле.'
+  type: kArmor
+  material: 4  # СТАЛЬ
+  values:
+    - 5
+    - 5
+    - 0
+    - 0
+  weight: 14
+  cost: 3000
+  rent_off: 10
+  rent_on: 5
+  max_durability: 500
+  cur_durability: 500
+  timer: 21600
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  extra_flags:
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kHands
+  anti_flags:
+    - kCharmice
+  affect_flags:
+    - kFly
+    - kWaterBreath
+  applies:
+    - location: 1  # сила
+      modifier: 2
+    - location: 2  # ловкость
+      modifier: 2
+    - location: 41  # удача
+      modifier: 5
+
+# Object #2576
+76:
+  names:
+    aliases: новогоднее кольцо кузнеца
+    nominative: '&Rновогоднее кольцо &Wкузнеца&n'
+    genitive: '&Rновогоднего кольца &Wкузнеца&n'
+    dative: '&Rновогоднему кольцу &Wкузнеца&n'
+    accusative: '&Rновогоднее кольцо &Wкузнеца&n'
+    instrumental: '&Rновогодним кольцом &Wкузнеца&n'
+    prepositional: '&Rновогоднем кольце &Wкузнеца&n'
+  short_desc: '&RНовогоднее кольцо &Wкузнеца&n ускло блестит в пыли.'
+  type: kArmor
+  material: 12  # КАМЕНЬ
+  values:
+    - 4
+    - 4
+    - 0
+    - 0
+  weight: 8
+  cost: 3000
+  rent_off: 5
+  rent_on: 5
+  max_durability: 150
+  cur_durability: 150
+  timer: 21600
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  extra_flags:
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kFinger
+    - kWrist
+  affect_flags:
+    - kInvisibility
+    - kDetectInvisibility
+    - kBlink
+    - kHaste
+  applies:
+    - location: 1  # сила
+      modifier: 3
+    - location: 2  # ловкость
+      modifier: 2
+    - location: 13  # макс.жизнь
+      modifier: 30
+  skills:
+    - skill_id: 5  # оглушить
+      value: 30
+    - skill_id: 177  # ювелир
+      value: 30
+
+# Object #2577
+77:
+  names:
+    aliases: удивительное сияние
+    nominative: '&Wудивительное сияние&n'
+    genitive: '&Wудивительного сияния&n'
+    dative: '&Wудивительному сиянию&n'
+    accusative: '&Wудивительное сияние&n'
+    instrumental: '&Wудивительным сиянием&n'
+    prepositional: '&Wудивительом сиянии&n'
+  short_desc: '&WУдивительное сияние&n витает в воздухе.'
+  type: kArmor
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 2
+    - 2
+    - 0
+    - 0
+  weight: 0
+  cost: 3000
+  rent_off: 5
+  rent_on: 5
+  max_durability: 400
+  cur_durability: 400
+  timer: 21600
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kFinger
+    - kNeck
+    - kBody
+    - kHead
+    - kWaist
+    - kWrist
+  affect_flags:
+    - kInvisibility
+    - kDetectInvisibility
+  applies:
+    - location: 20  # воля
+      modifier: -8
+    - location: 4  # мудрость
+      modifier: 2
+    - location: 39  # реакция
+      modifier: -8
+    - location: 40  # успех.колдовства
+      modifier: 6
+    - location: 51  # защита.от.чар
+      modifier: 2
+    - location: 24  # стойкость
+      modifier: -8
+
+# Object #2578
+78:
+  names:
+    aliases: связка черепов
+    nominative: '&Wсвязка черепов &Kмультеров, ботеров и читеров&n'
+    genitive: '&Wсвязки черепов &Kмультеров, ботеров и читеров&n'
+    dative: '&Wсвязке черепов &Kмультеров, ботеров и читеров&n'
+    accusative: '&Wсвязку черепов &Kмультеров, ботеров и читеров&n'
+    instrumental: '&Wсвязкой черепов &Kмультеров, ботеров и читеров&n'
+    prepositional: '&Wсвязке черепов &Kмультеров, ботеров и читеров&n'
+  short_desc: '&WСвязка черепов &Kмультеров, ботеров и читеров&n лежит здесь, забытая Бальдром после общения с морталами.'
+  type: kTreasure
+  material: 1  # БУЛАТ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 100
+  cost: 50000
+  rent_off: 0
+  rent_on: 0
+  max_durability: 150
+  cur_durability: 150
+  timer: 21600
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kNeck
+    - kWrist
+  extra_descriptions:
+    - keywords: связка черепов
+      description: |2
+        Красивая связка черепов разных размеров - черепа насажены
+        на толстую нитку, перемежаясь длинными языками владельцев
+        черепов.
+
+# Object #2579
+79:
+  names:
+    aliases: петарда
+    nominative: '&Rпетарда&n'
+    genitive: '&Rпетарды&n'
+    dative: '&Rпетарде&n'
+    accusative: '&Rпетарду&n'
+    instrumental: '&Rпетардой&n'
+    prepositional: '&Rпетардей&n'
+  short_desc: Петарда я яркой красной бумаге лежит тут.
+  type: kOther
+  material: 14  # ТКАНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 500
+  rent_off: 10
+  rent_on: 10
+  max_durability: 150
+  cur_durability: 150
+  timer: 14400
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 10000
+  extra_flags:
+    - kNoalter
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: петарда
+      description: |2
+        Это небольшая палочка в плотной красной бумаге.
+        Если ее бросить - она взорвется с громким треском.
+  triggers:
+    - 2510  # Взрывается петарда
+
+# Object #2580
+80:
+  names:
+    aliases: снежок
+    nominative: '&Cснежок&n'
+    genitive: '&Cснежка&n'
+    dative: '&Cснежку&n'
+    accusative: '&Cснежок&n'
+    instrumental: '&Cснежком&n'
+    prepositional: '&Cснежке&n'
+  short_desc: Крепко слепленный &Cснежок&Y лежит под ногами.
+  type: kWeapon
+  material: 7  # КРИСТАЛЛ
+  values:
+    - 0
+    - 1
+    - 3
+    - 0
+  weight: 1
+  cost: 20
+  rent_off: 1
+  rent_on: 1
+  spec_param: 145
+  max_durability: 150
+  cur_durability: 150
+  timer: 14400
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 10000
+  extra_flags:
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kWield
+  extra_descriptions:
+    - keywords: снежок
+      description: |2
+        Это крепко слепленный плотный шарик снега.
+        Можно &Gкинуть&n им в кого-нибудь.
+  triggers:
+    - 2513  # [o80] кинуть снежок
+
+# Object #2581
+81:
+  names:
+    aliases: крошечная лазурная пентаграмма
+    nominative: '&Bкрошечная лазурная пентаграмма&n'
+    genitive: '&Bкрошечной лазурной пентаграммы&n'
+    dative: '&Bкрошечной лазурной пентаграммк&n'
+    accusative: '&Bкрошечную лазурную пентаграмму&n'
+    instrumental: '&Bкрошечной лазурную пентаграммой&n'
+    prepositional: '&Bкрошечной лазурную пентаграмме&n'
+  short_desc: Крошечная лазурная пентаграмма переливается, ярко сверкает здесь.
+  type: kOther
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 5000
+  rent_off: 1
+  rent_on: 1
+  max_durability: 150
+  cur_durability: 150
+  timer: 14400
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 10000
+  extra_flags:
+    - kNodonate
+    - kNoalter
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: крошечная лазурная пентаграмма
+      description: |2
+        Это крошечная пентаграмма, вырезанная из самоцветного камня.
+        Если &Gбросить&n ее - может произочти что-либо забавное.
+  triggers:
+    - 2514  # Бросили пентаграмму
+
+# Object #2582
+82:
+  names:
+    aliases: лист пергамента
+    nominative: лист пергамента
+    genitive: листа пергамента
+    dative: листу пергамента
+    accusative: лист пергамента
+    instrumental: листом пергамента
+    prepositional: листе пергамента
+  short_desc: Лист беленого пергамента приколот к стене над столом.
+  type: kOther
+  material: 15  # КОЖА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 50
+  rent_off: 100
+  rent_on: 100
+  max_durability: 150
+  cur_durability: 150
+  timer: 14400
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  extra_flags:
+    - kNoinvis
+    - kNodecay
+    - kNoalter
+  extra_descriptions:
+    - keywords: лист пергамента
+      description: |2
+        ____Витиеватым почерком, с вензелями и буквицами тут выведено:
+        ________
+        _Торопись, народ честной! Принимаю лед волшебный, осколки, шары, 
+        _да и цельные гроздья. Сдавайте кучно, али по одному -- все в дело.
+        _Коли желаете узнать, сколько уже у вас на счету, скажите только "счет".
+        _А коли желаете свое обратно получить, так и скажите, "дай осколок", 
+        _али шар или гроздь -- верну честь-честью.
+
+# Object #2583
+83:
+  names:
+    aliases: заскорузлая береста
+    nominative: заскорузлая береста
+    genitive: заскорузлой бересты
+    dative: заскорузлой бересте
+    accusative: заскорузлую бересту
+    instrumental: заскорузлой берестой
+    prepositional: заскорузлой бересте
+  short_desc: На старой заскорузлой бересте что-то написано.
+  type: kOther
+  material: 17  # БЕРЕСТА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 0
+  rent_on: 1
+  max_durability: 150
+  cur_durability: 150
+  timer: 14400
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kNodecay
+    - kNoalter
+  extra_descriptions:
+    - keywords: заскорузлая береста
+      description: |2
+        _
+        _Продаем диковины за волшебный лед!
+        _Коли хотите купить что, так и скажите, "куплю", да что именно.
+        _
+        Пять осколков:
+        _Для воинов:
+        - обруч Теплого Снега
+        - куртка Теплого Снега
+        - сума Теплого Снега
+        - амулет Теплого Снега
+        _Для магов:
+        - оберег сотканный из снега
+        - повязка сотканная из снега 
+        - плащ сотканный из снега 
+        - посох сотканный из снега
+        Пять шаров:
+        _Для воинов:
+        - колечко из синего льда
+        - перстенек из синего льда
+        - сапожки из синего льда
+        - наручи из синего льда
+        _Для магов:
+        - ошейник зимней вьюги
+        - жезл зимней вьюги
+        - поножи зимней вьюги
+        - перчатки зимней вьюги 
+        Пять гроздей:
+        _Для воинов:
+        - поножи зимнего солнца
+        - перчатки зимнего солнца
+        - плащ зимнего солнца
+        - обруч зимнего солнца
+        _Для магов:
+        - амулет Северного Сияния
+        - доспех Северного Сияния
+        - корона Северного Сияния
+        - браслет Северного Сияния
+
+# Object #2584
+84:
+  names:
+    aliases: писчий сверток
+    nominative: писчий сверток
+    genitive: писчего свертка
+    dative: писчему свертку
+    accusative: писчий сверток
+    instrumental: писчим свертком
+    prepositional: писчем свертке
+  short_desc: К стенке прибит видавший виды писчий сверток
+  type: kOther
+  material: 17  # БЕРЕСТА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 150
+  cur_durability: 150
+  timer: 14400
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  extra_flags:
+    - kNodecay
+    - kNoalter
+  extra_descriptions:
+    - keywords: писчий сверток
+      description: |2
+        _
+        _Продаем диковины за волшебный лед!
+        _Коли хотите купить что, так и скажите, "куплю", да что именно.
+        _
+        Три осколка:
+        - маленькая книга
+        - книга усыпления
+        - трактат о довольстве
+        - инкрустированная золотом книга
+        - книга освобождения
+        - книга света
+        - книга тьмы
+        Семь осколков:
+        - книга странствий
+        - слово о чертах и резах
+        - книга о высшем Порядке
+        - книга с рубином в переплете
+        - трактат о свойствах теней
+        Один шар:
+        - книга со словами умерших
+        Одна гроздь:
+        - книга о волшебных свойствах зеркал
+        Две грозди:
+        - книга о заповедных дорогах
+
+# Object #2585
+85:
+  names:
+    aliases: потрепанная записка
+    nominative: потрепанная записка
+    genitive: потрепанной записки
+    dative: потрепанной записке
+    accusative: потрепанную записку
+    instrumental: потрепанной запиской
+    prepositional: потрепанной записке
+  short_desc: От ветра слегка колышется какая-то потрепанная записка
+  type: kOther
+  material: 17  # БЕРЕСТА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 150
+  cur_durability: 150
+  timer: 14400
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kNodecay
+    - kNoalter
+  extra_descriptions:
+    - keywords: потрепанная записка
+      description: |2
+        _
+        _Продаем диковины за волшебный лед!
+        _Коли хотите купить что, так и скажите, "куплю", да что именно.
+        _
+        Три шара:
+        - заговоренный манок (10 зарядов) (простите, манки закончились, так что можно не пытаться покупать)
+
+# Object #2586
+86:
+  names:
+    aliases: крошечная снежинка
+    nominative: крошечная снежинка
+    genitive: крошечной снежинки
+    dative: крошечной снежинке
+    accusative: крошечную снежинку
+    instrumental: крошечной снежинкой
+    prepositional: крошечной снежинке
+  short_desc: Совсем крошечная &Wснежинка&n ярко переливается, освещая все вокруг приятным светом.
+  type: kOther
+  material: 11  # СТЕКЛО
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 75
+  cur_durability: 75
+  timer: 30000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  minimum_remorts: -1
+  extra_flags:
+    - kGlow
+    - kMagic
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kNolocate
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kFinger
+    - kNeck
+    - kWaist
+    - kWrist
+  affect_flags:
+    - kIceAura
+  applies:
+    - location: 13  # макс.жизнь
+      modifier: 20
+    - location: 14  # макс.энергия
+      modifier: 20
+    - location: 25  # восст.жизни
+      modifier: 10
+    - location: 26  # восст.энергии
+      modifier: 10
+    - location: 44  # поглощение
+      modifier: 5
+
+# Object #2587
+87:
+  names:
+    aliases: маленькая снежинка
+    nominative: маленькая снежинка
+    genitive: маленькой снежинки
+    dative: маленькой снежинке
+    accusative: маленькую снежинку
+    instrumental: маленькой снежинкой
+    prepositional: маленькой снежинке
+  short_desc: Перед вами сверкает маленькая &Wснежинка&n, освещая все вокруг мягкий белым светом.
+  type: kOther
+  material: 11  # СТЕКЛО
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 75
+  cur_durability: 75
+  timer: 30000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 10000
+  minimum_remorts: -1
+  extra_flags:
+    - kMagic
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kFinger
+    - kNeck
+    - kWaist
+    - kWrist
+  affect_flags:
+    - kBlink
+    - kIceAura
+  applies:
+    - location: 13  # макс.жизнь
+      modifier: 25
+    - location: 44  # поглощение
+      modifier: 8
+    - location: 19  # повреждение
+      modifier: 8
+    - location: 40  # успех.колдовства
+      modifier: 10
+    - location: 12  # запоминание
+      modifier: 20
+    - location: 41  # удача
+      modifier: 8
+    - location: 66  # бонус.физ.повреждений %
+      modifier: 3
+    - location: 68  # сила.заклинаний.%
+      modifier: 3
+
+# Object #2588
+88:
+  names:
+    aliases: небольшая снежинка
+    nominative: небольшая снежинка
+    genitive: небольшой снежинки
+    dative: небольшой снежинке
+    accusative: небольшую снежинку
+    instrumental: небольшой снежинкой
+    prepositional: небольшой снежинке
+  short_desc: Небольшая &Wснежинка&n ярко переливается, освещая все вокруг мягким светом.
+  type: kOther
+  material: 11  # СТЕКЛО
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 75
+  cur_durability: 75
+  timer: 30000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1000
+  minimum_remorts: -1
+  extra_flags:
+    - kMagic
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kFinger
+    - kNeck
+    - kWaist
+    - kWrist
+  affect_flags:
+    - kDetectInvisibility
+    - kDetectMagic
+    - kInfravision
+    - kBlink
+    - kIceAura
+  applies:
+    - location: 13  # макс.жизнь
+      modifier: 50
+    - location: 44  # поглощение
+      modifier: 16
+    - location: 19  # повреждение
+      modifier: 16
+    - location: 40  # успех.колдовства
+      modifier: 16
+    - location: 12  # запоминание
+      modifier: 40
+    - location: 41  # удача
+      modifier: 16
+    - location: 66  # бонус.физ.повреждений %
+      modifier: 6
+    - location: 68  # сила.заклинаний.%
+      modifier: 6
+
+# Object #2589
+89:
+  names:
+    aliases: прекрасная снежинка
+    nominative: снежинка
+    genitive: снежинки
+    dative: снежинке
+    accusative: снежинку
+    instrumental: снежинкой
+    prepositional: снежинке
+  short_desc: Прекрасная &Wснежинка&n ярко переливается на свету.
+  type: kOther
+  material: 11  # СТЕКЛО
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 350
+  cur_durability: 350
+  timer: 30000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 10000
+  minimum_remorts: -1
+  extra_flags:
+    - kMagic
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kFinger
+    - kNeck
+    - kWaist
+    - kWrist
+  affect_flags:
+    - kDetectInvisibility
+    - kDetectMagic
+    - kInfravision
+    - kBless
+    - kAwareness
+    - kBlink
+    - kMagicGlass
+    - kIceAura
+  applies:
+    - location: 13  # макс.жизнь
+      modifier: 200
+    - location: 44  # поглощение
+      modifier: 40
+    - location: 19  # повреждение
+      modifier: 40
+    - location: 40  # успех.колдовства
+      modifier: 40
+    - location: 12  # запоминание
+      modifier: 100
+    - location: 41  # удача
+      modifier: 40
+    - location: 66  # бонус.физ.повреждений %
+      modifier: 15
+    - location: 68  # сила.заклинаний.%
+      modifier: 15
+
+# Object #2590
+90:
+  names:
+    aliases: большая снежинка
+    nominative: большая снежинка
+    genitive: большой снежинки
+    dative: большой снежинке
+    accusative: большую снежинку
+    instrumental: большой снежинкой
+    prepositional: большой снежинке
+  short_desc: Большая &Wснежинка&n ярко переливается всеми цветами радуги.
+  type: kOther
+  material: 11  # СТЕКЛО
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 500
+  cur_durability: 500
+  timer: 30000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1000
+  minimum_remorts: -1
+  extra_flags:
+    - kMagic
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kFinger
+    - kNeck
+    - kWrist
+  affect_flags:
+    - kDetectInvisibility
+    - kDetectMagic
+    - kInfravision
+    - kProtectFromDark
+    - kBless
+    - kFly
+    - kAwareness
+    - kBlink
+    - kIceShield
+    - kIceAura
+  applies:
+    - location: 13  # макс.жизнь
+      modifier: 400
+    - location: 44  # поглощение
+      modifier: 75
+    - location: 19  # повреждение
+      modifier: 75
+    - location: 40  # успех.колдовства
+      modifier: 75
+    - location: 12  # запоминание
+      modifier: 200
+    - location: 41  # удача
+      modifier: 75
+    - location: 66  # бонус.физ.повреждений %
+      modifier: 40
+    - location: 68  # сила.заклинаний.%
+      modifier: 40
+
+# Object #2591
+91:
+  names:
+    aliases: крошечный осколок волшебного льда
+    nominative: крошечный осколок волшебного льда
+    genitive: крошечного осколка волшебного льда
+    dative: крошечному осколку волшебного льда
+    accusative: крошечный осколок волшебного льда
+    instrumental: крошечным осколком волшебного льда
+    prepositional: крошечном осколке волшебного льда
+  short_desc: Крошечный осколок волшебного льда излучает приятный свет.
+  type: kTreasure
+  material: 7  # КРИСТАЛЛ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 0
+  rent_off: 1
+  rent_on: 1
+  max_durability: 10
+  cur_durability: 10
+  timer: 1
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNoinvis
+    - kNosell
+    - kFlying
+    - kNolocate
+    - kNoalter
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: крошечный осколок волшебного льда
+      description: |2
+        Небольшой осколок, вроде бы ледяной, но излучает приятный теплый свет.
+        Стоит показать эту диковину кому-нибудь из команды летучего корабля.
+  triggers:
+    - 2525  # Привязка предмета к игроку
+
+# Object #2592
+92:
+  names:
+    aliases: шар волшебного льда
+    nominative: шар из волшебного льда
+    genitive: шара из волшебного льда
+    dative: шару из волшебного льда
+    accusative: шар из волшебного льда
+    instrumental: шаром из волшебного льда
+    prepositional: шаре из волшебного льда
+  short_desc: Шар из волшебного льда мягко светится тут.
+  type: kTreasure
+  material: 7  # КРИСТАЛЛ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 0
+  rent_off: 1
+  rent_on: 1
+  max_durability: 10
+  cur_durability: 10
+  timer: 1
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNoinvis
+    - kNosell
+    - kFlying
+    - kNolocate
+    - kNoalter
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: шар из волшебного льда
+      description: |2
+        Гладкий шар, вроде бы ледяной, но испускает приятный мягкий свет.
+        Можно показать этакую диковину кому-нибудь из команды летучего корабля,
+        или просто &Gразбить шар&n на осколки.
+  triggers:
+    - 2525  # Привязка предмета к игроку
+    - 2528  # [o92-93] разбить шар/гроздь
+
+# Object #2593
+93:
+  names:
+    aliases: гроздь шаров волшебного льда
+    nominative: гроздь шаров из волшебного льда
+    genitive: грозди шаров из волшебного льда
+    dative: грозди шаров из волшебного льда
+    accusative: гроздь шаров из волшебного льда
+    instrumental: гроздью шаров из волшебного льда
+    prepositional: грозди шаров из волшебного льда
+  short_desc: Гроздь испускающих мягкий свет ледяных шаров парит в воздухе.
+  type: kTreasure
+  material: 7  # КРИСТАЛЛ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 0
+  rent_off: 1
+  rent_on: 1
+  max_durability: 10
+  cur_durability: 10
+  timer: 1
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNoinvis
+    - kNosell
+    - kFlying
+    - kNolocate
+    - kNoalter
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: гроздь шаров волшебного льда
+      description: |2
+        Гроздь шаров, вроде бы ледяных, но испускающих приятный мягкий свет.
+        Надо бы показать этакую диковину кому-нибудь из команды летучего корабля,
+        или же просто &Gразбить гроздь&n на отдельные шары.
+  triggers:
+    - 2525  # Привязка предмета к игроку
+    - 2528  # [o92-93] разбить шар/гроздь
+
+# Object #2594
+94:
+  names:
+    aliases: красивая новогодняя сумка
+    nominative: красивая новогодняя сумка
+    genitive: красивой новогодней сумки
+    dative: красивой новогодней сумке
+    accusative: красивую новогоднию сумку
+    instrumental: красивой новогодней сумкой
+    prepositional: красивой новогодней сумке
+  short_desc: Красивая новогодняя сумка для подарков лежит здесь.
+  type: kContainer
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 1000
+    - 0
+    - -1
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 0
+  rent_on: 0
+  max_durability: 150
+  cur_durability: 150
+  timer: 14400
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 999
+  extra_flags:
+    - kNorent
+    - kNodonate
+    - kNodecay
+    - kSwimming
+    - kFlying
+    - kNoalter
+  wear_flags:
+    - kTake
+
+# Object #2595
+95:
+  names:
+    aliases: перчатки замерзшего воеводы
+    nominative: перчатки замерзшего воеводы
+    genitive: перчаток замерзшего воеводы
+    dative: перчаткам замерзшего воеводы
+    accusative: перчатки замерзшего воеводы
+    instrumental: перчатками замерзшего воеводы
+    prepositional: перчатках замерзшего воеводы
+  short_desc: Неказистые с виду пара перчаток лежат здесь
+  type: kWorm
+  material: 16  # ОРГАНИКА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 4
+  cost: 1
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 150
+  cur_durability: 150
+  timer: 30000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHands
+  applies:
+    - location: 40  # успех.колдовства
+      modifier: 11
+  skills:
+    - skill_id: 182  # магия воздуха
+      value: 20
+
+# Object #2596
+96:
+  names:
+    aliases: стеклянный шар снежинками
+    nominative: стеклянный шар со снежинками
+    genitive: стеклянного шара со снежинками
+    dative: стеклянному шара со снежинками
+    accusative: стеклянный шар со снежинками
+    instrumental: стеклянным шаром со снежинками
+    prepositional: стеклянном шаре со снежинками
+  short_desc: Стеклянный шас с парящими внутри снежинками летает тут.
+  type: kTreasure
+  material: 11  # СТЕКЛО
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1000
+  rent_off: 1
+  rent_on: 1
+  max_durability: 150
+  cur_durability: 150
+  timer: 14400
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1000
+  extra_flags:
+    - kNosell
+    - kFlying
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: стеклянный шар снежинками
+      description: |2
+        Стеклянный шар в кулак размером. Внутри искусно изображен
+        зимний лес и замерзшая река, а над лесом, если встряхнуть
+        шар, взлетает и кружится серебрящийся снег.
+
+# Object #2597
+97:
+  names:
+    aliases: кружка чая
+    nominative: чай
+    genitive: чая
+    dative: чаю
+    accusative: чай
+    instrumental: чаем
+    prepositional: чае
+  short_desc: Исходящая паром кружка чая стоит тут.
+  type: kPotion
+  material: 10  # КЕРАМИКА
+  values:
+    - 50
+    - 175
+    - 176
+    - 177
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 150
+  cur_durability: 150
+  timer: 14400
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 10000
+  extra_flags:
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kHold
+
+# Object #2598
+98:
+  names:
+    aliases: веревочная лестница
+    nominative: веревочная лестница
+    genitive: веревочной лестницы
+    dative: веревочной лестнице
+    accusative: веревочную лестницу
+    instrumental: веревочной лестницей
+    prepositional: веревочной лестнице
+  short_desc: Веревочная лестница свисает здесь с борта летучего корабля.
+  type: kOther
+  material: 14  # ТКАНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 10
+  cost: 1000
+  rent_off: 100
+  rent_on: 100
+  max_durability: 150
+  cur_durability: 150
+  timer: 14400
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kNoinvis
+    - kNodecay
+  extra_descriptions:
+    - keywords: веревочная лестница
+      description: |2
+        Прочная веревочная лестница из пеньковых веревок
+        с деревянными перекладинами.
+  triggers:
+    - 2597  # пьянение
+
+# Object #2599
+99:
+  names:
+    aliases: крошечная лазурная пентаграмма
+    nominative: '&Bкрошечная лазурная пентаграмма&n'
+    genitive: '&Bкрошечной лазурной пентаграммы&n'
+    dative: '&Bкрошечной лазурной пентаграммк&n'
+    accusative: '&Bкрошечную лазурную пентаграмму&n'
+    instrumental: '&Bкрошечной лазурную пентаграммой&n'
+    prepositional: '&Bкрошечной лазурную пентаграмме&n'
+  short_desc: Крошечная лазурная пентаграмма переливается, ярко сверкает здесь.
+  type: kOther
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 5000
+  rent_off: 1
+  rent_on: 1
+  max_durability: 150
+  cur_durability: 150
+  timer: 14400
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 10000
+  extra_flags:
+    - kNodonate
+    - kNoalter
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: крошечная лазурная пентаграмма
+      description: |2
+        Это крошечная пентаграмма, вырезанная из самоцветного камня.
+        Если &Gбросить&n ее - может произочти что-либо забавное.
+  triggers:
+    - 2514  # Бросили пентаграмму

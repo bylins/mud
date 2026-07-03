@@ -1,0 +1,13 @@
+# Zone #32
+
+vnum: 32
+name: Системная зона - пустая
+top_room: 3299
+lifespan: 1
+reset_mode: 0
+reset_idle: 0
+zone_type: 0
+mode: 1  # level
+entrance: 3299
+under_construction: 0
+zone_group: 1  # solo

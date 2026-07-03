@@ -1,0 +1,3903 @@
+# Objects for zone 13
+
+# Object #1300
+0:
+  names:
+    aliases: свиток защиты
+    nominative: свиток защиты
+    genitive: свитка защиты
+    dative: свитку защиты
+    accusative: свиток защиты
+    instrumental: свитком защиты
+    prepositional: свитке защиты
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 1
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1301
+1:
+  names:
+    aliases: свиток прыткой лягушки
+    nominative: свиток прыткой лягушки
+    genitive: свитка прыткой лягушки
+    dative: свитку прыткой лягушки
+    accusative: свиток прыткой лягушки
+    instrumental: свитком прыткой лягушки
+    prepositional: свитке прыткой лягушки
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 2
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1302
+2:
+  names:
+    aliases: свиток доблести
+    nominative: свиток доблести
+    genitive: свитка доблести
+    dative: свитку доблести
+    accusative: свиток доблести
+    instrumental: свитком доблести
+    prepositional: свитке доблести
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 3
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1303
+3:
+  names:
+    aliases: свиток слепца
+    nominative: свиток слепца
+    genitive: свитка слепца
+    dative: свитку слепца
+    accusative: свиток слепца
+    instrumental: свитком слепца
+    prepositional: свитке слепца
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 4
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1304
+4:
+  names:
+    aliases: свиток огненных рук
+    nominative: свиток огненных рук
+    genitive: свитка огненных рук
+    dative: свитку огненных рук
+    accusative: свиток огненных рук
+    instrumental: свитком огненных рук
+    prepositional: свитке огненных рук
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 5
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1305
+5:
+  names:
+    aliases: свиток громового солнца
+    nominative: свиток громового солнца
+    genitive: свитка громового солнца
+    dative: свитку громового солнца
+    accusative: свиток громового солнца
+    instrumental: свитком громового солнца
+    prepositional: свитке громового солнца
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 6
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1306
+6:
+  names:
+    aliases: свиток власти разумом
+    nominative: свиток власти над разумом
+    genitive: свитка власти над разумом
+    dative: свитку власти над разумом
+    accusative: свиток власти над разумом
+    instrumental: свитком власти над разумом
+    prepositional: свитке власти над разумом
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 7
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1307
+7:
+  names:
+    aliases: свиток ледяных рук
+    nominative: свиток ледяных рук
+    genitive: свитка ледяных рук
+    dative: свитку ледяных рук
+    accusative: свиток ледяных рук
+    instrumental: свитком ледяных рук
+    prepositional: свитке ледяных рук
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 8
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1308
+8:
+  names:
+    aliases: свиток размножения
+    nominative: свиток размножения
+    genitive: свитка размножения
+    dative: свитку размножения
+    accusative: свиток размножения
+    instrumental: свитком размножения
+    prepositional: свитке размножения
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 9
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1309
+9:
+  names:
+    aliases: свиток струи огня
+    nominative: свиток струи огня
+    genitive: свитка струи огня
+    dative: свитку струи огня
+    accusative: свиток струи огня
+    instrumental: свитком струи огня
+    prepositional: свитке струи огня
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 10
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1310
+10:
+  names:
+    aliases: свиток повеления ветрам
+    nominative: свиток повеления ветрам
+    genitive: свитка повеления ветрам
+    dative: свитку повеления ветрам
+    accusative: свиток повеления ветрам
+    instrumental: свитком повеления ветрам
+    prepositional: свитке повеления ветрам
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 11
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1311
+11:
+  names:
+    aliases: свиток сотворения снеди
+    nominative: свиток сотворения снеди
+    genitive: свитка сотворения снеди
+    dative: свитку сотворения снеди
+    accusative: свиток сотворения снеди
+    instrumental: свитком сотворения снеди
+    prepositional: свитке сотворения снеди
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 12
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1312
+12:
+  names:
+    aliases: свиток чистой воды
+    nominative: свиток чистой воды
+    genitive: свитка чистой воды
+    dative: свитку чистой воды
+    accusative: свиток чистой воды
+    instrumental: свитком чистой воды
+    prepositional: свитке чистой воды
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 13
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1313
+13:
+  names:
+    aliases: свиток прозрения
+    nominative: свиток прозрения
+    genitive: свитка прозрения
+    dative: свитку прозрения
+    accusative: свиток прозрения
+    instrumental: свитком прозрения
+    prepositional: свитке прозрения
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 14
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1314
+14:
+  names:
+    aliases: свиток лечения тяжелых ран
+    nominative: свиток лечения тяжелых ран
+    genitive: свитка лечения тяжелых ран
+    dative: свитку лечения тяжелых ран
+    accusative: свиток лечения тяжелых ран
+    instrumental: свитком лечения тяжелых ран
+    prepositional: свитке лечения тяжелых ран
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 15
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1315
+15:
+  names:
+    aliases: свиток лечения царапин
+    nominative: свиток лечения царапин
+    genitive: свитка лечения царапин
+    dative: свитку лечения царапин
+    accusative: свиток лечения царапин
+    instrumental: свитком лечения царапин
+    prepositional: свитке лечения царапин
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 16
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1316
+16:
+  names:
+    aliases: свиток проклятия
+    nominative: свиток проклятия
+    genitive: свитка проклятия
+    dative: свитку проклятия
+    accusative: свиток проклятия
+    instrumental: свитком проклятия
+    prepositional: свитке проклятия
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 17
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1317
+17:
+  names:
+    aliases: свиток чутья татей
+    nominative: свиток чутья на татей
+    genitive: свитка чутья на татей
+    dative: свитку чутья на татей
+    accusative: свиток чутья на татей
+    instrumental: свитком чутья на татей
+    prepositional: свитке чутья на татей
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 18
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1318
+18:
+  names:
+    aliases: свиток невиданного
+    nominative: свиток невиданного
+    genitive: свитка невиданного
+    dative: свитку невиданного
+    accusative: свиток невиданного
+    instrumental: свитком невиданного
+    prepositional: свитке невиданного
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 19
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1319
+19:
+  names:
+    aliases: свиток колдовского чутья
+    nominative: свиток колдовского чутья
+    genitive: свитка колдовского чутья
+    dative: свитку колдовского чутья
+    accusative: свиток колдовского чутья
+    instrumental: свитком колдовского чутья
+    prepositional: свитке колдовского чутья
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 20
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1320
+20:
+  names:
+    aliases: свиток распознания ядов
+    nominative: свиток распознания ядов
+    genitive: свитка распознания ядов
+    dative: свитку распознания ядов
+    accusative: свиток распознания ядов
+    instrumental: свитком распознания ядов
+    prepositional: свитке распознания ядов
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 21
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1321
+21:
+  names:
+    aliases: свиток изгнания зла
+    nominative: свиток изгнания зла
+    genitive: свитка изгнания зла
+    dative: свитку изгнания зла
+    accusative: свиток изгнания зла
+    instrumental: свитком изгнания зла
+    prepositional: свитке изгнания зла
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 22
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1322
+22:
+  names:
+    aliases: свиток сотрясения земли
+    nominative: свиток сотрясения земли
+    genitive: свитка сотрясения земли
+    dative: свитку сотрясения земли
+    accusative: свиток сотрясения земли
+    instrumental: свитком сотрясения земли
+    prepositional: свитке сотрясения земли
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 23
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1323
+23:
+  names:
+    aliases: свиток чародейского клинка
+    nominative: свиток чародейского клинка
+    genitive: свитка чародейского клинка
+    dative: свитку чародейского клинка
+    accusative: свиток чародейского клинка
+    instrumental: свитком чародейского клинка
+    prepositional: свитке чародейского клинка
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 24
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1324
+24:
+  names:
+    aliases: свиток упадка сил
+    nominative: свиток упадка сил
+    genitive: свитка упадка сил
+    dative: свитку упадка сил
+    accusative: свиток упадка сил
+    instrumental: свитком упадка сил
+    prepositional: свитке упадка сил
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 25
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1325
+25:
+  names:
+    aliases: свиток огненного солнца
+    nominative: свиток огненного солнца
+    genitive: свитка огненного солнца
+    dative: свитку огненного солнца
+    accusative: свиток огненного солнца
+    instrumental: свитком огненного солнца
+    prepositional: свитке огненного солнца
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 26
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1326
+26:
+  names:
+    aliases: вредоносный свиток
+    nominative: вредоносный свиток
+    genitive: вредоносного свитка
+    dative: вредоносному свитку
+    accusative: вредоносный свиток
+    instrumental: вредоносным свитком
+    prepositional: вредоносном свитке
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 27
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1327
+27:
+  names:
+    aliases: свиток полного исцеления
+    nominative: свиток полного исцеления
+    genitive: свитка полного исцеления
+    dative: свитку полного исцеления
+    accusative: свиток полного исцеления
+    instrumental: свитком полного исцеления
+    prepositional: свитке полного исцеления
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 28
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1328
+28:
+  names:
+    aliases: свиток невидимки
+    nominative: свиток невидимки
+    genitive: свитка невидимки
+    dative: свитку невидимки
+    accusative: свиток невидимки
+    instrumental: свитком невидимки
+    prepositional: свитке невидимки
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 29
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1329
+29:
+  names:
+    aliases: свиток громовой стрелы
+    nominative: свиток громовой стрелы
+    genitive: свитка громовой стрелы
+    dative: свитку громовой стрелы
+    accusative: свиток громовой стрелы
+    instrumental: свитком громовой стрелы
+    prepositional: свитке громовой стрелы
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 30
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1330
+30:
+  names:
+    aliases: свиток растеряхи
+    nominative: свиток растеряхи
+    genitive: свитка растеряхи
+    dative: свитку растеряхи
+    accusative: свиток растеряхи
+    instrumental: свитком растеряхи
+    prepositional: свитке растеряхи
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 31
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1331
+31:
+  names:
+    aliases: свиток чародейской стрелы
+    nominative: свиток чародейской стрелы
+    genitive: свитка чародейской стрелы
+    dative: свитку чародейской стрелы
+    accusative: свиток чародейской стрелы
+    instrumental: свитком чародейской стрелы
+    prepositional: свитке чародейской стрелы
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 32
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1332
+32:
+  names:
+    aliases: отравный свиток
+    nominative: отравный свиток
+    genitive: отравного свитка
+    dative: отравному свитку
+    accusative: отравный свиток
+    instrumental: отравным свитком
+    prepositional: отравном свитке
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 33
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1333
+33:
+  names:
+    aliases: свиток защиты тьмы
+    nominative: свиток защиты от тьмы
+    genitive: свитка защиты от тьмы
+    dative: свитку защиты от тьмы
+    accusative: свиток защиты от тьмы
+    instrumental: свитком защиты от тьмы
+    prepositional: свитке защиты от тьмы
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 34
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1334
+34:
+  names:
+    aliases: свиток удаления проклятия
+    nominative: свиток удаления проклятия
+    genitive: свитка удаления проклятия
+    dative: свитку удаления проклятия
+    accusative: свиток удаления проклятия
+    instrumental: свитком удаления проклятия
+    prepositional: свитке удаления проклятия
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 35
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1335
+35:
+  names:
+    aliases: сияющий свиток
+    nominative: сияющий свиток
+    genitive: сияющего свитка
+    dative: сияющему свитку
+    accusative: сияющий свиток
+    instrumental: сияющим свитком
+    prepositional: сияющим свитке
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 36
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1336
+36:
+  names:
+    aliases: свиток огненной хватки
+    nominative: свиток огненной хватки
+    genitive: свитка огненной хватки
+    dative: свитку огненной хватки
+    accusative: свиток огненной хватки
+    instrumental: свитком огненной хватки
+    prepositional: свитке огненной хватки
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 37
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1337
+37:
+  names:
+    aliases: свиток блаженного сна
+    nominative: свиток блаженного сна
+    genitive: свитка блаженного сна
+    dative: свитку блаженного сна
+    accusative: свиток блаженного сна
+    instrumental: свитком блаженного сна
+    prepositional: свитке блаженного сна
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 38
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1338
+38:
+  names:
+    aliases: богатырский свиток
+    nominative: богатырский свиток
+    genitive: богатырского свитка
+    dative: богатырскому свитку
+    accusative: богатырский свиток
+    instrumental: богатырским свитком
+    prepositional: богатырском свитке
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 39
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1339
+39:
+  names:
+    aliases: свиток призыва
+    nominative: свиток призыва
+    genitive: свитка призыва
+    dative: свитку призыва
+    accusative: свиток призыва
+    instrumental: свитком призыва
+    prepositional: свитке призыва
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 40
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1340
+40:
+  names:
+    aliases: свиток покровительства
+    nominative: свиток покровительства
+    genitive: свитка покровительства
+    dative: свитку покровительства
+    accusative: свиток покровительства
+    instrumental: свитком покровительства
+    prepositional: свитке покровительства
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 41
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1341
+41:
+  names:
+    aliases: свиток возврата
+    nominative: свиток возврата
+    genitive: свитка возврата
+    dative: свитку возврата
+    accusative: свиток возврата
+    instrumental: свитком возврата
+    prepositional: свитке возврата
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 2
+    - 42
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNosell
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1342
+42:
+  names:
+    aliases: свиток излечения от яда
+    nominative: свиток излечения от яда
+    genitive: свитка излечения от яда
+    dative: свитку излечения от яда
+    accusative: свиток излечения от яда
+    instrumental: свитком излечения от яда
+    prepositional: свитке излечения от яда
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 43
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1343
+43:
+  names:
+    aliases: свиток волчьего чутья
+    nominative: свиток волчьего чутья
+    genitive: свитка волчьего чутья
+    dative: свитку волчьего чутья
+    accusative: свиток волчьего чутья
+    instrumental: свитком волчьего чутья
+    prepositional: свитке волчьего чутья
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 44
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1344
+44:
+  names:
+    aliases: свиток раскрытой могилы
+    nominative: свиток раскрытой могилы
+    genitive: свитка раскрытой могилы
+    dative: свитку раскрытой могилы
+    accusative: свиток раскрытой могилы
+    instrumental: свитком раскрытой могилы
+    prepositional: свитке раскрытой могилы
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 45
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1345
+45:
+  names:
+    aliases: свиток изгнания света
+    nominative: свиток изгнания света
+    genitive: свитка изгнания света
+    dative: свитку изгнания света
+    accusative: свиток изгнания света
+    instrumental: свитком изгнания света
+    prepositional: свитке изгнания света
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 46
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1346
+46:
+  names:
+    aliases: свиток общей защиты
+    nominative: свиток общей защиты
+    genitive: свитка общей защиты
+    dative: свитку общей защиты
+    accusative: свиток общей защиты
+    instrumental: свитком общей защиты
+    prepositional: свитке общей защиты
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 47
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1347
+47:
+  names:
+    aliases: свиток группового исцеления
+    nominative: свиток группового исцеления
+    genitive: свитка группового исцеления
+    dative: свитку группового исцеления
+    accusative: свиток группового исцеления
+    instrumental: свитком группового исцеления
+    prepositional: свитке группового исцеления
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 48
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1348
+48:
+  names:
+    aliases: свиток всеобщего бегства
+    nominative: свиток всеобщего бегства
+    genitive: свитка всеобщего бегства
+    dative: свитку всеобщего бегства
+    accusative: свиток всеобщего бегства
+    instrumental: свитком всеобщего бегства
+    prepositional: свитке всеобщего бегства
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 49
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1349
+49:
+  names:
+    aliases: свиток совиного зрения
+    nominative: свиток совиного зрения
+    genitive: свитка совиного зрения
+    dative: свитку совиного зрения
+    accusative: свиток совиного зрения
+    instrumental: свитком совиного зрения
+    prepositional: свитке совиного зрения
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 50
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1350
+50:
+  names:
+    aliases: свиток водомерки
+    nominative: свиток водомерки
+    genitive: свитка водомерки
+    dative: свитку водомерки
+    accusative: свиток водомерки
+    instrumental: свитком водомерки
+    prepositional: свитке водомерки
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 51
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1351
+51:
+  names:
+    aliases: свиток лечения ран
+    nominative: свиток лечения ран
+    genitive: свитка лечения ран
+    dative: свитку лечения ран
+    accusative: свиток лечения ран
+    instrumental: свитком лечения ран
+    prepositional: свитке лечения ран
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 52
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1352
+52:
+  names:
+    aliases: свиток богатырей
+    nominative: свиток богатырей
+    genitive: свитка богатырей
+    dative: свитку богатырей
+    accusative: свиток богатырей
+    instrumental: свитком богатырей
+    prepositional: свитке богатырей
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 53
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1353
+53:
+  names:
+    aliases: свиток неподвижности
+    nominative: свиток неподвижности
+    genitive: свитка неподвижности
+    dative: свитку неподвижности
+    accusative: свиток неподвижности
+    instrumental: свитком неподвижности
+    prepositional: свитке неподвижности
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 54
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1354
+54:
+  names:
+    aliases: свиток длительной неподвижности
+    nominative: свиток длительной неподвижности
+    genitive: свитка длительной неподвижности
+    dative: свитку длительной неподвижности
+    accusative: свиток длительной неподвижности
+    instrumental: свитком длительной неподвижности
+    prepositional: свитке длительной неподвижности
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 55
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1355
+55:
+  names:
+    aliases: свиток замершего моря
+    nominative: свиток замершего моря
+    genitive: свитка замершего моря
+    dative: свитку замершего моря
+    accusative: свиток замершего моря
+    instrumental: свитком замершего моря
+    prepositional: свитке замершего моря
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 56
+    - -1
+    - -1
+  weight: 1
+  cost: 56
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1356
+56:
+  names:
+    aliases: летающий свиток
+    nominative: летающий свиток
+    genitive: летающего свитка
+    dative: летающему свитку
+    accusative: летающий свиток
+    instrumental: летающим свитком
+    prepositional: летающем свитке
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 57
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1357
+57:
+  names:
+    aliases: свиток уничтожения оков
+    nominative: свиток уничтожения оков
+    genitive: свитка уничтожения оков
+    dative: свитку уничтожения оков
+    accusative: свиток уничтожения оков
+    instrumental: свитком уничтожения оков
+    prepositional: свитке уничтожения оков
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 58
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1358
+58:
+  names:
+    aliases: свиток оков супостата
+    nominative: свиток оков супостата
+    genitive: свитка оков супостата
+    dative: свитку оков супостата
+    accusative: свиток оков супостата
+    instrumental: свитком оков супостата
+    prepositional: свитке оков супостата
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 59
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1359
+59:
+  names:
+    aliases: свиток сотворения света
+    nominative: свиток сотворения света
+    genitive: свитка сотворения света
+    dative: свитку сотворения света
+    accusative: свиток сотворения света
+    instrumental: свитком сотворения света
+    prepositional: свитке сотворения света
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 60
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1360
+60:
+  names:
+    aliases: свиток непроницаемой темноты
+    nominative: свиток непроницаемой темноты
+    genitive: свитка непроницаемой темноты
+    dative: свитку непроницаемой темноты
+    accusative: свиток непроницаемой темноты
+    instrumental: свитком непроницаемой темноты
+    prepositional: свитке непроницаемой темноты
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 61
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1361
+61:
+  names:
+    aliases: свиток каменной шкуры
+    nominative: свиток каменной шкуры
+    genitive: свитка каменной шкуры
+    dative: свитку каменной шкуры
+    accusative: свиток каменной шкуры
+    instrumental: свитком каменной шкуры
+    prepositional: свитке каменной шкуры
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 62
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1362
+62:
+  names:
+    aliases: свиток туманов
+    nominative: свиток туманов
+    genitive: свитка туманов
+    dative: свитку туманов
+    accusative: свиток туманов
+    instrumental: свитком туманов
+    prepositional: свитке туманов
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 63
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1363
+63:
+  names:
+    aliases: свиток замкнутых уст
+    nominative: свиток замкнутых уст
+    genitive: свитка замкнутых уст
+    dative: свитку замкнутых уст
+    accusative: свиток замкнутых уст
+    instrumental: свитком замкнутых уст
+    prepositional: свитке замкнутых уст
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 64
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1364
+64:
+  names:
+    aliases: светящийся свиток
+    nominative: светящийся свиток
+    genitive: светящегося свитка
+    dative: светящемуся свитку
+    accusative: светящийся свиток
+    instrumental: светящимся свитком
+    prepositional: светящемся свитке
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 65
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1365
+65:
+  names:
+    aliases: свиток громовых раскатов
+    nominative: свиток громовых раскатов
+    genitive: свитка громовых раскатов
+    dative: свитку громовых раскатов
+    accusative: свиток громовых раскатов
+    instrumental: свитком громовых раскатов
+    prepositional: свитке громовых раскатов
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 66
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1366
+66:
+  names:
+    aliases: свиток огненного потока
+    nominative: свиток огненного потока
+    genitive: свитка огненного потока
+    dative: свитку огненного потока
+    accusative: свиток огненного потока
+    instrumental: свитком огненного потока
+    prepositional: свитке огненного потока
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 67
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1367
+67:
+  names:
+    aliases: свиток божественного гнева
+    nominative: свиток божественного гнева
+    genitive: свитка божественного гнева
+    dative: свитку божественного гнева
+    accusative: свиток божественного гнева
+    instrumental: свитком божественного гнева
+    prepositional: свитке божественного гнева
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 68
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1368
+68:
+  names:
+    aliases: свиток слабости
+    nominative: свиток слабости
+    genitive: свитка слабости
+    dative: свитку слабости
+    accusative: свиток слабости
+    instrumental: свитком слабости
+    prepositional: свитке слабости
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 69
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1369
+69:
+  names:
+    aliases: свиток общей невидимости
+    nominative: свиток общей невидимости
+    genitive: свитка общей невидимости
+    dative: свитку общей невидимости
+    accusative: свиток общей невидимости
+    instrumental: свитком общей невидимости
+    prepositional: свитке общей невидимости
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 70
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1370
+70:
+  names:
+    aliases: свиток покрова теней
+    nominative: свиток покрова теней
+    genitive: свитка покрова теней
+    dative: свитку покрова теней
+    accusative: свиток покрова теней
+    instrumental: свитком покрова теней
+    prepositional: свитке покрова теней
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 71
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1371
+71:
+  names:
+    aliases: свиток кислоты
+    nominative: свиток кислоты
+    genitive: свитка кислоты
+    dative: свитку кислоты
+    accusative: свиток кислоты
+    instrumental: свитком кислоты
+    prepositional: свитке кислоты
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 72
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1372
+72:
+  names:
+    aliases: свиток починки
+    nominative: свиток починки
+    genitive: свитка починки
+    dative: свитку починки
+    accusative: свиток починки
+    instrumental: свитком починки
+    prepositional: свитке починки
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 73
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1373
+73:
+  names:
+    aliases: 'разбухший '
+    nominative: разбухший свиток
+    genitive: разбухшего свитка
+    dative: разбухшему свитку
+    accusative: разбухший свиток
+    instrumental: разбухшим свитком
+    prepositional: разбухшем свитке
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 74
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1374
+74:
+  names:
+    aliases: свиток устрашения
+    nominative: свиток устрашения
+    genitive: свитка устрашения
+    dative: свитку устрашения
+    accusative: свиток устрашения
+    instrumental: свитком устрашения
+    prepositional: свитке устрашения
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 75
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1375
+75:
+  names:
+    aliases: свиток кражи жизни
+    nominative: свиток кражи жизни
+    genitive: свитка кражи жизни
+    dative: свитку кражи жизни
+    accusative: свиток кражи жизни
+    instrumental: свитком кражи жизни
+    prepositional: свитке кражи жизни
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 76
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1376
+76:
+  names:
+    aliases: свиток ловчего
+    nominative: свиток ловчего
+    genitive: свитка ловчего
+    dative: свитку ловчего
+    accusative: свиток ловчего
+    instrumental: свитком ловчего
+    prepositional: свитке ловчего
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 77
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1377
+77:
+  names:
+    aliases: мерцающий свиток
+    nominative: мерцающий свиток
+    genitive: мерцающего свитка
+    dative: мерцающему свитку
+    accusative: мерцающий свиток
+    instrumental: мерцающим свитком
+    prepositional: мерцающем свитке
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 78
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1378
+78:
+  names:
+    aliases: свиток лечения расслабленности
+    nominative: свиток лечения расслабленности
+    genitive: свитка лечения расслабленности
+    dative: свитку лечения расслабленности
+    accusative: свиток лечения расслабленности
+    instrumental: свитком лечения расслабленности
+    prepositional: свитке лечения расслабленности
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 79
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1379
+79:
+  names:
+    aliases: свиток полной слепоты
+    nominative: свиток полной слепоты
+    genitive: свитка полной слепоты
+    dative: свитку полной слепоты
+    accusative: свиток полной слепоты
+    instrumental: свитком полной слепоты
+    prepositional: свитке полной слепоты
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 81
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1380
+80:
+  names:
+    aliases: свиток слепцов
+    nominative: свиток слепцов
+    genitive: свитка слепцов
+    dative: свитку слепцов
+    accusative: свиток слепцов
+    instrumental: свитком слепцов
+    prepositional: свитке слепцов
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 82
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1381
+81:
+  names:
+    aliases: свиток долгой тишины
+    nominative: свиток долгой тишины
+    genitive: свитка долгой тишины
+    dative: свитку долгой тишины
+    accusative: свиток долгой тишины
+    instrumental: свитком долгой тишины
+    prepositional: свитке долгой тишины
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 83
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1382
+82:
+  names:
+    aliases: свиток несокрушимого здоровья
+    nominative: свиток несокрушимого здоровья
+    genitive: свитка несокрушимого здоровья
+    dative: свитку несокрушимого здоровья
+    accusative: свиток несокрушимого здоровья
+    instrumental: свитком несокрушимого здоровья
+    prepositional: свитке несокрушимого здоровья
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 84
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1383
+83:
+  names:
+    aliases: свиток неупокоенного
+    nominative: свиток неупокоенного
+    genitive: свитка неупокоенного
+    dative: свитку неупокоенного
+    accusative: свиток неупокоенного
+    instrumental: свитком неупокоенного
+    prepositional: свитке неупокоенного
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 85
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1384
+84:
+  names:
+    aliases: свиток чародейского щита
+    nominative: свиток чародейского щита
+    genitive: свитка чародейского щита
+    dative: свитку чародейского щита
+    accusative: свиток чародейского щита
+    instrumental: свитком чародейского щита
+    prepositional: свитке чародейского щита
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 86
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1385
+85:
+  names:
+    aliases: свиток печати
+    nominative: свиток печати
+    genitive: свитка печати
+    dative: свитку печати
+    accusative: свиток печати
+    instrumental: свитком печати
+    prepositional: свитке печати
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 87
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1386
+86:
+  names:
+    aliases: свиток молчальников
+    nominative: свиток молчальников
+    genitive: свитка молчальников
+    dative: свитку молчальников
+    accusative: свиток молчальников
+    instrumental: свитком молчальников
+    prepositional: свитке молчальников
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 88
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1387
+87:
+  names:
+    aliases: свиток болтливости
+    nominative: свиток болтливости
+    genitive: свитка болтливости
+    dative: свитку болтливости
+    accusative: свиток болтливости
+    instrumental: свитком болтливости
+    prepositional: свитке болтливости
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 89
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1388
+88:
+  names:
+    aliases: свиток легких ран
+    nominative: свиток легких ран
+    genitive: свитка легких ран
+    dative: свитку легких ран
+    accusative: свиток легких ран
+    instrumental: свитком легких ран
+    prepositional: свитке легких ран
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 90
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1389
+89:
+  names:
+    aliases: свиток серьезных ран
+    nominative: свиток серьезных ран
+    genitive: свитка серьезных ран
+    dative: свитку серьезных ран
+    accusative: свиток серьезных ран
+    instrumental: свитком серьезных ран
+    prepositional: свитке серьезных ран
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 91
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1390
+90:
+  names:
+    aliases: свиток тяжелых ран
+    nominative: свиток тяжелых ран
+    genitive: свитка тяжелых ран
+    dative: свитку тяжелых ран
+    accusative: свиток тяжелых ран
+    instrumental: свитком тяжелых ран
+    prepositional: свитке тяжелых ран
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 92
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1391
+91:
+  names:
+    aliases: свиток всеобщего проклятия
+    nominative: свиток всеобщего проклятия
+    genitive: свитка всеобщего проклятия
+    dative: свитку всеобщего проклятия
+    accusative: свиток всеобщего проклятия
+    instrumental: свитком всеобщего проклятия
+    prepositional: свитке всеобщего проклятия
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 93
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1392
+92:
+  names:
+    aliases: свиток божественного суда
+    nominative: свиток божественного суда
+    genitive: свитка божественного суда
+    dative: свитку божественного суда
+    accusative: свиток божественного суда
+    instrumental: свитком божественного суда
+    prepositional: свитке божественного суда
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 94
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1393
+93:
+  names:
+    aliases: свиток перелетных птиц
+    nominative: свиток перелетных птиц
+    genitive: свитка перелетных птиц
+    dative: свитку перелетных птиц
+    accusative: свиток перелетных птиц
+    instrumental: свитком перелетных птиц
+    prepositional: свитке перелетных птиц
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 95
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1394
+94:
+  names:
+    aliases: свиток бравой дружины
+    nominative: свиток бравой дружины
+    genitive: свитка бравой дружины
+    dative: свитку бравой дружины
+    accusative: свиток бравой дружины
+    instrumental: свитком бравой дружины
+    prepositional: свитке бравой дружины
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 96
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1395
+95:
+  names:
+    aliases: свиток отдохновения
+    nominative: свиток отдохновения
+    genitive: свитка отдохновения
+    dative: свитку отдохновения
+    accusative: свиток отдохновения
+    instrumental: свитком отдохновения
+    prepositional: свитке отдохновения
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 97
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1396
+96:
+  names:
+    aliases: свиток каменного проклятия
+    nominative: свиток каменного проклятия
+    genitive: свитка каменного проклятия
+    dative: свитку каменного проклятия
+    accusative: свиток каменного проклятия
+    instrumental: свитком каменного проклятия
+    prepositional: свитке каменного проклятия
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 98
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1397
+97:
+  names:
+    aliases: свиток полного брюха
+    nominative: свиток полного брюха
+    genitive: свитка полного брюха
+    dative: свитку полного брюха
+    accusative: свиток полного брюха
+    instrumental: свитком полного брюха
+    prepositional: свитке полного брюха
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 103
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1398
+98:
+  names:
+    aliases: свиток зимнего ветра
+    nominative: свиток зимнего ветра
+    genitive: свитка зимнего ветра
+    dative: свитку зимнего ветра
+    accusative: свиток зимнего ветра
+    instrumental: свитком зимнего ветра
+    prepositional: свитке зимнего ветра
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 104
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.
+
+# Object #1399
+99:
+  names:
+    aliases: свиток рыб
+    nominative: свиток рыб
+    genitive: свитка рыб
+    dative: свитку рыб
+    accusative: свиток рыб
+    instrumental: свитком рыб
+    prepositional: свитке рыб
+  short_desc: Перевязанный тесемкой свиток лежит на земле.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 20
+    - 108
+    - -1
+    - -1
+  weight: 1
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток берестяной пергаментный
+      description: |2
+        Это короткий свиток, стянутый тесемкой. Если его развернуть,
+        то станут видны тесные строчки диковинных рун. При попытке
+        запомнить их в голове начинает неприятно звенеть, а земля
+        под ногами слегка покачивается.

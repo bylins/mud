@@ -1,0 +1,613 @@
+# Triggers for zone 27
+
+# Trigger #2700
+0:
+  name: Осенние песни 1
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kReceive
+  script: |-2
+    set owner %self.WornBy%
+    if !%owner%
+      halt
+    end
+    switch %random.10%
+      case 1
+        oforce %owner% кричать Ох, наша жита реденька, забалела сярединка. Ой, нам пара дамой идти, на тёплаю вячерюшку. На тёплаю вячерюшку, на мягкаю пастелюшку.
+      break
+      case 2
+        oforce %owner% кричать Как на нашей нивке сягодни обжинки. Слава Богу!Видить моё око, что край недалёко. Слава Богу! До краю дожнёмся, горелки напьёмся. Слава Богу!
+      break
+      case 3
+        oforce %owner% кричать Хадил казёл пу мяжи, дивовался барады. Дива, дива! Чья же ета барада чорным шолкам увита? Дива, дива!
+        чорнам шолкам увита, сытым мёдам аблита? Дива, дива!
+      break
+      case 4
+        oforce %owner% кричать Иванова барада чорным шолкам увита. Дива, дива! Чорным шолкам увита, сытым мёдам аблита. Дива, дива!
+      break
+    end
+    break
+    done
+
+# Trigger #2701
+1:
+  name: Осенние песни 2
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kReceive
+  script: |-2
+    set owner %self.WornBy%
+    if !%owner%
+      halt
+    end
+    switch %random.10%
+      case 1
+        oforce %owner% кричать Вейся мы, хмель, перевейся, На нашу сторонку, Как на нашей на сторонке приволье большое!
+      break
+      case 2
+        oforce %owner% кричать Эх, приволье - то большое, мужики богаты! Что мужики - то богаты, каменны палаты!
+      break
+      case 3
+        oforce %owner% кричать Эх, каменны палаты, двери золотые, Что маковки литые, ставни расписные!
+      break
+      case 4
+        oforce %owner% кричать Ой, ты, красный плевел, не родись на полю. Родись при конце, при конце дороги!
+      break
+    end
+    break
+    done
+
+# Trigger #2702
+2:
+  name: Осенние песни 3
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kReceive
+  script: |-2
+    set owner %self.WornBy%
+    if !%owner%
+      halt
+    end
+    switch %random.10%
+      case 1
+        oforce %owner% кричать Жнеи молодые, Серпы золотые, Нива долговая, Постать широкая, По месяцу жали...
+      break
+      case 2
+        oforce %owner% кричать Вы зазвоньте, звоны, Во всем чистом поле. Взвеселите боже господа! Мы обжали ему ниву, Уж мы жали, жали, Уж мы ем радели...
+      break
+      case 3
+        oforce %owner% кричать Чья то красная нивка? А кто ее зерном сеял, - Люба бы му всякая денек
+        золотом бы любо пыхтел!
+      break
+      case 4
+        oforce %owner% кричать А кто ╖╖розно пахал, - А кто ее вдоль смичив, - Ладно бы ся на все ╕мав! Сладко бы, випочив!
+      break
+    end
+    break
+    done
+
+# Trigger #2703
+3:
+  name: Осенние песни 4
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kReceive
+  script: |-2
+    set owner %self.WornBy%
+    if !%owner%
+      halt
+    end
+    switch %random.10%
+      case 1
+        oforce %owner% кричать Там на горойце три панинойце ячмень жнут. Гей милый боже, кто же им поможет?
+      break
+      case 2
+        oforce %owner% кричать Не вижнуть! Соненько низко, вечеройка около, не вижнуть! Гей милый боже, кто же им поможет?
+      break
+      case 3
+        oforce %owner% кричать Пташеньки летают, снопойки зношають, не снесут! Гей милый боже, кто же им поможет?
+      break
+      case 4
+        oforce %owner% кричать Седой соколейко копойкы составляет, не возложит! Гей милый боже, кто же им поможет?
+      break
+      case 5
+        oforce %owner% кричать Зозулька кует, копойкы считает, не злечить! Гей милый боже, кто же им поможет?
+      break
+    end
+    break
+    done
+
+# Trigger #2704
+4:
+  name: Осенние песни 5
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kReceive
+  script: |-2
+    set owner %self.WornBy%
+    if !%owner%
+      halt
+    end
+    switch %random.10%
+      case 1
+        oforce %owner% кричать Ой ночи, широко поле, Приходите завтра раненько, Рожь-житечко! Как сонейко сойдет.
+      break
+      case 2
+        oforce %owner% кричать Спокойной ночи, на здоровье, Росиця опадут Жнеи молодые, серпы золотые! Да приносите по бохону хлеба...
+      break
+      case 3
+        oforce %owner% кричать Там во поле колодец, Златые серпы мали, Вокруг пшениченька. Серебряные юрочки, Там женьчики жали, Вязавшие снопочки.
+      break
+      case 4
+        oforce %owner% кричать Перепелочка - малый птица, малый птица, под чертой летала, летала. И колосочки сбирала, сбирала. Да в снопочки вязала, вязала. И в копоньки составляла, составляла.
+      break
+    end
+    break
+    done
+
+# Trigger #2705
+5:
+  name: Осенние песни 6
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kReceive
+  script: |-2
+    set owner %self.WornBy%
+    if !%owner%
+      halt
+    end
+    switch %random.10%
+      case 1
+        oforce %owner% кричать Из бора темная хмаронька иде, Родна матушка впереди. Молода дивонька пшеницу жнет. Не водой оболье мя - Не страшно ли тобе, дивонька? - Счастье-судьбу принесе ме. Темной этой хмароньки.
+      break
+      case 2
+        oforce %owner% кричать Ох, темна хмаронька иде.Не водой мя намочит - Чего ж бояться? Счастье-судьбу ме пророчит... В хмароньце - весь мой род.
+      break
+      case 3
+        oforce %owner% кричать Ой, сколько в небе звезд, столь во полекопочок!
+      break
+      case 4
+        oforce %owner% кричать Моие хазяючка во дому живет, Варила вареники в сметане, И женчикам вечероньку готовше...Идут мои женчики любимые.
+      break
+    end
+    break
+    done
+
+# Trigger #2706
+6:
+  name: Осенние песни 7
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kReceive
+  script: |-2
+    set owner %self.WornBy%
+    if !%owner%
+      halt
+    end
+    switch %random.10%
+      case 1
+        oforce %owner% кричать Будем, сестры, братья, рожь жать, во ржи бога искать. Эх, нашли бога при барильце, да при красенька водоньке! Ха!
+      break
+      case 2
+        oforce %owner% кричать До конца, женчики, до конца, Пойдем домой за солнца...
+      break
+      case 3
+        oforce %owner% кричать Ой нивонько, нивонько, Верни нашу силоньку. Как мы тя зажнали, То мы силоньку мали, Топерь мы марнесеньки, Яко лебедь белесенек.
+      break
+      case 4
+        oforce %owner% кричать Ужесьмо посеяли, поорали, поорали, хоть живяти на есьм рок дочекали, дочекали.
+      break
+    end
+    break
+    done
+
+# Trigger #2707
+7:
+  name: Осенние песни 8
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kReceive
+  script: |-2
+    set owner %self.WornBy%
+    if !%owner%
+      halt
+    end
+    switch %random.10%
+      case 1
+        oforce %owner% кричать Перепелонько белоя, Перепелонько мала, Где жеж ты буде сидела? Где жеж, буде прятала?
+      break
+      case 2
+        oforce %owner% кричать Нет ржи ни пшеницы, Мы рожь уже пожали, На господне нивце. Да в снопы сложили.
+      break
+      case 3
+        oforce %owner% кричать Женчики кружинають, У наше господа Пшеницы дожинають. Во златы ворота.
+      break
+      case 4
+        oforce %owner% кричать Наши женчики с поля идут, То не голосок, то жнецы На двор голосок подают: Привели д╕воньку в венце.
+      break
+    end
+    break
+    done
+
+# Trigger #2708
+8:
+  name: Осенние песни 9
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kReceive
+  script: |-2
+    set owner %self.WornBy%
+    if !%owner%
+      halt
+    end
+    switch %random.10%
+      case 1
+        oforce %owner% кричать Конец нивоньце, конец, Расписныя косяки, Буде воплетать венец. Сделаше во дню жатву.
+      break
+      case 2
+        oforce %owner% кричать То с ржи, то из барвинка Миры, месяцу, с гора, Да на красну девку. Чтоб была видна дорога...
+      break
+      case 3
+        oforce %owner% кричать Не лежи, веноньку, не лежи при зелено границы
+        подведи головоньку, время тебе додомоньку.
+      break
+      case 4
+        oforce %owner% кричать ...Пусть я в стороне отдохну, Буйно ветра наслыша, Ой пока пойду на ниву. Мелкого дождя напивше.
+      break
+    end
+    break
+    done
+
+# Trigger #2709
+9:
+  name: Осенние песни 10
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kReceive
+  script: |-2
+    set owner %self.WornBy%
+    if !%owner%
+      halt
+    end
+    switch %random.10%
+      case 1
+        oforce %owner% кричать Наш господе молоденек, Во счастливу годиноньку. Подне конь вороненький, Добру судьбу мает. Выехан на нивушку На солнца обжину.
+      break
+      case 2
+        oforce %owner% кричать А у наше господа сивый конь, Ой женчики, женчики, вы мои, Ой летает он по полю, как сокол. Ой женчики, женчики, вы мои,
+      break
+      case 3
+        oforce %owner% кричать Аль дожали житечко вы мне? Ой женчики, женчики, вы мои, Ой летает конь по полю, летает. - Ой дожали житечко, дожали,
+      break
+      case 4
+        oforce %owner% кричать Ой на небе ясно месяц с зорою, Ой на небе ясный месяц с звездами, Выйди, выйди, боже, с жиною! Выйди, выйди, боже, с детками!
+      break
+    end
+    break
+    done
+
+# Trigger #2710
+10:
+  name: Осенние песни 11
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kReceive
+  script: |-2
+    set owner %self.WornBy%
+    if !%owner%
+      halt
+    end
+    switch %random.10%
+      case 1
+        oforce %owner% кричать Жала Анечка шелкову траву на заре, Гей, по заре, по месяцу ясну.
+      break
+      case 2
+        oforce %owner% кричать Ой выжали житечко в добрый час, То не будет житечко полегать. А терь, господе, частуй нас! А как буде во благо поить, Ой как буде, божене, угощать, Буде тебе житечко выдержать.
+      break
+      case 3
+        oforce %owner% кричать Сударыня пышна за воротонька вышла, Стала си в воротах в красных сапогах. Тарелочку держит, женчиков привечае, Венчика выглядит...
+      break
+      case 4
+        oforce %owner% кричать Хозяюнька калину ломала - Спи, господе, довольно, Да ему в главах кладяше:
+        уже твоея пшеница в овине.
+      break
+    end
+    break
+    done
+
+# Trigger #2711
+11:
+  name: Осенние песни 12
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kReceive
+  script: |-2
+    set owner %self.WornBy%
+    if !%owner%
+      halt
+    end
+    switch %random.10%
+      case 1
+        oforce %owner% кричать Что Ганночка девка по дворику ходит, Жнецов поздравит. Во долонях ключи носит, сундуки спирает...
+      break
+      case 2
+        oforce %owner% кричать Столы тесов╕╖, жнецы младост. Скатерти вымает, столы застилает. Ой, господень наш, обжиночок ваш. Гу-у-у!
+      break
+      case 3
+        oforce %owner% кричать Женьчичок, бреньчичок вылетае, Если бы-то забито н╕женьку пробито, Высоко н╕женьку поднимает,
+        во зелено лугу, бери себе вторую!
+      break
+      case 4
+        oforce %owner% кричать Пошли в поле жнецы жать, Серпы взяли, хлеб забыли, И забыли серпы взять, То же то такие жнецы были.
+      break
+    end
+    break
+    done
+
+# Trigger #2712
+12:
+  name: Осенние песни 13
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kReceive
+  script: |-2
+    set owner %self.WornBy%
+    if !%owner%
+      halt
+    end
+    switch %random.10%
+      case 1
+        oforce %owner% кричать Каравай мой румяный, Али боги тя лепили? Здравствуй, здравствуй, святой каравай, Здравствуй, здравствуй, гость из божье дома. Где же ты был, свято каравай, Что же ты видел с божье дара?
+      break
+      case 2
+        oforce %owner% кричать - Ладо мое, Ладо мое, что есть на том краваи? Есть на нем зорка и месяц ясненький. - Ладо мое, Ладо мое, что есть на том краваи? Есть на нем райски пташеньки.
+      break
+      case 3
+        oforce %owner% кричать - Ладо мое, Ладо мое, что есть на том краваи? - Есть на нем житны колосья. - Ладо мое, Ладо мое, что есть на том краваи? Есть на нем вишни и черешни...
+      break
+      case 4
+        oforce %owner% кричать Черно Велесе за плугом ходе, А боже Стрибож пшеничку сее. Гром Перуне волоньки водяше, Гей Ярило се заволочував...
+      break
+    end
+    break
+    done
+
+# Trigger #2713
+13:
+  name: Осенние песни 14
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kReceive
+  script: |-2
+    set owner %self.WornBy%
+    if !%owner%
+      halt
+    end
+    switch %random.10%
+      case 1
+        oforce %owner% кричать Вышли в поле косари, кося утром на заре. Эй вы, нуте, косари, потому нерано начали: Хоть не рано начали, так много утяли!
+      break
+      case 2
+        oforce %owner% кричать Загрустила бедна удовонька, Косари косят, а ветер повевает, Что не кошена дубровонька. А бедна вдова с жалости смирает.
+      break
+      case 3
+        oforce %owner% кричать Найма косарей семьдесят чотыре. Над малыми дятьми рыдает... Чтобы покосили горы и долины. Косари косят, ветер повивает...
+      break
+      case 4
+        oforce %owner% кричать К грубленоя крайницы, Где моя милая говоряше с другим. Брать холодно водицы. Как пойду я оврагом, яром, долиной, А там браше воду чужая жона.
+      break
+    end
+    break
+    done
+
+# Trigger #2714
+14:
+  name: Осенние песни 15
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kReceive
+  script: |-2
+    set owner %self.WornBy%
+    if !%owner%
+      halt
+    end
+    switch %random.10%
+      case 1
+        oforce %owner% кричать Ой я косил сено-косил сено, я отаву. Ой любил я дивчиноньку белокуру, черновласу.
+      break
+      case 2
+        oforce %owner% кричать Ой я косил сено-траву косил я осоку, Ой любил я дивчиноньку тоненьку, высоку.
+      break
+      case 3
+        oforce %owner% кричать Ой косил я вперед гречку, а потом пшеницу, Ой любил я девушек, а топерь женчину.
+      break
+      case 4
+        oforce %owner% кричать Чиняй, господе, погреба, Уже и покопили, боже повеселили. Потому что уже сено погребли, В копне положили, мы и не почивали.
+      break
+    end
+    break
+    done
+
+# Trigger #2715
+15:
+  name: Осенние песни 16
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kReceive
+  script: |-2
+    set owner %self.WornBy%
+    if !%owner%
+      halt
+    end
+    switch %random.10%
+      case 1
+        oforce %owner% кричать Ой, чьи же то гребцы, девушки и парни? Самые младые, грабли золотеньки, Зубчики терновыя, сами чорнобровы.
+      break
+      case 2
+        oforce %owner% кричать Ой мы сено громадили, А еще будем копить, Чернявы понравились, Чтобы луче приманить: Чернява кучерява. Ще чорняв╕ше, ще кудряв╕ше.
+      break
+    end
+    break
+    done
+
+# Trigger #2716
+16:
+  name: белка болтает и поет
+  attach_type: kMobTrigger
+  narg: 75
+  arglist: none
+  trigger_types:
+    - kRandomGlobal
+    - kRandom
+  script: |-2
+    switch %random.22%
+      case 1
+        петь
+      break
+      case 2
+        г Куда я попала?
+      break
+      case 3
+        говор Где тут все наши?
+      break
+      case 4
+        say Братан, а ты часом не скриптер?
+        wait 5 s
+        say  Мы тут все проверим, если че!
+        wait 5 s
+        say Ану признавайся! скриптер, или нет?
+      break
+      case 5
+        say Ща, как позову наших белок с палаты!
+      break
+      case 6
+        say Братан, а может скинемся на пузырь?
+        say У тебя сколько гривень есть?
+      break
+      case 7
+        say Душа просит веселия, а веселиться не с кем!
+        грусть
+      break
+      case 8
+        say Братан, не будь жлобом, давай пару гривень, и идем за пузырем!
+        морщ
+      break
+      default
+        eval target %random.pc%
+        плюн %target.name%
+      break
+    done
+
+# Trigger #2717
+17:
+  name: навоз
+  attach_type: kObjTrigger
+  narg: 100
+  arglist: покопаться
+  trigger_types:
+    - kCommand
+  script: |-2
+    if %arg.contains(навоз)%
+      %send% %actor% _Вы долго копались в беличьем навозе и нашли изумрудный орешко.
+      %echoaround% %actor% %actor.iname% начал%actor.g% копаться в беличьем навозе и что-то там нашел.
+      %load% obj 2741
+      %purge% %self%
+      detach 2717 %self%
+    else
+      %send% %actor% Что, прямо здесь? Или вы о чем?
+    end
+
+# Trigger #2718
+18:
+  name: орешко
+  attach_type: kObjTrigger
+  narg: 2
+  arglist: расколоть
+  trigger_types:
+    - kCommand
+  script: |-2
+    if %arg% != орешко
+      %send% %actor% Вы чуть не раскололи себе яйца, прицельтесь получше
+      halt
+    end
+    %send% %actor%  Вы сожрали орешек, не лопнуть бы
+    dgcast 'исцеление' %actor%
+    %purge% %self%
+
+# Trigger #2719
+19:
+  name: конфета
+  attach_type: kObjTrigger
+  narg: 100
+  arglist: none
+  trigger_types:
+    - kSpeech
+  script: |-2
+    if %self.carriedby%
+      %send% %self.carriedby% Живительная сила окружила вас.
+      eval pers %self.carriedby%
+      %echoaround% %pers% Живительная сила окружила %pers.rname%.
+      dgcast 'исцеление' %self.carriedby%
+    end
+
+# Trigger #2720
+20:
+  name: load конфет
+  attach_type: kObjTrigger
+  narg: 100
+  arglist: none
+  trigger_types:
+    - kLoad
+  script: |-2
+    wait 1
+    eval i  0
+    while %i% < 10
+      %load% obj 2743
+      calcuid konf 2743 obj
+      %konf.put(%self%)%
+      eval i   %i% +1
+    done
+
+# Trigger #2750
+50:
+  name: test exp
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kSpeech
+    - kGreet
+    - kEntry
+  script: |-2
+    echo %actor.maxgainexp%
+    echo %actor.remort%
+    eval maxexp (%actor.MaxGainExp%/2)*(10+%actor.remort%)
+    echo %maxexp%
+    echo %actor.getquest27%
+    eval sumaward %maxexp%
+    echo изначально %sumaward%
+    while %sumaward% > 0
+      if %sumaward% > %actor.MaxGainExp%
+        eval exp %actor.MaxGainExp%
+      else
+        eval exp %sumaward%
+      end
+      echo начисляем %exp%
+      eval sumaward %sumaward%-%exp%
+      echo осталось %sumaward%
+    done

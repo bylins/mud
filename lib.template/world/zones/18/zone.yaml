@@ -1,0 +1,13 @@
+# Zone #18
+
+vnum: 18
+name: 'Системная зона 18 -- стандартные свитки #2'
+top_room: 1899
+lifespan: 30
+reset_mode: 0
+reset_idle: 0
+zone_type: 0
+mode: 0  # level
+entrance: 1899
+under_construction: 0
+zone_group: 1  # solo

@@ -1,0 +1,13 @@
+# Zone #21
+
+vnum: 21
+name: Системная зона 21 -- товары стандартных магазинов (одежда, броня, экипировка)
+top_room: 2199
+lifespan: 30
+reset_mode: 0
+reset_idle: 0
+zone_type: 0
+mode: 0  # level
+entrance: 2199
+under_construction: 0
+zone_group: 1  # solo

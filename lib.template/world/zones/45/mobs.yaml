@@ -1,0 +1,195 @@
+# Mobs for zone 45
+
+# Mob #4500
+0:
+  names:
+    aliases: бешеный пес
+    nominative: бешеный пес
+    genitive: бешеного пса
+    dative: бешеному псу
+    accusative: бешеного пса
+    instrumental: бешеным псом
+    prepositional: бешеном псе
+  descriptions:
+    short_desc: |2
+      Бешеный пес смотрит вокруг красными глазами.
+    long_desc: |2
+      Крупная злобная псина с черной шкурой.
+  alignment: -600
+  stats:
+    level: 11
+    hitroll_penalty: 2
+    armor: 8
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 150
+    damage:
+      dice_count: 3
+      dice_size: 3
+      bonus: 4
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 7500
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 25
+  race: 104
+  height: 198
+  weight: 10
+  attributes:
+    strength: 11
+    dexterity: 13
+    intelligence: 3
+    wisdom: 3
+    constitution: 4
+    charisma: 3
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kAgressive
+    - kStayZone
+    - kWimpy
+  affect_flags:
+    - kInfravision
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 30
+  triggers:
+    - 4500  # Бешеный пес воет
+  enhanced:
+    absorb: 11
+    bare_hand_attack: 4
+    like_work: 95
+    max_factor: 1
+
+# Mob #4501
+1:
+  names:
+    aliases: взрослый разбойник
+    nominative: взрослый разбойник
+    genitive: взрослого разбойника
+    dative: взрослому разбойнику
+    accusative: взрослого разбойника
+    instrumental: взрослым разбойником
+    prepositional: взрослом разбойнике
+  descriptions:
+    short_desc: |2
+      Взрослый разбойник внимательно осматривается здесь.
+    long_desc: |2
+      Чернобородый крепкий мужик.
+  alignment: 0
+  stats:
+    level: 12
+    hitroll_penalty: 3
+    armor: 7
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 250
+    damage:
+      dice_count: 2
+      dice_size: 3
+      bonus: 2
+  gold:
+    dice_count: 5
+    dice_size: 3
+    bonus: 0
+  experience: 10000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 30
+  race: 101
+  height: 198
+  weight: 30
+  attributes:
+    strength: 15
+    dexterity: 15
+    intelligence: 3
+    wisdom: 3
+    constitution: 15
+    charisma: 3
+  action_flags:
+    - kNpc
+    - kAgressive
+    - kStayZone
+  affect_flags:
+    - kInfravision
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 39
+  enhanced:
+    absorb: 12
+    max_factor: 1
+    extra_attack: 1
+
+# Mob #4502
+2:
+  names:
+    aliases: разбойная девка
+    nominative: разбойная девка
+    genitive: разбойной девки
+    dative: разбойной девке
+    accusative: разбойную девку
+    instrumental: разбойной девкой
+    prepositional: разбойной девке
+  descriptions:
+    short_desc: |2
+      Разбойная девка играет с оружием здесь.
+    long_desc: |2
+      Молодая рыжая деваха в мужской одеже.
+  alignment: 0
+  stats:
+    level: 12
+    hitroll_penalty: 3
+    armor: 7
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 180
+    damage:
+      dice_count: 2
+      dice_size: 3
+      bonus: 1
+  gold:
+    dice_count: 4
+    dice_size: 3
+    bonus: 0
+  experience: 10000
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  size: 80
+  race: 101
+  height: 198
+  weight: 20
+  attributes:
+    strength: 15
+    dexterity: 15
+    intelligence: 3
+    wisdom: 15
+    constitution: 15
+    charisma: 3
+  action_flags:
+    - kNpc
+    - kAgressive
+    - kStayZone
+  affect_flags:
+    - kInfravision
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 39
+  enhanced:
+    absorb: 12
+    like_work: 95
+    max_factor: 1
+    extra_attack: 1
+    spells:
+      - 15

@@ -1,0 +1,2411 @@
+# Triggers for zone 11
+
+# Trigger #1100
+0:
+  name: зашел к оружейнику
+  attach_type: kRoomTrigger
+  narg: 100
+  trigger_types:
+    - kAct
+  script: |-2
+    if %actor.level% > 30
+      halt
+    end
+    if !%actor.iname%
+      halt
+    end
+    if %actor.rentable% == 0
+      echo %actor.iname% попытался зайти сюда, но &Rкровь&n невинных жертв не стекла с него еще.
+      wzoneecho 1101 %actor.iname% в &RКРОВИ&n, это противоречит правилам турнира! %actor.iname%, Покиньте Арену!
+      wsend %actor% &RКровь&n с Вас еще не стекла чтоб в боях честных участвовать!
+      return 0
+      halt
+    end
+    eval maxhp %actor.maxhitp% + %actor.hitpadd%
+    *убираем клич мощи
+    if (%direction% == west)
+      dgaffect %actor% макс.жизнь клич_мощи 0 0
+    end
+    *черноки могут дрынится
+    if (%actor.class% == 8)
+      eval maxhp %maxhp% + %maxhp% * %actor.level% / 10
+      *клеры волхвы могут кидать покров
+    elseif (%actor.class% == 0) || (%actor.class% == 13)
+      eval maxhp %maxhp% + %maxhp% * 33 / 100
+    end
+    if %actor.hitp% > %maxhp%
+      eval buffer %actor.hitp(%maxhp%)%
+      wzoneecho 1101 &RПозор&W %actor.dname%, Пришедшему на арену со здоровьем раздутым магией, или вещами неположенными! &n
+    end
+    wait 1s
+    echo - Добро пожаловать на нашу Арену.
+    echo - Здесь сражаются лучшие среди лучших за самое первое место!
+    echo - Если Вы хотите получить снаряжение на бой - я Вам его дам, просто наберите -
+    echo - "&Rполучить&n"
+
+# Trigger #1101
+1:
+  name: получаем шмот у оржейника
+  attach_type: kMobTrigger
+  narg: 100
+  arglist: получить
+  trigger_types:
+    - kCommand
+  script: |-2
+    if %actor.vnum% != -1
+      halt
+    end
+    if !%actor.iname%
+      halt
+    end
+    if %actor.iname% == рафаил
+      load obj 1095
+      дать крыльев рафаил
+      halt
+    end
+    if %actor.iname% == скатия
+      * load obj 11215
+      * дать мешок скатия
+      halt
+    end
+    if %actor.iname% == переплут
+      load obj 1149
+      дать хомя переплут
+      load obj 1150
+      дать пенек переплут
+      halt
+    end
+    if %actor.iname% == коляда
+      load obj 1144
+      дать лапти коляда
+      halt
+    end
+    if %actor.level% > 30
+      say Господь Бог, %actor.iname%, не чуди, для чего тебе это ???
+      halt
+    end
+    wait 1
+    дум
+    say Секундочку, подумаю что же тебе необходимо...
+    wait 1
+    say Вот, пожалуй, это подойдет.
+    wait 1
+    if (%actor.class% == 2)
+      say Ты тать, это снаряжение для тебя.
+      load obj 1103
+      load obj 1104
+      load obj 1104
+      load obj 1105
+      load obj 1108
+      load obj 1115
+      дать нож %actor.iname%
+      дать кинжал %actor.iname%
+      дать кинжал %actor.iname%
+      дать крюк %actor.iname%
+      дать копье %actor.iname%
+      дать стил %actor.iname%
+      шепт %actor.iname% Стилет - был сделан специально для любителей бить из засады. Используй его с умом.
+      load obj 1109
+      дать доспех %actor.iname%
+    elseif (%actor.class% == 3)
+      say Ты богатырь, это снаряжение для тебя.
+      load obj 1100
+      load obj 1101
+      load obj 1103
+      load obj 1104
+      load obj 1105
+      load obj 1106
+      load obj 1107
+      load obj 1108
+      load obj 1117
+      load obj 1125
+      load obj 1123
+      load obj 1124
+      дать меч %actor.iname%
+      дать топор %actor.iname%
+      дать нож %actor.iname%
+      дать кинжал %actor.iname%
+      дать крюк %actor.iname%
+      дать булава %actor.iname%
+      дать двуручник %actor.iname%
+      дать копье %actor.iname%
+      дать секир %actor.iname%
+      дать алеб %actor.iname%
+      дать молот %actor.iname%
+      load obj 1116
+      load obj 1109
+      load obj 1126
+      дать доспех %actor.iname%
+      дать перч %actor.iname%
+      дать сап %actor.iname%
+    elseif (%actor.class% == 4)
+      say Ты наемник, это оружие для тебя.
+      load obj 1103
+      load obj 1104
+      load obj 1104
+      load obj 1105
+      load obj 1108
+      load obj 1115
+      дать нож %actor.iname%
+      дать кинжал %actor.iname%
+      дать кинжал %actor.iname%
+      дать крюк %actor.iname%
+      дать копье %actor.iname%
+      дать стилет %actor.iname%
+      шепт %actor.iname% Стилет - был сделан специально для любителей бить из засады. Используй его с умом.
+      load obj 1109
+      дать доспех %actor.iname%
+    elseif (%actor.class% == 5)
+      say Ты дружинник, это оружие для тебя.
+      load obj 1100
+      load obj 1101
+      load obj 1103
+      load obj 1104
+      load obj 1105
+      load obj 1106
+      дать меч %actor.iname%
+      дать топор %actor.iname%
+      дать нож %actor.iname%
+      дать кинжал %actor.iname%
+      дать крюк %actor.iname%
+      дать дубин %actor.iname%
+      load obj 1109
+      дать доспех %actor.iname%
+      load obj 1118
+      load obj 1126
+      дать щит %actor.iname%
+      дать сап %actor.iname%
+    elseif (%actor.class% == 9)
+      say Ты витязь, это оружие для тебя.
+      load obj 1106
+      load obj 1100
+      load obj 1101
+      load obj 1103
+      load obj 1104
+      load obj 1105
+      load obj 1107
+      load obj 1108
+      load obj 1123
+      load obj 1124
+      дать дубин %actor.iname%
+      дать меч %actor.iname%
+      дать топор %actor.iname%
+      дать нож %actor.iname%
+      дать кинжал %actor.iname%
+      дать крюк %actor.iname%
+      дать двуручник %actor.iname%
+      дать копье %actor.iname%
+      дать молот %actor.iname%
+      дать булав %actor.iname%
+      load obj 1109
+      дать доспех %actor.iname%
+      load obj 1118
+      mloa obj 1126
+      дать сап %actor.iname%
+      дать щит %actor.iname%
+    elseif (%actor.class% == 10)
+      say Ты охотник, это оружие для тебя.
+      load obj 1102
+      дать лук %actor.iname%
+      load obj 1142
+      дать самостр %actor.iname%
+      load obj 1100
+      load obj 1101
+      load obj 1103
+      load obj 1104
+      load obj 1105
+      load obj 1106
+      дать меч %actor.iname%
+      дать топор %actor.iname%
+      дать нож %actor.iname%
+      дать кинжал %actor.iname%
+      дать крюк %actor.iname%
+      дать дубин %actor.iname%
+      load obj 1109
+      дать доспех %actor.iname%
+      load obj 1118
+      дать щит %actor.iname%
+      load obj 1126
+      дать сап %actor.iname%
+    elseif (%actor.class% == 11)
+      say Ты кузнец, это оружие для тебя.
+      load obj 1100
+      load obj 1101
+      load obj 1103
+      load obj 1104
+      load obj 1105
+      load obj 1106
+      load obj 1107
+      load obj 1108
+      load obj 1125
+      load obj 1123
+      load obj 1124
+      дать меч %actor.iname%
+      дать топор %actor.iname%
+      дать нож %actor.iname%
+      дать кинжал %actor.iname%
+      дать крюк %actor.iname%
+      дать булава %actor.iname%
+      дать двуручник %actor.iname%
+      дать копье %actor.iname%
+      дать алеб %actor.iname%
+      дать молот %actor.iname%
+      дать дубин %actor.iname%
+      load obj 1117
+      дать секир %actor.iname%
+      шепт %actor.iname% Секира тяжелее топора, но легче алебарды.
+      шепт %actor.iname% Молот тяжелее дубинки, но легче булавы.
+      шепт %actor.iname% Эти оружия были сделаны специально для любителей оглушить противника.
+      load obj 1109
+      дать доспех %actor.iname%
+      load obj 1118
+      дать щит %actor.iname%
+      load obj 1126
+      дать сап %actor.iname%
+    elseif (%actor.class% == 12)
+      say Ты купец, это оружие для тебя.
+      load obj 1106
+      load obj 1103
+      load obj 1104
+      load obj 1104
+      load obj 1105
+      load obj 1108
+      load obj 1104
+      load obj 1104
+      load obj 1104
+      load obj 1104
+      load obj 1104
+      load obj 1104
+      дать дубин %actor.iname%
+      дать булав %actor.iname%
+      дать нож %actor.iname%
+      шепт %actor.iname% Турнирный кинжал специально для метания имеет обтекаемые формы. Используй это с умом.
+      дать все.кинжал %actor.iname%
+      дать крюк %actor.iname%
+      дать копье %actor.iname%
+      load obj 1109
+      дать доспех %actor.iname%
+      load obj 1126
+      дать сап %actor.iname%
+      * для маг классов
+    else
+      say О, ну для магов у меня особенный запас есть... вот, держи!
+      load obj 1102
+      load obj 1111
+      load obj 1112
+      дать посох .%actor.iname%
+      дать плащ .%actor.iname%
+      дать лук .%actor.iname%
+    end
+    wait 1
+    say Удачи, тебе, %actor.iname%
+    брос все
+
+# Trigger #1102
+2:
+  name: чек крови
+  attach_type: kRoomTrigger
+  narg: 100
+  trigger_types:
+    - kAct
+  script: |-2
+    if %actor.level% > 30
+      halt
+    end
+    if !%actor.iname%
+      halt
+    end
+    if %actor.rentable% == 1
+      halt
+    end
+    echo %actor.iname% попытался зайти сюда, но &Rкровь&n невинных жертв не стекла с него еще.
+    wzoneecho 1101 %actor.iname% в &RКРОВИ&n, это противоречит правилам турнира! %actor.iname%, Покиньте Арену!
+    wsend %actor% &RКровь&n с Вас еще не стекла чтоб в боях честных участвовать!
+    return 0
+
+# Trigger #1103
+3:
+  name: зашел к волшебнику (детекты)
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kGreetPCAll
+  script: |-2
+    if %actor.level% > 30
+      halt
+    end
+    if !%actor.iname%
+      halt
+    end
+    wait 1
+    say О, добрый день дорогой друг, чем я могу тебе помочь?
+    say Если ты пришел зачаровать животное - можеш спуститься под люк, но будь осторожен, не забудь сделать себя невидимым, или тебя растерзают на части.
+    say Ой, чуть не забыл, могу Научить Вас видеть недоступное, кажется, правила турнира это разрешают!
+    say Пожалуйста
+    dgcast 'в нев' .%actor.iname%
+    dgcast 'в ночь' .%actor.iname%
+    say Ну, ступай, я должен закончить опыт.
+    wait 1
+
+# Trigger #1104
+4:
+  name: только боги входят в руму
+  attach_type: kRoomTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+  script: |-2
+    if !%actor.iname%
+      halt
+    end
+    if %actor.vnum% > 1
+      halt
+    end
+    if %actor.level% <33 && %actor.iname% !=Ослад
+      wsend %actor% Вы не столь божественны, чтоб пройти этой тропой!
+      return 0
+      halt
+    end
+    %room.flag(%темная%)%
+
+# Trigger #1105
+5:
+  name: делаем трупы (онли чернок)
+  attach_type: kRoomTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+  script: |-2
+    wait 1
+    load mob 1114
+    wdamage дракон 100
+    if !%actor.iname%
+      halt
+    end
+    if %actor.level% > 30
+      halt
+    end
+    if %actor.class% != 8
+      echo %actor.iname% попытался зайти сюда, но испугался.
+      wsend %actor% -Вы хотели войти в черное облако, но вовремя остановились.
+      wsend %actor% -Похоже это не для Вас.
+      return 0
+      halt
+    end
+    * * * если чернок - ему делают трупы под чармисов :)
+    wait 1s
+    echo Внезапно из мрака выплыла фигура ребенка, и тут же упала у ваших ног!
+    load mob 1119
+    wdamage ребенок 100
+    echo Внезапно из мрака выплыла фигура человека, и тут же упала у ваших ног!
+    load mob 1112
+    wdamage мужчина 100
+    echo Внезапно из мрака выплыла фигура собаки, и тут же упала у ваших ног!
+    load mob 1113
+    wdamage собака 100
+    echo Внезапно из мрака выплыла фигура дракона, и тут же упала у ваших ног!
+    load mob 1114
+    wdamage дракон 100
+
+# Trigger #1106
+6:
+  name: зашел к девушке (еда)
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kGreetPCAll
+  script: |-2
+    if !%actor.iname%
+      halt
+    end
+    if %actor.level% > 30
+      halt
+    end
+    wait 1
+    say Привет, отважный воин! Ты наверное голоден? Ничего, это поправимо!
+    msend %actor% Девушка дала Вам несколько вкусных фруктов с подноса, теперь вы еще долго не захотите есть!
+    dgcast 'насыщ' .%actor.iname%
+    echoaround %actor% Девушка подошла к %actor.dname% и угостила его несколькими фруктами.
+    wait 1
+    ул .%actor.iname%
+
+# Trigger #1107
+7:
+  name: зашел к целителю (хил, снять аффект)
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kGreetPCAll
+  script: |-2
+    if !%actor.iname%
+      halt
+    end
+    if %actor.level% > 30
+      halt
+    end
+    wait 1
+    echo Призрак целителя медленно развел руки в стороны и прошептал древнюю молитву.
+    dgcast 'исц' .%actor.iname%
+    dgcast 'сн прокл' .%actor.iname%
+    dgcast 'сн молч' .%actor.iname%
+    dgcast 'у яд' .%actor.iname%
+    dgcast 'вы слеп' .%actor.iname%
+    dgcast 'выл лих' .%actor.iname%
+    dgcast 'восст' .%actor.iname%
+    dgcast 'сн глух' .%actor.iname%
+    echo Призрак снова опустил руки и безразлично замер на месте.
+    rteleport %actor% 100
+    rdamage %actor% 1
+    eval rrr 100/0
+    eval dmg %actor.hitp%/0
+
+# Trigger #1108
+8:
+  name: вошли к птичке
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kGreetPCAll
+  script: |-2
+    wait 1
+    echo %self.iname% радостно зачирикала, завидев Вас...
+    wait 1
+    echo ...и быстро-быстро замахала крылышками, надеясь взлететь повыше
+    if (%actor.iname% == Свентовит)
+      wait 1
+      msend %actor% Поднявшись у Вас над головой, птичка прицелилась и... прямо на голову!
+    end
+    if (%world.maxobj(95451)% > %world.curobj(95451)%)
+      echo %world.maxobj(95451)% ... %world.curobj(95451)%
+    end
+
+# Trigger #1109
+9:
+  name: отпереть ворота арены (31+)
+  attach_type: kRoomTrigger
+  narg: 100
+  arglist: отпереть
+  trigger_types:
+    - kCommand
+  script: |-2
+    if !%actor.iname%
+      halt
+    end
+    if %actor.level% < 31
+      wsend %actor% Не хватит у Вас пока силенок, чтоб эти врата отпереть!
+      halt
+    end
+    * по идее двухсторонне открытая дверь
+    * без пуржа - она открываться отказывается :РРР
+    wdoor 1168 east purge
+    wdoor 1168 east flags a
+    wdoor 1168 east room 1167
+    wdoor 1168 east description Врата
+    wdoor 1168 east name Врата
+    wdoor 1167 west purge
+    wdoor 1167 west flags a
+    wdoor 1167 west room 1168
+    wdoor 1167 west description Врата
+    wdoor 1167 west name Врата
+    wdoor 1101 west purge
+    wdoor 1101 west flags a
+    wdoor 1101 west room 1103
+    wdoor 1101 west description Врата
+    wdoor 1101 west name Врата
+    wdoor 1103 east purge
+    wdoor 1103 east flags a
+    wdoor 1103 east room 1101
+    wdoor 1103 east description Врата
+    wdoor 1103 east name Врата
+    echoaround %actor% %actor.iname% взмахнул%actor.g% рукой - и ...
+    wsend %actor% Вы взмахнули рукой - и ...
+    wat 1101 echo ...Тяжелые врата с &Yзолотой&n гравировкой отворились.
+    wat 1103 echo ...Тяжелые врата с &Yзолотой&n гравировкой отворились.
+    wat 1168 echo ...Тяжелые врата с &Yзолотой&n гравировкой отворились.
+    wat 1167 echo ...Тяжелые врата с &Yзолотой&n гравировкой отворились.
+    wat 1178 echo ...Тяжелые врата с &Yзолотой&n гравировкой отворились.
+
+# Trigger #1110
+10:
+  name: запереть ворота арены (31+)
+  attach_type: kRoomTrigger
+  narg: 100
+  arglist: запереть
+  trigger_types:
+    - kCommand
+  script: |-2
+    if !%actor.iname%
+      halt
+    end
+    if %actor.level% < 31
+      wsend %actor% Не хватит у Вас пока силенок, чтоб эти врата запереть!
+      halt
+    end
+    * по идее двухсторонне запертая дверь
+    wdoor 1168 east flags a b c d
+    wdoor 1168 east description Врата
+    wdoor 1168 east name Врата
+    wdoor 1167 west flags a b c d
+    wdoor 1167 west description Врата
+    wdoor 1167 west name Врата
+    * закрываем двери западного зала
+    wdoor 1101 west flags a b c d
+    wdoor 1101 west description Врата
+    wdoor 1101 west name Врата
+    wdoor 1103 east flags a b c d
+    wdoor 1103 east description Врата
+    wdoor 1103 east name Врата
+    echoaround %actor% %actor.iname% взмахнул%actor.g% рукой - и ...
+    wsend %actor% Вы взмахнули рукой - и ...
+    wat 1101 echo ...Тяжелые врата с &Yзолотой&n гравировкой затворились.
+    wat 1103 echo ...Тяжелые врата с &Yзолотой&n гравировкой затворились.
+    wat 1168 echo ...Тяжелые врата с &Yзолотой&n гравировкой затворились.
+    wat 1167 echo ...Тяжелые врата с &Yзолотой&n гравировкой затворились.
+    wat 1178 echo ...Тяжелые врата с &Yзолотой&n гравировкой затворились.
+
+# Trigger #1111
+11:
+  name: просить пощады (арг сдаться)
+  attach_type: kRoomTrigger
+  narg: 100
+  arglist: сдаться
+  trigger_types:
+    - kCommand
+  script: |-2
+    if !%actor.iname%
+      halt
+    end
+    if %actor.level% < 31
+      wzoneecho 1101 &W%actor.iname% признал себя &Rпроигравшим&W и будет доставлен в залы отдыха.&n
+      wsend %actor% Сильный ветер подхватил Вас и унес с арены.
+      echoaround %actor% Сильный ветер подхватил %actor.rname% и унес с арены.
+    end
+    wteleport %actor% 1101
+
+# Trigger #1112
+12:
+  name: купец зашел к чармисам (лоудит)
+  attach_type: kRoomTrigger
+  narg: 100
+  trigger_types:
+    - kAct
+  script: |-2
+    if !%actor.iname%
+      halt
+    end
+    if %actor.level% > 30
+      halt
+    end
+    if ((%actor.class% != 12) && (%actor.class% != 6))
+      halt
+    end
+    wait 1s
+    if %world.curmobs(1103)% < 4
+      load mob 1103
+      echo Молодой парнишка внезапно появился прямо перед Вами будто бы из ниоткуда.
+    end
+    if %world.curmobs(1104)% < 4
+      load mob 1104
+      echo Бравый вояка внезапно появился прямо перед Вами будто бы из ниоткуда.
+    end
+    if %world.curmobs(1105)% < 4
+      load mob 1105
+      echo Мудрый воевода внезапно появился прямо перед Вами будто бы из ниоткуда.
+    end
+
+# Trigger #1113
+13:
+  name: чармисам двуруч при лоуде.
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kLoad
+  script: |-2
+    wait 1s
+    echo %self.iname% сделал несколько рубящих движений и в его руках появился турнирный двуручник!
+    load obj 1107
+    воор дву
+
+# Trigger #1114
+14:
+  name: ресторится священник
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kDeath
+  script: |-2
+    load mob 1120
+    echo Новый связанный священник появился из тьмы...
+
+# Trigger #1115
+15:
+  name: запуск подготовки к бою на арене (подготовка)
+  attach_type: kRoomTrigger
+  narg: 100
+  arglist: подготовка
+  trigger_types:
+    - kCommand
+  script: |-2
+    if !%actor.iname%
+      halt
+    end
+    if %actor.level% < 31
+      wsend %actor% Только распорядитель турнира может использовать эту команду!
+      halt
+    end
+    wzoneecho 1101 &W На подготовку Выделено 3 минуты. &RПриготовиться!!!&n
+    wait 2s
+    * Открвыаем решетки
+    wdoor 1168 west purge
+    wdoor 1166 east purge
+    wat 1168 echo Ажурная решетка медленно растворилась в воздухе.
+    wat 1166 echo Ажурная решетка медленно растворилась в воздухе.
+    wdoor 1168 west flag a
+    wdoor 1168 west room 1166
+    wdoor 1166 east flag a
+    wdoor 1166 east room 1168
+    wdoor 1101 east purge
+    wdoor 1106 west purge
+    wat 1101 echo Ажурная решетка медленно растворилась в воздухе.
+    wat 1106 echo Ажурная решетка медленно растворилась в воздухе.
+    wdoor 1101 east flag a
+    wdoor 1101 east room 1106
+    wdoor 1106 west flag a
+    wdoor 1106 west room 1101
+    wait 1
+    wzoneecho 1101 &W На подготовку Выделено 3 минуты. &RВремя пошло!!!&n
+    wait 60s
+    wzoneecho 1101 &W Осталось &R2&W минуты.&n
+    wait 60s
+    wzoneecho 1101 &W Осталась &R1&W минута.&n
+    wait 45s
+    wzoneecho 1101 &W Осталось &R15&W секунд.&n
+    wait 5s
+    wzoneecho 1101 &W Осталось &R10&W секунд.&n
+    wait 5s
+    wzoneecho 1101 &W Осталось &R5&W секунд.&n
+    wait 5s
+    wzoneecho 1101 &WВремя на подготовку &Rвышло!!!&n
+    wdoor 1101 east flag a b c d
+    wdoor 1101 east name решетка|решетку
+    wdoor 1101 east description решетка
+    wdoor 1106 west flag a b c d
+    wdoor 1106 west name решетка|решетку
+    wdoor 1106 west description решетка
+    wdoor 1168 west flag a b c d
+    wdoor 1168 west name решетка|решетку
+    wdoor 1168 west description решетка
+    wdoor 1166 east flag a b c d
+    wdoor 1166 east name решетка|решетку
+    wdoor 1166 east description решетка
+    wat 1168 echo Воздушные ручейки соткали непроницаемую для глаза ажурную решетку на западе.
+    wat 1166 echo Воздушные ручейки соткали непроницаемую для глаза ажурную решетку на востоке.
+    wat 1101 echo Воздушные ручейки соткали непроницаемую для глаза ажурную решетку на востоке.
+    wat 1106 echo Воздушные ручейки соткали непроницаемую для глаза ажурную решетку на западе.
+
+# Trigger #1116
+16:
+  name: завершение подготовки к бою на арене (готовы)
+  attach_type: kRoomTrigger
+  narg: 100
+  arglist: готовы
+  trigger_types:
+    - kCommand
+  script: |-2
+    if !%actor.iname%
+      halt
+    end
+    if %actor.level% < 31
+      wsend %actor% Только распорядитель турнира может использовать эту команду!
+      halt
+    end
+    wait 1s
+    wzoneecho 1101 &W Подготовка &Rзакончена&W, все участники готовы!!!&n
+    wdoor 1101 east flag a b c d
+    wdoor 1101 east name решетка|решетку
+    *wdoor 1101 east description решетка
+    wdoor 1106 west flag a b c d
+    wdoor 1106 west name решетка|решетку
+    *wdoor 1106 west description решетка
+    wdoor 1168 west flag a b c d
+    wdoor 1168 west name решетка|решетку
+    *wdoor 1168 west description решетка
+    wdoor 1166 east flag a b c d
+    wdoor 1166 east name решетка|решетку
+    *wdoor 1166 east description решетка
+    wat 1168 echo Воздушные ручейки соткали непроницаемую для глаза ажурную решетку на западе.
+    wat 1166 echo Воздушные ручейки соткали непроницаемую для глаза ажурную решетку на востоке.
+    wat 1101 echo Воздушные ручейки соткали непроницаемую для глаза ажурную решетку на востоке.
+    wat 1106 echo Воздушные ручейки соткали непроницаемую для глаза ажурную решетку на западе.
+    * останавливаем запущенный отсчет в любой из трех точек : 1168, 1101, 1178
+    calcuid komn 1168 room
+    detach 1115 %komn%
+    attach 1115 %komn%
+    calcuid komn 1101 room
+    detach 1115 %komn%
+    attach 1115 %komn%
+    calcuid komn 1178 room
+    detach 1115 %komn%
+    attach 1115 %komn%
+
+# Trigger #1117
+17:
+  name: обратный отсчет для начала боя (бой)
+  attach_type: kRoomTrigger
+  narg: 100
+  arglist: бой
+  trigger_types:
+    - kCommand
+  script: |-2
+    if !%actor.iname%
+      halt
+    end
+    if %actor.level% < 31
+      wsend %actor% Только распорядитель турнира может использовать эту команду!
+      halt
+    end
+    wait 1s
+    wzoneecho 1101 &W До начала боя осталось 10 секунд! &RПриготовиться!!!&n
+    wait 1s
+    wzoneecho 1101 &W До начала боя осталось &R9&W секунд!&n
+    wait 1s
+    wzoneecho 1101 &W До начала боя осталось &R8&W секунд!&n
+    wait 1s
+    wzoneecho 1101 &W До начала боя осталось &R7&W секунд!&n
+    wait 1s
+    wzoneecho 1101 &W До начала боя осталось &R6&W секунд!&n
+    wait 1s
+    wzoneecho 1101 &W До начала боя осталось &R5&W секунд!&n
+    wait 1s
+    wzoneecho 1101 &W До начала боя осталось &R4&W секунды!&n
+    wait 1s
+    wzoneecho 1101 &W &R3&W секунды!!!&n
+    wait 1s
+    wzoneecho 1101 &W &R2&W секунды!!!&n
+    wait 1s
+    wzoneecho 1101 &W &R1&W секунда!!!&n
+    wait 1s
+    wzoneecho 1101  _______&RСХОДИТЕСЬ!!!&n
+
+# Trigger #1118
+18:
+  name: лоуд чармисов кудесу (если мало)
+  attach_type: kRoomTrigger
+  narg: 100
+  trigger_types:
+    - kAct
+  script: |-2
+    if !%actor.iname%
+      halt
+    end
+    if %actor.level% > 30
+      halt
+    end
+    wait 1s
+    if %world.curmobs(1100)% < 4
+      load mob 1100
+      echo Сверху послышалось странное бормотание волшебника и цепной пес появился в центре комнаты.
+    end
+    if %world.curmobs(1107)% < 4
+      load mob 1107
+      echo Сверху послышалось странное бормотание волшебника и огромный волк появился в центре комнаты.
+    end
+    if %world.curmobs(1102)% < 4
+      load mob 1102
+      echo Сверху послышалось странное бормотание волшебника и разъяренный медведь появился в центре комнаты.
+    end
+
+# Trigger #1119
+19:
+  name: лоуд коней (если мало)
+  attach_type: kRoomTrigger
+  narg: 100
+  trigger_types:
+    - kAct
+  script: |-2
+    if !%actor.iname%
+      halt
+    end
+    if %actor.level% > 30
+      halt
+    end
+    wait 1s
+    if %world.curmobs(1101)% < 5
+      load mob 1101
+      echo Где-то вдалеке раздалось тихое ржание... И через пару секунд новый свежий белоснежый конь оказался здесь!
+    end
+
+# Trigger #1120
+20:
+  name: зашел к летописцу
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kGreetPCAll
+  script: |-2
+    if !%actor.iname%
+      halt
+    end
+    if %actor.level% > 30
+      halt
+    end
+    wait 1s
+    say Приветствую, я служу Богам и могу рассказать Вам о событиях не столь отдаленных,
+    say Когда кровь лучших сынов Русских щедро поливала песок турнирной арены, а стоны раненых заглушал гул обезумевшей толпы.
+    say Новое сражение на арене будет происходить 05 мая 2012 года.
+    say Если же сами захотите попытать счастья - помните, на арене все подчиняются строгим правилам. Познакомьтесь с ними на доске!
+    say За 50 кун - напишу Вам результаты турнира 2 на 2, проведенного 12 мая 2004 года в 20.00 по мск!
+    say За 70 кун - напишу Вам результаты турнира 4 на 4, проведенного 23 мая 2004 года в 15.00 по мск!
+    echo %self.iname% склонился над столом, уткнувшись в бумаги.
+
+# Trigger #1121
+21:
+  name: дали деньги летописцу
+  attach_type: kMobTrigger
+  narg: 0
+  trigger_types:
+    - kBribe
+  script: |-2
+    wait 1s
+    if %amount% == 50
+      echo %self.iname% немного порылся в бумагах, и достал одну из них.
+      load obj 1127
+      дать свиток .%actor.iname%
+      брос свиток
+      halt
+    end
+    if %amount% == 70
+      echo %self.iname% немного порылся в бумагах, и достал одну из них.
+      load obj 1128
+      дать свиток .%actor.iname%
+      брос свиток
+      halt
+    end
+    say За %amount% кун я ничего не продаю... но могу пожелать тебе удачи.
+    ухм
+    halt
+    end
+
+# Trigger #1122
+22:
+  name: не пускаем кроме волхваря
+  attach_type: kRoomTrigger
+  narg: 100
+  trigger_types:
+    - kAct
+  script: |-2
+    if !%actor.iname% || %actor.iname% == волхварь
+      return 0
+      halt
+    end
+    wsend %actor% Вы легко взмыли вверх, в облака, навстречу новым ощущениям.
+    wat 1159 echo %actor.iname% Легко взлетел сюда и уселся на ближайшем облачке.
+
+# Trigger #1123
+23:
+  name: не пускаем богов в залу для смертных
+  attach_type: kRoomTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+  script: |-2
+    if %direction% == up
+      return 0
+      wsend %actor% Вы не сможете туда пройти...
+    end
+
+# Trigger #1124
+24:
+  name: выдача сообщений в залы подготовки (вещать текст)
+  attach_type: kRoomTrigger
+  narg: 100
+  arglist: вещать
+  trigger_types:
+    - kCommand
+  script: |-2
+    wsend %actor% Ваше сообщение в клетках залов подготовки:
+    set zaly 1106 1101 1102 1103 1114 1119 1164 1120 1118 1121 1117 1166 1168 1167 1170 1171 1174 1172 1173 1175 1176 1177 1178 1169
+    foreach komn %zaly%
+      wat %komn% echo &G%arg%&n
+    done
+
+# Trigger #1125
+25:
+  name: выдача сообщений на арену (вещать текст)
+  attach_type: kRoomTrigger
+  narg: 100
+  arglist: вещать
+  trigger_types:
+    - kCommand
+  script: |-2
+    wsend %actor% Ваше сообщение в клетках арены:
+    set arena 1149 1150 1111 1151 1153 1148 1112 1107 1104 1144 1110 1105 1115 1116 1139 1147 1113 1108 1109 1141 1146 1145 1140 1143 1142 1179 1169
+    foreach komn %arena%
+      wat %komn% echo &G%arg%&n
+    done
+
+# Trigger #1126
+26:
+  name: окончание боя на арене (окончить)
+  attach_type: kRoomTrigger
+  narg: 100
+  arglist: окончить
+  trigger_types:
+    - kCommand
+  script: |-2
+    if !%actor.iname%
+      halt
+    end
+    if %actor.level% < 31
+      echo %actor% Чаво ?
+      halt
+    end
+    wdoor 1115 up purge
+    wdoor 1115 up room 1180
+    wdoor 1115 up name мостик
+    wat 1115 echo ...Мостик из переливающегося на ярком солнце хрусталя возник перед Вами.
+    wsend %actor% Вы открыли проход с арены для победителей!
+
+# Trigger #1127
+27:
+  name: тригер на турнирных посохах
+  attach_type: kObjTrigger
+  narg: 1
+  trigger_types:
+    - kReceive
+  script: |-2
+    if %self.WornBy%
+      halt
+    end
+    wait 1
+    echoaround %actor% &CЛазурный&n набалдашник скипетра в руках %actor.rname% осветился на миг ярким светом.
+    osend %actor% &CЛазурный&n набалдашник скипетра у Вас в руках осветился на миг ярким светом.
+
+# Trigger #1128
+28:
+  name: Телепортимся в соседний зал 1
+  attach_type: kRoomTrigger
+  narg: 0
+  arglist: зал
+  trigger_types:
+    - kCommand
+  script: |-2
+    if !%actor.iname%
+      halt
+    end
+    if %actor.level% < 31
+      wsend %actor% Чаво ?
+      halt
+    end
+    %echoaround% %actor% %actor.iname% пош%actor.y% проверять как обстоят дела в соседнем зале.
+    %send% %actor% Вы успешно прошли в соседний зал.
+    wait 1
+    wteleport %actor% 1168
+    echoaround %actor% %actor.iname% пришел с востока.
+
+# Trigger #1129
+29:
+  name: невыход из сибири
+  attach_type: kRoomTrigger
+  narg: 1
+  arglist: конец quit
+  trigger_types:
+    - kCommand
+  script: |-2
+    wsend %actor% Какой же тут может быть конец, холодно, однако...
+    halt
+
+# Trigger #1130
+30:
+  name: возврат с арены в наблюдательскую (возврат)
+  attach_type: kRoomTrigger
+  narg: 100
+  arglist: возврат
+  trigger_types:
+    - kCommand
+  script: |-2
+    if !%actor.iname%
+      halt
+    end
+    if %actor.level% < 31
+      halt
+    end
+    wsend %actor% Поднявшийся в воздух песок арены вихрем закружился вокруг и унес Вас куда-то вверх.
+    echoaround %actor% Песок арены вихрем закружился вокруг %actor.rname% полностью закрыв от Вашего взора.
+    echoaround %actor% Через мгновенье столб песка опал не оставив следов от пребывания %actor.rname% здесь.
+    wait 1
+    wteleport %actor% 1179
+
+# Trigger #1131
+31:
+  name: Выдача турнирных рун
+  attach_type: kMobTrigger
+  narg: 1
+  arglist: дай руны
+  trigger_types:
+    - kSpeech
+  script: |-2
+    wait 1
+    if ((%actor.class% != 13) && (%actor.level% < 31))
+      say Тебе оно без надобности.
+      halt
+    end
+    set text дай руны
+    if %speech% != %text%
+      say Ты сперва реши, что тебе надобно, а потом уже меня тревожь!
+      хмур
+      emot сердито зыркнул на вас
+      msend %actor% Вам захотелось убраться отсюда подальше.
+      mforce %actor% south
+      halt
+    end
+    load obj 600
+    load obj 601
+    load obj 602
+    load obj 603
+    load obj 605
+    load obj 606
+    load obj 607
+    load obj 608
+    load obj 609
+    load obj 610
+    load obj 611
+    load obj 612
+    load obj 613
+    load obj 614
+    load obj 615
+    load obj 616
+    load obj 617
+    load obj 618
+    load obj 619
+    load obj 620
+    load obj 621
+    load obj 622
+    load obj 623
+    load obj 624
+    load obj 625
+    load obj 626
+    load obj 629
+    load obj 630
+    load obj 632
+    load obj 634
+    load obj 635
+    load obj 636
+    load obj 638
+    load obj 639
+    load obj 640
+    load obj 641
+    load obj 642
+    load obj 643
+    load obj 645
+    load obj 1138
+    пол все сум
+    дать все .%actor.iname%
+    бросить все
+
+# Trigger #1132
+32:
+  name: спускаем лесницу для зрителей
+  attach_type: kRoomTrigger
+  narg: 100
+  arglist: спустить
+  trigger_types:
+    - kCommand
+  script: |-2
+    *открываем проход с ренты нк в залу над ареной
+    wdoor 49987 up purge
+    wdoor 49987 up room  1169
+    wdoor 49987 up description Лестница
+    wat 49987 echo ...Вдруг к вам прямо под ноги опустилась &Mхрустальная&n лестница, Вам стало очень интересно что же там наверху?
+    wsend %actor% Вы открыли проход зрителям в НК.
+
+# Trigger #1133
+33:
+  name: Телепортимся в соседний зал 2
+  attach_type: kRoomTrigger
+  narg: 0
+  arglist: зал
+  trigger_types:
+    - kCommand
+  script: |-2
+    %echoaround% %actor% %actor.iname% пош%actor.y% проверять как обстоят дела в соседнем зале.
+    %send% %actor% Вы успешно прошли в соседний зал.
+    wait 1
+    wteleport %actor% 1101
+
+# Trigger #1134
+34:
+  name: возврат с залов подготовки в наблюдательскую (возврат)
+  attach_type: kRoomTrigger
+  narg: 100
+  arglist: возврат
+  trigger_types:
+    - kCommand
+  script: |-2
+    if (!%actor.iname%)
+      halt
+    end
+    if (%actor.level% < 31)
+      halt
+    end
+    wsend %actor% Легкое покалывание в кончиках пальцев заставило Вас вздрогнуть.
+    wsend %actor% Вы перемещены!
+    echoaround %actor% Непреодолимое желание оглянуться заставило Вас посмотреть назад.
+    echoaround %actor% Ох уж это напряжение перед боем!
+    echoaround %actor% Успокоившись, Вы обнаружили, что %actor.iname% исчез!
+    wait 1
+    wteleport %actor% 1178
+
+# Trigger #1135
+35:
+  name: призыв игроков на подготовку зал ВОСТОК
+  attach_type: kRoomTrigger
+  narg: 100
+  arglist: призвать
+  trigger_types:
+    - kCommand
+  script: |-2
+    if %actor.level% < 31
+      halt
+    end
+    wteleport %arg% 1101
+    echo %arg% перемещен на Арену
+    log &r %actor% призвал %arg% на Арену!
+
+# Trigger #1136
+36:
+  name: призыв игроков на подготовку зал ЗАПАД
+  attach_type: kRoomTrigger
+  narg: 100
+  arglist: призвать
+  trigger_types:
+    - kCommand
+  script: |-2
+    if %actor.level% < 31
+      halt
+    end
+    eval char %arg%
+    wteleport %arg% 1168
+    echo %arg% перемещен на Арену
+    log &r %actor% призвал %arg% на Арену!&n
+
+# Trigger #1137
+37:
+  name: reset зоны, пуржим руны
+  attach_type: kRoomTrigger
+  narg: 100
+  trigger_types:
+    - kDeath
+  script: |-2
+    *изврат конешно, но хз как еще сделать руны у нас с другой зоны так что тупо флаг дикей на репоп не канает
+    foreach o 600 601 602 603 605 606 607 608 609 610 611 612 613 614 615 616 617 618 619 620 621 622 623 624 625 626 629 630 632 634 635 636 638 639 640 641 642 643 645
+      set i %world.curobjs(%o%)%
+      while %i% > 0
+        calcuid obj %o% obj
+        attach 1138 %obj%
+        exec 1138 %obj%
+        wait 1
+        eval i %i%-1
+      done
+    done
+    * удаляем выход для победителей с арены (не через zed)
+
+# Trigger #1138
+38:
+  name: purge самих рун
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kRandomGlobal
+    - kRandom
+    - kAuto
+  script: '%purge% %self%'
+
+# Trigger #1139
+39:
+  name: поднимаем лесницу обратно
+  attach_type: kRoomTrigger
+  narg: 100
+  arglist: поднять
+  trigger_types:
+    - kCommand
+  script: |-2
+    *закрываем проход с ренты нк в залу над ареной
+    wdoor 49987 up purge
+    wat 49987 echo ...&MХрустальная&n лестница ускользнула в небесную высь.
+    wsend %actor% Вход для зрителей из НК убран, но выход из зрительской всегда открыт.
+
+# Trigger #1140
+40:
+  name: турнирные доспехи - взять
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+
+# Trigger #1141
+41:
+  name: возвращение из комнаты победителей (возврат)
+  attach_type: kRoomTrigger
+  narg: 100
+  arglist: возврат
+  trigger_types:
+    - kCommand
+  script: |-2
+    if %actor.level% > 30
+      wsend %actor% Легкое покалывание в кончиках пальцев заставило Вас вздрогнуть. Вы перемещены!
+      echoaround %actor% %actor.iname% исчез%actor.q%, оставив ощущение радости за Вашу победу.
+      wait 1
+      wteleport %actor% 1178
+    end
+    if %actor.level% < 31
+      wsend %actor% Вы зажмурились, а легкое движение воздуха вокруг подсказало, что Вы уже дома!
+      echoaround %actor% %actor.iname% исчез%actor.q%, оставив ощущение радости за свою победу.
+      wait 1
+      wteleport %actor% %actor.loadroom%
+    end
+
+# Trigger #1142
+42:
+  name: перезагружаем зону перед началом боев (начало)
+  attach_type: kRoomTrigger
+  narg: 100
+  arglist: начало
+  trigger_types:
+    - kCommand
+  script: |-2
+    %world.zreset(11)%
+    wzoneecho 1101 &RВнимание!&W Арена подготовленна к следующему бою!&n
+    wait 1
+    * останавливаем запущенный отсчет в любой из трех точек : 1168, 1101, 1178
+    calcuid komn 1168 room
+    detach 1115 %komn%
+    attach 1115 %komn%
+    calcuid komn 1101 room
+    detach 1115 %komn%
+    attach 1115 %komn%
+    calcuid komn 1178 room
+    detach 1115 %komn%
+    attach 1115 %komn%
+
+# Trigger #1143
+43:
+  name: проверка одет турнирный шмот
+  attach_type: kRoomTrigger
+  narg: 1
+  arglist: тест
+  trigger_types:
+    - kAuto
+  script: |-2
+    foreach pc %self.char%
+      set i 0
+      while %i% <= 18
+        eval item %pc.eq(%i%)%
+        * %echo% Одето на %pc.vname% поз: %i%, назв: %item.name%, vnum: %item.vnum%
+        if (%item.vnum% > 0)
+          if ((%item.vnum% < 1100) || (%item.vnum% > 1150))
+            %send% %immort% НАДЕТ НЕ ТУРНИРНЫЙ ШМОТ! на %pc.vname% поз: %i%, назв: %item.name%, vnum: %item.vnum%
+          end
+        end
+        eval i %i%+1
+      done
+    done
+
+# Trigger #1144
+44:
+  name: запуск проверки экипировки (проверка)
+  attach_type: kRoomTrigger
+  narg: 100
+  arglist: проверка
+  trigger_types:
+    - kCommand
+  script: |-2
+    set immort %actor%
+    set zaly 1106 1101 1102 1103 1114 1119 1164 1120 1118 1121 1117 1166 1168 1167 1170 1171 1174 1172 1173 1175 1176 1177 1149 1150 1111 1151 1153 1148 1112 1107 1104 1144 1110 1105 1115 1116 1139 1147 1113 1108 1109 1141 1146 1145 1140 1143 1142
+    foreach komn %zaly%
+      calcuid zapusk %komn% room
+      attach 1143 %zapusk%
+      remote immort %zapusk%
+      exec 1143 %zapusk%
+      rdelete immort %zapusk%
+      detach 1143 %zapusk%
+    done
+    %send% %actor% Проверка окончена!
+
+# Trigger #1145
+45:
+  name: Моск!
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kReceive
+  script: |-2
+    echoaround %actor% %actor.iname% попытал%actor.u% использовать моск Ясны...
+    if %actor.vnum% != -1
+      return 0
+      halt
+    end
+    if %actor.iname% == Ясна
+      osend %actor% _Нафик нужен этот ацтой, вчера апгрейд сделали.
+      return 0
+      halt
+    end
+    if %actor.sex% != 1
+      osend %actor% Дэвушка, ну вам-то это зацэм?!
+      osend %actor% А что до Ясны - дак она нэ дэвушка савсэм...
+      echoaround %actor% %actor.iname% со скрипом попыталась поджать затылок, но разъем явно не того стандарта...
+    elseif %actor.iname% != Осин
+      oforce %actor% г Обнаружено новое устройство, начинаю процесс установки.
+      oforce %actor% г Бжжжж Бжжжж Ьжжжжжэээээ зххххзждддынынынын.. сбой системы...
+      oforce %actor% сесть
+      oforce %actor% встать
+      oforce %actor% сесть
+      oforce %actor% встать
+      oforce %actor% сесть
+      oforce %actor% встать
+      oforce %actor% сесть
+      oforce %actor% встать
+      oforce %actor% пук
+      oforce %actor% пук
+      oforce %actor% пук
+      oforce %actor% г перезагрузка!
+      oforce %actor% конец
+    else
+      osend %actor% _Нафик нужен этот ацтой, вчера апгрейд сделали.
+    end
+    return 0
+    halt
+
+# Trigger #1150
+50:
+  name: присесть на пенек переплута
+  attach_type: kObjTrigger
+  narg: 4
+  arglist: присесть
+  trigger_types:
+    - kCommand
+  script: |-2
+    if !%actor.iname%
+      halt
+    end
+    if %actor.iname% != переплут
+      osend %actor% Ишь чего удумали! Не Ваш пенек! Вырвите Ваш и сидите сколько хотите!!!
+      halt
+    end
+    echoaround %actor% %actor.iname% со вздохом облегчения присел на &Yкрепеньки&Wй&Y пене&Wк&n.
+    osend %actor% Вы со вздохом облегчения присели на &Yкрепеньки&Wй&Y пене&Wк&n.
+    echo Ну наконец то...
+    wait 5s
+    end
+
+# Trigger #1151
+51:
+  name: нельзя взять пенек переплута
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+  script: |-2
+    if !%actor.iname%
+      return 0
+      halt
+    end
+    if %actor.iname% == переплут
+      halt
+    else
+      return 0
+      osend %actor% Отобрать пенек у старого больного человека... вах как нехорошо!
+      halt
+    end
+
+# Trigger #1152
+52:
+  name: Сообщения пенька переплута
+  attach_type: kObjTrigger
+  narg: 1
+  arglist: текст
+  trigger_types:
+    - kCommand
+  script: |-2
+    wait 1
+    if %arg.car% == префикс
+      eval prefix %arg.cdr%
+      global prefix
+      halt
+    end
+    if !%prefix%
+      halt
+    end
+    set color %arg.car%
+    switch %color%
+      case 1
+        echo %prefix% : '&r%arg.cdr%&n'
+      break
+      case 2
+        echo %prefix% : '&R%arg.cdr%&n'
+      break
+      case 3
+        echo %prefix% : '&g%arg.cdr%&n'
+      break
+      case 4
+        echo %prefix% : '&G%arg.cdr%&n'
+      break
+      case 5
+        echo %prefix% : '&K%arg.cdr%&n'
+      break
+      case 6
+        echo %prefix% : '%arg.cdr%'
+      break
+      case 7
+        echo %prefix% : '&c%arg.cdr%&n'
+      break
+      case 8
+        echo %prefix% : '&C%arg.cdr%&n'
+      break
+      case 9
+        echo %prefix% : '&b%arg.cdr%&n'
+      break
+      case 10
+        echo %prefix% : '&B%arg.cdr%&n'
+      break
+      case 11
+        echo %prefix% : '&m%arg.cdr%&n'
+      break
+      case 12
+        echo %prefix% : '&M%arg.cdr%&n'
+      break
+      case 13
+        echo %prefix% : '&W%arg.cdr%&n'
+      break
+      case 14
+        echo %prefix% : '&y%arg.cdr%&n'
+      break
+      case 15
+        echo %prefix% : '&Y%arg.cdr%&n'
+      break
+      default
+        echo %prefix% : '%arg.cdr%'
+    done
+
+# Trigger #1153
+53:
+  name: триг на лягухе
+  attach_type: kObjTrigger
+  narg: 1
+  arglist: щекотать
+  trigger_types:
+    - kCommand
+  script: |-2
+    echoaround %actor% %actor.iname% пощекотал%actor.g% &Gзеленую лягуху&n.
+    osend %actor% Вы пощекотали &Gзеленую лягуху&n.
+    echo &GЗеленая лягуха&n недовольно квакнула.
+
+# Trigger #1154
+54:
+  name: прыжок
+  attach_type: kRoomTrigger
+  narg: 100
+  arglist: прыжок
+  trigger_types:
+    - kCommand
+  script: |-2
+    log &R %actor.iname% прыгнул из команты %self.vnum% в комнату %arg.car% !&n
+    wteleport %actor% %arg.car%
+
+# Trigger #1155
+55:
+  name: 'сообщение воров новогодних ёлочек :)'
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+  script: |-2
+    if !%actor.iname%
+      return 0
+      halt
+    end
+    if %actor.iname% == Рафаил
+      halt
+    else
+      return 0
+      osend %actor% Решили украсть у народа праздник!??? &RНЕ ВЫЙДЕТ!&n
+      halt
+    end
+
+# Trigger #1156
+56:
+  name: бросить бяку
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreetAll
+    - kEntry
+  script: |-2
+    if %victim.vnum%  !=  -1
+      osend %actor% Щас! Чего удумали!
+      return 0
+      halt
+    end
+
+# Trigger #1157
+57:
+  name: а с ноги ??
+  attach_type: kRoomTrigger
+  narg: 1
+  arglist: '*'
+  trigger_types:
+    - kCommand
+  script: |-2
+    if %actor.iname% == Рафаил
+      return 0
+      halt
+    end
+
+# Trigger #1158
+58:
+  name: Блок
+  attach_type: kObjTrigger
+  narg: 2
+  arglist: gluck
+  trigger_types:
+    - kCommand
+  script: |-2
+    if ((%cmd.mudcommand% != quit) && (%cmd.mudcommand% != конец))
+      return 1
+      halt
+    end
+    return 0
+    halt
+
+# Trigger #1159
+59:
+  name: new trigger
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kBribe
+  script: |-2
+    say My trigger commandlist is not complete!
+    %self.gold(-8000)%
+
+# Trigger #1160
+60:
+  name: триг на пеньке (исполнение команд)
+  attach_type: kObjTrigger
+  narg: 1
+  arglist: триг
+  trigger_types:
+    - kCommand
+  script: |-2
+    wait 1
+    %arg%
+    * %arg%
+
+# Trigger #1161
+61:
+  name: триг памятника
+  attach_type: kObjTrigger
+  narg: 4
+  arglist: ломать
+  trigger_types:
+    - kCommand
+  script: |-2
+    if !%arg.contains(памятник)%
+      osend %actor% Что же Вам здесь так не нравится!?
+      halt
+    end
+    osend %actor% Вы зверски сломали памятник Аватаре Игвоведу! Зачем Вы так!?
+    echoaround %actor% %actor.iname% зверски сломал памятник Аватаре Игвоведу!
+    opurge %self%
+
+# Trigger #1162
+62:
+  name: (свободен) решаю что с пирамидой
+  attach_type: kObjTrigger
+  narg: 100
+  arglist: бах
+  trigger_types:
+    - kCommand
+  script: |-2
+    context 999
+    echo wu1hp %wu1hp%
+    if (%actor.vnum% == -1)
+      %echo% Вам даже не стоит пытаться.
+      return 1
+    end
+    eval wu1hp %wu1hp%-1
+    echo My hp:%wu1hp%
+    global wu1hp
+
+# Trigger #1163
+63:
+  name: (свободен) стартую зону с пирамидой
+  attach_type: kRoomTrigger
+  narg: 100
+  arglist: бум
+  trigger_types:
+    - kCommand
+    - kDeath
+  script: |-2
+    context 999
+    * west|east up|mid|down 0|1|2 Башни
+    set wu1hp 100
+    set wu2hp 100
+    set wm1hp 100
+    set wm2hp 100
+    set wd1hp 100
+    set wd2hp 100
+    set wm0hp 300
+    %echo% Стартуем!
+    worlds wu1hp
+
+# Trigger #1164
+64:
+  name: (свободный) встречаем непроход
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kReceive
+
+# Trigger #1165
+65:
+  name: Лоадим тушканчика
+  attach_type: kRoomTrigger
+  narg: 100
+  arglist: тушканчик
+  trigger_types:
+    - kCommand
+  script: |-2
+    if %arg.contains(1)%
+      %load% mob 1122
+      %echo% Вдруг из дальнего угла комнаты выполз полосатый тушканчик и начал подозрительно на Вас коситься!
+    end
+    if %arg.contains(2)%
+      %load% mob 1134
+      %echo% Вдруг из дальнего угла комнаты выполз полосатый тушканчик и начал подозрительно на Вас коситься!
+    end
+    if %arg.contains(3)%
+      %load% mob 1135
+      %echo% Вдруг из дальнего угла комнаты выполз полосатый тушканчик и начал подозрительно на Вас коситься!
+    end
+
+# Trigger #1166
+66:
+  name: тестовый триг на mforce
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+  script: |-2
+    say Подчиняйся мне, ибо я твой хозяин!
+    mforce %actor.iname% say Слезами горю не поможешь, а вдруг с ним все в порядке.
+
+# Trigger #1170
+70:
+  name: тест Руевита
+  attach_type: kRoomTrigger
+  narg: 100
+  arglist: поехали
+  trigger_types:
+    - kCommand
+  script: 'dgcast ''освящ'' .%actor.iname%'
+
+# Trigger #1180
+80:
+  name: непускаем волхваря
+  attach_type: kObjTrigger
+  narg: 100
+  arglist: с се сев севе север n no nor nort north
+  trigger_types:
+    - kCommand
+  script: |-2
+    return 0
+    osend %actor% фик
+
+# Trigger #1181
+81:
+  name: Памятник
+  attach_type: kObjTrigger
+  narg: 20
+  trigger_types:
+    - kRandom
+    - kAuto
+  script: |-2
+    wait 1
+    switch %random.12%
+      case 1
+        echo Памятник Аватаре Игвоведу покопался в МУДе.
+        echo Памятник Аватаре Игвоведу создал ХАЛЯВУ!
+        echo &KУ памятника Аватаре Игвоведу потекли слюнки и он аппетитно облизнулся.&n
+        echo Памятник Аватаре Игвоведу съел ХАЛЯВУ.
+        echo &KПамятник Аватаре Игвоведу громко завизжал от восторга!&n
+      break
+      case 2
+        echo Памятник Аватаре Игвоведу сказал : 'А давайте сделаем...'
+        echo &KПамятник Аватаре Игвоведу задумался.&n
+      break
+      case 3
+        echo Памятник Аватаре Игвоведу высунул язык и начал корябать сообщение.
+      break
+      case 4
+        echo Памятник Аватаре Игвоведу сказал : 'Арктов не видали ? Ну тогда я буду последним.. Вот уйду из прави и буду.. кхм...'
+      break
+      case 5
+        echo Памятник Аватаре Игвоведу сказал : 'А почему бы не дать возможность...'
+        echo &KПамятник Аватаре Игвоведу задумался.&n
+        echo Памятник Аватаре Игвоведу сказал : 'и... Но это уже будет овер'
+        echo &KПамятник Аватаре Игвоведу безобидно улыбнулся.&n
+      break
+      case 6
+        echo Памятник Аватаре Игвоведу сказал : 'А за рульные идеи много славы дают?'
+        echo &KПамятник Аватаре Игвоведу начал мечтать о славе.&n
+        echo &KПамятник Аватаре Игвоведу начал мечтать о славе.&n
+        echo &KПамятник Аватаре Игвоведу начал мечтать о славе.&n
+      break
+      case 7
+        echo Памятник Аватаре Игвоведу сказал : 'Все у всех отобрать! И поделить!'
+        wait 1s
+        echo Памятник Аватаре Игвоведу сказал : 'Чтобы все и у всех поровну было!'
+        wait 1s
+        echo Памятник Аватаре Игвобреду сказал : 'И вообще - выложить в каждую зону по 3 ладанки и платиновый доспех!'
+        wait 3s
+        echo Памятник Аватаре Игвоведу сказал : 'И еще... И.. И.....'
+        wait 2
+        echo &KПамятник Аватаре Игвоведу подпер буйну головушку кулаком и начал думать думу тяжкую.&n
+      break
+      case 8
+        echo &KПамятник Аватаре Игвоведу глубоко поклонился перед всеми.&n
+      break
+      case 9
+        echo Памятник Аватаре Игвоведу сказал : 'А давайте разрешим мультинг?'
+        wait 2s
+        echo Памятник Аватаре Игвоведу сказал : 'Имхо это очень пывысит интерес к игре!'
+        wait 2s
+        echo Памятник Аватаре Игвоведу сказал : 'Должно быть взаимопонимание между админами и игроками'
+      break
+      case 10
+        echo Памятник Аватаре Игвоведу сказал : 'А мб дать баш купцам ? Имх очень РПшно'
+      break
+      case 11
+        echo Памятник Аватаре Игвоведу сказал : 'почему бы не добавить свиток с 1м экспы стоимостью 100к или 30 драгоценных золотистых камней'
+        wait 1s
+        echo Памятник Аватаре Игвоведу сказал : 'будет альтернатива постоянному убийству существ в маде'
+      break
+      case 12
+        echo Памятник Аватаре Игвоведу сказал : 'А почему с меня за постой денег берут больше, чем с остальных?'
+      break
+    done
+
+# Trigger #1182
+82:
+  name: колода аделаида ивановна
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kReceive
+  script: |-2
+    wait 1
+    switch %random.3%
+      case 1
+        echo %actor.iname% начал искусно перемешивать колоду &W"Аделаида Ивановна"&n.
+        echo От мелькания карт: тузов, семерок у Вас заболела голова. Ах, проклятый &Gк&Rр&Yа&Cп&n рябит в глазах!
+      break
+      case 2
+        echo %actor.iname% ловко перекинул веером колоду &W"Аделаида Ивановна"&n из левой руки в правую и обратно.
+      break
+      case 3
+        echo %actor.iname% произвел мнгновенную листовку карт из правой руки в левую.
+        echo Порядок карт изменился? Кто его теперь знает...
+        echo Только быстрый шелест карт и добродушная улыбка остались Вам на память об этом приеме.
+      break
+    done
+
+# Trigger #1183
+83:
+  name: Елка мигает огоньками
+  attach_type: kObjTrigger
+  narg: 5
+  trigger_types:
+    - kRandom
+  script: |-2
+    wait 1
+    switch %random.10%
+      case 1
+        echo &GНовогодняя ёлка &nвесело подмигнула Вам &Rкрасным &nогоньком гирлянд.
+      break
+      case 2
+        echo &GНовогодняя ёлка &nвесело подмигнула Вам &Gзелёным &nогоньком гирлянд.
+      break
+      case 3
+        echo &GНовогодняя ёлка &nвесело подмигнула Вам &Cголубым &nогоньком гирлянд.
+      break
+      case 4
+        echo Откуда-то с елки послышалось: &WНовый год приходит к нам - все расселись по домам. Дед мороз спешит с мешком - не забудет ни о ком!&n
+      break
+      case 5
+        echo Откуда-то с елки послышалось: йо ! йа йолко ! с зелеными иголко ! тыц-тыц !
+      break
+      case 6
+        echo Откуда-то с елки послышалось: &WПраздник странный Новый год - С ночи до утра идет. А потом - весь пол в иголках И поваленная елка!&n
+      break
+      case 7
+        echo Откуда-то с елки послышалось: &Wнооооооооооовыыыыыыыый год к нам мчится! скоро все случится )) рипнутся все кому неспится!&n
+      break
+      case 8
+        echo &GНовогодняя ёлка&n весело подмигнула Вам &Yжелтым &nогоньком гирлянд.
+      break
+      case 9
+        echo &GНовогодняя ёлка&n весело подмигнула Вам &Bсиним &nогоньком гирлянд.
+      break
+      case 10
+        echo &GНовогодняя ёлка&n весело подмигнула Вам &Mфиолетовым &nогоньком гирлянд.
+      break
+      case 11
+        echo &GНовогодняя ёлка&n весело подмигнула Вам &Wбелым &nогоньком гирлянд.
+      break
+    done
+
+# Trigger #1184
+84:
+  name: Пытаются надеть моск
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kReceive
+  script: |-2
+    echoaround %actor% %actor.iname% попытал%actor.u% использовать яйца Осина...
+    if %actor.sex% != 1
+      osend %actor% Замуж вам, барыня, надо...
+      echoaround %actor% Замуж ее надо...
+    elseif %actor.iname% != Осин
+      echo _Атас!!! Ахтунги атакуютЪ!!!...
+    else
+      osend %actor% _Это вам еще зачем? Старые пока держатся, да и резина не истерлась.
+    end
+    return 0
+    halt
+
+# Trigger #1185
+85:
+  name: Баян
+  attach_type: kObjTrigger
+  narg: 2
+  arglist: '*'
+  trigger_types:
+    - kCommand
+  script: |-2
+    if %time.hour% != 12
+      echoaround %actor% %actor.iname% побагровел%actor.g% и вытаращил%actor.g% глаза. Видно занят%actor.g% чем-то ответственным.
+      return 1
+      halt
+    end
+
+# Trigger #1186
+86:
+  name: ЗАДОЛБАЛИ
+  attach_type: kMobTrigger
+  narg: 33
+  trigger_types:
+    - kRandom
+  script: |-2
+    крича Есть тут кто...??
+    крича О, бедный я, горемычный... один-одинешенек...
+
+# Trigger #1187
+87:
+  name: Триг новогоднего змея
+  attach_type: kMobTrigger
+  narg: 16
+  trigger_types:
+    - kRandom
+    - kIncomePC
+  script: |-2
+    set target %random.pc%
+    switch %random.23%
+      case 1
+        ик
+      break
+      case 2
+        петь
+      break
+      case 3
+        бухать
+      break
+      case 3
+        лизн %target.name%
+      break
+      case 3
+        eval gold %random.2000%
+        дать %gold% кун %target.name%
+      break
+      case 4
+        if %target% && (%target.realroom% == %self.realroom%)
+          echo Двухголовый новогодний змей икнул и издал непонятный звук.
+          dgcast 'сила' %target.name%
+        end
+      break
+      case 5
+        if %target% && (%target.realroom% == %self.realroom%)
+          echo Двухголовый новогодний змей икнул и издал непонятный звук.
+          dgcast 'защита' %target.name%
+        end
+      break
+      case 6
+        if %target% && (%target.realroom% == %self.realroom%)
+          echo Двухголовый новогодний змей икнул и издал непонятный звук.
+          dgcast 'затуманивание' %target.name%
+        end
+      break
+      case 7
+        if %target% && (%target.realroom% == %self.realroom%)
+          echo Двухголовый новогодний змей икнул и издал непонятный звук.
+          dgcast 'исцеление' %target.name%
+        end
+      break
+      case 8
+        if %target% && (%target.realroom% == %self.realroom%)
+          echo Двухголовый новогодний змей икнул и издал непонятный звук.
+          dgcast 'восстанов' %target.name%
+        end
+      break
+      case 9
+        if %target% && (%target.realroom% == %self.realroom%)
+          echo Двухголовый новогодний змей икнул и издал непонятный звук.
+          dgcast 'разбит' %target.name%
+        end
+      break
+      case 10
+        if %target% && (%target.realroom% == %self.realroom%)
+          echo Двухголовый новогодний змей икнул и издал непонятный звук.
+          dgcast 'сила' %target.name%
+        end
+      break
+      case 11
+        петь %target.name%
+      break
+      case 12
+        пляс %target.name%
+      break
+      case 13
+        eval gold %random.500%
+        дать %gold% кун %target.name%
+      break
+      case 14
+        миг %target.name%
+      break
+      case 15
+        прыг %target.name%
+      break
+      case 16
+        восторг %target.name%
+      break
+      case 17
+        хвал %target.name%
+      break
+      case 18
+        if %target% && (%target.realroom% == %self.realroom%)
+          echo Двухголовый новогодний змей икнул и издал непонятный звук.
+          dgcast 'полет' %target.name%
+        end
+      break
+      case 19
+        if %target% && (%target.realroom% == %self.realroom%)
+          echo Двухголовый новогодний змей икнул и издал непонятный звук.
+          dgcast 'камен кож' %target.name%
+        end
+      break
+      case 20
+        крича В лесу родилась ел-лочка, в лесу она.. Ик! Рослаааа!!!
+      break
+      case 22
+        крича Налетай-торопись, покупай живоспись!
+      break
+      case 23
+        крича С новым гадом!
+      break
+    done
+
+# Trigger #1188
+88:
+  name: 'Ответ :)'
+  attach_type: kMobTrigger
+  narg: 0
+  arglist: Я очень большой дракон
+  trigger_types:
+    - kSpeech
+  script: |-2
+    wait 1
+    set text Я очень большой дракон
+    if %speech% == %text%
+      say С очень маленькими яйцами.
+    end
+
+# Trigger #1189
+89:
+  name: выдача доспехов ладону
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+  script: |-2
+    halt
+    if (%actor.iname%==Ладон)
+      load obj 91515
+    end
+    бр все
+
+# Trigger #1190
+90:
+  name: Выдача имм шмота
+  attach_type: kMobTrigger
+  narg: 100
+  arglist: дай доспехи
+  trigger_types:
+    - kSpeech
+  script: |-2
+    wait 1
+    if (!%actor% || %actor.vnum% != -1)
+      halt
+    end
+    if %actor.iname% == поренут
+      if %world.curobjs(1190)% < %world.maxobj(1190)%
+        load obj 1190
+      end
+      if %world.curobjs(1189)% < %world.maxobj(1189)%
+        load obj 1189
+      end
+      if %world.curobjs(1188)% < %world.maxobj(1188)%
+        load obj 1188
+      end
+      if %world.curobjs(1187)% < %world.maxobj(1187)%
+        load obj 1187
+      end
+      if %world.curobjs(1186)% < %world.maxobj(1186)%
+        load obj 1186
+      end
+      if %world.curobjs(1054)% < %world.maxobj(1054)%
+        load obj 1054
+      end
+      if %world.curobjs(1059)% < %world.maxobj(1059)%
+        load obj 1059
+      end
+    elseif %actor.iname% == переплут
+      if %world.curobjs(1150)% < %world.maxobj(1150)%
+        load obj 1150
+      end
+    elseif %actor.iname% == свентовит
+      if %world.curobjs(25389)% < %world.maxobj(25389)%
+        load obj 25389
+      end
+      if %world.curobjs(25391)% < %world.maxobj(25391)%
+        load obj 25391
+      end
+      if %world.curobjs(25392)% < %world.maxobj(25392)%
+        load obj 25392
+      end
+      if %world.curobjs(25394)% < %world.maxobj(25394)%
+        load obj 25394
+      end
+      if %world.curobjs(25396)% < %world.maxobj(25396)%
+        load obj 25396
+      end
+    elseif %actor.iname% == руевит
+      if %world.curobjs(1194)% < %world.maxobj(1194)%
+        load obj 1194
+      end
+      if %world.curobjs(1195)% < %world.maxobj(1195)%
+        load obj 1195
+      end
+    elseif %actor.iname% == рафаил
+      if %world.curobjs(1095)% < %world.maxobj(1095)%
+        load obj 1095
+      end
+      if %world.curobjs(1097)% < %world.maxobj(1097)%
+        load obj 1097
+      end
+    elseif %actor.iname% == снежич
+      if %world.curobjs(1168)% < %world.maxobj(1168)%
+        load obj 1168
+      end
+    elseif %actor.iname% == вестосвет
+      if %world.curobjs(1198)% < %world.maxobj(1198)%
+        load obj 1198
+      end
+    elseif %actor.iname% == божидар
+      if %world.curobjs(1066)% < %world.maxobj(1066)%
+        load obj 1066
+      end
+    elseif %actor.iname% == квасир
+      if %world.curobjs(1158)% < %world.maxobj(1158)%
+        load obj 1158
+      end
+      if %world.curobjs(1159)% < %world.maxobj(1159)%
+        load obj 1159
+      end
+    elseif %actor.iname% == Ньерд
+      if %world.curobjs(1048)% < %world.maxobj(1048)%
+        load obj 1048
+      end
+      if %world.curobjs(1070)% < %world.maxobj(1070)%
+        load obj 1070
+      end
+    end
+    wait 1
+    give all .%actor.iname%
+
+# Trigger #1191
+91:
+  name: Лоад денег
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+  script: |-2
+    wait 1
+    log &W%actor.iname% нашел приз!&n
+    if ((%actor.level% <= 25) && (%actor.remort% == 0))
+      echo _&WНовогодний шарик вспыхнул и внезапно рассыпался на множество &Yзолотых монет.&n
+      eval gold %random.4999%+1
+      %actor.gold(+%gold%)%
+    else
+      echo _&WНовогодний шарик вспыхнул и внезапно рассыпался на множество &Gзеленых огоньков.&n
+    end
+    wait 1
+    opurge %self%
+
+# Trigger #1192
+92:
+  name: Рисуем красным маркером
+  attach_type: kObjTrigger
+  narg: 1
+  arglist: рисовать
+  trigger_types:
+    - kCommand
+  script: |-2
+    set selfnum 0
+    set num 0
+    foreach i %self.pc%
+      eval num %num%+1
+    done
+    set ranofself %random.num(%num%)%
+    foreach n %self.pc%
+      eval selfnum %selfnum%+1
+      if %ranofself% == %selfnum%
+        set char %n%
+      break
+    end
+    done
+    if ((%char.name% == Свентовит) && (%actor.sex% != 2))
+      echo Свентовит разгневанно огляделся по сторонам и закричал : "Я те покажу Свентовит + %actor.iname%"
+      odamage %actor% 50
+      osend %actor% Свентовит шандарахнул молнией прямо по Вам!
+      halt
+    end
+    if %char.name% == %actor.iname%
+      osend %actor% Вы огляделись по сторонам в поисках жертвы ваших фантазий.
+      osend %actor% Остановившись на себе любимом, Вы начали было вырисовывать &R%actor.iname% + %actor.iname% = Love...&R
+      echoaround %actor% %actor.iname% начал%actor.g% было что-то чертить в воздухе &Rкрасным маркером&n, но похоже передумал%actor.g%...
+      osend %actor% Но вовремя остановились, слишком уж неестественно как-то :).
+    else
+      osend %actor% Вы огляделись по сторонам в поисках жертвы ваших фантазий. Ага, кажется %char.name% - самое оно.
+      echoaround %actor% %actor.iname% начал%actor.g% что-то рисовать прямо в воздухе &Rкрасным маркером&n.
+      %actor.wait(2)%
+      osend %actor% Вы начали что-то рисовать и неожиданно для самого себя выписали &R"%actor.iname% + %char.iname% = Love!"&n
+      echoaround %actor% %actor.iname% наконец закончил%actor.g% своё творение...
+      echo Надпись &R%actor.iname% + %char.iname% = Love!&n немного повисела в воздухе и потухла.
+    end
+
+# Trigger #1193
+93:
+  name: Выдача новогоднего стафа
+  attach_type: kMobTrigger
+  narg: 0
+  arglist: приз
+  trigger_types:
+    - kSpeech
+  script: |-2
+    wait 1
+    if ((%actor.iname% != Квасир ) && (%actor.iname% != скатия ) && (%actor.level% < 34))
+      say НЕ ДАМ!
+      halt
+    end
+    eval ok 0
+    set bonus %speech.cdr%
+    if ((%bonus% >= 1130) && (%bonus% <= 1183))
+      set ok 1
+    end
+    if ((%bonus% >= 10600) && (%bonus% =< 10699))
+      set ok 1
+    end
+    if ((%bonus% >= 11207) && (%bonus% <= 11255))
+      set ok 1
+    end
+    if (%ok% != 1)
+      say НЕ ДАМ!
+      halt
+    end
+    load obj %bonus%
+    give all %actor.iname%
+
+# Trigger #1194
+94:
+  name: Котенку дали еду
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kReceive
+  script: |-2
+    wait 1
+    set nameobj %object.name%
+    if %nameobj.contains(рыба)% || %nameobj.contains(мяс)% || %nameobj.contains(рыбка)%
+      echo Котенок съел %object.vname%.
+      wait 1
+      mpurge %object%
+      wait 2
+      say Мяу!
+      wait 1
+      emot сел и принялся умываться
+      wait 1
+      emot тихо замурлыкал.
+    else
+      ворч
+      бросить все
+    end
+
+# Trigger #1195
+95:
+  name: Рэндом-триггер котенка
+  attach_type: kMobTrigger
+  narg: 1
+  trigger_types:
+    - kRandomGlobal
+    - kRandom
+  script: |-2
+    wait 1
+    set owner 0
+    if !%self.leader%
+      foreach char %self.pc%
+        if %char.name% == Пандора
+          set owner 1
+        end
+      done
+      if (( owner != 1 ) && ( %self.realroom% != 186 ))
+        emot грустно мяукнул
+        wait 1s
+        echo Котенок убежал.
+        mteleport %self% 186
+        halt
+      end
+    end
+    switch %random.10%
+      case 1
+        emot сел и принялся умываться
+      break
+      case 2
+        say Мяу!
+        emot заглянул вам в глаза, выпрашивая обед
+      break
+      case 3
+        emot тихо замурлыкал
+      break
+      case 4
+        emot припал к земле, а затем прыгнул вперед, пытаясь поймать что-то невидимое
+      break
+      case 5
+        if ( owner == 1 )
+          emot запрыгнул на колени к Пандоре и начал вылизываться
+          лизн .пандора
+        end
+        emot
+      break
+      case 6
+        emot спрятался под тазик (только ухи торчат) и начал испуганно выглядывать оттуда
+      break
+      case 7
+        if ( owner == 1 )
+          emot залез на колени к Пандоре
+          wait 2
+          emot свернулся клубочком и задремал
+          спать
+        end
+      break
+      case 8
+        зевать
+        say Мяу!
+        wait 2
+        вопрос
+      break
+      case 9
+        set target %random.pc%
+        ужас %target.name%
+      break
+      case 10
+        emot начал ловить свой хвост
+      break
+    done
+
+# Trigger #1196
+96:
+  name: Котенок следует за Пандорой
+  attach_type: kMobTrigger
+  narg: 40
+  trigger_types:
+    - kGreetPC
+  script: |-2
+    wait 1
+    if ( %actor.iname% == Пандора )
+      say Мяу!
+      follow .Пандора
+      wait 2s
+      лизн .Пандора
+    end
+
+# Trigger #1197
+97:
+  name: Медвежонок
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kReceive
+  script: |-2
+    wait 2
+    echoaround %actor% Маленький медвеженок обнял %actor.vname% и принялся вылизывать с ног до головы.
+    osend %actor% Маленький медвеженок обнял Вас и принялся вылизывать с ног до головы.
+
+# Trigger #1198
+98:
+  name: Плащик-антидиктофилин
+  attach_type: kObjTrigger
+  narg: 3
+  arglist: '*'
+  trigger_types:
+    - kCommand
+  script: |-2
+    if (%cmd.mudcommand% == конец || %cmd.mudcommand% == quit || %cmd.mudcommand% == войти || %cmd.mudcommand% == enter || %cmd.mudcommand% == режим || %cmd.mudcommand% == mode)
+      %echo% нарушение правил!
+      wait 1
+    end
+    return 0
+
+# Trigger #1199
+99:
+  name: test
+  attach_type: kObjTrigger
+  narg: 3
+  arglist: листать
+  trigger_types:
+    - kCommand
+  script: |-2
+    if %world.curmobs(1199)% < 2
+      load mob 1199
+      wait 1
+      echo Страницы книги тихо зашелестели.
+      wait 1
+      echo Миг и...
+      wait 1
+      echo "Приказывай, хозяин!"
+    else
+      wait 1
+      osend %actor% Да что вы? Уже зачитано до дыр!
+    end

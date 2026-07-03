@@ -1,0 +1,2286 @@
+# Mobs for zone 67
+
+# Mob #6700
+0:
+  names:
+    aliases: медведь Потап Потапыч
+    nominative: Потап Потапыч
+    genitive: Потапа Потапыча
+    dative: Потапу Потапычу
+    accusative: Потапа Потапыча
+    instrumental: Потапом Потапычем
+    prepositional: Потапе Потапыче
+  descriptions:
+    short_desc: |2
+      Косолапый медведь сидит на пне и играет щепой.
+    long_desc: |2
+      Крупный жирный медведь.
+  alignment: 0
+  stats:
+    level: 13
+    hitroll_penalty: 6
+    armor: 4
+    hp:
+      dice_count: 1
+      dice_size: 1
+      bonus: 200
+    damage:
+      dice_count: 3
+      dice_size: 3
+      bonus: 0
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 12000
+  position:
+    default: kSit
+    start: kSit
+  sex: kMale
+  size: 90
+  race: 104
+  height: 198
+  weight: 200
+  attributes:
+    strength: 13
+    dexterity: 11
+    intelligence: 11
+    wisdom: 11
+    constitution: 11
+    charisma: 11
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kStayZone
+    - kNoCharm
+    - kNoSummon
+    - kAppearsSpring
+    - kAppearsSummer
+    - kAppearsAutumn
+  affect_flags:
+    - kDetectLife
+    - kSlow
+  skills:
+    - skill_id: 2  # перехватить атаку
+      value: 50
+    - skill_id: 132  # сбить
+      value: 50
+    - skill_id: 136  # кулачный бой
+      value: 45
+  enhanced:
+    absorb: 13
+    bare_hand_attack: 1
+    like_work: 50
+    max_factor: 1
+    extra_attack: 1
+
+# Mob #6701
+1:
+  names:
+    aliases: медведь Потап Потапыч
+    nominative: Потап Потапыч
+    genitive: Потапа Потапыча
+    dative: Потапу Потапычу
+    accusative: Потапа Потапыча
+    instrumental: Потапом Потапычем
+    prepositional: Потапе Потапыче
+  descriptions:
+    short_desc: |2
+      Косолапый медведь дремлет посасывая лапу.
+    long_desc: |2
+      Крупный жирный медведь выглядит несколько сонным.
+  alignment: 0
+  stats:
+    level: 12
+    hitroll_penalty: 14
+    armor: 9
+    hp:
+      dice_count: 1
+      dice_size: 1
+      bonus: 200
+    damage:
+      dice_count: 3
+      dice_size: 3
+      bonus: 0
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 10000
+  position:
+    default: kSleep
+    start: kSleep
+  sex: kMale
+  size: 90
+  race: 104
+  height: 198
+  weight: 200
+  attributes:
+    strength: 13
+    dexterity: 11
+    intelligence: 11
+    wisdom: 11
+    constitution: 11
+    charisma: 11
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kStayZone
+    - kNoCharm
+    - kNoSummon
+    - kAppearsWinter
+  affect_flags:
+    - kDetectLife
+    - kSlow
+  skills:
+    - skill_id: 2  # перехватить атаку
+      value: 50
+    - skill_id: 132  # сбить
+      value: 50
+    - skill_id: 136  # кулачный бой
+      value: 45
+  enhanced:
+    absorb: 12
+    bare_hand_attack: 1
+    like_work: 50
+    max_factor: 1
+    extra_attack: 1
+
+# Mob #6702
+2:
+  names:
+    aliases: бестолковый агафон
+    nominative: бестолковый агафон
+    genitive: бестолкового агафона
+    dative: бестолковому агафону
+    accusative: бестолкового агафона
+    instrumental: бестолковым агафоном
+    prepositional: бестолковом агафоне
+  descriptions:
+    short_desc: |2
+      Бестолковый Агафон тянет оглоблю влево.
+    long_desc: |2
+      Рыжий мужик с глупым лицом.
+  alignment: 0
+  stats:
+    level: 9
+    hitroll_penalty: 14
+    armor: 7
+    hp:
+      dice_count: 1
+      dice_size: 1
+      bonus: 100
+    damage:
+      dice_count: 3
+      dice_size: 2
+      bonus: 0
+  gold:
+    dice_count: 5
+    dice_size: 2
+    bonus: 0
+  experience: 4900
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 50
+  race: 101
+  height: 198
+  weight: 80
+  attributes:
+    strength: 13
+    dexterity: 12
+    intelligence: 5
+    wisdom: 6
+    constitution: 5
+    charisma: 5
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kStayZone
+    - kHelper
+    - kNoCharm
+  affect_flags:
+    - kSlow
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 30
+    - skill_id: 150  # обезоружить
+      value: 50
+  enhanced:
+    absorb: 9
+    like_work: 40
+    max_factor: 1
+    extra_attack: 1
+    special_bitvector: c1
+
+# Mob #6703
+3:
+  names:
+    aliases: глупый агафон
+    nominative: глупый агафон
+    genitive: глупого агафона
+    dative: глупому агафону
+    accusative: глупого агафона
+    instrumental: глупым агафоном
+    prepositional: глупом агафоне
+  descriptions:
+    short_desc: |2
+      Глупый Агафон тянет оглоблю вправо.
+    long_desc: |2
+      Молодой рыжий мужик с дурацким выражением лица.
+  alignment: 0
+  stats:
+    level: 9
+    hitroll_penalty: 14
+    armor: 7
+    hp:
+      dice_count: 1
+      dice_size: 1
+      bonus: 100
+    damage:
+      dice_count: 3
+      dice_size: 2
+      bonus: 0
+  gold:
+    dice_count: 5
+    dice_size: 2
+    bonus: 0
+  experience: 4100
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 50
+  race: 101
+  height: 198
+  weight: 80
+  attributes:
+    strength: 12
+    dexterity: 12
+    intelligence: 3
+    wisdom: 6
+    constitution: 5
+    charisma: 5
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kStayZone
+    - kHelper
+    - kNoCharm
+  affect_flags:
+    - kSlow
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 30
+    - skill_id: 150  # обезоружить
+      value: 50
+  enhanced:
+    absorb: 9
+    like_work: 40
+    max_factor: 1
+    extra_attack: 1
+    special_bitvector: b1c1
+
+# Mob #6704
+4:
+  names:
+    aliases: старший агафон
+    nominative: старший агафон
+    genitive: старшего агафона
+    dative: старшему агафону
+    accusative: старшего агафона
+    instrumental: старшим агафоном
+    prepositional: старшем агафоне
+  descriptions:
+    short_desc: |2
+      Старший Агафон думает думку здесь.
+    long_desc: |2
+      Пожилой рыжий мужик с серьезным выражением лица.
+  alignment: 0
+  stats:
+    level: 11
+    hitroll_penalty: 10
+    armor: 5
+    hp:
+      dice_count: 1
+      dice_size: 1
+      bonus: 120
+    damage:
+      dice_count: 3
+      dice_size: 3
+      bonus: 0
+  gold:
+    dice_count: 5
+    dice_size: 5
+    bonus: 0
+  experience: 7000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 50
+  race: 101
+  height: 198
+  weight: 70
+  attributes:
+    strength: 15
+    dexterity: 12
+    intelligence: 20
+    wisdom: 20
+    constitution: 5
+    charisma: 5
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kStayZone
+    - kHelper
+    - kNoCharm
+  affect_flags:
+    - kSlow
+  skills:
+    - skill_id: 132  # сбить
+      value: 50
+    - skill_id: 136  # кулачный бой
+      value: 36
+    - skill_id: 150  # обезоружить
+      value: 50
+  enhanced:
+    absorb: 11
+    like_work: 40
+    max_factor: 1
+    extra_attack: 1
+    special_bitvector: b1c1
+    spells:
+      - 1
+      - 114
+
+# Mob #6705
+5:
+  names:
+    aliases: средний агафон
+    nominative: средний агафон
+    genitive: среднего агафона
+    dative: среднему агафону
+    accusative: среднего агафона
+    instrumental: средним агафоном
+    prepositional: среднем агафоне
+  descriptions:
+    short_desc: |2
+      Средний Агафон рубит дрова поленом.
+    long_desc: |2
+      Один из местных придурков.
+  alignment: 0
+  stats:
+    level: 8
+    hitroll_penalty: 8
+    armor: 7
+    hp:
+      dice_count: 1
+      dice_size: 1
+      bonus: 100
+    damage:
+      dice_count: 3
+      dice_size: 2
+      bonus: 0
+  gold:
+    dice_count: 5
+    dice_size: 2
+    bonus: 0
+  experience: 3400
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 50
+  race: 101
+  height: 198
+  weight: 70
+  attributes:
+    strength: 9
+    dexterity: 12
+    intelligence: 3
+    wisdom: 6
+    constitution: 5
+    charisma: 5
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kStayZone
+    - kHelper
+    - kNoCharm
+  affect_flags:
+    - kSlow
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 30
+    - skill_id: 150  # обезоружить
+      value: 50
+  enhanced:
+    absorb: 8
+    like_work: 40
+    max_factor: 1
+    extra_attack: 1
+    special_bitvector: b1c1
+
+# Mob #6706
+6:
+  names:
+    aliases: младший агафон
+    nominative: младший агафон
+    genitive: младшего агафона
+    dative: младшему агафону
+    accusative: младшего агафона
+    instrumental: младшим агафоном
+    prepositional: младшем агафоне
+  descriptions:
+    short_desc: |2
+      Младший Агафон ползает по полу в поисках пропажи.
+    long_desc: |2
+      Маленький рыженький мальчик..
+      Не дай ему Бог стать таким же, как его старшие братья!
+  alignment: 0
+  stats:
+    level: 5
+    hitroll_penalty: 13
+    armor: 10
+    hp:
+      dice_count: 1
+      dice_size: 1
+      bonus: 50
+    damage:
+      dice_count: 3
+      dice_size: 3
+      bonus: 0
+  gold:
+    dice_count: 3
+    dice_size: 2
+    bonus: 0
+  experience: 1400
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 50
+  race: 101
+  height: 198
+  weight: 70
+  attributes:
+    strength: 8
+    dexterity: 12
+    intelligence: 3
+    wisdom: 6
+    constitution: 5
+    charisma: 5
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kStayZone
+    - kHelper
+    - kNoCharm
+  affect_flags:
+    - kSlow
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 18
+    - skill_id: 150  # обезоружить
+      value: 50
+  enhanced:
+    absorb: 5
+    like_work: 40
+    extra_attack: 1
+    special_bitvector: b1c1
+
+# Mob #6707
+7:
+  names:
+    aliases: сильный агафон
+    nominative: сильный агафон
+    genitive: сильного агафона
+    dative: сильному агафону
+    accusative: сильного агафона
+    instrumental: сильным агафоном
+    prepositional: сильном агафоне
+  descriptions:
+    short_desc: |2
+      Сильный Агафон ковыряется вилами в носу.
+    long_desc: |2
+      Рыжеволосый крепкий парень.
+  alignment: 0
+  stats:
+    level: 9
+    hitroll_penalty: 14
+    armor: 7
+    hp:
+      dice_count: 1
+      dice_size: 1
+      bonus: 100
+    damage:
+      dice_count: 3
+      dice_size: 3
+      bonus: 0
+  gold:
+    dice_count: 5
+    dice_size: 2
+    bonus: 0
+  experience: 4900
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 50
+  race: 101
+  height: 198
+  weight: 70
+  attributes:
+    strength: 18
+    dexterity: 12
+    intelligence: 5
+    wisdom: 6
+    constitution: 5
+    charisma: 5
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kStayZone
+    - kHelper
+    - kNoCharm
+  affect_flags:
+    - kSlow
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 36
+    - skill_id: 150  # обезоружить
+      value: 50
+  enhanced:
+    absorb: 9
+    like_work: 40
+    max_factor: 1
+    extra_attack: 1
+    special_bitvector: b1c1
+
+# Mob #6708
+8:
+  names:
+    aliases: толстый агафон
+    nominative: толстый агафон
+    genitive: толстого агафона
+    dative: толстому агафону
+    accusative: толстого агафона
+    instrumental: толстым агафоном
+    prepositional: толстом агафоне
+  descriptions:
+    short_desc: |2
+      Толстый Агафон загоняет лошадь в хомут.
+    long_desc: |2
+      Рыжеволосый парень, довольно толстый.
+  alignment: 0
+  stats:
+    level: 7
+    hitroll_penalty: 10
+    armor: 7
+    hp:
+      dice_count: 1
+      dice_size: 1
+      bonus: 200
+    damage:
+      dice_count: 3
+      dice_size: 2
+      bonus: 0
+  gold:
+    dice_count: 5
+    dice_size: 2
+    bonus: 0
+  experience: 2900
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 50
+  race: 101
+  height: 198
+  weight: 100
+  attributes:
+    strength: 13
+    dexterity: 12
+    intelligence: 5
+    wisdom: 6
+    constitution: 5
+    charisma: 5
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kStayZone
+    - kHelper
+    - kNoCharm
+  affect_flags:
+    - kSlow
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 30
+    - skill_id: 150  # обезоружить
+      value: 50
+  enhanced:
+    absorb: 7
+    like_work: 40
+    max_factor: 1
+    extra_attack: 1
+    special_bitvector: b1c1
+
+# Mob #6709
+9:
+  names:
+    aliases: муравейка
+    nominative: муравейка
+    genitive: муравейки
+    dative: муравейке
+    accusative: муравейку
+    instrumental: муравейкой
+    prepositional: муравейке
+  descriptions:
+    short_desc: |2
+      Маленький муравейчик ползает по травке.
+    long_desc: |2
+      Маленький черный муравей.
+  alignment: 0
+  stats:
+    level: 1
+    hitroll_penalty: 13
+    armor: 8
+    hp:
+      dice_count: 1
+      dice_size: 10
+      bonus: 34
+    damage:
+      dice_count: 1
+      dice_size: 3
+      bonus: 0
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 40
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 1
+  race: 107
+  height: 198
+  weight: 1
+  attributes:
+    strength: 5
+    dexterity: 6
+    intelligence: 11
+    wisdom: 11
+    constitution: 11
+    charisma: 11
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kStayZone
+    - kAppearsSpring
+    - kAppearsSummer
+    - kAppearsAutumn
+  affect_flags:
+    - kSlow
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 3
+  enhanced:
+    absorb: 1
+    like_work: 5
+    special_bitvector: p0
+
+# Mob #6710
+10:
+  names:
+    aliases: работящий муравейка
+    nominative: работящий муравейка
+    genitive: работящего муравейки
+    dative: работящему муравейке
+    accusative: работящего муравейку
+    instrumental: работящим муравейкой
+    prepositional: работящем муравейке
+  descriptions:
+    short_desc: |2
+      Муравей-работяга вздыхая, тянет букашку домой.
+    long_desc: |2
+      Маленький черный муравей.
+  alignment: 0
+  stats:
+    level: 2
+    hitroll_penalty: 13
+    armor: 8
+    hp:
+      dice_count: 2
+      dice_size: 10
+      bonus: 34
+    damage:
+      dice_count: 1
+      dice_size: 3
+      bonus: 0
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 150
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 1
+  race: 107
+  height: 198
+  weight: 1
+  attributes:
+    strength: 7
+    dexterity: 6
+    intelligence: 11
+    wisdom: 11
+    constitution: 11
+    charisma: 11
+  action_flags:
+    - kNpc
+    - kStayZone
+    - kAppearsSpring
+    - kAppearsSummer
+    - kAppearsAutumn
+  affect_flags:
+    - kSlow
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 6
+  enhanced:
+    absorb: 2
+    like_work: 5
+    special_bitvector: p0
+
+# Mob #6711
+11:
+  names:
+    aliases: матка муравьиная
+    nominative: матка муравьиная
+    genitive: матки муравьиной
+    dative: матке муравьиной
+    accusative: матку муравьиную
+    instrumental: маткой муравьиной
+    prepositional: матке муравьиной
+  descriptions:
+    short_desc: |2
+      Муравьиная матка заботится о детках здесь.
+    long_desc: |2
+      Крупная муравьиная матка.
+  alignment: 0
+  stats:
+    level: 10
+    hitroll_penalty: 5
+    armor: 7
+    hp:
+      dice_count: 1
+      dice_size: 20
+      bonus: 100
+    damage:
+      dice_count: 2
+      dice_size: 4
+      bonus: 0
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 5500
+  position:
+    default: kSit
+    start: kSit
+  sex: kFemale
+  size: 5
+  race: 104
+  height: 198
+  weight: 2
+  action_flags:
+    - kNpc
+    - kAgressive
+    - kStayZone
+    - kAppearsSpring
+    - kAppearsSummer
+    - kAppearsAutumn
+  affect_flags:
+    - kHaste
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 36
+  triggers:
+    - 6716  # померал матка
+  enhanced:
+    absorb: 10
+    like_work: 40
+    max_factor: 1
+    extra_attack: 2
+    spells:
+      - 75
+      - 114
+
+# Mob #6712
+12:
+  names:
+    aliases: детка муравья
+    nominative: детка муравья
+    genitive: детки муравья
+    dative: детке муравья
+    accusative: детку муравья
+    instrumental: деткой муравья
+    prepositional: детке муравья
+  descriptions:
+    short_desc: |2
+      Детка муравья лежит здесь, ожидая лето.
+    long_desc: |2
+      Муравьиный ребенок.
+  alignment: 0
+  stats:
+    level: 2
+    hitroll_penalty: 14
+    armor: 8
+    hp:
+      dice_count: 1
+      dice_size: 1
+      bonus: 29
+    damage:
+      dice_count: 1
+      dice_size: 1
+      bonus: 0
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 150
+  position:
+    default: kSleep
+    start: kSleep
+  sex: kMale
+  size: 1
+  race: 101
+  height: 198
+  weight: 1
+  attributes:
+    strength: 6
+    dexterity: 11
+    intelligence: 11
+    wisdom: 11
+    constitution: 11
+    charisma: 11
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kStayZone
+    - kAppearsWinter
+  affect_flags:
+    - kSlow
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 6
+  enhanced:
+    absorb: 2
+    like_work: 35
+
+# Mob #6713
+13:
+  names:
+    aliases: торговый смерд
+    nominative: торговый смерд
+    genitive: торгового смерда
+    dative: торговому смерду
+    accusative: торгового смерда
+    instrumental: торговым смердом
+    prepositional: торговом смерде
+  descriptions:
+    short_desc: |2
+      Смерд с котомкой за плечом идет по дороге на Торжок.
+    long_desc: |2
+      Средних лет крестьянин с открытым честным лицом.
+  alignment: 0
+  stats:
+    level: 5
+    hitroll_penalty: 8
+    armor: 5
+    hp:
+      dice_count: 5
+      dice_size: 6
+      bonus: 100
+    damage:
+      dice_count: 3
+      dice_size: 2
+      bonus: 0
+  gold:
+    dice_count: 4
+    dice_size: 2
+    bonus: 0
+  experience: 1100
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 50
+  race: 101
+  height: 198
+  weight: 50
+  attributes:
+    strength: 7
+    dexterity: 11
+    intelligence: 11
+    wisdom: 11
+    constitution: 11
+    charisma: 11
+  action_flags:
+    - kNpc
+    - kStayZone
+    - kMemory
+  affect_flags:
+    - kInfravision
+    - kSlow
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 27
+  enhanced:
+    absorb: 5
+    like_work: 50
+    extra_attack: 1
+    special_bitvector: y0
+    destinations:
+      - 6701
+      - 6704
+      - 6708
+      - 6707
+      - 6712
+      - 6716
+      - 6725
+      - 6732
+
+# Mob #6714
+14:
+  names:
+    aliases: торговый смерд
+    nominative: торговый смерд
+    genitive: торгового смерда
+    dative: торговому смерду
+    accusative: торгового смерда
+    instrumental: торговым смердом
+    prepositional: торговом смерде
+  descriptions:
+    short_desc: |2
+      Смерд с котомкой за плечом идет по дороге на Торжок.
+    long_desc: |2
+      Молодой торговый смерд.
+  alignment: 0
+  stats:
+    level: 5
+    hitroll_penalty: 10
+    armor: 5
+    hp:
+      dice_count: 5
+      dice_size: 6
+      bonus: 100
+    damage:
+      dice_count: 3
+      dice_size: 2
+      bonus: 0
+  gold:
+    dice_count: 4
+    dice_size: 2
+    bonus: 0
+  experience: 1200
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 50
+  race: 101
+  height: 198
+  weight: 50
+  attributes:
+    strength: 7
+    dexterity: 11
+    intelligence: 11
+    wisdom: 11
+    constitution: 11
+    charisma: 11
+  action_flags:
+    - kNpc
+    - kStayZone
+    - kMemory
+  affect_flags:
+    - kInfravision
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 30
+  enhanced:
+    absorb: 5
+    like_work: 50
+    extra_attack: 1
+    special_bitvector: y0
+
+# Mob #6715
+15:
+  names:
+    aliases: журавль
+    nominative: журавль
+    genitive: журавля
+    dative: журавлю
+    accusative: журавля
+    instrumental: журавлем
+    prepositional: журавле
+  descriptions:
+    short_desc: |2
+      Белый журавль старательно осматривает воду здесь.
+    long_desc: |2
+      Белая птица с длинными черными ногами.
+  alignment: 0
+  stats:
+    level: 4
+    hitroll_penalty: 10
+    armor: 7
+    hp:
+      dice_count: 1
+      dice_size: 1
+      bonus: 99
+    damage:
+      dice_count: 3
+      dice_size: 2
+      bonus: 0
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 900
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 7
+  race: 103
+  height: 198
+  weight: 5
+  action_flags:
+    - kNpc
+    - kStayZone
+    - kSwimming
+    - kOnlySwimming
+    - kAppearsSpring
+    - kAppearsSummer
+    - kAppearsAutumn
+  affect_flags:
+    - kDetectLife
+    - kWaterWalk
+    - kInfravision
+    - kFly
+    - kWaterBreath
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 18
+  enhanced:
+    absorb: 4
+    bare_hand_attack: 15
+    like_work: 35
+    special_bitvector: l0
+
+# Mob #6716
+16:
+  names:
+    aliases: белая чайка
+    nominative: белая чайка
+    genitive: белой чайки
+    dative: белой чайке
+    accusative: белую чайку
+    instrumental: белой чайкой
+    prepositional: белой чайке
+  descriptions:
+    short_desc: |2
+      Белая чайка ловит рыбку здесь.
+    long_desc: |2
+      Жирная белая чайка.
+  alignment: 0
+  stats:
+    level: 3
+    hitroll_penalty: 13
+    armor: 7
+    hp:
+      dice_count: 5
+      dice_size: 5
+      bonus: 60
+    damage:
+      dice_count: 3
+      dice_size: 2
+      bonus: 0
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 500
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  size: 10
+  race: 103
+  height: 198
+  weight: 4
+  action_flags:
+    - kNpc
+    - kStayZone
+    - kSwimming
+    - kOnlySwimming
+    - kAppearsSpring
+    - kAppearsSummer
+    - kAppearsAutumn
+  affect_flags:
+    - kInfravision
+    - kFly
+    - kWaterBreath
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 18
+    - skill_id: 139  # украсть
+      value: 50
+  enhanced:
+    absorb: 3
+    bare_hand_attack: 15
+    like_work: 35
+    special_bitvector: l0a1
+
+# Mob #6717
+17:
+  names:
+    aliases: усатый сом
+    nominative: усатый сом
+    genitive: усатого сома
+    dative: усатому сому
+    accusative: усатого сома
+    instrumental: усатым сомом
+    prepositional: усатом соме
+  descriptions:
+    short_desc: |2
+      Усатый сом залег здесь на дне.
+    long_desc: |2
+      Черный крупный царь местного водоема.
+  alignment: 0
+  stats:
+    level: 4
+    hitroll_penalty: 11
+    armor: 6
+    hp:
+      dice_count: 5
+      dice_size: 6
+      bonus: 100
+    damage:
+      dice_count: 5
+      dice_size: 2
+      bonus: 0
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 1000
+  position:
+    default: kRest
+    start: kRest
+  sex: kMale
+  size: 20
+  race: 106
+  height: 198
+  weight: 10
+  attributes:
+    strength: 9
+    dexterity: 11
+    intelligence: 11
+    wisdom: 11
+    constitution: 11
+    charisma: 11
+  action_flags:
+    - kNpc
+    - kStayZone
+    - kSwimming
+    - kOnlySwimming
+    - kAgressiveSpring
+    - kAppearsSpring
+    - kAppearsSummer
+    - kAppearsAutumn
+  affect_flags:
+    - kDetectLife
+    - kWaterWalk
+    - kInfravision
+    - kWaterBreath
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 24
+  enhanced:
+    absorb: 4
+    bare_hand_attack: 4
+    like_work: 50
+    special_bitvector: o0
+
+# Mob #6718
+18:
+  names:
+    aliases: красноперка рыбка
+    nominative: красноперка
+    genitive: красноперки
+    dative: красноперке
+    accusative: красноперку
+    instrumental: красноперкой
+    prepositional: красноперке
+  descriptions:
+    short_desc: |2
+      Рыбка с красным пером резвится здесь.
+    long_desc: |2
+      Маленькая красноватая рыбешка.
+  alignment: 0
+  stats:
+    level: 2
+    hitroll_penalty: 11
+    armor: 8
+    hp:
+      dice_count: 5
+      dice_size: 5
+      bonus: 50
+    damage:
+      dice_count: 2
+      dice_size: 2
+      bonus: 0
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 290
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  size: 3
+  race: 104
+  height: 198
+  weight: 2
+  attributes:
+    strength: 7
+    dexterity: 11
+    intelligence: 11
+    wisdom: 11
+    constitution: 11
+    charisma: 11
+  action_flags:
+    - kNpc
+    - kStayZone
+    - kSwimming
+    - kOnlySwimming
+    - kAppearsSpring
+    - kAppearsSummer
+    - kAppearsAutumn
+  affect_flags:
+    - kDetectLife
+    - kInfravision
+    - kWaterBreath
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 12
+  enhanced:
+    absorb: 2
+    like_work: 40
+    special_bitvector: o0
+
+# Mob #6719
+19:
+  names:
+    aliases: лягушка
+    nominative: лягушка
+    genitive: лягушки
+    dative: лягушке
+    accusative: лягушку
+    instrumental: лягушкой
+    prepositional: лягушке
+  descriptions:
+    short_desc: |2
+      Зеленая лягушка раздувает здесь свои пузыри.
+    long_desc: |2
+      Зеленая неприятная лягушка.
+  alignment: 0
+  stats:
+    level: 2
+    hitroll_penalty: 12
+    armor: 7
+    hp:
+      dice_count: 5
+      dice_size: 5
+      bonus: 40
+    damage:
+      dice_count: 2
+      dice_size: 2
+      bonus: 0
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 240
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  size: 5
+  race: 105
+  height: 198
+  weight: 2
+  attributes:
+    strength: 7
+    dexterity: 11
+    intelligence: 11
+    wisdom: 11
+    constitution: 11
+    charisma: 11
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kStayZone
+    - kAgressiveSpring
+    - kAppearsSpring
+    - kAppearsSummer
+    - kAppearsAutumn
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 12
+  enhanced:
+    absorb: 2
+    bare_hand_attack: 2
+    like_work: 35
+    special_bitvector: n0
+
+# Mob #6720
+20:
+  names:
+    aliases: большая жаба
+    nominative: большая жаба
+    genitive: большой жабы
+    dative: большой жабы
+    accusative: большую жабу
+    instrumental: большой жабой
+    prepositional: большой жабой
+  descriptions:
+    short_desc: |2
+      Большая жаба греется на солнце.
+    long_desc: |2
+      Крупная зеленая жаба, вся в бородавках.
+  alignment: 0
+  stats:
+    level: 3
+    hitroll_penalty: 10
+    armor: 6
+    hp:
+      dice_count: 5
+      dice_size: 5
+      bonus: 99
+    damage:
+      dice_count: 4
+      dice_size: 2
+      bonus: 0
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 600
+  position:
+    default: kSit
+    start: kSit
+  sex: kFemale
+  size: 15
+  race: 105
+  height: 198
+  weight: 3
+  attributes:
+    strength: 9
+    dexterity: 11
+    intelligence: 11
+    wisdom: 11
+    constitution: 11
+    charisma: 11
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kStayZone
+    - kAppearsDay
+    - kAppearsSpring
+    - kAppearsSummer
+    - kAppearsAutumn
+    - kGasBreath
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 21
+  enhanced:
+    absorb: 3
+    like_work: 45
+    special_bitvector: g0
+
+# Mob #6721
+21:
+  names:
+    aliases: хомячок
+    nominative: хомячок
+    genitive: хомячка
+    dative: хомячку
+    accusative: хомячка
+    instrumental: хомячком
+    prepositional: хомячке
+  descriptions:
+    short_desc: |2
+      Толстенький хомячок жует зернышки здесь.
+    long_desc: |2
+      Маленький толстый хомячок.
+  alignment: 0
+  stats:
+    level: 4
+    hitroll_penalty: 11
+    armor: 6
+    hp:
+      dice_count: 5
+      dice_size: 5
+      bonus: 150
+    damage:
+      dice_count: 4
+      dice_size: 2
+      bonus: 0
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 800
+  position:
+    default: kSit
+    start: kSit
+  sex: kMale
+  size: 5
+  race: 104
+  height: 198
+  weight: 2
+  attributes:
+    strength: 8
+    dexterity: 11
+    intelligence: 18
+    wisdom: 18
+    constitution: 11
+    charisma: 11
+  action_flags:
+    - kSentinel
+    - kScavenger
+    - kNpc
+    - kStayZone
+    - kLooter
+  affect_flags:
+    - kDetectLife
+    - kInfravision
+    - kAwarness
+  skills:
+    - skill_id: 132  # сбить
+      value: 50
+    - skill_id: 136  # кулачный бой
+      value: 21
+  enhanced:
+    absorb: 4
+    like_work: 40
+    extra_attack: 1
+    spells:
+      - 5
+
+# Mob #6722
+22:
+  names:
+    aliases: черная гадюка змея
+    nominative: черная гадюка
+    genitive: черной гадюки
+    dative: черной гадюке
+    accusative: черную гадюку
+    instrumental: черной гадюкой
+    prepositional: черной гадюке
+  descriptions:
+    short_desc: |2
+      Черная змея вьется у Ваших ног.
+    long_desc: |2
+      Черная длинная гадина.
+  alignment: 0
+  stats:
+    level: 3
+    hitroll_penalty: 8
+    armor: 6
+    hp:
+      dice_count: 3
+      dice_size: 3
+      bonus: 86
+    damage:
+      dice_count: 5
+      dice_size: 2
+      bonus: 0
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 600
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  size: 3
+  race: 105
+  height: 198
+  weight: 4
+  attributes:
+    strength: 6
+    dexterity: 11
+    intelligence: 11
+    wisdom: 11
+    constitution: 11
+    charisma: 11
+  action_flags:
+    - kNpc
+    - kStayZone
+    - kAgressiveSpring
+    - kAgressiveAutumn
+    - kAppearsSpring
+    - kAppearsSummer
+    - kAppearsAutumn
+  affect_flags:
+    - kDetectLife
+    - kInfravision
+    - kNoFlee
+    - kHaste
+  skills:
+    - skill_id: 132  # сбить
+      value: 50
+    - skill_id: 136  # кулачный бой
+      value: 15
+  enhanced:
+    absorb: 3
+    bare_hand_attack: 4
+    like_work: 50
+    special_bitvector: g0m0
+
+# Mob #6723
+23:
+  names:
+    aliases: полевая мышка норушка
+    nominative: полевая мышка
+    genitive: полевой мышки
+    dative: полевой мышке
+    accusative: полевую мышку
+    instrumental: полевой мышкой
+    prepositional: полевой мышке
+  descriptions:
+    short_desc: |2
+      Мышка-норушка бегает в поисках зернышек.
+    long_desc: |2
+      Маленькая серая мышка.
+  alignment: 0
+  stats:
+    level: 2
+    hitroll_penalty: 17
+    armor: 7
+    hp:
+      dice_count: 5
+      dice_size: 5
+      bonus: 39
+    damage:
+      dice_count: 2
+      dice_size: 2
+      bonus: 0
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 240
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  size: 5
+  race: 104
+  height: 198
+  weight: 4
+  attributes:
+    strength: 9
+    dexterity: 11
+    intelligence: 11
+    wisdom: 11
+    constitution: 11
+    charisma: 11
+  action_flags:
+    - kNpc
+    - kStayZone
+    - kAppearsSpring
+    - kAppearsSummer
+    - kAppearsAutumn
+  affect_flags:
+    - kDetectLife
+    - kInfravision
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 9
+  enhanced:
+    absorb: 2
+    bare_hand_attack: 2
+    like_work: 40
+    special_bitvector: p0
+
+# Mob #6724
+24:
+  names:
+    aliases: молодой лесной олень
+    nominative: лесной олень
+    genitive: лесного оленя
+    dative: лесному оленю
+    accusative: лесного оленя
+    instrumental: лесным оленем
+    prepositional: лесном олене
+  descriptions:
+    short_desc: |2
+      Молодой олень удивленно смотрит на Вас.
+    long_desc: |2
+      Красивый коричневый олень.
+  alignment: 0
+  stats:
+    level: 2
+    hitroll_penalty: 13
+    armor: 8
+    hp:
+      dice_count: 5
+      dice_size: 5
+      bonus: 70
+    damage:
+      dice_count: 3
+      dice_size: 2
+      bonus: 0
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 300
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 20
+  race: 104
+  height: 198
+  weight: 40
+  attributes:
+    strength: 9
+    dexterity: 11
+    intelligence: 11
+    wisdom: 11
+    constitution: 11
+    charisma: 11
+  action_flags:
+    - kNpc
+    - kStayZone
+    - kNoSkillTrain
+  affect_flags:
+    - kDetectLife
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 12
+  enhanced:
+    absorb: 2
+    bare_hand_attack: 14
+    like_work: 35
+    extra_attack: 1
+    special_bitvector: p0y0
+
+# Mob #6725
+25:
+  names:
+    aliases: кузнечик
+    nominative: кузнечик
+    genitive: кузнечика
+    dative: кузнечику
+    accusative: кузнечика
+    instrumental: кузнечиком
+    prepositional: кузнечике
+  descriptions:
+    short_desc: |2
+      Зеленый кузнечик прыгает по травкам.
+    long_desc: |2
+      Маленький зеленый кузнечик.
+  alignment: 0
+  stats:
+    level: 1
+    hitroll_penalty: 14
+    armor: 6
+    hp:
+      dice_count: 5
+      dice_size: 15
+      bonus: 30
+    damage:
+      dice_count: 2
+      dice_size: 1
+      bonus: 0
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 100
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 1
+  race: 104
+  height: 198
+  weight: 1
+  attributes:
+    strength: 5
+    dexterity: 11
+    intelligence: 11
+    wisdom: 11
+    constitution: 11
+    charisma: 11
+  action_flags:
+    - kNpc
+    - kStayZone
+    - kWimpy
+    - kNoSkillTrain
+  skills:
+    - skill_id: 134  # пнуть
+      value: 50
+    - skill_id: 136  # кулачный бой
+      value: 6
+  enhanced:
+    absorb: 1
+    bare_hand_attack: 2
+    like_work: 30
+    special_bitvector: n0
+
+# Mob #6726
+26:
+  names:
+    aliases: конь дикий
+    nominative: дикий конь
+    genitive: дикого коня
+    dative: дикому коню
+    accusative: дикого коня
+    instrumental: диким конем
+    prepositional: диком коне
+  descriptions:
+    short_desc: |2
+      Дикий степной конь вольно пасется здесь.
+    long_desc: |2
+      Прекрасный конь с длинной гривой.
+  alignment: 0
+  stats:
+    level: 4
+    hitroll_penalty: 10
+    armor: 6
+    hp:
+      dice_count: 5
+      dice_size: 5
+      bonus: 45
+    damage:
+      dice_count: 3
+      dice_size: 3
+      bonus: 0
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 800
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 40
+  race: 104
+  height: 198
+  weight: 120
+  attributes:
+    strength: 6
+    dexterity: 11
+    intelligence: 11
+    wisdom: 11
+    constitution: 11
+    charisma: 11
+  action_flags:
+    - kNpc
+    - kStayZone
+    - kNoCharm
+    - kMounting
+  affect_flags:
+    - kAwarness
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 15
+  enhanced:
+    absorb: 4
+    like_work: 35
+    extra_attack: 1
+    special_bitvector: p0
+
+# Mob #6727
+27:
+  names:
+    aliases: маленький зайчик
+    nominative: маленький зайчик
+    genitive: маленького зайчика
+    dative: маленькому зайчику
+    accusative: маленького зайчика
+    instrumental: маленьким зайчиком
+    prepositional: маленьком зайчике
+  descriptions:
+    short_desc: |2
+      Маленький зайчик весело носится здесь.
+    long_desc: |2
+      Маленький, но зубастый зайчик.
+  alignment: 0
+  stats:
+    level: 2
+    hitroll_penalty: 14
+    armor: 7
+    hp:
+      dice_count: 5
+      dice_size: 5
+      bonus: 40
+    damage:
+      dice_count: 3
+      dice_size: 2
+      bonus: 0
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 150
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 5
+  race: 104
+  height: 198
+  weight: 15
+  attributes:
+    strength: 6
+    dexterity: 11
+    intelligence: 11
+    wisdom: 11
+    constitution: 11
+    charisma: 11
+  action_flags:
+    - kNpc
+    - kStayZone
+    - kWimpy
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 9
+  enhanced:
+    absorb: 2
+    bare_hand_attack: 4
+    like_work: 40
+    special_bitvector: n0
+
+# Mob #6728
+28:
+  names:
+    aliases: усталая лошадь
+    nominative: усталая лошадь
+    genitive: усталой лошади
+    dative: усталой лошади
+    accusative: усталую лошадь
+    instrumental: усталой лошадью
+    prepositional: усталой лошади
+  descriptions:
+    short_desc: |2
+      Усталая лошадь стоит, понурив голову.
+    long_desc: |2
+      Усталая лошадка серого цвета.
+  alignment: 0
+  stats:
+    level: 2
+    hitroll_penalty: 13
+    armor: 7
+    hp:
+      dice_count: 5
+      dice_size: 5
+      bonus: 45
+    damage:
+      dice_count: 1
+      dice_size: 3
+      bonus: 0
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 150
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  size: 12
+  race: 104
+  height: 198
+  weight: 40
+  attributes:
+    strength: 5
+    dexterity: 11
+    intelligence: 11
+    wisdom: 11
+    constitution: 11
+    charisma: 11
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kStayZone
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 9
+  enhanced:
+    absorb: 2
+    bare_hand_attack: 13
+    like_work: 35
+    extra_attack: 1
+
+# Mob #6729
+29:
+  names:
+    aliases: дикая пчела
+    nominative: дикая пчела
+    genitive: дикой пчелы
+    dative: дикой пчеле
+    accusative: дикую пчелу
+    instrumental: дикой пчелой
+    prepositional: дикой пчеле
+  descriptions:
+    short_desc: |2
+      Дикая лесная пчела жужжит здесь по своим делам.
+    long_desc: |2
+      Крупная черная пчела.
+  alignment: 0
+  stats:
+    level: 2
+    hitroll_penalty: 14
+    armor: 9
+    hp:
+      dice_count: 5
+      dice_size: 5
+      bonus: 30
+    damage:
+      dice_count: 1
+      dice_size: 3
+      bonus: 0
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 120
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  size: 1
+  race: 107
+  height: 198
+  weight: 1
+  attributes:
+    strength: 5
+    dexterity: 11
+    intelligence: 11
+    wisdom: 11
+    constitution: 11
+    charisma: 11
+  action_flags:
+    - kNpc
+    - kStayZone
+    - kAgressiveAutumn
+    - kAppearsSpring
+    - kAppearsSummer
+    - kAppearsAutumn
+  affect_flags:
+    - kFly
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 6
+  enhanced:
+    absorb: 2
+    bare_hand_attack: 16
+    like_work: 12
+    special_bitvector: g0l0
+
+# Mob #6730
+30:
+  names:
+    aliases: грустный шмель
+    nominative: грустный шмель
+    genitive: грустного шмеля
+    dative: грустному шмелю
+    accusative: грустного шмеля
+    instrumental: грустным шмелем
+    prepositional: грустном шмеле
+  descriptions:
+    short_desc: |2
+      Несчастный шмель еле машет крыльями здесь.
+    long_desc: |2
+      Крупный полосатый шмель.
+  alignment: 0
+  stats:
+    level: 6
+    hitroll_penalty: 13
+    armor: 6
+    hp:
+      dice_count: 5
+      dice_size: 5
+      bonus: 50
+    damage:
+      dice_count: 5
+      dice_size: 2
+      bonus: 0
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 1900
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 1
+  race: 107
+  height: 198
+  weight: 1
+  attributes:
+    strength: 5
+    dexterity: 11
+    intelligence: 11
+    wisdom: 11
+    constitution: 11
+    charisma: 11
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kStayZone
+    - kAppearsSpring
+    - kAppearsSummer
+    - kAppearsAutumn
+  affect_flags:
+    - kDetectAlign
+    - kDetectInvisible
+    - kDetectMagic
+    - kDetectLife
+    - kCurse
+    - kInfravision
+    - kFly
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 27
+  enhanced:
+    absorb: 6
+    bare_hand_attack: 4
+    like_work: 45
+    special_bitvector: g0
+
+# Mob #6731
+31:
+  names:
+    aliases: веселый шмель
+    nominative: веселый шмель
+    genitive: веселого шмеля
+    dative: веселому шмелю
+    accusative: веселого шмеля
+    instrumental: веселым шмелем
+    prepositional: веселом шмеле
+  descriptions:
+    short_desc: |2
+      Черный шмель летает от цветка к цветку.
+    long_desc: |2
+      Большой черный шмель.
+  alignment: 0
+  stats:
+    level: 6
+    hitroll_penalty: 11
+    armor: 6
+    hp:
+      dice_count: 5
+      dice_size: 5
+      bonus: 50
+    damage:
+      dice_count: 5
+      dice_size: 2
+      bonus: 0
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 1900
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 1
+  race: 107
+  height: 198
+  weight: 1
+  attributes:
+    strength: 5
+    dexterity: 11
+    intelligence: 11
+    wisdom: 11
+    constitution: 11
+    charisma: 11
+  action_flags:
+    - kNpc
+    - kStayZone
+    - kAppearsSpring
+    - kAppearsSummer
+    - kAppearsAutumn
+  affect_flags:
+    - kFly
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 27
+  enhanced:
+    absorb: 6
+    bare_hand_attack: 4
+    like_work: 45
+    special_bitvector: g0y0
+
+# Mob #6732
+32:
+  names:
+    aliases: дикая пчела
+    nominative: дикая пчела
+    genitive: дикой пчелы
+    dative: дикой пчеле
+    accusative: дикую пчелу
+    instrumental: дикой пчелой
+    prepositional: дикой пчеле
+  descriptions:
+    short_desc: |2
+      Дикая лесная пчела жужжит здесь по своим делам.
+    long_desc: |2
+      Маленькая дикая собирательница меда.
+  alignment: 0
+  stats:
+    level: 2
+    hitroll_penalty: 11
+    armor: 9
+    hp:
+      dice_count: 5
+      dice_size: 5
+      bonus: 30
+    damage:
+      dice_count: 1
+      dice_size: 3
+      bonus: 0
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 120
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  size: 1
+  race: 107
+  height: 198
+  weight: 1
+  attributes:
+    strength: 5
+    dexterity: 11
+    intelligence: 11
+    wisdom: 11
+    constitution: 11
+    charisma: 11
+  action_flags:
+    - kNpc
+    - kAgressive
+    - kStayZone
+    - kAppearsSpring
+    - kAppearsSummer
+    - kAppearsAutumn
+  affect_flags:
+    - kFly
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 6
+  enhanced:
+    absorb: 2
+    bare_hand_attack: 16
+    like_work: 12
+    special_bitvector: g0l0
+
+# Mob #6733
+33:
+  names:
+    aliases: бык дикий
+    nominative: дикий бык
+    genitive: дикого быка
+    dative: дикому быку
+    accusative: дикого быка
+    instrumental: диким быком
+    prepositional: диком быке
+  descriptions:
+    short_desc: |2
+      Большой дикий бык величаво пережевывает траву здесь.
+    long_desc: |2
+      Большая груда мяса и костей.
+  alignment: 0
+  stats:
+    level: 7
+    hitroll_penalty: 10
+    armor: 6
+    hp:
+      dice_count: 5
+      dice_size: 5
+      bonus: 245
+    damage:
+      dice_count: 3
+      dice_size: 3
+      bonus: 0
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 2800
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 100
+  race: 104
+  height: 198
+  weight: 200
+  attributes:
+    strength: 13
+    dexterity: 11
+    intelligence: 18
+    wisdom: 11
+    constitution: 11
+    charisma: 11
+  action_flags:
+    - kNpc
+    - kStayZone
+    - kNoCharm
+    - kMounting
+    - kNoSkillTrain
+  affect_flags:
+    - kAwarness
+  skills:
+    - skill_id: 5  # оглушить
+      value: 50
+    - skill_id: 132  # сбить
+      value: 50
+    - skill_id: 136  # кулачный бой
+      value: 24
+  enhanced:
+    absorb: 7
+    like_work: 70
+    max_factor: 1
+    extra_attack: 1
+    special_bitvector: p0y0
+  dead_load:
+    - obj_vnum: 1430
+      load_prob: 12
+      load_type: 0
+      spec_param: 0
+    - obj_vnum: 1488
+      load_prob: 10
+      load_type: 0
+      spec_param: 0

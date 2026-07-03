@@ -1,0 +1,1071 @@
+# Mobs for zone 30
+
+# Mob #3000
+0:
+  names:
+    aliases: двойник
+    nominative: двойник
+    genitive: двойника
+    dative: двойнику
+    accusative: двойника
+    instrumental: двойником
+    prepositional: двойнике
+  descriptions:
+    short_desc: |2
+      Чей-то двойник колышется в воздухе.
+    long_desc: |2
+      Точная копия своего владельца.
+  alignment: -600
+  stats:
+    level: 25
+    hitroll_penalty: 15
+    armor: 0
+    hp:
+      dice_count: 10
+      dice_size: 5
+      bonus: 330
+    damage:
+      dice_count: 5
+      dice_size: 5
+      bonus: 5
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 50
+  race: 110
+  height: 175
+  weight: 160
+  attributes:
+    strength: 12
+    dexterity: 12
+    intelligence: 12
+    wisdom: 12
+    constitution: 12
+    charisma: 12
+  action_flags:
+    - kNpc
+    - kNoSummon
+    - kCorpse
+    - kNoSkillTrain
+  affect_flags:
+    - kInfravision
+    - kProtectFromMind
+    - kFly
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 75
+  enhanced:
+    max_factor: 3
+    extra_attack: 1
+    special_bitvector: l0
+
+# Mob #3001
+1:
+  names:
+    aliases: скелет
+    nominative: скелет
+    genitive: скелета
+    dative: скелету
+    accusative: скелета
+    instrumental: скелетом
+    prepositional: скелете
+  descriptions:
+    short_desc: |2
+      Скелет стоит здесь, обводя округу пустыми глазницами.
+    long_desc: |2
+      Голый человеческий остов с багровым огнем, горящим в пустых
+      глазницах ждет приказа хозяина - чернокнижника.
+  alignment: -600
+  stats:
+    level: 5
+    hitroll_penalty: 10
+    armor: 8
+    hp:
+      dice_count: 10
+      dice_size: 4
+      bonus: 200
+    damage:
+      dice_count: 6
+      dice_size: 3
+      bonus: 4
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 30
+  race: 110
+  height: 150
+  weight: 150
+  attributes:
+    strength: 10
+    dexterity: 10
+    intelligence: 10
+    wisdom: 10
+    constitution: 3
+    charisma: 3
+  action_flags:
+    - kNpc
+    - kNoSummon
+    - kNoSleep
+    - kCorpse
+    - kNoSkillTrain
+  affect_flags:
+    - kInfravision
+    - kProtectFromMind
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 15
+  enhanced:
+    resistances:
+      kVitality: 25
+      kImmunity: 95
+
+# Mob #3002
+2:
+  names:
+    aliases: мертвяк
+    nominative: мертвяк
+    genitive: мертвяка
+    dative: мертвяку
+    accusative: мертвяка
+    instrumental: мертвяком
+    prepositional: мертвяке
+  descriptions:
+    short_desc: |2
+      Мертвяк стоит здесь, плотоядно облизываясь.
+    long_desc: |2
+      Жуткий полуразложившийся труп, поднятый из земли темными чарами.
+      Темное колдовство налило его руки мощью и сделало нечувствительным к боли и ранам.
+  alignment: -600
+  stats:
+    level: 10
+    hitroll_penalty: 5
+    armor: 5
+    hp:
+      dice_count: 10
+      dice_size: 5
+      bonus: 300
+    damage:
+      dice_count: 9
+      dice_size: 5
+      bonus: 6
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 40
+  race: 110
+  height: 150
+  weight: 150
+  attributes:
+    strength: 14
+    dexterity: 14
+    intelligence: 10
+    wisdom: 10
+    constitution: 3
+    charisma: 3
+  action_flags:
+    - kNpc
+    - kNoSleep
+    - kCorpse
+    - kNoSkillTrain
+  affect_flags:
+    - kInfravision
+    - kProtectFromMind
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 30
+  enhanced:
+    bare_hand_attack: 5
+    max_factor: 1
+    resistances:
+      kVitality: 25
+      kImmunity: 95
+
+# Mob #3003
+3:
+  names:
+    aliases: костяная гончая
+    nominative: костяная гончая
+    genitive: костяной гончей
+    dative: костяной гончей
+    accusative: костяную гончую
+    instrumental: костяной гончей
+    prepositional: костяной гончей
+  descriptions:
+    short_desc: |2
+      Костяная гончая стоит здесь, ожидая приказа своего хозяина.
+    long_desc: |2
+      Груда костей, выглядящая как скелет пса, величиной
+      с теленка. Челюсти его украшены жутким набором клыков,
+      а когти вытянуты и остры как иглы.
+      Мрачные багровые огоньки в пустых глазницах черепа
+      следят за вашими движениями.
+  alignment: -600
+  stats:
+    level: 15
+    hitroll_penalty: 0
+    armor: 3
+    hp:
+      dice_count: 10
+      dice_size: 4
+      bonus: 600
+    damage:
+      dice_count: 6
+      dice_size: 8
+      bonus: 10
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  size: 45
+  race: 110
+  height: 150
+  weight: 150
+  attributes:
+    strength: 18
+    dexterity: 18
+    intelligence: 10
+    wisdom: 10
+    constitution: 3
+    charisma: 3
+  action_flags:
+    - kNpc
+    - kNoSleep
+    - kCorpse
+    - kNoSkillTrain
+  affect_flags:
+    - kInfravision
+    - kProtectFromMind
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 45
+  enhanced:
+    bare_hand_attack: 4
+    max_factor: 2
+    extra_attack: 1
+    special_bitvector: p0
+    resistances:
+      kFire: 7
+      kVitality: 25
+      kImmunity: 95
+
+# Mob #3004
+4:
+  names:
+    aliases: костяной дракон порождение Ужаса
+    nominative: костяной дракон
+    genitive: костяного дракона
+    dative: костяному дракону
+    accusative: костяного дракона
+    instrumental: костяным драконом
+    prepositional: костяном драконе
+  descriptions:
+    short_desc: |2
+      Костяной дракон, порождение Ужаса, готов разорвать любого по приказу хозяина.
+    long_desc: |2
+      Чудовищное порождение темной магии, напоминающее скелет
+      огромного крылатого ящера, вооруженный множеством острых
+      как бритва когтей, клыков и шипов.
+      Призрачные синие огоньки тлеют в его пустых глазницах.
+  alignment: -600
+  stats:
+    level: 25
+    hitroll_penalty: -10
+    armor: 0
+    hp:
+      dice_count: 10
+      dice_size: 5
+      bonus: 800
+    damage:
+      dice_count: 7
+      dice_size: 8
+      bonus: 15
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 85
+  race: 105
+  height: 200
+  weight: 150
+  attributes:
+    strength: 22
+    dexterity: 20
+    intelligence: 10
+    wisdom: 10
+    constitution: 4
+    charisma: 3
+  action_flags:
+    - kNpc
+    - kNoSleep
+    - kCorpse
+    - kFlying
+    - kNoSkillTrain
+  affect_flags:
+    - kInfravision
+    - kProtectFromMind
+    - kFly
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 75
+  enhanced:
+    bare_hand_attack: 1
+    max_factor: 3
+    extra_attack: 1
+    special_bitvector: l0
+    resistances:
+      kFire: 15
+      kVitality: 25
+      kImmunity: 95
+    saves:
+      kWill: 30
+
+# Mob #3005
+5:
+  names:
+    aliases: костяной дух
+    nominative: костяной дух
+    genitive: костяного духа
+    dative: костяному духу
+    accusative: костяного духа
+    instrumental: костяным духом
+    prepositional: костяном духе
+  descriptions:
+    short_desc: |2
+      Огромный костяной дух готов убивать и рушить по приказу хозяина.
+    long_desc: |2
+      Громадная куча костей и гниющей плоти возвышается над вами.
+      Кости неведомого создания вывернуты, выкручены и скреплены
+      буграми могучих мышц, сквозь которые прорываются покрывающие
+      все тело духа острые костяные шипы.
+      Украшенная несколькими рядами клыков пасть истекает зеленоватой
+      слюной, а пустые глазницы следят за вами зрачками призрачных огней.
+  alignment: -600
+  stats:
+    level: 30
+    hitroll_penalty: -10
+    armor: 0
+    hp:
+      dice_count: 20
+      dice_size: 5
+      bonus: 1200
+    damage:
+      dice_count: 7
+      dice_size: 8
+      bonus: 20
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 100
+  race: 111
+  height: 200
+  weight: 180
+  attributes:
+    strength: 25
+    dexterity: 22
+    intelligence: 10
+    wisdom: 10
+    constitution: 5
+    charisma: 3
+  action_flags:
+    - kNpc
+    - kNoSleep
+    - kCorpse
+    - kFlying
+    - kNoSkillTrain
+  affect_flags:
+    - kInfravision
+    - kProtectFromMind
+    - kFly
+    - kCloudOfArrows
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 80
+  enhanced:
+    bare_hand_attack: 6
+    like_work: 90
+    max_factor: 4
+    extra_attack: 1
+    special_bitvector: l0
+    resistances:
+      kVitality: 25
+      kImmunity: 95
+      kDark: 5
+    saves:
+      kWill: 30
+
+# Mob #3006
+6:
+  names:
+    aliases: болотный огонек
+    nominative: болотный огонек
+    genitive: болотного огонька
+    dative: болотному огоньку
+    accusative: болотного огонька
+    instrumental: болотным огоньком
+    prepositional: болотном огоньке
+  descriptions:
+    short_desc: |2
+      Неоконченный моб стоит тут.
+    long_desc: |2
+      Выглядит достаточно незавершенно.
+  alignment: 0
+  stats:
+    level: 1
+    hitroll_penalty: 20
+    armor: 0
+    hp:
+      dice_count: 1
+      dice_size: 100
+      bonus: 1
+    damage:
+      dice_count: 1
+      dice_size: 1
+      bonus: 0
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kNeutral
+  size: 30
+  race: 100
+  height: 198
+  weight: 200
+  action_flags:
+    - kNpc
+  enhanced:
+
+# Mob #3007
+7:
+  names:
+    aliases: Долговязый дрекавец
+    nominative: дрекавец
+    genitive: дрекавца
+    dative: дрекавцу
+    accusative: дрекавца
+    instrumental: дрекавцом
+    prepositional: дрекавце
+  descriptions:
+    short_desc: |2
+      Долговязый дрекавец поглядывает злобно по стороном, жутко завывая.
+    long_desc: |2
+      Тонкое веретенообразное тело с непропорционально большой головой,
+      глазами навыкат и широченным ртом, полным острых, как иглы, зубов.
+      По поверьям, в дрекавцев превращаются погибшие некрещёные дети
+      или те кто при жизни плохо вел себя и не слушал родителей.
+  alignment: -600
+  stats:
+    level: 30
+    hitroll_penalty: -15
+    armor: -10
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 500
+    damage:
+      dice_count: 1
+      dice_size: 20
+      bonus: 0
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 100
+  race: 110
+  height: 200
+  weight: 180
+  attributes:
+    strength: 15
+    dexterity: 22
+    intelligence: 10
+    wisdom: 40
+    constitution: 5
+    charisma: 3
+  action_flags:
+    - kNpc
+    - kNoSleep
+    - kCorpse
+    - kFlying
+    - kNoSkillTrain
+  affect_flags:
+    - kDetectInvisible
+    - kInfravision
+    - kProtectFromMind
+    - kFly
+    - kStoneHands
+    - kShadowCloak
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 100
+  enhanced:
+    hp_regen: 20
+    armour_bonus: 20
+    initiative_add: 20
+    absorb: 20
+    aresist: 20
+    mresist: 20
+    presist: 20
+    bare_hand_attack: 1
+    like_work: 90
+    max_factor: 4
+    extra_attack: 3
+    special_bitvector: l0
+    resistances:
+      kFire: 15
+      kVitality: 25
+      kImmunity: 95
+      kDark: 5
+    saves:
+      kWill: -100
+      kCritical: -100
+      kStability: -100
+      kReflex: -100
+
+# Mob #3008
+8:
+  names:
+    aliases: Огромный костяк велета
+    nominative: костяк велета
+    genitive: костяка велета
+    dative: костяку велета
+    accusative: костяк велета
+    instrumental: костяком велета
+    prepositional: костяке велета
+  descriptions:
+    short_desc: |2
+      Огромный костяк велета стоит неподвижно, ожидая команд своего повелитя.
+    long_desc: |2
+      Костяк огромного богатыря-великана, усиленный железными шипами, стяжками,
+      пластинами и цепями. Когда-то эти велеты населяли землю и считали себя
+      хозяевами на ней, но Боги истребили их всех до последнего за непомерную
+      гордыню, оставив лишь кости в земле. Кости велетов крайне ценятся среди
+      чернокнижников, из них они создают послушных своей воли тварей, не 
+      знающих в бою ни страха, ни жалости.
+  alignment: -600
+  stats:
+    level: 30
+    hitroll_penalty: 10
+    armor: -15
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 2000
+    damage:
+      dice_count: 1
+      dice_size: 20
+      bonus: 50
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 100
+  race: 110
+  height: 200
+  weight: 180
+  attributes:
+    strength: 50
+    dexterity: 22
+    intelligence: 10
+    wisdom: 10
+    constitution: 5
+    charisma: 3
+  action_flags:
+    - kNpc
+    - kNoSleep
+    - kNoBlind
+    - kCorpse
+    - kFlying
+    - kNoSkillTrain
+  affect_flags:
+    - kDetectInvisible
+    - kInfravision
+    - kProtectFromMind
+    - kFly
+    - kShadowCloak
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 80
+  enhanced:
+    hp_regen: 200
+    armour_bonus: 50
+    absorb: 30
+    aresist: 50
+    mresist: 50
+    presist: 50
+    bare_hand_attack: 3
+    like_work: 90
+    max_factor: 4
+    special_bitvector: l0
+    resistances:
+      kFire: 10
+      kAir: 10
+      kWater: 10
+      kEarth: 10
+      kVitality: 25
+      kImmunity: 95
+      kDark: 5
+    saves:
+      kWill: -100
+      kCritical: -100
+      kStability: -100
+      kReflex: -100
+
+# Mob #3009
+9:
+  names:
+    aliases: черный василиск
+    nominative: черный василиск
+    genitive: черного василиска
+    dative: черному василиску
+    accusative: черного василиска
+    instrumental: черным василиском
+    prepositional: черном василиске
+  descriptions:
+    short_desc: |2
+      Черный василиск лениво шагает за повелителем, источая вокруг себя смрад и зловоние.
+    long_desc: |2
+      Огромный, размером с медведя, чешуйчатый ящер с мощным хвостом. На спине
+      василиска есть ряд костяных выростов с острыми ядовитыми шипами, а короткие
+      лапы украшают кривые и длинные, словно сабли, когти. Говорят, чернокнижники
+      разводят василисков, заставляя пойманную болотную жабу, высиживать
+      куриные яйца. Но, скорее всего, это деревенские байки, где это видано,
+      чтоб чернокнижники бегали по болотам за жабой.
+  alignment: -600
+  stats:
+    level: 30
+    hitroll_penalty: 0
+    armor: -10
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 700
+    damage:
+      dice_count: 1
+      dice_size: 40
+      bonus: 0
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 100
+  race: 110
+  height: 200
+  weight: 180
+  attributes:
+    strength: 20
+    dexterity: 22
+    intelligence: 10
+    wisdom: 30
+    constitution: 5
+    charisma: 3
+  action_flags:
+    - kNpc
+    - kNoSleep
+    - kNoBlind
+    - kCorpse
+    - kFlying
+    - kLightingBreath
+    - kNoSkillTrain
+  affect_flags:
+    - kDetectInvisible
+    - kInfravision
+    - kProtectFromMind
+    - kFly
+    - kShadowCloak
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 200
+    - skill_id: 187  # магия тьмы
+      value: 100
+  enhanced:
+    hp_regen: 200
+    armour_bonus: 30
+    initiative_add: 50
+    absorb: 30
+    aresist: 20
+    mresist: 20
+    presist: 20
+    bare_hand_attack: 1
+    like_work: 90
+    max_factor: 4
+    extra_attack: 2
+    special_bitvector: l0
+    resistances:
+      kFire: 10
+      kAir: 10
+      kWater: 10
+      kEarth: 10
+      kVitality: 25
+      kImmunity: 95
+      kDark: 5
+    saves:
+      kWill: -100
+      kCritical: -100
+      kStability: -100
+      kReflex: -100
+
+# Mob #3010
+10:
+  names:
+    aliases: злобный караконджул
+    nominative: злобный караконджул
+    genitive: злобного караконджула
+    dative: злобному караконджулу
+    accusative: злобного караконджула
+    instrumental: злобным караконджулом
+    prepositional: злобном караконджуле
+  descriptions:
+    short_desc: |2
+      Злобный караканджул парит над землей, источая могильный холод.
+    long_desc: |2
+      Ночной дух - караканджул, вызванный темным заклятием. Тонкое тело его с
+      длинными ниже колен руками увито сплетением пульсирующих черных вен, по
+      которым бежит кровь тех, кого ему позволил пожрать призвавший его повелитель.
+      По поверьям караканджул исчезает с криками петухов, видимо, поэтому ему
+      отрезали уши, а ушные дыры заделали глиной и мусором.
+  alignment: -600
+  stats:
+    level: 30
+    hitroll_penalty: 0
+    armor: 0
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 300
+    damage:
+      dice_count: 0
+      dice_size: 0
+      bonus: 10
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 100
+  race: 111
+  height: 200
+  weight: 180
+  attributes:
+    strength: 30
+    dexterity: 22
+    intelligence: 10
+    wisdom: 10
+    constitution: 5
+    charisma: 3
+  action_flags:
+    - kNpc
+    - kNoSleep
+    - kNoBlind
+    - kCorpse
+    - kFlying
+    - kGasBreath
+    - kNoSkillTrain
+  affect_flags:
+    - kInfravision
+    - kProtectFromMind
+    - kFly
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 80
+  enhanced:
+    bare_hand_attack: 9
+    like_work: 90
+    max_factor: 4
+    extra_attack: 2
+    special_bitvector: l0
+    resistances:
+      kVitality: 25
+      kImmunity: 95
+      kDark: 5
+    saves:
+      kWill: 30
+
+# Mob #3020
+20:
+  names:
+    aliases: ментальная тень
+    nominative: ментальная тень
+    genitive: ментальной тени
+    dative: ментальной тени
+    accusative: ментальную тень
+    instrumental: ментальной тенью
+    prepositional: ментальной тени
+  descriptions:
+    short_desc: |2
+      Чья-то тень мерещится тут.
+    long_desc: |2
+      Чья-то тень мерещится тут.
+  alignment: 0
+  stats:
+    level: 1
+    hitroll_penalty: 20
+    armor: -1
+    hp:
+      dice_count: 1
+      dice_size: 100
+      bonus: 100
+    damage:
+      dice_count: 1
+      dice_size: 1
+      bonus: 0
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  size: 30
+  race: 111
+  height: 198
+  weight: 200
+  attributes:
+    strength: 11
+    dexterity: 25
+    intelligence: 31
+    wisdom: 3
+    constitution: 11
+    charisma: 11
+  action_flags:
+    - kNpc
+    - kNoSleep
+    - kNoBash
+    - kNoBlind
+    - kNoFear
+    - kCorpse
+    - kFlying
+    - kNoUndercut
+    - kMentalShadow
+  affect_flags:
+    - kDetectAlign
+    - kDetectInvisible
+    - kDetectMagic
+    - kDetectLife
+    - kInfravision
+    - kFly
+    - kNoFlee
+    - kShadowCloak
+  skills:
+    - skill_id: 1  # прикрыть
+      value: 150
+    - skill_id: 22  # осторожный стиль
+      value: 1
+  enhanced:
+    like_work: 90
+    spells:
+      - 14
+      - 14
+      - 14
+      - 15
+      - 15
+      - 15
+      - 79
+      - 79
+      - 79
+      - 149
+      - 149
+      - 149
+
+# Mob #3021
+21:
+  names:
+    aliases: хранитель неизвестный
+    nominative: хранитель
+    genitive: хранителя
+    dative: хранителю
+    accusative: хранителя
+    instrumental: хранителем
+    prepositional: хранителе
+  descriptions:
+    short_desc: |2
+      Дух неизвестного существа летает тут.
+    long_desc: |2
+      Это парящая в воздухе фигура, облаченная в изодранный балахон
+      и воруженная парой тежелых плетей. Ее лицо полускрыто глубоким
+      куколем, но и того что видно довольно, чтобы отбить желание
+      пытаться увидеть остальное.
+  alignment: 0
+  stats:
+    level: 1
+    hitroll_penalty: 2
+    armor: -2
+    hp:
+      dice_count: 15
+      dice_size: 10
+      bonus: 150
+    damage:
+      dice_count: 8
+      dice_size: 4
+      bonus: 0
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 30
+  race: 110
+  height: 50
+  weight: 50
+  attributes:
+    strength: 3
+    dexterity: 19
+    intelligence: 12
+    wisdom: 12
+    constitution: 10
+    charisma: 14
+  action_flags:
+    - kNpc
+    - kCorpse
+    - kNoSkillTrain
+  affect_flags:
+    - kDetectInvisible
+    - kInfravision
+    - kFly
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 85
+  enhanced:
+    bare_hand_attack: 2
+
+# Mob #3022
+22:
+  names:
+    aliases: огненный хранитель неизвестный
+    nominative: огненный хранитель
+    genitive: огненного хранителя
+    dative: огненному хранителю
+    accusative: огненного хранителя
+    instrumental: огненным хранителем
+    prepositional: огненном хранителе
+  descriptions:
+    short_desc: |2
+      Дух неизвестного существа, светясь красноватой аурой, летает тут.
+    long_desc: |2
+      Тонкое, обманчиво-хрупкое на вид создание, окруженное 
+      сполохами пламени. Воплощение огненной стихии - 
+      хранитель опасен и неуловим. Его дыхание - жар бездны, 
+      в его глазах - мощь стихии.
+  alignment: 0
+  stats:
+    level: 25
+    hitroll_penalty: 20
+    armor: 0
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 200
+    damage:
+      dice_count: 8
+      dice_size: 3
+      bonus: 5
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 40
+  race: 110
+  height: 50
+  weight: 60
+  attributes:
+    strength: 3
+    dexterity: 20
+    intelligence: 25
+    wisdom: 50
+    constitution: 10
+    charisma: 30
+  action_flags:
+    - kNpc
+    - kFireBreath
+    - kNoSkillTrain
+  affect_flags:
+    - kDetectInvisible
+    - kInfravision
+    - kFly
+    - kSingleLight
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 75
+    - skill_id: 137  # спасти
+      value: 150
+    - skill_id: 157  # уклониться
+      value: 100
+  enhanced:
+    like_work: 20
+    max_factor: 3
+    resistances:
+      kFire: 15
+      kWater: -7
+      kVitality: 25
+      kImmunity: 95
+    saves:
+      kWill: 20
+      kReflex: 20
+    spells:
+      - 130

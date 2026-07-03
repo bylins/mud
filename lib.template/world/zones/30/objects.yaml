@@ -1,0 +1,989 @@
+# Objects for zone 30
+
+# Object #3000
+0:
+  names:
+    aliases: череп летучей мыши
+    nominative: череп летучей мыши
+    genitive: черепа летучей мыши
+    dative: черепу летучей мыши
+    accusative: череп летучей мыши
+    instrumental: черепом летучей мыши
+    prepositional: черепе летучей мыши
+  short_desc: Выбеленный солнцем череп маленького зверька лежит тут.
+  type: kMagicIngredient
+  material: 13  # КОСТЬ
+  values:
+    - 256
+    - 3000
+    - 20
+    - 0
+  weight: 2
+  cost: 250
+  rent_off: 23
+  rent_on: 23
+  max_durability: 25
+  cur_durability: 25
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kMagic
+  wear_flags:
+    - kTake
+    - kHold
+  no_flags:
+    - kPoly
+  extra_descriptions:
+    - keywords: череп летучей мыши
+      description: |2
+        Это крошечный череп летучей мыши,
+        наполненый каким-то тонким как пыль
+        серым порошком.
+
+# Object #3001
+1:
+  names:
+    aliases: жабий камень
+    nominative: жабий камень
+    genitive: жабьего камня
+    dative: жабьему камню
+    accusative: жабий камень
+    instrumental: жабьим камнем
+    prepositional: жабьем камне
+  short_desc: Странной формы небольшой камень лежит здесь.
+  type: kMagicIngredient
+  material: 12  # КАМЕНЬ
+  values:
+    - 0
+    - 3001
+    - -1
+    - 0
+  weight: 3
+  cost: 1000
+  rent_off: 20
+  rent_on: 20
+  max_durability: 50
+  cur_durability: 43
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 10000
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: жабий камень
+      description: |2
+        Странной формы темный камень, немного напоминающий припавшую
+        к земле крупную жабу. Сверху в нем выдолблено углубление, наполненное
+        тонким серым порошком.
+
+# Object #3002
+2:
+  names:
+    aliases: бронзовый жертвенный нож
+    nominative: бронзовый жертвенный нож
+    genitive: бронзового жертвенного ножа
+    dative: бронзовому жертвенному ножу
+    accusative: бронзовый жертвенный нож
+    instrumental: бронзовым жертвенным ножом
+    prepositional: бронзовом жертвенном ноже
+  short_desc: Странной формы длинный нож из отполированой бронзы лежит тут.
+  type: kWeapon
+  material: 2  # БРОНЗА
+  values:
+    - 0
+    - 4
+    - 3
+    - 7
+  weight: 5
+  cost: 1000
+  rent_off: 1000
+  rent_on: 30
+  spec_param: 144
+  max_durability: 100
+  cur_durability: 100
+  timer: 4320
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 60
+  wear_flags:
+    - kTake
+    - kWield
+  no_flags:
+    - kSorcerer
+    - kThief
+    - kWarrior
+    - kAssasine
+    - kGuard
+    - kPaladine
+    - kRanger
+    - kVigilant
+    - kMerchant
+    - kMagus
+    - kConjurer
+    - kCharmer
+    - kWizard
+  applies:
+    - location: 42  # инициатива
+      modifier: 2
+  extra_descriptions:
+    - keywords: бронзовый жертвенный нож
+      description: |2
+        Длинный нож со странной изогнутой спинкой лезвия.
+        Острое, как волос лезвие способно перерубить падающий
+        платок. На клинке вычернен странный узор - змея, обвивающая
+        цветок. В рукоять ножа вправлен большой мутно-красный камень.
+
+# Object #3003
+3:
+  names:
+    aliases: костяной ритуальный нож
+    nominative: костяной ритуальный нож
+    genitive: костяного ритуального ножа
+    dative: костяному ритуальному ножу
+    accusative: костяной ритуальный нож
+    instrumental: костяным ритуальным ножом
+    prepositional: костяном ритуальном ноже
+  short_desc: Выточеный из кости нож воткнут тут.
+  type: kWeapon
+  material: 13  # КОСТЬ
+  values:
+    - 0
+    - 4
+    - 4
+    - 10
+  weight: 5
+  cost: 1200
+  rent_off: 1000
+  rent_on: 30
+  spec_param: 144
+  max_durability: 80
+  cur_durability: 80
+  timer: 12960
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 30
+  extra_flags:
+    - kNodonate
+    - kHasOneSlot
+  wear_flags:
+    - kTake
+    - kWield
+  no_flags:
+    - kSorcerer
+    - kThief
+    - kWarrior
+    - kAssasine
+    - kGuard
+    - kPaladine
+    - kRanger
+    - kVigilant
+    - kMerchant
+    - kMagus
+    - kConjurer
+    - kCharmer
+    - kWizard
+  applies:
+    - location: 40  # успех.колдовства
+      modifier: 5
+  extra_descriptions:
+    - keywords: костяной ритуальный нож
+      description: |2
+        Длинный изогнутый нож из снежно-белой кости.
+        Крестовина его изображает сомкнутую клыкастую
+        пасть, а рукоять обточена в виде хребта, увенчаного
+        человеческим черепом, в глазницы которого вправлены
+        кроваво-красные камни. 
+
+# Object #3004
+4:
+  names:
+    aliases: вороненый кинжал чернокнижника
+    nominative: вороненый кинжал чернокнижника
+    genitive: вороненого кинжала чернокнижника
+    dative: вороненому кинжалу чернокнижника
+    accusative: вороненый кинжал чернокнижника
+    instrumental: вороненым кинжалом чернокнижника
+    prepositional: вороненом кинжале чернокнижника
+  short_desc: Длинный вороненый кинжал странной формы лежит тут.
+  type: kWeapon
+  material: 5  # КОВАНАЯ.СТАЛЬ
+  values:
+    - 0
+    - 4
+    - 4
+    - 12
+  weight: 8
+  cost: 1200
+  rent_off: 1000
+  rent_on: 40
+  spec_param: 144
+  max_durability: 140
+  cur_durability: 140
+  timer: 21600
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 10
+  extra_flags:
+    - kMagic
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kWield
+  no_flags:
+    - kSorcerer
+    - kThief
+    - kWarrior
+    - kAssasine
+    - kGuard
+    - kPaladine
+    - kRanger
+    - kVigilant
+    - kMerchant
+    - kMagus
+    - kConjurer
+    - kCharmer
+    - kWizard
+  applies:
+    - location: 4  # мудрость
+      modifier: 1
+    - location: 40  # успех.колдовства
+      modifier: 5
+  extra_descriptions:
+    - keywords: вороненый кинжал чернокнижника
+      description: |2
+        Длинный вороненый кинжал тускло поблескивает 
+        серебристой полоской лезвия. По сторонам клинка
+        он украшен причудливыми вырезами и зубцами, что
+        делает его не столько боевым оружием, сколько украшением.
+        Крестовина кинжала изображает три когтистые птичьи лапы.
+
+# Object #3005
+5:
+  names:
+    aliases: конфета вкусная
+    nominative: конфета
+    genitive: конфеты
+    dative: конфете
+    accusative: конфету
+    instrumental: конфетой
+    prepositional: конфете
+  short_desc: ОЧЕНЬ аппетитная конфета лежит здесь, а елочки не видно...
+  action_desc: |2
+    Вы икнули, съев конфетку, мда... растройство желудка обеспечено
+  type: kFood
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 1
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 5000
+  rent_off: 1
+  rent_on: 1
+  max_durability: 5000
+  cur_durability: 5000
+  timer: 2880
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 10
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kSlow
+  applies:
+    - location: 40  # успех.колдовства
+      modifier: 50
+
+# Object #3006
+6:
+  names:
+    aliases: заморские благовония тонкая черная палочка
+    nominative: заморские благовония
+    genitive: заморских благовоний
+    dative: заморским благовониям
+    accusative: заморские благовония
+    instrumental: заморскими благовониями
+    prepositional: заморских благовониях
+  short_desc: Тонкая гладкая черная палочка лежит тут.
+  type: kMagicIngredient
+  material: 8  # ДЕРЕВО
+  values:
+    - 256
+    - 3006
+    - 10
+    - 0
+  weight: 1
+  cost: 3000
+  rent_off: 50
+  rent_on: 50
+  max_durability: 10
+  cur_durability: 10
+  timer: 14400
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: заморские благовония тонкая черная палочка
+      description: |2
+        Гладкая и тонкая черная палочка, длиной примерно в локоть,
+        покрытая тонким узором из золотых пылинок. Она пахнет свежим
+        деревом и еще чем-то неясным, терпким и сильным.
+
+# Object #3010
+10:
+  names:
+    aliases: призрачная дымка
+    nominative: призрачная дымка
+    genitive: призрачной дымки
+    dative: призрачной дымке
+    accusative: призрачную дымку
+    instrumental: призрачной дымкой
+    prepositional: призрачной дымке
+  short_desc: Призрачная дымка растелилась у Ваших ног
+  type: kMagicIngredient
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 0
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 0
+  cur_durability: 0
+  timer: 10040
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 999
+  wear_flags:
+    - kTake
+    - kHold
+
+# Object #3030
+30:
+  names:
+    aliases: хламворожейный
+    nominative: сушенные грибы
+    genitive: сушенных грибов
+    dative: сушенным грибам
+    accusative: сушенные грибы
+    instrumental: сушенными грибами
+    prepositional: сушенных грибах
+  short_desc: Сушеные грибы - отличная заготовка на зиму.
+  type: kOther
+  material: 16  # ОРГАНИКА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 5
+  cur_durability: 5
+  timer: 7
+  spell: 1  # !undefined!
+  level: 0
+  sex: kPoly
+  extra_flags:
+    - kDecay
+    - kRepopDecay
+  wear_flags:
+    - kTake
+
+# Object #3031
+31:
+  names:
+    aliases: хламворожейный
+    nominative: ягодный жом
+    genitive: ягодного жома
+    dative: ягодному жому
+    accusative: ягодный жом
+    instrumental: ягодным жомом
+    prepositional: ягодном жоме
+  short_desc: Месиво из ягод, после отжимки сока.
+  type: kOther
+  material: 16  # ОРГАНИКА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 5
+  cur_durability: 5
+  timer: 7
+  spell: 1  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kDecay
+    - kRepopDecay
+  wear_flags:
+    - kTake
+
+# Object #3032
+32:
+  names:
+    aliases: хламворожейный
+    nominative: потроха
+    genitive: потрохов
+    dative: потрохам
+    accusative: потроха
+    instrumental: потрохами
+    prepositional: потрохах
+  short_desc: Ухо, горло, нос, хрен, кишка и хвост.
+  type: kOther
+  material: 16  # ОРГАНИКА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 5
+  cur_durability: 5
+  timer: 7
+  spell: 1  # !undefined!
+  level: 0
+  sex: kPoly
+  extra_flags:
+    - kDecay
+    - kRepopDecay
+  wear_flags:
+    - kTake
+
+# Object #3033
+33:
+  names:
+    aliases: хламворожейный
+    nominative: пыль и песок
+    genitive: пыли и песка
+    dative: пыли и песку
+    accusative: пыль и песок
+    instrumental: пылью и песком
+    prepositional: пыли и песке
+  short_desc: Пыль и песок покрывают поверхность.
+  type: kOther
+  material: 12  # КАМЕНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 5
+  cur_durability: 5
+  timer: 7
+  spell: 1  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kDecay
+    - kRepopDecay
+  wear_flags:
+    - kTake
+
+# Object #3034
+34:
+  names:
+    aliases: хламворожейный
+    nominative: металлическая стружка
+    genitive: металлической стружки
+    dative: металлической стружке
+    accusative: металлическую стружку
+    instrumental: металлической стружкой
+    prepositional: металлической стружке
+  short_desc: Металлическая стружка напоминает Вам о проблеме лома.
+  type: kOther
+  material: 3  # ЖЕЛЕЗО
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 5
+  cur_durability: 5
+  timer: 7
+  spell: 1  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kDecay
+    - kRepopDecay
+  wear_flags:
+    - kTake
+
+# Object #3035
+35:
+  names:
+    aliases: хламворожейный
+    nominative: ссохшаяся печень
+    genitive: ссохшейся печени
+    dative: ссохшейся печени
+    accusative: ссохшуюся печень
+    instrumental: ссхшейся печенью
+    prepositional: ссохшейся печени
+  short_desc: Минздрав ведь предупреждал...
+  type: kOther
+  material: 13  # КОСТЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 5
+  cur_durability: 5
+  timer: 7
+  spell: 1  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kDecay
+    - kRepopDecay
+  wear_flags:
+    - kTake
+
+# Object #3036
+36:
+  names:
+    aliases: хламворожейный
+    nominative: древесные опилки
+    genitive: древесных опилок
+    dative: древесным опилкам
+    accusative: древесные опилки
+    instrumental: древесными опилками
+    prepositional: древесных опилках
+  short_desc: Древесные опилки вкусно пахнут свежим деревом и смолой.
+  type: kOther
+  material: 8  # ДЕРЕВО
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 5
+  cur_durability: 5
+  timer: 7
+  spell: 1  # !undefined!
+  level: 0
+  sex: kPoly
+  extra_flags:
+    - kDecay
+    - kRepopDecay
+  wear_flags:
+    - kTake
+
+# Object #3037
+37:
+  names:
+    aliases: хламворожейный
+    nominative: зубная эмаль
+    genitive: зубной эмали
+    dative: зубной эмали
+    accusative: зубную эмаль
+    instrumental: зубной эмалью
+    prepositional: зубной эмале
+  short_desc: Продукт скрежета зубного у вас под ногами.
+  type: kOther
+  material: 13  # КОСТЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 5
+  cur_durability: 5
+  timer: 7
+  spell: 1  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kDecay
+    - kRepopDecay
+  wear_flags:
+    - kTake
+
+# Object #3038
+38:
+  names:
+    aliases: хламворожейный
+    nominative: ссохшееся сердце
+    genitive: ссохшегося сердца
+    dative: ссохшемуся сердцу
+    accusative: ссохшееся сердце
+    instrumental: ссохшимся сердцем
+    prepositional: ссохшемся сердце
+  short_desc: Сухой кусок плоти валяется здесь.
+  type: kOther
+  material: 16  # ОРГАНИКА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 5
+  cur_durability: 5
+  timer: 7
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  extra_flags:
+    - kDecay
+    - kRepopDecay
+  wear_flags:
+    - kTake
+
+# Object #3040
+40:
+  names:
+    aliases: Тестовая штучка
+    nominative: тестовая штучка
+    genitive: тестовая штучка
+    dative: тестовая штучка
+    accusative: тестовая штучка
+    instrumental: тестовая штучка
+    prepositional: говорить о чем
+  short_desc: Тестовая штучка лежит здесь
+  type: kArmor
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 0
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 14400
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  wear_flags:
+    - kTake
+    - kNeck
+  affect_flags:
+    - kInvisibility
+    - kDetectInvisibility
+
+# Object #3041
+41:
+  names:
+    aliases: Учебный колчан
+    nominative: учебный колчан
+    genitive: учебного колчана
+    dative: учебному колчану
+    accusative: учебный колчан
+    instrumental: учебным колчаном
+    prepositional: учебном колчане
+  short_desc: Простой колчан лежит здесь
+  type: kMagicContaner
+  material: 15  # КОЖА
+  values:
+    - 77
+    - 6060
+    - 120
+    - 0
+  weight: 1
+  cost: 100
+  rent_off: 100
+  rent_on: 100
+  max_durability: 100
+  cur_durability: 100
+  timer: 28800
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNosell
+    - kNodecay
+  wear_flags:
+    - kTake
+    - kQuiver
+
+# Object #3042
+42:
+  names:
+    aliases: Связка стрел
+    nominative: связка стрел
+    genitive: связки стрел
+    dative: связке стрел
+    accusative: связку стрел
+    instrumental: связкой стрел
+    prepositional: связке стрел
+  short_desc: Пучок стрел, перелевязанный простой ленточкой, лежит у ваших ног
+  type: kMagicArrow
+  material: 8  # ДЕРЕВО
+  values:
+    - 77
+    - 30
+    - 30
+    - 0
+  weight: 3
+  cost: 30
+  rent_off: 30
+  rent_on: 30
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kMagic
+    - kNodecay
+  wear_flags:
+    - kTake
+
+# Object #3043
+43:
+  names:
+    aliases: деревянная заготовка
+    nominative: деревянная заготовка
+    genitive: деревянной заготовки
+    dative: деревянной заготовке
+    accusative: деревянную заготовку
+    instrumental: деревянной заготовкой
+    prepositional: деревянной заготовке
+  short_desc: Заготовка для деревянной стрелы валяется тут
+  type: kMagicMaterial
+  material: 8  # ДЕРЕВО
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNodecay
+  wear_flags:
+    - kTake
+
+# Object #3044
+44:
+  names:
+    aliases: перо перья прочное
+    nominative: прочное перо
+    genitive: прочного пера
+    dative: прочному перу
+    accusative: прочное перо
+    instrumental: прочным пером
+    prepositional: прочном пере
+  short_desc: Длиное и прочное перо валяется тут
+  type: kMagicMaterial
+  material: 16  # ОРГАНИКА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  extra_flags:
+    - kNodecay
+  wear_flags:
+    - kTake
+
+# Object #3045
+45:
+  names:
+    aliases: костяной наконечник
+    nominative: костяной наконечник
+    genitive: костяного наконечника
+    dative: костяному наконечнику
+    accusative: костяной наконечник
+    instrumental: костяным наконечником
+    prepositional: костяном наконечнике
+  short_desc: Острая кость, наровит впится в чью-то плоть, лежит здесь
+  type: kMagicMaterial
+  material: 16  # ОРГАНИКА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNodecay
+  wear_flags:
+    - kTake
+
+# Object #3046
+46:
+  names:
+    aliases: каменный наконечник
+    nominative: каменный наконечник
+    genitive: каменного наконечника
+    dative: каменному наконечнику
+    accusative: каменный наконечник
+    instrumental: каменным наконечником
+    prepositional: каменном наконечнике
+  short_desc: Острый осколок камня лежит здесь
+  type: kMagicMaterial
+  material: 16  # ОРГАНИКА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNodecay
+  wear_flags:
+    - kTake
+
+# Object #3047
+47:
+  names:
+    aliases: мягкий жгут
+    nominative: мягкий жгут
+    genitive: мягкого жгута
+    dative: мягкому жгуту
+    accusative: мягкий жгут
+    instrumental: мягким жгутом
+    prepositional: мягком жгуте
+  short_desc: Свернутый жгут лежит здесь
+  type: kMagicMaterial
+  material: 16  # ОРГАНИКА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNodecay
+  wear_flags:
+    - kTake
+
+# Object #3099
+99:
+  names:
+    aliases: тестовое кольцо
+    nominative: тестовое кольцо
+    genitive: тестовое кольцо
+    dative: тестовое кольцо
+    accusative: тестовое кольцо
+    instrumental: тестовое кольцо
+    prepositional: тестовое кольцо
+  short_desc: Тестовое кольцо
+  type: kArmor
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 0
+  cost: 100
+  rent_off: 0
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 20
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  minimum_remorts: -1
+  wear_flags:
+    - kTake
+    - kFinger
+  applies:
+    - location: 3  # интеллект
+      modifier: 28
+    - location: 6  # обаяние
+      modifier: 46

@@ -1,0 +1,104 @@
+# Triggers for zone 36
+
+# Trigger #3600
+0:
+  name: Именной шмот - Майя
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if (%actor.level% > 30 ) && (%actor.vnum% == -1 )
+      halt
+    end
+    if ((%actor.iname% != Майя ) && (%actor.clan% != БУ ))
+      otransform 3614
+      osend %actor% ___&KРука невероятных размеров&n показалась из &Rжелудочка&n и скрутила вам фигуру из трех пальцев. &RДоступ не разрешен!&n
+      echoaround %actor% ___&KНевероятных размеров рука&n показалась из &Rжелудочка&n и скрутила %actor.iname% фигуру из трех пальцев
+      return 0
+      halt
+    else
+      wait 1
+      osend %actor% ___&KЧеловечий&n &Rжелудочек&n заглотил вашу руку по самый локоть. Ну и мерзость!
+      echoaround %actor% ___&KЧеловечий&n &Rжелудочек&n быстро заглотил руку Майи по самый локоть и стал ее переваривать. Ну и вонища!
+    end
+
+# Trigger #3601
+1:
+  name: именной шмот - карн
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if (%actor.level% > 30 ) && (%actor.vnum% == -1 )
+      halt
+    end
+    if ((%actor.iname% != Карн ) && (%actor.iname% != Хиля ) && (%actor.iname% != Агрина ) && (%actor.iname% != Итан ) && (%actor.iname% != Грон ) && (%actor.iname% != Крамир ))
+      otransform 3621
+      osend %actor% Вы не можете обладать столь могущественной вещью!
+      return 0
+      halt
+    else
+      wait 1
+      echo На &Kбольшой суме из чешуи Двухголового змея&n проступил рисунок нетопыря
+    end
+
+# Trigger #3602
+2:
+  name: именной шмот - хиля
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if (%actor.level% > 30 ) && (%actor.vnum% == -1 )
+      halt
+    end
+    if ((%actor.iname% != Карн ) && (%actor.iname% != Хиля ) && (%actor.iname% != Агрина ) && (%actor.iname% != Итан ) && (%actor.iname% != Грон ) && (%actor.iname% != Крамир ))
+      otransform 3621
+      osend %actor% Вы не можете обладать столь могущественной вещью!
+      return 0
+      halt
+    else
+      wait 1
+      echo &KСума великого целителя &Wзасветилась мягким сиянием.&n
+    end
+
+# Trigger #3637
+37:
+  name: Именной шмот - Морлин
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+  script: say My trigger commandlist is not complete!
+
+# Trigger #3666
+66:
+  name: Именной шмот - Бергер
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if (%actor.level% > 30 ) && (%actor.vnum% == -1 )
+      halt
+    end
+    if (%actor.iname% != Бергер)
+      osend %actor% Вы попробовали поднять &rжелудок&n, но это оказалось Вам не под силу.
+      return 0
+      halt
+    else
+      wait 1
+      osend %actor% Вы начали трогать свой &rжелудок&n и пихать в него все подряд.
+      echoaround %actor% %actor.iname% начал%actor.g% трогать свой &rжелудок&n и пихать в него все подряд.
+    end

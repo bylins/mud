@@ -1,0 +1,689 @@
+# Triggers for zone 26
+
+# Trigger #2600
+0:
+  name: Малый наградной свиток безграничного опыта
+  attach_type: kObjTrigger
+  narg: 3
+  arglist: разорвать
+  trigger_types:
+    - kCommand
+  script: |-2
+    wait 1
+    if !%arg.contains(свиток)%
+      osend %actor% Что вы хотите разорвать?
+      halt
+    end
+    if %actor.AffectedBy(награда,*множитель.опыта)% > 2
+      %send% %actor% Вы и так уже достаточно восприимчивы.
+      halt
+    end
+    if %actor.AffectedBy(награда,*дополнительный.бонус.опыта)% > 99
+      %send% %actor% Вы и так уже достаточно восприимчивы.
+      halt
+    end
+    log %actor.iname% получил награду %self.name% под номером %self.vnum%
+    osend %actor% Вы разорвали свиток, который рассыпался мириадами разноцветных искр, наполнивших вас магической силой!
+    osend %actor% Магическая сила свитка усилила вашу восприимчивость, теперь вы готовы извлечь максимум опыта из любой ситуации!
+    echoaround %actor% %actor.iname% разорвал%actor.g% свиток, который рассыпался мириадами разноцветных искр!
+    dgaffect %actor% *множитель награда  2 5 0
+    opurge %self%
+
+# Trigger #2601
+1:
+  name: Средний наградной свиток безграничного опыта
+  attach_type: kObjTrigger
+  narg: 3
+  arglist: разор
+  trigger_types:
+    - kCommand
+  script: |-2
+    wait 1
+    if !%arg.contains(свиток)%
+      osend %actor% Что вы хотите разорвать?
+      halt
+    end
+    if %actor.AffectedBy(награда,*множитель.опыта)% > 2
+      %send% %actor% Вы и так уже достаточно восприимчивы.
+      halt
+    end
+    if %actor.AffectedBy(награда,*дополнительный.бонус.опыта)% > 99
+      %send% %actor% Вы и так уже достаточно восприимчивы.
+      halt
+    end
+    log %actor.iname% получил награду %self.name% под номером %self.vnum%
+    osend %actor% Вы разорвали свиток, который рассыпался мириадами разноцветных искр, наполнивших вас магической силой!
+    osend %actor% Магическая сила свитка усилила вашу восприимчивость, теперь вы готовы извлечь максимум опыта из любой ситуации!
+    echoaround %actor% %actor.iname% разорвал%actor.g% свиток, который рассыпался мириадами разноцветных искр!
+    dgaffect %actor% *множитель награда  2 10 0
+    opurge %self%
+
+# Trigger #2602
+2:
+  name: Большой наградной свиток безграничного опыта
+  attach_type: kObjTrigger
+  narg: 3
+  arglist: разор
+  trigger_types:
+    - kCommand
+  script: |-2
+    wait 1
+    if !%arg.contains(свиток)%
+      osend %actor% Что вы хотите разорвать?
+      halt
+    end
+    if %actor.AffectedBy(награда,*множитель.опыта)% > 2
+      %send% %actor% Вы и так уже достаточно восприимчивы.
+      halt
+    end
+    if %actor.AffectedBy(награда,*дополнительный.бонус.опыта)% > 99
+      %send% %actor% Вы и так уже достаточно восприимчивы.
+      halt
+    end
+    log %actor.iname% получил награду %self.name% под номером %self.vnum%
+    osend %actor% Вы разорвали свиток, который рассыпался мириадами разноцветных искр, наполнивших вас магической силой!
+    osend %actor% Магическая сила свитка усилила вашу восприимчивость, теперь вы готовы извлечь максимум опыта из любой ситуации!
+    echoaround %actor% %actor.iname% разорвал%actor.g% свиток, который рассыпался мириадами разноцветных искр!
+    dgaffect %actor% *множитель награда  3 15 0
+    opurge %self%
+
+# Trigger #2603
+3:
+  name: Малый наградной свиток непреодолимой силы
+  attach_type: kObjTrigger
+  narg: 3
+  arglist: разорвать
+  trigger_types:
+    - kCommand
+  script: |-2
+    wait 1
+    if !%arg.contains(свиток)%
+      osend %actor% Что вы хотите разорвать?
+      halt
+    end
+    if %actor.AffectedBy(награда,инициатива)% > 5
+      %send% %actor% Ваши удар и так уже достаточно сильны.
+      halt
+    end
+    log %actor.iname% получил награду %self.name% под номером %self.vnum%
+    osend %actor% Вы разорвали свиток, который рассыпался мириадами разноцветных искр, наполнивших вас магической силой!
+    osend %actor% Древняя магия свитка наполнила ваши мышцы колоссальной силой, ваши точные удары приобрели невероятную мощь!
+    echoaround %actor% %actor.iname% разорвал%actor.g% свиток, который рассыпался мириадами разноцветных искр!
+    dgaffect %actor% попадание награда 5 8 0
+    dgaffect %actor% повреждение награда 5 8 0
+    dgaffect %actor% инициатива награда 5 8 0
+    dgaffect %actor% удача награда 10 8 0
+    dgaffect %actor% сила награда 2 8 0
+    dgaffect %actor% ловкость награда 2 8 0
+    dgaffect %actor% тело награда 2 8 0
+    opurge %self%
+
+# Trigger #2604
+4:
+  name: Средний наградной свиток непреодолимой силы
+  attach_type: kObjTrigger
+  narg: 3
+  arglist: разорвать
+  trigger_types:
+    - kCommand
+  script: |-2
+    wait 1
+    if !%arg.contains(свиток)%
+      osend %actor% Что вы хотите разорвать?
+      halt
+    end
+    if %actor.AffectedBy(награда,инициатива)% > 10
+      %send% %actor% Ваши удар и так уже достаточно сильны.
+      halt
+    end
+    log %actor.iname% получил награду %self.name% под номером %self.vnum%
+    osend %actor% Вы разорвали свиток, который рассыпался мириадами разноцветных искр, наполнивших вас магической силой!
+    osend %actor% Древняя магия свитка наполнила ваши мышцы колоссальной силой, ваши точные удары приобрели невероятную мощь!
+    echoaround %actor% %actor.iname% разорвал%actor.g% свиток, который рассыпался мириадами разноцветных искр!
+    dgaffect %actor% попадание награда 10 8 0
+    dgaffect %actor% повреждение награда 10 8 0
+    dgaffect %actor% инициатива награда 10 8 0
+    dgaffect %actor% удача награда 20 8 0
+    dgaffect %actor% сила награда 4 8 0
+    dgaffect %actor% ловкость награда 4 8 0
+    dgaffect %actor% тело награда 4 8 0
+    opurge %self%
+
+# Trigger #2605
+5:
+  name: Большой наградной свиток непреодолимой силы
+  attach_type: kObjTrigger
+  narg: 3
+  arglist: разорвать
+  trigger_types:
+    - kCommand
+  script: |-2
+    wait 1
+    if !%arg.contains(свиток)%
+      osend %actor% Что вы хотите разорвать?
+      halt
+    end
+    log %actor.iname% получил награду %self.name% под номером %self.vnum%
+    osend %actor% Вы разорвали свиток, который рассыпался мириадами разноцветных искр, наполнивших вас магической силой!
+    osend %actor% Древняя магия свитка наполнила ваши мышцы колоссальной силой, ваши точные удары приобрели невероятную мощь!
+    echoaround %actor% %actor.iname% разорвал%actor.g% свиток, который рассыпался мириадами разноцветных искр!
+    dgaffect %actor% попадание награда 15 8 0
+    dgaffect %actor% повреждение награда 15 8 0
+    dgaffect %actor% инициатива награда 15 8 0
+    dgaffect %actor% удача награда 30 8 0
+    dgaffect %actor% сила награда 6 8 0
+    dgaffect %actor% ловкость награда 6 8 0
+    dgaffect %actor% тело награда 6 8 0
+    opurge %self%
+
+# Trigger #2606
+6:
+  name: Малый наградной свиток волшебства предков
+  attach_type: kObjTrigger
+  narg: 3
+  arglist: разорвать
+  trigger_types:
+    - kCommand
+  script: |-2
+    wait 1
+    if !%arg.contains(свиток)%
+      osend %actor% Что вы хотите разорвать?
+      halt
+    end
+    if %actor.AffectedBy(награда,успех.колдовства)% > 10
+      %send% %actor% Вы и так достаточно мудры.
+      halt
+    end
+    log %actor.iname% получил награду %self.name% под номером %self.vnum%
+    osend %actor% Вы разорвали свиток, который рассыпался мириадами разноцветных искр, наполнивших вас магической силой!
+    osend %actor% Вас наполнила древняя магическая сила заключенная в свитке, открыв доступ к вековой мудрости и знаниям!
+    echoaround %actor% %actor.iname% разорвал%actor.g% свиток, который рассыпался мириадами разноцветных искр!
+    dgaffect %actor% успех награда 10 8 0
+    dgaffect %actor% запоминание награда 30 8 0
+    dgaffect %actor% интеллект награда 2 8 0
+    dgaffect %actor% обаяние награда 2 8 0
+    dgaffect %actor% мудрость награда 2 8 0
+    opurge %self%
+
+# Trigger #2607
+7:
+  name: Средний наградной свиток волшебства предков
+  attach_type: kObjTrigger
+  narg: 3
+  arglist: разор
+  trigger_types:
+    - kCommand
+  script: |-2
+    wait 1
+    if !%arg.contains(свиток)%
+      osend %actor% Что вы хотите разорвать?
+      halt
+    end
+    if %actor.AffectedBy(награда,успех.колдовства)% > 20
+      %send% %actor% Вы и так достаточно мудры.
+      halt
+    end
+    log %actor.iname% получил награду %self.name% под номером %self.vnum%
+    osend %actor% Вы разорвали свиток, который рассыпался мириадами разноцветных искр, наполнивших вас магической силой!
+    osend %actor% Вас наполнила древняя магическая сила заключенная в свитке, открыв доступ к вековой мудрости и знаниям!
+    echoaround %actor% %actor.iname% разорвал%actor.g% свиток, который рассыпался мириадами разноцветных искр!
+    dgaffect %actor% успех награда 20 8 0
+    dgaffect %actor% запоминание награда 60 8 0
+    dgaffect %actor% интеллект награда 4 8 0
+    dgaffect %actor% обаяние награда 4 8 0
+    dgaffect %actor% мудрость награда 4 8 0
+    opurge %self%
+
+# Trigger #2608
+8:
+  name: Большой наградной свиток волшебства предков
+  attach_type: kObjTrigger
+  narg: 3
+  arglist: разорвать
+  trigger_types:
+    - kCommand
+  script: |-2
+    wait 1
+    if !%arg.contains(свиток)%
+      osend %actor% Что вы хотите разорвать?
+      halt
+    end
+    log %actor.iname% получил награду %self.name% под номером %self.vnum%
+    osend %actor% Вы разорвали свиток, который рассыпался мириадами разноцветных искр, наполнивших вас магической силой!
+    osend %actor% Вас наполнила древняя магическая сила заключенная в свитке, открыв доступ к вековой мудрости и знаниям!
+    echoaround %actor% %actor.iname% разорвал%actor.g% свиток, который рассыпался мириадами разноцветных искр!
+    dgaffect %actor% успех награда 30 8 0
+    dgaffect %actor% запоминание награда 90 8 0
+    dgaffect %actor% интеллект награда 6 8 0
+    dgaffect %actor% обаяние награда 6 8 0
+    dgaffect %actor% мудрость награда 6 8 0
+    opurge %self%
+
+# Trigger #2609
+9:
+  name: Малый наградной свиток неприступной защиты
+  attach_type: kObjTrigger
+  narg: 3
+  arglist: разорвать
+  trigger_types:
+    - kCommand
+  script: |-2
+    wait 1
+    if !%arg.contains(свиток)%
+      osend %actor% Что вы хотите разорвать?
+      halt
+    end
+    if %actor.AffectedBy(награда,поглощение)% > 15
+      %send% %actor% Вы и так достаточно стойко переносите вражеские удары.
+      halt
+    end
+    log %actor.iname% получил награду %self.name% под номером %self.vnum%
+    osend %actor% Вы разорвали свиток, который рассыпался мириадами разноцветных искр, наполнивших вас магической силой!
+    osend %actor% Заключенная в свитке сила ветра и крепость камня сделали вас способным стойко переносить атаки врагов!
+    echoaround %actor% %actor.iname% разорвал%actor.g% свиток, который рассыпался мириадами разноцветных искр!
+    dgaffect %actor% воля награда -15 8 0
+    dgaffect %actor% стойкость награда -15 8 0
+    dgaffect %actor% реакция награда -15 8 0
+    dgaffect %actor% защита.от.магии.разума награда 15 8 0
+    dgaffect %actor% здоровье награда -15 8 0
+    dgaffect %actor% защита награда -15 8 0
+    dgaffect %actor% поглощение награда 15 8 0
+    dgaffect %actor% макс.жиз награда  50 8 0
+    dgaffect %actor% защита.от.ядов награда 15 8 0
+    dgaffect %actor% защита.от.тяжел награда 15 8 0
+    opurge %self%
+
+# Trigger #2610
+10:
+  name: Средний наградной cвиток неприступной защиты
+  attach_type: kObjTrigger
+  narg: 3
+  arglist: разорвать
+  trigger_types:
+    - kCommand
+  script: |-2
+    wait 1
+    if !%arg.contains(свиток)%
+      osend %actor% Что вы хотите разорвать?
+      halt
+    end
+    if %actor.AffectedBy(награда,поглощение)% > 30
+      %send% %actor% Вы и так достаточно стойко переносите вражеские удары.
+      halt
+    end
+    log %actor.iname% получил награду %self.name% под номером %self.vnum%
+    osend %actor% Вы разорвали свиток, который рассыпался мириадами разноцветных искр, наполнивших вас магической силой!
+    osend %actor% Заключенная в свитке сила ветра и крепость камня сделали вас способным стойко переносить атаки врагов!
+    echoaround %actor% %actor.iname% разорвал%actor.g% свиток, который рассыпался мириадами разноцветных искр!
+    dgaffect %actor% воля награда -30 8 0
+    dgaffect %actor% стойкость награда -30 8 0
+    dgaffect %actor% реакция награда -30 8 0
+    dgaffect %actor% здоровье награда -30 8 0
+    dgaffect %actor% защита награда -30 8 0
+    dgaffect %actor% поглощение награда 30 8 0
+    dgaffect %actor% макс.жиз награда  75 8 0
+    dgaffect %actor% защита.от.ядов награда 30 8 0
+    dgaffect %actor% защита.от.тяжел награда 30 8 0
+    dgaffect %actor% защита.от.магии.разума награда 30 8 0
+    opurge %self%
+
+# Trigger #2611
+11:
+  name: Большой наградной cвиток неприступной защиты
+  attach_type: kObjTrigger
+  narg: 3
+  arglist: разорвать
+  trigger_types:
+    - kCommand
+  script: |-2
+    wait 1
+    if !%arg.contains(свиток)%
+      osend %actor% Что вы хотите разорвать?
+      halt
+    end
+    log %actor.iname% получил награду %self.name% под номером %self.vnum%
+    osend %actor% Вы разорвали свиток, который рассыпался мириадами разноцветных искр, наполнивших вас магической силой!
+    osend %actor% Заключенная в свитке сила ветра и крепость камня сделали вас способным стойко переносить атаки врагов!
+    echoaround %actor% %actor.iname% разорвал%actor.g% свиток, который рассыпался мириадами разноцветных искр!
+    dgaffect %actor% воля награда -30 8 0
+    dgaffect %actor% стойкость награда -45 8 0
+    dgaffect %actor% реакция награда -45 8 0
+    dgaffect %actor% защита.от.магии.разума награда 45 8 0
+    dgaffect %actor% здоровье награда -45 8 0
+    dgaffect %actor% защита награда -45 8 0
+    dgaffect %actor% поглощение награда 45 8 0
+    dgaffect %actor% макс.жиз награда  100 8 0
+    dgaffect %actor% защита.от.ядов награда 45 8 0
+    dgaffect %actor% защита.от.тяжел награда 45 8 0
+    opurge %self%
+
+# Trigger #2612
+12:
+  name: малый наградной свиток высшего мастерства
+  attach_type: kObjTrigger
+  narg: 3
+  arglist: разорвать
+  trigger_types:
+    - kCommand
+  script: |-2
+    wait 1
+    if !%arg.contains(свиток)%
+      osend %actor% Что вы хотите разорвать?
+      halt
+    end
+    if %actor.AffectedBy(награда,бонус.ко.всем.умениям)% > 10
+      %send% %actor% Ваше мастерство и так на достаточно высоком уровне.
+      halt
+    end
+    log %actor.iname% получил награду %self.name% под номером %self.vnum%
+    osend %actor% Вы разорвали свиток, который рассыпался мириадами разноцветных искр, наполнивших вас магической силой!
+    osend %actor% Вскипевшая в жилах кровь открыла вам память предков. Знания рода сделали вас умнее и мудрее почтенного старца!
+    echoaround %actor% %actor.iname% разорвал%actor.g% свиток, который рассыпался мириадами разноцветных искр!
+    dgaffect %actor% бонус награда 10 5 0
+    opurge %self%
+
+# Trigger #2613
+13:
+  name: Средний наградной свиток высшего мастерства
+  attach_type: kObjTrigger
+  narg: 3
+  arglist: разорвать
+  trigger_types:
+    - kCommand
+  script: |-2
+    wait 1
+    if !%arg.contains(свиток)%
+      osend %actor% Что вы хотите разовать?
+      halt
+    end
+    if %actor.AffectedBy(награда,бонус.ко.всем.умениям)% > 20
+      %send% %actor% Ваше мастерство и так на достаточно высоком уровне.
+      halt
+    end
+    log %actor.iname% получил награду %self.name% под номером %self.vnum%
+    osend %actor% Вы разорвали свиток, который рассыпался мириадами разноцветных искр, наполнивших вас магической силой!
+    osend %actor% Вскипевшая в жилах кровь открыла вам память предков. Знания рода сделали вас умнее и мудрее почтенного старца!
+    echoaround %actor% %actor.iname% разорвал%actor.g% свиток, который рассыпался мириадами разноцветных искр!
+    dgaffect %actor% бонус награда  20 5 0
+    opurge %self%
+
+# Trigger #2614
+14:
+  name: большой наградной свиток высшего мастерства
+  attach_type: kObjTrigger
+  narg: 3
+  arglist: разорвать
+  trigger_types:
+    - kCommand
+  script: |-2
+    wait 1
+    if !%arg.contains(свиток)%
+      osend %actor% Что вы хотите разорвать?
+      halt
+    end
+    log %actor.iname% получил награду %self.name% под номером %self.vnum%
+    osend %actor% Вы разорвали свиток, который рассыпался мириадами разноцветных искр, наполнивших вас магической силой!
+    osend %actor% Вскипевшая в жилах кровь открыла вам память предков. Знания рода сделали вас умнее и мудрее почтенного старца!
+    echoaround %actor% %actor.iname% разорвал%actor.g% свиток, который рассыпался мириадами разноцветных искр!
+    dgaffect %actor% бонус награда 30 10 0
+    opurge %self%
+
+# Trigger #2615
+15:
+  name: Награда роковое предчувствие
+  attach_type: kObjTrigger
+  narg: 3
+  arglist: разорвать
+  trigger_types:
+    - kCommand
+  script: |-2
+    wait 1
+    if !%arg.contains(свиток)%
+      osend %actor% Что вы хотите разорвать?
+      halt
+    end
+    log %actor.iname% получил награду %self.name% под номером %self.vnum%
+    osend %actor% Вы разорвали свиток, который рассыпался мириадами разноцветных искр, наполнивших вас магической силой!
+    osend %actor% Магия древних волхвов наделила Вас &WРоковым предчувствием&n. Оно поможет избежать Вам смертельных ловушек!
+    echoaround %actor% %actor.iname% разорвал%actor.g% свиток, который рассыпался мириадами разноцветных искр!
+    dgaffect %actor% роковое награда 2 24 0
+    opurge %self%
+
+# Trigger #2616
+16:
+  name: Разбить оковы, таймер сутки
+  attach_type: kObjTrigger
+  narg: 3
+  arglist: разорвать
+  trigger_types:
+    - kCommand
+  script: |-2
+    wait 1
+    if !%arg.contains(свиток)%
+      osend %actor% Что вы хотите разорвать?
+      halt
+    end
+    log %actor.iname% получил награду %self.name% под номером %self.vnum%
+    osend %actor% Вы разорвали свиток, который рассыпался мириадами разноцветных искр, наполнивших вас магической силой!
+    osend %actor% Скрижаль с Соломоновой печатью временно наделила Вас заклятием &W"Разбитые оковы"&n.
+    echoaround %actor% %actor.iname% разорвал%actor.g% свиток, который рассыпался мириадами разноцветных искр! Похоже, %actor.iname% узнал%actor.g% что-то новое.
+    ospellturntemp %actor% Разбитые.оковы  86400
+    opurge %self%
+
+# Trigger #2617
+17:
+  name: Каменное проклятие, таймер сутки
+  attach_type: kObjTrigger
+  narg: 3
+  arglist: разорвать
+  trigger_types:
+    - kCommand
+  script: |-2
+    wait 1
+    if !%arg.contains(свиток)%
+      osend %actor% Что вы хотите разорвать?
+      halt
+    end
+    log %actor.iname% получил награду %self.name% под номером %self.vnum%
+    osend %actor% Вы разорвали свиток, который рассыпался мириадами разноцветных искр, наполнивших вас магической силой!
+    osend %actor% Окаменевший свиток временно наделил Вас заклятием &R"Каменное проклятие"&n.
+    echoaround %actor% %actor.iname% разорвал%actor.g% свиток, который рассыпался мириадами разноцветных искр! Похоже, %actor.iname% узнал%actor.g% что-то новое.
+    ospellturntemp %actor% Каменное.проклятие  86400
+    opurge %self%
+
+# Trigger #2618
+18:
+  name: Защита богов, таймер сутки
+  attach_type: kObjTrigger
+  narg: 3
+  arglist: разорвать
+  trigger_types:
+    - kCommand
+  script: |-2
+    wait 1
+    if !%arg.contains(свиток)%
+      osend %actor% Что вы хотите разорвать?
+      halt
+    end
+    log %actor.iname% получил награду %self.name% под номером %self.vnum%
+    osend %actor% Вы разорвали свиток, который рассыпался мириадами разноцветных искр, наполнивших вас магической силой!
+    osend %actor% Слова из апологии "Высших сил" временно наделили Вас заклятием &W"Защита богов"&n.
+    echoaround %actor% %actor.iname% разорвал%actor.g% свиток, который рассыпался мириадами разноцветных искр! Похоже, %actor.iname% узнал%actor.g% что-то новое.
+    ospellturntemp %actor% Защита.богов  86400
+    opurge %self%
+
+# Trigger #2619
+19:
+  name: Переход, таймер сутки
+  attach_type: kObjTrigger
+  narg: 3
+  arglist: разорвать
+  trigger_types:
+    - kCommand
+  script: |-2
+    wait 1
+    if !%arg.contains(свиток)%
+      osend %actor% Что вы хотите разорвать?
+      halt
+    end
+    log %actor.iname% получил награду %self.name% под номером %self.vnum%
+    osend %actor% Вы разорвали свиток, который рассыпался мириадами разноцветных искр, наполнивших вас магической силой!
+    osend %actor% Свиток "Тайны порталов" временно наделил Вас заклятием &M"Переход"&n.
+    echoaround %actor% %actor.iname% разорвал%actor.g% свиток, который рассыпался мириадами разноцветных искр! Похоже, %actor.iname% узнал%actor.g% что-то новое.
+    ospellturntemp %actor% Переход 1440
+    opurge %self%
+
+# Trigger #2620
+20:
+  name: свиток restore
+  attach_type: kObjTrigger
+  narg: 3
+  arglist: разор
+  trigger_types:
+    - kCommand
+  script: |-2
+    wait 1
+    if !%arg.contains(свиток)%
+      osend %actor% Что вы хотите разорвать?
+      halt
+    end
+    log %actor.iname% разорвал %self.name% под номером %self.vnum%
+    osend %actor% Вы разорвали свиток, который рассыпался мириадами разноцветных искр, наполнивших вас магической силой!
+    osend %actor% Магическая сила свитка полностью восстановила Вас!
+    echoaround %actor% %actor.iname% разорвал%actor.g% свиток, который рассыпался мириадами разноцветных искр!
+    %actor.restore%
+    opurge %self%
+
+# Trigger #2621
+21:
+  name: малый свиток божественного щита
+  attach_type: kObjTrigger
+  narg: 3
+  arglist: разорвать
+  trigger_types:
+    - kCommand
+  script: |-2
+    wait 1
+    if !%arg.contains(свиток)%
+      osend %actor% Что вы хотите разорвать?
+      halt
+    end
+    if %actor.AffectedBy(награда,защита.от.магических.повреждений)% > 2
+      %send% %actor% Божественный щит и так хранит вас.
+      halt
+    end
+    osend %actor% Вы разорвали свиток, который рассыпался мириадами разноцветных искр, наполнивших вас магической силой!
+    osend %actor% Магическая сила свитка наполнила Вас божественным светом, вокруг Вас образовался еле заметный щит!
+    echoaround %actor% %actor.iname% разорвал%actor.g% свиток, который рассыпался мириадами разноцветных искр!
+    dgaffect %actor% защита.от.магических.повреждений награда 2 15 0
+    dgaffect %actor% защита.от.физических.повреждений награда 2 15 0
+    opurge %self%
+
+# Trigger #2622
+22:
+  name: средний свиток божественного щита
+  attach_type: kObjTrigger
+  narg: 3
+  arglist: разорвать
+  trigger_types:
+    - kCommand
+  script: |-2
+    wait 1
+    if !%arg.contains(свиток)%
+      osend %actor% Что вы хотите разорвать?
+      halt
+    end
+    if %actor.AffectedBy(награда,защита.от.магических.повреждений)% > 3
+      %send% %actor% Божественный щит и так хранит вас.
+      halt
+    end
+    osend %actor% Вы разорвали свиток, который рассыпался мириадами разноцветных искр, наполнивших вас магической силой!
+    osend %actor% Магическая сила свитка наполнила Вас божественным светом, вокруг Вас образовался еле заметный щит!
+    echoaround %actor% %actor.iname% разорвал%actor.g% свиток, который рассыпался мириадами разноцветных искр!
+    dgaffect %actor% защита.от.магических.повреждений награда 3 15 0
+    dgaffect %actor% защита.от.физических.повреждений награда 3 15 0
+    opurge %self%
+
+# Trigger #2623
+23:
+  name: большой свиток божественного щита
+  attach_type: kObjTrigger
+  narg: 3
+  arglist: разорвать
+  trigger_types:
+    - kCommand
+  script: |-2
+    wait 1
+    if !%arg.contains(свиток)%
+      osend %actor% Что вы хотите разорвать?
+      halt
+    end
+    osend %actor% Вы разорвали свиток, который рассыпался мириадами разноцветных искр, наполнивших вас магической силой!
+    osend %actor% Магическая сила свитка наполнила Вас божественным светом, вокруг Вас образовался еле заметный щит!
+    echoaround %actor% %actor.iname% разорвал%actor.g% свиток, который рассыпался мириадами разноцветных искр!
+    dgaffect %actor% защита.от.магических.повреждений награда 5 20 0
+    dgaffect %actor% защита.от.физических.повреждений награда 5 20 0
+    opurge %self%
+
+# Trigger #2624
+24:
+  name: свиток слава-гривны
+  attach_type: kObjTrigger
+  narg: 3
+  arglist: разорвать
+  trigger_types:
+    - kCommand
+  script: |-2
+    wait 1
+    if !%arg.contains(свиток)%
+      osend %actor% Что вы хотите разорвать?
+      halt
+    end
+    osend %actor% Вы разорвали свиток, который рассыпался мириадами разноцветных искр, воодушивив вас непостижимыми подвигами!
+    echoaround %actor% %actor.iname% разорвал%actor.g% свиток, который рассыпался мириадами разноцветных искр!
+    eval qhryvn 1000+%actor.hryvn%
+    if %qhryvn% >= 1500
+      eval plushryvn 1500-%actor.hryvn%
+    else
+      eval plushryvn 1000
+    end
+    if %plushryvn% > 0
+      osend %actor% _Вы заслужили %plushryvn% гривен.
+      log %actor.iname% зачитал%actor.g% свиток &Cнепостижимых подвигов&n и получил%actor.g% %plushryvn% гривен.
+      eval hryvna %actor.AddCurrency(kCopperGrivna, +%plushryvn%)%
+    else
+      osend %actor% _И ничего не произошло.
+    end
+    opurge %self%
+
+# Trigger #2625
+25:
+  name: пытаются взять книгу за славу
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+  script: |-2
+    halt
+    return 0
+
+# Trigger #2628
+28:
+  name: Круг, таймер неделя
+  attach_type: kObjTrigger
+  narg: 3
+  arglist: разорвать
+  trigger_types:
+    - kCommand
+  script: |-2
+    wait 1
+    if !%arg.contains(свиток)%
+      osend %actor% Что вы хотите разорвать?
+      halt
+    end
+    log %actor.iname% получил награду %self.name% под номером %self.vnum%
+    osend %actor% Вы разорвали свиток, который рассыпался мириадами разноцветных искр, наполнивших вас магической силой!
+    osend %actor% Свиток "Тайны пустоты" временно наделил Вас заклятием &M"Круг пустоты"&n.
+    echoaround %actor% %actor.iname% разорвал%actor.g% свиток, который рассыпался мириадами разноцветных искр! Похоже, %actor.iname% узнал%actor.g% что-то новое.
+    ospellturntemp %actor% Круг.пустоты 604800
+    opurge %self%

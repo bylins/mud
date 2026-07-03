@@ -1,0 +1,2522 @@
+# Mobs for zone 20
+
+# Mob #2000
+0:
+  names:
+    aliases: бдительный телохранитель
+    nominative: телохранитель
+    genitive: телохранителя
+    dative: телохранителю
+    accusative: телохранителя
+    instrumental: телохранителем
+    prepositional: телохранителе
+  descriptions:
+    short_desc: |2
+      Бдительный телохранитель поглядывает вокруг.
+    long_desc: |2
+      Молодой парнишка в обтягивающих тело одеждах.
+  alignment: 600
+  stats:
+    level: 23
+    hitroll_penalty: 3
+    armor: -9
+    hp:
+      dice_count: 1
+      dice_size: 100
+      bonus: 650
+    damage:
+      dice_count: 1
+      dice_size: 10
+      bonus: 20
+  gold:
+    dice_count: 1
+    dice_size: 10
+    bonus: 10
+  experience: 1
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 100
+  race: 101
+  height: 198
+  weight: 180
+  attributes:
+    strength: 27
+    dexterity: 17
+    intelligence: 15
+    wisdom: 7
+    constitution: 25
+    charisma: 6
+  action_flags:
+    - kNpc
+    - kStayZone
+    - kHelper
+    - kNoCharm
+    - kNoSummon
+  affect_flags:
+    - kDetectInvisible
+    - kInfravision
+  skills:
+    - skill_id: 132  # сбить
+      value: 90
+    - skill_id: 136  # кулачный бой
+      value: 84
+    - skill_id: 137  # спасти
+      value: 90
+    - skill_id: 142  # секиры
+      value: 100
+    - skill_id: 148  # копья и рогатины
+      value: 100
+  triggers:
+    - 2005  # Отключенный триггер
+  enhanced:
+    absorb: 23
+    bare_hand_attack: 3
+    like_work: 100
+    max_factor: 3
+    extra_attack: 1
+    special_bitvector: y0b1c1
+    destinations:
+      - 34277
+      - 34276
+      - 34250
+      - 34249
+      - 34218
+      - 34217
+      - 34211
+      - 34210
+      - 34202
+      - 34278
+
+# Mob #2001
+1:
+  names:
+    aliases: молодой воин
+    nominative: молодой воин
+    genitive: молодого воина
+    dative: молодому воину
+    accusative: молодого воина
+    instrumental: молодым воином
+    prepositional: молодом воине
+  descriptions:
+    short_desc: |2
+      Молодой воин стоит здесь.
+    long_desc: |2
+      Крепкий парень, видно не так давно взявший первый раз меч в руку, учится
+      правильно наносить удары. Упражнения воин выполняет тщательно и внимательно.
+  alignment: 0
+  stats:
+    level: 9
+    hitroll_penalty: 0
+    armor: 0
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 500
+    damage:
+      dice_count: 7
+      dice_size: 5
+      bonus: 25
+  gold:
+    dice_count: 5
+    dice_size: 5
+    bonus: 3
+  experience: 1
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 60
+  race: 101
+  height: 198
+  weight: 75
+  attributes:
+    strength: 23
+    dexterity: 15
+    intelligence: 10
+    wisdom: 10
+    constitution: 23
+    charisma: 10
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kNoSummon
+  skills:
+    - skill_id: 1  # прикрыть
+      value: 100
+    - skill_id: 136  # кулачный бой
+      value: 75
+    - skill_id: 137  # спасти
+      value: 75
+    - skill_id: 144  # короткие лезвия
+      value: 100
+    - skill_id: 145  # иное оружие
+      value: 100
+    - skill_id: 158  # блокировать щитом
+      value: 90
+  triggers:
+    - 2005  # Отключенный триггер
+  enhanced:
+    absorb: 9
+    like_work: 90
+    max_factor: 1
+    extra_attack: 1
+    special_bitvector: y0b1c1
+
+# Mob #2002
+2:
+  names:
+    aliases: дозорный стрелец
+    nominative: дозорный стрелец
+    genitive: дозорного стрельца
+    dative: дозорному стрельцу
+    accusative: дозорного стрельца
+    instrumental: дозорным стрельцом
+    prepositional: дозорном стрельце
+  descriptions:
+    short_desc: |2
+      Дозорный стрелец неторопливо прохаживается здесь, цепко глядя по сторонам.
+    long_desc: |2
+      Крепкий воин в кольчуге и с боевым луком.
+  alignment: 0
+  stats:
+    level: 1
+    hitroll_penalty: -6
+    armor: -2
+    hp:
+      dice_count: 30
+      dice_size: 25
+      bonus: 600
+    damage:
+      dice_count: 7
+      dice_size: 6
+      bonus: 8
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 1
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 50
+  race: 100
+  height: 198
+  weight: 100
+  attributes:
+    strength: 18
+    dexterity: 18
+    intelligence: 6
+    wisdom: 3
+    constitution: 18
+    charisma: 3
+  action_flags:
+    - kScavenger
+    - kNpc
+    - kStayZone
+    - kLooter
+    - kNoHelp
+  affect_flags:
+    - kInfravision
+    - kBless
+  skills:
+    - skill_id: 22  # осторожный стиль
+      value: 100
+    - skill_id: 136  # кулачный бой
+      value: 90
+    - skill_id: 137  # спасти
+      value: 100
+    - skill_id: 146  # двуручники
+      value: 100
+    - skill_id: 148  # копья и рогатины
+      value: 100
+    - skill_id: 154  # луки
+      value: 100
+    - skill_id: 157  # уклониться
+      value: 100
+    - skill_id: 158  # блокировать щитом
+      value: 100
+  triggers:
+    - 2005  # Отключенный триггер
+  enhanced:
+    absorb: 1
+    bare_hand_attack: 9
+    like_work: 75
+    extra_attack: 2
+    special_bitvector: y0b1c1d1
+
+# Mob #2003
+3:
+  names:
+    aliases: мускулистый мавр
+    nominative: мускулистый мавр
+    genitive: мускулистого мавра
+    dative: мускулистому мавру
+    accusative: мускулистого мавра
+    instrumental: мускулистым мавром
+    prepositional: мускулистом мавре
+  descriptions:
+    short_desc: |2
+      Мускулистый раб-мавр перетаскивает груз.
+    long_desc: |2
+      Чернокожий амбал, привезенный работорговцами откуда-то с юга
+  alignment: 0
+  stats:
+    level: 29
+    hitroll_penalty: 2
+    armor: -5
+    hp:
+      dice_count: 6
+      dice_size: 40
+      bonus: 1050
+    damage:
+      dice_count: 10
+      dice_size: 7
+      bonus: 11
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 1
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 100
+  race: 101
+  height: 190
+  weight: 120
+  attributes:
+    strength: 28
+    dexterity: 25
+    intelligence: 18
+    wisdom: 18
+    constitution: 26
+    charisma: 17
+  action_flags:
+    - kNpc
+  affect_flags:
+    - kDetectInvisible
+    - kInfravision
+    - kAwarness
+  skills:
+    - skill_id: 132  # сбить
+      value: 90
+    - skill_id: 136  # кулачный бой
+      value: 100
+    - skill_id: 146  # двуручники
+      value: 80
+    - skill_id: 148  # копья и рогатины
+      value: 80
+    - skill_id: 157  # уклониться
+      value: 80
+  triggers:
+    - 2005  # Отключенный триггер
+  enhanced:
+    absorb: 29
+    like_work: 70
+    max_factor: 4
+    extra_attack: 2
+    special_bitvector: y0b1c1
+    spells:
+      - 64
+      - 64
+    destinations:
+      - 50147
+      - 50148
+      - 50149
+
+# Mob #2004
+4:
+  names:
+    aliases: странствующая воительница
+    nominative: странствующая воительница
+    genitive: странствующей воительницы
+    dative: странствующей воительнице
+    accusative: странствующую воительницу
+    instrumental: странствующей воительницей
+    prepositional: странствующей воительнице
+  descriptions:
+    short_desc: |2
+      Красивая девушка в сверкающих доспехах стоит здесь, опираясь на огромный меч.
+    long_desc: |2
+         Вот это да! Такая красавица в сверкающих на свету доспехах и таким
+      головорубом в придачу. Убийственная красота!
+  alignment: 400
+  stats:
+    level: 30
+    hitroll_penalty: 2
+    armor: 3
+    hp:
+      dice_count: 9
+      dice_size: 16
+      bonus: 1900
+    damage:
+      dice_count: 5
+      dice_size: 6
+      bonus: 25
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 1
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  size: 45
+  race: 101
+  height: 195
+  weight: 90
+  attributes:
+    strength: 35
+    dexterity: 25
+    intelligence: 33
+    wisdom: 30
+    constitution: 35
+    charisma: 36
+  action_flags:
+    - kNpc
+    - kStayZone
+    - kMemory
+    - kHelper
+    - kNoSummon
+    - kNoSleep
+    - kNoFear
+    - kNoGroup
+  affect_flags:
+    - kInfravision
+    - kBless
+    - kAwarness
+    - kStoneHands
+  skills:
+    - skill_id: 4  # богатырский молот
+      value: 140
+    - skill_id: 5  # оглушить
+      value: 140
+    - skill_id: 8  # сражение верхом
+      value: 140
+    - skill_id: 21  # точный стиль
+      value: 80
+    - skill_id: 132  # сбить
+      value: 145
+    - skill_id: 136  # кулачный бой
+      value: 200
+    - skill_id: 137  # спасти
+      value: 100
+    - skill_id: 141  # палицы и дубины
+      value: 80
+    - skill_id: 142  # секиры
+      value: 100
+    - skill_id: 143  # длинные лезвия
+      value: 80
+    - skill_id: 144  # короткие лезвия
+      value: 140
+    - skill_id: 145  # иное оружие
+      value: 80
+    - skill_id: 146  # двуручники
+      value: 140
+    - skill_id: 147  # проникающее оружие
+      value: 80
+    - skill_id: 148  # копья и рогатины
+      value: 140
+    - skill_id: 149  # атака левой рукой
+      value: 60
+    - skill_id: 154  # луки
+      value: 80
+    - skill_id: 155  # дополнительный выстрел
+      value: 140
+    - skill_id: 160  # подножка
+      value: 140
+  triggers:
+    - 2005  # Отключенный триггер
+  enhanced:
+    bare_hand_attack: 3
+    like_work: 80
+    max_factor: 4
+    extra_attack: 3
+    special_bitvector: y0b1c1d1B3
+
+# Mob #2005
+5:
+  names:
+    aliases: нелюд серый волк
+    nominative: Нелюд - Серый волк
+    genitive: Нелюда - Серого волка
+    dative: Нелюду - Серому волку
+    accusative: Нелюда - Серого волка
+    instrumental: Нелюдом - Серым волком
+    prepositional: Нелюде - Сером волке
+  descriptions:
+    short_desc: |2
+      Высокий мужчина с темно-русыми волосами, ждет указаний.
+    long_desc: |2
+      Было на свете три брата оборотня. Славились по миру они
+      умом и сердцем чутким, а также ратными подвигами великими.
+      Говорят любой из братьев княжескую дружину один положить
+      может. Старший из братьев в змея огненного превращался.
+      Средний братец в волка серого-незаметного. Ну а третий,
+      младший братец в волка черного оборачивается.
+  alignment: -600
+  stats:
+    level: 30
+    hitroll_penalty: 0
+    armor: -20
+    hp:
+      dice_count: 10
+      dice_size: 16
+      bonus: 2000
+    damage:
+      dice_count: 5
+      dice_size: 6
+      bonus: 25
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 1
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 100
+  race: 101
+  height: 165
+  weight: 90
+  attributes:
+    strength: 35
+    dexterity: 25
+    intelligence: 33
+    wisdom: 30
+    constitution: 35
+    charisma: 36
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kNoBlind
+    - kIgnoresNoMob
+  affect_flags:
+    - kInfravision
+    - kBless
+    - kAwarness
+    - kBlink
+    - kStoneHands
+  skills:
+    - skill_id: 5  # оглушить
+      value: 140
+    - skill_id: 132  # сбить
+      value: 145
+    - skill_id: 136  # кулачный бой
+      value: 200
+    - skill_id: 137  # спасти
+      value: 100
+    - skill_id: 146  # двуручники
+      value: 140
+    - skill_id: 154  # луки
+      value: 100
+    - skill_id: 155  # дополнительный выстрел
+      value: 140
+  triggers:
+    - 2005  # Отключенный триггер
+  enhanced:
+    absorb: 30
+    bare_hand_attack: 6
+    like_work: 80
+    max_factor: 4
+    extra_attack: 3
+    special_bitvector: y0b1c1d1
+    saves:
+      kWill: -10
+      kCritical: -10
+      kStability: -10
+      kReflex: -10
+
+# Mob #2006
+6:
+  names:
+    aliases: змей огненный волк мужчина высокий змей850
+    nominative: Змей - Огненный Волк
+    genitive: Змея - Огненного Волка
+    dative: Змею - Огненному Волку
+    accusative: Змея - Огненного Волка
+    instrumental: Змеем - Огненным Волком
+    prepositional: Змее - Огненном Волке
+  descriptions:
+    short_desc: |2
+      Высокий мужчина с рыжими, огненными волосами, ждет указаний.
+    long_desc: |2
+      Было на свете три брата оборотня. Славились по миру они
+      умом и сердцем чутким, а также ратными подвигами великими.
+      Говорят любой из братьев княжескую дружину один положить
+      может. Старший из братьев в змея огненного превращался.
+      Средний братец в волка серого-незаметного. Ну а третий,
+      младший братец в волка черного оборачивается.
+  alignment: -600
+  stats:
+    level: 31
+    hitroll_penalty: 0
+    armor: -5
+    hp:
+      dice_count: 25
+      dice_size: 35
+      bonus: 2000
+    damage:
+      dice_count: 9
+      dice_size: 9
+      bonus: 20
+  gold:
+    dice_count: 5
+    dice_size: 6
+    bonus: 60
+  experience: 1
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 100
+  race: 105
+  height: 178
+  weight: 95
+  attributes:
+    strength: 33
+    dexterity: 34
+    intelligence: 18
+    wisdom: 24
+    constitution: 30
+    charisma: 33
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kNoCharm
+    - kNoBlind
+    - kIgnoresNoMob
+  affect_flags:
+    - kDetectLife
+    - kInfravision
+    - kBless
+    - kMagicGlass
+    - kFireAura
+  skills:
+    - skill_id: 5  # оглушить
+      value: 100
+    - skill_id: 12  # веерная защита
+      value: 100
+    - skill_id: 136  # кулачный бой
+      value: 125
+    - skill_id: 137  # спасти
+      value: 100
+    - skill_id: 143  # длинные лезвия
+      value: 125
+    - skill_id: 154  # луки
+      value: 145
+    - skill_id: 155  # дополнительный выстрел
+      value: 145
+    - skill_id: 167  # скрытый удар
+      value: 80
+  triggers:
+    - 2005  # Отключенный триггер
+  enhanced:
+    cast_success: 20
+    absorb: 31
+    bare_hand_attack: 3
+    like_work: 80
+    max_factor: 4
+    extra_attack: 2
+    special_bitvector: y0b1c1d1
+    saves:
+      kWill: -10
+      kCritical: -10
+      kStability: -10
+      kReflex: -10
+    spells:
+      - 150
+
+# Mob #2007
+7:
+  names:
+    aliases: хмар черный волк хмар850
+    nominative: Хмар - Черный Волк
+    genitive: Хмара - Черного Волка
+    dative: Хмару - Черному Волку
+    accusative: Хмара - Черного Волка
+    instrumental: Хмаром - Черным Волком
+    prepositional: Хмаре - Черном Волке
+  descriptions:
+    short_desc: |2
+      Высокий мужчина с угольно-черными волосами, ждет указаний.
+    long_desc: |2
+      Было на свете три брата оборотня. Славились по миру они
+      умом и сердцем чутким, а также ратными подвигами великими.
+      Говорят любой из братьев княжескую дружину один положить
+      может. Старший из братьев в змея огненного превращался.
+      Средний братец в волка серого-незаметного. Ну а третий,
+      младший братец в волка черного оборачивается.
+  alignment: -600
+  stats:
+    level: 30
+    hitroll_penalty: -4
+    armor: -20
+    hp:
+      dice_count: 25
+      dice_size: 15
+      bonus: 1300
+    damage:
+      dice_count: 8
+      dice_size: 12
+      bonus: 33
+  gold:
+    dice_count: 5
+    dice_size: 6
+    bonus: 60
+  experience: 1
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 100
+  race: 101
+  height: 200
+  weight: 100
+  attributes:
+    strength: 25
+    dexterity: 31
+    intelligence: 30
+    wisdom: 35
+    constitution: 29
+    charisma: 22
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kNoBlind
+    - kIgnoresNoMob
+  affect_flags:
+    - kDetectLife
+    - kInfravision
+    - kBless
+    - kMagicGlass
+    - kIceAura
+  skills:
+    - skill_id: 22  # осторожный стиль
+      value: 120
+    - skill_id: 136  # кулачный бой
+      value: 120
+    - skill_id: 137  # спасти
+      value: 150
+    - skill_id: 146  # двуручники
+      value: 100
+    - skill_id: 157  # уклониться
+      value: 100
+  triggers:
+    - 2005  # Отключенный триггер
+  enhanced:
+    absorb: 30
+    bare_hand_attack: 3
+    like_work: 99
+    max_factor: 4
+    extra_attack: 2
+    special_bitvector: y0b1c1d1C3
+    resistances:
+      kVitality: 5
+      kMind: 5
+      kDark: 5
+    saves:
+      kWill: -14
+      kCritical: -14
+      kStability: -14
+      kReflex: -14
+    spells:
+      - 150
+
+# Mob #2008
+8:
+  names:
+    aliases: каменотес щерба здоровенный парень
+    nominative: каменотес Щерба
+    genitive: каменотеса Щербы
+    dative: каменотесу Щербе
+    accusative: каменотеса Щербу
+    instrumental: каменотесом Щербой
+    prepositional: каменотесе Щербе
+  descriptions:
+    short_desc: |2
+      Здоровенный парень с мозолистыми руками переминается с ноги на ногу.
+    long_desc: |2
+      Здоровенный парень с бугрящимися плечами. В его кожу въелась каменная пыль,
+      выдавая род занятий.  
+  alignment: 400
+  stats:
+    level: 33
+    hitroll_penalty: -10
+    armor: -15
+    hp:
+      dice_count: 1
+      dice_size: 1
+      bonus: 1970
+    damage:
+      dice_count: 15
+      dice_size: 13
+      bonus: 17
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 1
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 60
+  race: 101
+  height: 170
+  weight: 60
+  attributes:
+    strength: 33
+    dexterity: 37
+    intelligence: 25
+    wisdom: 25
+    constitution: 30
+    charisma: 25
+  action_flags:
+    - kNpc
+    - kMemory
+    - kNoCharm
+    - kNoSummon
+    - kNoSleep
+    - kNoFear
+    - kMobAwake
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+    - kProtectFromDark
+    - kProtectFromMind
+    - kBless
+    - kAwarness
+    - kBlink
+    - kStoneHands
+    - kLightWalk
+  skills:
+    - skill_id: 5  # оглушить
+      value: 100
+    - skill_id: 22  # осторожный стиль
+      value: 120
+    - skill_id: 136  # кулачный бой
+      value: 200
+    - skill_id: 141  # палицы и дубины
+      value: 120
+    - skill_id: 142  # секиры
+      value: 100
+    - skill_id: 143  # длинные лезвия
+      value: 80
+    - skill_id: 144  # короткие лезвия
+      value: 140
+    - skill_id: 145  # иное оружие
+      value: 80
+    - skill_id: 146  # двуручники
+      value: 140
+    - skill_id: 147  # проникающее оружие
+      value: 80
+    - skill_id: 148  # копья и рогатины
+      value: 140
+    - skill_id: 154  # луки
+      value: 120
+  triggers:
+    - 2005  # Отключенный триггер
+  enhanced:
+    hp_regen: 5
+    armour_bonus: 15
+    mana_regen: 5
+    cast_success: 23
+    morale: 15
+    initiative_add: 10
+    absorb: 32
+    aresist: 10
+    mresist: 10
+    presist: 10
+    bare_hand_attack: 3
+    like_work: 80
+    max_factor: 4
+    extra_attack: 4
+    special_bitvector: y0b1c1d1C3
+    resistances:
+      kFire: 10
+      kAir: 10
+      kWater: 10
+      kEarth: 10
+      kVitality: 10
+      kMind: 10
+      kImmunity: 10
+      kDark: 7
+    saves:
+      kWill: -80
+      kCritical: -90
+      kStability: -90
+      kReflex: -90
+    feats:
+      - 2
+      - 3
+      - 13
+      - 17
+      - 25
+      - 41
+      - 57
+      - 140
+
+# Mob #2009
+9:
+  names:
+    aliases: могучий китаец
+    nominative: могучий китаец
+    genitive: могучего китайца
+    dative: могучему китайцу
+    accusative: могучего китайца
+    instrumental: могучим китайцем
+    prepositional: могучем китайце
+  descriptions:
+    short_desc: |2
+      Могучий китаец поигрывает здесь мускулами.
+    long_desc: |2
+      Высокий, как для китайца, молодой парень
+      готов пойти на службу. Его могучие руки - грозное
+      оружие. Не каждому суждено пережить шквал его ударов.
+  alignment: 0
+  stats:
+    level: 30
+    hitroll_penalty: -5
+    armor: -12
+    hp:
+      dice_count: 9
+      dice_size: 16
+      bonus: 1800
+    damage:
+      dice_count: 10
+      dice_size: 11
+      bonus: 29
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 1
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 30
+  race: 101
+  height: 198
+  weight: 200
+  attributes:
+    strength: 35
+    dexterity: 33
+    intelligence: 23
+    wisdom: 30
+    constitution: 35
+    charisma: 28
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kNoHold
+    - kNoResurrection
+  affect_flags:
+    - kDetectInvisible
+    - kDetectMagic
+    - kDetectLife
+    - kInfravision
+    - kNoFlee
+    - kIceAura
+  skills:
+    - skill_id: 3  # удар левой рукой
+      value: 100
+    - skill_id: 4  # богатырский молот
+      value: 175
+    - skill_id: 136  # кулачный бой
+      value: 150
+  triggers:
+    - 2005  # Отключенный триггер
+  enhanced:
+    hp_regen: 150
+    armour_bonus: 40
+    morale: 35
+    initiative_add: 25
+    absorb: 20
+    aresist: 10
+    mresist: 10
+    presist: 10
+    like_work: 40
+    max_factor: 4
+    extra_attack: 3
+    special_bitvector: y0b1c1
+    resistances:
+      kFire: 17
+      kAir: 17
+      kWater: 17
+      kEarth: 17
+      kVitality: 10
+      kMind: 10
+      kImmunity: 7
+      kDark: 5
+    saves:
+      kWill: -75
+      kCritical: -75
+      kStability: -45
+      kReflex: -50
+    feats:
+      - 4
+      - 29
+      - 45
+      - 47
+      - 49
+      - 53
+      - 56
+      - 57
+      - 58
+      - 61
+      - 65
+      - 66
+      - 95
+
+# Mob #2010
+10:
+  names:
+    aliases: 'словенский лесоруб житель местной деревни '
+    nominative: словенский лесоруб
+    genitive: словенского лесоруба
+    dative: словенскому лесорубу
+    accusative: словенского лесоруба
+    instrumental: словенским лесорубом
+    prepositional: словенском лесорубе
+  descriptions:
+    short_desc: |2
+      Житель местной деревни стоит оперевшись на огромный топор.
+    long_desc: |2
+      Огромный мужик с мощными руками и невообразимой ширины плечами.
+      Окладистая борода вся в щепках, выдает его род занятий.
+  alignment: 400
+  stats:
+    level: 33
+    hitroll_penalty: -4
+    armor: -15
+    hp:
+      dice_count: 1
+      dice_size: 1
+      bonus: 2300
+    damage:
+      dice_count: 15
+      dice_size: 13
+      bonus: 3
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 1
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 60
+  race: 101
+  height: 170
+  weight: 60
+  attributes:
+    strength: 33
+    dexterity: 37
+    intelligence: 25
+    wisdom: 25
+    constitution: 30
+    charisma: 25
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kMemory
+    - kNoCharm
+    - kNoSummon
+    - kNoSleep
+    - kNoFear
+    - kMobAwake
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+    - kProtectFromDark
+    - kProtectFromMind
+    - kBless
+    - kAwarness
+    - kBlink
+    - kStoneHands
+    - kLightWalk
+  skills:
+    - skill_id: 5  # оглушить
+      value: 100
+    - skill_id: 22  # осторожный стиль
+      value: 120
+    - skill_id: 136  # кулачный бой
+      value: 200
+    - skill_id: 141  # палицы и дубины
+      value: 120
+    - skill_id: 142  # секиры
+      value: 100
+    - skill_id: 143  # длинные лезвия
+      value: 80
+    - skill_id: 144  # короткие лезвия
+      value: 140
+    - skill_id: 145  # иное оружие
+      value: 80
+    - skill_id: 146  # двуручники
+      value: 140
+    - skill_id: 147  # проникающее оружие
+      value: 80
+    - skill_id: 148  # копья и рогатины
+      value: 140
+    - skill_id: 154  # луки
+      value: 120
+  triggers:
+    - 2005  # Отключенный триггер
+  enhanced:
+    hp_regen: 5
+    armour_bonus: 15
+    mana_regen: 5
+    cast_success: 23
+    morale: 15
+    initiative_add: 10
+    absorb: 32
+    aresist: 10
+    mresist: 10
+    presist: 10
+    bare_hand_attack: 3
+    like_work: 85
+    max_factor: 4
+    extra_attack: 4
+    special_bitvector: y0b1c1d1C3
+    resistances:
+      kFire: 10
+      kAir: 10
+      kWater: 10
+      kEarth: 10
+      kVitality: 10
+      kMind: 10
+      kImmunity: 10
+      kDark: 7
+    saves:
+      kWill: -80
+      kCritical: -90
+      kStability: -90
+      kReflex: -90
+    feats:
+      - 2
+      - 3
+      - 12
+      - 13
+      - 17
+      - 25
+      - 41
+      - 57
+      - 140
+
+# Mob #2011
+11:
+  names:
+    aliases: ледяной воин
+    nominative: ледяной воин
+    genitive: ледяного воина
+    dative: ледяному воину
+    accusative: ледяного воина
+    instrumental: ледяным воином
+    prepositional: ледяном воине
+  descriptions:
+    short_desc: |2
+      Ледяной воин стоит здесь.
+    long_desc: |2
+      Умелый ледяной воин. Злу не удалось поработить его разум
+      и поэтому он был навечно заточен в ледяную тюрьму.
+  alignment: 600
+  stats:
+    level: 30
+    hitroll_penalty: -8
+    armor: -19
+    hp:
+      dice_count: 3
+      dice_size: 3
+      bonus: 1925
+    damage:
+      dice_count: 17
+      dice_size: 12
+      bonus: 22
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 1
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 60
+  race: 101
+  height: 180
+  weight: 120
+  attributes:
+    strength: 30
+    dexterity: 30
+    intelligence: 20
+    wisdom: 20
+    constitution: 30
+    charisma: 20
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kNoHold
+    - kNoFear
+    - kNoResurrection
+  affect_flags:
+    - kDetectInvisible
+    - kDetectMagic
+    - kDetectLife
+    - kInfravision
+    - kBlink
+    - kHaste
+    - kAirAura
+    - kIceAura
+    - kShadowCloak
+  skills:
+    - skill_id: 5  # оглушить
+      value: 140
+    - skill_id: 22  # осторожный стиль
+      value: 100
+    - skill_id: 136  # кулачный бой
+      value: 150
+    - skill_id: 137  # спасти
+      value: 100
+    - skill_id: 146  # двуручники
+      value: 120
+    - skill_id: 154  # луки
+      value: 130
+  triggers:
+    - 2005  # Отключенный триггер
+  enhanced:
+    hp_regen: 150
+    armour_bonus: 40
+    morale: 30
+    initiative_add: 20
+    absorb: 29
+    aresist: 12
+    mresist: 12
+    presist: 17
+    like_work: 70
+    max_factor: 4
+    extra_attack: 3
+    special_bitvector: y0b1c1
+    resistances:
+      kFire: 20
+      kAir: 20
+      kWater: 20
+      kEarth: 20
+      kVitality: 10
+      kMind: 12
+      kImmunity: 10
+      kDark: 5
+    saves:
+      kWill: -80
+      kCritical: -85
+      kStability: -90
+      kReflex: -95
+    feats:
+      - 3
+      - 12
+      - 13
+      - 17
+      - 20
+      - 21
+      - 29
+      - 41
+      - 42
+      - 53
+      - 55
+      - 57
+      - 58
+      - 61
+
+# Mob #2012
+12:
+  names:
+    aliases: ведьмак
+    nominative: ведьмак
+    genitive: ведьмака
+    dative: ведьмаку
+    accusative: ведьмака
+    instrumental: ведьмаком
+    prepositional: ведьмаке
+  descriptions:
+    short_desc: |2
+      Охотник за нежитью настороженно осматривается по сторонам.
+    long_desc: |2
+      По народным поверьям ведьмаки обладают магической силой и нечеловеческими 
+      возможностями, борются с чудовищами, злыми духами и всяческими темными
+      силами.
+  alignment: -600
+  stats:
+    level: 21
+    hitroll_penalty: -4
+    armor: -10
+    hp:
+      dice_count: 8
+      dice_size: 6
+      bonus: 1000
+    damage:
+      dice_count: 8
+      dice_size: 12
+      bonus: 33
+  gold:
+    dice_count: 6
+    dice_size: 4
+    bonus: 740
+  experience: 1
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 70
+  race: 104
+  height: 190
+  weight: 70
+  attributes:
+    strength: 24
+    dexterity: 30
+    intelligence: 30
+    wisdom: 32
+    constitution: 27
+    charisma: 22
+  action_flags:
+    - kScavenger
+    - kNpc
+    - kMemory
+    - kNoCharm
+    - kNoSleep
+    - kNoHold
+    - kNoFear
+    - kLooter
+  affect_flags:
+    - kDetectInvisible
+    - kDetectMagic
+    - kDetectLife
+    - kInfravision
+    - kNoTrack
+    - kBlink
+    - kNoFlee
+    - kWaterBreath
+    - kIceAura
+  skills:
+    - skill_id: 21  # точный стиль
+      value: 100
+    - skill_id: 22  # осторожный стиль
+      value: 100
+    - skill_id: 136  # кулачный бой
+      value: 120
+    - skill_id: 142  # секиры
+      value: 90
+    - skill_id: 143  # длинные лезвия
+      value: 110
+    - skill_id: 146  # двуручники
+      value: 100
+    - skill_id: 150  # обезоружить
+      value: 100
+    - skill_id: 157  # уклониться
+      value: 100
+    - skill_id: 189  # магия жизни
+      value: 210
+  triggers:
+    - 2005  # Отключенный триггер
+  enhanced:
+    absorb: 21
+    bare_hand_attack: 7
+    like_work: 95
+    max_factor: 3
+    extra_attack: 2
+    special_bitvector: y0b1c1
+    feats:
+      - 29
+      - 30
+      - 31
+      - 32
+      - 33
+      - 34
+      - 35
+      - 36
+      - 37
+      - 38
+    spells:
+      - 28
+      - 28
+      - 36
+      - 55
+      - 55
+      - 118
+      - 118
+      - 118
+      - 118
+      - 118
+      - 136
+      - 137
+      - 137
+      - 137
+      - 137
+
+# Mob #2013
+13:
+  names:
+    aliases: тверской дозорный
+    nominative: тверской дозорный
+    genitive: тверского дозорного
+    dative: тверскому дозорному
+    accusative: тверского дозорного
+    instrumental: тверским дозорным
+    prepositional: тверском дозорном
+  descriptions:
+    short_desc: |2
+      Худой мужичонка внимательно вглядывается вдаль.
+    long_desc: |2
+      Дозорными становятся не самые сильные, не самые умные, а самые зоркие.
+      Его задача вовремя заметить приближающегося неприятеля и поднять тревогу,
+      в любую погоду и время суток. Пост этот не сильно почетный, но сильно
+      важный.
+  alignment: -600
+  stats:
+    level: 29
+    hitroll_penalty: 0
+    armor: -2
+    hp:
+      dice_count: 20
+      dice_size: 20
+      bonus: 800
+    damage:
+      dice_count: 7
+      dice_size: 6
+      bonus: 8
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 1
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 70
+  race: 101
+  height: 175
+  weight: 115
+  attributes:
+    strength: 23
+    dexterity: 30
+    intelligence: 16
+    wisdom: 3
+    constitution: 20
+    charisma: 12
+  action_flags:
+    - kScavenger
+    - kNpc
+    - kStayZone
+    - kMemory
+    - kHelper
+    - kNoGroup
+    - kNoHelp
+  affect_flags:
+    - kInfravision
+    - kBless
+    - kAwarness
+  skills:
+    - skill_id: 22  # осторожный стиль
+      value: 100
+    - skill_id: 131  # заколоть
+      value: 100
+    - skill_id: 136  # кулачный бой
+      value: 100
+    - skill_id: 137  # спасти
+      value: 100
+    - skill_id: 142  # секиры
+      value: 100
+    - skill_id: 148  # копья и рогатины
+      value: 100
+    - skill_id: 154  # луки
+      value: 120
+    - skill_id: 155  # дополнительный выстрел
+      value: 100
+    - skill_id: 157  # уклониться
+      value: 80
+  triggers:
+    - 2005  # Отключенный триггер
+  enhanced:
+    absorb: 29
+    bare_hand_attack: 3
+    like_work: 80
+    max_factor: 4
+    extra_attack: 2
+    special_bitvector: y0b1c1d1
+    feats:
+      - 29
+      - 30
+      - 31
+      - 32
+      - 33
+      - 34
+      - 35
+      - 36
+      - 37
+      - 38
+
+# Mob #2014
+14:
+  names:
+    aliases: дедушка Куденя
+    nominative: дедушка Куденя
+    genitive: дедушки Кудени
+    dative: дедушке Кудене
+    accusative: дедушку Куденю
+    instrumental: дедушкой Куденей
+    prepositional: дедушке Кудене
+  descriptions:
+    short_desc: |2
+      Дедушка Куденя, улыбаясь каждому встречному, неторопливо идет по улице.
+    long_desc: |2
+      Древний седобородый дед. Про таких в народе говорят - дед, сто лет в обед.
+      Живет ли он уже век на этой земле или меньше, то нам не ведомо. Но
+      мудрости у дедушки на всю рать хватит, да еще и останется! Не раз
+      совет мудрого деда спасал Ростов от очередной беды.
+  alignment: -600
+  stats:
+    level: 28
+    hitroll_penalty: 0
+    armor: -7
+    hp:
+      dice_count: 10
+      dice_size: 10
+      bonus: 1022
+    damage:
+      dice_count: 14
+      dice_size: 14
+      bonus: 6
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 20
+  experience: 1
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 100
+  race: 101
+  height: 183
+  weight: 85
+  attributes:
+    strength: 35
+    dexterity: 35
+    intelligence: 18
+    wisdom: 18
+    constitution: 35
+    charisma: 35
+  action_flags:
+    - kScavenger
+    - kNpc
+    - kStayZone
+    - kHelper
+    - kNoSummon
+    - kNoSleep
+    - kLooter
+    - kNoResurrection
+  affect_flags:
+    - kDetectAlign
+    - kDetectLife
+    - kInfravision
+    - kBless
+    - kStoneHands
+  skills:
+    - skill_id: 4  # богатырский молот
+      value: 100
+    - skill_id: 132  # сбить
+      value: 70
+    - skill_id: 134  # пнуть
+      value: 100
+    - skill_id: 136  # кулачный бой
+      value: 100
+    - skill_id: 137  # спасти
+      value: 100
+    - skill_id: 147  # проникающее оружие
+      value: 100
+    - skill_id: 189  # магия жизни
+      value: 280
+  triggers:
+    - 2005  # Отключенный триггер
+  enhanced:
+    hp_regen: 15
+    armour_bonus: 10
+    mana_regen: 10
+    cast_success: 10
+    morale: 5
+    initiative_add: 5
+    absorb: 28
+    like_work: 50
+    max_factor: 4
+    extra_attack: 1
+    special_bitvector: y0b1c1
+    resistances:
+      kFire: 7
+      kAir: 7
+      kWater: 7
+      kEarth: 7
+      kVitality: 5
+      kMind: 2
+      kImmunity: 2
+    saves:
+      kWill: 10
+      kCritical: 10
+      kStability: 10
+      kReflex: 10
+    spells:
+      - 28
+
+# Mob #2015
+15:
+  names:
+    aliases: гридень ростовской дружины
+    nominative: гридень ростовской дружины
+    genitive: гридня ростовской дружины
+    dative: гридню ростовской дружины
+    accusative: гридня ростовской дружины
+    instrumental: гриднем ростовской дружины
+    prepositional: гридне ростовской дружины
+  descriptions:
+    short_desc: |2
+      Гридень ростовской дружины охраняет покой родного города.
+    long_desc: |2
+      Вооруженный до зубов воин. Тело заковано в тяжелые латы,
+      в ножнах меч звенит, на главе шлем с широким переносьем.
+      Ходит он - словно молот кузнечный звенит.
+  alignment: -600
+  stats:
+    level: 30
+    hitroll_penalty: 0
+    armor: -7
+    hp:
+      dice_count: 20
+      dice_size: 20
+      bonus: 800
+    damage:
+      dice_count: 7
+      dice_size: 6
+      bonus: 8
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 1
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 70
+  race: 101
+  height: 175
+  weight: 115
+  attributes:
+    strength: 23
+    dexterity: 30
+    intelligence: 16
+    wisdom: 3
+    constitution: 20
+    charisma: 23
+  action_flags:
+    - kScavenger
+    - kNpc
+    - kStayZone
+    - kMemory
+    - kHelper
+    - kNoGroup
+    - kNoHelp
+  affect_flags:
+    - kDetectAlign
+    - kDetectLife
+    - kInfravision
+    - kBless
+    - kAwarness
+  skills:
+    - skill_id: 22  # осторожный стиль
+      value: 100
+    - skill_id: 136  # кулачный бой
+      value: 100
+    - skill_id: 137  # спасти
+      value: 120
+    - skill_id: 142  # секиры
+      value: 100
+    - skill_id: 148  # копья и рогатины
+      value: 100
+    - skill_id: 154  # луки
+      value: 120
+    - skill_id: 157  # уклониться
+      value: 80
+  triggers:
+    - 2005  # Отключенный триггер
+  enhanced:
+    absorb: 30
+    bare_hand_attack: 9
+    like_work: 80
+    max_factor: 4
+    extra_attack: 2
+    special_bitvector: y0b1c1d1
+    feats:
+      - 29
+      - 30
+      - 31
+      - 32
+      - 33
+      - 34
+      - 35
+      - 36
+      - 37
+      - 38
+
+# Mob #2016
+16:
+  names:
+    aliases: молодой лучник
+    nominative: молодой лучник
+    genitive: молодого лучника
+    dative: молодому лучнику
+    accusative: молодого лучника
+    instrumental: молодым лучником
+    prepositional: молодом лучнике
+  descriptions:
+    short_desc: |2
+      Молодой лучник торопится на тренировку.
+    long_desc: |2
+         Молодой человек с русыми волосами и черными глазами.
+  alignment: -600
+  stats:
+    level: 26
+    hitroll_penalty: 2
+    armor: -9
+    hp:
+      dice_count: 40
+      dice_size: 10
+      bonus: 800
+    damage:
+      dice_count: 5
+      dice_size: 6
+      bonus: 10
+  gold:
+    dice_count: 1
+    dice_size: 1
+    bonus: 10
+  experience: 1
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 65
+  race: 101
+  height: 197
+  weight: 112
+  attributes:
+    strength: 35
+    dexterity: 30
+    intelligence: 15
+    wisdom: 10
+    constitution: 28
+    charisma: 12
+  action_flags:
+    - kScavenger
+    - kNpc
+    - kStayZone
+    - kMemory
+    - kHelper
+    - kNoSummon
+    - kLooter
+  affect_flags:
+    - kDetectInvisible
+    - kSanctuary
+    - kInfravision
+    - kProtectFromDark
+    - kBless
+    - kNoFlee
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 90
+    - skill_id: 137  # спасти
+      value: 100
+    - skill_id: 154  # луки
+      value: 120
+    - skill_id: 155  # дополнительный выстрел
+      value: 120
+    - skill_id: 157  # уклониться
+      value: 100
+  triggers:
+    - 2005  # Отключенный триггер
+  enhanced:
+    absorb: 26
+    bare_hand_attack: 9
+    like_work: 75
+    max_factor: 3
+    extra_attack: 1
+    special_bitvector: y0b1c1d1
+
+# Mob #2017
+17:
+  names:
+    aliases: побирушка жалкого вида человек
+    nominative: побирушка
+    genitive: побирушки
+    dative: побирушке
+    accusative: побирушку
+    instrumental: побирушкой
+    prepositional: побирушке
+  descriptions:
+    short_desc: |2
+      Жалкого вида человек сидит здесь.
+    long_desc: |2
+      Этот человек потерял все, что у него было и теперь ему просто некуда пойти. В
+      лагерь по каким-то причинам его жить не взяли.  
+  alignment: 600
+  stats:
+    level: 28
+    hitroll_penalty: 0
+    armor: 5
+    hp:
+      dice_count: 55
+      dice_size: 25
+      bonus: 1000
+    damage:
+      dice_count: 6
+      dice_size: 10
+      bonus: 15
+  gold:
+    dice_count: 10
+    dice_size: 5
+    bonus: 5
+  experience: 1
+  position:
+    default: kSit
+    start: kSit
+  sex: kMale
+  size: 45
+  race: 101
+  height: 155
+  weight: 60
+  attributes:
+    strength: 30
+    dexterity: 30
+    intelligence: 27
+    wisdom: 30
+    constitution: 25
+    charisma: 35
+  action_flags:
+    - kSentinel
+    - kScavenger
+    - kNpc
+    - kStayZone
+    - kMemory
+    - kHelper
+    - kNoSummon
+    - kNoBlind
+    - kLooter
+  affect_flags:
+    - kDetectAlign
+    - kInfravision
+  skills:
+    - skill_id: 21  # точный стиль
+      value: 5
+    - skill_id: 132  # сбить
+      value: 55
+    - skill_id: 136  # кулачный бой
+      value: 125
+    - skill_id: 137  # спасти
+      value: 100
+    - skill_id: 141  # палицы и дубины
+      value: 85
+    - skill_id: 142  # секиры
+      value: 85
+    - skill_id: 143  # длинные лезвия
+      value: 85
+    - skill_id: 144  # короткие лезвия
+      value: 85
+    - skill_id: 145  # иное оружие
+      value: 85
+    - skill_id: 146  # двуручники
+      value: 85
+    - skill_id: 147  # проникающее оружие
+      value: 85
+    - skill_id: 148  # копья и рогатины
+      value: 85
+    - skill_id: 154  # луки
+      value: 85
+    - skill_id: 167  # скрытый удар
+      value: 55
+  triggers:
+    - 2005  # Отключенный триггер
+  enhanced:
+    like_work: 30
+    max_factor: 4
+    extra_attack: 3
+    special_bitvector: y0b1c1d1B3
+
+# Mob #2018
+18:
+  names:
+    aliases: урманский дружинник
+    nominative: урманский дружинник
+    genitive: урманского дружинника
+    dative: урманскому дружиннику
+    accusative: урманского дружинника
+    instrumental: урманским дружинником
+    prepositional: урманском дружиннике
+  descriptions:
+    short_desc: |2
+      Урманский дружинник, пригорюнившись, сидит здесь.
+    long_desc: |2
+      крепкий воин давеча изрядно перебрал в корчме и
+      принялся буянить и приставать к горожанкам - за что и был
+      схвачен городскими стражами, нещадно поколочен и посажен
+      в поруб.
+  alignment: 0
+  stats:
+    level: 29
+    hitroll_penalty: 5
+    armor: -2
+    hp:
+      dice_count: 10
+      dice_size: 10
+      bonus: 1220
+    damage:
+      dice_count: 5
+      dice_size: 9
+      bonus: 9
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 1
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 100
+  race: 101
+  height: 175
+  weight: 85
+  attributes:
+    strength: 23
+    dexterity: 17
+    intelligence: 14
+    wisdom: 14
+    constitution: 23
+    charisma: 11
+  action_flags:
+    - kNpc
+  skills:
+    - skill_id: 134  # пнуть
+      value: 80
+    - skill_id: 136  # кулачный бой
+      value: 75
+    - skill_id: 143  # длинные лезвия
+      value: 70
+    - skill_id: 151  # парировать
+      value: 70
+  triggers:
+    - 2005  # Отключенный триггер
+  enhanced:
+    absorb: 1
+    like_work: 75
+    max_factor: 4
+    extra_attack: 1
+    special_bitvector: y0b1c1d1
+    feats:
+      - 29
+      - 30
+      - 31
+      - 32
+      - 33
+      - 34
+      - 35
+      - 36
+      - 37
+      - 38
+
+# Mob #2019
+19:
+  names:
+    aliases: лихой ватажник charmis2017
+    nominative: лихой ватажник
+    genitive: лихого ватажника
+    dative: лихому ватажнику
+    accusative: лихого ватажника
+    instrumental: лихим ватажником
+    prepositional: лихом ватажнике
+  descriptions:
+    short_desc: |2
+      Лихой ватажник из местной воровской шайки угрюмо смотрит на вас.
+    long_desc: |2
+      невысокий парнишка, очень ловкий в обращении с кинжалом и шилом.
+  alignment: -600
+  stats:
+    level: 11
+    hitroll_penalty: 0
+    armor: 0
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 1000
+    damage:
+      dice_count: 6
+      dice_size: 7
+      bonus: 7
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 1
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 100
+  race: 104
+  height: 175
+  weight: 85
+  attributes:
+    strength: 21
+    dexterity: 24
+    intelligence: 14
+    wisdom: 15
+    constitution: 21
+    charisma: 12
+  action_flags:
+    - kNpc
+  affect_flags:
+    - kInfravision
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 75
+    - skill_id: 157  # уклониться
+      value: 70
+    - skill_id: 160  # подножка
+      value: 80
+    - skill_id: 167  # скрытый удар
+      value: 70
+  triggers:
+    - 2005  # Отключенный триггер
+  enhanced:
+    absorb: 11
+    like_work: 55
+    max_factor: 1
+    extra_attack: 1
+    special_bitvector: y0b1c1d1
+    feats:
+      - 29
+      - 30
+      - 31
+      - 32
+      - 33
+      - 34
+      - 35
+      - 36
+      - 37
+      - 38
+
+# Mob #2020
+20:
+  names:
+    aliases: удалой разбойничек
+    nominative: удалой разбойничек
+    genitive: удалого разбойничка
+    dative: удалому разбойничку
+    accusative: удалого разбойничка
+    instrumental: удалым разбойничком
+    prepositional: удалом разбойничке
+  descriptions:
+    short_desc: |2
+      Разбойничек удалой понурившись сидит здесь.
+    long_desc: |2
+      молодой парень, промышлявший разбоем по окрестным дорогам
+      и схваченный стражей, а может и княжеским караульным разъездом. 
+  alignment: 0
+  stats:
+    level: 12
+    hitroll_penalty: -2
+    armor: -3
+    hp:
+      dice_count: 10
+      dice_size: 50
+      bonus: 1000
+    damage:
+      dice_count: 8
+      dice_size: 8
+      bonus: 12
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 1
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 100
+  race: 101
+  height: 175
+  weight: 85
+  attributes:
+    strength: 25
+    dexterity: 30
+    intelligence: 21
+    wisdom: 14
+    constitution: 24
+    charisma: 20
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kNoSkillTrain
+  affect_flags:
+    - kInfravision
+  skills:
+    - skill_id: 5  # оглушить
+      value: 70
+    - skill_id: 136  # кулачный бой
+      value: 90
+    - skill_id: 137  # спасти
+      value: 80
+    - skill_id: 141  # палицы и дубины
+      value: 80
+    - skill_id: 142  # секиры
+      value: 80
+    - skill_id: 143  # длинные лезвия
+      value: 80
+    - skill_id: 144  # короткие лезвия
+      value: 80
+    - skill_id: 145  # иное оружие
+      value: 80
+    - skill_id: 146  # двуручники
+      value: 80
+    - skill_id: 147  # проникающее оружие
+      value: 80
+    - skill_id: 148  # копья и рогатины
+      value: 80
+    - skill_id: 157  # уклониться
+      value: 80
+  triggers:
+    - 2005  # Отключенный триггер
+  enhanced:
+    absorb: 12
+    like_work: 85
+    max_factor: 1
+    extra_attack: 2
+    special_bitvector: y0b1c1d1
+
+# Mob #2021
+21:
+  names:
+    aliases: возчик
+    nominative: возчик
+    genitive: возчика
+    dative: возчику
+    accusative: возчика
+    instrumental: возчиком
+    prepositional: возчике
+  descriptions:
+    short_desc: |2
+      Возчик из торгового обоза злобно смотрит на вас.
+    long_desc: |2
+      крепкий детина, набравшийся давеча до неописуемого состояния
+      и учинивший драку на постоялом дворе старого Рамоха.
+      Под его левым глазом виден полновесный синяк.
+  alignment: 0
+  stats:
+    level: 13
+    hitroll_penalty: 4
+    armor: -7
+    hp:
+      dice_count: 10
+      dice_size: 20
+      bonus: 1000
+    damage:
+      dice_count: 7
+      dice_size: 12
+      bonus: 16
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 1
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 100
+  race: 101
+  height: 175
+  weight: 85
+  attributes:
+    strength: 25
+    dexterity: 17
+    intelligence: 19
+    wisdom: 14
+    constitution: 24
+    charisma: 12
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kNoSummon
+    - kNoBlind
+  skills:
+    - skill_id: 4  # богатырский молот
+      value: 100
+    - skill_id: 136  # кулачный бой
+      value: 57
+    - skill_id: 141  # палицы и дубины
+      value: 80
+    - skill_id: 146  # двуручники
+      value: 80
+  triggers:
+    - 2005  # Отключенный триггер
+  enhanced:
+    absorb: 13
+    like_work: 90
+    max_factor: 1
+    extra_attack: 2
+    special_bitvector: y0b1c1
+
+# Mob #2022
+22:
+  names:
+    aliases: ' уставший лесоруб'
+    nominative: уставший лесоруб
+    genitive: уставшего лесоруба
+    dative: уставшему лесорубу
+    accusative: уставшего лесоруба
+    instrumental: уставшим лесорубом
+    prepositional: уставшем лесорубе
+  descriptions:
+    short_desc: |2
+      Уставший лесоруб греется у костра.
+    long_desc: |2
+      Зевающий лесоруб пригрелся у пламени костра. Нелегко целый день напролет
+      махать эдаким топорищем.
+  alignment: 600
+  stats:
+    level: 28
+    hitroll_penalty: 16
+    armor: 3
+    hp:
+      dice_count: 2
+      dice_size: 10
+      bonus: 1000
+    damage:
+      dice_count: 5
+      dice_size: 5
+      bonus: 5
+  gold:
+    dice_count: 1
+    dice_size: 1
+    bonus: 1
+  experience: 1
+  position:
+    default: kRest
+    start: kRest
+  sex: kMale
+  size: 50
+  race: 101
+  height: 175
+  weight: 85
+  attributes:
+    strength: 30
+    dexterity: 27
+    intelligence: 20
+    wisdom: 20
+    constitution: 30
+    charisma: 10
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kMemory
+    - kHelper
+    - kNoFear
+    - kLooter
+    - kAppearsNight
+    - UNUSED_74
+  affect_flags:
+    - kInfravision
+    - kBless
+    - kHaste
+  skills:
+    - skill_id: 5  # оглушить
+      value: 80
+    - skill_id: 132  # сбить
+      value: 100
+    - skill_id: 137  # спасти
+      value: 80
+  triggers:
+    - 2005  # Отключенный триггер
+  enhanced:
+    hp_regen: 5
+    armour_bonus: 60
+    mana_regen: 5
+    cast_success: 5
+    morale: 5
+    initiative_add: 5
+    absorb: 28
+    bare_hand_attack: 3
+    like_work: 30
+    max_factor: 4
+    extra_attack: 2
+    special_bitvector: y0b1c1
+    resistances:
+      kFire: 2
+      kAir: 2
+      kWater: 2
+      kEarth: 2
+      kVitality: 2
+      kMind: 2
+      kImmunity: 2
+    saves:
+      kWill: 5
+      kCritical: 5
+      kStability: 5
+      kReflex: 5
+    feats:
+      - 11
+      - 12
+      - 13
+      - 41
+      - 42
+    spells:
+      - 36
+      - 62
+      - 72
+      - 72
+      - 82
+      - 88
+
+# Mob #2023
+23:
+  names:
+    aliases: княжий вой
+    nominative: княжий вой
+    genitive: княжьего воя
+    dative: княжьему вою
+    accusative: княжьего воя
+    instrumental: княжьим воем
+    prepositional: княжьем вое
+  descriptions:
+    short_desc: |2
+      Могучий воин благодарно смотрит на Вас.
+    long_desc: |2
+      Этот молодой крепкий воин вызывает своим видом весьма противоречивые ощущения.
+      С одной стороны, - строгое, спокойное лицо. Гладко выбритая кожа. Аккуратно
+      зачесанные волосы. С другой - отсутствие одного уха, многочисленные шрамы на
+      лице, волевой подбородок и точно выверенные скупые движения, говорят о порядочном
+      боевом опыте, знании ратного дела, умении карать и командовать.
+  alignment: 400
+  stats:
+    level: 33
+    hitroll_penalty: -8
+    armor: -18
+    hp:
+      dice_count: 1
+      dice_size: 1
+      bonus: 2700
+    damage:
+      dice_count: 15
+      dice_size: 16
+      bonus: 13
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 200000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 60
+  race: 101
+  height: 170
+  weight: 60
+  attributes:
+    strength: 33
+    dexterity: 37
+    intelligence: 25
+    wisdom: 25
+    constitution: 30
+    charisma: 25
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kMemory
+    - kNoSummon
+    - kNoSleep
+    - kNoFear
+    - kMobAwake
+  affect_flags:
+    - kDetectLife
+    - kInfravision
+    - kProtectFromDark
+    - kProtectFromMind
+    - kBless
+    - kAwarness
+    - kBlink
+    - kStoneHands
+    - kLightWalk
+  skills:
+    - skill_id: 5  # оглушить
+      value: 100
+    - skill_id: 22  # осторожный стиль
+      value: 120
+    - skill_id: 136  # кулачный бой
+      value: 200
+    - skill_id: 137  # спасти
+      value: 100
+    - skill_id: 141  # палицы и дубины
+      value: 120
+    - skill_id: 142  # секиры
+      value: 100
+    - skill_id: 143  # длинные лезвия
+      value: 80
+    - skill_id: 144  # короткие лезвия
+      value: 140
+    - skill_id: 145  # иное оружие
+      value: 80
+    - skill_id: 146  # двуручники
+      value: 140
+    - skill_id: 147  # проникающее оружие
+      value: 80
+    - skill_id: 148  # копья и рогатины
+      value: 140
+    - skill_id: 154  # луки
+      value: 120
+  enhanced:
+    hp_regen: 5
+    armour_bonus: 50
+    mana_regen: 5
+    cast_success: 23
+    morale: 15
+    initiative_add: 10
+    absorb: 32
+    aresist: 10
+    mresist: 10
+    presist: 10
+    bare_hand_attack: 3
+    like_work: 85
+    max_factor: 4
+    extra_attack: 4
+    special_bitvector: y0b1c1d1C3
+    resistances:
+      kFire: 10
+      kAir: 10
+      kWater: 10
+      kEarth: 10
+      kVitality: 10
+      kMind: 10
+      kImmunity: 10
+      kDark: 7
+    saves:
+      kWill: -80
+      kCritical: -60
+      kStability: -120
+      kReflex: -120
+    feats:
+      - 2
+      - 3
+      - 12
+      - 13
+      - 17
+      - 25
+      - 35
+      - 41
+      - 57
+      - 74
+      - 140
+
+# Mob #2099
+99:
+  names:
+    aliases: вожак ватаги наёмников
+    nominative: вожак ватаги наёмников
+    genitive: вожака ватаги наёмников
+    dative: вожаку ватаги наёмников
+    accusative: вожака ватаги наёмников
+    instrumental: вожаком ватаги наёмников
+    prepositional: вожаке ватаги наёмников
+  descriptions:
+    short_desc: |2
+      Бывалый вожак ватаги наёмников стоит здесь, прихлебывая пиво из кружки и грызя кровяную колбаску.
+    long_desc: |2
+      Это бывалый, в летах, но еще в полной силе начинающий
+      седеть воин, командующий отрядом лихих наёмников-рубак.
+      По вашей просьбе он может свести вас с опытным наёмником,
+      ищущим заработка, впрочем, самому вожаку тоже придется
+      подкинуть монет.
+      Если хотите воспользоваться его услугами, то используйте
+      команду "&Gнаемник&n"
+      Впрочем, не со всяким нанимателем иной наёмник дело иметь
+      станет...
+  alignment: 200
+  stats:
+    level: 30
+    hitroll_penalty: -1
+    armor: 0
+    hp:
+      dice_count: 1
+      dice_size: 100
+      bonus: 8000
+    damage:
+      dice_count: 5
+      dice_size: 12
+      bonus: 25
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 50
+  race: 101
+  height: 168
+  weight: 150
+  attributes:
+    strength: 50
+    dexterity: 50
+    intelligence: 23
+    wisdom: 24
+    constitution: 23
+    charisma: 17
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kNoCharm
+    - kNoSummon
+    - kProtect
+    - kNoFight
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+  skills:
+    - skill_id: 5  # оглушить
+      value: 150
+    - skill_id: 136  # кулачный бой
+      value: 90
+    - skill_id: 144  # короткие лезвия
+      value: 150
+    - skill_id: 146  # двуручники
+      value: 150
+    - skill_id: 150  # обезоружить
+      value: 150
+    - skill_id: 157  # уклониться
+      value: 150
+  enhanced:
+    like_work: 1
+    max_factor: 6
+    extra_attack: 1
+    role: 000001000

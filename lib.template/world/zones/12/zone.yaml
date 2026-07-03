@@ -1,0 +1,13 @@
+# Zone #12
+
+vnum: 12
+name: 'Системная зона 12 -- Сет-шмот #1'
+top_room: 1299
+lifespan: 50
+reset_mode: 2
+reset_idle: 0
+zone_type: 0
+mode: 1  # level
+entrance: 1299
+under_construction: 0
+zone_group: 1  # solo

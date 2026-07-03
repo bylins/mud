@@ -1,0 +1,1277 @@
+# Objects for zone 26
+
+# Object #2600
+0:
+  names:
+    aliases: свиток безграничного опыта
+    nominative: свиток &Kбезграничного опыта&n
+    genitive: свитка &Kбезграничного опыта&n
+    dative: свитку &Kбезграничного опыта&n
+    accusative: свиток &Kбезграничного опыта&n
+    instrumental: свитком &Kбезграничного опыта&n
+    prepositional: свитке &Kбезграничного опыта&n
+  short_desc: Свиток &Kбезграничного опыта&n лежит на земле.
+  type: kOther
+  material: 17  # БЕРЕСТА
+  values:
+    - 1
+    - 116
+    - 0
+    - 0
+  weight: 1
+  cost: 30
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 10
+  cur_durability: 10
+  timer: 2880
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 999
+  extra_flags:
+    - kNodecay
+    - kSwimming
+    - kNolocate
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток безграничного опыта
+      description: |2
+        малый наградной свиток притягивает вас своей магической энергией. Среди вязи рун проглядывается надпись: "разорви меня"!
+  triggers:
+    - 2600  # Малый наградной свиток безграничного опыта
+
+# Object #2601
+1:
+  names:
+    aliases: свиток безграничного опыта
+    nominative: свиток &Kбезграничного опыта&n
+    genitive: свитка &Kбезграничного опыта&n
+    dative: свитку &Kбезграничного опыта&n
+    accusative: свиток &Kбезграничного опыта&n
+    instrumental: свитком &Kбезграничного опыта&n
+    prepositional: свитке &Kбезграничного опыта&n
+  short_desc: Свиток &Kбезграничного опыта&n лежит на земле.
+  type: kOther
+  material: 14  # ТКАНЬ
+  values:
+    - 1
+    - 116
+    - 0
+    - 0
+  weight: 1
+  cost: 50
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 10
+  cur_durability: 10
+  timer: 2880
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 999
+  extra_flags:
+    - kSwimming
+    - kNolocate
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток безграничного опыта
+      description: |2
+        Средний наградной свиток притягивает вас своей магической энергией. Среди вязи рун проглядывается надпись: "разорви меня"!
+  triggers:
+    - 2601  # Средний наградной свиток безграничного опыта
+
+# Object #2602
+2:
+  names:
+    aliases: свиток безграничного опыта
+    nominative: свиток &Kбезграничного опыта&n
+    genitive: свитка &Kбезграничного опыта&n
+    dative: свитку &Kбезграничного опыта&n
+    accusative: свиток &Kбезграничного опыта&n
+    instrumental: свитком &Kбезграничного опыта&n
+    prepositional: свитке &Kбезграничного опыта&n
+  short_desc: Свиток &Kбезграничного опыта&n лежит на земле.
+  type: kOther
+  material: 15  # КОЖА
+  values:
+    - 1
+    - 116
+    - 0
+    - 0
+  weight: 1
+  cost: 80
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 10
+  cur_durability: 10
+  timer: 4440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 999
+  extra_flags:
+    - kNodecay
+    - kSwimming
+    - kNolocate
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток безграничного опыта
+      description: |2
+        Большой наградной свиток притягивает вас своей магической энергией. Среди вязи рун проглядывается надпись: "разорви меня"!
+  triggers:
+    - 2602  # Большой наградной свиток безграничного опыта
+
+# Object #2603
+3:
+  names:
+    aliases: свиток непреодолимой силы
+    nominative: свиток &Rнепреодолимой силы&n
+    genitive: свитка &Rнепреодолимой силы&n
+    dative: свитку &Rнепреодолимой силы&n
+    accusative: свиток &Rнепреодолимой силы&n
+    instrumental: свитком &Rнепреодолимой силы&n
+    prepositional: свитке &Rнепреодолимой силы&n
+  short_desc: Свиток &Rнепреодолимой силы&n лежит на земле.
+  type: kOther
+  material: 17  # БЕРЕСТА
+  values:
+    - 1
+    - 116
+    - 0
+    - 0
+  weight: 1
+  cost: 1000
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 10
+  cur_durability: 10
+  timer: 2880
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 999
+  extra_flags:
+    - kSwimming
+    - kNolocate
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток непреодолимой силы
+      description: |2
+           Малый наградной свиток притягивает вас своей магической энергией. Среди
+        вязи рун проглядывается надпись: "разорви меня"!  
+        В самом низу для самых тугодумных подписано - "Действие временное, сколько продержится - не скажу!"
+  triggers:
+    - 2603  # Малый наградной свиток непреодолимой силы
+
+# Object #2604
+4:
+  names:
+    aliases: свиток непреодолимой силы
+    nominative: свиток &Rнепреодолимой силы&n
+    genitive: свитка &Rнепреодолимой силы&n
+    dative: свитку &Rнепреодолимой силы&n
+    accusative: свиток &Rнепреодолимой силы&n
+    instrumental: свитком &Rнепреодолимой силы&n
+    prepositional: свитке &Rнепреодолимой силы&n
+  short_desc: Свиток &Rнепреодолимой силы&n лежит на земле.
+  type: kOther
+  material: 14  # ТКАНЬ
+  values:
+    - 1
+    - 116
+    - 0
+    - 0
+  weight: 1
+  cost: 2500
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 10
+  cur_durability: 10
+  timer: 2880
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 999
+  extra_flags:
+    - kSwimming
+    - kNolocate
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток непреодолимой силы
+      description: |2
+           Средний наградной свиток притягивает вас своей магической энергией. Среди
+        вязи рун проглядывается надпись: "разорви меня"!  
+        В самом низу для самых тугодумных подписано - "Действие временное, сколько продержится - не скажу!"
+  triggers:
+    - 2604  # Средний наградной свиток непреодолимой силы
+
+# Object #2605
+5:
+  names:
+    aliases: свиток непреодолимой силы
+    nominative: свиток &Rнепреодолимой силы&n
+    genitive: свитка &Rнепреодолимой силы&n
+    dative: свитку &Rнепреодолимой силы&n
+    accusative: свиток &Rнепреодолимой силы&n
+    instrumental: свитком &Rнепреодолимой силы&n
+    prepositional: свитке &Rнепреодолимой силы&n
+  short_desc: Свиток &Rнепреодолимой силы&n лежит на земле.
+  type: kOther
+  material: 15  # КОЖА
+  values:
+    - 1
+    - 116
+    - 0
+    - 0
+  weight: 1
+  cost: 5000
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 10
+  cur_durability: 10
+  timer: 2880
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 999
+  extra_flags:
+    - kSwimming
+    - kNolocate
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток непреодолимой силы
+      description: |2
+           Большой наградной свиток притягивает вас своей магической энергией. Среди
+        вязи рун проглядывается надпись: "разорви меня"!  
+        В самом низу для самых тугодумных подписано - "Действие временное, сколько продержится - не скажу!"
+  triggers:
+    - 2605  # Большой наградной свиток непреодолимой силы
+
+# Object #2606
+6:
+  names:
+    aliases: свиток волшебства предков
+    nominative: свиток &Yволшебства предков&n
+    genitive: свитка &Yволшебства предков&n
+    dative: свитку &Yволшебства предков&n
+    accusative: свиток &Yволшебства предков&n
+    instrumental: свитком &Yволшебства предков&n
+    prepositional: свитке &Yволшебства предков&n
+  short_desc: Свиток волшебства предков лежит на земле.
+  type: kOther
+  material: 17  # БЕРЕСТА
+  values:
+    - 1
+    - 116
+    - 0
+    - 0
+  weight: 1
+  cost: 1000
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 10
+  cur_durability: 10
+  timer: 2880
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 999
+  extra_flags:
+    - kSwimming
+    - kNolocate
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток волшебства предков
+      description: |2
+           Малый наградной свиток притягивает вас своей магической энергией. Среди
+        вязи рун проглядывается надпись: "разорви меня"!  
+        В самом низу для самых тугодумных подписано - "Действие временное, сколько продержится - не скажу!"
+  triggers:
+    - 2606  # Малый наградной свиток волшебства предков
+
+# Object #2607
+7:
+  names:
+    aliases: свиток волшебства предков
+    nominative: свиток &Yволшебства предков&n
+    genitive: свитка &Yволшебства предков&n
+    dative: свитку &Yволшебства предков&n
+    accusative: свиток &Yволшебства предков&n
+    instrumental: свитком &Yволшебства предков&n
+    prepositional: свитке &Yволшебства предков&n
+  short_desc: Свиток &Yволшебства предков&n лежит на земле.
+  type: kOther
+  material: 14  # ТКАНЬ
+  values:
+    - 1
+    - 116
+    - 0
+    - 0
+  weight: 1
+  cost: 2500
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 10
+  cur_durability: 10
+  timer: 2881
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 999
+  extra_flags:
+    - kSwimming
+    - kNolocate
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток волшебства предков
+      description: |2
+           Средний наградной свиток притягивает вас своей магической энергией. Среди
+        вязи рун проглядывается надпись: "разорви меня"!  
+        В самом низу для самых тугодумных подписано - "Действие временное, сколько продержится - не скажу!"
+  triggers:
+    - 2607  # Средний наградной свиток волшебства предков
+
+# Object #2608
+8:
+  names:
+    aliases: свиток волшебства предков
+    nominative: свиток &Yволшебства предков&n
+    genitive: свитка &Yволшебства предков&n
+    dative: свитку &Yволшебства предков&n
+    accusative: свиток &Yволшебства предков&n
+    instrumental: свитком &Yволшебства предков&n
+    prepositional: свитке &Yволшебства предков&n
+  short_desc: Свиток &Yволшебства предков&n лежит на земле.
+  type: kOther
+  material: 15  # КОЖА
+  values:
+    - 1
+    - 116
+    - 0
+    - 0
+  weight: 1
+  cost: 2500
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 10
+  cur_durability: 10
+  timer: 2880
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 999
+  extra_flags:
+    - kSwimming
+    - kNolocate
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток волшебства предков
+      description: |2
+           Большой наградной свиток притягивает вас своей магической энергией. Среди
+        вязи рун проглядывается надпись: "разорви меня"!  
+        В самом низу для самых тугодумных подписано - "Действие временное, сколько продержится - не скажу!"
+  triggers:
+    - 2608  # Большой наградной свиток волшебства предков
+
+# Object #2609
+9:
+  names:
+    aliases: свиток неприступной защиты
+    nominative: свиток &Gнеприступной защиты&n
+    genitive: свитка &Gнеприступной защиты&n
+    dative: свитку &Gнеприступной защиты&n
+    accusative: свиток &Gнеприступной защиты&n
+    instrumental: свитком &Gнеприступной защиты&n
+    prepositional: свитке &Gнеприступной защиты&n
+  short_desc: Свиток &Gнеприступной защиты&n лежит на земле.
+  type: kOther
+  material: 17  # БЕРЕСТА
+  values:
+    - 1
+    - 116
+    - 0
+    - 0
+  weight: 1
+  cost: 1000
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 10
+  cur_durability: 10
+  timer: 2880
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 999
+  extra_flags:
+    - kSwimming
+    - kNolocate
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток неприступной защиты
+      description: |2
+           Малый наградной свиток притягивает вас своей магической энергией. Среди
+        вязи рун проглядывается надпись: "разорви меня"!  
+        В самом низу для самых тугодумных подписано - "Действие временное, сколько продержится - не скажу!"
+  triggers:
+    - 2609  # Малый наградной свиток неприступной защиты
+
+# Object #2610
+10:
+  names:
+    aliases: свиток неприступной защиты
+    nominative: свиток &Gнеприступной защиты&n
+    genitive: свитка &Gнеприступной защиты&n
+    dative: свитку &Gнеприступной защиты&n
+    accusative: свиток &Gнеприступной защиты&n
+    instrumental: свитком &Gнеприступной защиты&n
+    prepositional: свитке &Gнеприступной защиты&n
+  short_desc: Свиток &Gнеприступной защиты&n лежит на земле.
+  type: kOther
+  material: 14  # ТКАНЬ
+  values:
+    - 1
+    - 116
+    - 0
+    - 0
+  weight: 1
+  cost: 2500
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 10
+  cur_durability: 10
+  timer: 2880
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 999
+  extra_flags:
+    - kSwimming
+    - kNolocate
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток неприступной защиты
+      description: |2
+           Средний наградной свиток притягивает вас своей магической энергией. Среди
+        вязи рун проглядывается надпись: "разорви меня"!  
+        В самом низу для самых тугодумных подписано - "Действие временное, сколько продержится - не скажу!"
+  triggers:
+    - 2610  # Средний наградной cвиток неприступной защиты
+
+# Object #2611
+11:
+  names:
+    aliases: свиток неприступной защиты
+    nominative: свиток &Gнеприступной защиты&n
+    genitive: свитка &Gнеприступной защиты&n
+    dative: свитку &Gнеприступной защиты&n
+    accusative: свиток &Gнеприступной защиты&n
+    instrumental: свитком &Gнеприступной защиты&n
+    prepositional: свитке &Gнеприступной защиты&n
+  short_desc: Свиток &Gнеприступной защиты&n лежит на земле.
+  type: kOther
+  material: 15  # КОЖА
+  values:
+    - 1
+    - 116
+    - 0
+    - 0
+  weight: 1
+  cost: 5000
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 10
+  cur_durability: 10
+  timer: 2880
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 999
+  extra_flags:
+    - kSwimming
+    - kNolocate
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток неприступной защиты
+      description: |2
+           Большой наградной свиток притягивает вас своей магической энергией. Среди
+        вязи рун проглядывается надпись: "разорви меня"!  
+        В самом низу для самых тугодумных подписано - "Действие временное, сколько продержится - не скажу!"
+  triggers:
+    - 2611  # Большой наградной cвиток неприступной защиты
+
+# Object #2612
+12:
+  names:
+    aliases: свиток высшего мастерства
+    nominative: свиток &Mвысшего мастерства&n
+    genitive: свитка &Mвысшего мастерства&n
+    dative: свитку &Mвысшего мастерства&n
+    accusative: свиток &Mвысшего мастерства&n
+    instrumental: свитком &Mвысшего мастерства&n
+    prepositional: свитке &Mвысшего мастерства&n
+  short_desc: Свиток высшего мастерства лежит на земле.
+  type: kOther
+  material: 17  # БЕРЕСТА
+  values:
+    - 1
+    - 116
+    - 0
+    - 0
+  weight: 1
+  cost: 1000
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 10
+  cur_durability: 10
+  timer: 2880
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 999
+  extra_flags:
+    - kSwimming
+    - kNolocate
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток высшего мастерства
+      description: |2
+           Малый наградной свиток притягивает вас своей магической энергией. Среди
+        вязи рун проглядывается надпись: "разорви меня"!  
+        В самом низу для самых тугодумных подписано - "Действие временное, сколько продержится - не скажу!"
+  triggers:
+    - 2612  # малый наградной свиток высшего мастерства
+
+# Object #2613
+13:
+  names:
+    aliases: свиток высшего мастерства
+    nominative: свиток &Mвысшего мастерства&n
+    genitive: свитка &Mвысшего мастерства&n
+    dative: свитку &Mвысшего мастерства&n
+    accusative: свиток &Mвысшего мастерства&n
+    instrumental: свитком &Mвысшего мастерства&n
+    prepositional: свитке &Mвысшего мастерства&n
+  short_desc: Свиток высшего мастерства лежит на земле.
+  type: kOther
+  material: 14  # ТКАНЬ
+  values:
+    - 1
+    - 116
+    - 0
+    - 0
+  weight: 1
+  cost: 2500
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 10
+  cur_durability: 10
+  timer: 2880
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 999
+  extra_flags:
+    - kSwimming
+    - kNolocate
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток высшего мастерства
+      description: |2
+           Средний наградной свиток притягивает вас своей магической энергией. Среди
+        вязи рун проглядывается надпись: "разорви меня"!  
+        В самом низу для самых тугодумных подписано - "Действие временное, сколько продержится - не скажу!"
+  triggers:
+    - 2613  # Средний наградной свиток высшего мастерства
+
+# Object #2614
+14:
+  names:
+    aliases: свиток высшего мастерства
+    nominative: свиток &Mвысшего мастерства&n
+    genitive: свитка &Mвысшего мастерства&n
+    dative: свитку &Mвысшего мастерства&n
+    accusative: свиток &Mвысшего мастерства&n
+    instrumental: свитком &Mвысшего мастерства&n
+    prepositional: свитке &Mвысшего мастерства&n
+  short_desc: Свиток высшего мастерства лежит на земле.
+  type: kOther
+  material: 14  # ТКАНЬ
+  values:
+    - 1
+    - 116
+    - 0
+    - 0
+  weight: 1
+  cost: 2500
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 10
+  cur_durability: 10
+  timer: 2880
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 999
+  extra_flags:
+    - kSwimming
+    - kNolocate
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток высшего мастерства
+      description: |2
+           Большой наградной свиток притягивает вас своей магической энергией. Среди
+        вязи рун проглядывается надпись: "разорви меня"!  
+        В самом низу для самых тугодумных подписано - "Действие временное, сколько продержится - не скажу!"
+  triggers:
+    - 2614  # большой наградной свиток высшего мастерства
+
+# Object #2615
+15:
+  names:
+    aliases: свиток дурных знаний покрытый рунами рокового предчувствия
+    nominative: свиток &Wдурных знаний&n
+    genitive: свитка &Wдурных знаний&n
+    dative: свитку &Wдурных знаний&n
+    accusative: свиток &Wдурных знаний&n
+    instrumental: свитком &Wдурных знаний&n
+    prepositional: свитке &Wдурных знаний&n
+  short_desc: Покрытый древними &Wзащитными рунами свиток&n лежит на земле, источая тонкие лучи света.
+  action_desc: |+2
+    
+  type: kOther
+  material: 14  # ТКАНЬ
+  values:
+    - 0
+    - 116
+    - 0
+    - 0
+  weight: 1
+  cost: 70000
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 10
+  cur_durability: 10
+  timer: 2880
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 999
+  extra_flags:
+    - kSwimming
+    - kNolocate
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток дурных знамений покрытый древними защитными рунами рокового предчувствия
+      description: |2
+           Этот покрытый древними защитными рунами свиток является легендарным свитком
+        "Рокового предчувствия". Среди вязи рун проглядывается надпись: "Если хочешь
+        увидеть свою смерть, когда она рядом разорви это свиток"! В самом низу для
+        самых тугодумных подписано - "Действие временное, сколько продержится - не
+        скажу! "
+  triggers:
+    - 2615  # Награда роковое предчувствие
+
+# Object #2616
+16:
+  names:
+    aliases: свиток скрижаль печатью соломона табличка исцарапанная
+    nominative: '&Yскрижаль с печатью Соломона&n'
+    genitive: '&Yскрижали с печатью Соломона&n'
+    dative: '&Yскрижали с печатью Соломона&n'
+    accusative: '&Yскрижаль с печатью Соломона&n'
+    instrumental: '&Yскрижалью с печатью Соломона&n'
+    prepositional: '&Yскрижали с печатью Соломона&n'
+  short_desc: Исцарапанная табличка с древней печатью лежит в пыли, источаая тусклый свет.
+  action_desc: |+2
+    
+  type: kOther
+  material: 14  # ТКАНЬ
+  values:
+    - 0
+    - 116
+    - 0
+    - 0
+  weight: 1
+  cost: 1000000
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 10
+  cur_durability: 10
+  timer: 2880
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 999
+  extra_flags:
+    - kSwimming
+    - kNolocate
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток скрижаль печатью соломона табличка исцарапанная
+      description: |2
+           Эта исписанная древними языками скрижаль с печатью Соломона - содержит
+        заклинание "Разбить Оковы". Среди вязи иероглифов проглядываются знакомые
+        слова: "Для применения следует разорвать сей свиток"! В самом низу для самых
+        тугодумных подписано - "Действие временное, сколько продержится - не скажу! "
+  triggers:
+    - 2616  # Разбить оковы, таймер сутки
+
+# Object #2617
+17:
+  names:
+    aliases: Древний окаменевший свиток
+    nominative: '&yокаменевший свиток&n'
+    genitive: '&yокаменевшего свитка&n'
+    dative: '&yокаменевшему свитку&n'
+    accusative: '&yокаменевший свиток&n'
+    instrumental: '&yокаменевшим свитком&n'
+    prepositional: '&yокаменевшем свитке&n'
+  short_desc: Древний окаменевший свиток пылится на земле.
+  action_desc: |+2
+    
+  type: kOther
+  material: 14  # ТКАНЬ
+  values:
+    - 0
+    - 116
+    - 0
+    - 0
+  weight: 1
+  cost: 1000000
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 10
+  cur_durability: 10
+  timer: 2880
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 999
+  extra_flags:
+    - kSwimming
+    - kNolocate
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: Древний окаменевший свиток
+      description: |2
+           Отрубленная окаменелая рука крепко сжимает скрижаль, бывшую когда-то
+        пергаментом. Пентограммы на ней указывают на то, что свиток содержит "Каменное
+        проклятье". Под пентограммой едва читаем текст: "Разорви свиток, дабы познать
+        проклятье"! В самом низу для самых тугодумных подписано - "Действие временное,
+        сколько продержится - не скажу! "
+  triggers:
+    - 2617  # Каменное проклятие, таймер сутки
+
+# Object #2618
+18:
+  names:
+    aliases: апология Высших сил свернутое свиток письмо
+    nominative: '&Bапология "Высших сил"&n'
+    genitive: '&Bапологии "Высших сил"&n'
+    dative: '&Bапологие "Высших сил"&n'
+    accusative: '&Bапологию "Высших сил"&n'
+    instrumental: '&Bапологией "Высших сил"&n'
+    prepositional: '&Bапологие "Высших сил"&n'
+  short_desc: Свернутое в свиток письмо с печатью лежит на земле.
+  action_desc: |+2
+    
+  type: kOther
+  material: 14  # ТКАНЬ
+  values:
+    - 0
+    - 116
+    - 0
+    - 0
+  weight: 1
+  cost: 1000000
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 10
+  cur_durability: 10
+  timer: 2880
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 999
+  extra_flags:
+    - kSwimming
+    - kNolocate
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: апология Высших сил свернутое свиток письмо
+      description: |2
+           Это свернутое в свиток апология, возможно написана самими богами или их
+        служками. Текст ее содержит мощное защитное заклинание "Защита Богов". Снизу
+        письма, есть сноска-инструкция: "Дабы заступничество в нужде получить, разорви
+        сей свиток"! В самом низу для самых тугодумных подписано - "Действие
+        временное, сколько продержится - не скажу! "
+  triggers:
+    - 2618  # Защита богов, таймер сутки
+
+# Object #2619
+19:
+  names:
+    aliases: свиток Тайны Порталов затертый
+    nominative: 'свиток "&MТ&n&Yайны &n&MП&n&Yорталов&n"'
+    genitive: 'свитка "&MТ&n&Yайны &n&MП&n&Yорталов&n"'
+    dative: 'свитку "&MТ&n&Yайны &n&MП&n&Yорталов&n"'
+    accusative: 'свиток "&MТ&n&Yайны &n&MП&n&Yорталов&n"'
+    instrumental: 'свитком "&MТ&n&Yайны &n&MП&n&Yорталов&n"'
+    prepositional: 'свитке "&MТ&n&Yайны &n&MП&n&Yорталов&n"'
+  short_desc: Затертый свиток с путевыми заметками лежит на земле.
+  action_desc: |+2
+    
+  type: kOther
+  material: 14  # ТКАНЬ
+  values:
+    - 0
+    - 116
+    - 0
+    - 0
+  weight: 1
+  cost: 250000
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 10
+  cur_durability: 10
+  timer: 2880
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 999
+  extra_flags:
+    - kSwimming
+    - kNolocate
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток Тайны Порталов затертый
+      description: |2
+           Этот затертый свиток с громким ярким заглавием - "Как построить свой первый
+        портал" содержит заклинание "Переход". Снизу письма, есть сноска-инструкция:
+        "Разорви сей свиток, дабы познать пространство"! В самом низу для самых
+        тугодумных подписано - "Действие временное, сколько продержится - не скажу! "
+  triggers:
+    - 2619  # Переход, таймер сутки
+
+# Object #2620
+20:
+  names:
+    aliases: свиток магического восстановления
+    nominative: свиток &Bмагического восстановления&n
+    genitive: свитка &Bмагического восстановления&n
+    dative: свитку &Bмагического восстановления&n
+    accusative: свиток &Bмагического восстановления&n
+    instrumental: свитком &Bмагического восстановления&n
+    prepositional: свитке &Bмагического восстановления&n
+  short_desc: Свиток &Bмагического восстановления&n лежит на земле.
+  type: kOther
+  material: 17  # БЕРЕСТА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1000
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 10
+  cur_durability: 10
+  timer: 7200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 999
+  extra_flags:
+    - kSwimming
+    - kNolocate
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток безграничного опыта
+      description: |2
+        малый наградной свиток притягивает вас своей магической энергией. Среди вязи рун проглядывается надпись: "разорви меня"!
+  triggers:
+    - 2620  # свиток restore
+
+# Object #2621
+21:
+  names:
+    aliases: свиток божественного щита
+    nominative: свиток &Wбожественного щита&n
+    genitive: свитка &Wбожественного щита&n
+    dative: свитку &Wбожественного щита&n
+    accusative: свиток &Wбожественного щита&n
+    instrumental: свитком &Wбожественного щита&n
+    prepositional: свитке &Wбожественного щита&n
+  short_desc: Свиток &Wбожественного щита&n лежит на земле.
+  type: kOther
+  material: 17  # БЕРЕСТА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 15000
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 10
+  cur_durability: 10
+  timer: 2880
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 999
+  extra_flags:
+    - kSwimming
+    - kNolocate
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток безграничного опыта
+      description: |2
+           Малый свиток божественного щита притягивает вас своей магической энергией.
+        Среди вязи рун проглядывается надпись: "разорви меня"!  
+        В самом низу для самых тугодумных подписано - "Действие временное, сколько продержится - не скажу!"
+  triggers:
+    - 2621  # малый свиток божественного щита
+
+# Object #2622
+22:
+  names:
+    aliases: свиток божественного щита
+    nominative: свиток &Wбожественного щита&n
+    genitive: свитка &Wбожественного щита&n
+    dative: свитку &Wбожественного щита&n
+    accusative: свиток &Wбожественного щита&n
+    instrumental: свитком &Wбожественного щита&n
+    prepositional: свитке &Wбожественного щита&n
+  short_desc: Свиток &Wбожественного щита&n лежит на земле.
+  type: kOther
+  material: 17  # БЕРЕСТА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 30000
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 10
+  cur_durability: 10
+  timer: 2880
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 999
+  extra_flags:
+    - kSwimming
+    - kNolocate
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток безграничного опыта
+      description: |2
+           Средний свиток божественного щита притягивает вас своей магической энергией.
+        Среди вязи рун проглядывается надпись: "разорви меня"!  
+        В самом низу для самых тугодумных подписано - "Действие временное, сколько продержится - не скажу!"
+  triggers:
+    - 2622  # средний свиток божественного щита
+
+# Object #2623
+23:
+  names:
+    aliases: свиток божественного щита
+    nominative: свиток &Wбожественного щита&n
+    genitive: свитка &Wбожественного щита&n
+    dative: свитку &Wбожественного щита&n
+    accusative: свиток &Wбожественного щита&n
+    instrumental: свитком &Wбожественного щита&n
+    prepositional: свитке &Wбожественного щита&n
+  short_desc: Свиток &Wбожественного щита&n лежит на земле.
+  type: kOther
+  material: 17  # БЕРЕСТА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 30
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 10
+  cur_durability: 10
+  timer: 2880
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 999
+  extra_flags:
+    - kSwimming
+    - kNolocate
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток безграничного опыта
+      description: |2
+           Большой свиток божественного щита притягивает вас своей магической энергией.
+        Среди вязи рун проглядывается надпись: "разорви меня"!  
+        В самом низу для самых тугодумных подписано - "Действие временное, сколько продержится - не скажу!"
+  triggers:
+    - 2623  # большой свиток божественного щита
+
+# Object #2624
+24:
+  names:
+    aliases: свиток непостижимых подвигов
+    nominative: свиток &Cнепостижимых подвигов&n
+    genitive: свитка &Cнепостижимых подвигов&n
+    dative: свитку &Cнепостижимых подвигов&n
+    accusative: свиток &Cнепостижимых подвигов&n
+    instrumental: свитком &Cнепостижимых подвигов&n
+    prepositional: свитке &Cнепостижимых подвигов&n
+  short_desc: Свиток &Cнепостижимых подвигов&n лежит на земле.
+  type: kOther
+  material: 17  # БЕРЕСТА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 30
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 10
+  cur_durability: 10
+  timer: 2880
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 999
+  extra_flags:
+    - kSwimming
+    - kNolocate
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток безграничного опыта
+      description: |2
+           В пергаментный свиток с рунами что-то завернуто. Среди вязи рун
+        проглядывается надпись: "разорви меня"!  
+  triggers:
+    - 2624  # свиток слава-гривны
+
+# Object #2625
+25:
+  names:
+    aliases: трактат невыносимом ужасе пустоты
+    nominative: трактат о невыносимом ужасе пустоты
+    genitive: трактата о невыносимом ужасе пустоты
+    dative: трактату о невыносимом ужасе пустоты
+    accusative: трактат о невыносимом ужасе пустоты
+    instrumental: трактатом о невыносимом ужасе пустоты
+    prepositional: трактате о невыносимом ужасе пустоты
+  short_desc: Толстая книга в иссиня-черной обложке лежит тут.
+  type: kBook
+  material: 15  # КОЖА
+  values:
+    - 0
+    - 134
+    - 0
+    - 0
+  weight: 4
+  cost: 1000
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 100
+  cur_durability: 70
+  timer: 300
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+    - kNoalter
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kCurse
+  triggers:
+    - 2625  # пытаются взять книгу за славу
+
+# Object #2626
+26:
+  names:
+    aliases: тайный манускрипт искусстве верхового боя
+    nominative: тайный манускрипт об искусстве верхового боя
+    genitive: тайного манускрипта об искусстве верхового боя
+    dative: тайному манускрипту об искусстве верхового боя
+    accusative: тайный манускрипт об искусстве верхового боя
+    instrumental: тайным манускриптом об искусстве верхового боя
+    prepositional: тайном манускрипте об искусстве верхового боя
+  short_desc: В черном облаке под вашими ногами Вы едва различаете контуры какой-то книги.
+  type: kBook
+  material: 13  # КОСТЬ
+  values:
+    - 1
+    - 190
+    - 28
+    - 0
+  weight: 1
+  cost: 100
+  rent_off: 1000
+  rent_on: 100
+  max_durability: 100
+  cur_durability: 100
+  timer: 100
+  spell: 1  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+    - kMagic
+  wear_flags:
+    - kTake
+  triggers:
+    - 2625  # пытаются взять книгу за славу
+
+# Object #2627
+27:
+  names:
+    aliases: книга каменном переплете
+    nominative: книга в каменном переплете
+    genitive: книги в каменном переплете
+    dative: книге в каменном переплете
+    accusative: книгу в каменном переплете
+    instrumental: книгой в каменном переплете
+    prepositional: книге в каменном переплете
+  short_desc: Громадный том в переплете из каменных пластин лежит здесь.
+  type: kBook
+  material: 12  # КАМЕНЬ
+  values:
+    - 0
+    - 98
+    - 0
+    - 0
+  weight: 1
+  cost: 100
+  rent_off: 100
+  rent_on: 100
+  max_durability: 50
+  cur_durability: 50
+  timer: 300
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+    - kMagic
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kCurse
+  triggers:
+    - 2625  # пытаются взять книгу за славу
+
+# Object #2628
+28:
+  names:
+    aliases: свиток Тайны Порталов затертый
+    nominative: свиток &MТ&n&Rайны &n&MП&n&Rустоты&n
+    genitive: свитка &MТ&n&Rайны &n&MП&n&Rустоты&n
+    dative: свитку &MТ&n&Rайны &n&MП&n&Rустоты&n
+    accusative: свиток &MТ&n&Rайны &n&MП&n&Rустоты&n
+    instrumental: свитком &MТ&n&Rайны &n&MП&n&Rустоты&n
+    prepositional: свитке &MТ&n&Rайны &n&MП&n&Rустоты&n
+  short_desc: '&RКровавый&n свиток с печатью лежит на земле'
+  action_desc: |+2
+    
+  type: kOther
+  material: 14  # ТКАНЬ
+  values:
+    - 0
+    - 116
+    - 0
+    - 0
+  weight: 1
+  cost: 10000000
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 10
+  cur_durability: 10
+  timer: 2880
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 999
+  extra_flags:
+    - kSwimming
+    - kNolocate
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток Тайны Тайны Пустоты затертый
+      description: |2
+           Этот свиток будто висит в воздухе, огромная печать Пустоты затягивает
+        взгляд, внутри содержатся знания как наслать Пустоту на врагов. Снизу письма,
+        есть сноска-инструкция: "Разорви сей свиток, дабы познать сильнейшее заклинание
+        Пустоты"! В самом низу для самых тугодумных подписано - "Действие временное,
+        сколько продержится - не скажу! "
+  triggers:
+    - 2628  # Круг, таймер неделя

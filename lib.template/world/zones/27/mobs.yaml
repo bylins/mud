@@ -1,0 +1,778 @@
+# Mobs for zone 27
+
+# Mob #2700
+0:
+  names:
+    aliases: кастер моб
+    nominative: моб
+    genitive: моб
+    dative: моб
+    accusative: моб
+    instrumental: моб
+    prepositional: моб
+  descriptions:
+    short_desc: Неопределен
+    long_desc: неопределен
+  alignment: 0
+  stats:
+    level: 31
+    hitroll_penalty: 0
+    armor: 0
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 1
+    damage:
+      dice_count: 0
+      dice_size: 0
+      bonus: 100
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 9999999
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 0
+  race: 100
+  height: 198
+  weight: 200
+  attributes:
+    strength: 36
+    dexterity: 36
+    intelligence: 36
+    wisdom: 36
+    constitution: 36
+    charisma: 36
+  action_flags:
+    - kNpc
+  affect_flags:
+    - kDetectInvisible
+  enhanced:
+    cast_success: 20
+    absorb: 31
+    max_factor: 4
+    saves:
+      kWill: -10
+      kCritical: -10
+      kStability: -10
+      kReflex: -10
+    spells:
+      - 103
+
+# Mob #2702
+2:
+  names:
+    aliases: ' белочка'
+    nominative: белочка
+    genitive: белочки
+    dative: белочке
+    accusative: белочку
+    instrumental: белочкой
+    prepositional: белочке
+  descriptions:
+    short_desc: |2
+      Призрачно-зеленоватая белочка ростом в сажень скалит двухвершковые клыки.
+    long_desc: |2
+      Кажется приплыли.  и вроди не пил много, а белочки начали являться.
+  alignment: 270
+  stats:
+    level: 5
+    hitroll_penalty: -50
+    armor: -4
+    hp:
+      dice_count: 10
+      dice_size: 10
+      bonus: 2500
+    damage:
+      dice_count: 1
+      dice_size: 1
+      bonus: 5
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 200000
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  size: 100
+  race: 104
+  height: 175
+  weight: 85
+  attributes:
+    strength: 25
+    dexterity: 18
+    intelligence: 16
+    wisdom: 16
+    constitution: 15
+    charisma: 10
+  action_flags:
+    - kNpc
+    - kNoCharm
+    - kNoSummon
+    - kNoSleep
+    - kNoBash
+    - kNoBlind
+    - kNoHold
+    - kNoSilence
+    - kNoGroup
+    - kCorpse
+    - kAcidBreath
+    - kOpensDoor
+    - kIgnoresNoMob
+  affect_flags:
+    - kDetectAlign
+    - kDetectMagic
+    - kInfravision
+    - kProtectFromDark
+    - kProtectFromMind
+    - kNoTrack
+    - kBless
+    - kAwarness
+    - kBlink
+    - kNoFlee
+    - kDetectPoison
+    - kSlow
+    - kAirShield
+    - kMagicGlass
+    - kStoneHands
+    - kForcesOfEvil
+    - kAirAura
+  skills:
+    - skill_id: 22  # осторожный стиль
+      value: 200
+  triggers:
+    - 2716  # белка болтает и поет
+  enhanced:
+    absorb: 29
+    bare_hand_attack: 4
+    like_work: 70
+    max_factor: 4
+    special_bitvector: m0e1
+    destinations:
+      - 27068
+      - 27061
+      - 4546
+      - 4500
+      - 4413
+      - 4416
+      - 4238
+      - 4202
+      - 4139
+      - 4100
+      - 4029
+      - 4057
+      - 4300
+  dead_load:
+    - obj_vnum: 2740
+      load_prob: 100
+      load_type: 0
+      spec_param: 0
+
+# Mob #2750
+50:
+  names:
+    aliases: кайрос судьбоплёт демон ужасный
+    nominative: Кайрос Судьбоплёт
+    genitive: Кайроса Судьбоплёта
+    dative: Кайросу Судьбоплёту
+    accusative: Кайроса Судьбоплёта
+    instrumental: Кайросом Судьбоплётом
+    prepositional: Кайросе Судьбоплёте
+  descriptions:
+    short_desc: |2
+      Ужасный демон с двумя птичьими головами стоит здесь.
+    long_desc: |2
+      Это создание, порожденное силами тьмы. Теперь он их слуга.
+  alignment: -600
+  stats:
+    level: 50
+    hitroll_penalty: -18
+    armor: -25
+    hp:
+      dice_count: 10
+      dice_size: 10
+      bonus: 34850
+    damage:
+      dice_count: 30
+      dice_size: 37
+      bonus: 48
+  gold:
+    dice_count: 5
+    dice_size: 5
+    bonus: 4
+  experience: 15000000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 100
+  race: 112
+  height: 200
+  weight: 150
+  attributes:
+    strength: 50
+    dexterity: 40
+    intelligence: 29
+    wisdom: 50
+    constitution: 50
+    charisma: 29
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kStayZone
+    - kMemory
+    - kHelper
+    - kNoCharm
+    - kNoSummon
+    - kNoBlind
+    - kNoHold
+    - kNoFear
+    - kNotKillPunctual
+    - kNoUndercut
+    - kNoRest
+    - kNoOverwhelm
+  affect_flags:
+    - kDetectAlign
+    - kDetectInvisible
+    - kDetectMagic
+    - kDetectLife
+    - kInfravision
+    - kProtectFromDark
+    - kProtectFromMind
+    - kBless
+    - kAwarness
+    - kBlink
+    - kNoFlee
+    - kDetectPoison
+    - kHaste
+    - kIceShield
+    - kMagicGlass
+    - kForcesOfEvil
+    - kAirAura
+    - kFireAura
+    - kIceAura
+    - kCloudOfArrows
+    - kShadowCloak
+  skills:
+    - skill_id: 5  # оглушить
+      value: 200
+    - skill_id: 22  # осторожный стиль
+      value: 150
+    - skill_id: 136  # кулачный бой
+      value: 120
+    - skill_id: 141  # палицы и дубины
+      value: 120
+    - skill_id: 142  # секиры
+      value: 120
+    - skill_id: 143  # длинные лезвия
+      value: 120
+    - skill_id: 144  # короткие лезвия
+      value: 120
+    - skill_id: 147  # проникающее оружие
+      value: 120
+    - skill_id: 148  # копья и рогатины
+      value: 120
+    - skill_id: 165  # ярость
+      value: 100
+    - skill_id: 189  # магия жизни
+      value: 500
+  triggers:
+    - 2750  # test exp
+  enhanced:
+    hp_regen: 150
+    armour_bonus: 100
+    mana_regen: 180
+    cast_success: 190
+    morale: 60
+    initiative_add: 40
+    absorb: 50
+    aresist: 100
+    mresist: 50
+    presist: 50
+    bare_hand_attack: 1
+    like_work: 100
+    max_factor: 20
+    extra_attack: 5
+    mob_remort: 99
+    special_bitvector: b1c1
+    role: 000000001
+    resistances:
+      kFire: 45
+      kAir: 45
+      kWater: 45
+      kEarth: 45
+      kVitality: 35
+      kMind: 35
+      kImmunity: 35
+      kDark: 20
+    saves:
+      kWill: -400
+      kCritical: -400
+      kStability: -400
+      kReflex: -400
+    feats:
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+      - 6
+      - 12
+      - 13
+      - 14
+      - 16
+      - 17
+      - 20
+      - 21
+      - 22
+      - 24
+      - 25
+      - 28
+      - 29
+      - 41
+      - 42
+      - 53
+      - 55
+      - 56
+      - 57
+      - 58
+      - 59
+      - 60
+      - 61
+      - 62
+      - 63
+      - 64
+      - 65
+      - 66
+      - 68
+    spells:
+      - 23
+      - 23
+      - 23
+      - 23
+      - 23
+      - 23
+      - 23
+      - 23
+      - 26
+      - 26
+      - 26
+      - 28
+      - 28
+      - 28
+      - 28
+      - 28
+      - 56
+      - 56
+      - 56
+      - 56
+      - 56
+      - 56
+      - 56
+      - 56
+      - 68
+      - 82
+      - 82
+      - 94
+      - 94
+      - 94
+      - 94
+      - 94
+      - 94
+      - 94
+      - 94
+      - 113
+      - 124
+      - 135
+      - 135
+      - 135
+      - 135
+      - 135
+      - 135
+      - 135
+      - 151
+      - 151
+      - 151
+      - 151
+      - 151
+      - 151
+      - 151
+      - 152
+      - 152
+      - 152
+      - 152
+      - 152
+      - 152
+      - 152
+      - 153
+      - 153
+      - 153
+      - 153
+      - 153
+      - 153
+      - 153
+
+# Mob #2790
+90:
+  names:
+    aliases: трусливый иван боягузливий разбойник
+    nominative: боягузливий Iван
+    genitive: боягузливого Iвана
+    dative: боягузливому Iвану
+    accusative: боягузливого Iвана
+    instrumental: боягузливим Iваном
+    prepositional: боягузливiм Iване
+  descriptions:
+    short_desc: |2
+      Трусливый разбойник Iван смотрит на Вас из-за спин своих братушек.
+    long_desc: |2
+      Как это не странно, но именно этот щуплый малый является вожаком ватаги.
+      Любит испив горiлкi и закусив цибулею рассказывать о величии несуществующих предков
+      откопавших Понтийское море и насыпавших горы Кавказа и Таврии.
+  alignment: -600
+  stats:
+    level: 17
+    hitroll_penalty: 2
+    armor: 1
+    hp:
+      dice_count: 5
+      dice_size: 5
+      bonus: 350
+    damage:
+      dice_count: 4
+      dice_size: 2
+      bonus: 25
+  gold:
+    dice_count: 5
+    dice_size: 10
+    bonus: 500
+  experience: 1
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 50
+  race: 101
+  height: 170
+  weight: 50
+  attributes:
+    strength: 25
+    dexterity: 13
+    intelligence: 20
+    wisdom: 15
+    constitution: 25
+    charisma: 30
+  action_flags:
+    - kNpc
+    - kLooter
+    - kHorde
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+    - kNoTrack
+    - kAwarness
+    - kMagicGlass
+  skills:
+    - skill_id: 20  # лидерство
+      value: 80
+    - skill_id: 31  # лечить
+      value: 80
+    - skill_id: 132  # сбить
+      value: 80
+    - skill_id: 136  # кулачный бой
+      value: 80
+    - skill_id: 137  # спасти
+      value: 100
+    - skill_id: 158  # блокировать щитом
+      value: 80
+    - skill_id: 167  # скрытый удар
+      value: 80
+    - skill_id: 179  # изгнать нежить
+      value: 80
+    - skill_id: 190  # ошеломить
+      value: 1
+  enhanced:
+    armour_bonus: 50
+    mana_regen: 200
+    cast_success: 40
+    initiative_add: 20
+    absorb: 30
+    mresist: 5
+    presist: 5
+    bare_hand_attack: 14
+    like_work: 80
+    extra_attack: 1
+    special_bitvector: m0b1c1
+    role: 000001001
+    saves:
+      kWill: -80
+      kStability: -80
+      kReflex: -80
+    feats:
+      - 2
+      - 3
+      - 4
+      - 6
+      - 7
+      - 11
+      - 12
+      - 13
+      - 22
+      - 29
+      - 54
+      - 68
+      - 134
+    spells:
+      - 15
+      - 15
+      - 15
+      - 15
+      - 15
+      - 15
+      - 15
+      - 15
+      - 15
+      - 15
+      - 15
+      - 15
+      - 15
+      - 15
+      - 15
+      - 15
+      - 15
+      - 15
+      - 15
+      - 15
+      - 15
+      - 15
+      - 15
+      - 15
+      - 36
+      - 36
+      - 36
+      - 96
+    destinations:
+      - 27055
+      - 27600
+
+# Mob #2791
+91:
+  names:
+    aliases: оборванец кайрат разбойник
+    nominative: оборванец Кайрат
+    genitive: оборванца Кайрата
+    dative: оборванцу Кайрату
+    accusative: оборванца Кайрата
+    instrumental: оборванцем Кайратом
+    prepositional: оборванце Кайрате
+  descriptions:
+    short_desc: |2
+      Утративший былое величие Кайрат смотрит на Вас исподлобья.
+    long_desc: |2
+      Вы видите жителя средней азии в роскошных лохмотьях.
+      Когда то давно он был главным военачальником киевской дружины, но связался с дурной компанией
+      и теперь прозябает на полях возле далеких деревень вместе с остальными разбойничками.
+  alignment: -600
+  stats:
+    level: 17
+    hitroll_penalty: 2
+    armor: -1
+    hp:
+      dice_count: 5
+      dice_size: 5
+      bonus: 450
+    damage:
+      dice_count: 4
+      dice_size: 2
+      bonus: 20
+  gold:
+    dice_count: 5
+    dice_size: 10
+    bonus: 50
+  experience: 40000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 75
+  race: 101
+  height: 160
+  weight: 50
+  attributes:
+    strength: 25
+    dexterity: 23
+    intelligence: 20
+    wisdom: 10
+    constitution: 25
+    charisma: 1
+  action_flags:
+    - kNpc
+    - kAgressive
+    - kLooter
+    - kHorde
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+    - kNoTrack
+    - kAwarness
+    - kMagicGlass
+  skills:
+    - skill_id: 1  # прикрыть
+      value: 80
+    - skill_id: 7  # найти
+      value: 80
+    - skill_id: 12  # веерная защита
+      value: 80
+    - skill_id: 22  # осторожный стиль
+      value: 80
+    - skill_id: 136  # кулачный бой
+      value: 80
+    - skill_id: 137  # спасти
+      value: 100
+    - skill_id: 158  # блокировать щитом
+      value: 80
+  enhanced:
+    armour_bonus: 50
+    mana_regen: 200
+    cast_success: 40
+    initiative_add: 20
+    absorb: 30
+    mresist: 5
+    presist: 5
+    bare_hand_attack: 4
+    like_work: 80
+    extra_attack: 1
+    role: 000000100
+    saves:
+      kWill: -80
+      kReflex: -80
+    feats:
+      - 1
+      - 2
+      - 3
+      - 4
+      - 6
+      - 7
+      - 12
+      - 13
+      - 133
+      - 135
+    destinations:
+      - 27055
+      - 27600
+
+# Mob #2792
+92:
+  names:
+    aliases: клятвопреступник антошка разбойник
+    nominative: клятвопреступник Антошка
+    genitive: клятвопреступника Антошки
+    dative: клятвопреступнику Антошке
+    accusative: клятвопреступника Антошку
+    instrumental: клятвопреступником Антошкой
+    prepositional: клятвопреступнике Антошке
+  descriptions:
+    short_desc: |2
+      Клятвопреступник Антошка смотрит на Вас недобрым глазом.
+    long_desc: |2
+      Самый пёстро одетый из ватаги оборванцев.
+      Любитель рассказывать своим подельникам о своих подвигах на ниве душегубства.
+      Утверждает, что все что носит, снято с обобранных им крестьян.
+  alignment: -600
+  stats:
+    level: 17
+    hitroll_penalty: 2
+    armor: 0
+    hp:
+      dice_count: 5
+      dice_size: 5
+      bonus: 250
+    damage:
+      dice_count: 4
+      dice_size: 2
+      bonus: 5
+  gold:
+    dice_count: 5
+    dice_size: 10
+    bonus: 50
+  experience: 20000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 75
+  race: 101
+  height: 180
+  weight: 90
+  attributes:
+    strength: 10
+    dexterity: 9
+    intelligence: 25
+    wisdom: 23
+    constitution: 15
+    charisma: 13
+  action_flags:
+    - kNpc
+    - kLooter
+    - kHorde
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+    - kNoTrack
+    - kAwarness
+    - kMagicGlass
+  enhanced:
+    armour_bonus: 50
+    mana_regen: 200
+    cast_success: 40
+    initiative_add: 20
+    absorb: 30
+    mresist: 5
+    presist: 5
+    bare_hand_attack: 1
+    extra_attack: 1
+    role: 001000000
+    saves:
+      kWill: -80
+      kReflex: -80
+    feats:
+      - 12
+      - 19
+      - 55
+      - 154
+    spells:
+      - 5
+      - 5
+      - 5
+      - 5
+      - 5
+      - 5
+      - 5
+      - 5
+      - 5
+      - 5
+      - 5
+      - 5
+      - 6
+      - 6
+      - 6
+      - 6
+      - 8
+      - 8
+      - 8
+      - 8
+      - 30
+      - 30
+      - 54
+      - 54
+    destinations:
+      - 27055
+      - 27600

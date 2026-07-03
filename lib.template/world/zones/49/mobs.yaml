@@ -1,0 +1,433 @@
+# Mobs for zone 49
+
+# Mob #4900
+0:
+  names:
+    aliases: комар пискун
+    nominative: Комар-Пискун
+    genitive: Комара-Пискуна
+    dative: Комару-Пискуну
+    accusative: Комара-Пискуна
+    instrumental: Комаром-Пискуном
+    prepositional: Комаре-Пискуне
+  descriptions:
+    short_desc: |2
+      Комар-Пискун притаился неподалеку от теремка.
+    long_desc: |2
+      Маленький комарик, пугливо поглядывающий по сторонам.
+      Похоже, он не осмеливается спросить кто в теремочке живет.
+  alignment: 600
+  stats:
+    level: 5
+    hitroll_penalty: 17
+    armor: 5
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 500
+    damage:
+      dice_count: 3
+      dice_size: 3
+      bonus: 3
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 60
+  race: 107
+  height: 198
+  weight: 200
+  attributes:
+    strength: 30
+    dexterity: 20
+    intelligence: 12
+    wisdom: 12
+    constitution: 20
+    charisma: 10
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kStayZone
+    - kNoCharm
+    - kNoSummon
+    - kNoSleep
+    - kNoBlind
+    - kNoHold
+    - kNoSilence
+    - kNoFear
+    - kProtect
+    - kNoFight
+  affect_flags:
+    - kInvisible
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+    - kHolyLight
+  skills:
+    - skill_id: 156  # маскировка
+      value: 200
+  triggers:
+    - 4900  # Кто в теремочке живет?
+  enhanced:
+    bare_hand_attack: 16
+    special_bitvector: j0l0
+
+# Mob #4901
+1:
+  names:
+    aliases: муха горюха
+    nominative: Муха-Горюха
+    genitive: Мухи-Горюхи
+    dative: Мухе-Горюхе
+    accusative: Муху-Горюху
+    instrumental: Мухой-Горюхой
+    prepositional: Мухе-Горюхе
+  descriptions:
+    short_desc: |2
+      Муха-Горюха тихонько жужжит у вас над ухом.
+    long_desc: |2
+      Довольно крупная, но несколько сонная муха.
+      Кружится неподалеку, негромко жужжа.
+  alignment: 600
+  stats:
+    level: 5
+    hitroll_penalty: 15
+    armor: 5
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 500
+    damage:
+      dice_count: 3
+      dice_size: 3
+      bonus: 3
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  size: 50
+  race: 107
+  height: 100
+  weight: 100
+  attributes:
+    strength: 5
+    dexterity: 5
+    intelligence: 5
+    wisdom: 5
+    constitution: 5
+    charisma: 11
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kStayZone
+    - kNoCharm
+    - kNoSummon
+    - kNoSleep
+    - kNoBlind
+    - kNoHold
+    - kNoSilence
+    - kNoFear
+    - kProtect
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+  triggers:
+    - 4984  # [m4901-4905] Вошли к проводнику
+  enhanced:
+    bare_hand_attack: 4
+    special_bitvector: l0
+
+# Mob #4902
+2:
+  names:
+    aliases: зайчик побегайчик
+    nominative: Зайчик-Побегайчик
+    genitive: Зайчика-Побегайчика
+    dative: Зайчику-Побегайчику
+    accusative: Зайчика-Побегайчика
+    instrumental: Зайчиком-Побегайчиком
+    prepositional: Зайчику-Побегайчику
+  descriptions:
+    short_desc: |2
+      Зайчик-Побегайчик резво скачет вокруг вас.
+    long_desc: |2
+      Средних размеров заяц-русак с необычайно длинными ушами.
+      Постоянно скачет, не в силах усидеть на месте.
+  alignment: 600
+  stats:
+    level: 5
+    hitroll_penalty: 15
+    armor: 5
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 500
+    damage:
+      dice_count: 3
+      dice_size: 3
+      bonus: 3
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 50
+  race: 104
+  height: 100
+  weight: 100
+  attributes:
+    strength: 5
+    dexterity: 5
+    intelligence: 5
+    wisdom: 5
+    constitution: 5
+    charisma: 11
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kStayZone
+    - kNoCharm
+    - kNoSummon
+    - kNoSleep
+    - kNoBlind
+    - kNoHold
+    - kNoSilence
+    - kNoFear
+    - kProtect
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+  triggers:
+    - 4984  # [m4901-4905] Вошли к проводнику
+  enhanced:
+    bare_hand_attack: 13
+    special_bitvector: n0
+
+# Mob #4903
+3:
+  names:
+    aliases: мышка норушка
+    nominative: Мышка-Норушка
+    genitive: Мышки-Норушки
+    dative: Мышке-Норушке
+    accusative: Мышку-Норушку
+    instrumental: Мышкой-Норушкой
+    prepositional: Мышке-Норушке
+  descriptions:
+    short_desc: |2
+      Мышка-Норушка кружится возле вас, обнюхивая землю.
+    long_desc: |2
+      Явно не голодающая, не в меру упитанная серая мышка.
+      Не каждый кот отважится поохотиться за этакой мордой.
+  alignment: 600
+  stats:
+    level: 5
+    hitroll_penalty: 15
+    armor: 5
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 500
+    damage:
+      dice_count: 3
+      dice_size: 3
+      bonus: 3
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  size: 50
+  race: 104
+  height: 100
+  weight: 100
+  attributes:
+    strength: 5
+    dexterity: 5
+    intelligence: 5
+    wisdom: 5
+    constitution: 5
+    charisma: 11
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kStayZone
+    - kNoCharm
+    - kNoSummon
+    - kNoSleep
+    - kNoBlind
+    - kNoHold
+    - kNoSilence
+    - kNoFear
+    - kProtect
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+  triggers:
+    - 4984  # [m4901-4905] Вошли к проводнику
+  enhanced:
+    bare_hand_attack: 4
+    special_bitvector: p0
+
+# Mob #4904
+4:
+  names:
+    aliases: лягушка квакушка
+    nominative: Лягушка-Квакушка
+    genitive: Лягушки-Квакушки
+    dative: Лягушке-Квакушке
+    accusative: Лягушку-Квакушку
+    instrumental: Лягушкой-Квакушкой
+    prepositional: Лягушке-Квакушке
+  descriptions:
+    short_desc: |2
+      Лягушка-Квакушка сидит неподалеку, таращит на вас глаза.
+    long_desc: |2
+      Обычная такая зеленая лягушка. Разве что глаза у нее
+      более умные, чем у встречавшихся вам ранее земноводных.
+  alignment: 600
+  stats:
+    level: 5
+    hitroll_penalty: 15
+    armor: 5
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 500
+    damage:
+      dice_count: 3
+      dice_size: 3
+      bonus: 3
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  size: 50
+  race: 104
+  height: 100
+  weight: 100
+  attributes:
+    strength: 5
+    dexterity: 5
+    intelligence: 5
+    wisdom: 5
+    constitution: 5
+    charisma: 11
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kStayZone
+    - kNoCharm
+    - kNoSummon
+    - kNoSleep
+    - kNoBlind
+    - kNoHold
+    - kNoSilence
+    - kNoFear
+    - kProtect
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+  triggers:
+    - 4984  # [m4901-4905] Вошли к проводнику
+  enhanced:
+    bare_hand_attack: 4
+    special_bitvector: n0
+
+# Mob #4905
+5:
+  names:
+    aliases: лисичка сестричка
+    nominative: Лисичка-Сестричка
+    genitive: Лисички-Сестрички
+    dative: Лисичке-Сестричке
+    accusative: Лисичку-Сестричку
+    instrumental: Лисичкой-Сестричкой
+    prepositional: Лисичке-Сестричке
+  descriptions:
+    short_desc: |2
+      Лисичка-Сестричка хитро поглядывает на вас.
+    long_desc: |2
+      Красивая рыжая лисичка с пышным темным хвостом. Темные
+      глаза ее таят в себе неведомую для животного хитрость.
+  alignment: 600
+  stats:
+    level: 5
+    hitroll_penalty: 15
+    armor: 5
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 500
+    damage:
+      dice_count: 3
+      dice_size: 3
+      bonus: 3
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  size: 50
+  race: 104
+  height: 100
+  weight: 100
+  attributes:
+    strength: 5
+    dexterity: 5
+    intelligence: 5
+    wisdom: 5
+    constitution: 5
+    charisma: 11
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kStayZone
+    - kNoCharm
+    - kNoSummon
+    - kNoSleep
+    - kNoBlind
+    - kNoHold
+    - kNoSilence
+    - kNoFear
+    - kProtect
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+  triggers:
+    - 4984  # [m4901-4905] Вошли к проводнику
+  enhanced:
+    bare_hand_attack: 4
+    special_bitvector: p0

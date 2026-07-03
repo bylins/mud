@@ -1,0 +1,550 @@
+# Mobs for zone 51
+
+# Mob #5100
+0:
+  names:
+    aliases: таракан
+    nominative: таракан
+    genitive: таракана
+    dative: таракану
+    accusative: таракана
+    instrumental: тараканом
+    prepositional: таракане
+  descriptions:
+    short_desc: |2
+      Таракан быстро пробежал здесь.
+    long_desc: |2
+      Рыжий усатый таракан бегает в поисках остатков еды.
+  alignment: 0
+  stats:
+    level: 1
+    hitroll_penalty: 20
+    armor: 9
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 15
+    damage:
+      dice_count: 4
+      dice_size: 1
+      bonus: 0
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 40
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 1
+  race: 107
+  height: 50
+  weight: 50
+  attributes:
+    strength: 3
+    dexterity: 4
+    intelligence: 3
+    wisdom: 3
+    constitution: 3
+    charisma: 3
+  action_flags:
+    - kNpc
+    - kStayZone
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 3
+  enhanced:
+    absorb: 1
+    bare_hand_attack: 13
+
+# Mob #5101
+1:
+  names:
+    aliases: блоха
+    nominative: блоха
+    genitive: блохи
+    dative: блохе
+    accusative: блоху
+    instrumental: блохой
+    prepositional: блохе
+  descriptions:
+    short_desc: |2
+      Блоха прячется в мусоре.
+    long_desc: |2
+      Маленькое насекомое.
+  alignment: 0
+  stats:
+    level: 1
+    hitroll_penalty: 20
+    armor: 9
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 15
+    damage:
+      dice_count: 4
+      dice_size: 1
+      bonus: 1
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 50
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  size: 1
+  race: 107
+  height: 50
+  weight: 50
+  attributes:
+    strength: 3
+    dexterity: 4
+    intelligence: 3
+    wisdom: 3
+    constitution: 3
+    charisma: 3
+  action_flags:
+    - kNpc
+    - kStayZone
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 6
+  enhanced:
+    absorb: 1
+    bare_hand_attack: 16
+
+# Mob #5102
+2:
+  names:
+    aliases: светлячок
+    nominative: светлячок
+    genitive: светлячка
+    dative: светлячку
+    accusative: светлячка
+    instrumental: светлячком
+    prepositional: светлячке
+  descriptions:
+    short_desc: |2
+      Светлячок ползает здесь.
+    long_desc: |2
+      Светлячок ночью создает необычно яркое свечение и 
+      слабый постоянный треск.
+  alignment: 0
+  stats:
+    level: 2
+    hitroll_penalty: 15
+    armor: 8
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 45
+    damage:
+      dice_count: 2
+      dice_size: 2
+      bonus: 4
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 200
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 1
+  race: 107
+  height: 50
+  weight: 50
+  attributes:
+    strength: 3
+    dexterity: 4
+    intelligence: 3
+    wisdom: 3
+    constitution: 3
+    charisma: 3
+  action_flags:
+    - kNpc
+    - kStayZone
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 12
+  enhanced:
+    absorb: 2
+    bare_hand_attack: 12
+
+# Mob #5103
+3:
+  names:
+    aliases: белый паук
+    nominative: белый паук
+    genitive: белого паука
+    dative: белому пауку
+    accusative: белого паука
+    instrumental: белым пауком
+    prepositional: белом пауке
+  descriptions:
+    short_desc: |2
+      Большой паук с белым брюхом ждет жертву здесь.
+    long_desc: |2
+      Белый паук давно натянул свою сеть и сидит в ожидании своей жертвы.
+  alignment: 0
+  stats:
+    level: 9
+    hitroll_penalty: 20
+    armor: 9
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 200
+    damage:
+      dice_count: 1
+      dice_size: 10
+      bonus: 2
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 4000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 3
+  race: 107
+  height: 50
+  weight: 50
+  attributes:
+    strength: 10
+    dexterity: 4
+    intelligence: 10
+    wisdom: 3
+    constitution: 3
+    charisma: 3
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kAgressive
+    - kStayZone
+    - kMemory
+    - kHelper
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+  skills:
+    - skill_id: 2  # перехватить атаку
+      value: 70
+    - skill_id: 136  # кулачный бой
+      value: 36
+  triggers:
+    - 5114  # Белый паук рип
+  enhanced:
+    absorb: 9
+    bare_hand_attack: 16
+    like_work: 90
+    max_factor: 1
+    spells:
+      - 15
+      - 54
+
+# Mob #5104
+4:
+  names:
+    aliases: муха
+    nominative: муха
+    genitive: мухи
+    dative: мухе
+    accusative: муху
+    instrumental: мухой
+    prepositional: мухе
+  descriptions:
+    short_desc: |2
+      Муха летает здесь.
+    long_desc: |2
+      Обычная маленькая муха.
+  alignment: 0
+  stats:
+    level: 1
+    hitroll_penalty: 18
+    armor: 8
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 25
+    damage:
+      dice_count: 4
+      dice_size: 1
+      bonus: 1
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 70
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  size: 1
+  race: 107
+  height: 50
+  weight: 50
+  attributes:
+    strength: 3
+    dexterity: 4
+    intelligence: 3
+    wisdom: 3
+    constitution: 3
+    charisma: 3
+  action_flags:
+    - kNpc
+    - kStayZone
+  affect_flags:
+    - kFly
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 6
+  enhanced:
+    absorb: 1
+    bare_hand_attack: 12
+
+# Mob #5105
+5:
+  names:
+    aliases: мышь серая
+    nominative: серая мышь
+    genitive: серой мыши
+    dative: серой мыши
+    accusative: серую мышь
+    instrumental: серой мышью
+    prepositional: серой мыши
+  descriptions:
+    short_desc: |2
+      Серая мышь юркнула здесь.
+    long_desc: |2
+      Обычная серая мышка.
+  alignment: 0
+  stats:
+    level: 3
+    hitroll_penalty: 15
+    armor: 5
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 60
+    damage:
+      dice_count: 4
+      dice_size: 2
+      bonus: 2
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 500
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  size: 1
+  race: 104
+  height: 50
+  weight: 1
+  attributes:
+    strength: 3
+    dexterity: 10
+    intelligence: 3
+    wisdom: 3
+    constitution: 3
+    charisma: 3
+  action_flags:
+    - kNpc
+    - kStayZone
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 18
+  enhanced:
+    absorb: 3
+    bare_hand_attack: 12
+
+# Mob #5106
+6:
+  names:
+    aliases: клоп
+    nominative: клоп
+    genitive: клопа
+    dative: клопу
+    accusative: клопа
+    instrumental: клопом
+    prepositional: клопе
+  descriptions:
+    short_desc: |2
+      Клоп ползает здесь.
+    long_desc: |2
+      Клоп-кровопийца.
+  alignment: 0
+  stats:
+    level: 1
+    hitroll_penalty: 18
+    armor: 8
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 25
+    damage:
+      dice_count: 4
+      dice_size: 1
+      bonus: 1
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 70
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 1
+  race: 107
+  height: 50
+  weight: 50
+  attributes:
+    strength: 3
+    dexterity: 3
+    intelligence: 3
+    wisdom: 3
+    constitution: 3
+    charisma: 3
+  action_flags:
+    - kNpc
+    - kStayZone
+  skills:
+    - skill_id: 131  # заколоть
+      value: 30
+    - skill_id: 136  # кулачный бой
+      value: 6
+  enhanced:
+    absorb: 1
+    bare_hand_attack: 12
+    like_work: 90
+
+# Mob #5107
+7:
+  names:
+    aliases: моль
+    nominative: моль
+    genitive: моли
+    dative: моли
+    accusative: моль
+    instrumental: молью
+    prepositional: моли
+  descriptions:
+    short_desc: |2
+      Моль летает здесь.
+    long_desc: |2
+      Мелкий вредитель одежды.
+  alignment: 0
+  stats:
+    level: 1
+    hitroll_penalty: 18
+    armor: 8
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 25
+    damage:
+      dice_count: 4
+      dice_size: 1
+      bonus: 1
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 60
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  size: 1
+  race: 107
+  height: 50
+  weight: 50
+  attributes:
+    strength: 3
+    dexterity: 4
+    intelligence: 3
+    wisdom: 3
+    constitution: 3
+    charisma: 3
+  action_flags:
+    - kNpc
+    - kStayZone
+  affect_flags:
+    - kFly
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 6
+  enhanced:
+    absorb: 1
+    bare_hand_attack: 12
+
+# Mob #5108
+8:
+  names:
+    aliases: комар
+    nominative: комар
+    genitive: комара
+    dative: комару
+    accusative: комара
+    instrumental: комаром
+    prepositional: комару
+  descriptions:
+    short_desc: |2
+      Комар жужжит здесь.
+    long_desc: |2
+      Обычный комар-кровопийца.
+  alignment: 0
+  stats:
+    level: 1
+    hitroll_penalty: 18
+    armor: 10
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 25
+    damage:
+      dice_count: 4
+      dice_size: 1
+      bonus: 1
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 60
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 1
+  race: 107
+  height: 50
+  weight: 50
+  attributes:
+    strength: 3
+    dexterity: 4
+    intelligence: 3
+    wisdom: 3
+    constitution: 3
+    charisma: 3
+  action_flags:
+    - kNpc
+    - kAgressive
+    - kStayZone
+  affect_flags:
+    - kFly
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 6
+  enhanced:
+    absorb: 1
+    bare_hand_attack: 16

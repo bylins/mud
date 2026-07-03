@@ -1,0 +1,2997 @@
+# Triggers for zone 37
+
+# Trigger #3700
+0:
+  name: Именной стафф - Ронари
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if (%actor.level% > 30 ) && (%actor.vnum% == -1 )
+      halt
+    end
+    if ((%actor.iname% != Ронари) && (%actor.iname% != Бридт) && (%actor.iname% != Хэйсар))
+      osend %actor% _Рот выковырял &Kгрязь&n из &Wзуба&n и кинул ее в Вас!
+      return 0
+      halt
+    else
+      wait 1
+      echo _&rРот&n начал интенсивно работать.
+    end
+
+# Trigger #3701
+1:
+  name: Именной стафф - Коннор
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if (%actor.level% > 30 ) && (%actor.vnum% == -1 )
+      halt
+    end
+    if %actor.iname% != Коннор
+      osend %actor%  _Изображенный на сумке сокол с клекотом клюнул Вас.
+      return 0
+      halt
+    else
+      wait 1
+      echo _Сокол расправил крылья и кинулся в атаку.
+    end
+
+# Trigger #3702
+2:
+  name: Именной стаф - Огнезара
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if (%actor.level% > 30 ) && (%actor.vnum% == -1 )
+      halt
+    end
+    if %actor.iname% != Огнезара
+      osend %actor% _Сума опалила Ваши руки огнем и Вы не смогли удержать ее.
+      return 0
+      halt
+    else
+      wait 1
+    end
+
+# Trigger #3703
+3:
+  name: Именной стаф - Васса
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if (%actor.level% > 30 ) && (%actor.vnum% == -1 )
+      halt
+    end
+    if %actor.iname% != Рудко
+      osend %actor% &KСумка лекаря мертвых&n вспыхнула мрачным светом отказываясь даватся в руки кому-либо кроме хозяйки.
+      return 0
+      halt
+    else
+      wait 1
+      echo Несколько полусгнивших рук выползли из &Kсумки лекаря мертвых&n и разбежались в разные стороны.
+    end
+
+# Trigger #3704
+4:
+  name: Именной шмот - Мортыфан (бывш. хоз. Еска)
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if ((%actor.level% > 30) && (%actor.vnum% == -1))
+      halt
+    end
+    if %actor.iname% != Мортыфан && %actor.iname% != Шабу
+      otransform 3704
+      osend %actor% &RТ&Yо&Gр&Cб&Bа &Mд&Rл&Yя &Gп&Gл&Bю&Mш&Rе&Yк&n вырвалась из Ваших рук!
+      return 0
+      halt
+    else
+      wait 1
+      echo Из &Rт&Yо&Gр&Cб&Bы &Mд&Rл&Yя &Gп&Gл&Bю&Mш&Rе&Yк&n послышался задорный смех!
+    end
+
+# Trigger #3705
+5:
+  name: Именной шмот - Эрфис
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if (%actor.level% > 30 ) && (%actor.vnum% == -1 )
+      halt
+    end
+    if ((%actor.iname% != Эрфис) && (%actor.iname% != Сонгай))
+      osend %actor% _Желудок малька проскользнул у вас между пальцев и упал на землю.
+      return 0
+      halt
+    end
+    set owner %self.WornBy%
+    if ((%owner.name% == Эрфис ) || (%owner.name% == Сонгай ))
+      halt
+    end
+    osend %actor% Желудок малька начал насвистывать похоронный марш.
+    echoaround %actor% Желудок малька начал насвистывать похоронный марш.
+
+# Trigger #3706
+6:
+  name: Именной шмот -- Ведрусса
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if ((%actor.level% > 30) && (%actor.vnum% == -1))
+      halt
+    end
+    if ((%actor.iname% != Ведрусса) && (%actor.iname% != Руська) && (%actor.iname% != Солейна))
+      otransform 3706
+      osend %actor%  Сумка из шкуры пантеры распахнула вдруг ярко-зеленые глаза и громко клацнула зубами.
+      osend %actor%  Вы проворно отдернули руку.
+      return 0
+      halt
+    end
+    set char %self.WornBy%
+    if (%random.1000% <= 40 || (!%char% && %random.1000% <= 40))
+      wait 1
+      echo _&WСумка из шкуры &Kчерной пантеры &nвнезапно шевельнулась, замурчала
+      echo ___открыла &Gзеленые&n глаза и попыталась достать вас своими острыми коготками.
+    end
+
+# Trigger #3707
+7:
+  name: Именной стафф - Ледогост
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if %actor.level% > 30 && %actor.vnum% == -1
+      halt
+    end
+    if %actor.iname% != Ледогост && %actor.iname% != Касион && %actor.iname% != Лирана
+      otransform 3707
+      osend %actor% _Торба Карманника ловко отскочила в сторону от ваших рук.
+      return 0
+      halt
+    end
+    set char %self.WornBy%
+    if (%random.1000% <= 40 || (!%char% && %random.1000% <= 40))
+      wait 1
+      echo _Внезапно из Торбы Карманника вылезла рука и обчистила Ваши карманы.
+    end
+
+# Trigger #3708
+8:
+  name: Именной стаф - Херуба
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if ((%actor.level% > 30) && (%actor.vnum% == -1))
+      halt
+    end
+    if %actor.iname% != Херуба
+      otransform 3708
+      osend %actor% Поверхность &cзеркала&n затуманилась и в нем Вы увидели страшных чудовищ! В ужасе Вы отпрянули!
+      return 0
+      halt
+    else
+      wait 1
+      if %random.num(10)% > 8
+        osend %actor% &cБольшое пребольшое зеркало&n блеснуло в лучах солнца.
+        echoaround %actor% Отражение %actor.rname% в большом пребольшом зеркале скорчило Вам гримасу.
+      else
+        set selfnum 0
+        set num 0
+        foreach i %self.pc%
+          eval num %num%+1
+        done
+        set ranofself %random.num(%num%)%
+        foreach n %self.pc%
+          eval selfnum %selfnum%+1
+          if %ranofself% == %selfnum%
+            set char %n%
+          break
+        end
+      done
+      if %char.name% != %actor.iname%
+        echoaround %char% %char.iname% ослеплен%char.g% отблеском солнца в &cбольшом пребольшом зеркале&n, которое зачем-то носит с собой %actor.iname%.
+        osend %char% Луч солнца, отраженный в &cбольшом пребольшом зеркале&n %actor.rname%, ослепил вас!
+      else
+        echoaround %actor% %actor.iname% начал%actor.g% прихорашиваться перед &cбольшим пребольшим зеркалом&n.
+        osend %actor% Вы начали прихорашиваться перед &cбольшим пребольшим зеркалом&n.
+      end
+    end
+    end
+
+# Trigger #3709
+9:
+  name: Именной стафф - Кудряш
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if ((%actor.level% > 30) && (%actor.vnum% == -1))
+      halt
+    end
+    if ( %actor.iname% != Кудряш)
+      otransform 3709
+      osend %actor% _Шкура змея проскользнула у Вас между пальцев и упала на землю.
+      return 0
+      halt
+    end
+
+# Trigger #3710
+10:
+  name: Именной стаф - Иттарио
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if ((%actor.level% > 30) && (%actor.vnum% == -1))
+      halt
+    end
+    if %actor.iname% != Иттарио && %actor.iname% != Густав && %actor.iname% != Кельс
+      otransform 3710
+      osend %actor% Вы попытались взять &RКроваво&n-&Mмертвенную&n суму, Сума исторгла из себя сгусток &Rкрови&n и Вы тут же отдернули руку в испуге.
+      echoaround %actor% %actor.iname% попытал%actor.u% взять &RКроваво&n-&Mбледную&n суму, сума изрыгая проклятия плюнула &Rкровью&n в сторону %actor.rname%.
+      return 0
+      halt
+    else
+      wait 1
+      echo &RКроваво&n-&Mмертвенная&n сума широко раскрыла свое нутро и обрадованно исторгла из себя звук напоминающий Вам слово : &YМама&n
+    end
+
+# Trigger #3711
+11:
+  name: Именной стафф - Ранерий
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if ((%actor.level% > 30) && (%actor.vnum% == -1))
+      halt
+    end
+    if (( %actor.iname% != Тилана ) && (%actor.clan% != вз ))
+      otransform 3711
+      osend %actor% _Ваша рука как сквозь воздух прошла сквозь сумку с эмблемой Златогривого Львенка.
+      return 0
+      halt
+    else
+      *set char %self.WornBy%
+      *if (%random.1000% <= 120 || (!%char% && %random.1000% <= 40))
+      wait 1
+      echo &YЗлатогривый Львенок&n на сумке &Kгромко &Wзарычал&n.
+    end
+
+# Trigger #3712
+12:
+  name: Именной стафф  - Вултор
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if ((%actor.level% > 30) && (%actor.vnum% == -1))
+      halt
+    end
+    if ( %actor.iname% != Вултор)
+      otransform 3712
+      osend %actor% _Сума вывернулась из Ваших рук, плюнув в глаза кровью.
+      return 0
+      halt
+    end
+    set char %self.WornBy%
+    if ((%random.1000% <= 450) || (!%char% && %random.1000% <= 450))
+      wait 1
+      switch %random.7%
+        case 1
+          set word штаны
+        break
+        case 2
+          set word плечи
+        break
+        case 3
+          set word колено
+        break
+        case 4
+          set word щеку
+        break
+        case 5
+          set word голову
+        break
+        case 6
+          set word перчатки
+        break
+        default
+          set word пояс
+      done
+      echoaround %actor% _Сума затрепыхалась и брызнула кровью Вултору на %word%.
+      osend %actor% _Сума затрепыхалась и брызнула кровью Вам на %word%.
+    end
+
+# Trigger #3713
+13:
+  name: Именной стафф - Татиана
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kHitPercent
+    - kDamage
+  script: |-2
+    if ((%actor.level% > 30) && (%actor.vnum% == -1))
+      halt
+    end
+    if %actor% && ((%actor.iname% != Татиана) && (%actor.iname% != Ордан) && (%actor.iname% != Ольша) && (%actor.iname% != Фока))
+      osend %actor%  __Взяв в руки &YЛукошко&n Вы заметили &Wбелый флажок&n с надписью: "Вернуть по
+      osend %actor%  _адресу: МПМ Былины, замок ДСС, Татиана."
+      echoaround %actor%  Из &YЛукошка&n выпал &Wбелый флажок&n с надписью: 'Вернуть по адресу: МПМ Былины, замок ДСС, Татиана.'
+      return 0
+      halt
+    end
+    set master %self.WornBy%
+    wait 1
+    *срабатывает только при взятии сумки
+    if (%self.carriedby% && %actor% && !%master%)
+      osend %actor% &YЛукошко&n распахнулось, слегка непонятное существо
+      osend %actor% __(а это был местный &WСолнечный кролик&n) вцепилось Вам в шею.
+      echoaround %actor% &YЛукошко&n распахнулось, слегка непонятное существо
+      echoaround %actor%   (а это был местный &WСолнечный кролик&n) вцепилось в шею %actor.dname%.
+      halt
+    end
+    *при снятии сумки
+    if (!%self.WornBy% && %actor% && %self.carriedby% && %master%)
+      echo _&YЛукошко&n недовольно фыркнуло.
+      halt
+    end
+    *при надевании сумки и по тику
+    echo _&WСолнечный кролик&n выглянул из &YЛукошка&n и весело захлопал стремными ушами!
+
+# Trigger #3714
+14:
+  name: Именной стафф - Эйнар
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if (%actor.level% > 30 ) && (%actor.vnum% == -1 )
+      halt
+    end
+    if ((%actor.iname% != Эйнар) && (%actor.iname% != Абай) && (%actor.iname% != Ерлан) && (%actor.iname% != Зилд))
+      osend %actor% Сумка протекла у вас между пальцами струйками дыма и улеглась на землю.
+      return 0
+      halt
+    else
+      wait 1
+    end
+
+# Trigger #3715
+15:
+  name: Именной стафф -- Полосний
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if ((%actor.level% > 30) && (%actor.vnum% == -1))
+      halt
+    end
+    if ( %actor.iname% != Полосний)
+      otransform 3715
+      osend %actor% _Боты запрыгали, словно зайчики, и вырвались из Ваших рук.
+      return 0
+      halt
+    end
+    wait 1
+    set owner %self.WornBy%
+    if (%owner.name% == Полосний )
+      halt
+    end
+    echo Боты засветились таинственным светом и Вам стало теплее на душе.
+
+# Trigger #3716
+16:
+  name: Именной стафф - Альмир
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if ((%actor.level% > 30) && (%actor.vnum% == -1))
+      halt
+    end
+    if ((%actor.iname% != Альмир) && (%actor.iname% != Ларустар) && (%actor.iname% != Лоримак))
+      otransform 3716
+      osend %actor% Вы попытались взять булку, но она рассыпалась, превратившись в крошки, вот незадача.
+      return 0
+      halt
+    end
+    wait 1
+    set owner %self.WornBy%
+    if (%owner.name% == Полосний )
+      halt
+    end
+    echo Булка захрустела и начала крошиться.
+
+# Trigger #3717
+17:
+  name: Именной стаф - Козька
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if ((%actor.level% > 30) && (%actor.vnum% == -1))
+      halt
+    end
+    if ( %actor.iname% != Козька)
+      otransform 3717
+      osend %actor%  вы попытались взять халат, но промахнулись.
+      return 0
+      halt
+    end
+    set char %self.carriedby%
+    wait 1
+    if (%char% && %self.WornBy%)
+      echoaround %actor%   %actor.iname% медленно растаял%actor.g% в воздухе.
+      osend %actor% Вы хорошо замаскировались...
+    end
+
+# Trigger #3718
+18:
+  name: Именной стафф - Тешигнев
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if ((%actor.level% > 30) && (%actor.vnum% == -1))
+      halt
+    end
+    if ( %actor.iname% != Тешигнев)
+      otransform 3718
+      osend %actor% _Вы хотели взять сумку мастера гильдии душегубов, но вовремя подумали,
+      osend %actor% ___что сделает с Вами ее хозяин, и решили не трогать чужих вещей.
+      echoaround %actor% %actor.iname% попытал%actor.u% обшарить сумку мастера гильдии, но вовремя передумал%actor.g%.
+      return 0
+      halt
+    end
+
+# Trigger #3719
+19:
+  name: Именной стаф - Витрир
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if ((%actor.level% > 30)  (%actor.vnum% == -1))
+      halt
+    end
+    if %actor.iname% != Витрир && %actor.iname% != Волонд && %actor.iname% != Ломко && %actor.iname% != Дымко
+      osend %actor% Элегантный кошель из меха хомячка грозно зарычал и вцепился Вам в руку.
+      echoaround %actor% Элегантный кошель из меха хомячка грозно зарычал на %actor.vname%.
+      return 0
+      halt
+    else
+      wait 1
+      echo Элегантный кошель из меха хомячка осветился &Wтысячей бликов света&n.
+    end
+
+# Trigger #3720
+20:
+  name: Именной шмот -- Асгард
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if ((%actor.level% > 30) && (%actor.vnum% == -1))
+      halt
+    end
+    if (%actor.iname% != Асгард)
+      if %actor.clan% != вд && %actor.clan% != нд && %actor.clan% != гд
+        otransform 3720
+        osend %actor% Из &Wтайника Асгарда&n повеяло ледяным могильным холодом, Вы с ужасом отшатнулись от него!
+        echoaround %actor% %actor.iname% отшатнул%actor.u% от &WТайника Асгарда&n, наверное увидел%actor.g% что-то страшное.
+        return 0
+        halt
+      end
+    else
+      wait 1
+      osend %actor% &WТайник асгарда&n обдал Вас холодным ветром.
+      echoaround %actor% &WТайник Асгарда &nобдал Вас ледяным холодом, Вам стало неуютно.
+    end
+
+# Trigger #3721
+21:
+  name: Именной стафф -- Кронгнир
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if ((%actor.level% > 30) && (%actor.vnum% == -1))
+      halt
+    end
+    if ( %actor.iname% != Кронгнир)
+      otransform 3721
+      osend %actor% _Вы попытались загрести котомку из листьев ясеня, но она рассыпалась у Вас в руках на мелкие листики.
+      return 0
+      halt
+    end
+
+# Trigger #3722
+22:
+  name: Именной стафф -- Хрон
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if ((%actor.level% > 30) && (%actor.vnum% == -1))
+      halt
+    end
+    if ( %actor.iname% != Хрон)
+      otransform 3722
+      osend %actor% _Из Футляра полилась Мрачная и Замогильно Ужасная музыка.
+      osend %actor% __Вы поспешили отдернуть руку.
+      return 0
+      halt
+    end
+
+# Trigger #3723
+23:
+  name: Именной стафф  -- Алькира
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if ((%actor.level% > 30) && (%actor.vnum% == -1))
+      halt
+    end
+    if ((%actor.iname% != Савватий) && (%actor.iname% != Алькира) && (%actor.iname% != Тарик) && (%actor.clan% != рсп))
+      otransform 3723
+      osend %actor% _Ваша совесть не позволила вам взять сумку этого добрейшего человека.
+      return 0
+      halt
+    end
+
+# Trigger #3724
+24:
+  name: Именной стафф -- Воян
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if ((%actor.level% > 30) && (%actor.vnum% == -1))
+      halt
+    end
+    if ( %actor.iname% != Воян)
+      otransform 3724
+      osend %actor% _Приоткрыв аптечку, вы увидели полуразложившиеся человеческие органы.
+      osend %actor% _Осторожно положив ее на землю, вы сделали несколько шагов в сторону.
+      osend %actor% _Ну ее нафиг.
+      return 0
+      halt
+    end
+    set char %self.WornBy%
+    if (%random.1000% <= 40 || (!%char% && %random.1000% <= 40))
+      wait 1
+      echo _Несколько капель крови упало Вам на ботинок из Кровавой аптечки.
+    end
+
+# Trigger #3725
+25:
+  name: Именной стафф -- Улук
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if ((%actor.level% > 30) && (%actor.vnum% == -1))
+      halt
+    end
+    if ((%actor.iname% != Улук) && (%actor.iname% != Шахрух) && (%actor.clan% != дов))
+      otransform 3725
+      osend %actor% _Черный кошель БОЛЬНО укусил вас за палец.
+      return 0
+      halt
+    end
+
+# Trigger #3726
+26:
+  name: Именной стафф -- Эстери
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if %actor.level% > 30 && %actor.vnum% == -1
+      halt
+    end
+    if %actor.iname% != Эстери && %actor.iname% != Мадрак && %actor.iname% != Радош && %actor.iname% != Акана && %actor.clan% != вз
+      otransform 3726
+      osend %actor% Вы попытались заглянуть в черную дыру, но у Вас закружилась голова и вы чуть не хлопнулись на пол.
+      return 0
+      halt
+    end
+    set char %self.WornBy%
+    if (%random.1000% <= 40 || (!%char% && %random.1000% <= 40))
+      wait 1
+      echo %actor.iname% занырнул%actor.g% в черную дыру, немного покопал%actor.u% там, и довольн%actor.w% вынырнул%actor.g% обратно.
+    end
+
+# Trigger #3727
+27:
+  name: Именной стафф -- Тикен
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if ((%actor.level% > 30) && (%actor.vnum% == -1))
+      halt
+    end
+    if ((%actor.iname% != Тикен) && (%actor.iname% != Ролонд) && (%actor.iname% != Воря) && (%actor.iname% != Хадар) && (%actor.iname% != Фарогор))
+      otransform 3727
+      osend %actor% &GЗеленый чертик&n выскочил из торбы, злобно обнюхал Вас и сказал: "Не твое, не трожь!"
+      return 0
+      halt
+    end
+
+# Trigger #3728
+28:
+  name: Именной стафф --  Сариус
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if ((%actor.level% > 30) && (%actor.vnum% == -1))
+      halt
+    end
+    if (%actor.iname% != Сариус)
+      otransform 3728
+      osend %actor% _Крокодил громко клацнул зубами чуть не откусив вам руку.
+      return 0
+      halt
+    end
+
+# Trigger #3729
+29:
+  name: Именной стафф -- Ромес
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if ((%actor.level% > 30) && (%actor.vnum% == -1))
+      halt
+    end
+    if %actor.iname% != Ромес && %actor.iname% != Лодин && %actor.iname% != Сальма && %actor.iname% != Хьялти
+      otransform 3729
+      osend %actor% _Пумпон вывернулся наизнанку и укусил вас за руку.
+      osend %actor% __Вы резко отбросили &Kмаз╦вую сумку с &Rпумпоном.&n
+      return 0
+      halt
+    end
+    set char %self.WornBy%
+    set char2 %self.carriedby%
+    if (%random.1000% <= 40 || (!%char% && %random.1000% <= 40) || (!%char% && !%char2%))
+      wait 1
+      echo _Пумпон вывернулся наизнанку,злобно ухмыльнулся и спрятался.
+    end
+
+# Trigger #3730
+30:
+  name: Именной шмот - Ахмед
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if %actor.level% > 30 && %actor.vnum% == -1
+      halt
+    end
+    if %actor.iname% != Ахмед
+      otransform 3730
+      osend %actor% Посмотрев на &Yог&yром&Yный &Yба&yул&n &bГе&Bро&cе&Cв В&cо&bст&Bока&n Вы поняли что поднять его Вы ни когда не сможете.
+      echoaround %actor% Посмотрев на &Yог&yром&Yный &Yба&yул&n &bГе&Bро&cе&Cв В&cо&bст&Bока&n %actor.iname% понял%actor.g% что поднять его не в состоянии.
+      return 0
+      halt
+    else
+      wait 1
+      echo Арабская вязь на &Yог&yром&Yном &Yба&yуле&n &bГе&Bро&cе&Cв В&cо&bст&Bока&n вспыхнула ярким пламенем!
+    end
+
+# Trigger #3731
+31:
+  name: Именной шмот - Лобан
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kReceive
+    - kDamage
+  script: |-2
+    if %actor.level% > 30 && %actor.vnum% == -1
+      halt
+    end
+    if %actor.iname% != Лобан
+      otransform 3731
+      echoaround %actor% Большой деревянный улей загудел и рой сторожевых пчел таки покусал %actor.vname%.
+      osend %actor% Большой деревянный улей загудел и рой сторожевых пчел таки покусал Вас.
+      return 0
+      halt
+    else
+      wait 1
+      osend %actor% Пчелы вылетели из улья, сделали круг вокруг Вас и влетели обратно.
+      echoaround %actor% Пчелы вылетели из улья, сделали круг вокруг %actor.rname% и влетели обратно.
+    end
+
+# Trigger #3732
+32:
+  name: Именной шмот - Лешко
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if %actor.level% > 30 && %actor.vnum% == -1
+      halt
+    end
+    if %actor.iname% != Лешко
+      otransform 3732
+      echoaround %actor% Авоска выскользнула из рук %actor.rname%.
+      osend %actor% Авоська выскользнула у вас из рук.
+      return 0
+      halt
+    else
+      wait 1
+      osend %actor% Охотница с заостренными ушками багосклонно улыбнулась Вам. Вы почувствовали спокойствие.
+      echoaround %actor% Охотница с заостренными ушками, изображенная на авоське Лешко, ехидно улыбнулась Вам.
+    end
+
+# Trigger #3733
+33:
+  name: Именной шмот - Милина
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if %actor.level% > 30 && %actor.vnum% == -1
+      halt
+    end
+    if %actor.iname% != Ладимир && %actor.iname% != Милина && %actor.iname% != Илзе && %actor.iname% != Гарханн
+      otransform 3733
+      echoaround %actor% %actor.iname% потянул%actor.g% руки к кровавой &Wк&nро&Kвав&rо&Rй с&rу&Kмоч&nк&Wе&n, но с &RУЖАСОМ &nотдернул%actor.g% их.
+      osend %actor% Вы потянули руки к &Wк&nро&Kвав&rо&Rй с&rу&Kмоч&nк&Wе&n, но с УЖАСОМ отдернули их.
+      return 0
+      halt
+    else
+      wait 1
+      osend %actor% &WК&nро&Kвав&rа&Rя с&rу&Kмоч&nк&Wа&n прыгнула к Вам на руки.
+      echoaround %actor% Вы заметили, как пару капель крови капнуло из &Wк&nро&Kвав&rо&Rй с&rу&Kмоч&nк&Wи&n.
+    end
+
+# Trigger #3734
+34:
+  name: Именной шмот - Надир
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if ((%actor.level% > 30) && (%actor.vnum% == -1))
+      halt
+    end
+    if %actor.iname% != Ханок && %actor.iname% != Гоша && %actor.iname% != Улинна
+      otransform 3734
+      echoaround %actor% Сума &YБродячего &KХулигана&n попыталась укусить %actor.rname% за горло!
+      osend %actor% Сума &YБродячего &KХулигана&n попыталась укусить Вас за горло!
+      return 0
+      halt
+    else
+      wait 1
+      osend %actor% Сума &YБродячего &KХулигана&n загремела своим содержимым.
+      echoaround %actor% Сума &YБродячего &KХулигана&n заглянула в Ваш карман.
+    end
+
+# Trigger #3735
+35:
+  name: Именной шмот - Полиграф
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if %actor.level% > 30 && %actor.vnum% == -1
+      halt
+    end
+    if %actor.iname% != Полиграф && %actor.iname% != Георгий && %actor.iname% != Поляна && %actor.iname% != Зурих
+      otransform 3735
+      echo Вы не можете этого сделать.
+      return 0
+      halt
+    else
+      wait 1
+    end
+
+# Trigger #3736
+36:
+  name: Именной шмот -- Севиль
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if ((%actor.level% > 30) && (%actor.vnum% == -1))
+      halt
+    end
+    if ((%actor.iname% != Сивиль) && (%actor.iname% != Севиль))
+      otransform 3736
+      osend %actor% _Вы попытались взять &Wсумку &Wсо &Yсвя&Rщен&Yным&Rи п&Yись&Rмен&Yами&n, но чуть не обожгли руки.
+      osend %actor% _При этом Вы заметили надпись &R"&YМоя хозяйка - Сивиль&R"&n
+      return 0
+      halt
+    end
+    osend %actor% В ваших руках на сумке загорелось ж╦лтым пламенем &Y"Привет! Сивилька!"&n
+    echoaround %actor% Вы заметили, что в руках Сивиль &Wсумка &Wсо &Yсвя&Rщен&Yным&Rи п&Yись&Rмен&Yами&n засветилась т╦плым светом.
+
+# Trigger #3737
+37:
+  name: Именной шмот - Гиран
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if %actor.level% > 30 && %actor.vnum% == -1
+      halt
+    end
+    if %actor.iname% != Гиран && %actor.iname% != Орник && %actor.iname% != Кряж && %actor.iname% != Гирас && %actor.iname% != Гирак && %actor.iname% != Гират
+      otransform 3737
+      echoaround %actor% &WКрылатый сапожок внезапно ожил, &RСМЕРТЕЛЬНО пнув &Wосмелившегося поднять рюкзачок наглеца.&n
+      osend %actor% &RКрылатый сапожок СМЕРТЕЛЬНО пнул Вас.&n
+      return 0
+      halt
+    else
+      wait 1
+      echo &WКрылатый сапожок замахал крылышками, пытаясь оторваться от ткани и улететь!&n
+    end
+
+# Trigger #3738
+38:
+  name: Именной шмот - Лиана
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if %actor.level% > 30 && %actor.vnum% == -1
+      halt
+    end
+    if %actor.iname% != Лиана && %actor.iname% != Ириний && %actor.iname% != Надия
+      otransform 3738
+      echoaround %actor% %actor.iname% попытал%actor.u% дотронуться до &CЛедяной &MРозы&n но чуть сам%actor.g% не стал%actor.g% &Cльдом&n.
+      osend %actor% &CХолод &nи &Mпечаль &nпроникли в ваше сердце, превратив его в &Cмаленький ледяной шарик&n...
+      return 0
+      halt
+    else
+      wait 1
+      echo &CЛедяные лепестки &Mрозы&n тихо зашелестели и замерцали &Wтаинственным светом&n...
+    end
+
+# Trigger #3739
+39:
+  name: Именной шмот - Саний
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if ((%actor.level% > 30) && (%actor.vnum% == -1))
+      halt
+    end
+    if (%actor.iname% != Саний)
+      otransform 3739
+      osend %actor% Вы сунули руку в мясорубку, послышался хруст ломающихся костей. Как БОЛЬНО!
+      echoaround %actor% %actor.iname% сунул%actor.g% руку в мясорубку, послышался хруст ломающихся костей.
+      return 0
+      halt
+    end
+    set char %self.WornBy%
+    set char2 %self.carriedby%
+    if (!%char% && !%char2%)
+      wait 1
+      echo %actor.iname% начал%actor.g% бешено вертеть ручку мясорубки, перемалывая ее содержимое.
+    end
+
+# Trigger #3740
+40:
+  name: Именной шмот - Рене
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if %actor.level% > 30 && %actor.vnum% == -1
+      halt
+    end
+    if %actor.iname% != Рене && %actor.iname% != Данка && %actor.iname% != Сидор && %actor.iname% != Тенько
+      otransform 3740
+      echoaround %actor% %actor.iname% попытал%actor.u% взять %self.vname%, но чудом не сгорел%actor.g%!
+      osend %actor% Здесь вроде только что лежала сумка? Нет, показалось...
+      return 0
+      halt
+    else
+      wait 1
+      eval 3740num %random.3%
+      *echo Случайное число равно: %3740num%
+      if %3740num% == 1
+        set 3740itemname &cкольцо с сапфиром&n
+      elseif %3740num% == 2
+        set 3740itemname &yожерелье из янтаря&n
+      elseif %3740num% == 3
+        set 3740itemname &Wбриллиантовое колье&n
+      end
+      osend %actor% Случайно из &Wсумы &yблагородного &Wвора &nвыпало %3740itemname%. Кажется, никто не заметил ворованной вещи.
+      echoaround %actor% Да ведь это Ваше %3740itemname%, что Вы потеряли на прошлой неделе, припрятано в &Wсуме &yблагородного &Wвора&n!
+    end
+
+# Trigger #3741
+41:
+  name: Именной стафф -- Вадиар
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if ((%actor.level% > 30) && (%actor.vnum% == -1))
+      halt
+    end
+    wait 1
+    if !%self.WornBy%
+      echo _%actor.iname% достал стрелу из колчана и приготовился к атаке.
+    end
+
+# Trigger #3742
+42:
+  name: Именной шмот - Йорико
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if %actor.level% > 30 && %actor.vnum% == -1
+      halt
+    end
+    if %actor.iname% != Наська && %actor.iname% != Лукреция && %actor.iname% != Кира && %actor.iname% != Зазноба
+      otransform 3742
+      echoaround %actor% %actor.iname% попытал%actor.u% подобрать анимешный брелок, но тутже выронил его из рук.
+      oforce %actor% say Ня!
+      return 0
+      halt
+    elseif %actor.iname% == Кира
+      wait 1
+      echoaround %actor% %actor.iname% достал%actor.q% из-за пазухи какую-то &Kподозрительную тетрадку&n и начал%actor.q% что-то в ней записывать...
+      osend %actor% &GБо&gльш&Gой &cпре&Cболь&cшой&K ан&Wиме&nшный б&Wрел&Kок&n сказал: 'на каждую Киру, найдется свой Л!'.
+    else
+      wait 1
+      echo &GБо&gльш&Gой &cпре&Cболь&cшой &Kан&Wиме&nшный б&Wрел&Kок&n сказал "НЯ!".. или вам только показалось?..
+    end
+
+# Trigger #3743
+43:
+  name: Именной шмот - Скифша
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if %actor.level% > 30 && %actor.vnum% == -1
+      halt
+    end
+    if %actor.iname% != Скифша && %actor.iname% != Семсер && %actor.iname% != Яксарт
+      otransform 3743
+      echoaround %actor% %actor.iname% захотел%actor.g% взять &Kсетку из оловянных лепестков&n, но затем передумал%actor.g%.
+      osend %actor% Вы захотели взять &Kсетку из оловянных лепестков&n, но затем подумали, что брать чужие вещи - не хорошо!
+      return 0
+      halt
+    else
+      wait 1
+      osend %actor% &KСетка из оловянных лепестков&n печально звякнула Вам вслед.
+      echoaround %actor% &KСетка из оловянных лепестков&n протяжно звякнула, Вы ощутили необъяснимую печаль.
+    end
+
+# Trigger #3744
+44:
+  name: Именной стаф - Карл
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+  script: |-2
+    if %actor.level% > 30 && %actor.vnum% == -1
+      halt
+    end
+    if %actor.iname% != Гурьян && %actor.iname% != Карл && %actor.iname% != Ярмита && %actor.iname% != Гиффор
+      otransform 3744
+      echoaround %actor% %actor.iname% протянул%actor.g% руку к &Kсетке &nс &gпродуктами&n, но затем передумал%actor.g%.
+      osend %actor% Вы протянули руку к &Kсетке &nс &gпродуктами&n, но совесть не позволила Вам взять чужое.
+      return 0
+      halt
+    else
+      wait 1
+      echo &KСетка &nс &gпродуктами&n напомнила о себе благоуханием ароматов.
+    end
+
+# Trigger #3745
+45:
+  name: Именной шмот - Талгат
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+  script: |-2
+    if %actor.level% > 30 && %actor.vnum% == -1
+      halt
+    end
+    if %actor.iname% != Талгат
+      otransform 3745
+      echoaround %actor% %actor.iname% попытал%actor.g% поднять Тулун, но не смог%actor.g%.
+      osend %actor% Вы попытались поднять Тулун, но не смогли.
+      return 0
+      halt
+    else
+      wait 1
+      echo &YЗолотые нити&n на тулуне зазвенели.
+    end
+
+# Trigger #3746
+46:
+  name: Именной шмот - Римелика
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if %actor.level% > 30 && %actor.vnum% == -1
+      halt
+    end
+    if %actor.iname% != Римелика && %actor.iname% != Улар && %actor.iname% != Агафья && %actor.iname% != Милариса
+      otransform 3746
+      echo Маленькая серая тучка угрожающе заискрила молниями.
+      return 0
+      halt
+    else
+      wait 1
+      echo &KТучка&n нахмурилась, сжалась и с нее сорвались на землю несколько &cтяжелых дождинок&n.
+    end
+
+# Trigger #3747
+47:
+  name: Именной шмот - Чира
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if %actor.level% > 30 && %actor.vnum% == -1
+      halt
+    end
+    if %actor.iname% != Василиса && %actor.iname% != Мируша && %actor.iname% != Элиза && %actor.iname% != Ярина && %actor.iname% != Тхарна
+      otransform 3747
+      echo Лунные нити на сумке ослепили Вас своим сиянием.
+      return 0
+      halt
+    else
+      wait 1
+    end
+
+# Trigger #3748
+48:
+  name: Именной шмот - Дельфа
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if %actor.level% > 30 && %actor.vnum% == -1
+      halt
+    end
+    if %actor.iname% != Дельфа && %actor.iname% != Скаррон
+      otransform 3748
+      echo _&KРидикюль старой &Wбабушки&n ждет своего владельца.
+      return 0
+      halt
+    else
+      wait 1
+    end
+
+# Trigger #3749
+49:
+  name: Именной стаф - Сиррон
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if ((%actor.level% > 30) && (%actor.vnum% == -1))
+      halt
+    end
+    if %actor.iname% != Сиррон && %actor.clan% != нво
+      otransform 3749
+      osend %actor% Вы попытались поднять волшебную суму, но она отпрыгнула в сторону.
+      return 0
+      halt
+    end
+    wait 1
+    echo &WВолшебная сума&n засияла.
+    end
+
+# Trigger #3750
+50:
+  name: Именной стаф - Вимор
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if (%actor.level% > 30 ) && (%actor.vnum% == -1 )
+      halt
+    end
+    if %actor.iname% != Вимор
+      otransform 3750
+      osend %actor% Сундук выскользнул из Ваших рук и изнутри раздался голос:"Руки прочь! Развратник! Я все про тебя знаю!"
+      return 0
+      halt
+    else
+      wait 1
+      osend %actor% &yСундук&n радостно хлопнул крышкой.
+    end
+
+# Trigger #3751
+51:
+  name: Именной шмот - Сивух
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if %actor.level% > 30 && %actor.vnum% == -1
+      halt
+    end
+    if %actor.iname% != Сивух && %actor.iname% != Авдей && %actor.iname% != Безобраз && %actor.iname% != Сонмор
+      otransform 3751
+      echoaround %actor% Из &Yсумы &nгневно жужжа и немного покачиваясь вылетел &GЗеленый Фей&n и &Rбольно цапнул&n %actor.vname% за руку.
+      osend %actor% Из &Yсумы &nгневно жужжа и немного покачиваясь вылетел &GЗеленый Фей&n и &Rбольно цапнул&n Вас за руку.
+      return 0
+      halt
+    else
+      wait 1
+      echo Из &Yсумы&n, распространяя запах абсента, выглянул любопытный &GЗеленый Фей&n и тутже спрятался.
+    end
+
+# Trigger #3752
+52:
+  name: Именной стаф - Кьяра
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if (%actor.level% > 30 ) && (%actor.vnum% == -1 )
+      halt
+    end
+    if ((%actor.iname% != Кьяра) && (%actor.iname% != Дэрсин) && (%actor.iname% != Коруна) && (%actor.iname% != Вистар))
+      otransform 3752
+      osend %actor% &mКарамельный &Mкармашек &nрастаял у Вас к руках.
+      return 0
+      halt
+    else
+      wait 1
+      switch %random.2%
+        case 1
+          echo Из &WИрискиного &Mкармашка &Wповеяло &mванилью и &rкорицей&n.
+        break
+        case 2
+          echo Из &WИрискиного &Mкармашка &Wвдруг выпало &yкофейное &yзернышко&n.
+        break
+      done
+    end
+
+# Trigger #3753
+53:
+  name: Именной стаф - Сигвард
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if (%actor.level% > 30 ) && (%actor.vnum% == -1 )
+      halt
+    end
+    if ((%actor.iname% != Сигвард) && (%actor.iname% != Загир) && (%actor.iname% != Илледан))
+      otransform 3753
+      osend %actor% &KБездонная&n сумка &Wжадного волхва&n вырвалась из Ваших рук и с громким &Yбряканьем&n рухнула на землю.
+      return 0
+      halt
+    else
+      wait 1
+      echo &WСумка&n откашлялась и нудным, скрипучим голосом начала &Kчитать&n Вам лекцию.
+    end
+
+# Trigger #3754
+54:
+  name: Именной стафф - Штайн
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if (%actor.level% > 30 ) && (%actor.vnum% == -1 )
+      halt
+    end
+    if ((%actor.iname% != Штайн) && (%actor.iname% != Ховард) && (%actor.iname% != Саббах) && (%actor.iname% != Точень) && (%actor.iname% != Сэмэн))
+      otransform 3754
+      osend %actor% Вы не можете поднять такую тяжесть.
+      return 0
+      halt
+    else
+      wait 1
+      echo __В &Kгробу&n кто-то заворчал.
+    end
+
+# Trigger #3755
+55:
+  name: Именной стаф - Баюр
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if (%actor.level% > 30 ) && (%actor.vnum% == -1 )
+      halt
+    end
+    if ((%actor.iname% != Сновид) && (%actor.iname% != Валхар) && (%actor.iname% != Баюр))
+      otransform 3755
+      osend %actor% &WПояс &YВеликого Хана&n вырвался из Ваших рук и снова улегся на землю.
+      return 0
+      halt
+    else
+      wait 1
+    end
+
+# Trigger #3756
+56:
+  name: Именной стаф - Гуслис
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if (%actor.level% > 30) && (%actor.vnum% == -1)
+      halt
+    end
+    if ((%actor.iname% != Олирия) && (%actor.iname% != Гуслис))
+      otransform 3756
+      osend %actor% Из шкатулки вдруг послышались такие жуткие звуки, что Вы невольно отдернули руки.
+      return 0
+      halt
+    else
+      wait 1
+    end
+
+# Trigger #3757
+57:
+  name: Именной стаф - Гразий
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if (%actor.level% > 30 ) && (%actor.vnum% == -1 )
+      halt
+    end
+    if ((%actor.iname% != Гразий) && (%actor.iname% != Евпараския) && (%actor.iname% != Хорыв) && (%actor.iname% != Лескун) && (%actor.iname% != Богун) && (%actor.iname% != Горинка) && (%actor.iname% != Посолонь))
+      otransform 3757
+      osend %actor% Вас &WОГЛУШИЛО&n Богатырским &CМолотом&n при попытке взять мешок.
+      return 0
+      halt
+    else
+      wait 1
+      echo Вдруг у Вас в &Kмозгу&n мелькнула &RМысль&n: Только не в &yтерновый &Yкуст&n!
+      echo Вокруг &Gлистья&n да &yветки&n, &rтерни&n да &Yколючки&n.
+      echo Вас обвивают &Yострые &yветви&n и Вы начинаете &Wтихонько&n скулить и проситься к &RМАМЕ&n!
+    end
+
+# Trigger #3758
+58:
+  name: Именной стаф - Ясленик
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if (%actor.level% > 30 ) && (%actor.vnum% == -1 )
+      halt
+    end
+    if ((%actor.iname% != Ясленик) && (%actor.iname% != Полюд) && (%actor.iname% != Бразд) && (%actor.iname% != Меламори) && (%actor.iname% != Нежана) && (%actor.iname% != Леонтий))
+      osend %actor%   &YР&yу&gн&Gа&n, начертанная на &Kп&nи&Wт&nо&Kм&nз&Wе&n, вдруг &rзагорелась&n и &Kобожгла&n Вам руку.
+      return 0
+      halt
+    end
+
+# Trigger #3759
+59:
+  name: Именной стафф - Есень
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: say My trigger commandlist is not complete!
+
+# Trigger #3760
+60:
+  name: Именной стаф - Есугей
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+
+# Trigger #3761
+61:
+  name: Именной стафф - Вяхорь
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if (%actor.level% > 30 ) && (%actor.vnum% == -1 )
+      halt
+    end
+    if ((%actor.iname% != Вяхорь) && (%actor.iname% != Дивиш) && (%actor.iname% != Витаслав))
+      otransform 3761
+      osend %actor% Вы попытались поднять &Kавоську&n, но случайно уронили ее, разбив все &gбутылки&n.
+      return 0
+      halt
+    end
+
+# Trigger #3762
+62:
+  name: Именной стафф - Алексей
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if %actor.level% > 30 && %actor.vnum% == -1
+      halt
+    end
+    if ((%actor.iname% != Алексей) && (%actor.iname% != Борай) && (%actor.iname% != Казбек) && (%actor.iname% != Димитрий) && (%actor.iname%!=Будивой) && (%actor.iname%!=Внезд))
+      otransform 3762
+      osend %actor% В %self.dname% что-то &Rразбилось&n и Вы испуганно &Wотдернули руку&n.
+      return 0
+      halt
+    else
+      wait 1
+      echoaround %actor% Из %self.rname% %actor.rname% послышался звук &rбьющихся &gбутылок&n.
+      osend %actor% Вы сделали неловкое движение и из %self.rname% послышался звук бьющихся бутылок.
+    end
+
+# Trigger #3763
+63:
+  name: Именной стафф - Лорелея
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if (%actor.level% > 30 ) && (%actor.vnum% == -1 )
+      halt
+    end
+    if %actor.iname% != Лорелея && %actor.iname% != Зоман && %actor.iname% != Тайна && %actor.iname% != Омагар
+      osend %actor% &RРуки &Wубрал, &Kда&M!&C!&B!&n
+      return 0
+      halt
+    end
+
+# Trigger #3764
+64:
+  name: Именной стафф - Одерон
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if (%actor.level% > 30 ) && (%actor.vnum% == -1 )
+      halt
+    end
+    if ((%actor.iname% != Одерон) && (%actor.iname% != Дерон) && (%actor.iname% != Плесек) && (%actor.iname% != Ядвига))
+      otransform 3764
+      osend %actor% &YСума &KПлесецкого &RПатруля&n выпала из Ваших рук.
+      return 0
+      halt
+    end
+
+# Trigger #3765
+65:
+  name: Именной шмот - Бойко
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if %actor.level% > 30 && %actor.vnum% == -1
+      halt
+    end
+    if %actor.iname% != Бойко && %actor.iname% != Делвин && %actor.iname% != Фарнт
+      otransform 3765
+      echoaround %actor% Глаза &Kчерепа сверкнули &Cмогильным &nсветом и в тот же миг %actor.vname% откинуло невиданой силой мертвых.
+      osend %actor% Глаза &Kчерепа &nсверкнули &Cмогильным &nсветом и в тот же миг Вас откинуло невиданой силой мертвых.
+      return 0
+      halt
+    else
+      wait 1
+      echo Пустые глазницы &Wогромного полого &Kчерепа &nблеснули &Cзамогильным&n светом.
+    end
+
+# Trigger #3766
+66:
+  name: Именной шмот - Лойнис
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if %actor.level% > 30 && %actor.vnum% == -1
+      halt
+    end
+    if %actor.iname% != Лойнис && %actor.iname% != Луминар
+      otransform 3766
+      echoaround %actor% %actor.iname% попытал%actor.u% взять &WМетку &KТемного Двора&n, но та исчезла во тьме, а через несколько секунд вернулась на место.
+      osend %actor% Вы попытались взять &WМетку &KТемного Двора&n, но она исчезла во тьме, а через несколько секунд вернулась на место.
+      return 0
+      halt
+    else
+      wait 1
+      switch %random.3%
+        case 1
+          osend %actor% Неожиданно &KМетка &nпревратилась в &Wбелку&n и уселась Вам на плечо, с азартом грызя &Yорехи&n.
+          echoaround %actor% Неожиданно &KМетка &nпревратилась в &Wбелку&n и уселась Лойнису на плечо, с азартом грызя &Yорехи&n.
+        break
+        case 2
+          osend %actor% &YБелка&n из Вашей &Kметки&n стырила &yшишку&n у соседа и принялась выгрызать из нее &yорехи&n, сидя у Вас на плече.
+          echoaround %actor% Вы почувствовали как что-то дернуло Вас за &Bкарман&n и увидели &Yтолстую ухмылающуюся белку&n.
+          echoaround %actor% Она &Kукрала&n Вашу любимую &gкедровую шишку&n и нагло &Cсгрызает&n ее, сидя у &K%actor.rname%&n на плече.
+        break
+        case 3
+          osend %actor% &KМетка&n в Ваших руках обернулась &Rколодой карт&n и радостно зашуршала.
+          echoaround %actor% &KТемная &Wметка&n %actor.rname% начала &Bменять очертания&n прямо у Вас на глазах. &RКарты&n с рубашкой в виде &Yбелки&n, &mв&Mе&Yс&Gе&Cл&Rо&n зашелестели в руках &Wвладельца&n.
+          echoaround %actor% Как странно... &Rчерви&n - &Kчерные&n, &Kпики&n - &Rкрасные&n. Удивительный &Kчеловек&n.
+        break
+      done
+    end
+
+# Trigger #3767
+67:
+  name: Именной стафф - Шелди
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if (%actor.level% > 30 ) && (%actor.vnum% == -1 )
+      halt
+    end
+    if %actor.iname% != Шелди && %actor.iname% != Яремир && %actor.iname% != Тритогор
+      otransform 3767
+      osend %actor% Вы попытались поднять котомку, но тутже порезали палец об острый камень.
+      osend %actor% Вы отдернули руку... &RБольно&n же!
+      return 0
+      halt
+    else
+      wait 1
+      osend %actor% Случайно Вы уронили &yко&Yтом&yку&n на землю и из нее выпала &Wр&nо&Kс&nс&Wы&nп&Kь&n &Cдр&cаг&gоц&Gен&gны&cх к&Cам&Bен&bий&n.
+      osend %actor% Вы кинулись собирать &Gизумруды&n, &Wалмазы&n, &rрубины&n и рассовывать их по карманам.
+      echoaround %actor% Шелди споткнулся и уронил свою котомку, осыпав землю &Gизумрудами&n, &Wалмазами&n, &rрубинами&n. Вы жадно наблюдаете, как он собирает &Cдр&cаг&gоц&Gен&gно&cст&Cи&n и рассовывает их по своим безразмерным карманам.
+    end
+
+# Trigger #3768
+68:
+  name: Именной шмот - Эйко
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if %actor.level% > 30 && %actor.vnum% == -1
+      halt
+    end
+    if %actor.iname% != Эйко && %actor.iname% != Помир && %actor.iname% != Лалена
+      otransform 3768
+      echoaround %actor% %actor.iname% попытал%actor.u% завладеть &rЗамершим Пламенем&n, но чуть было не сгорел%actor.g%!
+      osend %actor% Едва подумав об этом, Вы всем телом &Rощутили нестерпимый жар&n, исходящий от &rЗамершего Пламени&n. Пожалуй, этого делать не стоит.
+      return 0
+      halt
+    else
+      wait 1
+      echo Взглянув на &rЗамершее Пламя &nВас обуяло чувство тревоги - кто-то следит за Вами, проникая в самую суть Ваших тайных помыслов!
+    end
+
+# Trigger #3769
+69:
+  name: Именной шмот - Жалын
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    (if %actor.level% > 30) && (%actor.vnum% == -1)
+    halt
+    end
+    if (%actor.iname% != Жалын) && (%actor.iname% != Доменик)
+      otransform 3769
+      echoaround %actor% %actor.iname% попытал%actor.u% войти в &cано&Cма&cлию&n, но &Rэнергия&n, вырвавшаяся из нее, лишила %actor.vname% мозга!
+      osend %actor% &RЭнергия &rвырвавшаяся из &cано&Cма&cлии &rнакрыл Вас темной вуалью и медленно испепеляет Ваш мозг!&n
+      return 0
+      halt
+    else
+      wait 1
+      osend %actor% &KПотоки энергии вырвались из &cано&Cмал&cии&K, обволокли Ваше тело &Wсверкающим коконом&K.&n
+      echoaround %actor% &KПотоки энергии вырвались из &cано&Cмал&cии&K, обволокли тело Жалына &Wсверкающим коконом&K, глаза его &Yстранно засверкали&K.&n
+    end
+
+# Trigger #3770
+70:
+  name: Именной шмот - Пилатий
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if %actor.level% > 30 && %actor.vnum% == -1
+      halt
+    end
+    if %actor.iname% != Пилатий && %actor.iname% != Витрус && %actor.iname% != Елизавета && %actor.iname% != Горпына && %actor.iname% != Раодон && %actor.iname% != Савриил
+      otransform 3770
+      echoaround %actor% %actor.iname% попытал%actor.u% взять &cС&CИ&cН&CЕ&n-&yЖ&YЕ&yЛ&YТ&YЫ&yЙ&W флаг Украины&n но потерпел%actor.g% неудачу.
+      osend %actor% &RСначало прими християнство католик некрещеный!!!&n
+      return 0
+      halt
+    else
+      wait 1
+      echo Вдруг вся комната осветилась на мгновение &cС&CИ&cН&CЕ&n-&yЖ&YЕ&yЛ&YТ&YЫ&yМ&n цветом.
+    end
+
+# Trigger #3771
+71:
+  name: Именной стафф Рольт
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if (%actor.level% > 30 ) && (%actor.vnum% == -1 )
+      halt
+    end
+    if ((%actor.iname% != Элемир ) && (%actor.iname% != Рольт ) && (%actor.iname% != Шунька ) && (%actor.iname% != Антонина ) && (%actor.iname% != Злокраса ) && (%actor.iname% != Лариса ))
+      otransform 3771
+      osend %actor% Протянув руку к суме с вышитым гербом Вольных стрелков, Вы ощутили насколько хорошо быть &RВольным&n. Но Вас это не касается.
+      return 0
+      halt
+    else
+      wait 1
+      echo Внезапно из &Cсу&cмы &yс в&Yыш&yит&cым &Cге&cрб&yом &RВольных Стрелков&n вырвался &Kпорыв ветра&n и Вы, вдохнув его, о чем то задумались.
+    end
+
+# Trigger #3772
+72:
+  name: Именной шмот - Дагомир
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if %actor.level% > 30 && %actor.vnum% == -1
+      halt
+    end
+    if %actor.iname% != Дагомир && %actor.iname% != Колисвет && %actor.iname% != Ругий
+      otransform 3772
+      echoaround %actor% &RКак только %actor.iname% приоткрыл%actor.g% крышку ведерка, пары, вылетевшие из него, крепко ударили %actor.vname% в голову, икнув и крякнув, %actor.iname% повалил%actor.u% с ног!&n
+      osend %actor% &RКак только Вы приоткрыли крышку ведерка, пары, вылетевшие из него, крепко ударили Вам в голову, икнув и крякнув, Ваши ноги подкосились!&n
+      return 0
+      halt
+    else
+      wait 1
+      echo &WДо блеска начищенное &Gведро с маленьким краником&n, &yна причудливых ножках &Rпыхтит и гонит первач&n.
+    end
+
+# Trigger #3773
+73:
+  name: Именной стафф - Бобр
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if %actor.level% > 30 && %actor.vnum% == -1
+      halt
+    end
+    if %actor.iname% != Бобрыня && %actor.iname% != Ингельд
+      otransform 3773
+      osend %actor% &YХвост &yбобра&n больно ударил Вас по рукам.
+      return 0
+      halt
+    else
+      wait 1
+      echo &YХвост &yбобра&n начал извиваться.
+    end
+
+# Trigger #3774
+74:
+  name: Именной стаф - Дрегвий
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if %actor.level% > 30 && %actor.vnum% == -1
+      halt
+    end
+    if %actor.iname% != Дрегвий && %actor.iname% != Чернава && %actor.iname% != Витовий
+      otransform 3774
+      osend %actor% Протянув руку к &rсуме&n, Вы тут же испачкали ее в &Rкрови&n. Нечего хватать что попало!
+      return 0
+      halt
+    else
+      wait 1
+      echo Несколько &mкапель &rкрови&n упало на &Kземлю&n.
+    end
+
+# Trigger #3775
+75:
+  name: именной стафф - федяш
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if %actor.level% > 30 && %actor.vnum% == -1
+      halt
+    end
+    if %actor.iname% != Хникс && %actor.iname% != Балаш && %actor.iname% != Федяш
+      otransform 3775
+      osend %actor% Зачем берешь чужой &Wколчан&n? А ну положи на место!
+      return 0
+    else
+      wait 1
+      echo &WКолчан удалого стрельца&n озарился &Wбелым светом&n.
+    end
+
+# Trigger #3776
+76:
+  name: Именной стаф - Младин
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kDeath
+    - kGreet
+    - kReceive
+    - kHitPercent
+    - kDamage
+  script: |-2
+    if ((%actor.level% > 30) && (%actor.vnum% == -1))
+      halt
+    end
+    switch %random.8%
+      case 1
+        set word &GЗеленый&n
+      break
+      case 2
+        set word &RКрасный&n
+      break
+      case 3
+        set word &BСиний&n
+      break
+      case 4
+        set word &WБелый&n
+      break
+      case 5
+        set word &YЖелтый&n
+      break
+      case 6
+        set word &CГолубой&n
+      break
+      case 7
+        set word &KСерый&n
+      break
+      case 8
+        set word &MПурпурный&n
+    done
+    if ((%actor.iname% != Младин) && (%actor.iname% != Алина) && (%actor.iname% != Огонек) && (%actor.iname% != Лавале) && (%actor.iname% != Лакидар))
+      otransform 3776
+      osend %actor% &WИз &MС&Gу&Bм&Yк&Cи &Wс &Bвеселыми котятами &Wвыбрался &Bвесело хихикающий&n %word% котёнок.
+      osend %actor% &Wобойдя Вас по кругу, котёнок &Mулыбнулся &Wи не прекращая &Bхихикать &Wзалез обратно в &MС&Gу&Bм&Yк&Cу&n.
+      echoaround %actor% &WИз &MС&Gу&Bм&Yк&Cи &Wс &Bвеселыми котятами &Wвыбрался &Bвесело хихикающий&n %word% котёнок.
+      echoaround %actor% &Wобойдя %actor.vname% по кругу, котёнок &Mулыбнулся &Wи не прекращая &Bхихикать залез обратно в &MС&Gу&Bм&Yк&Cу&n.
+      return 0
+      halt
+    end
+    set master %self.WornBy%
+    wait 1
+    *взяли сумку
+    if (%self.carriedby% && %actor% && !%master%)
+      osend %actor% %word% котёнок &Wвысунул голову из &MС&Gу&Bм&Yк&Cи &Wи&n радостно замурлыкал увидев Вас.
+      echoaround %actor% %word% котёнок &Wвысунул голову из &MС&Gу&Bм&Yк&Cи &Wи&n радостно замурлыкал увидев %actor.vname%.
+      halt
+    end
+    *сняли сумку
+    if (!%self.WornBy% && %actor% && %self.carriedby% && %master%)
+      echo &WИз &MС&Gу&Bм&Yк&Cи &Wс &Bвеселыми котятами &Wраздалось &Rжалобное мяуканье&n.
+      halt
+    end
+    *одели сумку-тик
+    osend %actor% &WИз &MС&Gу&Bм&Yк&Cи &Wс &Bвеселыми котятами &Wвыглянул %word% котёнок&n &Wи, &Bвесело захихикав&n, &Wпощекотал Вам ухо языком&n.
+    osend %actor% &WВы погладили котёнка и ласково затолкали его обратно&n.
+    echoaround %actor% &WИз &MС&Gу&Bм&Yк&Cи &Wс &Bвеселыми котятами &Wвыглянул %word% котёнок &Wи, &Bвесело захихикав&n, &Wпрошептал что-то на ухо %actor.dname%&n.
+    echoaround %actor% &W%actor.iname% ласково погладил%actor.g% котёнка и затолкал%actor.g% его обратно&n.
+
+# Trigger #3777
+77:
+  name: Свободный слот под сумку
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if %actor.level% > 30 && %actor.vnum% == -1
+      halt
+    end
+    *раньше принадлежала чарам: Иннер Иральда Лизария Далнур, сейчас передана: Линси Делика
+    if %actor.iname% != Линси && %actor.iname% != Делика && %actor.iname% != Мельтина
+      otransform 3777
+      echoaround %actor% %actor.iname% попытал%actor.u% взять &yПо&Yяс &cНев&Cской &gохот&Gницы&n, но перетрусил%actor.g%.
+      osend %actor% Вы попытались взять &yПо&Yяс &cНев&Cской &gохот&Gницы&n, но Ваши руки как сквозь воздух прошли.
+      return 0
+      halt
+    else
+      wait 1
+      echo &WВнезапно Вам послышался звук &bмогу&Bчих &bво&Bлн&W, бьющихся о берег &cсвящ&Cенной &cре&Cки.&n
+    end
+    *на сумку претендовали несколько человек.. то ли передавалась она каким-то читерным способом, то ли угонялась, в общем, в любом случае, лучше не выдавать никому
+
+# Trigger #3778
+78:
+  name: Именная сумка - Векомир
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kDamage
+  script: |-2
+    * сумка дана персонажу за помощь Бальдру (вместо славы)
+    if %actor.level% > 30 && %actor.vnum% == -1
+      halt
+    end
+    if (%actor.iname% != Векомир && %actor.iname% != Верег && %actor.iname% != Вечерица && %actor.iname% != Годомысл && %actor.iname% !=Ририк && %actor.iname% != Углеша)
+      otransform 3778
+      echoaround %actor% %actor.iname% попытал%actor.u% поднять &Kнеумело скроенную сумку&n, но та начала разваливаться и он%actor.g%, неудержав, уронил%actor.g% ее.
+      osend %actor% Вы попытались взять &Kнеумело скроенную сумку&n, но та начала разваливаться и Вам пришлось ее бросить.
+      return 0
+      halt
+    else
+      wait 1
+      %send% %actor% &KНеумело скроенная сумка&n затрещала по швам в Ваших руках.
+      %echoaround% %actor% &KНеумело скроенная сумка&n затрещала по швам в руках %actor.rname%.
+    end
+
+# Trigger #3779
+79:
+  name: Именной шмот - Шышок
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if %actor.level% > 30 && %actor.vnum% == -1
+      halt
+    end
+    if %actor.iname% != Поморя && %actor.iname% != Валява && %actor.iname% != Токихаша && %actor.iname% != Шышок && %actor.iname% != Кабал && %actor.iname% != Хаук && %actor.iname% != Зульфия
+      otransform 3779
+      echo &WВНЕЗАПНО! &nС&nт&cран&nна&Wя &nба&cнк&nа &Wначала поглощать все вокруг!&n
+      return 0
+      halt
+    else
+      wait 1
+      echo &WВНЕЗАПНО! &nС&nт&cран&nна&Wя &nба&cнк&nа &Wначала поглощать все вокруг!&n
+    end
+
+# Trigger #3780
+80:
+  name: Именная сумка - Мангас
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if ((%actor.level% > 30) && (%actor.vnum% == -1))
+      halt
+    end
+    if ((%actor.iname% != Мангас) && (%actor.iname% != Венцеслава) && (%actor.iname% != Князеслав) && (%actor.iname% != Схимон) && (%actor.clan% != вз))
+      otransform 3780
+      osend %actor% &YМ&Wе&Yш&Wо&Yк &Wс &Yр&Wи&Yс&Wо&Yм&n оказался слишком тяжелым и Вы решили не надрываться.
+      return 0
+      halt
+    end
+
+# Trigger #3781
+81:
+  name: Именной стафф - Гранислав
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if %actor.level% > 30 && %actor.vnum% == -1
+      halt
+    end
+    if %actor.iname% != Гранислав && %actor.iname% != Рауд && %actor.iname% != Грида
+      otransform 3781
+      osend %actor% &RВолчонок&n на рюкзачке вдруг ожил, прекратил чесаться и чувствительно цапнул Вас за палец.
+      %echoaround% %actor% &RВолчонок&n на рюкзачке вдруг ожил, прекратил чесаться и цапнул %actor.rname% за палец.
+      return 0
+      halt
+    else
+      wait 1
+      echo &RВолчонок&n принюхался и одобрительно заворчал, предчувствуя добычу.
+    end
+    * Сумка создана за помощь в написании тригов. В случае вопросов обращаться к Бальдру.
+
+# Trigger #3782
+82:
+  name: Именной стафф - Сагудор
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kDamage
+  script: |-2
+    if ((%actor.level% > 30) && (%actor.vnum% == -1))
+      halt
+    end
+    if %actor.iname% != Сагудор
+      otransform 3782
+      osend %actor% &yБаул&n надулся, поднялся и попытался &Rцапнуть&n Вас за руку.
+      return 0
+      halt
+    else
+      wait 1
+      %echoaround% %actor% &yРыжий баул&n оказался в руках Сагудора, повинуясь его приказу.
+      osend %actor% &yРыжий баул&n оказался в Ваших руках, повинуясь приказу.
+      halt
+    end
+
+# Trigger #3783
+83:
+  name: Именной стаф -- Завлада
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+    - kGreetPCAll
+  script: |-2
+    if ((%actor.level% > 30) && (%actor.vnum% == -1))
+      halt
+    end
+    if ((%actor.iname% != Завлада) && (%actor.iname% != Смирн) && (%actor.iname% != Резван) && (%actor.iname% != Рикка) && (%actor.iname% != Смирон))
+      otransform 3783
+      osend %actor% Из &Yяр&yко&gй с&Gум&Cы ф&cок&Bус&bни&Kка&n показался заяц и, цапнув Вас за палец, спрятался назад.
+      return 0
+      halt
+    end
+
+# Trigger #3784
+84:
+  name: Именной стафф -- Ольгерд
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+    - kGreetPCAll
+  script: |-2
+    if (%actor.level% > 30 ) && (%actor.vnum% == -1 )
+      halt
+    end
+    if ((%actor.iname% != Веденей) && (%actor.iname% != Искандер) && (%actor.iname% != Родни) && (%actor.iname% != Ольгерд) && (%actor.iname% != Лисьяк))
+      otransform 3784
+      osend %actor% Как только Вы протянули руку к неприметному поясу, Вас охватила ужасная слабость, коленки подогнулись, а пояс окутался &Wдвумя струями пара&n с &Wв&Rк&Yр&Wа&Rп&Yл&Wе&Rн&Yи&Wе&Rм &rсгустков &Rп&Yл&Rа&Yм&Rе&Yн&Rи&n.
+      return 0
+      halt
+    else
+      wait 1
+      switch %random.5%
+        case 1
+          echo Неприметный пояс зашелестел, как будто &cче&gшу&cя о&gгр&cом&gно&cй р&gеп&cтил&gии&n скользнула по гравию.
+        break
+        case 2
+          echoaround %actor% &GГ&Kла&Gз&n на поясе %actor.rname% беспокойно завращался, будто бы ища Вас взглядом.
+          osend %actor% &GГ&Kла&Gз&n на Вашем поясе беспокойно завращался высматривая кого-то.
+        break
+        case 3
+          echoaround %actor% &GГ&Kла&Gз&n на неприметном поясе вдруг уставился на Вас, и вы почувствовали смутное беспокойство: а не пора ли тикать???
+          osend %actor% &GГ&Kла&Gз&n на неприметном поясе устрашающе уставился на кого-то.
+        break
+      done
+    end
+
+# Trigger #3785
+85:
+  name: Именной стаф - омельян
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if ((%actor.level% > 30) && (%actor.vnum% == -1))
+      halt
+    end
+    if ((%actor.iname% != Гудеяр) && (%actor.iname% != Амвросий) && (%actor.iname% != Омина) && (%actor.iname% != Омельян))
+      otransform 3785
+      osend %actor% Вы попытались поднять чужую &Wсуму&n, но из нее случайно выпала &Rотрубленная &Kлапа&n и Вы в ужасе отшатнулись.
+      return 0
+      halt
+    else
+      switch %random.3%
+        case 1
+          echo Несколько &rбагровых&n капель сорвалось с &Rокр&rов&Rавл&rен&Rной&n &Wсумы &Kживодера&n.
+        break
+        case 2
+          echo Из &Rокр&rов&Rавл&rен&Rной &Wсумы &Kживодера&n случайно вывалился &rобрубок&n лапы.
+        break
+        case 3
+          echo Из &Rокр&rов&Rавл&rен&Rной &Wсумы &Kживодера&n послышался едва слышный &Kстон&n.
+        break
+      done
+    end
+
+# Trigger #3786
+86:
+  name: именной стафф - Кайнур
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if ((%actor.level% > 30) && (%actor.vnum% == -1))
+      halt
+    end
+    if ((%actor.iname% != Кайнур) &&& (%actor.iname% != Алатор) && (%actor.iname% != Регат))
+      otransform 3786
+      osend %actor% &RКалита&n съежилась, скукожилась и закричала - " Не трожь меня, окаянный! Ато оторву окaянный отросток! "
+      return 0
+      halt
+    end
+
+# Trigger #3787
+87:
+  name: Именной стафф - Блажена
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if ((%actor.level% > 30) && (%actor.vnum% == -1))
+      halt
+    end
+    if ((%actor.iname% != Блажена) && (%actor.iname% != Орвин) && (%actor.iname% != Патап))
+      otransform 3787
+      osend %actor% На мгновение у Вас появилась &RСовесть&n, которая не позволила Вам взять чужую вещь.
+      return 0
+      halt
+    end
+
+# Trigger #3788
+88:
+  name: Именной стафф - Благомир
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if ((%actor.level% > 30) && (%actor.vnum% == -1))
+      halt
+    end
+    if ((%actor.iname% != Благомир) && (%actor.iname% != Блажич) && (%actor.iname% != Ветолик) && (%actor.iname% != Эрих) && (%actor.iname% != Миломир) && (%actor.iname% != Целимир) && (%actor.iname% != Левша))
+      otransform 3788
+      echo Из кармана показалась рука, сложенная в фигу, и тут же спряталась обратно.
+      return 0
+      halt
+    end
+
+# Trigger #3789
+89:
+  name: Именной стафф - Эстор
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if ((%actor.level% > 30) && (%actor.vnum% == -1))
+      halt
+    end
+    if ((%actor.iname% != Эстор) && (%actor.iname% != Морхолт) && (%actor.iname% != Антарис) && (%actor.iname% != Малагант) && (%actor.iname% != Бранген) && (%actor.iname% != Глаймон) && (%actor.iname% != Вячеслав))
+      otransform 3789
+      &wсфе&kра И&Wсто&Kрии &cСоз&Cдан&cия М&Cира&n ослепила Вас своим сиянием и Вы отдернули руку.
+      return 0
+      halt
+    else
+      switch %random.3%
+        case 1
+          echo %actor.iname% достал &WСферу&n и начал вертеть ее на ладонях, Вы почувствовали, как все вокруг меняется, пропадают Ваши силы, изчезают перевоплощения и Вы становитесь ребенком.
+        break
+        case 2
+          echo &WСфера&n &Rвспыхнула&n и перед Вами начался калейдоскоп картинок: вот строится Киев, вот Татарская орда умирает от стрел Росичей и Вы видите огромного Черного Змея что летит жечь воинов ратных.
+        break
+        case 3
+          echo Неожиданно &WСфера&n превратилась в огромный шар &CМира&n, на котором %actor.iname% стал двигать континенты и моря, радостно хихикая от проделываемых им разрушений.
+        break
+      done
+    end
+
+# Trigger #3790
+90:
+  name: Именной стафф - дарсия
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if (%actor.level% > 30 ) && (%actor.vnum% == -1 )
+      halt
+    end
+    if ((%actor.iname% != Дарсий ) && (%actor.iname% != Меля ) && (%actor.iname% != Дарса ) && (%actor.iname% != Мелес))
+      otransform 3790
+      osend %actor% Не &RВаш&n карман, не &RВам&n в него и &Yлезть&n!
+      return 0
+      halt
+    else
+      wait 1
+      echo &cЧе&Cшуй&cки&n на кармане Дарсия пошли &Rпе&Yре&Mли&Rвч&Yат&Mой &Rво&Yлн&Mой&n, и в глубине протаяли &Gзеленые&n глаза &Rдракона&n.
+    end
+
+# Trigger #3791
+91:
+  name: Именной стаф Наська
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+  script: |-2
+    wait 2s
+    echo С &Kчерного &Kсер&rдца &RВа&rсил&Kисы&n скатилась &Rка&rпл&Rя к&rро&Rви&n - &cСл&Cез&cа В&Cеч&cно&Cст&cи.&n
+
+# Trigger #3792
+92:
+  name: Именной стаф - Азалия
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if (%actor.level% > 30 ) && (%actor.vnum% == -1 )
+      halt
+    end
+    if ((%actor.iname% != Азалия )
+      otransform 3792
+      osend %actor% &YЧемоданчик &Bиз тушки &Rконя&n отскочил в сторону.
+      return 0
+      halt
+    else
+      wait 1
+      echo Из &Yчемоданчика &Bиз тушки &Rконя&n послышалось жалобное ржание.
+    end
+
+# Trigger #3793
+93:
+  name: Именной стаф - Неруб
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if (%actor.level% > 30 ) && (%actor.vnum% == -1 )
+      halt
+    end
+    if ((%actor.iname% != Окромий ) && (%actor.iname% != Кудояр ) && (%actor.iname% != Бурен ) && (%actor.iname% != Неруб ))
+      otransform 3793
+      osend %actor% &KГроб&n приоткрылся, из него вылезла большая &RЛетучая мышь&n и тяпнула Вас за руку... "Лучше не совать руки в &Wподозрительные предметы&n" - отметили Вы.
+      return 0
+      halt
+    else
+      wait 1
+      echo &RТаинственные знаки&n &Yвспыхнули&n и медленно погрузили комнату &Kво мрак&n.
+    end
+
+# Trigger #3794
+94:
+  name: именной стафф - Пулана
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if (%actor.level% > 30 ) && (%actor.vnum% == -1 )
+      halt
+    end
+    if ((%actor.iname% != Родобор ) && (%actor.iname% != Пулана ) && (%actor.iname% != Ксей ) && (%actor.iname% != Вамор) && (%actor.iname% != Лостра))
+      otransform 3794
+      osend %actor% &WЗа&nяч&Kьи &nла&Wпы&n, выросшие из &Rсумки&n, чуть было не сломали Вам &Gчелюсть&n, и Вы сразу бросили ее &Kназемь&n.
+      return 0
+      halt
+    end
+
+# Trigger #3795
+95:
+  name: Именной стафф - Мосяго
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if (%actor.level% > 30 ) && (%actor.vnum% == -1 )
+      halt
+    end
+    if ((%actor.iname% != Мосяга ) && (%actor.iname% != Дурмана ))
+      otransform 3795
+      osend %actor% &rНе стоит брать чужое, вдруг там что-то запрещенное!&n
+      return 0
+      halt
+    else
+      wait 1
+      echo Из &Gто&gрб&Gы д&gля &Gши&gш&Gек&n послышался &Kстранный смешок&n.
+    end
+
+# Trigger #3796
+96:
+  name: Именной стаф - Дэлмин
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+    - kReceive
+    - kDamage
+  script: |-2
+    if (%actor.level% > 30 ) && (%actor.vnum% == -1 )
+      halt
+    end
+    if ((%actor.iname% != Дэлмин ) && (%actor.iname% != Храна ) && (%actor.iname% != Златан ) && (%actor.iname% != Даний ) && (%actor.iname% != Ольран ) && (%actor.iname% != Осока ) && (%actor.iname% != Длеся ) && (%actor.iname% != Геленд ))
+      otransform 3796
+      osend %actor% Вы попробовали поднять &bсине&K-&rгранатовую &bсумку&n, но это оказалось Вам не под силу.
+      return 0
+      halt
+    else
+      wait 1
+      osend %actor% Вы начали собирать все трофеи в &bсине&K-&rгранатовую &bсумку.&n.
+      echoaround %actor% %actor.iname% начал%actor.g% собирать все трофеи в &bсине&K-&rгранатовую &bсумку&n.
+    end
+
+# Trigger #3797
+97:
+  name: 'Форс-триггер #2'
+  attach_type: kObjTrigger
+  narg: 5
+  trigger_types:
+    - kRandom
+  script: |-2
+    *not used
+    halt
+    *&rпросьба: копировать кейсы для других внумов с первого&n
+    eval objname %self.name%
+    eval owner %self.carriedby%
+    if !%owner%
+      halt
+    end
+    switch %self.vnum%
+      case 3739
+        if (%owner.name% != Саний)
+          wait 1
+          oforce %owner% бросить %objname.car%.%objname.cdr%
+          halt
+        end
+      break
+      case 3741
+        if ((%owner.name% != Вадиар) && (%owner.name% != Аврима))
+          wait 1
+          oforce %owner% бросить %objname.car%.%objname.cdr%
+          halt
+        end
+      break
+      case 3744
+        if ((%owner.name% != Делт) && (%owner.name% != Карл) && (%owner.name% != Иван) && (%owner.name% != Гиффор))
+          wait 1
+          oforce %owner% бросить %objname.car%.%objname.cdr%
+          halt
+        end
+      break
+      case 3745
+        if (%owner.name% != Талгат)
+          wait 1
+          oforce %owner% бросить %objname.car%.%objname.cdr%
+          halt
+        end
+      break
+      case 3746
+        if ((%owner.name% != Римелика) && (%owner.name% != Агафья) && (%owner.name% != Улар) && (%owner.name% != Милариса))
+          wait 1
+          oforce %owner% бросить %objname.car%.%objname.cdr%
+          halt
+        end
+      break
+      case 3747
+        if ((%owner.name% != Василиса) && ((%owner.name% != Элиза) && (%owner.name% != Мируша) && (%owner.name% != Ярина) && (%owner.name% != Тхарна))
+          wait 1
+          oforce %owner% бросить %objname.car%.%objname.cdr%
+          halt
+        end
+      break
+      case 3748
+        if (%owner.name% != Дельфа) && (%owner.name% != Скаррон)
+          wait 1
+          oforce %owner% бросить %objname.car%.%objname.cdr%
+          halt
+        end
+      break
+      case 3749
+        if ((%owner.name% != Сиррон) && (%owner.clan% != нво))
+          wait 1
+          oforce %owner% бросить %objname.car%.%objname.cdr%
+          halt
+        end
+      break
+      case 3750
+        if (%owner.name% != Вимор)
+          wait 1
+          oforce %owner% бросить %objname.car%.%objname.cdr%
+          halt
+        end
+      break
+      case 3752
+        if ((%owner.name% != Кьяра) && (%owner.name% != Дэрсин) && (%owner.name% != Коруна) && (%owner.name% != Вистар))
+          wait 1
+          oforce %owner% бросить %objname.car%.%objname.cdr%
+          halt
+        end
+      break
+      case 3753
+        if ((%owner.name% != Сигвард) && (%owner.name% != Загир) && (%owner.name% != Илледан))
+          oforce %owner% бросить %objname.car%.%objname.cdr%
+          halt
+        end
+      break
+      case 3754
+        if ((%owner.name% != Штайн) && (%owner.name% != Ховард) && (%owner.name% != Саббах) && (%owner.name% != Точень) && (%owner.name% != Сэмэн))
+          oforce %owner% бросить %objname.car%.%objname.cdr%
+          halt
+        end
+      break
+      case 3755
+        if ((%owner.name% != Сновид) && (%owner.name% != Валхар) && (%owner.name% != Баюр))
+          oforce %owner% бросить %objname.car%.%objname.cdr%
+          halt
+        end
+      break
+      case 3756
+        if ((%owner.name% != Олирия) && (%owner.name% != Гуслис))
+          oforce %owner% бросить %objname.car%.%objname.cdr%
+          halt
+        end
+      break
+      case 3757
+        if ((%owner.name% != Гразий) && (%owner.name% != Хорыв) && (%owner.name% != Лескун) && (%owner.name% != Евпараския) && (%owner.name% != Богун) && (%owner.name% != Горинка) && (%owner.name% != Посолонь))
+          oforce %owner% бросить %objname.car%.%objname.cdr%
+          halt
+        end
+      break
+      case 3758
+        if ((%owner.name% != Ясленик) && (%owner.name% != Полюд) && (%owner.name% != Бразд) && (%owner.name% != Меламори) && (%owner.name% != Нежана) && (%owner.name% !
+          oforce %owner% бросить %objname.car%.%objname.cdr%
+          halt
+        end
+      break
+      case 3763
+        if %owner.name% != Лорелея && %owner.name% != Зоман && %owner.name% != Тайна && %owner.name% != Омагар
+          oforce %owner% бросить %objname.car%.%objname.cdr%
+          halt
+        end
+      break
+      case 3764
+        if ((%owner.name% != Одерон) && (%owner.name% != Дерон) && (%owner.name% != Плесек) && (%owner.name% != Ядвига))
+          oforce %owner% бросить %objname.car%.%objname.cdr%
+          halt
+        end
+      break
+      case 3767
+        if ((%owner.name% != Шелди && %owner.name% != Яремир && %owner.name% != Тритогор))
+          oforce %owner% бросить %objname.car%.%objname.cdr%
+          halt
+        end
+      break
+      case 3774
+        if ((%owner.name% != Чернава) && (%owner.name% != Витовий) && (%owner.name% != Дрегвий))
+          oforce %owner% бросить %objname.car%.%objname.cdr%
+          halt
+        end
+      break
+      case 3780
+        if ((%owner.name% != Мангас) && (%owner.name% != Венцеслава) && (%owner.name% != Схимон) && (%owner.name% != Князеслав) && (%owner.clan% != вз))
+          oforce %owner% бросить %objname.car%.%objname.cdr%
+          halt
+        end
+      break
+    done
+
+# Trigger #3798
+98:
+  name: Выдача именного шмота
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kGreetPC
+  script: |-2
+    *not used
+    halt
+    return 1
+    wait 1
+    if ((%actor.iname% == Ронари) || (%actor.iname% == Бридт))
+      if (%world.curobjs(3700)% == 0)
+        say Сгинь, сгинь, пропади!
+        ужас
+        load obj 3700
+        дать рот .%actor.iname%
+        брысь .Ронари
+      end
+    elseif %actor.iname% == Коннор
+      if (%world.curobjs(3701)% == 0)
+        say Ааа, %actor.iname%! Вот ваша сума, не пропала.
+        load obj 3701
+        дать сума .%actor.iname%
+      end
+    elseif %actor.iname% == Огнезара
+      if (%world.curobjs(3702)% == 0)
+        say А, Огнезара... Вот твоя сума, забирай, а то брандмейтер пожарной команды протестует.
+        load obj 3702
+        дать сума .%actor.iname%
+      end
+    elseif %actor.iname% == Рудко
+      if (%world.curobjs(3703)% == 0)
+        emote крест
+        say А это ты %actor.iname%, вот держи свою сумку!
+        load obj 3703
+        дать сумка .%actor.iname%
+      end
+    elseif %actor.iname% == Еска
+      if (%world.curobjs(3704)% == 0)
+        виз
+        load obj 3704
+        дать торба .%actor.iname%
+        пока .Клара
+      end
+    elseif ((%actor.iname% == Эрфис) || (%actor.iname% == Сонгай))
+      if (%world.curobjs(3705)% == 0)
+        поклон .Эрфис
+        emot достал мелкую рыбешку и начал ее потрошить
+        load obj 3705
+        дать желудок .%actor.iname%
+      end
+    elseif ((%actor.iname% == Ведрусса) || (%actor.iname% == Руська))
+      if (%world.curobjs(3706)% == 0)
+        say А, %actor.iname% припожаловала! Забирай свою торбу, она тут все полки когтями исцарапала и сметану клянчит.
+        load obj 3706
+        дать сум .%actor.iname%
+      end
+    elseif %actor.iname% == Ледогост
+      if (%world.curobjs(3707)% == 0)
+        ухм
+        emot заговорщицки подмигнул Вам
+        load obj 3707
+        дать торб .%actor.iname%
+      end
+    elseif %actor.iname% == Херуба
+      if (%world.curobjs(3708)% == 0)
+        load obj 3708
+        дать зеркало .%actor.iname%
+      end
+    elseif %actor.iname% == Кудряш
+      if (%world.curobjs(3709)% == 0)
+        load obj 3709
+        привет
+        дать шку .%actor.iname%
+      end
+    elseif %actor.iname% == Иттарио || %actor.iname% == Густав || %actor.iname% == Кельс
+      if (%world.curobjs(3710)% == 0)
+        load obj 3710
+        кивн
+        дать сум .%actor.iname%
+      end
+    elseif %actor.iname% == Тилана
+      if (%world.curobjs(3711)% == 0)
+        load obj 3711
+        дать сум .%actor.iname%
+      end
+    elseif %actor.iname% == Вултор
+      if (%world.curobjs(3712)% == 0)
+        load obj 3712
+        дать сум .%actor.iname%
+        emot вытер руки тряпицей
+      end
+    elseif ((%actor.iname% == Татиана) || (%actor.iname% == Ордан) || (%actor.iname% == Ольша) || (%actor.iname% == Фока))
+      if (%world.curobjs(3713)% == 0)
+        load obj 3713
+        дать лукош .%actor.iname%
+        миг .%actor.iname%
+      end
+    elseif %actor.iname% == Эйнар
+      if (%world.curobjs(3714)% == 0)
+        load obj 3714
+        дать сум .%actor.iname%
+      end
+    elseif %actor.iname% == Полосний
+      if (%world.curobjs(3715)% == 0)
+        load obj 3715
+        дать боты .%actor.iname%
+      end
+    elseif %actor.iname% == Тешигнев
+      if (%world.curobjs(3718)% == 0)
+        load obj 3718
+        дать сум .%actor.iname%
+      end
+    elseif %actor.iname% == Витрир || %actor.iname% == Волонд || %actor.iname% == Ломко
+      if (%world.curobjs(3719)% == 0)
+        load obj 3719
+        дать кошель .%actor.iname%
+      end
+    elseif %actor.iname% == Асгард
+      if (%world.curobjs(3720)% == 0)
+        load obj 3720
+        дать тайник .%actor.iname%
+      end
+    elseif %actor.iname% == Кронгнир
+      if (%world.curobjs(3721)% == 0)
+        load obj 3721
+        дать котом .%actor.iname%
+      end
+    elseif %actor.iname% == Хрон
+      if (%world.curobjs(3722)% == 0)
+        load obj 3722
+        дать футляр .%actor.iname%
+      end
+    elseif %actor.iname% == Савватий
+      if (%world.curobjs(3723)% == 0)
+        load obj 3723
+        дать ягдташ .%actor.iname%
+      end
+    elseif %actor.iname% == Воян
+      if (%world.curobjs(3724)% == 0)
+        load obj 3724
+        дать аптеч .%actor.iname%
+      end
+    elseif ((%actor.iname% == Улук) || (%actor.iname% == Шахрух))
+      if (%world.curobjs(3725)% == 0)
+        load obj 3725
+        дать кошел .%actor.iname%
+      end
+    elseif %actor.iname% == Эстери
+      if (%world.curobjs(3726)% == 0)
+        load obj 3726
+        дать дыра .%actor.iname%
+      end
+    elseif %actor.iname% == Тикен
+      if (%world.curobjs(3727)% == 0)
+        load obj 3727
+        дать сум .%actor.iname%
+      end
+    elseif %actor.iname% == Сариус
+      if (%world.curobjs(3728)% == 0)
+        load obj 3728
+        дать крок .%actor.iname%
+      end
+    elseif ((%actor.iname% == Ромес) || (%actor.iname% == Лодин) || (%actor.iname% == Зрина))
+      if (%world.curobjs(3729)% == 0)
+        load obj 3729
+        дать сум .%actor.iname%
+        halt
+      end
+    elseif %actor.iname% == Ахмед
+      if (%world.curobjs(3730)% == 0)
+        load obj 3730
+        дать баул .%actor.iname%
+      end
+    elseif %actor.iname% == Сивиль
+      if (%world.curobjs(3736)% == 0)
+        load obj 3736
+        дать сум .%actor.iname%
+      end
+    elseif %actor.iname% == Саний
+      if (%world.curobjs(3739)% == 0)
+        load obj 3739
+        дать мясору .%actor.iname%
+      end
+    elseif ((%actor.iname% == Иван) || (%actor.iname% == Делт) || (%actor.iname% == Карл) || (%actor.iname% == Гиффор))
+      if (%world.curobjs(3744)% == 0)
+        load obj 3744
+        дать сетка .%actor.iname%
+        ухм .%actor.iname%
+      end
+    elseif %actor.iname% == Вадиар
+      if (%world.curobjs(3741)% == 0)
+        load obj 3741
+        дать колча .%actor.iname%
+        halt
+      end
+    elseif %actor.iname% == Талгат
+      if (%world.curobjs(3745)% == 0)
+        load obj 3745
+        дать тулун .%actor.iname%
+        halt
+      end
+    elseif ((%actor.iname% == Римелика) || (%actor.iname% == Улар) || (%actor.iname% == Агафья) || (%actor.iname% == Милариса))
+      if (%world.curobjs(3746)% == 0)
+        load obj 3746
+        дать тучка .%actor.iname%
+        halt
+      end
+    elseif ((%actor.iname% == Василиса) || (%actor.iname% == Ярина) || (%actor.iname% == Мируша) || (%actor.iname% == Тхарна))
+      if (%world.curobjs(3747)% == 0)
+        load obj 3747
+        дать сумка .%actor.iname%
+        halt
+      end
+    elseif %actor.iname% == Дельфа && %actor.iname% == Скаррон
+      if (%world.curobjs(3748)% == 0)
+        load obj 3748
+        дать ридикюль .%actor.iname%
+      end
+    elseif %actor.iname% == Сиррон
+      if (%world.curobjs(3749)% == 0)
+        load obj 3749
+        дать сума .%actor.iname%
+      end
+    elseif %actor.iname% == Вимор
+      if (%world.curobjs(3750)% == 0)
+        load obj 3750
+        дать сунду .%actor.iname%
+      end
+    elseif ((%actor.iname% == Кьяра) || (%actor.iname% == Дэрсин) || (%actor.iname% == Коруна) || (%actor.iname% == Вистар))
+      if (%world.curobjs(3752)% == 0)
+        say Ириска пришла.
+        load obj 3752
+        дать кармаш .%actor.iname%
+      end
+    elseif ((%actor.iname% == Сигвард) || (%actor.iname% == Загир) || (%actor.iname% == Илледан))
+      if (%world.curobjs(3753)% == 0)
+        ухм
+        load obj 3753
+        дать сумка .%actor.iname%
+      end
+    end
+
+# Trigger #3799
+99:
+  name: Форс-триггер
+  attach_type: kObjTrigger
+  narg: 5
+  trigger_types:
+    - kRandom
+  script: |-2
+    *not used
+    halt
+    eval objname %self.name%
+    eval owner %self.carriedby%
+    if !%owner%
+      halt
+    end
+    switch %self.vnum%
+      case 3700
+        if ((%owner.name% != Ронари) && (%owner.name% != Бридт) && (%owner.name% != Хэйсар))
+          wait 1
+          oforce %owner% бросить %objname.car%.%objname.cdr%
+          halt
+        end
+      break
+      case 3701
+        if %owner.name% != Коннор
+          wait 1
+          oforce %owner% бросить %objname.car%.%objname.cdr%
+          halt
+        end
+      break
+      case 3702
+        if %owner.name% != Огнезара
+          wait 1
+          oforce %owner% бросить %objname.car%.%objname.cdr%
+          halt
+        end
+      break
+      case 3703
+        if %owner.name% != Рудко
+          wait 1
+          oforce %owner% бросить %objname.car%.%objname.cdr%
+          halt
+        end
+      break
+      case 3704
+        ________if %owner.name% != Еска
+        oforce %owner% бросить %objname.car%.%objname.cdr%
+        halt
+    end
+    break
+    case 3705
+      if ((%owner.name% != Эрфис) && (%owner.name% != Сонгай))
+        oforce %owner% бросить %objname.car%.%objname.cdr%
+        halt
+      end
+    break
+    case 3706
+      if ((%owner.name% != Ведрусса) && (%owner.name% != Руська) && (%owner.name% != Солейна))
+        oforce %owner% бросить %objname.car%.%objname.cdr%
+        halt
+      end
+    break
+    case 3707
+      if %owner.name% != Ледогост
+        oforce %owner% бросить %objname.car%.%objname.cdr%
+        halt
+      end
+    break
+    case 3708
+      if %owner.name% != Херуба
+        oforce %owner% бросить %objname.car%.%objname.cdr%
+        halt
+      end
+    break
+    case 3709
+      if %owner.name% != Кудряш
+        oforce %owner% бросить %objname.car%.%objname.cdr%
+        halt
+      end
+    break
+    case 3710
+      if %owner.name% != Иттарио && %owner.name% != Густав && %owner.name% =! Кельс
+        oforce %owner% бросить %objname.car%.%objname.cdr%
+        halt
+      end
+    break
+    case 3711
+      if ((%owner.name% != Тилана) && (%actor.clan% != вз))
+        oforce %owner% бросить %objname.car%.%objname.cdr%
+        halt
+      end
+    break
+    case 3712
+      if %owner.name% != Вултор
+        oforce %owner% бросить %objname.car%.%objname.cdr%
+        halt
+      end
+    break
+    case 3713
+      if ((%owner.name% != Татиана) && (%owner.name% != Ордан) && (%owner.name% != Ольша) && (%owner.name% != Фока))
+        oforce %owner% бросить %objname.car%.%objname.cdr%
+        halt
+      end
+    break
+    case 3714
+      if ((%owner.name% != Эйнар) && (%owner.name% != Абай) && (%owner.name% != Ерлан) && (%owner.name% != Зилд))
+        oforce %owner% бросить %objname.car%.%objname.cdr%
+      end
+      halt
+    break
+    case 3715
+      if %owner.name% != Полосний
+        oforce %owner% бросить %objname.car%.%objname.cdr%
+      end
+      halt
+    break
+    case 3716
+      if ((%owner.name% != Альмир) && (%owner.name% != Лоримак) && (%owner.name% != Ларустар))
+        oforce %owner% бросить %objname.car%.%objname.cdr%
+      end
+      halt
+    break
+    case 3717
+      if %owner.name% != Козька
+        oforce %owner% бросить %objname.car%.%objname.cdr%
+      end
+      halt
+    break
+    case 3718
+      if %owner.name% != Тешигнев
+        oforce %owner% бросить %objname.car%.%objname.cdr%
+      end
+      halt
+    break
+    case 3719
+      if %owner.name% != Витрир && %owner.name% != Волонд && %owner.name% != Ломко
+        oforce %owner% бросить %objname.car%.%objname.cdr%
+      end
+      halt
+    break
+    case 3720
+      if ((%owner.name% != Асгард) && (%owner.clan% != нд) && (%owner.clan% != вд) && (%owner.clan% != гд))
+        oforce %owner% бросить %objname.car%.%objname.cdr%
+      end
+      halt
+    break
+    case 3721
+      if %owner.name% != Кронгнир
+        oforce %owner% бросить %objname.car%.%objname.cdr%
+      end
+      halt
+    break
+    case 3722
+      if %owner.name% != Хрон
+        oforce %owner% бросить %objname.car%.%objname.cdr%
+      end
+      halt
+    break
+    case 3723
+      if ((%owner.name% != Савватий) && (%owner.name% != Алькира) && (%owner.name% != Тарик) && (%owner.clan% != рсп))
+        oforce %owner% бросить %objname.car%.%objname.cdr%
+      end
+      halt
+    break
+    case 3724
+      if %owner.name% != Воян
+        oforce %owner% бросить %objname.car%.%objname.cdr%
+      end
+      halt
+    break
+    case 3725
+      if ((%owner.name% != Улук) && (%owner.name% != Шахрух) && (%actor.clan% != дов))
+        oforce %owner% бросить %objname.car%.%objname.cdr%
+      end
+      halt
+    break
+    case 3726
+      if ((%owner.name% != Мадрак) && (%owner.name% != Эстери) && (%actor.clan% != вз))
+        wait 1
+        oforce %owner% бросить %objname.car%.%objname.cdr%
+      end
+      halt
+    break
+    case 3727
+      if (%owner.name% != Тикен) && (%owner.name% != Ролонд)
+        oforce %owner% бросить %objname.car%.%objname.cdr%
+      end
+      halt
+    break
+    case 3728
+      if (%owner.name% != Сариус)
+        oforce %owner% бросить %objname.car%.%objname.cdr%
+      end
+      halt
+    break
+    case 3729
+      if ((%owner.name% != Ромес) && (%owner.name% != Лодин) && (%owner.name% != Зрина))
+        oforce %owner% бросить %objname.car%.%objname.cdr%
+      end
+      halt
+    break
+    case 3730
+      if %owner.name% != Ахмед
+        oforce %owner% бросить %objname.car%.%objname.cdr%
+      end
+      halt
+    break
+    case 3736
+      if ((%owner.name% != Сивиль) && (%owner.name% != Севиль))
+        oforce %owner% бросить %objname.car%.%objname.cdr%
+        otransform 3736
+      end
+    case 3672
+      if (%owner.name% != Умеля) && (%owner.name% != Трогвард)
+        oforce %owner% бросить %objname.car%.%objname.cdr%
+      end
+      halt
+    break
+    break
+    done

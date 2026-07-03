@@ -1,0 +1,336 @@
+# Triggers for zone 60
+
+# Trigger #6000
+0:
+  name: на чуже
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kGreetPCAll
+  script: |-2
+    tell %actor.iname% Не подскажете, люди добрые, как добраться до библиотеки?
+    ухмылка
+
+# Trigger #6001
+1:
+  name: на чуже1
+  attach_type: kMobTrigger
+  narg: 100
+  arglist: '*'
+  trigger_types:
+    - kSpeech
+  script: |-2
+    if %speech.contains(запад)%
+      wait 3
+      tell %actor.iname% Спасибо!
+      умница %actor.iname%
+    endif
+
+# Trigger #6002
+2:
+  name: 'триггер на знахаре '
+  attach_type: kMobTrigger
+  narg: 100
+  arglist: труп
+  trigger_types:
+    - kReceive
+  script: |-2
+    wait 1
+    switch %object.name%
+      case труп таракана
+        say  Еще одним гадом меньше! Молодец, продолжай дальше, держи премию.
+        %self.gold(+1)%
+        дать 1 кун %actor.iname%
+        mpurge %object%
+      break
+      case труп клопа
+        say  Еще одним гадом меньше! Молодец, продолжай дальше, держи премию.
+        %self.gold(+1)%
+        дать 1 кун %actor.iname%
+        mpurge %object%
+      break
+      case труп моли
+        say  Еще одним гадом меньше! Молодец, продолжай дальше.
+        load obj 101
+        дать ломоть %actor.iname%
+        mpurge %object%
+      break
+      case труп блохи
+        say  Еще одним гадом меньше! Молодец, продолжай дальше.
+        load obj 101
+        дать ломоть %actor.iname%
+        mpurge %object%
+      break
+      case труп серой мыши
+        say  О, грызун, разносчик заразы! Получи премию.
+        %self.gold(+5)%
+        дать 5 кун %actor.iname%
+        mpurge %object%
+      break
+      default
+        say  Зачем мне это?
+        eval getobject %object.name%
+        if  %getobject.car% == труп
+          mpurge %object%
+        else
+          броси %getobject.car%.%getobject.cdr%
+        end
+      break
+    done
+
+# Trigger #6003
+3:
+  name: 'триггер на охотнике '
+  attach_type: kMobTrigger
+  narg: 100
+  arglist: труп
+  trigger_types:
+    - kReceive
+  script: |-2
+    wait 1
+    switch %object.name%
+      case труп белки
+        say  Из белки хорошая шкурка получится, продам потом иноземцу!
+        улыб
+        %self.gold(+10)%
+        дать 10 кун %actor.iname%
+        mpurge %object%
+      break
+      case труп бобра
+        say  Из бобра шикарная шкурка получится, продам потом иноземцу!
+        %self.gold(+75)%
+        дать 75 кун %actor.iname%
+        mpurge %object%
+      break
+      case труп рыси
+        say  Из рыси шикарная шкурка получится, продам потом иноземцу!
+        %self.gold(+100)%
+        дать 100 кун %actor.iname%
+        mpurge %object%
+      break
+      case труп волка
+        say  О ты убил волка! Это опасно, их целая стая!
+        %self.gold(+20)%
+        дать 20 кун %actor.iname%
+        mpurge %object%
+      break
+      default
+        say  Зачем мне это?
+        eval getobject %object.name%
+        if  %getobject.car% == труп
+          mpurge %object%
+        else
+          броси %getobject.car%.%getobject.cdr%
+        end
+      break
+    done
+
+# Trigger #6004
+4:
+  name: входнарентухая
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kGreetPCAll
+  script: |-2
+    wait 1
+    set factor %self.people%
+    while %factor%
+      set pc %factor.NextInRoom%
+      if (%factor.vnum% == -1) && (%factor.level%>19) && (%factor.level%<31)
+        if %factor.sex%==1
+          tell %factor.iname% Вырос ты уже, нечего тебе здесь штаны просиживать.
+        else
+          tell %factor.iname% Выросла ты уже, нечего тебе здесь юбку просиживать.
+        end
+        tell %factor.iname% Не пушу я тебя здесь на постой, иди в город, там где большие нужны.
+        tell %factor.iname% А от вас только проблемы здесь будут.
+        echoaround %factor% Хозяйка вытолкнула %factor.rname% в трактир.
+        msend %factor.iname% Хозяйка вытолкнула вас в трактир.
+        mteleport %factor.iname% 6000
+        if %factor.sex%==1
+          mat 6000 echoaround %factor% Немного взлохмоченный %factor.iname% пришел сверху.
+        else
+          mat 6000 echoaround %factor% Немного взлохмаченная %factor.iname% пришла сверху.
+        end
+      end
+    end
+    if %pc%
+      makeuid factor %pc%
+    else
+      set factor 0
+    end
+    done
+
+# Trigger #6005
+5:
+  name: нападениежителя
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kFight
+  script: |-2
+    wait 1
+    set name2 %actor%
+    if %actor.leader%
+      set name1 %actor.leader%
+      if (%name1.vnum% == -1) && (%actor.vnum% != -1))
+        set name2 %actor.leader%
+      end
+    end
+    if !%name2.rentable%
+      msend %name2% %self.name% закричал%self.g%: "На твоих руках кровь, выметайся отсюда."
+      while %name2.hitp% > 0
+        msend %name2% %self.name% СМЕРТЕЛЬHО пнул%self.g% Вас.
+        wait 10
+        mdamage %name2% 300
+      done
+      halt
+    end
+    г %name2.name%, у нас найдется управа на таких обидчиков!
+    msend %name2% Вдруг прибежал здоровый парень и оглушил вас.
+    echoaround %name2% Прибежал здоровый парень, оглушил %actor.rname% и куда-то уволок.
+    wait 1
+    msend %name2% Вы потеряли сознание.
+    wait 1
+    msend %name2.name% Вы пришли в сознание в глубокой яме от удара о землю.
+    if %name2.hitp%>0
+      msend %name2.name% Кто-то сверху сильно ругнулся, помянул всех ваших родственников до десятого колена.
+      msend %name2.name% Кто-то сверху сказал: Посиди здесь пока не успокоишься.
+      msend %name2.name% Да, если хочешь выйти говори: простите меня дурака, может и выпущу.
+      mteleport %name2% 6050
+      mat 6050 echoaround %name2% Решетка в яме открылась и %name2.name% упал сверху в яму.
+      mat 6050 echoaround %name2% Кто-то сильно ругнулся, помянул всех родственников %name2.rname% до десятого колена.
+      mat 6050 echoaround %name2% Кто-то сверху сказал:
+      mat 6050 echoaround %name2% Посиди здесь пока не успокоишься.
+      wait 1
+      if %name2.sex%==1
+        mat 6050 echoaround %name2% Да, слушай внимательно!
+        mat 6050 echoaround %name2% Если хочешь выйти говори: простите меня дурака, может и выпущу.
+        mat 6050 echoaround %name2% Для непонятливых, надо набирать: г простите меня дурака
+        mat 6050 echoaround %name2% И выпустят скорее всего не с первого раз.
+      else
+        mat 6050 echoaround %name2% Да, слушай внимательно!
+        mat 6050 echoaround %name2% Если хочешь выйти говори: простите меня дуру, может и выпущу.
+        mat 6050 echoaround %name2% Для непонятливых, надо набирать: г простите меня дуру
+        mat 6050 echoaround %name2% И выпустят скорее всего не с первого раз.
+      endif
+    end
+
+# Trigger #6006
+6:
+  name: выходаизямы
+  attach_type: kRoomTrigger
+  narg: 0
+  arglist: '"простите меня дурака" "простите меня дуру"'
+  trigger_types:
+    - kSpeech
+  script: |-2
+    wait 1
+    if %random.4%<2
+      echo Решетка в яме открылась, оттуда показалась здоровенная полубритая физиономия.
+      echo Ладно, хватит хныкать, выпущу!
+      echo В следующий раз думай, прежде чем жителей обижать наших!
+      if %actor.hitp%>0
+        wteleport %actor.iname% 6020
+        wat 6020 echoaround %actor% К решетке подошел здоровый парень, открыл замок.
+        wat 6020 echoaround %actor% Поднял решетку и одним движением вытащил кого-то.
+        wat 6020 echoaround %actor% Снова повесил массивный замок.
+        wat 6020 echoaround %actor% %actor.iname% размял кости, похоже в яме ему было неудобно.
+      end
+    else
+      echoaround %actor% Никто не прореагировал на слова %actor.rname%.
+      wsend %actor% Никто не прореагировал на ваши слова.
+      wsend %actor% Наверное не очень искренне все прозвучало, повторите с чувством.
+    end
+
+# Trigger #6007
+7:
+  name: халявнаякормежка
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kGreetPCAll
+  script: |-2
+    if ((%actor.level% >= 10) || (%actor.bank% >= 20))
+      halt
+    end
+    wait  1
+    msend %actor% Женщина сказала Вам:
+    msend %actor% - Эх ты горемычн%actor.w%, голодн%actor.w% наверное, %actor.iname%.
+    msend %actor% - Что мы нехристи чтобы не накормить.
+    msend %actor% - Сейчас, подожди...
+    dgcast 'насыщение' .%actor.iname%
+
+# Trigger #6008
+8:
+  name: встречает молодой следопыт
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kGreetPCAll
+  script: |-2
+    *встречамолодой | Mobiles | Great-All PC | 100
+    tell %actor.iname% Если хочешь выбраться отсюда, могу помочь!
+    tell %actor.iname% Знаю о таких дорогах, что пройдем, никто и не заметит!
+    tell %actor.iname% Выведу к одной из деревень далеко на севере, у реки!
+    eval needgold %actor.level%
+    switch %needgold%
+      case 1
+      case 21
+      case 31
+        set what куну
+      break
+    break
+    break
+    case 2
+    case 3
+    case 4
+    case 22
+    case 23
+    case 24
+    case 32
+    case 33
+    case 34
+      set what куны
+    break
+    break
+    break
+    break
+    break
+    break
+    break
+    break
+    break
+    default
+      set what кун
+    break
+    done
+    tell %actor.iname% Всего за %needgold% %what%!
+
+# Trigger #6009
+9:
+  name: дать кун молодому следопыту
+  attach_type: kMobTrigger
+  narg: 1
+  trigger_types:
+    - kBribe
+  script: |-2
+    *дать20молодому | Mobiles | Bribe | 1
+    if %actor.vnum% != -1
+      halt
+    end
+    eval needgold %actor.level%
+    if %amount% < %needgold%
+      дать %amount% кун %actor.iname%
+      tell %actor.iname% Нехорошо обманывать!
+      плюн
+    else
+      echo Следопыт быстро заглянул под навес, кому-то что-то сказал на неизвестном языке.
+      msend %actor%  Из под навеса вышел совсем молодой следопыт, почти мальчишка и повел Вас за собой.
+      echoaround %actor% Из под навеса вышел совсем молодой следопыт, почти мальчишка и повел %actor.iname% за собой.
+      echoaround %actor% %actor.iname% уш%actor.y% вместе с проводником.
+      mteleport %actor% 5054 horse
+      msend %actor% Ваше путешествие окончилось.
+      echoaround %actor% %actor.iname% появил%actor.u% с проводником.
+    end

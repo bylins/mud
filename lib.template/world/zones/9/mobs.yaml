@@ -1,0 +1,1019 @@
+# Mobs for zone 9
+
+# Mob #900
+0:
+  names:
+    aliases: черный муравей
+    nominative: черный муравей
+    genitive: черного муравья
+    dative: черному муравью
+    accusative: черного муравья
+    instrumental: черным муравьем
+    prepositional: черном муравье
+  descriptions:
+    short_desc: |2
+      Маленький черный муравей быстро снует тут.
+    long_desc: |2
+      маленький муравьишка.
+  alignment: 0
+  stats:
+    level: 2
+    hitroll_penalty: 10
+    armor: 8
+    hp:
+      dice_count: 5
+      dice_size: 3
+      bonus: 20
+    damage:
+      dice_count: 1
+      dice_size: 3
+      bonus: 2
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 200
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 1
+  race: 107
+  height: 50
+  weight: 50
+  attributes:
+    strength: 8
+    dexterity: 12
+    intelligence: 3
+    wisdom: 3
+    constitution: 5
+    charisma: 3
+  action_flags:
+    - kNpc
+    - kAgressive
+    - kNoCharm
+    - kNoBash
+    - kNoUndercut
+    - kNoHelp
+  affect_flags:
+    - kDetectInvisible
+    - kInfravision
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 10
+  enhanced:
+    absorb: 2
+    bare_hand_attack: 4
+    like_work: 40
+    extra_attack: 1
+    special_bitvector: p0
+
+# Mob #901
+1:
+  names:
+    aliases: рыжий муравей
+    nominative: рыжий муравей
+    genitive: рыжего муравья
+    dative: рыжему муравью
+    accusative: рыжего муравья
+    instrumental: рыжим муравьем
+    prepositional: рыжем муравье
+  descriptions:
+    short_desc: |2
+      Здоровенный рыжий муравей злобно щелкает челюстями.
+    long_desc: |2
+      Здоровенный рыжий муравей-разбойник с длинными цепкими челюстями.
+  alignment: 0
+  stats:
+    level: 2
+    hitroll_penalty: 10
+    armor: 8
+    hp:
+      dice_count: 5
+      dice_size: 3
+      bonus: 30
+    damage:
+      dice_count: 1
+      dice_size: 3
+      bonus: 2
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 300
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 6
+  race: 107
+  height: 50
+  weight: 50
+  attributes:
+    strength: 8
+    dexterity: 11
+    intelligence: 3
+    wisdom: 3
+    constitution: 4
+    charisma: 3
+  action_flags:
+    - kNpc
+    - kAgressive
+    - kWimpy
+    - kNoCharm
+    - kNoSummon
+    - kNoBash
+    - kNoUndercut
+    - kNoHelp
+    - kIgnoresPeaceRoom
+  affect_flags:
+    - kDetectInvisible
+    - kInfravision
+  skills:
+    - skill_id: 6  # отравить
+      value: 12
+    - skill_id: 136  # кулачный бой
+      value: 12
+  enhanced:
+    absorb: 2
+    bare_hand_attack: 4
+    like_work: 15
+    extra_attack: 1
+    special_bitvector: g0p0
+
+# Mob #902
+2:
+  names:
+    aliases: здоровенная жужелица черный жук
+    nominative: здоровенная жужелица
+    genitive: здоровенной жужелицы
+    dative: здоровенной жужелице
+    accusative: здоровенную жужелицу
+    instrumental: здоровенной жужелицей
+    prepositional: здоровенной жужелице
+  descriptions:
+    short_desc: |2
+      Большой черный жук ползает тут.
+    long_desc: |2
+      Здоровенный блестящий жук почти в палец длинной
+      разозленно шевелит усами и махает лапами.
+  alignment: 0
+  stats:
+    level: 3
+    hitroll_penalty: 10
+    armor: 8
+    hp:
+      dice_count: 3
+      dice_size: 3
+      bonus: 50
+    damage:
+      dice_count: 2
+      dice_size: 3
+      bonus: 3
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 400
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  size: 6
+  race: 107
+  height: 50
+  weight: 50
+  attributes:
+    strength: 8
+    dexterity: 12
+    intelligence: 3
+    wisdom: 3
+    constitution: 6
+    charisma: 3
+  action_flags:
+    - kNpc
+    - kAgressive
+    - kWimpy
+    - kNoCharm
+    - kNoSummon
+    - kNoBash
+    - kNoUndercut
+    - kNoHelp
+  affect_flags:
+    - kDetectInvisible
+    - kInfravision
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 15
+  enhanced:
+    absorb: 3
+    bare_hand_attack: 8
+    like_work: 15
+    extra_attack: 1
+    special_bitvector: m0
+    spells:
+      - 27
+
+# Mob #903
+3:
+  names:
+    aliases: мелкий зверек сердитый суслик
+    nominative: сердитый суслик
+    genitive: сердитого суслика
+    dative: сердитому суслику
+    accusative: сердитого суслика
+    instrumental: сердитым сусликом
+    prepositional: сердитом суслике
+  descriptions:
+    short_desc: |2
+      Суслик мечется из стороны в сторону.
+    long_desc: |2
+      Небольшая зверушка
+  alignment: 0
+  stats:
+    level: 3
+    hitroll_penalty: 8
+    armor: 8
+    hp:
+      dice_count: 5
+      dice_size: 5
+      bonus: 100
+    damage:
+      dice_count: 2
+      dice_size: 4
+      bonus: 3
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 400
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 9
+  race: 104
+  height: 50
+  weight: 50
+  attributes:
+    strength: 12
+    dexterity: 12
+    intelligence: 4
+    wisdom: 4
+    constitution: 6
+    charisma: 5
+  action_flags:
+    - kNpc
+    - kMemory
+    - kNoSummon
+    - kNoHelp
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 20
+    - skill_id: 157  # уклониться
+      value: 10
+  enhanced:
+    absorb: 3
+    like_work: 20
+    extra_attack: 1
+    special_bitvector: p0
+
+# Mob #904
+4:
+  names:
+    aliases: злая гадюка серая змея
+    nominative: злая гадюка
+    genitive: злой гадюки
+    dative: злой гадюке
+    accusative: злую гадюку
+    instrumental: злой гадюкой
+    prepositional: злой гадюке
+  descriptions:
+    short_desc: |2
+      Серая змея скользит под ногами.
+    long_desc: |2
+      Серая змея с черным зигзагом на спине.
+  alignment: 0
+  stats:
+    level: 4
+    hitroll_penalty: 8
+    armor: 10
+    hp:
+      dice_count: 5
+      dice_size: 5
+      bonus: 110
+    damage:
+      dice_count: 2
+      dice_size: 3
+      bonus: 4
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 1000
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  size: 10
+  race: 104
+  height: 50
+  weight: 50
+  attributes:
+    strength: 10
+    dexterity: 8
+    intelligence: 5
+    wisdom: 5
+    constitution: 10
+    charisma: 3
+  action_flags:
+    - kNpc
+    - kMemory
+    - kNoCharm
+    - kNoSummon
+    - kNoHelp
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+  skills:
+    - skill_id: 6  # отравить
+      value: 20
+    - skill_id: 136  # кулачный бой
+      value: 30
+  enhanced:
+    absorb: 4
+    bare_hand_attack: 4
+    like_work: 20
+    extra_attack: 1
+    special_bitvector: g0m0
+    spells:
+      - 15
+      - 33
+      - 33
+
+# Mob #905
+5:
+  names:
+    aliases: ядозуб большая ящерица
+    nominative: ядозуб
+    genitive: ядозуба
+    dative: ядозубу
+    accusative: ядозуба
+    instrumental: ядозубом
+    prepositional: ядозубе
+  descriptions:
+    short_desc: |2
+      Большая пестрая ящерица припала к земле, словно готовясь к прыжку.
+    long_desc: |2
+      Здоровенная ящерица, больше чем в аршин длинною.
+      Ее голова и загривок покрыты острыми наростами, а с шеи
+      свешивается целый кожистый плащ.
+  alignment: 0
+  stats:
+    level: 6
+    hitroll_penalty: 5
+    armor: 8
+    hp:
+      dice_count: 5
+      dice_size: 12
+      bonus: 160
+    damage:
+      dice_count: 5
+      dice_size: 5
+      bonus: 5
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 2000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 30
+  race: 105
+  height: 60
+  weight: 120
+  attributes:
+    strength: 15
+    dexterity: 19
+    intelligence: 12
+    wisdom: 12
+    constitution: 10
+    charisma: 3
+  action_flags:
+    - kNpc
+    - kMemory
+    - kNoCharm
+    - kNoSkillTrain
+    - kNoHelp
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+  skills:
+    - skill_id: 6  # отравить
+      value: 30
+    - skill_id: 136  # кулачный бой
+      value: 40
+    - skill_id: 157  # уклониться
+      value: 30
+  enhanced:
+    absorb: 6
+    bare_hand_attack: 4
+    like_work: 35
+    extra_attack: 1
+    special_bitvector: g0m0
+
+# Mob #906
+6:
+  names:
+    aliases: мертвяк труп
+    nominative: мертвяк
+    genitive: мертвяка
+    dative: мертвяку
+    accusative: мертвяка
+    instrumental: мертвяком
+    prepositional: мертвяке
+  descriptions:
+    short_desc: |2
+      Полуразложившийся труп ковыляет на подгибающихся ногах.
+    long_desc: |2
+      Вместо того, чтобы тихо лежать себе в яме этот вот
+      покойничек вылез наружу, да пугает честной народ - а
+      то ведь и кусануть может.
+      Весь он покрыт клочьями полусгнившей одежи, сквозь
+      разорванную щеку выдны зубы, по телу ползают могильные
+      черви, а в пустых глязницах тлеют призрачные огоньки.
+      Экое, однако, неподобие...
+  alignment: -400
+  stats:
+    level: 9
+    hitroll_penalty: 0
+    armor: 2
+    hp:
+      dice_count: 6
+      dice_size: 5
+      bonus: 220
+    damage:
+      dice_count: 5
+      dice_size: 7
+      bonus: 8
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 5000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 30
+  race: 110
+  height: 198
+  weight: 200
+  action_flags:
+    - kNpc
+    - kMemory
+    - kNoCharm
+    - kCorpse
+    - kNoSkillTrain
+    - kNoHelp
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+  skills:
+    - skill_id: 4  # богатырский молот
+      value: 25
+    - skill_id: 136  # кулачный бой
+      value: 50
+    - skill_id: 158  # блокировать щитом
+      value: 30
+  enhanced:
+    absorb: 9
+    bare_hand_attack: 5
+    like_work: 60
+    max_factor: 1
+    special_bitvector: g0
+
+# Mob #907
+7:
+  names:
+    aliases: скелет голый костяк
+    nominative: скелет
+    genitive: скелета
+    dative: скелету
+    accusative: скелет
+    instrumental: скелетом
+    prepositional: скелете
+  descriptions:
+    short_desc: |2
+      Голый человеческий остов ковыляет гремя костями.
+    long_desc: |2
+      Голый человеческий остов, покрытый черными ошметками,
+      и испускающий жуткое зловоние. По переломаным ребрам
+      ползают черви, а глазницы источают багровый свет.
+  alignment: -500
+  stats:
+    level: 11
+    hitroll_penalty: -2
+    armor: 3
+    hp:
+      dice_count: 5
+      dice_size: 6
+      bonus: 240
+    damage:
+      dice_count: 5
+      dice_size: 7
+      bonus: 8
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 7000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 30
+  race: 110
+  height: 198
+  weight: 200
+  attributes:
+    strength: 22
+    dexterity: 20
+    intelligence: 12
+    wisdom: 12
+    constitution: 16
+    charisma: 3
+  action_flags:
+    - kNpc
+    - kAware
+    - kMemory
+    - kNoCharm
+    - kNoSleep
+    - kNoBlind
+    - kNoFear
+    - kCorpse
+    - kNoSkillTrain
+    - kNoHelp
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+  skills:
+    - skill_id: 4  # богатырский молот
+      value: 40
+    - skill_id: 22  # осторожный стиль
+      value: 50
+    - skill_id: 136  # кулачный бой
+      value: 55
+  enhanced:
+    absorb: 11
+    like_work: 45
+    max_factor: 1
+    extra_attack: 1
+    spells:
+      - 17
+      - 17
+      - 17
+      - 75
+      - 75
+      - 75
+
+# Mob #908
+8:
+  names:
+    aliases: злыдень черный человек
+    nominative: злыдень
+    genitive: злыдня
+    dative: злыдню
+    accusative: злыдня
+    instrumental: злыднем
+    prepositional: злыдне
+  descriptions:
+    short_desc: |2
+      Маленький черный уродливый человек злобно смотрит на вас.
+    long_desc: |2
+      Страшно уродливый, с кривыми ногами и руками, торчащими зубами
+      и глазами навыкате человечишка, облаченный в драный балахон.
+  alignment: -300
+  stats:
+    level: 14
+    hitroll_penalty: 1
+    armor: 5
+    hp:
+      dice_count: 5
+      dice_size: 4
+      bonus: 280
+    damage:
+      dice_count: 3
+      dice_size: 5
+      bonus: 7
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 15000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 40
+  race: 112
+  height: 120
+  weight: 80
+  attributes:
+    strength: 18
+    dexterity: 18
+    intelligence: 22
+    wisdom: 22
+    constitution: 8
+    charisma: 8
+  action_flags:
+    - kNpc
+    - kMemory
+    - kNoCharm
+    - kCorpse
+    - kNoSkillTrain
+    - kNoHelp
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+  skills:
+    - skill_id: 22  # осторожный стиль
+      value: 30
+    - skill_id: 136  # кулачный бой
+      value: 60
+    - skill_id: 157  # уклониться
+      value: 30
+  enhanced:
+    absorb: 14
+    bare_hand_attack: 1
+    like_work: 70
+    max_factor: 2
+    extra_attack: 1
+    spells:
+      - 26
+      - 40
+      - 40
+      - 54
+      - 54
+
+# Mob #909
+9:
+  names:
+    aliases: лярва призрак
+    nominative: лярва
+    genitive: лярвы
+    dative: лярве
+    accusative: лярву
+    instrumental: лярвой
+    prepositional: лярве
+  descriptions:
+    short_desc: |2
+      Прозрачный призрак колышется в воздухе.
+    long_desc: |2
+      Призрак худой бледной девки с распущенными по плечам
+      волосами пожирает вас взглядом, гнусно причмокивая губами.
+  alignment: -600
+  stats:
+    level: 15
+    hitroll_penalty: 20
+    armor: 0
+    hp:
+      dice_count: 6
+      dice_size: 5
+      bonus: 270
+    damage:
+      dice_count: 5
+      dice_size: 8
+      bonus: 8
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 18000
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  size: 30
+  race: 111
+  height: 198
+  weight: 200
+  attributes:
+    strength: 6
+    dexterity: 1
+    intelligence: 25
+    wisdom: 23
+    constitution: 6
+    charisma: 20
+  action_flags:
+    - kNpc
+    - kAware
+    - kMemory
+    - kNoCharm
+    - kNoSleep
+    - kNoFear
+    - kCorpse
+    - kFlying
+    - kNotKillPunctual
+    - kNoSkillTrain
+    - kNoOverwhelm
+    - kNoHelp
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kProtectFromMind
+    - kNoTrack
+    - kFly
+  skills:
+    - skill_id: 22  # осторожный стиль
+      value: 30
+    - skill_id: 136  # кулачный бой
+      value: 66
+    - skill_id: 157  # уклониться
+      value: 60
+  enhanced:
+    absorb: 15
+    like_work: 70
+    max_factor: 2
+    spells:
+      - 8
+      - 8
+      - 8
+      - 8
+      - 8
+      - 8
+      - 8
+      - 8
+      - 8
+      - 8
+      - 15
+      - 15
+      - 38
+      - 38
+
+# Mob #910
+10:
+  names:
+    aliases: пралик чудище черт
+    nominative: пралик
+    genitive: пралика
+    dative: пралику
+    accusative: пралика
+    instrumental: праликом
+    prepositional: пралике
+  descriptions:
+    short_desc: |2
+      Заросшее черным диким волосом чудище с гиканьем носится в воздухе.
+    long_desc: |2
+      Здоровенный кривоногий мужик с ног до головы заросший черным волосом.
+      Голову его венчают длинные витые рога, лицо украшает свиное рыло и клыки,
+      ноги заканчиваются копытами, а лапы вооружены трехвершковыми, острыми, как серпы
+      когтями.
+  alignment: -800
+  stats:
+    level: 17
+    hitroll_penalty: -3
+    armor: 0
+    hp:
+      dice_count: 5
+      dice_size: 4
+      bonus: 330
+    damage:
+      dice_count: 6
+      dice_size: 6
+      bonus: 15
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 25000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 55
+  race: 110
+  height: 180
+  weight: 200
+  attributes:
+    strength: 24
+    dexterity: 20
+    intelligence: 24
+    wisdom: 29
+    constitution: 20
+    charisma: 7
+  action_flags:
+    - kNpc
+    - kMemory
+    - kNoCharm
+    - kNoBash
+    - kNoUndercut
+    - kNoSkillTrain
+    - kNoHelp
+  affect_flags:
+    - kDetectLife
+    - kInfravision
+    - kProtectFromMind
+    - kFly
+    - kAwarness
+  skills:
+    - skill_id: 4  # богатырский молот
+      value: 60
+    - skill_id: 22  # осторожный стиль
+      value: 40
+    - skill_id: 136  # кулачный бой
+      value: 75
+    - skill_id: 157  # уклониться
+      value: 60
+    - skill_id: 189  # магия жизни
+      value: 170
+  enhanced:
+    absorb: 17
+    bare_hand_attack: 1
+    like_work: 80
+    max_factor: 2
+    extra_attack: 1
+    spells:
+      - 17
+      - 17
+      - 17
+      - 17
+      - 17
+      - 28
+      - 42
+      - 75
+      - 75
+      - 75
+      - 75
+      - 81
+      - 81
+
+# Mob #911
+11:
+  names:
+    aliases: 'лаюн бес '
+    nominative: лаюн
+    genitive: лаюна
+    dative: лаюну
+    accusative: лаюна
+    instrumental: лаюном
+    prepositional: лаюне
+  descriptions:
+    short_desc: |2
+      Рогатый бес яростно завывает и топает копытами.
+    long_desc: |2
+      Тощий рогатый бес с кожистыми черными крылями воет так,
+      что впору оглохнуть. От злобы его глаза светятся красным
+      огнем.
+  alignment: -600
+  stats:
+    level: 20
+    hitroll_penalty: -4
+    armor: -3
+    hp:
+      dice_count: 5
+      dice_size: 10
+      bonus: 350
+    damage:
+      dice_count: 5
+      dice_size: 5
+      bonus: 15
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 40000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 50
+  race: 112
+  height: 180
+  weight: 150
+  attributes:
+    strength: 22
+    dexterity: 22
+    intelligence: 24
+    wisdom: 30
+    constitution: 22
+    charisma: 12
+  action_flags:
+    - kNpc
+    - kMemory
+    - kNoCharm
+    - kNoSkillTrain
+    - kNoHelp
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+    - kProtectFromMind
+    - kAwarness
+    - kHaste
+  skills:
+    - skill_id: 4  # богатырский молот
+      value: 60
+    - skill_id: 22  # осторожный стиль
+      value: 50
+    - skill_id: 136  # кулачный бой
+      value: 80
+    - skill_id: 157  # уклониться
+      value: 60
+    - skill_id: 158  # блокировать щитом
+      value: 60
+    - skill_id: 189  # магия жизни
+      value: 200
+  enhanced:
+    cast_success: 30
+    initiative_add: 12
+    absorb: 20
+    aresist: 25
+    bare_hand_attack: 2
+    like_work: 85
+    max_factor: 2
+    extra_attack: 1
+    spells:
+      - 5
+      - 5
+      - 5
+      - 5
+      - 5
+      - 5
+      - 5
+      - 5
+      - 5
+      - 5
+      - 28
+      - 40
+      - 40
+      - 54
+      - 54
+      - 54
+      - 64
+      - 64
+      - 64
+      - 153
+      - 153
+      - 153
+      - 153
+      - 153
+
+# Mob #912
+12:
+  names:
+    aliases: тест
+    nominative: неоконченный моб
+    genitive: неоконченного моба
+    dative: неоконченному мобу
+    accusative: неоконченного моба
+    instrumental: неоконченным мобом
+    prepositional: неоконченном мобе
+  descriptions:
+    short_desc: |2
+      Неоконченный моб стоит тут.
+    long_desc: |2
+      Выглядит достаточно незавершенно.
+  alignment: 0
+  stats:
+    level: 1
+    hitroll_penalty: 20
+    armor: 0
+    hp:
+      dice_count: 1
+      dice_size: 100
+      bonus: 1
+    damage:
+      dice_count: 1
+      dice_size: 1
+      bonus: 0
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 30
+  race: 100
+  height: 198
+  weight: 200
+  action_flags:
+    - kNpc
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 3
+  enhanced:

@@ -1,7 +1,7 @@
 # Objects for zone 40
 
+# Object #4000
 0:
-  # Object #4000
   names:
     aliases: идол изваяние деревянный
     nominative: идол
@@ -12,32 +12,31 @@
     prepositional: идоле
   short_desc: Деревянное изваяние языческого бога стоит здесь посередине капища.
   type: kOther
-  extra_flags:
-  - kNoinvis
-  - kNodecay
-  material: 0  # бронза
+  material: 0  # НЕИЗВЕСТЕН
   values:
-  - '0'
-  - '0'
-  - '0'
-  - '0'
+    - 0
+    - 0
+    - 0
+    - 0
   weight: 50
   cost: 0
   rent_off: 0
   rent_on: 0
-  spec_param: 0
   max_durability: -1
   cur_durability: -1
   timer: 43200
-  spell: -1
+  spell: 0  # !undefined!
   level: 0
   sex: kMale
   max_in_world: 1
+  extra_flags:
+    - kNoinvis
+    - kNodecay
 
+# Object #4001
 1:
-  # Object #4001
   names:
-    aliases: колодец 1род
+    aliases: колодец
     nominative: колодец
     genitive: колодца
     dative: колодцу
@@ -45,34 +44,33 @@
     instrumental: колодцем
     prepositional: колодце
   short_desc: Колодец выкопан здесь.
-  action_desc: |
+  action_desc: |2
     Вы можете набрать воды отсюда.
   type: kFountain
-  extra_flags:
-  - kNoinvis
-  - kMagic
-  - kNodecay
-  material: 0  # бронза
+  material: 8  # ДЕРЕВО
   values:
-  - '999'
-  - '999'
-  - '0'
-  - '0'
+    - 999
+    - 999
+    - 0
+    - 0
   weight: 1004
   cost: 0
   rent_off: 0
   rent_on: 0
-  spec_param: 0
   max_durability: 100
   cur_durability: 100
   timer: 43200
-  spell: -1
+  spell: 0  # !undefined!
   level: 1
   sex: kMale
   max_in_world: 100
+  extra_flags:
+    - kNoinvis
+    - kMagic
+    - kNodecay
 
+# Object #4002
 2:
-  # Object #4002
   names:
     aliases: объявление доска
     nominative: объявление
@@ -81,41 +79,40 @@
     accusative: объявление
     instrumental: объявлением
     prepositional: объявлении
-  short_desc: Вы видите прибитое к доске  около прилавка объявление.
+  short_desc: Вы видите прибитое к доске около прилавка объявление.
   type: kOther
-  extra_flags:
-  - kNoinvis
-  - kNodecay
-  affect_flags:
-  - kDetectMagic
-  material: 0  # бронза
+  material: 0  # НЕИЗВЕСТЕН
   values:
-  - '0'
-  - '0'
-  - '0'
-  - '0'
+    - 0
+    - 0
+    - 0
+    - 0
   weight: 1
   cost: 0
   rent_off: 0
   rent_on: 0
-  spec_param: 0
   max_durability: 100
   cur_durability: 100
   timer: 43200
-  spell: -1
+  spell: 0  # !undefined!
   level: 0
   sex: kNeutral
-  extra_descriptions:
-  - keywords: объявление
-    description: |2
-         Приветствую тебя путник, я умею выделывать шкурки животных, и я заплачу,
-      если ты принесешь мне труп ценного пушного зверя. Кстати, в деревне развелось
-      много мышей, они портят мои товары, я буду платить за каждый принесенный 
-      мне труп.
   max_in_world: 1
+  extra_flags:
+    - kNoinvis
+    - kNodecay
+  affect_flags:
+    - kDetectMagic
+  extra_descriptions:
+    - keywords: объявление
+      description: |2
+           Приветствую тебя путник, я умею выделывать шкурки животных, и я заплачу,
+        если ты принесешь мне труп ценного пушного зверя. Кстати, в деревне развелось
+        много мышей, они портят мои товары, я буду платить за каждый принесенный 
+        мне труп.
 
+# Object #4003
 3:
-  # Object #4003
   names:
     aliases: тяжелая решетка с замком
     nominative: тяжелая решетка с замком
@@ -126,34 +123,32 @@
     prepositional: тяжелой решетке с замком
   short_desc: Тяжелая решетка с замком закрывает что-то здесь.
   type: kOther
-  extra_flags:
-  - kNorent
-  - kNodonate
-  - kNoinvis
-  - kNosell
-  - kZonedecay
-  - kNodecay
-  material: 5  # дерево
+  material: 5  # КОВАНАЯ.СТАЛЬ
   values:
-  - '0'
-  - '1'
-  - '5'
-  - '11'
+    - 0
+    - 1
+    - 5
+    - 11
   weight: 200
   cost: 1000
   rent_off: 1000
   rent_on: 1000
-  spec_param: 0
   max_durability: 100
   cur_durability: 100
   timer: 43200
-  spell: -1
+  spell: 0  # !undefined!
   level: 0
   sex: kFemale
-  max_in_world: 1
+  extra_flags:
+    - kNorent
+    - kNodonate
+    - kNoinvis
+    - kNosell
+    - kZonedecay
+    - kNodecay
 
+# Object #4004
 4:
-  # Object #4004
   names:
     aliases: карта окрестностей лесной деревни
     nominative: карта окрестностей лесной деревни
@@ -164,74 +159,71 @@
     prepositional: карте окрестностей лесной деревни
   short_desc: Карта окрестностей лесной деревни лежит здесь.
   type: kOther
-  extra_flags:
-  - kNorent
-  - kNosell
-  - kDecay
-  - kSwimming
-  wear_flags:
-  - kTake
-  - kBoth
-  material: 17  # митрил
+  material: 17  # БЕРЕСТА
   values:
-  - '0'
-  - '0'
-  - '0'
-  - '0'
+    - 0
+    - 0
+    - 0
+    - 0
   weight: 1
   cost: 10
   rent_off: 0
   rent_on: 0
-  spec_param: 0
   max_durability: 10
   cur_durability: 10
   timer: 240
-  spell: -1
+  spell: 0  # !undefined!
   level: 0
   sex: kFemale
-  extra_descriptions:
-  - keywords: карта
-    description: |
-      Достаточно грубая, но понятная схема деревни и прилегающей местности.
-
-                  мельня------поперечная улица-----------(к болоту)
-                                      |          |
-                                      |        старец
-                                      |
-      (в малиной сад)       старейшина|
-          |          притон           |
-          |  отшельник |              |
-          |     |      |              |
-          ---------бабичья улица------|  церковь     скорняк
-            |   |ведунья              |   |            |
-          капище            Гостиный--------мастеровая--умелец
-                              двор    |   |    улица
-                                      | кузня
-                                      |
-                          пахарская   |
-                          слобода-----|
-                            /         |
-                         цыган     застава
-                                      \
-                                       \
-             (среди холмов)----------(пожня)
-                       /                 \
-                  (кладбище)              \
-                                           |
-                                           |
-                           -(сказка)       |
-                           |               |         (разбойничье логово)
-                     (темный лес)-----(раменье)             /
-                                              \---(посыльная дорога)
-                                                         \
-                                                          \
-                                                      (к Корсуню)
-
-      Обозначения: в скобках направления или названия местностей-зон
   max_in_world: 100000
+  extra_flags:
+    - kNorent
+    - kNosell
+    - kDecay
+    - kSwimming
+  wear_flags:
+    - kTake
+    - kBoth
+  extra_descriptions:
+    - keywords: карта
+      description: |2
+        Достаточно грубая, но понятная схема деревни и прилегающей местности.
+                    мельня------поперечная улица-----------(к болоту)
+                                        |          |
+                                        |        старец
+                                        |
+        (в малиной сад)       старейшина|
+            |          притон           |
+            |  отшельник |              |
+            |     |      |              |
+            ---------бабичья улица------|  церковь     скорняк
+              |   |ведунья              |   |            |
+            капище            Гостиный--------мастеровая--умелец
+        ________________________двор____|___|____улица___|
+        ________________________________| кузня_______кладовщик
+                                        |
+                            пахарская   |
+                            слобода-----|
+                              /         |
+                           цыган     застава
+                                        \
+                                         \
+               (среди холмов)----------(пожня)
+                         /                 \
+                    (кладбище)              \
+                                             |
+                                             |
+                             -(сказка)       |
+                             |               |         (разбойничье логово)
+                       (темный лес)-----(раменье)             /
+                                                \---(посыльная дорога)
+                                                           \
+                                                            \
+                                                        (к Корсуню)
+        Обозначения: в скобках направления или названия местностей-зон
 
+# Object #4005
 5:
-  # Object #4005
   names:
     aliases: книга пьянки
     nominative: книга пьянки
@@ -242,42 +234,41 @@
     prepositional: книге пьянки
   short_desc: Испускающая крепкий запах браги пухлая книга лежит тут.
   type: kBook
-  extra_flags:
-  - kNorent
-  - kNodonate
-  - kNosell
-  wear_flags:
-  - kTake
-  material: 17  # митрил
+  material: 17  # БЕРЕСТА
   values:
-  - '0'
-  - '32'
-  - '0'
-  - '0'
+    - 0
+    - 32
+    - 0
+    - 0
   weight: 1
   cost: 5000
   rent_off: 10
   rent_on: 10
-  spec_param: 0
   max_durability: 20
   cur_durability: 20
   timer: 120
-  spell: 0
+  spell: 0  # !undefined!
   level: 0
   sex: kFemale
-  extra_descriptions:
-  - keywords: книга пьянки
-    description: |
-      Толстая засаленая книга испускающая
-      запах крепкой браги и медовухи.
-      Можно попробовать ее &Yпрочитать&n
   max_in_world: 10000
+  extra_flags:
+    - kNorent
+    - kNodonate
+    - kNosell
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: книга пьянки
+      description: |2
+        Толстая засаленая книга испускающая
+        запах крепкой браги и медовухи.
+        Можно попробовать ее &Yпрочитать&n
   triggers:
-  - 4010
-  - 4012
+    - 4010  # Подключение ПЬЯНКИ
+    - 4012  # Подобрали книжку
 
+# Object #4006
 6:
-  # Object #4006
   names:
     aliases: рунный камень
     nominative: рунный камень
@@ -288,39 +279,38 @@
     prepositional: рунном камне
   short_desc: Рунный камень вкопан десь в землю.
   type: kOther
-  extra_flags:
-  - kNoinvis
-  - kNodecay
-  material: 12  # драгоценный камень
+  material: 12  # КАМЕНЬ
   values:
-  - '0'
-  - '0'
-  - '0'
-  - '0'
+    - 0
+    - 0
+    - 0
+    - 0
   weight: 1000
   cost: 1000
   rent_off: 1
   rent_on: 1
-  spec_param: 0
   max_durability: 1000
   cur_durability: 760
   timer: 1440
-  spell: 0
+  spell: 0  # !undefined!
   level: 0
   sex: kMale
-  extra_descriptions:
-  - keywords: рунный камень
-    description: |
-      На источеной временем поверхности камня высечена руна:
-      __
-      _____ | /
-      ______|/
-      _______|
-      _______|
   max_in_world: 1
+  extra_flags:
+    - kNoinvis
+    - kNodecay
+  extra_descriptions:
+    - keywords: рунный камень
+      description: |2
+        На источеной временем поверхности камня высечена руна:
+        __
+        _____ | /
+        ______|/
+        _______|
+        _______|
 
+# Object #4007
 7:
-  # Object #4007
   names:
     aliases: баночка
     nominative: баночка
@@ -331,22 +321,989 @@
     prepositional: баночке
   short_desc: Баночка оставлена здесь кем-то.
   type: kLiquidContainer
-  wear_flags:
-  - kTake
-  material: 11  # адамантит
+  material: 11  # СТЕКЛО
   values:
-  - '30'
-  - '30'
-  - '24'
-  - '1'
+    - 30
+    - 30
+    - 24
+    - 1
   weight: 31
   cost: 100
   rent_off: 1
   rent_on: 1
-  spec_param: 0
   max_durability: 100
   cur_durability: 100
   timer: 5000
-  spell: 0
+  spell: 0  # !undefined!
   level: 0
   sex: kFemale
+  wear_flags:
+    - kTake
+
+# Object #4008
+8:
+  names:
+    aliases: табличка
+    nominative: табличка
+    genitive: таблички
+    dative: табличке
+    accusative: табличку
+    instrumental: табличкой
+    prepositional: табличке
+  short_desc: Деревянная табличка с каким-то объявлением приколочена на видном месте.
+  type: kOther
+  material: 8  # ДЕРЕВО
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 50
+  cur_durability: 50
+  timer: 10000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 3
+  extra_flags:
+    - kNodecay
+  extra_descriptions:
+    - keywords: деревянная табличка
+      description: |2
+        +--------------------------------------------------------------------+
+        |    Для поддержки наших молодых воинов супротив гадкой живности     |
+        |  и всяческой нечисти, наказываю кладовщику помогать всякому, кто   |
+        |  помощи попросит чем возможно. А если не будет помогать  -  то я   |
+        |  ему голову сниму.                                                 |
+        |                                                  Голова деревни.   |
+        +--------------------------------------------------------------------+
+
+# Object #4009
+9:
+  names:
+    aliases: последняя страница сказки
+    nominative: последняя страница сказки
+    genitive: последней страницы сказки
+    dative: последней странице сказки
+    accusative: последнюю страницу сказки
+    instrumental: последней страницей сказки
+    prepositional: последней странице сказки
+  short_desc: Последняя страница, вырванная из какой-то сказки, валяется здесь.
+  action_desc: |2
+    "Вот и сказке конец, а кто слушал - молодец." - прочитали вы...
+    Странный туман окутал вас с ног до головы.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 0
+    - 42
+    - 0
+    - 0
+  weight: 1
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNodonate
+    - kNosell
+    - kNodecay
+    - kFlying
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: последняя страница сказки
+      description: |2
+        Хрупкий лист тонкой бересты, чем-то напоминающий вам обычный свиток возврата.
+        Сказочник советовал зачитывать эту страницу если потребуется покинуть сказку.
+
+# Object #4055
+55:
+  names:
+    aliases: новый предмет
+    nominative: это что
+    genitive: нету чего
+    dative: привязать к чему
+    accusative: взять что
+    instrumental: вооружиться чем
+    prepositional: говорить о чем
+  short_desc: Что-то новое лежит здесь
+  type: kItemUndefined
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 0
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #4064
+64:
+  names:
+    aliases: кулон с ледяным узором
+    nominative: кулон с ледяным узором
+    genitive: кулона с ледяным узором
+    dative: кулону с ледяным узором
+    accusative: кулон с ледяным узором
+    instrumental: кулоном с ледяным узором
+    prepositional: кулоне с ледяным узором
+  short_desc: Красивый кулон с ледяным узором лежит здесь.
+  type: kWorm
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 10000
+  rent_off: 10000
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 10
+  wear_flags:
+    - kTake
+    - kNeck
+    - kWrist
+  affect_flags:
+    - kIceShield
+
+# Object #4065
+65:
+  names:
+    aliases: кулон с огненным узором
+    nominative: кулон с огненным узором
+    genitive: кулона с огненным узором
+    dative: кулону с огненным узором
+    accusative: кулон с огненным узором
+    instrumental: кулоном с огненным узором
+    prepositional: кулоне с огненным узором
+  short_desc: Кулон с огненным узором лежит здесь.
+  type: kWorm
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 10000
+  rent_off: 10000
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 10
+  extra_flags:
+    - kNodecay
+    - kNolocate
+  wear_flags:
+    - kTake
+    - kNeck
+    - kWrist
+  affect_flags:
+    - kFireShield
+    - kFireAura
+
+# Object #4066
+66:
+  names:
+    aliases: зелье концентрированного опыта
+    nominative: зелье концентрированного опыта
+    genitive: зелья концентрированного опыта
+    dative: зелью концентрированного опыта
+    accusative: зелье концентрированного опыта
+    instrumental: зельем концентрированного опыта
+    prepositional: зелье концентрированного опыта
+  short_desc: Странное зелье лежит здесь.
+  type: kPotion
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 10000
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 100
+  cur_durability: 100
+  timer: 14400
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNodecay
+    - kNolocate
+  wear_flags:
+    - kTake
+  triggers:
+    - 4066  # разбиваем зелье с опытом
+
+# Object #4067
+67:
+  names:
+    aliases: перстень божественных сил
+    nominative: перстень &Wбожественных&n сил
+    genitive: перстня &Wбожественных&n сил
+    dative: перстню &Wбожественных&n сил
+    accusative: перстень &Wбожественных&n сил
+    instrumental: перстнем &Wбожественных&n сил
+    prepositional: перстне &Wбожественных&n сил
+  short_desc: Перстень, дающий невероятную мощь, лежит здесь.
+  type: kWorm
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 10000
+  rent_off: 10000
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 17280
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 10
+  extra_flags:
+    - kNolocate
+  wear_flags:
+    - kTake
+    - kFinger
+  anti_flags:
+    - kBattle
+  affect_flags:
+    - kIceShield
+  applies:
+    - location: 19  # повреждение
+      modifier: 10
+    - location: 18  # попадание
+      modifier: 10
+    - location: 40  # успех.колдовства
+      modifier: 40
+
+# Object #4068
+68:
+  names:
+    aliases: кулон с ледяным узором
+    nominative: кулон с ледяным узором
+    genitive: кулона с ледяным узором
+    dative: кулону с ледяным узором
+    accusative: кулон с ледяным узором
+    instrumental: кулоном с ледяным узором
+    prepositional: кулоне с ледяным узором
+  short_desc: Красивый кулон с ледяным узором лежит здесь.
+  type: kWorm
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 10000
+  rent_off: 10000
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 44640
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 10
+  extra_flags:
+    - kMagic
+    - kNolocate
+  wear_flags:
+    - kTake
+    - kNeck
+    - kWrist
+  affect_flags:
+    - kIceShield
+
+# Object #4070
+70:
+  names:
+    aliases: неведома шкатулка
+    nominative: неведома шкатулка
+    genitive: неведомой шкатулки
+    dative: неведомой шкатулке
+    accusative: неведому шкатулку
+    instrumental: неведомой шкатулкой
+    prepositional: неведомой шкатулке
+  short_desc: Неведома шкатулка оставлена здесь нерадивым божеством.
+  type: kContainer
+  material: 12  # КАМЕНЬ
+  values:
+    - 1
+    - 15
+    - 4071
+    - 255
+  weight: 1
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 999
+  cur_durability: 999
+  timer: 10000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kGlow
+  wear_flags:
+    - kTake
+
+# Object #4071
+71:
+  names:
+    aliases: ключик
+    nominative: ключик
+    genitive: ключика
+    dative: ключику
+    accusative: ключик
+    instrumental: ключиком
+    prepositional: ключике
+  short_desc: Неприметный ключик оставлен здесь кем-то.
+  type: kKey
+  material: 7  # КРИСТАЛЛ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 999
+  cur_durability: 999
+  timer: 10000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  wear_flags:
+    - kTake
+
+# Object #4081
+81:
+  names:
+    aliases: доска
+    nominative: доска
+    genitive: доски
+    dative: доске
+    accusative: доску
+    instrumental: доской
+    prepositional: доске
+  short_desc: Доска, рассказывающая о работе казино, висит здесь.
+  type: kOther
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 5000
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kNodecay
+  wear_flags:
+    - kTake
+  triggers:
+    - 4049  # смотрим статистику
+
+# Object #4087
+87:
+  names:
+    aliases: кулон с ледяным узором
+    nominative: кулон с ледяным узором
+    genitive: кулона с ледяным узором
+    dative: кулону с ледяным узором
+    accusative: кулон с ледяным узором
+    instrumental: кулоном с ледяным узором
+    prepositional: кулоне с ледяным узором
+  short_desc: Красивый кулон с ледяным узором лежит здесь.
+  type: kWorm
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 10000
+  rent_off: 10000
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 17280
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 10
+  extra_flags:
+    - kNolocate
+  wear_flags:
+    - kTake
+    - kNeck
+    - kWrist
+  affect_flags:
+    - kHolyDark
+    - kIceShield
+  applies:
+    - location: 1  # сила
+      modifier: 15
+
+# Object #4088
+88:
+  names:
+    aliases: новый предмет
+    nominative: это что
+    genitive: нету чего
+    dative: привязать к чему
+    accusative: взять что
+    instrumental: вооружиться чем
+    prepositional: говорить о чем
+  short_desc: Что-то новое лежит здесь
+  type: kItemUndefined
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 0
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 11111
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  extra_flags:
+    - kUnique
+  wear_flags:
+    - kTake
+    - kFinger
+    - kNeck
+    - kBody
+    - kHead
+    - kLegs
+    - kFeet
+    - kHands
+    - kArms
+    - kWaist
+    - kWrist
+  applies:
+    - location: 2  # ловкость
+      modifier: 3
+  skills:
+    - skill_id: 132  # сбить
+      value: -199
+
+# Object #4089
+89:
+  names:
+    aliases: Букет Цветов
+    nominative: букет цветов
+    genitive: букета цветов
+    dative: букету цветов
+    accusative: букет цветов
+    instrumental: букетом цветов
+    prepositional: букете цветов
+  short_desc: Очаровательный букет цветов так и просится вам в руки.
+  type: kOther
+  material: 16  # ОРГАНИКА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 10
+  cost: 1000
+  rent_off: 10
+  rent_on: 10
+  max_durability: 100
+  cur_durability: 100
+  timer: 25000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 10000
+  extra_flags:
+    - kBless
+    - kSwimming
+  wear_flags:
+    - kTake
+    - kHold
+  no_flags:
+    - kMale
+  applies:
+    - location: 6  # обаяние
+      modifier: 5
+    - location: 13  # макс.жизнь
+      modifier: 50
+    - location: 61  # безумное.бормотание
+      modifier: 1
+  extra_descriptions:
+    - keywords: sdf
+      description: |2
+        df
+    - keywords: Букет цветов
+      description: |2
+        Это роскошный букет цветов. Томные фиалки, гордые хризантемы, веселые колокольчики, нежные лилии и огромная красная роза посередине создают воистину очаровательное зрелище.
+
+# Object #4090
+90:
+  names:
+    aliases: свинья копилка
+    nominative: свинья-копилка
+    genitive: свиньи-копилки
+    dative: свинье-копилке
+    accusative: свинью-копилку
+    instrumental: свиньей-копилкой
+    prepositional: свинье-копилке
+  short_desc: Старая глиняная свинья-копилка валяется на земле.
+  action_desc: |+2
+    
+  type: kTrap
+  material: 10  # КЕРАМИКА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 100
+  cur_durability: 100
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNorent
+    - kNodonate
+    - kNosell
+    - kNodecay
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: свинья копилка
+      description: |2
+        Обшарпанная, пухлая свинья-копилка из голубой глины. На спинке свиньи есть дырочка для монеток
+        и судя, по жалобному позвякиванию - на дне ее что-то есть. Как не печально, но чтобы достать
+        монетки, придется ее разбить.
+  triggers:
+    - 4096  # разбили копилку
+
+# Object #4091
+91:
+  names:
+    aliases: свиток безграничного опыта
+    nominative: свиток &Kбезграничного опыта&n
+    genitive: свитка &Kбезграничного опыта&n
+    dative: свитку &Kбезграничного опыта&n
+    accusative: свиток &Kбезграничного опыта&n
+    instrumental: свитком &Kбезграничного опыта&n
+    prepositional: свитке &Kбезграничного опыта&n
+  short_desc: Свиток &Kбезграничного опыта&n лежит на земле.
+  type: kScroll
+  material: 15  # КОЖА
+  values:
+    - 1
+    - 116
+    - 0
+    - 0
+  weight: 1
+  cost: 50000
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 10
+  cur_durability: 10
+  timer: 2880
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 999
+  extra_flags:
+    - kSwimming
+    - kNolocate
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток безграничного опыта
+      description: |2
+        Большой наградной свиток притягивает вас своей магической энергией. Среди вязи рун проглядывается надпись: "разорви меня"!
+  triggers:
+    - 2602  # Большой наградной свиток безграничного опыта
+
+# Object #4092
+92:
+  names:
+    aliases: новый предмет
+    nominative: это что
+    genitive: нету чего
+    dative: привязать к чему
+    accusative: взять что
+    instrumental: вооружиться чем
+    prepositional: говорить о чем
+  short_desc: Что-то новое лежит здесь
+  type: kItemUndefined
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 0
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 11111
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  extra_flags:
+    - kUnique
+  wear_flags:
+    - kTake
+    - kBody
+    - kHead
+    - kLegs
+    - kHands
+  applies:
+    - location: 2  # ловкость
+      modifier: -200
+  skills:
+    - skill_id: 132  # сбить
+      value: -199
+
+# Object #4093
+93:
+  names:
+    aliases: тестовый напиток
+    nominative: тестовый напиток
+    genitive: тестового напитка
+    dative: тестовому напитку
+    accusative: тестовый напиток
+    instrumental: тестовым напитком
+    prepositional: тестовом напитке
+  short_desc: Склянка с ядовито выглядящим зельем стоит тут.
+  action_desc: |2
+    Ядовито-зеленая вспышка озарила все вокруг.
+  type: kPotion
+  material: 11  # СТЕКЛО
+  values:
+    - 30
+    - 58
+    - 0
+    - 0
+  weight: 1
+  cost: 10
+  rent_off: 10
+  rent_on: 10
+  max_durability: 10
+  cur_durability: 10
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  wear_flags:
+    - kTake
+    - kHold
+
+# Object #4094
+94:
+  names:
+    aliases: золотой ключик
+    nominative: золотой ключик
+    genitive: золотого ключика
+    dative: золотому ключику
+    accusative: золотой ключик
+    instrumental: золотым ключиком
+    prepositional: золотом ключике
+  short_desc: Маленький ключик лежит здесь.
+  type: kKey
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 50000
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 100
+  cur_durability: 100
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #4095
+95:
+  names:
+    aliases: '&Yзолотое&n колечко'
+    nominative: '&Yзолотое&n колечко'
+    genitive: '&Yзолотого&n колечка'
+    dative: '&Yзолотому&n колечку'
+    accusative: '&Yзолотое&n колечко'
+    instrumental: '&Yзолотым&n колечком'
+    prepositional: '&Yзолотом&n колечке'
+  short_desc: Золотое колечко лежит тут
+  type: kArmor
+  material: 7  # КРИСТАЛЛ
+  values:
+    - 2
+    - 2
+    - 0
+    - 0
+  weight: 1
+  cost: 5000
+  rent_off: 250
+  rent_on: 250
+  max_durability: 500
+  cur_durability: 500
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  extra_flags:
+    - kMagic
+    - kNodecay
+    - kNoalter
+  wear_flags:
+    - kTake
+    - kFinger
+  affect_flags:
+    - kIceShield
+  applies:
+    - location: 2  # ловкость
+      modifier: 4
+    - location: 5  # телосложение
+      modifier: 4
+    - location: 41  # удача
+      modifier: 25
+    - location: 18  # попадание
+      modifier: 7
+    - location: 19  # повреждение
+      modifier: 7
+    - location: 1  # сила
+      modifier: 4
+
+# Object #4096
+96:
+  names:
+    aliases: маленькая медная шкатулка с изображением тигра
+    nominative: маленькая медная шкатулка с изображением тигра
+    genitive: маленькой медной шкатулки с изображением тигра
+    dative: маленькой медной шкатулке с изображением тигра
+    accusative: маленькую медную шкатулку с изображением тигра
+    instrumental: маленькой медной шкатулкой с изображением тигра
+    prepositional: маленькой медной шкатулке с изображением тигра
+  short_desc: Маленькая шкатулка из меди лежит здесь.
+  type: kContainer
+  material: 6  # ДРАГ.МЕТАЛЛ
+  values:
+    - 100
+    - 15
+    - 4094
+    - 255
+  weight: 10
+  cost: 3000
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 10
+  cur_durability: 10
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNodecay
+  wear_flags:
+    - kTake
+  triggers:
+    - 4099  # Открытие шкатулки
+
+# Object #4097
+97:
+  names:
+    aliases: символ смерти
+    nominative: символ смерти
+    genitive: символа смерти
+    dative: символу смерти
+    accusative: символ смерти
+    instrumental: символом смерти
+    prepositional: символе смерти
+  short_desc: Символ смерти упал с шеи темного мага.
+  action_desc: |2
+    В воздухе запахло проклятьем и смертью...
+  type: kWand
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 28
+    - 1
+    - 1
+    - 98
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 1
+  cur_durability: 1
+  timer: 7200
+  spell: 1  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  extra_flags:
+    - kMagic
+  wear_flags:
+    - kTake
+    - kNeck
+    - kHold
+  applies:
+    - location: 24  # стойкость
+      modifier: -20
+
+# Object #4098
+98:
+  names:
+    aliases: здоровенный камень булыжник
+    nominative: здоровенный камень
+    genitive: здоровенного камня
+    dative: здоровенному камню
+    accusative: здоровенный камень
+    instrumental: здоровенным камнем
+    prepositional: здоровенном камне
+  short_desc: Здоровенный булыжник лежит тут.
+  type: kWeapon
+  material: 12  # КАМЕНЬ
+  values:
+    - 5
+    - 5
+    - 5
+    - 5
+  weight: 1
+  cost: 5
+  rent_off: 5
+  rent_on: 5
+  spec_param: 145
+  max_durability: 100
+  cur_durability: 100
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+  wear_flags:
+    - kTake
+    - kFinger
+    - kBoth
+  extra_descriptions:
+    - keywords: здоровенный камень
+      description: |2
+        Это здрованный крепкий булыжник, мало похожий на известняковые
+        стены пещеры. Одна сторона его гладко отколота, так что при
+        некоторой сноровки его можно использовать как грубый молот.
+  triggers:
+    - 4098  # Тестовый триггер для предметов
+
+# Object #4099
+99:
+  names:
+    aliases: Ковырялка спица
+    nominative: ковырялка
+    genitive: ковырялки
+    dative: ковырялке
+    accusative: ковырялку
+    instrumental: ковырялкой
+    prepositional: ковырялке
+  short_desc: Что-то новое лежит здесь
+  type: kWeapon
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 0
+    - 0
+    - 0
+    - 1
+  weight: 30
+  cost: 0
+  rent_off: 0
+  rent_on: 500
+  spec_param: 146
+  max_durability: 0
+  cur_durability: 0
+  timer: 11000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  max_in_world: 1
+  wear_flags:
+    - kTake
+    - kBoth
+  applies:
+    - location: 23  # здоровье
+      modifier: 500
+    - location: 40  # успех.колдовства
+      modifier: 100

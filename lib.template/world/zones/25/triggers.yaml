@@ -1,0 +1,1521 @@
+# Triggers for zone 25
+
+# Trigger #2500
+0:
+  name: вручение подарка
+  attach_type: kRoomTrigger
+  narg: 100
+  arglist: вручитьподарки
+  trigger_types:
+    - kCommand
+  script: |-2
+    *из комнаты 2500 призываем моба который вручает подарки, пуржится и резетит зону заново
+    wait 1
+    unset mobpozdravitel
+    calcuid mobpozdravitel 2500 mob
+    if (%mobpozdravitel% && (%mobpozdravitel.position% != 7))
+      wteleport %mobpozdravitel% %self.vnum%
+      echo Внезапно в комнату робко вошел слуга, что-то сжимая запазухой.
+      wait 1 s
+      wforce %mobpozdravitel% поклон
+      wait 2 s
+      wforce %mobpozdravitel% аплоди .стрибог
+      wait 1 s
+      wforce %mobpozdravitel% дать все .стрибог
+      wait 1 s
+      wforce %mobpozdravitel% г ПОЗДРАВЛЯЕМ С НОВЫМ ГОДОМ!
+      wait 1 s
+      wforce %mobpozdravitel% кивнуть
+      wait 3 s
+      echo Слуга не задерживаясь отправился по другим (менее значимым, но все же необходимым) поручениям.
+      wpurge %mobpozdravitel%
+      %world.zreset(25)%
+    else
+      echo Откуда-то послышались звуки новогодних хлопушек и петард.
+    end
+
+# Trigger #2501
+1:
+  name: пить из кружки
+  attach_type: kObjTrigger
+  narg: 3
+  arglist: '*'
+  trigger_types:
+    - kCommand
+  script: |-2
+    * если выполняется команда "пить" или "drink" и аргумент похож на нашу шмотку -- то выполняем
+    if (%cmd.mudcommand% == пить || %cmd.mudcommand% == drink || %cmd.mudcommand% == пробовать || %cmd.mudcommand% == taste)
+      if (%arg.contains(бол)% || %arg.contains(кру)%)
+        osend %actor% Вы глотнули &Cсилы жизни&n из &WБольшой &YКружки &RБосса&n.
+        osend %actor% Вы почувствовали прилив &Gжизненных сил&n!
+        osend %actor% Приятное настроение наполнило Вас!
+        osend %actor% Откуда-то Вы услышали голоса: "&RСлава и хвала отцу МАДа нашего!&n"
+        if !%actor.iname%
+          echoaround Стрибог выпил напиток &Cсилы жизни&n из &WБольшой &YКружки &RБосса&n.
+        else
+          echoaround %actor% %actor.iname% выпил%actor.g% напиток &Cсилы жизни&n из &WБольшой &YКружки &RБосса&n.
+        end
+        wait 1
+      end
+    end
+    return 0
+
+# Trigger #2502
+2:
+  name: пить из бутылки шампанского
+  attach_type: kObjTrigger
+  narg: 2
+  arglist: '*'
+  trigger_types:
+    - kCommand
+  script: |-2
+    * если выполняется команда "пить" или "drink" и аргумент похож на нашу шмотку -- то выполняем
+    if !%actor.iname%
+      return 0
+      halt
+    end
+    if (%cmd.mudcommand% == пить || %cmd.mudcommand% == drink || %cmd.mudcommand% == пробовать || %cmd.mudcommand% == taste)
+      if (%arg.contains(бут)% || %arg.contains(шам)%)
+        osend %actor% Вы выпили шампанского из &Kбу&gтылки &Kша&gмпанского&n.
+        echoaround %actor% %actor.iname% выпил%actor.g% шампанского из &Kбу&gтылки &Kша&gмпанского&n.
+        wait 1
+        %actor.wait(2)%
+      end
+    end
+    return 0
+
+# Trigger #2503
+3:
+  name: Трясти новогоднюю елочку
+  attach_type: kMobTrigger
+  narg: 4
+  arglist: трясти
+  trigger_types:
+    - kCommand
+  script: |-2
+    wait 1
+    echoaround %actor% %actor.iname% начал%actor.g% трясти &Gвысоченную новогоднюю ёлочку&n.
+    msend %actor% Вы начали трясти &Gвысоченную новогоднюю ёлочку&n.
+    %actor.wait(5s)%
+    wait 5
+    if %random.100% < 20
+      echo Внезапно &Rш&Yа&Gр&Cи&Bк &Rд&Yл&Gя &Rн&Yо&Gво&Cго&Bдн&Mей&R е&Yл&Gк&Cи&n упал с &Gвысоченной новогодней ёлочки&n!
+    end
+
+# Trigger #2504
+4:
+  name: Вешаем новогодний шарик на елочку
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kReceive
+  script: |-2
+    wait 1
+    if %object.vnum% == 2504
+      wait 1
+      mpurge %object%
+      echoaround %actor% %actor.iname% повесил%actor.g% &Rш&Yа&Gр&Cи&Bк &Rд&Yл&Gя &Rн&Yо&Gво&Cго&Bдн&Mей&R е&Yл&Gк&Cи&n на &Gвысоченную новогоднюю елочку&n.
+      msend %actor% Вы повесили &Rш&Yа&Gр&Cи&Bк &Rд&Yл&Gя &Rн&Yо&Gво&Cго&Bдн&Mей&R е&Yл&Gк&Cи&n на &Gвысоченную новогоднюю елочку&n.
+      * Выдача приза за сбор новогодних шариков
+      eval randomnum2504 %random.1000%
+      if %randomnum2504% < 10
+        load obj 1144
+        log &YВНИМАНИЕ: &R%actor.iname%&G получил с новогодней елки (&Wсупер-приз :)&G): &Mмоск Ясны&G
+      elseif %randomnum2504% < 50
+        switch %random.6%
+          case 1
+            load obj 1130
+            log &YВНИМАНИЕ: &R%actor.iname%&G получил с новогодней елки: &Mкираса повелителя волн&G
+          break
+          case 2
+            load obj 1131
+            log &YВНИМАНИЕ: &R%actor.iname%&G получил с новогодней елки: &Mнагрудник повелителя ночи&G
+          break
+          case 3
+            load obj 1132
+            log &YВНИМАНИЕ: &R%actor.iname%&G получил с новогодней елки: &Mдоспех повелителя ветра&G
+          break
+          case 4
+            load obj 1133
+            log &YВНИМАНИЕ: &R%actor.iname%&G получил с новогодней елки: &Mамулет повелителя недр&G
+          break
+          case 5
+            load obj 1134
+            log &YВНИМАНИЕ: &R%actor.iname%&G получил с новогодней елки: &Mкираса повелителя пламени&G
+          break
+          case 6
+            load obj 1135
+            log &YВНИМАНИЕ: &R%actor.iname%&G получил с новогодней елки: &Mнагрудник повелителя солнца&G
+          break
+        done
+      elseif %random.1000% < 300
+        * бутылка шампанского + коробка с конфетами - 10% лоад
+        load obj 2506
+        load obj 2505
+        load obj 11225
+        load obj 11225
+        load obj 11225
+        load obj 11225
+        load obj 11225
+        положить все.конф коробк
+        * Выдача утешительного приза
+      elseif %random.10% < 5
+        load obj 2508 * пельмени новгодние
+      else
+        load obj 11225 * конфета мишка в киеве
+      end
+      give all .%actor.iname%
+      drop all
+    else
+      tell %actor.iname% Если у Вас есть &Rш&Yа&Gр&Cи&Bк &Rд&Yл&Gя &Rн&Yо&Gво&Cго&Bдн&Mей&R е&Yл&Gк&Cи&n то принесите его.
+      wait 2
+      drop all
+    end
+
+# Trigger #2505
+5:
+  name: Даем Ньюбам Конфетку
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kGreetPC
+  script: |-2
+    wait 1
+    if !%actor.iname%
+      halt
+    end
+    if %actor.remort% == 0 && %actor.level% < 29 && %actor.age% < 25
+      wait 3
+      load obj 2506
+      load obj 2505
+      load obj 11225
+      load obj 11225
+      load obj 11225
+      load obj 11225
+      load obj 11225
+    end
+    положить все.конф коробк
+    give all .%actor.iname%
+
+# Trigger #2506
+6:
+  name: срубить елку
+  attach_type: kMobTrigger
+  narg: 1
+  arglist: срубить
+  trigger_types:
+    - kCommand
+  script: |-2
+    wait 1
+    log %actor.iname% &C срубил новогоднюю елку.
+    echo &GВысоченная новогодняя ёлка&n с грохотом упала на землю!
+    if %random.5% > 3
+      echo &RШ&Yа&Gр&Cи&Bк &Rд&Yл&Gя &Rн&Yо&Gво&Cго&Bдн&Mей &Rе&Yл&Gк&Cи&n упал на землю.
+      load obj 2504
+    end
+    %purge% %self%
+
+# Trigger #2507
+7:
+  name: Полет летучего корабля
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kAuto
+  script: |-2
+    *определяем, куда летим
+    set target 27015
+    switch %random.25%
+      case 1
+        set city Корсунь
+        set target 27015
+      break
+      case 2
+        set city Торжок
+        set target 24027
+      break
+      case 3
+        set city Киев
+        set target 49974
+      break
+      case 4
+        set city Великий Новгород
+        set target 60029
+      break
+      case 5
+        set city Муром
+        set target 76067
+      break
+      case 6
+        set city Галич
+        set target 34420
+      break
+      case 7
+        set city Брянск
+        set target 66027
+      break
+      case 8
+        set city Владимир
+        set target 18212
+      break
+      case 9
+        set city Вышгород
+        set target 63605
+      break
+      case 10
+        set city Искоростень
+        set target 13570
+      break
+      case 11
+        set city Курск
+        set target 63040
+      break
+      case 12
+        set city Ладога
+        set target 30211
+      break
+      case 13
+        set city Любеч
+        set target 69075
+      break
+      case 14
+        set city Минск
+        set target 77047
+      break
+      case 15
+        set city Переяславль
+        set target 25001
+      break
+      case 16
+        set city Полоцк
+        set target 72008
+      break
+      case 17
+        set city Псков
+        set target 75066
+      break
+      case 18
+        set city Путивль
+        set target 64033
+      break
+      case 19
+        set city Ростов
+        set target 85125
+      break
+      case 20
+        set city Русса
+        set target 35031
+      break
+      case 21
+        set city Рязань
+        set target 73085
+      break
+      case 22
+        set city Тверь
+        set target 60265
+      break
+      case 23
+        set city Тотьма
+        set target 62027
+      break
+      case 24
+        set city Туров
+        set target 32408
+      break
+      case 25
+        set city Чернигов
+        set target 68078
+      break
+    done
+    if (%where% == %target%)
+      halt
+    end
+    крича Проходите, люди добрые, поспешайте!
+    крича Наш летучий корабль отправляется в город славный, %city% называемый!
+    крича А коли желаете с нами в путь-дорогу пуститься - так и оставайтесь.
+    wait 30s
+    mdoor 2501 d purge
+    if %where%
+      mdoor %where% u purge
+    end
+    calcuid ladder 2598 obj
+    mpurge %ladder%
+    set where %target%
+    global where
+    echo Заскрипели натянутые снасти, парус наполнился воздухом, и корабль двинулся в путь.
+    wait 10s
+    set i 0
+    while (%i% < 12)
+      switch %random.17%
+        case 1
+          echo &RСтая птиц с железными клювами пронеслась прямо у борта!&n
+        break
+        case 2
+          echo &WОбрывки облаков облизывают верхушку мачты.&n
+        break
+        case 3
+          echo &CЗемля почти скрылась в туманной дымке.&n
+        break
+        case 4
+          echo &WВетер свистит в снастях.&n
+        break
+        case 5
+          echo &GПарус бешенно захлопал, и по палубе забегали переполошенные корабелы. &n
+        break
+        case 6
+          echo &YСолнечные лучи пронизывают облака, озаряя палубу.&n
+        break
+        case 7
+          echo &CЛуна и солнце одновременно повисли в небе.&n
+        break
+        case 8
+          echo &GВы повстречали другой летучий корабль, и ваши корабелы приветственно махали ему руками.&n
+        break
+        case 9
+          echo &RСтая крылатых летучих змеев накинулась было на корабль, но корабелы отогнали их стрелами и гарпунами.&n
+        break
+        case 10
+          echo &CБеззвучная молния сверкнула высоко в небе.&n
+        break
+        case 11
+          echo &GСтайка ведьм верхом на помелах со свистом и хохотом промчалась мимо.&n
+          echo &GОдна из них кинула вам колдовской цветок, но едва вы его коснулись - он рассыпался тучей искр.&n
+        break
+        case 12
+          echo &YВнизу видны огни какого-то города.&n
+        break
+        case 13
+          echo &WСтая больших белых птиц увязалась за кораблем.&n
+        break
+        case 14
+          echo &CКорабль закачался в потоках сильного ветра.&n
+        break
+        case 15
+          echo &RБагровый и косматый шар солнца висит над покровом облаков, слепя глаза.&n
+        break
+        case 16
+          echo &KЧерные тяжелые тучи заслонили землю.&n
+        break
+        case 17
+          echo &YДалеко внизу проплывают леса, поля, города и веси.&n
+        break
+      done
+      eval i %i%+1
+      wait 10s
+    done
+    mdoor 2501 d room %target%
+    mdoor %target% u room 2501
+    load obj 2598
+    calcuid ratchet %target% room
+    calcuid ladder 2598 obj
+    %ladder.put(%ratchet%)%
+    echo Наконец вы прибыли в город %city%.
+    echo %self.name% приказал спустить парус и сбросил вниз веревочную лестницу.
+    attach 2509 %ratchet%
+    exec 2509 %ratchet%
+    орать Летучий корабль прибыл в город %city%! Поспешай-налетай!
+
+# Trigger #2508
+8:
+  name: Запуск полета корабля
+  attach_type: kRoomTrigger
+  narg: 100
+  trigger_types:
+    - kDeath
+  script: |-2
+    if !%shkiper%
+      calcuid shkiper 2504 mob
+      global shkiper
+    end
+    exec 2507 %shkiper%
+
+# Trigger #2509
+9:
+  name: Оповещение о прибытии корабля
+  attach_type: kRoomTrigger
+  narg: 100
+  arglist: '/ra ''wzoneecho'' ''wzoneecho %self.vnum%'''
+  trigger_types:
+    - kAuto
+  script: |-2
+    wzoneecho %self.vnum% &Y'Поспешайте люди добрые, налетайте!' - Закричал белобородый купчина.&n
+    wzoneecho %self.vnum% &Y'Летучий корабль привез на торг товары невиданные, диковины да чудеса!' - продолжил он.&n
+    detach 2508 %self%
+
+# Trigger #2510
+10:
+  name: Взрывается петарда
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreetAll
+  script: |-2
+    wait 1
+    echo &YПетарда рассыпалась яркими искрами!&n
+    set target %world.room(%self.room%)%
+    attach 2511 %target%
+    exec 2511 %target%
+    opurge %self%
+
+# Trigger #2511
+11:
+  name: Сообщения петарды.
+  attach_type: kRoomTrigger
+  narg: 100
+  trigger_types:
+    - kAuto
+  script: |-2
+    wait 1
+    wzoneecho %self.vnum% __________&M*  &Y*  &C*  &YТРРАХ! ТАР-РАРРАХ! БУМ! БАБАБХ! - послышался взрыв петарды.  &C*  &M*  &C*&n
+
+# Trigger #2512
+12:
+  name: '[o48] забрать подарок'
+  attach_type: kObjTrigger
+  narg: 4
+  arglist: забрать
+  trigger_types:
+    - kCommand
+  script: |-2
+    if (%actor.vnum% != -1)
+      halt
+    end
+    if ((%cmd% != забрать) || (%arg% != подарок))
+      %send% %actor% Чаво-чаво?
+      halt
+    end
+    if ((%actor.level% < 25) && (%actor.remort% < 1))
+      %send% %actor% - Мал%actor.g% ты еще подарки просить.
+      halt
+    end
+    *получаем метку года
+    if (%date.month% > 6)
+      eval nyear %date.year%+1
+    else
+      set nyear %date.year%
+    end
+    if (%actor.getquest(2500)% == %nyear%)
+      %send% %actor% - Ты уже получал%actor.g% в этом году подарки!
+      %send% %actor% - Приходи в следующем году.
+      %send% %actor% &gЕлочка широко улыбнулась.&n
+      halt
+    end
+    *подарки: 2505-2535
+    eval presentvnum 2504+%random.31%
+    %load% obj %presentvnum%
+    set present %LoadedUID%
+    %present.put(%actor%)%
+    %send% %actor% &gЕлочка достала для Вас подарок..&n
+    %send% %actor% - Тебе, %actor.iname%, Дед Мороз принес %present.vname% на Новый Год.
+    %send% %actor% - Счастливого Нового Года, %actor.iname%!
+    %echoaround% %actor% %actor.iname% развернул%actor.g% свой подарок и завизжал%actor.g% от радости!
+    set buf %actor.setquest(2500 %nyear%)%
+    log %actor.iname% - %present.vname%!
+
+# Trigger #2513
+13:
+  name: '[o80] кинуть снежок'
+  attach_type: kObjTrigger
+  narg: 3
+  arglist: швырнуть
+  trigger_types:
+    - kCommand
+  script: |-2
+    wait 1
+    set item %arg.words(1)%
+    set target %arg.words(2)%
+    if ((%item% != снежок) && (%item% != снежком))
+      osend %actor% Чем вы швыряетесь?
+      halt
+    end
+    if (!%target% || (%target.realroom% != %actor.realroom%))
+      osend %actor% Вы не видите цели.
+      halt
+    end
+    %actor.wait(5)%
+    osend %actor% &CВы метко запустили снежком в %target.vname%!&n
+    osend %target% &C %actor.iname% метко запустил в вас снежком! Бррр! Холодно!&n
+    foreach inroom %self.pc%
+      if (%inroom.name% != %actor.iname%) && (%inroom.name% != %target.name%)
+        osend %inroom% &C %actor.iname% запустил%actor.g% снежком в %target.vname%!&n
+      end
+    done
+    echo &CСнежок рассыпался кучей холодных снежинок...&n
+    opurge %self%
+
+# Trigger #2514
+14:
+  name: Бросили пентаграмму
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreetAll
+  script: |-2
+    wait 1
+    load mob 49965
+    opurge %self%
+
+# Trigger #2515
+15:
+  name: '[m05] дали волшебный лед Василю'
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kReceive
+  script: |-2
+    if ((%object.vnum% < 10670) || (%object.vnum% > 10672))
+      msend %actor% Вряд ли ему это нужно...
+      return 0
+      halt
+    end
+    wait 7
+    *считаем сданные осколки/сферы/грозди
+    set debris 0
+    set sphere 0
+    set cluster 0
+    foreach item %self.objs%
+      switch %item.vnum%
+        case 10670
+          eval debris %debris%+1
+        break
+        case 10671
+          eval sphere %sphere%+1
+        break
+        case 10672
+          eval cluster %cluster%+1
+        break
+      done
+    done
+    *удаляем все из ивентаря
+    mjunk all
+    *говорим чару сколько чего он сдал
+    wait 1
+    echo %self.name% заскрипел пером по пергаменту.
+    tell .%actor.iname% Итак, в этот раз ты принес%actor.q%:
+    if (%debris% > 0)
+      tell %actor.iname% Осколков - %debris% штук.
+    end
+    if (%sphere% > 0)
+      tell %actor.iname% Шаров - %sphere% штук.
+    end
+    if (%cluster% > 0)
+      tell %actor.iname% Гроздей - %cluster% штук.
+    end
+    tell %actor.iname% Отлично, заходи еще.
+    *суммируем с числом ранее сданных предметов и записываем
+    eval debris %debris%+%actor.getquest(2503)%
+    eval sphere %sphere%+%actor.getquest(2504)%
+    eval cluster %cluster%+%actor.getquest(2505)%
+    %actor.setquest(2503 %debris%)%
+    %actor.setquest(2504 %sphere%)%
+    %actor.setquest(2505 %cluster%)%
+
+# Trigger #2516
+16:
+  name: '[m05] озвучиваем счет'
+  attach_type: kMobTrigger
+  narg: 1
+  arglist: счет счёт
+  trigger_types:
+    - kSpeech
+  script: |-2
+    wait 1
+    eval debris %actor.getquest(2503)%
+    eval sphere %actor.getquest(2504)%
+    eval cluster %actor.getquest(2505)%
+    if ((%debris% == 0) && (%sphere% == 0) && (%cluster% == 0))
+      say У вас на счету ровным счетом ничего нет...
+      halt
+    end
+    tell %actor.iname% На твоем счету:
+    if (%debris% != 0)
+      tell %actor.iname% Осколков - %debris%.
+    end
+    if (%sphere% != 0)
+      tell %actor.iname% Шаров - %sphere%.
+    end
+    if (%cluster% != 0)
+      tell %actor.iname% Гроздьев - %cluster%.
+    end
+    wait 1s
+
+# Trigger #2517
+17:
+  name: '[m05] выдаем обратно лед по требованию'
+  attach_type: kMobTrigger
+  narg: 0
+  arglist: дай
+  trigger_types:
+    - kSpeech
+  script: |-2
+    extract item 2 %speech%
+    if (%item% == осколок)
+      eval debris %actor.getquest(2503)%
+      if (%debris% > 0)
+        eval debris %debris%-1
+        %actor.setquest(2503 %debris%)%
+        load obj 10670
+        calcuid object 10670 obj
+        %object.val0(1)%
+        %object.owner(%actor.uniq%)%
+        give осколок .%actor.iname%
+      else
+        say Извиняйте, на вас ни одного осколочка не записано.
+      end
+      halt
+    end
+    if (%item% == шар)
+      eval sphere %actor.getquest(2504)%
+      if (%sphere% > 0)
+        eval sphere %sphere%-1
+        %actor.setquest(2504 %sphere%)%
+        load obj 10671
+        calcuid object 10671 obj
+        %object.val0(1)%
+        %object.owner(%actor.uniq%)%
+        give шар .%actor.iname%
+      else
+        say Извиняйте, на вас ни единого шарика не записано.
+      end
+      halt
+    end
+    if (%item% == гроздь)
+      eval cluster %actor.getquest(2505)%
+      if (%cluster% > 0)
+        eval cluster %cluster%-1
+        %actor.setquest(2505 %cluster%)%
+        load obj 10672
+        calcuid object 10672 obj
+        %object.val0(1)%
+        %object.owner(%actor.uniq%)%
+        give гроздь .%actor.iname%
+      else
+        say Извиняйте, на вас ни одной грозди не записано.
+      end
+      halt
+    end
+
+# Trigger #2518
+18:
+  name: '[m05] антуражные сообщения Василя'
+  attach_type: kMobTrigger
+  narg: 12
+  trigger_types:
+    - kRandom
+  script: |-2
+    wait 1
+    switch %random.5%
+      case 1
+        echo _&WВасиль Иванович усиленно заскрипел пером по пергаменту.&n
+      break
+      case 2
+        echo _&WВасиль Иванович довольно крякнул, и разгладил усы ногтем большого пальца.&n
+      break
+      case 3
+        echo _&WВасиль Иванович озабоченно нахмурился и принялся пересыпать ледяные шары, бормоча что-то под нос.&n
+      break
+      case 4
+        echo _&WВасиль Иванович хмыкнул, покопался под столом, извлек на свет пузатую баклажку и сделал хороший глоток.&n
+      break
+      case 5
+        echo _&WВасиль Иванович выглянул в окошко, пробормотал "эххх-ма..." и снова уселся за стол.&n
+      break
+    done
+
+# Trigger #2519
+19:
+  name: '[m06] антуражные сообщения Ивана'
+  attach_type: kMobTrigger
+  narg: 16
+  trigger_types:
+    - kRandom
+  script: |-2
+    wait 1
+    switch %random.5%
+      case 1
+        echo "Три корзна замшевых..," -- пробубнил Иван Васильевич, копаясь в свитках.
+      break
+      case 2
+        echo _"Три заморския машины бесовския мах.. мыхфо... а пес шелудивый с ними, пусть так будет" -
+        echo _Иван Васильевич черкнул пером по пергаменту.
+      break
+      case 3
+        echo _Иван Васильевич сделал глоток из кружки и вкусно захрустел огурчиком.
+      break
+      case 4
+        echo _Иван Васильевич гаркнул: "Васька, остатний раз говорю, в оба гляди! Опять шелудивую ледышку пропустил!
+      break
+      case 5
+        echo _"И куда этот дьяк подевался..." - пробурчал Иван Васильевич и зашуршал свитками.
+      break
+    done
+
+# Trigger #2520
+20:
+  name: '[m06] выдача призов за лед'
+  attach_type: kMobTrigger
+  narg: 0
+  arglist: куплю
+  trigger_types:
+    - kSpeech
+  script: |-2
+    wait 1
+    set clustercost 0
+    set spherecost 0
+    set debriscost 0
+    set item %speech.cdr%
+    set itamname обруч Теплого Снега
+    if (%item% == %itamname%)
+      set itemvnum 2550
+      set debriscost 5
+      set spherecost 0
+      set clustercost 0
+    end
+    set itamname куртка Теплого Снега
+    if (%item% == %itamname%)
+      set itemvnum 2551
+      set debriscost 5
+      set spherecost 0
+      set clustercost 0
+    end
+    set itamname сума Теплого Снега
+    if (%item% == %itamname%)
+      set itemvnum 2552
+      set debriscost 5
+      set spherecost 0
+      set clustercost 0
+    end
+    set itamname амулет Теплого Снега
+    if (%item% == %itamname%)
+      set itemvnum 2553
+      set debriscost 5
+      set spherecost 0
+      set clustercost 0
+    end
+    set itamname оберег сотканный из снега
+    if (%item% == %itamname%)
+      set itemvnum 2554
+      set debriscost 5
+      set spherecost 0
+      set clustercost 0
+    end
+    set itamname повязка сотканная из снега
+    if (%item% == %itamname%)
+      set itemvnum 2555
+      set debriscost 5
+      set spherecost 0
+      set clustercost 0
+    end
+    set itamname плащ сотканный из снега
+    if (%item% == %itamname%)
+      set itemvnum 2556
+      set debriscost 5
+      set spherecost 0
+      set clustercost 0
+    end
+    set itamname посох сотканный из снега
+    if (%item% == %itamname%)
+      set itemvnum 2557
+      set debriscost 5
+      set spherecost 0
+      set clustercost 0
+    end
+    set itamname колечко из синего льда
+    if (%item% == %itamname%)
+      set itemvnum 2558
+      set debriscost 0
+      set spherecost 5
+      set clustercost 0
+    end
+    set itamname перстенек из синего льда
+    if (%item% == %itamname%)
+      set itemvnum 2559
+      set debriscost 0
+      set spherecost 5
+      set clustercost 0
+    end
+    set itamname сапожки из синего льда
+    if (%item% == %itamname%)
+      set itemvnum 2560
+      set debriscost 0
+      set spherecost 5
+      set clustercost 0
+    end
+    set itamname наручи из синего льда
+    if (%item% == %itamname%)
+      set itemvnum 2561
+      set debriscost 0
+      set spherecost 5
+      set clustercost 0
+    end
+    set itamname ошейник зимней вьюги
+    if (%item% == %itamname%)
+      set itemvnum 2562
+      set debriscost 0
+      set spherecost 5
+      set clustercost 0
+    end
+    set itamname жезл зимней вьюги
+    if (%item% == %itamname%)
+      set itemvnum 2563
+      set debriscost 0
+      set spherecost 5
+      set clustercost 0
+    end
+    set itamname поножи зимней вьюги
+    if (%item% == %itamname%)
+      set itemvnum 2564
+      set debriscost 0
+      set spherecost 5
+      set clustercost 0
+    end
+    set itamname перчатки зимней вьюги
+    if (%item% == %itamname%)
+      set itemvnum 2565
+      set debriscost 0
+      set spherecost 5
+      set clustercost 0
+    end
+    set itamname поножи зимнего солнца
+    if (%item% == %itamname%)
+      set itemvnum 2566
+      set debriscost 0
+      set spherecost 0
+      set clustercost 5
+    end
+    set itamname перчатки зимнего солнца
+    if (%item% == %itamname%)
+      set itemvnum 2567
+      set debriscost 0
+      set spherecost 0
+      set clustercost 5
+    end
+    set itamname плащ зимнего солнца
+    if (%item% == %itamname%)
+      set itemvnum 2568
+      set debriscost 0
+      set spherecost 0
+      set clustercost 5
+    end
+    set itamname обруч зимнего солнца
+    if (%item% == %itamname%)
+      set itemvnum 2569
+      set debriscost 0
+      set spherecost 0
+      set clustercost 5
+    end
+    set itamname амулет Северного Сияния
+    if (%item% == %itamname%)
+      set itemvnum 2570
+      set debriscost 0
+      set spherecost 0
+      set clustercost 5
+    end
+    set itamname доспех Северного Сияния
+    if (%item% == %itamname%)
+      set itemvnum 2571
+      set debriscost 0
+      set spherecost 0
+      set clustercost 5
+    end
+    set itamname корона Северного Сияния
+    if (%item% == %itamname%)
+      set itemvnum 2572
+      set debriscost 0
+      set spherecost 0
+      set clustercost 5
+    end
+    set itamname браслет Северного Сияния
+    if (%item% == %itamname%)
+      set itemvnum 2573
+      set debriscost 0
+      set spherecost 0
+      set clustercost 5
+    end
+    set itamname маленькая книга
+    if (%item% == %itamname%)
+      set itemvnum 519
+      set debriscost 3
+      set spherecost 0
+      set clustercost 0
+    end
+    set itamname книга усыпления
+    if (%item% == %itamname%)
+      set itemvnum 541
+      set debriscost 3
+      set spherecost 0
+      set clustercost 0
+    end
+    set itamname трактат о довольстве
+    if (%item% == %itamname%)
+      set itemvnum 415
+      set debriscost 3
+      set spherecost 0
+      set clustercost 0
+    end
+    set itamname инкрустированная золотом книга
+    if (%item% == %itamname%)
+      set itemvnum 531
+      set debriscost 3
+      set spherecost 0
+      set clustercost 0
+    end
+    set itamname книга освобождения
+    if (%item% == %itamname%)
+      set itemvnum 561
+      set debriscost 3
+      set spherecost 0
+      set clustercost 0
+    end
+    set itamname книга света
+    if (%item% == %itamname%)
+      set itemvnum 525
+      set debriscost 3
+      set spherecost 0
+      set clustercost 0
+    end
+    set itamname книга тьмы
+    if (%item% == %itamname%)
+      set itemvnum 526
+      set debriscost 3
+      set spherecost 0
+      set clustercost 0
+    end
+    set itamname книга странствий
+    if (%item% == %itamname%)
+      set itemvnum 540
+      set debriscost 7
+      set spherecost 0
+      set clustercost 0
+    end
+    set itamname слово о чертах и резах
+    if (%item% == %itamname%)
+      set itemvnum 414
+      set debriscost 7
+      set spherecost 0
+      set clustercost 0
+    end
+    set itamname книга о высшем Порядке
+    if (%item% == %itamname%)
+      set itemvnum 578
+      set debriscost 7
+      set spherecost 0
+      set clustercost 0
+    end
+    set itamname книга с рубином в переплете
+    if (%item% == %itamname%)
+      set itemvnum 529
+      set debriscost 7
+      set spherecost 0
+      set clustercost 0
+    end
+    set itamname трактат о свойствах теней
+    if (%item% == %itamname%)
+      set itemvnum 405
+      set debriscost 7
+      set spherecost 0
+      set clustercost 0
+    end
+    set itamname книга со словами умерших
+    if (%item% == %itamname%)
+      set itemvnum 534
+      set debriscost 0
+      set spherecost 1
+      set clustercost 0
+    end
+    set itamname книга о волшебных свойствах зеркал
+    if (%item% == %itamname%)
+      set itemvnum 417
+      set debriscost 0
+      set spherecost 0
+      set clustercost 1
+    end
+    set itamname книга о заповедных дорогах
+    if (%item% == %itamname%)
+      set itemvnum 416
+      set debriscost 0
+      set spherecost 0
+      set clustercost 2
+    end
+    *set itamname волшебное зеркальце
+    *if (%item% == %itamname%)
+    *  set itemvnum 50024
+    *  set debriscost 0
+    *  set spherecost 2
+    *  set clustercost 0
+    *end
+    *set itamname заговоренный манок
+    *if (%item% == %itamname%)
+    *set itemvnum 50041
+    *set debriscost 0
+    *set spherecost 3
+    *set clustercost 0
+    *end
+    wait 1
+    if ((%debriscost% == 0) && (%spherecost% == 0) && (%clustercost% == 0))
+      tell .%actor.iname% Нет такого товара в списках, гляди зорче.
+      halt
+    end
+    eval debris %actor.getquest(2503)%
+    eval sphere %actor.getquest(2504)%
+    eval cluster %actor.getquest(2505)%
+    if ((%debriscost% > %debris%) || (%spherecost% > %sphere%) || (%clustercost% > %cluster%))
+      *say ((%debriscost% > %debris%) || (%spherecost% > %sphere%) || (%clustercost% > %cluster%))
+      tell .%actor.iname% Маловато льда-то у вас на счету... Поболе надоть.
+      halt
+    end
+    eval debris %debris%-%debriscost%
+    eval sphere %sphere%-%spherecost%
+    eval cluster %cluster%-%clustercost%
+    %actor.setquest(2503 %debris%)%
+    %actor.setquest(2504 %sphere%)%
+    %actor.setquest(2505 %cluster%)%
+    load obj %itemvnum%
+    calcuid object %itemvnum% obj
+    if ((%object.vnum% >= 2500) && %object.vnum% <= 2599))
+      %object.owner(%actor.uniq%)%
+    end
+    tell .%actor.iname% С вашего счета списано:
+    tell %actor% Вот, извольте.
+    if (%debriscost% > 0)
+      tell %actor.iname% Осколков - %debriscost% штук.
+    end
+    if (%spherecost% > 0)
+      tell %actor.iname% Шаров - %spherecost% штук.
+    end
+    if (%clustercost% > 0)
+      tell %actor.iname% Гроздей - %clustercost% штук.
+    end
+    give all .%actor.iname%
+
+# Trigger #2521
+21:
+  name: '[m06] не берем вещей в инвентарь'
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kReceive
+  script: |-2
+    msend %actor% _&RА ежели он вас посохом по лбу?!&n
+    return 0
+    halt
+
+# Trigger #2522
+22:
+  name: Раскладной чармис - снежный вихрь
+  attach_type: kObjTrigger
+  narg: 2
+  arglist: встряхнуть
+  trigger_types:
+    - kCommand
+  script: |-2
+    wait 1
+    if !%arg.contains(шар)%
+      osend %actor% Что вы хотите встряхнуть?
+      halt
+    end
+    echoaround %actor% встряхнуд%actor.g% стеклянный шар, и вокруг закружился снежный вихрь!
+    osend %actor% Вы встряхнули стеклянный шар и вокруг закружился снежный вихрь!
+    set charmis %self.val0%
+    if ((%self.val0% == 0) || !%charmis.vnum%))
+      wait 1s
+      echo Вихрь быстро кружась сжался в смерч.
+      wait 1s
+      echo Снежный вихрь повис перед вами, и в нем медленно появались пара светящихся глаз.
+      echoaround %actor% Снежный вихрь повис перед %actor.vname%
+      load mob 2510
+      calcuid tornado 2510 mob
+      oforce %tornado% г Не работает насяльника
+      %self.val0(%tornado%)%
+      halt
+    end
+    set charmis %self.val0%
+    if ((%charmis.realroom% == %charmis.realroom%) && !%charmis.leader%)
+      wait 1s
+      echo Снежный вихрь бешенно закружился, и рассыпался в воздухе.
+      wait 1
+      opurge %charmis%
+      halt
+    end
+    if ((%charmis.realroom% == %actor.realroom%) && (%charmis.leader% == %actor%))
+      wait 1s
+      echoaround %actor% Снежный вихрь кружится вокруг %actor.vname%
+      echo Снежный вихрь закружился вокруг вас.
+      halt
+    end
+    if ((%charmis.realroom% == %actor.realroom%) && (%charmis.leader% != %actor%))
+      wait 1s
+      echo Снежный вихрь с гулом зккружился на месте.
+      oforce %charmis% follow я
+      wait 3
+      echoaround %actor% Снежный вихрь подлетел ближе к %actor.dname%
+      echo Снежный вихрь подлетел поближе к вам.
+      halt
+    end
+    if (%charmis.realroom% != %actor.realroom%)
+      wait 1s
+      echoaround %charmis% Снежный вихрь вдруг взвился и растаял в воздухе.
+      echo Снежный вихрб со свистом причался откуда-то, и подлетел к вам.
+      oteleport %charmis% %actor.realroom%
+    end
+
+# Trigger #2523
+23:
+  name: '[m04] снятие персональности с предметов'
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kReceive
+  script: |-2
+    wait 3
+    foreach thing %self.objs%
+      if ((%thing.vnum% > 2549) && (%thing.vnum% <= 2573))
+        if %thing.owner%
+          echo %self.iname% ловко оторвал приклееный в потайном месте %thing.rname% ярлычок.
+          %thing.owner(0)%
+        else
+          echo %self.iname% сноровисто наклеил неболшой ярлычок в потайном месте %thing.rname%.
+          %thing.owner(%actor.uniq%)%
+        end
+      else
+        echo %self.iname% хмуро поглядел на %thing.vname%.
+      end
+      eval tmp %thing.put(%actor%)%
+      if (%thing.carriedby% == %actor%)
+        msend %actor% %self.iname% тут же вернул вам %thing.vname%.
+        echoaround %actor% %self.iname% вернул %actor.dname% %thing.vname%.
+      else
+        eval tmp %thing.put(%self.realroom%)%
+        echo %self.iname% бросил %thing.vname%.
+      end
+      wait 3
+    done
+
+# Trigger #2524
+24:
+  name: '[m03] медведь трансформирует снежинки'
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kReceive
+  script: |-2
+    *медведь трансформирует снежинки : Mobiles : Receive : 100
+    if (((%object.vnum% < 2586) || (%object.vnum% > 2589)) && (%object.vnum% != 10630))
+      msend %actor% Вряд ли ему это нужно...
+      return 0
+      halt
+    end
+    wait 1
+    set size0 0
+    set size1 0
+    set size2 0
+    set size3 0
+    *лоадим ранее сданные снежинки
+    set i 86
+    while (%i% < 90)
+      if %actor.quested(25%i%)%
+        set it %actor.getquest(25%i%)%
+        %actor.unsetquest(25%i%)%
+        while (%it% > 0)
+          %load% obj 25%i%
+          eval it %it%-1
+        done
+      end
+      eval i %i%+1
+    done
+    *считаем все снежинки
+    foreach item %self.objs%
+      switch %item.vnum%
+        case 2586
+        case 10630
+          eval size0 %size0%+1
+        break
+        case 2587
+          eval size1 %size1%+1
+        break
+        case 2588
+          eval size2 %size2%+1
+        break
+        case 2589
+          eval size3 %size3%+1
+        break
+      done
+    done
+    wait 1
+    *считаем сколько и каких снежинок надо залоадить
+    eval amount0 %size0%/10
+    eval amount1 %size1%/10
+    eval amount2 %size2%/10
+    eval amount3 %size3%/10
+    *остальные снежинки подлежат немедленному возврату
+    eval size0 %size0%-10*%amount0%
+    eval size1 %size1%-10*%amount1%
+    eval size2 %size2%-10*%amount2%
+    eval size3 %size3%-10*%amount3%
+    eval tmp %size0%+%size1%+%size2%+%size3%
+    if (%tmp% > 0)
+      tell %actor.iname% Снежинки принимаю только десятками!
+      if (%size0% > 0)
+        give %size0% крош.снеж .%actor.iname%
+      end
+      if (%size1% > 0)
+        give %size1% мале.снеж .%actor.iname%
+      end
+      if (%size2% > 0)
+        give %size2% небо.снеж .%actor.iname%
+      end
+      if (%size3% > 0)
+        give %size3% прек.снеж .%actor.iname%
+      end
+    end
+    *лишь теперь удаляем все из инвентаря
+    mjunk all
+    *лоадим нужные более крупные снежинки если надо
+    eval tmp %amount0%+%amount1%+%amount2%+%amount3%
+    if (%tmp% > 0)
+      while (%amount0% > 0)
+        %load% obj 2587
+        echo %self.iname% слепил несколько крошечных снежинок в одну маленькую.
+        eval amount0 %amount0%-1
+      done
+      while (%amount1% > 0)
+        %load% obj 2588
+        echo %self.iname% слепил несколько маленьких снежинок в одну небольшую.
+        eval amount1 %amount1%-1
+      done
+      while (%amount2% > 0)
+        %load% obj 2589
+        echo %self.iname% слепил несколько небольших снежинок в одну более крупную.
+        eval amount2 %amount2%-1
+      done
+      while (%amount3% > 0)
+        %load% obj 2590
+        echo %self.iname% слепил несколько средних снежинок в одну большую.
+        eval amount3 %amount3%-1
+      done
+      echo %self.iname% почесал репу, подсчитывая что-то в уме.
+      give all .%actor.iname%
+      tell %actor.iname% Итак, мы в рассчёте!
+      tell %actor.iname% Приноси еще!
+    end
+
+# Trigger #2525
+25:
+  name: Привязка предмета к игроку
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+  script: |-2
+    wait 1
+    if !%self.owner%
+      %self.owner(%actor.uniq%)%
+      osend %actor% %self.name% мягко засветил%self.u% в ваших руках и угас%self.q%.
+      echoaround %actor% %self.name% мягко засветил%self.u% в руках %actor.rname% и угас%self.q%.
+    end
+
+# Trigger #2526
+26:
+  name: '[m00] Дед мороз раскладывает снежинки'
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kRandomGlobal
+    - kRandom
+  script: |-2
+    set zones1 42 43 46 47 51 53 54 55 56 62 63 64 66 72 74 76 79 81 89 92 93 99 100 101 102 103 104 105 110 111 114 115 116 117 118 120 121 123 124 127 132 133 137 138 141 142 143 145 149 155 157 161 170 201 202 203 204 205 206 220 226 231 232 235 236 241 242 248 257 258 260 265 266 267 268 269 271 272 274 276 277 278 280 281 283 286 287 288 291 292 293 295 296 306 307 308 309 321 323 327 330 331 332 333 334 335 338 339 351 354 355 358 359 361 377 379 382 383 384 385 388 389 400 427 430 461 461 471 475 476 477 479 502 505 518 560 568
+    set zones2 569 585 607 611 613 614 615 616 618 619 621 622 626 635 637 638 644 646 651 652 661 662 665 666 668 669 670 671 672 675 676 677 678 679 682 683 684 686 687 688 691 692 693 694 695 696 700 702 703 704 707 714 722 724 731 748 749 752 753 754 755 756 761 773 774 778 789 792 793 794 796 797 798 799 803 804 806 807 820 821 822 823 824 830 842 861 862 865 866 870 871 877 888 899 900 905 906 909 910 911 912 914 915 916 917 918 919 920 921 922 923 924 925 926 927 932 935 936 940 941 951 952 954 955 960 961 962 963 964 965 983 984 985 986 987 988 989 3333
+    set count 5
+    while %count% > 0
+      if %random.1000% <= 500
+        set zones %zones1%
+      else
+        set zones %zones2%
+      end
+      set zone %array.item(%zones%,%random.num(%array.item(%zones%)%)%)%
+      set vroom %world.room(%zone%99)%
+      set first %vroom.firstvnum%
+      set last %vroom.lastvnum%)%
+      while 1
+        set vnum %number.range(%first%,%last%)%
+        set room %world.room(%vnum%)%
+        if %room%
+          set name %room.name%
+          if !%name.contains(хелп)% && !%name.contains(помощник)% && !%name.contains(суммон)% && !%name.contains(виртуал)% && !%room.flag(ДТ)% && !%room.flag(медленный ДТ)%
+          break
+        end
+      end
+    done
+    %echoaround% %self% %self.iname% залихватски гикнул на оленей, и упряжка полетела дальше.
+    %teleport% %self% %vnum%
+    %echoaround% %self% Откуда ни возьмись, донесся до вас переливчатый звон колокольчиков, и вы увидели упряжку самого %self.rname%!
+    %load% obj 2586
+    бро снежинка
+    wait 4s
+    eval count %count% -1
+    done
+    %teleport% %self% 2500
+
+# Trigger #2527
+27:
+  name: '[m00] попросить подарочек у Деда мороза'
+  attach_type: kMobTrigger
+  narg: 1
+  arglist: попросить
+  trigger_types:
+    - kCommand
+  script: |-2
+    if !%arg.contains(подарочек)%
+      %send% %actor% Что просить-то хотите?
+    else
+      %send% %actor% Вы смущенно начали просить Деда Мороза о подарке.
+      %echoaround% %actor% %actor.iname% начал%actor.a% просить Деда Мороза о подарке. Какова наглость?!
+      wait 1
+      г Подарочек ему...
+      дум
+      г Ну держи, Новый Год, как ни как!
+      %echo% Дед Мороз, кряхтя, начал что-то искать в своем огромном мешке.
+      wait 1
+      *призы 10709-10713
+      eval prizevnum 10708+%random.5%
+      load obj %prizevnum%
+      give all .%actor.iname%
+    end
+
+# Trigger #2528
+28:
+  name: '[o92-93] разбить шар/гроздь'
+  attach_type: kObjTrigger
+  narg: 2
+  arglist: разбить
+  trigger_types:
+    - kCommand
+  script: |-2
+    wait 1
+    if !%arg%
+      osend %actor% Что вы хотите разбить?
+      halt
+    end
+    if (%arg.contains(шар)% && (%self.vnum% == 2592))
+      osend %actor% &GВы резким ударом разбили волшебный шар на осколки...&n
+      echoaround %actor% &G%actor.iname% резким ударом разбил%actor.q% волшебный ледяной шар на осколки!&n
+      set i 0
+      while %i% < 5
+        load obj 2591
+        calcuid ice 2591 obj
+        %ice.owner(%self.owner%)%
+        %ice.put(%actor%)%
+        eval i %i%+1
+      done
+      wait 1
+      opurge %self%
+      halt
+    end
+    if (%arg.contains(гроздь)% && (%self.vnum% == 2593))
+      osend %actor% &GВы резким ударом разбили гроздь шаров на части...&n
+      echoaround %actor% &G%actor.iname% резким ударом разбил%actor.q% гроздь волшебных ледяных шаров!&n
+      set i 0
+      while %i% < 5
+        load obj 2592
+        calcuid ice 2592 obj
+        %ice.owner(%self.owner%)%
+        %ice.put(%actor%)%
+        eval i %i%+1
+      done
+      wait 1
+      opurge %self%
+      halt
+    end
+
+# Trigger #2529
+29:
+  name: '[o48] елка спамит в клетку'
+  attach_type: kObjTrigger
+  narg: 2
+  trigger_types:
+    - kRandomGlobal
+    - kRandom
+  script: |-2
+    wait 10
+    switch %random.18%
+      case 1
+        echo &gПушистая елочка&n хитро потянула к вам свои лапы.
+      break
+      case 2
+        echo &gПушистая елочка&n качнула веткой и зазвенела &Cколокольчиками&n&n&n&n&n.
+      break
+      case 3
+        echo &gПушистая елочка&n игриво подмигнула вам &Yогоньком гирлянды&n.
+      break
+      case 4
+        echo &gПушистая елочка&n запела: &Wнооооооооооовыыыыыыыый год к нам мчится! скоро все случится )) рипнутся все кому не спится!&n
+      break
+      case 5
+        echo Вдруг из-под &gелочки&n выпрыгнул &w&Wбелый зайчик&n&n, пробежал вокруг нее два круга, и вновь скрылся в &Gпушистых ветвях&n.
+      break
+      case 6
+        echo &gПушистая елочка&n начала примерять &mн&n&Wо&n&mв&n&Wу&n&mю&n &Wг&n&mи&n&Wр&n&mл&n&Wя&n&mн&nд&mу&n.
+      break
+      case 7
+        echo &gПушистая елочка&n встряхнулась, на вас посыпались &w&Wхлопья снега&n&n.
+      break
+      case 8
+        echo &gПушистая елочка&n достала откуда-то &bбутылку шампанского&n&n и стала себя им поливать.
+      break
+      case 9
+        echo &rБелочка&n, сидящая в ветвях елки, подмигнула вам с намеком.
+      break
+      case 10
+        echo &gПушистая елочка&n огляделась и завизжала от восторга при виде Вас.
+      break
+      case 11
+        echo &gПушистая елочка&n сказала: &Wгде же Дед Мороз, ну где же Дед Мороз?!&n
+      break
+      case 12
+        echo &gПушистая елочка&n начала внимательно оглядываться в поисках &rподарков&n.
+      break
+      case 13
+        echo &gПушистая елочка&n отряхнулась и с новым энтузиазмом &Cз&n&Yа&n&Rм&n&Gи&n&Mг&n&cа&n&Wл&n&rа&n гирляндами.
+      break
+      case 14
+        echo Из-под &gелки&n донеслось нетрезвое пение.
+      break
+      case 15
+        echo &gПушистая елочка&n торжественно сообщила: &rВремя тоста изменить нельзя !&n
+      break
+      case 16
+        echo &gПушистая елочка&n взмахнула ветвями и взметнулась &Mр&n&cа&n&Rз&n&yн&n&Wо&n&Gц&n&mв&n&Gе&n&rт&n&Cн&n&rа&n&yя&n стая &Wогоньков&n.
+      break
+      case 17
+        echo &gПушистая елочка&n вздохнула: &cпоговори со мной, ну поговори со мной!&n
+      break
+      case 18
+        echo &gПушистая елочка&n ласково обняла вас своими лапами.
+      break
+    done
+
+# Trigger #2597
+97:
+  name: пьянение
+  attach_type: kObjTrigger
+  narg: 100
+  arglist: пьян
+  trigger_types:
+    - kCommand
+  script: 'dgaffect %actor% ''опьянение'' 100 100'
+
+# Trigger #2598
+98:
+  name: посылка заходит в пенту по команде
+  attach_type: kMobTrigger
+  narg: 100
+  arglist: пента
+  trigger_types:
+    - kSpeech
+  script: |-2
+    if %actor.level% < 31
+      say А вот хер тебе, не пойду я туда.
+    else
+      say Есть, сэр!
+      войти пент
+    end

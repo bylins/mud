@@ -1,0 +1,506 @@
+# Mobs for zone 48
+
+# Mob #4800
+0:
+  names:
+    aliases: шмель
+    nominative: шмель
+    genitive: шмеля
+    dative: шмелю
+    accusative: шмеля
+    instrumental: шмелем
+    prepositional: шмеле
+  descriptions:
+    short_desc: |2
+      Шмель жужжит у Вас над головой.
+    long_desc: |2
+      Крупный полосатый шмель.
+  alignment: 0
+  stats:
+    level: 2
+    hitroll_penalty: 19
+    armor: 7
+    hp:
+      dice_count: 3
+      dice_size: 3
+      bonus: 60
+    damage:
+      dice_count: 1
+      dice_size: 3
+      bonus: 2
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 300
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 5
+  race: 107
+  height: 198
+  weight: 1
+  attributes:
+    strength: 3
+    dexterity: 3
+    intelligence: 4
+    wisdom: 4
+    constitution: 3
+    charisma: 4
+  action_flags:
+    - kNpc
+    - kStayZone
+    - kAppearsSpring
+    - kAppearsSummer
+    - kAppearsAutumn
+  affect_flags:
+    - kFly
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 10
+  enhanced:
+    absorb: 2
+    bare_hand_attack: 16
+    special_bitvector: l0
+
+# Mob #4801
+1:
+  names:
+    aliases: малиновка
+    nominative: малиновка
+    genitive: малиновки
+    dative: малиновке
+    accusative: малиновку
+    instrumental: малиновкой
+    prepositional: малиновке
+  descriptions:
+    short_desc: |2
+      Малиновка пробегает мимо Вас.
+    long_desc: |2
+      Маленькая пташка.
+  alignment: 0
+  stats:
+    level: 2
+    hitroll_penalty: 19
+    armor: 9
+    hp:
+      dice_count: 2
+      dice_size: 1
+      bonus: 50
+    damage:
+      dice_count: 1
+      dice_size: 2
+      bonus: 2
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 200
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  size: 3
+  race: 103
+  height: 198
+  weight: 1
+  attributes:
+    strength: 3
+    dexterity: 3
+    intelligence: 4
+    wisdom: 4
+    constitution: 3
+    charisma: 4
+  action_flags:
+    - kNpc
+    - kStayZone
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 6
+  enhanced:
+    absorb: 2
+    bare_hand_attack: 4
+    special_bitvector: p0
+
+# Mob #4802
+2:
+  names:
+    aliases: муравей
+    nominative: муравей
+    genitive: муравья
+    dative: муравью
+    accusative: муравья
+    instrumental: муравьем
+    prepositional: муравье
+  descriptions:
+    short_desc: |2
+      Маленький муравей тащит что-то в свой муравейник.
+    long_desc: |2
+      Довольно крохотное существо
+      черного цвета.
+  alignment: 0
+  stats:
+    level: 2
+    hitroll_penalty: 19
+    armor: 8
+    hp:
+      dice_count: 2
+      dice_size: 1
+      bonus: 55
+    damage:
+      dice_count: 1
+      dice_size: 2
+      bonus: 2
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 300
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 2
+  race: 107
+  height: 198
+  weight: 1
+  attributes:
+    strength: 3
+    dexterity: 4
+    intelligence: 4
+    wisdom: 4
+    constitution: 3
+    charisma: 4
+  action_flags:
+    - kNpc
+    - kStayZone
+    - kAppearsSpring
+    - kAppearsSummer
+    - kAppearsAutumn
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 9
+  enhanced:
+    absorb: 2
+    bare_hand_attack: 8
+    special_bitvector: p0
+
+# Mob #4803
+3:
+  names:
+    aliases: пчела
+    nominative: пчела
+    genitive: пчелы
+    dative: пчеле
+    accusative: пчелу
+    instrumental: пчелой
+    prepositional: пчеле
+  descriptions:
+    short_desc: |2
+      Веселая пчелка собирает пыльцу.
+    long_desc: |2
+      Маленькая черная пчела жужжит здесь.
+  alignment: 0
+  stats:
+    level: 2
+    hitroll_penalty: 19
+    armor: 7
+    hp:
+      dice_count: 2
+      dice_size: 1
+      bonus: 53
+    damage:
+      dice_count: 1
+      dice_size: 2
+      bonus: 2
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 300
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  size: 2
+  race: 107
+  height: 198
+  weight: 50
+  attributes:
+    strength: 3
+    dexterity: 4
+    intelligence: 4
+    wisdom: 4
+    constitution: 3
+    charisma: 4
+  action_flags:
+    - kNpc
+    - kStayZone
+    - kAppearsSpring
+    - kAppearsSummer
+    - kAppearsAutumn
+  affect_flags:
+    - kFly
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 9
+  enhanced:
+    absorb: 2
+    bare_hand_attack: 16
+    special_bitvector: l0
+
+# Mob #4804
+4:
+  names:
+    aliases: маленькая змея
+    nominative: маленькая змея
+    genitive: маленькой змеи
+    dative: маленькой змее
+    accusative: маленькую змею
+    instrumental: маленькой змеей
+    prepositional: маленькой змее
+  descriptions:
+    short_desc: |2
+      Маленькая змея прошмыгнула у ног.
+    long_desc: |2
+      Недлинная гадина черного цвета.
+  alignment: 0
+  stats:
+    level: 4
+    hitroll_penalty: 14
+    armor: 8
+    hp:
+      dice_count: 2
+      dice_size: 1
+      bonus: 150
+    damage:
+      dice_count: 2
+      dice_size: 2
+      bonus: 2
+  gold:
+    dice_count: 2
+    dice_size: 2
+    bonus: 3
+  experience: 1000
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  size: 10
+  race: 105
+  height: 198
+  weight: 12
+  attributes:
+    strength: 5
+    dexterity: 14
+    intelligence: 6
+    wisdom: 6
+    constitution: 10
+    charisma: 6
+  action_flags:
+    - kNpc
+    - kStayZone
+    - kAppearsSpring
+    - kAppearsSummer
+    - kAppearsAutumn
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 15
+  enhanced:
+    absorb: 4
+    bare_hand_attack: 8
+    extra_attack: 1
+    special_bitvector: m0
+
+# Mob #4805
+5:
+  names:
+    aliases: мышка
+    nominative: мышка
+    genitive: мышки
+    dative: мышке
+    accusative: мышку
+    instrumental: мышкой
+    prepositional: мышке
+  descriptions:
+    short_desc: |2
+      Мышь-полевка быстро бежит к своей норке.
+    long_desc: |2
+      Серенькая мышка-норушка.
+  alignment: 0
+  stats:
+    level: 4
+    hitroll_penalty: 18
+    armor: 7
+    hp:
+      dice_count: 2
+      dice_size: 1
+      bonus: 75
+    damage:
+      dice_count: 1
+      dice_size: 3
+      bonus: 1
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 800
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  size: 3
+  race: 104
+  height: 198
+  weight: 1
+  attributes:
+    strength: 4
+    dexterity: 10
+    intelligence: 6
+    wisdom: 6
+    constitution: 5
+    charisma: 6
+  action_flags:
+    - kNpc
+    - kStayZone
+    - kNoSkillTrain
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 12
+  enhanced:
+    absorb: 4
+    bare_hand_attack: 8
+    special_bitvector: p0
+
+# Mob #4806
+6:
+  names:
+    aliases: медвежонок
+    nominative: медвежонок
+    genitive: медвежонка
+    dative: медвежонку
+    accusative: медвежонка
+    instrumental: медвежонком
+    prepositional: медвежонке
+  descriptions:
+    short_desc: |2
+      Довольный медвежонок лопает здесь малину.
+    long_desc: |2
+      Маленький пушистый медвежонок.
+  alignment: 0
+  stats:
+    level: 9
+    hitroll_penalty: 10
+    armor: 6
+    hp:
+      dice_count: 4
+      dice_size: 4
+      bonus: 225
+    damage:
+      dice_count: 2
+      dice_size: 1
+      bonus: 3
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 4000
+  position:
+    default: kRest
+    start: kRest
+  sex: kMale
+  size: 50
+  race: 104
+  height: 198
+  weight: 120
+  attributes:
+    strength: 13
+    dexterity: 13
+    intelligence: 10
+    wisdom: 10
+    constitution: 13
+    charisma: 10
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kStayZone
+    - kAppearsSpring
+    - kAppearsSummer
+    - kAppearsAutumn
+    - kNoSkillTrain
+  affect_flags:
+    - kInfravision
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 30
+  enhanced:
+    absorb: 9
+    bare_hand_attack: 1
+    max_factor: 1
+    extra_attack: 1
+
+# Mob #4807
+7:
+  names:
+    aliases: рой стая комар
+    nominative: рой комаров
+    genitive: роя комаров
+    dative: рою комаров
+    accusative: рой комаров
+    instrumental: роем комаров
+    prepositional: рое комаров
+  descriptions:
+    short_desc: |2
+      Большой рой комаров мешает тут Мише.
+    long_desc: |2
+      Множество комаров как один жужжат и кусаются.
+  alignment: 0
+  stats:
+    level: 4
+    hitroll_penalty: 18
+    armor: 5
+    hp:
+      dice_count: 3
+      dice_size: 3
+      bonus: 90
+    damage:
+      dice_count: 1
+      dice_size: 1
+      bonus: 1
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 1000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 2
+  race: 107
+  height: 198
+  weight: 50
+  attributes:
+    strength: 4
+    dexterity: 8
+    intelligence: 4
+    wisdom: 4
+    constitution: 4
+    charisma: 4
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kCorpse
+    - kAppearsSpring
+    - kAppearsSummer
+    - kAppearsAutumn
+  affect_flags:
+    - kFly
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 18
+  enhanced:
+    absorb: 4
+    bare_hand_attack: 16
+    extra_attack: 3

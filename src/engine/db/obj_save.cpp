@@ -44,6 +44,13 @@
 #include "engine/observability/metrics.h"
 #include "utils/tracing/trace_manager.h"
 
+#include <unordered_map>
+
+// #3440: кэш хешей содержимого файла объектов по uid игрока. Для периодического
+// crash-сейва (RENT_CRASH) позволяет пропустить дисковую запись, если набор
+// предметов не изменился. Заполняется только при реальной записи файла.
+static std::unordered_map<long, std::size_t> g_obj_crash_save_hash;
+
 const int LOC_INVENTORY = 0;
 //const int MAX_BAG_ROWS = 5;
 //const int ITEM_DESTROYED = 100;
@@ -1909,6 +1916,7 @@ int save_char_objects(CharData *ch, int savetype, int rentcost) {
 	ObjSaveSync::check(ch->get_uid(), ObjSaveSync::CHAR_SAVE);
 
 	if (!num) {
+		g_obj_crash_save_hash.erase(ch->get_uid());
 		Crash_delete_files(iplayer);
 		return false;
 	}
@@ -2002,13 +2010,6 @@ int save_char_objects(CharData *ch, int savetype, int rentcost) {
 	double crc_sec = 0.0;
 	utils::CExecutionTimer obj_io_timer;
 	if (get_filename(GET_NAME(ch), fname, kTextCrashFile)) {
-		std::ofstream file(fname, std::ios::binary);
-		if (!file.is_open()) {
-			snprintf(buf, kMaxStringLength, "[SYSERR] Store objects file '%s'- MAY BE LOCKED.", fname);
-			mudlog(buf, BRF, kLvlImmortal, SYSLOG, true);
-			Crash_delete_files(iplayer);
-			return false;
-		}
 		write_buffer << "\n$\n$\n";
 		// Пишем в бинарном режиме и из этого же буфера считаем CRC -- без
 		// перечитывания только что записанного файла. Бинарный режим
@@ -2016,19 +2017,40 @@ int save_char_objects(CharData *ch, int savetype, int rentcost) {
 		// (в текстовом режиме Windows транслировал бы \n -> \r\n и CRC из
 		// буфера разошёлся бы с CRC файла).
 		const std::string obj_content = write_buffer.str();
-		file.write(obj_content.data(), static_cast<std::streamsize>(obj_content.size()));
-		file.close();
+		// #3440: для периодического crash-сейва (RENT_CRASH) пропускаем запись
+		// файла объектов, если набор предметов не изменился с прошлого сейва.
+		// Файл объектов -- чистый payload предметов (рент-таймеры пишутся
+		// отдельно в .time), поэтому одинаковый payload => идентичный файл =>
+		// дисковая запись и пересчёт CRC не нужны. Это основной источник спайков
+		// "Crash frac save" (синхронный write неизменившихся инвентарей).
+		const std::size_t content_hash = std::hash<std::string>{}(obj_content);
+		const auto cached = g_obj_crash_save_hash.find(ch->get_uid());
+		const bool unchanged = (cached != g_obj_crash_save_hash.end() && cached->second == content_hash);
+		if (savetype == RENT_CRASH && unchanged) {
+			// предметы не менялись -- файл уже актуален, диск не трогаем
+		} else {
+			std::ofstream file(fname, std::ios::binary);
+			if (!file.is_open()) {
+				snprintf(buf, kMaxStringLength, "[SYSERR] Store objects file '%s'- MAY BE LOCKED.", fname);
+				mudlog(buf, BRF, kLvlImmortal, SYSLOG, true);
+				Crash_delete_files(iplayer);
+				return false;
+			}
+			file.write(obj_content.data(), static_cast<std::streamsize>(obj_content.size()));
+			file.close();
 #ifndef _WIN32
-		if (chmod(fname, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP) < 0) {
-			std::stringstream ss;
-			ss << "Error chmod file: " << fname << " (" << __FILE__ << " "<< __func__ << "  "<< __LINE__ << ")";
-			mudlog(ss.str(), BRF, kLvlGod, SYSLOG, true);
-		}
+			if (chmod(fname, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP) < 0) {
+				std::stringstream ss;
+				ss << "Error chmod file: " << fname << " (" << __FILE__ << " "<< __func__ << "  "<< __LINE__ << ")";
+				mudlog(ss.str(), BRF, kLvlGod, SYSLOG, true);
+			}
 #endif
-		utils::CExecutionTimer crc_timer;
-		FileCRC::update_from_content(ch->get_uid(), FileCRC::kTextObjs,
-			obj_content.data(), obj_content.size());
-		crc_sec = crc_timer.delta().count();
+			utils::CExecutionTimer crc_timer;
+			FileCRC::update_from_content(ch->get_uid(), FileCRC::kTextObjs,
+				obj_content.data(), obj_content.size());
+			crc_sec = crc_timer.delta().count();
+			g_obj_crash_save_hash[ch->get_uid()] = content_hash;
+		}
 	} else {
 		Crash_delete_files(iplayer);
 		return false;

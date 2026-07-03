@@ -1,0 +1,29 @@
+# Triggers for zone 66
+
+# Trigger #6600
+0:
+  name: умер огородник
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kDeath
+  script: |-2
+    if (%world.curobjs(6600)% < 50) && (%random.5% == 1)
+      load obj 6600
+    elseif (%world.curobjs(6601)% < 10) && (%random.5% == 1)
+      load obj 6601
+    elseif (%world.curobjs(6602)% < 10) && (%random.5% == 1)
+      load obj 6602
+    end
+
+# Trigger #6601
+1:
+  name: умер сторож
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kDeath
+  script: |-2
+    if (%world.curobjs(6603)% < 10) && (%random.5% == 1)
+      load obj 6603
+    end

@@ -1,0 +1,2003 @@
+# Objects for zone 15
+
+# Object #1500
+0:
+  names:
+    aliases: простой самодельный лук
+    nominative: простой самодельный лук
+    genitive: простого самодельного лука
+    dative: простому самодельному луку
+    accusative: простой самодельный лук
+    instrumental: простым самодельным луком
+    prepositional: простом самодельном луке
+  short_desc: Простой самодельный лук из выдержаной древесины лежит здесь.
+  type: kWeapon
+  material: 8  # ДЕРЕВО
+  values:
+    - 0
+    - 2
+    - 4
+    - 9
+  weight: 22
+  cost: 10
+  rent_off: 30
+  rent_on: 15
+  spec_param: 154
+  max_durability: 100
+  cur_durability: 100
+  timer: 5
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kBoth
+  extra_descriptions:
+    - keywords: простой самодельный лук
+      description: |2
+        Это простой лук с пеньковой тетивой,
+        сделанный из выдержаной и обработаной
+        ветви дерева.
+
+# Object #1501
+1:
+  names:
+    aliases: мощный самодельный лук
+    nominative: мощный самодельный лук
+    genitive: мощного самодельного лука
+    dative: мощному самодельному луку
+    accusative: мощный самодельный лук
+    instrumental: мощным самодельным луком
+    prepositional: мощном самодельном луке
+  short_desc: Тугой самодельный лук из выдержаной древесины лежит здесь.
+  type: kWeapon
+  material: 8  # ДЕРЕВО
+  values:
+    - 0
+    - 2
+    - 7
+    - 9
+  weight: 22
+  cost: 10
+  rent_off: 30
+  rent_on: 15
+  spec_param: 154
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 13  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kBoth
+  extra_descriptions:
+    - keywords: простой самодельный лук
+      description: |2
+        Это простой лук с пеньковой тетивой,
+        сделанный из выдержаной и обработаной
+        ветви дерева. Искуство мастера придало
+        ему изрядную силу.
+
+# Object #1502
+2:
+  names:
+    aliases: самодельный лук роговыми накладками
+    nominative: самодельный лук с роговыми накладками
+    genitive: самодельного лука с роговыми накладками
+    dative: самодельному луку с роговыми накладками
+    accusative: самодельный лук с роговыми накладками
+    instrumental: самодельным луком с роговыми накладками
+    prepositional: самодельном луке с роговыми накладками
+  short_desc: Самодельный лук с плоскими накладками из рога лежит тут.
+  type: kWeapon
+  material: 8  # ДЕРЕВО
+  values:
+    - 0
+    - 2
+    - 7
+    - 9
+  weight: 22
+  cost: 10
+  rent_off: 30
+  rent_on: 15
+  spec_param: 154
+  max_durability: 100
+  cur_durability: 100
+  timer: 23040
+  spell: 12  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kBoth
+  extra_descriptions:
+    - keywords: самодельный лук
+      description: |2
+        Это простой лук с пеньковой тетивой,
+        сделанный из выдержаной и обработаной
+        ветви дерева. Он украшен гладкими роговыми
+        нкладками, сделанными явно лишь для красоты.
+
+# Object #1503
+3:
+  names:
+    aliases: составной лук
+    nominative: составной лук
+    genitive: составного лука
+    dative: составному луку
+    accusative: составной лук
+    instrumental: составным луком
+    prepositional: составном луке
+  short_desc: Мощный лук позабыт здесь под ногами.
+  type: kWeapon
+  material: 8  # ДЕРЕВО
+  values:
+    - 0
+    - 2
+    - 7
+    - 9
+  weight: 22
+  cost: 10
+  rent_off: 30
+  rent_on: 15
+  spec_param: 154
+  max_durability: 100
+  cur_durability: 100
+  timer: 23040
+  spell: 12  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kBoth
+  extra_descriptions:
+    - keywords: составной лук
+      description: |2
+        Мощный лук, склееный из нескольких
+        заготовок, и усиленый бычьими
+        сухожилиями.
+
+# Object #1504
+4:
+  names:
+    aliases: составной лук берестяной
+    nominative: составной лук с берестяной оплеткой
+    genitive: составного лука с берестяной оплеткой
+    dative: составному луку с берестяной оплеткой
+    accusative: составной лук с берестяной оплеткой
+    instrumental: составным луком с берестяной оплеткой
+    prepositional: составном луке с берестяной оплеткой
+  short_desc: Мощный лук позабыт здесь под ногами.
+  type: kWeapon
+  material: 8  # ДЕРЕВО
+  values:
+    - 0
+    - 2
+    - 7
+    - 9
+  weight: 22
+  cost: 10
+  rent_off: 30
+  rent_on: 15
+  spec_param: 154
+  max_durability: 100
+  cur_durability: 100
+  timer: 23040
+  spell: 12  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kBless
+  wear_flags:
+    - kTake
+    - kBoth
+  extra_descriptions:
+    - keywords: составной лук берестяной
+      description: |2
+        Сильный лук, склееный из нескольких
+        заготовок и повитый поверх провощенной
+        берестой.
+
+# Object #1505
+5:
+  names:
+    aliases: большой охотничий лук
+    nominative: большой охотничий лук
+    genitive: большого охотничьего лука
+    dative: большому охотничьему луку
+    accusative: большой охотничий лук
+    instrumental: большим охотничьим луком
+    prepositional: большом охотничьем луке
+  short_desc: Мощный лук позабыт здесь под ногами.
+  type: kWeapon
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 0
+    - 3
+    - 4
+    - 9
+  weight: 22
+  cost: 10
+  rent_off: 30
+  rent_on: 15
+  spec_param: 154
+  max_durability: 100
+  cur_durability: 100
+  timer: 23040
+  spell: 12  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNodisarm
+  wear_flags:
+    - kTake
+    - kBoth
+  extra_descriptions:
+    - keywords: большой охотничий лук
+      description: |2
+        Мощный лук в рост человека, сделанный из
+        тиса и можжевельника, и оклееный оленьими
+        сухожилиями.
+
+# Object #1506
+6:
+  names:
+    aliases: лук оплеткой из змеиной кожи
+    nominative: лук с оплеткой из змеиной кожи
+    genitive: лука с оплеткой из змеиной кожи
+    dative: луку с оплеткой из змеиной кожи
+    accusative: лук с оплеткой из змеиной кожи
+    instrumental: луком с оплеткой из змеиной кожи
+    prepositional: луке с оплеткой из змеиной кожи
+  short_desc: Тугой лук, оплетенный в кибити сероватой чешуйчатой кожей, лежит здесь.
+  type: kWeapon
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 0
+    - 4
+    - 3
+    - 9
+  weight: 22
+  cost: 10
+  rent_off: 30
+  rent_on: 15
+  spec_param: 154
+  max_durability: 100
+  cur_durability: 100
+  timer: 23040
+  spell: 12  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kBoth
+  extra_descriptions:
+    - keywords: лук змеиной кожи
+      description: |2
+        Длинный лук, оплетенный в рукояти
+        узкими полосками шершавой щмеиной кожи.
+
+# Object #1507
+7:
+  names:
+    aliases: можжевеловый лук серебряными подзорами
+    nominative: можжевеловый лук с подзорами
+    genitive: можжевелового лука с подзорами
+    dative: можжевеловому луку с подзорами
+    accusative: можжевеловый лук с подзорами
+    instrumental: можжевеловым луком с подзорами
+    prepositional: можжевеловом луке с подзорами
+  short_desc: Длинный лук с накладками чеканного серебра брошен тут.
+  type: kWeapon
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 0
+    - 4
+    - 3
+    - 9
+  weight: 22
+  cost: 10
+  rent_off: 30
+  rent_on: 15
+  spec_param: 154
+  max_durability: 100
+  cur_durability: 100
+  timer: 23040
+  spell: 11  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kBoth
+  extra_descriptions:
+    - keywords: можжевеловый лук серебряными подзорами
+      description: |2
+        Мощный лук из ветвей можжевельника,
+        усиленый бычьими сухожжилиями и
+        пластинами-подзорами, украшенными
+        красивой резьбой.
+
+# Object #1508
+8:
+  names:
+    aliases: охотничий лук накладками рыбьего зуба
+    nominative: охотничий лук с накладками из рыбьего зуба
+    genitive: охотничего лука с накладками из рыбьего зуба
+    dative: охотничему луку с накладками из рыбьего зуба
+    accusative: охотничий лук с накладками из рыбьего зуба
+    instrumental: охотничим луком с накладками из рыбьего зуба
+    prepositional: охотничем луке с накладками из рыбьего зуба
+  short_desc: Украшенный костяными накладками охотничий лук лежит тут.
+  type: kWeapon
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 0
+    - 4
+    - 3
+    - 9
+  weight: 26
+  cost: 10
+  rent_off: 30
+  rent_on: 15
+  spec_param: 154
+  max_durability: 100
+  cur_durability: 100
+  timer: 23040
+  spell: 11  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNodisarm
+  wear_flags:
+    - kTake
+    - kBoth
+  extra_descriptions:
+    - keywords: охотничий лук накладками рыбьего зуба
+      description: |2
+        Легкий сильный лук, украшенный
+        накладками из белой кости,
+        привозимой с самого северного моря.
+
+# Object #1509
+9:
+  names:
+    aliases: боевой лук стальными подзорами
+    nominative: боевой лук с подзорами
+    genitive: боевого лука с подзорами
+    dative: боевому луку с подзорами
+    accusative: боевой лук с подзорами
+    instrumental: боевым луком с подзорами
+    prepositional: боевом луке с подзорами
+  short_desc: Тяжелый, мощный боевой лук лежит тут.
+  type: kWeapon
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 0
+    - 4
+    - 3
+    - 9
+  weight: 26
+  cost: 10
+  rent_off: 30
+  rent_on: 15
+  spec_param: 154
+  max_durability: 100
+  cur_durability: 100
+  timer: 23040
+  spell: 11  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kBoth
+  extra_descriptions:
+    - keywords: боевой лук стальными подзорами
+      description: |2
+        Тяжелый боевой лук, стрела из которого способна
+        насквозь прошить кольчугу, вместе с человеческим телом.
+        Скленый из березы и можжевельника, усиленый толстыми
+        бычьими сухошилиями, обвитый провощенной берестой и усиленый
+        подзорами этот лук являет собой страшное оружие.
+
+# Object #1510
+10:
+  names:
+    aliases: лук украшенный кусочками меха
+    nominative: украшенный кусочками меха лук
+    genitive: украшенного кусочками меха лука
+    dative: украшенному кусочками меха луку
+    accusative: украшенный кусочками меха лук
+    instrumental: украшенным кусочками меха луком
+    prepositional: украшенном кусочками меха луке
+  short_desc: Украшенный пушистыми кусочками звериного меха охотничий лук лежит тут.
+  type: kWeapon
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 0
+    - 4
+    - 3
+    - 9
+  weight: 26
+  cost: 10
+  rent_off: 30
+  rent_on: 15
+  spec_param: 154
+  max_durability: 100
+  cur_durability: 100
+  timer: 23040
+  spell: 11  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kBoth
+  extra_descriptions:
+    - keywords: украшенный кусочками меха лук
+      description: |2
+        Сильный лук, который хозяин-охотник для красоты
+        обшил кусочками пушистого меха лесного зверя.
+
+# Object #1511
+11:
+  names:
+    aliases: легкий пластинчатый лук
+    nominative: легкий пластинчатый лук
+    genitive: легкого пластинчатого лука
+    dative: легкому пластинчатому луку
+    accusative: легкий пластинчатый лук
+    instrumental: легким пластинчатым луком
+    prepositional: легком пластинчатом луке
+  short_desc: Усиленный множеством стальных и роговых пластинок лук лежит тут.
+  type: kWeapon
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 0
+    - 3
+    - 6
+    - 9
+  weight: 26
+  cost: 10
+  rent_off: 30
+  rent_on: 15
+  spec_param: 154
+  max_durability: 100
+  cur_durability: 100
+  timer: 23040
+  spell: 11  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kBoth
+  extra_descriptions:
+    - keywords: легкий пластинчатый лук
+      description: |2
+        Обычный простой лук, лишь немного усиленный
+        набором пружинистых стальных и роговых пластинок.
+
+# Object #1512
+12:
+  names:
+    aliases: пластинчатый лук конного витязя
+    nominative: пластинчатый лук конного витязя
+    genitive: пластинчатого лука конного витязя
+    dative: пластинчатому луку конного витязя
+    accusative: пластинчатый лук конного витязя
+    instrumental: пластинчатым луком конного витязя
+    prepositional: пластинчатом луке конного витязя
+  short_desc: Короткий лук, набранный из стальных и роговых полос лежит тут.
+  type: kWeapon
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 0
+    - 3
+    - 6
+    - 9
+  weight: 26
+  cost: 10
+  rent_off: 30
+  rent_on: 15
+  spec_param: 154
+  max_durability: 100
+  cur_durability: 100
+  timer: 23040
+  spell: 11  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kBoth
+  extra_descriptions:
+    - keywords: пластинчатый лук конного витязя
+      description: |2
+        Короткий, но чудовищно сильный лук,
+        усиленный множдеством стальных и роговых пластинок.
+        Из такого лука можно без труда стрелять, сидя верхом
+        на коне, но силу для этого надо иметь тоже немалую.
+
+# Object #1513
+13:
+  names:
+    aliases: большой пластинчатый лук
+    nominative: большой пластинчатый лук
+    genitive: большого пластинчатого лука
+    dative: большому пластинчатому луку
+    accusative: большой пластинчатый лук
+    instrumental: большим пластинчатым луком
+    prepositional: большом пластинчатом луке
+  short_desc: Большой лук из роговых и стальных пластинок оставлен тут хозяином.
+  type: kWeapon
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 0
+    - 3
+    - 6
+    - 9
+  weight: 26
+  cost: 10
+  rent_off: 30
+  rent_on: 15
+  spec_param: 154
+  max_durability: 100
+  cur_durability: 100
+  timer: 23040
+  spell: 11  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kBoth
+  extra_descriptions:
+    - keywords: большой пластинчатый лук
+      description: |2
+        Длинный лук со множеством вытянутых стальных и роговых пластин.
+        Чудовищная сила, необходимая для его натяжения,
+        единственное, что сжерживает повсеместное распространение
+        этого поистине страшного оружия.
+
+# Object #1514
+14:
+  names:
+    aliases: пластинчатый лук с витой тетивой
+    nominative: пластинчатый лук с витой тетивой
+    genitive: пластинчатого лука с витой тетивой
+    dative: пластинчатому луку с витой тетивой
+    accusative: пластинчатый лук с витой тетивой
+    instrumental: пластинчатым луком с витой тетивой
+    prepositional: пластинчатом луке с витой тетивой
+  short_desc: Пластинчатый лук с толстой витой тетивой лежит здесь.
+  type: kWeapon
+  material: 13  # КОСТЬ
+  values:
+    - 0
+    - 3
+    - 6
+    - 9
+  weight: 26
+  cost: 10
+  rent_off: 30
+  rent_on: 15
+  spec_param: 154
+  max_durability: 100
+  cur_durability: 100
+  timer: 23040
+  spell: 11  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kZonedecay
+  wear_flags:
+    - kTake
+    - kBoth
+  extra_descriptions:
+    - keywords: пластинчатый лук витой тетивой
+      description: |2
+        Сильный пластинчатый лук с прочной тетивой
+        из плетенного кожаного шнурка, пропитанного
+        смесью воска и жира.
+
+# Object #1515
+15:
+  names:
+    aliases: большой боевой лук
+    nominative: большой боевой лук
+    genitive: большого боевого лука
+    dative: большому боевому луку
+    accusative: большой боевой лук
+    instrumental: большим боевым луком
+    prepositional: большом боевом луке
+  short_desc: Большой лук в рост человека лежит тут.
+  type: kWeapon
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 0
+    - 3
+    - 6
+    - 9
+  weight: 26
+  cost: 10
+  rent_off: 30
+  rent_on: 15
+  spec_param: 154
+  max_durability: 100
+  cur_durability: 100
+  timer: 23040
+  spell: 11  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kBoth
+  extra_descriptions:
+    - keywords: большой боевой лук
+      description: |2
+        Могучий боевой лук, сделаный мастером
+        из нескольких пород дерева. Отдельные
+        его части намертво скреплены рыбьим клеем,
+        а от сырости его защищает пропитанная пчелиным
+        воском береста. Чтобы навощенная рукоять не
+        скользила в руке, ее обтянули жесткой жершавой
+        кожей какого-то зверя.
+
+# Object #1516
+16:
+  names:
+    aliases: лук ветвей черного дерева
+    nominative: '&Kлук из ветвей черного дерева&n'
+    genitive: '&Kлука из ветвей черного дерева&n'
+    dative: '&Kлуку из ветвей черного дерева&n'
+    accusative: '&Kлук из ветвей черного дерева&n'
+    instrumental: '&Kлуком из ветвей черного дерева&n'
+    prepositional: '&Kлуке из ветвей черного дерева&n'
+  short_desc: Матово-черный лук лежит на земле.
+  type: kWeapon
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 0
+    - 4
+    - 5
+    - 9
+  weight: 32
+  cost: 10
+  rent_off: 30
+  rent_on: 15
+  spec_param: 154
+  max_durability: 100
+  cur_durability: 100
+  timer: 23040
+  spell: 11  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kBoth
+  affect_flags:
+    - kProtectFromDark
+  extra_descriptions:
+    - keywords: лук ветвей черного дерева
+      description: |2
+        Лук этот сделан из странной древесины,
+        темного цвета с дымчато-серыми прожилками.
+        Из дальних земель, от самого края земли привозят
+        отчаянные купцы такое дерево, и продают его,
+        поистине, на вес золота.
+
+# Object #1517
+17:
+  names:
+    aliases: лук ветви священного дуба
+    nominative: лук из ветви священного дуба
+    genitive: лука из ветви священного дуба
+    dative: луку из ветви священного дуба
+    accusative: лук из ветви священного дуба
+    instrumental: луком из ветви священного дуба
+    prepositional: луке из ветви священного дуба
+  short_desc: Большой лук из светлого дерева лежит здесь.
+  type: kWeapon
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 0
+    - 7
+    - 3
+    - 9
+  weight: 32
+  cost: 10
+  rent_off: 30
+  rent_on: 15
+  spec_param: 154
+  max_durability: 100
+  cur_durability: 100
+  timer: 23040
+  spell: 11  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kBoth
+  extra_descriptions:
+    - keywords: лук ветви священного дуба
+      description: |2
+        Этот лук, хотя и выточенный из цельного куска дубовой ветви,
+        куда сильней большинства составных луков, а бою против нежити
+        ему и вовсе нет равных. Наверное, сам волхв с поклоном просил
+        у священного дерева ветви, из которых мастер сладил это
+        чудо-оружие.
+
+# Object #1518
+18:
+  names:
+    aliases: костяной лук ребер дракона
+    nominative: костяной лук из ребер дракона
+    genitive: костяного лука из ребер дракона
+    dative: костяному луку из ребер дракона
+    accusative: костяной лук из ребер дракона
+    instrumental: костяным луком из ребер дракона
+    prepositional: костяном луке из ребер дракона
+  short_desc: Гибкий сильный лук из плоских ребер дракона лежит тут.
+  type: kWeapon
+  material: 13  # КОСТЬ
+  values:
+    - 0
+    - 7
+    - 3
+    - 9
+  weight: 32
+  cost: 10
+  rent_off: 30
+  rent_on: 15
+  spec_param: 154
+  max_durability: 100
+  cur_durability: 100
+  timer: 23040
+  spell: 11  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kBoth
+  extra_descriptions:
+    - keywords: костяной лук ребер дракона
+      description: |2
+        Мощный лук, искуссно выточеный из плоского
+        ребра огромного огнедышащего змея. Гладкая
+        отполирвоанная поверхность кости кажется
+        чуть тепловатой на ощупь.
+
+# Object #1519
+19:
+  names:
+    aliases: лук подзорами клюва грифона
+    nominative: лук с подзорами из клюва грифона
+    genitive: лука с подзорами из клюва грифона
+    dative: луку с подзорами из клюва грифона
+    accusative: лук с подзорами из клюва грифона
+    instrumental: луком с подзорами из клюва грифона
+    prepositional: луке с подзорами из клюва грифона
+  short_desc: Боевой лук с подзорами из оранжево-золотистой кости лежит тут.
+  type: kWeapon
+  material: 7  # КРИСТАЛЛ
+  values:
+    - 0
+    - 7
+    - 3
+    - 9
+  weight: 35
+  cost: 10
+  rent_off: 30
+  rent_on: 15
+  spec_param: 154
+  max_durability: 100
+  cur_durability: 100
+  timer: 23040
+  spell: 11  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kBoth
+  extra_descriptions:
+    - keywords: лук подзорами клюва грифона
+      description: |2
+        Боевой лук с подзорами, вытаченной из
+        очень прочной и упругой кости невиданного,
+        оранжево-золотистого цвета, словно лучи солнца
+        в осеннем лесу.
+
+# Object #1520
+20:
+  names:
+    aliases: черный железный лук
+    nominative: черный железный лук
+    genitive: черного железного лука
+    dative: черному железному луку
+    accusative: черный железный лук
+    instrumental: черным железным луком
+    prepositional: черном железном луке
+  short_desc: Выкованный целиком из гибкого закаленного железа лук лежит тут.
+  type: kWeapon
+  material: 3  # ЖЕЛЕЗО
+  values:
+    - 0
+    - 7
+    - 3
+    - 9
+  weight: 36
+  cost: 10
+  rent_off: 30
+  rent_on: 15
+  spec_param: 154
+  max_durability: 100
+  cur_durability: 100
+  timer: 23040
+  spell: 11  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kBoth
+  extra_descriptions:
+    - keywords: черный железный лук
+      description: |2
+        Страшно тяжелый лук, выкованный из цельного
+        куска железа. Непонятно, как металлу сумели
+        придать такую гибкость и упругость, и неясно,
+        откуда берутся волны ледянящего холода, испускаемые
+        этим оружием.
+
+# Object #1521
+21:
+  names:
+    aliases: лук рога левиафана
+    nominative: '&Kлук из рога левиафана&n'
+    genitive: '&Kлука из рога левиафана&n'
+    dative: '&Kлуку из рога левиафана&n'
+    accusative: '&Kлук из рога левиафана&n'
+    instrumental: '&Kлуком из рога левиафана&n'
+    prepositional: '&Kлуке из рога левиафана&n'
+  short_desc: Черный лук из куска гигантского рога лежит тут.
+  type: kWeapon
+  material: 13  # КОСТЬ
+  values:
+    - 0
+    - 7
+    - 3
+    - 9
+  weight: 38
+  cost: 10
+  rent_off: 30
+  rent_on: 15
+  spec_param: 154
+  max_durability: 100
+  cur_durability: 100
+  timer: 23040
+  spell: 11  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kBoth
+  no_flags:
+    - kCharmice
+  affect_flags:
+    - kHolyDark
+  extra_descriptions:
+    - keywords: лук из рога левиафана
+      description: |2
+        Тонкий, но очень тугой лук из куска
+        бугристого рога. По слухам, да байкам
+        купцов, чудище, коему принадлежал этот
+        рог, размером с целый город, и способно
+        проглотить торговую лодью как муху.
+
+# Object #1522
+22:
+  names:
+    aliases: пламенеющий лук
+    nominative: '&rпламенеющий лук&n'
+    genitive: '&rпламенеющего лука&n'
+    dative: '&rпламенеющему луку&n'
+    accusative: '&rпламенеющий лук&n'
+    instrumental: '&rпламенеющим луком&n'
+    prepositional: '&rпламенеющем луке&n'
+  short_desc: Окруженный языками холодного багрового пламени темно-красный лук лежит здесь.
+  type: kWeapon
+  material: 6  # ДРАГ.МЕТАЛЛ
+  values:
+    - 0
+    - 7
+    - 3
+    - 9
+  weight: 38
+  cost: 10
+  rent_off: 30
+  rent_on: 15
+  spec_param: 154
+  max_durability: 100
+  cur_durability: 100
+  timer: 23040
+  spell: 11  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kBoth
+  no_flags:
+    - kCharmice
+  extra_descriptions:
+    - keywords: пламенеющий лук
+      description: |2
+        Выточенный из пластины красно-золотистой кости
+        лук словно бы горит медленными, истекающими в воздухе
+        языками багрового пламени.
+
+# Object #1523
+23:
+  names:
+    aliases: роговой лук пера птицы вестника
+    nominative: '&Kроговой лук из пера птицы-вестника&n'
+    genitive: '&Kрогового лука из пера птицы-вестника&n'
+    dative: '&Kроговому луку из пера птицы-вестника&n'
+    accusative: '&Kроговой лук из пера птицы-вестника&n'
+    instrumental: '&Kроговым луком из пера птицы-вестника&n'
+    prepositional: '&Kроговом луке из пера птицы-вестника&n'
+  short_desc: Дымчато-черный лук длинной в рост человека лежит тут.
+  type: kWeapon
+  material: 16  # ОРГАНИКА
+  values:
+    - 0
+    - 7
+    - 3
+    - 9
+  weight: 38
+  cost: 10
+  rent_off: 30
+  rent_on: 15
+  spec_param: 154
+  max_durability: 100
+  cur_durability: 100
+  timer: 23040
+  spell: 11  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kBoth
+  no_flags:
+    - kCharmice
+  extra_descriptions:
+    - keywords: роговой лук пера птицы вестника
+      description: |2
+        Темный, страшно холодный на ощупь лук,
+        целиком выточенный из основы пера громадной птицы.
+        Наверное, это перо обронил невиданно огромный ворон,
+        что служит вестником Богам.
+
+# Object #1524
+24:
+  names:
+    aliases: призрачный лук лунного света
+    nominative: '&cпризрачный лук лунного света&n'
+    genitive: '&cпризрачного лука лунного света&n'
+    dative: '&cпризрачному луку лунного света&n'
+    accusative: '&cпризрачный лук лунного света&n'
+    instrumental: '&cпризрачным луком лунного света&n'
+    prepositional: '&cпризрачном луке лунного света&n'
+  short_desc: Вы с трудом различили на земле огромный, но почти прозрачный лук.
+  type: kWeapon
+  material: 7  # КРИСТАЛЛ
+  values:
+    - 0
+    - 8
+    - 3
+    - 9
+  weight: 42
+  cost: 10
+  rent_off: 30
+  rent_on: 15
+  spec_param: 154
+  max_durability: 250
+  cur_durability: 250
+  timer: 23040
+  spell: 11  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kInvisible
+    - kNodisarm
+  wear_flags:
+    - kTake
+    - kBoth
+  no_flags:
+    - kCharmice
+  affect_flags:
+    - kBlink
+  extra_descriptions:
+    - keywords: призрачный лук лунного света
+      description: |2
+        Огромный лук кажется почти прозрачным, лишь легкие
+        дымчатые очертания мощных рогов и кибити, позволяют
+        различить его. Тетива его подобна лучу звездного света.
+
+# Object #1525
+25:
+  names:
+    aliases: сверкающий лук громового знамения
+    nominative: '&Cсверкающий лук громового знамения&n'
+    genitive: '&Cсверкающего лука громового знамения&n'
+    dative: '&Cсверкающему луку громового знамения&n'
+    accusative: '&Cсверкающий лук громового знамения&n'
+    instrumental: '&Cсверкающим луком громового знамения&n'
+    prepositional: '&Cсверкающем луке громового знамения&n'
+  short_desc: Сияющий призрачным светом громадный лук покачивается в воздухе.
+  type: kWeapon
+  material: 7  # КРИСТАЛЛ
+  values:
+    - 0
+    - 8
+    - 3
+    - 9
+  weight: 42
+  cost: 10
+  rent_off: 30
+  rent_on: 15
+  spec_param: 154
+  max_durability: 300
+  cur_durability: 300
+  timer: 36000
+  spell: 11  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kMagic
+    - kBless
+    - kNodisarm
+    - kNodecay
+    - kSwimming
+    - kFlying
+  wear_flags:
+    - kTake
+    - kBoth
+  no_flags:
+    - kMage
+    - kSorcerer
+    - kThief
+    - kWarrior
+    - kAssasine
+    - kGuard
+    - kPaladine
+    - kVigilant
+    - kMerchant
+    - kMagus
+    - kCharmice
+  affect_flags:
+    - kProtectFromMind
+  extra_descriptions:
+    - keywords: сверкающий лук громового знамения
+      description: |2
+        Громадный, расчитаный на настоящего великана
+        лук, из неизвестного материала. Тетива его сверкает,
+        как зарницы, а по самому луку словно медленно текут
+        призрачные сполохи бледного огня.
+
+# Object #1526
+26:
+  names:
+    aliases: лук багрового заката
+    nominative: '&Rлук багрового заката&n'
+    genitive: '&Rлука багрового заката&n'
+    dative: '&Rлуку багрового заката&n'
+    accusative: '&Rлук багрового заката&n'
+    instrumental: '&Rлуком багрового заката&n'
+    prepositional: '&Rлуке багрового заката&n'
+  short_desc: Крепкий изящный лук окрашивает все багровым цветом.
+  type: kWeapon
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 0
+    - 7
+    - 4
+    - 9
+  weight: 43
+  cost: 1000
+  rent_off: 5000
+  rent_on: 3000
+  spec_param: 154
+  max_durability: 500
+  cur_durability: 500
+  timer: 23000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 2
+  extra_flags:
+    - kNodisarm
+    - kSwimming
+  wear_flags:
+    - kTake
+    - kBoth
+  extra_descriptions:
+    - keywords: лук багрового заката
+      description: |2
+        Оружие для настоящего охотника. Тусклые багряные блики медленно переливаются по всей длине лука,
+        указывая, что в создании оного не обошлось без магии.
+
+# Object #1540
+40:
+  names:
+    aliases: легкий простой арбалет
+    nominative: легкий простой арбалет
+    genitive: легкого простого арбалета
+    dative: легкому простому арбалету
+    accusative: легкий простой арбалет
+    instrumental: легким простым арбалетом
+    prepositional: легком простом арбалете
+  short_desc: Простой арбалет с деревянным луком лежит тут.
+  type: kWeapon
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 0
+    - 2
+    - 6
+    - 9
+  weight: 28
+  cost: 40
+  rent_off: 150
+  rent_on: 25
+  spec_param: 154
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 9  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNodisarm
+  wear_flags:
+    - kTake
+    - kBoth
+  extra_descriptions:
+    - keywords: легкий простой арбалет
+      description: |2
+        Простой легкий арбалет с клееным
+        деревянным луком и крючком для
+        натягивания тетивы.
+
+# Object #1541
+41:
+  names:
+    aliases: легкий арбалет луком упругой кости
+    nominative: легкий арбалет с луком из упругой кости
+    genitive: легкого арбалета с луком из упругой кости
+    dative: легкому арбалету с луком из упругой кости
+    accusative: легкий арбалет с луком из упругой кости
+    instrumental: легким арбалетом с луком из упругой кости
+    prepositional: легком арбалете с луком из упругой кости
+  short_desc: Легкий арбалет с выточенным из цельного куска кости луком лежит тут.
+  type: kWeapon
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 0
+    - 3
+    - 4
+    - 9
+  weight: 30
+  cost: 40
+  rent_off: 100
+  rent_on: 30
+  spec_param: 154
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 9  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNodisarm
+  wear_flags:
+    - kTake
+    - kBoth
+  extra_descriptions:
+    - keywords: легкий арбалет луком упругой кости
+      description: |2
+        Легкий длинный арбалет с луком,
+        выточенным из упругой кости,
+        и усиленным бычьими сухожилиями.
+
+# Object #1542
+42:
+  names:
+    aliases: мощный арбалет пластинчатым луком
+    nominative: мощный арбалет с пластинчатым луком
+    genitive: мощного арбалета с пластинчатым луком
+    dative: мощному арбалету с пластинчатым луком
+    accusative: мощный арбалет с пластинчатым луком
+    instrumental: мощным арбалетом с пластинчатым луком
+    prepositional: мощном арбалете с пластинчатым луком
+  short_desc: Тяжелый арбалет с рычажным механизмом лежит тут.
+  type: kWeapon
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 0
+    - 2
+    - 7
+    - 9
+  weight: 34
+  cost: 40
+  rent_off: 100
+  rent_on: 30
+  spec_param: 154
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 9  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNodisarm
+  wear_flags:
+    - kTake
+    - kBoth
+
+# Object #1548
+48:
+  names:
+    aliases: тяжелый арбалет луком живого камня
+    nominative: '&Kтяжелый арбалет с луком из живого камня&n'
+    genitive: '&Kтяжелого арбалета с луком из живого камня&n'
+    dative: '&Kтяжелому арбалету с луком из живого камня&n'
+    accusative: '&Kтяжелый арбалет с луком из живого камня&n'
+    instrumental: '&Kтяжелым арбалетом с луком из живого камня&n'
+    prepositional: '&Kтяжелом арбалете с луком из живого камня&n'
+  short_desc: Тяжелый арбалет с луком из странного дымчато-черного материала лежит тут.
+  type: kWeapon
+  material: 12  # КАМЕНЬ
+  values:
+    - 0
+    - 4
+    - 5
+    - 9
+  weight: 42
+  cost: 100
+  rent_off: 2000
+  rent_on: 200
+  spec_param: 154
+  max_durability: 150
+  cur_durability: 150
+  timer: 20160
+  spell: 9  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kMagic
+    - kNodisarm
+  wear_flags:
+    - kTake
+    - kBoth
+  extra_descriptions:
+    - keywords: тяжелый арбалет луком живого камня
+      description: |2
+        Огромных размеров арбалет,
+        лук и ложе которого выточены
+        из странного дымчато-черного
+        камня, а тетива сверкает серебром.
+
+# Object #1549
+49:
+  names:
+    aliases: арбалет из рога дракона
+    nominative: '&Rарбалет из рога дракона&n'
+    genitive: '&Rарбалета из рога дракона&n'
+    dative: '&Rарбалету из рога дракона&n'
+    accusative: '&Rарбалет из рога дракона&n'
+    instrumental: '&Rарбалетом из рога дракона&n'
+    prepositional: '&Rарбалете из рога дракона&n'
+  short_desc: Тяжелый арбалет с рычажным механизмом лежит тут.
+  type: kWeapon
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 0
+    - 4
+    - 5
+    - 9
+  weight: 42
+  cost: 40
+  rent_off: 100
+  rent_on: 30
+  spec_param: 154
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 6  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNodisarm
+  wear_flags:
+    - kTake
+    - kBoth
+
+# Object #1550
+50:
+  names:
+    aliases: простой самострел деревянным ложем
+    nominative: простой самострел с деревянным ложем
+    genitive: простого самострела с деревянным ложем
+    dative: простому самострелу с деревянным ложем
+    accusative: простой самострел с деревянным ложем
+    instrumental: простым самострелом с деревянным ложем
+    prepositional: простом самостреле с деревянным ложем
+  short_desc: Небольшой простой самострел с кожаной тетивой позабыт тут.
+  type: kWeapon
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 0
+    - 2
+    - 3
+    - 9
+  weight: 21
+  cost: 15
+  rent_off: 80
+  rent_on: 30
+  spec_param: 154
+  max_durability: 100
+  cur_durability: 100
+  timer: 23040
+  spell: 6  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kWield
+    - kBoth
+  extra_descriptions:
+    - keywords: простой самострел деревянным ложем
+      description: |2
+        Вы видите простой самострел с выточенным из дерева ложем.
+        Благодаря хитроумному устройству, из него можно стрелять
+        одной рукой, если, конечно, хватит сил.
+
+# Object #1551
+51:
+  names:
+    aliases: роговой самострел
+    nominative: роговой самострел
+    genitive: рогового самострела
+    dative: роговому самострелу
+    accusative: роговой самострел
+    instrumental: роговым самострелом
+    prepositional: роговом самостреле
+  short_desc: Небольшой самострел лежит тут.
+  type: kWeapon
+  material: 13  # КОСТЬ
+  values:
+    - 0
+    - 3
+    - 3
+    - 9
+  weight: 21
+  cost: 15
+  rent_off: 80
+  rent_on: 30
+  spec_param: 154
+  max_durability: 100
+  cur_durability: 100
+  timer: 23040
+  spell: 6  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kWield
+    - kBoth
+  extra_descriptions:
+    - keywords: роговой самострел
+      description: |2
+        Самострел с коротким луком из
+        рогов какого-то зверя,
+        услиенным стальной пластиной.
+
+# Object #1552
+52:
+  names:
+    aliases: самострел серебряной тетивой
+    nominative: самострел с серебряной тетивой
+    genitive: самострела с серебряной тетивой
+    dative: самострелу с серебряной тетивой
+    accusative: самострел с серебряной тетивой
+    instrumental: самострелом с серебряной тетивой
+    prepositional: самостреле с серебряной тетивой
+  short_desc: Изящный самострел с блестящей серебром тетивой лежит тут.
+  type: kWeapon
+  material: 6  # ДРАГ.МЕТАЛЛ
+  values:
+    - 0
+    - 3
+    - 3
+    - 9
+  weight: 23
+  cost: 15
+  rent_off: 80
+  rent_on: 30
+  spec_param: 154
+  max_durability: 100
+  cur_durability: 100
+  timer: 23040
+  spell: 6  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kWield
+    - kBoth
+  extra_descriptions:
+    - keywords: самострел серебряной тетивой
+      description: |2
+        Изящный самострел с тонким, но чоень тугим
+        стальным луком и посеребреной тетивой.
+
+# Object #1553
+53:
+  names:
+    aliases: самострел костей морских чудовищ
+    nominative: самострел из костей морских чудовищ
+    genitive: самострела из костей морских чудовищ
+    dative: самострелу из костей морских чудовищ
+    accusative: самострел из костей морских чудовищ
+    instrumental: самострелом из костей морских чудовищ
+    prepositional: самостреле из костей морских чудовищ
+  short_desc: Целиком сделаный из диковиного вида костей самострел лежит тут.
+  type: kWeapon
+  material: 13  # КОСТЬ
+  values:
+    - 0
+    - 4
+    - 3
+    - 9
+  weight: 25
+  cost: 15
+  rent_off: 80
+  rent_on: 30
+  spec_param: 154
+  max_durability: 100
+  cur_durability: 100
+  timer: 23040
+  spell: 6  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kWield
+    - kBoth
+  affect_flags:
+    - kWaterBreath
+  extra_descriptions:
+    - keywords: самострел костей морских чудовищ
+      description: |2
+        Мощный самострел сделаный из странного вида костей.
+        Во все стороны торчат шипы и когти - того и гляди поранишься сам,
+        но соразмерность и сила этого самострела делают его надежным
+        оружием.
+
+# Object #1554
+54:
+  names:
+    aliases: самозарядный восточный арбалет
+    nominative: самозарядный восточный арбалет
+    genitive: самозарядного восточного арбалета
+    dative: самозарядному восточному арбалету
+    accusative: самозарядный восточный арбалет
+    instrumental: самозарядным восточным арбалетом
+    prepositional: самозарядном восточном арбалете
+  short_desc: Странного вида арбалет, похожий на изделия китайских мастеров, лежит никому не нужный.
+  type: kWeapon
+  material: 5  # КОВАНАЯ.СТАЛЬ
+  values:
+    - 0
+    - 8
+    - 1
+    - 9
+  weight: 25
+  cost: 200
+  rent_off: 100
+  rent_on: 400
+  spec_param: 154
+  max_durability: 140
+  cur_durability: 100
+  timer: 21000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 10
+  extra_flags:
+    - kNodisarm
+  wear_flags:
+    - kTake
+    - kWield
+    - kBoth
+
+# Object #1557
+57:
+  names:
+    aliases: самострел горного хрусталя
+    nominative: самострел из горного хрусталя
+    genitive: самострела из горного хрусталя
+    dative: самострелу из горного хрусталя
+    accusative: самострел из горного хрусталя
+    instrumental: самострелом из горного хрусталя
+    prepositional: самостреле из горного хрусталя
+  short_desc: Самострел со странным прозрачным луком лежит тут.
+  type: kWeapon
+  material: 7  # КРИСТАЛЛ
+  values:
+    - 0
+    - 8
+    - 2
+    - 9
+  weight: 26
+  cost: 15
+  rent_off: 80
+  rent_on: 30
+  spec_param: 154
+  max_durability: 100
+  cur_durability: 100
+  timer: 23040
+  spell: 6  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kWield
+    - kBoth
+  affect_flags:
+    - kAirAura
+
+# Object #1558
+58:
+  names:
+    aliases: украшенный янтарем самострел
+    nominative: '&nукрашенный &Yянтарем&n самострел'
+    genitive: '&nукрашенного &Yянтарем&n самострела'
+    dative: '&nукрашенному &Yянтарем&n самострелу'
+    accusative: '&nукрашенный &Yянтарем&n самострел'
+    instrumental: '&nукрашенным &Yянтарем&n самострелом'
+    prepositional: '&nукрашенном &Yянтарем&n самостреле'
+  short_desc: Изящный самострел с инкрустацией из кусочков янтаря лежит здесь.
+  type: kWeapon
+  material: 3  # ЖЕЛЕЗО
+  values:
+    - 0
+    - 8
+    - 2
+    - 9
+  weight: 27
+  cost: 15
+  rent_off: 80
+  rent_on: 30
+  spec_param: 154
+  max_durability: 100
+  cur_durability: 100
+  timer: 23040
+  spell: 6  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kWield
+    - kBoth
+  extra_descriptions:
+    - keywords: украшенный янтарем самострел
+      description: |2
+        Длинный самострел, инкрустированный
+        гладкими, обкатанными водой кусочками янтаря.
+
+# Object #1559
+59:
+  names:
+    aliases: черный самострел железной чешуи Велеса
+    nominative: '&Kчерный самострел из железной чешуи Велеса&n'
+    genitive: '&Kчерного самострела из железной чешуи Велеса&n'
+    dative: '&Kчерному самострелу из железной чешуи Велеса&n'
+    accusative: '&Kчерный самострел из железной чешуи Велеса&n'
+    instrumental: '&Kчерным самострелом из железной чешуи Велеса&n'
+    prepositional: '&Kчерном самостреле из железной чешуи Велеса&n'
+  short_desc: Тяжелый черный самострел с железным луком лежит тут.
+  type: kWeapon
+  material: 3  # ЖЕЛЕЗО
+  values:
+    - 0
+    - 8
+    - 2
+    - 9
+  weight: 27
+  cost: 15
+  rent_off: 80
+  rent_on: 30
+  spec_param: 154
+  max_durability: 100
+  cur_durability: 100
+  timer: 23040
+  spell: 6  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kWield
+    - kBoth
+  extra_descriptions:
+    - keywords: черный самострел железной чешуи Велеса
+      description: |2
+        Самострел, выкованый из черного как ночь,
+        и страшно холодного на ошупь металла.
+
+# Object #1560
+60:
+  names:
+    aliases: праща бычьей кожи
+    nominative: праща из бычьей кожи
+    genitive: пращи из бычьей кожи
+    dative: праще из бычьей кожи
+    accusative: пращу из бычьей кожи
+    instrumental: пращой из бычьей кожи
+    prepositional: праще из бычьей кожи
+  short_desc: Длинная полоса выделанной кожи лежит тут.
+  type: kWeapon
+  material: 15  # КОЖА
+  values:
+    - 0
+    - 2
+    - 2
+    - 5
+  weight: 5
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  spec_param: 154
+  max_durability: 100
+  cur_durability: 100
+  timer: 23040
+  spell: 6  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kWield
+
+# Object #1569
+69:
+  names:
+    aliases: праща кожи великого белого змея
+    nominative: праща из кожи великого белого змея
+    genitive: пращи из кожи великого белого змея
+    dative: праще из кожи великого белого змея
+    accusative: пращу из кожи великого белого змея
+    instrumental: пращей из кожи великого белого змея
+    prepositional: праще из кожи великого белого змея
+  short_desc: Праща из кожи странного белого цвета лежит тут.
+  type: kWeapon
+  material: 15  # КОЖА
+  values:
+    - 0
+    - 3
+    - 4
+    - 5
+  weight: 25
+  cost: 20
+  rent_off: 300
+  rent_on: 50
+  spec_param: 154
+  max_durability: 200
+  cur_durability: 200
+  timer: 23040
+  spell: 6  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNodisarm
+  wear_flags:
+    - kTake
+    - kWield
+  affect_flags:
+    - kSingleLight
+  extra_descriptions:
+    - keywords: праща кожи великого белого змея
+      description: |2
+        Это обычная праща, только материал странный -
+        покрытая мельчайшими чешуйками полоска
+        белой кожи.
+
+# Object #1570
+70:
+  names:
+    aliases: короткая копьеметалка
+    nominative: короткая копьеметалка
+    genitive: короткой копьеметалки
+    dative: короткой копьеметалке
+    accusative: короткую копьеметалку
+    instrumental: короткой копьеметалкой
+    prepositional: короткой копьеметалке
+  short_desc: Странного вида палка с зацепом лежит здесь.
+  type: kWeapon
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 0
+    - 1
+    - 6
+    - 9
+  weight: 22
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  spec_param: 154
+  max_durability: 100
+  cur_durability: 100
+  timer: 21600
+  spell: 6  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kWield
+  extra_descriptions:
+    - keywords: короткая копьеметалка
+      description: |2
+        Простое приспособление для метания коротких
+        копий-сулиц позволяет воину кидать копья
+        чуть ли не вдвое дальше обычного.
+
+# Object #1579
+79:
+  names:
+    aliases: короткая копьеметалка
+    nominative: копьеметалка из кости великана
+    genitive: копьеметалки из кости великана
+    dative: копьеметалке из кости великана
+    accusative: копьеметалку из кости великана
+    instrumental: копьеметалкой из кости великана
+    prepositional: копьеметалке из кости великана
+  short_desc: Странного вида костяное присособление лежит тут.
+  type: kWeapon
+  material: 13  # КОСТЬ
+  values:
+    - 0
+    - 1
+    - 7
+    - 9
+  weight: 30
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  spec_param: 154
+  max_durability: 100
+  cur_durability: 100
+  timer: 21600
+  spell: 6  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kWield
+  affect_flags:
+    - kHaste
+  extra_descriptions:
+    - keywords: короткая копьеметалка
+      description: |2
+        Простое приспособление для метания коротких
+        копий-сулиц позволяет воину кидать копья
+        чуть ли не вдвое дальше обычного.
+
+# Object #1580
+80:
+  names:
+    aliases: Лук льда пламени
+    nominative: '&Yлук из &bльда &Yи &Rпламени&n'
+    genitive: '&Yлука из &bльда &Yи &Rпламени&n'
+    dative: '&Yлуку из &bльда &Yи &Rпламени&n'
+    accusative: '&Yлук из &bльда &Yи &Rпламени&n'
+    instrumental: '&Yлуком из &bльда &Yи &Rпламени&n'
+    prepositional: '&Yлуке из &bльда &Yи &Rпламени&n'
+  short_desc: '&YЛук из &bльда &Yи &Rпламени &YЛежит на земле&n'
+  type: kWeapon
+  material: 7  # КРИСТАЛЛ
+  values:
+    - 0
+    - 5
+    - 10
+    - 9
+  weight: 40
+  cost: 50000
+  rent_off: 500
+  rent_on: 50
+  spec_param: 154
+  max_durability: 500
+  cur_durability: 400
+  timer: 30000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 5
+  extra_flags:
+    - kNodisarm
+  wear_flags:
+    - kTake
+    - kBoth
+
+# Object #1585
+85:
+  names:
+    aliases: Браслет уходящего 2024 года
+    nominative: браслет уходящего &B2024&n года
+    genitive: браслета уходящего &B2024&n года
+    dative: браслету уходящего &B2024&n года
+    accusative: браслет уходящего &B2024&n года
+    instrumental: браслетом уходящего &B2024&n года
+    prepositional: браслете уходящего &B2024&n года
+  short_desc: Браслет уходящего &B2024&n года лежит тут.
+  type: kArmor
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 10
+    - 10
+    - 0
+    - 0
+  weight: 1
+  cost: 100
+  rent_off: 100
+  rent_on: 100
+  max_durability: 100
+  cur_durability: 100
+  timer: 7200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  minimum_remorts: -1
+  extra_flags:
+    - kNodonate
+    - kNoinvis
+    - kFlying
+    - kNolocate
+    - kHasThreeSlots
+  wear_flags:
+    - kTake
+    - kWrist
+  affect_flags:
+    - kInvisibility
+    - kInfravision
+    - kBless
+    - kFly
+    - kBlink
+    - kHaste
+    - kIceShield
+    - kEarthAura
+    - kCloudly
+  applies:
+    - location: 13  # макс.жизнь
+      modifier: 300
+    - location: 18  # попадание
+      modifier: 50
+    - location: 19  # повреждение
+      modifier: 30
+    - location: 40  # успех.колдовства
+      modifier: 35
+    - location: 62  # защита.от.физических.повреждений
+      modifier: 10
+    - location: 66  # бонус.физ.повреждений %
+      modifier: 10
+    - location: 68  # сила.заклинаний.%
+      modifier: 10
+    - location: 59  # бонус.ко.всем.умениям
+      modifier: 5
+
+# Object #1598
+98:
+  names:
+    aliases: берестяной свиток
+    nominative: берестяной свиток
+    genitive: берестяного свитка
+    dative: берестяному свитку
+    accusative: берестяной свиток
+    instrumental: берестяным свитком
+    prepositional: берестяном свитке
+  short_desc: Берестяной свиток лежит тут.
+  type: kNote
+  material: 17  # БЕРЕСТА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 50
+  rent_off: 50
+  rent_on: 50
+  spec_param: 154
+  max_durability: 120
+  cur_durability: 120
+  timer: 30
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNorent
+  wear_flags:
+    - kTake
+    - kWield
+  applies:
+    - location: 1  # сила
+      modifier: 2
+    - location: 4  # мудрость
+      modifier: 1
+  extra_descriptions:
+    - keywords: берестяной свиток
+      description: |2
+        Это скрученый в трубку берестяной свиток.
+        развернув его, вы с удивлением обнаружили снабженные 
+        малопонятными пояснениями рисунки, изображающие, видимо,
+        изготовление лука. Вот только в качестве основы тут, похоже,
+        берется огромное перо, принадлежащее, судя по подписи, птице-вестнику,
+        а вместо тетивы положено приспособить высушенный плавник золотой рыбы.
+        Хм... Едва ли из этого выйдет прок.
+
+# Object #1599
+99:
+  names:
+    aliases: берестяной свиток
+    nominative: берестяной свиток
+    genitive: берестяного свитка
+    dative: берестяному свитку
+    accusative: берестяной свиток
+    instrumental: берестяным свитком
+    prepositional: берестяном свитке
+  short_desc: Длинный свиток бересты лежит здесь.
+  type: kOther
+  material: 17  # БЕРЕСТА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 300
+  rent_off: 1
+  rent_on: 1
+  max_durability: 15
+  cur_durability: 15
+  timer: 60
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 10000
+  extra_flags:
+    - kNodonate
+    - kNosell
+    - kSwimming
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: берестяной свиток
+      description: |2
+        Свиток украшен изображением скрещенных лука, самострела и пучка стрел.
+        ___________________
+        Здесь написано:
+        ____________
+        Для изготовления лука требуется, обычно, тетива и основа лука.
+        Основой самых простых и слабых луков является обычная древесина подходящего
+        дерева, обработанная надлежащим образом. Тетива же может быть сделана из пеньки,
+        кожи, может быть также пропитана воском и жиром, для защиты от сырости.
+        ____________
+        Основы сильных луков клееные - сделанные из двух разных пород дерева, скрепленных
+        между собой при помощи рыбьего клея и, иногда, бычьих жил. Тетива для такого лука 
+        обычно кожаная.
+        __________
+        Еще более сильный лук можно получить, если усилить основу лука стальными или роговыми
+        пластинами, такие луки в ходу у степняков - у них же можно разжиться необходимой для
+        их изготволения справой - покуда наши кузнецы своим умом до ее выделки не дошли.
+        _________
+        Наиболее же сильные луки, наделенные множеством свойств, в том числе и волшебных,
+        изготавляются из костей, перьев, усов и прочих частей тел чудищ и нечисти, в коей по
+        Руси-матушке недостатка не ощущается. Может также на такой лук сгодится и ветка дуба 
+        священного или же заморского дерева.
+        ________
+        Помимо основы и тетивы, к любому луку может подойти какая-нибудь оплетка или украшение:
+        вощеная береста, змеиная кожа, кусочки меха или же вольчи клыки.

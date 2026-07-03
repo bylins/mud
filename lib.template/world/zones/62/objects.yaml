@@ -1,0 +1,378 @@
+# Objects for zone 62
+
+# Object #6200
+0:
+  names:
+    aliases: маленький банный ключ
+    nominative: маленький банный ключ
+    genitive: маленького банного ключа
+    dative: маленькому банному ключу
+    accusative: маленький банный ключ
+    instrumental: маленьким банным ключом
+    prepositional: маленьком банном ключе
+  short_desc: Маленький банный ключ на цепочке валяется здесь.
+  type: kKey
+  material: 2  # БРОНЗА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 20
+  cur_durability: 20
+  timer: 15
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNorent
+    - kNodonate
+    - kNoinvis
+    - kNosell
+    - kZonedecay
+  wear_flags:
+    - kTake
+    - kHold
+
+# Object #6201
+1:
+  names:
+    aliases: жесткие перчатки
+    nominative: жесткие перчатки
+    genitive: жестких перчаток
+    dative: жестким перчаткам
+    accusative: жесткие перчатки
+    instrumental: жесткими перчатками
+    prepositional: жестких перчатках
+  short_desc: Жесткие перчатки лежат здесь.
+  type: kArmor
+  material: 14  # ТКАНЬ
+  values:
+    - 1
+    - 0
+    - 0
+    - 0
+  weight: 5
+  cost: 20
+  rent_off: 20
+  rent_on: 2
+  max_durability: 50
+  cur_durability: 50
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 50
+  wear_flags:
+    - kTake
+    - kHands
+
+# Object #6202
+2:
+  names:
+    aliases: большой ключ
+    nominative: большой ключ
+    genitive: большого ключа
+    dative: большому ключу
+    accusative: большой ключ
+    instrumental: большим ключом
+    prepositional: большом ключе
+  short_desc: Большой ключ от сарая лежит здесь.
+  type: kKey
+  material: 2  # БРОНЗА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 20
+  cur_durability: 20
+  timer: 15
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNorent
+    - kNodonate
+    - kNoinvis
+    - kNosell
+    - kDecay
+    - kZonedecay
+  wear_flags:
+    - kTake
+    - kHold
+
+# Object #6203
+3:
+  names:
+    aliases: банный ящик
+    nominative: банный ящик
+    genitive: банного ящика
+    dative: банному ящик
+    accusative: банный ящик
+    instrumental: банным ящиком
+    prepositional: банном ящике
+  short_desc: Банный ящик лежит среди пыли здесь.
+  type: kContainer
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 100
+    - 13
+    - 6200
+    - 10
+  weight: 200
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 100
+  cur_durability: 100
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNorent
+    - kNodonate
+    - kNoinvis
+    - kNosell
+    - kZonedecay
+    - kNodecay
+  triggers:
+    - 6202  # открсундук
+
+# Object #6204
+4:
+  names:
+    aliases: муравьиная личинка
+    nominative: муравьиная личинка
+    genitive: муравьиной личинки
+    dative: муравьиной личинке
+    accusative: муравьиную личинку
+    instrumental: муравьиной личинкой
+    prepositional: муравьиной личинке
+  short_desc: Муравьиная личинка лежит здесь.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 6
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 0
+  rent_off: 1
+  rent_on: 1
+  max_durability: 10
+  cur_durability: 10
+  timer: 240
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1000
+  extra_flags:
+    - kNorent
+    - kNosell
+    - kDecay
+  wear_flags:
+    - kTake
+
+# Object #6205
+5:
+  names:
+    aliases: ржавое старое ведро
+    nominative: ржавое старое ведро
+    genitive: ржавого старого ведра
+    dative: ржавому старому ведру
+    accusative: ржавое старое ведро
+    instrumental: ржавым старым ведром
+    prepositional: ржавом старом ведре
+  short_desc: Ржавое старое ведро лежит здесь.
+  type: kOther
+  material: 16  # ОРГАНИКА
+  values:
+    - 6
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 0
+  rent_off: 1
+  rent_on: 1
+  max_durability: 10
+  cur_durability: 10
+  timer: 20
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNorent
+    - kNoinvis
+    - kNosell
+    - kDecay
+    - kZonedecay
+  wear_flags:
+    - kTake
+    - kHold
+
+# Object #6206
+6:
+  names:
+    aliases: ржавый молот
+    nominative: ржавый молот
+    genitive: ржавого молота
+    dative: ржавому молоту
+    accusative: ржавый молот
+    instrumental: ржавым молотом
+    prepositional: ржавом молоте
+  short_desc: Ржавый молот лежит здесь.
+  type: kWeapon
+  material: 3  # ЖЕЛЕЗО
+  values:
+    - 6
+    - 2
+    - 10
+    - 6
+  weight: 22
+  cost: 100
+  rent_off: 100
+  rent_on: 10
+  spec_param: 146
+  max_durability: 50
+  cur_durability: 40
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kBoth
+  anti_flags:
+    - kMage
+    - kSorcerer
+    - kThief
+    - kAssasine
+    - kRanger
+    - kMerchant
+    - kMagus
+
+# Object #6207
+7:
+  names:
+    aliases: старый колодец
+    nominative: старый колодец
+    genitive: старого колодца
+    dative: старому колодцу
+    accusative: старый колодец
+    instrumental: старым колодцем
+    prepositional: старом колодце
+  short_desc: Старый колодец находится здесь.
+  type: kOther
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 99
+    - 99
+    - 0
+    - 0
+  weight: 200
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 100
+  cur_durability: 5
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNoinvis
+    - kNosell
+    - kZonedecay
+    - kNodecay
+  extra_descriptions:
+    - keywords: колодец
+      description: |2
+        Старый колодец наполнен мутной водой. При наличии ведра  можно было бы попробовать набрать
+        воды в ведро и посмотреть, что там сверху плавает. Но рядом не видно ничего подходящего.
+  triggers:
+    - 6203  # ищемклад
+
+# Object #6208
+8:
+  names:
+    aliases: драгоценный сверток
+    nominative: драгоценный сверток
+    genitive: драгоценного свертка
+    dative: драгоценному свертку
+    accusative: драгоценный сверток
+    instrumental: драгоценным свертком
+    prepositional: драгоценном свертке
+  short_desc: Драгоценный сверток лежит здесь.
+  type: kMoney
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 100
+    - 2
+    - 10
+    - 6
+  weight: 2
+  cost: 100
+  rent_off: 100
+  rent_on: 100
+  max_durability: 50
+  cur_durability: 40
+  timer: 15
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNorent
+    - kNoinvis
+    - kNosell
+    - kZonedecay
+  wear_flags:
+    - kTake
+
+# Object #6209
+9:
+  names:
+    aliases: раковина улитки
+    nominative: раковина улитки
+    genitive: раковины улитки
+    dative: раковине улитки
+    accusative: раковину улитки
+    instrumental: раковиной улитки
+    prepositional: раковине улитки
+  short_desc: Раковина улитки лежит здесь.
+  type: kArmor
+  material: 16  # ОРГАНИКА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 15
+  rent_off: 15
+  rent_on: 1
+  max_durability: 20
+  cur_durability: 20
+  timer: 180
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNoinvis
+  wear_flags:
+    - kTake
+    - kFinger
+  applies:
+    - location: 13  # макс.жизнь
+      modifier: 5

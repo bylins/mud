@@ -1,0 +1,13 @@
+# Zone #7
+
+vnum: 7
+name: Системная зона 7 -- ингредиенты для зелий (!OLC)
+top_room: 799
+lifespan: 0
+reset_mode: 0
+reset_idle: 0
+zone_type: 0
+mode: 1  # level
+entrance: 799
+under_construction: 0
+zone_group: 1  # solo

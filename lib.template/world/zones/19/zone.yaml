@@ -1,0 +1,13 @@
+# Zone #19
+
+vnum: 19
+name: Системная зона 19 -- яды, бинты, знаки (!OLC)
+top_room: 1999
+lifespan: 0
+reset_mode: 0
+reset_idle: 0
+zone_type: 0
+mode: 1  # level
+entrance: 1999
+under_construction: 0
+zone_group: 1  # solo

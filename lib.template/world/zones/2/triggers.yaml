@@ -1,24 +1,1224 @@
 # Triggers for zone 2
 
+# Trigger #200
 0:
-  # Trigger #200
-  name: триггнаелке
-  attach_type: kObjTrigger
-  trigger_types:
-  - kCommand
+  name: 'Процедура загрузки случайного предмета из списка (параметры: listvnum - список, miw - максвмире)'
+  attach_type: kRoomTrigger
   narg: 100
-  arglist: хоровод
-  script: |
-    osend %actor.name% Вы вспомнили детство и с радостью стали прыгать вокруг елочки.
-    wait 2s
-    if %actor.sex%==1
-    oechoaround %actor% %actor.name% вспомнил детство и с радостью стал прыгать вокруг елочки.
+  trigger_types:
+    - kAuto
+  script: |-2
+    set checkofnum
+    foreach check %listvnum%
+      if %world.curobjs(%check%)% < %miw%
+        set checkofnum %checkofnum% %check%
+      end
+    done
+    eval rnd %checkofnum.words%
+    if %rnd% > 0
+      eval loaditem %array.item(%checkofnum%, %random.num(%rnd%)%)%
+      %load% obj %loaditem%
     else
-    oechoaround %actor% %actor.name% вспомнила детство и с радостью стала прыгать вокруг елочки.
+      %echo% Бананы кончились...
     end
-    eval mhitp %actor.maxhitp%-10
-    if %actor.hitp% < %mhitp%
-    %actor.hitp(+10)%
-    osend %actor.name% Вдруг с елки упала на Вас иголка и вспыхнула.
-    osend %actor.name% Вы почувстсвовали себя лучше.
+
+# Trigger #201
+1:
+  name: Процедура загрузки случайного предмета из списка
+  attach_type: kRoomTrigger
+  narg: 100
+  trigger_types:
+    - kAuto
+  script: |-2
+    *параметр listvnum - список внумов предметов
+    *вернет loaditem - внум выбранного доступного для загрузки предмета
+    if !%owner%
+      log При вызове не определено значение owner!
+      halt
+    end
+    rdelete loaditem %owner%
+    set checkofnum
+    foreach check %listvnum%
+      if %world.CanBeLoaded(%check%)%
+        if %world.maxobjs(%check%)% < 1000
+          *log %check% в лоаде, curobjs =%world.curobjs(%check%)%, maxobjs =%world.maxobjs(%check%)%
+        end
+        set checkofnum %checkofnum% %check%
+      end
+    done
+    set checkofnum %checkofnum.trim%
+    eval rnd %array.item(%checkofnum%)%
+    if %rnd% > 0
+      eval loaditem %array.item(%checkofnum%, %random.num(%rnd%)%)%
+      if %loaditem%
+        remote loaditem %owner%
+      end
+    end
+
+# Trigger #202
+2:
+  name: пример вызывающего триггера
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kGreet
+  script: |-2
+    триггер на смерть
+    *заполняешь
+    eval array_obj 99003 99009 99014 99019 99025 99030 99035 99036 99040
+    eval miw 2
+    *вызов процедуры
+    set owner %self%
+    calcuid tmp 49902 mob
+    exec 201 %tmp%
+    *тут тебе рандомный предмет
+    if %loaditem%
+      %echo% Выбрано: %loaditem%
+    else
+      %echo% предметы кончились
+    end
+
+# Trigger #203
+3:
+  name: начисление опыта за квесты
+  attach_type: kRoomTrigger
+  narg: 100
+  trigger_types:
+    - kAuto
+  script: |-2
+    *вызываемый триггер прикреплен к комнате 203
+    *вызываемый триггер ограничивает получение опыта за указанный квест временным интервалом
+    *в вызывающем триггере необходимо указать переменные, описанные ниже
+    *owner: владелец вызывающего триггера, обычно self
+    *char: кому начислить опыт, обычно actor
+    *questnum: номер квеста, для которого начислить опыт
+    *exp: количество выдаваемого опыта
+    *через сколько секунд давать опыт за этот квест в следующий раз
+    set kooldown 21600
+    if !%owner%
+      log При вызове не определено значение owner!
+      halt
+    end
+    if %what.is(%owner%)% == 0
+      log При вызове значение owner =%owner% не является uid комнаты, объекта или моба!
+      halt
+    end
+    if !%questnum%
+      log При вызове из %what.is(%owner%)% vnum =%owner.vnum% не указано значение questnum!
+      halt
+    end
+    if %questnum% < 1
+      log При вызове из %what.is(%owner%)% vnum =%owner.vnum% значение questnum =%questnum% < 1!
+      halt
+    end
+    eval zone_num %questnum%/100
+    eval dif %questnum% - (%zone_num%*100)
+    set orig %world.isDungeon(%zone_num%)%
+    if %orig%
+      set questnum %orig%%dif%
+    end
+    if !%char%
+      log При вызове из %what.is(%owner%)% vnum =%owner.vnum% не указано значение char!
+      halt
+    end
+    if %what.is(%char%)% != char
+      log При вызове из %what.is(%owner%)% vnum =%owner.vnum% значение в char =%char% не является uid персонажа!
+      halt
+    end
+    if !%exp%
+      log При вызове из %what.is(%owner%)% vnum =%owner.vnum% не указано значение exp!
+      halt
+    end
+    if %exp% < 1
+      log При вызове из %what.is(%owner%)% vnum =%owner.vnum% значение exp =%exp% < 1!
+      halt
+    end
+    eval max_exp (%char.MaxGainExp%/2)*(10+%char.remort%)
+    if %exp% > %max_exp%
+      log При вызове из %what.is(%owner%)% vnum =%owner.vnum% в квесте %questnum% exp =%exp% > половины текущего уровня чара %char.iname% =%max_exp%!
+      eval exp %max_exp%
+    end
+    set list %char.getquest(203)%
+    if %list%
+      set quest_index %array.find(%list%, %questnum%)%
+    end
+    if %quest_index%
+      eval time_index %quest_index%+1
+      set time %array.item(%list%,%time_index%)%
+      eval time2 %date.unix%-%time%
+      if %time2% <= %kooldown%
+        send %char% Недавно вы уже получали опыт за выполнение этого задания.
+        halt
+      end
+      set list %array.remove(%list%, %time_index%)%
+      set list %array.remove(%list%, %quest_index%)%
+      set list %list.trim%
+    end
+    %send% %char% За выполнение задания вы получили %exp% опыта!
+    log При вызове из %what.is(%owner%)% vnum =%owner.vnum% начисляем чару %char.iname% %exp% опыта в квесте %questnum%!
+    while %exp% > 0
+      if %char.MaxGainExp% < %exp%
+        eval gain_exp %char.MaxGainExp%
+      else
+        eval gain_exp %exp%
+      end
+      %char.exp(+%gain_exp%)%
+      eval exp %exp%-%gain_exp%
+    done
+    set list %list% %questnum% %date.unix%
+    set list %list.trim%
+    %char.setquest(203 @%list%)%
+
+# Trigger #204
+4:
+  name: пример вызывающего триггера для выдачи опыта (вызываемый тригг 203)
+  attach_type: kRoomTrigger
+  narg: 100
+  arglist: тест
+  trigger_types:
+    - kSpeech
+  script: |-2
+    set owner %self%
+    set char %actor%
+    set questnum 204
+    set exp 500
+    exec 203 %world.room(203)%
+
+# Trigger #205
+5:
+  name: подсчет количества выполненных квестов
+  attach_type: kRoomTrigger
+  narg: 100
+  trigger_types:
+    - kAuto
+  script: |-2
+    *вызываемый триггер прикреплен к комнате 203
+    *вызываемый триггер подсчитывает количество выполнений квеста с указанным внумом
+    *после выполнения вызываемого триггера у владельца создается глобальная переменная completed<номер квеста>, в которой содержится количество выполнений указанного квеста
+    *для квеста 4300 это будет переменная completed4300
+    *в вызывающем триггере необходимо указать переменные, описанные ниже
+    *owner: владелец вызывающего триггера, обычно self
+    *char: для какого персонажа отобразить количество выполнений указанного квеста
+    *questnum: для какого квеста отобразить количество выполнений
+    *для увеличения счетчика выполнений указанного квеста в вызывающем триггере перед вызовом нужно создать локальную переменную AddDoneCounter с тем значением, на которое надо увеличить счетчик
+    *для обнуления счетчика выполнений указанного квеста в вызывающем триггере перед вызовом нужно создать локальную ненулевую переменную ResetDoneCounter
+    if !%owner%
+      log При вызове не определено значение owner!
+      halt
+    end
+    if %what.is(%owner%)% == 0
+      log При вызове значение owner =%owner% не является uid комнаты, объекта или моба!
+      halt
+    end
+    if !%questnum%
+      log При вызове из %what.is(%owner%)% vnum =%owner.vnum% не указано значение
+      questnum!
+      halt
+    end
+    if %questnum% < 1
+      log При вызове из %what.is(%owner%)% vnum =%owner.vnum% значение questnum =%questnum% < 1!
+      halt
+    end
+    if !%char%
+      log При вызове из %what.is(%owner%)% vnum =%owner.vnum% не указано значение char!
+      halt
+    end
+    if %what.is(%char%)% != char
+      log При вызове из %what.is(%owner%)% vnum =%owner.vnum% значение в char =%char% не является uid персонажа!
+      halt
+    end
+    set list %char.getquest(205)%
+    if %list%
+      set quest_index %array.find(%list%, %questnum%)%
+    end
+    if %quest_index%
+      eval completed_index %quest_index%+1
+      eval completed %array.item(%list%, %completed_index%)% + %AddDoneCounter%
+      set list %array.remove(%list%, %completed_index%)%
+      set list %array.remove(%list%, %quest_index%)%
+    else
+      eval completed 0 +%AddDoneCounter%
+    end
+    if %ResetDoneCounter%
+      rdelete completed%questnum% %owner%
+    else
+      set list %list% %questnum% %completed%
+      set list %list.trim%
+      set completed%questnum% %completed%
+      remote completed%questnum% %owner%
+    end
+    %char.setquest(205 @%list%)%
+
+# Trigger #206
+6:
+  name: пример вызывающего триггера для подсчета количества выполненных квестов (вызываемый тригг 205)
+  attach_type: kRoomTrigger
+  narg: 100
+  arglist: квест
+  trigger_types:
+    - kCommand
+  script: |-2
+    eval owner %self%
+    eval char %actor%
+    eval questnum 206
+    exec 205 %world.room(203)%
+    eval chance 100+(%completed206%*10)
+    echo шанс на награду = %chance%/1000
+    if %world.curobjs(101)% < %world.maxobjs(101)% && %random.1000% <= %chance%
+      * даем награду
+      set ResetDoneCounter 1
+      echo получили награду, сбрасываем счетчик выполнений
+    else
+      *не даем
+      set AddDoneCounter 1
+      echo не получили награду
+    end
+    exec 205 %world.room(203)%
+    if %completed206%
+      echo квест выполнили %completed206% раз
+    end
+
+# Trigger #207
+7:
+  name: создание данжей
+  attach_type: kRoomTrigger
+  narg: 100
+  trigger_types:
+    - kAuto
+  script: |-2
+    context 2
+    *вызываемый триггер прикреплен к комнате 203
+    *вызываемый триггер создаёт данж для зоны/комплекса
+    *в вызывающем триггере необходимо указать переменные, описанные ниже
+    *owner: владелец вызывающего триггера, обычно self
+    *char: персонаж, для которого создаётся данж
+    *dungeon: номер зоны, данж которой создаётся
+    *если dungeon не указано, зона выбирается случайным образом из списков zones
+    *recalc: требуется ли пересчитать данж под силу игрока
+    *0 - нет, остальное да
+    *difficulty: сложность случайно выбираемой зоны
+    *если данж не пересчитывается
+    *1: для низкоуровневых игроков
+    *2: для среднеуровневых игроков
+    *3: для высокоуровневых игроков и дуалов
+    *4: для групп
+    *если данж пересчитывается
+    *-2: очень легко
+    *-1: легко
+    *0: нормально
+    *1: сложно
+    *2: очень сложно
+    *3: невозможно
+    *remort: количество перевоплощений персонажа для пересчёта
+    *level: уровень персонажа для пересчёта
+    *если не указано, remort и level определяться автоматически
+    *time: время, на которое открыть данж, в минутах
+    *entrance: необязательный параметр, отмечающий указанную комнату как входную
+    *должен задаваться однозначным или двузначным числом
+    *если в оригинальной зоне входная комната имеет номер 10203,
+    *параметр должен быть записан как 3
+    *если 27480, как 80
+    *если entrance не указано, вход в данж будет определён автоматически
+    *exit: необязательный параметр, комната, являющаяся выходом из данжа
+    *указывается полный vnum комнаты
+    *если exit не указано, выход будет определен автоматически
+    if !%owner%
+      log При вызове не определено значение owner!
+      halt
+    end
+    if %what.is(%owner%)% == 0
+      log При вызове значение owner =%owner% не является uid комнаты, объекта или моба!
+      halt
+    end
+    if !%char%
+      log При вызове из %what.is(%owner%)% vnum = %owner.vnum% не указано значение char!
+      halt
+    end
+    if %what.is(%char%)% != char
+      log При вызове из %what.is(%owner%)% vnum = %owner.vnum% значение в char = %char% не является uid персонажа!
+      halt
+    end
+    if %dungeon%
+      if %dungeon% < 1
+        log При вызове из %what.is(%owner%)% vnum = %owner.vnum% значение dungeon = %dungeon% < 1!
+        halt
+      end
+      if !%world.room(%dungeon%99)%
+        log При вызове из %what.is(%owner%)% vnum = %owner.vnum% значение dungeon = %dungeon% не является номером существующей зоны!
+        halt
+      end
+      if %entrance%
+        if %entrance% < 10
+          set entrance 0%entrance%
+        end
+        if !%world.room(%dungeon%%entrance%)%
+          log При вызове из %what.is(%owner%)% vnum = %owner.vnum% указанный в entrance вход =%dungeon%%entrance% не является существующей комнатой!
+          halt
+        end
+      end
+    end
+    if %exit%
+      if !%world.room(%exit%)%
+        log При вызове из %what.is(%owner%)% vnum = %owner.vnum% указанный в exit выход = %exit% не является существующей комнатой!
+        halt
+      end
+    else
+      set exit %char.realroom%
+    end
+    if !%recalc%
+      if %difficulty% && %difficulty% < 1 || %difficulty% > 4
+        log При вызове из %what.is(%owner%)% vnum = %owner.vnum% некорректно задана сложность зоны difficulty = %difficulty%!
+        halt
+      end
+    else
+      if %difficulty% < -2 || %difficulty% > 3
+        log При вызове из %what.is(%owner%)% vnum = %owner.vnum% некорректно задана сложность зоны difficulty = %difficulty%!
+        halt
+      end
+    end
+    if %recalc%
+      if !%remort%
+        set remort %char.remort%
+      end
+      if !%level%
+        set level %char.level%
+      end
+    end
+    if %time% > 360
+      log При вызове из %what.is(%owner%)% vnum = %owner.vnum% значение time = %time% > 360!
+      halt
+    end
+    if %time% < 1
+      set time 30
+    end
+    *ограничение по времени на открытие данжа в одну и ту же зону, в секундах
+    set kooldown 79200
+    *список зон, для которых можно создать данж.
+    *для комплексов указана первая зона комплекса
+    *форма записи для комплексов
+    *зона1 зона2 зонаX c зона1 зона2 зонаX c
+    set zones1 110 121 123 145 170 220 226 248 276 278 292 427 870
+    set complexes1 121 120 117 127 132 141 c 292 293 c 870 871 c
+    set zones2 100 102 105 115 118 133 142 143 149 153 201 235 236 241 242 260 269 277 280 281 286 287 291 295 296 306 307 308 321 330 331 335 338 339 351 354 355 358 382 430 477 479 505 518 606 613 614 615 616 621 622 626 635 638 644 661 665 676 682 683 686 688 722 761 778 808 865 899 932 935 936 980 3333
+    set complexes2 100 101 c 102 103 104 c 115 114 116 c 287 288 c 307 308 c 331 332 333 334 384 383 c 606 607 c 676 794 c 686 687 c 936 773 c 980 981 982 c
+    set zones3 111 112 124 137 155 157 202 257 258 266 268 272 309 323 327 377 379 385 400 461 475 476 560 568 585 586 611 618 619 646 662 668 669 670 671 672 675 684 693 694 695 696 700 702 703 707 724 732 749 774 789 792 793 796 797 803 804 807 830 842 861 866 877 888 915 917 951 954 984 988 989 1254
+    set complexes3 124 585 c 137 138 c 157 161 c 202 203 204 205 206 c 266 267 265 c 385 388 c 797 798 c 861 862 c 915 910 911 912 914 c 917 916 918 919 920 921 922 923 925 926 924 927 c 951 952 c 984 985 986 c
+    set zones4 471 502 569 587 637 692 704 731 748 752 799 821 940 960 983 987 1253
+    set complexes4 471 905 906 c 637 714 c 692 691 679 678 677 666 c 752 753 754 755 756 c 821 820 822 823 824 c 940 941 c 960 961 962 963 964 965 c 1253 1252 c
+    *выберем группу зон в зависимости от сложности
+    if !%recalc%
+      if %difficulty% == 1
+        set zones %zones1%
+        set complexes %complexes1%
+      elseif %difficulty% == 2
+        set zones %zones2%
+        set complexes %complexes2%
+      elseif %difficulty% == 3
+        set zones %zones3%
+        set complexes %complexes3%
+      elseif %difficulty% == 4
+        set zones %zones4%
+        set complexes %complexes4%
+      else
+        set zones %zones1% %zones2% %zones3% %zones4%
+        set complexes %complexes1% %complexes2% %complexes3% %complexes4%
+      end
+    else
+      set zones %zones1% %zones2% %zones3% %zones4%
+      set complexes %complexes1% %complexes2% %complexes3% %complexes4%
+    end
+    *почистим старые записи открытых данжей
+    exec 216 %self%
+    set list %char.getquest(207)%
+    *если за период КД открыто много данжей, во избежание переполнения quest 207
+    if %array.item(%list%)% > 200
+      send %char% Вам стоит отдохнуть от посещения подобных зон.
+      log При вызове из %what.is(%owner%)% vnum = %owner.vnum% %char.iname% открыл%char.g% слишком много данжей за последнее время, в создании отказано.
+      halt
+    end
+    *если зона для данжа выбрана в вызывающем триггере
+    if %dungeon%
+      if %list%
+        set zone_index %array.find(%list%, %dungeon%)%
+      end
+      *если данж в эту зону уже открывался персонажем
+      if %zone_index%
+        set i 2
+        set s %array.item(%dungeons%)%
+        while %i% <= %s%
+          context 2
+          *если данж с таким номером, как записан у персонажа, еще открыт
+          set j %array.item(%dungeons%, %i%)%
+          context %j%
+          set creator %dungeon_creator%
+          set charname %char.iname%
+          if %creator% == %charname%
+            send %char% Прежде чем посещать новую зону, необходимо пройти предыдущую.
+            halt
+          end
+          eval i %i% + 2
+        done
+        context 2
+        *toc - time of creation
+        eval toc_index %zone_index%+1
+        set toc %array.item(%list%, %toc_index%)%
+        eval delta %date.unix% - %toc%
+        *если персонаж пока не может открыть данж в эту зону
+        if %delta% <= %kooldown%
+          eval left_time %kooldown% - %delta%
+          eval left_hours %left_time%/3600
+          eval left_minutes (%left_time% - (%left_hours% * 3600)) / 60
+          eval left_seconds (%left_time% - (%left_hours% * 3600)) - (%left_minutes% * 60)
+          if %left_hours% < 10
+            set left_hours 0%left_hours%
+          end
+          if %left_minutes% < 10
+            set left_minutes 0%left_minutes%
+          end
+          if %left_seconds% < 10
+            set left_seconds 0%left_seconds%
+          end
+          send %char% Пока вам недоступна эта зона.
+          send %char% Приходите через %left_hours%:%left_minutes%:%left_seconds%.
+          halt
+        end
+        *персонаж снова может открыть данж в эту зону
+        *или данж в неё персонажем никогда не открывался
+      end
+    else
+      *зона для данжа не выбрана в вызывающем триггере
+      *выбор производится случайным образом
+      *найдем доступные для открытия данжей зоны
+      set available_zones %zones%
+      set i 1
+      set j 2
+      set s %array.item(%list%)%
+      while %j% <= %s%
+        eval delta %date.unix% - %array.item(%list%, %j%)%
+        if %delta% <= %kooldown%
+          *удаляем имеющуюся в списке данжей игрока зону из списка доступных
+          set dzone %array.item(%list%, %i%)%
+          set dindex %array.find(%available_zones%, %dzone%)%
+          if %dindex%
+            set available_zones %array.remove(%available_zones%, %dindex%)%
+          end
+        end
+        eval i %i% + 2
+        eval j %j% + 2
+      done
+      if !%available_zones%
+        send %char% Пока нет доступных для посещения зон, нужно подождать.
+        halt
+      end
+      *остальные зоны доступны, выберем случайную
+      set dungeon %array.item(%available_zones%, %random.num(%array.item(%available_zones%)%)%)%
+    end
+    *стираем старую запись данжа
+    if %zone_index% && %toc_index%
+      set list %array.remove(%list%, %toc_index%)%
+      set list %array.remove(%list%, %zone_index%)%
+    end
+    *создаём данж
+    set dungeon_zones %dungeon%
+    set complex_index %array.find(%complexes%, %dungeon%)%
+    if %complex_index%
+      eval i %complex_index% + 1
+      eval j %array.find(%complexes%, c, %complex_index%)%
+      if !%j%
+        log Неправильно задан список комплексов, complexes =%complexes%!
+        halt
+      end
+      while %i% < %j%
+        set dungeon_zones %dungeon_zones% %array.item(%complexes%, %i%)%
+        eval i %i% + 1
+      done
+    end
+    set dungeon_vnums %world.createDungeon(%dungeon_zones%)%
+    syslog создаем dungeon зоны %dungeon_zones% внумы %dungeon_vnums%
+    if !%dungeon_vnums%
+      log При вызове из %what.is(%owner%)% vnum = %owner.vnum% создание данжей для зон: %dungeon_zones% окончилось полным крахом!!!
+      send %char% При создании зоны возникла ошибка, обратитесь к богам.
+      halt
+    end
+    set main_zone %dungeon_vnums.car%
+    syslog При вызове из %what.is(%owner%)% vnum = %owner.vnum% создание данжа %main_zone% (%world.zoneName(%dungeon%)%) для %char.rname% окончилось успешно.
+    syslog context=%contextval%, dungeons1=%dungeons%
+    set dungeons %dungeons% %char.iname% %main_zone%
+    set dungeons %dungeons.trim%
+    worlds dungeons
+    syslog context=%contextval%, dungeons2=%dungeons%
+    context %main_zone%
+    if %array.item(%dungeon_vnums%)% > 1
+      set dungeon_complex %dungeon_vnums%
+      worlds dungeon_complex
+      syslog Состав комплекса: %dungeon_vnums%.
+    end
+    set dungeon_creator %char.iname%
+    worlds dungeon_creator
+    eval dungeon_timer %time% * 60
+    worlds dungeon_timer
+    set dungeon_time %time%
+    worlds dungeon_time
+    if !%entrance%
+      set entrance %world.zoneEntrance(%main_zone%)%
+    end
+    set dungeon_entrance %entrance%
+    worlds dungeon_entrance
+    set dungeon_exit %exit%
+    worlds dungeon_exit
+    set dungeon_toc %date.unix%
+    worlds dungeon_toc
+    if %recalc%
+      log Данж %main_zone% создан с пересчетом: remort=%remort%, level=%level%, difficulty=%difficulty%
+      foreach z %dungeon_vnums%
+        %world.recalczone(%z%, %remort%, %level%, %difficulty%)%
+      done
+      at %entrance% load obj 1000
+      foreach z %dungeon_vnums.cdr%
+        at %world.zoneEntrance(%z%)% load obj 1000
+      done
+      set dungeon_with_recalc 1
+      worlds dungeon_with_recalc
+      set dungeon_remort %remort%
+      worlds dungeon_remort
+      set dungeon_level %level%
+      worlds dungeon_level
+      set dungeon_difficulty %difficulty%
+      worlds dungeon_difficulty
+      set dungeon_solo 1
+      worlds dungeon_solo
+    end
+    set list %list% %dungeon% %dungeon_toc%
+    set list %list.trim%
+    %char.setquest(207 @%list%)%
+    set entrance_id %world.room(%entrance%)%
+    attach 210 %entrance_id%
+    context 2
+    if !%calc_enemies%
+      detach 211 %self%
+      attach 211 %self%
+      run 211 %self%
+    end
+
+# Trigger #208
+8:
+  name: тикают таймера данжей
+  attach_type: kRoomTrigger
+  narg: 100
+  trigger_types:
+    - kRandomGlobal
+    - kRandom
+  script: |-2
+    context 2
+    set local_dungeons %dungeons%
+    set i 2
+    while %i% <= %array.item(%local_dungeons%)%
+      set dung %array.item(%local_dungeons%, %i%)%
+      eval i %i% + 2
+      context %dung%
+      eval closing_time %dungeon_toc% + (%dungeon_time% * 60)
+      eval dungeon_timer %closing_time% - %date.unix%
+      worlds dungeon_timer
+      if %dungeon_timer% < 1
+        set pcs_counter %array.item(%world.ZonePc(%dung%)%)%
+        if %dungeon_complex%
+          foreach zone %dungeon_complex.cdr%
+            eval pcs_counter %pcs_counter% + %array.item(%world.ZonePc(%zone%)%)%
+          done
+        end
+        if %pcs_counter% < 1
+          set owner %self%
+          set dungeon %dung%
+          set DeleteDungeon 1
+          exec 209 %world.room(203)%
+        end
+        continue
+      end
+      if %dungeon_timer% <= 240
+        zoneecho %dungeon_entrance% &RПоторопитесь, подземелье вот-вот закроется!&n
+        if %dungeon_complex%
+          foreach zone %dungeon_complex.cdr%
+            zoneecho %zone%99 &RПоторопитесь, подземелье вот-вот закроется!&n
+          done
+        end
+      end
+    done
+
+# Trigger #209
+9:
+  name: управление существованием данжей
+  attach_type: kRoomTrigger
+  narg: 100
+  trigger_types:
+    - kAuto
+  script: |-2
+    context 2
+    *вызываемый триггер прикреплен к комнате 203
+    *вызываемый триггер управляет временем существования dungeonа
+    *в вызывающем триггере необходимо указать переменные, описанные ниже
+    *owner: владелец вызывающего триггера, обычно self
+    *dungeon: номер dungeonа, для которого изменить таймер
+    *time: время, на которое изменить таймер dungeonа, указывается в минутах
+    *значение dungeon_time в сумме не может превышать 360
+    *resettimer: необязательный параметр, обнуляет таймер открытого dungeonа
+    *deletedungeon: необязательный параметр, удаляет dungeon, закрывая его
+    if !%owner%
+      log При вызове не определено значение owner!
+      halt
+    end
+    if %what.is(%owner%)% == 0
+      log При вызове значение owner = %owner% не является uid комнаты, объекта или моба!
+      halt
+    end
+    if !%DeleteDungeon%
+      if !%time%
+        log При вызове из %what.is(%owner%)% vnum = %owner.vnum% не указано значение time!
+        halt
+      end
+      if %time% < 0
+        log При вызове из %what.is(%owner%)% vnum = %owner.vnum% значение time=%time% задано отрицательным числом!
+        halt
+      end
+    end
+    if !%world.isDungeon(%dungeon%)%
+      log При вызове из %what.is(%owner%)% vnum = %owner.vnum% значение dungeon=%dungeon% не является номером данжа!
+      halt
+    end
+    if %dungeons%
+      set dungeon_index %array.find(%dungeons%, %dungeon%)%
+    end
+    if !%dungeon_index%
+      log При вызове из %what.is(%owner%)% vnum = %owner.vnum% значение dungeon=%dungeon% не содержится в массиве dungeons =%dungeons%!
+      halt
+    end
+    if %DeleteDungeon%
+      eval name_index %dungeon_index% - 1
+      set dungeons %array.remove(%dungeons%, %dungeon_index%)%
+      set dungeons %array.remove(%dungeons%, %name_index%)%
+      set dungeons %dungeons.trim%
+      worlds dungeons
+      context %dungeon%
+      set dungeon_zones %dungeon%
+      if %dungeon_complex%
+        set dungeon_zones %dungeon_complex%
+      end
+      syslog Закрываем dungeon %dungeon% (%world.zonename(%dungeon%)%), очищаются зоны: %dungeon_zones%.
+      foreach i %dungeon_zones%
+        %world.deletedungeon(%i%)%
+        clearcontext %i%
+      done
+      context 2
+      eval finished_calc_tasks %finished_calc_tasks% + 1
+      worlds finished_calc_tasks
+      if %array.item(%dungeons%)% < 2
+        unset calc_enemies
+      end
+      halt
+    end
+    context %dungeon%
+    if %ResetTimer%
+      set dungeon_timer 0
+    else
+      eval delta 360 - %dungeon_time%
+      if %time% > %delta%
+        set time %delta%
+      end
+      eval dungeon_timer %dungeon_timer% + %time%*60
+      eval dungeon_time %dungeon_time% + %time%
+      worlds dungeon_time
+    end
+    worlds dungeon_timer
+
+# Trigger #210
+10:
+  name: подсчёт противников в данже
+  attach_type: kRoomTrigger
+  narg: 100
+  trigger_types:
+    - kAuto
+  script: |-2
+    * считает текущее и максимальное количество соперников в данже
+    context 2
+    eval current_zone %self.vnum%/100
+    if !%world.isdungeon(%current_zone%)%
+      log зона %current_zone% не является данжем для применения этого триггера
+      eval finished_calc_tasks %finished_calc_tasks% + 1
+      worlds finished_calc_tasks
+      detach 210 %self%
+      halt
+    end
+    context %current_zone%
+    set dungeon_calc_enemies_finished 0
+    worlds dungeon_calc_enemies_finished
+    set dungeon_calc_enemies_started 1
+    worlds dungeon_calc_enemies_started
+    wait 2
+    set zones %current_zone%
+    if %dungeon_complex%
+      set zones %zones% %dungeon_complex.cdr%
+    end
+    set current 0
+    set max %dungeon_enemies_max%
+    unset bosses
+    set bosses_current 0
+    set bosses_max %dungeon_bosses_max%
+    foreach zone %zones%
+      set moblist %world.zonenpc(%zone%)%
+      set moblist_size %array.item(%moblist%)%
+      set i 0
+      while %i% < %moblist_size%
+        eval i %i% + 1
+        set mob %array.item(%moblist%, %i%)%
+        if %mob.vnum% < 3000000 || %mob.mobflag(!убить)% || %mob.mobflag(!сражается)% || %mob.mobflag(появл.зимой)% || %mob.mobflag(появл.весной)% || %mob.mobflag(появл.летом)% || %mob.mobflag(появл.осенью)% || %mob.mobflag(появл.полнолуние)%
+          continue
+        end
+        set mobroom %mob.room%
+        if (%mobroom.flag(мирная)% || %mobroom.flag(нельзя атаковать)%) && %mob.mobflag(!ходит)%
+          continue
+        end
+        set roles %mob.role%
+        set is_boss %roles.contains(босс)%
+        eval current %current% + 1
+        if %is_boss%
+          set bosses %bosses% %mob%
+          eval bosses_current %bosses_current% + 1
+        end
+        if !%mob.global(dungeon_marker)%
+          %mob.global(dungeon_marker, 1)%
+          eval max %max% + 1
+          if %is_boss%
+            eval bosses_max %bosses_max% + 1
+          end
+        end
+      done
+      foreach ch %world.zonechar(%zone%)%
+        if %ch.vnum% == -1
+          if %dungeon_solo% && %ch.iname% != %dungeon_creator% && %ch.level% < 31
+            send %ch% Неведомая сила утянула вас прочь.
+            echoaround %ch% Неведомая сила утянула %ch.vname% прочь.
+            teleport %ch% %dungeon_exit% horse
+            echoaround %ch% %ch.iname% упал%ch.g% с небес.
+          end
+        else
+          if !%ch.global(dungeon_marker_charmice)% && %dungeon_with_recalc%
+            %ch.global(dungeon_marker_charmice, 1)%
+            attach 217 %ch%
+          end
+        end
+      done
+    done
+    set dungeon_enemies_current %current%
+    worlds dungeon_enemies_current
+    set dungeon_enemies_max %max%
+    worlds dungeon_enemies_max
+    set dungeon_bosses %bosses%
+    worlds dungeon_bosses
+    set dungeon_bosses_current %bosses_current%
+    worlds dungeon_bosses_current
+    set dungeon_bosses_max %bosses_max%
+    worlds dungeon_bosses_max
+    context 2
+    eval finished_calc_tasks %finished_calc_tasks% + 1
+    worlds finished_calc_tasks
+    context %current_zone%
+    set dungeon_calc_enemies_started 0
+    worlds dungeon_calc_enemies_started
+    set dungeon_calc_enemies_finished 1
+    worlds dungeon_calc_enemies_finished
+    wait 2
+
+# Trigger #211
+11:
+  name: запуск подсчёта противников
+  attach_type: kRoomTrigger
+  narg: 100
+  trigger_types:
+    - kAuto
+  script: |-2
+    context 2
+    set local_dungeons %dungeons%
+    set size %array.item(%local_dungeons%)%
+    if %size% < 2
+      unset calc_enemies
+      halt
+    end
+    set calc_enemies 1
+    worlds calc_enemies
+    set max_parallel 1
+    set i 2
+    while %i% <= %size%
+      set total_tasks 0
+      set finished_calc_tasks 0
+      worlds finished_calc_tasks
+      while %i% <= %size%
+        set dungeon %array.item(%local_dungeons%, %i%)%
+        eval i %i% + 2
+        echo dungeon = %dungeon%
+        context %dungeon%
+        set entrance %world.room(%dungeon_entrance%)%
+        if %dungeon_entrance% > 0
+          exec 210 %entrance%
+          eval total_tasks %total_tasks% + 1
+          if %total_tasks% == %max_parallel%
+          break
+        end
+      end
+    done
+    wait 2
+    context 2
+    echo запустили %total_tasks% задач, ждём:
+    while %finished_calc_tasks% < %total_tasks%
+      wait 5
+      echo выполнено задач: %finished_calc_tasks%/%total_tasks%
+    done
+    done
+    run 212 %self%
+
+# Trigger #212
+12:
+  name: перезапуск подсчёта противников
+  attach_type: kRoomTrigger
+  narg: 100
+  trigger_types:
+    - kAuto
+  script: |-2
+    wait 2
+    detach 211 %self%
+    attach 211 %self%
+    run 211 %self%
+
+# Trigger #213
+13:
+  name: предлагаем пройти в данж
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kGreetPC
+  script: |-2
+    context 2
+    eval zone_num %self.realroom%/100
+    if %dungeons%
+      set char %actor.iname%
+      set name_index %array.find(%dungeons%, %char%)%
+    end
+    if %name_index%
+      if %direction%
+        сказ %actor.iname% Ну как, всё готово?
+      end
+      if !%world.isDungeon(%zone_num%)% && %direction%
+        сказ %actor.iname% Али ещё разок прогуляться хочешь?
+      end
+      halt
+    end
+    if %world.isDungeon(%zone_num%)%
+      halt
+    end
+    сказ %actor.iname% Тсссс... Не желаешь прогуляться?
+    сказ %actor.iname% Коли желаешь, так и скажи.
+    if %self.vnum% == 116
+      сказ %actor.iname% Да добавить не забудь, хочется тебе очень легко, легко, обычно, сложно, очень сложно или невозможно.
+    else
+      сказ %actor.iname% Да добавить не забудь, хочется тебе легко, обычно, сложно или невозможно.
+    end
+    сказ %actor.iname% Иначе сложность прогулки я выберу сам.
+
+# Trigger #214
+14:
+  name: желаем пройти в данж
+  attach_type: kMobTrigger
+  narg: 100
+  arglist: '*'
+  trigger_types:
+    - kSpeech
+  script: |-2
+    set word %speech.car%
+    if %word% == готово || %word% == сделано || %word% == да
+      run 215 %self%
+    end
+    if %word% != хочу && %word% != желаю
+      halt
+    end
+    context 2
+    if %date.unix% == %timestamp%
+      сказ %actor.iname% Не видишь что ли? Занят я!
+      руг
+      halt
+    end
+    %actor.wait(1)%
+    set dwords %speech.cdr%
+    eval zone_num %self.realroom%/100
+    if %world.isDungeon(%zone_num%)%
+      halt
+    end
+    set timestamp %date.unix%
+    global timestamp
+    set pc %actor.iname%
+    if %dungeons%
+      set name_index %array.find(%dungeons%, %pc%)%
+    end
+    if !%name_index%
+      eval kd %date.unix% - %actor.getquest(208)%
+      if %kd% < 30
+        сказ %pc% Погуляй пока, потом подойдёшь.
+        halt
+      end
+      set LoadMob 1
+      set owner %self%
+      set char %actor%
+      if %self.vnum% == 116
+        if %dwords% == очень легко
+          set difficulty -2
+        elseif %dwords% == легко
+          set difficulty -1
+        elseif %dwords% == обычно
+          set difficulty 0
+        elseif %dwords% == сложно
+          set difficulty 1
+        elseif %dwords% == очень сложно
+          set difficulty 2
+        elseif %dwords% == невозможно
+          set difficulty 3
+        else
+          set difficulty %number.range(-2, 3)%
+        end
+      else
+        if %dwords% == легко
+          set difficulty 1
+        elseif %dwords% == обычно
+          set difficulty 2
+        elseif %dwords% == сложно
+          set difficulty 3
+        elseif %dwords% == невозможно
+          set difficulty 4
+        end
+      end
+      *eval dungeon %self.realroom%/100
+      set time 120
+      if %self.vnum% == 116
+        set recalc 1
+      end
+      exec 207 %world.room(203)%
+    end
+    wait 1s
+    if %dungeons%
+      set name_index %array.find(%dungeons%, %pc%)%
+    end
+    if %name_index%
+      сказ %pc% Ну пойдём, коль не шутишь, тут недалеко.
+      eval zone_index %name_index%+1
+      set zone %array.item(%dungeons%, %zone_index%)%
+      context %zone%
+      set entrance %dungeon_entrance%
+      set group %actor.group%
+      if !%group%
+        set group %actor%
+      end
+      echo тестовое сообщение, список группы :
+      foreach i %group%
+        syslog в группе состоит '%i.name%'
+        echo '%i.name%'
+      done
+      echo - если не совпадает сообщите Стрибу еще список по UID %group%
+      foreach i %group%
+        load obj 1341
+        дать свиток.возврата .%i.iname%
+        echoaround %i% %i.iname% утопал%i.g% в неизвестном направлении.
+        syslog entrance == '%entrance%'
+        teleport %i% %entrance% horse
+      done
+      %actor.setquest(208 %date.unix%)%
+      сказ %pc% Не забудь сказать, что всё готово, как вернешься.
+      if %LoadMob%
+        at %entrance% load mob %self.vnum%
+      end
+    end
+
+# Trigger #215
+15:
+  name: закрываем данж у моба
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kAuto
+  script: |-2
+    %actor.wait(1)%
+    context 2
+    if %dungeons%
+      set pc %actor.iname%
+      set name_index %array.find(%dungeons%, %pc%)%
+    end
+    if !%name_index%
+      halt
+    end
+    eval zone_index %name_index%+1
+    set dungeon %array.item(%dungeons%, %zone_index%)%
+    eval current_zone %self.realroom%/100
+    if !%world.isdungeon(%dungeon%)%
+      halt
+    end
+    хлоп
+    сказ %pc% Вот и замечательно! Давай посмотрим, хорошо ли ты справил%actor.u%.
+    дум
+    context %dungeon%
+    set i 0
+    while !%dungeon_calc_enemies_started%
+      wait 1
+      eval i %i%+1
+      if %i% == 500
+        set i 0
+      break
+    end
+    done
+    чес
+    wait 1
+    while !%dungeon_calc_enemies_finished%
+      wait 1
+      eval i %i% + 1
+      if %i% == 500
+      break
+    end
+    done
+    if %self.realroom% != %actor.realroom%
+      halt
+    end
+    eval killed_enemies %dungeon_enemies_max% - %dungeon_enemies_current%
+    eval killed_bosses %dungeon_bosses_max% - %dungeon_bosses_current%
+    eval time_total %date.unix% - %dungeon_toc%
+    eval hours %time_total%/3600
+    eval minutes (%time_total% - (%hours% * 3600)) / 60
+    eval seconds (%time_total% - (%hours% * 3600)) - (%minutes% * 60)
+    if %hours% < 10
+      set hours 0%hours%
+    end
+    if %minutes% < 10
+      set minutes 0%minutes%
+    end
+    if %seconds% < 10
+      set seconds 0%seconds%
+    end
+    send %actor% Время прохождения: %hours%:%minutes%:%seconds%.
+    send %actor% Убито соперников: %killed_enemies%/%dungeon_enemies_max%.
+    if %dungeon_bosses_max% > 0
+      send %actor% Из них боссов: %killed_bosses%/%dungeon_bosses_max%
+    end
+    wait 1
+    сказ %pc% Ладно, ступай...
+    set zones %dungeon%
+    if %dungeon_complex%
+      set zones %zones% %dungeon_complex.cdr%
+    end
+    foreach zone %zones%
+      foreach i %world.zoneChar(%zone%)%
+        send %i% %self.iname% отвесил%self.g% вам хорошего пинка, и...
+        teleport %i% %dungeon_exit%
+        at %dungeon_exit% echoaround %i% %i.iname% внезапно упал%i.g% с небес.
+      done
+    done
+    context 2
+    set owner %self%
+    set char %actor%
+    set DeleteDungeon 1
+    exec 209 %world.room(203)%
+
+# Trigger #216
+16:
+  name: очистка квеста 207
+  attach_type: kRoomTrigger
+  narg: 100
+  trigger_types:
+    - kAuto
+  script: |-2
+    context 2
+    *очищаем старые записи об открытых данжах
+    *вспомогательная процедура для триггера 207
+    set list %char.getquest(207)%
+    set i 1
+    set size %array.item(%list%)%
+    while %i% < %size%
+      eval j %i% + 1
+      set toc %array.item(%list%, %j%)%
+      eval delta %date.unix% - %toc%
+      if %delta% > %kooldown%
+        set list %array.remove(%list%, %i%)%
+        set list %array.remove(%list%, %i%)%
+        set list %list.trim%
+        set size %array.item(%list%)%
+      else
+        eval i %i% + 2
+      end
+    done
+    %char.setquest(207 @%list%)%
+
+# Trigger #217
+17:
+  name: чармис не умирает в данже
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kDamage
+  script: |-2
+    eval zone %self.realroom%/100
+    if %zone% < 30000
+      detach 217 %self%
+      halt
+    end
+    context %zone%
+    if %dungeon_entrance%
+      set entrance %dungeon_entrance%
+    else
+      set entrance %world.zoneentrance(%zone%)%
+    end
+    eval hp %self.hitp% + %self.hitpadd%
+    if %amount% < %hp%
+      halt
+    end
+    echo Боги спасли жизнь %self.rname%.
+    %self.room(%entrance%)%
+    echo %self.iname% медленно появил%self.u% откуда-то.
+    return 0
+
+# Trigger #218
+18:
+  name: проверяем количество мобов в зоне
+  attach_type: kMobTrigger
+  narg: 100
+  arglist: гдемобы
+  trigger_types:
+    - kCommand
+  script: |-2
+    eval current_zone %self.realroom% / 100
+    if %current_zone% < 30000
+      send %actor% Сначала войдите в данж.
+      halt
+    end
+    context %current_zone%
+    set zones %current_zone%
+    if %dungeon_complex%
+      set zones %zones% %dungeon_complex.cdr%
+    end
+    set n 1
+    foreach zone %zones%
+      set mobs %world.zonenpc(%zone%)%
+      set mobs_size %array.item(%mobs%)%
+      if %mobs_size% < 1
+        continue
+      end
+      set i 0
+      while %i% < %mobs_size%
+        eval i %i% + 1
+        set mob %array.item(%mobs%, %i%)%
+        if %mob.vnum% < 3000000 || %mob.mobflag(!убить)% || %mob.mobflag(!сражается)% || %mob.mobflag(появл.зимой)% || %mob.mobflag(появл.весной)% || %mob.mobflag(появл.летом)% || %mob.mobflag(появл.осенью)% || %mob.mobflag(появл.полнолуние)%
+          continue
+        end
+        set mobroom %mob.room%
+        if (%mobroom.flag(мирная)% || %mobroom.flag(нельзя атаковать)%) && %mob.mobflag(!ходит)%
+          continue
+        end
+        send %actor% %n%. %mob.iname% (%mob.vnum%) в комнате %mobroom.name% (%mobroom.vnum%).
+        eval n %n%+1
+      done
+      wait 1
+    done
+    if %n% == 1
+      send %actor% Все соперники повержены.
     end

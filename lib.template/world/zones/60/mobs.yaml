@@ -1,0 +1,2284 @@
+# Mobs for zone 60
+
+# Mob #6000
+0:
+  names:
+    aliases: слуга молодой парень
+    nominative: молодой слуга
+    genitive: молодого слуги
+    dative: молодому слуге
+    accusative: молодого слугу
+    instrumental: молодым слугой
+    prepositional: молодом слуге
+  descriptions:
+    short_desc: |2
+      Невысокий молодой парень стоит около двери.
+    long_desc: |2
+      Стройный высокий парень, всегда в чистой белой рубашке и брюках,
+      готовый помочь вам отойти ко сну.
+  alignment: 600
+  stats:
+    level: 15
+    hitroll_penalty: 5
+    armor: 5
+    hp:
+      dice_count: 10
+      dice_size: 10
+      bonus: 500
+    damage:
+      dice_count: 3
+      dice_size: 3
+      bonus: 10
+  gold:
+    dice_count: 10
+    dice_size: 10
+    bonus: 200
+  experience: 0
+  position:
+    default: kSit
+    start: kSit
+  sex: kMale
+  size: 30
+  race: 101
+  height: 180
+  weight: 150
+  attributes:
+    strength: 20
+    dexterity: 15
+    intelligence: 15
+    wisdom: 15
+    constitution: 22
+    charisma: 20
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kNoCharm
+    - kNoSummon
+    - kNoSleep
+    - kProtect
+    - kNoResurrection
+  affect_flags:
+    - kDetectInvisible
+    - kDetectMagic
+    - kDetectLife
+    - kInfravision
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 45
+  enhanced:
+    max_factor: 2
+
+# Mob #6001
+1:
+  names:
+    aliases: трактирщик седой мужчина
+    nominative: трактирщик
+    genitive: трактирщика
+    dative: трактирщику
+    accusative: трактирщика
+    instrumental: трактирщиком
+    prepositional: Трактирщике
+  descriptions:
+    short_desc: |2
+      Невысокий седой мужчина стоит здесь.
+    long_desc: |2
+      Суетливый хозяин готов подать все самое лучшее на ваш стол.
+  alignment: 600
+  stats:
+    level: 15
+    hitroll_penalty: 5
+    armor: 5
+    hp:
+      dice_count: 10
+      dice_size: 10
+      bonus: 500
+    damage:
+      dice_count: 3
+      dice_size: 3
+      bonus: 10
+  gold:
+    dice_count: 10
+    dice_size: 10
+    bonus: 200
+  experience: 0
+  position:
+    default: kSit
+    start: kSit
+  sex: kMale
+  size: 30
+  race: 101
+  height: 180
+  weight: 150
+  attributes:
+    strength: 20
+    dexterity: 15
+    intelligence: 15
+    wisdom: 15
+    constitution: 22
+    charisma: 20
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kNoCharm
+    - kNoSummon
+    - kNoSleep
+    - kProtect
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 45
+  enhanced:
+    max_factor: 2
+
+# Mob #6002
+2:
+  names:
+    aliases: седой воин
+    nominative: седой воин
+    genitive: седого воина
+    dative: седому воину
+    accusative: седого воина
+    instrumental: седым воином
+    prepositional: седом воине
+  descriptions:
+    short_desc: |2
+      Опытный и закаленный в боях воин оценивает вас.
+    long_desc: |2
+      Это старый, побывавший во многих битвах, воин. Руки его усеяны старыми шрамами,
+      на левой руке не хватает одного пальца. 
+  alignment: 600
+  stats:
+    level: 25
+    hitroll_penalty: 2
+    armor: 2
+    hp:
+      dice_count: 1
+      dice_size: 1
+      bonus: 800
+    damage:
+      dice_count: 4
+      dice_size: 8
+      bonus: 20
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 50
+  race: 101
+  height: 198
+  weight: 150
+  attributes:
+    strength: 28
+    dexterity: 27
+    intelligence: 13
+    wisdom: 12
+    constitution: 17
+    charisma: 16
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kStayZone
+    - kNoCharm
+    - kNoSummon
+  skills:
+    - skill_id: 132  # сбить
+      value: 95
+    - skill_id: 136  # кулачный бой
+      value: 75
+    - skill_id: 150  # обезоружить
+      value: 95
+  enhanced:
+    bare_hand_attack: 6
+    like_work: 100
+    max_factor: 3
+    extra_attack: 1
+
+# Mob #6003
+3:
+  names:
+    aliases: сотник молодой
+    nominative: сотник
+    genitive: сотника
+    dative: сотнику
+    accusative: сотника
+    instrumental: сотником
+    prepositional: сотнике
+  descriptions:
+    short_desc: |2
+      Молодой сотник с серьезным видом смотрит на вас.
+    long_desc: |2
+      Уважаемый и почитаемый в деревне человек. Однажды он спас старосту от убийцы,
+      за что и получил должность сотника.
+  alignment: 600
+  stats:
+    level: 25
+    hitroll_penalty: 3
+    armor: 3
+    hp:
+      dice_count: 1
+      dice_size: 1
+      bonus: 1000
+    damage:
+      dice_count: 3
+      dice_size: 7
+      bonus: 20
+  gold:
+    dice_count: 5
+    dice_size: 5
+    bonus: 100
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 100
+  race: 101
+  height: 198
+  weight: 150
+  attributes:
+    strength: 22
+    dexterity: 14
+    intelligence: 15
+    wisdom: 13
+    constitution: 24
+    charisma: 16
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kStayZone
+    - kNoCharm
+    - kNoSummon
+  skills:
+    - skill_id: 132  # сбить
+      value: 90
+    - skill_id: 136  # кулачный бой
+      value: 75
+    - skill_id: 150  # обезоружить
+      value: 90
+  enhanced:
+    bare_hand_attack: 6
+    like_work: 99
+    max_factor: 3
+    extra_attack: 1
+
+# Mob #6004
+4:
+  names:
+    aliases: конюх зрелый мужчина
+    nominative: конюх
+    genitive: конюха
+    dative: конюху
+    accusative: конюха
+    instrumental: конюхом
+    prepositional: конюхе
+  descriptions:
+    short_desc: |2
+      Зрелый стройный конюх подкидывает подкову от безделья.
+    long_desc: |2
+      Этому человеку явно надоела его работа, но за неимением лучшего он работает
+      здесь
+  alignment: 600
+  stats:
+    level: 9
+    hitroll_penalty: 2
+    armor: 4
+    hp:
+      dice_count: 1
+      dice_size: 1
+      bonus: 200
+    damage:
+      dice_count: 2
+      dice_size: 6
+      bonus: 5
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 5000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 100
+  race: 101
+  height: 198
+  weight: 150
+  attributes:
+    strength: 16
+    dexterity: 13
+    intelligence: 17
+    wisdom: 18
+    constitution: 16
+    charisma: 17
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kStayZone
+    - kNoCharm
+    - kNoSummon
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 42
+  enhanced:
+    absorb: 9
+    bare_hand_attack: 2
+    like_work: 90
+    max_factor: 1
+    extra_attack: 1
+    special_bitvector: b1c1
+    spells:
+      - 37
+      - 37
+      - 37
+      - 38
+      - 38
+
+# Mob #6005
+5:
+  names:
+    aliases: травница
+    nominative: травница
+    genitive: травницы
+    dative: травнице
+    accusative: травницу
+    instrumental: травницей
+    prepositional: травнице
+  descriptions:
+    short_desc: |2
+      Молодая и грустная травница с неправильным лицом улыбнулась вам.
+    long_desc: |2
+      Эта девушка от большого объема работы совсем исхудала.
+      Уж слишком часто ей приходится помогать жителям деревни. 
+  alignment: 600
+  stats:
+    level: 25
+    hitroll_penalty: 0
+    armor: 0
+    hp:
+      dice_count: 1
+      dice_size: 1
+      bonus: 500
+    damage:
+      dice_count: 2
+      dice_size: 25
+      bonus: 5
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  size: 50
+  race: 101
+  height: 198
+  weight: 25
+  attributes:
+    strength: 14
+    dexterity: 11
+    intelligence: 18
+    wisdom: 24
+    constitution: 18
+    charisma: 18
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kStayZone
+    - kNoCharm
+    - kNoSummon
+    - kProtect
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 75
+  enhanced:
+    bare_hand_attack: 5
+    like_work: 95
+    max_factor: 3
+    extra_attack: 1
+
+# Mob #6006
+6:
+  names:
+    aliases: 'охранник молодой '
+    nominative: охранник
+    genitive: охранника
+    dative: охраннику
+    accusative: охранника
+    instrumental: охранником
+    prepositional: охраннике
+  descriptions:
+    short_desc: |2
+      Молодой охранник с копной черных волос стоит здесь.
+    long_desc: |2
+      Обычный охранник, каких много в других деревнях.
+  alignment: 600
+  stats:
+    level: 10
+    hitroll_penalty: 15
+    armor: 5
+    hp:
+      dice_count: 10
+      dice_size: 10
+      bonus: 120
+    damage:
+      dice_count: 2
+      dice_size: 2
+      bonus: 4
+  gold:
+    dice_count: 5
+    dice_size: 5
+    bonus: 10
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 30
+  race: 101
+  height: 180
+  weight: 150
+  attributes:
+    strength: 15
+    dexterity: 15
+    intelligence: 15
+    wisdom: 15
+    constitution: 15
+    charisma: 15
+  action_flags:
+    - kNpc
+    - kStayZone
+    - kHelper
+    - kNoCharm
+    - kNoSummon
+    - kLooter
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 30
+  enhanced:
+    max_factor: 1
+
+# Mob #6007
+7:
+  names:
+    aliases: кузнец
+    nominative: 'кузнец '
+    genitive: 'кузнеца '
+    dative: 'кузнецу '
+    accusative: 'кузнеца '
+    instrumental: 'кузнецом '
+    prepositional: 'кузнеце '
+  descriptions:
+    short_desc: |2
+      Высокий и сильный кузнец занят своим делом.
+    long_desc: |2
+      Сильный мужчина, постоянно загруженный работой.
+  alignment: 600
+  stats:
+    level: 25
+    hitroll_penalty: 1
+    armor: 0
+    hp:
+      dice_count: 1
+      dice_size: 1
+      bonus: 800
+    damage:
+      dice_count: 3
+      dice_size: 9
+      bonus: 20
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 9999
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 100
+  race: 101
+  height: 198
+  weight: 200
+  attributes:
+    strength: 29
+    dexterity: 16
+    intelligence: 14
+    wisdom: 16
+    constitution: 30
+    charisma: 18
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kStayZone
+    - kNoCharm
+    - kNoSummon
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 75
+  enhanced:
+    bare_hand_attack: 6
+    max_factor: 3
+    extra_attack: 1
+
+# Mob #6008
+8:
+  names:
+    aliases: 'старый сгорбленный человек '
+    nominative: старый сгорбленный человек
+    genitive: старого сгорбленного человека
+    dative: старому сгорбленному человеку
+    accusative: старого сгорбленного человека
+    instrumental: старым сгорбленным человеком
+    prepositional: старом сгорбленном человеке
+  descriptions:
+    short_desc: |2
+      Старый сгорбленный человек сидит на лежанке.
+    long_desc: |2
+      Повидавший много на своем веку стран, он решил осесть в этой деревушке,
+      отрешившись от земных дел.
+  alignment: 600
+  stats:
+    level: 25
+    hitroll_penalty: 2
+    armor: 2
+    hp:
+      dice_count: 1
+      dice_size: 1
+      bonus: 800
+    damage:
+      dice_count: 2
+      dice_size: 4
+      bonus: 5
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 50
+  race: 101
+  height: 198
+  weight: 50
+  attributes:
+    strength: 21
+    dexterity: 18
+    intelligence: 14
+    wisdom: 16
+    constitution: 18
+    charisma: 15
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kStayZone
+    - kNoCharm
+    - kNoSummon
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 75
+  enhanced:
+    like_work: 95
+    max_factor: 3
+    extra_attack: 1
+
+# Mob #6009
+9:
+  names:
+    aliases: дубильщик крепкий мужик скорняк мастер
+    nominative: дубильщик
+    genitive: дубильщика
+    dative: дубильщику
+    accusative: дубильщика
+    instrumental: дубильщиком
+    prepositional: дубильщике
+  descriptions:
+    short_desc: |2
+      Невысокий крепкий мужик стоит за прилавком.
+    long_desc: |2
+      Человек со следами от оспы на лице. Его руки выглядят в полтора раза толще по
+      сравнению с вашими. 
+  alignment: 600
+  stats:
+    level: 30
+    hitroll_penalty: 0
+    armor: 0
+    hp:
+      dice_count: 1
+      dice_size: 1
+      bonus: 500
+    damage:
+      dice_count: 3
+      dice_size: 5
+      bonus: 25
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 9999
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 50
+  race: 101
+  height: 198
+  weight: 50
+  attributes:
+    strength: 30
+    dexterity: 30
+    intelligence: 18
+    wisdom: 17
+    constitution: 30
+    charisma: 11
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kStayZone
+    - kNoCharm
+    - kNoSummon
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 90
+  enhanced:
+    like_work: 40
+    max_factor: 4
+    extra_attack: 1
+
+# Mob #6010
+10:
+  names:
+    aliases: угрюмый мужик
+    nominative: угрюмый мужик
+    genitive: угрюмого мужика
+    dative: угрюмому мужику
+    accusative: угрюмого мужика
+    instrumental: угрюмым мужиком
+    prepositional: угрюмом мужике
+  descriptions:
+    short_desc: |2
+      Угрюмый мужик радостно посмотрел на вас.
+    long_desc: |2
+      Этот человек перепробовал разные ремесла, но только одно пришлось ему по душе.
+      И хоть оно не такое прибыльное, все равно многим жителям требуются его услуги.
+  alignment: 600
+  stats:
+    level: 14
+    hitroll_penalty: 0
+    armor: 0
+    hp:
+      dice_count: 1
+      dice_size: 1
+      bonus: 600
+    damage:
+      dice_count: 3
+      dice_size: 7
+      bonus: 5
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 15000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 100
+  race: 101
+  height: 198
+  weight: 100
+  attributes:
+    strength: 21
+    dexterity: 13
+    intelligence: 13
+    wisdom: 11
+    constitution: 20
+    charisma: 11
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kStayZone
+    - kNoCharm
+    - kNoSummon
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 45
+  enhanced:
+    absorb: 14
+    bare_hand_attack: 5
+    max_factor: 2
+    extra_attack: 1
+
+# Mob #6011
+11:
+  names:
+    aliases: ведун
+    nominative: ведун
+    genitive: ведуна
+    dative: ведуну
+    accusative: ведуна
+    instrumental: ведуном
+    prepositional: ведуне
+  descriptions:
+    short_desc: |2
+      Мудрый ведун осматривает берестяную запись.
+    long_desc: |2
+      Без ведуна не может обойтись ни одна деревня. Кто же еще сможет так точно
+      предсказать погоду, пригнать тучи в засуху и спасти деревню от голода.
+  alignment: 600
+  stats:
+    level: 25
+    hitroll_penalty: 0
+    armor: 0
+    hp:
+      dice_count: 1
+      dice_size: 1
+      bonus: 900
+    damage:
+      dice_count: 2
+      dice_size: 7
+      bonus: 5
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 50
+  race: 101
+  height: 198
+  weight: 45
+  attributes:
+    strength: 14
+    dexterity: 15
+    intelligence: 22
+    wisdom: 25
+    constitution: 19
+    charisma: 11
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kStayZone
+    - kNoCharm
+    - kNoSummon
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 75
+  enhanced:
+    bare_hand_attack: 5
+    like_work: 100
+    max_factor: 3
+    extra_attack: 1
+    spells:
+      - 32
+      - 32
+      - 32
+      - 37
+      - 37
+      - 37
+      - 38
+      - 38
+      - 66
+      - 66
+      - 66
+      - 68
+
+# Mob #6012
+12:
+  names:
+    aliases: староста
+    nominative: староста
+    genitive: старосты
+    dative: старосте
+    accusative: старосту
+    instrumental: старостой
+    prepositional: старосте
+  descriptions:
+    short_desc: |2
+      Староста отдыхает на роскошной кровати.
+    long_desc: |2
+      Высокий, немолодой человек со шрамом через 
+      все лицо. Его длинные седые волосы похожи на льющееся серебро.
+  alignment: 600
+  stats:
+    level: 25
+    hitroll_penalty: 0
+    armor: 0
+    hp:
+      dice_count: 1
+      dice_size: 1
+      bonus: 1500
+    damage:
+      dice_count: 3
+      dice_size: 9
+      bonus: 20
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 50
+  race: 101
+  height: 198
+  weight: 45
+  attributes:
+    strength: 23
+    dexterity: 14
+    intelligence: 13
+    wisdom: 15
+    constitution: 26
+    charisma: 11
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kStayZone
+    - kNoCharm
+    - kNoSummon
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 75
+  enhanced:
+    bare_hand_attack: 6
+    like_work: 100
+    max_factor: 3
+    extra_attack: 1
+
+# Mob #6013
+13:
+  names:
+    aliases: зрелый мужик смотритель
+    nominative: смотритель
+    genitive: смотрителя
+    dative: смотрителю
+    accusative: смотрителя
+    instrumental: смотрителем
+    prepositional: смотрителе
+  descriptions:
+    short_desc: |2
+      Зрелый мужик с зоркими глазами ходит по улице.
+    long_desc: |2
+      Должность смотрителя является одной из самых утомляемых. Каждый день ему
+      приходится ходить и смотреть за порядком в деревне.
+  alignment: 600
+  stats:
+    level: 8
+    hitroll_penalty: 10
+    armor: -3
+    hp:
+      dice_count: 1
+      dice_size: 1
+      bonus: 300
+    damage:
+      dice_count: 3
+      dice_size: 9
+      bonus: 25
+  gold:
+    dice_count: 90
+    dice_size: 2
+    bonus: 250
+  experience: 3000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 100
+  race: 101
+  height: 198
+  weight: 100
+  attributes:
+    strength: 24
+    dexterity: 13
+    intelligence: 13
+    wisdom: 12
+    constitution: 18
+    charisma: 16
+  action_flags:
+    - kNpc
+    - kStayZone
+    - kMemory
+    - kHelper
+    - kNoCharm
+    - kNoSummon
+    - kLooter
+  affect_flags:
+    - kAwarness
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 60
+    - skill_id: 144  # короткие лезвия
+      value: 70
+  triggers:
+    - 6005  # нападениежителя
+  enhanced:
+    absorb: 8
+    bare_hand_attack: 3
+    like_work: 100
+    max_factor: 1
+    extra_attack: 1
+    special_bitvector: b1c1
+    helpers:
+      - 6013
+
+# Mob #6014
+14:
+  names:
+    aliases: охотник
+    nominative: охотник
+    genitive: охотника
+    dative: охотнику
+    accusative: охотника
+    instrumental: охотником
+    prepositional: охотнике
+  descriptions:
+    short_desc: |2
+      Старый охотник мастерит новый лук.
+    long_desc: |2
+      Как опытный охотник, он с легкостью может распознать следы любого зверя.
+  alignment: 600
+  stats:
+    level: 30
+    hitroll_penalty: 0
+    armor: 0
+    hp:
+      dice_count: 1
+      dice_size: 1
+      bonus: 400
+    damage:
+      dice_count: 3
+      dice_size: 7
+      bonus: 25
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 100
+  race: 101
+  height: 198
+  weight: 100
+  attributes:
+    strength: 21
+    dexterity: 18
+    intelligence: 15
+    wisdom: 17
+    constitution: 20
+    charisma: 11
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kStayZone
+    - kNoCharm
+    - kNoSummon
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 90
+  enhanced:
+    bare_hand_attack: 9
+    max_factor: 4
+    extra_attack: 1
+
+# Mob #6015
+15:
+  names:
+    aliases: 'вор старый мужчина '
+    nominative: вор
+    genitive: вора
+    dative: вору
+    accusative: вора
+    instrumental: вором
+    prepositional: воре
+  descriptions:
+    short_desc: |2
+      Старый мужчина с трясущимися руками стоит здесь.
+    long_desc: |2
+      Это старый мужичок с внимательным взглядом. 
+      Он никак не может смириться со своей участью нищего.
+  alignment: 0
+  stats:
+    level: 25
+    hitroll_penalty: 0
+    armor: 1
+    hp:
+      dice_count: 1
+      dice_size: 1
+      bonus: 450
+    damage:
+      dice_count: 3
+      dice_size: 4
+      bonus: 10
+  gold:
+    dice_count: 5
+    dice_size: 5
+    bonus: 500
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 100
+  race: 101
+  height: 198
+  weight: 60
+  attributes:
+    strength: 17
+    dexterity: 24
+    intelligence: 15
+    wisdom: 16
+    constitution: 17
+    charisma: 11
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kStayZone
+    - kNoCharm
+    - kNoSummon
+    - kLooter
+  skills:
+    - skill_id: 131  # заколоть
+      value: 200
+    - skill_id: 136  # кулачный бой
+      value: 75
+  enhanced:
+    bare_hand_attack: 11
+    like_work: 15
+    max_factor: 3
+    extra_attack: 1
+
+# Mob #6016
+16:
+  names:
+    aliases: зрелая женщина полная
+    nominative: зрелая женщина
+    genitive: зрелой женщины
+    dative: зрелой женщине
+    accusative: зрелую женщину
+    instrumental: зрелой женщиной
+    prepositional: зрелой женщине
+  descriptions:
+    short_desc: |2
+      Зрелая женщина присела на лежанку отдохнуть.
+    long_desc: |2
+      Полная женщина с утомленным видом. Каждый день к ней приходят жители,
+      чтобы вложить деньги или взять в долг.
+  alignment: 600
+  stats:
+    level: 25
+    hitroll_penalty: 0
+    armor: 0
+    hp:
+      dice_count: 1
+      dice_size: 1
+      bonus: 300
+    damage:
+      dice_count: 3
+      dice_size: 5
+      bonus: 15
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  size: 100
+  race: 101
+  height: 198
+  weight: 80
+  attributes:
+    strength: 18
+    dexterity: 17
+    intelligence: 22
+    wisdom: 22
+    constitution: 21
+    charisma: 11
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kStayZone
+    - kNoCharm
+    - kNoSummon
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 75
+  enhanced:
+    max_factor: 3
+    extra_attack: 1
+
+# Mob #6017
+17:
+  names:
+    aliases: 'горбатая старуха низкая некрасивая женщина '
+    nominative: горбатая старуха
+    genitive: горбатой старухи
+    dative: горбатой старухе
+    accusative: горбатую старуху
+    instrumental: горбатой старухой
+    prepositional: горбатой старухе
+  descriptions:
+    short_desc: |2
+      Низкая некрасивая женщина что-то сказала, когда вы вошли.
+    long_desc: |2
+      Эта сварливая старуха никогда не была любима. Ее ремесло пугает всех жителей
+      деревни.
+  alignment: 0
+  stats:
+    level: 25
+    hitroll_penalty: 0
+    armor: 0
+    hp:
+      dice_count: 1
+      dice_size: 1
+      bonus: 400
+    damage:
+      dice_count: 3
+      dice_size: 3
+      bonus: 25
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  size: 100
+  race: 101
+  height: 198
+  weight: 60
+  attributes:
+    strength: 17
+    dexterity: 13
+    intelligence: 18
+    wisdom: 24
+    constitution: 15
+    charisma: 11
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kStayZone
+    - kNoCharm
+    - kNoSummon
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 75
+  enhanced:
+    like_work: 95
+    max_factor: 3
+    extra_attack: 1
+
+# Mob #6018
+18:
+  names:
+    aliases: странник
+    nominative: странник
+    genitive: странника
+    dative: страннику
+    accusative: странника
+    instrumental: странником
+    prepositional: страннике
+  descriptions:
+    short_desc: |2
+      Странник с интересом смотрит вокруг.
+    long_desc: |2
+      Богато одетый мужчина с красивым ремнем на поясе.
+  alignment: 0
+  stats:
+    level: 12
+    hitroll_penalty: 13
+    armor: 5
+    hp:
+      dice_count: 1
+      dice_size: 1
+      bonus: 350
+    damage:
+      dice_count: 2
+      dice_size: 9
+      bonus: 5
+  gold:
+    dice_count: 2
+    dice_size: 3
+    bonus: 34
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 100
+  race: 101
+  height: 198
+  weight: 90
+  attributes:
+    strength: 16
+    dexterity: 15
+    intelligence: 13
+    wisdom: 16
+    constitution: 18
+    charisma: 11
+  action_flags:
+    - kNpc
+    - kStayZone
+    - kMemory
+    - kNoCharm
+    - kNoSummon
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 36
+  triggers:
+    - 6000  # на чуже
+    - 6001  # на чуже1
+  enhanced:
+    max_factor: 1
+    extra_attack: 1
+
+# Mob #6019
+19:
+  names:
+    aliases: мальчик
+    nominative: мальчик
+    genitive: мальчика
+    dative: мальчику
+    accusative: мальчика
+    instrumental: мальчиком
+    prepositional: мальчике
+  descriptions:
+    short_desc: |2
+      Мальчик идет по улице.
+    long_desc: |2
+      Маленький курносый мальчик.
+  alignment: 600
+  stats:
+    level: 10
+    hitroll_penalty: 10
+    armor: 5
+    hp:
+      dice_count: 10
+      dice_size: 10
+      bonus: 550
+    damage:
+      dice_count: 1
+      dice_size: 1
+      bonus: 1
+  gold:
+    dice_count: 1
+    dice_size: 10
+    bonus: 5
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 30
+  race: 101
+  height: 180
+  weight: 150
+  attributes:
+    strength: 15
+    dexterity: 15
+    intelligence: 3
+    wisdom: 3
+    constitution: 17
+    charisma: 15
+  action_flags:
+    - kNpc
+    - kStayZone
+    - kNoCharm
+    - kNoSummon
+    - kNoSleep
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 30
+  triggers:
+    - 6005  # нападениежителя
+  enhanced:
+    max_factor: 1
+
+# Mob #6020
+20:
+  names:
+    aliases: пес
+    nominative: пес
+    genitive: пса
+    dative: псу
+    accusative: пса
+    instrumental: псом
+    prepositional: псе
+  descriptions:
+    short_desc: |2
+      Облезлый пес понуро бредет здесь.
+    long_desc: |2
+      Выкинутый из дома, этот пес своим воем по ночам не дает спать жителям.
+  alignment: 0
+  stats:
+    level: 2
+    hitroll_penalty: 18
+    armor: 8
+    hp:
+      dice_count: 1
+      dice_size: 1
+      bonus: 40
+    damage:
+      dice_count: 2
+      dice_size: 2
+      bonus: 1
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 150
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 25
+  race: 101
+  height: 198
+  weight: 5
+  attributes:
+    strength: 13
+    dexterity: 10
+    intelligence: 4
+    wisdom: 8
+    constitution: 12
+    charisma: 11
+  action_flags:
+    - kNpc
+    - kStayZone
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 9
+  enhanced:
+    absorb: 2
+    bare_hand_attack: 4
+
+# Mob #6021
+21:
+  names:
+    aliases: боярин
+    nominative: боярин
+    genitive: боярина
+    dative: боярину
+    accusative: боярина
+    instrumental: боярином
+    prepositional: боярине
+  descriptions:
+    short_desc: |2
+      Молодой боярин надменно стоит здесь.
+    long_desc: |2
+      Неизвестно каким ветром занесло этого боярина в эту деревеньку, но его
+      надменный взгляд ясно показывает отвращение к ней.
+  alignment: 0
+  stats:
+    level: 16
+    hitroll_penalty: 11
+    armor: 2
+    hp:
+      dice_count: 1
+      dice_size: 1
+      bonus: 1000
+    damage:
+      dice_count: 3
+      dice_size: 9
+      bonus: 15
+  gold:
+    dice_count: 100
+    dice_size: 3
+    bonus: 1700
+  experience: 20000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 50
+  race: 101
+  height: 198
+  weight: 200
+  attributes:
+    strength: 23
+    dexterity: 14
+    intelligence: 15
+    wisdom: 17
+    constitution: 24
+    charisma: 11
+  action_flags:
+    - kScavenger
+    - kNpc
+    - kStayZone
+    - kWimpy
+    - kNoCharm
+    - kNoSummon
+    - kLooter
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 84
+  enhanced:
+    absorb: 16
+    bare_hand_attack: 6
+    like_work: 100
+    max_factor: 2
+    extra_attack: 1
+    special_bitvector: b1c1
+
+# Mob #6022
+22:
+  names:
+    aliases: веселый мужик
+    nominative: веселый мужик
+    genitive: веселого мужика
+    dative: веселому мужику
+    accusative: веселого мужика
+    instrumental: веселым мужиком
+    prepositional: веселом мужике
+  descriptions:
+    short_desc: |2
+      Веселый мужик предлагает сыграть в кости.
+    long_desc: |2
+      Невысокий мужик с тонкими пальцами.
+  alignment: 0
+  stats:
+    level: 18
+    hitroll_penalty: 10
+    armor: 5
+    hp:
+      dice_count: 20
+      dice_size: 10
+      bonus: 800
+    damage:
+      dice_count: 3
+      dice_size: 7
+      bonus: 15
+  gold:
+    dice_count: 5
+    dice_size: 3
+    bonus: 150
+  experience: 30000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 100
+  race: 101
+  height: 198
+  weight: 100
+  attributes:
+    strength: 21
+    dexterity: 22
+    intelligence: 16
+    wisdom: 15
+    constitution: 22
+    charisma: 11
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kStayZone
+    - kMemory
+    - kHelper
+    - kNoCharm
+    - kNoSummon
+    - kNoFear
+    - kLooter
+  skills:
+    - skill_id: 131  # заколоть
+      value: 90
+    - skill_id: 136  # кулачный бой
+      value: 60
+    - skill_id: 147  # проникающее оружие
+      value: 90
+    - skill_id: 160  # подножка
+      value: 90
+  enhanced:
+    absorb: 18
+    bare_hand_attack: 11
+    like_work: 95
+    max_factor: 2
+    extra_attack: 1
+    special_bitvector: c0b1c1
+
+# Mob #6023
+23:
+  names:
+    aliases: конь
+    nominative: конь
+    genitive: коня
+    dative: коню
+    accusative: коня
+    instrumental: коне
+    prepositional: коне
+  descriptions:
+    short_desc: |2
+      Конь стоит здесь.
+    long_desc: |2
+      Просто конь.
+  alignment: 0
+  stats:
+    level: 3
+    hitroll_penalty: 10
+    armor: 8
+    hp:
+      dice_count: 5
+      dice_size: 10
+      bonus: 80
+    damage:
+      dice_count: 2
+      dice_size: 2
+      bonus: 2
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 500
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 30
+  race: 104
+  height: 180
+  weight: 150
+  attributes:
+    strength: 12
+    dexterity: 12
+    intelligence: 10
+    wisdom: 10
+    constitution: 12
+    charisma: 10
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kNoCharm
+    - kNoSummon
+    - kNoSleep
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 18
+  enhanced:
+    absorb: 3
+    bare_hand_attack: 13
+    like_work: 100
+
+# Mob #6024
+24:
+  names:
+    aliases: жена трактирщика
+    nominative: жена трактирщика
+    genitive: жену трактирщика
+    dative: жене трактирщика
+    accusative: жена трактирщика
+    instrumental: женой трактирщика
+    prepositional: жене трактирщика
+  descriptions:
+    short_desc: |2
+      Жена трактирщика остановилась здесь поболтать с травницей.
+    long_desc: |2
+      Прежде чем противоречить ей вы поняли, что этого не стоит делать. 
+      Ее внушительный вид заставляет призадуматься.
+  alignment: 0
+  stats:
+    level: 23
+    hitroll_penalty: 4
+    armor: 2
+    hp:
+      dice_count: 5
+      dice_size: 5
+      bonus: 600
+    damage:
+      dice_count: 4
+      dice_size: 4
+      bonus: 20
+  gold:
+    dice_count: 1
+    dice_size: 1
+    bonus: 1
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  size: 100
+  race: 101
+  height: 198
+  weight: 90
+  attributes:
+    strength: 22
+    dexterity: 15
+    intelligence: 5
+    wisdom: 7
+    constitution: 30
+    charisma: 11
+  action_flags:
+    - kSentinel
+    - kScavenger
+    - kNpc
+    - kStayZone
+    - kNoCharm
+    - kNoSummon
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 69
+  triggers:
+    - 6005  # нападениежителя
+    - 6007  # халявнаякормежка
+  enhanced:
+    max_factor: 3
+    extra_attack: 1
+
+# Mob #6025
+25:
+  names:
+    aliases: молодая селянка
+    nominative: молодая селянка
+    genitive: молодой селянки
+    dative: молодой селянке
+    accusative: молодую селянку
+    instrumental: молодой селянкой
+    prepositional: молодой селянке
+  descriptions:
+    short_desc: |2
+      Молодая селянка разгуливает по улицам.
+    long_desc: |2
+      Юная девушка.
+  alignment: 600
+  stats:
+    level: 8
+    hitroll_penalty: 15
+    armor: 5
+    hp:
+      dice_count: 10
+      dice_size: 10
+      bonus: 550
+    damage:
+      dice_count: 1
+      dice_size: 1
+      bonus: 1
+  gold:
+    dice_count: 2
+    dice_size: 5
+    bonus: 5
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  size: 30
+  race: 101
+  height: 180
+  weight: 150
+  attributes:
+    strength: 14
+    dexterity: 15
+    intelligence: 13
+    wisdom: 13
+    constitution: 15
+    charisma: 15
+  action_flags:
+    - kNpc
+    - kStayZone
+    - kNoCharm
+    - kNoSummon
+    - kNoSleep
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 24
+  triggers:
+    - 6005  # нападениежителя
+  enhanced:
+    max_factor: 1
+
+# Mob #6026
+26:
+  names:
+    aliases: селянин
+    nominative: селянин
+    genitive: селянина
+    dative: селянину
+    accusative: селянина
+    instrumental: селянином
+    prepositional: селянине
+  descriptions:
+    short_desc: |2
+      Селянин идет с поля домой.
+    long_desc: |2
+      Молодой парубок.
+  alignment: 600
+  stats:
+    level: 10
+    hitroll_penalty: 10
+    armor: 5
+    hp:
+      dice_count: 10
+      dice_size: 10
+      bonus: 550
+    damage:
+      dice_count: 1
+      dice_size: 1
+      bonus: 1
+  gold:
+    dice_count: 1
+    dice_size: 10
+    bonus: 5
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 30
+  race: 101
+  height: 180
+  weight: 150
+  attributes:
+    strength: 15
+    dexterity: 15
+    intelligence: 3
+    wisdom: 3
+    constitution: 17
+    charisma: 15
+  action_flags:
+    - kNpc
+    - kStayZone
+    - kNoCharm
+    - kNoSummon
+    - kNoSleep
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 30
+  triggers:
+    - 6005  # нападениежителя
+  enhanced:
+    max_factor: 1
+
+# Mob #6027
+27:
+  names:
+    aliases: молодой воин
+    nominative: молодой воин
+    genitive: молодого воина
+    dative: молодому воину
+    accusative: молодого воина
+    instrumental: молодым воином
+    prepositional: молодом воине
+  descriptions:
+    short_desc: |2
+      Молодой воин идет по своим делам.
+    long_desc: |2
+      Его грозный взгляд внушает страх у врага.
+      Мощные плечи и сильные руки говорят о том, что раньше он занимался
+      непосильным трудом.
+  alignment: 0
+  stats:
+    level: 14
+    hitroll_penalty: 0
+    armor: 2
+    hp:
+      dice_count: 5
+      dice_size: 5
+      bonus: 800
+    damage:
+      dice_count: 3
+      dice_size: 3
+      bonus: 20
+  gold:
+    dice_count: 5
+    dice_size: 5
+    bonus: 150
+  experience: 15000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 50
+  race: 101
+  height: 198
+  weight: 110
+  attributes:
+    strength: 23
+    dexterity: 14
+    intelligence: 14
+    wisdom: 8
+    constitution: 23
+    charisma: 11
+  action_flags:
+    - kNpc
+    - kStayZone
+    - kNoCharm
+    - kNoSummon
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 75
+  triggers:
+    - 6005  # нападениежителя
+  enhanced:
+    absorb: 14
+    max_factor: 2
+    extra_attack: 1
+    special_bitvector: b1c1
+
+# Mob #6028
+28:
+  names:
+    aliases: прихожанка
+    nominative: прихожанка
+    genitive: прихожанки
+    dative: прихожанке
+    accusative: прихожанку
+    instrumental: прихожанкой
+    prepositional: прихожанке
+  descriptions:
+    short_desc: |2
+      Прихожанка спешит в церковь на молитву.
+    long_desc: |2
+      Убогая, обездоленная женщина.
+  alignment: 0
+  stats:
+    level: 5
+    hitroll_penalty: 0
+    armor: 0
+    hp:
+      dice_count: 5
+      dice_size: 5
+      bonus: 120
+    damage:
+      dice_count: 2
+      dice_size: 3
+      bonus: 4
+  gold:
+    dice_count: 2
+    dice_size: 2
+    bonus: 5
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  size: 50
+  race: 101
+  height: 198
+  weight: 50
+  attributes:
+    strength: 15
+    dexterity: 12
+    intelligence: 15
+    wisdom: 13
+    constitution: 18
+    charisma: 11
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kStayZone
+    - kNoCharm
+    - kNoSummon
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 15
+  triggers:
+    - 6005  # нападениежителя
+  enhanced:
+    extra_attack: 1
+
+# Mob #6029
+29:
+  names:
+    aliases: помощник кузнеца
+    nominative: помощник кузнеца
+    genitive: помощника кузнеца
+    dative: помощнику кузнеца
+    accusative: помощника кузнеца
+    instrumental: помощником кузнеца
+    prepositional: помощнике кузнеца
+  descriptions:
+    short_desc: |2
+      Молодой парень стоит у развешенного оружия.
+    long_desc: |2
+      Молодой, но крепкий паренек помогает деревенскому кузнецу. Это почетная
+      обязанность, не каждого возьмет мастер в ученики.
+  alignment: 600
+  stats:
+    level: 20
+    hitroll_penalty: 10
+    armor: 4
+    hp:
+      dice_count: 1
+      dice_size: 1
+      bonus: 300
+    damage:
+      dice_count: 3
+      dice_size: 9
+      bonus: 25
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 50
+  race: 101
+  height: 198
+  weight: 50
+  attributes:
+    strength: 24
+    dexterity: 13
+    intelligence: 13
+    wisdom: 12
+    constitution: 18
+    charisma: 16
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kStayZone
+    - kNoCharm
+    - kNoSummon
+  affect_flags:
+    - kAwarness
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 60
+  enhanced:
+    bare_hand_attack: 3
+    like_work: 100
+    max_factor: 2
+    extra_attack: 1
+    special_bitvector: b1c1
+
+# Mob #6030
+30:
+  names:
+    aliases: молодая девушка
+    nominative: молодая девушка
+    genitive: молодой девушки
+    dative: молодой девушке
+    accusative: молодую девушку
+    instrumental: молодой девушкой
+    prepositional: молодой девушке
+  descriptions:
+    short_desc: |2
+      Молодая девушка перекладывает странные сосуды.
+    long_desc: |2
+      Молодая девушка.
+  alignment: 600
+  stats:
+    level: 20
+    hitroll_penalty: 10
+    armor: 1
+    hp:
+      dice_count: 1
+      dice_size: 1
+      bonus: 300
+    damage:
+      dice_count: 3
+      dice_size: 9
+      bonus: 25
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 5000
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  size: 50
+  race: 101
+  height: 198
+  weight: 40
+  attributes:
+    strength: 24
+    dexterity: 13
+    intelligence: 13
+    wisdom: 12
+    constitution: 18
+    charisma: 16
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kStayZone
+    - kMemory
+    - kHelper
+    - kNoCharm
+    - kNoSummon
+    - kLooter
+  affect_flags:
+    - kAwarness
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 60
+  enhanced:
+    bare_hand_attack: 3
+    like_work: 100
+    max_factor: 2
+    extra_attack: 1
+    special_bitvector: b1c1
+
+# Mob #6031
+31:
+  names:
+    aliases: охранник
+    nominative: охранник
+    genitive: охранника
+    dative: охраннику
+    accusative: охранника
+    instrumental: охранником
+    prepositional: охраннике
+  descriptions:
+    short_desc: |2
+      Широкоплечий охранник стоит здесь.
+    long_desc: |2
+      Трактирный охранник умеет быстро навести порядок 
+      даже в самой шумной компании.
+  alignment: 600
+  stats:
+    level: 25
+    hitroll_penalty: 15
+    armor: 5
+    hp:
+      dice_count: 10
+      dice_size: 10
+      bonus: 800
+    damage:
+      dice_count: 2
+      dice_size: 25
+      bonus: 25
+  gold:
+    dice_count: 5
+    dice_size: 5
+    bonus: 10
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 30
+  race: 101
+  height: 180
+  weight: 150
+  attributes:
+    strength: 30
+    dexterity: 20
+    intelligence: 25
+    wisdom: 20
+    constitution: 30
+    charisma: 20
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kStayZone
+    - kNoCharm
+    - kNoSummon
+    - kNoBash
+    - kProtect
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 75
+  triggers:
+    - 6005  # нападениежителя
+    - 4020  # [m58] расскажи сказку
+  enhanced:
+    max_factor: 3
+
+# Mob #6033
+33:
+  names:
+    aliases: кладовщик
+    nominative: кладовщик
+    genitive: кладовщика
+    dative: кладовщику
+    accusative: кладовщика
+    instrumental: кладовщиком
+    prepositional: кладовщике
+  descriptions:
+    short_desc: |2
+      Средних лет кладовщик выжидающе глядит на вас, сидя на сундуке.
+    long_desc: |2
+      Средних лет, в меру упитанный мужичок с добрыми глазами.
+      Говорят, именно он предложил старосте бесплатно помогать
+      молодым воинам, когда дела деревни пошли на подъем. За
+      эту инициативу и приходится теперь ему тут целыми днями
+      сидеть, ожидая очередных молодчиков. Но он и не жалуется.
+  alignment: 0
+  stats:
+    level: 30
+    hitroll_penalty: 20
+    armor: 0
+    hp:
+      dice_count: 1
+      dice_size: 100
+      bonus: 1
+    damage:
+      dice_count: 1
+      dice_size: 1
+      bonus: 0
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kSit
+    start: kSit
+  sex: kMale
+  size: 30
+  race: 101
+  height: 198
+  weight: 200
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kProtect
+    - kNoFight
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+    - kSingleLight
+  triggers:
+    - 2102  # Выдача базовой экипировки
+  enhanced:
+    max_factor: 4
+
+# Mob #6034
+34:
+  names:
+    aliases: молодой следопыт
+    nominative: молодой следопыт
+    genitive: молодого следопыта
+    dative: молодому следопыту
+    accusative: молодого следопыта
+    instrumental: молодым следопытом
+    prepositional: молодом следопыте
+  descriptions:
+    short_desc: |2
+      Молодой следопыт стоит в углу здесь.
+    long_desc: |2
+      Молодой сильный мужчина с мечом за спиной.
+  alignment: 0
+  stats:
+    level: 20
+    hitroll_penalty: 5
+    armor: 5
+    hp:
+      dice_count: 0
+      dice_size: 0
+      bonus: 500
+    damage:
+      dice_count: 3
+      dice_size: 9
+      bonus: 25
+  gold:
+    dice_count: 10
+    dice_size: 10
+    bonus: 100
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 50
+  race: 101
+  height: 198
+  weight: 100
+  attributes:
+    strength: 18
+    dexterity: 15
+    intelligence: 13
+    wisdom: 13
+    constitution: 14
+    charisma: 3
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kStayZone
+    - kNoCharm
+    - kNoSummon
+    - kProtect
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+  triggers:
+    - 6008  # встречает молодой следопыт
+    - 6009  # дать кун молодому следопыту
+  enhanced:
+    like_work: 95
+    max_factor: 2
+    extra_attack: 1
+
+# Mob #6035
+35:
+  names:
+    aliases: Посланник Богов Козебаян
+    nominative: Козебаян
+    genitive: Козебаяна
+    dative: Козебаяну
+    accusative: Козебаяна
+    instrumental: Козебаяном
+    prepositional: Козебаяне
+  descriptions:
+    short_desc: |2
+      Посланник Богов Козебаян был отправлен сюда для помощи &Wновичкам&n.
+    long_desc: |2
+      Господи помилуй! Стоит передо мной детинушка в подолах льняных, до самой земли, на голове - личина козлиная, с рогами, а в руках мехи голосистые, баян то есть. Что за гульба нынче приключилась, за какой такой праздник? И молва по округе ползёт, что за полтыщи кун из самого завалящего заморыша, из хилого доходяги, он такого дюжего молодца отольёт - ни в сказке сказать, ни пером описать.
+  alignment: 0
+  stats:
+    level: 25
+    hitroll_penalty: 20
+    armor: 0
+    hp:
+      dice_count: 50
+      dice_size: 10000
+      bonus: 50000
+    damage:
+      dice_count: 1
+      dice_size: 1
+      bonus: 0
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 0
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 50
+  race: 100
+  height: 188
+  weight: 127
+  attributes:
+    strength: 50
+    dexterity: 50
+    intelligence: 50
+    wisdom: 50
+    constitution: 50
+    charisma: 50
+  action_flags:
+    - kSentinel
+    - kNpc
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kSingleLight
+  triggers:
+    - 4043  # Посланник Богов Былята отдыхает здесь.
+    - 4067  # обкаст Быляты
+  enhanced:
+    mob_remort: 5

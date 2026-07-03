@@ -1,0 +1,682 @@
+# Objects for zone 55
+
+# Object #5500
+0:
+  names:
+    aliases: крыло коршуна
+    nominative: крыло коршуна
+    genitive: крыло коршуна
+    dative: крыло коршуна
+    accusative: крыло коршуна
+    instrumental: крыло коршуна
+    prepositional: крыло коршуна
+  short_desc: Крыло коршуна лежит здесь.
+  type: kOther
+  material: 16  # ОРГАНИКА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 10
+  cur_durability: 10
+  timer: 10
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  extra_flags:
+    - kDecay
+    - kZonedecay
+  wear_flags:
+    - kTake
+
+# Object #5501
+1:
+  names:
+    aliases: исподник
+    nominative: исподник
+    genitive: исподника
+    dative: исподнику
+    accusative: исподник
+    instrumental: исподником
+    prepositional: исподнике
+  short_desc: Исподник лежит здесь.
+  action_desc: |2
+    Мягко говоря нижнее белье, но данный экземпляр необычен и интересен.
+  type: kArmor
+  material: 5  # КОВАНАЯ.СТАЛЬ
+  values:
+    - 1
+    - 2
+    - 0
+    - 0
+  weight: 5
+  cost: 100
+  rent_off: 100
+  rent_on: 10
+  max_durability: 150
+  cur_durability: 100
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 2
+  wear_flags:
+    - kTake
+    - kBody
+
+# Object #5502
+2:
+  names:
+    aliases: крестик
+    nominative: крестик
+    genitive: крестика
+    dative: крестику
+    accusative: крестик
+    instrumental: крестиком
+    prepositional: крестике
+  short_desc: Крестик лежит здесь.
+  type: kArmor
+  material: 1  # БУЛАТ
+  values:
+    - 2
+    - 1
+    - 1
+    - 36
+  weight: 1
+  cost: 50
+  rent_off: 200
+  rent_on: 50
+  max_durability: 25
+  cur_durability: 25
+  timer: 2880
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNorent
+    - kNodonate
+    - kNoinvis
+    - kNosell
+  wear_flags:
+    - kTake
+    - kNeck
+    - kWaist
+    - kHold
+  no_flags:
+    - kPoly
+  anti_flags:
+    - kPoly
+  applies:
+    - location: 1  # сила
+      modifier: -2
+    - location: 25  # восст.жизни
+      modifier: 25
+
+# Object #5503
+3:
+  names:
+    aliases: старый меч
+    nominative: старый меч
+    genitive: старого меча
+    dative: старому мечу
+    accusative: старый меч
+    instrumental: старым мечом
+    prepositional: старом мече
+  short_desc: Старый меч лежит здесь.
+  type: kWeapon
+  material: 3  # ЖЕЛЕЗО
+  values:
+    - 0
+    - 2
+    - 5
+    - 7
+  weight: 5
+  cost: 50
+  rent_off: 50
+  rent_on: 20
+  spec_param: 144
+  max_durability: 100
+  cur_durability: 100
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+    - kBoth
+
+# Object #5504
+4:
+  names:
+    aliases: старые доспехи
+    nominative: старые доспехи
+    genitive: старых доспехов
+    dative: старым доспехам
+    accusative: старые доспехи
+    instrumental: старыми доспехами
+    prepositional: старых доспехах
+  short_desc: Старые доспехи лежат здесь
+  type: kArmor
+  material: 5  # КОВАНАЯ.СТАЛЬ
+  values:
+    - 2
+    - 2
+    - 0
+    - 0
+  weight: 5
+  cost: 100
+  rent_off: 100
+  rent_on: 10
+  max_durability: 150
+  cur_durability: 100
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kBody
+
+# Object #5505
+5:
+  names:
+    aliases: большой кол
+    nominative: большой кол
+    genitive: большого кола
+    dative: большому колу
+    accusative: большой кол
+    instrumental: большим колом
+    prepositional: большом коле
+  short_desc: Большой деревянный кол.
+  type: kWeapon
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 0
+    - 3
+    - 8
+    - 12
+  weight: 20
+  cost: 100
+  rent_off: 100
+  rent_on: 20
+  spec_param: 146
+  max_durability: 100
+  cur_durability: 100
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 4
+  extra_flags:
+    - kNodisarm
+    - kAppearsSummer
+  wear_flags:
+    - kTake
+    - kBoth
+  no_flags:
+    - kMage
+    - kSorcerer
+    - kThief
+    - kAssasine
+    - kRanger
+    - kVigilant
+    - kMerchant
+    - kMagus
+
+# Object #5506
+6:
+  names:
+    aliases: дубовый стол
+    nominative: дубовый стол
+    genitive: дубового стола
+    dative: дубовому столу
+    accusative: дубовый стол
+    instrumental: дубовым столом
+    prepositional: дубовом столе
+  short_desc: Дубовый стол стоит здесь.
+  type: kContainer
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 10
+    - 12
+    - 0
+    - 0
+  weight: 200
+  cost: 10
+  rent_off: 10
+  rent_on: 10
+  max_durability: 300
+  cur_durability: 300
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  extra_flags:
+    - kNodecay
+
+# Object #5507
+7:
+  names:
+    aliases: кованый сундук
+    nominative: кованый сундук
+    genitive: кованого сундука
+    dative: кованому сундуку
+    accusative: кованый сундук
+    instrumental: кованым сундуком
+    prepositional: кованом сундуке
+  short_desc: Кованый сундук стоит здесь.
+  type: kContainer
+  material: 5  # КОВАНАЯ.СТАЛЬ
+  values:
+    - 10
+    - 12
+    - 5508
+    - 0
+  weight: 200
+  cost: 10
+  rent_off: 10
+  rent_on: 10
+  max_durability: 150
+  cur_durability: 150
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  extra_flags:
+    - kNodecay
+
+# Object #5508
+8:
+  names:
+    aliases: большой ключ
+    nominative: большой ключ
+    genitive: большого ключа
+    dative: большому ключу
+    accusative: большой ключ
+    instrumental: большим ключом
+    prepositional: большом ключе
+  short_desc: Большой ключ лежит здесь.
+  type: kKey
+  material: 4  # СТАЛЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 10
+  rent_off: 10
+  rent_on: 100
+  max_durability: 25
+  cur_durability: 25
+  timer: 180
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kZonedecay
+    - kNodecay
+    - kRepopDecay
+  wear_flags:
+    - kTake
+    - kHold
+
+# Object #5509
+9:
+  names:
+    aliases: мешок денег
+    nominative: мешок денег
+    genitive: мешка денег
+    dative: мешку денег
+    accusative: мешок денег
+    instrumental: мешком денег
+    prepositional: мешке денег
+  short_desc: Мешок денег лежит здесь.
+  type: kMoney
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 300
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 400
+  rent_off: 400
+  rent_on: 400
+  max_durability: 25
+  cur_durability: 25
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #5510
+10:
+  names:
+    aliases: корыто
+    nominative: корыто
+    genitive: корыта
+    dative: корыту
+    accusative: корыто
+    instrumental: корытом
+    prepositional: корыте
+  short_desc: Деревянное корыто находится здесь.
+  type: kContainer
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 100
+    - 0
+    - -1
+    - 0
+  weight: 200
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 50
+  cur_durability: 50
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  max_in_world: 1
+  extra_flags:
+    - kNodecay
+
+# Object #5511
+11:
+  names:
+    aliases: вареные зерна
+    nominative: вареные зерна
+    genitive: вареных зерен
+    dative: вареным зернам
+    accusative: вареные зерна
+    instrumental: вареными зернами
+    prepositional: вареных зернах
+  short_desc: Вареные зерна лежат здесь.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 3
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 100000
+  extra_flags:
+    - kNorent
+    - kNosell
+    - kAppearsDay
+  wear_flags:
+    - kTake
+
+# Object #5512
+12:
+  names:
+    aliases: куриное яйцо
+    nominative: куриное яйцо
+    genitive: куриного яйца
+    dative: куриному яйцу
+    accusative: куриное яйцо
+    instrumental: куриным яйцом
+    prepositional: курином яйце
+  short_desc: Куриное яйцо лежит здесь.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 6
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 5
+  rent_off: 5
+  rent_on: 5
+  max_durability: 10
+  cur_durability: 10
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  max_in_world: 100000
+  wear_flags:
+    - kTake
+
+# Object #5513
+13:
+  names:
+    aliases: бочка
+    nominative: бочка
+    genitive: бочки
+    dative: бочке
+    accusative: бочку
+    instrumental: бочкой
+    prepositional: бочке
+  short_desc: Деревянная бочка с водой стоит здесь.
+  type: kFountain
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 999
+    - 999
+    - 0
+    - 0
+  weight: 1004
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 100
+  cur_durability: 100
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  extra_flags:
+    - kNodecay
+
+# Object #5514
+14:
+  names:
+    aliases: палка
+    nominative: палка
+    genitive: палки
+    dative: палке
+    accusative: палку
+    instrumental: палкой
+    prepositional: палке
+  short_desc: Палка лежит здесь.
+  type: kWeapon
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 0
+    - 2
+    - 9
+    - 5
+  weight: 2
+  cost: 10
+  rent_off: 10
+  rent_on: 1
+  spec_param: 141
+  max_durability: 100
+  cur_durability: 100
+  timer: 20
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNorent
+    - kNosell
+    - kZonedecay
+  wear_flags:
+    - kTake
+    - kWield
+
+# Object #5515
+15:
+  names:
+    aliases: рог барана
+    nominative: рог барана
+    genitive: рога барана
+    dative: рогу барана
+    accusative: рог барана
+    instrumental: рогом барана
+    prepositional: роге барана
+  short_desc: Бараний рог лежит здесь.
+  type: kWeapon
+  material: 13  # КОСТЬ
+  values:
+    - 0
+    - 3
+    - 3
+    - 11
+  weight: 5
+  cost: 100
+  rent_off: 100
+  rent_on: 10
+  spec_param: 147
+  max_durability: 100
+  cur_durability: 100
+  timer: 6000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 5
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+    - kBoth
+
+# Object #5516
+16:
+  names:
+    aliases: легкие наручи
+    nominative: легкие наручи
+    genitive: легких наручей
+    dative: легким наручам
+    accusative: легкие наручи
+    instrumental: легкими наручами
+    prepositional: легких наручах
+  short_desc: Легкие наручи лежат здесь.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 0
+    - 1
+    - 0
+    - 0
+  weight: 1
+  cost: 50
+  rent_off: 50
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 43200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 5
+  wear_flags:
+    - kTake
+    - kArms
+  applies:
+    - location: 13  # макс.жизнь
+      modifier: 10
+
+# Object #5517
+17:
+  names:
+    aliases: барсучье сало
+    nominative: барсучье сало
+    genitive: барсучьего сала
+    dative: барсучьему салу
+    accusative: барсучье сало
+    instrumental: барсучьим салом
+    prepositional: барсучьем сале
+  short_desc: Длинный кусок белого сала лежит тут.
+  type: kFood
+  material: 16  # ОРГАНИКА
+  values:
+    - 2
+    - 0
+    - 0
+    - 0
+  weight: 3
+  cost: 10
+  rent_off: 30
+  rent_on: 30
+  max_durability: 10
+  cur_durability: 10
+  timer: 60
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  max_in_world: 30
+  extra_flags:
+    - kNorent
+    - kNodonate
+    - kNosell
+  wear_flags:
+    - kTake
+
+# Object #5518
+18:
+  names:
+    aliases: весточка клочок бересты
+    nominative: весточка
+    genitive: весточки
+    dative: весточке
+    accusative: весточку
+    instrumental: весточкой
+    prepositional: весточке
+  short_desc: Клочок бересты лежит тут.
+  type: kNote
+  material: 17  # БЕРЕСТА
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 15
+  cur_durability: 13
+  timer: 60
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 5
+  extra_flags:
+    - kNorent
+    - kNodonate
+    - kNosell
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: весточка
+      description: |2
+        Благословение богов на вас!
+        Вовремя твой посланец пришел, и помог мне сильно.
+        Скоро думаю вас навестить, когда - сначала работника пришлю.
+        Батюшке и матушке своим поклон мой передай.

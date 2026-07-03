@@ -1,0 +1,324 @@
+# Triggers for zone 64
+
+# Trigger #6400
+0:
+  name: лягушка приветствует
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kGreetPCAll
+  script: |-2
+    if %actor.sex%==1
+      wait 1s
+      : чуть не околела от счастья при виде Вас и начала прыгать около Ваших ног
+      wait 1s
+      г Ой, я так долго тебя ждала, так ждала!!!
+      __г Ты даже не представляешь как я тебя ждала!!!
+      wait 1s
+      __г Это, наверное, твоя стрела прилетела ко мне?
+      : показала каленую стрелу
+      г Попала прямо в меня, ранила. Рана неглубокая, но как настоящий мужчина, ты должен на мне жениться.
+      wait 2s
+      г Ну поцелуйте же меня и мы будем жить вместе долго и счастливо!
+      wait 1s
+      г А потом умрем в один день
+      wait 1s
+      : вытягивает губы трубочкой для поцелуя
+    else
+      вздох
+    end
+
+# Trigger #6401
+1:
+  name: рассказоцаревне
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kGreetPCAll
+  script: |-2
+    wait 1s
+    say %actor.iname%, как ты смог%actor.q% попасть сюда? Это моя территория!
+    say Раз прош%actor.y%, давай расскажу одну историю, не часто бывает у меня нормальный собеседник
+    wait 1s
+    г Так вот жила была на свете царевна. Ничего себе такая, вся из себя и вообще.
+    г Но считала она себя самой красивой и фыркала, когда видела некрасивых людей.
+    г Например навроде меня.
+    хих
+    wait 1s
+    г Задело это меня, изучил я много наук, много земель обошел, но нашел одно средство и...
+    хих
+    wait 1s
+    г Однажды, превратилась царевна как-то в земноводное не очень приятной наружности.
+    г В народе лягушками или жабами кличут.
+    wait 1s
+    г Правда за это мне тоже пришлось заплатить.
+    г Но за это я теперь могу питаться только жабами и лягушками.
+    г За каждую жабу буду платить 50 монет, за лягушку 25.
+
+# Trigger #6402
+2:
+  name: поцелуй
+  attach_type: kMobTrigger
+  narg: 1
+  arglist: поцеловать
+  trigger_types:
+    - kCommand
+  script: |-2
+    if !%arg.contains(лягушку)% && !%arg.contains(царевну)%
+      return 0
+      halt
+    end
+    wait 1
+    if %actor.sex%==1
+      msend %actor% Вы закрыли от ужаса глаза и коснулись губами склизкой кожи.
+      echoaround %actor% %actor.iname% наверное рехнулся, раз уж стал целовать лягушку
+      echo  Если бы лягушка не была зеленой, то покраснела бы со стыда.
+      wait 1s
+      г Ну на Вас управы уже никакой нет! Распустились совсем! Обнаглели!!!
+      г Ходят по лесу маньяки к честным лягушкам пристают...
+      г Много Вас тут таких с поцелуями... Зоофилы чертовы!
+      wait 1s
+      г Что Вы обо мне думаете такое? Я девушка честная! Я не позволю...
+      красн
+      wait 1s
+      г Хоть бы кто догадался подарок сделать... нет ведь сразу целоваться лезут!
+      if %world.curobjs(6404)% < 1
+        load obj 6404
+        дать стрела %actor.iname%
+        г И забери эту стрелу - что мне все время ее теперь держать.
+      end
+    else
+      msend %actor% Ай-ай, заморскими пакостями заниматься, поищи лягушкек-царевичей мужеского полу.
+    end
+
+# Trigger #6403
+3:
+  name: дали подарок лягушке
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kReceive
+  script: |-2
+    wait 1
+    if (%object.vnum% != 6402)
+      брос все
+      halt
+    end
+    wait 1
+    mpurge %object%
+    wait 1
+    г О! Вот это другое дело! А то сразу целоваться лезут! Давно бы так...
+    wait 1s
+    г Знаешь, ты конечно очень даже ничего, но вот замуж за тебя я не выйду!
+    г Стрела-то не твоя была, обманул ты меня, не мой ты жених!
+    г Но подарок ты принес мне непростой, теперь если жених настоящий найдется, то расколдует он меня.
+    wait 1s
+    г А чтоб утешить тебя... возьми на память обо мне вот это.
+    if (%world.curobjs(6405)% < 10) && (%random.4%==1)
+      load obj 6405
+      дать перстень %actor.iname%
+    else
+      эмоц покраснела.
+      wait 2s
+      %self.gold(+300)%
+      дать 300 кун %actor.iname%
+    end
+    echo Лягушка прыгнула в болото и спряталась от Вас.
+    mpurge %self%
+
+# Trigger #6404
+4:
+  name: встречастарик
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kGreetPCAll
+  script: |-2
+    wait 1
+    msend %actor% Старик оторвался от рассматривания округ и повернулся к Вам.
+    msend %actor% Привет, помоги старику несчастному.
+    вздох
+    msend %actor% Сына непутевого найти не могу. Одно несчастье, не даром Иван-Дурак все кличут.
+    msend %actor% Как нормального вывел с остальными сыновьями по нашему обычаю выбирать невест.
+    msend %actor% На чей двор стрела попадет - там невеста и живет.
+    wait 1
+    msend %actor% Старшие не дураки - прицелились и один в купеческий двор попал, другой в боярский.
+    msend %actor% А этот в болото запустил, да ведь не близко, силища то огромная.
+    wait 1
+    msend %actor% Вот жду его с болота. Помоги старому, зрение никчемное, ничего не вижу.
+    msend %actor% Хожу еле-еле, приведи сынка, отблагодарю как положено.
+
+# Trigger #6405
+5:
+  name: убили кошку
+  attach_type: kMobTrigger
+  narg: 5
+  trigger_types:
+    - kDeath
+  script: |-2
+    if %world.curobjs(6401)% < 10
+      load obj 6401
+    end
+
+# Trigger #6406
+6:
+  name: убили жабоглота
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kDeath
+  script: |-2
+    echo Жабаглот сказал: Мда... надо же, убил%actor.g% меня!
+    echo Слушай один секрет: кто найдет и поцелует царевну, значить, расколдует ее.
+    хох
+    echo Правда еще кое-что надо.
+    if %world.curobjs(6402)% < 10
+      load obj 6402
+    end
+
+# Trigger #6407
+7:
+  name: убили мышь
+  attach_type: kMobTrigger
+  narg: 25
+  trigger_types:
+    - kDeath
+  script: |-2
+    if %world.curobjs(6403)% < 100
+      load obj 6403
+    end
+
+# Trigger #6408
+8:
+  name: убили буккена
+  attach_type: kMobTrigger
+  narg: 10
+  trigger_types:
+    - kDeath
+  script: |-2
+    if %world.curobjs(6409)% < 10
+      load obj 6409
+    end
+
+# Trigger #6409
+9:
+  name: убили мымру
+  attach_type: kMobTrigger
+  narg: 5
+  trigger_types:
+    - kDeath
+  script: |-2
+    if %world.curobjs(6407)% < 10
+      load obj 6407
+    end
+
+# Trigger #6410
+10:
+  name: парня нашли
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kGreetPCAll
+  script: |-2
+    wait 1s
+    : удивился вашему появлению, потянулся с хрустом.
+    wait 2s
+    г Поспал неплохо, правда печи нет, холодно, да и ладно.
+    wait 1s
+    г Притомился я здесь бродить. Угораздило меня стрельнуть из лука куда-то в этом направлении.
+    г И должен я эту стрелу найти, не найду - позор мне, не вернусь из леса пока не сыщу.
+
+# Trigger #6411
+11:
+  name: дали стрелу парню
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kReceive
+  script: |-2
+    wait 1
+    if (%object.vnum% != 6404)
+      брос все
+      halt
+    end
+    wait 1
+    mpurge %object%
+    if (%world.curobjs(6408)% < 1)
+      wait 1s
+      г Здорово. Где ты ее нашел?
+      wait 1s
+      г У лягушки с короной. И говорит, что я жениться на ней должен?
+      вздох
+      wait 2s
+      г Ну что же делать, пойду к ней, значит судьба у меня такая.
+      г Спасибо тебе за все, передай весточку отцу моему старому, вдруг не увижусь больше с ним.
+      wait 2s
+      load obj 6408
+      дать записка %actor.iname%
+    else
+      г Так дело не пойдет - по-моему стрела поддельная.
+      хму
+    end
+    echo Парень убежал куда-то в кусты.
+    mpurge %self%
+
+# Trigger #6412
+12:
+  name: дали записку старику
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kReceive
+  script: |-2
+    wait 1
+    if (%object.vnum% != 6408)
+      брос все
+      halt
+    end
+    wait 1s
+    mpurge %object%
+    echo Старик прочитал записку и сморщился..
+    wait 1s
+    г Ладно, нашел ты его - весточку принес, дело сделано.
+    %self.gold(+100)%
+    %actor.questbodrich(7)%
+    дать 100 кун %actor.iname%
+    wait 1s
+    г А я лучше, пойду к дому, другим сыновьям расскажу.
+    echo Старик ушел.
+    mpurge %self%
+
+# Trigger #6413
+13:
+  name: разрыть
+  attach_type: kRoomTrigger
+  narg: 1
+  arglist: разрыть
+  trigger_types:
+    - kCommand
+  script: |-2
+    if !%arg.contains(завал)% && !%arg.contains(разрыть)%
+      return 0
+      halt
+    end
+    wait 1
+    wdoor 6422 north room 6425
+    wsend %actor% Вы разрыли завал и открылся вход в нору.
+    echoaround %actor% %actor.iname% разрыл%actor.q% завал и открылся вход в нору.
+    detach 6413 %self%
+
+# Trigger #6414
+14:
+  name: пуржевыход
+  attach_type: kRoomTrigger
+  narg: 100
+  trigger_types:
+    - kDeath
+  script: |-2
+    echo Разрытая земля обвалилась и закрыла завал.
+    if %self.north%
+      wdoor 6422 north purge
+    end
+    *wdoor 6422 north purge
+    detach 6413 %self%
+    attach 6413 %self%

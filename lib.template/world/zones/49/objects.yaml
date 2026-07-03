@@ -1,0 +1,561 @@
+# Objects for zone 49
+
+# Object #4900
+0:
+  names:
+    aliases: теремок
+    nominative: теремок
+    genitive: теремка
+    dative: теремку
+    accusative: теремок
+    instrumental: теремком
+    prepositional: теремке
+  short_desc: Стоит в поле теремок, он не низок, не высок.
+  type: kContainer
+  material: 10  # КЕРАМИКА
+  values:
+    - 0
+    - 15
+    - 99999
+    - 0
+  weight: 49
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 25
+  cur_durability: 25
+  timer: 10000
+  spell: 2  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kGlow
+    - kMagic
+    - kNodecay
+    - kRepopDecay
+  extra_descriptions:
+    - keywords: теремок
+      description: |2
+        Стоит в поле теремок
+        Он не низок, не высок
+        Он не узок, не широк
+        В нем блины есть и пирог
+        _
+        Он не беден, не богат
+        Он не крив и не горбат
+        Не красавец, не урод
+        В нем есть сад и огород
+        _
+        Надо бы спросить кто в таком теремочке живёт.
+
+# Object #4901
+1:
+  names:
+    aliases: деревянный меч
+    nominative: деревянный меч
+    genitive: деревянного меча
+    dative: деревянному мечу
+    accusative: деревянный меч
+    instrumental: деревянным мечом
+    prepositional: деревянном мече
+  short_desc: Деревянный меч лежит в углу.
+  type: kWeapon
+  material: 8  # ДЕРЕВО
+  values:
+    - 0
+    - 2
+    - 2
+    - 5
+  weight: 1
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  spec_param: 143
+  max_durability: 100
+  cur_durability: 80
+  timer: 10000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNorent
+    - kNodonate
+    - kNosell
+    - kNodecay
+    - kRepopDecay
+  wear_flags:
+    - kTake
+    - kWield
+  extra_descriptions:
+    - keywords: деревянный меч
+      description: |2
+        Тренировочный меч со множеством зарубок.
+        Можно попробовать &Rвооружиться&n им.
+  triggers:
+    - 4903  # [o4901-4910] Взяли вещь
+
+# Object #4902
+2:
+  names:
+    aliases: ржавый нож
+    nominative: ржавый нож
+    genitive: ржавого ножа
+    dative: x
+    accusative: ржавый нож
+    instrumental: ржавым ножом
+    prepositional: ржавом ноже
+  short_desc: Ржавый нож давно забыт кем-то здесь.
+  type: kWeapon
+  material: 3  # ЖЕЛЕЗО
+  values:
+    - 0
+    - 2
+    - 1
+    - 10
+  weight: 1
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  spec_param: 144
+  max_durability: 100
+  cur_durability: 60
+  timer: 10000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNorent
+    - kNodonate
+    - kNosell
+    - kNodecay
+    - kRepopDecay
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: ржавый нож
+      description: |2
+        Старый нож, проржавевший чуть более, чем полностью.
+        Можно попробовать &Rдержать&n его в левой руке.
+  triggers:
+    - 4903  # [o4901-4910] Взяли вещь
+
+# Object #4903
+3:
+  names:
+    aliases: красивая рубаха вышивкой
+    nominative: рубаха с вышивкой
+    genitive: рубахи с вышивкой
+    dative: x
+    accusative: рубаху с вышивкой
+    instrumental: рубахой с вышивкой
+    prepositional: рубахе с вышивкой
+  short_desc: Красивая рубаха, вышитая символами плодородия, лежит на полу.
+  type: kWorm
+  material: 14  # ТКАНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 10000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNorent
+    - kNodonate
+    - kNosell
+    - kNodecay
+    - kRepopDecay
+  wear_flags:
+    - kTake
+    - kBody
+  extra_descriptions:
+    - keywords: красивая рубаха вышивкой
+      description: |2
+        Наверняка удобная рубаха.
+        Такую красоту и носить то жалко.
+        Можно попробовать &Rодеть&n ее на тело.
+  triggers:
+    - 4903  # [o4901-4910] Взяли вещь
+
+# Object #4904
+4:
+  names:
+    aliases: открытый сундук
+    nominative: сундук
+    genitive: сундука
+    dative: x
+    accusative: сундук
+    instrumental: сундуком
+    prepositional: сундуке
+  short_desc: Открытый сундук стоит возле стены.
+  type: kContainer
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 5
+    - 0
+    - 99999
+    - 0
+  weight: 0
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 95
+  timer: 10000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNorent
+    - kNodonate
+    - kNosell
+    - kNodecay
+    - kRepopDecay
+  extra_descriptions:
+    - keywords: открытый сундук
+      description: |2
+        Крепкий деревянный сундук, открытый настежь.
+        Взять его, пожалуй, не получится, но &Rположить&n что-нибудь внутрь вполне можно.
+        Положенные в сундук вещи запросто можно снова &Rвзять&n из него (взять вещь сундук).
+  triggers:
+    - 4903  # [o4901-4910] Взяли вещь
+
+# Object #4905
+5:
+  names:
+    aliases: пустая фляга
+    nominative: фляга
+    genitive: фляги
+    dative: фляге
+    accusative: флягу
+    instrumental: флягой
+    prepositional: фляге
+  short_desc: Пустая фляга валяется у вас под ногами.
+  type: kLiquidContainer
+  material: 3  # ЖЕЛЕЗО
+  values:
+    - 10
+    - 0
+    - 0
+    - 0
+  weight: 0
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 90
+  timer: 10000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNorent
+    - kNodonate
+    - kNosell
+    - kNodecay
+    - kRepopDecay
+  wear_flags:
+    - kTake
+    - kNeck
+    - kWaist
+  extra_descriptions:
+    - keywords: пустая фляга
+      description: |2
+        Старая пустая металлическая фляга, немного помятая сбоку.
+        Небольшой ремень, прилаженный к ней, позволяет легко
+        одеть ее на шею (&Rодеть шея&n) или пояс (&Rодеть пояс&n).
+  triggers:
+    - 4903  # [o4901-4910] Взяли вещь
+
+# Object #4906
+6:
+  names:
+    aliases: свиток насыщения
+    nominative: свиток насыщения
+    genitive: свитка насыщения
+    dative: свитку насыщения
+    accusative: свиток насыщения
+    instrumental: свитком насыщения
+    prepositional: свитке насыщения
+  short_desc: Свиток насыщения так и просится к вам в руки.
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 30
+    - 103
+    - 0
+    - 0
+  weight: 1
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 10000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNorent
+    - kNodonate
+    - kNosell
+    - kZonedecay
+    - kNodecay
+    - kRepopDecay
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: свиток насыщения
+      description: |2
+        Берестяной магический свиток, содержащий магию насыщения.
+        Если &Rзачитать свиток&n, вы тут же насытитесь.
+        Можно также насытить стоящего рядом с вами персонажа (моба):
+        &Rзачитать свиток имя&n
+  triggers:
+    - 4903  # [o4901-4910] Взяли вещь
+
+# Object #4907
+7:
+  names:
+    aliases: посох воинской доблести
+    nominative: посох доблести
+    genitive: посоха доблести
+    dative: посоху доблести
+    accusative: посох доблести
+    instrumental: посохом доблести
+    prepositional: посохе доблести
+  short_desc: Посох воинской доблести, лежащий на полу, светится неземным светом.
+  type: kStaff
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 30
+    - 3
+    - 3
+    - 3
+  weight: 1
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 10000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNorent
+    - kNodonate
+    - kNosell
+    - kZonedecay
+    - kNodecay
+    - kRepopDecay
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: посох воинской доблести
+      description: |2
+        Волшебный посох, насыщенный магией воинской доблести.
+        Чтобы &Rприменить посох&n, нужно &Rдержать&n его в левой руке.
+        Применив его в клетке с персонажами, вы вызовете магию доблести
+        на каждого из них, но не на себя.
+  triggers:
+    - 4903  # [o4901-4910] Взяли вещь
+
+# Object #4908
+8:
+  names:
+    aliases: черное магическое зелье пузырек
+    nominative: черное зелье
+    genitive: черного зелья
+    dative: черному зелью
+    accusative: черное зелье
+    instrumental: черным зельем
+    prepositional: черном зелье
+  short_desc: Черное магическое зелье в небольшом пузырьке стоит неподалеку.
+  type: kPotion
+  material: 11  # СТЕКЛО
+  values:
+    - 30
+    - 16
+    - 0
+    - 0
+  weight: 1
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 10000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  extra_flags:
+    - kNorent
+    - kNodonate
+    - kNosell
+    - kZonedecay
+    - kNodecay
+    - kRepopDecay
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: черное магическое зелье пузырек
+      description: |2
+        Черное зелье, вроде того что продается в любой деревне для
+        восполнения очков жизни. Осушить ли его, или же перелить
+        куда-либо, решать вам:
+        &Rосушить зелье&n или же
+        &Rперелить зелье ковшик&n и потом
+        &Rпить ковшик&n
+  triggers:
+    - 4903  # [o4901-4910] Взяли вещь
+
+# Object #4909
+9:
+  names:
+    aliases: деревянная волшебная палочка
+    nominative: волшебная палочка
+    genitive: волшебной палочки
+    dative: волшебной палочке
+    accusative: волшебную палочку
+    instrumental: волшебной палочкой
+    prepositional: волшебной палочке
+  short_desc: Деревянная волшебная палочка катается здесь по полу.
+  type: kWand
+  material: 8  # ДЕРЕВО
+  values:
+    - 30
+    - 2
+    - 2
+    - 78
+  weight: 1
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 10000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNorent
+    - kNodonate
+    - kNosell
+    - kZonedecay
+    - kNodecay
+    - kRepopDecay
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: деревянная волшебная палочка
+      description: |2
+        Волшебная палочка, содержащая неизвестное заклинание.
+        Чтобы &Rприменить палочк&nу, нужно &Rдержать&n ее в левой руке.
+        Попробуйте применить ее на ком-то кроме себя:
+        &Rприменить палочка имя&n
+  triggers:
+    - 4903  # [o4901-4910] Взяли вещь
+
+# Object #4910
+10:
+  names:
+    aliases: небольшой ковшик
+    nominative: ковшик
+    genitive: ковшика
+    dative: ковшику
+    accusative: ковшик
+    instrumental: ковшиком
+    prepositional: ковшике
+  short_desc: Небольшой ковшик повешен на край чана.
+  type: kLiquidContainer
+  material: 3  # ЖЕЛЕЗО
+  values:
+    - 5
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 10000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNorent
+    - kNodonate
+    - kNosell
+    - kZonedecay
+    - kNodecay
+    - kRepopDecay
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: небольшой ковшик
+      description: |2
+        Небольшой железный ковшик с загнутой на конце ручкой,
+        позволяющей вешать его, зацепив за что-нибудь.
+        Его можно &Rнаполнить&n из какого-нибудь источника,
+        в него можно перелить волшебное зелье или воду из другой
+        емкости, имеющейся у вас:
+        &Rперелить зелье ковшик&n, после чего можно
+        &Rвылить ковшик земля&n или
+        &Rпить ковшик&n
+  triggers:
+    - 4903  # [o4901-4910] Взяли вещь
+
+# Object #4911
+11:
+  names:
+    aliases: медный чан
+    nominative: чан
+    genitive: чана
+    dative: чану
+    accusative: чан
+    instrumental: чаном
+    prepositional: чане
+  short_desc: Медный чан с водой установлен посреди комнаты.
+  type: kFountain
+  material: 12  # КАМЕНЬ
+  values:
+    - 100
+    - 100
+    - 0
+    - 0
+  weight: 105
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 10000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  extra_flags:
+    - kNodecay
+  extra_descriptions:
+    - keywords: медный чан
+      description: |2
+        Огромный медный чан с водой. Скорее всего у вас никогда
+        не получится выпить всю эту воду. Однако вы можете
+        запастись водой впрок, наполнив какую-то емкость из него:
+        &Rнаполнить емкость чан&n

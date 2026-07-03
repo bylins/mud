@@ -1,0 +1,13 @@
+# Zone #9
+
+vnum: 9
+name: 'Системная зона 9 -- умения "горное дело" и "ювелир" (!OLC)'
+top_room: 999
+lifespan: 20
+reset_mode: 2
+reset_idle: 0
+zone_type: 0
+mode: 1  # level
+entrance: 999
+under_construction: 0
+zone_group: 1  # solo

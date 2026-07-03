@@ -1,0 +1,2505 @@
+# Objects for zone 19
+
+# Object #1900
+0:
+  names:
+    aliases: колба
+    nominative: колба
+    genitive: колбы
+    dative: колбе
+    accusative: колбу
+    instrumental: колбой
+    prepositional: колбе
+  short_desc: Кем-то брошенная колба лежит здесь.
+  type: kLiquidContainer
+  material: 11  # СТЕКЛО
+  values:
+    - 12
+    - 12
+    - 24
+    - 1
+  weight: 13
+  cost: 100
+  rent_off: 1
+  rent_on: 1
+  max_durability: 100
+  cur_durability: 100
+  timer: 10000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNosell
+  wear_flags:
+    - kTake
+
+# Object #1901
+1:
+  names:
+    aliases: бутылек
+    nominative: бутылек
+    genitive: бутылька
+    dative: бутыльку
+    accusative: бутылек
+    instrumental: бутыльком
+    prepositional: бутыльке
+  short_desc: Кем-то брошенный бутылек лежит здесь.
+  type: kLiquidContainer
+  material: 11  # СТЕКЛО
+  values:
+    - 36
+    - 36
+    - 28
+    - 0
+  weight: 37
+  cost: 300
+  rent_off: 2
+  rent_on: 2
+  max_durability: 100
+  cur_durability: 100
+  timer: 10000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNosell
+  wear_flags:
+    - kTake
+
+# Object #1902
+2:
+  names:
+    aliases: баночка
+    nominative: баночка
+    genitive: баночки
+    dative: баночке
+    accusative: баночку
+    instrumental: баночкой
+    prepositional: баночке
+  short_desc: Кем-то брошенная баночка лежит здесь.
+  type: kLiquidContainer
+  material: 11  # СТЕКЛО
+  values:
+    - 72
+    - 72
+    - 24
+    - 1
+  weight: 73
+  cost: 600
+  rent_off: 3
+  rent_on: 3
+  max_durability: 100
+  cur_durability: 100
+  timer: 10000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNosell
+  wear_flags:
+    - kTake
+
+# Object #1903
+3:
+  names:
+    aliases: колба
+    nominative: колба
+    genitive: колбы
+    dative: колбе
+    accusative: колбу
+    instrumental: колбой
+    prepositional: колбе
+  short_desc: Кем-то брошенная колба лежит здесь.
+  type: kLiquidContainer
+  material: 11  # СТЕКЛО
+  values:
+    - 12
+    - 12
+    - 25
+    - 1
+  weight: 13
+  cost: 100
+  rent_off: 1
+  rent_on: 1
+  max_durability: 100
+  cur_durability: 100
+  timer: 10000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNosell
+  wear_flags:
+    - kTake
+
+# Object #1904
+4:
+  names:
+    aliases: бутылек
+    nominative: бутылек
+    genitive: бутылька
+    dative: бутыльку
+    accusative: бутылек
+    instrumental: бутыльком
+    prepositional: бутыльке
+  short_desc: Кем-то брошенный бутылек лежит здесь.
+  type: kLiquidContainer
+  material: 11  # СТЕКЛО
+  values:
+    - 36
+    - 36
+    - 25
+    - 1
+  weight: 37
+  cost: 300
+  rent_off: 2
+  rent_on: 2
+  max_durability: 100
+  cur_durability: 100
+  timer: 10000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNosell
+  wear_flags:
+    - kTake
+
+# Object #1905
+5:
+  names:
+    aliases: баночка
+    nominative: баночка
+    genitive: баночки
+    dative: баночке
+    accusative: баночку
+    instrumental: баночкой
+    prepositional: баночке
+  short_desc: Кем-то брошенная баночка лежит здесь.
+  type: kLiquidContainer
+  material: 11  # СТЕКЛО
+  values:
+    - 72
+    - 72
+    - 25
+    - 1
+  weight: 73
+  cost: 600
+  rent_off: 3
+  rent_on: 3
+  max_durability: 100
+  cur_durability: 100
+  timer: 10000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNosell
+  wear_flags:
+    - kTake
+
+# Object #1906
+6:
+  names:
+    aliases: колба
+    nominative: колба
+    genitive: колбы
+    dative: колбе
+    accusative: колбу
+    instrumental: колбой
+    prepositional: колбе
+  short_desc: Кем-то брошенная колба лежит здесь.
+  type: kLiquidContainer
+  material: 11  # СТЕКЛО
+  values:
+    - 12
+    - 12
+    - 26
+    - 1
+  weight: 13
+  cost: 100
+  rent_off: 1
+  rent_on: 1
+  max_durability: 100
+  cur_durability: 100
+  timer: 10000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNosell
+  wear_flags:
+    - kTake
+
+# Object #1907
+7:
+  names:
+    aliases: бутылек
+    nominative: бутылек
+    genitive: бутылька
+    dative: бутыльку
+    accusative: бутылек
+    instrumental: бутыльком
+    prepositional: бутыльке
+  short_desc: Кем-то брошенный бутылек лежит здесь.
+  type: kLiquidContainer
+  material: 11  # СТЕКЛО
+  values:
+    - 36
+    - 36
+    - 26
+    - 1
+  weight: 37
+  cost: 300
+  rent_off: 2
+  rent_on: 2
+  max_durability: 100
+  cur_durability: 100
+  timer: 10000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNosell
+  wear_flags:
+    - kTake
+
+# Object #1908
+8:
+  names:
+    aliases: баночка
+    nominative: баночка
+    genitive: баночки
+    dative: баночке
+    accusative: баночку
+    instrumental: баночкой
+    prepositional: баночке
+  short_desc: Кем-то брошенная баночка лежит здесь.
+  type: kLiquidContainer
+  material: 11  # СТЕКЛО
+  values:
+    - 72
+    - 72
+    - 26
+    - 1
+  weight: 73
+  cost: 600
+  rent_off: 3
+  rent_on: 3
+  max_durability: 100
+  cur_durability: 100
+  timer: 10000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNosell
+  wear_flags:
+    - kTake
+
+# Object #1909
+9:
+  names:
+    aliases: колба
+    nominative: колба
+    genitive: колбы
+    dative: колбе
+    accusative: колбу
+    instrumental: колбой
+    prepositional: колбе
+  short_desc: Кем-то брошенная колба лежит здесь.
+  type: kLiquidContainer
+  material: 11  # СТЕКЛО
+  values:
+    - 12
+    - 12
+    - 27
+    - 1
+  weight: 13
+  cost: 100
+  rent_off: 1
+  rent_on: 1
+  max_durability: 100
+  cur_durability: 100
+  timer: 10000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNosell
+  wear_flags:
+    - kTake
+
+# Object #1910
+10:
+  names:
+    aliases: бутылек
+    nominative: бутылек
+    genitive: бутылька
+    dative: бутыльку
+    accusative: бутылек
+    instrumental: бутыльком
+    prepositional: бутыльке
+  short_desc: Кем-то брошенный бутылек лежит здесь.
+  type: kLiquidContainer
+  material: 11  # СТЕКЛО
+  values:
+    - 36
+    - 36
+    - 27
+    - 1
+  weight: 37
+  cost: 300
+  rent_off: 2
+  rent_on: 2
+  max_durability: 100
+  cur_durability: 100
+  timer: 10000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNosell
+  wear_flags:
+    - kTake
+
+# Object #1911
+11:
+  names:
+    aliases: баночка
+    nominative: баночка
+    genitive: баночки
+    dative: баночке
+    accusative: баночку
+    instrumental: баночкой
+    prepositional: баночке
+  short_desc: Кем-то брошенная баночка лежит здесь.
+  type: kLiquidContainer
+  material: 11  # СТЕКЛО
+  values:
+    - 72
+    - 72
+    - 27
+    - 1
+  weight: 73
+  cost: 600
+  rent_off: 3
+  rent_on: 3
+  max_durability: 100
+  cur_durability: 100
+  timer: 10000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kNosell
+  wear_flags:
+    - kTake
+
+# Object #1912
+12:
+  names:
+    aliases: черный свиток
+    nominative: '&Kчерный свиток&n'
+    genitive: '&Kчерного свитка&n'
+    dative: '&Kчерному свитку&n'
+    accusative: '&Kчерный свиток&n'
+    instrumental: '&Kчерным свитком&n'
+    prepositional: '&Kчерном свитке&n'
+  short_desc: '&KЧерный свиток&n парит прямо перед Вами.'
+  type: kScroll
+  material: 14  # ТКАНЬ
+  values:
+    - 1
+    - 193
+    - 0
+    - 0
+  weight: 1
+  cost: 1199998
+  rent_off: 0
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 240
+  spell: 0  # !undefined!
+  level: 1
+  sex: kMale
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: черный свиток
+      description: |2
+        Абсолютно черный свиток из незнакомого Вам
+        материала, полностью исписанный какими-то
+        странными знаками.
+
+# Object #1913
+13:
+  names:
+    aliases: льняные бинты
+    nominative: льняные бинты
+    genitive: льняных бинтов
+    dative: льняным бинтам
+    accusative: льняные бинты
+    instrumental: льняными бинтами
+    prepositional: льняных бинтах
+  short_desc: Пачка льняных бинтов брошена здесь.
+  type: kBandage
+  material: 14  # ТКАНЬ
+  values:
+    - 5
+    - 0
+    - 0
+    - 0
+  weight: 10
+  cost: 10
+  rent_off: 0
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 40000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  wear_flags:
+    - kTake
+
+# Object #1914
+14:
+  names:
+    aliases: плотные льняные бинты
+    nominative: плотные льняные бинты
+    genitive: плотных льняных бинтов
+    dative: плотным льняным бинтам
+    accusative: плотные льняные бинты
+    instrumental: плотными льняными бинтами
+    prepositional: плотных льняных бинтах
+  short_desc: Пачка плотных льняных бинтов брошена здесь.
+  type: kBandage
+  material: 14  # ТКАНЬ
+  values:
+    - 10
+    - 0
+    - 0
+    - 0
+  weight: 10
+  cost: 10
+  rent_off: 0
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 40000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  wear_flags:
+    - kTake
+
+# Object #1915
+15:
+  names:
+    aliases: шелковые бинты
+    nominative: шелковые бинты
+    genitive: шелковых бинтов
+    dative: шелковым бинтам
+    accusative: шелковые бинты
+    instrumental: шелковыми бинтами
+    prepositional: шелковых бинтах
+  short_desc: Пачка шелковых бинтов брошена здесь.
+  type: kBandage
+  material: 14  # ТКАНЬ
+  values:
+    - 20
+    - 0
+    - 0
+    - 0
+  weight: 10
+  cost: 10
+  rent_off: 0
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 40000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  wear_flags:
+    - kTake
+
+# Object #1916
+16:
+  names:
+    aliases: плотные шелковые бинты
+    nominative: плотные шелковые бинты
+    genitive: плотных шелковых бинтов
+    dative: плотным шелковым бинтам
+    accusative: плотные шелковые бинты
+    instrumental: плотными шелковыми бинтами
+    prepositional: плотных шелковых бинтах
+  short_desc: Пачка плотных шелковых бинтов брошена здесь.
+  type: kBandage
+  material: 14  # ТКАНЬ
+  values:
+    - 40
+    - 0
+    - 0
+    - 0
+  weight: 10
+  cost: 10
+  rent_off: 0
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 40000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  wear_flags:
+    - kTake
+
+# Object #1917
+17:
+  names:
+    aliases: хлопковые бинты
+    nominative: хлопковые бинты
+    genitive: хлопковых бинтов
+    dative: хлопковым бинтам
+    accusative: хлопковые бинты
+    instrumental: хлопковыми бинтами
+    prepositional: хлопковых бинтах
+  short_desc: Пачка хлопковых бинтов брошена здесь.
+  type: kBandage
+  material: 14  # ТКАНЬ
+  values:
+    - 80
+    - 0
+    - 0
+    - 0
+  weight: 10
+  cost: 10
+  rent_off: 0
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 40000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  wear_flags:
+    - kTake
+
+# Object #1918
+18:
+  names:
+    aliases: плотные хлопковые бинты
+    nominative: плотные хлопковые бинты
+    genitive: плотных хлопковых бинтов
+    dative: плотным хлопковым бинтам
+    accusative: плотные хлопковые бинты
+    instrumental: плотными хлопковыми бинтами
+    prepositional: плотных хлопковых бинтах
+  short_desc: Пачка плотных хлопковых бинтов брошена здесь.
+  type: kBandage
+  material: 14  # ТКАНЬ
+  values:
+    - 160
+    - 0
+    - 0
+    - 0
+  weight: 10
+  cost: 10
+  rent_off: 0
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 40000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  wear_flags:
+    - kTake
+
+# Object #1919
+19:
+  names:
+    aliases: стекло для вплавки
+    nominative: стекло для вплавки
+    genitive: стекла для вплавки
+    dative: стеклу для вплавки
+    accusative: стекло для вплавки
+    instrumental: стеклом для вплавки
+    prepositional: стекле для вплавки
+  short_desc: Кусок прозрачного стекла лежит здесь.
+  type: kTreasure
+  material: 11  # СТЕКЛО
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 20
+  rent_off: 1
+  rent_on: 1
+  max_durability: 30
+  cur_durability: 30
+  timer: 5000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #1920
+20:
+  names:
+    aliases: книфка
+    nominative: книфка
+    genitive: книфки
+    dative: книфке
+    accusative: книфку
+    instrumental: книфкой
+    prepositional: книфке
+  short_desc: Книфка
+  type: kBook
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 2
+    - 1
+    - 5
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 1
+  sex: kFemale
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+
+# Object #1921
+21:
+  names:
+    aliases: рунический знак ополченца
+    nominative: рунический знак ополченца
+    genitive: рунического знака ополченца
+    dative: руническому знаку ополченца
+    accusative: рунический знак ополченца
+    instrumental: руническим знаком ополченца
+    prepositional: руническом знаке ополченца
+  short_desc: Кем-то потерянный рунический знак ополченца лежит на земле.
+  type: kEnchant
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 1
+  sex: kMale
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+    - kHands
+  no_flags:
+    - kSorcerer
+    - kThief
+    - kAssasine
+    - kGuard
+    - kPaladine
+    - kRanger
+    - kVigilant
+    - kMerchant
+    - kMagus
+    - kConjurer
+    - kCharmer
+    - kWizard
+    - kNecromancer
+    - kCharmice
+  extra_descriptions:
+    - keywords: рунический знак ополченца
+      description: |2
+        Используется для зачарования другого предмета.
+        При этом на предмет переходят свойства и ограничения(!) данного знака.
+        Дополнительные свойства при некоторых ограничениях в целом зависят
+        от настроения бога древнерусского рандома.
+        Формат команды: применить знак предмет.
+
+# Object #1922
+22:
+  names:
+    aliases: рунический знак гридня
+    nominative: рунический знак гридня
+    genitive: рунического знака гридня
+    dative: руническому знаку гридня
+    accusative: рунический знак гридня
+    instrumental: руническим знаком гридня
+    prepositional: руническом знаке гридня
+  short_desc: Кем-то потерянный рунический знак гридня лежит на земле.
+  type: kEnchant
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 1
+  sex: kMale
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+    - kHands
+  no_flags:
+    - kSorcerer
+    - kThief
+    - kAssasine
+    - kGuard
+    - kPaladine
+    - kRanger
+    - kVigilant
+    - kMerchant
+    - kMagus
+    - kConjurer
+    - kCharmer
+    - kWizard
+    - kNecromancer
+    - kCharmice
+  extra_descriptions:
+    - keywords: рунический знак гридня
+      description: |2
+        Используется для зачарования другого предмета.
+        При этом на предмет переходят свойства и ограничения(!) данного знака.
+        Дополнительные свойства при некоторых ограничениях в целом зависят
+        от настроения бога древнерусского рандома.
+        Формат команды: применить знак предмет
+
+# Object #1923
+23:
+  names:
+    aliases: рунический знак воеводы
+    nominative: рунический знак воеводы
+    genitive: рунического знака воеводы
+    dative: руническому знаку воеводы
+    accusative: рунический знак воеводы
+    instrumental: руническим знаком воеводы
+    prepositional: руническом знаке воеводы
+  short_desc: Кем-то потерянный рунический знак воеводы лежит на земле.
+  type: kEnchant
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 1
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 1
+  sex: kMale
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+    - kHands
+  no_flags:
+    - kSorcerer
+    - kThief
+    - kAssasine
+    - kGuard
+    - kPaladine
+    - kRanger
+    - kVigilant
+    - kMerchant
+    - kMagus
+    - kConjurer
+    - kCharmer
+    - kWizard
+    - kNecromancer
+    - kCharmice
+  extra_descriptions:
+    - keywords: рунический знак воеводы
+      description: |2
+        Используется для зачарования другого предмета.
+        При этом на предмет переходят свойства и ограничения(!) данного знака.
+        Дополнительные свойства при некоторых ограничениях в целом зависят
+        от настроения бога древнерусского рандома.
+        Формат команды: применить знак предмет
+
+# Object #1924
+24:
+  names:
+    aliases: кофелек
+    nominative: кофелек
+    genitive: кофелька
+    dative: кофельку
+    accusative: кофелек
+    instrumental: кофельком
+    prepositional: кофельке
+  short_desc: Забытый кем-то кофелек лежит здесь.
+  type: kContainer
+  material: 15  # КОЖА
+  values:
+    - 0
+    - 5
+    - -1
+    - 0
+  weight: 0
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 1440
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #1925
+25:
+  names:
+    aliases: Ветвь ледяного дерева
+    nominative: '&bветвь ледяного дерева&n'
+    genitive: '&bветви ледяного дерева&n'
+    dative: '&bветви ледяного дерева&n'
+    accusative: '&bветвь ледяного дерева&n'
+    instrumental: '&bветвью ледяного дерева&n'
+    prepositional: '&bветви ледяного дерева&n'
+  short_desc: '&bКусок льда в виде отломанной ветви лежит на земле&n'
+  type: kMagicIngredient
+  material: 7  # КРИСТАЛЛ
+  values:
+    - 6656
+    - 1925
+    - 90
+    - 0
+  weight: 8
+  cost: 1
+  rent_off: 0
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 10000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 7
+  extra_flags:
+    - kNodisarm
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kWaterBreath
+    - kIceAura
+  applies:
+    - location: 2  # ловкость
+      modifier: 3
+    - location: 4  # мудрость
+      modifier: 2
+    - location: 46  # защита.от.стихии.воды
+      modifier: 15
+    - location: 50  # защита.от.ядов.и.болезней
+      modifier: 5
+
+# Object #1926
+26:
+  names:
+    aliases: нить вечного огня
+    nominative: '&Rнить вечного огня&n'
+    genitive: '&Rнити вечного огня&n'
+    dative: '&Rнити вечного огня&n'
+    accusative: '&Rнить вечного огня&n'
+    instrumental: '&Rнитью вечного огня&n'
+    prepositional: '&Rнити вечного огня&n'
+  short_desc: '&RНить огня, разбрасывает искры лежа на земле&n'
+  type: kMagicIngredient
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 6656
+    - 1926
+    - 90
+    - 0
+  weight: 8
+  cost: 1
+  rent_off: 0
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 10000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 7
+  wear_flags:
+    - kTake
+  applies:
+    - location: 1  # сила
+      modifier: 3
+    - location: 18  # попадание
+      modifier: 5
+    - location: 13  # макс.жизнь
+      modifier: 50
+    - location: 49  # защита.от.магии.разума
+      modifier: 10
+
+# Object #1929
+29:
+  names:
+    aliases: свиток магического очищения
+    nominative: свиток магического очищения
+    genitive: свитка магического очищения
+    dative: свитку магического очищения
+    accusative: свиток магического очищения
+    instrumental: свитком магического очищения
+    prepositional: свитке магического очищения
+  short_desc: Светясь внутренней энергией, загадочный свиток, лежит здесь
+  type: kScroll
+  material: 17  # БЕРЕСТА
+  values:
+    - 50
+    - 203
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1000
+  rent_on: 1000
+  max_durability: 150
+  cur_durability: 150
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kMagic
+    - kFire
+    - kNolocate
+  wear_flags:
+    - kTake
+    - kHold
+
+# Object #1930
+30:
+  names:
+    aliases: малый знак зачарования
+    nominative: малый знак зачарования
+    genitive: малого знака зачарования
+    dative: малому знаку зачарования
+    accusative: малый знак зачарования
+    instrumental: малым знаком зачарования
+    prepositional: малом знаке зачарования
+  short_desc: Малый колдовской знак лежит здесь.
+  action_desc: |2
+    Подготовленный учеником колдуна знак.
+  type: kOther
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 300
+  cur_durability: 300
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 999
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: малый знак зачарования
+      description: |2
+        Подготовленный учеником колдуна знак.
+
+# Object #1931
+31:
+  names:
+    aliases: знак зачарования
+    nominative: знак зачарования
+    genitive: знака зачарования
+    dative: знаку зачарования
+    accusative: знак зачарования
+    instrumental: знаком зачарования
+    prepositional: знаке зачарования
+  short_desc: Знак зачарования лежит здесь.
+  action_desc: |2
+    изготовленный помощником колдуна знак.
+  type: kOther
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 300
+  cur_durability: 300
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 999
+  wear_flags:
+    - kTake
+    - kHold
+  extra_descriptions:
+    - keywords: знак зачарования
+      description: |2
+        изготовленный помощником колдуна знак.
+
+# Object #1932
+32:
+  names:
+    aliases: знак великолепного зачарования
+    nominative: знак великолепного зачарования
+    genitive: знака великолепного зачарования
+    dative: знаку великолепного зачарования
+    accusative: знак великолепного зачарования
+    instrumental: знаком великолепного зачарования
+    prepositional: знаке великолепного зачарования
+  short_desc: Великолепный знак лежит здесь.
+  type: kOther
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 300
+  cur_durability: 300
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 999
+  wear_flags:
+    - kTake
+    - kHold
+
+# Object #1950
+50:
+  names:
+    aliases: алмаз пятиугольной
+    nominative: алмаз пятиугольной огранки
+    genitive: алмаза пятиугольной огранки
+    dative: алмазу пятиугольной огранки
+    accusative: алмаз пятиугольной огранки
+    instrumental: алмазом пятиугольной огранки
+    prepositional: алмазе пятиугольной огранки
+  short_desc: Алмаз пятиугольной огранки лежит здесь.
+  type: kTreasure
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 90
+  rent_off: 90
+  rent_on: 90
+  max_durability: 30
+  cur_durability: 30
+  timer: 5000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #1951
+51:
+  names:
+    aliases: алмаз шестиугольной
+    nominative: алмаз шестиугольной огранки
+    genitive: алмаза шестиугольной огранки
+    dative: алмазу шестиугольной огранки
+    accusative: алмаз шестиугольной огранки
+    instrumental: алмазом шестиугольной огранки
+    prepositional: алмазе шестиугольной огранки
+  short_desc: Алмаз шестиугольной огранки лежит здесь.
+  type: kTreasure
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 90
+  rent_off: 90
+  rent_on: 90
+  max_durability: 30
+  cur_durability: 30
+  timer: 5000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #1952
+52:
+  names:
+    aliases: алмаз восьмиугольной огранки
+    nominative: алмаз восьмиугольной огранки
+    genitive: алмаза восьмиугольной огранки
+    dative: алмазу восьмиугольной огранки
+    accusative: алмаз восьмиугольной огранки
+    instrumental: алмазом восьмиугольной огранки
+    prepositional: алмазе восьмиугольной огранки
+  short_desc: Алмазе восьмиугольной огранки лежит здесь.
+  type: kTreasure
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 90
+  rent_off: 90
+  rent_on: 90
+  max_durability: 30
+  cur_durability: 30
+  timer: 5000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #1953
+53:
+  names:
+    aliases: темно зеленый турмалин
+    nominative: темно-зеленый турмалин
+    genitive: темно-зеленого турмалина
+    dative: темно-зеленому турмалину
+    accusative: темно-зеленый турмалин
+    instrumental: темно-зеленым турмалином
+    prepositional: темно-зеленом турмалине
+  short_desc: Темно-зеленый турмалин лежит здесь.
+  type: kTreasure
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 90
+  rent_off: 90
+  rent_on: 90
+  max_durability: 30
+  cur_durability: 30
+  timer: 5000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #1954
+54:
+  names:
+    aliases: темно синий турмалин
+    nominative: темно-синий турмалин
+    genitive: темно-синего турмалина
+    dative: темно-синему турмалину
+    accusative: темно-синий турмалин
+    instrumental: темно-синим турмалином
+    prepositional: темно-синем турмалине
+  short_desc: Темно-синий турмалин лежит здесь.
+  type: kTreasure
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 90
+  rent_off: 90
+  rent_on: 90
+  max_durability: 30
+  cur_durability: 30
+  timer: 5000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #1955
+55:
+  names:
+    aliases: темно красный турмалин
+    nominative: темно-красный турмалин
+    genitive: темно-красного турмалина
+    dative: темно-красному турмалину
+    accusative: темно-красный турмалин
+    instrumental: темно-красным турмалином
+    prepositional: темно-красном турмалине
+  short_desc: Темно-красный турмалин лежит здесь.
+  type: kTreasure
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 90
+  rent_off: 90
+  rent_on: 90
+  max_durability: 30
+  cur_durability: 30
+  timer: 5000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #1956
+56:
+  names:
+    aliases: прозрачный турмалин
+    nominative: прозрачный турмалин
+    genitive: прозрачного турмалина
+    dative: прозрачному турмалину
+    accusative: прозрачный турмалин
+    instrumental: прозрачным турмалином
+    prepositional: прозрачном турмалине
+  short_desc: Прозрачный турмалин лежит здесь.
+  type: kTreasure
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 90
+  rent_off: 90
+  rent_on: 90
+  max_durability: 30
+  cur_durability: 30
+  timer: 5000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #1957
+57:
+  names:
+    aliases: черный опал
+    nominative: черный опал
+    genitive: черного опала
+    dative: черному опалу
+    accusative: черный опал
+    instrumental: черным опалом
+    prepositional: черном опале
+  short_desc: Черный опал лежит здесь.
+  type: kTreasure
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 90
+  rent_off: 90
+  rent_on: 90
+  max_durability: 30
+  cur_durability: 30
+  timer: 5000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #1958
+58:
+  names:
+    aliases: новый предмет
+    nominative: голубой опал
+    genitive: голубого опала
+    dative: голубому опалу
+    accusative: голубой опал
+    instrumental: голубым опалом
+    prepositional: голубом опале
+  short_desc: Голубой опал лежит здесь.
+  type: kTreasure
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 90
+  rent_off: 90
+  rent_on: 90
+  max_durability: 30
+  cur_durability: 30
+  timer: 5000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #1959
+59:
+  names:
+    aliases: огненный опал
+    nominative: огненный опал
+    genitive: огненного опала
+    dative: огненному опалу
+    accusative: огненный опал
+    instrumental: огненным опалом
+    prepositional: огненном опале
+  short_desc: Огненный опал лежит здесь.
+  type: kTreasure
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 90
+  rent_off: 90
+  rent_on: 90
+  max_durability: 30
+  cur_durability: 30
+  timer: 5000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #1960
+60:
+  names:
+    aliases: коричневый опал
+    nominative: коричневый опал
+    genitive: коричневого опала
+    dative: коричневому опалу
+    accusative: коричневый опал
+    instrumental: коричневым опалом
+    prepositional: коричневом опале
+  short_desc: Коричневый опал лежит здесь.
+  type: kTreasure
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 90
+  rent_off: 90
+  rent_on: 90
+  max_durability: 30
+  cur_durability: 30
+  timer: 5000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #1961
+61:
+  names:
+    aliases: восковой опал
+    nominative: восковой опал
+    genitive: воскового опала
+    dative: восковому опалу
+    accusative: восковой опал
+    instrumental: восковым опалом
+    prepositional: восковом опале
+  short_desc: Восковой опал лежит здесь.
+  type: kTreasure
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 90
+  rent_off: 90
+  rent_on: 90
+  max_durability: 30
+  cur_durability: 30
+  timer: 5000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #1962
+62:
+  names:
+    aliases: прочный сапфир
+    nominative: прочный сапфир
+    genitive: прочного сапфира
+    dative: прочному сапфиру
+    accusative: прочный сапфир
+    instrumental: прочным сапфиром
+    prepositional: прочном сапфире
+  short_desc: Прочный сапфир лежит здесь.
+  type: kTreasure
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 90
+  rent_off: 90
+  rent_on: 90
+  max_durability: 30
+  cur_durability: 30
+  timer: 5000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #1963
+63:
+  names:
+    aliases: сколотый сапфир
+    nominative: сколотый сапфир
+    genitive: сколотого сапфира
+    dative: сколотому сапфиру
+    accusative: сколотый сапфир
+    instrumental: сколотым сапфиром
+    prepositional: сколотом сапфире
+  short_desc: Сколотый сапфир лежит здесь.
+  type: kTreasure
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 90
+  rent_off: 90
+  rent_on: 90
+  max_durability: 30
+  cur_durability: 30
+  timer: 5000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #1964
+64:
+  names:
+    aliases: сияющий сапфир
+    nominative: сияющий сапфир
+    genitive: сияющего сапфира
+    dative: сияющему сапфиру
+    accusative: сияющий сапфир
+    instrumental: сияющим сапфиром
+    prepositional: сияющем сапфире
+  short_desc: Сияющий сапфир лежит здесь.
+  type: kTreasure
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 90
+  rent_off: 90
+  rent_on: 90
+  max_durability: 30
+  cur_durability: 30
+  timer: 5000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #1965
+65:
+  names:
+    aliases: тусклый сапфир
+    nominative: тусклый сапфир
+    genitive: тусклого сапфира
+    dative: тусклому сапфиру
+    accusative: тусклый сапфир
+    instrumental: тусклым сапфиром
+    prepositional: тусклом сапфире
+  short_desc: Тусклый сапфир лежит здесь.
+  type: kTreasure
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 90
+  rent_off: 90
+  rent_on: 90
+  max_durability: 30
+  cur_durability: 30
+  timer: 5000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #1966
+66:
+  names:
+    aliases: изумруд смешанной огранки
+    nominative: изумруд смешанной огранки
+    genitive: изумруда смешанной огранки
+    dative: изумруду смешанной огранки
+    accusative: изумруд смешанной огранки
+    instrumental: изумрудом смешанной огранки
+    prepositional: изумруде смешанной огранки
+  short_desc: Изумруд смешанной огранки лежит здесь.
+  type: kTreasure
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 90
+  rent_off: 90
+  rent_on: 90
+  max_durability: 30
+  cur_durability: 30
+  timer: 5000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #1967
+67:
+  names:
+    aliases: изумруд ступенчатой огранки
+    nominative: изумруд ступенчатой огранки
+    genitive: изумруда ступенчатой огранки
+    dative: изумруду ступенчатой огранки
+    accusative: изумруд ступенчатой огранки
+    instrumental: изумрудом ступенчатой огранки
+    prepositional: изумруде ступенчатой огранки
+  short_desc: Изумруд ступенчатой огранки лежит здесь.
+  type: kTreasure
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 90
+  rent_off: 90
+  rent_on: 90
+  max_durability: 30
+  cur_durability: 30
+  timer: 5000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #1968
+68:
+  names:
+    aliases: изумруд огранки клиньями
+    nominative: изумруд огранки клиньями
+    genitive: изумруда огранки клиньями
+    dative: изумруду огранки клиньями
+    accusative: изумруд огранки клиньями
+    instrumental: изумрудом огранки клиньями
+    prepositional: изумруде огранки клиньями
+  short_desc: Изумруд огранки клиньями лежит здесь.
+  type: kTreasure
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 90
+  rent_off: 90
+  rent_on: 90
+  max_durability: 30
+  cur_durability: 30
+  timer: 5000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #1969
+69:
+  names:
+    aliases: изумруд цейлонской огранки
+    nominative: изумруд цейлонской огранки
+    genitive: изумруда цейлонской огранки
+    dative: изумруду цейлонской огранки
+    accusative: изумруд цейлонской огранки
+    instrumental: изумрудом цейлонской огранки
+    prepositional: изумруде цейлонской огранки
+  short_desc: Изумруд цейлонской огранки лежит здесь.
+  type: kTreasure
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 90
+  rent_off: 90
+  rent_on: 90
+  max_durability: 30
+  cur_durability: 30
+  timer: 5000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #1970
+70:
+  names:
+    aliases: гранат огранки навет
+    nominative: гранат огранки навет
+    genitive: граната огранки навет
+    dative: гранату огранки навет
+    accusative: гранат огранки навет
+    instrumental: гранатом огранки навет
+    prepositional: гранате огранки навет
+  short_desc: Гранат огранки навет лежит здесь.
+  type: kTreasure
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 90
+  rent_off: 90
+  rent_on: 90
+  max_durability: 30
+  cur_durability: 30
+  timer: 5000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #1971
+71:
+  names:
+    aliases: гранат огранки слеза
+    nominative: гранат огранки слеза
+    genitive: граната огранки слеза
+    dative: гранату огранки слеза
+    accusative: гранат огранки слеза
+    instrumental: гранатом огранки слеза
+    prepositional: гранате огранки слеза
+  short_desc: Гранат огранки слеза лежит здесь.
+  type: kTreasure
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 90
+  rent_off: 90
+  rent_on: 90
+  max_durability: 30
+  cur_durability: 30
+  timer: 5000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #1972
+72:
+  names:
+    aliases: гранат огранки герб
+    nominative: гранат огранки герб
+    genitive: граната огранки герб
+    dative: гранату огранки герб
+    accusative: гранат огранки герб
+    instrumental: гранатом огранки герб
+    prepositional: гранате огранки герб
+  short_desc: Гранат огранки герб лежит здесь.
+  type: kTreasure
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 90
+  rent_off: 90
+  rent_on: 90
+  max_durability: 30
+  cur_durability: 30
+  timer: 5000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #1973
+73:
+  names:
+    aliases: гранат прямоугольной огранки
+    nominative: гранат прямоугольной огранки
+    genitive: граната прямоугольной огранки
+    dative: гранату прямоугольной огранки
+    accusative: гранат прямоугольной огранки
+    instrumental: гранатом прямоугольной огранки
+    prepositional: гранате прямоугольной огранки
+  short_desc: Гранат прямоугольной огранки лежит здесь.
+  type: kTreasure
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 90
+  rent_off: 90
+  rent_on: 90
+  max_durability: 30
+  cur_durability: 30
+  timer: 5000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #1974
+74:
+  names:
+    aliases: гранат ромбовидной огранки
+    nominative: гранат ромбовидной огранки
+    genitive: граната ромбовидной огранки
+    dative: гранату ромбовидной огранки
+    accusative: гранат ромбовидной огранки
+    instrumental: гранатом ромбовидной огранки
+    prepositional: гранате ромбовидной огранки
+  short_desc: Гранат ромбовидной огранки лежит здесь.
+  type: kTreasure
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 90
+  rent_off: 90
+  rent_on: 90
+  max_durability: 30
+  cur_durability: 30
+  timer: 5000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #1975
+75:
+  names:
+    aliases: рубин огранки антик
+    nominative: рубин огранки антик
+    genitive: рубина огранки антик
+    dative: рубину огранки антик
+    accusative: рубин огранки антик
+    instrumental: рубином огранки антик
+    prepositional: рубине огранки антик
+  short_desc: Рубин огранки антик лежит здесь.
+  type: kTreasure
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 90
+  rent_off: 90
+  rent_on: 90
+  max_durability: 30
+  cur_durability: 30
+  timer: 5000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #1976
+76:
+  names:
+    aliases: рубин огранки бриолет
+    nominative: рубин огранки бриолет
+    genitive: рубина огранки бриолет
+    dative: рубину огранки бриолет
+    accusative: рубин огранки бриолет
+    instrumental: рубином огранки бриолет
+    prepositional: рубине огранки бриолет
+  short_desc: Рубин огранки бриолет лежит здесь.
+  type: kTreasure
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 90
+  rent_off: 90
+  rent_on: 90
+  max_durability: 30
+  cur_durability: 30
+  timer: 5000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #1977
+77:
+  names:
+    aliases: рубин квадратной огранки
+    nominative: рубин квадратной огранки
+    genitive: рубина квадратной огранки
+    dative: рубину квадратной огранки
+    accusative: рубин квадратной огранки
+    instrumental: рубином квадратной огранки
+    prepositional: рубине квадратной огранки
+  short_desc: Рубин квадратной огранки лежит здесь.
+  type: kTreasure
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 90
+  rent_off: 90
+  rent_on: 90
+  max_durability: 30
+  cur_durability: 30
+  timer: 5000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #1978
+78:
+  names:
+    aliases: рубин шарообразной огранки
+    nominative: рубин шарообразной огранки
+    genitive: рубина шарообразной огранки
+    dative: рубину шарообразной огранки
+    accusative: рубин шарообразной огранки
+    instrumental: рубином шарообразной огранки
+    prepositional: рубине шарообразной огранки
+  short_desc: Рубин шарообразной огранки лежит здесь.
+  type: kTreasure
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 90
+  rent_off: 90
+  rent_on: 90
+  max_durability: 30
+  cur_durability: 30
+  timer: 5000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #1979
+79:
+  names:
+    aliases: рубин огранки звезда
+    nominative: рубин огранки звезда
+    genitive: рубина огранки звезда
+    dative: рубину огранки звезда
+    accusative: рубин огранки звезда
+    instrumental: рубином огранки звезда
+    prepositional: рубине огранки звезда
+  short_desc: Рубин огранки звезда лежит здесь.
+  type: kTreasure
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 90
+  rent_off: 90
+  rent_on: 90
+  max_durability: 30
+  cur_durability: 30
+  timer: 5000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #1980
+80:
+  names:
+    aliases: рубин огранки лепесток
+    nominative: рубин огранки лепесток
+    genitive: рубина огранки лепесток
+    dative: рубину огранки лепесток
+    accusative: рубин огранки лепесток
+    instrumental: рубином огранки лепесток
+    prepositional: рубине огранки лепесток
+  short_desc: Рубин огранки лепесток лежит здесь.
+  type: kTreasure
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 90
+  rent_off: 90
+  rent_on: 90
+  max_durability: 30
+  cur_durability: 30
+  timer: 5000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #1981
+81:
+  names:
+    aliases: бриллиант огранки ашер
+    nominative: бриллиант огранки ашер
+    genitive: бриллианта огранки ашер
+    dative: бриллианту огранки ашер
+    accusative: бриллиант огранки ашер
+    instrumental: бриллиантом огранки ашер
+    prepositional: бриллианте огранки ашер
+  short_desc: Бриллиант огранки ашер лежит здесь.
+  type: kTreasure
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 90
+  rent_off: 90
+  rent_on: 90
+  max_durability: 30
+  cur_durability: 30
+  timer: 5000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #1982
+82:
+  names:
+    aliases: бриллиант огранки маркиз
+    nominative: бриллиант огранки маркиз
+    genitive: бриллианта огранки маркиз
+    dative: бриллианту огранки маркиз
+    accusative: бриллиант огранки маркиз
+    instrumental: бриллиантом огранки маркиз
+    prepositional: бриллианте огранки маркиз
+  short_desc: Бриллиант огранки маркиз лежит здесь.
+  type: kTreasure
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 90
+  rent_off: 90
+  rent_on: 90
+  max_durability: 30
+  cur_durability: 30
+  timer: 5000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #1983
+83:
+  names:
+    aliases: бриллиант овальной огранки
+    nominative: бриллиант овальной огранки
+    genitive: бриллианта овальной огранки
+    dative: бриллианту овальной огранки
+    accusative: бриллиант овальной огранки
+    instrumental: бриллиантом овальной огранки
+    prepositional: бриллианте овальной огранки
+  short_desc: Бриллиант овальной огранки лежит здесь.
+  type: kTreasure
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 90
+  rent_off: 90
+  rent_on: 90
+  max_durability: 30
+  cur_durability: 30
+  timer: 5000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #1984
+84:
+  names:
+    aliases: бриллиант огранки сердце
+    nominative: бриллиант огранки сердце
+    genitive: бриллианта огранки сердце
+    dative: бриллианту огранки сердце
+    accusative: бриллиант огранки сердце
+    instrumental: бриллиантом огранки сердце
+    prepositional: бриллианте огранки сердце
+  short_desc: Бриллиант огранки сердце лежит здесь.
+  type: kTreasure
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 90
+  rent_off: 90
+  rent_on: 90
+  max_durability: 30
+  cur_durability: 30
+  timer: 5000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #1985
+85:
+  names:
+    aliases: бриллиант огранки груша
+    nominative: бриллиант огранки груша
+    genitive: бриллианта огранки груша
+    dative: бриллианту огранки груша
+    accusative: бриллиант огранки груша
+    instrumental: бриллиантом огранки груша
+    prepositional: бриллианте огранки груша
+  short_desc: Бриллиант огранки груша лежит здесь.
+  type: kTreasure
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 90
+  rent_off: 90
+  rent_on: 90
+  max_durability: 30
+  cur_durability: 30
+  timer: 5000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #1986
+86:
+  names:
+    aliases: красный топаз
+    nominative: красный топаз
+    genitive: красного топаза
+    dative: красному топазу
+    accusative: красный топаз
+    instrumental: красным топазом
+    prepositional: красном топазе
+  short_desc: Красный топаз лежит здесь.
+  type: kTreasure
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 90
+  rent_off: 90
+  rent_on: 90
+  max_durability: 30
+  cur_durability: 30
+  timer: 5000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #1987
+87:
+  names:
+    aliases: зеленый топаз
+    nominative: зеленый топаз
+    genitive: зеленого топаза
+    dative: зеленому топазу
+    accusative: зеленый топаз
+    instrumental: зеленым топазом
+    prepositional: зеленом топазе
+  short_desc: Зеленый топаз лежит здесь.
+  type: kTreasure
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 90
+  rent_off: 90
+  rent_on: 90
+  max_durability: 30
+  cur_durability: 30
+  timer: 5000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #1988
+88:
+  names:
+    aliases: желтый топаз
+    nominative: желтый топаз
+    genitive: желтого топаза
+    dative: желтому топазу
+    accusative: желтый топаз
+    instrumental: желтым топазом
+    prepositional: желтом топазе
+  short_desc: Желтый топаз лежит здесь.
+  type: kTreasure
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 90
+  rent_off: 90
+  rent_on: 90
+  max_durability: 30
+  cur_durability: 30
+  timer: 5000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #1989
+89:
+  names:
+    aliases: прозрачный топаз
+    nominative: прозрачный топаз
+    genitive: прозрачного топаза
+    dative: прозрачному топазу
+    accusative: прозрачный топаз
+    instrumental: прозрачным топазом
+    prepositional: прозрачном топазе
+  short_desc: Прозрачный топаз лежит здесь.
+  type: kTreasure
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 90
+  rent_off: 90
+  rent_on: 90
+  max_durability: 30
+  cur_durability: 30
+  timer: 5000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #1990
+90:
+  names:
+    aliases: фиолетовый топаз
+    nominative: фиолетовый топаз
+    genitive: фиолетового топаза
+    dative: фиолетовому топазу
+    accusative: фиолетовый топаз
+    instrumental: фиолетовым топазом
+    prepositional: фиолетовом топазе
+  short_desc: Фиолетовый топаз лежит здесь.
+  type: kTreasure
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 90
+  rent_off: 90
+  rent_on: 90
+  max_durability: 30
+  cur_durability: 30
+  timer: 5000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #1991
+91:
+  names:
+    aliases: синий топаз
+    nominative: синий топаз
+    genitive: синего топаза
+    dative: синему топазу
+    accusative: синий топаз
+    instrumental: синим топазом
+    prepositional: синем топазе
+  short_desc: Синий топаз лежит здесь.
+  type: kTreasure
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 2
+  cost: 90
+  rent_off: 90
+  rent_on: 90
+  max_durability: 30
+  cur_durability: 30
+  timer: 5000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #1992
+92:
+  names:
+    aliases: кожаный мешочек боевым порошком
+    nominative: мешочек с боевым порошком
+    genitive: мешочка с боевым порошком
+    dative: мешочку с боевым порошком
+    accusative: мешочек с боевым порошком
+    instrumental: мешочком с боевым порошком
+    prepositional: мешочке с боевым порошком
+  short_desc: Кожаный мешочек валяется тут в пыли.
+  action_desc: |+2
+    
+  type: kWand
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 1
+    - 40
+    - 40
+    - 356
+  weight: 2
+  cost: 400
+  rent_off: 0
+  rent_on: 0
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+  extra_descriptions:
+    - keywords: кожаный мешочек боевым порошком
+      description: |2
+           В небольшой кожаный мешочек насыпана ядреная смесь, которая состоит из
+        соли, перца, металлической стружки и бог еще знает чего. Сочетание таких компонентов
+        является очень эффективным оружием в коварном да бесчестном бою и называется в узких
+        кругах боевым порошком.
+
+# Object #1999
+99:
+  names:
+    aliases: автощит
+    nominative: автощит
+    genitive: автощита
+    dative: автощиту
+    accusative: автощит
+    instrumental: автощитом
+    prepositional: автощите
+  short_desc: Читерный щит, но не нужный никому лежит тут (частично сломан)
+  action_desc: |2
+    Вы оградили себя неуязвимым доспехом.
+  type: kArmor
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 10
+    - 10
+    - 0
+    - 0
+  weight: 25
+  cost: 100
+  rent_off: 200
+  rent_on: 5
+  max_durability: 200
+  cur_durability: 200
+  timer: 99999
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 2
+  wear_flags:
+    - kTake
+    - kShield
+  affect_flags:
+    - kBless
+  applies:
+    - location: 40  # успех.колдовства
+      modifier: 11
+  skills:
+    - skill_id: 188  # магия разума
+      value: 50

@@ -1,0 +1,358 @@
+# Triggers for zone 67
+
+# Trigger #6700
+0:
+  name: выломать камень
+  attach_type: kRoomTrigger
+  narg: 0
+  arglist: выломать разломать ломать
+  trigger_types:
+    - kCommand
+  script: |-2
+    if !(%arg.contains(камень)%)
+      wsend %actor% Что это Вы хотите выломать???
+      return 0
+      halt
+    end
+    wsend %actor% Вы выбрали валун побольше и сильно ударили по нему!
+    echoaround %actor% %actor.iname% сильно ударил%actor.g% по самому большому камню ногой!
+    wait 1s
+    echo От одной из глыб отвалился камень с острыми краями.
+    load obj 6700
+    calcuid kamen 6720 room
+    detach 6700 %kamen%
+
+# Trigger #6701
+1:
+  name: пролезть в норку вниз
+  attach_type: kRoomTrigger
+  narg: 0
+  arglist: лезть пролезть влезть
+  trigger_types:
+    - kCommand
+  script: |-2
+    if !(%arg.contains(нора)%)
+      wsend %actor% Куда это Вы хотите пролезть???
+      halt
+    end
+    if (!%actor.rentable%)
+      wsend %actor% Кровь на ваших руках не дает вам сделать этого!
+      halt
+    end
+    wsend %actor% Вы как тот змей пролезли в нору.
+    echoaround %actor% %actor.iname% полез%actor.q% в нору.
+    wait 1s
+    wsend %actor% Странно, но вы не застряли в лазе и благополучно оказались где то.
+    wteleport %actor.iname% 6771
+
+# Trigger #6702
+2:
+  name: пролезть в норку вверх
+  attach_type: kRoomTrigger
+  narg: 0
+  arglist: выбраться лезть пролезть влезть
+  trigger_types:
+    - kCommand
+  script: |-2
+    if !(%arg.contains(наружу)%)
+      wsend %actor% Куда это Вы хотите пролезть???
+      halt
+    end
+    if (!%actor.rentable%)
+      wsend %actor% Кровь на ваших руках не дает вам сделать этого!
+      halt
+    end
+    wsend %actor% Вы с как тот змей пролезли в нору.
+    echoaround %actor% %actor.iname% полез%actor.q% в нору.
+    wait 1s
+    wsend %actor% Странно, но вы не застряли в лазе и благополучно выбрались на свежий вздух.
+    wteleport %actor.iname% 6719
+    wat 6719 echoaround %actor% Кто-то пролез сюда снизу.
+
+# Trigger #6703
+3:
+  name: репоп тригеров
+  attach_type: kRoomTrigger
+  narg: 100
+  trigger_types:
+    - kDeath
+  script: |-2
+    context 67
+    calcuid norkad 6719 room
+    attach 6701 %norkad%
+    calcuid kamen 6720 room
+    attach 6700 %kamen%
+    unset qwestik67
+    calcuid norkam 6717 room
+    attach 6706 %norkam%
+    attach 6707 %norkam%
+    calcuid medwed 6700 mob
+    attach 6709 %medwed%
+    detach 6710 %medwed%
+
+# Trigger #6704
+4:
+  name: зашел на бревно
+  attach_type: kRoomTrigger
+  narg: 20
+  trigger_types:
+    - kGreet
+  script: |-2
+    wait 1
+    if %random.20%<4
+      wsend %actor% Вы соскользнули с бревна и с криком полетели вниз!
+      wait 1
+      wsend %actor% Оказались вы на дне этого гнилого оврага.
+      wteleport %actor.iname% 6740
+      echoaround %actor% Кто-то свалился сюда с бревна.
+    end
+
+# Trigger #6705
+5:
+  name: вылезти из оврага
+  attach_type: kRoomTrigger
+  narg: 0
+  arglist: 'вылезти лезть '
+  trigger_types:
+    - kCommand
+  script: |-2
+    if !(%arg.contains(вверх)%)
+      wsend %actor% Куда это Вы хотите вылезти???
+      return 0
+      halt
+    end
+    wsend %actor% Схватившись за ветви дерева, вы полезли вверх.
+    echoaround %actor% %actor.iname% полез%actor.q% вверх по стволу дерева.
+    wait 1s
+    wsend %actor% Вы легко выбрались из оврага на широкие просторы.
+    wteleport %actor.iname% 6743
+    wat 6743 echoaround %actor% Кто-то пролез сюда снизу.
+
+# Trigger #6706
+6:
+  name: залезть в муравейник
+  attach_type: kRoomTrigger
+  narg: 0
+  arglist: залезть лезть пролезть
+  trigger_types:
+    - kCommand
+  script: |-2
+    if !(%arg.contains(муравейник)%)
+      wsend %actor% Куда это Вы хотите залезть???
+      return 0
+      halt
+    end
+    context 67
+    if !(%qwestik67% == %actor.iname%)
+      wsend %actor% Чтобы пролезть в муравейник надо сначала превратиться в муравья!
+      return 0
+      halt
+    end
+    if !%actor.rentable%
+      wsend %actor% Кровь на ваших лапах не дает вам сделать этого!
+      halt
+    end
+    context 67
+    wsend %actor% Будучи очень маленьким, вы пролезли в муравейник.
+    echoaround %actor% %actor.iname% полез%actor.q% в маленькое отверстие муравейника.
+    wait 1s
+    wsend %actor% Вы в душной и тесной норке.
+    wteleport %actor.iname% 6774
+    wat 6774 echoaround %actor% Кто-то пролез сюда сверху.
+    unset %qwestik67%
+    calcuid norkam 6717 room
+    detach 6706 %norkam%
+
+# Trigger #6707
+7:
+  name: превратиться в муравья
+  attach_type: kRoomTrigger
+  narg: 0
+  arglist: превратиться
+  trigger_types:
+    - kCommand
+  script: |-2
+    if !(%arg.contains(муравей)%)
+      wsend %actor% В кого вы хотите превратиться???
+      return 0
+      halt
+    end
+    context 67
+    eval qwestik67 %actor.iname%
+    calcuid norkam 6717 room
+    remote qwestik67 %norkam%
+    wsend %actor% Вы стали меньше букашки-таракашки. Зачем вам это!?
+    echoaround %actor% %actor.iname% сказал%actor.q% магические слова и стал%actor.q% размером с букашку.
+    calcuid norkam 6717 room
+    detach 6707 %norkam%
+
+# Trigger #6708
+8:
+  name: у медведя в бою
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kFight
+  script: |-2
+    if  (%random.25% < 3)
+      msend %actor% Медведь изогнул щепу и отпустил ее прямо Вам в голову!
+      echoaround %actor% %actor.iname% получил%actor.q% удар щепой по лбу.
+      mdamage %actor% 15
+    end
+
+# Trigger #6709
+9:
+  name: медведь дает квест
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kGreetPC
+  script: |-2
+    wait 2s
+    взд
+    wait 5s
+    say Как мне тяжело....
+    пла
+    wait 2s
+    say Как мне тяжко.... Всех готов заломать..
+    attach 6710 %self%
+    detach 6709 %self%
+
+# Trigger #6710
+10:
+  name: перс говорит помогу
+  attach_type: kMobTrigger
+  narg: 0
+  arglist: помогу
+  trigger_types:
+    - kSpeech
+  script: |-2
+    wait 2s
+    echo "Ну попробуй..." - грустно взревел медведь.
+    echo "Дело в том, что пчелы меня закусали, не дают медом полакомиться..." - сказал медведь
+    пла
+    wait 2s
+    echo "А все из-за того, что у ихнего друга шмеля, кто-то украл жало" - простонал медведь.
+    echo "При чем тут я? Не понимаю..." - сказал медведь.
+    echo "Помоги, и я тебе скажу спасибо!" - проревел медведь.
+    wait 2s
+    echo "Но учти, что шмеля просто так не найдешь, он от горя спрятался и сидит в улье"
+    echo "Его надо выманить" - подсказал медведь.
+    detach 6710 %self%
+
+# Trigger #6711
+11:
+  name: беспокоить улей
+  attach_type: kRoomTrigger
+  narg: 0
+  arglist: беспокоить ломать лезть тревожить шурудить
+  trigger_types:
+    - kCommand
+  script: |-2
+    if !(%arg.contains(улей)%)
+      wsend %actor% Что вы хотите беспокоить???
+      return 0
+      halt
+    end
+    wsend %actor% Вы схватили палку и начали грубо беспокоить пчелок! Зачем, они ж вас не трогают.
+    echoaround %actor% %actor.iname% начал%actor.g% беспокоить пчелок. Они ему мешали?
+    wait 1s
+    echo Внезапно из улья вылетел рой пчел на защиту своего дома!
+    load mob 6732
+    load mob 6732
+    load mob 6732
+    load mob 6732
+    calcuid uleizimnii 6760 room
+    detach 6711 %uleizimnii%
+
+# Trigger #6712
+12:
+  name: репопим незимние тригера
+  attach_type: kObjTrigger
+  narg: 100
+  trigger_types:
+    - kLoad
+  script: |-2
+    calcuid uleizimnii 6760 room
+    attach 6711 %uleizimnii%
+    attach 6713 %uleizimnii%
+
+# Trigger #6713
+13:
+  name: перс выманивает шмеля
+  attach_type: kRoomTrigger
+  narg: 0
+  arglist: выманить привлечь
+  trigger_types:
+    - kCommand
+  script: |-2
+    if !(%arg.contains(шмель)%)
+      wsend %actor% Кого вы хотите выманить???
+      return 0
+      halt
+    end
+    wsend %actor% Вы сказали "Жжж. Жжж."
+    echoaround %actor% %actor.iname% сказал%actor.g% : "Жжж. Жжж."
+    wait 1s
+    echo Из улья медленно выполз грустный шмель, надеясь, что найдет здесь шмелиху
+    load mob 6730
+    calcuid shmell 6730 mob
+    attach 6714 %shmell%
+    wait 3s
+    echo Шмель недоуменно зажужжал, понимая что что то не так.
+    calcuid uleizimnii 6760 room
+    detach 6713 %uleizimnii%
+
+# Trigger #6714
+14:
+  name: дали жало шмелю
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kReceive
+  script: |-2
+    if %object.vnum%==6707
+      wait 2s
+      echo "Жжжжжжжж." - благодарно протянул шмель.
+      wait 2s
+      echo "Жжжачем мне это? Жжжж. Я жжж не прижжью себе снова жжжало!"
+      mpurge %object%
+      wait 5s
+      echo "Жжжж. Но спасибо всежжжж."- прожужжал шмель.
+      echo Шмель дунул на жало, и оно осветилось легким светом.
+      wait 3s
+      if %world.curobjs(6713)% < 100
+        load obj 6713
+        дат жало %actor.iname%
+        echo "Держжжи и не жужжии."- прожужжал шмель.
+      end
+    end
+
+# Trigger #6715
+15:
+  name: вылезть из муравейника
+  attach_type: kRoomTrigger
+  narg: 0
+  arglist: вылезти лезть пролезть
+  trigger_types:
+    - kCommand
+  script: |-2
+    if !(%arg.contains(наружу)%)
+      wsend %actor% Куда это Вы хотите вылезти???
+      return 0
+      halt
+    end
+    wsend %actor% Будучи очень маленьким, вы вылезли из муравейника.
+    wait 1s
+    wsend %actor% Вы снаружи.
+    wat 6774 echo Кто-то пролез сюда снизу.
+    wteleport %actor.iname% 6717
+
+# Trigger #6716
+16:
+  name: померал матка
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kDeath
+  script: load obj 6707

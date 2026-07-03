@@ -1,0 +1,74 @@
+# Objects for zone 56
+
+# Object #5600
+0:
+  names:
+    aliases: филе
+    nominative: филе щуки
+    genitive: филе щуки
+    dative: филе щуки
+    accusative: филе щуки
+    instrumental: филе щуки
+    prepositional: филе щуки
+  short_desc: Лакомый кусочек щуки лежит здесь.
+  type: kFood
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 24
+    - 0
+    - 0
+    - 0
+  weight: 5
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 10
+  cur_durability: 10
+  timer: 60
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  extra_flags:
+    - kNodonate
+    - kNoinvis
+    - kNosell
+    - kZonedecay
+    - kNodecay
+    - kSwimming
+    - kRepopDecay
+  wear_flags:
+    - kTake
+
+# Object #5601
+1:
+  names:
+    aliases: рыбья кость
+    nominative: рыбья кость
+    genitive: рыбьей кости
+    dative: рыбьей кости
+    accusative: рыбью кость
+    instrumental: рыбьей костью
+    prepositional: рыбьей кости
+  short_desc: Рыбья кость лежит здесь.
+  type: kWeapon
+  material: 13  # КОСТЬ
+  values:
+    - 0
+    - 2
+    - 3
+    - 11
+  weight: 2
+  cost: 30
+  rent_off: 30
+  rent_on: 3
+  spec_param: 145
+  max_durability: 40
+  cur_durability: 40
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold

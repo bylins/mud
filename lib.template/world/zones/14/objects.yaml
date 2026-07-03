@@ -1,0 +1,2998 @@
+# Objects for zone 14
+
+# Object #1400
+0:
+  names:
+    aliases: можжевеловый прут
+    nominative: можжевеловый прут
+    genitive: можжевелового прута
+    dative: можжевеловому пруту
+    accusative: можжевеловый прут
+    instrumental: можжевеловым прутом
+    prepositional: можжевеловом пруте
+  short_desc: Срубленный ствол можжевельника толщиной в три пальца лежит здесь.
+  type: kMagicIngredient
+  material: 8  # ДЕРЕВО
+  values:
+    - 4608
+    - 1400
+    - 5
+    - 0
+  weight: 15
+  cost: 6
+  rent_off: 5
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+
+# Object #1401
+1:
+  names:
+    aliases: тисовая ветвь
+    nominative: тисовая ветвь
+    genitive: тисовой ветви
+    dative: тисовой ветви
+    accusative: тисовую ветвь
+    instrumental: тисовой ветвью
+    prepositional: тисовой ветви
+  short_desc: Крепкая упругая ветвь тиса лежит здесь.
+  type: kMagicIngredient
+  material: 8  # ДЕРЕВО
+  values:
+    - 3840
+    - 1401
+    - 11
+    - 0
+  weight: 15
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 22  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 75
+  wear_flags:
+    - kTake
+
+# Object #1402
+2:
+  names:
+    aliases: стволик молодой березы
+    nominative: стволик молодой березы
+    genitive: стволика молодой березы
+    dative: стволику молодой березы
+    accusative: стволик молодой березы
+    instrumental: стволиком молодой березы
+    prepositional: стволике молодой березы
+  short_desc: Тонкий, очищенный от веток стволик молодой березки лежит здесь.
+  type: kMagicIngredient
+  material: 8  # ДЕРЕВО
+  values:
+    - 4096
+    - 1402
+    - 10
+    - 0
+  weight: 15
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 125
+  cur_durability: 125
+  timer: 10080
+  spell: 22  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 75
+  wear_flags:
+    - kTake
+  applies:
+    - location: 19  # повреждение
+      modifier: 1
+
+# Object #1403
+3:
+  names:
+    aliases: клееная планка
+    nominative: клееная планка
+    genitive: клееной планки
+    dative: клееной планке
+    accusative: клееную планку
+    instrumental: клееной планкой
+    prepositional: клееной планке
+  short_desc: Планка из склееных рыбьим клеем деревяшек лежит тут.
+  type: kMagicIngredient
+  material: 8  # ДЕРЕВО
+  values:
+    - 4096
+    - 1403
+    - 10
+    - 0
+  weight: 15
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 22  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 75
+  wear_flags:
+    - kTake
+  applies:
+    - location: 19  # повреждение
+      modifier: 2
+
+# Object #1404
+4:
+  names:
+    aliases: ивовая жердь
+    nominative: ивовая жердь
+    genitive: ивовой жерди
+    dative: ивовой жерди
+    accusative: ивовую жердь
+    instrumental: ивовой жердью
+    prepositional: ивовой жерди
+  short_desc: Очищенная от коры гибкая ивовая жердина лежит тут.
+  type: kMagicIngredient
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 4096
+    - 1404
+    - 20
+    - 0
+  weight: 15
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 21  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 75
+  extra_flags:
+    - kBless
+  wear_flags:
+    - kTake
+
+# Object #1405
+5:
+  names:
+    aliases: буковая ветвь
+    nominative: буковая ветвь
+    genitive: буковой ветви
+    dative: буковой ветви
+    accusative: буковую ветвь
+    instrumental: буковой ветвью
+    prepositional: буковой ветви
+  short_desc: Крепкая ветвь бука лежит здесь.
+  type: kMagicIngredient
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 4096
+    - 1405
+    - 20
+    - 0
+  weight: 15
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 22  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 75
+  extra_flags:
+    - kBless
+  wear_flags:
+    - kTake
+  no_flags:
+    - kMage
+    - kSorcerer
+    - kThief
+    - kWarrior
+    - kAssasine
+    - kGuard
+    - kPaladine
+    - kVigilant
+    - kMerchant
+    - kMagus
+
+# Object #1406
+6:
+  names:
+    aliases: ветка боярышника
+    nominative: ветка боярышника
+    genitive: ветки боярышника
+    dative: ветке боярышника
+    accusative: ветку боярышника
+    instrumental: веткой боярышника
+    prepositional: ветке боярышника
+  short_desc: Длинная толстая ветвь боярышника лежит здесь.
+  type: kMagicIngredient
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 4096
+    - 1406
+    - 20
+    - 0
+  weight: 15
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 22  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 75
+  wear_flags:
+    - kTake
+
+# Object #1407
+7:
+  names:
+    aliases: ствол орешника
+    nominative: ствол орешника
+    genitive: ствола орешника
+    dative: стволу орешника
+    accusative: ствол орешника
+    instrumental: стволом орешника
+    prepositional: стволе орешника
+  short_desc: Очищенный от коры ствол орешника лежит здесь.
+  type: kMagicIngredient
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 4608
+    - 1407
+    - 24
+    - 0
+  weight: 15
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 22  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 75
+  wear_flags:
+    - kTake
+
+# Object #1408
+8:
+  names:
+    aliases: дубовая ветвь
+    nominative: дубовая ветвь
+    genitive: дубовой ветви
+    dative: дубовой ветви
+    accusative: дубовую ветвь
+    instrumental: дубовой ветвью
+    prepositional: дубовой ветви
+  short_desc: Крепкая упругая ветвь дуба лежит здесь.
+  type: kMagicIngredient
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 4608
+    - 1408
+    - 28
+    - 0
+  weight: 15
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 22  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 75
+  wear_flags:
+    - kTake
+
+# Object #1409
+9:
+  names:
+    aliases: кусок вязовой дощечки доски гладко
+    nominative: кусок вязовой дощечки
+    genitive: куска вязовой дощечки
+    dative: куску вязовой дощечки
+    accusative: кусок вязовой дощечки
+    instrumental: куском вязовой дощечки
+    prepositional: куске вязовой дощечки
+  short_desc: Кусок гладко отесаной вязовой дощечки лежит здесь.
+  type: kMagicIngredient
+  material: 8  # ДЕРЕВО
+  values:
+    - 4608
+    - 1409
+    - 25
+    - 0
+  weight: 15
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 22  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 75
+  wear_flags:
+    - kTake
+
+# Object #1410
+10:
+  names:
+    aliases: кленовая планка
+    nominative: кленовая планка
+    genitive: кленовой планки
+    dative: кленовой планке
+    accusative: кленовую планку
+    instrumental: кленовой планкой
+    prepositional: кленовой планке
+  short_desc: Гладко отполированная кленовая планка лежит тут.
+  type: kMagicIngredient
+  material: 8  # ДЕРЕВО
+  values:
+    - 4864
+    - 1410
+    - 22
+    - 0
+  weight: 15
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 22  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 60
+  wear_flags:
+    - kTake
+  applies:
+    - location: 41  # удача
+      modifier: 3
+
+# Object #1411
+11:
+  names:
+    aliases: ребро дракона
+    nominative: ребро дракона
+    genitive: ребра дракона
+    dative: ребру дракона
+    accusative: ребро дракона
+    instrumental: ребром дракона
+    prepositional: ребре дракона
+  short_desc: Плоское гибкое ребро гигантского огнедышащего змея лежит тут.
+  type: kMagicIngredient
+  material: 13  # КОСТЬ
+  values:
+    - 6144
+    - 1411
+    - 35
+    - 0
+  weight: 15
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 22  # !undefined!
+  level: 0
+  sex: kNeutral
+  max_in_world: 15
+  wear_flags:
+    - kTake
+  applies:
+    - location: 23  # здоровье
+      modifier: -6
+    - location: 4  # мудрость
+      modifier: 1
+    - location: 46  # защита.от.стихии.воды
+      modifier: 7
+
+# Object #1412
+12:
+  names:
+    aliases: перо птицы вестника
+    nominative: перо птицы-вестника
+    genitive: пера птицы-вестника
+    dative: перу птицы-вестника
+    accusative: перо птицы-вестника
+    instrumental: пером птицы-вестника
+    prepositional: пере птицы-вестника
+  short_desc: Огромное, угольно-черное перо лежит здесь.
+  type: kMagicIngredient
+  material: 13  # КОСТЬ
+  values:
+    - 6144
+    - 1412
+    - 53
+    - 0
+  weight: 15
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 22  # !undefined!
+  level: 0
+  sex: kNeutral
+  max_in_world: 12
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kFly
+    - kHaste
+  applies:
+    - location: 2  # ловкость
+      modifier: 2
+    - location: 47  # защита.от.стихии.земли
+      modifier: 10
+
+# Object #1413
+13:
+  names:
+    aliases: ветвь черного дерева
+    nominative: ветвь черного дерева
+    genitive: ветви черного дерева
+    dative: ветви черного дерева
+    accusative: ветвь черного дерева
+    instrumental: ветвью черного дерева
+    prepositional: ветви черного дерева
+  short_desc: Черная на изломе упругая ветвь лежит здесь.
+  type: kMagicIngredient
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 6144
+    - 1413
+    - 37
+    - 0
+  weight: 15
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 22  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 15
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kProtectFromDark
+  applies:
+    - location: 44  # поглощение
+      modifier: 4
+
+# Object #1414
+14:
+  names:
+    aliases: ветвь священного дуба
+    nominative: ветвь священного дуба
+    genitive: ветви священного дуба
+    dative: ветви священного дуба
+    accusative: ветвь священного дуба
+    instrumental: ветвью священного дуба
+    prepositional: ветви священного дуба
+  short_desc: Покрытая кожистыми листками крепкая дубовая ветвь лежит тут.
+  type: kMagicIngredient
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 5888
+    - 1414
+    - 39
+    - 0
+  weight: 15
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 22  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 20
+  wear_flags:
+    - kTake
+  anti_flags:
+    - kMage
+    - kMerchant
+  affect_flags:
+    - kSanctuary
+
+# Object #1415
+15:
+  names:
+    aliases: горсть роговых пластинок
+    nominative: горсть роговых пластинок
+    genitive: горсти роговых пластинок
+    dative: горсти роговых пластинок
+    accusative: горсть роговых пластинок
+    instrumental: горстью роговых пластинок
+    prepositional: горсти роговых пластинок
+  short_desc: Горсть пластинок из рога неведомого зверя лежит тут.
+  type: kMagicIngredient
+  material: 13  # КОСТЬ
+  values:
+    - 5632
+    - 1415
+    - 38
+    - 0
+  weight: 15
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 22  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 40
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kHaste
+  applies:
+    - location: 18  # попадание
+      modifier: 2
+
+# Object #1416
+16:
+  names:
+    aliases: горсть стальных пластинок
+    nominative: горсть стальных пластинок
+    genitive: горсти стальных пластинок
+    dative: горсти стальных пластинок
+    accusative: горсть стальных пластинок
+    instrumental: горстью стальных пластинок
+    prepositional: горсти стальных пластинок
+  short_desc: Горсть стальных пластинок рассыпана тут.
+  type: kMagicIngredient
+  material: 5  # КОВАНАЯ.СТАЛЬ
+  values:
+    - 5632
+    - 1416
+    - 38
+    - 0
+  weight: 15
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 22  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 40
+  wear_flags:
+    - kTake
+  applies:
+    - location: 19  # повреждение
+      modifier: 2
+
+# Object #1417
+17:
+  names:
+    aliases: застывший луч лунного света
+    nominative: застывший луч лунного света
+    genitive: застывшего луча лунного света
+    dative: застывшему лучу лунного света
+    accusative: застывший луч лунного света
+    instrumental: застывшим лучом лунного света
+    prepositional: застывшем луче лунного света
+  short_desc: Гладкая полупрозрачная полоса висит в воздухе.
+  type: kMagicIngredient
+  material: 18  # ДРАГ.КАМЕНЬ
+  values:
+    - 7680
+    - 1417
+    - 89
+    - 0
+  weight: 15
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 22  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 4
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kSanctuary
+    - kBless
+  applies:
+    - location: 2  # ловкость
+      modifier: 3
+    - location: 13  # макс.жизнь
+      modifier: 20
+    - location: 47  # защита.от.стихии.земли
+      modifier: 13
+
+# Object #1418
+18:
+  names:
+    aliases: изогнутый рог левиафана
+    nominative: изогнутый рог левиафана
+    genitive: изогнутого рога левиафана
+    dative: изогнутому рогу левиафана
+    accusative: изогнутый рог левиафана
+    instrumental: изогнутым рогом левиафана
+    prepositional: изогнутом роге левиафана
+  short_desc: Изогнутый черный рог длиной в косую сажень валяется под ногами.
+  type: kMagicIngredient
+  material: 13  # КОСТЬ
+  values:
+    - 7680
+    - 1418
+    - 70
+    - 0
+  weight: 15
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 22  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 5
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kProtectFromDark
+    - kHolyDark
+    - kHaste
+  applies:
+    - location: 1  # сила
+      modifier: 2
+    - location: 19  # повреждение
+      modifier: 2
+    - location: 21  # защита.от.стихии.огня
+      modifier: 10
+
+# Object #1419
+19:
+  names:
+    aliases: железная чешуя Змея Велеса
+    nominative: железная чешуя Змея-Велеса
+    genitive: железной чешуи Змея-Велеса
+    dative: железной чешуе Змея-Велеса
+    accusative: железную чешую Змея-Велеса
+    instrumental: железной чешуей Змея-Велеса
+    prepositional: железной чешуе Змея-Велеса
+  short_desc: Здоровенная чешуйка из черного железа лежит тут.
+  type: kMagicIngredient
+  material: 3  # ЖЕЛЕЗО
+  values:
+    - 7680
+    - 1419
+    - 90
+    - 0
+  weight: 15
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 22  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 10
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kProtectFromDark
+    - kProtectFromMind
+    - kHaste
+  applies:
+    - location: 1  # сила
+      modifier: 2
+
+# Object #1420
+20:
+  names:
+    aliases: перо горного грифона
+    nominative: перо горного грифона
+    genitive: пера горного грифона
+    dative: перу горного грифона
+    accusative: перо горного грифона
+    instrumental: пером горного грифона
+    prepositional: пере горного грифона
+  short_desc: Огромное белоснежное перо воткнулось тут в землю.
+  type: kMagicIngredient
+  material: 2  # БРОНЗА
+  values:
+    - 6656
+    - 1420
+    - 90
+    - 0
+  weight: 15
+  cost: 20
+  rent_off: 5
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 22  # !undefined!
+  level: 0
+  sex: kNeutral
+  max_in_world: 20
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kFly
+    - kBlink
+  applies:
+    - location: 18  # попадание
+      modifier: 3
+    - location: 19  # повреждение
+      modifier: 2
+    - location: 23  # здоровье
+      modifier: -5
+
+# Object #1421
+21:
+  names:
+    aliases: пластина панциря огненного жука
+    nominative: пластина из панциря огненного жука
+    genitive: пластины из панциря огненного жука
+    dative: пластине из панциря огненного жука
+    accusative: пластину из панциря огненного жука
+    instrumental: пластиной из панциря огненного жука
+    prepositional: пластине из панциря огненного жука
+  short_desc: Окруженная языками пламени узкая тонкая пластинка лежит тут.
+  type: kMagicIngredient
+  material: 13  # КОСТЬ
+  values:
+    - 7680
+    - 1421
+    - 90
+    - 0
+  weight: 15
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 22  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 8
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kBlink
+    - kHaste
+  applies:
+    - location: 1  # сила
+      modifier: 1
+    - location: 2  # ловкость
+      modifier: 2
+    - location: 46  # защита.от.стихии.воды
+      modifier: 13
+
+# Object #1422
+22:
+  names:
+    aliases: длинный тонкий рог
+    nominative: длинный тонкий рог
+    genitive: длинного тонкого рога
+    dative: длинному тонкому рогу
+    accusative: длинный тонкий рог
+    instrumental: длинным тонким рогом
+    prepositional: длинном тонком роге
+  short_desc: Тонкий длинный рог неведомого чудища лежит тут.
+  type: kMagicIngredient
+  material: 13  # КОСТЬ
+  values:
+    - 7680
+    - 1422
+    - 67
+    - 0
+  weight: 15
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 22  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 10
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kDetectAlign
+  applies:
+    - location: 39  # реакция
+      modifier: -5
+    - location: 19  # повреждение
+      modifier: 2
+
+# Object #1423
+23:
+  names:
+    aliases: кость великого змея
+    nominative: кость великого змея
+    genitive: кости великого змея
+    dative: кости великого змея
+    accusative: кость великого змея
+    instrumental: костью великого змея
+    prepositional: кости великого змея
+  short_desc: Здоровенная кость зеленоватого цвета лежит тут.
+  type: kMagicIngredient
+  material: 13  # КОСТЬ
+  values:
+    - 7680
+    - 1423
+    - 60
+    - 0
+  weight: 15
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 22  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 6
+  wear_flags:
+    - kTake
+  applies:
+    - location: 14  # макс.энергия
+      modifier: 10
+    - location: 1  # сила
+      modifier: 1
+
+# Object #1424
+24:
+  names:
+    aliases: кости морского змея
+    nominative: кости морского змея
+    genitive: костей морского змея
+    dative: костям морского змея
+    accusative: кости морского змея
+    instrumental: костями морского змея
+    prepositional: костях морского змея
+  short_desc: Несколько изогнутых шипастых костей лежат тут.
+  type: kMagicIngredient
+  material: 13  # КОСТЬ
+  values:
+    - 6656
+    - 1424
+    - 45
+    - 0
+  weight: 15
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 22  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 25
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kBless
+    - kWaterBreath
+
+# Object #1425
+25:
+  names:
+    aliases: упругая клееная планка
+    nominative: упругая клееная планка
+    genitive: упругой клееной планки
+    dative: упругой клееной планке
+    accusative: упругую клееную планку
+    instrumental: упругой клееной планкой
+    prepositional: упругой клееной планке
+  short_desc: Упругая заготовка из склеенных рыбьим клеем деревяшек лежит тут.
+  type: kMagicIngredient
+  material: 8  # ДЕРЕВО
+  values:
+    - 4096
+    - 1425
+    - 10
+    - 0
+  weight: 15
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 22  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 50
+  wear_flags:
+    - kTake
+  applies:
+    - location: 1  # сила
+      modifier: 1
+    - location: 13  # макс.жизнь
+      modifier: 16
+
+# Object #1426
+26:
+  names:
+    aliases: прочная клееная планка
+    nominative: прочная клееная планка
+    genitive: прочной клееной планки
+    dative: прочной клееной планке
+    accusative: прочную клееную планку
+    instrumental: прочной клееной планкой
+    prepositional: прочной клееной планке
+  short_desc: Упругая заготовка из склееных рыбьим клеем деревяшек лежит тут.
+  type: kMagicIngredient
+  material: 8  # ДЕРЕВО
+  values:
+    - 4096
+    - 1426
+    - 10
+    - 0
+  weight: 15
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 22  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 50
+  wear_flags:
+    - kTake
+  applies:
+    - location: 42  # инициатива
+      modifier: 2
+    - location: 18  # попадание
+      modifier: 3
+
+# Object #1427
+27:
+  names:
+    aliases: заготовка лука
+    nominative: заготовка лука
+    genitive: заготовки лука
+    dative: заготовке лука
+    accusative: заготовку лука
+    instrumental: заготовкой лука
+    prepositional: заготовке лука
+  short_desc: Упругая заготовка из склееных рыбьим клеем деревяшек лежит тут.
+  type: kMagicIngredient
+  material: 8  # ДЕРЕВО
+  values:
+    - 4096
+    - 1427
+    - 30
+    - 0
+  weight: 15
+  cost: 14
+  rent_off: 5
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 22  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 50
+  wear_flags:
+    - kTake
+  applies:
+    - location: 2  # ловкость
+      modifier: 1
+    - location: 14  # макс.энергия
+      modifier: 16
+
+# Object #1428
+28:
+  names:
+    aliases: растрепаная пеньковая веревка
+    nominative: растрепаная пеньковая веревка
+    genitive: растрепаной пеньковой веревки
+    dative: растрепаной пеньковой веревке
+    accusative: растрепаную пеньковую веревку
+    instrumental: растрепаной пеньковой веревкой
+    prepositional: растрепаной пеньковой веревке
+  short_desc: Кусок растрепаной пеньковой веревки лежит тут.
+  type: kMagicIngredient
+  material: 14  # ТКАНЬ
+  values:
+    - 4096
+    - 1428
+    - 5
+    - 0
+  weight: 8
+  cost: 3
+  rent_off: 5
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 11  # !undefined!
+  level: 0
+  sex: kFemale
+  wear_flags:
+    - kTake
+
+# Object #1429
+29:
+  names:
+    aliases: длинный кусок кожи
+    nominative: длинный кусок кожи
+    genitive: длинного куска кожи
+    dative: длинному куску кожи
+    accusative: длинный кусок кожи
+    instrumental: длинным куском кожи
+    prepositional: длинном куске кожи
+  short_desc: Длинный кусок выделаной кожи лежит тут.
+  type: kMagicIngredient
+  material: 15  # КОЖА
+  values:
+    - 4864
+    - 1429
+    - 11
+    - 0
+  weight: 8
+  cost: 10
+  rent_off: 5
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 11  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 50
+  wear_flags:
+    - kTake
+
+# Object #1430
+30:
+  names:
+    aliases: кусок толстой бычьей кожи
+    nominative: кусок толстой бычьей кожи
+    genitive: куска толстой бычьей кожи
+    dative: куску толстой бычьей кожи
+    accusative: кусок толстой бычьей кожи
+    instrumental: куском толстой бычьей кожи
+    prepositional: куске толстой бычьей кожи
+  short_desc: Длинный кусок толстой кожи лежит тут.
+  type: kMagicIngredient
+  material: 15  # КОЖА
+  values:
+    - 5120
+    - 1430
+    - 12
+    - 0
+  weight: 8
+  cost: 10
+  rent_off: 5
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 11  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 50
+  wear_flags:
+    - kTake
+  applies:
+    - location: 19  # повреждение
+      modifier: 1
+
+# Object #1431
+31:
+  names:
+    aliases: кишечная струна
+    nominative: кишечная струна
+    genitive: кишечной струны
+    dative: кишечной струне
+    accusative: кишечную струну
+    instrumental: кишечной струной
+    prepositional: кишечной струне
+  short_desc: Кусок высушенной бараньей кишки лежит тут.
+  type: kMagicIngredient
+  material: 15  # КОЖА
+  values:
+    - 5888
+    - 1431
+    - 15
+    - 0
+  weight: 8
+  cost: 10
+  rent_off: 5
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 11  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 50
+  wear_flags:
+    - kTake
+  applies:
+    - location: 2  # ловкость
+      modifier: 1
+
+# Object #1432
+32:
+  names:
+    aliases: нить зеленого шелка
+    nominative: нить зеленого шелка
+    genitive: нити зеленого шелка
+    dative: нити зеленого шелка
+    accusative: нить зеленого шелка
+    instrumental: нитью зеленого шелка
+    prepositional: нити зеленого шелка
+  short_desc: Намотанная на веретено нить заморского шелка лежит тут.
+  type: kMagicIngredient
+  material: 14  # ТКАНЬ
+  values:
+    - 6400
+    - 1432
+    - 17
+    - 0
+  weight: 8
+  cost: 10
+  rent_off: 5
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 11  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 50
+  wear_flags:
+    - kTake
+  no_flags:
+    - kMage
+    - kSorcerer
+  applies:
+    - location: 6  # обаяние
+      modifier: 1
+
+# Object #1433
+33:
+  names:
+    aliases: прядь длинных человеческих волос
+    nominative: прядь длинных человеческих волос
+    genitive: пряди длинных человеческих волос
+    dative: пряди длинных человеческих волос
+    accusative: прядь длинных человеческих волос
+    instrumental: прядью длинных человеческих волос
+    prepositional: пряди длинных человеческих волос
+  short_desc: Прядь очень длинных золотистых волос лежит тут.
+  type: kMagicIngredient
+  material: 16  # ОРГАНИКА
+  values:
+    - 6656
+    - 1433
+    - 17
+    - 0
+  weight: 8
+  cost: 10
+  rent_off: 5
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 11  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 50
+  wear_flags:
+    - kTake
+  applies:
+    - location: 6  # обаяние
+      modifier: -1
+    - location: 19  # повреждение
+      modifier: 2
+
+# Object #1434
+34:
+  names:
+    aliases: связка конского волоса
+    nominative: связка конского волоса
+    genitive: связки конского волоса
+    dative: связке конского волоса
+    accusative: связку конского волоса
+    instrumental: связкой конского волоса
+    prepositional: связке конского волоса
+  short_desc: Связка жесткого конского волоса лежит тут.
+  type: kMagicIngredient
+  material: 16  # ОРГАНИКА
+  values:
+    - 6144
+    - 1434
+    - 23
+    - 0
+  weight: 8
+  cost: 10
+  rent_off: 5
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 11  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 30
+  wear_flags:
+    - kTake
+  applies:
+    - location: 17  # защита
+      modifier: 2
+
+# Object #1435
+35:
+  names:
+    aliases: жильная тетива
+    nominative: жильная тетива
+    genitive: жильной тетивы
+    dative: жильной тетиве
+    accusative: жильную тетиву
+    instrumental: жильной тетивой
+    prepositional: жильной тетиве
+  short_desc: Тетива из свитых жил лежит тут.
+  type: kMagicIngredient
+  material: 16  # ОРГАНИКА
+  values:
+    - 6400
+    - 1435
+    - 34
+    - 0
+  weight: 8
+  cost: 10
+  rent_off: 5
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 10  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 35
+  wear_flags:
+    - kTake
+  applies:
+    - location: 18  # попадание
+      modifier: 1
+    - location: 19  # повреждение
+      modifier: 1
+
+# Object #1436
+36:
+  names:
+    aliases: серебряная струночка
+    nominative: серебряная струночка
+    genitive: серебряной струночки
+    dative: серебряной струночке
+    accusative: серебряную струночку
+    instrumental: серебряной струночкой
+    prepositional: серебряной струночке
+  short_desc: Гусляр потерял здесь звонкую серебряную струночку.
+  type: kMagicIngredient
+  material: 6  # ДРАГ.МЕТАЛЛ
+  values:
+    - 6912
+    - 1436
+    - 35
+    - 0
+  weight: 8
+  cost: 10
+  rent_off: 5
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 11  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 20
+  wear_flags:
+    - kTake
+  applies:
+    - location: 6  # обаяние
+      modifier: 1
+    - location: 20  # воля
+      modifier: -3
+    - location: 23  # здоровье
+      modifier: -3
+    - location: 39  # реакция
+      modifier: -3
+
+# Object #1437
+37:
+  names:
+    aliases: вощеная кожаная тетива
+    nominative: вощеная кожаная тетива
+    genitive: вощеной кожаной тетивы
+    dative: вощеной кожаной тетиве
+    accusative: вощеную кожаную тетиву
+    instrumental: вощеной кожаной тетивой
+    prepositional: вощеной кожаной тетиве
+  short_desc: Навощеная от сырости кожаная тетива лежит здесь.
+  type: kMagicIngredient
+  material: 15  # КОЖА
+  values:
+    - 6656
+    - 1437
+    - 25
+    - 0
+  weight: 8
+  cost: 10
+  rent_off: 5
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 10  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 45
+  wear_flags:
+    - kTake
+  applies:
+    - location: 1  # сила
+      modifier: 1
+    - location: 18  # попадание
+      modifier: 1
+
+# Object #1438
+38:
+  names:
+    aliases: стальная жилка
+    nominative: стальная жилка
+    genitive: стальной жилки
+    dative: стальной жилке
+    accusative: стальную жилку
+    instrumental: стальной жилкой
+    prepositional: стальной жилке
+  short_desc: Гибкая стальная жилка позабыта тут.
+  type: kMagicIngredient
+  material: 5  # КОВАНАЯ.СТАЛЬ
+  values:
+    - 6144
+    - 1438
+    - 30
+    - 0
+  weight: 8
+  cost: 10
+  rent_off: 5
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 10  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 30
+  wear_flags:
+    - kTake
+  applies:
+    - location: 19  # повреждение
+      modifier: 2
+    - location: 18  # попадание
+      modifier: -1
+
+# Object #1439
+39:
+  names:
+    aliases: сыромятная кожа
+    nominative: сыромятная кожа
+    genitive: сыромятной кожи
+    dative: сыромятной коже
+    accusative: сыромятную кожу
+    instrumental: сыромятной кожей
+    prepositional: сыромятной коже
+  short_desc: Полоска сыромятной кожи валяется тут.
+  type: kMagicIngredient
+  material: 15  # КОЖА
+  values:
+    - 5632
+    - 1439
+    - 18
+    - 0
+  weight: 8
+  cost: 10
+  rent_off: 5
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 11  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 45
+  wear_flags:
+    - kTake
+  applies:
+    - location: 2  # ловкость
+      modifier: 1
+
+# Object #1440
+40:
+  names:
+    aliases: ус железного змея
+    nominative: ус железного змея
+    genitive: уса железного змея
+    dative: усу железного змея
+    accusative: ус железного змея
+    instrumental: усом железного змея
+    prepositional: усе железного змея
+  short_desc: Блестящий гибкий ус лежит тут.
+  type: kMagicIngredient
+  material: 3  # ЖЕЛЕЗО
+  values:
+    - 6400
+    - 1440
+    - 46
+    - 0
+  weight: 8
+  cost: 10
+  rent_off: 5
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 11  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 6
+  wear_flags:
+    - kTake
+  applies:
+    - location: 1  # сила
+      modifier: 1
+    - location: 21  # защита.от.стихии.огня
+      modifier: 10
+
+# Object #1441
+41:
+  names:
+    aliases: тонкий плавник рыбы златы перья
+    nominative: тонкий плавник рыбы златы перья
+    genitive: тонкого плавника рыбы златы перья
+    dative: тонкому плавнику рыбы златы перья
+    accusative: тонкий плавник рыбы златы перья
+    instrumental: тонким плавником рыбы златы перья
+    prepositional: тонком плавнике рыбы златы перья
+  short_desc: Тонкий золотой рыбий плавник лежит здесь.
+  type: kMagicIngredient
+  material: 16  # ОРГАНИКА
+  values:
+    - 6656
+    - 1441
+    - 52
+    - 0
+  weight: 8
+  cost: 10
+  rent_off: 5
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 10  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 14
+  wear_flags:
+    - kTake
+  no_flags:
+    - kMage
+    - kMagus
+  affect_flags:
+    - kBless
+    - kWaterBreath
+  applies:
+    - location: 3  # интеллект
+      modifier: 1
+    - location: 41  # удача
+      modifier: 3
+
+# Object #1442
+42:
+  names:
+    aliases: ус великого красного змея
+    nominative: ус великого красного змея
+    genitive: уса великого красного змея
+    dative: усу великого красного змея
+    accusative: ус великого красного змея
+    instrumental: усом великого красного змея
+    prepositional: усе великого красного змея
+  short_desc: Мерцающий красным светом тонкий гибкий ус лежит тут.
+  type: kMagicIngredient
+  material: 16  # ОРГАНИКА
+  values:
+    - 6656
+    - 1441
+    - 55
+    - 0
+  weight: 8
+  cost: 10
+  rent_off: 5
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 10  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 6
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kSingleLight
+  applies:
+    - location: 19  # повреждение
+      modifier: 3
+    - location: 2  # ловкость
+      modifier: 2
+    - location: 46  # защита.от.стихии.воды
+      modifier: 12
+
+# Object #1443
+43:
+  names:
+    aliases: тетива лука громовержца
+    nominative: тетива от лука громовержца
+    genitive: тетивы от лука громовержца
+    dative: тетиве от лука громовержца
+    accusative: тетиву от лука громовержца
+    instrumental: тетивой от лука громовержца
+    prepositional: тетиве от лука громовержца
+  short_desc: Мерцающая синим светом тетива свернута тут.
+  type: kMagicIngredient
+  material: 6  # ДРАГ.МЕТАЛЛ
+  values:
+    - 7680
+    - 1443
+    - 90
+    - 0
+  weight: 8
+  cost: 10
+  rent_off: 5
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 10  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 4
+  extra_flags:
+    - kBless
+    - kNodisarm
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kProtectFromDark
+    - kProtectFromMind
+    - kBless
+  applies:
+    - location: 1  # сила
+      modifier: 2
+    - location: 18  # попадание
+      modifier: 3
+
+# Object #1444
+44:
+  names:
+    aliases: застывший луч звезды
+    nominative: застывший луч звезды
+    genitive: застывшего луча звезды
+    dative: застывшему лучу звезды
+    accusative: застывший луч звезды
+    instrumental: застывшим лучом звездыо
+    prepositional: застывшем луче звезды
+  short_desc: Тонкий лучик мерцает на земле.
+  type: kMagicIngredient
+  material: 7  # КРИСТАЛЛ
+  values:
+    - 7168
+    - 1444
+    - 70
+    - 0
+  weight: 8
+  cost: 10
+  rent_off: 5
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 9  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 4
+  extra_flags:
+    - kNodisarm
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kProtectFromMind
+    - kBlink
+    - kNoFlee
+  applies:
+    - location: 2  # ловкость
+      modifier: 1
+    - location: 1  # сила
+      modifier: 2
+
+# Object #1445
+45:
+  names:
+    aliases: витая тетива
+    nominative: витая тетива
+    genitive: витой тетивы
+    dative: витой тетиве
+    accusative: витую тетиву
+    instrumental: витой тетивой
+    prepositional: витой тетиве
+  short_desc: Свитая из шелковых нитей тетива лежит под ногами.
+  type: kMagicIngredient
+  material: 16  # ОРГАНИКА
+  values:
+    - 6400
+    - 1445
+    - 48
+    - 0
+  weight: 8
+  cost: 10
+  rent_off: 5
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 9  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 15
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kBless
+  applies:
+    - location: 25  # восст.жизни
+      modifier: 10
+
+# Object #1446
+46:
+  names:
+    aliases: пучок волос гривы морского змея
+    nominative: пучок волос из гривы морского змея
+    genitive: пучка волос из гривы морского змея
+    dative: пучку волос из гривы морского змея
+    accusative: пучок волос из гривы морского змея
+    instrumental: пучком волос из гривы морского змея
+    prepositional: пучке волос из гривы морского змея
+  short_desc: Пышный пучок длинных, переливающихся радужными цветами волос лежит тут.
+  type: kMagicIngredient
+  material: 16  # ОРГАНИКА
+  values:
+    - 6912
+    - 1446
+    - 40
+    - 0
+  weight: 8
+  cost: 10
+  rent_off: 5
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 9  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 25
+  wear_flags:
+    - kTake
+  no_flags:
+    - kMage
+    - kSorcerer
+    - kMagus
+  affect_flags:
+    - kWaterWalk
+  applies:
+    - location: 20  # воля
+      modifier: -4
+    - location: 22  # защита.от.стихии.воздуха
+      modifier: -4
+    - location: 4  # мудрость
+      modifier: 2
+    - location: 21  # защита.от.стихии.огня
+      modifier: 13
+
+# Object #1447
+47:
+  names:
+    aliases: горсть гибких стальных пластинок
+    nominative: горсть гибких стальных пластинок
+    genitive: горсти гибких стальных пластинок
+    dative: горсти гибких стальных пластинок
+    accusative: горсть гибких стальных пластинок
+    instrumental: горстью гибких стальных пластинок
+    prepositional: горсти гибких стальных пластинок
+  short_desc: Горсть гибких стальных пластинок рассыпана тут.
+  type: kMagicIngredient
+  material: 5  # КОВАНАЯ.СТАЛЬ
+  values:
+    - 5632
+    - 1447
+    - 38
+    - 0
+  weight: 12
+  cost: 15
+  rent_off: 5
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 22  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 27
+  wear_flags:
+    - kTake
+  applies:
+    - location: 1  # сила
+      modifier: 2
+
+# Object #1448
+48:
+  names:
+    aliases: кусок шкуры великого белого змея
+    nominative: кусок шкуры великого белого змея
+    genitive: куска шкуры великого белого змея
+    dative: куску шкуры великого белого змея
+    accusative: кусок шкуры великого белого змея
+    instrumental: куском шкуры великого белого змея
+    prepositional: куске шкуры великого белого змея
+  short_desc: Длинный кусок шкуры неведомого чудовища лежит здесь.
+  type: kMagicIngredient
+  material: 15  # КОЖА
+  values:
+    - 5120
+    - 1448
+    - 20
+    - 0
+  weight: 7
+  cost: 10
+  rent_off: 5
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 11  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 4
+  wear_flags:
+    - kTake
+  applies:
+    - location: 19  # повреждение
+      modifier: 2
+    - location: 39  # реакция
+      modifier: -4
+    - location: 18  # попадание
+      modifier: 2
+    - location: 24  # стойкость
+      modifier: -4
+
+# Object #1450
+50:
+  names:
+    aliases: струна лютни божественного песнопевца
+    nominative: струна из лютни божественного песнопевца
+    genitive: струны из лютни божественного песнопевца
+    dative: струне из лютни божественного песнопевца
+    accusative: струну из лютни божественного песнопевца
+    instrumental: струной из лютни божественного песнопевца
+    prepositional: струне из лютни божественного песнопевца
+  short_desc: Переливающаяся золотистым светом витая струна лежит тут.
+  type: kMagicIngredient
+  material: 6  # ДРАГ.МЕТАЛЛ
+  values:
+    - 7680
+    - 1450
+    - 50
+    - 0
+  weight: 5
+  cost: 10
+  rent_off: 5
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 7000
+  spell: 12  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 3
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kProtectFromMind
+    - kHaste
+  applies:
+    - location: 2  # ловкость
+      modifier: 1
+
+# Object #1470
+70:
+  names:
+    aliases: рог @p1
+    nominative: рог @p1
+    genitive: рога @p1
+    dative: рогу @p1
+    accusative: рог @p1
+    instrumental: рогом @p1
+    prepositional: роге @p1
+  short_desc: Отрубленый рог лежит здесь.
+  type: kMagicIngredient
+  material: 13  # КОСТЬ
+  values:
+    - 4608
+    - 1470
+    - 14
+    - 0
+  weight: 6
+  cost: 10
+  rent_off: 3
+  rent_on: 3
+  max_durability: 40
+  cur_durability: 40
+  timer: 10200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 45
+  extra_flags:
+    - kNodisarm
+  wear_flags:
+    - kTake
+  applies:
+    - location: 19  # повреждение
+      modifier: 1
+
+# Object #1471
+71:
+  names:
+    aliases: клюв спрута
+    nominative: клюв спрута
+    genitive: клюва спрута
+    dative: клюву спрута
+    accusative: клюв спрута
+    instrumental: клювом спрута
+    prepositional: клюве спрута
+  short_desc: Черный, блестящий как стекло клюв лежит здесь.
+  type: kMagicIngredient
+  material: 13  # КОСТЬ
+  values:
+    - 7168
+    - 1479
+    - 80
+    - 0
+  weight: 6
+  cost: 20
+  rent_off: 5
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 22  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 5
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+  no_flags:
+    - kMage
+  applies:
+    - location: 3  # интеллект
+      modifier: 2
+
+# Object #1472
+72:
+  names:
+    aliases: неограненный изумруд
+    nominative: неограненный изумруд
+    genitive: неограненного изумруда
+    dative: неограненному изумруду
+    accusative: неограненный изумруд
+    instrumental: неограненным изумрудом
+    prepositional: неограненном изумруде
+  short_desc: Большой, тускло-зеленый камень лежит здесь.
+  type: kMagicIngredient
+  material: 12  # КАМЕНЬ
+  values:
+    - 7168
+    - 1472
+    - 80
+    - 0
+  weight: 6
+  cost: 20
+  rent_off: 5
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 22  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 12
+  wear_flags:
+    - kTake
+  applies:
+    - location: 41  # удача
+      modifier: 3
+
+# Object #1473
+73:
+  names:
+    aliases: береста
+    nominative: береста
+    genitive: бересты
+    dative: бересте
+    accusative: бересту
+    instrumental: берестой
+    prepositional: бересте
+  short_desc: Длинный кусок бересты свился здесь.
+  type: kMagicIngredient
+  material: 8  # ДЕРЕВО
+  values:
+    - 6144
+    - 1473
+    - 19
+    - 0
+  weight: 6
+  cost: 20
+  rent_off: 5
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 22  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 90
+  extra_flags:
+    - kNodisarm
+  wear_flags:
+    - kTake
+
+# Object #1474
+74:
+  names:
+    aliases: древесный клей
+    nominative: древесный клей
+    genitive: древесного клея
+    dative: древесному клею
+    accusative: древесный клей
+    instrumental: древесным клеем
+    prepositional: древесном клее
+  short_desc: Туесок клея из разваренной древесины стоит тут.
+  type: kMagicIngredient
+  material: 16  # ОРГАНИКА
+  values:
+    - 3840
+    - 1496
+    - 5
+    - 0
+  weight: 6
+  cost: 20
+  rent_off: 5
+  rent_on: 5
+  max_durability: 200
+  cur_durability: 200
+  timer: 10080
+  spell: 22  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 10000
+  extra_flags:
+    - kBless
+  wear_flags:
+    - kTake
+
+# Object #1475
+75:
+  names:
+    aliases: маленький кусок янтаря
+    nominative: маленький кусок янтаря
+    genitive: маленького куска янтаря
+    dative: маленькому куску янтаря
+    accusative: маленький кусок янтаря
+    instrumental: маленьким куском янтаря
+    prepositional: маленьком куске янтаря
+  short_desc: Небольшой золотистый кусочек янтаря лежит тут.
+  type: kMagicIngredient
+  material: 16  # ОРГАНИКА
+  values:
+    - 7168
+    - 1475
+    - 45
+    - 0
+  weight: 8
+  cost: 20
+  rent_off: 5
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 22  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 12
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kProtectFromMind
+  applies:
+    - location: 44  # поглощение
+      modifier: 5
+
+# Object #1476
+76:
+  names:
+    aliases: зеленая чешуя великого змея
+    nominative: зеленая чешуя великого змея
+    genitive: зеленой чешуи великого змея
+    dative: зеленой чешуе великого змея
+    accusative: зеленую чешую великого змея
+    instrumental: зеленой чешуей великого змея
+    prepositional: зеленой чешуе великого змея
+  short_desc: Покрытый крупными зелеными чешуйками кусок змеиной шкуры лежит тут.
+  type: kMagicIngredient
+  material: 13  # КОСТЬ
+  values:
+    - 7680
+    - 1476
+    - 75
+    - 0
+  weight: 7
+  cost: 20
+  rent_off: 5
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 22  # !undefined!
+  level: 0
+  sex: kNeutral
+  max_in_world: 7
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kProtectFromDark
+  applies:
+    - location: 1  # сила
+      modifier: 1
+    - location: 19  # повреждение
+      modifier: 2
+    - location: 18  # попадание
+      modifier: 2
+    - location: 47  # защита.от.стихии.земли
+      modifier: 12
+    - location: 21  # защита.от.стихии.огня
+      modifier: 10
+
+# Object #1477
+77:
+  names:
+    aliases: смола Иггдрасиля
+    nominative: смола Иггдрасиля
+    genitive: смолы Иггдрасиля
+    dative: смоле Иггдрасиля
+    accusative: смолу Иггдрасиля
+    instrumental: смолой Иггдрасиля
+    prepositional: смоле Иггдрасиля
+  short_desc: Мерцающий янтарным светом кусок застывшей смолы лежит здесь.
+  type: kMagicIngredient
+  material: 16  # ОРГАНИКА
+  values:
+    - 6912
+    - 1477
+    - 64
+    - 0
+  weight: 6
+  cost: 20
+  rent_off: 5
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 22  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 9
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kSanctuary
+    - kBlink
+
+# Object #1478
+78:
+  names:
+    aliases: кость великана
+    nominative: кость великана
+    genitive: кости великана
+    dative: кости великана
+    accusative: кость великана
+    instrumental: костью великана
+    prepositional: кости великана
+  short_desc: Выбеленный солнцем осколок громадной кости лежит тут.
+  type: kMagicIngredient
+  material: 13  # КОСТЬ
+  values:
+    - 7424
+    - 1478
+    - 75
+    - 0
+  weight: 9
+  cost: 20
+  rent_off: 5
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 22  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 5
+  wear_flags:
+    - kTake
+  applies:
+    - location: 5  # телосложение
+      modifier: 1
+    - location: 39  # реакция
+      modifier: -2
+
+# Object #1479
+79:
+  names:
+    aliases: клюв грифона
+    nominative: клюв грифона
+    genitive: клюва грифона
+    dative: клюву грифона
+    accusative: клюв грифона
+    instrumental: клювом грифона
+    prepositional: клюве грифона
+  short_desc: Острый как бритва клюв грифона лежит тут.
+  type: kMagicIngredient
+  material: 13  # КОСТЬ
+  values:
+    - 7168
+    - 1479
+    - 80
+    - 0
+  weight: 6
+  cost: 20
+  rent_off: 5
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 22  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 8
+  extra_flags:
+    - kSwimming
+  wear_flags:
+    - kTake
+  applies:
+    - location: 13  # макс.жизнь
+      modifier: 15
+    - location: 41  # удача
+      modifier: 3
+
+# Object #1480
+80:
+  names:
+    aliases: иглы дикобраза
+    nominative: иглы дикобраза
+    genitive: игл дикобраза
+    dative: иглам дикобраза
+    accusative: иглы дикобраза
+    instrumental: иглами дикобраза
+    prepositional: иглах дикобраза
+  short_desc: Пучок длинных пестрых иголок лежит здесь.
+  type: kMagicIngredient
+  material: 13  # КОСТЬ
+  values:
+    - 6400
+    - 1480
+    - 78
+    - 0
+  weight: 6
+  cost: 20
+  rent_off: 5
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 22  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 18
+  extra_flags:
+    - kNodisarm
+    - kSwimming
+  wear_flags:
+    - kTake
+  no_flags:
+    - kMage
+    - kSorcerer
+    - kMagus
+  applies:
+    - location: 9  # возраст
+      modifier: 4
+    - location: 4  # мудрость
+      modifier: 1
+
+# Object #1481
+81:
+  names:
+    aliases: волчьи клыки
+    nominative: волчьи клыки
+    genitive: волчьих клыков
+    dative: волчьим клыкам
+    accusative: волчьи клыки
+    instrumental: волчьими клыками
+    prepositional: волчьих клыках
+  short_desc: Связка устрашающих волчьих клыков лежит здесь.
+  type: kMagicIngredient
+  material: 13  # КОСТЬ
+  values:
+    - 5120
+    - 1481
+    - 60
+    - 0
+  weight: 6
+  cost: 20
+  rent_off: 5
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 22  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 18
+  extra_flags:
+    - kNodisarm
+  wear_flags:
+    - kTake
+
+# Object #1482
+82:
+  names:
+    aliases: гроздь цветов хрустального дерева
+    nominative: гроздь цветов хрустального дерева
+    genitive: грозди цветов хрустального дерева
+    dative: грозди цветов хрустального дерева
+    accusative: гроздь цветов хрустального дерева
+    instrumental: гроздью цветов хрустального дерева
+    prepositional: грозди цветов хрустального дерева
+  short_desc: Кисть прозрачно-блестящих цветов лежит здесь.
+  type: kMagicIngredient
+  material: 7  # КРИСТАЛЛ
+  values:
+    - 7424
+    - 1482
+    - 72
+    - 0
+  weight: 6
+  cost: 20
+  rent_off: 5
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 22  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 8
+  extra_flags:
+    - kGlow
+    - kNodisarm
+  wear_flags:
+    - kTake
+  no_flags:
+    - kMage
+    - kSorcerer
+    - kMerchant
+    - kMagus
+  affect_flags:
+    - kProtectFromDark
+  applies:
+    - location: 5  # телосложение
+      modifier: 2
+
+# Object #1483
+83:
+  names:
+    aliases: побег вьюнка Темной Долины
+    nominative: побег вьюнка Темной Долины
+    genitive: побега вьюнка Темной Долины
+    dative: побегу вьюнка Темной Долины
+    accusative: побег вьюнка Темной Долины
+    instrumental: побегом вьюнка Темной Долины
+    prepositional: побеге вьюнка Темной Долины
+  short_desc: Усеяный мелкими белесыми цветами длинный побег неприятного бледно-зеленого цвета лежит здесь.
+  type: kMagicIngredient
+  material: 16  # ОРГАНИКА
+  values:
+    - 7168
+    - 1483
+    - 75
+    - 0
+  weight: 6
+  cost: 20
+  rent_off: 5
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 22  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 5
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kDetectMagic
+    - kBlink
+    - kHaste
+  applies:
+    - location: 41  # удача
+      modifier: -1
+    - location: 19  # повреждение
+      modifier: 2
+    - location: 21  # защита.от.стихии.огня
+      modifier: 10
+    - location: 20  # воля
+      modifier: -4
+
+# Object #1484
+84:
+  names:
+    aliases: когти демона багрового огня
+    nominative: когти демона багрового огня
+    genitive: когтей демона багрового огня
+    dative: когтям демона багрового огня
+    accusative: когти демона багрового огня
+    instrumental: когтями демона багрового огня
+    prepositional: когтях демона багрового огня
+  short_desc: Испускающие нестерпимый жар острые когти лежат тут.
+  type: kMagicIngredient
+  material: 13  # КОСТЬ
+  values:
+    - 7680
+    - 1484
+    - 95
+    - 0
+  weight: 8
+  cost: 20
+  rent_off: 5
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 22  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 6
+  wear_flags:
+    - kTake
+  no_flags:
+    - kMage
+    - kSorcerer
+    - kMerchant
+    - kMagus
+  affect_flags:
+    - kAwareness
+    - kHaste
+  applies:
+    - location: 4  # мудрость
+      modifier: 1
+    - location: 1  # сила
+      modifier: 1
+    - location: 2  # ловкость
+      modifier: 3
+    - location: 46  # защита.от.стихии.воды
+      modifier: 10
+
+# Object #1485
+85:
+  names:
+    aliases: осколок живого камня
+    nominative: осколок живого камня
+    genitive: осколка живого камня
+    dative: осколку живого камня
+    accusative: осколок живого камня
+    instrumental: осколком живого камня
+    prepositional: осколке живого камня
+  short_desc: Дымчато-черный камень тускло блестит на полу.
+  type: kMagicIngredient
+  material: 12  # КАМЕНЬ
+  values:
+    - 7424
+    - 1485
+    - 63
+    - 0
+  weight: 8
+  cost: 20
+  rent_off: 5
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 22  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 7
+  wear_flags:
+    - kTake
+  applies:
+    - location: 13  # макс.жизнь
+      modifier: 20
+    - location: 25  # восст.жизни
+      modifier: 15
+    - location: 5  # телосложение
+      modifier: 2
+
+# Object #1486
+86:
+  names:
+    aliases: горный хрусталь
+    nominative: горный хрусталь
+    genitive: горного хрусталя
+    dative: горному хрусталю
+    accusative: горный хрусталь
+    instrumental: горным хрусталем
+    prepositional: горном хрустале
+  short_desc: Кристалл прозрачного горного хрусталя лежит под ногами.
+  type: kMagicIngredient
+  material: 11  # СТЕКЛО
+  values:
+    - 7168
+    - 1486
+    - 58
+    - 0
+  weight: 2
+  cost: 20
+  rent_off: 5
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 22  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 10
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kProtectFromDark
+    - kProtectFromMind
+    - kAwareness
+    - kBlink
+  applies:
+    - location: 42  # инициатива
+      modifier: 3
+
+# Object #1487
+87:
+  names:
+    aliases: медное перо громовой птицы
+    nominative: медное перо громовой птицы
+    genitive: медного пера громовой птицы
+    dative: медному перу громовой птицы
+    accusative: медное перо громовой птицы
+    instrumental: медным пером громовой птицы
+    prepositional: медном пере громовой птицы
+  short_desc: Тяжелое птичье перо из красноватой меди воткнулось в землю.
+  type: kMagicIngredient
+  material: 2  # БРОНЗА
+  values:
+    - 7168
+    - 1487
+    - 51
+    - 0
+  weight: 4
+  cost: 20
+  rent_off: 5
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 22  # !undefined!
+  level: 0
+  sex: kNeutral
+  max_in_world: 14
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kFly
+    - kSingleLight
+    - kHaste
+  applies:
+    - location: 1  # сила
+      modifier: 1
+    - location: 36  # размер
+      modifier: 10
+
+# Object #1488
+88:
+  names:
+    aliases: бычьи сухожилия
+    nominative: бычьи сухожилия
+    genitive: бычьих сухожилий
+    dative: бычьим сухожильям
+    accusative: бычьи сухожилья
+    instrumental: бычьими сухожильями
+    prepositional: бычьих сухожильях
+  short_desc: Толстые крепкие бычьи сухожилия лежат тут.
+  type: kMagicIngredient
+  material: 16  # ОРГАНИКА
+  values:
+    - 5632
+    - 1488
+    - 37
+    - 0
+  weight: 6
+  cost: 20
+  rent_off: 5
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 22  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 70
+  wear_flags:
+    - kTake
+  applies:
+    - location: 19  # повреждение
+      modifier: 2
+
+# Object #1489
+89:
+  names:
+    aliases: рог индрик-зверя
+    nominative: рог индрик-зверя
+    genitive: рога индрик-зверя
+    dative: рогу индрик-зверя
+    accusative: рог индрик-зверя
+    instrumental: рогом индрик-зверя
+    prepositional: роге индрик-зверя
+  short_desc: Рог неведомого чудища валяется тут.
+  type: kMagicIngredient
+  material: 13  # КОСТЬ
+  values:
+    - 6400
+    - 1489
+    - 46
+    - 0
+  weight: 6
+  cost: 20
+  rent_off: 5
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 22  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 25
+  wear_flags:
+    - kTake
+  applies:
+    - location: 13  # макс.жизнь
+      modifier: 15
+
+# Object #1490
+90:
+  names:
+    aliases: змеиная кожа
+    nominative: змеиная кожа
+    genitive: змеиной кожи
+    dative: змеиной коже
+    accusative: змеиную кожу
+    instrumental: змеиной кожей
+    prepositional: змеиной коже
+  short_desc: Чешуйчатая змеиная кожа лежит здесь.
+  type: kMagicIngredient
+  material: 15  # КОЖА
+  values:
+    - 5120
+    - 1490
+    - 27
+    - 0
+  weight: 6
+  cost: 20
+  rent_off: 5
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 22  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 50
+  extra_flags:
+    - kNodisarm
+  wear_flags:
+    - kTake
+
+# Object #1491
+91:
+  names:
+    aliases: кусочки меха
+    nominative: кусочки меха
+    genitive: кусочков меха
+    dative: кусочкам меха
+    accusative: кусочки меха
+    instrumental: кусочками меха
+    prepositional: кусочках меха
+  short_desc: Пушистые кусочки меха неведомого зверя лежат здесь.
+  type: kMagicIngredient
+  material: 14  # ТКАНЬ
+  values:
+    - 4096
+    - 1491
+    - 22
+    - 0
+  weight: 6
+  cost: 20
+  rent_off: 5
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 22  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 50
+  wear_flags:
+    - kTake
+  applies:
+    - location: 42  # инициатива
+      modifier: 3
+
+# Object #1492
+92:
+  names:
+    aliases: обрезки толстой кожи
+    nominative: обрезки толстой кожи
+    genitive: обрезков толстой кожи
+    dative: обрезкам толстой кожи
+    accusative: обрезки толстой кожи
+    instrumental: обрезками толстой кожи
+    prepositional: обрезках толстой кожи
+  short_desc: Обрезки хорошо выделанной толстой кожи лежат тут.
+  type: kMagicIngredient
+  material: 15  # КОЖА
+  values:
+    - 4096
+    - 1492
+    - 23
+    - 0
+  weight: 6
+  cost: 20
+  rent_off: 5
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 22  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 50
+  extra_flags:
+    - kBless
+    - kNodisarm
+  wear_flags:
+    - kTake
+
+# Object #1493
+93:
+  names:
+    aliases: пчелиный воск
+    nominative: пчелиный воск
+    genitive: пчелиного воска
+    dative: пчелиному воску
+    accusative: пчелиный воск
+    instrumental: пчелиным воском
+    prepositional: пчелином воске
+  short_desc: Комок пчелиного воска лежит здесь.
+  type: kMagicIngredient
+  material: 16  # ОРГАНИКА
+  values:
+    - 4096
+    - 1493
+    - 25
+    - 0
+  weight: 6
+  cost: 20
+  rent_off: 5
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 22  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 50
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kHaste
+
+# Object #1494
+94:
+  names:
+    aliases: рог оленя
+    nominative: рог оленя
+    genitive: рога оленя
+    dative: рогу оленя
+    accusative: рог оленя
+    instrumental: рогом оленя
+    prepositional: роге оленя
+  short_desc: Ветвистый рог оленя лежит здесь.
+  type: kMagicIngredient
+  material: 13  # КОСТЬ
+  values:
+    - 5120
+    - 1494
+    - 26
+    - 0
+  weight: 6
+  cost: 20
+  rent_off: 5
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 22  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 50
+  wear_flags:
+    - kTake
+  applies:
+    - location: 20  # воля
+      modifier: -4
+
+# Object #1495
+95:
+  names:
+    aliases: моржовая кость
+    nominative: моржовая кость
+    genitive: моржовой кости
+    dative: моржовой кости
+    accusative: моржовую кость
+    instrumental: моржовой костью
+    prepositional: моржовой кости
+  short_desc: Снежно-белый клык моржа лежит здесь.
+  type: kMagicIngredient
+  material: 13  # КОСТЬ
+  values:
+    - 5888
+    - 1495
+    - 34
+    - 0
+  weight: 6
+  cost: 20
+  rent_off: 5
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 22  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 50
+  wear_flags:
+    - kTake
+  applies:
+    - location: 17  # защита
+      modifier: 3
+    - location: 20  # воля
+      modifier: -3
+
+# Object #1496
+96:
+  names:
+    aliases: рыбий клей
+    nominative: рыбий клей
+    genitive: рыбьего клея
+    dative: рыбьему клею
+    accusative: рыбий клей
+    instrumental: рыбьим клеем
+    prepositional: рыбьем клее
+  short_desc: Источающий мерзкое зловоние туесок рыбьего клея стоит здесь.
+  type: kMagicIngredient
+  material: 16  # ОРГАНИКА
+  values:
+    - 5632
+    - 1496
+    - 5
+    - 0
+  weight: 6
+  cost: 5
+  rent_off: 5
+  rent_on: 5
+  max_durability: 200
+  cur_durability: 200
+  timer: 10080
+  spell: 22  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kBless
+    - kNodisarm
+  wear_flags:
+    - kTake
+
+# Object #1497
+97:
+  names:
+    aliases: вощеная береста
+    nominative: вощеная береста
+    genitive: вощеной бересты
+    dative: вощеной бересте
+    accusative: вощеную бересту
+    instrumental: вощеной берестой
+    prepositional: вощеной бересте
+  short_desc: Полоска пропитаной воском бересты лежит здесь.
+  type: kMagicIngredient
+  material: 8  # ДЕРЕВО
+  values:
+    - 6144
+    - 1497
+    - 19
+    - 0
+  weight: 6
+  cost: 20
+  rent_off: 5
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 22  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 50
+  extra_flags:
+    - kNodisarm
+  wear_flags:
+    - kTake
+  affect_flags:
+    - kBless
+  applies:
+    - location: 41  # удача
+      modifier: 2
+
+# Object #1498
+98:
+  names:
+    aliases: лосиные жилы
+    nominative: лосиные жилы
+    genitive: лосиных жил
+    dative: лосиным жилам
+    accusative: лосиные жилы
+    instrumental: лосиными жилами
+    prepositional: лосиных жилах
+  short_desc: Связанные в пучок высушенные жилы лося лежат тут.
+  type: kMagicIngredient
+  material: 16  # ОРГАНИКА
+  values:
+    - 5632
+    - 1498
+    - 18
+    - 0
+  weight: 6
+  cost: 20
+  rent_off: 5
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 22  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 50
+  wear_flags:
+    - kTake
+  applies:
+    - location: 18  # попадание
+      modifier: 2
+
+# Object #1499
+99:
+  names:
+    aliases: коровий рог
+    nominative: коровий рог
+    genitive: корового рога
+    dative: коровому рогу
+    accusative: коровий рог
+    instrumental: коровим рогом
+    prepositional: коровом роге
+  short_desc: Спиленый коровий рог валяется тут.
+  type: kMagicIngredient
+  material: 13  # КОСТЬ
+  values:
+    - 4096
+    - 1499
+    - 12
+    - 0
+  weight: 6
+  cost: 20
+  rent_off: 5
+  rent_on: 5
+  max_durability: 100
+  cur_durability: 100
+  timer: 10080
+  spell: 22  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 50
+  extra_flags:
+    - kNodisarm
+  wear_flags:
+    - kTake

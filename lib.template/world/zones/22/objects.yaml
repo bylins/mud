@@ -1,0 +1,1890 @@
+# Objects for zone 22
+
+# Object #2200
+0:
+  names:
+    aliases: бронзовая алебарда
+    nominative: бронзовая алебарда
+    genitive: бронзовой алебарды
+    dative: бронзовой алебарде
+    accusative: бронзовую алебарду
+    instrumental: бронзовой алебардой
+    prepositional: бронзовой алебарде
+  short_desc: Бронзовая алебарда лежит здесь.
+  type: kWeapon
+  material: 2  # БРОНЗА
+  values:
+    - 0
+    - 2
+    - 6
+    - 6
+  weight: 20
+  cost: 20
+  rent_off: 20
+  rent_on: 2
+  spec_param: 146
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  wear_flags:
+    - kTake
+    - kBoth
+
+# Object #2201
+1:
+  names:
+    aliases: бронзовый двуручный меч
+    nominative: бронзовый двуручный меч
+    genitive: бронзового двуручного меча
+    dative: бронзовому двуручному мечу
+    accusative: бронзовый двуручный меч
+    instrumental: бронзовым двуручным мечом
+    prepositional: бронзовом двуручном мече
+  short_desc: Бронзовый двуручный меч лежит здесь.
+  type: kWeapon
+  material: 2  # БРОНЗА
+  values:
+    - 0
+    - 2
+    - 5
+    - 6
+  weight: 18
+  cost: 18
+  rent_off: 18
+  rent_on: 2
+  spec_param: 146
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kBoth
+
+# Object #2202
+2:
+  names:
+    aliases: длинный бронзовый меч
+    nominative: длинный бронзовый меч
+    genitive: длинного бронзового меча
+    dative: длинному бронзовому мечу
+    accusative: длинный бронзовый меч
+    instrumental: длинным бронзовым мечом
+    prepositional: длинном бронзовом мече
+  short_desc: Длинный бронзовый меч лежит здесь.
+  type: kWeapon
+  material: 2  # БРОНЗА
+  values:
+    - 0
+    - 1
+    - 6
+    - 7
+  weight: 17
+  cost: 10
+  rent_off: 10
+  rent_on: 1
+  spec_param: 143
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+    - kBoth
+
+# Object #2203
+3:
+  names:
+    aliases: узкий бронзовый меч
+    nominative: узкий бронзовый меч
+    genitive: узкого бронзового меча
+    dative: узкому бронзовому мечу
+    accusative: узкий бронзовый меч
+    instrumental: узким бронзовым мечом
+    prepositional: узком бронзовом мече
+  short_desc: Узкий бронзовый меч лежит здесь.
+  type: kWeapon
+  material: 2  # БРОНЗА
+  values:
+    - 0
+    - 1
+    - 5
+    - 7
+  weight: 15
+  cost: 9
+  rent_off: 9
+  rent_on: 1
+  spec_param: 143
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+
+# Object #2204
+4:
+  names:
+    aliases: бронзовая булава
+    nominative: бронзовая булава
+    genitive: бронзовой булавы
+    dative: бронзовой булаве
+    accusative: бронзовую булаву
+    instrumental: бронзовой булавой
+    prepositional: бронзовой булаве
+  short_desc: Бронзовая булава лежит здесь.
+  type: kWeapon
+  material: 2  # БРОНЗА
+  values:
+    - 0
+    - 1
+    - 6
+    - 6
+  weight: 15
+  cost: 10
+  rent_off: 10
+  rent_on: 1
+  spec_param: 145
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+    - kBoth
+
+# Object #2205
+5:
+  names:
+    aliases: бронзовый кистень
+    nominative: бронзовый кистень
+    genitive: бронзового кистеня
+    dative: бронзовому кистеню
+    accusative: бронзовый кистень
+    instrumental: бронзовым кистенем
+    prepositional: бронзовом кистене
+  short_desc: Бронзовый кистень лежит здесь.
+  type: kWeapon
+  material: 2  # БРОНЗА
+  values:
+    - 0
+    - 1
+    - 5
+    - 2
+  weight: 9
+  cost: 13
+  rent_off: 13
+  rent_on: 1
+  spec_param: 145
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+
+# Object #2206
+6:
+  names:
+    aliases: копье бронзовым наконечником
+    nominative: копье с бронзовым наконечником
+    genitive: копья с бронзовым наконечником
+    dative: копью с бронзовым наконечником
+    accusative: копье с бронзовым наконечником
+    instrumental: копьем с бронзовым наконечником
+    prepositional: копье с бронзовым наконечником
+  short_desc: Копье с бронзовым наконечником лежит здесь.
+  type: kWeapon
+  material: 2  # БРОНЗА
+  values:
+    - 0
+    - 1
+    - 6
+    - 10
+  weight: 15
+  cost: 10
+  rent_off: 10
+  rent_on: 1
+  spec_param: 148
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  extra_flags:
+    - kThrowing
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+    - kBoth
+
+# Object #2207
+7:
+  names:
+    aliases: сулица бронзовым наконечником
+    nominative: сулица с бронзовым наконечником
+    genitive: сулицы с бронзовым наконечником
+    dative: сулице с бронзовым наконечником
+    accusative: сулицу с бронзовым наконечником
+    instrumental: сулицой с бронзовым наконечником
+    prepositional: сулице с бронзовым наконечником
+  short_desc: Сулица с бронзовым наконечником лежит здесь.
+  type: kWeapon
+  material: 2  # БРОНЗА
+  values:
+    - 0
+    - 1
+    - 5
+    - 11
+  weight: 13
+  cost: 9
+  rent_off: 9
+  rent_on: 1
+  spec_param: 148
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kThrowing
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+    - kBoth
+
+# Object #2208
+8:
+  names:
+    aliases: бронзовый нож
+    nominative: бронзовый нож
+    genitive: бронзового ножа
+    dative: бронзовому ножу
+    accusative: бронзовый нож
+    instrumental: бронзовым ножом
+    prepositional: бронзовом ноже
+  short_desc: Бронзовый нож лежит здесь.
+  type: kWeapon
+  material: 2  # БРОНЗА
+  values:
+    - 0
+    - 1
+    - 5
+    - 7
+  weight: 4
+  cost: 10
+  rent_off: 10
+  rent_on: 1
+  spec_param: 144
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kThrowing
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+
+# Object #2209
+9:
+  names:
+    aliases: бронзовый кортик
+    nominative: бронзовый кортик
+    genitive: бронзового кортика
+    dative: бронзовому кортику
+    accusative: бронзовый кортик
+    instrumental: бронзовым кортиком
+    prepositional: бронзовом кортике
+  short_desc: Бронзовый кортик лежит здесь.
+  type: kWeapon
+  material: 2  # БРОНЗА
+  values:
+    - 0
+    - 1
+    - 4
+    - 11
+  weight: 3
+  cost: 9
+  rent_off: 9
+  rent_on: 1
+  spec_param: 144
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kThrowing
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+
+# Object #2210
+10:
+  names:
+    aliases: липовый лук
+    nominative: липовый лук
+    genitive: липового лука
+    dative: липовому луку
+    accusative: липовый лук
+    instrumental: липовым луком
+    prepositional: липовом луке
+  short_desc: Лук из древесины липы лежит здесь.
+  type: kWeapon
+  material: 8  # ДЕРЕВО
+  values:
+    - 0
+    - 2
+    - 6
+    - 9
+  weight: 10
+  cost: 20
+  rent_off: 20
+  rent_on: 2
+  spec_param: 154
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kBoth
+
+# Object #2211
+11:
+  names:
+    aliases: липовый самострел
+    nominative: липовый самострел
+    genitive: липового самострела
+    dative: липовому самострелу
+    accusative: липовый самострел
+    instrumental: липовым самострелом
+    prepositional: липовом самостреле
+  short_desc: Самострел из древесины липы лежит здесь.
+  type: kWeapon
+  material: 8  # ДЕРЕВО
+  values:
+    - 0
+    - 1
+    - 6
+    - 9
+  weight: 10
+  cost: 10
+  rent_off: 10
+  rent_on: 1
+  spec_param: 154
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kWield
+
+# Object #2212
+12:
+  names:
+    aliases: липовая дубина
+    nominative: липовая дубина
+    genitive: липовой дубины
+    dative: липовой дубине
+    accusative: липовую дубину
+    instrumental: липовой дубиной
+    prepositional: липовой дубине
+  short_desc: Дубина из древесины липы лежит здесь.
+  type: kWeapon
+  material: 8  # ДЕРЕВО
+  values:
+    - 0
+    - 1
+    - 7
+    - 5
+  weight: 9
+  cost: 10
+  rent_off: 10
+  rent_on: 1
+  spec_param: 141
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+    - kBoth
+
+# Object #2213
+13:
+  names:
+    aliases: липовая палица
+    nominative: липовая палица
+    genitive: липовой палицы
+    dative: липовой палице
+    accusative: липовую палицу
+    instrumental: липовой палицой
+    prepositional: липовой палице
+  short_desc: Палица из древесины липы лежит здесь.
+  type: kWeapon
+  material: 8  # ДЕРЕВО
+  values:
+    - 0
+    - 1
+    - 6
+    - 5
+  weight: 8
+  cost: 9
+  rent_off: 9
+  rent_on: 1
+  spec_param: 141
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+    - kBoth
+
+# Object #2214
+14:
+  names:
+    aliases: бронзовый кинжал
+    nominative: бронзовый кинжал
+    genitive: бронзового кинжала
+    dative: бронзовому кинжалу
+    accusative: бронзовый кинжал
+    instrumental: бронзовым кинжалом
+    prepositional: бронзовом кинжале
+  short_desc: Бронзовый кинжал лежит здесь.
+  type: kWeapon
+  material: 2  # БРОНЗА
+  values:
+    - 0
+    - 1
+    - 5
+    - 11
+  weight: 5
+  cost: 8
+  rent_off: 8
+  rent_on: 1
+  spec_param: 147
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kThrowing
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+
+# Object #2215
+15:
+  names:
+    aliases: бронзовый стилет
+    nominative: бронзовый стилет
+    genitive: бронзового стилета
+    dative: бронзовому стилету
+    accusative: бронзовый стилет
+    instrumental: бронзовым стилетом
+    prepositional: бронзовом стилете
+  short_desc: Бронзовый стилет лежит здесь.
+  type: kWeapon
+  material: 2  # БРОНЗА
+  values:
+    - 0
+    - 1
+    - 4
+    - 11
+  weight: 4
+  cost: 7
+  rent_off: 7
+  rent_on: 1
+  spec_param: 147
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kThrowing
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+
+# Object #2216
+16:
+  names:
+    aliases: бронзовая секира
+    nominative: бронзовая секира
+    genitive: бронзовой секиры
+    dative: бронзовой секире
+    accusative: бронзовую секиру
+    instrumental: бронзовой секирой
+    prepositional: бронзовой секире
+  short_desc: Бронзовая секира лежит здесь.
+  type: kWeapon
+  material: 2  # БРОНЗА
+  values:
+    - 0
+    - 1
+    - 7
+    - 3
+  weight: 13
+  cost: 10
+  rent_off: 10
+  rent_on: 1
+  spec_param: 142
+  max_durability: 150
+  cur_durability: 150
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+    - kBoth
+
+# Object #2217
+17:
+  names:
+    aliases: бронзовый топорик
+    nominative: бронзовый топорик
+    genitive: бронзового топорика
+    dative: бронзовому топорику
+    accusative: бронзовый топорик
+    instrumental: бронзовым топориком
+    prepositional: бронзовом топорике
+  short_desc: Бронзовый топорик лежит здесь.
+  type: kWeapon
+  material: 2  # БРОНЗА
+  values:
+    - 0
+    - 1
+    - 6
+    - 3
+  weight: 9
+  cost: 9
+  rent_off: 9
+  rent_on: 1
+  spec_param: 142
+  max_durability: 100
+  cur_durability: 100
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kThrowing
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+
+# Object #2218
+18:
+  names:
+    aliases: железная алебарда
+    nominative: железная алебарда
+    genitive: железной алебарды
+    dative: железной алебарде
+    accusative: железную алебарду
+    instrumental: железной алебардой
+    prepositional: железной алебарде
+  short_desc: Железная алебарда лежит здесь.
+  type: kWeapon
+  material: 3  # ЖЕЛЕЗО
+  values:
+    - 0
+    - 4
+    - 5
+    - 6
+  weight: 22
+  cost: 100
+  rent_off: 100
+  rent_on: 10
+  spec_param: 146
+  max_durability: 125
+  cur_durability: 125
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  wear_flags:
+    - kTake
+    - kBoth
+
+# Object #2219
+19:
+  names:
+    aliases: железный двуручный меч
+    nominative: железный двуручный меч
+    genitive: железного двуручного меча
+    dative: железному двуручному мечу
+    accusative: железный двуручный меч
+    instrumental: железным двуручным мечом
+    prepositional: железном двуручном мече
+  short_desc: Железный двуручный меч лежит здесь.
+  type: kWeapon
+  material: 3  # ЖЕЛЕЗО
+  values:
+    - 0
+    - 3
+    - 6
+    - 6
+  weight: 20
+  cost: 90
+  rent_off: 90
+  rent_on: 9
+  spec_param: 146
+  max_durability: 125
+  cur_durability: 125
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kBoth
+
+# Object #2220
+20:
+  names:
+    aliases: длинный железный меч
+    nominative: длинный железный меч
+    genitive: длинного железного меча
+    dative: длинному железному мечу
+    accusative: длинный железный меч
+    instrumental: длинным железным мечом
+    prepositional: длинном железном мече
+  short_desc: Длинный железный меч лежит здесь.
+  type: kWeapon
+  material: 3  # ЖЕЛЕЗО
+  values:
+    - 0
+    - 2
+    - 4
+    - 7
+  weight: 17
+  cost: 60
+  rent_off: 60
+  rent_on: 6
+  spec_param: 143
+  max_durability: 125
+  cur_durability: 125
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+    - kBoth
+
+# Object #2221
+21:
+  names:
+    aliases: короткий железный меч
+    nominative: короткий железный меч
+    genitive: короткого железного меча
+    dative: короткому железному мечу
+    accusative: короткий железный меч
+    instrumental: коротким железным мечом
+    prepositional: коротком железном мече
+  short_desc: Короткий железный меч лежит здесь.
+  type: kWeapon
+  material: 3  # ЖЕЛЕЗО
+  values:
+    - 0
+    - 2
+    - 3
+    - 7
+  weight: 15
+  cost: 50
+  rent_off: 50
+  rent_on: 5
+  spec_param: 143
+  max_durability: 125
+  cur_durability: 125
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+
+# Object #2222
+22:
+  names:
+    aliases: железная булава
+    nominative: железная булава
+    genitive: железной булавы
+    dative: железной булаве
+    accusative: железную булаву
+    instrumental: железной булавой
+    prepositional: железной булаве
+  short_desc: Железная булава лежит здесь.
+  type: kWeapon
+  material: 3  # ЖЕЛЕЗО
+  values:
+    - 0
+    - 2
+    - 4
+    - 6
+  weight: 17
+  cost: 60
+  rent_off: 60
+  rent_on: 6
+  spec_param: 145
+  max_durability: 125
+  cur_durability: 125
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+    - kBoth
+
+# Object #2223
+23:
+  names:
+    aliases: батог
+    nominative: батог
+    genitive: батога
+    dative: батогу
+    accusative: батог
+    instrumental: батогом
+    prepositional: батоге
+  short_desc: Батог лежит здесь.
+  type: kWeapon
+  material: 15  # КОЖА
+  values:
+    - 0
+    - 1
+    - 8
+    - 2
+  weight: 4
+  cost: 50
+  rent_off: 50
+  rent_on: 5
+  spec_param: 145
+  max_durability: 125
+  cur_durability: 125
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+
+# Object #2224
+24:
+  names:
+    aliases: копье железным наконечником
+    nominative: копье с железным наконечником
+    genitive: копья с железным наконечником
+    dative: копью с железным наконечником
+    accusative: копье с железным наконечником
+    instrumental: копьем с железным наконечником
+    prepositional: копье с железным наконечником
+  short_desc: Копье с железным наконечником лежит здесь.
+  type: kWeapon
+  material: 3  # ЖЕЛЕЗО
+  values:
+    - 0
+    - 2
+    - 5
+    - 10
+  weight: 15
+  cost: 60
+  rent_off: 60
+  rent_on: 6
+  spec_param: 148
+  max_durability: 125
+  cur_durability: 125
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  extra_flags:
+    - kThrowing
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+    - kBoth
+
+# Object #2225
+25:
+  names:
+    aliases: сулица железным наконечником
+    nominative: сулица с железным наконечником
+    genitive: сулицы с железным наконечником
+    dative: сулице с железным наконечником
+    accusative: сулицу с железным наконечником
+    instrumental: сулицой с железным наконечником
+    prepositional: сулице с железным наконечником
+  short_desc: Сулица с железным наконечником лежит здесь.
+  type: kWeapon
+  material: 3  # ЖЕЛЕЗО
+  values:
+    - 0
+    - 2
+    - 4
+    - 11
+  weight: 13
+  cost: 50
+  rent_off: 50
+  rent_on: 5
+  spec_param: 148
+  max_durability: 125
+  cur_durability: 125
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kThrowing
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+    - kBoth
+
+# Object #2226
+26:
+  names:
+    aliases: железный нож
+    nominative: железный нож
+    genitive: железного ножа
+    dative: железному ножу
+    accusative: железный нож
+    instrumental: железным ножом
+    prepositional: железном ноже
+  short_desc: Железный нож лежит здесь.
+  type: kWeapon
+  material: 3  # ЖЕЛЕЗО
+  values:
+    - 0
+    - 3
+    - 2
+    - 7
+  weight: 5
+  cost: 60
+  rent_off: 60
+  rent_on: 6
+  spec_param: 144
+  max_durability: 125
+  cur_durability: 125
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kThrowing
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+
+# Object #2227
+27:
+  names:
+    aliases: железный кортик
+    nominative: железный кортик
+    genitive: железного кортика
+    dative: железному кортику
+    accusative: железный кортик
+    instrumental: железным кортиком
+    prepositional: железном кортике
+  short_desc: Железный кортик лежит здесь.
+  type: kWeapon
+  material: 3  # ЖЕЛЕЗО
+  values:
+    - 0
+    - 2
+    - 3
+    - 11
+  weight: 4
+  cost: 50
+  rent_off: 50
+  rent_on: 5
+  spec_param: 144
+  max_durability: 125
+  cur_durability: 125
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kThrowing
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+
+# Object #2228
+28:
+  names:
+    aliases: дубовый лук
+    nominative: дубовый лук
+    genitive: дубового лука
+    dative: дубовому луку
+    accusative: дубовый лук
+    instrumental: дубовым луком
+    prepositional: дубовом луке
+  short_desc: Дубовый лук лежит здесь.
+  type: kWeapon
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 0
+    - 3
+    - 5
+    - 9
+  weight: 17
+  cost: 100
+  rent_off: 100
+  rent_on: 10
+  spec_param: 154
+  max_durability: 125
+  cur_durability: 125
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kBoth
+
+# Object #2229
+29:
+  names:
+    aliases: дубовый самострел
+    nominative: дубовый самострел
+    genitive: дубового самострела
+    dative: дубовому самострелу
+    accusative: дубовый самострел
+    instrumental: дубовым самострелом
+    prepositional: дубовом самостреле
+  short_desc: Дубовый самострел лежит здесь.
+  type: kWeapon
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 0
+    - 2
+    - 4
+    - 9
+  weight: 16
+  cost: 70
+  rent_off: 70
+  rent_on: 7
+  spec_param: 154
+  max_durability: 125
+  cur_durability: 125
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kWield
+
+# Object #2230
+30:
+  names:
+    aliases: дубовый посох
+    nominative: дубовый посох
+    genitive: дубового посоха
+    dative: дубовому посоху
+    accusative: дубовый посох
+    instrumental: дубовым посохом
+    prepositional: дубовом посохе
+  short_desc: Дубовый посох лежит здесь.
+  type: kWeapon
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 0
+    - 3
+    - 3
+    - 5
+  weight: 18
+  cost: 60
+  rent_off: 60
+  rent_on: 6
+  spec_param: 141
+  max_durability: 125
+  cur_durability: 125
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+    - kBoth
+
+# Object #2231
+31:
+  names:
+    aliases: дубовая палица
+    nominative: дубовая палица
+    genitive: дубовой палицы
+    dative: дубовой палице
+    accusative: дубовую палицу
+    instrumental: дубовой палицой
+    prepositional: дубовой палице
+  short_desc: Дубовая палица лежит здесь.
+  type: kWeapon
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 0
+    - 3
+    - 2
+    - 5
+  weight: 16
+  cost: 50
+  rent_off: 50
+  rent_on: 5
+  spec_param: 141
+  max_durability: 125
+  cur_durability: 125
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+    - kBoth
+
+# Object #2232
+32:
+  names:
+    aliases: железный кинжал
+    nominative: железный кинжал
+    genitive: железного кинжала
+    dative: железному кинжалу
+    accusative: железный кинжал
+    instrumental: железным кинжалом
+    prepositional: железном кинжале
+  short_desc: Железный кинжал лежит здесь.
+  type: kWeapon
+  material: 3  # ЖЕЛЕЗО
+  values:
+    - 0
+    - 2
+    - 4
+    - 11
+  weight: 6
+  cost: 50
+  rent_off: 50
+  rent_on: 5
+  spec_param: 147
+  max_durability: 125
+  cur_durability: 125
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kThrowing
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+
+# Object #2233
+33:
+  names:
+    aliases: железный стилет
+    nominative: железный стилет
+    genitive: железного стилета
+    dative: железному стилету
+    accusative: железный стилет
+    instrumental: железным стилетом
+    prepositional: железном стилете
+  short_desc: Железный стилет лежит здесь.
+  type: kWeapon
+  material: 3  # ЖЕЛЕЗО
+  values:
+    - 0
+    - 3
+    - 2
+    - 11
+  weight: 5
+  cost: 40
+  rent_off: 40
+  rent_on: 4
+  spec_param: 147
+  max_durability: 125
+  cur_durability: 125
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kThrowing
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+
+# Object #2234
+34:
+  names:
+    aliases: железная секира
+    nominative: железная секира
+    genitive: железной секиры
+    dative: железной секире
+    accusative: железную секиру
+    instrumental: железной секирой
+    prepositional: железной секире
+  short_desc: Железная секира лежит здесь.
+  type: kWeapon
+  material: 3  # ЖЕЛЕЗО
+  values:
+    - 0
+    - 2
+    - 4
+    - 3
+  weight: 15
+  cost: 60
+  rent_off: 60
+  rent_on: 6
+  spec_param: 142
+  max_durability: 125
+  cur_durability: 125
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+    - kBoth
+
+# Object #2235
+35:
+  names:
+    aliases: железный топор
+    nominative: железный топор
+    genitive: железного топора
+    dative: железному топору
+    accusative: железный топор
+    instrumental: железным топором
+    prepositional: железном топоре
+  short_desc: Железный топор лежит здесь.
+  type: kWeapon
+  material: 3  # ЖЕЛЕЗО
+  values:
+    - 0
+    - 2
+    - 3
+    - 3
+  weight: 10
+  cost: 50
+  rent_off: 50
+  rent_on: 5
+  spec_param: 142
+  max_durability: 125
+  cur_durability: 125
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kThrowing
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+    - kBoth
+
+# Object #2236
+36:
+  names:
+    aliases: стальная алебарда
+    nominative: стальная алебарда
+    genitive: стальной алебарды
+    dative: стальной алебарде
+    accusative: стальную алебарду
+    instrumental: стальной алебардой
+    prepositional: стальной алебарде
+  short_desc: Стальная алебарда лежит здесь.
+  type: kWeapon
+  material: 4  # СТАЛЬ
+  values:
+    - 0
+    - 4
+    - 8
+    - 6
+  weight: 18
+  cost: 180
+  rent_off: 180
+  rent_on: 18
+  spec_param: 146
+  max_durability: 150
+  cur_durability: 150
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  wear_flags:
+    - kTake
+    - kBoth
+
+# Object #2237
+37:
+  names:
+    aliases: стальной двуручный меч
+    nominative: стальной двуручный меч
+    genitive: стального двуручного меча
+    dative: стальному двуручному мечу
+    accusative: стальной двуручный меч
+    instrumental: стальным двуручным мечом
+    prepositional: стальном двуручном мече
+  short_desc: Стальной двуручный меч лежит здесь.
+  type: kWeapon
+  material: 4  # СТАЛЬ
+  values:
+    - 0
+    - 4
+    - 7
+    - 6
+  weight: 16
+  cost: 160
+  rent_off: 160
+  rent_on: 16
+  spec_param: 146
+  max_durability: 150
+  cur_durability: 150
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kBoth
+
+# Object #2238
+38:
+  names:
+    aliases: длинный стальной меч
+    nominative: длинный стальной меч
+    genitive: длинного стального меча
+    dative: длинному стальному мечу
+    accusative: длинный стальной меч
+    instrumental: длинным стальным мечом
+    prepositional: длинном стальном мече
+  short_desc: Длинный стальной меч лежит здесь.
+  type: kWeapon
+  material: 4  # СТАЛЬ
+  values:
+    - 0
+    - 3
+    - 5
+    - 7
+  weight: 8
+  cost: 100
+  rent_off: 100
+  rent_on: 10
+  spec_param: 143
+  max_durability: 150
+  cur_durability: 150
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+    - kBoth
+
+# Object #2239
+39:
+  names:
+    aliases: короткий стальной меч
+    nominative: короткий стальной меч
+    genitive: короткого стального меча
+    dative: короткому стальному мечу
+    accusative: короткий стальной меч
+    instrumental: коротким стальным мечом
+    prepositional: коротком стальном мече
+  short_desc: Короткий стальной меч лежит здесь.
+  type: kWeapon
+  material: 4  # СТАЛЬ
+  values:
+    - 0
+    - 3
+    - 3
+    - 7
+  weight: 5
+  cost: 80
+  rent_off: 80
+  rent_on: 8
+  spec_param: 143
+  max_durability: 150
+  cur_durability: 150
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+
+# Object #2240
+40:
+  names:
+    aliases: стальная булава
+    nominative: стальная булава
+    genitive: стальной булавы
+    dative: стальной булаве
+    accusative: стальную булаву
+    instrumental: стальной булавой
+    prepositional: стальной булаве
+  short_desc: Стальная булава лежит здесь.
+  type: kWeapon
+  material: 4  # СТАЛЬ
+  values:
+    - 0
+    - 3
+    - 5
+    - 6
+  weight: 7
+  cost: 100
+  rent_off: 100
+  rent_on: 10
+  spec_param: 145
+  max_durability: 150
+  cur_durability: 150
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+    - kBoth
+
+# Object #2241
+41:
+  names:
+    aliases: хлыст стальными ножами
+    nominative: хлыст со стальными ножами
+    genitive: хлыста со стальными ножами
+    dative: хлысту со стальными ножами
+    accusative: хлыст со стальными ножами
+    instrumental: хлыстом со стальными ножами
+    prepositional: хлысте со стальными ножами
+  short_desc: Хлыст со стальными ножами лежит здесь.
+  type: kWeapon
+  material: 15  # КОЖА
+  values:
+    - 0
+    - 3
+    - 3
+    - 2
+  weight: 4
+  cost: 70
+  rent_off: 70
+  rent_on: 7
+  spec_param: 145
+  max_durability: 150
+  cur_durability: 150
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+
+# Object #2242
+42:
+  names:
+    aliases: копье стальным наконечником
+    nominative: копье со стальным наконечником
+    genitive: копья со стальным наконечником
+    dative: копью со стальным наконечником
+    accusative: копье со стальным наконечником
+    instrumental: копьем со стальным наконечником
+    prepositional: копье со стальным наконечником
+  short_desc: Копье со стальным наконечником лежит здесь.
+  type: kWeapon
+  material: 4  # СТАЛЬ
+  values:
+    - 0
+    - 3
+    - 5
+    - 10
+  weight: 8
+  cost: 100
+  rent_off: 100
+  rent_on: 10
+  spec_param: 148
+  max_durability: 150
+  cur_durability: 150
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  extra_flags:
+    - kThrowing
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+    - kBoth
+
+# Object #2243
+43:
+  names:
+    aliases: сулица стальным наконечником
+    nominative: сулица со стальным наконечником
+    genitive: сулицы со стальным наконечником
+    dative: сулице со стальным наконечником
+    accusative: сулицу со стальным наконечником
+    instrumental: сулицой со стальным наконечником
+    prepositional: сулице со стальным наконечником
+  short_desc: Сулица со стальным наконечником лежит здесь.
+  type: kWeapon
+  material: 4  # СТАЛЬ
+  values:
+    - 0
+    - 3
+    - 3
+    - 11
+  weight: 5
+  cost: 80
+  rent_off: 80
+  rent_on: 8
+  spec_param: 148
+  max_durability: 150
+  cur_durability: 150
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kThrowing
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+    - kBoth
+
+# Object #2244
+44:
+  names:
+    aliases: стальной нож
+    nominative: стальной нож
+    genitive: стального ножа
+    dative: стальному ножу
+    accusative: стальной нож
+    instrumental: стальным ножом
+    prepositional: стальном ноже
+  short_desc: Стальной нож лежит здесь.
+  type: kWeapon
+  material: 4  # СТАЛЬ
+  values:
+    - 0
+    - 3
+    - 5
+    - 7
+  weight: 6
+  cost: 100
+  rent_off: 100
+  rent_on: 10
+  spec_param: 144
+  max_durability: 150
+  cur_durability: 150
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kThrowing
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+
+# Object #2245
+45:
+  names:
+    aliases: стальной кортик
+    nominative: стальной кортик
+    genitive: стального кортика
+    dative: стальному кортику
+    accusative: стальной кортик
+    instrumental: стальным кортиком
+    prepositional: стальном кортике
+  short_desc: Стальной кортик лежит здесь.
+  type: kWeapon
+  material: 4  # СТАЛЬ
+  values:
+    - 0
+    - 3
+    - 3
+    - 11
+  weight: 3
+  cost: 80
+  rent_off: 80
+  rent_on: 8
+  spec_param: 144
+  max_durability: 150
+  cur_durability: 150
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kThrowing
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+
+# Object #2246
+46:
+  names:
+    aliases: крепкий дубовый лук
+    nominative: крепкий дубовый лук
+    genitive: крепкого дубового лука
+    dative: крепкому дубовому луку
+    accusative: крепкий дубовый лук
+    instrumental: крепким дубовым луком
+    prepositional: крепком дубовом луке
+  short_desc: Крепкий дубовый лук лежит здесь.
+  type: kWeapon
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 0
+    - 4
+    - 3
+    - 9
+  weight: 10
+  cost: 180
+  rent_off: 180
+  rent_on: 18
+  spec_param: 154
+  max_durability: 150
+  cur_durability: 150
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kBoth
+
+# Object #2247
+47:
+  names:
+    aliases: крепкий дубовый самострел
+    nominative: крепкий дубовый самострел
+    genitive: крепкого дубового самострела
+    dative: крепкому дубовому самострелу
+    accusative: крепкий дубовый самострел
+    instrumental: крепким дубовым самострелом
+    prepositional: крепком дубовом самостреле
+  short_desc: Крепкий дубовый самострел лежит здесь.
+  type: kWeapon
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 0
+    - 2
+    - 4
+    - 9
+  weight: 6
+  cost: 90
+  rent_off: 90
+  rent_on: 9
+  spec_param: 154
+  max_durability: 150
+  cur_durability: 150
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kWield
+
+# Object #2248
+48:
+  names:
+    aliases: крепкий дубовый посох
+    nominative: крепкий дубовый посох
+    genitive: крепкого дубового посоха
+    dative: крепкому дубовому посоху
+    accusative: крепкий дубовый посох
+    instrumental: крепким дубовым посохом
+    prepositional: крепком дубовом посохе
+  short_desc: Крепкий дубовый посох лежит здесь.
+  type: kWeapon
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 0
+    - 3
+    - 5
+    - 5
+  weight: 6
+  cost: 90
+  rent_off: 90
+  rent_on: 9
+  spec_param: 141
+  max_durability: 150
+  cur_durability: 150
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+    - kBoth
+
+# Object #2249
+49:
+  names:
+    aliases: дубовая палица шипами
+    nominative: дубовая палица с шипами
+    genitive: дубовой палицы с шипами
+    dative: дубовой палице с шипами
+    accusative: дубовую палицу с шипами
+    instrumental: дубовой палицей с шипами
+    prepositional: дубовой палице с шипами
+  short_desc: Дубовая палица с шипами лежит здесь.
+  type: kWeapon
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 0
+    - 3
+    - 3
+    - 5
+  weight: 4
+  cost: 70
+  rent_off: 70
+  rent_on: 7
+  spec_param: 141
+  max_durability: 150
+  cur_durability: 150
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+    - kBoth
+
+# Object #2250
+50:
+  names:
+    aliases: стальной кинжал
+    nominative: стальной кинжал
+    genitive: стального кинжала
+    dative: стальному кинжалу
+    accusative: стальной кинжал
+    instrumental: стальным кинжалом
+    prepositional: стальном кинжале
+  short_desc: Стальной кинжал лежит здесь.
+  type: kWeapon
+  material: 4  # СТАЛЬ
+  values:
+    - 0
+    - 3
+    - 5
+    - 11
+  weight: 6
+  cost: 100
+  rent_off: 100
+  rent_on: 10
+  spec_param: 147
+  max_durability: 150
+  cur_durability: 150
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kThrowing
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+
+# Object #2251
+51:
+  names:
+    aliases: стальной стилет
+    nominative: стальной стилет
+    genitive: стального стилета
+    dative: стальному стилету
+    accusative: стальной стилет
+    instrumental: стальным стилетом
+    prepositional: стальном стилете
+  short_desc: Стальной стилет лежит здесь.
+  type: kWeapon
+  material: 4  # СТАЛЬ
+  values:
+    - 0
+    - 3
+    - 3
+    - 11
+  weight: 3
+  cost: 80
+  rent_off: 80
+  rent_on: 8
+  spec_param: 147
+  max_durability: 150
+  cur_durability: 150
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kThrowing
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+
+# Object #2252
+52:
+  names:
+    aliases: стальная секира
+    nominative: стальная секира
+    genitive: стальной секиры
+    dative: стальной секире
+    accusative: стальную секиру
+    instrumental: стальной секирой
+    prepositional: стальной секире
+  short_desc: Стальная секира лежит здесь.
+  type: kWeapon
+  material: 4  # СТАЛЬ
+  values:
+    - 0
+    - 3
+    - 5
+    - 3
+  weight: 8
+  cost: 100
+  rent_off: 100
+  rent_on: 10
+  spec_param: 142
+  max_durability: 150
+  cur_durability: 150
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+    - kBoth
+
+# Object #2253
+53:
+  names:
+    aliases: стальной топор
+    nominative: стальной топор
+    genitive: стального топора
+    dative: стальному топору
+    accusative: стальной топор
+    instrumental: стальным топором
+    prepositional: стальном топоре
+  short_desc: Стальной топор лежит здесь.
+  type: kWeapon
+  material: 4  # СТАЛЬ
+  values:
+    - 0
+    - 3
+    - 3
+    - 3
+  weight: 5
+  cost: 80
+  rent_off: 80
+  rent_on: 8
+  spec_param: 142
+  max_durability: 150
+  cur_durability: 150
+  timer: 20160
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kThrowing
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+    - kBoth

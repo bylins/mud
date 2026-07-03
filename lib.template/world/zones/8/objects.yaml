@@ -1,0 +1,1963 @@
+# Objects for zone 8
+
+# Object #800
+0:
+  names:
+    aliases: эликсир молодости
+    nominative: эликсир молодости
+    genitive: эликсира молодости
+    dative: эликсиру молодости
+    accusative: эликсир молодости
+    instrumental: эликсиром молодости
+    prepositional: эликсире молодости
+  short_desc: Склянка с мутным эликсиром лежит здесь.
+  type: kPotion
+  material: 11  # СТЕКЛО
+  values:
+    - 10
+    - 16
+    - 16
+    - 16
+  weight: 1
+  cost: 10
+  rent_off: 5
+  rent_on: 5
+  max_durability: 30
+  cur_durability: 30
+  timer: 10000
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  wear_flags:
+    - kTake
+  triggers:
+    - 810  # <выпить эликсир> - действие  эликсира  молодости
+
+# Object #801
+1:
+  names:
+    aliases: воспаряющий отвар
+    nominative: воспаряющий отвар
+    genitive: воспаряющего отвара
+    dative: воспаряющему отвару
+    accusative: воспаряющий отвар
+    instrumental: воспаряющим отваром
+    prepositional: воспаряющем отваре
+  short_desc: Бутылочка с ядовито-красной смесью лежит здесь.
+  type: kPotion
+  material: 11  # СТЕКЛО
+  values:
+    - 10
+    - 57
+    - -1
+    - -1
+  weight: 1
+  cost: 50
+  rent_off: 5
+  rent_on: 5
+  max_durability: 50
+  cur_durability: 50
+  timer: 10080
+  spell: 7  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+
+# Object #802
+2:
+  names:
+    aliases: настой на клопах
+    nominative: настой на клопах
+    genitive: настоя на клопах
+    dative: настою на клопах
+    accusative: настой на клопах
+    instrumental: настоем на клопах
+    prepositional: настое на клопах
+  short_desc: Бутыль с жидкостью подозрительного цвета стоит у ваших ног.
+  type: kPotion
+  material: 11  # СТЕКЛО
+  values:
+    - 10
+    - 84
+    - -1
+    - -1
+  weight: 1
+  cost: 50
+  rent_off: 5
+  rent_on: 5
+  max_durability: 50
+  cur_durability: 50
+  timer: 10080
+  spell: 7  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+
+# Object #803
+3:
+  names:
+    aliases: зелье бережения
+    nominative: зелье бережения
+    genitive: зелья бережения
+    dative: зелью бережения
+    accusative: зелье бережения
+    instrumental: зельем бережения
+    prepositional: зелье бережения
+  short_desc: Бутылочка с жидкостью, напоминающей ягодный сок, лежит тут.
+  type: kPotion
+  material: 11  # СТЕКЛО
+  values:
+    - 5
+    - 1
+    - -1
+    - -1
+  weight: 1
+  cost: 50
+  rent_off: 5
+  rent_on: 5
+  max_durability: 50
+  cur_durability: 50
+  timer: 10080
+  spell: 7  # !undefined!
+  level: 0
+  sex: kNeutral
+  wear_flags:
+    - kTake
+    - kHold
+
+# Object #804
+4:
+  names:
+    aliases: отвар тысячелистника
+    nominative: отвар тысячелистника
+    genitive: отвара тысячелистника
+    dative: отвару тысячелистника
+    accusative: отвар тысячелистника
+    instrumental: отваром тысячелистника
+    prepositional: отваре тысячелистника
+  short_desc: Наполненная прозрачной зеленоватой жидкостью бутылочка лежит у Ваших ног.
+  type: kPotion
+  material: 11  # СТЕКЛО
+  values:
+    - 5
+    - 3
+    - -1
+    - -1
+  weight: 1
+  cost: 50
+  rent_off: 5
+  rent_on: 5
+  max_durability: 50
+  cur_durability: 50
+  timer: 10080
+  spell: 7  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+
+# Object #805
+5:
+  names:
+    aliases: крепкая наливка
+    nominative: крепкая наливка
+    genitive: крепкой наливки
+    dative: крепкой наливке
+    accusative: крепкую наливку
+    instrumental: крепкой наливкой
+    prepositional: крепкой наливке
+  short_desc: В стоящей перед Вами емкости шевелится нечто бесформенное.
+  type: kPotion
+  material: 11  # СТЕКЛО
+  values:
+    - 20
+    - 9
+    - -1
+    - -1
+  weight: 1
+  cost: 50
+  rent_off: 5
+  rent_on: 5
+  max_durability: 50
+  cur_durability: 50
+  timer: 10080
+  spell: 6  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+
+# Object #806
+6:
+  names:
+    aliases: отвар бореца
+    nominative: отвар бореца
+    genitive: отвара бореца
+    dative: отвару бореца
+    accusative: отвар бореца
+    instrumental: отваром бореца
+    prepositional: отваре бореца
+  short_desc: Глоток целительной влаги, заключенный в плен сосуда, лежит перед Вами.
+  type: kPotion
+  material: 11  # СТЕКЛО
+  values:
+    - 18
+    - 15
+    - -1
+    - -1
+  weight: 1
+  cost: 50
+  rent_off: 5
+  rent_on: 5
+  max_durability: 50
+  cur_durability: 50
+  timer: 10080
+  spell: 6  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+
+# Object #807
+7:
+  names:
+    aliases: настой столетника
+    nominative: настой столетника
+    genitive: настоя столетника
+    dative: настою столетника
+    accusative: настой столетника
+    instrumental: настоем столетника
+    prepositional: настое столетника
+  short_desc: Емкость с травяным отваром стоит здесь.
+  type: kPotion
+  material: 11  # СТЕКЛО
+  values:
+    - 10
+    - 14
+    - -1
+    - -1
+  weight: 1
+  cost: 50
+  rent_off: 5
+  rent_on: 5
+  max_durability: 50
+  cur_durability: 50
+  timer: 10080
+  spell: 6  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+
+# Object #808
+8:
+  names:
+    aliases: отвар подорожника
+    nominative: отвар подорожника
+    genitive: отвара подорожника
+    dative: отвару подорожника
+    accusative: отвар подорожника
+    instrumental: отваром подорожника
+    prepositional: отваре подорожника
+  short_desc: Судя по неприятному запаху, это зелье должно быть полезным.
+  type: kPotion
+  material: 11  # СТЕКЛО
+  values:
+    - 5
+    - 16
+    - -1
+    - -1
+  weight: 1
+  cost: 50
+  rent_off: 5
+  rent_on: 5
+  max_durability: 50
+  cur_durability: 50
+  timer: 10080
+  spell: 6  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+
+# Object #809
+9:
+  names:
+    aliases: чаговый настой
+    nominative: чаговый настой
+    genitive: чагового настоя
+    dative: чаговому настою
+    accusative: чаговый настой
+    instrumental: чаговым настоем
+    prepositional: чаговом настое
+  short_desc: Бутылочка со светло-коричневой жидкостью стоит тут.
+  type: kPotion
+  material: 11  # СТЕКЛО
+  values:
+    - 6
+    - 18
+    - -1
+    - -1
+  weight: 1
+  cost: 50
+  rent_off: 5
+  rent_on: 5
+  max_durability: 50
+  cur_durability: 1
+  timer: 10080
+  spell: 3  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+
+# Object #810
+10:
+  names:
+    aliases: мутная брага
+    nominative: мутная брага
+    genitive: мутной браги
+    dative: мутной браге
+    accusative: мутную брагу
+    instrumental: мутной брагой
+    prepositional: мутной браге
+  short_desc: Перед Вами жидкость, вид которой не вызывает особого доверия.
+  action_desc: |2
+    Вы почувствовали горьковатый привкус.
+  type: kPotion
+  material: 11  # СТЕКЛО
+  values:
+    - 6
+    - 19
+    - -1
+    - -1
+  weight: 1
+  cost: 50
+  rent_off: 1
+  rent_on: 1
+  max_durability: 50
+  cur_durability: 50
+  timer: 10080
+  spell: 6  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+
+# Object #811
+11:
+  names:
+    aliases: настой вороньего глаза
+    nominative: настой вороньего глаза
+    genitive: настоя вороньего глаза
+    dative: настою вороньего глаза
+    accusative: настой вороньего глаза
+    instrumental: настоем вороньего глаза
+    prepositional: настое вороньего глаза
+  short_desc: Такие бутылочки Вы, кажется, видели в лавке местного знахаря.
+  action_desc: |2
+    Ваши глаза приобрели желтый оттенок.
+  type: kPotion
+  material: 11  # СТЕКЛО
+  values:
+    - 5
+    - 20
+    - -1
+    - -1
+  weight: 1
+  cost: 50
+  rent_off: 1
+  rent_on: 1
+  max_durability: 50
+  cur_durability: 50
+  timer: 10080
+  spell: 6  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+
+# Object #812
+12:
+  names:
+    aliases: отвар корней кровохлебки
+    nominative: отвар корней кровохлебки
+    genitive: отвара корней кровохлебки
+    dative: отвар корней кровохлебки
+    accusative: отвар корней кровохлебки
+    instrumental: отваром корней кровохлебки
+    prepositional: отваре корней кровохлебки
+  short_desc: В бутылочке из толстого стекла плавают забавные корешки.
+  action_desc: |2
+    Ваши глаза приобрели фиолетовый оттенок.
+  type: kPotion
+  material: 11  # СТЕКЛО
+  values:
+    - 5
+    - 43
+    - 0
+    - 0
+  weight: 1
+  cost: 50
+  rent_off: 1
+  rent_on: 1
+  max_durability: 50
+  cur_durability: 50
+  timer: 10080
+  spell: 6  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+
+# Object #813
+13:
+  names:
+    aliases: напиток сурья
+    nominative: напиток сурья
+    genitive: напитка сурья
+    dative: напитку сурья
+    accusative: напиток сурья
+    instrumental: напитком сурья
+    prepositional: напитке сурья
+  short_desc: Склянка с напитком сурья стоит здесь.
+  action_desc: |+2
+    
+  type: kPotion
+  material: 11  # СТЕКЛО
+  values:
+    - 17
+    - 28
+    - 0
+    - 0
+  weight: 1
+  cost: 50
+  rent_off: 1
+  rent_on: 1
+  max_durability: 50
+  cur_durability: 50
+  timer: 10080
+  spell: 5  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+
+# Object #814
+14:
+  names:
+    aliases: ветхозаветная сивуха
+    nominative: ветхозаветная сивуха
+    genitive: ветхозаветной сивухи
+    dative: ветхозаветной сивухе
+    accusative: ветхозаветную сивуху
+    instrumental: ветхозаветной сивухой
+    prepositional: ветхозаветной сивухе
+  short_desc: Бутыль с мутной жидкостью стоит тут.
+  type: kPotion
+  material: 11  # СТЕКЛО
+  values:
+    - 12
+    - 29
+    - -1
+    - -1
+  weight: 1
+  cost: 50
+  rent_off: 1
+  rent_on: 1
+  max_durability: 50
+  cur_durability: 50
+  timer: 10080
+  spell: 5  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+
+# Object #815
+15:
+  names:
+    aliases: отвар бесстрашия
+    nominative: отвар бесстрашия
+    genitive: отвара бесстрашия
+    dative: отвару бесстрашия
+    accusative: отвар бесстрашия
+    instrumental: отваром бесстрашия
+    prepositional: отваре бесстрашия
+  short_desc: Бутылочка с искрящейся жидкостью стоит тут.
+  type: kPotion
+  material: 11  # СТЕКЛО
+  values:
+    - 6
+    - 34
+    - -1
+    - -1
+  weight: 1
+  cost: 50
+  rent_off: 1
+  rent_on: 1
+  max_durability: 50
+  cur_durability: 50
+  timer: 10080
+  spell: 5  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+
+# Object #816
+16:
+  names:
+    aliases: прозрачный настой
+    nominative: прозрачный настой
+    genitive: прозрачного настоя
+    dative: прозрачному настою
+    accusative: прозрачный настой
+    instrumental: прозрачным настоем
+    prepositional: прозрачном настое
+  short_desc: Закрытая колба с прозрачной жидкостью лежит тут.
+  type: kPotion
+  material: 11  # СТЕКЛО
+  values:
+    - 8
+    - 35
+    - -1
+    - -1
+  weight: 1
+  cost: 50
+  rent_off: 1
+  rent_on: 1
+  max_durability: 50
+  cur_durability: 50
+  timer: 10080
+  spell: 5  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+
+# Object #817
+17:
+  names:
+    aliases: сияющий отвар
+    nominative: сияющий отвар
+    genitive: сияющего отвара
+    dative: сияющему отвару
+    accusative: сияющий отвар
+    instrumental: сияющим отваром
+    prepositional: сияющем отваре
+  short_desc: Перед Вами сосуд, наполненный жидкостью, излучающей яркое сияние.
+  type: kPotion
+  material: 11  # СТЕКЛО
+  values:
+    - 12
+    - 36
+    - -1
+    - -1
+  weight: 1
+  cost: 50
+  rent_off: 1
+  rent_on: 1
+  max_durability: 50
+  cur_durability: 50
+  timer: 10080
+  spell: 5  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+
+# Object #818
+18:
+  names:
+    aliases: настой на медвежьей крови
+    nominative: настой на медвежьей крови
+    genitive: настоя на медвежьей крови
+    dative: настою на медвежьей крови
+    accusative: настой на медвежьей крови
+    instrumental: настоем на медвежьей крови
+    prepositional: настое на медвежьей крови
+  short_desc: Пузырек с густой бурой смесью стоит перед Вами.
+  type: kPotion
+  material: 11  # СТЕКЛО
+  values:
+    - 8
+    - 39
+    - -1
+    - -1
+  weight: 1
+  cost: 50
+  rent_off: 1
+  rent_on: 1
+  max_durability: 50
+  cur_durability: 50
+  timer: 10080
+  spell: 5  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+
+# Object #819
+19:
+  names:
+    aliases: вино из одуванчиков
+    nominative: вино из одуванчиков
+    genitive: вина из одуванчиков
+    dative: вину из одуванчиков
+    accusative: вино из одуванчиков
+    instrumental: вином из одуванчиков
+    prepositional: вине из одуванчиков
+  short_desc: Здесь лежит фляжка, вероятнее всего с вином.
+  type: kPotion
+  material: 11  # СТЕКЛО
+  values:
+    - 18
+    - 42
+    - -1
+    - -1
+  weight: 1
+  cost: 50
+  rent_off: 1
+  rent_on: 1
+  max_durability: 50
+  cur_durability: 50
+  timer: 10080
+  spell: 5  # !undefined!
+  level: 0
+  sex: kNeutral
+  wear_flags:
+    - kTake
+    - kHold
+
+# Object #820
+20:
+  names:
+    aliases: отвар из тараканьих усов
+    nominative: отвар из тараканьих усов
+    genitive: отвара из тараканьих усов
+    dative: отвару из тараканьих усов
+    accusative: отвар из тараканьих усов
+    instrumental: отваром из тараканьих усов
+    prepositional: отваре из тараканьих усов
+  short_desc: Здесь лежит отвар из усов пруссака.
+  type: kPotion
+  material: 11  # СТЕКЛО
+  values:
+    - 10
+    - 44
+    - -1
+    - -1
+  weight: 1
+  cost: 50
+  rent_off: 1
+  rent_on: 1
+  max_durability: 50
+  cur_durability: 50
+  timer: 10080
+  spell: 5  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+
+# Object #821
+21:
+  names:
+    aliases: настой совиного зрения
+    nominative: настой совиного зрения
+    genitive: настоя совиного зрения
+    dative: настою совиного зрения
+    accusative: настой совиного зрения
+    instrumental: настоем совиного зрения
+    prepositional: настое совиного зрения
+  short_desc: Колба с ярко-алой жидкостью стоит у Ваших ног.
+  type: kPotion
+  material: 11  # СТЕКЛО
+  values:
+    - 6
+    - 50
+    - -1
+    - -1
+  weight: 1
+  cost: 50
+  rent_off: 1
+  rent_on: 1
+  max_durability: 50
+  cur_durability: 50
+  timer: 10080
+  spell: 5  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+
+# Object #822
+22:
+  names:
+    aliases: настой на водомерках
+    nominative: настой на водомерках
+    genitive: настоя на водомерках
+    dative: настою на водомерках
+    accusative: настой на водомерках
+    instrumental: настоем на водомерках
+    prepositional: настое на водомерках
+  short_desc: Сквозь толщу бутылочного стекла виден кисель из насекомых.
+  type: kPotion
+  material: 11  # СТЕКЛО
+  values:
+    - 10
+    - 51
+    - -1
+    - -1
+  weight: 1
+  cost: 50
+  rent_off: 1
+  rent_on: 1
+  max_durability: 50
+  cur_durability: 50
+  timer: 10080
+  spell: 5  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+
+# Object #823
+23:
+  names:
+    aliases: луковый настой
+    nominative: луковый настой
+    genitive: лукового настоя
+    dative: луковому настою
+    accusative: луковый настой
+    instrumental: луковым настоем
+    prepositional: луковом настое
+  short_desc: Бутылочка, лежащая здесь, даже сквозь пробку источает резкий аромат.
+  type: kPotion
+  material: 11  # СТЕКЛО
+  values:
+    - 12
+    - 52
+    - 0
+    - 0
+  weight: 1
+  cost: 50
+  rent_off: 1
+  rent_on: 1
+  max_durability: 50
+  cur_durability: 50
+  timer: 10080
+  spell: 5  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+
+# Object #824
+24:
+  names:
+    aliases: черная настойка
+    nominative: черная настойка
+    genitive: черной настойки
+    dative: черной настойке
+    accusative: черную настойку
+    instrumental: черной настойкой
+    prepositional: черной настойке
+  short_desc: Глубокая темнота скрывается внутри банки, стоящей здесь.
+  type: kPotion
+  material: 11  # СТЕКЛО
+  values:
+    - 18
+    - 61
+    - -1
+    - -1
+  weight: 1
+  cost: 50
+  rent_off: 1
+  rent_on: 1
+  max_durability: 50
+  cur_durability: 50
+  timer: 10080
+  spell: 4  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+
+# Object #825
+25:
+  names:
+    aliases: отвар дубовой коры
+    nominative: отвар дубовой коры
+    genitive: отвара дубовой коры
+    dative: отвару дубовой коры
+    accusative: отвар дубовой коры
+    instrumental: отваром дубовой коры
+    prepositional: отваре дубовой коры
+  short_desc: Полная бутыль светло-коричневой жидкости лежит перед Вами.
+  type: kPotion
+  material: 11  # СТЕКЛО
+  values:
+    - 14
+    - 62
+    - -1
+    - -1
+  weight: 1
+  cost: 50
+  rent_off: 1
+  rent_on: 1
+  max_durability: 50
+  cur_durability: 50
+  timer: 10080
+  spell: 4  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+
+# Object #826
+26:
+  names:
+    aliases: настойка на зеленых лягушатах
+    nominative: настойка на зеленых лягушатах
+    genitive: настойки на зеленых лягушатах
+    dative: настойке на зеленых лягушатах
+    accusative: настойку на зеленых лягушатах
+    instrumental: настойкой на зеленых лягушатах
+    prepositional: настойке на зеленых лягушатах
+  short_desc: Перед Вами полная кастрюлька столь любимого французами лягушачьего супа.
+  type: kPotion
+  material: 11  # СТЕКЛО
+  values:
+    - 8
+    - 63
+    - -1
+    - -1
+  weight: 1
+  cost: 50
+  rent_off: 1
+  rent_on: 1
+  max_durability: 50
+  cur_durability: 50
+  timer: 10080
+  spell: 4  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+
+# Object #827
+27:
+  names:
+    aliases: ромашковая настойка
+    nominative: ромашковая настойка
+    genitive: ромашковой настойки
+    dative: ромашковой настойке
+    accusative: ромашковую настойку
+    instrumental: ромашковой настойкой
+    prepositional: ромашковой настойке
+  short_desc: Приятный травяной запах идет он стоящей перед Вами бутылочки.
+  type: kPotion
+  material: 11  # СТЕКЛО
+  values:
+    - 16
+    - 65
+    - -1
+    - -1
+  weight: 1
+  cost: 50
+  rent_off: 1
+  rent_on: 1
+  max_durability: 50
+  cur_durability: 50
+  timer: 10080
+  spell: 4  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+
+# Object #828
+28:
+  names:
+    aliases: разбухающий настой
+    nominative: разбухающий настой
+    genitive: разбухающего настоя
+    dative: разбухающему настою
+    accusative: разбухающий настой
+    instrumental: разбухающим настоем
+    prepositional: разбухающем настое
+  short_desc: Жидкость как будто стремится выбраться из этой бутылки.
+  type: kPotion
+  material: 11  # СТЕКЛО
+  values:
+    - 12
+    - 74
+    - -1
+    - -1
+  weight: 1
+  cost: 50
+  rent_off: 1
+  rent_on: 1
+  max_durability: 50
+  cur_durability: 50
+  timer: 10080
+  spell: 4  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+
+# Object #829
+29:
+  names:
+    aliases: мерцающий отвар
+    nominative: мерцающий отвар
+    genitive: мерцающего отвара
+    dative: мерцающему отвару
+    accusative: мерцающий отвар
+    instrumental: мерцающим отваром
+    prepositional: мерцающем отваре
+  short_desc: Склянка перед Вами переливается так, что временами как-будто исчезает из виду.
+  type: kPotion
+  material: 11  # СТЕКЛО
+  values:
+    - 18
+    - 78
+    - -1
+    - -1
+  weight: 1
+  cost: 50
+  rent_off: 1
+  rent_on: 1
+  max_durability: 50
+  cur_durability: 50
+  timer: 10080
+  spell: 4  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+
+# Object #830
+30:
+  names:
+    aliases: отвар девясила
+    nominative: отвар девясила
+    genitive: отвара девясила
+    dative: отвару девясила
+    accusative: отвар девясила
+    instrumental: отваром девясила
+    prepositional: отваре девясила
+  short_desc: Бутылочка с травяным отваром стоит здесь.
+  type: kPotion
+  material: 11  # СТЕКЛО
+  values:
+    - 10
+    - 97
+    - -1
+    - -1
+  weight: 1
+  cost: 50
+  rent_off: 1
+  rent_on: 1
+  max_durability: 50
+  cur_durability: 50
+  timer: 10080
+  spell: 4  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+
+# Object #831
+31:
+  names:
+    aliases: мясной отвар
+    nominative: мясной отвар
+    genitive: мясного отвара
+    dative: мясному отвару
+    accusative: мясной отвар
+    instrumental: мясным отваром
+    prepositional: мясном отваре
+  short_desc: Склянка с жидкостью, напоминающей бульон, лежит тут.
+  type: kPotion
+  material: 11  # СТЕКЛО
+  values:
+    - 10
+    - 103
+    - -1
+    - -1
+  weight: 1
+  cost: 50
+  rent_off: 1
+  rent_on: 1
+  max_durability: 50
+  cur_durability: 50
+  timer: 10080
+  spell: 4  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+
+# Object #832
+32:
+  names:
+    aliases: настой на рыбьих головах
+    nominative: настой на рыбьих головах
+    genitive: настоя на на рыбьих головах
+    dative: настою на рыбьих головах
+    accusative: настой на рыбьих головах
+    instrumental: настоем на рыбьих головах
+    prepositional: настое на рыбьих головах
+  short_desc: Кажется кто-то забыл тут баночку ухи.
+  type: kPotion
+  material: 11  # СТЕКЛО
+  values:
+    - 10
+    - 108
+    - -1
+    - -1
+  weight: 1
+  cost: 50
+  rent_off: 1
+  rent_on: 1
+  max_durability: 50
+  cur_durability: 50
+  timer: 10080
+  spell: 4  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+
+# Object #833
+33:
+  names:
+    aliases: зелье змеиного проворства
+    nominative: зелье змеиного проворства
+    genitive: зелья змеиного проворства
+    dative: зелью змеиного проворства
+    accusative: зелье змеиного проворства
+    instrumental: зельем змеиного проворства
+    prepositional: зелье змеиного проворства
+  short_desc: Колбочка с напитком явно кустарного производства расположена здесь.
+  type: kPotion
+  material: 11  # СТЕКЛО
+  values:
+    - 12
+    - 110
+    - -1
+    - -1
+  weight: 1
+  cost: 50
+  rent_off: 1
+  rent_on: 1
+  max_durability: 50
+  cur_durability: 50
+  timer: 10080
+  spell: 4  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+
+# Object #834
+34:
+  names:
+    aliases: зелье небесного благословления
+    nominative: зелье небесного благословления
+    genitive: зелья небесного благословления
+    dative: зелью небесного благословления
+    accusative: зелье небесного благословления
+    instrumental: зельем небесного благословления
+    prepositional: зелье небесного благословления
+  short_desc: Емкость изящной формы с прозрачной жидкостью стоит перед Вами.
+  type: kPotion
+  material: 11  # СТЕКЛО
+  values:
+    - 28
+    - 113
+    - -1
+    - -1
+  weight: 1
+  cost: 50
+  rent_off: 1
+  rent_on: 1
+  max_durability: 50
+  cur_durability: 50
+  timer: 10080
+  spell: 4  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+
+# Object #835
+35:
+  names:
+    aliases: зелье волчьего слуха
+    nominative: зелье волчьего слуха
+    genitive: зелья волчьего слуха
+    dative: зелью волчьего слуха
+    accusative: зелье волчьего слуха
+    instrumental: зельем волчьего слуха
+    prepositional: зелье волчьего слуха
+  short_desc: Баночка с густым варевом лежит у Ваших ног.
+  type: kPotion
+  material: 11  # СТЕКЛО
+  values:
+    - 10
+    - 116
+    - -1
+    - -1
+  weight: 1
+  cost: 50
+  rent_off: 1
+  rent_on: 1
+  max_durability: 50
+  cur_durability: 50
+  timer: 10080
+  spell: 4  # !undefined!
+  level: 0
+  sex: kNeutral
+  wear_flags:
+    - kTake
+    - kHold
+
+# Object #836
+36:
+  names:
+    aliases: зелье холодного ветра
+    nominative: зелье холодного ветра
+    genitive: зелья холодного ветра
+    dative: зелью холодного ветра
+    accusative: зелье холодного ветра
+    instrumental: зельем холодного ветра
+    prepositional: зелье холодного ветра
+  short_desc: Вы видите небольшую бутыль с жидкостью небесно-голубого цвета.
+  type: kPotion
+  material: 11  # СТЕКЛО
+  values:
+    - 27
+    - 118
+    - -1
+    - -1
+  weight: 1
+  cost: 50
+  rent_off: 1
+  rent_on: 1
+  max_durability: 50
+  cur_durability: 50
+  timer: 10080
+  spell: 4  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+
+# Object #837
+37:
+  names:
+    aliases: зелье расторжения
+    nominative: зелье расторжения
+    genitive: зелья расторжения
+    dative: зелью расторжения
+    accusative: зелье расторжения
+    instrumental: зельем расторжения
+    prepositional: зелье расторжения
+  short_desc: Бутылочка с розовой жидкостью лежит тут.
+  type: kPotion
+  material: 11  # СТЕКЛО
+  values:
+    - 10
+    - 120
+    - -1
+    - -1
+  weight: 1
+  cost: 50
+  rent_off: 1
+  rent_on: 1
+  max_durability: 50
+  cur_durability: 50
+  timer: 10080
+  spell: 4  # !undefined!
+  level: 0
+  sex: kNeutral
+  wear_flags:
+    - kTake
+    - kHold
+
+# Object #838
+38:
+  names:
+    aliases: зелье дальней дороги
+    nominative: зелье дальней дороги
+    genitive: зелья дальней дороги
+    dative: зелью дальней дороги
+    accusative: зелье дальней дороги
+    instrumental: зельем дальней дороги
+    prepositional: зелье дальней дороги
+  short_desc: Склянка с зельем зеленовато-желтого цвета просится к Вам в мешок.
+  type: kPotion
+  material: 11  # СТЕКЛО
+  values:
+    - 10
+    - 122
+    - -1
+    - -1
+  weight: 1
+  cost: 50
+  rent_off: 1
+  rent_on: 1
+  max_durability: 50
+  cur_durability: 50
+  timer: 10080
+  spell: 4  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+
+# Object #839
+39:
+  names:
+    aliases: крапивный настой
+    nominative: крапивный настой
+    genitive: крапивного настоя
+    dative: крапивному настою
+    accusative: крапивный настой
+    instrumental: крапивным настоем
+    prepositional: крапивном настое
+  short_desc: Сосуд, наполненный черной искрящейся жидкостью, стоит здесь.
+  type: kPotion
+  material: 11  # СТЕКЛО
+  values:
+    - 27
+    - 124
+    - -1
+    - -1
+  weight: 1
+  cost: 50
+  rent_off: 1
+  rent_on: 1
+  max_durability: 50
+  cur_durability: 50
+  timer: 10080
+  spell: 4  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+
+# Object #840
+40:
+  names:
+    aliases: ледяной настой
+    nominative: ледяной настой
+    genitive: ледяного настоя
+    dative: ледяному настою
+    accusative: ледяной настой
+    instrumental: ледяным настоем
+    prepositional: ледяном настое
+  short_desc: Бутыль, покрытая инеем, стоит перед Вами.
+  type: kPotion
+  material: 11  # СТЕКЛО
+  values:
+    - 27
+    - 127
+    - -1
+    - -1
+  weight: 1
+  cost: 50
+  rent_off: 1
+  rent_on: 1
+  max_durability: 50
+  cur_durability: 50
+  timer: 10080
+  spell: 4  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+
+# Object #841
+41:
+  names:
+    aliases: настой на мелких букашках
+    nominative: настой на мелких букашках
+    genitive: настоя на мелких букашках
+    dative: настою на мелких букашках
+    accusative: настой на мелких букашках
+    instrumental: настоем на мелких букашках
+    prepositional: настое на мелких букашках
+  short_desc: Склянка с плавающими в ней насекомыми расположилась здесь.
+  type: kPotion
+  material: 11  # СТЕКЛО
+  values:
+    - 18
+    - 129
+    - -1
+    - -1
+  weight: 1
+  cost: 50
+  rent_off: 1
+  rent_on: 1
+  max_durability: 50
+  cur_durability: 50
+  timer: 10080
+  spell: 4  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+
+# Object #842
+42:
+  names:
+    aliases: серебристый отвар
+    nominative: серебристый отвар
+    genitive: серебристого отвара
+    dative: серебристому отвару
+    accusative: серебристый отвар
+    instrumental: серебристым отваром
+    prepositional: серебристом отваре
+  short_desc: Бутылка с серебристым отваром стоит тут.
+  type: kPotion
+  material: 11  # СТЕКЛО
+  values:
+    - 27
+    - 144
+    - 0
+    - 0
+  weight: 1
+  cost: 50
+  rent_off: 1
+  rent_on: 1
+  max_durability: 50
+  cur_durability: 50
+  timer: 10080
+  spell: 4  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+
+# Object #843
+43:
+  names:
+    aliases: отвар кремня
+    nominative: отвар кремня
+    genitive: отвара кремня
+    dative: отвару кремня
+    accusative: отвар кремня
+    instrumental: отваром кремня
+    prepositional: отваре кремня
+  short_desc: Колба с каменной крошкой, плавающей в мутной воде, лежит у Ваших ног.
+  type: kPotion
+  material: 11  # СТЕКЛО
+  values:
+    - 24
+    - 136
+    - -1
+    - -1
+  weight: 1
+  cost: 50
+  rent_off: 1
+  rent_on: 1
+  max_durability: 50
+  cur_durability: 50
+  timer: 10080
+  spell: 4  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+
+# Object #844
+44:
+  names:
+    aliases: радужное зелье
+    nominative: радужное зелье
+    genitive: радужного зелья
+    dative: радужному зелью
+    accusative: радужное зелье
+    instrumental: радужного зельем
+    prepositional: радужном зелье
+  short_desc: Бутылочка, стоящая тут, переливается всеми цветами радуги.
+  type: kPotion
+  material: 11  # СТЕКЛО
+  values:
+    - 18
+    - 138
+    - -1
+    - -1
+  weight: 1
+  cost: 50
+  rent_off: 1
+  rent_on: 1
+  max_durability: 50
+  cur_durability: 50
+  timer: 10080
+  spell: 4  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+
+# Object #845
+45:
+  names:
+    aliases: прозрачное зелье
+    nominative: прозрачное зелье
+    genitive: прозрачного зелья
+    dative: прозрачному зелью
+    accusative: прозрачное зелье
+    instrumental: прозрачного зельем
+    prepositional: прозрачном зелье
+  short_desc: Вы видите сосуд с прозрачной жидкостью.
+  type: kPotion
+  material: 11  # СТЕКЛО
+  values:
+    - 22
+    - 140
+    - -1
+    - -1
+  weight: 1
+  cost: 50
+  rent_off: 1
+  rent_on: 1
+  max_durability: 50
+  cur_durability: 50
+  timer: 10080
+  spell: 4  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+
+# Object #846
+46:
+  names:
+    aliases: горящее зелье
+    nominative: горящее зелье
+    genitive: горящего зелья
+    dative: горящему зелью
+    accusative: горящее зелье
+    instrumental: горящим зельем
+    prepositional: горящем зелье
+  short_desc: Вы видите сосуд с ярко светящейся жидкостью.
+  type: kPotion
+  material: 11  # СТЕКЛО
+  values:
+    - 22
+    - 141
+    - -1
+    - -1
+  weight: 1
+  cost: 50
+  rent_off: 1
+  rent_on: 1
+  max_durability: 50
+  cur_durability: 50
+  timer: 10080
+  spell: 4  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+
+# Object #847
+47:
+  names:
+    aliases: холодная настойка
+    nominative: холодная настойка
+    genitive: холодной настойки
+    dative: холодной настойке
+    accusative: холодную настойку
+    instrumental: холодной настойкой
+    prepositional: холодной настойке
+  short_desc: Вы видите сосуд, покрытый изморозью.
+  type: kPotion
+  material: 11  # СТЕКЛО
+  values:
+    - 22
+    - 142
+    - -1
+    - -1
+  weight: 1
+  cost: 50
+  rent_off: 1
+  rent_on: 1
+  max_durability: 50
+  cur_durability: 50
+  timer: 10080
+  spell: 4  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+
+# Object #848
+48:
+  names:
+    aliases: мышиный настой
+    nominative: мышиный настой
+    genitive: мышиного настоя
+    dative: мышиному настою
+    accusative: мышиный настой
+    instrumental: мышиным настоем
+    prepositional: мышином настое
+  short_desc: В стоящей перед Вами баночке плавают серые шерстинки.
+  type: kPotion
+  material: 11  # СТЕКЛО
+  values:
+    - 16
+    - 149
+    - -1
+    - -1
+  weight: 1
+  cost: 50
+  rent_off: 1
+  rent_on: 1
+  max_durability: 50
+  cur_durability: 50
+  timer: 10080
+  spell: 4  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+
+# Object #849
+49:
+  names:
+    aliases: отвар болтливости
+    nominative: отвар болтливости
+    genitive: отвара болтливости
+    dative: отвару болтливости
+    accusative: отвар болтливости
+    instrumental: отваром болтливости
+    prepositional: отваре болтливости
+  short_desc: Банка отвара фиолетового цвета лежит здесь.
+  type: kPotion
+  material: 11  # СТЕКЛО
+  values:
+    - 16
+    - 89
+    - -1
+    - -1
+  weight: 1
+  cost: 50
+  rent_off: 1
+  rent_on: 1
+  max_durability: 50
+  cur_durability: 50
+  timer: 10080
+  spell: 4  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+
+# Object #850
+50:
+  names:
+    aliases: дымчатое зелье
+    nominative: дымчатое зелье
+    genitive: дымчатого зелья
+    dative: дымчатому зелью
+    accusative: дымчатое зелье
+    instrumental: дымчатым зельем
+    prepositional: дымчатом зелье
+  short_desc: Клубящееся дымкой зелье в стеклянном сосуде стоит здесь.
+  type: kPotion
+  material: 11  # СТЕКЛО
+  values:
+    - 16
+    - 71
+    - -1
+    - -1
+  weight: 1
+  cost: 50
+  rent_off: 1
+  rent_on: 1
+  max_durability: 50
+  cur_durability: 50
+  timer: 10080
+  spell: 4  # !undefined!
+  level: 0
+  sex: kPoly
+  wear_flags:
+    - kTake
+    - kHold
+
+# Object #851
+51:
+  names:
+    aliases: зелье неподвижности
+    nominative: зелье неподвижности
+    genitive: зелья неподвижности
+    dative: зелью неподвижности
+    accusative: зелье неподвижности
+    instrumental: зельем неподвижности
+    prepositional: зелье неподвижности
+  short_desc: На вид жидкость в этой бутылке кажется неудобоваримой.
+  type: kPotion
+  material: 11  # СТЕКЛО
+  values:
+    - 20
+    - 54
+    - -1
+    - -1
+  weight: 1
+  cost: 50
+  rent_off: 1
+  rent_on: 1
+  max_durability: 50
+  cur_durability: 50
+  timer: 10080
+  spell: 4  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+
+# Object #852
+52:
+  names:
+    aliases: дурманящий отвар
+    nominative: дурманящий отвар
+    genitive: дурманящего отвара
+    dative: дурманящему отвару
+    accusative: дурманящий отвар
+    instrumental: дурманящим отваром
+    prepositional: дурманящем отваре
+  short_desc: Стеклянная непрозрачная бутылочка, плотно закрытая пробкой, лежит здесь.
+  type: kPotion
+  material: 11  # СТЕКЛО
+  values:
+    - 20
+    - 38
+    - -1
+    - -1
+  weight: 1
+  cost: 50
+  rent_off: 1
+  rent_on: 1
+  max_durability: 50
+  cur_durability: 50
+  timer: 10080
+  spell: 4  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+
+# Object #853
+53:
+  names:
+    aliases: едкая настойка
+    nominative: едкая настойка
+    genitive: едкой настойки
+    dative: едкой настойке
+    accusative: едкую настойку
+    instrumental: едкой настойкой
+    prepositional: едкой настойке
+  short_desc: Настойка ядовито-зеленого цвета налита в небольшую склянку.
+  type: kPotion
+  material: 11  # СТЕКЛО
+  values:
+    - 20
+    - 4
+    - -1
+    - -1
+  weight: 1
+  cost: 50
+  rent_off: 1
+  rent_on: 1
+  max_durability: 50
+  cur_durability: 50
+  timer: 10080
+  spell: 4  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+
+# Object #854
+54:
+  names:
+    aliases: затхлый настой
+    nominative: затхлый настой
+    genitive: затхлого настоя
+    dative: затхлому настою
+    accusative: затхлый настой
+    instrumental: затхлым настоем
+    prepositional: затхлом настое
+  short_desc: Кажется, то, чем когда-то наполняли эту бутыль, уже испортилось.
+  type: kPotion
+  material: 11  # СТЕКЛО
+  values:
+    - 20
+    - 147
+    - -1
+    - -1
+  weight: 1
+  cost: 50
+  rent_off: 1
+  rent_on: 1
+  max_durability: 50
+  cur_durability: 50
+  timer: 10080
+  spell: 4  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+
+# Object #855
+55:
+  names:
+    aliases: клейкое зелье
+    nominative: клейкое зелье
+    genitive: клейкого зелья
+    dative: клейкому зелью
+    accusative: клейкое зелье
+    instrumental: клейкого зельем
+    prepositional: клейком зелье
+  short_desc: Бутылочка, вся облепленная каким-то мусором, валяется под ногами.
+  type: kPotion
+  material: 11  # СТЕКЛО
+  values:
+    - 20
+    - 64
+    - -1
+    - -1
+  weight: 1
+  cost: 50
+  rent_off: 1
+  rent_on: 1
+  max_durability: 50
+  cur_durability: 50
+  timer: 10080
+  spell: 4  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+
+# Object #856
+56:
+  names:
+    aliases: хмельная настойка
+    nominative: хмельная настойка
+    genitive: хмельной настойки
+    dative: хмельной настойке
+    accusative: хмельную настойку
+    instrumental: хмельной настойкой
+    prepositional: хмельной настойке
+  short_desc: Испускающая травяной запах маленькая бутылочка лежит тут.
+  type: kPotion
+  material: 10  # КЕРАМИКА
+  values:
+    - 1
+    - 69
+    - 0
+    - 0
+  weight: 1
+  cost: 50
+  rent_off: 1
+  rent_on: 1
+  max_durability: 5
+  cur_durability: 5
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 1
+  wear_flags:
+    - kTake
+    - kHold
+
+# Object #857
+57:
+  names:
+    aliases: настой кошачьей шерсти склянка бурой
+    nominative: настой на кошачьей шерсти
+    genitive: настоя на кошачьей шерсти
+    dative: настою на кошачьей шерсти
+    accusative: настой на кошачьей шерсти
+    instrumental: настоем на кошачьей шерсти
+    prepositional: настое на кошачьей шерсти
+  short_desc: Небольшая склянка с бурой жидкостью стоит тут.
+  type: kPotion
+  material: 11  # СТЕКЛО
+  values:
+    - 16
+    - 174
+    - -1
+    - -1
+  weight: 1
+  cost: 50
+  rent_off: 1
+  rent_on: 1
+  max_durability: 50
+  cur_durability: 50
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  wear_flags:
+    - kTake
+    - kHold
+
+# Object #858
+58:
+  names:
+    aliases: кипящее зелье бутылочка бурлящей жидкостью
+    nominative: кипящее зелье
+    genitive: кипящего зелья
+    dative: кипящему зелью
+    accusative: кипящее зелье
+    instrumental: кипящим зельем
+    prepositional: кипящем зелье
+  short_desc: Бутылочка с постоянно бурлящей жидкостью стоит тут.
+  type: kPotion
+  material: 11  # СТЕКЛО
+  values:
+    - 10
+    - 175
+    - 0
+    - 0
+  weight: 1
+  cost: 50
+  rent_off: 1
+  rent_on: 1
+  max_durability: 50
+  cur_durability: 50
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  wear_flags:
+    - kTake
+    - kHold
+
+# Object #859
+59:
+  names:
+    aliases: горькая настойка бутылочка
+    nominative: горькая настойка
+    genitive: горькой настойки
+    dative: горькой настойке
+    accusative: горькую настойку
+    instrumental: горькой настойкой
+    prepositional: горькой настойке
+  short_desc: Испускающая горький пар бутылочка с настойкой стоит тут.
+  type: kPotion
+  material: 11  # СТЕКЛО
+  values:
+    - 10
+    - 176
+    - 0
+    - 0
+  weight: 1
+  cost: 50
+  rent_off: 1
+  rent_on: 1
+  max_durability: 50
+  cur_durability: 50
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  wear_flags:
+    - kTake
+    - kHold
+
+# Object #860
+60:
+  names:
+    aliases: настойка крысиных хвостах склянка зеленоватым
+    nominative: настойка на крысиных хвостах
+    genitive: настойки на крысиных хвостах
+    dative: настойке на крысиных хвостах
+    accusative: настойку на крысиных хвостах
+    instrumental: настойкой на крысиных хвостах
+    prepositional: настойке на крысиных хвостах
+  short_desc: Склянка с каким-то зеленоватым зельем стоит тут.
+  type: kPotion
+  material: 11  # СТЕКЛО
+  values:
+    - 10
+    - 177
+    - 0
+    - 0
+  weight: 1
+  cost: 50
+  rent_off: 1
+  rent_on: 1
+  max_durability: 1
+  cur_durability: 1
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  wear_flags:
+    - kTake
+    - kHold

@@ -1,0 +1,475 @@
+# Objects for zone 63
+
+# Object #6300
+0:
+  names:
+    aliases: дубовая доска
+    nominative: дубовая доска
+    genitive: дубовой доски
+    dative: дубовой доске
+    accusative: дубовую доску
+    instrumental: дубовой доской
+    prepositional: дубовой доске
+  short_desc: Огромная доска валяется на полу в пыли.
+  type: kWeapon
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 0
+    - 3
+    - 1
+    - 5
+  weight: 10
+  cost: 100
+  rent_off: 100
+  rent_on: 5
+  spec_param: 141
+  max_durability: 100
+  cur_durability: 60
+  timer: 7200
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  max_in_world: 5
+  extra_flags:
+    - kNodecay
+    - kSwimming
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+    - kBoth
+  applies:
+    - location: 23  # здоровье
+      modifier: -1
+
+# Object #6301
+1:
+  names:
+    aliases: винные полки
+    nominative: винные полки
+    genitive: винных полок
+    dative: винным полкам
+    accusative: винные полки
+    instrumental: винными полками
+    prepositional: винных полках
+  short_desc: Винные полки стоят здесь.
+  type: kContainer
+  material: 9  # ПРОЧНОЕ.ДЕРЕВО
+  values:
+    - 300
+    - 0
+    - 0
+    - 0
+  weight: 5000
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 10000
+  cur_durability: 8000
+  timer: 1440
+  spell: 1  # !undefined!
+  level: 0
+  sex: kPoly
+  max_in_world: 1
+  extra_flags:
+    - kNorent
+    - kNodonate
+    - kNoinvis
+    - kNosell
+    - kNodecay
+
+# Object #6302
+2:
+  names:
+    aliases: пузырек
+    nominative: пузырек
+    genitive: пузырька
+    dative: пузырьку
+    accusative: пузырек
+    instrumental: пузырьком
+    prepositional: пузырьке
+  short_desc: Дутый пузырек стоит на полке.
+  action_desc: |2
+    Вы осушили пузырек и почуствовали себя человеком.
+  type: kPotion
+  material: 11  # СТЕКЛО
+  values:
+    - 20
+    - 52
+    - -1
+    - -1
+  weight: 1
+  cost: 100
+  rent_off: 100
+  rent_on: 5
+  max_durability: 25
+  cur_durability: 25
+  timer: 60
+  spell: 1  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 5
+  extra_flags:
+    - kNorent
+    - kNodonate
+    - kNoinvis
+    - kMagic
+    - kNosell
+    - kNodecay
+  wear_flags:
+    - kTake
+    - kHold
+
+# Object #6303
+3:
+  names:
+    aliases: жало
+    nominative: жало
+    genitive: жала
+    dative: жалу
+    accusative: жало
+    instrumental: жалом
+    prepositional: жале
+  short_desc: Странное жало валяется здесь.
+  type: kWeapon
+  material: 13  # КОСТЬ
+  values:
+    - 0
+    - 2
+    - 4
+    - 11
+  weight: 3
+  cost: 50
+  rent_off: 50
+  rent_on: 5
+  spec_param: 147
+  max_durability: 100
+  cur_durability: 80
+  timer: 7200
+  spell: 1  # !undefined!
+  level: 0
+  sex: kNeutral
+  extra_flags:
+    - kNodonate
+    - kBless
+    - kSwimming
+  wear_flags:
+    - kTake
+    - kWield
+    - kHold
+  anti_flags:
+    - kMage
+    - kSorcerer
+    - kWarrior
+    - kGuard
+    - kRanger
+    - kVigilant
+    - kMerchant
+    - kMagus
+  applies:
+    - location: 50  # защита.от.ядов.и.болезней
+      modifier: 2
+  extra_descriptions:
+    - keywords: жало
+      description: |2
+        Жутковатого вида жало в пол-аршина длиной, 
+        покрытое пленкой засохшей крови.
+
+# Object #6304
+4:
+  names:
+    aliases: скелет воина
+    nominative: скелет воина
+    genitive: скелета воина
+    dative: скелету воина
+    accusative: скелет воина
+    instrumental: скелетом воина
+    prepositional: скелете воина
+  short_desc: Скелет воина в ржавых латах распростерся на полу.
+  type: kContainer
+  material: 13  # КОСТЬ
+  values:
+    - 300
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 40
+  cur_durability: 40
+  timer: 99999
+  spell: 1  # !undefined!
+  level: 0
+  sex: kMale
+  extra_flags:
+    - kNoinvis
+    - kNodecay
+    - kRepopDecay
+  extra_descriptions:
+    - keywords: скелет воина
+      description: |2
+        Хорошо заметно, что умер воин в бою. Несколько костей грудины раздроблены
+        и проломлен череп.
+
+# Object #6305
+5:
+  names:
+    aliases: меч призрачного счастья
+    nominative: меч призрачного счастья
+    genitive: меча призрачного счастья
+    dative: мечу призрачного счастья
+    accusative: меч призрачного счастья
+    instrumental: мечом призрачного счастья
+    prepositional: мече призрачного счастья
+  short_desc: 'Меч, с лезвием украшенным загадочными рунами, лежит здесь. '
+  type: kWeapon
+  material: 6  # ДРАГ.МЕТАЛЛ
+  values:
+    - 0
+    - 2
+    - 5
+    - 3
+  weight: 10
+  cost: 100
+  rent_off: 100
+  rent_on: 5
+  spec_param: 143
+  max_durability: 200
+  cur_durability: 200
+  timer: 14400
+  spell: 1  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 1
+  extra_flags:
+    - kNodrop
+  wear_flags:
+    - kTake
+    - kWield
+    - kBoth
+  affect_flags:
+    - kCurse
+    - kNoFlee
+    - kHaste
+  applies:
+    - location: 1  # сила
+      modifier: 1
+
+# Object #6306
+6:
+  names:
+    aliases: 'кольцо "Проклятие войны"'
+    nominative: 'кольцо "Проклятие войны"'
+    genitive: 'кольца "Проклятие войны"'
+    dative: 'кольцу "Проклятие войны"'
+    accusative: 'кольцо "Проклятие войны"'
+    instrumental: 'кольцом "Проклятие войны"'
+    prepositional: 'кольце "Проклятие войны"'
+  short_desc: 'Легендарное кольцо, названное "Проклятие войны" кажется никому не нужно.'
+  type: kWorm
+  material: 6  # ДРАГ.МЕТАЛЛ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 100
+  rent_off: 100
+  rent_on: 10
+  max_durability: 150
+  cur_durability: 150
+  timer: 14400
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  max_in_world: 10
+  extra_flags:
+    - kNodrop
+    - kFire
+  wear_flags:
+    - kTake
+    - kFinger
+  affect_flags:
+    - kCurse
+    - kHaemorrhage
+    - kStoneHand
+    - kFireAura
+  applies:
+    - location: 39  # реакция
+      modifier: -2
+    - location: 6  # обаяние
+      modifier: -2
+
+# Object #6307
+7:
+  names:
+    aliases: доспех несбывшейся надежды
+    nominative: доспех несбывшейся надежды
+    genitive: доспеха несбывшейся надежды
+    dative: доспеху несбывшейся надежды
+    accusative: доспех несбывшейся надежды
+    instrumental: доспехом несбывшейся надежды
+    prepositional: доспехе несбывшейся надежды
+  short_desc: Доспех с проломленной грудной пластиной лежит на земле.
+  type: kArmor
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 3
+    - 1
+    - 0
+    - 0
+  weight: 4
+  cost: 100
+  rent_off: 100
+  rent_on: 10
+  max_durability: 150
+  cur_durability: 150
+  timer: 14400
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 12
+  wear_flags:
+    - kTake
+    - kBody
+  affect_flags:
+    - kCurse
+    - kBlink
+  applies:
+    - location: 42  # инициатива
+      modifier: -10
+    - location: 41  # удача
+      modifier: -2
+
+# Object #6308
+8:
+  names:
+    aliases: шлем олуха Царя Небесного
+    nominative: шлем олуха Царя Небесного
+    genitive: шлема олуха Царя Небесного
+    dative: шлему олуха Царя Небесного
+    accusative: шлем олуха Царя Небесного
+    instrumental: шлемом олуха Царя Небесного
+    prepositional: шлеме олуха Царя Небесного
+  short_desc: Шлем известного во всей округе глупого воина лежит здесь.
+  type: kArmor
+  material: 4  # СТАЛЬ
+  values:
+    - 3
+    - 3
+    - 0
+    - 0
+  weight: 3
+  cost: 100
+  rent_off: 100
+  rent_on: 10
+  max_durability: 200
+  cur_durability: 200
+  timer: 14400
+  spell: 0  # !undefined!
+  level: 0
+  sex: kMale
+  max_in_world: 4
+  wear_flags:
+    - kTake
+    - kHead
+  affect_flags:
+    - kSanctuary
+    - kCurse
+    - kProtectFromMind
+    - kBless
+  applies:
+    - location: 3  # интеллект
+      modifier: -5
+    - location: 2  # ловкость
+      modifier: -3
+
+# Object #6309
+9:
+  names:
+    aliases: сапоги непройденных дорог
+    nominative: сапоги непройденных дорог
+    genitive: сапог непройденных дорог
+    dative: сапогам непройденных дорог
+    accusative: сапоги непройденных дорог
+    instrumental: сапогами непройденных дорог
+    prepositional: сапогах непройденных дорог
+  short_desc: Сапоги, как и всякая обувь, стоят и мечтают тут о дальней дороге.
+  type: kArmor
+  material: 15  # КОЖА
+  values:
+    - 2
+    - 2
+    - 0
+    - 0
+  weight: 7
+  cost: 100
+  rent_off: 100
+  rent_on: 10
+  max_durability: 200
+  cur_durability: 200
+  timer: 14400
+  spell: 0  # !undefined!
+  level: 0
+  sex: kPoly
+  extra_flags:
+    - kFlying
+  wear_flags:
+    - kTake
+    - kFeet
+  affect_flags:
+    - kCurse
+    - kNoFlee
+    - kSlow
+  applies:
+    - location: 26  # восст.энергии
+      modifier: 5
+    - location: 14  # макс.энергия
+      modifier: 10
+
+# Object #6310
+10:
+  names:
+    aliases: окровавленная плащаница
+    nominative: окровавленная плащаница
+    genitive: окровавленной плащаница
+    dative: окровавленной плащанице
+    accusative: окровавленную плащаницу
+    instrumental: окровавленной плащаницей
+    prepositional: окровавленной плащанице
+  short_desc: Окровавленная плащаница - символ христианства, должен вернуться в Храм.
+  type: kWorm
+  material: 14  # ТКАНЬ
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 1
+  cost: 1
+  rent_off: 1
+  rent_on: 1
+  max_durability: 150
+  cur_durability: 150
+  timer: 20
+  spell: 0  # !undefined!
+  level: 0
+  sex: kFemale
+  extra_flags:
+    - kGlow
+    - kNorent
+    - kNoinvis
+    - kMagic
+    - kZonedecay
+    - kRepopDecay
+  wear_flags:
+    - kTake
+    - kShoulders
+  affect_flags:
+    - kFireAura
+  applies:
+    - location: 6  # обаяние
+      modifier: -5

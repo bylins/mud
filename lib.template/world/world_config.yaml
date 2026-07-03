@@ -5,8 +5,4 @@
 # - dos: CR+LF (\r\n) - convert LF to CR+LF (for literal blocks)
 # - unix: LF (\n) - no conversion (for quoted strings)
 line_endings: dos  # dos (literal blocks: LF converted back to CR+LF)
-
-# Per-entity file layout written by the converter / `circle -S`.
-# - per_file: one file per entity in <sub>/ + index.yaml
-# - flat: all entities of a type in one <sub>.yaml (rel_num -> body map)
 layout: flat

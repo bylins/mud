@@ -78,7 +78,7 @@ void CloneCascade(CharData *ch, CharData *mob, const ActionContext &ctx, int /*d
 			++already;
 		}
 	}
-	int remaining = std::max(1, (GetRealLevel(ch) + 4) / 5 - 2) - already;
+	int remaining = MaxCloneCharmices(ch) - already;
 	while (remaining-- > 0) {
 		CharData *extra = ReadMobile(-kMobDouble, kVirtual);
 		if (!extra) {

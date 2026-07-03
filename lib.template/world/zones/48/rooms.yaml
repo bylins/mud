@@ -1,0 +1,520 @@
+# Rooms for zone 48
+
+# Room #4800
+0:
+  name: Дорожка в малиновый сад
+  description: |2
+       Солнышко на дворе, 
+       А в саду тропинка. 
+       Сладкая ты моя, 
+       Ягодка-малинка!
+  sector: kField
+  exits:
+    - direction: north
+      to_room: 4802  # Дорожка в малиновый сад
+    - direction: west
+      to_room: 4801  # Дорожка в малиновый сад
+
+# Room #4801
+1:
+  name: Дорожка в малиновый сад
+  description: |2
+       По малину в сад пойдем, 
+       В сад пойдем, в сад пойдем, 
+       Плясовую заведем, 
+       Заведем, заведем. 
+  sector: kField
+  flags:
+    - kNoEntryMob
+  exits:
+    - direction: east
+      to_room: 4800  # Дорожка в малиновый сад
+    - direction: south
+      to_room: 4045  # Слезная гора
+      key: 0
+  triggers:
+    - 4800  # зашел в первую локацию сада
+
+# Room #4802
+2:
+  name: Дорожка в малиновый сад
+  description: |2
+       Солнышко на дворе, 
+       А в саду тропинка. 
+       Сладкая ты моя, 
+       Ягодка-малинка!
+  sector: kField
+  exits:
+    - direction: north
+      to_room: 4803  # Дорожка в малиновый сад
+    - direction: south
+      to_room: 4800  # Дорожка в малиновый сад
+
+# Room #4803
+3:
+  name: Дорожка в малиновый сад
+  description: |2
+       Солнышко на дворе, 
+       А в саду тропинка. 
+       Сладкая ты моя, 
+       Ягодка-малинка! 
+  sector: kField
+  exits:
+    - direction: north
+      to_room: 4804  # В малиновом саду
+    - direction: south
+      to_room: 4802  # Дорожка в малиновый сад
+
+# Room #4804
+4:
+  name: В малиновом саду
+  description: |2
+       Солнышко на дворе, 
+       А в саду тропинка. 
+       Сладкая ты моя, 
+       Ягодка-малинка!
+  sector: kField
+  exits:
+    - direction: north
+      to_room: 4806  # Дорожка меж малины
+    - direction: east
+      to_room: 4805  # Дорожка меж малины
+    - direction: south
+      to_room: 4803  # Дорожка в малиновый сад
+
+# Room #4805
+5:
+  name: Дорожка меж малины
+  description: |2
+       Пирогов мы напечем, 
+    Напечем, напечем.
+       Всех соседей позовем, 
+       Позовем, позовем!
+  sector: kField
+  exits:
+    - direction: north
+      to_room: 4807  # В кустах малины
+    - direction: east
+      to_room: 4809  # Дорожка меж малины
+    - direction: west
+      to_room: 4804  # В малиновом саду
+
+# Room #4806
+6:
+  name: Дорожка меж малины
+  description: |2
+       Солнышко на дворе, 
+       А в саду тропинка. 
+       Сладкая ты моя, 
+       Ягодка-малинка!
+  sector: kField
+  exits:
+    - direction: north
+      to_room: 4815  # Дорожка меж малины
+    - direction: east
+      to_room: 4807  # В кустах малины
+    - direction: south
+      to_room: 4804  # В малиновом саду
+
+# Room #4807
+7:
+  name: В кустах малины
+  description: |2
+       Ты, малинка, не в роток, 
+       Hе в роток, не в роток, - 
+    Насыпайся в кузовок,
+       В кузовок, в кузовок.
+  sector: kField
+  exits:
+    - direction: north
+      to_room: 4814  # В кустах малины
+    - direction: east
+      to_room: 4808  # Дорожка меж малины
+    - direction: south
+      to_room: 4805  # Дорожка меж малины
+    - direction: west
+      to_room: 4806  # Дорожка меж малины
+
+# Room #4808
+8:
+  name: Дорожка меж малины
+  description: |2
+       Как малины наберем, 
+    Наберем, наберем,
+       Пирогов мы напечем, 
+    Напечем, напечем.
+  sector: kField
+  exits:
+    - direction: north
+      to_room: 4813  # Дорожка меж малины
+    - direction: east
+      to_room: 4811  # В кустах малины
+    - direction: south
+      to_room: 4809  # Дорожка меж малины
+    - direction: west
+      to_room: 4807  # В кустах малины
+
+# Room #4809
+9:
+  name: Дорожка меж малины
+  description: |2
+       Пирогов мы напечем, 
+    Напечем, напечем.
+       Всех соседей позовем, 
+       Позовем, позовем!
+  sector: kField
+  exits:
+    - direction: north
+      to_room: 4808  # Дорожка меж малины
+    - direction: east
+      to_room: 4810  # Дорожка меж малины
+    - direction: west
+      to_room: 4805  # Дорожка меж малины
+
+# Room #4810
+10:
+  name: Дорожка меж малины
+  description: |2
+       Пирогов мы напечем, 
+    Напечем, напечем.
+       Всех соседей позовем, 
+       Позовем, позовем!
+  sector: kField
+  exits:
+    - direction: north
+      to_room: 4811  # В кустах малины
+    - direction: east
+      to_room: 4828  # Дорожка меж малины
+    - direction: west
+      to_room: 4809  # Дорожка меж малины
+
+# Room #4811
+11:
+  name: В кустах малины
+  description: |2
+       Ты, малинка, не в роток, 
+       Hе в роток, не в роток, - 
+    Насыпайся в кузовок,
+       В кузовок, в кузовок.
+  sector: kField
+  exits:
+    - direction: north
+      to_room: 4812  # В кустах малины
+    - direction: east
+      to_room: 4827  # Дорожка меж малины
+    - direction: south
+      to_room: 4810  # Дорожка меж малины
+    - direction: west
+      to_room: 4808  # Дорожка меж малины
+
+# Room #4812
+12:
+  name: В кустах малины
+  description: |2
+       Ты, малинка, не в роток, 
+       Hе в роток, не в роток, - 
+    Насыпайся в кузовок,
+       В кузовок, в кузовок.
+  sector: kField
+  exits:
+    - direction: north
+      to_room: 4816  # В кустах малины
+    - direction: east
+      to_room: 4826  # Дорожка меж малины
+    - direction: south
+      to_room: 4811  # В кустах малины
+    - direction: west
+      to_room: 4813  # Дорожка меж малины
+
+# Room #4813
+13:
+  name: Дорожка меж малины
+  description: |2
+       Как малины наберем, 
+       Hаберем, наберем, 
+       Пирогов мы напечем, 
+       Hапечем, напечем.
+  sector: kField
+  exits:
+    - direction: north
+      to_room: 4817  # Дорожка меж малины
+    - direction: east
+      to_room: 4812  # В кустах малины
+    - direction: south
+      to_room: 4808  # Дорожка меж малины
+    - direction: west
+      to_room: 4814  # В кустах малины
+
+# Room #4814
+14:
+  name: В кустах малины
+  description: |2
+       Ты, малинка, не в роток, 
+       Hе в роток, не в роток, - 
+       Hасыпайся в кузовок, 
+       В кузовок, в кузовок. 
+  sector: kField
+  exits:
+    - direction: north
+      to_room: 4818  # В кустах малины
+    - direction: east
+      to_room: 4813  # Дорожка меж малины
+    - direction: south
+      to_room: 4807  # В кустах малины
+    - direction: west
+      to_room: 4815  # Дорожка меж малины
+
+# Room #4815
+15:
+  name: Дорожка меж малины
+  description: |2
+       Солнышко на дворе, 
+       А в саду тропинка. 
+       Сладкая ты моя, 
+       Ягодка-малинка!
+  sector: kField
+  exits:
+    - direction: north
+      to_room: 4819  # Дорожка меж малины
+    - direction: east
+      to_room: 4814  # В кустах малины
+    - direction: south
+      to_room: 4806  # Дорожка меж малины
+
+# Room #4816
+16:
+  name: В кустах малины
+  description: |2
+       Ты, малинка, не в роток, 
+       Hе в роток, не в роток, - 
+    Насыпайся в кузовок,
+       В кузовок, в кузовок.
+  sector: kField
+  exits:
+    - direction: north
+      to_room: 4823  # Дорожка меж малины
+    - direction: east
+      to_room: 4825  # Дорожка меж малины
+    - direction: south
+      to_room: 4812  # В кустах малины
+    - direction: west
+      to_room: 4817  # Дорожка меж малины
+
+# Room #4817
+17:
+  name: Дорожка меж малины
+  description: |2
+       Как малины наберем, 
+       Hаберем, наберем, 
+       Пирогов мы напечем, 
+       Hапечем, напечем.
+  sector: kField
+  exits:
+    - direction: north
+      to_room: 4822  # Дорожка меж малины
+    - direction: east
+      to_room: 4816  # В кустах малины
+    - direction: south
+      to_room: 4813  # Дорожка меж малины
+    - direction: west
+      to_room: 4818  # В кустах малины
+
+# Room #4818
+18:
+  name: В кустах малины
+  description: |2
+       Ты, малинка, не в роток, 
+       Hе в роток, не в роток, - 
+       Hасыпайся в кузовок, 
+       В кузовок, в кузовок.  
+  sector: kField
+  exits:
+    - direction: north
+      to_room: 4821  # Дорожка меж малины
+    - direction: east
+      to_room: 4817  # Дорожка меж малины
+    - direction: south
+      to_room: 4814  # В кустах малины
+    - direction: west
+      to_room: 4819  # Дорожка меж малины
+
+# Room #4819
+19:
+  name: Дорожка меж малины
+  description: |2
+       Солнышко на дворе, 
+       А в саду тропинка. 
+       Сладкая ты моя, 
+       Ягодка-малинка!
+  sector: kField
+  exits:
+    - direction: north
+      to_room: 4820  # Дорожка меж малины
+    - direction: east
+      to_room: 4818  # В кустах малины
+    - direction: south
+      to_room: 4815  # Дорожка меж малины
+
+# Room #4820
+20:
+  name: Дорожка меж малины
+  description: |2
+       Солнышко на дворе, 
+       А в саду тропинка. 
+       Сладкая ты моя, 
+       Ягодка-малинка!
+  sector: kField
+  exits:
+    - direction: east
+      to_room: 4821  # Дорожка меж малины
+    - direction: south
+      to_room: 4819  # Дорожка меж малины
+
+# Room #4821
+21:
+  name: Дорожка меж малины
+  description: |2
+       Солнышко на дворе, 
+       А в саду тропинка. 
+       Сладкая ты моя, 
+       Ягодка-малинка!
+  sector: kField
+  exits:
+    - direction: east
+      to_room: 4822  # Дорожка меж малины
+    - direction: south
+      to_room: 4818  # В кустах малины
+    - direction: west
+      to_room: 4820  # Дорожка меж малины
+
+# Room #4822
+22:
+  name: Дорожка меж малины
+  description: |2
+       Солнышко на дворе, 
+       А в саду тропинка. 
+       Сладкая ты моя, 
+       Ягодка-малинка!
+  sector: kField
+  exits:
+    - direction: east
+      to_room: 4823  # Дорожка меж малины
+    - direction: south
+      to_room: 4817  # Дорожка меж малины
+    - direction: west
+      to_room: 4821  # Дорожка меж малины
+
+# Room #4823
+23:
+  name: Дорожка меж малины
+  description: |2
+       Солнышко на дворе, 
+       А в саду тропинка. 
+       Сладкая ты моя, 
+       Ягодка-малинка!  
+  sector: kField
+  exits:
+    - direction: east
+      to_room: 4824  # Дорожка меж малины
+    - direction: south
+      to_room: 4816  # В кустах малины
+    - direction: west
+      to_room: 4822  # Дорожка меж малины
+
+# Room #4824
+24:
+  name: Дорожка меж малины
+  description: |2
+       Солнышко на дворе, 
+       А в саду тропинка. 
+       Сладкая ты моя, 
+       Ягодка-малинка!
+  sector: kField
+  exits:
+    - direction: east
+      to_room: 4829  # На полянке
+    - direction: south
+      to_room: 4825  # Дорожка меж малины
+    - direction: west
+      to_room: 4823  # Дорожка меж малины
+
+# Room #4825
+25:
+  name: Дорожка меж малины
+  description: |2
+       Как малины наберем, 
+    Наберем, наберем,
+       Пирогов мы напечем, 
+    Напечем, напечем.
+  sector: kField
+  exits:
+    - direction: north
+      to_room: 4824  # Дорожка меж малины
+    - direction: south
+      to_room: 4826  # Дорожка меж малины
+    - direction: west
+      to_room: 4816  # В кустах малины
+
+# Room #4826
+26:
+  name: Дорожка меж малины
+  description: |2
+       Как малины наберем, 
+    Наберем, наберем,
+       Пирогов мы напечем, 
+    Напечем, напечем.
+  sector: kField
+  exits:
+    - direction: north
+      to_room: 4825  # Дорожка меж малины
+    - direction: south
+      to_room: 4827  # Дорожка меж малины
+    - direction: west
+      to_room: 4812  # В кустах малины
+
+# Room #4827
+27:
+  name: Дорожка меж малины
+  description: |2
+       Как малины наберем, 
+    Наберем, наберем,
+       Пирогов мы напечем, 
+    Напечем, напечем.
+  sector: kField
+  exits:
+    - direction: north
+      to_room: 4826  # Дорожка меж малины
+    - direction: south
+      to_room: 4828  # Дорожка меж малины
+    - direction: west
+      to_room: 4811  # В кустах малины
+
+# Room #4828
+28:
+  name: Дорожка меж малины
+  description: |2
+       Пирогов мы напечем, 
+    Напечем, напечем.
+       Всех соседей позовем, 
+       Позовем, позовем!
+  sector: kField
+  exits:
+    - direction: north
+      to_room: 4827  # Дорожка меж малины
+    - direction: west
+      to_room: 4810  # Дорожка меж малины
+
+# Room #4829
+29:
+  name: На полянке
+  description: |2
+       Рассердился окончательно Миша. Выворотил он вместе с корнем целую 
+    березу и принялся колотить ею комаров. Так и ломит со всего плеча. Бил,
+    бил, даже устал, а ни одного убитого комара нет, - все вьются над ним и
+    пищат. И решил Миша малины поесть.
+  sector: kField
+  flags:
+    - kNoEntryMob
+  exits:
+    - direction: west
+      to_room: 4824  # Дорожка меж малины

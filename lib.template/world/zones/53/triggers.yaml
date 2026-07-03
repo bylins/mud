@@ -1,0 +1,60 @@
+# Triggers for zone 53
+
+# Trigger #5300
+0:
+  name: умерпаук
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kDeath
+  script: |-2
+    switch %random.10%
+      case 1
+        if %world.curobjs(518)% < %world.maxobj(518)%
+          load obj 518
+        end
+      break
+      case 2
+        if %world.curobjs(574)% < %world.maxobj(574)%
+          load obj 574
+        end
+      break
+      default
+      break
+    done
+
+# Trigger #5301
+1:
+  name: умершатун
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kDeath
+  script: |-2
+    switch %random.10%
+      case 1
+        if %world.curobjs(518)% < %world.maxobj(518)%
+          load obj 518
+        end
+      break
+      case 2
+        if %world.curobjs(574)% < %world.maxobj(574)%
+          load obj 574
+        end
+      break
+      default
+      break
+    done
+
+# Trigger #5302
+2:
+  name: умер муравей
+  attach_type: kMobTrigger
+  narg: 90
+  trigger_types:
+    - kDeath
+  script: |-2
+    if %random.100% > 40
+      echoaround self Из норки вылез муравей.
+      load mob 5300
+    end

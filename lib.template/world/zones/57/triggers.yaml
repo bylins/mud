@@ -1,0 +1,12 @@
+# Triggers for zone 57
+
+# Trigger #5799
+99:
+  name: new trigger
+  attach_type: kMobTrigger
+  narg: 100
+  trigger_types:
+    - kDamage
+  script: |-2
+    г тест
+    %self.hitp% = %self.maxhitp%

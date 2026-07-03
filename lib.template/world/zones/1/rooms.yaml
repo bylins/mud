@@ -1,51 +1,47 @@
 # Rooms for zone 1
 
+# Room #100
 0:
-  # Room #100
-  zone: 1
-  name: Тронный зал.
+  name: Тронный зал
   description: |2
-       Величественные мраморные колонны уходят ввысь, подпирая самое небо.  На стенах,
-    отделанных редчайшими сортами мрамора красуются барельефы, изображающие бытие
-    обитателей замка - охоту на Жар-Птицу, воскрешение Змея Горыныча, зверски
+    ___Величественные мраморные колонны уходят ввысь, подпирая самое небо. На
+    стенах, отделанных редчайшими сортами мрамора красуются барельефы, изображающие
+    бытие обитателей замка - охоту на Жар-Птицу, воскрешение Змея Горыныча, зверски
     изрубленного Ильей Муромцем после очередной попойки, пленение Змея Тугарина и
-    многое другое. В центре зала - огромный дубовый стол, покрытый скатертью-самобранкой.
-  flags:
-  - kIndoors
-  - kNoMagic
-  - kArena
-  - kNoTeleportOut
-  - kNoWeather
-  - kNoRelocateIn
+    многое другое. В центре зала - огромный дубовый стол, покрытый
+    скатертью-самобранкой.  
   sector: kInside
+  flags:
+    - kIndoors
+    - kArena
+    - kNoTeleportOut
+    - kNoWeather
+    - kNoRelocateIn
+    - kAlwaysLit
   exits:
-  - direction: north
-    exit_flags: 0
-    key: 0
-    to_room: 185  # Комната смертной доски
-    lock_complexity: 0
-  - direction: east
-    exit_flags: 0
-    key: 0
-    to_room: 1100
-    lock_complexity: 0
-  - direction: south
-    exit_flags: 0
-    key: 0
-    to_room: 184  # Комната наказаний.
-    lock_complexity: 0
-  - direction: down
-    exit_flags: 0
-    key: 0
-    to_room: 104  # Гостиная палата.
-    lock_complexity: 0
+    - direction: north
+      to_room: 185  # Комната смертной доски
+      key: 0
+    - direction: east
+      to_room: 1100  # Воздушная лазурная дорожка
+      description: дверь
+      keywords: дверь
+      exit_flags: 1
+      key: 0
+    - direction: south
+      to_room: 184  # Комната наказаний
+      key: 0
+    - direction: down
+      to_room: 104  # Гостинная палата
+      key: 0
   triggers:
-  - 100
-  - 198
+    - 198  # подавление врат в аду
+    - 100  # тестовый
+    - 145  # dungeons
+    - 143  # тест
 
+# Room #101
 1:
-  # Room #101
-  zone: 1
   name: Темница
   description: |2
        Угрюмые мрачные многометровые стены окружают тебя со всех сторон. У самого
@@ -53,57 +49,53 @@
     разобрать старинные буквы:
     ___&rОСТАВЬ НАДЕЖДУ, ВСЯК СЮДА ПОПАВШИЙ.&n
     ___&rЛюбые Пк действия в аду запрещены, наказуемы вплоть до фриза.
-
     ___&RПОТЕРЯ СВЯЗИ ПРИ ПРОВЕРКЕ НА МУЛЬТИНГ РАВНОСИЛЬНА ПРИЗНАНИЮ СВОЕЙ ВИНЫ!&n
     ____
-  flags:
-  - kNoEntryMob
-  - kIndoors
-  - kPeaceful
-  - kSoundproof
-  - kNoTrack
-  - kNoMagic
-  - kNoTeleportIn
-  - kNoSummonOut
-  - kNoTeleportOut
-  - kNoWeather
-  - kNoRelocateIn
-  - kNoItem
   sector: kCity
+  flags:
+    - kNoEntryMob
+    - kIndoors
+    - kPeaceful
+    - kSoundproof
+    - kNoTrack
+    - kNoMagic
+    - kNoTeleportIn
+    - kNoSummonOut
+    - kNoTeleportOut
+    - kNoWeather
+    - kNoRelocateIn
+    - kNoBattle
   exits:
-  - direction: up
-    description: Решетка
-    keywords: решетка|решетку
-    exit_flags: 9
-    key: 0
-    to_room: 104  # Гостиная палата.
-    lock_complexity: 0
+    - direction: up
+      to_room: 104  # Гостинная палата
+      description: Решетка
+      keywords: 'решетка|решетку'
+      exit_flags: 15
+      key: 0
   triggers:
-  - 100
-  - 198
+    - 100  # тестовый
+    - 198  # подавление врат в аду
 
+# Room #102
 2:
-  # Room #102
-  zone: 1
   name: Странная комната
   description: |2
        Пить меньше надо..
-  flags:
-  - kIndoors
-  - kPeaceful
-  - kNoMagic
-  - kNoTeleportIn
-  - kNoSummonOut
-  - kNoTeleportOut
-  - kNoWeather
-  - kNoRelocateIn
   sector: kSecret
+  flags:
+    - kIndoors
+    - kPeaceful
+    - kNoMagic
+    - kNoTeleportIn
+    - kNoSummonOut
+    - kNoTeleportOut
+    - kNoWeather
+    - kNoRelocateIn
   triggers:
-  - 198
+    - 198  # подавление врат в аду
 
+# Room #103
 3:
-  # Room #103
-  zone: 1
   name: Комната для незарегистрированных игроков, играющих через прокси.
   description: |2
        Еще одна забава нынешних правителей. По словам очевидцев - есть у них
@@ -116,122 +108,92 @@
     При этом полезно будет указать кто именно и почему находится с Вами с 1го адреса,
     Это значительно ускорит регистрацию.
     ___&WПросто так никто никого не регистрирует! Приятного времяпровождения!&n
-  flags:
-  - kPeaceful
-  - kNoMagic
-  - kNoTeleportIn
-  - kNoSummonOut
-  - kNoTeleportOut
-  - kNoWeather
-  - kNoRelocateIn
-  - kNoItem
   sector: kCity
+  flags:
+    - kPeaceful
+    - kNoMagic
+    - kNoTeleportIn
+    - kNoSummonOut
+    - kNoTeleportOut
+    - kNoWeather
+    - kNoRelocateIn
+    - kNoBattle
+    - kNoItem
   exits:
-  - direction: north
-    exit_flags: 0
-    key: -1
-    to_room: 103  # Комната для незарегистрированных игроков, играющих через прокси.
-    lock_complexity: 0
-  - direction: east
-    exit_flags: 0
-    key: -1
-    to_room: 103  # Комната для незарегистрированных игроков, играющих через прокси.
-    lock_complexity: 0
-  - direction: south
-    exit_flags: 0
-    key: -1
-    to_room: 103  # Комната для незарегистрированных игроков, играющих через прокси.
-    lock_complexity: 0
-  - direction: west
-    exit_flags: 0
-    key: -1
-    to_room: 103  # Комната для незарегистрированных игроков, играющих через прокси.
-    lock_complexity: 0
-  - direction: up
-    exit_flags: 0
-    key: -1
-    to_room: 103  # Комната для незарегистрированных игроков, играющих через прокси.
-    lock_complexity: 0
-  - direction: down
-    exit_flags: 0
-    key: -1
-    to_room: 103  # Комната для незарегистрированных игроков, играющих через прокси.
-    lock_complexity: 0
+    - direction: north
+      to_room: 103  # Комната для незарегистрированных игроков, играющих через прокси.
+    - direction: east
+      to_room: 103  # Комната для незарегистрированных игроков, играющих через прокси.
+    - direction: south
+      to_room: 103  # Комната для незарегистрированных игроков, играющих через прокси.
+    - direction: west
+      to_room: 103  # Комната для незарегистрированных игроков, играющих через прокси.
+    - direction: up
+      to_room: 103  # Комната для незарегистрированных игроков, играющих через прокси.
+    - direction: down
+      to_room: 103  # Комната для незарегистрированных игроков, играющих через прокси.
   triggers:
-  - 100
-  - 198
+    - 100  # тестовый
+    - 198  # подавление врат в аду
 
+# Room #104
 4:
-  # Room #104
-  zone: 1
-  name: Гостиная палата.
+  name: Гостинная палата
   description: |2
        Длинная и просторная зала, в которой правители принимают простой люд,
     выслушивают жалобы, принимают челобитные, а порой вершат скорый суд над
     злодеями. В центре зала заметен отделанный крепким деревом люк, который по 
     словам ведет в глубокие княжеские темницы под замком.
-  flags:
-  - kIndoors
-  - kPeaceful
-  - kNoMagic
-  - kArena
-  - kNoSummonOut
-  - kNoTeleportOut
-  - kNoWeather
-  - kNoRelocateIn
   sector: kInside
+  flags:
+    - kIndoors
+    - kPeaceful
+    - kNoMagic
+    - kArena
+    - kNoSummonOut
+    - kNoTeleportOut
+    - kNoWeather
+    - kNoRelocateIn
   exits:
-  - direction: north
-    exit_flags: 0
-    key: 0
-    to_room: 0
-    lock_complexity: 0
-  - direction: south
-    description: Недоделанная комната
-    exit_flags: 0
-    key: 0
-    to_room: 186  # Недоделанная комната
-    lock_complexity: 0
-  - direction: up
-    exit_flags: 0
-    key: 0
-    to_room: 100  # Тронный зал.
-    lock_complexity: 0
-  - direction: down
-    exit_flags: 0
-    key: 0
-    to_room: 101  # Темница
-    lock_complexity: 0
+    - direction: south
+      to_room: 186  # Доска баги
+      description: Недоделанная комната
+      key: 0
+    - direction: up
+      to_room: 100  # Тронный зал
+      key: 0
+    - direction: down
+      to_room: 101  # Темница
+      key: 0
   triggers:
-  - 100
-  - 198
+    - 100  # тестовый
+    - 198  # подавление врат в аду
 
+# Room #105
 5:
-  # Room #105
-  zone: 1
   name: Темница для людей с неверными именами
   description: |2
        Вы попали в комнату огромной высоты но очень маленькую по площади. Здесь нет
     ничего интересного, кроме огромного камня в центре комнаты.
-  flags:
-  - kNoEntryMob
-  - kIndoors
-  - kPeaceful
-  - kSoundproof
-  - kNoMagic
-  - kNoTeleportIn
-  - kNoSummonOut
-  - kNoTeleportOut
-  - kNohorse
-  - kNoWeather
   sector: kInside
+  flags:
+    - kNoEntryMob
+    - kIndoors
+    - kPeaceful
+    - kSoundproof
+    - kNoMagic
+    - kNoTeleportIn
+    - kNoSummonOut
+    - kNoTeleportOut
+    - kNohorse
+    - kNoWeather
+    - kNoBattle
   triggers:
-  - 100
-  - 198
+    - 100  # тестовый
+    - 198  # подавление врат в аду
 
+# Room #106
 6:
-  # Room #106
-  zone: 1
   name: Одиночная камера N1
   description: |2
        Угрюмые мрачные многометровые стены окружают тебя со всех сторон. Комната 
@@ -239,22 +201,20 @@
     закрывает выход из комнаты. Недалеко слышны душераздирающие звуки пыток
     и допросов. Выберусь ли живой отсюда? - вот мысль постоянно пульсирующая
     в вашей голове.
-  flags:
-  - kNoEntryMob
-  - kIndoors
-  - kPeaceful
-  - kSoundproof
-  - kNoMagic
-  - kNoSummonOut
-  - kNoTeleportOut
-  - kNoWeather
   sector: kInside
+  flags:
+    - kNoEntryMob
+    - kIndoors
+    - kPeaceful
+    - kNoMagic
+    - kNoSummonOut
+    - kNoTeleportOut
+    - kNoWeather
   triggers:
-  - 198
+    - 198  # подавление врат в аду
 
+# Room #107
 7:
-  # Room #107
-  zone: 1
   name: Одиночная камера N2
   description: |2
        Угрюмые мрачные многометровые стены окружают тебя со всех сторон. Комната 
@@ -262,22 +222,21 @@
     закрывает выход из комнаты. Недалеко слышны душераздирающие звуки пыток
     и допросов. Выберусь ли живой отсюда? - вот мысль постоянно пульсирующая
     в вашей голове.
-  flags:
-  - kNoEntryMob
-  - kIndoors
-  - kPeaceful
-  - kNoMagic
-  - kNoSummonOut
-  - kNoTeleportOut
-  - kNoWeather
-  - kNoRelocateIn
   sector: kInside
+  flags:
+    - kNoEntryMob
+    - kIndoors
+    - kPeaceful
+    - kNoMagic
+    - kNoSummonOut
+    - kNoTeleportOut
+    - kNoWeather
+    - kNoRelocateIn
   triggers:
-  - 198
+    - 198  # подавление врат в аду
 
+# Room #108
 8:
-  # Room #108
-  zone: 1
   name: Одиночная камера N3
   description: |2
        Угрюмые мрачные многометровые стены окружают тебя со всех сторон. Комната 
@@ -285,22 +244,21 @@
     закрывает выход из комнаты. Недалеко слышны душераздирающие звуки пыток
     и допросов. Выберусь ли живой отсюда? - вот мысль постоянно пульсирующая
     в вашей голове.
-  flags:
-  - kNoEntryMob
-  - kIndoors
-  - kPeaceful
-  - kSoundproof
-  - kNoMagic
-  - kNoSummonOut
-  - kNoTeleportOut
-  - kNoWeather
   sector: kInside
+  flags:
+    - kNoEntryMob
+    - kIndoors
+    - kPeaceful
+    - kSoundproof
+    - kNoMagic
+    - kNoSummonOut
+    - kNoTeleportOut
+    - kNoWeather
   triggers:
-  - 198
+    - 198  # подавление врат в аду
 
+# Room #109
 9:
-  # Room #109
-  zone: 1
   name: Одиночная камера N4
   description: |2
        Угрюмые мрачные многометровые стены окружают тебя со всех сторон. Комната 
@@ -308,21 +266,20 @@
     закрывает выход из комнаты. Недалеко слышны душераздирающие звуки пыток
     и допросов. Выберусь ли живой отсюда? - вот мысль постоянно пульсирующая
     в вашей голове.
-  flags:
-  - kNoEntryMob
-  - kIndoors
-  - kSoundproof
-  - kNoMagic
-  - kNoSummonOut
-  - kNoTeleportOut
-  - kNoWeather
   sector: kInside
+  flags:
+    - kNoEntryMob
+    - kIndoors
+    - kSoundproof
+    - kNoMagic
+    - kNoSummonOut
+    - kNoTeleportOut
+    - kNoWeather
   triggers:
-  - 198
+    - 198  # подавление врат в аду
 
+# Room #110
 10:
-  # Room #110
-  zone: 1
   name: Одиночная камера N5
   description: |2
        Угрюмые мрачные многометровые стены окружают тебя со всех сторон. Комната 
@@ -330,22 +287,21 @@
     закрывает выход из комнаты. Недалеко слышны душераздирающие звуки пыток
     и допросов. Выберусь ли живой отсюда? - вот мысль постоянно пульсирующая
     в вашей голове.
-  flags:
-  - kNoEntryMob
-  - kIndoors
-  - kPeaceful
-  - kSoundproof
-  - kNoMagic
-  - kNoSummonOut
-  - kNoTeleportOut
-  - kNoWeather
   sector: kInside
+  flags:
+    - kNoEntryMob
+    - kIndoors
+    - kPeaceful
+    - kSoundproof
+    - kNoMagic
+    - kNoSummonOut
+    - kNoTeleportOut
+    - kNoWeather
   triggers:
-  - 198
+    - 198  # подавление врат в аду
 
+# Room #111
 11:
-  # Room #111
-  zone: 1
   name: Одиночная камера N6
   description: |2
        Угрюмые мрачные многометровые стены окружают тебя со всех сторон. Комната 
@@ -353,23 +309,22 @@
     закрывает выход из комнаты. Недалеко слышны душераздирающие звуки пыток
     и допросов. Выберусь ли живой отсюда? - вот мысль постоянно пульсирующая
     в вашей голове.
-  flags:
-  - kNoEntryMob
-  - kIndoors
-  - kPeaceful
-  - kSoundproof
-  - kNoMagic
-  - kNoSummonOut
-  - kNoTeleportOut
-  - kNoWeather
-  - kNoItem
   sector: kInside
+  flags:
+    - kNoEntryMob
+    - kIndoors
+    - kPeaceful
+    - kSoundproof
+    - kNoMagic
+    - kNoSummonOut
+    - kNoTeleportOut
+    - kNoWeather
+    - kNoItem
   triggers:
-  - 198
+    - 198  # подавление врат в аду
 
+# Room #112
 12:
-  # Room #112
-  zone: 1
   name: Одиночная камера N7
   description: |2
        Угрюмые мрачные многометровые стены окружают тебя со всех сторон. Комната 
@@ -377,22 +332,21 @@
     закрывает выход из комнаты. Недалеко слышны душераздирающие звуки пыток
     и допросов. Выберусь ли живой отсюда? - вот мысль постоянно пульсирующая
     в вашей голове.
-  flags:
-  - kNoEntryMob
-  - kIndoors
-  - kPeaceful
-  - kSoundproof
-  - kNoMagic
-  - kNoSummonOut
-  - kNoTeleportOut
-  - kNoWeather
   sector: kInside
+  flags:
+    - kNoEntryMob
+    - kIndoors
+    - kPeaceful
+    - kSoundproof
+    - kNoMagic
+    - kNoSummonOut
+    - kNoTeleportOut
+    - kNoWeather
   triggers:
-  - 198
+    - 198  # подавление врат в аду
 
+# Room #113
 13:
-  # Room #113
-  zone: 1
   name: Одиночная камера N8
   description: |2
        Угрюмые мрачные многометровые стены окружают тебя со всех сторон. Комната 
@@ -400,20 +354,19 @@
     закрывает выход из комнаты. Недалеко слышны душераздирающие звуки пыток
     и допросов. Выберусь ли живой отсюда? - вот мысль постоянно пульсирующая
     в вашей голове.
-  flags:
-  - kNoEntryMob
-  - kPeaceful
-  - kNoMagic
-  - kNoSummonOut
-  - kNoTeleportOut
-  - kNoWeather
   sector: kInside
+  flags:
+    - kNoEntryMob
+    - kPeaceful
+    - kNoMagic
+    - kNoSummonOut
+    - kNoTeleportOut
+    - kNoWeather
   triggers:
-  - 198
+    - 198  # подавление врат в аду
 
+# Room #114
 14:
-  # Room #114
-  zone: 1
   name: Одиночная камера N9
   description: |2
        Угрюмые мрачные многометровые стены окружают тебя со всех сторон. Комната 
@@ -421,22 +374,21 @@
     закрывает выход из комнаты. Недалеко слышны душераздирающие звуки пыток
     и допросов. Выберусь ли живой отсюда? - вот мысль постоянно пульсирующая
     в вашей голове.
-  flags:
-  - kNoEntryMob
-  - kIndoors
-  - kPeaceful
-  - kSoundproof
-  - kNoMagic
-  - kNoSummonOut
-  - kNoTeleportOut
-  - kNoWeather
   sector: kInside
+  flags:
+    - kNoEntryMob
+    - kIndoors
+    - kPeaceful
+    - kSoundproof
+    - kNoMagic
+    - kNoSummonOut
+    - kNoTeleportOut
+    - kNoWeather
   triggers:
-  - 198
+    - 198  # подавление врат в аду
 
+# Room #115
 15:
-  # Room #115
-  zone: 1
   name: Одиночная камера N10
   description: |2
        Угрюмые мрачные многометровые стены окружают тебя со всех сторон. Комната 
@@ -444,22 +396,21 @@
     закрывает выход из комнаты. Недалеко слышны душераздирающие звуки пыток
     и допросов. Выберусь ли живой отсюда? - вот мысль постоянно пульсирующая
     в вашей голове.
-  flags:
-  - kNoEntryMob
-  - kIndoors
-  - kPeaceful
-  - kSoundproof
-  - kNoMagic
-  - kNoSummonOut
-  - kNoTeleportOut
-  - kNoWeather
   sector: kInside
+  flags:
+    - kNoEntryMob
+    - kIndoors
+    - kPeaceful
+    - kSoundproof
+    - kNoMagic
+    - kNoSummonOut
+    - kNoTeleportOut
+    - kNoWeather
   triggers:
-  - 198
+    - 198  # подавление врат в аду
 
+# Room #116
 16:
-  # Room #116
-  zone: 1
   name: Комната темной красавицы
   description: |2
        Вы вошли в маленькую комнату под самым небом, сюда могут входить тольео самые
@@ -468,87 +419,154 @@
     висели коренья, пучки высохших трав и цветов. Много места занимает очаг из
     красного кирпича, в очаге горят березовые дрова, заставляя бурно кипеть варево
     в котле, из которого выползает длинный змеевик.
-  flags:
-  - kIndoors
-  - kPeaceful
-  - kNoMagic
-  - kNoSummonOut
-  - kNoWeather
   sector: kInside
+  flags:
+    - kIndoors
+    - kPeaceful
+    - kNoMagic
+    - kNoSummonOut
+    - kNoWeather
   triggers:
-  - 198
+    - 198  # подавление врат в аду
 
+# Room #117
+17:
+  name: На месте колесничьего
+  description: |2
+    Отсюда можно напрямую управлять колесницей.
+    Чтоб покинуть это место, наберите "конец".
+  sector: kInside
+  flags:
+    - kNoEntryMob
+    - kIndoors
+    - kPeaceful
+    - kTunnel
+    - kNoTeleportIn
+    - kNoSummonOut
+    - kNoTeleportOut
+    - kNoWeather
+    - kNoRelocateIn
+    - kAlwaysLit
+    - kMoMapper
+  exits:
+    - direction: south
+      to_room: 118  # В колеснице
+  triggers:
+    - 134  # управление колесницей
+
+# Room #118
+18:
+  name: В колеснице
+  description: |2
+    Это богато украшенная колесница, пренадлежащая самому Индре.
+  sector: kInside
+  flags:
+    - kIndoors
+    - kPeaceful
+    - kNoTeleportIn
+    - kNoTeleportOut
+    - kNoWeather
+    - kNoRelocateIn
+    - kNoBattle
+    - kAlwaysLit
+    - kMoMapper
+  exits:
+    - direction: north
+      to_room: 117  # На месте колесничьего
+    - direction: up
+      to_room: 119  # Покои Индры
+
+# Room #119
+19:
+  name: Покои Индры
+  description: |2
+    В этом кабинете, украшенном картинами, изображающими великих героев и ужасающих чудовищ, всегда приятно находиться.
+    У стены можно увидеть огромный диван, на который так и хочется прилечь.
+    В центре распологается стол, над которым висят таблички с непонятными надписями: 'if... load... trigedit...'
+    У стола стоит глубокое кресло.
+    Сидя в нем удобно смотреть в окно напротив, в котором виднеется мир смертных во всем своем великолепии.
+    По слухам здесь обитает Индра...
+  sector: kWaterSwim
+  flags:
+    - kNoEntryMob
+    - kIndoors
+    - kNoTeleportIn
+    - kNoWeather
+    - kAlwaysLit
+  exits:
+    - direction: north
+      to_room: 4056  # Гостиный двор
+    - direction: east
+      to_room: 4080  # Подпольное казино
+    - direction: south
+      to_room: 15200  # Точка невозврата
+    - direction: west
+      to_room: 99099  # Виртуальная комната
+    - direction: up
+      to_room: 100  # Тронный зал
+    - direction: down
+      to_room: 49987  # Гостиный двор
+  triggers:
+    - 145  # dungeons
+
+# Room #120
 20:
-  # Room #120
-  zone: 1
   name: Зал мертвых
-  description: |
+  description: |2
     ___Огромный зал, словно вырубленный в скале. Гладкие колонны взмывают ввысь,
     теряясь в темноте. Кристаллики льда хрустят  под ногами, иногда взвиваясь
     вместе с поземкой аж до уровня груди. Дорожка из плотно пригнанных друг к другу
     плит приводит к небольшому возвышению, на котором стоит хрустальный трон.
     Абсолютное безмолвие с легким поскрипыванием льдинок заставляет Вас зябко
     кутаться в одежду и вжимать голову в плечи.
-  flags:
-  - kNoMagic
   sector: kInside
   exits:
-  - direction: north
-    description: |
-      покои Морены
-    keywords: дверь|дверь
-    exit_flags: 1
-    key: 0
-    to_room: 121  # Покои Морены
-    lock_complexity: 0
+    - direction: north
+      to_room: 121  # Покои Морены
+      description: |2
+        покои Морены
+      keywords: дверь
+      exit_flags: 1
+      key: 0
   triggers:
-  - 198
+    - 198  # подавление врат в аду
 
+# Room #121
 21:
-  # Room #121
-  zone: 1
   name: Покои Морены
-  description: |
+  description: |2
     ___Огромный будуар Хозяйки Мертвых. Только тут горит огонь в камине,
     даря тепло хозяйке и гостям. Перед камином лежит шкура полярного барса.
     Огромная кровать в углу будуара, завалена шкурами песцов и черно-бурых лис.
     Мантия, подбитая горностаем, небрежно брошена на спинку кресла, стоящего около
     волшебного зеркала в серебряной оправе.
-  flags:
-  - kNoWeather
   sector: kInside
+  flags:
+    - kNoWeather
   exits:
-  - direction: east
-    exit_flags: 0
-    key: 0
-    to_room: 0
-    lock_complexity: 0
-  - direction: south
-    description: |
-      Зал Мертвых
-    keywords: дверь|дверь
-    exit_flags: 1
-    key: 0
-    to_room: 120  # Зал мертвых
-    lock_complexity: 0
+    - direction: south
+      to_room: 120  # Зал мертвых
+      description: |2
+        Зал Мертвых
+      keywords: дверь
+      exit_flags: 1
+      key: 0
   triggers:
-  - 198
+    - 198  # подавление врат в аду
 
+# Room #125
 25:
-  # Room #125
-  zone: 1
   name: '&cжилище Браги&n'
-  description: |
+  description: |2
     ___Вы в небольшой светлой комнате. На ее стенах висят большие зеркала.
     Пол грязный, судя по всему здесь давно не убирали. В дальнем углу комнаты
     лежат &cволшебные арфы&n, сваленные в кучу, как дрова.
   sector: kInside
 
+# Room #130
 30:
-  # Room #130
-  zone: 1
   name: Покои Сытиврата
-  description: |
+  description: |2
     ___Арбуз подвешенный к потолку наполняет комнату не только мягким светом,
     но и ярким запахом. К нему примешиваются запахи дынного окна, ковра из
     луговых цветов, свежего хлеба, лежащего на широкой ветке молодого деревца
@@ -556,104 +574,83 @@
     вешалкой, на которой гостеприимный хозяин оставляет свою широкополую шляпу.
     Комната переполнена запахами, у Вас начинает кружиться голова, заставляя
     присесть на удобно подвернувшийся мягкий корень. 
-  flags:
-  - kSoundproof
-  - kGodsRoom
-  - kHouse
   sector: kInside
+  flags:
+    - kSoundproof
+    - kGodsRoom
+    - kHouse
   extra_descriptions:
-  - keywords: комната отдых покой
-    description: |
-      Комната предназначена для спокойных дум бога Сытиврата.
+    - keywords: комната отдых покой
+      description: |2
+        Комната предназначена для спокойных дум бога Сытиврата.
 
+# Room #131
 31:
-  # Room #131
-  zone: 1
   name: Покои Милича
-  description: |
+  description: |2
     __Серый туман, окружающий вас со всех сторон, кажется пытается поглотить
     саму вашу сущность. Но немного привыкнув вы понимаете, что стена тумана
     вовсе не рядом, а достаточно далеко, и даже просто дойти до него вам
     не удастся. В этой серой пустоте, иногда проскальзывают какие-то всполыхи,
     материализуются чьи-то мысли, объекты. Вся эта мешанина образов давит на вас,
     вынуждая закрыть глаза, и пожелать оказаться в другом месте. Это не ваш мир.
-  flags:
-  - kForMages
-  - kNoSummonOut
-  - kNoTeleportOut
   sector: kInside
-  exits:
-  - direction: north
-    exit_flags: 0
-    key: 0
-    to_room: 131  # Покои Милича
-    lock_complexity: 0
-  - direction: east
-    exit_flags: 0
-    key: 0
-    to_room: 131  # Покои Милича
-    lock_complexity: 0
-  - direction: south
-    exit_flags: 0
-    key: 0
-    to_room: 131  # Покои Милича
-    lock_complexity: 0
-  - direction: west
-    exit_flags: 0
-    key: 0
-    to_room: 131  # Покои Милича
-    lock_complexity: 0
-  - direction: up
-    exit_flags: 16
-    key: 0
-    to_room: 100  # Тронный зал.
-    lock_complexity: 0
-  - direction: down
-    exit_flags: 16
-    key: 0
-    to_room: 49987
-    lock_complexity: 0
-
-32:
-  # Room #132
-  zone: 1
-  name: Покои покойного Кродо
-  description: |
-    Покойное Кродо покоится в своих покоях...
   flags:
-  - kNoTeleportIn
-  - kGodsRoom
-  - kForMages
-  - kNoSummonOut
-  - kNoTeleportOut
-  sector: kSecret
+    - kForMages
+    - kNoSummonOut
+    - kNoTeleportOut
   exits:
-  - direction: north
-    exit_flags: 0
-    key: 0
-    to_room: 185  # Комната смертной доски
-    lock_complexity: 0
-  - direction: south
-    exit_flags: 0
-    key: 0
-    to_room: 184  # Комната наказаний.
-    lock_complexity: 0
-  - direction: up
-    exit_flags: 0
-    key: 0
-    to_room: 100  # Тронный зал.
-    lock_complexity: 0
-  - direction: down
-    exit_flags: 0
-    key: 0
-    to_room: 104  # Гостиная палата.
-    lock_complexity: 0
+    - direction: north
+      to_room: 131  # Покои Милича
+      key: 0
+    - direction: east
+      to_room: 131  # Покои Милича
+      key: 0
+    - direction: south
+      to_room: 5052  # На лугу
+      key: 0
+    - direction: west
+      to_room: 131  # Покои Милича
+      key: 0
+    - direction: up
+      to_room: 100  # Тронный зал
+      exit_flags: 16
+      key: 0
+    - direction: down
+      to_room: 49987  # Гостиный двор
+      exit_flags: 16
+      key: 0
 
+# Room #132
+32:
+  name: Покои покойного Кродо
+  description: |2
+    Покойное Кродо покоится в своих покоях...
+  sector: kSecret
+  flags:
+    - kNoTeleportIn
+    - kGodsRoom
+    - kForMages
+    - kNoSummonOut
+    - kNoTeleportOut
+  exits:
+    - direction: north
+      to_room: 185  # Комната смертной доски
+      key: 0
+    - direction: south
+      to_room: 184  # Комната наказаний
+      key: 0
+    - direction: up
+      to_room: 100  # Тронный зал
+      key: 0
+    - direction: down
+      to_room: 104  # Гостинная палата
+      key: 0
+
+# Room #133
 33:
-  # Room #133
-  zone: 1
   name: '&WПокои Свентовита&n'
-  description: |
+  description: |2
     ___Узкий скальный карниз где-то на отвесном горном склоне, почти у самой вершины.
     Вокруг вздыбились бесчисленные хребты и пики, блистающие вечными снегами. Из-под края
     ледника, сползающего в ущелье, вытекает бурный поток - исток горной реки. Далеко внизу
@@ -663,31 +660,26 @@
     &WСтройное деревце со снежно-белой корой и &Cсеребристыми листьями&W растет по левую руку от трона.&n
     &KВысокий трон вырублен прямо в скальном массиве.&n
     &WСтройное деревце со снежно-белой корой и &Yзолотистыми листьями&W растет по правую руку от трона.&n
-  flags:
-  - kIndoors
-  - kNoTeleportIn
-  - kArena
-  - kNoSummonOut
-  - kNoWeather
-  - kNoRelocateIn
   sector: kInside
+  flags:
+    - kIndoors
+    - kNoTeleportIn
+    - kArena
+    - kNoSummonOut
+    - kNoWeather
+    - kNoRelocateIn
   exits:
-  - direction: up
-    exit_flags: 0
-    key: 0
-    to_room: 100  # Тронный зал.
-    lock_complexity: 0
-  - direction: down
-    exit_flags: 0
-    key: 0
-    to_room: 49987
-    lock_complexity: 0
+    - direction: up
+      to_room: 100  # Тронный зал
+      key: 0
+    - direction: down
+      to_room: 49987  # Гостиный двор
+      key: 0
 
+# Room #134
 34:
-  # Room #134
-  zone: 1
   name: '&BПокои Поренута&n'
-  description: |
+  description: |2
     ___Вы оказались на вершине морской горы, вздымающейся необъятной громадой
     откуда-то из иссиня-черной бездны. Изящные колонны из жемчуга и янтаря
     поддерживают легкий свод, в который впечатались окаменелые стебли водорослей.
@@ -696,355 +688,277 @@
     Зеленоватый свет мерцает и переливается между колоннами, озаряя изображенную
     на внутреней поверхности купола картину чудовищной морской бури, обрушивающейся
     на окруженный семью стенами город в центре огромного острова.
-  flags:
-  - kIndoors
-  - kPeaceful
-  - kNoTeleportIn
-  - kGodsRoom
-  - kNoWeather
   sector: kInside
+  flags:
+    - kIndoors
+    - kPeaceful
+    - kNoTeleportIn
+    - kGodsRoom
+    - kNoWeather
   exits:
-  - direction: north
-    exit_flags: 16
-    key: 0
-    to_room: 133  # &WПокои Свентовита&n
-    lock_complexity: 0
-  - direction: east
-    exit_flags: 16
-    key: 0
-    to_room: 186  # Недоделанная комната
-    lock_complexity: 0
-  - direction: south
-    exit_flags: 16
-    key: 0
-    to_room: 49987
-    lock_complexity: 0
-  - direction: up
-    exit_flags: 16
-    key: 0
-    to_room: 100  # Тронный зал.
-    lock_complexity: 0
-  - direction: down
-    exit_flags: 16
-    key: 0
-    to_room: 101  # Темница
-    lock_complexity: 0
+    - direction: north
+      to_room: 133  # &WПокои Свентовита&n
+      exit_flags: 16
+      key: 0
+    - direction: east
+      to_room: 186  # Доска баги
+      exit_flags: 16
+      key: 0
+    - direction: south
+      to_room: 49987  # Гостиный двор
+      exit_flags: 16
+      key: 0
+    - direction: up
+      to_room: 100  # Тронный зал
+      exit_flags: 16
+      key: 0
+    - direction: down
+      to_room: 101  # Темница
+      exit_flags: 16
+      key: 0
 
+# Room #135
 35:
-  # Room #135
-  zone: 1
   name: '&KПокои Переплута&n'
-  description: |
+  description: |2
     ___Вы оказались в странном месте, заполненом туманом и серыми тенями, окружающими
     вас со всех сторон, извивающимися в медленном танце и тающих в темноте, одна за другой.
     Отовсюду слышатся шорохи и стук падающих капель, серые тени, только что казавшиеся
     бесплотными призраками, вдруг обретают форму и цвет, представая жуткими чудовищами, или 
     бастионами громадного, тонущего во мгле замка, но налетающий порыв ветра вновь заставляет
     наваждение расплыться клубами густого тумана и мириадами миражей.&n
-  flags:
-  - kDarked
-  - kIndoors
-  - kNoTeleportIn
-  - kGodsRoom
-  - kNoTeleportOut
-  - kNoWeather
   sector: kInside
+  flags:
+    - kDarked
+    - kIndoors
+    - kNoTeleportIn
+    - kGodsRoom
+    - kNoTeleportOut
+    - kNoWeather
   exits:
-  - direction: east
-    exit_flags: 16
-    key: 0
-    to_room: 27018
-    lock_complexity: 0
-  - direction: west
-    exit_flags: 16
-    key: 0
-    to_room: 4056  # Гостиный двор
-    lock_complexity: 0
-  - direction: up
-    exit_flags: 16
-    key: 0
-    to_room: 100  # Тронный зал.
-    lock_complexity: 0
-  - direction: down
-    exit_flags: 16
-    key: 0
-    to_room: 49987
-    lock_complexity: 0
+    - direction: east
+      to_room: 27018  # Постоялый двор
+      exit_flags: 16
+      key: 0
+    - direction: west
+      to_room: 4056  # Гостиный двор
+      exit_flags: 16
+      key: 0
+    - direction: up
+      to_room: 100  # Тронный зал
+      exit_flags: 16
+      key: 0
+    - direction: down
+      to_room: 49987  # Гостиный двор
+      exit_flags: 16
+      key: 0
 
+# Room #136
 36:
-  # Room #136
-  zone: 1
   name: '&Y__Прибежище Руевита&n'
   description: |2
        Вы оказались в просторном светлом зале с очень высоким потолком. Залитый
     ярким светом желтых шаров неизвестного происхождения и устройства, в центре
     зала стоит дубовый идол. Тишина и абсолютная неподвижность воздуха кажутся
     странными и неестественными.  
-  flags:
-  - kDarked
-  - kForPoly
-  - kArena
-  - kNoSummonOut
   sector: kInside
+  flags:
+    - kDarked
+    - kForPoly
+    - kArena
+    - kNoSummonOut
   exits:
-  - direction: east
-    exit_flags: 0
-    key: 0
-    to_room: 0
-    lock_complexity: 0
-  - direction: west
-    exit_flags: 1
-    key: 0
-    to_room: 103  # Комната для незарегистрированных игроков, играющих через прокси.
-    lock_complexity: 0
-  - direction: up
-    exit_flags: 1
-    key: 0
-    to_room: 100  # Тронный зал.
-    lock_complexity: 0
-  - direction: down
-    exit_flags: 1
-    key: 0
-    to_room: 20962
-    lock_complexity: 0
+    - direction: west
+      to_room: 103  # Комната для незарегистрированных игроков, играющих через прокси.
+      exit_flags: 1
+      key: 0
+    - direction: up
+      to_room: 100  # Тронный зал
+      exit_flags: 1
+      key: 0
+    - direction: down
+      to_room: 20962  # Гостиный дом
+      exit_flags: 1
+      key: 0
   triggers:
-  - 1170
+    - 1170  # тест Руевита
 
+# Room #140
 40:
-  # Room #140
-  zone: 1
   name: '&KЧертог Хель&n'
-  description: |
+  description: |2
     ___Хельхейм служит приютом для всех мертвых, не попавших в Вальхаллу. Это
     холодное, темное и туманное место, на диво высоки его ограды и крепки
     решетки. Слышен плеск воды - это Гьелль, окружающая чертог со всех сторон,
     шумит, омывая берега. &kКорень Дерева Мира находится здесь, и скрывается под
     ним Хвергельмир, звенящий источник, из коего варится питье богов. 
-  flags:
-  - kForPoly
-  - kNoWeather
   sector: kInside
+  flags:
+    - kForPoly
+    - kArena
+    - kNoWeather
   exits:
-  - direction: west
-    description: '&KМост через Гьелль&n'
-    exit_flags: 0
-    key: 0
-    to_room: 100  # Тронный зал.
-    lock_complexity: 0
+    - direction: west
+      to_room: 100  # Тронный зал
+      description: '&KМост через Гьелль&n'
+      key: 0
 
+# Room #150
 50:
-  # Room #150
-  zone: 1
   name: Покои Прове
-  description: |
+  description: |2
     ___Большая, красиво убранная комната. Лампа, чуть горя, слегка освещает комнату.
     В центре стоит круглый стол, а в углу сундук. На полу постелен красивый ковер, а
     стены обшиты бархатным материалом.
-  flags:
-  - kNoMagic
   sector: kInside
+  flags:
+    - kNoMagic
   exits:
-  - direction: north
-    exit_flags: 0
-    key: 0
-    to_room: 152  # Покои Свята
-    lock_complexity: 0
+    - direction: north
+      to_room: 152  # Покои Свята
+      key: 0
 
+# Room #152
 52:
-  # Room #152
-  zone: 1
   name: Покои Свята
-  description: |
+  description: |2
     ___Under сonstruction :)
-  flags:
-  - kDeathTrap
-  - kGodsRoom
-  - kIceTrap
   sector: kInside
+  flags:
+    - kDeathTrap
+    - kGodsRoom
+    - kIceTrap
   exits:
-  - direction: north
-    exit_flags: 0
-    key: 0
-    to_room: 101  # Темница
-    lock_complexity: 0
-  - direction: east
-    exit_flags: 0
-    key: 0
-    to_room: 103  # Комната для незарегистрированных игроков, играющих через прокси.
-    lock_complexity: 0
-  - direction: south
-    exit_flags: 0
-    key: 0
-    to_room: 0
-    lock_complexity: 0
-  - direction: west
-    exit_flags: 0
-    key: 0
-    to_room: 105  # Темница для людей с неверными именами
-    lock_complexity: 0
-  - direction: up
-    exit_flags: 0
-    key: 0
-    to_room: 100  # Тронный зал.
-    lock_complexity: 0
-  - direction: down
-    exit_flags: 0
-    key: 0
-    to_room: 0
-    lock_complexity: 0
+    - direction: north
+      to_room: 101  # Темница
+      key: 0
+    - direction: east
+      to_room: 103  # Комната для незарегистрированных игроков, играющих через прокси.
+      key: 0
+    - direction: west
+      to_room: 105  # Темница для людей с неверными именами
+      key: 0
+    - direction: up
+      to_room: 100  # Тронный зал
+      key: 0
 
+# Room #160
 60:
-  # Room #160
-  zone: 1
   name: Ратное поле Валхаллы.
-  description: |
+  description: |2
     ___Вы оказались в чистом поле, которому не видно ни конца ни края. Здесь Один
     проводит бои своего эйнхериара и находит лучших бойцов. После битвы воины оживают
     и отправляются в пиршественный зал, неся победителя на щите.
-  flags:
-  - kArena
   sector: kField
+  flags:
+    - kArena
 
+# Room #166
 66:
-  # Room #166
-  zone: 1
   name:    &BД&Cол&cин&gа С&Gно&gви&cде&Cни&Bй&n
-  description: |
+  description: |2
        Осенняя &rДолина Снов&n печальна, 
     Упали тени с крон плакучих ив,
     В &Cозёрном хрустале&n стрелой зеркальной
     Пугает красных рыб небесный гриф.
-
     Неведомой тропинкой смерть приходит
     Кувшин наполнить &Kмёртвою водой&n,
     Когда &WЕдинорог-гордец&n выходит
     С Драконом в поле на последний бой.
-
     Чудесный аромат цветов &Mмагнолий&n
     Восходит в небо как теченье снов.
     В &YДолине&n утихает всё: и боли,
     И горечь поражений, и любовь...
-  flags:
-  - kNoTeleportIn
-  - kArena
-  - kNoTeleportOut
   sector: kInside
+  flags:
+    - kNoTeleportIn
+    - kArena
+    - kNoTeleportOut
   exits:
-  - direction: north
-    exit_flags: 0
-    key: 0
-    to_room: 0
-    lock_complexity: 0
-  - direction: east
-    exit_flags: 0
-    key: 0
-    to_room: 0
-    lock_complexity: 0
-  - direction: south
-    exit_flags: 0
-    key: 0
-    to_room: 1158
-    lock_complexity: 0
-  - direction: west
-    exit_flags: 0
-    key: 0
-    to_room: 0
-    lock_complexity: 0
-  - direction: down
-    exit_flags: 0
-    key: 0
-    to_room: 101  # Темница
-    lock_complexity: 0
+    - direction: south
+      to_room: 1158  # Маленький чистый прудик
+      key: 0
+    - direction: down
+      to_room: 101  # Темница
+      key: 0
 
+# Room #180
 80:
-  # Room #180
-  zone: 1
   name: Кабинет Древеня
-  description: |
+  description: |2
     Это кабинет Древня, драсте. Ж)
   sector: kInside
 
+# Room #184
 84:
-  # Room #184
-  zone: 1
-  name: Комната наказаний.
-  description: |
-    ___Очень странная комната. Словно она делится на две части. В одной части на большой
-    мраморной плите мелькают странные надписи, похожие на неправильные имена. А в другой
-    камни от жара светятся красным сиянием. В середине комнаты стоит доска,
-    выбитая в золотом слитке и именуемая доска потерянных судеб.
-  flags:
-  - kIndoors
-  - kNoMagic
-  - kNoTeleportIn
-  - kArena
-  - kNoSummonOut
-  - kNoTeleportOut
-  - kNoRelocateIn
+  name: Комната наказаний
+  description: |2
+    ___Очень странная комната. Словно она делится на две части. В одной части на
+    большой мраморной плите мелькают странные надписи, похожие на неправильные
+    имена. А в другой камни от жара светятся красным сиянием. В середине комнаты
+    стоит доска, выбитая в золотом слитке и именуемая доска потерянных судеб.  
   sector: kInside
+  flags:
+    - kIndoors
+    - kNoMagic
+    - kNoTeleportIn
+    - kArena
+    - kNoSummonOut
+    - kNoTeleportOut
+    - kNoRelocateIn
   exits:
-  - direction: north
-    exit_flags: 0
-    key: 0
-    to_room: 100  # Тронный зал.
-    lock_complexity: 0
+    - direction: north
+      to_room: 100  # Тронный зал
+      key: 0
+    - direction: east
+      to_room: 102299  # Виртуальная комната
   triggers:
-  - 198
+    - 198  # подавление врат в аду
 
+# Room #185
 85:
-  # Room #185
-  zone: 1
   name: Комната смертной доски
-  description: |
-    ___Большая мраморная комната. По углам стоят четыре белыx колонны, уходя высоко в потолок.
-    Пол весь покрыт плиткой с замысловатыми рисунками. Перед доской стоят четыре стула и маленький
-    круглый столик.
-  flags:
-  - kIndoors
-  - kNoMagic
-  - kNoTeleportIn
-  - kArena
-  - kNoTeleportOut
-  - kNoWeather
-  - kNoRelocateIn
+  description: |2
+    ___Большая мраморная комната. По углам стоят четыре белых колонны, уходя
+    высоко в потолок. Пол весь покрыт плиткой с замысловатыми рисунками. Перед
+    доской стоят четыре стула и маленький круглый столик.  
   sector: kInside
+  flags:
+    - kIndoors
+    - kNoMagic
+    - kNoTeleportIn
+    - kArena
+    - kNoTeleportOut
+    - kNoWeather
+    - kNoRelocateIn
   exits:
-  - direction: south
-    exit_flags: 0
-    key: 0
-    to_room: 100  # Тронный зал.
-    lock_complexity: 0
+    - direction: south
+      to_room: 100  # Тронный зал
+      key: 0
   triggers:
-  - 198
+    - 198  # подавление врат в аду
+    - 156  # test trig Yarilo
 
+# Room #186
 86:
-  # Room #186
-  zone: 1
-  name: Недоделанная комната
-  description: |
+  name: Доска баги
+  description: |2
     Вы оказались в комнате, наполненной обломками творческих мыслей КОДЕРА.
-  flags:
-  - kIndoors
-  - kPeaceful
-  - kNoMagic
-  - kNoTeleportIn
-  - kArena
-  - kNoSummonOut
-  - kNoTeleportOut
-  - kNoWeather
-  - kNoRelocateIn
   sector: kInside
+  flags:
+    - kIndoors
+    - kPeaceful
+    - kNoMagic
+    - kNoTeleportIn
+    - kArena
+    - kNoSummonOut
+    - kNoTeleportOut
+    - kNoWeather
+    - kNoRelocateIn
   exits:
-  - direction: north
-    exit_flags: 0
-    key: 0
-    to_room: 104  # Гостиная палата.
-    lock_complexity: 0
-  - direction: east
-    exit_flags: 0
-    key: 0
-    to_room: 0
-    lock_complexity: 0
+    - direction: north
+      to_room: 104  # Гостинная палата
+      key: 0
   triggers:
-  - 100
-  - 198
+    - 100  # тестовый
+    - 198  # подавление врат в аду

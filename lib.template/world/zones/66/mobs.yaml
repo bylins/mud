@@ -1,0 +1,759 @@
+# Mobs for zone 66
+
+# Mob #6600
+0:
+  names:
+    aliases: огородник
+    nominative: огородник
+    genitive: огородника
+    dative: огороднику
+    accusative: огородника
+    instrumental: огородником
+    prepositional: огороднике
+  descriptions:
+    short_desc: |2
+      Огородник-работяга ухаживает за огородом.
+    long_desc: |2
+      Крестьянин, добывающий свой хлеб в поте лица.
+  alignment: -600
+  stats:
+    level: 10
+    hitroll_penalty: 7
+    armor: 6
+    hp:
+      dice_count: 4
+      dice_size: 4
+      bonus: 220
+    damage:
+      dice_count: 2
+      dice_size: 4
+      bonus: 3
+  gold:
+    dice_count: 4
+    dice_size: 5
+    bonus: 30
+  experience: 8000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 50
+  race: 101
+  height: 198
+  weight: 140
+  attributes:
+    strength: 20
+    dexterity: 17
+    intelligence: 10
+    wisdom: 10
+    constitution: 15
+    charisma: 8
+  action_flags:
+    - kScavenger
+    - kNpc
+    - kStayZone
+    - kNoCharm
+    - kNoSummon
+  affect_flags:
+    - kInfravision
+    - kNoFlee
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 40
+  triggers:
+    - 6600  # умер огородник
+  enhanced:
+    absorb: 10
+    max_factor: 1
+    extra_attack: 1
+    special_bitvector: b1c1
+
+# Mob #6601
+1:
+  names:
+    aliases: сторож огорода
+    nominative: сторож огорода
+    genitive: сторожа огорода
+    dative: сторожу огорода
+    accusative: сторожа огорода
+    instrumental: сторожем огорода
+    prepositional: стороже огорода
+  descriptions:
+    short_desc: |2
+      Сторож охраняет огород от воришек.
+    long_desc: |2
+      Суровый мужик со зверским выражением лица.
+  alignment: -600
+  stats:
+    level: 12
+    hitroll_penalty: 3
+    armor: 5
+    hp:
+      dice_count: 4
+      dice_size: 4
+      bonus: 250
+    damage:
+      dice_count: 3
+      dice_size: 4
+      bonus: 1
+  gold:
+    dice_count: 3
+    dice_size: 3
+    bonus: 20
+  experience: 12000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 60
+  race: 101
+  height: 198
+  weight: 180
+  attributes:
+    strength: 18
+    dexterity: 15
+    intelligence: 8
+    wisdom: 8
+    constitution: 15
+    charisma: 8
+  action_flags:
+    - kSentinel
+    - kScavenger
+    - kNpc
+    - kAgressive
+    - kStayZone
+    - kNoCharm
+    - kNoFear
+    - kLooter
+  affect_flags:
+    - kInfravision
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 50
+    - skill_id: 141  # палицы и дубины
+      value: 25
+  triggers:
+    - 6601  # умер сторож
+  enhanced:
+    absorb: 12
+    like_work: 5
+    max_factor: 1
+    extra_attack: 1
+    special_bitvector: b1c1
+
+# Mob #6602
+2:
+  names:
+    aliases: сорока
+    nominative: сорока
+    genitive: сороки
+    dative: сороке
+    accusative: сороку
+    instrumental: сорокой
+    prepositional: сороке
+  descriptions:
+    short_desc: |2
+      Белобокая сорока кружит над огородом.
+    long_desc: |2
+      Серая крупная птица с белыми боками.
+  alignment: -600
+  stats:
+    level: 9
+    hitroll_penalty: 10
+    armor: 2
+    hp:
+      dice_count: 2
+      dice_size: 3
+      bonus: 150
+    damage:
+      dice_count: 3
+      dice_size: 3
+      bonus: 2
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 4000
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  size: 30
+  race: 103
+  height: 198
+  weight: 75
+  attributes:
+    strength: 14
+    dexterity: 13
+    intelligence: 6
+    wisdom: 6
+    constitution: 10
+    charisma: 6
+  action_flags:
+    - kNpc
+    - kStayZone
+  affect_flags:
+    - kInfravision
+    - kFly
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 27
+    - skill_id: 139  # украсть
+      value: 100
+  enhanced:
+    absorb: 9
+    bare_hand_attack: 1
+    max_factor: 1
+    special_bitvector: a1
+
+# Mob #6603
+3:
+  names:
+    aliases: пугало огородное
+    nominative: пугало огородное
+    genitive: пугала огородного
+    dative: пугалу огородному
+    accusative: пугало огородное
+    instrumental: пугалом огородным
+    prepositional: пугале огородном
+  descriptions:
+    short_desc: |2
+      Пугало отгоняет сорок от огорода.
+    long_desc: |2
+      Ну, прямо как живое! В рваном зипуне и с тыквой вместо головы.
+      Только вот, похоже, что птицы всерьез его уже не воспринимают.
+  alignment: -600
+  stats:
+    level: 10
+    hitroll_penalty: 7
+    armor: 5
+    hp:
+      dice_count: 4
+      dice_size: 4
+      bonus: 175
+    damage:
+      dice_count: 3
+      dice_size: 2
+      bonus: 1
+  gold:
+    dice_count: 1
+    dice_size: 1
+    bonus: 1
+  experience: 3000
+  position:
+    default: kStand
+    start: kStand
+  sex: kNeutral
+  size: 40
+  race: 109
+  height: 198
+  weight: 20
+  attributes:
+    strength: 10
+    dexterity: 3
+    intelligence: 5
+    wisdom: 5
+    constitution: 10
+    charisma: 5
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kStayZone
+    - kNoCharm
+    - kIgnoresNoMob
+  affect_flags:
+    - kNoFlee
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 30
+  enhanced:
+    absorb: 10
+    bare_hand_attack: 2
+    max_factor: 1
+    extra_attack: 1
+    special_bitvector: a1b1c1
+
+# Mob #6604
+4:
+  names:
+    aliases: злая собака
+    nominative: злая собака
+    genitive: злой собаки
+    dative: злой собаке
+    accusative: злую собаку
+    instrumental: злой собакой
+    prepositional: злой собаке
+  descriptions:
+    short_desc: |2
+      Злая собака рычит на окружающих.
+    long_desc: |2
+      Обычная дворняга, но уж больно злая. Видать голодная.
+  alignment: -600
+  stats:
+    level: 11
+    hitroll_penalty: 8
+    armor: 5
+    hp:
+      dice_count: 4
+      dice_size: 3
+      bonus: 180
+    damage:
+      dice_count: 2
+      dice_size: 4
+      bonus: 2
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 5000
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  size: 40
+  race: 104
+  height: 198
+  weight: 110
+  attributes:
+    strength: 15
+    dexterity: 17
+    intelligence: 7
+    wisdom: 7
+    constitution: 13
+    charisma: 7
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kAgressive
+    - kStayZone
+    - kMemory
+  affect_flags:
+    - kInfravision
+    - kNoFlee
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 33
+  enhanced:
+    absorb: 11
+    bare_hand_attack: 4
+    max_factor: 1
+    extra_attack: 1
+
+# Mob #6605
+5:
+  names:
+    aliases: грач
+    nominative: грач
+    genitive: грача
+    dative: грачу
+    accusative: грача
+    instrumental: грачом
+    prepositional: граче
+  descriptions:
+    short_desc: |2
+      Черный грач кружит над огородом.
+    long_desc: |2
+      Черная как смоль птичка средних размеров.
+  alignment: -600
+  stats:
+    level: 9
+    hitroll_penalty: 10
+    armor: 2
+    hp:
+      dice_count: 3
+      dice_size: 3
+      bonus: 150
+    damage:
+      dice_count: 2
+      dice_size: 3
+      bonus: 2
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 2500
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 40
+  race: 104
+  height: 198
+  weight: 5
+  attributes:
+    strength: 5
+    dexterity: 12
+    intelligence: 6
+    wisdom: 6
+    constitution: 5
+    charisma: 6
+  action_flags:
+    - kNpc
+    - kStayZone
+    - kWimpy
+  affect_flags:
+    - kFly
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 27
+  enhanced:
+    absorb: 9
+    bare_hand_attack: 1
+    max_factor: 1
+    extra_attack: 1
+    special_bitvector: l0
+
+# Mob #6606
+6:
+  names:
+    aliases: воробей
+    nominative: воробей
+    genitive: воробья
+    dative: воробью
+    accusative: воробья
+    instrumental: воробьем
+    prepositional: воробье
+  descriptions:
+    short_desc: |2
+      Маленький воробей летает здесь.
+    long_desc: |2
+      Маленький воришка.
+  alignment: -600
+  stats:
+    level: 7
+    hitroll_penalty: 10
+    armor: 5
+    hp:
+      dice_count: 3
+      dice_size: 3
+      bonus: 140
+    damage:
+      dice_count: 2
+      dice_size: 2
+      bonus: 2
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 1500
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 5
+  race: 104
+  height: 198
+  weight: 2
+  attributes:
+    strength: 4
+    dexterity: 10
+    intelligence: 5
+    wisdom: 5
+    constitution: 3
+    charisma: 5
+  action_flags:
+    - kNpc
+    - kStayZone
+  affect_flags:
+    - kFly
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 21
+  enhanced:
+    absorb: 7
+    bare_hand_attack: 15
+    max_factor: 1
+    extra_attack: 1
+    special_bitvector: l0
+
+# Mob #6607
+7:
+  names:
+    aliases: заяц
+    nominative: заяц
+    genitive: зайца
+    dative: зайцу
+    accusative: зайца
+    instrumental: зайцем
+    prepositional: зайце
+  descriptions:
+    short_desc: |2
+      Заяц бегает по огороду.
+    long_desc: |2
+      Длинноухий шустрый зверек с ценным мехом.
+  alignment: -600
+  stats:
+    level: 10
+    hitroll_penalty: 8
+    armor: 6
+    hp:
+      dice_count: 3
+      dice_size: 3
+      bonus: 150
+    damage:
+      dice_count: 3
+      dice_size: 2
+      bonus: 4
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 4000
+  position:
+    default: kSit
+    start: kSit
+  sex: kMale
+  size: 10
+  race: 104
+  height: 198
+  weight: 4
+  attributes:
+    strength: 12
+    dexterity: 15
+    intelligence: 7
+    wisdom: 7
+    constitution: 10
+    charisma: 7
+  action_flags:
+    - kNpc
+    - kStayZone
+    - kWimpy
+  affect_flags:
+    - kInfravision
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 30
+  enhanced:
+    absorb: 10
+    bare_hand_attack: 13
+    max_factor: 1
+    extra_attack: 1
+    special_bitvector: n0
+
+# Mob #6608
+8:
+  names:
+    aliases: крот
+    nominative: крот
+    genitive: крота
+    dative: кроту
+    accusative: крота
+    instrumental: кротом
+    prepositional: кроте
+  descriptions:
+    short_desc: |2
+      Большой крот сидит здесь.
+    long_desc: |2
+      Черного цвета небольшой зверек.
+  alignment: -600
+  stats:
+    level: 12
+    hitroll_penalty: 7
+    armor: 5
+    hp:
+      dice_count: 3
+      dice_size: 3
+      bonus: 250
+    damage:
+      dice_count: 2
+      dice_size: 4
+      bonus: 2
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 5000
+  position:
+    default: kSit
+    start: kSit
+  sex: kMale
+  size: 5
+  race: 104
+  height: 198
+  weight: 2
+  attributes:
+    strength: 4
+    dexterity: 10
+    intelligence: 5
+    wisdom: 3
+    constitution: 3
+    charisma: 5
+  action_flags:
+    - kSentinel
+    - kNpc
+    - kStayZone
+  affect_flags:
+    - kBlind
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 36
+    - skill_id: 157  # уклониться
+      value: 50
+  enhanced:
+    absorb: 12
+    bare_hand_attack: 4
+    like_work: 50
+    max_factor: 1
+    extra_attack: 1
+
+# Mob #6609
+9:
+  names:
+    aliases: полевка мышь
+    nominative: полевка
+    genitive: полевки
+    dative: полевке
+    accusative: полевку
+    instrumental: полевкой
+    prepositional: полевке
+  descriptions:
+    short_desc: |2
+      Мышь-полевка бегает здесь.
+    long_desc: |2
+      Крохотная мышь.
+  alignment: -600
+  stats:
+    level: 7
+    hitroll_penalty: 10
+    armor: 5
+    hp:
+      dice_count: 3
+      dice_size: 3
+      bonus: 100
+    damage:
+      dice_count: 2
+      dice_size: 2
+      bonus: 1
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 0
+  experience: 1000
+  position:
+    default: kStand
+    start: kStand
+  sex: kFemale
+  size: 5
+  race: 104
+  height: 198
+  weight: 2
+  attributes:
+    strength: 3
+    dexterity: 9
+    intelligence: 5
+    wisdom: 5
+    constitution: 3
+    charisma: 5
+  action_flags:
+    - kNpc
+    - kStayZone
+  skills:
+    - skill_id: 136  # кулачный бой
+      value: 21
+  enhanced:
+    absorb: 7
+    bare_hand_attack: 8
+    max_factor: 1
+    extra_attack: 1
+    special_bitvector: p0
+
+# Mob #6647
+47:
+  names:
+    aliases: полесник
+    nominative: полесник
+    genitive: полесника
+    dative: полеснику
+    accusative: полесника
+    instrumental: полесником
+    prepositional: полеснике
+  descriptions:
+    short_desc: |2
+      Старый полесник уперся в вас тяжелым взглядом.
+    long_desc: |2
+      Рослый, широкоплечий, жилистый мужик с угрюмым взглядом потягивает трубку.
+  alignment: 0
+  stats:
+    level: 35
+    hitroll_penalty: -5
+    armor: -18
+    hp:
+      dice_count: 1
+      dice_size: 1
+      bonus: 3000
+    damage:
+      dice_count: 12
+      dice_size: 15
+      bonus: 15
+  gold:
+    dice_count: 0
+    dice_size: 0
+    bonus: 5000
+  experience: 750000
+  position:
+    default: kStand
+    start: kStand
+  sex: kMale
+  size: 100
+  race: 101
+  height: 180
+  weight: 120
+  attributes:
+    strength: 35
+    dexterity: 30
+    intelligence: 30
+    wisdom: 40
+    constitution: 45
+    charisma: 20
+  action_flags:
+    - kSentinel
+    - kScavenger
+    - kNpc
+  affect_flags:
+    - kDetectInvisible
+    - kDetectLife
+    - kInfravision
+    - kBless
+    - kAwarness
+    - kBlink
+    - kAirShield
+    - kAirAura
+    - kFireAura
+    - kIceAura
+  skills:
+    - skill_id: 22  # осторожный стиль
+      value: 120
+    - skill_id: 136  # кулачный бой
+      value: 120
+    - skill_id: 160  # подножка
+      value: 140
+    - skill_id: 189  # магия жизни
+      value: 350
+  enhanced:
+    cast_success: 50
+    absorb: 34
+    bare_hand_attack: 6
+    like_work: 100
+    max_factor: 4
+    extra_attack: 2
+    resistances:
+      kMind: 25
+      kImmunity: 25
+      kDark: 8
+    saves:
+      kWill: -34
+      kCritical: -34
+      kStability: -34
+      kReflex: -34
+    spells:
+      - 23
+      - 23
+      - 23
+      - 23
+      - 23
+      - 28
+      - 28
+      - 68
+      - 113
+      - 152
+      - 152

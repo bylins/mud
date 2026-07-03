@@ -1,0 +1,32 @@
+# Objects for zone 28
+
+# Object #2800
+0:
+  names:
+    aliases: черный порошок
+    nominative: черный порошок
+    genitive: черного порошка
+    dative: черному порошку
+    accusative: черный порошок
+    instrumental: черным порошком
+    prepositional: черном порошке
+  short_desc: Что-то новое лежит здесь
+  type: kItemUndefined
+  material: 0  # НЕИЗВЕСТЕН
+  values:
+    - 0
+    - 0
+    - 0
+    - 0
+  weight: 0
+  cost: 0
+  rent_off: 0
+  rent_on: 0
+  max_durability: 0
+  cur_durability: 0
+  timer: 10080
+  spell: 0  # !undefined!
+  level: 0
+  sex: kNeutral
+  wear_flags:
+    - kTake

@@ -1,8 +1,13 @@
 # Zone #3
-name: Системная зона 3 (прототипы для кузнецов)
+
+vnum: 3
+name: 'Системная зона 3 -- прототипы для "перековать"'
 top_room: 399
-mode: 1  # level
-zone_type: 0 # Ингридиентов нет
 lifespan: 0
 reset_mode: 0
 reset_idle: 0
+zone_type: 0
+mode: 1  # level
+entrance: 399
+under_construction: 0
+zone_group: 1  # solo
