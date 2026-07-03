@@ -25,6 +25,9 @@ int ProcessPoisonDmg(CharData *ch, const Affect<EApply>::shared_ptr &af);
 // issue.damage-over-time: regular-poison per-tick damage amount (GET_POISON based). Reused by the future
 // data-driven <damage source="poison"> path; identical to the value ProcessPoisonDmg deals for kPoison.
 int CalcPoisonDamage(CharData *ch);
+// issue.damage-over-time: aconite per-tick DoT amount -- sum of kAconitumPoison-location modifier/4
+// (per-affect, blink-piercing). Used by <damage source="aconite">.
+int CalcAconiteDamage(CharData *ch);
 
 #endif // POISON_HPP_INCLUDED
 

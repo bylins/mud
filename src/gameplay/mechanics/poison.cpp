@@ -485,6 +485,20 @@ int CalcPoisonDamage(CharData *ch) {
 	return poison_dmg;
 }
 
+// issue.damage-over-time: aconite (weapon-poison) per-tick DoT amount -- the sum of the bearer's
+// kAconitumPoison-location affects' modifier/4. Per-affect (NOT GET_POISON), exactly ProcessPoisonDmg's
+// aconite branch, but summed so the now once-per-type tick still totals every stack. Aconite no longer
+// folds into GET_POISON (see affect_data), so this is the only place it is dealt.
+int CalcAconiteDamage(CharData *ch) {
+	int dmg = 0;
+	for (const auto &af : ch->affected) {
+		if (af && af->location == EApply::kAconitumPoison) {
+			dmg += af->modifier / 4;
+		}
+	}
+	return dmg;
+}
+
 int ProcessPoisonDmg(CharData *ch, const Affect<EApply>::shared_ptr &af) {
 	int result = 0;
 	if (af->location == EApply::kPoison) {
