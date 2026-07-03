@@ -181,6 +181,10 @@ int GetReformedCharmiceHp(CharData *ch, CharData *victim, ESpell spell_id) {
 	return (int) r_hp;
 }
 
+int  MaxCloneCharmices(CharData *ch) {
+	return std::max(1, (GetRealLevel(ch) + 9) / 5 - 2);
+}
+
 int CheckCharmices(CharData *ch, CharData *victim, ESpell spell_id) {
 	int cha_summ = 0, reformed_hp_summ = 0;
 	bool undead_in_group = false, living_in_group = false;
@@ -215,7 +219,7 @@ int CheckCharmices(CharData *ch, CharData *victim, ESpell spell_id) {
 		return (false);
 	}
 
-	if (spell_id == ESpell::kClone && cha_summ >= std::max(1, (GetRealLevel(ch) + 9) / 5 - 2)) {
+	if (spell_id == ESpell::kClone && cha_summ >= MaxCloneCharmices(ch)) {
 		SendMsgToChar("Вы не сможете управлять столькими последователями.\r\n", ch);
 		return (false);
 	}
