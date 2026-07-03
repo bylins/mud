@@ -830,7 +830,11 @@ EVENT(trig_wait_event) {
 	GET_TRIG_WAIT(trig).time_remaining = 0;
 	// issue #3523: from_current выставляется только при паузе триггера из-за стана
 	// моба -- логируем возобновление, чтобы видеть, что механизм действительно работает.
-	if (wait_event_obj->from_current && type == MOB_TRIGGER && go) {
+	// Выведенного из мира моба пропускаем: extract_char вынимает моба из комнаты
+	// (in_room = kNowhere) раньше, чем событие успевает сработать, а script_driver
+	// ниже всё равно ничего не выполнит -- лог о "продолжил работу" был бы ложным.
+	if (wait_event_obj->from_current && type == MOB_TRIGGER && go
+			&& reinterpret_cast<CharData *>(go)->in_room != kNowhere) {
 		auto *mob = reinterpret_cast<CharData *>(go);
 		mudlog(fmt::format("DG: триггер {} #{} продолжил работу после лага моба {} #{}",
 						   GET_TRIG_NAME(trig), GET_TRIG_VNUM(trig), GET_SHORT(mob), GET_MOB_VNUM(mob)),
