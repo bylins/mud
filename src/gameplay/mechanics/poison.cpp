@@ -499,25 +499,9 @@ int CalcAconiteDamage(CharData *ch) {
 	return dmg;
 }
 
-int ProcessPoisonDmg(CharData *ch, const Affect<EApply>::shared_ptr &af) {
-	int result = 0;
-	if (af->location == EApply::kPoison) {
-		int poison_dmg = CalcPoisonDamage(ch);
-		Damage dmg(SpellDmg(ESpell::kPoison), poison_dmg, fight::kPoisonDmg);
-		dmg.flags.set(fight::kNoFleeDmg);
-		dmg.author_uid = af->caster_id;   // отравитель (для засчёта убийства), 0 если автора нет
-		result = dmg.Process(ch, ch);
-	} else if (af->location == EApply::kAconitumPoison) {
-		int aconitum_dmg = af->modifier / 4;
-
-		Damage dmg(SpellDmg(ESpell::kPoison), aconitum_dmg, fight::kPoisonDmg);
-		dmg.flags.set(fight::kNoFleeDmg);
-		dmg.flags.set(fight::kIgnoreBlink);
-		dmg.author_uid = af->caster_id;
-		result = dmg.Process(ch, ch);
-	}
-	return result;
-}
+// issue.damage-over-time: ProcessPoisonDmg retired. The poison and aconite DoTs are now data-driven
+// <damage source="poison"|"aconite"> tick actions (see CastDamage + CalcPoisonDamage/CalcAconiteDamage);
+// the affect-update loops no longer call any hardcoded poison-tick function.
 
 void TryDrinkPoison(CharData *ch, ObjData *jar, int amount) {
 	if ((GET_OBJ_VAL(jar, 3) == 1) && !privilege::IsGod(ch)) {

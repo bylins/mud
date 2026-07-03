@@ -37,7 +37,7 @@
 
 #include "gameplay/affects/affect_data.h"
 #include "gameplay/affects/affect_messages.h"
-#include "gameplay/mechanics/poison.h"   // issue.character-affect-triggers: PoisonDot reuses ProcessPoisonDmg
+#include "gameplay/mechanics/poison.h"   // issue.damage-over-time: CalcPoisonDamage/CalcAconiteDamage for <damage source=poison|aconite>
 #include "engine/db/world_characters.h"
 #include "gameplay/mechanics/corpse.h"
 #include "gameplay/fight/fight.h"

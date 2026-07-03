@@ -352,32 +352,20 @@ void player_affect_update() {
 				need_recalc = true;
 			} else {
 				if (affect->duration > 0) {
-					if (IS_SET(affect->battleflag, kAfSameTime) && !i->GetEnemy()) {
-						// issue.damage-over-time: out of combat, a data-driven DoT (has <actions>) ticks its
-						// kPulse actions here -- the out-of-combat counterpart of battle_affect_update, so a
-						// burn/DoT keeps damaging even when the bearer is not fighting. Legacy poison (no
-						// actions) keeps the hardcoded ProcessPoisonDmg path. In combat the tick is skipped
-						// here (guarded by !GetEnemy) and handled per round by battle_affect_update.
-						if (!affects::AffectActions(affect->affect_type).list().empty()) {
-							if (ticked_types.insert(affect->affect_type).second) {
-								RunCharAffectTick(i.get(), affect);
-								if (i->purged()) {
-									was_purged = true;
-									++profile.counters[static_cast<std::size_t>(Counter::kPurgedPlayers)];
-									break;
-								}
-							}
-						} else {
-							utils::CExecutionTimer poison_timer;
-							++profile.counters[static_cast<std::size_t>(Counter::kPoisonCalls)];
-							// здесь плеера могут спуржить
-							if (ProcessPoisonDmg(i.get(), affect) == -1) {
-								profile.sections[static_cast<std::size_t>(Section::kProcessPoison)] += poison_timer.delta().count();
-								was_purged = true;
-								++profile.counters[static_cast<std::size_t>(Counter::kPurgedPlayers)];
-								break;
-							}
-							profile.sections[static_cast<std::size_t>(Section::kProcessPoison)] += poison_timer.delta().count();
+					// issue.damage-over-time: out of combat, a data-driven DoT (has <actions>) ticks its
+					// kPulse actions here -- the out-of-combat counterpart of battle_affect_update, so a
+					// burn/DoT keeps damaging even when the bearer is not fighting (once per affect type). In
+					// combat this is skipped (guarded by !GetEnemy); battle_affect_update ticks it per round.
+					// Poison/aconite are DoTs with <actions> now, so the old hardcoded ProcessPoisonDmg path
+					// is gone; a kAfSameTime affect WITHOUT actions is a pure debuff and simply ticks nothing.
+					if (IS_SET(affect->battleflag, kAfSameTime) && !i->GetEnemy()
+							&& !affects::AffectActions(affect->affect_type).list().empty()
+							&& ticked_types.insert(affect->affect_type).second) {
+						RunCharAffectTick(i.get(), affect);
+						if (i->purged()) {
+							was_purged = true;
+							++profile.counters[static_cast<std::size_t>(Counter::kPurgedPlayers)];
+							break;
 						}
 					}
 //					sprintf(buf, "ЧАР: Спелл %s висит на %s длительносить %d\r\n", MUD::Spell(affect->type).GetCName(), GET_PAD(i, 5), affect->duration);
@@ -479,15 +467,14 @@ void battle_affect_update(CharData *ch) {
 			need_recalc = true;
 		} else {
 			if (affect->duration > 0) {
-				if (IS_SET(affect->battleflag, kAfSameTime)) {
-					if (!affects::AffectActions(affect->affect_type).list().empty()) {
-						// issue.character-affect-triggers: data-driven combat DoT -- run the affect's
-						// pulse/battle-pulse <actions> on the bearer (once per type this round).
-						if (ticked_types.insert(affect->affect_type).second) {
-							RunCharAffectTick(ch, affect);
-						}
-					} else if (ProcessPoisonDmg(ch, affect) == -1) {// жертва умерла
-						return;
+				// issue.character-affect-triggers/damage-over-time: data-driven combat DoT -- run the
+				// affect's pulse/battle-pulse <actions> on the bearer (once per type this round). A
+				// kAfSameTime affect WITHOUT actions is a pure debuff and ticks nothing; poison/aconite are
+				// data-driven DoTs now, so the hardcoded ProcessPoisonDmg path is retired.
+				if (IS_SET(affect->battleflag, kAfSameTime)
+						&& !affects::AffectActions(affect->affect_type).list().empty()) {
+					if (ticked_types.insert(affect->affect_type).second) {
+						RunCharAffectTick(ch, affect);
 					}
 					if (ch->purged()) {
 						mudlog("Некому обновлять аффект, чар уже спуржен.",   BRF, kLvlImplementator, SYSLOG, true);
@@ -575,29 +562,17 @@ void mobile_affect_update() {
 					// issue.character-affect-triggers/damage-over-time: a DoT with <actions> ticks per combat
 					// round in battle_affect_update while fighting; here (the slow mob loop) it ticks only
 					// OUT of combat -- so a burn keeps damaging a non-fighting mob without double-hitting in
-					// combat. Legacy poison (no actions) keeps its old hardcoded ProcessPoisonDmg path
-					// (slow-ticked out of combat, and even in combat for a kPoison DoT).
-					if (IS_SET(affect->battleflag, kAfSameTime)) {
-						if (!affects::AffectActions(affect->affect_type).list().empty()) {
-							if (!ch->GetEnemy() && ticked_types.insert(affect->affect_type).second) {
-								RunCharAffectTick(ch, affect);
-								if (ch->purged()) {
-									was_purged = true;
-									++profile.counters[static_cast<std::size_t>(Counter::kPurgedMobs)];
-									break;
-								}
-							}
-						} else if (!ch->GetEnemy() || affect->location == EApply::kPoison) {
-							utils::CExecutionTimer poison_timer;
-							++profile.counters[static_cast<std::size_t>(Counter::kPoisonCalls)];
-							// здесь плеера могут спуржить
-							if (ProcessPoisonDmg(ch, affect) == -1) {
-								profile.sections[static_cast<std::size_t>(Section::kProcessPoison)] += poison_timer.delta().count();
+					// combat. A kAfSameTime affect without actions is a pure debuff and ticks nothing;
+					// poison/aconite are data-driven DoTs now, so ProcessPoisonDmg is retired.
+					if (IS_SET(affect->battleflag, kAfSameTime)
+							&& !affects::AffectActions(affect->affect_type).list().empty()) {
+						if (!ch->GetEnemy() && ticked_types.insert(affect->affect_type).second) {
+							RunCharAffectTick(ch, affect);
+							if (ch->purged()) {
 								was_purged = true;
 								++profile.counters[static_cast<std::size_t>(Counter::kPurgedMobs)];
 								break;
 							}
-							profile.sections[static_cast<std::size_t>(Section::kProcessPoison)] += poison_timer.delta().count();
 						}
 					}
 					affect->duration--;
