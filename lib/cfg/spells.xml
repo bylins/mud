@@ -897,8 +897,8 @@
 			<base_stat id="kWis" threshold="22" weight="5" />
 		</success_roll>
 		<talent_actions>
-			<action>
-				<damage saving="kReflex">
+			<action id="Main">
+				<damage id="Bolt" saving="kReflex">
 					<amount min="0" dices_weight="1.0" alpha="0.5" beta="12.5" />
 					<hits skill_divisor="12" max="2" prob="100" />
 				</damage>

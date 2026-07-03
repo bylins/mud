@@ -233,16 +233,12 @@ int CalcBaseDmg(CharData *ch, ESpell spell_id) {
  *   - no skill / kUndefined: prob% chance of `max`, else 0;
  *   - skill + prob > 0:      prob% chance of `extra` (= min(skill,75)/divisor, capped at max), else 0;
  *   - skill + prob == 0:     random 0..extra (uniform spread of attack count).
- * The kMagicArrows feat handling lives here as a workaround until skill-interference is unified:
- * on kMagicMissile with the feat we halve the divisor and triple the max, which reproduces
- * yesterday's (level+9)/5-vs-(level+9)/10 ratio at the skill cap.
+ * (issue.perk-action-patching) kMagicArrows is now DATA-DRIVEN: the feat carries a <spell_patch> that
+ * replaces kMagicMissile's <damage> with a boosted <hits> block (skill_divisor 12->6, max 2->6),
+ * reproducing the old halve-divisor/triple-max at the skill cap. No spell-specific branch here anymore.
  */
-static int CalcExtraHits(CharData *ch, ESpell spell_id, ESkill skill_id,
+static int CalcExtraHits(CharData *ch, ESkill skill_id,
 				  int skill_divisor = 25, int max = 1, int prob = 20) {
-	if (spell_id == ESpell::kMagicMissile && ch && CanUseFeat(ch, EFeat::kMagicArrows)) {
-		skill_divisor = std::max(1, skill_divisor / 2);
-		max = max * 3;
-	}
 	if (ch == nullptr || skill_id == ESkill::kUndefined) {
 		return (number(1, 100) <= prob) ? max : 0;
 	}
@@ -648,14 +644,15 @@ EStageResult CastDamage(ActionContext &ctx) {
 	}
 
 	// Multi-hit count: a damage spell with a <hits> child gets its extra-hit
-	// number from CalcExtraHits; the kMagicArrows feat for kMagicMissile is handled inside it.
+	// number from CalcExtraHits. (kMagicArrows is now a data <spell_patch> boosting kMagicMissile's
+	// <hits>; no spell-specific branch remains in CalcExtraHits.)
 	// Absent <hits> -> count stays at the file-top default of 1 (single hit), which matches the
 	// current behaviour of every non-multi-hit damage spell.
 	if (ctx.action_or_default().Contains(talents_actions::EAction::kDamage)) {
 		const auto &dmg = ctx.action_or_default().GetDmg();
 		if (dmg.HasHits()) {
 			const ESkill hits_skill = MUD::Spell(spell_id).GetPotencyRoll().GetBaseSkill();
-			count = 1 + CalcExtraHits(ch, spell_id, hits_skill,
+			count = 1 + CalcExtraHits(ch, hits_skill,
 									  dmg.GetHitsSkillDivisor(), dmg.GetHitsMax(), dmg.GetHitsProb());
 			if (tc) {
 				spell_trace::Line(ch, victim, "&C  hits: 1 + CalcExtraHits(skilldiv %d max %d prob %d) = %d.&n\r\n",

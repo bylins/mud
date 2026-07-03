@@ -483,6 +483,19 @@
     <feat id="kStrongClutch" mode="kEnabled">
     </feat>
     <feat id="kMagicArrows" mode="kEnabled">
+        <!-- issue.perk-action-patching Phase 3: migrated from the hardcoded CalcExtraHits branch.
+             Replaces Magic Missile's <damage> with a boosted <hits> (divisor 12->6, max 2->6) -- the
+             exact halve-divisor/triple-max the C++ used to do. -->
+        <spell_patches>
+            <spell_patch spell="kMagicMissile" op="replace" action="Main" effect="Bolt">
+                <action>
+                    <damage saving="kReflex">
+                        <amount min="0" dices_weight="1.0" alpha="0.5" beta="12.5" />
+                        <hits skill_divisor="6" max="6" prob="100" />
+                    </damage>
+                </action>
+            </spell_patch>
+        </spell_patches>
     </feat>
     <feat id="kSoulsCollector" mode="kEnabled">
     </feat>
