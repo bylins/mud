@@ -51,6 +51,14 @@ struct EntityFileTask {
 	bool flat = false;
 	std::string path;
 	std::vector<int> vnums;  // sorted ascending
+	// Flat layout only: DiscoverEntityFiles() already parses the whole file to
+	// enumerate these vnums (the file's keys); stashing the parsed root here
+	// lets the worker reuse it instead of calling YAML::LoadFile() a second
+	// time on the same file. Per-file layout leaves this unset -- discovery
+	// there only reads the tiny <sub>/index.yaml, never the entity file
+	// itself, so the worker's own YAML::LoadFile(task.path) is the first (and
+	// only) parse either way.
+	YAML::Node parsed_root;
 };
 
 // Result of parsing rooms in a single thread

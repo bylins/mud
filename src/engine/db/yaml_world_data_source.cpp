@@ -313,110 +313,163 @@ std::vector<int> YamlWorldDataSource::GetZoneList()
 	return zones;
 }
 
+namespace
+{
+struct DiscoverResult
+{
+	std::vector<EntityFileTask> tasks;
+	size_t flat_files_parsed = 0;
+	size_t perfile_indexes_parsed = 0;
+	int failures = 0;
+};
+} // namespace
+
 std::vector<EntityFileTask> YamlWorldDataSource::DiscoverEntityFiles(const std::string &sub)
 {
 	namespace fs = std::filesystem;
-	std::vector<EntityFileTask> tasks;
 
-	// [yaml-timing] this whole discovery runs SERIALLY on the main thread
-	// before any worker starts. In flat layout it fully parses every zone file
-	// just to enumerate keys -- the workers then parse the same files again.
+	// [yaml-timing] this used to run SERIALLY on the main thread, one zone at
+	// a time. In flat layout, enumerating a zone's keys requires fully
+	// parsing its file -- with 600+ zones that added up to 5-6x the actual
+	// (already parallel) load step, for no reason: nothing here depends on
+	// zone order (the load step re-sorts everything by vnum after parsing,
+	// see the merge/post step below), so it's embarrassingly parallel across
+	// zones exactly like the load step already is. Distributed across the
+	// same thread pool here removes that serial bottleneck.
 	utils::CExecutionTimer disc_timer;
-	size_t flat_files_parsed = 0;
-	size_t perfile_indexes_parsed = 0;
 
-	for (int zone_vnum : GetZoneList())
+	std::vector<int> zone_vnums = GetZoneList();
+	std::sort(zone_vnums.begin(), zone_vnums.end());
+	auto batches = utils::DistributeBatches(zone_vnums, m_num_threads);
+
+	std::vector<std::future<DiscoverResult>> futures;
+	for (size_t thread_id = 0; thread_id < batches.size(); ++thread_id)
 	{
-		const std::string zone_dir = m_world_dir + "/zones/" + std::to_string(zone_vnum);
-		const std::string flat_path = zone_dir + "/" + sub + ".yaml";
-		const std::string index_path = zone_dir + "/" + sub + "/index.yaml";
-		const bool has_flat = fs::exists(flat_path);
-		const bool has_perfile = fs::exists(index_path);
-
-		// Normally only one layout exists (saves are self-cleaning). If both are
-		// present -- a half-finished migration or a leftover from a failed
-		// cleanup -- the configured layout (m_save_layout, from world_config.yaml)
-		// decides which one is authoritative; the other is ignored.
-		bool use_flat;
-		if (has_flat && has_perfile)
-		{
-			use_flat = (m_save_layout == YamlLayout::Flat);
-			log("WARNING: zone %d has both flat %s.yaml and per-file %s/ -- using "
-				"%s per world_config layout; the other is ignored.",
-				zone_vnum, sub.c_str(), sub.c_str(), use_flat ? "flat" : "per-file");
-		}
-		else
-		{
-			use_flat = has_flat;
-		}
-
-		if (use_flat)
-		{
-			// Flat layout: the file is a map of rel-number -> entity node and
-			// doubles as its own index. Enumerate the keys here (sequentially,
-			// main thread); the worker re-loads and parses the entities.
-			EntityFileTask task;
-			task.flat = true;
-			task.path = flat_path;
-			try
+		futures.push_back(m_thread_pool->Enqueue([this, thread_id, &batches, &sub]() -> DiscoverResult {
+			namespace fs = std::filesystem;
+			DiscoverResult result;
+			for (int zone_vnum : batches[thread_id])
 			{
-				YAML::Node root = YAML::LoadFile(flat_path);
-				++flat_files_parsed;
-				for (auto it = root.begin(); it != root.end(); ++it)
+				const std::string zone_dir = m_world_dir + "/zones/" + std::to_string(zone_vnum);
+				const std::string flat_path = zone_dir + "/" + sub + ".yaml";
+				const std::string index_path = zone_dir + "/" + sub + "/index.yaml";
+				const bool has_flat = fs::exists(flat_path);
+				const bool has_perfile = fs::exists(index_path);
+
+				// Normally only one layout exists (saves are self-cleaning). If
+				// both are present -- a half-finished migration or a leftover
+				// from a failed cleanup -- the configured layout (m_save_layout,
+				// from world_config.yaml) decides which one is authoritative;
+				// the other is ignored.
+				bool use_flat;
+				if (has_flat && has_perfile)
 				{
-					int rel_num = it->first.as<int>();
-					task.vnums.push_back(zone_vnum * 100 + rel_num);
+					use_flat = (m_save_layout == YamlLayout::Flat);
+					log("WARNING: zone %d has both flat %s.yaml and per-file %s/ -- using "
+						"%s per world_config layout; the other is ignored.",
+						zone_vnum, sub.c_str(), sub.c_str(), use_flat ? "flat" : "per-file");
 				}
-			}
-			catch (const YAML::Exception &e)
-			{
-				fatal_log("SYSERR: Failed to load flat %s file for zone %d ('%s'): %s",
-					sub.c_str(), zone_vnum, flat_path.c_str(), e.what());
-			}
-			std::sort(task.vnums.begin(), task.vnums.end());
-			if (!task.vnums.empty())
-			{
-				tasks.push_back(std::move(task));
-			}
-			continue;
-		}
-
-		// Per-file layout: one task per entity, listed in <sub>/index.yaml.
-		// A missing index simply means the zone has no entities of this type.
-		if (!has_perfile)
-		{
-			continue;
-		}
-		try
-		{
-			YAML::Node root = YAML::LoadFile(index_path);
-			++perfile_indexes_parsed;
-			if (root[sub] && root[sub].IsSequence())
-			{
-				for (const auto &rel_node : root[sub])
+				else
 				{
-					int rel_num = rel_node.as<int>();
+					use_flat = has_flat;
+				}
+
+				if (use_flat)
+				{
+					// Flat layout: the file is a map of rel-number -> entity
+					// node and doubles as its own index. Enumerating the keys
+					// here already requires a full parse; stash that parsed
+					// root in the task so the worker (below, in each Load*()
+					// parallel section) reuses it instead of calling
+					// YAML::LoadFile() on the same file a second time.
 					EntityFileTask task;
-					task.flat = false;
-					std::ostringstream ss;
-					ss << zone_dir << "/" << sub << "/"
-					   << std::setfill('0') << std::setw(2) << rel_num << ".yaml";
-					task.path = ss.str();
-					task.vnums.push_back(zone_vnum * 100 + rel_num);
-					tasks.push_back(std::move(task));
+					task.flat = true;
+					task.path = flat_path;
+					try
+					{
+						YAML::Node root = YAML::LoadFile(flat_path);
+						++result.flat_files_parsed;
+						for (auto it = root.begin(); it != root.end(); ++it)
+						{
+							int rel_num = it->first.as<int>();
+							task.vnums.push_back(zone_vnum * 100 + rel_num);
+						}
+						task.parsed_root = root;
+					}
+					catch (const YAML::Exception &e)
+					{
+						log("SYSERR: Failed to load flat %s file for zone %d ('%s'): %s",
+							sub.c_str(), zone_vnum, flat_path.c_str(), e.what());
+						++result.failures;
+						continue;
+					}
+					std::sort(task.vnums.begin(), task.vnums.end());
+					if (!task.vnums.empty())
+					{
+						result.tasks.push_back(std::move(task));
+					}
+					continue;
+				}
+
+				// Per-file layout: one task per entity, listed in
+				// <sub>/index.yaml. A missing index simply means the zone has
+				// no entities of this type.
+				if (!has_perfile)
+				{
+					continue;
+				}
+				try
+				{
+					YAML::Node root = YAML::LoadFile(index_path);
+					++result.perfile_indexes_parsed;
+					if (root[sub] && root[sub].IsSequence())
+					{
+						for (const auto &rel_node : root[sub])
+						{
+							int rel_num = rel_node.as<int>();
+							EntityFileTask task;
+							task.flat = false;
+							std::ostringstream ss;
+							ss << zone_dir << "/" << sub << "/"
+							   << std::setfill('0') << std::setw(2) << rel_num << ".yaml";
+							task.path = ss.str();
+							task.vnums.push_back(zone_vnum * 100 + rel_num);
+							result.tasks.push_back(std::move(task));
+						}
+					}
+				}
+				catch (const YAML::Exception &e)
+				{
+					log("SYSERR: Failed to load %s index for zone %d ('%s'): %s",
+						sub.c_str(), zone_vnum, index_path.c_str(), e.what());
+					++result.failures;
 				}
 			}
-		}
-		catch (const YAML::Exception &e)
-		{
-			fatal_log("SYSERR: Failed to load %s index for zone %d ('%s'): %s",
-				sub.c_str(), zone_vnum, index_path.c_str(), e.what());
-		}
+			return result;
+		}));
 	}
 
-	log("   [yaml-timing] discover '%s': %.1f ms serial (flat files fully parsed: %zu, "
+	std::vector<EntityFileTask> tasks;
+	size_t flat_files_parsed = 0;
+	size_t perfile_indexes_parsed = 0;
+	int failures = 0;
+	for (auto &f : futures)
+	{
+		DiscoverResult result = f.get();
+		flat_files_parsed += result.flat_files_parsed;
+		perfile_indexes_parsed += result.perfile_indexes_parsed;
+		failures += result.failures;
+		tasks.insert(tasks.end(), std::make_move_iterator(result.tasks.begin()),
+			std::make_move_iterator(result.tasks.end()));
+	}
+	if (failures > 0)
+	{
+		fatal_log("SYSERR: Failed to load %d %s file(s) during discovery. Aborting.", failures, sub.c_str());
+	}
+
+	log("   [yaml-timing] discover '%s': %.1f ms parallel (threads=%zu, flat files fully parsed: %zu, "
 		"per-file indexes: %zu, tasks: %zu)",
-		sub.c_str(), disc_timer.delta().count() * 1000.0,
+		sub.c_str(), disc_timer.delta().count() * 1000.0, batches.size(),
 		flat_files_parsed, perfile_indexes_parsed, tasks.size());
 	return tasks;
 }
@@ -1126,15 +1179,25 @@ void YamlWorldDataSource::LoadTriggersParallel()
 			for (const auto &task : batches[thread_id])
 			{
 				YAML::Node file_root;
-				try
+				if (task.flat && task.parsed_root)
 				{
-					file_root = YAML::LoadFile(task.path);
+					// Already parsed by DiscoverEntityFiles() to enumerate
+					// this task's vnums -- reuse it instead of parsing the
+					// same file again.
+					file_root = task.parsed_root;
 				}
-				catch (const std::exception &e)
+				else
 				{
-					log("SYSERR: Failed to load triggers from '%s': %s", task.path.c_str(), e.what());
-					error_count += static_cast<int>(task.vnums.size());
-					continue;
+					try
+					{
+						file_root = YAML::LoadFile(task.path);
+					}
+					catch (const std::exception &e)
+					{
+						log("SYSERR: Failed to load triggers from '%s': %s", task.path.c_str(), e.what());
+						error_count += static_cast<int>(task.vnums.size());
+						continue;
+					}
 				}
 				for (int vnum : task.vnums)
 				{
@@ -1413,15 +1476,22 @@ void YamlWorldDataSource::LoadRoomsParallel()
 			for (const auto &task : batches[thread_id])
 			{
 				YAML::Node file_root;
-				try
+				if (task.flat && task.parsed_root)
 				{
-					file_root = YAML::LoadFile(task.path);
+					file_root = task.parsed_root;
 				}
-				catch (const std::exception &e)
+				else
 				{
-					log("SYSERR: Failed to load rooms from '%s': %s", task.path.c_str(), e.what());
-					error_count += static_cast<int>(task.vnums.size());
-					continue;
+					try
+					{
+						file_root = YAML::LoadFile(task.path);
+					}
+					catch (const std::exception &e)
+					{
+						log("SYSERR: Failed to load rooms from '%s': %s", task.path.c_str(), e.what());
+						error_count += static_cast<int>(task.vnums.size());
+						continue;
+					}
 				}
 				for (int vnum : task.vnums)
 				{
@@ -2213,15 +2283,22 @@ void YamlWorldDataSource::LoadMobsParallel()
 			for (const auto &task : batches[thread_id])
 			{
 				YAML::Node file_root;
-				try
+				if (task.flat && task.parsed_root)
 				{
-					file_root = YAML::LoadFile(task.path);
+					file_root = task.parsed_root;
 				}
-				catch (const std::exception &e)
+				else
 				{
-					log("SYSERR: Failed to load mobs from '%s': %s", task.path.c_str(), e.what());
-					error_count += static_cast<int>(task.vnums.size());
-					continue;
+					try
+					{
+						file_root = YAML::LoadFile(task.path);
+					}
+					catch (const std::exception &e)
+					{
+						log("SYSERR: Failed to load mobs from '%s': %s", task.path.c_str(), e.what());
+						error_count += static_cast<int>(task.vnums.size());
+						continue;
+					}
 				}
 				for (int vnum : task.vnums)
 				{
@@ -2793,15 +2870,22 @@ void YamlWorldDataSource::LoadObjectsParallel()
 			for (const auto &task : batches[thread_id])
 			{
 				YAML::Node file_root;
-				try
+				if (task.flat && task.parsed_root)
 				{
-					file_root = YAML::LoadFile(task.path);
+					file_root = task.parsed_root;
 				}
-				catch (const std::exception &e)
+				else
 				{
-					log("SYSERR: Failed to load objects from '%s': %s", task.path.c_str(), e.what());
-					error_count += static_cast<int>(task.vnums.size());
-					continue;
+					try
+					{
+						file_root = YAML::LoadFile(task.path);
+					}
+					catch (const std::exception &e)
+					{
+						log("SYSERR: Failed to load objects from '%s': %s", task.path.c_str(), e.what());
+						error_count += static_cast<int>(task.vnums.size());
+						continue;
+					}
 				}
 				for (int vnum : task.vnums)
 				{
