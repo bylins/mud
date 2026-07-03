@@ -392,10 +392,7 @@ class Components {
 // formula (all existing damage). kPoison = ProcessPoisonDmg's kPoison branch reproduced through the
 // data-driven path: amount = CalcPoisonDamage(victim) (GET_POISON based), dealt as kPoisonDmg, no-flee,
 // with the poisoner (affect caster_id) as author.
-// kAconite = the aconite weapon-poison DoT: amount = CalcAconiteDamage(victim) (per-affect modifier/4),
-// kPoisonDmg, no-flee, IGNORE-BLINK, poisoner as author. Like kPoison but per-affect (not GET_POISON) and
-// blink-piercing.
-enum class EDamageSource { kNormal, kPoison, kAconite };
+enum class EDamageSource { kNormal, kPoison };
 
 class Damage : public IAction {
 	ESaving saving_{ESaving::kReflex};

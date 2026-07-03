@@ -1293,11 +1293,10 @@ void affect_modify(CharData *ch, EApply loc, int mod, const EAffect bitv, bool a
 			break;
 		case EApply::kMagicResist: GET_MR(ch) += mod;
 			break;
-		// issue.damage-over-time: aconite no longer folds into GET_POISON. Its DoT is now per-affect
-		// (CalcAconiteDamage reads af->modifier via <damage source="aconite">), so folding it into the
-		// regular-poison total double-counted it whenever a kPoisoned affect was also present. The affect
-		// still stores its modifier (that is a struct field, unaffected by this apply being a no-op).
-		case EApply::kAconitumPoison: /* no GET_POISON contribution */
+		// issue.damage-over-time: aconite contributes to the shared GET_POISON DoT at 1/4 rate (it is also
+		// a heavy debuff, so its DoT share is 4x weaker than a plain poison). TEST of kvirund's model:
+		// no separate aconite damage mechanic -- the poison tick deals it via GET_POISON, once per round.
+		case EApply::kAconitumPoison: GET_POISON(ch) += mod / 4;
 			break;
 		case EApply::kBelenaPoison: GET_SKILL_REDUCE(ch) += mod;
 			break;

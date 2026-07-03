@@ -37,7 +37,7 @@
 
 #include "gameplay/affects/affect_data.h"
 #include "gameplay/affects/affect_messages.h"
-#include "gameplay/mechanics/poison.h"   // issue.damage-over-time: CalcPoisonDamage/CalcAconiteDamage for <damage source=poison|aconite>
+#include "gameplay/mechanics/poison.h"   // issue.damage-over-time: CalcPoisonDamage for <damage source="poison">
 #include "engine/db/world_characters.h"
 #include "gameplay/mechanics/corpse.h"
 #include "gameplay/fight/fight.h"
@@ -567,17 +567,12 @@ EStageResult CastDamage(ActionContext &ctx) {
 	// exactly and returns before the general damage machinery: GET_POISON-based amount dealt as kPoisonDmg,
 	// no-flee, self-inflicted, credited to the poisoner (the affect's caster). Poison never had MR/area/
 	// saving/wards, so those are intentionally skipped. Affect flavor (empty for kPoisoned) -> generic line.
-	const talents_actions::EDamageSource dmg_src =
-			ctx.action_or_default().Contains(talents_actions::EAction::kDamage)
-			? ctx.action_or_default().GetDmg().GetSource()
-			: talents_actions::EDamageSource::kNormal;
-	if (dmg_src == talents_actions::EDamageSource::kPoison
-			|| dmg_src == talents_actions::EDamageSource::kAconite) {
-		const bool aconite = (dmg_src == talents_actions::EDamageSource::kAconite);
-		const int amount = aconite ? CalcAconiteDamage(victim) : CalcPoisonDamage(victim);
-		Damage pdmg(SpellDmg(ESpell::kPoison), amount, fight::kPoisonDmg);
+	if (ctx.action_or_default().Contains(talents_actions::EAction::kDamage)
+			&& ctx.action_or_default().GetDmg().GetSource() == talents_actions::EDamageSource::kPoison) {
+		// The poison DoT (kPoisoned). Aconite/scopola/belena/datura all contribute to the same GET_POISON
+		// total (aconite at a reduced rate), so this single kPoisoned tick deals ALL poison damage once.
+		Damage pdmg(SpellDmg(ESpell::kPoison), CalcPoisonDamage(victim), fight::kPoisonDmg);
 		pdmg.flags.set(fight::kNoFleeDmg);
-		if (aconite) { pdmg.flags.set(fight::kIgnoreBlink); }   // aconite pierces blink/dodge
 		pdmg.author_uid = ctx.DamageAuthorUid();   // отравитель (для засчёта убийства), 0 если автора нет
 		pdmg.aff_msg_char_ = ctx.AffectDamageMsgChar();
 		pdmg.aff_msg_vict_ = ctx.AffectDamageMsgVict();

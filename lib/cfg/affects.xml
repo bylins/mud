@@ -449,18 +449,12 @@
 	<affect id="kBelenaPoison" buff="N">
 		<flags val="kAfSameTime|kAfCurable|kAfPoison"/>
 	</affect>
+	<!-- issue.damage-over-time: the aconite DoT is NOT here -- aconite contributes to GET_POISON (see
+	     PoisonVictWithWeapon af[0], a kPoisoned affect), so the single kPoisoned <damage source="poison">
+	     tick deals it. This affect is aconite's identity ("отравление аконитом") + its magic-resist debuff
+	     (the af[2] cluster member); no tick action of its own. -->
 	<affect id="kAconitumPoison" buff="N">
 		<flags val="kAfSameTime|kAfCurable|kAfPoison"/>
-		<actions>
-			<!-- issue.damage-over-time: data-driven aconite DoT (retires ProcessPoisonDmg's aconite branch
-			     for the weapon-poison affect). Per-affect: <damage source="aconite"> = CalcAconiteDamage =
-			     sum of kAconitumPoison-location modifier/4, dealt as kPoisonDmg, no-flee, blink-piercing.
-			     kPulse = ticks in and out of combat; kTarFightSelf = the bearer. -->
-			<action target="kTarFightSelf">
-				<trigger val="kPulse"/>
-				<damage source="aconite" saving="kNone"/>
-			</action>
-		</actions>
 	</affect>
 	<affect id="kCapable"/>
 	<affect id="kNoTeleport" buff="N">

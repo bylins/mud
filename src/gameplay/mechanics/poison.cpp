@@ -70,13 +70,15 @@ namespace {
 		if (spell_id == ESpell::kAconitumPoison) {
 			// урон 5 + левел/2, от 5 до 20 за стак
 			Affect<EApply> af[3];
-			// af[0] is the aconite DoT (ProcessPoisonDmg keys on EApply::kAconitumPoison) -> it carries
-			// the poison identity kAconitumPoison ("отравление аконитом"); affects.xml gives it
-			// kAfSameTime|kAfCurable|kAfPoison. (Was kNoBattleSwitch, which sourced empty flags, so the
-			// DoT lost kAfSameTime and dealt no damage.) The no-switch effect moves to af[1].
+			// issue.damage-over-time: af[0] is the DoT carrier. Its kAconitumPoison-location apply folds
+			// modifier/4 into GET_POISON (affect_modify), so aconite contributes to the SHARED poison DoT at
+			// a reduced rate (4x weaker than a plain poison -- it is also a heavy debuff). It is a kPoisoned
+			// affect (like the aconite SPELL), so the single kPoisoned <damage source="poison"> tick deals it
+			// once per round together with any regular poison -- no separate mechanic, no double-count. The
+			// "отравление аконитом" identity + magic-resist debuff live on af[2] (kAconitumPoison affect).
 			af[0].location = EApply::kAconitumPoison;
 			af[0].modifier = GetSkill(ch, ESkill::kPoisoning);
-			af[0].affect_type = EAffect::kAconitumPoison;
+			af[0].affect_type = EAffect::kPoisoned;
 
 			af[1].location = EApply::kPhysicResist;
 			af[1].modifier = -4;
@@ -485,22 +487,9 @@ int CalcPoisonDamage(CharData *ch) {
 	return poison_dmg;
 }
 
-// issue.damage-over-time: aconite (weapon-poison) per-tick DoT amount -- the sum of the bearer's
-// kAconitumPoison-location affects' modifier/4. Per-affect (NOT GET_POISON), exactly ProcessPoisonDmg's
-// aconite branch, but summed so the now once-per-type tick still totals every stack. Aconite no longer
-// folds into GET_POISON (see affect_data), so this is the only place it is dealt.
-int CalcAconiteDamage(CharData *ch) {
-	int dmg = 0;
-	for (const auto &af : ch->affected) {
-		if (af && af->location == EApply::kAconitumPoison) {
-			dmg += af->modifier / 4;
-		}
-	}
-	return dmg;
-}
 
 // issue.damage-over-time: ProcessPoisonDmg retired. The poison and aconite DoTs are now data-driven
-// <damage source="poison"|"aconite"> tick actions (see CastDamage + CalcPoisonDamage/CalcAconiteDamage);
+// <damage source="poison"> tick actions (see CastDamage + CalcPoisonDamage; aconite folds into GET_POISON);
 // the affect-update loops no longer call any hardcoded poison-tick function.
 
 void TryDrinkPoison(CharData *ch, ObjData *jar, int amount) {
