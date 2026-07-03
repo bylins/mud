@@ -232,6 +232,10 @@ class IAction {
 	virtual ~IAction() = default;
 
 	virtual void Print(CharData *ch, std::ostringstream &buffer) const = 0;
+
+	// issue.perk-action-patching: optional stable id (manifestation <tag id=>), so a perk patch can
+	// address this effect inside its <action> block. Empty = not addressable at manifestation level.
+	std::string id;
 };
 
 // Spell "potency roll" parameters (see issue #3332): dice plus a bonus from the
@@ -733,6 +737,9 @@ using ActionPtr = std::shared_ptr<IAction>;
 class Action {
 	using ActionsRoster = std::unordered_multimap<EAction, ActionPtr>;
 	ActionsRoster manifestations_;
+	// issue.perk-action-patching: optional stable id (<action id=>) -- the action's "vnum" within the
+	// spell; lets a perk patch address this block (insert/replace/remove). Empty = append/replace_all only.
+	std::string id_;
 	// Target gates (issue.cast-affect): the cast is refused on this action unless the target has
 	// none of blocking_ and all of required_. Checked in CastToSingleTarget, not inside a stage.
 	FlagCondition blocking_;
@@ -797,6 +804,18 @@ class Action {
 	[[nodiscard]] const Absorption &GetAbsorption() const { return absorption_; }
 	[[nodiscard]] const DamageChange &GetDamageChange() const { return damage_change_; }
 	[[nodiscard]] const Retaliation &GetRetaliation() const { return retaliation_; }
+	[[nodiscard]] const std::string &GetId() const { return id_; }
+	// issue.perk-action-patching: manifestation-level patch helpers, applied ONLY to per-cast scratch
+	// COPIES of a block (the shared spell blocks stay const). They copy the shared_ptr leaves, so no
+	// deep copy of the manifestation objects happens.
+	void MergeManifestationsFrom(const Action &src) {
+		for (const auto &kv : src.manifestations_) { manifestations_.insert(kv); }
+	}
+	void EraseManifestationsById(const std::string &mid) {
+		for (auto it = manifestations_.begin(); it != manifestations_.end(); ) {
+			if (it->second->id == mid) { it = manifestations_.erase(it); } else { ++it; }
+		}
+	}
 	[[nodiscard]] EActionTarget GetTarget() const { return target_; }
 	[[nodiscard]] EActionBase GetBase() const { return base_; }
 	[[nodiscard]] const std::string &GetTagName() const { return tag_name_; }

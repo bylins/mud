@@ -1087,6 +1087,8 @@ void Actions::ParseAction(Action &out, parser_wrapper::DataNode node) {
 	}
 	const char *rs = node.GetValue("reset");
 	out.reset_ = (rs && (strcmp(rs, "true") == 0 || strcmp(rs, "Y") == 0 || strcmp(rs, "1") == 0));
+	// issue.perk-action-patching: optional <action id="Name"> -- the block's stable id for perk patches.
+	if (const char *idv = node.GetValue("id"); idv && *idv) { out.id_ = idv; }
 	for (auto &manifestation: node.Children()) {
 		if (strcmp(manifestation.GetName(), "damage") == 0) {
 			ParseDamage(out, manifestation);
@@ -1290,7 +1292,8 @@ void Actions::ParseRetaliation(Retaliation &rt, parser_wrapper::DataNode &node) 
 }
 
 void Actions::ParseDamage(Action &out, parser_wrapper::DataNode &node) {
-	out.manifestations_.emplace(EAction::kDamage, std::make_shared<Damage>(node));
+	auto it = out.manifestations_.emplace(EAction::kDamage, std::make_shared<Damage>(node));
+	if (const char *idv = node.GetValue("id"); idv && *idv) { it->second->id = idv; }
 }
 
 void Actions::ParseArea(Action &out, parser_wrapper::DataNode &node) {
@@ -1332,7 +1335,8 @@ void Actions::ParseArea(Action &out, parser_wrapper::DataNode &node) {
 		if (ft && *ft) { ptr->free_targets = std::max(0, parse::ReadAsInt(ft)); }
 		node.GoToParent();
 	}
-	out.manifestations_.insert({EAction::kArea, std::move(ptr)});
+	auto it = out.manifestations_.insert({EAction::kArea, std::move(ptr)});
+	if (const char *idv = node.GetValue("id"); idv && *idv) { it->second->id = idv; }
 }
 
 void Actions::ParseSummon(Action &out, parser_wrapper::DataNode &node) {
@@ -1356,7 +1360,8 @@ void Actions::ParseSummon(Action &out, parser_wrapper::DataNode &node) {
 		ptr->from_corpse = (fc && *fc) && parse::ReadAsBool(fc);
 		node.GoToParent();
 	}
-	out.manifestations_.insert({EAction::kSummon, std::move(ptr)});
+	auto it = out.manifestations_.insert({EAction::kSummon, std::move(ptr)});
+	if (const char *idv = node.GetValue("id"); idv && *idv) { it->second->id = idv; }
 }
 
 void Actions::ParseCreation(Action &out, parser_wrapper::DataNode &node) {
@@ -1365,7 +1370,8 @@ void Actions::ParseCreation(Action &out, parser_wrapper::DataNode &node) {
 	if (vn && *vn) { ptr->vnum = parse::ReadAsInt(vn); }
 	const char *h = node.GetValue("handler");
 	if (h && *h) { ptr->handler = h; }
-	out.manifestations_.insert({EAction::kCreation, std::move(ptr)});
+	auto it = out.manifestations_.insert({EAction::kCreation, std::move(ptr)});
+	if (const char *idv = node.GetValue("id"); idv && *idv) { it->second->id = idv; }
 }
 
 void Actions::ParseAlterObj(Action &out, parser_wrapper::DataNode &node) {
@@ -1374,19 +1380,23 @@ void Actions::ParseAlterObj(Action &out, parser_wrapper::DataNode &node) {
 	if (h && *h) { ptr->handler = h; }
 	const char *col = node.GetValue("collateral");
 	ptr->collateral_on_damage = (col && strcmp(col, "on_damage") == 0);
-	out.manifestations_.insert({EAction::kAlterObj, std::move(ptr)});
+	auto it = out.manifestations_.insert({EAction::kAlterObj, std::move(ptr)});
+	if (const char *idv = node.GetValue("id"); idv && *idv) { it->second->id = idv; }
 }
 
 void Actions::ParsePoints(Action &out, parser_wrapper::DataNode &node) {
-	out.manifestations_.emplace(EAction::kPoints, std::make_shared<Points>(node));
+	auto it = out.manifestations_.emplace(EAction::kPoints, std::make_shared<Points>(node));
+	if (const char *idv = node.GetValue("id"); idv && *idv) { it->second->id = idv; }
 }
 
 void Actions::ParseAffect(Action &out, parser_wrapper::DataNode &node) {
-	out.manifestations_.emplace(EAction::kAffect, std::make_shared<TalentAffect>(node));
+	auto it = out.manifestations_.emplace(EAction::kAffect, std::make_shared<TalentAffect>(node));
+	if (const char *idv = node.GetValue("id"); idv && *idv) { it->second->id = idv; }
 }
 
 void Actions::ParseUnaffect(Action &out, parser_wrapper::DataNode &node) {
-	out.manifestations_.emplace(EAction::kUnaffect, std::make_shared<TalentUnaffect>(node));
+	auto it = out.manifestations_.emplace(EAction::kUnaffect, std::make_shared<TalentUnaffect>(node));
+	if (const char *idv = node.GetValue("id"); idv && *idv) { it->second->id = idv; }
 }
 
 /*

@@ -8,6 +8,9 @@
 #include "gameplay/magic/magic_utils.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/core/remort.h"
+#include "feats.h"                              // issue.perk-action-patching
+#include "gameplay/magic/spells_info.h"         // issue.perk-action-patching: SpellInfo::perk_patches
+#include <cstring>
 
 /* Служебные функции */
 bool CheckVacantFeatSlot(CharData *ch, EFeat feat);
@@ -470,6 +473,46 @@ namespace feats {
 
 using ItemPtr = FeatInfoBuilder::ItemPtr;
 
+// issue.perk-action-patching: parse a feat spell_patches block into FeatInfo::spell_patches. Each
+// <spell_patch> carries the target spell + op + optional action/effect/anchor ids; its <action> child
+// block(s) are the perk-provided payload, parsed by the normal action parser (Actions::Build).
+static void ParseSpellPatches(FeatInfo &info, DataNode &node) {
+	if (!node.GoToChild("spell_patches")) {
+		return;
+	}
+	for (auto &pn : node.Children()) {
+		try {
+			SpellPatch sp;
+			if (const char *sv = pn.GetValue("spell"); sv && *sv) {
+				sp.target_spell = parse::ReadAsConstant<ESpell>(sv);
+			}
+			const std::string op = (pn.GetValue("op") && *pn.GetValue("op")) ? pn.GetValue("op") : "append";
+			if      (op == "append")      { sp.op = EPatchOp::kAppend; }
+			else if (op == "insert")      { sp.op = EPatchOp::kInsert; }
+			else if (op == "replace")     { sp.op = EPatchOp::kReplace; }
+			else if (op == "remove")      { sp.op = EPatchOp::kRemove; }
+			else if (op == "add_effect")  { sp.op = EPatchOp::kAddEffect; }
+			else if (op == "replace_all") { sp.op = EPatchOp::kReplaceAll; }
+			else { err_log("perk patch: unknown op [%s].", op.c_str()); continue; }
+			if (const char *bv = pn.GetValue("by"); bv && *bv && strcmp(bv, "target") == 0) {
+				sp.scope = SpellPatch::EScope::kTarget;
+			}
+			if (const char *av = pn.GetValue("action"); av && *av) { sp.action_id = av; }
+			if (const char *ev = pn.GetValue("effect"); ev && *ev) { sp.effect_id = ev; }
+			if (const char *bef = pn.GetValue("before"); bef && *bef) {
+				sp.anchor_id = bef; sp.anchor_before = true;
+			} else if (const char *aft = pn.GetValue("after"); aft && *aft) {
+				sp.anchor_id = aft; sp.anchor_before = false;
+			}
+			sp.payload.Build(pn);
+			info.spell_patches.push_back(std::move(sp));
+		} catch (std::exception &e) {
+			err_log("Feat spell_patch parse error (%s).", e.what());
+		}
+	}
+	node.GoToParent();
+}
+
 void FeatsLoader::Load(DataNode data) {
 	MUD::Feats().Init(data.Children());
 }
@@ -491,6 +534,7 @@ ItemPtr FeatInfoBuilder::ParseFeat(DataNode &node) {
 	auto info = ParseHeader(node);
 
 	ParseEffects(info, node);
+	ParseSpellPatches(*info, node);   // issue.perk-action-patching
 	return info;
 }
 
@@ -524,6 +568,65 @@ void FeatInfo::Print(CharData *ch, std::ostringstream &buffer) const {
 		   << " Mode: " << kColorGrn << NAME_BY_ITEM<EItemMode>(GetMode()) << kColorNrm << "\r\n";
 
 	effects.Print(ch, buffer);
+}
+
+// issue.perk-action-patching: validate a patch target/anchor ids against the spell action blocks.
+static bool ValidatePatch(const spells::SpellInfo &spell, const SpellPatch &p, EFeat fid) {
+	auto has_block = [&](const std::string &id) {
+		if (id.empty()) { return false; }
+		for (const auto &b : spell.actions.list()) {
+			if (b.GetId() == id) { return true; }
+		}
+		return false;
+	};
+	switch (p.op) {
+		case EPatchOp::kReplace:
+		case EPatchOp::kRemove:
+		case EPatchOp::kAddEffect:
+			if (!has_block(p.action_id)) {
+				err_log("perk patch (feat [%s] -> spell [%s]): action id [%s] not found.",
+						NAME_BY_ITEM<EFeat>(fid).c_str(), spell.GetEngCName(), p.action_id.c_str());
+				return false;
+			}
+			break;
+		case EPatchOp::kInsert:
+			if (!p.anchor_id.empty() && !has_block(p.anchor_id)) {
+				err_log("perk patch (feat [%s] -> spell [%s]): insert anchor [%s] not found.",
+						NAME_BY_ITEM<EFeat>(fid).c_str(), spell.GetEngCName(), p.anchor_id.c_str());
+				return false;
+			}
+			break;
+		default:
+			break;
+	}
+	return true;
+}
+
+void BuildSpellPatchIndex() {
+	for (auto sid = ESpell::kFirst; sid <= ESpell::kLast; ++sid) {
+		if (MUD::Spells().IsKnown(sid)) {
+			MUD::Spell(sid).perk_patches.clear();
+		}
+	}
+	size_t linked = 0, dropped = 0;
+	for (const auto &fi : MUD::Feats()) {
+		const EFeat fid = fi.GetId();
+		for (const auto &patch : fi.spell_patches) {
+			if (!MUD::Spells().IsKnown(patch.target_spell)) {
+				err_log("perk patch on feat [%s]: unknown target spell.", NAME_BY_ITEM<EFeat>(fid).c_str());
+				++dropped;
+				continue;
+			}
+			const spells::SpellInfo &spell = MUD::Spell(patch.target_spell);
+			if (!ValidatePatch(spell, patch, fid)) {
+				++dropped;
+				continue;
+			}
+			spell.perk_patches.push_back(spells::SpellPatchRef{fid, &patch});
+			++linked;
+		}
+	}
+	log("issue.perk-action-patching: linked %zu perk spell-patch(es), dropped %zu.", linked, dropped);
 }
 
 }

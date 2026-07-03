@@ -23,10 +23,12 @@
 #include <set>
 #include <string_view>   // issue.character-affect-triggers: EventContext::GetTag
 #include <vector>
+#include <deque>   // issue.perk-action-patching: ActionContext::patch_scratch_
 
 class CharData;
 class ObjData;
 struct RoomData;
+namespace feats { struct SpellPatch; }   // issue.perk-action-patching
 template<typename> class Affect;   // issue.mob-flag-affect-materialization: BuildMaterializedAffect return
 
 // (issue.affect-migration) The old ESpell "first-aid removable" list + GetRemovableSpellId were
@@ -200,6 +202,10 @@ class ActionContext {
 	[[nodiscard]] long DamageAuthorUid() const { return damage_author_uid_; }
 	[[nodiscard]] const talents_actions::Action *action() const;
 	[[nodiscard]] bool HasPendingActions() const;
+	// issue.perk-action-patching: build this cast's patched action chain from the caster's usable perks
+	// (SpellInfo::perk_patches). Fast no-op when the spell has no patches. Call once in CallMagic before
+	// the action walk; every other cast (and everyone without the perk) walks the spell unchanged.
+	void ApplyPerkPatches();
 	// The action the current stage should read its block from: the cursor's
 	// current action when the per-action loop is driving (CastToSingleTarget),
 	// or the spell's primary action otherwise (bypass callers / rooms that call
@@ -213,6 +219,8 @@ class ActionContext {
 	[[nodiscard]] double CompetenceBase() const;
 
  private:
+	// issue.perk-action-patching: apply one resolved patch to action_view_/patch_scratch_.
+	void ApplyOnePatch(const feats::SpellPatch &p);
 	CharData *caster_{nullptr};
 	ESpell spell_id_{ESpell::kUndefined};
 	int base_level_{0};
@@ -232,6 +240,13 @@ class ActionContext {
 	std::string aff_dmg_msg_vict_;
 	std::string aff_dmg_msg_room_;
 	long damage_author_uid_{0};      // issue.damage-over-time: poison author for <damage source="poison">
+	// issue.perk-action-patching: the per-cast patched chain (non-owning ptrs into the spell's own blocks
+	// + perk-owned blocks + patch_scratch_). patched_ (not emptiness) selects it, so a perk that removed
+	// every block still overrides. patch_scratch_ owns per-cast block copies for manifestation-level edits
+	// (deque -> stable pointers). All empty/false on an ordinary unpatched cast.
+	std::vector<const talents_actions::Action *> action_view_;
+	std::deque<talents_actions::Action> patch_scratch_;
+	bool patched_{false};
 };
 
 // VNUM'ы мобов для заклинаний, создающих мобов

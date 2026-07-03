@@ -17,6 +17,8 @@
 #include "gameplay/classes/classes_constants.h"
 #include "engine/boot/cfg_manager.h"
 #include "engine/structs/info_container.h"
+#include "gameplay/magic/spells_constants.h"   // issue.perk-action-patching: ESpell (patch target)
+#include "talents_actions.h"                    // issue.perk-action-patching: Actions (patch payload)
 
 #include <array>
 #include <bitset>
@@ -43,6 +45,23 @@ namespace feats {
 
 using DataNode = parser_wrapper::DataNode;
 
+// issue.perk-action-patching: a perk's declared modification of a spell's <action> chain. The payload
+// holds perk-owned <action> block(s) parsed by the normal action parser; they live for the process
+// lifetime, so the per-cast materializer can point at them (non-owning) without copying.
+enum class EPatchOp { kAppend, kInsert, kReplace, kRemove, kAddEffect, kReplaceAll };
+
+struct SpellPatch {
+	enum class EScope { kCaster, kTarget };   // whose feat is tested (kTarget = future: the spell's victim)
+	ESpell target_spell{ESpell::kUndefined};
+	EPatchOp op{EPatchOp::kAppend};
+	EScope scope{EScope::kCaster};
+	std::string action_id;    // target block id (replace / remove / add_effect)
+	std::string effect_id;    // target manifestation id within that block (manifestation-level ops)
+	std::string anchor_id;    // insert anchor block id
+	bool anchor_before{false};
+	talents_actions::Actions payload;   // perk-provided <action> block(s)
+};
+
 class FeatsLoader : virtual public cfg_manager::ICfgLoader {
  public:
 	void Load(DataNode data) final;
@@ -61,6 +80,9 @@ class FeatInfo : public info_container::BaseItem<EFeat> {
 
 	talents_effects::Effects effects;
 
+	// issue.perk-action-patching: this feat's spell-action patches (empty for most feats).
+	std::vector<SpellPatch> spell_patches;
+
 	[[nodiscard]] const std::string &GetName() const { return name_; };
 	[[nodiscard]] const char *GetCName() const { return name_.c_str(); };
 
@@ -77,6 +99,10 @@ class FeatInfoBuilder : public info_container::IItemBuilder<FeatInfo> {
 };
 
 using FeatsInfo = info_container::InfoContainer<EFeat, FeatInfo, FeatInfoBuilder>;
+
+// issue.perk-action-patching: after feats + spells load, bucket every feat's patches onto the target
+// SpellInfo (SpellInfo::perk_patches) and validate their target ids. Idempotent; called once from boot.
+void BuildSpellPatchIndex();
 
 }
 

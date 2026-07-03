@@ -190,8 +190,11 @@ enum class EFeat {
 	kAnimalMaster = 156,		//хозяин животных
 	kSlashMaster = 157, 		//двойной удар двуручем
 	kPhysicians = 158,
+	kEmberTouch = 159,		// issue.perk-action-patching: pilot perk (ignite on Burning Hands)
+	kEmberFury = 160,		// issue.perk-action-patching P2: manifestation-replace kBurningHands damage (x2)
+	kCinderburst = 161,		// issue.perk-action-patching P2: block-replace kBurningHands (x3 damage)
 	kFirst = kBerserker,
-	kLast = kPhysicians				// !!! Не забываем менять !!!
+	kLast = kCinderburst				// !!! Не забываем менять !!!
 };
 
 template<>

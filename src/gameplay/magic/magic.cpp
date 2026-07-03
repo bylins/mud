@@ -3004,6 +3004,10 @@ const talents_actions::Action &ActionContext::action_or_default() const {
 	if (a) {
 		return *a;
 	}
+	// issue.perk-action-patching: a patched cast whose cursor ran past the end still reads from the view.
+	if (patched_ && !action_view_.empty()) {
+		return *action_view_.front();
+	}
 	if (external_actions_ && !external_actions_->empty()) {
 		return (*external_actions_)[0];
 	}
@@ -3028,6 +3032,11 @@ void ActionContext::NextAction() {
 }
 
 const talents_actions::Action *ActionContext::action() const {
+	// issue.perk-action-patching: a per-cast patched chain wins over the spell's own list. patched_
+	// (not emptiness) is the selector, so a perk that removed every block still overrides.
+	if (patched_) {
+		return action_idx_ < action_view_.size() ? action_view_[action_idx_] : nullptr;
+	}
 	if (!actions_ || action_idx_ >= actions_->size()) {
 		return nullptr;
 	}
@@ -3035,8 +3044,134 @@ const talents_actions::Action *ActionContext::action() const {
 }
 
 bool ActionContext::HasPendingActions() const {
-	const size_t count = actions_ ? actions_->size() : 0;
+	const size_t count = patched_ ? action_view_.size() : (actions_ ? actions_->size() : 0);
 	return action_idx_ < std::max<size_t>(1, count);
+}
+
+// issue.perk-action-patching: materialize this cast's patched action chain. Runs once per cast in
+// CallMagic. Fast path: a spell with no perk patches (nearly all of them) returns immediately and the
+// cast walks the spell's own const action list -- identical to before this feature. Only when the spell
+// carries patches AND the caster can use the corresponding perk do we build a per-cast view.
+void ActionContext::ApplyPerkPatches() {
+	if (!caster_) {
+		return;
+	}
+	const auto &patches = MUD::Spell(spell_id_).perk_patches;
+	if (patches.empty()) {
+		return;   // fast path
+	}
+	const auto &own = MUD::Spell(spell_id_).actions.list();
+	action_view_.clear();
+	action_view_.reserve(own.size() + patches.size());
+	for (const auto &blk : own) {
+		action_view_.push_back(&blk);
+	}
+	patched_ = true;
+	// patches arrive in EFeat-enum order (MUD::Feats() is an ordered map), so application is deterministic.
+	for (const auto &ref : patches) {
+		const feats::SpellPatch &p = *ref.patch;
+		// Only caster-held perks are materialized here (once per cast). Target-held perks must be resolved
+		// per victim inside the target loop -- not wired yet, so skip them to avoid misfiring.
+		if (p.scope != feats::SpellPatch::EScope::kCaster) {
+			continue;
+		}
+		if (!CanUseFeat(caster_, ref.feat)) {
+			continue;
+		}
+		ApplyOnePatch(p);
+	}
+}
+
+void ActionContext::ApplyOnePatch(const feats::SpellPatch &p) {
+	using talents_actions::Action;
+	using Diff = std::vector<const Action *>::difference_type;
+	const auto &payload = p.payload.list();
+
+	auto find_idx = [&](const std::string &id) -> long {
+		for (size_t i = 0; i < action_view_.size(); ++i) {
+			if (action_view_[i]->GetId() == id) {
+				return static_cast<long>(i);
+			}
+		}
+		return -1;
+	};
+	auto payload_ptrs = [&]() {
+		std::vector<const Action *> v;
+		v.reserve(payload.size());
+		for (const auto &b : payload) {
+			v.push_back(&b);
+		}
+		return v;
+	};
+
+	switch (p.op) {
+		case feats::EPatchOp::kReplaceAll: {
+			action_view_.clear();
+			const auto v = payload_ptrs();
+			action_view_.insert(action_view_.end(), v.begin(), v.end());
+			break;
+		}
+		case feats::EPatchOp::kAppend: {
+			const auto v = payload_ptrs();
+			action_view_.insert(action_view_.end(), v.begin(), v.end());
+			break;
+		}
+		case feats::EPatchOp::kInsert: {
+			const long i = p.anchor_id.empty() ? -1 : find_idx(p.anchor_id);
+			const size_t at = (i < 0) ? action_view_.size()
+									  : (p.anchor_before ? static_cast<size_t>(i) : static_cast<size_t>(i) + 1);
+			const auto v = payload_ptrs();
+			action_view_.insert(action_view_.begin() + static_cast<Diff>(at), v.begin(), v.end());
+			break;
+		}
+		case feats::EPatchOp::kRemove: {
+			const long i = find_idx(p.action_id);
+			if (i < 0) {
+				break;
+			}
+			if (p.effect_id.empty()) {
+				action_view_.erase(action_view_.begin() + static_cast<Diff>(i));
+			} else {
+				patch_scratch_.push_back(*action_view_[i]);
+				patch_scratch_.back().EraseManifestationsById(p.effect_id);
+				action_view_[i] = &patch_scratch_.back();
+			}
+			break;
+		}
+		case feats::EPatchOp::kReplace: {
+			const long i = find_idx(p.action_id);
+			if (i < 0) {
+				break;
+			}
+			if (p.effect_id.empty()) {
+				action_view_.erase(action_view_.begin() + static_cast<Diff>(i));
+				const auto v = payload_ptrs();
+				action_view_.insert(action_view_.begin() + static_cast<Diff>(i), v.begin(), v.end());
+			} else {
+				patch_scratch_.push_back(*action_view_[i]);
+				Action &copy = patch_scratch_.back();
+				copy.EraseManifestationsById(p.effect_id);
+				for (const auto &b : payload) {
+					copy.MergeManifestationsFrom(b);
+				}
+				action_view_[i] = &copy;
+			}
+			break;
+		}
+		case feats::EPatchOp::kAddEffect: {
+			const long i = find_idx(p.action_id);
+			if (i < 0) {
+				break;
+			}
+			patch_scratch_.push_back(*action_view_[i]);
+			Action &copy = patch_scratch_.back();
+			for (const auto &b : payload) {
+				copy.MergeManifestationsFrom(b);
+			}
+			action_view_[i] = &copy;
+			break;
+		}
+	}
 }
 
 // cast each of the action's <side_spell> spells as a full nested pipeline on

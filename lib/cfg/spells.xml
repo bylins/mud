@@ -149,8 +149,8 @@
 			<base_stat id="kWis" threshold="22" weight="5" />
 		</success_roll>
 		<talent_actions>
-			<action>
-				<damage saving="kReflex">
+			<action id="Main">
+				<damage id="MainDamage" saving="kReflex">
 					<amount min="0" dices_weight="1.0" alpha="0.5" beta="15" />
 				</damage>
 				<area>
