@@ -215,16 +215,11 @@ int CheckCharmices(CharData *ch, CharData *victim, ESpell spell_id) {
 		return (false);
 	}
 
-	if (spell_id == ESpell::kClone && cha_summ >= std::max(1, (GetRealLevel(ch) + 4) / 5 - 2)) {
+	if (spell_id == ESpell::kClone && cha_summ >= std::max(1, (GetRealLevel(ch) + 9) / 5 - 2)) {
 		SendMsgToChar("Вы не сможете управлять столькими последователями.\r\n", ch);
 		return (false);
 	}
-
-	if (spell_id != ESpell::kClone && cha_summ >= (GetRealLevel(ch) + 9) / 10) {
-		SendMsgToChar("Вы не сможете управлять столькими последователями.\r\n", ch);
-		return (false);
-	}
-
+	
 	if (spell_id != ESpell::kClone &&
 		reformed_hp_summ + GetReformedCharmiceHp(ch, victim, spell_id) >= CalcCharmPoint(ch, spell_id)) {
 		SendMsgToChar("Вам не под силу управлять такой боевой мощью.\r\n", ch);
