@@ -830,7 +830,11 @@ EVENT(trig_wait_event) {
 	GET_TRIG_WAIT(trig).time_remaining = 0;
 	// issue #3523: from_current выставляется только при паузе триггера из-за стана
 	// моба -- логируем возобновление, чтобы видеть, что механизм действительно работает.
-	if (wait_event_obj->from_current && type == MOB_TRIGGER && go) {
+	// Мёртвого (purged) моба пропускаем: событие срабатывает раньше отложенного
+	// purge, но script_driver ниже всё равно выйдет по is_purged() -- триггер не
+	// продолжится, и лог о "продолжил работу" был бы ложным.
+	if (wait_event_obj->from_current && type == MOB_TRIGGER && go
+			&& !reinterpret_cast<CharData *>(go)->purged()) {
 		auto *mob = reinterpret_cast<CharData *>(go);
 		mudlog(fmt::format("DG: триггер {} #{} продолжил работу после лага моба {} #{}",
 						   GET_TRIG_NAME(trig), GET_TRIG_VNUM(trig), GET_SHORT(mob), GET_MOB_VNUM(mob)),
