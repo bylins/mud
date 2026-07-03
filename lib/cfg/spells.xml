@@ -967,7 +967,7 @@
 						<modifier min="2.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" stack="5" />
 					</apply>
 					<apply id="kPoisoned" location="kPoison">
-						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="11.5" factor="1" />
+						<modifier min="0.0" dices_weight="0.0" alpha="0" beta="40.0" factor="1" />
 					</apply>
 				</affects>
 				<alter_obj handler="AlterPoison" />
