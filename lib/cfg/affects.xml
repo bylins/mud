@@ -181,8 +181,8 @@
 	</affect>
 	<affect id="kHaste" buff="Y">
 		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
-		<apply location="kSavingReflex">
-			<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0.9" factor="-1" />
+		<apply location="kInitiative">
+			<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0.9" factor="1" />
 		</apply>
 	</affect>
 	<affect id="kGodsShield" buff="Y">
@@ -592,9 +592,9 @@
 		</apply>
 	</affect>
 	<affect id="kSlowdown" buff="N">
-		<flags val="kAfDispellable|kAfCurable"/>
-		<apply location="kDex">
-			<modifier min="2.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" />
+		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable"/>
+		<apply location="kInitiative">
+			<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0.9" factor="-1" />
 		</apply>
 	</affect>
 	<affect id="kFever" buff="N">

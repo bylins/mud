@@ -3028,7 +3028,7 @@
 			<action>
 				<target_conditions>
 					<blocking>
-						<affect_flags val="kBrokenChains|kHaste" />
+						<affect_flags val="kBrokenChains" />
 					</blocking>
 				</target_conditions>
 				<affects saving="kStability" resist="kMind">
@@ -3036,10 +3036,6 @@
 					<affect id="kSlow"/>
 					<affect id="kSlowdown"/>
 				</affects>
-				<unaffect decay="25">
-					<breaking any_of="kHaste" />
-					<remove any_of="kHaste" />
-				</unaffect>
 			</action>
 		</talent_actions>
 	</spell>
@@ -3052,7 +3048,7 @@
 		<misc pos="kFight" violent="N" danger="0" />
 		<mana max="55" min="40" change="1" />
 		<targets val="kTarCharRoom|kTarFightSelf" />
-		<flags val="kMagAffects|kMagUnaffects|kNpcAffectNpc" />
+		<flags val="kMagAffects|kNpcAffectNpc" />
 		<potency_roll>
 			<dices ndice="5" sdice="9" adice="12" />
 			<base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25" />
@@ -3068,10 +3064,6 @@
 					<duration base="20" skill_divisor="3" min="0" max="0" />
 					<affect id="kHaste"/>
 				</affects>
-				<unaffect decay="25">
-					<breaking any_of="kSlow" />
-					<remove any_of="kSlow" />
-				</unaffect>
 			</action>
 		</talent_actions>
 	</spell>
