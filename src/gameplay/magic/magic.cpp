@@ -943,7 +943,7 @@ EStageResult ProcessMatComponents(CharData *caster, CharData *victim, ESpell spe
 // affect's duration, kAfUpdateDuration refreshes it to the longer value, and
 // kAfUpdateMod replaces the modifier only when the new magnitude is larger. The
 // caller runs affect_total() afterwards.
-static void ApplyTalentAffect(CharData *victim, Affect<EApply> &af, int max_stacks) {
+static void ApplyTalentAffect(CharData *victim, Affect<EApply> &af, int max_stacks, Bitvector extra_battleflag = 0) {
 	// issue.affect-migration: stack/update behavior comes from affects.xml by affect_type.
 	const Bitvector eff_flags = affects::AffectFlagsByType(af.affect_type);
 	const bool accum_dur = IS_SET(eff_flags, to_underlying(EAffFlag::kAfAccumulateDuration));
@@ -982,7 +982,7 @@ static void ApplyTalentAffect(CharData *victim, Affect<EApply> &af, int max_stac
 			break;
 		}
 	}
-	affect_to_char(victim, af);
+	affect_to_char(victim, af, extra_battleflag);
 }
 
 // Apply the spell's <affects> talent block to `victim`, returning whether the affect actually
@@ -1045,10 +1045,13 @@ static bool TryApplyAffectTalent(CharData *ch, CharData *victim, ESpell spell_id
 	// spells without a <potency_roll> -> flat duration). `victim` decides the unit (PC: hours ->
 	// ticks; NPC: raw), preserving today's tick-unit semantics.
 	const ESkill duration_skill = MUD::Spell(spell_id).GetPotencyRoll().GetBaseSkill();
+	// issue.vampirism-haste: a battle-decrementing grant (battleflag="kAfBattledec") is measured in
+	// combat rounds, so its duration must NOT get the PC hours->ticks conversion.
+	const bool raw_rounds = (talent.GetBattleflags() & to_underlying(EAffFlag::kAfBattledec)) != 0;
 	int duration = ApplyResist(victim, talent.GetResist(),
 		CalcDuration(ch, victim, duration_skill,
 					 talent.GetDurationBase(), talent.GetDurationSkillDivisor(),
-					 talent.GetDurationMin(), talent.GetDurationMax()));
+					 talent.GetDurationMin(), talent.GetDurationMax(), raw_rounds));
 	duration = CalcComplexSpellMod(ch, spell_id, GAPPLY_SPELL_EFFECT, duration);
 	const bool tc = spell_trace::Active(ch, victim);
 	if (tc) {
@@ -1084,7 +1087,7 @@ static bool TryApplyAffectTalent(CharData *ch, CharData *victim, ESpell spell_id
 		taf.potency = cast_potency * talent.GetPotencyWeight() * static_cast<float>(area_coeff);
 		// apply.stack is the max stack count: re-applying up to the cap adds a stack and
 		// accumulates the modifier (see ApplyTalentAffect).
-		ApplyTalentAffect(victim, taf, apply.stack);
+		ApplyTalentAffect(victim, taf, apply.stack, talent.GetBattleflags());
 		if (tc) {
 			spell_trace::Line(ch, victim,
 				"&C  apply %s%s: min %.1f dw %.1f alpha %.1f beta %.1f dice %d C %.2f "

@@ -647,6 +647,9 @@ class TalentAffect : public IAction {
 	// both modifier and stored potency. Symmetric in spirit with
 	// TalentUnaffect::potency_weight_ on the dispel side.
 	[[nodiscard]] float GetPotencyWeight() const { return potency_weight_; }
+	// issue.vampirism-haste: extra per-instance battle flags (EAffFlag bits) OR'd onto every affect this
+	// block imposes -- e.g. kAfBattledec to make a normally tick-based buff decrement per combat round.
+	[[nodiscard]] Bitvector GetBattleflags() const { return extra_battleflags_; }
 
  private:
 	ESaving saving_{ESaving::kReflex};
@@ -673,6 +676,8 @@ class TalentAffect : public IAction {
 	bool reposition_stop_fight_{false};
 	// Stored-potency scale (issue.affects-potency-weight); see GetPotencyWeight().
 	float potency_weight_{1.0f};
+	// issue.vampirism-haste: see GetBattleflags(). 0 = impose with the affect type's own flags only.
+	Bitvector extra_battleflags_{0};
 };
 
 // The "unaffect" talent action (issue #3342): removes affects from the target and/or

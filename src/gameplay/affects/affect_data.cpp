@@ -1074,14 +1074,15 @@ void ImposeAffect(CharData *ch, Affect<EApply> &af, bool add_dur, bool max_dur, 
 
 /* Insert an affect_type in a char_data structure
    Automatically sets appropriate bits and apply's */
-void affect_to_char(CharData *ch, const Affect<EApply> &af) {
+void affect_to_char(CharData *ch, const Affect<EApply> &af, Bitvector extra_battleflag) {
 	Affect<EApply>::shared_ptr affected_alloc(new Affect<EApply>(af));
 	// issue.affect-migration Phase 2: effect behavior flags are sourced from affects.xml by
 	// affect_type; the caller only contributes the per-instance kAfFailed bit. Guarded on the table
 	// being loaded (unit tests / pre-cfg boot keep caller flags); kUndefined affects have no row.
 	if (affects::AffectFlagsLoaded() && af.affect_type != EAffect::kUndefined) {
 		affected_alloc->battleflag = affects::AffectFlagsByType(af.affect_type)
-				| (af.battleflag & static_cast<Bitvector>(kAfFailed | kAfCharmBond));
+				| (af.battleflag & static_cast<Bitvector>(kAfFailed | kAfCharmBond))
+				| extra_battleflag;   // issue.vampirism-haste: action-requested per-instance flags (e.g. kAfBattledec)
 	}
 
 	// issue.mob-flag-affect-materialization: only register mobs that need per-tick affect processing.
@@ -1485,9 +1486,12 @@ bool GetAffectNumByName(const std::string &affName, EAffect &result) {
 // skill_id == kUndefined skips the skill bonus -- used for flat durations and for spells without
 // a <potency_roll>. min/max keep the OLD-style "0 means no clamp on that side" semantics.
 int CalcDuration(CharData *caster, CharData *victim, ESkill skill_id,
-				 unsigned base, unsigned skill_divisor, int min, int max) {
+				 unsigned base, unsigned skill_divisor, int min, int max, bool raw_rounds) {
+	// issue.vampirism-haste: raw_rounds keeps the value in combat-round units (as for NPCs) instead of
+	// converting hours->ticks for PCs -- used by battle-decrementing affects, which are round-measured.
+	const bool no_convert = victim->IsNpc() || raw_rounds;
 	if (skill_divisor == 0 && min == 0 && max == 0) {
-		return (victim->IsNpc() ? base : (base * kSecsPerMudHour / kSecsPerPlayerAffect));
+		return (no_convert ? base : (base * kSecsPerMudHour / kSecsPerPlayerAffect));
 	}
 	int skill_bonus = (skill_id == ESkill::kUndefined)
 		? 0
@@ -1495,7 +1499,7 @@ int CalcDuration(CharData *caster, CharData *victim, ESkill skill_id,
 	if (min > 0) skill_bonus = std::max(skill_bonus, min);
 	if (max > 0) skill_bonus = std::min(skill_bonus, max);
 	const auto duration = base + static_cast<unsigned>(skill_bonus);
-	return (victim->IsNpc() ? duration : (duration * kSecsPerMudHour / kSecsPerPlayerAffect));
+	return (no_convert ? duration : (duration * kSecsPerMudHour / kSecsPerPlayerAffect));
 }
 
 

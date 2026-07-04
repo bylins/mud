@@ -182,7 +182,7 @@
 	<affect id="kHaste" buff="Y">
 		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable"/>
 		<apply location="kInitiative">
-			<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0.9" factor="1" />
+			<modifier min="4.0" dices_weight="0.0" alpha="0" beta="0.9" factor="1" />
 		</apply>
 	</affect>
 	<affect id="kGodsShield" buff="Y">
@@ -482,6 +482,15 @@
 					<heal min="1" dices_weight="0" alpha="0" beta="0.10" npc_coeff="0"/>
 				</points>
 			</action>
+			<!-- issue.vampirism-haste: on a KILL the bearer gets a SHORT battle-haste (kAfBattledec =>
+			     duration is combat rounds, not the spell's hours). -->
+			<action target="kTarFightSelf">
+				<trigger val="kKill"/>
+				<affects battleflag="kAfBattledec">
+					<duration base="6" skill_divisor="0" min="0" max="0"/>
+					<affect id="kHaste"/>
+				</affects>
+			</action>
 		</actions>
 	</affect>
 	<affect id="kLacerations">
@@ -594,7 +603,7 @@
 	<affect id="kSlowdown" buff="N">
 		<flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable"/>
 		<apply location="kInitiative">
-			<modifier min="0.0" dices_weight="0.0" alpha="0" beta="0.9" factor="-1" />
+			<modifier min="4.0" dices_weight="0.0" alpha="0" beta="0.9" factor="-1" />
 		</apply>
 	</affect>
 	<affect id="kFever" buff="N">

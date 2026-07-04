@@ -688,6 +688,11 @@ TalentAffect::TalentAffect(parser_wrapper::DataNode &node) {
 	// in the opposite direction.
 	const char *pw = node.GetValue("potency_weight");
 	potency_weight_ = (pw && *pw) ? static_cast<float>(parse::ReadAsDouble(pw)) : 1.0f;
+	// issue.vampirism-haste: optional per-application battle flags OR'd onto each imposed affect. Lets an
+	// action grant an affect with kAfBattledec (round-decrementing) though the affect TYPE is tick-based;
+	// with kAfBattledec set, the <duration> below is read as raw combat rounds (no PC hour->tick scaling).
+	const char *bf = node.GetValue("battleflag");
+	extra_battleflags_ = (bf && *bf) ? parse::ReadAsConstantsBitvector<EAffFlag>(bf) : 0;
 	for (auto &child: node.Children()) {
 		const auto name = child.GetName();
 		if (strcmp(name, "duration") == 0) {

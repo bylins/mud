@@ -134,7 +134,7 @@ bool RunCharDeathTriggers(CharData *ch, CharData *killer);
 void affect_total(CharData *ch);
 void affect_modify(CharData *ch, EApply loc, int mod, EAffect bitv, bool add);
 std::pair<EApply, int> GetApplyByWeaponAffect(EWeaponAffect element, CharData *ch);
-void affect_to_char(CharData *ch, const Affect<EApply> &af);
+void affect_to_char(CharData *ch, const Affect<EApply> &af, Bitvector extra_battleflag = 0);
 void RemoveAffectFromChar(CharData *ch, EAffect affect_type);
 void RemoveAffectFromCharAndRecalculate(CharData *ch, EAffect affect_type);
 // issue.affect-migration: un-charm -- remove the whole charm package (affects flagged kAfCharmBond) and,
@@ -182,6 +182,6 @@ bool GetAffectNumByName(const std::string &affName, EAffect &result);
 // "no clamp on that side", a positive value clamps the bonus accordingly. The previous level-based
 // overload was removed once every caller migrated to this one.
 int CalcDuration(CharData *caster, CharData *victim, ESkill skill_id,
-				 unsigned base, unsigned skill_divisor, int min, int max);
+				 unsigned base, unsigned skill_divisor, int min, int max, bool raw_rounds = false);
 
 #endif //BYLINS_AFFECT_DATA_H
