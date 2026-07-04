@@ -3530,6 +3530,11 @@ static std::vector<CharData *> ResolveActionTargets(ActionContext &ctx,
 			CharData *one = roster.getRandomItem();
 			return one ? std::vector<CharData *>{one} : std::vector<CharData *>{};
 		}
+		case talents_actions::EActionTarget::kTarMaster: {
+			// issue.soullink-affect-patching: the caster/bearer's charm master (kSoulLink heals the master).
+			CharData *mst = caster->has_master() ? caster->get_master() : nullptr;
+			return mst ? std::vector<CharData *>{mst} : std::vector<CharData *>{};
+		}
 	}
 	return {};
 }
@@ -3976,6 +3981,35 @@ bool RunCharEventTriggers(CharData *ch, const EventContext &event) {
 		RunRoomCycledAction(ctx, world[ch->in_room], fired, 0);
 		if (ch->purged()) {
 			return true;
+		}
+		// issue.soullink-affect-patching: additionally run any talent-patch actions on this affect (e.g.
+		// kSoulLink's master-heal), after the affect's own action. Gated on the RELATIVE (the bearer's
+		// master/group-leader per the patch) holding the feat. Affects support op="append" only for now.
+		{
+			std::vector<talents_actions::Action> patch_actions;
+			for (const auto &ref : feats::AffectTalentPatches(t)) {
+				if (ref.patch->op != feats::EPatchOp::kAppend) {
+					continue;
+				}
+				CharData *holder = feats::ResolvePatchRelative(ch, ref.patch->relative);
+				if (!holder || !CanUseFeat(holder, ref.feat)) {
+					continue;
+				}
+				for (const auto &pa : ref.patch->payload.list()) {
+					if (pa.GetTrigger().test(trig)) {
+						patch_actions.push_back(pa);
+					}
+				}
+			}
+			if (!patch_actions.empty()) {
+				ctx.UseExternalActions(&patch_actions);
+				for (size_t i = 0; i < patch_actions.size(); ++i) {
+					RunRoomCycledAction(ctx, world[ch->in_room], patch_actions, i);
+					if (ch->purged()) {
+						return true;
+					}
+				}
+			}
 		}
 		// issue.character-affect-triggers: spend a trigger charge -- kPreHit/kPostHit/kKill leave the
 		// affect in place, so charges bound how many times it may fire (no-op when unlimited). Safe here:

@@ -10,6 +10,7 @@
 #include "gameplay/core/remort.h"
 #include "feats.h"                              // issue.perk-action-patching
 #include "gameplay/magic/spells_info.h"         // issue.perk-action-patching: SpellInfo::talent_patches
+#include <unordered_map>
 #include <cstring>
 
 /* Служебные функции */
@@ -519,6 +520,16 @@ static void ParseTalentPatches(FeatInfo &info, DataNode &node) {
 				else { err_log("talent patch: unknown has_effect [%s].", he); }
 			}
 			if (const char *cv = pn.GetValue("category"); cv && *cv) { sp.category = cv; }
+			if (const char *afv = pn.GetValue("affect"); afv && *afv) {
+				try { sp.target_affect = ITEM_BY_NAME<EAffect>(afv); }
+				catch (const std::exception &) { err_log("talent patch: unknown affect [%s].", afv); }
+			}
+			if (const char *rv = pn.GetValue("relative"); rv && *rv) {
+				if (strcmp(rv, "master") == 0) { sp.relative = TalentPatch::ERelative::kMaster; }
+				else if (strcmp(rv, "group_leader") == 0) { sp.relative = TalentPatch::ERelative::kGroupLeader; }
+				else if (strcmp(rv, "self") == 0) { sp.relative = TalentPatch::ERelative::kSelf; }
+				else { err_log("talent patch: unknown relative [%s] (self/master/group_leader).", rv); }
+			}
 			const std::string op = (pn.GetValue("op") && *pn.GetValue("op")) ? pn.GetValue("op") : "append";
 			if      (op == "append")      { sp.op = EPatchOp::kAppend; }
 			else if (op == "insert")      { sp.op = EPatchOp::kInsert; }
@@ -692,7 +703,32 @@ static bool PatchMatchesSpell(const TalentPatch &p, const spells::SpellInfo &s) 
 	return true;
 }
 
+// issue.soullink-affect-patching: affect-targeting patches, bucketed by affect type (underlying int key
+// to avoid needing std::hash<EAffect>). Filled at boot by BuildTalentPatchIndex, read by the affect runner.
+static std::unordered_map<int, std::vector<AffectPatchRef>> g_affect_patches;
+
+const std::vector<AffectPatchRef> &AffectTalentPatches(EAffect affect_type) {
+	static const std::vector<AffectPatchRef> kEmpty;
+	const auto it = g_affect_patches.find(to_underlying(affect_type));
+	return it != g_affect_patches.end() ? it->second : kEmpty;
+}
+
+CharData *ResolvePatchRelative(CharData *owner, TalentPatch::ERelative relative) {
+	if (!owner) { return nullptr; }
+	switch (relative) {
+		case TalentPatch::ERelative::kSelf: return owner;
+		case TalentPatch::ERelative::kMaster: return owner->has_master() ? owner->get_master() : nullptr;
+		case TalentPatch::ERelative::kGroupLeader: {
+			CharData *l = owner;
+			while (l->has_master()) { l = l->get_master(); }
+			return l;
+		}
+	}
+	return owner;
+}
+
 void BuildTalentPatchIndex() {
+	g_affect_patches.clear();
 	for (auto sid = ESpell::kFirst; sid <= ESpell::kLast; ++sid) {
 		if (MUD::Spells().IsKnown(sid)) {
 			MUD::Spell(sid).talent_patches.clear();
@@ -705,6 +741,12 @@ void BuildTalentPatchIndex() {
 			if (!patch.HasSelector()) {
 				err_log("talent patch on feat [%s]: no selector; skipped.", NAME_BY_ITEM<EFeat>(fid).c_str());
 				++dropped;
+				continue;
+			}
+			if (patch.target_affect != EAffect::kUndefined) {
+				// issue.soullink-affect-patching: an affect patch -- bucket by affect type, not onto a spell.
+				g_affect_patches[to_underlying(patch.target_affect)].push_back(AffectPatchRef{fid, &patch});
+				++linked;
 				continue;
 			}
 			size_t matched = 0, applied = 0, skipped = 0;

@@ -479,6 +479,21 @@
     <feat id="kRegenOfDarkness" mode="kEnabled">
     </feat>
     <feat id="kSoulLink" mode="kEnabled">
+        <!-- issue.soullink-affect-patching: restores the old master-share. When a minion's kVampirism
+             fires (kPostHit), if the minion's MASTER has kSoulLink the master also heals ~5% of the
+             damage (half the minion's ~10% self-heal). affect= patches the AFFECT's chain; relative=
+             "master" gates on the bearer's master; target="kTarMaster" heals that master. kVampirism
+             itself is untouched. -->
+        <talent_patches>
+            <talent_patch affect="kVampirism" relative="master" op="append">
+                <action target="kTarMaster" base="tag" tag="amount">
+                    <trigger val="kPostHit"/>
+                    <points extra="100">
+                        <heal min="1" dices_weight="0" alpha="0" beta="0.05" npc_coeff="0"/>
+                    </points>
+                </action>
+            </talent_patch>
+        </talent_patches>
     </feat>
     <feat id="kStrongClutch" mode="kEnabled">
     </feat>

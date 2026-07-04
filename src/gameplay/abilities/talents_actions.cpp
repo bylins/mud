@@ -179,6 +179,7 @@ const std::map<std::string, EActionTarget> kActionTargetByName{
 	{"kTarMinions", EActionTarget::kTarMinions},
 	{"kTarActor", EActionTarget::kTarActor},
 	{"kTarRoomThis", EActionTarget::kTarRoomThis},
+	{"kTarMaster", EActionTarget::kTarMaster},
 };
 
 // Room flags (ERoomFlag) addressable from the <blocking>/<required>/<caster_blocking>

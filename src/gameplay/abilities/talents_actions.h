@@ -50,8 +50,11 @@ enum class EActionTarget {
 	kTarMinions,     // the caster's charmed NPC followers in the room (minions)
 	kTarActor,       // issue.room-affect-trigger-improve: the char that triggered an event trigger
 	                 // (e.g. the character entering the room for kEnter/kEnterPC)
-	kTarRoomThis     // the room itself -- this action imposes its effect on the room
+	kTarRoomThis,    // the room itself -- this action imposes its effect on the room
 	                 // (the per-tick effect lives in the linked kService spell)
+	// issue.soullink-affect-patching: the bearer's/caster's charm master. Resolves to caster->get_master();
+	// used by target-holder patches that act on the minion's master (kSoulLink).
+	kTarMaster
 };
 
 // issue.affect-migration: which game event fires this <action>. An action with no <trigger> runs
