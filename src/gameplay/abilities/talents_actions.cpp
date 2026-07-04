@@ -1426,6 +1426,35 @@ bool Action::Contains(EAction action) const {
 
 // issue.perk-action-patching: op="modify" support -- replace this block's shared manifestation of `kind`
 // with a private deep copy and hand it back mutable. Only the kinds modify actually edits are cloned.
+// issue.affect-action-patch-improve (Phase B): the mul/add/set arithmetic shared by ApplyFieldMod overrides.
+static double ApplyModOp(double cur, EFieldModOp op, double v) {
+	switch (op) {
+		case EFieldModOp::kMul: return cur * v;
+		case EFieldModOp::kAdd: return cur + v;
+		case EFieldModOp::kSet: return v;
+	}
+	return cur;
+}
+
+void Area::ApplyFieldMod(const std::string &field, EFieldModOp op, double value) {
+	if (field == "decay") { decay = ApplyModOp(decay, op, value); }
+	else if (field == "free_targets") { free_targets = static_cast<int>(ApplyModOp(free_targets, op, value)); }
+	else if (field == "max_targets") { max_targets = static_cast<int>(ApplyModOp(max_targets, op, value)); }
+	else if (field == "min_targets") { min_targets = static_cast<int>(ApplyModOp(min_targets, op, value)); }
+	else if (field == "skill_divisor") { skill_divisor = std::max(1, static_cast<int>(ApplyModOp(skill_divisor, op, value))); }
+	else { err_log("ApplyFieldMod: unknown Area field [%s].", field.c_str()); }
+}
+
+void Damage::ApplyFieldMod(const std::string &field, EFieldModOp op, double value) {
+	if (field == "dices_weight") { amount_dices_weight_ = ApplyModOp(amount_dices_weight_, op, value); }
+	else if (field == "beta") { amount_beta_ = ApplyModOp(amount_beta_, op, value); }
+	else if (field == "min") { amount_min_ = ApplyModOp(amount_min_, op, value); }
+	else if (field == "alpha") { amount_alpha_ = ApplyModOp(amount_alpha_, op, value); }
+	else if (field == "prob") { prob_ = static_cast<int>(ApplyModOp(prob_, op, value)); }
+	else if (field == "hits_max") { hits_max_ = static_cast<int>(ApplyModOp(hits_max_, op, value)); }
+	else { err_log("ApplyFieldMod: unknown Damage field [%s].", field.c_str()); }
+}
+
 IAction *Action::CloneManifestation(EAction kind) {
 	auto it = manifestations_.find(kind);
 	if (it == manifestations_.end() || !it->second) {
@@ -1434,6 +1463,9 @@ IAction *Action::CloneManifestation(EAction kind) {
 	switch (kind) {
 		case EAction::kArea:
 			it->second = std::make_shared<Area>(*std::static_pointer_cast<Area>(it->second));
+			break;
+		case EAction::kDamage:
+			it->second = std::make_shared<Damage>(*std::static_pointer_cast<Damage>(it->second));
 			break;
 		default:
 			return nullptr;   // kind not supported by op="modify" yet

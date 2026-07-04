@@ -230,11 +230,21 @@ struct Retaliation {
 	bool present{false};
 };
 
+// issue.affect-action-patch-improve (Phase B): the arithmetic of op="modify" (mul/add/set a field).
+enum class EFieldModOp { kMul, kAdd, kSet };
+
 class IAction {
  public:
 	virtual ~IAction() = default;
 
 	virtual void Print(CharData *ch, std::ostringstream &buffer) const = 0;
+
+	// issue.affect-action-patch-improve (Phase B): op="modify" -- scale/offset/set a named numeric field of
+	// this manifestation. Default no-op; each modifiable type overrides it (the fields live here, so no
+	// setters/friends). Only ever called on a per-cast/per-tick CLONE, never the shared config instance.
+	virtual void ApplyFieldMod(const std::string &field, EFieldModOp op, double value) {
+		(void) field; (void) op; (void) value;
+	}
 
 	// issue.perk-action-patching: optional stable id (manifestation <tag id=>), so a perk patch can
 	// address this effect inside its <action> block. Empty = not addressable at manifestation level.
@@ -434,6 +444,7 @@ class Damage : public IAction {
 	[[nodiscard]] int GetInstantDeathProb() const { return instant_death_prob_; }
 	[[nodiscard]] EDamageSource GetSource() const { return source_; }
 
+	void ApplyFieldMod(const std::string &field, EFieldModOp op, double value) override;
 	void Print(CharData *ch, std::ostringstream &buffer) const override;
 };
 
@@ -525,6 +536,7 @@ struct Area : public IAction {
 	// Per-target coefficient f_j (1-based j of n). decay_eff lets the caller pass the
 	// kMultipleCast-softened rate. Always in [0,1] and non-increasing (never amplifies).
 	[[nodiscard]] double DistributionCoeff(int j, int n, double decay_eff) const;
+	void ApplyFieldMod(const std::string &field, EFieldModOp op, double value) override;
 	void Print(CharData *ch, std::ostringstream &buffer) const override;
 };
 

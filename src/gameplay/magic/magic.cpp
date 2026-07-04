@@ -3080,13 +3080,16 @@ void ActionContext::ApplyTalentPatches() {
 }
 
 // issue.perk-action-patching: apply an op="modify" field modifier (mul/add/set) to a numeric field.
-static double ApplyMod(double cur, feats::TalentPatch::EModOp op, double v) {
+// issue.affect-action-patch-improve (Phase B): bridge the patch's mod op to the manifestation-side enum,
+// so op="modify" arithmetic lives on the manifestation types (IAction::ApplyFieldMod) for both spell and
+// affect action chains -- no per-field setters, no duplicated mul/add/set logic here.
+static talents_actions::EFieldModOp ToFieldModOp(feats::TalentPatch::EModOp op) {
 	switch (op) {
-		case feats::TalentPatch::EModOp::kMul: return cur * v;
-		case feats::TalentPatch::EModOp::kAdd: return cur + v;
-		case feats::TalentPatch::EModOp::kSet: return v;
+		case feats::TalentPatch::EModOp::kMul: return talents_actions::EFieldModOp::kMul;
+		case feats::TalentPatch::EModOp::kAdd: return talents_actions::EFieldModOp::kAdd;
+		case feats::TalentPatch::EModOp::kSet: return talents_actions::EFieldModOp::kSet;
 	}
-	return cur;
+	return talents_actions::EFieldModOp::kSet;
 }
 
 void ActionContext::ApplyOnePatch(const feats::TalentPatch &p) {
@@ -3194,9 +3197,8 @@ void ActionContext::ApplyOnePatch(const feats::TalentPatch &p) {
 			patch_scratch_.push_back(*action_view_[i]);
 			Action &copy = patch_scratch_.back();
 			talents_actions::IAction *man = copy.CloneManifestation(p.mod_kind);
-			if (man && p.mod_kind == talents_actions::EAction::kArea && p.mod_field == "decay") {
-				auto *a = static_cast<talents_actions::Area *>(man);
-				a->decay = ApplyMod(a->decay, p.mod_op, p.mod_value);
+			if (man) {
+				man->ApplyFieldMod(p.mod_field, ToFieldModOp(p.mod_op), p.mod_value);
 			}
 			action_view_[i] = &copy;
 			break;
@@ -3778,6 +3780,120 @@ static bool RunAdditiveAffectPatches(ActionContext &ctx, CharData *ch, RoomData 
 	return false;
 }
 
+// issue.affect-action-patch-improve (Phase B): apply an affect's MUTATING talent-patches (modify / remove /
+// replace / add_effect / replace_all) IN PLACE to the per-firing COPY of its own matching actions, BEFORE
+// the runner executes them. Because `list` is a copy (never the shared affect config), mutation is safe.
+// Additive ops (append/insert) are handled separately by RunAdditiveAffectPatches. `accept` filters both
+// which of the affect's actions we address and any payload we install, to this trigger occasion. Each patch
+// is gated on CanUseFeat(ResolvePatchRelative(bearer, relative), feat) -- same gate as the additive path.
+template <typename TriggerPred>
+static void ApplyMutatingAffectPatches(std::vector<talents_actions::Action> &list, CharData *ch,
+									   EAffect type, TriggerPred accept) {
+	using talents_actions::Action;
+	for (const auto &ref : feats::AffectTalentPatches(type)) {
+		const auto op = ref.patch->op;
+		if (op == feats::EPatchOp::kAppend || op == feats::EPatchOp::kInsert) {
+			continue;   // additive ops run separately (RunAdditiveAffectPatches)
+		}
+		CharData *holder = feats::ResolvePatchRelative(ch, ref.patch->relative);
+		if (!holder || !CanUseFeat(holder, ref.feat)) {
+			continue;
+		}
+		const feats::TalentPatch &p = *ref.patch;
+		auto payload_for = [&]() {
+			std::vector<Action> v;
+			for (const auto &pa : p.payload.list()) {
+				if (accept(pa)) {
+					v.push_back(pa);
+				}
+			}
+			return v;
+		};
+		auto find_id = [&](const std::string &id) -> long {
+			for (size_t k = 0; k < list.size(); ++k) {
+				if (list[k].GetId() == id) {
+					return static_cast<long>(k);
+				}
+			}
+			return -1;
+		};
+		switch (op) {
+			case feats::EPatchOp::kReplaceAll: {
+				list = payload_for();
+				break;
+			}
+			case feats::EPatchOp::kModify: {
+				long i = -1;
+				if (!p.action_id.empty()) {
+					i = find_id(p.action_id);
+				} else {
+					for (size_t k = 0; k < list.size(); ++k) {
+						if (list[k].Contains(p.mod_kind)) { i = static_cast<long>(k); break; }
+					}
+				}
+				if (i < 0) {
+					break;
+				}
+				talents_actions::IAction *man = list[i].CloneManifestation(p.mod_kind);
+				if (man) {
+					man->ApplyFieldMod(p.mod_field, ToFieldModOp(p.mod_op), p.mod_value);
+				}
+				break;
+			}
+			case feats::EPatchOp::kRemove: {
+				if (p.action_id.empty()) {
+					break;
+				}
+				long i = find_id(p.action_id);
+				if (i < 0) {
+					break;
+				}
+				if (p.effect_id.empty()) {
+					list.erase(list.begin() + i);
+				} else {
+					list[i].EraseManifestationsById(p.effect_id);
+				}
+				break;
+			}
+			case feats::EPatchOp::kReplace: {
+				if (p.action_id.empty()) {
+					break;
+				}
+				long i = find_id(p.action_id);
+				if (i < 0) {
+					break;
+				}
+				if (p.effect_id.empty()) {
+					std::vector<Action> pm = payload_for();
+					list.erase(list.begin() + i);
+					list.insert(list.begin() + i, pm.begin(), pm.end());
+				} else {
+					list[i].EraseManifestationsById(p.effect_id);
+					for (auto &b : payload_for()) {
+						list[i].MergeManifestationsFrom(b);
+					}
+				}
+				break;
+			}
+			case feats::EPatchOp::kAddEffect: {
+				if (p.action_id.empty()) {
+					break;
+				}
+				long i = find_id(p.action_id);
+				if (i < 0) {
+					break;
+				}
+				for (auto &b : payload_for()) {
+					list[i].MergeManifestationsFrom(b);
+				}
+				break;
+			}
+			default:
+				break;
+		}
+	}
+}
+
 // issue.affect-migration: run an AFFECT's own actions (room_affects.xml <actions>) on the room each
 // tick. Context (level/potency) comes from the imposing spell (ctx_spell = aff->type); the action list
 // is the affect's, injected via UseExternalActions. `tick_duration` (when non-null) carries the ticking
@@ -3823,6 +3939,16 @@ bool RunCharAffectTick(CharData *ch, const Affect<EApply>::shared_ptr &aff) {
 				|| (combat && t.test(talents_actions::EActionTrigger::kBattlePulse))) {
 			pulse.push_back(action);
 		}
+	}
+	// issue.affect-action-patch-improve (Phase B): let a perk MUTATE this affect's per-tick actions (e.g.
+	// scale a DoT's damage, strip its effect) before they run -- on the copy, so the affect config is intact.
+	if (!feats::AffectTalentPatches(aff->affect_type).empty()) {
+		ApplyMutatingAffectPatches(pulse, ch, aff->affect_type,
+				[combat](const talents_actions::Action &a) {
+					const auto &tt = a.GetTrigger();
+					return tt.test(talents_actions::EActionTrigger::kPulse)
+						|| (combat && tt.test(talents_actions::EActionTrigger::kBattlePulse));
+				});
 	}
 	if (pulse.empty()) {
 		return false;
@@ -3887,6 +4013,12 @@ bool RunCharAffectTrigger(CharData *ch, EAffect affect_type, talents_actions::EA
 			continue;
 		}
 		fired.push_back(a);
+	}
+	// issue.affect-action-patch-improve (Phase B): let a perk MUTATE this affect's lifecycle actions before
+	// they run (e.g. change an on-expire retaliation), matching this trigger. On the copy -- config intact.
+	if (!feats::AffectTalentPatches(affect_type).empty()) {
+		ApplyMutatingAffectPatches(fired, ch, affect_type,
+				[trig](const talents_actions::Action &a) { return a.GetTrigger().test(trig); });
 	}
 	if (fired.empty()) {
 		return false;
@@ -4028,10 +4160,18 @@ bool RunCharEventTriggers(CharData *ch, const EventContext &event) {
 				fired.push_back(a);
 			}
 		}
+		// issue.affect-action-patch-improve (Phase B): let a perk MUTATE this affect's per-hit actions before
+		// they run (e.g. scale vampirism's leech, strip an on-hit rider), on the copy -- config intact.
+		if (!feats::AffectTalentPatches(t).empty()) {
+			ApplyMutatingAffectPatches(fired, ch, t,
+					[trig](const talents_actions::Action &a) { return a.GetTrigger().test(trig); });
+		}
 		ActionContext ctx = BuildActionContext(ch, ESpell::kUndefined, level);
 		ctx.UseExternalActions(&fired);   // inject the action list (RunRoomCycledAction reads it off ctx)
 		ctx.SetEvent(event);              // handlers (and propagated side-spell sub-ctxs) read this
-		RunRoomCycledAction(ctx, world[ch->in_room], fired, 0);
+		if (!fired.empty()) {   // a remove/replace_all patch may have emptied the affect's own actions
+			RunRoomCycledAction(ctx, world[ch->in_room], fired, 0);
+		}
 		if (ch->purged()) {
 			return true;
 		}
