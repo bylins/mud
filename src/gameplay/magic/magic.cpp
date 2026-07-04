@@ -3741,6 +3741,43 @@ static ECastResult RunRoomCycledAction(ActionContext &ctx, RoomData *room,
 	return RunActionOverTargets(ctx, targets, scope, false);
 }
 
+// issue.affect-action-patch-improve (Phase A): run a bearer's eligible ADDITIVE affect talent-patches
+// (op=append/insert) for one affect type, as EXTRA actions alongside the affect's own action. Shared by all
+// three affect runners (tick / lifecycle / per-hit event). `accept` picks which payload actions fire (those
+// matching the runner's trigger). Gated on the RELATIVE (self/master/group-leader per the patch) holding the
+// feat: CanUseFeat(ResolvePatchRelative(bearer, relative), feat). Mutating ops (replace/remove/modify) are
+// Phase B and skipped here. Returns true if the bearer was purged (caller should stop touching it).
+template <typename TriggerPred>
+static bool RunAdditiveAffectPatches(ActionContext &ctx, CharData *ch, RoomData *room,
+									 EAffect type, TriggerPred accept) {
+	std::vector<talents_actions::Action> extra;
+	for (const auto &ref : feats::AffectTalentPatches(type)) {
+		if (ref.patch->op != feats::EPatchOp::kAppend && ref.patch->op != feats::EPatchOp::kInsert) {
+			continue;   // additive ops only in Phase A; mutating ops (replace/remove/modify) are Phase B
+		}
+		CharData *holder = feats::ResolvePatchRelative(ch, ref.patch->relative);
+		if (!holder || !CanUseFeat(holder, ref.feat)) {
+			continue;
+		}
+		for (const auto &pa : ref.patch->payload.list()) {
+			if (accept(pa)) {
+				extra.push_back(pa);
+			}
+		}
+	}
+	if (extra.empty()) {
+		return false;
+	}
+	ctx.UseExternalActions(&extra);
+	for (size_t i = 0; i < extra.size(); ++i) {
+		RunRoomCycledAction(ctx, room, extra, i);
+		if (ch->purged()) {
+			return true;
+		}
+	}
+	return false;
+}
+
 // issue.affect-migration: run an AFFECT's own actions (room_affects.xml <actions>) on the room each
 // tick. Context (level/potency) comes from the imposing spell (ctx_spell = aff->type); the action list
 // is the affect's, injected via UseExternalActions. `tick_duration` (when non-null) carries the ticking
@@ -3803,6 +3840,18 @@ bool RunCharAffectTick(CharData *ch, const Affect<EApply>::shared_ptr &aff) {
 			affects::AffectMsgRaw(aff->affect_type, affects::EAffectMsgType::kDamageToRoom),
 			aff->caster_id);   // issue.damage-over-time: poison <damage> credits the poisoner
 	aff->duration = dur;
+	// issue.affect-action-patch-improve: run the affect's ADDITIVE talent-patches this tick (fresh ctx with
+	// the tick's potency/author), matching the pulse triggers -- e.g. a perk that adds an effect each DoT tick.
+	if (!ch->purged() && !feats::AffectTalentPatches(aff->affect_type).empty()) {
+		ActionContext pctx = BuildActionContext(ch, ESpell::kUndefined, GetRealLevel(ch), aff->potency);
+		pctx.SetDamageAuthorUid(aff->caster_id);
+		RunAdditiveAffectPatches(pctx, ch, world[ch->in_room], aff->affect_type,
+				[combat](const talents_actions::Action &a) {
+					const auto &tt = a.GetTrigger();
+					return tt.test(talents_actions::EActionTrigger::kPulse)
+						|| (combat && tt.test(talents_actions::EActionTrigger::kBattlePulse));
+				});
+	}
 	// issue.damage-over-time: a DoT imposed with <charges max=N> lasts exactly N ticks -- one charge per
 	// tick, in OR out of combat -- independent of the (PC-vs-NPC, *30-scaled) duration. So a burn ticks the
 	// same number of times whether the bearer is fighting or not. When depleted, mark it expired (duration
@@ -3863,6 +3912,10 @@ bool RunCharAffectTrigger(CharData *ch, EAffect affect_type, talents_actions::EA
 						   affects::AffectMsgRaw(affect_type, affects::EAffectMsgType::kDamageToVict),
 						   affects::AffectMsgRaw(affect_type, affects::EAffectMsgType::kDamageToRoom));
 	RunRoomCycledAction(ctx, world[ch->in_room], fired, 0);
+	// issue.affect-action-patch-improve: also run this affect's additive talent-patches for this lifecycle
+	// trigger (e.g. an on-expire / on-dispel perk effect), matching `trig`.
+	RunAdditiveAffectPatches(ctx, ch, world[ch->in_room], affect_type,
+			[trig](const talents_actions::Action &a) { return a.GetTrigger().test(trig); });
 	return true;
 }
 
@@ -3982,34 +4035,11 @@ bool RunCharEventTriggers(CharData *ch, const EventContext &event) {
 		if (ch->purged()) {
 			return true;
 		}
-		// issue.soullink-affect-patching: additionally run any talent-patch actions on this affect (e.g.
-		// kSoulLink's master-heal), after the affect's own action. Gated on the RELATIVE (the bearer's
-		// master/group-leader per the patch) holding the feat. Affects support op="append" only for now.
-		{
-			std::vector<talents_actions::Action> patch_actions;
-			for (const auto &ref : feats::AffectTalentPatches(t)) {
-				if (ref.patch->op != feats::EPatchOp::kAppend) {
-					continue;
-				}
-				CharData *holder = feats::ResolvePatchRelative(ch, ref.patch->relative);
-				if (!holder || !CanUseFeat(holder, ref.feat)) {
-					continue;
-				}
-				for (const auto &pa : ref.patch->payload.list()) {
-					if (pa.GetTrigger().test(trig)) {
-						patch_actions.push_back(pa);
-					}
-				}
-			}
-			if (!patch_actions.empty()) {
-				ctx.UseExternalActions(&patch_actions);
-				for (size_t i = 0; i < patch_actions.size(); ++i) {
-					RunRoomCycledAction(ctx, world[ch->in_room], patch_actions, i);
-					if (ch->purged()) {
-						return true;
-					}
-				}
-			}
+		// issue.affect-action-patch-improve: run this affect's ADDITIVE talent-patch actions (e.g. kSoulLink's
+		// master-heal) matching the event trigger, alongside the affect's own action.
+		if (RunAdditiveAffectPatches(ctx, ch, world[ch->in_room], t,
+				[trig](const talents_actions::Action &a) { return a.GetTrigger().test(trig); })) {
+			return true;
 		}
 		// issue.character-affect-triggers: spend a trigger charge -- kPreHit/kPostHit/kKill leave the
 		// affect in place, so charges bound how many times it may fire (no-op when unlimited). Safe here:
