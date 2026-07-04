@@ -673,8 +673,12 @@ double Area::DistributionCoeff(const int j, const int n, const double decay_eff)
 }
 
 TalentAffect::TalentAffect(parser_wrapper::DataNode &node) {
-	saving_ = parse::ReadAsConstant<ESaving>(node.GetValue("saving"));
-	resist_ = parse::ReadAsConstant<EResist>(node.GetValue("resist"));
+	// Both OPTIONAL -- guard the reads so an absent attribute keeps the member default instead of throwing.
+	// An unguarded ReadAsConstant("") threw -> Actions::Build dropped the WHOLE payload, silently disabling
+	// any <affects> that omitted saving/resist (issue.perk-action-patching; same lesson as the <damage>
+	// saving guard from issue.damage-over-time).
+	if (const char *s = node.GetValue("saving"); s && *s) { saving_ = parse::ReadAsConstant<ESaving>(s); }
+	if (const char *r = node.GetValue("resist"); r && *r) { resist_ = parse::ReadAsConstant<EResist>(r); }
 	const char *prob = node.GetValue("prob");
 	prob_ = (prob && *prob) ? parse::ReadAsInt(prob) : 100;
 	// potency_weight: optional scale on the cast

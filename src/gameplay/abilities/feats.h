@@ -63,9 +63,11 @@ struct TalentPatch {
 	bool match_all{false};                     // explicit opt-in: every spell
 	talents_actions::EAction has_effect_kind{talents_actions::EAction::kDamage};   // spells whose chain
 	bool has_has_effect{false};                //   contains this manifestation kind (has_effect="kArea")
+	std::string category;                      // spells tagged with this category (<tags>); category="curse"
 	[[nodiscard]] bool HasSelector() const {
 		return target_spell != ESpell::kUndefined || element != EElement::kUndefined
-			|| base_skill != ESkill::kUndefined || flag_sel != 0 || match_all || has_has_effect;
+			|| base_skill != ESkill::kUndefined || flag_sel != 0 || match_all || has_has_effect
+			|| !category.empty();
 	}
 	EPatchOp op{EPatchOp::kAppend};
 	EScope scope{EScope::kCaster};

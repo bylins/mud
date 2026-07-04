@@ -518,6 +518,7 @@ static void ParseTalentPatches(FeatInfo &info, DataNode &node) {
 				if (ParseEActionKind(he, sp.has_effect_kind)) { sp.has_has_effect = true; }
 				else { err_log("talent patch: unknown has_effect [%s].", he); }
 			}
+			if (const char *cv = pn.GetValue("category"); cv && *cv) { sp.category = cv; }
 			const std::string op = (pn.GetValue("op") && *pn.GetValue("op")) ? pn.GetValue("op") : "append";
 			if      (op == "append")      { sp.op = EPatchOp::kAppend; }
 			else if (op == "insert")      { sp.op = EPatchOp::kInsert; }
@@ -680,6 +681,7 @@ static bool PatchMatchesSpell(const TalentPatch &p, const spells::SpellInfo &s) 
 			&& s.GetPotencyRoll().GetBaseSkill() != p.base_skill
 			&& s.GetSuccessRoll().GetBaseSkill() != p.base_skill) { return false; }
 	if (p.flag_sel != 0 && !s.IsFlagged(p.flag_sel)) { return false; }
+	if (!p.category.empty() && !s.HasTag(p.category)) { return false; }
 	if (p.has_has_effect) {
 		bool found = false;
 		for (const auto &b : s.actions.list()) {

@@ -684,6 +684,7 @@
 		<mana max="150" min="140" change="2" />
 		<targets val="kTarCharRoom|kTarFightVict" />
 		<flags val="kMagManual|kMagAffects|kMagUnaffects|kNpcDamagePc" />
+		<tags val="curse" />
 		<potency_roll>
 			<dices ndice="5" sdice="6" adice="5" />
 			<base_skill id="kDarkMagic" low_skill_bonus="0.3" hi_skill_bonus="0.5" />
@@ -747,6 +748,7 @@
 		<mana max="110" min="100" change="2" />
 		<targets val="kTarCharRoom|kTarFightVict" />
 		<flags val="kMagDamage|kNpcDamagePc" />
+		<tags val="curse" />
 		<potency_roll>
 			<dices ndice="8" sdice="20" adice="100" />
 			<base_skill id="kDarkMagic" low_skill_bonus="1.5" hi_skill_bonus="3" />

@@ -642,4 +642,20 @@
             </talent_patch>
         </talent_patches>
     </feat>
+    <!-- issue.perk-action-patching Phase 3 (selectors): CATEGORY patch. category="curse" selects every
+         spell tagged <tags val="curse"/> at boot (kHarm, kEnergyDrain, ...), appending a DoT to each.
+         Demonstrates the semantic-category selector (open string taxonomy authored in spells.xml). -->
+    <feat id="kMaledictor" mode="kTesting">
+        <talent_patches>
+            <talent_patch category="curse" op="append">
+                <action target="kTarSame">
+                    <affects saving="kReflex" potency_weight="0.5">
+                        <duration base="0" skill_divisor="6" min="2" max="6" />
+                        <charges max="3"/>
+                        <affect id="kBurning"/>
+                    </affects>
+                </action>
+            </talent_patch>
+        </talent_patches>
+    </feat>
 </feats>

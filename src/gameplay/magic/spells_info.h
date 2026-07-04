@@ -10,6 +10,8 @@
 #include "engine/structs/info_container.h"
 #include "gameplay/abilities/feats_constants.h"   // issue.perk-action-patching: EFeat
 
+#include <set>
+
 namespace feats { struct TalentPatch; }   // issue.perk-action-patching (avoid feats.h<->spells_info.h cycle)
 
 class CharData;
@@ -63,6 +65,11 @@ class SpellInfo : public info_container::BaseItem<ESpell> {
 	Bitvector targets_{0};
 	long danger_{0};
 	EElement element_{EElement::kUndefined};
+	// issue.perk-action-patching (Phase 3 selectors): semantic category tags (e.g. "curse", "shield"),
+	// an open content taxonomy authored in <tags val="a|b"/>. A talent_patch category= selector matches
+	// spells carrying the tag. Free strings (not a typed enum) so authors add categories without a recompile;
+	// a selector typo is caught by BuildTalentPatchIndex's "matched no spell" warning.
+	std::set<std::string> tags_;
 	EViolent violent_{EViolent::kNo};
 
 	int min_mana_{100};        // Min amount of mana used by a spell (highest lev) //
@@ -132,6 +139,7 @@ class SpellInfo : public info_container::BaseItem<ESpell> {
 	[[nodiscard]] long GetDanger() const { return danger_; };
 	[[nodiscard]] EPosition GetMinPos() const { return min_position_; };
 	[[nodiscard]] EElement GetElement() const { return element_; };
+	[[nodiscard]] bool HasTag(const std::string &tag) const { return tags_.count(tag) > 0; };
 
 	[[nodiscard]] int GetMinMana() const { return min_mana_; };
 	[[nodiscard]] int GetMaxMana() const { return max_mana_; };
@@ -165,6 +173,7 @@ class SpellInfoBuilder : public info_container::IItemBuilder<SpellInfo> {
 	static void ParseMana(ItemPtr &info, DataNode &node);
 	static void ParseTargets(ItemPtr &info, DataNode &node);
 	static void ParseFlags(ItemPtr &info, DataNode &node);
+	static void ParseTags(ItemPtr &info, DataNode &node);
 	static void ParseActions(ItemPtr &info, DataNode &node);
 };
 
