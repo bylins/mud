@@ -840,7 +840,7 @@ EVENT(trig_wait_event) {
 	//    опять не выполнится.
 	if (wait_event_obj->from_current && type == MOB_TRIGGER && go && trig
 			&& trig->curr_line && GET_TRIG_DEPTH(trig) && !trig->is_halted()) {
-		auto *mob = reinterpret_cast<CharData *>(go);
+		auto *mob = static_cast<CharData *>(go);
 		if (mob->in_room != kNowhere
 				&& !AFF_FLAGGED(mob, EAffect::kHold)
 				&& !AFF_FLAGGED(mob, EAffect::kStopFight)
@@ -5853,6 +5853,12 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 	if (sc->is_purged()) {
 		return ret_val;
 	}
+	// issue #3523: моб выведен из игрового мира (extract_char выставил
+	// in_room == kNowhere) -- триггер на нём не выполняем. Признак надёжнее
+	// устаревшего флага purged (оставлен лишь для совместимости).
+	if (type == MOB_TRIGGER && static_cast<CharData *>(go)->in_room == kNowhere) {
+		return ret_val;
+	}
 
 	prev_trig = cur_trig;
 	cur_trig = trig;
@@ -6022,7 +6028,9 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 				}
 			} else if (!strncmp(cmd, "dgcast ", 7)) {
 				do_dg_cast(go, trig, type, cmd);
-				if (type == MOB_TRIGGER && reinterpret_cast<CharData *>(go)->purged()) {
+				if (type == MOB_TRIGGER
+						&& (static_cast<CharData *>(go)->purged()
+							|| static_cast<CharData *>(go)->in_room == kNowhere)) {
 					depth--;
 					cur_trig = prev_trig;
 					return ret_val;
@@ -6114,7 +6122,10 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 			}
 			if (trig && trig->is_halted())
 				break;
-			if (sc->is_purged() || (type == MOB_TRIGGER && reinterpret_cast<CharData *>(go)->purged())) {
+			if (sc->is_purged()
+					|| (type == MOB_TRIGGER
+						&& (static_cast<CharData *>(go)->purged()
+							|| static_cast<CharData *>(go)->in_room == kNowhere))) {
 				depth--;
 				cur_trig = prev_trig;
 				return ret_val;
