@@ -473,6 +473,21 @@ namespace feats {
 
 using ItemPtr = FeatInfoBuilder::ItemPtr;
 
+// issue.perk-action-patching: map an effect-kind name ("kArea"/"kDamage"/...) to EAction, for the
+// has_effect= selector and op="modify" effect=. Returns false on an unknown name.
+static bool ParseEActionKind(const char *name, talents_actions::EAction &out) {
+	using talents_actions::EAction;
+	static const std::unordered_map<std::string, EAction> kByName = {
+		{"kDamage", EAction::kDamage}, {"kArea", EAction::kArea}, {"kPoints", EAction::kPoints},
+		{"kAffect", EAction::kAffect}, {"kUnaffect", EAction::kUnaffect}, {"kSummon", EAction::kSummon},
+		{"kCreation", EAction::kCreation}, {"kAlterObj", EAction::kAlterObj},
+	};
+	const auto it = kByName.find(name);
+	if (it == kByName.end()) { return false; }
+	out = it->second;
+	return true;
+}
+
 // issue.perk-action-patching: parse a feat talent_patches block into FeatInfo::talent_patches. Each
 // <talent_patch> carries the target spell + op + optional action/effect/anchor ids; its <action> child
 // block(s) are the perk-provided payload, parsed by the normal action parser (Actions::Build).
@@ -499,6 +514,10 @@ static void ParseTalentPatches(FeatInfo &info, DataNode &node) {
 					&& (strcmp(al, "true") == 0 || strcmp(al, "Y") == 0 || strcmp(al, "1") == 0)) {
 				sp.match_all = true;
 			}
+			if (const char *he = pn.GetValue("has_effect"); he && *he) {
+				if (ParseEActionKind(he, sp.has_effect_kind)) { sp.has_has_effect = true; }
+				else { err_log("talent patch: unknown has_effect [%s].", he); }
+			}
 			const std::string op = (pn.GetValue("op") && *pn.GetValue("op")) ? pn.GetValue("op") : "append";
 			if      (op == "append")      { sp.op = EPatchOp::kAppend; }
 			else if (op == "insert")      { sp.op = EPatchOp::kInsert; }
@@ -506,6 +525,7 @@ static void ParseTalentPatches(FeatInfo &info, DataNode &node) {
 			else if (op == "remove")      { sp.op = EPatchOp::kRemove; }
 			else if (op == "add_effect")  { sp.op = EPatchOp::kAddEffect; }
 			else if (op == "replace_all") { sp.op = EPatchOp::kReplaceAll; }
+			else if (op == "modify")      { sp.op = EPatchOp::kModify; }
 			else { err_log("talent patch: unknown op [%s].", op.c_str()); continue; }
 			if (const char *bv = pn.GetValue("by"); bv && *bv && strcmp(bv, "target") == 0) {
 				sp.scope = TalentPatch::EScope::kTarget;
@@ -518,11 +538,30 @@ static void ParseTalentPatches(FeatInfo &info, DataNode &node) {
 				sp.anchor_id = aft; sp.anchor_before = false;
 			}
 			if (!sp.HasSelector()) {
-				err_log("talent patch on feat [%s]: no selector (need spell/element/base_skill/flag/all).",
+				err_log("talent patch on feat [%s]: no selector (need spell/element/base_skill/flag/has_effect/all).",
 						NAME_BY_ITEM<EFeat>(info.GetId()).c_str());
 				continue;
 			}
-			sp.payload.Build(pn);
+			if (sp.op == EPatchOp::kModify) {
+				if (!sp.effect_id.empty() && !ParseEActionKind(sp.effect_id.c_str(), sp.mod_kind)) {
+					err_log("talent patch: op=modify effect [%s] is not a manifestation kind.", sp.effect_id.c_str());
+				}
+				if (pn.GoToChild("modify")) {
+					if (const char *fld = pn.GetValue("field"); fld && *fld) { sp.mod_field = fld; }
+					if (const char *mv = pn.GetValue("mul"); mv && *mv) {
+						sp.mod_op = TalentPatch::EModOp::kMul; sp.mod_value = parse::ReadAsDouble(mv);
+					} else if (const char *ad = pn.GetValue("add"); ad && *ad) {
+						sp.mod_op = TalentPatch::EModOp::kAdd; sp.mod_value = parse::ReadAsDouble(ad);
+					} else if (const char *st = pn.GetValue("set"); st && *st) {
+						sp.mod_op = TalentPatch::EModOp::kSet; sp.mod_value = parse::ReadAsDouble(st);
+					}
+					pn.GoToParent();
+				} else {
+					err_log("talent patch: op=modify without a <modify field=...> child.");
+				}
+			} else {
+				sp.payload.Build(pn);
+			}
 			info.talent_patches.push_back(std::move(sp));
 		} catch (std::exception &e) {
 			err_log("Feat talent_patch parse error (%s).", e.what());
@@ -614,6 +653,18 @@ static bool ValidatePatch(const spells::SpellInfo &spell, const TalentPatch &p, 
 				return false;
 			}
 			break;
+		case EPatchOp::kModify: {
+			bool ok = false;
+			for (const auto &b : spell.actions.list()) {
+				if (b.Contains(p.mod_kind)) { ok = true; break; }
+			}
+			if (!ok) {
+				err_log("talent patch (feat [%s] -> spell [%s]): op=modify target manifestation absent.",
+						NAME_BY_ITEM<EFeat>(fid).c_str(), spell.GetEngCName());
+				return false;
+			}
+			break;
+		}
 		default:
 			break;
 	}
@@ -629,6 +680,13 @@ static bool PatchMatchesSpell(const TalentPatch &p, const spells::SpellInfo &s) 
 			&& s.GetPotencyRoll().GetBaseSkill() != p.base_skill
 			&& s.GetSuccessRoll().GetBaseSkill() != p.base_skill) { return false; }
 	if (p.flag_sel != 0 && !s.IsFlagged(p.flag_sel)) { return false; }
+	if (p.has_has_effect) {
+		bool found = false;
+		for (const auto &b : s.actions.list()) {
+			if (b.Contains(p.has_effect_kind)) { found = true; break; }
+		}
+		if (!found) { return false; }
+	}
 	return true;
 }
 

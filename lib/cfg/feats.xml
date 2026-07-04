@@ -562,6 +562,15 @@
     <feat id="kDeadlyThrow" mode="kEnabled">
     </feat>
     <feat id="kMultipleCast" mode="kEnabled">
+        <!-- issue.perk-action-patching Phase 2: migrated from the hardcoded area-decay branch in
+             RunActionOverTargets. op="modify" scales the <area> decay of every area spell by 0.6
+             (relative to each spell's own decay), reproducing the old *0.6. has_effect="kArea"
+             selects area spells at boot; effect="kArea" is the manifestation whose field is scaled. -->
+        <talent_patches>
+            <talent_patch has_effect="kArea" op="modify" effect="kArea">
+                <modify field="decay" mul="0.6"/>
+            </talent_patch>
+        </talent_patches>
     </feat>
     <feat id="kMagicalShield" mode="kEnabled">
     </feat>

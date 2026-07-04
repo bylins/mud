@@ -48,7 +48,7 @@ using DataNode = parser_wrapper::DataNode;
 // issue.perk-action-patching: a perk's declared modification of a spell's <action> chain. The payload
 // holds perk-owned <action> block(s) parsed by the normal action parser; they live for the process
 // lifetime, so the per-cast materializer can point at them (non-owning) without copying.
-enum class EPatchOp { kAppend, kInsert, kReplace, kRemove, kAddEffect, kReplaceAll };
+enum class EPatchOp { kAppend, kInsert, kReplace, kRemove, kAddEffect, kReplaceAll, kModify };
 
 struct TalentPatch {
 	enum class EScope { kCaster, kTarget };   // whose feat is tested (kTarget = future: the spell's victim)
@@ -61,9 +61,11 @@ struct TalentPatch {
 	ESkill base_skill{ESkill::kUndefined};     // every spell whose potency OR success base skill matches
 	Bitvector flag_sel{0};                     // every spell carrying this EMagic flag (0 = unused)
 	bool match_all{false};                     // explicit opt-in: every spell
+	talents_actions::EAction has_effect_kind{talents_actions::EAction::kDamage};   // spells whose chain
+	bool has_has_effect{false};                //   contains this manifestation kind (has_effect="kArea")
 	[[nodiscard]] bool HasSelector() const {
 		return target_spell != ESpell::kUndefined || element != EElement::kUndefined
-			|| base_skill != ESkill::kUndefined || flag_sel != 0 || match_all;
+			|| base_skill != ESkill::kUndefined || flag_sel != 0 || match_all || has_has_effect;
 	}
 	EPatchOp op{EPatchOp::kAppend};
 	EScope scope{EScope::kCaster};
@@ -71,7 +73,12 @@ struct TalentPatch {
 	std::string effect_id;    // target manifestation id within that block (manifestation-level ops)
 	std::string anchor_id;    // insert anchor block id
 	bool anchor_before{false};
-	talents_actions::Actions payload;   // perk-provided <action> block(s)
+	// op="modify": scale/offset/set a numeric field of a manifestation (addressed by kind via effect=).
+	talents_actions::EAction mod_kind{talents_actions::EAction::kArea};
+	std::string mod_field;                     // e.g. "decay"
+	enum class EModOp { kMul, kAdd, kSet } mod_op{EModOp::kMul};
+	double mod_value{1.0};
+	talents_actions::Actions payload;   // perk-provided <action> block(s) (unused for op="modify")
 };
 
 class FeatsLoader : virtual public cfg_manager::ICfgLoader {

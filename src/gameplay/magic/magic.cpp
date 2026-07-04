@@ -3079,6 +3079,16 @@ void ActionContext::ApplyTalentPatches() {
 	}
 }
 
+// issue.perk-action-patching: apply an op="modify" field modifier (mul/add/set) to a numeric field.
+static double ApplyMod(double cur, feats::TalentPatch::EModOp op, double v) {
+	switch (op) {
+		case feats::TalentPatch::EModOp::kMul: return cur * v;
+		case feats::TalentPatch::EModOp::kAdd: return cur + v;
+		case feats::TalentPatch::EModOp::kSet: return v;
+	}
+	return cur;
+}
+
 void ActionContext::ApplyOnePatch(const feats::TalentPatch &p) {
 	using talents_actions::Action;
 	using Diff = std::vector<const Action *>::difference_type;
@@ -3164,6 +3174,29 @@ void ActionContext::ApplyOnePatch(const feats::TalentPatch &p) {
 			Action &copy = patch_scratch_.back();
 			for (const auto &b : payload) {
 				copy.MergeManifestationsFrom(b);
+			}
+			action_view_[i] = &copy;
+			break;
+		}
+		case feats::EPatchOp::kModify: {
+			// find the block carrying the target manifestation kind (by action id if given, else first match)
+			long i = -1;
+			if (!p.action_id.empty()) {
+				i = find_idx(p.action_id);
+			} else {
+				for (size_t k = 0; k < action_view_.size(); ++k) {
+					if (action_view_[k]->Contains(p.mod_kind)) { i = static_cast<long>(k); break; }
+				}
+			}
+			if (i < 0) {
+				break;
+			}
+			patch_scratch_.push_back(*action_view_[i]);
+			Action &copy = patch_scratch_.back();
+			talents_actions::IAction *man = copy.CloneManifestation(p.mod_kind);
+			if (man && p.mod_kind == talents_actions::EAction::kArea && p.mod_field == "decay") {
+				auto *a = static_cast<talents_actions::Area *>(man);
+				a->decay = ApplyMod(a->decay, p.mod_op, p.mod_value);
 			}
 			action_view_[i] = &copy;
 			break;
@@ -3397,8 +3430,10 @@ static ECastResult RunActionOverTargets(ActionContext &ctx, const std::vector<Ch
 			: std::min(area->CalcTargetsQuantity(GetSkill(caster, MUD::Spell(spell_id).GetSuccessRoll().GetBaseSkill()),
 													  ctx.potency().stat_coeff),
 					   static_cast<int>(targets.size()));
-	const double decay_eff = (area == nullptr) ? 0.0
-			: ((!caster->IsNpc() && CanUseFeat(caster, EFeat::kMultipleCast)) ? area->decay * 0.6 : area->decay);
+	// issue.perk-action-patching: kMultipleCast is now data-driven (an op="modify" talent patch scales the
+	// <area> decay by 0.6 for holders), so we just read the possibly-patched decay. NPC casters ignore it
+	// anyway (coeff is forced to 1.0 below), which is why the old !IsNpc() guard was redundant.
+	const double decay_eff = (area == nullptr) ? 0.0 : area->decay;
 	const int kCasterCastSuccess = GET_CAST_SUCCESS(caster);
 	const auto &sheaf = MUD::SpellMessages()[spell_id];
 	const bool has_vict_msg = sheaf.HasMessage(ESpellMsg::kAreaToVict);

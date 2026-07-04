@@ -1419,6 +1419,23 @@ bool Action::Contains(EAction action) const {
 	return manifestations_.contains(action);
 }
 
+// issue.perk-action-patching: op="modify" support -- replace this block's shared manifestation of `kind`
+// with a private deep copy and hand it back mutable. Only the kinds modify actually edits are cloned.
+IAction *Action::CloneManifestation(EAction kind) {
+	auto it = manifestations_.find(kind);
+	if (it == manifestations_.end() || !it->second) {
+		return nullptr;
+	}
+	switch (kind) {
+		case EAction::kArea:
+			it->second = std::make_shared<Area>(*std::static_pointer_cast<Area>(it->second));
+			break;
+		default:
+			return nullptr;   // kind not supported by op="modify" yet
+	}
+	return it->second.get();
+}
+
 const Damage &Action::GetDmg() const {
 	if (manifestations_.contains(EAction::kDamage)) {
 		return *std::static_pointer_cast<Damage>(manifestations_.find(EAction::kDamage)->second);

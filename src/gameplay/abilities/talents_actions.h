@@ -816,6 +816,10 @@ class Action {
 			if (it->second->id == mid) { it = manifestations_.erase(it); } else { ++it; }
 		}
 	}
+	// issue.perk-action-patching: deep-copy the manifestation of `kind` in place, so this block owns a
+	// private copy (no longer shared with the spell) that op="modify" can safely mutate. Returns the
+	// clone (mutable) or nullptr if absent / kind unsupported. Defined in the .cpp (needs concrete types).
+	IAction *CloneManifestation(EAction kind);
 	[[nodiscard]] EActionTarget GetTarget() const { return target_; }
 	[[nodiscard]] EActionBase GetBase() const { return base_; }
 	[[nodiscard]] const std::string &GetTagName() const { return tag_name_; }
