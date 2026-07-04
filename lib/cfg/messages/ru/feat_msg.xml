@@ -475,6 +475,6 @@
 		<name val="пиромантия" />
 	</msg_sheaf>
 	<msg_sheaf id="kMaledictor">
-		<name val="порча" />
+		<name val="сглаз" />
 	</msg_sheaf>
 </feat_msg>
