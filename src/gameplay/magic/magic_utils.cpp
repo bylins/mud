@@ -397,18 +397,26 @@ private:
 // Evaluates the spell's potency roll against the caster once, so the result can be
 // threaded to the cast-dispatch functions. The roll values do not depend on level;
 // level is carried only to replace that parameter.
-ActionContext BuildActionContext(CharData *caster, ESpell spell_id, int level, float fixed_potency) {
+ActionContext BuildActionContext(CharData *caster, ESpell spell_id, int level, float fixed_potency,
+								 float fixed_competence) {
 	const auto &spell = MUD::Spell(spell_id);
 	auto eval = [caster](const talents_actions::Roll &roll) {
 		return RollResult{roll.RollSkillDices(), roll.CalcSkillCoeff(caster),
 						  roll.CalcBaseStatCoeff(caster), roll.CalcLowSkillCoeff(caster)};
 	};
-	// issue.potion-potency: a brewed-in fixed potency (>=0) from an item/potion bypasses the
-	// caster's skill/stat roll. Put it in `dices` so CalcCastPotency == the stored potency and the
-	// affect modifier scales with it (competence 0). Negative -> roll from the caster as usual.
-	const RollResult bcc_roll = (fixed_potency >= 0.0f)
-		? RollResult{static_cast<int>(fixed_potency + 0.5f), 0.0, 0.0, 0.0}
-		: eval(spell.GetPotencyRoll());
+	// issue.vampirism-haste: an affect-action grant (e.g. kVampirism's on-kill kHaste) has no skill roll,
+	// so it scales with the FIRING affect's stored potency, fed here as competence (skill_coeff) -- then a
+	// competence-based apply's beta*C scales exactly as a real spell cast would.
+	// issue.potion-potency: a brewed-in fixed potency (>=0) bypasses the caster's skill/stat roll (put in
+	// `dices` so CalcCastPotency == the stored potency; competence 0). Negative -> roll from the caster.
+	RollResult bcc_roll;
+	if (fixed_competence >= 0.0f) {
+		bcc_roll = RollResult{0, static_cast<double>(fixed_competence), 0.0, 0.0};
+	} else if (fixed_potency >= 0.0f) {
+		bcc_roll = RollResult{static_cast<int>(fixed_potency + 0.5f), 0.0, 0.0, 0.0};
+	} else {
+		bcc_roll = eval(spell.GetPotencyRoll());
+	}
 	ActionContext ctx(caster, spell_id, level, bcc_roll);
 	ctx.casting.insert(spell_id);  // seed the cast-chain loop guard
 	return ctx;

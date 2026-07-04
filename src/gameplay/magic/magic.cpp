@@ -4169,7 +4169,14 @@ bool RunCharEventTriggers(CharData *ch, const EventContext &event) {
 			ApplyMutatingAffectPatches(fired, ch, t,
 					[trig](const talents_actions::Action &a) { return a.GetTrigger().test(trig); });
 		}
-		ActionContext ctx = BuildActionContext(ch, ESpell::kUndefined, level);
+		// issue.vampirism-haste: a competence-based event action scales with the FIRING affect's stored
+		// potency (e.g. the on-kill kHaste is as strong as the vampirism that produced it). base="tag"
+		// actions (like the leech heal) read the event amount instead, so they are unaffected.
+		float aff_potency = 0.0f;
+		for (const auto &a : ch->affected) {
+			if (a && a->affect_type == t) { aff_potency = a->potency; break; }
+		}
+		ActionContext ctx = BuildActionContext(ch, ESpell::kUndefined, level, -1.0f, aff_potency);
 		ctx.UseExternalActions(&fired);   // inject the action list (RunRoomCycledAction reads it off ctx)
 		ctx.SetEvent(event);              // handlers (and propagated side-spell sub-ctxs) read this
 		if (!fired.empty()) {   // a remove/replace_all patch may have emptied the affect's own actions
