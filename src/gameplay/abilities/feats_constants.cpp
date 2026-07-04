@@ -167,6 +167,7 @@ void init_EFeat_ITEM_NAMES() {
 	EFeat_name_by_value[EFeat::kEmberTouch] = "kEmberTouch";   // issue.perk-action-patching
 	EFeat_name_by_value[EFeat::kEmberFury] = "kEmberFury";     // issue.perk-action-patching P2
 	EFeat_name_by_value[EFeat::kCinderburst] = "kCinderburst"; // issue.perk-action-patching P2
+	EFeat_name_by_value[EFeat::kPyromancer] = "kPyromancer";   // issue.perk-action-patching P1-selectors
 
 	for (const auto &i : EFeat_name_by_value) {
 		EFeat_value_by_name[i.second] = i.first;

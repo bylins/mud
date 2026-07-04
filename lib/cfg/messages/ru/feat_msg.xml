@@ -471,4 +471,7 @@
 	<msg_sheaf id="kCinderburst">
 		<name val="вспышка углей" />
 	</msg_sheaf>
+	<msg_sheaf id="kPyromancer">
+		<name val="пиромантия" />
+	</msg_sheaf>
 </feat_msg>

@@ -617,4 +617,20 @@
             </talent_patch>
         </talent_patches>
     </feat>
+    <!-- issue.perk-action-patching Phase 1 (selectors): a CLASS patch. element="kFire" AND
+         flag="kMagDamage" selects every fire damage spell at boot (no per-spell listing), appending a
+         kBurning DoT to each. Demonstrates element + flag AND-filtering resolved into the per-spell index. -->
+    <feat id="kPyromancer" mode="kTesting">
+        <talent_patches>
+            <talent_patch element="kFire" flag="kMagDamage" op="append">
+                <action target="kTarSame">
+                    <affects saving="kReflex" resist="kFire" potency_weight="0.5">
+                        <duration base="0" skill_divisor="6" min="2" max="6" />
+                        <charges max="4"/>
+                        <affect id="kBurning"/>
+                    </affects>
+                </action>
+            </talent_patch>
+        </talent_patches>
+    </feat>
 </feats>

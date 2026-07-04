@@ -486,6 +486,19 @@ static void ParseTalentPatches(FeatInfo &info, DataNode &node) {
 			if (const char *sv = pn.GetValue("spell"); sv && *sv) {
 				sp.target_spell = parse::ReadAsConstant<ESpell>(sv);
 			}
+			if (const char *ev = pn.GetValue("element"); ev && *ev) {
+				sp.element = parse::ReadAsConstant<EElement>(ev);
+			}
+			if (const char *bsk = pn.GetValue("base_skill"); bsk && *bsk) {
+				sp.base_skill = parse::ReadAsConstant<ESkill>(bsk);
+			}
+			if (const char *fv = pn.GetValue("flag"); fv && *fv) {
+				sp.flag_sel = static_cast<Bitvector>(parse::ReadAsConstant<EMagic>(fv));
+			}
+			if (const char *al = pn.GetValue("all"); al && *al
+					&& (strcmp(al, "true") == 0 || strcmp(al, "Y") == 0 || strcmp(al, "1") == 0)) {
+				sp.match_all = true;
+			}
 			const std::string op = (pn.GetValue("op") && *pn.GetValue("op")) ? pn.GetValue("op") : "append";
 			if      (op == "append")      { sp.op = EPatchOp::kAppend; }
 			else if (op == "insert")      { sp.op = EPatchOp::kInsert; }
@@ -503,6 +516,11 @@ static void ParseTalentPatches(FeatInfo &info, DataNode &node) {
 				sp.anchor_id = bef; sp.anchor_before = true;
 			} else if (const char *aft = pn.GetValue("after"); aft && *aft) {
 				sp.anchor_id = aft; sp.anchor_before = false;
+			}
+			if (!sp.HasSelector()) {
+				err_log("talent patch on feat [%s]: no selector (need spell/element/base_skill/flag/all).",
+						NAME_BY_ITEM<EFeat>(info.GetId()).c_str());
+				continue;
 			}
 			sp.payload.Build(pn);
 			info.talent_patches.push_back(std::move(sp));
@@ -602,6 +620,18 @@ static bool ValidatePatch(const spells::SpellInfo &spell, const TalentPatch &p, 
 	return true;
 }
 
+// issue.perk-action-patching (Phase 1): does a patch's selector match this spell? All present predicates
+// are AND-combined; an absent one is vacuously true. Evaluated once per (patch, spell) at boot only.
+static bool PatchMatchesSpell(const TalentPatch &p, const spells::SpellInfo &s) {
+	if (p.target_spell != ESpell::kUndefined && s.GetId() != p.target_spell) { return false; }
+	if (p.element != EElement::kUndefined && s.GetElement() != p.element) { return false; }
+	if (p.base_skill != ESkill::kUndefined
+			&& s.GetPotencyRoll().GetBaseSkill() != p.base_skill
+			&& s.GetSuccessRoll().GetBaseSkill() != p.base_skill) { return false; }
+	if (p.flag_sel != 0 && !s.IsFlagged(p.flag_sel)) { return false; }
+	return true;
+}
+
 void BuildTalentPatchIndex() {
 	for (auto sid = ESpell::kFirst; sid <= ESpell::kLast; ++sid) {
 		if (MUD::Spells().IsKnown(sid)) {
@@ -612,18 +642,37 @@ void BuildTalentPatchIndex() {
 	for (const auto &fi : MUD::Feats()) {
 		const EFeat fid = fi.GetId();
 		for (const auto &patch : fi.talent_patches) {
-			if (!MUD::Spells().IsKnown(patch.target_spell)) {
-				err_log("talent patch on feat [%s]: unknown target spell.", NAME_BY_ITEM<EFeat>(fid).c_str());
+			if (!patch.HasSelector()) {
+				err_log("talent patch on feat [%s]: no selector; skipped.", NAME_BY_ITEM<EFeat>(fid).c_str());
 				++dropped;
 				continue;
 			}
-			const spells::SpellInfo &spell = MUD::Spell(patch.target_spell);
-			if (!ValidatePatch(spell, patch, fid)) {
-				++dropped;
-				continue;
+			size_t matched = 0, applied = 0, skipped = 0;
+			auto consider = [&](const spells::SpellInfo &spell) {
+				if (!PatchMatchesSpell(patch, spell)) { return; }
+				++matched;
+				if (!ValidatePatch(spell, patch, fid)) { ++skipped; return; }
+				spell.talent_patches.push_back(spells::TalentPatchRef{fid, &patch});
+				++applied;
+			};
+			// Specific-spell selector -> O(1); a class selector -> one linear scan of all spells (boot only).
+			if (patch.target_spell != ESpell::kUndefined) {
+				if (MUD::Spells().IsKnown(patch.target_spell)) {
+					consider(MUD::Spell(patch.target_spell));
+				} else {
+					err_log("talent patch on feat [%s]: unknown target spell.", NAME_BY_ITEM<EFeat>(fid).c_str());
+				}
+			} else {
+				for (const auto &spell : MUD::Spells()) { consider(spell); }
 			}
-			spell.talent_patches.push_back(spells::TalentPatchRef{fid, &patch});
-			++linked;
+			linked += applied;
+			if (matched == 0) {
+				err_log("talent patch on feat [%s]: matched no spell.", NAME_BY_ITEM<EFeat>(fid).c_str());
+				++dropped;
+			} else if (matched > 1 || skipped > 0) {
+				log("issue.perk-action-patching: feat [%s] class patch matched %zu, applied %zu, skipped %zu.",
+					NAME_BY_ITEM<EFeat>(fid).c_str(), matched, applied, skipped);
+			}
 		}
 	}
 	log("issue.perk-action-patching: linked %zu talent patch(es), dropped %zu.", linked, dropped);

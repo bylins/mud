@@ -52,7 +52,19 @@ enum class EPatchOp { kAppend, kInsert, kReplace, kRemove, kAddEffect, kReplaceA
 
 struct TalentPatch {
 	enum class EScope { kCaster, kTarget };   // whose feat is tested (kTarget = future: the spell's victim)
-	ESpell target_spell{ESpell::kUndefined};
+	// Selector -- which spells this patch targets. All present predicates are AND-combined; an absent one
+	// is vacuously true. Resolved to concrete spells ONCE at boot (BuildTalentPatchIndex), so class
+	// selectors cost nothing at cast time. A patch with no selector at all is a load error (never global
+	// by accident -- use all="true" to mean every spell).
+	ESpell target_spell{ESpell::kUndefined};   // a specific spell
+	EElement element{EElement::kUndefined};    // every spell of this element
+	ESkill base_skill{ESkill::kUndefined};     // every spell whose potency OR success base skill matches
+	Bitvector flag_sel{0};                     // every spell carrying this EMagic flag (0 = unused)
+	bool match_all{false};                     // explicit opt-in: every spell
+	[[nodiscard]] bool HasSelector() const {
+		return target_spell != ESpell::kUndefined || element != EElement::kUndefined
+			|| base_skill != ESkill::kUndefined || flag_sel != 0 || match_all;
+	}
 	EPatchOp op{EPatchOp::kAppend};
 	EScope scope{EScope::kCaster};
 	std::string action_id;    // target block id (replace / remove / add_effect)
